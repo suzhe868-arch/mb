@@ -6,7 +6,7 @@
 
 执行：
 
-> **继续 PDM-01｜Batch 4：处理剩余 A11 / A12 / A13 / A16。**
+> **继续 PDM-01｜Batch 4：处理剩余 A13 / A16。**
 
 ## 已完成前置
 
@@ -24,8 +24,7 @@ CN11 原件已补回 21 份精选业务文档。执行 Batch 4 每个未决原�
 
 集中处理：
 
-- P01-A11｜Customer Merge 的 active/paused Demand Guard、permission/scope、显式确认等后续细节，当前上游原始证据缺口；
-- P01-A12｜Merge 后 surviving customer_id、owner/source/权益/未结束业务冲突；
+- P01-A11 / A12｜已关闭：用户明确取消 V1 Customer Merge，不再建设 Merge Guard、surviving customer_id 或跨 Customer 冲突合并规则；
 - P01-A13｜手机号变更保持原 Customer 的历史遗漏恢复；
 - P01-A14｜已确认：1 个主要手机号 + 0～多个其他联系电话；有权限员工可维护；CRM 手机号搜索覆盖全部号码；同号多客户全部返回、不自动 Merge；具体维护权限留 PDM-02；
 - P01-A16｜客户停用 / 注销完整生命周期。
