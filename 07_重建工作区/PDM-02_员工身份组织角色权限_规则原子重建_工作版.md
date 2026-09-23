@@ -88,17 +88,17 @@
 
 Decision Register：`PDM02-DEC-A16`。
 
-### P02-A17｜System Admin 权限来源 / 首次初始化｜用户确认补充
+### P02-A17｜System Admin 权限来源 / 首次初始化｜历史已确认，后被 A19 部分修正
 
-状态：`USER_CONFIRMED_NEW_CHANGE`
+状态：`SUPERSEDED_IN_PART_BY_P02-A19`
 
 - System Admin 的 P05 系统账号域权限，由其他 active System Admin 管理；
 - 必须始终保留至少 1 个 active System Admin；
 - 第一个 System Admin 由系统初始化 / bootstrap 建立，不从员工业务角色中产生；
-- System Admin 身份不授予员工业务 permission；
-- 同一真人若还需要 CRM / 车辆 / 价格 / Lock / Transaction 等业务权限，使用独立员工身份；
-- 该员工身份的角色、permission、data scope 由另一名具足够授权边界的 active 员工管理者在 P04 配置；
-- 禁止 System Admin 利用系统身份给自己的员工身份提权或绕过 P02-A10。
+- System Admin 身份本身不获得员工业务**执行权**；
+- 同一真人若还需要 CRM / 车辆 / 价格 / Lock / Transaction 等业务执行能力，使用独立员工身份；
+- **原“员工角色/permission/data scope 必须由另一名 active 员工管理者配置”的限制已被 P02-A19 修正：System Admin 可作为控制平面配置员工账号、角色、permission 与 data scope；**
+- System Admin 的配置权不得绕过产品级 hard DENY；System Admin 自身仍不能把“配置能力”当成业务执行能力。
 
 Decision Register：`PDM02-DEC-A17`。
 
@@ -132,7 +132,7 @@ Batch 3 仍须单独展示并等待用户确认。
 |---|---|---|---|
 | P02-A16 | “查看名邦内部价 / 批发价”恢复为独立 permission；名邦员工需具备该 permission + data scope + object state 才能查看；4S hard DENY | 2026-09-24 用户主动反转 9/19 R1 旧口径；已登记 PDM02-DEC-A16 | `USER_CONFIRMED_NEW_CHANGE` |
 | P02-A17 | System Admin 的 P05 权限由其他 active System Admin 管理；首个 Admin 由 bootstrap 初始化；员工业务权限只能通过独立员工身份由 P04 正常授权 | 2026-09-24 用户确认补充；9/19/IA 提供身份隔离与首次初始化边界；已登记 PDM02-DEC-A17 | `USER_CONFIRMED_NEW_CHANGE` |
-| P02-A18 | 一个 4S 成员账号直接代表一家合作 4S 店/合作主体；不建设 4S 店组织层级，不使用 cooperation scope。4S 账号的新增、启用、停用、基础资料维护及允许范围内的业务 permission 配置，由名邦后台具备相应管理权限的 active 内部管理人员执行；4S 成员本人不得管理其他 4S 账号；System Admin 身份不自动获得该业务管理能力；4S hard DENY 不得被后台授权绕过 | 用户主动简化 Phase1.5 D7 的 cooperation scope 表达，并与 P02-A06/A16/A17 对齐 | `USER_CONFIRMED_NEW_CHANGE` |
+| P02-A18 | 一个 4S 成员账号直接代表一家合作 4S 店/合作主体；不建设 4S 店组织层级，不使用 cooperation scope。4S 账号新增、启用、停用、基础资料及允许范围内业务 permission 配置由后台治理入口完成；4S 成员本人不得管理其他 4S 账号；4S hard DENY 不得被任何后台授权绕过。**管理主体按 P02-A19 修正为 System Admin 控制平面可直接治理4S账号及允许权限。** | 用户主动简化 Phase1.5 D7；后由 P02-A19 修正管理主体 | `USER_CONFIRMED_SUPERSEDED_IN_PART_BY_P02-A19` |
 
 ## 9. Batch 3 边界说明
 
@@ -163,13 +163,43 @@ Batch 3 仍须单独展示并等待用户确认。
 Batch 4 展示后必须停止等待用户确认。
 
 
+### P02-A19｜System Admin 控制平面治理权｜用户主动修正
+
+状态：`USER_CONFIRMED_NEW_CHANGE`
+
+2026-09-24 用户明确修正：
+
+- System Admin 是系统治理 / 控制平面账号；
+- System Admin 不进入接客池，不成为 Customer owner，不承担销售、CRM、车辆、Lock、Transaction 等业务执行责任；
+- 但 System Admin 拥有业务账号治理的最高配置能力，可在后台：
+  - 新增 / 启用 / 停用员工账号；
+  - 新增 / 启用 / 停用 4S 账号；
+  - 设置普通销售 / 经理 / 店长 / 4S 主角色；
+  - 任命 / 取消店长；
+  - 配置角色模板；
+  - 为员工授予 / 撤销系统允许的业务 permission；
+  - 设置 / 调整 data scope；
+  - 配置接客资格、接客状态及其他员工治理项；
+- System Admin 的“配置权”不等于“业务执行权”；
+- 同一真人若需要亲自执行业务，仍必须使用独立员工身份；
+- 产品级 hard DENY 不能被 System Admin 绕过，例如 4S 不得查看名邦内部价 / 批发价；
+- 所有角色、permission、data scope、账号状态等治理变更必须审计。
+
+本规则：
+- 部分修正 P02-A17；
+- 部分修正 P02-A18 的管理主体；
+- 不推翻 P02-A03/A04；
+- 不推翻 P02-B2-04，“System Admin 不自动拥有员工业务权限”应解释为“不自动拥有员工业务**执行权**”。
+
+Decision Register：`PDM02-DEC-A19`。
+
 ## 11. Batch 4｜冲突 / 历史遗漏 / 证据缺口 / 新选择
 
 | Atom | 问题 | 证据现状 | 当前候选方案 | 状态 |
 |---|---|---|---|---|
 | P02-B4-01 | 经理 / 店长的员工管理边界还没有完整冻结 | 9/19：经理可在授权团队做接客、交接、日常人员状态管理，但不能创建/管理店长；店长可在本店新增员工、在职/离职、普通销售↔经理、接客、数据范围。IA 又把 manager 的 employee deactivate/reinstate 解释为 CONDITIONAL，而不是职位自动拥有 | **候选：**经理默认不拥有完整员工账号生命周期权；只在具备对应员工管理 permission + 团队 data scope 时，执行下属接客、交接、人员状态类动作；店长拥有本店 P04 员工管理入口，可新增员工、处理在职/离职、普通销售↔经理、接客与数据范围。所有敏感业务 permission 仍独立授权 | `USER_REVIEW_PENDING` |
-| P02-B4-02 | 系统允许多个店长，但“谁能新增/任命/管理店长”存在死口 | 9/19 明确：同店可多个店长；经理不能创建/管理店长；店长现有边界只写普通销售↔经理；System Admin 又与员工业务体系分离 | **候选：**新增独立 `employee.store_manager.manage` 能力，仅允许 active 店长在其授权范围内管理其他店长；禁止自我提权/自改；首个店长由业务初始化/bootstrap 建立；计划停用最后一个 active 店长时应先指定替代 | `USER_REVIEW_PENDING` |
-| P02-B4-03 | 角色模板“实时默认”语义已存在，但完整默认 permission 种子从未真正冻结 | 9/19：模板新增/取消默认权限实时作用现有员工，个人明确授权/禁用继续覆盖；Phase1.5 CR-S4-C12：不得假装已经知道真实运行模板默认值 | **候选：**保留“角色模板实时默认”机制；模板变化实时影响同角色员工，个人 override/hard DENY 继续优先；若降权影响在办业务先交接。**但不在产品基线硬编码完整默认 permission 清单**，由 P04 后台角色模板配置；系统仅冻结 hard DENY 和最小角色边界 | `USER_REVIEW_PENDING` |
+| P02-B4-02 | 系统允许多个店长，但“谁能新增/任命/管理店长”存在死口 | 已由 P02-A19 关闭：System Admin 是控制平面，可设置员工主角色并直接任命/取消店长；其自身不因此获得店长业务身份 | **最终：**店长角色由 System Admin 治理入口配置；不新增“店长管理其他店长”的最高治理 permission；所有变更审计 | `USER_CONFIRMED_RESOLVED_BY_P02-A19` |
+| P02-B4-03 | 角色模板“实时默认”语义已存在，但完整默认 permission 种子从未真正冻结 | 9/19：模板新增/取消默认权限实时作用现有员工，个人明确授权/禁用继续覆盖；Phase1.5 CR-S4-C12：不得假装已经知道真实运行模板默认值；P02-A19 已明确 System Admin 是角色/权限治理控制平面 | **候选：**保留“角色模板实时默认”机制；模板由 System Admin 后台配置并实时影响同角色员工，个人 override/hard DENY 继续优先；若降权影响在办业务先交接。**产品基线不硬编码完整默认 permission 清单**，仅冻结 hard DENY 和最小角色边界 | `USER_REVIEW_PENDING` |
 | P02-B4-04 | 正常规则只阻止“主动关闭最后一名接客员工”，但异常情况下接客池仍可能被动变成 0 | CN11 DEC-039：极端池空不创建 responsible=null，不让 System Admin 兜底，只记录配置异常；PDM-01 A04 正常路径要求新客户自然注册立即从 active+eligible+accepting 池形成 owner | **候选：**正常操作继续禁止关闭/停用最后一名合格接客人；若因突发 inactive/资格失效导致池空，Customer 身份仍可建立，但进入 `owner_assignment_pending`/异常待分配，不创建无负责人正式人工业务，不用 System Admin/null 负责人；恢复可用接客池后自动重新尝试分配 owner，并记录告警/审计 | `USER_REVIEW_PENDING` |
 | P02-B4-05 | PDM-01 已明确“有权限员工可维护客户其他联系电话”，但具体 capability / 角色没有定义 | PDM-01 最终规则明确把“手机号维护具体角色/capability”留给 PDM-02；历史材料没有给出可直接继承的具体 permission | **候选：**新增独立 `customer.phone.manage`。active 名邦员工仅在具备该 permission 且 customer 在 data scope 内时，可新增/修改/失效“其他联系电话”；4S hard DENY；全部变更审计。该 permission **不默认允许改主要手机号**，主要手机号更换继续走客户正式授权/绑定规则 | `USER_REVIEW_PENDING` |
 | P02-B4-06 | 4S 是否默认进入 PC 业务后台，需要在 A18 新模型下重新确认 | 9/19 / IA：4S 默认不进入名邦 PC 业务后台；若明确授予车辆管理能力，仅看到本人有权 4S 车辆的 P02 裁剪投影。A18 已取消 cooperation scope 并明确一个 4S 账号直接代表一个合作主体 | **候选：**继续保持“4S 默认不进入 PC 业务后台”；若后台明确授予 4S 的 PC 车辆管理能力，只开放其本人账号对应 4S 车辆的 P02 裁剪能力；P04/P05/CRM/Lock/Transaction/内部价/一键转名邦继续 hard DENY | `USER_REVIEW_PENDING` |
@@ -187,8 +217,8 @@ Batch 4 展示后必须停止等待用户确认。
 
 ## 13. Batch 4 门禁
 
-当前 6 条均为 `USER_REVIEW_PENDING`：
+当前 B4-02 已由 P02-A19 用户确认关闭；剩余 5 条待审：
 
-> P02-B4-01 ～ P02-B4-06
+> P02-B4-01、P02-B4-03、P02-B4-04、P02-B4-05、P02-B4-06
 
 只有全部获得用户明确裁决后，才允许生成 PDM-02 最终完整规则总览。
