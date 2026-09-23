@@ -4,20 +4,24 @@
 
 ## 当前唯一优先动作
 
-> **审查 PDM-02｜Batch 3 唯一新增待审项 P02-A18。**
+> **准备 PDM-02｜Batch 4 冲突 / 历史遗漏 / 证据缺口 / 新选择。**
 
-## Batch 3 当前结果
+## 已完成
 
-- P02-A16：已确认——内部价 / 批发价恢复独立 permission，4S hard DENY；
-- P02-A17：已确认——System Admin 权限来源 / bootstrap 首次初始化；
-- P02-A18：待审——4S 账号管理 Actor / permission / cooperation scope。
+PDM-02：
 
-## P02-A18 候选
+- Batch 1：已完成；
+- Batch 2：已完成；
+- Batch 3：已完成；
+  - A16：内部价 / 批发价恢复独立 permission，4S hard DENY；
+  - A17：System Admin P05 权限来源 / bootstrap 首次初始化；
+  - A18：一个 4S 成员账号直接代表一家合作店/合作主体；不建设 4S 组织层级，不使用 cooperation scope；后台由具备相应管理权限的 active 内部管理人员统一管理账号与允许范围内的业务权限。
 
-> 4S 账号由具备“4S 成员管理权限”且 data scope / cooperation scope 覆盖对应合作范围的 active 经理或店长管理；System Admin 身份不自动获得该业务能力。同一真人如需管理 4S 成员，使用独立员工身份。
+## Batch 4 执行要求
 
-## 门禁
-
-只有用户明确确认或修改 P02-A18 后，才允许进入 Batch 4。
+1. 只处理仍未闭合的冲突、历史遗漏、证据缺口和需要用户新选择的规则；
+2. 优先检查经理/店长管理边界、角色模板、接客保护、员工维护客户手机号 capability、4S 默认入口/权限等尚未收口项；
+3. 不重复打开 Batch 1～3 已确认规则；
+4. Batch 4 清单展示后停止，等待用户确认。
 
 当前仍不修改 IA / Low-Fi / Engineering。
