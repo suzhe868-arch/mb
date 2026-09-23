@@ -27,7 +27,7 @@
   "archive_units_total": 224,
   "archive_units_mapped": 224,
   "current_domain": "PDM-01",
-  "current_task": "Rebuild PDM-01 Customer identity / WeChat / phone / profile / customer lifecycle at rule-atom level using the frozen six-step evidence method",
+  "current_task": "Resolve PDM01-D01 through PDM01-D04, then freeze the self-contained PDM-01 final business rules",
   "next_action_file": "NEXT_ACTION.md",
   "current_state_file": "CURRENT_PROJECT_STATE.md",
   "import_status_file": "IMPORT_STATUS.md",
@@ -52,5 +52,14 @@
     "00_先读/02_9月19日产品全域覆盖地图_未裁决版.md",
     "07_重建工作区/产品全域覆盖地图完整性校验报告_2026-09-23.md",
     "07_重建工作区/DECISION_REGISTER.md"
-  ]
+  ],
+  "current_domain_status": "NEEDS_DECISION",
+  "current_work_file": "07_重建工作区/PDM-01_客户身份规则原子重建_工作版.md",
+  "open_decisions": [
+    "PDM01-D01",
+    "PDM01-D02",
+    "PDM01-D03",
+    "PDM01-D04"
+  ],
+  "decision_register_status": "EMPTY_PENDING_USER_ADJUDICATION"
 }
