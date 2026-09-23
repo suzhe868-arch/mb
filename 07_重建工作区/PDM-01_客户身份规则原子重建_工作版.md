@@ -1,7 +1,7 @@
 # PDM-01｜客户身份 / 微信 / 手机号 / 资料 / 客户生命周期｜规则原子重建工作版
 
 > 日期：2026-09-23  
-> 状态：`USER_REVIEW_BATCH_4_PENDING`  
+> 状态：`FINAL_REVIEW_PENDING`  
 > 业务域：PDM-01  
 > 说明：本文件严格依据当前 GitHub 仓库证据重建，不使用旧聊天记忆替代证据；当前仍是工作版，不是最终产品业务基线。
 > **2026-09-23 用户全量审查门禁覆盖说明：** 本文件中任何“保留 / 稳定 / 建议保留 / 可直接保留”均仅代表模型证据分类，不代表用户已批准。P01-A01～A20 全部必须进入四批用户审查；未经用户明确确认，任何规则不得进入最终产品基线。
@@ -64,10 +64,10 @@
 | P01-A10 | V1 不再执行 Customer Merge，因此 Merge 后历史迁移/保留规则不再作为可执行产品能力；既有 Customer 各自历史继续按原 customer_id 独立保留 | 9/19 曾定义 Merge 历史保留 | 2026-09-24 用户取消 Merge 后该执行规则失去适用场景 | `SUPERSEDED_BY_NO_MERGE` | 不建设 Merge，不做跨 Customer 历史迁移 |
 | P01-A11 | Customer Merge Guard | 后续 IA 曾承载 active/paused Demand 阻断、permission/scope、显式确认 | 2026-09-24 用户已取消 V1 Customer Merge | `CANCELLED_NA` | 整项关闭，不再需要 Demand Guard / Merge permission / Merge confirm |
 | P01-A12 | Merge 后 surviving customer_id、owner/source/权益/活动业务冲突处理 | 9/19 曾提出但未完整定义 | 2026-09-24 用户已取消 V1 Customer Merge | `CANCELLED_NA` | 整项关闭；不存在 surviving customer_id 或跨 Customer 权益/业务合并 |
-| P01-A13 | 同一微信 Customer 更换手机号时仍使用原 customer_id；仅更新 current phone 并保留必要历史，owner/权益/已有业务不变 | 001～078 的逐字历史归档引用 DEC-057；9/19 R5 当前版未完整写回该细节，但不冲突 | Current/Low-Fi 无真实手机号更新链；9/22 未重新裁 | `PRE_919_OMISSION_CANDIDATE` | 强候选恢复；按方法要求需重新确认 |
+| P01-A13 | 手机号是可变联系方式而不是 Customer 身份；主要手机号更换或其他联系电话新增/修改/失效均继续使用原 customer_id，并保留必要历史；owner、来源、既有业务与权益不因手机号变化而迁移/重建 | CN11 DEC-057 / SSOT 与补回 R5 原件直接支持 | 2026-09-24 用户确认，并与 A14 多手机号管理规则组成统一体系 | `USER_CONFIRMED` | 已写入 PDM01-DEC-A13 |
 | P01-A14 | Customer 支持 1 个主要手机号 + 0～多个其他联系电话；首次需要手机号时通过微信小程序官方手机号能力完成有效绑定；后续有权限员工可新增/维护其他联系电话；CRM 手机号搜索覆盖全部已登记号码；同号命中多个 Customer 时全部返回且不得自动 Merge | CN11/R5 证明手机号是可变联系方式、换号不换 Customer；R10-15 证明 CRM 客户搜索支持手机号；但历史未证明多手机号或员工新增号码已冻结 | 2026-09-24 用户明确新增并确认；具体手机号维护角色权限留 PDM-02 | `USER_CONFIRMED_NEW_CHANGE` | 已写入 PDM01-DEC-A14；A13 的“换手机号身份连续性”仍单独待确认 |
 | P01-A15 | 客户停用/注销不物理删除业务历史；确认原客户后仍应沿用原身份而不是新建“历史清空”Customer | R5-14 明确；M01-003 一致 | IA CO-O01 继续表达“停用不删历史；确认身份可恢复” | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
-| P01-A16 | 停用/注销完整生命周期：谁能发起、客户是否自助注销、active Demand/Consultation/Lock/Transaction 怎么处理、owner/权益如何处理、恢复权限和状态 | 9/19 未冻结完整细节 | IA 只有摘要性 END/RECOVER，且 BUS-V4-022 与“确认身份可恢复”之间承载语义不够完整 | `HISTORICAL_UNRESOLVED` | 需用户裁决 |
+| P01-A16 | 客户可发起停用，授权后台人员可停用/恢复；有未结束 Demand/Consultation/Lock/Transaction 时阻断停用；停用不删身份/历史且禁止新增人工服务；owner/source 历史不清空；恢复沿用原 customer_id，不自动复活终止/过期业务与权益 | R5 原件确认停用不删历史与恢复原身份；细节原先未冻结 | 2026-09-24 用户确认采用 V1 最小闭环，跨域恢复细节留对应 PDM | `USER_CONFIRMED_NEW_CHANGE` | 已写入 PDM01-DEC-A16 |
 | P01-A17 | 头像/昵称不是硬门槛；跳过/拒绝不能阻断业务 | R10-56 明确 | IA/Low-Fi 原则承载，但 C-O01 使用 `completed profile` / `required avatar/nickname` 类措辞有误导风险 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
 | P01-A18 | 头像/昵称提醒：收藏成功可提醒一次；持续浏览最多每20分钟一次；每天最多10次；多触发合并一次；关键业务执行中不打断 | R10-56 明确，且明确覆盖旧“每天一次/第5、10台/30分钟/每天4次” | IA/Low-Fi 未完整下沉这组频控与 no-interrupt Guard | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
 | P01-A19 | 个人资料展示头像、昵称、手机号、我的顾问；打开资料页本身不分配销售 | R10-22 明确 | 无后续冲突 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
@@ -415,25 +415,17 @@ Decision Register：`PDM01-DEC-MERGE-CANCEL-001`。
 
 ### B4-03｜P01-A13｜换手机号仍保持原 Customer
 
-**R5 补回原件已经直接明确：**
+**状态：`USER_CONFIRMED`。**
 
-- 客户更换手机号，不新建 `customer_id`；
-- 不改变 current owner；
-- 不改变原始分享 / 转介绍来源。
+2026-09-24 用户确认：A13 与 A14 属于同一手机号体系。
 
-历史 DEC-057 进一步明确：
+- 手机号只是可变联系方式，不是 Customer 身份；
+- 主要手机号更换、其他联系电话新增/修改/失效，都继续使用原 `customer_id`；
+- 保留必要手机号历史与审计；
+- current owner、原始来源、Demand / Consultation / Lock / Transaction / 查价权益等既有业务关系不因手机号变化而迁移或重建；
+- 与 A14 的“一个主要手机号 + 多个其他联系电话”规则共同生效。
 
-- 更新 current phone；
-- 旧手机号保留必要历史；
-- Demand / Consultation / Lock / Transaction / price rights 等既有业务不因换号迁移或重建。
-
-Batch 2 已确认“换手机号新建 Customer”不得恢复。
-
-**待用户裁决：**
-
-> 是否正式确认 A13：同一 Customer 换手机号始终沿用原 `customer_id`；只更新当前手机号并保留变更历史；owner、来源和已有业务关系不因换号改变。
-
-**模型建议：确认。**
+Decision Register：`PDM01-DEC-A13`。
 
 ---
 
@@ -490,13 +482,24 @@ Decision Register：`PDM01-DEC-A14`。
 - 恢复时继续原 `customer_id`；不自动复活已经终止/过期的业务对象或权益；
 - 具体 Recommendation / 查价权益、Lock / Transaction 等跨域恢复行为，留对应 PDM 决定，PDM-01 只冻结“身份连续、不删历史、不静默复活”。
 
-**待用户裁决：**
+**状态：`USER_CONFIRMED`。**
 
-- A：采用上述 V1 最小闭环；
-- B：V1 不开放客户自助停用，只允许后台授权人员操作，其余原则相同；
-- C：另行修改。
+2026-09-24 用户明确同意方案 A，即采用上述 V1 最小闭环。
+
+Decision Register：`PDM01-DEC-A16`。
 
 ### Batch 4 当前门禁
 
-A11 / A12 已因用户明确取消 Customer Merge 而关闭；A14 已确认。当前仅剩 A13 / A16 待裁。两项全部获得用户明确裁决后，才允许进入 PDM-01 最终完整规则总览。
+A11 / A12 已因取消 Customer Merge 关闭；A13 / A14 / A16 均已由用户明确确认。Batch 4 门禁已通过，PDM-01 四批审查全部完成；下一步进入 PDM-01 最终完整规则总览，仍须用户再次批准后才能进入 PDM-02。
 
+
+
+## 12. Batch 4 门禁结果
+
+- A11 / A12：因用户明确取消 V1 Customer Merge，关闭为 N/A；
+- A13：已确认，手机号变化不改变 Customer 身份；
+- A14：已确认，多手机号管理 + 员工维护 + CRM 手机号搜索；
+- A16：已确认客户停用 / 恢复 V1 最小闭环；
+- Batch 4：`USER_CONFIRMED_COMPLETE`；
+- PDM-01 当前状态：`FINAL_REVIEW_PENDING`；
+- 下一步只允许生成 PDM-01 最终完整规则总览并交用户审查，不得直接进入 PDM-02。
