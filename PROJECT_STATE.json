@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-02",
-  "current_domain_status": "IN_REVIEW",
+  "current_domain_status": "USER_REVIEW_BATCH_1_PENDING",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Rebuild PDM-02 rule atoms from original evidence, prepare Batch 1 stable/consistent items, and stop for user review",
-  "current_work_file": null,
+  "current_task": "Present PDM-02 Batch 1 stable/consistent rule atoms and stop for user review",
+  "current_work_file": "07_重建工作区/PDM-02_员工身份组织角色权限_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -72,7 +72,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PREPARE_BATCH_1",
+  "current_review_batch": "BATCH_1_STABLE_CONSISTENT",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -156,5 +156,23 @@
   "pdm_01_final_rule_file": "07_重建工作区/PDM-01_最终完整规则.md",
   "completed_domains": [
     "PDM-01"
-  ]
+  ],
+  "pdm_02_batch_1_pending_atoms": [
+    "P02-A01",
+    "P02-A02",
+    "P02-A03",
+    "P02-A04",
+    "P02-A05",
+    "P02-A06",
+    "P02-A07",
+    "P02-A08",
+    "P02-A09",
+    "P02-A10",
+    "P02-A11",
+    "P02-A12",
+    "P02-A13",
+    "P02-A14",
+    "P02-A15"
+  ],
+  "pdm_02_batch_1_status": "PENDING_USER_REVIEW"
 }
