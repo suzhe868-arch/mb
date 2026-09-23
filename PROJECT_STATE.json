@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Prepare and present the complete PDM-01 final rule overview for user approval; do not move to PDM-02 until approved",
+  "current_task": "Await user final approval of 07_重建工作区/PDM-01_最终完整规则总览_待用户批准.md; do not move to PDM-02 before approval",
   "current_work_file": "07_重建工作区/PDM-01_客户身份规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -150,5 +150,7 @@
     "PDM01-DEC-A10",
     "PDM01-DEC-B2-02"
   ],
-  "batch_4_status": "COMPLETE_USER_CONFIRMED"
+  "batch_4_status": "COMPLETE_USER_CONFIRMED",
+  "final_overview_file": "07_重建工作区/PDM-01_最终完整规则总览_待用户批准.md",
+  "final_overview_status": "PENDING_USER_APPROVAL"
 }
