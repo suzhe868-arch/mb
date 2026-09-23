@@ -1,7 +1,7 @@
 # PDM-02｜员工身份 / 组织 / 角色 / 权限 / 数据范围 / System Admin / 4S 身份｜规则原子重建工作版
 
 > 日期：2026-09-24  
-> 状态：`USER_REVIEW_BATCH_2_PENDING`  
+> 状态：`BATCH_2_COMPLETE_PREPARE_BATCH_3`  
 > 说明：严格按当前 GitHub 原始证据重新重建，不使用旧聊天记忆替代证据。Batch 1 已完成；当前开放 Batch 2｜明确废弃 / 明确替代 / DO_NOT_RESTORE，未经用户确认不得进入 Batch 3。
 
 ## 1. 证据范围
@@ -57,20 +57,20 @@
 
 | Atom | 明确不得恢复的旧方向 | 当前替代规则 / 说明 | 证据 | 状态 |
 |---|---|---|---|---|
-| P02-B2-01 | 把“编辑非本人上传车辆”本身设置成一个独立敏感权限 | 是否可管理车辆由数据范围 + 当前车辆权限 + 对象状态决定，不再以“是不是本人上传”作为额外门槛 | 9/19 R1 §16 明确废弃；后续 IA 继续 no uploader-only rule | `USER_REVIEW_PENDING` |
+| P02-B2-01 | 把“编辑非本人上传车辆”本身设置成一个独立敏感权限 | 是否可管理车辆由数据范围 + 当前车辆权限 + 对象状态决定，不再以“是不是本人上传”作为额外门槛 | 9/19 R1 §16 明确废弃；后续 IA 继续 no uploader-only rule | `USER_CONFIRMED` |
 | P02-B2-02 | 名邦员工查看内部价 / 批发价必须额外拥有一个“内部价查看权限” | **该废弃候选已撤回。** 2026-09-24 用户主动恢复独立 permission；改由 P02-A16 生效：名邦员工需独立 permission 才能看内部价 / 批发价，4S hard DENY | 9/19 R1 为旧规则；本轮用户主动反转 | `WITHDRAWN_SUPERSEDED_BY_P02-A16` |
-| P02-B2-03 | 只要进入内部模式，就自动获得全部敏感操作权限 | 内部模式只是内部工具投影；编辑、电话、调价、覆盖价等继续逐项按身份/permission/scope/object state 校验 | 9/19 R1 §16；IA Deprecated；9/22 VR-E-002/007 | `USER_REVIEW_PENDING` |
+| P02-B2-03 | 只要进入内部模式，就自动获得全部敏感操作权限 | 内部模式只是内部工具投影；编辑、电话、调价、覆盖价等继续逐项按身份/permission/scope/object state 校验 | 9/19 R1 §16；IA Deprecated；9/22 VR-E-002/007 | `USER_CONFIRMED` |
 | P02-B2-04 | System Admin 自动拥有员工业务管理权 / 员工业务权限 | System Admin 为独立 P05 身份域；其系统权限由其他 active System Admin 管理；需要员工业务能力时必须切换独立员工身份并由 P04 正常授权，不得凭 System Admin 身份获得或给自己发员工业务权 | 9/19 R1 §3/§16；IA P05/CR-S4-C02；P02-A17 | `USER_CONFIRMED` |
-| P02-B2-05 | 建立“4S 店组织”层级 | 4S 成员为独立合作员工账号，不挂 4S 组织层级；合作范围由权限 / data scope 表达 | 9/19 R1 §4.2/§16；IA 废弃 4S 独立组织 IA | `USER_REVIEW_PENDING` |
-| P02-B2-06 | 同一员工同时挂多个正式主归属门店 | 名邦员工同一时刻只有一个主归属门店；跨店管理由 permission + data scope 解决 | 9/19 R1 §4.1/§16 | `USER_REVIEW_PENDING` |
-| P02-B2-07 | 员工可以给自己提权、扩大范围或通过中间人越级授权 | 禁止自提权 / 越级授权 / 中间人绕过；本人变更由另一名具足够授权边界的 active 管理者执行 | 9/19 R1 §6/§16；9/22 VR-P-014；IA CR-S4-C02 | `USER_REVIEW_PENDING` |
-| P02-B2-08 | 员工离职后重新入职时新建新的 `employee_id` | 确认同一真人后继续复用原 `employee_id`，重新授权，不自动拿回旧权限/客户/业务 | CN11 DEC-037 明确“禁止恢复：rehire 新建 employee_id”；9/19/IA 同向 | `USER_REVIEW_PENDING` |
-| P02-B2-09 | 普通销售 / 经理 / 店长 / 4S 角色变化时新建新的员工账号 | 角色变、人不变；继续同一 `employee_id`，只更新当前 role/permission/data scope | CN11 DEC-038 明确禁止恢复；9/19/IA 同向 | `USER_REVIEW_PENDING` |
-| P02-B2-10 | 员工当前角色变化后，把历史操作记录中的历史角色一起改成当前角色 | 历史操作保留事件发生当时的角色、门店和责任事实，不做历史回写 | CN11 DEC-038 被否决方案；9/19 R1 身份连续性同向 | `USER_REVIEW_PENDING` |
-| P02-B2-11 | 为 4S 成员建设独立 4S App / 独立 4S IA | 4S 成员共用员工端，由角色、权限和 data scope 裁剪 | CN11 DEC-002 + 全局 Superseded 附录；IA 废弃项继续确认 | `USER_REVIEW_PENDING` |
-| P02-B2-12 | 允许普通员工 / 经理 / 店长直接管理 System Admin 账号 | System Admin 账号只允许 active System Admin 管理 | CN11 DEC-069 明确“禁止恢复”；9/19 R1 §3；9/22 VR-P-017 | `USER_REVIEW_PENDING` |
-| P02-B2-13 | V1 再增加一层“超级管理员 / Owner”高于 System Admin | 不新增第二层管理员角色；System Admin 自身采用 active/inactive + 至少一名 active 的治理模型 | CN11 DEC-069 明确“禁止恢复：V1 新增超级管理员/Owner 第二层级”；后续无恢复 | `USER_REVIEW_PENDING` |
-| P02-B2-14 | 当接客池无人时，让 System Admin 临时兜底成为销售 / 客户负责人 | System Admin 不承担销售业务；接客池可用性由员工接客资格和运营保护解决，不用 System Admin 填业务权限缺口 | CN11 DEC-039 明确“禁止恢复：System Admin 兜底销售”；9/19/IA 坚持 System Admin 独立域 | `USER_REVIEW_PENDING` |
+| P02-B2-05 | 建立“4S 店组织”层级 | 4S 成员为独立合作员工账号，不挂 4S 组织层级；合作范围由权限 / data scope 表达 | 9/19 R1 §4.2/§16；IA 废弃 4S 独立组织 IA | `USER_CONFIRMED` |
+| P02-B2-06 | 同一员工同时挂多个正式主归属门店 | 名邦员工同一时刻只有一个主归属门店；跨店管理由 permission + data scope 解决 | 9/19 R1 §4.1/§16 | `USER_CONFIRMED` |
+| P02-B2-07 | 员工可以给自己提权、扩大范围或通过中间人越级授权 | 禁止自提权 / 越级授权 / 中间人绕过；本人变更由另一名具足够授权边界的 active 管理者执行 | 9/19 R1 §6/§16；9/22 VR-P-014；IA CR-S4-C02 | `USER_CONFIRMED` |
+| P02-B2-08 | 员工离职后重新入职时新建新的 `employee_id` | 确认同一真人后继续复用原 `employee_id`，重新授权，不自动拿回旧权限/客户/业务 | CN11 DEC-037 明确“禁止恢复：rehire 新建 employee_id”；9/19/IA 同向 | `USER_CONFIRMED` |
+| P02-B2-09 | 普通销售 / 经理 / 店长 / 4S 角色变化时新建新的员工账号 | 角色变、人不变；继续同一 `employee_id`，只更新当前 role/permission/data scope | CN11 DEC-038 明确禁止恢复；9/19/IA 同向 | `USER_CONFIRMED` |
+| P02-B2-10 | 员工当前角色变化后，把历史操作记录中的历史角色一起改成当前角色 | 历史操作保留事件发生当时的角色、门店和责任事实，不做历史回写 | CN11 DEC-038 被否决方案；9/19 R1 身份连续性同向 | `USER_CONFIRMED` |
+| P02-B2-11 | 为 4S 成员建设独立 4S App / 独立 4S IA | 4S 成员共用员工端，由角色、权限和 data scope 裁剪 | CN11 DEC-002 + 全局 Superseded 附录；IA 废弃项继续确认 | `USER_CONFIRMED` |
+| P02-B2-12 | 允许普通员工 / 经理 / 店长直接管理 System Admin 账号 | System Admin 账号只允许 active System Admin 管理 | CN11 DEC-069 明确“禁止恢复”；9/19 R1 §3；9/22 VR-P-017 | `USER_CONFIRMED` |
+| P02-B2-13 | V1 再增加一层“超级管理员 / Owner”高于 System Admin | 不新增第二层管理员角色；System Admin 自身采用 active/inactive + 至少一名 active 的治理模型 | CN11 DEC-069 明确“禁止恢复：V1 新增超级管理员/Owner 第二层级”；后续无恢复 | `USER_CONFIRMED` |
+| P02-B2-14 | 当接客池无人时，让 System Admin 临时兜底成为销售 / 客户负责人 | System Admin 不承担销售业务；接客池可用性由员工接客资格和运营保护解决，不用 System Admin 填业务权限缺口 | CN11 DEC-039 明确“禁止恢复：System Admin 兜底销售”；9/19/IA 坚持 System Admin 独立域 | `USER_CONFIRMED` |
 
 ### P02-A16｜内部价 / 批发价查看独立 permission｜用户主动新修改
 
@@ -115,8 +115,12 @@ Decision Register：`PDM02-DEC-A17`。
 
 ## 7. Batch 2 门禁
 
-P02-B2-02 已撤回并由 P02-A16 替代；P02-B2-04 已由用户确认。当前剩余待审：P02-B2-01、B2-03、B2-05～B2-14，共 12 条。
+P02-B2-02 已撤回并由 P02-A16 替代；P02-B2-04 已确认；P02-B2-01、B2-03、B2-05～B2-14 已全部确认。Batch 2 已完成。
 
-只有用户明确确认本批后，才允许进入：
+Batch 2：`COMPLETE_USER_CONFIRMED`。
+
+下一步允许准备：
 
 > PDM-02 Batch 3｜明确知情修改 / 后续明确新增。
+
+Batch 3 仍须单独展示并等待用户确认。
