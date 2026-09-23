@@ -14,8 +14,9 @@
 2. `CURRENT_PROJECT_STATE.md`
 3. `NEXT_ACTION.md`
 4. `PROJECT_STATE.json`
-5. `00_先读/01_产品基线重建执行规范_冻结工作版.md`
-6. `07_重建工作区/DECISION_REGISTER.md`
+5. `IMPORT_STATUS.md`
+6. `00_先读/01_产品基线重建执行规范_冻结工作版.md`
+7. `07_重建工作区/DECISION_REGISTER.md`
 
 不要使用旧聊天记忆替代仓库证据。
 
@@ -39,6 +40,13 @@
 
 - `00_先读/01_产品基线重建执行规范_冻结工作版.md`
 - `00_先读/02_9月19日产品全域覆盖地图_未裁决版.md`
+
+## 当前仓库导入状态
+
+- `CORE_READY / EVIDENCE_BULK_PENDING`
+- 当前已写入方法、全域地图、项目状态与重建工作台账；六类证据目录尚未完成整包导入。
+- 详见：`IMPORT_STATUS.md`。
+- 在证据整包导入前，不应仅凭当前仓库开始正式规则裁决。
 
 ## 当前状态
 
