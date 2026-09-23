@@ -14,7 +14,7 @@
 
 当前域状态：
 
-> `USER_REVIEW_BATCH_3_PENDING`
+> `IN_REVIEW`
 
 ## 已完成
 
@@ -48,23 +48,23 @@ PDM-01 已正式 `COMPLETE`，其最终规则文件为：
 
 > `07_重建工作区/PDM-01_最终完整规则.md`
 
-PDM-02 Batch 1、Batch 2 均已完成。Batch 3 已完成筛选：A16/A17 已确认，A18（4S 账号管理 Actor / permission / cooperation scope）为唯一新增待审项。工作版：`07_重建工作区/PDM-02_员工身份组织角色权限_规则原子重建_工作版.md`。
+PDM-02 Batch 1～3 均已完成。Batch 3 中 A16/A17/A18 全部确认；A18 明确一个 4S 成员账号直接代表一家合作店/合作主体，不建设 4S 组织层级、不使用 cooperation scope，账号及允许范围内业务权限由名邦后台具备相应管理权限的 active 内部管理人员统一管理。当前准备 Batch 4。工作版：`07_重建工作区/PDM-02_员工身份组织角色权限_规则原子重建_工作版.md`。
 
 ## 当前唯一下一步
 
-> **审查 PDM-02 Batch 3 唯一待审项 P02-A18。**
+> **准备 PDM-02 Batch 4｜冲突 / 历史遗漏 / 证据缺口 / 新选择清单。**
 
-PDM-02 Batch 3 当前为部分已确认：A16/A17 已确认，A18 待用户裁决。
+PDM-02 Batch 3 已正式完成；Batch 4 尚未展示或批准。
 
 A04/B2-01 冲突已于 2026-09-24 由用户知情裁决：**继续用 A04**。因此 A04 现在正式定义为对 R5 原件、9/19 CURRENT R5、R10-55、IA Current 旧“首次进入不立即形成 owner”规则的主动新修改；B2-01 继续有效。
 
-PDM-01 的 Batch 3 历史上已完成；该状态不代表当前 PDM-02 Batch 3 已完成。PDM-02 Batch 3 目前仅处于准备阶段。
+PDM-01 的 Batch 3 历史上已完成；该状态不代表当前 PDM-02 Batch 3 已完成。PDM-02 Batch 3 已完成，当前进入 Batch 4 准备阶段。
 
 ## 当前禁止事项
 
 - 不自动批准任何规则；
 - 不静默覆盖已确认 A04；
-- PDM-02 Batch 3 展示后必须停下等待用户确认；
+- PDM-02 Batch 4 展示后必须停下等待用户确认；
 - 不得自动批准任何尚未经过用户确认的 PDM-02 规则；
 - 不修改 IA / Low-Fi；
 - 不执行 Engineering Delta。
@@ -138,3 +138,8 @@ PDM-01 当前已完成 Batch 1～4，状态为 `FINAL_REVIEW_PENDING`。
 ## 2026-09-24｜PDM-02 Batch 2 完成
 
 用户明确确认 Batch 2 剩余 12 条全部同意。最终结果：B2-02 撤回并由 P02-A16 反转替代；B2-04 已确认；B2-01、B2-03、B2-05～B2-14 全部确认。Batch 2 状态：`COMPLETE_USER_CONFIRMED`。下一步准备 Batch 3，未经用户审查不得自动批准。
+
+
+## 2026-09-24｜PDM-02 Batch 3 完成
+
+用户确认 P02-A18：一个 4S 成员账号直接代表一家合作 4S 店/合作主体；不建设 4S 店组织层级，不使用 cooperation scope。4S 账号新增、启用、停用、基础资料及允许范围内业务 permission 配置由名邦后台具备相应管理权限的 active 内部管理人员统一处理；4S hard DENY 不得绕过。至此 A16/A17/A18 全部确认，Batch 3 状态：`COMPLETE_USER_CONFIRMED`。
