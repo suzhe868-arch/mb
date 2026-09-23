@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-01",
-  "current_domain_status": "USER_REVIEW_BATCH_4_PENDING",
+  "current_domain_status": "FINAL_REVIEW_PENDING",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Continue PDM-01 Batch 4 review for P01-A13 and P01-A16; Customer Merge has been cancelled by user decision",
+  "current_task": "Prepare and present the complete PDM-01 final rule overview for user approval; do not move to PDM-02 until approved",
   "current_work_file": "07_重建工作区/PDM-01_客户身份规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -53,7 +53,9 @@
     "P01-A18",
     "P01-A19",
     "P01-A20",
-    "P01-A14"
+    "P01-A14",
+    "P01-A13",
+    "P01-A16"
   ],
   "batch_1_confirmed_count": 15,
   "batch_1_pending_count": 0,
@@ -71,7 +73,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES",
+  "current_review_batch": "FINAL_DOMAIN_OVERVIEW",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -119,19 +121,16 @@
   "evidence_rebase_updates": {
     "P01-A11": "CLOSED_NA_CUSTOMER_MERGE_CANCELLED",
     "P01-A12": "CLOSED_NA_CUSTOMER_MERGE_CANCELLED",
-    "P01-A13": "UPGRADED_TO_DIRECT_R5_ORIGINAL_EVIDENCE",
+    "P01-A13": "RESOLVED_USER_CONFIRMED_PHONE_IDENTITY_CONTINUITY",
     "P01-A14": "RESOLVED_USER_CONFIRMED_NEW_MULTI_PHONE_AND_SEARCH_RULE",
-    "P01-A16": "R5_ORIGINAL_STRENGTHENS_CORE_BUT_DETAILS_REMAIN_OPEN"
+    "P01-A16": "RESOLVED_USER_CONFIRMED_DEACTIVATION_MINIMUM_CLOSURE"
   },
   "batch_3_new_unreviewed_atoms": 0,
   "batch_3_already_confirmed_hits": [
     "P01-A04",
     "P01-A07/VR-C-018"
   ],
-  "batch_4_pending_atoms": [
-    "P01-A13",
-    "P01-A16"
-  ],
+  "batch_4_pending_atoms": [],
   "recovered_cn11_evidence_root": "01_证据_A_9月19日产品业务锚点/前置历史原始证据_2026-09-17_CN11",
   "recovered_cn11_selected_markdown_count": 21,
   "recovered_cn11_status": "AVAILABLE_AS_HISTORICAL_ORIGINAL_EVIDENCE",
@@ -141,12 +140,15 @@
   "batch_4_confirmed_atoms": [
     "P01-A14",
     "P01-A11",
-    "P01-A12"
+    "P01-A12",
+    "P01-A13",
+    "P01-A16"
   ],
   "merge_policy": "DISABLED_V1_USER_CONFIRMED",
   "superseded_confirmed_decisions": [
     "PDM01-DEC-A09",
     "PDM01-DEC-A10",
     "PDM01-DEC-B2-02"
-  ]
+  ],
+  "batch_4_status": "COMPLETE_USER_CONFIRMED"
 }
