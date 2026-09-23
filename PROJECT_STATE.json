@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Present PDM-02 Batch 4 six unresolved conflict/omission/gap/new-choice atoms and stop for user review",
+  "current_task": "Continue PDM-02 Batch 4 review for remaining five atoms; B4-02 resolved by user-confirmed System Admin control-plane rule P02-A19",
   "current_work_file": "07_重建工作区/PDM-02_员工身份组织角色权限_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -211,11 +211,18 @@
   "pdm_02_batch_3_status": "COMPLETE_USER_CONFIRMED",
   "pdm_02_batch_4_pending_atoms": [
     "P02-B4-01",
-    "P02-B4-02",
     "P02-B4-03",
     "P02-B4-04",
     "P02-B4-05",
     "P02-B4-06"
   ],
-  "pdm_02_batch_4_status": "PENDING_USER_REVIEW"
+  "pdm_02_batch_4_status": "PARTIAL_USER_REVIEW",
+  "pdm_02_batch_4_confirmed_atoms": [
+    "P02-B4-02"
+  ],
+  "pdm_02_current_system_admin_rule": "P02-A19_CONTROL_PLANE_GOVERNANCE",
+  "pdm_02_superseded_in_part": [
+    "P02-A17",
+    "P02-A18"
+  ]
 }
