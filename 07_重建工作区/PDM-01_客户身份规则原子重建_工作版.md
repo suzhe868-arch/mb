@@ -60,10 +60,10 @@
 | P01-A06 | 手机号是人工服务硬门槛，但不是浏览/收藏门槛 | R10-11、M01-001 明确 | IA / C-O02 一致 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
 | P01-A07 | 无手机号触发授权；成功保存并自动继续原动作；拒绝/取消不创建正式人工服务对象 | R10-11 明确 | IA C-O02 Guard 一致；9/22 VR-C-018 仅要求界面保留“授权手机号/取消”，success resume 不画成按钮 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
 | P01-A08 | 同一手机号不能自动认定为同一 Customer，也不能自动 merge | R5-13 明确；M01-002/M01-004 前史一致 | 后续没有相反裁决 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
-| P01-A09 | 重复 Customer 只有确认属于同一自然人后才允许人工合并 | R5-13 明确 | IA 已出现 P06-01 Merge Flow，但“如何确认同一自然人”没有完整产品规则 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
-| P01-A10 | Merge 必须保留历史、来源与 owner 变化，不物理抹除旧记录 | R5-13 明确 | IA P06-01 要求 preserve source/owner/business history、immutable history | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
-| P01-A11 | Merge 时 active/paused Demand 阻断；处理后重验；actor 需 merge permission/scope；显式确认 | 9/19 R5 未明确这组细节 | 001～078 记载后续 D13；IA/Low-Fi 已施工该流程，但仓库缺少 IA_SOURCE_INDEX 所称的 `Phase1.5上游权威/` 原始七文件；9/22 冻结台账无此项 | `EVIDENCE_INCOMPLETE` | 不能仅凭 IA 自动升格；需要补原始裁决证据或用户重新确认 |
-| P01-A12 | Merge 后保留哪个 customer_id、冲突的 owner/source/权益/活动业务如何合并 | 9/19 只冻结“保留历史/来源/owner变化” | IA/Low-Fi 没有形成完整业务语义 | `HISTORICAL_UNRESOLVED` | 需用户裁决 |
+| P01-A09 | 不同 `customer_id` 始终保持独立 Customer；即使确认现实中属于同一自然人，V1 也不提供 Customer Merge / 账号合并 | CN11 2026-09-06 原规则本就主张 V1 不做正式 Merge；9/19 后曾恢复人工 Merge | 2026-09-24 用户再次主动修改，明确“两个账号就两个账号，不需要合并” | `USER_CONFIRMED_NEW_CHANGE` | `PDM01-DEC-MERGE-CANCEL-001` 覆盖此前 A09 旧裁决 |
+| P01-A10 | V1 不再执行 Customer Merge，因此 Merge 后历史迁移/保留规则不再作为可执行产品能力；既有 Customer 各自历史继续按原 customer_id 独立保留 | 9/19 曾定义 Merge 历史保留 | 2026-09-24 用户取消 Merge 后该执行规则失去适用场景 | `SUPERSEDED_BY_NO_MERGE` | 不建设 Merge，不做跨 Customer 历史迁移 |
+| P01-A11 | Customer Merge Guard | 后续 IA 曾承载 active/paused Demand 阻断、permission/scope、显式确认 | 2026-09-24 用户已取消 V1 Customer Merge | `CANCELLED_NA` | 整项关闭，不再需要 Demand Guard / Merge permission / Merge confirm |
+| P01-A12 | Merge 后 surviving customer_id、owner/source/权益/活动业务冲突处理 | 9/19 曾提出但未完整定义 | 2026-09-24 用户已取消 V1 Customer Merge | `CANCELLED_NA` | 整项关闭；不存在 surviving customer_id 或跨 Customer 权益/业务合并 |
 | P01-A13 | 同一微信 Customer 更换手机号时仍使用原 customer_id；仅更新 current phone 并保留必要历史，owner/权益/已有业务不变 | 001～078 的逐字历史归档引用 DEC-057；9/19 R5 当前版未完整写回该细节，但不冲突 | Current/Low-Fi 无真实手机号更新链；9/22 未重新裁 | `PRE_919_OMISSION_CANDIDATE` | 强候选恢复；按方法要求需重新确认 |
 | P01-A14 | Customer 支持 1 个主要手机号 + 0～多个其他联系电话；首次需要手机号时通过微信小程序官方手机号能力完成有效绑定；后续有权限员工可新增/维护其他联系电话；CRM 手机号搜索覆盖全部已登记号码；同号命中多个 Customer 时全部返回且不得自动 Merge | CN11/R5 证明手机号是可变联系方式、换号不换 Customer；R10-15 证明 CRM 客户搜索支持手机号；但历史未证明多手机号或员工新增号码已冻结 | 2026-09-24 用户明确新增并确认；具体手机号维护角色权限留 PDM-02 | `USER_CONFIRMED_NEW_CHANGE` | 已写入 PDM01-DEC-A14；A13 的“换手机号身份连续性”仍单独待确认 |
 | P01-A15 | 客户停用/注销不物理删除业务历史；确认原客户后仍应沿用原身份而不是新建“历史清空”Customer | R5-14 明确；M01-003 一致 | IA CO-O01 继续表达“停用不删历史；确认身份可恢复” | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
@@ -387,57 +387,29 @@ R5 原件还恢复了销售分享、老客户转介绍、原始来源与 current
 
 > 状态：`USER_REVIEW_PENDING`。本批只裁真正未决部分；Batch 1～3 已确认内容不重复裁。
 
-### B4-01｜P01-A11｜Customer Merge 的 Demand Guard / 权限 / 确认
+### B4-01 / B4-02｜P01-A11 + P01-A12｜Customer Merge 整体取消
 
-**已经确定：**
+**状态：`USER_CONFIRMED_NEW_CHANGE / CLOSED`。**
 
-- R5 原件已允许“确认属于同一自然人后人工合并”；
-- 同手机号不得自动 Merge；
-- Merge 必须保留历史、来源与 owner 变化；
-- 后续 IA Current / Navigation 已实际承载：任一侧有 active/paused Demand 时 blocked；先完成或取消 Demand，再重新校验；actor 需要 merge permission/scope；进入 MERGE_READY 后显式确认；合并历史 immutable。
+2026-09-24 用户明确裁决：
 
-**证据缺口：**
+- V1 不建设 Customer Merge；
+- 不论两个 Customer 是否手机号相同、是否疑似/确认属于同一自然人，只要是不同微信身份形成的不同 `customer_id`，就保持两个独立 Customer；
+- 不提供自动 Merge、人工 Merge、账号合并、手机号合并；
+- 不迁移、不合并两个 Customer 的 owner、来源、权益、Demand、Consultation、Lock、Transaction 等业务对象；
+- 一个手机号可以登记到多个 Customer；手机号搜索命中多个 Customer 时全部返回，仅作为检索/提示，不产生合并动作；
+- 同一自然人如果用多个微信账号形成多个 Customer，其客户等级、查价次数、Recommendation 等按各自 `customer_id` 独立计算；用户已明确接受这一结果。
 
-`IA_SOURCE_INDEX.md` 指向的 `Phase1.5上游权威/` 七份原始文件当前不在仓库，因此这些后续细节不能仅凭 IA 自动升格成最终业务规则。
+因此：
 
-**待用户裁决：**
+- A09 旧“确认同一自然人后允许人工 Merge”被主动覆盖；
+- A10 Merge 后历史迁移语义不再是可执行能力；
+- A11 Demand Guard / Merge permission / confirm 全部 N/A；
+- A12 surviving customer_id / owner/source/rights/business conflict 全部 N/A；
+- Batch 2 B2-02 被本次新裁决反向覆盖；
+- A08 / B2-03 的“同手机号不能自动 Merge”继续成立，但已被更强规则“V1 不存在任何 Merge”包含。
 
-- A：确认吸收当前 IA 的完整 Guard：active/paused Demand 阻断 + 处理后重验 + merge permission/scope + MERGE_READY + 显式确认 + immutable merge history；
-- B：只保留 R5 原件的“人工合并”原则，不吸收上述后续 Guard；
-- C：修改上述 Guard。
-
-**模型建议：A。** 这是对“受控人工 Merge”的必要保护，不改变已确认的 Merge 基本方向。
-
----
-
-### B4-02｜P01-A12｜Merge 后 surviving customer_id 与冲突处理
-
-**R5 原件已经确定：**
-
-- 合并后保留一个主 `customer_id`；
-- 原客户历史、原始来源、历史 owner 变化继续保留；
-- 两侧 current owner 不一致时，系统不得自动判断；由有权限经理 / 店长人工指定合并后的 current owner，并保留审计；
-- 不采用“创建更早 / 最近联系 / 金额更高”等自动 owner 抢归属规则。
-
-**仍未定义：**
-
-- 哪个 `customer_id` 成为 surviving customer_id；
-- source/referral 冲突如何展示；
-- customer 级权益如何处理；
-- 未结束 Consultation / Waitlist / Lock / Transaction / Refund 等业务对象如何关联；
-- 旧 customer_id 是否作为 historical alias / redirect 保留；
-- Merge 是否允许撤销。
-
-**待用户裁决的 PDM-01 身份层建议：**
-
-- surviving customer_id：系统保留**创建时间更早的 customer_id** 作为主 ID；另一 ID 永久保留为历史 alias，不删除；
-- owner 冲突：按 R5 原件，由有权限经理 / 店长人工指定；
-- source/referral：两侧历史全部保留，不互相覆盖；
-- 业务对象：不得因 Merge 自动取消、重建或丢失；统一关联到合并后的主 Customer，同时保留原 customer_id 历史映射；
-- customer 级权益：PDM-01 不自行做“相加/取最大/清零”，由对应权益域后续裁决；Merge 本身不得静默新增或剥夺权益；
-- Merge 默认不可普通撤销；若误合并，走专门纠错流程并保留完整审计，不直接“回滚删历史”。
-
-> 上述除 owner 冲突和历史保留外，均属于本轮新补充建议，必须由用户确认后才能成为规则。
+Decision Register：`PDM01-DEC-MERGE-CANCEL-001`。
 
 ---
 
@@ -526,5 +498,5 @@ Decision Register：`PDM01-DEC-A14`。
 
 ### Batch 4 当前门禁
 
-A14 已由用户明确确认。当前仍待裁：A11 / A12 / A13 / A16。四项全部获得用户明确裁决后，才允许进入 PDM-01 最终完整规则总览。
+A11 / A12 已因用户明确取消 Customer Merge 而关闭；A14 已确认。当前仅剩 A13 / A16 待裁。两项全部获得用户明确裁决后，才允许进入 PDM-01 最终完整规则总览。
 
