@@ -21,21 +21,20 @@
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
   "current_task": "Rebuild PDM-02 rule atoms from original evidence, prepare Batch 1 stable/consistent items, and stop for user review",
-  "current_work_file": "07_重建工作区/PDM-01_客户身份规则原子重建_工作版.md",
+  "current_work_file": null,
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
-    "Auto-approve any business rule",
-    "Skip a review batch",
-    "Use a prior summary as a substitute for original evidence",
-    "Generate PDM-01 final rules before four user-review batches complete",
-    "Move to PDM-02 before PDM-01 final overview is user-approved",
+    "Auto-approve any PDM-02 business rule",
+    "Skip any PDM-02 review batch",
+    "Use prior chat memory or summaries as a substitute for original evidence",
+    "Generate PDM-02 final rules before four user-review batches complete",
+    "Move to PDM-03 before PDM-02 final overview is user-approved",
+    "Silently override PDM-01 confirmed rules",
     "Modify IA",
     "Modify Low-Fi",
-    "Execute engineering Delta",
-    "Resume PDM-01 Batch 3 before recovered R5 evidence rebase",
-    "Silently override user-confirmed Batch 1/2 with recovered historical source"
+    "Execute engineering Delta"
   ],
   "confirmed_rule_atoms": [
     "P01-A01",
