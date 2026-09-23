@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-01",
-  "current_domain_status": "USER_REVIEW_BATCH_3_PENDING",
+  "current_domain_status": "EVIDENCE_REFRESH_REVIEW_REQUIRED_BEFORE_BATCH_3",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Present PDM-01 Batch 3 informed changes and explicit additions for full user review, then stop",
+  "current_task": "Rebase PDM-01 evidence against recovered original R5 before resuming Batch 3",
   "current_work_file": "07_重建工作区/PDM-01_客户身份规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -33,7 +33,9 @@
     "Move to PDM-02 before PDM-01 final overview is user-approved",
     "Modify IA",
     "Modify Low-Fi",
-    "Execute engineering Delta"
+    "Execute engineering Delta",
+    "Resume PDM-01 Batch 3 before recovered R5 evidence rebase",
+    "Silently override user-confirmed Batch 1/2 with recovered historical source"
   ],
   "confirmed_rule_atoms": [
     "P01-A01",
@@ -70,5 +72,22 @@
     "P01-B2-03",
     "P01-B2-04",
     "P01-B2-05"
+  ],
+  "recovered_evidence_root": "01_证据_A_9月19日产品业务锚点/补回原始证据_2026-09-24",
+  "recovered_phase1_sources": {
+    "R2": "NO_SEPARATE_BRANCH_FINAL_ARTIFACT_PER_USER_PROVENANCE",
+    "R3": "RECOVERED_ORIGINAL_FINAL_SUMMARY",
+    "R4": "RECOVERED_ORIGINAL_FINAL_SUMMARY",
+    "R5": "RECOVERED_ORIGINAL_FINAL_SUMMARY"
+  },
+  "r5_original_source_gap": "CLOSED",
+  "batch_3_status": "PAUSED_PENDING_EVIDENCE_REBASE",
+  "evidence_rebase_required_before_batch_3": true,
+  "evidence_rebase_focus": [
+    "P01-A04",
+    "P01-A13",
+    "Customer Merge details",
+    "phone identity continuity",
+    "owner/share/referral/handoff details"
   ]
 }
