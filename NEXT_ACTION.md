@@ -4,25 +4,20 @@
 
 ## 当前唯一优先动作
 
-> **准备 PDM-02｜Batch 3 明确知情修改 / 后续明确新增项。**
+> **审查 PDM-02｜Batch 3 唯一新增待审项 P02-A18。**
 
-## 已完成
+## Batch 3 当前结果
 
-PDM-02：
+- P02-A16：已确认——内部价 / 批发价恢复独立 permission，4S hard DENY；
+- P02-A17：已确认——System Admin 权限来源 / bootstrap 首次初始化；
+- P02-A18：待审——4S 账号管理 Actor / permission / cooperation scope。
 
-- Batch 1：15 条全部用户确认；
-- Batch 2：已完成；
-  - B2-02 撤回并由 P02-A16 反转替代；
-  - B2-04 单独确认；
-  - 其余 12 条全部确认；
-- P02-A17 System Admin 权限来源 / 首次初始化已确认。
+## P02-A18 候选
 
-## Batch 3 执行要求
+> 4S 账号由具备“4S 成员管理权限”且 data scope / cooperation scope 覆盖对应合作范围的 active 经理或店长管理；System Admin 身份不自动获得该业务能力。同一真人如需管理 4S 成员，使用独立员工身份。
 
-1. 只筛“后续明确知情修改 / 明确新增”；
-2. 不把普通稳定项、废弃项、冲突项或证据缺口混入；
-3. 优先识别 9/19 之后经用户明确调整的权限规则；
-4. 已在本轮确认的 P02-A16 / A17 要归入 Batch 3 已确认变化，不重复造规则；
-5. Batch 3 清单展示后停止，等待用户确认。
+## 门禁
+
+只有用户明确确认或修改 P02-A18 后，才允许进入 Batch 4。
 
 当前仍不修改 IA / Low-Fi / Engineering。
