@@ -1,7 +1,7 @@
 # PDM-01｜客户身份 / 微信 / 手机号 / 资料 / 客户生命周期｜规则原子重建工作版
 
 > 日期：2026-09-23  
-> 状态：`USER_REVIEW_BATCH_2_PENDING`  
+> 状态：`USER_REVIEW_BATCH_3_PENDING`  
 > 业务域：PDM-01  
 > 说明：本文件严格依据当前 GitHub 仓库证据重建，不使用旧聊天记忆替代证据；当前仍是工作版，不是最终产品业务基线。
 > **2026-09-23 用户全量审查门禁覆盖说明：** 本文件中任何“保留 / 稳定 / 建议保留 / 可直接保留”均仅代表模型证据分类，不代表用户已批准。P01-A01～A20 全部必须进入四批用户审查；未经用户明确确认，任何规则不得进入最终产品基线。
@@ -209,24 +209,24 @@
 - 证据不完整：P01-A11。
 - 需要真实产品裁决：P01-A12、A14、A16，并形成 D01～D04。
 - Decision Register 已写入 Batch 1 全部 15 条用户确认记录；这些规则从现在起共同作为后续 Batch 2～4 和相关 PDM 的当前有效约束。
-- PDM-01 状态：`USER_REVIEW_BATCH_2_PENDING`。
-- Batch 1 已完成并通过；下一步进入 Batch 2｜明确废弃 / 明确替代项审查。Batch 2 展示后必须再次停下等待用户确认；四批和最终总览均经用户确认前，不生成正式 PDM-01 最终规则，也不进入 PDM-02。
+- PDM-01 状态：`USER_REVIEW_BATCH_3_PENDING`。
+- Batch 1、Batch 2 均已完成并通过；下一步进入 Batch 3｜明确知情修改 / 后续明确新增项审查。Batch 3 展示后必须再次停下等待用户确认；四批和最终总览均经用户确认前，不生成正式 PDM-01 最终规则，也不进入 PDM-02。
 
 ## 一句话索引
 
-> PDM-01 Batch 1 已全部通过；15 条已确认规则现为后续审查约束，下一步只进入 Batch 2｜明确废弃 / 明确替代项，之后再处理 Batch 3、Batch 4 与最终总览。
+> PDM-01 Batch 1 与 Batch 2 已全部通过；15 条正向确认规则 + 5 条废弃/替代规则共同成为后续约束，下一步进入 Batch 3｜明确知情修改 / 后续明确新增项。
 
 ## 8. Batch 2｜明确废弃 / 明确替代 / DO_NOT_RESTORE｜用户审查清单
 
-> 状态：`USER_REVIEW_PENDING`。本节只记录待用户审查的废弃/替代项；未经用户确认，不写入 Decision Register。
+> 状态：`USER_CONFIRMED`。2026-09-24 用户明确确认“Batch 2 五项全部通过”；五项均已写入 Decision Register，并作为后续 Batch 3～4 的排除/替代约束持续继承。
 
 | ID | 旧规则 / 旧口径 | 当前替代 / 排除方向 | 原始证据结论 | 与 Batch 1 已确认规则关系 | 当前状态 |
 |---|---|---|---|---|---|
-| P01-B2-01 | 首次进入只建立 `customer_id`，不因首次进入形成 owner；普通浏览不是归属触发条件 | DO_NOT_RESTORE：改为已确认 A04——无优先归属来源时，自然注册完成后立即进入 active + eligible + accepting 接客池自动轮询形成唯一 current owner；直接转介绍优先由推荐人当时 current owner 承接 | 9/19 R5 §2 / R10-55 保留旧口径；IA Current 后续存在 `natural registration / auto-round-robin`；2026-09-24 用户已确认 A04 修正版 | 直接由 P01-A04 替代 | `USER_REVIEW_PENDING` |
-| P01-B2-02 | V1 不建设复杂 Customer Merge / 不做正式 Customer Merge | DO_NOT_RESTORE：允许受控人工 Merge；只有确认同一自然人后才允许合并，并保留历史/来源/owner变化；完整 Merge 细节留 Batch 4 | 001～078 M01-002 逐字保留 2026-09-06 旧规则；9/19 R5 §13 已明确“确认同一自然人后允许人工合并” | 与已确认 P01-A09/A10 一致，旧“完全不做 Merge”不得恢复 | `USER_REVIEW_PENDING` |
-| P01-B2-03 | 同手机号自动认定同一客户并自动 Merge | DO_NOT_RESTORE：相同手机号最多只能作为重复客户提示证据之一，不得自动 Merge / 改 owner / 搬历史 / 搬权益 | 001～078 M01-002 明确记录该旧口径当时已废弃；9/19 R5 §13 再次明确相同手机号不能自动合并 | 已确认 P01-A08/A09 | `USER_REVIEW_PENDING` |
-| P01-B2-04 | 换手机号时新建 Customer / 新 `customer_id` | DO_NOT_RESTORE：手机号是可变联系方式；同一微信 Customer 换号仍保持原 `customer_id`，旧号保留必要历史；具体怎么换绑留 Batch 4 | 001～078 M01-004 / M01-006 逐字保留 DEC-057，并明确禁止“换手机号新建 customer” | 不与 Batch 1 冲突；正向恢复规则 P01-A13 仍留 Batch 4 重新确认 | `USER_REVIEW_PENDING` |
-| P01-B2-05 | 头像/昵称旧提醒频控：每天最多一次；第5/10台车触发；30分钟冷却；每天最多4次 | DO_NOT_RESTORE：采用已确认 A18——收藏成功可提醒一次；持续浏览最多每20分钟一次；每日最多10次；多触发合并；关键业务中不打断 | 9/19 R10-56 原文明确“覆盖旧规则”；001～078 M01-005 再逐字保留“这些旧口径不得恢复” | 已确认 P01-A18 | `USER_REVIEW_PENDING` |
+| P01-B2-01 | 首次进入只建立 `customer_id`，不因首次进入形成 owner；普通浏览不是归属触发条件 | DO_NOT_RESTORE：改为已确认 A04——无优先归属来源时，自然注册完成后立即进入 active + eligible + accepting 接客池自动轮询形成唯一 current owner；直接转介绍优先由推荐人当时 current owner 承接 | 9/19 R5 §2 / R10-55 保留旧口径；IA Current 后续存在 `natural registration / auto-round-robin`；2026-09-24 用户已确认 A04 修正版 | 直接由 P01-A04 替代 | `USER_CONFIRMED` |
+| P01-B2-02 | V1 不建设复杂 Customer Merge / 不做正式 Customer Merge | DO_NOT_RESTORE：允许受控人工 Merge；只有确认同一自然人后才允许合并，并保留历史/来源/owner变化；完整 Merge 细节留 Batch 4 | 001～078 M01-002 逐字保留 2026-09-06 旧规则；9/19 R5 §13 已明确“确认同一自然人后允许人工合并” | 与已确认 P01-A09/A10 一致，旧“完全不做 Merge”不得恢复 | `USER_CONFIRMED` |
+| P01-B2-03 | 同手机号自动认定同一客户并自动 Merge | DO_NOT_RESTORE：相同手机号最多只能作为重复客户提示证据之一，不得自动 Merge / 改 owner / 搬历史 / 搬权益 | 001～078 M01-002 明确记录该旧口径当时已废弃；9/19 R5 §13 再次明确相同手机号不能自动合并 | 已确认 P01-A08/A09 | `USER_CONFIRMED` |
+| P01-B2-04 | 换手机号时新建 Customer / 新 `customer_id` | DO_NOT_RESTORE：手机号是可变联系方式；同一微信 Customer 换号仍保持原 `customer_id`，旧号保留必要历史；具体怎么换绑留 Batch 4 | 001～078 M01-004 / M01-006 逐字保留 DEC-057，并明确禁止“换手机号新建 customer” | 不与 Batch 1 冲突；正向恢复规则 P01-A13 仍留 Batch 4 重新确认 | `USER_CONFIRMED` |
+| P01-B2-05 | 头像/昵称旧提醒频控：每天最多一次；第5/10台车触发；30分钟冷却；每天最多4次 | DO_NOT_RESTORE：采用已确认 A18——收藏成功可提醒一次；持续浏览最多每20分钟一次；每日最多10次；多触发合并；关键业务中不打断 | 9/19 R10-56 原文明确“覆盖旧规则”；001～078 M01-005 再逐字保留“这些旧口径不得恢复” | 已确认 P01-A18 | `USER_CONFIRMED` |
 
 ### Batch 2 边界说明
 
