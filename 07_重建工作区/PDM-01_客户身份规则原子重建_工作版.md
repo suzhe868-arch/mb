@@ -43,7 +43,7 @@
 | P01-A01 | Customer 使用稳定 `customer_id`；手机号、头像、昵称不是唯一身份主键 | M01-001 历史原文明确；R5/R10 以微信身份创建/找到 customer_id | IA ACT-V4-001 / CO-O01 继续承载 | `STABLE_CONSISTENT` | 保留 |
 | P01-A02 | 首次进入：微信身份识别 → 创建/找到 customer_id → 直接进入 C01；不建设显式独立登录页 | R10-55 明确 | IA 首入 Action/State 一致 | `STABLE_CONSISTENT` | 保留 |
 | P01-A03 | 首次进入不要求手机号、头像、昵称，不阻挡普通浏览 | R10-55 明确 | IA 一致 | `STABLE_CONSISTENT` | 保留 |
-| P01-A04 | 建立 customer_id 不自动形成 owner；owner 只在有效归因/服务事件建立 | R5、R10-55 明确 | IA CO-O01 一致 | `STABLE_CONSISTENT` | 保留；Owner 细节归 PDM-03 |
+| P01-A04 | 首次进入建立/识别 customer_id 后进入归属判定：无有效分享/直接转介绍等优先归属来源时，进入自然注册自动轮询接客池并形成唯一 current owner；通过有效直接转介绍进入时，新客户记录直接推荐关系，并由推荐人事件发生时的 current owner 承接，不再参加普通自然注册轮询 | 9/19 R5/R10 写有“首次进入不自动分配 owner”，但 IA Current 后续明确存在 future natural registration / auto-round-robin；R5 §7 明确直接转介绍由 referrer 当时 current owner 承接 | 存在前后语义冲突，不能继续判稳定一致 | `USER_REVIEW_PENDING / CONFLICT_FOUND` | 按用户当前口径形成修正版候选；未经用户明确确认不得进入最终基线 |
 | P01-A05 | 微信身份识别失败可重试 | R10-55 明确 | IA BUS-V4-001 / CO-O01 一致；实际 Low-Fi 首入专门失败态承载不足 | `STABLE_CONSISTENT` | 业务保留；承载问题留后续 IA/Low-Fi 校准 |
 | P01-A06 | 手机号是人工服务硬门槛，但不是浏览/收藏门槛 | R10-11、M01-001 明确 | IA / C-O02 一致 | `STABLE_CONSISTENT` | 保留 |
 | P01-A07 | 无手机号触发授权；成功保存并自动继续原动作；拒绝/取消不创建正式人工服务对象 | R10-11 明确 | IA C-O02 Guard 一致；9/22 VR-C-018 仅要求界面保留“授权手机号/取消”，success resume 不画成按钮 | `STABLE_CONSISTENT` | 保留；9/22 仅作为视觉/Journey 修正 |
@@ -60,6 +60,23 @@
 | P01-A18 | 头像/昵称提醒：收藏成功可提醒一次；持续浏览最多每20分钟一次；每天最多10次；多触发合并一次；关键业务执行中不打断 | R10-56 明确，且明确覆盖旧“每天一次/第5、10台/30分钟/每天4次” | IA/Low-Fi 未完整下沉这组频控与 no-interrupt Guard | `STABLE_CONSISTENT` | 业务保留；后续进入 IA/Low-Fi Delta |
 | P01-A19 | 个人资料展示头像、昵称、手机号、我的顾问；打开资料页本身不分配销售 | R10-22 明确 | 无后续冲突 | `STABLE_CONSISTENT` | 保留；“我的顾问”关系细节归 PDM-03 |
 | P01-A20 | Customer 跨后续购车/找车/咨询保持同一身份；新一轮业务在原 Customer 下新建，不因新业务重建 Customer | Phase1 Merge 的 R6 部分明确 | 无后续冲突 | `STABLE_CONSISTENT` | 保留 |
+
+## 3.1 P01-A04 专项修正记录（待用户确认）
+
+本轮用户指出：客户第一次进入后实际应形成销售归属，而不是长期保持 owner 为空。回查仓库后发现：
+
+- 9/19 R5 / R10 写有“首次进入不自动分配 owner”；
+- 但 IA Current 明确存在 `future natural registration / auto-round-robin`，说明自然注册会进入自动接客分配；
+- R5 §7 明确：老客户直接转介绍产生的新客户，由推荐人事件发生时的 current owner 承接；
+- 因此旧 A04 的“首次进入不自动形成 owner”表述过度简化，遗漏了“身份建立后立即进入归属判定/自然注册自动轮询”的后续语义。
+
+当前修正版候选：
+
+> 新客户首次进入先通过微信身份建立/识别 `customer_id`。若不存在有效销售分享、直接转介绍等优先归属来源，则立即进入自然注册自动分配流程，从当前 active + eligible + accepting 的接客池中产生唯一 current owner。若通过有效直接转介绍进入，则记录直接推荐关系，并由推荐人事件发生时的 current owner 承接，不再参加普通自然注册轮询。
+
+注意：普通客户侧“转发车源”仍是 `SOURCE_ONLY`，不等同于正式“直接转介绍”，不能据此分配或改变 owner。
+
+状态：`USER_REVIEW_PENDING`。在用户明确确认前，不写入 Decision Register，也不作为最终基线。
 
 ## 4. 知情修改测试
 
