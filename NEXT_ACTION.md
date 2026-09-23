@@ -4,88 +4,69 @@
 
 ## 当前唯一优先动作
 
-执行：
+完成：
 
-> **PDM-01｜客户身份 / 微信 / 手机号 / 资料 / 客户生命周期｜规则原子重建。**
+> **PDM-01 的 4 项真实产品裁决。**
 
-全域覆盖地图完整性校验已经完成并 PASS，不再重复做第 0 阶段。
+证据重建已经完成，不再重复扫描 PDM-01 已稳定规则。
 
-## 固定证据顺序
+## 待裁决 1｜PDM01-D01｜手机号变化是否保持原 Customer
 
-### Step 1｜9/19 正向规则
+历史证据候选规则：
 
-重点读取：
+> 同一微信 Customer 更换手机号仍使用原 `customer_id`；只更新当前手机号并保留必要修改历史；owner、权益、Demand、Consultation、Lock、Transaction 等已有业务不因换号重建或迁移。
 
-- R5｜客户注册 / 归属 / 分享 / 转介绍 / 离职交接；
-- R7｜Recommendation / 分享 / 咨询 / 客户解锁中涉及 Customer 身份边界；
-- R10｜客户端首次进入、手机号门槛、个人资料、客户生命周期相关规则；
-- Phase1 Final Merge 对 Customer 的最终承接。
+需要裁决：
 
-### Step 2｜向前 HISTORY
+- `CONFIRM_RESTORE`
+- `MODIFY`
+- `REJECT`
 
-只为确认：
+## 待裁决 2｜PDM01-D02｜手机号换绑方式
 
-- 9/19 是否遗漏更完整定义；
-- 同一微信客户与手机号关系；
-- 重复 Customer / 合并边界；
-- 停用 / 注销 / 恢复身份；
-- 头像昵称提醒与关键业务不中断；
-- 是否存在明确废弃规则。
+可选业务方向：
 
-### Step 3｜001～078 雷达
+- A｜仅允许微信手机号授权更新；
+- B｜允许输入其他手机号，并使用短信验证码验证；
+- C｜客户不开放自助换绑，仅授权后台人员处理；
+- D｜用户明确的其他方案。
 
-固定读取 M01 的 6 个单元：
+不得由 IA / Low-Fi 自行决定。
 
-- M01-001～M01-006。
+## 待裁决 3｜PDM01-D03｜Customer Merge 完整语义
 
-旧 `STILL_VALID / SUPERSEDED / HISTORICAL_RULE_LOSS` 等判断一律不直接继承。
+9/19 已确认：
 
-### Step 4｜9/19 → 9/22 后续扫描
+- 同手机号不能自动 merge；
+- 只有确认属于同一自然人后才允许人工合并；
+- 合并必须保留历史、来源与 owner 变化。
 
-必须同时核对：
+仍需补齐：
 
-- 9/22 冻结台账；
-- IA V5 / Current；
-- 实际 Low-Fi；
-- 工程总闭环待执行 Delta。
+1. 疑似重复 Customer 如何进入人工合并候选；
+2. 是否正式吸收 IA 当前的 active/paused Demand 阻断、merge permission/scope、显式确认；
+3. 合并后保留哪个 customer_id；
+4. 双方 owner / source / 权益 / 未结束业务冲突如何处理。
 
-### Step 5｜知情修改测试
+## 待裁决 4｜PDM01-D04｜客户停用 / 注销生命周期
 
-后续规则只要与 9/19 / 更早稳定规则不同，必须判定：
+已确认原则：
 
-- `POST_919_INFORMED_CHANGE_CANDIDATE`
-- 或 `POST_919_UNINFORMED_CONFLICT`
+- 不物理删除业务历史；
+- 重新确认原客户后不能制造新的“历史清空”Customer。
 
-不能因为时间更晚或标记 FROZEN 就自动覆盖旧规则。
+仍需补齐：
 
-### Step 6｜形成候选规则原子
+1. 客户是否可以自助注销；
+2. 后台谁可停用 / 恢复；
+3. active Demand / Consultation / Lock / Transaction 存在时如何处理；
+4. 停用后浏览、人工服务、owner、Recommendation / 查价权益如何处理；
+5. 恢复后哪些关系恢复、哪些只保留历史。
 
-每个规则原子只能进入：
+## 裁决完成后的自动动作
 
-- `STABLE_CONSISTENT`
-- `PRE_919_OMISSION_CANDIDATE`
-- `POST_919_INFORMED_CHANGE_CANDIDATE`
-- `POST_919_UNINFORMED_CONFLICT`
-- `IA_LOWFI_ONLY`
-- `HISTORICAL_UNRESOLVED`
-- `EVIDENCE_INCOMPLETE`
+用户完成 D01～D04 后：
 
-## 本轮输出要求
+> 更新 Decision Register → 生成 PDM-01 最终自包含规则 → PDM-01 标记 COMPLETE → 同步 CURRENT_PROJECT_STATE / NEXT_ACTION / PROJECT_STATE → 再进入 PDM-02。
 
-生成 PDM-01 的重建工作文件，至少包含：
-
-- 规则原子清单；
-- 前史 → 9/19 → 9/22/IA/Low-Fi/Delta 的证据链；
-- 稳定一致项；
-- 真正遗漏项；
-- 后续变化项；
-- 知情修改测试结果；
-- NEEDS_DECISION 项；
-- 暂定最终规则骨架。
-
-## 当前不要做
-
-- 不直接修改 Decision Register，除非已经形成新的真实用户裁决；
-- 不施工 IA / Low-Fi / Engineering；
-- 不提前进入 PDM-02；
-- 不把页面现状反向当作产品规则。
+当前不要施工 IA / Low-Fi / Engineering。
