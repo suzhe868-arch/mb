@@ -1,8 +1,8 @@
 # PDM-03｜Owner / 来源归因 / 分享注册 / 转介绍 / 接客 / 离职交接｜规则原子重建工作版
 
 > 日期：2026-09-24  
-> 状态：`USER_REVIEW_BATCH_2_PENDING`  
-> 说明：严格按当前 GitHub 原始证据重新重建，不使用旧聊天记忆替代证据。PDM-01、PDM-02 已正式 COMPLETE；PDM-03 Batch 1 已用户确认，当前开放 Batch 2｜明确废弃 / 明确替代 / DO_NOT_RESTORE，共 9 条，未经用户确认不得进入 Batch 3。
+> 状态：`USER_REVIEW_BATCH_3_PENDING`  
+> 说明：严格按当前 GitHub 原始证据重新重建，不使用旧聊天记忆替代证据。PDM-01、PDM-02 已正式 COMPLETE；PDM-03 Batch 1、Batch 2 已用户确认，当前开放 Batch 3｜明确知情修改 / 后续明确新增，共 3 条，未经用户确认不得进入 Batch 4。
 
 ## 1. 证据范围
 
@@ -65,15 +65,15 @@ Batch 2 展示后必须停止等待用户确认。
 
 | Atom | 明确不得恢复的旧方向 | 当前替代规则 / 理由 | 证据 | 状态 |
 |---|---|---|---|---|
-| P03-B2-01 | “Customer 首次进入只建立 customer_id，不形成 owner；等首次人工服务事件再分配 owner” | **不得恢复。** 2026-09-24 已由 PDM-01 主动改为：无有效销售分享 / 直接转介绍等优先归属来源时，新 Customer 建立 / 识别后立即进入 active + eligible + accepting 接客池自动轮询形成唯一 current owner | R5 原件/9-19/旧 IA 为旧口径；PDM-01 P01-A04 + PDM01-DEC-R5-REB-001 已明确覆盖 | `USER_REVIEW_PENDING` |
-| P03-B2-02 | 最后点击的销售分享链接覆盖已经存在的 current owner / “最后分享者抢客” | **不得恢复。** 已有 owner 的客户点击其他员工分享，只新增来源/触达事实，不改变 owner | CN11 DEC-011 Superseded；9/19 R5 §15；P03-A03 | `USER_REVIEW_PENDING` |
-| P03-B2-03 | 把原始来源、来源销售与 current owner 合成同一个事实；owner 变化后把新 owner 反写成原始来源 | **不得恢复。** 来源事实与 owner 分离保存，owner 可合法变化但不能改写历史来源 | 9/19 R5 §6/§15；R5 原件 §8/§21；P03-A02 | `USER_REVIEW_PENDING` |
-| P03-B2-04 | 老客户产生新转介绍时永远跟随其历史 owner / 最初销售 | **不得恢复。** 明确直接转介绍按事件发生时推荐人的 current owner 承接；历史 owner 不覆盖当前正式 owner | CN11 DEC-011 Superseded；9/19 R5 §7/§15；P03-A05 | `USER_REVIEW_PENDING` |
-| P03-B2-05 | 员工关闭接客或短期休假后，自动把其已有客户全部转走 | **不得恢复。** 关闭接客只退出未来自然轮询；已有客户保持原 owner，除非发生正式移交、公海、离职交接等明确事件 | R5 原件 §9/§10/§21；9/19 R5 §8/§15；P03-A07 | `USER_REVIEW_PENDING` |
-| P03-B2-06 | inactive / 离职员工继续承接新的 Customer owner | **不得恢复。** 离职/失去资格后只能保留历史来源与历史贡献；新客户必须交给合法接替人或当前合格接客规则 | 9/19 R5 §9/§15；R5 原件 §13；P03-A08 | `USER_REVIEW_PENDING` |
-| P03-B2-07 | 普通销售可以自行抢走、直接修改其他销售的 Customer owner | **不得恢复。** 正式 owner 移交 / 冲突仲裁必须由有权限且 data scope 覆盖的管理者执行并留审计 | R5 原件 §11/§12/§21；P03-A12 | `USER_REVIEW_PENDING` |
-| P03-B2-08 | Customer owner 一变化，就自动把 Demand / Consultation / Waitlist / Lock / Transaction 等全部业务负责人一起改成新 owner | **不得恢复。** Customer owner 与具体业务负责人分层；普通 owner change 不自动漂移已固化负责人，确需调整必须正式 reassignment 并保留历史 | CN11 DEC-033 Superseded；SSOT §8.1；P03-A09 | `USER_REVIEW_PENDING` |
-| P03-B2-09 | 建设多级转介绍客户归属、返佣 / 奖励 / 积分 / 裂变等级体系 | **V1 不采用，不得作为当前 owner 规则恢复。** 只保存直接推荐关系及必要来源事实；A→B→C 只认相邻直接推荐关系 | R5 原件 §16/§21；CN11 SSOT §8.3；P03-A06 | `USER_REVIEW_PENDING` |
+| P03-B2-01 | “Customer 首次进入只建立 customer_id，不形成 owner；等首次人工服务事件再分配 owner” | **不得恢复。** 2026-09-24 已由 PDM-01 主动改为：无有效销售分享 / 直接转介绍等优先归属来源时，新 Customer 建立 / 识别后立即进入 active + eligible + accepting 接客池自动轮询形成唯一 current owner | R5 原件/9-19/旧 IA 为旧口径；PDM-01 P01-A04 + PDM01-DEC-R5-REB-001 已明确覆盖 | `USER_CONFIRMED` |
+| P03-B2-02 | 最后点击的销售分享链接覆盖已经存在的 current owner / “最后分享者抢客” | **不得恢复。** 已有 owner 的客户点击其他员工分享，只新增来源/触达事实，不改变 owner | CN11 DEC-011 Superseded；9/19 R5 §15；P03-A03 | `USER_CONFIRMED` |
+| P03-B2-03 | 把原始来源、来源销售与 current owner 合成同一个事实；owner 变化后把新 owner 反写成原始来源 | **不得恢复。** 来源事实与 owner 分离保存，owner 可合法变化但不能改写历史来源 | 9/19 R5 §6/§15；R5 原件 §8/§21；P03-A02 | `USER_CONFIRMED` |
+| P03-B2-04 | 老客户产生新转介绍时永远跟随其历史 owner / 最初销售 | **不得恢复。** 明确直接转介绍按事件发生时推荐人的 current owner 承接；历史 owner 不覆盖当前正式 owner | CN11 DEC-011 Superseded；9/19 R5 §7/§15；P03-A05 | `USER_CONFIRMED` |
+| P03-B2-05 | 员工关闭接客或短期休假后，自动把其已有客户全部转走 | **不得恢复。** 关闭接客只退出未来自然轮询；已有客户保持原 owner，除非发生正式移交、公海、离职交接等明确事件 | R5 原件 §9/§10/§21；9/19 R5 §8/§15；P03-A07 | `USER_CONFIRMED` |
+| P03-B2-06 | inactive / 离职员工继续承接新的 Customer owner | **不得恢复。** 离职/失去资格后只能保留历史来源与历史贡献；新客户必须交给合法接替人或当前合格接客规则 | 9/19 R5 §9/§15；R5 原件 §13；P03-A08 | `USER_CONFIRMED` |
+| P03-B2-07 | 普通销售可以自行抢走、直接修改其他销售的 Customer owner | **不得恢复。** 正式 owner 移交 / 冲突仲裁必须由有权限且 data scope 覆盖的管理者执行并留审计 | R5 原件 §11/§12/§21；P03-A12 | `USER_CONFIRMED` |
+| P03-B2-08 | Customer owner 一变化，就自动把 Demand / Consultation / Waitlist / Lock / Transaction 等全部业务负责人一起改成新 owner | **不得恢复。** Customer owner 与具体业务负责人分层；普通 owner change 不自动漂移已固化负责人，确需调整必须正式 reassignment 并保留历史 | CN11 DEC-033 Superseded；SSOT §8.1；P03-A09 | `USER_CONFIRMED` |
+| P03-B2-09 | 建设多级转介绍客户归属、返佣 / 奖励 / 积分 / 裂变等级体系 | **V1 不采用，不得作为当前 owner 规则恢复。** 只保存直接推荐关系及必要来源事实；A→B→C 只认相邻直接推荐关系 | R5 原件 §16/§21；CN11 SSOT §8.3；P03-A06 | `USER_CONFIRMED` |
 
 ## 6. Batch 2 边界说明
 
@@ -82,12 +82,38 @@ Batch 2 展示后必须停止等待用户确认。
 - 接客池异常为空时的 `owner_assignment_pending` 是 PDM-02 后续新增异常闭环，留 Batch 3。
 - Customer Merge 已由 PDM-01 取消，PDM-03 不重复审。
 
-## 7. Batch 2 门禁
+## 7. Batch 2 门禁结果
 
-当前 P03-B2-01～P03-B2-09 全部为：
+- P03-B2-01～P03-B2-09：`USER_CONFIRMED`
+- Batch 2：`COMPLETE_USER_CONFIRMED`
+- Decision Register：`PDM03-DEC-B2-01`～`PDM03-DEC-B2-09` + `PDM03-GATE-B2`
+
+下一步开放：
+
+> **PDM-03 Batch 3｜明确知情修改 / 后续明确新增**
+
+
+## 8. Batch 3｜明确知情修改 / 后续明确新增
+
+| Atom | 当前候选规则 | 修改 / 新增来源 | 状态 |
+|---|---|---|---|
+| P03-A14 | **自然注册立即形成 owner。** 新 Customer 建立 / 识别 `customer_id` 后，若没有有效员工分享、明确直接转介绍等更高优先归属来源，则立即进入当前 `active + eligible + accepting` 接客池自动轮询，形成唯一 `current owner`；有效直接转介绍优先于普通自然轮询 | 2026-09-24 PDM-01 P01-A04 / PDM01-DEC-R5-REB-001 主动覆盖 R5/9-19/旧 IA“首次进入不立即形成 owner” | `USER_REVIEW_PENDING` |
+| P03-A15 | **普通客户侧车辆转发与“直接转介绍”彻底分离。** 普通客户把车辆/页面分享给别人只记录 `SOURCE_ONLY` 来源/触达事实，不据此给新客户分配 owner，也不改变已有 owner；只有明确触发“直接转介绍”业务事件时，才记录 referrer 并由 referrer 在事件发生时的 current owner 承接 | PDM-01 P01-A04 明确新边界；IA V2/current 已有 SOURCE_ONLY / direct referral 分拆承载；主动纠正旧 R5 把老客户普通分享直接当转介绍的过宽解释 | `USER_REVIEW_PENDING` |
+| P03-A16 | **接客池异常为空的 owner 兜底闭环。** 正常操作仍必须保留至少 1 名 `active + eligible + accepting` 合格接客员工；若因突发 inactive / 资格失效等导致池被动为 0，新 Customer 身份仍可建立，但在没有其他优先归属来源时进入 `owner_assignment_pending`；不得用 System Admin 或 `responsible=null` 作为正式负责人；不得创建无负责人正式人工服务对象；接客池恢复后自动重试 owner 分配，并对池空/待分配/恢复/补分留告警与审计 | 2026-09-24 PDM-02 §10.1 用户确认新增异常闭环，在 CN11 旧“池空报错/不建正式对象”基础上补齐 owner_assignment_pending 与自动恢复 | `USER_REVIEW_PENDING` |
+
+## 9. Batch 3 边界说明
+
+- P03-A14 不重新讨论 PDM-01 已冻结的 Customer 身份规则，只在 PDM-03 承接 owner 产生语义。
+- P03-A15 只拆分“普通客户转发”和“明确直接转介绍”；Recommendation / 分享后的逐车授权仍留 PDM-14。
+- P03-A16 只定义 owner / 接客池异常闭环；具体人工服务对象的生命周期仍由对应 PDM 决定。
+- 普通销售 / 经理 / 店长是否可参与接客、4S / System Admin 是否进入接客池，已在 PDM-02 正式冻结；如本域最终总览需要承接，只引用，不重开裁决。
+
+## 10. Batch 3 门禁
+
+当前 P03-A14～P03-A16 全部为：
 
 > `USER_REVIEW_PENDING`
 
 只有用户明确确认本批后，才允许进入：
 
-> **PDM-03 Batch 3｜明确知情修改 / 后续明确新增**
+> **PDM-03 Batch 4｜冲突 / 历史遗漏 / 证据缺口 / 新选择**
