@@ -4,29 +4,27 @@
 
 ## 当前唯一优先动作
 
-> **展示并审查 PDM-03｜Batch 1 十三条稳定一致项。**
+> **展示并审查 PDM-03｜Batch 2 九条明确废弃 / 替代 / DO_NOT_RESTORE。**
 
 ## 当前状态
 
 - PDM-01：`COMPLETE`
 - PDM-02：`COMPLETE`
-- PDM-03：`USER_REVIEW_BATCH_1_PENDING`
+- PDM-03 Batch 1：`COMPLETE_USER_CONFIRMED`
+- PDM-03 Batch 2：`USER_REVIEW_PENDING`
 
 工作版：
 
 > `07_重建工作区/PDM-03_Owner来源归因分享注册转介绍接客离职交接_规则原子重建_工作版.md`
 
-## 本批边界
+## Batch 2
 
-本批只审 P03-A01～P03-A13 稳定一致项。
+待审：
 
-以下明确不混入 Batch 1：
+> P03-B2-01 ～ P03-B2-09
 
-- 自然注册首次进入立即轮询 owner；
-- 普通客户车辆转发 `SOURCE_ONLY`；
-- 接客池异常为空 `owner_assignment_pending`；
-- 其他后续主动修改、废弃项、冲突项。
+其中 B2-01 明确处理 PDM-01 已主动反转的“首次进入不形成 owner”旧口径；不得再用 9/19 旧规则覆盖已冻结 P01-A04。
 
-用户确认本批后才允许进入 Batch 2。
+用户确认后才允许进入 Batch 3。
 
 当前仍不修改 IA / Low-Fi / Engineering。
