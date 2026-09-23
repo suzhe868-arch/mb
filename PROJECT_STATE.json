@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Present PDM-01 Batch 4 conflicts, omissions, evidence gaps, and new choices for full user review, then stop",
+  "current_task": "Present PDM-01 Batch 4 conflicts, omissions, evidence gaps, and new choices for full user review; verify relevant CN11 originals before each decision, then stop",
   "current_work_file": "07_重建工作区/PDM-01_客户身份规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -127,5 +127,11 @@
     "P01-A13",
     "P01-A14",
     "P01-A16"
-  ]
+  ],
+  "recovered_cn11_evidence_root": "01_证据_A_9月19日产品业务锚点/前置历史原始证据_2026-09-17_CN11",
+  "recovered_cn11_selected_markdown_count": 21,
+  "recovered_cn11_status": "AVAILABLE_AS_HISTORICAL_ORIGINAL_EVIDENCE",
+  "recovered_cn11_usage_policy": "VERIFY_ORIGINAL_CN11_THEN_COMPARE_WITH_2019_AND_LATER_USER_DECISIONS",
+  "cn11_does_not_auto_override_current": true,
+  "cn11_engineering_artifacts_imported": false
 }
