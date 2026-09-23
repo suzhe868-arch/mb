@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-01",
-  "current_domain_status": "EVIDENCE_REBASE_CONFLICT_REVIEW_PENDING",
+  "current_domain_status": "USER_REVIEW_BATCH_3_PENDING",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Resolve recovered R5 conflict with user-confirmed P01-A04/P01-B2-01 before resuming Batch 3",
+  "current_task": "Present PDM-01 Batch 3 informed changes and explicit additions for full user review, then stop",
   "current_work_file": "07_重建工作区/PDM-01_客户身份规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -58,6 +58,7 @@
   "batch_1_pending_count": 0,
   "current_binding_constraints": [
     "P01-A04: natural registration without priority attribution enters auto-round-robin accepting pool to form one current owner",
+    "P01-A04: this is a 2026-09-24 user-confirmed new change overriding recovered R5/R10/IA first-entry-no-owner rule",
     "P01-A04: direct referral is assigned to referrer's current owner at event time and does not enter ordinary natural-registration rotation",
     "P01-A04: ordinary customer vehicle re-share remains SOURCE_ONLY and does not assign/change owner"
   ],
@@ -81,7 +82,7 @@
     "R5": "RECOVERED_ORIGINAL_FINAL_SUMMARY"
   },
   "r5_original_source_gap": "CLOSED",
-  "batch_3_status": "PAUSED_PENDING_REBASE_CONFLICT_DECISION",
+  "batch_3_status": "PENDING_USER_REVIEW",
   "evidence_rebase_required_before_batch_3": false,
   "evidence_rebase_focus": [
     "P01-A04",
@@ -91,7 +92,7 @@
     "owner/share/referral/handoff details"
   ],
   "evidence_rebase_completed": true,
-  "evidence_rebase_result": "ONE_CONFLICT_GROUP",
+  "evidence_rebase_result": "COMPLETE_WITH_ONE_RESOLVED_CONFLICT",
   "evidence_rebase_confirmed_items_checked": 20,
   "evidence_rebase_no_conflict_items": 18,
   "evidence_rebase_conflict_groups": [
@@ -103,7 +104,9 @@
       ],
       "recovered_rule": "First entry establishes customer_id only; owner is created by valid share/referral or first human-service event/accepting-pool path",
       "user_confirmed_rule": "Without priority attribution, first entry immediately auto-round-robins among active+eligible+accepting staff to create one current owner",
-      "status": "USER_REVIEW_PENDING"
+      "status": "RESOLVED_KEEP_A04_AS_NEW_CHANGE",
+      "resolved_at": "2026-09-24",
+      "resolution": "User explicitly chose to continue using A04 after recovered R5 conflict was presented"
     }
   ],
   "evidence_rebase_updates": {
