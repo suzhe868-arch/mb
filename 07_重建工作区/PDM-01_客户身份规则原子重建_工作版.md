@@ -374,3 +374,145 @@ R5 原件还恢复了销售分享、老客户转介绍、原始来源与 current
 - 因历史遗漏/未决/缺口转 Batch 4：A12、A13、A14、A16；
 - 用户已明确确认“Batch 3 无新增项，通过”；Batch 3 门禁完成，下一步进入 Batch 4｜冲突 / 历史遗漏 / 证据缺口 / 新选择。
 
+## 11. Batch 4｜冲突 / 历史遗漏 / 证据缺口 / 新选择｜用户审查清单
+
+> 状态：`USER_REVIEW_PENDING`。本批只裁真正未决部分；Batch 1～3 已确认内容不重复裁。
+
+### B4-01｜P01-A11｜Customer Merge 的 Demand Guard / 权限 / 确认
+
+**已经确定：**
+
+- R5 原件已允许“确认属于同一自然人后人工合并”；
+- 同手机号不得自动 Merge；
+- Merge 必须保留历史、来源与 owner 变化；
+- 后续 IA Current / Navigation 已实际承载：任一侧有 active/paused Demand 时 blocked；先完成或取消 Demand，再重新校验；actor 需要 merge permission/scope；进入 MERGE_READY 后显式确认；合并历史 immutable。
+
+**证据缺口：**
+
+`IA_SOURCE_INDEX.md` 指向的 `Phase1.5上游权威/` 七份原始文件当前不在仓库，因此这些后续细节不能仅凭 IA 自动升格成最终业务规则。
+
+**待用户裁决：**
+
+- A：确认吸收当前 IA 的完整 Guard：active/paused Demand 阻断 + 处理后重验 + merge permission/scope + MERGE_READY + 显式确认 + immutable merge history；
+- B：只保留 R5 原件的“人工合并”原则，不吸收上述后续 Guard；
+- C：修改上述 Guard。
+
+**模型建议：A。** 这是对“受控人工 Merge”的必要保护，不改变已确认的 Merge 基本方向。
+
+---
+
+### B4-02｜P01-A12｜Merge 后 surviving customer_id 与冲突处理
+
+**R5 原件已经确定：**
+
+- 合并后保留一个主 `customer_id`；
+- 原客户历史、原始来源、历史 owner 变化继续保留；
+- 两侧 current owner 不一致时，系统不得自动判断；由有权限经理 / 店长人工指定合并后的 current owner，并保留审计；
+- 不采用“创建更早 / 最近联系 / 金额更高”等自动 owner 抢归属规则。
+
+**仍未定义：**
+
+- 哪个 `customer_id` 成为 surviving customer_id；
+- source/referral 冲突如何展示；
+- customer 级权益如何处理；
+- 未结束 Consultation / Waitlist / Lock / Transaction / Refund 等业务对象如何关联；
+- 旧 customer_id 是否作为 historical alias / redirect 保留；
+- Merge 是否允许撤销。
+
+**待用户裁决的 PDM-01 身份层建议：**
+
+- surviving customer_id：系统保留**创建时间更早的 customer_id** 作为主 ID；另一 ID 永久保留为历史 alias，不删除；
+- owner 冲突：按 R5 原件，由有权限经理 / 店长人工指定；
+- source/referral：两侧历史全部保留，不互相覆盖；
+- 业务对象：不得因 Merge 自动取消、重建或丢失；统一关联到合并后的主 Customer，同时保留原 customer_id 历史映射；
+- customer 级权益：PDM-01 不自行做“相加/取最大/清零”，由对应权益域后续裁决；Merge 本身不得静默新增或剥夺权益；
+- Merge 默认不可普通撤销；若误合并，走专门纠错流程并保留完整审计，不直接“回滚删历史”。
+
+> 上述除 owner 冲突和历史保留外，均属于本轮新补充建议，必须由用户确认后才能成为规则。
+
+---
+
+### B4-03｜P01-A13｜换手机号仍保持原 Customer
+
+**R5 补回原件已经直接明确：**
+
+- 客户更换手机号，不新建 `customer_id`；
+- 不改变 current owner；
+- 不改变原始分享 / 转介绍来源。
+
+历史 DEC-057 进一步明确：
+
+- 更新 current phone；
+- 旧手机号保留必要历史；
+- Demand / Consultation / Lock / Transaction / price rights 等既有业务不因换号迁移或重建。
+
+Batch 2 已确认“换手机号新建 Customer”不得恢复。
+
+**待用户裁决：**
+
+> 是否正式确认 A13：同一 Customer 换手机号始终沿用原 `customer_id`；只更新当前手机号并保留变更历史；owner、来源和已有业务关系不因换号改变。
+
+**模型建议：确认。**
+
+---
+
+### B4-04｜P01-A14｜手机号到底怎么换
+
+当前证据**没有冻结具体换绑方式**。9/22 `VR-C-018` 只证明现有服务门槛弹层是“授权手机号 / 取消”，并不证明系统永远禁止其他手机号。
+
+**可选方案：**
+
+- A｜仅微信官方手机号授权：客户不能手输其他手机号；
+- B｜服务门槛和个人资料都允许“使用其他手机号”，手输号码后短信验证码验证；
+- C｜服务门槛继续只保留微信授权/取消；客户已进入系统后，可在个人资料里“更换手机号”，手输其他号码 + 短信验证码；
+- D｜客户不自助换绑，只允许授权后台人员修改并审计。
+
+**模型建议：C。**
+
+这样既不打乱现有 C-O02 人工服务授权流程，也能满足客户后续使用其他联系电话的需求。若选择 B，则需要明确**修改已确认的 A07 / VR-C-018 UI 规则**，在手机号授权弹层增加“使用其他手机号”。
+
+无论选哪种：
+
+- 新号码验证成功后仍使用原 `customer_id`；
+- 相同手机号不得自动 Merge；
+- 旧手机号保留必要历史；
+- 手机号变更要留 before/after、时间、操作者/渠道等审计事实。
+
+---
+
+### B4-05｜P01-A16｜客户停用 / 注销完整生命周期
+
+**已经确定：**
+
+- 客户可停止账号使用或进入停用状态；
+- 不物理删除客户及咨询、找车、锁车、候补、交易、转介绍、owner 变化等历史；
+- 后续确认是原客户时恢复原 Customer 身份，不新建第二套历史。
+
+**仍未定义：**
+
+- 客户是否可以自助停用/注销；
+- 后台谁能操作；
+- 有 active Demand / Consultation / Lock / Transaction 时能否停用；
+- 停用后是否还能浏览/发起人工服务；
+- owner、权益如何处理；
+- 恢复时恢复哪些当前关系。
+
+**建议的 V1 最小闭环：**
+
+- 客户可在个人资料发起“停用账号”；授权后台人员也可停用/恢复；
+- 若存在未结束 Demand / Consultation / Lock / Transaction，则先阻断停用，提示先结束/取消相关业务；
+- 停用后保留身份和历史，但禁止新增人工服务业务；普通公开车源浏览不以该 Customer 的服务身份继续产生新业务；
+- current owner / 原始来源历史不清空；owner 若仍有效则保留，若员工已失效则按 PDM-03 的交接规则处理；
+- 恢复时继续原 `customer_id`；不自动复活已经终止/过期的业务对象或权益；
+- 具体 Recommendation / 查价权益、Lock / Transaction 等跨域恢复行为，留对应 PDM 决定，PDM-01 只冻结“身份连续、不删历史、不静默复活”。
+
+**待用户裁决：**
+
+- A：采用上述 V1 最小闭环；
+- B：V1 不开放客户自助停用，只允许后台授权人员操作，其余原则相同；
+- C：另行修改。
+
+### Batch 4 当前门禁
+
+五项均为 `USER_REVIEW_PENDING`。只有 A11 / A12 / A13 / A14 / A16 全部获得用户明确裁决后，才允许进入 PDM-01 最终完整规则总览。
+
