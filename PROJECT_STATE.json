@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Present PDM-03 Batch 3 three informed changes/explicit additions and stop for explicit user review",
+  "current_task": "Review remaining PDM-03 Batch 3 atoms A14 and A16; A15 has been user-confirmed with modified share-as-referral semantics",
   "current_work_file": "07_重建工作区/PDM-03_Owner来源归因分享注册转介绍接客离职交接_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -62,13 +62,13 @@
     "P01-A04: natural registration without priority attribution enters auto-round-robin accepting pool to form one current owner",
     "P01-A04: this is a 2026-09-24 user-confirmed new change overriding recovered R5/R10/IA first-entry-no-owner rule",
     "P01-A04: direct referral is assigned to referrer's current owner at event time and does not enter ordinary natural-registration rotation",
-    "P01-A04: ordinary customer vehicle re-share remains SOURCE_ONLY and does not assign/change owner",
     "P01-A14: one Customer may have one primary phone plus zero or more additional contact phones",
     "P01-A14: authorized employees may add/maintain additional customer phone numbers; exact role/capability is deferred to PDM-02",
     "P01-A14: CRM phone search matches primary and additional registered phone numbers",
     "P01-A14: the same phone may match multiple Customers; return all matches and never auto-merge",
     "P01-MERGE: V1 provides no Customer Merge; different customer_id records remain independent even if they represent the same natural person",
-    "P01-MERGE: same phone may be attached to multiple Customers and may return multiple CRM search hits; never merge automatically or manually"
+    "P01-MERGE: same phone may be attached to multiple Customers and may return multiple CRM search hits; never merge automatically or manually",
+    "P03-A15 supersedes P01-A04 share subclause: for a new customer without an owner, a customer vehicle-share link can create owner attribution to the salesperson actually bound to that share chain, while preserving the sharing customer/referral relation; existing owner is not stolen"
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
@@ -264,8 +264,15 @@
   "pdm_03_batch_2_confirmed_count": 9,
   "pdm_03_batch_3_pending_atoms": [
     "P03-A14",
-    "P03-A15",
     "P03-A16"
   ],
-  "pdm_03_batch_3_status": "PENDING_USER_REVIEW"
+  "pdm_03_batch_3_status": "PARTIAL_USER_REVIEW",
+  "pdm_03_batch_3_confirmed_atoms": [
+    "P03-A15"
+  ],
+  "pdm_03_a15_status": "USER_CONFIRMED_MODIFIED_SHARE_IS_REFERRAL_ATTRIBUTION",
+  "pdm_03_batch_4_known_pending": [
+    "P03-B4-SHARE_LINK_SALES_BINDING_TIME"
+  ],
+  "pdm_01_share_rule_superseded_by": "P03-A15"
 }
