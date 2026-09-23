@@ -4,26 +4,21 @@
 
 ## 当前唯一优先动作
 
-> **用户审查并最终批准 PDM-02《最终完整规则总览》。**
+> **准备 PDM-03｜Owner / 来源归因 / 分享注册 / 转介绍 / 接客 / 离职交接 的 Batch 1 稳定一致项。**
 
-## 当前状态
+## 已完成
 
-- Batch 1：`COMPLETE_USER_CONFIRMED`
-- Batch 2：`COMPLETE_USER_CONFIRMED`
-- Batch 3：`COMPLETE_USER_CONFIRMED`
-- Batch 4：`COMPLETE_USER_CONFIRMED`
-- 最终总览：`USER_REVIEW_PENDING`
+- PDM-01：`COMPLETE`
+- PDM-02：`COMPLETE`
+- PDM-02 正式规则文件：
+  > `07_重建工作区/PDM-02_最终完整规则.md`
 
-最终总览文件：
+## PDM-03 执行要求
 
-> `07_重建工作区/PDM-02_最终完整规则总览_待用户批准.md`
-
-## 门禁
-
-只有用户明确批准该最终总览后，才能：
-
-1. 将 PDM-02 标记为 `COMPLETE`；
-2. 生成 `PDM-02_最终完整规则.md`；
-3. 进入 PDM-03。
+1. 继续严格使用 GitHub 当前可读原始证据；
+2. 先读 9/19 主底盘，再向前核 CN11/更早证据，再向后核 9/20～9/22 与后续明确裁决；
+3. 不使用旧聊天记忆替代证据；
+4. Batch 1 只放稳定一致项；
+5. 展示 Batch 1 后停止，等待用户确认。
 
 当前仍不修改 IA / Low-Fi / Engineering。
