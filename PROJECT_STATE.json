@@ -4,7 +4,7 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "GLOBAL_COVERAGE_MAP_VALIDATION",
+  "substage": "DOMAIN_RULE_RECONSTRUCTION",
   "status": "IN_PROGRESS",
   "repository_import_status": "COMPLETE_VERIFIED",
   "repository_manifest_paths": 603,
@@ -22,10 +22,16 @@
   "english_baseline_role": "SYNCED_MIRROR_AFTER_CN_FREEZE",
   "product_baseline_status": "NOT_READY",
   "candidate_product_domains": 25,
-  "current_task": "Validate the 9/19 global product coverage map against IA V5, the 001-078 unadjudicated archive, and required 9/19 historical evidence",
+  "coverage_map_validation": "COMPLETE_PASS",
+  "coverage_map_unassigned_business_domains": 0,
+  "archive_units_total": 224,
+  "archive_units_mapped": 224,
+  "current_domain": "PDM-01",
+  "current_task": "Rebuild PDM-01 Customer identity / WeChat / phone / profile / customer lifecycle at rule-atom level using the frozen six-step evidence method",
   "next_action_file": "NEXT_ACTION.md",
   "current_state_file": "CURRENT_PROJECT_STATE.md",
   "import_status_file": "IMPORT_STATUS.md",
+  "coverage_validation_report": "07_重建工作区/产品全域覆盖地图完整性校验报告_2026-09-23.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "forbidden_now": [
@@ -33,8 +39,8 @@
     "Modify Low-Fi",
     "Execute engineering Delta",
     "Treat 9/22 FROZEN as automatic final truth",
-    "Treat the 20 historical modules as the complete product catalog",
-    "Start final adjudication from an arbitrary module before map validation"
+    "Inherit 001-078 old judgments as current adjudication",
+    "Skip evidence lineage or informed-change test inside PDM-01"
   ],
   "handoff_read_order": [
     "README.md",
@@ -44,6 +50,7 @@
     "IMPORT_STATUS.md",
     "00_先读/01_产品基线重建执行规范_冻结工作版.md",
     "00_先读/02_9月19日产品全域覆盖地图_未裁决版.md",
+    "07_重建工作区/产品全域覆盖地图完整性校验报告_2026-09-23.md",
     "07_重建工作区/DECISION_REGISTER.md"
   ]
 }
