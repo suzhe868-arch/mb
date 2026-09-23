@@ -1,7 +1,7 @@
 # PDM-01｜客户身份 / 微信 / 手机号 / 资料 / 客户生命周期｜规则原子重建工作版
 
 > 日期：2026-09-23  
-> 状态：`USER_REVIEW_BATCH_1_PENDING`  
+> 状态：`USER_REVIEW_BATCH_2_PENDING`  
 > 业务域：PDM-01  
 > 说明：本文件严格依据当前 GitHub 仓库证据重建，不使用旧聊天记忆替代证据；当前仍是工作版，不是最终产品业务基线。
 > **2026-09-23 用户全量审查门禁覆盖说明：** 本文件中任何“保留 / 稳定 / 建议保留 / 可直接保留”均仅代表模型证据分类，不代表用户已批准。P01-A01～A20 全部必须进入四批用户审查；未经用户明确确认，任何规则不得进入最终产品基线。
@@ -40,26 +40,26 @@
 
 | Atom | 规则原子 | 9/19 / 前史 | 9/22 / IA / Low-Fi / Delta | 当前分类 | 当前处理 |
 |---|---|---|---|---|---|
-| P01-A01 | Customer 使用稳定 `customer_id`；手机号、头像、昵称不是唯一身份主键 | M01-001 历史原文明确；R5/R10 以微信身份创建/找到 customer_id | IA ACT-V4-001 / CO-O01 继续承载 | `STABLE_CONSISTENT` | 保留 |
-| P01-A02 | 首次进入：微信身份识别 → 创建/找到 customer_id → 直接进入 C01；不建设显式独立登录页 | R10-55 明确 | IA 首入 Action/State 一致 | `STABLE_CONSISTENT` | 保留 |
-| P01-A03 | 首次进入不要求手机号、头像、昵称，不阻挡普通浏览 | R10-55 明确 | IA 一致 | `STABLE_CONSISTENT` | 保留 |
+| P01-A01 | Customer 使用稳定 `customer_id`；手机号、头像、昵称不是唯一身份主键 | M01-001 历史原文明确；R5/R10 以微信身份创建/找到 customer_id | IA ACT-V4-001 / CO-O01 继续承载 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
+| P01-A02 | 首次进入：微信身份识别 → 创建/找到 customer_id → 直接进入 C01；不建设显式独立登录页 | R10-55 明确 | IA 首入 Action/State 一致 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
+| P01-A03 | 首次进入不要求手机号、头像、昵称，不阻挡普通浏览 | R10-55 明确 | IA 一致 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
 | P01-A04 | 首次进入建立/识别 customer_id 后进入归属判定：无有效分享/直接转介绍等优先归属来源时，进入自然注册自动轮询接客池并形成唯一 current owner；通过有效直接转介绍进入时，新客户记录直接推荐关系，并由推荐人事件发生时的 current owner 承接，不再参加普通自然注册轮询；普通客户侧车源转发仍为 SOURCE_ONLY，不据此分配或改变 owner | 9/19 R5/R10 写有“首次进入不自动分配 owner”，但 IA Current 后续明确存在 future natural registration / auto-round-robin；R5 §7 明确直接转介绍由 referrer 当时 current owner 承接 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“A04通过”；已写入 Decision Register，后续相关规则必须继承，冲突只能显式重审 |
-| P01-A05 | 微信身份识别失败可重试 | R10-55 明确 | IA BUS-V4-001 / CO-O01 一致；实际 Low-Fi 首入专门失败态承载不足 | `STABLE_CONSISTENT` | 业务保留；承载问题留后续 IA/Low-Fi 校准 |
-| P01-A06 | 手机号是人工服务硬门槛，但不是浏览/收藏门槛 | R10-11、M01-001 明确 | IA / C-O02 一致 | `STABLE_CONSISTENT` | 保留 |
-| P01-A07 | 无手机号触发授权；成功保存并自动继续原动作；拒绝/取消不创建正式人工服务对象 | R10-11 明确 | IA C-O02 Guard 一致；9/22 VR-C-018 仅要求界面保留“授权手机号/取消”，success resume 不画成按钮 | `STABLE_CONSISTENT` | 保留；9/22 仅作为视觉/Journey 修正 |
-| P01-A08 | 同一手机号不能自动认定为同一 Customer，也不能自动 merge | R5-13 明确；M01-002/M01-004 前史一致 | 后续没有相反裁决 | `STABLE_CONSISTENT` | 保留 |
-| P01-A09 | 重复 Customer 只有确认属于同一自然人后才允许人工合并 | R5-13 明确 | IA 已出现 P06-01 Merge Flow，但“如何确认同一自然人”没有完整产品规则 | `STABLE_CONSISTENT` + 细节 `HISTORICAL_UNRESOLVED` | 核心原则保留；识别标准待裁 |
-| P01-A10 | Merge 必须保留历史、来源与 owner 变化，不物理抹除旧记录 | R5-13 明确 | IA P06-01 要求 preserve source/owner/business history、immutable history | `STABLE_CONSISTENT` | 保留 |
+| P01-A05 | 微信身份识别失败可重试 | R10-55 明确 | IA BUS-V4-001 / CO-O01 一致；实际 Low-Fi 首入专门失败态承载不足 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
+| P01-A06 | 手机号是人工服务硬门槛，但不是浏览/收藏门槛 | R10-11、M01-001 明确 | IA / C-O02 一致 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
+| P01-A07 | 无手机号触发授权；成功保存并自动继续原动作；拒绝/取消不创建正式人工服务对象 | R10-11 明确 | IA C-O02 Guard 一致；9/22 VR-C-018 仅要求界面保留“授权手机号/取消”，success resume 不画成按钮 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
+| P01-A08 | 同一手机号不能自动认定为同一 Customer，也不能自动 merge | R5-13 明确；M01-002/M01-004 前史一致 | 后续没有相反裁决 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
+| P01-A09 | 重复 Customer 只有确认属于同一自然人后才允许人工合并 | R5-13 明确 | IA 已出现 P06-01 Merge Flow，但“如何确认同一自然人”没有完整产品规则 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
+| P01-A10 | Merge 必须保留历史、来源与 owner 变化，不物理抹除旧记录 | R5-13 明确 | IA P06-01 要求 preserve source/owner/business history、immutable history | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
 | P01-A11 | Merge 时 active/paused Demand 阻断；处理后重验；actor 需 merge permission/scope；显式确认 | 9/19 R5 未明确这组细节 | 001～078 记载后续 D13；IA/Low-Fi 已施工该流程，但仓库缺少 IA_SOURCE_INDEX 所称的 `Phase1.5上游权威/` 原始七文件；9/22 冻结台账无此项 | `EVIDENCE_INCOMPLETE` | 不能仅凭 IA 自动升格；需要补原始裁决证据或用户重新确认 |
 | P01-A12 | Merge 后保留哪个 customer_id、冲突的 owner/source/权益/活动业务如何合并 | 9/19 只冻结“保留历史/来源/owner变化” | IA/Low-Fi 没有形成完整业务语义 | `HISTORICAL_UNRESOLVED` | 需用户裁决 |
 | P01-A13 | 同一微信 Customer 更换手机号时仍使用原 customer_id；仅更新 current phone 并保留必要历史，owner/权益/已有业务不变 | 001～078 的逐字历史归档引用 DEC-057；9/19 R5 当前版未完整写回该细节，但不冲突 | Current/Low-Fi 无真实手机号更新链；9/22 未重新裁 | `PRE_919_OMISSION_CANDIDATE` | 强候选恢复；按方法要求需重新确认 |
 | P01-A14 | 手机号具体怎么更换：微信手机号授权、手输其他号码+验证码、或不开放客户自助换绑 | 历史只冻结“换号码不是换 Customer”，未冻结具体交互/验证方式 | C-O02 只证明授权/拒绝；9/22 只冻结授权手机号/取消 | `HISTORICAL_UNRESOLVED` | 需用户裁决，禁止模型自行新增“其他手机号”输入 |
-| P01-A15 | 客户停用/注销不物理删除业务历史；确认原客户后仍应沿用原身份而不是新建“历史清空”Customer | R5-14 明确；M01-003 一致 | IA CO-O01 继续表达“停用不删历史；确认身份可恢复” | `STABLE_CONSISTENT` | 保留原则 |
+| P01-A15 | 客户停用/注销不物理删除业务历史；确认原客户后仍应沿用原身份而不是新建“历史清空”Customer | R5-14 明确；M01-003 一致 | IA CO-O01 继续表达“停用不删历史；确认身份可恢复” | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
 | P01-A16 | 停用/注销完整生命周期：谁能发起、客户是否自助注销、active Demand/Consultation/Lock/Transaction 怎么处理、owner/权益如何处理、恢复权限和状态 | 9/19 未冻结完整细节 | IA 只有摘要性 END/RECOVER，且 BUS-V4-022 与“确认身份可恢复”之间承载语义不够完整 | `HISTORICAL_UNRESOLVED` | 需用户裁决 |
-| P01-A17 | 头像/昵称不是硬门槛；跳过/拒绝不能阻断业务 | R10-56 明确 | IA/Low-Fi 原则承载，但 C-O01 使用 `completed profile` / `required avatar/nickname` 类措辞有误导风险 | `STABLE_CONSISTENT` | 业务保留；后续校准承载措辞 |
-| P01-A18 | 头像/昵称提醒：收藏成功可提醒一次；持续浏览最多每20分钟一次；每天最多10次；多触发合并一次；关键业务执行中不打断 | R10-56 明确，且明确覆盖旧“每天一次/第5、10台/30分钟/每天4次” | IA/Low-Fi 未完整下沉这组频控与 no-interrupt Guard | `STABLE_CONSISTENT` | 业务保留；后续进入 IA/Low-Fi Delta |
-| P01-A19 | 个人资料展示头像、昵称、手机号、我的顾问；打开资料页本身不分配销售 | R10-22 明确 | 无后续冲突 | `STABLE_CONSISTENT` | 保留；“我的顾问”关系细节归 PDM-03 |
-| P01-A20 | Customer 跨后续购车/找车/咨询保持同一身份；新一轮业务在原 Customer 下新建，不因新业务重建 Customer | Phase1 Merge 的 R6 部分明确 | 无后续冲突 | `STABLE_CONSISTENT` | 保留 |
+| P01-A17 | 头像/昵称不是硬门槛；跳过/拒绝不能阻断业务 | R10-56 明确 | IA/Low-Fi 原则承载，但 C-O01 使用 `completed profile` / `required avatar/nickname` 类措辞有误导风险 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
+| P01-A18 | 头像/昵称提醒：收藏成功可提醒一次；持续浏览最多每20分钟一次；每天最多10次；多触发合并一次；关键业务执行中不打断 | R10-56 明确，且明确覆盖旧“每天一次/第5、10台/30分钟/每天4次” | IA/Low-Fi 未完整下沉这组频控与 no-interrupt Guard | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
+| P01-A19 | 个人资料展示头像、昵称、手机号、我的顾问；打开资料页本身不分配销售 | R10-22 明确 | 无后续冲突 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
+| P01-A20 | Customer 跨后续购车/找车/咨询保持同一身份；新一轮业务在原 Customer 下新建，不因新业务重建 Customer | Phase1 Merge 的 R6 部分明确 | 无后续冲突 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
 
 ## 3.1 P01-A04 专项修正记录（用户已确认）
 
@@ -204,14 +204,14 @@
 
 ## 7. 当前阶段结论
 
-- Batch 1 中 P01-A04 已由用户明确确认；其余 P01-A01～A03、A05～A10、A15、A17～A20 仍为 `USER_REVIEW_PENDING`，不得自动保留。
+- Batch 1 共 15 条已全部由用户明确确认：P01-A01～A10、A15、A17～A20 均为 `USER_CONFIRMED`；其中 A04 为专项修正规则，其余 14 条于 2026-09-24 用户明确回复“剩余14条全部通过”。
 - 历史遗漏强候选：P01-A13。
 - 证据不完整：P01-A11。
 - 需要真实产品裁决：P01-A12、A14、A16，并形成 D01～D04。
-- Decision Register 已写入 `PDM01-DEC-A04`；A04 已成为本轮已确认约束。
-- PDM-01 状态：`USER_REVIEW_BATCH_1_PENDING`。
-- 当前先执行 Batch 1 稳定一致项用户审查；随后按 Batch 2 → Batch 3 → Batch 4 → PDM 最终总览。四批和最终总览均经用户确认前，不生成正式 PDM-01 最终规则，也不进入 PDM-02。
+- Decision Register 已写入 Batch 1 全部 15 条用户确认记录；这些规则从现在起共同作为后续 Batch 2～4 和相关 PDM 的当前有效约束。
+- PDM-01 状态：`USER_REVIEW_BATCH_2_PENDING`。
+- Batch 1 已完成并通过；下一步进入 Batch 2｜明确废弃 / 明确替代项审查。Batch 2 展示后必须再次停下等待用户确认；四批和最终总览均经用户确认前，不生成正式 PDM-01 最终规则，也不进入 PDM-02。
 
 ## 一句话索引
 
-> PDM-01 当前已确认 A04“自然注册自动分配 + 直接转介绍优先承接”；Batch 1 其余稳定项仍待用户审查，后续还需处理手机号换绑、Merge 完整语义、客户停用/注销生命周期及 Phase1.5 Merge Guard 证据缺口。
+> PDM-01 Batch 1 已全部通过；15 条已确认规则现为后续审查约束，下一步只进入 Batch 2｜明确废弃 / 明确替代项，之后再处理 Batch 3、Batch 4 与最终总览。
