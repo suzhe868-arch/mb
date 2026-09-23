@@ -4,33 +4,28 @@
 
 ## 当前唯一优先动作
 
-> **继续审查 PDM-03｜Batch 3 剩余两条：P03-A14、P03-A16。**
+> **展示并审查 PDM-03｜Batch 4 四条冲突 / 遗漏 / 缺口 / 新选择。**
 
 ## 当前状态
 
-- PDM-01：`COMPLETE`，其中“客户车辆转发仅 SOURCE_ONLY”子句已被 P03-A15 显式修正；
+- PDM-01：`COMPLETE`，客户分享纯 `SOURCE_ONLY` 子句已被 P03-A15 显式修正；
 - PDM-02：`COMPLETE`
 - PDM-03 Batch 1：`COMPLETE_USER_CONFIRMED`
 - PDM-03 Batch 2：`COMPLETE_USER_CONFIRMED`
-- PDM-03 Batch 3：
-  - P03-A14：`USER_REVIEW_PENDING`
-  - P03-A15：`USER_CONFIRMED_MODIFIED`
-  - P03-A16：`USER_REVIEW_PENDING`
+- PDM-03 Batch 3：`COMPLETE_USER_CONFIRMED`
+- PDM-03 Batch 4：`USER_REVIEW_PENDING`
 
-## A15 当前有效口径
+工作版：
 
-对尚无正式 owner 的新客户：
+> `07_重建工作区/PDM-03_Owner来源归因分享注册转介绍接客离职交接_规则原子重建_工作版.md`
 
-> **客户分享车源本身可形成转介绍/获客归属；新客户按分享链实际绑定的销售形成 owner，同时保留分享客户与新客户之间的来源/推荐关系。**
+## Batch 4 待审
 
-已有正式 owner 的老客户仍不因后续分享被抢客。
+1. P03-B4-01｜明确销售绑定链接 vs 客户自有分享链的销售解析规则；
+2. P03-B4-02｜客户分享时必须同时保留 A→B 来源关系与 sales binding；
+3. P03-B4-03｜绑定销售离职 / inactive / 失去资格后的旧链接兜底；
+4. P03-B4-04｜分享归属优先于自然轮询，并保证 owner 分配幂等。
 
-## 已知留到 Batch 4 的一项
-
-A 发出客户分享链接后、B 打开前，如果 A 的 current owner 发生变化：
-
-> 旧链接到底继续绑定原销售，还是在 B 进入时跟随 A 的最新 owner？
-
-该时间点细节尚未裁决。
+全部确认后才允许生成 PDM-03 最终完整规则总览。
 
 当前仍不修改 IA / Low-Fi / Engineering。
