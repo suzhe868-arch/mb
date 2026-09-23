@@ -4,23 +4,20 @@
 
 ## 当前唯一优先动作
 
-> **准备 PDM-02｜Batch 2 明确废弃 / 明确替代 / DO_NOT_RESTORE 项。**
+> **展示并审查 PDM-02｜Batch 2 明确废弃 / 明确替代 / DO_NOT_RESTORE，共 14 条。**
 
-## 已完成
+工作文件：
 
-PDM-02 Batch 1：
+> `07_重建工作区/PDM-02_员工身份组织角色权限_规则原子重建_工作版.md`
 
-- P02-A01～P02-A15：全部用户确认；
-- 状态：`COMPLETE_USER_CONFIRMED`；
-- Decision Register 已登记。
+## 当前状态
 
-## Batch 2 执行要求
+- Batch 1：15 条已全部用户确认；
+- Batch 2：14 条明确废弃 / 替代项待用户审查；
+- 未经用户确认不得进入 Batch 3。
 
-1. 继续以 9/19 R1 为主底盘；
-2. 回查 CN11 / 更早原始证据；
-3. 核对 9/22、IA、Low-Fi、Delta 是否已有明确替代或废弃；
-4. 只筛“明确废弃 / 明确替代 / DO_NOT_RESTORE”；
-5. 不把冲突项、证据缺口或新选择混入 Batch 2；
-6. Batch 2 清单展示后停止，等待用户确认。
+## 门禁
+
+Batch 2 展示后必须停止等待用户确认。
 
 当前仍不修改 IA / Low-Fi / Engineering。
