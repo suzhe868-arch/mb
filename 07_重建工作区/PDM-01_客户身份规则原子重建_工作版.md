@@ -347,3 +347,30 @@ R5 原件还恢复了销售分享、老客户转介绍、原始来源与 current
 - 当前恢复 `USER_REVIEW_BATCH_3_PENDING`；
 - 不修改 IA / Low-Fi / Engineering。
 
+## 10. Batch 3｜明确知情修改 / 后续明确新增｜用户审查清单
+
+> 状态：`USER_REVIEW_PENDING`。本批已完成全量筛选，但**没有新的未审规则原子**；需用户确认“本批无新增项，可通过”后才进入 Batch 4。
+
+### 10.1 本批实际命中的两项
+
+| ID | 后续修改 / 新增 | 证据结论 | 当前处理 |
+|---|---|---|---|
+| P01-B3-01 | P01-A04：首次进入后无优先归属来源时立即进入 active + eligible + accepting 接客池自动轮询形成唯一 current owner | 这是 2026-09-24 在补回 R5 原件、明确知悉旧 R5 / R10 / IA 均写“首次进入不立即形成 owner”之后，由用户再次明确选择“继续用 A04”的主动新修改 | `ALREADY_USER_CONFIRMED`；Decision Register = `PDM01-DEC-R5-REB-001`，本批不重复要求同一规则再次裁决 |
+| P01-B3-02 | 9/22 `VR-C-018`：手机号授权成品只保留“授权手机号 / 取消”；`success resume` 不画成可点击按钮 | 9/19 R10-11 已先明确“授权成功自动继续刚才动作”；9/22 只是把这个自动续接从错误 UI 按钮中剥离，是后续明确 Visual/Journey 收口，不改变业务结果 | 已包含在 P01-A07，并由用户在 Batch 1 明确确认；`ALREADY_USER_CONFIRMED` |
+
+### 10.2 不进入 Batch 3 的候选
+
+- P01-A11：虽然 IA Current 明确出现 active/paused Demand 阻断 Merge、permission/scope、显式确认等后续细节，但 `IA_SOURCE_INDEX.md` 指向的 `Phase1.5上游权威/` 七份原始文件当前不在仓库 Manifest 中；因此不能证明为来源完整的“知情修改”，继续留 Batch 4 / 证据缺口处理。
+- P01-A12：R5 原件只补回部分 Merge 冲突语义，剩余仍未完整，留 Batch 4。
+- P01-A13：属于 9/19 前历史遗漏恢复，不属于“后续新增”，留 Batch 4。
+- P01-A14：手机号具体换绑方式未冻结，属于新选择，留 Batch 4。
+- P01-A16：停用/注销完整生命周期仍有缺口，留 Batch 4。
+
+### 10.3 Batch 3 结论
+
+- 新增未审规则原子：`0`；
+- 已命中但此前已由用户确认：`2`（A04 主动新修改；A07/VR-C-018 后续 UI 收口）；
+- 因证据不足转 Batch 4：A11；
+- 因历史遗漏/未决/缺口转 Batch 4：A12、A13、A14、A16；
+- 当前不得自动进入 Batch 4，仍需用户对“Batch 3 无新增未审项”做一次批次门禁确认。
+
