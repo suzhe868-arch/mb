@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Present PDM-02 Batch 2 deprecated/superseded/do-not-restore items and stop for user review",
+  "current_task": "Continue PDM-02 Batch 2 review for the remaining 12 deprecated/superseded items; P02-B2-02 withdrawn, P02-B2-04 confirmed",
   "current_work_file": "07_重建工作区/PDM-02_员工身份组织角色权限_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -179,9 +179,7 @@
   "pdm_02_batch_1_confirmed_count": 15,
   "pdm_02_batch_2_pending_atoms": [
     "P02-B2-01",
-    "P02-B2-02",
     "P02-B2-03",
-    "P02-B2-04",
     "P02-B2-05",
     "P02-B2-06",
     "P02-B2-07",
@@ -193,5 +191,15 @@
     "P02-B2-13",
     "P02-B2-14"
   ],
-  "pdm_02_batch_2_status": "PENDING_USER_REVIEW"
+  "pdm_02_batch_2_status": "PARTIAL_USER_REVIEW",
+  "pdm_02_batch_2_confirmed_atoms": [
+    "P02-B2-04"
+  ],
+  "pdm_02_batch_2_withdrawn_atoms": [
+    "P02-B2-02"
+  ],
+  "pdm_02_preconfirmed_informed_changes": [
+    "P02-A16",
+    "P02-A17"
+  ]
 }
