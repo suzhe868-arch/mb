@@ -4,27 +4,26 @@
 
 ## 当前唯一优先动作
 
-> **继续审查 PDM-02｜Batch 4 剩余 5 条未决项。**
+> **用户审查并最终批准 PDM-02《最终完整规则总览》。**
 
-## 本轮已裁决
+## 当前状态
 
-- 新增并确认 P02-A19｜System Admin 控制平面治理权：
-  - 不参与销售业务执行；
-  - 但拥有员工/4S账号、角色、permission、data scope、角色模板、接客治理等最高配置能力；
-  - 配置权不等于业务执行权；
-  - hard DENY 不可绕过，全部治理变更留审计。
-- B4-02｜“谁能任命店长”已关闭：
-  - 由 System Admin 后台直接设置/取消店长角色；
-  - 不再新增“店长管理其他店长”的最高治理 permission。
+- Batch 1：`COMPLETE_USER_CONFIRMED`
+- Batch 2：`COMPLETE_USER_CONFIRMED`
+- Batch 3：`COMPLETE_USER_CONFIRMED`
+- Batch 4：`COMPLETE_USER_CONFIRMED`
+- 最终总览：`USER_REVIEW_PENDING`
 
-## Batch 4 剩余 5 条
+最终总览文件：
 
-1. B4-01｜经理 / 店长员工管理边界；
-2. B4-03｜角色模板实时默认 vs 完整默认 permission 是否硬编码；
-3. B4-04｜接客池异常变成 0 人时的 owner 分配异常处理；
-4. B4-05｜员工维护客户其他联系电话的独立 capability；
-5. B4-06｜4S 默认是否进入 PC 业务后台。
+> `07_重建工作区/PDM-02_最终完整规则总览_待用户批准.md`
 
-全部完成后才允许进入 PDM-02 最终完整规则总览。
+## 门禁
+
+只有用户明确批准该最终总览后，才能：
+
+1. 将 PDM-02 标记为 `COMPLETE`；
+2. 生成 `PDM-02_最终完整规则.md`；
+3. 进入 PDM-03。
 
 当前仍不修改 IA / Low-Fi / Engineering。
