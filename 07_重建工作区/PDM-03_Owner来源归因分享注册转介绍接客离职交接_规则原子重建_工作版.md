@@ -1,7 +1,7 @@
 # PDM-03｜Owner / 来源归因 / 分享注册 / 转介绍 / 接客 / 离职交接｜规则原子重建工作版
 
 > 日期：2026-09-24  
-> 状态：`USER_REVIEW_BATCH_3_PENDING`  
+> 状态：`BATCH_3_COMPLETE_PREPARE_BATCH_4`  
 > 说明：严格按当前 GitHub 原始证据重新重建，不使用旧聊天记忆替代证据。PDM-01、PDM-02 已正式 COMPLETE；PDM-03 Batch 1、Batch 2 已用户确认，当前开放 Batch 3｜明确知情修改 / 后续明确新增，共 3 条，未经用户确认不得进入 Batch 4。
 
 ## 1. 证据范围
@@ -97,9 +97,9 @@ Batch 2 展示后必须停止等待用户确认。
 
 | Atom | 当前候选规则 | 修改 / 新增来源 | 状态 |
 |---|---|---|---|
-| P03-A14 | **自然注册立即形成 owner。** 新 Customer 建立 / 识别 `customer_id` 后，若没有有效员工分享、明确直接转介绍等更高优先归属来源，则立即进入当前 `active + eligible + accepting` 接客池自动轮询，形成唯一 `current owner`；有效直接转介绍优先于普通自然轮询 | 2026-09-24 PDM-01 P01-A04 / PDM01-DEC-R5-REB-001 主动覆盖 R5/9-19/旧 IA“首次进入不立即形成 owner” | `USER_REVIEW_PENDING` |
+| P03-A14 | **自然注册立即形成 owner。** 新 Customer 建立 / 识别 `customer_id` 后，若没有有效员工分享、明确直接转介绍等更高优先归属来源，则立即进入当前 `active + eligible + accepting` 接客池自动轮询，形成唯一 `current owner`；有效直接转介绍优先于普通自然轮询 | 2026-09-24 PDM-01 P01-A04 / PDM01-DEC-R5-REB-001 主动覆盖 R5/9-19/旧 IA“首次进入不立即形成 owner” | `USER_CONFIRMED` |
 | P03-A15 | **客户车源分享本身就是转介绍/获客归属链。** 对尚无正式 owner 的新客户 B：A 将车源链接分享给 B，B 通过该链接进入后，按该分享链**实际绑定的销售**建立 B 的 current owner，并同时保存 A→B 的来源/推荐关系。A 转发张三绑定的链接，则 B 归张三；A 转发李四绑定的链接，则 B 归李四；A 使用自己的客户分享链接时，也保留 A 为来源客户/间接推荐人，并按该客户分享链对应的销售归属 B。**已有正式 owner 的老客户 B 仍不得被分享链接抢走。** | 2026-09-24 用户明确修正此前 SOURCE_ONLY 方案；主动恢复“客户车源分享可形成新客户归属”的业务语义，并以分享链实际销售绑定作为新客户 owner 来源 | `USER_CONFIRMED_MODIFIED` |
-| P03-A16 | **接客池异常为空的 owner 兜底闭环。** 正常操作仍必须保留至少 1 名 `active + eligible + accepting` 合格接客员工；若因突发 inactive / 资格失效等导致池被动为 0，新 Customer 身份仍可建立，但在没有其他优先归属来源时进入 `owner_assignment_pending`；不得用 System Admin 或 `responsible=null` 作为正式负责人；不得创建无负责人正式人工服务对象；接客池恢复后自动重试 owner 分配，并对池空/待分配/恢复/补分留告警与审计 | 2026-09-24 PDM-02 §10.1 用户确认新增异常闭环，在 CN11 旧“池空报错/不建正式对象”基础上补齐 owner_assignment_pending 与自动恢复 | `USER_REVIEW_PENDING` |
+| P03-A16 | **接客池异常为空的 owner 兜底闭环。** 正常操作仍必须保留至少 1 名 `active + eligible + accepting` 合格接客员工；若因突发 inactive / 资格失效等导致池被动为 0，新 Customer 身份仍可建立，但在没有其他优先归属来源时进入 `owner_assignment_pending`；不得用 System Admin 或 `responsible=null` 作为正式负责人；不得创建无负责人正式人工服务对象；接客池恢复后自动重试 owner 分配，并对池空/待分配/恢复/补分留告警与审计 | 2026-09-24 PDM-02 §10.1 用户确认新增异常闭环，在 CN11 旧“池空报错/不建正式对象”基础上补齐 owner_assignment_pending 与自动恢复 | `USER_CONFIRMED` |
 
 ## 9. Batch 3 边界说明
 
@@ -116,14 +116,14 @@ Batch 2 展示后必须停止等待用户确认。
 
 该项不影响本轮 A15 核心业务方向，留 PDM-03 Batch 4 单独裁决，不在此擅自补全。
 
-## 10. Batch 3 门禁
+## 10. Batch 3 门禁结果
 
-当前状态：
-
-- P03-A14：`USER_REVIEW_PENDING`
+- P03-A14：`USER_CONFIRMED`
 - P03-A15：`USER_CONFIRMED_MODIFIED`
-- P03-A16：`USER_REVIEW_PENDING`
+- P03-A16：`USER_CONFIRMED`
+- Batch 3：`COMPLETE_USER_CONFIRMED`
+- Decision Register：`PDM03-DEC-A14`～`PDM03-DEC-A16` + `PDM03-GATE-B3`
 
-只有用户明确确认本批后，才允许进入：
+下一步允许准备：
 
 > **PDM-03 Batch 4｜冲突 / 历史遗漏 / 证据缺口 / 新选择**
