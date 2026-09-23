@@ -131,7 +131,7 @@ Batch 3 仍须单独展示并等待用户确认。
 | Atom | 当前规则 | 变化来源 / 证据 | 状态 |
 |---|---|---|---|
 | P02-A16 | “查看名邦内部价 / 批发价”恢复为独立 permission；名邦员工需具备该 permission + data scope + object state 才能查看；4S hard DENY | 2026-09-24 用户主动反转 9/19 R1 旧口径；已登记 PDM02-DEC-A16 | `USER_CONFIRMED_NEW_CHANGE` |
-| P02-A17 | System Admin 的 P05 权限由其他 active System Admin 管理；首个 Admin 由 bootstrap 初始化；员工业务权限只能通过独立员工身份由 P04 正常授权 | 2026-09-24 用户确认补充；9/19/IA 提供身份隔离与首次初始化边界；已登记 PDM02-DEC-A17 | `USER_CONFIRMED_NEW_CHANGE` |
+| P02-A17 | System Admin 的 P05 身份仍由其他 active System Admin 管理，首个 Admin 由 bootstrap 初始化；**其中“System Admin 不能配置员工业务权限”的旧解释已被 P02-A19 修正**。当前以 A19“可治理配置、不可直接执行业务”为准 | 2026-09-24 原用户确认；后由 P02-A19 主动修正 | `SUPERSEDED_IN_PART_BY_P02-A19` |
 | P02-A18 | 一个 4S 成员账号直接代表一家合作 4S 店/合作主体；不建设 4S 店组织层级，不使用 cooperation scope。4S 账号新增、启用、停用、基础资料及允许范围内业务 permission 配置由后台治理入口完成；4S 成员本人不得管理其他 4S 账号；4S hard DENY 不得被任何后台授权绕过。**管理主体按 P02-A19 修正为 System Admin 控制平面可直接治理4S账号及允许权限。** | 用户主动简化 Phase1.5 D7；后由 P02-A19 修正管理主体 | `USER_CONFIRMED_SUPERSEDED_IN_PART_BY_P02-A19` |
 
 ## 9. Batch 3 边界说明
