@@ -1,0 +1,38 @@
+# IA Source Index — V5 FR-V5-001～003 Final Targeted Remediation
+
+状态：`CURRENT / CANONICAL / V5 FR001_003 TARGETED REMEDIATION`
+
+## 1. 业务权威
+`Phase1.5上游权威/` 七份文件仍是唯一业务来源。V4 外部已独立验证 Raw Universe=765、Normalization=765、Exact Source Chain=242；V5 原样保留这些已验证基础并只修 RC04/RC06/RC07。
+
+## 2. 唯一 Current
+- `当前IA/IA_CURRENT.md`
+- Page/Navigation/State Register
+- `当前IA/IA_V5_ACTION_CONTRACT.md`
+- `当前IA/IA_V5_STATE_CONTRACT.md`
+- `当前IA/IA_V5_LIFECYCLE_CONTRACT.md`
+- `当前IA/IA_V5_CANONICAL_GUARD_CONTRACT.md`
+- `当前IA/IA_V5_PERMISSION_CONTRACT.md`
+
+旧 V4 Action/State/Lifecycle/Journey contracts 与 V4 Gate 不进入 V5 canonical package。
+
+## 3. 证据工程
+`证据工程V5/` 是 V5 当前证据目录；Final Closure Validator 额外验证 target existence / active version / semantic object match / false-closed。`IA_V5_FULL_CLOSURE_SELF_CHECK.md` 为本轮真实自检。
+
+## 4. Gate / Ready
+唯一 Gate 路径为根目录 `IA_FINAL_GATE_V5.md`；当前 `INTERNAL_V5_FR001_003_FINAL_GATE=PASS`。本轮只修 FR-V5-001～003 及其 Validator/Saturation/Reviewer/Gate 阻断链；现仅开放 `READY_FOR_FINAL_EXTERNAL_REVERIFY=TRUE`，`READY_FOR_LOW_FI_REWORK=FALSE` 继续锁定，直到外部最终定向复验 PASS。
+
+## 5. 本轮冻结输入
+- `冻结整改输入V5/名邦汽车_V1_IA_V5_外部独立冷启动终止性终审报告.md`
+- `回归验收V5/IA_V5_FINAL_CLOSURE_SCOPE.md`
+- `回归验收V5/IA_V5_SAME_PATTERN_OCCURRENCE_LEDGER.csv`
+
+
+## 6. 最终外部复验
+内部 Final Closure Gate PASS 后，唯一允许的下一步是使用 `IA_V5_FINAL_REVERIFY_PACKAGE.zip` 对 V5-FINAL-001～005、同模式 occurrence、Validator/Fault Injection/Saturation/Reviewer/Gate 一致性执行剩余问题复验；不得据此重开全量 Phase 1/1.5/七根因审计。
+
+## 7. FR-V5-001～003 定向整改
+- FR-V5-001：Permission Matrix `RESULT` 必须与 Current Contract `RESULT` 一致；单独计算 overgrant / undergrant。
+- FR-V5-002：business/technical State 必须同时匹配 `CANONICAL_STATE_ID + BUSINESS_OBJECT + STATE_TYPE + CURRENT_SOURCE`。
+- FR-V5-003：Lifecycle FULL cell 新增独立 Expected Dimension Contract，并要求 Proof ↔ Current Carrier ↔ Supporting Current Ref ↔ Upstream Evidence ↔ Expected Dimension 五向一致。
+- FI-05～07 必须能让 Validator / Saturation / Reviewer / Internal Gate 全链 FAIL；FI-01～04 继续回归。

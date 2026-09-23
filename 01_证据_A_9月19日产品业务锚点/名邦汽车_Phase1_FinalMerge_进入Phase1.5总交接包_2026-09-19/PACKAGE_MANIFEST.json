@@ -1,0 +1,15 @@
+{
+  "package": "名邦汽车_Phase1_FinalMerge_进入Phase1.5总交接包_2026-09-19",
+  "created_date": "2026-09-19",
+  "phase1_business_review": "COMPLETE",
+  "phase1_final_merge": "COMPLETE",
+  "next_phase": "PHASE_1_5_BUSINESS_CLOSURE_REVIEW",
+  "first_step": "历史遗漏扫描",
+  "current_authority": "CURRENT/Phase1_当前唯一业务合并基线.md",
+  "history_policy": "历史只用于遗漏扫描与追溯，不自动覆盖 CURRENT",
+  "notes": [
+    "R1/R2/R4/R9/R10 已吸收 R11 回补当前规则",
+    "R12 已完成 PC 后台/配置/通知/审计收口",
+    "部分更早 File Library 历史原件当前运行环境无法实体导出，已登记在 HISTORY/INDEX/未物化历史资料清单.md"
+  ]
+}
