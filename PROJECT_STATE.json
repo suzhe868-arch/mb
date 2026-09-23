@@ -1,0 +1,32 @@
+{
+  "project": "名邦汽车 V1",
+  "updated_at": "2026-09-23",
+  "stage": "PRODUCT_BASELINE_REBUILD",
+  "substage": "GLOBAL_COVERAGE_MAP_VALIDATION",
+  "status": "IN_PROGRESS",
+  "canonical_language": "zh-CN",
+  "english_baseline_role": "SYNCED_MIRROR_AFTER_CN_FREEZE",
+  "product_baseline_status": "NOT_READY",
+  "candidate_product_domains": 25,
+  "current_task": "Validate the 9/19 global product coverage map against IA V5 and the 001-078 unadjudicated archive",
+  "next_action_file": "NEXT_ACTION.md",
+  "current_state_file": "CURRENT_PROJECT_STATE.md",
+  "decision_register": "07_重建工作区/DECISION_REGISTER.md",
+  "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
+  "forbidden_now": [
+    "Modify IA",
+    "Modify Low-Fi",
+    "Execute engineering Delta",
+    "Treat 9/22 FROZEN as automatic final truth",
+    "Treat the 20 historical modules as the complete product catalog",
+    "Start final adjudication from an arbitrary module before map validation"
+  ],
+  "handoff_read_order": [
+    "README.md",
+    "CURRENT_PROJECT_STATE.md",
+    "NEXT_ACTION.md",
+    "PROJECT_STATE.json",
+    "00_先读/01_产品基线重建执行规范_冻结工作版.md",
+    "07_重建工作区/DECISION_REGISTER.md"
+  ]
+}
