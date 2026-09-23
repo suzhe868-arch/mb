@@ -1,7 +1,7 @@
 # PDM-01｜客户身份 / 微信 / 手机号 / 资料 / 客户生命周期｜规则原子重建工作版
 
 > 日期：2026-09-23  
-> 状态：`EVIDENCE_REBASE_CONFLICT_REVIEW_PENDING`  
+> 状态：`USER_REVIEW_BATCH_3_PENDING`  
 > 业务域：PDM-01  
 > 说明：本文件严格依据当前 GitHub 仓库证据重建，不使用旧聊天记忆替代证据；当前仍是工作版，不是最终产品业务基线。
 > **2026-09-23 用户全量审查门禁覆盖说明：** 本文件中任何“保留 / 稳定 / 建议保留 / 可直接保留”均仅代表模型证据分类，不代表用户已批准。P01-A01～A20 全部必须进入四批用户审查；未经用户明确确认，任何规则不得进入最终产品基线。
@@ -55,7 +55,7 @@
 | P01-A01 | Customer 使用稳定 `customer_id`；手机号、头像、昵称不是唯一身份主键 | M01-001 历史原文明确；R5/R10 以微信身份创建/找到 customer_id | IA ACT-V4-001 / CO-O01 继续承载 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
 | P01-A02 | 首次进入：微信身份识别 → 创建/找到 customer_id → 直接进入 C01；不建设显式独立登录页 | R10-55 明确 | IA 首入 Action/State 一致 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
 | P01-A03 | 首次进入不要求手机号、头像、昵称，不阻挡普通浏览 | R10-55 明确 | IA 一致 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
-| P01-A04 | 首次进入建立/识别 customer_id 后进入归属判定：无有效分享/直接转介绍等优先归属来源时，进入自然注册自动轮询接客池并形成唯一 current owner；通过有效直接转介绍进入时，新客户记录直接推荐关系，并由推荐人事件发生时的 current owner 承接，不再参加普通自然注册轮询；普通客户侧车源转发仍为 SOURCE_ONLY，不据此分配或改变 owner | 9/19 R5/R10 写有“首次进入不自动分配 owner”，但 IA Current 后续明确存在 future natural registration / auto-round-robin；R5 §7 明确直接转介绍由 referrer 当时 current owner 承接 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“A04通过”；已写入 Decision Register，后续相关规则必须继承，冲突只能显式重审 |
+| P01-A04 | 首次进入建立/识别 customer_id 后进入归属判定：无有效分享/直接转介绍等优先归属来源时，进入自然注册自动轮询接客池并形成唯一 current owner；通过有效直接转介绍进入时，新客户记录直接推荐关系，并由推荐人事件发生时的 current owner 承接，不再参加普通自然注册轮询；普通客户侧车源转发仍为 SOURCE_ONLY，不据此分配或改变 owner | 补回 R5 原件、9/19 CURRENT R5、R10-55、IA Current 均明确旧规则为“首次进入不立即形成 owner；有效分享/转介绍或首次人工服务事件才形成 owner”。2026-09-24 用户在知悉该直接冲突后明确裁决“继续用 A04”，因此 A04 是当前主动新修改，不再把 IA 的 natural registration / auto-round-robin 解释为历史已支持首次进入立即分配 | `USER_CONFIRMED_NEW_CHANGE` | 用户于 2026-09-24 重基准后再次明确确认“继续用 A04”；已写入 PDM01-DEC-R5-REB-001，后续必须按新规则继承 |
 | P01-A05 | 微信身份识别失败可重试 | R10-55 明确 | IA BUS-V4-001 / CO-O01 一致；实际 Low-Fi 首入专门失败态承载不足 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
 | P01-A06 | 手机号是人工服务硬门槛，但不是浏览/收藏门槛 | R10-11、M01-001 明确 | IA / C-O02 一致 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
 | P01-A07 | 无手机号触发授权；成功保存并自动继续原动作；拒绝/取消不创建正式人工服务对象 | R10-11 明确 | IA C-O02 Guard 一致；9/22 VR-C-018 仅要求界面保留“授权手机号/取消”，success resume 不画成按钮 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“剩余14条全部通过”；已写入 Decision Register |
@@ -75,12 +75,12 @@
 
 ## 3.1 P01-A04 专项修正记录（用户已确认）
 
-本轮用户指出：客户第一次进入后实际应形成销售归属，而不是长期保持 owner 为空。回查仓库后发现：
+本轮用户先确认 A04 为“首次进入后自然注册自动分配 owner”。2026-09-24 补回 R5 原始最终总结后重新核证，确认此前证据解释需要纠正：
 
-- 9/19 R5 / R10 写有“首次进入不自动分配 owner”；
-- 但 IA Current 明确存在 `future natural registration / auto-round-robin`，说明自然注册会进入自动接客分配；
-- R5 §7 明确：老客户直接转介绍产生的新客户，由推荐人事件发生时的 current owner 承接；
-- 因此旧 A04 的“首次进入不自动形成 owner”表述过度简化，遗漏了“身份建立后立即进入归属判定/自然注册自动轮询”的后续语义。
+- R5 原件、9/19 CURRENT R5、R10-55 均明确“首次进入不自动分配 owner”；
+- IA Current 虽存在 `natural registration / auto-round-robin`，但同一 IA 也明确“首次进入只建立 customer_id，不会仅因建立身份自动形成 owner”，因此该短语不能证明历史上支持“首次进入立即分配”；
+- R5 / IA 对有效分享、直接转介绍、首次人工服务事件形成 owner 的旧规则是一致的；
+- 用户在知悉上述直接冲突后明确裁决“继续用 A04”。因此 A04 现在应被定义为 2026-09-24 的主动新修改，而不是对旧证据的解释性恢复。
 
 当前修正版候选：
 
@@ -88,7 +88,7 @@
 
 注意：普通客户侧“转发车源”仍是 `SOURCE_ONLY`，不等同于正式“直接转介绍”，不能据此分配或改变 owner。
 
-状态：`USER_CONFIRMED`。用户于 2026-09-24 明确确认“A04通过”，已写入 Decision Register。该规则从现在起作为后续批次和相关 PDM 的当前有效约束持续继承；如后续证据冲突，只能显式重新交用户裁决，不得静默覆盖。
+状态：`USER_CONFIRMED_NEW_CHANGE`。用户于 2026-09-24 在 R5 原件补回、冲突被完整呈现后再次明确确认“继续用 A04”。已追加 Decision Register `PDM01-DEC-R5-REB-001`。该规则现在明确覆盖旧 R5 / R10 / IA 的“首次进入不立即形成 owner”规则，并继续作为后续批次和相关 PDM 的当前有效约束。
 
 ## 4. 知情修改测试
 
@@ -234,7 +234,7 @@
 
 | ID | 旧规则 / 旧口径 | 当前替代 / 排除方向 | 原始证据结论 | 与 Batch 1 已确认规则关系 | 当前状态 |
 |---|---|---|---|---|---|
-| P01-B2-01 | 首次进入只建立 `customer_id`，不因首次进入形成 owner；普通浏览不是归属触发条件 | DO_NOT_RESTORE：改为已确认 A04——无优先归属来源时，自然注册完成后立即进入 active + eligible + accepting 接客池自动轮询形成唯一 current owner；直接转介绍优先由推荐人当时 current owner 承接 | 9/19 R5 §2 / R10-55 保留旧口径；IA Current 后续存在 `natural registration / auto-round-robin`；2026-09-24 用户已确认 A04 修正版 | 直接由 P01-A04 替代 | `USER_CONFIRMED` |
+| P01-B2-01 | 首次进入只建立 `customer_id`，不因首次进入形成 owner；普通浏览不是归属触发条件 | DO_NOT_RESTORE：改为已确认 A04——无优先归属来源时，首次进入建立/识别 customer_id 后立即进入 active + eligible + accepting 接客池自动轮询形成唯一 current owner；直接转介绍优先由推荐人当时 current owner 承接 | R5 原件 / 9/19 CURRENT R5 / R10-55 / IA Current 均直接支持该旧口径；2026-09-24 用户在重基准冲突复核后仍明确选择 A04，因此旧口径作为被主动新修改覆盖的规则不得恢复 | 由 P01-A04 的 2026-09-24 主动新修改替代 | `USER_CONFIRMED` |
 | P01-B2-02 | V1 不建设复杂 Customer Merge / 不做正式 Customer Merge | DO_NOT_RESTORE：允许受控人工 Merge；只有确认同一自然人后才允许合并，并保留历史/来源/owner变化；完整 Merge 细节留 Batch 4 | 001～078 M01-002 逐字保留 2026-09-06 旧规则；9/19 R5 §13 已明确“确认同一自然人后允许人工合并” | 与已确认 P01-A09/A10 一致，旧“完全不做 Merge”不得恢复 | `USER_CONFIRMED` |
 | P01-B2-03 | 同手机号自动认定同一客户并自动 Merge | DO_NOT_RESTORE：相同手机号最多只能作为重复客户提示证据之一，不得自动 Merge / 改 owner / 搬历史 / 搬权益 | 001～078 M01-002 明确记录该旧口径当时已废弃；9/19 R5 §13 再次明确相同手机号不能自动合并 | 已确认 P01-A08/A09 | `USER_CONFIRMED` |
 | P01-B2-04 | 换手机号时新建 Customer / 新 `customer_id` | DO_NOT_RESTORE：手机号是可变联系方式；同一微信 Customer 换号仍保持原 `customer_id`，旧号保留必要历史；具体怎么换绑留 Batch 4 | 001～078 M01-004 / M01-006 逐字保留 DEC-057，并明确禁止“换手机号新建 customer” | 不与 Batch 1 冲突；正向恢复规则 P01-A13 仍留 Batch 4 重新确认 | `USER_CONFIRMED` |
@@ -294,9 +294,9 @@ IA 中“接客关闭只影响未来自然注册 / 自动轮询”不能单独�
 
 因此当前正确状态不是自动恢复历史 R5，也不是静默维持 A04，而是：
 
-> `USER_CONFIRMED_NEW_CHANGE_VS_RECOVERED_R5_CONFLICT`
+> `USER_CONFIRMED_NEW_CHANGE`
 
-必须由用户知情确认：是否把 A04 作为 2026-09-24 对 R5 / R10 / IA 旧“首次进入不分配 owner”规则的**主动新修改**继续保留，还是回退到 R5 原规则。
+2026-09-24 用户在知悉 R5 原件、9/19 CURRENT R5、R10-55、IA Current 均支持旧规则后，明确裁决“继续用 A04”。因此冲突已关闭：A04 作为主动新修改覆盖旧规则，P01-B2-01 继续有效。
 
 ### 9.4 无冲突但证据谱系增强的已确认项
 
@@ -342,8 +342,8 @@ R5 原件还恢复了销售分享、老客户转介绍、原始来源与 current
 ### 9.7 当前门禁结论
 
 - PDM-01 证据重基准检查已完成；
-- Batch 3 继续暂停；
-- 当前唯一需要先处理的重基准冲突是 `P01-A04 + P01-B2-01`；
-- 在该冲突由用户知情裁决前，不恢复 Batch 3；
+- `P01-A04 + P01-B2-01` 冲突已由用户知情裁决：继续 A04，作为 2026-09-24 主动新修改覆盖旧 R5 / R10 / IA 规则；
+- 其余 18 个已确认条目无真实冲突；
+- 当前恢复 `USER_REVIEW_BATCH_3_PENDING`；
 - 不修改 IA / Low-Fi / Engineering。
 
