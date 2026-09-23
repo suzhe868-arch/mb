@@ -1,6 +1,6 @@
 {
   "project": "名邦汽车 V1",
-  "updated_at": "2026-09-23",
+  "updated_at": "2026-09-24",
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Present PDM-01 Batch 1 stable-consistent rule atoms for full user review, then stop",
+  "current_task": "Review remaining 14 PDM-01 Batch 1 stable-consistent atoms; P01-A04 is user-confirmed and binding",
   "current_work_file": "07_重建工作区/PDM-01_客户身份规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -34,5 +34,16 @@
     "Modify IA",
     "Modify Low-Fi",
     "Execute engineering Delta"
-  ]
+  ],
+  "confirmed_rule_atoms": [
+    "P01-A04"
+  ],
+  "batch_1_confirmed_count": 1,
+  "batch_1_pending_count": 14,
+  "current_binding_constraints": [
+    "P01-A04: natural registration without priority attribution enters auto-round-robin accepting pool to form one current owner",
+    "P01-A04: direct referral is assigned to referrer's current owner at event time and does not enter ordinary natural-registration rotation",
+    "P01-A04: ordinary customer vehicle re-share remains SOURCE_ONLY and does not assign/change owner"
+  ],
+  "decision_register_status": "HAS_CONFIRMED_DECISIONS"
 }
