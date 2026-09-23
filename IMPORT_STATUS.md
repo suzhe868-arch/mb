@@ -2,31 +2,42 @@
 
 > 更新时间：2026-09-23
 
-当前状态：`CORE_READY / EVIDENCE_BULK_PENDING`
+当前状态：`COMPLETE / VERIFIED`
 
-## 已进入 GitHub
+## 校验结论
 
-- README.md
-- CURRENT_PROJECT_STATE.md
-- NEXT_ACTION.md
-- PROJECT_STATE.json
-- `00_先读/01_产品基线重建执行规范_冻结工作版.md`
-- `00_先读/02_9月19日产品全域覆盖地图_未裁决版.md`
-- `07_重建工作区/DECISION_REGISTER.md`
-- `07_重建工作区/模块状态总表.md`
-- `07_重建工作区/知情修改专项台账.md`
-- `08_最终业务基线/README_NOT_READY.md`
-- SOURCE_ORIGIN.md
+本轮已对 GitHub `main` 的完整递归文件树与 `SOURCE_MANIFEST_SHA256.csv` 做机械比对：
 
-## 尚未批量进入 GitHub
+- GitHub 文件 blob：605
+- Manifest 记录：603
+- Manifest 唯一路径：603
+- Manifest → GitHub 缺失：0
+- GitHub 额外文件：2
+  - `IMPORT_STATUS.md`
+  - `SOURCE_MANIFEST_SHA256.csv`
+- GitHub 递归树：`truncated=false`
 
-产品基线重建工作包中的六类证据目录及 `SOURCE_MANIFEST_SHA256.csv` 尚未完整导入。原因是当前 GitHub 连接器只能逐个写 UTF-8 文本文件，不能直接接收当前聊天环境中的 ZIP 并在仓库端展开，也不能一次批量上传其中的二进制/历史 ZIP/SVG 等 600+ 文件。
+六类证据实际文件数量：
 
-因此，在六类证据完成批量导入前：
+- A｜9/19 产品业务锚点：68
+- B｜9/22 冻结台账：1
+- C｜IA V5 / Current：11
+- D｜实际 Low-Fi：507
+- E｜工程总闭环待执行 Delta：1
+- F｜001～078 历史反向差集：2
 
-- 可以读取仓库了解当前阶段和方法；
-- 不应宣称仓库已经具备完整证据集；
-- 不应仅凭当前仓库内容开始正式规则裁决；
-- 下一步优先完成证据整包导入，再继续全域覆盖地图校验。
+结论：
 
-原待导入包：`名邦汽车_V1_产品基线重建_GitHub工作包_V1_统一规则版_2026-09-23.zip`。
+> **六类证据目录已完整进入 GitHub；按 Manifest 路径校验 603/603，缺失 0。**
+
+注意：本次完成的是“文件存在性 / 路径完整性”校验。Manifest 中的 SHA256 未逐文件重新下载计算，因此不把本轮描述成“远端 603 个文件逐字节 SHA256 复算”。源工作包自身已有 Manifest；本轮确认 GitHub 文件树与其路径集合完全一致。
+
+## 下一阶段
+
+仓库已可作为跨窗口长期工作底座。
+
+下一步进入：
+
+> **9/19 产品全域覆盖地图完整性校验。**
+
+不得跳过全域地图，直接开始价格、Priority、Lock 等单模块最终裁决。

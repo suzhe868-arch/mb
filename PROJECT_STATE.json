@@ -1,16 +1,31 @@
 {
   "project": "名邦汽车 V1",
   "updated_at": "2026-09-23",
+  "repository": "suzhe868-arch/mb",
+  "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
   "substage": "GLOBAL_COVERAGE_MAP_VALIDATION",
   "status": "IN_PROGRESS",
+  "repository_import_status": "COMPLETE_VERIFIED",
+  "repository_manifest_paths": 603,
+  "repository_manifest_missing_paths": 0,
+  "repository_total_blobs_at_import_verification": 605,
+  "evidence_file_counts": {
+    "A_919_business_anchor": 68,
+    "B_922_frozen_ledger": 1,
+    "C_IA_V5_Current": 11,
+    "D_actual_LowFi": 507,
+    "E_engineering_delta": 1,
+    "F_001_078_reverse_diff": 2
+  },
   "canonical_language": "zh-CN",
   "english_baseline_role": "SYNCED_MIRROR_AFTER_CN_FREEZE",
   "product_baseline_status": "NOT_READY",
   "candidate_product_domains": 25,
-  "current_task": "Validate the 9/19 global product coverage map against IA V5 and the 001-078 unadjudicated archive",
+  "current_task": "Validate the 9/19 global product coverage map against IA V5, the 001-078 unadjudicated archive, and required 9/19 historical evidence",
   "next_action_file": "NEXT_ACTION.md",
   "current_state_file": "CURRENT_PROJECT_STATE.md",
+  "import_status_file": "IMPORT_STATUS.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "forbidden_now": [
@@ -26,7 +41,9 @@
     "CURRENT_PROJECT_STATE.md",
     "NEXT_ACTION.md",
     "PROJECT_STATE.json",
+    "IMPORT_STATUS.md",
     "00_先读/01_产品基线重建执行规范_冻结工作版.md",
+    "00_先读/02_9月19日产品全域覆盖地图_未裁决版.md",
     "07_重建工作区/DECISION_REGISTER.md"
   ]
 }
