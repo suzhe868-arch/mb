@@ -1,8 +1,8 @@
 # PDM-02｜员工身份 / 组织 / 角色 / 权限 / 数据范围 / System Admin / 4S 身份｜规则原子重建工作版
 
 > 日期：2026-09-24  
-> 状态：`USER_REVIEW_BATCH_3_PENDING`  
-> 说明：严格按当前 GitHub 原始证据重新重建，不使用旧聊天记忆替代证据。Batch 1、Batch 2 已完成；当前开放 Batch 3｜明确知情修改 / 后续明确新增。A16/A17 已在前序讨论中由用户确认，A18 为本批唯一新增待审项。
+> 状态：`BATCH_3_COMPLETE_PREPARE_BATCH_4`  
+> 说明：严格按当前 GitHub 原始证据重新重建，不使用旧聊天记忆替代证据。Batch 1～3 已完成；当前允许准备 Batch 4｜冲突 / 历史遗漏 / 证据缺口 / 新选择。
 
 ## 1. 证据范围
 
@@ -132,7 +132,7 @@ Batch 3 仍须单独展示并等待用户确认。
 |---|---|---|---|
 | P02-A16 | “查看名邦内部价 / 批发价”恢复为独立 permission；名邦员工需具备该 permission + data scope + object state 才能查看；4S hard DENY | 2026-09-24 用户主动反转 9/19 R1 旧口径；已登记 PDM02-DEC-A16 | `USER_CONFIRMED_NEW_CHANGE` |
 | P02-A17 | System Admin 的 P05 权限由其他 active System Admin 管理；首个 Admin 由 bootstrap 初始化；员工业务权限只能通过独立员工身份由 P04 正常授权 | 2026-09-24 用户确认补充；9/19/IA 提供身份隔离与首次初始化边界；已登记 PDM02-DEC-A17 | `USER_CONFIRMED_NEW_CHANGE` |
-| P02-A18 | 4S 账号由**具备“4S 成员管理权限”且 data scope / cooperation scope 覆盖对应合作范围的 active 经理或店长**管理；System Admin 身份不自动获得 4S 账号管理能力；同一真人若要管理 4S 成员，必须使用其独立员工身份并满足上述 permission + scope | Phase1.5 Decision D7=A；IA Current CR-D7 明确写回；9/19 R1 只定义 4S 身份边界，未完整写明账号管理 Actor | `USER_REVIEW_PENDING` |
+| P02-A18 | 一个 4S 成员账号直接代表一家合作 4S 店/合作主体；不建设 4S 店组织层级，不使用 cooperation scope。4S 账号的新增、启用、停用、基础资料维护及允许范围内的业务 permission 配置，由名邦后台具备相应管理权限的 active 内部管理人员执行；4S 成员本人不得管理其他 4S 账号；System Admin 身份不自动获得该业务管理能力；4S hard DENY 不得被后台授权绕过 | 用户主动简化 Phase1.5 D7 的 cooperation scope 表达，并与 P02-A06/A16/A17 对齐 | `USER_CONFIRMED_NEW_CHANGE` |
 
 ## 9. Batch 3 边界说明
 
@@ -148,10 +148,16 @@ Batch 3 仍须单独展示并等待用户确认。
 
 其中 Phase1.5 `CR-S4-C12` 只证明“不能假定真实运行模板值，独立敏感能力必须明确授权”，并没有提供完整角色模板默认值，因此该问题保留到 Batch 4。
 
-## 10. Batch 3 门禁
+## 10. Batch 3 门禁结果
 
-- P02-A16：已确认；
-- P02-A17：已确认；
-- P02-A18：`USER_REVIEW_PENDING`。
+- P02-A16：`USER_CONFIRMED_NEW_CHANGE`
+- P02-A17：`USER_CONFIRMED_NEW_CHANGE`
+- P02-A18：`USER_CONFIRMED_NEW_CHANGE`
+- Batch 3：`COMPLETE_USER_CONFIRMED`
+- Decision Register：`PDM02-DEC-A16`～`PDM02-DEC-A18` + `PDM02-GATE-B3`
 
-只有 P02-A18 获得用户明确裁决后，才允许关闭 Batch 3 并进入 Batch 4。
+下一步允许准备：
+
+> PDM-02 Batch 4｜冲突 / 历史遗漏 / 证据缺口 / 新选择。
+
+Batch 4 展示后必须停止等待用户确认。
