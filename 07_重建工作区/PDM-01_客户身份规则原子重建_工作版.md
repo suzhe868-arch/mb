@@ -43,7 +43,7 @@
 | P01-A01 | Customer 使用稳定 `customer_id`；手机号、头像、昵称不是唯一身份主键 | M01-001 历史原文明确；R5/R10 以微信身份创建/找到 customer_id | IA ACT-V4-001 / CO-O01 继续承载 | `STABLE_CONSISTENT` | 保留 |
 | P01-A02 | 首次进入：微信身份识别 → 创建/找到 customer_id → 直接进入 C01；不建设显式独立登录页 | R10-55 明确 | IA 首入 Action/State 一致 | `STABLE_CONSISTENT` | 保留 |
 | P01-A03 | 首次进入不要求手机号、头像、昵称，不阻挡普通浏览 | R10-55 明确 | IA 一致 | `STABLE_CONSISTENT` | 保留 |
-| P01-A04 | 首次进入建立/识别 customer_id 后进入归属判定：无有效分享/直接转介绍等优先归属来源时，进入自然注册自动轮询接客池并形成唯一 current owner；通过有效直接转介绍进入时，新客户记录直接推荐关系，并由推荐人事件发生时的 current owner 承接，不再参加普通自然注册轮询 | 9/19 R5/R10 写有“首次进入不自动分配 owner”，但 IA Current 后续明确存在 future natural registration / auto-round-robin；R5 §7 明确直接转介绍由 referrer 当时 current owner 承接 | 存在前后语义冲突，不能继续判稳定一致 | `USER_REVIEW_PENDING / CONFLICT_FOUND` | 按用户当前口径形成修正版候选；未经用户明确确认不得进入最终基线 |
+| P01-A04 | 首次进入建立/识别 customer_id 后进入归属判定：无有效分享/直接转介绍等优先归属来源时，进入自然注册自动轮询接客池并形成唯一 current owner；通过有效直接转介绍进入时，新客户记录直接推荐关系，并由推荐人事件发生时的 current owner 承接，不再参加普通自然注册轮询；普通客户侧车源转发仍为 SOURCE_ONLY，不据此分配或改变 owner | 9/19 R5/R10 写有“首次进入不自动分配 owner”，但 IA Current 后续明确存在 future natural registration / auto-round-robin；R5 §7 明确直接转介绍由 referrer 当时 current owner 承接 | `USER_CONFIRMED` | 用户于 2026-09-24 明确确认“A04通过”；已写入 Decision Register，后续相关规则必须继承，冲突只能显式重审 |
 | P01-A05 | 微信身份识别失败可重试 | R10-55 明确 | IA BUS-V4-001 / CO-O01 一致；实际 Low-Fi 首入专门失败态承载不足 | `STABLE_CONSISTENT` | 业务保留；承载问题留后续 IA/Low-Fi 校准 |
 | P01-A06 | 手机号是人工服务硬门槛，但不是浏览/收藏门槛 | R10-11、M01-001 明确 | IA / C-O02 一致 | `STABLE_CONSISTENT` | 保留 |
 | P01-A07 | 无手机号触发授权；成功保存并自动继续原动作；拒绝/取消不创建正式人工服务对象 | R10-11 明确 | IA C-O02 Guard 一致；9/22 VR-C-018 仅要求界面保留“授权手机号/取消”，success resume 不画成按钮 | `STABLE_CONSISTENT` | 保留；9/22 仅作为视觉/Journey 修正 |
@@ -61,7 +61,7 @@
 | P01-A19 | 个人资料展示头像、昵称、手机号、我的顾问；打开资料页本身不分配销售 | R10-22 明确 | 无后续冲突 | `STABLE_CONSISTENT` | 保留；“我的顾问”关系细节归 PDM-03 |
 | P01-A20 | Customer 跨后续购车/找车/咨询保持同一身份；新一轮业务在原 Customer 下新建，不因新业务重建 Customer | Phase1 Merge 的 R6 部分明确 | 无后续冲突 | `STABLE_CONSISTENT` | 保留 |
 
-## 3.1 P01-A04 专项修正记录（待用户确认）
+## 3.1 P01-A04 专项修正记录（用户已确认）
 
 本轮用户指出：客户第一次进入后实际应形成销售归属，而不是长期保持 owner 为空。回查仓库后发现：
 
@@ -76,13 +76,13 @@
 
 注意：普通客户侧“转发车源”仍是 `SOURCE_ONLY`，不等同于正式“直接转介绍”，不能据此分配或改变 owner。
 
-状态：`USER_REVIEW_PENDING`。在用户明确确认前，不写入 Decision Register，也不作为最终基线。
+状态：`USER_CONFIRMED`。用户于 2026-09-24 明确确认“A04通过”，已写入 Decision Register。该规则从现在起作为后续批次和相关 PDM 的当前有效约束持续继承；如后续证据冲突，只能显式重新交用户裁决，不得静默覆盖。
 
 ## 4. 知情修改测试
 
 ### 4.1 没有真实冲突的稳定项
 
-除 P01-A04 外，P01-A01～A03、A05～A10、A15、A17～A20 与 9/19 规则没有发现真实后续冲突；P01-A04 已发现“首次进入不自动分配 owner”与后续 `natural registration / auto-round-robin` 承载之间存在语义冲突，已转入专项修正并等待用户确认。其余差异主要是承载不足或结构显式化，不构成产品规则改写。
+除 P01-A04 外，P01-A01～A03、A05～A10、A15、A17～A20 与 9/19 规则没有发现真实后续冲突。P01-A04 已发现“首次进入不自动分配 owner”与后续 `natural registration / auto-round-robin` 承载之间的语义冲突，并已由用户明确裁决为“自然注册自动分配 + 直接转介绍优先承接”的修正版。其余差异主要是承载不足或结构显式化，不构成产品规则改写。
 
 ### 4.2 P01-A11｜Phase1.5 Merge Guard
 
@@ -204,14 +204,14 @@
 
 ## 7. 当前阶段结论
 
-- 第一批候选稳定项：P01-A01～A10、A15、A17～A20；**全部状态改为 USER_REVIEW_PENDING，必须由用户逐批审查，不得自动保留。**
+- Batch 1 中 P01-A04 已由用户明确确认；其余 P01-A01～A03、A05～A10、A15、A17～A20 仍为 `USER_REVIEW_PENDING`，不得自动保留。
 - 历史遗漏强候选：P01-A13。
 - 证据不完整：P01-A11。
 - 需要真实产品裁决：P01-A12、A14、A16，并形成 D01～D04。
-- Decision Register 暂不写入，因为尚未产生本轮新的用户裁决。
+- Decision Register 已写入 `PDM01-DEC-A04`；A04 已成为本轮已确认约束。
 - PDM-01 状态：`USER_REVIEW_BATCH_1_PENDING`。
 - 当前先执行 Batch 1 稳定一致项用户审查；随后按 Batch 2 → Batch 3 → Batch 4 → PDM 最终总览。四批和最终总览均经用户确认前，不生成正式 PDM-01 最终规则，也不进入 PDM-02。
 
 ## 一句话索引
 
-> PDM-01 的主体规则已重建清楚；当前真正阻塞只剩手机号换绑、Merge 完整语义、客户停用/注销生命周期三组产品决策，以及一项 Phase1.5 Merge Guard 原始业务来源缺失，其他身份/手机号门槛/头像昵称规则均可稳定保留。
+> PDM-01 当前已确认 A04“自然注册自动分配 + 直接转介绍优先承接”；Batch 1 其余稳定项仍待用户审查，后续还需处理手机号换绑、Merge 完整语义、客户停用/注销生命周期及 Phase1.5 Merge Guard 证据缺口。
