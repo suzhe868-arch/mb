@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-01",
-  "current_domain_status": "USER_REVIEW_BATCH_3_PENDING",
+  "current_domain_status": "USER_REVIEW_BATCH_4_PENDING",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Present PDM-01 Batch 3 informed changes and explicit additions for full user review, then stop",
+  "current_task": "Present PDM-01 Batch 4 conflicts, omissions, evidence gaps, and new choices for full user review, then stop",
   "current_work_file": "07_重建工作区/PDM-01_客户身份规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -64,7 +64,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
+  "current_review_batch": "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -82,7 +82,7 @@
     "R5": "RECOVERED_ORIGINAL_FINAL_SUMMARY"
   },
   "r5_original_source_gap": "CLOSED",
-  "batch_3_status": "PENDING_USER_REVIEW",
+  "batch_3_status": "COMPLETE_USER_CONFIRMED_NO_NEW_ATOMS",
   "evidence_rebase_required_before_batch_3": false,
   "evidence_rebase_focus": [
     "P01-A04",
@@ -115,5 +115,17 @@
     "P01-A13": "UPGRADED_TO_DIRECT_R5_ORIGINAL_EVIDENCE",
     "P01-A14": "NO_CHANGE_NEEDS_DECISION",
     "P01-A16": "R5_ORIGINAL_STRENGTHENS_CORE_BUT_DETAILS_REMAIN_OPEN"
-  }
+  },
+  "batch_3_new_unreviewed_atoms": 0,
+  "batch_3_already_confirmed_hits": [
+    "P01-A04",
+    "P01-A07/VR-C-018"
+  ],
+  "batch_4_pending_atoms": [
+    "P01-A11",
+    "P01-A12",
+    "P01-A13",
+    "P01-A14",
+    "P01-A16"
+  ]
 }
