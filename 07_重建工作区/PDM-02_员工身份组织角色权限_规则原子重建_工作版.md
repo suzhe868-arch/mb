@@ -1,8 +1,8 @@
 # PDM-02｜员工身份 / 组织 / 角色 / 权限 / 数据范围 / System Admin / 4S 身份｜规则原子重建工作版
 
 > 日期：2026-09-24  
-> 状态：`BATCH_3_COMPLETE_PREPARE_BATCH_4`  
-> 说明：严格按当前 GitHub 原始证据重新重建，不使用旧聊天记忆替代证据。Batch 1～3 已完成；当前允许准备 Batch 4｜冲突 / 历史遗漏 / 证据缺口 / 新选择。
+> 状态：`USER_REVIEW_BATCH_4_PENDING`  
+> 说明：严格按当前 GitHub 原始证据重新重建，不使用旧聊天记忆替代证据。Batch 1～3 已完成；当前开放 Batch 4｜冲突 / 历史遗漏 / 证据缺口 / 新选择，共 6 条，全部待用户裁决。
 
 ## 1. 证据范围
 
@@ -161,3 +161,34 @@ Batch 3 仍须单独展示并等待用户确认。
 > PDM-02 Batch 4｜冲突 / 历史遗漏 / 证据缺口 / 新选择。
 
 Batch 4 展示后必须停止等待用户确认。
+
+
+## 11. Batch 4｜冲突 / 历史遗漏 / 证据缺口 / 新选择
+
+| Atom | 问题 | 证据现状 | 当前候选方案 | 状态 |
+|---|---|---|---|---|
+| P02-B4-01 | 经理 / 店长的员工管理边界还没有完整冻结 | 9/19：经理可在授权团队做接客、交接、日常人员状态管理，但不能创建/管理店长；店长可在本店新增员工、在职/离职、普通销售↔经理、接客、数据范围。IA 又把 manager 的 employee deactivate/reinstate 解释为 CONDITIONAL，而不是职位自动拥有 | **候选：**经理默认不拥有完整员工账号生命周期权；只在具备对应员工管理 permission + 团队 data scope 时，执行下属接客、交接、人员状态类动作；店长拥有本店 P04 员工管理入口，可新增员工、处理在职/离职、普通销售↔经理、接客与数据范围。所有敏感业务 permission 仍独立授权 | `USER_REVIEW_PENDING` |
+| P02-B4-02 | 系统允许多个店长，但“谁能新增/任命/管理店长”存在死口 | 9/19 明确：同店可多个店长；经理不能创建/管理店长；店长现有边界只写普通销售↔经理；System Admin 又与员工业务体系分离 | **候选：**新增独立 `employee.store_manager.manage` 能力，仅允许 active 店长在其授权范围内管理其他店长；禁止自我提权/自改；首个店长由业务初始化/bootstrap 建立；计划停用最后一个 active 店长时应先指定替代 | `USER_REVIEW_PENDING` |
+| P02-B4-03 | 角色模板“实时默认”语义已存在，但完整默认 permission 种子从未真正冻结 | 9/19：模板新增/取消默认权限实时作用现有员工，个人明确授权/禁用继续覆盖；Phase1.5 CR-S4-C12：不得假装已经知道真实运行模板默认值 | **候选：**保留“角色模板实时默认”机制；模板变化实时影响同角色员工，个人 override/hard DENY 继续优先；若降权影响在办业务先交接。**但不在产品基线硬编码完整默认 permission 清单**，由 P04 后台角色模板配置；系统仅冻结 hard DENY 和最小角色边界 | `USER_REVIEW_PENDING` |
+| P02-B4-04 | 正常规则只阻止“主动关闭最后一名接客员工”，但异常情况下接客池仍可能被动变成 0 | CN11 DEC-039：极端池空不创建 responsible=null，不让 System Admin 兜底，只记录配置异常；PDM-01 A04 正常路径要求新客户自然注册立即从 active+eligible+accepting 池形成 owner | **候选：**正常操作继续禁止关闭/停用最后一名合格接客人；若因突发 inactive/资格失效导致池空，Customer 身份仍可建立，但进入 `owner_assignment_pending`/异常待分配，不创建无负责人正式人工业务，不用 System Admin/null 负责人；恢复可用接客池后自动重新尝试分配 owner，并记录告警/审计 | `USER_REVIEW_PENDING` |
+| P02-B4-05 | PDM-01 已明确“有权限员工可维护客户其他联系电话”，但具体 capability / 角色没有定义 | PDM-01 最终规则明确把“手机号维护具体角色/capability”留给 PDM-02；历史材料没有给出可直接继承的具体 permission | **候选：**新增独立 `customer.phone.manage`。active 名邦员工仅在具备该 permission 且 customer 在 data scope 内时，可新增/修改/失效“其他联系电话”；4S hard DENY；全部变更审计。该 permission **不默认允许改主要手机号**，主要手机号更换继续走客户正式授权/绑定规则 | `USER_REVIEW_PENDING` |
+| P02-B4-06 | 4S 是否默认进入 PC 业务后台，需要在 A18 新模型下重新确认 | 9/19 / IA：4S 默认不进入名邦 PC 业务后台；若明确授予车辆管理能力，仅看到本人有权 4S 车辆的 P02 裁剪投影。A18 已取消 cooperation scope 并明确一个 4S 账号直接代表一个合作主体 | **候选：**继续保持“4S 默认不进入 PC 业务后台”；若后台明确授予 4S 的 PC 车辆管理能力，只开放其本人账号对应 4S 车辆的 P02 裁剪能力；P04/P05/CRM/Lock/Transaction/内部价/一键转名邦继续 hard DENY | `USER_REVIEW_PENDING` |
+
+## 12. Batch 4 边界
+
+以下继续跨域留给后续 PDM，不在 PDM-02 里提前定：
+
+- 一键转名邦具体 permission → PDM-04 / PDM-21；
+- 上游发布人电话权限细节 → PDM-09；
+- 展示价覆盖 / 查价权限 → PDM-10；
+- Lock / Waitlist / Transaction / Refund 权限细节 → PDM-18 / PDM-19；
+- 4S 车辆“本人有权车辆”的归属与责任迁移 → PDM-04 / PDM-06；
+- 审计字段统一规范 → PDM-25。
+
+## 13. Batch 4 门禁
+
+当前 6 条均为 `USER_REVIEW_PENDING`：
+
+> P02-B4-01 ～ P02-B4-06
+
+只有全部获得用户明确裁决后，才允许生成 PDM-02 最终完整规则总览。
