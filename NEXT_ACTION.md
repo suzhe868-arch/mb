@@ -4,26 +4,33 @@
 
 ## 当前唯一优先动作
 
-> **展示并审查 PDM-03｜Batch 3 三条明确知情修改 / 后续明确新增。**
+> **继续审查 PDM-03｜Batch 3 剩余两条：P03-A14、P03-A16。**
 
 ## 当前状态
 
-- PDM-01：`COMPLETE`
+- PDM-01：`COMPLETE`，其中“客户车辆转发仅 SOURCE_ONLY”子句已被 P03-A15 显式修正；
 - PDM-02：`COMPLETE`
 - PDM-03 Batch 1：`COMPLETE_USER_CONFIRMED`
 - PDM-03 Batch 2：`COMPLETE_USER_CONFIRMED`
-- PDM-03 Batch 3：`USER_REVIEW_PENDING`
+- PDM-03 Batch 3：
+  - P03-A14：`USER_REVIEW_PENDING`
+  - P03-A15：`USER_CONFIRMED_MODIFIED`
+  - P03-A16：`USER_REVIEW_PENDING`
 
-工作版：
+## A15 当前有效口径
 
-> `07_重建工作区/PDM-03_Owner来源归因分享注册转介绍接客离职交接_规则原子重建_工作版.md`
+对尚无正式 owner 的新客户：
 
-## Batch 3 待审
+> **客户分享车源本身可形成转介绍/获客归属；新客户按分享链实际绑定的销售形成 owner，同时保留分享客户与新客户之间的来源/推荐关系。**
 
-1. P03-A14｜自然注册立即轮询形成 owner；
-2. P03-A15｜普通客户侧车辆转发 = `SOURCE_ONLY`，与直接转介绍分离；
-3. P03-A16｜接客池异常为空时进入 `owner_assignment_pending` 并自动恢复分配。
+已有正式 owner 的老客户仍不因后续分享被抢客。
 
-用户确认后才允许进入 Batch 4。
+## 已知留到 Batch 4 的一项
+
+A 发出客户分享链接后、B 打开前，如果 A 的 current owner 发生变化：
+
+> 旧链接到底继续绑定原销售，还是在 B 进入时跟随 A 的最新 owner？
+
+该时间点细节尚未裁决。
 
 当前仍不修改 IA / Low-Fi / Engineering。
