@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-05",
-  "current_domain_status": "USER_REVIEW_BATCH_1_PENDING",
+  "current_domain_status": "USER_REVIEW_BATCH_2_PENDING",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,17 +20,17 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Review remaining PDM-05 Batch 1 atoms P05-A01, A02, A04, A07, A08, A09 and stop for explicit user review",
+  "current_task": "Review PDM-05 Batch 2 atoms P05-B2-01 through P05-B2-05 and stop for explicit user review",
   "current_work_file": "07_重建工作区/PDM-05_车型主数据年款JYT车型映射MODEL_MISSING_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
-    "Auto-approve PDM-05 Batch 1",
+    "Auto-approve PDM-05 Batch 2",
     "Skip any PDM-05 review batch",
-    "Move to PDM-05 Batch 2 before Batch 1 is explicitly user-confirmed",
+    "Move to PDM-05 Batch 3 before Batch 2 is explicitly user-confirmed",
     "Move to PDM-06 before PDM-05 final overview is user-approved",
-    "Silently override PDM-01, PDM-02, PDM-03 or PDM-04 confirmed rules",
+    "Silently override PDM-01, PDM-02, PDM-03, PDM-04 or confirmed PDM-05 Batch 1 rules",
     "Use prior chat memory or summaries as a substitute for original evidence",
     "Modify IA",
     "Modify Low-Fi",
@@ -72,7 +72,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "BATCH_1_STABLE_CONSISTENT",
+  "current_review_batch": "BATCH_2_DEPRECATED_SUPERSEDED_DO_NOT_RESTORE",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -379,21 +379,30 @@
   "pdm_04_final_overview_status": "USER_APPROVED",
   "pdm_04_final_rule_file": "07_重建工作区/PDM-04_最终完整规则.md",
   "pdm_05_status": "IN_REVIEW",
-  "pdm_05_batch_1_status": "PARTIALLY_CONFIRMED_USER_REVIEW_PENDING",
-  "pdm_05_batch_1_pending_atoms": [
+  "pdm_05_batch_1_status": "COMPLETE_USER_CONFIRMED",
+  "pdm_05_batch_1_pending_atoms": [],
+  "pdm_05_batch_1_confirmed_atoms": [
     "P05-A01",
     "P05-A02",
+    "P05-A03",
     "P05-A04",
+    "P05-A05",
+    "P05-A06",
     "P05-A07",
     "P05-A08",
     "P05-A09"
   ],
-  "pdm_05_batch_1_confirmed_atoms": [
-    "P05-A03",
-    "P05-A05",
-    "P05-A06"
-  ],
-  "pdm_05_batch_1_confirmed_count": 3,
+  "pdm_05_batch_1_confirmed_count": 9,
   "pdm_05_a03_resolution": "JYT_MODEL_ID_SOURCE_MAPPING_TO_LOCAL_VEHICLE_MODEL_ID_NAMES_NOT_IDENTITY",
-  "pdm_05_mapping_admin_boundary": "BACKEND_ADMIN_HANDLES_MAPPING_CONFIRMATION_CORRECTION_AND_CONFLICT"
+  "pdm_05_mapping_admin_boundary": "BACKEND_ADMIN_HANDLES_MAPPING_CONFIRMATION_CORRECTION_AND_CONFLICT",
+  "pdm_05_batch_2_status": "PENDING_USER_REVIEW",
+  "pdm_05_batch_2_pending_atoms": [
+    "P05-B2-01",
+    "P05-B2-02",
+    "P05-B2-03",
+    "P05-B2-04",
+    "P05-B2-05"
+  ],
+  "pdm_05_batch_2_confirmed_atoms": [],
+  "pdm_05_batch_2_confirmed_count": 0
 }
