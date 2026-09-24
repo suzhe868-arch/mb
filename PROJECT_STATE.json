@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-04",
-  "current_domain_status": "USER_REVIEW_BATCH_4_PARTIAL",
+  "current_domain_status": "FINAL_REVIEW_PENDING",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,18 +20,16 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Review remaining PDM-04 Batch 4 atoms P04-B4-01 and P04-B4-03 through P04-B4-05, then stop for explicit user review",
-  "current_work_file": "07_重建工作区/PDM-04_三类车源JYT同步车辆身份ListingCycle隐藏下架重上架一键转名邦_规则原子重建_工作版.md",
+  "current_task": "Review PDM-04 final complete rule overview and stop for explicit final user approval",
+  "current_work_file": "07_重建工作区/PDM-04_最终完整规则总览_待用户批准.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
-    "Auto-approve any PDM-04 business rule",
-    "Skip any PDM-04 review batch",
-    "Use prior chat memory or summaries as a substitute for original evidence",
-    "Generate PDM-04 final rules before four user-review batches complete",
+    "Auto-approve PDM-04 final overview",
     "Move to PDM-05 before PDM-04 final overview is user-approved",
-    "Silently override PDM-01, PDM-02 or PDM-03 confirmed rules",
+    "Silently override PDM-01, PDM-02, PDM-03 or confirmed PDM-04 rules",
+    "Use prior chat memory or summaries as a substitute for original evidence",
     "Modify IA",
     "Modify Low-Fi",
     "Execute engineering Delta"
@@ -289,7 +287,7 @@
   "pdm_03_final_overview_file": "07_重建工作区/PDM-03_最终完整规则总览_待用户批准.md",
   "pdm_03_final_overview_status": "USER_APPROVED",
   "pdm_03_final_rule_file": "07_重建工作区/PDM-03_最终完整规则.md",
-  "pdm_04_status": "IN_REVIEW",
+  "pdm_04_status": "FINAL_REVIEW_PENDING",
   "pdm_04_batch_1_pending_atoms": [],
   "pdm_04_batch_1_status": "COMPLETE_USER_CONFIRMED",
   "pdm_04_batch_1_confirmed_atoms": [
@@ -351,15 +349,14 @@
     "P04-A19",
     "P04-A20"
   ],
-  "pdm_04_batch_4_pending_atoms": [
+  "pdm_04_batch_4_pending_atoms": [],
+  "pdm_04_batch_4_status": "COMPLETE_USER_CONFIRMED",
+  "pdm_04_batch_4_confirmed_atoms": [
     "P04-B4-01",
+    "P04-B4-02",
     "P04-B4-03",
     "P04-B4-04",
     "P04-B4-05"
-  ],
-  "pdm_04_batch_4_status": "PARTIAL_USER_CONFIRMED",
-  "pdm_04_batch_4_confirmed_atoms": [
-    "P04-B4-02"
   ],
   "pdm_04_a18_source_scope": {
     "status": "USER_CONFIRMED_MODIFIED",
@@ -373,5 +370,8 @@
     "default_all": false,
     "reevaluate_on_source_type_change": true
   },
-  "pdm_04_b4_02_resolution": "CONFIRMED_REEVALUATE_AUTO_HIDE_BY_NEW_SOURCE_TYPE_AND_RULE_SOURCE_SCOPE_KEEP_MANUAL_AND_OTHER_VALID_HIDDEN"
+  "pdm_04_b4_02_resolution": "CONFIRMED_REEVALUATE_AUTO_HIDE_BY_NEW_SOURCE_TYPE_AND_RULE_SOURCE_SCOPE_KEEP_MANUAL_AND_OTHER_VALID_HIDDEN",
+  "pdm_04_b4_04_resolution": "AUTO_SUPPRESS_CONFLICTING_REUSED_CAR_CODE_NO_MANUAL_ADJUDICATION_NO_NEW_SALEABLE_WHOLESALE_VEHICLE",
+  "pdm_04_final_overview_file": "07_重建工作区/PDM-04_最终完整规则总览_待用户批准.md",
+  "pdm_04_final_overview_status": "FINAL_REVIEW_PENDING"
 }
