@@ -1,7 +1,7 @@
 # PDM-07｜车辆档案 / 车况 / 客户可见报告 / 成交交付材料核验｜规则原子重建工作版
 
 > 日期：2026-09-24  
-> 状态：`USER_REVIEW_BATCH_4_PENDING`  
+> 状态：`USER_REVIEW_FINAL_OVERVIEW_PENDING`  
 > 说明：严格按 GitHub 当前原始证据重建；PDM-01～PDM-06 已正式 COMPLETE。本文件当前只开放 Batch 1｜稳定一致项。
 
 ## 1. 本轮主要证据
@@ -130,10 +130,10 @@ Batch 3 状态：
 | Atom | 待确认规则 | 证据 / 原因 | 状态 |
 |---|---|---|---|
 | P07-B4-01 | **车况以“JYT 原始描述 + JYT 原始车况标签”为主要来源事实，不要求销售把批发车车况重新录一遍。** JYT 返回的车况描述与 `sub.tags` 原样保留并展示；`sub.tags` 在车况区域位于 description 上方。来源标签必须保留 JYT provenance；人工选择的标签保留 manual provenance，不能被提升为“名邦已检测/已认证”事实。自动筛选 / Matching 可把这些来源标签与原始描述作为确定性规则输入，再映射为系统需要的标准车况条件；上游已有可直接使用的标签/字段优先直接映射，不能确定的保持 `unknown` / `confirmation_needed`，禁止猜测。**不要求为批发车额外建立一套重复人工车况录入，也不强制机械恢复旧版全部固定车况字段。** | CN11 SSOT 明确：`sub.tags` 展示于 description 上方，source tags 保留 JYT provenance，manual tags 保留 manual provenance；R10-57 明确 JYT 描述/标签属于上游事实车况；旧结构化车况字段的价值保留在“确定性匹配语义”，但本轮按用户确认方向收窄为“来源标签/描述 → 必要标准化事实”，避免重复采集。 | `USER_CONFIRMED` |
-| P07-B4-02 | **补齐车辆档案维护操作链。** 对当前有 Vehicle 编辑/管理能力且在数据范围内的员工，提供：上传/新增档案、后补档案、更新/替换档案、查看内部原始档案、查看档案历史、执行档案核验；4S 成员仍只在自己有权管理的 4S Vehicle 范围内执行。档案维护本身不自动改变客户可见性。 | R9 已冻结“可后补、可维护、可核验”；M10-001 明确判定 `ARCHIVE_MAINTENANCE_ACTION = HISTORICAL_RULE_LOSS`，Current 只剩交付材料 Gate，没有资料维护链。 | `USER_REVIEW_PENDING` |
-| P07-B4-03 | **单份档案采用显式客户可见开关。** 未被明确标记为客户可见的档案默认不下发客户端；当前有 Vehicle 管理能力且在数据范围内的员工可以对允许公开的报告/结果设置或取消 `customer_visible`，4S 仍限自己有权车辆；每次变化必须审计。完整 VIN、行驶证、绿本、保单等敏感原件属于不可公开类型，即使误操作也不得通过客户可见开关直接下发原件。 | R9/R10 已冻结“客户只看明确标记客户可见”的业务原则，但 Current 缺单份档案的设置/取消 Action、Actor 和 Guard；M10 判定 `ARCHIVE_VISIBILITY_POLICY = PARTIAL`。 | `USER_REVIEW_PENDING` |
-| P07-B4-04 | **成交/交付 `required-field set` 采用后台可配置规则，不在代码/产品基线里写死全国统一证件清单。** 配置由具备明确“员工业务配置”能力的人员执行并留审计；System Admin 身份本身不自动获得该业务配置能力。Transaction 完成时只读取当时有效配置并返回缺失项；缺失只阻止完成，不影响已创建 Transaction。 | R9 明确“不在 Phase 1 穷举证件清单”；Current 只证明“current configured required-field set”存在，但没有冻结配置入口/Actor。该项属于真实产品缺口，需本轮显式补齐。 | `USER_REVIEW_PENDING` |
-| P07-B4-05 | **错误档案不做普通物理删除，采用“作废 / 被新版本替代”保留历史。** 已上传档案若录错，可由当前有 Vehicle 管理能力且在数据范围内的员工发起作废或上传新版本替代；作废后不参与当前核验/客户展示，但原文件记录、上传人、时间、作废人、作废时间和适用的原因/前后关系保留。仅“尚未真正提交/上传成功”的本地临时选择不构成正式档案事实。 | R9 要求档案历史与审计保留，但旧资料没有把“删除还是作废”冻结清楚；M10 明确把“删除 / 作废错误档案”列为当前缺失操作，因此必须显式裁决。 | `USER_REVIEW_PENDING` |
+| P07-B4-02 | **补齐车辆档案维护操作链。** 对当前有 Vehicle 编辑/管理能力且在数据范围内的员工，提供：上传/新增档案、后补档案、更新/替换档案、查看内部原始档案、查看档案历史、执行档案核验；4S 成员仍只在自己有权管理的 4S Vehicle 范围内执行。档案维护本身不自动改变客户可见性。 | R9 已冻结“可后补、可维护、可核验”；M10-001 明确判定 `ARCHIVE_MAINTENANCE_ACTION = HISTORICAL_RULE_LOSS`，Current 只剩交付材料 Gate，没有资料维护链。 | `USER_CONFIRMED` |
+| P07-B4-03 | **单份档案采用显式客户可见开关。** 未被明确标记为客户可见的档案默认不下发客户端；当前有 Vehicle 管理能力且在数据范围内的员工可以对允许公开的报告/结果设置或取消 `customer_visible`，4S 仍限自己有权车辆；每次变化必须审计。完整 VIN、行驶证、绿本、保单等敏感原件属于不可公开类型，即使误操作也不得通过客户可见开关直接下发原件。 | R9/R10 已冻结“客户只看明确标记客户可见”的业务原则，但 Current 缺单份档案的设置/取消 Action、Actor 和 Guard；M10 判定 `ARCHIVE_VISIBILITY_POLICY = PARTIAL`。 | `USER_CONFIRMED` |
+| P07-B4-04 | **成交/交付 `required-field set` 采用后台可配置规则，不在代码/产品基线里写死全国统一证件清单。** 配置由具备明确“员工业务配置”能力的人员执行并留审计；System Admin 身份本身不自动获得该业务配置能力。Transaction 完成时只读取当时有效配置并返回缺失项；缺失只阻止完成，不影响已创建 Transaction。 | R9 明确“不在 Phase 1 穷举证件清单”；Current 只证明“current configured required-field set”存在，但没有冻结配置入口/Actor。该项属于真实产品缺口，需本轮显式补齐。 | `USER_CONFIRMED` |
+| P07-B4-05 | **错误档案不做普通物理删除，采用“作废 / 被新版本替代”保留历史。** 已上传档案若录错，可由当前有 Vehicle 管理能力且在数据范围内的员工发起作废或上传新版本替代；作废后不参与当前核验/客户展示，但原文件记录、上传人、时间、作废人、作废时间和适用的原因/前后关系保留。仅“尚未真正提交/上传成功”的本地临时选择不构成正式档案事实。 | R9 要求档案历史与审计保留，但旧资料没有把“删除还是作废”冻结清楚；M10 明确把“删除 / 作废错误档案”列为当前缺失操作，因此必须显式裁决。 | `USER_CONFIRMED` |
 
 ### 8.1 不单独再问的 Current 冲突
 
@@ -147,11 +147,10 @@ Current 曾把 4S internal mode 整体 DENY，间接切断 4S 查看本人有权
 
 ## 9. Batch 4 门禁
 
-P07-B4-01～P07-B4-05 当前：
+P07-B4-01～P07-B4-05 已由用户全部确认。
 
-> `USER_REVIEW_PENDING`
+Batch 4 状态：
 
-未经用户明确确认：
-- 不生成 PDM-07 最终完整规则总览；
-- 不进入 PDM-08；
-- 不修改 IA / Low-Fi / Engineering。
+> `COMPLETE_USER_CONFIRMED`
+
+PDM-07 四批审查全部完成。下一步仅生成“最终完整规则总览”并等待用户最终批准；在最终批准前不得将 PDM-07 标记 COMPLETE，也不得进入 PDM-08。
