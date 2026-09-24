@@ -169,3 +169,10 @@
 | PDM05-DEC-A08 | PDM-05 | P05-A08 | 用户确认名邦/4S人工上传必须绑定有效本地 vehicle_model_id 才能正式发布；缺车型可保留草稿但不能绕过。 | 后续若出现真实跨域冲突必须显式提交用户，不得静默覆盖。 | PDM-05 Batch 1 当前 GitHub 证据链 + 2026-09-24 用户明确“其他都同意” | 2026-09-24 |
 | PDM05-DEC-A09 | PDM-05 | P05-A09 | 用户确认车型映射人工确认/修正必须记录 actor/time/old/new，当前不强制填写原因。 | 后续若出现真实跨域冲突必须显式提交用户，不得静默覆盖。 | PDM-05 Batch 1 当前 GitHub 证据链 + 2026-09-24 用户明确“其他都同意” | 2026-09-24 |
 | PDM05-GATE-B1 | PDM-05 | Batch 1 Gate | 用户确认 P05-A01～P05-A09 全部通过；其中 A03 按 ID-based source mapping 修改，A07 按后台 Admin 执行主体收口。 | Batch 1 门禁关闭，允许进入 Batch 2；不得自动批准 Batch 2。 | PDM-05 Batch 1 工作版 + 2026-09-24 用户明确确认 | 2026-09-24 |
+
+| PDM05-DEC-B2-01 | PDM-05 | P05-B2-01 | 用户确认不得恢复“品牌 → 车系 → 年款 → 具体车型”的四级车型主数据结构。 | 作为 DO_NOT_RESTORE 规则进入最终 PDM-05 基线。 | PDM-05 Batch 2 + 2026-09-24 用户明确“全部同意” | 2026-09-24 |
+| PDM05-DEC-B2-02 | PDM-05 | P05-B2-02 | 用户确认不得恢复“人工单车车型锁定”机制；车型关系错误应修正车型主档/映射，不为单车另造特殊锁定层。 | 作为 DO_NOT_RESTORE 规则进入最终 PDM-05 基线。 | PDM-05 Batch 2 + 2026-09-24 用户明确“全部同意” | 2026-09-24 |
+| PDM05-DEC-B2-03 | PDM-05 | P05-B2-03 | 用户确认不建设 JYT 车型名称 alias / 同义词映射体系；车型身份按 JYT model_id → local vehicle_model_id 映射。 | 作为 DO_NOT_RESTORE 规则进入最终 PDM-05 基线。 | PDM-05 Batch 2 + 2026-09-24 用户明确“全部同意” | 2026-09-24 |
+| PDM05-DEC-B2-04 | PDM-05 | P05-B2-04 | 用户确认不建设“同一车型多个 JYT ID”的特殊复杂合并机制；按实际 JYT model_id 分别建立 source mapping。 | 作为 DO_NOT_RESTORE 规则进入最终 PDM-05 基线。 | PDM-05 Batch 2 + 2026-09-24 用户明确“全部同意” | 2026-09-24 |
+| PDM05-DEC-B2-05 | PDM-05 | P05-B2-05 | 用户确认不得恢复“完整车型名称完全一致 = 车型身份 / 首次自动映射主规则”；以 ID-based source mapping 为准。 | 作为 DO_NOT_RESTORE 规则进入最终 PDM-05 基线。 | PDM-05 Batch 2 + 2026-09-24 用户明确“全部同意” | 2026-09-24 |
+| PDM05-GATE-B2 | PDM-05 | Batch 2 Gate | 用户确认 P05-B2-01～P05-B2-05 全部通过。 | Batch 2 门禁关闭，允许进入 Batch 3；不得自动批准 Batch 3。 | PDM-05 Batch 2 工作版 + 2026-09-24 用户明确确认 | 2026-09-24 |
