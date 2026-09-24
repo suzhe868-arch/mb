@@ -256,3 +256,5 @@
 | PDM04-REV-COVER-02 | PDM-04 | Reverse Coverage GAP-04-02 | 用户明确确认：一键转名邦只是同一 Vehicle 后台车源类型/经营来源变化，不是新建车辆；`vehicle_id` 与当前 `listing_cycle` 不变，因此 Favorite、Recommendation、当前 listing_cycle 已成立的查价关系及其他绑定该 vehicle 的客户侧关系全部原样继续，不迁移、不重建、不清空，也不因 source_type 变化单独处理。 | 关闭 M07-006 在“同 vehicle_id 转换模型”下遗留的跨 vehicle 迁移问题；旧“不迁移到新 vehicle”规则因已无第二 vehicle 而失去适用前提。 | 2026-09-25 用户明确裁决 | 2026-09-25 |
 
 | PDM04-REV-COVER-03 | PDM-04 | Reverse Coverage GAP-04-03 | 用户明确确认：批量隐藏/恢复的“逐车返回结果 + 提交时逐车重验”不作为产品级硬规则补回；批量动作正常执行即可，极低概率失败按通用异常/工程错误处理。 | 关闭 CR007 旧批量可见性细节在当前产品基线中的强制恢复要求，不再作为 PDM-04 未映射项。 | 2026-09-25 用户明确裁决 | 2026-09-25 |
+
+| PDM06-REV-COVER-02 | PDM-06 | Reverse Coverage GAP-06-02 | 用户确认：不单独建立草稿查看/编辑权限。具备人工车源发布或对应车辆管理能力的员工，在其当前 data scope 内默认可查看、继续编辑对应草稿；后台沿用现有发布/管理 capability + data scope 控制。草稿删除继续额外受纯草稿、二次确认、提交时重验等 Guard 约束。 | 关闭“草稿读取权限表达不完整”缺口，不新增 draft-read/draft-edit 独立 permission。 | 2026-09-25 用户明确裁决 | 2026-09-25 |
