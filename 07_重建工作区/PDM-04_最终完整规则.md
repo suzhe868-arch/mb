@@ -537,20 +537,18 @@ PDM-04 当前只冻结车辆 / 车源 / 来源 / listing cycle / hidden / 一键
 
 ---
 
-## 21. 最终门禁
+## 21. 最终状态
 
-PDM-04 Batch 1～4 均已完成用户逐批审查。
+PDM-04 Batch 1～4 已完成用户逐批审查，最终完整规则总览已于 2026-09-24 获用户明确批准。
 
-当前只剩：
+当前状态：
 
-> **PDM-04 最终完整规则总览用户批准**
+> **`COMPLETE`**
 
-用户最终明确批准后才允许：
+正式规则文件即本文件：
 
-1. 将 PDM-04 标记为 `COMPLETE`；
-2. 生成正式文件 `PDM-04_最终完整规则.md`；
-3. 更新 Decision Register Final Gate；
-4. 更新 CURRENT_PROJECT_STATE / NEXT_ACTION / PROJECT_STATE；
-5. 进入 PDM-05。
+> `07_重建工作区/PDM-04_最终完整规则.md`
 
-未经最终批准，不进入 PDM-05，不修改 IA / Low-Fi / Engineering。
+后续 PDM 不得静默改写本文件；若发现真实跨域冲突，必须重新显式提交用户裁决。
+
+当前仍不修改 IA / Low-Fi / Engineering。
