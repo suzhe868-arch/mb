@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Review PDM-08 Batch 1 atoms P08-A01 through P08-A12 and stop for explicit user review",
+  "current_task": "Review 5 gaps found by PDM-01 through PDM-07 reverse coverage audit before resuming PDM-08",
   "current_work_file": "07_重建工作区/PDM-08_车辆图片上游URL本地化转存恢复分享图_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -516,7 +516,7 @@
   "pdm_07_final_overview_file": "07_重建工作区/PDM-07_最终完整规则总览_待用户批准.md",
   "pdm_07_final_overview_status": "USER_APPROVED",
   "pdm_07_final_rule_file": "07_重建工作区/PDM-07_最终完整规则.md",
-  "pdm_08_status": "IN_REVIEW",
+  "pdm_08_status": "PAUSED_FOR_REVERSE_COVERAGE_GAP_REVIEW",
   "pdm_08_batch_1_status": "PENDING_USER_REVIEW",
   "pdm_08_batch_1_pending_atoms": [
     "P08-A01",
@@ -532,5 +532,17 @@
     "P08-A11",
     "P08-A12"
   ],
-  "pdm_08_batch_1_confirmed_atoms": []
+  "pdm_08_batch_1_confirmed_atoms": [],
+  "current_phase": "PRODUCT_BASELINE_REBUILD",
+  "current_process": "REVERSE_COVERAGE_GAP_REVIEW",
+  "reverse_coverage_audit_01_07_status": "USER_REVIEW_PENDING",
+  "reverse_coverage_audit_01_07_report": "07_重建工作区/PDM-01至07_反向覆盖校验报告_2026-09-25.md",
+  "reverse_coverage_unmapped_count": 5,
+  "reverse_coverage_gaps": [
+    "PDM04 supply anomaly lifecycle/manual clear conflict",
+    "PDM04 same-vehicle conversion effect on Favorite/Recommendation/price-check rights",
+    "PDM04 bulk hide/restore per-vehicle outcome and submit-time revalidation",
+    "PDM05-to-PDM06 model fixed-attribute autofill handoff",
+    "PDM06 draft list/detail access guard"
+  ]
 }
