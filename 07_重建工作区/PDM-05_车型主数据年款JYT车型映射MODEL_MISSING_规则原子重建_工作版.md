@@ -1,8 +1,8 @@
 # PDM-05｜车型主数据 / 年款 / JYT 车型映射 / MODEL_MISSING｜规则原子重建工作版
 
 > 日期：2026-09-24  
-> 状态：`USER_REVIEW_BATCH_1_PENDING`  
-> 说明：严格按 GitHub 当前证据重新重建，不使用旧聊天记忆替代证据。PDM-01～PDM-04 已正式 COMPLETE；本文件当前只开放 Batch 1｜稳定一致项。
+> 状态：`USER_REVIEW_BATCH_2_PENDING`  
+> 说明：严格按 GitHub 当前证据重新重建，不使用旧聊天记忆替代证据。PDM-01～PDM-04 已正式 COMPLETE；PDM-05 Batch 1 已由用户全部确认，当前开放 Batch 2｜明确废弃 / 被替代 / DO_NOT_RESTORE。
 
 ## 1. 本轮证据范围
 
@@ -55,15 +55,15 @@
 
 | Atom | 完整候选规则 | 证据结论 | 状态 |
 |---|---|---|---|
-| P05-A01 | **本地车型主数据采用“品牌 → 车系 → 具体车型”三级结构。** 年款不是第四级独立主数据节点，而是具体车型自身的结构化字段；界面允许按年款进行分组、筛选或选择，但不得因此建立“品牌 → 车系 → 年款 → 具体车型”的四级主数据模型。 | R3 原始总结与 9/19 CURRENT 完全一致；001～078 仍把“四级主数据误解”识别为当前 UI 风险，没有找到用户把年款改成第四级实体的裁决。 | `USER_REVIEW_PENDING` |
-| P05-A02 | **车型年款与车辆首次上牌 / 首次登记时间严格分离。** 车型年款属于车型属性；首次上牌时间属于具体车辆事实。二者不得互相推导、互相覆盖，也不能因为某车 2025 年上牌就把其 2024 款车型改成 2025 款。 | R3 原始总结与 CURRENT 一致；001～078 明确把该分离规则列为历史应保留规则，未发现后续业务反转。 | `USER_REVIEW_PENDING` |
+| P05-A01 | **本地车型主数据采用“品牌 → 车系 → 具体车型”三级结构。** 年款不是第四级独立主数据节点，而是具体车型自身的结构化字段；界面允许按年款进行分组、筛选或选择，但不得因此建立“品牌 → 车系 → 年款 → 具体车型”的四级主数据模型。 | R3 原始总结与 9/19 CURRENT 完全一致；001～078 仍把“四级主数据误解”识别为当前 UI 风险，没有找到用户把年款改成第四级实体的裁决。 | `USER_CONFIRMED` |
+| P05-A02 | **车型年款与车辆首次上牌 / 首次登记时间严格分离。** 车型年款属于车型属性；首次上牌时间属于具体车辆事实。二者不得互相推导、互相覆盖，也不能因为某车 2025 年上牌就把其 2024 款车型改成 2025 款。 | R3 原始总结与 CURRENT 一致；001～078 明确把该分离规则列为历史应保留规则，未发现后续业务反转。 | `USER_CONFIRMED` |
 | P05-A03 | **车型身份采用 ID-based 映射。JYT `model_id` 作为上游车型身份保留，通过 source mapping 映射到名邦本地 `vehicle_model_id`；车型名称只用于展示、快照、搜索与后台辅助判断，不作为车型身份主键。已有 `JYT model_id → local vehicle_model_id` 映射时直接复用；没有映射时进入后台 Admin 待处理。品牌 / 车系是否与 JYT 共用相同 ID 值，当前不作假定。** | CN11 SSOT CR-006 明确：`Model identity is ID-based; names are display/snapshot/search text, not identity`，且 `JYT model_id` retained and resolves through a source mapping to local `vehicle_model_id`。用户于 2026-09-24 明确确认采用该口径，主动修正 R3 后期“完整名称完全一致作为首次自动映射条件”的表述。 | `USER_CONFIRMED_MODIFIED` |
-| P05-A04 | **同一 `upstream_model_id` 只生成一条车型归属待确认任务。** 一次确认后，现有相同 `upstream_model_id` 的车辆统一建立本地归属，未来相同 ID 自动沿用，不逐车重复人工处理。 | R3 原始总结与 CURRENT 一致；001～078 确认 P02-08 已有“同 model_id 批量回填”承载，虽工程幂等合同仍需补强，但未发现业务规则反转。 | `USER_REVIEW_PENDING` |
+| P05-A04 | **同一 `upstream_model_id` 只生成一条车型归属待确认任务。** 一次确认后，现有相同 `upstream_model_id` 的车辆统一建立本地归属，未来相同 ID 自动沿用，不逐车重复人工处理。 | R3 原始总结与 CURRENT 一致；001～078 确认 P02-08 已有“同 model_id 批量回填”承载，虽工程幂等合同仍需补强，但未发现业务规则反转。 | `USER_CONFIRMED` |
 | P05-A05 | **本地车型映射不得反向覆盖 JYT 已保存的原始车型资料。** JYT 来源车型名称、年款、排量、变速箱、排放、能源类型等来源事实与本地车型字典归属分层保存；本地映射只解决 `JYT model_id → local vehicle_model_id` 的归属关系。映射确认 / 修正由后台 Admin 处理。 | CN11 已区分 verified source facts 与 model-master facts；R3 原始总结 / CURRENT 均明确禁止反向覆盖。用户于 2026-09-24 明确确认本条映射处理主体为后台 Admin。 | `USER_CONFIRMED` |
 | P05-A06 | **已确认映射后，如果同一 JYT `model_id` 后续出现与既有本地映射明显冲突的车型内容，不得静默自动改映射。** 车辆来源事实继续保留，后台标记“车型映射冲突”，统一由后台 Admin 人工确认 / 修正。 | CN11 已冻结 model mappings/conflicts 不得自动乱改；R3 / IA 均保留冲突处理。用户于 2026-09-24 明确确认冲突处理主体为后台 Admin。 | `USER_CONFIRMED` |
-| P05-A07 | **车型主数据、映射及冲突处理受独立能力 `vehicle.model.manage` 控制。** 普通销售不能因为正在上传车辆，就获得新增/修改车型主档、修正映射或处理映射冲突的能力。 | CN11 CR-006 `DR-006-02=B` 明确建立 `vehicle.model.manage`；R3 原始总结 / CURRENT 延续；后续 IA 仍按授权车型管理人员处理。 | `USER_REVIEW_PENDING` |
-| P05-A08 | **名邦 / 4S 人工上传车辆必须最终绑定有效的本地具体车型 / `vehicle_model_id` 后才能正式发布。** 普通销售遇到本地缺车型时可以保留草稿，但不得绕过车型主数据直接正式发布；人工上传与 JYT 批发车的车型入口规则不得混成一套。 | CN11 CR-006 `DR-006-03=C` 与 R3 原始总结 / CURRENT 一致；当前 E02-02 MODEL_MISSING 仍保留草稿并阻断正式发布。至于“车型管理员是否可在录车上下文直接新建车型”的 Action 承载冲突，留 Batch 4 单独审查。 | `USER_REVIEW_PENDING` |
-| P05-A09 | **车型映射的人工确认或修正必须留审计。** 至少记录操作人、操作时间、原映射、新映射；当前业务规则不强制每次填写修改原因。 | R3 原始总结与 CURRENT 一致；001～078 确认当前审计已承载 old/new/actor/time，未发现后续要求“每次必须填原因”的业务裁决。 | `USER_REVIEW_PENDING` |
+| P05-A07 | **车型主数据、映射及冲突处理继续受 `vehicle.model.manage` 能力保护；当前 PDM-05 中这些实际管理动作由后台 Admin 执行。** 普通销售不能因为正在上传车辆，就获得新增/修改车型主档、修正映射或处理映射冲突的能力。 | CN11 CR-006 `DR-006-02=B` 建立 `vehicle.model.manage`；用户于 2026-09-24 又明确“处理的人就是后台 Admin”，因此当前执行主体收口为后台 Admin，同时保留 permission guard。 | `USER_CONFIRMED_MODIFIED` |
+| P05-A08 | **名邦 / 4S 人工上传车辆必须最终绑定有效的本地具体车型 / `vehicle_model_id` 后才能正式发布。** 普通销售遇到本地缺车型时可以保留草稿，但不得绕过车型主数据直接正式发布；人工上传与 JYT 批发车的车型入口规则不得混成一套。 | CN11 CR-006 `DR-006-03=C` 与 R3 原始总结 / CURRENT 一致；当前 E02-02 MODEL_MISSING 仍保留草稿并阻断正式发布。至于“车型管理员是否可在录车上下文直接新建车型”的 Action 承载冲突，留 Batch 4 单独审查。 | `USER_CONFIRMED` |
+| P05-A09 | **车型映射的人工确认或修正必须留审计。** 至少记录操作人、操作时间、原映射、新映射；当前业务规则不强制每次填写修改原因。 | R3 原始总结与 CURRENT 一致；001～078 确认当前审计已承载 old/new/actor/time，未发现后续要求“每次必须填原因”的业务裁决。 | `USER_CONFIRMED` |
 
 ---
 
@@ -93,28 +93,19 @@
 
 ## 4. Batch 1 门禁
 
-当前确认状态：
+P05-A01～P05-A09 已全部由用户确认。
 
-- P05-A03：`USER_CONFIRMED_MODIFIED`
-- P05-A05：`USER_CONFIRMED`
-- P05-A06：`USER_CONFIRMED`
-- P05-A01 / A02 / A04 / A07 / A08 / A09：`USER_REVIEW_PENDING`
+- P05-A03：按用户裁决改为 ID-based source mapping；
+- P05-A07：按用户已明确边界，当前车型主数据 / 映射 / 冲突管理动作由后台 Admin 执行；
+- 其余 Batch 1 条目按候选规则确认。
 
-本批必须停止等待用户审查。
+Batch 1 状态：
 
-用户可以：
+> `COMPLETE_USER_CONFIRMED`
 
-- “Batch 1 全部通过”；
-- 指定某一条修改；
-- 指定某一条暂缓 / 否决。
+允许进入 Batch 2；不得自动批准 Batch 2。
 
-未经用户明确确认：
-
-- 不进入 Batch 2；
-- 不把 P05-A01～A09 写成最终规则；
-- 不开始 PDM-06；
-- 不修改 IA / Low-Fi / Engineering。
-
+---
 
 ## 5. 2026-09-24｜车型 ID 映射口径用户确认
 
@@ -128,3 +119,36 @@
 6. A03/A05/A06 涉及的车型映射确认、修正与冲突处理由后台 Admin 处理。
 
 该裁决主动修正此前 R3 中“完整车型名称完全一致作为首次自动映射条件”的口径。
+
+
+## 6. Batch 2｜明确废弃 / 被替代 / DO_NOT_RESTORE
+
+> 本批只处理已经有明确废弃、替代或当前用户裁决覆盖证据的旧机制；不把 Batch 3 的“知情修改”或 Batch 4 的“缺口/冲突”偷放进来。
+
+| Atom | 不得恢复的旧机制 | 当前替代口径 | 状态 |
+|---|---|---|---|
+| P05-B2-01 | **不得恢复“品牌 → 车系 → 年款 → 具体车型”的四级车型主数据结构。** | 年款只是具体车型属性，可用于分组/筛选；主数据仍为“品牌 → 车系 → 具体车型”。 | `USER_REVIEW_PENDING` |
+| P05-B2-02 | **不得恢复“人工单车车型锁定”机制。** | 车辆引用正式本地车型节点；车型归属错误通过车型主档/映射修正，不为单辆车另造永久锁定层。 | `USER_REVIEW_PENDING` |
+| P05-B2-03 | **不得恢复 JYT 车型名称 alias / 同义词映射体系。** | 车型身份按 JYT `model_id` → 本地 `vehicle_model_id` 映射；名称只做展示、快照、搜索和 Admin 辅助判断。 | `USER_REVIEW_PENDING` |
+| P05-B2-04 | **不得恢复“同一车型多个 JYT ID 需要额外特殊合并机制”的复杂设计。** | 每个实际出现的 JYT `model_id` 独立建立 source mapping；若未来确有异常关系，再按真实证据处理，不提前造复杂机制。 | `USER_REVIEW_PENDING` |
+| P05-B2-05 | **不得恢复“完整车型名称完全一致 = 车型身份 / 首次自动映射主规则”。** | 2026-09-24 用户已明确改为 ID-based：JYT `model_id` 是上游车型身份键，通过 source mapping 绑定本地 `vehicle_model_id`；名称不是身份主键。 | `USER_REVIEW_PENDING` |
+
+### 本批暂不纳入
+
+R3 §19 中以下旧负向表述不在本批重复造 Atom：
+
+- “本地映射不得反向覆盖 JYT 原始资料”已由 P05-A05 正向确认；
+- “本地映射未完成是否阻塞 JYT 正常业务 / 精确匹配边界”涉及 CN11 → R3 的知情口径变化，留 Batch 3；
+- “JYT 已有车型资料是否需等映射后再补”与上述变化同组，留 Batch 3。
+
+## 7. Batch 2 门禁
+
+P05-B2-01～P05-B2-05 当前全部：
+
+> `USER_REVIEW_PENDING`
+
+未经用户明确确认：
+
+- 不进入 Batch 3；
+- 不开始 PDM-06；
+- 不修改 IA / Low-Fi / Engineering。
