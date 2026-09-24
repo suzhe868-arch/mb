@@ -180,3 +180,7 @@
 | PDM05-DEC-A10 | PDM-05 | P05-A10 | 用户确认：JYT 已提供的车型事实可在本地 vehicle_model_id 未映射时正常用于入库、发布、展示、搜索、筛选和销售；本地映射仅解决名邦车型主数据归属。 | 主动确认后续 R3 口径，覆盖 CN11 较保守的“pending/conflict 下精确 model-master 事实视为 unknown”限制。 | PDM-05 Batch 3 + 2026-09-24 用户明确“同意这条” | 2026-09-24 |
 | PDM05-DEC-A11 | PDM-05 | P05-A11 | 用户补充确认：只要 JYT 已明确提供品牌、车系、年款、具体车型/款式等足够车型事实，即使本地 vehicle_model_id 尚未映射，也可直接参加精确搜索、筛选和自动 Matching；不得仅因本地映射 pending 就把车型条件降为 unknown。 | 车辆自身车型事实与名邦本地车型主数据归属分层；本地映射仍需后台 Admin 完成。 | 2026-09-24 用户明确补充确认 | 2026-09-24 |
 | PDM05-GATE-B3 | PDM-05 | Batch 3 Gate | 用户确认 P05-A10，并追加确认 P05-A11 精确搜索/自动 Matching 规则。 | Batch 3 门禁关闭，允许进入 Batch 4；不得自动批准 Batch 4。 | PDM-05 Batch 3 工作版 + 2026-09-24 用户明确确认 | 2026-09-24 |
+
+| PDM05-DEC-B4-01 | PDM-05 | P05-B4-01 | 用户确认：后台 Admin 在 MODEL_MISSING / JYT 待映射 / 人工上传缺车型时，可直接新增缺失品牌、车系、具体车型并绑定本地 vehicle_model_id；若来源于 JYT 采集车型，应在本次处理或紧接后的同一后台流程中尽快建立 JYT model_id → local vehicle_model_id source mapping，避免本地主数据已补齐而采集映射长期悬空。 | 当前正式规则覆盖 Current Action Contract 的 no model creation is inferred 冲突。 | 2026-09-24 用户明确确认并补充采集映射联动要求 | 2026-09-24 |
+| PDM05-DEC-B4-02 | PDM-05 | P05-B4-02 | 用户确认：后台 Admin 可修正车型节点父级、合并重复车型，并同步迁移车辆引用与 JYT source mapping；旧重复节点退出当前选择并保留轻量历史；真实旧车型长期保留，不因年份老自动停用。 | 恢复 R3 已明确但后续未完整下沉的车型主数据质量维护规则。 | 2026-09-24 用户明确“第二个同意” | 2026-09-24 |
+| PDM05-GATE-B4 | PDM-05 | Batch 4 Gate | 用户确认 P05-B4-01、P05-B4-02；其中 B4-01 增加“新增缺失主数据后尽快同步 JYT source mapping”要求。 | PDM-05 四批用户审查全部完成，进入最终完整规则总览待用户最终批准；不得自动标记 COMPLETE。 | PDM-05 Batch 4 工作版 + 2026-09-24 用户明确裁决 | 2026-09-24 |
