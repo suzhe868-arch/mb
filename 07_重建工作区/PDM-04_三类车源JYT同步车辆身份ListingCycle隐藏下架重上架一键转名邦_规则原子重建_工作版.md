@@ -1,7 +1,7 @@
 # PDM-04｜三类车源 / JYT 同步 / 车辆身份 / Listing Cycle / 隐藏 / 下架 / 重上架 / 一键转名邦｜规则原子重建工作版
 
 > 日期：2026-09-24  
-> 状态：`USER_REVIEW_BATCH_2_PENDING`  
+> 状态：`BATCH_2_COMPLETE_PREPARE_BATCH_3`  
 > 说明：严格按当前 GitHub 原始证据重新重建，不使用旧聊天记忆替代证据。PDM-01～PDM-03 已正式 COMPLETE；PDM-04 Batch 1 已用户确认，当前开放 Batch 2｜明确废弃 / 明确替代 / DO_NOT_RESTORE，共 13 条，未经用户确认不得进入 Batch 3。
 
 ## 1. 本轮证据范围
@@ -36,9 +36,9 @@
 | P04-A07 | `hidden` 与真实下架/offline严格不同。hidden 只暂停公共展示，不改变底层真实在售事实；批发车 hidden 后上游普通同步仍可更新资料，但**不得因为普通同步自动解除 hidden**；恢复显示属于名邦本地动作。 | CN11 DEC-044、9/19 C3/R2 §9/§10、9/22 VR-P-004/VR-X-005 一致 | `USER_CONFIRMED` |
 | P04-A08 | `listing_cycle` 只在**真实不可售/失效 → 再次真实可售**时开启新周期。hidden→visible、普通编辑、改价均不新建 cycle；旧周期永久保留历史。人工车与批发车确认是同一 vehicle 的真实 relist 都应复用 vehicle 身份并建立新 cycle。 | CN11 DEC-044/045/046、9/19 R2 §8/§10、IA Current relist、9/22 VR-X-006 一致 | `USER_CONFIRMED` |
 | P04-A09 | 同一人工名邦/4S车辆真实下架后再次正式在售，只要确认仍是同一真实车辆，就复用原 `vehicle_id`，新建 `listing_cycle`；不得为了 relist 新建第二个 vehicle 导致收藏、历史和业务链分裂。 | CN11 DEC-046、9/19 R2 §10、IA Listing Cycle 一致 | `USER_CONFIRMED` |
-| P04-A10 | “一键转名邦”不是把原批发 vehicle 直接改 `source_type`。成功转换后保留原 wholesale vehicle，并创建**新的名邦 vehicle_id**；两者用永久 conversion relation 连接，至少可追溯 source / target / converted_at / operator。重复或并发转换不得生成第二个名邦目标车，应复用既有 conversion target。 | CN11 DEC-047、IA Current V06、9/19 R2 §4 一致；后续未恢复“原 vehicle 直接改类型” | `USER_CONFIRMED` |
-| P04-A11 | 已成功一键转名邦的原批发记录必须退出当前可售，并且**不能因为 JYT 后续普通同步、重新出现或普通 relist 规则而复活为可售批发车**；原批发与新名邦的身份和历史继续独立保留。 | 9/19 R2 §4/§8、IA Current V05/V06、9/22 VR-X-009 同向 | `USER_CONFIRMED` |
-| P04-A12 | 不做无可靠依据的跨来源自动合并。没有可靠唯一身份依据时，不能仅凭品牌、车型、年款、里程、图片相似自动认定批发/名邦/4S记录为同一实体并 merge。明确业务关系（例如 wholesale→Mingbang conversion）由系统维护显式 relation，而不是糊成一个 vehicle。 | CN11 DEC-053/055、9/19 R2 §11 一致；后续未恢复模糊自动 merge | `USER_CONFIRMED` |
+| P04-A10 | **已被后续用户裁决整体替代。** 原候选为“双 vehicle + conversion relation”；当前改用 P04-A15 的**同一 vehicle_id 批发→名邦来源转换**。 | 2026-09-24 用户在 Batch 2 主动改写 | `SUPERSEDED_BY_P04-A15` |
+| P04-A11 | **业务结果继续有效、数据模型已改写。** 批发→名邦完成后，同一 `vehicle_id` 不得因 JYT 后续普通同步/重新出现再次变回批发在售，也不得再创建新的批发 vehicle；JYT `car_code` 与来源事实作为历史 lineage 保留。 | 原 A11“不复活”结果保留；“原批发与新名邦两个独立 vehicle”部分被 P04-A15 覆盖 | `USER_CONFIRMED_MODIFIED` |
+| P04-A12 | 不做无可靠依据的跨来源自动合并。没有可靠唯一身份依据时，不能仅凭品牌、车型、年款、里程、图片相似自动认定批发/名邦/4S记录为同一实体并 merge。**批发→名邦是明确业务来源转换，不属于模糊自动 merge，按 P04-A15 在同一 vehicle_id 上完成并保留来源历史。** | CN11 DEC-053/055 的“禁止模糊自动 merge”继续有效；conversion 示例随 P04-A15 修正 | `USER_CONFIRMED_MODIFIED` |
 | P04-A13 | 4S 合作车源**不再执行周期性在售确认**。不得恢复“定期确认→超期自动暂停→名邦代确认”整套机制；4S车辆状态只因真实业务事件变化。 | 9/19 R2 §13 明确废弃；后续用户冻结方向一致 | `USER_CONFIRMED` |
 | P04-A14 | 4S 成员 inactive/停止合作后，其当前负责且仍在售的4S车先暂停正常展示与匹配；已有 Lock/Transaction 等存量业务不自动取消。名邦可重新指定当前负责人/管理责任，若车辆仍真实有效可恢复业务，**不需要重建 vehicle**；来源仍保持4S，除非另有合法 `source_type` 变更。 | 9/19 R2 §14～17、IA Current “失去承责资格→handoff” 同向；未发现后续反转 | `USER_CONFIRMED` |
 
@@ -73,19 +73,19 @@ Batch 2 展示后必须停止等待用户确认。
 
 | Atom | 明确不得恢复的旧方向 | 当前替代规则 / 理由 | 证据 | 状态 |
 |---|---|---|---|---|
-| P04-B2-01 | 用一个巨大 `vehicle_status` 同时表达资源、平台展示、锁车/交易等全部状态 | **不得恢复。** 资源事实、平台 `visible/hidden`、业务占用必须分层 | CN11 DEC-043；P04-A02 | `USER_REVIEW_PENDING` |
-| P04-B2-02 | 把 `hidden` 当成 `offline` / 真实下架；隐藏或恢复就结束/新建 listing_cycle | **不得恢复。** hidden 只控制平台公开性，恢复继续原 cycle | CN11 DEC-044；P04-A07/A08 | `USER_REVIEW_PENDING` |
-| P04-B2-03 | 普通编辑、改价、资料更新也算“重新上架”并开启新 listing_cycle | **不得恢复。** 只有真实不可售→再次真实可售才开启新 cycle | CN11 DEC-045；P04-A08 | `USER_REVIEW_PENDING` |
-| P04-B2-04 | 同一人工名邦/4S车辆真实 relist 时新建第二个 vehicle_id | **不得恢复。** 确认同一真实车辆后复用原 vehicle_id，只开新 listing_cycle | CN11 DEC-046；P04-A09 | `USER_REVIEW_PENDING` |
-| P04-B2-05 | 一键转名邦时直接把原 wholesale vehicle 改成 Mingbang / 改 source_type | **不得恢复。** 原 wholesale 与新 Mingbang 是两个独立 vehicle，以永久 conversion relation 连接 | CN11 DEC-047；P04-A10 | `USER_REVIEW_PENDING` |
-| P04-B2-06 | 对同一批发车重复点击/并发执行一键转名邦时继续创建第二、第三个名邦目标 vehicle | **不得恢复。** 转换必须幂等，存在 conversion target 时复用既有 target | CN11 DEC-047；P04-A10 | `USER_REVIEW_PENDING` |
-| P04-B2-07 | 已成功转名邦的原批发车，因为 JYT 后续又同步/重新出现就恢复成可售批发车 | **不得恢复。** conversion 后原批发 permanently 退出普通可售 relist 路径，只保留来源和历史 | 9/19 R2 §4/§8/§19；P04-A11 | `USER_REVIEW_PENDING` |
-| P04-B2-08 | 人工隐藏的批发车因为普通上游更新就自动恢复公开 | **不得恢复。** 上游可更新来源事实，但不能覆盖名邦本地 hidden；只有合法恢复显示动作才解除 | 9/19 R2 §9/§19；P04-A07 | `USER_REVIEW_PENDING` |
-| P04-B2-09 | 普通名邦员工进入批发详情后，可以人工修改 JYT 原始车辆事实/原始价格 | **不得恢复。** JYT 来源事实只读；“可进入详情”不等于“可改上游事实” | 9/19 R2 §3/§6/§19；VR-E-006；P04-A03 | `USER_REVIEW_PENDING` |
-| P04-B2-10 | 无 VIN / 无可靠唯一身份时，仅凭品牌、车型、年款、里程、图片相似自动认定跨来源同一实体并 merge | **不得恢复。** 不做模糊跨来源自动合并；显式 conversion 等关系单独保存 | CN11 DEC-053/055；9/19 R2 §11/§19；P04-A12 | `USER_REVIEW_PENDING` |
-| P04-B2-11 | 恢复 4S 周期性在售确认、超期自动暂停、名邦代确认机制 | **不得恢复。** 4S 车辆状态只因真实业务事件变化 | 9/19 R2 §13/§19；P04-A13 | `USER_REVIEW_PENDING` |
-| P04-B2-12 | 解释为“只有 4S 成员停用以后，名邦员工才第一次获得该车编辑/管理能力” | **不得恢复。** 车辆管理能力由员工身份、permission、data scope、object state 决定；停用后的接管只是责任/负责人交接 | 9/19 R2 §14～15/§19；PDM-02 权限模型；P04-A14 | `USER_REVIEW_PENDING` |
-| P04-B2-13 | 一键转名邦成功后必须先生成草稿，再由员工二次发布才进入正式在售 | **不得恢复。** conversion 本身不是“生成草稿待二次发布”的两步工作流；转换完成后的最终展示状态仍按后续最新规则在 Batch 3/4 单独收口 | CN11 DEC-049 明确禁止“转名邦→草稿→再发布”；后续 VR-X-009 也未恢复两步发布 | `USER_REVIEW_PENDING` |
+| P04-B2-01 | 用一个巨大 `vehicle_status` 同时表达资源、平台展示、锁车/交易等全部状态 | **不得恢复。** 资源事实、平台 `visible/hidden`、业务占用必须分层 | CN11 DEC-043；P04-A02 | `USER_CONFIRMED` |
+| P04-B2-02 | 把 `hidden` 当成 `offline` / 真实下架；隐藏或恢复就结束/新建 listing_cycle | **不得恢复。** hidden 只控制平台公开性，恢复继续原 cycle | CN11 DEC-044；P04-A07/A08 | `USER_CONFIRMED` |
+| P04-B2-03 | 普通编辑、改价、资料更新也算“重新上架”并开启新 listing_cycle | **不得恢复。** 只有真实不可售→再次真实可售才开启新 cycle | CN11 DEC-045；P04-A08 | `USER_CONFIRMED` |
+| P04-B2-04 | 同一人工名邦/4S车辆真实 relist 时新建第二个 vehicle_id | **不得恢复。** 确认同一真实车辆后复用原 vehicle_id，只开新 listing_cycle | CN11 DEC-046；P04-A09 | `USER_CONFIRMED` |
+| P04-B2-05 | 原候选“禁止 wholesale vehicle 直接转为 Mingbang” | **已撤回。** 用户改为 P04-A15：同一 `vehicle_id` 直接完成批发→名邦来源转换，并永久保留 JYT lineage / car_code / 转换历史。 | 2026-09-24 用户主动反转 | `WITHDRAWN_REPLACED_BY_P04-A15` |
+| P04-B2-06 | 对同一批发车重复点击/并发执行一键转名邦时重复创建车辆或重复执行来源转换 | **不得恢复。** 同 `vehicle_id` 转换必须幂等；一旦当前来源已成为名邦，再次执行应返回既有结果/拒绝重复转换，不能新建任何重复 vehicle。 | P04-A15 + 用户授权同步修正 | `USER_CONFIRMED_MODIFIED` |
+| P04-B2-07 | 已完成批发→名邦来源转换的上游 `car_code`，因为 JYT 后续又同步/重新出现而重新成为批发在售，或再创建一条批发 vehicle | **不得恢复。** 系统永久保存“该 `car_code` 已转名邦”的来源转换事实；后续 JYT 同 `car_code` 只允许记录/更新允许保留的上游来源信息，**不得改变当前名邦来源状态、不得重新创建批发在售记录**。若同 `car_code` 出现明显不同核心车辆身份，则进入 `VEHICLE_IDENTITY_CONFLICT`/人工核验，而不是自动上架。 | P04-A05 + P04-A15 + 用户明确要求解决 JYT 再次上架问题 | `USER_CONFIRMED_MODIFIED` |
+| P04-B2-08 | 人工隐藏的批发车因为普通上游更新就自动恢复公开 | **不得恢复。** 上游可更新来源事实，但不能覆盖名邦本地 hidden；只有合法恢复显示动作才解除 | 9/19 R2 §9/§19；P04-A07 | `USER_CONFIRMED` |
+| P04-B2-09 | 普通名邦员工进入批发详情后，可以人工修改 JYT 原始车辆事实/原始价格 | **不得恢复。** JYT 来源事实只读；“可进入详情”不等于“可改上游事实” | 9/19 R2 §3/§6/§19；VR-E-006；P04-A03 | `USER_CONFIRMED` |
+| P04-B2-10 | 无 VIN / 无可靠唯一身份时，仅凭品牌、车型、年款、里程、图片相似自动认定跨来源同一实体并 merge | **不得恢复。** 不做模糊跨来源自动合并；显式 conversion 等关系单独保存 | CN11 DEC-053/055；9/19 R2 §11/§19；P04-A12 | `USER_CONFIRMED` |
+| P04-B2-11 | 恢复 4S 周期性在售确认、超期自动暂停、名邦代确认机制 | **不得恢复。** 4S 车辆状态只因真实业务事件变化 | 9/19 R2 §13/§19；P04-A13 | `USER_CONFIRMED` |
+| P04-B2-12 | 解释为“只有 4S 成员停用以后，名邦员工才第一次获得该车编辑/管理能力” | **不得恢复。** 车辆管理能力由员工身份、permission、data scope、object state 决定；停用后的接管只是责任/负责人交接 | 9/19 R2 §14～15/§19；PDM-02 权限模型；P04-A14 | `USER_CONFIRMED` |
+| P04-B2-13 | 一键转名邦成功后必须先生成草稿，再由员工二次发布才进入正式在售 | **不得恢复。** conversion 本身不是“生成草稿待二次发布”的两步工作流；转换完成后的最终展示状态仍按后续最新规则在 Batch 3/4 单独收口 | CN11 DEC-049 明确禁止“转名邦→草稿→再发布”；后续 VR-X-009 也未恢复两步发布 | `USER_CONFIRMED` |
 
 ## 6. Batch 2 边界说明
 
@@ -97,12 +97,28 @@ Batch 2 展示后必须停止等待用户确认。
 - 图片失败是否回滚 conversion 的完整恢复/重试规则：图片域 PDM-08 负责，但 PDM-04 最终至少承接“图片问题不得破坏已成立的 vehicle conversion”这一跨域不变量，后续再核；
 - 活动 Lock/Transaction 中是否允许一键转名邦：CN11 有明确规则，但本轮 Batch 1 未收录，留 Batch 4 做遗漏核验。
 
-## 7. Batch 2 门禁
+## 7. Batch 2 门禁结果
 
-当前 P04-B2-01～P04-B2-13 全部为：
+- P04-B2-01～B2-04、B2-08～B2-13：`USER_CONFIRMED`
+- P04-B2-05：`WITHDRAWN_REPLACED_BY_P04-A15`
+- P04-B2-06、B2-07：`USER_CONFIRMED_MODIFIED`
+- Batch 2：`COMPLETE_USER_CONFIRMED`
+- Decision Register：`PDM04-GATE-B2`
 
-> `USER_REVIEW_PENDING`
+本轮同时形成并已获用户明确确认的主动新规则：
+- P04-A15｜一键转名邦改为同一 vehicle_id 来源转换；
+- P04-A16｜已有有效 Lock 的批发车允许直接转名邦，Lock 保持绑定同一 vehicle_id。
 
-只有用户明确确认本批后，才允许进入：
+下一步允许准备：
 
 > **PDM-04 Batch 3｜明确知情修改 / 后续明确新增**
+
+
+## 8. Batch 3 预确认项
+
+| Atom | 当前规则 | 来源 | 状态 |
+|---|---|---|---|
+| P04-A15 | **一键转名邦采用同一 `vehicle_id` 来源转换。** 转换前是批发/JYT来源，转换后当前来源成为名邦；永久保留原 `car_code`、JYT来源事实、转换前来源快照、`converted_at`、operator 等历史。系统不再保留第二条可售 wholesale vehicle，也不创建第二个 Mingbang vehicle。后续 JYT 同 `car_code` 不得使其重新成为批发在售。 | 2026-09-24 用户主动修改 B2-05 | `USER_CONFIRMED_PRECONFIRMED_FOR_BATCH_3` |
+| P04-A16 | **已有有效 Lock 的批发车允许直接一键转名邦。** 因 `vehicle_id` 不变，Lock、客户、负责人、锁车快照及后续业务继续绑定原 vehicle，不做对象迁移。当前仅确认 locked；trading/completed 是否允许转换留 Batch 4。 | 2026-09-24 用户明确提出并确认同 vehicle_id 方案 | `USER_CONFIRMED_PRECONFIRMED_FOR_BATCH_3` |
+
+> 注：Batch 3 仍需继续扫描其他“后续明确修改 / 新增”项。P04-A15/A16 不会重复要求用户再次确认，但会与其他 Batch 3 项一起展示完整边界。
