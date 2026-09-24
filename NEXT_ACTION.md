@@ -4,38 +4,32 @@
 
 ## 当前唯一优先动作
 
-> **审查 PDM-04《最终完整规则总览｜待用户批准》。**
+> **审查 PDM-05｜Batch 1 稳定一致项 P05-A01～P05-A09。**
 
-最终总览文件：
+工作版：
 
-> `07_重建工作区/PDM-04_最终完整规则总览_待用户批准.md`
+> `07_重建工作区/PDM-05_车型主数据年款JYT车型映射MODEL_MISSING_规则原子重建_工作版.md`
 
 ## 当前状态
 
 - PDM-01：`COMPLETE`
 - PDM-02：`COMPLETE`
 - PDM-03：`COMPLETE`
-- PDM-04 Batch 1：`COMPLETE_USER_CONFIRMED`
-- PDM-04 Batch 2：`COMPLETE_USER_CONFIRMED`
-- PDM-04 Batch 3：`COMPLETE_USER_CONFIRMED`
-- PDM-04 Batch 4：`COMPLETE_USER_CONFIRMED`
-- PDM-04：`FINAL_REVIEW_PENDING`
+- PDM-04：`COMPLETE`
+- PDM-05 Batch 1：`USER_REVIEW_PENDING`
 
-## Batch 4 最终结果
+## PDM-05 Batch 1 待审
 
-- P04-B4-01｜继续当前 listing_cycle，不因批发→名邦转换新建 cycle；
-- P04-B4-02｜按新 source_type + source_scope 重算自动 hidden，人工 hidden 与其他有效 hidden 原因保留；
-- P04-B4-03｜locked / trading 允许转名邦，completed 禁止；
-- P04-B4-04｜已转名邦历史 car_code 出现明显不同实体身份时，自动屏蔽/抑制冲突上游记录，不进入人工决断；
-- P04-B4-05｜批发→名邦为单向转换，不提供转回批发。
+1. P05-A01｜车型主数据为品牌→车系→具体车型，年款不是第四级实体；
+2. P05-A02｜车型年款与首次上牌/登记时间严格分离；
+3. P05-A03｜完整车型名完全一致自动映射，不完全一致不做模糊猜测；
+4. P05-A04｜同一 upstream_model_id 只生成一条待确认任务，确认一次批量复用；
+5. P05-A05｜本地车型映射不得反向覆盖 JYT 原始车型事实；
+6. P05-A06｜已确认映射发生明显冲突时不得静默改映射，进入车型映射冲突处理；
+7. P05-A07｜车型主档/映射/冲突变更受 vehicle.model.manage 控制；
+8. P05-A08｜名邦/4S 人工车正式发布前必须绑定有效本地 vehicle_model_id；普通销售缺车型可保留草稿但不能绕过发布；
+9. P05-A09｜人工映射确认/修正至少审计 actor/time/old/new，不强制原因。
 
-## 门禁
-
-只有用户明确批准 PDM-04 最终完整规则总览后，才允许：
-
-1. 将 PDM-04 标记 `COMPLETE`；
-2. 生成 `07_重建工作区/PDM-04_最终完整规则.md`；
-3. 更新 Decision Register Final Gate；
-4. 进入 PDM-05。
+用户确认本批后，才允许准备 Batch 2。
 
 当前仍不修改 IA / Low-Fi / Engineering。
