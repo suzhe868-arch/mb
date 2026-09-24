@@ -91,9 +91,21 @@ P05-A01～P05-A09 已全部用户确认。
 
 Batch 2 待审：P05-B2-01～P05-B2-05。
 
+## 2026-09-24｜PDM-05 Batch 2 完成并进入 Batch 3
+
+P05-B2-01～P05-B2-05 已全部用户确认，Batch 2 状态：
+
+> `COMPLETE_USER_CONFIRMED`
+
+当前进入：
+
+> `PDM-05 / BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS / USER_REVIEW_PENDING`
+
+当前唯一待审：P05-A10。
+
 ## 当前唯一下一步
 
-> **审查 PDM-05 Batch 2｜P05-B2-01～P05-B2-05，然后停止等待用户确认。**
+> **审查 PDM-05 Batch 3｜P05-A10，然后停止等待用户确认。**
 
 ## 当前禁止事项
 
