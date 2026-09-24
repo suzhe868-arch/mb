@@ -14,7 +14,7 @@
 
 当前域状态：
 
-> `USER_REVIEW_BATCH_1_PENDING`
+> `USER_REVIEW_BATCH_2_PENDING`
 
 ## 已完成
 
@@ -48,23 +48,23 @@ PDM-01 已正式 `COMPLETE`，其最终规则文件为：
 
 > `07_重建工作区/PDM-01_最终完整规则.md`
 
-PDM-03 已正式 `COMPLETE`。PDM-04 Batch 1 已完成证据筛选，形成 14 条稳定一致候选规则，当前等待用户逐项/整批确认。工作版：`07_重建工作区/PDM-04_三类车源JYT同步车辆身份ListingCycle隐藏下架重上架一键转名邦_规则原子重建_工作版.md`。
+PDM-03 已正式 `COMPLETE`。PDM-04 Batch 1 十四条已全部用户确认；Batch 2 已完成筛选，形成 13 条明确废弃 / 替代 / DO_NOT_RESTORE 待审项。工作版：`07_重建工作区/PDM-04_三类车源JYT同步车辆身份ListingCycle隐藏下架重上架一键转名邦_规则原子重建_工作版.md`。
 
 ## 当前唯一下一步
 
-> **审查 PDM-04 Batch 1｜P04-A01～P04-A14，然后停止等待用户确认。**
+> **审查 PDM-04 Batch 2｜P04-B2-01～P04-B2-13，然后停止等待用户确认。**
 
-PDM-04 Batch 1 已形成 14 条待审规则原子，当前没有任何一条自动批准。
+PDM-04 Batch 1 已正式通过；Batch 2 当前有 13 条待审规则原子，尚未自动批准。
 
 A04/B2-01 冲突已于 2026-09-24 由用户知情裁决：**继续用 A04**。因此 A04 现在正式定义为对 R5 原件、9/19 CURRENT R5、R10-55、IA Current 旧“首次进入不立即形成 owner”规则的主动新修改；B2-01 继续有效。
 
-PDM-01、PDM-02、PDM-03 均已正式 COMPLETE。当前唯一在审产品域为 PDM-04 Batch 1。
+PDM-01、PDM-02、PDM-03 均已正式 COMPLETE。当前唯一在审产品域为 PDM-04 Batch 2。
 
 ## 当前禁止事项
 
 - 不自动批准任何规则；
 - 不静默覆盖已确认 A04；
-- PDM-04 Batch 1 展示后必须停下等待用户确认；
+- PDM-04 Batch 2 展示后必须停下等待用户确认；
 - 不得自动批准任何尚未经过用户确认的 PDM-04 规则；
 - 不修改 IA / Low-Fi；
 - 不执行 Engineering Delta。
@@ -242,3 +242,10 @@ PDM-01 当前已完成 Batch 1～4，状态为 `FINAL_REVIEW_PENDING`。
 明确未混入本批的后续变化/冲突包括：人工名邦/4S source_type 双向修改、采集批发车自动隐藏、一键转名邦后的新名邦展示状态、一键转名邦具体 permission，以及图片/价格等跨域细节。
 
 当前状态：`USER_REVIEW_BATCH_1_PENDING`。
+
+
+## 2026-09-24｜PDM-04 Batch 1 完成
+
+用户明确“全部都同意”，确认 P04-A01～P04-A14 十四条稳定一致项全部通过。Batch 1 状态：`COMPLETE_USER_CONFIRMED`。
+
+随后完成 Batch 2 筛选，共形成 P04-B2-01～P04-B2-13 十三条明确废弃 / 替代 / DO_NOT_RESTORE 候选项，当前等待用户审查。
