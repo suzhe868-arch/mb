@@ -14,7 +14,7 @@
 
 当前域状态：
 
-> `USER_REVIEW_BATCH_2_PENDING`
+> `USER_REVIEW_BATCH_4_PENDING`
 
 ## 已完成
 
@@ -245,9 +245,21 @@ Batch 1 状态：
 
 待审：P07-B2-01～P07-B2-04。
 
+## 2026-09-24｜PDM-07 Batch 2、3 完成并进入 Batch 4
+
+用户确认 P07-B2-01～P07-B2-04 全部通过。
+
+Batch 3 经当前 GitHub 证据复核无新的未审原子，已关闭。
+
+当前进入：
+
+> `PDM-07 / BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES / USER_REVIEW_PENDING`
+
+待审：P07-B4-01～P07-B4-05。
+
 ## 当前唯一下一步
 
-> **审查 PDM-07 Batch 2｜P07-B2-01～P07-B2-04，然后停止等待用户确认。**
+> **审查 PDM-07 Batch 4｜P07-B4-01～P07-B4-05，然后停止等待用户确认。**
 
 ## 当前禁止事项
 
