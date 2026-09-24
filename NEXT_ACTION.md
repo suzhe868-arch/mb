@@ -4,7 +4,7 @@
 
 ## 当前唯一优先动作
 
-> **审查 PDM-04｜Batch 3 的 P04-A17～P04-A20。**
+> **审查 PDM-04｜Batch 4 五条冲突 / 遗漏 / 缺口 / 新选择。**
 
 ## 当前状态
 
@@ -13,18 +13,21 @@
 - PDM-03：`COMPLETE`
 - PDM-04 Batch 1：`COMPLETE_USER_CONFIRMED`
 - PDM-04 Batch 2：`COMPLETE_USER_CONFIRMED`
-- PDM-04 Batch 3：`USER_REVIEW_PENDING`
+- PDM-04 Batch 3：`COMPLETE_USER_CONFIRMED`
+- PDM-04 Batch 4：`USER_REVIEW_PENDING`
 
-已提前确认：
-- P04-A15｜同 `vehicle_id` 批发→名邦来源转换；
-- P04-A16｜locked 批发车允许直接转名邦。
+工作版：
 
-本轮待审：
-- P04-A17｜名邦↔4S `source_type` 后续修改；
-- P04-A18｜采集批发车自动隐藏规则；
-- P04-A19｜转名邦成功后直接进入名邦可售，不走草稿二次发布；
-- P04-A20｜普通名邦销售一键转名邦不设额外独立 permission。
+> `07_重建工作区/PDM-04_三类车源JYT同步车辆身份ListingCycle隐藏下架重上架一键转名邦_规则原子重建_工作版.md`
 
-确认后才允许进入 Batch 4。
+## Batch 4 待审
+
+1. P04-B4-01｜同 vehicle 转名邦是否继续当前 listing_cycle；
+2. P04-B4-02｜转换前 hidden 的处理；
+3. P04-B4-03｜trading/completed 是否允许转换；
+4. P04-B4-04｜JYT 复用 car_code 给另一真实车的处理；
+5. P04-B4-05｜一键转名邦是否单向不可转回批发。
+
+全部确认后才允许生成 PDM-04 最终完整规则总览。
 
 当前仍不修改 IA / Low-Fi / Engineering。
