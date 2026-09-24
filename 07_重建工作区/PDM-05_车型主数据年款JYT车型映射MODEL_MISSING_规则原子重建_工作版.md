@@ -1,8 +1,8 @@
 # PDM-05｜车型主数据 / 年款 / JYT 车型映射 / MODEL_MISSING｜规则原子重建工作版
 
 > 日期：2026-09-24  
-> 状态：`USER_REVIEW_BATCH_2_PENDING`  
-> 说明：严格按 GitHub 当前证据重新重建，不使用旧聊天记忆替代证据。PDM-01～PDM-04 已正式 COMPLETE；PDM-05 Batch 1 已由用户全部确认，当前开放 Batch 2｜明确废弃 / 被替代 / DO_NOT_RESTORE。
+> 状态：`USER_REVIEW_BATCH_3_PENDING`  
+> 说明：严格按 GitHub 当前证据重新重建，不使用旧聊天记忆替代证据。PDM-01～PDM-04 已正式 COMPLETE；PDM-05 Batch 1、Batch 2 已由用户全部确认，当前开放 Batch 3｜知情修改 / 明确新增。
 
 ## 1. 本轮证据范围
 
@@ -127,11 +127,11 @@ Batch 1 状态：
 
 | Atom | 不得恢复的旧机制 | 当前替代口径 | 状态 |
 |---|---|---|---|
-| P05-B2-01 | **不得恢复“品牌 → 车系 → 年款 → 具体车型”的四级车型主数据结构。** | 年款只是具体车型属性，可用于分组/筛选；主数据仍为“品牌 → 车系 → 具体车型”。 | `USER_REVIEW_PENDING` |
-| P05-B2-02 | **不得恢复“人工单车车型锁定”机制。** | 车辆引用正式本地车型节点；车型归属错误通过车型主档/映射修正，不为单辆车另造永久锁定层。 | `USER_REVIEW_PENDING` |
-| P05-B2-03 | **不得恢复 JYT 车型名称 alias / 同义词映射体系。** | 车型身份按 JYT `model_id` → 本地 `vehicle_model_id` 映射；名称只做展示、快照、搜索和 Admin 辅助判断。 | `USER_REVIEW_PENDING` |
-| P05-B2-04 | **不得恢复“同一车型多个 JYT ID 需要额外特殊合并机制”的复杂设计。** | 每个实际出现的 JYT `model_id` 独立建立 source mapping；若未来确有异常关系，再按真实证据处理，不提前造复杂机制。 | `USER_REVIEW_PENDING` |
-| P05-B2-05 | **不得恢复“完整车型名称完全一致 = 车型身份 / 首次自动映射主规则”。** | 2026-09-24 用户已明确改为 ID-based：JYT `model_id` 是上游车型身份键，通过 source mapping 绑定本地 `vehicle_model_id`；名称不是身份主键。 | `USER_REVIEW_PENDING` |
+| P05-B2-01 | **不得恢复“品牌 → 车系 → 年款 → 具体车型”的四级车型主数据结构。** | 年款只是具体车型属性，可用于分组/筛选；主数据仍为“品牌 → 车系 → 具体车型”。 | `USER_CONFIRMED` |
+| P05-B2-02 | **不得恢复“人工单车车型锁定”机制。** | 车辆引用正式本地车型节点；车型归属错误通过车型主档/映射修正，不为单辆车另造永久锁定层。 | `USER_CONFIRMED` |
+| P05-B2-03 | **不得恢复 JYT 车型名称 alias / 同义词映射体系。** | 车型身份按 JYT `model_id` → 本地 `vehicle_model_id` 映射；名称只做展示、快照、搜索和 Admin 辅助判断。 | `USER_CONFIRMED` |
+| P05-B2-04 | **不得恢复“同一车型多个 JYT ID 需要额外特殊合并机制”的复杂设计。** | 每个实际出现的 JYT `model_id` 独立建立 source mapping；若未来确有异常关系，再按真实证据处理，不提前造复杂机制。 | `USER_CONFIRMED` |
+| P05-B2-05 | **不得恢复“完整车型名称完全一致 = 车型身份 / 首次自动映射主规则”。** | 2026-09-24 用户已明确改为 ID-based：JYT `model_id` 是上游车型身份键，通过 source mapping 绑定本地 `vehicle_model_id`；名称不是身份主键。 | `USER_CONFIRMED` |
 
 ### 本批暂不纳入
 
@@ -143,12 +143,44 @@ R3 §19 中以下旧负向表述不在本批重复造 Atom：
 
 ## 7. Batch 2 门禁
 
-P05-B2-01～P05-B2-05 当前全部：
+P05-B2-01～P05-B2-05 已全部由用户确认。
+
+Batch 2 状态：
+
+> `COMPLETE_USER_CONFIRMED`
+
+允许进入 Batch 3；不得自动批准 Batch 3。
+
+---
+
+## 8. Batch 3｜知情修改 / 明确新增
+
+> 本批只收纳后续明确改变旧口径、且当前已有足够证据可描述的新规则。
+
+| Atom | 当前规则 | 相对旧口径的变化 | 状态 |
+|---|---|---|---|
+| P05-A10 | **JYT 车辆首次入库时，只要上游已经提供车型事实，就立即保存并可用于正常入库、发布、展示、搜索、筛选和销售流程；本地 `vehicle_model_id` 尚未完成映射，不再作为这些普通业务的阻塞条件。** 同时保留来源车型名称、年款、排量、变速箱、排放、能源等 JYT 原始车型事实。 | CN11 较保守口径曾把 pending/conflict 下的精确 model-master 事实视为 unknown；后续 R3 明确改为“JYT 原始车型资料本身可正常使用，本地映射只是名邦车型字典归属”。但“未映射时能否直接满足**精确车型依赖的自动 Matching**”证据仍有边界差异，留 Batch 4 单独裁决。 | `USER_REVIEW_PENDING` |
+
+### 本批说明
+
+P05-A10 不表示：
+
+- 未映射的 JYT 车型可以伪装成已经确认的本地 `vehicle_model_id`；
+- 可以跳过 P05-A03 的 `JYT model_id → local vehicle_model_id` 映射；
+- 可以在证据不足时直接判定精确车型 Matching 为满足。
+
+它只确认：
+
+> **本地车型归属 pending，不阻塞 JYT 已经明确提供的来源车型事实用于普通车源业务。**
+
+## 9. Batch 3 门禁
+
+P05-A10 当前：
 
 > `USER_REVIEW_PENDING`
 
 未经用户明确确认：
 
-- 不进入 Batch 3；
+- 不进入 Batch 4；
 - 不开始 PDM-06；
 - 不修改 IA / Low-Fi / Engineering。
