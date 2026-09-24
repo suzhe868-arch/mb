@@ -14,7 +14,7 @@
 
 当前域状态：
 
-> `USER_REVIEW_BATCH_2_PENDING`
+> `IN_REVIEW`
 
 ## 已完成
 
@@ -48,11 +48,11 @@ PDM-01 已正式 `COMPLETE`，其最终规则文件为：
 
 > `07_重建工作区/PDM-01_最终完整规则.md`
 
-PDM-03 已正式 `COMPLETE`。PDM-04 Batch 1 十四条已全部用户确认；Batch 2 已完成筛选，形成 13 条明确废弃 / 替代 / DO_NOT_RESTORE 待审项。工作版：`07_重建工作区/PDM-04_三类车源JYT同步车辆身份ListingCycle隐藏下架重上架一键转名邦_规则原子重建_工作版.md`。
+PDM-04 Batch 1、Batch 2 均已用户确认。Batch 2 中 B2-05 已撤回并由同 vehicle_id 转名邦规则 P04-A15 替代；B2-06/B2-07 已同步修正。当前准备 Batch 3。工作版：`07_重建工作区/PDM-04_三类车源JYT同步车辆身份ListingCycle隐藏下架重上架一键转名邦_规则原子重建_工作版.md`。
 
 ## 当前唯一下一步
 
-> **审查 PDM-04 Batch 2｜P04-B2-01～P04-B2-13，然后停止等待用户确认。**
+> **准备 PDM-04 Batch 3｜明确知情修改 / 后续明确新增。**
 
 PDM-04 Batch 1 已正式通过；Batch 2 当前有 13 条待审规则原子，尚未自动批准。
 
@@ -249,3 +249,8 @@ PDM-01 当前已完成 Batch 1～4，状态为 `FINAL_REVIEW_PENDING`。
 用户明确“全部都同意”，确认 P04-A01～P04-A14 十四条稳定一致项全部通过。Batch 1 状态：`COMPLETE_USER_CONFIRMED`。
 
 随后完成 Batch 2 筛选，共形成 P04-B2-01～P04-B2-13 十三条明确废弃 / 替代 / DO_NOT_RESTORE 候选项，当前等待用户审查。
+
+
+## 2026-09-24｜PDM-04 Batch 2 完成与转名邦模型反转
+
+用户确认 Batch 2 其余项均无争议，并主动反转 B2-05：一键转名邦不再创建第二个 vehicle，而是在同一 vehicle_id 上完成批发→名邦来源转换；永久保留 JYT car_code / 来源历史，并阻止后续 JYT 同 car_code 重新生成批发在售。B2-06/B2-07 已按该模型同步修正。用户同时确认 locked 批发车可直接转名邦，Lock 保持绑定同一 vehicle_id。
