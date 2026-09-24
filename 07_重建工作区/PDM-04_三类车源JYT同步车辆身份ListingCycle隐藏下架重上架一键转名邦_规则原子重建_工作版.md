@@ -1,8 +1,8 @@
 # PDM-04｜三类车源 / JYT 同步 / 车辆身份 / Listing Cycle / 隐藏 / 下架 / 重上架 / 一键转名邦｜规则原子重建工作版
 
 > 日期：2026-09-24  
-> 状态：`BATCH_2_COMPLETE_PREPARE_BATCH_3`  
-> 说明：严格按当前 GitHub 原始证据重新重建，不使用旧聊天记忆替代证据。PDM-01～PDM-03 已正式 COMPLETE；PDM-04 Batch 1 已用户确认，当前开放 Batch 2｜明确废弃 / 明确替代 / DO_NOT_RESTORE，共 13 条，未经用户确认不得进入 Batch 3。
+> 状态：`USER_REVIEW_BATCH_3_PENDING`  
+> 说明：严格按当前 GitHub 原始证据重新重建，不使用旧聊天记忆替代证据。PDM-01～PDM-03 已正式 COMPLETE；PDM-04 Batch 1～2 已完成用户审查，当前开放 Batch 3｜明确知情修改 / 后续明确新增。A15/A16 已由用户提前确认，A17～A20 待审。
 
 ## 1. 本轮证据范围
 
@@ -122,3 +122,41 @@ Batch 2 展示后必须停止等待用户确认。
 | P04-A16 | **已有有效 Lock 的批发车允许直接一键转名邦。** 因 `vehicle_id` 不变，Lock、客户、负责人、锁车快照及后续业务继续绑定原 vehicle，不做对象迁移。当前仅确认 locked；trading/completed 是否允许转换留 Batch 4。 | 2026-09-24 用户明确提出并确认同 vehicle_id 方案 | `USER_CONFIRMED_PRECONFIRMED_FOR_BATCH_3` |
 
 > 注：Batch 3 仍需继续扫描其他“后续明确修改 / 新增”项。P04-A15/A16 不会重复要求用户再次确认，但会与其他 Batch 3 项一起展示完整边界。
+
+
+## 9. Batch 3｜明确知情修改 / 后续明确新增
+
+| Atom | 当前候选规则 | 修改 / 新增来源 | 状态 |
+|---|---|---|---|
+| P04-A15 | **一键转名邦采用同一 `vehicle_id` 来源转换。** 转换前当前来源为批发/JYT，转换后当前来源成为名邦；永久保留原 `car_code`、JYT 来源 lineage、转换前来源事实/快照、`converted_at`、operator 等历史。转换后由名邦业务数据独立维护，JYT 后续同 `car_code` 不得覆盖当前名邦来源状态、不得重新创建批发在售记录。 | 2026-09-24 用户主动反转旧“双 vehicle + conversion relation”模型 | `USER_CONFIRMED_PRECONFIRMED` |
+| P04-A16 | **已有有效 Lock 的批发车允许直接一键转名邦。** 因 `vehicle_id` 不变，原 Lock、客户、负责人、锁车快照和后续业务继续绑定同一 vehicle，不做跨 vehicle 迁移。当前只明确 locked；trading/completed 是否允许转换留 Batch 4。 | 2026-09-24 用户明确提出并确认 | `USER_CONFIRMED_PRECONFIRMED` |
+| P04-A17 | **正式人工车的 `source_type` 允许在“名邦 ↔ 4S”之间后续修改。** 名邦内部员工只要对该车辆具备正常管理能力即可通过专门业务动作修改，不限定必须经理/店长/特殊纠错权限；必须审计修改前、修改后、操作人、操作时间，不强制填写原因。修改后当前权限/可操作能力立即按新来源重新计算；若现负责人因此失去资格则走正式责任交接。**4S 成员自己上传的车辆仍固定为 4S，不能自行改为名邦。** | 9/22 VR-E-003 + Phase1 后续 R10/R11/IA S5-C10 明确覆盖 CN11 DEC-054“正式发布后来源冻结” | `USER_REVIEW_PENDING` |
+| P04-A18 | **采集批发车新增自动隐藏规则中心。** 默认只作用于采集批发车，不自动作用名邦/4S；条件至少支持品牌、车系、年款、具体车型、地区/城市、关键词；跨字段 AND、同字段 OR。规则既作用未来采集，也可对存量批发车重算；必须记录全部命中规则/原因。自动恢复公开时必须同时满足：无其他自动隐藏、无人工 hidden、车辆仍真实在售；绝不能把 offline 车辆“恢复显示”成重新上架。 | 9/22 VR-P-006～P-009 后续新增冻结 | `USER_REVIEW_PENDING` |
+| P04-A19 | **一键转名邦成功后不进入草稿等待二次发布。** 同一 vehicle 完成来源转换后，应直接进入名邦可售业务状态，而不是要求员工再走一次“发布”。至于转换前若平台状态为 hidden，转换后是否自动清除 hidden 并公开展示，单独留 Batch 4 裁决。 | CN11 DEC-049“禁止转名邦→草稿→再发布” + 9/22 VR-X-009“新名邦立即上架”；结合 P04-A15 同 vehicle 模型重新表述 | `USER_REVIEW_PENDING` |
+| P04-A20 | **普通名邦销售执行一键转名邦不再设置额外独立 permission。** 具备 active 名邦员工身份、对目标批发车有正常管理/查看范围且对象状态允许时即可执行；入口可在内部模式展示，但进入内部模式本身不授予能力。4S 成员 hard DENY。 | Phase1 R10/R11 明确“普通名邦销售默认可用、不设一键转名邦独立权限”；PDM-02 已把该点留到 PDM-04/PDM-21 重新确认 | `USER_REVIEW_PENDING` |
+
+## 10. Batch 3 边界说明
+
+- P04-A15/A16 已经由用户明确确认，本批只作为完整规则集展示，不重复要求用户再确认。
+- P04-A17 只处理人工名邦/4S来源变更；批发来源只能由 JYT 同步产生，不能通过普通人工 source_type 编辑把一辆人工车改成“批发”。
+- P04-A18 的自动隐藏仅改变平台展示层，不等于 source offline，也不新建 listing_cycle。
+- P04-A19 只确认“不走草稿二次发布”；**pre-conversion hidden 是否在 conversion 后自动解除**仍未决。
+- P04-A20 只处理“一键转名邦是否需要独立 permission”；页面位置和交互留 PDM-21。
+
+## 11. 明确留到 Batch 4 的问题
+
+1. 同一 `vehicle_id` 批发→名邦转换时，是否继续当前 `listing_cycle`，还是开新 cycle；
+2. 转换前若 vehicle 处于 `hidden`，转换后是否自动清除 hidden 并变成 visible；
+3. `trading` / `completed` 状态是否允许一键转名邦（locked 已明确允许）；
+4. JYT 后续同 `car_code` 出现明显不同核心车辆身份时，转换抑制与“car_code 被上游复用”冲突的最终人工处理出口。
+
+## 12. Batch 3 门禁
+
+当前：
+- P04-A15：`USER_CONFIRMED_PRECONFIRMED`
+- P04-A16：`USER_CONFIRMED_PRECONFIRMED`
+- P04-A17～P04-A20：`USER_REVIEW_PENDING`
+
+只有 A17～A20 获得用户明确确认后，才允许进入：
+
+> **PDM-04 Batch 4｜冲突 / 历史遗漏 / 证据缺口 / 新选择**
