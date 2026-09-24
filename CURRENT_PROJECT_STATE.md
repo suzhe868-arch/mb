@@ -14,7 +14,7 @@
 
 当前域状态：
 
-> `USER_REVIEW_BATCH_2_PENDING`
+> `USER_REVIEW_BATCH_4_PENDING`
 
 ## 已完成
 
@@ -179,9 +179,23 @@ Batch 1 状态：
 
 Batch 2 待审：P06-B2-01～P06-B2-08。
 
+## 2026-09-24｜PDM-06 Batch 2、3 完成并进入 Batch 4
+
+用户确认 P06-B2-01～P06-B2-08 全部通过。
+
+Batch 3 经 GitHub 证据复核没有新的未审原子：
+- P06-A12 多草稿规则已由用户本轮明确确认；
+- source_type 发布后可修改规则已在 PDM-04 正式批准并由 PDM-06 继承。
+
+当前进入：
+
+> `PDM-06 / BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES / USER_REVIEW_PENDING`
+
+待审：P06-B4-01～P06-B4-05。
+
 ## 当前唯一下一步
 
-> **审查 PDM-06 Batch 2｜P06-B2-01～P06-B2-08，然后停止等待用户确认。**
+> **审查 PDM-06 Batch 4｜P06-B4-01～P06-B4-05，然后停止等待用户确认。**
 
 ## 当前禁止事项
 
