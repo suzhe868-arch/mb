@@ -1,7 +1,7 @@
 # PDM-05｜车型主数据 / 年款 / JYT 车型映射 / MODEL_MISSING｜规则原子重建工作版
 
 > 日期：2026-09-24  
-> 状态：`USER_REVIEW_BATCH_4_PENDING`  
+> 状态：`USER_REVIEW_FINAL_OVERVIEW_PENDING`  
 > 说明：严格按 GitHub 当前证据重新重建，不使用旧聊天记忆替代证据。PDM-01～PDM-04 已正式 COMPLETE；PDM-05 Batch 1、Batch 2、Batch 3 已由用户全部确认，当前开放 Batch 4｜冲突 / 遗漏 / 需最终补齐项。
 
 ## 1. 本轮证据范围
@@ -199,8 +199,8 @@ Batch 3 状态：
 
 | Atom | 待确认规则 | 为什么仍需确认 | 状态 |
 |---|---|---|---|
-| P05-B4-01 | **后台 Admin 在处理 MODEL_MISSING / JYT 待映射 / 人工上传缺车型时，可以直接补齐缺失的本地车型主数据：缺品牌就新增品牌，缺车系就新增车系，缺具体车型就新增具体车型；新增完成后立即建立/选择本地 `vehicle_model_id` 并继续原流程。** 普通销售仍不能创建或修改车型主数据。 | 历史 R3、R10-66 与 Low-Fi 都支持“新增车型并绑定”；但 Current Navigation / Action Contract 曾写 `no model creation is inferred`，形成明确冲突。用户已确认车型映射主体为后台 Admin，但“后台 Admin 是否正式拥有在该流程内补主档动作”仍需作为独立规则落死。 | `USER_REVIEW_PENDING` |
-| P05-B4-02 | **后台 Admin 可维护本地车型主数据质量：车型节点挂错品牌/车系可直接修正且所有引用自动跟随；重复车型可合并，车辆引用与 JYT source mapping 一并迁移到保留节点；旧重复节点退出当前选择并保留轻量合并历史；真实存在的旧年份车型长期保留，不因年份老自动停用。** | 这些规则在 R3 中完整存在，但 Current / Engineering 未完整下沉，属于历史细节丢失；当前尚无后续明确废弃裁决。 | `USER_REVIEW_PENDING` |
+| P05-B4-01 | **后台 Admin 在处理 MODEL_MISSING / JYT 待映射 / 人工上传缺车型时，可以直接补齐缺失的本地车型主数据：缺品牌就新增品牌，缺车系就新增车系，缺具体车型就新增具体车型；新增完成后立即建立/选择本地 `vehicle_model_id` 并继续原流程。** 若该缺失主数据来源于 JYT 采集车型，还应在本次处理或紧接后的同一后台流程中尽快建立对应的 `JYT model_id → local vehicle_model_id` source mapping，避免“本地主数据已新增、采集映射长期悬空”。普通销售仍不能创建或修改车型主数据。 | 历史 R3、R10-66 与 Low-Fi 支持“新增车型并绑定”；用户于 2026-09-24 明确确认该动作，并补充要求新增后尽快同步建立采集映射。 | `USER_CONFIRMED_MODIFIED` |
+| P05-B4-02 | **后台 Admin 可维护本地车型主数据质量：车型节点挂错品牌/车系可直接修正且所有引用自动跟随；重复车型可合并，车辆引用与 JYT source mapping 一并迁移到保留节点；旧重复节点退出当前选择并保留轻量合并历史；真实存在的旧年份车型长期保留，不因年份老自动停用。** | 这些规则在 R3 中完整存在；用户于 2026-09-24 明确确认继续保留。 | `USER_CONFIRMED` |
 
 ### 已关闭、无需再次裁决的原 Batch 4 风险
 
@@ -212,12 +212,13 @@ Batch 3 状态：
 
 ## 11. Batch 4 门禁
 
-P05-B4-01、P05-B4-02 当前：
+P05-B4-01、P05-B4-02 已全部由用户确认。
 
-> `USER_REVIEW_PENDING`
+- P05-B4-01：按用户补充，后台 Admin 新增缺失品牌/车系/具体车型后，若属于 JYT 采集车型，应尽快同步建立 `JYT model_id → local vehicle_model_id` source mapping，不允许长期悬空。
+- P05-B4-02：按候选规则确认。
 
-未经用户明确确认：
+Batch 4 状态：
 
-- 不生成 PDM-05 最终完整规则总览；
-- 不开始 PDM-06；
-- 不修改 IA / Low-Fi / Engineering。
+> `COMPLETE_USER_CONFIRMED`
+
+PDM-05 四批审查全部完成，下一步仅生成“最终完整规则总览”并等待用户最终批准；在最终批准前不得把 PDM-05 标记 COMPLETE，也不得开始 PDM-06。
