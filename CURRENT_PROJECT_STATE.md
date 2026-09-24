@@ -14,7 +14,7 @@
 
 当前域状态：
 
-> `USER_REVIEW_BATCH_1_PENDING`
+> `USER_REVIEW_BATCH_2_PENDING`
 
 ## 已完成
 
@@ -231,9 +231,23 @@ Batch 3 经 GitHub 证据复核没有新的未审原子：
 
 结构化车况孤儿规则、档案维护 Action、客户可见性设置动作、交付材料配置机制等留后续批次。
 
+## 2026-09-24｜PDM-07 Batch 1 完成并进入 Batch 2
+
+用户确认 P07-A01～P07-A11 全部通过。
+
+Batch 1 状态：
+
+> `COMPLETE_USER_CONFIRMED`
+
+当前进入：
+
+> `PDM-07 / BATCH_2_DEPRECATED_SUPERSEDED_DO_NOT_RESTORE / USER_REVIEW_PENDING`
+
+待审：P07-B2-01～P07-B2-04。
+
 ## 当前唯一下一步
 
-> **审查 PDM-07 Batch 1｜P07-A01～P07-A11，然后停止等待用户确认。**
+> **审查 PDM-07 Batch 2｜P07-B2-01～P07-B2-04，然后停止等待用户确认。**
 
 ## 当前禁止事项
 
