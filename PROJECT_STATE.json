@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-08",
-  "current_domain_status": "READY_FOR_BATCH_1_RECONSTRUCTION",
+  "current_domain_status": "USER_REVIEW_BATCH_1_PENDING",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Identify PDM-08 scope from frozen product-domain map, reconstruct Batch 1 from GitHub evidence, and stop for explicit user review",
-  "current_work_file": "07_重建工作区/PDM-07_车辆档案车况客户可见报告成交交付材料核验_规则原子重建_工作版.md",
+  "current_task": "Review PDM-08 Batch 1 atoms P08-A01 through P08-A12 and stop for explicit user review",
+  "current_work_file": "07_重建工作区/PDM-08_车辆图片上游URL本地化转存恢复分享图_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -515,5 +515,22 @@
   ],
   "pdm_07_final_overview_file": "07_重建工作区/PDM-07_最终完整规则总览_待用户批准.md",
   "pdm_07_final_overview_status": "USER_APPROVED",
-  "pdm_07_final_rule_file": "07_重建工作区/PDM-07_最终完整规则.md"
+  "pdm_07_final_rule_file": "07_重建工作区/PDM-07_最终完整规则.md",
+  "pdm_08_status": "IN_REVIEW",
+  "pdm_08_batch_1_status": "PENDING_USER_REVIEW",
+  "pdm_08_batch_1_pending_atoms": [
+    "P08-A01",
+    "P08-A02",
+    "P08-A03",
+    "P08-A04",
+    "P08-A05",
+    "P08-A06",
+    "P08-A07",
+    "P08-A08",
+    "P08-A09",
+    "P08-A10",
+    "P08-A11",
+    "P08-A12"
+  ],
+  "pdm_08_batch_1_confirmed_atoms": []
 }
