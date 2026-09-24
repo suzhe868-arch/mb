@@ -4,21 +4,25 @@
 
 ## 当前唯一优先动作
 
-> **审查 PDM-05 Batch 4｜P05-B4-01、P05-B4-02。**
+> **审查并最终批准 PDM-05《最终完整规则总览》。**
 
-工作版：
+文件：
 
-> `07_重建工作区/PDM-05_车型主数据年款JYT车型映射MODEL_MISSING_规则原子重建_工作版.md`
+> `07_重建工作区/PDM-05_最终完整规则总览_待用户批准.md`
 
-## 已完成
+## 当前状态
 
-- Batch 1：P05-A01～P05-A09 已确认；
-- Batch 2：P05-B2-01～P05-B2-05 已确认；
-- Batch 3：P05-A10、P05-A11 已确认。
+- Batch 1：已完成；
+- Batch 2：已完成；
+- Batch 3：已完成；
+- Batch 4：已完成；
+- Final Domain Overview：`USER_APPROVAL_PENDING`。
 
-## Batch 4 待审
+其中 Batch 4 已确认：
 
-- P05-B4-01：后台 Admin 是否可在 MODEL_MISSING / 待映射流程中直接新增缺失品牌、车系、具体车型并绑定；
-- P05-B4-02：后台 Admin 是否保留车型节点纠错、重复车型合并、引用/JYT mapping 迁移、旧车型长期保留等主数据维护能力。
+- 后台 Admin 可直接新增缺失品牌 / 车系 / 具体车型并完成绑定；
+- 若来源于 JYT 采集车型，应尽快同步建立 `JYT model_id → local vehicle_model_id` source mapping；
+- 后台 Admin 可修正车型层级、合并重复车型并迁移车辆引用 / JYT mapping；
+- 真实旧车型长期保留。
 
-当前仍不修改 IA / Low-Fi / Engineering。
+未经最终批准，不进入 PDM-06，不修改 IA / Low-Fi / Engineering。
