@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-07",
-  "current_domain_status": "READY_FOR_BATCH_1_RECONSTRUCTION",
+  "current_domain_status": "USER_REVIEW_BATCH_1_PENDING",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Reconstruct PDM-07 Batch 1 from current GitHub evidence and stop for explicit user review",
-  "current_work_file": "07_重建工作区/PDM-06_人工车辆发布草稿VIN删除边界_规则原子重建_工作版.md",
+  "current_task": "Review PDM-07 Batch 1 atoms P07-A01 through P07-A11 and stop for explicit user review",
+  "current_work_file": "07_重建工作区/PDM-07_车辆档案车况客户可见报告成交交付材料核验_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -476,5 +476,21 @@
   ],
   "pdm_06_final_overview_file": "07_重建工作区/PDM-06_最终完整规则总览_待用户批准.md",
   "pdm_06_final_overview_status": "USER_APPROVED",
-  "pdm_06_final_rule_file": "07_重建工作区/PDM-06_最终完整规则.md"
+  "pdm_06_final_rule_file": "07_重建工作区/PDM-06_最终完整规则.md",
+  "pdm_07_status": "IN_REVIEW",
+  "pdm_07_batch_1_status": "PENDING_USER_REVIEW",
+  "pdm_07_batch_1_pending_atoms": [
+    "P07-A01",
+    "P07-A02",
+    "P07-A03",
+    "P07-A04",
+    "P07-A05",
+    "P07-A06",
+    "P07-A07",
+    "P07-A08",
+    "P07-A09",
+    "P07-A10",
+    "P07-A11"
+  ],
+  "pdm_07_batch_1_confirmed_atoms": []
 }
