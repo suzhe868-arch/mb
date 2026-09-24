@@ -439,5 +439,10 @@
     "P06-A11"
   ],
   "pdm_06_batch_1_confirmed_atoms": [],
-  "pdm_06_batch_1_confirmed_count": 0
+  "pdm_06_batch_1_confirmed_count": 0,
+  "pdm_06_preconfirmed_informed_changes": [
+    "P06-A12"
+  ],
+  "pdm_06_draft_model": "MULTI_DRAFT_AUTO_SAVE_MANAGED_FROM_E02_MORE_DRAFT_SOURCES",
+  "pdm_06_draft_resume": "SUPERSEDED_DO_NOT_RESTORE"
 }
