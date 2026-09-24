@@ -410,6 +410,28 @@ JYT 确认车辆真实下架 / offline 后：
 
 全部继续绑定原 vehicle，不因转换重建或修改历史快照。
 
+### 15.2.1 客户侧既有关系不处理
+
+一键转名邦只是同一真实车辆在后台发生经营来源 / `source_type` 变化：
+
+- `vehicle_id` 不变；
+- 当前 `listing_cycle` 不变；
+- 不新建第二辆 Vehicle；
+- 客户前端仍然面对同一辆车。
+
+因此既有：
+
+- Favorite / 收藏；
+- Recommendation；
+- 当前 listing_cycle 已成立的查价关系 / 权益；
+- 其他已经绑定该 vehicle 的客户侧业务关系；
+
+均继续绑定原 `vehicle_id` 原样有效。
+
+> **不迁移、不重建、不清空，也不因为 source_type 改变而单独做前端关系处理。**
+
+该规则不代表不同 listing_cycle 之间的权益自动延续；跨 listing_cycle 规则仍由对应价格 / Recommendation 域定义。
+
 ### 15.3 completed
 
 Transaction 已 completed 后属于终态历史：
