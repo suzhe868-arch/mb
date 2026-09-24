@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-04",
-  "current_domain_status": "USER_REVIEW_BATCH_1_PENDING",
+  "current_domain_status": "USER_REVIEW_BATCH_2_PENDING",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Present PDM-04 Batch 1 fourteen stable/consistent atoms and stop for explicit user review",
+  "current_task": "Present PDM-04 Batch 2 thirteen deprecated/superseded/do-not-restore atoms and stop for explicit user review",
   "current_work_file": "07_重建工作区/PDM-04_三类车源JYT同步车辆身份ListingCycle隐藏下架重上架一键转名邦_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -72,7 +72,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "BATCH_1_STABLE_CONSISTENT",
+  "current_review_batch": "BATCH_2_DEPRECATED_SUPERSEDED_DO_NOT_RESTORE",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -290,7 +290,9 @@
   "pdm_03_final_overview_status": "USER_APPROVED",
   "pdm_03_final_rule_file": "07_重建工作区/PDM-03_最终完整规则.md",
   "pdm_04_status": "IN_REVIEW",
-  "pdm_04_batch_1_pending_atoms": [
+  "pdm_04_batch_1_pending_atoms": [],
+  "pdm_04_batch_1_status": "COMPLETE_USER_CONFIRMED",
+  "pdm_04_batch_1_confirmed_atoms": [
     "P04-A01",
     "P04-A02",
     "P04-A03",
@@ -306,5 +308,21 @@
     "P04-A13",
     "P04-A14"
   ],
-  "pdm_04_batch_1_status": "PENDING_USER_REVIEW"
+  "pdm_04_batch_1_confirmed_count": 14,
+  "pdm_04_batch_2_pending_atoms": [
+    "P04-B2-01",
+    "P04-B2-02",
+    "P04-B2-03",
+    "P04-B2-04",
+    "P04-B2-05",
+    "P04-B2-06",
+    "P04-B2-07",
+    "P04-B2-08",
+    "P04-B2-09",
+    "P04-B2-10",
+    "P04-B2-11",
+    "P04-B2-12",
+    "P04-B2-13"
+  ],
+  "pdm_04_batch_2_status": "PENDING_USER_REVIEW"
 }
