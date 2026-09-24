@@ -4,7 +4,11 @@
 
 ## 当前唯一优先动作
 
-> **继续审查 PDM-04｜Batch 4 剩余四条冲突 / 遗漏 / 缺口 / 新选择。**
+> **审查 PDM-04《最终完整规则总览｜待用户批准》。**
+
+最终总览文件：
+
+> `07_重建工作区/PDM-04_最终完整规则总览_待用户批准.md`
 
 ## 当前状态
 
@@ -14,25 +18,24 @@
 - PDM-04 Batch 1：`COMPLETE_USER_CONFIRMED`
 - PDM-04 Batch 2：`COMPLETE_USER_CONFIRMED`
 - PDM-04 Batch 3：`COMPLETE_USER_CONFIRMED`
-- PDM-04 Batch 4：`PARTIAL_USER_CONFIRMED`
+- PDM-04 Batch 4：`COMPLETE_USER_CONFIRMED`
+- PDM-04：`FINAL_REVIEW_PENDING`
 
-工作版：
+## Batch 4 最终结果
 
-> `07_重建工作区/PDM-04_三类车源JYT同步车辆身份ListingCycle隐藏下架重上架一键转名邦_规则原子重建_工作版.md`
+- P04-B4-01｜继续当前 listing_cycle，不因批发→名邦转换新建 cycle；
+- P04-B4-02｜按新 source_type + source_scope 重算自动 hidden，人工 hidden 与其他有效 hidden 原因保留；
+- P04-B4-03｜locked / trading 允许转名邦，completed 禁止；
+- P04-B4-04｜已转名邦历史 car_code 出现明显不同实体身份时，自动屏蔽/抑制冲突上游记录，不进入人工决断；
+- P04-B4-05｜批发→名邦为单向转换，不提供转回批发。
 
-## Batch 4 当前状态
+## 门禁
 
-已确认：
+只有用户明确批准 PDM-04 最终完整规则总览后，才允许：
 
-- P04-B4-02｜转换前 hidden 的处理：按新 source_type 与隐藏规则 source_scope 重新计算；人工 hidden 与其他有效 hidden 原因继续保留。
-
-剩余待审：
-
-1. P04-B4-01｜同 vehicle 转名邦是否继续当前 listing_cycle；
-2. P04-B4-03｜trading/completed 是否允许转换；
-3. P04-B4-04｜JYT 复用 car_code 给另一真实车的处理；
-4. P04-B4-05｜一键转名邦是否单向不可转回批发。
-
-剩余四条全部确认后才允许生成 PDM-04 最终完整规则总览。
+1. 将 PDM-04 标记 `COMPLETE`；
+2. 生成 `07_重建工作区/PDM-04_最终完整规则.md`；
+3. 更新 Decision Register Final Gate；
+4. 进入 PDM-05。
 
 当前仍不修改 IA / Low-Fi / Engineering。
