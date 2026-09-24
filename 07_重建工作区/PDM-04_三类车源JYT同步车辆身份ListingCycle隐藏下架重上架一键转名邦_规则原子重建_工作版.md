@@ -1,8 +1,8 @@
 # PDM-04｜三类车源 / JYT 同步 / 车辆身份 / Listing Cycle / 隐藏 / 下架 / 重上架 / 一键转名邦｜规则原子重建工作版
 
 > 日期：2026-09-24  
-> 状态：`USER_REVIEW_BATCH_4_PENDING`  
-> 说明：严格按当前 GitHub 原始证据重新重建，不使用旧聊天记忆替代证据。PDM-01～PDM-03 已正式 COMPLETE；PDM-04 Batch 1～3 已完成用户审查，当前开放 Batch 4｜冲突 / 历史遗漏 / 证据缺口 / 新选择，共 5 条。
+> 状态：`FINAL_REVIEW_PENDING`  
+> 说明：严格按当前 GitHub 原始证据重新重建，不使用旧聊天记忆替代证据。PDM-01～PDM-03 已正式 COMPLETE；PDM-04 Batch 1～4 均已完成用户审查，当前进入 PDM-04 最终完整规则总览待用户批准。
 
 ## 1. 本轮证据范围
 
@@ -194,11 +194,11 @@ Batch 2 展示后必须停止等待用户确认。
 
 | Atom | 冲突 / 缺口 | 当前候选规则 | 证据与原因 | 状态 |
 |---|---|---|---|---|
-| P04-B4-01 | **同一 vehicle_id 批发→名邦后，当前 listing_cycle 是继续还是重开？** 旧“双 vehicle”模型天然会让新名邦车开首 cycle；新“同 vehicle”模型不再成立 | **候选：继续当前 listing_cycle，不因 source conversion 单独新建 cycle。** 一键转名邦只是同一真实车辆的来源/经营方式转换，并未发生“真实不可售→再次真实可售”；因此沿用当前 cycle、原 listing_started_at 和本周期业务关联。只有未来真实下架再重新上架才开启新 cycle | P04-A08 已确认“只有真实不可售→再次真实可售才新 cycle”；IA CO-O09 同向；新 P04-A15 保持同 vehicle | `USER_REVIEW_PENDING` |
+| P04-B4-01 | **同一 vehicle_id 批发→名邦后，当前 listing_cycle 是继续还是重开？** 旧“双 vehicle”模型天然会让新名邦车开首 cycle；新“同 vehicle”模型不再成立 | **用户确认：继续当前 listing_cycle，不因 source conversion 单独新建 cycle。** 一键转名邦只是同一真实车辆的来源/经营方式转换，并未发生“真实不可售→再次真实可售”；因此沿用当前 cycle、原 listing_started_at 和本周期业务关联。只有未来真实下架再重新上架才开启新 cycle | P04-A08 已确认“只有真实不可售→再次真实可售才新 cycle”；P04-A15 保持同 vehicle；2026-09-24 用户明确“其他的都同意” | `USER_CONFIRMED` |
 | P04-B4-02 | **转换前 hidden 怎么处理？** 旧证据存在“人工 hidden 转后仍 hidden”与“转名邦立即上架”的表面冲突；同时 P04-A18 现已允许每条自动隐藏规则选择批发/名邦/4S适用范围 | **用户确认：转换后按 hidden 来源逐项处理，并按新的 source_type 重新计算自动隐藏规则。** ① 仅因“只适用于批发”的自动隐藏规则而 hidden：转为名邦后该命中失效；若无其他 hidden 原因则 visible；② 若某条自动隐藏规则的 source_scope 也包含名邦，且转换后条件仍命中，则继续 hidden；③ 人工 hidden 不因来源转换自动解除，继续 hidden，需有权限人员主动恢复；④ 其他仍有效 hidden 原因继续保留。A19“直接进入名邦可售状态”不等于“无条件公开展示”。 | P04-A07 + 经用户补充修改后的 P04-A18 + 2026-09-24 用户明确同意按 source scope 重算并同步改写 B4-02 | `USER_CONFIRMED` |
-| P04-B4-03 | **locked 已允许转换，那么 trading / completed 呢？** CN11 DEC-072 旧规则因“双 vehicle迁移困难”禁止 locked/trading/completed；其核心前提已被 P04-A15 推翻 | **候选：locked、trading 都允许同 vehicle 转名邦；completed 禁止。** 转换时现有 Lock / Waitlist / Transaction 继续绑定同一 vehicle_id，不迁移、不重建、不改历史快照。Transaction 已 completed 后属于终态历史，不再为了后续经营转换来源；若 Transaction cancelled 且车辆恢复可售/normal，可按当前正常规则再转换 | DEC-072 的旧禁止理由是“新旧 vehicle_id 与业务对象迁移无法唯一推出”；P04-A15/A16 已消除此问题。CN11 DEC-059 又明确 locked/trading 期间仍允许记录真实 vehicle facts 且不得自动取消业务 | `USER_REVIEW_PENDING` |
-| P04-B4-04 | **已转名邦的旧 car_code 被 JYT 真正复用给另一辆实体车怎么办？** 单纯永久屏蔽 car_code 会误伤新车；直接接受又会污染原名邦车 | **候选：先隔离，不自动更新/上架。** 若同 car_code 的品牌/车系/车型/年款等核心身份明显冲突，进入身份冲突人工核验。人工确认“仍是原实体车”→继续保持已转名邦抑制，不恢复批发；人工确认“JYT 确实复用了 car_code 给另一辆真实车”→原名邦 vehicle 永久保留旧 car_code 历史 lineage，但结束它对该 car_code 的当前活动绑定；为新实体建立新的批发 vehicle / 新的一段上游身份绑定。未核验前不自动上架、不自动覆盖 | P04-A05 已确认 core identity conflict 必须人工核验；9/19 R2 §8 明确防止 JYT 复用 car_code；P04-B2-07 又要求已转名邦不能被普通同 car_code 更新复活 | `USER_REVIEW_PENDING` |
-| P04-B4-05 | **一键转名邦是否可逆？** 同 vehicle_id 模型若不明确，会出现员工把名邦车手工改回“批发”的歧义 | **候选：批发→名邦的一键转换为单向经营转换，不提供“转回批发”。** 转换后可按 A17 在“名邦↔4S”之间合法修改人工来源，但不能人工改成批发；批发来源只能由 JYT 集成建立。只有 B4-04 中确认 car_code 被上游复用为另一真实车时，才为那辆新实体建立新的批发身份，不是把旧名邦车转回批发 | A17 已明确人工 source_type 只处理名邦↔4S；A01/A03 已确认批发由 JYT 集成产生；B2-07 已确认转换后不得复活为批发在售 | `USER_REVIEW_PENDING` |
+| P04-B4-03 | **locked 已允许转换，那么 trading / completed 呢？** CN11 DEC-072 旧规则因“双 vehicle迁移困难”禁止 locked/trading/completed；其核心前提已被 P04-A15 推翻 | **用户确认：locked、trading 都允许同 vehicle 转名邦；completed 禁止。** 转换时现有 Lock / Waitlist / Transaction 继续绑定同一 vehicle_id，不迁移、不重建、不改历史快照。Transaction 已 completed 后属于终态历史，不再为了后续经营转换来源；若 Transaction cancelled 且车辆恢复可售/normal，可按当前正常规则再转换 | P04-A15/A16 已消除跨 vehicle 迁移问题；2026-09-24 用户明确“其他的都同意” | `USER_CONFIRMED` |
+| P04-B4-04 | **已转名邦的旧 car_code 被 JYT 复用给另一辆真实车怎么办？** | **用户修改确认：自动屏蔽，不进入人工决断。** 当已转名邦的历史 `car_code` 再出现明显不同核心车辆身份时，系统自动把该冲突上游记录屏蔽/抑制：不得公开展示、不得进入正常匹配、不得覆盖原名邦 vehicle、不得把原名邦 vehicle 恢复为批发、不得自动创建新的可售批发 vehicle。保留冲突/屏蔽日志即可，不要求人工核验或人工放行。 | 用户明确认为该场景极少发生，选择以自动屏蔽作为简单安全兜底；同时承接 P04-B2-07“已转名邦的 car_code 不得复活批发在售” | `USER_CONFIRMED_MODIFIED` |
+| P04-B4-05 | **一键转名邦是否可逆？** 同 vehicle_id 模型若不明确，会出现员工把名邦车手工改回“批发”的歧义 | **用户确认：批发→名邦的一键转换为单向经营转换，不提供“转回批发”。** 转换后可按 A17 在“名邦↔4S”之间合法修改人工来源，但不能人工改成批发；批发来源只能由 JYT 集成建立。B4-04 的异常 car_code 冲突也只自动屏蔽，不把旧名邦车转回批发。 | A17 已明确人工 source_type 只处理名邦↔4S；A01/A03 已确认批发由 JYT 集成产生；2026-09-24 用户明确“其他的都同意” | `USER_CONFIRMED` |
 
 ## 14. Batch 4 关键解释
 
@@ -226,9 +226,19 @@ Batch 2 展示后必须停止等待用户确认。
 
 但 completed 已是终态成交历史，没必要在成交结束后再改当前经营来源；若是误成交，应先走 Transaction correction，恢复真实可售状态后再判断转换。
 
-### B4-04｜car_code 不是永远等于同一实体车
+### B4-04｜car_code 复用异常｜已按用户修改确认
 
-默认仍把同 car_code 视为同一上游身份；但核心身份明显冲突必须先隔离。只有人工明确确认“上游复用了 car_code”后，才允许建立新的批发实体，避免永久 suppress 一辆真正的新车。
+默认仍把同 car_code 视为同一上游身份。对于极少见的“已转名邦历史 car_code 又对应明显不同实体车”场景，不再建设人工核验出口：
+
+- 系统自动屏蔽/抑制该冲突上游记录；
+- 不公开展示；
+- 不进入正常匹配；
+- 不覆盖原名邦 vehicle；
+- 不把原名邦 vehicle 恢复为批发；
+- 不自动创建新的可售批发 vehicle；
+- 仅保留冲突/屏蔽日志。
+
+该异常分支以简单安全兜底为目标，不增加人工决断流程。
 
 ### B4-05｜人工来源和上游来源边界
 
@@ -236,13 +246,19 @@ Batch 2 展示后必须停止等待用户确认。
 - 批发：属于 JYT 集成来源，不能人工改回；
 - 一键转名邦：是批发 → 人工名邦的单向经营转换。
 
-## 15. Batch 4 门禁
+## 15. Batch 4 门禁结果
 
-当前 Batch 4 状态：
-
+- P04-B4-01：`USER_CONFIRMED`
 - P04-B4-02：`USER_CONFIRMED`
-- P04-B4-01、P04-B4-03、P04-B4-04、P04-B4-05：`USER_REVIEW_PENDING`
+- P04-B4-03：`USER_CONFIRMED`
+- P04-B4-04：`USER_CONFIRMED_MODIFIED`
+- P04-B4-05：`USER_CONFIRMED`
+- Batch 4：`COMPLETE_USER_CONFIRMED`
 
-剩余 4 条全部获得用户明确裁决后，才允许生成：
+PDM-04 四批用户审查已经全部完成。
+
+下一步仅允许生成并审查：
 
 > **PDM-04｜最终完整规则总览｜待用户批准**
+
+未经用户最终批准，不得将 PDM-04 标记为 `COMPLETE`，不得进入 PDM-05。
