@@ -4,24 +4,18 @@
 
 ## 当前唯一优先动作
 
-> **审查 PDM-06 Batch 4｜P06-B4-01～P06-B4-05。**
+> **审查并最终批准 PDM-06《最终完整规则总览》。**
 
-工作版：
+文件：
 
-> `07_重建工作区/PDM-06_人工车辆发布草稿VIN删除边界_规则原子重建_工作版.md`
+> `07_重建工作区/PDM-06_最终完整规则总览_待用户批准.md`
 
-## 已完成
+## 当前状态
 
-- Batch 1：P06-A01～P06-A12 已确认；
-- Batch 2：P06-B2-01～P06-B2-08 已确认；
-- Batch 3：无新的未审原子，已关闭。
+- Batch 1：已完成；
+- Batch 2：已完成；
+- Batch 3：已完成；
+- Batch 4：已完成；
+- Final Domain Overview：`USER_APPROVAL_PENDING`。
 
-## Batch 4 待审
-
-1. 填写 VIN 后的完全一致精确查重；
-2. 已发布人工车辆必须“保存修改”后普通资料变更才正式生效；
-3. 新建人工车 source_type：单一来源直入；名邦可选两类时必须主动选择，不默认；4S 固定4S；
-4. MODEL_MISSING 完成后回原始 draft_id；
-5. 草稿删除从“更多 → 草稿车源”针对目标 draft 二次确认并重验纯草稿 Guard。
-
-当前仍不修改 IA / Low-Fi / Engineering。
+未经最终批准，不进入 PDM-07，不修改 IA / Low-Fi / Engineering。
