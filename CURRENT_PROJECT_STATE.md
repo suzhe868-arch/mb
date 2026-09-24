@@ -14,7 +14,7 @@
 
 当前域状态：
 
-> `USER_REVIEW_BATCH_1_PENDING`
+> `USER_REVIEW_BATCH_2_PENDING`
 
 ## 已完成
 
@@ -165,9 +165,23 @@ Batch 4 待审：P05-B4-01、P05-B4-02。
 
 多草稿 vs DRAFT_RESUME、VIN 精确重复 Gate、已发布车辆“保存修改”正式生效、source_type 新建交互等已留后续批次，不在 Batch 1 偷偷收口。
 
+## 2026-09-24｜PDM-06 Batch 1 完成并进入 Batch 2
+
+用户确认 P06-A01～P06-A11 全部通过；P06-A12 多草稿管理已提前确认。
+
+Batch 1 状态：
+
+> `COMPLETE_USER_CONFIRMED`
+
+当前进入：
+
+> `PDM-06 / BATCH_2_DEPRECATED_SUPERSEDED_DO_NOT_RESTORE / USER_REVIEW_PENDING`
+
+Batch 2 待审：P06-B2-01～P06-B2-08。
+
 ## 当前唯一下一步
 
-> **审查 PDM-06 Batch 1｜P06-A01～P06-A11，然后停止等待用户确认。**
+> **审查 PDM-06 Batch 2｜P06-B2-01～P06-B2-08，然后停止等待用户确认。**
 
 ## 当前禁止事项
 
