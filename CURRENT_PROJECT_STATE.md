@@ -75,9 +75,25 @@ Batch 1 当前状态：
 当前 Batch 1 已确认：P05-A03、P05-A05、P05-A06。
 仍待审：P05-A01、P05-A02、P05-A04、P05-A07、P05-A08、P05-A09。
 
+## 2026-09-24｜PDM-05 Batch 1 完成并进入 Batch 2
+
+P05-A01～P05-A09 已全部用户确认。
+
+其中：
+
+- P05-A03 已修正为 JYT `model_id` → 本地 `vehicle_model_id` 的 ID-based source mapping；
+- P05-A07 当前实际管理主体收口为后台 Admin，普通销售不得处理车型主数据/映射/冲突；
+- Batch 1 状态：`COMPLETE_USER_CONFIRMED`。
+
+当前进入：
+
+> `PDM-05 / BATCH_2_DEPRECATED_SUPERSEDED_DO_NOT_RESTORE / USER_REVIEW_PENDING`
+
+Batch 2 待审：P05-B2-01～P05-B2-05。
+
 ## 当前唯一下一步
 
-> **继续审查 PDM-05 Batch 1 剩余 P05-A01 / A02 / A04 / A07 / A08 / A09，然后停止等待用户确认。**
+> **审查 PDM-05 Batch 2｜P05-B2-01～P05-B2-05，然后停止等待用户确认。**
 
 ## 当前禁止事项
 
