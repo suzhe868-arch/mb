@@ -289,9 +289,30 @@ Batch 3 经当前 GitHub 证据复核无新的未审原子，已关闭。
 - Decision Register 已登记 `PDM07-GATE-FINAL`；
 - PDM-08 Batch 1 已形成：P08-A01～P08-A12。
 
+## 2026-09-25｜PDM-01～07 反向覆盖校验
+
+已完成正式反向覆盖校验。
+
+报告：
+
+> `07_重建工作区/PDM-01至07_反向覆盖校验报告_2026-09-25.md`
+
+结果：
+- PDM-01：PASS
+- PDM-02：PASS
+- PDM-03：PASS
+- PDM-04：FAIL
+- PDM-05：PASS_WITH_HANDOFF_GAP
+- PDM-06：FAIL
+- PDM-07：PASS
+
+当前发现 5 个补漏项，尚未达到 `UNMAPPED=0`。
+
+PDM-08 临时暂停，先完成反向覆盖补漏 Gate。
+
 ## 当前唯一下一步
 
-> **审查 PDM-08 Batch 1｜P08-A01～P08-A12，然后停止等待用户确认。**
+> **审查 PDM-01～PDM-07 反向覆盖校验发现的 5 个补漏项，然后停止等待用户确认。**
 
 ## 当前禁止事项
 
