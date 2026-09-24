@@ -184,3 +184,5 @@
 | PDM05-DEC-B4-01 | PDM-05 | P05-B4-01 | 用户确认：后台 Admin 在 MODEL_MISSING / JYT 待映射 / 人工上传缺车型时，可直接新增缺失品牌、车系、具体车型并绑定本地 vehicle_model_id；若来源于 JYT 采集车型，应在本次处理或紧接后的同一后台流程中尽快建立 JYT model_id → local vehicle_model_id source mapping，避免本地主数据已补齐而采集映射长期悬空。 | 当前正式规则覆盖 Current Action Contract 的 no model creation is inferred 冲突。 | 2026-09-24 用户明确确认并补充采集映射联动要求 | 2026-09-24 |
 | PDM05-DEC-B4-02 | PDM-05 | P05-B4-02 | 用户确认：后台 Admin 可修正车型节点父级、合并重复车型，并同步迁移车辆引用与 JYT source mapping；旧重复节点退出当前选择并保留轻量历史；真实旧车型长期保留，不因年份老自动停用。 | 恢复 R3 已明确但后续未完整下沉的车型主数据质量维护规则。 | 2026-09-24 用户明确“第二个同意” | 2026-09-24 |
 | PDM05-GATE-B4 | PDM-05 | Batch 4 Gate | 用户确认 P05-B4-01、P05-B4-02；其中 B4-01 增加“新增缺失主数据后尽快同步 JYT source mapping”要求。 | PDM-05 四批用户审查全部完成，进入最终完整规则总览待用户最终批准；不得自动标记 COMPLETE。 | PDM-05 Batch 4 工作版 + 2026-09-24 用户明确裁决 | 2026-09-24 |
+
+| PDM05-GATE-FINAL | PDM-05 | Final Domain Overview | 用户最终批准 PDM-05《最终完整规则总览》。 | PDM-05 四批门禁与最终总览全部通过，正式标记 COMPLETE；生成 `PDM-05_最终完整规则.md`，允许进入 PDM-06。 | `PDM-05_最终完整规则总览_待用户批准.md` + 2026-09-24 用户明确“同意” | 2026-09-24 |
