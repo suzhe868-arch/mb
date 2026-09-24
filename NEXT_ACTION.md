@@ -4,7 +4,7 @@
 
 ## 当前唯一优先动作
 
-> **准备 PDM-04｜Batch 3 明确知情修改 / 后续明确新增。**
+> **审查 PDM-04｜Batch 3 的 P04-A17～P04-A20。**
 
 ## 当前状态
 
@@ -13,18 +13,18 @@
 - PDM-03：`COMPLETE`
 - PDM-04 Batch 1：`COMPLETE_USER_CONFIRMED`
 - PDM-04 Batch 2：`COMPLETE_USER_CONFIRMED`
-- PDM-04 Batch 3：准备中
+- PDM-04 Batch 3：`USER_REVIEW_PENDING`
 
-## 已预确认的新规则
+已提前确认：
+- P04-A15｜同 `vehicle_id` 批发→名邦来源转换；
+- P04-A16｜locked 批发车允许直接转名邦。
 
-- P04-A15｜一键转名邦采用同一 `vehicle_id` 来源转换；
-- P04-A16｜已有有效 Lock 的批发车允许直接转名邦，Lock 不迁移。
+本轮待审：
+- P04-A17｜名邦↔4S `source_type` 后续修改；
+- P04-A18｜采集批发车自动隐藏规则；
+- P04-A19｜转名邦成功后直接进入名邦可售，不走草稿二次发布；
+- P04-A20｜普通名邦销售一键转名邦不设额外独立 permission。
 
-## Batch 3 继续核验
-
-- 人工名邦 / 4S `source_type` 双向修改；
-- 采集批发车自动隐藏规则；
-- 一键转名邦后的新名邦展示状态；
-- 一键转名邦具体 permission。
+确认后才允许进入 Batch 4。
 
 当前仍不修改 IA / Low-Fi / Engineering。
