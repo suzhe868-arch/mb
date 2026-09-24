@@ -176,3 +176,7 @@
 | PDM05-DEC-B2-04 | PDM-05 | P05-B2-04 | 用户确认不建设“同一车型多个 JYT ID”的特殊复杂合并机制；按实际 JYT model_id 分别建立 source mapping。 | 作为 DO_NOT_RESTORE 规则进入最终 PDM-05 基线。 | PDM-05 Batch 2 + 2026-09-24 用户明确“全部同意” | 2026-09-24 |
 | PDM05-DEC-B2-05 | PDM-05 | P05-B2-05 | 用户确认不得恢复“完整车型名称完全一致 = 车型身份 / 首次自动映射主规则”；以 ID-based source mapping 为准。 | 作为 DO_NOT_RESTORE 规则进入最终 PDM-05 基线。 | PDM-05 Batch 2 + 2026-09-24 用户明确“全部同意” | 2026-09-24 |
 | PDM05-GATE-B2 | PDM-05 | Batch 2 Gate | 用户确认 P05-B2-01～P05-B2-05 全部通过。 | Batch 2 门禁关闭，允许进入 Batch 3；不得自动批准 Batch 3。 | PDM-05 Batch 2 工作版 + 2026-09-24 用户明确确认 | 2026-09-24 |
+
+| PDM05-DEC-A10 | PDM-05 | P05-A10 | 用户确认：JYT 已提供的车型事实可在本地 vehicle_model_id 未映射时正常用于入库、发布、展示、搜索、筛选和销售；本地映射仅解决名邦车型主数据归属。 | 主动确认后续 R3 口径，覆盖 CN11 较保守的“pending/conflict 下精确 model-master 事实视为 unknown”限制。 | PDM-05 Batch 3 + 2026-09-24 用户明确“同意这条” | 2026-09-24 |
+| PDM05-DEC-A11 | PDM-05 | P05-A11 | 用户补充确认：只要 JYT 已明确提供品牌、车系、年款、具体车型/款式等足够车型事实，即使本地 vehicle_model_id 尚未映射，也可直接参加精确搜索、筛选和自动 Matching；不得仅因本地映射 pending 就把车型条件降为 unknown。 | 车辆自身车型事实与名邦本地车型主数据归属分层；本地映射仍需后台 Admin 完成。 | 2026-09-24 用户明确补充确认 | 2026-09-24 |
+| PDM05-GATE-B3 | PDM-05 | Batch 3 Gate | 用户确认 P05-A10，并追加确认 P05-A11 精确搜索/自动 Matching 规则。 | Batch 3 门禁关闭，允许进入 Batch 4；不得自动批准 Batch 4。 | PDM-05 Batch 3 工作版 + 2026-09-24 用户明确确认 | 2026-09-24 |
