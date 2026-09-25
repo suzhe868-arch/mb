@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Resume PDM-08 Batch 1 review with source-rule coverage mapping and UNMAPPED=0 gate",
+  "current_task": "Review revised PDM-08 Batch 1 atoms P08-A01 through P08-A13 under source-decision coverage gate",
   "current_work_file": "07_重建工作区/PDM-08_车辆图片上游URL本地化转存恢复分享图_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -545,5 +545,23 @@
     "PDM06 draft list/detail access guard",
     "PDM04 supply anomaly lifecycle/manual clear conflict",
     "PDM05-to-PDM06 model fixed-attribute autofill handoff"
-  ]
+  ],
+  "pdm_08_pending_atoms": [
+    "P08-A01",
+    "P08-A02",
+    "P08-A03",
+    "P08-A04",
+    "P08-A05",
+    "P08-A06",
+    "P08-A07",
+    "P08-A08",
+    "P08-A09",
+    "P08-A10",
+    "P08-A11",
+    "P08-A12",
+    "P08-A13"
+  ],
+  "pdm_08_source_decision_ledger": "IMG-001..IMG-030 mapped",
+  "pdm_08_source_decision_unmapped_count": 0,
+  "pdm_08_final_gate_requirement": "SOURCE_DECISION_COVERAGE=100% AND UNMAPPED=0"
 }
