@@ -401,3 +401,49 @@ https://img.jytche.com/user/xxx/xxx.jpg
 - 完整报告 / H5 链接（如 `app.yutangkeji.com/#/detail/...`）不套用普通图片 path 规则，继续按完整报告 URL / report proxy 规则处理。
 
 状态：`USER_APPROVED`
+
+
+### P08-CDN-02｜资产化后公开图片 URL 保持不变
+
+用户确认：
+
+- 普通批发图片最初可由名邦公开图片 URL 通过 CDN 回源 JYT；
+- 当车辆后续确定收车 / 转为名邦长期资产时，图片可迁入名邦对象存储；
+- **前端公开图片 URL 尽量保持不变**，不因为底层来源从“JYT 回源”切换到“名邦对象存储”而要求客户侧更换图片地址；
+- 收藏、分享、Recommendation 等既有引用不需要因为图片资产化而重建。
+
+状态：`USER_APPROVED`
+
+### P08-CDN-03｜CDN 缓存参数归 Engineering
+
+用户确认：
+
+- CDN TTL；
+- 回源失败时是否继续服务旧缓存；
+- Query 参数处理；
+- 缓存刷新 / 预热；
+- 具体节点策略；
+
+均属于 Engineering 配置，不在 PDM 产品规则中写死。
+
+状态：`USER_APPROVED`
+
+### P08-CDN-04｜4S 维保完整 H5 施工兼容验证
+
+用户确认：
+
+- 4S 维保完整 H5 页面继续按独立 report 域名 / EdgeOne / 反向代理处理；
+- 施工时需验证 H5 内部的 JS、CSS、图片、接口等依赖是否仍指向上游绝对地址；
+- 必要时由 EdgeOne / 边缘函数做资源地址或页面内容兼容改写；
+- 这属于实现验证，不改变既有业务语义。
+
+状态：`USER_APPROVED`
+
+### 当前 4S 维保 H5 范围说明
+
+目前已确认的是：
+
+- **4S 维保完整报告页**示例为 `app.yutangkeji.com/#/detail/...`；
+- 它与普通图片资源分开处理；
+- 4S 维保报告内的静态图片仍归普通图片 CDN 体系；
+- 当前没有证据证明“出险完整报告页”也一定使用同一套 `app.yutangkeji.com` H5，因此暂不扩写为所有报告 H5 的统一上游域名。
