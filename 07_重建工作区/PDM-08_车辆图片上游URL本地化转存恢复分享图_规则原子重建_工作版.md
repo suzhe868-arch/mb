@@ -105,23 +105,19 @@
 
 状态：`USER_REVIEW_PENDING`
 
-### P08-A03｜上游 URL、名邦 CDN 受控转链与“本地”定义
+### P08-A03｜名邦受控图片地址与可配置域名
 
-批发图片采用：
-
-> **冻结上游来源 + 名邦受控 HTTPS/CDN 转链 + 服务端逐步本地化**
+批发 / 报告静态图片的业务数据只保存图片 path，不把前端公开域名或上游回源域名写死进数据库。
 
 具体：
-- 数据库保留首次冻结的 JYT `upstream_url` / 图片来源身份；
-- 客户端、员工端**不得直接获得 JYT 原始 URL**；
-- 也不得暴露对象存储内部地址 / `local_object_key`；
-- 对外统一返回名邦受控 HTTPS/CDN 图片地址；
-- 未本地化时，该受控地址可由图片代理 / Resolver 回源 JYT；
-- “本地 / 已吞图”指名邦服务端对象存储/CDN，不是手机、微信客户端缓存。
+- 客户端、员工端不得直接使用上游图片域名；
+- 对外图片地址由“名邦可控公开图片域名 + 配置前缀 + 图片 path”生成；
+- CDN 未命中缓存时，再根据配置的上游图片源站域名 + 同一 path 回源；
+- 当前标准上游图片源站配置使用 `img.jytche.com`；
+- 名邦公开域名、路径前缀、JYT 图片源站域名均作为配置项，可后续替换；
+- 完整 H5 / 报告页面不套用普通图片 path 规则。
 
-CDN Token、短签 URL 时长、具体 Resolver 实现继续属于工程细节。
-
-状态：`USER_REVIEW_PENDING`
+状态：`USER_APPROVED`
 
 ### P08-A04｜其余批发图片按需本地化，viewer 与持久化复用同一次回源
 
@@ -350,3 +346,58 @@ CDN Token、短签 URL 时长、具体 Resolver 实现继续属于工程细节�
 
 > **SOURCE_DECISION_COVERAGE = 100%**  
 > **UNMAPPED = 0**
+
+
+---
+
+# 8. 2026-10-03 CDN URL 生成补充裁决
+
+### P08-CDN-01｜图片路径与域名配置
+
+用户确认：采集到的图片原始数据本身不包含固定域名，核心事实是图片路径。
+
+因此普通图片类资源统一采用：
+
+- 数据库只保存图片 path，例如：
+  `/user/370436/report/image/1788072135101_1352.jpeg`
+- 不在业务数据中写死名邦前端图片域名；
+- 不在业务数据中写死 JYT 图片回源域名；
+- 前端公开图片地址由“名邦可控公开图片域名 + 固定前缀 + 图片 path”运行时生成；
+- CDN 回源地址由“配置的上游图片源站域名 + 图片 path”运行时生成。
+
+示意：
+
+```text
+DB:
+  /user/xxx/xxx.jpg
+
+Frontend public URL:
+  {PUBLIC_IMAGE_DOMAIN}/{PREFIX}/user/xxx/xxx.jpg
+
+CDN origin:
+  {JYT_IMAGE_ORIGIN}/user/xxx/xxx.jpg
+```
+
+当前示例可表现为：
+
+```text
+前端：
+https://img.mingbang.com/ct/user/xxx/xxx.jpg
+
+CDN 回源：
+https://img.jytche.com/user/xxx/xxx.jpg
+```
+
+但 `img.mingbang.com`、`/ct/`、`img.jytche.com` 均属于可配置项，不冻结为数据库永久字段。
+
+适用范围：
+- 车辆相册图片；
+- 出险记录图片；
+- 4S 维保报告内静态图片；
+- 其他报告静态图片；
+- 后续同类采集图片附件。
+
+例外：
+- 完整报告 / H5 链接（如 `app.yutangkeji.com/#/detail/...`）不套用普通图片 path 规则，继续按完整报告 URL / report proxy 规则处理。
+
+状态：`USER_APPROVED`
