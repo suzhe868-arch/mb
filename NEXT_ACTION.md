@@ -1,37 +1,44 @@
 # 名邦汽车 V1｜下一步唯一动作
 
-> 更新时间：2026-09-25
+> 更新时间：2026-10-03
 
 ## 当前状态
 
-PDM-01～PDM-07 反向覆盖已完成：
+PDM-01～PDM-07：
 
-> **REVERSE_COVERAGE_UNMAPPED = 0**
+> **COMPLETE / REVERSE_COVERAGE_UNMAPPED = 0**
 
-PDM-08 已建立 IMG-001～IMG-030 原始 Decision 逐条覆盖账：
+PDM-08 已完成 2026-10-03 CDN 架构新裁决及第一轮跨模块冲突扫描。
 
-> **当前挂账 UNMAPPED = 0**
+跨模块结果：
 
-注意：这里只表示每条历史 Decision 已有明确去向，不代表用户已经批准。
+- PDM-04：兼容；图片转换必须按同 vehicle_id 资产化重写；
+- PDM-06：兼容；0 图发布不变，自上传图直接对象存储；
+- PDM-07：兼容但必须保留档案/报告客户可见性 Guard，报告图不自动进入车辆相册；
+- PDM-13/14：图片 URL 不得绕过 hidden / Priority / Recommendation 可见性；
+- PDM-20：4:3 轮播、分享主图与当前新架构兼容；
+- PDM-22/25：域名、源站、缓存、审计等配置后续承接。
+
+原 P08-A01～A13：
+
+> **SUPERSEDED_PENDING_REBUILD**
+
+不再按原清单继续审批。
 
 ## 当前唯一下一步
 
-> **审查 PDM-08 Batch 1｜P08-A01～P08-A13。**
+> **把 IMG-001～IMG-030 逐条重新映射到 2026-10-03 新 CDN / 对象存储架构。**
 
-本批涵盖：
+每条必须标为：
 
-- 首次 images[] 冻结；
-- 首图本地化 / fallback / 占位图；
-- JYT upstream_url + 名邦受控 HTTPS/CDN 转链；
-- 真实查看 / 预加载时按需本地化；
-- 2/3/4 + 前方约2张预加载；
-- storage + DB 双成功定义；
-- 本地优先 / 404受控自愈；
-- 单图重试轮次与失败图原位恢复；
-- same-image single-flight / 单车并发3；
-- 上下架 / listing_cycle 不重置图片资产；
-- 人工名邦 / 4S 0图、增删排序；
-- 不设置产品级固定图片数量/大小/格式上限；
-- 图片权限继承 Vehicle，URL 不得绕权。
+- RETAIN；
+- MODIFIED；
+- SUPERSEDED；
+- ENGINEERING_ONLY；
+- DEFERRED；
+- NEEDS_DECISION。
 
-Batch 2～4 预登记内容不自动视为已批准。
+完成后重新生成 PDM-08 新 Batch 1，并继续保持：
+
+> **SOURCE_DECISION_COVERAGE = 100%**
+> **UNMAPPED = 0**
