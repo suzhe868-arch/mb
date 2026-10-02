@@ -563,5 +563,10 @@
   ],
   "pdm_08_source_decision_ledger": "IMG-001..IMG-030 mapped",
   "pdm_08_source_decision_unmapped_count": 0,
-  "pdm_08_final_gate_requirement": "SOURCE_DECISION_COVERAGE=100% AND UNMAPPED=0"
+  "pdm_08_final_gate_requirement": "SOURCE_DECISION_COVERAGE=100% AND UNMAPPED=0",
+  "pdm_08_cdn_path_rule": "APPROVED",
+  "pdm_08_image_storage_fact": "path_only",
+  "pdm_08_public_image_domain": "configurable",
+  "pdm_08_image_origin_domain": "configurable_current_default_img.jytche.com",
+  "pdm_08_report_h5_rule": "separate_full_url_proxy"
 }
