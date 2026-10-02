@@ -663,3 +663,213 @@ PDM-07 已冻结：
 6. 批发转名邦时才把 JYT 回源图片正式资产化到名邦对象存储。
 
 因此原 `P08-A01～P08-A13` **不得继续原样作为当前 Batch 1 审批清单**，需要按新 CDN 架构重新映射 IMG-001～IMG-030 后生成新的 Batch 1。
+
+
+---
+
+# 11. IMG-001～IMG-030｜按 2026-10-03 新 CDN 架构重新映射
+
+> 核心术语修正：
+>
+> - **CDN 缓存**：普通批发 / 上游图片的访问加速，不等于名邦长期拥有该图片资产；
+> - **对象存储资产化**：图片文件正式进入名邦自有对象存储，并由数据库持有 object_key/path 等长期引用；
+> - 普通批发图默认只走 CDN 回源缓存；自上传图和批发→名邦后的图片才进入对象存储资产化。
+
+| IMG | 新架构处置 | 当前结论 |
+|---|---|---|
+| IMG-001 首次 `images[]` 冻结 | 继续保留首次图片 path 集合与原始顺序，不因普通上游同步改写整套图片集合 | RETAIN |
+| IMG-002 首次入库本地化第一张封面 | “必须落对象存储”废弃；保留“按原始第一张作为优先封面” | MODIFIED |
+| IMG-003 首图失败向后 fallback、不改排序 | CDN/源图不可用时仍可按原顺序 fallback，不修改原始顺序 | RETAIN |
+| IMG-004 全失败/0图不阻塞车辆 | 继续成立；使用统一占位图 | RETAIN |
+| IMG-005 真实查看/预加载时逐张永久吞图 | 普通批发图改为 CDN 回源缓存，不再因浏览永久写名邦对象存储 | SUPERSEDED_BY_CDN_ARCH |
+| IMG-006 第2/3张+预取第4张、前方约2张 | 可作为客户端性能策略，但不再是对象存储业务合同 | ENGINEERING_UX_ONLY |
+| IMG-007 viewer 与 persistence 复用同一次上游响应 | 普通批发图由 CDN 自身缓存/回源处理，不再要求业务服务做 viewer+persistence 双写 | SUPERSEDED / ENGINEERING |
+| IMG-008 storage + DB 双成功才算已吞 | 改为只适用于“名邦对象存储资产化”场景；CDN 命中不算资产化 | MODIFIED_RETAIN |
+| IMG-009 已吞图永久本地优先 | 对已资产化图片继续成立；底层改为名邦对象存储/CDN，不再依赖 JYT | MODIFIED_RETAIN |
+| IMG-010 单图每轮最多3次 | 精确次数不再作为产品规则；由 Engineering 处理重试策略 | ENGINEERING_ONLY |
+| IMG-011 失败图暂不占可见位置、原排序保留 | 失败不得破坏整车图片集合，原始 path / 顺序继续保留 | RETAIN_MODIFIED |
+| IMG-012 本地图404才回冻结 URL 自愈 | 是否由 JYT 作为资产化图片灾备回源属于存储恢复实现，不写死产品层 | ENGINEERING_ONLY |
+| IMG-013 single-flight / 单车并发3 | 并发与 single-flight 属工程性能控制，不再作为产品硬参数 | ENGINEERING_ONLY |
+| IMG-014 上下架不重置图片状态 | 继续成立；图片 path、CDN 关系、已资产化对象均不因上下架 / hidden 重置；图片变化不新建 listing_cycle | RETAIN |
+| IMG-015 人工名邦/4S可0图、可增删排序 | 继续成立；自上传图片直接进入名邦对象存储 | RETAIN |
+| IMG-016 批发采集图原始排序不可人工修改 | 继续成立 | RETAIN |
+| IMG-017 不设固定产品级数量/大小/格式上限 | 继续成立；必要安全/平台限制归 Engineering | RETAIN |
+| IMG-018 已吞不重下/正在吞复用/未吞迁移 | 旧“浏览吞图”前提废弃；新规则为批发→名邦时按 path 资产化，已成功资产化的不重复处理 | MODIFIED |
+| IMG-019 车辆转换与图片迁移解耦 | 继续成立；同 vehicle_id source_type 转换成功不因图片资产化失败回滚 | RETAIN_MODIFIED |
+| IMG-020 转换失败图片只人工补图、不重试 | 被 9/22 VR-X-010 与当前资产化恢复规则替代 | SUPERSEDED |
+| IMG-021 `failed` 只能表示整车转换失败 | 废弃；图片资产化子任务本身可以 failed，且不等于 vehicle 转换失败 | SUPERSEDED |
+| IMG-022 新 Vehicle 接管物理图片所有权 | 双 Vehicle 前提已不存在 | SUPERSEDED_BY_PDM04 |
+| IMG-023 原 wholesale Vehicle 移除 local object | 双 Vehicle 前提已不存在；同一 vehicle 保留 JYT 图片来源/path 历史并增加名邦资产引用 | MODIFIED_BY_PDM04 |
+| IMG-024 转换后按普通名邦图片生命周期 | 继续成立；资产化后可按名邦车辆图片规则新增/删除/排序 | RETAIN_MODIFIED |
+| IMG-025 content_hash 不做跨车物理共享 | hash / 去重 / ref-count 属存储 Engineering；产品只要求生命周期和删除历史正确 | ENGINEERING_ONLY |
+| IMG-026 “本地”=服务端而非手机缓存 | 重新拆词：CDN缓存≠资产化；“名邦自有资产”专指对象存储，客户端缓存不构成业务事实 | MODIFIED_RETAIN |
+| IMG-027 图片访问服从 Vehicle 权限 | 继续成立，并扩展到 PDM-07 报告/档案客户可见性 | RETAIN |
+| IMG-028 单 URL 失败不触发整车重新同步 | 继续成立；单 path 失败不重抓整套图片集合 | RETAIN |
+| IMG-029 storage成功但DB失败删除孤儿对象 | 适用于自上传 / 转名邦资产化对象，属于存储一致性 Engineering 约束 | ENGINEERING_REQUIRED |
+| IMG-030 viewer已看到但持久化失败不回滚体验 | 普通批发浏览已无业务持久化动作，因此旧语义失去适用前提 | SUPERSEDED_BY_CDN_ARCH |
+
+重新映射结果：
+
+- RETAIN / MODIFIED：均已有当前去向；
+- SUPERSEDED：均有明确新规则替代；
+- ENGINEERING：均明确退出产品硬规则；
+- **UNMAPPED = 0**。
+
+---
+
+# 12. PDM-08 新 Batch 1｜2026-10-03 CDN 重构后的稳定候选
+
+### P08-RB-A01｜批发/上游图片只保存 path，前端域名与回源域名配置化
+
+- 上游采集图片业务事实只保存图片 path 和必要来源身份/顺序；
+- 客户端只获得名邦可控图片地址；
+- 名邦公开图片域名、逻辑前缀、JYT 回源源站均可配置；
+- CDN 根据 path 回源标准图片源站；
+- 当前标准图片回源源站使用 `img.jytche.com`，但不写死进业务数据。
+
+状态：`USER_REVIEW_PENDING`
+
+### P08-RB-A02｜普通批发图片默认 CDN 缓存，不因浏览永久资产化
+
+- 普通批发图未转名邦前，不因为列表/详情浏览而逐张永久写入名邦对象存储；
+- CDN 缓存属于访问加速，不等于名邦取得长期图片资产；
+- TTL、预取、并发、重试等性能参数归 Engineering。
+
+状态：`USER_REVIEW_PENDING`
+
+### P08-RB-A03｜首次图片集合与排序继续冻结
+
+- 首次入库保存当次图片 path 集合与原始顺序；
+- 后续普通同步不因上游增图/删图/排序变化重写整套集合；
+- 第一张不可用时可按原顺序向后 fallback；
+- fallback 不修改原始排序；
+- 0图/全失败不阻塞车辆，使用占位图。
+
+状态：`USER_REVIEW_PENDING`
+
+### P08-RB-A04｜名邦 / 4S 自上传车辆图片直接进入对象存储
+
+- 名邦车辆和 4S 车辆的人工上传图片直接进入名邦对象存储；
+- 通过名邦 CDN 对外读取；
+- 允许 0 图正式发布；
+- 发布后可补图、删图、排序；
+- 删除到 0 图不影响车辆继续在售。
+
+当前逻辑命名：`vc`；实际前缀配置化。
+
+状态：`USER_REVIEW_PENDING`
+
+### P08-RB-A05｜出险 / 维保 / 档案图片与 H5 分型
+
+- 出险记录当前按图片方式处理；
+- 4S 维保记录可能是图片，也可能是完整 H5，两种呈现方式平行独立；
+- 采集得到的报告图片继续走采集图片 CDN 链路；
+- 名邦 / 4S 自上传报告/档案图片直接进入对象存储，可使用 `rc` 逻辑命名；
+- 4S 维保 H5 保存完整原始 URL，客户端输出时映射成名邦可控 report 前置域名；
+- H5 与图片不建立父子关系。
+
+状态：`USER_REVIEW_PENDING`
+
+### P08-RB-A06｜报告/档案存储链路不改变 PDM-07 可见性
+
+- 使用 CDN / 对象存储只决定资源如何获取，不决定客户是否可见；
+- 出险、维保、检测等报告图片不因为使用图片 CDN 就自动进入车辆相册；
+- 敏感原件继续固定内部；
+- 可对客报告/结果继续按 PDM-07 的“客户可见 / 仅内部”控制；
+- 普通车辆轮播与档案/报告展示继续分离。
+
+状态：`USER_REVIEW_PENDING`
+
+### P08-RB-A07｜批发 → 名邦时图片正式资产化
+
+- 一键转换只有批发→名邦，没有批发→4S；
+- 车辆继续使用同一个 `vehicle_id`；
+- 转换时将原 JYT/批发图片按 path 正式保存到名邦对象存储；
+- 已成功资产化图片不重复处理；
+- 转换后进入普通名邦图片生命周期；
+- JYT 图片来源/path 历史继续保留用于 provenance。
+
+状态：`USER_REVIEW_PENDING`
+
+### P08-RB-A08｜车辆转换与图片资产化状态解耦
+
+- source_type 转名邦成功后，不因个别/全部图片资产化失败回滚车辆转换；
+- 图片子任务独立记录 `processing / success / partial_failed / failed`；
+- 失败支持后续重试/恢复；
+- 图片任务状态不得冒充车辆转换状态。
+
+状态：`USER_REVIEW_PENDING`
+
+### P08-RB-A09｜资产化前后公开图片逻辑地址尽量稳定
+
+- 批发图片原先由 CDN 回源 JYT；
+- 转名邦资产化后，底层可切换到名邦对象存储；
+- 客户端使用的逻辑图片地址尽量不因底层源站切换而变化；
+- Favorite、Recommendation、分享等不因为图片资产化重建引用。
+
+状态：`USER_REVIEW_PENDING`
+
+### P08-RB-A10｜图片 URL 不能绕过业务权限
+
+- 普通公开车辆图片可正常使用 CDN 缓存；
+- hidden / Priority / Recommendation 等受控车辆仍服从当前 Vehicle Read；
+- 档案 / 报告图片仍服从 PDM-07 客户可见性；
+- 旧 URL 不构成永久授权；
+- Token、签名、鉴权回源等具体机制归 Engineering。
+
+状态：`USER_REVIEW_PENDING`
+
+### P08-RB-A11｜上下架与图片资产状态分离
+
+- hidden / visible、真实下架 / 重上架不清空图片 path 或已资产化对象；
+- 图片缓存、上传、资产化、恢复不新建 `listing_cycle`；
+- 重新上架继续复用既有图片关系。
+
+状态：`USER_REVIEW_PENDING`
+
+### P08-RB-A12｜客户端普通车辆图片展示规则继续保留
+
+- 列表主图 4:3；
+- 详情普通车辆图片统一 4:3 轮播；
+- 支持已确认的全屏、滑动、序号、缩放、双击、长按保存等交互；
+- 不恢复外观/内饰/细节/证件等人工分类 Tab；
+- 敏感档案不进入普通车辆轮播；
+- 分享卡片使用车辆主图，打开详情后重新按当前身份/车辆状态判断权限。
+
+状态：`USER_REVIEW_PENDING`
+
+### P08-RB-A13｜产品层不写死 CDN / 存储性能参数
+
+以下归 Engineering / PDM-22：
+- CDN TTL；
+- 缓存淘汰与旧缓存策略；
+- Query 参数；
+- 刷新/预热；
+- 预加载窗口；
+- single-flight；
+- 单车并发数；
+- 自动重试精确次数；
+- content_hash / 物理去重实现；
+- 对象存储具体厂商与 bucket；
+- 名邦图片域名 / report 域名具体值。
+
+产品层只冻结业务语义和配置化要求。
+
+状态：`USER_REVIEW_PENDING`
+
+---
+
+# 13. 新 Batch 1 门禁
+
+当前开放：
+
+> **P08-RB-A01～P08-RB-A13**
+
+旧 `P08-A01～P08-A13` 不再作为当前审批对象。
+
+当前源规则覆盖：
+
+> **IMG-001～IMG-030 = 100% MAPPED**  
+> **UNMAPPED = 0**
+
+未经用户确认新 Batch 1，不进入 Batch 2。
