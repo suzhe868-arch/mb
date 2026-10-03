@@ -281,3 +281,5 @@
 | PDM08-B3-APPROVAL | PDM-08 | Batch 3 | 用户明确“全部同意”：同一vehicle_id内完成批发→名邦图片资产化；CDN缓存不等于资产化；车辆来源转换与图片资产化解耦；图片子任务使用processing/success/partial_failed/failed且失败项可重试；资产化后进入普通名邦图片生命周期。 | Batch 3 关闭，进入 Batch 4。 | 2026-10-04 用户明确裁决 | 2026-10-04 |
 
 | PDM08-B4-APPROVAL | PDM-08 | Batch 4 | 用户明确：普通车辆照片统一进入同一个可左右滑动的图片浏览序列，不代表自动播放；列表/详情4:3、全屏看图交互、车辆分享图fallback、分享卡片安全边界、工程参数不写死、首页/品牌分享配置交PDM-20/PDM-22，其余全部同意。 | Batch 4 关闭，进入PDM-08全域总览与最终门禁。 | 2026-10-04 用户明确裁决 | 2026-10-04 |
+
+| PDM08-GATE-FINAL | PDM-08 | Final Domain Overview | 用户最终批准 PDM-08《最终完整规则总览》。 | Batch 1～4、30条IMG历史Decision映射与最终总览全部通过；SOURCE_DECISION_COVERAGE=100%、UNMAPPED=0；生成 `PDM-08_最终完整规则.md`，PDM-08正式标记COMPLETE并进入PDM-09。 | 2026-10-04 用户明确“同意” | 2026-10-04 |
