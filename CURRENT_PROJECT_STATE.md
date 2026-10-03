@@ -724,3 +724,23 @@ Batch 3 状态：
 - 当前 PDM-09 已发现电话 API 链存在旧方案污染迹象，继续 Batch 4 前必须对相关已确认项做显式复核，不静默改写。
 
 当前 PDM-09 仍为 IN_PROGRESS。
+
+
+## 2026-10-04｜PDM-09 当前实现事实卡完成
+
+按新方法完成电话 API 架构复核。
+
+当前事实：
+
+- 名邦 Backend 提供 / 生成名邦 Integration API；
+- Collector / 采集端配置并调用名邦 API，承担 JYT 采集与上游电话获取；
+- 车辆数据和电话结果最终通过名邦既有回传体系进入名邦；
+- 旧独立 Mingbang→Collector Phone API / Collector Base URL / Phone Path 方案属于历史中间方案或实现残留，不再自动视为当前产品规则。
+
+因此回开：
+
+- P09-A04 → P09-A04-R1
+- P09-A11 → P09-A11-R1
+- P09-B4-04 → 建议撤回
+
+当前等待用户复审以上三项，Batch 4 其余候选暂不推进。

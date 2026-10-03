@@ -459,3 +459,117 @@ CR-PD-006 在确认“拨打电话”时同时明确：
 状态：`USER_REVIEW_PENDING`
 
 本轮完成后还需做一次 PDM-09 全量 Decision Coverage / 未映射检查；不得直接跳过最终总览。
+
+
+---
+
+## 10. CURRENT IMPLEMENTATION FACT｜电话 API 架构复核｜2026-10-04
+
+> 本节按 2026-10-04 新增“当前已实现 / 已测试事实优先识别”方法建立。  
+> 本节用于确认当前现实和识别旧实现污染，不直接绕过用户裁决。
+
+### 10.1 当前已验证事实
+
+1. 名邦 Backend 是名邦 Integration API 的提供方 / 接收方；
+2. Collector 侧配置并调用名邦 API，把采集到的车辆业务事件可靠回传名邦；
+3. 当前采集后台已存在名邦 API 配置中心 / Outbox 可靠投递能力；
+4. 采集端负责 JYT Token、JYT URL、Header、callCode / 电话上游适配；
+5. 电话结果由采集端获取后返回 / 同步给名邦；
+6. 用户再次明确当前最终架构：**名邦后台生成 / 提供 API；采集端通过这套名邦 API 与车源信息同一回传体系把电话结果回传名邦**；
+7. 名邦不需要为电话再配置一个可编辑的“Collector Base URL / Phone Path”业务入口；
+8. 旧文档 / 旧实现中出现的独立 `POST /integrations/jyt/phone`（Mingbang → Collector）属于历史中间方案 / 实现残留，不得再自动作为现行产品业务方向。
+
+### 10.2 当前三问
+
+- **谁提供 API？** 名邦 Backend 提供名邦 Integration API。
+- **谁调用 API？** Collector / 采集端作为名邦数据回传调用方。
+- **数据往哪边流？** JYT → Collector → 名邦；车辆事实和电话获取结果均最终进入名邦。
+
+业务上“需要获取哪个发布人电话”的目标仍由名邦业务上下文产生，使用 `upstream_publisher_id` / publisher 身份；具体任务下发 / 调度实现属于 Engineering，不在产品层凭空新增第二套可编辑 URL。
+
+### 10.3 当前实现与历史污染
+
+检测到历史材料仍混有两套方案：
+
+- 当前保留主通道：Collector → Mingbang Integration API；
+- 旧中间电话反向通道：Mingbang → Collector Phone API。
+
+后者不得因旧 V7/V9 文档仍存在就自动恢复为产品规则。
+
+状态：`CURRENT_IMPLEMENTATION_FACT_ESTABLISHED / PRODUCT_REVALIDATION_REQUIRED`
+
+---
+
+## 11. 已确认 Atom 回开复核｜待用户确认
+
+### P09-A04-R1｜唯一上游取号责任与数据回传链｜修订候选
+
+原 P09-A04 中“JYT 只能经 Collector、客户端不得直连、JYT 调用细节归 Collector”继续成立。
+
+需要修正的是原来的网络方向表述：
+
+> ~~名邦 Backend → Collector → JYT~~
+
+修订为：
+
+> **名邦业务上下文确定目标 `upstream_publisher_id`；Collector / 采集端负责调用 JYT 获取该发布人的电话；结果通过名邦 Backend 已提供的 Integration API / 既有数据回传体系返回名邦。**
+
+同时：
+
+- 员工端 / 客户端不得直接访问 JYT；
+- 名邦不保存 / 管理 JYT 电话 Token、Header、callCode 等；
+- 电话结果进入名邦 publisher 电话缓存 / 历史；
+- 不为电话另造一套普通产品后台可编辑的 Collector URL。
+
+状态：`REOPENED_USER_REVIEW_PENDING`
+
+### P09-A11-R1｜P03 / API 配置边界｜修订候选
+
+撤销原 A11 中以下当前产品表述：
+
+- Collector Base URL；
+- relative Phone Path；
+- Mingbang → Collector 电话连接配置；
+- Collector 根 Host allowlist 作为 P03 电话业务配置。
+
+修订为：
+
+> **名邦 Backend 提供 / 管理自身 Integration API 与鉴权；Collector / 采集端配置名邦 API 的连接信息并负责向名邦可靠回传。P03 名邦侧只承载集成状态、接收结果、电话缓存 / 历史、调用 / 异常诊断与必要审计，不提供普通管理员修改 Collector 电话 URL / Path 的产品能力。**
+
+仍然保持：
+
+- JYT Token / URL / Header / callCode 只属于采集端；
+- Secret 不明文回显；
+- 真实连接参数与部署细节由 Engineering / 采集端配置体系承接。
+
+状态：`REOPENED_USER_REVIEW_PENDING`
+
+### P09-B4-04-R1｜原候选撤回
+
+原 B4-04：
+
+> “Collector 新配置测试失败时如何生效”
+
+其前提依赖“名邦 P03 可编辑 Collector Base URL / Phone Path”，与当前确认架构不一致。
+
+处理候选：
+
+> **撤回原 P09-B4-04，不再作为产品业务问题。**
+
+若采集端修改“名邦 API Base URL / Path / Secret”时需要候选配置、测试、回滚，这是 Collector / Engineering 配置安全策略，不再在 PDM-09 中创造名邦产品规则。
+
+状态：`WITHDRAW_CANDIDATE_USER_REVIEW_PENDING`
+
+### 本轮门禁
+
+本轮只复核：
+
+- P09-A04-R1
+- P09-A11-R1
+- P09-B4-04-R1
+
+用户确认前：
+
+- 原 A04 / A11 不静默改写；
+- 原 B4-04 不静默删除；
+- Batch 4 其余 B4-01 / 02 / 03 / 05 / 06 暂停不动。
