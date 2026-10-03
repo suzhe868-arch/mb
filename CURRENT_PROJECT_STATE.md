@@ -623,3 +623,22 @@ Batch 1 状态：
 > `PDM-09 / BATCH_2_DEPRECATED_SUPERSEDED_DO_NOT_RESTORE / USER_REVIEW_PENDING`
 
 未经用户确认不得自动进入 Batch 3。
+
+
+## 2026-10-04｜PDM-09 Batch 2 已形成
+
+经 CR-007、电话旧契约清理报告、R11/R12、Decision Register 与 001～078 复核，当前明确废弃 / 替代项共 3 组：
+
+> **P09-B2-01～P09-B2-03**
+
+分别为：
+
+1. 禁止恢复 `car_code` / Vehicle 维度电话查询与缓存身份；
+2. 禁止恢复名邦直连 JYT / 名邦管理 JYT 电话凭证与旧凭证 API；
+3. 禁止新增独立 `can_call_wholesale_phone` 拨打权限。
+
+当前状态：
+
+> `PDM-09 / BATCH_2_DEPRECATED_SUPERSEDED_DO_NOT_RESTORE / USER_REVIEW_PENDING`
+
+真实冲突与证据缺口不混入本批。

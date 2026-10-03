@@ -193,3 +193,71 @@
 > **PDM-09 / Batch 2｜明确废弃 / 明确替代 / DO_NOT_RESTORE｜USER_REVIEW_PENDING**
 
 必须展示 Batch 2 全部候选并停止等待用户确认。
+
+
+---
+
+## 5. Batch 2｜明确废弃 / 明确替代 / DO_NOT_RESTORE｜待用户审查
+
+### P09-B2-01｜禁止恢复 car_code / Vehicle 维度电话查询
+
+拟进入最终基线：
+
+> **任何以 `car_code`、单个 `vehicle_id` 或“每车一个电话缓存”为电话查询身份/缓存主键的旧契约均废弃，不得恢复。**
+
+当前唯一稳定身份维度为：
+
+> `source_platform + upstream_publisher_id`
+
+`car_code` 仍可作为车辆来源标识使用，但不参与上游发布人电话查询身份。
+
+证据结论：2026-09-16 CR-007 已明确 `car_code` phone lookup = superseded；R11/R12 后统一 publisher 维度。  
+分类：`DEPRECATED_SUPERSEDED_DO_NOT_RESTORE`  
+用户审查：`PENDING`
+
+### P09-B2-02｜禁止恢复名邦直连 JYT / 名邦管理 JYT 电话凭证
+
+拟进入最终基线：
+
+> **废弃“名邦直接调用 JYT 电话接口、名邦后台保存/展示/轮换 JYT 电话 Token/Header/callCode、名邦配置 JYT 电话请求细节”的旧架构。**
+
+正式边界固定为：
+
+> Mingbang Backend → Collector → JYT
+
+名邦只管理 Collector 连接与内部鉴权引用；JYT 电话凭证和调用细节只属于 Collector。
+
+同时不得恢复已经删除的旧电话凭证管理入口/契约，包括但不限于：
+
+- `POST /integrations/jyt/upstream-credential`
+- `POST /admin/jyt/upstream-credential:test`
+- 仅服务上述旧链路的 `CredentialRotateRequest`
+- 仅服务上述旧链路的 `CredentialStatusDTO`
+- 用 `jyt.integration.manage` 管理上游电话凭证
+
+证据结论：CR007-013/014/061 与《电话旧契约清理完成报告》明确完成替代与删除。  
+分类：`DEPRECATED_SUPERSEDED_DO_NOT_RESTORE`  
+用户审查：`PENDING`
+
+### P09-B2-03｜禁止新增独立拨打电话权限
+
+拟进入最终基线：
+
+> **不得恢复或新增独立 `can_call_wholesale_phone` / “上游电话拨打权限”。**
+
+拨打继续复用已经存在的上游电话敏感能力与当前车辆数据范围校验；合法获得号码后，只调起系统拨号器。
+
+证据结论：CR-PD-006 明确决定“不新增 `can_call_wholesale_phone`”。  
+分类：`DEPRECATED_SUPERSEDED_DO_NOT_RESTORE`  
+用户审查：`PENDING`
+
+### Batch 2 当前门禁
+
+- 待审：P09-B2-01～P09-B2-03
+- 状态：`USER_REVIEW_PENDING`
+- 本批不得混入：
+  - cache miss 拨打是否自动取号；
+  - `expires_at` 是否控制普通缓存读取；
+  - 同步入库是否禁止批量预取电话；
+  - Collector 候选配置测试失败后的生效边界。
+- 上述问题继续留 Batch 4 / 后续证据裁决。

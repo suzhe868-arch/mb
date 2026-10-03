@@ -607,5 +607,10 @@
   ],
   "pdm_09_batch_1_confirmed_count": 11,
   "pdm_09_batch_2_status": "USER_REVIEW_PENDING",
-  "pdm_09_batch_2_pending_atoms": "TO_BE_PRESENTED"
+  "pdm_09_batch_2_pending_atoms": [
+    "P09-B2-01",
+    "P09-B2-02",
+    "P09-B2-03"
+  ],
+  "pdm_09_batch_2_pending_count": 3
 }
