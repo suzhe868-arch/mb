@@ -803,3 +803,22 @@ PDM-09 尚未 FINAL APPROVED，不得标记 COMPLETE，不得进入 PDM-10。
 > `PDM-09 / FINAL_REVIEW_PENDING`
 
 未经用户最终批准，不得标记 PDM-09 COMPLETE，不得进入 PDM-10。
+
+
+## 2026-10-04｜PDM-09 最终完成
+
+用户最终明确确认 PDM-09《最终完整规则总览》。
+
+- PDM-09 状态：`COMPLETE`；
+- 正式规则文件：`07_重建工作区/PDM-09_最终完整规则.md`；
+- SOURCE_DECISION_COVERAGE = 100%（20/20）；
+- UNMAPPED = 0；
+- A04/A11 的旧 API 方向已由 A04-R1/A11-R1 正式替代；
+- B4-04 已正式撤回；
+- 旧 IA / Low-Fi Collector 电话连接 carrier 保留为后续对齐整改项，不属于未决产品规则；
+- Decision Register 已登记 `PDM09-GATE-FINAL`；
+- 后续 PDM 不得静默改写 PDM-09，真实跨域冲突必须显式提交用户裁决。
+
+当前进入准备：
+
+> **PDM-10｜价格 / 查价 / 客户展示价覆盖**

@@ -310,3 +310,5 @@
 | PDM09-GATE-B4 | PDM-09 | Batch 4 Gate | 用户一次性确认剩余 P09-B4-01、02、03、05、06 全部同意；P09-B4-04 已在前轮确认撤回。 | Batch 4 正式关闭；下一步必须做 PDM-09 全量 Decision Coverage / 未映射检查，未经最终总览批准不得标记 COMPLETE 或进入 PDM-10。 | 2026-10-04 用户“全部同意” | 2026-10-04 |
 
 | PDM09-COVERAGE-GATE | PDM-09 | Full Decision Coverage | 完成 Batch 1～4、9/19、CN11、001～078、IA V5、Low-Fi 电话相关载体的全量覆盖检查；20/20 原始审查单元均有 EFFECTIVE / SUPERSEDED / DO_NOT_RESTORE / WITHDRAWN 去向。 | SOURCE_DECISION_COVERAGE=100%，UNMAPPED=0；旧 Collector 电话连接 IA carrier 标记 STALE_CARRIER，后续 IA/Engineering 清理，不构成新的产品 Decision。 | 2026-10-04 全量覆盖审计 | 2026-10-04 |
+
+| PDM09-GATE-FINAL | PDM-09 | Final Domain Overview | 用户最终确认 PDM-09《最终完整规则总览》。 | Batch 1～4、API 架构回开复核与全量覆盖检查全部通过；SOURCE_DECISION_COVERAGE=100%（20/20）、UNMAPPED=0；生成 `PDM-09_最终完整规则.md`，PDM-09 正式标记 COMPLETE，并允许进入 PDM-10。旧 IA/Low-Fi Collector 电话连接表述仅作为 STALE_CARRIER 后续清理，不重新形成产品 Decision。 | 2026-10-04 用户明确“确认” | 2026-10-04 |
