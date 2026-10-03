@@ -1,6 +1,6 @@
 # 名邦汽车 V1｜当前项目状态
 
-> 更新时间：2026-09-24  
+> 更新时间：2026-10-04  
 > 状态源：GitHub `suzhe868-arch/mb` / `main`  
 > 业务权威语言：中文（zh-CN）
 
@@ -10,11 +10,11 @@
 
 当前域：
 
-> **PDM-08｜车辆图片 / 上游 URL / 本地化 / 转存 / 图片恢复 / 分享图**
+> **PDM-09｜上游发布人电话 / Collector / 缓存 / 获取最新 / 敏感能力**
 
 当前域状态：
 
-> `USER_REVIEW_BATCH_1_PENDING`
+> `USER_REVIEW_BATCH_2_PENDING`
 
 ## 已完成
 
@@ -588,3 +588,38 @@ P04-A15/A16 已由用户提前确认；新增四条待审：A17 source_type 名�
 当前进入：
 
 > **PDM-09｜上游发布人电话 / publisher_id / 电话获取与缓存边界**
+
+
+## 2026-10-04｜PDM-09 Batch 1 完成并进入 Batch 2
+
+已严格按 GitHub 当前证据重新完成 PDM-09 Batch 1 审查，用户明确“全部同意”：
+
+> **P09-A01～P09-A11，共 11 条。**
+
+工作版：
+
+> `07_重建工作区/PDM-09_上游发布人电话Collector缓存获取最新敏感能力_规则原子重建_工作版.md`
+
+Batch 1 状态：
+
+> `COMPLETE_USER_CONFIRMED`
+
+本批正式确认的核心边界包括：
+
+- 电话按 `source_platform + upstream_publisher_id` 归属与缓存；
+- 客户端 / 客户安全视图禁止展示上游电话；
+- 电话为独立敏感能力；
+- 唯一上游链为 Mingbang Backend → Collector → JYT；
+- 有缓存时普通查看 / 拨打 cache-first，不重复请求上游；
+- “获取最新电话”强制刷新，失败不覆盖旧缓存；
+- phone history 只做历史 / 审计；
+- 同 publisher latest single-flight，不同 publisher 可并发；
+- 拨打只调系统拨号器，不新增独立 call permission；
+- 电话敏感行为必须审计；
+- 名邦 P03 只管理 Collector 连接，不管理 JYT 电话凭证 / Header / callCode。
+
+当前进入：
+
+> `PDM-09 / BATCH_2_DEPRECATED_SUPERSEDED_DO_NOT_RESTORE / USER_REVIEW_PENDING`
+
+未经用户确认不得自动进入 Batch 3。

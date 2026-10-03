@@ -4,31 +4,26 @@
 
 ## 当前状态
 
-PDM-08 已完成最终门禁：
+PDM-09 已完成 Batch 1 用户门禁：
 
-- Batch 1 = APPROVED
-- Batch 2 = APPROVED
-- Batch 3 = APPROVED
-- Batch 4 = APPROVED
-- SOURCE_DECISION_COVERAGE = 100%
-- UNMAPPED = 0
-- Final Domain Overview = APPROVED
-- PDM-08 = COMPLETE
+- P09-A01～P09-A11 = USER_APPROVED
+- Batch 1 = COMPLETE_USER_CONFIRMED
+- Batch 2 = USER_REVIEW_PENDING
+- PDM-09 = IN_PROGRESS
 
-正式规则：
+工作版：
 
-> `07_重建工作区/PDM-08_最终完整规则.md`
+> `07_重建工作区/PDM-09_上游发布人电话Collector缓存获取最新敏感能力_规则原子重建_工作版.md`
 
 ## 当前唯一下一步
 
-> **进入 PDM-09｜上游发布人电话 / publisher_id / 电话获取与缓存边界。**
+> **审查 PDM-09 Batch 2｜明确废弃 / 明确替代 / DO_NOT_RESTORE。**
 
-执行方式继续沿用既定 PDM 重建流程：
+执行约束：
 
-1. 先读 9/19 主底盘与当前正式证据；
-2. 向前扫描更早历史补完整定义、遗漏和废弃项；
-3. 向后扫描后续知情修改；
-4. 建立原始规则去向账，确保无遗漏；
-5. 形成 Batch 1 稳定一致项，交用户审查；
-6. 不使用旧聊天记忆代替仓库证据；
-7. 不修改 IA / Low-Fi / Engineering。
+1. 只展示 Batch 2 候选；
+2. 每条必须给出拟进入最终基线的 DO_NOT_RESTORE 表述；
+3. 不把 Batch 4 的真实冲突混入 Batch 2；
+4. 用户确认前不得自动进入 Batch 3；
+5. 不修改 IA / Low-Fi / Engineering；
+6. 不使用旧聊天记忆替代仓库证据。

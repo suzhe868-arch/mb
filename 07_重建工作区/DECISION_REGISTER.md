@@ -283,3 +283,5 @@
 | PDM08-B4-APPROVAL | PDM-08 | Batch 4 | 用户明确：普通车辆照片统一进入同一个可左右滑动的图片浏览序列，不代表自动播放；列表/详情4:3、全屏看图交互、车辆分享图fallback、分享卡片安全边界、工程参数不写死、首页/品牌分享配置交PDM-20/PDM-22，其余全部同意。 | Batch 4 关闭，进入PDM-08全域总览与最终门禁。 | 2026-10-04 用户明确裁决 | 2026-10-04 |
 
 | PDM08-GATE-FINAL | PDM-08 | Final Domain Overview | 用户最终批准 PDM-08《最终完整规则总览》。 | Batch 1～4、30条IMG历史Decision映射与最终总览全部通过；SOURCE_DECISION_COVERAGE=100%、UNMAPPED=0；生成 `PDM-08_最终完整规则.md`，PDM-08正式标记COMPLETE并进入PDM-09。 | 2026-10-04 用户明确“同意” | 2026-10-04 |
+
+| PDM09-B1-APPROVAL | PDM-09 | Batch 1 | 用户明确“全部同意” P09-A01～P09-A11：电话按 upstream_publisher_id 归属；客户端/客户安全视图不展示；独立敏感能力；Mingbang→Collector→JYT；缓存优先；latest 强制刷新且失败保留旧缓存；history 只审计；同 publisher latest single-flight；拨打仅系统拨号且不新增独立 call permission；敏感操作审计；P03 只管理 Collector 连接。 | Batch 1 门禁关闭，进入 Batch 2；不得自动批准 Batch 2。 | 2026-10-04 用户明确“全部同意” | 2026-10-04 |
