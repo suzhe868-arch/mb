@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-08",
-  "current_domain_status": "USER_REVIEW_BATCH_1_PENDING",
+  "current_domain_status": "USER_REVIEW_BATCH_2_PENDING",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Review CDN-aligned PDM-08 Batch 1 A01-A13 plus separate report/archive/H5 chapter",
+  "current_task": "Review PDM-08 Batch 2 superseded / do-not-restore image rules",
   "current_work_file": "07_重建工作区/PDM-08_车辆图片上游URL本地化转存恢复分享图_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -71,7 +71,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "BATCH_1_CDN_ALIGNED",
+  "current_review_batch": "BATCH_2_SUPERSEDED_DO_NOT_RESTORE",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -517,7 +517,7 @@
   "pdm_07_final_overview_status": "USER_APPROVED",
   "pdm_07_final_rule_file": "07_重建工作区/PDM-07_最终完整规则.md",
   "pdm_08_status": "IN_REVIEW_CDN_REBASE",
-  "pdm_08_batch_1_status": "REVISED_PENDING_USER_REVIEW",
+  "pdm_08_batch_1_status": "APPROVED",
   "pdm_08_batch_1_pending_atoms": [
     "P08-RB-A01",
     "P08-RB-A02",
@@ -546,21 +546,6 @@
     "PDM06 draft list/detail access guard",
     "PDM04 supply anomaly lifecycle/manual clear conflict",
     "PDM05-to-PDM06 model fixed-attribute autofill handoff"
-  ],
-  "pdm_08_pending_atoms": [
-    "P08-RB-A01",
-    "P08-RB-A02",
-    "P08-RB-A03",
-    "P08-RB-A04",
-    "P08-RB-A05",
-    "P08-RB-A06",
-    "P08-RB-A07",
-    "P08-RB-A08",
-    "P08-RB-A09",
-    "P08-RB-A10",
-    "P08-RB-A11",
-    "P08-RB-A12",
-    "P08-RB-A13"
   ],
   "pdm_08_source_decision_ledger": "IMG-001..IMG-030 mapped",
   "pdm_08_source_decision_unmapped_count": 0,
@@ -596,5 +581,6 @@
       "P08-A13"
     ],
     "remaining_internal_conflict_count": 0
-  }
+  },
+  "pdm_08_batch_2_status": "PENDING_USER_REVIEW"
 }
