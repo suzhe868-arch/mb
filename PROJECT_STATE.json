@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-08",
-  "current_domain_status": "CDN_REBASE_IN_PROGRESS",
+  "current_domain_status": "USER_REVIEW_BATCH_1_PENDING",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "User review of rebuilt PDM-08 Batch 1 after IMG-001..030 remap",
+  "current_task": "Review CDN-aligned PDM-08 Batch 1 A01-A13 plus separate report/archive/H5 chapter",
   "current_work_file": "07_重建工作区/PDM-08_车辆图片上游URL本地化转存恢复分享图_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -71,7 +71,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "P08-RB-A01..A13",
+  "current_review_batch": "BATCH_1_CDN_ALIGNED",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -517,7 +517,7 @@
   "pdm_07_final_overview_status": "USER_APPROVED",
   "pdm_07_final_rule_file": "07_重建工作区/PDM-07_最终完整规则.md",
   "pdm_08_status": "IN_REVIEW_CDN_REBASE",
-  "pdm_08_batch_1_status": "REBUILT_PENDING_USER_REVIEW",
+  "pdm_08_batch_1_status": "REVISED_PENDING_USER_REVIEW",
   "pdm_08_batch_1_pending_atoms": [
     "P08-RB-A01",
     "P08-RB-A02",
@@ -575,5 +575,26 @@
   "pdm_08_wholesale_to_mingbang_image_rule": "SAME_VEHICLE_ID_ASSETIZE_TO_OBJECT_STORAGE_PUBLIC_LOGICAL_URL_STABLE",
   "pdm_08_cross_domain_scan_status": "COMPLETE_NO_BASELINE_OVERTURN_VISIBILITY_GUARDS_REQUIRED",
   "pdm_08_next_required_action": "REMAP_IMG001_IMG030",
-  "pdm_08_img001_030_remap_status": "COMPLETE_UNMAPPED_ZERO"
+  "pdm_08_img001_030_remap_status": "COMPLETE_UNMAPPED_ZERO",
+  "pdm_08_report_archive_h5_section_status": "USER_APPROVED_RULES_INTEGRATED",
+  "pdm_08_cdn_conflict_scan": {
+    "rewritten_atoms": [
+      "P08-A01",
+      "P08-A04",
+      "P08-A06",
+      "P08-A07",
+      "P08-A08",
+      "P08-A09",
+      "P08-A10"
+    ],
+    "retained_atoms": [
+      "P08-A02",
+      "P08-A03",
+      "P08-A05",
+      "P08-A11",
+      "P08-A12",
+      "P08-A13"
+    ],
+    "remaining_internal_conflict_count": 0
+  }
 }
