@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-08",
-  "current_domain_status": "FINAL_REVIEW_PENDING",
+  "current_domain_status": "FINAL_REVIEW_PRESENTED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Present PDM-08 whole-domain overview and final gate",
+  "current_task": "Await explicit user approval of PDM-08 final complete rule overview",
   "current_work_file": "07_重建工作区/PDM-08_车辆图片上游URL本地化转存恢复分享图_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -585,5 +585,6 @@
   "pdm_08_batch_2_status": "APPROVED",
   "pdm_08_batch_3_status": "APPROVED",
   "pdm_08_batch_4_status": "APPROVED",
-  "pdm_08_final_review_status": "PENDING_USER_APPROVAL"
+  "pdm_08_final_review_status": "PRESENTED_PENDING_USER_APPROVAL",
+  "pdm_08_source_decision_coverage": "100%"
 }
