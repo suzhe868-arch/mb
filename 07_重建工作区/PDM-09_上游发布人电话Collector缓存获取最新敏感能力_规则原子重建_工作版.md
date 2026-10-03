@@ -521,7 +521,7 @@ CR-PD-006 在确认“拨打电话”时同时明确：
 - 电话结果进入名邦 publisher 电话缓存 / 历史；
 - 不为电话另造一套普通产品后台可编辑的 Collector URL。
 
-状态：`REOPENED_USER_REVIEW_PENDING`
+状态：`USER_APPROVED_SUPERSEDES_P09_A04`
 
 ### P09-A11-R1｜P03 / API 配置边界｜修订候选
 
@@ -542,7 +542,7 @@ CR-PD-006 在确认“拨打电话”时同时明确：
 - Secret 不明文回显；
 - 真实连接参数与部署细节由 Engineering / 采集端配置体系承接。
 
-状态：`REOPENED_USER_REVIEW_PENDING`
+状态：`USER_APPROVED_SUPERSEDES_P09_A11`
 
 ### P09-B4-04-R1｜原候选撤回
 
@@ -558,7 +558,7 @@ CR-PD-006 在确认“拨打电话”时同时明确：
 
 若采集端修改“名邦 API Base URL / Path / Secret”时需要候选配置、测试、回滚，这是 Collector / Engineering 配置安全策略，不再在 PDM-09 中创造名邦产品规则。
 
-状态：`WITHDRAW_CANDIDATE_USER_REVIEW_PENDING`
+状态：`USER_APPROVED_WITHDRAWN`
 
 ### 本轮门禁
 
@@ -573,3 +573,57 @@ CR-PD-006 在确认“拨打电话”时同时明确：
 - 原 A04 / A11 不静默改写；
 - 原 B4-04 不静默删除；
 - Batch 4 其余 B4-01 / 02 / 03 / 05 / 06 暂停不动。
+
+
+---
+
+## 12. API 架构回开复核 Gate｜2026-10-04
+
+用户明确“同意”，正式确认：
+
+### P09-A04-R1｜USER_APPROVED
+- 名邦业务上下文确定目标 `upstream_publisher_id`；
+- Collector / 采集端负责调用 JYT 获取发布人电话；
+- 电话结果通过名邦 Backend 已提供的 Integration API / 既有回传体系返回名邦；
+- 名邦再更新 publisher 电话当前缓存 / 历史；
+- 员工端 / 客户端不直连 JYT；
+- JYT Token / URL / Header / callCode 继续只归采集端管理。
+
+原 P09-A04 中“名邦 Backend → Collector → JYT”作为网络方向表达被本条替代。
+
+### P09-A11-R1｜USER_APPROVED
+- 名邦 Backend 提供 / 管理自身 Integration API 与鉴权；
+- Collector / 采集端配置名邦 API 连接信息并负责可靠回传；
+- 名邦 P03 不再提供 Collector Base URL / Phone Path 的普通产品配置入口；
+- P03 仅承载集成状态、接收结果、电话缓存 / 历史、异常诊断、日志与审计；
+- JYT 侧真实调用参数仍只属于采集端 / Engineering。
+
+原 P09-A11 被本条替代。
+
+### P09-B4-04-R1｜USER_APPROVED_WITHDRAWN
+原“Collector 新配置测试失败时如何生效”不再作为 PDM-09 名邦产品规则。
+
+原因：
+- 其前提依赖“名邦 P03 配置 Collector URL / Phone Path”；
+- 当前正式架构中该前提不存在；
+- 采集端如何保存 / 测试 / 回滚名邦 API 连接参数属于 Collector / Engineering 配置安全。
+
+### 对 P09-B2-02 的一致性说明
+P09-B2-02 已批准的核心 DO_NOT_RESTORE 仍有效：
+
+- 名邦不得直连 JYT 电话接口；
+- 名邦不得保存 / 展示 / 轮换 JYT 电话 Token/Header/callCode；
+- JYT 电话调用细节不得回到名邦后台。
+
+但其中旧的“正式链固定 Mingbang Backend → Collector → JYT”网络方向表述，已被 P09-A04-R1 的现行 Integration API / 回传架构替代。该处理属于同一已确认架构的文字一致性收口，不恢复旧反向 Phone API。
+
+### 当前 Batch 4
+剩余待审：
+
+- P09-B4-01
+- P09-B4-02
+- P09-B4-03
+- P09-B4-05
+- P09-B4-06
+
+P09-B4-04 已撤回，不再计入待审项。

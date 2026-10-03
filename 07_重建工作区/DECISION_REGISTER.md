@@ -296,3 +296,8 @@
 | METHOD-20261004-01 | 全局重建方法 | 当前实现事实优先识别 | 用户确认：保留原有 9/19 主底盘、前后历史反查、知情修改测试、四批用户裁决机制，并新增“先识别当前已实现/已测试事实”的强制前置规则。跨系统/API 必须先确认谁提供API、谁调用API、数据流方向、当前版本及测试验收状态；已实现事实用于确定当前现实，但若与正式产品权威冲突，必须进入显式冲突复核，不自动以实现覆盖产品规则。 | 作为后续所有 PDM 通用硬规则执行。 | 2026-10-04 用户“可以” | 2026-10-04 |
 
 | PDM09-REOPEN-20261004-01 | PDM-09 | API 当前实现复核 | 用户明确纠正：名邦 Backend 生成/提供 Integration API，采集端使用该 API 与车源信息同一回传体系把电话结果回传名邦；不应把旧“名邦配置 Collector URL / Phone Path”中间方案当当前架构。 | 回开 P09-A04、P09-A11；原 P09-B4-04 暂停并提出撤回候选。未经用户复审不得静默覆盖已确认 Atom。 | 2026-10-04 用户连续纠正 + 当前实现证据复核 | 2026-10-04 |
+
+| PDM09-DEC-A04-R1 | PDM-09 | P09-A04-R1 | 用户确认：名邦业务上下文确定目标 upstream_publisher_id；Collector/采集端负责调用 JYT 取号；结果通过名邦 Backend 已提供的 Integration API / 既有回传体系返回名邦，名邦更新 publisher 电话缓存/历史。 | 替代原 A04 中“名邦 Backend→Collector→JYT”的网络方向表达；员工端/客户端不直连 JYT，JYT Token/Header/callCode 仍只归采集端。 | 2026-10-04 用户明确“同意” | 2026-10-04 |
+| PDM09-DEC-A11-R1 | PDM-09 | P09-A11-R1 | 用户确认：名邦 Backend 提供/管理自身 Integration API 与鉴权；Collector 配置名邦 API 并可靠回传；名邦 P03 不再提供 Collector Base URL / Phone Path 普通产品配置入口。 | 替代原 A11；P03 只承载集成状态、电话缓存/历史、异常诊断、日志、审计；JYT 调用参数继续只归采集端/Engineering。 | 2026-10-04 用户明确“同意” | 2026-10-04 |
+| PDM09-WITHDRAW-B4-04 | PDM-09 | P09-B4-04-R1 | 用户确认撤回原“Collector 新配置测试失败时如何生效”产品问题。 | 该问题建立在名邦 P03 配置 Collector URL/Phone Path 的旧前提上；采集端连接名邦 API 的测试/回滚属于 Collector/Engineering 配置安全，不再进入 PDM-09 产品规则。 | 2026-10-04 用户明确“同意” | 2026-10-04 |
+| PDM09-SUPERSEDE-B2-02-DIRECTION | PDM-09 | P09-B2-02 局部文字 | B2-02 的核心 DO_NOT_RESTORE 保持有效，但其中“正式链固定 Mingbang Backend→Collector→JYT”网络方向表述由 P09-A04-R1 现行 Integration API / 回传架构替代。 | 仅做已确认架构的一致性收口，不恢复名邦直连 JYT 或旧反向 Phone API。 | P09-A04-R1 用户确认 | 2026-10-04 |
