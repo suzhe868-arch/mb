@@ -1,7 +1,7 @@
 # PDM-08｜车辆图片 / 上游 URL / CDN 受控转链 / 本地化 / 转存 / 图片恢复 / 分享图｜规则原子重建工作版
 
 > 日期：2026-09-25  
-> 状态：`BATCH_1_APPROVED / BATCH_2_APPROVED / BATCH_3_PENDING`  
+> 状态：`BATCH_1_APPROVED / BATCH_2_APPROVED / BATCH_3_APPROVED / BATCH_4_PENDING`  
 > 方法：允许适度压缩，但不得为了“短”而删除条件、例外、权限、状态、失败语义或前后关系。原始规则必须逐条有去向；最终门禁要求 `UNMAPPED=0`。
 
 ---
@@ -438,7 +438,7 @@
 - DB 保存对应 object_key / path / 资产化状态；
 - 不存在两个 Vehicle 之间的图片所有权迁移。
 
-状态：`USER_REVIEW_PENDING`
+状态：`USER_APPROVED`
 
 ### P08-B3-02｜CDN 缓存不等于资产化成功
 
@@ -457,7 +457,7 @@
 
 属于 Engineering 优化，不在产品规则写死。
 
-状态：`USER_REVIEW_PENDING`
+状态：`USER_APPROVED`
 
 ### P08-B3-03｜车辆来源转换与图片资产化解耦
 
@@ -469,7 +469,7 @@
 - 不得重建 vehicle_id / listing_cycle；
 - 已有 Lock / Transaction / Favorite / Recommendation 等关系不受图片任务状态影响。
 
-状态：`USER_REVIEW_PENDING`
+状态：`USER_APPROVED`
 
 ### P08-B3-04｜图片资产化状态与重试
 
@@ -487,7 +487,7 @@
 - 优先只重试失败项，不要求把已成功图片全部重新处理；
 - 自动重试次数、退避、并发等归 Engineering，不在 PDM 固定。
 
-状态：`USER_REVIEW_PENDING`
+状态：`USER_APPROVED`
 
 ### P08-B3-05｜资产化后进入普通名邦图片生命周期
 
@@ -505,7 +505,7 @@
 - 前端公开图片逻辑 URL 尽量保持稳定；
 - 不要求收藏、分享、Recommendation 等客户侧引用因为底层存储切换而重建。
 
-状态：`USER_REVIEW_PENDING`
+状态：`USER_APPROVED`
 ---
 
 # 6. Batch 4｜需要后续判断的边界｜预登记
@@ -1093,3 +1093,19 @@ PDM-07 已冻结：
 7. `failed` 只能代表整车转换失败的窄状态语义。
 
 以上旧规则后续不得恢复；若工程实现引用旧文档，必须以 PDM-08 当前 CDN / 同 vehicle_id 模型为准。
+
+
+---
+
+## Batch 3 用户确认记录
+
+2026-10-04 用户明确：**全部同意 PDM-08 Batch 3。**
+
+正式确认：
+1. 批发→名邦在同一 `vehicle_id` 内完成图片资产化；
+2. CDN 缓存不等于名邦对象存储资产化成功；
+3. 车辆 source_type 转换与图片资产化子任务解耦，图片失败不得回滚车辆转换；
+4. 图片资产化使用 `processing / success / partial_failed / failed`，失败项可重试；
+5. 资产化成功后进入普通名邦图片生命周期，可增删排序，并保留原 JYT 来源事实与稳定公开逻辑地址。
+
+Batch 3 关闭，进入 Batch 4。
