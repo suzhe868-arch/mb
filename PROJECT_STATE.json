@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-08",
-  "current_domain_status": "USER_REVIEW_BATCH_2_PENDING",
+  "current_domain_status": "USER_REVIEW_BATCH_3_PENDING",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Review PDM-08 Batch 2 superseded / do-not-restore image rules",
+  "current_task": "Review PDM-08 Batch 3: same-vehicle conversion image assetization and failure recovery",
   "current_work_file": "07_重建工作区/PDM-08_车辆图片上游URL本地化转存恢复分享图_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -71,7 +71,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "BATCH_2_SUPERSEDED_DO_NOT_RESTORE",
+  "current_review_batch": "BATCH_3_LATER_CHANGES_ADDITIONS",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -582,5 +582,6 @@
     ],
     "remaining_internal_conflict_count": 0
   },
-  "pdm_08_batch_2_status": "PENDING_USER_REVIEW"
+  "pdm_08_batch_2_status": "APPROVED",
+  "pdm_08_batch_3_status": "PENDING_USER_REVIEW"
 }
