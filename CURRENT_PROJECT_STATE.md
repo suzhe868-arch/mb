@@ -687,3 +687,23 @@ Batch 3 状态：
 当前进入：
 
 > `PDM-09 / BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES / EVIDENCE_REVIEW`
+
+
+## 2026-10-04｜PDM-09 Batch 4 已形成
+
+经主底盘、CN11 前史、9/22、IA V5、实际 Low-Fi 与 001～078 反查，形成 6 条真正需要用户审查的冲突 / 遗漏 / 缺口：
+
+> **P09-B4-01～P09-B4-06**
+
+覆盖：
+
+1. cache miss 拨打是否自动按需取号；
+2. `expires_at` 是否阻断普通缓存；
+3. 同步阶段是否禁止批量预取电话；
+4. Collector 新配置测试失败后的激活 / 回滚；
+5. P03-05 publisher 电话缓存页真实内容；
+6. 上游电话是否提供复制动作。
+
+当前状态：
+
+> `PDM-09 / BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES / USER_REVIEW_PENDING`

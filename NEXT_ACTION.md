@@ -9,19 +9,16 @@ PDM-09：
 - Batch 1 = COMPLETE_USER_CONFIRMED
 - Batch 2 = COMPLETE_USER_CONFIRMED
 - Batch 3 = COMPLETE_USER_CONFIRMED
-- Batch 4 = EVIDENCE_REVIEW
+- Batch 4 = USER_REVIEW_PENDING
 - PDM-09 = IN_PROGRESS
 
 ## 当前唯一下一步
 
-> **形成并展示 PDM-09 Batch 4｜冲突 / 历史遗漏 / 证据缺口 / 新选择。**
+> **用户审查 P09-B4-01～P09-B4-06。**
 
-必须重点核对：
+未经用户确认：
 
-1. cache miss 点击“拨打”是否允许自动拉取一次；
-2. `expires_at` 是否影响普通缓存读取；
-3. 车源同步阶段是否禁止批量预取电话；
-4. Collector 候选连接测试失败后的生效 / 回滚边界；
-5. 是否还有其他未映射电话规则。
-
-未经用户确认不得进入最终总览。
+- 不得关闭 Batch 4；
+- 不得生成最终正式规则；
+- 不得进入 PDM-10；
+- 不修改 IA / Low-Fi / Engineering。
