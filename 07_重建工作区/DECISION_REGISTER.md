@@ -285,3 +285,8 @@
 | PDM08-GATE-FINAL | PDM-08 | Final Domain Overview | 用户最终批准 PDM-08《最终完整规则总览》。 | Batch 1～4、30条IMG历史Decision映射与最终总览全部通过；SOURCE_DECISION_COVERAGE=100%、UNMAPPED=0；生成 `PDM-08_最终完整规则.md`，PDM-08正式标记COMPLETE并进入PDM-09。 | 2026-10-04 用户明确“同意” | 2026-10-04 |
 
 | PDM09-B1-APPROVAL | PDM-09 | Batch 1 | 用户明确“全部同意” P09-A01～P09-A11：电话按 upstream_publisher_id 归属；客户端/客户安全视图不展示；独立敏感能力；Mingbang→Collector→JYT；缓存优先；latest 强制刷新且失败保留旧缓存；history 只审计；同 publisher latest single-flight；拨打仅系统拨号且不新增独立 call permission；敏感操作审计；P03 只管理 Collector 连接。 | Batch 1 门禁关闭，进入 Batch 2；不得自动批准 Batch 2。 | 2026-10-04 用户明确“全部同意” | 2026-10-04 |
+
+| PDM09-DEC-B2-01 | PDM-09 | P09-B2-01 | 用户确认：禁止恢复以 car_code、单 vehicle_id 或每车独立缓存作为上游电话查询身份；电话身份统一为 source_platform + upstream_publisher_id。 | 作为 PDM-09 DO_NOT_RESTORE 规则进入最终基线。 | 2026-10-04 用户“全部同意” | 2026-10-04 |
+| PDM09-DEC-B2-02 | PDM-09 | P09-B2-02 | 用户确认：禁止恢复名邦直连 JYT 电话接口或在名邦保存/展示/轮换 JYT 电话 Token/Header/callCode；正式链固定 Mingbang→Collector→JYT。 | 作为 PDM-09 DO_NOT_RESTORE 规则进入最终基线。 | 2026-10-04 用户“全部同意” | 2026-10-04 |
+| PDM09-DEC-B2-03 | PDM-09 | P09-B2-03 | 用户确认：有上游电话权限且车辆位于本人数据范围内，即可查看、获取最新电话并发起系统拨号；不再额外拆分“拨打电话权限”。 | 不新增 can_call_wholesale_phone；拨打继续复用现有上游电话敏感能力。 | 2026-10-04 用户“明白了，全部同意” | 2026-10-04 |
+| PDM09-GATE-B2 | PDM-09 | Batch 2 Gate | 用户确认 P09-B2-01～P09-B2-03 全部通过。 | Batch 2 门禁关闭，允许进入 Batch 3 证据筛选；不得自动批准 Batch 3。 | 2026-10-04 用户明确确认 | 2026-10-04 |

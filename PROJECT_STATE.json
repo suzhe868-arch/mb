@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-09",
-  "current_domain_status": "USER_REVIEW_BATCH_2_PENDING",
+  "current_domain_status": "BATCH_3_EVIDENCE_REVIEW",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Review PDM-09 Batch 2 deprecated/superseded/do-not-restore rules",
+  "current_task": "Identify PDM-09 Batch 3 informed changes and explicit additions",
   "current_work_file": "07_重建工作区/PDM-09_上游发布人电话Collector缓存获取最新敏感能力_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -71,7 +71,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "BATCH_2_DEPRECATED_SUPERSEDED_DO_NOT_RESTORE",
+  "current_review_batch": "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -536,7 +536,7 @@
     "P08-A13"
   ],
   "current_phase": "PRODUCT_BASELINE_REBUILD",
-  "current_process": "PDM09_BATCH2_USER_REVIEW_PENDING",
+  "current_process": "PDM09_BATCH3_EVIDENCE_REVIEW",
   "reverse_coverage_audit_01_07_status": "COMPLETE_UNMAPPED_ZERO",
   "reverse_coverage_audit_01_07_report": "07_重建工作区/PDM-01至07_反向覆盖校验报告_2026-09-25.md",
   "reverse_coverage_unmapped_count": 0,
@@ -606,11 +606,13 @@
     "P09-A11"
   ],
   "pdm_09_batch_1_confirmed_count": 11,
-  "pdm_09_batch_2_status": "USER_REVIEW_PENDING",
-  "pdm_09_batch_2_pending_atoms": [
+  "pdm_09_batch_2_status": "COMPLETE_USER_CONFIRMED",
+  "pdm_09_batch_2_pending_atoms": [],
+  "pdm_09_batch_2_pending_count": 3,
+  "pdm_09_batch_2_confirmed_atoms": [
     "P09-B2-01",
     "P09-B2-02",
     "P09-B2-03"
   ],
-  "pdm_09_batch_2_pending_count": 3
+  "pdm_09_batch_3_status": "EVIDENCE_REVIEW"
 }

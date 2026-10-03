@@ -4,26 +4,21 @@
 
 ## 当前状态
 
-PDM-09 已完成 Batch 1 用户门禁：
+PDM-09：
 
-- P09-A01～P09-A11 = USER_APPROVED
 - Batch 1 = COMPLETE_USER_CONFIRMED
-- Batch 2 = USER_REVIEW_PENDING
+- Batch 2 = COMPLETE_USER_CONFIRMED
+- Batch 3 = EVIDENCE_REVIEW
 - PDM-09 = IN_PROGRESS
-
-工作版：
-
-> `07_重建工作区/PDM-09_上游发布人电话Collector缓存获取最新敏感能力_规则原子重建_工作版.md`
 
 ## 当前唯一下一步
 
-> **审查 PDM-09 Batch 2｜明确废弃 / 明确替代 / DO_NOT_RESTORE。**
+> **筛选并展示 PDM-09 Batch 3｜明确知情修改 / 后续明确新增。**
 
-执行约束：
+要求：
 
-1. 只展示 Batch 2 候选；
-2. 每条必须给出拟进入最终基线的 DO_NOT_RESTORE 表述；
-3. 不把 Batch 4 的真实冲突混入 Batch 2；
-4. 用户确认前不得自动进入 Batch 3；
-5. 不修改 IA / Low-Fi / Engineering；
-6. 不使用旧聊天记忆替代仓库证据。
+1. 必须证明后续讨论明确知道旧规则并主动改变，或证明属于后续明确新增；
+2. 不能把稳定一致项重复塞入 Batch 3；
+3. 不能把真实冲突 / 证据不足项塞入 Batch 3；
+4. 若没有新的未审规则原子，必须明确写“Batch 3 无新增原子”，然后停止等待用户确认；
+5. 未经用户确认不得进入 Batch 4。

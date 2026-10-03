@@ -642,3 +642,20 @@ Batch 1 状态：
 > `PDM-09 / BATCH_2_DEPRECATED_SUPERSEDED_DO_NOT_RESTORE / USER_REVIEW_PENDING`
 
 真实冲突与证据缺口不混入本批。
+
+
+## 2026-10-04｜PDM-09 Batch 2 完成
+
+用户确认 P09-B2-01～P09-B2-03 全部通过。
+
+其中 P09-B2-03 最终表述明确为：
+
+> 有上游电话权限的员工，在自己有权访问的批发车源中，可以直接查看、获取最新电话并发起拨号；不再额外设置一个单独的“拨打电话权限”。
+
+Batch 2 状态：
+
+> `COMPLETE_USER_CONFIRMED`
+
+当前进入：
+
+> `PDM-09 / BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS / EVIDENCE_REVIEW`
