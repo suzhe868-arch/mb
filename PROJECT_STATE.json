@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-09",
-  "current_domain_status": "PDM09_BATCH4_IN_PROGRESS",
+  "current_domain_status": "PDM09_COVERAGE_AUDIT_PENDING",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Review P09-B4-01 cache-miss dial fetch behavior",
+  "current_task": "Run PDM-09 full Decision Coverage and unmapped check",
   "current_work_file": "07_重建工作区/PDM-09_上游发布人电话Collector缓存获取最新敏感能力_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -536,7 +536,7 @@
     "P08-A13"
   ],
   "current_phase": "PRODUCT_BASELINE_REBUILD",
-  "current_process": "PDM09_BATCH4_REVIEW_B4_01",
+  "current_process": "PDM09_FULL_DECISION_COVERAGE_AUDIT",
   "reverse_coverage_audit_01_07_status": "COMPLETE_UNMAPPED_ZERO",
   "reverse_coverage_audit_01_07_report": "07_重建工作区/PDM-01至07_反向覆盖校验报告_2026-09-25.md",
   "reverse_coverage_unmapped_count": 0,
@@ -618,15 +618,9 @@
   "pdm_09_batch_3_pending_atoms": [],
   "pdm_09_batch_3_new_atom_count": 0,
   "pdm_09_batch_3_user_confirmed": true,
-  "pdm_09_batch_4_status": "IN_PROGRESS",
-  "pdm_09_batch_4_pending_atoms": [
-    "P09-B4-01",
-    "P09-B4-02",
-    "P09-B4-03",
-    "P09-B4-05",
-    "P09-B4-06"
-  ],
-  "pdm_09_batch_4_pending_count": 5,
+  "pdm_09_batch_4_status": "COMPLETE_USER_CONFIRMED",
+  "pdm_09_batch_4_pending_atoms": [],
+  "pdm_09_batch_4_pending_count": 0,
   "method_current_implemented_fact_gate": true,
   "method_api_three_questions_required": true,
   "method_implemented_fact_does_not_auto_override_product_authority": true,
@@ -643,5 +637,13 @@
   "pdm_09_reopen_proposal_status": "APPROVED_AND_RESOLVED",
   "pdm_09_a04_r1_status": "USER_APPROVED",
   "pdm_09_a11_r1_status": "USER_APPROVED",
-  "pdm_09_b4_04_status": "WITHDRAWN_USER_APPROVED"
+  "pdm_09_b4_04_status": "WITHDRAWN_USER_APPROVED",
+  "pdm_09_batch_4_confirmed_atoms": [
+    "P09-B4-01",
+    "P09-B4-02",
+    "P09-B4-03",
+    "P09-B4-05",
+    "P09-B4-06"
+  ],
+  "pdm_09_coverage_status": "PENDING"
 }

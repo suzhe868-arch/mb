@@ -7,28 +7,29 @@
 PDM-09：
 
 - Batch 1 = COMPLETE_USER_CONFIRMED
-- P09-A04-R1 = USER_APPROVED
-- P09-A11-R1 = USER_APPROVED
 - Batch 2 = COMPLETE_USER_CONFIRMED
 - Batch 3 = COMPLETE_USER_CONFIRMED
-- Batch 4 = IN_PROGRESS
+- Batch 4 = COMPLETE_USER_CONFIRMED
+- P09-A04-R1 = USER_APPROVED
+- P09-A11-R1 = USER_APPROVED
 - P09-B4-04 = WITHDRAWN_USER_APPROVED
-- PDM-09 = IN_PROGRESS
+- PDM-09 = IN_PROGRESS / COVERAGE_AUDIT_PENDING
 
 ## 当前唯一下一步
 
-> **用户审查 P09-B4-01｜无缓存时点击“拨打”的取号行为。**
+> **执行 PDM-09 全量 Decision Coverage / 未映射检查。**
 
-当前待审：
+必须确认：
 
-- P09-B4-01
-- P09-B4-02
-- P09-B4-03
-- P09-B4-05
-- P09-B4-06
+1. Batch 1～4 全部 Atom 均有最终去向；
+2. 原 A04/A11/B2-02 旧网络方向均已被 A04-R1/A11-R1 正确替代；
+3. B4-04 撤回后没有留下孤儿 IA / Low-Fi / 历史 Decision；
+4. 电话缓存、latest、无缓存取号、P03-05、敏感权限、审计、复制边界均无未映射项；
+5. 给出 SOURCE_DECISION_COVERAGE 与 UNMAPPED 结果。
 
-未经用户确认：
-- 不得自动批准 B4-01；
-- 不得关闭 Batch 4；
+Coverage PASS 后才生成 PDM-09《最终完整规则总览_待用户批准》。
+
+未经最终用户批准：
+- 不得标记 PDM-09 COMPLETE；
 - 不得进入 PDM-10；
 - 不修改 IA / Low-Fi / Engineering。
