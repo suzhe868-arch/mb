@@ -571,3 +571,20 @@ P04-A15/A16 已由用户提前确认；新增四条待审：A17 source_type 名�
 已严格按 GitHub 当前证据完成 PDM-05 稳定一致项筛选，形成 P05-A01～P05-A09 九条候选规则。存在知情修改、废弃项、IA Action Contract 冲突及历史细节遗漏的内容均未混入本批。
 
 当前状态：`USER_REVIEW_BATCH_1_PENDING`。未经用户审查不得自动批准或进入 Batch 2。
+
+
+## 2026-10-04｜PDM-08 最终完成
+
+用户最终明确批准 PDM-08《最终完整规则总览》。
+
+- PDM-08 状态：`COMPLETE`；
+- 正式规则文件：`07_重建工作区/PDM-08_最终完整规则.md`；
+- IMG-001～IMG-030：30/30 已有明确去向；
+- `SOURCE_DECISION_COVERAGE = 100%`；
+- `UNMAPPED = 0`；
+- Decision Register 已登记 `PDM08-GATE-FINAL`；
+- 后续 PDM 不得静默改写 PDM-08，发现真实跨域冲突必须显式提交用户裁决。
+
+当前进入：
+
+> **PDM-09｜上游发布人电话 / publisher_id / 电话获取与缓存边界**
