@@ -8,20 +8,20 @@ PDM-09：
 
 - Batch 1 = COMPLETE_USER_CONFIRMED
 - Batch 2 = COMPLETE_USER_CONFIRMED
-- Batch 3 = USER_REVIEW_PENDING_NO_NEW_ATOMS
+- Batch 3 = COMPLETE_USER_CONFIRMED
+- Batch 4 = EVIDENCE_REVIEW
 - PDM-09 = IN_PROGRESS
 
 ## 当前唯一下一步
 
-> **等待用户确认“PDM-09 Batch 3 无新增原子”。**
+> **形成并展示 PDM-09 Batch 4｜冲突 / 历史遗漏 / 证据缺口 / 新选择。**
 
-确认后才允许进入：
+必须重点核对：
 
-> **PDM-09 Batch 4｜冲突 / 历史遗漏 / 证据缺口 / 新业务选择**
+1. cache miss 点击“拨打”是否允许自动拉取一次；
+2. `expires_at` 是否影响普通缓存读取；
+3. 车源同步阶段是否禁止批量预取电话；
+4. Collector 候选连接测试失败后的生效 / 回滚边界；
+5. 是否还有其他未映射电话规则。
 
-当前禁止：
-
-- 不得自动关闭 Batch 3；
-- 不得提前展示或裁决 Batch 4；
-- 不修改 IA / Low-Fi / Engineering；
-- 不使用旧聊天记忆替代仓库证据。
+未经用户确认不得进入最终总览。

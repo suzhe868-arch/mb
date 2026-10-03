@@ -322,3 +322,14 @@
 > `USER_REVIEW_PENDING`
 
 用户确认前不得进入 Batch 4。
+
+
+---
+
+## 8. Batch 3 Gate
+
+- Batch 3：`COMPLETE_USER_CONFIRMED`
+- 新增未审规则原子：0
+- 用户裁决：2026-10-04 “batch3 同意”
+- 后续 IA / Low-Fi 电话状态与页面继续作为既有业务规则的承载，不单独重复造产品规则原子。
+- 允许进入 Batch 4。
