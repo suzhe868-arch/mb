@@ -1,7 +1,7 @@
 # PDM-08｜车辆图片 / 上游 URL / CDN 受控转链 / 本地化 / 转存 / 图片恢复 / 分享图｜规则原子重建工作版
 
 > 日期：2026-09-25  
-> 状态：`BATCH_1_APPROVED / BATCH_2_APPROVED / BATCH_3_APPROVED / BATCH_4_APPROVED / FINAL_REVIEW_PENDING`  
+> 状态：`COMPLETE`  
 > 方法：允许适度压缩，但不得为了“短”而删除条件、例外、权限、状态、失败语义或前后关系。原始规则必须逐条有去向；最终门禁要求 `UNMAPPED=0`。
 
 ---
@@ -1213,3 +1213,21 @@ Batch 3 关闭，进入 Batch 4。
 2026-10-04 用户明确：**第 2 条“统一轮播”改为“统一图片浏览序列，由用户左右滑动，不代表自动播放”；其余全部同意。**
 
 因此 PDM-08 Batch 4 全部通过，进入全域总览与最终门禁。
+
+
+---
+
+## 最终总览批准记录
+
+2026-10-04 用户明确：**同意 PDM-08 最终完整规则总览。**
+
+最终门禁：
+- Batch 1 = APPROVED
+- Batch 2 = APPROVED
+- Batch 3 = APPROVED
+- Batch 4 = APPROVED
+- SOURCE_DECISION_COVERAGE = 100%
+- UNMAPPED = 0
+- Final Domain Overview = APPROVED
+
+最终状态：`PDM-08 = COMPLETE`
