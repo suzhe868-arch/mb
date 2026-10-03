@@ -272,3 +272,53 @@
 - 用户裁决：2026-10-04 “明白了，全部同意”
 - B2-03 最终采用人话口径：有上游电话权限且车辆在本人当前数据范围内，即可查看、获取最新电话和发起拨号；不再另拆一个“拨打电话权限”。
 - 当前进入 Batch 3 证据筛选；未经用户审查不得自动进入 Batch 4。
+
+
+---
+
+## 7. Batch 3｜明确知情修改 / 后续明确新增｜待用户确认
+
+### 证据复核结论
+
+经 9/19 主底盘、9/20 IA ChangeLog、9/22 视觉冻结台账、IA V5、实际 Low-Fi、工程 Delta 与 001～078 交叉核对：
+
+> **本批无新的未审业务规则原子。**
+
+后续出现的以下内容均属于对既有规则的投影、补承载或失败态表达，不构成新的产品业务规则：
+
+- E02-M01 电话统一投影；
+- `PHONE_CACHE_AVAILABLE`；
+- `PHONE_LATEST`；
+- `PHONE_LATEST_FAILED_CACHE_AVAILABLE`；
+- `PHONE_UNAVAILABLE`；
+- P03-03 Collector 电话连接；
+- P03-04 Collector 连接测试；
+- P03-05 publisher 电话缓存；
+- IA-20 “最新电话失败与缓存值分离、重试”。
+
+上述内容均能回指 9/19 或更早已存在的业务语义：
+
+- 普通查看缓存；
+- latest 强制刷新；
+- latest 失败保留旧缓存且不得冒充最新；
+- 查看/拨打/刷新审计；
+- Collector 边界；
+- publisher 维度。
+
+因此：
+
+- 不把 UI/State/IA 补承载伪装成“后续新业务规则”；
+- 不重复创建已在 Batch 1 / Batch 2 审过的原子；
+- 真正文本冲突与历史缺口继续留 Batch 4。
+
+### Batch 3 Gate
+
+当前结论：
+
+> `NO_NEW_UNREVIEWED_ATOMS`
+
+状态：
+
+> `USER_REVIEW_PENDING`
+
+用户确认前不得进入 Batch 4。
