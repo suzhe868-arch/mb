@@ -10,26 +10,26 @@ PDM-09：
 - Batch 2 = COMPLETE_USER_CONFIRMED
 - Batch 3 = COMPLETE_USER_CONFIRMED
 - Batch 4 = COMPLETE_USER_CONFIRMED
-- P09-A04-R1 = USER_APPROVED
-- P09-A11-R1 = USER_APPROVED
-- P09-B4-04 = WITHDRAWN_USER_APPROVED
-- PDM-09 = IN_PROGRESS / COVERAGE_AUDIT_PENDING
+- SOURCE_DECISION_COVERAGE = 100%（20/20）
+- UNMAPPED = 0
+- PDM-09 = FINAL_REVIEW_PENDING
 
 ## 当前唯一下一步
 
-> **执行 PDM-09 全量 Decision Coverage / 未映射检查。**
+> **用户审查并最终批准 `07_重建工作区/PDM-09_最终完整规则总览_待用户批准.md`。**
 
-必须确认：
+覆盖报告：
 
-1. Batch 1～4 全部 Atom 均有最终去向；
-2. 原 A04/A11/B2-02 旧网络方向均已被 A04-R1/A11-R1 正确替代；
-3. B4-04 撤回后没有留下孤儿 IA / Low-Fi / 历史 Decision；
-4. 电话缓存、latest、无缓存取号、P03-05、敏感权限、审计、复制边界均无未映射项；
-5. 给出 SOURCE_DECISION_COVERAGE 与 UNMAPPED 结果。
+> `07_重建工作区/PDM-09_全量DecisionCoverage未映射检查报告_2026-10-04.md`
 
-Coverage PASS 后才生成 PDM-09《最终完整规则总览_待用户批准》。
+说明：
+
+- 当前 IA / Low-Fi 中仍有少量旧 Collector 电话连接 carrier；
+- 已全部映射为 STALE_CARRIER，不是新的产品未裁决问题；
+- 后续 IA / Engineering Delta 阶段按 A04-R1 / A11-R1 / B4-04 撤回结论统一清理。
 
 未经最终用户批准：
-- 不得标记 PDM-09 COMPLETE；
+- 不得将 PDM-09 标记 COMPLETE；
+- 不得生成正式最终规则文件；
 - 不得进入 PDM-10；
 - 不修改 IA / Low-Fi / Engineering。

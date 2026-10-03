@@ -778,3 +778,28 @@ P09-B4-04 已在前轮确认撤回。
 > **执行 PDM-09 全量 Decision Coverage / 未映射检查。**
 
 PDM-09 尚未 FINAL APPROVED，不得标记 COMPLETE，不得进入 PDM-10。
+
+
+## 2026-10-04｜PDM-09 全量覆盖校验完成
+
+已完成 PDM-09 全量 Decision Coverage / 未映射检查。
+
+结果：
+
+- SOURCE_DECISION_COVERAGE = 100%（20/20）
+- UNMAPPED = 0
+- Batch 1～4 全部审查单元均有明确最终去向；
+- 原 A04/A11/B2-02 的旧网络方向已由 A04-R1/A11-R1 正确替代；
+- B4-04 已撤回且无孤儿产品 Decision；
+- 当前 IA / Low-Fi 仍存在少量旧 Collector 电话连接 carrier，但均已有明确 supersede 去向，标记为 STALE_CARRIER，进入后续 IA / Engineering 整改，不阻塞 PDM-09 产品最终审批。
+
+已生成：
+
+- `07_重建工作区/PDM-09_全量DecisionCoverage未映射检查报告_2026-10-04.md`
+- `07_重建工作区/PDM-09_最终完整规则总览_待用户批准.md`
+
+当前状态：
+
+> `PDM-09 / FINAL_REVIEW_PENDING`
+
+未经用户最终批准，不得标记 PDM-09 COMPLETE，不得进入 PDM-10。

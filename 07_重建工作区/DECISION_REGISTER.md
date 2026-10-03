@@ -308,3 +308,5 @@
 | PDM09-DEC-B4-05 | PDM-09 | P09-B4-05 | 用户确认：P03-05 作为 publisher 电话缓存管理/诊断页，展示 publisher、当前电话、联系人（如有）、最近获取时间、状态/新鲜度、历史号码、最近刷新结果及必要异常/日志/审计；明文电话继续受敏感能力控制。 | 具备相应后台电话敏感能力且 data scope 允许的管理员可执行“获取最新电话”；不再提供 Collector Base URL / Phone Path 旧连接配置。 | 2026-10-04 用户“全部同意” | 2026-10-04 |
 | PDM09-DEC-B4-06 | PDM-09 | P09-B4-06 | 用户确认：V1 上游发布人电话允许查看、获取最新和系统拨号，但不提供专门的一键复制/长按复制动作。 | 后续如确有业务需要，作为新的明确产品决定增加。 | 2026-10-04 用户“全部同意” | 2026-10-04 |
 | PDM09-GATE-B4 | PDM-09 | Batch 4 Gate | 用户一次性确认剩余 P09-B4-01、02、03、05、06 全部同意；P09-B4-04 已在前轮确认撤回。 | Batch 4 正式关闭；下一步必须做 PDM-09 全量 Decision Coverage / 未映射检查，未经最终总览批准不得标记 COMPLETE 或进入 PDM-10。 | 2026-10-04 用户“全部同意” | 2026-10-04 |
+
+| PDM09-COVERAGE-GATE | PDM-09 | Full Decision Coverage | 完成 Batch 1～4、9/19、CN11、001～078、IA V5、Low-Fi 电话相关载体的全量覆盖检查；20/20 原始审查单元均有 EFFECTIVE / SUPERSEDED / DO_NOT_RESTORE / WITHDRAWN 去向。 | SOURCE_DECISION_COVERAGE=100%，UNMAPPED=0；旧 Collector 电话连接 IA carrier 标记 STALE_CARRIER，后续 IA/Engineering 清理，不构成新的产品 Decision。 | 2026-10-04 全量覆盖审计 | 2026-10-04 |
