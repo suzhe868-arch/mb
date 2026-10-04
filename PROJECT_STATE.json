@@ -847,7 +847,7 @@
       "PDM-10"
     ],
     "status": "IN_PROGRESS",
-    "start_domain": "PDM-07",
+    "start_domain": "PDM-08",
     "sequence": [
       "PDM-01",
       "PDM-02",
@@ -881,21 +881,23 @@
     },
     "pdm_11_blocked": true,
     "pdm_11_unblock_condition": "ALL_PDM01_10_INTEGRITY_PASS_AND_GLOBAL_CROSS_PDM_AUDIT_PASS",
-    "current_domain": "PDM-07",
+    "current_domain": "PDM-08",
     "completed_domains": [
       "PDM-01",
       "PDM-02",
       "PDM-03",
       "PDM-04",
       "PDM-05",
-      "PDM-06"
+      "PDM-06",
+      "PDM-07"
     ],
     "pdm_01_result": "INTEGRITY_PASS",
     "pdm_02_result": "INTEGRITY_PASS",
     "pdm_03_result": "INTEGRITY_PASS",
     "pdm_04_result": "INTEGRITY_PASS",
     "pdm_05_result": "INTEGRITY_PASS",
-    "pdm_06_result": "INTEGRITY_PASS"
+    "pdm_06_result": "INTEGRITY_PASS",
+    "pdm_07_result": "INTEGRITY_PASS"
   },
   "pdm_11_status": "BLOCKED_BY_PDM01_10_LEGACY_INTEGRITY_AUDIT",
   "pdm_01_integrity_status": "INTEGRITY_PASS",
@@ -966,9 +968,10 @@
     "PDM-03",
     "PDM-04",
     "PDM-05",
-    "PDM-06"
+    "PDM-06",
+    "PDM-07"
   ],
-  "cross_pdm_handoff_backfill_status": "COMPLETE_THROUGH_PDM06_2026-10-05",
+  "cross_pdm_handoff_backfill_status": "COMPLETE_THROUGH_PDM07_2026-10-05",
   "pdm_04_handoff_status_backwrite": "PDM05_TO_PDM10_CLOSED_IN_SOURCE_FINAL_AND_REGISTER",
   "pdm_04_integrity_status": "INTEGRITY_PASS",
   "pdm_04_integrity_decision_required": [],
@@ -1032,5 +1035,24 @@
   "pdm_06_handoff_to_pdm08": "HANDOFF_CLOSED_SOURCE_BACKWRITE_YES",
   "pdm_06_handoff_to_pdm10": "HANDOFF_CLOSED_SOURCE_BACKWRITE_YES",
   "pdm_06_integrity_decision_required": [],
-  "pdm_06_stale_carriers": "DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT"
+  "pdm_06_stale_carriers": "DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT",
+  "pdm_07_integrity_status": "INTEGRITY_PASS",
+  "pdm_07_integrity_audit_file": "07_重建工作区/PDM-07_历史最终版完整性复核_2026-10-05.md",
+  "pdm_07_integrity_reopen_count": 4,
+  "pdm_07_integrity_missing_rule_unresolved": 0,
+  "pdm_07_integrity_semantic_detail_gap_unresolved": 0,
+  "pdm_07_integrity_cross_pdm_conflict": 0,
+  "pdm_07_integrity_handoff_gap_unresolved": 0,
+  "pdm_07_integrity_global_invariant_conflict": 0,
+  "pdm_07_integrity_source_decision_coverage": "100%",
+  "pdm_07_integrity_final_to_source_traceability": "100%",
+  "pdm_07_integrity_semantic_integrity": "PASS",
+  "pdm_07_integrity_negative_claims_verified": "PASS",
+  "pdm_07_integrity_implementation_ready": "PASS",
+  "pdm_07_handoff_register_sync": "PASS",
+  "pdm_07_handoff_to_pdm08": "HANDOFF_CLOSED_SOURCE_BACKWRITE_YES",
+  "pdm_07_report_archive_resource_rule": "PDM08_CLOSED_OBJECT_STORAGE_AND_CONTROLLED_REPORT_DOMAIN_TECH_CARRIER_DOES_NOT_DECIDE_CUSTOMER_VISIBILITY",
+  "pdm_07_condition_matching_rule": "KEEP_RAW_PROVENANCE_ONLY_DETERMINISTIC_NEEDED_NORMALIZATION_UNKNOWN_CONFIRMATION_NEEDED_NO_GUESS",
+  "pdm_07_integrity_decision_required": [],
+  "pdm_07_stale_carriers": "DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT"
 }
