@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / PDM-01_INTEGRITY_PASS / CURRENT_PDM-02`
+> `IN_PROGRESS / PDM-01_PDM-02_INTEGRITY_PASS / CURRENT_PDM-03`
 
 当前工作文件：
 
@@ -32,8 +32,27 @@
 
 当前唯一下一步：
 
-> **PDM-01 已通过 Legacy Final Integrity Audit；从 PDM-02 继续同时执行 Missing Rule Audit、Semantic Detail Audit、Cross-PDM Integrity Audit。PDM-01～10 全部及全局总复核 PASS 前，PDM-11 继续 BLOCKED。**
+> **PDM-01、PDM-02 已通过 Legacy Final Integrity Audit；从 PDM-03 继续 Missing Rule Audit、Semantic Detail Audit、Cross-PDM Integrity Audit。PDM-01～10 全部及全局总复核 PASS 前，PDM-11 继续 BLOCKED。IA / Low-Fi 统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。**
 
+## 2026-10-04｜PDM-02 Legacy Final Integrity Audit 完成
+
+- PDM-02 Integrity：`INTEGRITY_PASS`；
+- 本轮关闭 8 组问题：权限变化即时生效、inactive 恢复 accepting 默认 OFF、调店前交接、治理审计最小字段、接客/离职交接与 handover batch、System Admin 自身治理、System Admin 直接停用/恢复 Customer、已完成跨域 handoff 清理；
+- 用户新增裁决：System Admin 可直接执行 Customer 账号停用 / 恢复，定义为控制平面治理动作；不因此获得销售 / CRM / owner / Lock / Transaction 等业务执行权；
+- PDM-01 已同步 `PDM01-DEC-A16-R2`，保持 `INTEGRITY_PASS`；
+- 审计报告：`07_重建工作区/PDM-02_历史最终版完整性复核_2026-10-04.md`；
+- 当前进入：PDM-03 Legacy Final Integrity Audit；
+- PDM-11 继续 BLOCKED。
+
+## 2026-10-04｜IA / Low-Fi 集中对齐时点冻结
+
+用户明确决定：不在 PDM-01～10 完成后单独对齐 IA / Low-Fi。
+
+固定流程：
+
+> PDM-01～10 Integrity Audit → 01～10 全局总复核 → PDM-11～25 → PDM-01～25 全局最终总复核 → IA 集中对齐 → Low-Fi 集中对齐 → Engineering。
+
+PDM-01～25 期间发现的 IA / Low-Fi 错误统一登记 `STALE_CARRIER` 与正确 Authority，不直接修改 carrier。
 ## 2026-10-04｜PDM-01 Legacy Final Integrity Audit 完成
 
 - PDM-01 Integrity：`INTEGRITY_PASS`；
