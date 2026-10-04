@@ -327,3 +327,18 @@
 | PDM10-DEC-A11 | PDM-10 | P10-A11 | 用户确认价格变更留历史/审计；Recommendation、Lock等关键价格快照为当时事实，后续调价不得覆盖。 | 作为 PDM-10 Batch 1 当前有效候选规则进入后续总览。 | PDM-10 Batch 1 + 2026-10-04 用户明确“全部同意” | 2026-10-04 |
 | PDM10-DEC-A12 | PDM-10 | P10-A12 | 用户确认V1不恢复服务费、物流/检测/过户报价、预计到手价等第二套独立报价体系。 | 作为 PDM-10 Batch 1 当前有效候选规则进入后续总览。 | PDM-10 Batch 1 + 2026-10-04 用户明确“全部同意” | 2026-10-04 |
 | PDM10-GATE-B1 | PDM-10 | Batch 1 Gate | 用户确认 P10-A01～P10-A12 全部通过。 | Batch 1 门禁关闭，允许进入 Batch 2；不得自动批准 Batch 2。 | PDM-10 Batch 1 工作版 + 2026-10-04 用户明确“全部同意” | 2026-10-04 |
+
+
+| PDM10-DEC-B2-01 | PDM-10 | P10-B2-01 | 用户确认不得恢复“客户展示价覆盖仅适用于单一车源类型”的旧方向。 | 作为 PDM-10 DO_NOT_RESTORE / SUPERSEDED 规则进入后续总览。 | PDM-10 Batch 2 + 2026-10-04 用户明确“全部同意” | 2026-10-04 |
+| PDM10-DEC-B2-02 | PDM-10 | P10-B2-02 | 用户确认不得恢复“加价关闭后所有批发车一律价格咨询”的旧方向。 | 作为 PDM-10 DO_NOT_RESTORE / SUPERSEDED 规则进入后续总览。 | PDM-10 Batch 2 + 2026-10-04 用户明确“全部同意” | 2026-10-04 |
+| PDM10-DEC-B2-03 | PDM-10 | P10-B2-03 | 用户确认不得把 base_wholesale_price / 内部真实批发价直接作为客户售价兜底。 | 作为 PDM-10 DO_NOT_RESTORE / SUPERSEDED 规则进入后续总览。 | PDM-10 Batch 2 + 2026-10-04 用户明确“全部同意” | 2026-10-04 |
+| PDM10-DEC-B2-04 | PDM-10 | P10-B2-04 | 用户确认普通分享、点击分享链接、收藏不得自动获得批发查价权。 | 作为 PDM-10 DO_NOT_RESTORE / SUPERSEDED 规则进入后续总览。 | PDM-10 Batch 2 + 2026-10-04 用户明确“全部同意” | 2026-10-04 |
+| PDM10-DEC-B2-05 | PDM-10 | P10-B2-05 | 用户确认 Recommendation 不得扩散为全库价格权限，客户查价权不得经普通二次分享传递。 | 作为 PDM-10 DO_NOT_RESTORE / SUPERSEDED 规则进入后续总览。 | PDM-10 Batch 2 + 2026-10-04 用户明确“全部同意” | 2026-10-04 |
+| PDM10-DEC-B2-06 | PDM-10 | P10-B2-06 | 用户确认旧 listing_cycle 的查价权、Recommendation 价格权和覆盖价不得自动跨新周期。 | 作为 PDM-10 DO_NOT_RESTORE / SUPERSEDED 规则进入后续总览。 | PDM-10 Batch 2 + 2026-10-04 用户明确“全部同意” | 2026-10-04 |
+| PDM10-DEC-B2-07 | PDM-10 | P10-B2-07 | 用户确认不得同周期重复扣额；价格咨询、失败、超时、员工查看不得消耗客户额度。 | 作为 PDM-10 DO_NOT_RESTORE / SUPERSEDED 规则进入后续总览。 | PDM-10 Batch 2 + 2026-10-04 用户明确“全部同意” | 2026-10-04 |
+| PDM10-DEC-B2-08 | PDM-10 | P10-B2-08 | 用户确认无效阶梯规则不得上线，草稿/保存失败不得影响当前线上有效价。 | 作为 PDM-10 DO_NOT_RESTORE / SUPERSEDED 规则进入后续总览。 | PDM-10 Batch 2 + 2026-10-04 用户明确“全部同意” | 2026-10-04 |
+| PDM10-DEC-B2-09 | PDM-10 | P10-B2-09 | 用户确认名邦/4S不得参加JYT统一阶梯加价；不得仅因人工车内部批发价为空阻断后续锁车。 | 作为 PDM-10 DO_NOT_RESTORE / SUPERSEDED 规则进入后续总览。 | PDM-10 Batch 2 + 2026-10-04 用户明确“全部同意” | 2026-10-04 |
+| PDM10-DEC-B2-10 | PDM-10 | P10-B2-10 | 用户确认不得恢复名邦员工查看内部价必须额外独立 internal-price-view permission 的旧门槛。 | 作为 PDM-10 DO_NOT_RESTORE / SUPERSEDED 规则进入后续总览。 | PDM-10 Batch 2 + 2026-10-04 用户明确“全部同意” | 2026-10-04 |
+| PDM10-DEC-B2-11 | PDM-10 | P10-B2-11 | 用户确认不得用内部批发价强行填补客户标价，包括一键转名邦和人工车客户标价缺失场景。 | 作为 PDM-10 DO_NOT_RESTORE / SUPERSEDED 规则进入后续总览。 | PDM-10 Batch 2 + 2026-10-04 用户明确“全部同意” | 2026-10-04 |
+| PDM10-DEC-B2-12 | PDM-10 | P10-B2-12 | 用户确认不得恢复客户完整内部价格历史及服务费/物流检测过户/预计到手价等第二套报价体系。 | 作为 PDM-10 DO_NOT_RESTORE / SUPERSEDED 规则进入后续总览。 | PDM-10 Batch 2 + 2026-10-04 用户明确“全部同意” | 2026-10-04 |
+| PDM10-GATE-B2 | PDM-10 | Batch 2 Gate | 用户确认 P10-B2-01～P10-B2-12 全部通过。 | Batch 2 门禁关闭，允许进入 Batch 3；不得自动批准 Batch 3。 | PDM-10 Batch 2 工作版 + 2026-10-04 用户明确“全部同意” | 2026-10-04 |
