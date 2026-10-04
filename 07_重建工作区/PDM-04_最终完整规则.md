@@ -680,9 +680,13 @@ PDM-04 当前只冻结车辆 / 车源 / 来源 / listing cycle / hidden / 一键
 
 上述已完成事项的目标 Authority 已存在，来源 PDM-04 不得继续把它们写成未知 / 待后续。
 
+PDM-12 已完成承接并 source backwrite：
+
+> `HO-P04-P12-001 = HANDOFF_CLOSED / target=PDM-12 Final §§17-18,29 / source_backwrite=YES`
+
 ### 20.2 仍待后续 PDM 承接
 
-- Matching 对 hidden / availability 的资格与匹配规则 → PDM-12｜`HANDOFF_OPEN`；
+- Matching 对 hidden / availability 的资格与匹配规则 → PDM-12｜`HANDOFF_CLOSED`：PDM-12 Final 已冻结 hidden≠offline/unavailable；hidden 但真实可售可内部 Matching，真实 offline/unavailable/sold 等退出普通 Matching；active Lock 属占用事实，不自动等于不可 Matching。
 - Priority 对 hidden / exclusive visibility / listing lifecycle 的关系 → PDM-13｜`HANDOFF_OPEN`；
 - Recommendation 对 hidden 单车可见授权与生命周期 → PDM-14｜`HANDOFF_OPEN`；
 - Lock / Waitlist 的完整生命周期 → PDM-18｜`HANDOFF_OPEN`；
