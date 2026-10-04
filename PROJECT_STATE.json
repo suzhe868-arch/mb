@@ -887,7 +887,7 @@
   },
   "pdm_11_status": "BLOCKED_BY_PDM01_10_LEGACY_INTEGRITY_AUDIT",
   "pdm_01_integrity_status": "INTEGRITY_PASS",
-  "pdm_01_integrity_audit_file": "07_重建工作区/PDM-01_Legacy_Final_Integrity_Audit_2026-10-04.md",
+  "pdm_01_integrity_audit_file": "07_重建工作区/PDM-01_历史最终版完整性复核_2026-10-04.md",
   "pdm_01_integrity_reopen_count": 6,
   "pdm_01_integrity_missing_rule_unresolved": 0,
   "pdm_01_integrity_semantic_detail_gap_unresolved": 0,

@@ -40,7 +40,7 @@
 - 本轮共关闭 6 组 reopen：显式登录页语义、手机号授权拒绝时找车表单临时保留、PDM-02 手机号维护 handoff、接客池异常为空、PDM-03 owner/分享 handoff、客户账号停用/恢复轻量后台控制；
 - 客户账号停用最终口径：后台受控停用/恢复；停用后仍可进入网站/小程序并浏览公开内容，但暂停依赖 Customer 身份/权益的业务账号能力；不删除 customer_id / owner / 来源 / 历史；若只需降权使用客户等级调整；
 - IA / Low-Fi 中旧“首次无 owner / SOURCE_ONLY / Customer Merge”等只登记为 stale carrier，本轮不修改；
-- 审计报告：`07_重建工作区/PDM-01_Legacy_Final_Integrity_Audit_2026-10-04.md`；
+- 审计报告：`07_重建工作区/PDM-01_历史最终版完整性复核_2026-10-04.md`；
 - 当前进入：PDM-02 Legacy Final Integrity Audit；
 - PDM-11 继续 BLOCKED。
 
