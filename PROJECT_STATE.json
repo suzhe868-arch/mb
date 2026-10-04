@@ -8,7 +8,7 @@
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "PDM-01-10-INTEGRITY-AUDIT",
+  "current_domain": "PDM-11",
   "current_domain_status": "IN_PROGRESS_START_FROM_PDM-01",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
@@ -852,7 +852,7 @@
       "PDM-09",
       "PDM-10"
     ],
-    "status": "IN_PROGRESS",
+    "status": "COMPLETE",
     "start_domain": "PDM-10",
     "sequence": [
       "PDM-01",
@@ -885,9 +885,9 @@
       "implementation_ready": "PASS",
       "handoff_register_sync": "PASS"
     },
-    "pdm_11_blocked": true,
-    "pdm_11_unblock_condition": "ALL_PDM01_10_INTEGRITY_PASS_AND_GLOBAL_CROSS_PDM_AUDIT_PASS",
-    "current_domain": "GLOBAL_PDM01_10_CROSS_PDM_AUDIT",
+    "pdm_11_blocked": false,
+    "pdm_11_unblock_condition": "SATISFIED",
+    "current_domain": "COMPLETE",
     "completed_domains": [
       "PDM-01",
       "PDM-02",
@@ -911,9 +911,11 @@
     "pdm_09_result": "INTEGRITY_PASS",
     "pdm_10_result": "INTEGRITY_PASS",
     "single_domain_audits_status": "ALL_PDM01_10_INTEGRITY_PASS",
-    "global_pdm01_10_cross_pdm_audit_status": "PENDING"
+    "global_pdm01_10_cross_pdm_audit_status": "PASS",
+    "global_pdm01_10_cross_pdm_audit_file": "07_重建工作区/PDM-01至10_全局Cross-PDM_Handoff_GlobalInvariant总复核_2026-10-05.md",
+    "next_domain": "PDM-11"
   },
-  "pdm_11_status": "BLOCKED_BY_PDM01_10_GLOBAL_CROSS_PDM_AUDIT",
+  "pdm_11_status": "READY_TO_START_AFTER_GLOBAL_PDM01_10_AUDIT_PASS",
   "pdm_01_integrity_status": "INTEGRITY_PASS",
   "pdm_01_integrity_audit_file": "07_重建工作区/PDM-01_历史最终版完整性复核_2026-10-04.md",
   "pdm_01_integrity_reopen_count": 6,
@@ -1130,5 +1132,33 @@
   "pdm_10_quota_exhausted_rule": "DIGITAL_PRICE_EXISTS_AND_LIMITED_QUOTA_EXHAUSTED_EQUALS_DAILY_PRICE_QUOTA_EXHAUSTED_CONTACT_ADVISOR_NOT_PRICE_CONSULTATION",
   "pdm_10_unlimited_temp_addition_rule": "3A_UNLIMITED_BLOCKS_NEW_TEMP_ADDITIONS_EXISTING_TODAY_TEMP_ADDITIONS_PRESERVED_SAME_DAY_RETURN_TO_LIMITED_REUSES_THEM_UNLIMITED_VIEWS_DO_NOT_CONSUME_QUOTA",
   "pdm_10_integrity_decision_required": [],
-  "pdm_10_stale_carriers": "DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT"
+  "pdm_10_stale_carriers": "DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT",
+  "global_pdm01_10_cross_pdm_audit_status": "PASS",
+  "global_pdm01_10_cross_pdm_audit_file": "07_重建工作区/PDM-01至10_全局Cross-PDM_Handoff_GlobalInvariant总复核_2026-10-05.md",
+  "global_pdm01_10_internal_handoff_open": 0,
+  "global_pdm01_10_internal_handoff_accepted": 0,
+  "global_pdm01_10_closed_without_target_authority": 0,
+  "global_pdm01_10_source_backwrite_pending": 0,
+  "global_pdm01_10_future_handoff_open_count": 69,
+  "global_pdm01_10_cross_pdm_conflict": 0,
+  "global_pdm01_10_handoff_gap_unresolved": 0,
+  "global_pdm01_10_global_invariant_conflict": 0,
+  "global_pdm01_10_authority_drift": 0,
+  "global_pdm01_10_ia_lowfi_authority_override": 0,
+  "global_pdm01_10_implementation_ready_for_next_pdm": "PASS",
+  "global_pdm01_10_control_cleanup": [
+    "PDM-01_TO_PDM-07_HEADER_STATUS_NORMALIZED_TO_COMPLETE_INTEGRITY_PASS",
+    "PDM-01_SECTION10_PDM02_STALE_HANDOFF_WORDING_CLEANED"
+  ],
+  "pdm_11_incoming_handoffs": [
+    {
+      "handoff_id": "HO-P01-P11-001",
+      "source": "PDM-01",
+      "status": "HANDOFF_OPEN",
+      "semantic": "Demand 生命周期；Customer 停用不得自动终止既有 Demand，具体状态由 Demand 域处理"
+    }
+  ],
+  "pdm_11_start_gate": "UNBLOCKED",
+  "pdm_11_workfile_status": "NOT_YET_CREATED",
+  "pdm_11_required_first_action": "READ_TARGET_PDM11_HANDOFFS_THEN_BUILD_WORKFILE_FROM_REPO_EVIDENCE"
 }
