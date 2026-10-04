@@ -626,7 +626,7 @@
   "method_current_implemented_fact_gate": true,
   "method_api_three_questions_required": true,
   "method_implemented_fact_does_not_auto_override_product_authority": true,
-  "method_spec_revision": "2026-10-04_ONE_PASS_INFORMATION_INTEGRITY_GATE",
+  "method_spec_revision": "2026-10-05_BIDIRECTIONAL_CROSS_PDM_HANDOFF_CLOSURE",
   "pdm_09_revalidation_required_atoms": [
     "P09-A04",
     "P09-A11",
@@ -774,7 +774,8 @@
     "semantic_integrity": "PASS",
     "negative_claims_verified": "PASS",
     "user_final_approved": "YES",
-    "implementation_ready": "PASS"
+    "implementation_ready": "PASS",
+    "handoff_register_sync": "PASS"
   },
   "pdm_10_a10_final_rule": "LEVEL_PRICE_CHECK_ENTITLEMENT_CONFIGURABLE_LIMITED_OR_UNLIMITED_IMMEDIATE_LEVEL_CHANGE_EFFECT",
   "pdm_10_b4_03_final_rule": "SALES_CURRENT_OWNER_PLUS_PERMISSION__MANAGER_STORE_MANAGER_PERMISSION_PLUS_DATA_SCOPE__4S_HARD_DENY__SYSTEM_ADMIN_CONFIG_ONLY",
@@ -875,7 +876,8 @@
       "final_to_source_traceability": "100%",
       "semantic_integrity": "PASS",
       "negative_claims_verified": "PASS",
-      "implementation_ready": "PASS"
+      "implementation_ready": "PASS",
+      "handoff_register_sync": "PASS"
     },
     "pdm_11_blocked": true,
     "pdm_11_unblock_condition": "ALL_PDM01_10_INTEGRITY_PASS_AND_GLOBAL_CROSS_PDM_AUDIT_PASS",
@@ -940,5 +942,28 @@
   "pdm_03_integrity_implementation_ready": "PASS",
   "pdm_03_share_price_right_rule": "ORDINARY_SHARE_NO_PRICE_RIGHT_RECOMMENDATION_GRANTS_CURRENT_CUSTOMER_VEHICLE_LISTING_CYCLE_RIGHT",
   "pdm_03_handover_partial_failure": "KEEP_SUCCEEDED_MAPPINGS_OPEN_UNRESOLVED_ITEMS_RETRY_ONLY_UNCLOSED",
-  "pdm_03_stale_carriers": "DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT"
+  "pdm_03_stale_carriers": "DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT",
+  "method_cross_pdm_handoff_bidirectional_closure": true,
+  "cross_pdm_handoff_register_file": "07_重建工作区/CROSS_PDM_HANDOFF_REGISTER.md",
+  "cross_pdm_handoff_status_enum": [
+    "HANDOFF_OPEN",
+    "HANDOFF_ACCEPTED",
+    "HANDOFF_CLOSED",
+    "HANDOFF_SUPERSEDED"
+  ],
+  "cross_pdm_handoff_source_backwrite_required": true,
+  "cross_pdm_handoff_target_complete_gate": true,
+  "cross_pdm_handoff_register_sync_required": true,
+  "cross_pdm_handoff_backfill_scope": [
+    "PDM-01",
+    "PDM-02",
+    "PDM-03",
+    "PDM-04"
+  ],
+  "cross_pdm_handoff_backfill_status": "COMPLETE_2026-10-05",
+  "pdm_04_handoff_status_backwrite": "PDM05_TO_PDM10_CLOSED_IN_SOURCE_FINAL",
+  "pdm_04_integrity_status": "IN_PROGRESS_DECISION_REQUIRED",
+  "pdm_04_integrity_decision_required": [
+    "SUPPLY_ANOMALY_BLOCK_NEW_BUSINESS_A_OR_B"
+  ]
 }
