@@ -2,8 +2,8 @@
 
 > 日期：2026-09-24  
 > 状态：`COMPLETE`  
-> 说明：本文件为 PDM-03 经 Batch 1～4 与最终总览用户批准后的**正式当前规则**。后续 PDM 不得静默改写；若发现真实跨域冲突，必须重新提交用户显式裁决。  
-> 本次仍不修改 IA / Low-Fi / Engineering。
+> 说明：本文件为 PDM-03 经 Batch 1～4 与最终总览用户批准后的**正式当前规则**；2026-10-05 已按新标准完成 Legacy Final Integrity Audit，并同步 PDM-01 / PDM-02 / PDM-10 当前已完成跨域规则。后续 PDM 不得静默改写；若发现真实跨域冲突，必须重新提交用户显式裁决。  
+> IA / Low-Fi 仅登记 `STALE_CARRIER`，统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。
 
 ---
 
@@ -226,32 +226,37 @@ Customer owner 与各具体业务对象负责人分层。
 包括但不限于：
 
 - Demand；
+- Priority 相关业务关系；
 - Consultation；
 - Waitlist；
 - Lock；
 - Transaction。
 
-确需调整具体业务负责人时：
+确需调整具体业务负责人或业务关系时：
 
-1. 对对应业务执行正式 reassignment；
-2. 保留原负责人；
-3. 保留新负责人；
+1. 对对应业务执行正式 reassignment / handoff；
+2. 保留原负责人 / 原关系；
+3. 保留新负责人 / 新关系；
 4. 保留操作人与时间；
 5. 不抹除历史。
+
+Customer owner 变化本身不等于上述对象负责人已经完成迁移；具体对象是否需要转交、如何转交，继续服从对应 PDM 的当前 lifecycle 与 reassignment 规则。
 
 ---
 
 ## 12. Owner 正式移交与权限
 
 1. 普通销售不得自行抢走他人客户。
-2. 有权限且 data scope 覆盖目标客户的经理 / 店长可执行正式 owner 移交或冲突仲裁。
-3. 具体动作必须保留：
+2. Customer 可以提出更换负责销售，但客户提出只是正式 owner 移交的业务触发来源之一，不直接由客户端自行改写 owner。
+3. 有权限且 data scope 覆盖目标客户的经理 / 店长可执行正式 owner 移交或冲突仲裁。
+4. 普通 owner 移交至少必须保留：
    - 原 owner；
    - 新 owner；
    - 操作人；
-   - 操作时间；
-   - 必要审计事实。
-4. 经理 / 店长作为交接处理人，不因此自动成为全部被交接客户的新 owner。
+   - 操作时间。
+5. 普通 owner 移交默认不强制每次填写原因；若具体业务、风控或后续 PDM 对特定场景明确要求 reason，则服从该更具体规则。
+6. 经理 / 店长作为交接处理人，不因此自动成为全部被交接客户的新 owner。
+7. Customer 完整业务历史属于公司客户档案；新 owner 只在其当前合法 data scope 内查看必要历史。原销售以后是否仍可查看，取决于其当前 identity / permission / data scope，不因“历史上服务过”自动永久拥有访问权。
 
 ---
 
@@ -262,15 +267,21 @@ Customer owner 与各具体业务对象负责人分层。
 1. 不得继续承接新的 Customer owner；
 2. 当前客户 owner 必须合法交接；
 3. 不能只交接 Customer owner；
-4. 还必须同步检查并处理其当前负责的活跃客户业务；
-5. 当前责任需要交接；
-6. 历史事实不得改写。
+4. 还必须同步检查并处理其当前负责的活跃客户业务与业务关系；
+5. 至少检查 Demand、Priority、Consultation、Waitlist、Lock、Transaction 等适用对象；
+6. Priority 是否继续、如何随当前客户业务关系承接以及 TTL / 可见性细节，仍由 PDM-13 冻结；本 PDM 只冻结“离职 / 资格失效时必须进入交接扫描，不能静默丢失或继续挂在失效人员名下”；
+7. 当前责任需要合法交接；
+8. 历史事实不得改写。
 
 必须保留：
 
 - 原始来源；
 - 历史 owner；
-- 历史业务负责人；
+- 历史业务负责人 / 历史业务关系；
+- 原负责人 / 新负责人或原关系 / 新关系；
+- 操作人；
+- 操作时间；
+- 交接原因；
 - 历史操作；
 - 历史贡献。
 
@@ -278,32 +289,48 @@ Customer owner 与各具体业务对象负责人分层。
 
 ## 14. Handover Batch
 
-离职交接必须形成可追溯 handover batch。
+离职 / inactive / 资格丧失交接必须形成可追溯 handover batch。
 
 至少需要能够追溯：
 
-- departed employee；
-- departed time；
-- 离职当时正式归属 Customer 清单；
-- 相关活跃业务的交接事实；
-- 后续新 owner / 新负责人；
-- 再次分配历史。
+- `handover_batch_id`；
+- departed / invalid employee；
+- departed / invalid time；
+- 当时正式归属 Customer 清单；
+- 相关活跃业务 / 业务关系清单；
+- 每个受影响对象的原 owner / 原负责人 / 原关系；
+- 目标新 owner / 新负责人 / 新关系；
+- 操作人；
+- 操作时间；
+- 交接原因；
+- 后续再次分配历史。
+
+每个受影响对象都应具有明确映射结果；确认 / 提交时重新校验目标人员当前 active / eligible / permission / data scope / object state 等适用条件。
+
+批量交接发生部分失败时：
+
+- 已成功完成的映射不得为了失败项整体回滚；
+- 未完成 / 校验失败项继续保持待处理；
+- 后续重试只处理尚未闭环的对象；
+- 不得因为批次部分失败而抹掉已完成交接事实或原批次来源。
 
 后续 Customer 多次 owner 变化，不得抹掉最初离职交接批次来源。
 
 ---
 
-## 15. 复职
+## 15. 复职 / 从 inactive 恢复 active
 
-员工重新入职：
+员工重新入职或从 inactive 恢复 active：
 
 - 复用原 `employee_id`；
-- 不自动拿回离职前 Customer；
-- 不自动恢复离职前业务负责人身份；
+- 按当前事实重新授权；
+- 不自动拿回已经完成交接的旧 Customer；
+- 不自动恢复离职 / inactive 前业务负责人身份；
 - 不自动恢复旧 permission；
-- 不自动恢复 accepting。
+- 不自动恢复 accepting，恢复后接客默认 OFF，需按 PDM-02 当前规则重新开启；
+- 旧登录态不得复活。
 
-后续客户 / 业务归属按重新入职后的合法当前规则形成。
+后续客户 / 业务归属按恢复后的合法当前 identity + permission + data scope + object state 重新形成。
 
 ---
 
@@ -336,7 +363,8 @@ PDM-01 的以下规则继续有效：
 - 稳定 `customer_id`；
 - 自然注册无优先归属来源时立即形成 owner；
 - Customer Merge V1 取消；
-- 手机号变化不改变 owner / 来源 / 既有业务。
+- 手机号变化不改变 owner / 来源 / 既有业务；
+- Customer 账号停用 / 恢复不清空 `customer_id`、current owner、原始来源、转介绍关系或历史；恢复继续使用原 Customer，不重新制造第二套 owner 历史。
 
 其中 PDM-01 原“普通客户侧车辆转发仅 `SOURCE_ONLY`”子句已被 P03-A15 显式修正：
 
@@ -355,22 +383,46 @@ PDM-02 的以下规则继续有效：
 
 ---
 
-## 18. 跨域留待后续 PDM
+## 18. 跨域承接状态
 
-以下不在 PDM-03 提前写死：
+### 18.1 已完成承接
 
-- Priority 的 TTL / 可见隔离 / 交接影响 → PDM-13；
-- Recommendation 与正式推荐关系 → PDM-14；
-- 分享后的单车授权 / hidden 车辆可见性 → PDM-14；
-- 分享是否授予查价权限 → PDM-10 / PDM-14；
-- Consultation 完整负责人 / 转派 / SLA → PDM-15；
-- CRM 跟进、画像、阶段、Source Radar → PDM-16；
-- 公海 / 待公海处理 / 领取 / Collaboration → PDM-17；
-- Waitlist / Lock 负责人状态机 → PDM-18；
-- Transaction / Refund 负责人状态机 → PDM-19；
-- 客户端分享入口、分享页、交互和视觉 → PDM-20；
-- 员工端分享入口与交互 → PDM-21；
+1. PDM-01 已冻结 Customer 身份连续性与账号停用 / 恢复：停用不删除 current owner / 来源 / 历史，恢复继续原 Customer。
+2. PDM-02 已冻结 employee lifecycle、accepting、inactive / 复职与 handover batch 的权限 / 数据范围边界；本 Final 已同步。
+3. PDM-10 已冻结分享与价格权边界：
+   - 普通分享不授价格查看权；
+   - 收藏不授价格查看权；
+   - 二次分享不得转移已有价格权；
+   - 正式 Recommendation 才能授予对应 `customer + vehicle + listing_cycle` 的免费查价权；
+   - Recommendation 权利本体与 lifecycle 仍由 PDM-14 继续承接。
+
+### 18.2 仍待后续 PDM 承接
+
+- Priority 的 TTL / 可见隔离 / 交接后的具体 lifecycle → PDM-13；但 Priority 已明确属于离职 / 资格失效时必须扫描处理的活跃业务关系。
+- Recommendation 生命周期、正式推荐关系、hidden 单车可见授权 → PDM-14；不得用普通分享替代 Recommendation 权利。
+- Consultation 完整负责人 / 转派 / SLA → PDM-15。
+- CRM 跟进、画像、阶段、Source Radar 与公司客户历史的具体页面 / 字段访问投影 → PDM-16；不得把“历史服务过”解释成永久访问权。
+- 公海 / 待公海处理 / 后台分配 / 领取 / Collaboration → PDM-17；不得通过分享链接绕过已有 owner / 公海的正式治理规则。
+- Waitlist / Lock 负责人状态机 → PDM-18。
+- Transaction / Refund 负责人状态机 → PDM-19。
+- 客户端分享入口、分享页、直接转介绍 / 推荐朋友入口、交互和视觉 → PDM-20。
+- 员工端分享入口与交互 → PDM-21。
 - 审计字段统一标准 → PDM-25。
+
+### 18.3 IA / Low-Fi stale carrier 处理
+
+当前发现但本轮不修改的旧承载至少包括：
+
+- “首次进入建立 Customer 但暂不形成 owner”的旧首入投影；
+- 客户侧分享被固化成永远 `SOURCE_ONLY` 的旧状态 / Guard；
+- C03-07 等页面直接转介绍 / 推荐朋友真人入口不足；
+- P04-06 / P04-07 等离职交接页仍大量使用通用壳，未完整表现受影响对象、新负责人映射、部分失败与继续处理。
+
+以上统一登记：
+
+> `STALE_CARRIER / DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT`
+
+IA / Low-Fi 不具有反向覆盖当前 PDM Final 的产品 Authority。
 
 后续 PDM 不得静默推翻本 PDM 已确认的 owner、来源、分享归属和交接边界；发现真实冲突必须重新提交用户显式裁决。
 
@@ -384,7 +436,13 @@ PDM-02 的以下规则继续有效：
 - Batch 4｜冲突 / 遗漏 / 缺口 / 新选择：`COMPLETE_USER_CONFIRMED`
 - Final Domain Overview：`USER_APPROVED`
 - PDM-03：`COMPLETE`
+- 2026-10-05 Legacy Final Integrity Audit：`INTEGRITY_PASS`
+- Missing Rule unresolved：`0`
+- Semantic Detail Gap unresolved：`0`
+- Cross-PDM Conflict：`0`
+- Handoff Gap unresolved：`0`
+- Implementation Ready：`PASS`
 
-2026-09-24 用户最终明确批准本总览。
+2026-09-24 用户最终明确批准本总览；2026-10-05 用户对本轮 9 组 Legacy Integrity 修正全部同意并确认执行。
 
-PDM-03 正式关闭，允许进入 PDM-04。
+PDM-03 历史 COMPLETE 保留；2026-10-05 已通过当前 Legacy Final Integrity Audit。PDM-01～10 本轮复核的下一域为 PDM-04。
