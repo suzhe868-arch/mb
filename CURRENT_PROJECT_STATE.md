@@ -12,15 +12,15 @@
 
 当前域：
 
-> **PDM-11｜找车申请 / Demand 生命周期重建**
+> **PDM-12｜Matching / 匹配词典 / 四级结果 / 人工确认**
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_1_TO_4_APPROVED / PREFINAL_INTEGRITY_PASS / FINAL_REVIEW_PENDING`
+> `IN_PROGRESS / STARTUP_GATE_PASS / INCOMING_HANDOFFS_ACCEPTED / EVIDENCE_RECONSTRUCTION_PENDING`
 
 当前工作文件：
 
-> `07_重建工作区/PDM-11_找车申请Demand生命周期_规则原子重建_工作版.md`
+> `07_重建工作区/PDM-12_Matching匹配词典四级结果_规则原子重建_工作版.md`
 
 当前已纠正：
 
@@ -32,7 +32,18 @@
 
 当前唯一下一步：
 
-> **PDM-11 Batch 1～4 已全部用户批准，Final 前完整性复核发现项已关闭。新增明确：无合法 owner/pool-empty 不创建无负责人 Application；pending Application 属公海保护；Demand.created_at 为不可变创建事实；客户结束找车采用“客户发起结束请求→员工按真实结果确认 completed/cancelled”，员工也可直接结束；等级提示读取当前真实 entitlement 配置；PDM-12/13/14/16/17/20/21/22/25 handoff 已扩展为完整语义。当前唯一下一步：审查 `07_重建工作区/PDM-11_最终完整规则总览_待用户批准.md`。Final 候选与 `PDM-11_Final前完整性复核_2026-10-05.md` 已生成；未经用户最终批准不得标记 PDM-11 COMPLETE / INTEGRITY_PASS。IA / Low-Fi 仍统一延后到 PDM-25 后集中对齐。**
+> **PDM-11 已 `COMPLETE / INTEGRITY_PASS`，正式 Authority 为 `07_重建工作区/PDM-11_最终完整规则.md`。当前域已推进到 PDM-12；4 个 incoming handoff 已读取并 ACCEPTED。下一步：按方法对 PDM-12 执行 Current Authority Refresh → Current Implementation Fact → 9/19 主底盘 → 前史 → 001～078 → 后续 Current / IA / Low-Fi → Conflict Before Classification，形成 Batch 1 候选。未经用户审查不得自动批准。IA / Low-Fi 仍统一延后到 PDM-25 后集中对齐。**
+
+## 2026-10-05｜PDM-11 最终批准并进入 PDM-12
+
+- PDM-11 Final 用户批准：PASS；
+- 正式 Authority：`07_重建工作区/PDM-11_最终完整规则.md`；
+- Final Integrity：`INTEGRITY_PASS`；
+- `HO-P01-P11-002 = HANDOFF_CLOSED`；
+- PDM-01 source backwrite 已完成；
+- PDM-12 工作版已建立；
+- PDM-12 incoming：HO-P04-P12-001 / HO-P05-P12-001 / HO-P07-P12-001 / HO-P11-P12-001 均已 ACCEPTED；
+- PDM-12 尚未开始 Batch 结论，仅进入证据重建。
 
 ## 2026-10-05｜PDM-11 Final 前完整性复核完成
 
