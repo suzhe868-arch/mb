@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / HANDOFF_ACCEPTED / BATCH_1_APPROVED / BATCH_2_PARTIAL_APPROVED`
+> `IN_PROGRESS / HANDOFF_ACCEPTED / BATCH_1_APPROVED / BATCH_2_APPROVED / BATCH_3_USER_REVIEW_PENDING`
 
 当前工作文件：
 
@@ -32,8 +32,15 @@
 
 当前唯一下一步：
 
-> **PDM-11 Batch 2 中 P11-B2-08 已由用户主动修正并确认；当前唯一下一步：继续审查剩余 9 条 P11-B2-01～P11-B2-07、P11-B2-09、P11-B2-10。未经剩余项确认不得进入 Batch 3。IA / Low-Fi 仍统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。**
+> **PDM-11 Batch 2 已全部通过；当前唯一下一步：审查 Batch 3 的 P11-B3-01（Customer 停用轻量模型 / HO-P01-P11-001）。未经用户确认不得进入 Batch 4。IA / Low-Fi 仍统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。**
 
+## 2026-10-05｜PDM-11 Batch 2 全部确认
+
+- 用户确认 P11-B2-01～P11-B2-07、P11-B2-09、P11-B2-10 全部同意；
+- P11-B2-08 继续采用此前用户主动修正版；
+- Batch 2 = `PASS / USER_APPROVED`；
+- 当前进入 Batch 3；
+- Batch 3 当前正式待审项：`P11-B3-01`。
 ## 2026-10-05｜PDM-11 P11-B2-08 用户修正
 
 - 原候选“找车权益下降不得自动影响 active Demand”撤回；
