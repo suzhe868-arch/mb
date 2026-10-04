@@ -1,7 +1,7 @@
 # PDM-02｜员工身份 / 组织 / 角色 / 权限 / 数据范围 / System Admin / 4S 身份｜最终完整规则
 
 > 日期：2026-09-24  
-> 状态：`COMPLETE`  
+> 状态：`COMPLETE / INTEGRITY_PASS`  
 > 说明：本文件为 PDM-02 经 Batch 1～4 与最终总览用户批准后的**正式当前规则**；2026-10-04 已按新标准完成 Legacy Final Integrity Audit，并同步 PDM-01 / PDM-03 / PDM-04 / PDM-09 / PDM-10 已完成跨域规则。后续 PDM 不得静默改写；若发现真实跨域冲突，必须重新提交用户显式裁决。  
 > IA / Low-Fi 仅登记 stale carrier，按全局方法统一延后到 PDM-25 完成并通过全局总复核后集中对齐。
 
