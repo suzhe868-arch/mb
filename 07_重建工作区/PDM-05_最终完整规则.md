@@ -373,11 +373,15 @@ PDM-06 当前已冻结：
 
 ### 15.2 仍待后续 PDM 承接
 
-- PDM-12｜`HANDOFF_OPEN`：Matching 必须使用已确认的 JYT 车辆车型事实；不得只因本地 `vehicle_model_id=NULL / mapping pending` 就自动降为 unknown；
+- PDM-12｜`HANDOFF_CLOSED`：PDM-12 Final §14 已正式承接——JYT 已明确品牌/车系/车型年款/具体车型事实可直接参与精确搜索与自动 Matching；`vehicle_model_id=NULL / mapping pending` 不得把这些已知事实降为 unknown / confirmation_needed，也不得阻断合法 Matching；
 - PDM-20｜`HANDOFF_OPEN`：客户端车型搜索 / 筛选 / 年款分组；年款只能作为分组/条件，不得投影成第四级主数据；车型年款与首次上牌年份必须分离；
 - PDM-21｜`HANDOFF_OPEN`：员工端车型选择、MODEL_MISSING、固定属性自动带出与对应状态展示；
 - PDM-22｜`HANDOFF_OPEN`：System Admin 车型主数据、JYT mapping、冲突、MODEL_MISSING、重复车型合并等 PC 治理页面；
 - PDM-25｜`HANDOFF_OPEN`：mapping before/after、车型节点修正、合并迁移、主档纠错与历史不可追改的统一审计 / 历史标准。
+
+PDM-12 承接状态：
+
+> `HO-P05-P12-001 = HANDOFF_CLOSED / target=PDM-12 Final §14 / source_backwrite=YES`
 
 上述 handoff 统一登记到：
 
