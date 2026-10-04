@@ -25,7 +25,7 @@
 
 ---
 
-## 2. PDM-01～PDM-06 Integrity 问题总览
+## 2. PDM-01～PDM-07 Integrity 问题总览
 
 ### 2.1 PDM-01｜6 组｜已全部关闭
 
@@ -122,6 +122,17 @@ PDM-05 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | P06-LIA-06 | IA/Low-Fi 仍有 DRAFT_RESUME、旧 MODEL_MISSING return、VIN Gate/保存修改缺失等 stale carrier | RESOLVED / CARRIER_DEFERRED |
 
 PDM-06 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
+
+### 2.7 PDM-07｜4 组｜已全部关闭
+
+| ID | Integrity 问题 | 最终状态 |
+|---|---|---|
+| P07-LIA-01 | PDM-08 已完成报告/档案图片、出险图片、4S维保图片/H5 与相册隔离承载，但 PDM-07 未反向闭环 | RESOLVED / HANDOFF_CLOSED |
+| P07-LIA-02 | PDM-12/13/14/15/18/19 的车况/档案业务 Guard 未正式进入总账 | RESOLVED / HANDOFF_OPEN_REGISTERED |
+| P07-LIA-03 | PDM-20/21/22/25 的客户端/员工端/配置/审计承接未正式进入总账 | RESOLVED / HANDOFF_OPEN_REGISTERED |
+| P07-LIA-04 | IA/Low-Fi 仍缺 archive maintenance / customer_visible / provenance / 4S archive access / audit 等真实 carrier | RESOLVED / CARRIER_DEFERRED |
+
+PDM-07 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
@@ -246,7 +257,25 @@ PDM-06 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
-## 9. Post-PDM25 IA / Low-Fi Carrier Ledger｜PDM-01～06
+## 9. PDM-07 来源 handoff
+
+| handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
+|---|---|---|---|---|---|
+| HO-P07-P08-001 | PDM-08 | 报告/档案资源承载：人工上传报告/档案图片入自有对象存储；出险/维保报告不进普通相册；4S维保H5 对外使用名邦可控报告域名；技术承载不决定 customer_visible | HANDOFF_CLOSED | PDM-08 §§8,16-18,28 | YES |
+| HO-P07-P12-001 | PDM-12 | Matching 使用 JYT 原始车况描述/标签与必要确定性标准化事实；保留 provenance；unknown/confirmation_needed 不得猜测 | HANDOFF_OPEN | - | YES |
+| HO-P07-P13-001 | PDM-13 | Priority 使用车况条件时不得篡改 JYT/manual/Mingbang 检测 provenance，也不得把 unknown 猜成符合 | HANDOFF_OPEN | - | YES |
+| HO-P07-P14-001 | PDM-14 | 档案不完整本身不得阻止 Recommendation；客户可见报告与 Recommendation 权利分层 | HANDOFF_OPEN | - | YES |
+| HO-P07-P15-001 | PDM-15 | 档案不完整本身不得阻止 Consultation | HANDOFF_OPEN | - | YES |
+| HO-P07-P18-001 | PDM-18 | 档案不完整本身不得阻止 Lock/Waitlist；档案/报告历史不因 Lock 状态变化被删除或重写 | HANDOFF_OPEN | - | YES |
+| HO-P07-P19-001 | PDM-19 | 档案不完整不阻止创建 Transaction；首次真正完成/交付前读取当时有效 required-field set，缺失只阻止完成 | HANDOFF_OPEN | - | YES |
+| HO-P07-P20-001 | PDM-20 | 客户只看明确 customer_visible 报告/结果；VIN/敏感原件不下发；无可见资料整块隐藏；车况/检测按真实 provenance 展示 | HANDOFF_OPEN | - | YES |
+| HO-P07-P21-001 | PDM-21 | 员工端 archive 上传/后补/替换/作废/历史/核验/customer_visible；4S 仅操作自己有权 Vehicle | HANDOFF_OPEN | - | YES |
+| HO-P07-P22-001 | PDM-22 | Transaction/交付 required-field set PC 配置；要求明确员工业务配置能力，System Admin 身份本身不自动获得 | HANDOFF_OPEN | - | YES |
+| HO-P07-P25-001 | PDM-25 | archive create/update/replace/void/verify、visibility before/after、required-field config、版本关系与操作者/时间统一审计 | HANDOFF_OPEN | - | YES |
+
+---
+
+## 10. Post-PDM25 IA / Low-Fi Carrier Ledger｜PDM-01～07
 
 > 当前只登记，不施工；统一在 PDM-25 完成 + PDM-01～25 全局最终总复核 PASS 后集中对齐。
 
@@ -283,10 +312,17 @@ PDM-06 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | PDM-06 | 缺 VIN 完全一致重复 Gate、“查看已有车辆 / 返回修改” | CARRIER_DEFERRED |
 | PDM-06 | 已发布车辆缺真实“保存修改”动作投影 | CARRIER_DEFERRED |
 | PDM-06 | source_type 新建/草稿阶段修改细节承载不完整 | CARRIER_DEFERRED |
+| PDM-07 | 缺档案上传/后补/更新/替换完整操作链 | CARRIER_DEFERRED |
+| PDM-07 | 缺档案作废/新版本替代/档案历史真实动作 | CARRIER_DEFERRED |
+| PDM-07 | 缺单份档案 customer_visible 设置/取消动作 | CARRIER_DEFERRED |
+| PDM-07 | 客户端缺无客户可见档案/报告时整块隐藏完整投影 | CARRIER_DEFERRED |
+| PDM-07 | JYT/manual/Mingbang真实检测 provenance 区分承载不完整 | CARRIER_DEFERRED |
+| PDM-07 | 4S 本人有权 Vehicle 的内部档案访问路径受旧 Internal Mode DENY 污染风险 | CARRIER_DEFERRED |
+| PDM-07 | Vehicle Archive 专属 audit carrier 不完整 | CARRIER_DEFERRED |
 
 ---
 
-## 10. 强制使用规则
+## 11. 强制使用规则
 
 1. 新 PDM 开始：先筛 `target=当前 PDM AND status in {HANDOFF_OPEN,HANDOFF_ACCEPTED}`。
 2. 目标 PDM 接收：更新为 `HANDOFF_ACCEPTED`。
@@ -298,7 +334,7 @@ PDM-06 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
-## 11. 当前下一步
+## 12. 当前下一步
 
 - PDM-01：INTEGRITY_PASS；
 - PDM-02：INTEGRITY_PASS；
@@ -306,5 +342,6 @@ PDM-06 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-04：INTEGRITY_PASS；
 - PDM-05：INTEGRITY_PASS；
 - PDM-06：INTEGRITY_PASS；
-- 当前进入：PDM-07 Legacy Final Integrity Audit；
+- PDM-07：INTEGRITY_PASS；
+- 当前进入：PDM-08 Legacy Final Integrity Audit；
 - PDM-11 继续 BLOCKED，直到 PDM-01～10 全部 INTEGRITY_PASS 且 01～10 全局总复核 PASS。
