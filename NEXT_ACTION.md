@@ -56,6 +56,23 @@ PDM-11 只有在以下全部完成后才允许开始：
 - IA / Low-Fi 集中对齐固定延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核之后；
 - 不执行 Engineering Delta。
 
+## Cross-PDM Handoff 强制读取
+
+继续任何 PDM 前必须先读取：
+
+> `07_重建工作区/CROSS_PDM_HANDOFF_REGISTER.md`
+
+固定规则：
+
+- 来源 PDM 产生 handoff → 登记 `HANDOFF_OPEN`；
+- 目标 PDM 接收 → `HANDOFF_ACCEPTED`；
+- 目标 PDM 完成 → `HANDOFF_CLOSED` 或 `HANDOFF_SUPERSEDED`；
+- 目标关闭后同一次收口必须反向回写来源 PDM；
+- 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
+- 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
+
+当前已回填 PDM-01～PDM-04；PDM-04 §20 已把 PDM-05～10 标为已完成承接。
+
 ## PDM-25 后 Carrier 对齐硬顺序
 
 ```text
