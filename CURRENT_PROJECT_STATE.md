@@ -12,15 +12,15 @@
 
 当前域：
 
-> **PDM-10｜价格 / 查价 / 客户展示价覆盖**
+> **PDM-11｜找车申请 / 正式 Demand / 暂停 / 完成 / 取消**
 
 当前域状态：
 
-> `BATCH_4_EVIDENCE_REVIEW`
+> `PREPARATION / NOT_STARTED`
 
 当前工作文件：
 
-> `07_重建工作区/PDM-10_价格查价客户展示价覆盖_规则原子重建_工作版.md`
+> **尚未创建。开始 PDM-11 前先执行 Current Authority Refresh + Completed-PDM Dependency Card。**
 
 当前已纠正：
 
@@ -32,7 +32,7 @@
 
 当前唯一下一步：
 
-> **继续全局形成 PDM-10 其余 Batch 4 冲突 / 历史遗漏 / 证据缺口候选；形成后再提交用户逐项审查。**
+> **准备 PDM-11｜找车申请 / 正式 Demand / 暂停 / 完成 / 取消：先刷新当前 Authority、读取指向 PDM-11 的 handoff、建立 Completed-PDM Dependency Card，再开始 Batch 1 证据扫描。**
 
 ## 已完成
 
@@ -50,8 +50,31 @@
 - PDM-07：`COMPLETE`，正式规则文件为 `07_重建工作区/PDM-07_最终完整规则.md`；
 - PDM-08：`COMPLETE`，正式规则文件为 `07_重建工作区/PDM-08_最终完整规则.md`；
 - PDM-09：`COMPLETE`，正式规则文件为 `07_重建工作区/PDM-09_最终完整规则.md`；
+- PDM-10：`COMPLETE`，正式规则文件为 `07_重建工作区/PDM-10_最终完整规则.md`；
 - 已新增并启用《用户全量审查四批门禁规范》。
 
+## 2026-10-04｜PDM-10 最终完成
+
+用户最终批准 PDM-10《价格 / 查价 / 客户展示价覆盖》完整规则，并明确“确定执行”写入仓库。
+
+- PDM-10 状态：`COMPLETE`；
+- 正式规则：`07_重建工作区/PDM-10_最终完整规则.md`；
+- 完整性检查卡：`07_重建工作区/PDM-10_信息保真与一次性收口检查卡_2026-10-04.md`；
+- Coverage 报告：`07_重建工作区/PDM-10_全量DecisionCoverage未映射检查报告_2026-10-04.md`；
+- M11-001～M11-017：17/17 有明确去向；
+- SOURCE_DECISION_COVERAGE = 100%；
+- UNMAPPED = 0；
+- FINAL_TO_SOURCE_TRACEABILITY = 100%；
+- CROSS_PDM_CONFLICT = 0；
+- SEMANTIC_INTEGRITY = PASS；
+- USER_FINAL_APPROVED = YES；
+- IMPLEMENTATION_READY = PASS；
+- PDM-02 / PDM-06 的旧独立调价语义已显式 supersede 并同步加注；
+- PDM-20/21/22/25 等后续 carrier handoff 已登记完整 Guard，不修改 IA / Low-Fi / Engineering。
+
+当前允许进入 PDM-11 准备，但不得跳过新方法的依赖卡和证据刷新。
+
+---
 ## 2026-10-04｜信息保真 / 一次性收口方法升级
 
 用户明确要求停止“越写越丢、后续 PDM 再反复重建”的循环。本轮已把防丢失要求升级为全局硬门禁：
