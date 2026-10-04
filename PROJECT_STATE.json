@@ -847,7 +847,7 @@
       "PDM-10"
     ],
     "status": "IN_PROGRESS",
-    "start_domain": "PDM-08",
+    "start_domain": "PDM-09",
     "sequence": [
       "PDM-01",
       "PDM-02",
@@ -881,7 +881,7 @@
     },
     "pdm_11_blocked": true,
     "pdm_11_unblock_condition": "ALL_PDM01_10_INTEGRITY_PASS_AND_GLOBAL_CROSS_PDM_AUDIT_PASS",
-    "current_domain": "PDM-08",
+    "current_domain": "PDM-09",
     "completed_domains": [
       "PDM-01",
       "PDM-02",
@@ -889,7 +889,8 @@
       "PDM-04",
       "PDM-05",
       "PDM-06",
-      "PDM-07"
+      "PDM-07",
+      "PDM-08"
     ],
     "pdm_01_result": "INTEGRITY_PASS",
     "pdm_02_result": "INTEGRITY_PASS",
@@ -897,7 +898,8 @@
     "pdm_04_result": "INTEGRITY_PASS",
     "pdm_05_result": "INTEGRITY_PASS",
     "pdm_06_result": "INTEGRITY_PASS",
-    "pdm_07_result": "INTEGRITY_PASS"
+    "pdm_07_result": "INTEGRITY_PASS",
+    "pdm_08_result": "INTEGRITY_PASS"
   },
   "pdm_11_status": "BLOCKED_BY_PDM01_10_LEGACY_INTEGRITY_AUDIT",
   "pdm_01_integrity_status": "INTEGRITY_PASS",
@@ -969,9 +971,10 @@
     "PDM-04",
     "PDM-05",
     "PDM-06",
-    "PDM-07"
+    "PDM-07",
+    "PDM-08"
   ],
-  "cross_pdm_handoff_backfill_status": "COMPLETE_THROUGH_PDM07_2026-10-05",
+  "cross_pdm_handoff_backfill_status": "COMPLETE_THROUGH_PDM08_2026-10-05",
   "pdm_04_handoff_status_backwrite": "PDM05_TO_PDM10_CLOSED_IN_SOURCE_FINAL_AND_REGISTER",
   "pdm_04_integrity_status": "INTEGRITY_PASS",
   "pdm_04_integrity_decision_required": [],
@@ -1054,5 +1057,25 @@
   "pdm_07_report_archive_resource_rule": "PDM08_CLOSED_OBJECT_STORAGE_AND_CONTROLLED_REPORT_DOMAIN_TECH_CARRIER_DOES_NOT_DECIDE_CUSTOMER_VISIBILITY",
   "pdm_07_condition_matching_rule": "KEEP_RAW_PROVENANCE_ONLY_DETERMINISTIC_NEEDED_NORMALIZATION_UNKNOWN_CONFIRMATION_NEEDED_NO_GUESS",
   "pdm_07_integrity_decision_required": [],
-  "pdm_07_stale_carriers": "DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT"
+  "pdm_07_stale_carriers": "DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT",
+  "pdm_08_integrity_status": "INTEGRITY_PASS",
+  "pdm_08_integrity_audit_file": "07_重建工作区/PDM-08_历史最终版完整性复核_2026-10-05.md",
+  "pdm_08_integrity_reopen_count": 5,
+  "pdm_08_integrity_missing_rule_unresolved": 0,
+  "pdm_08_integrity_semantic_detail_gap_unresolved": 0,
+  "pdm_08_integrity_cross_pdm_conflict": 0,
+  "pdm_08_integrity_handoff_gap_unresolved": 0,
+  "pdm_08_integrity_global_invariant_conflict": 0,
+  "pdm_08_integrity_source_decision_coverage": "100%",
+  "pdm_08_integrity_final_to_source_traceability": "100%",
+  "pdm_08_integrity_semantic_integrity": "PASS",
+  "pdm_08_integrity_negative_claims_verified": "PASS",
+  "pdm_08_integrity_implementation_ready": "PASS",
+  "pdm_08_handoff_register_sync": "PASS",
+  "pdm_08_assetization_transition_rule": "3A_CONTROLLED_CDN_TEMPORARY_JYT_FALLBACK_UNTIL_ASSETIZATION_SUCCESS_THEN_SWITCH_TO_OWN_STORAGE_NO_LONG_TERM_JYT_DEPENDENCY",
+  "pdm_08_share_card_price_rule": "NO_CUSTOMER_DISPLAY_PRICE_OR_ANY_DYNAMIC_PERMISSION_DEPENDENT_PRICE_IN_SHARE_CARD",
+  "pdm_08_report_url_access_rule": "CURRENT_VEHICLE_READ_AND_CUSTOMER_VISIBLE_REVALIDATED_ON_EVERY_ACCESS_OLD_URL_NOT_PERMANENT_AUTHORIZATION",
+  "pdm_08_traceability_rule": "2026_10_03_CDN_REMAP_IS_SOLE_CURRENT_IMG001_030_MAPPING_EARLY_TABLES_HISTORICAL_SUPERSEDED",
+  "pdm_08_integrity_decision_required": [],
+  "pdm_08_stale_carriers": "DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT"
 }
