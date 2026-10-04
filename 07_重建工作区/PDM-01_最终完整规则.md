@@ -238,7 +238,7 @@ V1 保留轻量后台控制，不建设复杂的客户注销 / 账号删除状�
 
 仍由后续 PDM 承接的事项：
 
-1. Demand 生命周期 → PDM-11；2026-10-05 用户已明确：Customer 停用时 active Demand 自动 paused、历史保留、恢复账号不自动恢复 Demand；旧“停用不改变 Demand 状态”口径已被覆盖；
+1. Demand 生命周期 → PDM-11；2026-10-05 用户已明确并最终批准：Customer 停用时 active Demand 自动 paused、历史保留、恢复账号不自动恢复 Demand；PDM-11 已 `COMPLETE / INTEGRITY_PASS`，`HO-P01-P11-002 = HANDOFF_CLOSED`；旧“停用不改变 Demand 状态”口径已被覆盖且不得恢复；
 2. Recommendation 具体生命周期与当前 listing cycle 权利 → PDM-14；
 3. Consultation → PDM-15；
 4. CRM 客户画像、跟进、员工内部客户称呼承载 → PDM-16；
