@@ -372,9 +372,9 @@ Application closed / withdrawn、Demand completed / cancelled 均保留必要业
 - 统一表达为 `手机号门槛 → pending Application → 员工处理 → 激活后生成正式 Demand`；
 - E05-02 承载“开通正式找车服务”。
 
-当前不能仅按“后文件优先”自动选择。
+该冲突已于 2026-10-05 由用户正式裁决：统一采用“Application 先 pending、员工人工激活唯一 Demand”；已有 entitlement 也不得自动 active。详见 §9B P11-B4-01。
 
-**状态：** `BATCH_4_CANDIDATE / INFORMED_CHANGE_TEST_REQUIRED`
+**状态：** `BATCH_4_RESOLVED / USER_APPROVED / SEE_§9B`
 
 ### 8.2 P11-B4-02｜正式找车资格来源模型是否继续保留
 
@@ -386,13 +386,17 @@ Application closed / withdrawn、Demand completed / cancelled 均保留必要业
 
 Current 只剩 E05-02 的泛化 `entitlement/authorization` Guard，资格来源、人工开通记录和等级配置链没有完整投影。
 
-需要后续明确：
+该冲突已于 2026-10-05 由用户正式裁决：
 
-- 是否继续保留“等级权益 OR 个体人工开通”的资格模型；
-- 如果保留，旧 ordinary / fans / VIP 默认值是否仍作为当前默认配置，还是只保留可配置机制；
-- 该资格是“能否激活新的 Demand”，还是“能否提交 Application”；历史证据倾向前者，但须与 B4-01 一起裁清。
+- 正式找车资格只来自 Customer 当前等级配置；
+- 普通客户当前无正式找车权益，但仍允许提交 Application；
+- 需要正式开通时通过等级调整进入具备权益的粉丝 / VIP 等等级；
+- 不建设单 Customer find-car entitlement override；
+- 等级升级后也不自动激活 pending Application，仍需员工人工处理。
 
-**状态：** `BATCH_4_CANDIDATE / USER_DECISION_REQUIRED`
+详见 §9B P11-B4-02。
+
+**状态：** `BATCH_4_RESOLVED / USER_APPROVED / SEE_§9B`
 
 ### 8.3 P11-B3-01｜Customer 停用模型属于后续明确知情修改｜HO-P01-P11-001 已被替代
 
