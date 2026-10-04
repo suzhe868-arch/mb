@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `USER_REVIEW_BATCH_2_PENDING`
+> `USER_REVIEW_BATCH_3_PENDING`
 
 当前工作文件：
 
@@ -24,7 +24,7 @@
 
 当前唯一下一步：
 
-> **用户审查 P10-B2-01～P10-B2-12；未确认前停止，不进入 Batch 3。**
+> **用户审查 P10-A13～P10-A15；未确认前停止，不进入 Batch 4。**
 
 ## 已完成
 
@@ -890,3 +890,26 @@ Decision Register 已登记 PDM10-DEC-A01～A12 与 PDM10-GATE-B1。
 > `PDM-10 / BATCH_2_DEPRECATED_SUPERSEDED_DO_NOT_RESTORE / USER_REVIEW_PENDING`
 
 未经用户确认不得进入 Batch 3。
+
+
+## 2026-10-04｜PDM-10 Batch 2 完成并进入 Batch 3
+
+用户明确“全部同意”，确认 P10-B2-01～P10-B2-12 全部通过。
+
+Batch 2 状态：
+
+> `COMPLETE_USER_CONFIRMED`
+
+Decision Register 已登记 PDM10-DEC-B2-01～B2-12 与 PDM10-GATE-B2。
+
+经后续证据复核，Batch 3 不凑数量，只形成 3 条真正的知情修改 / 明确新增：
+
+- P10-A13：加价关闭显示上游标价；
+- P10-A14：覆盖价扩展到批发 / 名邦 / 4S；
+- P10-A15：名邦内部价查看取消独立 permission 门槛。
+
+当前进入：
+
+> `PDM-10 / BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS / USER_REVIEW_PENDING`
+
+未经用户确认不得进入 Batch 4。
