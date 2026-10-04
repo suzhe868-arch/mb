@@ -18,16 +18,18 @@
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
 - 当前域：PDM-11
-- PDM-11 = READY_TO_START
+- PDM-11 = IN_PROGRESS
 - PDM-11 启动门禁 = UNBLOCKED
+- `HO-P01-P11-001 = HANDOFF_ACCEPTED`
+- PDM-11 Batch 1 = USER_REVIEW_PENDING（P11-A01～P11-A14）
 
 总控工作单：
 
-> `07_重建工作区/PDM-01至10_全域完整性复核_总控工作单.md`
+> `07_重建工作区/PDM-11_找车申请Demand生命周期_规则原子重建_工作版.md`
 
 ## 当前唯一下一步
 
-> **启动 PDM-11：先读取 `target=PDM-11` 的 incoming handoff，目前为 `HO-P01-P11-001`，再按冻结方法建立 PDM-11 工作版并开始证据重建。**
+> **用户审查 PDM-11 Batch 1：P11-A01～P11-A14。未经用户确认，不进入 Batch 2。**
 
 每个 PDM 必须同时执行：
 
