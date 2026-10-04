@@ -25,7 +25,7 @@
 
 ---
 
-## 2. PDM-01～PDM-07 Integrity 问题总览
+## 2. PDM-01～PDM-08 Integrity 问题总览
 
 ### 2.1 PDM-01｜6 组｜已全部关闭
 
@@ -133,6 +133,18 @@ PDM-06 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | P07-LIA-04 | IA/Low-Fi 仍缺 archive maintenance / customer_visible / provenance / 4S archive access / audit 等真实 carrier | RESOLVED / CARRIER_DEFERRED |
 
 PDM-07 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
+
+### 2.8 PDM-08｜5 组｜已全部关闭
+
+| ID | Integrity 问题 | 最终状态 |
+|---|---|---|
+| P08-LIA-01 | 分享卡片漏掉“客户展示价/动态受权限价格不得固化” | RESOLVED |
+| P08-LIA-02 | 4S维保H5/报告受控 URL 缺当前 Vehicle Read + customer_visible 重验 Guard | RESOLVED |
+| P08-LIA-03 | 转名邦资产化未闭环图片如何展示未定义 | RESOLVED / USER_DECISION_3A |
+| P08-LIA-04 | PDM-20/21/22/25 future handoff 未正式登记 | RESOLVED / HANDOFF_OPEN_REGISTERED |
+| P08-LIA-05 | IMG-001～030 早期映射与 2026-10-03 CDN 重映射并存，唯一 traceability 口径未显式 | RESOLVED / TRACEABILITY_NORMALIZED |
+
+PDM-08 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
@@ -275,7 +287,18 @@ PDM-07 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
-## 10. Post-PDM25 IA / Low-Fi Carrier Ledger｜PDM-01～07
+## 10. PDM-08 来源 handoff
+
+| handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
+|---|---|---|---|---|---|
+| HO-P08-P20-001 | PDM-20 | 列表/详情 4:3、统一左右滑动图片序列、全屏交互、车辆分享图/分享卡片；分享卡片不得固化客户展示价或任何动态/受权限价格，旧分享再次打开实时重验 | HANDOFF_OPEN | - | YES |
+| HO-P08-P21-001 | PDM-21 | 员工端人工图片上传/删除/排序、资产化状态、失败图片重试/人工恢复；必须区分普通 CDN 加载失败、批发→名邦资产化失败、人工图片恢复，禁止用单一 IMAGE_RETRYING 混生命周期 | HANDOFF_OPEN | - | YES |
+| HO-P08-P22-001 | PDM-22 | 名邦公开图片域名、JYT Origin、report 域名、对象存储源站与首页/品牌分享配置入口；业务只冻结可配置与安全边界，不写死厂商/TTL/并发等工程参数 | HANDOFF_OPEN | - | YES |
+| HO-P08-P25-001 | PDM-25 | 公开域名、Origin、report proxy target 等线上资源安全配置变更，以及资产化/recovery 关键状态变化的统一审计与历史 | HANDOFF_OPEN | - | YES |
+
+---
+
+## 11. Post-PDM25 IA / Low-Fi Carrier Ledger｜PDM-01～08
 
 > 当前只登记，不施工；统一在 PDM-25 完成 + PDM-01～25 全局最终总复核 PASS 后集中对齐。
 
@@ -319,10 +342,16 @@ PDM-07 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | PDM-07 | JYT/manual/Mingbang真实检测 provenance 区分承载不完整 | CARRIER_DEFERRED |
 | PDM-07 | 4S 本人有权 Vehicle 的内部档案访问路径受旧 Internal Mode DENY 污染风险 | CARRIER_DEFERRED |
 | PDM-07 | Vehicle Archive 专属 audit carrier 不完整 | CARRIER_DEFERRED |
+| PDM-08 | 泛化 IMAGE_PARTIAL_FAILED / IMAGE_FAILED / IMAGE_RETRYING / IMAGE_MANUAL_RECOVERY / IMAGE_RECOVERED 混用不同图片生命周期 | CARRIER_DEFERRED |
+| PDM-08 | 旧页面/状态仍可能隐含普通批发浏览逐张永久吞图旧链路 | CARRIER_DEFERRED |
+| PDM-08 | 分享卡片缺客户展示价/动态价格禁止固化完整投影 | CARRIER_DEFERRED |
+| PDM-08 | 4S维保H5/报告旧 URL 当前权限重验承载不完整 | CARRIER_DEFERRED |
+| PDM-08 | 统一图片浏览序列可能被误实现为自动轮播 | CARRIER_DEFERRED |
+| PDM-08 | 3A 资产化未闭环临时受控回源缺 Current/Low-Fi 状态投影 | CARRIER_DEFERRED |
 
 ---
 
-## 11. 强制使用规则
+## 12. 强制使用规则
 
 1. 新 PDM 开始：先筛 `target=当前 PDM AND status in {HANDOFF_OPEN,HANDOFF_ACCEPTED}`。
 2. 目标 PDM 接收：更新为 `HANDOFF_ACCEPTED`。
@@ -334,7 +363,7 @@ PDM-07 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
-## 12. 当前下一步
+## 13. 当前下一步
 
 - PDM-01：INTEGRITY_PASS；
 - PDM-02：INTEGRITY_PASS；
@@ -343,5 +372,6 @@ PDM-07 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-05：INTEGRITY_PASS；
 - PDM-06：INTEGRITY_PASS；
 - PDM-07：INTEGRITY_PASS；
-- 当前进入：PDM-08 Legacy Final Integrity Audit；
+- PDM-08：INTEGRITY_PASS；
+- 当前进入：PDM-09 Legacy Final Integrity Audit；
 - PDM-11 继续 BLOCKED，直到 PDM-01～10 全部 INTEGRITY_PASS 且 01～10 全局总复核 PASS。
