@@ -52,6 +52,33 @@
 - PDM-09：`COMPLETE`，正式规则文件为 `07_重建工作区/PDM-09_最终完整规则.md`；
 - 已新增并启用《用户全量审查四批门禁规范》。
 
+## 2026-10-04｜信息保真 / 一次性收口方法升级
+
+用户明确要求停止“越写越丢、后续 PDM 再反复重建”的循环。本轮已把防丢失要求升级为全局硬门禁：
+
+- Memory Zero-Trust：模型记忆 / 聊天上下文只能作为检索线索，不能代替当前 GitHub 证据；
+- Current Authority Refresh：重要判断前重新读取当前状态、Decision、相关已完成 PDM Final；
+- PDM Scope ≠ Evidence Scope：业务域不限制证据读取范围；
+- Completed-PDM Dependency Card：任何新 PDM 在 Batch 1 前必须建立跨 PDM 依赖卡；
+- Global Invariant Gate：identity / permission / data scope / owner / vehicle_id / listing_cycle / hard DENY / audit 等跨域不变量必须显式检查；
+- Terminology / Field Normalization：中文词、技术字段、历史别名统一后再检索；
+- No Summary-on-Summary：禁止摘要继续摘要成为唯一证据；
+- Bidirectional Traceability：Source→Final 与 Final→Source 双向追溯；
+- Negative Claim Proof：所有“没有 / 已废弃 / 不存在 / 不需要”必须多路证明；
+- Conflict Before Classification：完整证据扫完后才能分 Batch；
+- Deferred Handoff Closure：跨域移交必须有目标、有完整语义、有接收状态；
+- Change Impact Analysis：reopen / supersession / 新裁决必须立即检查受影响 PDM、Decision、IA/Low-Fi/Engineering；
+- Semantic Completeness Matrix：权限、scope、hard DENY、生命周期、异常、并发、历史等适用维度不得静默省略；
+- Final Semantic Integrity + Implementation-Ready Gate：`UNMAPPED=0` 不再足以标记 COMPLETE，最终文件必须可直接承接后续施工。
+
+强制执行模板：
+
+> `07_重建工作区/PDM_信息保真与一次性收口检查模板.md`
+
+该模板是执行留痕，不是新的业务 Authority。
+
+---
+
 ## 新增硬门禁
 
 从现在开始：
