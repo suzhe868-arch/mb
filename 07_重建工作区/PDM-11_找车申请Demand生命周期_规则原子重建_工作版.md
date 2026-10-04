@@ -16,15 +16,18 @@ PDM-01～PDM-10 单域 Integrity Audit 与 01～10 全局 Cross-PDM / Handoff / 
 
 | handoff_id | 来源 | 完整语义 | 本域状态 |
 |---|---|---|---|
-| `HO-P01-P11-001` | PDM-01 | Demand 生命周期；Customer 停用不得自动终止既有 Demand，具体状态由 Demand 域处理 | `HANDOFF_ACCEPTED` |
+| `HO-P01-P11-001` | PDM-01 | 旧口径：Customer 停用不得自动终止既有 Demand | `HANDOFF_SUPERSEDED` |
+| `HO-P01-P11-002` | PDM-01 | Customer 停用后 active Demand 必须转 paused；历史保留；账号恢复不自动恢复 Demand | `HANDOFF_ACCEPTED` |
 
 承接 Guard：
 
-- Customer 停用是客户身份 / 权益能力的上层可用性 Guard；
-- 停用不得删除或自动终止既有 Demand；
-- 恢复不得自动复活已经 completed / cancelled 的 Demand；
-- Demand 的状态转换只能服从 PDM-11 自身生命周期规则；
-- 该 handoff 只有在 PDM-11 Final 真正落地且来源 PDM 完成反向回写后，才允许 `HANDOFF_CLOSED`。
+- Customer 停用后，正在运行的 Demand 不得继续保持 active 运行；
+- `active → paused`；原本 `paused` 保持 paused；`completed / cancelled` 不改写；
+- 停用不得删除 Demand，也不得把它伪造成 completed / cancelled；
+- Demand 的客户原始要求、销售匹配描述、标准条件、历史匹配、Recommendation、CRM 跟进、负责人 / 状态历史全部保留；
+- Customer 账号恢复后不得自动把 paused Demand 恢复为 active，必须通过正式 resume 动作；
+- `HO-P01-P11-001` 已被 2026-10-05 用户裁决 supersede；当前 Authority 为 `HO-P01-P11-002`；
+- 当前 handoff 只有在 PDM-11 Final 真正落地且来源 PDM 完成反向回写后，才允许 `HANDOFF_CLOSED`。
 
 ---
 
@@ -81,7 +84,7 @@ PDM-01～PDM-10 单域 Integrity Audit 与 01～10 全局 Cross-PDM / Handoff / 
 - application → demand 的最终服务端幂等激活链；
 - 多 Demand 并存的后端约束；
 - `demand_responsible_sales_id` 的正式 reassignment；
-- Customer 停用对现存 Demand 的服务端 Guard；
+- Customer 停用触发 active Demand → paused、历史保留、恢复账号不自动恢复 Demand 的服务端 Guard；
 - 找车权益 / customer-level 人工开通的最终后端来源；
 - E01 pending 找车申请待办的完整任务生成 / 更新 / 去重；
 - 匹配准备度与 Demand 主状态的服务端分层。
@@ -96,7 +99,7 @@ PDM-01～PDM-10 单域 Integrity Audit 与 01～10 全局 Cross-PDM / Handoff / 
 
 | 依赖 PDM | 约束对象 | 当前有效规则 | PDM-11 可补充 | PDM-11 不可静默改写 |
 |---|---|---|---|---|
-| PDM-01 | Customer / 手机号 / 停用 | 手机号不是身份；手机号变化不改变 Demand；手机号是人工服务门槛；Customer 停用不删除或自动终止既有 Demand | 找车申请 / Demand 在这些 Guard 下的具体动作和状态 | customer_id 连续性、手机号身份边界、停用不自动终止 Demand |
+| PDM-01 | Customer / 手机号 / 停用 | 手机号不是身份；手机号变化不改变 Demand；手机号是人工服务门槛；Customer 停用后运行中的 Demand 必须停止运行，但历史不删 | 找车申请 / Demand 在这些 Guard 下的具体动作和状态 | customer_id 连续性、手机号身份边界、停用不删除历史；Demand 当前具体结果为 active→paused |
 | PDM-02 | 员工身份 / permission / data scope / 4S | 业务动作服从 identity + permission + data scope + object state；inactive/离职必须处理 Demand 等活跃业务；不得制造 `responsible = null` 的正式人工业务 | Demand 具体 actor / reassignment /状态动作 | 统一权限模型、4S hard DENY、System Admin 不自动成为业务执行者 |
 | PDM-03 | Customer owner / 业务负责人 | Customer owner 与 Demand 负责人分层；普通 owner change 不自动漂移 Demand 负责人；离职/失效需正式交接并留历史 | Demand 负责人创建、改派、历史字段 | owner 不变量、普通 owner change 不自动迁移业务负责人 |
 | PDM-05 | 车型主数据 | 本地主数据为 品牌→车系→具体车型，年款是具体车型属性 / UI 分组；JYT 明确车型事实即使 mapping pending 仍可用于精确搜索/Matching | Demand 条件如何表达车型意图 | 不得把年款恢复为第四级主数据；不得仅因 mapping pending 将明确车型事实降为 unknown |
@@ -391,19 +394,18 @@ Current 只剩 E05-02 的泛化 `entitlement/authorization` Guard，资格来源
 
 **状态：** `BATCH_4_CANDIDATE / USER_DECISION_REQUIRED`
 
-### 8.3 P11-B3-01｜Customer 停用模型属于后续明确知情修改｜承接 HO-P01-P11-001
+### 8.3 P11-B3-01｜Customer 停用模型属于后续明确知情修改｜HO-P01-P11-001 已被替代
 
-旧历史曾存在“Customer 有 active/paused Demand 时停用受阻 / 需先处理业务”的复杂模型。
+2026-10-04 曾先裁成“轻量停用但不自动改变既有 Demand 状态”；2026-10-05 用户进一步明确：账号都已停用，正在运行的找车业务也必须停下来，只是历史不能丢。
 
-PDM-01 在 2026-10-04 已由用户明确改为轻量停用：
+因此：
 
-- 停用不要求先结束既有 Demand；
-- 停用不自动终止 Demand；
-- 只暂停依赖 Customer 身份 / 权益的新业务能力。
+- 旧 `HO-P01-P11-001` 被 supersede；
+- 新 `HO-P01-P11-002` 明确 active Demand → paused；
+- 不删除 Demand，不改 completed/cancelled；
+- 账号恢复后不自动恢复 active。
 
-本项是当前明确 Authority，但分类上属于后续知情修改，应进入 Batch 3 记录，不伪装成 9/19 稳定旧规则。
-
-**状态：** `PROMOTED_TO_FORMAL_BATCH_3 / SEE_§9A / USER_REVIEW_PENDING`
+**状态：** `USER_MODIFIED / USER_APPROVED / PROMOTED_TO_FORMAL_BATCH_3 / SEE_§9A`
 
 ---
 
@@ -507,12 +509,13 @@ completed / cancelled Demand 属于终态历史。
 
 ### 与 Customer 账号停用的边界
 
-`找车权益下降 / 取消` 与 `Customer 账号停用` 是两个不同业务事件：
+`找车权益下降 / 取消` 与 `Customer 账号停用` 仍是两个不同业务事件，但在 Demand 域会得到相同的“停止继续运行”结果：
 
-- 本条只处理正式找车 entitlement 的下降 / 关闭；
-- Customer 账号停用继续继承 PDM-01 与 `HO-P01-P11-001`：**停用本身不得自动 pause / complete / cancel 既有 Demand**；
-- 账号停用也不等于自动降低客户等级或删除找车 entitlement；
-- 不得用“账号停用”偷偷触发本条的 entitlement-down 自动 pause 逻辑。
+- entitlement 下降：按本条使 active Demand → paused；
+- Customer 账号停用：按 `P11-B3-01 / HO-P01-P11-002` 使 active Demand → paused；
+- 两者都不得删除 Demand、改写历史或自动 complete / cancel；
+- 两者恢复时都不得自动恢复 active，必须走正式 resume；
+- 账号停用不等于自动降低客户等级，也不等于删除 entitlement 事实；只是账号停用本身独立触发 Demand 暂停。
 
 ### 被替代旧方向
 
@@ -557,21 +560,52 @@ IA 中残留的 Merge carrier 只能登记为 stale carrier，不能反向恢复
 
 > 本批只纳入已经有后续明确用户裁决、且与旧规则存在知情变化的内容；不重复制造新规则原子。
 
-### P11-B3-01｜Customer 停用采用轻量模型，不自动终止既有 Demand
+### P11-B3-01｜Customer 账号停用后，运行中的 Demand 自动暂停｜用户修正并确认
 
-继承 PDM-01 2026-10-04 后续明确裁决及 `HO-P01-P11-001`：
+2026-10-05 用户进一步修正此前“账号停用不自动改变 Demand 状态”的口径。
 
-- Customer 账号停用不要求先完成 / 取消现有 Demand；
-- 停用本身不自动把既有 Demand 变为 paused / completed / cancelled；
-- Demand 继续保留自身当前状态与全部历史；
-- 账号停用期间，依赖 Customer 身份 / 权益的新找车能力被暂停；
-- Customer 恢复后继续使用原 `customer_id`；
-- completed / cancelled Demand 不因账号恢复而自动复活；
-- 本条与 P11-B2-08 的“找车 entitlement 下降自动 pause active Demand”严格分离：账号停用 ≠ entitlement 下降。
+当前正式规则：
 
-**来源：** PDM-01 Final §11；`HO-P01-P11-001`；2026-10-04 用户后续明确裁决。
+> **Customer 账号一旦停用，正在运行的找车业务必须停止继续运行；active Demand 自动转为 paused，但 Demand 和全部历史事实保留。**
 
-**状态：** `INFORMED_LATER_CHANGE / USER_REVIEW_PENDING`
+具体规则：
+
+1. Customer 账号停用不要求先手工 complete / cancel 现有 Demand；
+2. 停用生效时，当前 `active Demand → paused`；
+3. 原本已经 `paused` 的 Demand 继续保持 paused；
+4. `completed / cancelled` Demand 不改写、不复活；
+5. 停用不得删除 Demand，也不得清空：
+   - 客户原始找车要求；
+   - 销售匹配描述；
+   - 标准匹配条件；
+   - 需求说明 / 背景；
+   - 历史匹配结果；
+   - 历史 Recommendation；
+   - CRM 跟进关联；
+   - 状态、负责人及审计历史；
+6. 账号停用期间，不允许该 Customer 继续新建 / 激活正式 Demand，也不允许 paused Demand 恢复 active；
+7. Customer 账号恢复后，只恢复账号可用性，不自动恢复找车；
+8. 原 paused Demand 只有在客户本人或有权限员工执行正式“恢复”动作后，才能重新进入 active；
+9. 恢复动作继续服从当前身份、permission、data scope、Demand 当前状态和找车 entitlement 等适用 Guard；
+10. 重新 active 后，再按 PDM-12 的 Matching readiness / 标准条件规则决定是否恢复持续 Matching。
+
+### 与其他业务域的边界
+
+Customer 停用是全局账号级“停止继续业务”的触发，但不同业务对象不能机械套用同一状态枚举：
+
+- Demand：本条已经明确 `active → paused`；
+- Consultation / Recommendation / Lock / Waitlist / Transaction / Refund：不得继续把已停用客户当正常活跃账号推进新业务动作，但具体是暂停、冻结、禁止新动作还是保留现实状态，由对应 PDM 冻结；
+- 已经发生的锁定、交易、资金、推荐、审计等事实不得因账号停用被删除或伪造为未发生。
+
+### Handoff supersession
+
+- `HO-P01-P11-001 = HANDOFF_SUPERSEDED`；
+- `HO-P01-P11-002 = HANDOFF_ACCEPTED`；
+- PDM-01 Final §11 已在同一施工中完成 source backwrite。
+
+**用户裁决：** 2026-10-05 用户明确“账号都停用了，现有找车肯定也全部停了，但历史资料保留”，随后“确定执行”。
+
+**状态：** `INFORMED_LATER_CHANGE / USER_MODIFIED / USER_APPROVED`
 
 ---
 
@@ -656,7 +690,8 @@ PDM-11 后续至少会与以下目标域形成正式 handoff；在相应 PDM-11 
 ```text
 CURRENT_AUTHORITY_REFRESH = PASS
 TARGET_PDM11_HANDOFF_READ = PASS
-HO-P01-P11-001 = HANDOFF_ACCEPTED
+HO-P01-P11-001 = HANDOFF_SUPERSEDED
+HO-P01-P11-002 = HANDOFF_ACCEPTED
 COMPLETED_PDM_DEPENDENCY_CARD = PASS
 TERMINOLOGY_NORMALIZATION = PASS
 MISSING_RULE_AUDIT_INITIAL_SCAN = PASS
@@ -665,7 +700,7 @@ CROSS_PDM_INITIAL_SCAN = PASS
 BATCH_1_CANDIDATES = 13
 BATCH_1_USER_APPROVAL = PASS
 BATCH_2 = PASS / USER_APPROVED
-BATCH_3 = USER_REVIEW_PENDING / P11-B3-01
+BATCH_3 = PASS / USER_APPROVED
 BATCH_4 = NOT_STARTED_FORMALLY
 PDM11_FINAL = NOT_READY
 ```
