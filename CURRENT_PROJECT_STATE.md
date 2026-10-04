@@ -1,6 +1,6 @@
 # 名邦汽车 V1｜当前项目状态
 
-> 更新时间：2026-10-04  
+> 更新时间：2026-10-05  
 > 状态源：GitHub `suzhe868-arch/mb` / `main`  
 > 业务权威语言：中文（zh-CN）
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / PDM-01_PDM-02_INTEGRITY_PASS / CURRENT_PDM-03`
+> `IN_PROGRESS / PDM-01_PDM-02_PDM-03_INTEGRITY_PASS / CURRENT_PDM-04`
 
 当前工作文件：
 
@@ -32,8 +32,16 @@
 
 当前唯一下一步：
 
-> **PDM-01、PDM-02 已通过 Legacy Final Integrity Audit；从 PDM-03 继续 Missing Rule Audit、Semantic Detail Audit、Cross-PDM Integrity Audit。PDM-01～10 全部及全局总复核 PASS 前，PDM-11 继续 BLOCKED。IA / Low-Fi 统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。**
+> **PDM-01、PDM-02、PDM-03 已通过 Legacy Final Integrity Audit；从 PDM-04 继续 Missing Rule Audit、Semantic Detail Audit、Cross-PDM Integrity Audit。PDM-01～10 全部及全局总复核 PASS 前，PDM-11 继续 BLOCKED。IA / Low-Fi 统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。**
 
+## 2026-10-05｜PDM-03 Legacy Final Integrity Audit 完成
+
+- PDM-03 Integrity：`INTEGRITY_PASS`；
+- 本轮关闭 9 组问题：客户主动要求更换销售触发条件、普通 owner 移交 reason 非必填、inactive→active 复职边界、离职交接对象范围、Handover Batch 逐对象映射与部分失败、PDM-10 分享/查价 handoff closure、公司客户历史访问边界、Customer 停用对 owner 的影响、IA/Low-Fi stale carrier ledger；
+- 用户确认：9 组问题全部同意；IA / Low-Fi 当前只登记 `STALE_CARRIER`，不修改承载文件；
+- 审计报告：`07_重建工作区/PDM-03_历史最终版完整性复核_2026-10-05.md`；
+- 当前进入：PDM-04 Legacy Final Integrity Audit；
+- PDM-11 继续 BLOCKED。
 ## 2026-10-04｜PDM-02 Legacy Final Integrity Audit 完成
 
 - PDM-02 Integrity：`INTEGRITY_PASS`；
