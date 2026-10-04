@@ -362,10 +362,26 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 |---|---|---|---|---|---|
 | HO-P10-P14-001 | PDM-14 | Recommendation 免费授当前 `customer + vehicle + listing_cycle` 批发查价权；Recommendation 结束、owner/负责人变化、原销售离职均不追回本周期已授权利 | HANDOFF_OPEN | - | YES |
 | HO-P10-P18-001 | PDM-18 | Lock 创建时冻结必要价格快照；后续上游调价、阶梯、覆盖价、人工价格或 source_type 变化不得回写既有 Lock 快照 | HANDOFF_OPEN | - | YES |
-| HO-P10-P20-001 | PDM-20 | 客户端查看价格/价格咨询/DAILY_PRICE_QUOTA_EXHAUSTED→联系顾问/LIMITED/UNLIMITED/万单位/未解锁真实价筛选排序但 payload 不泄露/Customer 停用暂停价格权益 | HANDOFF_OPEN | - | YES |
+| HO-P10-P20-001 | PDM-20 | 客户端批发车价格投影：LIMITED 列表隐藏精确数字价；客户真实主动进入详情时自动解锁且无需二次点击；quota 耗尽主价格字段 `--万`，并提示升级粉丝/VIP或其他 UNLIMITED 等级、亦可联系顾问免费增加今日次数；UNLIMITED 列表/详情直接显示数字价；车辆本身无数字价才显示“价格咨询”；筛选排序可用真实价但 payload 不泄露；Customer 停用暂停价格权益 | HANDOFF_OPEN | - | YES |
 | HO-P10-P21-001 | PDM-21 | 员工端正常价格字段保存修改、internal-price permission、override、临时追加、UNLIMITED 禁止追加、4S 正常价格编辑与 hard DENY 的真实交互投影 | HANDOFF_OPEN | - | YES |
-| HO-P10-P22-001 | PDM-22 | 阶梯加价、markup ON/OFF、等级 LIMITED/UNLIMITED、daily base quota、permission 与业务配置后台承载 | HANDOFF_OPEN | - | YES |
+| HO-P10-P22-001 | PDM-22 | 阶梯加价、markup ON/OFF、Customer Level 权益配置、批发价格 LIMITED/UNLIMITED、daily base quota、与 PDM-11 找车 entitlement 的同等级配置承载、相关 permission 与后台业务配置 | HANDOFF_OPEN | - | YES |
 | HO-P10-P25-001 | PDM-25 | price/override/temp quota/risk/conversion snapshot/level entitlement config 等统一审计与历史 | HANDOFF_OPEN | - | YES |
+
+---
+
+## 12A. PDM-11 来源 handoff
+
+| handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
+|---|---|---|---|---|---|
+| HO-P11-P12-001 | PDM-12 | 只有经员工人工激活后的 active Demand 才进入正式 Matching 域；Application 不等于 Matching；客户原始表达、销售匹配描述、标准条件、需求说明分层；readiness / 确定性解析 / 匹配算法由 PDM-12 冻结 | HANDOFF_OPEN | - | YES |
+| HO-P11-P13-001 | PDM-13 | Priority 不得由 pending Application 或无资格 Customer 直接产生；只在合法 active Demand / Matching 关系下进入 Priority 语义，Priority 本身不是 Demand 状态 | HANDOFF_OPEN | - | YES |
+| HO-P11-P14-001 | PDM-14 | Recommendation 可关联 source_demand_id；Demand paused/completed/cancelled 不删除历史 Recommendation；Recommendation 生命周期不得反写 Demand 为 active | HANDOFF_OPEN | - | YES |
+| HO-P11-P16-001 | PDM-16 | CRM Customer 详情需承载当前客户等级、找车 entitlement 结果、pending/active/paused Demand 概览；客户定位至少继承 PDM-01 手机号搜索；具备 customer.level.manage 的名邦员工可在合法 data scope 内调整等级，具体 CRM 入口由 PDM-16 承载 | HANDOFF_OPEN | - | YES |
+| HO-P11-P17-001 | PDM-17 | Customer owner / 公海变化不得自动漂移 Demand 负责人；存在 active/paused Demand 时按正式责任交接规则处理，不把 Demand 直接丢入公海 | HANDOFF_OPEN | - | YES |
+| HO-P11-P20-001 | PDM-20 | 客户端找车：普通客户可提交 Application 但无正式找车权益时保持 pending；提交成功后明确提示当前等级受限、升级至具备权益等级（当前可举例粉丝/VIP）后可开通、可联系顾问；有权益也不自动 active；Demand paused/resume/历史按 PDM-11 投影 | HANDOFF_OPEN | - | YES |
+| HO-P11-P21-001 | PDM-21 | 员工端工作台展示 pending Find-car Application；卡片进入处理详情；无一键绕过 Guard 的自动激活；有权限员工在详情中人工开通 Demand；等级不足时先完成合法等级调整再激活；客户等级调整动作服从 permission + data scope + object state | HANDOFF_OPEN | - | YES |
+| HO-P11-P22-001 | PDM-22 | PC 后台统一承载 Customer Level 权益配置：找车 entitlement 与 PDM-10 LIMITED/UNLIMITED/daily quota 等均为等级权益；V1 不提供单 Customer find-car entitlement override；等级调整使用独立受控 customer.level.manage 类 capability，不建设固定多级审批流 | HANDOFF_OPEN | - | YES |
+| HO-P11-P25-001 | PDM-25 | 统一审计 Application 创建/编辑/撤回/关闭、Demand 激活/暂停/恢复/完成/取消/负责人变化、Customer 账号停用触发暂停、找车 entitlement 变化、Customer Level before/after/actor/time 及必要 permission/scope context | HANDOFF_OPEN | - | YES |
 
 ---
 
