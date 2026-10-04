@@ -351,13 +351,13 @@ VIN 是人工车辆内部可选字段：
 5. 服务端重新校验权限、数据范围、对象状态和版本；
 6. 校验通过后普通资料修改正式生效。
 
-以下敏感事项不混入“保存修改”普通资料提交：
+2026-10-04 PDM-10 最终规则对价格编辑形成后续显式修正：
 
-- 调价；
-- 上 / 下架；
-- `source_type`；
-- 客户展示价覆盖；
-- 其他已定义独立敏感业务动作。
+- 名邦 / 4S 的正常 customer_list_price、internal_wholesale_price 属于普通车辆编辑字段，通过“保存修改”提交，不再存在独立“调价 permission / 调价动作”；
+- customer_list_price 服从正常车辆编辑 / 管理能力 + data scope + object state；
+- 修改 internal_wholesale_price 还必须具备独立内部价查看 permission；
+- 客户展示价覆盖仍是不混入“保存修改”的独立敏感业务动作；
+- 上 / 下架、`source_type` 及其他已定义独立敏感动作仍不混入普通资料提交。
 
 批发 / JYT 来源事实继续只读。
 
@@ -472,6 +472,21 @@ VIN 是人工车辆内部可选字段：
 - 档案权限 / 审计。
 
 PDM-07 不得静默推翻本 PDM 已确认的人工发布最低字段、草稿、VIN、删除边界。
+
+---
+
+## 19A. PDM-10 后续价格编辑修正
+
+2026-10-04，PDM-10 经用户最终批准后，显式 supersede 本文件原 §15 中“调价不得混入保存修改”的旧语义。
+
+当前以 PDM-10 为准：
+
+- 正常 customer_list_price / internal_wholesale_price 修改属于车辆普通编辑；
+- 不建立独立调价 permission / action；
+- internal_wholesale_price 仍受内部价查看 permission 字段级保护；
+- 客户展示价覆盖继续独立。
+
+本修正不改变人工车辆发布、草稿、VIN、删除、source_type 等本 PDM 其他规则。
 
 ---
 
