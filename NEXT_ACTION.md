@@ -9,7 +9,8 @@
 - PDM-01 Integrity Audit = INTEGRITY_PASS
 - PDM-02 Integrity Audit = INTEGRITY_PASS
 - PDM-03 Integrity Audit = INTEGRITY_PASS
-- 当前审计域：PDM-04
+- PDM-04 Integrity Audit = INTEGRITY_PASS
+- 当前审计域：PDM-05
 - PDM-11 = BLOCKED_UNTIL_PDM01_10_INTEGRITY_PASS
 
 总控工作单：
@@ -18,7 +19,7 @@
 
 ## 当前唯一下一步
 
-> **从 PDM-04 继续 Legacy Final Integrity Audit。**
+> **从 PDM-05 继续 Legacy Final Integrity Audit。**
 
 每个 PDM 必须同时执行：
 
@@ -71,7 +72,7 @@ PDM-11 只有在以下全部完成后才允许开始：
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前已回填 PDM-01～PDM-04；PDM-04 §20 已把 PDM-05～10 标为已完成承接。
+当前已回填 PDM-01～PDM-04；PDM-04 已 `INTEGRITY_PASS`，PDM-05～10 的旧 handoff 均已在来源端反向关闭。PDM-05 开始前必须读取所有 `target=PDM-05` 的 Register 条目。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
