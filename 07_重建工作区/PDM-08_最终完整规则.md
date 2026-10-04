@@ -1,9 +1,10 @@
 # PDM-08｜车辆图片 / 上游URL / CDN / 图片资产化 / 报告图片 / 分享图｜最终完整规则
 
 > 日期：2026-10-04  
-> 状态：`COMPLETE`  
+> 状态：`COMPLETE / INTEGRITY_PASS`  
 > 前置：Batch 1～4 与最终总览均已用户批准  
-> 最终门禁已通过：`SOURCE_DECISION_COVERAGE = 100%`，`UNMAPPED = 0`，用户已明确批准最终总览。
+> 2026-10-05 完成 Legacy Final Integrity Audit；用户进一步批准 3A 图片资产化未闭环临时受控回源规则。  
+> IA / Low-Fi 仅登记 `STALE_CARRIER`，统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。
 
 ---
 
@@ -261,6 +262,21 @@ DB 保存 object_key / path 等引用，不保存图片二进制。
 - 已成功图片不要求重新全部处理；
 - 自动重试次数、并发、退避等归 Engineering。
 
+### 13.1 资产化未闭环期间的临时受控回源｜3A
+
+用户于 2026-10-05 明确选择 **3A**。
+
+批发 → 名邦的 `source_type` 转换已经合法完成，但个别/全部图片仍处于 `processing / partial_failed / failed` 时：
+
+1. 已资产化成功的图片立即按名邦自有对象存储 / CDN 读取；
+2. 尚未资产化成功的图片，在资产化任务未闭环期间，允许继续基于首次冻结的 JYT 图片来源事实，通过**名邦受控 CDN 地址**临时回源 JYT 展示；
+3. 客户端 / 员工端仍不得直接获得 JYT 原始图片 URL；
+4. 临时还能展示 **不等于资产化成功**，DB 资产状态不得伪造为 success，失败项仍必须保留并继续重试；
+5. 单张图片一旦资产化成功，立即切换为名邦自有对象存储的正常读取链路，不再把 JYT 作为该图片的日常读取源；
+6. 若临时 JYT 回源也失败，该图片当前可以跳过 / 使用占位，不影响 Vehicle 已成立的名邦来源事实；
+7. 不得因为临时回源失败或图片资产化失败回滚 `source_type`、`vehicle_id`、`listing_cycle`，也不得回滚 Favorite / Recommendation / Lock / Transaction 等既有业务关系；
+8. 该机制只允许作为**资产化未闭环期间的过渡读取链路**，禁止实现成“名邦车长期继续依赖 JYT 图片”。
+
 ---
 
 ## 14. 资产化后进入普通名邦图片生命周期
@@ -340,6 +356,23 @@ DB 保存 object_key / path 等引用，不保存图片二进制。
 - 不要求为了 H5 去解析、改写其内部图片。
 
 两者是平行呈现方式，不是父子关系。
+
+### 17.1 报告 / H5 受控 URL 不是永久访问权
+
+名邦受控报告域名、历史报告 URL、CDN 缓存都只是技术访问载体，不构成永久业务授权。
+
+每次对外读取出险 / 维保 / 其他报告资源时，都必须继续服从：
+
+- 当前 Vehicle Read / Visibility；
+- PDM-07 当前有效的 `customer_visible`；
+- 敏感原件 / 内部资料的 DENY；
+- 当前访问者身份与数据范围。
+
+因此：
+
+> **即使用户过去拿到过某个名邦受控报告 URL，若当前已无 Vehicle Read 或该报告已改为非 customer_visible，也不得靠旧 URL 继续访问。**
+
+具体短签、Token、鉴权回源、受控代理等技术机制归 Engineering。
 
 ---
 
@@ -422,12 +455,15 @@ DB 保存 object_key / path 等引用，不保存图片二进制。
 
 不得把以下内容固化进分享图 / 卡片：
 
-- 批发价；
+- **客户展示价以及任何动态 / 受权限价格**；
+- 内部批发价 / 上游批发价；
 - VIN；
 - 上游发布人电话；
 - 内部状态；
 - 其他仅内部可见字段；
 - 不适合长期固化的动态敏感信息。
+
+真正打开详情后，再按接收人的当前身份、权限、价格权益、车辆当前状态实时计算展示；旧卡片中的静态内容不得替代实时详情计算。
 
 旧分享再次打开时：
 
@@ -510,54 +546,101 @@ PDM-08 只冻结业务结果和边界。
 
 ---
 
-## 27. 历史 Decision 覆盖门禁
+## 27. 历史 Decision 覆盖门禁与唯一 Traceability 口径
 
 历史图片专项：
 
-- IMG-001 ～ IMG-030：**30 / 30 已有明确去向**
-- RETAIN / RETAIN_MODIFIED / MODIFIED_BY_CDN_ARCHITECTURE / SUPERSEDED / ENGINEERING_ONLY 等去向均已登记
-- 无任何历史 Decision 丢失或悬空
+- IMG-001 ～ IMG-030：**30 / 30 已有明确去向**；
+- RETAIN / RETAIN_MODIFIED / MODIFIED_BY_CDN_ARCHITECTURE / SUPERSEDED / ENGINEERING_ONLY 等去向均已登记；
+- 无任何历史 Decision 丢失或悬空。
+
+### 27.1 唯一当前映射口径
+
+`PDM-08_车辆图片上游URL本地化转存恢复分享图_规则原子重建_工作版.md` 中早期 IMG-001～030 表属于历史重建过程记录；2026-10-03 CDN 架构重映射之后：
+
+> **以工作版 §11 的“按 2026-10-03 新 CDN 架构重新映射”及其后续用户批准结果，作为 IMG-001～030 唯一当前 traceability 口径。**
+
+因此：
+
+- 早期表中与 §11 后续映射不一致的状态，仅视为 `HISTORICAL / SUPERSEDED_MAPPING`；
+- 例如 IMG-025 的早期 `RETAIN` 不再作为当前分类，当前以“hash / 去重 / ref-count 实现归 Engineering，产品只保证生命周期与删除历史正确”为准；
+- IMG-030 早期 viewer+persistence 语义在普通批发浏览切换为 CDN 自然缓存后，不再作为当前主链路；
+- 不允许后续工程或审计从早期表重新恢复已被 CDN 新架构 supersede 的语义。
 
 最终覆盖：
 
 > **SOURCE_DECISION_COVERAGE = 100%**  
+> **FINAL_TO_SOURCE_TRACEABILITY = 100%**  
 > **UNMAPPED = 0**
 
 ---
 
-## 28. 与其他 PDM 的边界
+## 28. Cross-PDM 承接状态
 
-- Vehicle 来源 / source_type / listing_cycle / 同 vehicle_id 转换 → PDM-04
-- 人工车发布 / 草稿 / 0 图发布 → PDM-06
-- 车辆档案 / 出险 / 维保 / 客户可见性 → PDM-07
-- 上游发布人电话 → PDM-09
-- 价格 → PDM-10
-- Matching / Priority / Recommendation → PDM-12～PDM-14
-- Lock / Waitlist → PDM-18
-- Transaction → PDM-19
-- 客户端页面与首页 / 品牌分享文案 → PDM-20
-- 员工端交互 → PDM-21
-- CDN / 域名 / 分享配置入口 → PDM-22
-- 审计 → PDM-25
+### 28.1 已完成 incoming handoff
 
-后续域可以补充自身规则，但不得静默推翻本 PDM 已批准业务边界。
+- `HO-P04-P08-001 = HANDOFF_CLOSED`：同 vehicle 来源转换、图片资产化/重试、图片失败不回滚转换；
+- `HO-P06-P08-001 = HANDOFF_CLOSED`：人工名邦/4S 0 图发布、发布后补图/删图/排序、删到 0 图仍可在售；
+- `HO-P07-P08-001 = HANDOFF_CLOSED`：报告/档案图片、出险/维保图片/H5 与普通相册隔离，技术承载不决定 customer_visible。
+
+### 28.2 仍待后续 PDM 承接
+
+- PDM-20｜`HANDOFF_OPEN`：4:3 列表/详情展示、统一左右滑动图片序列、全屏交互、车辆分享图/分享卡片；分享卡片不得固化客户展示价或任何动态/受权限价格，旧分享再次打开必须实时重验；
+- PDM-21｜`HANDOFF_OPEN`：员工端人工图片上传/删除/排序、资产化状态、失败图片重试/人工恢复的真实操作投影；必须区分普通 CDN 加载失败、批发→名邦资产化失败、人工图片恢复，不能用一个泛化 `IMAGE_RETRYING` 混为一套生命周期；
+- PDM-22｜`HANDOFF_OPEN`：名邦公开图片域名、JYT Origin、report 域名、对象存储源站以及首页/品牌分享配置入口；产品只要求可配置，不在 PDM-08 写死厂商/TTL/并发等工程值；
+- PDM-25｜`HANDOFF_OPEN`：影响线上资源访问与权限安全的公开域名、Origin、report proxy target 等配置变更，以及资产化/recovery 关键状态变化的统一审计与历史。
+
+### 28.3 IA / Low-Fi stale carrier
+
+当前只登记、不修改：
+
+- `IMAGE_PARTIAL_FAILED / IMAGE_FAILED / IMAGE_RETRYING / IMAGE_MANUAL_RECOVERY / IMAGE_RECOVERED` 被泛化到多个不同图片生命周期；
+- 旧页面/状态仍可能隐含“普通批发浏览逐张永久吞图”的旧链路；
+- 分享卡片未完整投影“客户展示价/动态价格禁止固化”；
+- 4S维保H5/报告受控 URL 的当前权限重验未完整投影；
+- “统一图片浏览序列”存在被误画成自动轮播的 carrier 风险；
+- 3A 资产化未闭环临时受控回源尚未形成 Current/Low-Fi 状态投影。
+
+统一登记：
+
+> `STALE_CARRIER / DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT`
+
+IA / Low-Fi 不具有反向覆盖本 PDM Final 的产品 Authority。
 
 ---
 
-## 29. 最终门禁状态
+## 29. Legacy Final Integrity Gate
 
-当前：
+2026-10-05 本域完成 Legacy Final Integrity Audit，共关闭 5 组问题：
 
-- Batch 1 = APPROVED
-- Batch 2 = APPROVED
-- Batch 3 = APPROVED
-- Batch 4 = APPROVED
-- SOURCE_DECISION_COVERAGE = 100%
-- UNMAPPED = 0
-- Final Domain Overview = APPROVED
+1. 恢复分享卡片禁止固化客户展示价 / 动态受权限价格；
+2. 补齐报告/H5 受控 URL 不得绕过当前 Vehicle Read / customer_visible；
+3. 用户批准 3A：资产化未闭环期间允许名邦受控 CDN 临时回源 JYT，成功后立即切自有对象存储；
+4. 正式登记 PDM-20 / 21 / 22 / 25 future handoff；
+5. 将 2026-10-03 CDN 新架构重映射设为 IMG-001～030 唯一当前 traceability 口径，旧表降为 historical/superseded mapping。
+
+当前门禁：
+
+```text
+MISSING_RULE_UNRESOLVED = 0
+SEMANTIC_DETAIL_GAP_UNRESOLVED = 0
+CROSS_PDM_CONFLICT = 0
+HANDOFF_GAP_UNRESOLVED = 0
+GLOBAL_INVARIANT_CONFLICT = 0
+SOURCE_DECISION_COVERAGE = 100%
+FINAL_TO_SOURCE_TRACEABILITY = 100%
+SEMANTIC_INTEGRITY = PASS
+NEGATIVE_CLAIMS_VERIFIED = PASS
+IMPLEMENTATION_READY = PASS
+HANDOFF_REGISTER_SYNC = PASS
+```
 
 最终状态：
 
-> **PDM-08 = COMPLETE**
+> **PDM-08 = COMPLETE / INTEGRITY_PASS**
 
-后续 PDM 可以补充自身规则，但不得静默推翻本文件；发现真实跨域冲突必须重新显式提交用户裁决。
+下一审计域：
+
+> **PDM-09｜Legacy Final Integrity Audit**
+
+PDM-11 继续 BLOCKED，直到 PDM-01～PDM-10 全部 INTEGRITY_PASS 且 01～10 全局 Cross-PDM / Handoff / Global Invariant 总复核 PASS。
