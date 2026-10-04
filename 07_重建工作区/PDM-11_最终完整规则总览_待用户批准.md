@@ -1,11 +1,11 @@
-# PDM-11｜找车申请 / Demand 生命周期｜最终完整规则总览｜待用户批准
+# PDM-11｜找车申请 / Demand 生命周期｜最终完整规则总览｜用户已批准
 
 > 日期：2026-10-05  
-> 状态：`FINAL_REVIEW_PENDING`  
+> 状态：`USER_APPROVED / 2026-10-05`  
 > Batch 1～4：`ALL_USER_APPROVED`  
 > Pre-Final Integrity：`PASS`  
 > 未决产品冲突：`0`  
-> 注意：只有用户最终批准本总览后，才允许生成 PDM-11 正式 Final 并标记 COMPLETE / INTEGRITY_PASS。
+> 用户已于 2026-10-05 最终批准本总览；正式 Authority 已生成：`07_重建工作区/PDM-11_最终完整规则.md`。
 
 ---
 
@@ -646,8 +646,9 @@ PREFINAL_SEMANTIC_DETAIL_AUDIT = PASS
 PREFINAL_CROSS_PDM_AUDIT = PASS
 PREFINAL_HANDOFF_AUDIT = PASS
 UNRESOLVED_PRODUCT_CONFLICT = 0
-FINAL_REVIEW_PENDING = YES
-PDM11_COMPLETE = NO
+FINAL_REVIEW_PENDING = NO
+FINAL_USER_APPROVAL = PASS
+PDM11_COMPLETE = YES
 ```
 
 ---
@@ -656,14 +657,6 @@ PDM11_COMPLETE = NO
 
 当前状态：
 
-> **PDM-11 = FINAL_REVIEW_PENDING**
+> **PDM-11 = USER_APPROVED / FINAL_PUBLISHED**
 
-只有用户最终批准本总览后，才允许：
-
-1. 生成 `PDM-11_最终完整规则.md`；
-2. 执行 Final→Source / Source→Final 最终机械校验；
-3. 处理 incoming `HO-P01-P11-002` closure / source backwrite 状态；
-4. 将 PDM-11 标记 COMPLETE / INTEGRITY_PASS；
-5. 进入 PDM-12。
-
-未经用户最终批准，不得提前执行以上步骤。
+用户已最终批准；上述门禁已解除。正式 Final、双向追溯、incoming handoff closure 与状态收口按当前执行记录完成。下一域进入 PDM-12 启动门禁。
