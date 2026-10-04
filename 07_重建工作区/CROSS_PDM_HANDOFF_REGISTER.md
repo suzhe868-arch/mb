@@ -71,25 +71,25 @@
 
 审计报告：`PDM-03_历史最终版完整性复核_2026-10-05.md`。
 
-### 2.4 PDM-04｜当前 Integrity Audit 进行中
+### 2.4 PDM-04｜11 组｜已全部关闭
 
-> 以下是 2026-10-05 当前审计已经识别的项目。它们不是全部已经获得用户最终产品批准；不得把本表的“审计发现”本身当成新产品 Authority。
-
-| ID | 当前审计发现 | 状态 |
+| ID | Integrity 问题 | 最终状态 |
 |---|---|---|
-| P04-LIA-C01 | listing_cycle 新周期开始时间的取值优先级被 Final 压掉 | AUDIT_FINDING / PENDING_FINAL_APPROVAL |
-| P04-LIA-C02 | listing_started_at / 人工上传时间 / JYT 平台收录时间及今日新增 vs 重新上架语义未完整保留 | AUDIT_FINDING / PENDING_FINAL_APPROVAL |
-| P04-LIA-C03 | source_type=4S 不等于授权任意 4S 成员管理，负向 Guard 不够明确 | AUDIT_FINDING / PENDING_FINAL_APPROVAL |
-| P04-LIA-C04 | locked / trading 期间允许有权人员记录真实车辆事实，且不得回写既有业务快照 | AUDIT_FINDING / PENDING_FINAL_APPROVAL |
-| P04-LIA-C05 | PDM-08 图片资产化已完成，但 PDM-04 仍显示留后续 | HANDOFF_STATUS_FIXED / PRODUCT_DETAIL_PENDING_FINAL_AUDIT |
-| P04-LIA-C06 | PDM-10 转换价格语义已完成，但 PDM-04 仍显示留后续 | HANDOFF_STATUS_FIXED / PRODUCT_DETAIL_PENDING_FINAL_AUDIT |
-| P04-LIA-C07 | PDM-05 / PDM-06 已完成但旧 handoff 未关闭 | HANDOFF_STATUS_FIXED |
-| P04-LIA-C08 | car_code 与 PDM-09 upstream_publisher_id 电话定位边界需显式隔离 | AUDIT_FINDING / PENDING_FINAL_APPROVAL |
-| P04-LIA-C09 | JYT 三个业务 API 及 PC 运行管理 / Incident handoff 需要显式登记 | AUDIT_FINDING / HANDOFF_CANDIDATE |
-| P04-LIA-C10 | 双 Vehicle、旧 normal-only convert Guard、旧 conversion relation 等 IA / Low-Fi carrier 仍 stale | CARRIER_DEFERRED |
-| P04-LIA-C11 | Supply Anomaly 是否统一阻断新增业务 | `DECISION_REQUIRED`，当前不得擅自裁为 A/B |
+| P04-LIA-01 | listing_cycle 新周期开始时间优先级被压掉 | RESOLVED |
+| P04-LIA-02 | listing_started_at / 人工上传时间 / JYT 平台收录时间、今日新增 vs 重新上架语义不完整 | RESOLVED |
+| P04-LIA-03 | source_type=4S 不等于授权任意 4S 成员管理 | RESOLVED |
+| P04-LIA-04 | locked / trading 期间真实车辆事实更新边界缺失 | RESOLVED |
+| P04-LIA-05 | PDM-08 图片资产化已完成但来源仍显示留后续 | RESOLVED / HANDOFF_CLOSED |
+| P04-LIA-06 | PDM-10 转换价格语义已完成但来源仍显示留后续 | RESOLVED / HANDOFF_CLOSED |
+| P04-LIA-07 | PDM-05 / PDM-06 等已完成目标未反向关闭 | RESOLVED / STALE_HANDOFF_CLEANED |
+| P04-LIA-08 | car_code 与 PDM-09 publisher identity 电话定位边界未显式隔离 | RESOLVED / HANDOFF_CLOSED |
+| P04-LIA-09 | JYT 三个固定业务 API 及 PDM-22 / PDM-23 handoff 未正式登记 | RESOLVED / HANDOFF_OPEN_REGISTERED |
+| P04-LIA-10 | 双 Vehicle、旧粗粒度 normal-only Guard、旧 conversion relation 等 carrier stale | RESOLVED / CARRIER_DEFERRED |
+| P04-LIA-11 | Supply Anomaly 是否统一阻断新增业务 | RESOLVED / USER_DECISION_B |
 
-PDM-04 当前仍为 Legacy Final Integrity Audit 进行中，不得因本 Register 建立而自动标记 INTEGRITY_PASS。
+用户最终裁决 P04-LIA-11：**Supply Anomaly 本身只作为风险告警，不统一阻断新增业务；真实 `offline / unavailable` 才按不可售事实硬阻断新增普通销售业务。**
+
+PDM-04 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
@@ -153,7 +153,7 @@ PDM-04 当前仍为 Legacy Final Integrity Audit 进行中，不得因本 Regist
 
 ## 6. PDM-04 来源 handoff
 
-> 2026-10-05 已对 PDM-04 §20 做状态回写：PDM-05～10 已完成事项不再显示“留后续”。PDM-04 Integrity Audit 仍在进行，不因这次状态回写自动通过。
+> 2026-10-05 PDM-04 Legacy Final Integrity Audit 已通过；PDM-05～10 已完成事项保持 `HANDOFF_CLOSED`，新产生的 PDM-20 / PDM-22 / PDM-23 handoff 已正式登记为 `HANDOFF_OPEN`。
 
 | handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
 |---|---|---|---|---|---|
@@ -168,20 +168,22 @@ PDM-04 当前仍为 Legacy Final Integrity Audit 进行中，不得因本 Regist
 | HO-P04-P14-001 | PDM-14 | Recommendation 对 hidden 单车可见授权与 listing_cycle 生命周期 | HANDOFF_OPEN | - | YES |
 | HO-P04-P18-001 | PDM-18 | Lock / Waitlist 完整 lifecycle；vehicle source/visibility 变化不得静默抹除既有历史 | HANDOFF_OPEN | - | YES |
 | HO-P04-P19-001 | PDM-19 | Transaction / Refund / correction；completed 终态、source conversion 与历史快照边界 | HANDOFF_OPEN | - | YES |
-| HO-P04-P20-001 | PDM-20 | 客户端车辆列表/详情的 source、hidden/locked/offline/relist 等状态投影 | HANDOFF_OPEN | - | YES |
+| HO-P04-P20-001 | PDM-20 | 客户端车辆列表/详情的 source、hidden/locked/offline/relist 等状态投影；并承接 listing_started_at / 人工上传时间 / JYT 平台收录时间的客户端展示，不得把 first_seen_at 伪称上游上传时间 | HANDOFF_OPEN | - | YES |
 | HO-P04-P21-001 | PDM-21 | 员工端车辆详情、source_type、一键转名邦、隐藏/上下架等真实操作入口 | HANDOFF_OPEN | - | YES |
 | HO-P04-P22-001 | PDM-22 | PC 车辆、隐藏规则、集成配置与运行管理界面；不得改变 PDM-04 车辆 Authority | HANDOFF_OPEN | - | YES |
+| HO-P04-P22-002 | PDM-22 | 三个固定车源同步业务 API 的启停、名邦同步 API credential、调用统计与运行状态管理；credential 不得与 JYT 登录凭证或 Collector 电话鉴权混用 | HANDOFF_OPEN | - | YES |
+| HO-P04-P23-001 | PDM-23 | JYT / Supply Anomaly 相关 Incident、飞书、SLA、夜间免打扰、通知与异常日志；不得把通知层重新定义成车辆业务状态 | HANDOFF_OPEN | - | YES |
 | HO-P04-P25-001 | PDM-25 | vehicle/source/listing/visibility/conversion 的统一审计、历史和终态不回写规则 | HANDOFF_OPEN | - | YES |
 
-### 6.1 PDM-04 当前审计中新发现、尚未升级成正式产品 handoff 的候选
+### 6.1 PDM-04 Integrity Audit 候选转正式 handoff 记录
 
-| candidate_id | 目标 | 候选内容 | 当前状态 |
-|---|---|---|---|
-| HC-P04-P20-001 | PDM-20 | listing_started_at / 上传时间 / JYT 平台收录时间在客户端的具体展示与配置 | AUDIT_CANDIDATE_NOT_AUTHORITY |
-| HC-P04-P22-001 | PDM-22 | JYT 三个业务 API 的启停、ingest credential、调用日志、数量统计与 PC 运行管理 | AUDIT_CANDIDATE_NOT_AUTHORITY |
-| HC-P04-P23-001 | PDM-23 | JYT / 供应异常相关 Incident、通知、飞书、失败日志、夜间免打扰等运行通知边界 | AUDIT_CANDIDATE_NOT_AUTHORITY |
+| candidate_id | 正式 handoff | 结果 |
+|---|---|---|
+| HC-P04-P20-001 | HO-P04-P20-001 | PROMOTED / HANDOFF_OPEN |
+| HC-P04-P22-001 | HO-P04-P22-002 | PROMOTED / HANDOFF_OPEN |
+| HC-P04-P23-001 | HO-P04-P23-001 | PROMOTED / HANDOFF_OPEN |
 
-这些候选只有在 PDM-04 Integrity Audit 通过用户裁决后才转成正式 `HANDOFF_OPEN`。
+以上候选已随 PDM-04 `INTEGRITY_PASS` 正式进入 Cross-PDM Handoff Register。
 
 ---
 
@@ -231,6 +233,6 @@ PDM-04 当前仍为 Legacy Final Integrity Audit 进行中，不得因本 Regist
 - PDM-01：INTEGRITY_PASS；
 - PDM-02：INTEGRITY_PASS；
 - PDM-03：INTEGRITY_PASS；
-- PDM-04：Legacy Final Integrity Audit 进行中；
-- PDM-04 当前仍有 `P04-LIA-C11 / Supply Anomaly 是否统一阻断新增业务` 需要用户裁决；
+- PDM-04：INTEGRITY_PASS；
+- 当前进入：PDM-05 Legacy Final Integrity Audit；
 - PDM-11 继续 BLOCKED，直到 PDM-01～10 全部 INTEGRITY_PASS 且 01～10 全局总复核 PASS。
