@@ -609,58 +609,128 @@ Customer 停用是全局账号级“停止继续业务”的触发，但不同�
 
 ---
 
-## 9B. Batch 4｜真实冲突 / 缺口 / 需要用户裁决｜待用户审查
+## 9B. Batch 4｜真实冲突 / 缺口 / 需要用户裁决｜用户已完成裁决
 
-> 本批只保留无法靠证据优先级机械解决的真实冲突。不得使用“后文件更新所以自动覆盖”处理。
+> 本批原有两个真实冲突均已由用户在 2026-10-05 明确裁决，并在本次“确认执行”中授权正式落库。不得再按旧 9/06 SSOT 的“有 entitlement 即自动激活 Demand”或“Customer 级单独人工开通找车 entitlement”恢复。
 
-### P11-B4-01｜Application → Demand 的激活时机
+### P11-B4-01｜Application → Demand 必须人工激活｜用户裁决
 
-存在两套真实历史口径：
+用户选择 9/19 R10 / Current 方向，并进一步冻结以下完整语义：
 
-**方案 A｜9/06 SSOT**
+1. 无论 Customer 当前是否已经具备正式找车权益，提交“帮我找车”后都先形成 `pending Find-car Application`；
+2. 任何 Application 都不得因为“当前已有找车 entitlement”而自动创建 / 自动激活 Demand；
+3. pending Application 进入员工“找车服务待处理”工作台；
+4. 工作台卡片只负责进入处理详情，不提供绕过详情页 Guard 的一键激活；
+5. 正式 Demand 只能由具备对应业务能力、且 Customer / Application 位于其 data scope、object state 合法的员工在处理详情中执行“开通正式找车服务”后创建 / 激活；
+6. 激活时至少重新校验：
+   - Customer 账号当前可用；
+   - Application 仍为 pending；
+   - Customer 当前等级仍具备正式找车权益；
+   - 手机号人工服务门槛仍满足；
+   - 当前员工 identity / permission / data scope / object state 合法；
+7. Customer 即使已经是粉丝 / VIP 或其他具备找车权益的等级，也只代表“有资格被正式开通”，不代表提交后自动 active；
+8. Customer 当前无找车权益时，仍允许提交 Application；Application 可以保持 pending，等待后续等级调整后再由员工人工开通，或由客户撤回 / 员工关闭；
+9. Customer 等级后来升级并获得找车权益时，不自动激活已有 pending Application，仍必须由员工正式处理；
+10. 同一 Application 最多激活一个 Demand；激活动作必须幂等，重复提交不得创建第二个 Demand。
 
-- 客户提交 Application 后先保存申请；
-- 若当前已具备正式找车 entitlement，可直接创建 / 激活 active Demand；
-- 若无 entitlement，则 Application 保持 pending，等待人工开通。
+**被替代旧方向：**
 
-**方案 B｜9/19 R10 / Current**
+- “有 entitlement 的客户保存 Application 后直接自动 active Demand”；
+- “提交找车申请本身等于正式开始持续 Matching”。
 
-- 所有找车申请先进入 pending；
-- 员工在 E05-02 处理申请；
-- 由员工执行“开通正式找车服务”后，才创建唯一 Demand；
-- 工作台卡片不得一键激活。
+**状态：** `REAL_CONFLICT_RESOLVED / USER_APPROVED / OPTION_B`
 
-两者都会保留 Application / Demand 双对象，但“有 entitlement 时是否仍必须人工确认激活”不同。
+### P11-B4-02｜正式找车资格只来自客户等级权益｜用户裁决
 
-**需要用户裁决：** A 或 B，或给出新的统一口径。
+用户明确否决旧的：
 
-**状态：** `REAL_CONFLICT / USER_DECISION_REQUIRED`
+> `等级权益 OR Customer 级人工单独开通 find-car entitlement`
 
-### P11-B4-02｜正式找车 entitlement 的来源模型
+当前正式模型改为：
 
-9/06 SSOT 明确曾采用：
+> **正式找车资格只读取 Customer 当前客户等级所配置的找车权益。V1 不建设单个普通客户的独立 find-car entitlement override / grant。**
 
-> `等级权益 can_use_find_car_matching OR Customer 级人工开通`
+具体规则：
 
-并给过默认值：普通=false、粉丝=true、VIP=true，但强调等级名称不可写死，真正判断读取权益配置。
+1. Customer Level 是一组后台可配置权益，不只是“普通 / 粉丝 / VIP”名称；
+2. “正式找车 / Matching 资格”是客户等级权益之一；
+3. 当前 V1 业务基线：
+   - 普通客户不具备正式找车权益；
+   - 粉丝 / VIP 等目标等级可配置具备正式找车权益；
+   - 后续扩展等级同样按该等级当前权益配置判断；
+4. 普通客户需要获得正式找车资格时，不给该 Customer 单独增加一个“找车权限”；正式动作是把客户等级调整到具备该权益的等级；
+5. Customer 达到具备找车权益的等级后，资格立即按新等级生效，但不自动创建 / 激活 Demand；
+6. Customer 从具备找车权益的等级下降到不具备该权益的等级时，继续适用 P11-B2-08：
+   - active Demand → paused；
+   - paused 保持 paused；
+   - completed / cancelled 不改写；
+   - 全部历史、条件、Recommendation、CRM 跟进与责任历史保留；
+   - 以后权益恢复也不得自动恢复 active，需正式 resume；
+7. Customer 账号停用是独立触发源，但按 P11-B3-01 同样使 active Demand → paused；
+8. 不建设“普通客户保持普通等级，但单独人工勾选找车 entitlement”的第二套长期授权模型；
+9. 旧 `customer-level manual find-car entitlement enable` 方向明确 `DO_NOT_RESTORE`。
 
-Current 只剩泛化 `entitlement/authorization` Guard，没有完整承载来源模型。
+### 客户等级调整的权限与操作边界
 
-本轮已经冻结 entitlement 的生命周期效果：
+等级调整属于受控 Customer 治理 / 业务动作，继承 PDM-02：
 
-- entitlement 有效→无效：active Demand 自动 paused，历史保留；
-- entitlement 恢复：不自动 active，需正式 resume；
-- Customer 账号停用是独立触发源，但在 Demand 域同样 active→paused。
+> `identity + permission + data scope + object state`
 
-现在仍需裁决 entitlement **从哪里来**：
+当前 V1 不增加复杂审批流。
 
-1. 是否继续采用“客户等级权益 OR Customer 级人工开通”；
-2. 若保留等级权益，普通/粉丝/VIP 只是当前默认配置还是继续固定默认值；
-3. Customer 级人工开通是否保留为独立 override / entitlement grant，并要求操作人、时间、来源/原因、审计历史。
+1. 使用独立受控 capability（工程命名可统一为类似 `customer.level.manage`）；
+2. 产品基线不把“经理 / 店长”写死成唯一角色；
+3. 实际可通过角色模板默认 permission 或员工个人明确授权实现：
+   - 经理 / 店长通常可配置拥有；
+   - 个别普通销售也可以被明确放权；
+   - 未获授权人员不得调整；
+4. 4S 成员继续受名邦 Customer / CRM 域 hard DENY；
+5. Customer 必须位于操作者当前 data scope；
+6. 修改提交时重新校验当前 permission / scope / object state；
+7. 不要求“销售申请 → 店长审批 → 经理审批”的固定多级审批链；
+8. 等级修改至少审计：Customer、原等级、新等级、操作人、操作时间；原因默认可选，除非后续具体业务另有要求；
+9. 后台 / CRM 至少已有手机号搜索 Customer 的能力；具体搜索入口与昵称 / 名称等辅助搜索由 PDM-16 / PDM-21 / PDM-22 承载，不在 PDM-11 重造搜索体系。
 
-**状态：** `MISSING_CURRENT_AUTHORITY / USER_DECISION_REQUIRED`
+### 普通客户提交找车后的客户侧权益提示
+
+普通客户允许提交 Find-car Application，但因为当前等级无正式找车权益：
+
+- Application 正常保存为 pending；
+- 不创建 active Demand；
+- 客户侧应明确提示其当前等级无法正式开通持续找车服务；
+- 提示应引导升级到当前配置中具备找车权益的等级；当前 V1 业务文案可明确举例“粉丝 / VIP”；
+- 可提供“联系顾问”出口，帮助客户完成等级升级 / 后续服务；
+- 该提示不得伪装成 Application 提交失败；客户已经成功表达找车意愿，只是正式服务尚未激活。
+
+建议产品语义：
+
+> **找车申请已提交。您当前为普通客户，升级为粉丝或 VIP 后可开通正式找车服务；可联系顾问办理升级。**
+
+最终展示文案允许 PDM-20 按页面空间压缩，但不得丢失“申请已提交 / 当前等级受限 / 升级后可开通 / 联系顾问”四层语义。
+
+**状态：** `MISSING_CURRENT_AUTHORITY_RESOLVED / USER_APPROVED / LEVEL_ENTITLEMENT_ONLY`
+
+### 与 PDM-10 客户等级价格权益的统一模型
+
+本条与 PDM-10 共同冻结：
+
+> **Customer Level = 一组后台可配置权益。找车资格与批发车价格查看模式都从当前等级读取，但二者是独立 entitlement，不得互相替代。**
+
+例如当前常见配置：
+
+- 普通客户：
+  - 正式找车权益 = OFF；
+  - 批发车价格权益 = LIMITED；
+  - daily base quota = 后台配置（当前业务示例可为 20）；
+- 粉丝 / VIP：
+  - 正式找车权益 = 可配置为 ON；
+  - 批发车价格权益 = 可配置为 UNLIMITED；
+- 具体等级名称、未来扩展等级和 quota 数值不得硬编码成算法常量。
+
+价格权益的列表 / 详情展示、自动解锁、额度耗尽、`--万`、免费增加当天次数等由 PDM-10 当前后续裁决承担；PDM-11 只消费“当前等级是否具备正式找车权益”的结果。
 
 ---
+
 
 ## 10. Stale Carrier Ledger｜当前只登记、不修改 IA / Low-Fi
 
@@ -754,10 +824,10 @@ BATCH_1_CANDIDATES = 13
 BATCH_1_USER_APPROVAL = PASS
 BATCH_2 = PASS / USER_APPROVED
 BATCH_3 = PASS / USER_APPROVED
-BATCH_4 = USER_REVIEW_PENDING / P11-B4-01 / P11-B4-02
+BATCH_4 = PASS / USER_APPROVED
 PDM11_FINAL = NOT_READY
 ```
 
 当前唯一下一步：
 
-> **审查 Batch 4：P11-B4-01（Application→Demand 激活时机）与 P11-B4-02（正式找车 entitlement 来源模型）。两项未裁决前不得生成 PDM-11 Final。**
+> **Batch 4 已完成用户裁决。下一步：执行 PDM-11 全量 Decision Coverage / Missing Rule / Semantic Detail / Cross-PDM / Handoff 完整性复核，形成 Final 候选；未经最终总览批准不得标记 PDM-11 COMPLETE。**
