@@ -87,7 +87,16 @@
 ```text
 PDM-01～25 产品规则全部完成
 → PDM-01～25 全局 Cross-PDM / Handoff / Global Invariant 最终总复核
+→ PDM-01～PDM-25 Final / Integrity 历史阶段尾巴统一清理与 Current / History 边界标注
 → IA 全局集中对齐
 → Low-Fi 全局集中对齐
 → Engineering / 施工
 ```
+
+## PDM-25 后历史阶段尾巴统一收口
+
+- PDM-11～25 期间不反复批量清理各 PDM Final / Integrity 报告中当时真实的阶段进度尾巴；
+- 当前控制入口若出现 stale current pointer，仍必须立即修正；
+- PDM-25 + PDM-01～25 全局最终总复核 PASS 后，一次性完成 Final / Integrity 的 Current / Historical Audit Trail 边界标注；
+- 历史事实保留，不物理删除，不改变业务规则语义；
+- 该统一清理完成后再进入 IA 全局集中对齐。
