@@ -1,9 +1,9 @@
 # PDM-10｜价格 / 查价 / 客户展示价覆盖｜最终完整规则
 
 > 日期：2026-10-04  
-> 状态：COMPLETE  
+> 状态：`COMPLETE / INTEGRITY_PASS`  
 > 业务权威语言：中文（zh-CN）  
-> 说明：本文件是 PDM-10 经 Batch 1～4、全量覆盖校验、跨 PDM 冲突收口与用户最终批准后的正式当前规则。后续 PDM 不得静默推翻；发现真实跨域冲突必须显式重新裁决。
+> 说明：本文件是 PDM-10 经 Batch 1～4、全量覆盖校验、跨 PDM 冲突收口与用户最终批准后的正式当前规则；2026-10-05 已完成 Legacy Final Integrity Audit，并新增用户裁决 3A（UNLIMITED 与当天临时追加额度关系）。后续 PDM 不得静默推翻；发现真实跨域冲突必须显式重新裁决。
 
 ---
 
@@ -218,9 +218,22 @@ JYT upstream_list_price、upstream_wholesale_price、base_wholesale_price 继续
 
 立即获得不限量价格查看权益。
 
+用户于 2026-10-05 选择 **3A**，因此：
+
+- 切到 UNLIMITED 不清除当天已经合法存在的 `today_temp_additions`；
+- UNLIMITED 生效期间不再允许新增“临时增加当天查价次数”；
+- UNLIMITED 期间浏览批发车数字价格不计入 `today_consumed_new_vehicle_unlocks`；
+- UNLIMITED 浏览本身不批量创建 `customer + vehicle + listing_cycle` 单车查价权。
+
 ### 8.3 不限量 → 有限额
 
 立即恢复新等级的有限额规则。
+
+如果仍在同一个 UTC+8 自然日，则重新按：
+
+> `max(0, current_today_base_quota + today_temp_additions - today_consumed_new_vehicle_unlocks)`
+
+计算当前剩余额度；此前合法追加的当天次数继续有效，不因中间进入过 UNLIMITED 被删除。
 
 但以下既有权利不追回：
 
@@ -229,7 +242,7 @@ JYT upstream_list_price、upstream_wholesale_price、base_wholesale_price 继续
 
 仅仅因为客户曾处于不限量等级并浏览过车辆，不把浏览记录批量转化为永久单车解锁权。
 
-自然日边界：UTC+8 00:00。
+自然日边界：UTC+8 00:00；进入新业务日后 `today_temp_additions` 正常归零。
 
 ---
 
@@ -263,6 +276,29 @@ JYT upstream_list_price、upstream_wholesale_price、base_wholesale_price 继续
 - 员工按员工身份查看价格。
 
 每日普通查价额度只保护批发车价格；名邦 / 4S 人工车正常客户价格不消耗该额度。
+
+### 9.1 客户账号停用 / 恢复的上层 Guard
+
+继承 PDM-01：Customer 停用不删除查价事实，但暂停依赖 Customer 身份 / 权益的价格能力。
+
+Customer 处于停用状态时：
+
+- 不允许发起新的批发车数字查价；
+- 不消耗每日 quota；
+- 不使用当前等级 LIMITED / UNLIMITED 权益；
+- 已经成立的 `customer + vehicle + listing_cycle` 单车查价权不删除；
+- Recommendation 已授予的当前周期免费查价权不删除；
+- 公开车辆浏览仍按 PDM-01 公开浏览规则处理，但不得借公开浏览绕过价格权益暂停。
+
+Customer 恢复后：
+
+- 继续使用原 `customer_id`；
+- 仅恢复到恢复时仍自然有效的查价事实与当前等级权益；
+- 已结束 listing_cycle、已自然失效或已经终止的权利不得因恢复而复活。
+
+因此：
+
+> **Customer 停用是查价能力的上层可用性 Guard，不改写查价权的产生、listing_cycle 边界与历史。**
 
 ---
 
@@ -314,6 +350,14 @@ HARD DENY。
 提交时重新校验 identity + permission + data scope + object state。
 
 同一天可多次追加并累计；UTC+8 次日清零。owner 变化、原销售暂停接客或离职不撤销已追加次数；有权限的新责任人员可继续追加。
+
+### 11.1 与 UNLIMITED 的关系｜3A
+
+- 当前客户等级权益为 UNLIMITED 时，不允许继续新增临时查价次数，员工端对应动作应隐藏 / 禁用；
+- LIMITED → UNLIMITED 不清除当天已存在的 `today_temp_additions`；
+- 同一 UTC+8 自然日内 UNLIMITED → LIMITED 后，原有 `today_temp_additions` 重新参与剩余额度计算；
+- UNLIMITED 期间浏览不增加 `today_consumed_new_vehicle_unlocks`；
+- UTC+8 次日后，旧 `today_temp_additions` 按正常日切规则失效。
 
 不强制填写原因，备注可选。
 
@@ -396,7 +440,7 @@ internal_wholesale_price 初始化：
 
 ---
 
-## 15. 价格展示格式
+## 15. 价格展示格式与客户查价状态
 
 客户主要数字价格使用“万”：
 
@@ -406,8 +450,14 @@ internal_wholesale_price 初始化：
 - 不强制 .0；
 - 主要展示不用冗余“万元”。
 
-无数字客户价格 → “价格咨询”。
-批发价尚未解锁 → “查看价格”。
+必须严格区分以下状态：
+
+1. 当前车辆没有合法数字客户价格 → **“价格咨询”**；
+2. 当前车辆有合法数字价格、客户尚未解锁且当前 LIMITED 额度仍可用 → **“查看价格”**；
+3. 当前车辆有合法数字价格、客户尚未解锁但当天 LIMITED quota 已耗尽 → **`DAILY_PRICE_QUOTA_EXHAUSTED`**，不得伪装成“价格咨询”，客户侧应提供“额度不足，可联系顾问”的业务出口；
+4. 当前等级为 UNLIMITED 且存在合法数字客户价格 → 直接显示当前合法数字客户展示价。
+
+`DAILY_PRICE_QUOTA_EXHAUSTED → 联系顾问` 只表达客户可以联系顾问处理额度问题；它本身不自动增加额度，也不绕过 PDM-10 §11 的员工权限、owner / data scope 与 object state Guard。
 
 员工内部展示必须明确区分：
 - 当前客户展示价；
@@ -520,47 +570,88 @@ Recommendation / Lock 等关键业务已经形成的价格快照属于不可变�
 
 ---
 
-## 21. 跨 PDM 关系与显式 supersession
+## 21. Cross-PDM 承接状态与显式 supersession
 
-### 继承
-- PDM-02：统一 identity / role / permission / data scope / hard DENY；
-- PDM-03：current owner、离职 / owner 变化；
-- PDM-04：vehicle_id、source_type、listing_cycle、一键转名邦同 vehicle 模型；
-- PDM-06：人工车发布与正常车辆编辑基本模型。
+### 21.1 已完成 incoming handoff
 
-### 本 PDM 显式覆盖
+- `HO-P01-P10-001 = HANDOFF_CLOSED / source_backwrite=YES`：Customer 停用只暂停查价能力，不删除既有查价权；恢复只恢复仍自然有效事实；
+- `HO-P02-P10-001 = HANDOFF_CLOSED / source_backwrite=YES`：取消独立调价 permission/action；内部价字段仍按独立查看 permission 保护；
+- `HO-P03-P10-001 = HANDOFF_CLOSED / source_backwrite=YES`：普通分享/收藏不授价，Recommendation 才授当前 cycle 免费查价权；
+- `HO-P04-P10-001 = HANDOFF_CLOSED / source_backwrite=YES`：一键转名邦价格快照、同 vehicle/listing_cycle、内部价初始化与查价权继续；
+- `HO-P06-P10-001 = HANDOFF_CLOSED / source_backwrite=YES`：人工车价格非发布硬门槛，正常价格编辑走保存修改。
+
+### 21.2 本 PDM 显式 supersession
+
 - PDM-02 中“调价作为独立敏感 permission”的旧表述 → 由本 PDM §5 覆盖；
 - PDM-06 中“调价不得混入保存修改”的旧表述 → 由本 PDM §5 覆盖。
 
-### 后续 handoff
-- PDM-14：Recommendation 生命周期，但必须保留本 PDM 免费查价权边界；
-- PDM-18：Lock 生命周期，但必须保留价格快照不可变边界；
-- PDM-20：客户列表 / 详情“查看价格、价格咨询、万单位、真实价格排序筛选”交互承载；
-- PDM-21：员工端正常价格编辑、覆盖价入口、4S 裁剪、内部价格标签；
-- PDM-22：阶梯加价、等级额度、permission 与配置后台承载；
-- PDM-25：价格 / 覆盖 / 临时额度 / 低价风险 / 转换快照统一审计规范。
+### 21.3 仍待后续 PDM 承接
 
-这些 handoff 已有明确目标与 Guard；目标 PDM 后续不得遗漏或静默改写。
+- PDM-14｜`HANDOFF_OPEN`：Recommendation 免费授 `customer + vehicle + current listing_cycle` 批发查价权；Recommendation 结束、owner/负责人变化、原销售离职均不追回已授当前周期权利；
+- PDM-18｜`HANDOFF_OPEN`：Lock 创建时冻结必要价格快照；后续上游调价、阶梯、覆盖价、人工价格或 source_type 变化不得回写既有 Lock 快照；
+- PDM-20｜`HANDOFF_OPEN`：客户端“查看价格 / 价格咨询 / DAILY_PRICE_QUOTA_EXHAUSTED→联系顾问 / LIMITED / UNLIMITED / 万单位 / 未解锁真实价筛选排序但 payload 不泄露 / Customer 停用暂停价格权益”完整投影；
+- PDM-21｜`HANDOFF_OPEN`：员工端 customer_list_price/internal_wholesale_price 保存修改、internal-price permission、override、临时追加次数、UNLIMITED 禁止追加、4S 正常价格编辑与 hard DENY 投影；
+- PDM-22｜`HANDOFF_OPEN`：阶梯加价、markup ON/OFF、等级 LIMITED/UNLIMITED、daily base quota、permission 与相关业务配置后台承载；
+- PDM-25｜`HANDOFF_OPEN`：价格/覆盖/临时额度/低价风险/转换快照/等级权益配置变化等统一审计与历史。
+
+统一登记：
+
+> `07_重建工作区/CROSS_PDM_HANDOFF_REGISTER.md`
+
+### 21.4 IA / Low-Fi stale carrier
+
+当前只登记、不修改：
+
+- `4S member | internal mode | DENY` 仍可能整体阻断 4S 本人车辆管理；
+- internal-price permission 的角色投影仍可能与 PDM-10 当前独立可配置 permission 模型不一致；
+- 独立“调价 permission / 调价动作”旧 carrier 残留；
+- 员工端客户展示覆盖价真实操作入口不完整；
+- P08 价格后台仍偏通用 CRUD 壳，LIMITED / UNLIMITED、markup、quota 等真实配置投影不完整；
+- 临时增加当天查价次数员工入口不完整；
+- `DAILY_PRICE_QUOTA_EXHAUSTED → 联系顾问` 缺完整 Current / Low-Fi 投影；
+- Customer 停用后的价格权益暂停缺独立价格状态投影；
+- 3A UNLIMITED / temp additions 切换规则缺 Current / Low-Fi 状态投影。
+
+统一登记：
+
+> `STALE_CARRIER / DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT`
+
+IA / Low-Fi 不具有反向覆盖本 PDM Final 的产品 Authority。
 
 ---
 
-## 22. 最终门禁
+## 22. Legacy Final Integrity Gate
 
-PDM-10 经全量反向差集 M11-001～M11-017、历史 R4/CN11、Current/IA/Low-Fi、已完成 PDM 与本轮用户裁决双向核验后：
+2026-10-05 本域完成 Legacy Final Integrity Audit，共关闭 5 组问题：
 
-- SOURCE_DECISION_COVERAGE = 100%
-- UNMAPPED = 0
-- FINAL_TO_SOURCE_TRACEABILITY = 100%
-- DEFERRED_HANDOFF_UNRESOLVED = 0（所有跨域事项已指定目标与完整 Guard）
-- CROSS_PDM_CONFLICT = 0（PDM-02/PDM-06 旧冲突已显式 supersede）
-- GLOBAL_INVARIANT_CONFLICT = 0
-- SEMANTIC_INTEGRITY = PASS
-- NEGATIVE_CLAIMS_VERIFIED = PASS
-- USER_FINAL_APPROVED = YES
-- IMPLEMENTATION_READY = PASS
+1. 将 PDM-01 Customer 停用/恢复对查价能力的上层 Guard 真正写入 PDM-10 Final；
+2. 恢复 M11-001 的 `DAILY_PRICE_QUOTA_EXHAUSTED → 联系顾问`，并与“查看价格 / 价格咨询”严格分层；
+3. 用户批准 3A：UNLIMITED 时禁止新增临时次数，但当天既有 `today_temp_additions` 不删除，同日回 LIMITED 后继续有效，UNLIMITED 浏览不计 quota consumption；
+4. 正式登记 PDM-14 / 18 / 20 / 21 / 22 / 25 future handoff；
+5. 登记价格相关 IA / Low-Fi stale carrier。
+
+```text
+MISSING_RULE_UNRESOLVED = 0
+SEMANTIC_DETAIL_GAP_UNRESOLVED = 0
+CROSS_PDM_CONFLICT = 0
+HANDOFF_GAP_UNRESOLVED = 0
+GLOBAL_INVARIANT_CONFLICT = 0
+SOURCE_DECISION_COVERAGE = 100%
+FINAL_TO_SOURCE_TRACEABILITY = 100%
+SEMANTIC_INTEGRITY = PASS
+NEGATIVE_CLAIMS_VERIFIED = PASS
+IMPLEMENTATION_READY = PASS
+HANDOFF_REGISTER_SYNC = PASS
+```
 
 当前状态：
 
-> COMPLETE
+> **PDM-10 = COMPLETE / INTEGRITY_PASS**
+
+下一阶段：
+
+> **GLOBAL_PDM01_10_CROSS_PDM_AUDIT｜PDM-01～10 Cross-PDM / Handoff / Global Invariant 总复核**
+
+PDM-11 继续 BLOCKED，直到上述全局总复核 PASS。
 
 正式当前规则即本文件。
