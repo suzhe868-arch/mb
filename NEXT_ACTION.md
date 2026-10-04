@@ -17,11 +17,13 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-11
-- PDM-11 = IN_PROGRESS
+- 当前域：PDM-12
+- PDM-11 = COMPLETE / INTEGRITY_PASS
+- PDM-12 = IN_PROGRESS / STARTUP_GATE_PASS / EVIDENCE_RECONSTRUCTION_PENDING
 - PDM-11 启动门禁 = UNBLOCKED
 - `HO-P01-P11-001 = HANDOFF_SUPERSEDED`
-- `HO-P01-P11-002 = HANDOFF_ACCEPTED`
+- `HO-P01-P11-002 = HANDOFF_CLOSED`
+- PDM-12 incoming handoffs = 4 / 4 HANDOFF_ACCEPTED
 - PDM-11 Batch 1 = PASS / USER_APPROVED（P11-A01～P11-A13）
 - PDM-11 Batch 2 = PASS / USER_APPROVED
 - P11-B2-08 = USER_MODIFIED / USER_APPROVED
@@ -31,11 +33,11 @@
 
 总控工作单：
 
-> `07_重建工作区/PDM-11_找车申请Demand生命周期_规则原子重建_工作版.md`
+> `07_重建工作区/PDM-12_Matching匹配词典四级结果_规则原子重建_工作版.md`
 
 ## 当前唯一下一步
 
-> **审查 `07_重建工作区/PDM-11_最终完整规则总览_待用户批准.md`。该 Final 候选已经生成，并通过 `PDM-11_Final前完整性复核_2026-10-05.md` 的 Atom→Final 映射检查；未经用户最终批准不得生成正式 Final、关闭 incoming handoff 或标记 PDM-11 COMPLETE / INTEGRITY_PASS。**
+> **启动 PDM-12 证据重建：先做 Current Authority Refresh 与 Current Implementation Fact，再按 9/19 主底盘→前史→001～078→后续 Current/IA/Low-Fi→Conflict Before Classification 的顺序形成 Batch 1 候选。当前不得修改 IA / Low-Fi，不得自动批准任何 PDM-12 Atom。**
 
 每个 PDM 必须同时执行：
 
