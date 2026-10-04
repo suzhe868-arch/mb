@@ -373,15 +373,15 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 | handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
 |---|---|---|---|---|---|
-| HO-P11-P12-001 | PDM-12 | 只有经员工人工激活后的 active Demand 才进入正式 Matching 域；Application 不等于 Matching；客户原始表达、销售匹配描述、标准条件、需求说明分层；readiness / 确定性解析 / 匹配算法由 PDM-12 冻结 | HANDOFF_OPEN | - | YES |
-| HO-P11-P13-001 | PDM-13 | Priority 不得由 pending Application 或无资格 Customer 直接产生；只在合法 active Demand / Matching 关系下进入 Priority 语义，Priority 本身不是 Demand 状态 | HANDOFF_OPEN | - | YES |
-| HO-P11-P14-001 | PDM-14 | Recommendation 可关联 source_demand_id；Demand paused/completed/cancelled 不删除历史 Recommendation；Recommendation 生命周期不得反写 Demand 为 active | HANDOFF_OPEN | - | YES |
-| HO-P11-P16-001 | PDM-16 | CRM Customer 详情需承载当前客户等级、找车 entitlement 结果、pending/active/paused Demand 概览；客户定位至少继承 PDM-01 手机号搜索；具备 customer.level.manage 的名邦员工可在合法 data scope 内调整等级，具体 CRM 入口由 PDM-16 承载 | HANDOFF_OPEN | - | YES |
-| HO-P11-P17-001 | PDM-17 | Customer owner / 公海变化不得自动漂移 Demand 负责人；存在 active/paused Demand 时按正式责任交接规则处理，不把 Demand 直接丢入公海 | HANDOFF_OPEN | - | YES |
-| HO-P11-P20-001 | PDM-20 | 客户端找车：普通客户可提交 Application 但无正式找车权益时保持 pending；提交成功后明确提示当前等级受限、升级至具备权益等级（当前可举例粉丝/VIP）后可开通、可联系顾问；有权益也不自动 active；Demand paused/resume/历史按 PDM-11 投影 | HANDOFF_OPEN | - | YES |
-| HO-P11-P21-001 | PDM-21 | 员工端工作台展示 pending Find-car Application；卡片进入处理详情；无一键绕过 Guard 的自动激活；有权限员工在详情中人工开通 Demand；等级不足时先完成合法等级调整再激活；客户等级调整动作服从 permission + data scope + object state | HANDOFF_OPEN | - | YES |
-| HO-P11-P22-001 | PDM-22 | PC 后台统一承载 Customer Level 权益配置：找车 entitlement 与 PDM-10 LIMITED/UNLIMITED/daily quota 等均为等级权益；V1 不提供单 Customer find-car entitlement override；等级调整使用独立受控 customer.level.manage 类 capability，不建设固定多级审批流 | HANDOFF_OPEN | - | YES |
-| HO-P11-P25-001 | PDM-25 | 统一审计 Application 创建/编辑/撤回/关闭、Demand 激活/暂停/恢复/完成/取消/负责人变化、Customer 账号停用触发暂停、找车 entitlement 变化、Customer Level before/after/actor/time 及必要 permission/scope context | HANDOFF_OPEN | - | YES |
+| HO-P11-P12-001 | PDM-12 | 只有员工人工激活后的 active Demand 才进入正式 Matching；Application 不等于 Matching；客户原始要求/销售匹配描述/标准条件/需求说明严格分层；active 不等于 matching-ready；readiness、确定性解析、条件变更重算、候选等级由 PDM-12 冻结；Demand.created_at 为不可变创建事实 | HANDOFF_OPEN | - | YES |
+| HO-P11-P13-001 | PDM-13 | pending Application 不产生 Priority；Priority 只建立在合法 active Demand/Matching 上；Demand paused/completed/cancelled 后 Priority 处理由 PDM-13 冻结；若仲裁按 Demand 创建先后，只能使用不可变 Demand.created_at，不得使用 updated_at/resume time | HANDOFF_OPEN | - | YES |
+| HO-P11-P14-001 | PDM-14 | Recommendation 可关联 source_demand_id；Demand paused/completed/cancelled 不删除历史 Recommendation；Recommendation 生命周期不得反写 Demand 为 active；多 Demand 场景必须保持真实 source_demand_id 归属 | HANDOFF_OPEN | - | YES |
+| HO-P11-P16-001 | PDM-16 | CRM Customer 详情承载当前等级、找车 entitlement、pending Application、active/paused Demand 与 completed/cancelled 历史概览；Demand 详情使用统一 CRM follow-up 并以 demand_id 关联，不新建第二套 Demand 跟进表；客户检索继承手机号搜索；customer.level.manage 服从 permission+data scope+object state | HANDOFF_OPEN | - | YES |
+| HO-P11-P17-001 | PDM-17 | pending Find-car Application 本身是公海保护事实；active/paused Demand 同样属于未完成业务。Customer 无 owner 提交找车时必须先完成合法 owner 分配，再创建有负责人的 Application；pool empty 不得创建 responsible=null Application；owner/公海变化不得静默漂移 Demand 负责人；pending Application/待处理任务与未完成 Demand 均纳入正式交接 | HANDOFF_OPEN | - | YES |
+| HO-P11-P20-001 | PDM-20 | C02 为多对象找车工作区：pending Application、active/paused Demand、Recommendation、completed/cancelled history 可并存；Application 最低必填“想找什么车”，pending 可编辑/撤回；无 entitlement 提交成功仍 pending，提示升级到当前真实具备权益的等级/联系顾问，不得永久写死粉丝/VIP；active 可暂停、paused 可恢复；客户结束找车生成待员工确认请求并显示“结束处理中”，不得造第五主状态；账号停用时 pending Application 保留但不得激活 | HANDOFF_OPEN | - | YES |
+| HO-P11-P21-001 | PDM-21 | E01“找车服务待处理”展示客户/想找什么车/预算/提交时间/当前负责人/pending，卡片只进入处理详情；E05 Application 详情人工激活唯一 Demand/关闭申请；等级不足先合法调整但不自动激活；E05 Demand 详情完整承载客户原始要求、销售匹配描述、标准条件、需求说明、CRM 跟进、候选/推荐上下文；active=pause/complete/cancel，paused=resume/complete/cancel，终态只读；员工处理客户结束请求时落 completed 或 cancelled，也可直接结束；reassignment/inactive/离职保留负责人历史 | HANDOFF_OPEN | - | YES |
+| HO-P11-P22-001 | PDM-22 | PC 后台统一承载 Customer Level 权益配置：找车 entitlement 与 PDM-10 LIMITED/UNLIMITED/daily quota 为同一等级体系中的独立权益；V1 不提供单 Customer find-car override；等级可新增/改名/排序/启停/保留历史；customer.level.manage 独立受控且不建设固定多级审批；PC 客户/找车管理至少可查看 Application/Demand 当前状态、负责人及必要治理入口，不能只做等级配置壳 | HANDOFF_OPEN | - | YES |
+| HO-P11-P25-001 | PDM-25 | 统一审计 Application 创建/编辑/撤回/关闭/激活转换；Demand.created_at、激活、pause/resume、complete/cancel、客户结束请求及员工确认结果、负责人 reassignment；Customer disable/entitlement loss 触发 active→paused；Customer Level before/after/actor/time 及必要 identity/permission/data scope/object state context；历史不得因终态、停用或等级变化物理删除 | HANDOFF_OPEN | - | YES |
 
 ---
 
