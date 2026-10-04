@@ -146,7 +146,7 @@ System Admin 可以在后台治理：
 
 1. 内部模式只是内部工具投影，不是万能权限入口。
 2. 进入内部模式本身不授予任何业务权限。
-3. 编辑、调价、电话、展示价覆盖等敏感能力继续逐项按 identity + permission + data scope + object state 判定。
+3. 编辑、电话、客户展示价覆盖等能力继续按各自当前规则服从 identity + permission + data scope + object state。2026-10-04 PDM-10 已明确取消独立“调价 permission / 调价动作”：名邦 / 4S 正常 customer_list_price、internal_wholesale_price 属于车辆正常编辑字段；其中修改 internal_wholesale_price 仍必须具备本节独立内部价查看 permission。
 4. “查看名邦内部价 / 批发价”恢复为独立 permission。
 5. 名邦员工只有在具备该 permission、车辆位于其 data scope 且对象状态允许时，才能查看内部价 / 批发价。
 6. 经理 / 店长不会仅因职位自动获得内部价查看能力。
@@ -297,6 +297,19 @@ A18 原“System Admin 不自动获得 4S 账号管理能力”的表述已被 *
 ### A19
 
 P02-A19 为当前 System Admin 权限模型的最终解释优先级。
+
+### 14.1 PDM-10 后续跨域修正｜2026-10-04
+
+PDM-10 经用户最终批准后，对本 PDM 的价格动作语义形成以下显式 supersession：
+
+- 不再存在独立“调价 permission / 调价动作”；
+- 名邦 / 4S customer_list_price、internal_wholesale_price 作为正常车辆编辑字段提交；
+- customer_list_price 服从正常车辆编辑 / 管理能力 + data scope + object state；
+- internal_wholesale_price 除正常编辑条件外，还必须具备“查看名邦内部价 / 批发价”独立 permission；
+- 客户展示价覆盖继续保留独立 permission；
+- 4S 成员查看名邦内部价 / 批发价仍为 HARD DENY。
+
+本修正只覆盖“调价是否为独立 permission / action”的旧表述，不改变 PDM-02 其他统一权限模型。
 
 ## 15. 跨域留待后续 PDM 的内容
 
