@@ -445,12 +445,16 @@ PDM-08 已完成本域后续的图片 / CDN / H5 资源承载，当前正式结�
 
 PDM-07 已冻结的车况 / 档案边界必须由后续业务域继续承接：
 
-- PDM-12｜`HANDOFF_OPEN`：Matching 使用 JYT 原始车况描述 / 标签及必要确定性标准化事实；原始 provenance 不得被改写，无法确定保持 `unknown / confirmation_needed`，禁止猜测；
+- PDM-12｜`HANDOFF_CLOSED`：PDM-12 Final §§15-16 已正式承接——Matching 保留 JYT 原始车况描述/标签及 provenance，只做必要确定性标准化；证据优先级为结构化事实 > 明确检测 > 详细车况描述 > 模糊关键词；无法确定保持 unknown / confirmation_needed，禁止猜测；
 - PDM-13｜`HANDOFF_OPEN`：Priority 以车况条件参与候选 / 独占时，不得篡改 JYT / manual / Mingbang 检测 provenance，也不得把 unknown 猜成符合；
 - PDM-14｜`HANDOFF_OPEN`：档案不完整本身不得阻止 Recommendation；客户可见报告与 Recommendation 权利分层；
 - PDM-15｜`HANDOFF_OPEN`：档案不完整本身不得阻止 Consultation；
 - PDM-18｜`HANDOFF_OPEN`：档案不完整本身不得阻止 Lock / Waitlist；既有档案/报告历史不因 Lock 状态变化被删除或重写；
 - PDM-19｜`HANDOFF_OPEN`：档案不完整不阻止创建 Transaction，但首次真正完成 Transaction / 交付前必须读取当时有效 required-field set 并通过必要资料核验；缺失只阻止完成，不回滚已创建 Transaction。
+
+PDM-12 承接状态：
+
+> `HO-P07-P12-001 = HANDOFF_CLOSED / target=PDM-12 Final §§15-16 / source_backwrite=YES`
 
 ### 20.4 客户端 / 员工端 / PC / 审计承接
 
