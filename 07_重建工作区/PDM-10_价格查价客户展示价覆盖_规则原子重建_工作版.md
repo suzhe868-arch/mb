@@ -1,10 +1,10 @@
 # PDM-10｜价格 / 查价 / 客户展示价覆盖｜规则原子重建工作版
 
 > 日期：2026-10-04  
-> 当前状态：`BATCH_1_STABLE_CONSISTENT / USER_REVIEW_PENDING`  
+> 当前状态：`BATCH_2_DEPRECATED_SUPERSEDED_DO_NOT_RESTORE / USER_REVIEW_PENDING`  
 > 业务权威语言：中文（zh-CN）  
 > 当前域：PDM-10｜价格体系 / 客户展示价 / 阶梯加价 / 覆盖价 / 查价 / 价格快照  
-> 执行边界：只形成 Batch 1 候选，不自动批准，不提前进入 Batch 2。
+> 执行边界：Batch 1 已由用户全部确认；当前只形成 Batch 2 候选，不自动批准，不提前进入 Batch 3。
 
 ---
 
@@ -74,10 +74,10 @@ IA V5 / Low-Fi 只能证明结构承载，工程 Delta 明确是待执行输入�
 
 ---
 
-## 3. Batch 1｜稳定一致项｜待用户审查
+## 3. Batch 1｜稳定一致项｜已用户确认
 
 > 下列只纳入前史、9/19、9/22/IA 后续没有发现真实业务反转的规则原子。  
-> 状态统一为：`STABLE_CONSISTENT / USER_REVIEW_PENDING`。
+> 2026-10-04 用户明确“全部同意”。Batch 1 已关闭。
 
 ### P10-A01｜批发车原始价格事实与基础批发价
 
@@ -95,7 +95,7 @@ JYT 批发车必须分开保存：
 
 派生价格不得改写上游原始价格事实。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ---
 
@@ -114,7 +114,7 @@ JYT 批发车必须分开保存：
 
 本条只冻结价格数据模型与加价边界，不在 PDM-10 重新定义 Lock 资格。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ---
 
@@ -129,7 +129,7 @@ JYT 批发车必须分开保存：
 
 本条不提前裁决“全局加价开关 OFF 时具体取什么价格”；该演进项留后续批次。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ---
 
@@ -145,7 +145,7 @@ JYT 批发车必须分开保存：
 
 > **权益控制可见性，不参与车辆售价计算公式。**
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ---
 
@@ -163,7 +163,7 @@ JYT 批发车必须分开保存：
 
 编辑中 / 校验失败 / 保存失败的版本不得替换当前有效价格规则，也不得让前端自行猜价。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ---
 
@@ -181,7 +181,7 @@ JYT 批发车必须分开保存：
 
 本条只冻结版本生效模型；“加价 ON/OFF 时的具体客户价格公式”留后续批次单独复核。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ---
 
@@ -203,7 +203,7 @@ JYT 批发车必须分开保存：
 
 > **旧周期查价权不得自动跨周期。**
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ---
 
@@ -227,7 +227,7 @@ JYT 批发车必须分开保存：
 - 已存在合法免费查价权；
 - 员工按员工身份查看价格。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ---
 
@@ -251,7 +251,7 @@ JYT 批发车必须分开保存：
 
 Recommendation 自身创建/结束流程仍归 PDM-14，本条只冻结其价格权益边界。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ---
 
@@ -275,7 +275,7 @@ Recommendation 自身创建/结束流程仍归 PDM-14，本条只冻结其价格
 
 “临时追加当天查价次数”的完整规则存在历史承载缺口，单独留 Batch 4，不在本条偷偷吸收。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ---
 
@@ -299,7 +299,7 @@ Recommendation / Lock 等关键业务发生时保存的价格快照：
 
 Recommendation、Lock 自身生命周期不在 PDM-10 展开，只冻结其价格快照不可变边界。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ---
 
@@ -321,7 +321,7 @@ V1 不建设或恢复以下独立客户报价体系：
 
 成交阶段实际成交价属于 Transaction 事实，不因此重新引入“预计到手价”体系。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ---
 
@@ -374,20 +374,206 @@ V1 不建设或恢复以下独立客户报价体系：
 
 ---
 
-## 5. Batch 1 门禁状态
+## 5. Batch 1 门禁结果
 
-候选原子：
+确认原子：
 
 > **P10-A01 ～ P10-A12，共 12 条。**
 
+用户结论：
+
+> **全部同意**
+
+状态：
+
+> `COMPLETE_USER_CONFIRMED`
+
+Batch 1 门禁已关闭，允许进入 Batch 2；不得自动批准 Batch 2。
+
+---
+
+## 6. Batch 2｜明确废弃 / 明确替代｜待用户审查
+
+> 本批只确认“哪些旧方向不得恢复”。  
+> 若某旧方向对应的新规则仍存在版本演进，新规则本身留 Batch 3 / Batch 4 单独审查，不在本批偷渡。
+
+### P10-B2-01｜禁止恢复“覆盖价只适用于单一车源类型”
+
+不得恢复：
+
+> **客户展示价覆盖仅适用于批发车 / 单一来源类型。**
+
+后续“最终覆盖范围到底是哪些车源”作为演进规则单独进入 Batch 3。
+
+**状态：** `DEPRECATED_SUPERSEDED / USER_REVIEW_PENDING`
+
+---
+
+### P10-B2-02｜禁止恢复“加价关闭后一律价格咨询”
+
+不得把：
+
+> **加价关闭 = 所有批发车统一显示价格咨询**
+
+恢复为默认规则。
+
+加价关闭后的当前正确价格来源属于明确演进项，留 Batch 3 审查。
+
+**状态：** `DEPRECATED_SUPERSEDED / USER_REVIEW_PENDING`
+
+---
+
+### P10-B2-03｜禁止把内部批发价直接暴露为客户售价
+
+任何情况下都不得因为：
+
+- 加价关闭；
+- 阶梯规则无效；
+- 客户价缺失；
+
+就直接把 `base_wholesale_price` / 内部真实批发价作为客户展示价。
+
+**状态：** `DO_NOT_RESTORE / USER_REVIEW_PENDING`
+
+---
+
+### P10-B2-04｜禁止普通分享 / 收藏自动获得批发查价权
+
+不得恢复以下旧方向：
+
+- 普通分享免费授批发车查价权；
+- 点击分享链接即解锁价格；
+- 收藏绕过每日查价额度。
+
+普通传播行为不能代替正式价格授权事实。
+
+**状态：** `DO_NOT_RESTORE / USER_REVIEW_PENDING`
+
+---
+
+### P10-B2-05｜禁止 Recommendation 扩散为全库或二次分享价格权限
+
+不得恢复：
+
+- 推荐一辆车后解锁整个批发库存；
+- 客户把自己的价格权限通过普通分享传给其他客户；
+- 打开小程序 / 分享链接形成全局批发价权限。
+
+**状态：** `DO_NOT_RESTORE / USER_REVIEW_PENDING`
+
+---
+
+### P10-B2-06｜禁止旧 listing_cycle 价格权限跨新周期
+
+不得恢复：
+
+- 旧周期查价解锁自动延续到新 `listing_cycle`；
+- 旧 Recommendation 免费查价权自动泄露新周期当前价格；
+- 新周期自动继承旧周期覆盖价。
+
+真实新周期必须重新判断当前周期价格权限与覆盖事实。
+
+**状态：** `DO_NOT_RESTORE / USER_REVIEW_PENDING`
+
+---
+
+### P10-B2-07｜禁止重复扣额 / 非成功结果扣额
+
+不得恢复：
+
+- 同一 `listing_cycle` 每次查看都重复扣额度；
+- 只看到“价格咨询”也扣一次；
+- 请求失败 / 超时仍扣额度；
+- 员工查看价格消耗客户查价额度。
+
+**状态：** `DO_NOT_RESTORE / USER_REVIEW_PENDING`
+
+---
+
+### P10-B2-08｜禁止无效阶梯规则上线或草稿直接影响线上
+
+不得恢复：
+
+- 阶梯区间有重叠仍可启用；
+- 声明范围有空档仍可启用；
+- 无法唯一算价仍上线；
+- 编辑中的草稿边改边影响当前客户价格；
+- 保存失败后覆盖当前有效规则。
+
+**状态：** `DO_NOT_RESTORE / USER_REVIEW_PENDING`
+
+---
+
+### P10-B2-09｜禁止人工车被强制纳入 JYT 加价 / 内部价锁车门槛
+
+不得恢复：
+
+- 名邦 / 4S 人工车参加 JYT 统一阶梯加价；
+- 仅因为人工车内部批发价为空就禁止进入后续锁车业务。
+
+本条只确认旧价格方向不得恢复；Lock 全流程仍归后续 PDM-18。
+
+**状态：** `DO_NOT_RESTORE / USER_REVIEW_PENDING`
+
+---
+
+### P10-B2-10｜禁止恢复名邦员工“内部价查看独立 permission”旧门槛
+
+不得恢复：
+
+> **名邦员工要看内部价 / 批发价，必须额外拥有一项独立 internal-price-view permission。**
+
+R11 已明确取消该独立权限门槛；当前 IA / Permission 若存在残留，属于后续承载清理问题。
+
+4S 的内部价边界仍须按角色 / 数据范围单独处理，不因本条自动放开。
+
+**状态：** `DEPRECATED_SUPERSEDED / USER_REVIEW_PENDING`
+
+---
+
+### P10-B2-11｜禁止用内部批发价强填客户标价
+
+不得恢复：
+
+- 一键转名邦时因为客户价缺失，就拿内部批发价强行填客户标价；
+- 人工车客户标价为空时用内部批发价自动补成客户价。
+
+同一 vehicle_id 转名邦后的最终价格字段处理仍留 Batch 4 做跨 PDM 裁决。
+
+**状态：** `DO_NOT_RESTORE / USER_REVIEW_PENDING`
+
+---
+
+### P10-B2-12｜禁止恢复客户完整历史价格与第二套费用报价体系
+
+不得恢复：
+
+- 客户查看完整内部价格历史；
+- 服务费；
+- 物流 / 检测 / 过户等独立报价；
+- 预计到手价 / 到手价测算；
+- 后台费用规则。
+
+内部审计历史可以保留，但不能因此变成客户侧第二套报价体系。
+
+**状态：** `DO_NOT_RESTORE / USER_REVIEW_PENDING`
+
+---
+
+## 7. Batch 2 门禁状态
+
+候选原子：
+
+> **P10-B2-01 ～ P10-B2-12，共 12 条。**
+
 当前状态：
 
-> `USER_REVIEW_BATCH_1_PENDING`
+> `USER_REVIEW_BATCH_2_PENDING`
 
 门禁：
 
-- 用户未确认前，不得将任一 P10-Axx 标记 USER_APPROVED；
-- 不得进入 Batch 2；
+- 用户未确认前，不得将任一 P10-B2-xx 标记 USER_APPROVED；
+- 不得进入 Batch 3；
 - 不得修改 IA / Low-Fi / Engineering；
-- 不得用当前实现事实自动覆盖产品裁决；
+- 不得把“旧规则禁止恢复”等同于自动批准对应的新规则；
 - 不得静默改写已完成 PDM-01～PDM-09。

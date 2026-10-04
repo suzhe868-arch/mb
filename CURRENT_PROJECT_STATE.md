@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `USER_REVIEW_BATCH_1_PENDING`
+> `USER_REVIEW_BATCH_2_PENDING`
 
 当前工作文件：
 
@@ -24,7 +24,7 @@
 
 当前唯一下一步：
 
-> **用户审查 P10-A01～P10-A12；未确认前停止，不进入 Batch 2。**
+> **用户审查 P10-B2-01～P10-B2-12；未确认前停止，不进入 Batch 3。**
 
 ## 已完成
 
@@ -869,3 +869,24 @@ PDM-09 尚未 FINAL APPROVED，不得标记 COMPLETE，不得进入 PDM-10。
 > `PDM-10 / BATCH_1_STABLE_CONSISTENT / USER_REVIEW_PENDING`
 
 未经用户确认不得进入 Batch 2。
+
+
+## 2026-10-04｜PDM-10 Batch 1 完成并进入 Batch 2
+
+用户明确“全部同意”，确认 P10-A01～P10-A12 全部通过。
+
+Batch 1 状态：
+
+> `COMPLETE_USER_CONFIRMED`
+
+Decision Register 已登记 PDM10-DEC-A01～A12 与 PDM10-GATE-B1。
+
+已继续完成 Batch 2 筛选，共形成：
+
+> **P10-B2-01～P10-B2-12**
+
+当前进入：
+
+> `PDM-10 / BATCH_2_DEPRECATED_SUPERSEDED_DO_NOT_RESTORE / USER_REVIEW_PENDING`
+
+未经用户确认不得进入 Batch 3。

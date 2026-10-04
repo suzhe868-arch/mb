@@ -6,29 +6,22 @@
 
 - PDM-01 ～ PDM-09 = COMPLETE
 - PDM-10 = IN_REVIEW
-- PDM-10 Batch 1 = USER_REVIEW_PENDING
+- PDM-10 Batch 1 = COMPLETE_USER_CONFIRMED
+- PDM-10 Batch 2 = USER_REVIEW_PENDING
 - 当前工作版：`07_重建工作区/PDM-10_价格查价客户展示价覆盖_规则原子重建_工作版.md`
-- Batch 1 候选：P10-A01 ～ P10-A12（12 条）
+- Batch 2 候选：P10-B2-01 ～ P10-B2-12（12 条）
 
 ## 当前唯一下一步
 
-> **用户审查 PDM-10 Batch 1｜P10-A01～P10-A12。**
+> **用户审查 PDM-10 Batch 2｜P10-B2-01～P10-B2-12。**
 
-本批只包含前史、9/19 与后续材料未发现真实业务反转的稳定一致项。
+本批只确认明确废弃 / 明确替代 / DO_NOT_RESTORE 旧方向。
 
 用户确认前：
 
-- 不得把 Batch 1 标记完成；
-- 不得进入 Batch 2；
+- 不得把 Batch 2 标记完成；
+- 不得进入 Batch 3；
 - 不得修改 IA / Low-Fi；
 - 不得执行 Engineering Delta；
+- 不得把“旧规则禁止恢复”偷换为“对应新规则已批准”；
 - 不得静默改写 PDM-01～PDM-09 已确认规则。
-
-已识别的演进 / 冲突 / 遗漏项已留到后续批次，包括：
-
-- 加价 OFF 的历史语义变化；
-- 覆盖价从批发扩展到三类车源；
-- 内部价查看权限变化；
-- 调价独立权限承载缺口；
-- 销售临时追加查价次数历史遗漏；
-- 同一 vehicle_id 转名邦后的价格字段处理冲突。
