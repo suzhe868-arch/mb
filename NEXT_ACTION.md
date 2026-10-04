@@ -7,7 +7,8 @@
 - PDM-01 ～ PDM-10 = COMPLETE（历史裁决完成状态）
 - PDM-01 ～ PDM-10 Legacy Final Integrity Audit = IN_PROGRESS
 - PDM-01 Integrity Audit = INTEGRITY_PASS
-- 当前审计域：PDM-02
+- PDM-02 Integrity Audit = INTEGRITY_PASS
+- 当前审计域：PDM-03
 - PDM-11 = BLOCKED_UNTIL_PDM01_10_INTEGRITY_PASS
 
 总控工作单：
@@ -16,7 +17,7 @@
 
 ## 当前唯一下一步
 
-> **从 PDM-02 继续 Legacy Final Integrity Audit。**
+> **从 PDM-03 继续 Legacy Final Integrity Audit。**
 
 每个 PDM 必须同时执行：
 
@@ -50,5 +51,16 @@ PDM-11 只有在以下全部完成后才允许开始：
 - 不只检查 Final 文案而跳过原始证据遗漏扫描；
 - 不把 PDM-01～10 全部推倒重做；只 reopen 真正有问题的 Atom / 段落；
 - 不用聊天记忆替代仓库证据；
-- 不修改 IA / Low-Fi；
+- 不在 PDM-01～25 产品规则阶段修改 IA / Low-Fi；发现冲突只登记 `STALE_CARRIER`、正确 Authority 与未来修正要求；
+- IA / Low-Fi 集中对齐固定延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核之后；
 - 不执行 Engineering Delta。
+
+## PDM-25 后 Carrier 对齐硬顺序
+
+```text
+PDM-01～25 产品规则全部完成
+→ PDM-01～25 全局 Cross-PDM / Handoff / Global Invariant 最终总复核
+→ IA 全局集中对齐
+→ Low-Fi 全局集中对齐
+→ Engineering / 施工
+```
