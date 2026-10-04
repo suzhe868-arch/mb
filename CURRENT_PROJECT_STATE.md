@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_4_PASS / USER_APPROVED / PRE_FINAL_INTEGRITY_PENDING`
+> `IN_PROGRESS / PREFINAL_INTEGRITY_PASS / FINAL_CANDIDATE_READY`
 
 当前工作文件：
 
@@ -32,7 +32,21 @@
 
 当前唯一下一步：
 
-> **PDM-12 Batch 1～4 已全部通过用户审查。Batch 4 最终裁决为 1A/2A/3A/4A/5A/6A：价格咨询按预算有无区分、里程仅最高值为 hard、六类字段继续排除 V1 自动四级 Matching、Rule Dictionary 不普通物理删除、partial failure 部分成功保留并禁止 stale Match Result 继续驱动新业务、正式规则写权限使用 matching.rule.manage 且 4S hard DENY。PDM-12 本域 deferred unresolved = 0；outgoing handoff 已登记到 PDM-13/14/16/20/21/22/25。下一步执行 Final 前完整性复核；IA / Low-Fi 继续延后到 PDM-25 后集中对齐。**
+> **PDM-12 Batch 1～4 与 P12-LIA-01～06 已全部通过用户审查并落仓；Final 前二次完整性复核 = PASS。LIA 补齐了“未填=不限”、readiness、confirmation_needed 不排他、Matching 集合进入/退出、active Lock 仍可 Matching、人工确认权限与 PDM-20/PDM-21 carrier 精度；新增 HO-P12-P18-001。当前 `MISSING_RULE_UNRESOLVED=0 / SEMANTIC_DETAIL_GAP_UNRESOLVED=0 / HANDOFF_GAP_UNRESOLVED=0`。下一步生成 PDM-12 Final Domain Overview 提交用户最终批准；IA / Low-Fi 继续延后到 PDM-25 后集中对齐。**
+
+## 2026-10-05｜PDM-12 Final 前完整性修复与二次复核 PASS
+
+- `P12-LIA-01～P12-LIA-06 = USER_APPROVED / APPLIED`；
+- LIA-01：客户未填写正式条件 = 不限，不等于 unknown；
+- LIA-02：补齐 matching readiness，部分 component 待确认不必停止整个 Demand Matching；
+- LIA-03：confirmation_needed 不占车、不排他、不阻断其他 Customer/Demand；
+- LIA-04：补齐 Matching 集合进入/退出与 stale result invalidation；
+- LIA-05：active Lock 本身不等于不可 Matching；新增 `HO-P12-P18-001`；
+- LIA-06：人工确认执行主体继承 PDM-02；精化 PDM-20 车型年款/首次上牌年份与数字价格筛选边界；PDM-21 固定确认事实→重算→再读 tier；
+- PDM-12 stale carrier 6 项已登记，只登记不施工；
+- Final 前二次复核：Source→Atom / Atom→Source / Semantic Completeness / Completed-PDM Invariant / Cross-PDM Handoff / Negative Claims 全部 PASS；
+- 报告：`07_重建工作区/PDM-12_Final前完整性复核_2026-10-05.md`；
+- 当前唯一下一步：生成 PDM-12 Final Domain Overview 候选并提交用户最终批准。
 
 ## 2026-10-05｜PDM-12 Batch 4 用户批准
 

@@ -389,16 +389,17 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 | handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
 |---|---|---|---|---|---|
-| HO-P12-P13-001 | PDM-13 | PDM-13 只消费 PDM-12 当前合法 Match Result，不复制第二套 Matching Authority；Priority 候选必须基于当前 high/acceptable，confirmation_needed/no_match 不得作为成功匹配；Priority TTL/仲裁/lifecycle 与 Demand.created_at 仲裁语义由 PDM-13 冻结。 | HANDOFF_OPEN | - | YES |
+| HO-P12-P13-001 | PDM-13 | PDM-13 只消费 PDM-12 当前合法 Match Result，不复制第二套 Matching Authority；Priority 候选必须基于当前 high/acceptable，confirmation_needed/no_match 不得作为成功匹配；active Lock 不阻止 PDM-12 继续形成 Match Result，但是否允许建立/继续 Priority、Priority 如何被 Lock 接管/结束由 PDM-13 冻结；Priority TTL/仲裁/lifecycle 与 Demand.created_at 仲裁语义同样归 PDM-13。 | HANDOFF_OPEN | - | YES |
 | HO-P12-P14-001 | PDM-14 | Match Result 与 Recommendation/visibility grant 分离；high/acceptable 不自动创建 Recommendation，不自动授予客户详情可见权；Recommendation 后续 Guard/生命周期由 PDM-14 冻结。 | HANDOFF_OPEN | - | YES |
 | HO-P12-P16-001 | PDM-16 | Rule Dictionary 新增/修改/启停及其他 Matching 关键事实变化后，PDM-12 只对受影响当前在售车辆与 active+matching-ready Demand 做确定性重解析/重算，并向后续消费者提供可追溯的 Matching change fact；PDM-16 的 Source Radar 负责消费这些变化事实形成 Radar Event / 聚合 / 工作台投影，不得在 PDM-16 复制第二套 Matching 规则或反向覆盖 PDM-12 Match Result Authority。 | HANDOFF_OPEN | - | YES |
-| HO-P12-P20-001 | PDM-20 | 客户端车源主页搜索与正式 Demand Matching 共用 PDM-12 Rule Dictionary / deterministic parser；搜索只消费结构化解析结果做当前可搜索车辆查询，不创建 Match Result/Priority/Recommendation/Demand/Lock；六类 V1 auto-Matching 排除字段是否作为客户端筛选项由 PDM-20 在其搜索/筛选域承载。 | HANDOFF_OPEN | - | YES |
-| HO-P12-P21-001 | PDM-21 | 员工端 E05-05/E05-06 必须投影 PDM-12 四级 Match Result、解释原因、confirmation_needed 人工确认、重算与 stale/recalc-failed 结果边界；确认动作只补事实并重算，不强制成功，也不自动创建 Priority/Recommendation。 | HANDOFF_OPEN | - | YES |
+| HO-P12-P18-001 | PDM-18 | active Lock 本身不使底层真实可售 Vehicle 退出 PDM-12 Matching；其他 Demand 可继续产生携带“已锁/占用”事实的 Match Result，但不得据此绕过单车唯一 active Lock。其他客户候补/Lock 动作、Lock 释放后的处理与 active Lock Guard 归 PDM-18；本 handoff 不外推 Transaction。 | HANDOFF_OPEN | - | YES |
+| HO-P12-P20-001 | PDM-20 | 客户端车源主页搜索与正式 Demand Matching 共用 PDM-12 Rule Dictionary / deterministic parser；搜索只消费结构化解析结果，不创建 Match Result/Priority/Recommendation/Demand/Lock。搜索解析得到的“车型年款”不得与主筛选“首次上牌年份”混成一字段；六类 V1 auto-Matching 排除字段仍可由 PDM-20 作为搜索/筛选条件承载；Demand 的“未填预算+价格咨询可匹配”不得污染客户端明确数字价格区间筛选，设置数字价格区间时价格咨询车辆仍排除。 | HANDOFF_OPEN | - | YES |
+| HO-P12-P21-001 | PDM-21 | 员工端 E05-04/E05-05/E05-06 必须承载“保存销售匹配描述→确定性解析→标准条件→受影响范围重算”、四级 Match Result、解释原因、confirmation_needed 人工确认及 stale/recalc-failed 边界；人工确认只允许当前 Demand 负责人或当前 identity/permission/data scope/object state 合法的 active 名邦 Employee，4S hard DENY、System Admin 身份不自动获得；确认只能补事实→重算→读取新的正式 tier，不得直接变成功 Match/Priority/Recommendation。 | HANDOFF_OPEN | - | YES |
 | HO-P12-P22-001 | PDM-22 | PC P06-10 必须承载真实 Rule Dictionary Action：新增/编辑/启停/作用域/测试解析/历史审计；正式写动作受 matching.rule.manage 控制，4S hard DENY，System Admin 身份不自动取得写能力；PROCESSING/PARTIAL_FAILURE/ERROR 与失败集合重试需真实投影。 | HANDOFF_OPEN | - | YES |
-| HO-P12-P25-001 | PDM-25 | 统一审计 Rule Dictionary 创建/修改/启停、before/after、actor/time、规则作用域、Match Result 历史与解释、recalc failure/retry、stale result invalidation、受影响范围重算；停用规则与历史 Match Result 不物理删除。 | HANDOFF_OPEN | - | YES |
+| HO-P12-P25-001 | PDM-25 | 统一审计 Rule Dictionary 创建/修改/启停、before/after、actor/time、规则作用域、Match Result 历史与解释、recalc failure/retry、stale result invalidation、受影响范围重算、confirmation_needed 人工确认 actor/事实来源/前后结果；停用规则与历史 Match Result 不物理删除。 | HANDOFF_OPEN | - | YES |
 
 ---
-## 13. Post-PDM25 IA / Low-Fi Carrier Ledger｜PDM-01～10
+## 13. Post-PDM25 IA / Low-Fi Carrier Ledger｜持续累积
 
 > 当前只登记，不施工；统一在 PDM-25 完成 + PDM-01～25 全局最终总复核 PASS 后集中对齐。
 
@@ -462,6 +463,12 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | PDM-10 | DAILY_PRICE_QUOTA_EXHAUSTED→联系顾问缺完整 Current/Low-Fi 投影 | CARRIER_DEFERRED |
 | PDM-10 | Customer 停用后的价格权益暂停缺独立价格状态投影 | CARRIER_DEFERRED |
 | PDM-10 | 3A UNLIMITED/temp additions 切换规则缺 Current/Low-Fi 状态投影 | CARRIER_DEFERRED |
+| PDM-12 | E05-06 仍可能把“确认候选”投影成直接成功 Match / 直接具备 Priority 资格；正确 Authority 是确认事实→重算→读取新 tier | CARRIER_DEFERRED |
+| PDM-12 | E05-05 HIDDEN_CONTROLLED 仍可能把 Demand/Priority 本身当作隐藏车客户详情可见权；正确 Authority 仍需 Recommendation/visibility grant | CARRIER_DEFERRED |
+| PDM-12 | E05-04 缺完整“保存销售匹配描述→确定性解析→更新标准条件→受影响范围重算”真人 Action | CARRIER_DEFERRED |
+| PDM-12 | P06-10 仍偏 NORMAL/PROCESSING/PARTIAL_FAILURE/ERROR 通用状态壳，缺 Rule Dictionary 新增/编辑/启停/作用域/测试/审计/失败集合重试真实 Action Contract | CARRIER_DEFERRED |
+| PDM-12 | Current carrier 对“正式 Matching 禁止 AI 猜测”表达不足 | CARRIER_DEFERRED |
+| PDM-12 | Current carrier 对“车源主页搜索与 Demand Matching 共用 deterministic parser / Rule Dictionary”表达不足 | CARRIER_DEFERRED |
 
 ---
 
@@ -492,5 +499,5 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-01～10 全局 Cross-PDM / Handoff / Global Invariant 总复核：PASS；
 - PDM-11：COMPLETE / INTEGRITY_PASS；
 - 当前进入：PDM-12；
-- PDM-12：Batch 1～4 PASS / USER_APPROVED；下一步 Final 前完整性复核；
-- `HO-P01-P11-001 = HANDOFF_SUPERSEDED`；`HO-P01-P11-002 = HANDOFF_CLOSED`。PDM-12 incoming handoff 已全部 ACCEPTED；PDM-12 outgoing future handoff 已扩展登记：PDM-13 / PDM-14 / PDM-16 / PDM-20 / PDM-21 / PDM-22 / PDM-25 均为 `HANDOFF_OPEN`，待各目标域承接。
+- PDM-12：Batch 1～4 + P12-LIA-01～06 均 USER_APPROVED；Final 前二次完整性复核 PASS；下一步 Final Domain Overview 用户最终审查；
+- `HO-P01-P11-001 = HANDOFF_SUPERSEDED`；`HO-P01-P11-002 = HANDOFF_CLOSED`。PDM-12 incoming handoff 已全部 ACCEPTED；PDM-12 outgoing future handoff 已扩展登记：PDM-13 / PDM-14 / PDM-16 / PDM-18 / PDM-20 / PDM-21 / PDM-22 / PDM-25 均为 `HANDOFF_OPEN`，待各目标域承接。

@@ -19,7 +19,7 @@
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
 - 当前域：PDM-12
 - PDM-11 = COMPLETE / INTEGRITY_PASS
-- PDM-12 = IN_PROGRESS / BATCH_4_PASS / USER_APPROVED / PRE_FINAL_INTEGRITY_PENDING
+- PDM-12 = IN_PROGRESS / PREFINAL_INTEGRITY_PASS / FINAL_CANDIDATE_READY
 - PDM-11 启动门禁 = UNBLOCKED
 - `HO-P01-P11-001 = HANDOFF_SUPERSEDED`
 - `HO-P01-P11-002 = HANDOFF_CLOSED`
@@ -37,7 +37,7 @@
 
 ## 当前唯一下一步
 
-> **执行 PDM-12 Final 前完整性复核：Full Evidence Matrix、Source→Atom / Atom→Source 双向追溯、Semantic Completeness、Global Invariant Scan、Cross-PDM Handoff 完整性、Current/IA/Low-Fi stale carrier 检查。若发现缺口，先形成修复候选提交用户；若 PASS，再生成 Final 总览提交用户最终批准。不得自动发布 Final，不得修改 IA / Low-Fi。**
+> **生成 PDM-12 Final Domain Overview 候选：逐项覆盖 Batch 1～4、P12-LIA-01～06、incoming/outgoing handoff 与 stale carrier ledger；完成 Final→Source 反查后提交用户最终审查。未经用户最终批准不得发布 PDM-12 Final、不得开始 PDM-13、不得修改 IA / Low-Fi。**
 
 每个 PDM 必须同时执行：
 
@@ -66,7 +66,7 @@
 
 ## 当前禁止
 
-- PDM-12 Batch 1～4 已全部通过；当前不得自动发布 Final，必须先完成 Final 前完整性复核与最终用户批准；
+- PDM-12 Batch 1～4 + P12-LIA-01～06 已全部通过，Final 前完整性复核 = PASS；当前仍不得自动发布 Final，必须先生成 Final Domain Overview 并取得用户最终批准；
 - 不把旧 PDM 的 `COMPLETE` 直接等同于通过当前新完整性标准；
 - 不只检查 Final 文案而跳过原始证据遗漏扫描；
 - 不把 PDM-01～10 全部推倒重做；只 reopen 真正有问题的 Atom / 段落；
@@ -90,7 +90,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-11 均已 `COMPLETE / INTEGRITY_PASS`；`HO-P01-P11-001 = HANDOFF_SUPERSEDED`，`HO-P01-P11-002 = HANDOFF_CLOSED`。当前域为 PDM-12，HO-P04-P12-001 / HO-P05-P12-001 / HO-P07-P12-001 / HO-P11-P12-001 均已 `HANDOFF_ACCEPTED`；PDM-12 Batch 1～4 均已 `PASS / USER_APPROVED`；PDM-12 本域 deferred unresolved = 0；outgoing handoff 已登记到 PDM-13/14/16/20/21/22/25。下一步为 Final 前完整性复核。
+当前 PDM-01～PDM-11 均已 `COMPLETE / INTEGRITY_PASS`；`HO-P01-P11-001 = HANDOFF_SUPERSEDED`，`HO-P01-P11-002 = HANDOFF_CLOSED`。当前域为 PDM-12，HO-P04-P12-001 / HO-P05-P12-001 / HO-P07-P12-001 / HO-P11-P12-001 均已 `HANDOFF_ACCEPTED`；PDM-12 Batch 1～4 + P12-LIA-01～06 均已 `PASS / USER_APPROVED`；Final 前完整性复核 = PASS；PDM-12 本域 deferred unresolved = 0；outgoing handoff 已登记到 PDM-13/14/16/18/20/21/22/25。下一步为 Final Domain Overview 用户最终审查。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 

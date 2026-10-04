@@ -1,10 +1,10 @@
 # PDM-12｜Matching / 匹配词典 / 四级结果 / 人工确认｜规则原子重建工作版
 
 > 日期：2026-10-05  
-> 当前状态：`IN_PROGRESS / BATCH_4_PASS / USER_APPROVED / PRE_FINAL_INTEGRITY_PENDING`  
+> 当前状态：`IN_PROGRESS / PREFINAL_INTEGRITY_PASS / FINAL_CANDIDATE_READY`  
 > 业务权威语言：中文（zh-CN）  
 > 当前域：PDM-12｜Match Candidate / Match Result / Rule Dictionary  
-> 当前硬门禁：Batch 1～4 已全部完成用户审查；进入 Final 前完整性复核。未经 Final 前完整性复核 PASS 与用户最终批准，不得发布 PDM-12 Final，不得修改 IA / Low-Fi。
+> 当前硬门禁：Batch 1～4 与 P12-LIA-01～06 均已完成用户审查，Final 前完整性复核已 PASS；下一步只能生成/提交 Final Domain Overview 给用户最终批准。未经用户最终批准不得发布 PDM-12 Final，不得修改 IA / Low-Fi。
 
 ---
 
@@ -1186,7 +1186,257 @@ PDM12_LOCAL_DEFERRED_UNRESOLVED = 0
 
 ---
 
-# 10. Batch Gate
+# 10. Final 前完整性修复｜P12-LIA-01～06｜USER APPROVED
+
+> 第一轮 Final 前 Full Evidence Matrix / 双向追溯发现 6 组“证据已经明确、但 Batch 1～4 未独立写透”的信息保真缺口。  
+> 用户已确认 `P12-LIA-01～P12-LIA-06 = ALL USER_APPROVED`，并于 2026-10-05 明确“确认执行”。  
+> 本节不构成第 5 个产品裁决 Batch；只把已有 Authority 补成语义完整、可交接、可审计的正式规则。
+
+## P12-LIA-01｜客户未填写某项条件 = 该项不限
+
+对正式 Demand 的每一个可匹配条件：
+
+- Customer / Sales 未形成该项正式标准条件 → 该项视为**不限**；
+- “未填写”不是 vehicle fact unknown；
+- “未填写”不得产生 `confirmation_needed`；
+- 系统不得自行猜出一个限制值；
+- 未填写字段不得因为默认值、空值或 UI placeholder 被误当 hard condition。
+
+P12-B4-01 的：
+
+> Demand 未填写预算 → 价格维度不限
+
+只是本总规则在预算维度的具体实例。
+
+若某项**已经形成正式 hard condition**，但 Vehicle 对应事实缺失 / 冲突 / 无法确定，才进入该 component 的 `confirmation_needed` 语义。
+
+---
+
+## P12-LIA-02｜Matching readiness 完整定义
+
+Demand 主状态与 Matching readiness 继续严格分层。
+
+至少区分以下业务事实：
+
+### 尚未 ready
+
+包括但不限于：
+
+- 尚未形成销售匹配描述；
+- 销售匹配描述尚未完成确定性解析；
+- 解析结果无法形成任何合法、可执行的正式标准条件集；
+- 规则冲突严重到当前无法确定应该按什么条件执行 Matching。
+
+此时即使 Demand = `active`，也不得启动正式 Matching。
+
+### ready
+
+满足：
+
+- Demand = `active`；
+- 当前 find-car entitlement / Customer account 等 PDM-11 Guard 合法；
+- 销售匹配描述已保存；
+- 已完成确定性解析；
+- 已形成可执行标准条件。
+
+### 部分条件待确认但仍可继续 Matching
+
+若：
+
+- 已存在一组合法、可执行的确定条件；
+- 另有部分 component 存在规则冲突 / vehicle fact unknown / 待人工确认；
+
+则不得把整个 Demand 一刀切成“停止 Matching”。
+
+系统应：
+
+- 使用已确定条件继续计算；
+- 涉及未确认 hard condition 的具体 Demand×Vehicle 进入 `confirmation_needed`；
+- 不得自动判 high/acceptable；
+- 待事实确认后只重跑受影响范围。
+
+技术实现可使用 `pending_definition / ready / ready_with_confirmation_needed` 或等价字段，但产品 Authority 不强制具体枚举名。
+
+---
+
+## P12-LIA-03｜confirmation_needed 是局部不确定，不占车、不排他
+
+`confirmation_needed` 只表达：
+
+> **某一个 Demand × 某一个 Vehicle 在当前某个已填写 hard condition 上存在事实不确定。**
+
+因此它：
+
+- 不占用 Vehicle；
+- 不形成 exclusive visibility；
+- 不阻断其他 Customer / Demand 对同一 Vehicle 独立执行 Matching；
+- 不创建 Priority；
+- 不创建 Recommendation；
+- 不授予客户详情可见权；
+- 不创建 Lock；
+- 不改变 owner / responsible。
+
+A Customer 对某 Vehicle 为 `confirmation_needed`，不影响 B / C Customer 在各自条件下得到独立的 high / acceptable / confirmation_needed / no_match。
+
+确认只补事实并重算，不能把“确认动作”误实现成占车或成功匹配动作。
+
+---
+
+## P12-LIA-04｜补齐进入 / 退出当前 Matching 集合的事件
+
+P12-A14 的“关键事实变化重算”补齐为完整生命周期事件集。
+
+### 进入 / 首次计算
+
+至少包括：
+
+- 新 Vehicle 进入真实可售 + 当前允许 Matching 的状态；
+- Vehicle 从不可参与状态恢复到真实可售 / 可参与 Matching；
+- Demand 首次满足 `active + matching-ready`；
+- Demand readiness 从不可执行 → 可执行；
+- paused Demand 正式 resume，且重新通过 entitlement / account / readiness Guard。
+
+### 当前结果重算
+
+继续包括：
+
+- 标准条件变化；
+- 销售匹配描述变化；
+- Vehicle 关键事实变化；
+- 合法客户展示价变化；
+- unknown → known；
+- known fact 改变；
+- Rule Dictionary 新增 / 修改 / 启停影响对应作用域。
+
+### 退出当前有效 Matching
+
+至少包括：
+
+- Demand → paused / completed / cancelled；
+- Customer disable / find-car entitlement 丧失按 PDM-11 导致 active → paused；
+- Demand readiness 失效；
+- Vehicle → offline / unavailable / sold / unpublished draft / 其他明确不可参与普通 Matching 的真实状态；
+- Rule / fact 变化使旧结果失效。
+
+退出时：
+
+- 历史 Match Result 不物理删除；
+- 旧结果必须失去 `current valid result` 身份；
+- stale / invalidated 结果不得继续创建新的 Priority / Recommendation 或其他依赖当前 Match Result 的新业务。
+
+---
+
+## P12-LIA-05｜active Lock 本身不等于 Vehicle 不可 Matching
+
+Lock 属于业务占用事实，不等于车辆真实不可售事实。
+
+因此：
+
+- Vehicle 存在 active Lock，但底层仍真实可售、listing_cycle 有效、其他 PDM-12 Matching Guard 合法时，仍可为其他 Demand 产生 Match Result；
+- Match Result 必须能够携带 / 投影“当前已锁定 / 占用”的真实业务事实；
+- “high / acceptable”只表示条件匹配，不表示该 Customer 当前可以直接 Lock；
+- 不得因为 Match Result 成功绕过 active Lock 唯一性；
+- 其他 Customer 的后续候补 / Lock 动作归 PDM-18；
+- Priority 对 active Lock 的资格 / 结束 / 接管边界归 PDM-13。
+
+本条**不外推 Transaction 状态下是否继续产生新的普通 Match Result**；Transaction 相关真实可售 / 新业务 Guard 继续服从对应车辆与交易域 Authority。
+
+新增 future handoff：
+
+`HO-P12-P18-001 = HANDOFF_OPEN`
+
+---
+
+## P12-LIA-06｜人工确认权限 + PDM-20/PDM-21 carrier/handoff 精度
+
+### A. confirmation_needed 人工确认的执行主体
+
+人工确认属于名邦 Customer / Demand / Matching 业务动作，不是公共浏览动作。
+
+允许执行者：
+
+- 当前 Demand responsible employee；或
+- 当前具备相应业务 permission + data scope + object state 的 active 名邦 Employee。
+
+边界：
+
+- 4S Member 受名邦 Customer / CRM 域 hard DENY；
+- System Admin 身份本身不自动获得该业务执行能力；
+- 同一真人如需执行业务，使用合法 Employee 身份；
+- UI 显示按钮不替代提交时的 server-side identity / permission / data scope / object state 重验；
+- 确认动作只补事实 / 选择合法事实来源并触发重算，不允许直接写死最终 tier。
+
+### B. PDM-20 客户端搜索 handoff 精度
+
+PDM-20 必须同时遵守：
+
+1. 搜索文本与 Demand Matching 共用 PDM-12 deterministic parser / Rule Dictionary；
+2. 搜索解析得到的**车型年款**不得与客户端主筛选“首次上牌年份”混成同一字段；
+3. P12-B4-03 六类字段“不参与 V1 自动四级 Matching”不等于“客户端禁止搜索/筛选这些字段”；
+4. Demand Matching 的“未填预算 + 价格咨询可继续匹配”不得污染客户端明确数字价格筛选；
+5. 客户端设置明确数字价格区间时，“价格咨询”车辆不参与该数字价格区间结果。
+
+### C. PDM-21 员工端 handoff 精度
+
+E05-06 等员工端人工确认不得实现为：
+
+> 确认候选 → 直接成功 Match / 直接具备 Priority 资格
+
+必须实现为：
+
+> 确认合法事实 → 触发受影响范围重算 → 读取新的正式四级 Match Result → 下游再按各自 Guard 处理。
+
+---
+
+## Final 前 stale carrier 登记
+
+以下仅登记，当前不施工 IA / Low-Fi：
+
+1. E05-06 仍可能存在“确认候选 → 直接进入 Priority/成功匹配”的旧投影；
+2. E05-05 HIDDEN_CONTROLLED 仍可能存在“Demand/Priority 本身直接授客户隐藏车详情可见”的旧投影；
+3. E05-04 尚未完整承载“保存销售匹配描述 → 确定性解析 → 更新标准条件 → 受影响范围重算”真人 Action；
+4. P06-10 仍偏 `NORMAL / PROCESSING / PARTIAL_FAILURE / ERROR` 通用状态壳，缺真实 Rule Dictionary Action Contract；
+5. Current carrier 对“正式 Matching 禁止 AI 猜测”表达不足；
+6. Current carrier 对“主页搜索与 Demand Matching 共用 parser / dictionary”表达不足。
+
+统一状态：
+
+`STALE_CARRIER / DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT`
+
+---
+
+## Final 前完整性复核二次结果
+
+在 P12-LIA-01～06 补齐后，重新执行：
+
+- Full Evidence Matrix；
+- Source→Atom；
+- Atom→Source；
+- Semantic Completeness；
+- Completed-PDM Invariant Scan；
+- Cross-PDM Handoff Integrity；
+- Current / IA / Low-Fi stale carrier scan；
+- Negative Claim / supersession check。
+
+结果：
+
+```text
+PDM12_PREFINAL_REPAIR = P12-LIA-01～06 / USER_APPROVED / APPLIED
+SOURCE_TO_ATOM = PASS
+ATOM_TO_SOURCE = PASS
+SEMANTIC_COMPLETENESS = PASS
+COMPLETED_PDM_INVARIANT = PASS
+CROSS_PDM_HANDOFF_INTEGRITY = PASS
+STALE_CARRIER_LEDGER = REGISTERED
+NEGATIVE_CLAIMS_VERIFIED = PASS
+PDM12_LOCAL_DEFERRED_UNRESOLVED = 0
+PDM12_PREFINAL_INTEGRITY = PASS
+PDM12_FINAL_CANDIDATE = READY_FOR_USER_REVIEW
+```
+
+---
+
+# 11. Batch Gate
 
 ```text
 PDM12_STARTUP_GATE = PASS
@@ -1208,10 +1458,16 @@ HO_P12_P16_001 = HANDOFF_OPEN
 PDM12_BATCH_4 = PASS / USER_APPROVED
 P12_B4_01_TO_B4_06 = USER_APPROVED
 PDM12_LOCAL_DEFERRED_UNRESOLVED = 0
-PDM12_PRE_FINAL_INTEGRITY = PENDING
-PDM12_FINAL = NOT_READY / PRE_FINAL_INTEGRITY_PENDING
+PDM12_PRE_FINAL_REPAIR = P12-LIA-01～06 / USER_APPROVED / APPLIED
+PDM12_PRE_FINAL_INTEGRITY = PASS
+PDM12_SOURCE_TO_ATOM = PASS
+PDM12_ATOM_TO_SOURCE = PASS
+PDM12_SEMANTIC_COMPLETENESS = PASS
+PDM12_CROSS_PDM_HANDOFF_INTEGRITY = PASS
+PDM12_STALE_CARRIER_LEDGER = REGISTERED
+PDM12_FINAL = NOT_PUBLISHED / FINAL_CANDIDATE_READY_FOR_USER_REVIEW
 ```
 
 ## 当前唯一下一步
 
-> **执行 PDM-12 Final 前完整性复核：做 Full Evidence Matrix、Source→Atom / Atom→Source 双向追溯、Semantic Completeness、Global Invariant Scan、Cross-PDM Handoff 完整性、Current/IA/Low-Fi stale carrier 检查。发现问题先形成 Final 前修复候选并停下；只有完整性复核 PASS 后才生成 Final 总览提交用户最终批准。不得自动发布 Final，不得修改 IA / Low-Fi。**
+> **生成 PDM-12 Final Domain Overview 候选：必须逐项覆盖 Batch 1～4 + P12-LIA-01～06 + incoming/outgoing handoff + stale carrier ledger，并执行 Final→Source 反查。生成后提交用户最终审查，未经用户最终批准不得发布 PDM-12 Final、不得开始 PDM-13、不得修改 IA / Low-Fi。**
