@@ -19,7 +19,7 @@
 
 | M11 | 主题 | 最终去向 |
 |---|---|---|
-| 001 | 临时追加当日查价次数 | Final §11 |
+| 001 | 临时追加当日查价次数 / quota 耗尽联系顾问 | Final §11、§15（2026-10-05 Integrity backwrite） |
 | 002 | 完整价格体系 / 覆盖 / 查价 / 快照 | Final §1～§14、§17 |
 | 003 | 阶梯空档 / markup 开关 | Final §2～§3 |
 | 004 | 详情核心参数 | 非 PDM-10 价格核心；PDM-20 客户详情 handoff |
@@ -56,6 +56,17 @@ M11 单元全部有明确最终去向：17/17。
 - B4-10：internal_wholesale_price 修改需内部价查看 permission。
 
 这些细节已进入正式 Final，未停留在聊天。
+
+## 4A. 2026-10-05 Legacy Integrity Backwrite
+
+Legacy Final Integrity Audit 进一步补齐：
+
+- M11-001 不仅包含员工临时追加，还包含客户 quota 耗尽后“额度不足，可联系顾问”的业务出口；该状态已正式写入 Final §15；
+- Customer 停用/恢复对价格权益的上层 Guard 已从 PDM-01 真正回写至 PDM-10；
+- 用户新增 3A：UNLIMITED 时禁止新增临时次数，但同日既有 today_temp_additions 保留，同日回 LIMITED 后继续有效；UNLIMITED 浏览不计 quota consumption；
+- PDM-14/18/20/21/22/25 handoff 已改用正式 `HANDOFF_OPEN` 状态机登记。
+
+以上不降低原 17/17 coverage；相反修复了原报告对 M11-001 指向过度压缩的问题。
 
 ## 5. 门禁结果
 
