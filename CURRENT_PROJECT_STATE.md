@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / PDM-01_PDM-02_PDM-03_PDM-04_PDM-05_PDM-06_PDM-07_PDM-08_INTEGRITY_PASS / CURRENT_PDM-09`
+> `IN_PROGRESS / PDM-01_PDM-02_PDM-03_PDM-04_PDM-05_PDM-06_PDM-07_PDM-08_PDM-09_INTEGRITY_PASS / CURRENT_PDM-10`
 
 当前工作文件：
 
@@ -32,8 +32,17 @@
 
 当前唯一下一步：
 
-> **PDM-01、PDM-02、PDM-03、PDM-04、PDM-05、PDM-06、PDM-07、PDM-08 已通过 Legacy Final Integrity Audit；从 PDM-09 继续 Missing Rule Audit、Semantic Detail Audit、Cross-PDM Integrity Audit。PDM-01～10 全部及全局总复核 PASS 前，PDM-11 继续 BLOCKED。IA / Low-Fi 统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。**
+> **PDM-01、PDM-02、PDM-03、PDM-04、PDM-05、PDM-06、PDM-07、PDM-08、PDM-09 已通过 Legacy Final Integrity Audit；从 PDM-10 继续 Missing Rule Audit、Semantic Detail Audit、Cross-PDM Integrity Audit。PDM-01～10 全部及全局总复核 PASS 前，PDM-11 继续 BLOCKED。IA / Low-Fi 统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。**
 
+## 2026-10-05｜PDM-09 Legacy Final Integrity Audit 完成
+
+- PDM-09 Integrity：`INTEGRITY_PASS`；
+- 本轮关闭 5 组问题：P03-05 source_platform+upstream_publisher_id 与电话明文权限隔离、无有效号码不覆盖旧缓存、3A source_type 电话入口裁剪、PDM-21/22/23/25 future handoff、IA/Low-Fi/旧实现 stale carrier；
+- 用户最终裁决 3A：上游电话只作为当前 wholesale/JYT 批发车源的日常敏感能力；批发→名邦或当前为 4S 后，车辆详情关闭查看/latest/拨打入口，但 publisher 来源事实、缓存、history、审计不删除；
+- P09-A04-R1 / P09-A11-R1 的 Collector 取号→名邦 Integration API 回传架构保持不变；
+- 审计报告：`07_重建工作区/PDM-09_历史最终版完整性复核_2026-10-05.md`；
+- 当前进入：PDM-10 Legacy Final Integrity Audit；
+- PDM-11 继续 BLOCKED。
 ## 2026-10-05｜PDM-08 Legacy Final Integrity Audit 完成
 
 - PDM-08 Integrity：`INTEGRITY_PASS`；
@@ -84,7 +93,7 @@
 ## 2026-10-05｜Cross-PDM Handoff 双向闭环启用
 
 - 已新增统一总账：`07_重建工作区/CROSS_PDM_HANDOFF_REGISTER.md`；
-- 已把 PDM-01～PDM-08 已出现的 integrity 问题、已完成 handoff、仍开放 handoff 与 post-PDM25 stale carrier 持续回填到统一总账；
+- 已把 PDM-01～PDM-09 已出现的 integrity 问题、已完成 handoff、仍开放 handoff 与 post-PDM25 stale carrier 持续回填到统一总账；
 - 以后来源 PDM 只写“交后续”不算闭环；目标 PDM 完成后必须反向回写来源 Final / Integrity 报告 / Register / 状态文件；
 - PDM-04 §20 已把 PDM-05～10 的旧“留后续”改为 `HANDOFF_CLOSED`；
 - PDM-04 已通过 Integrity Audit；Supply Anomaly 采用用户裁决 B：anomaly 本身只告警、不统一阻断新增业务，真实 offline / unavailable 才硬阻断；
