@@ -22,7 +22,9 @@
 - PDM-11 启动门禁 = UNBLOCKED
 - `HO-P01-P11-001 = HANDOFF_ACCEPTED`
 - PDM-11 Batch 1 = PASS / USER_APPROVED（P11-A01～P11-A13）
-- PDM-11 Batch 2 = USER_REVIEW_PENDING（P11-B2-01～P11-B2-10）
+- PDM-11 Batch 2 = PARTIAL_USER_APPROVED
+- P11-B2-08 = USER_MODIFIED / USER_APPROVED
+- Batch 2 剩余待审 = P11-B2-01～P11-B2-07、P11-B2-09、P11-B2-10
 
 总控工作单：
 
@@ -30,7 +32,7 @@
 
 ## 当前唯一下一步
 
-> **用户审查 PDM-11 Batch 2：P11-B2-01～P11-B2-10。未经用户确认，不进入 Batch 3。**
+> **继续审查 PDM-11 Batch 2 剩余 9 条：P11-B2-01～P11-B2-07、P11-B2-09、P11-B2-10。P11-B2-08 已完成用户修正与确认。未经剩余项确认，不进入 Batch 3。**
 
 每个 PDM 必须同时执行：
 
