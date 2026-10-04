@@ -1,7 +1,7 @@
 # PDM-06｜人工车辆发布 / 草稿 / VIN / 删除边界｜最终完整规则
 
 > 日期：2026-09-24  
-> 状态：`COMPLETE`  
+> 状态：`COMPLETE / INTEGRITY_PASS`  
 > 说明：本文件汇总 PDM-06 Batch 1～4 经用户逐批裁决并经最终总览批准后的正式当前规则；2026-10-05 已完成 Legacy Final Integrity Audit，并关闭 PDM-07 / PDM-08 / PDM-10 已完成承接。  
 > IA / Low-Fi 仅登记 `STALE_CARRIER`，统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。
 
