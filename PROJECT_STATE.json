@@ -847,7 +847,7 @@
       "PDM-10"
     ],
     "status": "IN_PROGRESS",
-    "start_domain": "PDM-04",
+    "start_domain": "PDM-05",
     "sequence": [
       "PDM-01",
       "PDM-02",
@@ -881,15 +881,17 @@
     },
     "pdm_11_blocked": true,
     "pdm_11_unblock_condition": "ALL_PDM01_10_INTEGRITY_PASS_AND_GLOBAL_CROSS_PDM_AUDIT_PASS",
-    "current_domain": "PDM-04",
+    "current_domain": "PDM-05",
     "completed_domains": [
       "PDM-01",
       "PDM-02",
-      "PDM-03"
+      "PDM-03",
+      "PDM-04"
     ],
     "pdm_01_result": "INTEGRITY_PASS",
     "pdm_02_result": "INTEGRITY_PASS",
-    "pdm_03_result": "INTEGRITY_PASS"
+    "pdm_03_result": "INTEGRITY_PASS",
+    "pdm_04_result": "INTEGRITY_PASS"
   },
   "pdm_11_status": "BLOCKED_BY_PDM01_10_LEGACY_INTEGRITY_AUDIT",
   "pdm_01_integrity_status": "INTEGRITY_PASS",
@@ -961,9 +963,28 @@
     "PDM-04"
   ],
   "cross_pdm_handoff_backfill_status": "COMPLETE_2026-10-05",
-  "pdm_04_handoff_status_backwrite": "PDM05_TO_PDM10_CLOSED_IN_SOURCE_FINAL",
-  "pdm_04_integrity_status": "IN_PROGRESS_DECISION_REQUIRED",
-  "pdm_04_integrity_decision_required": [
-    "SUPPLY_ANOMALY_BLOCK_NEW_BUSINESS_A_OR_B"
+  "pdm_04_handoff_status_backwrite": "PDM05_TO_PDM10_CLOSED_IN_SOURCE_FINAL_AND_REGISTER",
+  "pdm_04_integrity_status": "INTEGRITY_PASS",
+  "pdm_04_integrity_decision_required": [],
+  "pdm_04_integrity_audit_file": "07_重建工作区/PDM-04_历史最终版完整性复核_2026-10-05.md",
+  "pdm_04_integrity_reopen_count": 11,
+  "pdm_04_integrity_missing_rule_unresolved": 0,
+  "pdm_04_integrity_semantic_detail_gap_unresolved": 0,
+  "pdm_04_integrity_cross_pdm_conflict": 0,
+  "pdm_04_integrity_handoff_gap_unresolved": 0,
+  "pdm_04_integrity_global_invariant_conflict": 0,
+  "pdm_04_integrity_source_decision_coverage": "100%",
+  "pdm_04_integrity_final_to_source_traceability": "100%",
+  "pdm_04_integrity_semantic_integrity": "PASS",
+  "pdm_04_integrity_negative_claims_verified": "PASS",
+  "pdm_04_integrity_implementation_ready": "PASS",
+  "pdm_04_handoff_register_sync": "PASS",
+  "pdm_04_supply_anomaly_new_business_rule": "WARNING_ONLY_NOT_GLOBAL_BLOCK_REAL_OFFLINE_UNAVAILABLE_HARD_BLOCKS_NEW_ORDINARY_SALES_BUSINESS",
+  "pdm_04_vehicle_time_model": "LISTING_STARTED_AT_SEPARATE_FROM_MANUAL_UPLOAD_AND_JYT_FIRST_SEEN",
+  "pdm_04_occupied_vehicle_fact_update": "LOCKED_TRADING_ALLOW_AUTHORIZED_REAL_FACT_UPDATES_NO_AUTO_BUSINESS_CANCEL_OR_SNAPSHOT_REWRITE",
+  "pdm_04_fixed_source_sync_apis": [
+    "UPSERT_VEHICLE",
+    "BATCH_CONFIRM_OFFLINE",
+    "GET_CURRENT_ONSALE_WHOLESALE_VEHICLES"
   ]
 }
