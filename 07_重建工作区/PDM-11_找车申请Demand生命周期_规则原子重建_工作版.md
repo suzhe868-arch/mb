@@ -289,7 +289,7 @@ Application 最低必填：
 
 **状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
 
-### P11-A08｜匹配准备度与 Demand 主状态分层
+### P11-A09｜匹配准备度与 Demand 主状态分层
 
 Demand 已 active 不等于 Matching 必然已经启动。
 
@@ -304,7 +304,7 @@ Demand 已 active 不等于 Matching 必然已经启动。
 
 **状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
 
-### P11-A08｜客户原始要求、销售匹配描述、标准条件、需求说明必须分层
+### P11-A10｜客户原始要求、销售匹配描述、标准条件、需求说明必须分层
 
 至少区分：
 
@@ -318,7 +318,7 @@ Demand 已 active 不等于 Matching 必然已经启动。
 
 **状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
 
-### P11-A08｜pending Application 必须进入员工工作台待处理
+### P11-A11｜pending Application 必须进入员工工作台待处理
 
 客户提交 pending Application 后，进入负责销售工作台“找车服务待处理”。
 
@@ -335,13 +335,13 @@ Demand 已 active 不等于 Matching 必然已经启动。
 
 **状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
 
-### P11-A08｜终态 Demand / Application 保留历史，不做普通物理删除或原地复活
+### P11-A12｜终态 Demand / Application 保留历史，不做普通物理删除或原地复活
 
 Application closed / withdrawn、Demand completed / cancelled 均保留必要业务历史。错误处理只能通过明确 correction / invalidation / amendment 类治理方式追加事实，不以普通编辑覆盖历史。
 
 **状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
 
-### P11-A08｜成交不自动批量结束客户其他 Demand
+### P11-A13｜成交不自动批量结束客户其他 Demand
 
 某笔 Transaction completed 只完成该交易及相关车辆成交事实，不得自动把同一 Customer 的其他 Demand 批量改为 completed / cancelled。
 
