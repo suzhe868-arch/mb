@@ -27,6 +27,7 @@
 - P11-B2-08 = USER_MODIFIED / USER_APPROVED
 - PDM-11 Batch 3 = PASS / USER_APPROVED（P11-B3-01 用户修正版）
 - PDM-11 Batch 4 = PASS / USER_APPROVED（P11-B4-01、P11-B4-02）
+- PDM-11 Pre-Final Integrity = PASS / FINAL_CANDIDATE_READY
 
 总控工作单：
 
@@ -34,7 +35,7 @@
 
 ## 当前唯一下一步
 
-> **执行 PDM-11 全量 Decision Coverage / Missing Rule / Semantic Detail / Cross-PDM / Handoff 完整性复核，形成 Final 候选。重点验证 Customer Level 权益、PDM-10 价格联动、人工激活、普通客户找车提示与 future handoff 均无遗漏。未经用户最终批准不得标记 PDM-11 COMPLETE。**
+> **生成并审查 PDM-11《最终完整规则总览_待用户批准》。总览必须覆盖 Application / Demand 双对象、多 Demand、负责人、Customer Level 找车权益、人工激活、Customer disable、双向结束、公海保护、PDM-10 联动与全部 future handoff。未经用户最终批准不得标记 PDM-11 COMPLETE / INTEGRITY_PASS。**
 
 每个 PDM 必须同时执行：
 
