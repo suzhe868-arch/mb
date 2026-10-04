@@ -1,0 +1,85 @@
+# PDM-01｜Legacy Final Integrity Audit｜2026-10-04
+
+> 状态：`INTEGRITY_PASS`  
+> 当前 Git 基线：`3b7dd151a50d96c22ef637be6adeae5cf605473a`  
+> 范围：Missing Rule Audit + Semantic Detail Audit + Cross-PDM Integrity Audit  
+> 规则：只修正 PDM-01 当前 Final / Decision / 状态；IA / Low-Fi / Engineering 只登记 stale carrier，不在本轮修改。
+
+## 1. 本轮复核结论
+
+PDM-01 历史 `COMPLETE` 保留。按 2026-10-04 新完整性标准重新读取当前 Final、Decision Register、历史来源、001～078 线索、PDM-02 / PDM-03 / PDM-10 已完成规则及当前 IA / Low-Fi carrier 后，共识别并关闭 6 组问题。
+
+| ID | 类型 | 问题 | 最终处理 | 状态 |
+|---|---|---|---|---|
+| P01-LIA-01 | SEMANTIC_DETAIL_GAP | A02 已确认“不建设显式独立登录页”，旧 Final 只剩“不建设传统账号密码登录体系” | 恢复完整首入语义 | RESOLVED |
+| P01-LIA-02 | SEMANTIC_DETAIL_GAP | R10-67 的找车表单授权拒绝后“当前页临时保留、不是服务端草稿”被压掉 | 补回临时保留与不承诺跨页恢复边界 | RESOLVED |
+| P01-LIA-03 | HANDOFF_GAP | PDM-01 仍把手机号维护 capability 留给 PDM-02 | 同步 PDM-02 `customer.phone.manage + data scope`、4S hard DENY | RESOLVED |
+| P01-LIA-04 | CROSS_PDM_DETAIL | PDM-01 自然轮询表述缺少 PDM-02 / PDM-03 已冻结的“异常池空”例外 | 同步 `owner_assignment_pending`、不建 responsible=null 正式业务、System Admin 不兜底 | RESOLVED |
+| P01-LIA-05 | STALE_HANDOFF | PDM-01 仍把 owner / 分享 / 转介绍整体写成待 PDM-03；历史 Decision A04 仍残留 SOURCE_ONLY 子句 | 登记 PDM-03 已完成承接，并显式 supersede 旧 SOURCE_ONLY 子句 | RESOLVED |
+| P01-LIA-06 | USER_REOPEN | 原 A16 停用闭环过重，与本轮用户重新裁决不符 | 改为轻量后台停用/恢复：公开浏览可用，客户身份/权益业务能力暂停，身份/owner/来源/历史不删，降权走客户等级 | RESOLVED |
+
+## 2. 客户账号停用 / 恢复最终规则
+
+1. 客户无自助停用入口；不想使用时不登录即可。
+2. 后台使用独立受控 capability `customer.account.disable` 执行停用 / 恢复。
+3. active 名邦员工必须同时满足 capability + Customer data scope；4S hard DENY。
+4. System Admin 负责控制平面配置，不因其身份自动获得客户业务执行权。
+5. 停用后仍可访问网站 / 小程序与浏览公开内容；依赖 Customer 身份或权益的业务账号能力暂停。
+6. 不删除 `customer_id`、current owner、来源、推荐关系、历史；不自动终止既有业务对象。
+7. 停用不自动降低客户等级，也不强制删除尚未自然失效的权益；需要降权时使用客户等级调整。
+8. 恢复沿用原 `customer_id`；已过期 / 终止 / 周期结束的对象或权益不因恢复而复活。
+9. 停用 / 恢复记录操作人、时间、原因、前后状态。
+
+## 3. Completed-PDM Dependency Card
+
+| 依赖 PDM | 当前约束 | PDM-01 本轮处理 | 结果 |
+|---|---|---|---|
+| PDM-02 | permission + data scope + hard DENY；异常池空；`customer.phone.manage` | 同步已完成规则，不另建权限体系 | PASS |
+| PDM-03 | owner / 分享 / 转介绍 / 接客 / 离职交接；ownerless 分享获客；pool-empty pending | 关闭旧 handoff，登记 supersession | PASS |
+| PDM-10 | 查价权产生、有效期、listing-cycle 边界 | 停用只作为客户账号能力 Guard，不重写查价权本体 | PASS |
+
+## 4. Stale Carrier Ledger
+
+以下旧 carrier 与当前产品 Authority 不一致，但按 `NEXT_ACTION.md` 当前禁止项，本轮不修改 IA / Low-Fi：
+
+- IA / Low-Fi 仍可能存在“首次进入不形成 owner”的旧承载；
+- IA / Low-Fi 仍可能存在客户侧分享 `SOURCE_ONLY` 的旧承载；
+- IA / Low-Fi 仍可能存在 Customer Merge / P06 merge flow；
+- 部分头像 / 昵称 carrier 仍可能使用“required”措辞。
+
+处理：全部登记为 `STALE_CARRIER / DEFERRED_TO_IA_LOWFI_ALIGNMENT`。这些 carrier 不再具有产品 Authority，不得反向覆盖当前 PDM Final。
+
+## 5. Traceability
+
+- PDM01-DEC-A02 → Final §1 / §2：MAPPED
+- PDM01-DEC-A07 + R10-67 → Final §3：MAPPED
+- PDM01-DEC-A14 + PDM-02 Final §11 → Final §4：MAPPED / HANDOFF_RESOLVED
+- PDM01-DEC-A04 + PDM-02 §10.1 + PDM-03 §10 → Final §2：MAPPED / EXCEPTION_SYNCED
+- PDM03 分享 / owner 后续裁决 → Final §2 / §13：SUPERSEDED_OLD_SOURCE_ONLY
+- PDM01-DEC-A16 → `PDM01-DEC-A16-R1` → Final §11：SUPERSEDED_BY_USER_REOPEN
+- Customer Merge 历史 A09～A12 → PDM01-DEC-MERGE-CANCEL-001 → Final §6：SUPERSEDED / DO_NOT_RESTORE
+
+## 6. Legacy Audit Gate
+
+```text
+MISSING_RULE_UNRESOLVED = 0
+SEMANTIC_DETAIL_GAP_UNRESOLVED = 0
+CROSS_PDM_CONFLICT = 0
+HANDOFF_GAP_UNRESOLVED = 0
+GLOBAL_INVARIANT_CONFLICT = 0
+SOURCE_DECISION_COVERAGE = 100%
+FINAL_TO_SOURCE_TRACEABILITY = 100%
+SEMANTIC_INTEGRITY = PASS
+NEGATIVE_CLAIMS_VERIFIED = PASS
+IMPLEMENTATION_READY = PASS
+```
+
+最终：
+
+> **PDM-01 = INTEGRITY_PASS**
+
+下一步：
+
+> **PDM-02｜Legacy Final Integrity Audit**
+
+PDM-11 继续保持 BLOCKED，直到 PDM-01～PDM-10 全部 INTEGRITY_PASS 且全局 Cross-PDM / Handoff / Global Invariant 总复核 PASS。

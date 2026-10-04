@@ -2,7 +2,7 @@
 
 > 日期：2026-09-24  
 > 状态：`COMPLETE`  
-> 说明：PDM-01 四批用户审查及最终总览均已于 2026-09-24 获用户明确批准。本文为 PDM-01 当前正式规则基线；其中“客户侧车辆转发仅 SOURCE_ONLY”已于同日 PDM-03 用户显式裁决中被部分修正，本文已同步该跨域修正。
+> 说明：PDM-01 四批用户审查及最终总览均已于 2026-09-24 获用户明确批准；2026-10-04 按新标准完成 Legacy Final Integrity Audit。本文为 PDM-01 当前正式规则基线；已同步 PDM-02 / PDM-03 后续闭环规则，并纳入 2026-10-04 用户确认的轻量客户账号停用 / 恢复规则。
 
 ---
 
@@ -12,7 +12,7 @@
 2. 微信身份用于识别 / 创建 / 找到对应 Customer。
 3. 手机号、头像、昵称都不是 Customer 唯一身份主键。
 4. 同一 Customer 后续再次购车、找车、咨询等，只在原 Customer 下新建新的业务对象，不因新一轮业务创建新的 Customer。
-5. 不建设独立传统账号密码登录体系。
+5. 不建设显式独立登录页，也不建设独立传统账号密码登录体系；首次进入直接按“微信身份识别 → 创建 / 找到 `customer_id` → 客户端首页”完成身份进入。
 
 ---
 
@@ -22,7 +22,8 @@
 2. 首次进入不要求先填写手机号、头像、昵称，不得阻断普通浏览。
 3. 微信身份识别失败时允许重试。
 4. 当前主动新规则：
-   - 无有效销售分享、直接转介绍等优先归属来源时，新 Customer 建立 / 识别 `customer_id` 后，立即进入 active + eligible + accepting 接客池自动轮询，形成唯一 `current owner`；
+   - 无有效销售分享、直接转介绍等优先归属来源时，新 Customer 建立 / 识别 `customer_id` 后，在接客池正常可用时立即进入 active + eligible + accepting 接客池自动轮询，形成唯一 `current owner`；
+   - 若因突发 inactive / 资格失效等异常导致接客池被动为 0，且没有其他有效优先归属来源，则 Customer 身份仍可建立，但进入 `owner_assignment_pending`；不得创建 `responsible = null` 的正式人工业务对象，不得使用 System Admin 临时兜底成为 owner；接客池恢复后自动重试 owner 分配，并记录池空、待分配、恢复、补分的告警 / 审计；
    - 有效直接转介绍优先于普通自然轮询，由推荐人在事件发生时的 `current owner` 承接；
    - **2026-09-24 PDM-03 用户主动修正：客户侧车源分享不再是纯 `SOURCE_ONLY`。对尚无正式 owner 的新 Customer，分享链可直接形成转介绍/获客归属：新客户按该分享链实际绑定的销售形成 `current owner`，并保留来源客户/推荐关系；已有正式 owner 的老客户仍不得因后续分享被抢客。**
 5. “首次进入只建 customer_id、不形成 owner”的旧规则已被 2026-09-24 用户主动修改覆盖，不得恢复。
@@ -42,6 +43,7 @@
    - 不创建对应正式人工服务对象；
    - 当前成品交互只保留“授权手机号 / 取消”；
    - `success resume` 是系统自动行为，不是第三个按钮。
+6. 找车表单的特殊保真规则：客户已经在当前页面填写找车内容、提交时因缺手机号触发手机号授权，如果客户拒绝 / 取消授权，则不创建正式找车申请、不通知员工、不创建人工服务对象；当前页面已填写内容允许临时保留，便于继续修改或再次提交，但这不是服务端正式草稿，也不承诺页面销毁、小程序关闭、刷新或长时间离开后仍可恢复。
 
 ---
 
@@ -51,8 +53,12 @@
    - 1 个主要手机号；
    - 0～多个其他联系电话。
 2. 首次需要手机号时，通过微信小程序官方手机号能力完成有效绑定。
-3. 后续有权限员工可在员工端 / PC 客户资料中新增或维护其他联系电话。
-4. 具体哪些角色 / capability 可以维护手机号，留 PDM-02 权限域冻结。
+3. 后续其他联系电话维护已由 PDM-02 收口为独立 capability：`customer.phone.manage`。
+4. `customer.phone.manage` 当前边界：
+   - active 名邦员工只有同时具备该 capability，且 Customer 位于其 data scope，才能新增、修改、失效“其他联系电话”；
+   - 4S 成员 hard DENY；
+   - 全部变更必须审计；
+   - 该 capability 不默认允许直接修改客户主要手机号；主要手机号更换继续遵守本 PDM 的客户正式授权 / 绑定与身份连续性规则。
 5. 主要手机号更换、其他联系电话新增 / 修改 / 失效，都继续使用原 `customer_id`。
 6. 手机号变化不得改变：
    - current owner；
@@ -171,29 +177,27 @@ CN11 原始规则已存在以下能力，本 PDM 只登记身份边界，详细 
 
 ---
 
-## 11. 客户停用 / 注销
+## 11. 客户账号停用 / 恢复｜轻量后台控制
 
-V1 采用最小闭环：
+V1 保留轻量后台控制，不建设复杂的客户注销 / 账号删除状态机。
 
-1. 客户可在个人资料发起“停用账号”。
-2. 授权后台人员也可执行停用 / 恢复。
-3. 若存在未结束的：
-   - Demand；
-   - Consultation；
-   - Lock；
-   - Transaction；
-   则阻断停用，先完成或取消相关业务。
-4. 停用后：
+1. 客户不需要自助“停用账号”入口；客户不想继续使用时，不登录即可。
+2. 后台可对 Customer 执行“停用 / 恢复”，该动作属于独立受控 capability：`customer.account.disable`。
+3. 权限边界：
+   - 该 capability 继承 PDM-02 的统一权限模型：角色模板默认权限 + 员工个人明确 allow / deny + data scope + object state；
+   - active 名邦员工只有同时具备 `customer.account.disable` 且 Customer 位于其 data scope，才能执行停用 / 恢复；
+   - 4S 成员 hard DENY；
+   - System Admin 作为控制平面可以配置角色模板及员工权限，但不因 System Admin 身份本身自动获得客户业务执行权；
+   - 当前运营配置可默认将该能力开放给经理 / 店长，普通销售默认关闭但可按需要明确授权；这属于配置种子，不改变 PDM-02“默认 permission 不在产品基线硬编码”的原则。
+4. 停用后的客户仍允许打开网站 / 小程序并浏览公开内容，但暂停依赖该 Customer 身份或客户权益的业务账号能力，包括但不限于收藏、咨询、找车、锁车 / 候补、查价及客户等级权益使用。
+5. 停用不是业务对象删除或自动终止动作：
    - 不物理删除 Customer；
-   - 不物理删除咨询、找车、锁车 / 候补、交易、转介绍、owner 变化等历史；
-   - 禁止新增人工服务业务。
-5. current owner / 原始来源历史不清空。
-6. owner 后续失效时，按 PDM-03 的交接规则处理。
-7. 客户恢复时：
-   - 继续使用原 `customer_id`；
-   - 不创建第二套 Customer 历史；
-   - 不自动复活已经终止 / 过期的业务对象或权益。
-8. Recommendation / 查价权益、Lock / Transaction 等跨域恢复细节，留对应 PDM 冻结。
+   - 不清空 `customer_id`、current owner、原始来源、转介绍关系及历史；
+   - 不自动取消 / 终止既有 Demand、Consultation、Lock、Transaction 等对象，其生命周期继续由各自 PDM 规则决定；
+   - owner 后续失效时仍按 PDM-03 的交接规则处理。
+6. 停用本身不自动降客户等级，也不强制删除尚未自然失效的既有权益；若业务目的只是降低高等级客户权限，应使用既有“客户等级调整”机制，而不是停用账号。
+7. 恢复后继续使用原 `customer_id`，按恢复时仍有效的当前事实继续使用；已经终止、过期、周期结束的业务对象或权益不得因恢复而复活。
+8. 停用 / 恢复必须记录操作人、时间、原因、变更前后状态等审计信息。
 
 ---
 
@@ -213,24 +217,32 @@ V1 采用最小闭环：
 10. 旧头像昵称提醒频控；
 11. 客户停用 / 注销即物理删除业务历史；
 12. 恢复客户时新建一套历史；
-13. 停用恢复时自动复活已经终止 / 过期的业务对象或权益。
+13. 停用恢复时自动复活已经终止 / 过期的业务对象或权益；
+14. 恢复“客户自助停用账号 + 未结束业务必须先全部完成 / 取消才允许停用”的旧复杂状态机；
+15. 把停用等同于降级，或把客户等级调整等同于账号停用。
 
 ---
 
-## 13. PDM-01 不提前冻结的跨域事项
+## 13. 跨域承接状态
 
-以下内容明确留给后续 PDM，不在 PDM-01 越权写死：
+已经闭环的跨域事项：
 
-1. 手机号维护具体角色 / capability → PDM-02；
-2. owner、销售分享、直接转介绍、接客、离职交接 → PDM-03；
-3. Demand 生命周期 → PDM-11；
-4. Recommendation / 查价权益 → PDM-14 / PDM-10；
-5. Consultation → PDM-15；
-6. CRM 客户画像、跟进、员工内部客户称呼承载 → PDM-16；
-7. Lock / Waitlist → PDM-18；
-8. Transaction / Refund → PDM-19；
-9. 客户端个人资料具体页面结构 → PDM-20；
-10. 审计字段、历史留存实现细节 → PDM-25。
+1. 手机号“其他联系电话”维护权限已由 PDM-02 冻结为 `customer.phone.manage + data scope`；4S hard DENY，主要手机号不因此开放直接修改。
+2. owner、分享 / 转介绍、接客池、离职交接已由 PDM-03 冻结；PDM-01 原“普通客户侧车辆转发仅 SOURCE_ONLY”已经被 PDM-03 显式覆盖，不得恢复。
+3. 接客池异常为空时的 `owner_assignment_pending` 规则已经由 PDM-02 / PDM-03 承接，并已同步回本 Final。
+4. 客户账号停用 / 恢复 capability 继承 PDM-02 统一 permission / data scope / hard DENY 模型，不新增第二套权限体系。
+5. 查价权益本体继续遵守 PDM-10；账号停用只作为客户账号能力的上层可用性 Guard，不重写查价权本身的产生、有效期与周期规则。
+
+仍由后续 PDM 承接的事项：
+
+1. Demand 生命周期 → PDM-11；
+2. Recommendation 具体生命周期与当前 listing cycle 权利 → PDM-14；
+3. Consultation → PDM-15；
+4. CRM 客户画像、跟进、员工内部客户称呼承载 → PDM-16；
+5. Lock / Waitlist → PDM-18；
+6. Transaction / Refund → PDM-19；
+7. 客户端个人资料与“账号已停用”具体页面表现 → PDM-20；
+8. 审计字段、历史留存实现细节 → PDM-25。
 
 ---
 
@@ -240,9 +252,15 @@ V1 采用最小闭环：
 - Batch 2：`COMPLETE_USER_CONFIRMED`
 - Batch 3：`COMPLETE_USER_CONFIRMED_NO_NEW_ATOMS`
 - Batch 4：`COMPLETE_USER_CONFIRMED`
-- 当前：`COMPLETE`
+- 历史 Final 状态：`COMPLETE`
 - 最终总览：`USER_APPROVED`
+- 2026-10-04 Legacy Final Integrity Audit：`INTEGRITY_PASS`
+- Missing Rule unresolved：`0`
+- Semantic Detail Gap unresolved：`0`
+- Cross-PDM Conflict：`0`
+- Handoff Gap unresolved：`0`
+- Implementation Ready：`PASS`
 
-PDM-01 已正式完成，后续进入：
+PDM-01 已通过当前新完整性标准。PDM-01～10 本轮复核的下一域为：
 
-> **PDM-02｜员工身份 / 组织 / 角色 / 权限 / 数据范围 / System Admin / 4S 身份**
+> **PDM-02｜Legacy Final Integrity Audit**

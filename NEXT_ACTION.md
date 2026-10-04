@@ -6,7 +6,8 @@
 
 - PDM-01 ～ PDM-10 = COMPLETE（历史裁决完成状态）
 - PDM-01 ～ PDM-10 Legacy Final Integrity Audit = IN_PROGRESS
-- 当前审计起点：PDM-01
+- PDM-01 Integrity Audit = INTEGRITY_PASS
+- 当前审计域：PDM-02
 - PDM-11 = BLOCKED_UNTIL_PDM01_10_INTEGRITY_PASS
 
 总控工作单：
@@ -15,7 +16,7 @@
 
 ## 当前唯一下一步
 
-> **从 PDM-01 开始 Legacy Final Integrity Audit。**
+> **从 PDM-02 继续 Legacy Final Integrity Audit。**
 
 每个 PDM 必须同时执行：
 

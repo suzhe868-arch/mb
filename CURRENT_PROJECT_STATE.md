@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / START_FROM_PDM-01`
+> `IN_PROGRESS / PDM-01_INTEGRITY_PASS / CURRENT_PDM-02`
 
 当前工作文件：
 
@@ -32,7 +32,17 @@
 
 当前唯一下一步：
 
-> **从 PDM-01 开始 Legacy Final Integrity Audit：同时执行 Missing Rule Audit、Semantic Detail Audit、Cross-PDM Integrity Audit；PDM-01～10 全部及全局总复核 PASS 前，PDM-11 BLOCKED。**
+> **PDM-01 已通过 Legacy Final Integrity Audit；从 PDM-02 继续同时执行 Missing Rule Audit、Semantic Detail Audit、Cross-PDM Integrity Audit。PDM-01～10 全部及全局总复核 PASS 前，PDM-11 继续 BLOCKED。**
+
+## 2026-10-04｜PDM-01 Legacy Final Integrity Audit 完成
+
+- PDM-01 Integrity：`INTEGRITY_PASS`；
+- 本轮共关闭 6 组 reopen：显式登录页语义、手机号授权拒绝时找车表单临时保留、PDM-02 手机号维护 handoff、接客池异常为空、PDM-03 owner/分享 handoff、客户账号停用/恢复轻量后台控制；
+- 客户账号停用最终口径：后台受控停用/恢复；停用后仍可进入网站/小程序并浏览公开内容，但暂停依赖 Customer 身份/权益的业务账号能力；不删除 customer_id / owner / 来源 / 历史；若只需降权使用客户等级调整；
+- IA / Low-Fi 中旧“首次无 owner / SOURCE_ONLY / Customer Merge”等只登记为 stale carrier，本轮不修改；
+- 审计报告：`07_重建工作区/PDM-01_Legacy_Final_Integrity_Audit_2026-10-04.md`；
+- 当前进入：PDM-02 Legacy Final Integrity Audit；
+- PDM-11 继续 BLOCKED。
 
 ## 已完成
 
