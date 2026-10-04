@@ -625,7 +625,7 @@
   "method_current_implemented_fact_gate": true,
   "method_api_three_questions_required": true,
   "method_implemented_fact_does_not_auto_override_product_authority": true,
-  "method_spec_revision": "2026-10-04_CURRENT_IMPLEMENTED_FACT_GATE_PLUS_BATCH23_REVERSE_CONFLICT_GATE",
+  "method_spec_revision": "2026-10-04_ONE_PASS_INFORMATION_INTEGRITY_GATE",
   "pdm_09_revalidation_required_atoms": [
     "P09-A04",
     "P09-A11",
@@ -737,5 +737,33 @@
   "pdm_10_b4_01_status": "USER_APPROVED_UPSTREAM_AUTHORITY_RESTORED",
   "pdm_10_internal_price_view_rule": "INDEPENDENT_CONFIGURABLE_PERMISSION_PLUS_INTERNAL_MODE_PLUS_DATA_SCOPE_PLUS_OBJECT_STATE",
   "pdm_10_internal_price_permission_config": "ROLE_TEMPLATE_DEFAULT_PLUS_EMPLOYEE_EXPLICIT_ALLOW_DENY",
-  "pdm_10_4s_mingbang_internal_price": "HARD_DENY"
+  "pdm_10_4s_mingbang_internal_price": "HARD_DENY",
+  "method_memory_zero_trust": true,
+  "method_current_authority_refresh": true,
+  "method_pdm_scope_not_evidence_scope": true,
+  "method_completed_pdm_dependency_card": true,
+  "method_global_invariant_gate": true,
+  "method_terminology_normalization": true,
+  "method_no_summary_on_summary": true,
+  "method_bidirectional_traceability": true,
+  "method_negative_claim_proof": true,
+  "method_conflict_before_classification": true,
+  "method_deferred_handoff_closure": true,
+  "method_change_impact_analysis": true,
+  "method_semantic_completeness_matrix": true,
+  "method_final_semantic_integrity_gate": true,
+  "method_implementation_ready_gate": true,
+  "method_mandatory_integrity_template": "07_重建工作区/PDM_信息保真与一次性收口检查模板.md",
+  "pdm_complete_gate": {
+    "source_decision_coverage": "100%",
+    "unmapped": 0,
+    "final_to_source_traceability": "100%",
+    "deferred_handoff_unresolved": 0,
+    "cross_pdm_conflict": 0,
+    "global_invariant_conflict": 0,
+    "semantic_integrity": "PASS",
+    "negative_claims_verified": "PASS",
+    "user_final_approved": "YES",
+    "implementation_ready": "PASS"
+  }
 }
