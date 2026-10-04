@@ -4,52 +4,50 @@
 
 ## 当前状态
 
-- PDM-01 ～ PDM-10 = COMPLETE
-- PDM-10 Final = USER_APPROVED / REPO_WRITTEN
-- PDM-10 Source Decision Coverage = 100%
-- PDM-10 UNMAPPED = 0
-- PDM-10 Final→Source Traceability = 100%
-- PDM-10 Semantic Integrity = PASS
-- 当前准备域：PDM-11｜找车申请 / 正式 Demand / 暂停 / 完成 / 取消
-- PDM-11 = NOT_STARTED
+- PDM-01 ～ PDM-10 = COMPLETE（历史裁决完成状态）
+- PDM-01 ～ PDM-10 Legacy Final Integrity Audit = IN_PROGRESS
+- 当前审计起点：PDM-01
+- PDM-11 = BLOCKED_UNTIL_PDM01_10_INTEGRITY_PASS
 
-PDM-10 正式规则：
+总控工作单：
 
-> `07_重建工作区/PDM-10_最终完整规则.md`
-
-PDM-10 完整性检查：
-
-> `07_重建工作区/PDM-10_信息保真与一次性收口检查卡_2026-10-04.md`
-
-## 当前方法硬门禁
-
-PDM-11 开始前必须依次执行：
-
-1. Memory Zero-Trust；
-2. Current Authority Refresh；
-3. 读取所有指向 PDM-11 的 deferred handoff；
-4. Completed-PDM Dependency Card；
-5. Global Invariant Scan；
-6. Terminology Normalization；
-7. Current Implementation Fact（如存在）；
-8. 全历史 / Current / IA / Low-Fi / Radar / Delta 证据扫描；
-9. Source↔Final Traceability 草表；
-10. Conflict Matrix；
-11. 最后才形成 Batch 1。
-
-强制模板：
-
-> `07_重建工作区/PDM_信息保真与一次性收口检查模板.md`
+> `07_重建工作区/PDM-01至10_全域完整性复核_总控工作单.md`
 
 ## 当前唯一下一步
 
-> **准备 PDM-11：先建立当前 Authority / Completed-PDM Dependency Card 与指向 Demand 域的 handoff 清单，再形成 Batch 1 稳定一致候选。**
+> **从 PDM-01 开始 Legacy Final Integrity Audit。**
+
+每个 PDM 必须同时执行：
+
+1. Missing Rule Audit｜重新从原始证据查整条遗漏；
+2. Semantic Detail Audit｜查条件、例外、权限、scope、hard DENY、生命周期、失败/幂等、历史等是否被压缩丢失；
+3. Cross-PDM Integrity Audit｜查 PDM-01～10 相互冲突、静默覆盖、handoff 丢失、stale rule；
+4. Source→Final；
+5. Final→Source；
+6. Semantic Completeness Matrix；
+7. 仅对发现问题的 Atom / 段落 reopen；
+8. 真正改变产品语义的 reopen 必须重新提交用户裁决；
+9. 达到 `INTEGRITY_PASS` 后再进入下一个 PDM。
+
+## PDM-11 启动硬门禁
+
+PDM-11 只有在以下全部完成后才允许开始：
+
+- PDM-01～PDM-10 全部 `INTEGRITY_PASS`；
+- PDM-01～10 全局 Cross-PDM / Handoff / Global Invariant 总复核 PASS；
+- MISSING_RULE_UNRESOLVED = 0；
+- SEMANTIC_DETAIL_GAP_UNRESOLVED = 0；
+- CROSS_PDM_CONFLICT = 0；
+- HANDOFF_GAP_UNRESOLVED = 0；
+- GLOBAL_INVARIANT_CONFLICT = 0；
+- IMPLEMENTATION_READY = PASS。
 
 ## 当前禁止
 
-- 不自动批准 PDM-11 任何 Atom；
-- 不跳过前序 PDM 依赖卡；
-- 不用聊天记忆代替仓库证据；
+- 不开始 PDM-11 Batch 1；
+- 不把旧 PDM 的 `COMPLETE` 直接等同于通过当前新完整性标准；
+- 不只检查 Final 文案而跳过原始证据遗漏扫描；
+- 不把 PDM-01～10 全部推倒重做；只 reopen 真正有问题的 Atom / 段落；
+- 不用聊天记忆替代仓库证据；
 - 不修改 IA / Low-Fi；
-- 不执行 Engineering Delta；
-- 后续 PDM 不得静默推翻 PDM-10 的价格 / 查价 / 覆盖 / quota / permission 边界。
+- 不执行 Engineering Delta。
