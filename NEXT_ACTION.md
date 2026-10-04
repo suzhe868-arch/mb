@@ -20,11 +20,13 @@
 - 当前域：PDM-11
 - PDM-11 = IN_PROGRESS
 - PDM-11 启动门禁 = UNBLOCKED
-- `HO-P01-P11-001 = HANDOFF_ACCEPTED`
+- `HO-P01-P11-001 = HANDOFF_SUPERSEDED`
+- `HO-P01-P11-002 = HANDOFF_ACCEPTED`
 - PDM-11 Batch 1 = PASS / USER_APPROVED（P11-A01～P11-A13）
 - PDM-11 Batch 2 = PASS / USER_APPROVED
 - P11-B2-08 = USER_MODIFIED / USER_APPROVED
-- PDM-11 Batch 3 = USER_REVIEW_PENDING（P11-B3-01）
+- PDM-11 Batch 3 = PASS / USER_APPROVED（P11-B3-01 用户修正版）
+- PDM-11 Batch 4 = USER_REVIEW_PENDING（P11-B4-01、P11-B4-02）
 
 总控工作单：
 
@@ -32,7 +34,7 @@
 
 ## 当前唯一下一步
 
-> **审查 PDM-11 Batch 3：P11-B3-01（Customer 停用轻量模型 / HO-P01-P11-001）。未经用户确认，不进入 Batch 4。**
+> **审查 PDM-11 Batch 4：P11-B4-01（Application→Demand 激活时机）与 P11-B4-02（正式找车 entitlement 来源模型）。两项未裁决前不得形成 PDM-11 Final。**
 
 每个 PDM 必须同时执行：
 
