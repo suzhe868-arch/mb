@@ -87,7 +87,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前已回填 PDM-01～PDM-10，且全局 01～10 Cross-PDM / Handoff / Global Invariant 总复核已 PASS。PDM-11 可开始；启动前先读取 `HO-P01-P11-001`。
+当前已回填 PDM-01～PDM-10，且全局 01～10 Cross-PDM / Handoff / Global Invariant 总复核已 PASS。PDM-11 已启动；`HO-P01-P11-001` 已被后续用户裁决 supersede，当前有效 incoming handoff 为 `HO-P01-P11-002 = HANDOFF_ACCEPTED`。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
