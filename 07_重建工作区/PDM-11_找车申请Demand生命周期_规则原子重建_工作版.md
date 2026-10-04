@@ -407,11 +407,11 @@ PDM-01 在 2026-10-04 已由用户明确改为轻量停用：
 
 ---
 
-## 9. Batch 2｜明确废弃 / 被替代规则｜待用户审查
+## 9. Batch 2｜明确废弃 / 被替代规则｜用户已全部确认
 
 > 本批只处理已经有明确废弃、被替代或与当前已批准 Authority 冲突的旧方向；不把 Batch 4 的真实冲突混入本批。
 >
-> **P11-B2-08 已由用户单独修正并确认；Batch 2 其余 9 条继续等待用户审查。**
+> **P11-B2-08 已由用户单独修正并确认；其余 9 条于 2026-10-05 经用户“全部同意/确认执行”全部通过。Batch 2 正式关闭。**
 
 ### P11-B2-01｜禁止“提交 Application 就无条件直接生成 active Demand”
 
@@ -419,7 +419,7 @@ PDM-01 在 2026-10-04 已由用户明确改为轻量停用：
 
 这条废弃的是“**无条件直接激活**”方向；至于具备正式找车权益的客户是否可以在保存 Application 后直接激活 Demand，仍保留在 `P11-B4-01`，后续单独裁决。
 
-**状态：** `DEPRECATED_DIRECTION / USER_REVIEW_PENDING`
+**状态：** `DEPRECATED_DIRECTION / USER_APPROVED`
 
 ### P11-B2-02｜禁止“一个 Customer 只能有一条 Demand”
 
@@ -427,13 +427,13 @@ PDM-01 在 2026-10-04 已由用户明确改为轻量停用：
 
 旧“客户只能一条 Demand / 整个 C02 只能有一个互斥状态”方向不得恢复。
 
-**状态：** `SUPERSEDED_BY_MULTI_DEMAND_WORKSPACE / USER_REVIEW_PENDING`
+**状态：** `SUPERSEDED_BY_MULTI_DEMAND_WORKSPACE / USER_APPROVED`
 
 ### P11-B2-03｜禁止把 paused Demand 归入已结束历史
 
 `paused` 是当前正式 Demand 的暂停状态，可恢复，不属于 `completed / cancelled` 已结束历史。
 
-**状态：** `DEPRECATED_STATE_PROJECTION / USER_REVIEW_PENDING`
+**状态：** `DEPRECATED_STATE_PROJECTION / USER_APPROVED`
 
 ### P11-B2-04｜禁止增加自动 expired Demand 主状态
 
@@ -443,7 +443,7 @@ V1 Demand 主状态只保留：
 
 不得因为长期未处理、长时间未匹配、客户暂时不活跃等原因自动制造 `expired` 主状态。
 
-**状态：** `DEPRECATED_STATE / USER_REVIEW_PENDING`
+**状态：** `DEPRECATED_STATE / USER_APPROVED`
 
 ### P11-B2-05｜禁止 Customer owner 变化自动漂移 Demand 负责人
 
@@ -453,7 +453,7 @@ V1 Demand 主状态只保留：
 
 **依赖：** PDM-03 已批准 Authority。
 
-**状态：** `DEPRECATED_RESPONSIBILITY_COUPLING / USER_REVIEW_PENDING`
+**状态：** `DEPRECATED_RESPONSIBILITY_COUPLING / USER_APPROVED`
 
 ### P11-B2-06｜禁止 completed / cancelled Demand 原地 reopen
 
@@ -461,7 +461,7 @@ completed / cancelled Demand 属于终态历史。
 
 客户未来再次找车时必须新建新的 Demand，不允许把旧终态 Demand 原地恢复为 active。
 
-**状态：** `DEPRECATED_REOPEN_FLOW / USER_REVIEW_PENDING`
+**状态：** `DEPRECATED_REOPEN_FLOW / USER_APPROVED`
 
 ### P11-B2-07｜禁止恢复“代淘中 / 代淘客户”
 
@@ -474,7 +474,7 @@ completed / cancelled Demand 属于终态历史。
 
 客户是否具备找车资格由正式权益规则决定；客户是否正在正式找车由真实 active Demand 决定。
 
-**状态：** `DEPRECATED_CONCEPT / USER_REVIEW_PENDING`
+**状态：** `DEPRECATED_CONCEPT / USER_APPROVED`
 
 ### P11-B2-08｜找车权益下降后的既有 Demand 处理｜用户修正并确认
 
@@ -535,7 +535,7 @@ completed / cancelled Demand 属于终态历史。
 
 PDM-11 只冻结信息分层；确定性解析 / Matching 细则正式由 PDM-12 承接。
 
-**状态：** `DEPRECATED_AI_MATCHING_DIRECTION / USER_REVIEW_PENDING`
+**状态：** `DEPRECATED_AI_MATCHING_DIRECTION / USER_APPROVED`
 
 ### P11-B2-10｜禁止恢复 V1 Customer Merge 及其 Demand 阻断主流程
 
@@ -550,9 +550,31 @@ IA 中残留的 Merge carrier 只能登记为 stale carrier，不能反向恢复
 
 **依赖：** PDM-01 已批准 Final。
 
-**状态：** `SUPERSEDED_BY_PDM01_NO_MERGE / USER_REVIEW_PENDING`
+**状态：** `SUPERSEDED_BY_PDM01_NO_MERGE / USER_APPROVED`
 
 ---
+## 9A. Batch 3｜明确知情修改 / 后续明确新增｜待用户审查
+
+> 本批只纳入已经有后续明确用户裁决、且与旧规则存在知情变化的内容；不重复制造新规则原子。
+
+### P11-B3-01｜Customer 停用采用轻量模型，不自动终止既有 Demand
+
+继承 PDM-01 2026-10-04 后续明确裁决及 `HO-P01-P11-001`：
+
+- Customer 账号停用不要求先完成 / 取消现有 Demand；
+- 停用本身不自动把既有 Demand 变为 paused / completed / cancelled；
+- Demand 继续保留自身当前状态与全部历史；
+- 账号停用期间，依赖 Customer 身份 / 权益的新找车能力被暂停；
+- Customer 恢复后继续使用原 `customer_id`；
+- completed / cancelled Demand 不因账号恢复而自动复活；
+- 本条与 P11-B2-08 的“找车 entitlement 下降自动 pause active Demand”严格分离：账号停用 ≠ entitlement 下降。
+
+**来源：** PDM-01 Final §11；`HO-P01-P11-001`；2026-10-04 用户后续明确裁决。
+
+**状态：** `INFORMED_LATER_CHANGE / USER_REVIEW_PENDING`
+
+---
+
 ## 10. Stale Carrier Ledger｜当前只登记、不修改 IA / Low-Fi
 
 | Carrier | 当前问题 | 正确 Authority / 后续处理 |
@@ -642,7 +664,7 @@ SEMANTIC_DETAIL_AUDIT_INITIAL_SCAN = PASS
 CROSS_PDM_INITIAL_SCAN = PASS
 BATCH_1_CANDIDATES = 13
 BATCH_1_USER_APPROVAL = PASS
-BATCH_2 = PARTIAL_USER_APPROVED / P11-B2-08_APPROVED / REMAINING_9_PENDING
+BATCH_2 = PASS / USER_APPROVED
 BATCH_3 = NOT_STARTED_FORMALLY
 BATCH_4 = NOT_STARTED_FORMALLY
 PDM11_FINAL = NOT_READY
