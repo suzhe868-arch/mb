@@ -1,10 +1,10 @@
 # PDM-12｜Matching / 匹配词典 / 四级结果 / 人工确认｜规则原子重建工作版
 
 > 日期：2026-10-05  
-> 当前状态：`IN_PROGRESS / PREFINAL_INTEGRITY_PASS / FINAL_CANDIDATE_READY`  
+> 当前状态：`COMPLETE / FINAL_PUBLISHED / INTEGRITY_PASS`  
 > 业务权威语言：中文（zh-CN）  
 > 当前域：PDM-12｜Match Candidate / Match Result / Rule Dictionary  
-> 当前硬门禁：Batch 1～4 与 P12-LIA-01～06 均已完成用户审查，Final 前完整性复核已 PASS；下一步只能生成/提交 Final Domain Overview 给用户最终批准。未经用户最终批准不得发布 PDM-12 Final，不得修改 IA / Low-Fi。
+> 当前硬门禁：PDM-12 Final 已获用户最终批准并发布；本工作版转为历史重建轨迹。后续不得从本工作版反向覆盖 PDM-12 Final Authority；下一域进入 PDM-13，IA / Low-Fi 仍不得施工。
 
 ---
 
@@ -20,10 +20,10 @@ PDM-11 已：
 
 PDM-12 incoming handoff 已全部读取并接收：
 
-- `HO-P04-P12-001 = HANDOFF_ACCEPTED`
-- `HO-P05-P12-001 = HANDOFF_ACCEPTED`
-- `HO-P07-P12-001 = HANDOFF_ACCEPTED`
-- `HO-P11-P12-001 = HANDOFF_ACCEPTED`
+- `HO-P04-P12-001 = HANDOFF_CLOSED`
+- `HO-P05-P12-001 = HANDOFF_CLOSED`
+- `HO-P07-P12-001 = HANDOFF_CLOSED`
+- `HO-P11-P12-001 = HANDOFF_CLOSED`
 
 ---
 
@@ -1465,9 +1465,12 @@ PDM12_ATOM_TO_SOURCE = PASS
 PDM12_SEMANTIC_COMPLETENESS = PASS
 PDM12_CROSS_PDM_HANDOFF_INTEGRITY = PASS
 PDM12_STALE_CARRIER_LEDGER = REGISTERED
-PDM12_FINAL = NOT_PUBLISHED / FINAL_CANDIDATE_READY_FOR_USER_REVIEW
+PDM12_FINAL_USER_APPROVAL = PASS
+PDM12_SOURCE_TO_FINAL = PASS
+PDM12_FINAL_TO_SOURCE = PASS
+PDM12_FINAL = PUBLISHED / COMPLETE / INTEGRITY_PASS
 ```
 
 ## 当前唯一下一步
 
-> **生成 PDM-12 Final Domain Overview 候选：必须逐项覆盖 Batch 1～4 + P12-LIA-01～06 + incoming/outgoing handoff + stale carrier ledger，并执行 Final→Source 反查。生成后提交用户最终审查，未经用户最终批准不得发布 PDM-12 Final、不得开始 PDM-13、不得修改 IA / Low-Fi。**
+> **PDM-12 已 COMPLETE / INTEGRITY_PASS。下一步启动 PDM-13：读取所有 target=PDM-13 且 status in {HANDOFF_OPEN,HANDOFF_ACCEPTED} 的 handoff，执行 Current Authority Refresh / Current Implementation Fact / 历史证据重建；形成 PDM-13 Batch 1 候选后停下提交用户审查。不得自动批准，不得修改 IA / Low-Fi。**
