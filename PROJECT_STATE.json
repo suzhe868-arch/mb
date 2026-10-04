@@ -947,6 +947,7 @@
   "ia_lowfi_during_pdm": "SCAN_AND_REGISTER_STALE_CARRIER_ONLY_DO_NOT_MODIFY",
   "post_pdm25_sequence": [
     "GLOBAL_PDM01_25_CROSS_PDM_HANDOFF_INVARIANT_AUDIT",
+    "PDM_FINAL_INTEGRITY_HISTORICAL_TAIL_CLEANUP_AND_CURRENT_HISTORY_LABELING",
     "IA_GLOBAL_ALIGNMENT",
     "LOW_FI_GLOBAL_ALIGNMENT",
     "ENGINEERING"
@@ -1162,5 +1163,14 @@
   ],
   "pdm_11_start_gate": "UNBLOCKED",
   "pdm_11_workfile_status": "NOT_YET_CREATED",
-  "pdm_11_required_first_action": "READ_TARGET_PDM11_HANDOFFS_THEN_BUILD_WORKFILE_FROM_REPO_EVIDENCE"
+  "pdm_11_required_first_action": "READ_TARGET_PDM11_HANDOFFS_THEN_BUILD_WORKFILE_FROM_REPO_EVIDENCE",
+  "post_pdm25_historical_tail_cleanup_policy": {
+    "status": "FROZEN",
+    "before_pdm25_global_audit_pass": "DO_NOT_RUN_BULK_CLEANUP",
+    "current_control_files": "MUST_REMAIN_CURRENT_AND_FIX_STALE_POINTERS_IMMEDIATELY",
+    "historical_audit_trail": "PRESERVE_DO_NOT_PHYSICALLY_DELETE",
+    "business_semantics_change": "FORBIDDEN",
+    "run_after": "PDM01_25_GLOBAL_FINAL_AUDIT_PASS",
+    "run_before": "IA_GLOBAL_ALIGNMENT"
+  }
 }
