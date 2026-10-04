@@ -25,7 +25,7 @@
 
 ---
 
-## 2. PDM-01～PDM-08 Integrity 问题总览
+## 2. PDM-01～PDM-09 Integrity 问题总览
 
 ### 2.1 PDM-01｜6 组｜已全部关闭
 
@@ -145,6 +145,18 @@ PDM-07 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | P08-LIA-05 | IMG-001～030 早期映射与 2026-10-03 CDN 重映射并存，唯一 traceability 口径未显式 | RESOLVED / TRACEABILITY_NORMALIZED |
 
 PDM-08 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
+
+### 2.9 PDM-09｜5 组｜已全部关闭
+
+| ID | Integrity 问题 | 最终状态 |
+|---|---|---|
+| P09-LIA-01 | P03-05 只展示 upstream_publisher_id，缺 source_platform 复合身份与电话明文权限隔离 | RESOLVED |
+| P09-LIA-02 | JYT 返回空号/非法号码时是否覆盖现有有效缓存未显式 | RESOLVED |
+| P09-LIA-03 | 批发→名邦后车辆详情是否继续显示原上游电话未定义 | RESOLVED / USER_DECISION_3A |
+| P09-LIA-04 | PDM-21/22/23/25 future handoff 未正式登记 | RESOLVED / HANDOFF_OPEN_REGISTERED |
+| P09-LIA-05 | IA/Low-Fi/旧实现仍有 Collector 旧方向、publisher_id 泛化、集成权限=电话明文权限等 stale carrier | RESOLVED / CARRIER_DEFERRED |
+
+PDM-09 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
@@ -298,7 +310,18 @@ PDM-08 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
-## 11. Post-PDM25 IA / Low-Fi Carrier Ledger｜PDM-01～08
+## 11. PDM-09 来源 handoff
+
+| handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
+|---|---|---|---|---|---|
+| HO-P09-P21-001 | PDM-21 | 员工端上游电话区域、cache available/unavailable、latest、latest failed + cached、拨打、不提供复制，以及 3A：仅当前 wholesale/JYT source_type 显示电话入口，转名邦/4S 后关闭日常入口 | HANDOFF_OPEN | - | YES |
+| HO-P09-P22-001 | PDM-22 | P03-05 publisher cache/诊断按 source_platform + upstream_publisher_id 唯一定位；Integration API 状态/credential/回传日志与电话明文权限隔离，integration/Collector manage 不自动授明文电话能力 | HANDOFF_OPEN | - | YES |
+| HO-P09-P23-001 | PDM-23 | Collector/电话链路 incident、异常与恢复通知、运行事件；通知层不得重新定义 publisher 当前电话/缓存状态，也不得把无有效号码误标成业务成功 | HANDOFF_OPEN | - | YES |
+| HO-P09-P25-001 | PDM-25 | 电话查看、拨打、latest、latest 成功/失败/无有效号码、缓存 before/after、source_platform + publisher、必要 Vehicle/Customer/Demand context 的统一审计 | HANDOFF_OPEN | - | YES |
+
+---
+
+## 12. Post-PDM25 IA / Low-Fi Carrier Ledger｜PDM-01～09
 
 > 当前只登记，不施工；统一在 PDM-25 完成 + PDM-01～25 全局最终总复核 PASS 后集中对齐。
 
@@ -348,10 +371,15 @@ PDM-08 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | PDM-08 | 4S维保H5/报告旧 URL 当前权限重验承载不完整 | CARRIER_DEFERRED |
 | PDM-08 | 统一图片浏览序列可能被误实现为自动轮播 | CARRIER_DEFERRED |
 | PDM-08 | 3A 资产化未闭环临时受控回源缺 Current/Low-Fi 状态投影 | CARRIER_DEFERRED |
+| PDM-09 | 保存/测试 Collector 电话连接、Collector Base URL / relative Phone Path / allowlisted host 旧方向 | CARRIER_DEFERRED |
+| PDM-09 | 部分 carrier 仍使用泛化 publisher_id，未统一 upstream_publisher_id | CARRIER_DEFERRED |
+| PDM-09 | P03-05/旧 CR-007 存在把 integration.collector.manage 等集成管理能力误解成电话明文权限的风险 | CARRIER_DEFERRED |
+| PDM-09 | PHONE_UNAVAILABLE 未完整区分“本次无有效新号码但旧缓存仍存在”与“完全无缓存” | CARRIER_DEFERRED |
+| PDM-09 | 3A 批发→名邦/4S 后电话入口关闭缺 Current/Low-Fi source_type 投影 | CARRIER_DEFERRED |
 
 ---
 
-## 12. 强制使用规则
+## 13. 强制使用规则
 
 1. 新 PDM 开始：先筛 `target=当前 PDM AND status in {HANDOFF_OPEN,HANDOFF_ACCEPTED}`。
 2. 目标 PDM 接收：更新为 `HANDOFF_ACCEPTED`。
@@ -363,7 +391,7 @@ PDM-08 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
-## 13. 当前下一步
+## 14. 当前下一步
 
 - PDM-01：INTEGRITY_PASS；
 - PDM-02：INTEGRITY_PASS；
@@ -373,5 +401,6 @@ PDM-08 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-06：INTEGRITY_PASS；
 - PDM-07：INTEGRITY_PASS；
 - PDM-08：INTEGRITY_PASS；
-- 当前进入：PDM-09 Legacy Final Integrity Audit；
+- PDM-09：INTEGRITY_PASS；
+- 当前进入：PDM-10 Legacy Final Integrity Audit；
 - PDM-11 继续 BLOCKED，直到 PDM-01～10 全部 INTEGRITY_PASS 且 01～10 全局总复核 PASS。
