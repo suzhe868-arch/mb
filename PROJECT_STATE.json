@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Review PDM-11 Batch 1 stable-consistent candidate atoms P11-A01 through P11-A14",
+  "current_task": "Review PDM-11 Batch 1 stable-consistent candidate atoms P11-A01 through P11-A13",
   "current_work_file": "07_重建工作区/PDM-11_找车申请Demand生命周期_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -1159,7 +1159,7 @@
       "source": "PDM-01",
       "status": "HANDOFF_ACCEPTED",
       "semantic": "Demand 生命周期；Customer 停用不得自动终止既有 Demand，具体状态由 Demand 域处理",
-      "target_location": "PDM-11 workfile §1 / P11-A08"
+      "target_location": "PDM-11 workfile §1 / §8.3 P11-B3-01"
     }
   ],
   "pdm_11_start_gate": "UNBLOCKED",
@@ -1188,8 +1188,7 @@
     "P11-A10",
     "P11-A11",
     "P11-A12",
-    "P11-A13",
-    "P11-A14"
+    "P11-A13"
   ],
   "pdm_11_preclassified_later_review": {
     "batch_2": "CANDIDATES_RECORDED_NOT_FORMALLY_STARTED",
