@@ -277,19 +277,7 @@ V1 Demand 主生命周期只使用：
 
 **状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
 
-### P11-A08｜Customer 停用不得自动终止既有 Demand
-
-继承 `HO-P01-P11-001`：
-
-- Customer 停用暂停依赖 Customer 身份 / 权益的新找车业务能力；
-- 既有 Demand 不因此自动 pause / complete / cancel；
-- Demand 后续只按自身生命周期动作变化；
-- Customer 恢复继续使用原 customer_id；
-- completed / cancelled Demand 不因 Customer 恢复而复活。
-
-**状态：** `STABLE_CONSISTENT_WITH_CONFIRMED_UPSTREAM_AUTHORITY / USER_REVIEW_PENDING`
-
-### P11-A09｜找车申请最低必填只有“想找什么车”
+### P11-A08｜找车申请最低必填只有“想找什么车”
 
 Application 最低必填：
 
@@ -301,7 +289,7 @@ Application 最低必填：
 
 **状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
 
-### P11-A10｜匹配准备度与 Demand 主状态分层
+### P11-A08｜匹配准备度与 Demand 主状态分层
 
 Demand 已 active 不等于 Matching 必然已经启动。
 
@@ -316,7 +304,7 @@ Demand 已 active 不等于 Matching 必然已经启动。
 
 **状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
 
-### P11-A11｜客户原始要求、销售匹配描述、标准条件、需求说明必须分层
+### P11-A08｜客户原始要求、销售匹配描述、标准条件、需求说明必须分层
 
 至少区分：
 
@@ -330,7 +318,7 @@ Demand 已 active 不等于 Matching 必然已经启动。
 
 **状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
 
-### P11-A12｜pending Application 必须进入员工工作台待处理
+### P11-A08｜pending Application 必须进入员工工作台待处理
 
 客户提交 pending Application 后，进入负责销售工作台“找车服务待处理”。
 
@@ -347,13 +335,13 @@ Demand 已 active 不等于 Matching 必然已经启动。
 
 **状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
 
-### P11-A13｜终态 Demand / Application 保留历史，不做普通物理删除或原地复活
+### P11-A08｜终态 Demand / Application 保留历史，不做普通物理删除或原地复活
 
 Application closed / withdrawn、Demand completed / cancelled 均保留必要业务历史。错误处理只能通过明确 correction / invalidation / amendment 类治理方式追加事实，不以普通编辑覆盖历史。
 
 **状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
 
-### P11-A14｜成交不自动批量结束客户其他 Demand
+### P11-A08｜成交不自动批量结束客户其他 Demand
 
 某笔 Transaction completed 只完成该交易及相关车辆成交事实，不得自动把同一 Customer 的其他 Demand 批量改为 completed / cancelled。
 
@@ -401,7 +389,7 @@ Current 只剩 E05-02 的泛化 `entitlement/authorization` Guard，资格来源
 
 **状态：** `BATCH_4_CANDIDATE / USER_DECISION_REQUIRED`
 
-### 8.3 P11-B3-01｜Customer 停用模型属于后续明确知情修改
+### 8.3 P11-B3-01｜Customer 停用模型属于后续明确知情修改｜承接 HO-P01-P11-001
 
 旧历史曾存在“Customer 有 active/paused Demand 时停用受阻 / 需先处理业务”的复杂模型。
 
@@ -523,7 +511,7 @@ TERMINOLOGY_NORMALIZATION = PASS
 MISSING_RULE_AUDIT_INITIAL_SCAN = PASS
 SEMANTIC_DETAIL_AUDIT_INITIAL_SCAN = PASS
 CROSS_PDM_INITIAL_SCAN = PASS
-BATCH_1_CANDIDATES = 14
+BATCH_1_CANDIDATES = 13
 BATCH_1_USER_APPROVAL = PENDING
 BATCH_2 = NOT_STARTED_FORMALLY
 BATCH_3 = NOT_STARTED_FORMALLY
@@ -533,4 +521,4 @@ PDM11_FINAL = NOT_READY
 
 当前唯一下一步：
 
-> **提交 P11-A01～P11-A14 给用户进行 Batch 1 稳定一致项审查。未经用户确认，不进入 Batch 2。**
+> **提交 P11-A01～P11-A08 给用户进行 Batch 1 稳定一致项审查。未经用户确认，不进入 Batch 2。**
