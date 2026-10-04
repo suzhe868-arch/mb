@@ -1,6 +1,6 @@
 {
   "project": "名邦汽车 V1",
-  "updated_at": "2026-10-04",
+  "updated_at": "2026-10-05",
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-11",
-  "current_domain_status": "IN_PROGRESS_START_FROM_PDM-01",
+  "current_domain_status": "READY_TO_START",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,13 +20,13 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Audit PDM-01 through PDM-10 for missing rules, semantic detail gaps, cross-PDM conflicts, stale rules, and handoff gaps before PDM-11",
-  "current_work_file": "07_重建工作区/PDM-01至10_全域完整性复核_总控工作单.md",
+  "current_task": "Start PDM-11 by reading target=PDM-11 incoming handoffs, beginning with HO-P01-P11-001, then build the PDM-11 workfile from current repository evidence",
+  "current_work_file": "07_重建工作区/CROSS_PDM_HANDOFF_REGISTER.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
-    "Start PDM-11 Batch 1 before PDM-01 through PDM-10 legacy integrity audit passes",
+    "Start PDM-11 Batch conclusions before reading target=PDM-11 incoming handoffs and establishing the PDM-11 workfile from current repository evidence",
     "Treat historical COMPLETE as proof of current semantic integrity",
     "Audit only current Final text without re-scanning original evidence for missing rules",
     "Rebuild all PDM-01 through PDM-10 mechanically; reopen only actual gaps/conflicts",
@@ -71,7 +71,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-01_INTEGRITY_AUDIT",
+  "current_review_batch": "PDM-11_PRE_BATCH_START",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -538,7 +538,7 @@
     "P08-A13"
   ],
   "current_phase": "PRODUCT_BASELINE_REBUILD",
-  "current_process": "LEGACY_FINAL_INTEGRITY_AUDIT",
+  "current_process": "DOMAIN_RULE_RECONSTRUCTION",
   "reverse_coverage_audit_01_07_status": "COMPLETE_UNMAPPED_ZERO",
   "reverse_coverage_audit_01_07_report": "07_重建工作区/PDM-01至07_反向覆盖校验报告_2026-09-25.md",
   "reverse_coverage_unmapped_count": 0,
@@ -1148,7 +1148,9 @@
   "global_pdm01_10_implementation_ready_for_next_pdm": "PASS",
   "global_pdm01_10_control_cleanup": [
     "PDM-01_TO_PDM-07_HEADER_STATUS_NORMALIZED_TO_COMPLETE_INTEGRITY_PASS",
-    "PDM-01_SECTION10_PDM02_STALE_HANDOFF_WORDING_CLEANED"
+    "PDM-01_SECTION10_PDM02_STALE_HANDOFF_WORDING_CLEANED",
+    "README_CURRENT_STAGE_ALIGNED_TO_PDM11_READY_TO_START",
+    "PROJECT_STATE_TOP_LEVEL_CURRENT_POINTERS_ALIGNED_TO_PDM11_PRE_BATCH_START"
   ],
   "pdm_11_incoming_handoffs": [
     {
