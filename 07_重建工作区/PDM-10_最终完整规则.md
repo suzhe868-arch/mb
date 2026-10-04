@@ -704,10 +704,14 @@ IA / Low-Fi 不具有反向覆盖本 PDM Final 的产品 Authority。
 2026-10-05 本域完成 Legacy Final Integrity Audit，共关闭 5 组问题：
 
 1. 将 PDM-01 Customer 停用/恢复对查价能力的上层 Guard 真正写入 PDM-10 Final；
-2. 恢复 M11-001 的 `DAILY_PRICE_QUOTA_EXHAUSTED → 联系顾问`，并与“查看价格 / 价格咨询”严格分层；
+2. 原 Integrity Audit 恢复 M11-001 的 `DAILY_PRICE_QUOTA_EXHAUSTED → 联系顾问`；2026-10-05 后续用户裁决进一步 supersede “查看价格”二次点击：LIMITED 主动进入详情后有额度即自动解锁，额度耗尽显示 `--万`，车辆本身无数字价才显示“价格咨询”；
 3. 用户批准 3A：UNLIMITED 时禁止新增临时次数，但当天既有 `today_temp_additions` 不删除，同日回 LIMITED 后继续有效，UNLIMITED 浏览不计 quota consumption；
 4. 正式登记 PDM-14 / 18 / 20 / 21 / 22 / 25 future handoff；
 5. 登记价格相关 IA / Low-Fi stale carrier。
+
+### 22.1 Post-Integrity 后续用户裁决
+
+本 Final 在原 Legacy Integrity PASS 之后又收到 PDM-11 Batch 4 联动裁决，已直接写入 §§7、9A、11、12、15，并同步 Decision Register / Handoff Register。当前 Authority 以这些更新后的正文为准；原历史 Integrity 报告中的“查看价格”仅保留审计轨迹，不再代表当前必需客户动作。
 
 ```text
 MISSING_RULE_UNRESOLVED = 0
