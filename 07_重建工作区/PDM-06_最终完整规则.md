@@ -2,8 +2,8 @@
 
 > 日期：2026-09-24  
 > 状态：`COMPLETE`  
-> 说明：本文件汇总 PDM-06 Batch 1～4 经用户逐批裁决并经最终总览批准后的正式当前规则。  
-> 本文件不修改 IA / Low-Fi / Engineering。
+> 说明：本文件汇总 PDM-06 Batch 1～4 经用户逐批裁决并经最终总览批准后的正式当前规则；2026-10-05 已完成 Legacy Final Integrity Audit，并关闭 PDM-07 / PDM-08 / PDM-10 已完成承接。  
+> IA / Low-Fi 仅登记 `STALE_CARRIER`，统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。
 
 ---
 
@@ -312,6 +312,21 @@ VIN 是人工车辆内部可选字段：
 
 不得自行切换为名邦车源。
 
+### 13.4 首次正式发布前草稿可修改 source_type
+
+人工车辆仍处于未正式发布 draft 阶段时：
+
+> **允许在当前操作者合法可发布的人工来源范围内修改 `source_type`。**
+
+规则：
+
+1. 名邦员工若当前同时允许发布名邦 / 4S，可在该 draft 首次正式发布前在两种人工来源之间修改；
+2. 如果当前操作者只允许发布一种人工来源，则不得把 draft 改成超出其合法范围的来源；
+3. 4S 成员仍固定为 4S，不得在草稿阶段切换为名邦；
+4. draft 阶段修改 `source_type` 不产生正式 Vehicle 历史迁移，也不创建新的 `listing_cycle`；
+5. 首次正式发布时必须再次按最终选择的 `source_type` 重验权限、data scope 与最低发布字段；
+6. 一旦首次正式发布完成，后续 `source_type` 修改转入 §14 的正式业务动作，不再按草稿字段修改处理。
+
 ---
 
 ## 14. source_type 发布后修改
@@ -443,51 +458,90 @@ VIN 是人工车辆内部可选字段：
 
 ---
 
-## 19. 与其他 PDM 的边界
+## 19. Cross-PDM 承接状态
 
-### PDM-04
-继承：
+### 19.1 PDM-04 / PDM-05｜已完成依赖
 
-- 人工来源 = 名邦 / 4S；
-- 批发只能集成产生；
-- 正式人工车名邦 ↔ 4S source_type 修改规则；
-- JYT 来源事实只读；
-- vehicle / listing_cycle 生命周期原则。
+PDM-06 继续继承：
 
-### PDM-05
-继承：
+- PDM-04：人工来源仅名邦 / 4S，批发只能由集成产生；正式人工车名邦 ↔ 4S `source_type` 修改；JYT 来源事实只读；vehicle / listing_cycle 生命周期原则；
+- PDM-05：本地车型主数据、有效 `vehicle_model_id`、MODEL_MISSING、System Admin 车型治理，以及车型固定属性 current/history 边界。
 
-- 本地车型主数据结构；
-- 有效 `vehicle_model_id`；
-- MODEL_MISSING；
-- System Admin 控制平面通过 `vehicle.model.manage` Guard 补齐车型 / JYT mapping；
-- 车型唯一确定的固定属性当前值跟随有效车型主档纠错，历史业务快照与 JYT source facts 不追改。
+这些依赖当前均已形成正式 Authority，不再作为未决 handoff。
 
-### PDM-07
-继续处理：
+### 19.2 PDM-07｜车辆档案 / 车况 / 交付材料｜HANDOFF_CLOSED
 
-- Vehicle Document / 档案；
-- 车况资料；
-- 客户可见报告；
-- 成交 / 交付前材料核验；
-- 档案权限 / 审计。
+PDM-07 已完成本域后续承接，PDM-06 不再继续写“留后续”。当前正式结果：
 
-PDM-07 不得静默推翻本 PDM 已确认的人工发布最低字段、草稿、VIN、删除边界。
+- Vehicle Document / 档案不是人工车辆正式发布硬门槛；
+- 档案不完整不阻塞正常前段销售业务；在其他业务条件满足时，仍可正式发布、客户浏览、Consultation、Recommendation、Lock、Waitlist、创建 Transaction；
+- 真正完成 Transaction / 交付前，才按当时有效的 required-field set 核验必要资料；
+- 缺必要资料只阻止完成 / 交付闭环，不回滚已经合法创建的 Transaction；
+- 敏感原件、客户可见报告、车况来源、档案维护、历史与审计继续由 PDM-07 Authority 控制。
 
----
+状态：
 
-## 19A. PDM-10 后续价格编辑修正
+> `HO-P06-P07-001 = HANDOFF_CLOSED / source_backwrite = YES`
 
-2026-10-04，PDM-10 经用户最终批准后，显式 supersede 本文件原 §15 中“调价不得混入保存修改”的旧语义。
+### 19.3 PDM-08｜人工车辆图片｜HANDOFF_CLOSED
 
-当前以 PDM-10 为准：
+PDM-08 已完整承接人工名邦 / 4S 车辆图片规则：
 
-- 正常 customer_list_price / internal_wholesale_price 修改属于车辆普通编辑；
-- 不建立独立调价 permission / action；
-- internal_wholesale_price 仍受内部价查看 permission 字段级保护；
-- 客户展示价覆盖继续独立。
+- 允许 0 张真实图片正式发布；
+- 0 图使用统一占位；
+- 正式发布后可以补图、删图、调整顺序；
+- 删除首图后由当前排序第一张成为新首图；
+- 删除到 0 图仍可继续在售；
+- 普通车辆照片与出险 / 维保 / 敏感档案资源保持业务集合隔离。
 
-本修正不改变人工车辆发布、草稿、VIN、删除、source_type 等本 PDM 其他规则。
+状态：
+
+> `HO-P06-P08-001 = HANDOFF_CLOSED / source_backwrite = YES`
+
+### 19.4 PDM-10｜价格发布 / 正常价格编辑｜HANDOFF_CLOSED
+
+2026-10-04 PDM-10 已显式 supersede 本文件旧“调价不得混入保存修改”语义，当前正式规则为：
+
+- `customer_list_price` / `internal_wholesale_price` 都不是人工车辆正式发布硬门槛；
+- `customer_list_price` 为空 → 客户侧“价格咨询”；
+- `internal_wholesale_price` 为空 → 不阻断正式发布，也不伪造数值；
+- 名邦 / 4S 正常价格字段修改属于普通车辆编辑，通过“保存修改”提交；
+- 不再建立独立“调价 permission / 调价动作”；
+- 修改 `internal_wholesale_price` 仍需内部价查看 permission；
+- 客户展示价覆盖仍是独立敏感动作。
+
+状态：
+
+> `HO-P06-P10-001 = HANDOFF_CLOSED / source_backwrite = YES`
+
+### 19.5 仍待后续 PDM 承接
+
+- PDM-21｜`HANDOFF_OPEN`：员工端“新增车源 / 草稿车源 / VIN 重复提示 / MODEL_MISSING / 保存修改 / source_type 选择与草稿阶段修改”等页面、状态与动作投影；
+- PDM-22｜`HANDOFF_OPEN`：PC / 后台人工车辆管理承载，尤其不得因通用 CRUD 自动生成正式 Vehicle 物理 Delete；
+- PDM-25｜`HANDOFF_OPEN`：正式发布、source_type 修改、保存修改、VIN duplicate Gate、draft delete 等统一审计与历史留存标准。
+
+统一登记到：
+
+> `07_重建工作区/CROSS_PDM_HANDOFF_REGISTER.md`
+
+### 19.6 IA / Low-Fi stale carrier
+
+本轮确认但当前不修改的旧承载至少包括：
+
+- `DRAFT_RESUME`；
+- “继续上次 / 放弃重新发布”；
+- MODEL_MISSING 完成后错误返回 `DRAFT_RESUME`；
+- `no model creation is inferred`；
+- 缺少真正的“更多 → 草稿车源”多草稿列表承载；
+- 缺少 VIN 完全一致重复 Gate，以及“查看已有车辆 / 返回修改”；
+- 已发布车辆缺真实“保存修改”动作投影；
+- `source_type` 新建与草稿阶段修改细节不完整。
+
+统一登记：
+
+> `STALE_CARRIER / DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT`
+
+这些 carrier 不具有产品 Authority，不得反向覆盖本 Final。
 
 ---
 
@@ -495,12 +549,28 @@ PDM-07 不得静默推翻本 PDM 已确认的人工发布最低字段、草稿�
 
 PDM-06 Batch 1～4 与最终完整规则总览均已完成用户明确批准。
 
+2026-10-05 Legacy Final Integrity Audit 关闭 6 组问题：补回草稿发布前 `source_type` 合法修改、关闭 PDM-07 / PDM-08 / PDM-10 handoff、登记 PDM-21 / 22 / 25 future handoff，并登记 IA / Low-Fi stale carrier。
+
 当前状态：
 
-> `COMPLETE`
+> **`COMPLETE / INTEGRITY_PASS`**
+
+```text
+MISSING_RULE_UNRESOLVED = 0
+SEMANTIC_DETAIL_GAP_UNRESOLVED = 0
+CROSS_PDM_CONFLICT = 0
+HANDOFF_GAP_UNRESOLVED = 0
+GLOBAL_INVARIANT_CONFLICT = 0
+SOURCE_DECISION_COVERAGE = 100%
+FINAL_TO_SOURCE_TRACEABILITY = 100%
+SEMANTIC_INTEGRITY = PASS
+NEGATIVE_CLAIMS_VERIFIED = PASS
+IMPLEMENTATION_READY = PASS
+HANDOFF_REGISTER_SYNC = PASS
+```
 
 本文件作为 PDM-06 当前正式规则。后续 PDM 可以补充各自业务域，但不得静默推翻本文件已确认规则；发现真实跨域冲突时必须重新显式提交用户裁决。
 
-下一业务域进入：
+下一审计域进入：
 
-> **PDM-07｜车辆档案 / 车况 / 客户可见报告 / 成交交付材料核验**
+> **PDM-07｜Legacy Final Integrity Audit**
