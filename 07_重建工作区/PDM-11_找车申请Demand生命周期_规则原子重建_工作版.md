@@ -609,6 +609,59 @@ Customer 停用是全局账号级“停止继续业务”的触发，但不同�
 
 ---
 
+## 9B. Batch 4｜真实冲突 / 缺口 / 需要用户裁决｜待用户审查
+
+> 本批只保留无法靠证据优先级机械解决的真实冲突。不得使用“后文件更新所以自动覆盖”处理。
+
+### P11-B4-01｜Application → Demand 的激活时机
+
+存在两套真实历史口径：
+
+**方案 A｜9/06 SSOT**
+
+- 客户提交 Application 后先保存申请；
+- 若当前已具备正式找车 entitlement，可直接创建 / 激活 active Demand；
+- 若无 entitlement，则 Application 保持 pending，等待人工开通。
+
+**方案 B｜9/19 R10 / Current**
+
+- 所有找车申请先进入 pending；
+- 员工在 E05-02 处理申请；
+- 由员工执行“开通正式找车服务”后，才创建唯一 Demand；
+- 工作台卡片不得一键激活。
+
+两者都会保留 Application / Demand 双对象，但“有 entitlement 时是否仍必须人工确认激活”不同。
+
+**需要用户裁决：** A 或 B，或给出新的统一口径。
+
+**状态：** `REAL_CONFLICT / USER_DECISION_REQUIRED`
+
+### P11-B4-02｜正式找车 entitlement 的来源模型
+
+9/06 SSOT 明确曾采用：
+
+> `等级权益 can_use_find_car_matching OR Customer 级人工开通`
+
+并给过默认值：普通=false、粉丝=true、VIP=true，但强调等级名称不可写死，真正判断读取权益配置。
+
+Current 只剩泛化 `entitlement/authorization` Guard，没有完整承载来源模型。
+
+本轮已经冻结 entitlement 的生命周期效果：
+
+- entitlement 有效→无效：active Demand 自动 paused，历史保留；
+- entitlement 恢复：不自动 active，需正式 resume；
+- Customer 账号停用是独立触发源，但在 Demand 域同样 active→paused。
+
+现在仍需裁决 entitlement **从哪里来**：
+
+1. 是否继续采用“客户等级权益 OR Customer 级人工开通”；
+2. 若保留等级权益，普通/粉丝/VIP 只是当前默认配置还是继续固定默认值；
+3. Customer 级人工开通是否保留为独立 override / entitlement grant，并要求操作人、时间、来源/原因、审计历史。
+
+**状态：** `MISSING_CURRENT_AUTHORITY / USER_DECISION_REQUIRED`
+
+---
+
 ## 10. Stale Carrier Ledger｜当前只登记、不修改 IA / Low-Fi
 
 | Carrier | 当前问题 | 正确 Authority / 后续处理 |
@@ -701,10 +754,10 @@ BATCH_1_CANDIDATES = 13
 BATCH_1_USER_APPROVAL = PASS
 BATCH_2 = PASS / USER_APPROVED
 BATCH_3 = PASS / USER_APPROVED
-BATCH_4 = NOT_STARTED_FORMALLY
+BATCH_4 = USER_REVIEW_PENDING / P11-B4-01 / P11-B4-02
 PDM11_FINAL = NOT_READY
 ```
 
 当前唯一下一步：
 
-> **提交 P11-A01～P11-A08 给用户进行 Batch 1 稳定一致项审查。未经用户确认，不进入 Batch 2。**
+> **审查 Batch 4：P11-B4-01（Application→Demand 激活时机）与 P11-B4-02（正式找车 entitlement 来源模型）。两项未裁决前不得生成 PDM-11 Final。**
