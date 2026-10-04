@@ -8,13 +8,23 @@
 
 `PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / USER_REVIEW_GATE`
 
+> **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
+
 当前域：
 
-> **PDM-09｜上游发布人电话 / Collector / 缓存 / 获取最新 / 敏感能力**
+> **PDM-10｜价格 / 查价 / 客户展示价覆盖**
 
 当前域状态：
 
-> `USER_REVIEW_BATCH_2_PENDING`
+> `READY_TO_START`
+
+上一已完成域：
+
+> **PDM-09｜上游发布人电话 / Collector / 缓存 / 获取最新 / 敏感能力 = COMPLETE**
+
+当前唯一下一步：
+
+> **启动 PDM-10 前置证据扫描并形成 Batch 1 稳定一致项，提交用户审查。**
 
 ## 已完成
 
@@ -30,6 +40,8 @@
 - PDM-05：`COMPLETE`，正式规则文件为 `07_重建工作区/PDM-05_最终完整规则.md`；
 - PDM-06：`COMPLETE`，正式规则文件为 `07_重建工作区/PDM-06_最终完整规则.md`；
 - PDM-07：`COMPLETE`，正式规则文件为 `07_重建工作区/PDM-07_最终完整规则.md`；
+- PDM-08：`COMPLETE`，正式规则文件为 `07_重建工作区/PDM-08_最终完整规则.md`；
+- PDM-09：`COMPLETE`，正式规则文件为 `07_重建工作区/PDM-09_最终完整规则.md`；
 - 已新增并启用《用户全量审查四批门禁规范》。
 
 ## 新增硬门禁
