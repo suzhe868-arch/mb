@@ -1,6 +1,6 @@
 # 名邦汽车 V1｜下一步唯一动作
 
-> 更新时间：2026-10-04
+> 更新时间：2026-10-05
 
 ## 当前状态
 
@@ -8,7 +8,8 @@
 - PDM-01 ～ PDM-10 Legacy Final Integrity Audit = IN_PROGRESS
 - PDM-01 Integrity Audit = INTEGRITY_PASS
 - PDM-02 Integrity Audit = INTEGRITY_PASS
-- 当前审计域：PDM-03
+- PDM-03 Integrity Audit = INTEGRITY_PASS
+- 当前审计域：PDM-04
 - PDM-11 = BLOCKED_UNTIL_PDM01_10_INTEGRITY_PASS
 
 总控工作单：
@@ -17,7 +18,7 @@
 
 ## 当前唯一下一步
 
-> **从 PDM-03 继续 Legacy Final Integrity Audit。**
+> **从 PDM-04 继续 Legacy Final Integrity Audit。**
 
 每个 PDM 必须同时执行：
 
