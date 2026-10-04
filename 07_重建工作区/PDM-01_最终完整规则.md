@@ -185,10 +185,10 @@ V1 保留轻量后台控制，不建设复杂的客户注销 / 账号删除状�
 2. 后台可对 Customer 执行“停用 / 恢复”，该动作属于独立受控 capability：`customer.account.disable`。
 3. 权限边界：
    - 该 capability 继承 PDM-02 的统一权限模型：角色模板默认权限 + 员工个人明确 allow / deny + data scope + object state；
-   - active 名邦员工只有同时具备 `customer.account.disable` 且 Customer 位于其 data scope，才能执行停用 / 恢复；
+   - System Admin 可直接执行 Customer 账号停用 / 恢复；该动作定义为控制平面治理动作，不因此获得销售、CRM、owner、Lock、Transaction 等客户业务执行能力；
+   - 经理 / 店长等 active 名邦员工只有同时具备 `customer.account.disable` 且 Customer 位于其 data scope，才能执行；普通销售默认关闭但可按需要明确授权；
    - 4S 成员 hard DENY；
-   - System Admin 作为控制平面可以配置角色模板及员工权限，但不因 System Admin 身份本身自动获得客户业务执行权；
-   - 当前运营配置可默认将该能力开放给经理 / 店长，普通销售默认关闭但可按需要明确授权；这属于配置种子，不改变 PDM-02“默认 permission 不在产品基线硬编码”的原则。
+   - 该规则不改变 PDM-02“默认 permission 不在产品基线硬编码”的原则。
 4. 停用后的客户仍允许打开网站 / 小程序并浏览公开内容，但暂停依赖该 Customer 身份或客户权益的业务账号能力，包括但不限于收藏、咨询、找车、锁车 / 候补、查价及客户等级权益使用。
 5. 停用不是业务对象删除或自动终止动作：
    - 不物理删除 Customer；
