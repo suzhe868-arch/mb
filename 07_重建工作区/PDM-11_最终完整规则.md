@@ -586,7 +586,7 @@ PDM-11 不得恢复以下旧方向：
 
 已正式登记 HANDOFF_OPEN：
 
-- PDM-12：Matching readiness、确定性解析、重算、候选等级；
+- PDM-12：`HANDOFF_CLOSED`。PDM-12 Final 已承接 Matching readiness、确定性解析、四级 Match Result、事件驱动重算与 current/stale 结果边界；Application 不参与正式 Matching，只有 active + matching-ready Demand 进入。
 - PDM-13：Priority 与 Demand.created_at 仲裁边界；
 - PDM-14：Recommendation / source_demand_id；
 - PDM-16：CRM 等级、entitlement、Application/Demand 概览与 demand_id 跟进；
@@ -596,7 +596,11 @@ PDM-11 不得恢复以下旧方向：
 - PDM-22：Customer Level 配置、后台客户/找车管理；
 - PDM-25：Application / Demand / Level / entitlement / ending request / reassignment 统一审计。
 
-这些不是“后面再想”，而是已经登记的正式输入。目标 PDM 必须 ACCEPT → 落地 → source backwrite → CLOSED。
+PDM-12 已完成目标域闭环：
+
+> `HO-P11-P12-001 = HANDOFF_CLOSED / target=PDM-12 Final §§2-4,29 / source_backwrite=YES`
+
+其余仍开放事项不是“后面再想”，而是已经登记的正式输入。目标 PDM 必须 ACCEPT → 落地 → source backwrite → CLOSED。
 
 ---
 
