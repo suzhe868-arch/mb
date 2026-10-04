@@ -793,18 +793,21 @@ IA / Low-Fi 不得反向覆盖本 PDM 最终 Authority。
 
 ---
 
-## 12. Future handoff 候选｜当前只记录，不提前正式 OPEN
+## 12. Future handoff｜已按确认 Atom 正式登记 HANDOFF_OPEN
 
-PDM-11 后续至少会与以下目标域形成正式 handoff；在相应 PDM-11 Atom 经用户确认前，暂不写入 Register 为正式 `HANDOFF_OPEN`：
+PDM-11 Batch 1～4 已全部完成用户裁决，因此本域已把后续目标正式写入 CROSS_PDM_HANDOFF_REGISTER；这些 handoff 不是 IA / Low-Fi 施工指令，而是后续 PDM 的产品语义输入。
 
-- PDM-12：Matching readiness、标准条件、确定性解析、候选等级；
-- PDM-13：Priority 仅由合法 active Demand / matching 关系触发的边界；
-- PDM-14：Recommendation 可选关联 `source_demand_id`，Demand 结束不抹除 Recommendation 历史；
-- PDM-17：公海 / owner 变化与未完成 Demand 的正式交接；
-- PDM-20：客户端 C02 / C02-01 / C02-02 真实状态、动作、文案；
-- PDM-21：员工 E01 / E05 Application / Demand 工作台和状态动作；
-- PDM-22：PC 客户 / Demand 管理与必要治理入口；
-- PDM-25：Demand 创建、激活、状态转换、负责人变更、停用 Guard 的统一审计。
+- `HO-P11-P12-001` → PDM-12：Matching readiness、标准条件、确定性解析；只有人工激活后的 active Demand 才进入正式 Matching；
+- `HO-P11-P13-001` → PDM-13：Priority 只能建立在合法 active Demand / Matching 关系上，不能由 pending Application 直接产生；
+- `HO-P11-P14-001` → PDM-14：Recommendation 可关联 `source_demand_id`；Demand 状态变化不得抹除历史 Recommendation；
+- `HO-P11-P16-001` → PDM-16：CRM 客户详情承载当前等级、找车 entitlement 结果、Demand 概览，以及 customer.level.manage 的合法等级调整入口；
+- `HO-P11-P17-001` → PDM-17：owner / 公海变化与 Demand 负责人分层，未完成 Demand 走正式责任交接；
+- `HO-P11-P20-001` → PDM-20：客户端 Application pending、普通客户等级受限提示、升级粉丝/VIP/联系顾问、Demand paused/resume/history；
+- `HO-P11-P21-001` → PDM-21：员工待处理工作台、处理详情、人工激活 Demand、等级不足时先完成合法等级调整；
+- `HO-P11-P22-001` → PDM-22：PC Customer Level 权益配置、find-car entitlement、与 PDM-10 LIMITED/UNLIMITED/daily quota 同等级配置承载；V1 不建设单 Customer find-car override；
+- `HO-P11-P25-001` → PDM-25：Application / Demand / Customer Level / entitlement / 停用触发暂停等统一审计。
+
+所有上述 handoff 当前状态均为 `HANDOFF_OPEN`；目标 PDM 接收后必须转 `HANDOFF_ACCEPTED`，最终落地并完成 source backwrite 后才允许 CLOSED。
 
 ---
 
