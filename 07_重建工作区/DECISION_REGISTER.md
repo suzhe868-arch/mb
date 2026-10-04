@@ -372,3 +372,12 @@
 | PDM10-COVERAGE-GATE | PDM-10 | Full Coverage / Integrity | M11-001～M11-017 17/17 均有明确去向；Source→Final 与 Final→Source 双向追溯完成；跨 PDM supersession 与 handoff 均登记。 | SOURCE_DECISION_COVERAGE=100%；UNMAPPED=0；FINAL_TO_SOURCE_TRACEABILITY=100%；CROSS_PDM_CONFLICT=0；SEMANTIC_INTEGRITY=PASS。 | 全量检查卡 + 覆盖报告 | 2026-10-04 |
 | PDM10-SUPERSEDE-P02-P06 | PDM-10 | Cross-PDM Supersession | PDM-02 独立“调价 permission”旧表述、PDM-06 §15“调价不得混入保存修改”旧表述由 P10-B4-06 正式覆盖；internal_wholesale_price 字段仍受 B4-10 内部价查看 permission 保护。 | PDM-02 / PDM-06 Final 已加入后续跨域修正，避免旧 Final 回归。 | P10-B4-06 / B4-10 用户批准 | 2026-10-04 |
 | PDM10-GATE-FINAL | PDM-10 | Final Domain Overview | 用户最终批准 PDM-10 完整规则总览。 | PDM-10 正式 COMPLETE；Final=07_重建工作区/PDM-10_最终完整规则.md；Coverage/Integrity 全门禁 PASS；允许进入 PDM-11 准备。 | 用户最终“同意”，随后明确“确定执行” | 2026-10-04 |
+
+## 2026-10-04｜PDM-01～PDM-10 Legacy Final Integrity Audit
+
+| Decision ID | 域 | 事项 | 当前最终结论 | 影响 / 执行要求 | 用户证据 | 日期 |
+|---|---|---|---|---|---|---|
+| METHOD-20261004-LEGACY-FINAL-INTEGRITY | METHOD | PDM-01～PDM-10 新标准补审门禁 | 用户明确要求：PDM-10 完成后先不进入 PDM-11，先对 PDM-01～PDM-10 重新做完整性复核；复核不仅细检现有 Final，还必须重新查整条遗漏，并检查跨 PDM 冲突与 handoff。 | 新增 §3.3 Legacy Final Integrity Audit Gate。PDM-01～10 历史 COMPLETE 保留，但在本轮 PASS 前不得视为满足当前新完整性标准；PDM-11 BLOCKED。 | 用户明确“怎么写进规则里…先做PDM1到PDM10，然后再做PDM11以后” | 2026-10-04 |
+| METHOD-20261004-LEGACY-THREE-LAYER | METHOD | 三层审计模型 | 每个旧 PDM 必须同时执行 Missing Rule Audit、Semantic Detail Audit、Cross-PDM Integrity Audit；不能只做 Final 文案精检。 | 整条遗漏、语义细节缺失、跨域冲突/静默覆盖/handoff 丢失三类都必须清零。 | 用户追问“有没有再查遗漏，还是只是不细检”后明确要求写入规则 | 2026-10-04 |
+| METHOD-20261004-LEGACY-REOPEN-ONLY | METHOD | 旧 PDM 的 reopen 策略 | 本轮不是 PDM-01～10 全量推倒重做；只有发现问题的 Atom / 段落才 reopen。完整规则记录 INTEGRITY_PASS；真正改变产品语义的 reopen 仍必须用户裁决。 | 避免重复重建，同时保证旧 Final 的遗漏/细节/冲突可被纠正。 | 本轮用户确认执行方向 | 2026-10-04 |
+| METHOD-20261004-PDM11-BLOCK | METHOD | PDM-11 启动门禁 | PDM-01～PDM-10 全部 INTEGRITY_PASS 且 01～10 全局 Cross-PDM / Handoff / Global Invariant 总复核 PASS 后，才允许开始 PDM-11。 | 当前项目阶段改为 PDM-01～10 Legacy Final Integrity Audit，从 PDM-01 开始。 | 用户明确先做 PDM1～PDM10，再做 PDM11 以后 | 2026-10-04 |
