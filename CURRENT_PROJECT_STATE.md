@@ -16,15 +16,23 @@
 
 当前域状态：
 
-> `USER_REVIEW_BATCH_3_PENDING`
+> `BATCH_4_EVIDENCE_REVIEW`
 
 当前工作文件：
 
 > `07_重建工作区/PDM-10_价格查价客户展示价覆盖_规则原子重建_工作版.md`
 
+当前已纠正：
+
+- P10-B2-10 原“禁止内部价独立 permission”分类已回开失效；
+- P10-A15 已撤回 Batch 3 并转 Batch 4；
+- P10-B4-01 已按用户裁决确认：内部价 / 底价查看采用后台可配置独立 permission；
+- PDM-02 正式规则本身已经与该结论一致，无需改写 PDM-02；
+- 新增全局 Step 5A / Batch 2、3 反向冲突硬门禁。
+
 当前唯一下一步：
 
-> **用户审查 P10-A13～P10-A15；未确认前停止，不进入 Batch 4。**
+> **继续全局形成 PDM-10 其余 Batch 4 冲突 / 历史遗漏 / 证据缺口候选；形成后再提交用户逐项审查。**
 
 ## 已完成
 
@@ -913,3 +921,26 @@ Decision Register 已登记 PDM10-DEC-B2-01～B2-12 与 PDM10-GATE-B2。
 > `PDM-10 / BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS / USER_REVIEW_PENDING`
 
 未经用户确认不得进入 Batch 4。
+
+
+## 2026-10-04｜Batch 2/3 反向冲突门禁与 PDM-10 内部价权限纠正
+
+用户批准将“Batch 2 / Batch 3 入批前反向冲突检查”写入全局执行规范与四批门禁。
+
+本次触发问题：
+
+- R4 存在内部价 permission + data scope 正式规则；
+- R11 后来取消独立 permission；
+- 已完成 PDM-02 最终规则已经由用户主动反转回“独立 permission”；
+- IA V5 / 001～078 又记录反向承载与冲突；
+- PDM-10 前一轮却误把 R11 当作最终演进，形成错误的 P10-B2-10 / P10-A15。
+
+纠正结果：
+
+- P10-B2-10：`REOPENED / INVALID_CLASSIFICATION`；
+- P10-A15：`WITHDRAWN_FROM_BATCH_3 / RECLASSIFIED_TO_BATCH_4`；
+- P10-A13、P10-A14：用户已确认；
+- P10-B4-01：`USER_APPROVED`，内部价查看恢复/继承为后台可配置独立 permission；
+- PDM-10 当前进入 `BATCH_4_EVIDENCE_REVIEW`。
+
+本次未修改 R11 / IA / Low-Fi 历史证据原件。
