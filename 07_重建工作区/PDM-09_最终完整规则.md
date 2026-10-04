@@ -1,9 +1,11 @@
 # PDM-09｜上游发布人电话 / Collector / 缓存 / 获取最新 / 敏感能力｜最终完整规则
 
 > 日期：2026-10-04  
-> 状态：`COMPLETE`  
+> 状态：`COMPLETE / INTEGRITY_PASS`  
 > Coverage：`SOURCE_DECISION_COVERAGE = 100%`  
-> Unmapped：`0`
+> Final→Source：`100%`  
+> Unmapped：`0`  
+> 2026-10-05 完成 Legacy Final Integrity Audit；用户新增裁决 3A：上游电话入口只属于当前批发 source_type。
 
 ---
 
@@ -26,12 +28,15 @@
 3. 上游电话是独立敏感能力。
 4. 员工必须同时满足：
    - active 有效员工身份；
+   - 当前 Vehicle 的 `source_type = wholesale / JYT 批发`；
    - 当前车辆在本人 data scope；
    - 具备上游电话敏感能力；
    才能查看电话区域、获取最新电话、拨号。
 5. 无电话权限时整个电话区域不显示。
 6. Internal Mode 本身不授予电话权限。
 7. 4S 身份本身不自动获得电话权限。
+8. **3A｜source_type 电话入口裁剪**：上游电话是“当前批发车源”的日常敏感业务能力；同一 Vehicle 完成批发 → 名邦转换后，即使仍保留历史 `upstream_publisher_id`，车辆详情也不再展示、刷新或拨打原上游发布人电话；当前为 4S 来源同样不得因历史 publisher 事实自动出现电话入口。
+9. 3A 只关闭当前车辆详情的日常业务入口，不删除 publisher 来源事实、当前缓存、history 或既有审计；P03-05 在合法诊断/历史场景仍可保留 publisher 记录。
 
 ---
 
@@ -74,10 +79,11 @@
 1. 针对当前 `upstream_publisher_id` 发起一次按需取号需求；
 2. Collector / 采集端向 JYT 获取；
 3. 成功结果经名邦既有 Integration API / 回传体系返回；
-4. 名邦写入 publisher 当前缓存；
-5. 再调起手机系统拨号器；
-6. 获取失败则不发起拨号；
-7. 前端提示失败，并允许合法重试。
+4. **只有返回合法、非空、可作为电话号码使用的有效号码时，才写入 / 更新 publisher 当前缓存；**
+5. 若本次请求成功返回但无有效号码、空值或明显非法号码：不得写空覆盖；若存在旧有效缓存则保留旧缓存并记录本次未取得有效新号码，若不存在旧缓存则进入 `PHONE_UNAVAILABLE`；
+6. 只有取得有效号码后才调起手机系统拨号器；
+7. 获取失败或未取得有效号码均不发起拨号；
+8. 前端提示失败 / 暂无有效号码，并允许合法重试。
 
 该行为只是 cache miss 下的首次按需取号，不等同于“获取最新电话”。
 
@@ -91,10 +97,12 @@
 2. 不使用普通缓存替代本次 latest；
 3. Collector / 采集端负责实际 JYT 取号；
 4. 成功结果经名邦既有 Integration API / 回传体系返回；
-5. 成功后更新当前号码；
+5. 只有取得合法、非空、可作为电话号码使用的有效新号码，才更新当前号码；
 6. 原号码进入历史，不物理抹除；
-7. latest 失败不得删除 / 覆盖已有有效缓存；
-8. latest 失败时旧缓存只能标记为 cached，不能冒充 latest。
+7. latest 请求失败，或请求完成但未取得有效电话号码，都不得删除 / 覆盖已有有效缓存；
+8. 有旧缓存时继续保留并标记为 cached，不能冒充 latest；
+9. 无旧缓存且本次未取得有效号码时进入 `PHONE_UNAVAILABLE`；
+10. 无有效号码、空值、非法号码以及刷新失败结果都必须可审计，但不能把“请求成功”误写成“号码刷新成功”。
 
 ---
 
@@ -195,6 +203,7 @@ P03-05 定位为：
 
 至少展示：
 
+- `source_platform`；
 - `upstream_publisher_id`；
 - 当前电话；
 - 当前联系人（上游有返回时）；
@@ -204,14 +213,22 @@ P03-05 定位为：
 - 最近获取 / 刷新结果；
 - 必要异常、日志与审计入口。
 
+身份：
+
+> **P03-05 的 publisher 记录与当前缓存必须继续按 `source_platform + upstream_publisher_id` 唯一定位，不能只按裸 `upstream_publisher_id` 合并。**
+
 权限：
 
-- 明文电话继续受上游电话敏感能力控制；
-- 具备相应后台电话敏感能力且 data scope 允许的管理员，可执行“获取最新电话”。
+- 明文电话继续受**独立上游电话敏感能力**控制；
+- P03-05 只能投影当前操作者 data scope 可触达的 publisher / 关联 Vehicle 范围，不得因为进入集成管理页扩大电话数据范围；
+- 具备相应后台电话敏感能力且 data scope 允许的管理员，可执行“获取最新电话”；
+- System Admin 身份本身不自动获得明文上游电话查看 / latest 权；
+- `integration / Collector manage`、Integration API 配置能力、运行状态 / 日志查看能力，都不能自动推导为上游电话明文权限。
 
 该页：
 
 - 不是普通销售日常拨号入口；
+- 允许查看 publisher 当前/历史事实不等于把电话重新挂回已转名邦/4S Vehicle 的日常详情；
 - 不提供 Collector Base URL / Phone Path 等旧电话连接配置。
 
 ---
@@ -269,20 +286,37 @@ Collector 如何保存 / 测试 / 回滚名邦 Integration API 连接参数：
 
 ---
 
-## 17. IA / Low-Fi 后续整改提醒
+## 17. Cross-PDM 承接状态
 
-当前 IA / Low-Fi 中仍存在少量旧 carrier，例如：
+### 17.1 已完成 incoming handoff
 
-- “保存 Collector 电话连接”；
-- “测试 Collector 连接”；
-- relative path / allowlisted host 等旧电话连接 Guard；
-- 部分旧“名邦调用采集端”方向文字。
+- `HO-P02-P09-001 = HANDOFF_CLOSED`：电话为独立敏感能力；Internal Mode 不授权；4S 身份不自动获得电话能力；
+- `HO-P04-P09-001 = HANDOFF_CLOSED`：电话定位不得恢复 car_code / Vehicle 维度，统一按 publisher identity。
 
-这些已经有明确产品去向：
+### 17.2 仍待后续 PDM 承接
 
-> `STALE_CARRIER → A04-R1 / A11-R1 / B4-04 WITHDRAWN`
+- PDM-21｜`HANDOFF_OPEN`：员工端电话区域、cache available/unavailable、latest、latest failed + cached、拨打、不提供复制，以及 3A source_type 裁剪的真实页面/状态/动作投影；
+- PDM-22｜`HANDOFF_OPEN`：P03-05 publisher cache / 诊断页按 `source_platform + upstream_publisher_id` 展示；Integration API 状态、credential、回传日志与电话明文权限必须隔离，`integration/Collector manage` 不得自动获得上游电话明文能力；
+- PDM-23｜`HANDOFF_OPEN`：Collector / 电话链路 incident、异常/恢复通知、运行事件；通知层不得重新定义 publisher phone 当前值或缓存状态；
+- PDM-25｜`HANDOFF_OPEN`：电话查看、拨打、latest、latest 成功/失败/无有效号码、缓存 before/after、source_platform + publisher、必要 Vehicle / Customer / Demand context 的统一审计。
 
-后续 IA / Low-Fi / Engineering Delta 阶段应清理，但不构成新的产品未裁决问题。
+### 17.3 IA / Low-Fi / 旧实现 stale carrier
+
+当前只登记、不修改：
+
+- “保存 Collector 电话连接 / 测试 Collector 连接”；
+- Collector Base URL / relative Phone Path / allowlisted host 等旧网络方向 Guard；
+- 部分旧“名邦调用采集端 / Collector Phone API”文字；
+- 部分 carrier 仍使用泛化 `publisher_id`，未统一为 `upstream_publisher_id`；
+- P03-05 / 旧 CR-007 实现语义存在把 `integration.collector.manage` 等集成管理能力误解成明文电话权限的风险；
+- `PHONE_UNAVAILABLE` 尚未完整区分“本次无有效新号码 + 仍有旧缓存”与“完全无缓存”；
+- 3A 批发→名邦后电话入口关闭尚未形成 Current / Low-Fi source_type 投影。
+
+统一登记：
+
+> `STALE_CARRIER / DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT`
+
+IA / Low-Fi / 旧实现载体不得反向覆盖本 PDM Final。
 
 ---
 
@@ -296,17 +330,28 @@ Collector 如何保存 / 测试 / 回滚名邦 Integration API 连接参数：
 - UNMAPPED：**0**
 - STALE_CARRIER：存在，但已全部有 supersede 去向
 
+2026-10-05 Legacy Final Integrity Audit 关闭 5 组问题：P03-05 复合身份与权限边界、无有效号码不得覆盖旧缓存、用户裁决 3A source_type 电话入口裁剪、PDM-21/22/23/25 future handoff、IA/Low-Fi/旧实现 stale carrier。
+
 最终状态：
 
-> `COMPLETE`
+> **`COMPLETE / INTEGRITY_PASS`**
 
-最终门禁：
+```text
+MISSING_RULE_UNRESOLVED = 0
+SEMANTIC_DETAIL_GAP_UNRESOLVED = 0
+CROSS_PDM_CONFLICT = 0
+HANDOFF_GAP_UNRESOLVED = 0
+GLOBAL_INVARIANT_CONFLICT = 0
+SOURCE_DECISION_COVERAGE = 100%
+FINAL_TO_SOURCE_TRACEABILITY = 100%
+SEMANTIC_INTEGRITY = PASS
+NEGATIVE_CLAIMS_VERIFIED = PASS
+IMPLEMENTATION_READY = PASS
+HANDOFF_REGISTER_SYNC = PASS
+```
 
-- Batch 1～4 均已用户确认；
-- P09-A04-R1 / P09-A11-R1 已完成 API 架构修正；
-- P09-B4-04 已明确撤回；
-- SOURCE_DECISION_COVERAGE = **100%（20/20）**；
-- UNMAPPED = **0**；
-- 用户于 2026-10-04 明确确认本最终总览。
+下一审计域：
+
+> **PDM-10｜Legacy Final Integrity Audit**
 
 PDM-09 正式封版。后续 PDM / IA / Low-Fi / Engineering 不得静默改写本文件；若发现真实跨域冲突，必须显式提出并重新裁决。
