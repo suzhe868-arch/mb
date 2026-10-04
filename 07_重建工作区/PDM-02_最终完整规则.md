@@ -2,8 +2,8 @@
 
 > 日期：2026-09-24  
 > 状态：`COMPLETE`  
-> 说明：本文件为 PDM-02 经 Batch 1～4 与最终总览用户批准后的**正式当前规则**。后续 PDM 不得静默改写；若发现真实跨域冲突，必须重新提交用户显式裁决。  
-> 本次仍不修改 IA / Low-Fi / Engineering。
+> 说明：本文件为 PDM-02 经 Batch 1～4 与最终总览用户批准后的**正式当前规则**；2026-10-04 已按新标准完成 Legacy Final Integrity Audit，并同步 PDM-01 / PDM-03 / PDM-04 / PDM-09 / PDM-10 已完成跨域规则。后续 PDM 不得静默改写；若发现真实跨域冲突，必须重新提交用户显式裁决。  
+> IA / Low-Fi 仅登记 stale carrier，按全局方法统一延后到 PDM-25 完成并通过全局总复核后集中对齐。
 
 ---
 
@@ -54,6 +54,8 @@
 8. 敏感动作提交时必须重新校验当前 identity + permission + data scope + object state。
 9. 员工不得自行给自己提升角色、增加敏感 permission 或扩大 data scope，也不得通过中间人绕过既定权限边界。
 10. System Admin 作为控制平面治理者受产品级 hard DENY 约束，不能通过配置把系统明确禁止的能力开放出来。
+11. role / permission / data scope / account status 等权限事实发生变更后原则上立即生效；旧登录态、旧页面、旧缓存不得继续保留已经撤销的能力，敏感提交仍须按当前事实重新校验。
+12. 角色、permission、data scope、账号状态及其他关键治理变更必须留审计；至少记录操作人、操作时间、修改前、修改后。默认不要求每次填写修改原因，除非具体业务规则另有要求。
 
 ## 5. 角色模板
 
@@ -94,22 +96,25 @@ System Admin 可以在后台治理：
 - 授予 / 撤销系统允许的业务 permission；
 - 设置 / 调整 data scope；
 - 配置接客资格、接客状态；
+- 直接执行 Customer 账号停用 / 恢复这一控制平面治理动作；
 - 其他员工与权限治理项。
 
 ### 6.3 配置权 ≠ 业务执行权
 
 1. System Admin 能给员工配置某项业务 permission，不等于 System Admin 自己拥有该业务执行能力。
-2. 同一真人需要亲自做业务时，仍必须切换到独立员工身份。
-3. System Admin 不能通过配置绕过产品级 hard DENY。
-4. 所有账号、角色、permission、data scope、接客配置等治理变更必须保留审计。
+2. 同一真人需要亲自做销售、CRM、车辆经营、Lock、Transaction 等业务时，仍必须切换到独立员工身份。
+3. Customer 账号停用 / 恢复属于控制平面治理动作，不视为销售 / CRM / owner / Lock / Transaction 业务执行；System Admin 可以直接执行，但不会因此取得这些业务能力或 Customer owner 身份。
+4. System Admin 不能通过配置或治理动作绕过产品级 hard DENY。
+5. 所有账号、角色、permission、data scope、接客配置、Customer 账号停用 / 恢复等治理变更必须保留审计。
 
 ### 6.4 System Admin 自身治理
 
-1. System Admin 账号只由 active System Admin 管理。
-2. 系统必须始终至少保留 1 个 active System Admin。
-3. 不允许停用最后一个 active System Admin。
-4. 首个 System Admin 由系统初始化 / bootstrap 建立。
-5. V1 不再增加一层“超级管理员 / Owner”。
+1. 首个 System Admin 由系统初始化 / bootstrap 建立，不从员工业务角色产生。
+2. 首个 bootstrap 完成后，后续 System Admin 的新增、启用、停用与基础治理只能由 active System Admin 执行。
+3. 系统必须始终至少保留 1 个 active System Admin。
+4. 不允许停用最后一个 active System Admin。
+5. System Admin 自身治理变更必须审计，并继续服从“不可自我绕过 hard DENY / 不获得员工业务执行权”的边界。
+6. V1 不再增加一层“超级管理员 / Owner”。
 
 ## 7. 普通销售 / 经理 / 店长员工管理边界
 
@@ -167,7 +172,9 @@ System Admin 可以在后台治理：
 
 ### 9.2 计划性变化
 
-计划中的调店、角色切换、降权，如果会使员工失去当前业务承责资格，应先完成相应业务交接，再使变化正式生效。
+计划中的调店、角色切换、降权，如果会使员工失去当前业务承责资格、原门店 / 原团队 data scope 或现有责任范围，应先完成相应客户与活跃业务交接，再使变化正式生效。
+
+尤其员工从 A 店调到 B 店时，A 店范围内仍由其承责且调店后不再合法覆盖的 Customer / 活跃业务必须先完成正式交接；调店后按 B 店当前角色、permission、data scope 生效，历史门店 / 角色 / 责任事实不回写。
 
 ### 9.3 突发失效
 
@@ -177,17 +184,23 @@ System Admin 可以在后台治理：
 2. 再由 active 管理人员补完业务交接；
 3. 不允许为了完成交接而继续保留离职员工权限。
 
-### 9.4 重新入职
+### 9.4 重新入职 / 从 inactive 恢复 active
 
-重新入职：
+重新入职或从 inactive 恢复 active：
 
 - 复用原 `employee_id`；
 - 按当前角色、permission、data scope 重新授权；
-- 不自动恢复离职前 permission；
-- 不自动拿回旧客户；
+- 不自动恢复离职 / inactive 前 permission；
+- 不自动拿回已经交出的旧客户；
 - 不自动恢复旧业务责任；
-- 接客状态默认关闭；
+- `accepting` / 接客状态默认关闭，必须由本人或具备管理权限且范围覆盖的人员重新开启；
 - 旧登录态不得复活。
+
+### 9.5 离职 / inactive 交接范围与 Handover Batch
+
+员工离职、inactive 或失去承责资格时，不能只处理 Customer owner，还必须同步检查其当前负责的活跃业务，包括 Demand、Priority、Consultation、Waitlist、Lock、Transaction 等适用对象。
+
+交接必须形成可追溯 handover batch，至少能够追溯：离开 / 失效员工、失效时间、受影响 Customer / 活跃业务、原 owner / 原负责人、新 owner / 新负责人、操作人、操作时间、交接原因及后续再次分配历史。部分失败时不得抹掉已成功交接项，未完成项继续保持待处理状态。
 
 ## 10. 接客状态与接客池保护
 
@@ -197,6 +210,10 @@ System Admin 可以在后台治理：
 4. System Admin 可从控制平面治理接客资格 / 接客状态，但不会因此进入接客池。
 5. 正常操作必须保证至少存在 1 名 active + eligible + accepting 的合格接客员工。
 6. 正常情况下禁止关闭 / 停用最后一名合格接客员工。
+7. 员工仅关闭 `accepting` 时，只退出未来自然注册 / 自动轮询：
+   - 不自动转走已有 Customer；
+   - 不自动改变其既有业务责任；
+   - 员工仍为 active + eligible 时，本人的有效分享获客能力继续按 PDM-03 规则生效。
 
 ### 10.1 异常池空
 
@@ -311,24 +328,43 @@ PDM-10 经用户最终批准后，对本 PDM 的价格动作语义形成以下�
 
 本修正只覆盖“调价是否为独立 permission / action”的旧表述，不改变 PDM-02 其他统一权限模型。
 
-## 15. 跨域留待后续 PDM 的内容
+## 15. 跨域承接状态
 
-以下不在 PDM-02 提前写死：
+### 15.1 已完成承接
 
-- 一键转名邦具体 permission → PDM-04 / PDM-21；
-- 上游发布人电话权限与“获取最新电话” → PDM-09；
-- 展示价覆盖 / 查价 → PDM-10；
+1. Owner / 接客 / 离职交接已由 PDM-03 完成：
+   - 关闭 accepting 只影响未来自然轮询；
+   - active + eligible 员工本人有效分享仍可获客；
+   - inactive / 离职需要同时处理 Customer owner 与活跃业务责任；
+   - handover batch 与历史保留规则已同步回本 Final。
+2. 一键转名邦与 4S 车辆责任已由 PDM-04 / PDM-06 完成：
+   - 一键转名邦不设置额外独立 permission；
+   - active 名邦员工满足正常车辆管理 / 查看范围及 object state 即可执行；
+   - 4S 成员不能一键转名邦；
+   - 4S 成员失效后的车辆暂停展示 / 匹配与名邦接管按 PDM-04 当前规则执行。
+3. 上游发布人电话已由 PDM-09 完成：Internal Mode 本身不授电话权限；电话能力继续服从当前身份、独立敏感能力、data scope、object state；4S 身份本身不自动获得电话能力。
+4. 展示价 / 内部价 / 正常价格编辑已由 PDM-10 完成：
+   - 不再存在独立“调价 permission / 调价动作”；
+   - customer_list_price / internal_wholesale_price 按正常车辆编辑规则提交；
+   - internal_wholesale_price 仍受独立内部价查看 permission 的字段级保护；
+   - 客户展示价覆盖继续是独立 permission；
+   - 4S 查看名邦内部价及设置客户展示覆盖价均 hard DENY。
+5. Customer 账号停用 / 恢复已由 PDM-01 后续裁决同步：System Admin 可直接作为控制平面治理动作执行；经理 / 店长等 active 名邦员工需满足 `customer.account.disable + Customer data scope`；普通销售默认不开但可明确授权；4S hard DENY。
+
+### 15.2 仍待后续 PDM 承接
+
 - Consultation 负责人 / 转派 → PDM-15；
 - CRM 业务细节 → PDM-16；
 - 公海 / Collaboration → PDM-17；
 - Lock / Waitlist → PDM-18；
 - Transaction / Refund / 成交纠错 → PDM-19；
-- 4S 车辆具体所有权 / 接管 / 责任迁移 → PDM-04 / PDM-06；
 - 员工端具体页面与内部模式视觉投影 → PDM-21；
 - PC 后台具体 IA → PDM-22；
 - 横切审计字段 / 审计留存规范 → PDM-25。
 
-这些后续 PDM 不得静默推翻本 PDM 已确认的身份与权限边界；若发现真实冲突，必须重新提交用户显式裁决。
+上述后续 PDM 不得静默推翻本 PDM 已确认的 identity / role / permission / data scope / hard DENY 边界；若发现真实产品冲突，必须重新提交用户显式裁决。
+
+IA / Low-Fi 当前只作为 carrier 检查与 stale ledger 来源，不在 PDM-01～25 产品规则重建过程中随手整改；统一在 PDM-25 完成并通过 PDM-01～25 全局总复核后集中对齐。
 
 ## 16. 四批门禁与最终批准状态
 
@@ -338,9 +374,15 @@ PDM-10 经用户最终批准后，对本 PDM 的价格动作语义形成以下�
 - Batch 4｜冲突 / 遗漏 / 缺口 / 新选择：`COMPLETE_USER_CONFIRMED`
 - Final Domain Overview：`USER_APPROVED`
 - PDM-02：`COMPLETE`
+- 2026-10-04 Legacy Final Integrity Audit：`INTEGRITY_PASS`
+- Missing Rule unresolved：`0`
+- Semantic Detail Gap unresolved：`0`
+- Cross-PDM Conflict：`0`
+- Handoff Gap unresolved：`0`
+- Implementation Ready：`PASS`
 
 2026-09-24 用户最终确认本总览无其他问题，并特别确认：
 
 > **普通销售、经理、店长均可参与接客；经理和店长在满足 active + eligible + accepting 时可进入接客池并成为 Customer owner。4S 成员与 System Admin 不进入接客池。**
 
-PDM-02 正式关闭，允许进入 PDM-03。
+PDM-02 历史 COMPLETE 保留；2026-10-04 已通过当前 Legacy Final Integrity Audit。PDM-01～10 本轮复核的下一域为 PDM-03。
