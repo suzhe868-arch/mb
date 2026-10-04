@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Generate and review PDM-11 final complete rule overview for user approval",
+  "current_task": "User review of PDM-11 final complete rule overview",
   "current_work_file": "07_重建工作区/PDM-11_找车申请Demand生命周期_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -915,7 +915,7 @@
     "global_pdm01_10_cross_pdm_audit_file": "07_重建工作区/PDM-01至10_全局Cross-PDM_Handoff_GlobalInvariant总复核_2026-10-05.md",
     "next_domain": "PDM-11"
   },
-  "pdm_11_status": "IN_PROGRESS_FINAL_CANDIDATE_READY_USER_FINAL_APPROVAL_PENDING",
+  "pdm_11_status": "IN_PROGRESS_FINAL_REVIEW_PENDING",
   "pdm_01_integrity_status": "INTEGRITY_PASS",
   "pdm_01_integrity_audit_file": "07_重建工作区/PDM-01_历史最终版完整性复核_2026-10-04.md",
   "pdm_01_integrity_reopen_count": 6,
@@ -1285,7 +1285,7 @@
     "HO-P11-P25-001"
   ],
   "pdm_11_pre_final_integrity_status": "PASS",
-  "pdm_11_final_candidate_status": "READY",
+  "pdm_11_final_candidate_status": "GENERATED_USER_REVIEW_PENDING",
   "pdm_11_integrity_resolved_items": [
     "P11-LIA-01_APPLICATION_OWNER_POOL_GUARD",
     "P11-LIA-02_PENDING_APPLICATION_PUBLIC_POOL_PROTECTION",
@@ -1295,5 +1295,7 @@
     "P11-LIA-06_EXPANDED_HANDOFFS",
     "P11-LIA-07_CURRENT_AND_DECISION_GATE_STALE"
   ],
-  "pdm_11_end_flow": "CUSTOMER_REQUESTS_END_EMPLOYEE_CONFIRMS_COMPLETED_OR_CANCELLED_EMPLOYEE_MAY_DIRECTLY_END_NO_FIFTH_MAIN_STATE"
+  "pdm_11_end_flow": "CUSTOMER_REQUESTS_END_EMPLOYEE_CONFIRMS_COMPLETED_OR_CANCELLED_EMPLOYEE_MAY_DIRECTLY_END_NO_FIFTH_MAIN_STATE",
+  "pdm_11_final_overview_file": "07_重建工作区/PDM-11_最终完整规则总览_待用户批准.md",
+  "pdm_11_pre_final_integrity_report": "07_重建工作区/PDM-11_Final前完整性复核_2026-10-05.md"
 }
