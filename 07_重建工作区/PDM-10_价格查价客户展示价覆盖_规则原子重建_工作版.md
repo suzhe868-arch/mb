@@ -1,10 +1,10 @@
 # PDM-10｜价格 / 查价 / 客户展示价覆盖｜规则原子重建工作版
 
 > 日期：2026-10-04  
-> 当前状态：`BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS / USER_REVIEW_PENDING`  
+> 当前状态：`COMPLETE_USER_CONFIRMED / FINAL_USER_APPROVED`  
 > 业务权威语言：中文（zh-CN）  
 > 当前域：PDM-10｜价格体系 / 客户展示价 / 阶梯加价 / 覆盖价 / 查价 / 价格快照  
-> 执行边界：Batch 1、Batch 2 已由用户全部确认；当前只形成 Batch 3 候选，不自动批准，不提前进入 Batch 4。
+> 执行边界：Batch 1～4 与最终完整规则总览均已由用户确认；本工作版保留裁决过程，正式当前规则以《PDM-10_最终完整规则.md》为准。
 
 ---
 
@@ -255,27 +255,40 @@ Recommendation 自身创建/结束流程仍归 PDM-14，本条只冻结其价格
 
 ---
 
-### P10-A10｜每日基础查价额度属于客户权益，不改变车辆售价
+### P10-A10｜客户等级查价权益可配置为有限额或不限量，不改变车辆售价
 
-批发车客户每日基础查价额度：
+每个客户等级都可以在后台独立配置批发车价格查看权益，包括普通注册客户、粉丝、VIP 及后续扩展等级。
 
-- 由后台业务配置决定；
-- 可与客户等级/权益体系关联；
-- 按 UTC+8 自然日恢复/重置。
+每个等级支持两种业务模式：
 
-客户等级变化可以影响：
+1. 有限额：配置每日可成功解锁的新批发车数字价格数量；
+2. 不限量：当前等级在列表页与详情页均可直接查看合法数字客户展示价，不受每日次数限制。
 
-> **还能解锁多少新的批发车价格。**
+不限量必须作为独立业务语义表达，不使用 999999 等超大数字模拟。
 
-但不得：
+无论有限额还是不限量：
 
-- 改写车辆当前客户展示价；
-- 形成不同等级不同售价；
-- 追回已经成功解锁的当前周期车辆。
+- 都不改变车辆当前客户展示价；
+- 都不允许形成不同等级不同售价；
+- 当前没有合法数字客户价格时仍显示“价格咨询”。
 
-“临时追加当天查价次数”的完整规则存在历史承载缺口，单独留 Batch 4，不在本条偷偷吸收。
+等级变化后立即按新等级权益生效：
 
-**状态：** `STABLE_CONSISTENT / USER_APPROVED`
+- 有限额 → 有限额：当天剩余额度按新等级基础额度重新计算；
+- 有限额 → 不限量：立即获得不限量查看权益；
+- 不限量 → 有限额：立即恢复新等级限额规则。
+
+有限额模式下推荐计算：
+
+remaining = max(0, current_today_base_quota + today_temp_additions - today_consumed_new_vehicle_unlocks)
+
+已经明确取得的 customer + vehicle + listing_cycle 单车查价权，以及正式 Recommendation 已授予的当前周期免费查价权，不因等级降低而追回。
+
+仅仅因为客户曾处于不限量等级并浏览过车辆，不把这些浏览自动转化成永久单车查价权；不限量是“当前等级权益”，不是批量制造单车授权。
+
+每日自然日边界统一为 UTC+8 00:00。
+
+**状态：** STABLE_BASE_REFINED_BY_FINAL_REVIEW / USER_APPROVED
 
 ---
 
@@ -590,7 +603,7 @@ Batch 2 门禁已关闭，允许进入 Batch 3；对应替代规则不得因本�
 
 ---
 
-## 8. Batch 3｜知情修改 / 明确新增｜待用户审查
+## 8. Batch 3｜知情修改 / 明确新增｜已用户确认
 
 > 本批只放“旧规则后来被明确修改”或“后来明确扩展的新业务口径”。  
 > 当前实现、IA、Low-Fi 是否已经完全跟上，不影响本批的产品裁决；承载缺口留 Batch 4 / 后续工程阶段。
@@ -754,3 +767,189 @@ Batch 3 门禁关闭，允许进入 Batch 4；不得自动批准 Batch 4 其余�
 下一步：
 
 > **继续形成 PDM-10 其余 Batch 4 候选，并逐项提交用户审查。**
+
+
+## 12. Batch 4｜剩余冲突 / 历史遗漏 / 证据缺口 / 新选择｜最终收口
+
+### P10-B4-02｜JYT → 名邦同 vehicle_id / listing_cycle 转换后的价格规则
+
+一键转名邦继续使用同一 vehicle_id、同一 listing_cycle，不创建第二辆车，也不新建价格周期。
+
+转换瞬间必须保存不可变价格事实快照，至少包括：上游标价、上游真实批发价、base_wholesale_price、阶梯计算结果、当时最终客户展示价、是否存在覆盖价、转换时间、操作人。
+
+转换后：
+
+- 停止 JYT 当前阶梯价格计算；
+- JYT 后续普通调价不得继续自动修改名邦当前价格；
+- JYT 原始价格只保留为 Source Data / 历史事实；
+- 名邦 customer_list_price 不自动继承转换前批发车客户展示价；
+- 当前同 listing_cycle 的有效覆盖价继续生效；
+- 后续取消覆盖且名邦 customer_list_price 为空时显示“价格咨询”；
+- 当前周期既有查价权继续有效；
+- Recommendation / Lock / Transaction 已形成的历史价格快照不得回写。
+
+internal_wholesale_price 初始化只允许使用真实 upstream_wholesale_price；不存在真实上游批发价则为空。禁止用 upstream_list_price 或派生 base_wholesale_price 冒充真实内部批发价。
+
+**状态：** CONFLICT_RESOLVED / USER_APPROVED
+
+---
+
+### P10-B4-03｜临时增加客户当天查价次数
+
+临时追加的是 customer-day quota，不是销售个人额度。
+
+- 普通销售：必须是该客户 current owner，同时具备“增加当天查价次数” permission；
+- 经理 / 店长：不要求本人是 current owner，但必须具备该 permission，且客户位于其 data scope；
+- 4S 成员：HARD DENY；
+- System Admin：可配置该 permission，但不以销售身份执行该业务动作。
+
+提交时重新校验 identity + permission + data scope + object state。
+
+同一天允许多次追加并累计；UTC+8 次日失效。owner 变化、原销售暂停接客或离职，不撤销已经追加的当天次数；有权限的新责任人员可继续追加。
+
+不强制填写原因，备注可选。审计至少记录客户、操作人、时间、增加次数、操作前后剩余额度与当天累计追加量。
+
+**状态：** HISTORICAL_RULE_RESTORED_AND_REFINED / USER_APPROVED
+
+---
+
+### P10-B4-04｜未解锁价格仍使用真实客户展示价参与筛选和排序
+
+“能否看见精确数字”与“系统内部是否使用真实客户展示价做查询”分离。
+
+客户尚未解锁批发价时，前端显示“查看价格”，但：
+
+- 排序使用当前真实客户展示价；
+- 数字价格区间筛选使用当前真实客户展示价；
+- 解锁前后不得改变车辆排序位置；
+- 查询本身不建立查价权、不消耗额度；
+- 响应 payload 不得向未授权客户返回精确数字价格。
+
+“价格咨询”车辆不进入明确数字价格区间；价格排序放在所有数字价格之后，其内部顺序按既定上架时间等规则处理。
+
+**状态：** HISTORICAL_RULE_RESTORED / USER_APPROVED
+
+---
+
+### P10-B4-05｜低于基础价 / 内部价允许保存，但必须风险警告和审计
+
+- JYT 客户展示覆盖价低于 base_wholesale_price：允许保存并生效，明显风险警告；
+- 名邦 / 4S customer_list_price 低于 internal_wholesale_price：允许保存并生效，明显风险警告；
+- 名邦 / 4S 覆盖价低于 internal_wholesale_price：同样允许并警告。
+
+比较基准为空时不比较、不警告，不用 0 或其他价格伪造基准。
+
+不增加经理审批、店长确认、强制亏损理由等产品硬门槛。必须保留 before / after / baseline / risk flag / actor / time / listing_cycle / operation type 等审计事实。
+
+**状态：** USER_APPROVED
+
+---
+
+### P10-B4-06｜取消独立“调价 permission / 调价动作”
+
+名邦 / 4S 的 customer_list_price 与 internal_wholesale_price 属于车辆正常可编辑业务字段，不再单独建立“调价 permission”或独立“调价动作”。
+
+具备对应车辆编辑 / 管理能力并满足 data scope、object state 的人员，通过普通车辆编辑的“保存修改”提交正常价格字段。
+
+JYT 上游标价、上游批发价、base_wholesale_price 继续只读。
+
+客户展示价覆盖仍是独立敏感动作与独立 permission，因为它是可设置 / 修改 / 取消的展示层覆盖，不改底层价格事实。
+
+本条显式 supersede：
+- PDM-02 中把“调价”作为独立敏感 permission 的旧表述；
+- PDM-06 中“调价不得混入保存修改”的旧表述；
+- R11 / Current 中相应旧 carrier。
+
+**状态：** USER_APPROVED / CROSS_PDM_SUPERSESSION
+
+---
+
+### P10-B4-07｜客户展示价覆盖仅由名邦内部人员执行
+
+三类车源都支持客户展示价覆盖，但“支持该数据能力”不等于所有来源主体都可操作。
+
+名邦员工执行覆盖必须满足 active + override permission + data scope + object state，并在提交时重验。
+
+4S 成员对覆盖价 HARD DENY，即使是本人可管理的 4S 车辆也不能设置、修改、取消覆盖价。4S 成员可以在正常车辆编辑权限范围内修改自己车辆的 customer_list_price，这不是覆盖价。
+
+**状态：** USER_APPROVED / HARD_DENY_CONFIRMED
+
+---
+
+### P10-B4-08｜价格展示格式与语义标签
+
+客户数字价格统一主要使用“万”：
+
+- 128000 → 12.8万；
+- 180000 → 18万；
+- 125800 → 12.58万；
+- 不强制显示 .0。
+
+无合法数字客户价格 → “价格咨询”。
+批发车价格尚未解锁 → “查看价格”。
+
+员工内部界面必须明确区分：当前客户展示价、客户标价、内部批发价，以及 JYT 场景下的上游标价 / 上游批发价等，不允许用含糊“价格”把不同价格事实混在一起。
+
+**状态：** USER_APPROVED
+
+---
+
+### P10-B4-09｜4S 成员可以进入自己车辆的管理视图，再按 hard DENY 裁剪能力
+
+4S 成员不得被整体阻断于车辆管理承载之外。
+
+4S 成员可以进入自己有权管理的 4S 车辆管理视图，正常维护允许的车辆资料与正常客户标价；随后继续按 identity + permission + data scope + object state 与 4S hard DENY 裁剪具体能力。
+
+继续禁止：管理名邦车、管理 JYT 批发车、查看名邦内部价 / 批发价、一键转名邦、客户展示价覆盖、越过自己的 4S data scope。
+
+Current IA 中“4S member | internal mode | DENY”的整体角色门禁属于 stale carrier，后续 PDM-21 / IA 对齐时修正。
+
+**状态：** CURRENT_SEMANTIC_CONFLICT_RESOLVED / USER_APPROVED
+
+---
+
+### P10-B4-10｜修改 internal_wholesale_price 还必须具备内部价查看 permission
+
+取消独立“调价 permission”不等于内部敏感字段失去字段级保护。
+
+修改 internal_wholesale_price 必须同时满足：
+
+- 正常车辆编辑 / 管理能力；
+- 合法 data scope；
+- 当前 object state 允许；
+- 具备内部价查看 permission。
+
+没有内部价查看 permission 时，后端不返回 internal_wholesale_price，页面不展示，也不得通过接口直接提交修改该字段。
+
+修改 customer_list_price 不要求内部价查看 permission，只服从正常车辆编辑 / 管理能力及 data scope / object state。
+
+**状态：** USER_APPROVED / FIELD_GUARD_CONFIRMED
+
+---
+
+## 13. Batch 4 门禁结果
+
+P10-B4-01～P10-B4-10 均已完成用户明确裁决。
+
+其中：
+- B4-03 已按最终“普通销售 owner / 经理店长 data scope”模型修正；
+- B4-05 已由用户明确“确认 P10-B4-05”；
+- B4-06 对 PDM-02 / PDM-06 的旧调价模型形成显式 supersession；
+- B4-10 解决“正常编辑价格字段”与“内部价独立查看 permission”的最后交叉冲突。
+
+状态：COMPLETE_USER_CONFIRMED。
+
+---
+
+## 14. 最终批准
+
+2026-10-04，用户在收到 PDM-10 最终完整规则总览并确认 P10-B4-10 后，明确回复“同意”，完成 Final Domain Overview 最终批准。
+
+最终正式规则文件：
+
+> 07_重建工作区/PDM-10_最终完整规则.md
+
+最终状态：
+
+> COMPLETE
+
