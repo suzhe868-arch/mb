@@ -944,10 +944,10 @@ BATCH_1_USER_APPROVAL = PASS
 BATCH_2 = PASS / USER_APPROVED
 BATCH_3 = PASS / USER_APPROVED
 BATCH_4 = PASS / USER_APPROVED
-PDM11_FINAL_CANDIDATE = READY_FOR_GENERATION
+PDM11_FINAL_CANDIDATE = GENERATED / USER_REVIEW_PENDING
 PDM11_COMPLETE = NO
 ```
 
 当前唯一下一步：
 
-> **Final 前完整性缺口已关闭。下一步：生成 PDM-11《最终完整规则总览_待用户批准》，进行最终总览审查；未经用户最终批准不得标记 PDM-11 COMPLETE / INTEGRITY_PASS。**
+> **Final 前完整性缺口已关闭，`PDM-11_最终完整规则总览_待用户批准.md` 已生成。当前唯一下一步：用户审查该总览；未经用户最终批准不得生成正式 Final、关闭 incoming handoff 或标记 PDM-11 COMPLETE / INTEGRITY_PASS。**
