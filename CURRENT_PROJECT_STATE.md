@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / HANDOFF_ACCEPTED / BATCH_1_USER_REVIEW_PENDING`
+> `IN_PROGRESS / HANDOFF_ACCEPTED / BATCH_1_APPROVED / BATCH_2_USER_REVIEW_PENDING`
 
 当前工作文件：
 
@@ -32,8 +32,15 @@
 
 当前唯一下一步：
 
-> **PDM-11 已建立工作版并承接 `HO-P01-P11-001 = HANDOFF_ACCEPTED`；当前唯一下一步：用户审查 Batch 1 的 P11-A01～P11-A13。未经用户确认不得进入 Batch 2。IA / Low-Fi 仍统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。**
+> **PDM-11 Batch 1 的 P11-A01～P11-A13 已由用户全部确认；当前唯一下一步：用户审查 Batch 2 的 P11-B2-01～P11-B2-10。未经用户确认不得进入 Batch 3。IA / Low-Fi 仍统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。**
 
+## 2026-10-05｜PDM-11 Batch 1 全部确认
+
+- 用户明确确认 `P11-A01～P11-A13` 全部同意；
+- Batch 1 = `PASS / USER_APPROVED`；
+- 未将 Customer 停用后续修改偷渡入 Batch 1，继续保留在 Batch 3；
+- 未将 Application 激活时机 / 找车资格来源真实冲突偷渡入 Batch 1，继续保留在 Batch 4；
+- 当前进入 Batch 2：`P11-B2-01～P11-B2-10 / USER_REVIEW_PENDING`。
 ## 2026-10-05｜PDM-11 启动与证据重建完成
 
 - 已读取并承接 `HO-P01-P11-001`，状态从 `HANDOFF_OPEN` → `HANDOFF_ACCEPTED`；
