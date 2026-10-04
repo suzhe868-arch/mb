@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_1_TO_4_APPROVED / PREFINAL_INTEGRITY_PASS / FINAL_CANDIDATE_READY`
+> `IN_PROGRESS / BATCH_1_TO_4_APPROVED / PREFINAL_INTEGRITY_PASS / FINAL_REVIEW_PENDING`
 
 当前工作文件：
 
@@ -32,7 +32,7 @@
 
 当前唯一下一步：
 
-> **PDM-11 Batch 1～4 已全部用户批准，Final 前完整性复核发现项已关闭。新增明确：无合法 owner/pool-empty 不创建无负责人 Application；pending Application 属公海保护；Demand.created_at 为不可变创建事实；客户结束找车采用“客户发起结束请求→员工按真实结果确认 completed/cancelled”，员工也可直接结束；等级提示读取当前真实 entitlement 配置；PDM-12/13/14/16/17/20/21/22/25 handoff 已扩展为完整语义。当前唯一下一步：生成并审查 PDM-11《最终完整规则总览_待用户批准》。未经最终批准不得标记 PDM-11 COMPLETE / INTEGRITY_PASS。IA / Low-Fi 仍统一延后到 PDM-25 后集中对齐。**
+> **PDM-11 Batch 1～4 已全部用户批准，Final 前完整性复核发现项已关闭。新增明确：无合法 owner/pool-empty 不创建无负责人 Application；pending Application 属公海保护；Demand.created_at 为不可变创建事实；客户结束找车采用“客户发起结束请求→员工按真实结果确认 completed/cancelled”，员工也可直接结束；等级提示读取当前真实 entitlement 配置；PDM-12/13/14/16/17/20/21/22/25 handoff 已扩展为完整语义。当前唯一下一步：审查 `07_重建工作区/PDM-11_最终完整规则总览_待用户批准.md`。Final 候选与 `PDM-11_Final前完整性复核_2026-10-05.md` 已生成；未经用户最终批准不得标记 PDM-11 COMPLETE / INTEGRITY_PASS。IA / Low-Fi 仍统一延后到 PDM-25 后集中对齐。**
 
 ## 2026-10-05｜PDM-11 Final 前完整性复核完成
 
