@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / STARTUP_GATE_PASS / INCOMING_HANDOFFS_ACCEPTED / EVIDENCE_RECONSTRUCTION_PENDING`
+> `IN_PROGRESS / BATCH_1_PASS / USER_APPROVED`
 
 当前工作文件：
 
@@ -32,7 +32,18 @@
 
 当前唯一下一步：
 
-> **PDM-11 已 `COMPLETE / INTEGRITY_PASS`，正式 Authority 为 `07_重建工作区/PDM-11_最终完整规则.md`。当前域已推进到 PDM-12；4 个 incoming handoff 已读取并 ACCEPTED。下一步：按方法对 PDM-12 执行 Current Authority Refresh → Current Implementation Fact → 9/19 主底盘 → 前史 → 001～078 → 后续 Current / IA / Low-Fi → Conflict Before Classification，形成 Batch 1 候选。未经用户审查不得自动批准。IA / Low-Fi 仍统一延后到 PDM-25 后集中对齐。**
+> **PDM-12 Batch 1 已通过用户审查：P12-A01～P12-A15 = USER_APPROVED。M03-001～M03-003 已完成 Source→Atom 反查；首次汇总遗漏的“车源主页搜索与正式 Demand Matching 共用确定性解析 / 匹配词典”已补为 P12-A15，当前 unmapped stable Batch1 rule = 0。下一步按 Conflict Before Classification 形成 Batch 2（废弃 / 禁止恢复项）候选，提交用户审查后停下；IA / Low-Fi 继续延后到 PDM-25 后集中对齐。**
+
+## 2026-10-05｜PDM-12 Batch 1 用户批准
+
+- Current Authority Refresh / Current Implementation Fact 已完成；
+- Batch 1：`P12-A01～P12-A15 = PASS / USER_APPROVED`；
+- P12-A15 正式冻结：车源主页搜索与正式 Demand Matching 共用同一套确定性解析 / 匹配词典；共享解析层，但搜索不创建 Match Result / Priority / Recommendation / Demand / Lock；
+- M03-001～M03-003 Source→Atom 反查完成；
+- 首轮发现 `SEARCH_MATCH_SHARED_DICTIONARY` 属于“证据已读但 Atom 未生成”，现已修复；
+- 当前 `UNMAPPED_STABLE_BATCH1_RULE = 0`；
+- P06-10 Action/scope/test/retry、旧字段排除、里程特殊规则、VR-P-021/022 等均显式保留到后续批次，不视为丢失；
+- 当前唯一下一步：形成 Batch 2（废弃 / 禁止恢复项）候选并停下等待用户审查。
 
 ## 2026-10-05｜PDM-11 最终批准并进入 PDM-12
 

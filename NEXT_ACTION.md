@@ -19,7 +19,7 @@
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
 - 当前域：PDM-12
 - PDM-11 = COMPLETE / INTEGRITY_PASS
-- PDM-12 = IN_PROGRESS / STARTUP_GATE_PASS / EVIDENCE_RECONSTRUCTION_PENDING
+- PDM-12 = IN_PROGRESS / BATCH_1_PASS / USER_APPROVED
 - PDM-11 启动门禁 = UNBLOCKED
 - `HO-P01-P11-001 = HANDOFF_SUPERSEDED`
 - `HO-P01-P11-002 = HANDOFF_CLOSED`
@@ -37,7 +37,7 @@
 
 ## 当前唯一下一步
 
-> **启动 PDM-12 证据重建：先做 Current Authority Refresh 与 Current Implementation Fact，再按 9/19 主底盘→前史→001～078→后续 Current/IA/Low-Fi→Conflict Before Classification 的顺序形成 Batch 1 候选。当前不得修改 IA / Low-Fi，不得自动批准任何 PDM-12 Atom。**
+> **继续 PDM-12 Batch 2 候选重建：先做废弃/禁止恢复项的反向冲突扫描，再执行 Source→Atom 去向检查，形成 Batch 2 候选后立即停下提交用户审查。不得自动批准 Batch 2，不得修改 IA / Low-Fi。**
 
 每个 PDM 必须同时执行：
 
@@ -66,7 +66,7 @@
 
 ## 当前禁止
 
-- 未先读取 `target=PDM-11` incoming handoff 时，不得直接进入 PDM-11 Batch 结论；
+- PDM-12 Batch 1 已通过；未经用户审查不得自动批准 Batch 2～4，也不得把后续候选偷渡回 Batch 1；
 - 不把旧 PDM 的 `COMPLETE` 直接等同于通过当前新完整性标准；
 - 不只检查 Final 文案而跳过原始证据遗漏扫描；
 - 不把 PDM-01～10 全部推倒重做；只 reopen 真正有问题的 Atom / 段落；
@@ -90,7 +90,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-11 均已 `COMPLETE / INTEGRITY_PASS`；`HO-P01-P11-001 = HANDOFF_SUPERSEDED`，`HO-P01-P11-002 = HANDOFF_CLOSED`。当前域为 PDM-12，HO-P04-P12-001 / HO-P05-P12-001 / HO-P07-P12-001 / HO-P11-P12-001 均已 `HANDOFF_ACCEPTED`，正在进入证据重建。
+当前 PDM-01～PDM-11 均已 `COMPLETE / INTEGRITY_PASS`；`HO-P01-P11-001 = HANDOFF_SUPERSEDED`，`HO-P01-P11-002 = HANDOFF_CLOSED`。当前域为 PDM-12，HO-P04-P12-001 / HO-P05-P12-001 / HO-P07-P12-001 / HO-P11-P12-001 均已 `HANDOFF_ACCEPTED`；PDM-12 Batch 1（P12-A01～A15）已 `PASS / USER_APPROVED`，下一步为 Batch 2 候选重建。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
