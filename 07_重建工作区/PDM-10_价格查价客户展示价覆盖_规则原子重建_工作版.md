@@ -1,10 +1,10 @@
 # PDM-10｜价格 / 查价 / 客户展示价覆盖｜规则原子重建工作版
 
 > 日期：2026-10-04  
-> 当前状态：`BATCH_2_DEPRECATED_SUPERSEDED_DO_NOT_RESTORE / USER_REVIEW_PENDING`  
+> 当前状态：`BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS / USER_REVIEW_PENDING`  
 > 业务权威语言：中文（zh-CN）  
 > 当前域：PDM-10｜价格体系 / 客户展示价 / 阶梯加价 / 覆盖价 / 查价 / 价格快照  
-> 执行边界：Batch 1 已由用户全部确认；当前只形成 Batch 2 候选，不自动批准，不提前进入 Batch 3。
+> 执行边界：Batch 1、Batch 2 已由用户全部确认；当前只形成 Batch 3 候选，不自动批准，不提前进入 Batch 4。
 
 ---
 
@@ -392,10 +392,10 @@ Batch 1 门禁已关闭，允许进入 Batch 2；不得自动批准 Batch 2。
 
 ---
 
-## 6. Batch 2｜明确废弃 / 明确替代｜待用户审查
+## 6. Batch 2｜明确废弃 / 明确替代｜已用户确认
 
 > 本批只确认“哪些旧方向不得恢复”。  
-> 若某旧方向对应的新规则仍存在版本演进，新规则本身留 Batch 3 / Batch 4 单独审查，不在本批偷渡。
+> 2026-10-04 用户明确“全部同意”。Batch 2 已关闭；对应新规则仍须按 Batch 3 / Batch 4 单独审查。
 
 ### P10-B2-01｜禁止恢复“覆盖价只适用于单一车源类型”
 
@@ -405,7 +405,7 @@ Batch 1 门禁已关闭，允许进入 Batch 2；不得自动批准 Batch 2。
 
 后续“最终覆盖范围到底是哪些车源”作为演进规则单独进入 Batch 3。
 
-**状态：** `DEPRECATED_SUPERSEDED / USER_REVIEW_PENDING`
+**状态：** `DEPRECATED_SUPERSEDED / USER_APPROVED`
 
 ---
 
@@ -419,7 +419,7 @@ Batch 1 门禁已关闭，允许进入 Batch 2；不得自动批准 Batch 2。
 
 加价关闭后的当前正确价格来源属于明确演进项，留 Batch 3 审查。
 
-**状态：** `DEPRECATED_SUPERSEDED / USER_REVIEW_PENDING`
+**状态：** `DEPRECATED_SUPERSEDED / USER_APPROVED`
 
 ---
 
@@ -433,7 +433,7 @@ Batch 1 门禁已关闭，允许进入 Batch 2；不得自动批准 Batch 2。
 
 就直接把 `base_wholesale_price` / 内部真实批发价作为客户展示价。
 
-**状态：** `DO_NOT_RESTORE / USER_REVIEW_PENDING`
+**状态：** `DO_NOT_RESTORE / USER_APPROVED`
 
 ---
 
@@ -447,7 +447,7 @@ Batch 1 门禁已关闭，允许进入 Batch 2；不得自动批准 Batch 2。
 
 普通传播行为不能代替正式价格授权事实。
 
-**状态：** `DO_NOT_RESTORE / USER_REVIEW_PENDING`
+**状态：** `DO_NOT_RESTORE / USER_APPROVED`
 
 ---
 
@@ -459,7 +459,7 @@ Batch 1 门禁已关闭，允许进入 Batch 2；不得自动批准 Batch 2。
 - 客户把自己的价格权限通过普通分享传给其他客户；
 - 打开小程序 / 分享链接形成全局批发价权限。
 
-**状态：** `DO_NOT_RESTORE / USER_REVIEW_PENDING`
+**状态：** `DO_NOT_RESTORE / USER_APPROVED`
 
 ---
 
@@ -473,7 +473,7 @@ Batch 1 门禁已关闭，允许进入 Batch 2；不得自动批准 Batch 2。
 
 真实新周期必须重新判断当前周期价格权限与覆盖事实。
 
-**状态：** `DO_NOT_RESTORE / USER_REVIEW_PENDING`
+**状态：** `DO_NOT_RESTORE / USER_APPROVED`
 
 ---
 
@@ -486,7 +486,7 @@ Batch 1 门禁已关闭，允许进入 Batch 2；不得自动批准 Batch 2。
 - 请求失败 / 超时仍扣额度；
 - 员工查看价格消耗客户查价额度。
 
-**状态：** `DO_NOT_RESTORE / USER_REVIEW_PENDING`
+**状态：** `DO_NOT_RESTORE / USER_APPROVED`
 
 ---
 
@@ -500,7 +500,7 @@ Batch 1 门禁已关闭，允许进入 Batch 2；不得自动批准 Batch 2。
 - 编辑中的草稿边改边影响当前客户价格；
 - 保存失败后覆盖当前有效规则。
 
-**状态：** `DO_NOT_RESTORE / USER_REVIEW_PENDING`
+**状态：** `DO_NOT_RESTORE / USER_APPROVED`
 
 ---
 
@@ -513,7 +513,7 @@ Batch 1 门禁已关闭，允许进入 Batch 2；不得自动批准 Batch 2。
 
 本条只确认旧价格方向不得恢复；Lock 全流程仍归后续 PDM-18。
 
-**状态：** `DO_NOT_RESTORE / USER_REVIEW_PENDING`
+**状态：** `DO_NOT_RESTORE / USER_APPROVED`
 
 ---
 
@@ -527,7 +527,7 @@ R11 已明确取消该独立权限门槛；当前 IA / Permission 若存在残�
 
 4S 的内部价边界仍须按角色 / 数据范围单独处理，不因本条自动放开。
 
-**状态：** `DEPRECATED_SUPERSEDED / USER_REVIEW_PENDING`
+**状态：** `DEPRECATED_SUPERSEDED / USER_APPROVED`
 
 ---
 
@@ -540,7 +540,7 @@ R11 已明确取消该独立权限门槛；当前 IA / Permission 若存在残�
 
 同一 vehicle_id 转名邦后的最终价格字段处理仍留 Batch 4 做跨 PDM 裁决。
 
-**状态：** `DO_NOT_RESTORE / USER_REVIEW_PENDING`
+**状态：** `DO_NOT_RESTORE / USER_APPROVED`
 
 ---
 
@@ -556,24 +556,123 @@ R11 已明确取消该独立权限门槛；当前 IA / Permission 若存在残�
 
 内部审计历史可以保留，但不能因此变成客户侧第二套报价体系。
 
-**状态：** `DO_NOT_RESTORE / USER_REVIEW_PENDING`
+**状态：** `DO_NOT_RESTORE / USER_APPROVED`
 
 ---
 
-## 7. Batch 2 门禁状态
+## 7. Batch 2 门禁结果
 
-候选原子：
+确认原子：
 
 > **P10-B2-01 ～ P10-B2-12，共 12 条。**
 
+用户结论：
+
+> **全部同意**
+
+状态：
+
+> `COMPLETE_USER_CONFIRMED`
+
+Batch 2 门禁已关闭，允许进入 Batch 3；对应替代规则不得因本批确认而自动视为已批准。
+
+---
+
+## 8. Batch 3｜知情修改 / 明确新增｜待用户审查
+
+> 本批只放“旧规则后来被明确修改”或“后来明确扩展的新业务口径”。  
+> 当前实现、IA、Low-Fi 是否已经完全跟上，不影响本批的产品裁决；承载缺口留 Batch 4 / 后续工程阶段。
+
+### P10-A13｜全局加价关闭后的客户价格改为上游标价
+
+早期 CN11 曾存在：
+
+> 没有有效加价规则且无单车覆盖价 → 批发车显示“价格咨询”。
+
+后续 R4 已明确修改为：
+
+1. 有有效客户展示覆盖价 → 覆盖价最高优先；
+2. 无覆盖价 + 加价开启 → `base_wholesale_price + 当前有效阶梯加价`；
+3. 无覆盖价 + 加价关闭 → **显示当前上游标价 `upstream_list_price`**；
+4. 按当前分支仍得不到合法数字客户价格 → 显示“价格咨询”。
+
+明确禁止：
+
+> 加价关闭时把 `base_wholesale_price` / 真实批发价直接暴露给客户。
+
+这是对 CN11 旧“无有效加价规则即价格咨询”口径的**知情修改**。
+
+**状态：** `INFORMED_CHANGE / USER_REVIEW_PENDING`
+
+---
+
+### P10-A14｜客户展示价覆盖正式扩展到批发 / 名邦 / 4S 三类车源
+
+较早 R4 曾把单车覆盖价限定为 JYT 批发车。
+
+后续 R11 / 当前 R4 已明确扩展为：
+
+> **批发、名邦、4S 三类车源均支持客户展示价覆盖。**
+
+共同规则：
+
+- 覆盖价只改变客户最终展示结果；
+- 不修改原始来源价格 / 底层客户标价 / 内部批发价；
+- 覆盖期间底层价格事实仍可正常更新；
+- 覆盖操作继续保留独立权限控制和必要审计。
+
+其中：
+
+**批发车**
+- 覆盖价优先于统一阶梯加价 / 加价关闭逻辑；
+- 取消覆盖后回到取消时刻的当前正常批发车价格逻辑。
+
+**名邦 / 4S**
+- 有覆盖价 → 显示覆盖价；
+- 无覆盖价 → 显示当前最新客户标价；
+- 客户标价为空 → “价格咨询”；
+- 取消覆盖 → 回到取消时最新客户标价。
+
+这是对旧“覆盖价仅批发车”的**明确扩展**。
+
+**状态：** `INFORMED_CHANGE / USER_REVIEW_PENDING`
+
+---
+
+### P10-A15｜名邦员工查看内部价 / 批发价取消独立查看权限门槛
+
+后续 R11 已明确修改为：
+
+- 默认客户安全视图不返回内部价 / 批发价；
+- 名邦员工进入内部模式后，在其有效员工身份、数据范围和对象状态允许的前提下，可以查看内部价 / 批发价；
+- **不再额外设置独立的 internal-price-view permission**；
+- 进入内部模式本身不授予调价、覆盖价、电话、上下架等其他敏感能力；
+- 4S 成员不能因此查看名邦内部价 / 批发价。
+
+因此：
+
+> **“内部模式 + 正常身份/范围”是名邦内部价格的查看边界；不是再叠加一层独立查看权限。**
+
+当前 IA / Permission 若仍对部分名邦角色重新要求独立 internal-price permission，属于承载残留，不能反向推翻本条产品规则。
+
+**状态：** `INFORMED_CHANGE / USER_REVIEW_PENDING`
+
+---
+
+## 9. Batch 3 门禁状态
+
+候选原子：
+
+> **P10-A13 ～ P10-A15，共 3 条。**
+
 当前状态：
 
-> `USER_REVIEW_BATCH_2_PENDING`
+> `USER_REVIEW_BATCH_3_PENDING`
 
 门禁：
 
-- 用户未确认前，不得将任一 P10-B2-xx 标记 USER_APPROVED；
-- 不得进入 Batch 3；
+- 用户未确认前，不得将 P10-A13～P10-A15 标记 USER_APPROVED；
+- 不得进入 Batch 4；
 - 不得修改 IA / Low-Fi / Engineering；
-- 不得把“旧规则禁止恢复”等同于自动批准对应的新规则；
+- 当前实现或旧载体不得自动覆盖本批知情修改；
 - 不得静默改写已完成 PDM-01～PDM-09。
