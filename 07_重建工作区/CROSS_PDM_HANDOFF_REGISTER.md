@@ -385,6 +385,14 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
+## 12B. PDM-12 来源 handoff
+
+| handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
+|---|---|---|---|---|---|
+| HO-P12-P16-001 | PDM-16 | Rule Dictionary 新增/修改/启停及其他 Matching 关键事实变化后，PDM-12 只对受影响当前在售车辆与 active+matching-ready Demand 做确定性重解析/重算，并向后续消费者提供可追溯的 Matching change fact；PDM-16 的 Source Radar 负责消费这些变化事实形成 Radar Event / 聚合 / 工作台投影，不得在 PDM-16 复制第二套 Matching 规则或反向覆盖 PDM-12 Match Result Authority。 | HANDOFF_OPEN | - | YES |
+
+---
+
 ## 13. Post-PDM25 IA / Low-Fi Carrier Ledger｜PDM-01～10
 
 > 当前只登记，不施工；统一在 PDM-25 完成 + PDM-01～25 全局最终总复核 PASS 后集中对齐。
@@ -477,6 +485,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-09：INTEGRITY_PASS；
 - PDM-10：INTEGRITY_PASS；
 - PDM-01～10 全局 Cross-PDM / Handoff / Global Invariant 总复核：PASS；
-- 当前进入：PDM-11；
-- PDM-11 启动门禁：UNBLOCKED；
-- `HO-P01-P11-001` 已因 2026-10-05 用户后续裁决标记 `HANDOFF_SUPERSEDED`；PDM-11 已最终落地并完成 PDM-01 source backwrite，`HO-P01-P11-002 = HANDOFF_CLOSED`。
+- PDM-11：COMPLETE / INTEGRITY_PASS；
+- 当前进入：PDM-12；
+- PDM-12：Batch 1～3 PASS / USER_APPROVED；下一步 Batch 4 候选审查；
+- `HO-P01-P11-001 = HANDOFF_SUPERSEDED`；`HO-P01-P11-002 = HANDOFF_CLOSED`。PDM-12 incoming handoff 已全部 ACCEPTED；新增 `HO-P12-P16-001 = HANDOFF_OPEN`，待 PDM-16 承接。

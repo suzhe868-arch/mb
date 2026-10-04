@@ -1,10 +1,10 @@
 # PDM-12｜Matching / 匹配词典 / 四级结果 / 人工确认｜规则原子重建工作版
 
 > 日期：2026-10-05  
-> 当前状态：`IN_PROGRESS / BATCH_2_PASS / USER_APPROVED`  
+> 当前状态：`IN_PROGRESS / BATCH_3_PASS / USER_APPROVED`  
 > 业务权威语言：中文（zh-CN）  
 > 当前域：PDM-12｜Match Candidate / Match Result / Rule Dictionary  
-> 当前硬门禁：Batch 1、Batch 2 已完成用户审查；未经下一批用户审查，不得自动批准 Batch 3～4，不得修改 IA / Low-Fi。
+> 当前硬门禁：Batch 1～3 已完成用户审查；未经下一批用户审查，不得自动批准 Batch 4，不得修改 IA / Low-Fi。
 
 ---
 
@@ -490,21 +490,21 @@ PDM-12 直接相关项已映射：
 
 ---
 
-# 6. Batch 1 明确未裁决 / 不偷渡项
+# 6. Batch 1 当时明确未裁决 / 不偷渡项
 
 以下内容不因 Batch 1 通过而自动批准：
 
 1. 历史“最低里程”特殊规则；
 2. 变速箱 / 配置偏好 / 过户次数 / 城市距离 / 排放 / source type 等字段最终是否进入 V1 自动 Matching；
-3. VR-P-021 的正向 / 负向表达、hard / preferred / acceptable、局部例外容差、组件级规则；
-4. VR-P-022 的证据优先级：
+3. VR-P-021 的正向 / 负向表达、hard / preferred / acceptable、局部例外容差、组件级规则；**后于 Batch 3 由 P12-B3-04 承接**；
+4. VR-P-022 的证据优先级（**后于 Batch 3 由 P12-B3-05 承接**）：
    - structured
    - explicit inspection
    - detailed condition
    - vague keyword
-5. VR-E-015 的客户等级 / Matching entitlement 前置关系与 PDM-11 当前生命周期语义；
+5. VR-E-015 的客户等级 / Matching entitlement 前置关系与 PDM-11 当前生命周期语义；**后于 Batch 3 由 P12-B3-01 承接**；
 6. “无预算 + 价格咨询”最终四级边界；
-7. P06-10 完整词典治理、Action、scope priority、same-level conflict、test-match、失败重试；
+7. P06-10 完整词典治理、Action、scope priority、same-level conflict、test-match、失败重试；**Batch 3 已承接字段/基础 Action/scope priority/same-level conflict/test-match；物理删除与 partial failure/retry 仍待后续**；
 8. Priority 仲裁 / TTL / Demand.created_at 使用方式——归 PDM-13，不在 PDM-12 偷渡冻结。
 
 ---
@@ -736,7 +736,222 @@ Priority / Recommendation 的完整可见性关系继续由 PDM-13 / PDM-14 冻�
 
 ---
 
-# 8. Batch Gate
+# 8. Batch 3｜后续明确新增 / 明确补强项｜USER APPROVED
+
+> 用户已审查并确认 `P12-B3-01～P12-B3-07`。  
+> Batch 3 Gate：`PASS / USER_APPROVED`。  
+> 本批只吸收 9/22 以后已经明确补强、且能与 Batch 1～2 及 Completed-PDM Authority 一致合并的规则；真正冲突、缺口和仍需新选择的内容继续进入 Batch 4。
+
+## P12-B3-01｜正式 Matching 前动态重验当前 find-car entitlement
+
+正式 Matching / 重算前必须再次校验 Customer 当前 Customer Level 所配置的 find-car entitlement。
+
+结合 PDM-11 当前 Authority：
+
+- 无 entitlement 的 Customer 仍可提交 Application，Application 保持 pending；
+- 只有正式 `active + matching-ready` Demand 才可能进入 Matching；
+- entitlement 失效后不得继续产生新的 Match Candidate / Match Result；
+- 原 active Demand 按 PDM-11 生命周期进入 `paused`；
+- 不新增“无需处理”作为第五种 Demand 主状态；
+- entitlement 恢复不会自动恢复 Matching；
+- 必须先经正式 resume 回到 active，再重新通过 matching readiness 与 entitlement 校验。
+
+因此 9/22 早期“无资格客户需求标记无需处理”只保留为 UI / 派生处理语义，不得覆盖 PDM-11 的正式 Demand 状态机。
+
+分类：`INFORMED_CHANGE / ALIGNED_WITH_PDM11`
+
+---
+
+## P12-B3-02｜Rule Dictionary 必须是真实可维护业务对象
+
+P06-10 的 Rule Dictionary / 匹配词典不得只是配置空壳。
+
+每条规则至少承载：
+
+- 匹配词 / 表达；
+- 标准映射结果；
+- 品牌；
+- 车系；
+- 车型年款 / 适用范围；
+- 启用状态；
+- 备注；
+- 创建人；
+- 修改人；
+- 修改时间；
+- 审计历史。
+
+至少支持真实业务动作：
+
+- 新增；
+- 编辑；
+- 启用 / 停用；
+- 设置适用范围；
+- 保存；
+- 测试解析；
+- 查看必要历史 / 审计。
+
+### 本条未提前冻结
+
+- 普通物理删除是否允许；
+- partial failure / retry 的具体产品语义。
+
+上述继续进入后续审查，不得由本条自行外推。
+
+分类：`INFORMED_ADDITION + HISTORICAL_DETAIL_RESTORED`
+
+---
+
+## P12-B3-03｜规则作用域有确定优先级；同级冲突不得猜
+
+Rule Dictionary 的确定性作用域优先顺序：
+
+1. 具体车型 + 具体车型年款；
+2. 车系 + 车型年款范围；
+3. 车系；
+4. 品牌；
+5. 全局通用规则。
+
+同一表达命中多个不同作用域时，优先使用更具体规则。
+
+若同一优先级出现互相矛盾的有效映射：
+
+- 不随机选择；
+- 不按创建时间静默覆盖；
+- 不让 AI 猜；
+- 标记规则冲突 / 待确认。
+
+对 Demand 解析：
+
+- 冲突导致正式标准条件无法确定时，该 Demand 不得被视为 matching-ready。
+
+对 Vehicle 对应匹配事实：
+
+- 事实无法确定时进入相应 `confirmation_needed` 路径。
+
+一个匹配词可以映射多个**可确定**的结构化事实，但不得顺带推导实际无法确定的字段。
+
+分类：`INFORMED_REINFORCEMENT / DETERMINISTIC_CONFLICT_RULE`
+
+---
+
+## P12-B3-04｜标准条件支持正向 / 反向表达与 hard / preferred / tolerance 语义
+
+标准条件除“字段值”外，必须表达匹配语义。
+
+至少支持：
+
+- 正向要求，例如“要白色”；
+- 反向 / 排除要求，例如“不要事故车”；
+- `hard condition`：明确失败 → `no_match`；事实未知 → `confirmation_needed`；
+- `preferred` / 优先偏好：未满足不直接 `no_match`，可影响 `high / acceptable`；
+- `acceptable / tolerance`：明确允许的偏差范围。
+
+任何 tolerance / 例外都必须是显式规则，不得因为结果太少临时放宽。
+
+局部例外原则：
+
+> 某一条件 / 部件的例外只影响该条件 / 部件，不得把其他 hard condition 一并放宽。
+
+分类：`POST_9_22_INFORMED_ADDITION`
+
+---
+
+## P12-B3-05｜同一匹配事实存在多层证据时采用确定性证据优先级
+
+同一 Matching component 存在多层可用证据时，当前优先级：
+
+> **结构化事实 > 明确检测结果 > 详细车况描述 > 模糊关键词**
+
+规则：
+
+- 低优先级证据不得覆盖更高优先级已明确事实；
+- 原始证据与 provenance 全部保留，不因选取当前权威事实而删除低层来源；
+- 同一优先级仍发生不可解冲突时，不猜，进入冲突 / 待确认；
+- 某一局部 component 的例外或不确定，只影响该 component，不把整辆车其他已明确事实一起降级。
+
+分类：`POST_9_22_EVIDENCE_PRECEDENCE_ADDITION`
+
+---
+
+## P12-B3-06｜Matching 可解释，并提供无副作用测试解析 / 测试匹配
+
+正式确定性 Matching 内部至少能够解释：
+
+- 原始输入；
+- 命中的词典 / 规则；
+- 标准化后的事实；
+- 哪些 hard condition 满足；
+- 哪些 hard condition 失败；
+- 哪些事实 unknown；
+- 哪个 preferred / tolerance 影响了结果；
+- 最终为何得到当前四级 Match Result。
+
+P06-10 同时提供：
+
+> **测试解析 / 测试匹配**
+
+输入测试表达后，展示当前规则会解析出的标准事实、冲突与 unknown。
+
+测试行为必须无正式业务副作用：
+
+- 不修改正式 Demand；
+- 不生成正式 Match Result；
+- 不创建 Recommendation；
+- 不创建 Priority；
+- 不创建 Lock；
+- 不产生正式客户业务关系。
+
+分类：`POST_9_22_EXPLAINABILITY_AND_TEST_ADDITION`
+
+---
+
+## P12-B3-07｜词典变更重算受影响对象，并向 Source Radar 提供 Matching 变化事实
+
+当匹配词典新增 / 修改 / 启停后：
+
+- 重新解析受该规则作用域影响的相关当前在售车辆派生事实；
+- 重新解析相关 `active + matching-ready` Demand；
+- 重新计算相应 Match Result；
+- 只处理受影响范围，不无脑全库扫描；
+- 原始 Source Data / 原始文本继续保留；
+- 当前结果发生变化时，对后续消费者提供新的 Matching change fact。
+
+职责边界：
+
+- PDM-12 负责正确解析、Match Result 与 Matching change fact；
+- Source Radar 对象、聚合、页面、生命周期归 PDM-16；
+- PDM-16 不得重新实现第二套 Matching Authority。
+
+本条产生正式 future handoff：
+
+> `HO-P12-P16-001 = HANDOFF_OPEN`
+
+分类：`HISTORICAL_DETAIL_RESTORED / CROSS_PDM_ADDITION`
+
+---
+
+## Batch 3 Current Authority / Conflict Scan 结论
+
+本批明确没有偷渡以下内容：
+
+1. partial failure / retry 的具体业务语义；
+2. Rule Dictionary 普通物理删除方式；
+3. 旧“变速箱 / 配置偏好 / 过户次数 / 城市距离 / 排放 / source type 不参与 V1 auto Matching”清单的最终命运；
+4. 里程最小值特殊历史语义；
+5. “无预算 + 价格咨询”的最终四级结果；
+6. Priority TTL / 仲裁 / 人工创建 / 完整 lifecycle。
+
+结论：
+
+`BATCH3_CURRENT_AUTHORITY_REFRESH = PASS`
+
+`BATCH3_CONFLICT_SCAN = PASS`
+
+`HO-P12-P16-001 = HANDOFF_OPEN`
+
+---
+
+# 9. Batch Gate
 
 ```text
 PDM12_STARTUP_GATE = PASS
@@ -750,10 +965,15 @@ UNMAPPED_STABLE_BATCH1_RULE = 0
 PDM12_BATCH_2 = PASS / USER_APPROVED
 P12_B2_01_TO_B2_10 = USER_APPROVED
 BATCH2_REVERSE_CONFLICT_SCAN = PASS
-PDM12_BATCH_3 = NOT_STARTED
+PDM12_BATCH_3 = PASS / USER_APPROVED
+P12_B3_01_TO_B3_07 = USER_APPROVED
+BATCH3_CURRENT_AUTHORITY_REFRESH = PASS
+BATCH3_CONFLICT_SCAN = PASS
+HO_P12_P16_001 = HANDOFF_OPEN
+PDM12_BATCH_4 = NOT_STARTED
 PDM12_FINAL = NOT_READY
 ```
 
 ## 当前唯一下一步
 
-> **继续形成 PDM-12 Batch 3（后续明确新增 / 明确变更项）候选：先执行 Current Authority Refresh、反向冲突扫描与 Source→Atom 去向检查，重点审查 9/22 后续明确新增但尚未在 Batch 1～2 冻结的规则。形成候选后立即停下提交用户审查，不得自动批准，不得修改 IA / Low-Fi。**
+> **继续形成 PDM-12 Batch 4（真实冲突 / 语义缺口 / 新产品选择）候选：对所有仍显式 deferred 的 PDM-12 项执行 Conflict Before Classification、Semantic Completeness 与 Source→Atom 去向复核，只把确实需要用户裁决的事项放入 Batch 4。形成候选后立即停下提交用户审查，不得自动批准，不得修改 IA / Low-Fi。**

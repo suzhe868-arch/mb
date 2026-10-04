@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-12 Batch 3 informed additions/changes candidate reconstruction after Batch 2 user approval",
+  "current_task": "PDM-12 Batch 4 conflicts/gaps/new choices candidate reconstruction after Batch 3 user approval",
   "current_work_file": "07_重建工作区/PDM-12_Matching匹配词典四级结果_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -71,7 +71,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-12_BATCH_3_PREPARATION",
+  "current_review_batch": "PDM-12_BATCH_4_PREPARATION",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -1308,7 +1308,7 @@
     "HO-P01-P11-001": "HANDOFF_SUPERSEDED",
     "HO-P01-P11-002": "HANDOFF_CLOSED"
   },
-  "pdm_12_status": "IN_PROGRESS_BATCH_2_PASS_USER_APPROVED",
+  "pdm_12_status": "IN_PROGRESS_BATCH_3_PASS_USER_APPROVED",
   "pdm_12_work_file": "07_重建工作区/PDM-12_Matching匹配词典四级结果_规则原子重建_工作版.md",
   "pdm_12_incoming_handoffs": {
     "HO-P04-P12-001": "HANDOFF_ACCEPTED",
@@ -1316,7 +1316,7 @@
     "HO-P07-P12-001": "HANDOFF_ACCEPTED",
     "HO-P11-P12-001": "HANDOFF_ACCEPTED"
   },
-  "pdm_12_next_gate": "BATCH_3_CURRENT_AUTHORITY_REFRESH_CONFLICT_SCAN_AND_USER_REVIEW",
+  "pdm_12_next_gate": "BATCH_4_CONFLICT_BEFORE_CLASSIFICATION_SEMANTIC_COMPLETENESS_AND_USER_REVIEW",
   "pdm_12_batch_1_status": "PASS_USER_APPROVED",
   "pdm_12_batch_1_candidate_atoms": [
     "P12-A01",
@@ -1419,6 +1419,34 @@
     {
       "id": "PDM12-DEC-B2-10",
       "status": "USER_APPROVED"
+    },
+    {
+      "id": "PDM12-DEC-B3-01",
+      "status": "USER_APPROVED"
+    },
+    {
+      "id": "PDM12-DEC-B3-02",
+      "status": "USER_APPROVED"
+    },
+    {
+      "id": "PDM12-DEC-B3-03",
+      "status": "USER_APPROVED"
+    },
+    {
+      "id": "PDM12-DEC-B3-04",
+      "status": "USER_APPROVED"
+    },
+    {
+      "id": "PDM12-DEC-B3-05",
+      "status": "USER_APPROVED"
+    },
+    {
+      "id": "PDM12-DEC-B3-06",
+      "status": "USER_APPROVED"
+    },
+    {
+      "id": "PDM12-DEC-B3-07",
+      "status": "USER_APPROVED"
     }
   ],
   "pdm_12_batch_2_status": "PASS_USER_APPROVED",
@@ -1460,5 +1488,38 @@
       "PRIORITY_FULL_LIFECYCLE_PDM13"
     ]
   },
-  "pdm_12_batch_3_status": "NOT_STARTED"
+  "pdm_12_batch_3_status": "PASS_USER_APPROVED",
+  "pdm_12_batch_3_candidate_atoms": [
+    "P12-B3-01",
+    "P12-B3-02",
+    "P12-B3-03",
+    "P12-B3-04",
+    "P12-B3-05",
+    "P12-B3-06",
+    "P12-B3-07"
+  ],
+  "pdm_12_batch_3_approved_atoms": [
+    "P12-B3-01",
+    "P12-B3-02",
+    "P12-B3-03",
+    "P12-B3-04",
+    "P12-B3-05",
+    "P12-B3-06",
+    "P12-B3-07"
+  ],
+  "pdm_12_batch_3_pending_atoms": [],
+  "pdm_12_batch_3_current_authority_refresh": "PASS",
+  "pdm_12_batch_3_conflict_scan": "PASS",
+  "pdm_12_batch_4_status": "NOT_STARTED",
+  "pdm_12_future_handoffs": [
+    "HO-P12-P16-001"
+  ],
+  "pdm_12_batch_3_deferred_not_lost": [
+    "RULE_DICTIONARY_PHYSICAL_DELETE_SEMANTICS",
+    "PARTIAL_FAILURE_RETRY",
+    "OLD_AUTO_MATCH_EXCLUDED_FIELD_LIST",
+    "MILEAGE_MINIMUM_SPECIAL_RULE",
+    "NO_BUDGET_PRICE_CONSULTATION_BOUNDARY",
+    "PRIORITY_FULL_LIFECYCLE_PDM13"
+  ]
 }

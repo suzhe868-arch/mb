@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_2_PASS / USER_APPROVED`
+> `IN_PROGRESS / BATCH_3_PASS / USER_APPROVED`
 
 当前工作文件：
 
@@ -32,7 +32,18 @@
 
 当前唯一下一步：
 
-> **PDM-12 Batch 1 与 Batch 2 均已通过用户审查：P12-A01～A15、P12-B2-01～B2-10 = USER_APPROVED。Batch 2 反向冲突扫描 PASS，明确只冻结真正废弃 / 禁止恢复方向，没有把待裁决规则误标废弃。下一步形成 Batch 3（后续明确新增 / 明确变更项）候选并提交用户审查；IA / Low-Fi 继续延后到 PDM-25 后集中对齐。**
+> **PDM-12 Batch 1～3 已通过用户审查：P12-A01～A15、P12-B2-01～B2-10、P12-B3-01～B3-07 = USER_APPROVED。Batch 3 已补齐 entitlement 动态重验、Rule Dictionary 真实治理对象、scope priority/冲突处理、正反向与 hard/preferred/tolerance、证据优先级、可解释测试、受影响范围重算；新增 HO-P12-P16-001 交给 PDM-16 承接 Source Radar。下一步进入 Batch 4 真实冲突/缺口/新选择候选；IA / Low-Fi 继续延后到 PDM-25 后集中对齐。**
+
+## 2026-10-05｜PDM-12 Batch 3 用户批准
+
+- `P12-B3-01～P12-B3-07 = PASS / USER_APPROVED`；
+- find-car entitlement 在正式 Matching / 重算前动态重验，并与 PDM-11 active/paused/readiness 状态机统一；
+- P06-10 Rule Dictionary 恢复为真实可维护业务对象，补字段、基础 Action、scope priority、same-level conflict 与无副作用测试解析；
+- VR-P-021 / VR-P-022 正式承接：正/反向表达、hard/preferred/tolerance、局部例外、证据优先级、component 局部影响；
+- Matching 结果必须可解释；
+- 词典变化按受影响范围重解析/重算，禁止无脑全库；
+- 新增 `HO-P12-P16-001 = HANDOFF_OPEN`：PDM-12 产生 Matching change fact，PDM-16 Source Radar 消费，不复制第二套 Matching Authority；
+- 当前唯一下一步：Batch 4 真实冲突 / 语义缺口 / 新产品选择候选审查。
 
 ## 2026-10-05｜PDM-12 Batch 2 用户批准
 
