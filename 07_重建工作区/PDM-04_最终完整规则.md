@@ -2,8 +2,8 @@
 
 > 日期：2026-09-24  
 > 状态：`COMPLETE`  
-> 说明：本文件汇总 PDM-04 Batch 1～4 经用户逐批裁决并经最终总览批准后的**正式当前规则**。  
-> 本文件不修改 IA / Low-Fi / Engineering。
+> 说明：本文件汇总 PDM-04 Batch 1～4 经用户逐批裁决并经最终总览批准后的**正式当前规则**；2026-10-05 已完成 Legacy Final Integrity Audit，并同步 PDM-05～PDM-10 已完成承接。  
+> IA / Low-Fi 仅登记 `STALE_CARRIER`，统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。
 
 ---
 
@@ -41,6 +41,29 @@ V1 当前只存在三类正式车源：
 
 `hidden` 不等于真实下架；Lock / Transaction 也不应反写成车辆唯一总状态。
 
+### 2.1 locked / trading 不冻结真实车辆事实
+
+车辆处于 `locked` / `trading` 只表示当前业务占用 / 交易事实，不代表现实中的车辆事实停止变化。
+
+因此，有权限且满足当前 permission + data scope + object state 的人员，仍允许记录真实发生的车辆事实变化，包括适用的：
+
+- 真实价格变化；
+- 真实车况变化；
+- 里程 / 车辆资料变化；
+- 供应事实变化。
+
+处理边界：
+
+1. 真实事实变化不得因为车辆已经 locked / trading 而被禁止记录；
+2. 重大价格、车况或供应变化可以触发 Supply Anomaly；
+3. 事实更新本身不自动取消已有 Lock / Waitlist / Transaction；
+4. 不覆盖既有 Lock price snapshot；
+5. 不删除 Deposit / 资金事实；
+6. 不回写已经形成的 Transaction 历史或成交历史；
+7. 页面 / API Guard 不得使用 `biz_status != normal → 禁止一切真实车辆事实更新` 这种粗粒度规则。
+
+该规则与“一键转名邦是否允许”是不同动作边界；一键转名邦继续服从本文件 §15 的专门状态规则。
+
 ---
 
 ## 3. JYT 上游事实与同步边界
@@ -67,6 +90,29 @@ JYT 导入 / 普通同步的 Actor 是上游集成服务，不虚构人工逐车
 - 异常 / 屏蔽结果。
 
 人工只处理配置、异常及确有人工业务动作的事项。
+
+### 3.3 JYT / 外部采集的三个固定车源业务 API
+
+V1 对外部采集 / 检测程序与名邦之间的车源同步业务固定保留三个接口边界：
+
+1. **新增 / 更新车源 API**：提交完整或允许更新的车辆来源事实；不存在则新增，已存在则按当前 identity / lifecycle 规则更新；
+2. **批量确认下架 API**：批量提交真实不可售 / 下架结果，最终处理仍服从 vehicle identity 与 listing_cycle 规则；
+3. **获取当前名邦仍在售批发车源 API**：供外部采集 / 检测程序获取当前需要持续核验的批发车源集合。
+
+固定边界：
+
+- 外部程序不得持有名邦数据库账号；
+- 使用名邦车源同步 API Token / API Key 调用这三个接口；
+- 该 credential 不是 JYT 上游登录 Token；
+- 该 credential 与 Collector 电话接口内部鉴权分离，不得混用；
+- 三个业务接口分别具有独立启停开关；
+- 调用日志至少记录调用时间、接口名、成功 / 失败及提交 / 返回 / 处理数量等必要运行事实。
+
+跨域承接：
+
+- PC 配置、启停、credential、调用统计与运行状态管理 → PDM-22；
+- Incident、飞书、SLA、夜间免打扰、通知与异常日志 → PDM-23；
+- 上述后续域不得改变本节三个固定车源业务 API 的产品边界。
 
 ---
 
@@ -139,14 +185,16 @@ JYT 确认车辆真实下架 / offline 后：
 
 1. 系统发现明确异常事实时可以自动标记供应异常；
 2. 供应异常出现后，可通知当前相关销售 / 负责人；
-3. 供应异常本身不自动取消已有 Lock / Waitlist / Transaction；
-4. 不删除既有 Deposit / 价格快照 / 历史业务事实；
-5. 系统能够明确确认风险已经恢复时，可以自动解除当前异常；
-6. **允许有权限人员人工处理并解除供应异常**；
-7. 人工解除前必须基于当前实际证据重新核验车辆 / 上游状态，不允许仅凭主观判断直接清除；
-8. 人工处理至少保留：处理人、处理时间、处理结果，以及适用时的证据 / 说明；
-9. 异常解除只结束“当前异常”状态，不删除历史异常记录；
-10. 后续再次发生新的异常时，建立新的异常事实 / 记录。
+3. **Supply Anomaly 本身是风险告警状态，不统一阻断新增业务。**是否允许新增 Recommendation / Consultation / Waitlist / Lock / Transaction 等具体业务，继续由车辆当前真实 `source/resource` 可售事实、visibility、业务对象自身 Guard 与对应 PDM 规则判断；
+4. 当底层车辆已经明确进入 `offline / unavailable` 等真实不可售状态时，按照真实不可售规则硬性禁止新增普通销售业务；此时阻断原因来自真实不可售事实，而不是“存在 anomaly”这一标签本身；
+5. 供应异常本身不自动取消已有 Lock / Waitlist / Transaction；
+6. 不删除既有 Deposit / 价格快照 / 历史业务事实；
+7. 系统能够明确确认风险已经恢复时，可以自动解除当前异常；
+8. **允许有权限人员人工处理并解除供应异常**；
+9. 人工解除前必须基于当前实际证据重新核验车辆 / 上游状态，不允许仅凭主观判断直接清除；
+10. 人工处理至少保留：处理人、处理时间、处理结果，以及适用时的证据 / 说明；
+11. 异常解除只结束“当前异常”状态，不删除历史异常记录；
+12. 后续再次发生新的异常时，建立新的异常事实 / 记录。
 
 > 供应异常的“人工处理”属于受权限控制的异常处置能力，不等于人工创建任意异常。
 
@@ -180,6 +228,32 @@ JYT 确认车辆真实下架 / offline 后：
 - 不创建第二个 vehicle。
 
 旧 cycle 永久保留历史。
+
+### 6.3 当前 cycle 开始时间与车辆时间事实
+
+`listing_started_at` 表示**当前 listing_cycle 的正式上架 / 重新上架时间**，不等于车辆上传时间，也不等于名邦第一次收录 JYT 车辆的时间。
+
+新 listing_cycle 的开始时间按以下业务事实取值：
+
+1. 能取得可信的本次真实上架 / 重新上架时间时，使用该真实时间；
+2. 无法取得可信上游真实时间时，使用名邦首次确认本次“真实不可售 → 再次真实可售”的时间；
+3. 名邦 / 4S 人工车辆首次正式发布或真实重新上架成功时，使用该正式发布 / 重新上架成功时间。
+
+同时必须分离以下时间事实：
+
+- `listing_started_at`：当前 listing_cycle 上架时间；
+- 人工车上传 / 首次创建时间：名邦 / 4S 人工录入事实；
+- JYT `first_seen_at` / 平台收录时间：名邦第一次接入 / 收录该 JYT 车辆的事实。
+
+不得把 JYT `first_seen_at` 伪称为“上游真实上传时间”。
+
+派生口径：
+
+- “最新上架”排序使用当前 cycle 的 `listing_started_at`；
+- “今日新增”只统计今天**第一次进入名邦系统并正式在售 / 公开可用**的车辆；
+- 历史车辆今天真实下架后重新上架，可以记为“重新上架”，但不得因此被重新计为“今日新增车辆”。
+
+客户端 / 员工端 / PC 最终如何展示这些时间标签，分别由对应体验 / 后台 PDM 承接，但不得改变本节底层时间事实。
 
 ---
 
@@ -281,6 +355,7 @@ JYT 确认车辆真实下架 / offline 后：
 6. 若当前负责人因来源变化失去承责资格，进入正式责任交接；
 7. 4S 成员本人上传的车辆固定为 4S，不能自行改成名邦；
 8. 普通人工编辑不能把任何人工车改成“批发”。
+9. `source_type = 4S` 只是车辆当前经营来源类型，不等于把该车辆自动授权给任意 4S 成员；名邦员工上传并选择为 4S 合作车源的车辆属于名邦公司的业务资产，4S 成员仍只能操作自己当前真正有权管理范围内的车辆。
 
 批发来源只能由 JYT 集成产生。
 
@@ -612,9 +687,10 @@ PDM-04 当前只冻结车辆 / 车源 / 来源 / listing cycle / hidden / 一键
 - Recommendation 对 hidden 单车可见授权与生命周期 → PDM-14｜`HANDOFF_OPEN`；
 - Lock / Waitlist 的完整生命周期 → PDM-18｜`HANDOFF_OPEN`；
 - Transaction / Refund / correction → PDM-19｜`HANDOFF_OPEN`；
-- 客户端具体页面交互 → PDM-20｜`HANDOFF_OPEN`；
+- 客户端具体页面交互（包括 `listing_started_at` / 上传时间 / JYT 平台收录时间等展示语义）→ PDM-20｜`HANDOFF_OPEN`；
 - 员工端具体页面交互 → PDM-21｜`HANDOFF_OPEN`；
-- PC 配置入口与管理界面 → PDM-22｜`HANDOFF_OPEN`；
+- PC 配置入口与管理界面，以及三个固定车源同步 API 的启停、credential、调用统计、运行状态 → PDM-22｜`HANDOFF_OPEN`；
+- JYT / Supply Anomaly 相关 Incident、飞书、SLA、夜间免打扰、通知与异常日志 → PDM-23｜`HANDOFF_OPEN`；
 - 统一审计横切规则 → PDM-25｜`HANDOFF_OPEN`。
 
 所有正式跨域 handoff 统一以：
@@ -625,19 +701,56 @@ PDM-04 当前只冻结车辆 / 车源 / 来源 / listing cycle / hidden / 一键
 
 这些后续 PDM 可以补充自身规则，但不得静默推翻本 PDM 已经用户确认的业务底座；发现真实跨域冲突必须重新显式提交用户裁决。
 
+### 20.3 IA / Low-Fi stale carrier
+
+本轮确认但当前不修改的旧承载至少包括：
+
+- 旧“双 Vehicle + conversion relation”一键转名邦模型；
+- 旧“只有 `biz_status=normal` 才允许所有相关动作”的粗粒度 Guard；其中真实车辆事实更新必须服从 §2.1，不得与一键转名邦动作混淆；
+- 旧 conversion relation / 原批发车 + 新名邦车两套身份；
+- 旧价格 / 独立调价 permission / action carrier；
+- 4S 车辆管理入口旧限制；
+- P02 / P03 中车源、集成、车辆历史、Supply Anomaly、三个同步 API 等大量通用壳或不完整页面。
+
+统一登记：
+
+> `STALE_CARRIER / DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT`
+
+这些 carrier 不具有产品 Authority，不得反向覆盖本 Final。
+
 ---
 
 ## 21. 最终状态
 
 PDM-04 Batch 1～4 已完成用户逐批审查，最终完整规则总览已于 2026-09-24 获用户明确批准。
 
+2026-10-05 Legacy Final Integrity Audit 重新关闭 11 组问题；其中 Supply Anomaly 新业务 Guard 经用户显式选择 **B**：anomaly 本身只作为风险告警，不统一阻断新增业务，真实 `offline / unavailable` 才按不可售事实硬阻断。
+
 当前状态：
 
-> **`COMPLETE`**
+> **`COMPLETE / INTEGRITY_PASS`**
+
+```text
+MISSING_RULE_UNRESOLVED = 0
+SEMANTIC_DETAIL_GAP_UNRESOLVED = 0
+CROSS_PDM_CONFLICT = 0
+HANDOFF_GAP_UNRESOLVED = 0
+GLOBAL_INVARIANT_CONFLICT = 0
+SOURCE_DECISION_COVERAGE = 100%
+FINAL_TO_SOURCE_TRACEABILITY = 100%
+SEMANTIC_INTEGRITY = PASS
+NEGATIVE_CLAIMS_VERIFIED = PASS
+IMPLEMENTATION_READY = PASS
+HANDOFF_REGISTER_SYNC = PASS
+```
 
 正式规则文件即本文件：
 
 > `07_重建工作区/PDM-04_最终完整规则.md`
+
+下一审计域：
+
+> **PDM-05｜Legacy Final Integrity Audit**
 
 后续 PDM 不得静默改写本文件；若发现真实跨域冲突，必须重新显式提交用户裁决。
 
