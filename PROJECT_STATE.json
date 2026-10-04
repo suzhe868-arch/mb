@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-10",
-  "current_domain_status": "USER_REVIEW_BATCH_3_PENDING",
+  "current_domain_status": "BATCH_4_EVIDENCE_REVIEW",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,16 +20,16 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "User review PDM-10 Batch 3 informed changes P10-A13 through P10-A15",
+  "current_task": "Form remaining PDM-10 Batch 4 conflict omission gap candidates under the new reverse-conflict gate",
   "current_work_file": "07_重建工作区/PDM-10_价格查价客户展示价覆盖_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
-    "Auto-approve PDM-10 Batch 3",
-    "Move to PDM-10 Batch 4 before user confirms Batch 3",
-    "Use stale IA or Low-Fi carriers to reverse an informed product change",
-    "Silently override confirmed PDM-01 through PDM-09 rules",
+    "Auto-approve remaining PDM-10 Batch 4 atoms",
+    "Classify a rule into Batch 2 or Batch 3 without reverse-conflict checks",
+    "Use later CURRENT/FROZEN/deprecated wording alone to supersede earlier formal rules",
+    "Silently override confirmed PDM rules without explicit cross-domain adjudication",
     "Use prior chat memory or summaries as a substitute for original evidence",
     "Modify IA",
     "Modify Low-Fi",
@@ -71,7 +71,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
+  "current_review_batch": "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -625,7 +625,7 @@
   "method_current_implemented_fact_gate": true,
   "method_api_three_questions_required": true,
   "method_implemented_fact_does_not_auto_override_product_authority": true,
-  "method_spec_revision": "2026-10-04_CURRENT_IMPLEMENTED_FACT_GATE",
+  "method_spec_revision": "2026-10-04_CURRENT_IMPLEMENTED_FACT_GATE_PLUS_BATCH23_REVERSE_CONFLICT_GATE",
   "pdm_09_revalidation_required_atoms": [
     "P09-A04",
     "P09-A11",
@@ -698,7 +698,7 @@
     "P10-A12"
   ],
   "pdm_10_batch_1_confirmed_count": 12,
-  "pdm_10_batch_2_status": "COMPLETE_USER_CONFIRMED",
+  "pdm_10_batch_2_status": "COMPLETE_USER_CONFIRMED_WITH_B2_10_REOPENED",
   "pdm_10_batch_2_pending_atoms": [],
   "pdm_10_batch_2_pending_count": 12,
   "pdm_10_batch_2_confirmed_atoms": [
@@ -716,11 +716,26 @@
     "P10-B2-12"
   ],
   "pdm_10_batch_2_confirmed_count": 12,
-  "pdm_10_batch_3_status": "USER_REVIEW_PENDING",
-  "pdm_10_batch_3_pending_atoms": [
+  "pdm_10_batch_3_status": "COMPLETE_USER_CONFIRMED_WITH_ONE_RECLASSIFIED",
+  "pdm_10_batch_3_pending_atoms": [],
+  "pdm_10_batch_3_pending_count": 0,
+  "method_batch_2_3_reverse_conflict_gate": true,
+  "pdm_10_reopened_atoms": [
+    "P10-B2-10"
+  ],
+  "pdm_10_batch_3_confirmed_atoms": [
     "P10-A13",
-    "P10-A14",
+    "P10-A14"
+  ],
+  "pdm_10_batch_3_reclassified_atoms": [
     "P10-A15"
   ],
-  "pdm_10_batch_3_pending_count": 3
+  "pdm_10_batch_4_status": "EVIDENCE_REVIEW",
+  "pdm_10_batch_4_confirmed_atoms": [
+    "P10-B4-01"
+  ],
+  "pdm_10_b4_01_status": "USER_APPROVED_UPSTREAM_AUTHORITY_RESTORED",
+  "pdm_10_internal_price_view_rule": "INDEPENDENT_CONFIGURABLE_PERMISSION_PLUS_INTERNAL_MODE_PLUS_DATA_SCOPE_PLUS_OBJECT_STATE",
+  "pdm_10_internal_price_permission_config": "ROLE_TEMPLATE_DEFAULT_PLUS_EMPLOYEE_EXPLICIT_ALLOW_DENY",
+  "pdm_10_4s_mingbang_internal_price": "HARD_DENY"
 }
