@@ -27,7 +27,7 @@
 - P10-B2-10 原“禁止内部价独立 permission”分类已回开失效；
 - P10-A15 已撤回 Batch 3 并转 Batch 4；
 - P10-B4-01 已按用户裁决确认：内部价 / 底价查看采用后台可配置独立 permission；
-- PDM-02 正式规则本身已经与该结论一致，无需改写 PDM-02；
+- PDM-02 已在 Legacy Final Integrity Audit 中同步 PDM-10 当前内部价/调价语义，并补齐权限撤销、交接、System Admin 治理等细节；
 - 新增全局 Step 5A / Batch 2、3 反向冲突硬门禁。
 
 当前唯一下一步：
