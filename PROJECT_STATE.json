@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Review PDM-11 Batch 3 informed-later-change atom P11-B3-01",
+  "current_task": "Review PDM-11 Batch 4 conflicts P11-B4-01 and P11-B4-02",
   "current_work_file": "07_重建工作区/PDM-11_找车申请Demand生命周期_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -71,7 +71,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-11_BATCH_3_INFORMED_LATER_CHANGE",
+  "current_review_batch": "PDM-11_BATCH_4_REAL_CONFLICTS",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -915,7 +915,7 @@
     "global_pdm01_10_cross_pdm_audit_file": "07_重建工作区/PDM-01至10_全局Cross-PDM_Handoff_GlobalInvariant总复核_2026-10-05.md",
     "next_domain": "PDM-11"
   },
-  "pdm_11_status": "IN_PROGRESS_BATCH_1_APPROVED_BATCH_2_APPROVED_BATCH_3_USER_REVIEW_PENDING",
+  "pdm_11_status": "IN_PROGRESS_BATCH_1_APPROVED_BATCH_2_APPROVED_BATCH_3_APPROVED_BATCH_4_USER_REVIEW_PENDING",
   "pdm_01_integrity_status": "INTEGRITY_PASS",
   "pdm_01_integrity_audit_file": "07_重建工作区/PDM-01_历史最终版完整性复核_2026-10-04.md",
   "pdm_01_integrity_reopen_count": 6,
@@ -1157,9 +1157,16 @@
     {
       "handoff_id": "HO-P01-P11-001",
       "source": "PDM-01",
+      "status": "HANDOFF_SUPERSEDED",
+      "semantic": "Old rule: Customer disable does not automatically change existing Demand state",
+      "superseded_by": "HO-P01-P11-002"
+    },
+    {
+      "handoff_id": "HO-P01-P11-002",
+      "source": "PDM-01",
       "status": "HANDOFF_ACCEPTED",
-      "semantic": "Demand 生命周期；Customer 停用不得自动终止既有 Demand，具体状态由 Demand 域处理",
-      "target_location": "PDM-11 workfile §1 / §8.3 P11-B3-01"
+      "semantic": "Customer disable pauses active Demand; preserve Demand/history; account restore does not auto-resume",
+      "target_location": "PDM-11 workfile §9A P11-B3-01"
     }
   ],
   "pdm_11_start_gate": "UNBLOCKED",
@@ -1231,10 +1238,23 @@
       "id": "PDM11-DEC-B2-08-R1",
       "status": "USER_APPROVED",
       "rule": "find-car entitlement down cancels eligibility for new activation and auto-pauses active Demand; preserve Demand/history; entitlement restore does not auto-resume; Customer account disable is a separate event and does not auto-pause Demand"
+    },
+    {
+      "id": "PDM11-DEC-B3-01-R1",
+      "status": "USER_APPROVED",
+      "rule": "Customer account disable auto-pauses active Demand; preserve Demand/history; account restore does not auto-resume"
     }
   ],
-  "pdm_11_batch_3_status": "USER_REVIEW_PENDING",
+  "pdm_11_batch_3_status": "PASS_USER_APPROVED",
   "pdm_11_batch_3_candidate_atoms": [
     "P11-B3-01"
+  ],
+  "pdm_11_batch_3_approved_atoms": [
+    "P11-B3-01"
+  ],
+  "pdm_11_batch_4_status": "USER_REVIEW_PENDING",
+  "pdm_11_batch_4_candidate_atoms": [
+    "P11-B4-01",
+    "P11-B4-02"
   ]
 }
