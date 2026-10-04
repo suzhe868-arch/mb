@@ -342,3 +342,12 @@
 | PDM10-DEC-B2-11 | PDM-10 | P10-B2-11 | 用户确认不得用内部批发价强行填补客户标价，包括一键转名邦和人工车客户标价缺失场景。 | 作为 PDM-10 DO_NOT_RESTORE / SUPERSEDED 规则进入后续总览。 | PDM-10 Batch 2 + 2026-10-04 用户明确“全部同意” | 2026-10-04 |
 | PDM10-DEC-B2-12 | PDM-10 | P10-B2-12 | 用户确认不得恢复客户完整内部价格历史及服务费/物流检测过户/预计到手价等第二套报价体系。 | 作为 PDM-10 DO_NOT_RESTORE / SUPERSEDED 规则进入后续总览。 | PDM-10 Batch 2 + 2026-10-04 用户明确“全部同意” | 2026-10-04 |
 | PDM10-GATE-B2 | PDM-10 | Batch 2 Gate | 用户确认 P10-B2-01～P10-B2-12 全部通过。 | Batch 2 门禁关闭，允许进入 Batch 3；不得自动批准 Batch 3。 | PDM-10 Batch 2 工作版 + 2026-10-04 用户明确“全部同意” | 2026-10-04 |
+
+
+| METHOD-20261004-B23-CONFLICT-GATE | METHOD | Batch 2 / Batch 3 入批门禁 | 用户批准新增全局方法规则：任何规则进入 Batch 2/3 前，必须反查前史/9·19、后续用户裁决、Current/IA/Low-Fi、001～078、以及已完成 PDM；存在未解释反向证据时禁止作为 Batch 2/3 确定项，强制转 Batch 4。若早批已确认后才发现遗漏证据，必须回开并登记 supersession。 | 防止 later-file-wins、摘要压缩和“后期写了废弃就自动判死旧规则”的回归。 | 2026-10-04 用户明确“写入吧” | 2026-10-04 |
+| PDM10-REOPEN-B2-10 | PDM-10 | P10-B2-10 | 原“禁止恢复名邦员工内部价独立 permission”虽已在 Batch 2 被用户确认，但后续全局复核发现其遗漏已完成 PDM-02 正式规则、R4 权限规则、IA V5 反向承载及 001～078 冲突记录，因此该分类无效并正式回开。 | 保留原确认记录作审计；P10-B2-10 不再作为当前 DO_NOT_RESTORE，有效规则由 P10-B4-01 替代。 | PDM-02 最终规则 + R4 + IA V5 + 001～078 + 2026-10-04 用户当前复核 | 2026-10-04 |
+| PDM10-DEC-A13 | PDM-10 | P10-A13 | 用户确认阶梯加价基数机制无问题：底价即 upstream_wholesale_price；有底价优先作为 base_wholesale_price，无底价回退 upstream_list_price；加价开启按 base + tier，加价关闭显示 upstream_list_price。 | P10-A13 通过。 | PDM-10 证据复核 + 2026-10-04 用户明确“这条应该是没有关系” | 2026-10-04 |
+| PDM10-DEC-A14 | PDM-10 | P10-A14 | 用户明确同意客户展示价覆盖扩展到批发、名邦、4S 三类车源；覆盖只改最终展示结果，不改底层原始/内部价格事实。 | P10-A14 通过。 | PDM-10 Batch 3 + 2026-10-04 用户明确“P10-A14同意” | 2026-10-04 |
+| PDM10-RECLASS-A15 | PDM-10 | P10-A15 | 原“取消名邦员工内部价独立 permission”候选因与 PDM-02 正式规则、R4、IA V5、001～078 冲突，被撤回 Batch 3 并重新分类到 Batch 4。 | 不再作为 informed change；由 P10-B4-01 承接。 | 2026-10-04 全局复核 | 2026-10-04 |
+| PDM10-GATE-B3 | PDM-10 | Batch 3 Gate | P10-A13、P10-A14 用户确认通过；P10-A15 因真实跨证据冲突撤回并转 Batch 4。 | Batch 3 状态为 COMPLETE_USER_CONFIRMED_WITH_ONE_RECLASSIFIED，允许进入 Batch 4。 | 2026-10-04 用户审查 + 全局复核 | 2026-10-04 |
+| PDM10-DEC-B4-01 | PDM-10 | P10-B4-01 | 用户再次明确：名邦员工查看内部价/底价必须采用后台可配置独立 permission；勾选可看，不勾选不可看。permission 服从“角色模板默认 + 员工个人授权/禁用 + data scope + object state”；进入内部模式不自动授予；能看不等于能调价/覆盖/电话/上下架；4S 查看名邦内部价继续 hard DENY。 | 直接继承并再次确认 PDM-02 当前正式规则；R11 历史原件不改。 | PDM-02 最终规则 + R4 + IA V5 + 001～078 + 2026-10-04 用户明确裁决 | 2026-10-04 |
