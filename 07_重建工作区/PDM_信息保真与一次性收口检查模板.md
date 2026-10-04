@@ -297,3 +297,91 @@ IMPLEMENTATION_READY = PASS
 - IMPLEMENTATION_READY =
 
 > 任一项不满足：保持 IN_REVIEW，不得 COMPLETE。
+
+## P. Legacy Final Integrity Audit｜仅用于 PDM-01～PDM-10 补做新标准复核
+
+> 本节用于已经完成过 Final、但完成时间早于 §3.3 Legacy Final Integrity Audit Gate 的 PDM。
+
+### P1. Missing Rule Audit
+
+- [ ] 已重新读取原始证据，而不是只读当前 Final
+- [ ] 已扫描 9/19 主底盘 / 更早历史 / CN11
+- [ ] 已扫描 9/19 以后用户明确裁决
+- [ ] 已扫描 Decision Register
+- [ ] 已扫描 Current / IA / Low-Fi
+- [ ] 已扫描 001～078
+- [ ] 已扫描 deferred handoff
+- [ ] 已扫描 Current Implementation Fact / Delta 中能暴露产品遗漏的事实
+
+结论：
+- 整条遗漏数量：
+- 未解决 MISSING_RULE：
+
+### P2. Semantic Detail Audit
+
+对当前 Final 每个核心章节逐项检查以下语义是否完整：
+
+| 维度 | PASS / GAP / N/A | 缺失说明 |
+|---|---|---|
+| 对象 / 唯一标识 |  |  |
+| actor / role |  |  |
+| permission |  |  |
+| data scope |  |  |
+| hard DENY |  |  |
+| owner / responsibility |  |  |
+| 前置条件 / object state |  |  |
+| lifecycle / listing_cycle |  |  |
+| 空值 / 无结果 |  |  |
+| 失败 / timeout / retry |  |  |
+| 并发 / 幂等 |  |  |
+| 等级 / 权限 / owner 变化 |  |  |
+| 日期 / TTL / 业务日 |  |  |
+| 配置 / 生效边界 |  |  |
+| immutable snapshot |  |  |
+| audit / history |  |  |
+| C / E / P 端业务表现 |  |  |
+| DO_NOT_RESTORE |  |  |
+| 跨 PDM 依赖 / 例外 |  |  |
+
+未解决 SEMANTIC_DETAIL_GAP：
+
+### P3. Cross-PDM Integrity Audit
+
+| 相关 PDM | 交叉对象 / 规则 | 是否一致 | 冲突 / supersession / handoff |
+|---|---|---|---|
+|  |  | PASS/FAIL |  |
+
+检查：
+- [ ] 后 PDM 未静默覆盖前 PDM
+- [ ] supersession 已写入旧 Final / Decision
+- [ ] handoff 有目标、有完整 Guard、有接收状态
+- [ ] stale rule / stale carrier 已登记
+
+### P4. Legacy Audit Result
+
+允许状态：
+- `INTEGRITY_PASS`
+- `MISSING_RULE`
+- `SEMANTIC_DETAIL_GAP`
+- `CROSS_PDM_CONFLICT`
+- `STALE_RULE`
+- `HANDOFF_GAP`
+- `EVIDENCE_INCOMPLETE`
+
+门禁：
+```text
+MISSING_RULE_UNRESOLVED = 0
+SEMANTIC_DETAIL_GAP_UNRESOLVED = 0
+CROSS_PDM_CONFLICT = 0
+HANDOFF_GAP_UNRESOLVED = 0
+GLOBAL_INVARIANT_CONFLICT = 0
+SOURCE_DECISION_COVERAGE = 100%
+FINAL_TO_SOURCE_TRACEABILITY = 100%
+SEMANTIC_INTEGRITY = PASS
+NEGATIVE_CLAIMS_VERIFIED = PASS
+IMPLEMENTATION_READY = PASS
+```
+
+最终状态：
+
+> `INTEGRITY_PASS / NOT_PASS`
