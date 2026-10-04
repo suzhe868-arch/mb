@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_1_PASS / USER_APPROVED`
+> `IN_PROGRESS / BATCH_2_PASS / USER_APPROVED`
 
 当前工作文件：
 
@@ -32,7 +32,15 @@
 
 当前唯一下一步：
 
-> **PDM-12 Batch 1 已通过用户审查：P12-A01～P12-A15 = USER_APPROVED。M03-001～M03-003 已完成 Source→Atom 反查；首次汇总遗漏的“车源主页搜索与正式 Demand Matching 共用确定性解析 / 匹配词典”已补为 P12-A15，当前 unmapped stable Batch1 rule = 0。下一步按 Conflict Before Classification 形成 Batch 2（废弃 / 禁止恢复项）候选，提交用户审查后停下；IA / Low-Fi 继续延后到 PDM-25 后集中对齐。**
+> **PDM-12 Batch 1 与 Batch 2 均已通过用户审查：P12-A01～A15、P12-B2-01～B2-10 = USER_APPROVED。Batch 2 反向冲突扫描 PASS，明确只冻结真正废弃 / 禁止恢复方向，没有把待裁决规则误标废弃。下一步形成 Batch 3（后续明确新增 / 明确变更项）候选并提交用户审查；IA / Low-Fi 继续延后到 PDM-25 后集中对齐。**
+
+## 2026-10-05｜PDM-12 Batch 2 用户批准
+
+- `P12-B2-01～P12-B2-10 = PASS / USER_APPROVED`；
+- 冻结不得恢复：第二套客户专属/独立匹配、普通关键词搜索替代共享解析、客户原话/AI 猜测直入 Matching、mapping pending 阻断已明确 JYT 车型事实、hidden=offline、猜测车况、恢复整套旧车况字段、closest fallback、Match Result 自动制造下游对象、定时全库扫描作为唯一更新机制；
+- Batch 2 反向冲突扫描 = PASS；
+- 明确排除：旧字段排除清单、里程特殊规则、P06-10 完整治理、VR-P-021/022、无预算+价格咨询、Priority 完整生命周期均继续后续审查，不属于已废弃；
+- 当前唯一下一步：形成 Batch 3 后续明确新增 / 明确变更项候选并停下等待用户审查。
 
 ## 2026-10-05｜PDM-12 Batch 1 用户批准
 

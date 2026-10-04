@@ -1,10 +1,10 @@
 # PDM-12｜Matching / 匹配词典 / 四级结果 / 人工确认｜规则原子重建工作版
 
 > 日期：2026-10-05  
-> 当前状态：`IN_PROGRESS / BATCH_1_PASS / USER_APPROVED`  
+> 当前状态：`IN_PROGRESS / BATCH_2_PASS / USER_APPROVED`  
 > 业务权威语言：中文（zh-CN）  
 > 当前域：PDM-12｜Match Candidate / Match Result / Rule Dictionary  
-> 当前硬门禁：Batch 1 已完成用户审查；未经下一批用户审查，不得自动批准 Batch 2～4，不得修改 IA / Low-Fi。
+> 当前硬门禁：Batch 1、Batch 2 已完成用户审查；未经下一批用户审查，不得自动批准 Batch 3～4，不得修改 IA / Low-Fi。
 
 ---
 
@@ -509,7 +509,234 @@ PDM-12 直接相关项已映射：
 
 ---
 
-# 7. Batch Gate
+# 7. Batch 2｜废弃 / 禁止恢复项｜USER APPROVED
+
+> 用户已审查并确认 `P12-B2-01～P12-B2-10`。  
+> Batch 2 Gate：`PASS / USER_APPROVED`。  
+> 本批只冻结明确废弃 / 明确禁止恢复的旧方向；旧字段排除清单、里程特殊规则、P06-10 完整治理、VR-P-021/022、“无预算 + 价格咨询”边界等仍不是废弃项，继续进入后续批次。
+
+## P12-B2-01｜不得恢复第二套“客户专属 / 独立匹配”体系
+
+V1 正式 Matching 只保留一套公共 Matching 引擎。
+
+不得恢复：
+
+- 独立“客户专属”匹配对象；
+- “设为客户专属 / 解除客户专属”；
+- 独立客户专属车源列表；
+- 与公共 Matching 平行运行的第二套专属匹配系统；
+- Priority 客户使用另一套条件或另一套匹配等级。
+
+Priority 只允许消费公共 Match Result；其资格、仲裁、TTL 与生命周期由 PDM-13 冻结。
+
+分类：`EXPLICITLY_DEPRECATED / DO_NOT_RESTORE`
+
+---
+
+## P12-B2-02｜不得把车源主页搜索恢复成普通关键词搜索
+
+不得把车源主页搜索退化为：
+
+> 只做字符串包含 / 模糊关键词命中，而不经过正式确定性解析。
+
+搜索必须继续继承 P12-A15：
+
+> 搜索与 Demand Matching 共用同一套确定性解析 / 匹配词典。
+
+也不得另建与正式 Matching 漂移的：
+
+- 搜索专用车型别名；
+- 搜索专用同义词；
+- 搜索专用标准映射体系。
+
+分类：`SUPERSEDED_SEARCH_MODEL / DO_NOT_RESTORE`
+
+---
+
+## P12-B2-03｜不得恢复“客户原话直接进入自动 Matching”
+
+不得建立：
+
+`客户原话 → 直接自动 Matching`
+
+也不得建立：
+
+`客户原话 → AI 猜测 → 正式匹配条件`
+
+正式链路继续为：
+
+`客户原始表达 → 销售沟通整理 → 销售匹配描述 → 确定性解析 → 标准条件 → Matching`
+
+因此：
+
+- 客户原话必须保留为业务事实 / 留档；
+- 客户原话不是正式自动 Matching 主输入；
+- 需求说明 / 业务背景 / CRM 跟进也不得偷偷参与 Matching。
+
+分类：`EXPLICIT_DO_NOT_RESTORE`
+
+---
+
+## P12-B2-04｜不得因本地车型 mapping pending 阻断或降级 JYT 已明确事实
+
+不得恢复以下逻辑：
+
+`vehicle_model_id = NULL / mapping pending → 车型未知 → 不允许精确搜索 / 不允许自动 Matching`
+
+如果 JYT 已经明确提供车型事实：
+
+- 不得把 mapping pending 自动变成 `confirmation_needed`；
+- 不得把已明确品牌 / 车系 / 车型年款 / 具体车型重新判成 unknown；
+- 不得等本地 mapping 完成后才允许车辆进入本可合法执行的搜索 / Matching。
+
+本地主数据 mapping 与上游 Source Fact 必须继续分层。
+
+分类：`COMPLETED_PDM_HARD_DENY / DO_NOT_RESTORE`
+
+---
+
+## P12-B2-05｜不得恢复“hidden = offline / unavailable”
+
+不得因为：
+
+`platform_visibility = hidden`
+
+就：
+
+- 认定车辆已下架；
+- 认定车辆不可售；
+- 自动排除内部 Matching；
+- 自动结束 listing cycle。
+
+Matching 候选资格必须读取真实 availability / saleability / listing state 与其他合法业务 Guard。
+
+分类：`COMPLETED_PDM_HARD_DENY / DO_NOT_RESTORE`
+
+---
+
+## P12-B2-06｜不得靠猜测把缺失车况事实补成“符合 / 不符合”
+
+客户填写 hard condition，而车辆对应事实缺失、来源冲突或无法确定时，不得：
+
+- 猜成满足；
+- 猜成不满足；
+- 用模糊描述强推导；
+- 用 AI 概率判断替代正式事实。
+
+正确方向：
+
+`unknown → 必要时 confirmation_needed → 确认事实 → 重新 Matching`
+
+分类：`COMPLETED_PDM_HARD_DENY / DO_NOT_RESTORE`
+
+---
+
+## P12-B2-07｜不得为了 Matching 恢复旧版整套结构化车况字段体系
+
+不得因为 Matching 需要结构化比较，就恢复历史“大而全”的整套结构化车况字段并要求所有车辆先补齐。
+
+当前 Authority：
+
+> 保留真实来源事实，只产生 Matching 必要且可确定的标准化事实。
+
+因此：
+
+- JYT 原始车况描述 / 标签继续保留；
+- 只派生当前 Matching 真正需要且能够确定的字段；
+- 不为“字段完整”凭空制造事实；
+- 不要求车辆先完成整套旧车况结构化才允许 Matching。
+
+分类：`USER_APPROVED_LEGACY_MODEL_DEPRECATED`
+
+---
+
+## P12-B2-08｜不得自动放宽条件，也不得提供 closest fallback
+
+无正式匹配结果时不得：
+
+- 自动放宽 hard condition；
+- 偷偷扩大预算；
+- 偷偷改变车型；
+- 偷偷改变地域；
+- 自动忽略已填写条件；
+- 推荐“最接近的一辆”并冒充 Match；
+- 建立 closest / nearest fallback。
+
+允许真实返回：
+
+> 当前没有符合条件的车辆。
+
+条件变化必须来自客户 / 有权员工的显式修改，或等待新车源。
+
+分类：`EXPLICITLY_DEPRECATED / DO_NOT_RESTORE`
+
+---
+
+## P12-B2-09｜不得恢复“匹配命中 = 自动产生后续业务对象”
+
+即使 Match Result = `high`，也不得直接等于：
+
+- Recommendation；
+- Priority；
+- Lock；
+- 客户详情可见权；
+- Customer owner / 负责人变化。
+
+尤其不得恢复：
+
+> “一旦匹配到，就自动给客户看 / 自动推荐 / 自动锁定。”
+
+PDM-12 只产出确定性 Match Result；后续对象分别服从其自身 PDM。
+
+PDM-12 当前只冻结：
+
+> **Match Result 自己绝不授客户详情可见权。**
+
+Priority / Recommendation 的完整可见性关系继续由 PDM-13 / PDM-14 冻结。
+
+分类：`SUPERSEDED_COUPLING / DO_NOT_RESTORE`
+
+---
+
+## P12-B2-10｜不得恢复“定时全库扫描 = 唯一 Matching 更新机制”
+
+不得设计为：
+
+> 每隔一段时间全库 Vehicle × 全部 Demand 重跑，而关键事实发生变化时不即时处理。
+
+同样不得：
+
+- 匹配词典每改一条就无脑全库重算；
+- 把定时任务当唯一 Matching 触发器。
+
+正式原则继续继承 P12-A14：
+
+> 事件驱动 + 受影响范围重算；定时任务只做必要兜底。
+
+分类：`OLD_IMPLEMENTATION_DIRECTION_DENIED / DO_NOT_RESTORE`
+
+---
+
+## Batch 2 反向冲突扫描结论
+
+以下内容经过反向扫描后**明确排除出 Batch 2**，原因是它们仍属于后续待审，不是明确废弃项：
+
+1. 变速箱 / 配置偏好 / 过户次数 / 城市距离 / 排放 / source type 最终是否进入自动 Matching；
+2. “低于最低里程仍可匹配”的旧特殊规则；
+3. P06-10 词典完整字段、作用域优先级、同级冲突、测试匹配、partial failure / retry；
+4. VR-P-021 / VR-P-022；
+5. “无预算 + 价格咨询”的最终四级边界；
+6. Priority TTL / 仲裁 / 人工创建 / 生命周期——主要归 PDM-13。
+
+结论：
+
+`BATCH2_REVERSE_CONFLICT_SCAN = PASS`
+
+`FALSE_DEPRECATION_COUNT = 0`
+
+---
+
+# 8. Batch Gate
 
 ```text
 PDM12_STARTUP_GATE = PASS
@@ -520,10 +747,13 @@ PDM12_BATCH_1 = PASS / USER_APPROVED
 P12_A01_TO_A15 = USER_APPROVED
 M03_001_003_SOURCE_TO_ATOM_AUDIT = PASS_AFTER_A15_REPAIR
 UNMAPPED_STABLE_BATCH1_RULE = 0
-PDM12_BATCH_2 = NOT_STARTED
+PDM12_BATCH_2 = PASS / USER_APPROVED
+P12_B2_01_TO_B2_10 = USER_APPROVED
+BATCH2_REVERSE_CONFLICT_SCAN = PASS
+PDM12_BATCH_3 = NOT_STARTED
 PDM12_FINAL = NOT_READY
 ```
 
 ## 当前唯一下一步
 
-> **按 Conflict Before Classification 继续形成 PDM-12 Batch 2（废弃 / 禁止恢复项）候选；必须先做反向冲突扫描与 Source→Atom 去向检查。形成候选后停下提交用户审查，不得自动批准，不得修改 IA / Low-Fi。**
+> **继续形成 PDM-12 Batch 3（后续明确新增 / 明确变更项）候选：先执行 Current Authority Refresh、反向冲突扫描与 Source→Atom 去向检查，重点审查 9/22 后续明确新增但尚未在 Batch 1～2 冻结的规则。形成候选后立即停下提交用户审查，不得自动批准，不得修改 IA / Low-Fi。**
