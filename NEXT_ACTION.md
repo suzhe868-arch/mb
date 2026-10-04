@@ -5,7 +5,7 @@
 ## 当前状态
 
 - PDM-01 ～ PDM-10 = COMPLETE（历史裁决完成状态）
-- PDM-01 ～ PDM-10 Legacy Final Integrity Audit = IN_PROGRESS
+- PDM-01 ～ PDM-10 Legacy Final Integrity Audit = COMPLETE
 - PDM-01 Integrity Audit = INTEGRITY_PASS
 - PDM-02 Integrity Audit = INTEGRITY_PASS
 - PDM-03 Integrity Audit = INTEGRITY_PASS
@@ -16,8 +16,10 @@
 - PDM-08 Integrity Audit = INTEGRITY_PASS
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
-- 当前审计域：GLOBAL_PDM01_10_CROSS_PDM_AUDIT
-- PDM-11 = BLOCKED_UNTIL_PDM01_10_INTEGRITY_PASS
+- PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
+- 当前域：PDM-11
+- PDM-11 = READY_TO_START
+- PDM-11 启动门禁 = UNBLOCKED
 
 总控工作单：
 
@@ -25,7 +27,7 @@
 
 ## 当前唯一下一步
 
-> **执行 PDM-01～PDM-10 全局 Cross-PDM / Handoff / Global Invariant 总复核。**
+> **启动 PDM-11：先读取 `target=PDM-11` 的 incoming handoff，目前为 `HO-P01-P11-001`，再按冻结方法建立 PDM-11 工作版并开始证据重建。**
 
 每个 PDM 必须同时执行：
 
@@ -39,9 +41,9 @@
 8. 真正改变产品语义的 reopen 必须重新提交用户裁决；
 9. 达到 `INTEGRITY_PASS` 后再进入下一个 PDM。
 
-## PDM-11 启动硬门禁
+## PDM-11 启动硬门禁｜已通过
 
-PDM-11 只有在以下全部完成后才允许开始：
+以下条件现已全部满足：
 
 - PDM-01～PDM-10 全部 `INTEGRITY_PASS`；
 - PDM-01～10 全局 Cross-PDM / Handoff / Global Invariant 总复核 PASS；
@@ -54,7 +56,7 @@ PDM-11 只有在以下全部完成后才允许开始：
 
 ## 当前禁止
 
-- 不开始 PDM-11 Batch 1；
+- 未先读取 `target=PDM-11` incoming handoff 时，不得直接进入 PDM-11 Batch 结论；
 - 不把旧 PDM 的 `COMPLETE` 直接等同于通过当前新完整性标准；
 - 不只检查 Final 文案而跳过原始证据遗漏扫描；
 - 不把 PDM-01～10 全部推倒重做；只 reopen 真正有问题的 Atom / 段落；
@@ -78,7 +80,7 @@ PDM-11 只有在以下全部完成后才允许开始：
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前已回填 PDM-01～PDM-10；PDM-10 已 `INTEGRITY_PASS`。当前进入全局 01～10 Cross-PDM / Handoff / Global Invariant 总复核；PDM-11 仍不得开始。
+当前已回填 PDM-01～PDM-10，且全局 01～10 Cross-PDM / Handoff / Global Invariant 总复核已 PASS。PDM-11 可开始；启动前先读取 `HO-P01-P11-001`。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
