@@ -25,7 +25,7 @@
 
 ---
 
-## 2. PDM-01～PDM-05 Integrity 问题总览
+## 2. PDM-01～PDM-06 Integrity 问题总览
 
 ### 2.1 PDM-01｜6 组｜已全部关闭
 
@@ -109,6 +109,19 @@ PDM-04 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - **5A**：车型唯一确定的固定属性当前值跟随有效车型主档纠错；Recommendation / Lock / Transaction / 成交及其他历史快照与 JYT 原始 source facts 不追改。
 
 PDM-05 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
+
+### 2.6 PDM-06｜6 组｜已全部关闭
+
+| ID | Integrity 问题 | 最终状态 |
+|---|---|---|
+| P06-LIA-01 | R10 已确认“首次正式发布前草稿可改 source_type”未进入 Final | RESOLVED |
+| P06-LIA-02 | PDM-07 已完成档案/车况/交付材料承接，但 PDM-06 仍写“继续处理” | RESOLVED / HANDOFF_CLOSED |
+| P06-LIA-03 | PDM-08 已完整承接人工车 0 图/补图/删图规则，但未登记闭环 | RESOLVED / HANDOFF_CLOSED |
+| P06-LIA-04 | PDM-10 已完成价格 supersession，但 Register 未形成正式闭环 | RESOLVED / HANDOFF_CLOSED |
+| P06-LIA-05 | PDM-21/22/25 future handoff 未正式登记 | RESOLVED / HANDOFF_OPEN_REGISTERED |
+| P06-LIA-06 | IA/Low-Fi 仍有 DRAFT_RESUME、旧 MODEL_MISSING return、VIN Gate/保存修改缺失等 stale carrier | RESOLVED / CARRIER_DEFERRED |
+
+PDM-06 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
@@ -220,7 +233,20 @@ PDM-05 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
-## 8. Post-PDM25 IA / Low-Fi Carrier Ledger｜PDM-01～05
+## 8. PDM-06 来源 handoff
+
+| handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
+|---|---|---|---|---|---|
+| HO-P06-P07-001 | PDM-07 | Vehicle Document / 档案 / 车况 / 客户可见报告 / 交易交付材料核验；档案不是人工发布硬门槛，必要资料只在 Transaction 完成/交付时按有效 required-field set 核验 | HANDOFF_CLOSED | PDM-07 §§3-10,20 | YES |
+| HO-P06-P08-001 | PDM-08 | 人工名邦/4S 允许 0 图发布；正式发布后可补图/删图/调序，删到 0 图仍可继续在售；普通车辆相册与档案/报告资源隔离 | HANDOFF_CLOSED | PDM-08 §§8,18 | YES |
+| HO-P06-P10-001 | PDM-10 | customer_list_price/internal_wholesale_price 非发布硬门槛；正常价格修改通过保存修改；取消独立调价 permission/action；内部价字段仍受独立查看 permission | HANDOFF_CLOSED | PDM-10 §§1,5,21 | YES |
+| HO-P06-P21-001 | PDM-21 | 员工端新增车源/草稿车源/VIN 重复提示/MODEL_MISSING/保存修改/source_type 选择与草稿阶段修改等真实页面、状态、动作投影 | HANDOFF_OPEN | - | YES |
+| HO-P06-P22-001 | PDM-22 | PC/后台人工 Vehicle 管理承载；通用 CRUD 不得自动生成正式 Vehicle 物理 Delete，草稿与正式 Vehicle 必须分层 | HANDOFF_OPEN | - | YES |
+| HO-P06-P25-001 | PDM-25 | 正式发布、source_type 修改、保存修改、VIN duplicate Gate、draft delete 等统一审计与历史留存标准 | HANDOFF_OPEN | - | YES |
+
+---
+
+## 9. Post-PDM25 IA / Low-Fi Carrier Ledger｜PDM-01～06
 
 > 当前只登记，不施工；统一在 PDM-25 完成 + PDM-01～25 全局最终总复核 PASS 后集中对齐。
 
@@ -250,10 +276,17 @@ PDM-05 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | PDM-05 | `no model creation is inferred` 与 System Admin 可补品牌/车系/具体车型冲突 | CARRIER_DEFERRED |
 | PDM-05 | 年款在页面上易被误做第四级主数据 | CARRIER_DEFERRED |
 | PDM-05 | mapping pending/conflict 时把 JYT 已明确车型事实错误降为 unknown | CARRIER_DEFERRED |
+| PDM-06 | `DRAFT_RESUME` 与“继续上次 / 放弃重新发布”旧单草稿流程 | CARRIER_DEFERRED |
+| PDM-06 | MODEL_MISSING 完成后错误返回 DRAFT_RESUME | CARRIER_DEFERRED |
+| PDM-06 | `no model creation is inferred` 旧 Guard 与 PDM-05 当前 System Admin 治理冲突 | CARRIER_DEFERRED |
+| PDM-06 | 缺真正“更多 → 草稿车源”多草稿列表承载 | CARRIER_DEFERRED |
+| PDM-06 | 缺 VIN 完全一致重复 Gate、“查看已有车辆 / 返回修改” | CARRIER_DEFERRED |
+| PDM-06 | 已发布车辆缺真实“保存修改”动作投影 | CARRIER_DEFERRED |
+| PDM-06 | source_type 新建/草稿阶段修改细节承载不完整 | CARRIER_DEFERRED |
 
 ---
 
-## 9. 强制使用规则
+## 10. 强制使用规则
 
 1. 新 PDM 开始：先筛 `target=当前 PDM AND status in {HANDOFF_OPEN,HANDOFF_ACCEPTED}`。
 2. 目标 PDM 接收：更新为 `HANDOFF_ACCEPTED`。
@@ -265,12 +298,13 @@ PDM-05 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
-## 10. 当前下一步
+## 11. 当前下一步
 
 - PDM-01：INTEGRITY_PASS；
 - PDM-02：INTEGRITY_PASS；
 - PDM-03：INTEGRITY_PASS；
 - PDM-04：INTEGRITY_PASS；
 - PDM-05：INTEGRITY_PASS；
-- 当前进入：PDM-06 Legacy Final Integrity Audit；
+- PDM-06：INTEGRITY_PASS；
+- 当前进入：PDM-07 Legacy Final Integrity Audit；
 - PDM-11 继续 BLOCKED，直到 PDM-01～10 全部 INTEGRITY_PASS 且 01～10 全局总复核 PASS。
