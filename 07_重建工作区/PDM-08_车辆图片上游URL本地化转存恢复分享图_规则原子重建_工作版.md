@@ -6,6 +6,23 @@
 
 ---
 
+## 0. Integrity Traceability 口径｜2026-10-05
+
+> 本工作版保留了 PDM-08 重建过程中多个阶段的 IMG-001～IMG-030 映射表，用于追溯历史判断过程。它们不再具有并列 Current Authority。
+
+当前唯一有效 traceability 规则：
+
+1. 本文件早期“IMG-001～IMG-030 原始 Decision 覆盖挂账”属于 `HISTORICAL / PRE-CDN-REMAP`；
+2. **以 §11「IMG-001～IMG-030｜按 2026-10-03 新 CDN 架构重新映射」及其后续 Batch 1～4 / Final 用户批准结果为唯一当前映射口径**；
+3. 早期映射与 §11 不一致时，一律视为 `SUPERSEDED_MAPPING`，不得用于恢复旧产品规则；
+4. IMG-025 当前产品边界：hash / 去重 / ref-count 属 Engineering，产品只要求生命周期、删除历史和访问权限正确；
+5. IMG-030 的旧 viewer+persistence 同步语义已被普通批发 CDN 自然缓存主链路替代；
+6. 2026-10-05 用户批准 3A：批发→名邦后资产化未闭环的失败/处理中图片可通过名邦受控 CDN 临时回源 JYT，资产化成功后立即切自有对象存储，禁止形成长期 JYT 依赖。
+
+> `SOURCE_DECISION_COVERAGE = 100% / FINAL_TO_SOURCE_TRACEABILITY = 100% / UNMAPPED = 0`
+
+---
+
 ## 1. 当前证据链
 
 ### 图片专项冻结源
