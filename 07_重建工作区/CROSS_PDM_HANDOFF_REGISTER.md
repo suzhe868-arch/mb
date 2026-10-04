@@ -1,0 +1,236 @@
+# 名邦汽车 V1｜Cross-PDM Handoff Register｜跨域移交总账
+
+> 状态：`ACTIVE / METHOD_CONTROL`  
+> 首次建立：2026-10-05  
+> 作用：记录跨 PDM 移交的来源、目标、完整语义、关闭状态与来源反向回写状态。  
+> 方法 Authority：`00_先读/01_产品基线重建执行规范_冻结工作版.md` Gate 11。  
+> 注意：本文件管理“任务状态与承接关系”，不凭自身创造新的产品业务规则；产品 Authority 仍来自用户裁决、PDM Final 与 Decision Register。
+
+---
+
+## 1. 状态定义
+
+- `HANDOFF_OPEN`：来源已移交，目标 PDM 尚未完成；
+- `HANDOFF_ACCEPTED`：目标已接收并进入工作版 / Atom / Decision，但尚未最终关闭；
+- `HANDOFF_CLOSED`：目标已形成最终 Authority；
+- `HANDOFF_SUPERSEDED`：后续裁决改变或替代原移交语义。
+
+附加字段：
+
+- `source_backwrite = YES`：目标完成后，来源 PDM 已同步成“已完成承接 / superseded”；
+- `source_backwrite = PENDING`：目标事实上已完成，但来源仍未回写，属于 `STALE_HANDOFF`；
+- `carrier_deferred = YES`：IA / Low-Fi 承载问题已登记，统一等 PDM-25 + 全局总复核后集中处理。
+
+任何新 PDM 开始前必须先读本表；任何目标 handoff 关闭后必须反向更新来源 PDM。
+
+---
+
+## 2. PDM-01～PDM-04 Integrity 问题总览
+
+### 2.1 PDM-01｜6 组｜已全部关闭
+
+| ID | 问题 | 当前状态 |
+|---|---|---|
+| P01-LIA-01 | 独立登录页语义被压缩 | RESOLVED |
+| P01-LIA-02 | 找车表单拒绝手机号授权后的临时保留边界被压缩 | RESOLVED |
+| P01-LIA-03 | 客户其他联系电话维护仍错误留给 PDM-02 | RESOLVED / HANDOFF_CLOSED |
+| P01-LIA-04 | 接客池异常为空时 owner_assignment_pending 例外缺失 | RESOLVED |
+| P01-LIA-05 | owner / 分享 / 转介绍仍错误留给 PDM-03，SOURCE_ONLY 旧规则残留 | RESOLVED / HANDOFF_CLOSED / SUPERSEDED_OLD_SOURCE_ONLY |
+| P01-LIA-06 | Customer 停用模型过重，重新裁为轻量后台停用 / 恢复 | RESOLVED |
+
+审计报告：`PDM-01_历史最终版完整性复核_2026-10-04.md`。
+
+### 2.2 PDM-02｜8 组｜已全部关闭
+
+| ID | 问题 | 当前状态 |
+|---|---|---|
+| P02-LIA-01 | 权限撤销即时生效 / 旧登录态失权被压缩 | RESOLVED |
+| P02-LIA-02 | inactive→active accepting 默认 OFF 范围不完整 | RESOLVED |
+| P02-LIA-03 | 调店前 Customer / 活跃业务交接过于笼统 | RESOLVED |
+| P02-LIA-04 | 治理审计最小字段与 reason 边界被压缩 | RESOLVED |
+| P02-LIA-05 | PDM-03 owner / accepting / handover 已做完但 PDM-02 未同步 | RESOLVED / HANDOFF_CLOSED |
+| P02-LIA-06 | System Admin 自身新增 / 启停治理动作闭环不完整 | RESOLVED |
+| P02-LIA-07 | System Admin 是否可直接停用 / 恢复 Customer | RESOLVED / USER_REOPEN |
+| P02-LIA-08 | PDM-03/04/06/09/10 已完成但仍显示“留后续” | RESOLVED / STALE_HANDOFF_CLEANED |
+
+审计报告：`PDM-02_历史最终版完整性复核_2026-10-04.md`。
+
+### 2.3 PDM-03｜9 组｜已全部关闭
+
+| ID | 问题 | 当前状态 |
+|---|---|---|
+| P03-LIA-01 | Customer 主动要求更换销售的触发来源被压掉 | RESOLVED |
+| P03-LIA-02 | 普通 owner transfer 默认 reason 非必填边界丢失 | RESOLVED |
+| P03-LIA-03 | 复职只写重新入职，未覆盖 inactive→active | RESOLVED |
+| P03-LIA-04 | 离职 / 失效交接对象清单被压薄 | RESOLVED |
+| P03-LIA-05 | Handover Batch 逐对象映射 / 部分失败语义不完整 | RESOLVED |
+| P03-LIA-06 | PDM-10 已完成分享 / 查价权，但 PDM-03 仍显示待后续 | RESOLVED / HANDOFF_CLOSED |
+| P03-LIA-07 | 公司客户历史访问边界未进入 Final | RESOLVED |
+| P03-LIA-08 | Customer 停用 / 恢复对 owner 连续性未同步 | RESOLVED |
+| P03-LIA-09 | 首次无 owner / SOURCE_ONLY / 转介绍入口 / handover 通用壳等 stale carrier | RESOLVED / CARRIER_DEFERRED |
+
+审计报告：`PDM-03_历史最终版完整性复核_2026-10-05.md`。
+
+### 2.4 PDM-04｜当前 Integrity Audit 进行中
+
+> 以下是 2026-10-05 当前审计已经识别的项目。它们不是全部已经获得用户最终产品批准；不得把本表的“审计发现”本身当成新产品 Authority。
+
+| ID | 当前审计发现 | 状态 |
+|---|---|---|
+| P04-LIA-C01 | listing_cycle 新周期开始时间的取值优先级被 Final 压掉 | AUDIT_FINDING / PENDING_FINAL_APPROVAL |
+| P04-LIA-C02 | listing_started_at / 人工上传时间 / JYT 平台收录时间及今日新增 vs 重新上架语义未完整保留 | AUDIT_FINDING / PENDING_FINAL_APPROVAL |
+| P04-LIA-C03 | source_type=4S 不等于授权任意 4S 成员管理，负向 Guard 不够明确 | AUDIT_FINDING / PENDING_FINAL_APPROVAL |
+| P04-LIA-C04 | locked / trading 期间允许有权人员记录真实车辆事实，且不得回写既有业务快照 | AUDIT_FINDING / PENDING_FINAL_APPROVAL |
+| P04-LIA-C05 | PDM-08 图片资产化已完成，但 PDM-04 仍显示留后续 | HANDOFF_STATUS_FIXED / PRODUCT_DETAIL_PENDING_FINAL_AUDIT |
+| P04-LIA-C06 | PDM-10 转换价格语义已完成，但 PDM-04 仍显示留后续 | HANDOFF_STATUS_FIXED / PRODUCT_DETAIL_PENDING_FINAL_AUDIT |
+| P04-LIA-C07 | PDM-05 / PDM-06 已完成但旧 handoff 未关闭 | HANDOFF_STATUS_FIXED |
+| P04-LIA-C08 | car_code 与 PDM-09 upstream_publisher_id 电话定位边界需显式隔离 | AUDIT_FINDING / PENDING_FINAL_APPROVAL |
+| P04-LIA-C09 | JYT 三个业务 API 及 PC 运行管理 / Incident handoff 需要显式登记 | AUDIT_FINDING / HANDOFF_CANDIDATE |
+| P04-LIA-C10 | 双 Vehicle、旧 normal-only convert Guard、旧 conversion relation 等 IA / Low-Fi carrier 仍 stale | CARRIER_DEFERRED |
+| P04-LIA-C11 | Supply Anomaly 是否统一阻断新增业务 | `DECISION_REQUIRED`，当前不得擅自裁为 A/B |
+
+PDM-04 当前仍为 Legacy Final Integrity Audit 进行中，不得因本 Register 建立而自动标记 INTEGRITY_PASS。
+
+---
+
+## 3. PDM-01 来源 handoff
+
+| handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
+|---|---|---|---|---|---|
+| HO-P01-P02-001 | PDM-02 | Customer 其他联系电话维护使用受控 capability + data scope；主要手机号不因此开放直接改写 | HANDOFF_CLOSED | PDM-02 §11 | YES |
+| HO-P01-P02-002 | PDM-02 | Customer 停用 / 恢复员工侧能力继承统一 permission / data scope / hard DENY；后续裁决 System Admin 可直接作为控制平面治理动作执行 | HANDOFF_CLOSED | PDM-02 §6 / §15 + PDM01-DEC-A16-R2 | YES |
+| HO-P01-P03-001 | PDM-03 | owner / 分享 / 转介绍 / accepting / 离职交接；ownerless 新 Customer 的有效分享可形成归属，已有 owner 不被抢 | HANDOFF_CLOSED | PDM-03 Final | YES |
+| HO-P01-P10-001 | PDM-10 | 查价权的产生、有效期、listing_cycle 边界由价格域冻结；Customer 停用只做上层可用性 Guard | HANDOFF_CLOSED | PDM-10 Final | YES |
+| HO-P01-P11-001 | PDM-11 | Demand 生命周期；Customer 停用不得自动终止既有 Demand，具体状态由 Demand 域处理 | HANDOFF_OPEN | - | YES |
+| HO-P01-P14-001 | PDM-14 | Recommendation 生命周期与当前 listing_cycle 权利；Customer 身份连续性不得被 Recommendation 重建 | HANDOFF_OPEN | - | YES |
+| HO-P01-P15-001 | PDM-15 | Consultation 生命周期；Customer 停用不自动抹除既有 Consultation 历史 | HANDOFF_OPEN | - | YES |
+| HO-P01-P16-001 | PDM-16 | CRM 画像 / 跟进 / 员工内部客户称呼；客户昵称与员工内部备注必须分离 | HANDOFF_OPEN | - | YES |
+| HO-P01-P18-001 | PDM-18 | Lock / Waitlist 生命周期；Customer 停用不自动取消已存在业务对象 | HANDOFF_OPEN | - | YES |
+| HO-P01-P19-001 | PDM-19 | Transaction / Refund 生命周期；Customer 停用不改写历史事实 | HANDOFF_OPEN | - | YES |
+| HO-P01-P20-001 | PDM-20 | 客户端个人资料、账号已停用时的具体页面表现；公开浏览仍可用，受身份/权益业务能力暂停 | HANDOFF_OPEN | - | YES |
+| HO-P01-P25-001 | PDM-25 | Customer 身份、手机号、停用/恢复、来源/owner 历史的统一审计与留存标准 | HANDOFF_OPEN | - | YES |
+
+---
+
+## 4. PDM-02 来源 handoff
+
+| handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
+|---|---|---|---|---|---|
+| HO-P02-P03-001 | PDM-03 | accepting OFF 只影响未来自然轮询；inactive / 离职交接 Customer owner + 活跃业务；复职不自动恢复 accepting | HANDOFF_CLOSED | PDM-03 Final | YES |
+| HO-P02-P04-001 | PDM-04 | 一键转名邦无独立 convert permission；4S 不能一键转名邦；4S 失效后的车辆展示/匹配/名邦承接按车辆域处理 | HANDOFF_CLOSED | PDM-04 Final | YES |
+| HO-P02-P06-001 | PDM-06 | 人工名邦 / 4S 车辆发布、source_type 与管理能力承接统一 permission + data scope 模型 | HANDOFF_CLOSED | PDM-06 Final | YES |
+| HO-P02-P09-001 | PDM-09 | 上游发布人电话是独立敏感能力；Internal Mode 本身不授权；4S 身份本身不自动获得该能力 | HANDOFF_CLOSED | PDM-09 Final | YES |
+| HO-P02-P10-001 | PDM-10 | 取消独立调价 permission/action；正常价格编辑与内部价查看字段级保护由 PDM-10 冻结 | HANDOFF_CLOSED | PDM-10 Final | YES |
+| HO-P02-P01-001 | PDM-01 | Customer 停用/恢复治理动作的最终执行主体与 Customer 身份连续性双向同步 | HANDOFF_CLOSED | PDM-01 §11 + PDM01-DEC-A16-R2 | YES |
+| HO-P02-P15-001 | PDM-15 | Consultation 负责人 / 转派必须继承 identity + permission + data scope + object state | HANDOFF_OPEN | - | YES |
+| HO-P02-P16-001 | PDM-16 | CRM 业务细节与访问范围必须继承统一权限模型 | HANDOFF_OPEN | - | YES |
+| HO-P02-P17-001 | PDM-17 | 公海 / Collaboration 的领取、分配、协作必须继承 owner / permission / scope / inactive 边界 | HANDOFF_OPEN | - | YES |
+| HO-P02-P18-001 | PDM-18 | Lock / Waitlist 动作与负责人必须继承统一权限和对象状态 | HANDOFF_OPEN | - | YES |
+| HO-P02-P19-001 | PDM-19 | Transaction / Refund / 成交纠错继承权限、scope、终态与历史边界 | HANDOFF_OPEN | - | YES |
+| HO-P02-P21-001 | PDM-21 | 员工端页面 / Internal Mode 只是投影，不得把入口可见性当授权；4S 继续按 hard DENY 裁剪 | HANDOFF_OPEN | - | YES |
+| HO-P02-P22-001 | PDM-22 | PC 后台员工、权限、System Admin、角色模板、data scope 等配置承载 | HANDOFF_OPEN | - | YES |
+| HO-P02-P25-001 | PDM-25 | role / permission / scope / active-inactive / System Admin 等统一审计字段与留存 | HANDOFF_OPEN | - | YES |
+
+---
+
+## 5. PDM-03 来源 handoff
+
+| handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
+|---|---|---|---|---|---|
+| HO-P03-P10-001 | PDM-10 | 普通分享/收藏不授价；二次分享不转移价格权；正式 Recommendation 才授当前 customer+vehicle+listing_cycle 免费查价权 | HANDOFF_CLOSED | PDM-10 §10 | YES |
+| HO-P03-P13-001 | PDM-13 | Priority TTL、可见隔离、交接后的具体 lifecycle；Priority 必须进入离职/资格失效交接扫描 | HANDOFF_OPEN | - | YES |
+| HO-P03-P14-001 | PDM-14 | Recommendation lifecycle、正式推荐关系、hidden 单车可见授权；不得用普通分享替代 Recommendation 权利 | HANDOFF_OPEN | - | YES |
+| HO-P03-P15-001 | PDM-15 | Consultation 完整负责人 / 转派 / SLA；owner 变化不自动漂移已固化业务负责人 | HANDOFF_OPEN | - | YES |
+| HO-P03-P16-001 | PDM-16 | CRM 跟进、画像、阶段、Source Radar、公司客户历史页面/字段投影；历史服务过不产生永久访问权 | HANDOFF_OPEN | - | YES |
+| HO-P03-P17-001 | PDM-17 | 公海 / 待公海 / 后台分配 / 领取 / Collaboration；不得通过分享绕过已有 owner 或正式治理 | HANDOFF_OPEN | - | YES |
+| HO-P03-P18-001 | PDM-18 | Waitlist / Lock 负责人状态机；owner 变化不自动漂移负责人 | HANDOFF_OPEN | - | YES |
+| HO-P03-P19-001 | PDM-19 | Transaction / Refund 负责人状态机；owner 变化不自动重写交易历史 | HANDOFF_OPEN | - | YES |
+| HO-P03-P20-001 | PDM-20 | 客户端分享页、推荐朋友 / 直接转介绍真实入口、已有 owner 不被分享抢客的交互投影 | HANDOFF_OPEN | - | YES |
+| HO-P03-P21-001 | PDM-21 | 员工端分享入口与绑定销售上下文的交互投影 | HANDOFF_OPEN | - | YES |
+| HO-P03-P25-001 | PDM-25 | owner transfer / handover batch / 来源 / 历史贡献统一审计标准 | HANDOFF_OPEN | - | YES |
+
+---
+
+## 6. PDM-04 来源 handoff
+
+> 2026-10-05 已对 PDM-04 §20 做状态回写：PDM-05～10 已完成事项不再显示“留后续”。PDM-04 Integrity Audit 仍在进行，不因这次状态回写自动通过。
+
+| handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
+|---|---|---|---|---|---|
+| HO-P04-P05-001 | PDM-05 | 车型主数据 / JYT model mapping；映射缺失不得丢 source facts，车型身份继续由 PDM-05 当前规则处理 | HANDOFF_CLOSED | PDM-05 Final | YES |
+| HO-P04-P06-001 | PDM-06 | 人工车辆草稿 / 发布 / VIN / 删除 / 名邦↔4S source_type；批发只能由集成产生 | HANDOFF_CLOSED | PDM-06 Final | YES |
+| HO-P04-P07-001 | PDM-07 | 车辆档案 / 车况 / 报告；不得反向改写 vehicle/source/listing lifecycle | HANDOFF_CLOSED | PDM-07 Final | YES |
+| HO-P04-P08-001 | PDM-08 | 图片 URL/CDN/资产化/重试；图片子任务失败不得回滚同 vehicle 来源转换 | HANDOFF_CLOSED | PDM-08 §§11-13 | YES |
+| HO-P04-P09-001 | PDM-09 | 上游发布人电话；电话定位不得恢复使用 car_code，按 PDM-09 当前 publisher identity 规则 | HANDOFF_CLOSED | PDM-09 Final | YES |
+| HO-P04-P10-001 | PDM-10 | 一键转名邦价格快照、转换后客户价/内部价/覆盖价/查价权语义 | HANDOFF_CLOSED | PDM-10 §13 | YES |
+| HO-P04-P12-001 | PDM-12 | Matching 对 hidden / availability / source 状态的资格判断；不得把 hidden 等同 offline | HANDOFF_OPEN | - | YES |
+| HO-P04-P13-001 | PDM-13 | Priority 对 hidden、exclusive visibility、listing lifecycle 的约束 | HANDOFF_OPEN | - | YES |
+| HO-P04-P14-001 | PDM-14 | Recommendation 对 hidden 单车可见授权与 listing_cycle 生命周期 | HANDOFF_OPEN | - | YES |
+| HO-P04-P18-001 | PDM-18 | Lock / Waitlist 完整 lifecycle；vehicle source/visibility 变化不得静默抹除既有历史 | HANDOFF_OPEN | - | YES |
+| HO-P04-P19-001 | PDM-19 | Transaction / Refund / correction；completed 终态、source conversion 与历史快照边界 | HANDOFF_OPEN | - | YES |
+| HO-P04-P20-001 | PDM-20 | 客户端车辆列表/详情的 source、hidden/locked/offline/relist 等状态投影 | HANDOFF_OPEN | - | YES |
+| HO-P04-P21-001 | PDM-21 | 员工端车辆详情、source_type、一键转名邦、隐藏/上下架等真实操作入口 | HANDOFF_OPEN | - | YES |
+| HO-P04-P22-001 | PDM-22 | PC 车辆、隐藏规则、集成配置与运行管理界面；不得改变 PDM-04 车辆 Authority | HANDOFF_OPEN | - | YES |
+| HO-P04-P25-001 | PDM-25 | vehicle/source/listing/visibility/conversion 的统一审计、历史和终态不回写规则 | HANDOFF_OPEN | - | YES |
+
+### 6.1 PDM-04 当前审计中新发现、尚未升级成正式产品 handoff 的候选
+
+| candidate_id | 目标 | 候选内容 | 当前状态 |
+|---|---|---|---|
+| HC-P04-P20-001 | PDM-20 | listing_started_at / 上传时间 / JYT 平台收录时间在客户端的具体展示与配置 | AUDIT_CANDIDATE_NOT_AUTHORITY |
+| HC-P04-P22-001 | PDM-22 | JYT 三个业务 API 的启停、ingest credential、调用日志、数量统计与 PC 运行管理 | AUDIT_CANDIDATE_NOT_AUTHORITY |
+| HC-P04-P23-001 | PDM-23 | JYT / 供应异常相关 Incident、通知、飞书、失败日志、夜间免打扰等运行通知边界 | AUDIT_CANDIDATE_NOT_AUTHORITY |
+
+这些候选只有在 PDM-04 Integrity Audit 通过用户裁决后才转成正式 `HANDOFF_OPEN`。
+
+---
+
+## 7. Post-PDM25 IA / Low-Fi Carrier Ledger｜PDM-01～04
+
+> 当前只登记，不施工；统一在 PDM-25 完成 + PDM-01～25 全局最终总复核 PASS 后集中对齐。
+
+| 来源 | stale carrier | 状态 |
+|---|---|---|
+| PDM-01 | 首次进入不形成 owner 的旧承载 | CARRIER_DEFERRED |
+| PDM-01 | 客户分享永久 SOURCE_ONLY | CARRIER_DEFERRED |
+| PDM-01 | Customer Merge / merge flow | CARRIER_DEFERRED |
+| PDM-01 | 头像/昵称仍可能被标成 required | CARRIER_DEFERRED |
+| PDM-02 | P05 System Admin 缺真实“新增 System Admin”动作入口 | CARRIER_DEFERRED |
+| PDM-02 | 4S internal vehicle-management 被旧 not-4S Guard 整体挡住 | CARRIER_DEFERRED |
+| PDM-02 | 旧 vehicle.convert_mingbang 独立 permission | CARRIER_DEFERRED |
+| PDM-02 | 旧独立调价 permission / action | CARRIER_DEFERRED |
+| PDM-02 | P04 / handoff 页面仍是通用壳 | CARRIER_DEFERRED |
+| PDM-02 | permission 文案与 PDM-10 当前价格模型不一致 | CARRIER_DEFERRED |
+| PDM-03 | 首次进入无 owner 的旧首入投影 | CARRIER_DEFERRED |
+| PDM-03 | 客户侧分享固定 SOURCE_ONLY | CARRIER_DEFERRED |
+| PDM-03 | 推荐朋友 / 直接转介绍真人入口不足 | CARRIER_DEFERRED |
+| PDM-03 | handover 页面未完整表现对象映射、失败/重试 | CARRIER_DEFERRED |
+| PDM-04 | 旧“双 vehicle + conversion relation”一键转名邦承载 | CARRIER_DEFERRED |
+| PDM-04 | 旧“只有 biz_status=normal 才可 convert”的 Guard | CARRIER_DEFERRED |
+| PDM-04 | 旧 conversion relation / 原批发新名邦两车身份 | CARRIER_DEFERRED |
+| PDM-04 | 旧价格 / 调价 carrier | CARRIER_DEFERRED |
+| PDM-04 | 4S 车辆管理入口旧限制 | CARRIER_DEFERRED |
+| PDM-04 | P02/P03 车源、集成、供应异常等页面通用壳 / 状态承载不足 | CARRIER_DEFERRED |
+
+---
+
+## 8. 强制使用规则
+
+1. 新 PDM 开始：先筛 `target=当前 PDM AND status in {HANDOFF_OPEN,HANDOFF_ACCEPTED}`。
+2. 目标 PDM 接收：更新为 `HANDOFF_ACCEPTED`。
+3. 目标 Final 完成：更新为 `HANDOFF_CLOSED` 或 `HANDOFF_SUPERSEDED`。
+4. 同一次关闭动作必须反向回写来源 PDM；否则标 `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`。
+5. 目标 PDM COMPLETE / INTEGRITY_PASS 前不得留下未处理 incoming handoff。
+6. 来源 PDM 可以保留指向未来域的合法 `HANDOFF_OPEN`，但必须在本总账完整登记。
+7. PDM-25 后全局 IA / Low-Fi 对齐前，再以本表 + stale carrier ledger 做一次完整扫尾。
+
+---
+
+## 9. 当前下一步
+
+- PDM-01：INTEGRITY_PASS；
+- PDM-02：INTEGRITY_PASS；
+- PDM-03：INTEGRITY_PASS；
+- PDM-04：Legacy Final Integrity Audit 进行中；
+- PDM-04 当前仍有 `P04-LIA-C11 / Supply Anomaly 是否统一阻断新增业务` 需要用户裁决；
+- PDM-11 继续 BLOCKED，直到 PDM-01～10 全部 INTEGRITY_PASS 且 01～10 全局总复核 PASS。
