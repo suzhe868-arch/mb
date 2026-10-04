@@ -12,15 +12,15 @@
 
 当前域：
 
-> **PDM-11｜Demand 域启动准备**
+> **PDM-11｜找车申请 / Demand 生命周期重建**
 
 当前域状态：
 
-> `READY_TO_START / GLOBAL_PDM01_10_AUDIT_PASS / CURRENT_PDM-11`
+> `IN_PROGRESS / HANDOFF_ACCEPTED / BATCH_1_USER_REVIEW_PENDING`
 
 当前工作文件：
 
-> PDM-11 尚未生成工作版；启动时先读 `07_重建工作区/CROSS_PDM_HANDOFF_REGISTER.md` 中 `target=PDM-11` 的 incoming handoff，并按既定重建方法建立 PDM-11 工作版。
+> `07_重建工作区/PDM-11_找车申请Demand生命周期_规则原子重建_工作版.md`
 
 当前已纠正：
 
@@ -32,8 +32,18 @@
 
 当前唯一下一步：
 
-> **PDM-01～PDM-10 单域 Integrity 与 01～10 全局总复核均已 PASS；PDM-11 已解除 BLOCKED。当前唯一下一步：启动 PDM-11，并先承接 `HO-P01-P11-001`。IA / Low-Fi 仍统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。**
+> **PDM-11 已建立工作版并承接 `HO-P01-P11-001 = HANDOFF_ACCEPTED`；当前唯一下一步：用户审查 Batch 1 的 P11-A01～P11-A14。未经用户确认不得进入 Batch 2。IA / Low-Fi 仍统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。**
 
+## 2026-10-05｜PDM-11 启动与证据重建完成
+
+- 已读取并承接 `HO-P01-P11-001`，状态从 `HANDOFF_OPEN` → `HANDOFF_ACCEPTED`；
+- 已建立 PDM-11 Completed-PDM Dependency Card、术语表、Current Implementation Fact 卡；
+- 已重新读取 9/06 SSOT / Decision、9/19 C2 / R10 / R12、IA V5、实际 Low-Fi、M03/M16/M17、已完成 PDM Final；
+- 已形成 Batch 1 稳定一致候选 `P11-A01～P11-A14`；
+- 已识别真实历史冲突：找车权益客户是否可直接激活 Demand vs 9/19 统一 pending 后由员工激活，暂挂 Batch 4，不静默选择；
+- 已识别找车资格来源模型缺口，暂挂 Batch 4；
+- Customer 轻量停用不终止既有 Demand 属于 PDM-01 后续明确知情修改，预挂 Batch 3；
+- 当前状态：`BATCH_1_USER_REVIEW_PENDING`。
 ## 2026-10-05｜PDM-01～10 全局总复核完成
 
 - `GLOBAL_PDM01_10_CROSS_PDM_AUDIT = PASS`；
