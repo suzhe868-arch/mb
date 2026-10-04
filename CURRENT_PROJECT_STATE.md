@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / HANDOFF_ACCEPTED / BATCH_1_APPROVED / BATCH_2_USER_REVIEW_PENDING`
+> `IN_PROGRESS / HANDOFF_ACCEPTED / BATCH_1_APPROVED / BATCH_2_PARTIAL_APPROVED`
 
 当前工作文件：
 
@@ -32,8 +32,17 @@
 
 当前唯一下一步：
 
-> **PDM-11 Batch 1 的 P11-A01～P11-A13 已由用户全部确认；当前唯一下一步：用户审查 Batch 2 的 P11-B2-01～P11-B2-10。未经用户确认不得进入 Batch 3。IA / Low-Fi 仍统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。**
+> **PDM-11 Batch 2 中 P11-B2-08 已由用户主动修正并确认；当前唯一下一步：继续审查剩余 9 条 P11-B2-01～P11-B2-07、P11-B2-09、P11-B2-10。未经剩余项确认不得进入 Batch 3。IA / Low-Fi 仍统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。**
 
+## 2026-10-05｜PDM-11 P11-B2-08 用户修正
+
+- 原候选“找车权益下降不得自动影响 active Demand”撤回；
+- 当前规则：entitlement 下降/取消 → active Demand 自动 paused；
+- Demand、条件、历史匹配、Recommendation、CRM 跟进、状态/负责人历史全部保留；
+- entitlement 恢复后不自动 active，需客户本人或有权限员工正式恢复；
+- Customer 账号停用与 entitlement 下降严格分离；账号停用本身不自动改 Demand 状态；
+- P11-B2-08 = `USER_MODIFIED / USER_APPROVED`；
+- Batch 2 剩余 9 条继续 `USER_REVIEW_PENDING`。
 ## 2026-10-05｜PDM-11 Batch 1 全部确认
 
 - 用户明确确认 `P11-A01～P11-A13` 全部同意；
