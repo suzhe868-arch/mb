@@ -353,3 +353,22 @@
 | PDM10-DEC-B4-01 | PDM-10 | P10-B4-01 | 用户再次明确：名邦员工查看内部价/底价必须采用后台可配置独立 permission；勾选可看，不勾选不可看。permission 服从“角色模板默认 + 员工个人授权/禁用 + data scope + object state”；进入内部模式不自动授予；能看不等于能调价/覆盖/电话/上下架；4S 查看名邦内部价继续 hard DENY。 | 直接继承并再次确认 PDM-02 当前正式规则；R11 历史原件不改。 | PDM-02 最终规则 + R4 + IA V5 + 001～078 + 2026-10-04 用户明确裁决 | 2026-10-04 |
 
 | METHOD-20261004-ONE-PASS-INTEGRITY | METHOD | 信息保真 / 一次性收口硬门禁 | 用户明确要求解决“越写越丢、后续 PDM 反复失忆”的系统性问题，并批准将规则固化。自本裁决起，所有 PDM 必须执行 Memory Zero-Trust、Current Authority Refresh、Completed-PDM Dependency Card、Global Invariant Gate、Terminology Normalization、No Summary-on-Summary、双向可追溯、否定结论证明、Conflict Before Classification、Deferred Handoff Closure、Change Impact Analysis、Semantic Completeness Matrix、Final Semantic Integrity + Implementation-Ready Gate；并使用统一检查模板留痕。 | 以后 `UNMAPPED=0` 不再足以证明完整；COMPLETE 必须同时满足双向追溯、跨 PDM 冲突清零、全局不变量冲突清零、语义完整、否定结论验证、用户最终批准、施工就绪。记忆只能用于检索线索，不得代替当前 GitHub 证据。 | 2026-10-04 用户明确要求“先把规则定好，防止 PDM11 以后继续丢；这次必须一次性完成，所有细节和大框都不能丢” | 2026-10-04 |
+
+## 2026-10-04｜PDM-10 Batch 4 / Final 收口
+
+| Decision ID | 域 | Atom / Gate | 当前最终结论 | 影响 / 覆盖关系 | 用户证据 | 日期 |
+|---|---|---|---|---|---|---|
+| PDM10-DEC-A10-R1 | PDM-10 | P10-A10 Final Refinement | 每个客户等级均可后台独立配置批发价查看权益为 LIMITED 或 UNLIMITED；等级变化当天立即按新权益生效；不限量时列表页/详情页直接显示合法数字客户价；不限量浏览不批量转化成永久单车授权。 | 补全原 A10 的等级权益和时间语义；不改变“等级不改变售价”。 | 用户明确“这两个都是统一的”并随后“同意” | 2026-10-04 |
+| PDM10-DEC-B4-02 | PDM-10 | P10-B4-02 | JYT→名邦继续同 vehicle_id、同 listing_cycle；转换保存价格快照；customer_list_price 不继承批发客户展示价；有效同周期 override 继续；internal_wholesale_price 仅复制真实 upstream_wholesale_price，无则为空。 | 覆盖旧“新名邦车继承展示价 / base 批发价”模型，与 PDM-04 same-vehicle conversion 对齐。 | 用户明确同意 | 2026-10-04 |
+| PDM10-DEC-B4-03-R1 | PDM-10 | P10-B4-03 | 临时追加属于 customer-day quota；普通销售必须 current owner + permission；经理/店长无需 owner，但须 permission + data scope；4S HARD DENY；System Admin 仅配置不执行业务动作。 | 恢复并细化历史遗漏；owner 变化/离职不撤回已追加次数；UTC+8 次日失效。 | 用户明确同意并确认与 A10 统一 | 2026-10-04 |
+| PDM10-DEC-B4-04 | PDM-10 | P10-B4-04 | 未解锁批发价时客户端显示“查看价格”，后台仍用真实当前客户展示价参与数字筛选/排序；查询不授权不扣额，响应不得泄露精确数字。 | 恢复 R10-75 / R4 排序合同。 | 用户明确同意 | 2026-10-04 |
+| PDM10-DEC-B4-05 | PDM-10 | P10-B4-05 | 低于 base_wholesale_price / internal_wholesale_price 的客户价允许保存并生效，但必须明显风险警告与审计；无基准不比较；不增加经理审批/强制亏损理由。 | 明确低价风险是告警而非硬拦截。 | 用户明确“确认 P10-B4-05” | 2026-10-04 |
+| PDM10-DEC-B4-06 | PDM-10 | P10-B4-06 | 取消独立“调价 permission / 调价动作”；名邦/4S customer_list_price、internal_wholesale_price 作为正常车辆编辑字段通过“保存修改”提交。 | 显式 supersede PDM-02 旧独立调价表述、PDM-06 §15 旧“调价不进保存修改”表述、R11/Current 旧 carrier。 | 用户明确同意 | 2026-10-04 |
+| PDM10-DEC-B4-07 | PDM-10 | P10-B4-07 | 三类车源支持客户展示价覆盖，但覆盖操作仅名邦内部授权人员执行；4S 成员设置/修改/取消覆盖价 HARD DENY。 | 4S 正常 customer_list_price 编辑与 override 操作明确分离。 | 用户明确同意 | 2026-10-04 |
+| PDM10-DEC-B4-08 | PDM-10 | P10-B4-08 | 客户数字价格主要用“万”；无数字=价格咨询；批发未解锁=查看价格；员工内部必须明确区分客户展示价/客户标价/内部批发价/上游价等语义。 | 恢复价格展示格式与字段语义 Guard。 | 用户明确同意 | 2026-10-04 |
+| PDM10-DEC-B4-09 | PDM-10 | P10-B4-09 | 4S 成员可进入自己有权管理的 4S 车辆管理视图，再按 hard DENY 裁剪；不再全局 DENY internal vehicle-management carrier。 | Current IA 的整体角色门禁标记 stale carrier，交 PDM-21/IA 对齐。 | 用户明确“同意” | 2026-10-04 |
+| PDM10-DEC-B4-10 | PDM-10 | P10-B4-10 | 修改 internal_wholesale_price 除正常车辆编辑/管理、scope、state 外，还必须具备独立内部价查看 permission；无该 permission 后端不返回、页面不展示、接口不得提交。 | 解决“取消独立调价 permission”与“内部敏感字段保护”交叉冲突；customer_list_price 不要求内部价查看 permission。 | 用户明确“同意” | 2026-10-04 |
+| PDM10-GATE-B4 | PDM-10 | Batch 4 Gate | P10-B4-01～P10-B4-10 全部完成用户明确裁决；A10/B4-03 Final Review 补全已纳入。 | Batch 4 正式关闭，进入完整性与双向追溯门禁。 | 2026-10-04 连续用户确认 | 2026-10-04 |
+| PDM10-COVERAGE-GATE | PDM-10 | Full Coverage / Integrity | M11-001～M11-017 17/17 均有明确去向；Source→Final 与 Final→Source 双向追溯完成；跨 PDM supersession 与 handoff 均登记。 | SOURCE_DECISION_COVERAGE=100%；UNMAPPED=0；FINAL_TO_SOURCE_TRACEABILITY=100%；CROSS_PDM_CONFLICT=0；SEMANTIC_INTEGRITY=PASS。 | 全量检查卡 + 覆盖报告 | 2026-10-04 |
+| PDM10-SUPERSEDE-P02-P06 | PDM-10 | Cross-PDM Supersession | PDM-02 独立“调价 permission”旧表述、PDM-06 §15“调价不得混入保存修改”旧表述由 P10-B4-06 正式覆盖；internal_wholesale_price 字段仍受 B4-10 内部价查看 permission 保护。 | PDM-02 / PDM-06 Final 已加入后续跨域修正，避免旧 Final 回归。 | P10-B4-06 / B4-10 用户批准 | 2026-10-04 |
+| PDM10-GATE-FINAL | PDM-10 | Final Domain Overview | 用户最终批准 PDM-10 完整规则总览。 | PDM-10 正式 COMPLETE；Final=07_重建工作区/PDM-10_最终完整规则.md；Coverage/Integrity 全门禁 PASS；允许进入 PDM-11 准备。 | 用户最终“同意”，随后明确“确定执行” | 2026-10-04 |
