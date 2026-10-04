@@ -2,8 +2,8 @@
 
 > 日期：2026-09-24  
 > 状态：`COMPLETE`  
-> 说明：本文件汇总 PDM-05 Batch 1～4 经用户逐批裁决并经最终总览批准后的正式当前规则。  
-> 本文件不修改 IA / Low-Fi / Engineering。
+> 说明：本文件汇总 PDM-05 Batch 1～4 经用户逐批裁决并经最终总览批准后的正式当前规则；2026-10-05 已完成 Legacy Final Integrity Audit，并同步 PDM-06 已完成承接以及 PDM-02 System Admin 控制平面边界。  
+> IA / Low-Fi 仅登记 `STALE_CARRIER`，统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。
 
 ---
 
@@ -146,41 +146,74 @@ JYT 已提供的来源车型事实永久与本地车型字典归属分层。
 
 - 不得静默自动改映射；
 - JYT 来源事实继续保留；
-- 后台标记“车型映射冲突”；
-- 由后台 Admin 人工确认 / 修正；
+- 后台明确标记 **“车型映射冲突”**，不得静默遗漏；
+- **映射冲突本身不自动阻塞该车辆既有正常业务**；只要车辆另无独立的 `offline / unavailable / hidden / business-state` 等阻断条件，车辆可继续按其真实来源事实和当前业务 Guard 运行；
+- 由 System Admin 控制平面按 §9 的 `vehicle.model.manage` Guard 人工确认 / 修正；
 - 修正必须留审计。
+
+这里必须区分：
+
+> **车型映射冲突 ≠ 车辆真实不可售。**
+
+若车辆同时存在独立的真实不可售或其他业务阻断事实，则服从对应车辆 / 业务域规则；不得把“mapping conflict”标签本身误实现成统一冻结车辆业务。
 
 ---
 
 ## 9. 车型管理权限与执行主体
 
-车型主数据、映射及冲突处理继续受：
+车型主数据、JYT source mapping、MODEL_MISSING、映射冲突与重复车型治理属于：
+
+> **System Admin 控制平面治理域。**
+
+本域治理动作继续使用：
 
 > `vehicle.model.manage`
 
-能力保护。
+作为能力 Guard。
 
-当前 PDM-05 实际执行主体收口为：
+正式解释：
 
-> **后台 Admin**
+1. 本 PDM 历史文字中的“后台 Admin”统一解释为 **System Admin 控制平面身份**；
+2. `vehicle.model.manage` 在本域是 System Admin 执行车型主数据治理动作时的 capability / Guard，不等同于普通车辆编辑权限；
+3. 普通销售、经理、店长、4S 成员不会因为拥有车辆发布、车辆编辑或车辆管理能力，就自动取得车型主数据治理权；
+4. V1 当前不把车型主数据治理委托为普通员工业务动作；若未来要开放“独立员工车型管理员”，必须重新显式裁决，不得仅通过角色模板静默推导；
+5. System Admin 执行本域治理不因此获得 Customer owner、销售、CRM、Lock、Transaction 等员工业务执行权。
 
-普通销售不能因为正在上传车辆，就获得：
+System Admin 控制平面可在本域执行：
 
 - 新增品牌；
 - 新增车系；
 - 新增具体车型；
 - 修改车型归属；
 - 修正 JYT 映射；
+- 处理 MODEL_MISSING；
 - 处理映射冲突；
 - 合并重复车型；
-
-等车型主数据管理能力。
+- 执行必要的车型主数据质量治理。
 
 ---
 
 ## 10. MODEL_MISSING / 缺主数据处理
 
-后台 Admin 在处理：
+以下状态必须明确形成后台待处理状态 / 提示，不得静默遗漏：
+
+- JYT 本地映射未完成；
+- 本地缺少品牌；
+- 本地缺少车系；
+- 本地缺少具体车型；
+- 人工上传 `MODEL_MISSING`。
+
+统一业务归口可表达为：
+
+> **车型字典归属待确认**
+
+而已确认映射与新来源事实明显冲突时，必须单独表达为：
+
+> **车型映射冲突**
+
+两者不得混为一个无差别状态。
+
+System Admin 在处理：
 
 - MODEL_MISSING；
 - JYT 待映射；
@@ -214,7 +247,7 @@ JYT 已提供的来源车型事实永久与本地车型字典归属分层。
 
 - 当前录车内容可以保留草稿；
 - 不能绕过车型主数据直接正式发布；
-- 由后台 Admin 补齐车型主数据 / 映射后，再继续原草稿流程。
+- 由 System Admin 按本 PDM 治理规则补齐车型主数据 / 映射后，再继续原草稿流程。
 
 人工上传与 JYT 批发车的车型入口规则不得混用。
 
@@ -222,7 +255,7 @@ JYT 已提供的来源车型事实永久与本地车型字典归属分层。
 
 ## 12. 本地车型主数据质量维护
 
-后台 Admin 可以维护车型主数据质量。
+System Admin 可以按 `vehicle.model.manage` Guard 维护车型主数据质量。
 
 ### 12.1 节点挂错父级
 
@@ -250,6 +283,36 @@ JYT 已提供的来源车型事实永久与本地车型字典归属分层。
 > **不因年份老自动停用。**
 
 只有录入错误、重复并已合并等真实原因，才退出当前使用。
+
+### 12.4 车型固定属性纠错后的当前值与历史边界
+
+对于由具体 `vehicle_model_id` **唯一确定**的车型级固定属性，例如：
+
+- 车型年款；
+- 排量；
+- 变速箱；
+- 排放；
+- 能源类型；
+- 其他由该具体车型主数据唯一确定的固定车型属性；
+
+当前规则采用用户确认的 **5A**：
+
+> **当前值跟随当前有效车型主数据；历史事实与已形成快照不追改。**
+
+具体规则：
+
+1. System Admin 修正当前有效车型主档后，引用该 `vehicle_model_id` 的车辆当前车型级投影同步体现修正后的有效主数据；
+2. 不要求逐车手工修正这些由车型唯一确定的固定属性；
+3. 单辆人工 Vehicle 不应任意独立改写这类“车型唯一确定属性”；发现错误应优先修正车型主档或 mapping，而不是制造单车例外；
+4. 已经形成的 Recommendation、Lock、Transaction、成交记录、价格/业务快照及其他历史快照不得因为主档纠错被追溯改写；
+5. JYT 原始 source facts 永远独立保留，不因本地车型主档修正被反向覆盖；
+6. 首次上牌时间、里程、颜色、车况等单车事实不是车型主档固定属性，继续按 Vehicle 自身事实维护，不随车型主档变化。
+
+因此必须区分：
+
+> **当前车型主数据纠错** 与 **历史业务事实重写**。
+
+前者允许并应生效；后者禁止。
 
 ---
 
@@ -285,15 +348,55 @@ JYT 已提供的来源车型事实永久与本地车型字典归属分层。
 
 ---
 
-## 15. 与 PDM-06 的边界
+## 15. Cross-PDM 承接状态
 
-以下内容继续留给 PDM-06 人工车辆发布规则核对：
+### 15.1 PDM-06｜人工发布字段联动｜HANDOFF_CLOSED
 
-- 人工选择具体车型后，如何自动带出年款 / 排量 / 变速箱 / 排放 / 能源等固定属性；
-- 人工发布字段必填 / 可选边界；
-- 草稿恢复与正式发布交互。
+PDM-05 历史移交给 PDM-06 的人工发布事项已经完成，不再显示为“留后续”。
 
-PDM-06 可以补充人工发布字段联动，但不得静默推翻本 PDM 已确认的车型主数据结构、权限、JYT source mapping 与未映射搜索/Matching 规则。
+PDM-06 当前已冻结：
+
+- 人工选择有效具体车型 / `vehicle_model_id` 后，自动带出当前车型主数据已确定的车型年款、排量、变速箱、排放、能源等固定属性；
+- 不要求销售重复录入已经由具体车型唯一确定的固定属性；
+- `MODEL_MISSING` 处理期间保留原草稿与已填内容；
+- System Admin 补齐 / 绑定车型后返回触发流程的原始 `draft_id`；
+- 自动带回已确认 / 新增的有效具体车型，并重新执行正式发布校验；
+- 正式发布最低字段、可选字段、多草稿及正式发布动作继续按 PDM-06 Final。
+
+2026-10-05 进一步关闭 PDM-06 §8A 原来反向留回车型域的“主档纠错后已发布车辆如何显示”问题：
+
+> 采用本文件 §12.4 的 5A——当前车型级固定属性跟随当前有效车型主档；历史业务快照和 JYT 原始 source facts 不追改。
+
+状态：
+
+> `HO-P05-P06-001 = HANDOFF_CLOSED / source_backwrite = YES`
+
+### 15.2 仍待后续 PDM 承接
+
+- PDM-12｜`HANDOFF_OPEN`：Matching 必须使用已确认的 JYT 车辆车型事实；不得只因本地 `vehicle_model_id=NULL / mapping pending` 就自动降为 unknown；
+- PDM-20｜`HANDOFF_OPEN`：客户端车型搜索 / 筛选 / 年款分组；年款只能作为分组/条件，不得投影成第四级主数据；车型年款与首次上牌年份必须分离；
+- PDM-21｜`HANDOFF_OPEN`：员工端车型选择、MODEL_MISSING、固定属性自动带出与对应状态展示；
+- PDM-22｜`HANDOFF_OPEN`：System Admin 车型主数据、JYT mapping、冲突、MODEL_MISSING、重复车型合并等 PC 治理页面；
+- PDM-25｜`HANDOFF_OPEN`：mapping before/after、车型节点修正、合并迁移、主档纠错与历史不可追改的统一审计 / 历史标准。
+
+上述 handoff 统一登记到：
+
+> `07_重建工作区/CROSS_PDM_HANDOFF_REGISTER.md`
+
+### 15.3 IA / Low-Fi stale carrier
+
+本轮确认但当前不修改的旧承载至少包括：
+
+- “完整车型名称完全一致 → 自动 mapping”的旧主规则；
+- `no model creation is inferred`，与 System Admin 可新增缺失品牌 / 车系 / 具体车型并绑定的当前规则冲突；
+- 页面把“年款”表现得像第四级主数据节点的语义风险；
+- mapping pending / conflict 时把 JYT 已明确车型事实错误降为 unknown、从而阻止精确搜索 / Matching 的旧 carrier。
+
+统一登记：
+
+> `STALE_CARRIER / DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT`
+
+IA / Low-Fi 不具有反向覆盖当前 PDM Final 的产品 Authority。
 
 ---
 
@@ -301,12 +404,31 @@ PDM-06 可以补充人工发布字段联动，但不得静默推翻本 PDM 已�
 
 PDM-05 Batch 1～4 与最终完整规则总览均已完成用户明确批准。
 
+2026-10-05 Legacy Final Integrity Audit 关闭 7 组问题；其中用户明确选择：
+
+- **4A**：车型主数据治理正式归 System Admin 控制平面，`vehicle.model.manage` 作为治理能力 Guard；
+- **5A**：车型唯一确定的固定属性当前值跟随有效车型主档纠错，历史业务快照与 JYT 原始 source facts 不追改。
+
 当前状态：
 
-> `COMPLETE`
+> **`COMPLETE / INTEGRITY_PASS`**
+
+```text
+MISSING_RULE_UNRESOLVED = 0
+SEMANTIC_DETAIL_GAP_UNRESOLVED = 0
+CROSS_PDM_CONFLICT = 0
+HANDOFF_GAP_UNRESOLVED = 0
+GLOBAL_INVARIANT_CONFLICT = 0
+SOURCE_DECISION_COVERAGE = 100%
+FINAL_TO_SOURCE_TRACEABILITY = 100%
+SEMANTIC_INTEGRITY = PASS
+NEGATIVE_CLAIMS_VERIFIED = PASS
+IMPLEMENTATION_READY = PASS
+HANDOFF_REGISTER_SYNC = PASS
+```
 
 本文件作为 PDM-05 当前正式规则。后续 PDM 可以补充各自业务域，但不得静默推翻本文件已确认规则；发现真实跨域冲突时必须重新显式提交用户裁决。
 
-下一业务域进入：
+下一审计域进入：
 
-> **PDM-06｜人工车辆发布 / 草稿 / VIN / 删除边界**
+> **PDM-06｜Legacy Final Integrity Audit**
