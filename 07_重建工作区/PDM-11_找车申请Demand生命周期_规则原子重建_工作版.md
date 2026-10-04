@@ -410,6 +410,8 @@ PDM-01 在 2026-10-04 已由用户明确改为轻量停用：
 ## 9. Batch 2｜明确废弃 / 被替代规则｜待用户审查
 
 > 本批只处理已经有明确废弃、被替代或与当前已批准 Authority 冲突的旧方向；不把 Batch 4 的真实冲突混入本批。
+>
+> **P11-B2-08 已由用户单独修正并确认；Batch 2 其余 9 条继续等待用户审查。**
 
 ### P11-B2-01｜禁止“提交 Application 就无条件直接生成 active Demand”
 
@@ -474,19 +476,58 @@ completed / cancelled Demand 属于终态历史。
 
 **状态：** `DEPRECATED_CONCEPT / USER_REVIEW_PENDING`
 
-### P11-B2-08｜禁止找车权益下降自动结束已 active Demand
+### P11-B2-08｜找车权益下降后的既有 Demand 处理｜用户修正并确认
 
-客户等级下降、等级权益调整或 Customer 级找车资格失效，不得自动把已经 active 的 Demand：
+原候选“找车权益下降不得自动影响已 active Demand”被用户主动否决并撤回。
 
-- pause；
-- complete；
-- cancel。
+当前正式口径改为：
 
-权益层只影响“能否新建 / 激活新的正式持续找车服务”；已经进入 Demand 生命周期的对象只能通过正式状态动作改变。
+> **找车权益下降 / 被取消后，权益立即停止生效；既有 active Demand 自动转为 paused，但 Demand 本体、条件和全部历史继续保留。**
 
-本条不预判 `P11-B4-02` 的最终资格来源模型。
+具体规则：
 
-**状态：** `DEPRECATED_CROSS_OBJECT_AUTOMATION / USER_REVIEW_PENDING`
+1. 找车权益下降 / 关闭后，不允许新建或激活新的正式 Demand；
+2. 当前 `active Demand` 自动转为 `paused`，停止继续进入 active Matching；
+3. 原本已经 `paused` 的 Demand 继续保持 paused；
+4. `completed / cancelled` 历史 Demand 不受影响，不恢复、不改写；
+5. pending Application 可以继续保留，但权益恢复前不得激活为正式 Demand；
+6. Demand 本体不得删除，以下事实与历史全部保留：
+   - 客户原始找车要求；
+   - 销售匹配描述；
+   - 标准匹配条件；
+   - 需求说明 / 背景；
+   - 历史匹配结果；
+   - 历史 Recommendation；
+   - CRM 跟进关联；
+   - 状态与负责人历史；
+7. 找车权益以后重新恢复时，**不得自动把 paused Demand 恢复为 active**；
+8. 权益恢复只恢复“可以继续正式找车服务”的资格；客户本人或有权限员工必须执行正式“恢复”动作，原 Demand 才重新进入 `active`；
+9. 恢复动作继续服从当前身份、permission、data scope、Demand 当前状态等 Guard；
+10. 权益恢复后重新 active，再按当前 Matching readiness / PDM-12 规则决定是否重新进入持续 Matching。
+
+### 与 Customer 账号停用的边界
+
+`找车权益下降 / 取消` 与 `Customer 账号停用` 是两个不同业务事件：
+
+- 本条只处理正式找车 entitlement 的下降 / 关闭；
+- Customer 账号停用继续继承 PDM-01 与 `HO-P01-P11-001`：**停用本身不得自动 pause / complete / cancel 既有 Demand**；
+- 账号停用也不等于自动降低客户等级或删除找车 entitlement；
+- 不得用“账号停用”偷偷触发本条的 entitlement-down 自动 pause 逻辑。
+
+### 被替代旧方向
+
+以下旧方向不得恢复：
+
+- 找车权益已经下降，但 active Demand 仍无条件继续 active Matching；
+- 权益下降时直接删除 / cancel / complete 既有 Demand；
+- 权益恢复时自动恢复全部 paused Demand；
+- 权益变化抹掉历史匹配 / 推荐 / 跟进 / 条件。
+
+本条不预判 `P11-B4-02` 最终采用哪一种“找车资格来源模型”；无论资格来源最终如何裁决，只要当前有效找车 entitlement 从有效变为无效，就适用本条生命周期效果。
+
+**用户裁决：** 2026-10-05 用户明确同意，并随后“确认执行”。
+
+**状态：** `USER_MODIFIED / USER_APPROVED / SUPERSEDES_PREVIOUS_B2_08_CANDIDATE`
 
 ### P11-B2-09｜禁止客户原始自然语言直接经 AI 猜测成为正式 Matching 条件
 
