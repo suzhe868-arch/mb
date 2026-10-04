@@ -25,7 +25,7 @@
 
 ---
 
-## 2. PDM-01～PDM-09 Integrity 问题总览
+## 2. PDM-01～PDM-10 Integrity 问题总览
 
 ### 2.1 PDM-01｜6 组｜已全部关闭
 
@@ -157,6 +157,18 @@ PDM-08 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | P09-LIA-05 | IA/Low-Fi/旧实现仍有 Collector 旧方向、publisher_id 泛化、集成权限=电话明文权限等 stale carrier | RESOLVED / CARRIER_DEFERRED |
 
 PDM-09 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
+
+### 2.10 PDM-10｜5 组｜已全部关闭
+
+| ID | Integrity 问题 | 最终状态 |
+|---|---|---|
+| P10-LIA-01 | PDM-01→PDM-10 Customer 停用 handoff 在 Register 已 CLOSED，但 PDM-10 Final 未真正写入“暂停能力、不删除权利” | RESOLVED / HANDOFF_CLOSED_TRUE_BACKWRITE |
+| P10-LIA-02 | M11-001 `DAILY_PRICE_QUOTA_EXHAUSTED → 联系顾问` 未进入 Final，且与“查看价格 / 价格咨询”状态未严格分层 | RESOLVED |
+| P10-LIA-03 | UNLIMITED 与当天临时追加额度关系未定义 | RESOLVED / USER_DECISION_3A |
+| P10-LIA-04 | PDM-14/18/20/21/22/25 future handoff 未按正式状态机登记 | RESOLVED / HANDOFF_OPEN_REGISTERED |
+| P10-LIA-05 | 价格域 Current/Low-Fi 仍有 4S internal mode、旧调价、override、quota/level config 等 stale carrier | RESOLVED / CARRIER_DEFERRED |
+
+PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
@@ -321,7 +333,20 @@ PDM-09 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
-## 12. Post-PDM25 IA / Low-Fi Carrier Ledger｜PDM-01～09
+## 12. PDM-10 来源 handoff
+
+| handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
+|---|---|---|---|---|---|
+| HO-P10-P14-001 | PDM-14 | Recommendation 免费授当前 `customer + vehicle + listing_cycle` 批发查价权；Recommendation 结束、owner/负责人变化、原销售离职均不追回本周期已授权利 | HANDOFF_OPEN | - | YES |
+| HO-P10-P18-001 | PDM-18 | Lock 创建时冻结必要价格快照；后续上游调价、阶梯、覆盖价、人工价格或 source_type 变化不得回写既有 Lock 快照 | HANDOFF_OPEN | - | YES |
+| HO-P10-P20-001 | PDM-20 | 客户端查看价格/价格咨询/DAILY_PRICE_QUOTA_EXHAUSTED→联系顾问/LIMITED/UNLIMITED/万单位/未解锁真实价筛选排序但 payload 不泄露/Customer 停用暂停价格权益 | HANDOFF_OPEN | - | YES |
+| HO-P10-P21-001 | PDM-21 | 员工端正常价格字段保存修改、internal-price permission、override、临时追加、UNLIMITED 禁止追加、4S 正常价格编辑与 hard DENY 的真实交互投影 | HANDOFF_OPEN | - | YES |
+| HO-P10-P22-001 | PDM-22 | 阶梯加价、markup ON/OFF、等级 LIMITED/UNLIMITED、daily base quota、permission 与业务配置后台承载 | HANDOFF_OPEN | - | YES |
+| HO-P10-P25-001 | PDM-25 | price/override/temp quota/risk/conversion snapshot/level entitlement config 等统一审计与历史 | HANDOFF_OPEN | - | YES |
+
+---
+
+## 13. Post-PDM25 IA / Low-Fi Carrier Ledger｜PDM-01～10
 
 > 当前只登记，不施工；统一在 PDM-25 完成 + PDM-01～25 全局最终总复核 PASS 后集中对齐。
 
@@ -376,10 +401,19 @@ PDM-09 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | PDM-09 | P03-05/旧 CR-007 存在把 integration.collector.manage 等集成管理能力误解成电话明文权限的风险 | CARRIER_DEFERRED |
 | PDM-09 | PHONE_UNAVAILABLE 未完整区分“本次无有效新号码但旧缓存仍存在”与“完全无缓存” | CARRIER_DEFERRED |
 | PDM-09 | 3A 批发→名邦/4S 后电话入口关闭缺 Current/Low-Fi source_type 投影 | CARRIER_DEFERRED |
+| PDM-10 | 4S member internal mode 整体 DENY 仍可能阻断本人有权 4S 车辆价格管理 | CARRIER_DEFERRED |
+| PDM-10 | internal-price permission 的角色投影与当前独立可配置 permission 模型不完全一致 | CARRIER_DEFERRED |
+| PDM-10 | 独立调价 permission/action 旧 carrier 残留 | CARRIER_DEFERRED |
+| PDM-10 | 员工端 customer display override 真实入口不完整 | CARRIER_DEFERRED |
+| PDM-10 | P08 价格后台仍偏通用 CRUD，LIMITED/UNLIMITED、markup、quota 等真实配置投影不完整 | CARRIER_DEFERRED |
+| PDM-10 | 临时增加当天查价次数员工入口不完整 | CARRIER_DEFERRED |
+| PDM-10 | DAILY_PRICE_QUOTA_EXHAUSTED→联系顾问缺完整 Current/Low-Fi 投影 | CARRIER_DEFERRED |
+| PDM-10 | Customer 停用后的价格权益暂停缺独立价格状态投影 | CARRIER_DEFERRED |
+| PDM-10 | 3A UNLIMITED/temp additions 切换规则缺 Current/Low-Fi 状态投影 | CARRIER_DEFERRED |
 
 ---
 
-## 13. 强制使用规则
+## 14. 强制使用规则
 
 1. 新 PDM 开始：先筛 `target=当前 PDM AND status in {HANDOFF_OPEN,HANDOFF_ACCEPTED}`。
 2. 目标 PDM 接收：更新为 `HANDOFF_ACCEPTED`。
@@ -391,7 +425,7 @@ PDM-09 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
-## 14. 当前下一步
+## 15. 当前下一步
 
 - PDM-01：INTEGRITY_PASS；
 - PDM-02：INTEGRITY_PASS；
@@ -402,5 +436,6 @@ PDM-09 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-07：INTEGRITY_PASS；
 - PDM-08：INTEGRITY_PASS；
 - PDM-09：INTEGRITY_PASS；
-- 当前进入：PDM-10 Legacy Final Integrity Audit；
+- PDM-10：INTEGRITY_PASS；
+- 当前进入：GLOBAL_PDM01_10_CROSS_PDM_AUDIT；
 - PDM-11 继续 BLOCKED，直到 PDM-01～10 全部 INTEGRITY_PASS 且 01～10 全局总复核 PASS。
