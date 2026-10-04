@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Run PDM-11 full Decision Coverage, Missing Rule, Semantic Detail, Cross-PDM and Handoff integrity review and prepare Final candidate",
+  "current_task": "Generate and review PDM-11 final complete rule overview for user approval",
   "current_work_file": "07_重建工作区/PDM-11_找车申请Demand生命周期_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -71,7 +71,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-11_POST_BATCH4_INTEGRITY_REVIEW",
+  "current_review_batch": "PDM-11_FINAL_OVERVIEW_USER_REVIEW",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -915,7 +915,7 @@
     "global_pdm01_10_cross_pdm_audit_file": "07_重建工作区/PDM-01至10_全局Cross-PDM_Handoff_GlobalInvariant总复核_2026-10-05.md",
     "next_domain": "PDM-11"
   },
-  "pdm_11_status": "IN_PROGRESS_BATCH_1_TO_4_APPROVED_FINAL_INTEGRITY_REVIEW_PENDING",
+  "pdm_11_status": "IN_PROGRESS_FINAL_CANDIDATE_READY_USER_FINAL_APPROVAL_PENDING",
   "pdm_01_integrity_status": "INTEGRITY_PASS",
   "pdm_01_integrity_audit_file": "07_重建工作区/PDM-01_历史最终版完整性复核_2026-10-04.md",
   "pdm_01_integrity_reopen_count": 6,
@@ -1272,7 +1272,7 @@
     "P11-B4-02"
   ],
   "pdm_11_batch_4_pending_atoms": [],
-  "pdm_11_next_gate": "FULL_DECISION_COVERAGE_AND_INTEGRITY_REVIEW",
+  "pdm_11_next_gate": "FINAL_OVERVIEW_USER_APPROVAL",
   "pdm_11_future_handoffs": [
     "HO-P11-P12-001",
     "HO-P11-P13-001",
@@ -1283,5 +1283,17 @@
     "HO-P11-P21-001",
     "HO-P11-P22-001",
     "HO-P11-P25-001"
-  ]
+  ],
+  "pdm_11_pre_final_integrity_status": "PASS",
+  "pdm_11_final_candidate_status": "READY",
+  "pdm_11_integrity_resolved_items": [
+    "P11-LIA-01_APPLICATION_OWNER_POOL_GUARD",
+    "P11-LIA-02_PENDING_APPLICATION_PUBLIC_POOL_PROTECTION",
+    "P11-LIA-03_BIDIRECTIONAL_END_FLOW",
+    "P11-LIA-04_DEMAND_CREATED_AT",
+    "P11-LIA-05_DYNAMIC_LEVEL_ENTITLEMENT_COPY",
+    "P11-LIA-06_EXPANDED_HANDOFFS",
+    "P11-LIA-07_CURRENT_AND_DECISION_GATE_STALE"
+  ],
+  "pdm_11_end_flow": "CUSTOMER_REQUESTS_END_EMPLOYEE_CONFIRMS_COMPLETED_OR_CANCELLED_EMPLOYEE_MAY_DIRECTLY_END_NO_FIFTH_MAIN_STATE"
 }
