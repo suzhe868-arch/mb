@@ -32,14 +32,14 @@
 
 当前唯一下一步：
 
-> **PDM-11 已建立工作版并承接 `HO-P01-P11-001 = HANDOFF_ACCEPTED`；当前唯一下一步：用户审查 Batch 1 的 P11-A01～P11-A14。未经用户确认不得进入 Batch 2。IA / Low-Fi 仍统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。**
+> **PDM-11 已建立工作版并承接 `HO-P01-P11-001 = HANDOFF_ACCEPTED`；当前唯一下一步：用户审查 Batch 1 的 P11-A01～P11-A13。未经用户确认不得进入 Batch 2。IA / Low-Fi 仍统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。**
 
 ## 2026-10-05｜PDM-11 启动与证据重建完成
 
 - 已读取并承接 `HO-P01-P11-001`，状态从 `HANDOFF_OPEN` → `HANDOFF_ACCEPTED`；
 - 已建立 PDM-11 Completed-PDM Dependency Card、术语表、Current Implementation Fact 卡；
 - 已重新读取 9/06 SSOT / Decision、9/19 C2 / R10 / R12、IA V5、实际 Low-Fi、M03/M16/M17、已完成 PDM Final；
-- 已形成 Batch 1 稳定一致候选 `P11-A01～P11-A14`；
+- 已形成 Batch 1 稳定一致候选 `P11-A01～P11-A13`；
 - 已识别真实历史冲突：找车权益客户是否可直接激活 Demand vs 9/19 统一 pending 后由员工激活，暂挂 Batch 4，不静默选择；
 - 已识别找车资格来源模型缺口，暂挂 Batch 4；
 - Customer 轻量停用不终止既有 Demand 属于 PDM-01 后续明确知情修改，预挂 Batch 3；
