@@ -97,6 +97,7 @@ System Admin 可以在后台治理：
 - 设置 / 调整 data scope；
 - 配置接客资格、接客状态；
 - 直接执行 Customer 账号停用 / 恢复这一控制平面治理动作；
+- 按 PDM-05 当前规则执行车型主数据 / JYT source mapping / MODEL_MISSING / 映射冲突 / 重复车型等控制平面治理；该域以 `vehicle.model.manage` 作为治理能力 Guard；
 - 其他员工与权限治理项。
 
 ### 6.3 配置权 ≠ 业务执行权
@@ -104,8 +105,9 @@ System Admin 可以在后台治理：
 1. System Admin 能给员工配置某项业务 permission，不等于 System Admin 自己拥有该业务执行能力。
 2. 同一真人需要亲自做销售、CRM、车辆经营、Lock、Transaction 等业务时，仍必须切换到独立员工身份。
 3. Customer 账号停用 / 恢复属于控制平面治理动作，不视为销售 / CRM / owner / Lock / Transaction 业务执行；System Admin 可以直接执行，但不会因此取得这些业务能力或 Customer owner 身份。
-4. System Admin 不能通过配置或治理动作绕过产品级 hard DENY。
-5. 所有账号、角色、permission、data scope、接客配置、Customer 账号停用 / 恢复等治理变更必须保留审计。
+4. 车型主数据 / JYT mapping 治理同样属于 PDM-05 明确的控制平面治理动作，不视为普通 Vehicle 销售经营或车辆编辑能力；System Admin 执行该治理不会因此获得销售 / CRM / owner / Lock / Transaction 等员工业务执行权。
+5. System Admin 不能通过配置或治理动作绕过产品级 hard DENY。
+6. 所有账号、角色、permission、data scope、接客配置、Customer 账号停用 / 恢复、车型主数据 / mapping 等治理变更必须保留审计。
 
 ### 6.4 System Admin 自身治理
 
