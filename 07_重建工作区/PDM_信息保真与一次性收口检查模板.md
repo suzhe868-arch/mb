@@ -126,24 +126,47 @@
 
 ---
 
-## H. Deferred Handoff Ledger
+## H. Cross-PDM Handoff 双向闭环
+
+统一总账：
+
+> `07_重建工作区/CROSS_PDM_HANDOFF_REGISTER.md`
+
+开始当前 PDM 前：
+
+- [ ] 已重新读取 Cross-PDM Handoff Register
+- [ ] 已筛选所有 `target = 当前 PDM` 的 `HANDOFF_OPEN / HANDOFF_ACCEPTED`
+- [ ] 已检查来源 PDM 是否存在“目标其实已完成但来源仍显示留后续”的 stale handoff
 
 ### 指向当前 PDM 的 handoff
 
-| 来源 PDM | Source Atom / Decision | 完整语义 | 必须承接的 Guard | 状态 |
-|---|---|---|---|---|
-|  |  |  |  | PENDING/ACCEPTED/RESOLVED |
+| handoff_id | 来源 PDM | Source Atom / Decision | 完整语义 | 必须承接的 Guard | 当前状态 | 本 PDM 去向 |
+|---|---|---|---|---|---|---|
+|  |  |  |  |  | HANDOFF_OPEN/HANDOFF_ACCEPTED |  |
 
 ### 当前 PDM 新产生的 handoff
 
-| 当前 Atom | 目标 PDM | 完整移交语义 | 目标必须承接的 Guard | 状态 |
-|---|---|---|---|---|
-|  |  |  |  | PENDING |
+| handoff_id | 当前 Atom | 目标 PDM | 完整移交语义 | 目标必须承接的 Guard | 状态 |
+|---|---|---|---|---|---|
+|  |  |  |  |  | HANDOFF_OPEN |
 
-Final 前：
+### 本 PDM 关闭的 incoming handoff
 
-- [ ] 指向当前 PDM 的所有 handoff 已 RESOLVED
-- [ ] 没有只写“后续处理”而没有目标和完整语义
+| handoff_id | 最终状态 | 目标 Authority / Final 条款 | Register 已更新 | 来源 Final 已反向回写 | 来源 Integrity 报告已同步 |
+|---|---|---|---|---|---|
+|  | HANDOFF_CLOSED/HANDOFF_SUPERSEDED |  | YES/NO | YES/NO | YES/NO/N/A |
+
+Final / Integrity Gate 前：
+
+- [ ] 指向当前 PDM 的所有 incoming handoff 均已 CLOSED 或 SUPERSEDED
+- [ ] 当前新产生的 outgoing handoff 均已完整登记，不存在只写“后续处理”
+- [ ] 所有本 PDM 关闭/替代的 handoff 已反向回写来源 PDM
+- [ ] 不存在目标已 COMPLETE 但来源仍显示 OPEN 的 stale handoff
+- [ ] `HANDOFF_REGISTER_SYNC = PASS`
+
+说明：
+
+> 指向尚未开始未来 PDM 的合法 `HANDOFF_OPEN` 可以存在，不计入遗漏；但必须在 Register 完整登记。
 
 ---
 
@@ -275,6 +298,7 @@ SOURCE_DECISION_COVERAGE = 100%
 UNMAPPED = 0
 FINAL_TO_SOURCE_TRACEABILITY = 100%
 DEFERRED_HANDOFF_UNRESOLVED = 0
+HANDOFF_REGISTER_SYNC = PASS
 CROSS_PDM_CONFLICT = 0
 GLOBAL_INVARIANT_CONFLICT = 0
 SEMANTIC_INTEGRITY = PASS
@@ -289,6 +313,7 @@ IMPLEMENTATION_READY = PASS
 - UNMAPPED =
 - FINAL_TO_SOURCE_TRACEABILITY =
 - DEFERRED_HANDOFF_UNRESOLVED =
+- HANDOFF_REGISTER_SYNC =
 - CROSS_PDM_CONFLICT =
 - GLOBAL_INVARIANT_CONFLICT =
 - SEMANTIC_INTEGRITY =
@@ -354,7 +379,7 @@ IMPLEMENTATION_READY = PASS
 检查：
 - [ ] 后 PDM 未静默覆盖前 PDM
 - [ ] supersession 已写入旧 Final / Decision
-- [ ] handoff 有目标、有完整 Guard、有接收状态
+- [ ] handoff 已登记到 Cross-PDM Handoff Register，且 CLOSED/SUPERSEDED 后已反向回写来源
 - [ ] stale rule / stale carrier 已登记
 
 ### P4. Legacy Audit Result
