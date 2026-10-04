@@ -8,8 +8,8 @@
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "PDM-11",
-  "current_domain_status": "NOT_STARTED_PREPARATION",
+  "current_domain": "PDM-01-10-INTEGRITY-AUDIT",
+  "current_domain_status": "IN_PROGRESS_START_FROM_PDM-01",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,15 +20,16 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Prepare PDM-11 Demand authority refresh, handoff ledger, dependency card, and evidence scan before Batch 1",
-  "current_work_file": null,
+  "current_task": "Audit PDM-01 through PDM-10 for missing rules, semantic detail gaps, cross-PDM conflicts, stale rules, and handoff gaps before PDM-11",
+  "current_work_file": "07_重建工作区/PDM-01至10_全域完整性复核_总控工作单.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
-    "Auto-approve PDM-11 rule atoms",
-    "Start PDM-11 Batch 1 before Current Authority Refresh and Completed-PDM Dependency Card",
-    "Silently override confirmed PDM-10 price, price-check, quota, override, permission, or listing-cycle rules",
+    "Start PDM-11 Batch 1 before PDM-01 through PDM-10 legacy integrity audit passes",
+    "Treat historical COMPLETE as proof of current semantic integrity",
+    "Audit only current Final text without re-scanning original evidence for missing rules",
+    "Rebuild all PDM-01 through PDM-10 mechanically; reopen only actual gaps/conflicts",
     "Use prior chat memory or summaries as a substitute for current repository evidence",
     "Modify IA",
     "Modify Low-Fi",
@@ -70,7 +71,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PREPARATION",
+  "current_review_batch": "PDM-01_INTEGRITY_AUDIT",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -537,7 +538,7 @@
     "P08-A13"
   ],
   "current_phase": "PRODUCT_BASELINE_REBUILD",
-  "current_process": "PDM11_PREPARATION_READY",
+  "current_process": "LEGACY_FINAL_INTEGRITY_AUDIT",
   "reverse_coverage_audit_01_07_status": "COMPLETE_UNMAPPED_ZERO",
   "reverse_coverage_audit_01_07_report": "07_重建工作区/PDM-01至07_反向覆盖校验报告_2026-09-25.md",
   "reverse_coverage_unmapped_count": 0,
@@ -830,5 +831,54 @@
       "topic": "Price/override/quota/risk/conversion audit standards",
       "status": "ACCEPTED_FOR_TARGET"
     }
-  ]
+  ],
+  "legacy_final_integrity_audit": {
+    "scope": [
+      "PDM-01",
+      "PDM-02",
+      "PDM-03",
+      "PDM-04",
+      "PDM-05",
+      "PDM-06",
+      "PDM-07",
+      "PDM-08",
+      "PDM-09",
+      "PDM-10"
+    ],
+    "status": "IN_PROGRESS",
+    "start_domain": "PDM-01",
+    "sequence": [
+      "PDM-01",
+      "PDM-02",
+      "PDM-03",
+      "PDM-04",
+      "PDM-05",
+      "PDM-06",
+      "PDM-07",
+      "PDM-08",
+      "PDM-09",
+      "PDM-10",
+      "GLOBAL_PDM01_10_CROSS_PDM_AUDIT"
+    ],
+    "required_layers": [
+      "MISSING_RULE_AUDIT",
+      "SEMANTIC_DETAIL_AUDIT",
+      "CROSS_PDM_INTEGRITY_AUDIT"
+    ],
+    "per_pdm_pass_gate": {
+      "missing_rule_unresolved": 0,
+      "semantic_detail_gap_unresolved": 0,
+      "cross_pdm_conflict": 0,
+      "handoff_gap_unresolved": 0,
+      "global_invariant_conflict": 0,
+      "source_decision_coverage": "100%",
+      "final_to_source_traceability": "100%",
+      "semantic_integrity": "PASS",
+      "negative_claims_verified": "PASS",
+      "implementation_ready": "PASS"
+    },
+    "pdm_11_blocked": true,
+    "pdm_11_unblock_condition": "ALL_PDM01_10_INTEGRITY_PASS_AND_GLOBAL_CROSS_PDM_AUDIT_PASS"
+  },
+  "pdm_11_status": "BLOCKED_BY_PDM01_10_LEGACY_INTEGRITY_AUDIT"
 }
