@@ -26,7 +26,7 @@
 - PDM-11 Batch 2 = PASS / USER_APPROVED
 - P11-B2-08 = USER_MODIFIED / USER_APPROVED
 - PDM-11 Batch 3 = PASS / USER_APPROVED（P11-B3-01 用户修正版）
-- PDM-11 Batch 4 = USER_REVIEW_PENDING（P11-B4-01、P11-B4-02）
+- PDM-11 Batch 4 = PASS / USER_APPROVED（P11-B4-01、P11-B4-02）
 
 总控工作单：
 
@@ -34,7 +34,7 @@
 
 ## 当前唯一下一步
 
-> **审查 PDM-11 Batch 4：P11-B4-01（Application→Demand 激活时机）与 P11-B4-02（正式找车 entitlement 来源模型）。两项未裁决前不得形成 PDM-11 Final。**
+> **执行 PDM-11 全量 Decision Coverage / Missing Rule / Semantic Detail / Cross-PDM / Handoff 完整性复核，形成 Final 候选。重点验证 Customer Level 权益、PDM-10 价格联动、人工激活、普通客户找车提示与 future handoff 均无遗漏。未经用户最终批准不得标记 PDM-11 COMPLETE。**
 
 每个 PDM 必须同时执行：
 
