@@ -565,24 +565,63 @@ active 名邦员工只要：
 
 ---
 
-## 20. 与其他 PDM 的边界
+## 20. 与其他 PDM 的跨域承接状态
 
 PDM-04 当前只冻结车辆 / 车源 / 来源 / listing cycle / hidden / 一键转名邦的业务底座。
 
-以下细节留对应 PDM：
+### 20.1 已完成承接
 
-- 车型主数据、JYT 车型映射 → PDM-05；
-- 人工车辆草稿 / 发布 / VIN / 删除边界 → PDM-06；
-- 车辆档案 / 车况 → PDM-07；
-- 图片 URL / 本地化 / 转存 / 失败重试 → PDM-08；
-- 上游发布人电话 → PDM-09；
-- 价格复制、批发价、展示价、覆盖价 → PDM-10；
-- Matching / Priority / Recommendation 对 hidden 的受控可见性 → PDM-12～PDM-14；
-- Lock / Waitlist 的完整生命周期 → PDM-18；
-- Transaction / Refund / correction → PDM-19；
-- 客户端 / 员工端具体页面交互 → PDM-20 / PDM-21；
-- PC 配置入口与管理界面 → PDM-22；
-- 统一审计横切规则 → PDM-25。
+以下目标 PDM 已经 COMPLETE，不再继续显示为“以后再做”：
+
+1. **PDM-05｜车型主数据 / JYT 车型映射｜HANDOFF_CLOSED**
+   - JYT `model_id` 通过 source mapping 解析到本地 `vehicle_model_id`；
+   - 无法映射时不得丢失 JYT 车辆 / source facts；
+   - 当 JYT 自身车型事实足够明确时，不应仅因本地映射缺失错误阻断允许的精确检索 / 业务判断；
+   - 车型主数据 / mapping 的管理继续由 PDM-05 当前权限规则控制。
+2. **PDM-06｜人工车辆草稿 / 发布 / VIN / 删除 / source_type｜HANDOFF_CLOSED**
+   - 人工入口只创建名邦 / 4S，批发只能由集成产生；
+   - 名邦员工按权限可发布名邦或 4S，4S 成员固定发布 4S；
+   - 正式人工车名邦 ↔ 4S 的 source_type 修改继续继承本 PDM 的同 vehicle / 历史保留规则；
+   - 已正式发布 Vehicle 不恢复普通物理删除。
+3. **PDM-07｜车辆档案 / 车况｜HANDOFF_CLOSED**
+   - 车辆档案、车况、报告与客户可见边界由 PDM-07 当前 Final 承接；
+   - 不得反向改写 PDM-04 的 vehicle_id / source_type / listing_cycle / availability 事实。
+4. **PDM-08｜图片 URL / CDN / 资产化 / 失败重试｜HANDOFF_CLOSED**
+   - 批发 → 名邦仍是同一 `vehicle_id`、同一当前 `listing_cycle`；
+   - 来源转换合法完成后，图片资产化作为独立子任务；
+   - 图片 processing / partial_failed / failed 不得回滚车辆来源转换，不得改回批发，不得重建 vehicle_id / listing_cycle；
+   - 失败图片可以后续重试，既有 Lock / Transaction / Favorite / Recommendation 等关系不受图片子任务结果影响。
+5. **PDM-09｜上游发布人电话｜HANDOFF_CLOSED**
+   - 上游电话按当前 `source_platform + upstream_publisher_id` 等 PDM-09 当前规则定位；
+   - `car_code` 只属于车辆 / 来源身份语境，不得重新作为电话获取唯一依据；
+   - Internal Mode 本身不授电话能力。
+6. **PDM-10｜价格 / 查价 / 覆盖价 / 转换价格语义｜HANDOFF_CLOSED**
+   - 一键转名邦保持同一 vehicle_id + 同一 listing_cycle；
+   - 转换前保存当前价格不可变快照；
+   - 转换后停止把 JYT 阶梯计算继续作为名邦当前价格；
+   - 名邦 `customer_list_price` 不自动继承转换前批发客户展示价；
+   - 同周期有效覆盖价与已成立查价权继续按 PDM-10 当前规则生效；
+   - `internal_wholesale_price` 只有存在真实 `upstream_wholesale_price` 时才复制真实值，否则为 null，不得用上游标价或派生 base price 冒充真实内部批发价。
+
+上述已完成事项的目标 Authority 已存在，来源 PDM-04 不得继续把它们写成未知 / 待后续。
+
+### 20.2 仍待后续 PDM 承接
+
+- Matching 对 hidden / availability 的资格与匹配规则 → PDM-12｜`HANDOFF_OPEN`；
+- Priority 对 hidden / exclusive visibility / listing lifecycle 的关系 → PDM-13｜`HANDOFF_OPEN`；
+- Recommendation 对 hidden 单车可见授权与生命周期 → PDM-14｜`HANDOFF_OPEN`；
+- Lock / Waitlist 的完整生命周期 → PDM-18｜`HANDOFF_OPEN`；
+- Transaction / Refund / correction → PDM-19｜`HANDOFF_OPEN`；
+- 客户端具体页面交互 → PDM-20｜`HANDOFF_OPEN`；
+- 员工端具体页面交互 → PDM-21｜`HANDOFF_OPEN`；
+- PC 配置入口与管理界面 → PDM-22｜`HANDOFF_OPEN`；
+- 统一审计横切规则 → PDM-25｜`HANDOFF_OPEN`。
+
+所有正式跨域 handoff 统一以：
+
+> `07_重建工作区/CROSS_PDM_HANDOFF_REGISTER.md`
+
+为状态总账。目标 PDM 关闭 handoff 后必须反向回写本节，禁止再次长期停留在“留后续”。
 
 这些后续 PDM 可以补充自身规则，但不得静默推翻本 PDM 已经用户确认的业务底座；发现真实跨域冲突必须重新显式提交用户裁决。
 
