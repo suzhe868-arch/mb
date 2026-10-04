@@ -6,21 +6,21 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / USER_REVIEW_GATE`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-13_STARTUP_GATE`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
 当前域：
 
-> **PDM-12｜Matching / 匹配词典 / 四级结果 / 人工确认**
+> **PDM-13｜Priority / 仲裁 / TTL / active Lock 边界**
 
 当前域状态：
 
-> `IN_PROGRESS / PREFINAL_INTEGRITY_PASS / FINAL_CANDIDATE_READY`
+> `NOT_STARTED / STARTUP_GATE`
 
 当前工作文件：
 
-> `07_重建工作区/PDM-12_Matching匹配词典四级结果_规则原子重建_工作版.md`
+> `PDM-13 工作版尚未建立；启动时先读取 incoming handoff 与覆盖地图。`
 
 当前已纠正：
 
@@ -32,7 +32,22 @@
 
 当前唯一下一步：
 
-> **PDM-12 Batch 1～4 与 P12-LIA-01～06 已全部通过用户审查并落仓；Final 前二次完整性复核 = PASS。LIA 补齐了“未填=不限”、readiness、confirmation_needed 不排他、Matching 集合进入/退出、active Lock 仍可 Matching、人工确认权限与 PDM-20/PDM-21 carrier 精度；新增 HO-P12-P18-001。当前 `MISSING_RULE_UNRESOLVED=0 / SEMANTIC_DETAIL_GAP_UNRESOLVED=0 / HANDOFF_GAP_UNRESOLVED=0`。下一步生成 PDM-12 Final Domain Overview 提交用户最终批准；IA / Low-Fi 继续延后到 PDM-25 后集中对齐。**
+> **PDM-12 已最终批准并正式发布：`COMPLETE / INTEGRITY_PASS`。44 个正式 Atom 全覆盖，Final→Source PASS；HO-P04/P05/P07/P11→P12 四条 incoming handoff 已全部 CLOSED 并 source backwrite。正式 Authority：`07_重建工作区/PDM-12_最终完整规则.md`。当前唯一下一步：启动 PDM-13，读取全部 target=PDM-13 的 OPEN/ACCEPTED handoff，重建 Priority / 仲裁 / TTL / active Lock Authority；形成 Batch 1 候选后停下提交用户审查。IA / Low-Fi 继续延后到 PDM-25 后集中对齐。**
+
+## 2026-10-05｜PDM-12 Final 用户最终批准并正式发布
+
+- Final Domain Overview：用户最终全部同意；
+- 此前确认执行的执行授权继续有效，已正式发布；
+- 正式 Authority：`07_重建工作区/PDM-12_最终完整规则.md`；
+- 用户批准留痕：`07_重建工作区/PDM-12_最终完整规则总览_待用户批准.md`；
+- 最终完整性报告：`07_重建工作区/PDM-12_最终完整性复核_2026-10-05.md`；
+- 44 个正式 Atom 全部进入 Final；
+- Source→Final / Final→Source / Semantic Completeness / Completed-PDM Invariant / Handoff / Negative Claims = PASS；
+- HO-P04-P12-001 / HO-P05-P12-001 / HO-P07-P12-001 / HO-P11-P12-001 = HANDOFF_CLOSED；
+- PDM-04 / 05 / 07 / 11 Final 已完成 source backwrite；
+- PDM-12 outgoing handoff 到 PDM-13 / 14 / 16 / 18 / 20 / 21 / 22 / 25 继续 OPEN；
+- PDM-12 = `COMPLETE / INTEGRITY_PASS`；
+- 当前进入 PDM-13 启动门禁。
 
 ## 2026-10-05｜PDM-12 Final 前完整性修复与二次复核 PASS
 
