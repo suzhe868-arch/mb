@@ -35,7 +35,7 @@
 
 ## 当前唯一下一步
 
-> **生成并审查 PDM-11《最终完整规则总览_待用户批准》。总览必须覆盖 Application / Demand 双对象、多 Demand、负责人、Customer Level 找车权益、人工激活、Customer disable、双向结束、公海保护、PDM-10 联动与全部 future handoff。未经用户最终批准不得标记 PDM-11 COMPLETE / INTEGRITY_PASS。**
+> **审查 `07_重建工作区/PDM-11_最终完整规则总览_待用户批准.md`。该 Final 候选已经生成，并通过 `PDM-11_Final前完整性复核_2026-10-05.md` 的 Atom→Final 映射检查；未经用户最终批准不得生成正式 Final、关闭 incoming handoff 或标记 PDM-11 COMPLETE / INTEGRITY_PASS。**
 
 每个 PDM 必须同时执行：
 
