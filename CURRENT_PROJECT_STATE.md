@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_3_PASS / USER_APPROVED`
+> `IN_PROGRESS / BATCH_4_PASS / USER_APPROVED / PRE_FINAL_INTEGRITY_PENDING`
 
 当前工作文件：
 
@@ -32,7 +32,21 @@
 
 当前唯一下一步：
 
-> **PDM-12 Batch 1～3 已通过用户审查：P12-A01～A15、P12-B2-01～B2-10、P12-B3-01～B3-07 = USER_APPROVED。Batch 3 已补齐 entitlement 动态重验、Rule Dictionary 真实治理对象、scope priority/冲突处理、正反向与 hard/preferred/tolerance、证据优先级、可解释测试、受影响范围重算；新增 HO-P12-P16-001 交给 PDM-16 承接 Source Radar。下一步进入 Batch 4 真实冲突/缺口/新选择候选；IA / Low-Fi 继续延后到 PDM-25 后集中对齐。**
+> **PDM-12 Batch 1～4 已全部通过用户审查。Batch 4 最终裁决为 1A/2A/3A/4A/5A/6A：价格咨询按预算有无区分、里程仅最高值为 hard、六类字段继续排除 V1 自动四级 Matching、Rule Dictionary 不普通物理删除、partial failure 部分成功保留并禁止 stale Match Result 继续驱动新业务、正式规则写权限使用 matching.rule.manage 且 4S hard DENY。PDM-12 本域 deferred unresolved = 0；outgoing handoff 已登记到 PDM-13/14/16/20/21/22/25。下一步执行 Final 前完整性复核；IA / Low-Fi 继续延后到 PDM-25 后集中对齐。**
+
+## 2026-10-05｜PDM-12 Batch 4 用户批准
+
+- `P12-B4-01～P12-B4-06 = PASS / USER_APPROVED`；
+- 用户裁决：`1A / 2A / 3A / 4A / 5A / 6A`；
+- 无预算 + 价格咨询：价格维度不限；有预算 + 价格咨询：`confirmation_needed`；
+- 里程只把最高可接受里程作为 hard condition，低于表达下限仍可符合；
+- 变速箱 / 配置偏好 / 过户次数 / 城市距离 / 排放标准 / 车源类型继续不参与 V1 自动四级 Matching；
+- Rule Dictionary 正式规则不普通物理删除，只停用/废弃并保留历史审计；
+- partial failure 不整体回滚，成功对象保留新结果，只重试失败集合；失败对象旧 Match Result 不得继续驱动新的 Priority/Recommendation；
+- 新增 `matching.rule.manage`：active 名邦 Employee 受独立 permission 控制，4S hard DENY，System Admin 只配置权限、不因身份自动取得写规则能力；
+- `PDM12_LOCAL_DEFERRED_UNRESOLVED = 0`；
+- outgoing future handoff 已登记到 PDM-13 / 14 / 16 / 20 / 21 / 22 / 25；
+- 当前唯一下一步：PDM-12 Final 前完整性复核。
 
 ## 2026-10-05｜PDM-12 Batch 3 用户批准
 

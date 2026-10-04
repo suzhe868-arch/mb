@@ -389,10 +389,15 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 | handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
 |---|---|---|---|---|---|
+| HO-P12-P13-001 | PDM-13 | PDM-13 只消费 PDM-12 当前合法 Match Result，不复制第二套 Matching Authority；Priority 候选必须基于当前 high/acceptable，confirmation_needed/no_match 不得作为成功匹配；Priority TTL/仲裁/lifecycle 与 Demand.created_at 仲裁语义由 PDM-13 冻结。 | HANDOFF_OPEN | - | YES |
+| HO-P12-P14-001 | PDM-14 | Match Result 与 Recommendation/visibility grant 分离；high/acceptable 不自动创建 Recommendation，不自动授予客户详情可见权；Recommendation 后续 Guard/生命周期由 PDM-14 冻结。 | HANDOFF_OPEN | - | YES |
 | HO-P12-P16-001 | PDM-16 | Rule Dictionary 新增/修改/启停及其他 Matching 关键事实变化后，PDM-12 只对受影响当前在售车辆与 active+matching-ready Demand 做确定性重解析/重算，并向后续消费者提供可追溯的 Matching change fact；PDM-16 的 Source Radar 负责消费这些变化事实形成 Radar Event / 聚合 / 工作台投影，不得在 PDM-16 复制第二套 Matching 规则或反向覆盖 PDM-12 Match Result Authority。 | HANDOFF_OPEN | - | YES |
+| HO-P12-P20-001 | PDM-20 | 客户端车源主页搜索与正式 Demand Matching 共用 PDM-12 Rule Dictionary / deterministic parser；搜索只消费结构化解析结果做当前可搜索车辆查询，不创建 Match Result/Priority/Recommendation/Demand/Lock；六类 V1 auto-Matching 排除字段是否作为客户端筛选项由 PDM-20 在其搜索/筛选域承载。 | HANDOFF_OPEN | - | YES |
+| HO-P12-P21-001 | PDM-21 | 员工端 E05-05/E05-06 必须投影 PDM-12 四级 Match Result、解释原因、confirmation_needed 人工确认、重算与 stale/recalc-failed 结果边界；确认动作只补事实并重算，不强制成功，也不自动创建 Priority/Recommendation。 | HANDOFF_OPEN | - | YES |
+| HO-P12-P22-001 | PDM-22 | PC P06-10 必须承载真实 Rule Dictionary Action：新增/编辑/启停/作用域/测试解析/历史审计；正式写动作受 matching.rule.manage 控制，4S hard DENY，System Admin 身份不自动取得写能力；PROCESSING/PARTIAL_FAILURE/ERROR 与失败集合重试需真实投影。 | HANDOFF_OPEN | - | YES |
+| HO-P12-P25-001 | PDM-25 | 统一审计 Rule Dictionary 创建/修改/启停、before/after、actor/time、规则作用域、Match Result 历史与解释、recalc failure/retry、stale result invalidation、受影响范围重算；停用规则与历史 Match Result 不物理删除。 | HANDOFF_OPEN | - | YES |
 
 ---
-
 ## 13. Post-PDM25 IA / Low-Fi Carrier Ledger｜PDM-01～10
 
 > 当前只登记，不施工；统一在 PDM-25 完成 + PDM-01～25 全局最终总复核 PASS 后集中对齐。
@@ -487,5 +492,5 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-01～10 全局 Cross-PDM / Handoff / Global Invariant 总复核：PASS；
 - PDM-11：COMPLETE / INTEGRITY_PASS；
 - 当前进入：PDM-12；
-- PDM-12：Batch 1～3 PASS / USER_APPROVED；下一步 Batch 4 候选审查；
-- `HO-P01-P11-001 = HANDOFF_SUPERSEDED`；`HO-P01-P11-002 = HANDOFF_CLOSED`。PDM-12 incoming handoff 已全部 ACCEPTED；新增 `HO-P12-P16-001 = HANDOFF_OPEN`，待 PDM-16 承接。
+- PDM-12：Batch 1～4 PASS / USER_APPROVED；下一步 Final 前完整性复核；
+- `HO-P01-P11-001 = HANDOFF_SUPERSEDED`；`HO-P01-P11-002 = HANDOFF_CLOSED`。PDM-12 incoming handoff 已全部 ACCEPTED；PDM-12 outgoing future handoff 已扩展登记：PDM-13 / PDM-14 / PDM-16 / PDM-20 / PDM-21 / PDM-22 / PDM-25 均为 `HANDOFF_OPEN`，待各目标域承接。

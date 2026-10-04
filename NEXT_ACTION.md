@@ -19,7 +19,7 @@
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
 - 当前域：PDM-12
 - PDM-11 = COMPLETE / INTEGRITY_PASS
-- PDM-12 = IN_PROGRESS / BATCH_3_PASS / USER_APPROVED
+- PDM-12 = IN_PROGRESS / BATCH_4_PASS / USER_APPROVED / PRE_FINAL_INTEGRITY_PENDING
 - PDM-11 启动门禁 = UNBLOCKED
 - `HO-P01-P11-001 = HANDOFF_SUPERSEDED`
 - `HO-P01-P11-002 = HANDOFF_CLOSED`
@@ -37,7 +37,7 @@
 
 ## 当前唯一下一步
 
-> **继续 PDM-12 Batch 4 候选重建：对仍显式 deferred 的真实冲突、语义缺口与新产品选择执行 Conflict Before Classification、Semantic Completeness 和 Source→Atom 去向复核。只把确实需要用户裁决的事项形成候选，提交用户审查后立即停下。不得自动批准 Batch 4，不得修改 IA / Low-Fi。**
+> **执行 PDM-12 Final 前完整性复核：Full Evidence Matrix、Source→Atom / Atom→Source 双向追溯、Semantic Completeness、Global Invariant Scan、Cross-PDM Handoff 完整性、Current/IA/Low-Fi stale carrier 检查。若发现缺口，先形成修复候选提交用户；若 PASS，再生成 Final 总览提交用户最终批准。不得自动发布 Final，不得修改 IA / Low-Fi。**
 
 每个 PDM 必须同时执行：
 
@@ -66,7 +66,7 @@
 
 ## 当前禁止
 
-- PDM-12 Batch 1～3 已通过；未经用户审查不得自动批准 Batch 4，也不得把后续候选偷渡回已批准批次；
+- PDM-12 Batch 1～4 已全部通过；当前不得自动发布 Final，必须先完成 Final 前完整性复核与最终用户批准；
 - 不把旧 PDM 的 `COMPLETE` 直接等同于通过当前新完整性标准；
 - 不只检查 Final 文案而跳过原始证据遗漏扫描；
 - 不把 PDM-01～10 全部推倒重做；只 reopen 真正有问题的 Atom / 段落；
@@ -90,7 +90,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-11 均已 `COMPLETE / INTEGRITY_PASS`；`HO-P01-P11-001 = HANDOFF_SUPERSEDED`，`HO-P01-P11-002 = HANDOFF_CLOSED`。当前域为 PDM-12，HO-P04-P12-001 / HO-P05-P12-001 / HO-P07-P12-001 / HO-P11-P12-001 均已 `HANDOFF_ACCEPTED`；PDM-12 Batch 1（P12-A01～A15）、Batch 2（P12-B2-01～B2-10）、Batch 3（P12-B3-01～B3-07）均已 `PASS / USER_APPROVED`；新增 `HO-P12-P16-001 = HANDOFF_OPEN`。下一步为 Batch 4 真实冲突/缺口/新选择候选重建。
+当前 PDM-01～PDM-11 均已 `COMPLETE / INTEGRITY_PASS`；`HO-P01-P11-001 = HANDOFF_SUPERSEDED`，`HO-P01-P11-002 = HANDOFF_CLOSED`。当前域为 PDM-12，HO-P04-P12-001 / HO-P05-P12-001 / HO-P07-P12-001 / HO-P11-P12-001 均已 `HANDOFF_ACCEPTED`；PDM-12 Batch 1～4 均已 `PASS / USER_APPROVED`；PDM-12 本域 deferred unresolved = 0；outgoing handoff 已登记到 PDM-13/14/16/20/21/22/25。下一步为 Final 前完整性复核。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 

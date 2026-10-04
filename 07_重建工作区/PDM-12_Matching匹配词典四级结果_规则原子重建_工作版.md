@@ -1,10 +1,10 @@
 # PDM-12｜Matching / 匹配词典 / 四级结果 / 人工确认｜规则原子重建工作版
 
 > 日期：2026-10-05  
-> 当前状态：`IN_PROGRESS / BATCH_3_PASS / USER_APPROVED`  
+> 当前状态：`IN_PROGRESS / BATCH_4_PASS / USER_APPROVED / PRE_FINAL_INTEGRITY_PENDING`  
 > 业务权威语言：中文（zh-CN）  
 > 当前域：PDM-12｜Match Candidate / Match Result / Rule Dictionary  
-> 当前硬门禁：Batch 1～3 已完成用户审查；未经下一批用户审查，不得自动批准 Batch 4，不得修改 IA / Low-Fi。
+> 当前硬门禁：Batch 1～4 已全部完成用户审查；进入 Final 前完整性复核。未经 Final 前完整性复核 PASS 与用户最终批准，不得发布 PDM-12 Final，不得修改 IA / Low-Fi。
 
 ---
 
@@ -494,8 +494,8 @@ PDM-12 直接相关项已映射：
 
 以下内容不因 Batch 1 通过而自动批准：
 
-1. 历史“最低里程”特殊规则；
-2. 变速箱 / 配置偏好 / 过户次数 / 城市距离 / 排放 / source type 等字段最终是否进入 V1 自动 Matching；
+1. 历史“最低里程”特殊规则；**后于 Batch 4 由 P12-B4-02 承接**；
+2. 变速箱 / 配置偏好 / 过户次数 / 城市距离 / 排放 / source type 等字段最终是否进入 V1 自动 Matching；**后于 Batch 4 由 P12-B4-03 承接**；
 3. VR-P-021 的正向 / 负向表达、hard / preferred / acceptable、局部例外容差、组件级规则；**后于 Batch 3 由 P12-B3-04 承接**；
 4. VR-P-022 的证据优先级（**后于 Batch 3 由 P12-B3-05 承接**）：
    - structured
@@ -503,8 +503,8 @@ PDM-12 直接相关项已映射：
    - detailed condition
    - vague keyword
 5. VR-E-015 的客户等级 / Matching entitlement 前置关系与 PDM-11 当前生命周期语义；**后于 Batch 3 由 P12-B3-01 承接**；
-6. “无预算 + 价格咨询”最终四级边界；
-7. P06-10 完整词典治理、Action、scope priority、same-level conflict、test-match、失败重试；**Batch 3 已承接字段/基础 Action/scope priority/same-level conflict/test-match；物理删除与 partial failure/retry 仍待后续**；
+6. “无预算 + 价格咨询”最终四级边界；**后于 Batch 4 由 P12-B4-01 承接**；
+7. P06-10 完整词典治理、Action、scope priority、same-level conflict、test-match、失败重试；**Batch 3 已承接字段/基础 Action/scope priority/same-level conflict/test-match，Batch 4 由 P12-B4-04/B4-05/B4-06 承接删除、partial failure/retry 与正式写权限**；
 8. Priority 仲裁 / TTL / Demand.created_at 使用方式——归 PDM-13，不在 PDM-12 偷渡冻结。
 
 ---
@@ -951,7 +951,242 @@ P06-10 同时提供：
 
 ---
 
-# 9. Batch Gate
+# 9. Batch 4｜真实冲突 / 语义缺口 / 新产品选择｜USER APPROVED
+
+> 用户已逐项裁决：`1A、2A、3A、4A、5A、6A`，并于 2026-10-05 明确“确认执行”。  
+> Batch 4 Gate：`PASS / USER_APPROVED`。
+
+## P12-B4-01｜价格咨询的四级 Matching 语义｜1A
+
+价格维度必须先判断 Demand 是否真正填写预算。
+
+### Demand 未填写预算
+
+预算维度视为**不限**。
+
+因此车辆当前只有“价格咨询”、没有合法数字客户展示价时：
+
+- 不因为价格缺失自动进入 `no_match`；
+- 不因为价格缺失自动进入 `confirmation_needed`；
+- 价格维度不参与本次四级降级；
+- 最终结果由其他已填写 hard / preferred / tolerance 条件共同决定。
+
+### Demand 已填写预算
+
+若车辆没有合法数字客户展示价、当前只能“价格咨询”：
+
+- 无法确定是否满足预算；
+- 不得伪造数字价格；
+- 不得继续沿用 9/17 “一律 no_match”的旧绝对规则；
+- 当前结果进入 `confirmation_needed`；
+- 后续价格事实变为合法数字客户展示价时自动重新计算。
+
+若已有合法数字客户展示价，则继续使用 P12-A08：
+
+- `price <= budget` → 预算维度 high；
+- `budget < price <= budget × (1 + tolerance)` → acceptable；
+- 超出 tolerance → no_match。
+
+分类：`USER_CHOICE / SUPERSEDES_OLD_ABSOLUTE_PRICE_CONSULT_NO_MATCH`
+
+---
+
+## P12-B4-02｜里程只把最高可接受里程作为 hard condition｜2A
+
+V1 正式 Matching 的里程 hard condition 采用：
+
+> **最高可接受里程**
+
+若客户表达“2～5 万公里”等带下限的自然语言：
+
+- 正式 hard condition = `mileage <= 5万公里`；
+- 低于 2 万公里仍可符合；
+- 所谓“最低里程”不作为 hard lower bound；
+- 不因为车辆里程比客户表达的下限更低而判 `no_match`。
+
+如果未来需要“最低里程必须达到某数值”的特殊业务能力，必须另行建立显式规则，不得从普通区间表达自动推导。
+
+分类：`USER_CHOICE / HISTORICAL_SPECIAL_SEMANTIC_RETAINED`
+
+---
+
+## P12-B4-03｜六类字段继续不参与 V1 自动四级 Matching｜3A
+
+以下字段在 V1 **不直接改变正式四级 Match Result**：
+
+1. 变速箱；
+2. 配置偏好；
+3. 过户次数；
+4. 城市 / 距离；
+5. 排放标准；
+6. 车源类型。
+
+边界：
+
+- 可以作为展示信息；
+- 可以作为人工销售判断信息；
+- 可以进入客户端搜索 / 筛选（若 PDM-20 后续正式冻结对应搜索能力）；
+- 可以保存在客户原始要求 / 销售匹配描述 / 需求说明中；
+- 但当前 V1 不把这些字段当作自动 `high / acceptable / confirmation_needed / no_match` 判定条件。
+
+若未来需要把其中某一项加入自动 Matching，必须单独显式升级，不得仅因 Rule Dictionary 已支持通用表达就默认自动纳入。
+
+分类：`USER_CHOICE / V1_AUTO_MATCH_EXCLUSION_RETAINED`
+
+---
+
+## P12-B4-04｜Rule Dictionary 正式规则不普通物理删除｜4A
+
+已保存的正式 Rule Dictionary 规则：
+
+- 不提供普通物理删除；
+- 错误 / 过期 / 不再使用时采用停用 / 废弃；
+- 保留原 rule_id；
+- 保留创建人、修改人、创建时间、修改时间；
+- 保留启停 / 变更历史；
+- 保留审计与历史解释能力。
+
+停用后：
+
+- 新的解析不再使用该规则；
+- 按 P12-A14 / P12-B3-07 对受影响范围重解析 / 重算；
+- 历史 Match Result 仍保留当时使用的规则 / 版本 / 解释事实。
+
+分类：`USER_CHOICE / APPEND_ONLY_GOVERNANCE`
+
+---
+
+## P12-B4-05｜Rule Dictionary 变更重算 partial failure 不整体回滚｜5A
+
+Rule Dictionary 新增 / 修改 / 启停正式保存成功后，受影响对象重解析 / 重算采用**部分成功保留**：
+
+- 已成功重解析 / 重算对象保留新结果；
+- 单个或部分对象失败不得回滚整次词典修改；
+- 失败对象必须明确记录失败事实、失败原因、当前 retry 状态；
+- 后续只重试失败集合，不无脑重跑全部成功对象；
+- 重试必须幂等。
+
+### 失败对象旧结果的关键边界
+
+词典已经生效、但某对象重算失败时：
+
+> 该对象旧 Match Result 只能作为历史结果，不得继续冒充“当前最新结果”去创建新的 Priority / Recommendation 或其他依赖当前 Match Result 的新业务。
+
+因此至少需要区分：
+
+- current valid result；
+- stale / invalidated historical result；
+- recalc pending / failed fact。
+
+成功重算后再恢复新的 current Match Result。
+
+分类：`USER_CHOICE / PARTIAL_FAILURE_RETRY`
+
+---
+
+## P12-B4-06｜新增独立敏感能力 matching.rule.manage｜6A
+
+新增正式 capability：
+
+`matching.rule.manage`
+
+用于管理正式 Rule Dictionary / Matching Rule。
+
+### 能执行的动作
+
+具备该 capability 的 active 名邦 Employee 才能执行：
+
+- 新增正式规则；
+- 编辑正式规则；
+- 启用 / 停用正式规则；
+- 修改适用范围；
+- 提交会影响正式解析 / Matching 的配置变更。
+
+### 权限模型
+
+继续严格继承 PDM-02：
+
+`identity + permission + data scope + object state`
+
+其中：
+
+- 普通销售 / 经理 / 店长均**不因角色名自动拥有** `matching.rule.manage`；
+- 可以由角色模板或员工个人明确授权 / deny 决定；
+- 提交时必须重验当前 identity / permission / object state；
+- Rule Dictionary 是全局 Matching Authority，当前不建立普通客户级 data scope；
+- 4S Member 对 `matching.rule.manage` 为 **hard DENY**；
+- System Admin 可以在控制平面配置谁拥有该 permission；
+- System Admin 身份本身**不自动拥有 P06-10 正式规则修改能力**；
+- 同一真人若需要实际执行规则维护，应使用具备相应 permission 的独立 Employee 身份。
+
+### 测试能力
+
+“测试解析 / 测试匹配”的只读使用权限可在后续页面投影中与正式 manage 动作分开裁剪；本条冻结的是**正式规则写权限**。
+
+分类：`USER_CHOICE / NEW_SENSITIVE_CAPABILITY / PDM02_ALIGNED`
+
+---
+
+## Batch 4 裁决后的 deferred 清零检查
+
+Batch 1～3 曾显式 deferred 的 PDM-12 本域事项现已处理：
+
+- 无预算 + 价格咨询 → P12-B4-01；
+- 里程最低值特殊语义 → P12-B4-02；
+- 六类字段是否参与 V1 自动 Matching → P12-B4-03；
+- Rule Dictionary 物理删除语义 → P12-B4-04；
+- partial failure / retry → P12-B4-05；
+- P06-10 正式规则维护权限 → P12-B4-06。
+
+仍留到 PDM-13 的：
+
+- Priority TTL；
+- Priority 仲裁；
+- Priority lifecycle；
+- Demand.created_at 在 Priority 仲裁中的具体使用。
+
+这些属于**明确跨域 handoff**，不是 PDM-12 未闭环缺口。
+
+结论：
+
+`PDM12_LOCAL_DEFERRED_UNRESOLVED = 0`
+
+`PDM13_PRIORITY_OUT_OF_SCOPE_ITEMS = EXPLICIT_HANDOFF`
+
+---
+
+## PDM-12 outgoing future handoff
+
+基于已经批准的 PDM-12 规则，后续域必须承接：
+
+- `HO-P12-P13-001`：PDM-13 只消费 PDM-12 当前合法 Match Result，不复制第二套 Matching；`confirmation_needed / no_match` 不得作为 Priority 成功匹配；
+- `HO-P12-P14-001`：Match Result 不自动等于 Recommendation / visibility grant；
+- `HO-P12-P16-001`：Matching change fact 交 Source Radar 消费；
+- `HO-P12-P20-001`：客户端车源主页搜索共用 PDM-12 Rule Dictionary / deterministic parser，但搜索不创建 Match Result；
+- `HO-P12-P21-001`：员工端承载四级候选、解释、人工确认与失败 / stale 结果边界；
+- `HO-P12-P22-001`：PC P06-10 承载 Rule Dictionary 真正 Action、`matching.rule.manage`、PROCESSING / PARTIAL_FAILURE / retry；
+- `HO-P12-P25-001`：审计规则变更、启停、Match Result 历史、recalc failure/retry、解释 provenance。
+
+上述 handoff 只传递已批准 Authority，不新增产品决策。
+
+---
+
+## Batch 4 Gate
+
+```text
+P12_B4_01 = 1A / USER_APPROVED
+P12_B4_02 = 2A / USER_APPROVED
+P12_B4_03 = 3A / USER_APPROVED
+P12_B4_04 = 4A / USER_APPROVED
+P12_B4_05 = 5A / USER_APPROVED
+P12_B4_06 = 6A / USER_APPROVED
+PDM12_BATCH_4 = PASS / USER_APPROVED
+PDM12_LOCAL_DEFERRED_UNRESOLVED = 0
+```
+
+---
+
+# 10. Batch Gate
 
 ```text
 PDM12_STARTUP_GATE = PASS
@@ -970,10 +1205,13 @@ P12_B3_01_TO_B3_07 = USER_APPROVED
 BATCH3_CURRENT_AUTHORITY_REFRESH = PASS
 BATCH3_CONFLICT_SCAN = PASS
 HO_P12_P16_001 = HANDOFF_OPEN
-PDM12_BATCH_4 = NOT_STARTED
-PDM12_FINAL = NOT_READY
+PDM12_BATCH_4 = PASS / USER_APPROVED
+P12_B4_01_TO_B4_06 = USER_APPROVED
+PDM12_LOCAL_DEFERRED_UNRESOLVED = 0
+PDM12_PRE_FINAL_INTEGRITY = PENDING
+PDM12_FINAL = NOT_READY / PRE_FINAL_INTEGRITY_PENDING
 ```
 
 ## 当前唯一下一步
 
-> **继续形成 PDM-12 Batch 4（真实冲突 / 语义缺口 / 新产品选择）候选：对所有仍显式 deferred 的 PDM-12 项执行 Conflict Before Classification、Semantic Completeness 与 Source→Atom 去向复核，只把确实需要用户裁决的事项放入 Batch 4。形成候选后立即停下提交用户审查，不得自动批准，不得修改 IA / Low-Fi。**
+> **执行 PDM-12 Final 前完整性复核：做 Full Evidence Matrix、Source→Atom / Atom→Source 双向追溯、Semantic Completeness、Global Invariant Scan、Cross-PDM Handoff 完整性、Current/IA/Low-Fi stale carrier 检查。发现问题先形成 Final 前修复候选并停下；只有完整性复核 PASS 后才生成 Final 总览提交用户最终批准。不得自动发布 Final，不得修改 IA / Low-Fi。**
