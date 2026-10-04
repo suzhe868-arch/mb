@@ -1,7 +1,7 @@
 # PDM-11｜找车申请 / Demand 生命周期｜规则原子重建工作版
 
 > 日期：2026-10-05  
-> 当前状态：`IN_PROGRESS / EVIDENCE_RECONSTRUCTION_COMPLETE / BATCH_1_USER_REVIEW_PENDING`  
+> 当前状态：`IN_PROGRESS / BATCH_1_TO_4_USER_APPROVED / FINAL_INTEGRITY_REVIEW_PENDING`  
 > 业务权威语言：中文（zh-CN）  
 > 当前域：PDM-11｜Find-car Application / Demand / 生命周期 / 负责人 / 匹配准备度边界  
 > 执行边界：本文件是 PDM-11 用户裁决前的工作底稿；Batch 1～4 未经用户确认不得自动晋升为 Final。
@@ -423,7 +423,7 @@ Current 只剩 E05-02 的泛化 `entitlement/authorization` Guard，资格来源
 
 不得把任何客户一提交找车申请就无条件创建 active Demand。
 
-这条废弃的是“**无条件直接激活**”方向；至于具备正式找车权益的客户是否可以在保存 Application 后直接激活 Demand，仍保留在 `P11-B4-01`，后续单独裁决。
+这条废弃的是“**无条件直接激活**”方向；该冲突已由 `P11-B4-01` 正式裁决：即使已具备找车权益，Application 仍先 pending，必须由员工人工激活唯一 Demand。
 
 **状态：** `DEPRECATED_DIRECTION / USER_APPROVED`
 
@@ -530,7 +530,7 @@ completed / cancelled Demand 属于终态历史。
 - 权益恢复时自动恢复全部 paused Demand；
 - 权益变化抹掉历史匹配 / 推荐 / 跟进 / 条件。
 
-本条不预判 `P11-B4-02` 最终采用哪一种“找车资格来源模型”；无论资格来源最终如何裁决，只要当前有效找车 entitlement 从有效变为无效，就适用本条生命周期效果。
+`P11-B4-02` 已正式裁决为“找车资格只来自 Customer Level entitlement，不建设单 Customer find-car override”。无论等级体系后续增加什么新等级，只要当前有效找车 entitlement 从有效变为无效，就继续适用本条生命周期效果。
 
 **用户裁决：** 2026-10-05 用户明确同意，并随后“确认执行”。
 
@@ -560,7 +560,7 @@ IA 中残留的 Merge carrier 只能登记为 stale carrier，不能反向恢复
 **状态：** `SUPERSEDED_BY_PDM01_NO_MERGE / USER_APPROVED`
 
 ---
-## 9A. Batch 3｜明确知情修改 / 后续明确新增｜待用户审查
+## 9A. Batch 3｜明确知情修改 / 后续明确新增｜用户已确认
 
 > 本批只纳入已经有后续明确用户裁决、且与旧规则存在知情变化的内容；不重复制造新规则原子。
 
@@ -613,7 +613,7 @@ Customer 停用是全局账号级“停止继续业务”的触发，但不同�
 
 ---
 
-## 9B. Batch 4｜真实冲突 / 缺口 / 需要用户裁决｜用户已完成裁决
+## 9B. Batch 4｜真实冲突 / 缺口｜用户已完成裁决
 
 > 本批原有两个真实冲突均已由用户在 2026-10-05 明确裁决，并在本次“确认执行”中授权正式落库。不得再按旧 9/06 SSOT 的“有 entitlement 即自动激活 Demand”或“Customer 级单独人工开通找车 entitlement”恢复。
 
