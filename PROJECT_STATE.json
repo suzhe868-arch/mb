@@ -804,33 +804,39 @@
   "pdm_10_handoffs": [
     {
       "target": "PDM-14",
+      "handoff_id": "HO-P10-P14-001",
       "topic": "Recommendation current-listing-cycle free price right",
-      "status": "ACCEPTED_FOR_TARGET"
+      "status": "HANDOFF_OPEN"
     },
     {
       "target": "PDM-18",
+      "handoff_id": "HO-P10-P18-001",
       "topic": "Lock immutable price snapshot",
-      "status": "ACCEPTED_FOR_TARGET"
+      "status": "HANDOFF_OPEN"
     },
     {
       "target": "PDM-20",
-      "topic": "Customer price states, format, hidden-exact sort/filter",
-      "status": "ACCEPTED_FOR_TARGET"
+      "handoff_id": "HO-P10-P20-001",
+      "topic": "Customer price states, quota exhausted advisor exit, LIMITED/UNLIMITED, customer disable price guard, hidden-exact sort/filter",
+      "status": "HANDOFF_OPEN"
     },
     {
       "target": "PDM-21",
-      "topic": "Employee price editing, override action, 4S vehicle-management projection",
-      "status": "ACCEPTED_FOR_TARGET"
+      "handoff_id": "HO-P10-P21-001",
+      "topic": "Employee price editing, override, temp additions, UNLIMITED add-block, 4S vehicle-management projection",
+      "status": "HANDOFF_OPEN"
     },
     {
       "target": "PDM-22",
-      "topic": "Markup, level LIMITED/UNLIMITED quota, permission/config carriers",
-      "status": "ACCEPTED_FOR_TARGET"
+      "handoff_id": "HO-P10-P22-001",
+      "topic": "Markup, LIMITED/UNLIMITED, base quota, permission/config carriers",
+      "status": "HANDOFF_OPEN"
     },
     {
       "target": "PDM-25",
-      "topic": "Price/override/quota/risk/conversion audit standards",
-      "status": "ACCEPTED_FOR_TARGET"
+      "handoff_id": "HO-P10-P25-001",
+      "topic": "Price/override/quota/risk/conversion/level-config audit standards",
+      "status": "HANDOFF_OPEN"
     }
   ],
   "legacy_final_integrity_audit": {
@@ -881,7 +887,7 @@
     },
     "pdm_11_blocked": true,
     "pdm_11_unblock_condition": "ALL_PDM01_10_INTEGRITY_PASS_AND_GLOBAL_CROSS_PDM_AUDIT_PASS",
-    "current_domain": "PDM-10",
+    "current_domain": "GLOBAL_PDM01_10_CROSS_PDM_AUDIT",
     "completed_domains": [
       "PDM-01",
       "PDM-02",
@@ -891,7 +897,8 @@
       "PDM-06",
       "PDM-07",
       "PDM-08",
-      "PDM-09"
+      "PDM-09",
+      "PDM-10"
     ],
     "pdm_01_result": "INTEGRITY_PASS",
     "pdm_02_result": "INTEGRITY_PASS",
@@ -901,9 +908,12 @@
     "pdm_06_result": "INTEGRITY_PASS",
     "pdm_07_result": "INTEGRITY_PASS",
     "pdm_08_result": "INTEGRITY_PASS",
-    "pdm_09_result": "INTEGRITY_PASS"
+    "pdm_09_result": "INTEGRITY_PASS",
+    "pdm_10_result": "INTEGRITY_PASS",
+    "single_domain_audits_status": "ALL_PDM01_10_INTEGRITY_PASS",
+    "global_pdm01_10_cross_pdm_audit_status": "PENDING"
   },
-  "pdm_11_status": "BLOCKED_BY_PDM01_10_LEGACY_INTEGRITY_AUDIT",
+  "pdm_11_status": "BLOCKED_BY_PDM01_10_GLOBAL_CROSS_PDM_AUDIT",
   "pdm_01_integrity_status": "INTEGRITY_PASS",
   "pdm_01_integrity_audit_file": "07_重建工作区/PDM-01_历史最终版完整性复核_2026-10-04.md",
   "pdm_01_integrity_reopen_count": 6,
@@ -975,9 +985,10 @@
     "PDM-06",
     "PDM-07",
     "PDM-08",
-    "PDM-09"
+    "PDM-09",
+    "PDM-10"
   ],
-  "cross_pdm_handoff_backfill_status": "COMPLETE_THROUGH_PDM09_2026-10-05",
+  "cross_pdm_handoff_backfill_status": "COMPLETE_THROUGH_PDM10_2026-10-05",
   "pdm_04_handoff_status_backwrite": "PDM05_TO_PDM10_CLOSED_IN_SOURCE_FINAL_AND_REGISTER",
   "pdm_04_integrity_status": "INTEGRITY_PASS",
   "pdm_04_integrity_decision_required": [],
@@ -1100,5 +1111,24 @@
   "pdm_09_p03_05_identity_rule": "SOURCE_PLATFORM_PLUS_UPSTREAM_PUBLISHER_ID_AND_PHONE_PLAINTEXT_REQUIRES_INDEPENDENT_PHONE_CAPABILITY_PLUS_DATA_SCOPE",
   "pdm_09_integration_permission_rule": "SYSTEM_ADMIN_OR_INTEGRATION_COLLECTOR_MANAGE_DOES_NOT_AUTO_GRANT_PHONE_PLAINTEXT_OR_LATEST",
   "pdm_09_integrity_decision_required": [],
-  "pdm_09_stale_carriers": "DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT"
+  "pdm_09_stale_carriers": "DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT",
+  "pdm_10_integrity_status": "INTEGRITY_PASS",
+  "pdm_10_integrity_audit_file": "07_重建工作区/PDM-10_历史最终版完整性复核_2026-10-05.md",
+  "pdm_10_integrity_reopen_count": 5,
+  "pdm_10_integrity_missing_rule_unresolved": 0,
+  "pdm_10_integrity_semantic_detail_gap_unresolved": 0,
+  "pdm_10_integrity_cross_pdm_conflict": 0,
+  "pdm_10_integrity_handoff_gap_unresolved": 0,
+  "pdm_10_integrity_global_invariant_conflict": 0,
+  "pdm_10_integrity_source_decision_coverage": "100%",
+  "pdm_10_integrity_final_to_source_traceability": "100%",
+  "pdm_10_integrity_semantic_integrity": "PASS",
+  "pdm_10_integrity_negative_claims_verified": "PASS",
+  "pdm_10_integrity_implementation_ready": "PASS",
+  "pdm_10_handoff_register_sync": "PASS",
+  "pdm_10_customer_disable_price_rule": "DISABLE_PAUSES_NEW_PRICE_CHECK_AND_LEVEL_ENTITLEMENT_USE_BUT_PRESERVES_EXISTING_CURRENT_CYCLE_RIGHTS_RECOVER_ONLY_STILL_VALID_FACTS",
+  "pdm_10_quota_exhausted_rule": "DIGITAL_PRICE_EXISTS_AND_LIMITED_QUOTA_EXHAUSTED_EQUALS_DAILY_PRICE_QUOTA_EXHAUSTED_CONTACT_ADVISOR_NOT_PRICE_CONSULTATION",
+  "pdm_10_unlimited_temp_addition_rule": "3A_UNLIMITED_BLOCKS_NEW_TEMP_ADDITIONS_EXISTING_TODAY_TEMP_ADDITIONS_PRESERVED_SAME_DAY_RETURN_TO_LIMITED_REUSES_THEM_UNLIMITED_VIEWS_DO_NOT_CONSUME_QUOTA",
+  "pdm_10_integrity_decision_required": [],
+  "pdm_10_stale_carriers": "DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT"
 }
