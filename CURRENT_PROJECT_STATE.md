@@ -12,15 +12,15 @@
 
 当前域：
 
-> **PDM-01～PDM-10｜Legacy Final Integrity Audit / 全域完整性复核**
+> **PDM-11｜Demand 域启动准备**
 
 当前域状态：
 
-> `IN_PROGRESS / PDM-01_TO_PDM-10_INTEGRITY_PASS / CURRENT_GLOBAL_PDM01_10_CROSS_PDM_AUDIT`
+> `READY_TO_START / GLOBAL_PDM01_10_AUDIT_PASS / CURRENT_PDM-11`
 
 当前工作文件：
 
-> `07_重建工作区/PDM-01至10_全域完整性复核_总控工作单.md`
+> PDM-11 尚未生成工作版；启动时先读 `07_重建工作区/CROSS_PDM_HANDOFF_REGISTER.md` 中 `target=PDM-11` 的 incoming handoff，并按既定重建方法建立 PDM-11 工作版。
 
 当前已纠正：
 
@@ -32,8 +32,19 @@
 
 当前唯一下一步：
 
-> **PDM-01～PDM-10 单域 Legacy Final Integrity Audit 已全部通过；当前唯一下一步是 PDM-01～10 全局 Cross-PDM / Handoff / Global Invariant 总复核。全局总复核 PASS 前，PDM-11 继续 BLOCKED。IA / Low-Fi 统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。**
+> **PDM-01～PDM-10 单域 Integrity 与 01～10 全局总复核均已 PASS；PDM-11 已解除 BLOCKED。当前唯一下一步：启动 PDM-11，并先承接 `HO-P01-P11-001`。IA / Low-Fi 仍统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。**
 
+## 2026-10-05｜PDM-01～10 全局总复核完成
+
+- `GLOBAL_PDM01_10_CROSS_PDM_AUDIT = PASS`；
+- PDM-01～10 内部 handoff 无 OPEN / ACCEPTED 残留；
+- CLOSED handoff 全部有目标 Authority 且 `source_backwrite=YES`；
+- future PDM-11～25 保留 69 条合法 `HANDOFF_OPEN`；
+- 全局 invariant：Customer / Employee / Vehicle 身份、owner、permission、System Admin、4S、listing_cycle、source facts、snapshot、sensitive access、Customer disable、formal-history delete 全部 PASS；
+- 本轮仅修正两项控制性 stale：PDM-01～07 顶部状态元数据、PDM-01 §10 对 PDM-02 的过期“留后续”文字；
+- 全局报告：`07_重建工作区/PDM-01至10_全局Cross-PDM_Handoff_GlobalInvariant总复核_2026-10-05.md`；
+- PDM-11 启动门禁：`UNBLOCKED`；
+- PDM-11 incoming：`HO-P01-P11-001`。
 ## 2026-10-05｜PDM-10 Legacy Final Integrity Audit 完成
 
 - PDM-10 Integrity：`INTEGRITY_PASS`；
