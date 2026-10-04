@@ -91,6 +91,25 @@
 
 PDM-04 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
+### 2.5 PDM-05｜7 组｜已全部关闭
+
+| ID | Integrity 问题 | 最终状态 |
+|---|---|---|
+| P05-LIA-01 | PDM-05→PDM-06 固定属性/发布联动已完成，但来源仍显示留后续 | RESOLVED / HANDOFF_CLOSED |
+| P05-LIA-02 | mapping conflict 缺“车辆业务继续、不自动冻结”边界 | RESOLVED |
+| P05-LIA-03 | 待映射 / 缺主数据 / mapping conflict 的明确待处理提示被压薄 | RESOLVED |
+| P05-LIA-04 | “后台 Admin”与 PDM-02 System Admin 身份发生歧义 | RESOLVED / USER_DECISION_4A |
+| P05-LIA-05 | 车型主档纠错后已发布车辆固定属性当前值与历史快照边界未闭环 | RESOLVED / USER_DECISION_5A |
+| P05-LIA-06 | PDM-12/20/21/22/25 future handoff 未正式进入总账 | RESOLVED / HANDOFF_OPEN_REGISTERED |
+| P05-LIA-07 | IA/Low-Fi 仍有 name-match、no-model-creation、四级年款、pending=unknown 等 stale carrier | RESOLVED / CARRIER_DEFERRED |
+
+用户最终裁决：
+
+- **4A**：车型主数据 / JYT mapping / MODEL_MISSING / conflict / merge 归 System Admin 控制平面治理，`vehicle.model.manage` 为该治理域能力 Guard；
+- **5A**：车型唯一确定的固定属性当前值跟随有效车型主档纠错；Recommendation / Lock / Transaction / 成交及其他历史快照与 JYT 原始 source facts 不追改。
+
+PDM-05 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
+
 ---
 
 ## 3. PDM-01 来源 handoff
@@ -187,7 +206,21 @@ PDM-04 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
-## 7. Post-PDM25 IA / Low-Fi Carrier Ledger｜PDM-01～04
+## 7. PDM-05 来源 handoff
+
+| handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
+|---|---|---|---|---|---|
+| HO-P05-P02-001 | PDM-02 | “后台 Admin”统一解释为 System Admin 控制平面；车型主数据治理是控制平面动作，不等于普通 Vehicle 业务执行权 | HANDOFF_CLOSED | PDM-02 §6 + PDM-05 §9 | YES |
+| HO-P05-P06-001 | PDM-06 | 人工选择有效 vehicle_model_id 后自动带出车型固定属性；MODEL_MISSING 返回原 draft；5A 进一步关闭主档纠错后当前投影/历史快照边界 | HANDOFF_CLOSED | PDM-06 §8/§8A + PDM-05 §12.4 | YES |
+| HO-P05-P12-001 | PDM-12 | Matching 必须使用 JYT 已明确车型事实；不得仅因 vehicle_model_id=NULL / mapping pending 就自动降为 unknown | HANDOFF_OPEN | - | YES |
+| HO-P05-P20-001 | PDM-20 | 客户端车型搜索/筛选/年款分组；年款不是第四级主数据，车型年款与首次上牌年份分离 | HANDOFF_OPEN | - | YES |
+| HO-P05-P21-001 | PDM-21 | 员工端车型选择、MODEL_MISSING、固定属性自动带出、待确认/冲突状态的真实投影 | HANDOFF_OPEN | - | YES |
+| HO-P05-P22-001 | PDM-22 | System Admin 的车型主数据、JYT mapping、MODEL_MISSING、conflict、merge 等 PC 治理页面 | HANDOFF_OPEN | - | YES |
+| HO-P05-P25-001 | PDM-25 | mapping before/after、车型节点修正、合并迁移、主档纠错及历史不可追改的统一审计/历史标准 | HANDOFF_OPEN | - | YES |
+
+---
+
+## 8. Post-PDM25 IA / Low-Fi Carrier Ledger｜PDM-01～05
 
 > 当前只登记，不施工；统一在 PDM-25 完成 + PDM-01～25 全局最终总复核 PASS 后集中对齐。
 
@@ -213,10 +246,14 @@ PDM-04 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | PDM-04 | 旧价格 / 调价 carrier | CARRIER_DEFERRED |
 | PDM-04 | 4S 车辆管理入口旧限制 | CARRIER_DEFERRED |
 | PDM-04 | P02/P03 车源、集成、供应异常等页面通用壳 / 状态承载不足 | CARRIER_DEFERRED |
+| PDM-05 | 完整车型名称完全一致→自动 mapping 的旧主规则 | CARRIER_DEFERRED |
+| PDM-05 | `no model creation is inferred` 与 System Admin 可补品牌/车系/具体车型冲突 | CARRIER_DEFERRED |
+| PDM-05 | 年款在页面上易被误做第四级主数据 | CARRIER_DEFERRED |
+| PDM-05 | mapping pending/conflict 时把 JYT 已明确车型事实错误降为 unknown | CARRIER_DEFERRED |
 
 ---
 
-## 8. 强制使用规则
+## 9. 强制使用规则
 
 1. 新 PDM 开始：先筛 `target=当前 PDM AND status in {HANDOFF_OPEN,HANDOFF_ACCEPTED}`。
 2. 目标 PDM 接收：更新为 `HANDOFF_ACCEPTED`。
@@ -228,11 +265,12 @@ PDM-04 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
-## 9. 当前下一步
+## 10. 当前下一步
 
 - PDM-01：INTEGRITY_PASS；
 - PDM-02：INTEGRITY_PASS；
 - PDM-03：INTEGRITY_PASS；
 - PDM-04：INTEGRITY_PASS；
-- 当前进入：PDM-05 Legacy Final Integrity Audit；
+- PDM-05：INTEGRITY_PASS；
+- 当前进入：PDM-06 Legacy Final Integrity Audit；
 - PDM-11 继续 BLOCKED，直到 PDM-01～10 全部 INTEGRITY_PASS 且 01～10 全局总复核 PASS。
