@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / HANDOFF_SUPERSESSION_APPLIED / BATCH_1_APPROVED / BATCH_2_APPROVED / BATCH_3_APPROVED / BATCH_4_USER_REVIEW_PENDING`
+> `IN_PROGRESS / BATCH_1_TO_4_APPROVED / PREFINAL_INTEGRITY_PASS / FINAL_CANDIDATE_READY`
 
 当前工作文件：
 
@@ -32,7 +32,19 @@
 
 当前唯一下一步：
 
-> **PDM-11 Batch 1～4 已全部用户批准。P11-B4-01 已冻结为“所有 Application 先 pending、员工人工激活 Demand”；P11-B4-02 已冻结为“正式找车资格只来自 Customer Level entitlement，不建设单 Customer find-car override”。并已联动回写 PDM-10：LIMITED 批发车列表隐藏精确数字价、详情有额度自动解锁、quota 耗尽显示 `--万`、UNLIMITED 列表/详情直接显示数字价、临时加次数免费。当前唯一下一步：执行 PDM-11 全量 Decision Coverage / Missing Rule / Semantic Detail / Cross-PDM / Handoff 完整性复核并形成 Final 候选。未经最终总览批准不得标记 PDM-11 COMPLETE。IA / Low-Fi 仍统一延后到 PDM-25 后集中对齐。**
+> **PDM-11 Batch 1～4 已全部用户批准，Final 前完整性复核发现项已关闭。新增明确：无合法 owner/pool-empty 不创建无负责人 Application；pending Application 属公海保护；Demand.created_at 为不可变创建事实；客户结束找车采用“客户发起结束请求→员工按真实结果确认 completed/cancelled”，员工也可直接结束；等级提示读取当前真实 entitlement 配置；PDM-12/13/14/16/17/20/21/22/25 handoff 已扩展为完整语义。当前唯一下一步：生成并审查 PDM-11《最终完整规则总览_待用户批准》。未经最终批准不得标记 PDM-11 COMPLETE / INTEGRITY_PASS。IA / Low-Fi 仍统一延后到 PDM-25 后集中对齐。**
+
+## 2026-10-05｜PDM-11 Final 前完整性复核完成
+
+- P11-LIA-01：补齐无 owner / pool-empty Application 创建 Guard，不允许 `responsible=null`；
+- P11-LIA-02：pending Application 明确为公海保护事实，并扩展 PDM-17 handoff；
+- P11-LIA-03：用户裁决双向结束——客户发起结束请求，员工确认后按真实结果落 `completed / cancelled`；员工也可直接结束；不新增第五主状态；
+- P11-LIA-04：补齐不可变 `Demand.created_at`，供 PDM-13 后续仲裁引用；
+- P11-LIA-05：客户端等级升级提示必须读取当前真实 entitlement 配置，粉丝/VIP 仅当前配置示例；
+- P11-LIA-06：PDM-12/13/14/16/17/20/21/22/25 handoff 已扩展，禁止“交后面做”时再次压缩丢细节；
+- P11-LIA-07：补 PDM11-GATE-B1，修 Current stale；
+- Customer disable 对 pending Application：保留历史、不自动关闭、停用期间不得激活，恢复后也不自动激活；
+- 当前状态：`PREFINAL_INTEGRITY_PASS / FINAL_CANDIDATE_READY`。
 
 ## 2026-10-05｜PDM-11 Batch 4 全部确认
 
