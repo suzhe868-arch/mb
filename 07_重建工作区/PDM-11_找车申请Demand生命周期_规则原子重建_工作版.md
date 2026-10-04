@@ -4,7 +4,7 @@
 > 当前状态：`IN_PROGRESS / BATCH_1_TO_4_USER_APPROVED / FINAL_INTEGRITY_REVIEW_PENDING`  
 > 业务权威语言：中文（zh-CN）  
 > 当前域：PDM-11｜Find-car Application / Demand / 生命周期 / 负责人 / 匹配准备度边界  
-> 执行边界：本文件是 PDM-11 用户裁决前的工作底稿；Batch 1～4 未经用户确认不得自动晋升为 Final。
+> 执行边界：Batch 1～4 已全部完成用户裁决；本文件当前用于 Final 前完整性复核。未经最终总览用户批准，不得标记 PDM-11 COMPLETE / INTEGRITY_PASS。
 
 ---
 
@@ -85,7 +85,7 @@ PDM-01～PDM-10 单域 Integrity Audit 与 01～10 全局 Cross-PDM / Handoff / 
 - 多 Demand 并存的后端约束；
 - `demand_responsible_sales_id` 的正式 reassignment；
 - Customer 停用触发 active Demand → paused、历史保留、恢复账号不自动恢复 Demand 的服务端 Guard；
-- 找车权益 / customer-level 人工开通的最终后端来源；
+- Customer Level 找车 entitlement、等级调整与人工激活 Demand 的最终后端实现；
 - E01 pending 找车申请待办的完整任务生成 / 更新 / 去重；
 - 匹配准备度与 Demand 主状态的服务端分层。
 
@@ -159,7 +159,12 @@ PDM-01～PDM-10 单域 Integrity Audit 与 01～10 全局 Cross-PDM / Handoff / 
 - activated 必须关联真实 `demand_id`；
 - 一个 Application 最多激活成一个 Demand；
 - 重复激活必须幂等；
-- 撤回 / closed 后不得再激活为 Demand。
+- 撤回 / closed 后不得再激活为 Demand；
+- Find-car Application 属于正式高意向人工服务对象，创建时不得出现 `responsible = null`；
+- Customer 当前无合法 owner 时，必须先按 PDM-03 的分享 / 转介绍优先归属与合格接客池规则完成 owner 分配，再创建正式 Application；
+- 若合格接客池异常为空，只建立 / 保留 `owner_assignment_pending` 等分配事实，不创建无负责人的 Application；池恢复后再重试正式 owner 分配；
+- pending Application 本身属于公海保护事实，不能把仍有 pending Application 的 Customer 按普通无业务客户直接送入公海；
+- pending Application / 对应待处理任务必须有当前负责员工，正式 owner / 员工交接时要纳入责任处理，不能留下失效负责人。
 
 ### 6.4 多需求并存
 
@@ -173,7 +178,14 @@ PDM-01～PDM-10 单域 Integrity Audit 与 01～10 全局 Cross-PDM / Handoff / 
 
 C02 因此是找车工作区，不是单一互斥状态页。
 
-### 6.5 负责人分层
+### 6.5 Demand 核心时间事实与负责人分层
+
+Demand 至少冻结以下不可歧义时间事实：
+
+- `created_at`：员工成功人工激活 Application 并创建正式 Demand 的时间；创建后不可重写；
+- 如工程同时保留 `activated_at`，V1 当前“创建即激活”模型下应与本次首次正式激活事实一致，不得用后续 resume 时间覆盖；
+- pause / resume / complete / cancel / reassignment 等后续动作通过状态 / 审计历史记录各自发生时间，不改写原 `created_at`；
+- PDM-13 若以 Demand 创建先后作为 Priority 仲裁条件，必须读取本条不可变 `created_at`，不得读取最近更新时间或最近 resume 时间。
 
 历史明确存在独立 `demand_responsible_sales_id`：
 
@@ -258,7 +270,7 @@ V1 Demand 主生命周期只使用：
 
 **状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
-### P11-A06｜active / paused 的正式状态动作
+### P11-A06｜active / paused 的正式状态动作与双向结束
 
 当前负责人 / 有权员工：
 
@@ -266,11 +278,25 @@ V1 Demand 主生命周期只使用：
 - paused：恢复 / 完成 / 取消；
 - completed / cancelled：只读。
 
-“完成”和“取消”是不同业务结果，不得合并成一个“结束”。
+“完成”和“取消”是不同业务结果，不得合并成一个模糊“结束”。
 
-客户侧历史规则同样允许对自己的正式 Demand 执行暂停、恢复、结束；具体客户页面 carrier 当前存在缺口，先登记 stale carrier，不反向改变本条产品语义。
+客户侧：
 
-**状态：** `STABLE_CONSISTENT / USER_APPROVED`
+- 客户可以对自己的 active Demand 执行“暂停”；
+- 客户可以对自己的 paused Demand 执行“恢复”；
+- 客户可以对自己的 active / paused Demand 发起“结束找车”；
+- 客户“结束找车”**不直接写入 completed / cancelled**，而是生成该 Demand 的待员工确认结束请求；
+- 同一 Demand 同一时刻最多存在一个未处理的客户结束请求；重复提交必须幂等；
+- 待员工确认期间 Demand 主状态保持原 active / paused，不新增第五个 Demand 主状态；客户端可显示“结束处理中”这一派生处理状态；
+- 当前负责人 / 有权员工处理客户结束请求时，根据真实业务结果落最终主状态：
+  - 服务目标已经完成 → `completed`；
+  - 客户不再继续找车 / 放弃该需求 → `cancelled`；
+- 员工也可以在没有客户结束请求时，基于真实业务结果直接对 active / paused Demand 执行 `completed` 或 `cancelled`；
+- 客户未来再次找车时创建新的 Application / Demand，不原地复活 completed / cancelled。
+
+客户结束请求只是待处理业务事实，不改变 `active / paused / completed / cancelled` 四状态模型，也不得被实现成第五个主状态。
+
+**状态：** `STABLE_BASE + USER_REFINED_END_FLOW / USER_APPROVED_2026-10-05`
 
 ### P11-A07｜Demand 负责人独立于 Customer owner
 
@@ -323,9 +349,16 @@ Demand 已 active 不等于 Matching 必然已经启动。
 
 **状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
-### P11-A11｜pending Application 必须进入员工工作台待处理
+### P11-A11｜pending Application 必须有负责人并进入员工工作台待处理
 
-客户提交 pending Application 后，进入负责销售工作台“找车服务待处理”。
+“提交帮我找车”属于高意向人工服务动作。创建正式 Find-car Application 前必须先得到合法服务归属：
+
+1. Customer 已有合法 current owner → 以当前合法归属承接本次 Application / 待处理任务；
+2. Customer 无 owner → 先按 PDM-03 的有效分享 / 转介绍归属规则解析；
+3. 仍无可用 owner → 进入 active + eligible + accepting 合格接客池完成 owner 分配；
+4. 接客池异常为空 → 不创建 `responsible = null` 的 Application；保留 `owner_assignment_pending` / 配置异常事实并向客户提示暂时无法建立人工找车服务，池恢复后再重试。
+
+Application 创建成功后，立即进入负责员工工作台“找车服务待处理”。
 
 卡片至少展示：
 
@@ -338,7 +371,16 @@ Demand 已 active 不等于 Matching 必然已经启动。
 
 工作台只提供“处理申请”进入 E05 申请详情，不在卡片上一键激活 Demand。
 
-**状态：** `STABLE_CONSISTENT / USER_APPROVED`
+其他约束：
+
+- pending Application 本身属于公海保护事实；
+- Customer 仍有 pending Application 时不得按普通无业务客户直接进入公海；
+- 客户修改 pending Application 只更新同一 Application / 同一工作台任务；
+- 客户撤回 / 员工关闭后，同一任务同步结束，不创建 Demand；
+- owner / 员工离职或失去承责资格时，pending Application / 待处理任务必须进入正式交接，不能遗留给 inactive / ineligible 员工；
+- Application 的当前负责人 / 待处理责任不得被误当成未来 Demand 永久负责人；真正激活 Demand 时仍按当时合法业务归属和 P11-A07 规则建立 `demand_responsible_sales_id`。
+
+**状态：** `STABLE_BASE + PREFINAL_INTEGRITY_COMPLETED / USER_APPROVED`
 
 ### P11-A12｜终态 Demand / Application 保留历史，不做普通物理删除或原地复活
 
@@ -588,6 +630,7 @@ IA 中残留的 Merge carrier 只能登记为 stale carrier，不能反向恢复
    - CRM 跟进关联；
    - 状态、负责人及审计历史；
 6. 账号停用期间，不允许该 Customer 继续新建 / 激活正式 Demand，也不允许 paused Demand 恢复 active；
+6A. 已存在的 pending Application 不删除、不自动 complete / cancel / close；保留原始提交内容、修改历史、负责人和待处理历史，但账号停用期间不得激活为 Demand。Customer 侧依赖账号权益的 Application 编辑 / 新增等业务动作暂停；有权限员工仍可查看并按治理事实关闭申请。账号恢复后 pending Application 也不得自动激活，仍需正常人工处理；
 7. Customer 账号恢复后，只恢复账号可用性，不自动恢复找车；
 8. 原 paused Demand 只有在客户本人或有权限员工执行正式“恢复”动作后，才能重新进入 active；
 9. 恢复动作继续服从当前身份、permission、data scope、Demand 当前状态和找车 entitlement 等适用 Guard；
@@ -702,13 +745,15 @@ Customer 停用是全局账号级“停止继续业务”的触发，但不同�
 - Application 正常保存为 pending；
 - 不创建 active Demand；
 - 客户侧应明确提示其当前等级无法正式开通持续找车服务；
-- 提示应引导升级到当前配置中具备找车权益的等级；当前 V1 业务文案可明确举例“粉丝 / VIP”；
+- 提示应引导升级到**当前后台配置中真实具备找车权益的等级**；当前业务配置若粉丝 / VIP 具备该权益，可以显示“粉丝 / VIP”，但客户端不得把这两个名称写死为永久唯一可升级目标；
 - 可提供“联系顾问”出口，帮助客户完成等级升级 / 后续服务；
 - 该提示不得伪装成 Application 提交失败；客户已经成功表达找车意愿，只是正式服务尚未激活。
 
 建议产品语义：
 
-> **找车申请已提交。您当前为普通客户，升级为粉丝或 VIP 后可开通正式找车服务；可联系顾问办理升级。**
+> **找车申请已提交。您当前等级暂不具备正式找车权益；升级到具备该权益的客户等级后可开通正式找车服务，可联系顾问办理。**
+>
+> 当前后台配置若明确为“粉丝 / VIP”具备找车权益，客户端可具体展示“升级为粉丝或 VIP”。
 
 最终展示文案允许 PDM-20 按页面空间压缩，但不得丢失“申请已提交 / 当前等级受限 / 升级后可开通 / 联系顾问”四层语义。
 
@@ -757,61 +802,128 @@ IA / Low-Fi 不得反向覆盖本 PDM 最终 Authority。
 
 ---
 
-## 11. Missing Rule / Semantic Detail / Cross-PDM 初筛
+## 11. Final 前完整性复核｜发现项与处理结果
 
 ### 11.1 Missing Rule Audit
 
-已重新从 9/06 SSOT / Decision、9/19 R10 原始 Final、Current、M03/M16/M17 反扫，确认不能只用 9/19 C2 摘要。当前已恢复到工作版的历史细节包括：
+本轮在 Batch 1～4 用户裁决完成后重新反扫 9/06 SSOT、9/19 R10、001～078、PDM-01～10 Final 与正式 handoff，发现并关闭以下缺口：
 
-- application / demand 双对象；
-- 多 Demand；
-- 独立 Demand 负责人；
-- matching readiness 分层；
-- pending task 工作台语义；
-- 手机号拒绝后的临时页面数据边界；
-- customer raw / sales description / standardized condition / demand note / CRM followup 分层；
-- 终态只读与新需求新建。
+| id | 缺口 | 当前处理 |
+|---|---|---|
+| P11-LIA-01 | pending Application 缺少无 owner / pool-empty 创建 Guard | 已补：先分配合法 owner / 负责人；pool empty 时不得创建 responsible=null Application |
+| P11-LIA-02 | pending Application 的公海保护事实未写入 PDM-11 / PDM-17 handoff | 已补：pending Application 是公海保护事实，必须交 PDM-17 |
+| P11-LIA-03 | 客户“结束自己的 Demand”未定义 completed / cancelled 的最终判定 | 用户裁决：客户发起结束请求，员工确认并根据真实结果落 completed / cancelled；员工也可直接结束 |
+| P11-LIA-04 | Demand 创建时间事实未明确，PDM-13 Priority 仲裁可能自行猜测 | 已补不可变 `Demand.created_at` / 首次激活时间语义 |
+| P11-LIA-05 | “升级粉丝 / VIP”文案可能误被写死等级名 | 已补：读取当前真实具备权益的等级；粉丝/VIP仅当前配置示例 |
+| P11-LIA-06 | 正文比 future handoff 丰富，PDM-16/17/20/21/22/25 接收语义被压薄 | 已扩展正式 handoff，禁止后续只接收摘要 |
+| P11-LIA-07 | Current 控制入口与 Decision Register 存在状态 / Gate stale | 在本轮同步修复 Current / Next / Project State 与 Batch 1 Gate |
+
+另外补清 Customer disable 对 pending Application：
+
+- pending Application 保留；
+- 停用期间不得激活；
+- 不因为停用删除 / 自动终结；
+- 恢复账号后不自动激活，仍走员工人工处理。
 
 ### 11.2 Semantic Detail Audit
 
-当前已挂出的主要语义风险：
+本轮重新核对并确认：
 
-- entitlement/authorization 来源不明；
-- Application 激活时机存在 9/06 vs 9/19 真实版本差；
-- IA 把 Demand responsibility 压成 N/A；
-- 客户 paused Demand 的恢复/结束动作未完整投影；
-- E01 pending Application task 丢失；
-- History carrier 容易误读。
+- Application / Demand 双对象、Application 幂等激活、多 Demand、paused 非历史、终态不 reopen；
+- Customer 结束采用“请求 → 员工确认结果”的双向结束模型，不增加第五个 Demand 主状态；
+- 员工可直接完成 / 取消；客户无需理解 completed / cancelled 两个内部终态；
+- Application / Demand 均不得形成无负责人正式人工业务；
+- pending Application 与 active/paused Demand 都属于后续公海治理必须考虑的业务事实；
+- Customer Level entitlement 是找车资格唯一来源，单 Customer override 明确 DO_NOT_RESTORE；
+- 等级名称不进入找车核心算法与永久文案常量；
+- Customer disable / entitlement loss 均使 active Demand → paused，但两者是不同触发源；
+- PDM-10 价格权益与 PDM-11 找车权益共享 Customer Level 配置容器，但 entitlement 彼此独立。
 
 ### 11.3 Cross-PDM Integrity Audit
 
-当前已核对：
+当前复核结果：
 
-- PDM-01：Customer disable / phone continuity 与 Demand 不冲突；
-- PDM-02 / 03：identity、permission、owner、business responsibility 与 Demand 分层一致；
-- PDM-05：车型年款 / 车型事实边界不由 PDM-11重写；
-- PDM-07：车况 unknown / provenance 规则不由 Demand 猜测覆盖；
-- PDM-10：预算 / 价格只作为后续 Matching 条件，不在 PDM-11 改价格体系。
+- PDM-01：Customer disable / phone continuity / 历史保留一致；
+- PDM-02：identity + permission + data scope + object state、一致的 active/inactive 与 4S hard DENY 不冲突；
+- PDM-03：owner assignment、pool-empty、owner / business responsibility 分层与本域一致；
+- PDM-05：车型 / 年款主数据边界不被 PDM-11 重写；
+- PDM-07：Vehicle 车况事实 unknown / provenance 不被 Demand 猜测覆盖；
+- PDM-10：Customer Level 价格 entitlement 与找车 entitlement 已统一为同一等级配置框架中的独立权益；
+- PDM-12～25：需要承接的语义全部以正式 HANDOFF_OPEN 登记，不把“后面做”当作已经完成。
 
-当前尚未形成任何 PDM-11 Final，因此不得宣告 Cross-PDM PASS；待四批裁决与 Final 后做本域完整性 Gate。
+当前未发现需要推翻已批准 Batch 1～4 的新硬冲突。
+
+> **PDM-11 已达到“Final 候选可生成”条件，但尚未经过用户最终总览批准，因此不得标记 COMPLETE / INTEGRITY_PASS。**
 
 ---
 
-## 12. Future handoff｜已按确认 Atom 正式登记 HANDOFF_OPEN
+## 12. Future handoff｜已按完整语义正式登记 HANDOFF_OPEN
 
-PDM-11 Batch 1～4 已全部完成用户裁决，因此本域已把后续目标正式写入 CROSS_PDM_HANDOFF_REGISTER；这些 handoff 不是 IA / Low-Fi 施工指令，而是后续 PDM 的产品语义输入。
+PDM-11 Batch 1～4 与 Final 前完整性复核均已完成用户裁决 / 证据补齐。以下 handoff 必须携带完整语义，不允许目标 PDM 只接收一句摘要：
 
-- `HO-P11-P12-001` → PDM-12：Matching readiness、标准条件、确定性解析；只有人工激活后的 active Demand 才进入正式 Matching；
-- `HO-P11-P13-001` → PDM-13：Priority 只能建立在合法 active Demand / Matching 关系上，不能由 pending Application 直接产生；
-- `HO-P11-P14-001` → PDM-14：Recommendation 可关联 `source_demand_id`；Demand 状态变化不得抹除历史 Recommendation；
-- `HO-P11-P16-001` → PDM-16：CRM 客户详情承载当前等级、找车 entitlement 结果、Demand 概览，以及 customer.level.manage 的合法等级调整入口；
-- `HO-P11-P17-001` → PDM-17：owner / 公海变化与 Demand 负责人分层，未完成 Demand 走正式责任交接；
-- `HO-P11-P20-001` → PDM-20：客户端 Application pending、普通客户等级受限提示、升级粉丝/VIP/联系顾问、Demand paused/resume/history；
-- `HO-P11-P21-001` → PDM-21：员工待处理工作台、处理详情、人工激活 Demand、等级不足时先完成合法等级调整；
-- `HO-P11-P22-001` → PDM-22：PC Customer Level 权益配置、find-car entitlement、与 PDM-10 LIMITED/UNLIMITED/daily quota 同等级配置承载；V1 不建设单 Customer find-car override；
-- `HO-P11-P25-001` → PDM-25：Application / Demand / Customer Level / entitlement / 停用触发暂停等统一审计。
+- `HO-P11-P12-001` → PDM-12：
+  - 只有员工人工激活后的 active Demand 才进入正式 Matching；
+  - Application 不等于 Matching；
+  - 客户原始要求 / 销售匹配描述 / 标准条件 / 需求说明分层；
+  - active 不等于 matching-ready；
+  - readiness、确定性解析、条件变更重算、候选等级正式由 PDM-12 冻结；
+  - Demand `created_at` 是后续跨域可引用的不可变创建事实。
+- `HO-P11-P13-001` → PDM-13：
+  - pending Application 不产生 Priority；
+  - Priority 只能建立在合法 active Demand / Matching 上；
+  - Demand paused/completed/cancelled 后的 Priority 处理按 PDM-13 冻结；
+  - 若 Priority 仲裁用 Demand 先后，只能使用不可变 `Demand.created_at`，不得使用 updated_at / resume time。
+- `HO-P11-P14-001` → PDM-14：
+  - Recommendation 可关联 source_demand_id；
+  - paused/completed/cancelled 不删除历史 Recommendation；
+  - Recommendation 生命周期不得反写 Demand 为 active；
+  - 多 Demand 的 Recommendation 归属必须保持真实 source_demand_id。
+- `HO-P11-P16-001` → PDM-16：
+  - CRM Customer 详情承载当前等级、找车 entitlement 结果；
+  - 展示 pending Application、active/paused Demand、completed/cancelled 历史概览；
+  - Demand 详情使用统一 CRM follow-up，通过 demand_id 关联，不新建第二套 Demand 跟进表；
+  - customer.level.manage 受 permission + data scope + object state 控制；
+  - 客户检索继承手机号搜索，具体 CRM 搜索 / 入口由 PDM-16 承载。
+- `HO-P11-P17-001` → PDM-17：
+  - pending Find-car Application **本身是公海保护事实**；
+  - active / paused Demand 同样是未完成业务事实；
+  - Customer 无 owner 时提交找车必须先完成合法 owner 分配，再创建有负责人的 Application；
+  - pool empty 时不得创建 responsible=null Application；
+  - owner / 公海变化不得静默漂移 Demand 负责人；
+  - pending Application / 待处理任务和未完成 Demand 都必须纳入正式交接。
+- `HO-P11-P20-001` → PDM-20：
+  - C02 是多对象找车工作区：pending Application、active Demand、paused Demand、Recommendation、completed/cancelled history 可并存；
+  - Application 最低必填“想找什么车”，pending 可编辑 / 撤回；
+  - 普通 / 无 entitlement 客户提交成功仍是 pending，并提示当前等级受限、可升级到**当前配置中具备权益的等级** / 联系顾问；不得永久写死粉丝/VIP；
+  - active Demand 可暂停，paused 可恢复；
+  - 客户“结束找车”生成待员工确认结束请求；客户端显示“结束处理中”，但不创造第五个 Demand 主状态；
+  - ended Demand 历史保留，未来找车新建；
+  - 账号停用时既有 pending Application 保留但不得激活。
+- `HO-P11-P21-001` → PDM-21：
+  - E01 展示“找车服务待处理”，卡片客户 / 想找什么车 / 预算 / 提交时间 / 当前负责人 / pending；
+  - 只提供“处理申请”进入详情，不允许卡片一键绕过 Guard 激活；
+  - E05 Application 详情人工激活唯一 Demand / 关闭申请；
+  - 等级不足时先完成合法等级调整，等级调整本身不自动激活；
+  - E05 Demand 详情完整承载客户原始要求、销售匹配描述、标准条件、需求说明、CRM 跟进、候选 / 推荐上下文；
+  - 员工 active: pause/complete/cancel；paused: resume/complete/cancel；终态只读；
+  - 员工处理客户结束请求时必须明确落 completed 或 cancelled；员工也可无请求直接结束；
+  - Application / Demand reassignment 与 inactive / 离职交接不得丢负责人历史。
+- `HO-P11-P22-001` → PDM-22：
+  - PC 后台承载 Customer Level 权益配置，找车 entitlement 与 PDM-10 LIMITED/UNLIMITED/daily quota 属于同一等级配置体系中的独立权益；
+  - V1 不提供单 Customer find-car entitlement override；
+  - 等级可新增 / 改名 / 排序 / 启停 / 历史保留由客户等级治理承载；
+  - customer.level.manage 类 capability 独立受控，不建设固定多级审批流；
+  - PC 客户 / 找车管理至少可查看 Application / Demand 当前状态、负责人及必要治理入口，不能只做等级配置壳。
+- `HO-P11-P25-001` → PDM-25：
+  - 审计 Application 创建 / 编辑 / 撤回 / 关闭 / 激活转换；
+  - Demand created_at、激活、pause/resume、complete/cancel、客户结束请求及员工确认结果；
+  - Demand 负责人 reassignment；
+  - Customer disable / entitlement loss 触发 active→paused；
+  - Customer Level before/after/actor/time；
+  - 必要 identity / permission / data scope / object state context；
+  - 历史不得因终态、停用或等级变化被物理删除。
 
-所有上述 handoff 当前状态均为 `HANDOFF_OPEN`；目标 PDM 接收后必须转 `HANDOFF_ACCEPTED`，最终落地并完成 source backwrite 后才允许 CLOSED。
+所有上述 handoff 当前均为 `HANDOFF_OPEN`；目标 PDM 接收后转 `HANDOFF_ACCEPTED`，目标完成并 source backwrite 后才允许 CLOSED。
 
 ---
 
@@ -824,17 +936,18 @@ HO-P01-P11-001 = HANDOFF_SUPERSEDED
 HO-P01-P11-002 = HANDOFF_ACCEPTED
 COMPLETED_PDM_DEPENDENCY_CARD = PASS
 TERMINOLOGY_NORMALIZATION = PASS
-MISSING_RULE_AUDIT_INITIAL_SCAN = PASS
-SEMANTIC_DETAIL_AUDIT_INITIAL_SCAN = PASS
-CROSS_PDM_INITIAL_SCAN = PASS
+MISSING_RULE_AUDIT = PASS
+SEMANTIC_DETAIL_AUDIT = PASS
+CROSS_PDM_INTEGRITY_AUDIT = PASS
 BATCH_1_CANDIDATES = 13
 BATCH_1_USER_APPROVAL = PASS
 BATCH_2 = PASS / USER_APPROVED
 BATCH_3 = PASS / USER_APPROVED
 BATCH_4 = PASS / USER_APPROVED
-PDM11_FINAL = NOT_READY
+PDM11_FINAL_CANDIDATE = READY_FOR_GENERATION
+PDM11_COMPLETE = NO
 ```
 
 当前唯一下一步：
 
-> **Batch 4 已完成用户裁决。下一步：执行 PDM-11 全量 Decision Coverage / Missing Rule / Semantic Detail / Cross-PDM / Handoff 完整性复核，形成 Final 候选；未经最终总览批准不得标记 PDM-11 COMPLETE。**
+> **Final 前完整性缺口已关闭。下一步：生成 PDM-11《最终完整规则总览_待用户批准》，进行最终总览审查；未经用户最终批准不得标记 PDM-11 COMPLETE / INTEGRITY_PASS。**
