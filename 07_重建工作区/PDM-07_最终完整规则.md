@@ -1,7 +1,7 @@
 # PDM-07｜车辆档案 / 车况 / 客户可见报告 / 成交交付材料核验｜最终完整规则
 
 > 日期：2026-09-24  
-> 状态：`COMPLETE`  
+> 状态：`COMPLETE / INTEGRITY_PASS`  
 > 说明：汇总 PDM-07 Batch 1～4 经用户逐批裁决并经最终总览批准后的正式当前规则；2026-10-05 已完成 Legacy Final Integrity Audit，并同步 PDM-08 已完成的报告 / 档案资源承载。  
 > IA / Low-Fi 仅登记 `STALE_CARRIER`，统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。
 
