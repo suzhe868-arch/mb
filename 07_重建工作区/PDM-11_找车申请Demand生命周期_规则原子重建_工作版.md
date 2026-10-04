@@ -1,10 +1,10 @@
 # PDM-11｜找车申请 / Demand 生命周期｜规则原子重建工作版
 
 > 日期：2026-10-05  
-> 当前状态：`IN_PROGRESS / BATCH_1_TO_4_USER_APPROVED / FINAL_INTEGRITY_REVIEW_PENDING`  
+> 当前状态：`HISTORICAL_WORKFILE / PDM-11 COMPLETE / INTEGRITY_PASS`  
 > 业务权威语言：中文（zh-CN）  
 > 当前域：PDM-11｜Find-car Application / Demand / 生命周期 / 负责人 / 匹配准备度边界  
-> 执行边界：Batch 1～4 已全部完成用户裁决；本文件当前用于 Final 前完整性复核。未经最终总览用户批准，不得标记 PDM-11 COMPLETE / INTEGRITY_PASS。
+> 执行边界：本文件保留为 PDM-11 历史工作底稿。当前正式 Authority 为 `07_重建工作区/PDM-11_最终完整规则.md`；不得再把本工作版中的阶段性描述反向覆盖 Final。
 
 ---
 
@@ -944,10 +944,11 @@ BATCH_1_USER_APPROVAL = PASS
 BATCH_2 = PASS / USER_APPROVED
 BATCH_3 = PASS / USER_APPROVED
 BATCH_4 = PASS / USER_APPROVED
-PDM11_FINAL_CANDIDATE = GENERATED / USER_REVIEW_PENDING
-PDM11_COMPLETE = NO
+PDM11_FINAL = PUBLISHED / USER_APPROVED
+PDM11_COMPLETE = YES
+PDM11_INTEGRITY_PASS = YES
 ```
 
 当前唯一下一步：
 
-> **Final 前完整性缺口已关闭，`PDM-11_最终完整规则总览_待用户批准.md` 已生成。当前唯一下一步：用户审查该总览；未经用户最终批准不得生成正式 Final、关闭 incoming handoff 或标记 PDM-11 COMPLETE / INTEGRITY_PASS。**
+> **PDM-11 已完成最终用户批准、正式 Final 发布、双向追溯与 incoming handoff closure。后续以 `PDM-11_最终完整规则.md` 为唯一当前 Authority。**
