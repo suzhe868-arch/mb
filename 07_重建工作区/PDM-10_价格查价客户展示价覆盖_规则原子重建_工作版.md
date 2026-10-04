@@ -517,17 +517,29 @@ Batch 1 门禁已关闭，允许进入 Batch 2；不得自动批准 Batch 2。
 
 ---
 
-### P10-B2-10｜禁止恢复名邦员工“内部价查看独立 permission”旧门槛
+### P10-B2-10｜【已回开并失效】原“禁止恢复内部价独立 permission”结论
 
-不得恢复：
+本条曾在 Batch 2 被错误分类为：
 
-> **名邦员工要看内部价 / 批发价，必须额外拥有一项独立 internal-price-view permission。**
+> **不得恢复名邦员工内部价 / 批发价独立查看 permission。**
 
-R11 已明确取消该独立权限门槛；当前 IA / Permission 若存在残留，属于后续承载清理问题。
+当时主要依据 R11 后期总结“取消独立权限门槛”。
 
-4S 的内部价边界仍须按角色 / 数据范围单独处理，不因本条自动放开。
+2026-10-04 全局反向复核后确认，该分类遗漏了三组更高优先级 / 冲突证据：
 
-**状态：** `DEPRECATED_SUPERSEDED / USER_APPROVED`
+1. R4 正式规则明确“内部批发价按员工权限 + data scope 控制”；
+2. 已完成且用户最终批准的 **PDM-02 正式规则**已经明确恢复“查看名邦内部价 / 批发价”独立 permission，并注明这是用户主动反转 9/19 旧规则后的当前口径；
+3. IA V5 / 001～078 已记录 internal price permission 的反向承载与 R11 冲突，说明该点从未真正无冲突收口。
+
+因此：
+
+> **P10-B2-10 原结论失效，不再作为当前 DO_NOT_RESTORE 规则。**
+
+原 Batch 2 用户确认记录保留作审计，但本条被后续全局证据复核和用户当前明确口径覆盖。
+
+当前正确规则转入 Batch 4 冲突项 P10-B4-01，并按 PDM-02 当前正式规则继承。
+
+**状态：** `REOPENED / INVALID_CLASSIFICATION / SUPERSEDED_BY_P10-B4-01`
 
 ---
 
@@ -602,7 +614,7 @@ Batch 2 门禁已关闭，允许进入 Batch 3；对应替代规则不得因本�
 
 这是对 CN11 旧“无有效加价规则即价格咨询”口径的**知情修改**。
 
-**状态：** `INFORMED_CHANGE / USER_REVIEW_PENDING`
+**状态：** `INFORMED_CHANGE / USER_APPROVED`
 
 ---
 
@@ -635,44 +647,110 @@ Batch 2 门禁已关闭，允许进入 Batch 3；对应替代规则不得因本�
 
 这是对旧“覆盖价仅批发车”的**明确扩展**。
 
-**状态：** `INFORMED_CHANGE / USER_REVIEW_PENDING`
+**状态：** `INFORMED_CHANGE / USER_APPROVED`
 
 ---
 
-### P10-A15｜名邦员工查看内部价 / 批发价取消独立查看权限门槛
+### P10-A15｜【撤回并转 Batch 4】原“取消独立查看权限门槛”候选
 
-后续 R11 已明确修改为：
+原候选基于 R11，拟定为：
 
-- 默认客户安全视图不返回内部价 / 批发价；
-- 名邦员工进入内部模式后，在其有效员工身份、数据范围和对象状态允许的前提下，可以查看内部价 / 批发价；
-- **不再额外设置独立的 internal-price-view permission**；
-- 进入内部模式本身不授予调价、覆盖价、电话、上下架等其他敏感能力；
-- 4S 成员不能因此查看名邦内部价 / 批发价。
+> 名邦员工进入内部模式后，不再额外要求 internal-price-view permission。
 
-因此：
+经 2026-10-04 全局复核确认，该候选与以下当前有效约束冲突：
 
-> **“内部模式 + 正常身份/范围”是名邦内部价格的查看边界；不是再叠加一层独立查看权限。**
+- R4：内部批发价按员工权限 + data scope 控制；
+- PDM-02 正式最终规则：**“查看名邦内部价 / 批发价”恢复为独立 permission**；
+- IA V5：internal price 在多角色上仍存在 ALLOW / CONDITIONAL permission 承载；
+- 001～078：已明确记录 R11 取消 permission 后 Current 又反向复活的冲突。
 
-当前 IA / Permission 若仍对部分名邦角色重新要求独立 internal-price permission，属于承载残留，不能反向推翻本条产品规则。
+根据新增 Step 5A / Batch 2、3 反向冲突门禁：
 
-**状态：** `INFORMED_CHANGE / USER_REVIEW_PENDING`
+> 本项不得继续作为 Batch 3“明确知情修改”确定项。
+
+因此 P10-A15 撤回并重新归类为 Batch 4 冲突项，由 P10-B4-01 承接。
+
+**状态：** `WITHDRAWN_FROM_BATCH_3 / RECLASSIFIED_TO_BATCH_4`
 
 ---
 
-## 9. Batch 3 门禁状态
+## 9. Batch 3 门禁结果
 
-候选原子：
+本批原候选：
 
 > **P10-A13 ～ P10-A15，共 3 条。**
 
+2026-10-04 用户审查与全局复核结果：
+
+- P10-A13：用户确认无问题，`USER_APPROVED`；
+- P10-A14：用户明确“同意”，`USER_APPROVED`；
+- P10-A15：因遗漏 PDM-02 正式规则及跨证据冲突，撤回 Batch 3，转入 Batch 4。
+
+因此 Batch 3 有效确认原子为：
+
+> **P10-A13、P10-A14，共 2 条。**
+
+状态：
+
+> `COMPLETE_USER_CONFIRMED_WITH_ONE_RECLASSIFIED`
+
+Batch 3 门禁关闭，允许进入 Batch 4；不得自动批准 Batch 4 其余未形成项。
+
+---
+
+## 10. Batch 4｜冲突 / 历史遗漏 / 证据缺口 / 新选择
+
+### P10-B4-01｜名邦内部价 / 批发价查看采用后台可配置独立 permission
+
+#### 冲突来源
+
+历史 / 当前证据同时存在：
+
+1. R4：内部批发价按员工权限 + data scope 控制；
+2. R11：一度取消名邦员工内部价独立 permission；
+3. PDM-02 最终正式规则：用户已主动反转 R11 / 9/19 该口径，恢复独立 permission；
+4. IA V5：当前仍存在 internal price ALLOW / CONDITIONAL permission 承载；
+5. 001～078：明确记录该点存在“取消后反向复活”的冲突。
+
+#### 当前用户裁决
+
+2026-10-04 用户再次明确：
+
+> **后台应可配置名邦员工是否能看内部价 / 底价；勾选权限则能看，不勾选则不能看。**
+
+当前正式规则：
+
+1. “查看名邦内部价 / 批发价”作为独立 permission 纳入统一权限体系；
+2. permission 可由角色模板提供默认值，也可按员工个人明确授权 / 禁用覆盖；
+3. 名邦员工查看内部价必须同时满足：
+   - 当前为有效名邦员工；
+   - 已进入内部模式；
+   - 具备内部价查看 permission；
+   - 目标车辆在其 data scope 内；
+   - 当前对象状态允许；
+4. 普通销售、经理、店长均不因职位本身自动获得该 permission；
+5. 后台有权管理者可以按现有权限治理体系配置角色默认值和员工个人覆盖；
+6. “能查看内部价”不等于获得调价、客户展示价覆盖、电话、上下架等其他敏感能力，这些继续分别按独立权限判断；
+7. 4S 成员查看名邦内部价 / 批发价继续 hard DENY，不得通过角色模板或个人授权绕过。
+
+本条直接继承并再次确认 PDM-02 当前正式规则，不修改历史 R11 证据原件。
+
+**状态：** `CONFLICT_RESOLVED / USER_APPROVED / UPSTREAM_AUTHORITY_RESTORED`
+
+---
+
+## 11. Batch 4 当前状态
+
+已解决：
+
+> **P10-B4-01｜内部价查看独立 permission**
+
+其余 Batch 4 冲突 / 历史遗漏 / 缺口尚需继续按全局证据形成，不得因为 B4-01 已解决就自动完成 Batch 4。
+
 当前状态：
 
-> `USER_REVIEW_BATCH_3_PENDING`
+> `BATCH_4_EVIDENCE_REVIEW`
 
-门禁：
+下一步：
 
-- 用户未确认前，不得将 P10-A13～P10-A15 标记 USER_APPROVED；
-- 不得进入 Batch 4；
-- 不得修改 IA / Low-Fi / Engineering；
-- 当前实现或旧载体不得自动覆盖本批知情修改；
-- 不得静默改写已完成 PDM-01～PDM-09。
+> **继续形成 PDM-10 其余 Batch 4 候选，并逐项提交用户审查。**
