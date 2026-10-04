@@ -192,9 +192,11 @@ Demand 可以已经 active，但仍处于“顾问整理条件”；只有销售
 
 ---
 
-## 7. Batch 1｜稳定一致候选｜待用户审查
+## 7. Batch 1｜稳定一致项｜用户已全部确认
 
 > 只有前史、9/19、后续 Current 与已完成 PDM 没有发现真实产品反转的条款进入本批。存在版本冲突、后续知情修改或需要恢复历史模型的内容全部排除，不在 Batch 1 偷渡。
+>
+> **2026-10-05 用户确认：P11-A01～P11-A13 全部同意；Batch 1 正式关闭。**
 
 ### P11-A01｜Application 与正式 Demand 必须分离
 
@@ -202,7 +204,7 @@ Demand 可以已经 active，但仍处于“顾问整理条件”；只有销售
 
 **稳定证据：** 9/06 DEC-003、SSOT、9/19 R10-16 / R10-53、IA V5 Current 同向。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ### P11-A02｜一个 Customer 可以同时存在多条独立 Demand 与 pending Application
 
@@ -210,7 +212,7 @@ Demand 可以已经 active，但仍处于“顾问整理条件”；只有销售
 
 `paused` 仍属于当前正式 Demand，不得归入已结束。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ### P11-A03｜手机号是提交找车申请的人工服务门槛
 
@@ -226,7 +228,7 @@ Demand 可以已经 active，但仍处于“顾问整理条件”；只有销售
 
 **依赖：** PDM-01 当前 Final。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ### P11-A04｜Application pending 的编辑 / 撤回 / 幂等边界
 
@@ -238,7 +240,7 @@ pending Application：
 - 员工关闭后同样不得再激活；
 - 客户修改 pending 申请只更新同一 Application 与同一待处理任务，不重复制造 Application / Task。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ### P11-A05｜Demand 主状态固定为 active / paused / completed / cancelled
 
@@ -251,7 +253,7 @@ V1 Demand 主生命周期只使用：
 
 不增加自动 `expired` 主状态。`completed / cancelled` 终态只读；未来再次找车创建新 Demand，不恢复旧 Demand。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ### P11-A06｜active / paused 的正式状态动作
 
@@ -265,7 +267,7 @@ V1 Demand 主生命周期只使用：
 
 客户侧历史规则同样允许对自己的正式 Demand 执行暂停、恢复、结束；具体客户页面 carrier 当前存在缺口，先登记 stale carrier，不反向改变本条产品语义。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ### P11-A07｜Demand 负责人独立于 Customer owner
 
@@ -275,7 +277,7 @@ V1 Demand 主生命周期只使用：
 
 **依赖：** PDM-02 / PDM-03 当前 Final。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ### P11-A08｜找车申请最低必填只有“想找什么车”
 
@@ -287,7 +289,7 @@ Application 最低必填：
 
 具体这些条件如何进入 Matching 判定由 PDM-12 冻结。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ### P11-A09｜匹配准备度与 Demand 主状态分层
 
@@ -302,7 +304,7 @@ Demand 已 active 不等于 Matching 必然已经启动。
 
 匹配准备度不得被新增为第二套 Demand 主状态机；具体 readiness 字段和 Matching 算法由 PDM-12 承接。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ### P11-A10｜客户原始要求、销售匹配描述、标准条件、需求说明必须分层
 
@@ -316,7 +318,7 @@ Demand 已 active 不等于 Matching 必然已经启动。
 
 客户原始表达不得直接作为自动 Matching 的主输入。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ### P11-A11｜pending Application 必须进入员工工作台待处理
 
@@ -333,13 +335,13 @@ Demand 已 active 不等于 Matching 必然已经启动。
 
 工作台只提供“处理申请”进入 E05 申请详情，不在卡片上一键激活 Demand。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ### P11-A12｜终态 Demand / Application 保留历史，不做普通物理删除或原地复活
 
 Application closed / withdrawn、Demand completed / cancelled 均保留必要业务历史。错误处理只能通过明确 correction / invalidation / amendment 类治理方式追加事实，不以普通编辑覆盖历史。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ### P11-A13｜成交不自动批量结束客户其他 Demand
 
@@ -347,7 +349,7 @@ Application closed / withdrawn、Demand completed / cancelled 均保留必要业
 
 是否完成某条 Demand 必须由该 Demand 的真实服务目标和正式状态动作决定。
 
-**状态：** `STABLE_CONSISTENT / USER_REVIEW_PENDING`
+**状态：** `STABLE_CONSISTENT / USER_APPROVED`
 
 ---
 
@@ -405,25 +407,111 @@ PDM-01 在 2026-10-04 已由用户明确改为轻量停用：
 
 ---
 
-## 9. 明确废弃 / 不得恢复候选｜待 Batch 2 正式审查
+## 9. Batch 2｜明确废弃 / 被替代规则｜待用户审查
 
-以下仅先挂账，当前不提前向用户宣告 Batch 2 通过：
+> 本批只处理已经有明确废弃、被替代或与当前已批准 Authority 冲突的旧方向；不把 Batch 4 的真实冲突混入本批。
 
-- 提交 Application 就无条件直接生成 active Demand；
-- 一个 Customer 只能有一条 Demand；
-- 把 paused Demand 归入已结束历史；
-- 给 Demand 增加自动 `expired` 主状态；
-- Customer owner 变化自动漂移 Demand 负责人；
-- completed / cancelled Demand 原地恢复 / reopen；
-- 把“代淘中 / 代淘客户”恢复为客户等级或 Demand 状态；
-- 找车权益下降自动暂停 / 取消 / 完成已经 active 的 Demand；
-- 把客户原始自然语言直接交给 AI 猜测并作为正式 Matching 条件；
-- 恢复 V1 Customer Merge，并因此恢复“active/paused Demand 阻断 Merge”的旧 P06-01 / P06-M01 主流程。
+### P11-B2-01｜禁止“提交 Application 就无条件直接生成 active Demand”
 
-最后一项继承 PDM-01 当前“V1 无 Customer Merge” Authority；IA 中仍存在 Merge carrier 只能作为 stale carrier 处理。
+不得把任何客户一提交找车申请就无条件创建 active Demand。
+
+这条废弃的是“**无条件直接激活**”方向；至于具备正式找车权益的客户是否可以在保存 Application 后直接激活 Demand，仍保留在 `P11-B4-01`，后续单独裁决。
+
+**状态：** `DEPRECATED_DIRECTION / USER_REVIEW_PENDING`
+
+### P11-B2-02｜禁止“一个 Customer 只能有一条 Demand”
+
+同一 Customer 可以同时存在多条独立 Demand、pending Application、paused Demand 和历史 Demand。
+
+旧“客户只能一条 Demand / 整个 C02 只能有一个互斥状态”方向不得恢复。
+
+**状态：** `SUPERSEDED_BY_MULTI_DEMAND_WORKSPACE / USER_REVIEW_PENDING`
+
+### P11-B2-03｜禁止把 paused Demand 归入已结束历史
+
+`paused` 是当前正式 Demand 的暂停状态，可恢复，不属于 `completed / cancelled` 已结束历史。
+
+**状态：** `DEPRECATED_STATE_PROJECTION / USER_REVIEW_PENDING`
+
+### P11-B2-04｜禁止增加自动 expired Demand 主状态
+
+V1 Demand 主状态只保留：
+
+`active / paused / completed / cancelled`
+
+不得因为长期未处理、长时间未匹配、客户暂时不活跃等原因自动制造 `expired` 主状态。
+
+**状态：** `DEPRECATED_STATE / USER_REVIEW_PENDING`
+
+### P11-B2-05｜禁止 Customer owner 变化自动漂移 Demand 负责人
+
+普通 Customer owner 变化只改变 Customer owner，不自动修改既有 Demand 的负责人。
+
+确需变更时走正式 reassignment；员工 inactive / 离职属于强制交接场景。
+
+**依赖：** PDM-03 已批准 Authority。
+
+**状态：** `DEPRECATED_RESPONSIBILITY_COUPLING / USER_REVIEW_PENDING`
+
+### P11-B2-06｜禁止 completed / cancelled Demand 原地 reopen
+
+completed / cancelled Demand 属于终态历史。
+
+客户未来再次找车时必须新建新的 Demand，不允许把旧终态 Demand 原地恢复为 active。
+
+**状态：** `DEPRECATED_REOPEN_FLOW / USER_REVIEW_PENDING`
+
+### P11-B2-07｜禁止恢复“代淘中 / 代淘客户”
+
+“代淘中 / 代淘客户”不得恢复为：
+
+- 客户等级；
+- Demand 状态；
+- 找车权益状态；
+- “正在持续匹配”的替代概念。
+
+客户是否具备找车资格由正式权益规则决定；客户是否正在正式找车由真实 active Demand 决定。
+
+**状态：** `DEPRECATED_CONCEPT / USER_REVIEW_PENDING`
+
+### P11-B2-08｜禁止找车权益下降自动结束已 active Demand
+
+客户等级下降、等级权益调整或 Customer 级找车资格失效，不得自动把已经 active 的 Demand：
+
+- pause；
+- complete；
+- cancel。
+
+权益层只影响“能否新建 / 激活新的正式持续找车服务”；已经进入 Demand 生命周期的对象只能通过正式状态动作改变。
+
+本条不预判 `P11-B4-02` 的最终资格来源模型。
+
+**状态：** `DEPRECATED_CROSS_OBJECT_AUTOMATION / USER_REVIEW_PENDING`
+
+### P11-B2-09｜禁止客户原始自然语言直接经 AI 猜测成为正式 Matching 条件
+
+客户原始表达必须作为原始业务事实保留，但不得直接交给 AI 猜测后生成正式自动 Matching 条件。
+
+PDM-11 只冻结信息分层；确定性解析 / Matching 细则正式由 PDM-12 承接。
+
+**状态：** `DEPRECATED_AI_MATCHING_DIRECTION / USER_REVIEW_PENDING`
+
+### P11-B2-10｜禁止恢复 V1 Customer Merge 及其 Demand 阻断主流程
+
+PDM-01 当前 Authority 已明确：V1 不建设 Customer Merge。
+
+因此不得恢复：
+
+- P06-01 / P06-M01 Customer Merge 主流程；
+- “任一 Customer 存在 active / paused Demand → 阻断 Merge → 返回处理 Demand”的旧主业务链。
+
+IA 中残留的 Merge carrier 只能登记为 stale carrier，不能反向恢复产品功能。
+
+**依赖：** PDM-01 已批准 Final。
+
+**状态：** `SUPERSEDED_BY_PDM01_NO_MERGE / USER_REVIEW_PENDING`
 
 ---
-
 ## 10. Stale Carrier Ledger｜当前只登记、不修改 IA / Low-Fi
 
 | Carrier | 当前问题 | 正确 Authority / 后续处理 |
@@ -512,8 +600,8 @@ MISSING_RULE_AUDIT_INITIAL_SCAN = PASS
 SEMANTIC_DETAIL_AUDIT_INITIAL_SCAN = PASS
 CROSS_PDM_INITIAL_SCAN = PASS
 BATCH_1_CANDIDATES = 13
-BATCH_1_USER_APPROVAL = PENDING
-BATCH_2 = NOT_STARTED_FORMALLY
+BATCH_1_USER_APPROVAL = PASS
+BATCH_2 = USER_REVIEW_PENDING
 BATCH_3 = NOT_STARTED_FORMALLY
 BATCH_4 = NOT_STARTED_FORMALLY
 PDM11_FINAL = NOT_READY
