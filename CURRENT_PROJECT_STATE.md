@@ -32,7 +32,18 @@
 
 当前唯一下一步：
 
-> **PDM-11 Batch 3 已按用户修正通过：Customer 停用时 active Demand 自动 paused，历史保留，账号恢复不自动恢复 Demand；`HO-P01-P11-001` 已 superseded，由 `HO-P01-P11-002` 承接。当前唯一下一步：审查 Batch 4 的 P11-B4-01 与 P11-B4-02。两项未裁决前不得形成 PDM-11 Final。IA / Low-Fi 仍统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。**
+> **PDM-11 Batch 1～4 已全部用户批准。P11-B4-01 已冻结为“所有 Application 先 pending、员工人工激活 Demand”；P11-B4-02 已冻结为“正式找车资格只来自 Customer Level entitlement，不建设单 Customer find-car override”。并已联动回写 PDM-10：LIMITED 批发车列表隐藏精确数字价、详情有额度自动解锁、quota 耗尽显示 `--万`、UNLIMITED 列表/详情直接显示数字价、临时加次数免费。当前唯一下一步：执行 PDM-11 全量 Decision Coverage / Missing Rule / Semantic Detail / Cross-PDM / Handoff 完整性复核并形成 Final 候选。未经最终总览批准不得标记 PDM-11 COMPLETE。IA / Low-Fi 仍统一延后到 PDM-25 后集中对齐。**
+
+## 2026-10-05｜PDM-11 Batch 4 全部确认
+
+- P11-B4-01：所有 Find-car Application 均先 pending；不因已有 entitlement 自动 active；必须由合法员工在处理详情中人工创建 / 激活唯一 Demand；
+- P11-B4-02：正式找车资格只来自 Customer Level 配置；普通客户当前无正式找车权益；需要开通时通过等级升级到具备权益的粉丝 / VIP 等等级；不建设单 Customer find-car entitlement override；
+- 客户等级调整继承 PDM-02 permission + data scope + object state，不建设固定多级审批；经理 / 店长可按配置拥有，个别销售可明确授权；
+- 普通客户可提交找车 Application，但无权益时只保持 pending；客户端必须明确提示升级等级 / 联系顾问；
+- 联动回写 PDM-10：daily quota 只限制批发车；LIMITED 列表隐藏精确数字价，详情真实进入时有额度自动解锁，无二次“查看价格”点击；quota 耗尽主字段 `--万`；UNLIMITED 列表/详情直接显示数字价；临时增加当天次数对客户免费；
+- PDM-11 已正式登记 PDM-12/13/14/16/17/20/21/22/25 future handoff；
+- Batch 4 = `PASS / USER_APPROVED`；
+- 当前进入 PDM-11 Final 前完整性复核。
 
 ## 2026-10-05｜PDM-11 Batch 3 用户修正并通过
 
