@@ -155,7 +155,7 @@
 - 当前草稿继续保留；
 - 已填资料不丢失；
 - 不能绕过本地车型主数据直接发布；
-- 按 PDM-05 规则由后台 Admin 补齐 / 绑定车型主数据。
+- 按 PDM-05 当前规则由 System Admin 控制平面通过 `vehicle.model.manage` Guard 补齐 / 绑定车型主数据。
 
 处理完成后：
 
@@ -193,7 +193,7 @@
 
 1. 固定属性优先来自当前有效本地车型主数据；
 2. 不要求销售重复手工录入已经由具体车型唯一确定的固定属性；
-3. 车型主数据后续纠错 / 修正时，具体已发布车辆如何处理历史快照与当前显示，由车型主数据 / 车辆编辑规则共同约束，不在人工录车时静默猜测；
+3. 2026-10-05 已由 PDM-05 Integrity Audit 明确关闭：由具体车型唯一确定的固定车型属性，当前值跟随当前有效车型主数据；车型主档纠错后当前车辆投影同步体现修正值，但 Recommendation / Lock / Transaction / 成交及其他已形成历史快照不追改，JYT 原始 source facts 不反写；
 4. 上游 JYT source facts 仍按 PDM-05 规则独立保留，不被人工车型选择反向覆盖。
 
 ---
@@ -460,7 +460,8 @@ VIN 是人工车辆内部可选字段：
 - 本地车型主数据结构；
 - 有效 `vehicle_model_id`；
 - MODEL_MISSING；
-- Admin 补齐车型 / JYT mapping。
+- System Admin 控制平面通过 `vehicle.model.manage` Guard 补齐车型 / JYT mapping；
+- 车型唯一确定的固定属性当前值跟随有效车型主档纠错，历史业务快照与 JYT source facts 不追改。
 
 ### PDM-07
 继续处理：
