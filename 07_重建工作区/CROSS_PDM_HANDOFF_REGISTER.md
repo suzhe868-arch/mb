@@ -202,7 +202,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | HO-P01-P02-002 | PDM-02 | Customer 停用 / 恢复员工侧能力继承统一 permission / data scope / hard DENY；后续裁决 System Admin 可直接作为控制平面治理动作执行 | HANDOFF_CLOSED | PDM-02 §6 / §15 + PDM01-DEC-A16-R2 | YES |
 | HO-P01-P03-001 | PDM-03 | owner / 分享 / 转介绍 / accepting / 离职交接；ownerless 新 Customer 的有效分享可形成归属，已有 owner 不被抢 | HANDOFF_CLOSED | PDM-03 Final | YES |
 | HO-P01-P10-001 | PDM-10 | 查价权的产生、有效期、listing_cycle 边界由价格域冻结；Customer 停用只做上层可用性 Guard | HANDOFF_CLOSED | PDM-10 Final | YES |
-| HO-P01-P11-001 | PDM-11 | Demand 生命周期；Customer 停用不得自动终止既有 Demand，具体状态由 Demand 域处理 | HANDOFF_OPEN | - | YES |
+| HO-P01-P11-001 | PDM-11 | Demand 生命周期；Customer 停用不得自动终止既有 Demand，具体状态由 Demand 域处理 | HANDOFF_ACCEPTED | PDM-11 工作版 §1 / P11-A08 | YES |
 | HO-P01-P14-001 | PDM-14 | Recommendation 生命周期与当前 listing_cycle 权利；Customer 身份连续性不得被 Recommendation 重建 | HANDOFF_OPEN | - | YES |
 | HO-P01-P15-001 | PDM-15 | Consultation 生命周期；Customer 停用不自动抹除既有 Consultation 历史 | HANDOFF_OPEN | - | YES |
 | HO-P01-P16-001 | PDM-16 | CRM 画像 / 跟进 / 员工内部客户称呼；客户昵称与员工内部备注必须分离 | HANDOFF_OPEN | - | YES |
@@ -462,4 +462,4 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-01～10 全局 Cross-PDM / Handoff / Global Invariant 总复核：PASS；
 - 当前进入：PDM-11；
 - PDM-11 启动门禁：UNBLOCKED；
-- PDM-11 开始前必须先读取 `target=PDM-11` 的 incoming handoff，目前为 `HO-P01-P11-001`。
+- PDM-11 已读取并承接 `HO-P01-P11-001`，当前状态 `HANDOFF_ACCEPTED`；待 PDM-11 Final 真正落地并完成来源反向回写后再关闭。
