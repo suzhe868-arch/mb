@@ -13,6 +13,29 @@
 - P10-B4-01 = USER_APPROVED
 - 当前工作版：`07_重建工作区/PDM-10_价格查价客户展示价覆盖_规则原子重建_工作版.md`
 
+## 当前方法硬门禁
+
+自 2026-10-04 起，后续任何 PDM / Batch / Final 必须执行：
+
+- Memory Zero-Trust；
+- Current Authority Refresh；
+- Completed-PDM Dependency Card；
+- Global Invariant Scan；
+- Terminology Normalization；
+- Full Evidence Matrix；
+- 双向 Source↔Final Traceability；
+- Negative Claim Proof；
+- Deferred Handoff Closure；
+- Change Impact Analysis；
+- Semantic Completeness Matrix；
+- Final Semantic Integrity + Implementation-Ready Gate。
+
+强制模板：
+
+> `07_重建工作区/PDM_信息保真与一次性收口检查模板.md`
+
+没有完整执行记录，不得以“已审过 / UNMAPPED=0 / 用户确认过”直接标记 COMPLETE。
+
 ## 当前唯一下一步
 
 > **继续形成 PDM-10 其余 Batch 4｜冲突 / 历史遗漏 / 证据缺口 / 新选择候选。**
