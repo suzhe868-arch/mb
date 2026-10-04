@@ -170,6 +170,28 @@ PDM-09 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
+### 2.11 PDM-01～10 全局 Cross-PDM / Handoff / Global Invariant 总复核｜PASS
+
+- PDM-01～10 内部 handoff：无 OPEN / ACCEPTED 残留；
+- 所有 CLOSED handoff：均有目标 Authority；
+- 所有 CLOSED handoff：`source_backwrite = YES`；
+- PDM-11～25 future handoff：69 条 OPEN，均有明确 target、完整语义与 backwrite 要求；
+- Cross-PDM Conflict：0；
+- Handoff Gap unresolved：0；
+- Global Invariant Conflict：0；
+- IA / Low-Fi Authority Override：0；
+- 本轮只发现并修正两项控制性 stale：PDM-01～07 顶部 Integrity 状态未同步；PDM-01 §10 仍把已完成 PDM-02 权限承载写成“留后续”。
+
+全局报告：
+
+> `07_重建工作区/PDM-01至10_全局Cross-PDM_Handoff_GlobalInvariant总复核_2026-10-05.md`
+
+最终：
+
+> **`GLOBAL_PDM01_10_CROSS_PDM_AUDIT = PASS`**
+
+> **PDM-11 启动门禁解除。**
+
 ---
 
 ## 3. PDM-01 来源 handoff
@@ -437,5 +459,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-08：INTEGRITY_PASS；
 - PDM-09：INTEGRITY_PASS；
 - PDM-10：INTEGRITY_PASS；
-- 当前进入：GLOBAL_PDM01_10_CROSS_PDM_AUDIT；
-- PDM-11 继续 BLOCKED，直到 PDM-01～10 全部 INTEGRITY_PASS 且 01～10 全局总复核 PASS。
+- PDM-01～10 全局 Cross-PDM / Handoff / Global Invariant 总复核：PASS；
+- 当前进入：PDM-11；
+- PDM-11 启动门禁：UNBLOCKED；
+- PDM-11 开始前必须先读取 `target=PDM-11` 的 incoming handoff，目前为 `HO-P01-P11-001`。
