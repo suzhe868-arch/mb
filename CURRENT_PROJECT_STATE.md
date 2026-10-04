@@ -12,15 +12,15 @@
 
 当前域：
 
-> **PDM-11｜找车申请 / 正式 Demand / 暂停 / 完成 / 取消**
+> **PDM-01～PDM-10｜Legacy Final Integrity Audit / 全域完整性复核**
 
 当前域状态：
 
-> `PREPARATION / NOT_STARTED`
+> `IN_PROGRESS / START_FROM_PDM-01`
 
 当前工作文件：
 
-> **尚未创建。开始 PDM-11 前先执行 Current Authority Refresh + Completed-PDM Dependency Card。**
+> `07_重建工作区/PDM-01至10_全域完整性复核_总控工作单.md`
 
 当前已纠正：
 
@@ -32,7 +32,7 @@
 
 当前唯一下一步：
 
-> **准备 PDM-11｜找车申请 / 正式 Demand / 暂停 / 完成 / 取消：先刷新当前 Authority、读取指向 PDM-11 的 handoff、建立 Completed-PDM Dependency Card，再开始 Batch 1 证据扫描。**
+> **从 PDM-01 开始 Legacy Final Integrity Audit：同时执行 Missing Rule Audit、Semantic Detail Audit、Cross-PDM Integrity Audit；PDM-01～10 全部及全局总复核 PASS 前，PDM-11 BLOCKED。**
 
 ## 已完成
 
@@ -53,6 +53,29 @@
 - PDM-10：`COMPLETE`，正式规则文件为 `07_重建工作区/PDM-10_最终完整规则.md`；
 - 已新增并启用《用户全量审查四批门禁规范》。
 
+## 2026-10-04｜PDM-01～PDM-10 Legacy Final Integrity Audit 前置阶段
+
+用户明确要求：PDM-10 完成后先不要进入 PDM-11，先用 2026-10-04 新的信息保真 / 一次性收口标准重新复核 PDM-01～PDM-10。
+
+本轮不是只做“细检”，必须同时：
+
+- 重新查整条业务规则遗漏；
+- 检查现有 Final 是否压掉条件、例外、权限、生命周期、历史等细节；
+- 检查 PDM-01～10 之间的冲突、静默覆盖、handoff 丢失与 stale rule。
+
+已新增方法门禁：
+
+> `00_先读/01_产品基线重建执行规范_冻结工作版.md` §3.3 Legacy Final Integrity Audit Gate
+
+总控工作单：
+
+> `07_重建工作区/PDM-01至10_全域完整性复核_总控工作单.md`
+
+执行顺序：PDM-01 → ... → PDM-10 → 01～10 全局 Cross-PDM / Handoff / Global Invariant 总复核 → PASS 后才允许 PDM-11。
+
+原 PDM-01～10 `COMPLETE` 保留为历史裁决完成状态；在本轮 Integrity Audit PASS 前，不声称旧 Final 已满足当前新完整性标准。
+
+---
 ## 2026-10-04｜PDM-10 最终完成
 
 用户最终批准 PDM-10《价格 / 查价 / 客户展示价覆盖》完整规则，并明确“确定执行”写入仓库。
