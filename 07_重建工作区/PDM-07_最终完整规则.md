@@ -2,8 +2,8 @@
 
 > 日期：2026-09-24  
 > 状态：`COMPLETE`  
-> 说明：汇总 PDM-07 Batch 1～4 经用户逐批裁决并经最终总览批准后的正式当前规则。  
-> 本文件不修改 IA / Low-Fi / Engineering。
+> 说明：汇总 PDM-07 Batch 1～4 经用户逐批裁决并经最终总览批准后的正式当前规则；2026-10-05 已完成 Legacy Final Integrity Audit，并同步 PDM-08 已完成的报告 / 档案资源承载。  
+> IA / Low-Fi 仅登记 `STALE_CARRIER`，统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。
 
 ---
 
@@ -402,7 +402,9 @@ JYT 原始车况描述与标签可以作为：
 
 ---
 
-## 20. 与 PDM-06 的边界
+## 20. Cross-PDM 承接状态
+
+### 20.1 PDM-06｜人工发布边界｜HANDOFF_CLOSED
 
 PDM-06 已正式冻结：
 
@@ -419,40 +421,96 @@ PDM-07 不重新定义这些规则。
 
 > 不是人工车辆正式发布硬门槛。
 
+状态：
+
+> `HO-P06-P07-001 = HANDOFF_CLOSED`
+
+### 20.2 PDM-08｜报告 / 档案资源承载｜HANDOFF_CLOSED
+
+PDM-08 已完成本域后续的图片 / CDN / H5 资源承载，当前正式结果回写如下：
+
+- 名邦 / 4S 自上传的报告、档案图片直接进入名邦自有对象存储，DB 保存 object_key / path 等引用；
+- 出险记录图片属于报告 / 档案资源，不自动进入普通车辆相册；
+- 4S 维保图片作为维保报告图片处理，不进入普通车辆相册；
+- 4S 维保 H5 可保存上游完整 URL 作为原始报告来源事实，但客户端不得直接暴露上游 H5 域名，对外通过名邦可控报告域名映射输出；
+- 报告 / 档案资源与普通车辆相册是两个业务集合，即使共用 CDN / 回源基础设施也不得混为一套图片集合；
+- CDN / 对象存储 / 回源方式只决定技术承载，不决定客户是否可见；
+- 报告 / 档案客户可见性仍唯一服从本 PDM 的 `customer_visible`、敏感原件与客户端可见性规则。
+
+状态：
+
+> `HO-P07-P08-001 = HANDOFF_CLOSED / source_backwrite = YES`
+
+### 20.3 后续业务域必须继承的 Guard
+
+PDM-07 已冻结的车况 / 档案边界必须由后续业务域继续承接：
+
+- PDM-12｜`HANDOFF_OPEN`：Matching 使用 JYT 原始车况描述 / 标签及必要确定性标准化事实；原始 provenance 不得被改写，无法确定保持 `unknown / confirmation_needed`，禁止猜测；
+- PDM-13｜`HANDOFF_OPEN`：Priority 以车况条件参与候选 / 独占时，不得篡改 JYT / manual / Mingbang 检测 provenance，也不得把 unknown 猜成符合；
+- PDM-14｜`HANDOFF_OPEN`：档案不完整本身不得阻止 Recommendation；客户可见报告与 Recommendation 权利分层；
+- PDM-15｜`HANDOFF_OPEN`：档案不完整本身不得阻止 Consultation；
+- PDM-18｜`HANDOFF_OPEN`：档案不完整本身不得阻止 Lock / Waitlist；既有档案/报告历史不因 Lock 状态变化被删除或重写；
+- PDM-19｜`HANDOFF_OPEN`：档案不完整不阻止创建 Transaction，但首次真正完成 Transaction / 交付前必须读取当时有效 required-field set 并通过必要资料核验；缺失只阻止完成，不回滚已创建 Transaction。
+
+### 20.4 客户端 / 员工端 / PC / 审计承接
+
+- PDM-20｜`HANDOFF_OPEN`：客户只看明确允许公开的报告 / 结果；完整 VIN / 敏感原件不下发；无客户可见资料时整个档案/报告模块隐藏；JYT 车况、人工车况、名邦真实检测必须按真实 provenance 展示；
+- PDM-21｜`HANDOFF_OPEN`：员工端档案上传、后补、更新/替换、作废、历史、核验、`customer_visible` 设置/取消，以及 4S 仅操作自己有权 Vehicle 的真实动作投影；
+- PDM-22｜`HANDOFF_OPEN`：成交/交付 required-field set 的 PC 配置承载；必须要求明确员工业务配置能力，System Admin 身份本身不自动获得该业务配置权；
+- PDM-25｜`HANDOFF_OPEN`：archive create/update/replace/void/verify、customer visibility before/after、required-field config change、上传人/时间、新旧版本关系等统一审计与历史留存标准。
+
+统一登记：
+
+> `07_重建工作区/CROSS_PDM_HANDOFF_REGISTER.md`
+
+### 20.5 IA / Low-Fi stale carrier
+
+本轮确认但当前不修改的旧承载至少包括：
+
+- Current / Low-Fi 基本只剩 `P07-04 校验交易/交付材料`，缺档案上传 / 后补 / 更新 / 替换完整操作链；
+- 缺正式档案作废 / 新版本替代 / 档案历史；
+- 缺单份档案 `customer_visible` 设置 / 取消动作；
+- 客户端缺“无客户可见资料时整块隐藏”的完整投影；
+- JYT / manual / Mingbang真实检测 provenance 区分承载不完整；
+- 4S 本人有权 Vehicle 的内部档案访问路径可能仍受旧 Internal Mode 整体 DENY 污染；
+- Vehicle Archive 专属 audit carrier 不完整。
+
+统一登记：
+
+> `STALE_CARRIER / DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT`
+
+这些 carrier 不具有产品 Authority，不得反向覆盖本 Final。
+
 ---
 
-## 21. 与后续 Matching 域的边界
-
-PDM-07 只冻结：
-
-- 车况来源；
-- 原始标签 / 描述；
-- 必要标准化事实；
-- unknown / confirmation_needed；
-- 来源真实性。
-
-具体：
-
-- Demand 车况表达；
-- 匹配词典；
-- 匹配规则；
-- 候选分层；
-- Priority；
-
-由对应后续业务域继续收口，但不得静默改写本域已经确认的 JYT 原始车况与标签来源规则。
-
----
-
-## 22. 最终状态
+## 21. 最终状态
 
 PDM-07 Batch 1～4 与最终完整规则总览均已完成用户明确批准。
 
+2026-10-05 Legacy Final Integrity Audit 关闭 4 组问题：PDM-08 报告/档案资源承载反向闭环、PDM-12/13/14/15/18/19 业务 handoff 登记、PDM-20/21/22/25 页面/配置/审计 handoff 登记，以及 IA / Low-Fi stale carrier ledger。
+
+本轮未发现需要重新产品裁决的新语义；历史结构化车况整套字段不恢复，继续执行 P07-B4-01 已批准的“保留来源事实 + 只做 Matching 必要确定性标准化”方案。
+
 当前状态：
 
-> `COMPLETE`
+> **`COMPLETE / INTEGRITY_PASS`**
+
+```text
+MISSING_RULE_UNRESOLVED = 0
+SEMANTIC_DETAIL_GAP_UNRESOLVED = 0
+CROSS_PDM_CONFLICT = 0
+HANDOFF_GAP_UNRESOLVED = 0
+GLOBAL_INVARIANT_CONFLICT = 0
+SOURCE_DECISION_COVERAGE = 100%
+FINAL_TO_SOURCE_TRACEABILITY = 100%
+SEMANTIC_INTEGRITY = PASS
+NEGATIVE_CLAIMS_VERIFIED = PASS
+IMPLEMENTATION_READY = PASS
+HANDOFF_REGISTER_SYNC = PASS
+```
 
 本文件作为 PDM-07 当前正式规则。后续 PDM 可以补充各自业务域，但不得静默推翻本文件已确认规则；若发现真实跨域冲突，必须重新显式提交用户裁决。
 
-下一业务域进入：
+下一审计域进入：
 
-> **PDM-08**
+> **PDM-08｜Legacy Final Integrity Audit**
