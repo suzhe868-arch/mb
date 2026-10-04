@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / HANDOFF_ACCEPTED / BATCH_1_APPROVED / BATCH_2_APPROVED / BATCH_3_USER_REVIEW_PENDING`
+> `IN_PROGRESS / HANDOFF_SUPERSESSION_APPLIED / BATCH_1_APPROVED / BATCH_2_APPROVED / BATCH_3_APPROVED / BATCH_4_USER_REVIEW_PENDING`
 
 当前工作文件：
 
@@ -32,8 +32,18 @@
 
 当前唯一下一步：
 
-> **PDM-11 Batch 2 已全部通过；当前唯一下一步：审查 Batch 3 的 P11-B3-01（Customer 停用轻量模型 / HO-P01-P11-001）。未经用户确认不得进入 Batch 4。IA / Low-Fi 仍统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。**
+> **PDM-11 Batch 3 已按用户修正通过：Customer 停用时 active Demand 自动 paused，历史保留，账号恢复不自动恢复 Demand；`HO-P01-P11-001` 已 superseded，由 `HO-P01-P11-002` 承接。当前唯一下一步：审查 Batch 4 的 P11-B4-01 与 P11-B4-02。两项未裁决前不得形成 PDM-11 Final。IA / Low-Fi 仍统一延后到 PDM-25 完成并通过 PDM-01～25 全局最终总复核后集中对齐。**
 
+## 2026-10-05｜PDM-11 Batch 3 用户修正并通过
+
+- 用户否决旧“账号停用不自动改变 Demand 状态”的口径；
+- 当前 Authority：Customer 停用 → active Demand 自动 paused；历史、条件、推荐/匹配/跟进、负责人/状态历史全部保留；
+- 账号恢复后不自动恢复 Demand，需正式 resume；
+- PDM-01 Final §11 已完成 source backwrite；
+- `HO-P01-P11-001 = HANDOFF_SUPERSEDED`；
+- `HO-P01-P11-002 = HANDOFF_ACCEPTED`；
+- Batch 3 = `PASS / USER_APPROVED`；
+- 当前进入 Batch 4：`P11-B4-01 / P11-B4-02`。
 ## 2026-10-05｜PDM-11 Batch 2 全部确认
 
 - 用户确认 P11-B2-01～P11-B2-07、P11-B2-09、P11-B2-10 全部同意；
