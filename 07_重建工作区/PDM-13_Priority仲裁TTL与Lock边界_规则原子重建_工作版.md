@@ -1,10 +1,10 @@
 # PDM-13｜Priority / 仲裁 / TTL / active Lock 边界｜规则原子重建工作版
 
 > 日期：2026-10-05  
-> 当前状态：`BATCH_1_PASS / USER_APPROVED / IN_PROGRESS`  
+> 当前状态：`BATCH_2_PASS / USER_APPROVED / IN_PROGRESS`  
 > 业务权威语言：中文（zh-CN）  
 > 当前域：PDM-13｜Priority / 仲裁 / TTL / active Lock 边界  
-> 当前硬门禁：Batch 1 已获用户批准并确认执行；下一步只允许重建 Batch 2（明确废弃 / 明确替代 / DO_NOT_RESTORE）候选，形成候选后立即停下提交用户审查。不得提前修改 IA / Low-Fi / Engineering。
+> 当前硬门禁：Batch 2 已获用户批准并确认执行；下一步只允许重建 Batch 3（后续明确新增 / 明确变更 / informed changes）候选，形成候选后立即停下提交用户审查。不得提前修改 IA / Low-Fi / Engineering。
 
 ---
 
@@ -295,10 +295,10 @@ Batch 1 后：
 12. active Lock 已存在时是否允许建立 / 继续 Priority；
 13. 正式 Lock 创建时 Priority 如何 takeover / 结束；
 14. Transaction 与 Priority 的边界；
-15. Priority 是否、何时给客户详情可见权；当前后续 Authority 已提示“Priority 本身不授客户详情权”，需在对应批次正式收口；
+15. Priority 是否、何时给客户详情可见权；**后由 P13-B2-05 收口负向边界：Priority 本身不得直接授予客户详情权；具体合法 visibility 来源与生命周期仍由对应域承接；**
 16. active Priority 与公海保护的最终跨域规则；
-17. Current Navigation 残留“创建 Priority”如何作为 stale carrier 处理；
-18. Current `HIDDEN_CONTROLLED` 客户可见旧语义如何 supersede；
+17. Current Navigation 残留“创建 Priority”如何作为 stale carrier 处理；**后由 P13-B2-02 明确判定为不得恢复的人工创建语义；carrier 继续延后统一对齐；**
+18. Current `HIDDEN_CONTROLLED` 客户可见旧语义如何 supersede；**后由 P13-B2-05 明确 supersede 客户侧直接可见旧语义；员工受控查看不因此自动废弃；**
 19. Priority 的重新匹配 / 重新仲裁触发事件全集；
 20. Priority 资格与无 owner / 无合法负责销售时的关系。
 
@@ -308,8 +308,177 @@ Batch 1 后：
 
 ---
 
-## 7. 当前唯一下一步
+# 7. Batch 2｜明确废弃 / 明确替代 / DO_NOT_RESTORE｜USER APPROVED
 
-> **重建 PDM-13 Batch 2：明确废弃 / 明确替代 / DO_NOT_RESTORE 项。必须先做反向冲突扫描，不能把仍待裁决的 Priority 资格、仲裁、TTL 数值、active Lock、客户 visibility 等问题误分类为“已废弃”。形成 Batch 2 候选后立即停下提交用户审查。**
+> 用户已审查并确认 `P13-B2-01～P13-B2-05`，并明确“同意确认执行”。  
+> Batch 2 Gate：`PASS / USER_APPROVED / APPLIED_TO_WORKFILE`。
+
+## P13-B2-01｜不得恢复独立“客户专属”体系
+
+正式取消并禁止恢复与 Priority 平行的人工“客户专属”业务体系，包括：
+
+- 设为客户专属；
+- 解除客户专属；
+- 独立客户专属 Vehicle / 关系对象；
+- 客户专属车辆筛选 / 列表；
+- E02“客户专属”入口；
+- 与正式 Matching → Priority 平行运行的“专属车源”管理体系。
+
+真正的找车保护继续由：
+
+`正式 Demand → Matching → Priority`
+
+承接。
+
+分类：`EXPLICITLY_DEPRECATED / DO_NOT_RESTORE`
+
+---
+
+## P13-B2-02｜不得恢复人工创建 / 转让 / 覆盖 / 延长 Priority
+
+Priority 必须由系统读取合法 Match Result，并通过 PDM-13 当前合法资格 / 仲裁规则自动产生。
+
+明确禁止恢复：
+
+- 销售手工“创建 Priority”；
+- 人工把 Priority 转给另一个 Customer；
+- `priority.override`；
+- 人工强制覆盖当前 active Priority；
+- 人工直接修改 `expires_at` 实现延长；
+- 通过按钮把已经 ended 的 Priority 强制恢复 active。
+
+因此 Current Navigation 残留：
+
+`E05-05｜创建 Priority`
+
+正式登记为：
+
+`STALE_CARRIER / DO_NOT_IMPLEMENT_AS_MANUAL_CREATE`
+
+IA / Low-Fi 当前阶段仍不施工，待 PDM-25 后统一 carrier alignment。
+
+分类：`HISTORICAL_AUTO_PRIORITY_AUTHORITY_RETAINED / MANUAL_CREATE_OVERRIDE_TRANSFER_EXTEND_DEPRECATED`
+
+---
+
+## P13-B2-03｜不得把 Priority 恢复成 Lock 优先权
+
+Priority 是 Matching 之后的临时优先保护 / 排他业务层，**不是锁车竞争排序机制**。
+
+不得把 Priority 实现为：
+
+- LockRequest 排队优先级；
+- “Priority 客户一定优先 Lock”；
+- Lock 的客户等级竞争；
+- 锁车抢单分值；
+- Lock eligibility 的第二套匹配等级。
+
+固定负向边界：
+
+`Priority ≠ Lock Priority`
+
+但本条**不提前裁决**：
+
+- active Lock 已存在时能否创建 / 继续 Priority；
+- 正式 Lock 成功时如何 takeover / end Priority；
+- Lock 取消 / 到期后的 Priority 后续行为。
+
+这些继续进入后续 PDM-13 冲突 / 缺口批次。
+
+分类：`EXPLICIT_ROLE_BOUNDARY / DO_NOT_RESTORE_LOCK_PRIORITY`
+
+---
+
+## P13-B2-04｜客户端不得暴露 Priority 内部术语
+
+客户侧不得直接展示：
+
+- `Priority`；
+- “优先保护”；
+- “客户专属”；
+- “Priority 客户”；
+- 内部仲裁等级、竞争顺序、保护算法等后台机制词。
+
+客户侧使用自然业务表达，例如：
+
+> **为您匹配**
+
+员工端 / 后台在合法 permission + data scope + object state 下可展示真实 Priority 状态、对应业务关系与截止时间。
+
+分类：`CLIENT_INTERNAL_TERM_DENY / DO_NOT_RESTORE`
+
+---
+
+## P13-B2-05｜废弃“Priority 本身直接授予客户车辆详情权”
+
+旧 R10-50 曾存在：
+
+> Priority 上下文直接让对应客户可见车辆。
+
+该客户侧口径已被后续冻结 Authority 明确替代：
+
+- `VR-X-003`：Priority 本身不给客户详情权；
+- `VR-X-004`：active Recommendation 可建立客户单车 visibility grant；
+- hidden 车辆仍必须通过独立合法 visibility 来源才能给客户看详情。
+
+因此明确禁止恢复：
+
+`Priority created → customer vehicle-detail visibility automatically granted`
+
+Current `E05-05::HIDDEN_CONTROLLED` 中“对应客户因 Demand/Priority 上下文直接可见”的客户侧语义属于：
+
+`SUPERSEDED_OLD_RULE / STALE_CARRIER`
+
+注意：
+
+- 本条废弃的是“Priority 自身直接授权客户详情”的旧规则；
+- 员工侧合法受控查看不因本条自动废弃；
+- Recommendation / visibility grant 的完整生命周期不在 PDM-13 复制第二套 Authority。
+
+分类：`SUPERSEDED / DO_NOT_RESTORE_DIRECT_CUSTOMER_VISIBILITY`
+
+---
+
+# 8. Batch 2 反向冲突扫描
+
+反向检查了：
+
+- 2026-09-17《统一匹配与 Priority 规则》；
+- 9/19 R10-49 / R10-50 / R10-51；
+- 001～078 M04-001 / M04-002 / M04-003 / M04-005 / M04-006 / M04-007；
+- 9/22 `VR-X-003 / VR-X-004`；
+- Current / IA / Low-Fi stale carrier。
+
+结论：
+
+`BATCH_2_REVERSE_CONFLICT_SCAN = PASS`
+
+本批没有把以下仍需后续裁决的内容误判为“废弃”：
+
+1. Priority Customer qualification 的最终来源；
+2. Customer Level 与 Priority 的关系；
+3. Priority qualification 配置 actor / permission；
+4. 精确多客户仲裁顺序；
+5. `Demand.created_at / demand_id` tie-break；
+6. 默认 TTL 数值；
+7. TTL 配置主体；
+8. 是否存在合法续期机制；
+9. 完整结束原因；
+10. same listing_cycle 再获得规则；
+11. trigger_demand 切换；
+12. active Lock / Lock takeover；
+13. Transaction 边界；
+14. active Priority 与公海保护；
+15. Priority 全部重新匹配 / 重新仲裁触发事件。
+
+处理：
+
+`EXPLICITLY_NOT_DEPRECATED / DEFERRED_TO_BATCH_3_4`
+
+---
+
+# 9. 当前唯一下一步
+
+> **重建 PDM-13 Batch 3：重新读取后续明确裁决与 Completed-PDM Authority，识别“历史规则后来被明确改变”以及“后续已经新增并冻结”的 Priority 语义。重点不得把仍然是真实冲突 / 新产品选择的问题偷渡成 Batch 3。形成 Batch 3 候选后立即停下提交用户审查。**
 
 IA / Low-Fi / Engineering 继续禁止施工。
