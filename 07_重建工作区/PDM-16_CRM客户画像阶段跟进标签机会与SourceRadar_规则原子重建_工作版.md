@@ -1,0 +1,381 @@
+# PDM-16｜CRM / 客户画像 / 阶段 / 跟进 / 标签 / 机会 / Source Radar｜规则原子重建工作版
+
+> 日期：2026-10-06  
+> 状态：`IN_PROGRESS / STARTUP_GATE_PASS / P16-R00_USER_APPROVED_APPLIED / BATCH_1_PENDING_USER_REVIEW`  
+> 方法：9/19 主底盘 + 前向历史补全 + 后向显式 supersession + 9/22 冻结台账 + Current Carrier Conflict Scan + Completed-PDM Authority + Cross-PDM Handoff。  
+> 当前阶段约束：IA / Low-Fi / Engineering 只登记冲突，不施工；未经用户审查的候选 Atom 不得直接进入 Final。
+
+---
+
+## 1. 本域定位与边界
+
+### P16-R00｜CRM 核心业务定位｜USER_APPROVED / APPLIED
+
+用户于 2026-10-06 已确认：
+
+> **CRM 是客户经营资料与统一跟进层，不是重新创造 Customer、Demand、Consultation、Recommendation、Lock、Transaction 状态机的地方。**
+
+PDM-16 主要承接：
+
+1. Customer Profile：Personal Note、Shared Profile、员工内部客户称呼历史、客户标签等客户经营资料；
+2. CRM Stage：客户总体经营阶段；
+3. CRM Follow-up：统一跟进记录、关联具体业务上下文但不复制业务状态机；
+4. CRM Customer Detail：读取当前等级、权益、Application / Demand / Consultation / Recommendation / Lock / Transaction 等真实业务概览与历史；
+5. Customer Opportunity：聚合兴趣 / 机会信号；
+6. Source Radar：消费 PDM-12 Matching change fact 形成 Demand 中心的雷达事件 / 聚合 / 查询。
+
+明确边界：
+
+- Customer identity / phone / account lifecycle 服从 PDM-01；
+- identity / permission / data scope / object state / 4S / System Admin 服从 PDM-02；
+- Customer owner / historical access / responsibility 服从 PDM-03；
+- Demand / Application / Customer Level / entitlement 服从 PDM-11；
+- Matching / Match Result / Rule Dictionary 服从 PDM-12；
+- Recommendation 服从 PDM-14；
+- Consultation 服从 PDM-15；
+- 公海 / 待公海 / 领取 / 指定分配 / Collaboration 完整生命周期归 PDM-17；
+- Lock / Waitlist 归 PDM-18；
+- Transaction / Refund 归 PDM-19；
+- 客户端最终投影归 PDM-20；
+- 员工工作台强待办 / 最终页面动作编排归 PDM-21；
+- PC 最终后台承载归 PDM-22；
+- 横向审计标准归 PDM-25。
+
+CRM 可以聚合 / 关联其他对象，但不得反向伪造或静默改写它们的主状态、负责人、资格、权限或历史。
+
+---
+
+## 2. Startup Gate｜PASS
+
+### 2.1 固定证据读取完成
+
+已读取并交叉核对：
+
+- `README.md`；
+- `CURRENT_PROJECT_STATE.md`；
+- `NEXT_ACTION.md`；
+- `PROJECT_STATE.json`；
+- `IMPORT_STATUS.md`；
+- `00_先读/01_产品基线重建执行规范_冻结工作版.md`；
+- `00_先读/02_9月19日产品全域覆盖地图_未裁决版.md`；
+- 9/19 R6：CRM / 公海 / 协作中的 CRM Stage、Follow-up、Tag、访问与历史；
+- 9/19 R10：CRM 客户列表/详情、聚合兴趣、客户机会、Source Radar；
+- 001～078：M17-001 / M17-002、M02-004 / M02-005、M03 Source Radar 交叉差集；
+- Current IA / Action / Navigation / State / Permission carrier；
+- PDM-01 / PDM-02 / PDM-03 / PDM-11 / PDM-12 / PDM-15 Final；
+- `CROSS_PDM_HANDOFF_REGISTER.md` 中 target=PDM-16 的全部 handoff。
+
+### 2.2 incoming handoff｜6 / 6 ACCEPTED
+
+以下 6 条由 `HANDOFF_OPEN` → `HANDOFF_ACCEPTED`，PDM-16 Final / Integrity closeout 前不得提前关闭：
+
+1. `HO-P01-P16-001`：CRM 画像 / 跟进 / 员工内部客户称呼；客户昵称与员工内部备注必须分离；
+2. `HO-P02-P16-001`：CRM 业务细节与访问范围必须继承统一 identity + permission + data scope + object state 模型；
+3. `HO-P03-P16-001`：CRM 跟进、画像、阶段、Source Radar、公司客户历史页面/字段投影；“历史服务过”不产生永久访问权；
+4. `HO-P11-P16-001`：CRM Customer 详情承载当前等级、find-car entitlement、pending Application、active/paused Demand 与历史概览；Demand 跟进使用统一 CRM follow-up + demand_id，不新建第二套 Demand 跟进表；手机号搜索与等级权限继续继承上游 Authority；
+5. `HO-P12-P16-001`：Source Radar 消费 Matching change fact；不得复制第二套 Matching 规则或覆盖 PDM-12 Match Result Authority；
+6. `HO-P15-P16-001`：Consultation 真实 follow-up 可进入统一 CRM 历史；普通 CRM 跟进不得自动算首次 SLA 响应，也不得反向修改 Consultation 状态、assignee 或初始来源。
+
+### 2.3 Startup Gate 结论
+
+- completed-PDM hard conflict：`0`；
+- incoming handoff gap：`0`；
+- `P16-R00 = USER_APPROVED / APPLIED`；
+- Startup Gate：`PASS`；
+- 允许建立 PDM-16 工作版；
+- 允许进入 Batch 1 稳定一致规则审查；
+- IA / Low-Fi / Engineering 继续禁止施工。
+
+---
+
+## 3. Startup Scan｜已发现但不能静默处理的 stale carrier / 缺口
+
+### 3.1 Customer Merge carrier 与 PDM-01 Final 冲突
+
+Current P06-01 / P06-M01 仍存在 Merge Flow carrier。
+
+当前 Authority 已由 PDM-01 Final 明确：
+
+> V1 完全取消 Customer Merge。
+
+因此 Merge 页面 / 状态 / 合并业务迁移不得被 PDM-16 反向恢复。此项进入 Batch 2 明确废弃 / supersession 审查。
+
+### 3.2 CRM 客户详情直接“锁车”旧入口被重新带回
+
+9/19 R10 已明确删除：
+
+> `CRM 客户详情 → 锁车 → 再选车辆`
+
+锁车必须建立在合法 Customer + Vehicle 上下文与独立 Lock Authority 上。Current E03-01 / E03-06 的旧入口是 stale carrier，进入 Batch 2。
+
+### 3.3 旧客户机会阈值不得恢复
+
+Phase1.5 DP-01 已明确 `DO_NOT_RESTORE`：
+
+- 7 天无活动；
+- 单日浏览 >40 次；
+- 连续 3 天浏览；
+- 以及对应旧阈值配置。
+
+机会模块本身保留，但旧具体阈值不再是当前 Authority。
+
+### 3.4 历史大字段 CRM 画像不得恢复
+
+Personal Note / Shared Profile 当前分层应保留，不恢复历史“大字段 CRM 画像模型”。
+
+### 3.5 “历史服务过 = 永久访问权”不得恢复
+
+公司客户历史长期存在，但读取必须基于**当前** role / permission / data scope / owner / collaboration / object state。
+
+过去服务过不等于永久可打开当前完整 CRM。
+
+### 3.6 E03-03“记录跟进”动作链未闭合
+
+Current 已存在“记录跟进”入口，但 E03-03 正式 Action Contract 仍缺：
+
+> 填写 → 提交 → 成功写入 → 历史 → 更正 / 作废
+
+这是后续 PDM-16 必须补齐的业务动作链，不得因为 Low-Fi 有页面就视为规则已完整。
+
+### 3.7 P06-07“客户机会规则”存在假 CRUD / config 风险
+
+旧阈值已废弃，当前又没有新的机会规则配置 Authority。
+
+因此不能因页面名“客户机会规则”或通用 Low-Fi 壳就自行发明 CRUD / 阈值配置。
+
+### 3.8 Source Radar / 客户机会 / 强待办入口与语义存在 carrier 缺口
+
+当前页面骨架存在 E01-02 / E01-03 / E01-04，但：
+
+- 正式 Navigation 不完整；
+- 客户机会 / Source Radar / 今日必须处理三类内容必须保持不同语义；
+- 员工工作台最终优先级与入口编排交 PDM-21，不在 PDM-16 偷建第二套 task system。
+
+---
+
+## 4. Batch 1｜稳定一致规则候选｜PENDING_USER_REVIEW
+
+> 本批只收“9/19 + 历史差集 + completed-PDM Authority”方向一致、无需新产品选择的规则。  
+> 旧 Merge、旧锁车入口、旧机会阈值等明确 supersession 项留 Batch 2。
+
+### P16-A01｜CRM Stage 是 Customer 总体经营阶段，不是具体业务对象状态
+
+- Customer 可以有一个当前 CRM 总体阶段；
+- CRM Stage 属于 Customer 当前经营事实，不属于某个销售个人；
+- owner 变化不自动重置；
+- 进入公海 / 重新领取不自动重置；
+- “已成交”不得永久锁死未来阶段；
+- Consultation / Demand / Lock / Transaction 等继续保留自己的状态机；
+- 不得把具体业务状态压成 CRM Stage，也不得用 CRM Stage 反向改具体业务状态。
+
+建议：**通过。**
+
+### P16-A02｜CRM Stage mutation 服从当前责任 + permission/scope
+
+- 当前合法 Customer owner 可维护本人客户 CRM Stage；
+- 有对应 CRM 管理 permission/capability 且 data scope 覆盖的经理 / 店长可调整；
+- Collaboration 身份本身不自动获得 CRM 主阶段修改权；
+- 其他销售不能因历史服务过或能看到 Vehicle / Customer 就修改；
+- 每次提交按 identity + permission + data scope + object state 重验。
+
+建议：**通过。**
+
+### P16-A03｜CRM Follow-up 长期保留、append-only，不物理删除或覆盖
+
+每条正式 CRM 跟进至少保留：
+
+- actor；
+- time；
+- content；
+- 必要 business context / relation。
+
+owner 变化、进入公海、重新领取不得删除或重置历史。
+
+已提交错误记录：
+
+- 可新增更正记录；
+- 合法管理人员可标记无效 / 作废；
+- 原始内容、actor、time 继续保留。
+
+建议：**通过。**
+
+### P16-A04｜统一 CRM Follow-up 可关联业务上下文，但不复制第二套业务状态机
+
+- Demand follow-up 使用统一 CRM Follow-up，并可关联 `demand_id`；
+- Consultation 真实服务动作可同时进入统一 CRM 历史并关联 Consultation；
+- 不新建“Demand 专用跟进表”或“Consultation 第二套 CRM 状态机”；
+- 普通 CRM Follow-up 不自动完成 Consultation first-response SLA；
+- 只有满足 PDM-15“可审计真实人工服务动作”的事实才可完成 SLA；
+- CRM Follow-up 不反向改 Demand / Consultation / Recommendation / Lock / Transaction 主状态。
+
+建议：**通过。**
+
+### P16-A05｜Personal Note、Shared Profile、员工内部客户称呼历史必须分层
+
+#### Personal Note
+- 作者私有；
+- owner 变化不转移；
+- 新 owner 不继承前 owner 的 Personal Note；
+- 授权管理查看仅按当前 Authority。
+
+#### Shared Profile
+- 属于公司共享客户画像；
+- current owner、明确 Collaboration scope 内协作人员、授权经理/店长可按当前权限维护；
+- 修改保留 before / after 审计；
+- 不得泄露 Personal Note。
+
+#### 员工内部客户称呼 / 服务称呼历史
+- 与客户本人昵称分离；
+- 与 Personal Note、Shared Profile 分离；
+- 不同员工的历史称呼不互相覆盖；
+- 保留作者 / 时间 / 来源；
+- owner 正式交接后，新的合法服务人员可按当前权限看到历史服务称呼并新增自己的称呼；
+- 历史称呼事实存在不等于原员工永久拥有 CRM 访问权。
+
+建议：**通过。**
+
+### P16-A06｜Customer Tags / 共享 CRM 事实不因 owner 或公海变化自动清空
+
+- Customer Tags 属于 Customer 共享经营事实；
+- owner 变化不自动清空；
+- 进入公海 / 重新领取不自动清空；
+- CRM Stage、Tags、原始 source、历史 Follow-up 均保留；
+- 销售个人私有备注不得冒充 Customer shared tag；
+- 新 owner 可在合法权限下新增当前共享标签 / 服务事实，但不得覆盖历史来源。
+
+建议：**通过。**
+
+### P16-A07｜CRM Customer Detail 只聚合真实业务事实，不反向重写业务对象
+
+CRM Customer Detail 可以消费并展示当前/历史概览，例如：
+
+- Customer Level；
+- find-car entitlement；
+- pending Application；
+- active / paused / completed / cancelled Demand；
+- Consultation；
+- Recommendation；
+- Lock / Waitlist；
+- Transaction / Refund；
+- owner；
+- tags；
+- 最近 follow-up。
+
+但：
+
+- CRM 不复制这些对象的状态机；
+- 不从“概览”直接篡改其真实状态；
+- 具体 mutation 必须进入对应业务 Authority；
+- Customer Merge 已被 PDM-01 Final 取消，不得借 CRM 聚合重新实现业务迁移。
+
+建议：**通过。**
+
+### P16-A08｜CRM 当前访问权按当前 Guard 计算，历史服务不产生永久访问权
+
+公司 Customer 历史长期保留，但谁能看取决于**当前**：
+
+- identity；
+- permission/capability；
+- data scope；
+- Customer owner / valid Collaboration / manager scope；
+- object/account state。
+
+正式移交完成后，原 owner 默认不再拥有当前完整 CRM 访问；除非当前仍有合法 Collaboration 或管理范围。
+
+4S Member 不进入名邦完整 CRM。  
+System Admin 身份本身不自动获得员工 CRM 业务访问权。
+
+建议：**通过。**
+
+### P16-A09｜最近行为只做聚合兴趣，不建设逐点击监控
+
+CRM 最近行为 / 兴趣允许展示必要聚合事实，例如：
+
+- 收藏数量；
+- 聚合品牌 / 车系兴趣；
+- 合法业务机会摘要；
+- 最近必要活跃概览。
+
+默认不得开放：
+
+- 每一次点击；
+- 完整浏览流水；
+- 完整收藏明细；
+- 用行为流水形成员工可随意查看的监控轨迹。
+
+该边界不妨碍底层依法留存必要业务/安全日志，但 CRM 默认业务投影只暴露最小必要聚合事实。
+
+建议：**通过。**
+
+### P16-A10｜Customer Opportunity 是聚合信号，不是独立工单/状态机
+
+Customer Opportunity 表示当前确定性规则命中的聚合兴趣 / 业务机会。
+
+它不是：
+
+- Consultation；
+- 独立 task；
+- 独立业务主对象；
+- 独立负责人对象；
+- SLA 对象。
+
+因此不建立：
+
+- pending / closed 等复杂 lifecycle；
+- 独立 owner；
+- “关闭机会”主状态；
+- 单独 SLA；
+- 逐条主动飞书。
+
+仍命中的机会按当前合法 Customer 服务责任投影；条件不再命中时从“当前机会”自然消失，历史/去重/冷却事实按必要审计保留。
+
+V1 不做 AI 意向评分。
+
+> 旧 7 天 / 40 次 / 连续 3 天具体触发器是否明确列入 DO_NOT_RESTORE，留 Batch 2 处理；本 Atom 只冻结机会对象性质。
+
+建议：**通过。**
+
+### P16-A11｜Source Radar 只消费 PDM-12 Matching change fact，不复制 Matching Engine
+
+Source Radar：
+
+- 以合法 active Demand / 当前 Customer 服务上下文为中心；
+- 消费 PDM-12 产生的可追溯 Matching change fact；
+- 可形成“新上架 / 关键变化 / 潜在匹配”等 Radar Event / 聚合；
+- 员工可查看 Radar 上下文；
+- 后续“推荐给客户”仍必须进入 PDM-14 Recommendation Authority；
+- “标记不适合”只影响 Radar / 人工处理事实，不得直接伪造 PDM-12 Match Result；
+- 不重新解析匹配词，不复制 Rule Dictionary，不建设第二套 Matching Engine；
+- 不得覆盖 PDM-12 current Match Result。
+
+建议：**通过。**
+
+### P16-A12｜客户机会、Source Radar、强待办三类语义保持分离
+
+- Customer Opportunity = 聚合客户兴趣 / 机会信号；
+- Source Radar = Demand 中心的 Matching change 消费与雷达发现；
+- 今日必须处理 / 紧急队列 = 具有明确服务时效/业务义务的工作台任务投影。
+
+三类内容不得合并成同一个 task/state system。
+
+PDM-16 冻结对象语义与数据边界；员工工作台排序、卡片、入口、强待办优先级由 PDM-21 最终承载。
+
+建议：**通过。**
+
+---
+
+## 5. Batch 1 Gate｜PENDING_USER_REVIEW
+
+当前：
+
+- `P16-R00 = USER_APPROVED / APPLIED`；
+- `STARTUP_GATE = PASS`；
+- `INCOMING_HANDOFF = 6 / 6 HANDOFF_ACCEPTED`；
+- `COMPLETED_PDM_HARD_CONFLICT = 0`；
+- `INCOMING_HANDOFF_GAP = 0`；
+- `P16-A01～P16-A12 = PENDING_USER_REVIEW`；
+- IA / Low-Fi / Engineering 未施工。
+
+当前唯一下一步：
+
+> **用户审查 P16-A01～P16-A12。只有用户明确批准并随后“确认执行”，才写入当前 PDM-16 Authority；之后再进入 Batch 2 明确废弃 / supersession / DO_NOT_RESTORE 扫描。**
