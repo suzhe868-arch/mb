@@ -22,7 +22,8 @@
 - PDM-15 incoming handoffs = 5 / 5 HANDOFF_ACCEPTED
 - PDM-15 工作版 = `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
 - PDM-15 核心定位 P15-R00 = USER_APPROVED / APPLIED
-- PDM-15 Batch 1 = P15-A01～P15-A08 / PENDING_USER_REVIEW
+- PDM-15 Batch 1 = P15-A01～P15-A08 / PASS / USER_APPROVED / APPLIED
+- PDM-15 Batch 2 = P15-B2-01～P15-B2-05 / PENDING_USER_REVIEW
 - PDM-11 = COMPLETE / INTEGRITY_PASS
 - PDM-12 = COMPLETE / INTEGRITY_PASS
 - PDM-11 启动门禁 = UNBLOCKED
@@ -74,7 +75,7 @@
 
 ## 当前唯一下一步
 
-> **审查 PDM-15 Batch 1：P15-A01～P15-A08。范围只包含显式咨询创建/复用、初始来源不可改写、同 Customer+Vehicle+listing_cycle 未终结幂等、Vehicle lifecycle 分层、Consultation assignee 与 Customer owner 分离、Recommendation 双向独立、档案不完整不阻断、4S Member 不进入名邦 Consultation 处理链。状态机 CANCELLED 冲突、SLA 精确完成语义、负责人优先级、Customer 停用运行态等保留到后续批次，不得在 Batch 1 静默裁决。IA / Low-Fi / Engineering 继续禁止施工。**
+> **审查 PDM-15 Batch 2：P15-B2-01～P15-B2-05。仅处理明确废弃/被替代/不得恢复项：旧“我要这辆车”统一语义、timeout 主状态/自动终态、Customer Merge/Consultation 迁移、Consultation assignee 与 Customer owner 合一、Recommendation 驱动 Consultation 生命周期。`CANCELLED` 主状态、SLA 精确完成语义、负责人优先级、Customer 停用运行态等继续保留后续，不得在 Batch 2 静默裁决。IA / Low-Fi / Engineering 继续禁止施工。**
 
 每个 PDM 必须同时执行：
 
