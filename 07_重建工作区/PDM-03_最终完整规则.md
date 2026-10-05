@@ -269,7 +269,7 @@ Customer owner 变化本身不等于上述对象负责人已经完成迁移；�
 3. 不能只交接 Customer owner；
 4. 还必须同步检查并处理其当前负责的活跃客户业务与业务关系；
 5. 至少检查 Demand、Priority、Consultation、Waitlist、Lock、Transaction 等适用对象；
-6. Priority 是否继续、如何随当前客户业务关系承接以及 TTL / 可见性细节，仍由 PDM-13 冻结；本 PDM 只冻结“离职 / 资格失效时必须进入交接扫描，不能静默丢失或继续挂在失效人员名下”；
+6. Priority 是否继续、如何随当前客户业务关系承接以及 TTL / 可见性细节，已由 PDM-13 Final 冻结：Priority current responsible 跟随 trigger Demand 当前合法 responsible employee；离职 / inactive / 调店 / 降权 / 失去承责资格进入正式 Handover Batch；TTL 在交接期间继续自然运行，不暂停、不延长、不重置；没有合法 responsible employee 时不得新建车辆级 Priority；历史 creator / created_at / 原 responsible 不改写；
 7. 当前责任需要合法交接；
 8. 历史事实不得改写。
 
@@ -398,7 +398,7 @@ PDM-02 的以下规则继续有效：
 
 ### 18.2 仍待后续 PDM 承接
 
-- Priority 的 TTL / 可见隔离 / 交接后的具体 lifecycle → PDM-13；但 Priority 已明确属于离职 / 资格失效时必须扫描处理的活跃业务关系。
+- Priority 的 TTL / 可见隔离 / 交接 lifecycle → PDM-13｜`HANDOFF_CLOSED`：PDM-13 Final §§15-17,24-26 已正式承接；Priority 不直接授 Customer visibility，current responsible 跟随 trigger Demand，责任失效进入 Handover Batch，TTL 继续自然运行且不因交接重置。
 - Recommendation 生命周期、正式推荐关系、hidden 单车可见授权 → PDM-14；不得用普通分享替代 Recommendation 权利。
 - Consultation 完整负责人 / 转派 / SLA → PDM-15。
 - CRM 跟进、画像、阶段、Source Radar 与公司客户历史的具体页面 / 字段访问投影 → PDM-16；不得把“历史服务过”解释成永久访问权。
