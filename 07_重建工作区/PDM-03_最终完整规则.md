@@ -394,7 +394,7 @@ PDM-02 的以下规则继续有效：
    - 收藏不授价格查看权；
    - 二次分享不得转移已有价格权；
    - 正式 Recommendation 才能授予对应 `customer + vehicle + listing_cycle` 的免费查价权；
-   - Recommendation 权利本体与 lifecycle 仍由 PDM-14 继续承接。
+   - Recommendation 权利本体与 lifecycle 已由 PDM-14 Final 正式承接；Recommendation 不改变 Customer owner，普通分享 owner 归属继续服从本 PDM。
 
 ### 18.2 仍待后续 PDM 承接
 
