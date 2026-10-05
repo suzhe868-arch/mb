@@ -619,7 +619,7 @@ Priority 查看 / 处理必须建立在当前业务责任、合法管理范围�
 
 PDM-13 输出 8 条 future handoff：
 
-- `HO-P13-P14-001`：Recommendation / visibility suppression、restore、Recommendation end 与 Priority release 独立；
+- `HO-P13-P14-001 = HANDOFF_CLOSED / source_backwrite=YES`：PDM-14 Final 已承接 Recommendation / visibility suppression、restore、Recommendation end 与 Priority release 独立，Priority recommendation_id 仅作追溯，Priority 不授 visibility/price-right；
 - `HO-P13-P17-001`：active Priority 公海保护；
 - `HO-P13-P18-001`：Lock × Priority；
 - `HO-P13-P19-001`：Transaction × Priority；
