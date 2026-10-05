@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-16_BATCH_1_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-16_BATCH_2_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`
+> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -32,7 +32,18 @@
 
 当前唯一下一步：
 
-> **PDM-16 Startup Gate 已 `PASS`；6/6 incoming handoff 已 `HANDOFF_ACCEPTED`；P16-R00 已 USER_APPROVED / APPLIED。当前唯一下一步：用户审查 P16-A01～P16-A12；未获用户批准并再次确认执行前，不得写入 Batch 1 Authority。IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-16 Batch 1 已 `PASS / USER_APPROVED / APPLIED`；P16-A01～A12 已进入当前工作 Authority。当前唯一下一步：用户审查 P16-B2-01～P16-B2-07；未获用户批准并再次确认执行前，不得写入 Batch 2 Authority。6 条 incoming handoff 继续 HANDOFF_ACCEPTED。**
+
+## 2026-10-06｜PDM-16 Batch 1 用户批准并执行
+
+- 用户对 `P16-A01～P16-A12` 明确“全部同意”，随后“确认执行”；
+- Batch 1 = `PASS / USER_APPROVED / APPLIED`；
+- 已冻结：CRM Stage 与具体业务状态分离、Stage mutation 权限、Follow-up append-only、统一 CRM Follow-up 关联、Personal Note/Shared Profile/内部称呼分层、Tags/历史不随 owner 清空、CRM 只聚合真实业务事实、历史服务不产生永久访问权、最近行为只做聚合兴趣、Customer Opportunity 非独立工单、Source Radar 只消费 PDM-12、Opportunity/Radar/强待办三类语义分离；
+- Batch 1 未误纳 Customer Merge、CRM 直接锁车旧入口、旧机会阈值、大字段 CRM 画像等 superseded 内容；
+- Batch 2 候选：`P16-B2-01～P16-B2-07`；
+- 6 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 Batch 2。
 
 ## 2026-10-06｜PDM-16 Startup Gate 通过并进入 Batch 1 审查
 
