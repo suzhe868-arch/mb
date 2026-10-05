@@ -466,7 +466,92 @@ PASS / FALSE_DEPRECATION_COUNT=0
 - Recommendation active / ended / void / historical 生命周期载体继续有效；
 - Recommendation 与 Priority 仍是两个独立业务对象。
 
-## 6. 本轮 Cross-PDM 一致性结论
+## 6. Batch 3｜知情修改 / 显式新增
+
+> 用户已完成本批审查，并于 2026-10-06 明确“全部同意”后再次明确“确认执行”。本批只纳入 9/19 后有直接证据证明的明确新增或明确修改；存在反向证据、真实冲突、遗漏缺口或仍需产品选择的事项不得塞入 Batch 3，统一留给 Batch 4。
+
+### P14-B3-01｜分享直达与普通进入统一使用同一套车辆详情业务页
+
+**结论：INFORMED_CHANGE / USER_APPROVED**
+
+后续 R10 已明确收口：
+
+- 微信普通分享打开后，进入与正常内部浏览相同的车辆详情业务页；
+- 不复制第二套“分享版详情页”或第二套业务逻辑；
+- SHARE_DIRECT 只允许增加分享场景必要的轻量入口，例如“查看更多车源”；
+- 收藏、咨询、锁车等动作继续读取接收人自己的 customer_id、当前 Vehicle 状态、当前 visibility 与对应业务 Guard；
+- 分享入口不能绕过 hidden / Priority / offline / sold / 当前权限等可见性规则。
+
+该规则只统一详情业务页与当前状态判断，不把普通分享变成 Recommendation 事实源。
+
+### P14-B3-02｜“咨询”与“锁车申请”从旧“我要这辆车”语义中拆分
+
+**结论：INFORMED_CHANGE / USER_APPROVED**
+
+9/22 后客户端车辆动作已明确拆分：
+
+- 客户希望沟通车辆 → 统一进入 Consultation，客户端自然文案使用“咨询”；
+- 客户希望锁车 → 进入独立 LockRequest / Lock 业务链，不再通过模糊“我要这辆车”同时承担咨询和锁车语义；
+- 普通详情与分享直达详情使用同一动作语义；
+- Recommendation 不是“我要这辆车”按钮点击产生的对象。
+
+PDM-14 只冻结 Recommendation / 分享与动作语义边界；LockRequest 的 PENDING 6h、审批、正式 Lock、Waitlist 等完整生命周期继续由 PDM-18 Authority 承接。
+
+### P14-B3-03｜“我的推荐”明确区分当前与历史，历史存在不等于当前仍可访问
+
+**结论：EXPLICIT_ADDITION / USER_APPROVED**
+
+后续客户端业务历史口径明确：
+
+- “我的推荐”只展示正式 Recommendation；
+- 页面应区分当前 Recommendation 与历史 Recommendation；
+- Demand 结束、销售离职、Customer owner 变化、Vehicle 售出/下架等均不得删除 Recommendation 历史；
+- 历史 Recommendation 仍可保留车辆、推荐时间、推荐销售、关联 Demand 等历史事实；
+- 但历史记录存在，不代表 Customer 当前仍有车辆详情 visibility 或当前价格访问权；
+- 从历史记录再次进入时，必须重新读取当前 Vehicle / listing_cycle / Customer / Priority / Lock / Transaction / price authority 等事实。
+
+因此“历史可追溯”与“当前可访问”必须分层，禁止用历史 Recommendation 绕过当前 Guard。
+
+### P14-B3-04｜车辆档案完整性与 Recommendation / visibility 权利正式分层
+
+**结论：EXPLICIT_CROSS_PDM_ADDITION / USER_APPROVED**
+
+PDM-07 后续 Final 已明确并通过 incoming handoff 交给 PDM-14：
+
+- 车辆档案 / 报告未补齐，本身不得成为禁止正式 Recommendation 的独立理由；
+- 只要 Vehicle、listing_cycle、Customer entitlement、业务责任关系及其他 Recommendation Guard 合法，档案不完整不能单独阻断 Recommendation；
+- Recommendation / Vehicle visibility grant 只解决 Customer 对该 Vehicle 的业务可见权，不自动开放完整 VIN、绿本、行驶证、敏感原件或仅内部档案；
+- Customer 能看到哪些档案 / 报告，继续独立服从 PDM-07 的 customer_visible、敏感原件禁止公开等 Authority；
+- 取消 Recommendation 或 visibility grant 也不删除 Vehicle 档案历史。
+
+因此 Vehicle 可见、Recommendation 权利与档案/报告 customer visibility 是三个必须分层判断的维度。
+
+### P14-B3-05｜Priority 可保存 recommendation_id 关联追溯，但不得形成生命周期耦合
+
+**结论：EXPLICIT_CROSS_PDM_ADDITION / USER_APPROVED**
+
+PDM-13 后续 Final 明确：
+
+- 正式 Recommendation 成立后，相关 active Priority 可以保存 recommendation_id 作为关联追溯字段；
+- 该字段只用于说明“此 Priority 处理过程中形成了哪一条 Recommendation”之类历史关联；
+- Priority 与 Recommendation 仍是两个独立 domain object；
+- recommendation_id 不得把 Recommendation 变成 Priority 子状态；
+- Recommendation end / void 不因该字段自动 release/end Priority；
+- Priority release / expiry / end 不因该字段自动 end/void 仍合法 Recommendation；
+- 两边如在一次员工体验操作中同时结束，底层仍必须分别校验、分别执行、分别审计。
+
+### 6.1 Batch 3 冲突隔离结果
+
+`PASS / CONFLICT_OR_PRODUCT_CHOICE_MISCLASSIFIED_AS_BATCH3=0`
+
+本批明确没有把以下事项抢进 Batch 3：
+
+- LockRequest 的完整审批、6h、正式 Lock、Waitlist 生命周期仍归 PDM-18；
+- 分享卡片具体模板、分享图片选择、营销文案等页面/展示细节不因本批直接冻结为 PDM-14 核心生命周期规则；
+- 旧分享链接跨周期、车辆失效后的所有精确展示细节，如存在冲突或缺口继续进入 Batch 4 / 后续客户端域核对；
+- 任何仍需用户重新选方案的 Recommendation end、visibility grant、分享历史访问边界不得由 Batch 3 静默裁决。
+
+## 7. 本轮 Cross-PDM 一致性结论
 
 对 PDM-01～PDM-13 当前 Final 复核：
 
@@ -483,7 +568,7 @@ PASS / FALSE_DEPRECATION_COUNT=0
 
 ---
 
-## 7. 当前 stale carrier ledger｜只登记，不施工
+## 8. 当前 stale carrier ledger｜只登记，不施工
 
 1. `P06-06｜开启/关闭 Recommendation 资格`；
 2. `RECOMMENDATION_QUALIFIED / NOT_QUALIFIED` 独立状态；
@@ -503,20 +588,23 @@ PASS / FALSE_DEPRECATION_COUNT=0
 
 ---
 
-## 8. 当前门禁状态
+## 9. 当前门禁状态
 
 - PDM-14 Start Gate：`PASS`；
 - incoming handoff：8 / 8 = `HANDOFF_ACCEPTED`；
 - Batch 1：`PASS / USER_APPROVED`；
 - Batch 2：`PASS / USER_APPROVED`；
 - Batch 2 Reverse Conflict Scan：`PASS / FALSE_DEPRECATION_COUNT=0`；
+- Batch 3：`PASS / USER_APPROVED`；
+- Batch 3 Conflict Isolation：`PASS / CONFLICT_OR_PRODUCT_CHOICE_MISCLASSIFIED_AS_BATCH3=0`；
 - P14-A01～P14-A14：已进入当前工作版；
 - P14-R01～P14-R04：已进入当前工作版；
 - P14-B2-01～P14-B2-11：已进入当前工作版；
+- P14-B3-01～P14-B3-05：已进入当前工作版；
 - PDM-14 Final：未生成；
 - PDM-14 incoming handoff：不得提前 CLOSED；
 - IA / Low-Fi / Engineering：继续 NO_CONSTRUCTION。
 
-## 9. 当前唯一下一步
+## 10. 当前唯一下一步
 
-> **进入 PDM-14 Batch 3：以 P14-A01～A14、P14-R01～R04 与已批准 P14-B2-01～B2-11 为当前约束，扫描历史后续明确知情修改与显式新增，重点核对 Recommendation / 分享 / 单车授权 / visibility 在 9/19 之后是否存在可直接证明的新增或变更。只形成 Batch 3 候选并停下用户审查；不得把真实冲突或仍需产品选择的事项塞入 Batch 3，不得提前进入 Batch 4，不关闭 incoming handoff，不修改 IA / Low-Fi / Engineering。**
+> **进入 PDM-14 Batch 4：基于 P14-A01～A14、P14-R01～R04、P14-B2-01～B2-11、P14-B3-01～B3-05 重新执行冲突 / 遗漏 / 缺口 / 新产品选择扫描；重点核对 Recommendation end/void 与 visibility grant 精确退出、旧分享/历史入口在车辆状态变化后的访问、分享与当前 owner/业务责任边界、hidden/公开恢复条件、历史 Recommendation 当前价格/详情投影等尚未被前 3 批完整冻结的事项。只形成真实 Batch 4 候选并停下用户审查；不得关闭 incoming handoff，不得修改 IA / Low-Fi / Engineering。**
