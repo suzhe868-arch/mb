@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-16",
-  "current_domain_status": "IN_PROGRESS_STARTUP_GATE_PASS_BATCH_1_PENDING_USER_REVIEW",
+  "current_domain_status": "IN_PROGRESS_BATCH_1_PASS_BATCH_2_PENDING_USER_REVIEW",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,13 +20,13 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-16 Batch 1 用户审查：P16-A01～P16-A12 稳定一致规则候选",
+  "current_task": "PDM-16 Batch 2 用户审查：P16-B2-01～P16-B2-07 明确废弃 / 被替代 / DO_NOT_RESTORE",
   "current_work_file": "07_重建工作区/PDM-16_CRM客户画像阶段跟进标签机会与SourceRadar_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
-    "Do not apply PDM-16 Batch 1 atoms before user approval and explicit execution confirmation",
+    "Do not apply PDM-16 Batch 2 atoms before user approval and explicit execution confirmation",
     "Do not close PDM-16 incoming handoffs before Final / Integrity closeout",
     "Do not modify IA or Low-Fi during product-rule reconstruction",
     "Do not execute Engineering Delta"
@@ -67,7 +67,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-16_BATCH_1",
+  "current_review_batch": "PDM-16_BATCH_2",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -2672,7 +2672,7 @@
   "pdm_15_source_backwrite_done": true,
   "pdm_15_source_backwrite_count": 5,
   "pdm_16_status": "IN_PROGRESS",
-  "pdm_16_next_gate": "BATCH_1_USER_REVIEW",
+  "pdm_16_next_gate": "BATCH_2_USER_REVIEW",
   "pdm_16_start_gate": "PASS",
   "pdm_16_core_direction": {
     "id": "P16-R00",
@@ -2701,8 +2701,8 @@
     ]
   },
   "pdm_16_batch_1": {
-    "status": "PENDING_USER_REVIEW",
-    "candidate_atoms": [
+    "status": "PASS_USER_APPROVED_APPLIED",
+    "approved_atoms": [
       "P16-A01",
       "P16-A02",
       "P16-A03",
@@ -2715,6 +2715,18 @@
       "P16-A10",
       "P16-A11",
       "P16-A12"
+    ]
+  },
+  "pdm_16_batch_2": {
+    "status": "PENDING_USER_REVIEW",
+    "candidate_atoms": [
+      "P16-B2-01",
+      "P16-B2-02",
+      "P16-B2-03",
+      "P16-B2-04",
+      "P16-B2-05",
+      "P16-B2-06",
+      "P16-B2-07"
     ]
   }
 }
