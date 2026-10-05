@@ -527,8 +527,8 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-10：INTEGRITY_PASS；
 - PDM-01～10 全局 Cross-PDM / Handoff / Global Invariant 总复核：PASS；
 - PDM-11：COMPLETE / INTEGRITY_PASS；
-- 当前进入：PDM-14 Batch 3；
+- 当前进入：PDM-14 Batch 4；
 - PDM-12：COMPLETE / INTEGRITY_PASS；4 条 incoming handoff 全部 CLOSED 并完成 source backwrite；
 - PDM-13：COMPLETE / INTEGRITY_PASS；PDM-13→PDM-14/17/18/19/20/21/22/25 future handoff 已登记；其中 HO-P13-P14-001 已由 PDM-14 接收为 HANDOFF_ACCEPTED，其余目标域继续 HANDOFF_OPEN；
-- PDM-14：Start Gate PASS；8 条 incoming handoff 全部 HANDOFF_ACCEPTED；Batch 1（P14-A01～A14 + P14-R01～R04）与 Batch 2（P14-B2-01～B2-11）均已 USER_APPROVED / APPLIED；Batch 2 Reverse Conflict Scan PASS；下一步 Batch 3 知情修改 / 显式新增扫描；
+- PDM-14：Start Gate PASS；8 条 incoming handoff 全部 HANDOFF_ACCEPTED；Batch 1（P14-A01～A14 + P14-R01～R04）、Batch 2（P14-B2-01～B2-11）、Batch 3（P14-B3-01～B3-05）均已 USER_APPROVED / APPLIED；Batch 2 Reverse Conflict Scan PASS；Batch 3 Conflict Isolation PASS；下一步 Batch 4 冲突 / 遗漏 / 缺口 / 新产品选择扫描；
 - `HO-P01-P11-001 = HANDOFF_SUPERSEDED`；`HO-P01-P11-002 = HANDOFF_CLOSED`。PDM-12 incoming handoff 已全部 CLOSED；PDM-12 outgoing future handoff 已扩展登记：PDM-13 / PDM-14 / PDM-16 / PDM-18 / PDM-20 / PDM-21 / PDM-22 / PDM-25 均为 `HANDOFF_OPEN`，待各目标域承接。
