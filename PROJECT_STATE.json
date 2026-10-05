@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "DOMAIN_RULE_FINAL_OVERVIEW_USER_APPROVAL",
+  "substage": "DOMAIN_RULE_START_GATE",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "PDM-13",
-  "current_domain_status": "IN_PROGRESS",
+  "current_domain": "PDM-14",
+  "current_domain_status": "NOT_STARTED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,19 +20,17 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "等待用户最终批准 PDM-13 Final Domain Overview 候选",
+  "current_task": "PDM-14 启动门禁：读取覆盖地图、9/19 C3/R7/R10、001～078 M05/M16/M11、Current carrier 与 8 条 incoming HANDOFF_OPEN，建立工作版并形成 Batch 1 候选",
   "current_work_file": "07_重建工作区/PDM-13_Priority仲裁TTL与Lock边界_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
-    "Do not publish PDM-13 Final before user approves the generated Final Domain Overview",
-    "Do not close PDM-13 incoming handoffs before Final/Integrity closeout",
-    "Do not start PDM-14 before PDM-13 Final publication and integrity closeout",
-    "Do not treat Recommendation cancellation alone as Priority release or same-cycle suppression",
-    "Do not use Current IA or Low-Fi stale carriers to override approved PDM-13 authority",
+    "Do not mark PDM-14 incoming handoffs ACCEPTED until PDM-14 startup reconstruction begins",
+    "Do not use Current IA or Low-Fi stale carriers to override completed PDM-01 through PDM-13 authority",
     "Do not modify IA or Low-Fi during product-rule reconstruction",
-    "Do not execute engineering Delta"
+    "Do not execute engineering Delta",
+    "Do not skip Source→Atom / reverse conflict / semantic completeness audits for PDM-14"
   ],
   "confirmed_rule_atoms": [
     "P01-A01",
@@ -70,7 +68,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-13_FINAL_OVERVIEW_USER_APPROVAL",
+  "current_review_batch": "PDM-14_START_GATE",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -1641,16 +1639,16 @@
   "pdm_12_final_integrity_report": "07_重建工作区/PDM-12_最终完整性复核_2026-10-05.md",
   "pdm_12_final_approved_at": "2026-10-05",
   "pdm_12_integrity_status": "INTEGRITY_PASS",
-  "pdm_13_status": "IN_PROGRESS_FINAL_OVERVIEW_CANDIDATE_READY_WAITING_USER_APPROVAL",
-  "pdm_13_next_gate": "FINAL_OVERVIEW_USER_APPROVAL",
+  "pdm_13_status": "COMPLETE_INTEGRITY_PASS",
+  "pdm_13_next_gate": "COMPLETE",
   "pdm_13_start_gate": "PASS",
   "pdm_13_work_file": "07_重建工作区/PDM-13_Priority仲裁TTL与Lock边界_规则原子重建_工作版.md",
   "pdm_13_incoming_handoffs": {
-    "HO-P03-P13-001": "HANDOFF_ACCEPTED",
-    "HO-P04-P13-001": "HANDOFF_ACCEPTED",
-    "HO-P07-P13-001": "HANDOFF_ACCEPTED",
-    "HO-P11-P13-001": "HANDOFF_ACCEPTED",
-    "HO-P12-P13-001": "HANDOFF_ACCEPTED"
+    "HO-P03-P13-001": "HANDOFF_CLOSED",
+    "HO-P04-P13-001": "HANDOFF_CLOSED",
+    "HO-P07-P13-001": "HANDOFF_CLOSED",
+    "HO-P11-P13-001": "HANDOFF_CLOSED",
+    "HO-P12-P13-001": "HANDOFF_CLOSED"
   },
   "pdm_13_batch_1_status": "PASS_USER_APPROVED",
   "pdm_13_batch_1_candidate_atoms": [
@@ -1835,7 +1833,7 @@
   ],
   "pdm_13_pre_final_integrity_status": "PASS_R2",
   "pdm_13_pre_final_integrity_report": "07_重建工作区/PDM-13_Final前完整性复核_R2_2026-10-05.md",
-  "pdm_13_final_candidate_status": "GENERATED_WAITING_USER_APPROVAL",
+  "pdm_13_final_candidate_status": "USER_APPROVED_PUBLISHED",
   "pdm_13_local_deferred_unresolved": 0,
   "pdm_13_integrity": {
     "source_to_atom": "PASS",
@@ -1856,5 +1854,30 @@
   "pdm_13_pre_final_integrity_r1_status": "PASS_HISTORICAL_REOPENED",
   "pdm_13_pre_final_integrity_r1_report": "07_重建工作区/PDM-13_Final前完整性复核_2026-10-05.md",
   "pdm_13_final_overview_file": "07_重建工作区/PDM-13_最终完整规则总览_待用户批准.md",
-  "pdm_13_final_published": false
+  "pdm_13_final_published": true,
+  "pdm_13_integrity_status": "INTEGRITY_PASS",
+  "pdm_13_final_overview_status": "USER_APPROVED",
+  "pdm_13_final_rule_file": "07_重建工作区/PDM-13_最终完整规则.md",
+  "pdm_13_final_integrity_report": "07_重建工作区/PDM-13_最终完整性复核_2026-10-05.md",
+  "pdm_13_final_approved_at": "2026-10-05",
+  "pdm_13_source_backwrite": {
+    "PDM-03": "DONE",
+    "PDM-04": "DONE",
+    "PDM-07": "DONE",
+    "PDM-11": "DONE",
+    "PDM-12": "DONE"
+  },
+  "pdm_14_status": "NOT_STARTED_START_GATE_PENDING",
+  "pdm_14_start_gate": "PENDING",
+  "pdm_14_incoming_handoffs": {
+    "HO-P01-P14-001": "HANDOFF_OPEN",
+    "HO-P03-P14-001": "HANDOFF_OPEN",
+    "HO-P04-P14-001": "HANDOFF_OPEN",
+    "HO-P07-P14-001": "HANDOFF_OPEN",
+    "HO-P10-P14-001": "HANDOFF_OPEN",
+    "HO-P11-P14-001": "HANDOFF_OPEN",
+    "HO-P12-P14-001": "HANDOFF_OPEN",
+    "HO-P13-P14-001": "HANDOFF_OPEN"
+  },
+  "pdm_14_next_gate": "START_GATE_AND_BATCH1_RECONSTRUCTION"
 }
