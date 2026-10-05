@@ -1,10 +1,10 @@
 # PDM-13｜Priority / 仲裁 / TTL / active Lock 边界｜规则原子重建工作版
 
 > 日期：2026-10-05  
-> 当前状态：`BATCH_3_PASS / USER_APPROVED / IN_PROGRESS`  
+> 当前状态：`BATCH_4_PASS / USER_APPROVED / PREFINAL_INTEGRITY_PENDING`  
 > 业务权威语言：中文（zh-CN）  
 > 当前域：PDM-13｜Priority / 仲裁 / TTL / active Lock 边界  
-> 当前硬门禁：Batch 3 已获用户批准并确认执行；下一步进入 Batch 4（真实冲突 / 缺口 / 新产品选择）候选重建，形成候选后立即停下提交用户审查。不得提前修改 IA / Low-Fi / Engineering。
+> 当前硬门禁：Batch 4 已获用户批准并确认执行；下一步只允许执行 PDM-13 Final 前完整性复核，检查 Source→Atom / Atom→Source、语义缺口、Completed-PDM invariant、Cross-PDM handoff、stale carrier 与负向声明。不得提前修改 IA / Low-Fi / Engineering。
 
 ---
 
@@ -654,8 +654,384 @@ PDM-13 不得：
 
 ---
 
-# 11. 当前唯一下一步
+# 11. Batch 4｜真实冲突 / 语义缺口 / 新产品选择｜USER APPROVED
 
-> **进入 PDM-13 Batch 4：对剩余真实冲突、语义缺口与新产品选择逐项给出候选方案并提交用户裁决。重点包括 Priority 资格来源 / Customer Level 关系、精确仲裁、TTL 默认值与配置主体、续期、same-cycle、trigger_demand、active Lock / Transaction、公海保护、无 owner / 无合法负责销售以及员工 Priority capability 最终边界。形成 Batch 4 候选后立即停下等待用户审查。**
+> 用户最终裁决：**B4-01 按用户修正版；B4-02=2A、B4-03=3A、B4-04=4A、B4-05=5A、B4-06=6A、B4-07=7A、B4-08=8A**，随后明确“确认执行”。  
+> Batch 4 Gate：`PASS / USER_APPROVED / APPLIED_TO_WORKFILE`。
+
+## P13-B4-01｜Priority 资格是单 Customer 后台独立开关；不由 Customer Level 自动产生
+
+### 11.1.1 资格来源
+
+Priority 资格是 **Customer 级独立特殊资格**：
+
+- 后台针对单个 Customer 单独开启 / 关闭；
+- 不由“普通 / 粉丝 / VIP / 已付费”等 Customer Level 名称自动产生；
+- 不把 Priority 做成 Customer Level entitlement；
+- 不因客户等级升级而自动获得 Priority；
+- 不因客户等级降级而仅凭等级名自动关闭 Priority；
+- Priority 资格与正式找车 entitlement 是两件独立事实。
+
+正式找车资格继续服从 PDM-11：
+
+> Customer 当前等级配置的 find-car entitlement → 是否允许形成 / 恢复正式 active Demand。
+
+因此产生车辆级 Priority 至少要求：
+
+1. Customer 账号与业务状态合法；
+2. Customer 当前拥有后台单独开启的 Priority 资格；
+3. Customer 已有合法 active + matching-ready Demand；
+4. 当前 Match Result = current valid `high / acceptable`；
+5. 存在合法当前业务负责人；
+6. Vehicle / listing_cycle / Lock / Transaction 等 PDM-13 Guard 合法。
+
+**只有 Priority 资格、没有合法 active Demand，不产生车辆级 Priority。**
+
+### 11.1.2 普通 Customer 与 Priority Customer 共用 Matching
+
+- 所有合法正式 Demand 共用 PDM-12 唯一 Matching Authority；
+- 普通 Customer 的 Demand 照常产生 Match Result；
+- Priority Customer 的 Demand 不使用第二套算法；
+- hidden 但真实可售、listing_cycle 有效且其他 Guard 合法的 Vehicle 仍可内部 Matching；
+- hidden 不等于不可 Matching。
+
+Priority 是 Matching **之后**的车辆级排他保护层。
+
+### 11.1.3 Priority 成立后的排他效果
+
+某 Priority Customer 赢得同车仲裁并产生 active Priority 后：
+
+- 同一 Vehicle 同一时刻只保留一个 active Priority；
+- 其他普通 Customer 即使已有 current Match Result，也不能在保护期内通过普通后续链路取得新的该车 Recommendation / 普通展示机会；
+- 无关普通员工不得通过普通链路穿透该 Priority 保护；
+- 旧 Match Result 不因此物理删除，仍按 PDM-12 current/history 规则存在；
+- Priority ended 后再按当前合法事实重新判断后续业务机会。
+
+### 11.1.4 Priority 本身不让 Customer 自动看到 Vehicle
+
+active Priority 建立后：
+
+1. 当前负责对应 Customer / trigger Demand 的合法员工先获得业务处理视图；
+2. 由该员工判断是否正式 Recommendation；
+3. 只有 Recommendation / visibility grant Authority 合法成立后，Priority Customer 才获得车辆详情 visibility；
+4. Priority 本身不得直接授予 Customer 详情可见权；
+5. Recommendation 不重置 Priority TTL。
+
+因此：
+
+`Priority created ≠ Customer can see Vehicle`
+
+### 11.1.5 当前业务处理人与管理范围
+
+Priority 当前业务处理责任以 **trigger Demand 当前合法 responsible employee** 为主要业务责任来源，不把 Customer owner 字段直接等同于 Priority responsible。
+
+- 对应 Demand responsible employee 可处理自己负责的 Priority；
+- 经理 / 店长只能在当前合法管理 permission + data scope + object state 范围内监督 / 处理；
+- 不因“经理 / 店长”职位自动拥有全局 Priority 权限；
+- 4S Member 对名邦 Priority / CRM 业务 hard DENY；
+- System Admin 负责 Priority Customer 资格开关这一控制平面治理，不因 System Admin 身份自动成为 Priority 业务处理人。
+
+### 11.1.6 不再建设独立全局 Priority 管理 capability
+
+本轮用户口径替代历史“独立 `priority.view` 穿透查看权限”方向：
+
+- 不新增独立 `priority.view` 作为全局查看通道；
+- 不新增 `priority.manage`；
+- 不恢复 `priority.override`；
+- 不允许人工创建 / 转让 / 覆盖 / 续期 Priority；
+- Priority 查看 / 处理必须建立在当前业务责任、合法管理范围及 PDM-02 通用 permission/data scope/object-state 模型之上。
+
+Priority 资格开关仍属于后台单 Customer 控制平面动作，不允许普通负责销售仅因“这个客户归我”就自行给该客户开启 Priority。
+
+---
+
+## P13-B4-02｜多 Priority Customer 同车仲裁：2A
+
+多个具备 Priority 资格的 Customer 同时对同一 Vehicle 形成合法候选时：
+
+> **`high > acceptable → Demand.created_at 更早 → demand_id 更小`**
+
+规则：
+
+- `high` 优先于 `acceptable`；
+- 同 tier 时使用 PDM-11 不可变 `Demand.created_at`；
+- 仍相同则 `demand_id` 更小者优先，作为确定性最终 tie-break；
+- 不使用 Customer Level / VIP 名称 / 销售职位作为额外仲裁等级；
+- Priority Customer 之间不另建设“高级 Priority / 普通 Priority”等层级。
+
+同一 Customer 多条 Demand 命中同车时：
+
+- 先按同一确定性原则选出一个最佳 `trigger_demand_id`；
+- 跨 Customer 仲裁时该 Customer 只出现一次；
+- 不允许同一 Customer 多条 Demand 人为增加同车竞争权重。
+
+---
+
+## P13-B4-03｜Priority TTL：3A
+
+默认 Priority TTL：
+
+> **24 小时 / 86400 秒**
+
+规则：
+
+- 后台提供全局默认值配置；
+- 新 Priority 创建时将当时默认 TTL 固化为该笔 Priority 的 `expires_at`；
+- 后续修改全局默认值，不追改已有 Priority；
+- 页面刷新不重新计时；
+- Recommendation 不重新计时；
+- Matching 重算不重新计时；
+- trigger Demand 切换不重新计时；
+- 责任交接不暂停、不延长、不重置；
+- **不提供人工续期**；
+- ended Priority 不允许通过“续期”按钮恢复 active。
+
+Priority TTL 与 Lock 默认 3 天属于不同业务时钟，不要求保持一致。
+
+全局 TTL 默认值的后台配置属于控制平面配置；具体 P22/P25 页面与审计投影留后续域承接。
+
+---
+
+## P13-B4-04｜同 listing_cycle 再获得规则：4A
+
+同一 `customer + vehicle + listing_cycle` 的 Priority 因以下原因结束后，不允许该 Customer 在同一 listing_cycle 内再次**自动**取得该 Vehicle 的 Priority：
+
+- Customer 明确不要 / 放弃；
+- 当前负责员工主动释放；
+- 对应 Recommendation 取消并按当前规则触发 Priority 结束；
+- TTL expired。
+
+目的：
+
+> 防止同一 Customer 在同一上架周期反复占用同一 Vehicle 的保护窗口。
+
+但如果此前结束原因属于“当时业务事实不再合法”，且后来发生了**新的真实事实变化**，例如：
+
+- 原 Match Result invalidated，后因 Vehicle / Demand 合法事实变化重新形成新的 current valid Match Result；
+- 原 Priority 资格被关闭，后又被后台重新开启；
+- 原 Demand 失效后后续产生新的合法业务事实；
+
+则可按当前全部 Guard 重新参加仲裁，不将旧 ended 记录物理抹除。
+
+新的 `listing_cycle` 一律作为新的资源周期重新计算，不继承旧周期的自动再获得限制。
+
+---
+
+## P13-B4-05｜trigger Demand 失效：5A
+
+Priority 必须保存合法 `trigger_demand_id`，且该 Demand 必须属于同一 Customer。
+
+当当前 trigger Demand 失效、paused、completed、cancelled、readiness 失效或其 Match Result 不再 current valid 时：
+
+1. 先检查**同一 Customer**是否存在其他：
+   - active；
+   - matching-ready；
+   - 对该 Vehicle 当前 Match Result = `high / acceptable`；
+   - 其他 Guard 合法的 Demand。
+2. 若存在：
+   - 选择新的合法 `trigger_demand_id`；
+   - Priority 本身继续 active；
+   - 不重建 Priority；
+   - 原 `expires_at` 保持不变；
+   - 历史记录 trigger Demand 切换事实。
+3. 若不存在：
+   - 当前 Priority ended；
+   - 记录真实结束原因；
+   - 进入 B4-08 的释放 / 重新仲裁流程。
+
+不得通过 trigger Demand 切换制造新一轮完整 TTL。
+
+---
+
+## P13-B4-06｜active Lock / Transaction：6A
+
+### active Lock 已存在
+
+PDM-12 仍可继续产生 Match Result，但：
+
+> **Vehicle 已存在 active Lock 时不得新建 Priority。**
+
+不得把 active Lock 直接改写成 `no_match`；Match Result 与 Priority Guard 分层。
+
+### active Priority 后正式 Lock 成立
+
+一旦 Vehicle 正式形成 active Lock：
+
+- 当前 active Priority 结束；
+- 若是该 Priority Customer 自己成功 Lock，可记录 `converted_to_lock`；
+- 若由其他合法 Customer / 业务形成 Lock，则记录独立 Lock takeover reason；
+- Priority 不是 Lock 拒绝条件或锁车排队优先级；
+- Lock 的唯一性 / LockRequest / Waitlist 继续由 PDM-18 冻结。
+
+### Lock 取消 / 到期
+
+- 旧 Priority 不自动恢复；
+- 不恢复旧 `expires_at`；
+- Vehicle 若重新开放，则读取当时 current legal Match Result 进入新一轮 Priority 仲裁 / 普通业务流程。
+
+### Transaction
+
+- Vehicle 已有 in-progress Transaction 时不得新建 Priority；
+- active Priority 存续期间 Vehicle 进入正式 in-progress Transaction，当前 Priority 结束；
+- Transaction 取消 / 纠错后 Vehicle 真正重新开放时，不恢复旧 Priority，按当时合法事实重新仲裁；
+- Transaction / Deposit / Refund / Correction 的完整状态机由 PDM-19 承接。
+
+---
+
+## P13-B4-07｜责任交接与 TTL：7A
+
+Priority 当前业务负责人跟随 **trigger Demand 的当前合法 responsible employee**，不把 Customer owner 直接当作 Priority responsible。
+
+员工发生离职 / inactive / 调店 / 降权 / 失去承责资格时：
+
+- Priority 进入正式 Handover Batch；
+- 原员工立即失去不再合法的当前访问 / 处理能力；
+- 合法新负责人接手 Priority 当前业务责任；
+- Priority 在其他业务 Guard 仍合法时可以继续 active；
+- **TTL 继续自然运行，不暂停、不延长、不重置**；
+- 新负责人只获得剩余保护时间；
+- creator / created_at / 原 responsible / 历史 handoff 不改写。
+
+### 没有合法负责人
+
+- 没有合法 Demand responsible employee 时，不允许新建车辆级 Priority；
+- 已 active Priority 因突发人员失效进入待交接时，不能因内部交接而无限冻结 Vehicle；
+- TTL 继续自然运行；
+- 若在 TTL 到期前完成合法交接，新负责人接手剩余时间；
+- 若到期前仍未完成，则按 TTL 正常 expired；
+- 不能由 System Admin 业务兜底成为销售负责人。
+
+---
+
+## P13-B4-08｜公海保护、ended reason 与重新释放：8A
+
+### 公海保护
+
+- **Priority Customer 资格本身不是公海保护条件**；
+- **active Priority 是真实公海保护事实**；
+- Customer 存在 active Priority 时，不得按普通无业务 Customer 直接送入公海；
+- Priority ended 后，重新读取当时是否仍存在 pending Application、active/paused Demand、Lock、Transaction 或其他 PDM-17 当前 Authority 认可的保护事实；
+- 不得因为历史上曾有 Priority 永久禁止入公海。
+
+### ended reason
+
+Priority 主状态继续保持：
+
+- `active`
+- `ended`
+
+结束原因独立记录，至少能够区分：
+
+- Customer 明确不要 / 放弃；
+- 员工主动释放；
+- Recommendation 取消；
+- TTL expired；
+- Demand 不再合法 / 无可切换 trigger Demand；
+- Priority Customer 资格关闭；
+- Match invalidated；
+- Vehicle unavailable；
+- Lock converted / Lock takeover；
+- Transaction started；
+- 其他正式 correction / lifecycle reason。
+
+不得用一个无语义的 `ended` 覆盖真实结束原因。
+
+### Priority ended 后重新仲裁
+
+Priority ended 且 Vehicle 当前真实开放、没有 active Lock / in-progress Transaction、listing_cycle 有效时：
+
+1. 读取**所有 Customer**当前合法 Match Result；
+2. 不只检查原 Customer；
+3. 不只检查“下一个 Priority Customer”；
+4. 若存在合法 Priority 候选，重新按 B4-02 仲裁；
+5. 若不存在合法 Priority 候选，Vehicle 返回普通后续业务流；
+6. 旧 Priority 历史不删除、不改写。
+
+---
+
+# 12. PDM-13 → Future PDM Handoff
+
+Batch 4 新增并冻结以下跨域输入，目标域不得重新发明 PDM-13 Authority：
+
+### HO-P13-P14-001｜Priority 对 Recommendation / visibility 的排他压制边界
+
+PDM-13 已冻结：
+
+- Priority 本身不授 Customer 车辆详情 visibility；
+- Priority responsible employee 先看到并决定是否 Recommendation；
+- Recommendation / visibility grant 合法成立后，Priority Customer 才可看详情；
+- active Priority 对其他 Customer 的普通新 Recommendation / 普通可见机会具有排他保护；
+- 若其他 Customer 在该 Priority 建立前已经存在 active Recommendation / visibility grant，**不得删除 Recommendation 历史**。
+
+PDM-14 必须继续冻结：
+
+- 既有 active Recommendation / visibility grant 在后续 active Priority 期间如何做临时 visibility suppression；
+- Priority ended 后，在 Vehicle 仍可售、Recommendation 仍 active、listing_cycle 仍合法等条件下，visibility 是否以及如何恢复；
+- suppression / restore 的审计与幂等边界。
+
+### HO-P13-P17-001｜active Priority 的公海保护
+
+- Priority 资格本身不是公海保护；
+- active Priority 是公海保护事实；
+- ended 后重新读取其他公海保护事实。
+
+### HO-P13-P18-001｜Lock × Priority
+
+- active Lock 不阻断 Matching，但阻止新 Priority；
+- 正式 Lock 成立结束当前 active Priority；
+- Lock 取消 / 到期不恢复旧 Priority；
+- Vehicle 重新开放后重新按当前事实仲裁。
+
+### HO-P13-P19-001｜Transaction × Priority
+
+- in-progress Transaction 阻止新 Priority；
+- Transaction 开始结束已有 active Priority；
+- Transaction 取消 / 纠错后不恢复旧 Priority，Vehicle 真正开放后重新仲裁。
+
+### HO-P13-P25-001｜Priority 审计
+
+PDM-25 需承接至少：
+
+- Priority Customer 资格开启 / 关闭；
+- 创建 / 仲裁结果；
+- trigger Demand；
+- TTL snapshot / expires_at；
+- handoff；
+- ended reason；
+- Lock / Transaction takeover；
+- re-arbitration；
+- stale / invalidated 导致的 lifecycle 变化；
+- actor / time / before-after / source facts。
+
+---
+
+# 13. Batch 4 后本域待 Final 前复核项
+
+Batch 1～4 的产品选择已全部完成。
+
+进入 Final 前完整性复核时必须重点机械检查：
+
+1. Source→Atom 是否仍有历史稳定细节未映射；
+2. Atom→Source 是否存在无证据外推；
+3. Priority 资格开关与 Customer Level find-car entitlement 是否仍有混写；
+4. 旧独立 `priority.view` 是否已被 B4-01 正式 supersede，Current carrier 是否登记 stale；
+5. hidden + Priority + Recommendation + visibility 是否存在跨域缺口；
+6. Lock / Transaction / public pool handoff 是否完整；
+7. same listing_cycle 再获得规则是否存在结束原因覆盖缺口；
+8. trigger Demand 切换是否与不可变 `Demand.created_at`、原 `expires_at` 一致；
+9. TTL 24h / 后台全局可配 / 不人工续期是否在所有证据链一致；
+10. 5 条 incoming handoff 是否均有明确 Atom / Final 去向；
+11. 是否还需要补 PDM-20/21/22/25 的页面 / Action / 配置 / 审计 handoff；
+12. stale carrier 是否完整登记但未提前施工。
+
+当前：
+
+`PDM13_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+
+---
+
+# 14. 当前唯一下一步
+
+> **执行 PDM-13 Final 前完整性复核：重新做 Source→Atom、Atom→Source、Semantic Completeness、Completed-PDM Invariant、Cross-PDM Handoff Integrity、Negative Claims、stale carrier 与局部未闭环扫描。发现缺口先形成 LIA 修复候选并停下用户审查；全部 PASS 后才能生成 PDM-13 Final Domain Overview。**
 
 IA / Low-Fi / Engineering 继续禁止施工。
