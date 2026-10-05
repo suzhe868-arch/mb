@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-15_STARTUP_PENDING`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-15_BATCH_1_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,11 +16,11 @@
 
 当前域状态：
 
-> `STARTUP_PENDING / INCOMING_HANDOFF_NOT_YET_ACCEPTED`
+> `IN_PROGRESS / START_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`
 
 当前工作文件：
 
-> `PDM-15 工作版尚未建立；先执行 Startup Gate`
+> `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
 
 当前已纠正：
 
@@ -32,7 +32,19 @@
 
 当前唯一下一步：
 
-> **PDM-14 已 `COMPLETE / INTEGRITY_PASS`；52 个正式规则/裁决单元全部进入 Final；8 条 incoming handoff 已 `HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE`；7 条 outgoing handoff 保持 `HANDOFF_OPEN`。当前唯一下一步：执行 PDM-15 Startup Gate，固定先读取 Coverage Map、Cross-PDM Handoff Register 中 target=PDM-15 的 5 条 incoming handoff、PDM-14→PDM-15 双向不反写边界，以及 Consultation 相关 9/19 / 001～078 / Current 证据。Startup Gate 通过并接收 handoff 后，才建立 PDM-15 工作版并进入 Batch 1。IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-15 Startup Gate 已 `PASS`；5 条 incoming handoff 已全部 `HANDOFF_ACCEPTED`；工作版已建立；P15-R00 核心业务定位已按用户确认落地。当前唯一下一步：提交 P15-A01～P15-A08 Batch 1 稳定一致规则候选给用户审查。IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-06｜PDM-15 Startup Gate 通过并进入 Batch 1
+
+- 用户已确认 PDM-15 核心定位：Consultation = 客户正式咨询工单，承接“明确咨询 → 合法负责人 → 真人跟进 → 合法结束”；
+- Consultation 与 Customer owner / Recommendation / Lock / Transaction 分离，只保存必要真实关联，不自动互相改写主状态；
+- Startup Gate = `PASS`；completed-PDM hard conflict = 0；incoming handoff gap = 0；
+- target=PDM-15 的 5 条 incoming handoff 全部由 `HANDOFF_OPEN` → `HANDOFF_ACCEPTED`；
+- 工作版已建立：`07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`；
+- 已登记 Current carrier 冲突：CANCELLED 主状态歧义、SLA 首次真实人工动作语义缺失、Consultation assignee 与 Customer owner 术语污染、Customer 停用运行态、Transaction 负向边界、工作台 SLA 优先级边界、负责人优先级/无合法负责人兜底；
+- Batch 1 候选：`P15-A01～P15-A08`，状态 `PENDING_USER_REVIEW`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 P15-A01～P15-A08。
 
 ## 2026-10-06｜PDM-14 Final 正式发布并完成 Closeout
 
