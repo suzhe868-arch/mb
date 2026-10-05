@@ -1,7 +1,7 @@
 # PDM-15｜Consultation / 咨询生命周期 / 来源 / 负责人 / 转派 / SLA｜规则原子重建工作版
 
 > 日期：2026-10-06  
-> 状态：`IN_PROGRESS / BATCH_1_TO_4_PASS / P15-LIA-01_TO_05_USER_APPROVED_APPLIED / PREFINAL_INTEGRITY_R2_REPAIR_REQUIRED / P15-LIA-06_PENDING_USER_REVIEW`  
+> 状态：`IN_PROGRESS / BATCH_1_TO_4_PASS / P15-LIA-01_TO_06_USER_APPROVED_APPLIED / PREFINAL_INTEGRITY_R3_RUNNING`  
 > 方法：9/19 主底盘 + 前向历史补全 + 后向显式 supersession + 9/22 冻结台账 + Current Carrier Conflict Scan + Completed-PDM Authority + Cross-PDM Handoff。  
 > 当前阶段约束：IA / Low-Fi / Engineering 只登记冲突，不施工；未经用户审查的候选 Atom 不得直接进入 Final。
 
@@ -611,7 +611,7 @@ R2 已重新执行：
 
 R2 唯一剩余问题：
 
-### P15-LIA-06｜Consultation mutation actor / authority 精确矩阵｜PENDING_USER_REVIEW
+### P15-LIA-06｜Consultation mutation actor / authority 精确矩阵｜PASS / USER_APPROVED / APPLIED
 
 #### 证据
 
@@ -672,22 +672,18 @@ R7 §36 / Phase1.5 D5 与 Current carrier 进一步明确：
 
 建议：**通过。**
 
+**用户裁决：P15-LIA-06 通过，并于 2026-10-06 明确“同意，确认执行”。以上 mutation actor / authority 精确矩阵正式进入 PDM-15 当前 Authority。**
+
 ---
 
-## 15. R2 Gate
+## 15. R2 Repair Gate｜PASS / USER_APPROVED / APPLIED
 
-当前：
-
-- `P15-LIA-01～P15-LIA-05 = PASS / USER_APPROVED / APPLIED`；
+- `P15-LIA-01～P15-LIA-06 = PASS / USER_APPROVED / APPLIED`；
 - `OUTGOING_HANDOFF_COUNT = 8 / COMPLETE_REGISTERED`；
-- `COMPLETED_PDM_INVARIANT_CONFLICT = 0`；
-- `INCOMING_HANDOFF_GAP = 0`；
-- `MISSING_RULE_UNRESOLVED = 0`；
-- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 1`：P15-LIA-06 mutation authority matrix；
-- `HANDOFF_GAP_UNRESOLVED = 0`；
 - `PDM15_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
-- `PDM15_FINAL_CANDIDATE_READY = NO`。
+- R2 唯一剩余 Semantic Detail 已完成修复；
+- 当前进入 Final 前完整性复核 R3。
 
 当前唯一下一步：
 
-> **用户审查 P15-LIA-06。若批准并确认执行，则应用该最后一项语义修复并执行 Final 前完整性复核 R3；R3 PASS 后才生成 Final Domain Overview 候选。**
+> **执行 PDM-15 Final 前完整性复核 R3。R3 只有在 Source→Atom、Atom→Source、Semantic Completeness、Completed-PDM Invariant、Incoming/Outgoing Handoff 全部 PASS 时，才允许生成 Final Domain Overview 候选。**
