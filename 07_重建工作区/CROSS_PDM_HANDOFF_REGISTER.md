@@ -418,7 +418,13 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 | handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
 |---|---|---|---|---|---|
-| HO-P14-P15-001 | PDM-15 | Recommendation 与 Consultation 为独立业务对象：Recommendation end/void 不自动结束既有 Consultation；已有未终结 Consultation 时后来新建 Recommendation 不自动创建第二条 Consultation、不抢写当前 Consultation 负责人、不改写真实历史来源；Consultation 的状态机、负责人优先级/转派、SLA、终态、同周期幂等与后续新建规则由 PDM-15 正式冻结。 | HANDOFF_OPEN | - | YES |
+| HO-P14-P15-001 | PDM-15 | Recommendation 与 Consultation 为独立业务对象：Recommendation end/void 不自动结束既有 Consultation；已有未终结 Consultation 时后来新建 Recommendation 不自动创建第二条 Consultation、不抢写当前 Consultation 负责人、不改写真实历史来源；反向同样成立——Consultation 不自动创建 Recommendation、不授 Recommendation 免费 price-right、不授 hidden Vehicle visibility；若 Consultation 来源于 Recommendation，只保留真实 source relation，不绑定生命周期。Consultation 的状态机、负责人优先级/转派、SLA、终态、同周期幂等与后续新建规则由 PDM-15 正式冻结。 | HANDOFF_OPEN | - | YES |
+| HO-P14-P18-001 | PDM-18 | active Lock / Recommendation 分层：只要 Vehicle 底层仍真实可售、当前 listing_cycle 有效且 Recommendation 其他 Guard 合法，active Lock 占用本身不自动禁止 Recommendation；Recommendation 不产生 Lock 排队优先级、抢车分值或 takeover 权，不得绕过既有 active Lock。Recommendation end/void 也不得反向取消合法 Lock；Waitlist/LockRequest/Lock 完整生命周期由 PDM-18 冻结。 | HANDOFF_OPEN | - | YES |
+| HO-P14-P19-001 | PDM-19 | in-progress Transaction / Recommendation 分层：只要 Vehicle 底层仍真实可售、当前 listing_cycle 有效且 Recommendation 其他 Guard 合法，Transaction 占用事实本身不自动禁止 Recommendation；Recommendation 不接管、不取消、不回写既有 Transaction。Vehicle sold/offline/unavailable 或 cycle end 后不得新建当前周期 Recommendation；Transaction/Refund/Correction 完整状态机由 PDM-19 冻结。 | HANDOFF_OPEN | - | YES |
+| HO-P14-P20-001 | PDM-20 | 客户端承接“我的推荐”仅正式 Recommendation 且区分当前/历史；历史推荐价快照与当前价格分层；普通 share link 无固定 N 天 TTL、可继续转发但不传播 Recommendation/price-right/visibility/Internal Mode，每次打开按当前 Vehicle/listing_cycle/Customer/Priority/访问 Authority 重算；hidden/公开/失效/新 cycle 均不得被旧链接绕过；Recommendation/visibility 仅授 Customer Safe Projection，不泄露内部价敏感字段、上游电话、VIN/敏感档案、Priority/Match 内部事实。页面布局与文案由 PDM-20 冻结。 | HANDOFF_OPEN | - | YES |
+| HO-P14-P21-001 | PDM-21 | 员工端承接 Recommendation 真人动作：车辆详情/CRM客户详情/找车候选上下文三入口；批量推荐 UI 可一次选择多车但底层逐车 Guard/幂等/create-reuse；create/end/void 提交时重验 active eligible 名邦 Employee、当前合法业务责任、permission/capability、data scope、对象状态及 Priority/Customer 等 Guard；4S hard DENY，System Admin 身份本身不自动执行业务；历史 recommender 不等于永久当前操作权；终态/历史只读边界服从 PDM-14。 | HANDOFF_OPEN | - | YES |
+| HO-P14-P23-001 | PDM-23 | Recommendation create/end/void 不自动扩展为微信主动消息/发送成功失败状态机；V1 不因 Recommendation 本身新增客户侧微信订阅消息体系。未来若通知层消费明确 allowlist 事件，通知失败只能形成通知/incident 事实，不得回滚或改写 Recommendation/visibility/price-right 业务事实。 | HANDOFF_OPEN | - | YES |
+| HO-P14-P25-001 | PDM-25 | 统一审计 Recommendation / visibility grant：create/reuse/touch/end/void、void reason、customer/vehicle/listing_cycle/recommender/source_demand/price snapshot、visible↔hidden 时 grant effective change、Priority suppression/restore、Customer disable/restore 与 find-car entitlement loss/restore 的客户侧能力暂停恢复、批量逐车结果、actor/time/identity/permission/data scope/object state/before-after/source context；历史不可物理删除，上游同步不得直接覆盖这些 Business Data。 | HANDOFF_OPEN | - | YES |
 
 ---
 ## 13. Post-PDM25 IA / Low-Fi Carrier Ledger｜持续累积
@@ -505,6 +511,14 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | PDM-14 | REC 专属 URL / Recommendation-specific link / 第二套推荐分享页残留；正确 Authority 是 Recommendation 为内部正式事实，对外继续普通车辆分享 | CARRIER_DEFERRED |
 | PDM-14 | Current IA / Low-Fi HIDDEN_CONTROLLED 仅凭 Demand/Priority 直接授 Customer hidden Vehicle 详情权；正确 Authority 是 Recommendation + customer-specific visibility grant | CARRIER_DEFERRED |
 | PDM-14 | Current IA / Low-Fi P06-01 / P06-M01 Customer Merge 状态机及 Recommendation/权益迁移；PDM-01 Final 已全面取消 Customer Merge | CARRIER_DEFERRED |
+| PDM-14 | 把“4S 成员 hard DENY Recommendation”误实现成“4S 车源不可被名邦合法销售 Recommendation” | CARRIER_DEFERRED |
+| PDM-14 | 批量推荐被实现成 group Recommendation / 共享 recommendation_id / 共享生命周期，而不是逐车对象 | CARRIER_DEFERRED |
+| PDM-14 | Recommendation create/end/void 顺带修改 Customer owner 或 Demand responsible | CARRIER_DEFERRED |
+| PDM-14 | 普通 share link 使用固定 N 天 TTL，或二次转发继承上一 Customer 的 Recommendation/price/visibility | CARRIER_DEFERRED |
+| PDM-14 | Recommendation 创建时价格咨询、同 cycle 后出现数字价却再次扣 daily quota | CARRIER_DEFERRED |
+| PDM-14 | Recommendation/visibility grant 把 Internal Mode、敏感内部价、上游电话、VIN/敏感档案、Priority/Match 内部事实一起下发 Customer | CARRIER_DEFERRED |
+| PDM-14 | JYT/上游同步直接 create/end/void/delete/overwrite Recommendation 或 customer-specific visibility grant | CARRIER_DEFERRED |
+| PDM-14 | Consultation 自动创建 Recommendation、赠送 Recommendation price-right 或直接授 hidden visibility | CARRIER_DEFERRED |
 
 ---
 
@@ -537,5 +551,5 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - 当前进入：PDM-14 Final 前完整性复核；
 - PDM-12：COMPLETE / INTEGRITY_PASS；4 条 incoming handoff 全部 CLOSED 并完成 source backwrite；
 - PDM-13：COMPLETE / INTEGRITY_PASS；PDM-13→PDM-14/17/18/19/20/21/22/25 future handoff 已登记；其中 HO-P13-P14-001 已由 PDM-14 接收为 HANDOFF_ACCEPTED，其余目标域继续 HANDOFF_OPEN；
-- PDM-14：Start Gate PASS；8 条 incoming handoff 全部 HANDOFF_ACCEPTED；Batch 1～4 均已 USER_APPROVED / APPLIED；Batch 4 choices=`1A,2B,3A,4A,5A,6A,7A,8A`；Local Product Choice Unresolved=0；新增 HO-P14-P15-001=HANDOFF_OPEN；下一步 Final 前完整性复核；
+- PDM-14：Start Gate PASS；8 条 incoming handoff 全部 HANDOFF_ACCEPTED；Batch 1～4 均已 USER_APPROVED / APPLIED；Batch 4 choices=`1A,2B,3A,4A,5A,6A,7A,8A`；P14-LIA-01～10 已 USER_APPROVED / APPLIED；Local Product Choice Unresolved=0；outgoing HO-P14-P15/P18/P19/P20/P21/P23/P25 均 HANDOFF_OPEN；下一步 Final 前完整性复核 R2；
 - `HO-P01-P11-001 = HANDOFF_SUPERSEDED`；`HO-P01-P11-002 = HANDOFF_CLOSED`。PDM-12 incoming handoff 已全部 CLOSED；PDM-12 outgoing future handoff 已扩展登记：PDM-13 / PDM-14 / PDM-16 / PDM-18 / PDM-20 / PDM-21 / PDM-22 / PDM-25 均为 `HANDOFF_OPEN`，待各目标域承接。
