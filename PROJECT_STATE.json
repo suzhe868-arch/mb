@@ -20,16 +20,13 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-15 Batch 3：审查 P15-B3-01～P15-B3-04 知情修改/显式新增候选",
+  "current_task": "PDM-15 Batch 4：审查 P15-B4-01～P15-B4-07 冲突/遗漏/缺口/新产品选择",
   "current_work_file": "07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
-    "Do not mark P15-B3-01 through P15-B3-04 approved before user review",
-    "Do not decide CANCELLED master-state semantics inside Batch 3",
-    "Do not decide first-real-human-response SLA completion inside Batch 3",
-    "Do not use Current IA or Low-Fi stale carriers to override completed PDM authority",
+    "Do not mark P15-B4-01 through P15-B4-07 approved before user review",
     "Do not modify IA or Low-Fi during product-rule reconstruction",
     "Do not execute engineering Delta"
   ],
@@ -69,7 +66,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-15_BATCH_3",
+  "current_review_batch": "PDM-15_BATCH_4",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -2334,7 +2331,7 @@
   "pdm_14_source_backwrite_done": true,
   "pdm_14_source_backwrite_count": 8,
   "pdm_15_status": "IN_PROGRESS",
-  "pdm_15_next_gate": "BATCH_3_USER_REVIEW",
+  "pdm_15_next_gate": "BATCH_4_USER_REVIEW",
   "pdm_15_incoming_handoffs": {
     "HO-P01-P15-001": "HANDOFF_ACCEPTED",
     "HO-P02-P15-001": "HANDOFF_ACCEPTED",
@@ -2459,6 +2456,26 @@
     {
       "id": "PDM15-GATE-B2",
       "status": "USER_APPROVED_APPLIED"
+    },
+    {
+      "id": "PDM15-DEC-B3-01",
+      "status": "USER_APPROVED_APPLIED"
+    },
+    {
+      "id": "PDM15-DEC-B3-02",
+      "status": "USER_APPROVED_APPLIED"
+    },
+    {
+      "id": "PDM15-DEC-B3-03",
+      "status": "USER_APPROVED_APPLIED"
+    },
+    {
+      "id": "PDM15-DEC-B3-04",
+      "status": "USER_APPROVED_APPLIED"
+    },
+    {
+      "id": "PDM15-GATE-B3",
+      "status": "USER_APPROVED_APPLIED"
     }
   ],
   "pdm_15_batch_2_reverse_conflict_scan": {
@@ -2482,18 +2499,56 @@
     "CANCELLED_MASTER_STATE_AMBIGUITY",
     "SLA_FIRST_REAL_HUMAN_ACTION_SEMANTICS_MISSING"
   ],
-  "pdm_15_batch_3_status": "PENDING_USER_REVIEW",
+  "pdm_15_batch_3_status": "PASS_USER_APPROVED",
   "pdm_15_batch_3_candidate_atoms": [
     "P15-B3-01",
     "P15-B3-02",
     "P15-B3-03",
     "P15-B3-04"
   ],
-  "pdm_15_batch_3_approved_atoms": [],
-  "pdm_15_batch_3_pending_atoms": [
+  "pdm_15_batch_3_approved_atoms": [
     "P15-B3-01",
     "P15-B3-02",
     "P15-B3-03",
     "P15-B3-04"
+  ],
+  "pdm_15_batch_3_pending_atoms": [],
+  "pdm_15_batch_3_conflict_isolation": {
+    "status": "PASS",
+    "conflict_or_product_choice_misclassified_as_batch3": 0,
+    "checked_completed_pdm_authority": [
+      "PDM-01",
+      "PDM-02",
+      "PDM-03",
+      "PDM-14"
+    ]
+  },
+  "pdm_15_batch_4_status": "PENDING_USER_REVIEW",
+  "pdm_15_batch_4_candidate_atoms": [
+    "P15-B4-01",
+    "P15-B4-02",
+    "P15-B4-03",
+    "P15-B4-04",
+    "P15-B4-05",
+    "P15-B4-06",
+    "P15-B4-07"
+  ],
+  "pdm_15_batch_4_pending_atoms": [
+    "P15-B4-01",
+    "P15-B4-02",
+    "P15-B4-03",
+    "P15-B4-04",
+    "P15-B4-05",
+    "P15-B4-06",
+    "P15-B4-07"
+  ],
+  "pdm_15_batch_4_recommended_choices": [
+    "1A",
+    "2A",
+    "3A",
+    "4A",
+    "5A",
+    "6A",
+    "7A"
   ]
 }
