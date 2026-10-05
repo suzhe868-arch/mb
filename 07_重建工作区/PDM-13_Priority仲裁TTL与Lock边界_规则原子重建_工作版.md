@@ -1,10 +1,10 @@
 # PDM-13｜Priority / 仲裁 / TTL / active Lock 边界｜规则原子重建工作版
 
 > 日期：2026-10-05  
-> 当前状态：`FINAL_OVERVIEW_CANDIDATE_READY / WAITING_USER_FINAL_APPROVAL`  
+> 当前状态：`COMPLETE / INTEGRITY_PASS / FINAL_PUBLISHED`  
 > 业务权威语言：中文（zh-CN）  
 > 当前域：PDM-13｜Priority / 仲裁 / TTL / active Lock 边界  
-> 当前硬门禁：P13-LIA-07～LIA-08 已用户批准并执行，Final 前完整性复核 R2 已 PASS；修正后的 Final Domain Overview 候选已生成。当前只等待用户最终批准；未经用户最终批准，不得发布 Final、不得关闭 incoming handoff、不得开始 PDM-14。
+> 当前硬门禁：用户已最终批准 Final Domain Overview 并明确“确认执行”；PDM-13 Final 已发布，incoming handoff 5/5 已关闭并完成 source backwrite。PDM-13 = COMPLETE / INTEGRITY_PASS。下一域允许进入 PDM-14；IA / Low-Fi / Engineering 继续禁止提前施工。
 
 ---
 
@@ -1444,8 +1444,39 @@ R2 结论：
 
 ---
 
-# 20. 当前唯一下一步
+# 20. Final closeout｜COMPLETE / INTEGRITY_PASS
 
-> **提交 `PDM-13_最终完整规则总览_待用户批准.md` 给用户做最终批准。只有用户明确最终同意后，才允许发布 `PDM-13_最终完整规则.md`、关闭 5 条 incoming handoff、完成 source backwrite 与 Final Integrity closeout，然后进入 PDM-14。**
+用户已于 2026-10-05 最终批准：
 
-IA / Low-Fi / Engineering 继续禁止施工。
+> `07_重建工作区/PDM-13_最终完整规则总览_待用户批准.md`
+
+并随后明确：
+
+> `确认执行`
+
+正式 Authority 已发布：
+
+> `07_重建工作区/PDM-13_最终完整规则.md`
+
+Final 前当前有效完整性 Gate：
+
+> `07_重建工作区/PDM-13_Final前完整性复核_R2_2026-10-05.md`
+
+Final closeout：
+
+- 38 条正式规则 / 修复 Atom 全部进入 Final；
+- 5 / 5 incoming handoff = `HANDOFF_CLOSED`；
+- PDM-03 / PDM-04 / PDM-07 / PDM-11 / PDM-12 已完成 source backwrite；
+- 8 条 PDM-13 outgoing future handoff 继续 `HANDOFF_OPEN`；
+- stale carrier 继续只登记，不施工；
+- Final Integrity 报告在同次 closeout 生成。
+
+当前：
+
+> **`PDM-13 = COMPLETE / INTEGRITY_PASS`**
+
+下一域允许进入：
+
+> **PDM-14｜Recommendation / 单车授权 / visibility lifecycle**
+
+IA / Low-Fi / Engineering 继续禁止提前施工。
