@@ -6,21 +6,21 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-15_FINAL_DOMAIN_OVERVIEW_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-16_STARTUP_GATE_PENDING`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
 当前域：
 
-> **PDM-15｜Consultation / 咨询 / SLA / 负责人**
+> **PDM-16｜CRM / 客户画像 / 阶段 / 跟进 / 标签 / 机会 / Source Radar**
 
 当前域状态：
 
-> `IN_PROGRESS / ALL_RULE_ATOMS_USER_APPROVED / PREFINAL_INTEGRITY_R3_PASS / FINAL_OVERVIEW_PENDING_USER_FINAL_APPROVAL`
+> `NOT_STARTED / STARTUP_GATE_PENDING`
 
 当前工作文件：
 
-> `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
+> PDM-16 工作版尚未建立；Startup Gate 通过后再创建。当前上游正式 Authority：`07_重建工作区/PDM-15_最终完整规则.md`
 
 当前已纠正：
 
@@ -32,7 +32,21 @@
 
 当前唯一下一步：
 
-> **PDM-15 Final 前完整性复核 R3 已 `PASS / FINAL_CANDIDATE_READY`；Missing Rule=0、Semantic Detail Gap=0、Completed-PDM Conflict=0、Handoff Gap=0。当前唯一下一步：用户最终审查 PDM-15 Final Domain Overview。最终批准并再次确认执行前，不得发布 Final、关闭 incoming handoff 或进入 PDM-16。**
+> **PDM-15 已正式 `COMPLETE / INTEGRITY_PASS`；Final 已发布，5/5 incoming handoff 已 CLOSED 并完成 source backwrite。当前唯一下一步：执行 PDM-16 Startup Gate；Startup Gate 通过前不得建立 Batch 1 Authority。IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-06｜PDM-15 Final 正式发布并完成 Closeout
+
+- 用户最终批准 Final Domain Overview 并确认执行；
+- Final Approval Trace：`07_重建工作区/PDM-15_最终完整规则总览_待用户批准.md`；
+- 正式 Authority：`07_重建工作区/PDM-15_最终完整规则.md`；
+- Final Integrity：`07_重建工作区/PDM-15_最终完整性复核_2026-10-06.md / PASS`；
+- `PDM-15 = COMPLETE / INTEGRITY_PASS`；
+- 31 个正式规则 / 用户裁决单元全部进入 Final；
+- 5 / 5 incoming handoff = `HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE`；
+- 来源 PDM-01 / 02 / 03 / 07 / 14 Final 已反向回写；
+- 8 条 outgoing handoff 继续 `HANDOFF_OPEN`；
+- IA / Low-Fi / Engineering 未施工；
+- 下一步：PDM-16 Startup Gate。
 
 ## 2026-10-06｜PDM-15 Final 前完整性复核 R3
 
