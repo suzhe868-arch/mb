@@ -541,6 +541,19 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | PDM-14 | JYT/上游同步直接 create/end/void/delete/overwrite Recommendation 或 customer-specific visibility grant | CARRIER_DEFERRED |
 | PDM-14 | Consultation 自动创建 Recommendation、赠送 Recommendation price-right 或直接授 hidden visibility | CARRIER_DEFERRED |
 
+
+| PDM-16 | Customer Merge / MERGE_* 及跨 Customer CRM 历史迁移旧方向 | CARRIER_DEFERRED |
+| PDM-16 | CRM Customer Detail 直接“锁车→再选 Vehicle”旧入口 | CARRIER_DEFERRED |
+| PDM-16 | Customer Opportunity 旧 7 天 / 单日 >40 / 连续 3 天阈值及对应配置控件 | CARRIER_DEFERRED |
+| PDM-16 | 大字段 CRM 画像 / 把 Personal Note、Shared Profile、服务称呼重新合并为一个大备注字段 | CARRIER_DEFERRED |
+| PDM-16 | 历史服务过即可永久访问 Customer CRM 的旧误义 | CARRIER_DEFERRED |
+| PDM-16 | P06-07 页面壳反推任意 Customer Opportunity 规则 CRUD/config | CARRIER_DEFERRED |
+| PDM-16 | Customer Opportunity 被实现成独立工单 / assignee / SLA / close lifecycle | CARRIER_DEFERRED |
+| PDM-16 | E03-03 只有“记录跟进”导航而无真实 Follow-up mutation submit chain | CARRIER_DEFERRED |
+| PDM-16 | Customer Opportunity / Source Radar / 强待办混成同一 task/state system | CARRIER_DEFERRED |
+| PDM-16 | Source Radar“标记不适合”直接反写 PDM-12 Match Result / Rule Dictionary / Demand 条件 | CARRIER_DEFERRED |
+| PDM-16 | Consultation / Demand / Lock / Transaction 等具体业务事件自动改写 CRM Stage | CARRIER_DEFERRED |
+
 ---
 
 ## 14. 强制使用规则
@@ -569,7 +582,9 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-10：INTEGRITY_PASS；
 - PDM-01～10 全局 Cross-PDM / Handoff / Global Invariant 总复核：PASS；
 - PDM-11：COMPLETE / INTEGRITY_PASS；
-- 当前进入：PDM-15 Startup Gate；
+- PDM-15：COMPLETE / INTEGRITY_PASS；
+- PDM-16：COMPLETE / INTEGRITY_PASS；
+- 当前进入：PDM-17 Startup Gate；
 - PDM-12：COMPLETE / INTEGRITY_PASS；4 条 incoming handoff 全部 CLOSED 并完成 source backwrite；
 - PDM-13：COMPLETE / INTEGRITY_PASS；PDM-13→PDM-14/17/18/19/20/21/22/25 future handoff 已登记；其中 HO-P13-P14-001 已由 PDM-14 Final 正式承接并 CLOSED/source backwrite，其余目标域继续 HANDOFF_OPEN；
 - PDM-14：COMPLETE / INTEGRITY_PASS；52 个正式规则/裁决单元全部进入 Final；8 条 incoming handoff 全部 HANDOFF_CLOSED 并完成 source backwrite；outgoing HO-P14-P15/P18/P19/P20/P21/P23/P25 保持 HANDOFF_OPEN；正式 Authority=`07_重建工作区/PDM-14_最终完整规则.md`；下一步 PDM-15 Startup Gate；
