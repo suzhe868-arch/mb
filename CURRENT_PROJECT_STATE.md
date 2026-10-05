@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-16_PREFINAL_INTEGRITY`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-16_PREFINAL_R1_REPAIR_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_3_REPAIR_PASS / BATCH_4_PASS / PREFINAL_INTEGRITY_PENDING`
+> `IN_PROGRESS / BATCH_4_PASS / PREFINAL_R1_REPAIR_REQUIRED`
 
 当前工作文件：
 
@@ -32,7 +32,20 @@
 
 当前唯一下一步：
 
-> **PDM-16 Batch 4 已 `PASS / USER_APPROVED / APPLIED`；用户选择 1A、2A、3A、4A、5A；Cross-PDM Conflict Review = PASS；PDM16_LOCAL_PRODUCT_CHOICE_UNRESOLVED=0。当前唯一下一步：PDM-16 Final 前完整性复核。6 条 incoming handoff 继续 HANDOFF_ACCEPTED。**
+> **PDM-16 Final 前完整性复核 R1 = `REPAIR_REQUIRED`。当前唯一下一步：用户审查 P16-LIA-01～P16-LIA-03；未获批准并确认执行前不得写入修复。当前 hard conflict=0，incoming handoff gap=0，outgoing handoff gap=1 group。**
+
+## 2026-10-06｜PDM-16 Final 前完整性复核 R1
+
+- 报告：`07_重建工作区/PDM-16_Final前完整性复核_R1_2026-10-06.md`；
+- 结论：`REPAIR_REQUIRED`；
+- `MISSING_RULE_UNRESOLVED = 1`：Customer Address 搜索 / 卡片投影；
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 1`：CRM Stage / important Tag / 服务称呼 mutation audit；
+- `COMPLETED_PDM_INVARIANT_CONFLICT = 0`；
+- `INCOMING_HANDOFF_GAP = 0`；
+- `OUTGOING_HANDOFF_GAP = 1 group`：待登记 PDM-17 / 21 / 22 / 23 / 25；
+- 修复候选：`P16-LIA-01～P16-LIA-03`；
+- `PDM16_FINAL_CANDIDATE_READY = NO`；
+- 当前唯一下一步：用户审查修复候选。
 
 ## 2026-10-06｜PDM-16 Batch 4 用户裁决并执行
 
