@@ -520,5 +520,5 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-11：COMPLETE / INTEGRITY_PASS；
 - 当前进入：PDM-12；
 - PDM-12：COMPLETE / INTEGRITY_PASS；4 条 incoming handoff 全部 CLOSED 并完成 source backwrite；
-- PDM-13：Batch 1～4 + P13-LIA-01～08 已用户批准并执行；Final Overview 复查后原 Final 前 PASS 已 reopen，当前进入 R2 完整性复核；5 条 incoming handoff 继续 HANDOFF_ACCEPTED，待 Final / Integrity closeout；PDM-13→PDM-14/17/18/19/20/21/22/25 future handoff 保持 HANDOFF_OPEN；
+- PDM-13：Batch 1～4 + P13-LIA-01～08 已用户批准并执行；Final 前完整性复核 R2 = PASS；修正后的 Final Domain Overview 候选已生成，当前等待用户最终批准；5 条 incoming handoff 继续 HANDOFF_ACCEPTED，待 Final / Integrity closeout；PDM-13→PDM-14/17/18/19/20/21/22/25 future handoff 保持 HANDOFF_OPEN；
 - `HO-P01-P11-001 = HANDOFF_SUPERSEDED`；`HO-P01-P11-002 = HANDOFF_CLOSED`。PDM-12 incoming handoff 已全部 CLOSED；PDM-12 outgoing future handoff 已扩展登记：PDM-13 / PDM-14 / PDM-16 / PDM-18 / PDM-20 / PDM-21 / PDM-22 / PDM-25 均为 `HANDOFF_OPEN`，待各目标域承接。
