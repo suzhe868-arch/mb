@@ -687,7 +687,7 @@ PDM-12 已完成承接并 source backwrite：
 ### 20.2 仍待后续 PDM 承接
 
 - Matching 对 hidden / availability 的资格与匹配规则 → PDM-12｜`HANDOFF_CLOSED`：PDM-12 Final 已冻结 hidden≠offline/unavailable；hidden 但真实可售可内部 Matching，真实 offline/unavailable/sold 等退出普通 Matching；active Lock 属占用事实，不自动等于不可 Matching。
-- Priority 对 hidden / exclusive visibility / listing lifecycle 的关系 → PDM-13｜`HANDOFF_OPEN`；
+- Priority 对 hidden / exclusive visibility / listing lifecycle 的关系 → PDM-13｜`HANDOFF_CLOSED`：PDM-13 Final §§5,15-19,29 已冻结 hidden 但真实可售可内部 Matching/Priority；Priority 不改 Vehicle/listing_cycle、不强制 unhide；Priority 本身不授 Customer visibility；active Priority 对普通公开入口形成排他，ended 后恢复底层真实状态并按当前事实重新仲裁；
 - Recommendation 对 hidden 单车可见授权与生命周期 → PDM-14｜`HANDOFF_OPEN`；
 - Lock / Waitlist 的完整生命周期 → PDM-18｜`HANDOFF_OPEN`；
 - Transaction / Refund / correction → PDM-19｜`HANDOFF_OPEN`；
