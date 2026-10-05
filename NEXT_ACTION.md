@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-16（Startup Gate 尚未执行）
+- 当前域：PDM-16（Startup Gate 已通过，Batch 1 待用户审查）
 - PDM-15 Startup Gate = PASS
 - PDM-15 incoming handoffs = 5 / 5 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-15 工作版 = `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
@@ -39,6 +39,11 @@
 - PDM-15 Final = `07_重建工作区/PDM-15_最终完整规则.md` / COMPLETE / INTEGRITY_PASS
 - PDM-15 Final Integrity = `07_重建工作区/PDM-15_最终完整性复核_2026-10-06.md` / PASS
 - PDM-15 Source Backwrite = 5 / 5 DONE
+- PDM-16 Startup Gate = PASS
+- PDM-16 incoming handoffs = 6 / 6 HANDOFF_ACCEPTED
+- PDM-16 核心定位 P16-R00 = USER_APPROVED / APPLIED
+- PDM-16 工作版 = `07_重建工作区/PDM-16_CRM客户画像阶段跟进标签机会与SourceRadar_规则原子重建_工作版.md`
+- PDM-16 Batch 1 = P16-A01～P16-A12 / PENDING_USER_REVIEW
 - PDM-11 = COMPLETE / INTEGRITY_PASS
 - PDM-12 = COMPLETE / INTEGRITY_PASS
 - PDM-11 启动门禁 = UNBLOCKED
@@ -86,11 +91,11 @@
 
 总控工作单：
 
-> `PDM-16 Startup Gate`（尚未建立 PDM-16 工作版）
+> `07_重建工作区/PDM-16_CRM客户画像阶段跟进标签机会与SourceRadar_规则原子重建_工作版.md`
 
 ## 当前唯一下一步
 
-> **PDM-15 已正式 `COMPLETE / INTEGRITY_PASS`：Final 已发布，5/5 incoming handoff 已 CLOSED 并完成 source backwrite，8 条 outgoing handoff 保持 HANDOFF_OPEN。当前唯一下一步：执行 PDM-16 Startup Gate；启动前读取全域地图、PDM-16 历史/Current 证据、completed-PDM Authority 与 target=PDM-16 handoff。Startup Gate 通过前不得进入 PDM-16 Batch 1。IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-16 Startup Gate 已 `PASS`：6/6 incoming handoff 已 `HANDOFF_ACCEPTED`，P16-R00 已 USER_APPROVED / APPLIED，工作版已建立。当前唯一下一步：用户审查 `P16-A01～P16-A12` Batch 1 稳定一致规则候选；未经用户批准并再次“确认执行”，不得写入 Batch 1 Authority。IA / Low-Fi / Engineering 继续禁止施工。**
 
 每个 PDM 必须同时执行：
 
