@@ -29,6 +29,8 @@
 - PDM-15 Batch 3 Conflict Isolation = PASS / CONFLICT_OR_PRODUCT_CHOICE_MISCLASSIFIED_AS_BATCH3=0
 - PDM-15 Batch 4 = P15-B4-01～P15-B4-07 / PASS / USER_APPROVED / APPLIED / CHOICES=1A,2A,3A,4A,5A,6A,7A
 - PDM-15 Local Product Choice Unresolved = 0
+- PDM-15 Pre-Final Integrity R1 = REPAIR_REQUIRED / REPORT=`07_重建工作区/PDM-15_Final前完整性复核_R1_2026-10-06.md`
+- PDM-15 Pre-Final Repair = P15-LIA-01～P15-LIA-05 / PENDING_USER_REVIEW
 - PDM-11 = COMPLETE / INTEGRITY_PASS
 - PDM-12 = COMPLETE / INTEGRITY_PASS
 - PDM-11 启动门禁 = UNBLOCKED
@@ -80,7 +82,7 @@
 
 ## 当前唯一下一步
 
-> **执行 PDM-15 Final 前完整性复核：重新从 R7/R12、9/22、001～078、Current Carrier、PDM-01/02/03/07/14 Final 与 5 条 incoming handoff 检查 Missing Rule、Semantic Detail、Cross-PDM Integrity。发现问题只 reopen 对应 Atom/段落；真正改变产品语义的修复重新提交用户裁决。IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-15 Final 前完整性复核 R1 已完成，结论 `REPAIR_REQUIRED`。当前唯一下一步：用户审查 `P15-LIA-01～P15-LIA-05`（开始处理、负责人失效交接、无 owner/公海创建顺序、完整 Consultation 内容可见范围、后续跨域移交完整登记）。批准并确认执行后应用修复并执行 R2。IA / Low-Fi / Engineering 继续禁止施工。**
 
 每个 PDM 必须同时执行：
 
