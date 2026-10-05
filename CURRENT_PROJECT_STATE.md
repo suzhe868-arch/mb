@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-13_FINAL_OVERVIEW_PREPARATION`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-13_FINAL_OVERVIEW_REGENERATION`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / PREFINAL_INTEGRITY_PASS / FINAL_CANDIDATE_READY`
+> `IN_PROGRESS / PREFINAL_INTEGRITY_R2_PASS / FINAL_CANDIDATE_READY`
 
 当前工作文件：
 
@@ -32,7 +32,25 @@
 
 当前唯一下一步：
 
-> **P13-LIA-01～P13-LIA-06 已全部用户批准并确认执行；Final 前二次完整性复核已 PASS，`PDM13_FINAL_CANDIDATE_READY = YES`。当前唯一下一步：生成 PDM-13 Final Domain Overview 候选，完整覆盖 Batch 1～4、P13-LIA-01～06、incoming/outgoing handoff、stale carrier 与 supersession，并提交用户最终批准。未经用户最终批准，不得发布 PDM-13 Final，不得关闭 incoming handoff，不得开始 PDM-14。IA / Low-Fi / Engineering 继续禁止施工。**
+> **Final Overview 复查新增 P13-LIA-07～P13-LIA-08，用户已确认业务口径并明确“确认执行”；Final 前完整性复核 R2 已 PASS，`PDM13_FINAL_CANDIDATE_READY = YES`。当前唯一下一步：重新生成修正后的 PDM-13 Final Domain Overview 候选，完整覆盖 Batch 1～4、P13-LIA-01～08、TTL 最长保护上限/销售提前 release、Match tier downgrade、Recommendation/Priority 独立、Lock/Transaction 不反向撤销、incoming/outgoing handoff、stale carrier 与 supersession，并提交用户最终批准。未经用户最终批准，不得发布 PDM-13 Final，不得关闭 incoming handoff，不得开始 PDM-14。IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-05｜PDM-13 Final Overview 复查补漏与 R2 PASS
+
+- Final Overview 复查发现 `P13-LIA-07～P13-LIA-08`；
+- LIA-07：active Priority 的 current Match Result 若由 high/acceptable 降为 confirmation_needed/no_match，必须立即重评；有同 Customer 其他合法 Demand 则切 trigger_demand_id 且 expires_at 不变，无则 ended 并重新仲裁；
+- LIA-08：TTL 是最长自动保护上限，不要求等满；合法 responsible employee 可在 TTL 前主动“释放 Priority / 不推荐此车”，释放后立即重新仲裁；
+- 尚未 Recommendation 时，Priority release 不得叫“取消推荐”；
+- 已有 Recommendation 时，Recommendation end 与 Priority release 可在体验层组合，但底层必须分别执行、校验、审计；
+- Recommendation cancellation alone 不结束 Priority，也不单独触发 same-cycle suppression；
+- Priority release / expiry alone 不结束仍合法 Recommendation；
+- Recommendation cancel / Priority release / expiry 不得反向撤销已合法成立 Lock / Transaction；
+- 正式 Recommendation 成立后 Priority 可保存 recommendation_id 作为关联追溯，但生命周期仍分离；
+- B4-04/B4-08 旧“Recommendation cancellation 自动等于 Priority ended / same-cycle suppression”口径已被 LIA-08 用户修正版 supersede；
+- R1 报告继续保留历史；当前有效 Final 前 Gate 报告为 `07_重建工作区/PDM-13_Final前完整性复核_R2_2026-10-05.md`；
+- R2：Source→Atom / Atom→Source / Semantic Completeness / Completed-PDM Invariant / Cross-PDM Handoff / Negative Claims = PASS；
+- 正式规则/修复 Atom 总数由 36 增至 38；
+- incoming handoff 5 / 5 继续 `HANDOFF_ACCEPTED`；
+- 当前唯一下一步：重新生成修正后的 PDM-13 Final Domain Overview 候选并提交用户最终批准。
 
 ## 2026-10-05｜PDM-13 Final 前修复与二次完整性复核 PASS
 
