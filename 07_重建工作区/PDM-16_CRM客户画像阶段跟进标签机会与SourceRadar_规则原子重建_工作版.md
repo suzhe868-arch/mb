@@ -743,7 +743,7 @@ CONFLICT_OR_PRODUCT_CHOICE_MISCLASSIFIED_AS_BATCH3 = 0
 
 ---
 
-## 10. Batch 3 Completeness Repair｜PENDING_USER_REVIEW
+## 10. Batch 3 Completeness Repair｜PASS / USER_APPROVED / APPLIED
 
 ### P16-B3-R01｜CRM 待办 / 回访提醒 / 未来跟进计划必须随责任交接
 
@@ -795,18 +795,22 @@ CONFLICT_OR_PRODUCT_CHOICE_MISCLASSIFIED_AS_BATCH3 = 0
 
 ---
 
-## 11. Repair Gate｜PENDING_USER_REVIEW
+## 11. Repair Gate｜PASS / USER_APPROVED / APPLIED
 
 当前：
 
 - `P16-B3-01～P16-B3-06 = PASS / USER_APPROVED / APPLIED`；
 - `BATCH_3_CONFLICT_ISOLATION = PASS`；
 - `CONFLICT_OR_PRODUCT_CHOICE_MISCLASSIFIED_AS_BATCH3 = 0`；
-- `BATCH_3_COMPLETENESS_GAP = 2`；
-- `P16-B3-R01～R02 = PENDING_USER_REVIEW`；
+- `BATCH_3_COMPLETENESS_GAP = 0`；
+- `P16-B3-R01～R02 = PASS / USER_APPROVED / APPLIED`；
 - Batch 4 尚未开始；
 - 6 条 incoming handoff 继续 `HANDOFF_ACCEPTED`。
 
-当前唯一下一步：
+Repair 后复核：CRM Follow-up 与未来责任已分层；owner 变化时未完成 CRM 待办/回访/未来计划交接要求已恢复；“暂不联系/暂无意向”不自动进公海或结束其他业务；与 PDM-17 边界清晰。
 
-> **用户审查 P16-B3-R01～R02。修复通过后才进入 Batch 4 真正产品选择，避免带着已知历史遗漏进入冲突裁决。**
+`BATCH_3_COMPLETENESS_REPAIR = PASS / BATCH_3_COMPLETENESS_GAP = 0`
+
+当前下一步：
+
+> **执行 Batch 4 冲突 / 遗漏 / 新产品选择重建。**
