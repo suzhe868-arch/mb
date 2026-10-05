@@ -1,7 +1,7 @@
 # PDM-15｜Consultation / 咨询生命周期 / 来源 / 负责人 / 转派 / SLA｜规则原子重建工作版
 
 > 日期：2026-10-06  
-> 状态：`IN_PROGRESS / START_GATE_PASS / BATCH_1_PASS_USER_APPROVED / BATCH_2_PENDING_USER_REVIEW`  
+> 状态：`IN_PROGRESS / START_GATE_PASS / BATCH_1_PASS_USER_APPROVED / BATCH_2_PASS_USER_APPROVED / BATCH_3_PENDING_USER_REVIEW`  
 > 方法：9/19 主底盘 + 前向历史补全 + 后向显式 supersession + 9/22 冻结台账 + Current Carrier Conflict Scan + Completed-PDM Authority + Cross-PDM Handoff。  
 > 当前阶段约束：IA / Low-Fi / Engineering 只登记冲突，不施工；未经用户审查的候选 Atom 不得直接进入 Final。
 
@@ -164,9 +164,9 @@ Consultation 创建时记录真实 direct source / source relation。
 
 ---
 
-## 6. Batch 2｜明确废弃 / 被替代 / 不得恢复｜待用户审查
+## 6. Batch 2｜明确废弃 / 被替代 / 不得恢复｜PASS / USER_APPROVED
 
-> 本批只处理已经有明确后续 Authority 或显式废弃证据的旧口径；不处理仍需产品裁决的冲突。
+> 用户已对 P15-B2-01～P15-B2-05 明确“全部同意”，并以“启动执行 / 确认执行”指令正式执行。本批只处理已有明确后续 Authority 或显式废弃证据的旧口径。
 
 ### P15-B2-01｜旧“我要这辆车”统一语义不得恢复
 
@@ -224,15 +224,105 @@ Consultation 创建时记录真实 direct source / source relation。
 
 ---
 
-## 7. Batch 2 Gate
+## 7. Batch 2 Gate｜PASS
+
+- `P15-B2-01～P15-B2-05 = PASS / USER_APPROVED / APPLIED`；
+- Reverse Conflict Scan = `PASS`；
+- `FALSE_DEPRECATION_COUNT = 0`；
+- 5 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 继续禁止施工。
+
+### 7.1 Reverse Conflict Scan｜明确没有被误废弃的现行能力
+
+以下能力继续保留，不得因为 Batch 2 被错误删除：
+
+1. Customer 对本人 open Consultation 的“撤回 / 正常结束”业务动作继续存在；只是 `CANCELLED` 是否为第五主状态尚未裁决；
+2. Consultation SLA 继续存在，timeout 继续可作为派生超时标记 / 筛选 / 提醒条件；
+3. 正式 Consultation reassignment / handover 继续存在；
+4. 客户详情 CTA 继续按真实业务状态驱动，只是不恢复旧“我要这辆车”统一入口；
+5. 若 Consultation 的真实来源是 Recommendation，真实 source relation 继续保留，只是不绑定生命周期；
+6. Customer owner 继续是独立 CRM 责任事实；本批只禁止把它和 Consultation assignee 合成同一字段。
+
+### 7.2 Batch 2 stale carrier 登记
+
+- `OLD_WANT_THIS_CAR_UNIFIED_INTENT`；
+- `CONSULTATION_TIMEOUT_AS_FIFTH_MASTER_STATE_OR_AUTO_CLOSE`；
+- `CUSTOMER_MERGE_AND_CONSULTATION_MIGRATION`；
+- `CONSULTATION_ASSIGNEE_NAMED_AS_CUSTOMER_OWNER`；
+- `RECOMMENDATION_LIFECYCLE_DRIVES_CONSULTATION`。
+
+---
+
+## 8. Batch 3｜知情修改 / 显式新增候选｜待用户审查
+
+> 本批只收 9/19 之后已经明确出现、且不需要重新做产品取舍的新增动作/承载语义。凡涉及主状态定义、SLA 完成条件、负责人优先级、Customer 停用运行态等真实产品选择，一律留到 Batch 4。
+
+### P15-B3-01｜Customer 可主动撤回本人未终结 Consultation
+
+后续 Current 已显式增加客户侧“撤回咨询”真人动作：
+
+- 仅当前 Customer 自己的同一条未终结 Consultation 可撤回；
+- 提交时重新校验 identity + Consultation 仍为 open；
+- 撤回属于正常结束，不得记为 `invalid`；
+- 保留 Consultation 历史，不物理删除；
+- 撤回不改变 Customer owner、Recommendation、Vehicle、Lock / Transaction 等其他对象。
+
+> **本 Atom 只确认“撤回动作存在且不是 invalid”；撤回最终落到 `CANCELLED` 主状态，还是 `resolved + close_reason`，留 Batch 4 裁决。**
+
+### P15-B3-02｜员工侧显式增加“记录真实跟进”动作
+
+后续 E06 / P06-11 已把“记录真实跟进”作为 Consultation 的正式真人动作：
+
+- Consultation 必须仍为 open；
+- actor 必须通过当前责任关系 + identity + permission + data scope + object state 重验；
+- 提交后追加真实 follow-up / 沟通事实；
+- 不改变 Customer owner；
+- 不改写 Consultation 初始来源；
+- 不因记录一次跟进就自动结束 Consultation。
+
+> **该动作是否构成 SLA 的“第一次真实人工服务动作”，留 Batch 4 与 SLA 完成条件一起裁决。**
+
+### P15-B3-03｜员工侧显式区分“解决 / 无效 / 正常关闭”
+
+后续 E06 / P06-11 明确存在三种不同真人结束语义：
+
+- **解决**：业务已正常解决；
+- **无效**：误触、重复、明显无效等无效咨询；
+- **正常关闭**：客户不再咨询或业务正常结束，但不应被记成 invalid。
+
+共同要求：
+
+- 操作前重验当前责任 / permission / data scope / object state；
+- 终结不物理删除历史；
+- 不反向修改 Customer owner；
+- 不自动改写 Recommendation / Lock / Transaction 等独立对象。
+
+> **“正常关闭”最终对应 `CANCELLED` 还是 `resolved + close_reason` 继续留 Batch 4。**
+
+### P15-B3-04｜Consultation 消费有效 SLA 配置，并在创建时固化本次 deadline
+
+后续 9/22 / R12 已明确 SLA 配置能力进一步细化：
+
+- 系统存在全局 SLA，并可按业务类型配置覆盖值；
+- Consultation 创建时读取当时有效的 SLA 配置并固化本次 first-response deadline；
+- 后续修改默认 / 覆盖配置，不追改已经创建的 Consultation deadline；
+- SLA timeout 与提醒仍是派生能力，不改变 Consultation 主状态；
+- 首次提醒与重复提醒、群通告、聚合窗口、quiet hours、FAILED/SKIPPED/DEDUPED 等通知投递细节由 PDM-23 / PDM-22 承接，不在本 Atom 重建通知状态机。
+
+> **历史默认 15 分钟是否恢复为当前初始默认值，以及“什么事件才算首次真实响应”，留 Batch 4 裁决。**
+
+---
+
+## 9. Batch 3 Gate
 
 当前：
 
 - `P15-A01～P15-A08 = PASS / USER_APPROVED / APPLIED`；
-- `P15-B2-01～P15-B2-05 = PENDING_USER_REVIEW`；
-- Batch 2 Reverse Conflict Scan 尚未在用户批准后执行；
-- `CANCELLED` 主状态、SLA 首次真实人工动作、负责人优先级、Customer 停用运行态、Transaction 负向边界等继续保留到后续批次。
+- `P15-B2-01～P15-B2-05 = PASS / USER_APPROVED / APPLIED`；
+- Batch 2 Reverse Conflict Scan = `PASS / FALSE_DEPRECATION_COUNT=0`；
+- `P15-B3-01～P15-B3-04 = PENDING_USER_REVIEW`；
+- `CANCELLED` 主状态、SLA 首次真实人工动作、默认 15 分钟、负责人优先级、Customer 停用运行态、Transaction 负向边界等继续保留 Batch 4。
 
 当前唯一下一步：
 
-> **提交 P15-B2-01～P15-B2-05 给用户审查。用户批准并确认执行后，再完成 Batch 2 Reverse Conflict Scan 并进入 Batch 3。**
+> **提交 P15-B3-01～P15-B3-04 给用户审查。用户批准并确认执行后，先做 Batch 3 Conflict Isolation，再进入 Batch 4 冲突 / 遗漏 / 缺口 / 新产品选择。**
