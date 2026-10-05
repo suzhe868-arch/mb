@@ -399,6 +399,18 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | HO-P12-P25-001 | PDM-25 | 统一审计 Rule Dictionary 创建/修改/启停、before/after、actor/time、规则作用域、Match Result 历史与解释、recalc failure/retry、stale result invalidation、受影响范围重算、confirmation_needed 人工确认 actor/事实来源/前后结果；停用规则与历史 Match Result 不物理删除。 | HANDOFF_OPEN | - | YES |
 
 ---
+
+## 12C. PDM-13 来源 handoff
+
+| handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
+|---|---|---|---|---|---|
+| HO-P13-P14-001 | PDM-14 | Priority 本身不授 Customer 车辆详情 visibility；Priority responsible employee 先处理并决定是否 Recommendation，Recommendation/visibility grant 合法成立后 Priority Customer 才可见。active Priority 对其他 Customer 的普通新 Recommendation/普通可见机会形成排他保护；若其他 Customer 在该 Priority 前已有 active Recommendation/visibility grant，不删除历史。PDM-14 必须冻结后续 active Priority 期间既有 Recommendation/visibility 的临时 suppression、Priority ended 后在 Vehicle 可售/Recommendation active/listing_cycle 合法等条件下的 restore、审计与幂等。 | HANDOFF_OPEN | - | YES |
+| HO-P13-P17-001 | PDM-17 | Priority Customer 资格本身不是公海保护事实；active Priority 才是。Customer 存在 active Priority 时不得按普通无业务 Customer 直接入公海；Priority ended 后重新读取 pending Application、active/paused Demand、Lock、Transaction 及其他 PDM-17 Authority 认可的保护事实，不因历史 Priority 永久阻断公海。 | HANDOFF_OPEN | - | YES |
+| HO-P13-P18-001 | PDM-18 | active Lock 不阻断 PDM-12 Matching，但 Vehicle 已有 active Lock 时不得新建 Priority；正式 Lock 成立结束当前 active Priority，Priority Customer 自己 Lock 可记 converted_to_lock，其他合法 Lock 记录 takeover reason。Lock 取消/到期不恢复旧 Priority，Vehicle 重新开放后按当时 current legal Match Result 重新仲裁。Priority 不是 Lock 排队/竞争优先级。 | HANDOFF_OPEN | - | YES |
+| HO-P13-P19-001 | PDM-19 | Vehicle 已有 in-progress Transaction 时不得新建 Priority；active Priority 存续期间进入正式 in-progress Transaction 时 Priority ended。Transaction 取消/纠错后 Vehicle 真正重新开放，不恢复旧 Priority，按当时合法 Match Result 重新仲裁；Deposit/Transaction/Refund/Correction 完整状态机由 PDM-19 冻结。 | HANDOFF_OPEN | - | YES |
+| HO-P13-P25-001 | PDM-25 | 统一审计 Priority Customer 资格开启/关闭、Priority 创建与仲裁结果、trigger_demand_id、TTL snapshot/expires_at、responsible/handover、ended reason、Lock/Transaction takeover、same-cycle suppression、re-arbitration、stale/invalidated 导致的 lifecycle 变化，以及 actor/time/before-after/source facts。 | HANDOFF_OPEN | - | YES |
+
+---
 ## 13. Post-PDM25 IA / Low-Fi Carrier Ledger｜持续累积
 
 > 当前只登记，不施工；统一在 PDM-25 完成 + PDM-01～25 全局最终总复核 PASS 后集中对齐。
@@ -469,6 +481,9 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | PDM-12 | P06-10 仍偏 NORMAL/PROCESSING/PARTIAL_FAILURE/ERROR 通用状态壳，缺 Rule Dictionary 新增/编辑/启停/作用域/测试/审计/失败集合重试真实 Action Contract | CARRIER_DEFERRED |
 | PDM-12 | Current carrier 对“正式 Matching 禁止 AI 猜测”表达不足 | CARRIER_DEFERRED |
 | PDM-12 | Current carrier 对“车源主页搜索与 Demand Matching 共用 deterministic parser / Rule Dictionary”表达不足 | CARRIER_DEFERRED |
+| PDM-13 | Current Navigation `E05-05｜创建 Priority` 残留人工创建 Priority 旧语义；正确 Authority 为系统基于合法 Match Result + Priority 资格 + 仲裁自动产生 | CARRIER_DEFERRED |
+| PDM-13 | E05-05 HIDDEN_CONTROLLED 残留“Demand/Priority 直接授客户详情可见”旧语义；正确 Authority 为 Priority 不授 visibility，需 Recommendation/visibility grant | CARRIER_DEFERRED |
+| PDM-13 | 历史独立 `priority.view` 全局穿透查看方向已被 B4-01 supersede；当前 Priority 查看/处理跟随业务责任、合法管理范围及 PDM-02 通用权限模型 | CARRIER_DEFERRED |
 
 ---
 
@@ -500,5 +515,5 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-11：COMPLETE / INTEGRITY_PASS；
 - 当前进入：PDM-12；
 - PDM-12：COMPLETE / INTEGRITY_PASS；4 条 incoming handoff 全部 CLOSED 并完成 source backwrite；
-- 当前进入：PDM-13 启动门禁 / incoming handoff 重建；
+- PDM-13：Batch 1～4 已用户批准并执行；当前进入 Final 前完整性复核；5 条 incoming handoff 继续 HANDOFF_ACCEPTED，待 Final / Integrity closeout；PDM-13→PDM-14/17/18/19/25 future handoff 已登记为 HANDOFF_OPEN；
 - `HO-P01-P11-001 = HANDOFF_SUPERSEDED`；`HO-P01-P11-002 = HANDOFF_CLOSED`。PDM-12 incoming handoff 已全部 CLOSED；PDM-12 outgoing future handoff 已扩展登记：PDM-13 / PDM-14 / PDM-16 / PDM-18 / PDM-20 / PDM-21 / PDM-22 / PDM-25 均为 `HANDOFF_OPEN`，待各目标域承接。
