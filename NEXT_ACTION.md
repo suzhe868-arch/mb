@@ -18,6 +18,11 @@
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
 - 当前域：PDM-15
+- PDM-15 Startup Gate = PASS
+- PDM-15 incoming handoffs = 5 / 5 HANDOFF_ACCEPTED
+- PDM-15 工作版 = `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
+- PDM-15 核心定位 P15-R00 = USER_APPROVED / APPLIED
+- PDM-15 Batch 1 = P15-A01～P15-A08 / PENDING_USER_REVIEW
 - PDM-11 = COMPLETE / INTEGRITY_PASS
 - PDM-12 = COMPLETE / INTEGRITY_PASS
 - PDM-11 启动门禁 = UNBLOCKED
@@ -65,11 +70,11 @@
 
 总控工作单：
 
-> PDM-15 工作版尚未建立；先执行 Startup Gate
+> `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
 
 ## 当前唯一下一步
 
-> **执行 PDM-15 Startup Gate：固定读取 Coverage Map、`CROSS_PDM_HANDOFF_REGISTER.md` 中 target=PDM-15 的全部 incoming handoff（当前 5 条：HO-P01-P15-001、HO-P02-P15-001、HO-P03-P15-001、HO-P07-P15-001、HO-P14-P15-001），再读取 Consultation 相关 9/19 主底盘、001～078 M06/M16/M17、9/22 冻结台账、Current IA/Low-Fi 与 PDM-01/02/03/07/14 Final。只完成启动门禁、证据地图与 incoming handoff 接收；Startup Gate 通过后才建立 PDM-15 工作版并进入 Batch 1。IA / Low-Fi / Engineering 继续禁止施工。**
+> **审查 PDM-15 Batch 1：P15-A01～P15-A08。范围只包含显式咨询创建/复用、初始来源不可改写、同 Customer+Vehicle+listing_cycle 未终结幂等、Vehicle lifecycle 分层、Consultation assignee 与 Customer owner 分离、Recommendation 双向独立、档案不完整不阻断、4S Member 不进入名邦 Consultation 处理链。状态机 CANCELLED 冲突、SLA 精确完成语义、负责人优先级、Customer 停用运行态等保留到后续批次，不得在 Batch 1 静默裁决。IA / Low-Fi / Engineering 继续禁止施工。**
 
 每个 PDM 必须同时执行：
 
@@ -123,7 +128,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-14 均已 `COMPLETE / INTEGRITY_PASS`。PDM-14 的 8 条 incoming handoff 已全部 `HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE`；PDM-15 当前仍处于 Startup Gate，target=PDM-15 的 5 条 incoming handoff 尚为 `HANDOFF_OPEN`，必须在启动门禁中读取后再转 `HANDOFF_ACCEPTED`。
+当前 PDM-01～PDM-14 均已 `COMPLETE / INTEGRITY_PASS`。PDM-14 的 8 条 incoming handoff 已全部 `HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE`；PDM-15 Startup Gate 已通过，target=PDM-15 的 5 条 incoming handoff 已全部转为 `HANDOFF_ACCEPTED`；在 PDM-15 Final / Integrity closeout 前不得提前关闭。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
