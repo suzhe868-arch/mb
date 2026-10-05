@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-13_PREFINAL_INTEGRITY`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-13_FINAL_OVERVIEW_PREPARATION`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_4_PASS / USER_APPROVED / PREFINAL_INTEGRITY_PENDING`
+> `IN_PROGRESS / PREFINAL_INTEGRITY_PASS / FINAL_CANDIDATE_READY`
 
 当前工作文件：
 
@@ -32,7 +32,24 @@
 
 当前唯一下一步：
 
-> **PDM-13 Batch 4 已用户批准并确认执行：B4-01 按用户修正版；B4-02=2A、B4-03=3A、B4-04=4A、B4-05=5A、B4-06=6A、B4-07=7A、B4-08=8A；`PDM13_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`。当前唯一下一步：执行 PDM-13 Final 前完整性复核，重新检查 Source→Atom、Atom→Source、Semantic Completeness、Completed-PDM Invariant、Cross-PDM Handoff Integrity、Negative Claims、stale carrier 与局部未闭环；发现缺口先形成 LIA 修复候选并停下用户审查，全部 PASS 后再生成 Final Domain Overview。IA / Low-Fi / Engineering 继续禁止施工。**
+> **P13-LIA-01～P13-LIA-06 已全部用户批准并确认执行；Final 前二次完整性复核已 PASS，`PDM13_FINAL_CANDIDATE_READY = YES`。当前唯一下一步：生成 PDM-13 Final Domain Overview 候选，完整覆盖 Batch 1～4、P13-LIA-01～06、incoming/outgoing handoff、stale carrier 与 supersession，并提交用户最终批准。未经用户最终批准，不得发布 PDM-13 Final，不得关闭 incoming handoff，不得开始 PDM-14。IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-05｜PDM-13 Final 前修复与二次完整性复核 PASS
+
+- 第一轮 Final 前审计发现 `P13-LIA-01～P13-LIA-06`，用户全部同意并明确“确认执行”；
+- 已补齐：单 Customer Priority 资格开关生命周期、单 Customer 多 Vehicle active Priority 无上限、event-driven 重评、普通入口/公共统计排他、Priority 与价格/查价权隔离、PDM-20/21/22 future handoff；
+- 新增 `HO-P13-P20-001 / HO-P13-P21-001 / HO-P13-P22-001 = HANDOFF_OPEN`；
+- PDM-13 outgoing future handoff 当前共 8 条：PDM-14 / 17 / 18 / 19 / 20 / 21 / 22 / 25；
+- 二次复核：Source→Atom / Atom→Source / Semantic Completeness / Completed-PDM Invariant / Cross-PDM Handoff / Negative Claims 全部 PASS；
+- `MISSING_RULE_UNRESOLVED = 0`；
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 0`；
+- `CROSS_PDM_CONFLICT = 0`；
+- `HANDOFF_GAP_UNRESOLVED = 0`；
+- `PDM13_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- `PDM13_LOCAL_DEFERRED_UNRESOLVED = 0`；
+- 报告：`07_重建工作区/PDM-13_Final前完整性复核_2026-10-05.md`；
+- 5 条 incoming handoff 继续保持 `HANDOFF_ACCEPTED`，未提前关闭；
+- 当前唯一下一步：生成 PDM-13 Final Domain Overview 候选并提交用户最终批准。
 
 ## 2026-10-05｜PDM-13 Batch 4 用户批准并执行
 
