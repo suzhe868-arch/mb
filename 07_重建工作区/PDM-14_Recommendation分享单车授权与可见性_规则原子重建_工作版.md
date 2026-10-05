@@ -1,8 +1,8 @@
 # PDM-14｜Recommendation / 普通分享 / 单车授权 / 隐藏车客户可见性｜规则原子重建工作版
 
 > 日期：2026-10-06  
-> 状态：`IN_PROGRESS / START_GATE_PASS / BATCH_1_USER_APPROVED / BATCH_2_USER_APPROVED / BATCH_3_USER_APPROVED / BATCH_4_USER_APPROVED`  
-> 当前 Authority：仅作为 PDM-14 工作版；PDM-14 Final 发布前不得标记 COMPLETE。  
+> 状态：`HISTORICAL_WORKFILE / FINAL_PUBLISHED / INTEGRITY_PASS`  
+> 当前 Authority：本文件保留为 PDM-14 重建审计轨迹；正式 Authority 已切换为 `07_重建工作区/PDM-14_最终完整规则.md`。  
 > 方法：9/19 主底盘 + 前向历史补全 + 后向显式 supersession + Current Authority Refresh + Current Implementation Fact + Cross-PDM Handoff。
 
 ---
@@ -823,7 +823,7 @@ Recommendation 或 customer-specific visibility grant 解决的是 Customer 对 
 
 - `P14-LIA-01～P14-LIA-10 = USER_APPROVED / APPLIED`；
 - `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
-- incoming handoff：8 / 8 继续 `HANDOFF_ACCEPTED`；
+- incoming handoff：8 / 8 已 `HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE`；
 - outgoing handoff：PDM-15 / 18 / 19 / 20 / 21 / 23 / 25 均已登记 `HANDOFF_OPEN`；
 - IA / Low-Fi / Engineering：继续 `NO_CONSTRUCTION`。
 
@@ -899,10 +899,11 @@ Recommendation 或 customer-specific visibility grant 解决的是 Customer 对 
 - P14-B3-01～P14-B3-05：已进入当前工作版；
 - P14-B4-01～P14-B4-08：已进入当前工作版；
 - outgoing handoff：`HO-P14-P15-001 / HO-P14-P18-001 / HO-P14-P19-001 / HO-P14-P20-001 / HO-P14-P21-001 / HO-P14-P23-001 / HO-P14-P25-001 = HANDOFF_OPEN`；
-- PDM-14 Final：未生成；
-- PDM-14 incoming handoff：不得提前 CLOSED；
+- PDM-14 Final：`07_重建工作区/PDM-14_最终完整规则.md / COMPLETE / INTEGRITY_PASS`；
+- PDM-14 Final Integrity：`07_重建工作区/PDM-14_最终完整性复核_2026-10-06.md / PASS`；
+- PDM-14 incoming handoff：8 / 8 CLOSED / source backwrite done；
 - IA / Low-Fi / Engineering：继续 NO_CONSTRUCTION。
 
 ## 12. 当前唯一下一步
 
-> **生成 PDM-14 Final Domain Overview 候选：完整纳入 P14-A01～A14、P14-R01～R04、P14-B2-01～B2-11、P14-B3-01～B3-05、P14-B4-01～B4-08、P14-LIA-01～LIA-10 与 7 条 outgoing handoff，并提交用户最终批准。未经用户最终批准，不发布 PDM-14 Final、不关闭 8 条 incoming handoff、不开始 PDM-15、不修改 IA / Low-Fi / Engineering。**
+> **PDM-14 已 `COMPLETE / INTEGRITY_PASS`。下一步仅进入 PDM-15 Startup Gate：读取 Coverage Map、PDM-15 的 5 条 incoming handoff 与 Consultation 相关 9/19 / 001～078 / Current 证据，先建立启动门禁；未经新的用户裁决，不提前进入 PDM-15 Batch 1，不修改 IA / Low-Fi / Engineering。**
