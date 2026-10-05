@@ -470,7 +470,7 @@ PDM-14 已实质承接：
 
 PDM-14 正式输出：
 
-- HO-P14-P15-001：Consultation 双向不反写；
+- HO-P14-P15-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-15 Final 已正式承接 Recommendation × Consultation 双向不反写、真实 source relation、同周期未终结幂等、price-right/hidden visibility 不传播，以及 Consultation 独立状态机/负责人/SLA；
 - HO-P14-P18-001：Lock/Waitlist × Recommendation；
 - HO-P14-P19-001：Transaction × Recommendation；
 - HO-P14-P20-001：客户端“我的推荐”/share/history/safe projection；
