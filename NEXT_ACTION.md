@@ -23,7 +23,9 @@
 - PDM-11 启动门禁 = UNBLOCKED
 - `HO-P01-P11-001 = HANDOFF_SUPERSEDED`
 - `HO-P01-P11-002 = HANDOFF_CLOSED`
-- PDM-12 incoming handoffs = 4 / 4 HANDOFF_ACCEPTED
+- PDM-12 incoming handoffs = 4 / 4 HANDOFF_CLOSED
+- PDM-13 incoming handoffs = 5 / 5 HANDOFF_ACCEPTED
+- PDM-13 Batch 1 = PASS / USER_APPROVED（P13-A01～P13-A11）
 - PDM-11 Batch 1 = PASS / USER_APPROVED（P11-A01～P11-A13）
 - PDM-11 Batch 2 = PASS / USER_APPROVED
 - P11-B2-08 = USER_MODIFIED / USER_APPROVED
@@ -33,11 +35,11 @@
 
 总控工作单：
 
-> `07_重建工作区/PDM-12_Matching匹配词典四级结果_规则原子重建_工作版.md`
+> `07_重建工作区/PDM-13_Priority仲裁TTL与Lock边界_规则原子重建_工作版.md`
 
 ## 当前唯一下一步
 
-> **启动 PDM-13｜Priority / 仲裁 / TTL：先读取 CROSS_PDM_HANDOFF_REGISTER 中所有 target=PDM-13 且 status in {HANDOFF_OPEN,HANDOFF_ACCEPTED} 的条目；执行 Current Authority Refresh、Current Implementation Fact、9/19 锚点→更早历史→001～078→后续 Current/IA/Low-Fi 的完整证据重建；形成 Batch 1 稳定规则候选后立即停下提交用户审查。不得自动批准，不得修改 IA / Low-Fi。**
+> **继续 PDM-13 Batch 2｜明确废弃 / 明确替代 / DO_NOT_RESTORE：以已批准 P13-A01～P13-A11 和 5 条 HANDOFF_ACCEPTED 为约束，先做完整反向冲突扫描，再形成 Batch 2 候选。不得把仍待裁决的 Priority 客户资格、Customer Level 关系、精确仲裁顺序、TTL 默认数值/配置主体/续期、active Lock、Transaction、客户详情 visibility、公海保护等误分类为废弃。形成 Batch 2 候选后立即停下提交用户审查，不得自动批准，不得修改 IA / Low-Fi / Engineering。**
 
 每个 PDM 必须同时执行：
 
@@ -90,7 +92,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-11 均已 `COMPLETE / INTEGRITY_PASS`；`HO-P01-P11-001 = HANDOFF_SUPERSEDED`，`HO-P01-P11-002 = HANDOFF_CLOSED`。PDM-12 已 `COMPLETE / INTEGRITY_PASS`；HO-P04-P12-001 / HO-P05-P12-001 / HO-P07-P12-001 / HO-P11-P12-001 均已 `HANDOFF_CLOSED` 并 source backwrite。PDM-12 outgoing handoff 继续保留到 PDM-13/14/16/18/20/21/22/25。当前域进入 PDM-13 启动门禁，第一步读取所有 target=PDM-13 的 OPEN/ACCEPTED handoff。
+当前 PDM-01～PDM-12 均已 `COMPLETE / INTEGRITY_PASS`。PDM-13 已接收 HO-P03-P13-001 / HO-P04-P13-001 / HO-P07-P13-001 / HO-P11-P13-001 / HO-P12-P13-001，当前均为 `HANDOFF_ACCEPTED`；Batch 1（P13-A01～P13-A11）已用户批准。上述 incoming handoff 在 PDM-13 Final / Integrity Gate 前不得直接关闭。当前进入 Batch 2 候选重建。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
