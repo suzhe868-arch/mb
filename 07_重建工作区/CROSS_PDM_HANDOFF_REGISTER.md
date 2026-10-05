@@ -409,6 +409,9 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | HO-P13-P18-001 | PDM-18 | active Lock 不阻断 PDM-12 Matching，但 Vehicle 已有 active Lock 时不得新建 Priority；正式 Lock 成立结束当前 active Priority，Priority Customer 自己 Lock 可记 converted_to_lock，其他合法 Lock 记录 takeover reason。Lock 取消/到期不恢复旧 Priority，Vehicle 重新开放后按当时 current legal Match Result 重新仲裁。Priority 不是 Lock 排队/竞争优先级。 | HANDOFF_OPEN | - | YES |
 | HO-P13-P19-001 | PDM-19 | Vehicle 已有 in-progress Transaction 时不得新建 Priority；active Priority 存续期间进入正式 in-progress Transaction 时 Priority ended。Transaction 取消/纠错后 Vehicle 真正重新开放，不恢复旧 Priority，按当时合法 Match Result 重新仲裁；Deposit/Transaction/Refund/Correction 完整状态机由 PDM-19 冻结。 | HANDOFF_OPEN | - | YES |
 | HO-P13-P25-001 | PDM-25 | 统一审计 Priority Customer 资格开启/关闭、Priority 创建与仲裁结果、trigger_demand_id、TTL snapshot/expires_at、responsible/handover、ended reason、Lock/Transaction takeover、same-cycle suppression、re-arbitration、stale/invalidated 导致的 lifecycle 变化，以及 actor/time/before-after/source facts。 | HANDOFF_OPEN | - | YES |
+| HO-P13-P20-001 | PDM-20 | 客户端不得暴露 Priority/优先保护/客户专属/内部仲裁等级等内部术语；active Priority Vehicle 不得通过普通 Feed/搜索/筛选/普通分享/无合法授权旧链接向无关 Customer 穿透；Priority Customer 本人也不能仅因 Priority 自动看详情，需 Recommendation/visibility grant。面向客户的普通“在售车源/今日新增”等统计必须排除当前不属于普通公开可浏览集合的 Priority 保护 Vehicle；Priority ended 后重新读取底层 visibility/Vehicle 状态/合法授权，不能简单强制公开。 | HANDOFF_OPEN | - | YES |
+| HO-P13-P21-001 | PDM-21 | 员工端承接 trigger Demand 当前合法 responsible employee 的 Priority 待处理/active 视图及合法管理范围内监督处理；显示 Vehicle/Customer/trigger Demand/Match tier/剩余TTL或expires_at/current responsible/必要history；允许走已有合法 Recommendation、明确释放/放弃等业务动作；敏感提交继续服从PDM-02与对应业务Authority。禁止人工创建Priority、转给其他Customer、override、改expires_at、人工续期、恢复ended Priority；不恢复独立全局 priority.view/priority.manage/priority.override；4S hard DENY。 | HANDOFF_OPEN | - | YES |
+| HO-P13-P22-001 | PDM-22 | PC后台承接单Customer Priority资格开关与Priority全局默认TTL两个控制平面配置对象：资格逐Customer开/关、不支持批量、不与Customer Level find-car entitlement混成同一开关、普通负责销售不得因负责Customer自行开启，保存按合法后台identity/permission/data scope/object state重验并审计before/after/actor/time；TTL默认86400s/24h，修改只影响后续新Priority，不追改既有expires_at，不提供逐笔人工续期，配置变更进入统一审计。 | HANDOFF_OPEN | - | YES |
 
 ---
 ## 13. Post-PDM25 IA / Low-Fi Carrier Ledger｜持续累积
@@ -484,6 +487,8 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | PDM-13 | Current Navigation `E05-05｜创建 Priority` 残留人工创建 Priority 旧语义；正确 Authority 为系统基于合法 Match Result + Priority 资格 + 仲裁自动产生 | CARRIER_DEFERRED |
 | PDM-13 | E05-05 HIDDEN_CONTROLLED 残留“Demand/Priority 直接授客户详情可见”旧语义；正确 Authority 为 Priority 不授 visibility，需 Recommendation/visibility grant | CARRIER_DEFERRED |
 | PDM-13 | 历史独立 `priority.view` 全局穿透查看方向已被 B4-01 supersede；当前 Priority 查看/处理跟随业务责任、合法管理范围及 PDM-02 通用权限模型 | CARRIER_DEFERRED |
+| PDM-13 | 客户端普通公共“在售车源/今日新增”统计尚未完整表达 active Priority 保护 Vehicle 必须从普通公开统计排除 | CARRIER_DEFERRED |
+| PDM-13 | PC 当前缺单 Customer Priority 资格开关与全局 24h TTL 默认配置真实 Action；员工端缺合法 responsible Priority 处理/释放/剩余TTL 真人 Action Contract | CARRIER_DEFERRED |
 
 ---
 
