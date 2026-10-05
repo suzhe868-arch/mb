@@ -33,7 +33,9 @@
 - PDM-15 Pre-Final Repair R1 = P15-LIA-01～P15-LIA-05 / PASS / USER_APPROVED / APPLIED
 - PDM-15 Outgoing Handoffs = 8 / COMPLETE_REGISTERED / HANDOFF_OPEN
 - PDM-15 Pre-Final Integrity R2 = REPAIR_REQUIRED / REPORT=`07_重建工作区/PDM-15_Final前完整性复核_R2_2026-10-06.md`
-- PDM-15 Pre-Final Repair R2 = P15-LIA-06 / PENDING_USER_REVIEW
+- PDM-15 Pre-Final Repair R2 = P15-LIA-06 / PASS / USER_APPROVED / APPLIED
+- PDM-15 Pre-Final Integrity R3 = PASS / FINAL_CANDIDATE_READY / REPORT=`07_重建工作区/PDM-15_Final前完整性复核_R3_2026-10-06.md`
+- PDM-15 Final Overview = `07_重建工作区/PDM-15_最终完整规则总览_待用户批准.md` / PENDING_USER_FINAL_APPROVAL
 - PDM-11 = COMPLETE / INTEGRITY_PASS
 - PDM-12 = COMPLETE / INTEGRITY_PASS
 - PDM-11 启动门禁 = UNBLOCKED
@@ -85,7 +87,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-15 Final 前完整性复核 R2 已完成，结论 `REPAIR_REQUIRED`。R1 的 P15-LIA-01～05 已全部批准并执行，8 条 outgoing handoff 已完整登记；当前唯一下一步：用户审查 `P15-LIA-06`（Consultation mutation actor/authority 精确矩阵）。批准并确认执行后应用该修复并执行 R3。IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-15 Final 前完整性复核 R3 已 `PASS / FINAL_CANDIDATE_READY`。当前唯一下一步：用户最终审查 `07_重建工作区/PDM-15_最终完整规则总览_待用户批准.md`。用户最终批准并再次确认执行后，才发布正式 Final、关闭 5 条 incoming handoff、source backwrite，并进入 PDM-16 Startup Gate。IA / Low-Fi / Engineering 继续禁止施工。**
 
 每个 PDM 必须同时执行：
 
