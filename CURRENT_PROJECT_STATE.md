@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-16_BATCH_3_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-16_BATCH_3_COMPLETENESS_REPAIR_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`
+> `IN_PROGRESS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_3_COMPLETENESS_REPAIR_PENDING`
 
 当前工作文件：
 
@@ -32,7 +32,20 @@
 
 当前唯一下一步：
 
-> **PDM-16 Batch 2 已 `PASS / USER_APPROVED / APPLIED`，Reverse Conflict Scan = PASS，FALSE_DEPRECATION_COUNT=0。当前唯一下一步：用户审查 P16-B3-01～P16-B3-06；未获用户批准并再次确认执行前，不得写入 Batch 3 Authority。6 条 incoming handoff 继续 HANDOFF_ACCEPTED。**
+> **PDM-16 Batch 3 已 `PASS / USER_APPROVED / APPLIED`，Conflict Isolation = PASS。完整性回查发现 2 条明确历史规则尚未完整承接；当前唯一下一步：用户审查 P16-B3-R01～P16-B3-R02。修复完成前不进入 Batch 4；6 条 incoming handoff 继续 HANDOFF_ACCEPTED。**
+
+## 2026-10-06｜PDM-16 Batch 3 用户批准并执行
+
+- 用户对 `P16-B3-01～P16-B3-06` 全部同意并确认执行；
+- Batch 3 = `PASS / USER_APPROVED / APPLIED`；
+- Conflict Isolation = `PASS`；
+- `CONFLICT_OR_PRODUCT_CHOICE_MISCLASSIFIED_AS_BATCH3 = 0`；
+- 已补齐 CRM Follow-up mutation、员工内部称呼历史、CRM 列表真实搜索/筛选、Customer Detail 六区块、Opportunity 最小聚合事实、Source Radar 事件与人工处理闭环；
+- 完整性回查另发现 2 条明确历史规则尚未完整承接：CRM 待办/回访提醒/未来跟进责任交接；“暂不联系/暂无意向”只属于 CRM 判断且不自动进公海；
+- 已形成修复候选 `P16-B3-R01～P16-B3-R02`；
+- Batch 4 暂不开始；
+- 6 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工。
 
 ## 2026-10-06｜PDM-16 Batch 2 用户批准并执行
 
