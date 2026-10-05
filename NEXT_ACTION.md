@@ -25,7 +25,9 @@
 - PDM-15 Batch 1 = P15-A01～P15-A08 / PASS / USER_APPROVED / APPLIED
 - PDM-15 Batch 2 = P15-B2-01～P15-B2-05 / PASS / USER_APPROVED / APPLIED
 - PDM-15 Batch 2 Reverse Conflict Scan = PASS / FALSE_DEPRECATION_COUNT=0
-- PDM-15 Batch 3 = P15-B3-01～P15-B3-04 / PENDING_USER_REVIEW
+- PDM-15 Batch 3 = P15-B3-01～P15-B3-04 / PASS / USER_APPROVED / APPLIED
+- PDM-15 Batch 3 Conflict Isolation = PASS / CONFLICT_OR_PRODUCT_CHOICE_MISCLASSIFIED_AS_BATCH3=0
+- PDM-15 Batch 4 = P15-B4-01～P15-B4-07 / PENDING_USER_REVIEW / RECOMMENDED=1A,2A,3A,4A,5A,6A,7A
 - PDM-11 = COMPLETE / INTEGRITY_PASS
 - PDM-12 = COMPLETE / INTEGRITY_PASS
 - PDM-11 启动门禁 = UNBLOCKED
@@ -77,7 +79,7 @@
 
 ## 当前唯一下一步
 
-> **审查 PDM-15 Batch 3：P15-B3-01～P15-B3-04。范围仅含后续已明确新增且不需重新做产品取舍的动作/语义：Customer 撤回 open Consultation、员工记录真实跟进、员工区分解决/无效/正常关闭、Consultation 创建时消费有效 SLA 配置并固化本次 deadline。`CANCELLED` 主状态、首次真实人工响应判定、历史默认15分钟、负责人优先级、Customer停用运行态、Transaction负向边界继续保留 Batch 4。IA / Low-Fi / Engineering 继续禁止施工。**
+> **审查 PDM-15 Batch 4：P15-B4-01～P15-B4-07。覆盖：CANCELLED 是否为第五主状态、首次真实人工响应条件、SLA 默认15分钟、Consultation 初始负责人优先级与无人承接失败出口、Customer停用运行态、Transaction 不自动结束 Consultation、工作台 SLA 优先级归属。建议选择：1A、2A、3A、4A、5A、6A、7A。IA / Low-Fi / Engineering 继续禁止施工。**
 
 每个 PDM 必须同时执行：
 
