@@ -982,3 +982,67 @@ PDM16_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0
 当前唯一下一步：
 
 > **进入 PDM-16 Final 前完整性复核：Source→Atom、Atom→Source、Semantic Completeness、Cross-PDM / Handoff / Global Invariant。**
+
+---
+
+## 14. Final 前完整性复核 R1｜REPAIR_REQUIRED
+
+报告：
+
+> `07_重建工作区/PDM-16_Final前完整性复核_R1_2026-10-06.md`
+
+结果：
+
+- `SOURCE_TO_ATOM = FAIL_REPAIRABLE`；
+- `ATOM_TO_SOURCE = PASS`；
+- `SEMANTIC_COMPLETENESS = FAIL_REPAIRABLE`；
+- `MISSING_RULE_UNRESOLVED = 1`；
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 1`；
+- `COMPLETED_PDM_INVARIANT_CONFLICT = 0`；
+- `INCOMING_HANDOFF_GAP = 0`；
+- `OUTGOING_HANDOFF_GAP = 1 group`；
+- `PDM16_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- `PDM16_FINAL_CANDIDATE_READY = NO`。
+
+### P16-LIA-01｜CRM 核心 mutation audit｜PENDING_USER_REVIEW
+
+补齐：
+
+- CRM Stage before / after / actor / changed_at；
+- 重要 Customer Tag 新增/移除/替换的可追溯变化事实；
+- Shared Profile 继续 before / after；
+- 服务称呼修改不得覆盖旧值，保留 author / 时间 / 来源 / 修改历史；
+- Follow-up 继续 append-only；
+- 不把所有普通字段一律升级为重型审计。
+
+建议：**通过。**
+
+### P16-LIA-02｜Customer Address 搜索 / 卡片投影｜PENDING_USER_REVIEW
+
+补齐 R10-15 已明确但当前漏掉的 Customer Address：
+
+- 合法地址字段存在时参与 CRM list search；
+- 客户卡片可展示必要地址 / internal note 摘要；
+- 不新建地址采集流程，只消费合法 Customer Profile 已有事实；
+- 展示与搜索继续服从 permission + data scope；
+- internal note 继续服从 Personal Note / Shared Profile / 服务称呼分层。
+
+建议：**通过。**
+
+### P16-LIA-03｜PDM-16 outgoing handoff 完整登记｜PENDING_USER_REVIEW
+
+待登记：
+
+- `HO-P16-P17-001`；
+- `HO-P16-P21-001`；
+- `HO-P16-P22-001`；
+- `HO-P16-P23-001`；
+- `HO-P16-P25-001`。
+
+全部先以 `HANDOFF_OPEN` 建立；不得替目标 PDM 提前裁其页面/通知/公海/审计实现。
+
+建议：**通过。**
+
+当前唯一下一步：
+
+> **用户审查 P16-LIA-01～P16-LIA-03；批准并确认执行后进行 Final 前完整性复核 R2。**
