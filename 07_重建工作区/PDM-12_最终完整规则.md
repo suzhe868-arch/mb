@@ -169,7 +169,7 @@ Match Result 本身绝不授客户隐藏 Vehicle 详情可见权；后续客户�
 
 active Lock 是业务占用事实，不是车辆真实不可售的同义词。Vehicle 有 active Lock，但底层仍真实可售、listing_cycle 有效、其他 Matching Guard 合法时，仍可对其他 Demand 产生 Match Result，并必须携带“当前已锁/已占用”事实。
 
-即使结果 high/acceptable，也不代表当前 Customer 可以直接 Lock。Priority 与 active Lock 的关系归 PDM-13；Waitlist/Lock 归 PDM-18。PDM-12 不外推 Transaction 场景。
+即使结果 high/acceptable，也不代表当前 Customer 可以直接 Lock。Priority 与 active Lock 的关系已由 PDM-13 Final 冻结：active Lock 不阻断 Matching，但阻止新 Priority；正式 Lock 成立结束 active Priority，Lock 取消/到期不恢复旧 Priority。Waitlist/Lock 完整状态机仍归 PDM-18。PDM-12 不外推 Transaction 状态机。
 
 ---
 
@@ -307,7 +307,7 @@ Demand 未填预算时“价格咨询”可继续 Matching；但客户端明确�
 
 ## 35. Future Handoff
 
-- PDM-13：只消费当前合法 Match Result；confirmation_needed/no_match 不算成功 Match；active Lock 不阻止 Match Result 生成；Priority 如何受 active Lock 限制、TTL、仲裁、lifecycle、Demand.created_at 使用由 PDM-13 冻结。
+- PDM-13：`HANDOFF_CLOSED`。PDM-13 Final §§4-14,21-23,29-30 已承接：只消费 current legal Match Result；high/acceptable 才能驱动 Priority；confirmation_needed/no_match 不支持 current Priority；Match tier downgrade 立即重评；active Lock 不阻断 Matching 但阻止新 Priority；TTL、仲裁、Demand.created_at、trigger Demand、release/re-arbitration 与 Lock/Transaction 边界均已冻结。
 - PDM-14：Match Result 不自动 Recommendation，不自动授客户可见权。
 - PDM-16：消费 Matching change fact，不复制 Matching Authority。
 - PDM-18：active Lock 不阻止 Matching，但不能绕过单车唯一 active Lock；其他客户后续 Waitlist/Lock 动作归 PDM-18。
