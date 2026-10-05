@@ -1,7 +1,7 @@
 # PDM-15｜Consultation / 咨询生命周期 / 来源 / 负责人 / 转派 / SLA｜规则原子重建工作版
 
 > 日期：2026-10-06  
-> 状态：`IN_PROGRESS / START_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`  
+> 状态：`IN_PROGRESS / START_GATE_PASS / BATCH_1_PASS_USER_APPROVED / BATCH_2_PENDING_USER_REVIEW`  
 > 方法：9/19 主底盘 + 前向历史补全 + 后向显式 supersession + 9/22 冻结台账 + Current Carrier Conflict Scan + Completed-PDM Authority + Cross-PDM Handoff。  
 > 当前阶段约束：IA / Low-Fi / Engineering 只登记冲突，不施工；未经用户审查的候选 Atom 不得直接进入 Final。
 
@@ -81,9 +81,9 @@
 
 ---
 
-## 4. Batch 1｜稳定一致规则候选｜待用户审查
+## 4. Batch 1｜稳定一致规则｜PASS / USER_APPROVED
 
-> 本批只收“跨来源稳定一致且不需要新产品选择”的规则。除 P15-R00 外，下列 Atom 尚未获得用户本批批准。
+> 用户已于 2026-10-06 对 P15-A01～P15-A08 明确“全部同意”，随后明确“确定执行”。以下 8 条正式进入 PDM-15 当前工作 Authority；后续批次不得静默反向改写。
 
 ### P15-A01｜显式咨询动作才创建 / 复用 Consultation
 
@@ -154,15 +154,85 @@ Consultation 创建时记录真实 direct source / source relation。
 
 ---
 
-## 5. Batch 1 Gate
+## 5. Batch 1 Gate｜PASS
+
+- `P15-R00 = USER_APPROVED / APPLIED`；
+- `P15-A01～P15-A08 = PASS / USER_APPROVED / APPLIED`；
+- Batch 1 不包含状态机 CANCELLED 冲突、SLA 精确完成语义、负责人优先级、Customer 停用运行态等产品选择；
+- 5 条 incoming handoff 继续 `HANDOFF_ACCEPTED`，不得提前关闭；
+- IA / Low-Fi / Engineering 继续禁止施工。
+
+---
+
+## 6. Batch 2｜明确废弃 / 被替代 / 不得恢复｜待用户审查
+
+> 本批只处理已经有明确后续 Authority 或显式废弃证据的旧口径；不处理仍需产品裁决的冲突。
+
+### P15-B2-01｜旧“我要这辆车”统一语义不得恢复
+
+旧客户端“我要这辆车”把沟通意向、咨询、锁车意向混在同一入口的语义已经被后续规则替代。
+
+当前必须分离：
+
+- 沟通车辆 → `Consultation / 咨询`；
+- 锁车 → `LockRequest / Lock` 独立业务链；
+- Recommendation 也不得由该按钮自动创建。
+
+不得恢复旧的单按钮统一状态机。
+
+### P15-B2-02｜Consultation timeout 不得恢复成主状态或自动终态
+
+旧/中间承载中把“超时”当 Consultation 第五主状态、或超时后自动关闭 Consultation 的方向不得恢复。
+
+当前边界：
+
+- SLA timeout 是派生事实 / 过滤 / 提醒条件；
+- timeout 本身不改变 Consultation 主状态；
+- timeout 不自动 `resolved / invalid / cancelled`；
+- SLA 提醒与通知失败也不得反向改写 Consultation 业务状态。
+
+> `CANCELLED` 是否为合法主状态仍留到后续冲突裁决，本 Atom 不预判。
+
+### P15-B2-03｜Customer Merge 及 Consultation 迁移不得恢复
+
+继承 PDM-01 / PDM-14：
+
+- V1 不提供 Customer Merge；
+- 不存在把两个 customer_id 的 Consultation 合并、搬迁到“存活客户”或自动重写 customer_id；
+- 相同自然人、相同手机号或重复客户提示均不得触发 Consultation 迁移；
+- 真实历史继续保留在原 customer_id 下。
+
+### P15-B2-04｜不得把 Consultation assignee 与 Customer owner 合成同一字段
+
+任何旧/Current carrier 若用 `owner` 泛称 Consultation 当前负责人，均不得解释成：
+
+- Customer owner 就是 Consultation assignee；
+- Customer owner 一变化，Consultation 负责人自动跟着变化；
+- Consultation reassignment 等于 Customer owner transfer。
+
+当前必须保持两个业务责任对象分离；页面/字段命名后续统一对齐。
+
+### P15-B2-05｜Recommendation 不得作为 Consultation 生命周期函数
+
+任何把 Recommendation create/end/void 当成 Consultation 自动 create/end/reassign/source rewrite 触发器的旧口径不得恢复。
+
+当前以 P15-A06 + PDM-14 Final 为准：
+
+- 两对象独立；
+- 只保留真实 source relation；
+- 不互相自动创建、结束、抢写负责人或改写历史来源。
+
+---
+
+## 7. Batch 2 Gate
 
 当前：
 
-- `P15-R00 = USER_APPROVED / APPLIED`；
-- `P15-A01～P15-A08 = PENDING_USER_REVIEW`；
-- Batch 2 / 3 / 4 尚未启动；
-- 状态机冲突、SLA 精确完成语义、负责人优先级、Customer 停用运行态等不得提前冻结。
+- `P15-A01～P15-A08 = PASS / USER_APPROVED / APPLIED`；
+- `P15-B2-01～P15-B2-05 = PENDING_USER_REVIEW`；
+- Batch 2 Reverse Conflict Scan 尚未在用户批准后执行；
+- `CANCELLED` 主状态、SLA 首次真实人工动作、负责人优先级、Customer 停用运行态、Transaction 负向边界等继续保留到后续批次。
 
 当前唯一下一步：
 
-> **提交 P15-A01～P15-A08 给用户审查。用户确认后才能执行 Batch 1 写入批准状态，并继续 Batch 2。**
+> **提交 P15-B2-01～P15-B2-05 给用户审查。用户批准并确认执行后，再完成 Batch 2 Reverse Conflict Scan 并进入 Batch 3。**
