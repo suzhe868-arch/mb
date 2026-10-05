@@ -1,10 +1,10 @@
 # PDM-13｜Priority / 仲裁 / TTL / active Lock 边界｜规则原子重建工作版
 
 > 日期：2026-10-05  
-> 当前状态：`PREFINAL_REPAIR_PASS / USER_APPROVED / APPLIED / SECOND_INTEGRITY_RUNNING`  
+> 当前状态：`PREFINAL_INTEGRITY_PASS / FINAL_CANDIDATE_READY`  
 > 业务权威语言：中文（zh-CN）  
 > 当前域：PDM-13｜Priority / 仲裁 / TTL / active Lock 边界  
-> 当前硬门禁：Final 前第一轮完整性复核发现 P13-LIA-01～LIA-06，用户已全部批准并确认执行；修复已进入工作版。下一步只允许完成二次完整性复核；二次复核全部 PASS 后才能生成 PDM-13 Final Domain Overview。不得提前修改 IA / Low-Fi / Engineering。
+> 当前硬门禁：P13-LIA-01～LIA-06 已用户批准并执行，Final 前二次完整性复核已 PASS。下一步只允许生成 PDM-13 Final Domain Overview 候选并提交用户最终批准；未经用户最终批准，不得发布 Final、不得关闭 incoming handoff、不得开始 PDM-14。
 
 ---
 
@@ -1279,8 +1279,40 @@ PDM-22 必须承接至少两个真实配置对象：
 
 ---
 
-# 16. 当前唯一下一步
+# 16. Final 前二次完整性复核｜PASS
 
-> **执行 PDM-13 Final 前二次完整性复核。必须重新完成 Full Evidence Matrix、Source→Atom、Atom→Source、Semantic Completeness、Completed-PDM Invariant、Cross-PDM Handoff、stale carrier、negative/superseded claim 与 local unresolved 扫描。若仍发现真实缺口，继续形成新的 LIA 候选并停下用户审查；只有全部 PASS 才能生成 PDM-13 Final Domain Overview。**
+二次复核报告：
+
+> `07_重建工作区/PDM-13_Final前完整性复核_2026-10-05.md`
+
+最终检查：
+
+- Source→Atom = PASS；
+- Atom→Source = PASS；
+- Semantic Completeness = PASS；
+- Completed-PDM Invariant = PASS；
+- Cross-PDM Handoff Integrity = PASS；
+- stale carrier ledger = REGISTERED；
+- Negative / Superseded Claims = PASS；
+- Missing Rule Unresolved = 0；
+- Semantic Detail Gap Unresolved = 0；
+- Cross-PDM Conflict = 0；
+- Handoff Gap Unresolved = 0；
+- Local Product Choice Unresolved = 0；
+- Local Deferred Unresolved = 0。
+
+结论：
+
+`PDM13_PREFINAL_INTEGRITY = PASS`
+
+`PDM13_FINAL_CANDIDATE_READY = YES`
+
+当前 incoming handoff 5 / 5 仍保持 `HANDOFF_ACCEPTED`，不得在 Final / Integrity closeout 前提前关闭。
+
+---
+
+# 17. 当前唯一下一步
+
+> **生成 PDM-13 Final Domain Overview 候选，完整覆盖 Batch 1～4、P13-LIA-01～LIA-06、incoming/outgoing handoff、stale carrier 与 supersession，并提交用户最终批准。未经用户最终批准，不得发布 PDM-13 Final，不得关闭 incoming handoff，不得开始 PDM-14。**
 
 IA / Low-Fi / Engineering 继续禁止施工。
