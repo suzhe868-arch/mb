@@ -20,14 +20,14 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-14 Final 前完整性复核：重新执行全量完整性门禁，达到 FINAL_CANDIDATE_READY 后再生成 Final Domain Overview",
+  "current_task": "PDM-14 Final 前完整性复核 R2：验证 P14-LIA-01～10 修复后的全量完整性并决定 FINAL_CANDIDATE_READY",
   "current_work_file": "07_重建工作区/PDM-14_Recommendation分享单车授权与可见性_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
     "Do not close PDM-14 incoming handoffs before PDM-14 Final / Integrity closeout",
-    "Do not generate PDM-14 Final Domain Overview before Pre-Final Integrity reaches FINAL_CANDIDATE_READY",
+    "Do not publish PDM-14 Final before Final Domain Overview user approval",
     "Do not use Current IA or Low-Fi stale carriers to override completed PDM authority",
     "Do not modify IA or Low-Fi during product-rule reconstruction",
     "Do not execute engineering Delta"
@@ -68,7 +68,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-14_PREFINAL_INTEGRITY",
+  "current_review_batch": "PDM-14_PREFINAL_INTEGRITY_R2",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -1867,7 +1867,7 @@
     "PDM-11": "DONE",
     "PDM-12": "DONE"
   },
-  "pdm_14_status": "IN_PROGRESS_BATCH4_PASS_USER_APPROVED",
+  "pdm_14_status": "IN_PROGRESS_PREFINAL_REPAIR_APPLIED",
   "pdm_14_start_gate": "PASS",
   "pdm_14_incoming_handoffs": {
     "HO-P01-P14-001": "HANDOFF_ACCEPTED",
@@ -1879,7 +1879,7 @@
     "HO-P12-P14-001": "HANDOFF_ACCEPTED",
     "HO-P13-P14-001": "HANDOFF_ACCEPTED"
   },
-  "pdm_14_next_gate": "PREFINAL_INTEGRITY_AUDIT",
+  "pdm_14_next_gate": "PREFINAL_INTEGRITY_R2",
   "pdm_14_work_file": "07_重建工作区/PDM-14_Recommendation分享单车授权与可见性_规则原子重建_工作版.md",
   "pdm_14_batch_1_status": "PASS_USER_APPROVED",
   "pdm_14_batch_1_candidate_atoms": [
@@ -2123,6 +2123,50 @@
     {
       "id": "PDM14-GATE-B4",
       "status": "PASS_USER_APPROVED"
+    },
+    {
+      "id": "PDM14-LIA-01",
+      "status": "USER_APPROVED_APPLIED"
+    },
+    {
+      "id": "PDM14-LIA-02",
+      "status": "USER_APPROVED_APPLIED"
+    },
+    {
+      "id": "PDM14-LIA-03",
+      "status": "USER_APPROVED_APPLIED"
+    },
+    {
+      "id": "PDM14-LIA-04",
+      "status": "USER_APPROVED_APPLIED"
+    },
+    {
+      "id": "PDM14-LIA-05",
+      "status": "USER_APPROVED_APPLIED"
+    },
+    {
+      "id": "PDM14-LIA-06",
+      "status": "USER_APPROVED_APPLIED"
+    },
+    {
+      "id": "PDM14-LIA-07",
+      "status": "USER_APPROVED_APPLIED"
+    },
+    {
+      "id": "PDM14-LIA-08",
+      "status": "USER_APPROVED_APPLIED"
+    },
+    {
+      "id": "PDM14-LIA-09",
+      "status": "USER_APPROVED_APPLIED"
+    },
+    {
+      "id": "PDM14-LIA-10",
+      "status": "USER_APPROVED_APPLIED"
+    },
+    {
+      "id": "PDM14-PREFINAL-REPAIR-GATE",
+      "status": "PASS_USER_APPROVED_APPLIED"
     }
   ],
   "pdm_14_batch_2_status": "PASS_USER_APPROVED",
@@ -2217,6 +2261,41 @@
   "pdm_14_batch_4_pending_atoms": [],
   "pdm_14_local_product_choice_unresolved": 0,
   "pdm_14_outgoing_handoffs": {
-    "HO-P14-P15-001": "HANDOFF_OPEN"
+    "HO-P14-P15-001": "HANDOFF_OPEN",
+    "HO-P14-P18-001": "HANDOFF_OPEN",
+    "HO-P14-P19-001": "HANDOFF_OPEN",
+    "HO-P14-P20-001": "HANDOFF_OPEN",
+    "HO-P14-P21-001": "HANDOFF_OPEN",
+    "HO-P14-P23-001": "HANDOFF_OPEN",
+    "HO-P14-P25-001": "HANDOFF_OPEN"
+  },
+  "pdm_14_prefinal_repair_status": "USER_APPROVED_APPLIED",
+  "pdm_14_prefinal_repair_atoms": [
+    "P14-LIA-01",
+    "P14-LIA-02",
+    "P14-LIA-03",
+    "P14-LIA-04",
+    "P14-LIA-05",
+    "P14-LIA-06",
+    "P14-LIA-07",
+    "P14-LIA-08",
+    "P14-LIA-09",
+    "P14-LIA-10"
+  ],
+  "pdm_14_prefinal_integrity_r1": {
+    "status": "REPAIR_REQUIRED",
+    "final_candidate_ready": false,
+    "discovered_gaps": [
+      "P14-LIA-01",
+      "P14-LIA-02",
+      "P14-LIA-03",
+      "P14-LIA-04",
+      "P14-LIA-05",
+      "P14-LIA-06",
+      "P14-LIA-07",
+      "P14-LIA-08",
+      "P14-LIA-09",
+      "P14-LIA-10"
+    ]
   }
 }
