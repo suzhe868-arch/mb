@@ -729,7 +729,7 @@ Priority 当前业务处理责任以 **trigger Demand 当前合法 responsible e
 - 经理 / 店长只能在当前合法管理 permission + data scope + object state 范围内监督 / 处理；
 - 不因“经理 / 店长”职位自动拥有全局 Priority 权限；
 - 4S Member 对名邦 Priority / CRM 业务 hard DENY；
-- System Admin 负责 Priority Customer 资格开关这一控制平面治理，不因 System Admin 身份自动成为 Priority 业务处理人。
+- Priority Customer 资格开关属于后台单 Customer 控制平面治理，由当前合法后台配置权限与范围决定；普通负责销售不得仅因负责该 Customer 就自行开启资格，控制平面操作者也不因此自动成为 Priority 业务处理人。
 
 ### 11.1.6 不再建设独立全局 Priority 管理 capability
 
