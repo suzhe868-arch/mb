@@ -1,7 +1,7 @@
 # PDM-16｜CRM / 客户画像 / 阶段 / 跟进 / 标签 / 机会 / Source Radar｜规则原子重建工作版
 
 > 日期：2026-10-06  
-> 状态：`IN_PROGRESS / STARTUP_GATE_PASS / P16-R00_USER_APPROVED_APPLIED / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`  
+> 状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_2_REVERSE_CONFLICT_SCAN_PASS / BATCH_3_PENDING_USER_REVIEW`  
 > 方法：9/19 主底盘 + 前向历史补全 + 后向显式 supersession + 9/22 冻结台账 + Current Carrier Conflict Scan + Completed-PDM Authority + Cross-PDM Handoff。  
 > 当前阶段约束：IA / Low-Fi / Engineering 只登记冲突，不施工；未经用户审查的候选 Atom 不得直接进入 Final。
 
@@ -386,9 +386,10 @@ Batch 1 Reverse Check：
 
 ---
 
-## 6. Batch 2｜明确废弃 / 被替代 / DO_NOT_RESTORE 候选｜PENDING_USER_REVIEW
+## 6. Batch 2｜明确废弃 / 被替代 / DO_NOT_RESTORE｜PASS / USER_APPROVED / APPLIED
 
-> 本批只处理已有明确后续 Authority 或显式废弃证据的旧方向，不新增新产品选择。
+> 本批只处理已有明确后续 Authority 或显式废弃证据的旧方向，不新增新产品选择。  
+> 用户于 2026-10-06 对 P16-B2-01～P16-B2-07 明确“全部同意确认执行”；以下 7 条正式进入 PDM-16 当前工作 Authority。
 
 ### P16-B2-01｜Customer Merge / P06-01 / P06-M01 不得恢复
 
@@ -511,16 +512,217 @@ Current P06-07 虽存在“客户机会规则”页面名及通用 Low-Fi 壳，
 
 ---
 
-## 7. Batch 2 Gate｜PENDING_USER_REVIEW
+## 7. Batch 2 Gate｜PASS / USER_APPROVED / APPLIED
 
 当前：
 
 - `P16-A01～P16-A12 = PASS / USER_APPROVED / APPLIED`；
-- `P16-B2-01～P16-B2-07 = PENDING_USER_REVIEW`；
-- `FALSE_DEPRECATION_COUNT = NOT_YET_CHECKED`；
+- `P16-B2-01～P16-B2-07 = PASS / USER_APPROVED / APPLIED`；
+- 6 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工。
+
+### 7.1 Batch 2 Reverse Conflict Scan｜PASS
+
+对 PDM-01 / 02 / 03 / 11 / 12 / 14 / 15 Final、9/19 R6/R10 与 Current carrier 做反向核验：
+
+- Customer Merge：当前明确由 PDM-01 Final 全面取消，废弃正确；
+- CRM 直接锁车入口：后续已分离为 Vehicle 上下文 LockRequest/Lock，废弃正确；
+- 7d / 40 / 3d Opportunity 旧阈值：Phase1.5 DP-01 明确 DO_NOT_RESTORE，废弃正确；
+- 大字段 CRM 画像：已被 Personal Note / Shared Profile 等分层模型替代，废弃正确；
+- 历史服务永久访问：与 PDM-02/03 当前权限模型冲突，废弃正确；
+- P06-07 通用 CRUD/config：没有当前正式 Authority 支撑，不能由页面壳反推业务授权；
+- Opportunity 独立工单 / SLA / assignee：与当前聚合信号定位冲突，废弃正确。
+
+明确**没有**被误废弃的当前能力：
+
+1. Customer Opportunity 模块本身继续保留；
+2. CRM Stage / Tags / Follow-up / Shared Profile / Personal Note 继续保留；
+3. 当前 owner / 合法 manager / 合法 Collaboration 仍可在权限范围内访问或维护相应 CRM 信息；
+4. CRM 可以展示 Lock / Demand / Consultation 等业务概览，只是不复制其状态机；
+5. Source Radar 继续保留，只是不复制 Matching Engine；
+6. 合法 CRM Follow-up mutation 继续需要补齐，不因废弃旧大字段 CRM 而删除；
+7. 历史 Customer 数据继续长期保留，只是访问权按当前 Guard 计算。
+
+```text
+BATCH_2_REVERSE_CONFLICT_SCAN = PASS
+FALSE_DEPRECATION_COUNT = 0
+```
+
+---
+
+## 8. Batch 3｜明确恢复 / 补齐的业务能力候选｜PENDING_USER_REVIEW
+
+> 本批只处理已经有历史业务依据、但 Current carrier 丢失或动作链不完整的能力；不处理真正需要新产品选择的冲突项。
+
+### P16-B3-01｜补齐 CRM Follow-up 正式 mutation 闭环
+
+当前 E03-03 已有“记录跟进”入口，但正式 Action Contract 未闭合。
+
+恢复完整业务链：
+
+> 进入合法 Customer / business context → 填写跟进 → 提交 → server-side Guard 重验 → append 新 Follow-up → 成功反馈 → 时间线立即可见。
+
+每次提交至少记录：
+
+- customer_id；
+- actor employee_id；
+- occurred_at / created_at；
+- follow-up content；
+- 可选关联 business type / business id（如 demand_id / consultation_id）；
+- 当前可追溯来源 / context。
+
+错误记录：
+
+- 不覆盖原文；
+- 通过补充更正或合法“作废 / 无效”标记；
+- 原始记录持续保留。
+
+失败：
+
+- 不生成半条成功记录；
+- 可安全重试；
+- 不因提交失败改 CRM Stage 或其他业务对象。
+
+建议：**通过。**
+
+### P16-B3-02｜恢复员工内部客户称呼历史的正式对象语义
+
+员工内部客户称呼 / 服务称呼不能只是一个可被覆盖的备注字段。
+
+至少需要支持：
+
+- 合法员工新增自己的客户称呼；
+- 保留作者；
+- 保留创建时间；
+- 保留来源 / 当前服务上下文；
+- 后续新 owner / 当前合法服务者可以看到公司服务历史中的称呼；
+- 新人新增自己的称呼，不覆盖旧称呼；
+- 客户本人不可见员工内部称呼；
+- 原作者失去当前 CRM 权限后，历史事实保留，但不能仅凭“这是我写的”继续打开完整 Customer。
+
+建议：**通过。**
+
+### P16-B3-03｜恢复 CRM 客户列表真实搜索 / 筛选 / 团队视角能力
+
+CRM 列表至少应支持历史已明确的真实检索维度：
+
+搜索：
+
+- 客户姓名 / 昵称；
+- 内部客户称呼 / 备注；
+- 手机号（继承 PDM-01：主要手机号和其他已登记手机号均参与）；
+- 找车车型关键词 / 当前 Demand 相关关键词。
+
+筛选可包含：
+
+- Customer Level；
+- Tags；
+- active Demand；
+- pending Application；
+- 有效 Lock / Waitlist；
+- Transaction；
+- 跟进状态；
+- 最近活跃；
+- 当前 owner。
+
+经理 / 店长在自身合法 data scope 内使用同一 CRM，可切：
+
+- 我的客户；
+- 团队客户。
+
+列表卡片主要展示身份摘要、Level、核心 Tags、当前核心业务状态、最近跟进、下次跟进（如有）；团队视角增加 owner。
+
+列表卡片不堆叠大量业务 mutation 按钮。
+
+建议：**通过。**
+
+### P16-B3-04｜恢复 CRM Customer Detail 六区块的信息架构语义
+
+CRM Customer Detail 继续保持历史已冻结的六类内容：
+
+1. 基础资料；
+2. 当前业务；
+3. 快捷操作；
+4. 跟进时间线；
+5. 历史业务；
+6. 最近行为 / 兴趣。
+
+快捷操作只保留与 CRM 自身或合法跨域入口一致的动作，例如：
+
+- 记录跟进；
+- 找车服务；
+- 推荐车辆。
+
+不恢复纯 CRM “直接锁车 → 再选车辆”入口。
+
+跨域入口只能携带当前已知 Customer 上下文进入对应 Authority，不得在 CRM 内复制对应业务状态机。
+
+建议：**通过。**
+
+### P16-B3-05｜恢复 Customer Opportunity 的最小聚合信号规则
+
+Customer Opportunity 需要明确“什么能进入当前机会投影”的最低业务边界：
+
+- 只基于当前可解释、确定性业务/行为事实形成聚合信号；
+- 匿名访客不生成具名 Customer Opportunity；
+- 系统 heartbeat、token refresh、后台轮询、员工代操作等不得冒充客户主动兴趣；
+- 当前机会跟随当前合法 Customer 服务责任投影；
+- 相同/等价信号允许去重与冷却，避免重复刷屏；
+- 条件不再命中时从当前机会自然消失；
+- 不逐条生成飞书通知；
+- 不做 AI 意向评分。
+
+具体新阈值或新“机会算法”不得由本条凭空发明。
+
+建议：**通过。**
+
+### P16-B3-06｜补齐 Source Radar 的事件消费与人工处理闭环
+
+Source Radar 消费 PDM-12 current Matching change fact 后，可形成可追溯 Radar Event。
+
+Radar Event 至少应保留：
+
+- source demand / customer context；
+- vehicle；
+- 触发类型（新上架 / 关键事实变化 / Match 变化等真实来源）；
+- 当前 PDM-12 Match Result / explanation 引用；
+- created_at / latest change time；
+- 当前是否仍有效。
+
+员工可：
+
+- 查看 Radar Event / 匹配详情；
+- 从合法 Customer/Demand 上下文进入正式 Recommendation；
+- 标记“本次 Radar 不适合 / 忽略”作为人工 Radar 处理事实。
+
+“标记不适合”：
+
+- 不得直接把 PDM-12 Match Result 改成 no_match；
+- 不得修改 Rule Dictionary；
+- 不得改 Demand 标准条件；
+- 如需改条件，必须进入 PDM-11/12 对应正式流程。
+
+Radar Event 因底层 current Match Result / Demand / Vehicle 失效时：
+
+- 当前 Radar 投影可以失效 / 消失；
+- 历史事件继续可追溯；
+- 不因此自动创建 Recommendation / Priority / Lock。
+
+建议：**通过。**
+
+---
+
+## 9. Batch 3 Gate｜PENDING_USER_REVIEW
+
+当前：
+
+- `P16-B2-01～P16-B2-07 = PASS / USER_APPROVED / APPLIED`；
+- `BATCH_2_REVERSE_CONFLICT_SCAN = PASS`；
+- `FALSE_DEPRECATION_COUNT = 0`；
+- `P16-B3-01～P16-B3-06 = PENDING_USER_REVIEW`；
 - 6 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
 - IA / Low-Fi / Engineering 未施工。
 
 当前唯一下一步：
 
-> **用户审查 P16-B2-01～P16-B2-07。用户批准并确认执行后，再执行 Batch 2 Reverse Conflict Scan，确认没有把现行 CRM 能力误判为废弃项。**
+> **用户审查 P16-B3-01～P16-B3-06。批准并确认执行后，再做 Batch 3 Conflict Isolation，确认没有把真正需要用户选择的冲突/产品取舍偷渡进 Batch 3。**
