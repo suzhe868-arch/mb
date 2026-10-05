@@ -830,7 +830,7 @@ Consultation 历史不得物理删除。
 
 PDM-15 已正式登记以下 outgoing handoff：
 
-- `HO-P15-P16-001`：CRM follow-up / Consultation context；
+- `HO-P15-P16-001`｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-16 Final 已承接 Consultation context 进入统一 CRM Follow-up / service history、普通 CRM 跟进不自动完成 first-response SLA、CRM Stage 不反写 Consultation 主状态 / assignee / source；
 - `HO-P15-P17-001`：公海 Customer 主动咨询后的 owner 分配 / 公海退出；
 - `HO-P15-P19-001`：Transaction 不自动结束 Consultation；
 - `HO-P15-P20-001`：客户端“我的咨询”、四主状态 + close_reason、安全投影、disable hold；
@@ -839,7 +839,7 @@ PDM-15 已正式登记以下 outgoing handoff：
 - `HO-P15-P23-001`：新 Consultation / SLA timeout 通知与 DND；
 - `HO-P15-P25-001`：统一审计 / 历史。
 
-这些 handoff 当前均为 `HANDOFF_OPEN`，由对应目标 PDM 后续承接。
+`HO-P15-P16-001` 已由 PDM-16 Final 正式承接并关闭；其余 7 条 handoff 继续 `HANDOFF_OPEN`，由对应目标 PDM 后续承接。
 
 ---
 
@@ -891,7 +891,7 @@ R3：
 - 正式 Authority：`07_重建工作区/PDM-15_最终完整规则.md`；
 - Final 前完整性复核 R3：`PASS / FINAL_CANDIDATE_READY`；
 - 5 条 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
-- 8 条 outgoing handoff：继续 `HANDOFF_OPEN`；
+- 1 条 outgoing（PDM-16）已 `HANDOFF_CLOSED / source_backwrite=YES`；其余 7 条继续 `HANDOFF_OPEN`；
 - PDM-15：`COMPLETE / INTEGRITY_PASS`；
 - 下一步：`PDM-16 Startup Gate`；
 - IA / Low-Fi / Engineering 继续禁止提前施工。
