@@ -1,10 +1,10 @@
 # PDM-13｜Priority / 仲裁 / TTL / active Lock 边界｜规则原子重建工作版
 
 > 日期：2026-10-05  
-> 当前状态：`BATCH_4_PASS / USER_APPROVED / PREFINAL_INTEGRITY_PENDING`  
+> 当前状态：`PREFINAL_REPAIR_PASS / USER_APPROVED / APPLIED / SECOND_INTEGRITY_RUNNING`  
 > 业务权威语言：中文（zh-CN）  
 > 当前域：PDM-13｜Priority / 仲裁 / TTL / active Lock 边界  
-> 当前硬门禁：Batch 4 已获用户批准并确认执行；下一步只允许执行 PDM-13 Final 前完整性复核，检查 Source→Atom / Atom→Source、语义缺口、Completed-PDM invariant、Cross-PDM handoff、stale carrier 与负向声明。不得提前修改 IA / Low-Fi / Engineering。
+> 当前硬门禁：Final 前第一轮完整性复核发现 P13-LIA-01～LIA-06，用户已全部批准并确认执行；修复已进入工作版。下一步只允许完成二次完整性复核；二次复核全部 PASS 后才能生成 PDM-13 Final Domain Overview。不得提前修改 IA / Low-Fi / Engineering。
 
 ---
 
@@ -1030,8 +1030,257 @@ Batch 1～4 的产品选择已全部完成。
 
 ---
 
-# 14. 当前唯一下一步
+# 14. Final 前第一轮完整性复核发现｜USER APPROVED / APPLIED
 
-> **执行 PDM-13 Final 前完整性复核：重新做 Source→Atom、Atom→Source、Semantic Completeness、Completed-PDM Invariant、Cross-PDM Handoff Integrity、Negative Claims、stale carrier 与局部未闭环扫描。发现缺口先形成 LIA 修复候选并停下用户审查；全部 PASS 后才能生成 PDM-13 Final Domain Overview。**
+第一轮 Final 前完整性复核未直接判 PASS，共发现 6 组信息保真缺口：
+
+- `P13-LIA-01`：Priority 单 Customer 资格开关完整生命周期；
+- `P13-LIA-02`：单 Customer 可同时拥有多辆 active Priority；
+- `P13-LIA-03`：Priority 事件驱动 / 重评触发集；
+- `P13-LIA-04`：Priority 对普通入口绕过与公共统计的排他边界；
+- `P13-LIA-05`：Priority 与价格 / 查价权彻底分离；
+- `P13-LIA-06`：补齐 PDM-20 / PDM-21 / PDM-22 future handoff。
+
+用户已：
+
+> `P13-LIA-01～P13-LIA-06 = ALL USER_APPROVED`
+
+并明确：
+
+> `确认执行`
+
+以下修复只补齐已存在 / 已确认 Authority 的完整表达，不建立新的第五个产品裁决 Batch。
+
+---
+
+## P13-LIA-01｜Priority 单 Customer 资格开关完整生命周期
+
+Priority 资格继续冻结为：
+
+> **Customer 级长期独立属性 / 后台针对单个 Customer 单独开启或关闭**
+
+完整边界：
+
+- 不属于某一条 Demand；
+- 不由 Customer Level 自动产生；
+- 不支持批量给一组 Customer 开启 / 关闭 Priority 资格；
+- 默认持续有效，直到后台合法控制平面主动关闭；
+- 资格本身不会因为 Customer 进入公海而丢失；
+- 资格本身不是公海保护事实；
+- 普通负责销售不得仅因负责该 Customer 就自行开启 Priority 资格；
+- 开启 / 关闭资格默认不强制填写 reason；
+- 但至少必须审计 Customer、动作、actor、time 与前后状态；
+- 更完整 before/after/source-fact 审计继续由 PDM-25 承接。
+
+### 开启资格
+
+开启 Priority 资格：
+
+- 不创建 Application；
+- 不创建 Demand；
+- 不自动创建 Priority；
+- 不修改 Customer Level；
+- 对该 Customer 当前已经合法的 active + matching-ready Demand / current valid Match Result 进入 Priority 受影响范围重评；
+- 若没有合法 active Demand，则只保存 Customer 级资格，不产生车辆级 Priority。
+
+### 关闭资格
+
+关闭 Priority 资格：
+
+- 阻止后续新 Priority；
+- 该 Customer 当前 active Priority 必须结束；
+- ended reason 记录 `priority_customer_disabled` 或当前正式等价 reason；
+- 被释放 Vehicle 按 B4-08 重新读取所有 Customer 当前合法 Match Result 并重新仲裁；
+- **不因此暂停 / 取消 / 结束该 Customer 的合法 Demand**；
+- 该 Customer 仍可按非-Priority Customer 身份继续参与 PDM-12 普通 Matching 与后续普通业务流。
+
+---
+
+## P13-LIA-02｜一个 Customer 可同时拥有多辆 active Priority
+
+除“同一 Vehicle 同一时刻最多 1 个 active Priority”外，反方向同时冻结：
+
+> **同一 Priority Customer 可以同时拥有多辆不同 Vehicle 的 active Priority，V1 不设 Customer 侧 active Priority 数量上限。**
+
+因此不得实现为：
+
+- 一个 Customer 只能有 1 辆 Priority Vehicle；
+- 新 Priority 自动结束该 Customer 的其他合法 Priority；
+- 按 Customer 维度做固定 N 辆上限；
+- 用 Priority 数量作为跨 Vehicle 的额外仲裁分值。
+
+每辆 Vehicle 分别：
+
+- 独立仲裁；
+- 独立 TTL / expires_at；
+- 独立 trigger Demand；
+- 独立 lifecycle / ended reason；
+- 独立历史。
+
+---
+
+## P13-LIA-03｜Priority 采用事件驱动 + 受影响范围重评
+
+Priority 不建设独立 Matching Engine，但必须对会改变 Priority 资格 / Guard / 资源开放状态的事件做受影响范围重评。
+
+至少包括：
+
+1. 新 Vehicle 进入真实可售 + listing_cycle 有效状态；
+2. Vehicle 从真实不可参与状态恢复为合法可 Matching / 可进入 Priority Guard；
+3. Vehicle 关键事实或合法 Customer 展示价变化，并由 PDM-12 产生新的 Matching change fact；
+4. Demand 首次进入 active + matching-ready；
+5. paused Demand 正式 resume 并重新通过 Guard；
+6. Demand 标准条件 / 销售匹配描述变化导致 PDM-12 current Match Result 改变；
+7. Demand paused / completed / cancelled / readiness 失效；
+8. Priority Customer 资格开启 / 关闭；
+9. trigger Demand / responsible employee 合法责任关系变化；
+10. Priority 主动释放 / ended / TTL expired；
+11. active Lock 结束 / 到期且 Vehicle 真正重新开放；
+12. Transaction 取消 / 纠错且 Vehicle 真正重新开放；
+13. 其他 PDM-12 current Match Result stale / invalidated / tier change 事实。
+
+执行原则：
+
+- PDM-12 先负责 Matching 重算 / current Match Result；
+- PDM-13 只消费 PDM-12 当前结果与自身 Guard；
+- 只重评受影响 Customer / Demand / Vehicle 范围；
+- 不因为一个 Priority 事件无脑全库 Vehicle × Demand 重算；
+- 系统以 event-driven 为主；
+- 定时任务仅用于 TTL 到期等必要兜底，不得作为唯一 Priority 产生 / 释放机制；
+- 重试必须遵守唯一 active 与幂等规则，不得重复创建并行 Priority。
+
+---
+
+## P13-LIA-04｜active Priority 对普通入口绕过与公共统计的排他边界
+
+active Priority 的“排他”不能只限制某一个列表入口。
+
+在保护期内，无关 Customer / 无关普通员工不得通过以下**普通入口**绕过 Priority：
+
+- 公共 Feed / 车源列表；
+- 普通客户端搜索结果；
+- 普通筛选 / 排序结果；
+- 普通分享链接；
+- 旧普通分享链接；
+- 不具备当前合法 visibility Authority 的旧业务链接 / 历史入口；
+- 其他仅依赖“Vehicle 当前可售”而没有独立合法授权的普通入口。
+
+边界：
+
+- PDM-12 Match Result 不因此删除；
+- hidden Vehicle 继续服从 hidden 底层状态；
+- Priority Customer 本人仍需 Recommendation / visibility grant 才能看详情；
+- 在 Priority 建立前已经存在的 active Recommendation / visibility grant 不物理删除；
+- 既有 Recommendation/visibility 在新 active Priority 期间如何 suppression、Priority ended 后如何 restore，继续由 `HO-P13-P14-001` 交 PDM-14 冻结。
+
+### 公共统计
+
+面向 Customer 的普通公共统计必须与“当前真正公开可浏览”一致：
+
+- active Priority 保护中的 Vehicle 不计入普通公共“在售车源”数量；
+- hidden / offline / unavailable / sold / draft 等本来不公开的 Vehicle 同样不计；
+- “今日新增”等普通公共新增统计只统计当前真正公开可浏览、且满足该统计自身时间定义的 Vehicle；
+- Priority 结束不等于强制计入公开统计，仍须先读取底层 Vehicle visibility / availability。
+
+公共统计的客户端具体投影交 PDM-20 承接。
+
+---
+
+## P13-LIA-05｜Priority 与价格 / 查价权彻底分离
+
+Priority 只表示：
+
+> **Matching 后的限时车辆机会排他保护**
+
+Priority 本身不得：
+
+- 授予 Customer 批发价查看权；
+- 免费解锁该 Vehicle 价格；
+- 增加当天查价次数；
+- 消耗 Customer 的普通 daily quota；
+- 修改 LIMITED / UNLIMITED 等 Customer Level 价格权益；
+- 修改 customer_list_price / internal_wholesale_price；
+- 形成新的价格公式或价格快照。
+
+价格 Authority 继续完全服从 PDM-10。
+
+正式 Recommendation 若按 PDM-10 / PDM-14 Authority 给当前 `customer + vehicle + listing_cycle` 授免费查价权：
+
+- 权利来源是 Recommendation；
+- 不是 Priority；
+- Priority ended 不得反向改写 PDM-10 已冻结的 Recommendation 查价权生命周期。
+
+因此：
+
+`Priority qualification / active Priority ≠ price entitlement / price unlock`
+
+---
+
+## P13-LIA-06｜补齐 PDM-20 / PDM-21 / PDM-22 future handoff
+
+### HO-P13-P20-001｜客户端 Priority 投影
+
+PDM-20 必须承接：
+
+- 客户端不得暴露 `Priority`、优先保护、客户专属、内部仲裁等级等内部术语；
+- active Priority 车辆不能通过普通 Feed / 搜索 / 筛选 / 普通分享 / 无合法授权旧链接向无关 Customer 穿透；
+- Priority Customer 本人也不能仅因 Priority 自动看详情；
+- 客户详情 visibility 必须读取 Recommendation / visibility grant 等合法来源；
+- 面向客户的“在售车源 / 今日新增”等公共统计必须排除当前不属于普通公开可浏览集合的 Priority 保护 Vehicle；
+- Priority ended 后客户端是否重新出现必须读取当时底层 visibility、Vehicle 状态及其他合法业务授权，不能简单“Priority ended = 强制公开”。
+
+### HO-P13-P21-001｜员工端 Priority 真人 Action
+
+PDM-21 必须承接：
+
+- 当前 trigger Demand 合法 responsible employee 的 Priority 待处理 / active 视图；
+- 在合法管理范围内的经理 / 店长监督处理；
+- 显示当前 Vehicle、Customer、trigger Demand、Match tier、剩余 TTL / expires_at、当前 responsible、必要 ended/history；
+- Priority 处理入口允许走既有合法业务动作，例如正式 Recommendation、明确释放 / 放弃；
+- 释放 / Recommendation / 其他敏感提交继续服从 PDM-02 `identity + permission + data scope + object state` 与对应业务 Authority；
+- 不得提供“人工创建 Priority / 转给其他 Customer / 强制覆盖 / 修改 expires_at / 人工续期 / 恢复 ended Priority”按钮；
+- 不恢复独立全局 `priority.view / priority.manage / priority.override` 体系；
+- 4S Member 对该名邦 Customer / Priority 业务 hard DENY。
+
+### HO-P13-P22-001｜PC 后台 Priority 控制平面
+
+PDM-22 必须承接至少两个真实配置对象：
+
+1. **单 Customer Priority 资格开关**
+   - 针对单个 Customer 开启 / 关闭；
+   - 不支持批量；
+   - 不与 Customer Level find-car entitlement 混成同一开关；
+   - 普通负责销售不能仅因负责该 Customer 自行开启；
+   - 保存时按当前合法后台 identity / permission / data scope / object state 重验；
+   - 至少记录 Customer、before/after、actor、time。
+
+2. **Priority 全局默认 TTL**
+   - 默认 `86400s / 24h`；
+   - 修改只影响后续新建 Priority；
+   - 不追改已有 Priority expires_at；
+   - 不提供逐笔人工续期；
+   - 配置变更进入统一审计。
+
+具体页面命名 / capability 命名由 PDM-22 在不改变上述产品语义的前提下冻结。
+
+---
+
+# 15. Final 前修复状态
+
+`P13-LIA-01～P13-LIA-06 = PASS / USER_APPROVED / APPLIED`
+
+第一轮发现的 6 组缺口已经全部进入当前工作 Authority。
+
+当前继续保持：
+
+- incoming handoff 5 / 5 = `HANDOFF_ACCEPTED`，Final / Integrity closeout 前不提前关闭；
+- IA / Low-Fi stale carrier 只登记、不施工；
+- Engineering Delta 不执行。
+
+---
+
+# 16. 当前唯一下一步
+
+> **执行 PDM-13 Final 前二次完整性复核。必须重新完成 Full Evidence Matrix、Source→Atom、Atom→Source、Semantic Completeness、Completed-PDM Invariant、Cross-PDM Handoff、stale carrier、negative/superseded claim 与 local unresolved 扫描。若仍发现真实缺口，继续形成新的 LIA 候选并停下用户审查；只有全部 PASS 才能生成 PDM-13 Final Domain Overview。**
 
 IA / Low-Fi / Engineering 继续禁止施工。
