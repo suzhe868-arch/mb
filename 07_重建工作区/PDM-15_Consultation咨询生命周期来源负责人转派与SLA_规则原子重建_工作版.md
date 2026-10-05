@@ -1,7 +1,7 @@
 # PDM-15｜Consultation / 咨询生命周期 / 来源 / 负责人 / 转派 / SLA｜规则原子重建工作版
 
 > 日期：2026-10-06  
-> 状态：`IN_PROGRESS / BATCH_1_TO_4_PASS / P15-LIA-01_TO_05_USER_APPROVED_APPLIED / PREFINAL_INTEGRITY_R2_RUNNING`  
+> 状态：`IN_PROGRESS / BATCH_1_TO_4_PASS / P15-LIA-01_TO_05_USER_APPROVED_APPLIED / PREFINAL_INTEGRITY_R2_REPAIR_REQUIRED / P15-LIA-06_PENDING_USER_REVIEW`  
 > 方法：9/19 主底盘 + 前向历史补全 + 后向显式 supersession + 9/22 冻结台账 + Current Carrier Conflict Scan + Completed-PDM Authority + Cross-PDM Handoff。  
 > 当前阶段约束：IA / Low-Fi / Engineering 只登记冲突，不施工；未经用户审查的候选 Atom 不得直接进入 Final。
 
@@ -585,3 +585,109 @@ R1 仍需补齐以下已冻结语义的跨域承接，避免后续 PDM 再次丢
 当前唯一下一步：
 
 > **执行 PDM-15 Final 前完整性复核 R2。若 R2 全部 PASS，则生成 PDM-15 Final Domain Overview 候选并等待用户最终批准；在用户最终批准前不得发布 Final、关闭 incoming handoff 或进入 PDM-16。**
+
+
+---
+
+## 14. Final 前完整性复核 R2｜REPAIR_REQUIRED
+
+R2 已重新执行：
+
+- Source → Atom；
+- Atom → Source；
+- Semantic Completeness；
+- Completed-PDM Invariant；
+- Incoming / Outgoing Handoff Integrity；
+- Current Carrier stale semantic scan。
+
+已确认：
+
+- R1 的 P15-LIA-01～P15-LIA-05 已全部进入当前 Authority；
+- target=PDM-15 的 5 条 incoming handoff 均已实质承接；
+- PDM-15→PDM-16/17/19/20/21/22/23/25 共 8 条 outgoing handoff 已正式登记；
+- PDM-01/02/03/07/14 当前 Final 与 PDM-15 无 hard conflict；
+- Batch 1～4 用户裁决无回退；
+- 状态机、幂等、来源、Vehicle lifecycle、Recommendation、Customer disable、SLA、Transaction、内容可见范围等均未再发现新缺口。
+
+R2 唯一剩余问题：
+
+### P15-LIA-06｜Consultation mutation actor / authority 精确矩阵｜PENDING_USER_REVIEW
+
+#### 证据
+
+9/19 R7 §37 已明确：
+
+- 当前 Consultation 负责人可以处理自己负责的咨询；
+- 管理范围内、具备对应权限的经理 / 店长也可以处理；
+- 其他销售不能因为能看到 Vehicle / Customer 就随意结束、作废或修改别人负责的 Consultation。
+
+R7 §36 / Phase1.5 D5 与 Current carrier 进一步明确：
+
+- 当前 assignee 可转派自己负责的 Consultation；
+- 授权经理 / 店长可在合法 data scope 内转派；
+- 目标负责人必须 active / eligible；
+- Current P06-11 对开始处理、记录真实跟进、正常关闭也使用“当前负责员工或授权经理/店长”的 Guard。
+
+当前 PDM-15 已有：
+
+- P15-LIA-01：开始处理 actor；
+- P15-B3-02 / B3-03：跟进、解决、无效、正常关闭的通用责任 + permission + scope Guard；
+- P15-A05：正式转派；
+- P15-LIA-04：完整内容查看范围。
+
+但 B3-02 / B3-03 / A05 没有把“当前 assignee vs 授权管理人员 vs 其他销售”的 mutation 权限矩阵写死，存在开发解释歧义。
+
+#### 修复候选
+
+统一冻结 Consultation 真人 mutation authority：
+
+1. **当前 Consultation assignee**
+   - 可在对象状态允许时，对自己负责的 Consultation 执行：开始处理、记录真实跟进、解决、标记无效、正常关闭、发起正式转派；
+   - 每次提交仍必须重验当前 identity + permission/capability + data scope + object state。
+
+2. **授权经理 / 店长**
+   - 职位本身不自动授权；
+   - 只有同时具备对应 Consultation 管理 capability/permission，且 data scope 覆盖该 Consultation / Customer 时，才可执行上述管理动作与正式转派；
+   - 不因执行管理动作自动成为 Customer owner 或 Consultation assignee，除非正式 reassignment 明确把其设为新 assignee。
+
+3. **其他普通销售 / 非负责人**
+   - 不能仅因能查看 Vehicle、Customer 或历史关系，就修改别人负责的 Consultation；
+   - 如需参与，只能通过合法 Collaboration 查看/协作范围，或正式 reassignment 后取得当前责任；
+   - Collaboration 本身不自动授终结 / 转派权，除非另有明确 management permission。
+
+4. **转派目标**
+   - 必须是当时 active、eligible、具备对应业务资格且 data scope 合法的名邦 Employee；
+   - 4S Member hard DENY；
+   - System Admin 身份本身不能作为业务 assignee / mutation actor。
+
+5. **Customer 自助撤回**
+   - 继续单独服从 P15-B3-01：只能撤回本人 open Consultation；
+   - 不因为客户自助撤回能力而获得任何员工 mutation 权限。
+
+6. 本条只补 actor/authority 精度：
+   - 不改变四主状态；
+   - 不改变首次真实响应 SLA；
+   - 不改变 Customer owner；
+   - 不改变已有 P15-LIA-01～05。
+
+建议：**通过。**
+
+---
+
+## 15. R2 Gate
+
+当前：
+
+- `P15-LIA-01～P15-LIA-05 = PASS / USER_APPROVED / APPLIED`；
+- `OUTGOING_HANDOFF_COUNT = 8 / COMPLETE_REGISTERED`；
+- `COMPLETED_PDM_INVARIANT_CONFLICT = 0`；
+- `INCOMING_HANDOFF_GAP = 0`；
+- `MISSING_RULE_UNRESOLVED = 0`；
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 1`：P15-LIA-06 mutation authority matrix；
+- `HANDOFF_GAP_UNRESOLVED = 0`；
+- `PDM15_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- `PDM15_FINAL_CANDIDATE_READY = NO`。
+
+当前唯一下一步：
+
+> **用户审查 P15-LIA-06。若批准并确认执行，则应用该最后一项语义修复并执行 Final 前完整性复核 R3；R3 PASS 后才生成 Final Domain Overview 候选。**
