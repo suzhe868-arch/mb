@@ -891,6 +891,8 @@ Recommendation 或 customer-specific visibility grant 解决的是 Customer 对 
 - Batch 4：`PASS / USER_APPROVED / CHOICES=1A,2B,3A,4A,5A,6A,7A,8A`；
 - PDM-14 Local Product Choice Unresolved：`0`；
 - P14-LIA-01～P14-LIA-10：`USER_APPROVED / APPLIED`；
+- Pre-Final Integrity R2：`PASS / FINAL_CANDIDATE_READY`；
+- Pre-Final Report：`07_重建工作区/PDM-14_Final前完整性复核_R2_2026-10-06.md`；
 - P14-A01～P14-A14：已进入当前工作版；
 - P14-R01～P14-R04：已进入当前工作版；
 - P14-B2-01～P14-B2-11：已进入当前工作版；
@@ -903,4 +905,4 @@ Recommendation 或 customer-specific visibility grant 解决的是 Customer 对 
 
 ## 12. 当前唯一下一步
 
-> **重新执行 PDM-14 Final 前完整性复核 R2：以 P14-LIA-01～LIA-10 修复后的工作版为准，重新验证 Source→Atom / Atom→Source、Semantic Completeness、Completed-PDM Invariant、8 条 incoming handoff 语义承接、7 条 outgoing handoff 登记、Negative Claims、stale carrier 与 Local Deferred。若全部 PASS 且 unresolved=0，则标记 `FINAL_CANDIDATE_READY` 并生成 Final Domain Overview 候选；在 Final Overview 用户最终批准前仍不得发布 Final、关闭 incoming handoff 或施工 IA / Low-Fi / Engineering。**
+> **生成 PDM-14 Final Domain Overview 候选：完整纳入 P14-A01～A14、P14-R01～R04、P14-B2-01～B2-11、P14-B3-01～B3-05、P14-B4-01～B4-08、P14-LIA-01～LIA-10 与 7 条 outgoing handoff，并提交用户最终批准。未经用户最终批准，不发布 PDM-14 Final、不关闭 8 条 incoming handoff、不开始 PDM-15、不修改 IA / Low-Fi / Engineering。**
