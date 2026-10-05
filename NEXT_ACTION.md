@@ -30,6 +30,9 @@
 - PDM-13 Batch 2 Reverse Conflict Scan = PASS
 - PDM-13 Batch 3 = PASS / USER_APPROVED（P13-B3-01～P13-B3-06）
 - PDM-13 Batch 3 Conflict Isolation = PASS
+- PDM-13 Batch 4 = PASS / USER_APPROVED（B4-01 用户修正版；2A、3A、4A、5A、6A、7A、8A）
+- PDM-13 Local Product Choice Unresolved = 0
+- PDM-13 outgoing handoffs = PDM-14 / PDM-17 / PDM-18 / PDM-19 / PDM-25 = HANDOFF_OPEN
 - PDM-11 Batch 1 = PASS / USER_APPROVED（P11-A01～P11-A13）
 - PDM-11 Batch 2 = PASS / USER_APPROVED
 - P11-B2-08 = USER_MODIFIED / USER_APPROVED
@@ -43,7 +46,7 @@
 
 ## 当前唯一下一步
 
-> **继续 PDM-13 Batch 4｜真实冲突 / 语义缺口 / 新产品选择：基于已批准 P13-A01～A11、P13-B2-01～B2-05、P13-B3-01～B3-06 与 5 条 HANDOFF_ACCEPTED，对剩余 Priority qualification / Customer Level / 多客户仲裁 / TTL / 续期 / same-cycle / trigger_demand / active Lock / Transaction / 公海保护 / 无 owner / capability 最终边界逐项形成明确候选方案。所有会改变产品语义的项必须停下等用户裁决；不得自动选历史方案，不得修改 IA / Low-Fi / Engineering。**
+> **执行 PDM-13 Final 前完整性复核：以已批准 P13-A01～A11、P13-B2-01～B2-05、P13-B3-01～B3-06、P13-B4-01～B4-08 为当前产品 Authority，重新完成 Source→Atom、Atom→Source、Semantic Completeness、Completed-PDM Invariant、Cross-PDM Handoff Integrity、Negative Claims、stale carrier 与 local unresolved 扫描。重点检查 Priority 单 Customer 后台资格开关与 Customer Level find-car entitlement 分层、24h TTL/不续期、same-cycle、trigger Demand、Lock/Transaction、公海、hidden/Recommendation/visibility、责任交接与旧 priority.view superseded。若发现真实缺口，先形成 LIA 候选并停下用户审查；全部 PASS 后才能生成 PDM-13 Final Domain Overview。不得修改 IA / Low-Fi / Engineering。**
 
 每个 PDM 必须同时执行：
 
@@ -96,7 +99,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-12 均已 `COMPLETE / INTEGRITY_PASS`。PDM-13 已接收 HO-P03-P13-001 / HO-P04-P13-001 / HO-P07-P13-001 / HO-P11-P13-001 / HO-P12-P13-001，当前均为 `HANDOFF_ACCEPTED`；Batch 1（P13-A01～P13-A11）已用户批准。上述 incoming handoff 在 PDM-13 Final / Integrity Gate 前不得直接关闭。当前进入 Batch 2 候选重建。
+当前 PDM-01～PDM-12 均已 `COMPLETE / INTEGRITY_PASS`。PDM-13 已接收 HO-P03-P13-001 / HO-P04-P13-001 / HO-P07-P13-001 / HO-P11-P13-001 / HO-P12-P13-001，当前均为 `HANDOFF_ACCEPTED`；Batch 1～4 均已用户批准并确认执行。上述 incoming handoff 在 PDM-13 Final / Integrity Gate 前不得直接关闭。PDM-13→PDM-14/17/18/19/25 future handoff 已登记 `HANDOFF_OPEN`。当前进入 Final 前完整性复核。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
