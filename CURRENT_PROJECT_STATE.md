@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-13_BATCH_2_RECONSTRUCTION`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-13_BATCH_3_RECONSTRUCTION`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_1_PASS / USER_APPROVED`
+> `IN_PROGRESS / BATCH_2_PASS / USER_APPROVED`
 
 当前工作文件：
 
@@ -32,7 +32,18 @@
 
 当前唯一下一步：
 
-> **PDM-13 Batch 1 已用户批准并确认执行：`P13-A01～P13-A11 = PASS / USER_APPROVED`；5 条 incoming handoff 已全部接收为 `HANDOFF_ACCEPTED`。当前唯一下一步：重建 Batch 2 明确废弃 / 明确替代 / DO_NOT_RESTORE 项，并先做反向冲突扫描，避免把仍待裁决的 Priority 资格、客户等级关系、精确仲裁、TTL 数值、active Lock、客户 visibility 等误判为废弃；形成 Batch 2 候选后立即停下提交用户审查。IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-13 Batch 2 已用户批准并确认执行：`P13-B2-01～P13-B2-05 = PASS / USER_APPROVED`；Batch 2 反向冲突扫描 = PASS。当前唯一下一步：重建 Batch 3 后续明确新增 / 明确变更 / informed changes，重新核对 Completed-PDM Authority 与后续冻结裁决；Priority 客户资格、Customer Level 关系、精确仲裁、TTL 数值/配置主体/续期、active Lock、Transaction、公海保护等仍不得偷渡为已裁决。形成 Batch 3 候选后立即停下提交用户审查。IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-05｜PDM-13 Batch 2 用户批准并执行
+
+- `P13-B2-01～P13-B2-05 = PASS / USER_APPROVED`；
+- Batch 2 反向冲突扫描 = PASS；
+- 明确禁止恢复：独立“客户专属”体系、人工创建/转让/覆盖/延长 Priority、Priority 作为 Lock 优先权、客户端暴露 Priority 内部术语、Priority 本身直接授予客户详情权；
+- Current Navigation `E05-05｜创建 Priority` 正式登记为 stale carrier，不得按人工创建实现；
+- Current `E05-05::HIDDEN_CONTROLLED` 中“Priority 直接让客户可见”的旧语义正式标记 superseded；
+- 明确没有废弃：Priority qualification / Customer Level 关系 / 精确仲裁 / `Demand.created_at` tie-break / TTL 默认数值 / TTL 配置主体 / 续期 / 完整结束原因 / same-cycle / trigger_demand / active Lock / Transaction / 公海保护 / 重仲裁事件；
+- 5 条 incoming handoff 继续保持 `HANDOFF_ACCEPTED`，不得在 Final 前提前关闭；
+- 当前唯一下一步：PDM-13 Batch 3 明确新增 / 明确变更候选重建。
 
 ## 2026-10-05｜PDM-13 Batch 1 用户批准并执行
 
