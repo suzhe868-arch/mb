@@ -1004,7 +1004,7 @@ PDM16_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0
 - `PDM16_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
 - `PDM16_FINAL_CANDIDATE_READY = NO`。
 
-### P16-LIA-01｜CRM 核心 mutation audit｜PENDING_USER_REVIEW
+### P16-LIA-01｜CRM 核心 mutation audit｜PASS / USER_APPROVED / APPLIED
 
 补齐：
 
@@ -1017,7 +1017,7 @@ PDM16_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0
 
 建议：**通过。**
 
-### P16-LIA-02｜Customer Address 搜索 / 卡片投影｜PENDING_USER_REVIEW
+### P16-LIA-02｜Customer Address 搜索 / 卡片投影｜PASS / USER_APPROVED / APPLIED
 
 补齐 R10-15 已明确但当前漏掉的 Customer Address：
 
@@ -1029,7 +1029,7 @@ PDM16_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0
 
 建议：**通过。**
 
-### P16-LIA-03｜PDM-16 outgoing handoff 完整登记｜PENDING_USER_REVIEW
+### P16-LIA-03｜PDM-16 outgoing handoff 完整登记｜PASS / USER_APPROVED / APPLIED
 
 待登记：
 
@@ -1045,4 +1045,54 @@ PDM16_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0
 
 当前唯一下一步：
 
-> **用户审查 P16-LIA-01～P16-LIA-03；批准并确认执行后进行 Final 前完整性复核 R2。**
+> **P16-LIA-01～P16-LIA-03 已由用户全部同意并确认执行；修复已进入当前工作 Authority。当前执行 Final 前完整性复核 R2。**
+
+### 14.1 LIA-01 执行结果｜CRM 核心 mutation audit
+
+正式规则：
+
+1. CRM Stage 每次修改必须保留：
+   - before；
+   - after；
+   - actor；
+   - changed_at；
+   - 必要 source/context。
+2. 重要 Customer Tag 的新增、移除、替换必须保留 before/after 或等价可追溯变化事实，并至少记录 actor、changed_at。
+3. Shared Profile 继续按 P16-A05 执行 before/after 审计。
+4. 员工内部服务称呼：
+   - 不允许原地覆盖后丢失旧值；
+   - 新增或修改都必须保留 author、时间、来源和修改历史；
+   - 历史称呼不得因 owner 变化、员工离职或当前访问权消失而被物理删除。
+5. CRM Follow-up 继续 append-only：
+   - 更正、作废、无效均形成新事实或状态标记；
+   - 不把 Follow-up 改成普通可覆盖字段。
+6. 本条只覆盖 CRM 核心经营事实；普通日常非核心字段不因此一律升级为重型审计。
+
+### 14.2 LIA-02 执行结果｜Customer Address 搜索 / 卡片投影
+
+正式规则：
+
+1. CRM Customer list 在合法 Customer Address 字段存在时支持地址关键词搜索；
+2. Customer 卡片可展示必要的 Customer Address / internal note 摘要；
+3. PDM-16 不新建地址采集流程：
+   - 只消费当前合法 Customer Profile 中已经存在的地址事实；
+   - 不存在地址时不得为了满足列表展示而虚构默认地址；
+4. 搜索命中和字段返回都继续服从：
+   - identity；
+   - permission/capability；
+   - data scope；
+   - object/account state；
+5. 地址搜索能力不得扩大地址字段可见范围；
+6. internal note 继续按 Personal Note / Shared Profile / 员工内部服务称呼既有分层，不恢复“大备注”模型。
+
+### 14.3 LIA-03 执行结果｜Outgoing Handoff
+
+PDM-16 正式向以下未来域移交：
+
+- `HO-P16-P17-001`；
+- `HO-P16-P21-001`；
+- `HO-P16-P22-001`；
+- `HO-P16-P23-001`；
+- `HO-P16-P25-001`。
+
+全部保持 `HANDOFF_OPEN`，由目标 PDM Startup Gate 接收；PDM-16 不提前替目标域施工 UI / notification / public-pool / audit carrier。
