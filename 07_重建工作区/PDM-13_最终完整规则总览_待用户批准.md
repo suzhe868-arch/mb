@@ -1,12 +1,12 @@
-# PDM-13｜Priority / 仲裁 / TTL / 排他保护｜最终完整规则总览｜待用户最终批准
+# PDM-13｜Priority / 仲裁 / TTL / 排他保护｜最终完整规则总览｜用户已最终批准
 
 > 日期：2026-10-05  
-> 状态：`FINAL_CANDIDATE / WAITING_USER_FINAL_APPROVAL`  
+> 状态：`USER_FINAL_APPROVED / APPROVAL_TRACE`  
 > Batch 1～4：`ALL_USER_APPROVED`  
 > P13-LIA-01～08：`ALL_USER_APPROVED / APPLIED`  
 > Final 前完整性复核 R2：`PASS`  
 > 未决产品冲突：`0`  
-> 注意：本文件当前只是 Final Domain Overview 候选；未经用户最终批准，不得发布 PDM-13 Final、不得关闭 incoming handoff、不得开始 PDM-14。
+> 用户已于 2026-10-05 对本 Final Domain Overview 明确“全部同意”，随后明确“确认执行”。本文件作为最终批准留痕保存；正式 Authority 另见 `07_重建工作区/PDM-13_最终完整规则.md`。
 
 ---
 
@@ -694,20 +694,10 @@ PDM13_LOCAL_DEFERRED_UNRESOLVED = 0
 
 ## 36. Final Gate
 
-当前只剩：
+用户已于 2026-10-05 最终批准本 Final Domain Overview，并随后明确“确认执行”。正式发布门禁已经解除。
 
-> **用户最终批准本 Final Domain Overview。**
-
-在用户最终批准之前：
-
-- PDM-13 Final 不发布；
-- 5 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
-- 不做 source backwrite closeout；
-- 不进入 PDM-14；
-- IA / Low-Fi / Engineering 继续不施工。
-
-用户最终批准后，才允许生成正式：
+本文件作为用户最终批准留痕保存；正式 Authority：
 
 > `07_重建工作区/PDM-13_最终完整规则.md`
 
-并执行 Final Integrity closeout。
+Final closeout 必须同步关闭 5 条 incoming handoff、完成 source backwrite，并生成 Final Integrity 报告。IA / Low-Fi / Engineering 继续不施工。
