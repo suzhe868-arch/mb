@@ -1,7 +1,7 @@
 # PDM-15｜Consultation / 咨询生命周期 / 来源 / 负责人 / 转派 / SLA｜规则原子重建工作版
 
 > 日期：2026-10-06  
-> 状态：`IN_PROGRESS / BATCH_1_TO_4_PASS / P15-LIA-01_TO_06_USER_APPROVED_APPLIED / PREFINAL_INTEGRITY_R3_RUNNING`  
+> 状态：`IN_PROGRESS / ALL_RULE_ATOMS_USER_APPROVED / PREFINAL_INTEGRITY_R3_PASS / FINAL_OVERVIEW_PENDING_USER_APPROVAL`  
 > 方法：9/19 主底盘 + 前向历史补全 + 后向显式 supersession + 9/22 冻结台账 + Current Carrier Conflict Scan + Completed-PDM Authority + Cross-PDM Handoff。  
 > 当前阶段约束：IA / Low-Fi / Engineering 只登记冲突，不施工；未经用户审查的候选 Atom 不得直接进入 Final。
 
@@ -687,3 +687,195 @@ R7 §36 / Phase1.5 D5 与 Current carrier 进一步明确：
 当前唯一下一步：
 
 > **执行 PDM-15 Final 前完整性复核 R3。R3 只有在 Source→Atom、Atom→Source、Semantic Completeness、Completed-PDM Invariant、Incoming/Outgoing Handoff 全部 PASS 时，才允许生成 Final Domain Overview 候选。**
+
+
+---
+
+## 16. Final 前完整性复核 R3｜PASS / FINAL_CANDIDATE_READY
+
+R3 输入：
+
+- P15-R00；
+- P15-A01～P15-A08；
+- P15-B2-01～P15-B2-05；
+- P15-B3-01～P15-B3-04；
+- P15-B4-01～P15-B4-07；
+- P15-LIA-01～P15-LIA-06；
+- 共 **31 个当前正式规则 / 用户裁决单元**；
+- PDM-01 / 02 / 03 / 07 / 14 Final；
+- 5 条 incoming handoff；
+- 8 条 outgoing handoff；
+- 9/19 R7 §§26～44；
+- R12 Consultation SLA / notification；
+- 9/22 Consultation 员工动作；
+- 001～078 M06 / M16 / M17；
+- Current IA / Low-Fi 仅作 stale carrier / 承载差异检查。
+
+### 16.1 Source → Atom
+
+9/19 R7 §§26～44 已全部找到当前承接：
+
+- 四主状态；
+- pending→processing；
+- open Consultation 幂等；
+- terminal 后新建；
+- 新 listing_cycle 新建；
+- offline/unavailable 不新增且旧 open 不自动消失；
+- direct source / Recommendation source；
+- 初始 assignee 优先级；
+- owner 不自动漂移 assignee；
+- assignee 失效 handover；
+- 正式转派及审计；
+- mutation actor/authority；
+- Customer withdraw；
+- invalid 边界；
+- Recommendation 双向不反写；
+- Consultation 不授批发查价权；
+- assignee 历史；
+- 完整 Consultation 内容可见范围。
+
+R12 / DEC-018：
+
+- SLA 初始默认 15 分钟；
+- 后台可配置；
+- 创建时固化 deadline；
+- 后改配置不追改旧对象；
+- first response 只认真实人工服务动作；
+- 打开/已读/仅改状态/转派/浏览资料/系统动作均不算；
+- 转派不 reset deadline；
+- timeout 非主状态、只提醒；
+- DND/quiet hours 只影响通知，不暂停正常 SLA 计时；Customer disable hold 为本域明确例外。
+
+001～078 M06/M16/M17：
+
+- 旧“我要这辆车”统一意向链已正确禁止恢复；
+- phone gate 已继承 PDM-01；
+- Transaction 不自动 resolved Consultation；
+- Customer“我的咨询”/工作台/CRM 跟进均有 outgoing handoff；
+- timeout、15min、通知 allowlist 均有 Authority 或 handoff。
+
+结果：
+
+`SOURCE_TO_ATOM = PASS`
+
+### 16.2 Atom → Source / 用户裁决
+
+31 个正式规则 / 裁决单元均可追溯至：
+
+- 9/19 / 9/22 / 001～078 历史证据；
+- completed-PDM Authority；
+- 用户在 PDM-15 Batch 1～4、R1/R2 修复中的明确裁决。
+
+未发现无证据静默扩写的产品语义。
+
+结果：
+
+`ATOM_TO_SOURCE = PASS`
+
+### 16.3 Semantic Completeness
+
+覆盖维度：
+
+- object identity；
+- phone/service gate；
+- create/reuse/touch；
+- listing_cycle；
+- Vehicle lifecycle；
+- direct source；
+- Recommendation relation；
+- assignee creation priority；
+- owner_assignment_pending / public pool；
+- owner / assignee separation；
+- reassignment；
+- assignee loss / handover_pending；
+- mutation authority；
+- processing / follow-up；
+- resolved / invalid / withdraw / close_reason；
+- Customer disable hold / resume；
+- SLA config / snapshot / first-response / timeout；
+- full-content visibility；
+- Price / visibility negative guard；
+- Transaction negative guard；
+- 4S / System Admin hard boundary；
+- audit / history；
+- client / employee / CRM / PC / notification / audit downstream handoff。
+
+结果：
+
+`SEMANTIC_COMPLETENESS = PASS`
+
+`MISSING_RULE_UNRESOLVED = 0`
+
+`SEMANTIC_DETAIL_GAP_UNRESOLVED = 0`
+
+### 16.4 Completed-PDM Invariant
+
+- PDM-01：Customer identity、phone gate、disable/restore、owner_assignment_pending 未被改写；
+- PDM-02：identity + permission + data scope + object state、4S hard DENY、System Admin 业务身份分离保持；
+- PDM-03：Customer owner 与 Consultation assignee 分层、handover / public-pool 边界保持；
+- PDM-07：档案不完整不阻断 Consultation 保持；
+- PDM-14：Recommendation / Consultation 双向独立、price-right / hidden visibility 不传播保持。
+
+结果：
+
+`COMPLETED_PDM_INVARIANT_CONFLICT = 0`
+
+### 16.5 Handoff Integrity
+
+Incoming 5 条全部已被当前规则实质承接，继续 `HANDOFF_ACCEPTED`，Final / Integrity closeout 前不得提前关闭：
+
+- HO-P01-P15-001；
+- HO-P02-P15-001；
+- HO-P03-P15-001；
+- HO-P07-P15-001；
+- HO-P14-P15-001。
+
+Outgoing 8 条全部已正式登记并保持 `HANDOFF_OPEN`：
+
+- HO-P15-P16-001；
+- HO-P15-P17-001；
+- HO-P15-P19-001；
+- HO-P15-P20-001；
+- HO-P15-P21-001；
+- HO-P15-P22-001；
+- HO-P15-P23-001；
+- HO-P15-P25-001。
+
+结果：
+
+`INCOMING_HANDOFF_GAP = 0`
+
+`OUTGOING_HANDOFF_GAP = 0`
+
+### 16.6 Stale Carrier
+
+以下旧/Current 承载不得反向污染最终 Authority：
+
+- `CANCELLED` 作为 Consultation 第五主状态；
+- timeout 作为第五主状态或自动关闭；
+- 旧“我要这辆车”统一 Consultation/Lock 意向链；
+- Customer Merge / Consultation migration；
+- 把 Consultation assignee 命名/实现为 Customer owner；
+- Recommendation lifecycle 驱动 Consultation；
+- 打开/已读/processing/转派算 first response；
+- System Admin 或 4S Member 自动拥有 Consultation 业务处理权；
+- Transaction completed 自动 resolved Consultation。
+
+统一登记为后续 IA / Low-Fi 对齐时的 stale carrier，不在当前阶段施工。
+
+### 16.7 R3 最终结论
+
+- `SOURCE_TO_ATOM = PASS`
+- `ATOM_TO_SOURCE = PASS`
+- `SEMANTIC_COMPLETENESS = PASS`
+- `MISSING_RULE_UNRESOLVED = 0`
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 0`
+- `COMPLETED_PDM_INVARIANT_CONFLICT = 0`
+- `INCOMING_HANDOFF_GAP = 0`
+- `OUTGOING_HANDOFF_GAP = 0`
+- `PDM15_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+- `PDM15_FINAL_CANDIDATE_READY = YES`
+
+当前唯一下一步：
+
+> **生成并由用户审查 PDM-15 Final Domain Overview。用户最终批准前，不得生成正式 Final Authority、不得关闭 5 条 incoming handoff、不得 source backwrite、不得进入 PDM-16、不得施工 IA / Low-Fi / Engineering。**
