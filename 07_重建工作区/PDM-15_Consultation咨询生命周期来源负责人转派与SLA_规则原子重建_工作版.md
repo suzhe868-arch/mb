@@ -1,7 +1,7 @@
 # PDM-15｜Consultation / 咨询生命周期 / 来源 / 负责人 / 转派 / SLA｜规则原子重建工作版
 
 > 日期：2026-10-06  
-> 状态：`IN_PROGRESS / BATCH_1_TO_4_PASS / PREFINAL_INTEGRITY_R1_REPAIR_REQUIRED / P15-LIA-01_TO_05_PENDING_USER_REVIEW`  
+> 状态：`IN_PROGRESS / BATCH_1_TO_4_PASS / P15-LIA-01_TO_05_USER_APPROVED_APPLIED / PREFINAL_INTEGRITY_R2_RUNNING`  
 > 方法：9/19 主底盘 + 前向历史补全 + 后向显式 supersession + 9/22 冻结台账 + Current Carrier Conflict Scan + Completed-PDM Authority + Cross-PDM Handoff。  
 > 当前阶段约束：IA / Low-Fi / Engineering 只登记冲突，不施工；未经用户审查的候选 Atom 不得直接进入 Final。
 
@@ -456,7 +456,7 @@ R1 结果：
 - 新发现 outgoing handoff gap：`1 group`；
 - `PDM15_FINAL_CANDIDATE_READY = NO`。
 
-### P15-LIA-01｜补齐 pending → processing 的“开始处理”正式动作
+### P15-LIA-01｜补齐 pending → processing 的“开始处理”正式动作｜PASS / USER_APPROVED / APPLIED
 
 证据：
 
@@ -476,7 +476,9 @@ R1 结果：
 
 建议：**通过。**
 
-### P15-LIA-02｜负责人失去资格后的 Consultation handover
+**用户裁决：P15-LIA-01 通过，并于 2026-10-06 确认执行。以上修复正式进入 PDM-15 当前 Authority。**
+
+### P15-LIA-02｜负责人失去资格后的 Consultation handover｜PASS / USER_APPROVED / APPLIED
 
 证据：
 
@@ -496,7 +498,9 @@ R1 结果：
 
 建议：**通过。**
 
-### P15-LIA-03｜无 owner / owner_assignment_pending / 公海客户发起 Consultation 的创建顺序
+**用户裁决：P15-LIA-02 通过，并于 2026-10-06 确认执行。以上修复正式进入 PDM-15 当前 Authority。**
+
+### P15-LIA-03｜无 owner / owner_assignment_pending / 公海客户发起 Consultation 的创建顺序｜PASS / USER_APPROVED / APPLIED
 
 证据：
 
@@ -515,7 +519,9 @@ R1 结果：
 
 建议：**通过，并向 PDM-17 建立正式 handoff。**
 
-### P15-LIA-04｜完整 Consultation 内容的内部可见范围
+**用户裁决：P15-LIA-03 通过，并于 2026-10-06 确认执行；PDM-17 handoff 同步登记。**
+
+### P15-LIA-04｜完整 Consultation 内容的内部可见范围｜PASS / USER_APPROVED / APPLIED
 
 证据：
 
@@ -543,7 +549,9 @@ R1 结果：
 
 建议：**通过。**
 
-### P15-LIA-05｜补齐 PDM-15 outgoing handoff
+**用户裁决：P15-LIA-04 通过，并于 2026-10-06 确认执行。以上可见范围正式进入 PDM-15 当前 Authority。**
+
+### P15-LIA-05｜补齐 PDM-15 outgoing handoff｜PASS / USER_APPROVED / APPLIED
 
 当前已因用户 7A 正式登记：
 
@@ -561,21 +569,19 @@ R1 仍需补齐以下已冻结语义的跨域承接，避免后续 PDM 再次丢
 
 建议：**通过。**
 
+**用户裁决：P15-LIA-05 通过，并于 2026-10-06 确认执行；PDM-15 outgoing handoff 按本条正式登记。**
+
 ---
 
-## 13. R1 Gate
+## 13. R1 Repair Gate｜PASS / USER_APPROVED / APPLIED
 
-当前：
-
-- `P15-B4-01～P15-B4-07 = PASS / USER_APPROVED / APPLIED`；
+- `P15-LIA-01～P15-LIA-05 = PASS / USER_APPROVED / APPLIED`；
+- 用户已明确“全部同意”并随后确认执行；
+- R1 发现的 3 条 Missing Rule、1 条 Semantic Detail 已进入当前 Authority；
+- outgoing handoff 按 P15-LIA-05 正式登记；
 - `PDM15_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
-- `P15-LIA-01～P15-LIA-05 = PENDING_USER_REVIEW`；
-- `MISSING_RULE_UNRESOLVED = 3`：开始处理、assignee失效 handover、ownerless/public-pool 创建顺序；
-- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 1`：完整 Consultation 内容可见范围；
-- `HANDOFF_GAP_UNRESOLVED = 1 group`；
-- `CROSS_PDM_CONFLICT = 0`；
-- `PDM15_FINAL_CANDIDATE_READY = NO`。
+- 当前进入 Final 前完整性复核 R2。
 
 当前唯一下一步：
 
-> **用户审查 P15-LIA-01～P15-LIA-05。若全部批准并确认执行，则应用修复、正式登记 outgoing handoff，并重新执行 Final 前完整性复核 R2。**
+> **执行 PDM-15 Final 前完整性复核 R2。若 R2 全部 PASS，则生成 PDM-15 Final Domain Overview 候选并等待用户最终批准；在用户最终批准前不得发布 Final、关闭 incoming handoff 或进入 PDM-16。**
