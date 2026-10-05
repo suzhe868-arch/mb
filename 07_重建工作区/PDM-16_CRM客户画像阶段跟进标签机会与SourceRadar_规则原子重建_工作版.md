@@ -1125,3 +1125,19 @@ Final Domain Overview 候选：
 当前唯一下一步：
 
 > **用户最终审查 PDM-16 Final Domain Overview。最终批准前不得发布 Final、不得关闭 incoming handoff、不得进入 PDM-17。**
+
+---
+
+## 16. Final Closeout｜COMPLETE
+
+用户已最终批准并确认执行。
+
+- 正式 Authority：`07_重建工作区/PDM-16_最终完整规则.md`；
+- Final Integrity：`07_重建工作区/PDM-16_最终完整性复核_2026-10-06.md / PASS`；
+- 36 个正式规则 / 用户裁决单元全部进入 Final；
+- 6 / 6 incoming handoff = `HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE`；
+- 来源 PDM-01 / 02 / 03 / 11 / 12 / 15 Final 已反向回写；
+- 5 条 outgoing handoff 继续 `HANDOFF_OPEN`；
+- PDM-16 = `COMPLETE / INTEGRITY_PASS`；
+- 下一步：PDM-17 Startup Gate；
+- IA / Low-Fi / Engineering 未施工。
