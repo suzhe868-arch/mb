@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-16（Final 前完整性复核 R1：REPAIR_REQUIRED）
+- 当前域：PDM-16（Final 前 R2 已通过，等待 Final Overview 最终批准）
 - PDM-15 Startup Gate = PASS
 - PDM-15 incoming handoffs = 5 / 5 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-15 工作版 = `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
@@ -53,7 +53,9 @@
 - PDM-16 Batch 4 = P16-B4-01～P16-B4-05 / PASS / USER_APPROVED / APPLIED / CHOICES=1A,2A,3A,4A,5A
 - PDM-16 Local Product Choice Unresolved = 0
 - PDM-16 Pre-Final Integrity R1 = REPAIR_REQUIRED / REPORT=`07_重建工作区/PDM-16_Final前完整性复核_R1_2026-10-06.md`
-- PDM-16 Pre-Final Repair R1 = P16-LIA-01～P16-LIA-03 / PENDING_USER_REVIEW
+- PDM-16 Pre-Final Repair R1 = P16-LIA-01～P16-LIA-03 / PASS / USER_APPROVED / APPLIED
+- PDM-16 Pre-Final Integrity R2 = PASS / FINAL_CANDIDATE_READY / REPORT=`07_重建工作区/PDM-16_Final前完整性复核_R2_2026-10-06.md`
+- PDM-16 Final Overview = `07_重建工作区/PDM-16_最终完整规则总览_待用户批准.md` / WAITING_USER_FINAL_APPROVAL
 - PDM-11 = COMPLETE / INTEGRITY_PASS
 - PDM-12 = COMPLETE / INTEGRITY_PASS
 - PDM-11 启动门禁 = UNBLOCKED
@@ -105,7 +107,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-16 Final 前完整性复核 R1 = `REPAIR_REQUIRED`。当前唯一下一步：用户审查 `P16-LIA-01～P16-LIA-03`；批准并明确“确认执行”后写入修复并执行 R2。当前 `MISSING_RULE_UNRESOLVED=1`、`SEMANTIC_DETAIL_GAP_UNRESOLVED=1`、`OUTGOING_HANDOFF_GAP=1 group`、completed-PDM conflict=0、incoming handoff gap=0。**
+> **PDM-16 Final 前完整性复核 R2 = `PASS / FINAL_CANDIDATE_READY`。当前唯一下一步：用户最终审查 `07_重建工作区/PDM-16_最终完整规则总览_待用户批准.md`。用户最终批准前不得发布 Final；即使最终批准，也仍需随后明确“确认执行”才允许 Final closeout。**
 
 每个 PDM 必须同时执行：
 
