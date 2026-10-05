@@ -1,7 +1,7 @@
 # PDM-17｜公海 / 待公海处理 / 领取 / 指定分配 / Collaboration（协作）｜规则原子重建工作版
 
 > 日期：2026-10-06  
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`  
 > 当前 Authority：本文件仅为 PDM-17 工作 Authority；四批用户审查、Final 前完整性复核与最终总览批准完成后，才可生成正式 Final。  
 > 禁止：当前不得修改 IA / Low-Fi / Engineering，不得提前关闭 incoming handoff。
 
@@ -438,13 +438,14 @@ Collaboration 只表达“参与服务”。
 
 ---
 
-# 8. Batch 2｜明确废弃 / Superseded / DO_NOT_RESTORE 候选
+# 8. Batch 2｜明确废弃 / Superseded / DO_NOT_RESTORE｜PASS / USER_APPROVED / APPLIED
 
-> 状态：`PENDING_USER_REVIEW`。  
+> 状态：`PASS / USER_APPROVED / APPLIED`。  
+> 用户裁决：P17-B2-01～P17-B2-04 全部同意；随后以“真执行”明确授权执行。  
 > 反向冲突扫描：`PASS / FALSE_DEPRECATION_COUNT=0`。  
 > 原则：只列已经被后续 Authority 明确废弃、替代或禁止恢复的旧口径；不把仍然有效的公海 / Collaboration 能力误标为废弃。
 
-## P17-B2-01｜Customer Merge × 公海迁移 / 冲突规则不得恢复
+## P17-B2-01｜Customer Merge × 公海迁移 / 冲突规则不得恢复｜USER_APPROVED / APPLIED
 
 9/19 R6 曾存在“重复 Customer 合并时如何处理公海 / owner / 协作关系”的历史规则。
 
@@ -461,7 +462,7 @@ Collaboration 只表达“参与服务”。
 
 **依据：**PDM-01 Final 当前 Customer Merge 取消口径；9/19 R6 历史 merge×public-pool 条款。
 
-## P17-B2-02｜“经理 / 店长职位本身 = 公海治理权限”的硬编码解释不得恢复
+## P17-B2-02｜“经理 / 店长职位本身 = 公海治理权限”的硬编码解释不得恢复｜USER_APPROVED / APPLIED
 
 历史文案中经常用“经理 / 店长可处理公海、分配、协作”描述 actor。
 
@@ -479,7 +480,7 @@ Collaboration 只表达“参与服务”。
 
 **依据：**PDM-02 Final §§4/5/7；P17-A03/A06/A11/A15。
 
-## P17-B2-03｜System Admin 作为公海业务执行者 / 兜底 owner 的旧解释不得恢复
+## P17-B2-03｜System Admin 作为公海业务执行者 / 兜底 owner 的旧解释不得恢复｜USER_APPROVED / APPLIED
 
 历史“后台管理员处理公海”不得再解释为：
 
@@ -495,7 +496,7 @@ System Admin 可以治理账号、角色、permission、data scope 与系统配�
 
 **依据：**PDM-02 Final §6；PDM-03 owner/接客边界；P17-A06/A10。
 
-## P17-B2-04｜分享 / 转介绍绕过公海治理、恢复历史 owner 的旧解释不得恢复
+## P17-B2-04｜分享 / 转介绍绕过公海治理、恢复历史 owner 的旧解释不得恢复｜USER_APPROVED / APPLIED
 
 Customer 已经处于公海 / 待公海治理链路时：
 
@@ -535,4 +536,58 @@ Customer 已经处于公海 / 待公海治理链路时：
 
 当前唯一下一步：
 
-> **用户审查 P17-B2-01～P17-B2-04。未经确认不得进入 Batch 3。**
+> **P17-B2-01～P17-B2-04 已批准并执行。当前唯一下一步：用户审查 Batch 3“无新增项”结论。未经确认不得进入 Batch 4。**
+
+---
+
+## 8.2 Batch 2 Gate｜PASS
+
+- `P17-B2-01～P17-B2-04 = PASS / USER_APPROVED / APPLIED`；
+- Reverse Conflict Scan = `PASS`；
+- `FALSE_DEPRECATION_COUNT = 0`；
+- 6 / 6 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工。
+
+---
+
+# 9. Batch 3｜明确新增 / 明确变更扫描
+
+> 状态：`NO_NEW_ATOMS / PENDING_USER_REVIEW`。  
+> Conflict Isolation：`PASS / MISCLASSIFIED_PRODUCT_CHOICE=0`。
+
+本轮重新对照 6 条 target=PDM-17 incoming handoff 与 Batch 1 已批准规则：
+
+| Incoming Handoff | 后续新增 / 变更事实 | 当前承接位置 |
+|---|---|---|
+| HO-P02-P17-001 | 当前 permission/capability + data scope + inactive + System Admin/4S 边界 | P17-A06 / A11 / A15 |
+| HO-P03-P17-001 | 分享不得绕过已有 owner / 正式公海治理 | P17-A01 / A10 / A11 / A13 + P17-B2-04 |
+| HO-P11-P17-001 | pending Application、active/paused Demand 是保护事实；无 owner 不建 responsible=null | P17-A05 / A10 |
+| HO-P13-P17-001 | Priority qualification 不是保护；active Priority 才是，ended 后重读其他保护事实 | P17-A05 |
+| HO-P15-P17-001 | 公海 Consultation 先合法 owner 分配，再创建/复用 Consultation | P17-A10 |
+| HO-P16-P17-001 | CRM 未完成责任需交接；暂无意向不自动进公海；公海不清 CRM 历史；首次跟进超时只提醒 | P17-A02 / A05 / A13；首次跟进时长与 carrier 留 Batch 4/PDM-22 |
+
+### 9.1 结论
+
+上述 later additions / explicit changes 均已被 Batch 1 当前 Authority 完整吸收，没有必要再复制成第二组重复规则原子。
+
+因此本 Batch 3：
+
+- `NEW_INDEPENDENT_ATOMS = 0`
+- `DUPLICATE_RULE_CREATION = 0`
+- `MISCLASSIFIED_PRODUCT_CHOICE = 0`
+- `BATCH_3 = NO_NEW_ATOMS / PENDING_USER_REVIEW`
+
+这并不表示 PDM-17 没有后续待裁决问题。以下仍属于 Batch 4 的真实产品选择 / 缺口，不能偷渡进 Batch 3：
+
+- 是否进一步弱化主动领取、强化后台指定分配；
+- 待公海候选规则 / 重新检查周期；
+- 领取数量上限 / 频率限制的具体口径；
+- 领取后首次跟进提醒默认时长；
+- 批量进入公海 / 批量指定分配；
+- owner 主动释放是否要求原因；
+- Collaboration scope 是否进一步细化；
+- 其他完整性扫描发现的真实缺口。
+
+当前唯一下一步：
+
+> **用户审查 Batch 3“无新增项”结论。若通过，才进入 Batch 4。**

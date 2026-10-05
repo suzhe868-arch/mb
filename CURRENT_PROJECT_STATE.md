@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-17_BATCH_2_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-17_BATCH_3_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`
+> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -32,7 +32,20 @@
 
 当前唯一下一步：
 
-> **PDM-17 Batch 1 已 `PASS / USER_APPROVED / APPLIED`：P17-A01～P17-A15 共 15 条稳定规则正式进入当前工作 Authority；Batch 2 Reverse Conflict Scan = PASS，形成 4 条明确废弃 / superseded / DO_NOT_RESTORE 候选。当前唯一下一步：用户审查 P17-B2-01～P17-B2-04。**
+> **PDM-17 Batch 2 已 `PASS / USER_APPROVED / APPLIED`：P17-B2-01～P17-B2-04 共 4 条明确废弃 / superseded / DO_NOT_RESTORE 已正式冻结；Batch 3 新增/变更扫描未发现新的独立 Atom，6 条 incoming handoff 的后续变化均已被 Batch 1 当前规则吸收。当前唯一下一步：用户审查 Batch 3“无新增项”结论。**
+
+## 2026-10-06｜PDM-17 Batch 2 用户批准并执行
+
+- 用户对 `P17-B2-01～P17-B2-04` 明确“全部同意”，随后以“真执行”明确授权执行；
+- `P17-B2-01～P17-B2-04 = PASS / USER_APPROVED / APPLIED`；
+- 已明确禁止恢复：Customer Merge×公海迁移、职位名称自动等于全部公海治理权、System Admin 作为公海业务执行者/兜底 owner、分享/转介绍绕过公海治理恢复历史 owner；
+- Reverse Conflict Scan = `PASS / FALSE_DEPRECATION_COUNT=0`；
+- 主动领取、后台指定分配、待公海人工处理、领取限制、Collaboration 等当前合法能力未被误废弃；
+- Batch 3 新增/变更扫描已完成：6 条 incoming handoff 中的 later additions 均已在 Batch 1 对应规则中吸收，未发现新的独立 Atom；
+- Batch 3 = `NO_NEW_ATOMS / PENDING_USER_REVIEW`；
+- 6 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 Batch 3“无新增项”结论。
 
 ## 2026-10-06｜PDM-17 Batch 1 用户批准并执行
 

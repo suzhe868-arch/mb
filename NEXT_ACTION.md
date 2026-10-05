@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-17（Batch 1 已通过，当前 Batch 2 用户审查）
+- 当前域：PDM-17（Batch 1/2 已通过，当前 Batch 3 用户审查）
 - PDM-15 Startup Gate = PASS
 - PDM-15 incoming handoffs = 5 / 5 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-15 工作版 = `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
@@ -65,8 +65,10 @@
 - PDM-17 incoming handoffs = 6 / 6 HANDOFF_ACCEPTED
 - PDM-17 工作版 = `07_重建工作区/PDM-17_公海待公海领取指定分配与协作_规则原子重建_工作版.md`
 - PDM-17 Batch 1 = P17-A01～P17-A15 / PASS / USER_APPROVED / APPLIED
-- PDM-17 Batch 2 = P17-B2-01～P17-B2-04 / PENDING_USER_REVIEW
+- PDM-17 Batch 2 = P17-B2-01～P17-B2-04 / PASS / USER_APPROVED / APPLIED
 - PDM-17 Batch 2 Reverse Conflict Scan = PASS / FALSE_DEPRECATION_COUNT=0
+- PDM-17 Batch 3 = NO_NEW_ATOMS / PENDING_USER_REVIEW
+- PDM-17 Batch 3 Conflict Isolation = PASS / MISCLASSIFIED_PRODUCT_CHOICE=0
 - PDM-11 = COMPLETE / INTEGRITY_PASS
 - PDM-12 = COMPLETE / INTEGRITY_PASS
 - PDM-11 启动门禁 = UNBLOCKED
@@ -118,7 +120,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-17 Batch 1 已 PASS / USER_APPROVED / APPLIED；P17-A01～P17-A15 已正式进入当前工作 Authority。当前唯一下一步：用户审查 Batch 2（P17-B2-01～P17-B2-04）；未经用户确认不得进入 Batch 3。**
+> **PDM-17 Batch 2 已 PASS / USER_APPROVED / APPLIED；P17-B2-01～P17-B2-04 已正式冻结。Batch 3 新增/变更扫描未发现新的独立 Atom。当前唯一下一步：用户审查 Batch 3“无新增项”结论；未经用户确认不得进入 Batch 4。**
 
 每个 PDM 必须同时执行：
 
