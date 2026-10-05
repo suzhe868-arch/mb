@@ -1,7 +1,7 @@
 # PDM-16｜最终完整规则总览｜待用户批准
 
 > 域：CRM / 客户画像 / 阶段 / 跟进 / 标签 / Customer Opportunity / Source Radar  
-> 当前状态：`FINAL_CANDIDATE_READY / WAITING_USER_FINAL_APPROVAL`  
+> 当前状态：`USER_FINAL_APPROVED / FINAL_CLOSEOUT_RUNNING`  
 > 本文件是 Final Domain Overview 候选，不是正式 Final。  
 > 用户最终批准前：不得关闭 incoming handoff、不得 source backwrite、不得进入 PDM-17。
 
