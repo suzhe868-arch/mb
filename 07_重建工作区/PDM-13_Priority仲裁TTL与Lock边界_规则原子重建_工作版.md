@@ -1,10 +1,10 @@
 # PDM-13｜Priority / 仲裁 / TTL / active Lock 边界｜规则原子重建工作版
 
 > 日期：2026-10-05  
-> 当前状态：`PREFINAL_INTEGRITY_R2_PASS / FINAL_CANDIDATE_READY`  
+> 当前状态：`FINAL_OVERVIEW_CANDIDATE_READY / WAITING_USER_FINAL_APPROVAL`  
 > 业务权威语言：中文（zh-CN）  
 > 当前域：PDM-13｜Priority / 仲裁 / TTL / active Lock 边界  
-> 当前硬门禁：P13-LIA-07～LIA-08 已用户批准并执行，Final 前完整性复核 R2 已 PASS。下一步只允许重新生成修正后的 PDM-13 Final Domain Overview 候选并提交用户最终批准；未经用户最终批准，不得发布 Final、不得关闭 incoming handoff、不得开始 PDM-14。
+> 当前硬门禁：P13-LIA-07～LIA-08 已用户批准并执行，Final 前完整性复核 R2 已 PASS；修正后的 Final Domain Overview 候选已生成。当前只等待用户最终批准；未经用户最终批准，不得发布 Final、不得关闭 incoming handoff、不得开始 PDM-14。
 
 ---
 
@@ -1424,8 +1424,28 @@ R2 结论：
 
 ---
 
-# 19. 当前唯一下一步
+# 19. Final Domain Overview 候选已生成
 
-> **重新生成修正后的 PDM-13 Final Domain Overview 候选，完整纳入 P13-LIA-07～LIA-08、“TTL 是最长保护上限 / 销售可提前释放 Priority / 不推荐此车”、Match tier downgrade、Recommendation/Priority 独立与 Lock/Transaction 不反向撤销，并提交用户最终批准。未经用户最终批准，不得发布 PDM-13 Final，不得关闭 incoming handoff，不得开始 PDM-14。**
+候选文件：
+
+> `07_重建工作区/PDM-13_最终完整规则总览_待用户批准.md`
+
+该候选已经完整纳入：
+
+- Batch 1～4；
+- P13-LIA-01～LIA-08；
+- TTL 最长保护上限 / 员工 TTL 前 release；
+- Match tier downgrade；
+- Recommendation / Priority 两对象独立；
+- Lock / Transaction 不反向撤销；
+- 8 条 outgoing handoff；
+- stale carrier / supersession；
+- R2 Final Integrity。
+
+---
+
+# 20. 当前唯一下一步
+
+> **提交 `PDM-13_最终完整规则总览_待用户批准.md` 给用户做最终批准。只有用户明确最终同意后，才允许发布 `PDM-13_最终完整规则.md`、关闭 5 条 incoming handoff、完成 source backwrite 与 Final Integrity closeout，然后进入 PDM-14。**
 
 IA / Low-Fi / Engineering 继续禁止施工。
