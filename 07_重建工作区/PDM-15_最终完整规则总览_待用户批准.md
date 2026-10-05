@@ -1,12 +1,12 @@
-# PDM-15｜Consultation / 咨询生命周期 / 来源 / 负责人 / 转派 / SLA｜最终完整规则总览｜待用户批准
+# PDM-15｜Consultation / 咨询生命周期 / 来源 / 负责人 / 转派 / SLA｜最终完整规则总览｜用户已最终批准
 
 > 日期：2026-10-06  
-> 状态：`PENDING_USER_FINAL_APPROVAL / FINAL_CANDIDATE_READY`  
+> 状态：`USER_FINAL_APPROVED / APPROVAL_TRACE`  
 > Batch 1～4：`ALL_USER_APPROVED / APPLIED`  
 > Final 前修复：`P15-LIA-01～P15-LIA-06 ALL_USER_APPROVED / APPLIED`  
 > Final 前完整性复核 R3：`PASS / FINAL_CANDIDATE_READY`  
 > 未决产品冲突：`0`  
-> 注意：本文件尚不是正式 Final Authority；只有用户最终批准并再次确认执行后，才发布 `PDM-15_最终完整规则.md`、关闭 incoming handoff、执行 source backwrite 并进入 PDM-16。
+> 用户已于 2026-10-06 对本 Final Domain Overview 明确“最终批准”，并随后确认执行。本文件作为最终批准留痕保存；正式 Authority 另见 `07_重建工作区/PDM-15_最终完整规则.md`。
 
 ---
 
