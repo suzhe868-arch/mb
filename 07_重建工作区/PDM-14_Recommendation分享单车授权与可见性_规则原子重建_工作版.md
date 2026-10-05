@@ -800,6 +800,7 @@ Recommendation 或 customer-specific visibility grant 解决的是 Customer 对 
 - Customer 创建 / 继续 Consultation，不自动创建 Recommendation；
 - Consultation 本身不授 Recommendation 免费查价权；
 - Consultation 本身不授 hidden Vehicle customer-specific visibility grant；
+- Consultation 后续 resolved / invalid / cancelled / 其他合法终态，不自动 end / void 仍合法的 Recommendation；
 - Consultation 的 source 可能真实指向一条 Recommendation，但 source relation 只是历史来源事实，不等于两个对象生命周期绑定；
 - Recommendation → Consultation 与 Consultation → Recommendation 均不得静默反写。
 
@@ -870,7 +871,7 @@ Recommendation 或 customer-specific visibility grant 解决的是 Customer 对 
 23. Recommendation 创建时价格咨询、后续同 cycle 出现数字价却再次扣 daily quota 的 carrier；
 24. Recommendation/visibility grant 把 Internal Mode、内部价、上游电话、VIN/敏感档案或 Priority 内部事实一起下发客户的 carrier；
 25. JYT/上游同步直接创建/结束/改写 Recommendation 或 customer-specific visibility grant 的 carrier；
-26. Consultation 自动创建 Recommendation、赠送 Recommendation price-right 或直接授 hidden visibility 的 carrier。
+26. Consultation 自动创建 Recommendation、赠送 Recommendation price-right、直接授 hidden visibility，或 Consultation 终态自动 end/void Recommendation 的 carrier。
 
 统一：
 
