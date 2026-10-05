@@ -1,7 +1,7 @@
 # PDM-15｜Consultation / 咨询生命周期 / 来源 / 负责人 / 转派 / SLA｜规则原子重建工作版
 
 > 日期：2026-10-06  
-> 状态：`IN_PROGRESS / START_GATE_PASS / BATCH_1_PASS_USER_APPROVED / BATCH_2_PASS_USER_APPROVED / BATCH_3_PASS_USER_APPROVED / BATCH_3_CONFLICT_ISOLATION_PASS / BATCH_4_PENDING_USER_REVIEW`  
+> 状态：`IN_PROGRESS / START_GATE_PASS / BATCH_1_PASS_USER_APPROVED / BATCH_2_PASS_USER_APPROVED / BATCH_3_PASS_USER_APPROVED / BATCH_3_CONFLICT_ISOLATION_PASS / BATCH_4_PASS_USER_APPROVED / PREFINAL_INTEGRITY_AUDIT`  
 > 方法：9/19 主底盘 + 前向历史补全 + 后向显式 supersession + 9/22 冻结台账 + Current Carrier Conflict Scan + Completed-PDM Authority + Cross-PDM Handoff。  
 > 当前阶段约束：IA / Low-Fi / Engineering 只登记冲突，不施工；未经用户审查的候选 Atom 不得直接进入 Final。
 
@@ -328,7 +328,9 @@ Consultation 创建时记录真实 direct source / source relation。
 
 ---
 
-## 10. Batch 4｜冲突 / 遗漏 / 缺口 / 新产品选择｜待用户审查
+## 10. Batch 4｜冲突 / 遗漏 / 缺口 / 新产品选择｜PASS / USER_APPROVED / APPLIED
+
+> 用户于 2026-10-06 选择并确认执行：`1A、2A、3A、4A、5A、6A、7A`。以下以所选方案为当前 PDM-15 Authority，未选方案不得恢复。
 
 ### P15-B4-01｜Consultation 是否新增 `CANCELLED` 第五主状态
 
@@ -343,6 +345,8 @@ Consultation 创建时记录真实 direct source / source relation。
 - **1A（建议）**：继续保持四主状态。客户撤回、员工“正常关闭”统一进入 `resolved`，同时用不可变 `close_reason` 区分 `CUSTOMER_WITHDRAWN / NORMAL_CLOSED / RESOLVED` 等真实结束原因；界面可按 reason 显示“已取消 / 已关闭 / 已解决”，但不增加第五主状态。
 - **1B**：正式增加 `CANCELLED` 为第五主状态；客户撤回 / 正常关闭进入 `CANCELLED`，`resolved` 只用于已解决。
 
+**用户裁决：1A。** 当前仅保留 `pending / processing / resolved / invalid` 四主状态；客户撤回、正常关闭、正常解决统一属于 `resolved`，以不可变 `close_reason` 区分真实结束原因。`CANCELLED` 只可作为旧 Carrier / UI 投影语义，不得恢复为 Consultation 第五主状态。
+
 ### P15-B4-02｜首次响应 SLA 的完成条件
 
 历史 DEC-018 明确：SLA 从 Consultation 创建开始，到“第一次真实人工服务动作”才算首次响应完成；打开页面、已读、仅改状态、仅转派、浏览资料、系统自动动作均不算，转派也不得重置 deadline。Current 丢失了这组精确语义。
@@ -351,6 +355,8 @@ Consultation 创建时记录真实 direct source / source relation。
 
 - **2A（建议）**：恢复该规则。只有可审计的真实服务动作才完成首次响应，例如真实跟进记录、真实电话/消息/线下沟通等已形成业务事实的动作；仅打开、已读、改成 processing、转派、浏览资料、自动动作均不算；转派沿用原 deadline，不重置。
 - **2B**：进入 processing 或员工首次打开/处理页面即可视为首次响应完成。
+
+**用户裁决：2A。** 只有形成可审计真实服务事实的人工动作才完成首次响应 SLA；打开、已读、仅改状态、仅转派、浏览资料、系统自动动作均不算。转派不得完成或重置 SLA，继续沿用原 deadline。
 
 ### P15-B4-03｜Consultation SLA 初始默认值
 
@@ -361,6 +367,8 @@ Consultation 创建时记录真实 direct source / source relation。
 - **3A（建议）**：恢复 **15 分钟**作为初始默认值；后台可配置，创建时按当时有效配置固化 deadline，之后改配置不追改旧 Consultation。
 - **3B**：产品基线不提供默认值，部署前必须由后台人工配置后才能启用 SLA。
 
+**用户裁决：3A。** Consultation 首次人工响应 SLA 初始默认值为 **15 分钟**；后台可配置；创建时按当时有效配置固化本次 deadline，后续修改不追改已创建 Consultation。
+
 ### P15-B4-04｜Consultation 初始负责人优先级与无人可承接失败出口
 
 历史 R7 顺序是“来源 Recommendation 推荐销售 → Demand 负责人 → Customer owner → 合格接客池”，但旧规则同时假设“Recommendation 只能由当时 owner 创建”，该前提已被 PDM-14 当前 Authority 改写；PDM-02/03 又明确禁止无负责人正式业务对象和 System Admin 业务兜底。
@@ -369,6 +377,8 @@ Consultation 创建时记录真实 direct source / source relation。
 
 - **4A（建议）**：若本次咨询真实来源于 Recommendation，仅当该 Recommendation 的 recommender 在咨询创建时仍是该 Customer / Demand 的**当前合法业务责任关系**且 identity + permission + data scope + object state 合法时才优先承接；否则跳过历史 recommender。之后依次为当前关联 Demand responsible → 当前 Customer owner → active + eligible + accepting 合格接客池。全部不可用时不得创建 `responsible=null` 的正式 Consultation，返回安全失败 / 待恢复提示并记录配置异常。
 - **4B**：只要历史 recommender 仍 active 且具备 Consultation 处理资格，即使已不再承担该 Customer / Demand 当前业务责任，也继续拥有第一优先级。
+
+**用户裁决：4A。** 初始负责人必须按咨询创建时的当前合法责任事实确定：真实来源 Recommendation 的 recommender 只有在当时仍具当前合法业务责任关系且 Guard 全部通过时才优先；否则跳过。之后依次为当前关联 Demand responsible → 当前 Customer owner → active + eligible + accepting 合格接客池。全部不可用时禁止创建 `responsible=null` 正式 Consultation，禁止 System Admin 业务兜底，并形成安全失败 / 配置异常事实。
 
 ### P15-B4-05｜Customer 停用期间 Consultation 如何运行
 
@@ -382,6 +392,8 @@ PDM-01 Final 已冻结：Customer 停用不删除历史、不伪造 completed/ca
 
 > 5C 与 PDM-01“停用不得伪造业务终态”的当前 Authority 冲突，不建议选择。
 
+**用户裁决：5A。** Customer 停用不新增 Consultation 主状态；既有 open Consultation 进入独立 `customer_disabled_hold` 运行 Guard，保留历史与负责人事实，暂停普通客户侧动作、常规服务推进以及尚未完成的首次响应 SLA 计时。必要的合法终结 / 作废 / 交接仍可用于真实收口。Customer 恢复后不自动解除 hold，由合法员工显式恢复并重新校验；未完成 SLA 按停用前剩余时间继续。
+
 ### P15-B4-06｜Transaction 完成是否自动结束 Consultation
 
 历史反向差集明确：Transaction completed 不应自动把 Consultation 强制 `resolved`；Current 缺少足够显式的跨对象负向 Guard。
@@ -390,6 +402,8 @@ PDM-01 Final 已冻结：Customer 停用不删除历史、不伪造 completed/ca
 
 - **6A（建议）**：Transaction completed / cancelled / corrected 均不自动修改 Consultation 主状态；成交事实只作为 Consultation 可引用的业务上下文。若咨询确实应结束，仍由合法真人执行“解决 / 正常关闭”等 Consultation 自身动作并留痕。
 - **6B**：Transaction completed 自动把同 Customer + Vehicle 当前 Consultation 标记为 resolved。
+
+**用户裁决：6A。** Transaction completed / cancelled / corrected 均不得自动修改 Consultation 主状态；交易事实只作为 Consultation 可引用上下文。Consultation 是否解决/正常关闭必须由其自身合法真人动作形成并留痕。
 
 ### P15-B4-07｜“已超时 > 即将超时 > 新咨询”属于 PDM-15 还是 PDM-21
 
@@ -400,18 +414,19 @@ PDM-01 Final 已冻结：Customer 停用不删除历史、不伪造 completed/ca
 - **7A（建议）**：PDM-15 只冻结 SLA 事实与是否已完成首次响应，不把“即将超时”的阈值和员工工作台排序固化为 Consultation 生命周期规则；新增/保留 outgoing handoff 给 PDM-21，要求 PDM-21 审查历史“已超时 > 即将超时 > 新咨询”工作台优先级及其阈值/展示。
 - **7B**：直接在 PDM-15 固化该工作台强排序规则，并在本域继续确定“即将超时”的具体阈值。
 
+**用户裁决：7A。** PDM-15 只冻结 Consultation SLA 业务事实与首次响应是否完成；“已超时 > 即将超时 > 新咨询”的员工工作台优先级、即将超时阈值和展示由 PDM-21 承接，不在本域固化 UI 排序。
+
 ---
 
-## 11. Batch 4 Gate
+## 11. Batch 4 Gate｜PASS / USER_APPROVED / APPLIED
 
-当前：
-
-- `P15-B3-01～P15-B3-04 = PASS / USER_APPROVED / APPLIED`；
-- Batch 3 Conflict Isolation = `PASS / CONFLICT_OR_PRODUCT_CHOICE_MISCLASSIFIED_AS_BATCH3=0`；
-- `P15-B4-01～P15-B4-07 = PENDING_USER_REVIEW`；
-- 5 条 incoming handoff 继续 `HANDOFF_ACCEPTED`，不得提前关闭；
-- IA / Low-Fi / Engineering 继续禁止施工。
+- `P15-B4-01～P15-B4-07 = PASS / USER_APPROVED / APPLIED`；
+- 用户选择：`1A、2A、3A、4A、5A、6A、7A`；
+- `PDM15_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- 5 条 incoming handoff 继续 `HANDOFF_ACCEPTED`，在 Final / Integrity closeout 前不得提前关闭；
+- IA / Low-Fi / Engineering 继续禁止施工；
+- 当前进入 Final 前 Missing Rule / Semantic Detail / Cross-PDM Integrity 审计。
 
 当前唯一下一步：
 
-> **用户审查 P15-B4-01～P15-B4-07。建议选择：1A、2A、3A、4A、5A、6A、7A。用户确认后才可执行 Batch 4，并进入 PDM-15 Final 前 Missing Rule / Semantic Detail / Cross-PDM Integrity 审计。**
+> **执行 PDM-15 Final 前完整性复核。若发现历史完整规则未承接、语义细节缺失或跨 PDM handoff 缺口，只 reopen 对应 Atom / 段落；真正改变产品语义的修复必须重新提交用户裁决。**
