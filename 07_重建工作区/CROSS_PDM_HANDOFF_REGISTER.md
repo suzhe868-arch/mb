@@ -435,6 +435,18 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | HO-P15-P22-001 | PDM-22 | PC 后台承接 Consultation 管理与 SLA 配置：首次人工响应 SLA 初始默认 15 分钟、后台可配置；Consultation 创建时读取当时有效配置并固化 first-response deadline，后续改配置不追改旧对象；timeout 仅派生标记/筛选/提醒，不是第五主状态；配置/管理入口不得把 System Admin 身份本身扩张成 Consultation 业务处理权。 | HANDOFF_OPEN | - | YES |
 | HO-P15-P23-001 | PDM-23 | 通知层承接新 Consultation 与 SLA timeout allowlist；DND/quiet hours 只影响主动通知投递，不暂停 SLA 业务计时（Customer disable hold 除外，按 PDM-15 Authority）；FAILED/SKIPPED/DEDUPED/通知成功均不得改变 Consultation 主状态、assignee、first-response fact 或 deadline。 | HANDOFF_OPEN | - | YES |
 | HO-P15-P25-001 | PDM-25 | 统一审计 Consultation create/reuse/touch/start-processing/follow-up/reassign/assignee_handover_pending/resolve/invalid/normal-close/customer-withdraw/customer_disabled_hold/resume、SLA deadline/first-real-human-response/timeout，以及 actor/time/identity/permission/data scope/object state/old-new assignee/close_reason/source context；历史不可物理删除或由后续状态回写。 | HANDOFF_OPEN | - | YES |
+
+---
+
+## 12F. PDM-16 来源 handoff
+
+| handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
+|---|---|---|---|---|---|
+| HO-P16-P17-001 | PDM-17 | 公海/待公海治理必须消费 PDM-16 CRM 当前事实：未完成 CRM 跟进任务、回访提醒、未来跟进计划属于未完成责任，进入公海前必须完成、取消或正式交接；“暂不联系/暂无意向”只属于 CRM Stage/Tag/服务判断，不自动清 owner、不自动进公海；长期未跟进公海候选由 PDM-17 冻结人工治理，不得把 Customer Opportunity 直接当自动进公海机制；Customer 进出公海/重新领取不得清空 CRM Stage、Customer Tags、原始 source、历史 Follow-up、Shared Profile 或合法公司服务历史。 | HANDOFF_OPEN | - | YES |
+| HO-P16-P21-001 | PDM-21 | 员工端承接 CRM list/detail、记录跟进、我的客户/团队客户、Customer Opportunity、Source Radar 等 carrier；Customer Opportunity=聚合客户机会信号、Source Radar=Demand-centered Matching change discovery、强待办=真实服务责任，三类不得合并成一个 task/state system。Source Radar“推荐给客户”进入 PDM-14 Recommendation Authority；“标记不适合”只抑制当前 Demand×Vehicle 当前有效匹配事实，不改 PDM-12 Match Result/Rule Dictionary/Demand 条件，底层合法 Matching 输入实质变化后可重新出现；不得恢复 CRM 直接锁车入口；最近行为只显示聚合兴趣，不开放逐点击监控。 | HANDOFF_OPEN | - | YES |
+| HO-P16-P22-001 | PDM-22 | PC 后台承接公司级受控 CRM Stage 字典与 Customer Tag 字典的真实配置 carrier：支持新增、改名/排序、启用/停用，历史已使用 Stage/Tag 不普通物理删除，停用不回写历史 Customer 事实；配置提交服从当前 identity+permission/capability+data scope+object/config state 并留审计。P06-07“客户机会规则”页面名不得反推任意 Opportunity rule CRUD/config；V1 不建设通用 Customer Opportunity 规则引擎，只消费以后明确产品批准的 deterministic signal producer。 | HANDOFF_OPEN | - | YES |
+| HO-P16-P23-001 | PDM-23 | CRM 待办、回访提醒、未来跟进计划若需要主动提醒，其渠道、频控、DND/quiet-hours、失败/跳过/去重日志由 PDM-23 承接；通知结果不得改写 CRM Stage/Tag/Follow-up/责任事实。Customer Opportunity 不逐条自动飞书；普通 Source Radar 变化不得默认升级成强通知，除非后续存在明确 allowlist Authority。 | HANDOFF_OPEN | - | YES |
+| HO-P16-P25-001 | PDM-25 | 统一审计/历史承接 PDM-16 CRM 核心事实：CRM Stage before/after/actor/time/source context；重要 Customer Tag 增删替换的可追溯变化；Shared Profile before/after；员工内部服务称呼 author/time/source/修改历史且不得覆盖旧事实；Follow-up append-only、更正/作废/无效历史；Stage/Tag 字典新增/改名/排序/启停与历史停用语义；当前 access 与公司历史事实分离；历史不可因 owner/public-pool/employee inactive 被物理删除。 | HANDOFF_OPEN | - | YES |
 ---
 ## 13. Post-PDM25 IA / Low-Fi Carrier Ledger｜持续累积
 
