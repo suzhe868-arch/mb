@@ -1,7 +1,7 @@
 # PDM-17｜公海 / 待公海处理 / 领取 / 指定分配 / Collaboration（协作）｜规则原子重建工作版
 
 > 日期：2026-10-06  
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`  
 > 当前 Authority：本文件仅为 PDM-17 工作 Authority；四批用户审查、Final 前完整性复核与最终总览批准完成后，才可生成正式 Final。  
 > 禁止：当前不得修改 IA / Low-Fi / Engineering，不得提前关闭 incoming handoff。
 
@@ -135,13 +135,14 @@ Current 并非完全缺失公海能力，已经存在：
 
 ---
 
-# 4. Batch 1｜稳定一致规则候选
+# 4. Batch 1｜稳定一致规则｜PASS / USER_APPROVED / APPLIED
 
 > 分类：历史主规则与已完成 PDM 约束之间暂未发现真实冲突。  
-> 状态：`PENDING_USER_REVIEW`。  
-> 说明：即使是稳定规则，也必须逐批经用户确认；当前不得自动写成 Final。
+> 状态：`PASS / USER_APPROVED / APPLIED`。  
+> 用户裁决：P17-A01～P17-A15 全部同意；随后确认执行。  
+> 说明：15 条稳定规则已进入 PDM-17 当前工作 Authority，但仍需四批全部完成及 Final 前完整性复核后才可进入正式 Final。
 
-## P17-A01｜公海与唯一 owner
+## P17-A01｜公海与唯一 owner｜USER_APPROVED / APPLIED
 
 Customer 同一时刻仍只能有一个正式 current owner。
 
@@ -156,7 +157,7 @@ Customer 同一时刻仍只能有一个正式 current owner。
 
 **来源：**9/19 R6 §§3/12/13；PDM-03 Final。
 
-## P17-A02｜禁止自动抢入公海
+## P17-A02｜禁止自动抢入公海｜USER_APPROVED / APPLIED
 
 以下事实本身都不得自动把 Customer 放入公海：
 
@@ -174,7 +175,7 @@ Customer 同一时刻仍只能有一个正式 current owner。
 
 **来源：**9/19 R6 §4/§37；PDM-16 Final。
 
-## P17-A03｜正式进入公海的合法触发
+## P17-A03｜正式进入公海的合法触发｜USER_APPROVED / APPLIED
 
 进入公海必须由明确业务动作形成，例如：
 
@@ -187,7 +188,7 @@ Customer 同一时刻仍只能有一个正式 current owner。
 
 **来源：**9/19 R6 §4；PDM-02/03 Final。
 
-## P17-A04｜待公海处理是人工治理层
+## P17-A04｜待公海处理是人工治理层｜USER_APPROVED / APPLIED
 
 “待公海处理”不是公海状态本身，也不直接修改 owner。
 
@@ -205,7 +206,7 @@ Customer 同一时刻仍只能有一个正式 current owner。
 
 **来源：**9/19 R6 §5；R12 P06 公海配置。
 
-## P17-A05｜未完成责任 / 保护事实阻止“直接丢公海”
+## P17-A05｜未完成责任 / 保护事实阻止“直接丢公海”｜USER_APPROVED / APPLIED
 
 进入公海前必须读取当前真实保护事实与未完成责任，至少包括适用的：
 
@@ -230,7 +231,7 @@ PDM-17 只消费结果，不替这些业务对象创造新的状态机。
 
 **来源：**9/19 R6 §6；PDM-11/13/15/16 handoff。
 
-## P17-A06｜公海数据范围与业务身份
+## P17-A06｜公海数据范围与业务身份｜USER_APPROVED / APPLIED
 
 公海不是默认全公司共享池。
 
@@ -250,7 +251,7 @@ System Admin：
 
 **来源：**9/19 R6 §§7/39；PDM-02 Final。
 
-## P17-A07｜主动领取的原子结果与并发
+## P17-A07｜主动领取的原子结果与并发｜USER_APPROVED / APPLIED
 
 合法领取成功时：
 
@@ -263,7 +264,7 @@ System Admin：
 
 **来源：**9/19 R6 §8；M02-003。
 
-## P17-A08｜接客开关与主动领取分离
+## P17-A08｜接客开关与主动领取分离｜USER_APPROVED / APPLIED
 
 员工关闭自然接客：
 
@@ -275,7 +276,7 @@ System Admin：
 
 **来源：**9/19 R6 §8；PDM-02/03 accepting Authority。
 
-## P17-A09｜领取数量 / 频率限制
+## P17-A09｜领取数量 / 频率限制｜USER_APPROVED / APPLIED
 
 后台可以配置公海主动领取：
 
@@ -294,7 +295,7 @@ System Admin：
 
 **来源：**9/19 R6 §9；R12 §10.1。
 
-## P17-A10｜公海 Customer 主动发起人工服务
+## P17-A10｜公海 Customer 主动发起人工服务｜USER_APPROVED / APPLIED
 
 Customer 已在公海时主动发起需要真人承接的人工服务，例如 Consultation / 找车：
 
@@ -311,7 +312,7 @@ Customer 已在公海时主动发起需要真人承接的人工服务，例如 C
 
 **来源：**9/19 R6 §10；PDM-02/11/15 Final。
 
-## P17-A11｜后台指定分配
+## P17-A11｜后台指定分配｜USER_APPROVED / APPLIED
 
 具备对应公海 assignment permission/capability 且 data scope 覆盖的合法员工，可以把公海 Customer 直接指定给 active + eligible 的合法目标员工。
 
@@ -327,7 +328,7 @@ Customer 已在公海时主动发起需要真人承接的人工服务，例如 C
 
 **来源：**9/19 R6 §14；PDM-02 Final。
 
-## P17-A12｜再次释放仍受责任 Guard
+## P17-A12｜再次释放仍受责任 Guard｜USER_APPROVED / APPLIED
 
 领取 / 分配后的 Customer 可以再次进入公海，但不能把未完成责任直接丢回池中。
 
@@ -341,7 +342,7 @@ Customer 已在公海时主动发起需要真人承接的人工服务，例如 C
 
 **来源：**9/19 R6 §16；PDM-16 Final。
 
-## P17-A13｜公海进出不清空 Customer 业务历史
+## P17-A13｜公海进出不清空 Customer 业务历史｜USER_APPROVED / APPLIED
 
 进入公海、领取、指定分配、再次释放均不得清空或重建：
 
@@ -361,7 +362,7 @@ Customer 已在公海时主动发起需要真人承接的人工服务，例如 C
 
 **来源：**9/19 R6 §§12/13/32/36；PDM-03/16 Final。
 
-## P17-A14｜Collaboration 不等于 owner，也不等于万能授权
+## P17-A14｜Collaboration 不等于 owner，也不等于万能授权｜USER_APPROVED / APPLIED
 
 Collaboration 只表达“参与服务”。
 
@@ -375,7 +376,7 @@ Collaboration 只表达“参与服务”。
 
 **来源：**9/19 R6 §§18/19；PDM-02/03/15/16 Final。
 
-## P17-A15｜Collaboration 建立、scope、结束与历史
+## P17-A15｜Collaboration 建立、scope、结束与历史｜USER_APPROVED / APPLIED
 
 建立 / 结束 Collaboration：
 
@@ -417,9 +418,121 @@ Collaboration 只表达“参与服务”。
 - `COMPLETED_PDM_HARD_CONFLICT = 0`
 - `INCOMING_HANDOFF_GAP = 0`
 - `INCOMING_HANDOFF_ACCEPTED = 6 / 6`
-- `BATCH_1 = P17-A01～P17-A15 / PENDING_USER_REVIEW`
+- `BATCH_1 = P17-A01～P17-A15 / PASS / USER_APPROVED / APPLIED`
 - `IA / LOW-FI / ENGINEERING = NO_CONSTRUCTION`
 
 当前唯一下一步：
 
-> **用户审查 P17-A01～P17-A15。未经确认不得进入 Batch 2。**
+> **P17-A01～P17-A15 已批准并执行。当前唯一下一步：用户审查 Batch 2（P17-B2-01～P17-B2-04）。未经确认不得进入 Batch 3。**
+
+---
+
+## 7. Batch 1 Gate｜PASS
+
+- 用户裁决：`P17-A01～P17-A15 = 全部同意`；
+- 执行授权：用户随后明确“确认执行”；
+- `BATCH_1 = PASS / USER_APPROVED / APPLIED`；
+- 15 条规则均已进入当前工作 Authority；
+- 6 / 6 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工。
+
+---
+
+# 8. Batch 2｜明确废弃 / Superseded / DO_NOT_RESTORE 候选
+
+> 状态：`PENDING_USER_REVIEW`。  
+> 反向冲突扫描：`PASS / FALSE_DEPRECATION_COUNT=0`。  
+> 原则：只列已经被后续 Authority 明确废弃、替代或禁止恢复的旧口径；不把仍然有效的公海 / Collaboration 能力误标为废弃。
+
+## P17-B2-01｜Customer Merge × 公海迁移 / 冲突规则不得恢复
+
+9/19 R6 曾存在“重复 Customer 合并时如何处理公海 / owner / 协作关系”的历史规则。
+
+当前 PDM-01 已正式取消 V1 Customer Merge：
+
+- 不提供人工 Customer Merge；
+- 不提供手机号合并；
+- 不因判断为同一自然人而合并两个 customer_id；
+- 两个 Customer 即使共享手机号，也保持独立。
+
+因此所有依赖“先合并 Customer，再迁移 / 合并其公海 membership、owner、Collaboration、CRM 历史”的旧规则全部 `SUPERSEDED / DO_NOT_RESTORE`。
+
+这不会删除正常的公海、owner transfer、Collaboration 或历史查询能力；只是彻底取消“Customer Merge 与公海冲突处理”这一旧分支。
+
+**依据：**PDM-01 Final 当前 Customer Merge 取消口径；9/19 R6 历史 merge×public-pool 条款。
+
+## P17-B2-02｜“经理 / 店长职位本身 = 公海治理权限”的硬编码解释不得恢复
+
+历史文案中经常用“经理 / 店长可处理公海、分配、协作”描述 actor。
+
+当前 PDM-02 已明确替代为：
+
+> identity + permission/capability + data scope + object/account state
+
+因此不得恢复以下旧实现：
+
+- 只因 role=经理就自动拥有全部公海治理能力；
+- 只因 role=店长就自动拥有全部领取 / 分配 / Collaboration 管理能力；
+- 绕过个人 deny、hard DENY、data scope 或对象状态。
+
+经理 / 店长仍可通过角色模板或明确授权获得对应能力，但最终授权必须按当前权限模型计算。
+
+**依据：**PDM-02 Final §§4/5/7；P17-A03/A06/A11/A15。
+
+## P17-B2-03｜System Admin 作为公海业务执行者 / 兜底 owner 的旧解释不得恢复
+
+历史“后台管理员处理公海”不得再解释为：
+
+- System Admin 直接领取公海 Customer；
+- System Admin 被指定为 Customer owner；
+- System Admin 作为 Customer-level collaborator；
+- 接客池为空时由 System Admin 临时兜底承接客户；
+- System Admin 仅因后台治理身份直接执行销售 / CRM / Consultation 等业务动作。
+
+System Admin 可以治理账号、角色、permission、data scope 与系统配置，但业务领取 / owner / Collaboration 必须由合法员工业务身份执行。
+
+同一真人如同时拥有两类身份，必须按对应独立身份执行。
+
+**依据：**PDM-02 Final §6；PDM-03 owner/接客边界；P17-A06/A10。
+
+## P17-B2-04｜分享 / 转介绍绕过公海治理、恢复历史 owner 的旧解释不得恢复
+
+Customer 已经处于公海 / 待公海治理链路时：
+
+- 点击历史销售分享链接；
+- 再次打开旧客户分享；
+- 产生新的转介绍 / 分享事件；
+
+均不得直接：
+
+- 恢复历史 owner；
+- 把 Customer 自动判给最后一个分享销售；
+- 绕过公海领取 / 指定分配 / 合法 owner 分配；
+- 用分享事实覆盖已经存在的 owner / 公海治理事实。
+
+分享 / 转介绍来源历史可以继续保存；真正 owner 变化必须服从 PDM-17 当前公海 Authority 与 PDM-03 owner Authority。
+
+**依据：**PDM-03 Final §§5～9、§12；HO-P03-P17-001；P17-A01/A10/A11/A13。
+
+### 8.1 Reverse Conflict Scan
+
+本轮没有把以下仍有效能力误判为废弃：
+
+- 主动领取公海 Customer；
+- 后台指定分配；
+- 待公海人工处理；
+- 领取数量 / 频率限制；
+- 公海 Customer 主动服务触发 owner 分配；
+- Collaboration；
+- 经理 / 店长在合法 permission + scope 下执行治理；
+- System Admin 的控制平面治理能力；
+- 分享 / 转介绍来源历史本身。
+
+因此：
+
+- `FALSE_DEPRECATION_COUNT = 0`
+- `BATCH_2_CONFLICT_SCAN = PASS`
+
+当前唯一下一步：
+
+> **用户审查 P17-B2-01～P17-B2-04。未经确认不得进入 Batch 3。**

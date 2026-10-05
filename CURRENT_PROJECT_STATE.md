@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-17_BATCH_1_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-17_BATCH_2_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`
+> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -32,7 +32,18 @@
 
 当前唯一下一步：
 
-> **PDM-17 Startup Gate 已 `PASS`：P17-R00 已用户批准并执行，target=PDM-17 的 6/6 incoming handoff 已全部 `HANDOFF_ACCEPTED`，completed-PDM hard conflict=0，incoming handoff gap=0。当前唯一下一步：用户审查 PDM-17 Batch 1（P17-A01～P17-A15）。**
+> **PDM-17 Batch 1 已 `PASS / USER_APPROVED / APPLIED`：P17-A01～P17-A15 共 15 条稳定规则正式进入当前工作 Authority；Batch 2 Reverse Conflict Scan = PASS，形成 4 条明确废弃 / superseded / DO_NOT_RESTORE 候选。当前唯一下一步：用户审查 P17-B2-01～P17-B2-04。**
+
+## 2026-10-06｜PDM-17 Batch 1 用户批准并执行
+
+- 用户先明确更正为“全部同意”，随后明确“确认执行”；
+- `P17-A01～P17-A15 = PASS / USER_APPROVED / APPLIED`；
+- 已冻结：唯一 owner 与公海状态边界、禁止自动抢入公海、合法进入公海触发、待公海人工三向处理、未完成责任/保护 Guard、公海 scope、原子领取与并发、接客开关与主动领取分离、领取数量/频率限制、主动服务触发 owner 分配、后台指定分配、再次释放 Guard、历史保留、Collaboration 非 owner / 非万能授权、Collaboration 建立/scope/结束/历史；
+- 6 条 incoming handoff 继续 `HANDOFF_ACCEPTED`，不得提前关闭；
+- Batch 2 Reverse Conflict Scan = `PASS / FALSE_DEPRECATION_COUNT=0`；
+- Batch 2 候选：`P17-B2-01～P17-B2-04`，状态 `PENDING_USER_REVIEW`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 PDM-17 Batch 2。
 
 ## 2026-10-06｜PDM-17 Startup Gate 通过并进入 Batch 1 审查
 
