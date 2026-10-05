@@ -587,7 +587,7 @@ PDM-11 不得恢复以下旧方向：
 已正式登记 HANDOFF_OPEN：
 
 - PDM-12：`HANDOFF_CLOSED`。PDM-12 Final 已承接 Matching readiness、确定性解析、四级 Match Result、事件驱动重算与 current/stale 结果边界；Application 不参与正式 Matching，只有 active + matching-ready Demand 进入。
-- PDM-13：Priority 与 Demand.created_at 仲裁边界；
+- PDM-13：`HANDOFF_CLOSED`。PDM-13 Final §§2-3,6,8-9,14 已承接 pending Application 不产 Priority、Priority 仅基于合法 active+matching-ready Demand/current high/acceptable Match Result、Demand.created_at 作为不可变仲裁时间、trigger Demand 失效/Match tier downgrade 时切同 Customer 其他合法 Demand 或结束并重仲裁；
 - PDM-14：Recommendation / source_demand_id；
 - PDM-16：CRM 等级、entitlement、Application/Demand 概览与 demand_id 跟进；
 - PDM-17：pending Application 公海保护、owner 分配、交接；
@@ -679,7 +679,7 @@ PDM-11 已正式完成：
 后续：
 
 - PDM-12 接收 Matching / readiness / deterministic parsing / Match Result handoff；
-- PDM-13 接收 Priority 与 Demand.created_at 关系；
+- PDM-13 已完成 Priority 与 Demand.created_at / Demand lifecycle 承接：`HO-P11-P13-001 = HANDOFF_CLOSED / target=PDM-13 Final §§2-3,6,8-9,14 / source_backwrite=YES`；
 - PDM-14 / 16 / 17 / 20 / 21 / 22 / 25 按 handoff register 承接；
 - IA / Low-Fi 仍不得在当前阶段施工，统一延后到 PDM-25 + 全局最终审计后。
 
