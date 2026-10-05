@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-15_PREFINAL_INTEGRITY_AUDIT`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-15_PREFINAL_REPAIR_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / START_GATE_PASS / BATCH_1_PASS_USER_APPROVED / BATCH_2_PASS_USER_APPROVED / BATCH_3_PASS_USER_APPROVED / BATCH_3_CONFLICT_ISOLATION_PASS / BATCH_4_PASS_USER_APPROVED / PREFINAL_INTEGRITY_AUDIT`
+> `IN_PROGRESS / BATCH_1_TO_4_PASS / PREFINAL_INTEGRITY_R1_REPAIR_REQUIRED / P15-LIA-01_TO_05_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -32,7 +32,20 @@
 
 当前唯一下一步：
 
-> **PDM-15 Batch 4 已 `PASS / USER_APPROVED / APPLIED`，用户选择 `1A、2A、3A、4A、5A、6A、7A`，`PDM15_LOCAL_PRODUCT_CHOICE_UNRESOLVED=0`。当前唯一下一步：执行 PDM-15 Final 前 Missing Rule / Semantic Detail / Cross-PDM Integrity 完整性复核。IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-15 Final 前完整性复核 R1 = `REPAIR_REQUIRED`。当前唯一下一步：用户审查 `P15-LIA-01～P15-LIA-05`；当前未决为 3 条 Missing Rule、1 条 Semantic Detail、1 组 outgoing handoff。批准并确认执行后应用修复并执行 R2。IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-06｜PDM-15 Final 前完整性复核 R1
+
+- 报告：`07_重建工作区/PDM-15_Final前完整性复核_R1_2026-10-06.md`；
+- 结论：`REPAIR_REQUIRED`；
+- Source→Atom：发现 4 个未完整承接业务语义；
+- Atom→Source：PASS；
+- completed-PDM hard conflict = 0；
+- incoming handoff gap = 0；
+- outgoing handoff gap = 1 group；
+- 修复候选：`P15-LIA-01～P15-LIA-05`；
+- `PDM15_FINAL_CANDIDATE_READY = NO`；
+- 当前唯一下一步：用户审查 Final 前修复候选。
 
 ## 2026-10-06｜PDM-15 Batch 4 用户裁决并执行
 
