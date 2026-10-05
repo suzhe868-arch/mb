@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-14_START_GATE`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-14_BATCH_2_PENDING`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,11 +16,11 @@
 
 当前域状态：
 
-> `NOT_STARTED / START_GATE_PENDING / INCOMING_HANDOFF_RECONSTRUCTION`
+> `IN_PROGRESS / START_GATE_PASS / BATCH_1_USER_APPROVED`
 
 当前工作文件：
 
-> `尚未建立；下一步启动 PDM-14 工作版`
+> `07_重建工作区/PDM-14_Recommendation分享单车授权与可见性_规则原子重建_工作版.md`
 
 当前已纠正：
 
@@ -32,7 +32,26 @@
 
 当前唯一下一步：
 
-> **PDM-13 已最终批准、正式发布并完成 Final Integrity closeout：`COMPLETE / INTEGRITY_PASS`；5 条 incoming handoff 已全部 CLOSED 并 source backwrite。当前唯一下一步：启动 PDM-14，先读取 PDM-14 覆盖地图、9/19 主来源、001～078 M05/M16/M11 与 8 条 incoming HANDOFF_OPEN，执行 Current Authority Refresh / Current Implementation Fact / Source→Atom 重建并建立 PDM-14 工作版；形成 Batch 1 候选后停下用户审查。IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-14 Start Gate 已 PASS；工作版已建立；8 条 incoming handoff 已全部 `HANDOFF_ACCEPTED`；Batch 1 `P14-A01～P14-A14` 与用户追加裁决 `P14-R01～P14-R04` 已批准并执行。当前唯一下一步：进入 PDM-14 Batch 2，扫描旧 R7/R10/M05/M16/M11/Current IA/Low-Fi 中明确应废弃、被后续规则替代或 DO_NOT_RESTORE 的语义，形成候选后停下用户审查。IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-05｜PDM-14 Start Gate、Batch 1 与四项用户裁决已执行
+
+- PDM-14 工作版已建立：`07_重建工作区/PDM-14_Recommendation分享单车授权与可见性_规则原子重建_工作版.md`；
+- Start Gate：`PASS`；
+- target=PDM-14 的 8 条 incoming handoff：全部由 `HANDOFF_OPEN` → `HANDOFF_ACCEPTED`，Final / Integrity closeout 前不得关闭；
+- Batch 1：`P14-A01～P14-A14 = PASS / USER_APPROVED`；
+- Recommendation 与 Matching / Priority / 普通分享 / visibility grant 分离；同 customer+vehicle+listing_cycle active 幂等；无固定 N 天 TTL；核心历史事实不可普通改写；同周期结束后可重建、新周期不继承；
+- 普通分享不授 Recommendation / price / visibility；分享接收人按自身 Customer 权益判断，owner 归属服从 PDM-03 当前 Authority；
+- hidden 可售 Vehicle 可通过正式 Recommendation 建 Customer 单车 visibility grant，Priority 本身不授客户详情权；
+- Recommendation 免费查价权继承 PDM-10 当前 cycle Authority；Recommendation price snapshot 为不可变历史；
+- source_demand_id 为 0/1 真实来源，“我的推荐”只承载正式 Recommendation；
+- `P14-R01`：Priority qualification 属于 Customer，不属于 Employee；Priority 不改变既有 owner / 合法业务责任关系，也不额外创造 Recommendation 权限；
+- `P14-R02`：取消独立 Recommendation qualification；正式找车 / Recommendation 资格统一读取 Customer Level `find-car entitlement`；Priority qualification 继续独立，只负责 Priority；
+- `P14-R03`：Customer disable 只暂停 Recommendation 客户侧能力并禁止新建，不删除/结束历史；restore 只重新开放恢复时仍合法有效的对象，不复活 ended/void/周期失效 Recommendation；
+- `P14-R04`：其他 Customer active Priority 期间，既有 Recommendation/visibility 历史不删除，只临时 suppression 客户访问；Priority ended 后按当前 Recommendation/listing_cycle/Vehicle/Customer/Priority/Lock/Transaction 事实决定 restore；
+- 旧 `P06-06 / RECOMMENDATION_QUALIFIED / NOT_QUALIFIED` 等独立推荐资格 carrier 已登记为 `CARRIER_DEFERRED`，不得施工；
+- 对 PDM-01～PDM-13 Final 复核：上述新口径无 completed-PDM 冲突；冲突集中在旧 R7 / Current IA / Low-Fi carrier；
+- 当前下一步：PDM-14 Batch 2 明确废弃 / 替代 / DO_NOT_RESTORE 候选审查。
 
 ## 2026-10-05｜PDM-13 Final 正式发布与完整性收口
 
