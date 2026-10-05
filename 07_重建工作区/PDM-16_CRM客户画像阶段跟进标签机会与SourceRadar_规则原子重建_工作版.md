@@ -817,10 +817,10 @@ Repair 后复核：CRM Follow-up 与未来责任已分层；owner 变化时未�
 
 ---
 
-## 12. Batch 4｜冲突 / 遗漏 / 新产品选择｜PENDING_USER_REVIEW
+## 12. Batch 4｜冲突 / 遗漏 / 新产品选择｜PASS / USER_APPROVED / APPLIED
 
 > Batch 1～3 与 Repair 已关闭稳定规则、明确废弃项和历史遗漏。以下只保留“历史没有完全定死、如果不裁决开发就会自行猜”的产品选择。  
-> 建议选择：**1A、2A、3A、4A、5A**。
+> 用户于 2026-10-06 选择 **1A、2A、3A、4A、5A**，随后明确“确认执行”；以下选择正式进入 PDM-16 当前工作 Authority。
 
 ### P16-B4-01｜CRM Stage 阶段值采用什么治理方式
 
@@ -835,7 +835,7 @@ Repair 后复核：CRM Follow-up 与未来责任已分层；owner 变化时未�
 
 但没有冻结“固定枚举”还是“可配置字典”。
 
-**A｜受控可配置阶段字典（推荐）**
+**A｜受控可配置阶段字典（USER_APPROVED / APPLIED）**
 
 - 后台维护一套公司级 CRM Stage 字典；
 - 默认可预置上述常用阶段；
@@ -860,7 +860,7 @@ Repair 后复核：CRM Follow-up 与未来责任已分层；owner 变化时未�
 
 ### P16-B4-02｜CRM Stage 是否允许具体业务事件自动改写
 
-**A｜默认只允许显式人工修改，业务事件只提供上下文/建议（推荐）**
+**A｜默认只允许显式人工修改，业务事件只提供上下文/建议（USER_APPROVED / APPLIED）**
 
 - 新 Customer 可使用默认初始阶段；
 - 后续 Consultation / Demand / Lock / Transaction 的创建、完成、取消等，不自动改 CRM Stage；
@@ -880,7 +880,7 @@ Repair 后复核：CRM Follow-up 与未来责任已分层；owner 变化时未�
 
 ### P16-B4-03｜Customer Tags 采用什么模型
 
-**A｜公司级受控 Tag 字典 + Customer 多选（推荐）**
+**A｜公司级受控 Tag 字典 + Customer 多选（USER_APPROVED / APPLIED）**
 
 - 共享 Customer Tags 从统一字典选择；
 - 一个 Customer 可有多个 active Tag；
@@ -910,7 +910,7 @@ Repair 后复核：CRM Follow-up 与未来责任已分层；owner 变化时未�
 
 仍需决定是否在 V1 新建一套“可配置机会规则引擎”。
 
-**A｜V1 不新建通用机会规则引擎（推荐）**
+**A｜V1 不新建通用机会规则引擎（USER_APPROVED / APPLIED）**
 
 - Customer Opportunity 只消费未来已经被产品明确批准的 deterministic signal producer；
 - 没有正式 signal producer 时允许真实空态；
@@ -926,7 +926,7 @@ Repair 后复核：CRM Follow-up 与未来责任已分层；owner 变化时未�
 
 ### P16-B4-05｜Source Radar“标记不适合”到底屏蔽多久
 
-**A｜抑制当前 Demand × Vehicle 当前事实；相关 Matching 输入发生实质变化后可重新出现（推荐）**
+**A｜抑制当前 Demand × Vehicle 当前事实；相关 Matching 输入发生实质变化后可重新出现（USER_APPROVED / APPLIED）**
 
 标记不适合后：
 
@@ -947,21 +947,38 @@ Repair 后复核：CRM Follow-up 与未来责任已分层；owner 变化时未�
 
 ---
 
-## 13. Batch 4 Gate｜PENDING_USER_REVIEW
+## 13. Batch 4 Gate｜PASS / USER_APPROVED / APPLIED
 
-当前建议：
+用户裁决：
 
 > **1A、2A、3A、4A、5A**
 
-当前：
+正式结果：
 
-- `P16-B3-R01～R02 = PASS / USER_APPROVED / APPLIED`；
-- `BATCH_3_COMPLETENESS_GAP = 0`；
-- `P16-B4-01～P16-B4-05 = PENDING_USER_REVIEW`；
-- `PDM16_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 5`；
+- `P16-B4-01 = 1A / USER_APPROVED / APPLIED`；
+- `P16-B4-02 = 2A / USER_APPROVED / APPLIED`；
+- `P16-B4-03 = 3A / USER_APPROVED / APPLIED`；
+- `P16-B4-04 = 4A / USER_APPROVED / APPLIED`；
+- `P16-B4-05 = 5A / USER_APPROVED / APPLIED`；
+- `PDM16_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
 - 6 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
 - IA / Low-Fi / Engineering 未施工。
 
+### 13.1 Batch 4 Cross-PDM Conflict Review｜PASS
+
+逐项反向检查结果：
+
+1. **CRM Stage 可配置字典**：只决定 PDM-16 业务语义；具体后台页面、配置 permission 与审计 carrier 延后 PDM-22 / PDM-25，不与 PDM-02 权限模型冲突；
+2. **CRM Stage 不由具体业务自动改写**：与 P16-A01 以及 PDM-11/15 的 Demand / Consultation 独立状态机一致；
+3. **Customer Tags 统一字典 + 多选**：不覆盖 Personal Note / Shared Profile / 员工内部称呼三层边界；
+4. **V1 不建设通用 Opportunity 规则引擎**：与 Batch 2 已废弃旧阈值、P16-A10/B3-05 的聚合信号定位一致；
+5. **Radar 不适合仅抑制当前有效事实**：不修改 PDM-12 Match Result / Rule Dictionary / Demand 条件；底层匹配事实实质变化后可产生新 Radar Event。
+
+```text
+BATCH_4_CROSS_PDM_CONFLICT_REVIEW = PASS
+PDM16_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0
+```
+
 当前唯一下一步：
 
-> **用户裁决 P16-B4-01～P16-B4-05。**
+> **进入 PDM-16 Final 前完整性复核：Source→Atom、Atom→Source、Semantic Completeness、Cross-PDM / Handoff / Global Invariant。**
