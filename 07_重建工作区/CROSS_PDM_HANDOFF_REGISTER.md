@@ -493,6 +493,11 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | PDM-14 | P06-06 独立 Recommendation 资格开关、RECOMMENDATION_QUALIFIED/NOT_QUALIFIED 与独立资格管理权限残留；当前 Authority 已改为 Customer Level find-car entitlement 决定正式找车/Recommendation 资格 | CARRIER_DEFERRED |
 | PDM-14 | 把 Priority responsible 误实现为新的 Recommendation 授权来源；正确 Authority 是 Priority 不改变既有 owner/handover/Demand responsibility 关系 | CARRIER_DEFERRED |
 | PDM-14 | 其他 Customer active Priority 期间直接删除/结束既有 Recommendation/visibility；正确 Authority 是历史保留、客户侧访问临时 suppression，Priority ended 后按当前事实 restore | CARRIER_DEFERRED |
+| PDM-14 | 旧“只有 Customer current owner 才能创建 Recommendation”若用于阻断合法 source Demand responsible / handover；正确 Authority 是当前合法业务负责关系，且不得扩大成任意 Employee 可推荐 | CARRIER_DEFERRED |
+| PDM-14 | 客户侧 re-share 永远 SOURCE_ONLY、永远不形成 owner 的旧表达；正确 Authority 服从 PDM-03 分享/转介绍归属，SOURCE_ONLY 状态本身保留 | CARRIER_DEFERRED |
+| PDM-14 | REC 专属 URL / Recommendation-specific link / 第二套推荐分享页残留；正确 Authority 是 Recommendation 为内部正式事实，对外继续普通车辆分享 | CARRIER_DEFERRED |
+| PDM-14 | Current IA / Low-Fi HIDDEN_CONTROLLED 仅凭 Demand/Priority 直接授 Customer hidden Vehicle 详情权；正确 Authority 是 Recommendation + customer-specific visibility grant | CARRIER_DEFERRED |
+| PDM-14 | Current IA / Low-Fi P06-01 / P06-M01 Customer Merge 状态机及 Recommendation/权益迁移；PDM-01 Final 已全面取消 Customer Merge | CARRIER_DEFERRED |
 
 ---
 
@@ -522,8 +527,8 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-10：INTEGRITY_PASS；
 - PDM-01～10 全局 Cross-PDM / Handoff / Global Invariant 总复核：PASS；
 - PDM-11：COMPLETE / INTEGRITY_PASS；
-- 当前进入：PDM-14 Batch 2；
+- 当前进入：PDM-14 Batch 3；
 - PDM-12：COMPLETE / INTEGRITY_PASS；4 条 incoming handoff 全部 CLOSED 并完成 source backwrite；
 - PDM-13：COMPLETE / INTEGRITY_PASS；PDM-13→PDM-14/17/18/19/20/21/22/25 future handoff 已登记；其中 HO-P13-P14-001 已由 PDM-14 接收为 HANDOFF_ACCEPTED，其余目标域继续 HANDOFF_OPEN；
-- PDM-14：Start Gate PASS；工作版已建立；8 条 incoming handoff 全部 HANDOFF_ACCEPTED；Batch 1（P14-A01～A14 + P14-R01～R04）已 USER_APPROVED / APPLIED；下一步 Batch 2 明确废弃 / 替代 / DO_NOT_RESTORE 扫描；
+- PDM-14：Start Gate PASS；8 条 incoming handoff 全部 HANDOFF_ACCEPTED；Batch 1（P14-A01～A14 + P14-R01～R04）与 Batch 2（P14-B2-01～B2-11）均已 USER_APPROVED / APPLIED；Batch 2 Reverse Conflict Scan PASS；下一步 Batch 3 知情修改 / 显式新增扫描；
 - `HO-P01-P11-001 = HANDOFF_SUPERSEDED`；`HO-P01-P11-002 = HANDOFF_CLOSED`。PDM-12 incoming handoff 已全部 CLOSED；PDM-12 outgoing future handoff 已扩展登记：PDM-13 / PDM-14 / PDM-16 / PDM-18 / PDM-20 / PDM-21 / PDM-22 / PDM-25 均为 `HANDOFF_OPEN`，待各目标域承接。
