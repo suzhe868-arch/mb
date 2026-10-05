@@ -6,21 +6,21 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-13_FINAL_OVERVIEW_USER_APPROVAL`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-14_START_GATE`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
 当前域：
 
-> **PDM-13｜Priority / 仲裁 / TTL / active Lock 边界**
+> **PDM-14｜Recommendation / 普通分享 / 单车授权 / 隐藏车客户可见性**
 
 当前域状态：
 
-> `IN_PROGRESS / FINAL_OVERVIEW_CANDIDATE_READY / WAITING_USER_FINAL_APPROVAL`
+> `NOT_STARTED / START_GATE_PENDING / INCOMING_HANDOFF_RECONSTRUCTION`
 
 当前工作文件：
 
-> `07_重建工作区/PDM-13_Priority仲裁TTL与Lock边界_规则原子重建_工作版.md`
+> `尚未建立；下一步启动 PDM-14 工作版`
 
 当前已纠正：
 
@@ -32,7 +32,26 @@
 
 当前唯一下一步：
 
-> **P13-LIA-01～08 已全部用户批准并执行，Final 前完整性复核 R2 已 PASS；修正后的 Final Domain Overview 候选已生成：`07_重建工作区/PDM-13_最终完整规则总览_待用户批准.md`。当前唯一下一步：等待用户对该总览做最终批准。只有用户明确最终同意后，才允许发布 `PDM-13_最终完整规则.md`、关闭 5 条 incoming handoff、完成 source backwrite / Final Integrity closeout，并进入 PDM-14。IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-13 已最终批准、正式发布并完成 Final Integrity closeout：`COMPLETE / INTEGRITY_PASS`；5 条 incoming handoff 已全部 CLOSED 并 source backwrite。当前唯一下一步：启动 PDM-14，先读取 PDM-14 覆盖地图、9/19 主来源、001～078 M05/M16/M11 与 8 条 incoming HANDOFF_OPEN，执行 Current Authority Refresh / Current Implementation Fact / Source→Atom 重建并建立 PDM-14 工作版；形成 Batch 1 候选后停下用户审查。IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-05｜PDM-13 Final 正式发布与完整性收口
+
+- 用户对 PDM-13 Final Domain Overview 明确“全部同意”，随后明确“确认执行”；
+- 正式 Authority：`07_重建工作区/PDM-13_最终完整规则.md`；
+- 用户最终批准留痕：`07_重建工作区/PDM-13_最终完整规则总览_待用户批准.md`；
+- Final 前当前有效 Gate：`07_重建工作区/PDM-13_Final前完整性复核_R2_2026-10-05.md`；
+- Final Integrity：`07_重建工作区/PDM-13_最终完整性复核_2026-10-05.md`；
+- 38 条正式规则 / 修复 Atom 全部进入 Final；
+- 5 条 incoming handoff：HO-P03-P13-001 / HO-P04-P13-001 / HO-P07-P13-001 / HO-P11-P13-001 / HO-P12-P13-001 = `HANDOFF_CLOSED`；
+- PDM-03 / 04 / 07 / 11 / 12 Final 同次完成 source backwrite；
+- PDM-13 outgoing 8 条 handoff 继续 `HANDOFF_OPEN`；
+- `SOURCE_TO_FINAL / FINAL_TO_SOURCE / SEMANTIC_COMPLETENESS / COMPLETED_PDM_INVARIANT / CROSS_PDM_INTEGRITY / HANDOFF_INTEGRITY / NEGATIVE_CLAIMS = PASS`；
+- `MISSING_RULE_UNRESOLVED = 0`；
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 0`；
+- `CROSS_PDM_CONFLICT = 0`；
+- `HANDOFF_GAP_UNRESOLVED = 0`；
+- PDM-13 = `COMPLETE / INTEGRITY_PASS`；
+- 下一域允许进入 PDM-14。
 
 ## 2026-10-05｜PDM-13 修正 Final Overview 候选已生成
 
