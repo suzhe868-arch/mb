@@ -27,7 +27,8 @@
 - PDM-15 Batch 2 Reverse Conflict Scan = PASS / FALSE_DEPRECATION_COUNT=0
 - PDM-15 Batch 3 = P15-B3-01～P15-B3-04 / PASS / USER_APPROVED / APPLIED
 - PDM-15 Batch 3 Conflict Isolation = PASS / CONFLICT_OR_PRODUCT_CHOICE_MISCLASSIFIED_AS_BATCH3=0
-- PDM-15 Batch 4 = P15-B4-01～P15-B4-07 / PENDING_USER_REVIEW / RECOMMENDED=1A,2A,3A,4A,5A,6A,7A
+- PDM-15 Batch 4 = P15-B4-01～P15-B4-07 / PASS / USER_APPROVED / APPLIED / CHOICES=1A,2A,3A,4A,5A,6A,7A
+- PDM-15 Local Product Choice Unresolved = 0
 - PDM-11 = COMPLETE / INTEGRITY_PASS
 - PDM-12 = COMPLETE / INTEGRITY_PASS
 - PDM-11 启动门禁 = UNBLOCKED
@@ -79,7 +80,7 @@
 
 ## 当前唯一下一步
 
-> **审查 PDM-15 Batch 4：P15-B4-01～P15-B4-07。覆盖：CANCELLED 是否为第五主状态、首次真实人工响应条件、SLA 默认15分钟、Consultation 初始负责人优先级与无人承接失败出口、Customer停用运行态、Transaction 不自动结束 Consultation、工作台 SLA 优先级归属。建议选择：1A、2A、3A、4A、5A、6A、7A。IA / Low-Fi / Engineering 继续禁止施工。**
+> **执行 PDM-15 Final 前完整性复核：重新从 R7/R12、9/22、001～078、Current Carrier、PDM-01/02/03/07/14 Final 与 5 条 incoming handoff 检查 Missing Rule、Semantic Detail、Cross-PDM Integrity。发现问题只 reopen 对应 Atom/段落；真正改变产品语义的修复重新提交用户裁决。IA / Low-Fi / Engineering 继续禁止施工。**
 
 每个 PDM 必须同时执行：
 
