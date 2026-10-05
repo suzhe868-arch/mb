@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-16_STARTUP_GATE_PENDING`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-16_BATCH_1_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,11 +16,11 @@
 
 当前域状态：
 
-> `NOT_STARTED / STARTUP_GATE_PENDING`
+> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`
 
 当前工作文件：
 
-> PDM-16 工作版尚未建立；Startup Gate 通过后再创建。当前上游正式 Authority：`07_重建工作区/PDM-15_最终完整规则.md`
+> `07_重建工作区/PDM-16_CRM客户画像阶段跟进标签机会与SourceRadar_规则原子重建_工作版.md`
 
 当前已纠正：
 
@@ -32,7 +32,20 @@
 
 当前唯一下一步：
 
-> **PDM-15 已正式 `COMPLETE / INTEGRITY_PASS`；Final 已发布，5/5 incoming handoff 已 CLOSED 并完成 source backwrite。当前唯一下一步：执行 PDM-16 Startup Gate；Startup Gate 通过前不得建立 Batch 1 Authority。IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-16 Startup Gate 已 `PASS`；6/6 incoming handoff 已 `HANDOFF_ACCEPTED`；P16-R00 已 USER_APPROVED / APPLIED。当前唯一下一步：用户审查 P16-A01～P16-A12；未获用户批准并再次确认执行前，不得写入 Batch 1 Authority。IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-06｜PDM-16 Startup Gate 通过并进入 Batch 1 审查
+
+- 用户已确认 P16-R00：CRM = 客户经营资料与统一跟进层，不重建 Customer / Demand / Consultation / Recommendation / Lock / Transaction 状态机；
+- Startup Gate = `PASS`；
+- target=PDM-16 的 6 条 incoming handoff 已全部 `HANDOFF_ACCEPTED`；
+- completed-PDM hard conflict = 0；
+- incoming handoff gap = 0；
+- 工作版：`07_重建工作区/PDM-16_CRM客户画像阶段跟进标签机会与SourceRadar_规则原子重建_工作版.md`；
+- Startup Scan 已登记：Customer Merge stale carrier、CRM 直接锁车旧入口、旧机会阈值、大字段 CRM、永久访问误义、E03-03 跟进提交链缺失、P06-07 假 CRUD/config 风险、Opportunity/Radar/强待办 carrier 缺口；
+- Batch 1 候选：`P16-A01～P16-A12`，状态 `PENDING_USER_REVIEW`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 Batch 1。
 
 ## 2026-10-06｜PDM-15 Final 正式发布并完成 Closeout
 
