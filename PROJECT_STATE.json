@@ -8,7 +8,7 @@
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "PDM-14",
+  "current_domain": "PDM-15",
   "current_domain_status": "IN_PROGRESS",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
@@ -20,13 +20,13 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-15 Startup Gate：读取 5 条 incoming handoff 与 Consultation 全量证据，完成启动门禁后再建立工作版",
-  "current_work_file": "07_重建工作区/PDM-14_Recommendation分享单车授权与可见性_规则原子重建_工作版.md",
+  "current_task": "PDM-15 Batch 1：审查 P15-A01～P15-A08 稳定一致规则候选",
+  "current_work_file": "07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
-    "Do not enter PDM-15 Batch 1 before PDM-15 Startup Gate passes and incoming handoffs are accepted",
+    "Do not mark P15-A01 through P15-A08 approved before user review",
     "Do not use Current IA or Low-Fi stale carriers to override completed PDM authority",
     "Do not modify IA or Low-Fi during product-rule reconstruction",
     "Do not execute engineering Delta"
@@ -67,7 +67,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-15_STARTUP",
+  "current_review_batch": "PDM-15_BATCH_1",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -2331,13 +2331,54 @@
   "pdm_14_final_published": true,
   "pdm_14_source_backwrite_done": true,
   "pdm_14_source_backwrite_count": 8,
-  "pdm_15_status": "STARTUP_PENDING",
-  "pdm_15_next_gate": "STARTUP_GATE",
+  "pdm_15_status": "IN_PROGRESS",
+  "pdm_15_next_gate": "BATCH_1_USER_REVIEW",
   "pdm_15_incoming_handoffs": {
-    "HO-P01-P15-001": "HANDOFF_OPEN",
-    "HO-P02-P15-001": "HANDOFF_OPEN",
-    "HO-P03-P15-001": "HANDOFF_OPEN",
-    "HO-P07-P15-001": "HANDOFF_OPEN",
-    "HO-P14-P15-001": "HANDOFF_OPEN"
+    "HO-P01-P15-001": "HANDOFF_ACCEPTED",
+    "HO-P02-P15-001": "HANDOFF_ACCEPTED",
+    "HO-P03-P15-001": "HANDOFF_ACCEPTED",
+    "HO-P07-P15-001": "HANDOFF_ACCEPTED",
+    "HO-P14-P15-001": "HANDOFF_ACCEPTED"
+  },
+  "pdm_15_start_gate": "PASS",
+  "pdm_15_work_file": "07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md",
+  "pdm_15_user_rulings": {
+    "P15-R00": "USER_APPROVED_APPLIED"
+  },
+  "pdm_15_batch_1_status": "PENDING_USER_REVIEW",
+  "pdm_15_batch_1_candidate_atoms": [
+    "P15-A01",
+    "P15-A02",
+    "P15-A03",
+    "P15-A04",
+    "P15-A05",
+    "P15-A06",
+    "P15-A07",
+    "P15-A08"
+  ],
+  "pdm_15_batch_1_approved_atoms": [],
+  "pdm_15_batch_1_pending_atoms": [
+    "P15-A01",
+    "P15-A02",
+    "P15-A03",
+    "P15-A04",
+    "P15-A05",
+    "P15-A06",
+    "P15-A07",
+    "P15-A08"
+  ],
+  "pdm_15_startup_gate": {
+    "status": "PASS",
+    "completed_pdm_hard_conflict": 0,
+    "incoming_handoff_gap": 0,
+    "current_carrier_conflicts_registered": [
+      "CANCELLED_MASTER_STATE_AMBIGUITY",
+      "SLA_FIRST_REAL_HUMAN_ACTION_SEMANTICS_MISSING",
+      "CONSULTATION_ASSIGNEE_VS_CUSTOMER_OWNER_TERMINOLOGY",
+      "CUSTOMER_DISABLE_RUNTIME_BEHAVIOR_PENDING",
+      "TRANSACTION_DOES_NOT_AUTO_RESOLVE_CONSULTATION",
+      "WORKBENCH_SLA_PRIORITY_BOUNDARY",
+      "ASSIGNEE_PRIORITY_AND_NO_LEGAL_ASSIGNEE_FALLBACK"
+    ]
   }
 }
