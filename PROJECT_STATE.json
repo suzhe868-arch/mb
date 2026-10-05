@@ -20,15 +20,13 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-14 Final Domain Overview 候选：汇总全部已批准 Atom/LIA/Handoff 并提交用户最终批准",
+  "current_task": "PDM-15 Startup Gate：读取 5 条 incoming handoff 与 Consultation 全量证据，完成启动门禁后再建立工作版",
   "current_work_file": "07_重建工作区/PDM-14_Recommendation分享单车授权与可见性_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
-    "Do not publish PDM-14 Final before Final Domain Overview user approval",
-    "Do not close PDM-14 incoming handoffs before PDM-14 Final / Integrity closeout",
-    "Do not start PDM-15 before PDM-14 Final / Integrity closeout",
+    "Do not enter PDM-15 Batch 1 before PDM-15 Startup Gate passes and incoming handoffs are accepted",
     "Do not use Current IA or Low-Fi stale carriers to override completed PDM authority",
     "Do not modify IA or Low-Fi during product-rule reconstruction",
     "Do not execute engineering Delta"
@@ -69,7 +67,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-14_FINAL_OVERVIEW",
+  "current_review_batch": "PDM-15_STARTUP",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -1868,19 +1866,19 @@
     "PDM-11": "DONE",
     "PDM-12": "DONE"
   },
-  "pdm_14_status": "IN_PROGRESS_FINAL_CANDIDATE_READY",
+  "pdm_14_status": "COMPLETE_INTEGRITY_PASS",
   "pdm_14_start_gate": "PASS",
   "pdm_14_incoming_handoffs": {
-    "HO-P01-P14-001": "HANDOFF_ACCEPTED",
-    "HO-P03-P14-001": "HANDOFF_ACCEPTED",
-    "HO-P04-P14-001": "HANDOFF_ACCEPTED",
-    "HO-P07-P14-001": "HANDOFF_ACCEPTED",
-    "HO-P10-P14-001": "HANDOFF_ACCEPTED",
-    "HO-P11-P14-001": "HANDOFF_ACCEPTED",
-    "HO-P12-P14-001": "HANDOFF_ACCEPTED",
-    "HO-P13-P14-001": "HANDOFF_ACCEPTED"
+    "HO-P01-P14-001": "HANDOFF_CLOSED",
+    "HO-P03-P14-001": "HANDOFF_CLOSED",
+    "HO-P04-P14-001": "HANDOFF_CLOSED",
+    "HO-P07-P14-001": "HANDOFF_CLOSED",
+    "HO-P10-P14-001": "HANDOFF_CLOSED",
+    "HO-P11-P14-001": "HANDOFF_CLOSED",
+    "HO-P12-P14-001": "HANDOFF_CLOSED",
+    "HO-P13-P14-001": "HANDOFF_CLOSED"
   },
-  "pdm_14_next_gate": "FINAL_OVERVIEW_USER_APPROVAL",
+  "pdm_14_next_gate": "COMPLETE",
   "pdm_14_work_file": "07_重建工作区/PDM-14_Recommendation分享单车授权与可见性_规则原子重建_工作版.md",
   "pdm_14_batch_1_status": "PASS_USER_APPROVED",
   "pdm_14_batch_1_candidate_atoms": [
@@ -2172,6 +2170,10 @@
     {
       "id": "PDM14-PREFINAL-GATE",
       "status": "PASS_FINAL_CANDIDATE_READY"
+    },
+    {
+      "id": "PDM14-FINAL",
+      "status": "COMPLETE_INTEGRITY_PASS"
     }
   ],
   "pdm_14_batch_2_status": "PASS_USER_APPROVED",
@@ -2321,5 +2323,21 @@
     "handoff_gap_unresolved": 0,
     "local_product_choice_unresolved": 0,
     "local_deferred_unresolved": 0
+  },
+  "pdm_14_final_overview_status": "USER_FINAL_APPROVED",
+  "pdm_14_final": "07_重建工作区/PDM-14_最终完整规则.md",
+  "pdm_14_final_integrity": "07_重建工作区/PDM-14_最终完整性复核_2026-10-06.md",
+  "pdm_14_final_integrity_status": "PASS",
+  "pdm_14_final_published": true,
+  "pdm_14_source_backwrite_done": true,
+  "pdm_14_source_backwrite_count": 8,
+  "pdm_15_status": "STARTUP_PENDING",
+  "pdm_15_next_gate": "STARTUP_GATE",
+  "pdm_15_incoming_handoffs": {
+    "HO-P01-P15-001": "HANDOFF_OPEN",
+    "HO-P02-P15-001": "HANDOFF_OPEN",
+    "HO-P03-P15-001": "HANDOFF_OPEN",
+    "HO-P07-P15-001": "HANDOFF_OPEN",
+    "HO-P14-P15-001": "HANDOFF_OPEN"
   }
 }
