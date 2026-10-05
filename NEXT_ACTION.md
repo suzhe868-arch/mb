@@ -28,6 +28,8 @@
 - PDM-13 Batch 1 = PASS / USER_APPROVED（P13-A01～P13-A11）
 - PDM-13 Batch 2 = PASS / USER_APPROVED（P13-B2-01～P13-B2-05）
 - PDM-13 Batch 2 Reverse Conflict Scan = PASS
+- PDM-13 Batch 3 = PASS / USER_APPROVED（P13-B3-01～P13-B3-06）
+- PDM-13 Batch 3 Conflict Isolation = PASS
 - PDM-11 Batch 1 = PASS / USER_APPROVED（P11-A01～P11-A13）
 - PDM-11 Batch 2 = PASS / USER_APPROVED
 - P11-B2-08 = USER_MODIFIED / USER_APPROVED
@@ -41,7 +43,7 @@
 
 ## 当前唯一下一步
 
-> **继续 PDM-13 Batch 3｜后续明确新增 / 明确变更 / informed changes：以 P13-A01～A11、P13-B2-01～B2-05、5 条 HANDOFF_ACCEPTED 及 Completed-PDM Final 为硬约束，重新读取后续明确裁决，识别历史规则后来被明确改变或新增冻结的 Priority 语义。Priority 客户资格、Customer Level 关系、精确仲裁、TTL 默认数值/配置主体/续期、active Lock、Transaction、公海保护等若仍存在真实冲突或产品选择，必须留到 Batch 4，不得偷渡进 Batch 3。形成 Batch 3 候选后立即停下提交用户审查，不得自动批准，不得修改 IA / Low-Fi / Engineering。**
+> **继续 PDM-13 Batch 4｜真实冲突 / 语义缺口 / 新产品选择：基于已批准 P13-A01～A11、P13-B2-01～B2-05、P13-B3-01～B3-06 与 5 条 HANDOFF_ACCEPTED，对剩余 Priority qualification / Customer Level / 多客户仲裁 / TTL / 续期 / same-cycle / trigger_demand / active Lock / Transaction / 公海保护 / 无 owner / capability 最终边界逐项形成明确候选方案。所有会改变产品语义的项必须停下等用户裁决；不得自动选历史方案，不得修改 IA / Low-Fi / Engineering。**
 
 每个 PDM 必须同时执行：
 
