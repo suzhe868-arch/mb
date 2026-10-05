@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-16（Batch 2 已通过，Batch 3 待用户审查）
+- 当前域：PDM-16（Batch 3 已通过，完整性修复待用户审查）
 - PDM-15 Startup Gate = PASS
 - PDM-15 incoming handoffs = 5 / 5 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-15 工作版 = `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
@@ -46,7 +46,9 @@
 - PDM-16 Batch 1 = P16-A01～P16-A12 / PASS / USER_APPROVED / APPLIED
 - PDM-16 Batch 2 = P16-B2-01～P16-B2-07 / PASS / USER_APPROVED / APPLIED
 - PDM-16 Batch 2 Reverse Conflict Scan = PASS / FALSE_DEPRECATION_COUNT=0
-- PDM-16 Batch 3 = P16-B3-01～P16-B3-06 / PENDING_USER_REVIEW
+- PDM-16 Batch 3 = P16-B3-01～P16-B3-06 / PASS / USER_APPROVED / APPLIED
+- PDM-16 Batch 3 Conflict Isolation = PASS / MISCLASSIFIED_PRODUCT_CHOICE=0
+- PDM-16 Batch 3 Completeness Repair = P16-B3-R01～P16-B3-R02 / PENDING_USER_REVIEW
 - PDM-11 = COMPLETE / INTEGRITY_PASS
 - PDM-12 = COMPLETE / INTEGRITY_PASS
 - PDM-11 启动门禁 = UNBLOCKED
@@ -98,7 +100,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-16 Batch 2 已 `PASS / USER_APPROVED / APPLIED`，Reverse Conflict Scan = `PASS / FALSE_DEPRECATION_COUNT=0`。当前唯一下一步：用户审查 `P16-B3-01～P16-B3-06` 明确恢复 / 补齐业务能力候选；未经用户批准并再次“确认执行”，不得写入 Batch 3 Authority。6 条 incoming handoff 继续 HANDOFF_ACCEPTED，IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-16 Batch 3 已 `PASS / USER_APPROVED / APPLIED`，Conflict Isolation = `PASS / MISCLASSIFIED_PRODUCT_CHOICE=0`。完整性回查发现 2 条明确历史规则尚未完整承接。当前唯一下一步：用户审查 `P16-B3-R01～P16-B3-R02`；修复完成前不得进入 Batch 4。6 条 incoming handoff 继续 HANDOFF_ACCEPTED，IA / Low-Fi / Engineering 继续禁止施工。**
 
 每个 PDM 必须同时执行：
 
