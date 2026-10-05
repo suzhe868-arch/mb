@@ -1,10 +1,10 @@
 # PDM-13｜Priority / 仲裁 / TTL / active Lock 边界｜规则原子重建工作版
 
 > 日期：2026-10-05  
-> 当前状态：`BATCH_2_PASS / USER_APPROVED / IN_PROGRESS`  
+> 当前状态：`BATCH_3_PASS / USER_APPROVED / IN_PROGRESS`  
 > 业务权威语言：中文（zh-CN）  
 > 当前域：PDM-13｜Priority / 仲裁 / TTL / active Lock 边界  
-> 当前硬门禁：Batch 2 已获用户批准并确认执行；下一步只允许重建 Batch 3（后续明确新增 / 明确变更 / informed changes）候选，形成候选后立即停下提交用户审查。不得提前修改 IA / Low-Fi / Engineering。
+> 当前硬门禁：Batch 3 已获用户批准并确认执行；下一步进入 Batch 4（真实冲突 / 缺口 / 新产品选择）候选重建，形成候选后立即停下提交用户审查。不得提前修改 IA / Low-Fi / Engineering。
 
 ---
 
@@ -477,8 +477,185 @@ Current `E05-05::HIDDEN_CONTROLLED` 中“对应客户因 Demand/Priority 上下
 
 ---
 
-# 9. 当前唯一下一步
+# 9. Batch 3｜后续明确新增 / 明确变更｜USER APPROVED
 
-> **重建 PDM-13 Batch 3：重新读取后续明确裁决与 Completed-PDM Authority，识别“历史规则后来被明确改变”以及“后续已经新增并冻结”的 Priority 语义。重点不得把仍然是真实冲突 / 新产品选择的问题偷渡成 Batch 3。形成 Batch 3 候选后立即停下提交用户审查。**
+> 用户已审查并确认 `P13-B3-01～P13-B3-06`，并明确“同意，确认执行”。  
+> Batch 3 Gate：`PASS / USER_APPROVED / APPLIED_TO_WORKFILE`。
+
+## P13-B3-01｜Priority 员工侧查看 / 处理统一继承 PDM-02 权限模型
+
+Priority 员工侧任何查看或动作不得建立第二套权限计算逻辑，统一服从：
+
+`identity + permission + data scope + object state`
+
+固定规则：
+
+- 页面可见不等于动作授权；
+- 字段返回不等于动作授权；
+- 敏感提交必须按当前事实重新校验；
+- 经理 / 店长不得仅因职位自动取得敏感 Priority 能力；
+- System Admin 的控制平面治理身份不自动等于 Priority 业务执行身份；
+- 4S 是否可见 / 可执行必须继续服从当前 hard DENY 与后续明确 capability，不得从旧页面反推权限。
+
+本条**不提前冻结具体 capability 命名**，例如是否保留 `priority.view`、是否另设管理能力；若存在真实冲突留 Batch 4。
+
+来源：PDM-02 Final。
+
+---
+
+## P13-B3-02｜Priority 交接必须进入正式 Handover Batch
+
+Priority 已被 PDM-02 / PDM-03 Final 明确纳入离职、inactive、调店、降权、承责资格丧失时的活跃业务交接范围。
+
+正式规则：
+
+- 计划性调店 / 降权若会导致原 Priority 责任失效，应先完成相应业务交接，再让变化正式生效；
+- 突发 inactive / 离职先立即撤权，再由合法 active 人员补完业务交接；
+- Priority 不得继续挂在失效员工名下；
+- 每个受影响 Priority 必须进入可追溯 handover batch；
+- 至少保留原负责人、新负责人、操作人、操作时间、交接原因、批次来源及再次分配历史；
+- 提交时重新校验目标人员当前 active / eligible / permission / data scope / object state；
+- 批量交接部分失败时，已成功项不得整体回滚；失败项继续待处理，重试只处理未闭环对象；
+- 交接不得改写 Priority 原创建事实 / 历史。
+
+本条仍不提前裁决交接时 Priority 是否继续 active、TTL 是否受影响等 lifecycle 细节。
+
+来源：PDM-02 Final §9.5 + PDM-03 Final §13/14。
+
+---
+
+## P13-B3-03｜若按 Demand 创建先后仲裁，只能使用不可变 Demand.created_at
+
+PDM-11 已冻结 `Demand.created_at`：
+
+- 仅在 Application 首次成功人工激活并创建正式 Demand 时写入；
+- 创建后不可重写；
+- pause / resume / reassignment 不改变；
+- 不得使用 `updated_at`；
+- 不得使用最近 resume 时间；
+- 不得使用最近改派时间替代。
+
+因此：
+
+> PDM-13 后续若选择“按 Demand 创建先后”作为 Priority 仲裁维度，只能读取该不可变 `Demand.created_at`。
+
+本条**不等于已经决定必须使用 created_at 排序**；是否采用该仲裁维度、以及与 `high/acceptable`、`demand_id` 的最终顺序仍留 Batch 4。
+
+来源：PDM-11 Final §9。
+
+---
+
+## P13-B3-04｜Demand / Matching 失效后现有 Priority 必须重新评估
+
+Priority 不能继续依赖已经失效的 Matching 事实。
+
+当以下情况导致原 Match Result 退出 current valid 集合时：
+
+- Demand → paused；
+- Demand → completed / cancelled；
+- Customer disable 导致 active Demand → paused；
+- find-car entitlement 下降导致 active Demand → paused；
+- Matching readiness 失效；
+- Match Result 被标记 stale / invalidated；
+- 其他 PDM-12 已冻结的 current-result 退出条件；
+
+该旧 Match Result 不得继续作为当前 Priority 资格依据。
+
+Priority 必须进入重新评估。
+
+重新评估后的具体 lifecycle，例如：
+
+- 是否切换同 Customer 其他 Demand；
+- 是否直接结束；
+- 是否保留原 expires_at；
+
+继续留 Batch 4 裁决。
+
+来源：PDM-11 Final §14/15 + PDM-12 Final §29/30。
+
+---
+
+## P13-B3-05｜active Lock 不阻断 Matching；PDM-13 只处理 Lock×Priority 边界
+
+PDM-12 已冻结：
+
+- active Lock 本身不等于 Vehicle 不可 Matching；
+- Vehicle 底层仍真实可售且其他 Guard 合法时，其他 Demand 仍可得到 Match Result；
+- 结果必须携带“当前已锁 / 已占用”事实；
+- 即使 Match Result = high / acceptable，也不代表当前 Customer 可以直接 Lock。
+
+因此 PDM-13 不得：
+
+- 因 Vehicle 有 active Lock 就要求 PDM-12 停止 Matching；
+- 删除原合法 Match Result；
+- 把“已锁”误解释成 no_match。
+
+PDM-13 只负责在获得合法 Match Result 后处理：
+
+- active Lock 时 Priority 是否可新建；
+- 已有 Priority 是否可继续；
+- 正式 Lock 如何 takeover / end Priority。
+
+上述三个**具体答案仍留 Batch 4**。
+
+来源：PDM-12 Final §18 / §35。
+
+---
+
+## P13-B3-06｜Priority 重评只消费 PDM-12 current Match Result / Matching change fact
+
+Vehicle、价格、Demand、Rule Dictionary 等变化导致 Matching 事实变化时：
+
+1. PDM-12 负责确定性解析 / 事实确认 / 重算；
+2. PDM-12 产生新的 current Match Result 或 stale / invalidated fact；
+3. PDM-12 可产生可追溯 Matching change fact；
+4. PDM-13 读取这些当前事实重新评估 Priority。
+
+PDM-13 不得：
+
+- 自己复制一套 Matching parser / dictionary；
+- 自己偷偷把 old result 改成 high / acceptable；
+- 绕过 PDM-12 自行猜测车辆/需求事实。
+
+这保持：
+
+`ONE_MATCHING_AUTHORITY`
+
+注意：本条只冻结 Authority 边界；Priority 自身完整的重评 / 重新仲裁事件全集仍需 Final 前完整性审计。
+
+来源：PDM-12 Final §28/29/31。
+
+---
+
+# 10. Batch 3 冲突隔离结果
+
+本批只吸收 Completed-PDM 已明确冻结的后续约束，没有将以下真实产品选择偷渡进来：
+
+1. Priority Customer qualification 最终来源；
+2. Customer Level 与 Priority 的关系；
+3. qualification 配置 actor / permission；
+4. 精确多 Customer 仲裁；
+5. 是否采用 `high > acceptable → created_at → demand_id`；
+6. 默认 TTL 数值；
+7. TTL 配置主体；
+8. 是否允许续期；
+9. 完整 ended reason；
+10. same listing_cycle 再获得；
+11. trigger_demand 切换与 expires_at；
+12. active Lock / Lock takeover 的最终答案；
+13. Transaction 边界；
+14. active Priority 与公海保护；
+15. Priority qualification 与无 owner / 无合法负责销售的关系；
+16. Priority 员工 capability 的最终命名与最小集合。
+
+结论：
+
+`BATCH_3_CONFLICT_ISOLATION = PASS`
+
+---
+
+# 11. 当前唯一下一步
+
+> **进入 PDM-13 Batch 4：对剩余真实冲突、语义缺口与新产品选择逐项给出候选方案并提交用户裁决。重点包括 Priority 资格来源 / Customer Level 关系、精确仲裁、TTL 默认值与配置主体、续期、same-cycle、trigger_demand、active Lock / Transaction、公海保护、无 owner / 无合法负责销售以及员工 Priority capability 最终边界。形成 Batch 4 候选后立即停下等待用户审查。**
 
 IA / Low-Fi / Engineering 继续禁止施工。
