@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-14_BATCH_4_PENDING`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-14_PREFINAL_INTEGRITY_PENDING`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / START_GATE_PASS / BATCH_1_USER_APPROVED / BATCH_2_USER_APPROVED / BATCH_3_USER_APPROVED`
+> `IN_PROGRESS / START_GATE_PASS / BATCH_1_USER_APPROVED / BATCH_2_USER_APPROVED / BATCH_3_USER_APPROVED / BATCH_4_USER_APPROVED`
 
 当前工作文件：
 
@@ -32,7 +32,23 @@
 
 当前唯一下一步：
 
-> **PDM-14 Start Gate 已 PASS；8 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；Batch 1 `P14-A01～P14-A14`、用户追加裁决 `P14-R01～P14-R04`、Batch 2 `P14-B2-01～P14-B2-11` 与 Batch 3 `P14-B3-01～P14-B3-05` 均已用户批准并执行；Batch 2 Reverse Conflict Scan = PASS，Batch 3 Conflict Isolation = PASS。当前唯一下一步：进入 PDM-14 Batch 4，扫描真实冲突、遗漏、语义缺口与仍需产品选择的事项，形成候选后停下用户审查。IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-14 Start Gate 已 PASS；Batch 1～4 均已用户批准并执行；Batch 4 用户选择为 `1A、2B、3A、4A、5A、6A、7A、8A`，`LOCAL_PRODUCT_CHOICE_UNRESOLVED=0`。8 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；新增 outgoing `HO-P14-P15-001 = HANDOFF_OPEN`。当前唯一下一步：进入 PDM-14 Final 前完整性复核，重新执行 Missing Rule / Semantic Detail / Source↔Atom / Completed-PDM Invariant / Cross-PDM Handoff / stale carrier / Negative Claims / Local Deferred 扫描。复核达到 FINAL_CANDIDATE_READY 前不得生成 Final Domain Overview；IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-06｜PDM-14 Batch 4 用户裁决并执行
+
+- 用户选择：`1A、2B、3A、4A、5A、6A、7A、8A`；
+- `P14-B4-01～P14-B4-08 = PASS / USER_APPROVED / APPLIED`；
+- `PDM14_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- Recommendation end/void 改为按当前合法业务责任 + permission/data scope/object state 判断，不给历史 recommender 或经理/店长永久/天然操作权；
+- Customer 失去 find-car entitlement 后不删除已有 Recommendation，但暂停 Recommendation-only 客户侧能力；恢复权益时仅恢复当时仍合法 active 对象；
+- active Recommendation 在同 cycle 内持续作为 visible→hidden 后的 customer-specific visibility 授权来源；
+- 普通分享链接只提供导航，每次打开按当前 Vehicle/listing_cycle/Customer/Priority/独立业务 Authority 实时重算；新 cycle 不继承旧周期权益；
+- Recommendation 历史 price snapshot 与当前价格严格分层；旧 cycle Recommendation 不授权新 cycle 当前价格；
+- 合法 source_type 修改 / 一键转名邦不重建、迁移或清空 Recommendation；
+- active Lock / in-progress Transaction 占用本身不自动禁止 Recommendation，但 Recommendation 不产生锁车优先权、不绕过占用；
+- Recommendation 与 Consultation 不相互反写；新增 `HO-P14-P15-001 = HANDOFF_OPEN`，由 PDM-15 承接 Consultation 完整生命周期；
+- 8 条 incoming handoff 继续 `HANDOFF_ACCEPTED`，未提前关闭；
+- 当前唯一下一步：PDM-14 Final 前完整性复核。
 
 ## 2026-10-06｜PDM-14 Batch 3 用户批准并执行
 
