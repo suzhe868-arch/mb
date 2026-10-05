@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "DOMAIN_RULE_START_GATE",
+  "substage": "DOMAIN_RULE_BATCH_REVIEW",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-14",
-  "current_domain_status": "NOT_STARTED",
+  "current_domain_status": "IN_PROGRESS",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-14 启动门禁：读取覆盖地图、9/19 C3/R7/R10、001～078 M05/M16/M11、Current carrier 与 8 条 incoming HANDOFF_OPEN，建立工作版并形成 Batch 1 候选",
-  "current_work_file": "07_重建工作区/PDM-13_Priority仲裁TTL与Lock边界_规则原子重建_工作版.md",
+  "current_task": "PDM-14 Batch 2：扫描明确废弃 / 替代 / DO_NOT_RESTORE 语义，形成候选后停下用户审查",
+  "current_work_file": "07_重建工作区/PDM-14_Recommendation分享单车授权与可见性_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -68,7 +68,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-14_START_GATE",
+  "current_review_batch": "PDM-14_BATCH_2",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -1867,17 +1867,141 @@
     "PDM-11": "DONE",
     "PDM-12": "DONE"
   },
-  "pdm_14_status": "NOT_STARTED_START_GATE_PENDING",
-  "pdm_14_start_gate": "PENDING",
+  "pdm_14_status": "IN_PROGRESS_BATCH1_PASS_USER_APPROVED",
+  "pdm_14_start_gate": "PASS",
   "pdm_14_incoming_handoffs": {
-    "HO-P01-P14-001": "HANDOFF_OPEN",
-    "HO-P03-P14-001": "HANDOFF_OPEN",
-    "HO-P04-P14-001": "HANDOFF_OPEN",
-    "HO-P07-P14-001": "HANDOFF_OPEN",
-    "HO-P10-P14-001": "HANDOFF_OPEN",
-    "HO-P11-P14-001": "HANDOFF_OPEN",
-    "HO-P12-P14-001": "HANDOFF_OPEN",
-    "HO-P13-P14-001": "HANDOFF_OPEN"
+    "HO-P01-P14-001": "HANDOFF_ACCEPTED",
+    "HO-P03-P14-001": "HANDOFF_ACCEPTED",
+    "HO-P04-P14-001": "HANDOFF_ACCEPTED",
+    "HO-P07-P14-001": "HANDOFF_ACCEPTED",
+    "HO-P10-P14-001": "HANDOFF_ACCEPTED",
+    "HO-P11-P14-001": "HANDOFF_ACCEPTED",
+    "HO-P12-P14-001": "HANDOFF_ACCEPTED",
+    "HO-P13-P14-001": "HANDOFF_ACCEPTED"
   },
-  "pdm_14_next_gate": "START_GATE_AND_BATCH1_RECONSTRUCTION"
+  "pdm_14_next_gate": "BATCH2_REVERSE_CONFLICT_RECONSTRUCTION",
+  "pdm_14_work_file": "07_重建工作区/PDM-14_Recommendation分享单车授权与可见性_规则原子重建_工作版.md",
+  "pdm_14_batch_1_status": "PASS_USER_APPROVED",
+  "pdm_14_batch_1_candidate_atoms": [
+    "P14-A01",
+    "P14-A02",
+    "P14-A03",
+    "P14-A04",
+    "P14-A05",
+    "P14-A06",
+    "P14-A07",
+    "P14-A08",
+    "P14-A09",
+    "P14-A10",
+    "P14-A11",
+    "P14-A12",
+    "P14-A13",
+    "P14-A14"
+  ],
+  "pdm_14_batch_1_approved_atoms": [
+    "P14-A01",
+    "P14-A02",
+    "P14-A03",
+    "P14-A04",
+    "P14-A05",
+    "P14-A06",
+    "P14-A07",
+    "P14-A08",
+    "P14-A09",
+    "P14-A10",
+    "P14-A11",
+    "P14-A12",
+    "P14-A13",
+    "P14-A14"
+  ],
+  "pdm_14_batch_1_pending_atoms": [],
+  "pdm_14_user_rulings": {
+    "P14-R01": "PRIORITY_QUALIFICATION_IS_CUSTOMER_ATTRIBUTE_PRIORITY_DOES_NOT_CREATE_NEW_RECOMMENDATION_EMPLOYEE_AUTHORITY",
+    "P14-R02": "REMOVE_INDEPENDENT_RECOMMENDATION_QUALIFICATION_USE_CUSTOMER_LEVEL_FIND_CAR_ENTITLEMENT_PRIORITY_QUALIFICATION_REMAINS_SEPARATE",
+    "P14-R03": "CUSTOMER_DISABLE_PAUSES_RECOMMENDATION_CUSTOMER_SIDE_CAPABILITY_NO_DELETE_OR_AUTO_END_RESTORE_RECHECKS_CURRENT_FACTS",
+    "P14-R04": "OTHER_CUSTOMER_ACTIVE_PRIORITY_SUPPRESSES_EXISTING_RECOMMENDATION_VISIBILITY_HISTORY_PRESERVED_RESTORE_BY_CURRENT_FACTS"
+  },
+  "pdm_14_stale_carriers": [
+    "P06_06_INDEPENDENT_RECOMMENDATION_QUALIFICATION_SWITCH",
+    "RECOMMENDATION_QUALIFIED_NOT_QUALIFIED_INDEPENDENT_STATE",
+    "INDEPENDENT_RECOMMENDATION_QUALIFICATION_MANAGE_PERMISSION_ONLY_FOR_OLD_SWITCH",
+    "PRIORITY_RESPONSIBLE_AS_NEW_RECOMMENDATION_AUTHORITY",
+    "DELETE_OR_END_EXISTING_RECOMMENDATION_DURING_OTHER_CUSTOMER_PRIORITY"
+  ],
+  "pdm_14_current_implementation_fact": "CURRENT_CARRIER_HAS_OLD_INDEPENDENT_RECOMMENDATION_QUALIFICATION_AND_VISIBILITY_SEMANTICS_STALE_CARRIERS_REGISTERED",
+  "pdm_14_cross_pdm_conflict_status": "PASS_NO_COMPLETED_PDM_CONFLICT",
+  "pdm_14_decisions": [
+    {
+      "id": "PDM14-DEC-A01",
+      "status": "USER_APPROVED"
+    },
+    {
+      "id": "PDM14-DEC-A02",
+      "status": "USER_APPROVED"
+    },
+    {
+      "id": "PDM14-DEC-A03",
+      "status": "USER_APPROVED"
+    },
+    {
+      "id": "PDM14-DEC-A04",
+      "status": "USER_APPROVED"
+    },
+    {
+      "id": "PDM14-DEC-A05",
+      "status": "USER_APPROVED"
+    },
+    {
+      "id": "PDM14-DEC-A06",
+      "status": "USER_APPROVED"
+    },
+    {
+      "id": "PDM14-DEC-A07",
+      "status": "USER_APPROVED"
+    },
+    {
+      "id": "PDM14-DEC-A08",
+      "status": "USER_APPROVED"
+    },
+    {
+      "id": "PDM14-DEC-A09",
+      "status": "USER_APPROVED"
+    },
+    {
+      "id": "PDM14-DEC-A10",
+      "status": "USER_APPROVED"
+    },
+    {
+      "id": "PDM14-DEC-A11",
+      "status": "USER_APPROVED"
+    },
+    {
+      "id": "PDM14-DEC-A12",
+      "status": "USER_APPROVED"
+    },
+    {
+      "id": "PDM14-DEC-A13",
+      "status": "USER_APPROVED"
+    },
+    {
+      "id": "PDM14-DEC-A14",
+      "status": "USER_APPROVED"
+    },
+    {
+      "id": "PDM14-DEC-R01",
+      "status": "USER_APPROVED_APPLIED"
+    },
+    {
+      "id": "PDM14-DEC-R02",
+      "status": "USER_APPROVED_APPLIED"
+    },
+    {
+      "id": "PDM14-DEC-R03",
+      "status": "USER_APPROVED_APPLIED"
+    },
+    {
+      "id": "PDM14-DEC-R04",
+      "status": "USER_APPROVED_APPLIED"
+    }
+  ]
 }
