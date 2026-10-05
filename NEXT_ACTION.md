@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-17（Startup Gate 尚未执行）
+- 当前域：PDM-17（Startup Gate 已通过，当前 Batch 1 用户审查）
 - PDM-15 Startup Gate = PASS
 - PDM-15 incoming handoffs = 5 / 5 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-15 工作版 = `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
@@ -60,6 +60,11 @@
 - PDM-16 Final Integrity = `07_重建工作区/PDM-16_最终完整性复核_2026-10-06.md` / PASS
 - PDM-16 Source Backwrite = 6 / 6 DONE
 - PDM-16 Outgoing Handoffs = PDM-17 / PDM-21 / PDM-22 / PDM-23 / PDM-25 = HANDOFF_OPEN
+- PDM-17 Startup Gate = PASS
+- PDM-17 核心定位 P17-R00 = USER_APPROVED / APPLIED
+- PDM-17 incoming handoffs = 6 / 6 HANDOFF_ACCEPTED
+- PDM-17 工作版 = `07_重建工作区/PDM-17_公海待公海领取指定分配与协作_规则原子重建_工作版.md`
+- PDM-17 Batch 1 = P17-A01～P17-A15 / PENDING_USER_REVIEW
 - PDM-11 = COMPLETE / INTEGRITY_PASS
 - PDM-12 = COMPLETE / INTEGRITY_PASS
 - PDM-11 启动门禁 = UNBLOCKED
@@ -107,11 +112,11 @@
 
 总控工作单：
 
-> `07_重建工作区/PDM-16_CRM客户画像阶段跟进标签机会与SourceRadar_规则原子重建_工作版.md`
+> `07_重建工作区/PDM-17_公海待公海领取指定分配与协作_规则原子重建_工作版.md`
 
 ## 当前唯一下一步
 
-> **PDM-16 已正式 `COMPLETE / INTEGRITY_PASS`：36 个规则/裁决单元进入 Final，6/6 incoming handoff CLOSED 且 source backwrite 完成，5 条 outgoing handoff 保持 OPEN。当前唯一下一步：PDM-17 Startup Gate。**
+> **PDM-17 Startup Gate 已 PASS，P17-R00 已批准并执行，6/6 incoming handoff 已 HANDOFF_ACCEPTED。当前唯一下一步：用户审查 Batch 1（P17-A01～P17-A15）；未经用户确认不得进入 Batch 2。**
 
 每个 PDM 必须同时执行：
 
@@ -165,7 +170,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-14 均已 `COMPLETE / INTEGRITY_PASS`。PDM-14 的 8 条 incoming handoff 已全部 `HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE`；PDM-15 Startup Gate 已通过，target=PDM-15 的 5 条 incoming handoff 已全部转为 `HANDOFF_ACCEPTED`；在 PDM-15 Final / Integrity closeout 前不得提前关闭。
+当前 PDM-01～PDM-16 均已 `COMPLETE / INTEGRITY_PASS`。PDM-17 Startup Gate 已通过，target=PDM-17 的 6 条 incoming handoff 已全部 `HANDOFF_ACCEPTED`；在 PDM-17 Final / Integrity closeout 前不得提前关闭。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 

@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-17_STARTUP_GATE`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-17_BATCH_1_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,11 +16,11 @@
 
 当前域状态：
 
-> `NOT_STARTED / STARTUP_GATE_PENDING`
+> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`
 
 当前工作文件：
 
-> `07_重建工作区/PDM-16_CRM客户画像阶段跟进标签机会与SourceRadar_规则原子重建_工作版.md`
+> `07_重建工作区/PDM-17_公海待公海领取指定分配与协作_规则原子重建_工作版.md`
 
 当前已纠正：
 
@@ -32,7 +32,23 @@
 
 当前唯一下一步：
 
-> **PDM-16 已 `COMPLETE / INTEGRITY_PASS`：Final 已发布，Final Integrity PASS，6/6 incoming handoff CLOSED 并完成 source backwrite，5 条 outgoing handoff 保持 HANDOFF_OPEN。当前唯一下一步：PDM-17 Startup Gate。**
+> **PDM-17 Startup Gate 已 `PASS`：P17-R00 已用户批准并执行，target=PDM-17 的 6/6 incoming handoff 已全部 `HANDOFF_ACCEPTED`，completed-PDM hard conflict=0，incoming handoff gap=0。当前唯一下一步：用户审查 PDM-17 Batch 1（P17-A01～P17-A15）。**
+
+## 2026-10-06｜PDM-17 Startup Gate 通过并进入 Batch 1 审查
+
+- 用户已确认并授权执行 P17-R00：PDM-17 是公海治理与 Collaboration（协作关系）业务 Authority；
+- PDM-17 负责：待公海处理、人工判断、进入/退出公海、领取、指定分配、主动人工服务触发的 owner 分配、再次释放，以及 Collaboration 建立/范围/结束；
+- PDM-17 不重建 Customer / CRM / Demand / Priority / Consultation / Recommendation / Lock / Transaction 第二套状态机；
+- Startup Gate = `PASS`；
+- target=PDM-17 的 6 条 incoming handoff 已由 `HANDOFF_OPEN` → `HANDOFF_ACCEPTED`；
+- incoming：HO-P02-P17-001 / HO-P03-P17-001 / HO-P11-P17-001 / HO-P13-P17-001 / HO-P15-P17-001 / HO-P16-P17-001；
+- completed-PDM hard conflict = 0；
+- incoming handoff gap = 0；
+- Current Authority Refresh 已覆盖 9/19 R6/R10/R12、001～078 M02/M17、Current E08/E08-01/P06-03/04/05，以及 PDM-02/03/11/13/15/16 Final；
+- Startup Scan 已登记：待公海三选一、领取数量/频率、并发领取、无待确认领取、主动人工服务自动分配退出公海、首次跟进提醒、Collaboration 两级 scope 等历史细节在 Current carrier 中存在不同程度缺口；当前只进入规则审查，不修改 IA / Low-Fi / Engineering；
+- 工作版：`07_重建工作区/PDM-17_公海待公海领取指定分配与协作_规则原子重建_工作版.md`；
+- Batch 1 候选：`P17-A01～P17-A15`，状态 `PENDING_USER_REVIEW`；
+- 当前唯一下一步：用户审查 PDM-17 Batch 1。
 
 ## 2026-10-06｜PDM-16 Final 正式发布并完成 Closeout
 
