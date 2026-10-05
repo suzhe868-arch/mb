@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-13_BATCH_4_RECONSTRUCTION`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-13_PREFINAL_INTEGRITY`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_3_PASS / USER_APPROVED`
+> `IN_PROGRESS / BATCH_4_PASS / USER_APPROVED / PREFINAL_INTEGRITY_PENDING`
 
 当前工作文件：
 
@@ -32,7 +32,28 @@
 
 当前唯一下一步：
 
-> **PDM-13 Batch 3 已用户批准并确认执行：`P13-B3-01～P13-B3-06 = PASS / USER_APPROVED`；Batch 3 冲突隔离 = PASS。当前唯一下一步：进入 Batch 4，对剩余真实冲突、语义缺口与新产品选择逐项形成候选方案并提交用户裁决，重点包括 Priority 资格来源 / Customer Level 关系、精确仲裁、TTL 默认值与配置主体、续期、same-cycle、trigger_demand、active Lock / Transaction、公海保护、无 owner / 无合法负责销售以及员工 Priority capability 最终边界。IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-13 Batch 4 已用户批准并确认执行：B4-01 按用户修正版；B4-02=2A、B4-03=3A、B4-04=4A、B4-05=5A、B4-06=6A、B4-07=7A、B4-08=8A；`PDM13_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`。当前唯一下一步：执行 PDM-13 Final 前完整性复核，重新检查 Source→Atom、Atom→Source、Semantic Completeness、Completed-PDM Invariant、Cross-PDM Handoff Integrity、Negative Claims、stale carrier 与局部未闭环；发现缺口先形成 LIA 修复候选并停下用户审查，全部 PASS 后再生成 Final Domain Overview。IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-05｜PDM-13 Batch 4 用户批准并执行
+
+- 用户最终裁决：B4-01 按用户修正版；B4-02=2A、B4-03=3A、B4-04=4A、B4-05=5A、B4-06=6A、B4-07=7A、B4-08=8A；
+- Priority 资格固定为后台针对单个 Customer 的独立开关，不由 Customer Level 自动产生；Customer Level 继续只决定正式 find-car entitlement；
+- 所有合法正式 Demand 共用 PDM-12 一套 Matching；hidden 但真实可售 Vehicle 仍可内部 Matching；
+- active Priority 是 Matching 后的限时排他保护：其他普通客户/无关员工不能通过普通后续链路获得该车；Priority Customer 本人也不会因 Priority 自动获得详情权；
+- trigger Demand 当前合法负责人先处理并决定 Recommendation；Recommendation/visibility grant 合法成立后客户才可见；
+- 不建设独立全局 priority.view / priority.manage / priority.override；Priority 查看/处理跟随业务责任、合法管理范围及 PDM-02 通用权限模型；
+- 多 Priority Customer 仲裁：high > acceptable → Demand.created_at 更早 → demand_id 更小；
+- 默认 TTL=24h/86400s，后台全局可配，创建时冻结，不人工续期；Recommendation、重算、trigger Demand 切换、责任交接均不重置；
+- same listing_cycle 对客户放弃/员工释放/Recommendation 取消/TTL expired 做自动再获得抑制；新真实事实或新 listing_cycle 可重新参加仲裁；
+- trigger Demand 失效时优先切同 Customer 其他合法 Demand，原 expires_at 不变；无可切换 Demand 则 ended；
+- active Lock 不阻断 Matching 但阻止新 Priority；正式 Lock / in-progress Transaction 可结束 active Priority；释放/取消后不恢复旧 Priority，重新按当前事实仲裁；
+- Priority current responsible 跟随 trigger Demand responsible；Handover Batch 中 TTL 自然运行，不暂停、不延长、不重置；无合法负责人不得新建 Priority；
+- Priority 资格本身不是公海保护，active Priority 才是；ended 后重读其他保护事实；
+- ended 必须保留真实 reason，并在 Vehicle 合法重新开放后读取所有 Customer 当前合法 Match Result 再决定新 Priority 或普通业务流；
+- 新增 PDM-13→PDM-14/17/18/19/25 future handoff，均登记 HANDOFF_OPEN；
+- PDM-13 incoming 5 条 handoff 继续 HANDOFF_ACCEPTED，待 Final / Integrity closeout；
+- stale carrier 新增：历史独立 priority.view 全局穿透查看方向已 superseded；
+- 当前唯一下一步：PDM-13 Final 前完整性复核。
 
 ## 2026-10-05｜PDM-13 Batch 3 用户批准并执行
 
