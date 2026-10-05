@@ -589,7 +589,7 @@ PDM-11 不得恢复以下旧方向：
 - PDM-12：`HANDOFF_CLOSED`。PDM-12 Final 已承接 Matching readiness、确定性解析、四级 Match Result、事件驱动重算与 current/stale 结果边界；Application 不参与正式 Matching，只有 active + matching-ready Demand 进入。
 - PDM-13：`HANDOFF_CLOSED`。PDM-13 Final §§2-3,6,8-9,14 已承接 pending Application 不产 Priority、Priority 仅基于合法 active+matching-ready Demand/current high/acceptable Match Result、Demand.created_at 作为不可变仲裁时间、trigger Demand 失效/Match tier downgrade 时切同 Customer 其他合法 Demand 或结束并重仲裁；
 - PDM-14：`HANDOFF_CLOSED`。PDM-14 Final 已承接 Recommendation / source_demand_id、find-car entitlement 作为正式 Recommendation 资格、Demand paused/completed/cancelled 不被 Recommendation 反向激活、多 Demand 保留真实 source；`HO-P11-P14-001 = HANDOFF_CLOSED / source_backwrite=YES`；
-- PDM-16：CRM 等级、entitlement、Application/Demand 概览与 demand_id 跟进；
+- PDM-16：`HANDOFF_CLOSED`。PDM-16 Final 已正式承接 CRM Customer Detail 的 Level / entitlement / pending Application / active-paused-completed-cancelled Demand 概览，以及统一 CRM Follow-up 通过 demand_id 关联；`HO-P11-P16-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-17：pending Application 公海保护、owner 分配、交接；
 - PDM-20：C02 多对象工作区、客户等级提示、暂停/恢复/结束请求；
 - PDM-21：员工工作台、人工激活、Demand 完整详情与状态动作；
@@ -680,7 +680,7 @@ PDM-11 已正式完成：
 
 - PDM-12 接收 Matching / readiness / deterministic parsing / Match Result handoff；
 - PDM-13 已完成 Priority 与 Demand.created_at / Demand lifecycle 承接：`HO-P11-P13-001 = HANDOFF_CLOSED / target=PDM-13 Final §§2-3,6,8-9,14 / source_backwrite=YES`；
-- PDM-14 已完成并 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-16 / 17 / 20 / 21 / 22 / 25 继续按 handoff register 承接；
+- PDM-14 已完成并 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-16 已完成并 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-17 / 20 / 21 / 22 / 25 继续按 handoff register 承接；
 - IA / Low-Fi 仍不得在当前阶段施工，统一延后到 PDM-25 + 全局最终审计后。
 
 PDM-11 Final 完成不代表这些后续 handoff 已落地；其状态继续由目标 PDM 的 ACCEPTED / CLOSED 流程管理。
