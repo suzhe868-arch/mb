@@ -1,7 +1,7 @@
 # PDM-14｜Recommendation / 普通分享 / 单车授权 / 隐藏车客户可见性｜规则原子重建工作版
 
-> 日期：2026-10-05  
-> 状态：`IN_PROGRESS / START_GATE_PASS / BATCH_1_USER_APPROVED`  
+> 日期：2026-10-06  
+> 状态：`IN_PROGRESS / START_GATE_PASS / BATCH_1_USER_APPROVED / BATCH_2_USER_APPROVED / BATCH_3_USER_APPROVED / BATCH_4_USER_APPROVED`  
 > 当前 Authority：仅作为 PDM-14 工作版；PDM-14 Final 发布前不得标记 COMPLETE。  
 > 方法：9/19 主底盘 + 前向历史补全 + 后向显式 supersession + Current Authority Refresh + Current Implementation Fact + Cross-PDM Handoff。
 
@@ -551,7 +551,153 @@ PDM-13 后续 Final 明确：
 - 旧分享链接跨周期、车辆失效后的所有精确展示细节，如存在冲突或缺口继续进入 Batch 4 / 后续客户端域核对；
 - 任何仍需用户重新选方案的 Recommendation end、visibility grant、分享历史访问边界不得由 Batch 3 静默裁决。
 
-## 7. 本轮 Cross-PDM 一致性结论
+## 7. Batch 4｜冲突 / 遗漏 / 缺口 / 新产品选择
+
+> 用户于 2026-10-06 明确裁决：`1A、2B、3A、4A、5A、6A、7A、8A`，随后以“确定指向”确认执行。本批完成 PDM-14 前三批未完全冻结的生命周期、可见性、旧分享、价格投影与跨域边界。
+
+### P14-B4-01｜Recommendation end / void 的当前合法操作主体与历史事实
+
+**用户选择：1A**
+
+- Recommendation end / void 必须按当前合法 Customer / source Demand 业务责任关系与 PDM-02 `identity + permission + data scope + object state` 判断；
+- 当前合法负责该 Customer / source Demand 的销售，在满足权限与范围时可以执行；
+- 原 recommender 只有在当前仍 active、仍具合法业务资格、权限与 data scope 时才可操作，不能仅凭“历史推荐人”永久保留当前操作权；
+- 经理 / 店长不因职位天然获得 end / void 权限，必须满足对应 capability + data scope；
+- `void` 表示创建错误或该 Recommendation 本身不应成立，必须填写可审计原因；
+- 普通 `end` 表示业务上明确结束推荐关系，原因允许记录但 V1 不把必填原因硬编码成统一门槛；
+- end / void 都不得改写 recommender、created_at、customer_id、vehicle_id、listing_cycle、source_demand_id 与历史 price snapshot；
+- end / void 后历史永久保留。
+
+### P14-B4-02｜Customer 失去 find-car entitlement 后已有 Recommendation 的处理
+
+**用户选择：2B**
+
+Customer Level 变化使 `find-car entitlement` 从有效变为无效时：
+
+- 禁止新建 Recommendation；
+- 已存在 Recommendation 不删除、不自动 end、不自动 void；
+- recommender、source Demand、listing_cycle、历史 price snapshot 与全部历史事实保留；
+- 已成立的当前 listing_cycle Recommendation 免费查价权事实不删除；
+- 但暂停依赖 Recommendation / Customer 身份产生的客户侧 Recommendation 能力，尤其是 hidden Vehicle 的 Recommendation-only visibility；
+- 价格能否当前展示继续独立读取 PDM-10 当前 Customer Level 价格权益、已成立单车 price-right fact、Customer 状态与当前 listing_cycle，不把 find-car entitlement 直接当作价格算法；
+- entitlement 恢复后不得复活 ended / void / listing_cycle 已结束的 Recommendation；
+- 仅对恢复时仍 active、仍处于原合法 listing_cycle、Vehicle 当前仍合法、Customer 可用且无 Priority / 其他 Guard 阻断的 Recommendation 重新开放客户侧 Recommendation 能力。
+
+该规则与 P14-R03 Customer disable 使用相同“历史保留、能力暂停、恢复时按当前事实判断”的方向，但二者是不同触发源，不得合并成同一状态。
+
+### P14-B4-03｜active Recommendation 在 visible ↔ hidden 变化中的持续授权来源
+
+**用户选择：3A**
+
+同一 `listing_cycle` 内，只要 Recommendation 仍 active：
+
+- Recommendation 创建时 Vehicle 已 hidden → 幂等确保对应 Customer-specific visibility grant / 等价有效授权；
+- Recommendation 创建时 Vehicle 为 visible → Customer 当时可依公共 visibility 访问，不要求为了形式额外制造重复 grant；
+- 后续同周期 `visible → hidden` → 系统必须基于仍 active 的 Recommendation 幂等确保该 Customer 的单车 visibility 授权生效，不要求销售重新 Recommendation；
+- `hidden → visible` → 公共 visibility 恢复时不结束 Recommendation、不删除历史；Customer 可依公共规则访问；
+- 同周期再次变 hidden，只要 Recommendation 仍 active 且无其他 Guard 阻断，仍由该 Recommendation 继续作为单车授权来源；
+- Recommendation end / void 时，结束仅由该 Recommendation 支撑的 visibility grant / effective authorization；
+- 若 Customer 仍有 Lock / Transaction / 其他独立合法 Authority，则按对应域保留访问，不由 Recommendation end 强行抹除；
+- active Priority 对其他 Customer 的 suppression 仍优先按 P14-R04/B2-09 处理。
+
+因此，hidden/visible 是 Vehicle 展示状态变化，不得无故打断仍合法的 Recommendation 关系。
+
+### P14-B4-04｜旧普通分享链接只提供导航，打开时按当前事实实时重算
+
+**用户选择：4A**
+
+普通分享链接不是永久 visibility 权限，也不绑定旧周期业务权益。
+
+再次打开时统一按当前事实判断：
+
+- Vehicle 当前 visible 且无其他排他 Guard → 按普通详情规则访问；
+- Vehicle 当前 hidden 或存在 active Priority 等普通入口排他 → 只有接收人自己具备当前合法 Recommendation / Lock / Transaction / 其他明确访问 Authority 时，才能进入相应当前详情；否则显示“当前车源不可查看”并保留“查看更多车源”等安全退路；
+- Vehicle 已真实 offline / unavailable / sold 或当前 listing_cycle 已结束 → 普通分享不得绕过状态进入在售详情，也不得据此产生新的 Recommendation / Consultation / Lock 等普通销售业务；
+- Customer 若本人存在合法历史 Recommendation / Consultation / Lock / Transaction，可从自己的历史业务入口查看对应历史详情；普通分享链接本身不授历史详情权；
+- Vehicle 后续真正重新上架形成新 listing_cycle 后，旧普通分享可继续作为同一 vehicle 的进入路径，但所有 Recommendation / price-right / Consultation / Lock 等按新周期当前 Authority 重新判断；
+- ownerless 新 Customer 的分享归属继续服从 PDM-03：有效销售绑定、客户分享上下文、销售失效接替/接客池兜底按打开时当前规则解析；
+- 已有 owner 的 Customer 继续不得被后续分享抢走。
+
+### P14-B4-05｜Recommendation 历史推荐价与当前价格严格分层
+
+**用户选择：5A**
+
+- Recommendation 创建时保存不可变 `recommendation_price_snapshot` / 等价历史价格事实；
+- 历史 Recommendation 展示“当时推荐价”时必须读取该快照，后续调价、覆盖价、source_type 或价格规则变化不得回写；
+- 若界面同时需要展示“当前价格”，必须作为另一项当前事实实时读取；
+- 当前价格展示必须同时满足当前 Vehicle/listing_cycle 合法、Customer 当前可访问该 Vehicle、PDM-10 当前价格 Authority 允许；
+- 旧 listing_cycle Recommendation 本身绝不能作为新 listing_cycle 当前价格的授权来源；
+- 历史页具体布局与文案交 PDM-20，PDM-14 只冻结数据与权限语义。
+
+### P14-B4-06｜source_type 变化 / 一键转名邦不重建 Recommendation
+
+**用户选择：6A**
+
+继承 PDM-04 当前 Authority：合法 source_type 修改以及批发 → 名邦一键转换均发生在同一 `vehicle_id`；一键转名邦在当前模型下也保持同一 `listing_cycle`。
+
+因此：
+
+- 不新建、不迁移、不复制 Recommendation；
+- recommendation_id、customer_id、vehicle_id、listing_cycle、recommender、source_demand_id 与历史 price snapshot 原样保留；
+- 当前 listing_cycle 已成立的 Recommendation 免费查价权不因 source_type 变化清空；
+- source_type 变化后重新读取 Vehicle 当前真实 availability / visibility / 当前价格事实；
+- 转换后若 Vehicle hidden 且 Recommendation 仍 active，则继续按 P14-B4-03 作为 customer-specific visibility 授权来源；
+- 转换后若 visible，则按公共 visibility + 当前业务 Guard 访问；
+- 不存在“从旧 Vehicle 迁移 Recommendation 到新 Vehicle”的流程，因为当前 Authority 没有第二个 Vehicle。
+
+### P14-B4-07｜active Lock / in-progress Transaction 不因占用事实自动禁止 Recommendation
+
+**用户选择：7A**
+
+Lock / Transaction 是独立业务占用事实，不等于 Vehicle 已真实不可售。
+
+只要以下条件仍满足，可以新建正式 Recommendation：
+
+- Vehicle 底层仍真实可售；
+- 当前 listing_cycle 仍有效；
+- Customer 当前具备 find-car entitlement；
+- 当前合法业务责任关系与 Recommendation permission / scope 合法；
+- 没有其他 Customer active Priority 或其他明确排他 Guard 阻断；
+- 对象状态在提交时重新校验。
+
+同时必须满足：
+
+- 客户看到真实的已锁定 / 当前占用等允许公开的状态，不伪装成可立即锁车；
+- Recommendation 不产生 Lock 排队优先级、抢车分值或 takeover 权；
+- Recommendation 不绕过既有 active Lock / Transaction；
+- 是否可 Waitlist、LockRequest、接管、交易取消/纠错等完整状态机继续由 PDM-18 / PDM-19 冻结；
+- Vehicle 最终 sold / offline / unavailable 或 listing_cycle 结束后，不得继续新建当前周期 Recommendation；已有 Recommendation 只保留历史并按周期规则退出 current active。
+
+### P14-B4-08｜Recommendation × Consultation 不相互反写；细节移交 PDM-15
+
+**用户选择：8A**
+
+PDM-14 冻结以下跨对象边界：
+
+- Recommendation end / void 不自动结束已经存在的 Consultation；
+- 已有未终结 Consultation 时，后来新建 Recommendation 不因此自动创建第二条 Consultation；
+- 后来的 Recommendation 不得仅凭推荐关系抢走或重写既有 Consultation 当前负责人；
+- Consultation 当时若真实来源于某条 Recommendation，该 source/recommendation relation 属于历史事实，Recommendation 后续 end / void 不得反写或抹除；
+- Consultation 自身状态、负责人优先级、转派、SLA、终态、同周期幂等与新咨询重建规则由 PDM-15 正式冻结。
+
+新增 Cross-PDM handoff：
+
+> `HO-P14-P15-001`｜Recommendation 与 Consultation 相互独立：Recommendation end/void 不自动结束 Consultation；已有未终结 Consultation 后新增 Recommendation 不重复建 Consultation、不抢负责人、不改历史来源；Consultation 完整 lifecycle 由 PDM-15 承接。
+
+### 7.1 Batch 4 裁决结果
+
+- `P14-B4-01 = 1A`；
+- `P14-B4-02 = 2B`；
+- `P14-B4-03 = 3A`；
+- `P14-B4-04 = 4A`；
+- `P14-B4-05 = 5A`；
+- `P14-B4-06 = 6A`；
+- `P14-B4-07 = 7A`；
+- `P14-B4-08 = 8A`；
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- `HO-P14-P15-001 = HANDOFF_OPEN`。
+
+## 8. 本轮 Cross-PDM 一致性结论
 
 对 PDM-01～PDM-13 当前 Final 复核：
 
@@ -568,7 +714,7 @@ PDM-13 后续 Final 明确：
 
 ---
 
-## 8. 当前 stale carrier ledger｜只登记，不施工
+## 9. 当前 stale carrier ledger｜只登记，不施工
 
 1. `P06-06｜开启/关闭 Recommendation 资格`；
 2. `RECOMMENDATION_QUALIFIED / NOT_QUALIFIED` 独立状态；
@@ -581,6 +727,13 @@ PDM-13 后续 Final 明确：
 9. REC 专属 URL / Recommendation-specific link / 第二套推荐分享页 carrier；
 10. Current IA / Low-Fi `HIDDEN_CONTROLLED` 中仅凭 Demand / Priority 直接授 Customer hidden Vehicle 详情权的 carrier；
 11. Current IA / Low-Fi `P06-01 / P06-M01` Customer Merge 状态机及 Recommendation / 权益迁移 carrier。
+12. Recommendation end / void 若仍按旧“历史 recommender 永久有权 / 职位天然有权”执行，而不读取当前 responsibility + permission + scope 的 carrier；
+13. find-car entitlement 失效后仍允许 Recommendation-only hidden visibility 无条件继续的 carrier；
+14. active Recommendation 在同 cycle `visible → hidden` 后未幂等补齐/恢复 customer-specific visibility 的 carrier；
+15. 旧 SHARE_DIRECT 在 hidden / Priority / offline / sold 时仍直接穿透详情，或把分享链接当永久 visibility 的 carrier；
+16. source_type / 一键转名邦后错误重建、迁移或清空 Recommendation 的 carrier；
+17. active Lock / in-progress Transaction 被粗暴解释为“Vehicle 不可 Recommendation”的 carrier；
+18. Recommendation end/void 自动关闭 Consultation，或后建 Recommendation 抢写已有 Consultation 负责人/来源的 carrier。
 
 统一：
 
@@ -588,7 +741,7 @@ PDM-13 后续 Final 明确：
 
 ---
 
-## 9. 当前门禁状态
+## 10. 当前门禁状态
 
 - PDM-14 Start Gate：`PASS`；
 - incoming handoff：8 / 8 = `HANDOFF_ACCEPTED`；
@@ -597,14 +750,18 @@ PDM-13 后续 Final 明确：
 - Batch 2 Reverse Conflict Scan：`PASS / FALSE_DEPRECATION_COUNT=0`；
 - Batch 3：`PASS / USER_APPROVED`；
 - Batch 3 Conflict Isolation：`PASS / CONFLICT_OR_PRODUCT_CHOICE_MISCLASSIFIED_AS_BATCH3=0`；
+- Batch 4：`PASS / USER_APPROVED / CHOICES=1A,2B,3A,4A,5A,6A,7A,8A`；
+- PDM-14 Local Product Choice Unresolved：`0`；
 - P14-A01～P14-A14：已进入当前工作版；
 - P14-R01～P14-R04：已进入当前工作版；
 - P14-B2-01～P14-B2-11：已进入当前工作版；
 - P14-B3-01～P14-B3-05：已进入当前工作版；
+- P14-B4-01～P14-B4-08：已进入当前工作版；
+- outgoing handoff：`HO-P14-P15-001 = HANDOFF_OPEN`；
 - PDM-14 Final：未生成；
 - PDM-14 incoming handoff：不得提前 CLOSED；
 - IA / Low-Fi / Engineering：继续 NO_CONSTRUCTION。
 
-## 10. 当前唯一下一步
+## 11. 当前唯一下一步
 
-> **进入 PDM-14 Batch 4：基于 P14-A01～A14、P14-R01～R04、P14-B2-01～B2-11、P14-B3-01～B3-05 重新执行冲突 / 遗漏 / 缺口 / 新产品选择扫描；重点核对 Recommendation end/void 与 visibility grant 精确退出、旧分享/历史入口在车辆状态变化后的访问、分享与当前 owner/业务责任边界、hidden/公开恢复条件、历史 Recommendation 当前价格/详情投影等尚未被前 3 批完整冻结的事项。只形成真实 Batch 4 候选并停下用户审查；不得关闭 incoming handoff，不得修改 IA / Low-Fi / Engineering。**
+> **进入 PDM-14 Final 前完整性复核：重新执行 Missing Rule Audit、Semantic Detail Audit、Source→Atom / Atom→Source、Completed-PDM Invariant、Cross-PDM Handoff、stale carrier、Negative Claims 与 Local Deferred 扫描；重点确认 8 条 incoming handoff 全部已被当前 Atom 实质承接、HO-P14-P15-001 已正式登记、Batch 4 后无新增语义缺口。只有复核达到 FINAL_CANDIDATE_READY 后才能生成 PDM-14 Final Domain Overview；本阶段仍不得提前关闭 incoming handoff，不得修改 IA / Low-Fi / Engineering。**
