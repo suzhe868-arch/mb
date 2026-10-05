@@ -1,9 +1,9 @@
 # PDM-16｜最终完整规则总览｜待用户批准
 
 > 域：CRM / 客户画像 / 阶段 / 跟进 / 标签 / Customer Opportunity / Source Radar  
-> 当前状态：`USER_FINAL_APPROVED / FINAL_CLOSEOUT_RUNNING`  
-> 本文件是 Final Domain Overview 候选，不是正式 Final。  
-> 用户最终批准前：不得关闭 incoming handoff、不得 source backwrite、不得进入 PDM-17。
+> 当前状态：`USER_FINAL_APPROVED / FINAL_CLOSEOUT_DONE`  
+> 本文件保留 PDM-16 Final Domain Overview 的用户最终批准留痕。  
+> 用户已于 2026-10-06 最终批准并确认执行；正式 Final 已发布，incoming handoff 已完成 closeout。
 
 ## 1. 核心定位
 
@@ -420,9 +420,9 @@ Final 前 R2：
 - `PDM16_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
 - `PDM16_FINAL_CANDIDATE_READY = YES`
 
-## 17. 用户最终批准门禁
+## 17. 用户最终批准与执行留痕
 
-只有用户明确最终批准本 Final Domain Overview 后，才允许下一步：
+用户已完成 Final Domain Overview 最终批准，并随后明确确认执行。已完成：
 
 1. 记录 `USER_FINAL_APPROVED`；
 2. 等待用户再次明确“确认执行”；
@@ -434,4 +434,4 @@ Final 前 R2：
 8. 将 PDM-16 标记为 `COMPLETE / INTEGRITY_PASS`；
 9. 唯一下一步推进 PDM-17 Startup Gate。
 
-在上述两步门禁完成前，不得 Final closeout。
+上述两步门禁均已满足；本文件作为用户最终批准留痕保留。
