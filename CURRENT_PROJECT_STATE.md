@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-15_PREFINAL_R2_REPAIR_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-15_FINAL_DOMAIN_OVERVIEW_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_1_TO_4_PASS / P15-LIA-01_TO_05_USER_APPROVED_APPLIED / PREFINAL_INTEGRITY_R2_REPAIR_REQUIRED / P15-LIA-06_PENDING_USER_REVIEW`
+> `IN_PROGRESS / ALL_RULE_ATOMS_USER_APPROVED / PREFINAL_INTEGRITY_R3_PASS / FINAL_OVERVIEW_PENDING_USER_FINAL_APPROVAL`
 
 当前工作文件：
 
@@ -32,7 +32,21 @@
 
 当前唯一下一步：
 
-> **PDM-15 Final 前完整性复核 R2 = `REPAIR_REQUIRED`。R1 的 P15-LIA-01～05 已全部批准并执行，8 条 outgoing handoff 已登记；当前唯一下一步：用户审查 `P15-LIA-06`。当前仅剩 1 条 Semantic Detail，其他 Missing Rule / Cross-PDM / Handoff 缺口均为 0。批准并确认执行后执行 R3。IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-15 Final 前完整性复核 R3 已 `PASS / FINAL_CANDIDATE_READY`；Missing Rule=0、Semantic Detail Gap=0、Completed-PDM Conflict=0、Handoff Gap=0。当前唯一下一步：用户最终审查 PDM-15 Final Domain Overview。最终批准并再次确认执行前，不得发布 Final、关闭 incoming handoff 或进入 PDM-16。**
+
+## 2026-10-06｜PDM-15 Final 前完整性复核 R3
+
+- P15-LIA-06 已 USER_APPROVED / APPLIED；
+- R3：`PASS / FINAL_CANDIDATE_READY`；
+- Source→Atom = PASS；
+- Atom→Source = PASS；
+- Semantic Completeness = PASS；
+- Missing Rule = 0；
+- Semantic Detail Gap = 0；
+- Completed-PDM Conflict = 0；
+- Incoming/Outgoing Handoff Gap = 0；
+- Final Overview 候选：`07_重建工作区/PDM-15_最终完整规则总览_待用户批准.md`；
+- 当前唯一下一步：用户最终审查 Final Domain Overview。
 
 ## 2026-10-06｜PDM-15 Final 前完整性复核 R2
 
