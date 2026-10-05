@@ -49,7 +49,8 @@
 - PDM-14 Batch 3 Conflict Isolation = PASS / CONFLICT_OR_PRODUCT_CHOICE_MISCLASSIFIED_AS_BATCH3=0
 - PDM-14 Batch 4 = PASS / USER_APPROVED（P14-B4-01～P14-B4-08；CHOICES=1A,2B,3A,4A,5A,6A,7A,8A）
 - PDM-14 Local Product Choice Unresolved = 0
-- PDM-14 outgoing handoff = HO-P14-P15-001 / HANDOFF_OPEN
+- PDM-14 Pre-Final Repair = P14-LIA-01～P14-LIA-10 / USER_APPROVED / APPLIED
+- PDM-14 outgoing handoffs = HO-P14-P15-001 / HO-P14-P18-001 / HO-P14-P19-001 / HO-P14-P20-001 / HO-P14-P21-001 / HO-P14-P23-001 / HO-P14-P25-001 = HANDOFF_OPEN
 - PDM-11 Batch 1 = PASS / USER_APPROVED（P11-A01～P11-A13）
 - PDM-11 Batch 2 = PASS / USER_APPROVED
 - P11-B2-08 = USER_MODIFIED / USER_APPROVED
@@ -63,7 +64,7 @@
 
 ## 当前唯一下一步
 
-> **进入 PDM-14 Final 前完整性复核：基于已批准的 P14-A01～A14、P14-R01～R04、P14-B2-01～B2-11、P14-B3-01～B3-05、P14-B4-01～B4-08，重新执行 Missing Rule Audit、Semantic Detail Audit、Source→Atom、Atom→Source、Completed-PDM Invariant、Cross-PDM Handoff、stale carrier、Negative Claims 与 Local Deferred 扫描。必须确认 8 条 incoming handoff 均已被当前 PDM-14 Atom 实质承接，HO-P14-P15-001 已正式登记，且无新增未裁决产品选择。达到 FINAL_CANDIDATE_READY 后才生成 Final Domain Overview；当前不得关闭 incoming handoff，不得修改 IA / Low-Fi / Engineering。**
+> **重新执行 PDM-14 Final 前完整性复核 R2：以已批准并执行的 P14-A01～A14、P14-R01～R04、P14-B2-01～B2-11、P14-B3-01～B3-05、P14-B4-01～B4-08、P14-LIA-01～LIA-10 为当前 Authority，重新执行 Missing Rule / Semantic Detail / Source→Atom / Atom→Source / Completed-PDM Invariant / Cross-PDM Handoff / stale carrier / Negative Claims / Local Deferred 扫描。必须确认 8 条 incoming handoff 全部实质承接、7 条 outgoing handoff 正式登记且无遗漏。若 unresolved 全部为 0，则标记 FINAL_CANDIDATE_READY 并生成 Final Domain Overview 候选；当前仍不得关闭 incoming handoff、发布 Final 或修改 IA / Low-Fi / Engineering。**
 
 每个 PDM 必须同时执行：
 
