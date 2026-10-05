@@ -814,3 +814,154 @@ Repair 后复核：CRM Follow-up 与未来责任已分层；owner 变化时未�
 当前下一步：
 
 > **执行 Batch 4 冲突 / 遗漏 / 新产品选择重建。**
+
+---
+
+## 12. Batch 4｜冲突 / 遗漏 / 新产品选择｜PENDING_USER_REVIEW
+
+> Batch 1～3 与 Repair 已关闭稳定规则、明确废弃项和历史遗漏。以下只保留“历史没有完全定死、如果不裁决开发就会自行猜”的产品选择。  
+> 建议选择：**1A、2A、3A、4A、5A**。
+
+### P16-B4-01｜CRM Stage 阶段值采用什么治理方式
+
+历史只给出示例：
+
+- 新客户；
+- 跟进中；
+- 有明确意向；
+- 已成交；
+- 暂无意向；
+- 其他当前业务阶段。
+
+但没有冻结“固定枚举”还是“可配置字典”。
+
+**A｜受控可配置阶段字典（推荐）**
+
+- 后台维护一套公司级 CRM Stage 字典；
+- 默认可预置上述常用阶段；
+- Customer 同一时刻只有一个 current CRM Stage；
+- 可新增、改名称/排序、启用、停用；
+- 已被历史 Customer 使用过的阶段不得普通物理删除；
+- 停用只阻止后续新选择，不改写历史阶段事实；
+- 不允许销售自行输入任意自由文本冒充正式 Stage；
+- 具体 PC 配置页面、permission 与审计承载交 PDM-22 / PDM-25。
+
+**B｜固定硬编码阶段**
+
+- V1 把阶段永久固定为一组枚举；
+- 未来新增阶段必须改版本。
+
+**C｜自由文本阶段**
+
+- 销售可自行输入阶段名称；
+- 不建设统一字典。
+
+建议：**1A**。既保持统一统计，又避免把“其他当前业务阶段”硬编码死。
+
+### P16-B4-02｜CRM Stage 是否允许具体业务事件自动改写
+
+**A｜默认只允许显式人工修改，业务事件只提供上下文/建议（推荐）**
+
+- 新 Customer 可使用默认初始阶段；
+- 后续 Consultation / Demand / Lock / Transaction 的创建、完成、取消等，不自动改 CRM Stage；
+- 业务事实可以在 CRM 中展示，也可提示员工“建议更新阶段”；
+- 真正修改仍由合法 actor 显式提交；
+- 避免 Transaction completed 自动把 Customer 永久写成“已成交”等跨状态机耦合。
+
+**B｜按业务事件自动切阶段**
+
+例如 Consultation 创建自动“跟进中”、Transaction completed 自动“已成交”。
+
+**C｜混合自动**
+
+部分事件自动切换，其余人工维护；需继续定义完整事件→阶段映射表。
+
+建议：**2A**。与 P16-A01“总体阶段与具体业务状态分离”最一致。
+
+### P16-B4-03｜Customer Tags 采用什么模型
+
+**A｜公司级受控 Tag 字典 + Customer 多选（推荐）**
+
+- 共享 Customer Tags 从统一字典选择；
+- 一个 Customer 可有多个 active Tag；
+- Tag 可新增、改名/排序、启停；
+- 已进入历史的 Tag 不普通物理删除；
+- Tag 停用不抹掉历史 Customer Tag 事实；
+- 销售自由文本继续放 Personal Note / 服务称呼等对应区域，不冒充共享 Tag；
+- “重点客户”等可以作为普通共享 Tag，而不是额外制造第二套重点客户状态机。
+
+**B｜完全自由文本 Tag**
+
+每个员工可直接输入任意共享标签。
+
+**C｜固定硬编码 Tag**
+
+只能使用版本内预置标签，后台不可扩展。
+
+建议：**3A**。
+
+### P16-B4-04｜旧机会阈值废弃后，Customer Opportunity 的规则来源怎么办
+
+当前已经明确：
+
+- 保留 Customer Opportunity 模块；
+- 旧 7 天 / 40 次 / 连续 3 天规则不得恢复；
+- 不允许 P06-07 页面壳自行发明 CRUD/config。
+
+仍需决定是否在 V1 新建一套“可配置机会规则引擎”。
+
+**A｜V1 不新建通用机会规则引擎（推荐）**
+
+- Customer Opportunity 只消费未来已经被产品明确批准的 deterministic signal producer；
+- 没有正式 signal producer 时允许真实空态；
+- P06-07 在 V1 只承担机会说明 / 查询 / 当前信号来源查看，不提供任意规则 CRUD；
+- 未来如要新增某类机会信号或阈值，单独走产品裁决；
+- 不用 AI 意向评分补空缺。
+
+**B｜V1 立即建设后台可配置机会规则引擎**
+
+允许有权限人员配置行为条件、阈值、冷却、组合逻辑等。
+
+建议：**4A**。否则等于刚废弃旧阈值，又未经裁决造一套新的规则平台。
+
+### P16-B4-05｜Source Radar“标记不适合”到底屏蔽多久
+
+**A｜抑制当前 Demand × Vehicle 当前事实；相关 Matching 输入发生实质变化后可重新出现（推荐）**
+
+标记不适合后：
+
+- 不改变 PDM-12 Match Result；
+- 当前 Demand × Vehicle 在相同有效匹配事实下不重复刷 Radar；
+- 若 Vehicle 关键事实、价格、Demand 条件、Rule Dictionary、Match tier/explanation 或 listing_cycle 等发生会触发 PDM-12 合法重算的实质变化，可生成新的 Radar Event；
+- 历史“不适合”处理记录保留。
+
+**B｜只关闭当前 Radar Event**
+
+同一 Demand × Vehicle 即使底层事实完全没变，下次系统刷新也可以重新出现。
+
+**C｜永久黑名单**
+
+一旦标记不适合，同 Demand × Vehicle 永远不再出现，除非员工手工解除。
+
+建议：**5A**。可避免重复骚扰员工，同时不会把一次人工判断变成永久覆盖 Matching Authority。
+
+---
+
+## 13. Batch 4 Gate｜PENDING_USER_REVIEW
+
+当前建议：
+
+> **1A、2A、3A、4A、5A**
+
+当前：
+
+- `P16-B3-R01～R02 = PASS / USER_APPROVED / APPLIED`；
+- `BATCH_3_COMPLETENESS_GAP = 0`；
+- `P16-B4-01～P16-B4-05 = PENDING_USER_REVIEW`；
+- `PDM16_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 5`；
+- 6 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工。
+
+当前唯一下一步：
+
+> **用户裁决 P16-B4-01～P16-B4-05。**
