@@ -1,7 +1,7 @@
 # PDM-15｜Consultation / 咨询生命周期 / 来源 / 负责人 / 转派 / SLA｜规则原子重建工作版
 
 > 日期：2026-10-06  
-> 状态：`IN_PROGRESS / START_GATE_PASS / BATCH_1_PASS_USER_APPROVED / BATCH_2_PASS_USER_APPROVED / BATCH_3_PASS_USER_APPROVED / BATCH_3_CONFLICT_ISOLATION_PASS / BATCH_4_PASS_USER_APPROVED / PREFINAL_INTEGRITY_AUDIT`  
+> 状态：`IN_PROGRESS / BATCH_1_TO_4_PASS / PREFINAL_INTEGRITY_R1_REPAIR_REQUIRED / P15-LIA-01_TO_05_PENDING_USER_REVIEW`  
 > 方法：9/19 主底盘 + 前向历史补全 + 后向显式 supersession + 9/22 冻结台账 + Current Carrier Conflict Scan + Completed-PDM Authority + Cross-PDM Handoff。  
 > 当前阶段约束：IA / Low-Fi / Engineering 只登记冲突，不施工；未经用户审查的候选 Atom 不得直接进入 Final。
 
@@ -430,3 +430,152 @@ PDM-01 Final 已冻结：Customer 停用不删除历史、不伪造 completed/ca
 当前唯一下一步：
 
 > **执行 PDM-15 Final 前完整性复核。若发现历史完整规则未承接、语义细节缺失或跨 PDM handoff 缺口，只 reopen 对应 Atom / 段落；真正改变产品语义的修复必须重新提交用户裁决。**
+
+
+---
+
+## 12. Final 前完整性复核 R1｜REPAIR_REQUIRED
+
+复核范围：
+
+- 9/19 R7 Consultation §§26～44；
+- 9/19 R12 Consultation SLA / notification / config；
+- 9/22 VR-E-016；
+- 001～078：M06、M16、M17；
+- Current IA / Action / Lifecycle / Low-Fi carrier；
+- PDM-01 / 02 / 03 / 07 / 14 Final；
+- target=PDM-15 的 5 条 incoming handoff；
+- Batch 1～4 当前全部用户裁决。
+
+R1 结果：
+
+- Batch 1～4 用户裁决冲突：`0`；
+- incoming handoff 未承接：`0`；
+- completed-PDM hard conflict：`0`；
+- 新发现 Missing/Semantic Detail：`4`；
+- 新发现 outgoing handoff gap：`1 group`；
+- `PDM15_FINAL_CANDIDATE_READY = NO`。
+
+### P15-LIA-01｜补齐 pending → processing 的“开始处理”正式动作
+
+证据：
+
+- R7 §26：新 Consultation → `pending`；负责人开始实际处理 → `processing`；
+- 9/22 VR-E-016：员工动作明确包含“开始处理”；
+- Current E06 / P06-11 仍有“开始处理/标记处理中” carrier；
+- 当前 PDM-15 工作 Authority 已覆盖记录跟进、解决、无效、正常关闭、转派，但没有正式冻结“开始处理”。
+
+修复候选：
+
+- 新 Consultation 创建成功后进入 `pending`；
+- 只有当前合法 Consultation assignee，或在当前权限/数据范围内具备相应 Consultation 管理能力的经理/店长，才能执行“开始处理”；
+- 提交时重验 identity + permission + data scope + object state；
+- `pending → processing` 不改变 Customer owner，不改变 Consultation assignee，不改初始来源；
+- **仅“开始处理/改成 processing”本身不算首次真实人工响应**，继续服从已批准 P15-B4-02 / 2A；
+- 终态 Consultation 不得再次“开始处理”。
+
+建议：**通过。**
+
+### P15-LIA-02｜负责人失去资格后的 Consultation handover
+
+证据：
+
+- R7 §§34～36：owner 变化不自动漂移 Consultation assignee；assignee inactive / 离职 / 失去业务资格必须重新分配并保留历史；
+- PDM-02 Final：员工失去承责资格时必须同步处理 Consultation 等活跃业务，正式 handover，部分失败不得抹掉已完成项；
+- PDM-03 Final：Customer owner 与业务负责人分层，负责人变化必须显式 reassignment/handoff。
+
+修复候选：
+
+- Consultation assignee 一旦 inactive、离职、失去所需 permission/data scope/业务资格，立即失去继续处理该 Consultation 的 mutation authority；
+- Consultation 不因此自动 `resolved/invalid`，历史 assignee 不改写；
+- 计划性失去资格应先完成正式 handover；
+- 突发失效且暂未完成转派时，使用独立 `assignee_handover_pending` 运行 Guard 表示“待交接”，不新增 Consultation 主状态；
+- 新负责人优先使用当前仍合法且可承接的 Customer owner；否则进入合格接客/交接分配范围；
+- 若当前没有合法目标，保持 Consultation 历史与当前业务事实，禁止 System Admin 业务兜底，禁止伪造 `responsible=null` 已正常承接；等待合法 handover 完成；
+- 完成转派后保留 old/new assignee、actor、time、必要 reason/context。
+
+建议：**通过。**
+
+### P15-LIA-03｜无 owner / owner_assignment_pending / 公海客户发起 Consultation 的创建顺序
+
+证据：
+
+- PDM-01 Final：`owner_assignment_pending` 时不得创建 `responsible=null` 的正式人工业务对象，接客池恢复后应先完成 owner 分配；
+- PDM-03 Final：Customer owner 与 Consultation assignee 分层，但合法人工服务不能通过“没有 owner 的正式业务单”绕过 owner 归属；
+- 历史 R6：公海客户主动发起咨询/找车等人工服务时，应先走正常接客分配并形成当前 owner；
+- P15-B4-04 / 4A 已冻结 Consultation assignee 的合法优先级，但“最后进入合格接客池”不能解释成让 Customer 永久无 owner、只单独生成 Consultation assignee。
+
+修复候选：
+
+- Customer 已有合法 current owner：按 P15-B4-04 继续判断 Consultation assignee；
+- Customer 处于 `owner_assignment_pending`：必须先按 PDM-03 当前 owner 分配 Authority 成功形成合法 owner，再创建/复用正式 Consultation；
+- Customer 处于公海：由 PDM-17 承接“主动发起人工服务后的公海退出/owner 分配”具体流程；PDM-15 不自己复制第二套公海状态机；
+- owner/服务责任无法合法形成时，不创建正式 Consultation；返回安全失败/待恢复结果并记录异常；
+- 该规则不允许 Consultation reassignment 反向修改已经存在的 Customer owner。
+
+建议：**通过，并向 PDM-17 建立正式 handoff。**
+
+### P15-LIA-04｜完整 Consultation 内容的内部可见范围
+
+证据：
+
+- R7 §44 明确完整咨询内容不是“看得到 Vehicle 就看得到 Consultation”；
+- PDM-02 Final 已冻结统一 identity + permission + data scope + object state；
+- PDM-03 Final 已冻结 owner / collaboration / historical access 不得形成永久访问权；
+- P15-A08 已冻结 4S Member 不进入名邦 Consultation 处理链。
+
+修复候选：
+
+名邦内部完整 Consultation 内容可在当前 Guard 合法时由以下主体查看：
+
+1. 当前 Consultation assignee；
+2. 当前 Customer owner；
+3. 管理范围内同时具备对应 Consultation 管理/查看能力的经理、店长；
+4. 被明确加入该具体业务 Collaboration，且 collaboration scope 明确允许查看 Consultation 的协作销售。
+
+同时：
+
+- 其他销售不能仅因能看 Vehicle 就查看客户完整 Consultation；
+- 历史 assignee / 历史 owner / 历史 collaborator 不获得永久访问权，读取时按当前 identity + permission + data scope + collaboration/object state 重验；
+- 4S Member hard DENY；
+- System Admin 身份本身不自动获得 Consultation 业务内容访问权；
+- Customer 本人的客户端只获得自己的 Customer Safe Projection，具体页面由 PDM-20 承接，不等于内部完整内容。
+
+建议：**通过。**
+
+### P15-LIA-05｜补齐 PDM-15 outgoing handoff
+
+当前已因用户 7A 正式登记：
+
+- `HO-P15-P21-001`：Consultation 工作台优先级 / 员工端动作投影。
+
+R1 仍需补齐以下已冻结语义的跨域承接，避免后续 PDM 再次丢失：
+
+- **PDM-16**：Consultation 的真实 follow-up 与统一 CRM 跟进承载；不得复制第二套 Consultation 状态机或把普通 CRM 跟进自动当首次 SLA 响应；
+- **PDM-17**：公海 Customer 主动发起 Consultation 后的 owner 分配 / 公海退出，服从 P15-LIA-03；
+- **PDM-19**：Transaction completed/cancelled/corrected 不自动结束 Consultation；
+- **PDM-20**：客户端“我的咨询”当前/历史、安全投影；四主状态 + `close_reason`，不得把 Current `CANCELLED` carrier 恢复成第五主状态；Customer disable hold 的客户侧投影；
+- **PDM-22**：PC Consultation 管理与 SLA 配置承载；默认 15 分钟、创建时固化 deadline、timeout 非主状态；
+- **PDM-23**：新 Consultation / SLA timeout 通知；通知失败/跳过/去重不改变 Consultation 业务状态；DND 只影响投递不暂停 SLA；
+- **PDM-25**：Consultation create/reuse/touch/start-processing/follow-up/reassign/resolve/invalid/normal-close/customer-withdraw/hold-resume/SLA first response 的统一审计与历史。
+
+建议：**通过。**
+
+---
+
+## 13. R1 Gate
+
+当前：
+
+- `P15-B4-01～P15-B4-07 = PASS / USER_APPROVED / APPLIED`；
+- `PDM15_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- `P15-LIA-01～P15-LIA-05 = PENDING_USER_REVIEW`；
+- `MISSING_RULE_UNRESOLVED = 3`：开始处理、assignee失效 handover、ownerless/public-pool 创建顺序；
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 1`：完整 Consultation 内容可见范围；
+- `HANDOFF_GAP_UNRESOLVED = 1 group`；
+- `CROSS_PDM_CONFLICT = 0`；
+- `PDM15_FINAL_CANDIDATE_READY = NO`。
+
+当前唯一下一步：
+
+> **用户审查 P15-LIA-01～P15-LIA-05。若全部批准并确认执行，则应用修复、正式登记 outgoing handoff，并重新执行 Final 前完整性复核 R2。**
