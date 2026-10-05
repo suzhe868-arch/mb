@@ -8,8 +8,8 @@
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "PDM-15",
-  "current_domain_status": "IN_PROGRESS",
+  "current_domain": "PDM-16",
+  "current_domain_status": "STARTUP_GATE_PENDING",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,13 +20,13 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-15 Final Domain Overview 用户最终审查",
-  "current_work_file": "07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md",
+  "current_task": "PDM-16 Startup Gate：读取全域地图、PDM-16 证据、completed-PDM Authority 与 target=PDM-16 handoff，建立本域工作版前门禁",
+  "current_work_file": null,
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
-    "Do not mark PDM-15 COMPLETE before Final pre-integrity, Final Overview user approval, Final publication, incoming handoff closeout and source backwrite",
+    "Do not start PDM-16 Batch 1 before PDM-16 Startup Gate passes",
     "Do not modify IA or Low-Fi during product-rule reconstruction",
     "Do not execute engineering Delta"
   ],
@@ -66,7 +66,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-15_FINAL_DOMAIN_OVERVIEW",
+  "current_review_batch": "PDM-16_STARTUP_GATE",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -160,7 +160,10 @@
     "PDM-09",
     "PDM-10",
     "PDM-11",
-    "PDM-12"
+    "PDM-12",
+    "PDM-13",
+    "PDM-14",
+    "PDM-15"
   ],
   "pdm_02_batch_1_pending_atoms": [],
   "pdm_02_batch_1_status": "COMPLETE_USER_CONFIRMED",
@@ -2267,7 +2270,7 @@
   "pdm_14_batch_4_pending_atoms": [],
   "pdm_14_local_product_choice_unresolved": 0,
   "pdm_14_outgoing_handoffs": {
-    "HO-P14-P15-001": "HANDOFF_OPEN",
+    "HO-P14-P15-001": "HANDOFF_CLOSED",
     "HO-P14-P18-001": "HANDOFF_OPEN",
     "HO-P14-P19-001": "HANDOFF_OPEN",
     "HO-P14-P20-001": "HANDOFF_OPEN",
@@ -2330,14 +2333,14 @@
   "pdm_14_final_published": true,
   "pdm_14_source_backwrite_done": true,
   "pdm_14_source_backwrite_count": 8,
-  "pdm_15_status": "IN_PROGRESS",
-  "pdm_15_next_gate": "FINAL_DOMAIN_OVERVIEW_USER_APPROVAL",
+  "pdm_15_status": "COMPLETE_INTEGRITY_PASS",
+  "pdm_15_next_gate": "COMPLETE",
   "pdm_15_incoming_handoffs": {
-    "HO-P01-P15-001": "HANDOFF_ACCEPTED",
-    "HO-P02-P15-001": "HANDOFF_ACCEPTED",
-    "HO-P03-P15-001": "HANDOFF_ACCEPTED",
-    "HO-P07-P15-001": "HANDOFF_ACCEPTED",
-    "HO-P14-P15-001": "HANDOFF_ACCEPTED"
+    "HO-P01-P15-001": "HANDOFF_CLOSED",
+    "HO-P02-P15-001": "HANDOFF_CLOSED",
+    "HO-P03-P15-001": "HANDOFF_CLOSED",
+    "HO-P07-P15-001": "HANDOFF_CLOSED",
+    "HO-P14-P15-001": "HANDOFF_CLOSED"
   },
   "pdm_15_start_gate": "PASS",
   "pdm_15_work_file": "07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md",
@@ -2508,6 +2511,10 @@
     {
       "id": "PDM15-GATE-B4",
       "status": "USER_APPROVED_APPLIED"
+    },
+    {
+      "id": "PDM15-FINAL",
+      "status": "COMPLETE_INTEGRITY_PASS"
     }
   ],
   "pdm_15_batch_2_reverse_conflict_scan": {
@@ -2655,6 +2662,15 @@
     "final_candidate_ready": true
   },
   "pdm_15_final_overview_file": "07_重建工作区/PDM-15_最终完整规则总览_待用户批准.md",
-  "pdm_15_final_overview_status": "PENDING_USER_FINAL_APPROVAL",
-  "pdm_15_final_candidate_ready": true
+  "pdm_15_final_overview_status": "USER_FINAL_APPROVED",
+  "pdm_15_final_candidate_ready": true,
+  "pdm_15_final": "07_重建工作区/PDM-15_最终完整规则.md",
+  "pdm_15_final_integrity": "07_重建工作区/PDM-15_最终完整性复核_2026-10-06.md",
+  "pdm_15_final_integrity_status": "PASS",
+  "pdm_15_final_published": true,
+  "pdm_15_source_backwrite_done": true,
+  "pdm_15_source_backwrite_count": 5,
+  "pdm_16_status": "NOT_STARTED",
+  "pdm_16_next_gate": "STARTUP_GATE",
+  "pdm_16_start_gate": "PENDING"
 }
