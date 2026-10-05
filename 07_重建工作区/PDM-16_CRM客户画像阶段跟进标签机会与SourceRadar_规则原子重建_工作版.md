@@ -1096,3 +1096,32 @@ PDM-16 正式向以下未来域移交：
 - `HO-P16-P25-001`。
 
 全部保持 `HANDOFF_OPEN`，由目标 PDM Startup Gate 接收；PDM-16 不提前替目标域施工 UI / notification / public-pool / audit carrier。
+
+---
+
+## 15. Final 前完整性复核 R2｜PASS / FINAL_CANDIDATE_READY
+
+报告：
+
+> `07_重建工作区/PDM-16_Final前完整性复核_R2_2026-10-06.md`
+
+结果：
+
+- `SOURCE_TO_ATOM = PASS`；
+- `ATOM_TO_SOURCE = PASS`；
+- `SEMANTIC_COMPLETENESS = PASS`；
+- `MISSING_RULE_UNRESOLVED = 0`；
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 0`；
+- `COMPLETED_PDM_INVARIANT_CONFLICT = 0`；
+- `INCOMING_HANDOFF_GAP = 0`；
+- `OUTGOING_HANDOFF_GAP = 0`；
+- `PDM16_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- `PDM16_FINAL_CANDIDATE_READY = YES`。
+
+Final Domain Overview 候选：
+
+> `07_重建工作区/PDM-16_最终完整规则总览_待用户批准.md`
+
+当前唯一下一步：
+
+> **用户最终审查 PDM-16 Final Domain Overview。最终批准前不得发布 Final、不得关闭 incoming handoff、不得进入 PDM-17。**
