@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-14
+- 当前域：PDM-15
 - PDM-11 = COMPLETE / INTEGRITY_PASS
 - PDM-12 = COMPLETE / INTEGRITY_PASS
 - PDM-11 启动门禁 = UNBLOCKED
@@ -39,7 +39,7 @@
 - PDM-13 Final Overview = USER_FINAL_APPROVED
 - PDM-13 Final = `07_重建工作区/PDM-13_最终完整规则.md` / COMPLETE / INTEGRITY_PASS
 - PDM-13 Final Integrity = `07_重建工作区/PDM-13_最终完整性复核_2026-10-05.md` / PASS
-- PDM-14 incoming handoffs = 8 / 8 HANDOFF_ACCEPTED
+- PDM-14 incoming handoffs = 8 / 8 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-14 Start Gate = PASS
 - PDM-14 Batch 1 = PASS / USER_APPROVED（P14-A01～P14-A14）
 - PDM-14 用户追加裁决 = P14-R01～P14-R04 / USER_APPROVED / APPLIED
@@ -52,6 +52,9 @@
 - PDM-14 Pre-Final Repair = P14-LIA-01～P14-LIA-10 / USER_APPROVED / APPLIED
 - PDM-14 Pre-Final Integrity R2 = PASS / FINAL_CANDIDATE_READY
 - PDM-14 Pre-Final Report = `07_重建工作区/PDM-14_Final前完整性复核_R2_2026-10-06.md`
+- PDM-14 Final Overview = USER_FINAL_APPROVED
+- PDM-14 Final = `07_重建工作区/PDM-14_最终完整规则.md` / COMPLETE / INTEGRITY_PASS
+- PDM-14 Final Integrity = `07_重建工作区/PDM-14_最终完整性复核_2026-10-06.md` / PASS
 - PDM-14 outgoing handoffs = HO-P14-P15-001 / HO-P14-P18-001 / HO-P14-P19-001 / HO-P14-P20-001 / HO-P14-P21-001 / HO-P14-P23-001 / HO-P14-P25-001 = HANDOFF_OPEN
 - PDM-11 Batch 1 = PASS / USER_APPROVED（P11-A01～P11-A13）
 - PDM-11 Batch 2 = PASS / USER_APPROVED
@@ -62,11 +65,11 @@
 
 总控工作单：
 
-> `07_重建工作区/PDM-14_Recommendation分享单车授权与可见性_规则原子重建_工作版.md`
+> PDM-15 工作版尚未建立；先执行 Startup Gate
 
 ## 当前唯一下一步
 
-> **生成 PDM-14 Final Domain Overview 候选：完整汇总 P14-A01～A14、P14-R01～R04、P14-B2-01～B2-11、P14-B3-01～B3-05、P14-B4-01～B4-08、P14-LIA-01～LIA-10，写清 8 条 incoming handoff 的承接结果、7 条 outgoing handoff、stale carrier 与明确不得恢复项，并提交用户最终批准。未经用户最终批准，不发布 PDM-14 Final、不关闭 incoming handoff、不开始 PDM-15、不修改 IA / Low-Fi / Engineering。**
+> **执行 PDM-15 Startup Gate：固定读取 Coverage Map、`CROSS_PDM_HANDOFF_REGISTER.md` 中 target=PDM-15 的全部 incoming handoff（当前 5 条：HO-P01-P15-001、HO-P02-P15-001、HO-P03-P15-001、HO-P07-P15-001、HO-P14-P15-001），再读取 Consultation 相关 9/19 主底盘、001～078 M06/M16/M17、9/22 冻结台账、Current IA/Low-Fi 与 PDM-01/02/03/07/14 Final。只完成启动门禁、证据地图与 incoming handoff 接收；Startup Gate 通过后才建立 PDM-15 工作版并进入 Batch 1。IA / Low-Fi / Engineering 继续禁止施工。**
 
 每个 PDM 必须同时执行：
 
@@ -120,7 +123,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-13 均已 `COMPLETE / INTEGRITY_PASS`。PDM-14 已通过 Start Gate；Batch 1、Batch 2、Batch 3、Batch 4 均已 USER_APPROVED / APPLIED；HO-P01-P14-001 / HO-P03-P14-001 / HO-P04-P14-001 / HO-P07-P14-001 / HO-P10-P14-001 / HO-P11-P14-001 / HO-P12-P14-001 / HO-P13-P14-001 已全部 `HANDOFF_ACCEPTED`，必须保持到 PDM-14 Final / Integrity closeout 后再 CLOSED/SUPERSEDED。
+当前 PDM-01～PDM-14 均已 `COMPLETE / INTEGRITY_PASS`。PDM-14 的 8 条 incoming handoff 已全部 `HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE`；PDM-15 当前仍处于 Startup Gate，target=PDM-15 的 5 条 incoming handoff 尚为 `HANDOFF_OPEN`，必须在启动门禁中读取后再转 `HANDOFF_ACCEPTED`。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
