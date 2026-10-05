@@ -39,8 +39,10 @@
 - PDM-13 Final Overview = USER_FINAL_APPROVED
 - PDM-13 Final = `07_重建工作区/PDM-13_最终完整规则.md` / COMPLETE / INTEGRITY_PASS
 - PDM-13 Final Integrity = `07_重建工作区/PDM-13_最终完整性复核_2026-10-05.md` / PASS
-- PDM-14 incoming handoffs = 8 / 8 HANDOFF_OPEN
-- PDM-14 Start Gate = PENDING
+- PDM-14 incoming handoffs = 8 / 8 HANDOFF_ACCEPTED
+- PDM-14 Start Gate = PASS
+- PDM-14 Batch 1 = PASS / USER_APPROVED（P14-A01～P14-A14）
+- PDM-14 用户追加裁决 = P14-R01～P14-R04 / USER_APPROVED / APPLIED
 - PDM-11 Batch 1 = PASS / USER_APPROVED（P11-A01～P11-A13）
 - PDM-11 Batch 2 = PASS / USER_APPROVED
 - P11-B2-08 = USER_MODIFIED / USER_APPROVED
@@ -50,11 +52,11 @@
 
 总控工作单：
 
-> PDM-14 工作版尚未建立
+> `07_重建工作区/PDM-14_Recommendation分享单车授权与可见性_规则原子重建_工作版.md`
 
 ## 当前唯一下一步
 
-> **启动 PDM-14｜Recommendation / 普通分享 / 单车授权 / 隐藏车客户可见性：先读取覆盖地图、9/19 C3/R7/R10、001～078 M05/M16/M11、Current IA/Low-Fi carrier，以及 8 条 target=PDM-14 的 HANDOFF_OPEN；执行 Current Authority Refresh、Current Implementation Fact、Source→Atom 证据重建并建立 PDM-14 工作版。只形成 Batch 1 候选并提交用户审查，不得提前裁决后续冲突，不得修改 IA / Low-Fi / Engineering。**
+> **进入 PDM-14 Batch 2｜明确废弃 / 替代 / DO_NOT_RESTORE 扫描：以已批准的 P14-A01～A14 与 P14-R01～R04 为当前约束，继续反扫旧 R7/R10、001～078 M05/M16/M11、Current IA/Low-Fi 及 8 条 incoming handoff，重点识别独立 Recommendation qualification、旧 owner-only/责任关系表达、REC 专属链路、旧分享 SOURCE_ONLY、Priority 直接 visibility、Customer Merge 残留等是否应明确 supersede。只形成 Batch 2 候选并停下用户审查；不得提前进入 Batch 3/4，不得关闭 incoming handoff，不得修改 IA / Low-Fi / Engineering。**
 
 每个 PDM 必须同时执行：
 
@@ -108,7 +110,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-13 均已 `COMPLETE / INTEGRITY_PASS`。PDM-13 的 5 条 incoming handoff 已全部 CLOSED 并 source backwrite；PDM-13→PDM-14/17/18/19/20/21/22/25 future handoff 继续 `HANDOFF_OPEN`。PDM-14 当前 target incoming 共 8 条：HO-P01-P14-001 / HO-P03-P14-001 / HO-P04-P14-001 / HO-P07-P14-001 / HO-P10-P14-001 / HO-P11-P14-001 / HO-P12-P14-001 / HO-P13-P14-001，当前均 `HANDOFF_OPEN`，下一步启动 PDM-14 后再按正式流程 ACCEPTED。
+当前 PDM-01～PDM-13 均已 `COMPLETE / INTEGRITY_PASS`。PDM-14 已通过 Start Gate，工作版已建立；HO-P01-P14-001 / HO-P03-P14-001 / HO-P04-P14-001 / HO-P07-P14-001 / HO-P10-P14-001 / HO-P11-P14-001 / HO-P12-P14-001 / HO-P13-P14-001 已全部 `HANDOFF_ACCEPTED`，必须保持到 PDM-14 Final / Integrity closeout 后再 CLOSED/SUPERSEDED。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
