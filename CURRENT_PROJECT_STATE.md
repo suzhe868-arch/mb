@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-15_PREFINAL_REPAIR_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-15_PREFINAL_R2_REPAIR_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_1_TO_4_PASS / PREFINAL_INTEGRITY_R1_REPAIR_REQUIRED / P15-LIA-01_TO_05_PENDING_USER_REVIEW`
+> `IN_PROGRESS / BATCH_1_TO_4_PASS / P15-LIA-01_TO_05_USER_APPROVED_APPLIED / PREFINAL_INTEGRITY_R2_REPAIR_REQUIRED / P15-LIA-06_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -32,7 +32,20 @@
 
 当前唯一下一步：
 
-> **PDM-15 Final 前完整性复核 R1 = `REPAIR_REQUIRED`。当前唯一下一步：用户审查 `P15-LIA-01～P15-LIA-05`；当前未决为 3 条 Missing Rule、1 条 Semantic Detail、1 组 outgoing handoff。批准并确认执行后应用修复并执行 R2。IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-15 Final 前完整性复核 R2 = `REPAIR_REQUIRED`。R1 的 P15-LIA-01～05 已全部批准并执行，8 条 outgoing handoff 已登记；当前唯一下一步：用户审查 `P15-LIA-06`。当前仅剩 1 条 Semantic Detail，其他 Missing Rule / Cross-PDM / Handoff 缺口均为 0。批准并确认执行后执行 R3。IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-06｜PDM-15 Final 前完整性复核 R2
+
+- P15-LIA-01～P15-LIA-05 已 USER_APPROVED / APPLIED；
+- PDM-15 outgoing handoff 共 8 条，已完整登记并保持 HANDOFF_OPEN；
+- R2 报告：`07_重建工作区/PDM-15_Final前完整性复核_R2_2026-10-06.md`；
+- `MISSING_RULE_UNRESOLVED = 0`；
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 1`；
+- 唯一剩余修复候选：`P15-LIA-06` Consultation mutation actor/authority 精确矩阵；
+- `COMPLETED_PDM_INVARIANT_CONFLICT = 0`；
+- `HANDOFF_GAP_UNRESOLVED = 0`；
+- `PDM15_FINAL_CANDIDATE_READY = NO`；
+- 当前唯一下一步：用户审查 P15-LIA-06。
 
 ## 2026-10-06｜PDM-15 Final 前完整性复核 R1
 
