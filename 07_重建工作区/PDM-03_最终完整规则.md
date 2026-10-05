@@ -400,7 +400,7 @@ PDM-02 的以下规则继续有效：
 
 - Priority 的 TTL / 可见隔离 / 交接 lifecycle → PDM-13｜`HANDOFF_CLOSED`：PDM-13 Final §§15-17,24-26 已正式承接；Priority 不直接授 Customer visibility，current responsible 跟随 trigger Demand，责任失效进入 Handover Batch，TTL 继续自然运行且不因交接重置。
 - Recommendation 生命周期、正式推荐关系、hidden 单车可见授权 → PDM-14｜`HANDOFF_CLOSED`：PDM-14 Final 已冻结 Recommendation/普通分享分离、ownerless 分享归属继续服从 PDM-03、已有 owner 不被抢、hidden Vehicle 需 Recommendation + customer-specific visibility；`HO-P03-P14-001 = HANDOFF_CLOSED / source_backwrite=YES`。
-- Consultation 完整负责人 / 转派 / SLA → PDM-15。
+- Consultation 完整负责人 / 转派 / SLA → PDM-15｜`HANDOFF_CLOSED`：PDM-15 Final 已冻结 Customer owner 与 Consultation assignee 分层、owner 变化不自动漂移 assignee、owner_assignment_pending / 公海创建顺序、正式 handover、15 分钟 SLA 与首次真实人工响应；`HO-P03-P15-001 = HANDOFF_CLOSED / source_backwrite=YES`。
 - CRM 跟进、画像、阶段、Source Radar 与公司客户历史的具体页面 / 字段访问投影 → PDM-16；不得把“历史服务过”解释成永久访问权。
 - 公海 / 待公海处理 / 后台分配 / 领取 / Collaboration → PDM-17；不得通过分享链接绕过已有 owner / 公海的正式治理规则。
 - Waitlist / Lock 负责人状态机 → PDM-18。
