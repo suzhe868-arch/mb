@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-13_STARTUP_GATE`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-13_BATCH_2_RECONSTRUCTION`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,11 +16,11 @@
 
 当前域状态：
 
-> `NOT_STARTED / STARTUP_GATE`
+> `IN_PROGRESS / BATCH_1_PASS / USER_APPROVED`
 
 当前工作文件：
 
-> `PDM-13 工作版尚未建立；启动时先读取 incoming handoff 与覆盖地图。`
+> `07_重建工作区/PDM-13_Priority仲裁TTL与Lock边界_规则原子重建_工作版.md`
 
 当前已纠正：
 
@@ -32,7 +32,18 @@
 
 当前唯一下一步：
 
-> **PDM-12 已最终批准并正式发布：`COMPLETE / INTEGRITY_PASS`。44 个正式 Atom 全覆盖，Final→Source PASS；HO-P04/P05/P07/P11→P12 四条 incoming handoff 已全部 CLOSED 并 source backwrite。正式 Authority：`07_重建工作区/PDM-12_最终完整规则.md`。当前唯一下一步：启动 PDM-13，读取全部 target=PDM-13 的 OPEN/ACCEPTED handoff，重建 Priority / 仲裁 / TTL / active Lock Authority；形成 Batch 1 候选后停下提交用户审查。IA / Low-Fi 继续延后到 PDM-25 后集中对齐。**
+> **PDM-13 Batch 1 已用户批准并确认执行：`P13-A01～P13-A11 = PASS / USER_APPROVED`；5 条 incoming handoff 已全部接收为 `HANDOFF_ACCEPTED`。当前唯一下一步：重建 Batch 2 明确废弃 / 明确替代 / DO_NOT_RESTORE 项，并先做反向冲突扫描，避免把仍待裁决的 Priority 资格、客户等级关系、精确仲裁、TTL 数值、active Lock、客户 visibility 等误判为废弃；形成 Batch 2 候选后立即停下提交用户审查。IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-05｜PDM-13 Batch 1 用户批准并执行
+
+- PDM-13 工作版已建立：`07_重建工作区/PDM-13_Priority仲裁TTL与Lock边界_规则原子重建_工作版.md`；
+- target=PDM-13 的 5 条 incoming handoff 已全部读取并接收：HO-P03-P13-001 / HO-P04-P13-001 / HO-P07-P13-001 / HO-P11-P13-001 / HO-P12-P13-001 = `HANDOFF_ACCEPTED`；
+- Current Authority Refresh / Current Implementation Fact 已完成；
+- Batch 1：`P13-A01～P13-A11 = PASS / USER_APPROVED`；
+- 已冻结：Priority 不复制 Matching、只消费当前合法 high/acceptable、不得猜测/篡改 provenance、同车唯一 active、同 customer+vehicle+listing_cycle 幂等、TTL 创建时冻结、交接不改历史、Priority 不改 owner、与 Recommendation 分离、不改 Vehicle/listing_cycle、结束只恢复底层应有状态、历史不可抹除；
+- 明确未偷渡：Priority 客户资格 / Customer Level 关系 / 精确仲裁顺序 / TTL 默认数值与配置 actor / 续期 / 完整结束原因 / active Lock / Transaction / 客户详情 visibility / 公海保护等继续后续批次；
+- stale carrier 已登记：Navigation 残留“创建 Priority”；E05-05 HIDDEN_CONTROLLED 残留“Priority 本身给客户详情权”的旧口径；
+- 当前唯一下一步：PDM-13 Batch 2 明确废弃 / 替代 / DO_NOT_RESTORE 候选重建，形成候选后停下用户审查。
 
 ## 2026-10-05｜PDM-12 Final 用户最终批准并正式发布
 
