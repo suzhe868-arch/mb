@@ -17,9 +17,9 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-15
+- 当前域：PDM-16（Startup Gate 尚未执行）
 - PDM-15 Startup Gate = PASS
-- PDM-15 incoming handoffs = 5 / 5 HANDOFF_ACCEPTED
+- PDM-15 incoming handoffs = 5 / 5 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-15 工作版 = `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
 - PDM-15 核心定位 P15-R00 = USER_APPROVED / APPLIED
 - PDM-15 Batch 1 = P15-A01～P15-A08 / PASS / USER_APPROVED / APPLIED
@@ -35,7 +35,10 @@
 - PDM-15 Pre-Final Integrity R2 = REPAIR_REQUIRED / REPORT=`07_重建工作区/PDM-15_Final前完整性复核_R2_2026-10-06.md`
 - PDM-15 Pre-Final Repair R2 = P15-LIA-06 / PASS / USER_APPROVED / APPLIED
 - PDM-15 Pre-Final Integrity R3 = PASS / FINAL_CANDIDATE_READY / REPORT=`07_重建工作区/PDM-15_Final前完整性复核_R3_2026-10-06.md`
-- PDM-15 Final Overview = `07_重建工作区/PDM-15_最终完整规则总览_待用户批准.md` / PENDING_USER_FINAL_APPROVAL
+- PDM-15 Final Overview = `07_重建工作区/PDM-15_最终完整规则总览_待用户批准.md` / USER_FINAL_APPROVED
+- PDM-15 Final = `07_重建工作区/PDM-15_最终完整规则.md` / COMPLETE / INTEGRITY_PASS
+- PDM-15 Final Integrity = `07_重建工作区/PDM-15_最终完整性复核_2026-10-06.md` / PASS
+- PDM-15 Source Backwrite = 5 / 5 DONE
 - PDM-11 = COMPLETE / INTEGRITY_PASS
 - PDM-12 = COMPLETE / INTEGRITY_PASS
 - PDM-11 启动门禁 = UNBLOCKED
@@ -73,7 +76,7 @@
 - PDM-14 Final Overview = USER_FINAL_APPROVED
 - PDM-14 Final = `07_重建工作区/PDM-14_最终完整规则.md` / COMPLETE / INTEGRITY_PASS
 - PDM-14 Final Integrity = `07_重建工作区/PDM-14_最终完整性复核_2026-10-06.md` / PASS
-- PDM-14 outgoing handoffs = HO-P14-P15-001 / HO-P14-P18-001 / HO-P14-P19-001 / HO-P14-P20-001 / HO-P14-P21-001 / HO-P14-P23-001 / HO-P14-P25-001 = HANDOFF_OPEN
+- PDM-14 outgoing handoffs = HO-P14-P15-001 HANDOFF_CLOSED; HO-P14-P18/P19/P20/P21/P23/P25 = HANDOFF_OPEN
 - PDM-11 Batch 1 = PASS / USER_APPROVED（P11-A01～P11-A13）
 - PDM-11 Batch 2 = PASS / USER_APPROVED
 - P11-B2-08 = USER_MODIFIED / USER_APPROVED
@@ -83,11 +86,11 @@
 
 总控工作单：
 
-> `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
+> `PDM-16 Startup Gate`（尚未建立 PDM-16 工作版）
 
 ## 当前唯一下一步
 
-> **PDM-15 Final 前完整性复核 R3 已 `PASS / FINAL_CANDIDATE_READY`。当前唯一下一步：用户最终审查 `07_重建工作区/PDM-15_最终完整规则总览_待用户批准.md`。用户最终批准并再次确认执行后，才发布正式 Final、关闭 5 条 incoming handoff、source backwrite，并进入 PDM-16 Startup Gate。IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-15 已正式 `COMPLETE / INTEGRITY_PASS`：Final 已发布，5/5 incoming handoff 已 CLOSED 并完成 source backwrite，8 条 outgoing handoff 保持 HANDOFF_OPEN。当前唯一下一步：执行 PDM-16 Startup Gate；启动前读取全域地图、PDM-16 历史/Current 证据、completed-PDM Authority 与 target=PDM-16 handoff。Startup Gate 通过前不得进入 PDM-16 Batch 1。IA / Low-Fi / Engineering 继续禁止施工。**
 
 每个 PDM 必须同时执行：
 
