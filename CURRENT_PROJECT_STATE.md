@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-15_BATCH_3_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-15_BATCH_4_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / START_GATE_PASS / BATCH_1_PASS_USER_APPROVED / BATCH_2_PASS_USER_APPROVED / BATCH_3_PENDING_USER_REVIEW`
+> `IN_PROGRESS / START_GATE_PASS / BATCH_1_PASS_USER_APPROVED / BATCH_2_PASS_USER_APPROVED / BATCH_3_PASS_USER_APPROVED / BATCH_3_CONFLICT_ISOLATION_PASS / BATCH_4_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -32,7 +32,19 @@
 
 当前唯一下一步：
 
-> **PDM-15 Batch 2 已 `PASS / USER_APPROVED / APPLIED`；Reverse Conflict Scan = `PASS / FALSE_DEPRECATION_COUNT=0`。当前唯一下一步：提交 P15-B3-01～P15-B3-04 Batch 3 知情修改 / 显式新增候选给用户审查。`CANCELLED` 主状态、SLA 首次真实人工动作、默认 15 分钟、负责人优先级、Customer 停用运行态、Transaction 负向边界继续保留 Batch 4。IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-15 Batch 3 已 `PASS / USER_APPROVED / APPLIED`；Conflict Isolation = `PASS / CONFLICT_OR_PRODUCT_CHOICE_MISCLASSIFIED_AS_BATCH3=0`。当前唯一下一步：用户审查 P15-B4-01～P15-B4-07；建议选择 `1A、2A、3A、4A、5A、6A、7A`。IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-06｜PDM-15 Batch 3 用户批准、执行与冲突隔离 PASS
+
+- 用户对 `P15-B3-01～P15-B3-04` 明确“全部同意确认执行”；
+- Batch 3 = `PASS / USER_APPROVED / APPLIED`；
+- Batch 3 Conflict Isolation = `PASS`，`CONFLICT_OR_PRODUCT_CHOICE_MISCLASSIFIED_AS_BATCH3=0`；
+- 已确认：Customer 可撤回 open Consultation；员工可记录真实跟进；员工结束语义区分解决/无效/正常关闭；Consultation 创建时消费有效 SLA 配置并固化本次 deadline；
+- 未提前裁决：`CANCELLED` 第五主状态、首次真实人工响应完成条件、默认 15 分钟、负责人优先级、Customer 停用运行态、Transaction 负向边界；
+- 形成 Batch 4 候选 `P15-B4-01～P15-B4-07`，建议 `1A、2A、3A、4A、5A、6A、7A`；
+- 5 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 Batch 4。
 
 ## 2026-10-06｜PDM-15 Batch 2 用户批准、执行与反向冲突扫描 PASS
 
