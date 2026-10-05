@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-16_BATCH_2_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-16_BATCH_3_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`
+> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -32,7 +32,20 @@
 
 当前唯一下一步：
 
-> **PDM-16 Batch 1 已 `PASS / USER_APPROVED / APPLIED`；P16-A01～A12 已进入当前工作 Authority。当前唯一下一步：用户审查 P16-B2-01～P16-B2-07；未获用户批准并再次确认执行前，不得写入 Batch 2 Authority。6 条 incoming handoff 继续 HANDOFF_ACCEPTED。**
+> **PDM-16 Batch 2 已 `PASS / USER_APPROVED / APPLIED`，Reverse Conflict Scan = PASS，FALSE_DEPRECATION_COUNT=0。当前唯一下一步：用户审查 P16-B3-01～P16-B3-06；未获用户批准并再次确认执行前，不得写入 Batch 3 Authority。6 条 incoming handoff 继续 HANDOFF_ACCEPTED。**
+
+## 2026-10-06｜PDM-16 Batch 2 用户批准并执行
+
+- 用户对 `P16-B2-01～P16-B2-07` 明确“全部同意确认执行”；
+- Batch 2 = `PASS / USER_APPROVED / APPLIED`；
+- Reverse Conflict Scan = `PASS`；
+- `FALSE_DEPRECATION_COUNT = 0`；
+- 已明确废弃：Customer Merge、CRM 直接锁车旧入口、7d/40/3d Opportunity 旧阈值、大字段 CRM、历史服务永久访问、P06-07 假 CRUD/config、Opportunity 独立工单/强待办/SLA；
+- 已确认没有误废弃当前合法的 Opportunity、CRM Stage、Tags、Follow-up、Shared Profile、CRM 业务概览、Source Radar 等能力；
+- Batch 3 候选：`P16-B3-01～P16-B3-06`；
+- 6 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 Batch 3。
 
 ## 2026-10-06｜PDM-16 Batch 1 用户批准并执行
 
