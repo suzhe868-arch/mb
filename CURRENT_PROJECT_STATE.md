@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-14_PREFINAL_INTEGRITY_PENDING`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-14_FINAL_OVERVIEW_PENDING`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -32,7 +32,26 @@
 
 当前唯一下一步：
 
-> **PDM-14 Batch 1～4 与 P14-LIA-01～P14-LIA-10 均已用户批准并执行；`LOCAL_PRODUCT_CHOICE_UNRESOLVED=0`。8 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；outgoing `HO-P14-P15/P18/P19/P20/P21/P23/P25` 均已登记 `HANDOFF_OPEN`。当前唯一下一步：重新执行 PDM-14 Final 前完整性复核 R2；若 Source↔Atom、Semantic Completeness、Completed-PDM Invariant、Handoff、Negative Claims、stale carrier、Local Deferred 全部 PASS 且 unresolved=0，则进入 `FINAL_CANDIDATE_READY` 并生成 Final Domain Overview 候选。IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-14 Final 前完整性复核 R2 已 `PASS / FINAL_CANDIDATE_READY`；P14-LIA-01～10 已全部落地，所有 unresolved=0。8 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；7 条 outgoing handoff 继续 `HANDOFF_OPEN`。当前唯一下一步：生成 PDM-14 Final Domain Overview 候选并提交用户最终批准。未经最终批准，不发布 Final、不关闭 incoming、不开始 PDM-15，IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-06｜PDM-14 Final 前完整性复核 R2 通过
+
+- 报告：`07_重建工作区/PDM-14_Final前完整性复核_R2_2026-10-06.md`；
+- `SOURCE_TO_ATOM = PASS`；
+- `ATOM_TO_SOURCE = PASS`；
+- `SEMANTIC_COMPLETENESS = PASS`；
+- `COMPLETED_PDM_INVARIANT = PASS`；
+- `INCOMING_HANDOFF_SEMANTIC_COVERAGE = PASS`；
+- `OUTGOING_HANDOFF_INTEGRITY = PASS`；
+- `NEGATIVE_CLAIMS_VERIFIED = PASS`；
+- `MISSING_RULE_UNRESOLVED = 0`；
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 0`；
+- `CROSS_PDM_CONFLICT = 0`；
+- `HANDOFF_GAP_UNRESOLVED = 0`；
+- `PDM14_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- `PDM14_LOCAL_DEFERRED_UNRESOLVED = 0`；
+- `PDM14_FINAL_CANDIDATE_READY = YES`；
+- 当前唯一下一步：生成 PDM-14 Final Domain Overview 候选。
 
 ## 2026-10-06｜PDM-14 Final 前完整性修复 LIA-01～10 已执行
 
