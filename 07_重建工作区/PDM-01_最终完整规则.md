@@ -240,7 +240,7 @@ V1 保留轻量后台控制，不建设复杂的客户注销 / 账号删除状�
 
 1. Demand 生命周期 → PDM-11；2026-10-05 用户已明确并最终批准：Customer 停用时 active Demand 自动 paused、历史保留、恢复账号不自动恢复 Demand；PDM-11 已 `COMPLETE / INTEGRITY_PASS`，`HO-P01-P11-002 = HANDOFF_CLOSED`；旧“停用不改变 Demand 状态”口径已被覆盖且不得恢复；
 2. Recommendation 具体生命周期与当前 listing cycle 权利 → PDM-14｜`HANDOFF_CLOSED`：PDM-14 Final 已正式承接 Recommendation 独立对象、当前 listing_cycle 边界、Customer disable/restore、find-car entitlement loss/restore、历史保留与 Customer identity 不重建；`HO-P01-P14-001 = HANDOFF_CLOSED / source_backwrite=YES`；
-3. Consultation → PDM-15；
+3. Consultation → PDM-15｜`HANDOFF_CLOSED`：PDM-15 Final 已正式承接 Consultation 四主状态、direct source、assignee/owner 分层、Customer disable hold、首次人工响应 SLA、撤回/终结与历史；Customer 停用不抹除 Consultation 历史，恢复账号不自动恢复具体 Consultation 运行；`HO-P01-P15-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 4. CRM 客户画像、跟进、员工内部客户称呼承载 → PDM-16；
 5. Lock / Waitlist → PDM-18；
 6. Transaction / Refund → PDM-19；
