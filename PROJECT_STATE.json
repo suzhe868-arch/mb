@@ -4,7 +4,7 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "DOMAIN_RULE_FINAL_OVERVIEW_REGENERATION",
+  "substage": "DOMAIN_RULE_FINAL_OVERVIEW_USER_APPROVAL",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
@@ -20,13 +20,13 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "重新生成修正后的 PDM-13 Final Domain Overview 候选：纳入 LIA-07/08、TTL 最长保护上限、销售提前 release、Match tier downgrade 与 Recommendation/Priority 独立边界",
+  "current_task": "等待用户最终批准 PDM-13 Final Domain Overview 候选",
   "current_work_file": "07_重建工作区/PDM-13_Priority仲裁TTL与Lock边界_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
-    "Do not publish PDM-13 Final before user approves the regenerated Final Domain Overview",
+    "Do not publish PDM-13 Final before user approves the generated Final Domain Overview",
     "Do not close PDM-13 incoming handoffs before Final/Integrity closeout",
     "Do not start PDM-14 before PDM-13 Final publication and integrity closeout",
     "Do not treat Recommendation cancellation alone as Priority release or same-cycle suppression",
@@ -70,7 +70,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-13_FINAL_OVERVIEW_REGENERATION",
+  "current_review_batch": "PDM-13_FINAL_OVERVIEW_USER_APPROVAL",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -1641,8 +1641,8 @@
   "pdm_12_final_integrity_report": "07_重建工作区/PDM-12_最终完整性复核_2026-10-05.md",
   "pdm_12_final_approved_at": "2026-10-05",
   "pdm_12_integrity_status": "INTEGRITY_PASS",
-  "pdm_13_status": "IN_PROGRESS_PREFINAL_INTEGRITY_R2_PASS_FINAL_CANDIDATE_READY",
-  "pdm_13_next_gate": "FINAL_OVERVIEW_USER_APPROVAL_AFTER_REGENERATION",
+  "pdm_13_status": "IN_PROGRESS_FINAL_OVERVIEW_CANDIDATE_READY_WAITING_USER_APPROVAL",
+  "pdm_13_next_gate": "FINAL_OVERVIEW_USER_APPROVAL",
   "pdm_13_start_gate": "PASS",
   "pdm_13_work_file": "07_重建工作区/PDM-13_Priority仲裁TTL与Lock边界_规则原子重建_工作版.md",
   "pdm_13_incoming_handoffs": {
@@ -1835,7 +1835,7 @@
   ],
   "pdm_13_pre_final_integrity_status": "PASS_R2",
   "pdm_13_pre_final_integrity_report": "07_重建工作区/PDM-13_Final前完整性复核_R2_2026-10-05.md",
-  "pdm_13_final_candidate_status": "READY_FOR_REGENERATION_NOT_PUBLISHED",
+  "pdm_13_final_candidate_status": "GENERATED_WAITING_USER_APPROVAL",
   "pdm_13_local_deferred_unresolved": 0,
   "pdm_13_integrity": {
     "source_to_atom": "PASS",
@@ -1854,5 +1854,7 @@
     "r2_status": "PASS"
   },
   "pdm_13_pre_final_integrity_r1_status": "PASS_HISTORICAL_REOPENED",
-  "pdm_13_pre_final_integrity_r1_report": "07_重建工作区/PDM-13_Final前完整性复核_2026-10-05.md"
+  "pdm_13_pre_final_integrity_r1_report": "07_重建工作区/PDM-13_Final前完整性复核_2026-10-05.md",
+  "pdm_13_final_overview_file": "07_重建工作区/PDM-13_最终完整规则总览_待用户批准.md",
+  "pdm_13_final_published": false
 }
