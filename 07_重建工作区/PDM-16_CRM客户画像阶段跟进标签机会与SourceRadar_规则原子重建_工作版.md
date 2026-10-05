@@ -1,7 +1,7 @@
 # PDM-16｜CRM / 客户画像 / 阶段 / 跟进 / 标签 / 机会 / Source Radar｜规则原子重建工作版
 
 > 日期：2026-10-06  
-> 状态：`IN_PROGRESS / STARTUP_GATE_PASS / P16-R00_USER_APPROVED_APPLIED / BATCH_1_PENDING_USER_REVIEW`  
+> 状态：`IN_PROGRESS / STARTUP_GATE_PASS / P16-R00_USER_APPROVED_APPLIED / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`  
 > 方法：9/19 主底盘 + 前向历史补全 + 后向显式 supersession + 9/22 冻结台账 + Current Carrier Conflict Scan + Completed-PDM Authority + Cross-PDM Handoff。  
 > 当前阶段约束：IA / Low-Fi / Engineering 只登记冲突，不施工；未经用户审查的候选 Atom 不得直接进入 Final。
 
@@ -153,9 +153,10 @@ Current 已存在“记录跟进”入口，但 E03-03 正式 Action Contract �
 
 ---
 
-## 4. Batch 1｜稳定一致规则候选｜PENDING_USER_REVIEW
+## 4. Batch 1｜稳定一致规则｜PASS / USER_APPROVED / APPLIED
 
 > 本批只收“9/19 + 历史差集 + completed-PDM Authority”方向一致、无需新产品选择的规则。  
+> 用户于 2026-10-06 对 P16-A01～P16-A12 明确“全部同意”，随后明确“确认执行”；以下 12 条正式进入 PDM-16 当前工作 Authority。  
 > 旧 Merge、旧锁车入口、旧机会阈值等明确 supersession 项留 Batch 2。
 
 ### P16-A01｜CRM Stage 是 Customer 总体经营阶段，不是具体业务对象状态
@@ -364,7 +365,7 @@ PDM-16 冻结对象语义与数据边界；员工工作台排序、卡片、入�
 
 ---
 
-## 5. Batch 1 Gate｜PENDING_USER_REVIEW
+## 5. Batch 1 Gate｜PASS / USER_APPROVED / APPLIED
 
 当前：
 
@@ -373,9 +374,153 @@ PDM-16 冻结对象语义与数据边界；员工工作台排序、卡片、入�
 - `INCOMING_HANDOFF = 6 / 6 HANDOFF_ACCEPTED`；
 - `COMPLETED_PDM_HARD_CONFLICT = 0`；
 - `INCOMING_HANDOFF_GAP = 0`；
-- `P16-A01～P16-A12 = PENDING_USER_REVIEW`；
+- `P16-A01～P16-A12 = PASS / USER_APPROVED / APPLIED`；
+- IA / Low-Fi / Engineering 未施工。
+
+Batch 1 Reverse Check：
+
+- 未把 Customer Merge、旧 CRM 直接锁车入口、旧机会阈值、大字段 CRM 画像等 superseded 内容误纳入稳定项；
+- 未把 PDM-17 公海/Collaboration 状态机、PDM-21 工作台强待办编排提前吸收到 PDM-16；
+- 未把普通 CRM Follow-up 错当 Consultation 首次 SLA 响应；
+- 未复制 PDM-12 Matching Authority。
+
+---
+
+## 6. Batch 2｜明确废弃 / 被替代 / DO_NOT_RESTORE 候选｜PENDING_USER_REVIEW
+
+> 本批只处理已有明确后续 Authority 或显式废弃证据的旧方向，不新增新产品选择。
+
+### P16-B2-01｜Customer Merge / P06-01 / P06-M01 不得恢复
+
+当前 Authority 已由 PDM-01 Final 明确：
+
+> **V1 完全取消 Customer Merge。**
+
+因此 PDM-16 不得恢复：
+
+- CRM 内自动 Merge；
+- 人工 Merge；
+- 相同手机号触发 Merge；
+- “确认同一自然人”后合并；
+- surviving customer_id；
+- owner / source / Level / Recommendation / Consultation / Demand / Lock / Transaction / CRM history 的跨 Customer 迁移。
+
+Current P06-01 / P06-M01 的 Merge Flow、MERGE_BLOCKED / READY / MERGING / MERGED / MERGE_HISTORICAL 等仅登记为 stale carrier，不得作为 PDM-16 当前业务能力。
+
+建议：**通过。**
+
+### P16-B2-02｜CRM 客户详情直接“锁车 → 再选车辆”旧入口不得恢复
+
+旧 CRM 详情直接发起无 Vehicle 上下文锁车的路径已被后续业务模型替代。
+
+PDM-16 CRM 快捷动作不得恢复：
+
+> `Customer CRM → 锁车 → 再选 Vehicle`
+
+Lock / LockRequest 必须在合法 Customer + Vehicle 上下文中进入 PDM-18 Authority。
+
+CRM 可以展示当前 Lock / Waitlist 概览，但不得从纯 Customer CRM 页面创造第二套锁车入口或第二套 Lock 状态机。
+
+Current E03-01 / E03-06 相关旧入口登记 stale carrier。
+
+建议：**通过。**
+
+### P16-B2-03｜旧 Customer Opportunity 具体阈值不得恢复
+
+Phase1.5 DP-01 已明确 DO_NOT_RESTORE：
+
+- 7 天无活动；
+- 单日浏览 >40 次；
+- 连续 3 天浏览；
+- 以及仅服务这些旧规则的配置项 / 阈值控件。
+
+PDM-16 保留“聚合客户机会”能力，但不能因为需要机会信号就把上述旧固定阈值重新带回。
+
+如未来需要新的机会判定规则，必须另有明确产品 Authority，不得从旧阈值默认复活。
+
+建议：**通过。**
+
+### P16-B2-04｜历史“大字段 CRM 画像模型”不得恢复
+
+Personal Note、Shared Profile、Customer Tags、员工内部客户称呼、CRM Follow-up、CRM Stage 必须保持明确分层。
+
+不得恢复一个“大备注 / 大画像字段”把以下内容混在一起：
+
+- 销售个人备注；
+- 共享客户画像；
+- 客户称呼；
+- 标签；
+- 跟进；
+- Demand 说明；
+- 业务状态。
+
+尤其不得让 owner 变化时把 Personal Note 当 Shared Profile 一并转移。
+
+建议：**通过。**
+
+### P16-B2-05｜“历史服务过 = 永久 CRM 访问权”不得恢复
+
+历史服务事实属于公司客户历史，可以长期保留；但访问权始终取决于当前 Authority。
+
+不得恢复：
+
+- 曾经是 owner 就永久可看；
+- 曾记录过跟进就永久可看；
+- 曾参与过 Collaboration 就永久可看；
+- 离职/调岗/失去 scope 后仍凭历史关系继续查看完整 CRM。
+
+正式访问继续服从当前 identity + permission/capability + data scope + owner/collaboration/manager scope + object/account state。
+
+建议：**通过。**
+
+### P16-B2-06｜P06-07 “客户机会规则”不得凭页面壳恢复未授权 CRUD / config
+
+Current P06-07 虽存在“客户机会规则”页面名及通用 Low-Fi 壳，但没有当前 Authority 支持：
+
+- 任意新增机会规则；
+- 编辑机会阈值；
+- 删除机会规则；
+- 配置旧 7d / 40 / 3d；
+- 创建新的未裁决机会状态机。
+
+因此：
+
+- 页面存在 ≠ 规则配置能力已授权；
+- 通用 CRUD / config / transition 文案不得作为产品证据；
+- 当前仅保留合法的机会查询 / 聚合说明 / 结果投影；
+- 真正新增可配置机会规则必须以后续明确产品裁决为准。
+
+建议：**通过。**
+
+### P16-B2-07｜Customer Opportunity 不得恢复成独立工单/强待办/通知对象
+
+旧机会模块若出现类似 task / owner / close / SLA / 逐条通知的实现倾向，不得恢复。
+
+当前 Customer Opportunity：
+
+- 不是 Consultation；
+- 不是强待办；
+- 不拥有独立 assignee；
+- 不建 pending/processing/closed lifecycle；
+- 不建 SLA；
+- 不逐条自动飞书。
+
+员工强待办继续由真实 Application / Consultation / LockRequest / Priority 等业务事实驱动，并由 PDM-21 编排。
+
+建议：**通过。**
+
+---
+
+## 7. Batch 2 Gate｜PENDING_USER_REVIEW
+
+当前：
+
+- `P16-A01～P16-A12 = PASS / USER_APPROVED / APPLIED`；
+- `P16-B2-01～P16-B2-07 = PENDING_USER_REVIEW`；
+- `FALSE_DEPRECATION_COUNT = NOT_YET_CHECKED`；
+- 6 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
 - IA / Low-Fi / Engineering 未施工。
 
 当前唯一下一步：
 
-> **用户审查 P16-A01～P16-A12。只有用户明确批准并随后“确认执行”，才写入当前 PDM-16 Authority；之后再进入 Batch 2 明确废弃 / supersession / DO_NOT_RESTORE 扫描。**
+> **用户审查 P16-B2-01～P16-B2-07。用户批准并确认执行后，再执行 Batch 2 Reverse Conflict Scan，确认没有把现行 CRM 能力误判为废弃项。**
