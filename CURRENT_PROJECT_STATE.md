@@ -6,21 +6,21 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-14_FINAL_OVERVIEW_PENDING`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-15_STARTUP_PENDING`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
 当前域：
 
-> **PDM-14｜Recommendation / 普通分享 / 单车授权 / 隐藏车客户可见性**
+> **PDM-15｜Consultation / 咨询 / SLA / 负责人**
 
 当前域状态：
 
-> `IN_PROGRESS / START_GATE_PASS / BATCH_1_USER_APPROVED / BATCH_2_USER_APPROVED / BATCH_3_USER_APPROVED / BATCH_4_USER_APPROVED`
+> `STARTUP_PENDING / INCOMING_HANDOFF_NOT_YET_ACCEPTED`
 
 当前工作文件：
 
-> `07_重建工作区/PDM-14_Recommendation分享单车授权与可见性_规则原子重建_工作版.md`
+> `PDM-15 工作版尚未建立；先执行 Startup Gate`
 
 当前已纠正：
 
@@ -32,7 +32,21 @@
 
 当前唯一下一步：
 
-> **PDM-14 Final 前完整性复核 R2 已 `PASS / FINAL_CANDIDATE_READY`；P14-LIA-01～10 已全部落地，所有 unresolved=0。8 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；7 条 outgoing handoff 继续 `HANDOFF_OPEN`。当前唯一下一步：生成 PDM-14 Final Domain Overview 候选并提交用户最终批准。未经最终批准，不发布 Final、不关闭 incoming、不开始 PDM-15，IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-14 已 `COMPLETE / INTEGRITY_PASS`；52 个正式规则/裁决单元全部进入 Final；8 条 incoming handoff 已 `HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE`；7 条 outgoing handoff 保持 `HANDOFF_OPEN`。当前唯一下一步：执行 PDM-15 Startup Gate，固定先读取 Coverage Map、Cross-PDM Handoff Register 中 target=PDM-15 的 5 条 incoming handoff、PDM-14→PDM-15 双向不反写边界，以及 Consultation 相关 9/19 / 001～078 / Current 证据。Startup Gate 通过并接收 handoff 后，才建立 PDM-15 工作版并进入 Batch 1。IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-06｜PDM-14 Final 正式发布并完成 Closeout
+
+- 用户最终批准 Final Domain Overview 并明确“确定执行”；
+- Final Approval Trace：`07_重建工作区/PDM-14_最终完整规则总览_待用户批准.md`；
+- 正式 Authority：`07_重建工作区/PDM-14_最终完整规则.md`；
+- Final Integrity：`07_重建工作区/PDM-14_最终完整性复核_2026-10-06.md / PASS`；
+- `PDM-14 = COMPLETE / INTEGRITY_PASS`；
+- 52 个正式规则 / 裁决单元全部进入 Final；
+- 8 / 8 incoming handoff = `HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE`；
+- 来源 PDM-01 / 03 / 04 / 07 / 10 / 11 / 12 / 13 Final 已反向回写；
+- outgoing `HO-P14-P15/P18/P19/P20/P21/P23/P25` 继续 `HANDOFF_OPEN`；
+- IA / Low-Fi / Engineering 未施工；
+- 下一步：PDM-15 Startup Gate。
 
 ## 2026-10-06｜PDM-14 Final 前完整性复核 R2 通过
 
