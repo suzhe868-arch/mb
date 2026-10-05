@@ -309,7 +309,7 @@ Demand 未填预算时“价格咨询”可继续 Matching；但客户端明确�
 
 - PDM-13：`HANDOFF_CLOSED`。PDM-13 Final §§4-14,21-23,29-30 已承接：只消费 current legal Match Result；high/acceptable 才能驱动 Priority；confirmation_needed/no_match 不支持 current Priority；Match tier downgrade 立即重评；active Lock 不阻断 Matching 但阻止新 Priority；TTL、仲裁、Demand.created_at、trigger Demand、release/re-arbitration 与 Lock/Transaction 边界均已冻结。
 - PDM-14：`HANDOFF_CLOSED`。PDM-14 Final 已承接 Match Result 与 Recommendation/visibility 分离：high/acceptable 不自动 Recommendation，不自动授 Customer detail visibility；hidden Customer visibility 必须由 Recommendation + customer-specific authorization 建立；`HO-P12-P14-001 = HANDOFF_CLOSED / source_backwrite=YES`。
-- PDM-16：消费 Matching change fact，不复制 Matching Authority。
+- PDM-16：`HANDOFF_CLOSED`。PDM-16 Final 已正式承接 Source Radar 仅消费可追溯 Matching change fact、不得复制 parser / Rule Dictionary / Matching Engine、不得反向覆盖 Match Result；`HO-P12-P16-001 = HANDOFF_CLOSED / source_backwrite=YES`。
 - PDM-18：active Lock 不阻止 Matching，但不能绕过单车唯一 active Lock；其他客户后续 Waitlist/Lock 动作归 PDM-18。
 - PDM-20：搜索共用 parser/dictionary；车型年款与上牌年份分离；数字价格区间仍排除价格咨询；六类 auto-Matching 排除字段仍可作为合法筛选项。
 - PDM-21：承载保存销售匹配描述→deterministic parse→standard conditions→Matching/recalculation→four-tier result→explanation→confirmation；不得把确认候选实现成直接 Match 成功/直接 Priority。
