@@ -164,7 +164,7 @@ V1 **完全取消 Customer Merge**。
 
 ## 10. 员工内部客户称呼 / 备注名｜交叉边界
 
-CN11 原始规则已存在以下能力，本 PDM 只登记身份边界；统一 permission / data scope 权限模型已由 PDM-02 当前 Final 承接，具体 CRM 备注业务与页面承载继续移交 PDM-16：
+CN11 原始规则已存在以下能力，本 PDM 只登记身份边界；统一 permission / data scope 权限模型已由 PDM-02 当前 Final 承接，具体 CRM 备注业务与页面承载已由 PDM-16 Final 正式承接：
 
 1. 客户本人昵称 / 称呼与员工内部客户称呼 / 备注名必须分离。
 2. 有权限员工可维护内部客户称呼 / 备注名。
@@ -241,7 +241,7 @@ V1 保留轻量后台控制，不建设复杂的客户注销 / 账号删除状�
 1. Demand 生命周期 → PDM-11；2026-10-05 用户已明确并最终批准：Customer 停用时 active Demand 自动 paused、历史保留、恢复账号不自动恢复 Demand；PDM-11 已 `COMPLETE / INTEGRITY_PASS`，`HO-P01-P11-002 = HANDOFF_CLOSED`；旧“停用不改变 Demand 状态”口径已被覆盖且不得恢复；
 2. Recommendation 具体生命周期与当前 listing cycle 权利 → PDM-14｜`HANDOFF_CLOSED`：PDM-14 Final 已正式承接 Recommendation 独立对象、当前 listing_cycle 边界、Customer disable/restore、find-car entitlement loss/restore、历史保留与 Customer identity 不重建；`HO-P01-P14-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 3. Consultation → PDM-15｜`HANDOFF_CLOSED`：PDM-15 Final 已正式承接 Consultation 四主状态、direct source、assignee/owner 分层、Customer disable hold、首次人工响应 SLA、撤回/终结与历史；Customer 停用不抹除 Consultation 历史，恢复账号不自动恢复具体 Consultation 运行；`HO-P01-P15-001 = HANDOFF_CLOSED / source_backwrite=YES`；
-4. CRM 客户画像、跟进、员工内部客户称呼承载 → PDM-16；
+4. CRM 客户画像、跟进、员工内部客户称呼承载 → PDM-16｜`HANDOFF_CLOSED`：PDM-16 Final 已正式承接 Personal Note / Shared Profile / 员工内部客户称呼历史、CRM Stage / Tags / Follow-up、当前访问权与历史事实分离；`HO-P01-P16-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 5. Lock / Waitlist → PDM-18；
 6. Transaction / Refund → PDM-19；
 7. 客户端个人资料与“账号已停用”具体页面表现 → PDM-20；
