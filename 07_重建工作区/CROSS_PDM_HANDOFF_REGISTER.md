@@ -426,6 +426,8 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | HO-P14-P23-001 | PDM-23 | Recommendation create/end/void 不自动扩展为微信主动消息/发送成功失败状态机；V1 不因 Recommendation 本身新增客户侧微信订阅消息体系。未来若通知层消费明确 allowlist 事件，通知失败只能形成通知/incident 事实，不得回滚或改写 Recommendation/visibility/price-right 业务事实。 | HANDOFF_OPEN | - | YES |
 | HO-P14-P25-001 | PDM-25 | 统一审计 Recommendation / visibility grant：create/reuse/touch/end/void、void reason、customer/vehicle/listing_cycle/recommender/source_demand/price snapshot、visible↔hidden 时 grant effective change、Priority suppression/restore、Customer disable/restore 与 find-car entitlement loss/restore 的客户侧能力暂停恢复、批量逐车结果、actor/time/identity/permission/data scope/object state/before-after/source context；历史不可物理删除，上游同步不得直接覆盖这些 Business Data。 | HANDOFF_OPEN | - | YES |
 
+| HO-P15-P21-001 | PDM-21 | 员工端承接 Consultation 工作台与处理投影：PDM-15 只冻结 SLA 业务事实和首次响应是否完成；PDM-21 审查并承载历史“已超时 > 即将超时 > 新咨询/新服务意向”的工作台优先级、即将超时阈值与展示。开始处理/记录跟进/解决/无效/正常关闭/转派等员工动作必须服从 PDM-15 当前 Consultation Authority，不得把 UI 的 CANCELLED 投影恢复为第五主状态，也不得把打开/已读/改 processing/转派误算为首次真实响应。 | HANDOFF_OPEN | - | YES |
+
 ---
 ## 13. Post-PDM25 IA / Low-Fi Carrier Ledger｜持续累积
 
