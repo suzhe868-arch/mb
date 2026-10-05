@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-16_PREFINAL_R1_REPAIR_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-16_FINAL_OVERVIEW_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_4_PASS / PREFINAL_R1_REPAIR_REQUIRED`
+> `IN_PROGRESS / PREFINAL_R2_PASS / FINAL_CANDIDATE_READY / WAITING_USER_FINAL_APPROVAL`
 
 当前工作文件：
 
@@ -32,7 +32,24 @@
 
 当前唯一下一步：
 
-> **PDM-16 Final 前完整性复核 R1 = `REPAIR_REQUIRED`。当前唯一下一步：用户审查 P16-LIA-01～P16-LIA-03；未获批准并确认执行前不得写入修复。当前 hard conflict=0，incoming handoff gap=0，outgoing handoff gap=1 group。**
+> **PDM-16 Final 前完整性复核 R2 = `PASS / FINAL_CANDIDATE_READY`。当前唯一下一步：用户最终审查 PDM-16 Final Domain Overview；最终批准前不得 Final closeout，批准后仍需再次明确“确认执行”。6 条 incoming handoff 继续 HANDOFF_ACCEPTED。**
+
+## 2026-10-06｜PDM-16 Final 前完整性复核 R2
+
+- P16-LIA-01～P16-LIA-03 已 USER_APPROVED / APPLIED；
+- R2 报告：`07_重建工作区/PDM-16_Final前完整性复核_R2_2026-10-06.md`；
+- Source→Atom = PASS；
+- Atom→Source = PASS；
+- Semantic Completeness = PASS；
+- Missing Rule = 0；
+- Semantic Detail Gap = 0；
+- completed-PDM conflict = 0；
+- incoming handoff gap = 0；
+- outgoing handoff gap = 0；
+- local product choice unresolved = 0；
+- `PDM16_FINAL_CANDIDATE_READY = YES`；
+- Final Overview：`07_重建工作区/PDM-16_最终完整规则总览_待用户批准.md`；
+- 当前唯一下一步：用户最终审查 Final Overview。
 
 ## 2026-10-06｜PDM-16 Final 前完整性复核 R1
 
