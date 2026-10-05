@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-13_FINAL_OVERVIEW_REGENERATION`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-13_FINAL_OVERVIEW_USER_APPROVAL`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / PREFINAL_INTEGRITY_R2_PASS / FINAL_CANDIDATE_READY`
+> `IN_PROGRESS / FINAL_OVERVIEW_CANDIDATE_READY / WAITING_USER_FINAL_APPROVAL`
 
 当前工作文件：
 
@@ -32,7 +32,19 @@
 
 当前唯一下一步：
 
-> **Final Overview 复查新增 P13-LIA-07～P13-LIA-08，用户已确认业务口径并明确“确认执行”；Final 前完整性复核 R2 已 PASS，`PDM13_FINAL_CANDIDATE_READY = YES`。当前唯一下一步：重新生成修正后的 PDM-13 Final Domain Overview 候选，完整覆盖 Batch 1～4、P13-LIA-01～08、TTL 最长保护上限/销售提前 release、Match tier downgrade、Recommendation/Priority 独立、Lock/Transaction 不反向撤销、incoming/outgoing handoff、stale carrier 与 supersession，并提交用户最终批准。未经用户最终批准，不得发布 PDM-13 Final，不得关闭 incoming handoff，不得开始 PDM-14。IA / Low-Fi / Engineering 继续禁止施工。**
+> **P13-LIA-01～08 已全部用户批准并执行，Final 前完整性复核 R2 已 PASS；修正后的 Final Domain Overview 候选已生成：`07_重建工作区/PDM-13_最终完整规则总览_待用户批准.md`。当前唯一下一步：等待用户对该总览做最终批准。只有用户明确最终同意后，才允许发布 `PDM-13_最终完整规则.md`、关闭 5 条 incoming handoff、完成 source backwrite / Final Integrity closeout，并进入 PDM-14。IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-05｜PDM-13 修正 Final Overview 候选已生成
+
+- 候选文件：`07_重建工作区/PDM-13_最终完整规则总览_待用户批准.md`；
+- 状态：`FINAL_CANDIDATE / WAITING_USER_FINAL_APPROVAL`；
+- 当前正式规则 / 修复 Atom = 38；
+- 已纳入 LIA-07：Match tier downgrade 立即重评；
+- 已纳入 LIA-08：TTL 是最长保护上限、销售可 TTL 前 release / 不推荐此车、Recommendation/Priority 两对象独立、Lock/Transaction 不反向撤销；
+- R2 完整性报告 = `07_重建工作区/PDM-13_Final前完整性复核_R2_2026-10-05.md`；
+- 5 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- PDM-13 Final 仍未发布；
+- 当前唯一下一步：等待用户最终批准该总览。
 
 ## 2026-10-05｜PDM-13 Final Overview 复查补漏与 R2 PASS
 
