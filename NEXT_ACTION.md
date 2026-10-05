@@ -17,14 +17,14 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-13
+- 当前域：PDM-14
 - PDM-11 = COMPLETE / INTEGRITY_PASS
 - PDM-12 = COMPLETE / INTEGRITY_PASS
 - PDM-11 启动门禁 = UNBLOCKED
 - `HO-P01-P11-001 = HANDOFF_SUPERSEDED`
 - `HO-P01-P11-002 = HANDOFF_CLOSED`
 - PDM-12 incoming handoffs = 4 / 4 HANDOFF_CLOSED
-- PDM-13 incoming handoffs = 5 / 5 HANDOFF_ACCEPTED
+- PDM-13 incoming handoffs = 5 / 5 HANDOFF_CLOSED / source_backwrite=YES
 - PDM-13 Batch 1 = PASS / USER_APPROVED（P13-A01～P13-A11）
 - PDM-13 Batch 2 = PASS / USER_APPROVED（P13-B2-01～P13-B2-05）
 - PDM-13 Batch 2 Reverse Conflict Scan = PASS
@@ -36,8 +36,11 @@
 - PDM-13 Pre-Final Repair = P13-LIA-01～P13-LIA-08 / PASS / USER_APPROVED / APPLIED
 - PDM-13 Pre-Final Integrity R1 = PASS / HISTORICAL / REOPENED_BY_FINAL_OVERVIEW_REVIEW
 - PDM-13 Pre-Final Integrity R2 = PASS / FINAL_CANDIDATE_READY
-- PDM-13 Final Overview Candidate = GENERATED / WAITING_USER_FINAL_APPROVAL
-- PDM-13 Final Overview Candidate File = `07_重建工作区/PDM-13_最终完整规则总览_待用户批准.md`
+- PDM-13 Final Overview = USER_FINAL_APPROVED
+- PDM-13 Final = `07_重建工作区/PDM-13_最终完整规则.md` / COMPLETE / INTEGRITY_PASS
+- PDM-13 Final Integrity = `07_重建工作区/PDM-13_最终完整性复核_2026-10-05.md` / PASS
+- PDM-14 incoming handoffs = 8 / 8 HANDOFF_OPEN
+- PDM-14 Start Gate = PENDING
 - PDM-11 Batch 1 = PASS / USER_APPROVED（P11-A01～P11-A13）
 - PDM-11 Batch 2 = PASS / USER_APPROVED
 - P11-B2-08 = USER_MODIFIED / USER_APPROVED
@@ -47,11 +50,11 @@
 
 总控工作单：
 
-> `07_重建工作区/PDM-13_Priority仲裁TTL与Lock边界_规则原子重建_工作版.md`
+> PDM-14 工作版尚未建立
 
 ## 当前唯一下一步
 
-> **等待用户对 `07_重建工作区/PDM-13_最终完整规则总览_待用户批准.md` 做最终批准。候选已完整纳入 P13-A01～A11、P13-B2-01～B2-05、P13-B3-01～B3-06、P13-B4-01～B4-08、P13-LIA-01～LIA-08 与 R2 Integrity。只有用户明确最终同意后，才允许发布 PDM-13 Final、关闭 5 条 incoming handoff、执行 source backwrite / Final Integrity closeout，并进入 PDM-14。不得修改 IA / Low-Fi / Engineering。**
+> **启动 PDM-14｜Recommendation / 普通分享 / 单车授权 / 隐藏车客户可见性：先读取覆盖地图、9/19 C3/R7/R10、001～078 M05/M16/M11、Current IA/Low-Fi carrier，以及 8 条 target=PDM-14 的 HANDOFF_OPEN；执行 Current Authority Refresh、Current Implementation Fact、Source→Atom 证据重建并建立 PDM-14 工作版。只形成 Batch 1 候选并提交用户审查，不得提前裁决后续冲突，不得修改 IA / Low-Fi / Engineering。**
 
 每个 PDM 必须同时执行：
 
@@ -81,6 +84,7 @@
 ## 当前禁止
 
 - PDM-12 已最终批准并正式发布：`COMPLETE / INTEGRITY_PASS`；正式 Authority = `07_重建工作区/PDM-12_最终完整规则.md`；4 条 incoming handoff 已 CLOSED 并 source backwrite；
+- PDM-13 已最终批准并正式发布：`COMPLETE / INTEGRITY_PASS`；正式 Authority = `07_重建工作区/PDM-13_最终完整规则.md`；5 条 incoming handoff 已 CLOSED 并 source backwrite；
 - 不把旧 PDM 的 `COMPLETE` 直接等同于通过当前新完整性标准；
 - 不只检查 Final 文案而跳过原始证据遗漏扫描；
 - 不把 PDM-01～10 全部推倒重做；只 reopen 真正有问题的 Atom / 段落；
@@ -104,7 +108,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-12 均已 `COMPLETE / INTEGRITY_PASS`。PDM-13 已接收 HO-P03-P13-001 / HO-P04-P13-001 / HO-P07-P13-001 / HO-P11-P13-001 / HO-P12-P13-001，当前均为 `HANDOFF_ACCEPTED`；Batch 1～4 与 P13-LIA-01～08 均已用户批准并确认执行，Final 前完整性复核 R2 已 PASS，修正后的 Final Domain Overview 候选已生成。上述 incoming handoff 在 PDM-13 Final / Integrity Gate 前不得直接关闭。PDM-13→PDM-14/17/18/19/20/21/22/25 future handoff 已登记 `HANDOFF_OPEN`。当前只等待用户最终批准 PDM-13 Final Overview。
+当前 PDM-01～PDM-13 均已 `COMPLETE / INTEGRITY_PASS`。PDM-13 的 5 条 incoming handoff 已全部 CLOSED 并 source backwrite；PDM-13→PDM-14/17/18/19/20/21/22/25 future handoff 继续 `HANDOFF_OPEN`。PDM-14 当前 target incoming 共 8 条：HO-P01-P14-001 / HO-P03-P14-001 / HO-P04-P14-001 / HO-P07-P14-001 / HO-P10-P14-001 / HO-P11-P14-001 / HO-P12-P14-001 / HO-P13-P14-001，当前均 `HANDOFF_OPEN`，下一步启动 PDM-14 后再按正式流程 ACCEPTED。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
