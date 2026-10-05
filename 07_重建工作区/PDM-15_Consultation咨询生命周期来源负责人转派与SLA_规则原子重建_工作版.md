@@ -1,7 +1,7 @@
 # PDM-15｜Consultation / 咨询生命周期 / 来源 / 负责人 / 转派 / SLA｜规则原子重建工作版
 
 > 日期：2026-10-06  
-> 状态：`IN_PROGRESS / ALL_RULE_ATOMS_USER_APPROVED / PREFINAL_INTEGRITY_R3_PASS / FINAL_OVERVIEW_PENDING_USER_APPROVAL`  
+> 状态：`CLOSED / FINAL_PUBLISHED / INTEGRITY_PASS`  
 > 方法：9/19 主底盘 + 前向历史补全 + 后向显式 supersession + 9/22 冻结台账 + Current Carrier Conflict Scan + Completed-PDM Authority + Cross-PDM Handoff。  
 > 当前阶段约束：IA / Low-Fi / Engineering 只登记冲突，不施工；未经用户审查的候选 Atom 不得直接进入 Final。
 
@@ -879,3 +879,19 @@ Outgoing 8 条全部已正式登记并保持 `HANDOFF_OPEN`：
 当前唯一下一步：
 
 > **生成并由用户审查 PDM-15 Final Domain Overview。用户最终批准前，不得生成正式 Final Authority、不得关闭 5 条 incoming handoff、不得 source backwrite、不得进入 PDM-16、不得施工 IA / Low-Fi / Engineering。**
+
+
+---
+
+## 17. Final Closeout｜COMPLETE / INTEGRITY_PASS
+
+- 用户已最终批准 Final Domain Overview，并确认执行；
+- 正式 Authority：`07_重建工作区/PDM-15_最终完整规则.md`；
+- Final Integrity：`07_重建工作区/PDM-15_最终完整性复核_2026-10-06.md / PASS`；
+- 31 个正式规则 / 用户裁决单元全部进入 Final；
+- 5 / 5 incoming handoff = `HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE`；
+- PDM-01 / 02 / 03 / 07 / 14 Final 已完成来源反向回写；
+- 8 条 outgoing handoff 继续 `HANDOFF_OPEN`；
+- `PDM-15 = COMPLETE / INTEGRITY_PASS`；
+- 下一步：`PDM-16 Startup Gate`；
+- IA / Low-Fi / Engineering 继续禁止施工。
