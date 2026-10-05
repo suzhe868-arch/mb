@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-14_BATCH_2_PENDING`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-14_BATCH_3_PENDING`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / START_GATE_PASS / BATCH_1_USER_APPROVED`
+> `IN_PROGRESS / START_GATE_PASS / BATCH_1_USER_APPROVED / BATCH_2_USER_APPROVED`
 
 当前工作文件：
 
@@ -32,7 +32,24 @@
 
 当前唯一下一步：
 
-> **PDM-14 Start Gate 已 PASS；工作版已建立；8 条 incoming handoff 已全部 `HANDOFF_ACCEPTED`；Batch 1 `P14-A01～P14-A14` 与用户追加裁决 `P14-R01～P14-R04` 已批准并执行。当前唯一下一步：进入 PDM-14 Batch 2，扫描旧 R7/R10/M05/M16/M11/Current IA/Low-Fi 中明确应废弃、被后续规则替代或 DO_NOT_RESTORE 的语义，形成候选后停下用户审查。IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-14 Start Gate 已 PASS；8 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；Batch 1 `P14-A01～P14-A14`、用户追加裁决 `P14-R01～P14-R04` 与 Batch 2 `P14-B2-01～P14-B2-11` 均已用户批准并执行，Batch 2 Reverse Conflict Scan = PASS。当前唯一下一步：进入 PDM-14 Batch 3，扫描 9/19 之后可直接证明的知情修改 / 显式新增，形成候选后停下用户审查。不得把真实冲突或新产品选择塞进 Batch 3；IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-05｜PDM-14 Batch 2 用户批准并执行
+
+- `P14-B2-01～P14-B2-11 = PASS / USER_APPROVED`；
+- Batch 2 Reverse Conflict Scan：`PASS / FALSE_DEPRECATION_COUNT=0`；
+- 独立 Recommendation qualification、P06-06、RECOMMENDATION_QUALIFIED/NOT_QUALIFIED 与仅服务旧开关的独立管理能力正式废弃；
+- 经理/店长/协作身份本身不产生 Recommendation 创建权；旧“只有 Customer current owner 才能推荐”的绝对规则被 owner/handover/Demand responsibility 当前合法业务负责关系替代；
+- Priority responsible 不得成为新的 Recommendation 授权来源；
+- 旧“客户转发永远 SOURCE_ONLY”被 PDM-03 当前分享归属 Authority 替代，但 SOURCE_ONLY 状态本身继续保留；
+- REC 专属 URL / Recommendation-specific link / 第二套推荐分享链路明确 DO_NOT_RESTORE；
+- “所有 Vehicle 必须 Recommendation 后才可见”正式废弃；hidden Customer 详情权必须由正式 Recommendation + visibility grant 建立，Demand/Priority 本身不授客户详情权；
+- 其他 Customer active Priority 期间不得删除/结束既有 Recommendation，只做 suppression，ended 后按当前事实 restore；
+- Customer Merge 与 Recommendation/price-right/Consultation 等权益迁移继续按 PDM-01 Final 全面禁止；P06-01/P06-M01 Merge carrier 登记 stale；
+- Recommendation 创建后的系统自动微信发送/发送成功失败状态机不得恢复；
+- 新增 stale carrier：old owner-only 阻断合法 Demand responsible、customer re-share always SOURCE_ONLY、REC 专属链路、HIDDEN_CONTROLLED Demand/Priority 直授客户详情、P06-01/P06-M01 Merge；
+- 8 条 incoming handoff 继续保持 `HANDOFF_ACCEPTED`，未提前关闭；
+- 当前唯一下一步：PDM-14 Batch 3 明确知情修改 / 显式新增候选重建。
 
 ## 2026-10-05｜PDM-14 Start Gate、Batch 1 与四项用户裁决已执行
 
