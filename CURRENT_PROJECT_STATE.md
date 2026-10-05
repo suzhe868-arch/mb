@@ -1,12 +1,12 @@
 # 名邦汽车 V1｜当前项目状态
 
-> 更新时间：2026-10-05  
+> 更新时间：2026-10-06  
 > 状态源：GitHub `suzhe868-arch/mb` / `main`  
 > 业务权威语言：中文（zh-CN）
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-14_BATCH_3_PENDING`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-14_BATCH_4_PENDING`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / START_GATE_PASS / BATCH_1_USER_APPROVED / BATCH_2_USER_APPROVED`
+> `IN_PROGRESS / START_GATE_PASS / BATCH_1_USER_APPROVED / BATCH_2_USER_APPROVED / BATCH_3_USER_APPROVED`
 
 当前工作文件：
 
@@ -32,7 +32,21 @@
 
 当前唯一下一步：
 
-> **PDM-14 Start Gate 已 PASS；8 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；Batch 1 `P14-A01～P14-A14`、用户追加裁决 `P14-R01～P14-R04` 与 Batch 2 `P14-B2-01～P14-B2-11` 均已用户批准并执行，Batch 2 Reverse Conflict Scan = PASS。当前唯一下一步：进入 PDM-14 Batch 3，扫描 9/19 之后可直接证明的知情修改 / 显式新增，形成候选后停下用户审查。不得把真实冲突或新产品选择塞进 Batch 3；IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-14 Start Gate 已 PASS；8 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；Batch 1 `P14-A01～P14-A14`、用户追加裁决 `P14-R01～P14-R04`、Batch 2 `P14-B2-01～P14-B2-11` 与 Batch 3 `P14-B3-01～P14-B3-05` 均已用户批准并执行；Batch 2 Reverse Conflict Scan = PASS，Batch 3 Conflict Isolation = PASS。当前唯一下一步：进入 PDM-14 Batch 4，扫描真实冲突、遗漏、语义缺口与仍需产品选择的事项，形成候选后停下用户审查。IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-06｜PDM-14 Batch 3 用户批准并执行
+
+- `P14-B3-01～P14-B3-05 = PASS / USER_APPROVED`；
+- Batch 3 Conflict Isolation：`PASS / CONFLICT_OR_PRODUCT_CHOICE_MISCLASSIFIED_AS_BATCH3=0`；
+- 分享直达与普通进入统一使用同一套车辆详情业务页；SHARE_DIRECT 只增加必要轻量入口，不能复制第二套详情业务逻辑或绕过当前 visibility；
+- 旧“我要这辆车”语义正式拆分：沟通车辆统一走 Consultation/“咨询”，锁车走独立 LockRequest/Lock 链；Recommendation 不由该按钮自动产生；
+- “我的推荐”明确区分当前与历史；历史长期保留，但历史存在不等于当前仍有详情 visibility 或当前价格权，进入时重新读取当前事实；
+- PDM-07 incoming handoff 正式承接：档案/报告不完整本身不得阻止 Recommendation；Recommendation/visibility grant 也不自动授客户查看 VIN、敏感原件或仅内部档案；
+- PDM-13 incoming handoff 进一步冻结：Priority 可保存 recommendation_id 仅作关联追溯；Priority 与 Recommendation 生命周期仍完全独立；
+- LockRequest 的 6h/审批/Waitlist 等完整生命周期未被抢入 PDM-14，继续归 PDM-18；
+- 分享模板、分享图、营销文案等页面细节未因 Batch 3 被误冻结为 PDM-14 核心生命周期规则；
+- 8 条 incoming handoff 继续 `HANDOFF_ACCEPTED`，未提前关闭；
+- 当前唯一下一步：PDM-14 Batch 4 冲突 / 遗漏 / 缺口 / 新产品选择候选重建。
 
 ## 2026-10-05｜PDM-14 Batch 2 用户批准并执行
 
