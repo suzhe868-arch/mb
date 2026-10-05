@@ -356,7 +356,7 @@ PDM-10 经用户最终批准后，对本 PDM 的价格动作语义形成以下�
 ### 15.2 仍待后续 PDM 承接
 
 - Consultation 负责人 / 转派 → PDM-15｜`HANDOFF_CLOSED`：PDM-15 Final 已正式承接 identity + permission/capability + data scope + object state Guard、mutation actor 矩阵、assignee 失效 handover、正式转派与 System Admin/4S 边界；`HO-P02-P15-001 = HANDOFF_CLOSED / source_backwrite=YES`；
-- CRM 业务细节 → PDM-16；
+- CRM 业务细节 → PDM-16｜`HANDOFF_CLOSED`：PDM-16 Final 已正式承接 CRM 当前访问继续服从统一 identity + permission/capability + data scope + object/account state，并冻结 4S/System Admin 边界；`HO-P02-P16-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - 公海 / Collaboration → PDM-17；
 - Lock / Waitlist → PDM-18；
 - Transaction / Refund / 成交纠错 → PDM-19；
