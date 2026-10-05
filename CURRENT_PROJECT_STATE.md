@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-16_BATCH_4_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-16_PREFINAL_INTEGRITY`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_3_REPAIR_PASS / BATCH_4_PENDING_USER_REVIEW`
+> `IN_PROGRESS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_3_REPAIR_PASS / BATCH_4_PASS / PREFINAL_INTEGRITY_PENDING`
 
 当前工作文件：
 
@@ -32,7 +32,21 @@
 
 当前唯一下一步：
 
-> **PDM-16 Batch 3 Completeness Repair 已 `PASS / USER_APPROVED / APPLIED`，BATCH_3_COMPLETENESS_GAP=0。当前唯一下一步：用户裁决 P16-B4-01～P16-B4-05；建议 1A、2A、3A、4A、5A。6 条 incoming handoff 继续 HANDOFF_ACCEPTED。**
+> **PDM-16 Batch 4 已 `PASS / USER_APPROVED / APPLIED`；用户选择 1A、2A、3A、4A、5A；Cross-PDM Conflict Review = PASS；PDM16_LOCAL_PRODUCT_CHOICE_UNRESOLVED=0。当前唯一下一步：PDM-16 Final 前完整性复核。6 条 incoming handoff 继续 HANDOFF_ACCEPTED。**
+
+## 2026-10-06｜PDM-16 Batch 4 用户裁决并执行
+
+- 用户选择并确认执行：`1A、2A、3A、4A、5A`；
+- `P16-B4-01～P16-B4-05 = PASS / USER_APPROVED / APPLIED`；
+- CRM Stage = 公司级受控可配置字典；
+- Consultation / Demand / Lock / Transaction 等具体业务事件默认不自动改 CRM Stage；
+- Customer Tags = 公司级受控 Tag 字典 + Customer 多选；
+- V1 不建设通用 Customer Opportunity 规则引擎；
+- Source Radar“不适合”抑制当前有效 Demand×Vehicle 匹配事实，底层匹配输入实质变化后允许重新出现；
+- Batch 4 Cross-PDM Conflict Review = PASS；
+- `PDM16_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- 6 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- 当前唯一下一步：Final 前完整性复核。
 
 ## 2026-10-06｜PDM-16 Batch 3 Completeness Repair 已执行
 
