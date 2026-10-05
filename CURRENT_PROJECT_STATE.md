@@ -32,7 +32,23 @@
 
 当前唯一下一步：
 
-> **PDM-14 Start Gate 已 PASS；Batch 1～4 均已用户批准并执行；Batch 4 用户选择为 `1A、2B、3A、4A、5A、6A、7A、8A`，`LOCAL_PRODUCT_CHOICE_UNRESOLVED=0`。8 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；新增 outgoing `HO-P14-P15-001 = HANDOFF_OPEN`。当前唯一下一步：进入 PDM-14 Final 前完整性复核，重新执行 Missing Rule / Semantic Detail / Source↔Atom / Completed-PDM Invariant / Cross-PDM Handoff / stale carrier / Negative Claims / Local Deferred 扫描。复核达到 FINAL_CANDIDATE_READY 前不得生成 Final Domain Overview；IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-14 Batch 1～4 与 P14-LIA-01～P14-LIA-10 均已用户批准并执行；`LOCAL_PRODUCT_CHOICE_UNRESOLVED=0`。8 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；outgoing `HO-P14-P15/P18/P19/P20/P21/P23/P25` 均已登记 `HANDOFF_OPEN`。当前唯一下一步：重新执行 PDM-14 Final 前完整性复核 R2；若 Source↔Atom、Semantic Completeness、Completed-PDM Invariant、Handoff、Negative Claims、stale carrier、Local Deferred 全部 PASS 且 unresolved=0，则进入 `FINAL_CANDIDATE_READY` 并生成 Final Domain Overview 候选。IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-06｜PDM-14 Final 前完整性修复 LIA-01～10 已执行
+
+- `P14-LIA-01～P14-LIA-10 = USER_APPROVED / APPLIED`；
+- 三类车源均可被正式 Recommendation；4S member hard DENY 与 4S Vehicle 可推荐明确分层；批发免费查价权仅适用于批发查价机制；
+- Recommendation create/end/void 补齐 current responsibility + permission/capability + data scope + object state 提交重验；4S hard DENY，System Admin 不因身份自动执行业务；
+- 批量推荐 UI 可批量，但底层逐 Vehicle 独立 Recommendation；
+- Recommendation 不改变 Customer owner / Demand responsible；
+- 普通 share link 无固定 N 天 TTL，可继续转发但不传播 Recommendation/price-right/visibility/Internal Mode；
+- 批发车 Recommendation 创建时若仅“价格咨询”，同 cycle 后续出现数字价仍沿用免费权，不扣 daily quota；
+- Recommendation/visibility 仅授 Customer Safe Projection，不扩大内部敏感字段；
+- JYT/上游同步不得直接覆盖 Recommendation/visibility 等名邦 Business Data；
+- Consultation 不反向创建 Recommendation、不授免费 price-right、不授 hidden visibility；
+- outgoing handoff 已扩展到 PDM-15 / 18 / 19 / 20 / 21 / 23 / 25；
+- 8 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- 当前唯一下一步：Final 前完整性复核 R2。
 
 ## 2026-10-06｜PDM-14 Batch 4 用户裁决并执行
 
