@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-15_BATCH_1_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-15_BATCH_2_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / START_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`
+> `IN_PROGRESS / START_GATE_PASS / BATCH_1_PASS_USER_APPROVED / BATCH_2_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -32,7 +32,18 @@
 
 当前唯一下一步：
 
-> **PDM-15 Startup Gate 已 `PASS`；5 条 incoming handoff 已全部 `HANDOFF_ACCEPTED`；工作版已建立；P15-R00 核心业务定位已按用户确认落地。当前唯一下一步：提交 P15-A01～P15-A08 Batch 1 稳定一致规则候选给用户审查。IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-15 Batch 1 已 `PASS / USER_APPROVED / APPLIED`，P15-A01～P15-A08 全部进入当前工作 Authority；5 条 incoming handoff 继续 `HANDOFF_ACCEPTED`。当前唯一下一步：提交 P15-B2-01～P15-B2-05 Batch 2 明确废弃 / 被替代 / 不得恢复项给用户审查。`CANCELLED`、SLA 精确语义、负责人优先级等产品选择继续保留后续。IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-06｜PDM-15 Batch 1 用户批准并执行
+
+- 用户对 `P15-A01～P15-A08` 明确“全部同意”，随后明确“确定执行”；
+- Batch 1 = `PASS / USER_APPROVED / APPLIED`；
+- 已冻结：显式咨询建单、初始来源不可改写、同 customer+vehicle+listing_cycle 未终结幂等、Vehicle lifecycle 分层、Consultation assignee 与 Customer owner 分离、Recommendation 双向独立、档案不完整不阻断、4S Member 不进入名邦 Consultation 处理链；
+- 状态机 `CANCELLED` 冲突、SLA 首次真实人工动作、负责人优先级、Customer 停用运行态等未被 Batch 1 偷渡裁决；
+- 5 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- Batch 2 候选：`P15-B2-01～P15-B2-05`，状态 `PENDING_USER_REVIEW`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 P15-B2-01～P15-B2-05。
 
 ## 2026-10-06｜PDM-15 Startup Gate 通过并进入 Batch 1
 
