@@ -550,9 +550,10 @@ FALSE_DEPRECATION_COUNT = 0
 
 ---
 
-## 8. Batch 3｜明确恢复 / 补齐的业务能力候选｜PENDING_USER_REVIEW
+## 8. Batch 3｜明确恢复 / 补齐的业务能力｜PASS / USER_APPROVED / APPLIED
 
-> 本批只处理已经有历史业务依据、但 Current carrier 丢失或动作链不完整的能力；不处理真正需要新产品选择的冲突项。
+> 本批只处理已经有历史业务依据、但 Current carrier 丢失或动作链不完整的能力；不处理真正需要新产品选择的冲突项。  
+> 用户已对 P16-B3-01～P16-B3-06 全部同意，并随后明确“确认执行”；以下 6 条正式进入当前工作 Authority。
 
 ### P16-B3-01｜补齐 CRM Follow-up 正式 mutation 闭环
 
@@ -712,17 +713,100 @@ Radar Event 因底层 current Match Result / Demand / Vehicle 失效时：
 
 ---
 
-## 9. Batch 3 Gate｜PENDING_USER_REVIEW
+## 9. Batch 3 Gate｜PASS / USER_APPROVED / APPLIED
 
 当前：
 
-- `P16-B2-01～P16-B2-07 = PASS / USER_APPROVED / APPLIED`；
-- `BATCH_2_REVERSE_CONFLICT_SCAN = PASS`；
-- `FALSE_DEPRECATION_COUNT = 0`；
-- `P16-B3-01～P16-B3-06 = PENDING_USER_REVIEW`；
+- `P16-B3-01～P16-B3-06 = PASS / USER_APPROVED / APPLIED`；
 - 6 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
 - IA / Low-Fi / Engineering 未施工。
 
+### 9.1 Batch 3 Conflict Isolation｜PASS
+
+对 B3-01～B3-06 逐项反向检查：
+
+- 全部可由 9/19 R6/R10、001～078 历史差集、PDM-01/02/03/11/12/15 Final 或已接收 handoff 直接支持；
+- 未发现需要用户在多个产品方向之间选择、却被误伪装成“历史恢复”的条目；
+- 未提前决定 CRM Stage 精确枚举/自动切换策略；
+- 未提前决定 Source Radar “标记不适合”的持久抑制范围；
+- 未给 Customer Opportunity 发明新的阈值或算法；
+- 未抢入 PDM-17 公海治理或 PDM-21 工作台编排。
+
+```text
+BATCH_3_CONFLICT_ISOLATION = PASS
+CONFLICT_OR_PRODUCT_CHOICE_MISCLASSIFIED_AS_BATCH3 = 0
+```
+
+### 9.2 Batch 3 完整性回查｜发现 2 条明确历史规则未被 B3-01～06 完整承接
+
+这两条不是新产品选择，不进入 Batch 4；先作为 B3 Repair 候选补齐。
+
+---
+
+## 10. Batch 3 Completeness Repair｜PENDING_USER_REVIEW
+
+### P16-B3-R01｜CRM 待办 / 回访提醒 / 未来跟进计划必须随责任交接
+
+9/19 R6 已明确存在：
+
+- 跟进任务；
+- 回访提醒；
+- CRM 待办；
+- 未来跟进计划。
+
+这些属于尚未完成的 CRM 服务责任，不只是 Follow-up 历史记录。
+
+当前规则补齐：
+
+1. 未完成 CRM 待办 / 回访提醒 / 未来跟进计划必须有当前合法责任人；
+2. Customer owner 正式变化时：
+   - 可随 Customer 一并映射给新 owner；
+   - 或由有权限管理人员明确重新指定其他 active + eligible 且 scope 合法的负责人；
+3. 原负责人 inactive / 离职 / 失去 scope 时，未完成责任不得继续悬挂在其名下；
+4. 已完成历史待办不因 owner 变化回写负责人、完成时间或历史内容；
+5. 未完成责任在正式交接完成前，不得被伪装为“已完成”；
+6. CRM Follow-up 历史与 CRM 待办是不同事实：
+   - Follow-up = 已发生的服务记录；
+   - 待办 / 回访 / 未来计划 = 尚未完成的未来责任；
+7. 进入公海前如何检查、完成、取消或交接这些责任，由 PDM-17 继续承接；PDM-16 只冻结 CRM 责任事实与交接要求。
+
+建议：**通过。**
+
+### P16-B3-R02｜“暂不联系 / 暂无意向”只属于 CRM 阶段 / 标签事实，不自动改变 owner / 公海
+
+9/19 R6 已明确：
+
+- “暂不联系”；
+- “暂无意向”；
+
+只表达当前 CRM 服务判断。
+
+当前规则补齐：
+
+1. 可作为合法 CRM Stage / Tag / 服务判断事实；
+2. 不自动结束 Customer；
+3. 不自动清除 owner；
+4. 不自动进入公海；
+5. 不自动取消 Demand / Consultation / Recommendation / Lock / Transaction 等独立业务对象；
+6. 可以成为后续“待公海处理”人工判断的上下文信号，但真正进入公海必须由 PDM-17 当前规则决定；
+7. 后续客户重新产生真实需求 / 服务事实时，可由合法 actor 按当前 CRM 权限更新阶段 / 标签，不受历史“暂无意向”永久锁死。
+
+建议：**通过。**
+
+---
+
+## 11. Repair Gate｜PENDING_USER_REVIEW
+
+当前：
+
+- `P16-B3-01～P16-B3-06 = PASS / USER_APPROVED / APPLIED`；
+- `BATCH_3_CONFLICT_ISOLATION = PASS`；
+- `CONFLICT_OR_PRODUCT_CHOICE_MISCLASSIFIED_AS_BATCH3 = 0`；
+- `BATCH_3_COMPLETENESS_GAP = 2`；
+- `P16-B3-R01～R02 = PENDING_USER_REVIEW`；
+- Batch 4 尚未开始；
+- 6 条 incoming handoff 继续 `HANDOFF_ACCEPTED`。
+
 当前唯一下一步：
 
-> **用户审查 P16-B3-01～P16-B3-06。批准并确认执行后，再做 Batch 3 Conflict Isolation，确认没有把真正需要用户选择的冲突/产品取舍偷渡进 Batch 3。**
+> **用户审查 P16-B3-R01～R02。修复通过后才进入 Batch 4 真正产品选择，避免带着已知历史遗漏进入冲突裁决。**
