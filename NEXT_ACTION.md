@@ -50,6 +50,8 @@
 - PDM-14 Batch 4 = PASS / USER_APPROVED（P14-B4-01～P14-B4-08；CHOICES=1A,2B,3A,4A,5A,6A,7A,8A）
 - PDM-14 Local Product Choice Unresolved = 0
 - PDM-14 Pre-Final Repair = P14-LIA-01～P14-LIA-10 / USER_APPROVED / APPLIED
+- PDM-14 Pre-Final Integrity R2 = PASS / FINAL_CANDIDATE_READY
+- PDM-14 Pre-Final Report = `07_重建工作区/PDM-14_Final前完整性复核_R2_2026-10-06.md`
 - PDM-14 outgoing handoffs = HO-P14-P15-001 / HO-P14-P18-001 / HO-P14-P19-001 / HO-P14-P20-001 / HO-P14-P21-001 / HO-P14-P23-001 / HO-P14-P25-001 = HANDOFF_OPEN
 - PDM-11 Batch 1 = PASS / USER_APPROVED（P11-A01～P11-A13）
 - PDM-11 Batch 2 = PASS / USER_APPROVED
@@ -64,7 +66,7 @@
 
 ## 当前唯一下一步
 
-> **重新执行 PDM-14 Final 前完整性复核 R2：以已批准并执行的 P14-A01～A14、P14-R01～R04、P14-B2-01～B2-11、P14-B3-01～B3-05、P14-B4-01～B4-08、P14-LIA-01～LIA-10 为当前 Authority，重新执行 Missing Rule / Semantic Detail / Source→Atom / Atom→Source / Completed-PDM Invariant / Cross-PDM Handoff / stale carrier / Negative Claims / Local Deferred 扫描。必须确认 8 条 incoming handoff 全部实质承接、7 条 outgoing handoff 正式登记且无遗漏。若 unresolved 全部为 0，则标记 FINAL_CANDIDATE_READY 并生成 Final Domain Overview 候选；当前仍不得关闭 incoming handoff、发布 Final 或修改 IA / Low-Fi / Engineering。**
+> **生成 PDM-14 Final Domain Overview 候选：完整汇总 P14-A01～A14、P14-R01～R04、P14-B2-01～B2-11、P14-B3-01～B3-05、P14-B4-01～B4-08、P14-LIA-01～LIA-10，写清 8 条 incoming handoff 的承接结果、7 条 outgoing handoff、stale carrier 与明确不得恢复项，并提交用户最终批准。未经用户最终批准，不发布 PDM-14 Final、不关闭 incoming handoff、不开始 PDM-15、不修改 IA / Low-Fi / Engineering。**
 
 每个 PDM 必须同时执行：
 
