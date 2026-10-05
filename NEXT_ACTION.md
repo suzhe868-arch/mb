@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-16（Batch 3 修复已通过，Batch 4 待用户裁决）
+- 当前域：PDM-16（Batch 4 已通过，Final 前完整性复核）
 - PDM-15 Startup Gate = PASS
 - PDM-15 incoming handoffs = 5 / 5 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-15 工作版 = `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
@@ -50,7 +50,8 @@
 - PDM-16 Batch 3 Conflict Isolation = PASS / MISCLASSIFIED_PRODUCT_CHOICE=0
 - PDM-16 Batch 3 Completeness Repair = P16-B3-R01～P16-B3-R02 / PASS / USER_APPROVED / APPLIED
 - PDM-16 Batch 3 Completeness Gap = 0
-- PDM-16 Batch 4 = P16-B4-01～P16-B4-05 / PENDING_USER_REVIEW / RECOMMEND=1A,2A,3A,4A,5A
+- PDM-16 Batch 4 = P16-B4-01～P16-B4-05 / PASS / USER_APPROVED / APPLIED / CHOICES=1A,2A,3A,4A,5A
+- PDM-16 Local Product Choice Unresolved = 0
 - PDM-11 = COMPLETE / INTEGRITY_PASS
 - PDM-12 = COMPLETE / INTEGRITY_PASS
 - PDM-11 启动门禁 = UNBLOCKED
@@ -102,7 +103,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-16 Batch 3 Completeness Repair 已 `PASS / USER_APPROVED / APPLIED`，已知历史遗漏归零。当前唯一下一步：用户裁决 `P16-B4-01～P16-B4-05`；建议 `1A、2A、3A、4A、5A`。未经用户选择并确认执行，不得写入 Batch 4 Authority。6 条 incoming handoff 继续 HANDOFF_ACCEPTED。**
+> **PDM-16 Batch 4 已 `PASS / USER_APPROVED / APPLIED`，用户选择 `1A、2A、3A、4A、5A`，Cross-PDM Conflict Review = PASS，`PDM16_LOCAL_PRODUCT_CHOICE_UNRESOLVED=0`。当前唯一下一步：执行 PDM-16 Final 前完整性复核；在 FINAL_CANDIDATE_READY 前不得发布 Final。6 条 incoming handoff 继续 HANDOFF_ACCEPTED。**
 
 每个 PDM 必须同时执行：
 
