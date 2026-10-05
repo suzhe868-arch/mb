@@ -303,7 +303,170 @@ A 的 Priority ended 后：
 
 ---
 
-## 5. 本轮 Cross-PDM 一致性结论
+## 5. Batch 2｜明确废弃 / 替代 / DO_NOT_RESTORE
+
+> 用户已完成本批审查，并于 2026-10-05 明确“全部同意”后再次明确“确认执行”。本批只处理已经有充分证据证明应废弃、已被后续 Authority 替代或明确不得恢复的旧语义；Batch 2 反向冲突门禁已执行，不把仍有反向证据的事项误判为废弃。
+
+### P14-B2-01｜废弃独立 Recommendation qualification
+
+**结论：SUPERSEDED / DO_NOT_RESTORE**
+
+废弃并不得恢复以下旧体系：
+
+- “普通客户默认没有 Recommendation 资格，需单独开启”；
+- Current IA / Low-Fi P06-06 的独立 Recommendation 资格开关；
+- RECOMMENDATION_QUALIFIED / NOT_QUALIFIED 独立状态；
+- 仅服务该旧开关的独立 Recommendation qualification 管理能力。
+
+当前 Authority：
+
+- Customer 是否具备正式找车 / 接受 Recommendation 资格，统一读取 Customer Level 当前 find-car entitlement；
+- Recommendation 是合法负责销售针对具体 Vehicle 的正式业务动作；
+- Priority qualification 保持独立，只负责 Priority 排他保护，不替代找车 entitlement。
+
+### P14-B2-02｜废弃“经理 / 店长 / 协作身份天然可创建 Recommendation”
+
+**结论：DO_NOT_RESTORE**
+
+不得因“经理、店长、协作销售”等管理或协作身份本身，直接获得 Recommendation 创建权。
+
+当前 Authority：
+
+- Recommendation 创建必须建立在该 Customer / source Demand 的当前合法业务负责关系上；
+- 管理身份、协作身份、查看权限本身都不是 Recommendation 业务授权来源；
+- 特殊离职、调店、交接继续通过既有 handover / responsibility Authority 解决。
+
+### P14-B2-03｜替代旧“只有 Customer current owner 才能创建 Recommendation”的绝对规则
+
+**结论：SUPERSEDED**
+
+旧 R7 把 Recommendation 创建主体绝对限定为 Customer current owner，这一绝对表达已被后续 Customer owner / Demand responsible 分层规则替代。
+
+当前 Authority：
+
+- 不能放宽成“任何 Employee 都能推荐”；
+- 也不能死认 Customer owner；
+- 当前合法负责该 Customer / source Demand 的销售，按既有 owner / handover / Demand responsibility 关系处理并决定 Recommendation；
+- source Demand 已合法改派时，旧 owner-only 规则不得阻断新的合法 Demand responsible；
+- recommender 仍记录创建时的真实合法推荐员工，后续责任变化不回写历史。
+
+### P14-B2-04｜废弃“Priority responsible 自动成为新的 Recommendation 授权来源”
+
+**结论：DO_NOT_RESTORE**
+
+Priority 的 current responsible / trigger Demand responsible 只代表 Priority 当前合法处理责任，不因 Priority 对象本身额外创造 Recommendation 权限。
+
+当前 Authority：
+
+- Priority qualification 属于 Customer；
+- Priority 不改变 Customer 既有 owner / handover / Demand responsibility；
+- Recommendation 是否可创建仍读取当前合法业务负责关系；
+- 不得通过 Priority 绕开正常责任关系。
+
+### P14-B2-05｜替代“客户转发永远 SOURCE_ONLY、永远不能形成 owner”
+
+**结论：SUPERSEDED**
+
+废弃旧的全局解释：客户侧普通转发一律只记录来源，永远不得形成 Customer owner。
+
+当前 Authority 服从 PDM-03：
+
+- ownerless 新 Customer 可根据当前合法分享 / 转介绍链形成销售归属；
+- 若分享链明确绑定销售，则按该合法绑定处理；
+- 无明确销售绑定时，可按分享人的当前 owner 形成归属，并保留 A→B 的来源 / 转介绍关系；
+- 已有 owner 的 Customer 不得被后续分享抢走；
+- SOURCE_ONLY 状态本身并未删除，只在确实没有形成 owner 的场景继续使用。
+
+### P14-B2-06｜不得恢复 REC 专属 URL / 第二套 Recommendation 分享链路
+
+**结论：DO_NOT_RESTORE**
+
+不得建设或恢复：
+
+- REC 专属 URL 参数；
+- Recommendation-specific link；
+- 第二套“推荐专属”分享页；
+- 第二套 Recommendation 微信分享能力。
+
+当前 Authority：
+
+- Recommendation 是内部数据库正式业务事实；
+- 对外发送 Vehicle 继续使用普通车辆分享链路；
+- 普通分享不创建、转移或继承 Recommendation / price / visibility；
+- Customer 侧正式记录通过“我的推荐 / 找车”等既有业务入口承载。
+
+### P14-B2-07｜废弃“所有 Vehicle 必须 Recommendation 后客户才可见”
+
+**结论：DEPRECATED / DO_NOT_RESTORE**
+
+不得恢复“客户只有先被 Recommendation 才能看到任何 Vehicle”的旧前提。
+
+当前 Authority：
+
+- 普通公开可浏览 Vehicle 依既有 Feed / Search / Filter / share 可见规则访问，不要求 Recommendation；
+- Recommendation + visibility grant 只用于 hidden / controlled 等需要 Customer 单车授权的场景；
+- Priority 本身也不能直接授客户详情可见。
+
+### P14-B2-08｜替代 hidden Vehicle 仅凭 Demand / Priority 上下文直接给客户可见
+
+**结论：SUPERSEDED / STALE_CARRIER**
+
+Current IA / Low-Fi HIDDEN_CONTROLLED 中“对应 Customer 在 Demand / Priority 上下文即可直接看到 hidden Vehicle”的表达已过期。
+
+当前 Authority：
+
+- 合法员工可在 Matching / Priority 业务上下文内部处理 hidden 但真实可售 Vehicle；
+- Customer 端获得该 hidden Vehicle 详情权，必须经过正式 Recommendation + Customer-specific visibility grant；
+- Priority / Demand 自身不等于 Customer visibility grant。
+
+### P14-B2-09｜不得因其他 Customer active Priority 删除 / 结束既有 Recommendation
+
+**结论：DO_NOT_RESTORE**
+
+不得把其他 Customer 后来取得 active Priority 实现为删除既有 Recommendation、自动 ended/void、删除历史价格快照或删除已成立的当前周期 price-right fact。
+
+当前 Authority：
+
+- Recommendation / 历史事实保留；
+- active Priority 期间只做客户侧 visibility suppression；
+- Priority ended 后读取当前 Recommendation、listing_cycle、Vehicle、Customer、新 Priority / Lock / Transaction 等事实决定是否恢复；
+- 不得无条件恢复，也不得提前抹除历史。
+
+### P14-B2-10｜废弃 Customer Merge 及 Recommendation / 权益迁移
+
+**结论：DO_NOT_RESTORE / STALE_CARRIER**
+
+PDM-01 Final 已明确 V1 完全取消 Customer Merge，因此不得恢复自动/人工 Customer Merge、同手机号/同自然人合并、surviving customer_id，以及 Recommendation、price-right、Consultation、Demand、Lock、Transaction 等对象或权益随 Merge 迁移。
+
+Current IA / Low-Fi 中 P06-01 / P06-M01 的 MERGE_READY / MERGING / MERGED / MERGE_HISTORICAL 等状态均为旧 carrier，不再构成当前产品 Authority。
+
+### P14-B2-11｜不得恢复 Recommendation 创建后的系统自动微信发送状态机
+
+**结论：DO_NOT_RESTORE**
+
+旧 R7 已明确删除“Recommendation 创建后由系统自动发送微信，并记录发送成功 / 失败”的产品前提。
+
+当前 Authority：
+
+- Recommendation 创建只建立正式业务事实；
+- Vehicle 如需对外发送，使用普通分享能力；
+- 不新增 Recommendation 自动微信发送任务、发送成功 / 失败状态机；
+- 当前主动通知白名单不因 Recommendation 创建而自动扩展。
+
+### 5.1 Batch 2 反向冲突门禁结果
+
+PASS / FALSE_DEPRECATION_COUNT=0
+
+本批明确没有误删以下仍有效语义：
+
+- SOURCE_ONLY 状态本身仍可用于确实未形成 owner 的场景；只废弃“客户分享永远 SOURCE_ONLY”的全局解释；
+- Recommendation 不设固定 N 天 TTL，继续保留 P14-A03；
+- 分享接收人不继承分享人的 Recommendation / price / visibility，继续保留 P14-A08；
+- Recommendation 的当前周期免费查价权与历史价格快照，继续保留 P14-A11 / A12；
+- Recommendation active / ended / void / historical 生命周期载体继续有效；
+- Recommendation 与 Priority 仍是两个独立业务对象。
+
+## 6. 本轮 Cross-PDM 一致性结论
 
 对 PDM-01～PDM-13 当前 Final 复核：
 
@@ -320,14 +483,19 @@ A 的 Priority ended 后：
 
 ---
 
-## 6. 当前 stale carrier ledger｜只登记，不施工
+## 7. 当前 stale carrier ledger｜只登记，不施工
 
 1. `P06-06｜开启/关闭 Recommendation 资格`；
 2. `RECOMMENDATION_QUALIFIED / NOT_QUALIFIED` 独立状态；
 3. 独立“Recommendation 资格管理权限”仅服务旧资格开关的部分；
 4. 旧 R7 “普通客户默认没有 Recommendation 资格，需另行开启”；
 5. 任何把 Priority responsible 误实现为新的 Recommendation 授权来源的 carrier；
-6. 任何把 active Priority 期间既有其他 Customer Recommendation 直接删除/结束，而不是 suppression 的 carrier。
+6. 任何把 active Priority 期间既有其他 Customer Recommendation 直接删除/结束，而不是 suppression 的 carrier；
+7. 旧“只有 Customer current owner 才能创建 Recommendation”且会阻断合法 source Demand responsible / handover 的 carrier；
+8. 旧“客户转发永远 SOURCE_ONLY、永远不能形成 owner”的 carrier；
+9. REC 专属 URL / Recommendation-specific link / 第二套推荐分享页 carrier；
+10. Current IA / Low-Fi `HIDDEN_CONTROLLED` 中仅凭 Demand / Priority 直接授 Customer hidden Vehicle 详情权的 carrier；
+11. Current IA / Low-Fi `P06-01 / P06-M01` Customer Merge 状态机及 Recommendation / 权益迁移 carrier。
 
 统一：
 
@@ -335,17 +503,20 @@ A 的 Priority ended 后：
 
 ---
 
-## 7. 当前门禁状态
+## 8. 当前门禁状态
 
 - PDM-14 Start Gate：`PASS`；
 - incoming handoff：8 / 8 = `HANDOFF_ACCEPTED`；
 - Batch 1：`PASS / USER_APPROVED`；
+- Batch 2：`PASS / USER_APPROVED`；
+- Batch 2 Reverse Conflict Scan：`PASS / FALSE_DEPRECATION_COUNT=0`；
 - P14-A01～P14-A14：已进入当前工作版；
 - P14-R01～P14-R04：已进入当前工作版；
+- P14-B2-01～P14-B2-11：已进入当前工作版；
 - PDM-14 Final：未生成；
 - PDM-14 incoming handoff：不得提前 CLOSED；
 - IA / Low-Fi / Engineering：继续 NO_CONSTRUCTION。
 
-## 8. 当前唯一下一步
+## 9. 当前唯一下一步
 
-> **进入 PDM-14 Batch 2：扫描旧 R7 / R10 / M05 / M16 / M11 / Current IA / Low-Fi 中明确应废弃、被后续规则替代或 DO_NOT_RESTORE 的语义；特别检查独立 Recommendation qualification、旧 owner-only/分享边界、旧 visibility carrier、REC 专属链路、Customer Merge 残留等。形成 Batch 2 候选后停下用户审查，不提前进入 Batch 3/4，不修改 IA / Low-Fi / Engineering。**
+> **进入 PDM-14 Batch 3：以 P14-A01～A14、P14-R01～R04 与已批准 P14-B2-01～B2-11 为当前约束，扫描历史后续明确知情修改与显式新增，重点核对 Recommendation / 分享 / 单车授权 / visibility 在 9/19 之后是否存在可直接证明的新增或变更。只形成 Batch 3 候选并停下用户审查；不得把真实冲突或仍需产品选择的事项塞入 Batch 3，不得提前进入 Batch 4，不关闭 incoming handoff，不修改 IA / Low-Fi / Engineering。**
