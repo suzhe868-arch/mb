@@ -1,10 +1,10 @@
 # PDM-13｜Priority / 仲裁 / TTL / active Lock 边界｜规则原子重建工作版
 
 > 日期：2026-10-05  
-> 当前状态：`PREFINAL_INTEGRITY_PASS / FINAL_CANDIDATE_READY`  
+> 当前状态：`PREFINAL_REPAIR_R2_APPLIED / FINAL_INTEGRITY_RECHECK_PENDING`  
 > 业务权威语言：中文（zh-CN）  
 > 当前域：PDM-13｜Priority / 仲裁 / TTL / active Lock 边界  
-> 当前硬门禁：P13-LIA-01～LIA-06 已用户批准并执行，Final 前二次完整性复核已 PASS。下一步只允许生成 PDM-13 Final Domain Overview 候选并提交用户最终批准；未经用户最终批准，不得发布 Final、不得关闭 incoming handoff、不得开始 PDM-14。
+> 当前硬门禁：Final Overview 复查发现 P13-LIA-07～LIA-08；用户已确认业务口径并明确“确认执行”。LIA-07/08 已进入工作 Authority，当前必须重新执行 Final 前完整性复核；复核 PASS 前不得发布 Final、不得关闭 incoming handoff、不得开始 PDM-14。
 
 ---
 
@@ -773,6 +773,8 @@ Priority 资格开关仍属于后台单 Customer 控制平面动作，不允许�
 
 > **24 小时 / 86400 秒**
 
+该 TTL 表示**单笔 Priority 自动保护的最长时间上限**，不是销售必须等待满 24 小时。后台可调整后续新建 Priority 的默认保护时长；合法 responsible employee 可在 TTL 到期前主动释放当前 Priority。
+
 规则：
 
 - 后台提供全局默认值配置；
@@ -797,9 +799,10 @@ Priority TTL 与 Lock 默认 3 天属于不同业务时钟，不要求保持一�
 同一 `customer + vehicle + listing_cycle` 的 Priority 因以下原因结束后，不允许该 Customer 在同一 listing_cycle 内再次**自动**取得该 Vehicle 的 Priority：
 
 - Customer 明确不要 / 放弃；
-- 当前负责员工主动释放；
-- 对应 Recommendation 取消并按当前规则触发 Priority 结束；
+- 当前合法 responsible employee 主动执行“释放 Priority / 不推荐此车”；
 - TTL expired。
+
+**Recommendation 取消本身不是 Priority ended reason，也不会自动触发 same-cycle 抑制。** 如果员工在取消 Recommendation 的同时明确决定不再为该 Customer 保留本车，必须另外执行 Priority release；前端允许后续做成组合操作，但底层是两个独立业务动作。
 
 目的：
 
@@ -923,8 +926,7 @@ Priority 主状态继续保持：
 结束原因独立记录，至少能够区分：
 
 - Customer 明确不要 / 放弃；
-- 员工主动释放；
-- Recommendation 取消；
+- 员工主动执行“释放 Priority / 不推荐此车”；
 - TTL expired；
 - Demand 不再合法 / 无可切换 trigger Demand；
 - Priority Customer 资格关闭；
@@ -945,7 +947,8 @@ Priority ended 且 Vehicle 当前真实开放、没有 active Lock / in-progress
 3. 不只检查“下一个 Priority Customer”；
 4. 若存在合法 Priority 候选，重新按 B4-02 仲裁；
 5. 若不存在合法 Priority 候选，Vehicle 返回普通后续业务流；
-6. 旧 Priority 历史不删除、不改写。
+6. 若没有任何合法 Priority 候选，则返回普通后续业务流；若当前也没有任何普通可继续处理的合法 Match Result，则本轮不创建新的 Priority / Recommendation，Vehicle 仍保留在未来 Matching 体系中；
+7. 旧 Priority 历史不删除、不改写。
 
 ---
 
@@ -961,7 +964,10 @@ PDM-13 已冻结：
 - Priority responsible employee 先看到并决定是否 Recommendation；
 - Recommendation / visibility grant 合法成立后，Priority Customer 才可看详情；
 - active Priority 对其他 Customer 的普通新 Recommendation / 普通可见机会具有排他保护；
-- 若其他 Customer 在该 Priority 建立前已经存在 active Recommendation / visibility grant，**不得删除 Recommendation 历史**。
+- 若其他 Customer 在该 Priority 建立前已经存在 active Recommendation / visibility grant，**不得删除 Recommendation 历史**；
+- 当前 Priority 在正式 Recommendation 成立后允许保存对应 `recommendation_id` 作为关联/追溯字段，但不得把 Recommendation 合并成 Priority 子状态；
+- Priority TTL 到期或 Priority release 只结束排他保护，不得自动结束仍合法的 Recommendation；
+- Recommendation 取消本身不得自动结束 Priority，除非员工同时明确执行 Priority release。
 
 PDM-14 必须继续冻结：
 
@@ -980,13 +986,16 @@ PDM-14 必须继续冻结：
 - active Lock 不阻断 Matching，但阻止新 Priority；
 - 正式 Lock 成立结束当前 active Priority；
 - Lock 取消 / 到期不恢复旧 Priority；
+- 若原 Customer 的 Recommendation 仍合法，其可见性继续按 Recommendation / PDM-14 Authority 判断，不因 Priority 已结束而自动撤销；
+- Recommendation 取消不得反向撤销已经合法成立的 Lock；
 - Vehicle 重新开放后重新按当前事实仲裁。
 
 ### HO-P13-P19-001｜Transaction × Priority
 
 - in-progress Transaction 阻止新 Priority；
 - Transaction 开始结束已有 active Priority；
-- Transaction 取消 / 纠错后不恢复旧 Priority，Vehicle 真正开放后重新仲裁。
+- Transaction 取消 / 纠错后不恢复旧 Priority，Vehicle 真正开放后重新仲裁；
+- Recommendation 取消不得反向撤销已经合法成立的 Transaction。
 
 ### HO-P13-P25-001｜Priority 审计
 
@@ -1000,7 +1009,9 @@ PDM-25 需承接至少：
 - ended reason；
 - Lock / Transaction takeover；
 - re-arbitration；
-- stale / invalidated 导致的 lifecycle 变化；
+- stale / invalidated / tier downgrade 导致的 lifecycle 变化；
+- 销售 TTL 前主动 release / 不推荐此车；
+- Recommendation 与 Priority 的关联、组合操作中两个独立 domain action；
 - actor / time / before-after / source facts。
 
 ---
@@ -1236,7 +1247,8 @@ PDM-21 必须承接：
 - 当前 trigger Demand 合法 responsible employee 的 Priority 待处理 / active 视图；
 - 在合法管理范围内的经理 / 店长监督处理；
 - 显示当前 Vehicle、Customer、trigger Demand、Match tier、剩余 TTL / expires_at、当前 responsible、必要 ended/history；
-- Priority 处理入口允许走既有合法业务动作，例如正式 Recommendation、明确释放 / 放弃；
+- Priority 处理入口允许走既有合法业务动作，例如正式 Recommendation、在 TTL 到期前明确“释放 Priority / 不推荐此车”；
+- 若尚未正式 Recommendation，不得把 Priority release 错叫成“取消 Recommendation”；若 Recommendation 已存在，可在员工体验层提供“结束推荐并释放保护”的组合入口，但底层必须分别执行 Recommendation end 与 Priority release，并分别校验/审计；
 - 释放 / Recommendation / 其他敏感提交继续服从 PDM-02 `identity + permission + data scope + object state` 与对应业务 Authority；
 - 不得提供“人工创建 Priority / 转给其他 Customer / 强制覆盖 / 修改 expires_at / 人工续期 / 恢复 ended Priority”按钮；
 - 不恢复独立全局 `priority.view / priority.manage / priority.override` 体系；
@@ -1279,40 +1291,111 @@ PDM-22 必须承接至少两个真实配置对象：
 
 ---
 
-# 16. Final 前二次完整性复核｜PASS
+# 16. Final Overview 复查补漏｜P13-LIA-07～LIA-08｜USER APPROVED / APPLIED
 
-二次复核报告：
+此前 Final 前复核曾判定 PASS；在生成 Final Domain Overview 后再次对照 9/17 原始 Priority 规则，发现两组仍未完整落成 Atom 的稳定边界。用户已听取中文业务解释并明确确认执行。
 
-> `07_重建工作区/PDM-13_Final前完整性复核_2026-10-05.md`
+## P13-LIA-07｜active Priority 的 Match Result 降级必须立即重评
 
-最终检查：
+如果当前 active Priority 的 trigger Demand × Vehicle Match Result 仍是“current”，但 tier 因真实事实变化从：
 
-- Source→Atom = PASS；
-- Atom→Source = PASS；
-- Semantic Completeness = PASS；
-- Completed-PDM Invariant = PASS；
-- Cross-PDM Handoff Integrity = PASS；
-- stale carrier ledger = REGISTERED；
-- Negative / Superseded Claims = PASS；
-- Missing Rule Unresolved = 0；
-- Semantic Detail Gap Unresolved = 0；
-- Cross-PDM Conflict = 0；
-- Handoff Gap Unresolved = 0；
-- Local Product Choice Unresolved = 0；
-- Local Deferred Unresolved = 0。
+> `high / acceptable`
 
-结论：
+降为：
 
-`PDM13_PREFINAL_INTEGRITY = PASS`
+> `confirmation_needed / no_match`
 
-`PDM13_FINAL_CANDIDATE_READY = YES`
+则当前 Priority 不得继续占用 Vehicle 直到 TTL 到期。
 
-当前 incoming handoff 5 / 5 仍保持 `HANDOFF_ACCEPTED`，不得在 Final / Integrity closeout 前提前关闭。
+处理顺序：
+
+1. 先检查同一 Customer 是否还有其他 active + matching-ready Demand 对该 Vehicle 保持 current `high / acceptable`；
+2. 若有，按现有确定性规则切换到新的 `trigger_demand_id`，原 Priority 继续 active，原 `expires_at` 不变；
+3. 若没有，当前 Priority ended，记录 `match_invalidated` 或正式等价真实 reason；
+4. Vehicle 立即读取所有 Customer 当前合法 Match Result，按 B4-02 重新仲裁；
+5. 若没有新的 Priority candidate，则进入普通后续业务流；
+6. 若当前没有任何客户可继续处理，本轮不创建新的 Priority / Recommendation，但 Vehicle 不退出未来 Matching，后续新 Demand / Vehicle facts / Match change 仍可再次触发。
+
+因此：
+
+> **Priority 不能因为“曾经匹配成功”就一直占满 TTL；当前事实已经不符合时必须释放。**
 
 ---
 
-# 17. 当前唯一下一步
+## P13-LIA-08｜TTL 是最长保护上限；销售可提前释放，Recommendation / Lock / Transaction 不互相倒删
 
-> **生成 PDM-13 Final Domain Overview 候选，完整覆盖 Batch 1～4、P13-LIA-01～LIA-06、incoming/outgoing handoff、stale carrier 与 supersession，并提交用户最终批准。未经用户最终批准，不得发布 PDM-13 Final，不得关闭 incoming handoff，不得开始 PDM-14。**
+### 16.8.1 销售可在 TTL 前主动 release
+
+后台配置的 24h（或未来调整后的默认值）只是单笔 Priority 的**最长自动保护时间**。
+
+当前 trigger Demand 的合法 responsible employee 如果判断：
+
+> “这台车不适合这个 Customer，不准备推荐”
+
+无需等待 TTL 到期，可立即执行：
+
+> **释放 Priority / 不推荐此车**
+
+该动作：
+
+- 结束当前 active Priority；
+- 保存真实 release reason / actor / time；
+- 触发同一 Vehicle 的当前合法候选重新仲裁；
+- 原 Customer 在同一 listing_cycle 内进入 B4-04 自动再获得抑制，避免刚释放又被相同旧事实立即选回；
+- 其他 Priority Customer 有合法候选 → 重新仲裁；
+- 没有 Priority Customer、但普通 Customer 有合法 Match Result → 恢复普通后续机会；
+- 当前谁都不符合 → 本轮不生成新 Priority / Recommendation，Vehicle 继续留在未来 Matching 体系。
+
+该 release 是**合法提前结束**，不是人工修改 TTL、不是人工续期、不是 override。
+
+### 16.8.2 “释放 Priority”与“取消 Recommendation”必须分开
+
+如果尚未建立正式 Recommendation：
+
+- 只能叫“释放 Priority / 不推荐此车”；
+- 不存在“取消 Recommendation”。
+
+如果已经存在正式 Recommendation：
+
+- Recommendation 与 Priority 仍是两个独立对象；
+- 可以在员工体验层提供一个组合操作，例如“结束推荐并释放保护”；
+- 但底层必须分别执行 Recommendation end 与 Priority release；
+- 两个动作分别校验、分别审计、分别保留历史；
+- **Recommendation 取消本身不会自动结束 Priority**；
+- **Priority release / TTL expired 本身也不会自动结束仍合法的 Recommendation**。
+
+正式 Recommendation 建立后，Priority 可保存对应 `recommendation_id` 作为关联/追溯字段，但不得把两者合成同一个生命周期对象。
+
+### 16.8.3 不允许向后撤销已成立业务
+
+- Recommendation 取消不得反向撤销已经合法成立的 Lock；
+- Recommendation 取消不得反向撤销已经合法成立的 Transaction；
+- Priority ended / expired / release 不得反向撤销已经合法成立的 Lock / Transaction；
+- Lock 取消 / 到期不会恢复旧 Priority；
+- 若 Lock 后 Priority 已 ended，而原 Recommendation 仍 active，其客户 visibility 继续按 Recommendation / PDM-14 Authority 判断；
+- Transaction 取消 / correction 后若 Vehicle 真正重新开放，也不恢复旧 Priority，重新读取当前事实仲裁。
+
+---
+
+# 17. R2 修复状态
+
+`P13-LIA-07～P13-LIA-08 = PASS / USER_APPROVED / APPLIED`
+
+同时对既有 B4 语义做一致性收正：
+
+- TTL = 最长保护上限，不是必须等待满时长；
+- 员工主动 release 是合法 Priority ended reason；
+- Recommendation cancellation alone 从 Priority ended reason 中移除；
+- Recommendation cancellation alone 不触发 same-cycle Priority suppression；
+- same-cycle suppression 由 Customer 放弃、员工明确 Priority release、TTL expired 等 Priority 自身 ended reason 驱动；
+- Priority / Recommendation / Lock / Transaction 保持对象与生命周期分离。
+
+此前 `PDM-13_Final前完整性复核_2026-10-05.md` 保留为第一版历史审计报告；R2 修复后必须重新生成新的 Final 前完整性复核报告，不覆盖旧审计事实。
+
+---
+
+# 18. 当前唯一下一步
+
+> **重新执行 PDM-13 Final 前完整性复核 R2：重点验证 Match tier downgrade、TTL 前销售 release、same-cycle suppression、Recommendation/Priority 独立性、Lock/Transaction 不反向撤销、handoff 与 stale carrier。R2 全部 PASS 后，重新生成修正后的 Final Domain Overview 候选提交用户最终批准。**
 
 IA / Low-Fi / Engineering 继续禁止施工。
