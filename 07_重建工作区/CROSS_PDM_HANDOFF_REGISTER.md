@@ -522,7 +522,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-10：INTEGRITY_PASS；
 - PDM-01～10 全局 Cross-PDM / Handoff / Global Invariant 总复核：PASS；
 - PDM-11：COMPLETE / INTEGRITY_PASS；
-- 当前进入：PDM-12；
+- 当前进入：PDM-14 Batch 2；
 - PDM-12：COMPLETE / INTEGRITY_PASS；4 条 incoming handoff 全部 CLOSED 并完成 source backwrite；
 - PDM-13：COMPLETE / INTEGRITY_PASS；PDM-13→PDM-14/17/18/19/20/21/22/25 future handoff 已登记；其中 HO-P13-P14-001 已由 PDM-14 接收为 HANDOFF_ACCEPTED，其余目标域继续 HANDOFF_OPEN；
 - PDM-14：Start Gate PASS；工作版已建立；8 条 incoming handoff 全部 HANDOFF_ACCEPTED；Batch 1（P14-A01～A14 + P14-R01～R04）已 USER_APPROVED / APPLIED；下一步 Batch 2 明确废弃 / 替代 / DO_NOT_RESTORE 扫描；
