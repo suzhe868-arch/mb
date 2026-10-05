@@ -414,6 +414,13 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | HO-P13-P22-001 | PDM-22 | PC后台承接单Customer Priority资格开关与Priority全局默认TTL两个控制平面配置对象：资格逐Customer开/关、不支持批量、不与Customer Level find-car entitlement混成同一开关、普通负责销售不得因负责Customer自行开启，保存按合法后台identity/permission/data scope/object state重验并审计before/after/actor/time；TTL默认86400s/24h，修改只影响后续新Priority，不追改既有expires_at，不提供逐笔人工续期，配置变更进入统一审计。 | HANDOFF_OPEN | - | YES |
 
 ---
+## 12D. PDM-14 来源 handoff
+
+| handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
+|---|---|---|---|---|---|
+| HO-P14-P15-001 | PDM-15 | Recommendation 与 Consultation 为独立业务对象：Recommendation end/void 不自动结束既有 Consultation；已有未终结 Consultation 时后来新建 Recommendation 不自动创建第二条 Consultation、不抢写当前 Consultation 负责人、不改写真实历史来源；Consultation 的状态机、负责人优先级/转派、SLA、终态、同周期幂等与后续新建规则由 PDM-15 正式冻结。 | HANDOFF_OPEN | - | YES |
+
+---
 ## 13. Post-PDM25 IA / Low-Fi Carrier Ledger｜持续累积
 
 > 当前只登记，不施工；统一在 PDM-25 完成 + PDM-01～25 全局最终总复核 PASS 后集中对齐。
@@ -527,8 +534,8 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-10：INTEGRITY_PASS；
 - PDM-01～10 全局 Cross-PDM / Handoff / Global Invariant 总复核：PASS；
 - PDM-11：COMPLETE / INTEGRITY_PASS；
-- 当前进入：PDM-14 Batch 4；
+- 当前进入：PDM-14 Final 前完整性复核；
 - PDM-12：COMPLETE / INTEGRITY_PASS；4 条 incoming handoff 全部 CLOSED 并完成 source backwrite；
 - PDM-13：COMPLETE / INTEGRITY_PASS；PDM-13→PDM-14/17/18/19/20/21/22/25 future handoff 已登记；其中 HO-P13-P14-001 已由 PDM-14 接收为 HANDOFF_ACCEPTED，其余目标域继续 HANDOFF_OPEN；
-- PDM-14：Start Gate PASS；8 条 incoming handoff 全部 HANDOFF_ACCEPTED；Batch 1（P14-A01～A14 + P14-R01～R04）、Batch 2（P14-B2-01～B2-11）、Batch 3（P14-B3-01～B3-05）均已 USER_APPROVED / APPLIED；Batch 2 Reverse Conflict Scan PASS；Batch 3 Conflict Isolation PASS；下一步 Batch 4 冲突 / 遗漏 / 缺口 / 新产品选择扫描；
+- PDM-14：Start Gate PASS；8 条 incoming handoff 全部 HANDOFF_ACCEPTED；Batch 1～4 均已 USER_APPROVED / APPLIED；Batch 4 choices=`1A,2B,3A,4A,5A,6A,7A,8A`；Local Product Choice Unresolved=0；新增 HO-P14-P15-001=HANDOFF_OPEN；下一步 Final 前完整性复核；
 - `HO-P01-P11-001 = HANDOFF_SUPERSEDED`；`HO-P01-P11-002 = HANDOFF_CLOSED`。PDM-12 incoming handoff 已全部 CLOSED；PDM-12 outgoing future handoff 已扩展登记：PDM-13 / PDM-14 / PDM-16 / PDM-18 / PDM-20 / PDM-21 / PDM-22 / PDM-25 均为 `HANDOFF_OPEN`，待各目标域承接。
