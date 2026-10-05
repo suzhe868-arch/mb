@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-15_BATCH_2_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-15_BATCH_3_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / START_GATE_PASS / BATCH_1_PASS_USER_APPROVED / BATCH_2_PENDING_USER_REVIEW`
+> `IN_PROGRESS / START_GATE_PASS / BATCH_1_PASS_USER_APPROVED / BATCH_2_PASS_USER_APPROVED / BATCH_3_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -32,7 +32,20 @@
 
 当前唯一下一步：
 
-> **PDM-15 Batch 1 已 `PASS / USER_APPROVED / APPLIED`，P15-A01～P15-A08 全部进入当前工作 Authority；5 条 incoming handoff 继续 `HANDOFF_ACCEPTED`。当前唯一下一步：提交 P15-B2-01～P15-B2-05 Batch 2 明确废弃 / 被替代 / 不得恢复项给用户审查。`CANCELLED`、SLA 精确语义、负责人优先级等产品选择继续保留后续。IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-15 Batch 2 已 `PASS / USER_APPROVED / APPLIED`；Reverse Conflict Scan = `PASS / FALSE_DEPRECATION_COUNT=0`。当前唯一下一步：提交 P15-B3-01～P15-B3-04 Batch 3 知情修改 / 显式新增候选给用户审查。`CANCELLED` 主状态、SLA 首次真实人工动作、默认 15 分钟、负责人优先级、Customer 停用运行态、Transaction 负向边界继续保留 Batch 4。IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-06｜PDM-15 Batch 2 用户批准、执行与反向冲突扫描 PASS
+
+- 用户对 `P15-B2-01～P15-B2-05` 全部同意并启动执行；
+- Batch 2 = `PASS / USER_APPROVED / APPLIED`；
+- Reverse Conflict Scan = `PASS`，`FALSE_DEPRECATION_COUNT=0`；
+- 明确废弃/不得恢复：旧“我要这辆车”统一意向、timeout 第五主状态/自动关闭、Customer Merge/Consultation 迁移、assignee 与 Customer owner 合一、Recommendation 驱动 Consultation 生命周期；
+- 明确保留：客户撤回/正常关闭动作、SLA 与 timeout 提醒、正式 Consultation 转派、状态驱动 CTA、真实 Recommendation source relation、独立 Customer owner；
+- 历史 Phase1.5 曾存在 Customer Merge Flow，但当前 Authority 已被 PDM-01 Final“V1 完全取消 Customer Merge”覆盖；
+- Batch 3 候选：`P15-B3-01～P15-B3-04`；
+- 5 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 P15-B3-01～P15-B3-04。
 
 ## 2026-10-06｜PDM-15 Batch 1 用户批准并执行
 
