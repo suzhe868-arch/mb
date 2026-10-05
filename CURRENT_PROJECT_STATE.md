@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-16_BATCH_3_COMPLETENESS_REPAIR_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-16_BATCH_4_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_3_COMPLETENESS_REPAIR_PENDING`
+> `IN_PROGRESS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_3_REPAIR_PASS / BATCH_4_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -32,7 +32,19 @@
 
 当前唯一下一步：
 
-> **PDM-16 Batch 3 已 `PASS / USER_APPROVED / APPLIED`，Conflict Isolation = PASS。完整性回查发现 2 条明确历史规则尚未完整承接；当前唯一下一步：用户审查 P16-B3-R01～P16-B3-R02。修复完成前不进入 Batch 4；6 条 incoming handoff 继续 HANDOFF_ACCEPTED。**
+> **PDM-16 Batch 3 Completeness Repair 已 `PASS / USER_APPROVED / APPLIED`，BATCH_3_COMPLETENESS_GAP=0。当前唯一下一步：用户裁决 P16-B4-01～P16-B4-05；建议 1A、2A、3A、4A、5A。6 条 incoming handoff 继续 HANDOFF_ACCEPTED。**
+
+## 2026-10-06｜PDM-16 Batch 3 Completeness Repair 已执行
+
+- 用户对 `P16-B3-R01～P16-B3-R02` 明确“全部同意确认执行”；
+- Repair = `PASS / USER_APPROVED / APPLIED`；
+- `BATCH_3_COMPLETENESS_GAP = 0`；
+- CRM 未完成待办/回访/未来跟进责任交接已恢复；
+- “暂不联系/暂无意向”与 owner / 公海 / 具体业务状态严格分离；
+- Batch 4 重建后形成 5 个真实产品选择：CRM Stage 字典治理、Stage 自动改写、Customer Tags 模型、Opportunity 规则来源、Radar 不适合抑制范围；
+- 建议：`1A、2A、3A、4A、5A`；
+- 6 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工。
 
 ## 2026-10-06｜PDM-16 Batch 3 用户批准并执行
 
