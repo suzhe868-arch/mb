@@ -8,8 +8,8 @@
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "PDM-16",
-  "current_domain_status": "IN_PROGRESS_PREFINAL_R2_PASS_FINAL_CANDIDATE_READY_WAITING_USER_FINAL_APPROVAL",
+  "current_domain": "PDM-17",
+  "current_domain_status": "NOT_STARTED_STARTUP_GATE",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,17 +20,15 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-16 Final Domain Overview 用户最终审查",
+  "current_task": "PDM-17 Startup Gate",
   "current_work_file": "07_重建工作区/PDM-16_CRM客户画像阶段跟进标签机会与SourceRadar_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
-    "Do not publish PDM-16 Final before user final approval and a subsequent explicit execution confirmation",
-    "Do not close PDM-16 incoming handoffs before Final / Integrity closeout",
-    "Do not enter PDM-17 before PDM-16 Final closeout",
-    "Do not modify IA or Low-Fi during product-rule reconstruction",
-    "Do not execute Engineering Delta"
+    "Do not modify IA or Low-Fi during PDM-01 through PDM-25 product-rule reconstruction",
+    "Do not execute Engineering Delta",
+    "Do not skip PDM-17 Startup Gate or its incoming handoff acceptance"
   ],
   "confirmed_rule_atoms": [
     "P01-A01",
@@ -68,7 +66,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-16_FINAL_OVERVIEW",
+  "current_review_batch": "PDM-17_STARTUP_GATE",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -2672,20 +2670,16 @@
   "pdm_15_final_published": true,
   "pdm_15_source_backwrite_done": true,
   "pdm_15_source_backwrite_count": 5,
-  "pdm_16_status": "IN_PROGRESS",
-  "pdm_16_next_gate": "FINAL_OVERVIEW_USER_APPROVAL",
+  "pdm_16_status": "COMPLETE_INTEGRITY_PASS",
+  "pdm_16_next_gate": "COMPLETE",
   "pdm_16_start_gate": "PASS",
   "pdm_16_core_direction": {
     "id": "P16-R00",
     "status": "USER_APPROVED_APPLIED"
   },
   "pdm_16_incoming_handoffs": {
-    "HO-P01-P16-001": "HANDOFF_ACCEPTED",
-    "HO-P02-P16-001": "HANDOFF_ACCEPTED",
-    "HO-P03-P16-001": "HANDOFF_ACCEPTED",
-    "HO-P11-P16-001": "HANDOFF_ACCEPTED",
-    "HO-P12-P16-001": "HANDOFF_ACCEPTED",
-    "HO-P15-P16-001": "HANDOFF_ACCEPTED"
+    "status": "6_OF_6_HANDOFF_CLOSED_SOURCE_BACKWRITE_DONE",
+    "count": 6
   },
   "pdm_16_startup_scan": {
     "completed_pdm_hard_conflict": 0,
@@ -2802,5 +2796,28 @@
     "local_product_choice_unresolved": 0,
     "final_candidate_ready": true
   },
-  "pdm_16_final_overview": "07_重建工作区/PDM-16_最终完整规则总览_待用户批准.md"
+  "pdm_16_final_overview": "07_重建工作区/PDM-16_最终完整规则总览_待用户批准.md",
+  "pdm_16_final": "07_重建工作区/PDM-16_最终完整规则.md",
+  "pdm_16_final_integrity": "07_重建工作区/PDM-16_最终完整性复核_2026-10-06.md",
+  "pdm_16_outgoing_handoffs": {
+    "status": "5_HANDOFF_OPEN",
+    "count": 5,
+    "targets": [
+      "PDM-17",
+      "PDM-21",
+      "PDM-22",
+      "PDM-23",
+      "PDM-25"
+    ]
+  },
+  "pdm_16_final_closeout": {
+    "status": "COMPLETE_INTEGRITY_PASS",
+    "final_user_approval": "PASS",
+    "execution_confirmation": "PASS",
+    "source_atoms": 36,
+    "incoming_closed": 6,
+    "source_backwrite_done": 6,
+    "outgoing_open": 5
+  },
+  "next_action": "PDM-17 Startup Gate"
 }
