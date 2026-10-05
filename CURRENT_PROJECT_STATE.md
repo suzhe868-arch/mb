@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-15_BATCH_4_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-15_PREFINAL_INTEGRITY_AUDIT`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / START_GATE_PASS / BATCH_1_PASS_USER_APPROVED / BATCH_2_PASS_USER_APPROVED / BATCH_3_PASS_USER_APPROVED / BATCH_3_CONFLICT_ISOLATION_PASS / BATCH_4_PENDING_USER_REVIEW`
+> `IN_PROGRESS / START_GATE_PASS / BATCH_1_PASS_USER_APPROVED / BATCH_2_PASS_USER_APPROVED / BATCH_3_PASS_USER_APPROVED / BATCH_3_CONFLICT_ISOLATION_PASS / BATCH_4_PASS_USER_APPROVED / PREFINAL_INTEGRITY_AUDIT`
 
 当前工作文件：
 
@@ -32,7 +32,21 @@
 
 当前唯一下一步：
 
-> **PDM-15 Batch 3 已 `PASS / USER_APPROVED / APPLIED`；Conflict Isolation = `PASS / CONFLICT_OR_PRODUCT_CHOICE_MISCLASSIFIED_AS_BATCH3=0`。当前唯一下一步：用户审查 P15-B4-01～P15-B4-07；建议选择 `1A、2A、3A、4A、5A、6A、7A`。IA / Low-Fi / Engineering 继续禁止施工。**
+> **PDM-15 Batch 4 已 `PASS / USER_APPROVED / APPLIED`，用户选择 `1A、2A、3A、4A、5A、6A、7A`，`PDM15_LOCAL_PRODUCT_CHOICE_UNRESOLVED=0`。当前唯一下一步：执行 PDM-15 Final 前 Missing Rule / Semantic Detail / Cross-PDM Integrity 完整性复核。IA / Low-Fi / Engineering 继续禁止施工。**
+
+## 2026-10-06｜PDM-15 Batch 4 用户裁决并执行
+
+- 用户选择并确认执行：`1A、2A、3A、4A、5A、6A、7A`；
+- `P15-B4-01～P15-B4-07 = PASS / USER_APPROVED / APPLIED`；
+- Consultation 保持四主状态，`CANCELLED` 不作为第五主状态；
+- 首次响应仅由真实人工服务动作完成，转派不完成/不重置 SLA；
+- SLA 初始默认 15 分钟，可配置，创建时固化 deadline；
+- 初始负责人按当前合法责任关系 → Demand responsible → Customer owner → 合格接客池；无人可承接时不得创建 responsible=null，也不得 System Admin 兜底；
+- Customer 停用采用独立 `customer_disabled_hold`，暂停常规推进与未完成 SLA，恢复账号不自动恢复 Consultation；
+- Transaction 不自动结束 Consultation；
+- 工作台 SLA 优先级移交 PDM-21；
+- `PDM15_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- 当前唯一下一步：Final 前完整性复核。
 
 ## 2026-10-06｜PDM-15 Batch 3 用户批准、执行与冲突隔离 PASS
 
