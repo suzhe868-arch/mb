@@ -1,3 +1,15 @@
+## 2026-10-06｜PDM-21 Batch 2 用户批准并执行
+
+- 用户对 `P21-B2-01～P21-B2-09` 明确“全部同意确认执行”；
+- `P21-B2-01～P21-B2-09 = PASS / USER_APPROVED / APPLIED`；
+- Reverse Conflict Scan = `PASS / FALSE_DEPRECATION_COUNT=0`；
+- Batch 3 Conflict Isolation = `PASS / MISCLASSIFIED_PRODUCT_CHOICE=0`；
+- 形成 `P21-B3-01～P21-B3-10 / PENDING_USER_REVIEW`；
+- 4S Internal Mode 进入方式、敏感 Action 页面归位、Consultation“即将超时”阈值等真正产品选择继续留 Batch 4；
+- 19 / 19 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 PDM-21 Batch 3。
+
 ## 2026-10-06｜PDM-21 Batch 1 用户批准并执行
 
 - 用户对 `P21-A01～P21-A20` 全部同意，随后确认执行；
@@ -246,7 +258,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-21_BATCH_2_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-21_BATCH_3_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -256,7 +268,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`
+> `IN_PROGRESS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -272,7 +284,7 @@
 
 当前唯一下一步：
 
-> **PDM-21 Batch 1 已 `PASS / USER_APPROVED / APPLIED`；Reverse Conflict Scan 已完成并形成 P21-B2-01～P21-B2-09。当前唯一下一步：用户审查 PDM-21 Batch 2。**
+> **PDM-21 Batch 2 已 `PASS / USER_APPROVED / APPLIED`；Conflict Isolation PASS，并形成 P21-B3-01～P21-B3-10。当前唯一下一步：用户审查 PDM-21 Batch 3。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
