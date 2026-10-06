@@ -1,6 +1,6 @@
 # PDM-18｜LockRequest / 正式 Lock / Waitlist / 延期 / 释放｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`  
 > 核心定位：`P18-R00 / USER_APPROVED / APPLIED`  
 > Incoming Handoff：10 / 10 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -326,13 +326,14 @@ Customer account 停用：
 
 ---
 
-# 8. Batch 2｜明确废弃 / Superseded / DO_NOT_RESTORE 候选
+# 8. Batch 2｜明确废弃 / Superseded / DO_NOT_RESTORE｜PASS / USER_APPROVED / APPLIED
 
-> 状态：`PENDING_USER_REVIEW`。  
+> 状态：`PASS / USER_APPROVED / APPLIED`。  
+> 用户裁决：P18-B2-01～P18-B2-06 全部同意；随后以“确认指向”明确执行。  
 > 反向冲突扫描：`PASS / FALSE_DEPRECATION_COUNT=0`。  
 > 原则：只列已经被后续 Authority 明确废弃、替代或禁止恢复的旧口径；不把仍有效的员工直接 Lock、Waitlist、Matching、Priority/Recommendation 分层能力误标为废弃。
 
-## P18-B2-01｜旧“我要这辆车”统一意向入口不得恢复
+## P18-B2-01｜旧“我要这辆车”统一意向入口不得恢复｜USER_APPROVED / APPLIED
 
 历史 R10 曾把“我要这辆车”同时作为：
 
@@ -353,7 +354,7 @@ Customer account 停用：
 
 **防误废弃 Guard：**这只废弃客户旧统一 CTA，不废弃合法名邦员工在 Customer + Vehicle 上下文明确且 Guard 全部通过时直接创建正式 Lock 的能力。
 
-## P18-B2-02｜旧“默认正式 Lock = 2 小时”不得恢复
+## P18-B2-02｜旧“默认正式 Lock = 2 小时”不得恢复｜USER_APPROVED / APPLIED
 
 早期旧规则曾定义默认 Lock 时长为 2 小时。
 
@@ -371,7 +372,7 @@ Customer account 停用：
 
 > `SUPERSEDED_BY_R8_01 / DO_NOT_RESTORE`
 
-## P18-B2-03｜Priority = Lock 排队优先级 / 抢车分值不得恢复
+## P18-B2-03｜Priority = Lock 排队优先级 / 抢车分值不得恢复｜USER_APPROVED / APPLIED
 
 PDM-13 Final 已明确禁止：
 
@@ -390,7 +391,7 @@ PDM-13 Final 已明确禁止：
 
 Priority 与 Lock 只按当前 PDM-13 / PDM-18 边界交互。
 
-## P18-B2-04｜active Lock = no_match / 车辆退出 Matching 不得恢复
+## P18-B2-04｜active Lock = no_match / 车辆退出 Matching 不得恢复｜USER_APPROVED / APPLIED
 
 PDM-12 / PDM-13 已正式冻结：
 
@@ -404,7 +405,7 @@ PDM-12 / PDM-13 已正式冻结：
 
 这不会削弱 Lock 排他占用：active Lock 仍阻止第二个 active Lock，并阻止新 Priority。
 
-## P18-B2-05｜Recommendation / Priority 结束反向撤销合法 Lock 不得恢复
+## P18-B2-05｜Recommendation / Priority 结束反向撤销合法 Lock 不得恢复｜USER_APPROVED / APPLIED
 
 不得恢复以下旧耦合：
 
@@ -419,7 +420,7 @@ PDM-12 / PDM-13 已正式冻结：
 
 Lock 只按 PDM-18 自身 Authority 结束。
 
-## P18-B2-06｜CRM 客户详情“锁车→再选车辆”旧入口不得恢复
+## P18-B2-06｜CRM 客户详情“锁车→再选车辆”旧入口不得恢复｜USER_APPROVED / APPLIED
 
 PDM-16 Final 已明确废弃旧：
 
@@ -457,4 +458,116 @@ PDM-16 Final 已明确废弃旧：
 
 当前唯一下一步：
 
-> **用户审查 P18-B2-01～P18-B2-06。未经确认不得进入 Batch 3。**
+> **P18-B2-01～P18-B2-06 已批准并执行。当前唯一下一步：用户审查 Batch 3（P18-B3-01～P18-B3-03）。未经确认不得进入 Batch 4。**
+
+
+---
+
+## 8.2 Batch 2 Gate｜PASS
+
+- `P18-B2-01～P18-B2-06 = PASS / USER_APPROVED / APPLIED`；
+- Reverse Conflict Scan = `PASS`；
+- `FALSE_DEPRECATION_COUNT = 0`；
+- 10 / 10 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工。
+
+---
+
+# 9. Batch 3｜后续明确新增 / 明确变更候选
+
+> 状态：`PENDING_USER_REVIEW`。  
+> Conflict Isolation：`PASS / MISCLASSIFIED_PRODUCT_CHOICE=0`。  
+> 原则：只收录 9/19 主底盘之后已有明确冻结证据、且不需要重新做产品取舍的新增/变更；真正冲突、新缺口、新产品选择全部留 Batch 4。
+
+## P18-B3-01｜4S Member 不得审批 LockRequest
+
+2026-09-22 新 LockRequest 冻结规则明确：
+
+> **4S Member 不得审批客户 LockRequest。**
+
+因此：
+
+- LockRequest approve / reject 属于名邦内部受控业务动作；
+- 4S Member 对该审批链 hard DENY；
+- 不能因为其管理自己的 4S 车源，就获得客户 LockRequest 审批权；
+- 最终提交仍需重验 identity + permission/capability + data scope + object state。
+
+这不影响 4S 对自己合法车源的正常车辆管理权限。
+
+**依据：**001～078 M13-003；PDM-02 统一权限边界。
+
+## P18-B3-02｜LOCK_CONFLICT 后只能由客户重新主动选择候补
+
+2026-09-22 LockRequest 新链明确：
+
+- 同车竞争审批失败可进入 `LOCK_CONFLICT`；
+- `LOCK_CONFLICT` 不自动创建 Waitlist；
+- 当车辆此时已经被其他 Customer 的 active Lock 占用，客户可以**另行主动选择**登记 Waitlist；
+- 该 Waitlist 仍必须重新通过当前手机号 / Customer / Vehicle / listing_cycle / occupancy / permission 等合法 Guard；
+- 不因原 LockRequest 的提交时间获得候补排序或锁车优先权。
+
+因此：
+
+> **LockRequest conflict 与 Waitlist 是两个独立业务动作。**
+
+**依据：**001～078 M13-003；P18-A06/A12/A13。
+
+## P18-B3-03｜合法名邦员工仍可直接创建正式 Lock，不强制先有 LockRequest
+
+后续冻结证据已经明确恢复 / 保留员工侧正式 Lock 能力：
+
+- 授权名邦员工在明确 Customer + Vehicle 上下文中可直接发起正式 Lock；
+- 该员工动作不是“替客户制造一个假的 LockRequest”；
+- 不要求所有正式 Lock 必须先存在 Customer LockRequest；
+- 最终提交仍必须经过 canonical Lock Guard：identity、permission/capability、data scope、Customer、Vehicle、listing_cycle、当前 active Lock 等；
+- 4S Member 对名邦客户正式 Lock 业务 hard DENY。
+
+客户本人点击“锁车”仍严格走 LockRequest；两条入口不得混淆。
+
+**依据：**001～078 M13-006 中 VR-E-012 / Current E03-06 后续冻结事实；PDM-02 权限边界；P18-B2-01/B2-06 防误废弃 Guard。
+
+### 9.1 Conflict Isolation
+
+以下事项**没有**偷渡进 Batch 3：
+
+- Priority Customer 转正式 Lock 后是否继续继承客户侧排他可见性；
+- 普通 VIP/粉丝正式 Lock 是否仍允许其他客户看到“已锁定”；
+- Priority 转 Lock 与普通 Lock 的 Waitlist 可达性差异；
+- Waitlist responsible 的完整来源优先级；
+- completed / offline / unavailable / sold_external 的 Waitlist 结束矩阵；
+- 旧“到期前默认 30 分钟提醒”是否恢复；
+- 供应异常的具体状态与人工处置；
+- Lock release/cancel reason 强制矩阵；
+- LockRequest 完整状态枚举进一步收敛。
+
+这些全部属于 Batch 4 的冲突 / 遗漏 / 缺口 / 新选择。
+
+因此：
+
+- `NEW_INDEPENDENT_ATOMS = 3`
+- `DUPLICATE_RULE_CREATION = 0`
+- `MISCLASSIFIED_PRODUCT_CHOICE = 0`
+- `BATCH_3 = P18-B3-01～P18-B3-03 / PENDING_USER_REVIEW`
+
+---
+
+## 10. Batch 4 已登记但尚未执行的用户方向
+
+### P18-B4-PRE-01｜Priority 转 Lock 继承客户侧排他可见性｜USER_DIRECTION_APPROVED / NOT_APPLIED
+
+用户已明确认可方向：
+
+- **普通 VIP / 粉丝直接形成的正式 Lock**：只形成占车，不自动让车辆对其他 Customer 全部隐藏；其他 Customer 仍可看到“已锁定”，并按最终 Waitlist 规则处理。
+- **Priority Customer 转正式 Lock**：Priority 对象本身结束（例如 `converted_to_lock`），但该笔 Lock 继承原 Priority 的客户侧排他可见性；Lock 有效期间，除 Lock Customer 外其他 Customer 不可见。
+- 内部员工 / 后台 /内部 Matching 仍可识别车辆及其真实占用事实。
+- Lock 结束后不恢复旧 Priority，而按当时最新 Vehicle / Recommendation / Priority / visibility 等事实重新计算客户可见性。
+
+状态：
+
+> `USER_DIRECTION_APPROVED / NOT_APPLIED / WAIT_BATCH_4_FORMAL_REVIEW`
+
+该方向将于 Batch 4 正式检查 P18-A12/A13/A18 以及 PDM-13/PDM-14 cross-PDM 边界后再提交正式裁决；当前不得提前改写已完成 PDM Final。
+
+当前唯一下一步：
+
+> **用户审查 P18-B3-01～P18-B3-03。未经确认不得进入 Batch 4。**
