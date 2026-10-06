@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-18（Batch 1 已通过，当前 Batch 2 用户审查）
+- 当前域：PDM-18（Batch 1/2 已通过，当前 Batch 3 用户审查）
 - PDM-15 Startup Gate = PASS
 - PDM-15 incoming handoffs = 5 / 5 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-15 工作版 = `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
@@ -84,8 +84,11 @@
 - PDM-18 incoming handoffs = 10 / 10 HANDOFF_ACCEPTED
 - PDM-18 工作版 = `07_重建工作区/PDM-18_LockRequest正式LockWaitlist延期释放_规则原子重建_工作版.md`
 - PDM-18 Batch 1 = P18-A01～P18-A18 / PASS / USER_APPROVED / APPLIED
-- PDM-18 Batch 2 = P18-B2-01～P18-B2-06 / PENDING_USER_REVIEW
+- PDM-18 Batch 2 = P18-B2-01～P18-B2-06 / PASS / USER_APPROVED / APPLIED
 - PDM-18 Batch 2 Reverse Conflict Scan = PASS / FALSE_DEPRECATION_COUNT=0
+- PDM-18 Batch 3 = P18-B3-01～P18-B3-03 / PENDING_USER_REVIEW
+- PDM-18 Batch 3 Conflict Isolation = PASS / MISCLASSIFIED_PRODUCT_CHOICE=0
+- PDM-18 Batch 4 Pending Direction = P18-B4-PRE-01 / USER_DIRECTION_APPROVED / NOT_APPLIED
 - PDM-11 = COMPLETE / INTEGRITY_PASS
 - PDM-12 = COMPLETE / INTEGRITY_PASS
 - PDM-11 启动门禁 = UNBLOCKED
@@ -137,7 +140,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-18 Batch 1 已 PASS / USER_APPROVED / APPLIED；P18-A01～P18-A18 已正式进入当前工作 Authority。当前唯一下一步：用户审查 Batch 2（P18-B2-01～P18-B2-06）；未经用户确认不得进入 Batch 3。**
+> **PDM-18 Batch 2 已 PASS / USER_APPROVED / APPLIED；Batch 3 已形成 P18-B3-01～P18-B3-03 三条明确新增/变更候选。当前唯一下一步：用户审查 Batch 3；未经用户确认不得进入 Batch 4。**
 
 每个 PDM 必须同时执行：
 
