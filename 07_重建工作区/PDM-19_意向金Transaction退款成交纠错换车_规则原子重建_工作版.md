@@ -1,6 +1,6 @@
 # PDM-19｜意向金 / Transaction / Refund / 成交纠错 / 换车｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_REPAIR_REQUIRED`  
+> 当前状态：`IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R2_PASS / FINAL_REVIEW_PENDING`  
 > 核心定位：`P19-R00 / USER_APPROVED / APPLIED`  
 > Incoming Handoff：10 / 10 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -1041,4 +1041,146 @@ Final 前必须正式登记 PDM-19 outgoing handoff：
 
 当前唯一下一步：
 
-> **用户审查 P19-LIA-01～P19-LIA-06。全部修复并执行后，重新运行 Final 前完整性复核 R2。**
+> **P19-LIA-01～P19-LIA-06 已全部批准并执行；Final 前完整性复核 R2 = PASS / FINAL_CANDIDATE_READY。当前唯一下一步：用户最终审查 PDM-19 最终完整规则总览。**
+
+
+---
+
+# 12. Final 前 R1 修复｜PASS / USER_APPROVED / APPLIED
+
+> 用户裁决：`P19-LIA-01～P19-LIA-06 = 全部同意`；随后以“Chair and.”语境明确执行，按既定 ASR 规则视为“确认执行”。  
+> 状态：`PASS / USER_APPROVED / APPLIED`。
+
+## P19-LIA-01｜误成交纠错不得制造假重新上架 / 假新 cycle｜USER_APPROVED / APPLIED
+
+如果 completed Transaction 只是系统 / 业务误操作，而 Vehicle 从未真实不可售：
+
+- correction 后恢复真实可售事实；
+- 继续原 `listing_cycle`；
+- 不建立新 cycle；
+- 不增加 `today-new`；
+- 不改变“最新上架”排序时间；
+- 不重新置顶；
+- 原 cycle 已形成的合法价格 / 查价权益继续；
+- 客户不因系统纠错重复解锁 / 重复扣额度；
+- 旧 Lock / Waitlist 不复活。
+
+只有 Vehicle **真实经历不可售 / 下架，之后再真实可售**：
+
+> 才按正常 relist 建立新的 listing_cycle。
+
+因此：
+
+> **Transaction correction 只纠正错误成交事实，不伪造新的真实上架事件。**
+
+## P19-LIA-02｜in-progress Transaction 正常取消与 Vehicle 重算边界｜USER_APPROVED / APPLIED
+
+普通 cancel 只适用于尚未 completed 的 `in_progress` Transaction：
+
+- 当前合法 Transaction responsible 可在统一 identity + permission/capability + data scope + object state Guard 下执行；
+- completed Transaction 不走普通 cancel，必须走 P19-B4-06 correction；
+- cancel 后 Transaction 进入 `cancelled` 终态历史；
+- 不复活旧 Lock；
+- 不复活旧 Waitlist；
+- Vehicle 后续能否继续进入业务，只读取真实 source state、当前 listing_cycle、当前其他 occupancy；
+- cancel 不强制改写 `source_status`；
+- cancel 不强制改写 `platform_visibility`；
+- cancel 不制造假 relist / 假新 cycle。
+
+本条不新增额外取消审批层。
+
+## P19-LIA-03｜真实 Deposit 记录入口与资金 correction 权限分离｜USER_APPROVED / APPLIED
+
+当前合法业务 responsible 可以记录**已经真实发生**的线下 Deposit 收款：
+
+- 同一合法 Lock 可有多笔 Deposit；
+- 每笔继续遵守 P19-B4-07 的 amount / received_at / payment_method / operator 最小字段；
+- Deposit 本身不设置 independent responsible，只保存真实 operator；
+- “记录真实收款”与“纠正资金错误”是不同能力；
+- 普通合法收款记录能力，不自动获得 Deposit correction 权；
+- correction 继续由具备独立资金纠错 permission + scope 的经理 / 店长执行；
+- correction 必填原因、append-only，原收款保留；
+- Deposit 总额由有效收款 + correction / reversal 事实派生。
+
+## P19-LIA-04｜实际当场全额退款可直接 refunded，不强制造假 pending｜USER_APPROVED / APPLIED
+
+Refund 状态必须跟随真实资金事实：
+
+- 实际退款已经当场完成，可直接记录真实退款并进入 `refunded`；
+- 不要求为了流程形式先制造一个瞬时假的 `pending`；
+- 钱尚未实际退，只是进入退款处理 → `pending`；
+- pending 后真实退款完成 → `refunded`；
+- pending 后决定不再退款 → 按 P19-B3-03 / B4-01 进入 `closed` 并填写 close_reason；
+- `closed` 不得用于已经真实退款的场景；
+- `refunded` / `closed` 均保留原 Refund 历史，不覆盖源 Deposit / Transaction。
+
+## P19-LIA-05｜Transaction completed 不自动结束 Customer 的 Demand｜USER_APPROVED / APPLIED
+
+PDM-11 Final 的 completed-PDM invariant 正式承接：
+
+- 一笔 Transaction completed，只完成该 Transaction 与真实购车事实；
+- 不自动把同一 Customer 的所有 Demand 批量 completed / cancelled；
+- 即使 Transaction 与某条 Demand 有关联，也由 PDM-11 根据该 Demand 的真实服务目标决定是否结束；
+- PDM-19 不得把“已成交”事件当作跨 Customer 全部 Demand 的批量终止器；
+- 与 P19-A11“Transaction 不自动结束 Consultation”保持同一跨对象边界。
+
+## P19-LIA-06｜Outgoing Handoff + stale carrier / cross-PDM alignment｜USER_APPROVED / APPLIED
+
+### Outgoing handoff 已正式登记
+
+- `HO-P19-P20-001`｜客户端我的交易 / Deposit / Refund 安全投影；
+- `HO-P19-P21-001`｜员工端资金、Transaction、Refund、correction、供应异常操作；
+- `HO-P19-P22-001`｜PC P07 资金/交易管理与 Dashboard 统计 carrier；
+- `HO-P19-P23-001`｜Transaction / Refund 重要状态通知，通知不得反写业务事实；
+- `HO-P19-P25-001`｜资金/交易统一审计、幂等、并发、余额、防超退、原子转换、终态历史测试。
+
+以上均保持：
+
+> `HANDOFF_OPEN`
+
+直到目标 PDM 承接。
+
+### Stale carrier / Alignment
+
+正式登记并延后到 PDM-25 后统一对齐：
+
+1. Current IA 中“pending Refund 关闭必须额外独立 refund-management permission”已被 P19-B3-03 用户主动简化；
+2. 旧 Refund 只有 `pending/refunded` 的 carrier 已被 P19-B4-01 扩展为 `pending/refunded/closed`；
+3. 旧“System Admin 可参与 completed Transaction correction”的残留已被 P19-B4-06 覆盖；
+4. 客户端 / 员工端 / PC 通用状态壳不得反向覆盖本 PDM Authority；
+5. IA / Low-Fi 当前阶段不施工，统一进入 PDM-25 后全局 Alignment。
+
+---
+
+## 12.1 R1 Repair Gate｜PASS
+
+- `P19-LIA-01～P19-LIA-06 = PASS / USER_APPROVED / APPLIED`；
+- `R1_REPAIR_CLOSED = 6 / 6`；
+- outgoing handoff = 5 条 `HANDOFF_OPEN`；
+- stale carrier 已登记，当前不施工；
+- 10 / 10 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工。
+
+---
+
+# 13. Final 前完整性复核 R2｜PASS
+
+> 报告：`07_重建工作区/PDM-19_Final前完整性复核_R2_2026-10-06.md`
+
+结果：
+
+- `SOURCE_TO_ATOM = PASS`
+- `ATOM_TO_SOURCE = PASS`
+- `SEMANTIC_COMPLETENESS = PASS`
+- `MISSING_RULE_UNRESOLVED = 0`
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 0`
+- `COMPLETED_PDM_INVARIANT_CONFLICT = 0`
+- `INCOMING_HANDOFF_GAP = 0`
+- `OUTGOING_HANDOFF_GAP = 0`
+- `NEGATIVE_CLAIMS_VERIFIED = PASS`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+- `PDM19_FINAL_CANDIDATE_READY = YES`
+
+当前唯一下一步：
+
+> **用户最终审查 `07_重建工作区/PDM-19_最终完整规则总览_待用户批准.md`。最终批准前不得发布 PDM-19 Final、不得关闭 10 条 incoming handoff、不得 source backwrite、不得进入 PDM-20。**
