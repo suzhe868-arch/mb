@@ -1171,3 +1171,17 @@
 | PDM24-DEC-A14 | PDM-24 | P24-A14 | 重要运营配置变更可追溯；用户对 Batch 1“全部同意”并随后明确确认执行。 | USER_APPROVED / APPLIED | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
 | PDM24-DEC-A15 | PDM-24 | P24-A15 | 不建设万能运营/营销平台；用户对 Batch 1“全部同意”并随后明确确认执行。 | USER_APPROVED / APPLIED | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
 | PDM24-GATE-B1 | PDM-24 | Batch 1 Gate | P24-A01～P24-A15 全部批准并执行；稳定一致规则进入当前 Authority；Reverse Conflict Scan 已生成 Batch 2。 | PASS / USER_APPROVED / APPLIED / COMPLETED_PDM_HARD_CONFLICT=0 | PDM-24 工作版 + 2026-10-07 用户批准执行 | 2026-10-07 |
+
+| PDM24-DEC-B2-01 | PDM-24 | P24-B2-01 | 不恢复第四个消息Tab/泛化消息中心；用户对 Batch 2 全部同意并明确“确认执行”。 | USER_APPROVED / APPLIED；Reverse Conflict Scan 项。 | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-B2-02 | PDM-24 | P24-B2-02 | 不恢复公告已读未读主状态机；用户对 Batch 2 全部同意并明确“确认执行”。 | USER_APPROVED / APPLIED；Reverse Conflict Scan 项。 | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-B2-03 | PDM-24 | P24-B2-03 | 关闭公告弹层不等于已读；用户对 Batch 2 全部同意并明确“确认执行”。 | USER_APPROVED / APPLIED；Reverse Conflict Scan 项。 | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-B2-04 | PDM-24 | P24-B2-04 | 不恢复VEHICLE_DETAIL广告位可有可无；用户对 Batch 2 全部同意并明确“确认执行”。 | USER_APPROVED / APPLIED；Reverse Conflict Scan 项。 | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-B2-05 | PDM-24 | P24-B2-05 | 不恢复任意/通用多运营位；用户对 Batch 2 全部同意并明确“确认执行”。 | USER_APPROVED / APPLIED；Reverse Conflict Scan 项。 | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-B2-06 | PDM-24 | P24-B2-06 | 不扩成广告推荐/定向/计费平台；用户对 Batch 2 全部同意并明确“确认执行”。 | USER_APPROVED / APPLIED；Reverse Conflict Scan 项。 | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-B2-07 | PDM-24 | P24-B2-07 | 不恢复任意外链/任意目标字符串；用户对 Batch 2 全部同意并明确“确认执行”。 | USER_APPROVED / APPLIED；Reverse Conflict Scan 项。 | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-B2-08 | PDM-24 | P24-B2-08 | 失效target不得继续跳转；用户对 Batch 2 全部同意并明确“确认执行”。 | USER_APPROVED / APPLIED；Reverse Conflict Scan 项。 | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-B2-09 | PDM-24 | P24-B2-09 | target为空不等于Banner无效；用户对 Batch 2 全部同意并明确“确认执行”。 | USER_APPROVED / APPLIED；Reverse Conflict Scan 项。 | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-B2-10 | PDM-24 | P24-B2-10 | 不恢复连续强迫多个主动弹层；用户对 Batch 2 全部同意并明确“确认执行”。 | USER_APPROVED / APPLIED；Reverse Conflict Scan 项。 | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-B2-11 | PDM-24 | P24-B2-11 | 公告不自动升级为外部通知任务；用户对 Batch 2 全部同意并明确“确认执行”。 | USER_APPROVED / APPLIED；Reverse Conflict Scan 项。 | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-B2-12 | PDM-24 | P24-B2-12 | Banner点击不构成业务授权或mutation；用户对 Batch 2 全部同意并明确“确认执行”。 | USER_APPROVED / APPLIED；Reverse Conflict Scan 项。 | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-GATE-B2 | PDM-24 | Batch 2 Gate | P24-B2-01～P24-B2-12 全部批准并执行；Reverse Conflict Scan=PASS；FALSE_DEPRECATION_COUNT=0；未引入新产品选择。 | PASS / USER_APPROVED / APPLIED | PDM-24 工作版 + 2026-10-07 用户确认执行 | 2026-10-07 |
