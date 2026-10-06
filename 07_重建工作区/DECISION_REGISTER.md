@@ -1208,3 +1208,6 @@
 | PDM24-PREFINAL-R1-REPAIR | PDM-24 | Prefinal R1 Repair Gate | P24-LIA-01～P24-LIA-04 全部批准并执行；LIA-03=3A；R1 修复闭环，但尚未执行 R2。 | PASS / USER_APPROVED / APPLIED / NEXT=PDM24_PREFINAL_R2 / LOCAL_PRODUCT_CHOICE_UNRESOLVED=0 | PDM-24 工作版 + R1 报告 | 2026-10-07 |
 
 | PDM24-PREFINAL-R2 | PDM-24 | Prefinal Integrity R2 | R1 四项修复后完成 Source↔Atom、Semantic Completeness、completed-PDM invariant、handoff、negative claims 与 local choice 二次复核；PDM-20 旧详情 Banner 可选表述确认属于待 Final Closeout source backwrite 的历史尾巴。 | PASS / FINAL_CANDIDATE_READY；FORMAL_UNITS=40；MISSING_RULE=0；SEMANTIC_DETAIL_GAP=0；COMPLETED_PDM_HARD_CONFLICT=0；INCOMING/OUTGOING_GAP=0；LOCAL_PRODUCT_CHOICE=0。 | 07_重建工作区/PDM-24_Final前完整性复核_R2_2026-10-07.md | 2026-10-07 |
+
+| PDM24-GATE-FINAL-OVERVIEW | PDM-24 | Final Domain Overview | 用户已对 PDM-24 Final Domain Overview 明确“最终批准”；40 个正式规则/裁决单元进入 Final Closeout。 | USER_FINAL_APPROVED | 2026-10-07 用户“最终批准” | 2026-10-07 |
+| PDM24-GATE-FINAL-CLOSEOUT | PDM-24 | Final Closeout | 用户随后明确“确定执行”；正式发布 PDM-24 Final 与 Final Integrity，关闭 HO-P20-P24-001 并 source backwrite PDM-20；HO-P24-P25-001 保持 HANDOFF_OPEN。 | COMPLETE / INTEGRITY_PASS / SOURCE_BACKWRITE_DONE / NEXT=PDM-25_STARTUP_GATE | PDM-24 Final + Final Integrity + CROSS_PDM_HANDOFF_REGISTER | 2026-10-07 |
