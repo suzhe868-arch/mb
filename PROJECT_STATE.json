@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-22",
-  "current_domain_status": "BATCH_1_PASS_BATCH_2_PASS_BATCH_3_PASS_BATCH_4_PENDING_USER_REVIEW",
+  "current_domain_status": "BATCH_1_PASS_BATCH_2_PASS_BATCH_3_PASS_BATCH_4_PASS_PREFINAL_R1_REPAIR_REQUIRED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-22 Batch 4 用户审查",
+  "current_task": "PDM-22 Final 前完整性复核 R1 修复项用户审查",
   "current_work_file": "07_重建工作区/PDM-22_PC后台信息架构业务管理配置归属上游运行管理_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -28,7 +28,7 @@
   "forbidden_now": [
     "Do not modify IA or Low-Fi during PDM-01 through PDM-25 product-rule reconstruction",
     "Do not execute Engineering Delta",
-    "Do not enter PDM-22 pre-final integrity review before user approval and explicit execution of Batch 4"
+    "Do not run PDM-22 Prefinal R2 before user approval and explicit execution of P22-LIA-01 through P22-LIA-06"
   ],
   "confirmed_rule_atoms": [
     "P01-A01",
@@ -285,7 +285,15 @@
     "P22-B3-06",
     "P22-B3-07",
     "P22-B3-08",
-    "P22-B3-09"
+    "P22-B3-09",
+    "P22-B4-01",
+    "P22-B4-02",
+    "P22-B4-03",
+    "P22-B4-04",
+    "P22-B4-05",
+    "P22-B4-06",
+    "P22-B4-07",
+    "P22-B4-08"
   ],
   "batch_1_confirmed_count": 15,
   "batch_1_pending_count": 0,
@@ -303,7 +311,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-22_BATCH_4",
+  "current_review_batch": "PDM-22_PREFINAL_R1_REPAIR",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3073,7 +3081,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "用户审查 P22-B4-01～P22-B4-08",
+  "next_action": "用户审查 P22-LIA-01～P22-LIA-06",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -3825,7 +3833,7 @@
   "pdm_21_source_backwrite": "19_19_DONE",
   "pdm_21_final_closeout": "COMPLETE",
   "pdm_22_status": "IN_PROGRESS_STARTUP_GATE_PASS",
-  "pdm_22_next_gate": "BATCH_4_USER_REVIEW",
+  "pdm_22_next_gate": "PREFINAL_R1_REPAIR_USER_REVIEW",
   "pdm_22_startup_gate": {
     "status": "PASS",
     "core_direction": "P22-R00",
@@ -3942,17 +3950,8 @@
     "P22-B3-09"
   ],
   "pdm_22_batch_3_confirmed_count": 9,
-  "pdm_22_batch_4_status": "PENDING_USER_REVIEW",
-  "pdm_22_batch_4_pending_atoms": [
-    "P22-B4-01",
-    "P22-B4-02",
-    "P22-B4-03",
-    "P22-B4-04",
-    "P22-B4-05",
-    "P22-B4-06",
-    "P22-B4-07",
-    "P22-B4-08"
-  ],
+  "pdm_22_batch_4_status": "PASS_USER_APPROVED_APPLIED",
+  "pdm_22_batch_4_pending_atoms": [],
   "pdm_22_batch_4_recommended_choices": [
     "1A",
     "2A",
@@ -3965,5 +3964,60 @@
     "P22-B4-07",
     "P22-B4-08"
   ],
-  "pdm_22_local_product_choice_unresolved": 5
+  "pdm_22_local_product_choice_unresolved": 0,
+  "pdm_22_batch_4_choices": [
+    "1A",
+    "2A",
+    "3_AGREE",
+    "4A",
+    "5A",
+    "6A",
+    "7_AGREE",
+    "8_AGREE"
+  ],
+  "pdm_22_batch_4_confirmed_atoms": [
+    "P22-B4-01",
+    "P22-B4-02",
+    "P22-B4-03",
+    "P22-B4-04",
+    "P22-B4-05",
+    "P22-B4-06",
+    "P22-B4-07",
+    "P22-B4-08"
+  ],
+  "pdm_22_batch_4_confirmed_count": 8,
+  "pdm_22_prefinal_r1": {
+    "status": "REPAIR_REQUIRED_NO_HARD_CONFLICT",
+    "report": "07_重建工作区/PDM-22_Final前完整性复核_R1_2026-10-07.md",
+    "formal_units": 52,
+    "missing_rule_unresolved": 2,
+    "semantic_detail_gap_unresolved": 3,
+    "incoming_handoff_landing_gap": 3,
+    "incoming_handoff_gap_ids": [
+      "HO-P10-P22-001",
+      "HO-P13-P22-001",
+      "HO-P18-P22-001"
+    ],
+    "outgoing_handoff_gap": "1_GROUP",
+    "completed_pdm_hard_conflict": 0,
+    "local_product_choice_unresolved": 0,
+    "final_candidate_ready": false,
+    "repair_candidates": [
+      "P22-LIA-01",
+      "P22-LIA-02",
+      "P22-LIA-03",
+      "P22-LIA-04",
+      "P22-LIA-05",
+      "P22-LIA-06"
+    ]
+  },
+  "pdm_22_prefinal_repair_status": "PENDING_USER_REVIEW",
+  "pdm_22_prefinal_repair_pending_atoms": [
+    "P22-LIA-01",
+    "P22-LIA-02",
+    "P22-LIA-03",
+    "P22-LIA-04",
+    "P22-LIA-05",
+    "P22-LIA-06"
+  ]
 }
