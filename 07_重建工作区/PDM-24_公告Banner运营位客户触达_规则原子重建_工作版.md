@@ -1,7 +1,7 @@
 # PDM-24｜公告 / Banner / 运营位 / 客户触达｜规则原子重建工作版
 
 > 域：Announcement / Banner / Placement / Schedule / Customer-facing Operations  
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PASS / PREFINAL_R1_REPAIR_APPLIED / PREFINAL_R2_PENDING`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PASS / PREFINAL_R2_PASS / FINAL_CANDIDATE_READY`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
 
 ---
@@ -789,20 +789,39 @@ Banner target 继续可为空。
 - 在 R2 之前直接判定 FINAL_CANDIDATE_READY；
 - 修改 IA / Low-Fi / Engineering。
 
-# 11. 当前唯一下一步
+# 11. Prefinal Integrity R2｜PASS / FINAL_CANDIDATE_READY
 
-> **PDM-24 Prefinal Integrity R2。**
+正式报告：
 
-R2 必须验证：
+> `07_重建工作区/PDM-24_Final前完整性复核_R2_2026-10-07.md`
 
-- R1 四项修复是否完整落位；
-- Source→Atom / Atom→Source；
-- Semantic Completeness；
-- completed-PDM invariant；
-- incoming / outgoing handoff；
-- Negative Claims；
-- Announcement UTC+8 每日频控 + active/history + first-entry one-shot；
-- Banner placement / target / lifecycle / re-enable；
-- local product choice unresolved 是否归零。
+R2 结果：
 
-只有 R2 真正 PASS 后，才允许形成 PDM-24 Final Domain Overview；不得提前进入 PDM-25。
+- `SOURCE_TO_ATOM = PASS`
+- `ATOM_TO_SOURCE = PASS`
+- `SEMANTIC_COMPLETENESS = PASS`
+- `COMPLETED_PDM_INVARIANT = PASS`
+- `COMPLETED_PDM_HARD_CONFLICT = 0`
+- `INCOMING_HANDOFF_GAP = 0`
+- `OUTGOING_HANDOFF_GAP = 0`
+- `NEGATIVE_CLAIMS = PASS`
+- `MISSING_RULE_UNRESOLVED = 0`
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 0`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+- `PDM24_FORMAL_UNITS = 40`
+- `FINAL_CANDIDATE_READY = YES`
+
+PDM-20 Final 中旧“Vehicle Detail Banner 可选”属于已被 P24-R01 覆盖、待 PDM-24 Final Closeout 时 source backwrite 的历史来源尾巴，不构成 R2 hard conflict。
+
+Final Closeout 前继续：
+
+- `HO-P20-P24-001 = HANDOFF_ACCEPTED`；
+- `HO-P24-P25-001 = HANDOFF_OPEN`；
+- 不 source backwrite PDM-20；
+- 不把 PDM-24 标 COMPLETE；
+- 不进入 PDM-25；
+- 不施工 IA / Low-Fi / Engineering。
+
+# 12. 当前唯一下一步
+
+> **形成 PDM-24 Final Domain Overview，并提交用户最终批准。**
