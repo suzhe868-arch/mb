@@ -1,7 +1,7 @@
 # PDM-24｜公告 / Banner / 运营位 / 客户触达｜规则原子重建工作版
 
 > 域：Announcement / Banner / Placement / Schedule / Customer-facing Operations  
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PASS / PREFINAL_PENDING`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PASS / PREFINAL_R1_REPAIR_APPLIED / PREFINAL_R2_PENDING`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
 
 ---
@@ -668,19 +668,141 @@ Final Closeout 前仍然：
 - 不把 PDM-24 标记为 COMPLETE；
 - 不进入 PDM-25。
 
-# 9. 当前唯一下一步
+# 9. Prefinal Integrity R1｜REPAIR_REQUIRED / NO_HARD_CONFLICT
 
-> **PDM-24 Final 前完整性复核（Prefinal Integrity）。**
+R1 复核范围：
 
-Prefinal 必须继续执行：
+- P24-R00 / R01；
+- P24-A01～A15；
+- P24-B2-01～B2-12；
+- P24-B4-01～B4-07；
+- target=PDM-24 incoming handoff；
+- HO-P24-P25-001；
+- 9/19 R10 / R12；
+- 9/22 Frozen Visual Review；
+- 001～078；
+- Current IA；
+- completed-PDM Final。
 
-- Missing Rule Audit；
-- Semantic Detail Audit；
+R1 未发现 completed-PDM 硬冲突，但发现 4 个语义完整性缺口。用户已“全部同意”，并随后明确“确认执行”。
+
+## P24-LIA-01｜公告日期与每日频控统一按 UTC+8 业务自然日解释｜USER_APPROVED / APPLIED
+
+公告的：
+
+- 生效开始日期；
+- 结束日期；
+- “当天”；
+- “每日”；
+- 每日第一次进入机会；
+
+统一按项目业务时区：
+
+> **Asia/Shanghai（UTC+8）**
+
+解释。
+
+规则：
+
+- 后台服务时间 / 统一业务时区是判断 Authority；
+- 不信任客户设备本地时区来决定是否跨日；
+- 例如配置 10 月 7 日～10 月 30 日，则 10 月 7 日当天进入有效期，10 月 30 日全天仍属于有效期；
+- 到 UTC+8 的 10 月 31 日才结束该日期周期；
+- PDM-25 继续负责统一 timestamp/history/timezone 技术标准，但不得改变本条产品语义。
+
+## P24-LIA-02｜Announcement 停用 / 到期后的 active-history 转换与再启用｜USER_APPROVED / APPLIED
+
+Announcement：
+
+- 到达结束日期后，从当前 active 集合退出并进入 history；
+- 人工停用后，从当前 active 集合退出并进入 history；
+- 停用 / 到期都不物理删除 Announcement；
+- 原配置、内容与操作历史继续保留；
+- 人工停用后若再次启用，只有当前仍处于合法有效周期内时才能重新回到 active；
+- 若原周期已经结束，必须先配置新的合法有效周期，再允许重新生效；
+- 自动弹出关闭不等于 Announcement 停用：自动弹出关闭时，合法 active Announcement 仍可供客户主动查看。
+
+因此：
+
+> active/history 是 Announcement 生命周期投影；auto-popup 是独立运营开关，二者不得混为同一个状态。
+
+## P24-LIA-03｜当天第一次进入机会被其他主动弹层占用时不补弹公告｜USER_APPROVED / APPLIED / CHOICE_3A
+
+当 Customer 当天第一次进入 / 打开小程序，同时命中 Announcement 与其他合法主动弹层时：
+
+- 继续服从 P24-A06：同一时刻只展示一个主动弹层；
+- 具体谁先展示不在 PDM-24 冻结；
+- 如果该次首次进入最终没有实际展示 Announcement，则本次不写入“Announcement 已展示”事实；
+- 但当天“第一次进入”的公告自动触达机会已经结束；
+- 关闭其他主动弹层后，不允许立即连续强制补弹 Announcement；
+- 当天第二次、第三次再次进入，也不再补弹 Announcement；
+- Customer 仍可主动进入公告业务入口查看当前合法公告。
+
+本条正式采用：
+
+> **3A｜严格按当天第一次进入机会解释，不做当天后续补弹。**
+
+这不会改变“同一 Customer 每业务自然日公告主动弹层全局最多实际展示 1 条”的上限。
+
+## P24-LIA-04｜Announcement 排期 Guard + Banner target 合法性 Guard｜USER_APPROVED / APPLIED
+
+### Announcement 排期
+
+- 生效开始日期不得晚于结束日期；
+- 无效日期区间不得启用；
+- 已结束 Announcement 如需重新生效，必须先形成新的合法有效周期；
+- 是否允许保存尚未启用的草稿，不由本条额外制造新的草稿限制；但启用时必须通过有效周期校验。
+
+### Banner target
+
+Banner target 继续可为空。
+
+若配置 target：
+
+- 保存 / 启用时必须是当前存在、内部白名单且合法的小程序页面 / 业务对象；
+- 非法 target 不得作为可点击目标保存并带入启用状态；
+- Banner 已合法启用后，如果 target 后续因为页面、对象、权限边界等变化而失效，Banner 不物理删除；
+- 该 Banner 自动退化为纯展示，不允许点击跳转；
+- 再启用或重新配置 target 时，继续重验 current identity + permission/capability + scope + placement + target + schedule + object/config state。
+
+本条继续保持 P24-A10 / A11、P24-B2-07 / B2-08 / B2-09 与 P24-B4-06 的一致性。
+
+---
+
+# 10. Prefinal R1 修复执行结果
+
+- `P24-LIA-01～P24-LIA-04 = PASS / USER_APPROVED / APPLIED`
+- `P24-LIA-03 = CHOICE_3A`
+- `PREFINAL_R1 = REPAIR_REQUIRED / NO_HARD_CONFLICT`
+- `PREFINAL_R1_REPAIR = COMPLETE`
+- `COMPLETED_PDM_HARD_CONFLICT = 0`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+- `HO-P20-P24-001 = HANDOFF_ACCEPTED`
+- `HO-P24-P25-001 = HANDOFF_OPEN`
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
+仍然不得：
+
+- 提前关闭 HO-P20-P24-001；
+- 提前 source backwrite PDM-20；
+- 提前把 PDM-24 标记为 COMPLETE；
+- 在 R2 之前直接判定 FINAL_CANDIDATE_READY；
+- 修改 IA / Low-Fi / Engineering。
+
+# 11. 当前唯一下一步
+
+> **PDM-24 Prefinal Integrity R2。**
+
+R2 必须验证：
+
+- R1 四项修复是否完整落位；
 - Source→Atom / Atom→Source；
-- Cross-PDM Integrity；
-- incoming / outgoing handoff 完整性；
+- Semantic Completeness；
+- completed-PDM invariant；
+- incoming / outgoing handoff；
 - Negative Claims；
-- 当前 Batch 4 修订后的 Announcement 每日全局频控一致性；
-- Banner lifecycle / target / placement 一致性。
+- Announcement UTC+8 每日频控 + active/history + first-entry one-shot；
+- Banner placement / target / lifecycle / re-enable；
+- local product choice unresolved 是否归零。
 
-发现真正改变产品语义的缺口时，只 reopen 对应 Atom，并重新提交用户裁决；不得静默修改 IA / Low-Fi / Engineering。
+只有 R2 真正 PASS 后，才允许形成 PDM-24 Final Domain Overview；不得提前进入 PDM-25。
