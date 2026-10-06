@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-17_BATCH_4_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-17_PREFINAL_R1`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`
+> `IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_RUNNING`
 
 当前工作文件：
 
@@ -32,7 +32,17 @@
 
 当前唯一下一步：
 
-> **PDM-17 Batch 3“无新增项”已 `PASS / USER_APPROVED / APPLIED`；Batch 4 完整性扫描形成 P17-B4-01～P17-B4-09 共 9 个真实冲突 / 遗漏 / 产品选择。当前唯一下一步：用户裁决 PDM-17 Batch 4。**
+> **PDM-17 Batch 4 已按 1A～9A 全部批准并执行，Local Product Choice Unresolved=0。当前进入 Final 前完整性复核 R1。**
+
+## 2026-10-06｜PDM-17 Batch 4 用户批准并执行
+
+- 用户选择：`1A、2A、3A、4A、5A、6A、7A、8A、9A`；
+- 用户随后明确“确认执行”；
+- `P17-B4-01～P17-B4-09 = PASS / USER_APPROVED / APPLIED`；
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- 6 / 6 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工；
+- 下一步：Final 前完整性复核 R1。
 
 ## 2026-10-06｜PDM-17 Batch 3 通过并进入 Batch 4
 
