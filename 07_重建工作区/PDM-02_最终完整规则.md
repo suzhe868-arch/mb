@@ -361,7 +361,7 @@ PDM-10 经用户最终批准后，对本 PDM 的价格动作语义形成以下�
 - Lock / Waitlist → PDM-18｜`HANDOFF_CLOSED`：PDM-18 Final 已正式承接 LockRequest / Lock / Waitlist mutation，并继续服从统一 identity + permission/capability + data scope + object/account state Guard；4S hard DENY、System Admin 控制平面身份本身不自动获得业务执行权；`HO-P02-P18-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - Transaction / Refund / 成交纠错 → PDM-19｜`HANDOFF_CLOSED`：PDM-19 Final 已正式承接 Transaction / Refund / correction，并继续服从统一 identity + permission/capability + data scope + object/account state；4S hard DENY 与 System Admin 控制平面边界继续有效；`HO-P02-P19-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - 员工端具体页面与内部模式视觉投影 → PDM-21｜`HANDOFF_CLOSED`：PDM-21 Final 已正式承接 Employee Action Projection、Internal Mode、4S 裁剪与敏感动作页面边界；`HO-P02-P21-001 = HANDOFF_CLOSED / source_backwrite=YES`；
-- PC 后台具体 IA → PDM-22；
+- PC 后台具体 IA → PDM-22｜`HANDOFF_CLOSED / source_backwrite=YES`：已由 PDM-22 Final 承接员工、权限、System Admin、角色模板、data scope 与 PC credential carrier；
 - 横切审计字段 / 审计留存规范 → PDM-25。
 
 上述后续 PDM 不得静默推翻本 PDM 已确认的 identity / role / permission / data scope / hard DENY 边界；若发现真实产品冲突，必须重新提交用户显式裁决。
@@ -388,3 +388,5 @@ IA / Low-Fi 当前只作为 carrier 检查与 stale ledger 来源，不在 PDM-0
 > **普通销售、经理、店长均可参与接客；经理和店长在满足 active + eligible + accepting 时可进入接客池并成为 Customer owner。4S 成员与 System Admin 不进入接客池。**
 
 PDM-02 历史 COMPLETE 保留；2026-10-04 已通过当前 Legacy Final Integrity Audit。PDM-01～10 本轮复核的下一域为 PDM-03。
+
+> 2026-10-07 Source Backwrite：对应 PDM-22 handoff 已由 `07_重建工作区/PDM-22_最终完整规则.md` 正式承接；以 CROSS_PDM_HANDOFF_REGISTER 的 `HANDOFF_CLOSED / source_backwrite=YES` 为准。
