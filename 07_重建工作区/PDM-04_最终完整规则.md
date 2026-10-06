@@ -692,7 +692,7 @@ PDM-12 已完成承接并 source backwrite：
 - Lock / Waitlist 的完整生命周期 → PDM-18｜`HANDOFF_CLOSED`：PDM-18 Final 已正式承接 LockRequest / Lock / Waitlist 生命周期，并明确 vehicle source/visibility 变化不得静默抹除既有业务历史，hidden 本身不结束 Lock/Waitlist；`HO-P04-P18-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - Transaction / Refund / correction → PDM-19｜`HANDOFF_CLOSED`：PDM-19 Final 已正式承接 Transaction / Refund / correction，并明确 source_type / hidden / visibility / source conversion 不得静默删除或重建交易资金历史；误成交 correction 只有真实不可售后再可售才新建 listing_cycle；`HO-P04-P19-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - 客户端具体页面交互（包括 `listing_started_at` / 上传时间 / JYT 平台收录时间等展示语义）→ PDM-20｜`HANDOFF_CLOSED`：PDM-20 Final 已明确三类时间标签分离、relist 不伪造今日新增、Feed/Detail visibility 与历史详情边界；`HO-P04-P20-001 = HANDOFF_CLOSED / source_backwrite=YES`；
-- 员工端具体页面交互 → PDM-21｜`HANDOFF_OPEN`；
+- 员工端具体页面交互 → PDM-21｜`HANDOFF_CLOSED`：PDM-21 Final 已正式承接员工 Vehicle Detail、source_type、一键转名邦、hidden/restore、上下架与当前状态投影；`HO-P04-P21-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - PC 配置入口与管理界面，以及三个固定车源同步 API 的启停、credential、调用统计、运行状态 → PDM-22｜`HANDOFF_OPEN`；
 - JYT / Supply Anomaly 相关 Incident、飞书、SLA、夜间免打扰、通知与异常日志 → PDM-23｜`HANDOFF_OPEN`；
 - 统一审计横切规则 → PDM-25｜`HANDOFF_OPEN`。
