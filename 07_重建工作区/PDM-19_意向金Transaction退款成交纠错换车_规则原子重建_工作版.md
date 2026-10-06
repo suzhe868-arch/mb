@@ -1,6 +1,6 @@
 # PDM-19｜意向金 / Transaction / Refund / 成交纠错 / 换车｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`  
 > 核心定位：`P19-R00 / USER_APPROVED / APPLIED`  
 > Incoming Handoff：10 / 10 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -112,12 +112,12 @@ Current 已明确出现：
 
 ---
 
-# 4. Batch 1｜稳定一致项｜待用户审查
+# 4. Batch 1｜稳定一致项｜PASS / USER_APPROVED / APPLIED
 
 以下只收录多份证据稳定一致、且当前没有发现真实产品冲突的规则。  
-**本批当前仅为候选，未经用户批准不得进入 Batch 2。**
+**用户已对 P19-A01～P19-A14 全部同意，并随后明确确认执行；14 条规则已进入当前工作 Authority。**
 
-## P19-A01｜Deposit / Transaction / Refund / Lock 四类事实分层
+## P19-A01｜Deposit / Transaction / Refund / Lock 四类事实分层｜USER_APPROVED / APPLIED
 
 - Deposit = 真实收款事实；
 - Lock = 正式车辆占用事实；
@@ -126,7 +126,7 @@ Current 已明确出现：
 - 四者必须建立明确关联，但不得合并成一个“大交易状态”；
 - 任何一个对象的后续变化不得通过覆盖另一个对象的历史来实现。
 
-## P19-A02｜资金与交易历史采用追加事实，不物理覆盖
+## P19-A02｜资金与交易历史采用追加事实，不物理覆盖｜USER_APPROVED / APPLIED
 
 - 已记录的 Deposit 不因后续更正直接删除；
 - 已完成 / 已取消 Transaction 不因后续纠错直接擦除；
@@ -134,7 +134,7 @@ Current 已明确出现：
 - 更正、冲正、退款、成交纠错应形成新的事实 / 纠错记录；
 - 原事实与后续更正事实必须可以共同追溯。
 
-## P19-A03｜真实 Deposit 会改变普通 Lock 超时边界
+## P19-A03｜真实 Deposit 会改变普通 Lock 超时边界｜USER_APPROVED / APPLIED
 
 一旦某个合法 Lock 已存在对应真实 Deposit：
 
@@ -144,14 +144,14 @@ Current 已明确出现：
 - 是否以及如何继续释放、退款、换车或进入 Transaction，必须按当前合法资金 / 交易规则处理；
 - 不得伪造成普通 Lock expiry。
 
-## P19-A04｜Transaction 必须来源于合法 Lock，不得凭空创建
+## P19-A04｜Transaction 必须来源于合法 Lock，不得凭空创建｜USER_APPROVED / APPLIED
 
 - Transaction 必须与合法 Customer / Vehicle / listing_cycle / Lock 链一致；
 - 不允许脱离 Lock 凭空制造 Transaction；
 - Transaction 建立后必须保留其来源 Lock 关联；
 - 后续交易状态变化不得把原 Lock 历史改写成“从未发生”。
 
-## P19-A05｜Transaction 取消不复活旧 Lock / Waitlist
+## P19-A05｜Transaction 取消不复活旧 Lock / Waitlist｜USER_APPROVED / APPLIED
 
 Transaction 合法取消后：
 
@@ -161,7 +161,7 @@ Transaction 合法取消后：
 - Customer 若仍需继续锁车，必须按当时当前规则重新建立新的合法 Lock 链；
 - Vehicle 能否重新进入后续业务，读取真实 source / listing_cycle / 当前占用，而不是“取消交易”单一事件。
 
-## P19-A06｜Customer 停用不删除已发生交易与资金历史
+## P19-A06｜Customer 停用不删除已发生交易与资金历史｜USER_APPROVED / APPLIED
 
 Customer account 后续停用：
 
@@ -171,7 +171,7 @@ Customer account 后续停用：
 - 不把已经发生的资金与成交事实伪造成未发生；
 - 当前还能执行哪些新动作，继续按最新 identity / account / permission / object state 判断。
 
-## P19-A07｜Vehicle / source / visibility 变化不静默改写交易资金历史
+## P19-A07｜Vehicle / source / visibility 变化不静默改写交易资金历史｜USER_APPROVED / APPLIED
 
 - source_type 变化不重建 Transaction；
 - hidden / visibility 变化不删除交易 / 资金事实；
@@ -179,14 +179,14 @@ Customer account 后续停用：
 - 供应异常不得静默取消已经合法成立的 Transaction；
 - 已有 Deposit / Refund / correction /成交历史继续保留。
 
-## P19-A08｜档案不完整不阻止创建 Transaction，但可阻止最终完成
+## P19-A08｜档案不完整不阻止创建 Transaction，但可阻止最终完成｜USER_APPROVED / APPLIED
 
 - Vehicle Archive / 必要资料暂不完整，本身不阻止合法 Transaction 创建；
 - 已创建 Transaction 不因资料暂缺被回滚或删除；
 - 首次真正完成 Transaction / 交付闭环时，读取当时有效 required-field set；
 - 缺失必要资料只阻止“完成 / 交付”，不伪造成 Transaction 从未创建。
 
-## P19-A09｜Transaction × Priority 分层
+## P19-A09｜Transaction × Priority 分层｜USER_APPROVED / APPLIED
 
 - Vehicle 已有 in-progress Transaction 时，不得新建 Priority；
 - active Priority 存续期间若合法进入正式 in-progress Transaction，当前 Priority ended；
@@ -194,7 +194,7 @@ Customer account 后续停用：
 - Vehicle 真正重新开放后，如仍满足条件，按当时合法 Match Result 重新仲裁；
 - Priority release / expiry、Recommendation cancellation 不得反向撤销已经合法成立的 Transaction。
 
-## P19-A10｜Transaction × Recommendation 分层
+## P19-A10｜Transaction × Recommendation 分层｜USER_APPROVED / APPLIED
 
 只要 Vehicle 底层仍真实可售、当前 listing_cycle 有效，且 Recommendation 其他 Guard 合法：
 
@@ -204,7 +204,7 @@ Customer account 后续停用：
 - Recommendation end / void 不回写 Transaction；
 - Vehicle sold / offline / unavailable 或 cycle end 后，不得以旧 Recommendation 绕过真实不可售事实。
 
-## P19-A11｜Transaction 不自动结束 Consultation
+## P19-A11｜Transaction 不自动结束 Consultation｜USER_APPROVED / APPLIED
 
 Transaction：
 
@@ -220,7 +220,7 @@ Consultation 是否 resolved / normal-close / invalid：
 
 Transaction 仅提供可引用业务上下文。
 
-## P19-A12｜Transaction / Refund 在途责任是公海保护事实
+## P19-A12｜Transaction / Refund 在途责任是公海保护事实｜USER_APPROVED / APPLIED
 
 当 Customer 仍存在：
 
@@ -237,7 +237,7 @@ Transaction 仅提供可引用业务上下文。
 
 Customer owner / 公海变化不得静默取消、漂移或重建 Transaction / Refund 当前责任与历史。
 
-## P19-A13｜换车不建设独立专用状态机
+## P19-A13｜换车不建设独立专用状态机｜USER_APPROVED / APPLIED
 
 V1 换车采用：
 
@@ -249,7 +249,7 @@ V1 换车采用：
 
 不得通过直接替换旧 Transaction 的 vehicle_id 来抹掉旧业务历史。
 
-## P19-A14｜旧 Deposit 不跨车转挂
+## P19-A14｜旧 Deposit 不跨车转挂｜USER_APPROVED / APPLIED
 
 换车场景：
 
@@ -296,9 +296,182 @@ V1 换车采用：
 - `COMPLETED_PDM_HARD_CONFLICT = 0`
 - `INCOMING_HANDOFF_GAP = 0`
 - `INCOMING_HANDOFF_ACCEPTED = 10 / 10`
-- `BATCH_1 = P19-A01～P19-A14 / PENDING_USER_REVIEW`
+- `BATCH_1 = P19-A01～P19-A14 / PASS / USER_APPROVED / APPLIED`
 - `IA / LOW-FI / ENGINEERING = NO_CONSTRUCTION`
 
 当前唯一下一步：
 
-> **用户审查 P19-A01～P19-A14。未经确认不得进入 Batch 2。**
+> **P19-A01～P19-A14 已批准并执行。当前唯一下一步：用户审查 Batch 2（P19-B2-01～P19-B2-06）。未经确认不得进入 Batch 3。**
+
+
+---
+
+## 7. Batch 1 Gate｜PASS
+
+- 用户裁决：`P19-A01～P19-A14 = 全部同意`；
+- 执行授权：用户随后明确“确认执行”；
+- `BATCH_1 = PASS / USER_APPROVED / APPLIED`；
+- 14 条稳定一致规则已进入当前工作 Authority；
+- 10 / 10 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工。
+
+---
+
+# 8. Batch 2｜明确废弃 / Superseded / DO_NOT_RESTORE 候选
+
+> 状态：`PENDING_USER_REVIEW`。  
+> 反向冲突扫描：`PASS / FALSE_DEPRECATION_COUNT=0`。  
+> 原则：只列已经被后续 Authority 明确废弃、替代或禁止恢复的旧模型；不把仍需在 Batch 3 / 4 裁决的权限、Refund closed、责任人等细节误标为废弃。
+
+## P19-B2-01｜Deposit 作为“未结清 / 已结清 / 部分结清”主状态机不得恢复
+
+历史曾出现把意向金本身做成类似：
+
+- unsettled；
+- settled；
+- partial；
+
+这类“资金结清状态机”的表达。
+
+当前 Authority 已收口为：
+
+> **Deposit 是一笔或多笔真实收款事实。**
+
+总收款、可退余额、退款进度可以从真实事实计算，但不得把 Deposit 重新建成一套“未结清 / 已结清 / 部分结清”的业务主状态机。
+
+因此旧模型：
+
+> `SUPERSEDED / DO_NOT_RESTORE`
+
+**防误废弃 Guard：**这不禁止展示汇总金额、剩余可退金额或资金处理进度；禁止的是用这些派生结果覆盖真实收款事实。
+
+## P19-B2-02｜Refund 的 `partial` 主状态不得恢复
+
+历史上容易把“部分退款”设计成 Refund 的独立主状态：
+
+> `partial`
+
+当前 Authority 已明确：
+
+- 部分退款通过多笔实际退款事实表达；
+- 已退多少、还可退多少由实际退款记录与可退余额计算；
+- 不通过把 Refund 主状态改成 `partial` 来替代真实退款记录。
+
+因此：
+
+> **Refund `partial` 主状态 = DO_NOT_RESTORE。**
+
+**防误废弃 Guard：**“部分退款”这个业务结果仍然存在，只是不作为覆盖真实退款明细的单一主状态。
+
+## P19-B2-03｜Transaction 取消后自动恢复旧 Lock / Waitlist 不得恢复
+
+不得恢复以下旧耦合：
+
+- Transaction cancelled → 原 Lock 自动 active；
+- Transaction cancelled → 原 Waitlist 自动恢复；
+- 取消交易直接把原占用链倒放回原状态。
+
+当前规则：
+
+> **Transaction 取消是新的真实终止事实，不复活已经结束的旧 Lock / Waitlist。**
+
+若客户仍需继续购买：
+
+- 重新按当前 Guard 建立新的合法 Lock；
+- 再按当前事实进入后续 Transaction。
+
+因此旧“取消交易 = 回滚到旧锁车状态”模型：
+
+> `SUPERSEDED / DO_NOT_RESTORE`
+
+## P19-B2-04｜独立“换车状态机 / 换车关系对象”不得恢复
+
+历史上曾存在把“换车”建设为单独业务状态机 / 专用关系对象的方向。
+
+R8 后续 Authority 已明确：
+
+> **V1 不建设独立换车状态机。**
+
+换车按真实业务事实处理：
+
+- 原车 Lock / Transaction 真实结束或取消；
+- 原车资金与交易历史保留；
+- 新车重新建立新的 Lock / Transaction / Deposit。
+
+因此旧专用“换车状态机 / 换车对象”：
+
+> `RULE_RETAINED_AS_DO_NOT_RESTORE_OLD_CHANGE_CAR_MODEL`
+
+**防误废弃 Guard：**换车业务场景仍然支持；废弃的是额外独立状态机，不是废弃“换车”这件业务。
+
+## P19-B2-05｜旧 Deposit 跨车直接转移 / 改挂不得恢复
+
+不得恢复以下做法：
+
+- 把旧车 Deposit 的 vehicle_id 直接改成新车；
+- 把旧收款记录“转移”到新车后让旧车看起来没有收过款；
+- 用一条“转车”动作覆盖旧收款 / 退款 / 新收款事实。
+
+当前规则：
+
+- 旧车 Deposit 永久保留在旧业务链；
+- 应退款则形成真实 Refund；
+- 新车需要意向金则重新记录新的 Deposit；
+- 旧收款、旧退款、新收款分别可追溯。
+
+因此“Deposit 跨车转挂”：
+
+> `SUPERSEDED / DO_NOT_RESTORE`
+
+## P19-B2-06｜通过删除 / 覆盖原事实完成资金或成交纠错不得恢复
+
+不得恢复：
+
+- 错收 Deposit → 直接改金额或删除原记录；
+- 成交录错 → 直接覆盖 completed Transaction；
+- 退款录错 → 删除原退款后当作从未发生；
+- 用最终正确值覆盖整个历史链。
+
+当前 Authority 要求：
+
+> **更正 / 冲正 / 成交纠错采用追加事实，原事实保留。**
+
+因此“overwrite / delete-as-correction”：
+
+> `SUPERSEDED / DO_NOT_RESTORE`
+
+后续 Batch 3 / 4 再裁定：
+
+- 谁可以执行 correction；
+- 是否需要 reason；
+- 具体 permission；
+- 审计最小字段。
+
+本条只冻结：**纠错不能靠抹掉原事实。**
+
+### 8.1 Reverse Conflict Scan
+
+本轮没有把以下仍有效或仍待裁决的能力误判为废弃：
+
+- Deposit 多笔真实收款；
+- 线下实际退款；
+- 部分退款业务结果；
+- Refund pending；
+- Current 中可能存在的 `closed-not-refunded`；
+- Transaction 首次完成；
+- Transaction completed / cancelled；
+- 成交纠错；
+- Deposit correction / reversal；
+- Transaction / Refund responsibility；
+- 合法换车业务；
+- actual成交价历史；
+- System Admin / 经理 / 店长的具体权限边界。
+
+因此：
+
+- `FALSE_DEPRECATION_COUNT = 0`
+- `BATCH_2_CONFLICT_SCAN = PASS`
+
+当前唯一下一步：
+
+> **用户审查 P19-B2-01～P19-B2-06。未经确认不得进入 Batch 3。**
