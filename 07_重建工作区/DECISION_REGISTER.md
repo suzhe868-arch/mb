@@ -815,3 +815,8 @@
 
 | PDM18-RECLASS-B3-02 | PDM-18 | P18-B3-02 Reclassification | 用户否定“LOCK_CONFLICT 后不自动候补”的 Batch 3 候选，改为：同车同 cycle 一个 LockRequest 成功形成正式 Lock 后，其他仍有效 PENDING 自动转 Waitlist；自动候补不占车、不自动转 Lock，候补顺序按原 LockRequest.created_at。 | 从 Batch 3 撤回并转入 Batch 4；当前 P18-A06/A13 旧 Authority 在 Batch 4 正式裁决前仅标记 conflict pending，不提前改写。 | 2026-10-06 用户“我觉得可以这样调整”并随后确认执行 | 2026-10-06 |
 | PDM18-B4-PRE-02 | PDM-18 | Batch 4 Pending Direction | 竞争 LockRequest 自动转 Waitlist：同车同 cycle 一人获正式 Lock 后，其他有效 PENDING 自动候补；已有 active Waitlist 幂等复用；车辆真实不可售/售出/cycle结束不创建；Waitlist 不占车、不自动升 Lock；释放后仍需人工重验；候补顺序按原申请时间。 | USER_DIRECTION_APPROVED / NOT_APPLIED；与 P18-A06/A13 及 9/22“不自动转 Waitlist”旧口径存在明确待修正冲突，必须在 Batch 4 正式收口。 | 当前对话用户裁决 + PDM-18 工作版 | 2026-10-06 |
+
+| PDM18-DEC-B3-01 | PDM-18 | P18-B3-01 | 4S Member 不得审批客户 LockRequest；审批属于名邦内部受控动作，最终提交重验 permission/capability + scope + object state。 | 后续明确新增/变更；USER_APPROVED / APPLIED。 | 001～078 M13-003 + PDM-02 + 2026-10-06 用户“全部同意”并确认执行 | 2026-10-06 |
+| PDM18-DEC-B3-03 | PDM-18 | P18-B3-03 | 合法名邦员工在明确 Customer + Vehicle 上下文可直接创建正式 Lock，不要求所有 Lock 必须先有客户 LockRequest；客户自助锁车仍走 LockRequest。 | 后续明确新增/变更；USER_APPROVED / APPLIED。 | 001～078 M13-006 / VR-E-012 + PDM-02 + 2026-10-06 用户“全部同意”并确认执行 | 2026-10-06 |
+| PDM18-GATE-B3 | PDM-18 | Batch 3 Gate | P18-B3-01、P18-B3-03 全部用户批准并执行；P18-B3-02 已撤回转 Batch 4。 | Batch 3 PASS；当前进入 Batch 4 用户审查。 | 07_重建工作区/PDM-18_LockRequest正式LockWaitlist延期释放_规则原子重建_工作版.md | 2026-10-06 |
+| PDM18-SCAN-B4 | PDM-18 | Batch 4 Candidate Scan | 形成 P18-B4-01～P18-B4-10，覆盖 Priority-origin Lock 可见性、竞争 LockRequest 自动候补、Waitlist responsible/结束矩阵、Lock responsible、人工结束原因、供应异常、30分钟提醒、默认时长配置权限、批量 mutation。 | PENDING_USER_REVIEW；不得提前应用。 | 9/19 R8/R10 + 001～078 M13 + PDM-02/13/14/17 Final + 用户已确认两条方向 | 2026-10-06 |
