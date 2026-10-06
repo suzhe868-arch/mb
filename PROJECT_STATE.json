@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-18 Batch 3 用户审查",
+  "current_task": "PDM-18 Batch 3 用户审查（P18-B3-01 + P18-B3-03）",
   "current_work_file": "07_重建工作区/PDM-18_LockRequest正式LockWaitlist延期释放_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -29,7 +29,8 @@
     "Do not modify IA or Low-Fi during PDM-01 through PDM-25 product-rule reconstruction",
     "Do not execute Engineering Delta",
     "Do not skip PDM-18 Batch 3 user review",
-    "Do not apply P18-B4-PRE-01 before Batch 4 formal review"
+    "Do not apply P18-B4-PRE-01 before Batch 4 formal review",
+    "Do not apply P18-B4-PRE-02 before Batch 4 formal review"
   ],
   "confirmed_rule_atoms": [
     "P01-A01",
@@ -2879,7 +2880,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "用户审查 P18-B3-01～P18-B3-03",
+  "next_action": "用户审查 P18-B3-01 与 P18-B3-03",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -3010,14 +3011,32 @@
   "pdm_18_batch_3_status": "PENDING_USER_REVIEW",
   "pdm_18_batch_3_pending_atoms": [
     "P18-B3-01",
-    "P18-B3-02",
     "P18-B3-03"
   ],
   "pdm_18_batch_3_conflict_isolation": "PASS_MISCLASSIFIED_PRODUCT_CHOICE_0",
-  "pdm_18_batch_3_new_independent_atoms": 3,
+  "pdm_18_batch_3_new_independent_atoms": 2,
   "pdm_18_batch_4_pending_direction": {
     "id": "P18-B4-PRE-01",
     "status": "USER_DIRECTION_APPROVED_NOT_APPLIED",
     "summary": "普通 Lock 只占车不自动全客户隐藏；Priority Customer 转 Lock 时 Priority ended，但 Lock 继承原 Priority 客户侧排他可见性；Lock 结束后按当前事实重算可见性"
-  }
+  },
+  "pdm_18_batch_3_reclassified_atoms": {
+    "P18-B3-02": "WITHDRAWN_FROM_BATCH3_MOVED_TO_BATCH4"
+  },
+  "pdm_18_batch_4_pending_directions": [
+    {
+      "id": "P18-B4-PRE-01",
+      "status": "USER_DIRECTION_APPROVED_NOT_APPLIED",
+      "summary": "普通 Lock 只占车不自动全客户隐藏；Priority Customer 转 Lock 时 Priority ended，但 Lock 继承原 Priority 客户侧排他可见性；Lock 结束后按当前事实重算可见性"
+    },
+    {
+      "id": "P18-B4-PRE-02",
+      "status": "USER_DIRECTION_APPROVED_NOT_APPLIED",
+      "summary": "同车同 listing_cycle 一笔 LockRequest 成功形成正式 Lock 后，其他仍有效 PENDING 自动转 Waitlist；按原 LockRequest.created_at 保留候补顺序；Waitlist 不占车且不自动升 Lock"
+    }
+  ],
+  "pdm_18_batch_4_conflict_pending_atoms": [
+    "P18-A06",
+    "P18-A13"
+  ]
 }
