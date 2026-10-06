@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-22（Batch 1/2/3/4 = PASS / USER_APPROVED / APPLIED；Prefinal R1 修复待用户审查）
+- 当前域：PDM-22（Batch 1～4 + R1 Repair 已 PASS / USER_APPROVED / APPLIED；Prefinal R2 PASS；Final Overview 待最终批准）
 - PDM-20 = COMPLETE / INTEGRITY_PASS
 - PDM-21 Startup Gate = PASS
 - PDM-21 核心定位 P21-R00 = USER_APPROVED / APPLIED
@@ -47,8 +47,10 @@
 - PDM-22 Batch 3 = P22-B3-01～P22-B3-09 / PASS / USER_APPROVED / APPLIED
 - PDM-22 Batch 3 Conflict Isolation = PASS / MISCLASSIFIED_PRODUCT_CHOICE=0
 - PDM-22 Batch 4 = P22-B4-01～P22-B4-08 / PASS / USER_APPROVED / APPLIED
-- PDM-22 Prefinal R1 = REPAIR_REQUIRED / NO_HARD_CONFLICT
-- PDM-22 R1 Repair = P22-LIA-01～P22-LIA-06 / PENDING_USER_REVIEW
+- PDM-22 Prefinal R1 Repair = P22-LIA-01～P22-LIA-06 / PASS / USER_APPROVED / APPLIED
+- PDM-22 Prefinal R2 = PASS / FINAL_CANDIDATE_READY
+- PDM-22 Formal Units = 58
+- PDM-22 Final Overview = 07_重建工作区/PDM-22_最终完整规则总览_待用户批准.md / PENDING_USER_FINAL_APPROVAL
 - PDM-22 completed-PDM hard conflict = 0
 - PDM-22 incoming handoff gap = 0
 - PDM-22 IA / Low-Fi / Engineering = NO_CONSTRUCTION
@@ -245,7 +247,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-22 Batch 4 已 `PASS / USER_APPROVED / APPLIED`；Prefinal R1 = `REPAIR_REQUIRED / NO_HARD_CONFLICT`。当前唯一下一步：用户审查 P22-LIA-01～P22-LIA-06。**
+> **PDM-22 Prefinal R2 已 `PASS / FINAL_CANDIDATE_READY`。当前唯一下一步：用户最终审查 / 批准 PDM-22 Final Domain Overview。**
 
 每个 PDM 必须同时执行：
 
