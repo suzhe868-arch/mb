@@ -971,4 +971,7 @@
 | PDM20-DEC-LIA-07 | PDM-20 | P20-LIA-07 | Prefinal R1 修复项已由用户“全部同意”并明确“确认执行”；具体语义以 PDM-20 工作版对应 P20-LIA-07 正文为准。 | USER_APPROVED / APPLIED；用于关闭 R1 missing/semantic/alignment/handoff gap。 | PDM-20 工作版 + 2026-10-06 用户批准与执行 | 2026-10-06 |
 | PDM20-GATE-R1-REPAIR | PDM-20 | Prefinal R1 Repair Gate | P20-LIA-01～P20-LIA-07 全部批准并执行；7/7 repair closed；PDM-20→PDM-21/22/24/25 outgoing handoff 已登记 HANDOFF_OPEN；stale carrier 已登记。 | PASS / USER_APPROVED / APPLIED；14/14 incoming 继续 HANDOFF_ACCEPTED；IA/Low-Fi/Engineering 不施工。 | PDM-20 工作版 + CROSS_PDM_HANDOFF_REGISTER | 2026-10-06 |
 | PDM20-PREFINAL-R2 | PDM-20 | Final 前完整性复核 R2 | 53 个正式规则/裁决单元完成 Source→Atom、Atom→Source、Semantic Completeness、M16 全域、Completed-PDM Invariant、Handoff Integrity、Negative Claim Proof 复核。 | PASS / FINAL_CANDIDATE_READY；missing=0；semantic gap=0；completed-PDM conflict=0；incoming gap=0；outgoing gap=0；local product choice=0。 | 07_重建工作区/PDM-20_Final前完整性复核_R2_2026-10-06.md | 2026-10-06 |
-| PDM20-FINAL-OVERVIEW | PDM-20 | Final Domain Overview | 已生成 PDM-20 最终完整规则总览，等待用户最终批准；最终批准前不发布正式 Final、不关闭 incoming、不 source backwrite、不进入 PDM-21。 | PENDING_USER_FINAL_APPROVAL。 | 07_重建工作区/PDM-20_最终完整规则总览_待用户批准.md | 2026-10-06 |
+| PDM20-FINAL-OVERVIEW | PDM-20 | Final Domain Overview | PDM-20 最终完整规则总览已获用户最终批准。 | USER_FINAL_APPROVED。 | 07_重建工作区/PDM-20_最终完整规则总览_待用户批准.md | 2026-10-06 |
+
+| PDM20-FINAL-APPROVAL | PDM-20 | Final Approval | 用户最终批准 PDM-20 Final Domain Overview。 | USER_FINAL_APPROVED。 | PDM-20 Final Domain Overview | 2026-10-06 |
+| PDM20-FINAL-CLOSEOUT | PDM-20 | Final Closeout | 用户明确确认执行 Final closeout；正式 Final、Final Integrity、incoming handoff closure 与 source backwrite 全部完成。 | COMPLETE / INTEGRITY_PASS；下一步 PDM-21 Startup Gate。 | PDM-20 Final + Final Integrity | 2026-10-06 |
