@@ -448,6 +448,18 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | HO-P16-P23-001 | PDM-23 | CRM 待办、回访提醒、未来跟进计划若需要主动提醒，其渠道、频控、DND/quiet-hours、失败/跳过/去重日志由 PDM-23 承接；通知结果不得改写 CRM Stage/Tag/Follow-up/责任事实。公海领取后的首次跟进超时若由 PDM-17 确认为提醒事件，则通知层只负责投递/日志，不自动收回 Customer、不自动重新进公海。Customer Opportunity 不逐条自动飞书；普通 Source Radar 变化不得默认升级成强通知，除非后续存在明确 allowlist Authority。 | HANDOFF_OPEN | - | YES |
 | HO-P16-P25-001 | PDM-25 | 统一审计/历史承接 PDM-16 CRM 核心事实：CRM Stage before/after/actor/time/source context；重要 Customer Tag 增删替换的可追溯变化；Shared Profile before/after；员工内部服务称呼 author/time/source/修改历史且不得覆盖旧事实；Follow-up append-only、更正/作废/无效历史；Stage/Tag 字典新增/改名/排序/启停与历史停用语义；当前 access 与公司历史事实分离；历史不可因 owner/public-pool/employee inactive 被物理删除。 | HANDOFF_OPEN | - | YES |
 ---
+
+## 12G. PDM-17 来源 handoff
+
+| handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
+|---|---|---|---|---|---|
+| HO-P17-P18-001 | PDM-18 | Lock / Waitlist 继续作为公海保护事实；PDM-18 必须保持 Customer owner 与 Lock/Waitlist 当前 responsible 分层，owner / 公海变化不得静默取消、漂移或改写既有 Lock/Waitlist；若进入公海前仍有未完成 Lock/Waitlist，必须先按对应 Authority 完成、取消或正式交接。 | HANDOFF_OPEN | - | YES |
+| HO-P17-P19-001 | PDM-19 | Transaction / Refund 在途责任继续作为公海保护事实；Customer owner / 公海变化不得静默取消、漂移或重建 Transaction/Refund 当前责任与历史；进入公海前必须先按 PDM-19 完成、取消或正式交接未完成责任。 | HANDOFF_OPEN | - | YES |
+| HO-P17-P21-001 | PDM-21 | 员工端承接公海 / 待公海真人操作投影：后台指定分配 / 人工治理为主，主动领取为保留但弱化且受 permission/config 控制；承载待公海三向处理、主动领取、批量治理、Collaboration 建立/结束/范围操作，并服从当前 owner、permission/capability、data scope、保护事实、敏感字段与并发 Guard。 | HANDOFF_OPEN | - | YES |
+| HO-P17-P22-001 | PDM-22 | PC 后台承接待公海候选条件、继续当前 owner 后重新检查周期、主动领取数量上限/频率限制、领取后首次跟进提醒时间等配置 carrier；PDM-17 只冻结“可配置”，不写死数值；配置不得把提醒升级成自动收回/自动进公海。 | HANDOFF_OPEN | - | YES |
+| HO-P17-P23-001 | PDM-23 | 通知层承接待公海与领取后首次跟进提醒的渠道、频控、DND/quiet-hours、失败/跳过/去重与日志；长期未跟进三条件候选本身不自动飞书，任何通知结果都不得改写 owner、公海状态或 Collaboration。 | HANDOFF_OPEN | - | YES |
+| HO-P17-P25-001 | PDM-25 | 统一审计/历史承接 PDM-17 核心变化：正式进入/退出公海、主动领取、后台指定分配/owner transfer、继续当前 owner 确认、Collaboration 新增/移除/scope 变化，以及 before/after/actor/time、可选 reason/note、每轮公海历史与不可物理删除语义。 | HANDOFF_OPEN | - | YES |
+---
 ## 13. Post-PDM25 IA / Low-Fi Carrier Ledger｜持续累积
 
 > 当前只登记，不施工；统一在 PDM-25 完成 + PDM-01～25 全局最终总复核 PASS 后集中对齐。
@@ -554,6 +566,8 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | PDM-16 | Source Radar“标记不适合”直接反写 PDM-12 Match Result / Rule Dictionary / Demand 条件 | CARRIER_DEFERRED |
 | PDM-16 | Consultation / Demand / Lock / Transaction 等具体业务事件自动改写 CRM Stage | CARRIER_DEFERRED |
 
+| PDM-17 | P06-05-V5-PUBLIC_POOL_ASSIGN_CONFIRM_REQUIRED.svg：旧“指定分配后还需目标销售二次确认”与 P17-A11 当前 Authority 冲突；正确语义为合法指定分配成功后目标员工立即成为唯一 owner，无二次确认主状态 | CARRIER_DEFERRED |
+
 ---
 
 ## 14. 强制使用规则
@@ -584,7 +598,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-11：COMPLETE / INTEGRITY_PASS；
 - PDM-15：COMPLETE / INTEGRITY_PASS；
 - PDM-16：COMPLETE / INTEGRITY_PASS；
-- PDM-17：Startup Gate PASS；6/6 incoming handoff = HANDOFF_ACCEPTED；当前进入 Batch 1 用户审查；
+- PDM-17：Batch 1～4 PASS；Pre-Final R1 修复执行中；6/6 incoming handoff = HANDOFF_ACCEPTED；6 条 outgoing handoff 已登记并保持 HANDOFF_OPEN；
 - PDM-12：COMPLETE / INTEGRITY_PASS；4 条 incoming handoff 全部 CLOSED 并完成 source backwrite；
 - PDM-13：COMPLETE / INTEGRITY_PASS；PDM-13→PDM-14/17/18/19/20/21/22/25 future handoff 已登记；其中 HO-P13-P14-001 已由 PDM-14 Final 正式承接并 CLOSED/source backwrite，其余目标域继续 HANDOFF_OPEN；
 - PDM-14：COMPLETE / INTEGRITY_PASS；52 个正式规则/裁决单元全部进入 Final；8 条 incoming handoff 全部 HANDOFF_CLOSED 并完成 source backwrite；outgoing HO-P14-P15/P18/P19/P20/P21/P23/P25 保持 HANDOFF_OPEN；正式 Authority=`07_重建工作区/PDM-14_最终完整规则.md`；下一步 PDM-15 Startup Gate；
