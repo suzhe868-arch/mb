@@ -1,3 +1,20 @@
+## 2026-10-06｜PDM-20 Prefinal R1 修复执行完成，R2 PASS
+
+- 用户已批准并确认执行 `P20-LIA-01～P20-LIA-07`；
+- `R1_REPAIR_CLOSED = 7 / 7`；
+- PDM-20 → PDM-21 / 22 / 24 / 25 四条 outgoing handoff 已正式登记为 `HANDOFF_OPEN`；
+- PDM-20 stale carrier 已登记，当前不施工；
+- Final 前完整性复核 R2 = `PASS / FINAL_CANDIDATE_READY`；
+- 正式规则 / 裁决单元总数 = 53；
+- missing rule = 0；
+- semantic detail gap = 0；
+- completed-PDM conflict = 0；
+- incoming handoff gap = 0；
+- outgoing handoff gap = 0；
+- 14 / 14 incoming handoff 继续 `HANDOFF_ACCEPTED`，Final closeout 前不关闭；
+- Final Overview：`07_重建工作区/PDM-20_最终完整规则总览_待用户批准.md`；
+- 当前唯一下一步：用户最终批准 PDM-20 Final Domain Overview。
+
 ## 2026-10-06｜PDM-20 Batch 4 批准执行并完成 Final 前 R1
 
 - 用户对 `P20-B4-01～P20-B4-10` 全部同意，按推荐 `1A～10A`，随后明确“确认执行”；
@@ -187,7 +204,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-20_PREFINAL_R1_REPAIR_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-20_FINAL_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -197,7 +214,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_REPAIR_REQUIRED`
+> `IN_PROGRESS / PREFINAL_R2_PASS / FINAL_REVIEW_PENDING`
 
 当前工作文件：
 
@@ -213,7 +230,7 @@
 
 当前唯一下一步：
 
-> **PDM-20 Batch 4 已按 1A～10A `PASS / USER_APPROVED / APPLIED`；Final 前完整性复核 R1 = `REPAIR_REQUIRED / NO_HARD_CONFLICT`，形成 P20-LIA-01～P20-LIA-07 七项修复候选。当前唯一下一步：用户审查这 7 项；未经批准与确认执行，不得运行 R2 或生成 Final。**
+> **PDM-20 Prefinal R1 七项修复已全部批准并执行；R2 = `PASS / FINAL_CANDIDATE_READY`，53 个正式单元完整性通过。当前唯一下一步：用户最终批准 PDM-20 Final Domain Overview；最终批准前不得发布正式 Final、关闭 incoming 或进入 PDM-21。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
