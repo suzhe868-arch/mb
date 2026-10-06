@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-18_BATCH_2_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-18_BATCH_3_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`
+> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -32,7 +32,19 @@
 
 当前唯一下一步：
 
-> **PDM-18 Batch 1 已 `PASS / USER_APPROVED / APPLIED`：P18-A01～P18-A18 共 18 条稳定规则正式进入当前工作 Authority；Batch 2 Reverse Conflict Scan = PASS，形成 6 条明确废弃 / superseded / DO_NOT_RESTORE 候选。当前唯一下一步：用户审查 P18-B2-01～P18-B2-06。**
+> **PDM-18 Batch 2 已 `PASS / USER_APPROVED / APPLIED`：P18-B2-01～P18-B2-06 正式冻结；Batch 3 扫描形成 P18-B3-01～P18-B3-03 三条后续明确新增/变更候选。刚确认的 Priority→Lock 排他可见性已登记为 Batch 4 待正式裁决方向，尚未应用。当前唯一下一步：用户审查 P18-B3-01～P18-B3-03。**
+
+## 2026-10-06｜PDM-18 Batch 2 用户批准并执行
+
+- 用户对 `P18-B2-01～P18-B2-06` 明确“全部同意”，随后以“确认指向”按既有用法授权执行；
+- `P18-B2-01～P18-B2-06 = PASS / USER_APPROVED / APPLIED`；
+- Reverse Conflict Scan = `PASS / FALSE_DEPRECATION_COUNT=0`；
+- Batch 3 扫描形成 3 条明确 later-change Atom：4S 不审批 LockRequest、LOCK_CONFLICT 后另行主动候补、名邦员工在明确 Customer+Vehicle 上下文可直接正式 Lock；
+- Batch 3 = `P18-B3-01～P18-B3-03 / PENDING_USER_REVIEW`；
+- 用户已认可“普通 Lock 与 Priority→Lock 可见性差异”方向，但仅登记为 Batch 4 pending direction，尚未应用；
+- 10 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 PDM-18 Batch 3。
 
 ## 2026-10-06｜PDM-18 Batch 1 用户批准并执行
 
