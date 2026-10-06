@@ -1,6 +1,6 @@
 # PDM-23｜通知 / 飞书 / SLA / 夜间免打扰 / Incident / 通知日志｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`  
 > 核心定位：`P23-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：10 / 10 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -584,7 +584,7 @@ P09 位于 PC / admin 区域，不代表 System Admin 身份自动获得通知�
 > **P23-B2-01～P23-B2-14 已全部批准并执行；进入 Batch 3 配置 / 路由 / 日志完整性扫描。**
 ---
 
-# 7. Batch 3｜配置 / 路由 / 日志完整性扫描｜PENDING_USER_REVIEW
+# 7. Batch 3｜配置 / 路由 / 日志完整性扫描｜PASS / USER_APPROVED / APPLIED
 
 > 本批只补已经存在于 R12 / Current P09 carrier / completed-PDM handoff 的稳定语义。  
 > 不新增通知模板中心、不新增客户消息中心、不臆造未冻结的收件人矩阵或固定告警频率。
@@ -779,11 +779,11 @@ P09 可以展示：
 
 ---
 
-# 8. Batch 3 Gate｜PENDING_USER_REVIEW
+# 8. Batch 3 Gate｜PASS
 
 当前：
 
-- `P23-B3-01～P23-B3-16 = PENDING_USER_REVIEW`
+- `P23-B3-01～P23-B3-16 = PASS / USER_APPROVED / APPLIED`
 - `SEMANTIC_COMPLETENESS_SCAN = PASS_WITH_PENDING_REVIEW`
 - `NEW_PRODUCT_CHOICE_INTRODUCED = 0`
 - `COMPLETED_PDM_HARD_CONFLICT = 0`
@@ -792,5 +792,164 @@ P09 可以展示：
 
 当前唯一下一步：
 
-> **用户审查 P23-B3-01～P23-B3-16。未经用户批准与明确执行，不进入 Batch 4 / Final-gap scan。**
+> **P23-B3-01～P23-B3-16 已全部批准并执行；进入 Batch 4 / Final-gap scan。**
+---
+
+# 9. Batch 4｜Final-gap / 产品边界扫描｜PENDING_USER_REVIEW
+
+> 结果：未发现新的 completed-PDM hard conflict；发现 1 个真实产品承载选择 + 5 个稳定收口项。  
+> 本批目标是让 PDM-23 可以进入 Final 前完整性复核，而不是扩建新的消息平台。
+
+## P23-B4-01｜是否建设“通用通知模板 / 按事件渠道矩阵”｜产品选择
+
+当前来源只明确：
+
+- allowlist；
+- employee_id ↔ 飞书接收身份；
+- SLA timeout 群告警；
+- DND；
+- incident cadence（仅已配置时）；
+- 通知日志；
+- reminder business fact 与 channel 分离。
+
+当前来源**没有**冻结：
+
+- 任意事件都可配置短信 / 微信 / 飞书 / App / PC 的通用 channel matrix；
+- 通用消息模板编辑器；
+- 按业务事件自定义标题 / 正文 / 参数模板；
+- 通用客户消息中心。
+
+### A｜推荐
+
+V1 **不建设通用通知模板中心 / 通用按事件渠道矩阵**。
+
+只保留当前已批准 carrier：
+
+- 员工飞书映射；
+- 合法群 / 路由配置；
+- DND；
+- 已批准 reminder / incident cadence；
+- allowlist；
+- 通知日志。
+
+若某业务事件未来要新增渠道，必须经过对应产品 Authority 明确批准，再由 PDM-23 承接投递。
+
+### B
+
+V1 建设统一“通知策略中心”，允许每种业务事件自行配置多个渠道、模板、频率和接收组。
+
+风险：
+
+- 会显著扩大 PDM-23 范围；
+- 容易把“提醒业务事实”与“通知渠道”重新耦合；
+- 需要新增大量当前来源没有定义的权限、模板、版本和审计语义。
+
+**推荐：1A。**
+
+## P23-B4-02｜个人通知接收人按当前业务责任事实解析｜稳定收口
+
+对“个人员工通知”：
+
+- PDM-23 不维护第二套通知 owner / assignee；
+- 按业务事件来源对象的当前合法责任事实解析目标 Employee；
+- 再读取该 employee_id 当前有效接收路由；
+- 如果来源业务域没有合法个人接收人，PDM-23 不得凭空指定一个员工。
+
+这不改变 Customer owner / Consultation assignee / Lock / Transaction responsible。
+
+**建议：2同意。**
+
+## P23-B4-03｜无合法接收路由时只形成通知结果，不改派业务责任｜稳定收口
+
+当：
+
+- Employee inactive；
+- 飞书映射缺失 / 失效；
+- 群路由未配置；
+- 当前业务事件没有合法接收人；
+
+PDM-23 可以记录 FAILED / SKIPPED / recipient unavailable 等通知事实。
+
+但不得：
+
+- 自动改 owner；
+- 自动转派 Consultation；
+- 自动 handoff Lock / Transaction；
+- 自动把业务升级给某个职位名称。
+
+真实责任交接继续走对应 completed-PDM Authority。
+
+**建议：3同意。**
+
+## P23-B4-04｜DND 不设置“紧急事件自动绕过”隐藏规则｜稳定收口
+
+当前 Authority 明确：
+
+> quiet hours 暂停主动通知，业务 / SLA / incident / 日志继续运行。
+
+因此 V1 不额外发明：
+
+- supply anomaly 自动绕过 DND；
+- Transaction 自动绕过 DND；
+- SLA timeout 自动绕过 DND；
+- “高优先级”通知无条件夜间强推。
+
+如果未来需要某事件绕过 DND：
+
+> 必须作为新的明确产品规则 / 配置获得批准。
+
+**建议：4同意。**
+
+## P23-B4-05｜DND / Notification 时间统一按业务时区解释，并交 PDM-25 收口｜稳定收口
+
+Current carrier 已使用服务端 UTC+8 业务时间语义；PDM-22 已将统一时区规范交 PDM-25。
+
+PDM-23 当前只要求：
+
+- DND 起止时间按统一业务时区解释；
+- 计划发送 / 实际发送 / event created / retry 等时间必须可比较；
+- 不由客户端本地时区随意改变 quiet-hours 判断；
+- 最终统一 timezone / timestamp / history 标准由 PDM-25 收口。
+
+**建议：5同意。**
+
+## P23-B4-06｜登记 PDM-23 → PDM-25 outgoing handoff｜稳定缺口
+
+PDM-23 应正式向 PDM-25 交接：
+
+- Notification config before / after / actor / time；
+- employee_id ↔ 飞书接收身份变更历史；
+- DND / 群路由 / incident cadence 配置历史；
+- Notification Log 的统一时间字段 / 历史检索标准；
+- 业务事件与 Notification fact 的关联审计；
+- SENT / FAILED / SKIPPED / DEDUPED / NOT_ALLOWLISTED 的统一历史查询边界；
+- 敏感字段最小化与统一 audit visibility；
+- 统一 timezone / timestamp 标准。
+
+PDM-25 负责统一审计 / 历史标准，PDM-23 不建设第二套跨域审计系统。
+
+批准并执行后登记：
+
+> `HO-P23-P25-001`
+
+**建议：6同意。**
+
+---
+
+# 10. Batch 4 Gate｜PENDING_USER_REVIEW
+
+当前：
+
+- `P23-B4-01～P23-B4-06 = PENDING_USER_REVIEW`
+- `TRUE_PRODUCT_CHOICE_COUNT = 1`
+- `STABLE_CLOSURE_COUNT = 5`
+- `RECOMMENDED_CHOICES = 1A`
+- `COMPLETED_PDM_HARD_CONFLICT = 0`
+- `INCOMING_HANDOFF_ACCEPTED = 10 / 10`
+- `OUTGOING_HANDOFF_GAP = P23_TO_P25_PENDING_APPROVAL`
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
+当前唯一下一步：
+
+> **用户审查 P23-B4-01～P23-B4-06。建议：1A、2同意、3同意、4同意、5同意、6同意。未经用户批准与明确执行，不进入 Final 前完整性复核。**
 
