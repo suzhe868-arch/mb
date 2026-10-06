@@ -1,3 +1,20 @@
+## 2026-10-06｜PDM-21 Prefinal R1 修复执行完成，R2 PASS
+
+- 用户对 `P21-LIA-01～P21-LIA-09` 全部同意，随后明确“确认执行”；
+- `P21-LIA-01～P21-LIA-09 = PASS / USER_APPROVED / APPLIED`；
+- `R1_REPAIR_CLOSED = 9 / 9`；
+- PDM-21 → PDM-23 / PDM-25 两条 outgoing handoff 已正式登记并保持 `HANDOFF_OPEN`；
+- 19 / 19 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- Final 前完整性复核 R2 = `PASS / FINAL_CANDIDATE_READY`；
+- `MISSING_RULE_UNRESOLVED = 0`；
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 0`；
+- `COMPLETED_PDM_INVARIANT_CONFLICT = 0`；
+- `INCOMING_HANDOFF_GAP = 0`；
+- `OUTGOING_HANDOFF_GAP = 0`；
+- Final Overview：`07_重建工作区/PDM-21_最终完整规则总览_待用户批准.md`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户最终批准 PDM-21 Final Domain Overview。
+
 ## 2026-10-06｜PDM-21 Batch 4 批准执行并完成 Final 前 R1
 
 - 用户裁决 `P21-B4-01～P21-B4-07 = 1A～7A`，随后明确“确认执行”；
@@ -287,7 +304,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-21_PREFINAL_R1_REPAIR_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-21_FINAL_OVERVIEW_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -297,7 +314,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_4_PASS / PREFINAL_R1_REPAIR_PENDING_USER_REVIEW`
+> `IN_PROGRESS / PREFINAL_R2_PASS / FINAL_OVERVIEW_PENDING_USER_APPROVAL`
 
 当前工作文件：
 
@@ -313,7 +330,7 @@
 
 当前唯一下一步：
 
-> **PDM-21 Batch 4 已 `PASS / USER_APPROVED / APPLIED`；Prefinal R1 = REPAIR_REQUIRED，形成 P21-LIA-01～P21-LIA-09。当前唯一下一步：用户审查 R1 修复项。**
+> **PDM-21 Prefinal R2 = `PASS / FINAL_CANDIDATE_READY`；当前唯一下一步：用户最终批准 PDM-21 Final Domain Overview。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
