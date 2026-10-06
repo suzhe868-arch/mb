@@ -1,3 +1,19 @@
+## 2026-10-07｜PDM-22 Startup Gate 通过并进入 Batch 1 审查
+
+- 用户已批准并明确“确认执行” `P22-R00`；
+- PDM-22 核心定位已补齐采集系统三个固定车源 API、名邦 Integration API 与 Collector 电话回传链路；
+- Startup Gate = `PASS`；
+- CROSS_PDM_HANDOFF_REGISTER 机械复核 target=PDM-22 = 18 条；
+- 18 / 18 incoming handoff 已由 `HANDOFF_OPEN` → `HANDOFF_ACCEPTED`；
+- completed-PDM hard conflict = 0；
+- incoming handoff gap = 0；
+- global invariant conflict = 0；
+- 旧 Recommendation 独立资格、旧 Refund 两状态、旧内部价 permission 删除、旧 Mingbang→Collector Phone API 等均已隔离为 stale，不进入 Batch 1；
+- 工作版：`07_重建工作区/PDM-22_PC后台信息架构业务管理配置归属上游运行管理_规则原子重建_工作版.md`；
+- Batch 1 候选：`P22-A01～P22-A22`，状态 `PENDING_USER_REVIEW`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 PDM-22 Batch 1。
+
 ## 2026-10-06｜PDM-21 Final 正式发布并完成 Closeout
 
 - 用户明确“最终批准确认执行”；
@@ -317,7 +333,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-22_STARTUP_GATE`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-22_BATCH_1_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -327,11 +343,11 @@
 
 当前域状态：
 
-> `STARTUP_GATE_PENDING`
+> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`
 
 当前工作文件：
 
-> `待 PDM-22 Startup Gate 建立`
+> `07_重建工作区/PDM-22_PC后台信息架构业务管理配置归属上游运行管理_规则原子重建_工作版.md`
 
 当前已纠正：
 
@@ -343,7 +359,7 @@
 
 当前唯一下一步：
 
-> **PDM-21 已 `COMPLETE / INTEGRITY_PASS`；当前唯一下一步：PDM-22 Startup Gate。**
+> **PDM-22 Startup Gate 已 `PASS`：P22-R00 已用户批准并执行，18/18 incoming handoff 已全部 `HANDOFF_ACCEPTED`，completed-PDM hard conflict=0，incoming handoff gap=0。当前唯一下一步：用户审查 PDM-22 Batch 1（P22-A01～P22-A22）。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 

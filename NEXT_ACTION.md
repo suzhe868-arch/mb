@@ -1,6 +1,6 @@
 # 名邦汽车 V1｜下一步唯一动作
 
-> 更新时间：2026-10-06
+> 更新时间：2026-10-07
 
 ## 当前状态
 
@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-22（Startup Gate 待执行）
+- 当前域：PDM-22（Startup Gate = PASS；Batch 1 待用户审查）
 - PDM-20 = COMPLETE / INTEGRITY_PASS
 - PDM-21 Startup Gate = PASS
 - PDM-21 核心定位 P21-R00 = USER_APPROVED / APPLIED
@@ -36,6 +36,14 @@
 - PDM-21 Final Integrity = `07_重建工作区/PDM-21_最终完整性复核_2026-10-06.md` / PASS
 - PDM-21 Source Backwrite = 19 / 19 DONE
 - PDM-21 Final Closeout = COMPLETE
+- PDM-22 Startup Gate = PASS
+- PDM-22 核心定位 P22-R00 = USER_APPROVED / APPLIED
+- PDM-22 incoming handoffs = 18 / 18 HANDOFF_ACCEPTED
+- PDM-22 工作版 = `07_重建工作区/PDM-22_PC后台信息架构业务管理配置归属上游运行管理_规则原子重建_工作版.md`
+- PDM-22 Batch 1 = P22-A01～P22-A22 / PENDING_USER_REVIEW
+- PDM-22 completed-PDM hard conflict = 0
+- PDM-22 incoming handoff gap = 0
+- PDM-22 IA / Low-Fi / Engineering = NO_CONSTRUCTION
 - PDM-21 Local Product Choice Unresolved = 0
 - PDM-21 Batch 3 Conflict Isolation = PASS / MISCLASSIFIED_PRODUCT_CHOICE=0
 - PDM-21 Batch 2 Reverse Conflict Scan = PASS / FALSE_DEPRECATION_COUNT=0
@@ -229,7 +237,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-21 已正式 `COMPLETE / INTEGRITY_PASS`：56 个正式规则/裁决单元进入 Final，19/19 incoming handoff CLOSED 且 source backwrite 完成，PDM-23/PDM-25 两条 outgoing handoff 保持 OPEN。当前唯一下一步：PDM-22 Startup Gate。**
+> **PDM-22 Startup Gate 已 `PASS`：P22-R00 已用户批准并执行，18/18 incoming handoff 已全部 `HANDOFF_ACCEPTED`。当前唯一下一步：用户审查 PDM-22 Batch 1（P22-A01～P22-A22）。**
 
 每个 PDM 必须同时执行：
 
