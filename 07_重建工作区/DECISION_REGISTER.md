@@ -766,3 +766,4 @@
 | PDM17-DEC-B4-08 | PDM-17 | P17-B4-08 / 8A | Collaboration 只保留具体业务级与 Customer-level 两层 scope，不再造第二套权限系统。 | 用户选择 A；当前 Authority 生效。 | 2026-10-06 用户 1A～9A 并确认执行 | 2026-10-06 |
 | PDM17-DEC-B4-09 | PDM-17 | P17-B4-09 / 9A | 普通 claimant 领取前只看最小必要摘要；手机号等敏感字段默认隐藏。 | 用户选择 A；当前 Authority 生效。 | 2026-10-06 用户 1A～9A 并确认执行 | 2026-10-06 |
 | PDM17-GATE-B4 | PDM-17 | Batch 4 Gate | P17-B4-01～P17-B4-09 全部按 A 批准并执行；Local Product Choice Unresolved=0。 | 允许进入 Final 前完整性复核；不代表 Final Ready。 | 2026-10-06 用户确认执行 | 2026-10-06 |
+| PDM17-PREFINAL-R1 | PDM-17 | Final前完整性复核 R1 | 结论 REPAIR_REQUIRED；发现 P17-LIA-01～P17-LIA-05。 | completed-PDM hard conflict=0；incoming handoff gap=0；Local Product Choice=0；存在语义细节、outgoing handoff 与 stale carrier 登记缺口，修复前不得进入 R2 / Final Overview。 | 07_重建工作区/PDM-17_Final前完整性复核_R1_2026-10-06.md | 2026-10-06 |
