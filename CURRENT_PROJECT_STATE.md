@@ -1,3 +1,18 @@
+## 2026-10-06｜PDM-19 Startup Gate 通过并进入 Batch 1 审查
+
+- 用户已批准并确认执行 `P19-R00`：PDM-19 是 Deposit / Transaction / Refund / 成交纠错，以及换车资金与交易收口的唯一业务 Authority；
+- Startup Gate = `PASS`；
+- target=PDM-19 的 10 条 incoming handoff 已由 `HANDOFF_OPEN` → `HANDOFF_ACCEPTED`；
+- incoming：HO-P01-P19-001 / HO-P02-P19-001 / HO-P03-P19-001 / HO-P04-P19-001 / HO-P07-P19-001 / HO-P13-P19-001 / HO-P14-P19-001 / HO-P15-P19-001 / HO-P17-P19-001 / HO-P18-P19-001；
+- completed-PDM hard conflict = 0；
+- incoming handoff gap = 0；
+- Current Authority Refresh 已覆盖 9/19 C4/R8/R12、001～078 M14、Current IA CO-O18/O19/O20 与 PDM-01/02/03/04/07/13/14/15/17/18 Final；
+- Current 中 Transaction 首次完成权限、Deposit correction、Refund closed-not-refunded 等后续细化已识别，但未偷渡进 Batch 1；
+- 工作版：`07_重建工作区/PDM-19_意向金Transaction退款成交纠错换车_规则原子重建_工作版.md`；
+- Batch 1 候选：`P19-A01～P19-A14`，状态 `PENDING_USER_REVIEW`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 PDM-19 Batch 1。
+
 ## 2026-10-06｜PDM-18 Final 正式发布并完成 Closeout
 
 - 用户最终批准 Final Domain Overview 并确认执行；
@@ -29,7 +44,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-19_STARTUP_GATE`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-19_BATCH_1_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -39,11 +54,11 @@
 
 当前域状态：
 
-> `NOT_STARTED / STARTUP_GATE_PENDING`
+> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`
 
 当前工作文件：
 
-> `07_重建工作区/PDM-18_LockRequest正式LockWaitlist延期释放_规则原子重建_工作版.md`
+> `07_重建工作区/PDM-19_意向金Transaction退款成交纠错换车_规则原子重建_工作版.md`
 
 当前已纠正：
 
@@ -55,7 +70,7 @@
 
 当前唯一下一步：
 
-> **PDM-18 已 `COMPLETE / INTEGRITY_PASS`：Final 已发布，Final Integrity PASS，10/10 incoming handoff CLOSED 并完成 source backwrite，6 条 outgoing handoff 保持 HANDOFF_OPEN。当前唯一下一步：PDM-19 Startup Gate。**
+> **PDM-19 Startup Gate 已 `PASS`：P19-R00 已用户批准并执行，target=PDM-19 的 10/10 incoming handoff 已全部 `HANDOFF_ACCEPTED`，completed-PDM hard conflict=0，incoming handoff gap=0。当前唯一下一步：用户审查 PDM-19 Batch 1（P19-A01～P19-A14）。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
