@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-19（Startup Gate 尚未执行）
+- 当前域：PDM-19（Startup Gate = PASS；Batch 1 待用户审查）
 - PDM-15 Startup Gate = PASS
 - PDM-15 incoming handoffs = 5 / 5 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-15 工作版 = `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
@@ -103,6 +103,14 @@
 - PDM-18 Final Closeout = COMPLETE
 - PDM-18 Batch 4 = P18-B4-01～P18-B4-10 / PASS / USER_APPROVED / APPLIED / CHOICES=1A～10A
 - PDM-18 Batch 4 Cross-PDM Review = PASS / COMPLETED_PDM_NO_HARD_CONFLICT
+- PDM-19 Startup Gate = PASS
+- PDM-19 核心定位 P19-R00 = USER_APPROVED / APPLIED
+- PDM-19 incoming handoffs = 10 / 10 HANDOFF_ACCEPTED
+- PDM-19 工作版 = `07_重建工作区/PDM-19_意向金Transaction退款成交纠错换车_规则原子重建_工作版.md`
+- PDM-19 Batch 1 = P19-A01～P19-A14 / PENDING_USER_REVIEW
+- PDM-19 Current Authority Refresh = PASS
+- PDM-19 completed-PDM hard conflict = 0
+- PDM-19 incoming handoff gap = 0
 - PDM-11 = COMPLETE / INTEGRITY_PASS
 - PDM-12 = COMPLETE / INTEGRITY_PASS
 - PDM-11 启动门禁 = UNBLOCKED
@@ -150,11 +158,11 @@
 
 总控工作单：
 
-> `07_重建工作区/PDM-18_LockRequest正式LockWaitlist延期释放_规则原子重建_工作版.md`
+> `07_重建工作区/PDM-19_意向金Transaction退款成交纠错换车_规则原子重建_工作版.md`
 
 ## 当前唯一下一步
 
-> **PDM-18 已正式 `COMPLETE / INTEGRITY_PASS`：43 个规则/裁决单元进入 Final，10/10 incoming handoff CLOSED 且 source backwrite 完成，6 条 outgoing handoff 保持 OPEN。当前唯一下一步：PDM-19 Startup Gate。**
+> **PDM-19 Startup Gate 已 PASS：P19-R00 已 USER_APPROVED / APPLIED，10/10 incoming handoff 已 HANDOFF_ACCEPTED。当前唯一下一步：用户审查 P19-A01～P19-A14；未经确认不得进入 Batch 2。**
 
 每个 PDM 必须同时执行：
 
@@ -208,7 +216,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-18 均已 `COMPLETE / INTEGRITY_PASS`。PDM-18 的 10 条 incoming handoff 已全部 `HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE`。当前唯一下一步为 PDM-19 Startup Gate；PDM-19 未执行 Startup Gate 前不得提前接受其 incoming handoff 或进入 Batch 1。
+当前 PDM-01～PDM-18 均已 `COMPLETE / INTEGRITY_PASS`。PDM-19 Startup Gate 已通过，target=PDM-19 的 10 条 incoming handoff 已全部 `HANDOFF_ACCEPTED`；在 PDM-19 Final / Integrity closeout 前不得提前关闭。当前唯一下一步为用户审查 PDM-19 Batch 1（P19-A01～P19-A14）。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
