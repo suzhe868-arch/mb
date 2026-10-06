@@ -1,3 +1,14 @@
+## 2026-10-07｜PDM-23 Startup Gate PASS 并进入 Batch 1
+
+- `P23-R00 = USER_APPROVED / APPLIED`；
+- PDM-23 核心定位：通知 / 飞书 / 主动提醒 / 夜间免打扰 / Incident 通知投递 / 通知日志唯一 Authority；
+- 10 / 10 incoming handoff = `HANDOFF_ACCEPTED`；
+- completed-PDM hard conflict = 0；incoming gap = 0；
+- Current P09 carrier 已读取，但不等同工程实现；
+- Batch 1 已形成：`P23-A01～P23-A20 / PENDING_USER_REVIEW`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 PDM-23 Batch 1。
+
 ## 2026-10-07｜PDM-22 Final Closeout COMPLETE
 
 - 用户已对 PDM-22 Final Domain Overview 最终批准并确认执行；
@@ -420,7 +431,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-23_STARTUP_GATE`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-23_BATCH_1_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -430,7 +441,7 @@
 
 当前域状态：
 
-> `PDM-22 COMPLETE / INTEGRITY_PASS；PDM-23 STARTUP_GATE_PENDING`
+> `PDM-22 COMPLETE / INTEGRITY_PASS；PDM-23 STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -446,7 +457,7 @@
 
 当前唯一下一步：
 
-> **PDM-22 已 `COMPLETE / INTEGRITY_PASS`。当前唯一下一步：PDM-23 Startup Gate。**
+> **PDM-23 Startup Gate 已 PASS。当前唯一下一步：用户审查 P23-A01～P23-A20。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
