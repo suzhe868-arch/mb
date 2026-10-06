@@ -1206,3 +1206,5 @@
 | PDM24-DEC-LIA-03 | PDM-24 | P24-LIA-03 | 采用 3A：当天第一次进入机会若被其他主动弹层占用，Announcement 当天不补弹；未实际展示不写已展示事实，但首次进入触达机会结束；不得关闭其他弹层后连续强制补弹。 | USER_APPROVED / APPLIED / CHOICE_3A | 2026-10-07 用户“全部同意”并“确认执行” | 2026-10-07 |
 | PDM24-DEC-LIA-04 | PDM-24 | P24-LIA-04 | Announcement 开始日期不得晚于结束日期且无效周期不得启用；Banner target 可为空，非空时保存/启用必须当前合法；后续失效则退化为纯展示并禁止点击；再启用完整重验。 | USER_APPROVED / APPLIED | 2026-10-07 用户“全部同意”并“确认执行” | 2026-10-07 |
 | PDM24-PREFINAL-R1-REPAIR | PDM-24 | Prefinal R1 Repair Gate | P24-LIA-01～P24-LIA-04 全部批准并执行；LIA-03=3A；R1 修复闭环，但尚未执行 R2。 | PASS / USER_APPROVED / APPLIED / NEXT=PDM24_PREFINAL_R2 / LOCAL_PRODUCT_CHOICE_UNRESOLVED=0 | PDM-24 工作版 + R1 报告 | 2026-10-07 |
+
+| PDM24-PREFINAL-R2 | PDM-24 | Prefinal Integrity R2 | R1 四项修复后完成 Source↔Atom、Semantic Completeness、completed-PDM invariant、handoff、negative claims 与 local choice 二次复核；PDM-20 旧详情 Banner 可选表述确认属于待 Final Closeout source backwrite 的历史尾巴。 | PASS / FINAL_CANDIDATE_READY；FORMAL_UNITS=40；MISSING_RULE=0；SEMANTIC_DETAIL_GAP=0；COMPLETED_PDM_HARD_CONFLICT=0；INCOMING/OUTGOING_GAP=0；LOCAL_PRODUCT_CHOICE=0。 | 07_重建工作区/PDM-24_Final前完整性复核_R2_2026-10-07.md | 2026-10-07 |
