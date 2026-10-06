@@ -695,7 +695,7 @@ PDM-12 已完成承接并 source backwrite：
 - 员工端具体页面交互 → PDM-21｜`HANDOFF_CLOSED`：PDM-21 Final 已正式承接员工 Vehicle Detail、source_type、一键转名邦、hidden/restore、上下架与当前状态投影；`HO-P04-P21-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - HO-P04-P22-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PC Vehicle、隐藏规则、运行管理 carrier 已由 PDM-22 Final 承接；
 - HO-P04-P22-002｜`HANDOFF_CLOSED / source_backwrite=YES`：三个固定车源同步业务 API 的启停、名邦同步 credential、调用统计与运行状态已由 PDM-22 Final 承接；
-- JYT / Supply Anomaly 相关 Incident、飞书、SLA、夜间免打扰、通知与异常日志 → PDM-23｜`HANDOFF_OPEN`；
+- JYT / Supply Anomaly 相关 Incident、飞书、SLA、夜间免打扰、通知与异常日志 → PDM-23｜`HANDOFF_CLOSED / source_backwrite=YES`：已由 `07_重建工作区/PDM-23_最终完整规则.md` 正式承接；
 - 统一审计横切规则 → PDM-25｜`HANDOFF_OPEN`。
 
 所有正式跨域 handoff 统一以：
