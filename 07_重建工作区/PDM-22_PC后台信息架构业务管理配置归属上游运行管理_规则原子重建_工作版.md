@@ -1010,27 +1010,27 @@ PDM-17 已冻结 V1 支持批量正式进公海、继续当前 owner、直接移
 - `OUTGOING_HANDOFF_GAP = 1_GROUP`
 - `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
 
-## P22-LIA-01｜P08 价格配置完整闭环｜PENDING_USER_REVIEW
+## P22-LIA-01｜P08 价格配置完整闭环｜USER_APPROVED / APPLIED
 
 补齐 JYT markup ON/OFF、阶梯加价“草稿→校验→启用→旧版保留历史”、区间无重叠/无空档/唯一命中；补齐三类车源 customer display override 的 PC carrier。继续遵守 PDM-10：markup OFF 回 upstream_list_price；4S 对 override hard DENY；名邦/4S 正常价格编辑不恢复独立“调价 action / permission”。
 
-## P22-LIA-02｜Priority qualification / TTL PC carrier 细节｜PENDING_USER_REVIEW
+## P22-LIA-02｜Priority qualification / TTL PC carrier 细节｜USER_APPROVED / APPLIED
 
 qualification 只允许单 Customer 开/关，V1 不支持批量；不与 Customer Level find-car entitlement 合并；普通 owner 不自动取得开启资格；保存重验 identity + permission/capability + data scope + object/account state；记录 before/after/actor/time，默认不额外强制 reason。PC 不得人工创建、续期、恢复或 override 单笔 Priority；TTL 24h 只影响后续新 Priority。
 
-## P22-LIA-03｜公海配置参数 carrier 边界｜PENDING_USER_REVIEW
+## P22-LIA-03｜公海配置参数 carrier 边界｜USER_APPROVED / APPLIED
 
 P06 公海配置只承载 PDM-17 已批准参数：真实客户活跃时间参数、最后一次真实 CRM Follow-up 阈值、继续当前 owner 后重新检查周期、主动领取数量/频率、领取后首次跟进提醒。不得扩成任意 Opportunity / public-pool rule engine；不得恢复固定 30 天；不得自动进公海、自动收回或自动改 owner。
 
-## P22-LIA-04｜Lock 到期提醒配置与 P23 边界｜PENDING_USER_REVIEW
+## P22-LIA-04｜Lock 到期提醒配置与 P23 边界｜USER_APPROVED / APPLIED
 
 默认正式 Lock 时长仍为 72h 当前基线、可配置；另提供“是否启用即将到期提醒 + 提前量”业务配置，不写死 30 分钟，不改变 Lock.expires_at、不制造新主状态。P22 只承载业务配置值；通知渠道、飞书、DND、频控、去重、失败日志由 PDM-23 承接。
 
-## P22-LIA-05｜Employee / System Admin PC credential 治理｜PENDING_USER_REVIEW
+## P22-LIA-05｜Employee / System Admin PC credential 治理｜USER_APPROVED / APPLIED
 
 Employee PC 登录继续绑定原 employee_id；账号全局唯一；后台设置/重置初始密码；首登强制改密；Employee 可修改自己密码。开通/禁用/重置属于 P04 Employee account governance，不改变 employee_id、role、permission、data scope 或历史；Employee inactive 后 PC 登录及旧登录态失效。System Admin 继续由 P05 使用独立 identity + 独立 credential，不复用 Employee credential。credential 治理变更进入统一审计。
 
-## P22-LIA-06｜登记 PDM-22 → PDM-23 / PDM-25 outgoing handoff｜PENDING_USER_REVIEW
+## P22-LIA-06｜登记 PDM-22 → PDM-23 / PDM-25 outgoing handoff｜USER_APPROVED / APPLIED
 
 PDM-23 承接 SLA / 首次跟进 / Lock 到期提醒的通知 allowlist、渠道、飞书、DND、频控、去重与失败日志；通知结果不得改写业务状态。
 
@@ -1038,14 +1038,55 @@ PDM-25 承接重要配置 before/after/actor/time、配置版本、统一历史/
 
 ---
 
-# 12. R1 Repair Gate｜PENDING_USER_REVIEW
+# 12. R1 Repair Gate｜PASS
 
-- `P22-LIA-01～P22-LIA-06 = PENDING_USER_REVIEW`
+- `P22-LIA-01～P22-LIA-06 = PASS / USER_APPROVED / APPLIED`
+- `R1_REPAIR_CLOSED = 6 / 6`
 - `FINAL_CANDIDATE_READY = NO`
 - `18 / 18 incoming handoff = HANDOFF_ACCEPTED`
 - `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
 
 当前唯一下一步：
 
-> **用户审查 P22-LIA-01～P22-LIA-06。批准并明确执行后，再进行 Final 前完整性复核 R2。**
+> **P22-LIA-01～P22-LIA-06 已全部批准并执行；进入 Final 前完整性复核 R2。**
+---
+
+# 13. Final 前完整性复核 R2｜PASS / FINAL_CANDIDATE_READY
+
+R2 重新核对：
+
+- 9/19 R12；
+- PDM-01～21 completed Final；
+- 18 / 18 target=PDM-22 incoming handoff；
+- P22-R00、Batch 1～4、P22-ADD-01、LIA-01～06；
+- PDM-22 → PDM-23 / PDM-25 outgoing handoff；
+- Negative / DO_NOT_RESTORE；
+- Current IA / Low-Fi stale carrier 边界。
+
+结果：
+
+- `SOURCE_TO_ATOM = PASS`
+- `ATOM_TO_SOURCE = PASS`
+- `SEMANTIC_COMPLETENESS = PASS`
+- `MISSING_RULE_UNRESOLVED = 0`
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 0`
+- `COMPLETED_PDM_INVARIANT_CONFLICT = 0`
+- `INCOMING_HANDOFF_GAP = 0`
+- `OUTGOING_HANDOFF_GAP = 0`
+- `NEGATIVE_CLAIMS_VERIFIED = PASS`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+- `PDM22_FORMAL_UNITS = 58`
+- `PDM22_FINAL_CANDIDATE_READY = YES`
+
+R2 报告：
+
+> `07_重建工作区/PDM-22_Final前完整性复核_R2_2026-10-07.md`
+
+Final Domain Overview：
+
+> `07_重建工作区/PDM-22_最终完整规则总览_待用户批准.md`
+
+当前唯一下一步：
+
+> **用户最终审查 / 批准 PDM-22 Final Domain Overview。最终批准前不得发布正式 Final、不得关闭 18 条 incoming handoff、不得 source backwrite、不得进入 PDM-23。**
 
