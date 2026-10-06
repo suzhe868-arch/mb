@@ -1,6 +1,6 @@
 # PDM-20｜客户端浏览 / 搜索 / 筛选 / 排序 / 列表 / 详情 / 收藏 / 分享 / 个人中心 / 地域｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`  
 > 核心定位：`P20-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：14 / 14 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -102,12 +102,13 @@ PDM-20 **不重新定义**：
 
 ---
 
-# 3. Batch 1｜稳定基础规则候选
+# 3. Batch 1｜稳定基础规则｜PASS / USER_APPROVED / APPLIED
 
-> 状态：`PENDING_USER_REVIEW`。  
+> 状态：`PASS / USER_APPROVED / APPLIED`。  
+> 用户裁决：`P20-A01～P20-A18 = 全部同意`；随后明确“确认执行”。  
 > 原则：只放“已在 R10 / 历史规则中稳定，且与 PDM-01～19 Final 不冲突”的客户端基础规则。
 
-## P20-A01｜PDM-20 只做 Customer Safe Projection，不反向发明业务状态
+## P20-A01｜PDM-20 只做 Customer Safe Projection，不反向发明业务状态｜USER_APPROVED / APPLIED
 
 客户端页面必须读取真实业务 Authority：
 
@@ -127,7 +128,7 @@ PDM-20 **不重新定义**：
 
 客户端文案 / CTA / 页面状态不能创造新的 Domain 主状态。
 
-## P20-A02｜首次进入直接进入客户端，不建设显式登录页
+## P20-A02｜首次进入直接进入客户端，不建设显式登录页｜USER_APPROVED / APPLIED
 
 正常首入：
 
@@ -139,7 +140,7 @@ PDM-20 **不重新定义**：
 - Customer 停用时公开浏览可继续，但受停用影响的业务/权益 mutation 暂停；
 - 身份识别失败只提供失败 + 重试，不新增传统账号密码登录页。
 
-## P20-A03｜客户端车源首页保留三来源频道，默认批发车源
+## P20-A03｜客户端车源首页保留三来源频道，默认批发车源｜USER_APPROVED / APPLIED
 
 一级来源：
 
@@ -157,7 +158,7 @@ PDM-20 **不重新定义**：
 
 机会块无真实匹配时直接隐藏，不自动放宽条件、不塞“最接近车辆”。
 
-## P20-A04｜地域默认全国，彻底废弃 700km 自动扩展
+## P20-A04｜地域默认全国，彻底废弃 700km 自动扩展｜USER_APPROVED / APPLIED
 
 - 默认地域 = 全国；
 - 定位城市只做快捷选择，不自动切换；
@@ -167,7 +168,7 @@ PDM-20 **不重新定义**：
 - 地域条件在来源切换 / 搜索 / 详情返回中保持；
 - 不恢复“定位城市 → 700km → 全国”自动扩展。
 
-## P20-A05｜客户端搜索与 PDM-12 共用确定性解析字典
+## P20-A05｜客户端搜索与 PDM-12 共用确定性解析字典｜USER_APPROVED / APPLIED
 
 搜索框不是普通字符串搜索。
 
@@ -185,7 +186,7 @@ PDM-20 **不重新定义**：
 
 车型年款解析与“首次上牌年份”筛选必须保持两个不同字段。
 
-## P20-A06｜车型与筛选语义
+## P20-A06｜车型与筛选语义｜USER_APPROVED / APPLIED
 
 车型选择 UI 可以表现为：
 
@@ -208,7 +209,7 @@ PDM-20 **不重新定义**：
 - 删除上级条件时清理依赖子条件；
 - 支持重置。
 
-## P20-A07｜排序固定七种，不恢复“综合排序”
+## P20-A07｜排序固定七种，不恢复“综合排序”｜USER_APPROVED / APPLIED
 
 排序：
 
@@ -229,7 +230,7 @@ PDM-20 **不重新定义**：
 - 未解锁数字价仍按真实客户展示价参与排序；
 - 不恢复“综合排序”。
 
-## P20-A08｜分页、刷新与查询上下文必须稳定
+## P20-A08｜分页、刷新与查询上下文必须稳定｜USER_APPROVED / APPLIED
 
 - 每页 15 台；
 - 首次 15 台，继续加载每次 +15；
@@ -238,7 +239,7 @@ PDM-20 **不重新定义**：
 - 列表 → 详情 → 返回时恢复来源 / 搜索 / 筛选 / 地域 / 排序 / 滚动位置；
 - 详情动作导致车辆不再符合列表时，只局部移除 / 更新，不重置整个列表。
 
-## P20-A09｜普通 Feed 只投影真实公开可浏览集合
+## P20-A09｜普通 Feed 只投影真实公开可浏览集合｜USER_APPROVED / APPLIED
 
 正常 Feed 不显示：
 
@@ -266,7 +267,7 @@ PDM-20 **不重新定义**：
 
 Priority protected Vehicle 不得向无关 Customer 穿透普通 Feed / 搜索 / 分享。
 
-## P20-A10｜公共“在售车源 / 今日新增”统计口径
+## P20-A10｜公共“在售车源 / 今日新增”统计口径｜USER_APPROVED / APPLIED
 
 首页公共统计：
 
@@ -279,7 +280,7 @@ Priority protected Vehicle 不得向无关 Customer 穿透普通 Feed / 搜索 /
 - 历史 Vehicle relist 不计今日新增；
 - 两个数字只展示，不可点击触发筛选。
 
-## P20-A11｜分享直达复用同一车辆详情，不建设第二套详情页
+## P20-A11｜分享直达复用同一车辆详情，不建设第二套详情页｜USER_APPROVED / APPLIED
 
 - 普通内部进入与分享直达使用同一套 Vehicle Detail；
 - 分享直达态额外提供“查看更多车源”；
@@ -288,7 +289,7 @@ Priority protected Vehicle 不得向无关 Customer 穿透普通 Feed / 搜索 /
 - 旧链接对应 Vehicle 已不可公开时，显示“当前车源不可查看” + “查看更多车源”；
 - Customer 本人若存在合法历史业务，可从自己的历史业务记录进入历史详情，而不是靠旧公开分享链接穿透。
 
-## P20-A12｜车辆详情只下发 Customer Safe 内容
+## P20-A12｜车辆详情只下发 Customer Safe 内容｜USER_APPROVED / APPLIED
 
 详情可展示：
 
@@ -319,7 +320,7 @@ Priority protected Vehicle 不得向无关 Customer 穿透普通 Feed / 搜索 /
 
 无 customer_visible 资料时整个资料模块隐藏。
 
-## P20-A13｜车辆图片统一安全序列与 4:3 交互
+## P20-A13｜车辆图片统一安全序列与 4:3 交互｜USER_APPROVED / APPLIED
 
 - 列表主图 4:3；
 - 详情轮播 4:3；
@@ -329,7 +330,7 @@ Priority protected Vehicle 不得向无关 Customer 穿透普通 Feed / 搜索 /
 - 退出全屏返回原图片位置；
 - 敏感证件不进入普通轮播。
 
-## P20-A14｜收藏是独立轻量关系，不要求手机号
+## P20-A14｜收藏是独立轻量关系，不要求手机号｜USER_APPROVED / APPLIED
 
 收藏：
 
@@ -342,7 +343,7 @@ Priority protected Vehicle 不得向无关 Customer 穿透普通 Feed / 搜索 /
 - 新 listing_cycle 的价格访问权重新判断，不继承旧 cycle price right；
 - 收藏不自动创建 Consultation / Recommendation / LockRequest。
 
-## P20-A15｜普通分享只传递安全归因，不传递业务权益
+## P20-A15｜普通分享只传递安全归因，不传递业务权益｜USER_APPROVED / APPLIED
 
 车辆详情使用微信官方分享能力。
 
@@ -372,7 +373,7 @@ Priority protected Vehicle 不得向无关 Customer 穿透普通 Feed / 搜索 /
 - 不传播 Internal Mode；
 - 旧分享再次打开必须按当前 Customer + Vehicle + listing_cycle + Priority + visibility Authority 重算。
 
-## P20-A16｜客户端价格只消费 PDM-10 Authority
+## P20-A16｜客户端价格只消费 PDM-10 Authority｜USER_APPROVED / APPLIED
 
 批发价格客户端投影严格服从 PDM-10：
 
@@ -384,7 +385,7 @@ Priority protected Vehicle 不得向无关 Customer 穿透普通 Feed / 搜索 /
 - 搜索 / 筛选 / 排序可使用真实客户展示价做服务端判断，但未授权 payload 不得泄露该数字；
 - Customer disable 时价格权益暂停，页面只投影当前真实 Authority。
 
-## P20-A17｜C02 是多对象找车工作区，不重新发明 Demand 状态
+## P20-A17｜C02 是多对象找车工作区，不重新发明 Demand 状态｜USER_APPROVED / APPLIED
 
 C02 可同时投影：
 
@@ -403,7 +404,7 @@ C02 可同时投影：
 - Customer 请求结束 Demand 时投影“结束处理中”等真实请求过程，不制造 Demand 第五主状态；
 - Recommendation 卡片进入统一 Vehicle Detail 后再走当前合法 CTA。
 
-## P20-A18｜C03「我的」只投影真实对象，不混合状态机
+## P20-A18｜C03「我的」只投影真实对象，不混合状态机｜USER_APPROVED / APPLIED
 
 客户端“我的”可承载：
 
@@ -433,11 +434,225 @@ C02 可同时投影：
 
 当前：
 
-- `P20-A01～P20-A18 = PENDING_USER_REVIEW`
+- `P20-A01～P20-A18 = PASS / USER_APPROVED / APPLIED`
 - `STABLE_RULE_CONFLICT_COUNT = 0`
 - `DUPLICATE_BUSINESS_AUTHORITY = 0`
 - `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
 
 当前唯一下一步：
 
-> **用户审查 P20-A01～P20-A18。未经用户批准与后续明确执行，不得进入 Batch 2。**
+> **P20-A01～P20-A18 已批准并执行。当前唯一下一步：用户审查 Batch 2（P20-B2-01～P20-B2-09）。未经确认不得进入 Batch 3。**
+
+---
+
+# 5. Batch 1 Gate｜PASS
+
+- 用户裁决：`P20-A01～P20-A18 = 全部同意`；
+- 执行授权：用户随后明确“确认执行”；
+- `BATCH_1 = PASS / USER_APPROVED / APPLIED`；
+- 18 条稳定基础规则已进入当前工作 Authority；
+- 14 / 14 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工。
+
+---
+
+# 6. Batch 2｜明确废弃 / Superseded / DO_NOT_RESTORE 候选
+
+> 状态：`PENDING_USER_REVIEW`。  
+> Reverse Conflict Scan：`PASS / FALSE_DEPRECATION_COUNT=0`。  
+> 原则：只登记已被 R10 后续冻结、PDM-10/13/14/15/18 等 completed Authority 明确覆盖或禁止恢复的旧客户端方向；“Current/Low-Fi 缺承载”的能力不在本批误判为废弃。
+
+## P20-B2-01｜“默认定位城市 / 700km 自动扩展”不得恢复
+
+旧客户端地域曾采用：
+
+- 默认定位城市；
+- 定位城市无结果后自动扩到周边 700km；
+- 再自动扩全国。
+
+R10 后续已明确覆盖为：
+
+> **默认全国。**
+
+当前正式口径：
+
+- 定位城市只作为用户主动选择的快捷地域条件；
+- 拒绝定位仍全国浏览；
+- 不进行自动 700km 扩展；
+- 不因结果少而偷偷扩大地域。
+
+因此：
+
+> **默认定位城市 + 700km 自动扩展 = SUPERSEDED / DO_NOT_RESTORE。**
+
+## P20-B2-02｜“综合排序”不得恢复
+
+R10 已明确删除：
+
+> **综合排序**
+
+当前客户端排序使用明确、可解释的排序条件：
+
+- 最新上架；
+- 价格升/降；
+- 首次上牌年份升/降；
+- 里程升/降。
+
+不得重新增加一个含义不透明、可以偷偷混入权重的“综合排序”。
+
+因此：
+
+> **综合排序 = DO_NOT_RESTORE。**
+
+## P20-B2-03｜旧“我要这辆车”合并咨询 + 锁车语义不得恢复
+
+旧客户端曾用一个：
+
+> **“我要这辆车”**
+
+同时承载咨询 / 购车意向 / 锁车等多种语义。
+
+PDM-15 / PDM-18 已明确拆分：
+
+- 沟通车辆 → Consultation / “咨询”；
+- 锁车 → LockRequest / Lock；
+- Recommendation → Employee 正式推荐。
+
+因此客户端不得重新用一个按钮同时创建 / 触发多类正式业务对象。
+
+> **旧“我要这辆车”混合入口 = SUPERSEDED / DO_NOT_RESTORE。**
+
+## P20-B2-04｜Consultation `CANCELLED` 第五主状态不得恢复
+
+PDM-15 正式 Consultation 主状态只有：
+
+- pending；
+- processing；
+- resolved；
+- invalid。
+
+客户撤回 / 正常关闭：
+
+> `resolved + close_reason`
+
+客户端可以显示“已取消 / 已撤回 / 已关闭”等文案，但：
+
+> **UI 文案不得反向创造 `CANCELLED` 第五 Domain 主状态。**
+
+因此 Current/Low-Fi 若仍保留 CANCELLED carrier，只能作为 stale display carrier 后续对齐。
+
+## P20-B2-05｜Priority 自动授客户详情 visibility / 客户端暴露 Priority 内部术语不得恢复
+
+PDM-13 已明确禁止：
+
+- Priority 自动给 Customer 详情 visibility；
+- 客户端暴露 Priority / 优先保护 / 客户专属 / 内部仲裁等术语。
+
+Priority Customer 本人也不能仅凭 Priority 就自动打开详情；必须读取 Recommendation / visibility grant / 当前合法访问 Authority。
+
+因此：
+
+> **“有 Priority = 客户天然可看详情”与“客户端展示 Priority 内部身份”均 = DO_NOT_RESTORE。**
+
+## P20-B2-06｜LIMITED 客户“进入详情后再点一次查看价格”不得恢复
+
+PDM-10 已明确取消：
+
+> **进入详情后再次点击“查看价格”才解锁 / 扣额**
+
+当前 LIMITED 客户：
+
+- 真实主动进入批发车详情；
+- Guard 合法；
+- 有数字客户价；
+- 有 quota / 免费权；
+
+则按 PDM-10 自动完成本周期首次价格解锁。
+
+客户端不得恢复二次点击为强制主流程，也不得借“预加载”偷扣 quota。
+
+因此旧二次查看价流程：
+
+> `SUPERSEDED / DO_NOT_RESTORE`
+
+## P20-B2-07｜普通分享固定 TTL / 权限继承链 / 第二套 Share Detail 不得恢复
+
+PDM-14 已明确：
+
+- 普通 Vehicle share link **无固定 N 天 TTL**；
+- 再转发不继承上一 Customer 的 Recommendation / price-right / visibility / Internal Mode；
+- 普通 share 不创建 Recommendation；
+- share 不能改变已有 owner；
+- SHARE_DIRECT 使用统一 Vehicle Detail，不建立第二套 Share Detail 业务状态机。
+
+因此以下旧方向均不得恢复：
+
+- 普通分享固定 3 天 / 7 天 / N 天过期；
+- A 分享给 B 后 B 继承 A 的查价权 / visibility / Recommendation；
+- 分享页维护独立的业务状态机；
+- 旧 share link 穿透 hidden / Priority / offline / sold。
+
+## P20-B2-08｜Waitlist 客户端保证性排名 / 自动晋升不得恢复
+
+PDM-18 已明确：
+
+- Waitlist 内部可以有稳定处理顺序；
+- 但不代表“第几名就一定获得下一笔 Lock”；
+- 原占用 Lock release/expiry/cancel 后，不自动把下一位升级成 Lock；
+- V1 客户端不展示保证性“第1名 / 第2名”。
+
+因此客户端不得恢复：
+
+- “你排第 N 名”作为保证承诺；
+- 候补按排名自动晋升锁车；
+- 候补顺序直接等同正式 Lock 优先权。
+
+> **保证性排名 / 自动晋升 = DO_NOT_RESTORE。**
+
+## P20-B2-09｜LockRequest 客户端主动撤回 / 独立申请进度详情页不得恢复
+
+PDM-18 已冻结 V1 边界：
+
+- 客户端不提供 LockRequest 主动 cancel / withdraw；
+- 不建设独立 LockRequest 申请进度详情页；
+- 当前页面 / “我的”只投影真实申请结果与 Lock / Waitlist 状态。
+
+因此旧方向：
+
+- 客户在独立“锁车申请详情”里主动撤回 pending LockRequest；
+- 为 LockRequest 单独建设一套完整进度中心；
+
+当前均：
+
+> **DO_NOT_RESTORE。**
+
+这不影响客户端在“我的”里看到必要的真实结果摘要。
+
+---
+
+## 6.1 Reverse Conflict Scan
+
+本轮没有把以下有效能力误判为废弃：
+
+- 客户端定位权限本身；
+- 用户主动选择城市；
+- 七种明确排序；
+- Search / Rule Dictionary；
+- 分享功能；
+- “查看更多车源”；
+- Consultation 客户撤回这个真实动作；
+- Priority 排他业务本身；
+- LIMITED 查价权益本身；
+- Waitlist 当前/历史展示；
+- LockRequest 创建与结果投影；
+- Customer Safe historical detail；
+- 我的推荐 / 我的咨询 / 我的锁车候补 / 我的交易。
+
+因此：
+
+- `FALSE_DEPRECATION_COUNT = 0`
+- `BATCH_2_CONFLICT_SCAN = PASS`
+
+当前唯一下一步：
+
+> **用户审查 P20-B2-01～P20-B2-09。未经用户批准与后续明确执行，不得进入 Batch 3。**
