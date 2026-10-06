@@ -313,7 +313,7 @@ Demand 未填预算时“价格咨询”可继续 Matching；但客户端明确�
 - PDM-18｜`HANDOFF_CLOSED`：PDM-18 Final 已正式承接 active Lock 与 Matching 分层：底层真实可售 Vehicle 仍可产生带“已锁/占用”事实的 Match Result，但不得绕过单车唯一 active Lock；其他客户后续 LockRequest / Waitlist / Lock 行为由 PDM-18 当前 Authority 决定；`HO-P12-P18-001 = HANDOFF_CLOSED / source_backwrite=YES`。
 - PDM-20｜`HANDOFF_CLOSED`：搜索共用 parser/dictionary、车型年款与上牌年份分离、数字价格区间排除价格咨询，以及六类 auto-Matching 排除字段仍可作为合法客户端筛选项，均已由 PDM-20 Final 正式承接；`HO-P12-P20-001 = HANDOFF_CLOSED / source_backwrite=YES`。
 - PDM-21｜`HANDOFF_CLOSED`：PDM-21 Final 已正式承接销售匹配描述→deterministic parse→standard conditions→Matching/recalculation→four-tier result→explanation→confirmation，并补齐 stale/recalc failed/retry 安全投影；`HO-P12-P21-001 = HANDOFF_CLOSED / source_backwrite=YES`。
-- PDM-22：承载真实 P06-10 Rule Dictionary 的 Action、permission、scope、test、history、PARTIAL_FAILURE、retry。
+- PDM-22｜`HANDOFF_CLOSED / source_backwrite=YES`：真实 Rule Dictionary 的 Action、permission、scope、test、history、PARTIAL_FAILURE、retry 已由 PDM-22 Final 承接。
 - PDM-25：统一审计 Rule before/after、actor、time、scope、Match Result 历史、explanation、stale invalidation、retry、confirmation actor、provenance、confirmation 前后结果。
 
 ---
@@ -370,3 +370,5 @@ incoming handoff 已全部关闭并完成 source backwrite。
 > **PDM-13｜Priority / 仲裁 / TTL / active Lock 边界**
 
 IA / Low-Fi / Engineering 继续禁止提前施工。
+
+> 2026-10-07 Source Backwrite：对应 PDM-22 handoff 已由 `07_重建工作区/PDM-22_最终完整规则.md` 正式承接；以 CROSS_PDM_HANDOFF_REGISTER 的 `HANDOFF_CLOSED / source_backwrite=YES` 为准。
