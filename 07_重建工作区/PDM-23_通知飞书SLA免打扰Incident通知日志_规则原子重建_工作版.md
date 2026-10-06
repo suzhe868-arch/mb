@@ -953,3 +953,50 @@ PDM-25 负责统一审计 / 历史标准，PDM-23 不建设第二套跨域审计
 
 > **用户审查 P23-B4-01～P23-B4-06。建议：1A、2同意、3同意、4同意、5同意、6同意。未经用户批准与明确执行，不进入 Final 前完整性复核。**
 
+
+---
+
+# 11. 窗口切换冻结点｜2026-10-07
+
+> 当前对话上下文接近上限。用户明确要求：先把现有仓库内容 + 本窗口新增讨论全部保存，再切换窗口继续；**不是现在批准或执行 Batch 4**。
+
+## 当前正式状态
+
+- Startup Gate = PASS；
+- Batch 1 = PASS / USER_APPROVED / APPLIED；
+- Batch 2 = PASS / USER_APPROVED / APPLIED；
+- Batch 3 = PASS / USER_APPROVED / APPLIED；
+- 原 P23-B4-01～P23-B4-06 继续完整保留，但仅为旧版 Batch 4 草案；
+- 原 Batch 4 尚未 USER_APPROVED / APPLIED；
+- 不进入 Prefinal Integrity。
+
+## 本窗口新发现但尚未裁决的内容
+
+必须带到下一窗口重新扫描：
+
+- 客户侧 V1 应核实微信小程序实际允许的订阅消息 / 服务通知能力，而不是按原生 App Push 处理；
+- PC 主动通知 V1 暂不考虑；
+- 未来独立 App Push 仅预留扩展，不实施；
+- 员工飞书通知需重新核对多层开关：
+  - 公司飞书渠道总开关；
+  - 员工个人飞书业务提醒开关；
+  - 飞书业务总群 / 群告警开关；
+  - 员工级“其 SLA 超时是否进入飞书总群通告”开关；
+- 用户明确回忆“员工级总群超时通告开关”历史上曾讨论，但本窗口对当前仓库关键词反查未找到明确固化规则，因此只能标记：
+  `CONVERSATION_RECOVERED_CANDIDATE / HISTORICAL_RESCAN_REQUIRED / NOT_APPROVED / NOT_APPLIED`；
+- 已执行 P23-B3-16 不撤销；未来若明确批准微信小程序订阅消息，则该批准构成新的明确 Authority，同时仍不建设通用客户消息中心。
+
+## Batch 4 当前门禁状态
+
+> `BATCH_4_REVIEW_SUSPENDED / REBUILD_REQUIRED_AFTER_HISTORICAL_RESCAN`
+
+下一窗口不得直接批准旧 P23-B4-01～P23-B4-06，也不得直接把上述新讨论写成正式规则。
+
+必须先读取：
+
+- `07_重建工作区/PDM-23_窗口切换交接_2026-10-07.md`
+- 本工作版；
+- PROJECT_STATE / CURRENT_PROJECT_STATE / NEXT_ACTION；
+- CROSS_PDM_HANDOFF_REGISTER；
+
+然后重扫微信 / 飞书 / 总群 / SLA timeout / 员工级总群豁免 / DND / Incident / Notification Config 历史，再重新生成完整 Batch 4 交用户裁决。
