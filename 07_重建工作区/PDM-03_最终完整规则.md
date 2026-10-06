@@ -406,7 +406,7 @@ PDM-02 的以下规则继续有效：
 - Waitlist / Lock 负责人状态机 → PDM-18｜`HANDOFF_CLOSED`：PDM-18 Final 已正式承接 Lock/Waitlist responsible 与 Customer owner 分层，普通 owner 变化不自动漂移业务负责人，inactive/离职/失去资格必须正式 handoff 并保留历史；`HO-P03-P18-001 = HANDOFF_CLOSED / source_backwrite=YES`。
 - Transaction / Refund 负责人状态机 → PDM-19｜`HANDOFF_CLOSED`：PDM-19 Final 已正式承接 Transaction responsible 与 Customer owner 分层、owner 变化不自动漂移 Transaction responsible、失效/离职需正式 handoff；Refund 不另设永久 responsible，只保留真实 initiator/operator/actor；`HO-P03-P19-001 = HANDOFF_CLOSED / source_backwrite=YES`。
 - 客户端分享入口、分享页、直接转介绍 / 推荐朋友入口、交互和视觉 → PDM-20｜`HANDOFF_CLOSED`：PDM-20 Final 已正式承接 ownerless 新 Customer 的分享/转介绍归属、已有 owner 不被抢、推荐朋友入口、Share Direct 与 Customer Safe Projection；`HO-P03-P20-001 = HANDOFF_CLOSED / source_backwrite=YES`。
-- 员工端分享入口与交互 → PDM-21。
+- 员工端分享入口与交互 → PDM-21｜`HANDOFF_CLOSED`：PDM-21 Final 已正式承接员工车辆分享入口、安全归因、不得传播 Internal Mode/内部价/电话及 owner 继续服从 PDM-03；`HO-P03-P21-001 = HANDOFF_CLOSED / source_backwrite=YES`。
 - 审计字段统一标准 → PDM-25。
 
 ### 18.3 IA / Low-Fi stale carrier 处理
