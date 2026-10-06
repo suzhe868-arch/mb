@@ -1,3 +1,20 @@
+## 2026-10-06｜PDM-21 Startup Gate 通过并进入 Batch 1 审查
+
+- 用户已批准并确认执行 `P21-R00`：PDM-21 是员工端产品体验、工作台编排与 Employee Action Projection 的唯一 Authority；
+- Startup Gate = `PASS`；
+- CROSS_PDM_HANDOFF_REGISTER 机械复核确认 target=PDM-21 **实际为 19 条**；
+- 19 / 19 incoming handoff 已由 `HANDOFF_OPEN` → `HANDOFF_ACCEPTED`；
+- incoming：HO-P02/P03/P04/P05/P06/P07/P08/P09/P10/P11/P12/P13/P14/P15/P16/P17/P18/P19/P20 → PDM-21；
+- completed-PDM hard conflict = 0；
+- incoming handoff gap = 0；
+- global invariant conflict = 0；
+- Current Authority Refresh 已覆盖 9/19 R10/R11、001～078 M15/M17、Current IA/Low-Fi 与 PDM-01～20 Final；
+- 旧内部价权限语义、4S Internal Mode 整体 DENY、一键转名邦独立 permission、旧“我要这辆车”工作台、CRM 直接锁车等已识别为后续冲突/替代项，未偷渡进 Batch 1；
+- 工作版：`07_重建工作区/PDM-21_员工工作台车辆列表客户中心内部模式敏感动作裁剪_规则原子重建_工作版.md`；
+- Batch 1 候选：`P21-A01～P21-A20`，状态 `PENDING_USER_REVIEW`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 PDM-21 Batch 1。
+
 ## 2026-10-06｜PDM-20 Final 正式发布并完成 Closeout
 
 - 用户最终批准 PDM-20 Final Domain Overview，并明确确认执行；
@@ -217,7 +234,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-21_STARTUP_GATE`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-21_BATCH_1_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -227,11 +244,11 @@
 
 当前域状态：
 
-> `NOT_STARTED / STARTUP_GATE_PENDING`
+> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`
 
 当前工作文件：
 
-> 尚未建立；PDM-21 Startup Gate 待执行。
+> `07_重建工作区/PDM-21_员工工作台车辆列表客户中心内部模式敏感动作裁剪_规则原子重建_工作版.md`
 
 当前已纠正：
 
@@ -243,7 +260,7 @@
 
 当前唯一下一步：
 
-> **PDM-20 已 `COMPLETE / INTEGRITY_PASS`：53 个正式单元进入 Final，14/14 incoming handoff CLOSED 且 source backwrite 完成，4 条 outgoing handoff 保持 OPEN。当前唯一下一步：PDM-21 Startup Gate。**
+> **PDM-21 Startup Gate 已 `PASS`：P21-R00 已用户批准并执行，19/19 incoming handoff 已全部 `HANDOFF_ACCEPTED`，completed-PDM hard conflict=0，incoming handoff gap=0。当前唯一下一步：用户审查 PDM-21 Batch 1（P21-A01～P21-A20）。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
