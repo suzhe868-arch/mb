@@ -1,3 +1,17 @@
+## 2026-10-06｜PDM-19 Batch 4 批准执行并完成 Final 前 R1
+
+- 用户裁决 `1A～11A`，随后明确“确认执行”；
+- `P19-B4-01～P19-B4-11 = PASS / USER_APPROVED / APPLIED`；
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- B3-03 与 B4-01/B4-09 已统一为：pending Refund 不再退款时直接 close + 原因，不新增专门 close permission；
+- Final 前完整性复核 R1 已完成：`REPAIR_REQUIRED / NO_HARD_CONFLICT`；
+- 报告：`07_重建工作区/PDM-19_Final前完整性复核_R1_2026-10-06.md`；
+- 形成 `P19-LIA-01～P19-LIA-06` 六项修复候选；
+- 10 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- outgoing handoff 待 LIA-06 用户批准后正式登记；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 P19-LIA-01～P19-LIA-06。
+
 ## 2026-10-06｜PDM-19 Batch 3 用户批准并执行
 
 - 用户对 `P19-B3-01～P19-B3-03` 全部同意，随后明确“确认执行”；
@@ -79,7 +93,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-19_BATCH_4_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-19_PREFINAL_R1_REPAIR_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -89,7 +103,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`
+> `IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_REPAIR_REQUIRED`
 
 当前工作文件：
 
@@ -105,7 +119,7 @@
 
 当前唯一下一步：
 
-> **PDM-19 Batch 3 已 `PASS / USER_APPROVED / APPLIED`：P19-B3-01～P19-B3-03 已正式进入当前 Authority，其中 B3-03 按用户简化口径修订。Batch 4 已形成 P19-B4-01～P19-B4-11 十一项冲突/遗漏/缺口/新选择候选。当前唯一下一步：用户审查 PDM-19 Batch 4。**
+> **PDM-19 Batch 4 已按 1A～11A `PASS / USER_APPROVED / APPLIED`；Final 前完整性复核 R1 = `REPAIR_REQUIRED / NO_HARD_CONFLICT`，形成 P19-LIA-01～P19-LIA-06 六项修复候选。当前唯一下一步：用户审查这 6 项；未经确认不得运行 R2 或生成 Final。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
