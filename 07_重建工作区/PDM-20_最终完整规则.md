@@ -1077,7 +1077,7 @@ Share / external direct、没有有效上一页：
 
 ### Outgoing｜保持 HANDOFF_OPEN
 
-- HO-P20-P21-001；
+- HO-P20-P21-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-21 Final 已正式承接 Employee Vehicle Feed / Detail 的 occupancy `trading > locked`、客户/资金敏感字段裁剪与员工文案边界；
 - HO-P20-P22-001；
 - HO-P20-P24-001；
 - HO-P20-P25-001。
@@ -1130,7 +1130,7 @@ R2：
 - Final Integrity：`PASS`；
 - 53 个正式规则 / 用户裁决单元全部进入 Final；
 - 14 / 14 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
-- PDM-20 → PDM-21 / PDM-22 / PDM-24 / PDM-25 共 4 条 outgoing handoff：继续 `HANDOFF_OPEN`；
+- PDM-20 → PDM-21 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-22 / PDM-24 / PDM-25 共 3 条 outgoing handoff 继续 `HANDOFF_OPEN`；
 - PDM-20：`COMPLETE / INTEGRITY_PASS`；
 - IA / Low-Fi / Engineering 继续禁止提前施工；
 - 下一步：`PDM-21 Startup Gate`。
