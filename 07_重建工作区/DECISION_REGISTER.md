@@ -845,3 +845,5 @@
 | PDM18-FINAL-OVERVIEW-CANDIDATE | PDM-18 | Final Domain Overview | 已生成 PDM-18 最终完整规则总览候选，当前仅等待用户最终批准。 | 批准前不得发布 Final、关闭 incoming handoff、source backwrite 或进入 PDM-19。 | 07_重建工作区/PDM-18_最终完整规则总览_待用户批准.md | 2026-10-06 |
 
 | PDM18-FINAL-APPROVAL | PDM-18 | Final Domain Overview | 用户对 PDM-18 最终完整规则总览明确“同意”，视为最终批准。 | USER_FINAL_APPROVED；仅记录最终产品批准，等待后续明确执行授权后才允许 Final closeout、关闭 incoming handoff、source backwrite 或进入 PDM-19。 | 2026-10-06 用户“同意” | 2026-10-06 |
+
+| PDM18-FINAL-CLOSEOUT | PDM-18 | Final Closeout | 用户在 Final Overview 最终批准后明确确认执行；正式发布 PDM-18 Final，Final Integrity PASS；10/10 incoming handoff CLOSED 且 10/10 source backwrite DONE；6 条 outgoing handoff 保持 OPEN。 | PDM-18 = COMPLETE / INTEGRITY_PASS；下一步 PDM-19 Startup Gate。 | PDM-18 Final + Final Integrity + Handoff Register | 2026-10-06 |
