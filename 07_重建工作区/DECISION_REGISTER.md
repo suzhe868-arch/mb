@@ -1147,3 +1147,6 @@
 | PDM23-DEC-LIA-03 | PDM-23 | P23-LIA-03 | 持续 active Incident 可按已配置 cadence 重复告警，是普通一次通知原则的例外；仍服从 DND；真实恢复后停止；不恢复历史固定 2/5/15 分钟默认。 | USER_APPROVED / APPLIED | 2026-10-07 用户“全部同意”并“确认执行” | 2026-10-07 |
 | PDM23-DEC-LIA-04 | PDM-23 | P23-LIA-04 | 微信小程序订阅消息“保留接入能力”不等于当前启用；无明确 customer-WeChat allowlist + 合法平台能力/模板 + 用户授权前不得自动发送。 | USER_APPROVED / APPLIED | 2026-10-07 用户“全部同意”并“确认执行” | 2026-10-07 |
 | PDM23-PREFINAL-R2 | PDM-23 | Prefinal Integrity R2 | R1 四项修复全部闭环；65 个正式规则/裁决单元完成 Source↔Atom、Semantic Completeness、handoff、negative claims 与 completed-PDM invariant 复核。 | PASS / FINAL_CANDIDATE_READY；MISSING_RULE=0；SEMANTIC_DETAIL_GAP=0；completed-PDM conflict=0；incoming/outgoing gap=0；local choice=0。 | PDM-23 R2 报告 | 2026-10-07 |
+
+| PDM23-FINAL-OVERVIEW | PDM-23 | Final Domain Overview | 用户对 PDM-23 最终完整规则总览明确“同意”。 | USER_FINAL_APPROVED；65 个正式规则/裁决单元具备发布 Final 条件。 | 07_重建工作区/PDM-23_最终完整规则总览_待用户批准.md + 用户最终批准 | 2026-10-07 |
+| PDM23-FINAL-CLOSEOUT | PDM-23 | Final Closeout | 用户随后明确“确认执行”；发布正式 Final，执行 Final Integrity，关闭 10/10 incoming handoff 并完成 10/10 source backwrite。 | COMPLETE / INTEGRITY_PASS；Final=07_重建工作区/PDM-23_最终完整规则.md；Final Integrity=07_重建工作区/PDM-23_最终完整性复核_2026-10-07.md / PASS；HO-P23-P25-001 继续 HANDOFF_OPEN。 | PDM-23 Final + CROSS_PDM_HANDOFF_REGISTER + source PDM Finals | 2026-10-07 |
