@@ -515,7 +515,7 @@ V1 换车：
 
 - HO-P19-P20-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-20 Final 已正式承接“我的交易”/Deposit/Refund Customer Safe Projection、Transaction/Refund 状态、correction/change-car 历史与 Demand/Consultation 不反写边界；
 - HO-P19-P21-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-21 Final 已正式承接 Deposit/Transaction/Refund/correction 员工端 Action Contract、supply anomaly、responsible handoff 与 Employee Vehicle Feed 安全裁剪；
-- HO-P19-P22-001；
+- HO-P19-P22-001｜`HANDOFF_CLOSED / source_backwrite=YES`：Deposit / Transaction / Refund / correction PC 业务管理与 Dashboard 统计已由 PDM-22 Final 承接；
 - HO-P19-P23-001；
 - HO-P19-P25-001。
 
@@ -555,7 +555,7 @@ R2：
 - Final Integrity：`PASS`；
 - 41 个正式规则 / 用户裁决单元全部进入 Final；
 - 10 / 10 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
-- HO-P19-P20-001 与 HO-P19-P21-001 已 `HANDOFF_CLOSED / source_backwrite=YES`；其余 PDM-22 / PDM-23 / PDM-25 共 3 条 outgoing handoff 继续 `HANDOFF_OPEN`；
+- HO-P19-P20-001 与 HO-P19-P21-001 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-22 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-23 / PDM-25 继续 `HANDOFF_OPEN`；
 - PDM-19：`COMPLETE / INTEGRITY_PASS`；
 - IA / Low-Fi / Engineering 继续禁止提前施工；
 - 下一步：`PDM-20 Startup Gate`。
@@ -563,3 +563,5 @@ R2：
 当前唯一下一步：
 
 > **PDM-20 Startup Gate。**
+
+> 2026-10-07 Source Backwrite：对应 PDM-22 handoff 已由 `07_重建工作区/PDM-22_最终完整规则.md` 正式承接；以 CROSS_PDM_HANDOFF_REGISTER 的 `HANDOFF_CLOSED / source_backwrite=YES` 为准。
