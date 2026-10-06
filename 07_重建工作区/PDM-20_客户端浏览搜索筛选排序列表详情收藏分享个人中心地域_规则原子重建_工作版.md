@@ -1,6 +1,6 @@
 # PDM-20｜客户端浏览 / 搜索 / 筛选 / 排序 / 列表 / 详情 / 收藏 / 分享 / 个人中心 / 地域｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_REPAIR_REQUIRED`  
+> 当前状态：`IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R2_PASS / FINAL_REVIEW_PENDING`  
 > 核心定位：`P20-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：14 / 14 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -1321,7 +1321,7 @@ Customer 已填写找车表单后，提交时因无手机号触发统一手机�
 
 本轮 Source→Atom / Atom→Source / Incoming Handoff / Semantic Detail / M16 全域 / Negative Claim / Cross-PDM 扫描发现 7 组 Final 前补齐项。
 
-## P20-LIA-01｜Vehicle 时间字段客户端标签必须分离
+## P20-LIA-01｜Vehicle 时间字段客户端标签必须分离｜USER_APPROVED / APPLIED
 
 PDM-04 已明确把以下时间事实分开：
 
@@ -1341,7 +1341,7 @@ PDM-04 已明确把以下时间事实分开：
 
 本条补齐 `HO-P04-P20-001` 中尚未显式承接的时间展示语义。
 
-## P20-LIA-02｜DAILY_PRICE_QUOTA_EXHAUSTED 的客户端提示必须完整
+## P20-LIA-02｜DAILY_PRICE_QUOTA_EXHAUSTED 的客户端提示必须完整｜USER_APPROVED / APPLIED
 
 P20-A16 / B4-10 已承接 `--万` 与“价格咨询”的区分，但 `HO-P10-P20-001` 还要求完整权益提示。
 
@@ -1358,7 +1358,7 @@ LIMITED Customer 当前 cycle 未解锁、存在合法数字价、但当日 quot
 - Customer disable 时价格权益暂停，页面不得用旧缓存继续显示本不应显示的数字价；
 - `--万` 只代表“有数字价但当前 quota exhausted”，车辆本身无数字价仍为“价格咨询”。
 
-## P20-LIA-03｜Customer disable 的客户端跨对象投影必须形成一张统一矩阵
+## P20-LIA-03｜Customer disable 的客户端跨对象投影必须形成一张统一矩阵｜USER_APPROVED / APPLIED
 
 当前各 completed PDM 已分别冻结 disable 语义，PDM-20 Final 必须统一投影：
 
@@ -1394,7 +1394,7 @@ LIMITED Customer 当前 cycle 未解锁、存在合法数字价、但当日 quot
 
 本条补齐 `HO-P01-P20-001`、`HO-P10-P20-001`、`HO-P11-P20-001`、`HO-P15-P20-001` 的共同客户端 Guard。
 
-## P20-LIA-04｜Search / Filter 与六类 auto-Matching 排除字段必须显式解耦
+## P20-LIA-04｜Search / Filter 与六类 auto-Matching 排除字段必须显式解耦｜USER_APPROVED / APPLIED
 
 PDM-12 已明确：
 
@@ -1411,7 +1411,7 @@ PDM-20 必须冻结：
 
 本条不强制新增一套复杂筛选页，只补“客户端可筛选 ≠ 自动 Matching 条件”的边界。
 
-## P20-LIA-05｜Announcement / Banner 客户端投影必须正式承接，运营 Authority 留 PDM-24
+## P20-LIA-05｜Announcement / Banner 客户端投影必须正式承接，运营 Authority 留 PDM-24｜USER_APPROVED / APPLIED
 
 R10 明确保留客户端公告与 Banner，但 PDM-20 Batch 1～4 尚未完整写入。
 
@@ -1454,7 +1454,7 @@ PDM-20 只冻结：
 
 公告/Banner 创建、编辑、启停、Schedule、Placement、后台排序与运营管理仍由 **PDM-24** 承接。
 
-## P20-LIA-06｜PDM-19 客户交易资金投影补齐 correction / 换车 / 跨对象负向边界
+## P20-LIA-06｜PDM-19 客户交易资金投影补齐 correction / 换车 / 跨对象负向边界｜USER_APPROVED / APPLIED
 
 `HO-P19-P20-001` 不只要求 Refund `closed`。
 
@@ -1471,7 +1471,7 @@ PDM-20 只冻结：
   - 不得表现为“旧 Deposit 已直接转到新车”；
 - Customer 只能看到自己的 Deposit / Refund / Transaction 安全事实，不下发内部 correction permission / actor 治理字段 / 其他 Customer 信息。
 
-## P20-LIA-07｜Outgoing Handoff + stale carrier / Final alignment
+## P20-LIA-07｜Outgoing Handoff + stale carrier / Final alignment｜USER_APPROVED / APPLIED
 
 PDM-20 Final 前必须正式登记自身产生的 future handoff。
 
@@ -1551,4 +1551,44 @@ PDM-24 不得反向改变 PDM-20 已冻结的客户安全展示与导航边界�
 
 当前唯一下一步：
 
-> **用户审查 P20-LIA-01～P20-LIA-07。全部批准并执行后，重新运行 Final 前完整性复核 R2。**
+> **P20-LIA-01～P20-LIA-07 已全部批准并执行；Final 前完整性复核 R2 = PASS / FINAL_CANDIDATE_READY。当前唯一下一步：用户最终审查 PDM-20 Final Domain Overview。**
+
+---
+
+# 10. Final 前 R1 修复｜PASS / USER_APPROVED / APPLIED
+
+> 用户裁决：`P20-LIA-01～P20-LIA-07 = 全部同意`；随后明确“确认执行”。  
+> 状态：`PASS / USER_APPROVED / APPLIED`。
+
+## 10.1 R1 Repair Gate｜PASS
+
+- `P20-LIA-01～P20-LIA-07 = PASS / USER_APPROVED / APPLIED`；
+- `R1_REPAIR_CLOSED = 7 / 7`；
+- outgoing handoff = 4 条 `HANDOFF_OPEN`；
+- stale carrier 已登记，当前不施工；
+- 14 / 14 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工。
+
+---
+
+# 11. Final 前完整性复核 R2｜PASS
+
+> 报告：`07_重建工作区/PDM-20_Final前完整性复核_R2_2026-10-06.md`
+
+结果：
+
+- `SOURCE_TO_ATOM = PASS`
+- `ATOM_TO_SOURCE = PASS`
+- `SEMANTIC_COMPLETENESS = PASS`
+- `MISSING_RULE_UNRESOLVED = 0`
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 0`
+- `COMPLETED_PDM_INVARIANT_CONFLICT = 0`
+- `INCOMING_HANDOFF_GAP = 0`
+- `OUTGOING_HANDOFF_GAP = 0`
+- `NEGATIVE_CLAIMS_VERIFIED = PASS`
+- `PDM20_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+- `PDM20_FINAL_CANDIDATE_READY = YES`
+
+当前唯一下一步：
+
+> **用户最终审查 `07_重建工作区/PDM-20_最终完整规则总览_待用户批准.md`。最终批准前不得发布 PDM-20 Final、不得关闭 14 条 incoming handoff、不得 source backwrite、不得进入 PDM-21。**
