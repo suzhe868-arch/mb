@@ -625,7 +625,7 @@ PDM-13 输出 8 条 future handoff：
 - `HO-P13-P19-001 = HANDOFF_CLOSED / source_backwrite=YES`：PDM-19 Final 已正式承接 Transaction × Priority：in-progress Transaction 阻止新 Priority；active Priority 进入合法 Transaction 时 ended；Transaction cancel/correction 不恢复旧 Priority；Vehicle 真正重新开放后按当时 current legal Match Result 重新仲裁；
 - `HO-P13-P20-001 = HANDOFF_CLOSED / source_backwrite=YES`：PDM-20 Final 已正式承接客户端不得暴露 Priority 内部术语、active Priority/Priority-origin Lock 的普通入口排他，以及公共在售/今日新增统计排除非普通公开集合；
 - `HO-P13-P21-001 = HANDOFF_CLOSED / source_backwrite=YES`：PDM-21 Final 已正式承接员工 Priority 待处理、TTL/expires_at、Recommendation 入口、合法提前 release，并禁止人工 create/transfer/override/renew/revive；
-- `HO-P13-P22-001`：单 Customer qualification 开关与全局 TTL 默认配置；
+- `HO-P13-P22-001`｜`HANDOFF_CLOSED / source_backwrite=YES`：单 Customer qualification 开关与全局 TTL 默认配置已由 PDM-22 Final 承接；
 - `HO-P13-P25-001`：qualification/create/arbitration/TTL/tier downgrade/early release/trigger Demand/handoff/ended/re-arbitration/组合动作审计。
 
 ---
@@ -709,3 +709,5 @@ PDM13_LOCAL_DEFERRED_UNRESOLVED = 0
 > **PDM-14｜Recommendation / 单车授权 / visibility lifecycle**
 
 IA / Low-Fi / Engineering 继续禁止提前施工。
+
+> 2026-10-07 Source Backwrite：对应 PDM-22 handoff 已由 `07_重建工作区/PDM-22_最终完整规则.md` 正式承接；以 CROSS_PDM_HANDOFF_REGISTER 的 `HANDOFF_CLOSED / source_backwrite=YES` 为准。
