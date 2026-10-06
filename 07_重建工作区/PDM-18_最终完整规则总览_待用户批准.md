@@ -1,9 +1,9 @@
 # PDM-18｜最终完整规则总览｜用户已最终批准
 
 > 域：LockRequest / 正式 Lock / Waitlist / 延期 / 释放  
-> 当前状态：`USER_FINAL_APPROVED / FINAL_CLOSEOUT_PENDING_EXECUTION`  
+> 当前状态：`USER_FINAL_APPROVED / FINAL_CLOSEOUT_DONE`  
 > Final 前完整性复核：`R2 PASS / FINAL_CANDIDATE_READY`  
-> 本文件已获用户最终批准；当前仅等待再次明确执行。执行前不发布正式 Final，不关闭 incoming handoff，不执行 source backwrite，不进入 PDM-19。
+> 本文件保留 PDM-18 Final Domain Overview 最终批准留痕；用户已最终批准并确认执行，Final closeout 已完成。
 
 ## 1. 核心定位
 
@@ -565,4 +565,4 @@ R2：
 
 当前唯一下一步：
 
-> **用户已最终批准本总览。当前唯一下一步：等待明确执行 Final closeout；执行后才发布正式 PDM-18 Final、关闭 incoming handoff、完成 source backwrite 并进入 PDM-19。**
+> **PDM-18 Final closeout 已完成：正式 Final 已发布，Final Integrity PASS，10/10 incoming handoff CLOSED 且 source backwrite DONE。当前唯一下一步：PDM-19 Startup Gate。**
