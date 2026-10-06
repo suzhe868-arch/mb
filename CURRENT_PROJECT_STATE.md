@@ -1,3 +1,15 @@
+## 2026-10-06｜PDM-19 Batch 1 用户批准并执行
+
+- 用户明确“全部同意”，随后明确“确认执行”；
+- `P19-A01～P19-A14 = PASS / USER_APPROVED / APPLIED`；
+- 14 条稳定规则正式进入当前工作 Authority；
+- 10 条 incoming handoff 继续 `HANDOFF_ACCEPTED`，未提前关闭；
+- Batch 2 Reverse Conflict Scan = `PASS / FALSE_DEPRECATION_COUNT=0`；
+- Batch 2 候选：`P19-B2-01～P19-B2-06`；
+- Batch 2 只包含明确废弃 / superseded / DO_NOT_RESTORE 旧模型；Transaction 完成权限、Refund closed、责任人等未提前裁决；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 PDM-19 Batch 2。
+
 ## 2026-10-06｜PDM-19 Startup Gate 通过并进入 Batch 1 审查
 
 - 用户已批准并确认执行 `P19-R00`：PDM-19 是 Deposit / Transaction / Refund / 成交纠错，以及换车资金与交易收口的唯一业务 Authority；
@@ -44,7 +56,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-19_BATCH_1_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-19_BATCH_2_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -54,7 +66,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`
+> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -70,7 +82,7 @@
 
 当前唯一下一步：
 
-> **PDM-19 Startup Gate 已 `PASS`：P19-R00 已用户批准并执行，target=PDM-19 的 10/10 incoming handoff 已全部 `HANDOFF_ACCEPTED`，completed-PDM hard conflict=0，incoming handoff gap=0。当前唯一下一步：用户审查 PDM-19 Batch 1（P19-A01～P19-A14）。**
+> **PDM-19 Batch 1 已 `PASS / USER_APPROVED / APPLIED`：P19-A01～P19-A14 共 14 条稳定规则正式进入当前工作 Authority；Batch 2 Reverse Conflict Scan = PASS，形成 P19-B2-01～P19-B2-06 六条明确废弃 / superseded / DO_NOT_RESTORE 候选。当前唯一下一步：用户审查 PDM-19 Batch 2。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
