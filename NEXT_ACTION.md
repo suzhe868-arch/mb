@@ -3,6 +3,19 @@
 > 更新时间：2026-10-07
 
 
+## PDM-24 Prefinal R1 修复结果
+
+- Prefinal R1：REPAIR_REQUIRED / NO_HARD_CONFLICT
+- R1 报告：07_重建工作区/PDM-24_Final前完整性复核_R1_2026-10-07.md
+- P24-LIA-01～P24-LIA-04：PASS / USER_APPROVED / APPLIED
+- P24-LIA-03：CHOICE_3A
+- LOCAL_PRODUCT_CHOICE_UNRESOLVED：0
+- HO-P20-P24-001：HANDOFF_ACCEPTED
+- HO-P24-P25-001：HANDOFF_OPEN
+- IA / Low-Fi / Engineering：NO_CONSTRUCTION
+- Prefinal R2：PENDING
+
+
 ## PDM-24 Batch 4 执行结果
 
 - P24-B4-01～P24-B4-07：PASS / USER_APPROVED / APPLIED
@@ -89,7 +102,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-24（Startup Gate / Batch 1 / Batch 2 / Batch 3 / Batch 4 = PASS / USER_APPROVED / APPLIED；等待 Final 前完整性复核；PDM-23 已 COMPLETE / INTEGRITY_PASS）
+- 当前域：PDM-24（Startup Gate / Batch 1～4 = PASS / USER_APPROVED / APPLIED；Prefinal R1 修复已执行；等待 Prefinal R2；PDM-23 已 COMPLETE / INTEGRITY_PASS）
 - PDM-20 = COMPLETE / INTEGRITY_PASS
 - PDM-21 Startup Gate = PASS
 - PDM-21 核心定位 P21-R00 = USER_APPROVED / APPLIED
@@ -338,7 +351,7 @@
 
 ## 当前唯一下一步
 
-> **当前唯一下一步：PDM-24 Final 前完整性复核（Prefinal Integrity）。**
+> **当前唯一下一步：PDM-24 Prefinal Integrity R2。**
 
 每个 PDM 必须同时执行：
 
@@ -392,7 +405,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-23 均已完成对应 Final / Integrity Closeout；PDM-24 Batch 1～4 已 PASS / USER_APPROVED / APPLIED；HO-P24-P25-001 已登记 HANDOFF_OPEN。当前唯一下一步：PDM-24 Final 前完整性复核（Prefinal Integrity）。
+当前 PDM-01～PDM-23 均已完成对应 Final / Integrity Closeout；PDM-24 Batch 1～4 已 PASS / USER_APPROVED / APPLIED；Prefinal R1 四项修复已 USER_APPROVED / APPLIED；HO-P24-P25-001 保持 HANDOFF_OPEN。当前唯一下一步：PDM-24 Prefinal Integrity R2。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
