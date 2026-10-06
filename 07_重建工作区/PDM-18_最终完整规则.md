@@ -533,7 +533,7 @@ create/reuse/auto-create、source LockRequest（适用时）、responsible、int
 - HO-P18-P20-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-20 Final 已正式承接 LockRequest / Lock / Waitlist Customer Safe Projection、普通 Lock 与 Priority-origin Lock 的可见性差异、自动候补、expires_at/延期、真实 Deposit 后持续锁定文案与非保证性候补展示；
 - HO-P18-P21-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-21 Final 已正式承接 LockRequest 六种结果、E01 强待办、Lock/Waitlist 管理、延期/release/cancel/end 与 responsible handoff；
 - HO-P18-P22-001｜`HANDOFF_CLOSED / source_backwrite=YES`：默认 Lock 时长及到期提醒业务配置边界已由 PDM-22 Final 承接；
-- HO-P18-P23-001；
+- HO-P18-P23-001｜`HANDOFF_CLOSED / source_backwrite=YES`：LockRequest / Waitlist / Lock 到期提醒通知边界已由 `07_重建工作区/PDM-23_最终完整规则.md` 正式承接；
 - HO-P18-P25-001。
 
 ## 35. Stale Carrier
@@ -575,7 +575,7 @@ R2：
 - Final Integrity：`PASS`；
 - 43 个正式规则 / 用户裁决单元全部进入 Final；
 - 10 / 10 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
-- HO-P18-P19-001、HO-P18-P20-001、HO-P18-P21-001 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-22 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-23 / PDM-25 继续 `HANDOFF_OPEN`；
+- HO-P18-P19-001、HO-P18-P20-001、HO-P18-P21-001 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-22 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-23 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-25 继续 `HANDOFF_OPEN`；
 - PDM-18：`COMPLETE / INTEGRITY_PASS`；
 - IA / Low-Fi / Engineering 继续禁止提前施工；
 - 下一步：`PDM-19 Startup Gate`。
