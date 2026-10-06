@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-17_PREFINAL_R1`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-17_PREFINAL_R1_REPAIR_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_RUNNING`
+> `IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_REPAIR_REQUIRED`
 
 当前工作文件：
 
@@ -32,7 +32,18 @@
 
 当前唯一下一步：
 
-> **PDM-17 Batch 4 已按 1A～9A 全部批准并执行，Local Product Choice Unresolved=0。当前进入 Final 前完整性复核 R1。**
+> **PDM-17 Batch 4 已按 1A～9A 全部批准并执行；Final 前完整性复核 R1 = REPAIR_REQUIRED。当前唯一下一步：用户审查 P17-LIA-01～P17-LIA-05。**
+
+## 2026-10-06｜PDM-17 Final 前完整性复核 R1
+
+- 报告：`07_重建工作区/PDM-17_Final前完整性复核_R1_2026-10-06.md`；
+- 结论：`REPAIR_REQUIRED`；
+- completed-PDM hard conflict = 0；
+- incoming handoff gap = 0；
+- local product choice unresolved = 0；
+- 修复候选：`P17-LIA-01～P17-LIA-05`；
+- 发现 1 处 Current Low-Fi stale carrier：P06-05 指定分配二次确认与 P17-A11 冲突；当前只登记，不施工；
+- 当前唯一下一步：用户审查 P17-LIA-01～P17-LIA-05，未经批准不得进入 R2 / Final Overview。
 
 ## 2026-10-06｜PDM-17 Batch 4 用户批准并执行
 
