@@ -1,6 +1,6 @@
 # PDM-19｜意向金 / Transaction / Refund / 成交纠错 / 换车｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`  
 > 核心定位：`P19-R00 / USER_APPROVED / APPLIED`  
 > Incoming Handoff：10 / 10 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -317,13 +317,14 @@ V1 换车采用：
 
 ---
 
-# 8. Batch 2｜明确废弃 / Superseded / DO_NOT_RESTORE 候选
+# 8. Batch 2｜明确废弃 / Superseded / DO_NOT_RESTORE｜PASS / USER_APPROVED / APPLIED
 
-> 状态：`PENDING_USER_REVIEW`。  
+> 状态：`PASS / USER_APPROVED / APPLIED`。  
+> 用户裁决：P19-B2-01～P19-B2-06 全部同意；随后以“真执行”明确执行。  
 > 反向冲突扫描：`PASS / FALSE_DEPRECATION_COUNT=0`。  
 > 原则：只列已经被后续 Authority 明确废弃、替代或禁止恢复的旧模型；不把仍需在 Batch 3 / 4 裁决的权限、Refund closed、责任人等细节误标为废弃。
 
-## P19-B2-01｜Deposit 作为“未结清 / 已结清 / 部分结清”主状态机不得恢复
+## P19-B2-01｜Deposit 作为“未结清 / 已结清 / 部分结清”主状态机不得恢复｜USER_APPROVED / APPLIED
 
 历史曾出现把意向金本身做成类似：
 
@@ -345,7 +346,7 @@ V1 换车采用：
 
 **防误废弃 Guard：**这不禁止展示汇总金额、剩余可退金额或资金处理进度；禁止的是用这些派生结果覆盖真实收款事实。
 
-## P19-B2-02｜Refund 的 `partial` 主状态不得恢复
+## P19-B2-02｜Refund 的 `partial` 主状态不得恢复｜USER_APPROVED / APPLIED
 
 历史上容易把“部分退款”设计成 Refund 的独立主状态：
 
@@ -363,7 +364,7 @@ V1 换车采用：
 
 **防误废弃 Guard：**“部分退款”这个业务结果仍然存在，只是不作为覆盖真实退款明细的单一主状态。
 
-## P19-B2-03｜Transaction 取消后自动恢复旧 Lock / Waitlist 不得恢复
+## P19-B2-03｜Transaction 取消后自动恢复旧 Lock / Waitlist 不得恢复｜USER_APPROVED / APPLIED
 
 不得恢复以下旧耦合：
 
@@ -384,7 +385,7 @@ V1 换车采用：
 
 > `SUPERSEDED / DO_NOT_RESTORE`
 
-## P19-B2-04｜独立“换车状态机 / 换车关系对象”不得恢复
+## P19-B2-04｜独立“换车状态机 / 换车关系对象”不得恢复｜USER_APPROVED / APPLIED
 
 历史上曾存在把“换车”建设为单独业务状态机 / 专用关系对象的方向。
 
@@ -404,7 +405,7 @@ R8 后续 Authority 已明确：
 
 **防误废弃 Guard：**换车业务场景仍然支持；废弃的是额外独立状态机，不是废弃“换车”这件业务。
 
-## P19-B2-05｜旧 Deposit 跨车直接转移 / 改挂不得恢复
+## P19-B2-05｜旧 Deposit 跨车直接转移 / 改挂不得恢复｜USER_APPROVED / APPLIED
 
 不得恢复以下做法：
 
@@ -423,7 +424,7 @@ R8 后续 Authority 已明确：
 
 > `SUPERSEDED / DO_NOT_RESTORE`
 
-## P19-B2-06｜通过删除 / 覆盖原事实完成资金或成交纠错不得恢复
+## P19-B2-06｜通过删除 / 覆盖原事实完成资金或成交纠错不得恢复｜USER_APPROVED / APPLIED
 
 不得恢复：
 
@@ -474,4 +475,121 @@ R8 后续 Authority 已明确：
 
 当前唯一下一步：
 
-> **用户审查 P19-B2-01～P19-B2-06。未经确认不得进入 Batch 3。**
+> **P19-B2-01～P19-B2-06 已批准并执行。当前唯一下一步：用户审查 Batch 3（P19-B3-01～P19-B3-03）。未经确认不得进入 Batch 4。**
+
+
+---
+
+## 8.2 Batch 2 Gate｜PASS
+
+- `P19-B2-01～P19-B2-06 = PASS / USER_APPROVED / APPLIED`；
+- Reverse Conflict Scan = `PASS`；
+- `FALSE_DEPRECATION_COUNT = 0`；
+- 10 / 10 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工。
+
+---
+
+# 9. Batch 3｜后续明确新增 / 明确变更候选
+
+> 状态：`PENDING_USER_REVIEW`。  
+> Conflict Isolation：`PASS / MISCLASSIFIED_PRODUCT_CHOICE=0`。  
+> 原则：只收录 Phase 1.5 / Current 已明确冻结、且不需要重新做产品取舍的新增 / 变更；真正冲突、遗漏、模型映射选择全部留 Batch 4。
+
+## P19-B3-01｜Transaction 首次完成采用独立敏感权限
+
+Phase 1.5 / Current 已明确新增 Transaction 首次完成控制：
+
+- 普通销售不得首次完成 Transaction；
+- 必须由经理 / 店长执行；
+- 同时必须具备独立 `transaction-complete` 类完成权限；
+- 职位本身不自动等于拥有该敏感权限；
+- 提交时继续重验 active identity、permission、data scope、Transaction 当前状态；
+- System Admin 独立身份不因为系统管理身份获得该员工业务能力。
+
+因此：
+
+> **“创建 / 负责 Transaction”与“首次完成 Transaction”是两类不同能力。**
+
+这不改变 P19-A04：Transaction 仍必须来源于合法 Lock。
+
+**依据：**Current IA `IA-09`、CO-O19、角色入口矩阵。
+
+## P19-B3-02｜Deposit 纠错采用追加冲正 / 更正，并独立分权
+
+Phase 1.5 / Current 已明确追加资金纠错规则：
+
+- 原始 Deposit 收款事实永久保留；
+- 误记资金不得直接覆盖 / 删除；
+- 纠错通过追加 reversal / correction 事实；
+- 仅具备资金纠错权限、且 data scope 覆盖对象的经理 / 店长可执行；
+- 普通销售记录真实收款的能力，不等于拥有资金纠错权限；
+- 纠错原因必填；
+- 审计至少保留 actor / time / reason 与原事实关联；
+- 不做“改完后原 Deposit 消失”的覆盖式处理。
+
+因此：
+
+> **收款记录能力与资金纠错能力正式分离。**
+
+**依据：**Phase 1.5 D10、Current IA `IA-10`、CO-O18、M14-003。
+
+## P19-B3-03｜pending Refund 增加“撤回 / 关闭但未退款”合法退出路径
+
+R8 原本只冻结退款主业务状态 `pending / refunded`。Phase 1.5 D11 后续明确新增：
+
+- 尚未实际退款的 pending Refund，可以由具备退款管理权限且 data scope 覆盖对象的经理 / 店长撤回 / 关闭；
+- close 必须记录 reason；
+- 保留来源、操作者、时间与原 pending 申请历史；
+- close **不等于 refunded**；
+- close 不得计入已退款金额；
+- close 不改变 vehicle occupancy；
+- 原 Refund 申请不得被删除。
+
+因此：
+
+> **pending Refund 除“实际退款完成”外，新增了合法的“未退款关闭”退出路径。**
+
+本条只冻结“存在这个合法退出动作及其真实语义”。
+
+**明确不在本条偷裁：**
+
+- `closed_not_refunded` 最终是独立 Domain 主状态、终止结果字段还是历史 outcome；
+- Page State 的 `PROCESSING / COMPLETED / CLOSED` 如何映射到 Domain `pending / refunded`；
+- 数据库是否使用 `closed` 状态值。
+
+这些属于当前证据明确存在的模型表达冲突，留 Batch 4 正式裁决。
+
+**依据：**Phase 1.5 D11、Current IA `IA-11`、CO-O20、M14-005。
+
+### 9.1 Conflict Isolation
+
+以下事项**没有**偷渡进 Batch 3：
+
+- `closed_not_refunded` 的 Domain 状态 / 历史 outcome 最终建模；
+- Transaction 创建时是否必须在同一原子事务中关闭原 Lock 的完整事务表达；
+- 同一 Vehicle 同时唯一 in-progress Transaction 的并发 Guard；
+- Transaction 精确主状态、终态只读与 `biz_status→trading`；
+- Transaction responsible 默认继承 Lock responsible 及离职 / 失效交接矩阵；
+- completed Transaction 的实际成交价作为历史主价格；
+- completed Transaction 成交纠错的完整 actor / permission / System Admin / 无二级审批规则；
+- Deposit 每笔最小字段、V1 不做在线支付、无独立负责人语义；
+- Refund exactly-one-subject、可退余额、单 open case、组合一致性；
+- Refund “无独立负责人”与当前责任发起 / 确认关系；
+- pending Refund 公海保护及 refunded / closed 后解除保护矩阵；
+- 多笔实际退款余额与并发；
+- 供应异常下 in-progress Transaction 的完整处理；
+- 4S Member / System Admin 在 PDM-19 各敏感动作的完整负向矩阵。
+
+其中，**Transaction 成交纠错中“旧 System Admin 可参与”已被后续规则明确替代**，但该遗漏未在已批准的 Batch 2 中增加新原子，因此不会在本次执行中静默补批；将作为 Batch 4 明确遗漏项提交用户裁决 / 确认。
+
+因此：
+
+- `NEW_INDEPENDENT_ATOMS = 3`
+- `DUPLICATE_RULE_CREATION = 0`
+- `MISCLASSIFIED_PRODUCT_CHOICE = 0`
+- `BATCH_3 = P19-B3-01～P19-B3-03 / PENDING_USER_REVIEW`
+
+当前唯一下一步：
+
+> **用户审查 P19-B3-01～P19-B3-03。未经确认不得进入 Batch 4。**
