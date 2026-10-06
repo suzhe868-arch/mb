@@ -2,6 +2,14 @@
 
 > 更新时间：2026-10-07
 
+## PDM-24 Batch 1 执行结果
+
+- P24-A01～P24-A15：PASS / USER_APPROVED / APPLIED
+- Reverse Conflict Scan：PASS / FALSE_DEPRECATION_COUNT=0
+- Batch 2：P24-B2-01～P24-B2-12 / PENDING_USER_REVIEW
+- HO-P20-P24-001：HANDOFF_ACCEPTED
+- IA / Low-Fi / Engineering：NO_CONSTRUCTION
+
 ## PDM-24 Startup Gate 结果
 
 - Startup Gate：PASS
@@ -297,7 +305,7 @@
 
 ## 当前唯一下一步
 
-> **当前唯一下一步：用户审查 PDM-24 Batch 1（P24-A01～P24-A15）。**
+> **当前唯一下一步：用户审查 PDM-24 Batch 2（P24-B2-01～P24-B2-12）。**
 
 每个 PDM 必须同时执行：
 
@@ -351,7 +359,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-23 均已完成对应 Final / Integrity Closeout；PDM-24 Startup Gate 已 PASS，HO-P20-P24-001 已 HANDOFF_ACCEPTED。当前唯一下一步：用户审查 PDM-24 Batch 1（P24-A01～P24-A15）。
+当前 PDM-01～PDM-23 均已完成对应 Final / Integrity Closeout；PDM-24 Batch 1 已 PASS / USER_APPROVED / APPLIED。当前唯一下一步：用户审查 PDM-24 Batch 2（P24-B2-01～P24-B2-12）。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
