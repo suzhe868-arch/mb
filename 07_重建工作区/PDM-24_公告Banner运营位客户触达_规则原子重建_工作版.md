@@ -1,7 +1,7 @@
 # PDM-24｜公告 / Banner / 运营位 / 客户触达｜规则原子重建工作版
 
 > 域：Announcement / Banner / Placement / Schedule / Customer-facing Operations  
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PASS / PREFINAL_R2_PASS / FINAL_CANDIDATE_READY`  
+> 当前状态：`COMPLETE / INTEGRITY_PASS`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
 
 ---
@@ -82,7 +82,7 @@ PDM-24 当前不把这两个 placement 扩成任意页面可配置的通用运�
 
 当前 target=PDM-24 的正式 incoming handoff：
 
-> `HO-P20-P24-001 = HANDOFF_ACCEPTED`
+> `HO-P20-P24-001 = HANDOFF_CLOSED / source_backwrite=YES`
 
 承接范围：
 
@@ -95,11 +95,12 @@ PDM-24 当前不把这两个 placement 扩成任意页面可配置的通用运�
 - 客户端数量投影继续服从 PDM-20 Final；
 - 不反向改变 Customer Safe 展示与导航边界。
 
-Final Closeout 前：
+Final Closeout 已完成：
 
-- 不得提前标 `HANDOFF_CLOSED`；
-- 不得 source backwrite PDM-20；
-- 不得把 PDM-24 标 COMPLETE。
+- target landing：`07_重建工作区/PDM-24_最终完整规则.md`；
+- `HO-P20-P24-001 = HANDOFF_CLOSED / source_backwrite=YES`；
+- PDM-20 已完成反向回写；
+- PDM-24 已正式 `COMPLETE / INTEGRITY_PASS`。
 
 ## 1.5 Startup Gate 结果
 
@@ -825,3 +826,18 @@ Final Closeout 前继续：
 # 12. 当前唯一下一步
 
 > **形成 PDM-24 Final Domain Overview，并提交用户最终批准。**
+
+
+# 13. Final Closeout
+
+用户已最终批准，并明确“确定执行”。
+
+- Final Overview：`07_重建工作区/PDM-24_最终完整规则总览_待用户批准.md / USER_FINAL_APPROVED`；
+- 正式 Authority：`07_重建工作区/PDM-24_最终完整规则.md`；
+- Final Integrity：`07_重建工作区/PDM-24_最终完整性复核_2026-10-07.md / PASS`；
+- 正式规则 / 用户裁决单元：40；
+- `HO-P20-P24-001 = HANDOFF_CLOSED / source_backwrite=YES`；
+- `HO-P24-P25-001 = HANDOFF_OPEN`；
+- PDM-24 = `COMPLETE / INTEGRITY_PASS`；
+- IA / Low-Fi / Engineering = `NO_CONSTRUCTION`；
+- 当前唯一下一步：`PDM-25 Startup Gate`。
