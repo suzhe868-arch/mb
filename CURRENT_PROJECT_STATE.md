@@ -1,3 +1,15 @@
+## 2026-10-07｜PDM-22 Final Closeout COMPLETE
+
+- 用户已对 PDM-22 Final Domain Overview 最终批准并确认执行；
+- 正式 Final：`07_重建工作区/PDM-22_最终完整规则.md`；
+- Final Integrity：`07_重建工作区/PDM-22_最终完整性复核_2026-10-07.md / PASS`；
+- PDM-22 = `COMPLETE / INTEGRITY_PASS`；
+- 正式规则 / 裁决单元 = `58`；
+- 18 / 18 incoming handoff = `HANDOFF_CLOSED / source_backwrite=YES`；
+- PDM-22 → PDM-23 / PDM-25 两条 outgoing handoff 继续 `HANDOFF_OPEN`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：`PDM-23 Startup Gate`。
+
 ## 2026-10-07｜PDM-22 R1 修复已执行；Prefinal R2 PASS
 
 - `P22-LIA-01～P22-LIA-06 = PASS / USER_APPROVED / APPLIED`；
@@ -408,7 +420,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-22_FINAL_OVERVIEW_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-23_STARTUP_GATE`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -418,7 +430,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / PREFINAL_R2_PASS / FINAL_CANDIDATE_READY / PENDING_USER_FINAL_APPROVAL`
+> `PDM-22 COMPLETE / INTEGRITY_PASS；PDM-23 STARTUP_GATE_PENDING`
 
 当前工作文件：
 
@@ -434,7 +446,7 @@
 
 当前唯一下一步：
 
-> **PDM-22 Prefinal R2 已 `PASS / FINAL_CANDIDATE_READY`。当前唯一下一步：用户最终审查 / 批准 PDM-22 Final Domain Overview。**
+> **PDM-22 已 `COMPLETE / INTEGRITY_PASS`。当前唯一下一步：PDM-23 Startup Gate。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
