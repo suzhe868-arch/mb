@@ -1,6 +1,6 @@
 # PDM-23｜通知 / 飞书 / SLA / 夜间免打扰 / Incident / 通知日志｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`  
 > 核心定位：`P23-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：10 / 10 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -141,7 +141,7 @@ Current IA 已存在：
 
 ---
 
-# 3. Batch 1｜稳定通知规则｜PENDING_USER_REVIEW
+# 3. Batch 1｜稳定通知规则｜PASS / USER_APPROVED / APPLIED
 
 ## P23-A01｜Notification 只消费业务事件
 
@@ -385,15 +385,201 @@ PDM-23 只冻结产品约束：
 
 ---
 
-# 4. Batch 1 Gate｜PENDING_USER_REVIEW
+# 4. Batch 1 Gate｜PASS
 
 当前：
 
-- `P23-A01～P23-A20 = PENDING_USER_REVIEW`
+- `P23-A01～P23-A20 = PASS / USER_APPROVED / APPLIED`
 - `COMPLETED_PDM_HARD_CONFLICT = 0`
 - `INCOMING_HANDOFF_ACCEPTED = 10 / 10`
 - `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
 
 当前唯一下一步：
 
-> **用户审查 P23-A01～P23-A20。未经用户批准与明确执行，不进入 Batch 2。**
+> **P23-A01～P23-A20 已全部批准并执行；进入 Batch 2 Reverse Conflict Scan。**
+---
+
+# 5. Batch 2｜旧规则反向冲突扫描｜PENDING_USER_REVIEW
+
+> 扫描对象：R12 历史风险项、Current IA / Low-Fi P09 carrier、PDM-04/09/14/15/16/17/18/19/21/22 Final，以及历史通知口径。  
+> 原则：只废弃已被 completed-PDM 或 P23 Batch 1 明确替代的旧口径，不把新产品选择偷渡成“清理”。
+
+## P23-B2-01｜废弃“通知失败 = 业务失败 / 业务状态变化”
+
+不得恢复：
+
+- 飞书发送失败导致 Consultation / Lock / Transaction / Refund / Recommendation 状态失败；
+- SKIPPED / DEDUPED 被解释成业务未完成；
+- 通知恢复成功反向把业务对象改成“恢复”。
+
+当前：
+
+> 通知投递结果只属于 Notification fact / log；业务事实继续由对应业务域 Authority 决定。
+
+## P23-B2-02｜废弃“Consultation timeout = 第五主状态 / 自动关闭”
+
+不得恢复：
+
+- timeout 作为 Consultation 主状态；
+- SLA 超时自动 resolved / invalid / close；
+- SLA 告警成功后改变 Consultation lifecycle。
+
+当前：
+
+> timeout 只是 deadline 派生事实 / 提醒条件。
+
+## P23-B2-03｜废弃“所有提醒 = 必须飞书”
+
+不得把“业务层要求提醒”直接实现为“必须发送飞书”。
+
+尤其：
+
+- CRM 回访提醒；
+- 公海待处理 / 首次跟进提醒；
+- 其他业务待办。
+
+当前必须继续区分：
+
+> reminder business fact ≠ notification channel。
+
+## P23-B2-04｜废弃固定“Lock 到期前 30 分钟提醒”
+
+旧 fixed 30 分钟不得恢复。
+
+当前：
+
+- 是否提醒；
+- 提前量；
+
+读取 PDM-22 当前有效配置；P23 只负责合法投递。
+
+## P23-B2-05｜废弃普通 Matching / Opportunity / Source Radar 逐条主动推送
+
+不得恢复：
+
+- 每个普通 Match Result 都飞书；
+- 每个 Customer Opportunity 都个人飞书；
+- 普通 Source Radar 变化自动强通知；
+- 普通资料 / 价格 / 映射 / owner 变化逐条主动推送。
+
+除非未来有新的明确 allowlist Authority。
+
+## P23-B2-06｜废弃 Recommendation 自动微信主动消息状态机
+
+不得因为 Recommendation create / end / void：
+
+- 自动建立客户微信订阅消息状态；
+- 建立 sent / failed 驱动的 Recommendation 子状态机；
+- 因通知失败 rollback Recommendation / visibility / price-right。
+
+## P23-B2-07｜废弃“DND 暂停业务时钟 / SLA / Incident”
+
+quiet hours 只暂停主动通知投递。
+
+不得暂停：
+
+- Consultation SLA 正常计时（PDM-15 的 Customer disable hold 特例除外）；
+- Lock expires_at；
+- Transaction / Refund 事实；
+- Incident 事实；
+- 审计 / 通知日志时间。
+
+## P23-B2-08｜废弃“DND 结束后机械补发全部积压消息”
+
+恢复发送时必须重新校验：
+
+- event validity；
+- recipient validity；
+- allowlist；
+- DND / frequency / dedupe。
+
+已失效事件应 SKIPPED，不机械补发。
+
+## P23-B2-09｜废弃“通知 deep-link 自带永久业务授权”
+
+不得因为用户能打开通知链接就：
+
+- 绕过 current permission / capability；
+- 绕过 data scope；
+- 绕过 object / account state；
+- 继续使用已经撤销的旧员工权限。
+
+deep-link 只是入口，不是授权票据。
+
+## P23-B2-10｜废弃“点击 / 已读通知 = Consultation 首次人工响应”
+
+收到、点击、打开、已读、查看 Customer / Vehicle：
+
+> 均不得自动写 first-response fact。
+
+Consultation first response 只读取 PDM-15 真实人工响应 Authority。
+
+## P23-B2-11｜废弃未配置的 Incident 默认告警 cadence
+
+不得由 IA / P23 自行发明：
+
+- 每 5 分钟；
+- 每 10 分钟；
+- 每 30 分钟；
+- 每小时；
+- 或其他固定 Incident 重复告警频率。
+
+只有明确配置存在时才执行对应 cadence。
+
+## P23-B2-12｜废弃产品层写死 MQ / 重试次数 / 退避 / Provider SDK
+
+不得把以下工程实现升级成 PDM-23 产品规则：
+
+- MQ / Queue 选型；
+- 自动重试固定次数；
+- backoff 算法；
+- provider SDK；
+- notification table 物理结构；
+- worker topology；
+- 存储周期。
+
+PDM-23 只冻结业务约束：任何重试都必须重新校验 allowlist / event / recipient / DND / frequency / dedupe，且不得改写业务对象。
+
+## P23-B2-13｜废弃“System Admin 因后台身份自动拥有 Notification Config 权”
+
+P09 位于 PC / admin 区域，不代表 System Admin 身份自动获得通知业务配置权。
+
+当前：
+
+- 读取 PDM-02 / PDM-22 已冻结 identity + permission/capability + data/config scope；
+- active Employee 若具明确配置能力可操作合法范围；
+- System Admin 只有在对应 Authority 明确授予时才能执行相关业务配置，不因控制平面身份自动获得。
+
+## P23-B2-14｜废弃“飞书映射变更 = Employee / owner / assignee 变更”
+
+修改：
+
+> `employee_id ↔ 当前飞书接收身份`
+
+只改变通知路由。
+
+不得因此修改：
+
+- employee_id；
+- Customer owner；
+- Consultation assignee；
+- Lock / Transaction responsible；
+- 历史 actor / responsibility。
+
+---
+
+# 6. Batch 2 Gate｜PENDING_USER_REVIEW
+
+当前：
+
+- `P23-B2-01～P23-B2-14 = PENDING_USER_REVIEW`
+- `REVERSE_CONFLICT_SCAN = PASS`
+- `FALSE_DEPRECATION_COUNT = 0`
+- `COMPLETED_PDM_HARD_CONFLICT = 0`
+- `INCOMING_HANDOFF_ACCEPTED = 10 / 10`
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
+当前唯一下一步：
+
+> **用户审查 P23-B2-01～P23-B2-14。未经用户批准与明确执行，不进入 Batch 3。**
+
