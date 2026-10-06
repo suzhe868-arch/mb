@@ -2,6 +2,17 @@
 
 > 更新时间：2026-10-07
 
+## PDM-23 当前门禁
+
+- Prefinal R1：REPAIR_REQUIRED / NO_HARD_CONFLICT
+- P23-LIA-01～P23-LIA-04：PASS / USER_APPROVED / APPLIED
+- Prefinal R2：PASS / FINAL_CANDIDATE_READY
+- Formal Units：65
+- Final Overview：07_重建工作区/PDM-23_最终完整规则总览_待用户批准.md
+- 10/10 incoming handoff：HANDOFF_ACCEPTED
+- HO-P23-P25-001：HANDOFF_OPEN
+- IA / Low-Fi / Engineering：NO_CONSTRUCTION
+
 ## 当前状态
 
 - PDM-01 ～ PDM-10 = COMPLETE（历史裁决完成状态）
@@ -266,7 +277,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-23 重建版 Batch 4 已 `PASS / USER_APPROVED / APPLIED`。当前唯一下一步：执行 PDM-23 Final 前完整性复核（Prefinal Integrity）。**
+> **当前唯一下一步：用户最终审查 / 批准 PDM-23 最终完整规则总览。**
 
 每个 PDM 必须同时执行：
 
