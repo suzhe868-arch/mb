@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-19",
-  "current_domain_status": "BATCH_2_PASS_BATCH_3_PENDING_USER_REVIEW",
+  "current_domain_status": "BATCH_3_PASS_BATCH_4_PENDING_USER_REVIEW",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-19 Batch 3 用户审查",
+  "current_task": "PDM-19 Batch 4 用户审查",
   "current_work_file": "07_重建工作区/PDM-19_意向金Transaction退款成交纠错换车_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -28,7 +28,7 @@
   "forbidden_now": [
     "Do not modify IA or Low-Fi during PDM-01 through PDM-25 product-rule reconstruction",
     "Do not execute Engineering Delta",
-    "Do not enter PDM-19 Batch 4 before user approval of Batch 3"
+    "Do not apply PDM-19 Batch 4 choices before user review and explicit execution"
   ],
   "confirmed_rule_atoms": [
     "P01-A01",
@@ -112,7 +112,10 @@
     "P19-A11",
     "P19-A12",
     "P19-A13",
-    "P19-A14"
+    "P19-A14",
+    "P19-B3-01",
+    "P19-B3-02",
+    "P19-B3-03"
   ],
   "batch_1_confirmed_count": 15,
   "batch_1_pending_count": 0,
@@ -130,7 +133,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-19_BATCH_3",
+  "current_review_batch": "PDM-19_BATCH_4",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -2899,7 +2902,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "用户审查 P19-B3-01～P19-B3-03",
+  "next_action": "用户审查 P19-B4-01～P19-B4-11",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -3206,26 +3209,54 @@
     "ACTOR_PERMISSION_RESPONSIBILITY_DETAILS_REMAIN_FOR_LATER_REVIEW"
   ],
   "pdm_19_batch_2_confirmed_count": 6,
-  "pdm_19_batch_3_status": "PENDING_USER_REVIEW",
-  "pdm_19_batch_3_pending_atoms": [
-    "P19-B3-01",
-    "P19-B3-02",
-    "P19-B3-03"
-  ],
+  "pdm_19_batch_3_status": "PASS_USER_APPROVED_APPLIED",
+  "pdm_19_batch_3_pending_atoms": [],
   "pdm_19_batch_3_conflict_isolation": "PASS_MISCLASSIFIED_PRODUCT_CHOICE_0",
   "pdm_19_batch_3_new_independent_atoms": 3,
   "pdm_19_batch_4_registered_gaps": [
-    "CLOSED_NOT_REFUNDED_DOMAIN_STATE_VS_HISTORY_OUTCOME_MAPPING",
-    "TRANSACTION_CREATE_ATOMICALLY_CLOSES_LOCK_AND_BIZ_STATUS_TRADING",
-    "UNIQUE_IN_PROGRESS_TRANSACTION_PER_VEHICLE_CONCURRENCY_GUARD",
+    "REFUND_CLOSED_DOMAIN_MODEL",
+    "TRANSACTION_CREATE_ATOMIC_LOCK_CONVERSION",
+    "TRANSACTION_STATE_AND_SINGLE_IN_PROGRESS_CONCURRENCY",
     "TRANSACTION_RESPONSIBLE_INHERITANCE_AND_HANDOFF",
-    "ACTUAL_TRANSACTION_PRICE_AS_HISTORICAL_PRIMARY_PRICE",
-    "TRANSACTION_CORRECTION_FULL_PERMISSION_SYSTEM_ADMIN_NO_SECOND_APPROVAL",
-    "DEPOSIT_MINIMUM_FIELDS_NO_ONLINE_PAYMENT_NO_INDEPENDENT_RESPONSIBLE",
-    "REFUND_SUBJECT_XOR_REFUNDABLE_BALANCE_OPEN_CASE_COMBINATION_GUARDS",
-    "REFUND_RESPONSIBILITY_AND_PUBLIC_POOL_PROTECTION_RELEASE_MATRIX",
-    "MULTI_REFUND_BALANCE_AND_CONCURRENCY",
-    "SUPPLY_ANOMALY_TRANSACTION_HANDLING",
-    "4S_AND_SYSTEM_ADMIN_NEGATIVE_PERMISSION_MATRIX"
-  ]
+    "ACTUAL_DEAL_PRICE_AS_HISTORICAL_PRIMARY_PRICE",
+    "TRANSACTION_CORRECTION_PERMISSION_AND_SYSTEM_ADMIN_BOUNDARY",
+    "DEPOSIT_MINIMUM_FIELDS_OFFLINE_ONLY_RESPONSIBILITY",
+    "REFUND_SUBJECT_XOR_BALANCE_AND_CONFLICT_GUARDS",
+    "REFUND_INITIATION_PAYOUT_CONFIRMATION_AND_CLOSE_SEPARATION",
+    "REFUND_PUBLIC_POOL_PROTECTION_AND_MULTI_REFUND_BALANCE",
+    "SUPPLY_ANOMALY_TRANSACTION_HANDLING"
+  ],
+  "pdm_19_batch_3_confirmed_count": 3,
+  "pdm_19_batch_3_user_revision": {
+    "id": "P19-B3-03",
+    "summary": "pending Refund 确定不再退款时可直接关闭，只填写原因；不新增专门关闭 permission，不增加审批；closed 不等于 refunded"
+  },
+  "pdm_19_batch_4_status": "PENDING_USER_REVIEW",
+  "pdm_19_batch_4_pending_atoms": [
+    "P19-B4-01",
+    "P19-B4-02",
+    "P19-B4-03",
+    "P19-B4-04",
+    "P19-B4-05",
+    "P19-B4-06",
+    "P19-B4-07",
+    "P19-B4-08",
+    "P19-B4-09",
+    "P19-B4-10",
+    "P19-B4-11"
+  ],
+  "pdm_19_batch_4_recommended_choices": [
+    "1A",
+    "2A",
+    "3A",
+    "4A",
+    "5A",
+    "6A",
+    "7A",
+    "8A",
+    "9A",
+    "10A",
+    "11A"
+  ],
+  "pdm_19_batch_4_cross_pdm_review": "PASS_NO_COMPLETED_PDM_MUTATION_YET"
 }
