@@ -1,3 +1,16 @@
+## 2026-10-06｜PDM-20 Final 正式发布并完成 Closeout
+
+- 用户最终批准 PDM-20 Final Domain Overview，并明确确认执行；
+- 正式 Authority：`07_重建工作区/PDM-20_最终完整规则.md`；
+- Final Integrity：`07_重建工作区/PDM-20_最终完整性复核_2026-10-06.md / PASS`；
+- `PDM-20 = COMPLETE / INTEGRITY_PASS`；
+- 53 个正式规则 / 用户裁决单元全部进入 Final；
+- 14 / 14 incoming handoff = `HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE`；
+- 来源 PDM-01/03/04/05/07/08/10/11/12/13/14/15/18/19 Final 已反向回写；
+- 4 条 outgoing handoff（PDM-21 / PDM-22 / PDM-24 / PDM-25）继续 `HANDOFF_OPEN`；
+- IA / Low-Fi / Engineering 未施工；
+- 下一步：PDM-21 Startup Gate。
+
 ## 2026-10-06｜PDM-20 Prefinal R1 修复执行完成，R2 PASS
 
 - 用户已批准并确认执行 `P20-LIA-01～P20-LIA-07`；
@@ -204,21 +217,21 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-20_FINAL_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-21_STARTUP_GATE`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
 当前域：
 
-> **PDM-20｜客户端浏览 / 搜索 / 筛选 / 排序 / 列表 / 详情 / 收藏 / 分享 / 个人中心 / 地域**
+> **PDM-21｜员工工作台 / 车辆列表 / 客户中心 / 内部模式 / 敏感动作裁剪**
 
 当前域状态：
 
-> `IN_PROGRESS / PREFINAL_R2_PASS / FINAL_REVIEW_PENDING`
+> `NOT_STARTED / STARTUP_GATE_PENDING`
 
 当前工作文件：
 
-> `07_重建工作区/PDM-20_客户端浏览搜索筛选排序列表详情收藏分享个人中心地域_规则原子重建_工作版.md`
+> 尚未建立；PDM-21 Startup Gate 待执行。
 
 当前已纠正：
 
@@ -230,7 +243,7 @@
 
 当前唯一下一步：
 
-> **PDM-20 Prefinal R1 七项修复已全部批准并执行；R2 = `PASS / FINAL_CANDIDATE_READY`，53 个正式单元完整性通过。当前唯一下一步：用户最终批准 PDM-20 Final Domain Overview；最终批准前不得发布正式 Final、关闭 incoming 或进入 PDM-21。**
+> **PDM-20 已 `COMPLETE / INTEGRITY_PASS`：53 个正式单元进入 Final，14/14 incoming handoff CLOSED 且 source backwrite 完成，4 条 outgoing handoff 保持 OPEN。当前唯一下一步：PDM-21 Startup Gate。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
