@@ -8,8 +8,8 @@
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "PDM-24",
-  "current_domain_status": "STARTUP_GATE_PASS_BATCH_1_PASS_BATCH_2_PASS_BATCH_3_PASS_BATCH_4_PASS_PREFINAL_R2_PASS_FINAL_CANDIDATE_READY",
+  "current_domain": "PDM-25",
+  "current_domain_status": "STARTUP_GATE_PENDING",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,18 +20,17 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "形成 PDM-24 Final Domain Overview，并提交用户最终批准",
-  "current_work_file": "07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md",
+  "current_task": "PDM-25 Startup Gate",
+  "current_work_file": "PENDING_PDM-25_STARTUP_GATE",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
     "Do not modify IA or Low-Fi during PDM-01 through PDM-25 product-rule reconstruction",
     "Do not execute Engineering Delta",
-    "Do not close HO-P20-P24-001 or source-backwrite PDM-20 before PDM-24 Final Closeout",
-    "Do not mark PDM-24 COMPLETE before Final Overview user approval and Final Closeout",
-    "Do not publish PDM-24 Final before Final Overview user approval",
-    "Do not advance to PDM-25 before PDM-24 is completed"
+    "Do not treat any target=PDM-25 handoff as accepted before PDM-25 Startup Gate",
+    "Do not skip PDM-25 Startup Gate",
+    "Do not begin post-PDM25 global final audit or IA/Low-Fi alignment before PDM-25 Final Closeout"
   ],
   "confirmed_rule_atoms": [
     "P01-A01",
@@ -424,7 +423,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-24_FINAL_OVERVIEW",
+  "current_review_batch": "PDM-25_STARTUP_GATE",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -538,7 +537,8 @@
     "PDM-13",
     "PDM-14",
     "PDM-15",
-    "PDM-21"
+    "PDM-21",
+    "PDM-24"
   ],
   "pdm_02_batch_1_pending_atoms": [],
   "pdm_02_batch_1_status": "COMPLETE_USER_CONFIRMED",
@@ -3194,7 +3194,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "形成 PDM-24 Final Domain Overview，并提交用户最终批准",
+  "next_action": "PDM-25 Startup Gate",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4347,10 +4347,10 @@
   "pdm_23_final_integrity_status": "PASS",
   "pdm_23_final_closeout": "COMPLETE",
   "pdm_23_source_backwrite": "10_10_DONE",
-  "pdm_24_status": "IN_PROGRESS_FINAL_CANDIDATE_READY",
-  "pdm_24_next_gate": "FINAL_DOMAIN_OVERVIEW_USER_APPROVAL",
+  "pdm_24_status": "COMPLETE_INTEGRITY_PASS",
+  "pdm_24_next_gate": "COMPLETE",
   "pdm_24_incoming_handoffs": {
-    "status": "1_HANDOFF_ACCEPTED",
+    "status": "1_HANDOFF_CLOSED_SOURCE_BACKWRITE_DONE",
     "ids": [
       "HO-P20-P24-001"
     ]
@@ -4483,5 +4483,44 @@
     "local_product_choice_unresolved": 0
   },
   "pdm_24_formal_units": 40,
-  "pdm_24_final_candidate_ready": true
+  "pdm_24_final_candidate_ready": true,
+  "pdm_24_final_overview": "07_重建工作区/PDM-24_最终完整规则总览_待用户批准.md",
+  "pdm_24_final_overview_status": "USER_FINAL_APPROVED",
+  "pdm_24_final": "07_重建工作区/PDM-24_最终完整规则.md",
+  "pdm_24_final_integrity": "07_重建工作区/PDM-24_最终完整性复核_2026-10-07.md",
+  "pdm_24_final_integrity_status": "PASS",
+  "pdm_24_final_closeout": "COMPLETE",
+  "pdm_24_source_backwrite": "1_1_DONE",
+  "pdm_25_status": "NOT_STARTED_STARTUP_GATE_PENDING",
+  "pdm_25_next_gate": "STARTUP_GATE",
+  "pdm_25_incoming_handoffs": {
+    "status": "24_HANDOFFS_PENDING_STARTUP_GATE_ACCEPTANCE",
+    "count": 24,
+    "ids": [
+      "HO-P01-P25-001",
+      "HO-P02-P25-001",
+      "HO-P03-P25-001",
+      "HO-P04-P25-001",
+      "HO-P05-P25-001",
+      "HO-P06-P25-001",
+      "HO-P07-P25-001",
+      "HO-P08-P25-001",
+      "HO-P09-P25-001",
+      "HO-P10-P25-001",
+      "HO-P11-P25-001",
+      "HO-P12-P25-001",
+      "HO-P13-P25-001",
+      "HO-P14-P25-001",
+      "HO-P15-P25-001",
+      "HO-P16-P25-001",
+      "HO-P17-P25-001",
+      "HO-P18-P25-001",
+      "HO-P19-P25-001",
+      "HO-P20-P25-001",
+      "HO-P21-P25-001",
+      "HO-P22-P25-001",
+      "HO-P23-P25-001",
+      "HO-P24-P25-001"
+    ]
+  }
 }
