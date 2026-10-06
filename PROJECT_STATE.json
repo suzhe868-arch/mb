@@ -8,8 +8,8 @@
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "PDM-18",
-  "current_domain_status": "USER_FINAL_APPROVED_FINAL_CLOSEOUT_PENDING_EXECUTION",
+  "current_domain": "PDM-19",
+  "current_domain_status": "NOT_STARTED_STARTUP_GATE",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-18 Final closeout 等待执行确认",
+  "current_task": "PDM-19 Startup Gate",
   "current_work_file": "07_重建工作区/PDM-18_LockRequest正式LockWaitlist延期释放_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -28,9 +28,7 @@
   "forbidden_now": [
     "Do not modify IA or Low-Fi during PDM-01 through PDM-25 product-rule reconstruction",
     "Do not execute Engineering Delta",
-    "Do not publish PDM-18 Final before explicit Final closeout execution",
-    "Do not close PDM-18 incoming handoffs before explicit Final closeout execution",
-    "Do not enter PDM-19 before PDM-18 Final closeout"
+    "Do not skip PDM-19 Startup Gate or its incoming handoff acceptance"
   ],
   "confirmed_rule_atoms": [
     "P01-A01",
@@ -117,7 +115,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-18_FINAL_CLOSEOUT",
+  "current_review_batch": "PDM-19_STARTUP_GATE",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -2880,7 +2878,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "等待用户明确执行 PDM-18 Final closeout",
+  "next_action": "PDM-19 Startup Gate",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -2981,19 +2979,8 @@
     "ia_lowfi_engineering_construction": "NO"
   },
   "pdm_18_incoming_handoffs": {
-    "status": "10_HANDOFF_ACCEPTED",
-    "ids": [
-      "HO-P01-P18-001",
-      "HO-P02-P18-001",
-      "HO-P03-P18-001",
-      "HO-P04-P18-001",
-      "HO-P07-P18-001",
-      "HO-P10-P18-001",
-      "HO-P12-P18-001",
-      "HO-P13-P18-001",
-      "HO-P14-P18-001",
-      "HO-P17-P18-001"
-    ]
+    "status": "10_OF_10_HANDOFF_CLOSED_SOURCE_BACKWRITE_DONE",
+    "count": 10
   },
   "pdm_18_batch_1_status": "PASS_USER_APPROVED_APPLIED",
   "pdm_18_batch_1_pending_atoms": [],
@@ -3143,11 +3130,16 @@
   "pdm_18_final_overview": "07_重建工作区/PDM-18_最终完整规则总览_待用户批准.md",
   "pdm_18_final_overview_status": "USER_FINAL_APPROVED",
   "pdm_18_final_closeout": {
-    "status": "PENDING_EXECUTION_CONFIRMATION",
+    "status": "COMPLETE_INTEGRITY_PASS",
     "final_user_approval": "PASS",
-    "execution_confirmation": "PENDING",
-    "incoming_closed": 0,
-    "source_backwrite_done": 0,
+    "execution_confirmation": "PASS",
+    "source_atoms": 43,
+    "incoming_closed": 10,
+    "source_backwrite_done": 10,
     "outgoing_open": 6
-  }
+  },
+  "pdm_18_status": "COMPLETE_INTEGRITY_PASS",
+  "pdm_18_next_gate": "COMPLETE",
+  "pdm_18_final": "07_重建工作区/PDM-18_最终完整规则.md",
+  "pdm_18_final_integrity": "07_重建工作区/PDM-18_最终完整性复核_2026-10-06.md"
 }
