@@ -1,3 +1,15 @@
+## 2026-10-07｜PDM-22 Batch 4 已执行；Final 前完整性复核 R1 = REPAIR_REQUIRED
+
+- `P22-B4-01～P22-B4-08 = PASS / USER_APPROVED / APPLIED`；
+- 用户选择：`1A / 2A / 3同意 / 4A / 5A / 6A / 7同意 / 8同意`；
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- Prefinal R1：`REPAIR_REQUIRED / NO_HARD_CONFLICT`；
+- missing=2；semantic gap=3；incoming landing gap=3；outgoing handoff gap=1 group；
+- 修复候选：`P22-LIA-01～P22-LIA-06 / PENDING_USER_REVIEW`；
+- 18/18 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 P22-LIA-01～P22-LIA-06。
+
 ## 2026-10-07｜PDM-22 Batch 3 已批准执行并进入 Batch 4
 
 - `P22-B3-01～P22-B3-09 = PASS / USER_APPROVED / APPLIED`；
@@ -383,7 +395,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-22_BATCH_4_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-22_PREFINAL_R1_REPAIR_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -393,7 +405,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`
+> `IN_PROGRESS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PASS / PREFINAL_R1_REPAIR_REQUIRED`
 
 当前工作文件：
 
@@ -409,7 +421,7 @@
 
 当前唯一下一步：
 
-> **PDM-22 Batch 3 已 `PASS / USER_APPROVED / APPLIED`；Batch 4 最终缺口 / 产品选择扫描已形成 P22-B4-01～P22-B4-08。当前唯一下一步：用户审查 PDM-22 Batch 4。**
+> **PDM-22 Batch 4 已 `PASS / USER_APPROVED / APPLIED`；Prefinal R1 = `REPAIR_REQUIRED / NO_HARD_CONFLICT`。当前唯一下一步：用户审查 P22-LIA-01～P22-LIA-06。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
