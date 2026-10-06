@@ -1,6 +1,6 @@
 # PDM-21｜员工工作台 / 车辆列表 / 客户中心 / 内部模式 / 敏感动作裁剪｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / PREFINAL_R2_PASS / FINAL_OVERVIEW_PENDING_USER_APPROVAL`  
+> 当前状态：`COMPLETE / INTEGRITY_PASS / FINAL_CLOSEOUT_DONE`  
 > 核心定位：`P21-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：19 / 19 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -1076,3 +1076,19 @@ Final Domain Overview：
 当前唯一下一步：
 
 > **用户最终审查 / 批准 PDM-21 Final Domain Overview。最终批准前不得发布正式 Final、不得关闭 19 条 incoming handoff、不得 source backwrite、不得进入 PDM-22。**
+
+
+---
+
+# 14. Final Closeout｜COMPLETE
+
+- 用户最终批准 PDM-21 Final Domain Overview；
+- 用户同一消息明确“确认执行”；
+- 正式 Final：`07_重建工作区/PDM-21_最终完整规则.md`；
+- Final Integrity：`07_重建工作区/PDM-21_最终完整性复核_2026-10-06.md / PASS`；
+- 56 个正式规则 / 裁决单元全部进入 Final；
+- 19 / 19 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
+- PDM-21 → PDM-23 / PDM-25：继续 `HANDOFF_OPEN`；
+- IA / Low-Fi / Engineering 未施工；
+- PDM-21 = `COMPLETE / INTEGRITY_PASS`；
+- 当前唯一下一步：`PDM-22 Startup Gate`。
