@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-24",
-  "current_domain_status": "STARTUP_GATE_PASS_BATCH_1_PASS_BATCH_2_PASS_BATCH_3_PASS_BATCH_4_PENDING_SCAN",
+  "current_domain_status": "STARTUP_GATE_PASS_BATCH_1_PASS_BATCH_2_PASS_BATCH_3_PASS_BATCH_4_PASS_PREFINAL_PENDING",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-24 Batch 4 Final-gap Scan",
+  "current_task": "PDM-24 Final 前完整性复核（Prefinal Integrity）",
   "current_work_file": "07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -29,7 +29,7 @@
     "Do not modify IA or Low-Fi during PDM-01 through PDM-25 product-rule reconstruction",
     "Do not execute Engineering Delta",
     "Do not close HO-P20-P24-001 or source-backwrite PDM-20 before PDM-24 Final Closeout",
-    "Do not treat PDM-24 Batch 4 as reviewed or approved before the new-window Final-gap Scan and user review",
+    "Do not mark PDM-24 COMPLETE before Prefinal Integrity, Final Overview user approval, and Final Closeout",
     "Do not advance to PDM-25 before PDM-24 is completed"
   ],
   "confirmed_rule_atoms": [
@@ -394,7 +394,14 @@
     "P24-B2-09",
     "P24-B2-10",
     "P24-B2-11",
-    "P24-B2-12"
+    "P24-B2-12",
+    "P24-B4-01",
+    "P24-B4-02",
+    "P24-B4-03",
+    "P24-B4-04",
+    "P24-B4-05",
+    "P24-B4-06",
+    "P24-B4-07"
   ],
   "batch_1_confirmed_count": 15,
   "batch_1_pending_count": 0,
@@ -3182,7 +3189,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "PDM-24 Batch 4 Final-gap Scan",
+  "next_action": "PDM-24 Final 前完整性复核（Prefinal Integrity）",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4335,8 +4342,8 @@
   "pdm_23_final_integrity_status": "PASS",
   "pdm_23_final_closeout": "COMPLETE",
   "pdm_23_source_backwrite": "10_10_DONE",
-  "pdm_24_status": "IN_PROGRESS_BATCH_1_2_3_PASS",
-  "pdm_24_next_gate": "BATCH_4_FINAL_GAP_SCAN",
+  "pdm_24_status": "IN_PROGRESS_BATCH_1_2_3_4_PASS",
+  "pdm_24_next_gate": "PREFINAL_INTEGRITY",
   "pdm_24_incoming_handoffs": {
     "status": "1_HANDOFF_ACCEPTED",
     "ids": [
@@ -4405,6 +4412,35 @@
   "pdm_24_batch_3_duplicate_rule_creation": 0,
   "pdm_24_batch_3_misclassified_product_choice": 0,
   "pdm_24_batch_3_conflict_isolation": "PASS",
-  "pdm_24_batch_4_status": "PENDING_FINAL_GAP_SCAN",
-  "pdm_24_window_handoff": "07_重建工作区/PDM-24_窗口切换交接_2026-10-07.md"
+  "pdm_24_batch_4_status": "PASS_USER_APPROVED_APPLIED",
+  "pdm_24_window_handoff": "07_重建工作区/PDM-24_窗口切换交接_2026-10-07.md",
+  "pdm_24_batch_4_pending_atoms": [],
+  "pdm_24_batch_4_confirmed_atoms": [
+    "P24-B4-01",
+    "P24-B4-02",
+    "P24-B4-03",
+    "P24-B4-04",
+    "P24-B4-05",
+    "P24-B4-06",
+    "P24-B4-07"
+  ],
+  "pdm_24_batch_4_confirmed_count": 7,
+  "pdm_24_batch_4_choices": {
+    "P24-B4-01": "USER_REVISED",
+    "P24-B4-02": "2A",
+    "P24-B4-03": "APPROVED",
+    "P24-B4-04": "APPROVED",
+    "P24-B4-05": "5A",
+    "P24-B4-06": "APPROVED",
+    "P24-B4-07": "APPROVED"
+  },
+  "pdm_24_local_product_choice_unresolved": 0,
+  "pdm_24_outgoing_handoffs": {
+    "status": "1_HANDOFF_OPEN",
+    "ids": [
+      "HO-P24-P25-001"
+    ]
+  },
+  "pdm_24_batch_4_completed_pdm_hard_conflict": 0,
+  "pdm_24_batch_4_new_business_object": 0
 }
