@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-23",
-  "current_domain_status": "STARTUP_GATE_PASS_BATCH_1_PASS_BATCH_2_PASS_BATCH_3_PASS_BATCH_4_REBUILT_PASS_USER_APPROVED_APPLIED",
+  "current_domain_status": "STARTUP_GATE_PASS_BATCH_1_PASS_BATCH_2_PASS_BATCH_3_PASS_BATCH_4_REBUILT_PASS_PREFINAL_R2_PASS_FINAL_CANDIDATE_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-23 Batch 4 历史重扫重建版已批准执行；进入 Final 前完整性复核",
+  "current_task": "PDM-23 Prefinal R2 PASS；等待最终完整规则总览用户批准",
   "current_work_file": "07_重建工作区/PDM-23_通知飞书SLA免打扰Incident通知日志_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -360,7 +360,11 @@
     "P23-B4R-07",
     "P23-B4R-08",
     "P23-B4R-09",
-    "P23-B4R-10"
+    "P23-B4R-10",
+    "P23-LIA-01",
+    "P23-LIA-02",
+    "P23-LIA-03",
+    "P23-LIA-04"
   ],
   "batch_1_confirmed_count": 15,
   "batch_1_pending_count": 0,
@@ -378,7 +382,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-23_PREFINAL_INTEGRITY_PENDING",
+  "current_review_batch": "PDM-23_FINAL_OVERVIEW_USER_REVIEW",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3148,7 +3152,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "执行 PDM-23 Final 前完整性复核（Prefinal Integrity）",
+  "next_action": "用户最终审查 / 批准 PDM-23 最终完整规则总览",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4118,8 +4122,8 @@
   "pdm_22_incoming_handoff_status": "18_18_HANDOFF_CLOSED_SOURCE_BACKWRITE_DONE",
   "pdm_22_source_backwrite": "18_18_DONE",
   "pdm_22_final_closeout": "COMPLETE",
-  "pdm_23_status": "IN_PROGRESS_STARTUP_GATE_PASS",
-  "pdm_23_next_gate": "PREFINAL_INTEGRITY",
+  "pdm_23_status": "IN_PROGRESS_PREFINAL_R2_PASS_FINAL_CANDIDATE_READY",
+  "pdm_23_next_gate": "FINAL_OVERVIEW_USER_APPROVAL",
   "pdm_23_startup_gate": {
     "status": "PASS",
     "core_direction": "P23-R00",
@@ -4280,5 +4284,20 @@
     "ids": [
       "HO-P23-P25-001"
     ]
-  }
+  },
+  "pdm_23_prefinal_integrity_r1_status": "REPAIR_REQUIRED_NO_HARD_CONFLICT",
+  "pdm_23_prefinal_r1_report": "07_重建工作区/PDM-23_Final前完整性复核_R1_2026-10-07.md",
+  "pdm_23_prefinal_repair_status": "PASS_USER_APPROVED_APPLIED",
+  "pdm_23_prefinal_repair_atoms": [
+    "P23-LIA-01",
+    "P23-LIA-02",
+    "P23-LIA-03",
+    "P23-LIA-04"
+  ],
+  "pdm_23_prefinal_integrity_r2_status": "PASS_FINAL_CANDIDATE_READY",
+  "pdm_23_prefinal_integrity_r2_report": "07_重建工作区/PDM-23_Final前完整性复核_R2_2026-10-07.md",
+  "pdm_23_formal_units": 65,
+  "pdm_23_final_candidate_ready": true,
+  "pdm_23_final_overview": "07_重建工作区/PDM-23_最终完整规则总览_待用户批准.md",
+  "pdm_23_final_overview_status": "PENDING_USER_FINAL_APPROVAL"
 }
