@@ -1,6 +1,6 @@
 # PDM-23｜通知 / 飞书 / SLA / 夜间免打扰 / Incident / 通知日志｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_REBUILT_PASS / USER_APPROVED / APPLIED`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_REBUILT_PASS / PREFINAL_R2_PASS / FINAL_CANDIDATE_READY`  
 > 核心定位：`P23-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：10 / 10 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -1178,3 +1178,114 @@ PDM-25 只承接统一审计 / 历史 / 时区规范，不得反向改变 PDM-23
 当前唯一下一步：
 
 > **执行 PDM-23 Final 前完整性复核（Prefinal Integrity）。**
+
+
+---
+
+# 13. Final 前完整性复核 R1｜REPAIR_REQUIRED / NO_HARD_CONFLICT
+
+R1 对 P23-R00、Batch 1～3、重建版 Batch 4、10 条 incoming handoff、HO-P23-P25-001、9/06 SSOT / Decision、R12 与 completed-PDM Final 做完整反查。
+
+R1 结果：
+
+- `SOURCE_TO_ATOM = REPAIR_REQUIRED`
+- `ATOM_TO_SOURCE = PASS`
+- `SEMANTIC_COMPLETENESS = REPAIR_REQUIRED`
+- `COMPLETED_PDM_INVARIANT_CONFLICT = 0`
+- `INCOMING_HANDOFF_GAP = 0`
+- `OUTGOING_HANDOFF_GAP = 0`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+- `MISSING_RULE_UNRESOLVED = 2`
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 2`
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
+用户已对以下 4 项“全部同意”，并明确“确认执行”。
+
+## P23-LIA-01｜统一通知去重基线｜USER_APPROVED / APPLIED
+
+同一业务事件、同一通知阶段原则上只主动通知一次。
+
+- 同一个 event 在同一个 notification stage 不因 worker 重试、页面刷新、重复消费、重复调度而产生多次普通主动通知；
+- 重试用于完成一次合法投递尝试，不等于创造新的业务通知阶段；
+- 已经 SENT 的同阶段普通通知再次遇到相同 dedupe identity 时应 DEDUPED / SKIPPED；
+- dedupe identity 的具体物理键设计留 Engineering；
+- 同一 Consultation 的同一次 first-response SLA timeout 阶段，原则上只做一次飞书总群超时告警；
+- 持续 Incident 重复告警按 P23-LIA-03 处理，是明确例外。
+
+## P23-LIA-02｜Consultation SLA 总群告警最小内容与敏感边界｜USER_APPROVED / APPLIED
+
+SLA timeout 进入飞书总群时，至少提供：
+
+- Customer 必要识别信息；
+- 当前负责销售 / assignee；
+- Consultation 必要摘要；
+- 已超时时长；
+- 合法业务入口 / deep-link。
+
+同时：
+
+- 不复制 Customer 完整手机号等非必要敏感信息；
+- 不附加不必要的 Deposit / Transaction 金额、internal price、上游电话明文；
+- deep-link 打开后继续按 P23-A17 重验 current identity + permission/capability + data scope + object/account state；
+- 告警内容不成为 Consultation 第二套业务历史；
+- 员工级 SLA 总群开关关闭时，仅不进行群投递，SLA timeout / 工作台 / 日志事实继续存在。
+
+## P23-LIA-03｜持续 Incident 重复告警是普通去重规则的明确例外｜USER_APPROVED / APPLIED
+
+同一持续 Incident：
+
+- 第一次合法告警可以主动发送；
+- Incident 仍未恢复时，允许按当前已配置的 incident cadence 再次主动告警；
+- 每次重复前重验 incident active、channel / route、DND、cadence、group validity；
+- DND 期间不绕过夜间免打扰；
+- 真实 recovery / cleared 后停止持续重复告警，并可按 allowlist 发送恢复通知。
+
+本条不恢复历史旧固定默认 2/5/15 分钟节奏。没有已批准 cadence 配置时，不得由 IA / Engineering 自行发明默认频率。
+
+## P23-LIA-04｜微信订阅消息“可接入”不等于“当前已启用”｜USER_APPROVED / APPLIED
+
+P23-B4R-02 只冻结未来接入能力，不代表当前已经开启客户微信主动消息。
+
+实际启用某一客户微信事件前，必须同时具备：
+
+1. 明确的 customer-WeChat event allowlist；
+2. 届时腾讯平台合法模板 / 类目 / 发送资格；
+3. 当前用户所需合法授权；
+4. 发送时 event / account / recipient validity 校验。
+
+未经新的明确产品 Authority，不得自动把 P23-A05 员工 / 飞书 allowlist 映射成客户微信消息。缺任何前提时不发送，且不视为业务失败。不建设通用客户 inbox / 已读未读状态机。
+
+---
+
+# 14. Final 前完整性复核 R2｜PASS / FINAL_CANDIDATE_READY
+
+R1 四项修复全部 USER_APPROVED / APPLIED 后重新执行 R2。
+
+正式规则 / 用户裁决单元：
+
+> **65 = P23-R00(1) + Batch1(20) + Batch2(14) + Batch3(16) + Batch4R(10) + LIA(4)**
+
+R2：
+
+- `SOURCE_TO_ATOM = PASS`
+- `ATOM_TO_SOURCE = PASS`
+- `SEMANTIC_COMPLETENESS = PASS`
+- `MISSING_RULE_UNRESOLVED = 0`
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 0`
+- `COMPLETED_PDM_INVARIANT_CONFLICT = 0`
+- `INCOMING_HANDOFF_GAP = 0`
+- `OUTGOING_HANDOFF_GAP = 0`
+- `NEGATIVE_CLAIMS_VERIFIED = PASS`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+- `R1_REPAIR_CLOSED = 4 / 4`
+- `PDM23_FORMAL_UNITS = 65`
+- `PDM23_FINAL_CANDIDATE_READY = YES`
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
+10 / 10 incoming handoff 继续 `HANDOFF_ACCEPTED`，最终批准前不关闭、不 source backwrite。
+
+`HO-P23-P25-001 = HANDOFF_OPEN`。
+
+当前唯一下一步：
+
+> **用户最终审查 / 批准《PDM-23 最终完整规则总览》。最终批准前不发布正式 Final、不关闭 incoming handoff、不做 source backwrite、不进入下一 PDM。**
