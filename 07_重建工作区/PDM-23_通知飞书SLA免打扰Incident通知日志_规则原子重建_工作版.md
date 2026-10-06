@@ -1,6 +1,6 @@
 # PDM-23｜通知 / 飞书 / SLA / 夜间免打扰 / Incident / 通知日志｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`  
 > 核心定位：`P23-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：10 / 10 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -399,7 +399,7 @@ PDM-23 只冻结产品约束：
 > **P23-A01～P23-A20 已全部批准并执行；进入 Batch 2 Reverse Conflict Scan。**
 ---
 
-# 5. Batch 2｜旧规则反向冲突扫描｜PENDING_USER_REVIEW
+# 5. Batch 2｜旧规则反向冲突扫描｜PASS / USER_APPROVED / APPLIED
 
 > 扫描对象：R12 历史风险项、Current IA / Low-Fi P09 carrier、PDM-04/09/14/15/16/17/18/19/21/22 Final，以及历史通知口径。  
 > 原则：只废弃已被 completed-PDM 或 P23 Batch 1 明确替代的旧口径，不把新产品选择偷渡成“清理”。
@@ -568,11 +568,11 @@ P09 位于 PC / admin 区域，不代表 System Admin 身份自动获得通知�
 
 ---
 
-# 6. Batch 2 Gate｜PENDING_USER_REVIEW
+# 6. Batch 2 Gate｜PASS
 
 当前：
 
-- `P23-B2-01～P23-B2-14 = PENDING_USER_REVIEW`
+- `P23-B2-01～P23-B2-14 = PASS / USER_APPROVED / APPLIED`
 - `REVERSE_CONFLICT_SCAN = PASS`
 - `FALSE_DEPRECATION_COUNT = 0`
 - `COMPLETED_PDM_HARD_CONFLICT = 0`
@@ -581,5 +581,216 @@ P09 位于 PC / admin 区域，不代表 System Admin 身份自动获得通知�
 
 当前唯一下一步：
 
-> **用户审查 P23-B2-01～P23-B2-14。未经用户批准与明确执行，不进入 Batch 3。**
+> **P23-B2-01～P23-B2-14 已全部批准并执行；进入 Batch 3 配置 / 路由 / 日志完整性扫描。**
+---
+
+# 7. Batch 3｜配置 / 路由 / 日志完整性扫描｜PENDING_USER_REVIEW
+
+> 本批只补已经存在于 R12 / Current P09 carrier / completed-PDM handoff 的稳定语义。  
+> 不新增通知模板中心、不新增客户消息中心、不臆造未冻结的收件人矩阵或固定告警频率。
+
+## P23-B3-01｜Notification Config 必须使用独立配置 Guard
+
+P09 通知配置写操作必须读取当前：
+
+- active Employee identity；
+- 明确 Notification Config permission / capability；
+- data / config scope；
+- config object state。
+
+不得：
+
+- 因页面位于 PC / admin 自动获得；
+- 复用车型映射等无关 permission；
+- 把 System Admin 控制平面身份直接等同通知业务配置权。
+
+## P23-B3-02｜通知配置提交时必须重新校验
+
+飞书映射、DND、可配置 SLA / reminder carrier 等通知域写操作：
+
+> 提交时重新验证 current identity + permission/capability + scope + config state。
+
+旧页面、旧登录态、旧缓存不得延续已撤销配置能力。
+
+## P23-B3-03｜发送时使用“当前有效接收路由”
+
+个人员工通知发送时：
+
+- 根据业务事件中的合法责任上下文解析当前接收人；
+- 再读取该 employee_id 当前有效飞书接收身份；
+- Employee inactive / 当前映射失效时不得继续向旧身份发送新的个人业务通知。
+
+历史映射只留必要审计，不作为新的当前发送路由。
+
+## P23-B3-04｜飞书映射本身不授业务内容访问权
+
+某 employee_id 存在飞书映射：
+
+> 只表示该员工存在当前通知路由。
+
+它不意味着：
+
+- 自动拥有对应 Customer / Vehicle / Consultation / Lock / Transaction 查看权；
+- 自动成为 owner / assignee / responsible；
+- deep-link 可以绕过当前业务 Guard。
+
+## P23-B3-05｜群通知路由必须读取当前合法配置
+
+Consultation SLA timeout 等允许群告警的事件：
+
+- 只有当前存在合法群 / 路由配置时才发送对应群通知；
+- 不由 PDM-23 写死具体群 ID、群名称或成员；
+- 群配置变化只影响后续投递，不追改已发生业务事实。
+
+## P23-B3-06｜DND 使用发送时当前有效配置
+
+quiet-hours 属于投递策略：
+
+- 当前基线 23:00～08:30，可配置；
+- 每次实际发送 / 重试前读取当前有效 DND；
+- 修改 DND 不追改业务 deadline / expires_at / incident created_at；
+- 也不重写已经完成的历史通知结果。
+
+## P23-B3-07｜DND 期间日志与业务事件继续存在
+
+进入 DND 后：
+
+- 当前业务事件照常成立；
+- Notification 可以记录“等待重判 / 当前未发送”等必要投递事实；
+- SLA / incident / business clock 照常运行；
+- 不能把“暂不发送”写成业务取消或业务完成。
+
+## P23-B3-08｜发送前 Event Validity 必须重新验证
+
+实际投递前至少重新判断：
+
+- 原业务事件是否仍存在；
+- 是否仍需要主动提醒；
+- 接收对象是否仍有效；
+- allowlist 是否仍允许；
+- DND / frequency / dedupe 是否允许当前发送。
+
+事件已经 resolved / ended / invalidated 时，不得只因早先进入队列就机械发送。
+
+## P23-B3-09｜Incident Recovery 必须来源于真实恢复事实
+
+“恢复通知”只能消费：
+
+> 对应运行 / 供应 / Collector 域已经确认的真实 incident recovery / cleared fact。
+
+不得因为：
+
+- 一次通知发送成功；
+- 一次探测偶然成功；
+- 某条日志状态变化；
+
+自行把底层 incident 判定为 recovered。
+
+## P23-B3-10｜Notification Log 与业务审计分层
+
+P09 Notification Log 记录投递事实；PDM-25 统一审计负责跨域 mutation / history 标准。
+
+因此：
+
+- Notification Log 不成为 Vehicle / Consultation / Lock / Transaction 的第二套业务历史；
+- 业务对象真相仍回到对应 Domain；
+- 通知配置 before / after / actor / time 等统一审计标准继续由 PDM-25 承接；
+- 日志物理存储周期仍属 Engineering。
+
+## P23-B3-11｜FAILED / SKIPPED / DEDUPED 必须有可解释原因
+
+通知日志不能只留一个结果枚举。
+
+对适用结果应保留必要原因，例如：
+
+- provider / send failure；
+- recipient unavailable / inactive；
+- DND；
+- event no longer valid；
+- not allowlisted；
+- frequency limited；
+- deduped。
+
+具体错误码体系、provider code 映射留 Engineering。
+
+## P23-B3-12｜通知日志不能泄露不必要敏感业务内容
+
+通知日志只保留投递诊断所需的业务关联标识与必要上下文。
+
+不得因为“方便排查”自动复制：
+
+- Customer 完整手机号；
+- 不必要的 Deposit / Transaction 敏感金额；
+- internal price；
+- 上游电话明文；
+- 其他超出当前查看权限的业务敏感内容。
+
+查看通知日志本身仍需 current permission + scope。
+
+## P23-B3-13｜通知配置变化只影响后续投递
+
+包括：
+
+- 飞书映射；
+- DND；
+- incident cadence；
+- 群 / 路由；
+- 其他已批准通知配置。
+
+修改后：
+
+- 不改写过去 SENT / FAILED / SKIPPED / DEDUPED 历史；
+- 不追改业务对象；
+- 对尚未实际发送的候选事件，在下一次发送判断时读取当前有效配置并重验。
+
+## P23-B3-14｜Incident cadence 只有“配置存在”时才成为当前事实
+
+P09 可以展示：
+
+- `INCIDENT_CADENCE_CONFIGURED`；
+- `CADENCE_NOT_CONFIGURED`。
+
+但 PDM-23 不定义未获批准的默认间隔。
+
+若未配置：
+
+> 不得由 IA / Engineering 自行填一个“看起来合理”的重复告警频率。
+
+## P23-B3-15｜通知渠道选择不得创造业务硬依赖
+
+飞书、员工工作台、PC 提醒等是投递 carrier。
+
+若某渠道失败 / 不可用：
+
+- 不得让对应业务 mutation 失败；
+- 不得回滚已经成立的业务事实；
+- 是否存在其他合法渠道可继续投递，按当前 allowlist / routing config 判断。
+
+## P23-B3-16｜客户侧主动消息继续默认关闭，除非已有明确 Authority
+
+当前没有来源支持把 PDM-23 扩展成通用客户消息中心。
+
+因此默认：
+
+- 不新增通用客户消息 inbox；
+- 不新增已读 / 未读业务状态机；
+- 不因员工飞书通知事件自动生成客户微信消息；
+- 已有公告 / share / Customer Safe Projection 继续归对应 completed-PDM Authority。
+
+---
+
+# 8. Batch 3 Gate｜PENDING_USER_REVIEW
+
+当前：
+
+- `P23-B3-01～P23-B3-16 = PENDING_USER_REVIEW`
+- `SEMANTIC_COMPLETENESS_SCAN = PASS_WITH_PENDING_REVIEW`
+- `NEW_PRODUCT_CHOICE_INTRODUCED = 0`
+- `COMPLETED_PDM_HARD_CONFLICT = 0`
+- `INCOMING_HANDOFF_ACCEPTED = 10 / 10`
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
+当前唯一下一步：
+
+> **用户审查 P23-B3-01～P23-B3-16。未经用户批准与明确执行，不进入 Batch 4 / Final-gap scan。**
 
