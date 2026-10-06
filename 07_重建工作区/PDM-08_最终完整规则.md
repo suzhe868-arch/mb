@@ -586,7 +586,7 @@ PDM-08 只冻结业务结果和边界。
 ### 28.2 仍待后续 PDM 承接
 
 - PDM-20｜`HANDOFF_CLOSED`：PDM-20 Final 已正式承接 4:3 列表/详情、统一图片序列、全屏交互、车辆分享图/分享卡片、安全字段白名单与旧分享实时重验；`HO-P08-P20-001 = HANDOFF_CLOSED / source_backwrite=YES`；
-- PDM-21｜`HANDOFF_OPEN`：员工端人工图片上传/删除/排序、资产化状态、失败图片重试/人工恢复的真实操作投影；必须区分普通 CDN 加载失败、批发→名邦资产化失败、人工图片恢复，不能用一个泛化 `IMAGE_RETRYING` 混为一套生命周期；
+- PDM-21｜`HANDOFF_CLOSED`：PDM-21 Final 已正式承接人工图片上传/删除/排序、资产化状态、失败重试/人工恢复，并区分 CDN 加载失败、批发→名邦资产化失败与人工恢复；`HO-P08-P21-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-22｜`HANDOFF_OPEN`：名邦公开图片域名、JYT Origin、report 域名、对象存储源站以及首页/品牌分享配置入口；产品只要求可配置，不在 PDM-08 写死厂商/TTL/并发等工程值；
 - PDM-25｜`HANDOFF_OPEN`：影响线上资源访问与权限安全的公开域名、Origin、report proxy target 等配置变更，以及资产化/recovery 关键状态变化的统一审计与历史。
 
