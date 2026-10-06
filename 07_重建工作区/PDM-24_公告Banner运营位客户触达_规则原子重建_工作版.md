@@ -1,7 +1,7 @@
 # PDM-24｜公告 / Banner / 运营位 / 客户触达｜规则原子重建工作版
 
 > 域：Announcement / Banner / Placement / Schedule / Customer-facing Operations  
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PENDING_SCAN`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PASS / PREFINAL_PENDING`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
 
 ---
@@ -126,21 +126,26 @@ Final Closeout 前：
 - 不合并成一个通用 Message / Campaign 主对象；
 - 不因两者都面向客户展示就建立通用客户消息中心。
 
-## P24-A02｜公告基础管理闭环｜USER_APPROVED / APPLIED
+## P24-A02｜公告基础管理闭环｜USER_APPROVED / APPLIED / B4_COMPLETENESS_REVISED
 
 公告至少支持：
 
 - 列表；
 - 新建；
 - 编辑；
+- 标题；
+- 正文；
 - 启用 / 停用；
-- 生效时间；
-- 结束时间；
+- 生效开始日期；
+- 结束日期；
+- 自动弹出开关；
 - 排序；
 - 创建人；
-- 修改人。
+- 修改人；
+- 创建 / 修改时间。
 
-公告生命周期至少能表达 draft / scheduled / active / ended 等运营事实；具体数据库枚举留 Engineering。
+V1 至少支持按“年-月-日”设置公告有效周期。公告生命周期至少能表达 draft / scheduled / active / ended 等运营事实；具体数据库枚举与时间存储格式留 Engineering。
+
 
 ## P24-A03｜公告客户端只保留 active 与 history 业务入口｜USER_APPROVED / APPLIED
 
@@ -151,13 +156,25 @@ Final Closeout 前：
 
 不新增第四个“消息”Tab，不扩成泛化消息中心。
 
-## P24-A04｜公告主动弹层每日频控｜USER_APPROVED / APPLIED
+## P24-A04｜公告主动弹层每日频控｜USER_APPROVED / APPLIED / B4_REVISED
 
-同一 Announcement + 同一 Customer：
+Batch 4 已对本条做正式收口，当前 Authority 为：
 
-> **按统一业务时区，每日最多主动弹出 1 次。**
+> **同一 Customer 在同一业务自然日内，公告主动弹层全局最多展示 1 条。**
 
-该规则限制“主动弹层”，不禁止客户主动进入公告列表查看。
+不是“每个 Announcement 各自每天 1 次”。
+
+同时：
+
+- 只有处于有效周期、已启用且“自动弹出”开启的 Announcement 才进入自动展示候选；
+- 触发时机为客户当天第一次进入 / 打开小程序时；
+- 当天已经实际展示过 1 条公告后，当天再次进入不再自动弹其他公告；
+- 第二天若仍有合法有效公告，则重新获得当天 1 次自动展示机会；
+- 自动弹出关闭时，公告仍可在公告业务入口中按其 active/history 规则被主动查看；
+- 取消历史“仅首次自动弹出一次”频率模式，不再保留多档频率选择。
+
+客户主动进入公告列表查看不受该每日自动弹层上限限制。
+
 
 ## P24-A05｜关闭公告弹层不创建已读事实｜USER_APPROVED / APPLIED
 
@@ -246,18 +263,34 @@ Banner 至少支持：
 - 页面能打开、按钮曾显示、旧会话仍存在，都不能代替提交时重验；
 - 4S 默认不得因其身份获得名邦运营配置能力。
 
-## P24-A14｜重要运营配置变更必须可追溯｜USER_APPROVED / APPLIED
+## P24-A14｜重要运营配置变更必须可追溯｜USER_APPROVED / APPLIED / B4_COMPLETENESS_REVISED
 
 公告 / Banner 的创建、编辑、启停、排期、排序、target / placement 等重要变更应形成可追溯事实。
+
+公告至少还包括：
+
+- 生效开始日期 / 结束日期变更；
+- 自动弹出开关变更；
+- 标题 / 正文等内容编辑；
+- 普通编辑不重置既有当天展示事实；
+- 新建公告形成新的 Announcement 身份，但仍受客户每日全局最多 1 条主动公告约束。
+
+Banner 至少还包括：
+
+- 停用；
+- 再启用；
+- 再启用前重新校验 placement / target / schedule / permission。
 
 至少交给 PDM-25 统一审计/历史标准承接：
 
 - before；
 - after；
 - actor；
-- time。
+- time；
+- 统一业务时区解释。
 
 PDM-24 不另建第二套跨域 Audit Authority。
+
 
 ## P24-A15｜不建设万能运营/营销平台｜USER_APPROVED / APPLIED
 
@@ -463,7 +496,7 @@ Banner 只能导航到当前合法目标；进入目标后仍由目标 Domain Gu
 | 后续新增 / 变化事实 | 当前已承接位置 |
 |---|---|
 | Banner target 可选；无 target 纯展示；失效 target 不可点击；只允许内部白名单 | P24-A10 / A11 + P24-B2-07 / B2-08 / B2-09 |
-| Announcement 同公告+同客户按统一业务时区每日最多主动弹一次 | P24-A04 |
+| Announcement 自动弹层按 Customer + 业务自然日全局最多 1 条；有效周期与自动弹出开关由 Batch 4 收口 | P24-A04 + P24-B4-01～B4-03 |
 | 关闭公告弹层不创建已读事实 | P24-A05 + P24-B2-02 / B2-03 |
 | Announcement lifecycle 的 draft / scheduled / active / ended / reorder | P24-A02 / A12 / A14 |
 | Banner reorder 只改展示顺序，不改 target / schedule / placement | P24-A12 / A14 |
@@ -503,16 +536,151 @@ Banner 只能导航到当前合法目标；进入目标后仍由目标 Domain Gu
 - `HO-P20-P24-001 = HANDOFF_ACCEPTED`
 - `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
 
-# 7. 当前唯一下一步
+# 7. Batch 4｜Final-gap Scan｜PASS / USER_APPROVED / APPLIED
 
-> **PDM-24 Batch 4 Final-gap Scan：冲突、历史遗漏、证据不足、新业务选择。**
+本批重新对照 9/06 SSOT / Decision、9/19 R10/R12、9/22 Frozen Visual Review、001～078、Current IA、completed-PDM Final 与本窗口用户补充裁决，关闭公告频控、内容字段、Banner 再启用与 PDM-24→PDM-25 outgoing handoff 缺口。
 
-窗口切换后继续时：
+## P24-B4-01｜公告有效周期 + 自动弹出开关 + 每客户每日全局最多 1 条｜USER_APPROVED / APPLIED / USER_REVISED
 
-- 先读取本工作版与窗口切换交接快照；
-- 不重复 Startup Gate / Batch 1 / Batch 2 / Batch 3；
-- 直接进入 Batch 4 Final-gap Scan；
-- Batch 4 任何候选仍需用户逐项审查；
-- Final Closeout 前不得关闭 `HO-P20-P24-001`；
-- Final Closeout 前不得 source backwrite PDM-20；
-- 不施工 IA / Low-Fi / Engineering。
+用户明确取消历史“仅首次自动弹出一次”模式，当前规则：
+
+- 每条 Announcement 可设置生效开始日期与结束日期，V1 至少按“年-月-日”配置；
+- Announcement 仍需处于启用且有效周期内，才属于当前有效公告；
+- 每条 Announcement 具有“自动弹出：开 / 关”；
+- 自动弹出开启时，同一 Customer 在同一业务自然日内，公告主动弹层全局最多实际展示 1 条；
+- 触发点为客户当天第一次进入 / 打开小程序；
+- 当天已经展示过 1 条公告后，再次进入不继续自动弹其他公告；
+- 第二天若仍存在合法有效公告，可重新展示当天 1 条；
+- 自动弹出关闭时，不主动弹出，但不因此删除公告；客户仍可按 active/history 规则主动查看；
+- 不再建设“仅首次一次 / 每天一次 / 不自动弹”三档频率模式，其中“不自动弹”由独立自动弹出开关承担。
+
+本条正式修订 P24-A04 原“同 Announcement + 同 Customer 每日 1 次”的粒度，收紧为“同 Customer 每日全局最多 1 条公告主动弹层”。
+
+## P24-B4-02｜普通编辑不重置当天展示事实；重新触达用新公告｜USER_APPROVED / APPLIED / CHOICE_2A
+
+- 对现有 Announcement 普通编辑标题、正文、周期、排序等，不重置客户当天已经产生的公告自动展示事实；
+- 客户当天已经看过 1 条自动公告后，即使该公告后来被编辑，当天也不再次自动弹出；
+- 客户当天尚未进入时，第一次进入读取当时最新有效内容；
+- V1 不新增独立“重新发布并重置触达”动作；
+- 确需开启一轮新的运营触达时，新建新的 Announcement；
+- 新 Announcement 仍受“同一 Customer 每日全局最多 1 条自动公告”约束；
+- 旧 Announcement 与旧展示 / 配置历史不得物理覆盖。
+
+## P24-B4-03｜多条有效公告的自动展示选择｜USER_APPROVED / APPLIED
+
+当同一自然日有多条同时满足“启用 + 有效周期 + 自动弹出开启”的 Announcement：
+
+- 客户当天第一次进入时只自动展示 1 条；
+- 按后台当前有效排序择一；
+- 不连续强制弹出第二、第三条；
+- 当天后续再次进入不再自动补弹其他公告；
+- 客户主动进入公告业务入口时，可按当前 active/history 规则查看合法公告，不受每日自动弹层上限限制；
+- 与资料完善提醒等其他主动弹层同时命中时，继续服从 P24-A06“同一时刻只展示一个主动弹层”；
+- 不建立复杂营销优先级 / 客户定向引擎。
+
+## P24-B4-04｜公告字段完整性补回｜USER_APPROVED / APPLIED
+
+Announcement 当前至少具备：
+
+- 标题；
+- 正文；
+- 启用 / 停用；
+- 生效开始日期；
+- 结束日期；
+- 自动弹出开关；
+- 排序；
+- 创建人；
+- 修改人；
+- 创建 / 修改时间。
+
+以上补回到 P24-A02，不再保留独立“频率档位”字段作为产品要求。
+
+## P24-B4-05｜Banner V1 继续只允许内部白名单目标｜USER_APPROVED / APPLIED / CHOICE_5A
+
+对历史“安全外链”表述正式收口：
+
+- V1 Banner target 继续只允许已存在、内部白名单、合法的小程序页面 / 业务对象；
+- 不开放任意外链，也不恢复“安全外链”作为当前 V1 能力；
+- 后续确需 H5 / 外部链接时，必须重新获得明确产品 Authority，并单独定义域名白名单、平台能力与导航安全边界；
+- P24-A11 / P24-B2-07 继续有效。
+
+## P24-B4-06｜Banner 停用不删除；允许再启用并重新校验｜USER_APPROVED / APPLIED
+
+- Banner 停用只把它移出当前有效展示集合，不物理删除对象、配置和历史；
+- 停用后允许再次启用；
+- 再启用提交时必须重新校验 current identity + permission/capability + scope + placement + target + schedule + object/config state；
+- 已过结束日期的 Banner 若需再次展示，必须先形成新的合法有效排期；
+- 排序只控制同一 placement 内当前有效 Banner 的展示顺序；
+- Banner 不需要复制 Announcement 的 active/history 客户端状态机；历史事实由对象保留 + 配置 / 审计历史承接。
+
+## P24-B4-07｜正式登记 PDM-24 → PDM-25 outgoing handoff｜USER_APPROVED / APPLIED / HANDOFF_REGISTERED
+
+正式 outgoing：
+
+> `HO-P24-P25-001 = HANDOFF_OPEN`
+
+移交 PDM-25 统一承接：
+
+### Announcement
+
+- 创建 / 编辑 / 启停；
+- 生效开始日期 / 结束日期；
+- 排序；
+- 自动弹出开关；
+- 标题 / 正文变更；
+- 普通编辑不重置当天展示事实；
+- 新建公告重新形成 Announcement 身份；
+- 每日自动展示事实与统一业务时区解释；
+- before / after / actor / time。
+
+### Banner
+
+- 创建 / 编辑 / 启停；
+- schedule；
+- sort；
+- placement；
+- target；
+- 停用 / 再启用；
+- 再启用校验；
+- before / after / actor / time。
+
+PDM-25 负责统一 audit / history / timestamp / timezone 标准，不得反向改变 PDM-24 已冻结的 Announcement / Banner 产品语义。
+
+---
+
+# 8. Batch 4 执行结果
+
+- `P24-B4-01～P24-B4-07 = PASS / USER_APPROVED / APPLIED`
+- `B4-01 = USER_REVISED`
+- `B4-02 = CHOICE_2A`
+- `B4-05 = CHOICE_5A`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+- `COMPLETED_PDM_HARD_CONFLICT = 0`
+- `NEW_BUSINESS_OBJECT = 0`
+- `HO-P20-P24-001 = HANDOFF_ACCEPTED`
+- `HO-P24-P25-001 = HANDOFF_OPEN`
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
+Final Closeout 前仍然：
+
+- 不关闭 `HO-P20-P24-001`；
+- 不 source backwrite PDM-20；
+- 不把 PDM-24 标记为 COMPLETE；
+- 不进入 PDM-25。
+
+# 9. 当前唯一下一步
+
+> **PDM-24 Final 前完整性复核（Prefinal Integrity）。**
+
+Prefinal 必须继续执行：
+
+- Missing Rule Audit；
+- Semantic Detail Audit；
+- Source→Atom / Atom→Source；
+- Cross-PDM Integrity；
+- incoming / outgoing handoff 完整性；
+- Negative Claims；
+- 当前 Batch 4 修订后的 Announcement 每日全局频控一致性；
+- Banner lifecycle / target / placement 一致性。
+
+发现真正改变产品语义的缺口时，只 reopen 对应 Atom，并重新提交用户裁决；不得静默修改 IA / Low-Fi / Engineering。
