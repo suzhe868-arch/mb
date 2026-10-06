@@ -404,7 +404,7 @@ PDM-02 的以下规则继续有效：
 - CRM 跟进、画像、阶段、Source Radar 与公司客户历史的具体页面 / 字段访问投影 → PDM-16｜`HANDOFF_CLOSED`：PDM-16 Final 已承接，并明确“历史服务过”不产生永久访问权；current owner / valid Collaboration / authorized manager scope 与统一 Guard 决定当前访问；`HO-P03-P16-001 = HANDOFF_CLOSED / source_backwrite=YES`。
 - 公海 / 待公海处理 / 后台分配 / 领取 / Collaboration → PDM-17｜`HANDOFF_CLOSED`：PDM-17 Final 已正式承接唯一 current owner、公海 owner=null、人工治理/领取/指定分配/Collaboration，并明确分享/转介绍不得绕过已有 owner 或正式公海治理；`HO-P03-P17-001 = HANDOFF_CLOSED / source_backwrite=YES`。
 - Waitlist / Lock 负责人状态机 → PDM-18｜`HANDOFF_CLOSED`：PDM-18 Final 已正式承接 Lock/Waitlist responsible 与 Customer owner 分层，普通 owner 变化不自动漂移业务负责人，inactive/离职/失去资格必须正式 handoff 并保留历史；`HO-P03-P18-001 = HANDOFF_CLOSED / source_backwrite=YES`。
-- Transaction / Refund 负责人状态机 → PDM-19。
+- Transaction / Refund 负责人状态机 → PDM-19｜`HANDOFF_CLOSED`：PDM-19 Final 已正式承接 Transaction responsible 与 Customer owner 分层、owner 变化不自动漂移 Transaction responsible、失效/离职需正式 handoff；Refund 不另设永久 responsible，只保留真实 initiator/operator/actor；`HO-P03-P19-001 = HANDOFF_CLOSED / source_backwrite=YES`。
 - 客户端分享入口、分享页、直接转介绍 / 推荐朋友入口、交互和视觉 → PDM-20。
 - 员工端分享入口与交互 → PDM-21。
 - 审计字段统一标准 → PDM-25。
