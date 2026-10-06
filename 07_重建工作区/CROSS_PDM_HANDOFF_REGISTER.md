@@ -496,6 +496,15 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
+## 12K. PDM-21 来源 handoff
+
+| handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
+|---|---|---|---|---|---|
+| HO-P21-P23-001 | PDM-23 | 通知 / 飞书层承接 PDM-21 员工端工作台与敏感页面的通知投影：通知只消费真实 Consultation SLA、LockRequest deadline、Priority expires_at、Transaction/业务事件等 completed-PDM 事实；不得把 E01 urgency 排序反向写成新的业务状态。通知 deep-link 进入 E01/E06/E07 等当前合法员工上下文时必须重新校验 identity、permission/capability、data scope、object state；打开通知/打开详情本身不得误算 Consultation first response。 | HANDOFF_OPEN | - | YES |
+| HO-P21-P25-001 | PDM-25 | 统一审计 / 历史 / 横切完整性承接 PDM-21 员工体验规则：Internal Mode 临时 session、长按进入、后台5分钟退出、权限撤销后旧页面失效；高风险员工 Action 的 entry_context、actor、time、before/after、result、failure；source_type、hidden/restore、价格、电话、Archive、Recommendation、Lock/Transaction 等继续复用对应业务域审计事实，不由 PDM-21 建第二套日志；E01 排序、UI 状态、disabled/hidden carrier 不得反向改写底层历史。 | HANDOFF_OPEN | - | YES |
+
+---
+
 ## 13. Post-PDM25 IA / Low-Fi Carrier Ledger｜持续累积
 
 > 当前只登记，不施工；统一在 PDM-25 完成 + PDM-01～25 全局最终总复核 PASS 后集中对齐。
