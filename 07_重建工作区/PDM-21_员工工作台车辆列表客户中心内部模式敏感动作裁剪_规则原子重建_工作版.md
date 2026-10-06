@@ -1,6 +1,6 @@
 # PDM-21｜员工工作台 / 车辆列表 / 客户中心 / 内部模式 / 敏感动作裁剪｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / BATCH_4_PASS / PREFINAL_R1_REPAIR_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / PREFINAL_R2_PASS / FINAL_OVERVIEW_PENDING_USER_APPROVAL`  
 > 核心定位：`P21-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：19 / 19 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -919,7 +919,7 @@ Consultation 自身 SLA deadline 继续由 PDM-15 冻结；这里只决定 E01 �
 
 报告：`07_重建工作区/PDM-21_Final前完整性复核_R1_2026-10-06.md`
 
-## P21-LIA-01｜Internal Mode 进入、退出、旧页面失效与无权限裁剪
+## P21-LIA-01｜Internal Mode 进入、退出、旧页面失效与无权限裁剪｜USER_APPROVED / APPLIED
 
 - 长按价格区域约 3 秒进入 Internal Mode；
 - 进入本身不增加 permission；
@@ -929,7 +929,7 @@ Consultation 自身 SLA deadline 继续由 PDM-15 冻结；这里只决定 E01 �
 - 缺少 permission/capability 的敏感字段、区域、动作不返回/不展示；只有“能力合法但当前 object state 暂不可执行”时才允许 disabled + reason；
 - 分享/Recommendation/外部链接不得携带 Internal Mode、内部价、电话或其他内部敏感状态。
 
-## P21-LIA-02｜正式 Vehicle source_type 修改与单车隐藏/恢复闭环
+## P21-LIA-02｜正式 Vehicle source_type 修改与单车隐藏/恢复闭环｜USER_APPROVED / APPLIED
 
 - 合法名邦 Employee 可在权限、scope、object state 合法时，把正式人工 Vehicle 在名邦 ↔ 4S 间修改 source_type；
 - 不允许人工改成批发/JYT；
@@ -939,7 +939,7 @@ Consultation 自身 SLA deadline 继续由 PDM-15 冻结；这里只决定 E01 �
 - 正常可见 Vehicle 的 Internal Mode 显示“隐藏车源”，hidden Vehicle 显示“恢复显示 / 解除隐藏”；
 - hidden/visible 与 offline/relist 严格分离，解除隐藏不得把真实 offline Vehicle 错误恢复在售。
 
-## P21-LIA-03｜车型固定属性 / MODEL_MISSING / mapping 状态投影
+## P21-LIA-03｜车型固定属性 / MODEL_MISSING / mapping 状态投影｜USER_APPROVED / APPLIED
 
 - 选择有效具体车型后，自动带出车型年款、排量、变速箱、排放、能源等由车型唯一确定的固定属性；
 - 销售不重复录入这些固定属性；
@@ -948,7 +948,7 @@ Consultation 自身 SLA deadline 继续由 PDM-15 冻结；这里只决定 E01 �
 - “车型映射冲突”明确提示，但冲突本身不自动等于 Vehicle 不可售；
 - 员工端只做状态投影，不提供 System Admin 车型主数据治理动作。
 
-## P21-LIA-04｜Vehicle Archive 员工端完整操作闭环
+## P21-LIA-04｜Vehicle Archive 员工端完整操作闭环｜USER_APPROVED / APPLIED
 
 承载：上传/新增、后补、更新/替换、作废、历史/版本、核验、设置/取消 customer_visible、查看当前合法内部原始档案。
 
@@ -958,7 +958,7 @@ Consultation 自身 SLA deadline 继续由 PDM-15 冻结；这里只决定 E01 �
 - 4S Member 只在自己有权管理的 4S Vehicle 范围内执行允许动作；
 - Archive 不完整本身不得被投影为“不可推荐/不可咨询/不可锁车”，继续读取 completed PDM Guard。
 
-## P21-LIA-05｜Application / Demand 的等级、结束请求与责任历史投影
+## P21-LIA-05｜Application / Demand 的等级、结束请求与责任历史投影｜USER_APPROVED / APPLIED
 
 - 无正式找车 entitlement 的 Customer 仍可保持 pending Application；
 - 员工可按权限合法调整 Customer Level，但等级变化本身不得自动激活 Demand；
@@ -968,7 +968,7 @@ Consultation 自身 SLA deadline 继续由 PDM-15 冻结；这里只决定 E01 �
 - 合法 Employee 也可直接结束 Demand，不要求先有客户结束请求；
 - owner/responsible 交接、inactive/离职不得改写历史负责人和历史状态。
 
-## P21-LIA-06｜Matching stale / recalc failed / retry 安全投影
+## P21-LIA-06｜Matching stale / recalc failed / retry 安全投影｜USER_APPROVED / APPLIED
 
 - 旧 Match Result 失效时显示为历史/stale，不得冒充 current；
 - recalculation pending/failed 必须有明确员工状态反馈；
@@ -977,7 +977,7 @@ Consultation 自身 SLA deadline 继续由 PDM-15 冻结；这里只决定 E01 �
 - stale/failed 结果不得驱动新的 Priority/Recommendation；
 - confirmation_needed 仍只能“补事实 → 重算 → 读取新正式 tier”。
 
-## P21-LIA-07｜E03 / E04 / E01 与 CRM / Radar / 公海入口补全
+## P21-LIA-07｜E03 / E04 / E01 与 CRM / Radar / 公海入口补全｜USER_APPROVED / APPLIED
 
 E04 只展示姓名/头像、角色、名邦员工主门店、接客状态、权限摘要、飞书绑定、账号/必要设置；4S 不伪造主门店；不重复业务模块或第二个接客开关。
 
@@ -996,7 +996,7 @@ E01 → E08：
 - 具合法公海查看/领取能力时显示“公海”入口；
 - 无权限不显示。
 
-## P21-LIA-08｜LockRequest 完整结果状态与 E01 强待办投影
+## P21-LIA-08｜LockRequest 完整结果状态与 E01 强待办投影｜USER_APPROVED / APPLIED
 
 员工端区分 PENDING / APPROVED / REJECTED / EXPIRED / LOCK_CONFLICT / CLOSED_NOT_LOCKABLE。
 
@@ -1008,7 +1008,7 @@ E01 → E08：
 - 各终态不回到 PENDING；
 - 不恢复客户端主动撤回 LockRequest，也不建设第二套员工端状态机。
 
-## P21-LIA-09｜登记 PDM-21 → PDM-23 / PDM-25 后续 handoff
+## P21-LIA-09｜登记 PDM-21 → PDM-23 / PDM-25 后续 handoff｜USER_APPROVED / APPLIED
 
 PDM-23：
 - 通知/飞书只消费真实 deadline/SLA/incident；
@@ -1026,14 +1026,53 @@ LIA-09 获批执行后，再正式登记 CROSS_PDM_HANDOFF_REGISTER。
 
 ---
 
-# 12. R1 Repair Gate
+# 12. R1 Repair Gate｜PASS
 
-- `P21-LIA-01～P21-LIA-09 = PENDING_USER_REVIEW`
-- `R1_REPAIR_REQUIRED = 9`
-- `FINAL_CANDIDATE_READY = NO`
+- `P21-LIA-01～P21-LIA-09 = PASS / USER_APPROVED / APPLIED`
+- `R1_REPAIR_CLOSED = 9 / 9`
 - `19 / 19 incoming handoff = HANDOFF_ACCEPTED`
+- `OUTGOING_HANDOFF_REGISTERED = 2 / HANDOFF_OPEN`
 - `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
+---
+
+# 13. Final 前完整性复核 R2｜PASS / FINAL_CANDIDATE_READY
+
+R2 重新核对：
+
+- 9/19 R10 / R11；
+- 001～078 M15 / M17 / M16；
+- PDM-01～20 completed Final；
+- 19 / 19 incoming handoff；
+- P21-R00、Batch 1～4、LIA-01～09；
+- PDM-21 → PDM-23 / PDM-25 outgoing handoff；
+- Negative / DO_NOT_RESTORE；
+- IA / Low-Fi stale carrier 边界。
+
+结果：
+
+- `SOURCE_TO_ATOM = PASS`
+- `ATOM_TO_SOURCE = PASS`
+- `SEMANTIC_COMPLETENESS = PASS`
+- `M15_M17_M16_COVERAGE = PASS`
+- `MISSING_RULE_UNRESOLVED = 0`
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 0`
+- `COMPLETED_PDM_INVARIANT_CONFLICT = 0`
+- `INCOMING_HANDOFF_GAP = 0`
+- `OUTGOING_HANDOFF_GAP = 0`
+- `NEGATIVE_CLAIMS_VERIFIED = PASS`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+- `PDM21_FORMAL_UNITS = 56`
+- `PDM21_FINAL_CANDIDATE_READY = YES`
+
+R2 报告：
+
+> `07_重建工作区/PDM-21_Final前完整性复核_R2_2026-10-06.md`
+
+Final Domain Overview：
+
+> `07_重建工作区/PDM-21_最终完整规则总览_待用户批准.md`
 
 当前唯一下一步：
 
-> **用户审查 P21-LIA-01～P21-LIA-09。全部修复执行后进行 Final 前完整性复核 R2。**
+> **用户最终审查 / 批准 PDM-21 Final Domain Overview。最终批准前不得发布正式 Final、不得关闭 19 条 incoming handoff、不得 source backwrite、不得进入 PDM-22。**
