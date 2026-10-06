@@ -1150,3 +1150,7 @@
 
 | PDM23-FINAL-OVERVIEW | PDM-23 | Final Domain Overview | 用户对 PDM-23 最终完整规则总览明确“同意”。 | USER_FINAL_APPROVED；65 个正式规则/裁决单元具备发布 Final 条件。 | 07_重建工作区/PDM-23_最终完整规则总览_待用户批准.md + 用户最终批准 | 2026-10-07 |
 | PDM23-FINAL-CLOSEOUT | PDM-23 | Final Closeout | 用户随后明确“确认执行”；发布正式 Final，执行 Final Integrity，关闭 10/10 incoming handoff 并完成 10/10 source backwrite。 | COMPLETE / INTEGRITY_PASS；Final=07_重建工作区/PDM-23_最终完整规则.md；Final Integrity=07_重建工作区/PDM-23_最终完整性复核_2026-10-07.md / PASS；HO-P23-P25-001 继续 HANDOFF_OPEN。 | PDM-23 Final + CROSS_PDM_HANDOFF_REGISTER + source PDM Finals | 2026-10-07 |
+
+| PDM24-DEC-R00 | PDM-24 | P24-R00 | PDM-24 作为 Announcement 与 Banner/Placement 运营生命周期唯一产品 Authority；负责创建/编辑/启停/排期/生效/结束/排序/合法跳转与公告主动弹层运营频控；不扩成通用消息中心、营销自动化平台或万能 Placement Engine。 | USER_APPROVED / APPLIED | 2026-10-07 用户同意 Startup Gate 核心定位并明确确认执行 | 2026-10-07 |
+| PDM24-DEC-R01 | PDM-24 | P24-R01 | 用户明确：VEHICLE_DETAIL 是车辆详情页固定广告位能力；所有合法车辆详情页均具备该 placement。无有效 Banner 时可不展示具体广告内容，但不能解释为详情页没有广告位。 | USER_APPROVED / APPLIED；覆盖历史“详情 Banner 可选模块”中“广告位本身可有可无”的旧解释；PDM-20 source backwrite 等 PDM-24 Final Closeout。 | 2026-10-07 用户“这个详情页的肯定是有的详情页的广告”→确认口径→同意→确认执行 | 2026-10-07 |
+| PDM24-GATE-STARTUP | PDM-24 | Startup Gate | R10/R12、Phase1.5 Current IA、PDM-20 Final、HO-P20-P24-001 完成反扫；P24-R00/R01 已批准执行；incoming handoff 1/1 接收；Batch 1 候选 P24-A01～A15 已形成。 | PASS / COMPLETED_PDM_HARD_CONFLICT=0 / INCOMING_GAP=0 / IA_LOWFI_ENGINEERING=NO_CONSTRUCTION | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
