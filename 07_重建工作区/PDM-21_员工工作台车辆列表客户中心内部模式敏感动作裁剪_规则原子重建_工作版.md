@@ -1,6 +1,6 @@
 # PDM-21｜员工工作台 / 车辆列表 / 客户中心 / 内部模式 / 敏感动作裁剪｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`  
 > 核心定位：`P21-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：19 / 19 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -538,13 +538,14 @@ PDM-18 已明确：
 
 ---
 
-# 7. Batch 3｜已冻结上游语义的员工端补全候选
+# 7. Batch 3｜已冻结上游语义的员工端补全｜PASS / USER_APPROVED / APPLIED
 
-> 状态：`PENDING_USER_REVIEW`。  
+> 状态：`PASS / USER_APPROVED / APPLIED`。  
+> 用户裁决：`P21-B3-01～P21-B3-10 = 全部同意`；随后明确“确认执行”。  
 > Conflict Isolation：`PASS / MISCLASSIFIED_PRODUCT_CHOICE = 0`。  
 > 本批只补“上游 completed PDM 已经把业务规则冻结，但员工端页面/导航/状态/动作承载不完整”的内容；不重新做业务裁决。
 
-## P21-B3-01｜补齐 E01 → 客户机会 / Source Radar / Radar Event 的正式导航链
+## P21-B3-01｜补齐 E01 → 客户机会 / Source Radar / Radar Event 的正式导航链｜USER_APPROVED / APPLIED
 
 E01 工作台必须存在真实可达入口：
 
@@ -555,7 +556,7 @@ E01 工作台必须存在真实可达入口：
 
 以上只补员工端主 Journey，不新增 Opportunity / Radar 状态机。
 
-## P21-B3-02｜补齐 pending Application 的“找车服务待处理”工作台卡片
+## P21-B3-02｜补齐 pending Application 的“找车服务待处理”工作台卡片｜USER_APPROVED / APPLIED
 
 严格消费 PDM-11 已冻结规则：
 
@@ -574,7 +575,7 @@ E01 工作台必须存在真实可达入口：
 
 不得在工作台卡片上一键激活 Demand。Customer 修改同一 pending Application 时更新同一待办，不重复造任务。
 
-## P21-B3-03｜补齐 Priority 员工待处理投影
+## P21-B3-03｜补齐 Priority 员工待处理投影｜USER_APPROVED / APPLIED
 
 员工工作台 / E05 应能安全展示当前合法 Priority：
 
@@ -594,7 +595,7 @@ E01 工作台必须存在真实可达入口：
 
 不得恢复任何人工创建/续期/改 TTL/override。
 
-## P21-B3-04｜补齐 Consultation 工作台三层优先级排序
+## P21-B3-04｜补齐 Consultation 工作台三层优先级排序｜USER_APPROVED / APPLIED
 
 在 Consultation SLA 当前事实不变的前提下，E01 强待办按以下优先级展示：
 
@@ -610,7 +611,7 @@ E01 工作台必须存在真实可达入口：
 
 “即将超时”的具体时间阈值本批不写死，留 Batch 4 产品裁决。
 
-## P21-B3-05｜补齐员工端上游电话真实状态投影
+## P21-B3-05｜补齐员工端上游电话真实状态投影｜USER_APPROVED / APPLIED
 
 E02-01 / Internal Mode 中电话区域必须区分至少：
 
@@ -627,7 +628,7 @@ E02-01 / Internal Mode 中电话区域必须区分至少：
 - 提供拨打，不提供复制；
 - Internal Mode 本身不授电话能力。
 
-## P21-B3-06｜补齐员工图片管理并分离不同失败生命周期
+## P21-B3-06｜补齐员工图片管理并分离不同失败生命周期｜USER_APPROVED / APPLIED
 
 员工端人工图片能力至少承载：
 
@@ -646,7 +647,7 @@ E02-01 / Internal Mode 中电话区域必须区分至少：
 
 不得再用一个泛化 `IMAGE_RETRYING` 冒充所有图片生命周期；图片失败不得反向回滚已经完成的车辆来源转换。
 
-## P21-B3-07｜补齐员工价格编辑、覆盖价与临时查价次数入口
+## P21-B3-07｜补齐员工价格编辑、覆盖价与临时查价次数入口｜USER_APPROVED / APPLIED
 
 员工端按 PDM-10 分开承载：
 
@@ -658,7 +659,7 @@ E02-01 / Internal Mode 中电话区域必须区分至少：
 
 不得恢复独立“调价 permission / 调价动作”。
 
-## P21-B3-08｜补齐人工车辆发布 / 编辑的员工端状态与动作链
+## P21-B3-08｜补齐人工车辆发布 / 编辑的员工端状态与动作链｜USER_APPROVED / APPLIED
 
 E02-02 必须真实承载 PDM-05/PDM-06 已冻结的：
 
@@ -676,7 +677,7 @@ E02-02 必须真实承载 PDM-05/PDM-06 已冻结的：
 
 正式 Vehicle 不提供普通物理删除入口。
 
-## P21-B3-09｜补齐 CRM Follow-up 员工写入闭环
+## P21-B3-09｜补齐 CRM Follow-up 员工写入闭环｜USER_APPROVED / APPLIED
 
 E03-03 不得再是“前一页能点记录跟进，但进入后只能读”的断链页面。
 
@@ -690,7 +691,7 @@ E03-03 不得再是“前一页能点记录跟进，但进入后只能读”的�
 
 同时继续服从 PDM-16 的当前访问范围，owner 变化不改写历史跟进。
 
-## P21-B3-10｜补齐 E08 公海 / Collaboration 员工端真实操作投影
+## P21-B3-10｜补齐 E08 公海 / Collaboration 员工端真实操作投影｜USER_APPROVED / APPLIED
 
 E08 应承载 PDM-17 已冻结的真人动作入口：
 
@@ -705,26 +706,199 @@ E08 应承载 PDM-17 已冻结的真人动作入口：
 
 ---
 
-# 8. Batch 3 Conflict Isolation Gate
+# 8. Batch 3 Conflict Isolation Gate｜PASS
 
-当前：
-
-- `P21-B3-01～P21-B3-10 = PENDING_USER_REVIEW`
+- `P21-B3-01～P21-B3-10 = PASS / USER_APPROVED / APPLIED`
 - `CONFLICT_ISOLATION = PASS`
 - `MISCLASSIFIED_PRODUCT_CHOICE = 0`
 - `COMPLETED_PDM_MUTATION = 0`
 - `19 / 19 incoming handoff = HANDOFF_ACCEPTED`
 - `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
 
-明确留给 Batch 4，不混入本批：
+---
 
-- 4S 是否进入同一个 E02-M01 Internal Mode，以及进入后的具体承载方式；
-- 客户安全详情外层与 Internal Mode 之间，隐藏/恢复、上下架、电话、价格 override、一键转名邦等敏感 Action 的最终页面归位；
-- “即将超时”的具体阈值；
-- “更多 → 隐藏车源”的最终入口位置；
-- 一键转名邦是否需要独立确认 Overlay / Sheet 及确认内容；
-- 其他扫描后真正需要新增产品选择的员工端问题。
+# 9. Batch 4｜员工端最终产品裁决候选
+
+> 状态：`PENDING_USER_REVIEW`。  
+> Gap / Choice Scan：`PASS`。  
+> 本批只保留仓库现有 Authority 无法自动替用户决定的员工端产品取舍；推荐方案以“最少新体系、优先复用已冻结结构、避免权限语义再次分叉”为原则。
+
+## P21-B4-01｜4S 成员如何进入内部管理投影
+
+### A｜推荐：进入同一个 E02-M01 Internal Mode，但按 4S 身份做严格裁剪
+
+当 4S 成员查看**自己当前 data scope 内有权管理的 4S Vehicle** 时：
+
+- 可通过同一 Internal Mode 进入内部管理投影；
+- 只显示该 4S 身份允许管理的车辆字段、图片、档案及正常车辆管理动作；
+- `customer_list_price` 可按正常车辆编辑规则维护；
+- 名邦内部价 / 批发价、`internal_wholesale_price`、客户展示价 override、一键转名邦继续 HARD DENY；
+- CRM / Demand / Consultation / Recommendation / Lock / Transaction 等名邦客户业务继续不开放；
+- source_type 不因进入 Internal Mode 获得修改权；
+- 每个动作仍逐项校验 permission/capability + data scope + object state。
+
+### B｜另做 4S 专属内部管理页面
+
+不让 4S 进入 E02-M01，为 4S 再建立一套裁剪后的管理页。
+
+**推荐 A。**  
+理由：PDM-02 已明确不建立独立 4S App / IA；同页裁剪最不容易形成第二套权限语义。
+
+## P21-B4-02｜客户安全详情外层与 Internal Mode 的敏感 Action 归位
+
+### A｜推荐：外层只保留安全/高频业务入口，内部经营动作统一进入 Internal Mode
+
+E02-01 客户安全详情外层保留：
+
+- 分享；
+- 推荐给客户；
+- 锁车；
+- 纯查看型客户安全信息。
+
+进入 Internal Mode 后，按 Guard 显示：
+
+- 编辑车辆 / 车况；
+- 上游电话；
+- 正常价格字段编辑入口；
+- 客户展示价 override；
+- 隐藏 / 恢复；
+- 真实下架 / 重新上架；
+- 一键转名邦；
+- 其他明确内部敏感能力。
+
+正常价格字段编辑进入专门编辑页；override 使用独立 sheet；隐藏/恢复、上下架使用二次确认；一键转名邦使用专门确认页/sheet。
+
+### B｜允许部分敏感动作继续直接挂在 E02-01 外层
+
+例如下架、隐藏、一键转名邦等继续直接出现在客户安全详情。
+
+**推荐 A。**  
+理由：与“默认客户安全视图”边界一致，也避免 Navigation 与页面语义再次打架。
+
+## P21-B4-03｜隐藏车源入口位置
+
+### A｜推荐：固定为 E02「更多 → 隐藏车源」
+
+- hidden 不混入默认车辆列表；
+- 只有具备对应查看/管理能力的员工显示该入口；
+- 无权限员工完全不显示；
+- 进入后仍按 data scope、source_type 与对象状态过滤；
+- 恢复显示继续是独立真实动作，不因进入隐藏列表自动 visible。
+
+### B｜把“隐藏车源”做成 E02 顶部固定 Tab
+
+所有员工都能看到 Tab，但无权限时显示无权限态。
+
+**推荐 A。**  
+理由：延续历史结构，且避免把低频敏感管理入口升级成一级导航。
+
+## P21-B4-04｜一键转名邦是否必须二次确认
+
+### A｜推荐：必须使用专门确认 Sheet / Page
+
+点击“一键转名邦”后先展示关键后果，再由员工确认提交。至少明确：
+
+- 同一真实车辆、同一 `vehicle_id`、同一当前 `listing_cycle`；
+- source_type 从批发/JYT 单向变为名邦，不创建第二辆 Vehicle，不支持直接转回批发；
+- 已有 Lock / Waitlist / Transaction / Favorite / Recommendation 等继续绑定原 vehicle；
+- 转换前保存当前价格快照；名邦 `customer_list_price` 不自动继承批发客户展示价；
+- `internal_wholesale_price` 只有存在真实 upstream_wholesale_price 时才复制，否则为 null；
+- 图片资产化作为后续独立子任务，partial_failed / failed 不回滚已经完成的来源转换；
+- 转换后重新计算自动 hidden；人工 hidden 不自动解除；
+- submit 时再次校验当前员工资格、data scope 与 object state。
+
+### B｜点击后直接执行，只用轻提示说明结果
+
+**推荐 A。**  
+理由：来源转换为单向经营动作，影响价格、图片与可见性，不适合误触即执行。
+
+## P21-B4-05｜Consultation“即将超时”的阈值
+
+Consultation 自身 SLA deadline 继续由 PDM-15 冻结；这里只决定 E01 工作台何时把它标成“即将超时”。
+
+### A｜推荐：自适应阈值
+
+当未 timeout 且剩余时间：
+
+> `<= min(5 分钟, 当前 Consultation 固化 SLA 时长 ÷ 3)`
+
+进入“即将超时”。
+
+例如：
+
+- SLA 15 分钟 → 最后 5 分钟；
+- SLA 30 分钟 → 最后 5 分钟；
+- SLA 9 分钟 → 最后 3 分钟。
+
+### B｜固定最后 5 分钟
+
+不随 SLA 时长变化。
+
+### C｜再新增一个后台“即将超时阈值”配置项
+
+由后台单独配置。
+
+**推荐 A。**  
+理由：默认 15 分钟时保持直观的最后 5 分钟，同时避免 SLA 被配置得很短时整段生命周期都处于“即将超时”，也不新增第二个配置项。
+
+## P21-B4-06｜Internal Mode 长时间进入后台后的自动退出阈值
+
+已经冻结：离开详情、重新打开、切车、分享、推荐、身份/权限变化时均恢复客户安全视图。这里只决定“App 进入后台后多久回来视为需要退出 Internal Mode”。
+
+### A｜推荐：连续后台 ≥ 5 分钟自动退出
+
+- <5 分钟返回：仍要重新校验员工身份、permission、scope、object state；全部仍合法才可继续当前 Internal Mode；
+- ≥5 分钟返回：直接恢复客户安全视图，需重新进入 Internal Mode。
+
+### B｜任何进入后台后返回都自动退出
+
+安全最强，但短暂切 App 也需要重新进入。
+
+### C｜连续后台 ≥ 15 分钟才退出
+
+操作更宽松。
+
+**推荐 A。**
+
+## P21-B4-07｜E01 多类“强待办”的统一排序
+
+历史只明确 Consultation 内部优先级，没有冻结 LockRequest、Application、Priority 与 Consultation 之间的全局固定类别顺序。
+
+### A｜推荐：deadline / urgency first，不再造硬编码类别排行榜
+
+统一规则：
+
+1. 已超时 Consultation 永远最前；
+2. 其余存在明确 deadline / expires_at 的强待办，按**剩余时间由短到长**排列，包括：
+   - 即将超时 Consultation；
+   - LockRequest 自动取消 deadline；
+   - Priority expires_at；
+   - 其他已经有正式 deadline 的对象；
+3. 无 deadline 的 pending Application / 新 Consultation 等，再按创建时间由早到晚；
+4. 同一对象发生状态变化时实时重排；
+5. 工作台排序不改变任何底层业务状态。
+
+### B｜固定类别优先级
+
+预先写死 LockRequest、Consultation、Priority、Application 等类别的先后顺序。
+
+**推荐 A。**  
+理由：各对象已有不同真实时效事实，用 deadline 排序比再造一套员工端“业务优先级状态机”更稳定。
+
+---
+
+# 10. Batch 4 Gate
+
+当前：
+
+- `P21-B4-01～P21-B4-07 = PENDING_USER_REVIEW`
+- 推荐：`1A / 2A / 3A / 4A / 5A / 6A / 7A`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 7`
+- `COMPLETED_PDM_MUTATION = 0`
+- `NEW_DOMAIN_STATE_MACHINE = 0`
+- `19 / 19 incoming handoff = HANDOFF_ACCEPTED`
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
 
 当前唯一下一步：
 
-> **用户审查 P21-B3-01～P21-B3-10。未经用户批准与后续明确执行，不得进入 Batch 4。**
+> **用户裁决 P21-B4-01～P21-B4-07。完成裁决并明确执行后，进入 PDM-21 Final 前完整性复核。**
