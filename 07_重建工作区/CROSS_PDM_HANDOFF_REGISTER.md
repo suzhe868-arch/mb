@@ -485,12 +485,34 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
+## 12J. PDM-20 来源 handoff
+
+| handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
+|---|---|---|---|---|---|
+| HO-P20-P21-001 | PDM-21 | 员工端承接与客户端列表/详情占用投影相对应的 Employee Vehicle Feed / Detail：占用状态优先级保持 trading > locked；员工列表不得泄露 Customer 姓名、手机号、Deposit 金额、详细 Transaction 进度；不得把客户侧“我的锁车/我的候补”等文案直接复用到员工端；员工动作继续读取 PDM-18/PDM-19 真实 Authority。 | HANDOFF_OPEN | - | YES |
+| HO-P20-P22-001 | PDM-22 | PC 配置承接 PDM-20 已冻结的客户端配置需求：全局单一“服务/购买说明”内容、基础富文本/Word 基础格式兼容与安全清理、保存/更新/审计；普通分享标题模板、默认分享图、Customer Safe 字段白名单等轻量配置；不得扩张为无限通用模板引擎。 | HANDOFF_OPEN | - | YES |
+| HO-P20-P24-001 | PDM-24 | 公告/Banner 运营 Authority 承接客户端投影背后的创建/编辑/启停/active-history、Schedule、Placement、后台排序与运营管理；Banner placement 至少承接 HOME_TOP / VEHICLE_DETAIL，客户端数量投影继续服从 PDM-20 Final；不得反向改变 Customer Safe 展示与导航边界。 | HANDOFF_OPEN | - | YES |
+| HO-P20-P25-001 | PDM-25 | 统一横切审计/完整性承接客户端权限变化后的旧敏感 UI/payload 撤销、copy-before-view Guard、Historical Detail 只读、query context restore、submit idempotency/duplicate prevention、Customer Safe Projection 字段级测试矩阵、stale carrier alignment 与跨 PDM Final 审计。 | HANDOFF_OPEN | - | YES |
+
+---
+
 ## 13. Post-PDM25 IA / Low-Fi Carrier Ledger｜持续累积
 
 > 当前只登记，不施工；统一在 PDM-25 完成 + PDM-01～25 全局最终总复核 PASS 后集中对齐。
 
 | 来源 | stale carrier | 状态 |
 |---|---|---|
+| PDM-20 | Current 正常首入“暂不 owner”旧语义 | CARRIER_DEFERRED |
+| PDM-20 | 旧默认定位城市 / 700km 自动扩展 / 综合排序 | CARRIER_DEFERRED |
+| PDM-20 | 旧“我要这辆车”混合 Consultation / Lock 入口 | CARRIER_DEFERRED |
+| PDM-20 | Consultation `CANCELLED` 第五主状态 carrier | CARRIER_DEFERRED |
+| PDM-20 | Priority 自动授 Customer visibility / 客户端 Priority 内部术语 | CARRIER_DEFERRED |
+| PDM-20 | LIMITED 二次点击“查看价格”旧流程 | CARRIER_DEFERRED |
+| PDM-20 | Waitlist 保证排名 / 自动晋升；LockRequest 手动再候补/独立进度/主动撤回 | CARRIER_DEFERRED |
+| PDM-20 | C03 多页面通用壳 / 主导航缺失 | CARRIER_DEFERRED |
+| PDM-20 | Vehicle Detail 顾问/档案/车况/服务说明/顶部导航/价格格式等 Current 投影不足 | CARRIER_DEFERRED |
+| PDM-20 | Announcement / Banner Current carrier 不完整 | CARRIER_DEFERRED |
+| PDM-20 | PDM-19 Refund closed / correction / change-car 客户端交易资金旧壳 | CARRIER_DEFERRED |
 | PDM-01 | 首次进入不形成 owner 的旧承载 | CARRIER_DEFERRED |
 | PDM-01 | 客户分享永久 SOURCE_ONLY | CARRIER_DEFERRED |
 | PDM-01 | Customer Merge / merge flow | CARRIER_DEFERRED |
@@ -637,7 +659,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-17：COMPLETE / INTEGRITY_PASS；34 个正式规则/裁决单元进入 Final；6/6 incoming handoff = HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE；outgoing HO-P17-P18 / HO-P17-P19 已分别由 PDM-18 / PDM-19 Final 承接并 CLOSED/source backwrite，P21/P22/P23/P25 继续 HANDOFF_OPEN；正式 Authority=`07_重建工作区/PDM-17_最终完整规则.md`；
 - PDM-18：COMPLETE / INTEGRITY_PASS；43 个正式规则/裁决单元进入 Final；10/10 incoming handoff = HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE；HO-P18-P19 已由 PDM-19 Final 承接并 CLOSED/source backwrite，其余 P20/P21/P22/P23/P25 继续 HANDOFF_OPEN；正式 Authority=`07_重建工作区/PDM-18_最终完整规则.md`；
 - PDM-19：COMPLETE / INTEGRITY_PASS；41 个正式规则/裁决单元进入 Final；10/10 incoming handoff = HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE；5 条 outgoing handoff=P20/P21/P22/P23/P25 继续 HANDOFF_OPEN；正式 Authority=`07_重建工作区/PDM-19_最终完整规则.md`；下一步 PDM-20 Startup Gate；
-- PDM-20：IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_REPAIR_REQUIRED；P20-R00、A01～A18、B2-01～B2-09、B3-01～B3-08、B4-01～B4-10 已 PASS / USER_APPROVED / APPLIED；14/14 incoming handoff = HANDOFF_ACCEPTED；Prefinal R1=REPAIR_REQUIRED / NO_HARD_CONFLICT；repair=P20-LIA-01～P20-LIA-07 / PENDING_USER_REVIEW；outgoing handoff 待 LIA-07 批准后正式登记；工作版=`07_重建工作区/PDM-20_客户端浏览搜索筛选排序列表详情收藏分享个人中心地域_规则原子重建_工作版.md`；当前唯一下一步：用户审查 P20-LIA-01～P20-LIA-07；
+- PDM-20：IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R2_PASS / FINAL_REVIEW_PENDING；P20-R00、A01～A18、B2-01～B2-09、B3-01～B3-08、B4-01～B4-10、LIA-01～LIA-07 已 PASS / USER_APPROVED / APPLIED；14/14 incoming handoff = HANDOFF_ACCEPTED；4 条 outgoing handoff（P21/P22/P24/P25）= HANDOFF_OPEN；Prefinal R2=PASS / FINAL_CANDIDATE_READY；工作版=`07_重建工作区/PDM-20_客户端浏览搜索筛选排序列表详情收藏分享个人中心地域_规则原子重建_工作版.md`；当前唯一下一步：用户最终审查 PDM-20 Final Domain Overview；
 - PDM-12：COMPLETE / INTEGRITY_PASS；4 条 incoming handoff 全部 CLOSED 并完成 source backwrite；其中指向 PDM-18 的 Lock/Matching handoff 已由 PDM-18 Final 承接并 CLOSED/source backwrite；
 - PDM-13：COMPLETE / INTEGRITY_PASS；PDM-13→PDM-14/17/18/19/20/21/22/25 future handoff 已登记；HO-P13-P14/P17/P18/P19 已分别由对应 Final 承接并 CLOSED/source backwrite；P20/P21/P22/P25 继续 HANDOFF_OPEN；
 - PDM-14：COMPLETE / INTEGRITY_PASS；52 个正式规则/裁决单元全部进入 Final；8 条 incoming handoff 全部 HANDOFF_CLOSED 并完成 source backwrite；outgoing HO-P14-P15 / P18 / P19 已由目标 Final 承接并 CLOSED/source backwrite；P20/P21/P23/P25 继续 HANDOFF_OPEN；正式 Authority=`07_重建工作区/PDM-14_最终完整规则.md`；
