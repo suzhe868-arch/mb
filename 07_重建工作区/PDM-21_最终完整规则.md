@@ -859,7 +859,7 @@ E08 不重建 owner/public-pool/Collaboration 状态机。
 
 ### Outgoing｜HANDOFF_OPEN
 
-- HO-P21-P23-001；
+- HO-P21-P23-001｜`HANDOFF_CLOSED / source_backwrite=YES`：员工工作台通知投影与 deep-link Guard 已由 `07_重建工作区/PDM-23_最终完整规则.md` 正式承接；
 - HO-P21-P25-001。
 
 ## 44. Stale Carrier
@@ -911,7 +911,7 @@ R2：
 - Final Integrity：`07_重建工作区/PDM-21_最终完整性复核_2026-10-06.md / PASS`；
 - 56 个正式规则 / 用户裁决单元全部进入 Final；
 - 19 / 19 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
-- 2 条 outgoing handoff：继续 `HANDOFF_OPEN`；
+- HO-P21-P23-001 已 `HANDOFF_CLOSED / source_backwrite=YES`；HO-P21-P25-001 继续 `HANDOFF_OPEN`；
 - PDM-21：`COMPLETE / INTEGRITY_PASS`；
 - IA / Low-Fi / Engineering 未施工；
 - 当前唯一下一步：`PDM-22 Startup Gate`.
