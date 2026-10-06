@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-18（Batch 1～4 + Prefinal R2 已通过，当前 Final 总览审查）
+- 当前域：PDM-18（Final Overview 已最终批准，等待 Final closeout 执行确认）
 - PDM-15 Startup Gate = PASS
 - PDM-15 incoming handoffs = 5 / 5 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-15 工作版 = `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
@@ -95,7 +95,8 @@
 - PDM-18 Prefinal R1 Report = 07_重建工作区/PDM-18_Final前完整性复核_R1_2026-10-06.md
 - PDM-18 Prefinal Repair = P18-LIA-01～P18-LIA-06 / PASS / USER_APPROVED / APPLIED
 - PDM-18 Prefinal R2 = PASS / FINAL_CANDIDATE_READY
-- PDM-18 Final Overview = 07_重建工作区/PDM-18_最终完整规则总览_待用户批准.md / FINAL_REVIEW_PENDING
+- PDM-18 Final Overview = 07_重建工作区/PDM-18_最终完整规则总览_待用户批准.md / USER_FINAL_APPROVED
+- PDM-18 Final Closeout = PENDING_EXECUTION_CONFIRMATION
 - PDM-18 Batch 4 = P18-B4-01～P18-B4-10 / PASS / USER_APPROVED / APPLIED / CHOICES=1A～10A
 - PDM-18 Batch 4 Cross-PDM Review = PASS / COMPLETED_PDM_NO_HARD_CONFLICT
 - PDM-11 = COMPLETE / INTEGRITY_PASS
@@ -149,7 +150,7 @@
 
 ## 当前唯一下一步
 
-> **P18-LIA-01～P18-LIA-06 已 PASS / USER_APPROVED / APPLIED；Prefinal R2 = PASS / FINAL_CANDIDATE_READY。当前唯一下一步：用户最终审查 PDM-18 最终完整规则总览；批准前不得发布 Final 或进入 PDM-19。**
+> **PDM-18 Final Overview 已 USER_FINAL_APPROVED。当前唯一下一步：等待明确执行 Final closeout；执行前不得发布 Final、关闭 incoming handoff、source backwrite 或进入 PDM-19。**
 
 每个 PDM 必须同时执行：
 
