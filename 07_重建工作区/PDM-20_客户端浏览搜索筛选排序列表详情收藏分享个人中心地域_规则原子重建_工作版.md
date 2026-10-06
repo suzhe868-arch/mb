@@ -1,6 +1,6 @@
 # PDM-20｜客户端浏览 / 搜索 / 筛选 / 排序 / 列表 / 详情 / 收藏 / 分享 / 个人中心 / 地域｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`  
 > 核心定位：`P20-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：14 / 14 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -670,13 +670,14 @@ PDM-18 已冻结 V1 边界：
 
 ---
 
-# 7. Batch 3｜后续明确新增 / 明确变更候选
+# 7. Batch 3｜后续明确新增 / 明确变更｜PASS / USER_APPROVED / APPLIED
 
-> 状态：`PENDING_USER_REVIEW`。  
+> 状态：`PASS / USER_APPROVED / APPLIED`。  
+> 用户裁决：`P20-B3-01～P20-B3-08 = 全部同意`；随后明确“确认执行”。  
 > Conflict Isolation：`PASS / MISCLASSIFIED_PRODUCT_CHOICE=0`。  
 > 原则：只收录 completed PDM 已明确冻结、相对于旧 R10 / Current 属于后续明确新增或明确变更的客户端语义；Current/Low-Fi 单纯缺页面、缺字段、缺导航等留 Batch 4 / Final 前完整性复核。
 
-## P20-B3-01｜首次进入后 Customer owner 规则改为“优先来源，否则立即轮询”
+## P20-B3-01｜首次进入后 Customer owner 规则改为“优先来源，否则立即轮询”｜USER_APPROVED / APPLIED
 
 PDM-01 / PDM-03 后续已明确覆盖旧首入模型：
 
@@ -694,7 +695,7 @@ PDM-01 / PDM-03 后续已明确覆盖旧首入模型：
 
 > 可以显示“暂无服务顾问 / 服务顾问分配中”类安全结果，但不得让 System Admin 临时冒充 owner。
 
-## P20-B3-02｜客户车源分享 / 直接转介绍可以形成 ownerless 新客户的销售归属
+## P20-B3-02｜客户车源分享 / 直接转介绍可以形成 ownerless 新客户的销售归属｜USER_APPROVED / APPLIED
 
 PDM-03 后续已明确修改“普通客户分享只记 SOURCE_ONLY”的旧规则。
 
@@ -722,7 +723,7 @@ V1 只保留直接关系，不做多级归属 / 佣金 / 积分。
 
 客户端 P20 因此必须提供真实“推荐朋友 / 直接转介绍”入口与安全归因，但不能把分享本身变成 Recommendation。
 
-## P20-B3-03｜客户点击“锁车”只创建 / 复用 LockRequest.PENDING
+## P20-B3-03｜客户点击“锁车”只创建 / 复用 LockRequest.PENDING｜USER_APPROVED / APPLIED
 
 9 月 22 日后的 LockRequest 规则已经明确变更客户端锁车入口：
 
@@ -751,7 +752,7 @@ LockRequest PENDING 最长：
 
 客户端详情 / “我的”只投影真实结果，不自己创造额外申请主状态。
 
-## P20-B3-04｜竞争 LockRequest 失败后自动创建 / 复用 Waitlist
+## P20-B3-04｜竞争 LockRequest 失败后自动创建 / 复用 Waitlist｜USER_APPROVED / APPLIED
 
 PDM-18 后续明确新增：
 
@@ -770,7 +771,7 @@ PDM-18 后续明确新增：
 
 但不得展示保证性排名或自动晋升承诺。
 
-## P20-B3-05｜普通 Lock 与 Priority-origin Lock 的客户端可见性必须分开
+## P20-B3-05｜普通 Lock 与 Priority-origin Lock 的客户端可见性必须分开｜USER_APPROVED / APPLIED
 
 PDM-18 后续已明确两种正式 Lock 的客户侧可见性不同。
 
@@ -790,7 +791,7 @@ PDM-18 后续已明确两种正式 Lock 的客户侧可见性不同。
 
 因此客户端不能使用“一切 Lock 都公开显示已锁定”或“一切 Lock 都隐藏”这种单一规则。
 
-## P20-B3-06｜真实 Deposit 后，客户自己的 Lock 不再展示普通倒计时
+## P20-B3-06｜真实 Deposit 后，客户自己的 Lock 不再展示普通倒计时｜USER_APPROVED / APPLIED
 
 PDM-18 / PDM-19 后续明确：
 
@@ -811,7 +812,7 @@ PDM-18 / PDM-19 后续明确：
 
 本条只负责客户端投影，不重新定义资金 / Lock lifecycle。
 
-## P20-B3-07｜C02 找车改为“Application 先 pending，Demand 人工激活 + 客户结束请求”
+## P20-B3-07｜C02 找车改为“Application 先 pending，Demand 人工激活 + 客户结束请求”｜USER_APPROVED / APPLIED
 
 PDM-11 已明确新增 / 修改客户端找车流程：
 
@@ -839,7 +840,7 @@ PDM-11 已明确新增 / 修改客户端找车流程：
 
 P20 必须投影这套真实流程，而不是恢复旧单状态“找车页”。
 
-## P20-B3-08｜“我的交易”新增 Refund `closed` 与 PDM-19 Customer Safe Projection
+## P20-B3-08｜“我的交易”新增 Refund `closed` 与 PDM-19 Customer Safe Projection｜USER_APPROVED / APPLIED
 
 PDM-19 后续已把资金 / 交易模型进一步收口，客户端“我的交易”必须消费这些新事实：
 
@@ -899,8 +900,401 @@ PDM-19 后续已把资金 / 交易模型进一步收口，客户端“我的交�
 - `NEW_INDEPENDENT_ATOMS = 8`
 - `DUPLICATE_RULE_CREATION = 0`
 - `MISCLASSIFIED_PRODUCT_CHOICE = 0`
-- `BATCH_3 = P20-B3-01～P20-B3-08 / PENDING_USER_REVIEW`
+- `BATCH_3 = P20-B3-01～P20-B3-08 / PASS / USER_APPROVED / APPLIED`
 
 当前唯一下一步：
 
-> **用户审查 P20-B3-01～P20-B3-08。未经用户批准与后续明确执行，不得进入 Batch 4。**
+> **P20-B3-01～P20-B3-08 已批准并执行。当前唯一下一步：用户审查 Batch 4（P20-B4-01～P20-B4-10）。**
+
+---
+
+## 7.2 Batch 3 Gate｜PASS
+
+- `P20-B3-01～P20-B3-08 = PASS / USER_APPROVED / APPLIED`；
+- Conflict Isolation = `PASS`；
+- `MISCLASSIFIED_PRODUCT_CHOICE = 0`；
+- 14 / 14 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工。
+
+---
+
+# 8. Batch 4｜冲突 / 遗漏 / 语义缺口 / 最终裁决候选
+
+> 状态：`PENDING_USER_REVIEW`。  
+> 本批不再重开已完成 PDM 的底层业务规则，只补 PDM-20 客户端 Authority 中尚未完整冻结的真实页面行为。  
+> 建议：`1A～10A`。
+
+## P20-B4-01｜车辆详情 / 分享直达 CTA 状态矩阵
+
+### A｜按真实对象分离 CTA（推荐）
+
+普通内部 Vehicle Detail 底部：
+
+> **收藏｜咨询｜锁车/候补/当前业务状态**
+
+分享直达额外增加：
+
+> **更多车源｜收藏｜咨询｜锁车/候补/当前业务状态**
+
+其中：
+
+- 正常可售且可申请锁车 → “锁车”；
+- 当前 Customer 已有 LockRequest.PENDING → 显示“锁车申请中”类状态，不再重复创建；
+- 他人普通 Lock 且当前 Customer 未候补 → “候补”；
+- 当前 Customer 已有 Waitlist → “候补中 / 我的候补”；
+- 当前 Customer 自己已有 active Lock → “我的锁车 / 已锁定”；
+- 当前 Customer 自己已有 in-progress Transaction → “查看交易”；
+- 他人普通 Lock / trading 但 Vehicle 仍公开时，Consultation 仍可独立存在，锁车位只显示合法占用/候补动作；
+- Priority-origin Lock 对无关 Customer 本身不可进入普通详情，因此不出现可绕过的 CTA；
+- sold/offline/unavailable/history → 只读，不创建新 Consultation / LockRequest / Waitlist。
+
+“咨询”与“锁车”始终是两个独立动作；收藏也不自动创建任何正式业务对象。
+
+### B｜重新合并为一个主按钮
+
+不推荐；会重新制造旧“我要这辆车”混合语义。
+
+**建议：A。**
+
+## P20-B4-02｜客户列表占用标签采用单一最高优先级
+
+### A｜固定优先级（推荐）
+
+同一 Vehicle 对当前 Customer 命中多个关系时，列表只展示一个最高优先级客户视角标签：
+
+1. **我的交易**
+2. **我的锁车**
+3. **我的候补**
+4. **已锁定**
+
+规则：
+
+- 普通 Lock / 有真实 Deposit 的持续占用 / in-progress Transaction，只要底层仍公开在售，就不因占用本身从普通 Feed 消失；
+- 对其他 Customer 统一隐藏 Customer、Deposit、Transaction 内部细节；
+- Priority-origin Lock 的排他可见性优先，其他普通 Customer 不进入普通 Feed/详情；
+- sold/offline/unavailable 才按 Vehicle Authority 离开正常在售 Feed。
+
+### B｜允许堆叠多个标签
+
+不推荐；容易同时出现“我的锁车 / 我的候补 / 已锁定”等冲突表达。
+
+**建议：A。**
+
+## P20-B4-03｜车辆详情顾问 / 参数 / 档案 / 车况 / 来源标签
+
+### A｜恢复完整 Customer Safe Detail Contract（推荐）
+
+#### 核心参数
+固定优先展示：
+
+1. 上牌时间；
+2. 表显里程；
+3. 变速箱；
+4. 排量 / 能源；
+5. 车身 / 内饰颜色；
+6. 车辆位置。
+
+新能源有真实有效数据时追加：
+
+- 电池容量；
+- 纯电续航；
+- 总功率。
+
+无有效数据：
+
+> 整项隐藏，不显示 `--`、0 或空白占位。
+
+#### 当前顾问
+Vehicle Detail 当前顾问优先级：
+
+1. 当前 Vehicle 相关合法业务 responsible；
+2. Customer current owner；
+3. 都没有 → “暂无服务顾问”。
+
+打开详情不得因此自动分配 owner。
+
+#### 客户可见档案
+只展示 `customer_visible`：
+
+- 检测报告；
+- 合法客户可见档案 / 资料。
+
+无可见资料：
+
+> 整块隐藏。
+
+不得泄露 VIN、绿本/行驶证等敏感原件、内部文件。
+
+#### 车况
+- JYT/批发：只能按“上游事实车况/描述”展示，不包装成名邦检测、认证、质保；
+- 名邦/4S：展示员工真实维护车况；
+- 无数据整块隐藏；
+- 名邦真实检测报告继续作为独立 customer_visible 档案。
+
+#### 来源标签
+只使用轻量不可点击：
+
+- 批发车源；
+- 名邦车源；
+- 4S店车源。
+
+不得显示 JYT / 金鱼塘等内部上游名称。
+
+### B｜维持“基本信息”泛化壳
+
+不推荐；无法防止字段漏失和 provenance 混淆。
+
+**建议：A。**
+
+## P20-B4-04｜C03「我的」必须是真实主导航与业务历史页，不保留通用壳
+
+### A｜补齐真实入口和字段（推荐）
+
+C03 一级必须可进入：
+
+- 我的收藏；
+- 我的推荐；
+- 我的咨询；
+- 我的锁车/候补；
+- 我的交易；
+- 个人资料/我的顾问；
+- 推荐朋友/直接转介绍；
+- 公告入口。
+
+#### 我的推荐
+至少展示：
+
+- Vehicle；
+- Recommendation 时间；
+- recommender；
+- source Demand（如有）；
+- 当前 Vehicle 状态；
+- 当前 listing_cycle 价格访问状态；
+- 历史 Recommendation 只读保留。
+
+不得混入 Match candidate / Source Radar / Priority。
+
+#### 我的咨询
+至少展示：
+
+- Vehicle；
+- Consultation 创建时间；
+- 当前状态；
+- 当前 assignee / 顾问；
+- source；
+- resolved/invalid 的真实结束事实与必要原因；
+- 当前 / 历史分区。
+
+#### 我的锁车/候补
+至少展示：
+
+- 当前 / 历史；
+- 普通 Lock expires_at；
+- 合法延期后的新 expires_at / 已延期；
+- 已支付真实 Deposit 后切换为持续锁定表达；
+- Customer 自己的真实 Deposit 金额（如适用）；
+- Waitlist 当前/历史；
+- 不展示保证性排名。
+
+#### 我的交易
+至少展示：
+
+- 当前交易；
+- completed；
+- cancelled；
+- Vehicle；
+- created_at；
+- 当前 responsible；
+- Customer 自己的 Deposit / Refund 安全事实。
+
+#### 个人资料 / 我的顾问
+至少展示：
+
+- 头像；
+- 昵称；
+- 手机号；
+- current owner / 顾问；
+- 无顾问 → “暂无服务顾问”；
+- “推荐朋友 / 直接转介绍”真实入口。
+
+### B｜继续使用“当前记录/历史记录/对象摘要”通用壳
+
+不推荐；无法成为可开发、可验收的客户端业务合同。
+
+**建议：A。**
+
+## P20-B4-05｜车辆详情统一“服务 / 购买说明”
+
+### A｜恢复单一全局模块（推荐）
+
+客户端 Vehicle Detail 只保留一个：
+
+> **服务 / 购买说明**
+
+规则：
+
+- 客户端消费后台当前有效的一份全局内容；
+- 内容为空 → 整个模块隐藏；
+- 不拆成“购车流程 / 过户说明 / 交易流程 / 质保说明”等多个重复模块；
+- 不建设服务费计算器；
+- 不计算物流费 / 检测费 / 过户费报价 / 预计到手价。
+
+后台配置、富文本、Word 基础格式兼容、清理危险 HTML / style / script、修改审计由后续 PC Authority 承接；PDM-20 只冻结客户侧消费与隐藏规则。
+
+### B｜取消该模块
+
+不推荐；与 R10-60 明确历史规则冲突。
+
+**建议：A。**
+
+## P20-B4-06｜普通分享内容采用轻量安全配置，不把营销文案写死
+
+### A｜轻量模板 + 安全图片选择（推荐）
+
+Vehicle 分享：
+
+- 使用微信官方分享能力；
+- 标题使用轻量可配置模板；
+- 不把某一句营销标题写成永久 SSOT；
+- 分享图片优先首张当前合法、真实可用 Vehicle 图片；
+- 没有可用真实车图 → 使用统一默认分享图；
+- 模板只能使用 Customer Safe 白名单字段；
+- 不允许拼入客户展示价、内部价、VIN、电话、Priority/Recommendation/Lock/Transaction 内部状态。
+
+首页 / 品牌层分享标题与分享图可在后续对应配置 Authority 中轻量配置。
+
+同时：
+
+> 首页 / 列表卡片不增加独立分享快捷按钮；车辆分享从 Vehicle Detail 完成。
+
+不建设无限通用模板引擎。
+
+### B｜固定写死一句营销标题
+
+不推荐；后续改文案必须改代码且与 DEC-068 冲突。
+
+**建议：A。**
+
+## P20-B4-07｜历史详情只读 + 旧分享链接按当前事实实时重算
+
+### A｜严格区分公开分享与本人历史（推荐）
+
+- sold/offline/cycle-ended Vehicle 不再进入正常在售 Feed；
+- Customer 如果自己存在 Recommendation / Consultation / Lock / Transaction 等合法历史关系，可从“我的”进入 Customer Safe Historical Detail；
+- Historical Detail 只读；
+- 不从历史页创建新的 Consultation / LockRequest / Waitlist / Transaction；
+- 旧 share link 永远不是永久访问 grant；
+- Vehicle 当前对接收人不可公开时 → “当前车源不可查看” + “查看更多车源”；
+- 同一 vehicle_id 后续进入新的 listing_cycle 且当前重新公开可见时，旧普通 share 可以继续作为 Vehicle 导航入口，但所有 visibility / price-right / Lock 等按新 cycle 当前事实重新计算；
+- Customer 自己的历史访问权仍从“我的历史”入口判断，不靠旧公开 share 穿透。
+
+### B｜旧 share 永久绑定当时详情
+
+不推荐；会穿透后续 hidden/offline/sold/Priority 和新 cycle 权限。
+
+**建议：A。**
+
+## P20-B4-08｜手机号授权拒绝后的找车表单只做页面临时保真
+
+### A｜临时保留当前填写内容，不创建服务端草稿（推荐）
+
+Customer 已填写找车表单后，提交时因无手机号触发统一手机号授权：
+
+- 授权成功 → 保存手机号并自动继续原提交；
+- 拒绝 / 取消 → 不创建 Application、不通知 Employee、不形成正式服务关系；
+- 当前页面已填写内容临时保留，允许继续修改并再次提交；
+- 临时保留不是 server-side draft；
+- 页面销毁 / 小程序关闭 / 刷新 / 长时间离开后不承诺恢复；
+- 不新增“未授权找车草稿”主状态。
+
+### B｜拒绝授权也先在服务端保存正式草稿
+
+不推荐；会制造未授权人工服务对象/状态。
+
+**建议：A。**
+
+## P20-B4-09｜客户端通用加载 / 失败 / 重试 / 复制权限合同
+
+### A｜统一交互安全合同（推荐）
+
+关键页面至少支持：
+
+- 首次加载 / skeleton；
+- 分页加载；
+- empty；
+- 网络错误；
+- 服务端错误；
+- retry；
+- submit pending；
+- 防重复提交；
+- 图片加载失败占位。
+
+当权限 / visibility / Customer state 在页面停留期间发生变化：
+
+> 必须撤销旧敏感 UI 与旧敏感数据，不允许继续展示缓存中的受保护字段。
+
+复制能力统一：
+
+> **先有查看权限，才允许复制。**
+
+客户端只允许复制当前 Customer 本身合法可见的安全文本；不可见字段不能借长按/复制绕过权限。
+
+复制成功可反馈：
+
+> `已复制`
+
+### B｜各页面自行决定
+
+不推荐；会造成重复提交、缓存泄露和权限绕过。
+
+**建议：A。**
+
+## P20-B4-10｜价格格式与 Vehicle Detail 顶部导航
+
+### A｜恢复明确显示与 entry-context 导航（推荐）
+
+#### 客户数字价格格式
+- 主要单位使用“万”；
+- 例如 `12.8万`、`18万`；
+- 整数不强制显示 `18.0万`；
+- 不写冗长 `18万元`；
+- 无数字价继续显示“价格咨询”；
+- `--万` 只用于 PDM-10 明确的 LIMITED quota exhausted 场景，不能和“车辆无数字价”混淆。
+
+#### Vehicle Detail 顶部
+内部正常进入：
+- 左上角官方风格返回箭头；
+- 不显示“返回”文字；
+- 返回原页面并恢复查询/滚动上下文。
+
+分享 / 外部直达、没有有效上一页：
+- 左上角显示“主页”；
+- 点击进入新的正常 C01 首页。
+
+顶部中间固定：
+
+> **车辆详情**
+
+不把完整车型塞进标题栏。
+
+顶部不额外增加自定义分享按钮；使用微信官方分享能力。
+
+### B｜沿用 Current 泛化标题 / 导航壳
+
+不推荐；会丢失 entry context 和历史已冻结文案。
+
+**建议：A。**
+
+---
+
+## 8.1 Batch 4 Gate（待用户裁决）
+
+- `P20-B4-01～P20-B4-10 = PENDING_USER_REVIEW`
+- 推荐：`1A,2A,3A,4A,5A,6A,7A,8A,9A,10A`
+- `COMPLETED_PDM_MUTATION = 0`
+- `NEW_DOMAIN_STATE_MACHINE = 0`
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
+本批批准后：
+
+> **先执行 Batch 4，再运行 PDM-20 Final 前完整性复核 R1；不得直接跳 Final。**
