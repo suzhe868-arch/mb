@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-17",
-  "current_domain_status": "BATCH_2_PASS_BATCH_3_PENDING_USER_REVIEW",
+  "current_domain_status": "BATCH_3_PASS_BATCH_4_PENDING_USER_REVIEW",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-17 Batch 3 用户审查",
+  "current_task": "PDM-17 Batch 4 用户裁决",
   "current_work_file": "07_重建工作区/PDM-17_公海待公海领取指定分配与协作_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -28,7 +28,7 @@
   "forbidden_now": [
     "Do not modify IA or Low-Fi during PDM-01 through PDM-25 product-rule reconstruction",
     "Do not execute Engineering Delta",
-    "Do not skip PDM-17 Batch 3 user review"
+    "Do not skip PDM-17 Batch 4 user review"
   ],
   "confirmed_rule_atoms": [
     "P01-A01",
@@ -82,7 +82,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-17_BATCH_3",
+  "current_review_batch": "PDM-17_BATCH_4",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -2839,7 +2839,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "用户审查 PDM-17 Batch 3：无新增项",
+  "next_action": "用户裁决 P17-B4-01～P17-B4-09",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -2869,7 +2869,7 @@
   "pdm_17_batch_2_pending_atoms": [],
   "pdm_17_batch_2_reverse_conflict_scan": "PASS_FALSE_DEPRECATION_COUNT_0",
   "pdm_17_batch_2_confirmed_count": 4,
-  "pdm_17_batch_3_status": "NO_NEW_ATOMS_PENDING_USER_REVIEW",
+  "pdm_17_batch_3_status": "PASS_USER_APPROVED_APPLIED_NO_NEW_ATOMS",
   "pdm_17_batch_3_pending_atoms": [],
   "pdm_17_batch_3_conflict_isolation": "PASS_MISCLASSIFIED_PRODUCT_CHOICE_0",
   "pdm_17_batch_3_scan": {
@@ -2883,5 +2883,19 @@
       "P17-A14",
       "P17-A15"
     ]
-  }
+  },
+  "pdm_17_batch_3_approved": true,
+  "pdm_17_batch_4_status": "PENDING_USER_REVIEW",
+  "pdm_17_batch_4_pending_atoms": [
+    "P17-B4-01",
+    "P17-B4-02",
+    "P17-B4-03",
+    "P17-B4-04",
+    "P17-B4-05",
+    "P17-B4-06",
+    "P17-B4-07",
+    "P17-B4-08",
+    "P17-B4-09"
+  ],
+  "pdm_17_local_product_choice_unresolved": 9
 }

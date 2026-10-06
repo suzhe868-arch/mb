@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-17_BATCH_3_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-17_BATCH_4_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`
+> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -32,7 +32,22 @@
 
 当前唯一下一步：
 
-> **PDM-17 Batch 2 已 `PASS / USER_APPROVED / APPLIED`：P17-B2-01～P17-B2-04 共 4 条明确废弃 / superseded / DO_NOT_RESTORE 已正式冻结；Batch 3 新增/变更扫描未发现新的独立 Atom，6 条 incoming handoff 的后续变化均已被 Batch 1 当前规则吸收。当前唯一下一步：用户审查 Batch 3“无新增项”结论。**
+> **PDM-17 Batch 3“无新增项”已 `PASS / USER_APPROVED / APPLIED`；Batch 4 完整性扫描形成 P17-B4-01～P17-B4-09 共 9 个真实冲突 / 遗漏 / 产品选择。当前唯一下一步：用户裁决 PDM-17 Batch 4。**
+
+## 2026-10-06｜PDM-17 Batch 3 通过并进入 Batch 4
+
+- 用户明确同意 Batch 3“无新增独立规则原子”结论，随后确认执行；
+- `BATCH_3 = NO_NEW_ATOMS / PASS / USER_APPROVED / APPLIED`；
+- `NEW_INDEPENDENT_ATOMS=0`；
+- `DUPLICATE_RULE_CREATION=0`；
+- `MISCLASSIFIED_PRODUCT_CHOICE=0`；
+- Batch 4 已完成历史 R6、001～078 与当前 PDM-17 的冲突/遗漏扫描；
+- 形成 `P17-B4-01～P17-B4-09` 共 9 个待裁决项；
+- 其中明确发现：长期未真实跟进公海候选“三条件 AND”历史规则丢失；公海普通领取人在领取前仅看必要摘要、敏感联系方式默认隐藏的规则尚未完整进入当前 PDM-17；
+- 仓库未发现已正式冻结的“后台指定分配为主、主动领取弱化”覆盖性裁决，因此该运营模式仍作为 Batch 4 新产品选择提交，不从聊天记忆静默覆盖；
+- 6 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户裁决 PDM-17 Batch 4。
 
 ## 2026-10-06｜PDM-17 Batch 2 用户批准并执行
 
