@@ -516,6 +516,17 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
+
+## 12N. PDM-24 来源 handoff
+
+| handoff_id | target | 语义 | status | target_landing | source_backwrite_required |
+|---|---|---|---|---|---|
+| HO-P24-P25-001 | PDM-25 | 统一审计 / 历史 / 时区承接 PDM-24 Announcement / Banner 规则：Announcement 创建/编辑/启停、生效开始/结束日期、排序、自动弹出开关、标题正文变更、普通编辑不重置当天展示事实、每日自动展示事实；Banner 创建/编辑/启停、schedule、sort、placement、target、停用/再启用与再启用校验；统一记录 before/after/actor/time 与业务时区。PDM-25 不得反向改变 PDM-24 已冻结的公告每日全局频控、Banner placement/target/lifecycle 语义。 | HANDOFF_OPEN | - | YES |
+
+> 2026-10-07 PDM-24 Batch 4 已 USER_APPROVED / APPLIED；HO-P24-P25-001 正式登记。待 PDM-25 承接后关闭并回写来源。
+
+---
+
 ## 13. Post-PDM25 IA / Low-Fi Carrier Ledger｜持续累积
 
 > 当前只登记，不施工；统一在 PDM-25 完成 + PDM-01～25 全局最终总复核 PASS 后集中对齐。
@@ -670,7 +681,8 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - `HO-P23-P25-001 = HANDOFF_OPEN`；
 - PDM-20 → PDM-24 的 `HO-P20-P24-001 = HANDOFF_ACCEPTED`，已由 PDM-24 Startup Gate 正式接收；Final Closeout 前不关闭、不 source backwrite；
 - IA / Low-Fi / Engineering 继续 `NO_CONSTRUCTION`；
-- 当前唯一下一步：**PDM-24 Batch 4 Final-gap Scan**。
+- `HO-P24-P25-001 = HANDOFF_OPEN`；
+- 当前唯一下一步：**PDM-24 Final 前完整性复核（Prefinal Integrity）**。
 
 ## 12L. PDM-22 来源 handoff
 
@@ -690,3 +702,6 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 
 > 2026-10-07 PDM-24 窗口切换：Batch 1 / Batch 2 已 PASS / USER_APPROVED / APPLIED；Batch 3 = NO_NEW_ATOMS / PASS / USER_APPROVED / APPLIED；HO-P20-P24-001 继续 HANDOFF_ACCEPTED，Final Closeout 前不关闭、不 source backwrite；当前唯一下一步为 PDM-24 Batch 4 Final-gap Scan。
+
+
+> 2026-10-07 PDM-24 Batch 4：P24-B4-01～P24-B4-07 已 PASS / USER_APPROVED / APPLIED；HO-P24-P25-001 已登记 HANDOFF_OPEN；HO-P20-P24-001 继续 HANDOFF_ACCEPTED，Final Closeout 前不关闭、不 source backwrite；当前唯一下一步为 PDM-24 Final 前完整性复核（Prefinal Integrity）。
