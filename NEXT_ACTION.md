@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-17（Batch 1/2/3/4 已通过，当前 Final 前完整性复核 R1 修复审查）
+- 当前域：PDM-17（Pre-Final R2 PASS，当前 Final Overview 用户最终审查）
 - PDM-15 Startup Gate = PASS
 - PDM-15 incoming handoffs = 5 / 5 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-15 工作版 = `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
@@ -72,7 +72,10 @@
 - PDM-17 Batch 4 = P17-B4-01～P17-B4-09 / PASS / USER_APPROVED / APPLIED / CHOICES=1A,2A,3A,4A,5A,6A,7A,8A,9A
 - PDM-17 Local Product Choice Unresolved = 0
 - PDM-17 Pre-Final Integrity R1 = REPAIR_REQUIRED / REPORT=`07_重建工作区/PDM-17_Final前完整性复核_R1_2026-10-06.md`
-- PDM-17 Pre-Final Repair R1 = P17-LIA-01～P17-LIA-05 / PENDING_USER_REVIEW
+- PDM-17 Pre-Final Repair R1 = P17-LIA-01～P17-LIA-05 / PASS / USER_APPROVED / APPLIED
+- PDM-17 Outgoing Handoffs = 6 / COMPLETE_REGISTERED / HANDOFF_OPEN
+- PDM-17 Pre-Final Integrity R2 = PASS / FINAL_CANDIDATE_READY / REPORT=`07_重建工作区/PDM-17_Final前完整性复核_R2_2026-10-06.md`
+- PDM-17 Final Overview = `07_重建工作区/PDM-17_最终完整规则总览_待用户批准.md` / PENDING_USER_FINAL_APPROVAL
 - PDM-11 = COMPLETE / INTEGRITY_PASS
 - PDM-12 = COMPLETE / INTEGRITY_PASS
 - PDM-11 启动门禁 = UNBLOCKED
@@ -124,7 +127,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-17 Final 前完整性复核 R1 = REPAIR_REQUIRED。当前唯一下一步：用户审查 P17-LIA-01～P17-LIA-05；未经确认不得进入 R2 / Final Overview。**
+> **PDM-17 Final 前完整性复核 R2 = PASS / FINAL_CANDIDATE_READY。当前唯一下一步：用户最终审查 Final Domain Overview；未经最终批准不得发布 Final / 关闭 incoming handoff / source backwrite / 进入 PDM-18。**
 
 每个 PDM 必须同时执行：
 
