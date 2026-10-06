@@ -690,7 +690,7 @@ PDM-12 已完成承接并 source backwrite：
 - Priority 对 hidden / exclusive visibility / listing lifecycle 的关系 → PDM-13｜`HANDOFF_CLOSED`：PDM-13 Final §§5,15-19,29 已冻结 hidden 但真实可售可内部 Matching/Priority；Priority 不改 Vehicle/listing_cycle、不强制 unhide；Priority 本身不授 Customer visibility；active Priority 对普通公开入口形成排他，ended 后恢复底层真实状态并按当前事实重新仲裁；
 - Recommendation 对 hidden 单车可见授权与生命周期 → PDM-14｜`HANDOFF_CLOSED`：PDM-14 Final 已冻结 hidden≠offline 条件下 active Recommendation 的 customer-specific visibility、visible↔hidden 同周期动态授权、listing_cycle end 不跨周期继承，以及 source_type/一键转名邦同 vehicle/listing_cycle 不重建 Recommendation；`HO-P04-P14-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - Lock / Waitlist 的完整生命周期 → PDM-18｜`HANDOFF_CLOSED`：PDM-18 Final 已正式承接 LockRequest / Lock / Waitlist 生命周期，并明确 vehicle source/visibility 变化不得静默抹除既有业务历史，hidden 本身不结束 Lock/Waitlist；`HO-P04-P18-001 = HANDOFF_CLOSED / source_backwrite=YES`；
-- Transaction / Refund / correction → PDM-19｜`HANDOFF_OPEN`；
+- Transaction / Refund / correction → PDM-19｜`HANDOFF_CLOSED`：PDM-19 Final 已正式承接 Transaction / Refund / correction，并明确 source_type / hidden / visibility / source conversion 不得静默删除或重建交易资金历史；误成交 correction 只有真实不可售后再可售才新建 listing_cycle；`HO-P04-P19-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - 客户端具体页面交互（包括 `listing_started_at` / 上传时间 / JYT 平台收录时间等展示语义）→ PDM-20｜`HANDOFF_OPEN`；
 - 员工端具体页面交互 → PDM-21｜`HANDOFF_OPEN`；
 - PC 配置入口与管理界面，以及三个固定车源同步 API 的启停、credential、调用统计、运行状态 → PDM-22｜`HANDOFF_OPEN`；
