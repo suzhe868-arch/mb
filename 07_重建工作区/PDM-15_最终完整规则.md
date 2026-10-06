@@ -832,14 +832,14 @@ PDM-15 已正式登记以下 outgoing handoff：
 
 - `HO-P15-P16-001`｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-16 Final 已承接 Consultation context 进入统一 CRM Follow-up / service history、普通 CRM 跟进不自动完成 first-response SLA、CRM Stage 不反写 Consultation 主状态 / assignee / source；
 - `HO-P15-P17-001`｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-17 Final 已承接公海 Customer 主动发起 Consultation 时先形成合法唯一 Customer owner、成功退出公海后再由 PDM-15 创建/复用正式 Consultation；无法形成合法 owner 时不得创建 responsible=null Consultation；
-- `HO-P15-P19-001`：Transaction 不自动结束 Consultation；
+- `HO-P15-P19-001`｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-19 Final 已正式承接 Transaction × Consultation 负向边界；Transaction completed/cancelled/corrected 均不得自动改变 Consultation 主状态，Consultation 仍由 PDM-15 合法真人动作收口；
 - `HO-P15-P20-001`：客户端“我的咨询”、四主状态 + close_reason、安全投影、disable hold；
 - `HO-P15-P21-001`：员工端 Consultation 动作、mutation authority、工作台 SLA 优先级；
 - `HO-P15-P22-001`：PC Consultation 管理 / SLA 配置；
 - `HO-P15-P23-001`：新 Consultation / SLA timeout 通知与 DND；
 - `HO-P15-P25-001`：统一审计 / 历史。
 
-`HO-P15-P16-001` 与 `HO-P15-P17-001` 已分别由 PDM-16 / PDM-17 Final 正式承接并关闭；其余 6 条 handoff 继续 `HANDOFF_OPEN`，由对应目标 PDM 后续承接。
+`HO-P15-P16-001`、`HO-P15-P17-001`、`HO-P15-P19-001` 已分别由目标 Final 正式承接并关闭；其余 PDM-20 / PDM-21 / PDM-22 / PDM-23 / PDM-25 共 5 条 handoff 继续 `HANDOFF_OPEN`。
 
 ---
 
