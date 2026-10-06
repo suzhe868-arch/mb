@@ -1,6 +1,6 @@
 # PDM-18｜LockRequest / 正式 Lock / Waitlist / 延期 / 释放｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_REPAIR_REQUIRED`  
 > 核心定位：`P18-R00 / USER_APPROVED / APPLIED`  
 > Incoming Handoff：10 / 10 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -105,7 +105,7 @@ Startup Gate 扫描结果：
 - 员工 approve 时重新校验并原子创建正式 Lock；
 - 第一个合法 approve 且创建成功者获锁；
 - 其他同车同 listing_cycle 的 PENDING 可进入 LOCK_CONFLICT；
-- LOCK_CONFLICT 不自动转 Waitlist；
+- **历史 9/22 口径：LOCK_CONFLICT 不自动转 Waitlist；该句已被 P18-B4-02 / 2A 主动覆盖，不再是当前 Authority。**
 - 客户端不提供 LockRequest 主动 cancel / withdraw；
 - 4S Member 不处理 LockRequest。
 
@@ -166,13 +166,15 @@ LockRequest approve 最终提交必须重新验证：
 
 只有重验全部通过并成功创建正式 Lock，LockRequest 才能进入成功结果。
 
-## P18-A06｜并发审批只允许一个正式 Lock 成功｜USER_APPROVED / APPLIED / BATCH4_CONFLICT_PENDING
+## P18-A06｜并发审批只允许一个正式 Lock 成功｜USER_APPROVED / APPLIED / REVISED_BY_B4-02
 
 - 同车同一时刻只允许一个 active Lock；
 - 第一个合法 approve 且成功创建 Lock 的请求获锁；
 - 其他竞争请求不得产生第二个 active Lock；
-- 其他同车同 cycle PENDING 进入真实冲突结果（如 LOCK_CONFLICT）；
-- LOCK_CONFLICT 不自动创建 Waitlist。
+- 其他同车同 cycle PENDING 进入真实冲突结果（如 `LOCK_CONFLICT`）；
+- 采用 P18-B4-02 / 2A 后：这些仍有效且仅因该 Lock 成立而失去获锁机会的 PENDING，自动创建 / 复用 Waitlist；
+- LockRequest 本体继续保留 `LOCK_CONFLICT` 终态与关联 Waitlist，不把 LockRequest 状态直接改造成 Waitlist；
+- 自动 Waitlist 不产生正式 Lock 优先权，也不改变“一人先合法 approve + 成功创建 Lock 才获锁”的并发规则。
 
 ## P18-A07｜客户侧不提供 LockRequest 主动撤回主流程｜USER_APPROVED / APPLIED
 
@@ -228,12 +230,12 @@ PDM-18 只消费“已存在真实意向金”的事实；Deposit 本身由 PDM-
 - 同 Customer + Vehicle 同时最多一个 active Waitlist；
 - 重复提交复用当前合法 active Waitlist。
 
-## P18-A13｜Waitlist 不自动升级为 Lock｜USER_APPROVED / APPLIED / PARTIAL_BATCH4_CONFLICT_PENDING
+## P18-A13｜Waitlist 不自动升级为 Lock｜USER_APPROVED / APPLIED / REVISED_BY_B4-02
 
 - 原 Lock 释放 / 到期 / 取消后，Waitlist 不自动转成 Lock；
 - 候补 Customer 必须重新经过人工确认与当前 Guard；
 - 再次尝试正式 Lock 时重新验证当前 Vehicle / listing_cycle / permission / scope / occupancy；
-- LockRequest LOCK_CONFLICT 也不得自动创建 Waitlist。
+- **“Waitlist 不自动升级为 Lock”继续成立；但 LockRequest 竞争失败自动形成 Waitlist 已由 P18-B4-02 / 2A 明确允许。两者不是同一方向的自动转换。**
 
 ## P18-A14｜owner / 公海变化不静默改写 Lock / Waitlist responsible｜USER_APPROVED / APPLIED
 
@@ -267,7 +269,7 @@ Customer account 停用：
 - 不得用 0 / 假价格替代；
 - 后续上游调价、阶梯规则、覆盖价、人工价格、source_type 变化不得回写历史 Lock Snapshot。
 
-## P18-A18｜Priority / Recommendation / Matching 与 Lock 分层｜USER_APPROVED / APPLIED
+## P18-A18｜Priority / Recommendation / Matching 与 Lock 分层｜USER_APPROVED / APPLIED / EXTENDED_BY_B4-01
 
 - active Lock 不使底层真实可售 Vehicle 退出 Matching；
 - 其他 Demand 可以继续形成携带“已锁/占用”的 Match Result；
@@ -275,7 +277,11 @@ Customer account 停用：
 - 正式 Lock 成立可结束当前 active Priority；
 - Lock 取消 / 到期不恢复旧 Priority，后续按当时当前合法事实重新仲裁；
 - Recommendation 不产生 Lock 排队优先级、抢车分值或 takeover 权；
-- Recommendation end / void、Priority release / expiry 均不得反向取消已经合法成立的 Lock。
+- Recommendation end / void、Priority release / expiry 均不得反向取消已经合法成立的 Lock；
+- 普通 VIP / 粉丝直接形成的 Lock 只形成占车，不自动产生全客户隐藏；
+- Priority Customer 自己从 active Priority 转正式 Lock 时，Priority 本体以 `converted_to_lock` 等合法 reason ended，但该笔 Lock 继承原 Priority 的客户侧排他可见性；
+- Priority-origin Lock 有效期间其他普通 Customer 不进入该车普通公开列表 / 详情，但内部 Matching / Employee / PC 继续读取真实 Vehicle 与占用事实；
+- 该 Lock 结束后不恢复旧 Priority，而按当时最新 Vehicle / Recommendation / Priority / visibility 重新计算客户可见性。
 
 ---
 
@@ -625,13 +631,13 @@ Batch 4 正式审查时必须同时处理：
 
 ---
 
-# 11. Batch 4｜冲突 / 遗漏 / 缺口 / 新产品选择候选
+# 11. Batch 4｜冲突 / 遗漏 / 缺口 / 新产品选择｜PASS / USER_APPROVED / APPLIED
 
-> 状态：`PENDING_USER_REVIEW`。  
-> Cross-PDM Conflict Review：`PASS / 仅形成显式待修正项，不提前覆盖 completed PDM`。  
-> 选择方式：每项给出 A/B；**A 为当前推荐方案**。P18-B4-01、P18-B4-02 的 A 已有用户方向确认，但仍需在本批整体批准后才正式应用。
+> 状态：`PASS / USER_APPROVED / APPLIED / CHOICES=1A,2A,3A,4A,5A,6A,7A,8A,9A,10A`。  
+> 用户裁决：`1A～10A`；随后以“确认执行”语义明确执行。  
+> Cross-PDM Conflict Review：`PASS / completed PDM 不静默改写，后续通过 handoff / global alignment 承接`。
 
-## P18-B4-01｜Priority → Lock 后的客户侧可见性
+## P18-B4-01｜Priority → Lock 后的客户侧可见性｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐 / 用户已确认方向
 - 普通 VIP / 粉丝直接形成正式 Lock：只形成占车，不自动全客户隐藏；
@@ -648,7 +654,7 @@ Batch 4 正式审查时必须同时处理：
 
 ---
 
-## P18-B4-02｜竞争 LockRequest 自动转 Waitlist
+## P18-B4-02｜竞争 LockRequest 自动转 Waitlist｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐 / 用户已确认方向
 同一 Vehicle + listing_cycle 有多个有效 PENDING 时：
@@ -674,7 +680,7 @@ Priority-origin Lock 场景：
 
 ---
 
-## P18-B4-03｜Waitlist responsible 如何确定
+## P18-B4-03｜Waitlist responsible 如何确定｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐
 创建 Waitlist 时按以下优先级选择当前合法 responsible：
@@ -697,7 +703,7 @@ Waitlist 永远跟随 Customer current owner 自动变化。
 
 ---
 
-## P18-B4-04｜Waitlist 的结束矩阵
+## P18-B4-04｜Waitlist 的结束矩阵｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐
 - Vehicle 当前 cycle 真实 `completed / offline / unavailable / sold_external`：结束对应 active Waitlist，保留历史和结束原因；
@@ -714,7 +720,7 @@ Waitlist 永远跟随 Customer current owner 自动变化。
 
 ---
 
-## P18-B4-05｜正式 Lock responsible 与审批 actor 分离
+## P18-B4-05｜正式 Lock responsible 与审批 actor 分离｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐
 - 正式 Lock 必须有独立 responsible，不允许 `responsible=null`；
@@ -731,7 +737,7 @@ Waitlist 永远跟随 Customer current owner 自动变化。
 
 ---
 
-## P18-B4-06｜Lock release/cancel 与 Waitlist manual end 的原因和权限
+## P18-B4-06｜Lock release/cancel 与 Waitlist manual end 的原因和权限｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐
 人工 mutation 必须：
@@ -750,7 +756,7 @@ Waitlist 永远跟随 Customer current owner 自动变化。
 
 ---
 
-## P18-B4-07｜供应异常时如何处理已有 Lock
+## P18-B4-07｜供应异常时如何处理已有 Lock｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐
 Vehicle 在已有 active Lock 后出现上游失效 / 供应异常：
@@ -769,7 +775,7 @@ Vehicle 在已有 active Lock 后出现上游失效 / 供应异常：
 
 ---
 
-## P18-B4-08｜旧“到期前默认 30 分钟提醒”是否恢复
+## P18-B4-08｜旧“到期前默认 30 分钟提醒”是否恢复｜CHOICE=A / USER_APPROVED / APPLIED
 
 该规则只存在于更早历史，后续 R8/R10 没有再次确认，当前证据状态一直是：
 
@@ -788,7 +794,7 @@ Vehicle 在已有 active Lock 后出现上游失效 / 供应异常：
 
 ---
 
-## P18-B4-09｜默认 Lock 时长配置权限与生效边界
+## P18-B4-09｜默认 Lock 时长配置权限与生效边界｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐
 - 默认 Lock 时长属于业务配置；
@@ -807,7 +813,7 @@ Vehicle 在已有 active Lock 后出现上游失效 / 供应异常：
 
 ---
 
-## P18-B4-10｜V1 是否提供批量 Lock / Waitlist mutation
+## P18-B4-10｜V1 是否提供批量 Lock / Waitlist mutation｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐
 V1 不提供批量：
@@ -842,4 +848,39 @@ V1 不提供批量：
 
 当前唯一下一步：
 
-> **用户审查 P18-B4-01～P18-B4-10。未经用户裁决与确认执行，不得进入 Final 前完整性复核。**
+> **P18-B4-01～P18-B4-10 已按 1A～10A 批准并执行。Final 前完整性复核 R1 = REPAIR_REQUIRED；当前唯一下一步：用户审查 P18-LIA-01～P18-LIA-06。**
+
+
+---
+
+## 11.2 Batch 4 Gate｜PASS
+
+- 用户裁决：`1A、2A、3A、4A、5A、6A、7A、8A、9A、10A`；
+- 用户随后明确执行；
+- `P18-B4-01～P18-B4-10 = PASS / USER_APPROVED / APPLIED`；
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- P18-A06 / A13 已按 B4-02 修正；
+- P18-A18 已按 B4-01 扩展；
+- 10 / 10 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工。
+
+---
+
+# 12. Final 前完整性复核 R1
+
+> 报告：`07_重建工作区/PDM-18_Final前完整性复核_R1_2026-10-06.md`  
+> 结果：`REPAIR_REQUIRED`。  
+> Final candidate：`NOT_READY`。
+
+本轮发现 6 组需要 Final 前补齐的规则 / handoff / carrier 事项：
+
+- `P18-LIA-01`：Waitlist 的手机号人工服务门槛；
+- `P18-LIA-02`：客户 V1 不自助取消 Waitlist；
+- `P18-LIA-03`：LockRequest 正式结果集与审计 / 关联结果；
+- `P18-LIA-04`：正式 Lock 创建幂等与 retry-safe；
+- `P18-LIA-05`：Waitlist 顺序存在但客户端不展示保证性“第几名”；
+- `P18-LIA-06`：Outgoing Handoff + stale carrier / cross-PDM alignment 登记。
+
+当前唯一下一步：
+
+> **用户审查 P18-LIA-01～P18-LIA-06。修复并执行后重新运行 Final 前完整性复核 R2。**
