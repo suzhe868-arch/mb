@@ -1188,3 +1188,14 @@
 
 | PDM24-GATE-B3 | PDM-24 | Batch 3 Gate | 后续明确新增 / 知情修改扫描确认均已由 Startup Gate / Batch 1 / Batch 2 承接，无需新增重复规则原子。 | PASS / USER_APPROVED / APPLIED / NO_NEW_ATOMS / MISCLASSIFIED_PRODUCT_CHOICE=0 | PDM-24 工作版 + 2026-10-07 用户“同意”并“确认执行” | 2026-10-07 |
 | PDM24-WINDOW-HANDOFF-20261007 | PDM-24 | 窗口切换上下文冻结 | 用户明确表示完成 Batch 3 后准备换窗口；当前已执行结果、P24-R00/R01、Batch 1/2/3、HO-P20-P24-001 状态与 Batch 4 唯一下一步已保存。 | CONTEXT_SAVED / NOT_FINAL / NEXT=PDM24_BATCH4_FINAL_GAP_SCAN | 07_重建工作区/PDM-24_窗口切换交接_2026-10-07.md | 2026-10-07 |
+
+
+| PDM24-SCAN-B4 | PDM-24 | Batch 4 Final-gap Scan | 重扫 9/06 SSOT/Decision、9/19 R10/R12、9/22 Frozen Visual Review、001～078、Current IA 与 completed-PDM Final；发现公告频率粒度/有效周期/字段、普通编辑触达语义、Banner 再启用、P24→P25 handoff 等 Final-gap。 | SCAN_COMPLETE / USER_REVIEW_COMPLETE / COMPLETED_PDM_HARD_CONFLICT=0 | PDM-24 工作版 + 历史证据 + 2026-10-07 用户逐项裁决 | 2026-10-07 |
+| PDM24-DEC-B4-01 | PDM-24 | P24-B4-01 | 公告设置生效开始/结束日期与独立自动弹出开关；有效期内同一 Customer 每业务自然日公告主动弹层全局最多 1 条，触发于当天第一次进入/打开小程序；取消“仅首次自动弹出一次”和三档频率模式。 | USER_APPROVED / APPLIED / USER_REVISED；正式修订 P24-A04 原“同公告+同客户每天一次”的粒度。 | 2026-10-07 用户主动提出周期+每日首次进入规则并“同意/确认执行” | 2026-10-07 |
+| PDM24-DEC-B4-02 | PDM-24 | P24-B4-02 | 普通编辑不重置客户当天已展示事实；当天未进入则首次进入读取最新内容；V1 不建独立重新发布按钮，需要新一轮触达时新建 Announcement，新公告仍受客户每日全局最多1条自动公告约束。 | USER_APPROVED / APPLIED / CHOICE_2A | 2026-10-07 用户同意整体判断并确认执行 | 2026-10-07 |
+| PDM24-DEC-B4-03 | PDM-24 | P24-B4-03 | 多条同时有效且开启自动弹出的公告，当天第一次进入只按后台有效排序择一自动展示；当天不补弹其他公告；主动公告列表查看不受自动弹层日上限限制。 | USER_APPROVED / APPLIED | 2026-10-07 用户同意整体判断并确认执行 | 2026-10-07 |
+| PDM24-DEC-B4-04 | PDM-24 | P24-B4-04 | 补齐 Announcement 标题、正文、启停、生效开始/结束日期、自动弹出开关、排序、创建/修改人及时间；不保留独立频率档位产品字段。 | USER_APPROVED / APPLIED | 2026-10-07 用户同意整体判断并确认执行 | 2026-10-07 |
+| PDM24-DEC-B4-05 | PDM-24 | P24-B4-05 | V1 Banner target 继续只允许内部白名单合法小程序页面/业务对象；不恢复历史“安全外链”当前能力。未来 H5/外链需重新获得 Authority。 | USER_APPROVED / APPLIED / CHOICE_5A；P24-A11/B2-07 继续有效。 | 2026-10-07 用户同意整体判断并确认执行 | 2026-10-07 |
+| PDM24-DEC-B4-06 | PDM-24 | P24-B4-06 | Banner 停用不删除；允许再启用；再启用时重新校验 identity/permission/scope/placement/target/schedule/object-state；过期需新合法排期。 | USER_APPROVED / APPLIED | 2026-10-07 用户同意整体判断并确认执行 | 2026-10-07 |
+| PDM24-DEC-B4-07 | PDM-24 | P24-B4-07 | 正式登记 HO-P24-P25-001：PDM-25 统一承接 Announcement/Banner 配置变更、每日展示事实、before/after/actor/time 与 timezone/history/audit 标准，不得反向改变 PDM-24 产品语义。 | USER_APPROVED / APPLIED / HANDOFF_REGISTERED / HANDOFF_OPEN | PDM-24 Batch 4 + CROSS_PDM_HANDOFF_REGISTER + 2026-10-07 用户确认执行 | 2026-10-07 |
+| PDM24-GATE-B4 | PDM-24 | Batch 4 Gate | P24-B4-01～P24-B4-07 全部批准并执行；B4-01 为用户修订版，B4-02=2A，B4-05=5A；其余稳定收口通过。 | PASS / USER_APPROVED / APPLIED / LOCAL_PRODUCT_CHOICE_UNRESOLVED=0；允许进入 PDM-24 Prefinal Integrity。 | PDM-24 工作版 + Decision Register + CROSS_PDM_HANDOFF_REGISTER | 2026-10-07 |
