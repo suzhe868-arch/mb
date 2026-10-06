@@ -756,3 +756,13 @@
 | PDM17-SCAN-B3 | PDM-17 | Batch 3 明确新增/变更扫描 | 6 条 incoming handoff 的 later additions 已全部被 P17-A02/A05/A06/A10/A11/A13/A15 及 B2-04 吸收；未形成新的独立规则原子。 | NEW_INDEPENDENT_ATOMS=0；DUPLICATE_RULE_CREATION=0；MISCLASSIFIED_PRODUCT_CHOICE=0；等待用户审查“无新增项”结论。 | CROSS_PDM_HANDOFF_REGISTER + PDM-17 当前工作版 | 2026-10-06 |
 | PDM17-GATE-B3 | PDM-17 | Batch 3 Gate | 用户同意 Batch 3“无新增独立规则原子”结论并确认执行；Batch 3 正式 PASS / USER_APPROVED / APPLIED。 | NEW_INDEPENDENT_ATOMS=0；DUPLICATE_RULE_CREATION=0；MISCLASSIFIED_PRODUCT_CHOICE=0；允许进入 Batch 4，但不得自动批准 Batch 4。 | PDM-17 工作版 + 2026-10-06 用户“同意”及“确认执行” | 2026-10-06 |
 | PDM17-SCAN-B4 | PDM-17 | Batch 4 冲突/遗漏扫描 | 历史 R6、001～078 与当前已批准 PDM-17 反查形成 9 个待裁决项：运营主路径、长期未跟进三条件候选、候选/复查配置值、领取限制口径、首次跟进提醒时长、批量治理、原因必填、Collaboration scope 层级、领取前敏感字段可见性。 | 当前仅登记候选，不构成产品批准；6 条 incoming handoff 保持 HANDOFF_ACCEPTED；IA/Low-Fi/Engineering 不施工。 | R6 + 001～078 + PDM-17 当前工作版 | 2026-10-06 |
+| PDM17-DEC-B4-01 | PDM-17 | P17-B4-01 / 1A | 后台指定分配/待公海人工治理为主；主动领取保留为弱化、可配置能力。 | 用户选择 A；当前 Authority 生效。 | 2026-10-06 用户 1A～9A 并确认执行 | 2026-10-06 |
+| PDM17-DEC-B4-02 | PDM-17 | P17-B4-02 / 2A | 恢复长期未真实跟进三条件 AND 人工候选；只生成候选，不自动进公海/改 owner/飞书。 | 用户选择 A；当前 Authority 生效。 | 2026-10-06 用户 1A～9A 并确认执行 | 2026-10-06 |
+| PDM17-DEC-B4-03 | PDM-17 | P17-B4-03 / 3A | 候选条件与重新检查周期可配置；PDM-17 不写死默认数值。 | 用户选择 A；当前 Authority 生效。 | 2026-10-06 用户 1A～9A 并确认执行 | 2026-10-06 |
+| PDM17-DEC-B4-04 | PDM-17 | P17-B4-04 / 4A | 领取数量上限与频率限制可配置；不写死数字/窗口，不自动收回已形成 owner。 | 用户选择 A；当前 Authority 生效。 | 2026-10-06 用户 1A～9A 并确认执行 | 2026-10-06 |
+| PDM17-DEC-B4-05 | PDM-17 | P17-B4-05 / 5A | 首次跟进提醒时间可配置；超时只提醒，不自动收回/进公海。 | 用户选择 A；当前 Authority 生效。 | 2026-10-06 用户 1A～9A 并确认执行 | 2026-10-06 |
+| PDM17-DEC-B4-06 | PDM-17 | P17-B4-06 / 6A | 保留批量公海治理；逐 Customer 重验，允许 partial success，返回逐项结果。 | 用户选择 A；当前 Authority 生效。 | 2026-10-06 用户 1A～9A 并确认执行 | 2026-10-06 |
+| PDM17-DEC-B4-07 | PDM-17 | P17-B4-07 / 7A | 原因/备注默认可选；核心变化 before/after/actor/time 必须审计。 | 用户选择 A；当前 Authority 生效。 | 2026-10-06 用户 1A～9A 并确认执行 | 2026-10-06 |
+| PDM17-DEC-B4-08 | PDM-17 | P17-B4-08 / 8A | Collaboration 只保留具体业务级与 Customer-level 两层 scope，不再造第二套权限系统。 | 用户选择 A；当前 Authority 生效。 | 2026-10-06 用户 1A～9A 并确认执行 | 2026-10-06 |
+| PDM17-DEC-B4-09 | PDM-17 | P17-B4-09 / 9A | 普通 claimant 领取前只看最小必要摘要；手机号等敏感字段默认隐藏。 | 用户选择 A；当前 Authority 生效。 | 2026-10-06 用户 1A～9A 并确认执行 | 2026-10-06 |
+| PDM17-GATE-B4 | PDM-17 | Batch 4 Gate | P17-B4-01～P17-B4-09 全部按 A 批准并执行；Local Product Choice Unresolved=0。 | 允许进入 Final 前完整性复核；不代表 Final Ready。 | 2026-10-06 用户确认执行 | 2026-10-06 |
