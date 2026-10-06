@@ -516,7 +516,7 @@ PDM-08 已完整承接人工名邦 / 4S 车辆图片规则：
 
 ### 19.5 仍待后续 PDM 承接
 
-- PDM-21｜`HANDOFF_OPEN`：员工端“新增车源 / 草稿车源 / VIN 重复提示 / MODEL_MISSING / 保存修改 / source_type 选择与草稿阶段修改”等页面、状态与动作投影；
+- PDM-21｜`HANDOFF_CLOSED`：PDM-21 Final 已正式承接新增车源、显式草稿、VIN duplicate、MODEL_MISSING、保存修改、source_type 选择/修改与发布工作流投影；`HO-P06-P21-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-22｜`HANDOFF_OPEN`：PC / 后台人工车辆管理承载，尤其不得因通用 CRUD 自动生成正式 Vehicle 物理 Delete；
 - PDM-25｜`HANDOFF_OPEN`：正式发布、source_type 修改、保存修改、VIN duplicate Gate、draft delete 等统一审计与历史留存标准。
 
