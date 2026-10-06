@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-19（Batch 3 = PASS；Batch 4 待用户审查）
+- 当前域：PDM-19（Batch 4 = PASS；Final 前 R1 修复待用户审查）
 - PDM-15 Startup Gate = PASS
 - PDM-15 incoming handoffs = 5 / 5 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-15 工作版 = `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
@@ -110,7 +110,10 @@
 - PDM-19 Batch 1 = P19-A01～P19-A14 / PASS / USER_APPROVED / APPLIED
 - PDM-19 Batch 2 = P19-B2-01～P19-B2-06 / PASS / USER_APPROVED / APPLIED
 - PDM-19 Batch 3 = P19-B3-01～P19-B3-03 / PASS / USER_APPROVED / APPLIED（B3-03 USER_REVISED）
-- PDM-19 Batch 4 = P19-B4-01～P19-B4-11 / PENDING_USER_REVIEW
+- PDM-19 Batch 4 = P19-B4-01～P19-B4-11 / PASS / USER_APPROVED / APPLIED / CHOICES=1A,2A,3A,4A,5A,6A,7A,8A,9A,10A,11A
+- PDM-19 Local Product Choice Unresolved = 0
+- PDM-19 Prefinal Integrity R1 = REPAIR_REQUIRED / NO_HARD_CONFLICT / REPORT=`07_重建工作区/PDM-19_Final前完整性复核_R1_2026-10-06.md`
+- PDM-19 Prefinal Repair R1 = P19-LIA-01～P19-LIA-06 / PENDING_USER_REVIEW
 - PDM-19 Batch 4 Cross-PDM Review = PASS / NO_COMPLETED_PDM_MUTATION
 - PDM-19 Batch 3 Conflict Isolation = PASS / MISCLASSIFIED_PRODUCT_CHOICE=0
 - PDM-19 Batch 2 Reverse Conflict Scan = PASS / FALSE_DEPRECATION_COUNT=0
@@ -168,7 +171,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-19 Batch 3 已 PASS / USER_APPROVED / APPLIED；B3-03 按用户简化关闭口径修订生效。当前唯一下一步：用户审查 P19-B4-01～P19-B4-11；未经用户裁决与确认执行，不得进入 Final 前完整性复核。**
+> **PDM-19 Batch 4 已按 1A～11A PASS / USER_APPROVED / APPLIED。Final 前完整性复核 R1 = REPAIR_REQUIRED / NO_HARD_CONFLICT。当前唯一下一步：用户审查 P19-LIA-01～P19-LIA-06；未经确认不得运行 R2 或生成 Final。**
 
 每个 PDM 必须同时执行：
 
@@ -222,7 +225,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-18 均已 `COMPLETE / INTEGRITY_PASS`。PDM-19 Batch 1～3 已 `PASS / USER_APPROVED / APPLIED`，target=PDM-19 的 10 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；在 PDM-19 Final / Integrity closeout 前不得提前关闭。当前唯一下一步为用户审查 PDM-19 Batch 4（P19-B4-01～P19-B4-11）。
+当前 PDM-01～PDM-18 均已 `COMPLETE / INTEGRITY_PASS`。PDM-19 Batch 1～4 已 `PASS / USER_APPROVED / APPLIED`，Final 前 R1=`REPAIR_REQUIRED / NO_HARD_CONFLICT`；target=PDM-19 的 10 条 incoming handoff 继续 `HANDOFF_ACCEPTED`，不得提前关闭。当前唯一下一步为用户审查 P19-LIA-01～P19-LIA-06。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
