@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-23（Startup Gate / Batch 1 / Batch 2 / Batch 3 = PASS；Batch 4 待用户审查；PDM-22 已 COMPLETE / INTEGRITY_PASS）
+- 当前域：PDM-23（Startup Gate / Batch 1 / Batch 2 / Batch 3 = PASS；旧 Batch 4 草案已冻结，等待新窗口历史重扫后重建；PDM-22 已 COMPLETE / INTEGRITY_PASS）
 - PDM-20 = COMPLETE / INTEGRITY_PASS
 - PDM-21 Startup Gate = PASS
 - PDM-21 核心定位 P21-R00 = USER_APPROVED / APPLIED
@@ -63,7 +63,9 @@
 - PDM-23 Batch 2 = P23-B2-01～P23-B2-14 / PASS / USER_APPROVED / APPLIED
 - PDM-23 Batch 2 Reverse Conflict Scan = PASS / FALSE_DEPRECATION_COUNT=0
 - PDM-23 Batch 3 = P23-B3-01～P23-B3-16 / PASS / USER_APPROVED / APPLIED
-- PDM-23 Batch 4 = P23-B4-01～P23-B4-06 / PENDING_USER_REVIEW
+- PDM-23 旧 Batch 4 = P23-B4-01～P23-B4-06 / PRESERVED / NOT_APPROVED / NOT_APPLIED
+- PDM-23 Batch 4 = REVIEW_SUSPENDED / REBUILD_REQUIRED_AFTER_HISTORICAL_RESCAN
+- PDM-23 窗口交接 = `07_重建工作区/PDM-23_窗口切换交接_2026-10-07.md` / SAVED
 - PDM-23 Batch 4 Product Choices = 1 / Recommended=1A
 - PDM-23 Batch 4 Stable Closures = 5
 - PDM-23 Outgoing Handoff Gap = P23→P25 pending approval
@@ -264,7 +266,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-23 Batch 3 已 `PASS / USER_APPROVED / APPLIED`。当前唯一下一步：用户审查 P23-B4-01～P23-B4-06。**
+> **PDM-23 Batch 3 已 `PASS / USER_APPROVED / APPLIED`。当前唯一下一步：新窗口读取交接快照，重扫微信/飞书/总群/SLA/DND/Incident/Notification Config 历史后重新生成完整 Batch 4。**
 
 每个 PDM 必须同时执行：
 
