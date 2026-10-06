@@ -1090,3 +1090,16 @@ Final Domain Overview：
 
 > **用户最终审查 / 批准 PDM-22 Final Domain Overview。最终批准前不得发布正式 Final、不得关闭 18 条 incoming handoff、不得 source backwrite、不得进入 PDM-23。**
 
+---
+
+# 14. Final Closeout｜COMPLETE
+
+- 用户最终批准 PDM-22 Final Domain Overview，并在同一消息明确“确认执行”；
+- 正式 Final：`07_重建工作区/PDM-22_最终完整规则.md`；
+- Final Integrity：`07_重建工作区/PDM-22_最终完整性复核_2026-10-07.md / PASS`；
+- 58 个正式规则 / 裁决单元全部进入 Final；
+- 18 / 18 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
+- PDM-22 → PDM-23 / PDM-25：继续 `HANDOFF_OPEN`；
+- IA / Low-Fi / Engineering 未施工；
+- PDM-22 = `COMPLETE / INTEGRITY_PASS`；
+- 当前唯一下一步：`PDM-23 Startup Gate`。
