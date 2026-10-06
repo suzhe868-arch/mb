@@ -1,9 +1,9 @@
-# PDM-19｜最终完整规则总览｜待用户批准
+# PDM-19｜最终完整规则总览｜用户已最终批准
 
 > 域：Deposit / Transaction / Refund / 成交纠错 / 换车  
-> 当前状态：`FINAL_REVIEW_PENDING`  
+> 当前状态：`USER_FINAL_APPROVED / FINAL_CLOSEOUT_DONE`  
 > Final 前完整性复核：`R2 PASS / FINAL_CANDIDATE_READY`  
-> 本文件为 PDM-19 最终产品规则候选；用户最终批准并再次明确执行前，不发布正式 Final，不关闭 incoming handoff，不执行 source backwrite，不进入 PDM-20。
+> 本文件保留 PDM-19 Final Domain Overview 最终批准留痕；用户已最终批准并确认执行，Final closeout 已完成。
 
 ## 1. 核心定位
 
@@ -547,4 +547,4 @@ R2：
 
 当前唯一下一步：
 
-> **用户最终批准本总览。批准后仍需再次明确执行，才发布正式 PDM-19 Final、关闭 10 条 incoming handoff、执行 source backwrite，并进入 PDM-20 Startup Gate。**
+> **PDM-19 Final closeout 已完成：正式 Final 已发布，Final Integrity PASS，10/10 incoming handoff CLOSED 且 source backwrite DONE。当前唯一下一步：PDM-20 Startup Gate。**
