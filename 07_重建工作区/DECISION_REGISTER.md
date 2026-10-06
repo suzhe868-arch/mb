@@ -1140,3 +1140,10 @@
 | PDM23-DEC-B4R-09 | PDM-23 | P23-B4R-09 | 未来独立 App Push 预留 notification channel 接入能力但 V1 不实现；PC V1 不做浏览器/桌面主动 Push。 | USER_APPROVED / APPLIED | 2026-10-07 用户明确未来 App Push 要可接入并确认执行 | 2026-10-07 |
 | PDM23-DEC-B4R-10 | PDM-23 | P23-B4R-10 | 正式登记 PDM-23→PDM-25：Notification Config/飞书映射/开关/DND/群路由/cadence/Notification Log 的统一审计、历史、敏感字段与时区标准。 | USER_APPROVED / APPLIED / HANDOFF_REGISTERED | PDM-23 重建 Batch 4 + 用户确认执行 | 2026-10-07 |
 | PDM23-GATE-B4R | PDM-23 | Batch 4 Rebuilt Gate | P23-B4R-01～P23-B4R-10 全部通过并执行；旧 P23-B4-01～06 从未执行并被重建版取代。 | PASS / USER_APPROVED / APPLIED；LOCAL_PRODUCT_CHOICE_UNRESOLVED=0；允许进入 PDM-23 Prefinal Integrity。 | PDM-23 工作版 + Decision Register + CROSS_PDM_HANDOFF_REGISTER | 2026-10-07 |
+
+| PDM23-PREFINAL-R1 | PDM-23 | Prefinal Integrity R1 | 完整复核发现 4 个语义补强项：统一通知去重基线、SLA 群告警最小内容、持续 Incident 作为普通去重例外、微信可接入不等于当前启用。 | REPAIR_REQUIRED / NO_HARD_CONFLICT；MISSING_RULE=2；SEMANTIC_DETAIL_GAP=2；incoming/outgoing gap=0。 | PDM-23 R1 报告 + 9/06 SSOT + completed-PDM Final | 2026-10-07 |
+| PDM23-DEC-LIA-01 | PDM-23 | P23-LIA-01 | 同一业务事件、同一通知阶段原则上只主动通知一次；同一 Consultation 同一次 first-response SLA timeout 原则上只做一次群告警；持续 Incident 例外。 | USER_APPROVED / APPLIED | 2026-10-07 用户“全部同意”并“确认执行” | 2026-10-07 |
+| PDM23-DEC-LIA-02 | PDM-23 | P23-LIA-02 | SLA 总群告警至少含必要 Customer 识别、负责销售、Consultation 摘要、已超时时长、业务入口；敏感字段最小化；deep-link 重新鉴权。 | USER_APPROVED / APPLIED | 2026-10-07 用户“全部同意”并“确认执行” | 2026-10-07 |
+| PDM23-DEC-LIA-03 | PDM-23 | P23-LIA-03 | 持续 active Incident 可按已配置 cadence 重复告警，是普通一次通知原则的例外；仍服从 DND；真实恢复后停止；不恢复历史固定 2/5/15 分钟默认。 | USER_APPROVED / APPLIED | 2026-10-07 用户“全部同意”并“确认执行” | 2026-10-07 |
+| PDM23-DEC-LIA-04 | PDM-23 | P23-LIA-04 | 微信小程序订阅消息“保留接入能力”不等于当前启用；无明确 customer-WeChat allowlist + 合法平台能力/模板 + 用户授权前不得自动发送。 | USER_APPROVED / APPLIED | 2026-10-07 用户“全部同意”并“确认执行” | 2026-10-07 |
+| PDM23-PREFINAL-R2 | PDM-23 | Prefinal Integrity R2 | R1 四项修复全部闭环；65 个正式规则/裁决单元完成 Source↔Atom、Semantic Completeness、handoff、negative claims 与 completed-PDM invariant 复核。 | PASS / FINAL_CANDIDATE_READY；MISSING_RULE=0；SEMANTIC_DETAIL_GAP=0；completed-PDM conflict=0；incoming/outgoing gap=0；local choice=0。 | PDM-23 R2 报告 | 2026-10-07 |
