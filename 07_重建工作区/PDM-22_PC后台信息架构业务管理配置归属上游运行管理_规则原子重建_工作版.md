@@ -850,13 +850,13 @@ PC Transaction 管理必须明确：
 
 ---
 
-# 9. Batch 4｜最终缺口 / 产品选择扫描｜PENDING_USER_REVIEW
+# 9. Batch 4｜最终缺口 / 产品选择扫描｜PASS / USER_APPROVED / APPLIED
 
 > 本批是在 Batch 1～3 后对 18 条 incoming handoff、R12 与 PDM-01～21 Final 再做一次 Final-gap scan。  
-> 结果：发现 4 个稳定 carrier 补漏 + 4 个 PC 产品承载选择；均不改变前置 PDM 的业务 Authority。  
+> 结果：发现 3 个稳定 carrier 补漏 + 5 个 PC 产品承载选择；均不改变前置 PDM 的业务 Authority。  
 > 推荐方案仍以“少建新体系、复用现有模块、认证/权限/业务事实分层”为原则。
 
-## P22-B4-01｜Application / Demand 的 PC 管理放在哪里
+## P22-B4-01｜Application / Demand 的 PC 管理放在哪里｜CHOICE=A / USER_APPROVED / APPLIED
 
 已冻结业务事实：Application 与 Demand 必须分离，PC 必须能看到当前状态、负责人并提供合法治理入口。
 
@@ -873,7 +873,7 @@ PC Transaction 管理必须明确：
 
 **推荐 A。**
 
-## P22-B4-02｜公海批量治理入口放在哪里
+## P22-B4-02｜公海批量治理入口放在哪里｜CHOICE=A / USER_APPROVED / APPLIED
 
 PDM-17 已冻结 V1 支持批量正式进公海、继续当前 owner、直接移交 / 指定分配，并要求逐 Customer 重验、允许部分成功。
 
@@ -890,7 +890,7 @@ PDM-17 已冻结 V1 支持批量正式进公海、继续当前 owner、直接移
 
 **推荐 A。**
 
-## P22-B4-03｜补齐“服务 / 购买说明”真实编辑 carrier｜稳定补漏
+## P22-B4-03｜补齐“服务 / 购买说明”真实编辑 carrier｜USER_APPROVED / APPLIED
 
 该项无新的产品选择，按 PDM-20 handoff 原样补齐：
 
@@ -902,7 +902,7 @@ PDM-17 已冻结 V1 支持批量正式进公海、继续当前 owner、直接移
 - 不按车辆、source_type、门店再造多套说明；
 - 不扩成通用模板引擎。
 
-## P22-B4-04｜Employee PC 登录账号的首次密码与重置策略
+## P22-B4-04｜Employee PC 登录账号的首次密码与重置策略｜CHOICE=A / USER_APPROVED / APPLIED
 
 `P22-ADD-01` 已冻结“现有 employee_id + 独立 PC 登录账号和密码”，这里仅决定 V1 的密码生命周期。
 
@@ -925,7 +925,7 @@ PDM-17 已冻结 V1 支持批量正式进公海、继续当前 owner、直接移
 
 **推荐 A。**
 
-## P22-B4-05｜P03 车源同步与发布人电话诊断是否混在同一页面
+## P22-B4-05｜P03 车源同步与发布人电话诊断是否混在同一页面｜CHOICE=A / USER_APPROVED / APPLIED
 
 两者都属于 P03，但 credential、权限和数据敏感度不同。
 
@@ -940,7 +940,7 @@ PDM-17 已冻结 V1 支持批量正式进公海、继续当前 owner、直接移
 
 **推荐 A。**
 
-## P22-B4-06｜自动 / 批量隐藏规则放在哪里
+## P22-B4-06｜自动 / 批量隐藏规则放在哪里｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐：P02 下建立独立“隐藏规则”子页面
 
@@ -954,7 +954,7 @@ PDM-17 已冻结 V1 支持批量正式进公海、继续当前 owner、直接移
 
 **推荐 A。**
 
-## P22-B4-07｜Dashboard 必须继承当前 permission + data scope｜稳定补漏
+## P22-B4-07｜Dashboard 必须继承当前 permission + data scope｜USER_APPROVED / APPLIED
 
 该项无新的产品选择：
 
@@ -963,7 +963,7 @@ PDM-17 已冻结 V1 支持批量正式进公海、继续当前 owner、直接移
 - 点击卡片进入业务页后继续执行同一套 current identity + permission + data scope + object state Guard；
 - Dashboard 不能成为绕过字段权限或敏感数据权限的旁路。
 
-## P22-B4-08｜重要配置变更是否一律强制填写原因｜稳定边界确认
+## P22-B4-08｜重要配置变更是否一律强制填写原因｜USER_APPROVED / APPLIED
 
 沿用 PDM-02 / R12 已冻结口径：
 
@@ -977,10 +977,10 @@ PDM-17 已冻结 V1 支持批量正式进公海、继续当前 owner、直接移
 # 10. Batch 4 Gate
 
 当前：
-- `P22-B4-01～P22-B4-08 = PENDING_USER_REVIEW`
+- `P22-B4-01～P22-B4-08 = PASS / USER_APPROVED / APPLIED`
 - `RECOMMENDED_CHOICES = 1A / 2A / 4A / 5A / 6A`
 - `STABLE_GAP_ITEMS = B4-03 / B4-07 / B4-08`
-- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 5`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
 - `COMPLETED_PDM_MUTATION = 0`
 - `NEW_DOMAIN_STATE_MACHINE = 0`
 - `INCOMING_HANDOFF_ACCEPTED = 18 / 18`
@@ -988,4 +988,64 @@ PDM-17 已冻结 V1 支持批量正式进公海、继续当前 owner、直接移
 
 当前唯一下一步：
 
-> **用户审查 P22-B4-01～P22-B4-08。可直接回复：1A、2A、3同意、4A、5A、6A、7同意、8同意；未经用户批准与明确执行，不进入 Final 前完整性复核。**
+> **P22-B4-01～P22-B4-08 已按 1A / 2A / 3同意 / 4A / 5A / 6A / 7同意 / 8同意批准并执行；进入 Final 前完整性复核 R1。**
+---
+
+# 11. Final 前完整性复核 R1｜REPAIR_REQUIRED / NO_HARD_CONFLICT
+
+> Final Candidate：`NOT_READY`  
+> 正式规则 / 裁决单元：`52 = R00 + 22 Batch1 + 1 ADD + 11 Batch2 + 9 Batch3 + 8 Batch4`
+
+复核结果：
+
+- `SOURCE_TO_ATOM = REPAIR_REQUIRED`
+- `ATOM_TO_SOURCE = PASS`
+- `SEMANTIC_COMPLETENESS = REPAIR_REQUIRED`
+- `COMPLETED_PDM_HARD_CONFLICT = 0`
+- `INCOMING_HANDOFF_ACCEPTED = 18 / 18`
+- `INCOMING_HANDOFF_LANDING_GAP = 3`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+- `MISSING_RULE_UNRESOLVED = 2`
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 3`
+- `OUTGOING_HANDOFF_GAP = 1_GROUP`
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
+## P22-LIA-01｜P08 价格配置完整闭环｜PENDING_USER_REVIEW
+
+补齐 JYT markup ON/OFF、阶梯加价“草稿→校验→启用→旧版保留历史”、区间无重叠/无空档/唯一命中；补齐三类车源 customer display override 的 PC carrier。继续遵守 PDM-10：markup OFF 回 upstream_list_price；4S 对 override hard DENY；名邦/4S 正常价格编辑不恢复独立“调价 action / permission”。
+
+## P22-LIA-02｜Priority qualification / TTL PC carrier 细节｜PENDING_USER_REVIEW
+
+qualification 只允许单 Customer 开/关，V1 不支持批量；不与 Customer Level find-car entitlement 合并；普通 owner 不自动取得开启资格；保存重验 identity + permission/capability + data scope + object/account state；记录 before/after/actor/time，默认不额外强制 reason。PC 不得人工创建、续期、恢复或 override 单笔 Priority；TTL 24h 只影响后续新 Priority。
+
+## P22-LIA-03｜公海配置参数 carrier 边界｜PENDING_USER_REVIEW
+
+P06 公海配置只承载 PDM-17 已批准参数：真实客户活跃时间参数、最后一次真实 CRM Follow-up 阈值、继续当前 owner 后重新检查周期、主动领取数量/频率、领取后首次跟进提醒。不得扩成任意 Opportunity / public-pool rule engine；不得恢复固定 30 天；不得自动进公海、自动收回或自动改 owner。
+
+## P22-LIA-04｜Lock 到期提醒配置与 P23 边界｜PENDING_USER_REVIEW
+
+默认正式 Lock 时长仍为 72h 当前基线、可配置；另提供“是否启用即将到期提醒 + 提前量”业务配置，不写死 30 分钟，不改变 Lock.expires_at、不制造新主状态。P22 只承载业务配置值；通知渠道、飞书、DND、频控、去重、失败日志由 PDM-23 承接。
+
+## P22-LIA-05｜Employee / System Admin PC credential 治理｜PENDING_USER_REVIEW
+
+Employee PC 登录继续绑定原 employee_id；账号全局唯一；后台设置/重置初始密码；首登强制改密；Employee 可修改自己密码。开通/禁用/重置属于 P04 Employee account governance，不改变 employee_id、role、permission、data scope 或历史；Employee inactive 后 PC 登录及旧登录态失效。System Admin 继续由 P05 使用独立 identity + 独立 credential，不复用 Employee credential。credential 治理变更进入统一审计。
+
+## P22-LIA-06｜登记 PDM-22 → PDM-23 / PDM-25 outgoing handoff｜PENDING_USER_REVIEW
+
+PDM-23 承接 SLA / 首次跟进 / Lock 到期提醒的通知 allowlist、渠道、飞书、DND、频控、去重与失败日志；通知结果不得改写业务状态。
+
+PDM-25 承接重要配置 before/after/actor/time、配置版本、统一历史/审计检索、时区规范，以及 Employee/System Admin credential 治理 mutation 的统一审计；P22 不再造第二套跨域审计系统。
+
+---
+
+# 12. R1 Repair Gate｜PENDING_USER_REVIEW
+
+- `P22-LIA-01～P22-LIA-06 = PENDING_USER_REVIEW`
+- `FINAL_CANDIDATE_READY = NO`
+- `18 / 18 incoming handoff = HANDOFF_ACCEPTED`
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
+当前唯一下一步：
+
+> **用户审查 P22-LIA-01～P22-LIA-06。批准并明确执行后，再进行 Final 前完整性复核 R2。**
+
