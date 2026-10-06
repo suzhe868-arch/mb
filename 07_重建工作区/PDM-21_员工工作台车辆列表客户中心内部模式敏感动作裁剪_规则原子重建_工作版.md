@@ -1,6 +1,6 @@
 # PDM-21｜员工工作台 / 车辆列表 / 客户中心 / 内部模式 / 敏感动作裁剪｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`  
 > 核心定位：`P21-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：19 / 19 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -175,12 +175,13 @@ PDM-21 全程必须保持：
 
 ---
 
-# 3. Batch 1｜稳定基础规则候选
+# 3. Batch 1｜稳定基础规则｜PASS / USER_APPROVED / APPLIED
 
-> 状态：`PENDING_USER_REVIEW`。  
+> 状态：`PASS / USER_APPROVED / APPLIED`。  
+> 用户裁决：`P21-A01～P21-A20 = 全部同意`；随后明确“确认执行”。  
 > 原则：只纳入已有 Authority/历史稳定、且与 PDM-01～20 Final 不冲突的员工端基础规则；已发现冲突项不偷渡进 Batch 1。
 
-## P21-A01｜员工端只做真实业务对象的操作投影
+## P21-A01｜员工端只做真实业务对象的操作投影｜USER_APPROVED / APPLIED
 
 员工端页面必须消费 PDM-01～20 的当前 Authority。
 
@@ -189,7 +190,7 @@ PDM-21 全程必须保持：
 - 前端卡片的“待处理/紧急/历史”只是工作台/展示分类，不能反写底层对象生命周期；
 - 所有真实写操作以对应 PDM 的 Action Guard 为准。
 
-## P21-A02｜员工端一级结构保持 E01～E04，业务模块保持 E05～E08
+## P21-A02｜员工端一级结构保持 E01～E04，业务模块保持 E05～E08｜USER_APPROVED / APPLIED
 
 一级 Tab：
 
@@ -201,7 +202,7 @@ PDM-21 全程必须保持：
 
 4S 成员继续使用同一员工端，不建立独立 App；具体页面和动作按 PDM-02 与各业务 Authority 裁剪。
 
-## P21-A03｜E01 工作台必须分离三类语义
+## P21-A03｜E01 工作台必须分离三类语义｜USER_APPROVED / APPLIED
 
 E01 同时承载但不得混为一种对象：
 
@@ -211,14 +212,14 @@ E01 同时承载但不得混为一种对象：
 
 三类可以在同一工作台展示，但不能共享一套 task/state lifecycle。
 
-## P21-A04｜接客状态唯一切换入口放在 E01 顶部
+## P21-A04｜接客状态唯一切换入口放在 E01 顶部｜USER_APPROVED / APPLIED
 
 - 员工本人可在 E01 顶部切换“接客中 / 暂停接客”；
 - E04“我的”只展示当前接客状态，不重复第二个切换入口；
 - 是否允许切换、最后一名接客员工保护等继续服从 PDM-02 当前规则；
 - 切换只影响未来自动接客资格，不反写既有 owner / 业务责任。
 
-## P21-A05｜E02 车辆列表职责是找车与进入详情，不堆敏感快捷经营动作
+## P21-A05｜E02 车辆列表职责是找车与进入详情，不堆敏感快捷经营动作｜USER_APPROVED / APPLIED
 
 E02 可复用客户端基础搜索 / 筛选 / 排序结构，并叠加员工合法字段。
 
@@ -233,7 +234,7 @@ E02 可复用客户端基础搜索 / 筛选 / 排序结构，并叠加员工合�
 
 这些动作进入详情或对应业务上下文后再按 Guard 执行。
 
-## P21-A06｜员工车辆详情默认使用客户安全视图
+## P21-A06｜员工车辆详情默认使用客户安全视图｜USER_APPROVED / APPLIED
 
 员工打开 E02-01 时默认不返回/展示：
 
@@ -245,7 +246,7 @@ E02 可复用客户端基础搜索 / 筛选 / 排序结构，并叠加员工合�
 
 客户安全视图不能只靠前端遮挡；敏感字段返回仍必须服从当前身份、模式、permission 与 data scope。
 
-## P21-A07｜Internal Mode 是临时敏感能力承载层，不是权限系统
+## P21-A07｜Internal Mode 是临时敏感能力承载层，不是权限系统｜USER_APPROVED / APPLIED
 
 - 进入 Internal Mode 本身不授任何新 permission；
 - 进入后每个字段/动作分别读取 PDM-02/PDM-04/PDM-09/PDM-10 等真实 Authority；
@@ -253,7 +254,7 @@ E02 可复用客户端基础搜索 / 筛选 / 排序结构，并叠加员工合�
 - 页面重新进入、车辆切换、身份/权限变化后必须重新判定；
 - 具体 4S 的同页裁剪方式留后续冲突/缺口批次处理，不在本 Atom 偷渡。
 
-## P21-A08｜员工车辆详情外层只保留明确高频业务入口
+## P21-A08｜员工车辆详情外层只保留明确高频业务入口｜USER_APPROVED / APPLIED
 
 当业务上下文与 Guard 合法时，车辆详情外层可提供：
 
@@ -263,7 +264,7 @@ E02 可复用客户端基础搜索 / 筛选 / 排序结构，并叠加员工合�
 
 内部价格、电话、车辆管理等敏感内部能力不得因此暴露到客户安全外层。
 
-## P21-A09｜员工分享车源只走安全分享与归因，不授业务权益
+## P21-A09｜员工分享车源只走安全分享与归因，不授业务权益｜USER_APPROVED / APPLIED
 
 - 员工从合法车辆详情发起分享；
 - 分享链接只携带必要安全归因；
@@ -273,7 +274,7 @@ E02 可复用客户端基础搜索 / 筛选 / 排序结构，并叠加员工合�
 - 不传播 Internal Mode / 电话 / 内部价等员工权限；
 - 打开旧分享仍重新校验当前 Vehicle/Customer 可见性。
 
-## P21-A10｜E03 是员工 CRM 客户中心，不重建 CRM 对象
+## P21-A10｜E03 是员工 CRM 客户中心，不重建 CRM 对象｜USER_APPROVED / APPLIED
 
 E03 负责员工查看和操作 PDM-16 已冻结的 CRM 事实：
 
@@ -286,14 +287,14 @@ E03 负责员工查看和操作 PDM-16 已冻结的 CRM 事实：
 
 E03 页面不得自己创造新的 Customer owner、CRM 主状态或业务状态机。
 
-## P21-A11｜Personal Note 与 Shared Profile 在员工端继续严格分区
+## P21-A11｜Personal Note 与 Shared Profile 在员工端继续严格分区｜USER_APPROVED / APPLIED
 
 - Personal Note 只属于作者本人，owner 变化不转移；
 - Shared Profile 按 PDM-16 的 owner / Collaboration / 管理范围维护；
 - 不恢复历史“大字段 CRM 画像模型”；
 - 最近行为只展示聚合兴趣/业务机会，不默认开放逐点击流水或完整收藏明细。
 
-## P21-A12｜E05 找车申请与正式 Demand 必须分开承载
+## P21-A12｜E05 找车申请与正式 Demand 必须分开承载｜USER_APPROVED / APPLIED
 
 - pending Application 进入负责员工待处理上下文；
 - 卡片只进入申请详情，不允许一键把卡片直接变成 active Demand；
@@ -301,7 +302,7 @@ E03 页面不得自己创造新的 Customer owner、CRM 主状态或业务状态
 - E05 Demand 详情展示原始需求、销售匹配描述、标准条件、业务说明、CRM/候选上下文；
 - active / paused / completed / cancelled 等状态动作只消费 PDM-11 Authority。
 
-## P21-A13｜员工端 Matching 只负责输入、解释、确认与重算
+## P21-A13｜员工端 Matching 只负责输入、解释、确认与重算｜USER_APPROVED / APPLIED
 
 E05-04 / E05-05 / E05-06 承载：
 
@@ -309,7 +310,7 @@ E05-04 / E05-05 / E05-06 承载：
 
 人工确认只能补充/确认事实后触发重算，再读取新的正式结果；不得由 UI 直接把 confirmation_needed 改成 Match 成功、Priority 或 Recommendation。
 
-## P21-A14｜Priority 在员工端是系统事实的待处理投影，不提供人工创建器
+## P21-A14｜Priority 在员工端是系统事实的待处理投影，不提供人工创建器｜USER_APPROVED / APPLIED
 
 员工端可显示：
 
@@ -330,7 +331,7 @@ E05-04 / E05-05 / E05-06 承载：
 - 人工续期；
 - 恢复 ended Priority。
 
-## P21-A15｜Recommendation 员工端保留三类真人入口，底层逐车校验
+## P21-A15｜Recommendation 员工端保留三类真人入口，底层逐车校验｜USER_APPROVED / APPLIED
 
 合法入口可来自：
 
@@ -340,7 +341,7 @@ E05-04 / E05-05 / E05-06 承载：
 
 批量推荐 UI 可以一次选择多车，但底层必须逐车执行 Recommendation Guard 与幂等 create/reuse；end/void 同样重新验证当前操作权。
 
-## P21-A16｜Consultation 工作台与 E06 必须消费同一 Consultation Authority
+## P21-A16｜Consultation 工作台与 E06 必须消费同一 Consultation Authority｜USER_APPROVED / APPLIED
 
 - E01 可按 Consultation SLA 事实形成工作台优先级；
 - PDM-21 负责“已超时 > 即将超时 > 新咨询/新服务意向”的展示编排；
@@ -348,7 +349,7 @@ E05-04 / E05-05 / E05-06 承载：
 - 开始处理、记录跟进、解决、无效、正常关闭、转派等动作服从 PDM-15；
 - 打开/已读/转派不得误算为首次真实响应。
 
-## P21-A17｜E07 对 LockRequest / Lock / Waitlist 只做员工操作承载
+## P21-A17｜E07 对 LockRequest / Lock / Waitlist 只做员工操作承载｜USER_APPROVED / APPLIED
 
 员工端可以承载：
 
@@ -361,7 +362,7 @@ E05-04 / E05-05 / E05-06 承载：
 
 所有动作提交时按 PDM-18 重验；V1 不新增批量 Lock/approve/release/extension/Waitlist mutation。
 
-## P21-A18｜E07 的交易资金动作严格读取 PDM-19 Action Contract
+## P21-A18｜E07 的交易资金动作严格读取 PDM-19 Action Contract｜USER_APPROVED / APPLIED
 
 员工端可承载：
 
@@ -374,14 +375,14 @@ E05-04 / E05-05 / E05-06 承载：
 
 资金、退款、交易纠错不得因页面入口存在而放宽 permission/capability。
 
-## P21-A19｜E08 承载公海/待公海真人治理，后台分配为主、主动领取弱化
+## P21-A19｜E08 承载公海/待公海真人治理，后台分配为主、主动领取弱化｜USER_APPROVED / APPLIED
 
 - 指定分配 / 人工治理是主要路径；
 - 主动领取保留，但受 permission/config 与真实保护事实约束；
 - 承载待公海三向处理、主动领取、批量治理、Collaboration 建立/结束/范围操作；
 - E08 不重建 owner/public-pool/Collaboration 生命周期，全部服从 PDM-17。
 
-## P21-A20｜员工端占用信息比客户端更可操作，但仍不得泄露无关客户/资金细节
+## P21-A20｜员工端占用信息比客户端更可操作，但仍不得泄露无关客户/资金细节｜USER_APPROVED / APPLIED
 
 Employee Vehicle Feed / Detail 可以读取 Lock / Transaction 等真实占用事实用于工作，但：
 
@@ -394,16 +395,148 @@ Employee Vehicle Feed / Detail 可以读取 Lock / Transaction 等真实占用�
 
 ---
 
-# 4. Batch 1 Gate
+# 4. Batch 1 Gate｜PASS
 
-当前：
-
-- `P21-A01～P21-A20 = PENDING_USER_REVIEW`
+- `P21-A01～P21-A20 = PASS / USER_APPROVED / APPLIED`
 - `STABLE_RULE_CONFLICT_COUNT = 0`
 - `DUPLICATE_BUSINESS_AUTHORITY = 0`
 - `INCOMING_HANDOFF_ACCEPTED = 19 / 19`
 - `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
 
+---
+
+# 5. Batch 2｜明确废弃 / 已替代 / DO_NOT_RESTORE 候选
+
+> 状态：`PENDING_USER_REVIEW`。  
+> Reverse Conflict Scan：`PASS / FALSE_DEPRECATION_COUNT = 0`。  
+> 本批只放已经被 completed PDM 或后续明确裁决替代的旧模型；仍需要产品选择的 4S Internal Mode 进入方式、敏感动作页面归位等不放入本批。
+
+## P21-B2-01｜废弃“名邦员工进入 Internal Mode 即自动可看内部价 / 批发价”
+
+旧 R11 / R10 曾写成：
+
+> 名邦员工进入 Internal Mode 后即可查看内部价 / 批发价，不再单独设置权限。
+
+该口径已被 PDM-02 / PDM-10 后续 Authority 明确覆盖：
+
+- 查看名邦内部价 / 批发价恢复为独立 permission；
+- 必须同时满足身份、内部模式、permission、data scope、object state；
+- 4S 对名邦内部价 hard DENY；
+- Internal Mode 本身不授该 permission。
+
+因此旧“进入即看”不得恢复。
+
+## P21-B2-02｜废弃“一键转名邦需要独立 vehicle.convert_mingbang permission”
+
+Current / Low-Fi 曾重新出现 `vehicle.convert_mingbang` 之类独立权限表达。
+
+当前 Authority 已明确：
+
+- 不新增“一键转名邦”独立 permission；
+- 是否可执行由名邦员工业务身份、数据范围、Vehicle source/state 与 4S hard DENY 等真实 Guard 决定；
+- 普通名邦销售不因缺少虚构的 conversion permission 被阻断。
+
+该独立 permission 不得恢复。
+
+## P21-B2-03｜废弃“我要这辆车 → 咨询/客户服务工作台任务”的旧合并模型
+
+旧 R10 曾把“我要这辆车”直接送入 Consultation / 客户服务待处理。
+
+后续 Authority 已拆开：
+
+- Consultation 服从 PDM-15；
+- 客户锁车申请服从 PDM-18 LockRequest；
+- LockRequest.PENDING 是独立真实对象与员工待处理；
+- 不能再用一个“我要这辆车”工作项同时冒充 Consultation、LockRequest 或 Lock。
+
+旧合并模型不得恢复。
+
+## P21-B2-04｜废弃“CRM 客户详情 → 直接锁车 → 再选车辆”流程
+
+R10 已明确删除从纯 Customer CRM 上下文直接发起“锁车后再选车”的快捷流程。
+
+当前应当：
+
+- 已明确 Vehicle 上下文时，从车辆详情 / 找车候选 / 合法业务上下文进入 Lock；
+- E03 客户详情不得恢复无 Vehicle 上下文的“先锁车再选车”入口；
+- Current IA 中 E03-01 → E03-06 的旧 carrier 不能反向成为业务 Authority。
+
+## P21-B2-05｜废弃人工创建 / 改写 Priority 的员工端操作
+
+PDM-13 已明确 Priority 由正式 Matching / 仲裁事实产生。
+
+员工端不得恢复：
+
+- 手工创建 Priority；
+- 手工把 Priority 改给其他 Customer；
+- 手工 override 仲裁；
+- 手工修改 expires_at；
+- 手工续期；
+- 恢复 ended Priority。
+
+员工端只消费并处理系统已形成的 Priority 事实。
+
+## P21-B2-06｜废弃 confirmation_needed 在 UI 中直接变成“匹配成功 / Priority”
+
+PDM-12 已明确：
+
+- `confirmation_needed` 只是需要真人确认的 Match Result；
+- 人工确认只补充 / 确认事实并触发重新计算；
+- 重新计算后才读取新的正式 Match Result；
+- UI 不得直接把确认候选写成 `high/acceptable`、Priority 或 Recommendation。
+
+旧“确认按钮直接成功”流程不得恢复。
+
+## P21-B2-07｜废弃“页面可见 / Internal Mode / 职位本身 = 已授权”
+
+不得恢复任何以下授权捷径：
+
+- 按钮显示即视为 permission；
+- 进入 Internal Mode 即拥有所有敏感能力；
+- 经理 / 店长职位天然获得所有敏感动作；
+- System Admin 身份天然获得员工业务执行权；
+- 历史 uploader / assignee / owner 身份天然永久获得当前操作权。
+
+真实 mutation 始终服从当前 identity + permission/capability + data scope + object state。
+
+## P21-B2-08｜废弃独立 4S App / 独立 4S 员工端 IA
+
+PDM-02 已冻结：
+
+> 4S 成员继续使用同一员工端，通过身份、permission、data scope、hard DENY 与对象状态做裁剪。
+
+不得恢复：
+
+- 独立 4S App；
+- 第二套 4S 员工端 IA；
+- 通过单独 App 绕开统一权限与数据范围体系。
+
+这不等于 4S 拥有全部名邦能力；具体动作仍逐项裁剪。
+
+## P21-B2-09｜废弃“Lock 释放后自动把 Waitlist 晋升为正式 Lock”
+
+PDM-18 已明确：
+
+- Waitlist 本身不占车；
+- 原 Lock 释放后，不自动创建新的正式 Lock；
+- 必须重新校验车辆、Customer、当前责任与 Lock Guard；
+- 员工端只承载人工确认 / 合法重建流程。
+
+注意：这与“竞争 LockRequest 失败后自动进入 Waitlist”的当前规则不是一回事；后者继续有效。
+
+---
+
+# 6. Batch 2 Gate
+
+当前：
+
+- `P21-B2-01～P21-B2-09 = PENDING_USER_REVIEW`
+- `REVERSE_CONFLICT_SCAN = PASS`
+- `FALSE_DEPRECATION_COUNT = 0`
+- `PRODUCT_CHOICE_SMUGGLED_INTO_BATCH_2 = 0`
+- `19 / 19 incoming handoff = HANDOFF_ACCEPTED`
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
 当前唯一下一步：
 
-> **用户审查 P21-A01～P21-A20。未经用户批准与后续明确执行，不得进入 Batch 2。**
+> **用户审查 P21-B2-01～P21-B2-09。未经用户批准与后续明确执行，不得进入 Batch 3。**

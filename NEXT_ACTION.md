@@ -17,13 +17,15 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-21（Startup Gate = PASS；Batch 1 待用户审查）
+- 当前域：PDM-21（Batch 1 = PASS；Batch 2 待用户审查）
 - PDM-20 = COMPLETE / INTEGRITY_PASS
 - PDM-21 Startup Gate = PASS
 - PDM-21 核心定位 P21-R00 = USER_APPROVED / APPLIED
 - PDM-21 incoming handoffs = 19 / 19 HANDOFF_ACCEPTED
 - PDM-21 工作版 = `07_重建工作区/PDM-21_员工工作台车辆列表客户中心内部模式敏感动作裁剪_规则原子重建_工作版.md`
-- PDM-21 Batch 1 = P21-A01～P21-A20 / PENDING_USER_REVIEW
+- PDM-21 Batch 1 = P21-A01～P21-A20 / PASS / USER_APPROVED / APPLIED
+- PDM-21 Batch 2 = P21-B2-01～P21-B2-09 / PENDING_USER_REVIEW
+- PDM-21 Batch 2 Reverse Conflict Scan = PASS / FALSE_DEPRECATION_COUNT=0
 - PDM-21 completed-PDM hard conflict = 0
 - PDM-21 incoming handoff gap = 0
 - PDM-21 IA / Low-Fi / Engineering = NO_CONSTRUCTION
@@ -268,7 +270,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-20 均已 `COMPLETE / INTEGRITY_PASS`。PDM-21 Startup Gate 已 PASS，19/19 incoming handoff 已全部 `HANDOFF_ACCEPTED`。当前唯一下一步为用户审查 PDM-21 Batch 1（P21-A01～P21-A20）；未经用户批准与明确执行不得进入 Batch 2。
+当前 PDM-01～PDM-20 均已 `COMPLETE / INTEGRITY_PASS`。PDM-21 Batch 1 已 PASS / USER_APPROVED / APPLIED，19/19 incoming handoff 继续 `HANDOFF_ACCEPTED`。当前唯一下一步为用户审查 PDM-21 Batch 2（P21-B2-01～P21-B2-09）；未经用户批准与明确执行不得进入 Batch 3。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
