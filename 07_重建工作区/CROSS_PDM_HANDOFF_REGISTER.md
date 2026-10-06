@@ -675,3 +675,10 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-14：COMPLETE / INTEGRITY_PASS；52 个正式规则/裁决单元全部进入 Final；8 条 incoming handoff 全部 HANDOFF_CLOSED 并完成 source backwrite；outgoing HO-P14-P15 / P18 / P19 已由目标 Final 承接并 CLOSED/source backwrite；P20/P21/P23/P25 继续 HANDOFF_OPEN；正式 Authority=`07_重建工作区/PDM-14_最终完整规则.md`；
 - `HO-P01-P11-001 = HANDOFF_SUPERSEDED`；`HO-P01-P11-002 = HANDOFF_CLOSED`。PDM-12 incoming handoff 已全部 CLOSED；PDM-12 outgoing future handoff 已扩展登记：PDM-13 / PDM-14 / PDM-16 / PDM-18 / PDM-20 / PDM-21 / PDM-22 / PDM-25 均为 `HANDOFF_OPEN`，待各目标域承接。
 
+## 12L. PDM-22 来源 handoff
+
+| handoff_id | target | 语义 | status | target_landing | source_backwrite_required |
+|---|---|---|---|---|---|
+| HO-P22-P23-001 | PDM-23 | 通知 / 飞书层承接 PDM-22 已冻结的业务配置值与通知 carrier 边界：Consultation 首次响应 SLA、公海领取后首次跟进提醒、Lock 即将到期提醒等业务配置值由对应业务/PC 配置提供；PDM-23 负责通知 allowlist、渠道、飞书、DND、频控、去重、失败 / skipped 日志。通知成功、失败、跳过均不得改写 Consultation / Customer owner / Lock 等底层业务状态。 | HANDOFF_OPEN | - | YES |
+| HO-P22-P25-001 | PDM-25 | 统一审计 / 历史 / 配置版本承接 PDM-22 PC 管理规则：重要配置 before/after/actor/time、配置版本、统一历史检索、时区规范，以及 Employee / System Admin PC credential 治理 mutation 的统一审计；继续复用各业务域既有审计事实，不由 PDM-22 再造第二套跨域日志或历史 Authority。 | HANDOFF_OPEN | - | YES |
+
