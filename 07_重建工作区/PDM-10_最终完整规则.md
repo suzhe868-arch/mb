@@ -667,7 +667,7 @@ Recommendation / Lock 等关键业务已经形成的价格快照属于不可变�
 ### 21.3 仍待后续 PDM 承接
 
 - PDM-14｜`HANDOFF_CLOSED`：PDM-14 Final 已承接 Recommendation 免费授 `customer + vehicle + current listing_cycle` 批发查价权；Recommendation end、owner/负责人变化、原销售离职不追回；Recommendation 创建时仅“价格咨询”也立即建立免费权，同 cycle 后续出现数字价不扣 daily quota；历史推荐价快照与当前价格分层；`HO-P10-P14-001 = HANDOFF_CLOSED / source_backwrite=YES`；
-- PDM-18｜`HANDOFF_OPEN`：Lock 创建时冻结必要价格快照；后续上游调价、阶梯、覆盖价、人工价格或 source_type 变化不得回写既有 Lock 快照；
+- PDM-18｜`HANDOFF_CLOSED`：PDM-18 Final 已正式承接 Lock 创建价格快照；数字价保存真实数字，“价格咨询”保存明确事实，后续上游调价、阶梯、覆盖价、人工价格或 source_type 变化不得回写既有 Lock snapshot；`HO-P10-P18-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-20｜`HANDOFF_OPEN`：客户端 LIMITED 批发车列表隐藏精确数字价、主动进入详情自动解锁且无需二次点击、quota 耗尽主字段 `--万`、权益升级/联系顾问免费加次数提示、UNLIMITED 列表/详情直接显示数字价、价格咨询、筛选排序但 payload 不泄露、Customer 停用暂停价格权益的完整投影；
 - PDM-21｜`HANDOFF_OPEN`：员工端 customer_list_price/internal_wholesale_price 保存修改、internal-price permission、override、临时追加次数、UNLIMITED 禁止追加、4S 正常价格编辑与 hard DENY 投影；
 - PDM-22｜`HANDOFF_OPEN`：阶梯加价、markup ON/OFF、客户等级权益配置、LIMITED/UNLIMITED、daily base quota、找车权益等跨域 level entitlement 配置入口、permission 与相关后台承载；
