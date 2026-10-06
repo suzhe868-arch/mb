@@ -1,0 +1,399 @@
+# PDM-23｜通知 / 飞书 / SLA / 夜间免打扰 / Incident / 通知日志｜规则原子重建工作版
+
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`  
+> 核心定位：`P23-R00 = USER_APPROVED / APPLIED`  
+> Incoming Handoff：10 / 10 `HANDOFF_ACCEPTED`  
+> IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
+
+---
+
+# 1. P23-R00｜核心定位｜USER_APPROVED / APPLIED
+
+PDM-23 是：
+
+> **通知 / 飞书 / 主动提醒 / 夜间免打扰 / Incident 通知投递 / 通知日志的唯一 Authority。**
+
+PDM-23 负责：
+
+- 把 completed-PDM 已经成立的业务事件消费为合法通知事件；
+- 维护主动通知 allowlist；
+- 决定合法通知渠道与员工飞书接收路由；
+- 承载夜间免打扰 / quiet-hours 的投递规则；
+- 承载发送前事件有效性重验、频控、去重；
+- 承载 SENT / FAILED / SKIPPED / DEDUPED 等通知投递结果；
+- 承载通知日志与必要的 Incident / 恢复通知投影；
+- 承载 deep-link 回员工端 / PC 后的安全重新校验边界。
+
+PDM-23 **不是业务状态层**。
+
+以下业务真相必须继续读取对应 completed-PDM Authority：
+
+- Vehicle / listing / supply anomaly；
+- Publisher Phone / Collector runtime；
+- Recommendation；
+- Consultation / first-response SLA；
+- CRM / Follow-up / Public Pool；
+- LockRequest / Lock / Waitlist；
+- Deposit / Transaction / Refund / correction；
+- Employee identity / permission / data scope；
+- PDM-22 已冻结的 SLA / 首次跟进 / Lock 到期提醒等业务配置值。
+
+通知成功、失败、跳过、去重、延迟或恢复发送：
+
+> **均不得创建、改写、回滚或伪造底层业务对象的主状态、负责人、deadline、owner、Lock、Transaction、Refund、Recommendation、visibility、price-right 等事实。**
+
+---
+
+# 2. Startup Gate｜PASS
+
+## 2.1 Current Authority Refresh
+
+已重新读取并对齐：
+
+- 9/19 R12《PC 后台 / 配置 / 通知 / 审计》中的 P09 通知 / 飞书 / 提醒策略；
+- PDM-04 / PDM-09 / PDM-14 / PDM-15 / PDM-16 / PDM-17 / PDM-18 / PDM-19 / PDM-21 / PDM-22 正式 Final；
+- Current IA / Page Manifest / Action / State 中 P09-01～P09-04 carrier；
+- CROSS_PDM_HANDOFF_REGISTER 中 target=PDM-23 的全部 handoff。
+
+结果：
+
+- `COMPLETED_PDM_HARD_CONFLICT = 0`
+- `INCOMING_HANDOFF_GAP = 0`
+- `INCOMING_HANDOFF_COUNT = 10`
+- `INCOMING_HANDOFF_ACCEPTED = 10`
+- `GLOBAL_INVARIANT_CONFLICT = 0`
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
+## 2.2 Incoming Handoff｜10 / 10 ACCEPTED
+
+1. `HO-P04-P23-001`｜JYT / Supply Anomaly Incident、飞书、SLA、DND、通知与异常日志；不得把通知层变成 Vehicle 状态机。
+2. `HO-P09-P23-001`｜Collector / 电话链路 incident、异常 / 恢复通知、运行事件；不得重定义 publisher 当前电话 / cache 状态。
+3. `HO-P14-P23-001`｜Recommendation create/end/void 不自动扩展成客户微信主动消息状态机；通知失败不得回滚 Recommendation / visibility / price-right。
+4. `HO-P15-P23-001`｜新 Consultation 与 SLA timeout allowlist；DND 不暂停 SLA 业务计时；投递结果不改 Consultation / assignee / first-response / deadline。
+5. `HO-P16-P23-001`｜CRM 待办 / 回访提醒 / 未来跟进计划的通知渠道、频控、DND、失败/跳过/去重；Opportunity / Source Radar 不默认逐条飞书。
+6. `HO-P17-P23-001`｜待公海与领取后首次跟进提醒的渠道与投递日志；通知结果不得改 owner / 公海 / Collaboration。
+7. `HO-P18-P23-001`｜LockRequest 多结果、自动 Waitlist、Lock 即将到期等通知 carrier；不得恢复固定 30 分钟。
+8. `HO-P19-P23-001`｜Transaction / Refund 关键状态变化、supply anomaly 等通知；投递结果不得改资金 / 交易事实。
+9. `HO-P21-P23-001`｜员工端工作台通知投影与 deep-link Guard；打开通知 / 详情不得误算 Consultation first response。
+10. `HO-P22-P23-001`｜消费 PDM-22 的 SLA / 首次跟进 / Lock 到期提醒业务配置值；P23 负责 allowlist、渠道、飞书、DND、频控、去重、失败 / skipped 日志。
+
+## 2.3 Completed-PDM Dependency Card
+
+| 依赖 PDM | PDM-23 消费对象 | PDM-23 可决定 | PDM-23 不可改写 |
+|---|---|---|---|
+| PDM-02 | Employee / permission / inactive | 通知配置与接收路由的权限裁剪 | employee_id / role / permission / scope |
+| PDM-04 | Supply Anomaly / Vehicle | 异常与恢复通知投影 | Vehicle / listing / anomaly 业务事实 |
+| PDM-09 | Publisher / Collector runtime | incident / recovery 通知与日志 | publisher phone / cache / latest Authority |
+| PDM-14 | Recommendation | 是否存在明确 allowlist 通知 | Recommendation / visibility / price-right |
+| PDM-15 | Consultation / first-response SLA | 新咨询 / timeout 通知投递 | Consultation 状态 / assignee / deadline / first response |
+| PDM-16 | CRM / Follow-up / Opportunity / Radar | 合法提醒渠道与投递 | CRM Stage/Tag/Follow-up 与 Opportunity/Radar 语义 |
+| PDM-17 | Public Pool | 首次跟进等已批准提醒的投递 | owner / public-pool / Collaboration |
+| PDM-18 | LockRequest / Lock / Waitlist | 合法通知与到期提醒投递 | Lock/Waitlist lifecycle / expires_at |
+| PDM-19 | Transaction / Refund | 关键交易资金通知 | Deposit / Transaction / Refund / correction |
+| PDM-21 | Employee UI | deep-link / 通知投影 | E01 urgency 排序 / 业务动作真相 |
+| PDM-22 | Notification-related config values | 发送时消费配置 | SLA / reminder 业务配置 Authority |
+
+## 2.4 Global Invariant Gate
+
+PDM-23 全程必须保持：
+
+1. **业务事实 SSOT 在业务域，通知层只消费事件。**
+2. 通知成功 / FAILED / SKIPPED / DEDUPED 不得改变业务状态。
+3. timeout 不是 Consultation 第五主状态。
+4. DND 只影响主动投递，不暂停业务时钟、SLA、Incident 或审计事实。
+5. 发送前重新校验 event validity、DND 与接收对象当前有效性。
+6. deep-link 打开业务页面后必须重新校验 current identity + permission/capability + data scope + object state。
+7. 打开通知 / 页面本身不得伪造真人业务动作或 first-response。
+8. 非 allowlist 事件不得因为“有用”自动升级为主动通知。
+9. System Admin 身份本身不自动获得员工业务通知配置 / 业务处理权。
+10. IA / Low-Fi 当前只是 carrier；与 completed Final 冲突时标 stale，不反向覆盖 Final。
+11. 队列、MQ、持久化表结构、具体重试实现、供应商 SDK 属于 Engineering。
+12. 本阶段不修改 IA / Low-Fi / Engineering。
+
+## 2.5 Current Implementation Fact
+
+Current IA 已存在：
+
+- `P09-01｜员工飞书映射`；
+- `P09-02｜飞书大群 / 服务 SLA`；
+- `P09-03｜夜间免打扰`；
+- `P09-04｜通知日志 / 失败记录`；
+- `NOTIFICATION_SENT / FAILED / SKIPPED / DEDUPED`；
+- `NOTIFICATION_NOT_ALLOWLISTED / DND_RECHECK_PENDING`；
+- incident cadence 仅在已配置时展示。
+
+但：
+
+> **carrier 存在 ≠ 当前产品规则已经正确工程实现。**
+
+当前仍不得把 Current IA 直接视为已验收工程事实。
+
+## 2.6 已识别但不在 Startup Gate 偷渡裁决的项
+
+以下进入 Batch 2 / 3 / 4 或 Final 前完整性复核：
+
+- R12 较早的主动通知 allowlist 与 PDM-18 / PDM-19 后续新增 LockRequest / Refund 等事件需要统一收口；
+- “咨询 SLA 超时大群告警”的接收范围 / 路由要与当前 employee / group 配置边界统一；
+- Incident 精确告警 cadence 没有冻结默认值，不得由 Current IA 发明；
+- Recommendation 不自动建立客户微信主动消息体系；
+- Queue retry / MQ / persistence / provider implementation 仍属 Engineering；
+- Current IA 的 P09 carrier 后续只做 stale / alignment 记录，本阶段不施工。
+
+---
+
+# 3. Batch 1｜稳定通知规则｜PENDING_USER_REVIEW
+
+## P23-A01｜Notification 只消费业务事件
+
+Notification 是投递层事实，不是第二套业务状态机。
+
+任何发送结果不得：
+
+- 改写业务主状态；
+- 改 owner / assignee / responsible；
+- 改 deadline / expires_at；
+- 创建 / 取消 Lock；
+- 创建 / 回滚 Transaction / Refund；
+- 改 Recommendation / visibility / price-right。
+
+## P23-A02｜主动通知必须来自明确 allowlist
+
+只有 completed-PDM Authority 或 PDM-23 已批准 allowlist 中的事件可以主动通知。
+
+非 allowlist：
+
+> `NOTIFICATION_NOT_ALLOWLISTED`
+
+不得因为“看起来有用”自动扩张。
+
+## P23-A03｜Employee 飞书映射绑定 employee_id
+
+维护：
+
+> `employee_id ↔ 当前飞书接收身份`
+
+员工更换飞书账号：
+
+- 只更新当前通知路由；
+- 不改变 employee_id；
+- 不改变 Customer owner；
+- 不改变业务负责人；
+- 必要历史进入审计。
+
+## P23-A04｜Employee inactive 后停止新的个人通知
+
+Employee inactive 后：
+
+- 不再向旧飞书身份发送新的个人业务通知；
+- 已发生业务事实不因此改变；
+- 责任交接继续服从对应 completed-PDM Authority。
+
+## P23-A05｜当前明确主动通知事件集合
+
+当前可进入员工 / 飞书主动通知候选的业务事件包括：
+
+- 新 Consultation；
+- Consultation 首次响应 SLA timeout；
+- 公海领取后首次跟进提醒；
+- LockRequest 已批准 / 已拒绝 / 已过期 / LOCK_CONFLICT / CLOSED_NOT_LOCKABLE；
+- 自动形成 Waitlist 的必要结果提醒；
+- Waitlist 对应车辆释放；
+- 已启用配置下的 Lock 即将到期；
+- supply anomaly；
+- Transaction created / completed / cancelled / corrected 等重要变化；
+- Refund pending / refunded / closed 等关键变化；
+- 当前仍有效的上游 / Collector incident 告警与恢复通知。
+
+是否实际发送仍须经过：
+
+> allowlist + recipient + channel + DND + event validity + frequency/dedupe
+
+## P23-A06｜普通浏览 / Matching / Opportunity / Radar 不逐条主动推送
+
+默认不主动通知：
+
+- 普通浏览 / 点击 / 埋点；
+- 普通资料 / 价格更新；
+- 普通 Matching 结果变化；
+- Customer Opportunity；
+- 普通 Source Radar 变化；
+- 普通责任变化；
+- Recommendation create/end/void 本身的客户微信主动通知。
+
+若未来要新增，必须有明确产品 Authority，不得由通知层自行扩张。
+
+## P23-A07｜Recommendation 不建立客户微信主动消息状态机
+
+V1 不因为 Recommendation 本身建立：
+
+- 客户微信订阅消息主状态；
+- “发送成功 / 失败”驱动 Recommendation 的状态机；
+- 通知失败后的 Recommendation rollback。
+
+普通 share / Recommendation 的客户可见性与 price-right 继续服从 PDM-14 / PDM-20。
+
+## P23-A08｜通知渠道与业务事件分离
+
+“业务需要提醒”不等于“必须飞书”。
+
+同一 allowlist 事件可以由当前产品批准的合法渠道承载；PDM-23 负责渠道与路由，业务域只定义事件事实。
+
+公海 / CRM 提醒不得因为存在 reminder 自动升级为飞书强通知，除非当前 allowlist / 配置明确允许。
+
+## P23-A09｜夜间免打扰当前基线
+
+当前 quiet hours：
+
+> **23:00 ～ 次日 08:30，后台可配置。**
+
+夜间：
+
+- 业务继续运行；
+- SLA 继续计时；
+- Incident / 日志继续产生；
+- 主动通知投递暂停。
+
+## P23-A10｜DND 恢复后必须重判事件有效性
+
+免打扰结束后：
+
+- 不机械补发全部积压通知；
+- 重新判断事件是否仍有效；
+- 已解决 / 已失效 / 已不需要提醒 → SKIPPED；
+- 仍重要且合法 → 再进入投递判断。
+
+## P23-A11｜Consultation SLA 只消费既有 deadline
+
+PDM-23 不重新计算 Consultation SLA。
+
+当前：
+
+- SLA 业务规则与 first-response fact 归 PDM-15；
+- SLA 默认值 / 配置值归 PDM-22；
+- Consultation 创建时已固化 deadline；
+- PDM-23 只消费当前 deadline / timeout 事实做提醒 / 告警。
+
+timeout 不改变 Consultation 主状态。
+
+## P23-A12｜Consultation SLA timeout 大群告警可保留
+
+当前已冻结：
+
+> Consultation 首次响应 SLA timeout 可进入飞书大群告警。
+
+但：
+
+- 具体接收群 / 路由必须读取当前合法配置；
+- 不因大群告警改变 assignee；
+- 不因发送失败改变 SLA / Consultation；
+- 打开告警链接不算 first response。
+
+## P23-A13｜公海首次跟进提醒不自动收回 Customer
+
+领取后首次跟进超时：
+
+- 只形成提醒 / 通知候选；
+- 不自动重新进入公海；
+- 不自动改 owner；
+- 不自动结束 / 新建 Collaboration。
+
+是否已满足跟进继续读取 PDM-16 / PDM-17 的真实 Follow-up / public-pool 事实。
+
+## P23-A14｜Lock 到期提醒不恢复固定 30 分钟
+
+Lock 即将到期提醒：
+
+- 是否启用；
+- 提前量；
+
+读取 PDM-22 当前有效配置。
+
+PDM-23 不写死：
+
+> “提前 30 分钟”。
+
+通知行为不得修改 `Lock.expires_at`。
+
+## P23-A15｜Incident / Recovery 只消费真实运行事实
+
+JYT / Supply Anomaly / Collector / 电话链路 incident：
+
+- 当前 incident 成立 → 可按 allowlist 告警；
+- 当前 incident 恢复 → 可发送恢复通知；
+- 通知层不得把“无有效号码”“latest failed”“缓存存在”等事实重新解释成新的 publisher 状态；
+- Incident 精确告警 cadence 只有明确配置后才生效，不设置产品层臆造默认值。
+
+## P23-A16｜投递结果只进入 Notification 事实 / 日志
+
+至少区分：
+
+- SENT；
+- FAILED；
+- SKIPPED；
+- DEDUPED；
+- NOTIFICATION_NOT_ALLOWLISTED。
+
+这些结果只描述通知投递，不代表对应业务成功 / 失败。
+
+## P23-A17｜通知 deep-link 必须重新鉴权
+
+通知进入 E01 / E06 / E07 / PC 等业务页面时：
+
+- 重新校验当前 identity；
+- permission / capability；
+- data scope；
+- object state；
+- account state（适用时）。
+
+旧通知链接不携带永久业务授权。
+
+## P23-A18｜打开通知不构成真人业务响应
+
+以下都不得自动记为 Consultation first response：
+
+- 收到通知；
+- 点击通知；
+- 打开业务详情；
+- 页面已读；
+- 查看 Customer / Vehicle。
+
+首次人工响应继续按 PDM-15 的真实业务响应事实判定。
+
+## P23-A19｜Notification Log 最低记录集
+
+通知日志至少记录：
+
+- 业务事件类型；
+- 业务对象 / 必要关联标识；
+- 接收对象；
+- 接收路由 / 渠道；
+- 当前投递阶段；
+- 计划 / 实际发送时间；
+- SENT / FAILED / SKIPPED / DEDUPED 等结果；
+- 必要失败 / 跳过 / 去重原因；
+- DND / event-validity 重判结果。
+
+通知日志不得变成第二套业务审计 Authority。
+
+## P23-A20｜队列与自动重试属于 Engineering
+
+PDM-23 只冻结产品约束：
+
+- 若工程实现自动重试，每次重试必须重新判断 allowlist、event validity、recipient validity、DND / frequency / dedupe；
+- 自动重试不得改写业务对象；
+- MQ、队列结构、重试次数、退避算法、provider SDK、持久化结构留 Engineering。
+
+---
+
+# 4. Batch 1 Gate｜PENDING_USER_REVIEW
+
+当前：
+
+- `P23-A01～P23-A20 = PENDING_USER_REVIEW`
+- `COMPLETED_PDM_HARD_CONFLICT = 0`
+- `INCOMING_HANDOFF_ACCEPTED = 10 / 10`
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
+当前唯一下一步：
+
+> **用户审查 P23-A01～P23-A20。未经用户批准与明确执行，不进入 Batch 2。**
