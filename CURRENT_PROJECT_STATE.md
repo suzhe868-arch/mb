@@ -1,3 +1,16 @@
+## 2026-10-07｜PDM-23 Final Closeout COMPLETE
+
+- 用户已最终批准并明确“确认执行”；
+- 正式 Authority：`07_重建工作区/PDM-23_最终完整规则.md`；
+- Final Integrity：`07_重建工作区/PDM-23_最终完整性复核_2026-10-07.md / PASS`；
+- 65 个正式规则 / 裁决单元全部进入 Final；
+- 10 / 10 incoming handoff = `HANDOFF_CLOSED / source_backwrite=YES`；
+- 10 / 10 来源 PDM Final 已完成反向回写；
+- `HO-P23-P25-001 = HANDOFF_OPEN`；
+- PDM-23 = `COMPLETE / INTEGRITY_PASS`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：**PDM-24 Startup Gate**。
+
 ## 2026-10-07｜PDM-23 Prefinal R1 修复已执行，R2 PASS
 
 - Prefinal R1 = `REPAIR_REQUIRED / NO_HARD_CONFLICT`；
@@ -506,7 +519,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-23_BATCH_4_REBUILD_PENDING`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-24_STARTUP_GATE_PENDING`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -516,7 +529,7 @@
 
 当前域状态：
 
-> `PDM-22 COMPLETE / INTEGRITY_PASS；PDM-23 STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_REVIEW_SUSPENDED_REBUILD_REQUIRED`
+> `PDM-23 COMPLETE / INTEGRITY_PASS；PDM-24 STARTUP_GATE_PENDING`
 
 当前工作文件：
 
@@ -532,7 +545,7 @@
 
 当前唯一下一步：
 
-> **PDM-23 Batch 3 已 `PASS / USER_APPROVED / APPLIED`。当前唯一下一步：用户审查 P23-B4-01～P23-B4-06。**
+> **PDM-24 Startup Gate。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
