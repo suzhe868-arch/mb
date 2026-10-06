@@ -1,6 +1,6 @@
 # PDM-18｜LockRequest / 正式 Lock / Waitlist / 延期 / 释放｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R2_PASS / FINAL_REVIEW_PENDING`  
+> 当前状态：`COMPLETE / INTEGRITY_PASS`  
 > 核心定位：`P18-R00 / USER_APPROVED / APPLIED`  
 > Incoming Handoff：10 / 10 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -1090,3 +1090,20 @@ PDM-13 / PDM-14 不需要回滚：
 当前唯一下一步：
 
 > **用户最终审查 `07_重建工作区/PDM-18_最终完整规则总览_待用户批准.md`。最终批准前不得发布 PDM-18 Final、不得关闭 10 条 incoming handoff、不得 source backwrite、不得进入 PDM-19。**
+
+
+---
+
+## 15. Final Closeout｜COMPLETE
+
+用户已最终批准并确认执行。
+
+- 正式 Authority：`07_重建工作区/PDM-18_最终完整规则.md`；
+- Final Integrity：`07_重建工作区/PDM-18_最终完整性复核_2026-10-06.md / PASS`；
+- 43 个正式规则 / 用户裁决单元全部进入 Final；
+- 10 / 10 incoming handoff = `HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE`；
+- 来源 PDM-01 / 02 / 03 / 04 / 07 / 10 / 12 / 13 / 14 / 17 Final 已反向回写；
+- 6 条 outgoing handoff 继续 `HANDOFF_OPEN`；
+- PDM-18 = `COMPLETE / INTEGRITY_PASS`；
+- 下一步：PDM-19 Startup Gate；
+- IA / Low-Fi / Engineering 未施工。
