@@ -581,6 +581,12 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 | PDM-17 | P06-05-V5-PUBLIC_POOL_ASSIGN_CONFIRM_REQUIRED.svg：旧“指定分配后还需目标销售二次确认”与 P17-A11 当前 Authority 冲突；正确语义为合法指定分配成功后目标员工立即成为唯一 owner，无二次确认主状态 | CARRIER_DEFERRED |
 
+| PDM-18 | 旧“LOCK_CONFLICT 不自动转 Waitlist / 客户必须再次手工点候补”承载；当前 Authority 已改为竞争请求自动创建/复用 Waitlist，LockRequest 本体保留 LOCK_CONFLICT 并关联 resulting_waitlist_id | CARRIER_DEFERRED |
+| PDM-18 | 把所有正式 Lock 客户可见性做成完全相同；当前 Authority 区分普通 Lock“占车不全客户隐藏”与 Priority-origin Lock“继承客户侧排他可见性” | CARRIER_DEFERRED |
+| PDM-18 | 把内部 Waitlist created_at 处理顺序直接展示成客户保证性“第几名”；当前 Authority 只保留内部稳定顺序，客户端不承诺排名/自动晋升 | CARRIER_DEFERRED |
+| PDM-18 | Lock 配置 carrier 仍写“Lock 不是独立配置对象 / 无配置入口”；当前 Authority 为默认72h且后台可配置、只影响新 Lock | CARRIER_DEFERRED |
+| PDM-18 | 正式 Lock 延期、新 expires_at、已延期、供应异常与 Waitlist 结束矩阵在 Current/Low-Fi 仍存在真实操作投影不足 | CARRIER_DEFERRED |
+
 ---
 
 ## 14. 强制使用规则
@@ -618,8 +624,3 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-14：COMPLETE / INTEGRITY_PASS；52 个正式规则/裁决单元全部进入 Final；8 条 incoming handoff 全部 HANDOFF_CLOSED 并完成 source backwrite；outgoing HO-P14-P15/P18/P19/P20/P21/P23/P25 保持 HANDOFF_OPEN；正式 Authority=`07_重建工作区/PDM-14_最终完整规则.md`；下一步 PDM-15 Startup Gate；
 - `HO-P01-P11-001 = HANDOFF_SUPERSEDED`；`HO-P01-P11-002 = HANDOFF_CLOSED`。PDM-12 incoming handoff 已全部 CLOSED；PDM-12 outgoing future handoff 已扩展登记：PDM-13 / PDM-14 / PDM-16 / PDM-18 / PDM-20 / PDM-21 / PDM-22 / PDM-25 均为 `HANDOFF_OPEN`，待各目标域承接。
 
-| PDM-18 | 旧“LOCK_CONFLICT 不自动转 Waitlist / 客户必须再次手工点候补”承载；当前 Authority 已改为竞争请求自动创建/复用 Waitlist，LockRequest 本体保留 LOCK_CONFLICT 并关联 resulting_waitlist_id | CARRIER_DEFERRED |
-| PDM-18 | 把所有正式 Lock 客户可见性做成完全相同；当前 Authority 区分普通 Lock“占车不全客户隐藏”与 Priority-origin Lock“继承客户侧排他可见性” | CARRIER_DEFERRED |
-| PDM-18 | 把内部 Waitlist created_at 处理顺序直接展示成客户保证性“第几名”；当前 Authority 只保留内部稳定顺序，客户端不承诺排名/自动晋升 | CARRIER_DEFERRED |
-| PDM-18 | Lock 配置 carrier 仍写“Lock 不是独立配置对象 / 无配置入口”；当前 Authority 为默认72h且后台可配置、只影响新 Lock | CARRIER_DEFERRED |
-| PDM-18 | 正式 Lock 延期、新 expires_at、已延期、供应异常与 Waitlist 结束矩阵在 Current/Low-Fi 仍存在真实操作投影不足 | CARRIER_DEFERRED |
