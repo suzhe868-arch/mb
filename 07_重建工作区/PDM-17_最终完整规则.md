@@ -547,7 +547,7 @@ PDM-17 只冻结业务语义“可配置”，不写死数值。
 - HO-P17-P19-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-19 Final 已正式承接 in-progress Transaction / pending Refund 作为未完成责任与公海保护事实；owner / 公海变化不得静默取消、漂移或重建 Transaction/Refund 当前责任与历史，进入公海前必须完成、取消或正式 handoff；
 - HO-P17-P21-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-21 Final 已正式承接员工端公海/待公海、主动领取、人工治理结果与 Collaboration 操作投影；
 - HO-P17-P22-001｜`HANDOFF_CLOSED / source_backwrite=YES`：公海配置 carrier 已由 PDM-22 Final 承接；
-- HO-P17-P23-001｜提醒 / 通知 carrier；
+- HO-P17-P23-001｜`HANDOFF_CLOSED / source_backwrite=YES`：提醒 / 通知 carrier 已由 `07_重建工作区/PDM-23_最终完整规则.md` 正式承接；
 - HO-P17-P25-001｜统一审计 / 历史。
 
 ## 30. Stale Carrier
@@ -586,7 +586,7 @@ R2：
 - Final 前完整性复核 R2：`PASS / FINAL_CANDIDATE_READY`；
 - 34 个正式规则 / 用户裁决单元全部进入 Final；
 - 6 条 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
-- 6 条 outgoing handoff：继续 `HANDOFF_OPEN`；
+- PDM-23 已 `HANDOFF_CLOSED / source_backwrite=YES`；其余未承接 handoff 继续按总账状态管理；
 - PDM-17：`COMPLETE / INTEGRITY_PASS`；
 - 下一步：`PDM-18 Startup Gate`；
 - IA / Low-Fi / Engineering 继续禁止提前施工。
