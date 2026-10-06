@@ -517,7 +517,7 @@ PDM-08 已完整承接人工名邦 / 4S 车辆图片规则：
 ### 19.5 仍待后续 PDM 承接
 
 - PDM-21｜`HANDOFF_CLOSED`：PDM-21 Final 已正式承接新增车源、显式草稿、VIN duplicate、MODEL_MISSING、保存修改、source_type 选择/修改与发布工作流投影；`HO-P06-P21-001 = HANDOFF_CLOSED / source_backwrite=YES`；
-- PDM-22｜`HANDOFF_OPEN`：PC / 后台人工车辆管理承载，尤其不得因通用 CRUD 自动生成正式 Vehicle 物理 Delete；
+- PDM-22｜`HANDOFF_CLOSED / source_backwrite=YES`：PC / 后台人工车辆管理承载已由 PDM-22 Final 承接；正式 Vehicle 仍不得因通用 CRUD 产生物理 Delete；
 - PDM-25｜`HANDOFF_OPEN`：正式发布、source_type 修改、保存修改、VIN duplicate Gate、draft delete 等统一审计与历史留存标准。
 
 统一登记到：
@@ -574,3 +574,5 @@ HANDOFF_REGISTER_SYNC = PASS
 下一审计域进入：
 
 > **PDM-07｜Legacy Final Integrity Audit**
+
+> 2026-10-07 Source Backwrite：对应 PDM-22 handoff 已由 `07_重建工作区/PDM-22_最终完整规则.md` 正式承接；以 CROSS_PDM_HANDOFF_REGISTER 的 `HANDOFF_CLOSED / source_backwrite=YES` 为准。
