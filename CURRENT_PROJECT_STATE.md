@@ -32,7 +32,19 @@
 
 当前唯一下一步：
 
-> **PDM-18 Batch 2 已 `PASS / USER_APPROVED / APPLIED`：P18-B2-01～P18-B2-06 正式冻结；Batch 3 扫描形成 P18-B3-01～P18-B3-03 三条后续明确新增/变更候选。刚确认的 Priority→Lock 排他可见性已登记为 Batch 4 待正式裁决方向，尚未应用。当前唯一下一步：用户审查 P18-B3-01～P18-B3-03。**
+> **PDM-18 Batch 2 已 `PASS / USER_APPROVED / APPLIED`。Batch 3 原 3 条候选中，P18-B3-02 已按用户新裁决撤回并重分类到 Batch 4；当前 Batch 3 仅剩 P18-B3-01、P18-B3-03。Batch 4 已登记两个用户方向：Priority→Lock 继承排他可见性，以及竞争 LockRequest 自动转 Waitlist；二者均 NOT_APPLIED。当前唯一下一步：用户审查 P18-B3-01 与 P18-B3-03。**
+
+## 2026-10-06｜PDM-18 Batch 3 候选重分类
+
+- 用户对原 `P18-B3-02｜LOCK_CONFLICT 后只能主动候补`提出反向裁决：应自动转候补；
+- 用户认可调整并随后确认执行；
+- `P18-B3-02 = WITHDRAWN_FROM_BATCH3 / RECLASSIFIED_TO_BATCH4`；
+- Batch 3 当前只剩 `P18-B3-01 + P18-B3-03 / PENDING_USER_REVIEW`；
+- 新增 `P18-B4-PRE-02 = USER_DIRECTION_APPROVED / NOT_APPLIED`；
+- 新方向：同车同 cycle 一笔 LockRequest 获锁后，其他仍有效 PENDING 自动转 Waitlist；候补顺序按原 LockRequest.created_at；Waitlist 不占车、不自动转 Lock；
+- 该方向与已批准 P18-A06/A13 局部冲突，已标记 `BATCH4_CONFLICT_PENDING`，Batch 4 正式裁决前不提前改写 Authority；
+- 原 `P18-B4-PRE-01` Priority→Lock 排他可见性方向仍为 NOT_APPLIED；
+- 当前唯一下一步：用户审查 P18-B3-01 与 P18-B3-03。
 
 ## 2026-10-06｜PDM-18 Batch 2 用户批准并执行
 
