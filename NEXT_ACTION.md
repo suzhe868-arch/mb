@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-20（Batch 1 = PASS；Batch 2 待用户审查）
+- 当前域：PDM-20（Batch 2 = PASS；Batch 3 待用户审查）
 - PDM-15 Startup Gate = PASS
 - PDM-15 incoming handoffs = 5 / 5 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-15 工作版 = `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
@@ -130,7 +130,9 @@
 - PDM-20 Current Authority Refresh = PASS
 - PDM-20 工作版 = `07_重建工作区/PDM-20_客户端浏览搜索筛选排序列表详情收藏分享个人中心地域_规则原子重建_工作版.md`
 - PDM-20 Batch 1 = P20-A01～P20-A18 / PASS / USER_APPROVED / APPLIED
-- PDM-20 Batch 2 = P20-B2-01～P20-B2-09 / PENDING_USER_REVIEW
+- PDM-20 Batch 2 = P20-B2-01～P20-B2-09 / PASS / USER_APPROVED / APPLIED
+- PDM-20 Batch 3 = P20-B3-01～P20-B3-08 / PENDING_USER_REVIEW
+- PDM-20 Batch 3 Conflict Isolation = PASS / MISCLASSIFIED_PRODUCT_CHOICE=0
 - PDM-20 Batch 2 Reverse Conflict Scan = PASS / FALSE_DEPRECATION_COUNT=0
 - PDM-19 Batch 4 Cross-PDM Review = PASS / NO_COMPLETED_PDM_MUTATION
 - PDM-19 Batch 3 Conflict Isolation = PASS / MISCLASSIFIED_PRODUCT_CHOICE=0
@@ -189,7 +191,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-20 Batch 1 已 PASS / USER_APPROVED / APPLIED；P20-B2-01～P20-B2-09 已形成并待用户审查。当前唯一下一步：用户审查 Batch 2；未经批准与后续明确执行，不得进入 Batch 3。**
+> **PDM-20 Batch 2 已 PASS / USER_APPROVED / APPLIED；P20-B3-01～P20-B3-08 已形成并待用户审查。当前唯一下一步：用户审查 Batch 3；未经批准与后续明确执行，不得进入 Batch 4。**
 
 每个 PDM 必须同时执行：
 
@@ -243,7 +245,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-19 均已 `COMPLETE / INTEGRITY_PASS`。PDM-20 Startup Gate 与 Batch 1 已 PASS，14/14 incoming handoff 继续 `HANDOFF_ACCEPTED`；当前唯一下一步为用户审查 PDM-20 Batch 2（P20-B2-01～P20-B2-09）。
+当前 PDM-01～PDM-19 均已 `COMPLETE / INTEGRITY_PASS`。PDM-20 Startup Gate、Batch 1、Batch 2 已 PASS，14/14 incoming handoff 继续 `HANDOFF_ACCEPTED`；当前唯一下一步为用户审查 PDM-20 Batch 3（P20-B3-01～P20-B3-08）。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
