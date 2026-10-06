@@ -400,7 +400,7 @@ PDM-16 只冻结对象语义和数据边界；员工工作台排序、卡片、�
 
 - HO-P16-P17-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-17 Final 已承接公海/待公海治理，并把 CRM 未完成待办、回访提醒、未来跟进计划等作为正式进入公海前必须完成/取消/交接的保护责任；
 - HO-P16-P21-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-21 Final 已正式承接员工 CRM list/detail/follow-up、Opportunity、Source Radar、my/team customers 与强待办语义分离；
-- HO-P16-P22-001｜Stage / Tag 配置与 Opportunity 配置边界；
+- HO-P16-P22-001｜`HANDOFF_CLOSED / source_backwrite=YES`：Stage / Tag 配置与 Opportunity 配置边界已由 PDM-22 Final 承接；
 - HO-P16-P23-001｜CRM 提醒 / 通知边界；
 - HO-P16-P25-001｜CRM 审计 / 历史 / 横切。
 
@@ -430,3 +430,5 @@ Final 前 R2：
 - PDM-16：`COMPLETE / INTEGRITY_PASS`；
 - 下一步：`PDM-17 Startup Gate`；
 - IA / Low-Fi / Engineering 继续禁止提前施工。
+
+> 2026-10-07 Source Backwrite：对应 PDM-22 handoff 已由 `07_重建工作区/PDM-22_最终完整规则.md` 正式承接；以 CROSS_PDM_HANDOFF_REGISTER 的 `HANDOFF_CLOSED / source_backwrite=YES` 为准。
