@@ -398,7 +398,7 @@ PDM-16 只冻结对象语义和数据边界；员工工作台排序、卡片、�
 
 ### Outgoing｜保持 HANDOFF_OPEN
 
-- HO-P16-P17-001｜公海 / 待公海 / CRM 未完成责任；
+- HO-P16-P17-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-17 Final 已承接公海/待公海治理，并把 CRM 未完成待办、回访提醒、未来跟进计划等作为正式进入公海前必须完成/取消/交接的保护责任；
 - HO-P16-P21-001｜员工 CRM / Opportunity / Source Radar；
 - HO-P16-P22-001｜Stage / Tag 配置与 Opportunity 配置边界；
 - HO-P16-P23-001｜CRM 提醒 / 通知边界；
@@ -426,7 +426,7 @@ Final 前 R2：
 - 正式 Authority：`07_重建工作区/PDM-16_最终完整规则.md`；
 - Final 前完整性复核 R2：`PASS / FINAL_CANDIDATE_READY`；
 - 6 条 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
-- 5 条 outgoing handoff：继续 `HANDOFF_OPEN`；
+- 1 条 outgoing（PDM-17）已 `HANDOFF_CLOSED / source_backwrite=YES`；其余 4 条继续 `HANDOFF_OPEN`；
 - PDM-16：`COMPLETE / INTEGRITY_PASS`；
 - 下一步：`PDM-17 Startup Gate`；
 - IA / Low-Fi / Engineering 继续禁止提前施工。
