@@ -544,7 +544,7 @@ PDM-17 只冻结业务语义“可配置”，不写死数值。
 ### Outgoing｜保持 HANDOFF_OPEN
 
 - HO-P17-P18-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-18 Final 已正式承接 active Lock/Waitlist 作为公海保护事实，并冻结 Customer owner 与 Lock/Waitlist responsible 分层；owner / 公海变化不得静默取消、漂移或改写既有 Lock/Waitlist，未完成责任进入公海前必须完成、取消或正式交接；
-- HO-P17-P19-001｜Transaction / Refund 在途责任与 owner / 公海变化；
+- HO-P17-P19-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-19 Final 已正式承接 in-progress Transaction / pending Refund 作为未完成责任与公海保护事实；owner / 公海变化不得静默取消、漂移或重建 Transaction/Refund 当前责任与历史，进入公海前必须完成、取消或正式 handoff；
 - HO-P17-P21-001｜员工端公海 / Collaboration 操作投影；
 - HO-P17-P22-001｜公海配置 carrier；
 - HO-P17-P23-001｜提醒 / 通知 carrier；
