@@ -1154,3 +1154,20 @@
 | PDM24-DEC-R00 | PDM-24 | P24-R00 | PDM-24 作为 Announcement 与 Banner/Placement 运营生命周期唯一产品 Authority；负责创建/编辑/启停/排期/生效/结束/排序/合法跳转与公告主动弹层运营频控；不扩成通用消息中心、营销自动化平台或万能 Placement Engine。 | USER_APPROVED / APPLIED | 2026-10-07 用户同意 Startup Gate 核心定位并明确确认执行 | 2026-10-07 |
 | PDM24-DEC-R01 | PDM-24 | P24-R01 | 用户明确：VEHICLE_DETAIL 是车辆详情页固定广告位能力；所有合法车辆详情页均具备该 placement。无有效 Banner 时可不展示具体广告内容，但不能解释为详情页没有广告位。 | USER_APPROVED / APPLIED；覆盖历史“详情 Banner 可选模块”中“广告位本身可有可无”的旧解释；PDM-20 source backwrite 等 PDM-24 Final Closeout。 | 2026-10-07 用户“这个详情页的肯定是有的详情页的广告”→确认口径→同意→确认执行 | 2026-10-07 |
 | PDM24-GATE-STARTUP | PDM-24 | Startup Gate | R10/R12、Phase1.5 Current IA、PDM-20 Final、HO-P20-P24-001 完成反扫；P24-R00/R01 已批准执行；incoming handoff 1/1 接收；Batch 1 候选 P24-A01～A15 已形成。 | PASS / COMPLETED_PDM_HARD_CONFLICT=0 / INCOMING_GAP=0 / IA_LOWFI_ENGINEERING=NO_CONSTRUCTION | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+
+| PDM24-DEC-A01 | PDM-24 | P24-A01 | 公告与 Banner 独立运营对象；用户对 Batch 1“全部同意”并随后明确确认执行。 | USER_APPROVED / APPLIED | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-A02 | PDM-24 | P24-A02 | 公告基础管理闭环；用户对 Batch 1“全部同意”并随后明确确认执行。 | USER_APPROVED / APPLIED | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-A03 | PDM-24 | P24-A03 | 公告 active/history 客户端入口；用户对 Batch 1“全部同意”并随后明确确认执行。 | USER_APPROVED / APPLIED | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-A04 | PDM-24 | P24-A04 | 公告主动弹层每日频控；用户对 Batch 1“全部同意”并随后明确确认执行。 | USER_APPROVED / APPLIED | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-A05 | PDM-24 | P24-A05 | 关闭弹层不生成已读事实；用户对 Batch 1“全部同意”并随后明确确认执行。 | USER_APPROVED / APPLIED | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-A06 | PDM-24 | P24-A06 | 多个主动弹层同刻只展示一个；用户对 Batch 1“全部同意”并随后明确确认执行。 | USER_APPROVED / APPLIED | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-A07 | PDM-24 | P24-A07 | Banner 固定 placement 为 HOME_TOP / VEHICLE_DETAIL；用户对 Batch 1“全部同意”并随后明确确认执行。 | USER_APPROVED / APPLIED | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-A08 | PDM-24 | P24-A08 | VEHICLE_DETAIL 固定广告位能力；用户对 Batch 1“全部同意”并随后明确确认执行。 | USER_APPROVED / APPLIED | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-A09 | PDM-24 | P24-A09 | Banner 数量投影 0/1/2～5/>5；用户对 Batch 1“全部同意”并随后明确确认执行。 | USER_APPROVED / APPLIED | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-A10 | PDM-24 | P24-A10 | Banner target 可为空；用户对 Batch 1“全部同意”并随后明确确认执行。 | USER_APPROVED / APPLIED | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-A11 | PDM-24 | P24-A11 | Banner target 仅内部白名单合法目标；用户对 Batch 1“全部同意”并随后明确确认执行。 | USER_APPROVED / APPLIED | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-A12 | PDM-24 | P24-A12 | Banner 排期/启停/排序独立校验；用户对 Batch 1“全部同意”并随后明确确认执行。 | USER_APPROVED / APPLIED | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-A13 | PDM-24 | P24-A13 | 运营 mutation 当前鉴权 Guard；用户对 Batch 1“全部同意”并随后明确确认执行。 | USER_APPROVED / APPLIED | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-A14 | PDM-24 | P24-A14 | 重要运营配置变更可追溯；用户对 Batch 1“全部同意”并随后明确确认执行。 | USER_APPROVED / APPLIED | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-DEC-A15 | PDM-24 | P24-A15 | 不建设万能运营/营销平台；用户对 Batch 1“全部同意”并随后明确确认执行。 | USER_APPROVED / APPLIED | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
+| PDM24-GATE-B1 | PDM-24 | Batch 1 Gate | P24-A01～P24-A15 全部批准并执行；稳定一致规则进入当前 Authority；Reverse Conflict Scan 已生成 Batch 2。 | PASS / USER_APPROVED / APPLIED / COMPLETED_PDM_HARD_CONFLICT=0 | PDM-24 工作版 + 2026-10-07 用户批准执行 | 2026-10-07 |
