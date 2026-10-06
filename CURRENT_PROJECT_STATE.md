@@ -1,3 +1,18 @@
+## 2026-10-07｜PDM-24 Batch 4 已批准并执行，进入 Prefinal Integrity
+
+- `P24-B4-01～P24-B4-07 = PASS / USER_APPROVED / APPLIED`；
+- B4-01：用户修订为“公告设置有效周期 + 自动弹出开关；同一客户每天公告主动弹层全局最多 1 条；取消仅首次一次/三档频率”；
+- B4-02：采用 2A，普通编辑不重置当天展示事实；需要新一轮触达时新建公告；
+- B4-03：多条有效公告当天第一次进入按后台排序择一，不补弹其他公告；
+- B4-04：补齐标题、正文、开始/结束日期、自动弹出开关等字段；
+- B4-05：采用 5A，Banner V1 继续仅内部白名单合法目标，不开放外链；
+- B4-06：Banner 停用不删除，可再启用并重新校验；
+- B4-07：`HO-P24-P25-001 = HANDOFF_OPEN` 已正式登记；
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- `HO-P20-P24-001 = HANDOFF_ACCEPTED`，Final Closeout 前仍不关闭、不 source backwrite；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：**PDM-24 Final 前完整性复核（Prefinal Integrity）**。
+
 ## 2026-10-07｜PDM-24 Batch 3 已执行并完成窗口切换交接
 
 - `BATCH_3 = NO_NEW_ATOMS / PASS / USER_APPROVED / APPLIED`；
