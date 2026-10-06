@@ -1,9 +1,9 @@
 # PDM-17｜最终完整规则总览｜待用户批准
 
 > 域：公海 / 待公海处理 / 主动领取 / 指定分配 / Collaboration  
-> 当前状态：`PENDING_USER_FINAL_APPROVAL`  
+> 当前状态：`USER_FINAL_APPROVED / FINAL_CLOSEOUT_DONE`  
 > Final 前完整性复核：`R2 PASS / FINAL_CANDIDATE_READY`  
-> 注意：本文件目前只是 Final Domain Overview 候选；用户最终批准并再次确认执行前，不发布正式 Final，不关闭 incoming handoff，不做 source backwrite，不进入 PDM-18。
+> 本文件保留 PDM-17 Final Domain Overview 最终批准留痕；用户已于 2026-10-06 最终批准并明确确认执行。
 
 ## 1. 核心定位
 
@@ -578,6 +578,6 @@ R2：
 - `PDM17_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
 - `PDM17_FINAL_CANDIDATE_READY = YES`
 
-当前唯一下一步：
+Final 审查结论：
 
-> **等待用户最终批准本 Final Domain Overview。批准前不得发布正式 Final、不得关闭 incoming handoff、不得 source backwrite、不得进入 PDM-18。**
+> **USER_FINAL_APPROVED / FINAL_CLOSEOUT_DONE**
