@@ -574,7 +574,7 @@ PDM-16 Final 已明确废弃旧：
 
 状态：
 
-> `USER_DIRECTION_APPROVED / NOT_APPLIED / WAIT_BATCH_4_FORMAL_REVIEW`
+> `SUPERSEDED_BY_FORMAL_B4 / APPLIED`
 
 该方向将于 Batch 4 正式检查 P18-A12/A13/A18 以及 PDM-13/PDM-14 cross-PDM 边界后再提交正式裁决；当前不得提前改写已完成 PDM Final。
 
@@ -606,7 +606,7 @@ PDM-16 Final 已明确废弃旧：
 
 状态：
 
-> `USER_DIRECTION_APPROVED / NOT_APPLIED / WAIT_BATCH_4_FORMAL_REVIEW`
+> `SUPERSEDED_BY_FORMAL_B4 / APPLIED`
 
 Batch 4 正式审查时必须同时处理：
 
@@ -834,7 +834,7 @@ V1 不提供批量：
 
 ## 11.1 Batch 4 Cross-PDM 待修正 / 待交接影响
 
-若采用推荐 A 组合，需要：
+1A～10A 已正式采用，因此需要：
 
 - 修正 P18-A06 / P18-A13 的“LOCK_CONFLICT 不自动 Waitlist”局部口径；
 - P18-A18 保持“Priority 成立/结束与 Lock 分层”，并补“Priority-origin Lock 继承排他可见性”；
