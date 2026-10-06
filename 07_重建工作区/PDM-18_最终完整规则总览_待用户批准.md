@@ -1,9 +1,9 @@
-# PDM-18｜最终完整规则总览｜待用户批准
+# PDM-18｜最终完整规则总览｜用户已最终批准
 
 > 域：LockRequest / 正式 Lock / Waitlist / 延期 / 释放  
-> 当前状态：`FINAL_REVIEW_PENDING`  
+> 当前状态：`USER_FINAL_APPROVED / FINAL_CLOSEOUT_PENDING_EXECUTION`  
 > Final 前完整性复核：`R2 PASS / FINAL_CANDIDATE_READY`  
-> 本文件为 PDM-18 最终产品规则候选；用户最终批准并再次明确执行前，不发布正式 Final，不关闭 incoming handoff，不执行 source backwrite，不进入 PDM-19。
+> 本文件已获用户最终批准；当前仅等待再次明确执行。执行前不发布正式 Final，不关闭 incoming handoff，不执行 source backwrite，不进入 PDM-19。
 
 ## 1. 核心定位
 
@@ -565,4 +565,4 @@ R2：
 
 当前唯一下一步：
 
-> **用户最终批准本总览。批准后仍需再次明确执行，才发布正式 PDM-18 Final、关闭 incoming handoff、source backwrite 并进入 PDM-19。**
+> **用户已最终批准本总览。当前唯一下一步：等待明确执行 Final closeout；执行后才发布正式 PDM-18 Final、关闭 incoming handoff、完成 source backwrite 并进入 PDM-19。**
