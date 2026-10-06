@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-18_BATCH_1_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-18_BATCH_2_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`
+> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -32,7 +32,19 @@
 
 当前唯一下一步：
 
-> **PDM-18 Startup Gate 已 `PASS`：P18-R00 已用户批准并执行，target=PDM-18 的 10/10 incoming handoff 已全部 `HANDOFF_ACCEPTED`，completed-PDM hard conflict=0，incoming handoff gap=0。当前唯一下一步：用户审查 PDM-18 Batch 1（P18-A01～P18-A18）。**
+> **PDM-18 Batch 1 已 `PASS / USER_APPROVED / APPLIED`：P18-A01～P18-A18 共 18 条稳定规则正式进入当前工作 Authority；Batch 2 Reverse Conflict Scan = PASS，形成 6 条明确废弃 / superseded / DO_NOT_RESTORE 候选。当前唯一下一步：用户审查 P18-B2-01～P18-B2-06。**
+
+## 2026-10-06｜PDM-18 Batch 1 用户批准并执行
+
+- 用户明确“全部同意确认执行”；
+- `P18-A01～P18-A18 = PASS / USER_APPROVED / APPLIED`；
+- 18 条稳定规则覆盖 LockRequest/Lock/Waitlist 分层、6h、并发审批、唯一 active Lock、72h、意向金超时边界、人工延期、Waitlist、owner/responsible、账号/车辆历史、价格快照、Priority/Recommendation/Matching 分层；
+- 特别保留：合法名邦员工在 Customer + Vehicle 上下文明确且 Guard 合法时可直接创建正式 Lock；不得把 LockRequest 错做成所有 Lock 的强制前置；
+- 10 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- Batch 2 Reverse Conflict Scan = `PASS / FALSE_DEPRECATION_COUNT=0`；
+- Batch 2 候选：`P18-B2-01～P18-B2-06`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 PDM-18 Batch 2。
 
 ## 2026-10-06｜PDM-18 Startup Gate 通过并进入 Batch 1 审查
 
