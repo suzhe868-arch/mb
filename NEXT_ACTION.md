@@ -86,9 +86,11 @@
 - PDM-18 Batch 1 = P18-A01～P18-A18 / PASS / USER_APPROVED / APPLIED
 - PDM-18 Batch 2 = P18-B2-01～P18-B2-06 / PASS / USER_APPROVED / APPLIED
 - PDM-18 Batch 2 Reverse Conflict Scan = PASS / FALSE_DEPRECATION_COUNT=0
-- PDM-18 Batch 3 = P18-B3-01～P18-B3-03 / PENDING_USER_REVIEW
+- PDM-18 Batch 3 = P18-B3-01 + P18-B3-03 / PENDING_USER_REVIEW
+- PDM-18 Batch 3 Reclassified = P18-B3-02 / WITHDRAWN_FROM_BATCH3 / MOVED_TO_BATCH4
 - PDM-18 Batch 3 Conflict Isolation = PASS / MISCLASSIFIED_PRODUCT_CHOICE=0
 - PDM-18 Batch 4 Pending Direction = P18-B4-PRE-01 / USER_DIRECTION_APPROVED / NOT_APPLIED
+- PDM-18 Batch 4 Pending Direction = P18-B4-PRE-02 / AUTO_WAITLIST_FROM_COMPETING_LOCKREQUEST / USER_DIRECTION_APPROVED / NOT_APPLIED
 - PDM-11 = COMPLETE / INTEGRITY_PASS
 - PDM-12 = COMPLETE / INTEGRITY_PASS
 - PDM-11 启动门禁 = UNBLOCKED
@@ -140,7 +142,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-18 Batch 2 已 PASS / USER_APPROVED / APPLIED；Batch 3 已形成 P18-B3-01～P18-B3-03 三条明确新增/变更候选。当前唯一下一步：用户审查 Batch 3；未经用户确认不得进入 Batch 4。**
+> **PDM-18 Batch 3 当前只剩 P18-B3-01 与 P18-B3-03；原 P18-B3-02 已撤回并转入 Batch 4 自动候补产品选择。当前唯一下一步：用户审查这两条 Batch 3 候选；未经用户确认不得进入 Batch 4 正式审查。**
 
 每个 PDM 必须同时执行：
 
