@@ -1,3 +1,14 @@
+## 2026-10-06｜PDM-19 Batch 3 用户批准并执行
+
+- 用户对 `P19-B3-01～P19-B3-03` 全部同意，随后明确“确认执行”；
+- `P19-B3-01 / P19-B3-02 = PASS / USER_APPROVED / APPLIED`；
+- `P19-B3-03 = USER_REVISED / PASS / USER_APPROVED / APPLIED`；
+- B3-03 最终口径：pending Refund 确定不再退款时可直接关闭，只填写原因；不新增专门关闭 permission，不增加审批；closed 不等于 refunded；
+- Batch 4 扫描形成 `P19-B4-01～P19-B4-11 / PENDING_USER_REVIEW`；
+- 10 条 incoming handoff 继续 `HANDOFF_ACCEPTED`，未提前关闭；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 PDM-19 Batch 4。
+
 ## 2026-10-06｜PDM-19 Batch 2 用户批准并执行
 
 - 用户对 `P19-B2-01～P19-B2-06` 明确全部同意，随后以“真执行”授权落仓；
@@ -68,7 +79,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-19_BATCH_3_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-19_BATCH_4_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -78,7 +89,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`
+> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -94,7 +105,7 @@
 
 当前唯一下一步：
 
-> **PDM-19 Batch 2 已 `PASS / USER_APPROVED / APPLIED`：P19-B2-01～P19-B2-06 正式冻结；Batch 3 扫描形成 P19-B3-01～P19-B3-03 三条后续明确新增 / 变更候选。当前唯一下一步：用户审查 PDM-19 Batch 3。**
+> **PDM-19 Batch 3 已 `PASS / USER_APPROVED / APPLIED`：P19-B3-01～P19-B3-03 已正式进入当前 Authority，其中 B3-03 按用户简化口径修订。Batch 4 已形成 P19-B4-01～P19-B4-11 十一项冲突/遗漏/缺口/新选择候选。当前唯一下一步：用户审查 PDM-19 Batch 4。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
