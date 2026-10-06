@@ -243,7 +243,7 @@ V1 保留轻量后台控制，不建设复杂的客户注销 / 账号删除状�
 3. Consultation → PDM-15｜`HANDOFF_CLOSED`：PDM-15 Final 已正式承接 Consultation 四主状态、direct source、assignee/owner 分层、Customer disable hold、首次人工响应 SLA、撤回/终结与历史；Customer 停用不抹除 Consultation 历史，恢复账号不自动恢复具体 Consultation 运行；`HO-P01-P15-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 4. CRM 客户画像、跟进、员工内部客户称呼承载 → PDM-16｜`HANDOFF_CLOSED`：PDM-16 Final 已正式承接 Personal Note / Shared Profile / 员工内部客户称呼历史、CRM Stage / Tags / Follow-up、当前访问权与历史事实分离；`HO-P01-P16-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 5. Lock / Waitlist → PDM-18｜`HANDOFF_CLOSED`：PDM-18 Final 已正式承接 LockRequest / 正式 Lock / Waitlist 完整生命周期，并明确 Customer 停用不自动取消既有 Lock/Waitlist、恢复不复活已终止对象；`HO-P01-P18-001 = HANDOFF_CLOSED / source_backwrite=YES`；
-6. Transaction / Refund → PDM-19；
+6. Transaction / Refund → PDM-19｜`HANDOFF_CLOSED`：PDM-19 Final 已正式承接 Deposit / Transaction / Refund / correction / 换车资金交易生命周期，并明确 Customer 停用不删除、不改写已发生资金与交易历史；`HO-P01-P19-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 7. 客户端个人资料与“账号已停用”具体页面表现 → PDM-20；
 8. 审计字段、历史留存实现细节 → PDM-25。
 
