@@ -618,7 +618,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-15：COMPLETE / INTEGRITY_PASS；
 - PDM-16：COMPLETE / INTEGRITY_PASS；
 - PDM-17：COMPLETE / INTEGRITY_PASS；34 个正式规则/裁决单元进入 Final；6/6 incoming handoff = HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE；6 条 outgoing handoff 保持 HANDOFF_OPEN；正式 Authority=`07_重建工作区/PDM-17_最终完整规则.md`；下一步 PDM-18 Startup Gate；
-- PDM-18：Startup Gate PASS；P18-R00 USER_APPROVED/APPLIED；10/10 incoming handoff = HANDOFF_ACCEPTED；completed-PDM hard conflict=0；incoming handoff gap=0；当前进入 Batch 1 用户审查；
+- PDM-18：Batch 1～4 与 R1 修复全部完成；Prefinal R2 = PASS / FINAL_CANDIDATE_READY；10/10 incoming handoff 继续 HANDOFF_ACCEPTED；6 条 outgoing handoff = HANDOFF_OPEN；最终完整规则总览候选已生成，当前等待用户最终批准；
 - PDM-12：COMPLETE / INTEGRITY_PASS；4 条 incoming handoff 全部 CLOSED 并完成 source backwrite；
 - PDM-13：COMPLETE / INTEGRITY_PASS；PDM-13→PDM-14/17/18/19/20/21/22/25 future handoff 已登记；其中 HO-P13-P14-001 已由 PDM-14 Final 正式承接并 CLOSED/source backwrite，其余目标域继续 HANDOFF_OPEN；
 - PDM-14：COMPLETE / INTEGRITY_PASS；52 个正式规则/裁决单元全部进入 Final；8 条 incoming handoff 全部 HANDOFF_CLOSED 并完成 source backwrite；outgoing HO-P14-P15/P18/P19/P20/P21/P23/P25 保持 HANDOFF_OPEN；正式 Authority=`07_重建工作区/PDM-14_最终完整规则.md`；下一步 PDM-15 Startup Gate；
