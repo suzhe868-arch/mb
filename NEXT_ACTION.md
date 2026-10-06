@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-17（Batch 1/2/3 已通过，当前 Batch 4 用户裁决）
+- 当前域：PDM-17（Batch 1/2/3/4 已通过，当前 Final 前完整性复核 R1）
 - PDM-15 Startup Gate = PASS
 - PDM-15 incoming handoffs = 5 / 5 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-15 工作版 = `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
@@ -69,7 +69,8 @@
 - PDM-17 Batch 2 Reverse Conflict Scan = PASS / FALSE_DEPRECATION_COUNT=0
 - PDM-17 Batch 3 = NO_NEW_ATOMS / PASS / USER_APPROVED / APPLIED
 - PDM-17 Batch 3 Conflict Isolation = PASS / MISCLASSIFIED_PRODUCT_CHOICE=0
-- PDM-17 Batch 4 = P17-B4-01～P17-B4-09 / PENDING_USER_REVIEW
+- PDM-17 Batch 4 = P17-B4-01～P17-B4-09 / PASS / USER_APPROVED / APPLIED / CHOICES=1A,2A,3A,4A,5A,6A,7A,8A,9A
+- PDM-17 Local Product Choice Unresolved = 0
 - PDM-11 = COMPLETE / INTEGRITY_PASS
 - PDM-12 = COMPLETE / INTEGRITY_PASS
 - PDM-11 启动门禁 = UNBLOCKED
@@ -121,7 +122,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-17 Batch 3“无新增项”已 PASS / USER_APPROVED / APPLIED。当前唯一下一步：用户裁决 Batch 4（P17-B4-01～P17-B4-09）；未经用户确认不得进入 Final 前完整性复核。**
+> **PDM-17 Batch 4 已按 1A～9A 执行，Local Product Choice Unresolved=0。当前唯一下一步：执行 Final 前完整性复核 R1。**
 
 每个 PDM 必须同时执行：
 
