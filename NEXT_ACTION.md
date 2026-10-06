@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-20（Prefinal R2 = PASS；Final Review 待用户最终批准）
+- 当前域：PDM-21（Startup Gate 尚未执行）
 - PDM-15 Startup Gate = PASS
 - PDM-15 incoming handoffs = 5 / 5 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-15 工作版 = `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
@@ -99,7 +99,7 @@
 - PDM-18 Final = 07_重建工作区/PDM-18_最终完整规则.md / COMPLETE / INTEGRITY_PASS
 - PDM-18 Final Integrity = 07_重建工作区/PDM-18_最终完整性复核_2026-10-06.md / PASS
 - PDM-18 Source Backwrite = 10 / 10 DONE
-- PDM-18 Outgoing Handoffs = PDM-19 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE；PDM-20 / PDM-21 / PDM-22 / PDM-23 / PDM-25 = HANDOFF_OPEN
+- PDM-18 Outgoing Handoffs = PDM-19 / PDM-20 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE；PDM-21 / PDM-22 / PDM-23 / PDM-25 = HANDOFF_OPEN
 - PDM-18 Final Closeout = COMPLETE
 - PDM-18 Batch 4 = P18-B4-01～P18-B4-10 / PASS / USER_APPROVED / APPLIED / CHOICES=1A～10A
 - PDM-18 Batch 4 Cross-PDM Review = PASS / COMPLETED_PDM_NO_HARD_CONFLICT
@@ -115,7 +115,7 @@
 - PDM-19 Local Product Choice Unresolved = 0
 - PDM-19 Prefinal Integrity R1 = REPAIR_REQUIRED / NO_HARD_CONFLICT / REPORT=`07_重建工作区/PDM-19_Final前完整性复核_R1_2026-10-06.md`
 - PDM-19 Prefinal Repair R1 = P19-LIA-01～P19-LIA-06 / PASS / USER_APPROVED / APPLIED
-- PDM-19 Outgoing Handoffs = PDM-20 / PDM-21 / PDM-22 / PDM-23 / PDM-25 = HANDOFF_OPEN
+- PDM-19 Outgoing Handoffs = PDM-20 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE；PDM-21 / PDM-22 / PDM-23 / PDM-25 = HANDOFF_OPEN
 - PDM-19 Prefinal Integrity R2 = PASS / FINAL_CANDIDATE_READY / REPORT=`07_重建工作区/PDM-19_Final前完整性复核_R2_2026-10-06.md`
 - PDM-19 Final Overview = `07_重建工作区/PDM-19_最终完整规则总览_待用户批准.md` / USER_FINAL_APPROVED
 - PDM-19 Final = `07_重建工作区/PDM-19_最终完整规则.md` / COMPLETE / INTEGRITY_PASS
@@ -124,7 +124,7 @@
 - PDM-19 Final Closeout = COMPLETE
 - PDM-20 Startup Gate = PASS
 - PDM-20 核心定位 P20-R00 = USER_APPROVED / APPLIED
-- PDM-20 incoming handoffs = 14 / 14 HANDOFF_ACCEPTED
+- PDM-20 incoming handoffs = 14 / 14 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-20 completed-PDM hard conflict = 0
 - PDM-20 incoming handoff gap = 0
 - PDM-20 Current Authority Refresh = PASS
@@ -137,8 +137,13 @@
 - PDM-20 Prefinal Repair = P20-LIA-01～P20-LIA-07 / PASS / USER_APPROVED / APPLIED
 - PDM-20 Outgoing Handoff = P21/P22/P24/P25 / 4 HANDOFF_OPEN
 - PDM-20 Prefinal R2 = PASS / FINAL_CANDIDATE_READY / `07_重建工作区/PDM-20_Final前完整性复核_R2_2026-10-06.md`
-- PDM-20 Final Overview = `07_重建工作区/PDM-20_最终完整规则总览_待用户批准.md` / PENDING_USER_FINAL_APPROVAL
+- PDM-20 Final Overview = `07_重建工作区/PDM-20_最终完整规则总览_待用户批准.md` / USER_FINAL_APPROVED
 - PDM-20 Final Candidate Ready = true
+- PDM-20 Final = `07_重建工作区/PDM-20_最终完整规则.md` / COMPLETE / INTEGRITY_PASS
+- PDM-20 Final Integrity = `07_重建工作区/PDM-20_最终完整性复核_2026-10-06.md` / PASS
+- PDM-20 Source Backwrite = 14 / 14 DONE
+- PDM-20 Final Closeout = COMPLETE
+- PDM-21 Startup Gate = PENDING
 - PDM-20 Batch 4 completed-PDM mutation = 0
 - PDM-20 Batch 4 new domain state machine = 0
 - PDM-20 Batch 3 Conflict Isolation = PASS / MISCLASSIFIED_PRODUCT_CHOICE=0
@@ -163,7 +168,7 @@
 - PDM-13 Batch 3 Conflict Isolation = PASS
 - PDM-13 Batch 4 = PASS / USER_APPROVED（B4-01 用户修正版；2A、3A、4A、5A、6A、7A、8A）
 - PDM-13 Local Product Choice Unresolved = 0
-- PDM-13 outgoing handoffs = PDM-14 / PDM-17 / PDM-18 / PDM-19 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE；PDM-20 / PDM-21 / PDM-22 / PDM-25 = HANDOFF_OPEN
+- PDM-13 outgoing handoffs = PDM-14 / PDM-17 / PDM-18 / PDM-19 / PDM-20 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE；PDM-21 / PDM-22 / PDM-25 = HANDOFF_OPEN
 - PDM-13 Pre-Final Repair = P13-LIA-01～P13-LIA-08 / PASS / USER_APPROVED / APPLIED
 - PDM-13 Pre-Final Integrity R1 = PASS / HISTORICAL / REOPENED_BY_FINAL_OVERVIEW_REVIEW
 - PDM-13 Pre-Final Integrity R2 = PASS / FINAL_CANDIDATE_READY
@@ -196,11 +201,11 @@
 
 总控工作单：
 
-> `07_重建工作区/PDM-19_意向金Transaction退款成交纠错换车_规则原子重建_工作版.md`
+> PDM-21 Startup Gate（工作版尚未建立）
 
 ## 当前唯一下一步
 
-> **PDM-20 Prefinal R1 repair 已 7/7 批准并执行；R2 = PASS / FINAL_CANDIDATE_READY。当前唯一下一步：用户最终批准 PDM-20 Final Domain Overview；最终批准前不发布正式 Final、不关闭 incoming、不进入 PDM-21。**
+> **PDM-20 已正式 `COMPLETE / INTEGRITY_PASS`：53 个正式规则/裁决单元进入 Final，14/14 incoming handoff CLOSED 且 source backwrite 完成，4 条 outgoing handoff 保持 OPEN。当前唯一下一步：PDM-21 Startup Gate。**
 
 每个 PDM 必须同时执行：
 
@@ -254,7 +259,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-19 均已 `COMPLETE / INTEGRITY_PASS`。PDM-20 Startup Gate、Batch 1～4、Prefinal R1 repair 均已 PASS；R2 = `PASS / FINAL_CANDIDATE_READY`；14/14 incoming 继续 `HANDOFF_ACCEPTED`。当前唯一下一步为用户最终批准 PDM-20 Final Domain Overview。
+当前 PDM-01～PDM-20 均已 `COMPLETE / INTEGRITY_PASS`。PDM-20 的 14 条 incoming handoff 已全部 `HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE`，4 条 outgoing 继续 `HANDOFF_OPEN`。当前唯一下一步为 PDM-21 Startup Gate；Startup Gate 执行前不得提前进入 Batch 1。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
