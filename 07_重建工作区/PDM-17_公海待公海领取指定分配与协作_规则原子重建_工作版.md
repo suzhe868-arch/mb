@@ -1,7 +1,7 @@
 # PDM-17｜公海 / 待公海处理 / 领取 / 指定分配 / Collaboration（协作）｜规则原子重建工作版
 
 > 日期：2026-10-06  
-> 当前状态：`IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_REPAIR_APPLIED / R2_RUNNING`  
+> 当前状态：`IN_PROGRESS / PREFINAL_R2_PASS / FINAL_OVERVIEW_PENDING_USER_APPROVAL`  
 > 当前 Authority：本文件仅为 PDM-17 工作 Authority；四批用户审查、Final 前完整性复核与最终总览批准完成后，才可生成正式 Final。  
 > 禁止：当前不得修改 IA / Low-Fi / Engineering，不得提前关闭 incoming handoff。
 
@@ -936,3 +936,31 @@ CRM Follow-up 本体继续以 PDM-16 为 Authority，不在 PDM-17 建第二套 
 - outgoing handoff = 6 / 6 `HANDOFF_OPEN`；
 - stale carrier = REGISTERED / CARRIER_DEFERRED；
 - 当前下一步：重新执行 Final 前完整性复核 R2。
+
+---
+
+# 13. Final 前完整性复核 R2｜PASS / FINAL_CANDIDATE_READY
+
+报告：`07_重建工作区/PDM-17_Final前完整性复核_R2_2026-10-06.md`
+
+结果：
+
+- `SOURCE_TO_ATOM = PASS`；
+- `ATOM_TO_SOURCE = PASS`；
+- `SEMANTIC_COMPLETENESS = PASS`；
+- `MISSING_RULE_UNRESOLVED = 0`；
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 0`；
+- `COMPLETED_PDM_INVARIANT_CONFLICT = 0`；
+- `INCOMING_HANDOFF_GAP = 0`；
+- `OUTGOING_HANDOFF_GAP = 0`；
+- `NEGATIVE_CLAIMS_VERIFIED = PASS`；
+- `PDM17_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- `PDM17_FINAL_CANDIDATE_READY = YES`。
+
+Final Overview 候选：
+
+> `07_重建工作区/PDM-17_最终完整规则总览_待用户批准.md`
+
+当前唯一下一步：
+
+> **等待用户最终批准 Final Domain Overview。批准前不得发布正式 Final、不得关闭 incoming handoff、不得 source backwrite、不得进入 PDM-18。**
