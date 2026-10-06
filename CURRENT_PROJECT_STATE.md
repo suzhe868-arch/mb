@@ -1,3 +1,15 @@
+## 2026-10-07｜PDM-22 Batch 1 用户批准并执行
+
+- 用户对 `P22-A01～P22-A22` 全部同意，随后确认执行；
+- `P22-A01～P22-A22 = PASS / USER_APPROVED / APPLIED`；
+- 22 条稳定 PC 后台 / 配置 / Integration 基础规则正式进入当前工作 Authority；
+- Batch 2 Reverse Conflict Scan = `PASS / FALSE_DEPRECATION_COUNT=0`；
+- 形成 `P22-B2-01～P22-B2-11 / PENDING_USER_REVIEW`；
+- 旧 System Admin 专属后台、独立 Recommendation qualification、旧 Refund 两状态、旧 Collector Phone API 方向、旧内部价权限删除、mapping pending 阻断、source_type 冻结等均进入明确废弃 / 替代扫描；
+- 18 / 18 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 PDM-22 Batch 2。
+
 ## 2026-10-07｜PDM-22 Startup Gate 通过并进入 Batch 1 审查
 
 - 用户已批准并明确“确认执行” `P22-R00`；
@@ -333,7 +345,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-22_BATCH_1_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-22_BATCH_2_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -343,7 +355,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`
+> `IN_PROGRESS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -359,7 +371,7 @@
 
 当前唯一下一步：
 
-> **PDM-22 Startup Gate 已 `PASS`：P22-R00 已用户批准并执行，18/18 incoming handoff 已全部 `HANDOFF_ACCEPTED`，completed-PDM hard conflict=0，incoming handoff gap=0。当前唯一下一步：用户审查 PDM-22 Batch 1（P22-A01～P22-A22）。**
+> **PDM-22 Batch 1 已 `PASS / USER_APPROVED / APPLIED`：P22-A01～P22-A22 已正式执行；Batch 2 Reverse Conflict Scan 已形成 P22-B2-01～P22-B2-11。当前唯一下一步：用户审查 PDM-22 Batch 2。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 

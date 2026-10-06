@@ -1,6 +1,6 @@
 # PDM-22｜PC 后台信息架构 / 业务管理 / 配置归属 / 上游运行管理｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`  
 > 核心定位：`P22-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：18 / 18 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -188,9 +188,9 @@ PDM-22 必须保持：
 
 ---
 
-# 3. Batch 1｜稳定基础规则候选
+# 3. Batch 1｜稳定基础规则｜PASS / USER_APPROVED / APPLIED
 
-> 状态：`PENDING_USER_REVIEW`。  
+> 状态：`PASS / USER_APPROVED / APPLIED`。  
 > 原则：只纳入已有 Authority 明确、无需新产品选择且与 PDM-01～21 Final 不冲突的稳定规则。
 
 ## P22-A01｜PC 后台不是 System Admin 专属业务后台
@@ -509,7 +509,7 @@ PDM-22 可承载已批准的轻量配置，包括：
 
 当前：
 
-- `P22-A01～P22-A22 = PENDING_USER_REVIEW`
+- `P22-A01～P22-A22 = PASS / USER_APPROVED / APPLIED`
 - `STABLE_RULE_CONFLICT_COUNT = 0`
 - `DUPLICATE_BUSINESS_AUTHORITY = 0`
 - `INCOMING_HANDOFF_ACCEPTED = 18 / 18`
@@ -517,4 +517,169 @@ PDM-22 可承载已批准的轻量配置，包括：
 
 当前唯一下一步：
 
-> **用户审查 P22-A01～P22-A22。未经用户批准与后续明确执行，不得进入 Batch 2。**
+> **Batch 1 已由用户全部同意并确认执行；进入 Batch 2 Reverse Conflict Scan。**
+
+---
+
+# 5. Batch 2｜旧规则反向冲突扫描｜PENDING_USER_REVIEW
+
+> 目标：只处理已被 PDM-01～21 Final 明确替代、废弃或收窄的旧规则 / stale carrier。  
+> 本批不新增产品选择，不改变已完成 PDM 的 Authority。
+
+## P22-B2-01｜废弃“PC 业务后台 = System Admin 专属后台”
+
+旧 `/admin` / PC carrier 若把 P01～P04、P06～P12 解释成只有 System Admin 才能进入，正式废弃。
+
+当前：
+- 员工业务后台按 Employee identity + permission + data scope + object state 使用；
+- P05 才是 System Admin 独立控制平面；
+- System Admin 不因进入 PC 自动取得员工业务权。
+
+## P22-B2-02｜废弃旧“内部价无需独立 permission”口径，但不恢复其他已删除伪权限
+
+R12 曾把“内部价 / 批发价查看权限”列入待删除旧权限。该结论已被 PDM-02 / PDM-10 后续裁决反转。
+
+当前必须保留：
+- 内部价 / 批发价查看 = 独立 permission；
+- 4S hard DENY；
+- Internal Mode 本身不授该 permission。
+
+但以下旧伪权限仍不得恢复：
+- “编辑非本人上传车辆”独立 permission；
+- “一键转名邦”独立 permission；
+- source_type 经理/店长/特殊纠错 permission；
+- “进入 Internal Mode”本身作为 permission。
+
+## P22-B2-03｜废弃独立 Recommendation qualification / P06-06
+
+旧：
+- Customer 独立 Recommendation 资格；
+- P06-06 开 / 关；
+- 独立 Recommendation qualification permission。
+
+当前全部废弃。
+
+普通 Recommendation 资格统一读取：
+> Customer Level 当前 find-car entitlement。
+
+Priority qualification 仍是独立属性，但只服务 Priority，不等于 Recommendation 资格。
+
+## P22-B2-04｜废弃 Refund 仅有 pending / refunded 两状态的旧后台 carrier
+
+旧 R12 P07 只列：
+- pending
+- refunded
+
+当前 PDM-19 已明确：
+- pending
+- refunded
+- closed
+
+其中：
+- closed = 确定不再退款并关闭；
+- 只需填写原因；
+- closed 不得伪装为 refunded；
+- 部分退款继续由多笔真实退款事实表达，不新增 partial 主状态。
+
+## P22-B2-05｜废弃电话按 car_code / vehicle_id / 裸 publisher_id 定位
+
+电话当前唯一身份继续为：
+> source_platform + upstream_publisher_id
+
+不得恢复：
+- car_code 作为电话唯一键；
+- vehicle_id 作为电话唯一键；
+- 跨平台只按裸 upstream_publisher_id 合并。
+
+P03-05 诊断页也必须遵守同一复合身份。
+
+## P22-B2-06｜废弃“名邦主动调用 Collector Phone API”的旧网络方向
+
+不得恢复：
+- Mingbang → Collector Phone API；
+- Collector Base URL；
+- Phone Path；
+- “保存 Collector 电话连接 / 测试 Collector 连接”；
+- 在名邦后台维护 JYT 电话 Token / Header / callCode。
+
+当前固定为：
+> Collector 向上游取号 → 经名邦既有 Integration API / 回传体系返回名邦。
+
+## P22-B2-07｜废弃把 JYT mapping pending / conflict 当成“车型事实未知并阻断正常业务”
+
+只要 JYT 已经提供明确车型事实：
+- mapping pending 不得把它自动降成 unknown；
+- 不得因此阻断合法搜索 / Matching / 正常业务。
+
+待确认的是：
+> 本地车型主数据归属 / source mapping。
+
+人工上传 MODEL_MISSING 草稿仍按 PDM-05/PDM-06 当前规则处理，不受本条误伤。
+
+## P22-B2-08｜废弃正式发布后 source_type 冻结或仅经理/店长可改的旧后台规则
+
+当前：
+- 有合法车辆管理能力的员工可在 data scope / object state 合法时修改 source_type；
+- 不需要单独 source_type 高权限纠错 permission；
+- 必须保留 before / after / actor / time 等审计；
+- 4S 与名邦具体可操作范围继续读 PDM-02/PDM-04/PDM-06 当前规则。
+
+## P22-B2-09｜废弃把“上游凭证管理”泛化成名邦后台可管理全部 JYT/Collector 凭证
+
+P03 可以管理的是：
+- 名邦自身 Integration API / 车源同步 API 必要 credential；
+- 三个固定车源 API 的启停、统计、运行状态。
+
+不得因此推导为名邦后台还要管理：
+- JYT 登录 Token；
+- JYT 电话 Token；
+- JYT Header / callCode；
+- Collector 内部请求参数。
+
+这些真实上游调用参数属于 Collector / Engineering。
+
+## P22-B2-10｜废弃正式 Vehicle 的通用物理 Delete
+
+旧通用 CRUD carrier 若提供“删除正式 Vehicle”能力，正式废弃。
+
+必须区分：
+- Draft：按 PDM-06 可删除；
+- Formal Vehicle：通过 hidden / offline / sold / lifecycle 等真实业务状态治理；
+- 历史 Vehicle / listing_cycle 不因后台“删除”被物理抹除。
+
+## P22-B2-11｜废弃旧 4S 账号治理只归经理/店长、System Admin 不可治理的 carrier
+
+当前 PDM-02 已明确：
+- 4S 账号新增、启用、停用、基础资料、允许范围内 permission 属于 System Admin 控制平面治理；
+- System Admin 可治理 4S 账号，不因此成为 4S / 销售业务执行者；
+- 4S hard DENY 仍不可被 System Admin 配置绕过。
+
+Current IA / 历史 D7 中相反描述只保留为 stale carrier。
+
+---
+
+# 6. Batch 2 Gate
+
+当前：
+
+- `P22-B2-01～P22-B2-11 = PENDING_USER_REVIEW`
+- `REVERSE_CONFLICT_SCAN = PASS`
+- `FALSE_DEPRECATION_COUNT = 0`
+- `COMPLETED_PDM_MUTATION = 0`
+- `INCOMING_HANDOFF_ACCEPTED = 18 / 18`
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
+防误废弃确认：
+
+- System Admin 的合法控制平面治理能力继续保留；
+- 员工正常 PC 业务能力继续保留；
+- 内部价独立 permission 继续保留；
+- Priority qualification 继续保留；
+- Refund closed 继续保留；
+- JYT 已知车型事实继续保留；
+- Draft 删除继续保留；
+- 三个固定车源业务 API 与名邦 Integration API credential 继续保留。
+
+当前唯一下一步：
+
+> **用户审查 P22-B2-01～P22-B2-11。未经用户批准与明确执行，不得进入 Batch 3。**

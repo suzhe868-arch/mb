@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-22（Startup Gate = PASS；Batch 1 待用户审查）
+- 当前域：PDM-22（Batch 1 = PASS / USER_APPROVED / APPLIED；Batch 2 待用户审查）
 - PDM-20 = COMPLETE / INTEGRITY_PASS
 - PDM-21 Startup Gate = PASS
 - PDM-21 核心定位 P21-R00 = USER_APPROVED / APPLIED
@@ -40,7 +40,9 @@
 - PDM-22 核心定位 P22-R00 = USER_APPROVED / APPLIED
 - PDM-22 incoming handoffs = 18 / 18 HANDOFF_ACCEPTED
 - PDM-22 工作版 = `07_重建工作区/PDM-22_PC后台信息架构业务管理配置归属上游运行管理_规则原子重建_工作版.md`
-- PDM-22 Batch 1 = P22-A01～P22-A22 / PENDING_USER_REVIEW
+- PDM-22 Batch 1 = P22-A01～P22-A22 / PASS / USER_APPROVED / APPLIED
+- PDM-22 Batch 2 = P22-B2-01～P22-B2-11 / PENDING_USER_REVIEW
+- PDM-22 Batch 2 Reverse Conflict Scan = PASS / FALSE_DEPRECATION_COUNT=0
 - PDM-22 completed-PDM hard conflict = 0
 - PDM-22 incoming handoff gap = 0
 - PDM-22 IA / Low-Fi / Engineering = NO_CONSTRUCTION
@@ -233,11 +235,11 @@
 
 总控工作单：
 
-> PDM-22 Startup Gate（工作版尚未建立）
+> `07_重建工作区/PDM-22_PC后台信息架构业务管理配置归属上游运行管理_规则原子重建_工作版.md`
 
 ## 当前唯一下一步
 
-> **PDM-22 Startup Gate 已 `PASS`：P22-R00 已用户批准并执行，18/18 incoming handoff 已全部 `HANDOFF_ACCEPTED`。当前唯一下一步：用户审查 PDM-22 Batch 1（P22-A01～P22-A22）。**
+> **PDM-22 Batch 1 已 `PASS / USER_APPROVED / APPLIED`，Batch 2 Reverse Conflict Scan 已形成 P22-B2-01～P22-B2-11。当前唯一下一步：用户审查 PDM-22 Batch 2。**
 
 每个 PDM 必须同时执行：
 
@@ -291,7 +293,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-21 均已 `COMPLETE / INTEGRITY_PASS`。PDM-21 Final closeout 已完成，19/19 incoming handoff 已 CLOSED 且 source backwrite 完成。当前唯一下一步：PDM-22 Startup Gate。
+当前 PDM-01～PDM-21 均已 `COMPLETE / INTEGRITY_PASS`。PDM-22 Startup Gate 已 PASS，18/18 incoming handoff 已 HANDOFF_ACCEPTED；Batch 1 已批准执行。当前唯一下一步：用户审查 PDM-22 Batch 2（P22-B2-01～P22-B2-11）。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
