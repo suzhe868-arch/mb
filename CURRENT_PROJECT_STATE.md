@@ -1,3 +1,14 @@
+## 2026-10-07｜PDM-24 Batch 3 已执行并完成窗口切换交接
+
+- `BATCH_3 = NO_NEW_ATOMS / PASS / USER_APPROVED / APPLIED`；
+- `BATCH_3_CONFLICT_ISOLATION = PASS`；
+- `NEW_INDEPENDENT_ATOMS = 0`；
+- `MISCLASSIFIED_PRODUCT_CHOICE = 0`；
+- 窗口交接快照：`07_重建工作区/PDM-24_窗口切换交接_2026-10-07.md`；
+- `HO-P20-P24-001 = HANDOFF_ACCEPTED`，未关闭、未 source backwrite；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：**PDM-24 Batch 4 Final-gap Scan。**
+
 ## 2026-10-07｜PDM-24 Batch 2 已执行并进入 Batch 3
 
 - `P24-B2-01～P24-B2-12 = PASS / USER_APPROVED / APPLIED`；
@@ -556,7 +567,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-24_BATCH_3_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-24_BATCH_4_FINAL_GAP_SCAN`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -582,7 +593,7 @@
 
 当前唯一下一步：
 
-> **用户审查 PDM-24 Batch 3“无新增独立规则原子”结论。**
+> **PDM-24 Batch 4 Final-gap Scan。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
