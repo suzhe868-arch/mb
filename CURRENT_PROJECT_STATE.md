@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-18_PREFINAL_R1_REPAIR_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-18_FINAL_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_REPAIR_REQUIRED`
+> `IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R2_PASS / FINAL_REVIEW_PENDING`
 
 当前工作文件：
 
@@ -32,7 +32,22 @@
 
 当前唯一下一步：
 
-> **PDM-18 Batch 4 已按 1A～10A `PASS / USER_APPROVED / APPLIED`；P18-A06/A13/A18 已完成对应修正。Final 前完整性复核 R1 = REPAIR_REQUIRED，形成 P18-LIA-01～P18-LIA-06 六项修复候选。当前唯一下一步：用户审查这 6 项；未经确认不得运行 R2 或生成 Final。**
+> **P18-LIA-01～P18-LIA-06 已全部批准并执行；Final 前完整性复核 R2 = PASS / FINAL_CANDIDATE_READY；PDM-18 最终完整规则总览候选已生成。当前唯一下一步：用户最终审查总览。批准前不得发布 Final、关闭 incoming handoff、source backwrite 或进入 PDM-19。**
+
+## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
+
+- 用户对 `P18-LIA-01～P18-LIA-06` 全部同意并明确执行；
+- `R1_REPAIR_CLOSED = 6/6`；
+- 6 条 PDM-18 outgoing handoff 已登记 `HANDOFF_OPEN`；
+- PDM-18 stale carrier 已登记 `CARRIER_DEFERRED`，当前不施工；
+- Final 前完整性复核 R2：`PASS / FINAL_CANDIDATE_READY`；
+- `MISSING_RULE_UNRESOLVED=0`；
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED=0`；
+- `COMPLETED_PDM_INVARIANT_CONFLICT=0`；
+- `INCOMING_HANDOFF_GAP=0`；
+- `OUTGOING_HANDOFF_GAP=0`；
+- 已生成：`07_重建工作区/PDM-18_最终完整规则总览_待用户批准.md`；
+- 当前唯一下一步：用户最终审查 PDM-18 Final Domain Overview。
 
 ## 2026-10-06｜PDM-18 Batch 4 批准执行并完成 Final 前 R1
 
