@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-18（Batch 1/2/3 已通过，当前 Batch 4 用户审查）
+- 当前域：PDM-18（Batch 1～4 已通过，当前 Final 前完整性复核 R1 修复审查）
 - PDM-15 Startup Gate = PASS
 - PDM-15 incoming handoffs = 5 / 5 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-15 工作版 = `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
@@ -89,10 +89,13 @@
 - PDM-18 Batch 3 = P18-B3-01 + P18-B3-03 / PASS / USER_APPROVED / APPLIED
 - PDM-18 Batch 3 Reclassified = P18-B3-02 / WITHDRAWN_FROM_BATCH3 / MOVED_TO_BATCH4
 - PDM-18 Batch 3 Conflict Isolation = PASS / MISCLASSIFIED_PRODUCT_CHOICE=0
-- PDM-18 Batch 4 Pending Direction = P18-B4-PRE-01 / USER_DIRECTION_APPROVED / NOT_APPLIED
-- PDM-18 Batch 4 Pending Direction = P18-B4-PRE-02 / AUTO_WAITLIST_FROM_COMPETING_LOCKREQUEST / USER_DIRECTION_APPROVED / NOT_APPLIED
-- PDM-18 Batch 4 = P18-B4-01～P18-B4-10 / PENDING_USER_REVIEW
-- PDM-18 Batch 4 Cross-PDM Review = PASS / NO_COMPLETED_PDM_MUTATION_YET
+- PDM-18 Batch 4 Pending Direction = P18-B4-PRE-01 / SUPERSEDED_BY_FORMAL_B4-01 / APPLIED
+- PDM-18 Batch 4 Pending Direction = P18-B4-PRE-02 / SUPERSEDED_BY_FORMAL_B4-02 / APPLIED
+- PDM-18 Prefinal R1 = REPAIR_REQUIRED
+- PDM-18 Prefinal R1 Report = 07_重建工作区/PDM-18_Final前完整性复核_R1_2026-10-06.md
+- PDM-18 Prefinal Repair = P18-LIA-01～P18-LIA-06 / PENDING_USER_REVIEW
+- PDM-18 Batch 4 = P18-B4-01～P18-B4-10 / PASS / USER_APPROVED / APPLIED / CHOICES=1A～10A
+- PDM-18 Batch 4 Cross-PDM Review = PASS / COMPLETED_PDM_NO_HARD_CONFLICT
 - PDM-11 = COMPLETE / INTEGRITY_PASS
 - PDM-12 = COMPLETE / INTEGRITY_PASS
 - PDM-11 启动门禁 = UNBLOCKED
@@ -144,7 +147,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-18 Batch 3 已 PASS / USER_APPROVED / APPLIED。当前唯一下一步：用户审查 Batch 4（P18-B4-01～P18-B4-10）；未经用户裁决与确认执行不得进入 Final 前完整性复核。**
+> **PDM-18 Batch 4 已 PASS / USER_APPROVED / APPLIED。Final 前完整性复核 R1 = REPAIR_REQUIRED；当前唯一下一步：用户审查 P18-LIA-01～P18-LIA-06。未经确认不得进入 R2 / Final。**
 
 每个 PDM 必须同时执行：
 
