@@ -2,6 +2,16 @@
 
 > 更新时间：2026-10-07
 
+## PDM-24 Startup Gate 结果
+
+- Startup Gate：PASS
+- P24-R00：USER_APPROVED / APPLIED
+- P24-R01：USER_APPROVED / APPLIED
+- VEHICLE_DETAIL：车辆详情页固定广告位能力
+- HO-P20-P24-001：HANDOFF_ACCEPTED
+- Batch 1：P24-A01～P24-A15 / PENDING_USER_REVIEW
+- IA / Low-Fi / Engineering：NO_CONSTRUCTION
+
 ## PDM-24 当前门禁
 
 - PDM-23：COMPLETE / INTEGRITY_PASS
@@ -9,7 +19,7 @@
 - PDM-23 Final Integrity：07_重建工作区/PDM-23_最终完整性复核_2026-10-07.md / PASS
 - PDM-23 10/10 incoming handoff：HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - HO-P23-P25-001：HANDOFF_OPEN
-- PDM-20→PDM-24：HO-P20-P24-001 / HANDOFF_OPEN
+- PDM-20→PDM-24：HO-P20-P24-001 / HANDOFF_ACCEPTED
 - IA / Low-Fi / Engineering：NO_CONSTRUCTION
 
 ## PDM-23 当前门禁
@@ -287,7 +297,7 @@
 
 ## 当前唯一下一步
 
-> **当前唯一下一步：PDM-24 Startup Gate。**
+> **当前唯一下一步：用户审查 PDM-24 Batch 1（P24-A01～P24-A15）。**
 
 每个 PDM 必须同时执行：
 
@@ -341,7 +351,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-23 均已完成对应 Final / Integrity Closeout；PDM-23 = `COMPLETE / INTEGRITY_PASS`，10/10 incoming handoff 已 `HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE`。当前唯一下一步：PDM-24 Startup Gate。
+当前 PDM-01～PDM-23 均已完成对应 Final / Integrity Closeout；PDM-24 Startup Gate 已 PASS，HO-P20-P24-001 已 HANDOFF_ACCEPTED。当前唯一下一步：用户审查 PDM-24 Batch 1（P24-A01～P24-A15）。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
