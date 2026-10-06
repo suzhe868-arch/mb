@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-20（Batch 3 = PASS；Batch 4 待用户审查）
+- 当前域：PDM-20（Batch 1～4 = PASS；Prefinal R1 = REPAIR_REQUIRED）
 - PDM-15 Startup Gate = PASS
 - PDM-15 incoming handoffs = 5 / 5 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-15 工作版 = `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
@@ -132,7 +132,10 @@
 - PDM-20 Batch 1 = P20-A01～P20-A18 / PASS / USER_APPROVED / APPLIED
 - PDM-20 Batch 2 = P20-B2-01～P20-B2-09 / PASS / USER_APPROVED / APPLIED
 - PDM-20 Batch 3 = P20-B3-01～P20-B3-08 / PASS / USER_APPROVED / APPLIED
-- PDM-20 Batch 4 = P20-B4-01～P20-B4-10 / PENDING_USER_REVIEW / RECOMMENDED=1A～10A
+- PDM-20 Batch 4 = P20-B4-01～P20-B4-10 / PASS / USER_APPROVED / APPLIED / CHOICES=1A～10A
+- PDM-20 Prefinal R1 = REPAIR_REQUIRED / NO_HARD_CONFLICT / `07_重建工作区/PDM-20_Final前完整性复核_R1_2026-10-06.md`
+- PDM-20 Prefinal Repair = P20-LIA-01～P20-LIA-07 / PENDING_USER_REVIEW
+- PDM-20 Final Candidate Ready = false
 - PDM-20 Batch 4 completed-PDM mutation = 0
 - PDM-20 Batch 4 new domain state machine = 0
 - PDM-20 Batch 3 Conflict Isolation = PASS / MISCLASSIFIED_PRODUCT_CHOICE=0
@@ -194,7 +197,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-20 Batch 3 已 PASS / USER_APPROVED / APPLIED；P20-B4-01～P20-B4-10 已形成并待用户审查，推荐 1A～10A。当前唯一下一步：用户审查 Batch 4；未经批准与后续明确执行，不得运行 Prefinal R1。**
+> **PDM-20 Batch 4 已 PASS / USER_APPROVED / APPLIED；Prefinal R1 = REPAIR_REQUIRED / NO_HARD_CONFLICT，形成 P20-LIA-01～P20-LIA-07。当前唯一下一步：用户审查 7 条 repair；全部批准并执行后运行 R2。**
 
 每个 PDM 必须同时执行：
 
@@ -248,7 +251,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-19 均已 `COMPLETE / INTEGRITY_PASS`。PDM-20 Startup Gate、Batch 1～3 已 PASS，14/14 incoming handoff 继续 `HANDOFF_ACCEPTED`；当前唯一下一步为用户审查 PDM-20 Batch 4（P20-B4-01～P20-B4-10）。
+当前 PDM-01～PDM-19 均已 `COMPLETE / INTEGRITY_PASS`。PDM-20 Startup Gate、Batch 1～4 已 PASS，14/14 incoming handoff 继续 `HANDOFF_ACCEPTED`；Prefinal R1 需要 7 条 repair。当前唯一下一步为用户审查 P20-LIA-01～P20-LIA-07。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
