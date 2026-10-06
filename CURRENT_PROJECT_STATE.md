@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-17_PREFINAL_R1_REPAIR_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-17_FINAL_OVERVIEW_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_REPAIR_REQUIRED`
+> `IN_PROGRESS / PREFINAL_R2_PASS / FINAL_OVERVIEW_PENDING_USER_APPROVAL`
 
 当前工作文件：
 
@@ -32,7 +32,24 @@
 
 当前唯一下一步：
 
-> **PDM-17 Batch 4 已按 1A～9A 全部批准并执行；Final 前完整性复核 R1 = REPAIR_REQUIRED。当前唯一下一步：用户审查 P17-LIA-01～P17-LIA-05。**
+> **P17-LIA-01～P17-LIA-05 已全部批准并执行；Final 前完整性复核 R2 = PASS / FINAL_CANDIDATE_READY。当前唯一下一步：用户最终审查 PDM-17 Final Domain Overview。**
+
+## 2026-10-06｜PDM-17 Final 前完整性复核 R2 PASS
+
+- P17-LIA-01～P17-LIA-05 已全部用户批准并执行；
+- outgoing handoff 6 条已正式登记并保持 `HANDOFF_OPEN`；
+- stale carrier 已登记为 `CARRIER_DEFERRED`，未修改 IA / Low-Fi；
+- R2 报告：`07_重建工作区/PDM-17_Final前完整性复核_R2_2026-10-06.md`；
+- `SOURCE_TO_ATOM = PASS`；
+- `ATOM_TO_SOURCE = PASS`；
+- `SEMANTIC_COMPLETENESS = PASS`；
+- `MISSING_RULE_UNRESOLVED = 0`；
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 0`；
+- `INCOMING_HANDOFF_GAP = 0`；
+- `OUTGOING_HANDOFF_GAP = 0`；
+- `PDM17_FINAL_CANDIDATE_READY = YES`；
+- Final Overview 候选：`07_重建工作区/PDM-17_最终完整规则总览_待用户批准.md`；
+- 当前唯一下一步：用户最终批准 Final Domain Overview；批准前不得发布 Final / 关闭 incoming / source backwrite / 进入 PDM-18。
 
 ## 2026-10-06｜PDM-17 Final 前完整性复核 R1
 
