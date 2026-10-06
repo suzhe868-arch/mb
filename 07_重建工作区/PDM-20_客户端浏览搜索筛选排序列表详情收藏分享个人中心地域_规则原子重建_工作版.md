@@ -2,7 +2,7 @@
 
 > 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`  
 > 核心定位：`P20-R00 = USER_APPROVED / APPLIED`  
-> Incoming Handoff：15 / 15 `HANDOFF_ACCEPTED`  
+> Incoming Handoff：14 / 14 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
 
 ---
@@ -65,8 +65,8 @@ PDM-20 **不重新定义**：
 
 - `COMPLETED_PDM_HARD_CONFLICT = 0`
 - `INCOMING_HANDOFF_GAP = 0`
-- `INCOMING_HANDOFF_COUNT = 15`
-- `INCOMING_HANDOFF_ACCEPTED = 15`
+- `INCOMING_HANDOFF_COUNT = 14`
+- `INCOMING_HANDOFF_ACCEPTED = 14`
 
 ## 2.2 Incoming Handoff
 
@@ -86,9 +86,8 @@ PDM-20 **不重新定义**：
 12. `HO-P15-P20-001`
 13. `HO-P18-P20-001`
 14. `HO-P19-P20-001`
-15. `HO-P03-P20-001` 的分享归属 / 推荐朋友入口语义并入同一 accepted handoff，不另造重复规则对象。
 
-> 注：Register 中实际唯一 handoff 行为 14 个来源域、15 条 target=PDM-20 语义承接项；Startup Gate 以 Register 当前全部 target=PDM-20 行逐条接受，不用历史记忆补造。
+> 注：Register 中 target=PDM-20 的正式 handoff **实际为 14 条**。Startup Gate 以 Register 当前 14 行逐条接受，不把同一 handoff 内的多个语义拆成虚假的第 15 条。
 
 ## 2.3 已识别但不在 Startup Gate 偷渡的后续冲突 / informed changes
 
