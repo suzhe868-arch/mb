@@ -593,7 +593,7 @@ PDM-11 不得恢复以下旧方向：
 - PDM-17：`HANDOFF_CLOSED`。PDM-17 Final 已正式承接 pending Find-car Application 与 active/paused Demand 作为公海保护事实、公海 Customer 发起找车前先形成合法唯一 owner、无合法承接人时禁止 responsible=null 正式业务，以及 owner/公海变化前未完成责任的完成/取消/正式交接；`HO-P11-P17-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-20｜`HANDOFF_CLOSED`：C02 多对象工作区、动态客户等级提示、Application pending、Demand 人工激活、暂停/恢复/结束请求及“结束处理中”已由 PDM-20 Final 正式承接；`HO-P11-P20-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-21｜`HANDOFF_CLOSED`：PDM-21 Final 已正式承接 pending Application 工作台、人工激活 Demand、完整详情、entitlement 重验、ending request、员工直接结束与责任历史投影；`HO-P11-P21-001 = HANDOFF_CLOSED / source_backwrite=YES`；
-- PDM-22：Customer Level 配置、后台客户/找车管理；
+- PDM-22｜`HANDOFF_CLOSED / source_backwrite=YES`：Customer Level 配置、Application / Demand 后台客户/找车管理已由 PDM-22 Final 承接；
 - PDM-25：Application / Demand / Level / entitlement / ending request / reassignment 统一审计。
 
 PDM-12 已完成目标域闭环：
@@ -680,8 +680,9 @@ PDM-11 已正式完成：
 
 - PDM-12 接收 Matching / readiness / deterministic parsing / Match Result handoff；
 - PDM-13 已完成 Priority 与 Demand.created_at / Demand lifecycle 承接：`HO-P11-P13-001 = HANDOFF_CLOSED / target=PDM-13 Final §§2-3,6,8-9,14 / source_backwrite=YES`；
-- PDM-14 / PDM-16 / PDM-17 / PDM-20 / PDM-21 已完成并 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-22 / PDM-25 继续按 handoff register 承接；
+- PDM-14 / PDM-16 / PDM-17 / PDM-20 / PDM-21 已完成并 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-22 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-25 继续按 handoff register 承接；
 - IA / Low-Fi 仍不得在当前阶段施工，统一延后到 PDM-25 + 全局最终审计后。
 
 PDM-11 Final 完成不代表这些后续 handoff 已落地；其状态继续由目标 PDM 的 ACCEPTED / CLOSED 流程管理。
 
+> 2026-10-07 Source Backwrite：对应 PDM-22 handoff 已由 `07_重建工作区/PDM-22_最终完整规则.md` 正式承接；以 CROSS_PDM_HANDOFF_REGISTER 的 `HANDOFF_CLOSED / source_backwrite=YES` 为准。
