@@ -682,7 +682,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-20 → PDM-24 的 `HO-P20-P24-001 = HANDOFF_ACCEPTED`，已由 PDM-24 Startup Gate 正式接收；Final Closeout 前不关闭、不 source backwrite；
 - IA / Low-Fi / Engineering 继续 `NO_CONSTRUCTION`；
 - `HO-P24-P25-001 = HANDOFF_OPEN`；
-- 当前唯一下一步：**PDM-24 Final 前完整性复核（Prefinal Integrity）**。
+- 当前唯一下一步：**PDM-24 Prefinal Integrity R2**。
 
 ## 12L. PDM-22 来源 handoff
 
@@ -705,3 +705,6 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 
 > 2026-10-07 PDM-24 Batch 4：P24-B4-01～P24-B4-07 已 PASS / USER_APPROVED / APPLIED；HO-P24-P25-001 已登记 HANDOFF_OPEN；HO-P20-P24-001 继续 HANDOFF_ACCEPTED，Final Closeout 前不关闭、不 source backwrite；当前唯一下一步为 PDM-24 Final 前完整性复核（Prefinal Integrity）。
+
+
+> 2026-10-07 PDM-24 Prefinal R1：P24-LIA-01～P24-LIA-04 已 USER_APPROVED / APPLIED；LIA-03=3A；HO-P20-P24-001 继续 HANDOFF_ACCEPTED，HO-P24-P25-001 继续 HANDOFF_OPEN；R1 修复已闭环但 R2 尚未执行；当前唯一下一步为 PDM-24 Prefinal Integrity R2。
