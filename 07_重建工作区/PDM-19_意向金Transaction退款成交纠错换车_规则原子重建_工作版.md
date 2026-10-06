@@ -1,6 +1,6 @@
 # PDM-19｜意向金 / Transaction / Refund / 成交纠错 / 换车｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_REPAIR_REQUIRED`  
 > 核心定位：`P19-R00 / USER_APPROVED / APPLIED`  
 > Incoming Handoff：10 / 10 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -85,7 +85,7 @@ Startup Gate 扫描结果：
 - Transaction 必须建立在当前合法 Lock 事实之上；
 - Transaction 取消不自动恢复旧 Lock / Waitlist；
 - Refund 不得通过删除 Transaction / Lock / Deposit 历史来“修正”；
-- 退款主状态底盘为 `pending / refunded`；
+- 历史 R8 底盘曾为 `pending / refunded`；该状态模型已被后续 P19-B4-01 / 1A 正式扩展为 `pending / refunded / closed`，其中 `closed`=未退款关闭；
 - 部分退款通过多笔实际退款事实表达，不通过覆盖旧事实表达；
 - `refund = pending` 不占车；
 - completed Transaction 纠错必须保留原成交与纠错事实，不得直接擦除原成交；
@@ -562,18 +562,17 @@ Phase 1.5 / Current 已明确追加资金纠错规则：
 
 本条用户新裁决覆盖 Current IA / Phase 1.5 中“必须具备独立 refund-management permission 才能关闭”的过度复杂 carrier 表达；IA / Low-Fi 当前不施工，后续统一 alignment。
 
-本条尚未决定的是：
+该模型冲突已经由 P19-B4-01 / 1A 正式解决：
 
-- `closed` 最终作为 Refund 主状态，还是单独 outcome / 历史结果字段；
-- Page State / DB 状态如何映射。
-
-该模型冲突正式转 Batch 4。
+- `closed` 作为 Refund 第三个主状态；
+- `closed` 表示未实际退款而关闭；
+- Page State / DB carrier 后续必须映射到该业务 Authority，不得再把 closed 当 refunded。
 
 ### 9.1 Conflict Isolation
 
 以下事项**没有**偷渡进 Batch 3：
 
-- `closed_not_refunded` 的 Domain 状态 / 历史 outcome 最终建模；
+- `closed_not_refunded` 的 Domain 状态 / 历史 outcome 最终建模（已由 P19-B4-01 / 1A 解决为 `closed` 主状态）；
 - Transaction 创建时是否必须在同一原子事务中关闭原 Lock 的完整事务表达；
 - 同一 Vehicle 同时唯一 in-progress Transaction 的并发 Guard；
 - Transaction 精确主状态、终态只读与 `biz_status→trading`；
@@ -616,14 +615,14 @@ Phase 1.5 / Current 已明确追加资金纠错规则：
 
 ---
 
-# 10. Batch 4｜冲突 / 遗漏 / 缺口 / 新产品选择候选
+# 10. Batch 4｜冲突 / 遗漏 / 缺口 / 新产品选择｜PASS / USER_APPROVED / APPLIED
 
-> 状态：`PENDING_USER_REVIEW`。  
-> Cross-PDM Conflict Review：`PASS / 未提前改写 completed PDM`。  
-> 选择方式：每项 A/B；**A 为当前推荐方案**。  
+> 状态：`PASS / USER_APPROVED / APPLIED / CHOICES=1A,2A,3A,4A,5A,6A,7A,8A,9A,10A,11A`。  
+> 用户裁决：`1A～11A`；随后明确“确认执行”。  
+> Cross-PDM Conflict Review：`PASS / completed PDM 不静默改写，差异通过 Final 前 repair / handoff 承接`。  
 > 所有权限类动作继续服从 PDM-02 已完成 Authority：identity + permission/capability + data scope + object state；4S hard DENY / System Admin 控制平面边界不得被 PDM-19 静默绕过。
 
-## P19-B4-01｜Refund “关闭但未退款”最终状态怎么表达
+## P19-B4-01｜Refund “关闭但未退款”最终状态怎么表达｜CHOICE=A / USER_APPROVED / APPLIED
 
 你已经确认业务动作：
 
@@ -654,7 +653,7 @@ Refund 当前主状态统一为：
 
 ---
 
-## P19-B4-02｜创建 Transaction 时如何结束原 Lock
+## P19-B4-02｜创建 Transaction 时如何结束原 Lock｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐
 创建 / 复用首笔 in-progress Transaction 的最终提交必须原子完成：
@@ -677,7 +676,7 @@ Refund 当前主状态统一为：
 
 ---
 
-## P19-B4-03｜Transaction 主状态与同车并发
+## P19-B4-03｜Transaction 主状态与同车并发｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐
 Transaction 主状态只保留：
@@ -701,7 +700,7 @@ Transaction 主状态只保留：
 
 ---
 
-## P19-B4-04｜Transaction responsible 如何确定
+## P19-B4-04｜Transaction responsible 如何确定｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐
 - Transaction 创建时默认继承来源 Lock 的 responsible；
@@ -717,7 +716,7 @@ Transaction responsible 永远实时跟随 Customer current owner。
 
 ---
 
-## P19-B4-05｜成交完成后的真实成交价与历史主价格
+## P19-B4-05｜成交完成后的真实成交价与历史主价格｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐
 首次 completed 时至少冻结：
@@ -748,7 +747,7 @@ Transaction responsible 永远实时跟随 Customer current owner。
 
 ---
 
-## P19-B4-06｜completed Transaction 成交纠错权限
+## P19-B4-06｜completed Transaction 成交纠错权限｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐
 - 普通销售不得纠正 completed Transaction；
@@ -767,7 +766,7 @@ Transaction responsible 永远实时跟随 Customer current owner。
 
 ---
 
-## P19-B4-07｜Deposit 每笔收款最小字段与 V1 支付边界
+## P19-B4-07｜Deposit 每笔收款最小字段与 V1 支付边界｜CHOICE=A / USER_APPROVED / APPLIED
 
 历史规则曾要求备注也必填。结合当前 V1 和你的简化偏好：
 
@@ -797,7 +796,7 @@ Transaction responsible 永远实时跟随 Customer current owner。
 
 ---
 
-## P19-B4-08｜Refund 创建与金额完整性 Guard
+## P19-B4-08｜Refund 创建与金额完整性 Guard｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐
 每笔 Refund 必须且只能绑定一个 subject：
@@ -833,7 +832,7 @@ Transaction 侧 Refund：
 
 ---
 
-## P19-B4-09｜Refund 发起、实际退款确认与“直接关闭”三类动作分层
+## P19-B4-09｜Refund 发起、实际退款确认与“直接关闭”三类动作分层｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐
 1. **发起 Refund**：当前合法业务 / Transaction responsible 在 scope 内可发起；
@@ -848,7 +847,7 @@ Transaction 侧 Refund：
 
 ---
 
-## P19-B4-10｜pending Refund、公海保护与部分退款
+## P19-B4-10｜pending Refund、公海保护与部分退款｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐
 - pending Refund 是未完成业务责任，保护 Customer 不直接进入公海；
@@ -868,7 +867,7 @@ pending Refund 不作为公海保护；或恢复 `partial` 主状态。
 
 ---
 
-## P19-B4-11｜供应异常下进行中的 Transaction 怎么处理
+## P19-B4-11｜供应异常下进行中的 Transaction 怎么处理｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐
 Vehicle 已进入 in-progress Transaction 后出现上游失效 / 供应异常：
@@ -907,4 +906,139 @@ Vehicle 已进入 in-progress Transaction 后出现上游失效 / 供应异常�
 
 当前唯一下一步：
 
-> **用户审查 P19-B4-01～P19-B4-11。未经用户裁决与确认执行，不得进入 Final 前完整性复核。**
+> **P19-B4-01～P19-B4-11 已按 1A～11A 批准并执行。Final 前完整性复核 R1 = REPAIR_REQUIRED；当前唯一下一步：用户审查 P19-LIA-01～P19-LIA-06。**
+
+
+---
+
+## 10.2 Batch 4 Gate｜PASS
+
+- 用户裁决：`1A、2A、3A、4A、5A、6A、7A、8A、9A、10A、11A`；
+- 用户随后明确“确认执行”；
+- `P19-B4-01～P19-B4-11 = PASS / USER_APPROVED / APPLIED`；
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- B3-03 的“pending Refund 直接关闭 + 填原因”已与 B4-01/B4-09 正式合并：`closed` 是未退款关闭，不新增专门 close permission；
+- 10 / 10 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工。
+
+---
+
+# 11. Final 前完整性复核 R1
+
+> 报告：`07_重建工作区/PDM-19_Final前完整性复核_R1_2026-10-06.md`  
+> 结果：`REPAIR_REQUIRED`。  
+> Final candidate：`NOT_READY`。
+
+本轮 Source→Atom / Cross-PDM / Semantic Detail 复核发现 6 组需要在 Final 前补齐的规则 / handoff：
+
+## P19-LIA-01｜误成交纠错不得制造假重新上架 / 假新 cycle
+
+历史 DEC-062 / Phase 1.5 HR-07 已明确：
+
+如果 completed 只是误操作，而 Vehicle 事实上**从未真实不可售**：
+
+- 成交纠错后恢复真实可售事实；
+- 继续原 `listing_cycle`；
+- 不创建新 cycle；
+- 不增加 `today-new`；
+- 不更新“最新上架”排序时间；
+- 不因为纠错重新置顶；
+- 原 cycle 已存在的合法价格 / 查价权益继续；
+- 客户不因系统纠错重复解锁 / 重复扣额度；
+- 旧 Lock / Waitlist 不复活。
+
+只有 Vehicle **真实经历不可售 / 下架后再真实可售**：
+
+> 才按正常 relist 建立新的 listing_cycle。
+
+P19-B4-06 已冻结“成交纠错 append-only”，但尚未完整承接这一 listing_cycle 后果，因此 Final 前必须补齐。
+
+## P19-LIA-02｜in-progress Transaction 的正常取消动作与 Vehicle 重算边界
+
+Current / 历史规则已明确：
+
+- 只有尚未 completed 的 `in_progress` Transaction 才走正常 cancel；
+- 当前合法 Transaction responsible 可在统一 permission/scope/object-state Guard 下执行正常取消；
+- completed Transaction 不走普通 cancel，应走 P19-B4-06 的成交纠错；
+- cancel 后 Transaction 进入 `cancelled` 终态历史；
+- 不复活旧 Lock / Waitlist；
+- 车辆业务占用解除后，能否重新进入后续业务只按真实 source state、当前 listing_cycle、当前其他占用重新计算；
+- 不得因为 Transaction cancel 强制改写 `source_status` / `platform_visibility`，也不得制造假 relist。
+
+本条只补正常取消的业务边界，不新增新的取消审批层。
+
+## P19-LIA-03｜真实 Deposit 的记录入口与 correction 权限必须分离
+
+B4-07 已冻结 Deposit 字段 / 线下收款边界，B3-02 已冻结 correction 权限，但还缺创建入口的明确分层：
+
+- 当前合法业务负责人可记录**真实已发生收款**；
+- 同一 Lock 可以记录多笔 Deposit；
+- Deposit 本身不另设独立 responsible，只记录每笔真实 operator；
+- “记录真实收款”不等于“资金纠错”；
+- 普通合法收款记录能力不得自动获得 B3-02 的资金 correction 权；
+- correction 继续由具备独立资金纠错 permission + scope 的经理 / 店长执行；
+- 总额继续由有效 Deposit + correction 事实派生。
+
+## P19-LIA-04｜实际当场全额退款可直接形成 refunded，不强制造假 pending
+
+历史 Refund 规则明确：
+
+- 如果实际退款已经当场完成，可直接记录真实退款并进入 `refunded`；
+- 不要求为了流程形式先制造一个短暂假的 `pending`；
+- 如果只是发起退款、钱还没有真正退，则为 `pending`；
+- `pending` 后实际退款完成 → `refunded`；
+- `pending` 后决定不再退款 → 按 B3-03 / B4-01 进入 `closed` 并填写原因；
+- `closed` 不得用于已经真实退款的场景。
+
+本条确保状态反映真实资金事实，而不是为了界面步骤制造虚假中间状态。
+
+## P19-LIA-05｜Transaction completed 不自动结束 Customer 的 Demand
+
+PDM-11 Final 已正式冻结：
+
+> 一笔 Transaction completed，只完成该 Transaction 与真实成交事实，不自动把同一 Customer 的全部 Demand 批量 completed / cancelled。
+
+即使 Transaction 与某条 Demand 有关联：
+
+- 也必须按该 Demand 的真实服务目标由 PDM-11 Authority 决定是否结束；
+- PDM-19 不得用“已成交”事件直接批量改写 Demand；
+- 这与 P19-A11“Transaction 不自动结束 Consultation”属于同类跨对象边界。
+
+Startup Gate 未将 PDM-11→PDM-19 作为正式 incoming handoff 登记，因此 Final 前需补这条 completed-PDM invariant / alignment，防止 Transaction 引擎越权改写 Demand。
+
+## P19-LIA-06｜Outgoing Handoff + stale carrier / cross-PDM alignment
+
+Final 前必须正式登记 PDM-19 outgoing handoff：
+
+- **PDM-19 → PDM-20**：客户端“我的交易 / 退款 / 意向金”安全投影；Transaction 状态、时间、车辆摘要、当前负责人、客户自身资金事实；换车新旧业务只做安全关联说明，不暴露内部敏感字段；
+- **PDM-19 → PDM-21**：员工端 Deposit 记录 / correction、Transaction 创建/完成/取消/纠错、Refund 发起/真实退款确认/直接关闭、供应异常处理；员工车辆列表占用投影继续遵守“交易中 > 已锁定”且不在 Feed 泄露客户姓名/手机号/资金金额；
+- **PDM-19 → PDM-22**：PC P07 Deposit / Transaction / Refund 真实业务管理 carrier；Dashboard 的进行中 Transaction / 资金待办统计口径；
+- **PDM-19 → PDM-23**：重要 Transaction / Refund 状态变化的通知 carrier；通知失败只记日志，不得改变交易/资金事实；
+- **PDM-19 → PDM-25**：Deposit/Transaction/Refund/correction 的统一审计、幂等、并发、可退余额、唯一 in-progress Transaction、Refund 防超退、原子 Lock→Transaction、终态只读 / append-only correction 测试。
+
+同时登记 stale/alignment：
+
+1. Current IA 中“pending Refund 关闭必须额外独立 refund-management permission”的 carrier 已被用户 B3-03 主动简化，标记 `STALE_CARRIER`；
+2. Current / 历史仅 `pending/refunded` 的 Refund 状态 carrier 已被 B4-01 扩展为 `pending/refunded/closed`；
+3. 旧“System Admin 可参与 completed Transaction 纠错”的残留已被 B4-06 明确覆盖；
+4. 客户端 / 员工端 / PC 当前通用壳不得反向覆盖 PDM-19 当前 Authority；
+5. IA / Low-Fi 当前阶段不直接施工，统一留 PDM-25 后全局 Alignment。
+
+---
+
+## 11.1 R1 结论
+
+- `PDM19_PREFINAL_R1 = REPAIR_REQUIRED`
+- `MISSING_RULE_UNRESOLVED = 3`
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 2`
+- `CROSS_PDM_ALIGNMENT_GAP = 1`
+- `OUTGOING_HANDOFF_GAP = 1_GROUP`
+- `COMPLETED_PDM_HARD_CONFLICT = 0`
+- `INCOMING_HANDOFF_GAP = 0`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+- `REPAIR_ATOMS = P19-LIA-01～P19-LIA-06`
+- `FINAL_CANDIDATE_READY = false`
+
+当前唯一下一步：
+
+> **用户审查 P19-LIA-01～P19-LIA-06。全部修复并执行后，重新运行 Final 前完整性复核 R2。**
