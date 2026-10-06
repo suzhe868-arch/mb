@@ -1,3 +1,15 @@
+## 2026-10-07｜PDM-23 Batch 3 已执行并进入 Batch 4
+
+- `P23-B3-01～P23-B3-16 = PASS / USER_APPROVED / APPLIED`；
+- Batch 4 Final-gap 已形成：`P23-B4-01～P23-B4-06 / PENDING_USER_REVIEW`；
+- 真正产品选择 = 1；稳定收口项 = 5；
+- 推荐选择：`1A`；
+- P23→P25 outgoing handoff 尚待本批批准；
+- 10 / 10 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- completed-PDM hard conflict = 0；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 PDM-23 Batch 4。
+
 ## 2026-10-07｜PDM-23 Batch 2 已执行并进入 Batch 3
 
 - `P23-B2-01～P23-B2-14 = PASS / USER_APPROVED / APPLIED`；
@@ -452,7 +464,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-23_BATCH_3_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-23_BATCH_4_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -462,7 +474,7 @@
 
 当前域状态：
 
-> `PDM-22 COMPLETE / INTEGRITY_PASS；PDM-23 STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`
+> `PDM-22 COMPLETE / INTEGRITY_PASS；PDM-23 STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -478,7 +490,7 @@
 
 当前唯一下一步：
 
-> **PDM-23 Batch 2 已 `PASS / USER_APPROVED / APPLIED`。当前唯一下一步：用户审查 P23-B3-01～P23-B3-16。**
+> **PDM-23 Batch 3 已 `PASS / USER_APPROVED / APPLIED`。当前唯一下一步：用户审查 P23-B4-01～P23-B4-06。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
