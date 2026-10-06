@@ -836,10 +836,10 @@ PDM-15 已正式登记以下 outgoing handoff：
 - `HO-P15-P20-001 = HANDOFF_CLOSED / source_backwrite=YES`：PDM-20 Final 已正式承接“我的咨询”、pending/processing/resolved/invalid 四主状态、close_reason 安全文案、customer_disabled_hold 与当前/历史投影；
 - `HO-P15-P21-001 = HANDOFF_CLOSED / source_backwrite=YES`：PDM-21 Final 已正式承接员工端 Consultation 动作、mutation authority、E01 SLA 优先级及“即将超时”阈值；
 - `HO-P15-P22-001`｜`HANDOFF_CLOSED / source_backwrite=YES`：PC Consultation 管理 / SLA 配置已由 PDM-22 Final 承接；
-- `HO-P15-P23-001`：新 Consultation / SLA timeout 通知与 DND；
+- `HO-P15-P23-001`｜`HANDOFF_CLOSED / source_backwrite=YES`：新 Consultation / SLA timeout 通知与 DND 已由 `07_重建工作区/PDM-23_最终完整规则.md` 正式承接；
 - `HO-P15-P25-001`：统一审计 / 历史。
 
-`HO-P15-P16-001`、`HO-P15-P17-001`、`HO-P15-P19-001`、`HO-P15-P20-001`、`HO-P15-P21-001` 已分别由目标 Final 正式承接并关闭；PDM-22 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-23 / PDM-25 继续 `HANDOFF_OPEN`。
+`HO-P15-P16-001`、`HO-P15-P17-001`、`HO-P15-P19-001`、`HO-P15-P20-001`、`HO-P15-P21-001` 已分别由目标 Final 正式承接并关闭；PDM-22 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-23 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-25 继续 `HANDOFF_OPEN`。
 
 ---
 
