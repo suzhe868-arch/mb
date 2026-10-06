@@ -1,6 +1,6 @@
 # PDM-18｜LockRequest / 正式 Lock / Waitlist / 延期 / 释放｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_REPAIR_REQUIRED`  
+> 当前状态：`IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R2_PASS / FINAL_REVIEW_PENDING`  
 > 核心定位：`P18-R00 / USER_APPROVED / APPLIED`  
 > Incoming Handoff：10 / 10 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -883,4 +883,210 @@ V1 不提供批量：
 
 当前唯一下一步：
 
-> **用户审查 P18-LIA-01～P18-LIA-06。修复并执行后重新运行 Final 前完整性复核 R2。**
+> **P18-LIA-01～P18-LIA-06 已全部批准并执行；Final 前完整性复核 R2 = PASS / FINAL_CANDIDATE_READY。当前唯一下一步：用户审查 PDM-18 最终完整规则总览。**
+
+
+---
+
+# 13. Final 前 R1 修复｜PASS / USER_APPROVED / APPLIED
+
+> 用户裁决：`P18-LIA-01～P18-LIA-06 = 全部同意`；随后明确执行。  
+> 状态：`PASS / USER_APPROVED / APPLIED`。
+
+## P18-LIA-01｜Waitlist 继续遵守手机号人工服务门槛｜USER_APPROVED / APPLIED
+
+客户主动登记 Waitlist 属于人工服务动作：
+
+- 当前必须存在可用手机号；
+- 无手机号时使用 PDM-01 统一手机号授权流程；
+- 授权成功后自动继续原候补动作，不要求再次点击；
+- 取消 / 拒绝授权，不创建新的 Waitlist；
+- 普通浏览 / 查看车辆本身不因为该规则强制手机号。
+
+P18-B4-02 的自动 Waitlist 来自已经合法创建的 LockRequest。自动创建时仍重验：
+
+- Customer/account 当前状态；
+- 当前可用手机号；
+- Vehicle / listing_cycle；
+- 当前 active Lock；
+- 其他 Waitlist Guard。
+
+若当前手机号门槛已经不满足：
+
+> LockRequest 仍按真实竞争结果结束，但不得伪造一个不合法的 active Waitlist。
+
+## P18-LIA-02｜V1 客户端不提供主动取消 Waitlist｜USER_APPROVED / APPLIED
+
+V1：
+
+- 客户可以查看当前 / 历史 Waitlist；
+- 客户端不提供“取消候补”业务 mutation；
+- active Waitlist 可由当前合法 responsible 或具有明确 capability + scope 的管理人员人工 end；
+- 人工 end 必须遵守 P18-B4-06 的 permission / scope / reason / audit；
+- Vehicle/cycle 真实终态按 P18-B4-04 自动结束；
+- 已 ended Waitlist 不因客户再次表达意向、误成交纠错或 Vehicle 恢复而自动复活。
+
+客户后续如有新的合法业务意图：
+
+> 按当时当前 Guard 创建新的业务对象，不复活旧 Waitlist。
+
+## P18-LIA-03｜LockRequest 正式结果合同｜USER_APPROVED / APPLIED
+
+LockRequest 与 Lock / Waitlist 继续是独立对象。
+
+### Live
+
+`PENDING` 是唯一 live 申请态。
+
+### 合法结束结果
+
+- `APPROVED`：approve + 正式 Lock 原子创建成功；必须关联 `resulting_lock_id`；
+- `REJECTED`：合法名邦 Employee 明确拒绝；
+- `EXPIRED`：超过 6h 服务端申请有效期；
+- `LOCK_CONFLICT`：其他请求先成功形成 active Lock；
+- `CLOSED_NOT_LOCKABLE`：最终提交重验时，因 Vehicle / listing_cycle / current lockability 等非竞争事实已经不可锁。
+
+采用 P18-B4-02 后：
+
+- `LOCK_CONFLICT` 本体仍是 LockRequest 真实终态；
+- 若自动创建 / 复用 Waitlist 成功，则关联 `resulting_waitlist_id`；
+- 不把 LockRequest 本体状态直接改成 Waitlist；
+- 自动 Waitlist 失败也不得回滚已经真实发生的 LockRequest conflict。
+
+终态：
+
+- 不重新回到 PENDING；
+- 新的真实申请需建立新的合法 LockRequest。
+
+### 审计 / 结果字段
+
+LockRequest create / approve / reject / timeout / conflict / closed-not-lockable 至少可追溯：
+
+- request_id；
+- customer_id；
+- vehicle_id；
+- listing_cycle；
+- actor / system；
+- time；
+- before / after；
+- reason / result；
+- resulting_lock_id（适用时）；
+- resulting_waitlist_id（适用时）。
+
+PDM-18 定义业务结果合同；底层是否单一 master enum、Schema、event carrier 由 PDM-25 / Engineering 承接。
+
+## P18-LIA-04｜正式 Lock 创建幂等 / retry-safe｜USER_APPROVED / APPLIED
+
+正式 Lock 创建必须是幂等业务动作：
+
+- LockRequest approve 原子事务重试不得创建第二个 Lock；
+- 员工直接正式 Lock 的同一合法业务提交重试不得创建第二个 Lock；
+- 网络超时、客户端重复点击、worker retry 不得把一次业务意图放大为多笔 active Lock；
+- 已成功请求重试应返回 / 识别已有结果，不再创建新 Lock；
+- 单车同一时刻唯一 active Lock 继续是最终并发 invariant。
+
+具体：
+
+- idempotency key；
+- database unique constraint；
+- transaction isolation；
+- retry algorithm；
+- concurrency test
+
+交 PDM-25 / Engineering，但业务 invariant 在 PDM-18 固定。
+
+## P18-LIA-05｜Waitlist 有内部处理顺序，但客户端不展示保证性排名｜USER_APPROVED / APPLIED
+
+P18-B4-02 已定义自动候补顺序：
+
+> 原 `LockRequest.created_at`，同时间使用稳定 request_id tie-break。
+
+该顺序只表示：
+
+- 内部稳定处理 / 联系顺序；
+- 员工人工重新确认时的默认处理次序。
+
+它**不表示**：
+
+- 自动晋升 Lock；
+- 客户拥有“轮到我就一定锁到”的保证；
+- 前一客户退出后系统必须直接给下一客户 Lock。
+
+因此 V1 客户端：
+
+- 不展示“第 1 名 / 第 2 名”等保证性排名；
+- 可展示“候补中 / 等待顾问确认”等中性状态；
+- 正式 Lock 仍必须重新通过当时最新 Guard。
+
+若未来要对客户公开候补名次：
+
+> 必须形成新的产品裁决，不由工程根据内部排序自行推导。
+
+## P18-LIA-06｜Outgoing Handoff + stale carrier / cross-PDM alignment｜USER_APPROVED / APPLIED
+
+### Outgoing handoff 已正式登记
+
+- `HO-P18-P19-001`｜Deposit 后持续占用、供应异常后的资金 / Transaction / Refund / 换车后果；
+- `HO-P18-P20-001`｜普通 Lock 与 Priority-origin Lock 客户侧可见性、我的 Lock/Waitlist、安全摘要、不展示保证性排名；
+- `HO-P18-P21-001`｜LockRequest 待处理、approve/reject、直接 Lock、Waitlist / Lock 管理、延期 / 释放 / handoff；
+- `HO-P18-P22-001`｜默认 Lock 时长业务配置 carrier、配置权限、old/new 审计；
+- `HO-P18-P23-001`｜LockRequest 结果通知、自动候补、到期提醒是否开启及提前量；
+- `HO-P18-P25-001`｜LockRequest / Lock / Waitlist 统一审计、幂等、并发、worker、retry-safe。
+
+以上均：
+
+> `HANDOFF_OPEN`
+
+### Stale carrier / Alignment
+
+已登记并延后到 PDM-25 后统一对齐：
+
+1. 旧“LOCK_CONFLICT 必须手工再点候补 / 不自动候补”；
+2. 把所有正式 Lock 客户可见性做成完全相同；
+3. 把内部 Waitlist 顺序直接展示成客户端保证性排名；
+4. Lock 配置 carrier 仍可能写“无独立配置入口”；
+5. 正式 Lock 延期 / 新 expires_at / 已延期在 Current / Low-Fi 的操作投影不足。
+
+### Completed PDM alignment
+
+PDM-13 / PDM-14 不需要回滚：
+
+- Priority 仍在正式 Lock 成立时 ended；
+- Recommendation 仍是独立对象；
+- Priority-origin Lock 的后续客户侧排他 visibility 由 PDM-18 作为 Lock Authority 新增下游 Guard；
+- Lock 结束后仍按当前 Vehicle / Recommendation / Priority / visibility 等事实重新计算。
+
+---
+
+## 13.1 R1 Repair Gate｜PASS
+
+- `P18-LIA-01～P18-LIA-06 = PASS / USER_APPROVED / APPLIED`；
+- `R1_REPAIR_CLOSED = 6 / 6`；
+- outgoing handoff = 6 条 `HANDOFF_OPEN`；
+- stale carrier 已登记，当前不施工；
+- 10 / 10 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工。
+
+---
+
+# 14. Final 前完整性复核 R2｜PASS
+
+> 报告：`07_重建工作区/PDM-18_Final前完整性复核_R2_2026-10-06.md`
+
+结果：
+
+- `SOURCE_TO_ATOM = PASS`
+- `ATOM_TO_SOURCE = PASS`
+- `SEMANTIC_COMPLETENESS = PASS`
+- `MISSING_RULE_UNRESOLVED = 0`
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 0`
+- `COMPLETED_PDM_INVARIANT_CONFLICT = 0`
+- `INCOMING_HANDOFF_GAP = 0`
+- `OUTGOING_HANDOFF_GAP = 0`
+- `NEGATIVE_CLAIMS_VERIFIED = PASS`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+- `PDM18_FINAL_CANDIDATE_READY = YES`
+
+当前唯一下一步：
+
+> **用户最终审查 `07_重建工作区/PDM-18_最终完整规则总览_待用户批准.md`。最终批准前不得发布 PDM-18 Final、不得关闭 10 条 incoming handoff、不得 source backwrite、不得进入 PDM-19。**
