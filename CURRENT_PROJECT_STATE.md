@@ -1,3 +1,17 @@
+## 2026-10-06｜PDM-20 Batch 4 批准执行并完成 Final 前 R1
+
+- 用户对 `P20-B4-01～P20-B4-10` 全部同意，按推荐 `1A～10A`，随后明确“确认执行”；
+- `P20-B4-01～P20-B4-10 = PASS / USER_APPROVED / APPLIED`；
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- Final 前完整性复核 R1 已完成：`REPAIR_REQUIRED / NO_HARD_CONFLICT`；
+- 报告：`07_重建工作区/PDM-20_Final前完整性复核_R1_2026-10-06.md`；
+- 形成 `P20-LIA-01～P20-LIA-07` 七项修复候选；
+- R1：missing=3，semantic detail=3，cross-PDM alignment=1，outgoing handoff gap=1 group；
+- 14 / 14 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- outgoing handoff 待 LIA-07 用户批准后正式登记；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 P20-LIA-01～P20-LIA-07。
+
 ## 2026-10-06｜PDM-20 Batch 3 用户批准并执行
 
 - 用户对 `P20-B3-01～P20-B3-08` 全部同意，随后明确“确认执行”；
@@ -173,7 +187,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-20_BATCH_4_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-20_PREFINAL_R1_REPAIR_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -183,7 +197,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`
+> `IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_REPAIR_REQUIRED`
 
 当前工作文件：
 
@@ -199,7 +213,7 @@
 
 当前唯一下一步：
 
-> **PDM-20 Batch 3 已 `PASS / USER_APPROVED / APPLIED`；Batch 4 Gap/Choice Scan 已形成 P20-B4-01～P20-B4-10，推荐 1A～10A。当前唯一下一步：用户审查 PDM-20 Batch 4；未经批准与后续明确执行，不得运行 Prefinal R1。**
+> **PDM-20 Batch 4 已按 1A～10A `PASS / USER_APPROVED / APPLIED`；Final 前完整性复核 R1 = `REPAIR_REQUIRED / NO_HARD_CONFLICT`，形成 P20-LIA-01～P20-LIA-07 七项修复候选。当前唯一下一步：用户审查这 7 项；未经批准与确认执行，不得运行 R2 或生成 Final。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
