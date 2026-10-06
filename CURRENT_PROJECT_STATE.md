@@ -1,3 +1,18 @@
+## 2026-10-07｜PDM-24 Prefinal R1 修复已执行，进入 R2
+
+- `PREFINAL_R1 = REPAIR_REQUIRED / NO_HARD_CONFLICT`；
+- R1 报告：`07_重建工作区/PDM-24_Final前完整性复核_R1_2026-10-07.md`；
+- `P24-LIA-01～P24-LIA-04 = PASS / USER_APPROVED / APPLIED`；
+- LIA-01：公告日期 / 每日频控统一按 Asia/Shanghai（UTC+8）业务自然日解释，结束日期当天仍有效；
+- LIA-02：Announcement 到期 / 停用进入 history、不删除；合法周期内可再启用，过期需新排期；
+- LIA-03：采用 3A；当天第一次进入被其他主动弹层占用时，Announcement 当天不补弹；
+- LIA-04：无效公告周期不得启用；Banner 非空 target 保存 / 启用时必须合法，后续失效降为纯展示；
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- `HO-P20-P24-001 = HANDOFF_ACCEPTED`；
+- `HO-P24-P25-001 = HANDOFF_OPEN`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：**PDM-24 Prefinal Integrity R2。**
+
 ## 2026-10-07｜PDM-24 Batch 4 已批准并执行，进入 Prefinal Integrity
 
 - `P24-B4-01～P24-B4-07 = PASS / USER_APPROVED / APPLIED`；
