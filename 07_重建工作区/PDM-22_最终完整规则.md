@@ -549,7 +549,7 @@ target=PDM-22：
 
 已登记：
 
-- HO-P22-P23-001｜HANDOFF_OPEN；
+- HO-P22-P23-001｜`HANDOFF_CLOSED / source_backwrite=YES`：通知相关业务配置值与 PDM-23 carrier 边界已由 `07_重建工作区/PDM-23_最终完整规则.md` 正式承接；
 - HO-P22-P25-001｜HANDOFF_OPEN。
 
 ## 17. Final 前完整性结果
@@ -577,7 +577,7 @@ R2：
 - Final Integrity：`07_重建工作区/PDM-22_最终完整性复核_2026-10-07.md / PASS`；
 - 58 个正式规则 / 用户裁决单元全部进入 Final；
 - 18 / 18 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
-- 2 条 outgoing handoff：继续 `HANDOFF_OPEN`；
+- HO-P21-P23-001 已 `HANDOFF_CLOSED / source_backwrite=YES`；HO-P21-P25-001 继续 `HANDOFF_OPEN`；
 - PDM-22：`COMPLETE / INTEGRITY_PASS`；
 - IA / Low-Fi / Engineering 未施工；
 - 当前唯一下一步：`PDM-23 Startup Gate`。
