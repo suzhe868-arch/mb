@@ -460,6 +460,19 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | HO-P17-P23-001 | PDM-23 | 通知层承接待公海与领取后首次跟进提醒的渠道、频控、DND/quiet-hours、失败/跳过/去重与日志；长期未跟进三条件候选本身不自动飞书，任何通知结果都不得改写 owner、公海状态或 Collaboration。 | HANDOFF_OPEN | - | YES |
 | HO-P17-P25-001 | PDM-25 | 统一审计/历史承接 PDM-17 核心变化：正式进入/退出公海、主动领取、后台指定分配/owner transfer、继续当前 owner 确认、Collaboration 新增/移除/scope 变化，以及 before/after/actor/time、可选 reason/note、每轮公海历史与不可物理删除语义。 | HANDOFF_OPEN | - | YES |
 ---
+## 12H. PDM-18 来源 handoff
+
+| handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
+|---|---|---|---|---|---|
+| HO-P18-P19-001 | PDM-19 | PDM-19 承接正式 Lock 后的 Deposit / Transaction / Refund / 换车：真实 Deposit 存在时普通 Lock expires_at 不得自动释放；供应异常不得静默取消 Lock 或抹除 Deposit/快照/历史；后续 release、换车、Transaction/Refund 必须按 PDM-19 当前资金与交易 Authority 建立新事实，不回写 PDM-18 Lock 历史。 | HANDOFF_OPEN | - | YES |
+| HO-P18-P20-001 | PDM-20 | 客户端承接 LockRequest / Lock / Waitlist Customer Safe Projection：普通 VIP/粉丝 Lock 只占车不自动全客户隐藏；Priority-origin Lock 在 Priority ended(converted_to_lock) 后继承客户侧排他 visibility；自动 Waitlist 的客户可在“我的候补”等位置看到必要安全摘要但不得穿透 Priority-origin Lock 普通详情；普通 Lock/Waitlist 当前与历史、延期后 expires_at、已收 Deposit 持续锁定文案由 PDM-20 投影；Waitlist 内部存在处理顺序但客户端不得展示保证性“第几名”。 | HANDOFF_OPEN | - | YES |
+| HO-P18-P21-001 | PDM-21 | 员工端承接 LockRequest 待处理与 Lock/Waitlist 管理：LockRequest PENDING/APPROVED/REJECTED/EXPIRED/LOCK_CONFLICT/CLOSED_NOT_LOCKABLE 投影，4S hard DENY；名邦合法 Employee 可在明确 Customer+Vehicle 上下文直接创建 Lock；approve 必须重验并原子创建 Lock；支持普通 Lock 延期、人工 release/cancel、Waitlist end、responsible handoff；人工 mutation 服从 permission/capability+scope+object state 并保留 reason/audit。V1 不新增批量 Lock/approve/release/extension/Waitlist mutation。 | HANDOFF_OPEN | - | YES |
+| HO-P18-P22-001 | PDM-22 | PC 配置承接默认正式 Lock 时长：当前业务默认 72h、后台可配置；新 Lock 创建时读取并固化 expires_at，后改默认值不追改旧 Lock；修改默认时长必须由具有 business-config permission/capability 且 scope 合法的身份执行，System Admin 控制平面身份本身不自动获得该业务配置权；配置变更记录 old/new/actor/time。PDM-18 不恢复固定 30 分钟到期提醒默认值。 | HANDOFF_OPEN | - | YES |
+| HO-P18-P23-001 | PDM-23 | 通知层承接 LockRequest APPROVED/REJECTED/EXPIRED/LOCK_CONFLICT/CLOSED_NOT_LOCKABLE、自动 Waitlist、Lock 即将到期等 allowlist / 渠道 / DND / 频控 / 去重 / 失败日志；PDM-18 不写死默认提前 30 分钟，是否提醒及提前量由 PDM-23 + PDM-22 当前配置决定；任何通知成功/失败/SKIPPED 均不得改写 LockRequest/Lock/Waitlist 主业务事实。 | HANDOFF_OPEN | - | YES |
+| HO-P18-P25-001 | PDM-25 | 统一审计与工程完整性承接 LockRequest / Lock / Waitlist：create/reuse/approve/reject/expire/conflict/closed-not-lockable、resulting_lock_id/resulting_waitlist_id、Lock create/extend/release/cancel/expiry/responsible handoff、Waitlist create/reuse/auto-create/end/vehicle-terminal end、price/duration snapshot、supply_anomaly、before/after/actor/system/time/reason；验证单车唯一 active Lock、幂等/retry-safe、并发 winner、timeout worker、配置 snapshot 不追改、自动候补与唯一 active Waitlist。历史不可物理删除。 | HANDOFF_OPEN | - | YES |
+
+---
+
 ## 13. Post-PDM25 IA / Low-Fi Carrier Ledger｜持续累积
 
 > 当前只登记，不施工；统一在 PDM-25 完成 + PDM-01～25 全局最终总复核 PASS 后集中对齐。
@@ -604,3 +617,9 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-13：COMPLETE / INTEGRITY_PASS；PDM-13→PDM-14/17/18/19/20/21/22/25 future handoff 已登记；其中 HO-P13-P14-001 已由 PDM-14 Final 正式承接并 CLOSED/source backwrite，其余目标域继续 HANDOFF_OPEN；
 - PDM-14：COMPLETE / INTEGRITY_PASS；52 个正式规则/裁决单元全部进入 Final；8 条 incoming handoff 全部 HANDOFF_CLOSED 并完成 source backwrite；outgoing HO-P14-P15/P18/P19/P20/P21/P23/P25 保持 HANDOFF_OPEN；正式 Authority=`07_重建工作区/PDM-14_最终完整规则.md`；下一步 PDM-15 Startup Gate；
 - `HO-P01-P11-001 = HANDOFF_SUPERSEDED`；`HO-P01-P11-002 = HANDOFF_CLOSED`。PDM-12 incoming handoff 已全部 CLOSED；PDM-12 outgoing future handoff 已扩展登记：PDM-13 / PDM-14 / PDM-16 / PDM-18 / PDM-20 / PDM-21 / PDM-22 / PDM-25 均为 `HANDOFF_OPEN`，待各目标域承接。
+
+| PDM-18 | 旧“LOCK_CONFLICT 不自动转 Waitlist / 客户必须再次手工点候补”承载；当前 Authority 已改为竞争请求自动创建/复用 Waitlist，LockRequest 本体保留 LOCK_CONFLICT 并关联 resulting_waitlist_id | CARRIER_DEFERRED |
+| PDM-18 | 把所有正式 Lock 客户可见性做成完全相同；当前 Authority 区分普通 Lock“占车不全客户隐藏”与 Priority-origin Lock“继承客户侧排他可见性” | CARRIER_DEFERRED |
+| PDM-18 | 把内部 Waitlist created_at 处理顺序直接展示成客户保证性“第几名”；当前 Authority 只保留内部稳定顺序，客户端不承诺排名/自动晋升 | CARRIER_DEFERRED |
+| PDM-18 | Lock 配置 carrier 仍写“Lock 不是独立配置对象 / 无配置入口”；当前 Authority 为默认72h且后台可配置、只影响新 Lock | CARRIER_DEFERRED |
+| PDM-18 | 正式 Lock 延期、新 expires_at、已延期、供应异常与 Waitlist 结束矩阵在 Current/Low-Fi 仍存在真实操作投影不足 | CARRIER_DEFERRED |
