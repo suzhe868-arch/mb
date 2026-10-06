@@ -283,7 +283,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 |---|---|---|
 | HC-P04-P20-001 | HO-P04-P20-001 | PROMOTED / HANDOFF_OPEN |
 | HC-P04-P22-001 | HO-P04-P22-002 | PROMOTED / HANDOFF_OPEN |
-| HC-P04-P23-001 | HO-P04-P23-001 | PROMOTED / HANDOFF_OPEN |
+| HC-P04-P23-001 | HO-P04-P23-001 | PROMOTED / HANDOFF_CLOSED |
 
 以上候选已随 PDM-04 `INTEGRITY_PASS` 正式进入 Cross-PDM Handoff Register。
 
@@ -662,29 +662,15 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ## 15. 当前下一步
 
-- PDM-01：INTEGRITY_PASS；
-- PDM-02：INTEGRITY_PASS；
-- PDM-03：INTEGRITY_PASS；
-- PDM-04：INTEGRITY_PASS；
-- PDM-05：INTEGRITY_PASS；
-- PDM-06：INTEGRITY_PASS；
-- PDM-07：INTEGRITY_PASS；
-- PDM-08：INTEGRITY_PASS；
-- PDM-09：INTEGRITY_PASS；
-- PDM-10：INTEGRITY_PASS；
-- PDM-01～10 全局 Cross-PDM / Handoff / Global Invariant 总复核：PASS；
-- PDM-11：COMPLETE / INTEGRITY_PASS；
-- PDM-15：COMPLETE / INTEGRITY_PASS；
-- PDM-16：COMPLETE / INTEGRITY_PASS；
-- PDM-17：COMPLETE / INTEGRITY_PASS；34 个正式规则/裁决单元进入 Final；6/6 incoming handoff = HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE；outgoing HO-P17-P18 / HO-P17-P19 已分别由 PDM-18 / PDM-19 Final 承接并 CLOSED/source backwrite，P21/P22/P23/P25 继续 HANDOFF_OPEN；正式 Authority=`07_重建工作区/PDM-17_最终完整规则.md`；
-- PDM-18：COMPLETE / INTEGRITY_PASS；43 个正式规则/裁决单元进入 Final；10/10 incoming handoff = HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE；HO-P18-P19 已由 PDM-19 Final 承接并 CLOSED/source backwrite，其余 P20/P21/P22/P23/P25 继续 HANDOFF_OPEN；正式 Authority=`07_重建工作区/PDM-18_最终完整规则.md`；
-- PDM-19：COMPLETE / INTEGRITY_PASS；41 个正式规则/裁决单元进入 Final；10/10 incoming handoff = HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE；5 条 outgoing handoff=P20/P21/P22/P23/P25 继续 HANDOFF_OPEN；正式 Authority=`07_重建工作区/PDM-19_最终完整规则.md`；下一步 PDM-20 Startup Gate；
-- PDM-20：COMPLETE / INTEGRITY_PASS；53 个正式规则/裁决单元进入 Final；14/14 incoming handoff = HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE；4 条 outgoing handoff（P21/P22/P24/P25）继续 HANDOFF_OPEN；正式 Authority=`07_重建工作区/PDM-20_最终完整规则.md`；下一步 PDM-21 Startup Gate；
-- PDM-21：IN_PROGRESS / STARTUP_GATE_PASS；19/19 incoming handoff = HANDOFF_ACCEPTED；核心定位 P21-R00 已 USER_APPROVED / APPLIED；工作版已建立；当前下一步 P21 Batch 1 用户审查；IA/Low-Fi/Engineering 不施工；
-- PDM-12：COMPLETE / INTEGRITY_PASS；4 条 incoming handoff 全部 CLOSED 并完成 source backwrite；其中指向 PDM-18 的 Lock/Matching handoff 已由 PDM-18 Final 承接并 CLOSED/source backwrite；
-- PDM-13：COMPLETE / INTEGRITY_PASS；PDM-13→PDM-14/17/18/19/20/21/22/25 future handoff 已登记；HO-P13-P14/P17/P18/P19 已分别由对应 Final 承接并 CLOSED/source backwrite；P20/P21/P22/P25 继续 HANDOFF_OPEN；
-- PDM-14：COMPLETE / INTEGRITY_PASS；52 个正式规则/裁决单元全部进入 Final；8 条 incoming handoff 全部 HANDOFF_CLOSED 并完成 source backwrite；outgoing HO-P14-P15 / P18 / P19 已由目标 Final 承接并 CLOSED/source backwrite；P20/P21/P23/P25 继续 HANDOFF_OPEN；正式 Authority=`07_重建工作区/PDM-14_最终完整规则.md`；
-- `HO-P01-P11-001 = HANDOFF_SUPERSEDED`；`HO-P01-P11-002 = HANDOFF_CLOSED`。PDM-12 incoming handoff 已全部 CLOSED；PDM-12 outgoing future handoff 已扩展登记：PDM-13 / PDM-14 / PDM-16 / PDM-18 / PDM-20 / PDM-21 / PDM-22 / PDM-25 均为 `HANDOFF_OPEN`，待各目标域承接。
+- PDM-01～PDM-23：已完成对应 Final / Integrity Closeout，其中 PDM-23 当前为 `COMPLETE / INTEGRITY_PASS`；
+- PDM-23 正式 Authority：`07_重建工作区/PDM-23_最终完整规则.md`；
+- PDM-23 Final Integrity：`07_重建工作区/PDM-23_最终完整性复核_2026-10-07.md / PASS`；
+- PDM-23 正式规则 / 裁决单元：65；
+- target=PDM-23 的 10 / 10 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
+- `HO-P23-P25-001 = HANDOFF_OPEN`；
+- PDM-20 → PDM-24 的 `HO-P20-P24-001 = HANDOFF_OPEN`，将由 PDM-24 Startup Gate 承接；
+- IA / Low-Fi / Engineering 继续 `NO_CONSTRUCTION`；
+- 当前唯一下一步：**PDM-24 Startup Gate**。
 
 ## 12L. PDM-22 来源 handoff
 
