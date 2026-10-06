@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-22（Batch 1/2 = PASS / USER_APPROVED / APPLIED；Batch 3 待用户审查）
+- 当前域：PDM-22（Batch 1/2/3 = PASS / USER_APPROVED / APPLIED；Batch 4 待用户审查）
 - PDM-20 = COMPLETE / INTEGRITY_PASS
 - PDM-21 Startup Gate = PASS
 - PDM-21 核心定位 P21-R00 = USER_APPROVED / APPLIED
@@ -44,8 +44,10 @@
 - PDM-22 新增规则 P22-ADD-01 = PC 网页账号密码绑定现有 employee_id / USER_APPROVED / APPLIED
 - PDM-22 Batch 2 = P22-B2-01～P22-B2-11 / PASS / USER_APPROVED / APPLIED
 - PDM-22 Batch 2 Reverse Conflict Scan = PASS / FALSE_DEPRECATION_COUNT=0
-- PDM-22 Batch 3 = P22-B3-01～P22-B3-09 / PENDING_USER_REVIEW
+- PDM-22 Batch 3 = P22-B3-01～P22-B3-09 / PASS / USER_APPROVED / APPLIED
 - PDM-22 Batch 3 Conflict Isolation = PASS / MISCLASSIFIED_PRODUCT_CHOICE=0
+- PDM-22 Batch 4 = P22-B4-01～P22-B4-08 / PENDING_USER_REVIEW
+- PDM-22 Batch 4 Recommended = 1A / 2A / 4A / 5A / 6A
 - PDM-22 completed-PDM hard conflict = 0
 - PDM-22 incoming handoff gap = 0
 - PDM-22 IA / Low-Fi / Engineering = NO_CONSTRUCTION
@@ -242,7 +244,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-22 Batch 2 已 `PASS / USER_APPROVED / APPLIED`；Batch 3 Conflict Isolation 已形成 P22-B3-01～P22-B3-09。当前唯一下一步：用户审查 PDM-22 Batch 3。**
+> **PDM-22 Batch 3 已 `PASS / USER_APPROVED / APPLIED`；Batch 4 已形成 P22-B4-01～P22-B4-08。当前唯一下一步：用户审查 PDM-22 Batch 4。**
 
 每个 PDM 必须同时执行：
 
@@ -296,7 +298,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-21 均已 `COMPLETE / INTEGRITY_PASS`。PDM-22 Batch 1/2 已批准执行，18/18 incoming handoff 继续 HANDOFF_ACCEPTED。当前唯一下一步：用户审查 PDM-22 Batch 3（P22-B3-01～P22-B3-09）。
+当前 PDM-01～PDM-21 均已 `COMPLETE / INTEGRITY_PASS`。PDM-22 Batch 1/2/3 已批准执行，18/18 incoming handoff 继续 HANDOFF_ACCEPTED。当前唯一下一步：用户审查 PDM-22 Batch 4（P22-B4-01～P22-B4-08）。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 

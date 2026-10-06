@@ -726,7 +726,7 @@ Current IA / 历史 D7 中相反描述只保留为 stale carrier。
 
 ---
 
-# 7. Batch 3｜已冻结上游语义的 PC 后台补全｜PENDING_USER_REVIEW
+# 7. Batch 3｜已冻结上游语义的 PC 后台补全｜PASS / USER_APPROVED / APPLIED
 
 > Conflict Isolation：`PASS / MISCLASSIFIED_PRODUCT_CHOICE = 0`。  
 > 本批只把 PDM-01～21 已经正式冻结、但旧 PC carrier 未完整承载的后续规则补到 PDM-22；不新增新的业务状态机。  
@@ -837,7 +837,7 @@ PC Transaction 管理必须明确：
 # 8. Batch 3 Conflict Isolation Gate
 
 当前：
-- `P22-B3-01～P22-B3-09 = PENDING_USER_REVIEW`
+- `P22-B3-01～P22-B3-09 = PASS / USER_APPROVED / APPLIED`
 - `MISCLASSIFIED_PRODUCT_CHOICE = 0`
 - `NEW_DOMAIN_STATE_MACHINE = 0`
 - `P22-ADD-01 = USER_APPROVED / APPLIED / EXCLUDED_FROM_DUPLICATE_REVIEW`
@@ -846,4 +846,146 @@ PC Transaction 管理必须明确：
 
 当前唯一下一步：
 
-> **用户审查 P22-B3-01～P22-B3-09。未经用户批准与明确执行，不得进入 Batch 4。**
+> **P22-B3-01～P22-B3-09 已全部批准并执行；Conflict Isolation PASS。进入 Batch 4 最终缺口 / 产品选择扫描。**
+
+---
+
+# 9. Batch 4｜最终缺口 / 产品选择扫描｜PENDING_USER_REVIEW
+
+> 本批是在 Batch 1～3 后对 18 条 incoming handoff、R12 与 PDM-01～21 Final 再做一次 Final-gap scan。  
+> 结果：发现 4 个稳定 carrier 补漏 + 4 个 PC 产品承载选择；均不改变前置 PDM 的业务 Authority。  
+> 推荐方案仍以“少建新体系、复用现有模块、认证/权限/业务事实分层”为原则。
+
+## P22-B4-01｜Application / Demand 的 PC 管理放在哪里
+
+已冻结业务事实：Application 与 Demand 必须分离，PC 必须能看到当前状态、负责人并提供合法治理入口。
+
+### A｜推荐：统一放在 P06「客户 / 找车管理」内，使用 Application 与 Demand 两个子视图
+
+- Application 列表 / 详情承载 pending 处理、关闭、激活 Demand 等合法动作；
+- Demand 列表 / 详情承载负责人、active/paused/completed/cancelled、正式 reassignment、pause/resume/end 等当前 Authority 已允许动作；
+- Customer Detail 与 Application/Demand 双向跳转；
+- 不新建第二套找车状态机，也不增加新的一级业务域。
+
+### B｜单独增加一个新的 PC 一级「找车后台」模块
+
+业务语义仍可保持一致，但会把 P06 客户 / CRM / 找车重新拆成第二个一级业务域。
+
+**推荐 A。**
+
+## P22-B4-02｜公海批量治理入口放在哪里
+
+PDM-17 已冻结 V1 支持批量正式进公海、继续当前 owner、直接移交 / 指定分配，并要求逐 Customer 重验、允许部分成功。
+
+### A｜推荐：直接在 P06 公海 / 待公海页面提供“批量处理模式”
+
+- 勾选多个 Customer 后选择合法批量动作；
+- 每个 Customer 独立重验 current owner、保护事实、目标员工与权限；
+- 只对成功项产生 mutation；
+- 完成后展示成功 / 失败明细与失败原因。
+
+### B｜单独建设“批量治理中心”页面
+
+语义可以成立，但会多造一层独立入口和任务心智。
+
+**推荐 A。**
+
+## P22-B4-03｜补齐“服务 / 购买说明”真实编辑 carrier｜稳定补漏
+
+该项无新的产品选择，按 PDM-20 handoff 原样补齐：
+
+- PC 只维护一份全局单一“服务 / 购买说明”；
+- 支持基础富文本与从 Word 粘贴后的基础格式兼容；
+- 保存前进行安全清理 / sanitize；
+- 支持保存 / 更新；
+- 重要修改进入审计；
+- 不按车辆、source_type、门店再造多套说明；
+- 不扩成通用模板引擎。
+
+## P22-B4-04｜Employee PC 登录账号的首次密码与重置策略
+
+`P22-ADD-01` 已冻结“现有 employee_id + 独立 PC 登录账号和密码”，这里仅决定 V1 的密码生命周期。
+
+### A｜推荐：后台配置唯一登录账号 + 初始密码；首次登录强制改密码
+
+- 登录账号由有权账号治理者为现有 employee_id 配置，账号全局唯一；
+- 初始密码由后台设置 / 重置；
+- 首次成功登录必须修改密码后再进入业务后台；
+- 员工登录后可修改自己的 PC 密码；
+- 忘记密码由有权账号治理者重置；
+- 不把手机号或 employee_id 强制当作登录账号。
+
+### B｜后台配置账号 + 初始密码，但首次登录不强制改密码
+
+更简单，但长期保留管理员分发的初始密码。
+
+### C｜直接固定使用员工手机号作为 PC 登录账号
+
+实现直观，但会把 PC 登录凭证与手机号身份变化耦合。
+
+**推荐 A。**
+
+## P22-B4-05｜P03 车源同步与发布人电话诊断是否混在同一页面
+
+两者都属于 P03，但 credential、权限和数据敏感度不同。
+
+### A｜推荐：P03 下分成两个独立子页面
+
+1. 车源同步 / Integration API：三个固定车源 API、启停、名邦同步 credential、调用统计、运行状态；
+2. Publisher / 电话诊断：publisher cache、回传结果、诊断与合法历史；电话明文继续单独鉴权。
+
+### B｜全部放在一个“采集配置”大页面
+
+可以实现，但容易再次把车源同步 credential、JYT/Collector 参数和电话敏感权限混为一类。
+
+**推荐 A。**
+
+## P22-B4-06｜自动 / 批量隐藏规则放在哪里
+
+### A｜推荐：P02 下建立独立“隐藏规则”子页面
+
+- 单车 hidden / restore 仍在车辆管理；
+- 条件规则新增 / 编辑 / 启停 / source scope / 命中重算集中在“隐藏规则”；
+- 车辆详情只展示“当前为何隐藏 / 命中哪些规则”等结果，不在单车详情里编辑整套规则。
+
+### B｜只把规则编辑器塞进车辆列表筛选区
+
+页面更少，但规则、筛选和单车操作容易混在一起。
+
+**推荐 A。**
+
+## P22-B4-07｜Dashboard 必须继承当前 permission + data scope｜稳定补漏
+
+该项无新的产品选择：
+
+- Dashboard 卡片、数量、待办、异常必须按当前登录身份可见范围计算；
+- 没有对应业务权限 / data scope 时，不得通过 Dashboard 总数泄露全局数据；
+- 点击卡片进入业务页后继续执行同一套 current identity + permission + data scope + object state Guard；
+- Dashboard 不能成为绕过字段权限或敏感数据权限的旁路。
+
+## P22-B4-08｜重要配置变更是否一律强制填写原因｜稳定边界确认
+
+沿用 PDM-02 / R12 已冻结口径：
+
+- 重要配置变更必须至少记录 before / after / actor / time；
+- 默认不要求所有配置修改一律填写 reason；
+- 只有具体业务 Authority 明确要求原因时才强制填写；
+- 统一审计检索、留存、配置版本与跨域历史标准继续交 PDM-25。
+
+---
+
+# 10. Batch 4 Gate
+
+当前：
+- `P22-B4-01～P22-B4-08 = PENDING_USER_REVIEW`
+- `RECOMMENDED_CHOICES = 1A / 2A / 4A / 5A / 6A`
+- `STABLE_GAP_ITEMS = B4-03 / B4-07 / B4-08`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 5`
+- `COMPLETED_PDM_MUTATION = 0`
+- `NEW_DOMAIN_STATE_MACHINE = 0`
+- `INCOMING_HANDOFF_ACCEPTED = 18 / 18`
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
+当前唯一下一步：
+
+> **用户审查 P22-B4-01～P22-B4-08。可直接回复：1A、2A、3同意、4A、5A、6A、7同意、8同意；未经用户批准与明确执行，不进入 Final 前完整性复核。**
