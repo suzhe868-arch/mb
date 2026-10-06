@@ -1,7 +1,7 @@
 # PDM-17｜公海 / 待公海处理 / 领取 / 指定分配 / Collaboration（协作）｜规则原子重建工作版
 
 > 日期：2026-10-06  
-> 当前状态：`IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_RUNNING`  
+> 当前状态：`IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_REPAIR_REQUIRED`  
 > 当前 Authority：本文件仅为 PDM-17 工作 Authority；四批用户审查、Final 前完整性复核与最终总览批准完成后，才可生成正式 Final。  
 > 禁止：当前不得修改 IA / Low-Fi / Engineering，不得提前关闭 incoming handoff。
 
@@ -815,3 +815,21 @@ Batch 1 尚未把这一字段级 object-state Guard 完整写入。
 - `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
 - 6 / 6 incoming handoff 继续 `HANDOFF_ACCEPTED`；
 - IA / Low-Fi / Engineering 未施工。
+
+---
+
+# 11. Final 前完整性复核 R1｜REPAIR_REQUIRED
+
+报告：`07_重建工作区/PDM-17_Final前完整性复核_R1_2026-10-06.md`
+
+待用户审查修复项：
+
+- `P17-LIA-01`：补“原 owner 当前仍合法时可与其他 claimant 一样重新领取，但无优先权”；
+- `P17-LIA-02`：补“正式进入公海视为 owner 变化，旧 Customer-level Collaboration 结束；未完成业务级协作受 A05 Guard”；
+- `P17-LIA-03`：补合法 collaborator 的正向能力：scope 内记录 Follow-up / 处理被授权具体业务，仍受统一权限模型；
+- `P17-LIA-04`：补公海 / Collaboration 核心 mutation 的统一审计清单；
+- `P17-LIA-05`：补 PDM-18/19/21/22/23/25 outgoing handoff，并登记 P06-05 指定分配二次确认 Low-Fi 为 STALE_CARRIER。
+
+当前唯一下一步：
+
+> **用户审查 P17-LIA-01～P17-LIA-05。未经确认不得进入 R2 / Final Overview。**
