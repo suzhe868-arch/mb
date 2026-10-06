@@ -529,7 +529,7 @@ create/reuse/auto-create、source LockRequest（适用时）、responsible、int
 
 ### Outgoing｜保持 HANDOFF_OPEN
 
-- HO-P18-P19-001；
+- HO-P18-P19-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-19 Final 已正式承接正式 Lock 后的 Deposit / Transaction / Refund / 换车；真实 Deposit 阻止普通 Lock timeout 自动释放；Lock→Transaction 原子转换、供应异常、退款/换车均建立新真实事实，不回写 PDM-18 Lock 历史；
 - HO-P18-P20-001；
 - HO-P18-P21-001；
 - HO-P18-P22-001；
@@ -575,7 +575,7 @@ R2：
 - Final Integrity：`PASS`；
 - 43 个正式规则 / 用户裁决单元全部进入 Final；
 - 10 / 10 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
-- 6 条 outgoing handoff：继续 `HANDOFF_OPEN`；
+- HO-P18-P19-001 已 `HANDOFF_CLOSED / source_backwrite=YES`；其余 PDM-20 / PDM-21 / PDM-22 / PDM-23 / PDM-25 共 5 条 outgoing handoff 继续 `HANDOFF_OPEN`；
 - PDM-18：`COMPLETE / INTEGRITY_PASS`；
 - IA / Low-Fi / Engineering 继续禁止提前施工；
 - 下一步：`PDM-19 Startup Gate`。
