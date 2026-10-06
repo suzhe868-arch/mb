@@ -560,7 +560,7 @@ System Admin 继续使用独立系统身份 / 独立登录凭证：
 
 ---
 
-# 5. Batch 2｜旧规则反向冲突扫描｜PENDING_USER_REVIEW
+# 5. Batch 2｜旧规则反向冲突扫描｜PASS / USER_APPROVED / APPLIED
 
 > 目标：只处理已被 PDM-01～21 Final 明确替代、废弃或收窄的旧规则 / stale carrier。  
 > 本批不新增产品选择，不改变已完成 PDM 的 Authority。
@@ -702,7 +702,7 @@ Current IA / 历史 D7 中相反描述只保留为 stale carrier。
 
 当前：
 
-- `P22-B2-01～P22-B2-11 = PENDING_USER_REVIEW`
+- `P22-B2-01～P22-B2-11 = PASS / USER_APPROVED / APPLIED`
 - `REVERSE_CONFLICT_SCAN = PASS`
 - `FALSE_DEPRECATION_COUNT = 0`
 - `COMPLETED_PDM_MUTATION = 0`
@@ -722,4 +722,128 @@ Current IA / 历史 D7 中相反描述只保留为 stale carrier。
 
 当前唯一下一步：
 
-> **用户审查 P22-B2-01～P22-B2-11。未经用户批准与明确执行，不得进入 Batch 3。**
+> **P22-B2-01～P22-B2-11 已全部批准并执行；Reverse Conflict Scan PASS。进入 Batch 3 Conflict Isolation。**
+
+---
+
+# 7. Batch 3｜已冻结上游语义的 PC 后台补全｜PENDING_USER_REVIEW
+
+> Conflict Isolation：`PASS / MISCLASSIFIED_PRODUCT_CHOICE = 0`。  
+> 本批只把 PDM-01～21 已经正式冻结、但旧 PC carrier 未完整承载的后续规则补到 PDM-22；不新增新的业务状态机。  
+> `P22-ADD-01`（Employee PC 网页账号密码绑定原 employee_id）已在 Batch 2 审查期间由用户单独批准并执行，因此不重复计入本批待审查项。
+
+## P22-B3-01｜P05 补齐 System Admin 自身账号治理闭环
+
+P05 必须承载 System Admin 自身账号治理：
+- 首个 System Admin 由系统 bootstrap 初始化；
+- 后续 System Admin 只能由 active System Admin 新增 / 启用 / 停用；
+- 系统始终至少保留 1 个 active System Admin；
+- 不允许停用最后一个 active System Admin；
+- System Admin 自身治理必须保留审计；
+- 该治理能力不产生 Employee 业务权限。
+
+## P22-B3-02｜P06/P05 补齐 Customer 账号停用 / 恢复治理与业务影响提示
+
+PC 后台必须真实承载 Customer 账号停用 / 恢复，而不是只改一个布尔字段。
+
+当前：
+- System Admin 可作为控制平面治理动作执行；
+- 经理 / 店长 / 被明确授权员工按对应 capability + data scope 执行；
+- 4S hard DENY；
+- 停用不删除 Customer，不等于降级，也不物理删除历史业务；
+- active Demand 按 PDM-11 进入 paused；
+- Consultation / Recommendation / Lock / Waitlist / Transaction / Refund 等按各自 Authority 停止继续按“正常账号”推进，但历史事实保留；
+- 恢复账号只恢复账号可用性，不自动恢复已经暂停、终止、过期或结束的业务对象。
+
+PC 执行停用前应明确展示该动作会影响当前进行中业务，但不得在 PDM-22 自造第二套业务状态。
+
+## P22-B3-03｜P02 补齐自动 / 批量隐藏规则中心
+
+P02 必须承载 PDM-04 已冻结的隐藏规则管理，而不能只有单车 hidden / restore。
+
+至少包括：
+- 默认作用于 wholesale / JYT，可按已批准范围选择来源；
+- 品牌 / 车系 / 年款 / 车型 / 地区 / 关键词等条件；
+- 不同字段之间 AND；
+- 同字段多值 OR；
+- 规则启用 / 停用 / 条件变化 / source_type 变化后重新计算命中集合；
+- hidden 与 offline / unavailable 分离；
+- hidden 但真实可售的车辆仍可进入合法内部 Matching / Recommendation；
+- 恢复显示必须基于当前是否仍命中其他有效规则重新计算。
+
+## P22-B3-04｜P08/P06 补齐 LIMITED / UNLIMITED 与临时加次的后台治理
+
+PC 后台除 Customer Level 基础权益外，还必须承载 PDM-10 当前查价权益治理：
+- daily base quota 为后台配置；
+- LIMITED / UNLIMITED 为等级价格权益；
+- 有权限员工可为 LIMITED Customer 免费增加当天查价次数；
+- 同日可多次追加并累计，UTC+8 次日清零；
+- UNLIMITED 当前生效期间不得再新增临时加次；
+- 进入 UNLIMITED 不删除此前当天已合法追加的事实；
+- 追加必须审计客户、操作人、时间、增加次数、前后额度与当天累计追加量；
+- V1 不建设“购买查价次数 / 按次收费”。
+
+## P22-B3-05｜P07 补齐 LockRequest 竞争成功后的自动候补 carrier
+
+同车同 listing_cycle 存在多个有效 PENDING LockRequest 时：
+- 其中一笔批准形成正式 Lock 后；
+- 其他仍有效 PENDING 自动转为 Waitlist；
+- Waitlist 顺序沿用原 LockRequest.created_at；
+- 自动转 Waitlist 不等于自动取得 Lock；
+- 之后原 Lock release / end 也不得自动把 Waitlist 晋升为 Lock；
+- PC 必须能看到 resulting_lock_id / resulting_waitlist_id 与来源关系。
+
+## P22-B3-06｜P07 补齐普通 Lock 与 Priority-origin Lock 的可见性差异
+
+PC 不能把所有 Lock 都解释成“全客户不可见”。
+
+当前：
+- 普通粉丝 / VIP Lock 按普通 Lock 可见性规则，不因为锁车就自动全站隐藏；
+- active Priority Customer 转成正式 Lock 后，Priority 可记录 converted_to_lock；
+- 该 Lock 在 Lock 有效期内继续继承原 Priority 的客户侧排他可见性；
+- Lock 结束后再按车辆当前真实 visibility / hidden / listing 状态重新计算；
+- Priority 不成为 LockRequest 抢车分值。
+
+## P22-B3-07｜P07 补齐 Refund 直接关闭的真实动作语义
+
+pending Refund 确定不再退款时：
+- 当前合法可处理该 Refund 的业务人员可直接关闭；
+- 必须填写 close reason；
+- 不新增专门 close permission；
+- 不增加第二级审批；
+- closed ≠ refunded；
+- 已真实退款不得用 closed 伪装；
+- 后续重新需要退款时创建新的合法 Refund，不把 closed 改回 pending。
+
+## P22-B3-08｜P03/P02 补齐上游电话入口的当前 source_type 裁剪
+
+Publisher 历史与电话 cache 可以保留，但日常车辆电话入口必须读取当前 source_type：
+- 仅当前 wholesale / JYT 批发车可进入上游电话查看 / latest / 拨打链路；
+- 批发转名邦后，即使同一 vehicle_id 仍保留历史 upstream_publisher_id，也不得在当前车辆详情继续展示 / 刷新 / 拨打原上游电话；
+- 当前为 4S 来源同样不得因历史 publisher 事实自动出现上游电话入口；
+- P03 publisher 诊断 / 历史查看不得反向把电话能力重新挂回车辆日常详情。
+
+## P22-B3-09｜P07 补齐 Transaction 实际成交价与 correction 的不可覆盖历史
+
+PC Transaction 管理必须明确：
+- actual deal price / completed Transaction 价格属于成交历史主事实；
+- 后续客户展示价、批发价、markup、source_type 变化不得回写既有成交价格；
+- correction 采用追加事实，不直接覆盖原 completed / Deposit / Refund 历史；
+- 误成交纠错、资金纠错必须继续读取对应独立敏感 permission + data scope；
+- System Admin 身份本身不取得上述业务纠错能力。
+
+---
+
+# 8. Batch 3 Conflict Isolation Gate
+
+当前：
+- `P22-B3-01～P22-B3-09 = PENDING_USER_REVIEW`
+- `MISCLASSIFIED_PRODUCT_CHOICE = 0`
+- `NEW_DOMAIN_STATE_MACHINE = 0`
+- `P22-ADD-01 = USER_APPROVED / APPLIED / EXCLUDED_FROM_DUPLICATE_REVIEW`
+- `INCOMING_HANDOFF_ACCEPTED = 18 / 18`
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
+当前唯一下一步：
+
+> **用户审查 P22-B3-01～P22-B3-09。未经用户批准与明确执行，不得进入 Batch 4。**

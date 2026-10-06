@@ -1,3 +1,15 @@
+## 2026-10-07｜PDM-22 Batch 2 已批准执行并进入 Batch 3
+
+- `P22-B2-01～P22-B2-11 = PASS / USER_APPROVED / APPLIED`；
+- Reverse Conflict Scan = `PASS / FALSE_DEPRECATION_COUNT=0`；
+- B2-01 已按已执行的 `P22-ADD-01` 明确：PC 网页账号密码绑定原 employee_id，不创建第二 Employee；
+- 已形成 Batch 3 Conflict Isolation：`P22-B3-01～P22-B3-09 / PENDING_USER_REVIEW`；
+- Batch 3 只补齐 PDM-01～21 已冻结上游语义的 PC carrier，不新增业务状态机；
+- `MISCLASSIFIED_PRODUCT_CHOICE=0`，`NEW_DOMAIN_STATE_MACHINE=0`；
+- 18/18 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 PDM-22 Batch 3。
+
 ## 2026-10-07｜PDM-22 新增 PC 网页登录身份规则已执行
 
 - 用户明确确认：现有销售 / 经理 / 店长 Employee 不新建第二身份，而是在原 `employee_id` 上增加 PC 网页“登录账号 + 密码”；
@@ -359,7 +371,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-22_BATCH_2_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-22_BATCH_3_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -369,7 +381,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`
+> `IN_PROGRESS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -385,7 +397,7 @@
 
 当前唯一下一步：
 
-> **PDM-22 Batch 1 已 `PASS / USER_APPROVED / APPLIED`：P22-A01～P22-A22 已正式执行；Batch 2 Reverse Conflict Scan 已形成 P22-B2-01～P22-B2-11。当前唯一下一步：用户审查 PDM-22 Batch 2。**
+> **PDM-22 Batch 2 已 `PASS / USER_APPROVED / APPLIED`；Batch 3 Conflict Isolation 已形成 P22-B3-01～P22-B3-09。当前唯一下一步：用户审查 PDM-22 Batch 3。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
