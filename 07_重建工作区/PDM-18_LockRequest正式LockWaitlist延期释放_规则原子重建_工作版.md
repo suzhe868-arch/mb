@@ -166,7 +166,7 @@ LockRequest approve 最终提交必须重新验证：
 
 只有重验全部通过并成功创建正式 Lock，LockRequest 才能进入成功结果。
 
-## P18-A06｜并发审批只允许一个正式 Lock 成功｜USER_APPROVED / APPLIED
+## P18-A06｜并发审批只允许一个正式 Lock 成功｜USER_APPROVED / APPLIED / BATCH4_CONFLICT_PENDING
 
 - 同车同一时刻只允许一个 active Lock；
 - 第一个合法 approve 且成功创建 Lock 的请求获锁；
@@ -228,7 +228,7 @@ PDM-18 只消费“已存在真实意向金”的事实；Deposit 本身由 PDM-
 - 同 Customer + Vehicle 同时最多一个 active Waitlist；
 - 重复提交复用当前合法 active Waitlist。
 
-## P18-A13｜Waitlist 不自动升级为 Lock｜USER_APPROVED / APPLIED
+## P18-A13｜Waitlist 不自动升级为 Lock｜USER_APPROVED / APPLIED / PARTIAL_BATCH4_CONFLICT_PENDING
 
 - 原 Lock 释放 / 到期 / 取消后，Waitlist 不自动转成 Lock；
 - 候补 Customer 必须重新经过人工确认与当前 Guard；
@@ -496,7 +496,7 @@ PDM-16 Final 已明确废弃旧：
 
 **依据：**001～078 M13-003；PDM-02 统一权限边界。
 
-## P18-B3-02｜LOCK_CONFLICT 后只能由客户重新主动选择候补
+## P18-B3-02｜LOCK_CONFLICT 后只能由客户重新主动选择候补｜WITHDRAWN_FROM_BATCH3 / RECLASSIFIED_TO_BATCH4
 
 2026-09-22 LockRequest 新链明确：
 
@@ -506,11 +506,13 @@ PDM-16 Final 已明确废弃旧：
 - 该 Waitlist 仍必须重新通过当前手机号 / Customer / Vehicle / listing_cycle / occupancy / permission 等合法 Guard；
 - 不因原 LockRequest 的提交时间获得候补排序或锁车优先权。
 
-因此：
+因此原候选为：
 
 > **LockRequest conflict 与 Waitlist 是两个独立业务动作。**
 
-**依据：**001～078 M13-003；P18-A06/A12/A13。
+**原依据：**001～078 M13-003；P18-A06/A12/A13。
+
+**2026-10-06 用户新裁决方向：**用户认为竞争失败后应自动转候补，并明确“可以这样调整”，随后确认执行批次重分类。因此本条不再作为 Batch 3 稳定新增项审查，正式转入 Batch 4 产品选择。当前旧 Authority 在 Batch 4 正式裁决前不直接改写。
 
 ## P18-B3-03｜合法名邦员工仍可直接创建正式 Lock，不强制先有 LockRequest
 
@@ -544,10 +546,11 @@ PDM-16 Final 已明确废弃旧：
 
 因此：
 
-- `NEW_INDEPENDENT_ATOMS = 3`
+- `NEW_INDEPENDENT_ATOMS = 2`
+- `WITHDRAWN_RECLASSIFIED_TO_BATCH4 = P18-B3-02`
 - `DUPLICATE_RULE_CREATION = 0`
 - `MISCLASSIFIED_PRODUCT_CHOICE = 0`
-- `BATCH_3 = P18-B3-01～P18-B3-03 / PENDING_USER_REVIEW`
+- `BATCH_3 = P18-B3-01 + P18-B3-03 / PENDING_USER_REVIEW`
 
 ---
 
@@ -570,4 +573,39 @@ PDM-16 Final 已明确废弃旧：
 
 当前唯一下一步：
 
-> **用户审查 P18-B3-01～P18-B3-03。未经确认不得进入 Batch 4。**
+> **用户审查 P18-B3-01 与 P18-B3-03。P18-B3-02 已撤回并转入 Batch 4；未经确认不得进入 Batch 4 正式审查。**
+
+
+### P18-B4-PRE-02｜竞争 LockRequest 自动转 Waitlist｜USER_DIRECTION_APPROVED / NOT_APPLIED
+
+用户已明确认可新的产品方向：
+
+- 同一 Vehicle + 同一 listing_cycle 下存在多个有效 `LockRequest.PENDING`；
+- 其中一个请求被合法批准并成功创建正式 Lock 后；
+- 其他仍有效、且仅因为该正式 Lock 成立而失去获锁机会的 PENDING 请求，自动转为 Waitlist；
+- 不要求客户再手工点击一次“候补”；
+- 同 Customer + Vehicle 已有 active Waitlist 时复用，不重复创建；
+- Vehicle 已真实下架 / sold / listing_cycle ended / 其他不允许候补的终态时，不机械创建 Waitlist；
+- 自动形成的 Waitlist 仍然不占车，也不得自动升级为正式 Lock；
+- 原 Lock 释放 / 到期 / 取消后，仍需人工重新确认并通过最新 Guard 后才能新建正式 Lock；
+- 原 LockRequest 的先后顺序不决定谁先获得正式 Lock；
+- **对于自动转成 Waitlist 的多个客户，候补顺序按原 LockRequest.created_at 保留原申请先后。**
+
+该方向会正式冲突并修正当前已批准的：
+
+- `P18-A06` 中“其他同车同 cycle PENDING 进入 LOCK_CONFLICT；LOCK_CONFLICT 不自动创建 Waitlist”；
+- `P18-A13` 中“LOCK_CONFLICT 也不得自动创建 Waitlist”；
+- Startup/9月22日旧补充规则中的“不自动转 Waitlist”。
+
+状态：
+
+> `USER_DIRECTION_APPROVED / NOT_APPLIED / WAIT_BATCH_4_FORMAL_REVIEW`
+
+Batch 4 正式审查时必须同时处理：
+
+1. A06 / A13 的文字与状态修正；
+2. LockRequest 终态是否仍保留 `LOCK_CONFLICT` 作为审计结果，还是“冲突 + 已自动候补”双事实；
+3. 与 P18-B4-PRE-01 的 Priority→Lock 排他可见性联动：Priority 转 Lock 时其他客户可能根本不可见，但原有 PENDING 是否仍自动进入内部 Waitlist；
+4. 客户端 / 员工端如何显示“申请未获锁但已进入候补”；
+5. outgoing handoff 到 PDM-20/21/23 的状态投影与通知。
+
