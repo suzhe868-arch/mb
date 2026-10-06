@@ -2,6 +2,19 @@
 
 > 更新时间：2026-10-07
 
+
+## PDM-24 Final Closeout 结果
+
+- PDM-24：COMPLETE / INTEGRITY_PASS
+- Final Overview：07_重建工作区/PDM-24_最终完整规则总览_待用户批准.md / USER_FINAL_APPROVED
+- Final：07_重建工作区/PDM-24_最终完整规则.md
+- Final Integrity：07_重建工作区/PDM-24_最终完整性复核_2026-10-07.md / PASS
+- Formal Units：40
+- HO-P20-P24-001：HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
+- HO-P24-P25-001：HANDOFF_OPEN
+- PDM-25 incoming handoffs：24 / 24 PENDING_STARTUP_GATE_ACCEPTANCE
+- IA / Low-Fi / Engineering：NO_CONSTRUCTION
+
 ## PDM-24 Prefinal R2 结果
 
 - Prefinal R2：PASS / FINAL_CANDIDATE_READY
@@ -366,7 +379,7 @@
 
 ## 当前唯一下一步
 
-> **当前唯一下一步：形成 PDM-24 Final Domain Overview，并提交用户最终批准。**
+> **当前唯一下一步：PDM-25 Startup Gate。**
 
 每个 PDM 必须同时执行：
 
@@ -420,7 +433,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-23 均已完成对应 Final / Integrity Closeout；PDM-24 Prefinal R2 已 PASS / FINAL_CANDIDATE_READY；HO-P20-P24-001 继续 HANDOFF_ACCEPTED，HO-P24-P25-001 保持 HANDOFF_OPEN。当前唯一下一步：形成 PDM-24 Final Domain Overview，并提交用户最终批准。
+当前 PDM-01～PDM-24 均已完成对应 Final / Integrity Closeout；PDM-24 = COMPLETE / INTEGRITY_PASS，HO-P20-P24-001 已 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE，HO-P24-P25-001 保持 HANDOFF_OPEN。当前唯一下一步：PDM-25 Startup Gate。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
