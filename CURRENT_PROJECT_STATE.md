@@ -1,3 +1,14 @@
+## 2026-10-06｜PDM-20 Batch 1 用户批准并执行
+
+- 用户对 `P20-A01～P20-A18` 全部同意，随后明确“确认执行”；
+- `P20-A01～P20-A18 = PASS / USER_APPROVED / APPLIED`；
+- 18 条稳定客户端基础规则进入当前 Authority；
+- Batch 2 Reverse Conflict Scan 已完成：`PASS / FALSE_DEPRECATION_COUNT=0`；
+- 形成 `P20-B2-01～P20-B2-09 / PENDING_USER_REVIEW`；
+- 14 / 14 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 PDM-20 Batch 2。
+
 ## 2026-10-06｜PDM-20 Startup Gate 通过并进入 Batch 1 审查
 
 - 用户已批准并确认执行 `P20-R00`：PDM-20 是客户端产品体验与 Customer Safe Projection 的唯一 Authority；
@@ -138,7 +149,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-20_BATCH_1_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-20_BATCH_2_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -148,7 +159,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`
+> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -164,7 +175,7 @@
 
 当前唯一下一步：
 
-> **PDM-20 Startup Gate 已 `PASS`：P20-R00 已用户批准并执行，target=PDM-20 的 14/14 incoming handoff 已全部 `HANDOFF_ACCEPTED`，completed-PDM hard conflict=0，incoming handoff gap=0。当前唯一下一步：用户审查 PDM-20 Batch 1（P20-A01～P20-A18）。**
+> **PDM-20 Batch 1 已 `PASS / USER_APPROVED / APPLIED`；Batch 2 Reverse Conflict Scan = PASS / FALSE_DEPRECATION_COUNT=0，形成 P20-B2-01～P20-B2-09。当前唯一下一步：用户审查 PDM-20 Batch 2；未经确认不得进入 Batch 3。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
