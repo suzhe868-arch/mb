@@ -689,7 +689,7 @@ PDM-12 已完成承接并 source backwrite：
 - Matching 对 hidden / availability 的资格与匹配规则 → PDM-12｜`HANDOFF_CLOSED`：PDM-12 Final 已冻结 hidden≠offline/unavailable；hidden 但真实可售可内部 Matching，真实 offline/unavailable/sold 等退出普通 Matching；active Lock 属占用事实，不自动等于不可 Matching。
 - Priority 对 hidden / exclusive visibility / listing lifecycle 的关系 → PDM-13｜`HANDOFF_CLOSED`：PDM-13 Final §§5,15-19,29 已冻结 hidden 但真实可售可内部 Matching/Priority；Priority 不改 Vehicle/listing_cycle、不强制 unhide；Priority 本身不授 Customer visibility；active Priority 对普通公开入口形成排他，ended 后恢复底层真实状态并按当前事实重新仲裁；
 - Recommendation 对 hidden 单车可见授权与生命周期 → PDM-14｜`HANDOFF_CLOSED`：PDM-14 Final 已冻结 hidden≠offline 条件下 active Recommendation 的 customer-specific visibility、visible↔hidden 同周期动态授权、listing_cycle end 不跨周期继承，以及 source_type/一键转名邦同 vehicle/listing_cycle 不重建 Recommendation；`HO-P04-P14-001 = HANDOFF_CLOSED / source_backwrite=YES`；
-- Lock / Waitlist 的完整生命周期 → PDM-18｜`HANDOFF_OPEN`；
+- Lock / Waitlist 的完整生命周期 → PDM-18｜`HANDOFF_CLOSED`：PDM-18 Final 已正式承接 LockRequest / Lock / Waitlist 生命周期，并明确 vehicle source/visibility 变化不得静默抹除既有业务历史，hidden 本身不结束 Lock/Waitlist；`HO-P04-P18-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - Transaction / Refund / correction → PDM-19｜`HANDOFF_OPEN`；
 - 客户端具体页面交互（包括 `listing_started_at` / 上传时间 / JYT 平台收录时间等展示语义）→ PDM-20｜`HANDOFF_OPEN`；
 - 员工端具体页面交互 → PDM-21｜`HANDOFF_OPEN`；
