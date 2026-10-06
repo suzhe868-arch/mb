@@ -1,3 +1,20 @@
+## 2026-10-07｜PDM-23 Prefinal R1 修复已执行，R2 PASS
+
+- Prefinal R1 = `REPAIR_REQUIRED / NO_HARD_CONFLICT`；
+- `P23-LIA-01～P23-LIA-04 = PASS / USER_APPROVED / APPLIED`；
+- LIA-01：同一业务事件/同一通知阶段原则上只通知一次；Consultation 同一次 SLA timeout 原则上只做一次群告警；
+- LIA-02：SLA 群告警最小必要内容 + 敏感字段最小化 + deep-link 重鉴权；
+- LIA-03：持续 Incident 重复告警是普通去重例外；只按已配置 cadence，不恢复旧固定 2/5/15 分钟默认；
+- LIA-04：微信“可接入”≠“当前已启用”；无明确 customer-WeChat allowlist + 合法平台能力/模板 + 用户授权前不自动发送；
+- Prefinal R2 = `PASS / FINAL_CANDIDATE_READY`；
+- 正式规则 / 裁决单元 = 65；
+- missing rule = 0；semantic detail gap = 0；completed-PDM hard conflict = 0；
+- 10 / 10 incoming handoff 继续 HANDOFF_ACCEPTED，最终批准前不关闭；
+- HO-P23-P25-001 继续 HANDOFF_OPEN；
+- Final Overview：`07_重建工作区/PDM-23_最终完整规则总览_待用户批准.md`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：**用户最终审查 / 批准 PDM-23 最终完整规则总览。**
+
 ## 2026-10-07｜PDM-23 Batch 4 历史重扫重建版已批准并执行
 
 - 历史重扫已完成：9/06 SSOT/Decision、R12、001～078、Current P09 carrier 与 completed-PDM Final 已复核；
