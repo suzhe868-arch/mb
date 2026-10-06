@@ -450,7 +450,7 @@ PDM-07 已冻结的车况 / 档案边界必须由后续业务域继续承接：
 - PDM-14｜`HANDOFF_CLOSED`：PDM-14 Final 已正式承接——档案/报告不完整本身不得阻止合法 Recommendation；Recommendation/visibility 只授 Customer Safe Projection，不自动开放 VIN、绿本、行驶证敏感原件或内部档案；客户报告仍服从本 PDM customer_visible；`HO-P07-P14-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-15｜`HANDOFF_CLOSED`：PDM-15 Final 已正式承接“档案/检测报告/维保资料不完整本身不得阻止 Consultation”，仅真实 offline/unavailable 阻断新增 Consultation；`HO-P07-P15-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-18｜`HANDOFF_CLOSED`：PDM-18 Final 已正式承接“档案不完整本身不得阻止合法 Lock / Waitlist”，并明确既有档案/报告历史不因 Lock 状态变化被删除或重写；`HO-P07-P18-001 = HANDOFF_CLOSED / source_backwrite=YES`；
-- PDM-19｜`HANDOFF_OPEN`：档案不完整不阻止创建 Transaction，但首次真正完成 Transaction / 交付前必须读取当时有效 required-field set 并通过必要资料核验；缺失只阻止完成，不回滚已创建 Transaction。
+- PDM-19｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-19 Final 已正式承接“档案不完整不阻止合法 Transaction 创建；首次真正 completion/delivery 时读取当时有效 required-field set，缺失只阻止完成、不回滚已创建 Transaction”；`HO-P07-P19-001 = HANDOFF_CLOSED`。
 
 PDM-12 承接状态：
 
