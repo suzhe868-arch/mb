@@ -1,6 +1,6 @@
 # PDM-18｜LockRequest / 正式 Lock / Waitlist / 延期 / 释放｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`  
 > 核心定位：`P18-R00 / USER_APPROVED / APPLIED`  
 > Incoming Handoff：10 / 10 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -473,13 +473,14 @@ PDM-16 Final 已明确废弃旧：
 
 ---
 
-# 9. Batch 3｜后续明确新增 / 明确变更候选
+# 9. Batch 3｜后续明确新增 / 明确变更｜PASS / USER_APPROVED / APPLIED
 
-> 状态：`PENDING_USER_REVIEW`。  
+> 状态：`PASS / USER_APPROVED / APPLIED`。  
+> 用户裁决：P18-B3-01、P18-B3-03 全部同意并确认执行；P18-B3-02 已在此前撤回并转入 Batch 4。  
 > Conflict Isolation：`PASS / MISCLASSIFIED_PRODUCT_CHOICE=0`。  
 > 原则：只收录 9/19 主底盘之后已有明确冻结证据、且不需要重新做产品取舍的新增/变更；真正冲突、新缺口、新产品选择全部留 Batch 4。
 
-## P18-B3-01｜4S Member 不得审批 LockRequest
+## P18-B3-01｜4S Member 不得审批 LockRequest｜USER_APPROVED / APPLIED
 
 2026-09-22 新 LockRequest 冻结规则明确：
 
@@ -514,7 +515,7 @@ PDM-16 Final 已明确废弃旧：
 
 **2026-10-06 用户新裁决方向：**用户认为竞争失败后应自动转候补，并明确“可以这样调整”，随后确认执行批次重分类。因此本条不再作为 Batch 3 稳定新增项审查，正式转入 Batch 4 产品选择。当前旧 Authority 在 Batch 4 正式裁决前不直接改写。
 
-## P18-B3-03｜合法名邦员工仍可直接创建正式 Lock，不强制先有 LockRequest
+## P18-B3-03｜合法名邦员工仍可直接创建正式 Lock，不强制先有 LockRequest｜USER_APPROVED / APPLIED
 
 后续冻结证据已经明确恢复 / 保留员工侧正式 Lock 能力：
 
@@ -550,13 +551,13 @@ PDM-16 Final 已明确废弃旧：
 - `WITHDRAWN_RECLASSIFIED_TO_BATCH4 = P18-B3-02`
 - `DUPLICATE_RULE_CREATION = 0`
 - `MISCLASSIFIED_PRODUCT_CHOICE = 0`
-- `BATCH_3 = P18-B3-01 + P18-B3-03 / PENDING_USER_REVIEW`
+- `BATCH_3 = P18-B3-01 + P18-B3-03 / PASS / USER_APPROVED / APPLIED`
 
 ---
 
 ## 10. Batch 4 已登记但尚未执行的用户方向
 
-### P18-B4-PRE-01｜Priority 转 Lock 继承客户侧排他可见性｜USER_DIRECTION_APPROVED / NOT_APPLIED
+### P18-B4-PRE-01｜Priority 转 Lock 继承客户侧排他可见性｜MOVED_TO_FORMAL_B4-01
 
 用户已明确认可方向：
 
@@ -573,10 +574,10 @@ PDM-16 Final 已明确废弃旧：
 
 当前唯一下一步：
 
-> **用户审查 P18-B3-01 与 P18-B3-03。P18-B3-02 已撤回并转入 Batch 4；未经确认不得进入 Batch 4 正式审查。**
+> **P18-B3-01 与 P18-B3-03 已批准并执行；P18-B3-02 已转入 Batch 4。当前唯一下一步：用户审查 Batch 4（P18-B4-01～P18-B4-10）。**
 
 
-### P18-B4-PRE-02｜竞争 LockRequest 自动转 Waitlist｜USER_DIRECTION_APPROVED / NOT_APPLIED
+### P18-B4-PRE-02｜竞争 LockRequest 自动转 Waitlist｜MOVED_TO_FORMAL_B4-02
 
 用户已明确认可新的产品方向：
 
@@ -609,3 +610,236 @@ Batch 4 正式审查时必须同时处理：
 4. 客户端 / 员工端如何显示“申请未获锁但已进入候补”；
 5. outgoing handoff 到 PDM-20/21/23 的状态投影与通知。
 
+
+
+---
+
+## 9.2 Batch 3 Gate｜PASS
+
+- `P18-B3-01 = PASS / USER_APPROVED / APPLIED`；
+- `P18-B3-03 = PASS / USER_APPROVED / APPLIED`；
+- `P18-B3-02 = WITHDRAWN_FROM_BATCH3 / MOVED_TO_BATCH4`；
+- Batch 3 当前未决项 = 0；
+- 10 / 10 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工。
+
+---
+
+# 11. Batch 4｜冲突 / 遗漏 / 缺口 / 新产品选择候选
+
+> 状态：`PENDING_USER_REVIEW`。  
+> Cross-PDM Conflict Review：`PASS / 仅形成显式待修正项，不提前覆盖 completed PDM`。  
+> 选择方式：每项给出 A/B；**A 为当前推荐方案**。P18-B4-01、P18-B4-02 的 A 已有用户方向确认，但仍需在本批整体批准后才正式应用。
+
+## P18-B4-01｜Priority → Lock 后的客户侧可见性
+
+### A｜推荐 / 用户已确认方向
+- 普通 VIP / 粉丝直接形成正式 Lock：只形成占车，不自动全客户隐藏；
+- 其他 Customer 仍可按自己的正常可见资格看到“已锁定”，但不能创建第二个 active Lock；
+- Priority Customer 转正式 Lock：Priority 本体 `ended(converted_to_lock)`，但该笔 Lock 继承原 Priority 的客户侧排他可见性；
+- Priority-origin Lock 有效期间，除 Lock Customer 外其他普通 Customer 不进入公开列表 / 普通车辆详情；
+- 内部 Employee / PC / Matching 继续读取真实 Vehicle 与“已占用”事实；
+- Lock 结束后不恢复旧 Priority，按当时最新 Vehicle / Recommendation / Priority / visibility 重新计算。
+
+### B
+所有正式 Lock 一律只占车、不继承 Priority 排他可见性。
+
+**推荐：A。**这就是用户刚刚确认的方向。
+
+---
+
+## P18-B4-02｜竞争 LockRequest 自动转 Waitlist
+
+### A｜推荐 / 用户已确认方向
+同一 Vehicle + listing_cycle 有多个有效 PENDING 时：
+- 任一请求被合法批准并成功创建正式 Lock；
+- 其他仍有效且仅因该 Lock 成立而失去获锁机会的 PENDING，自动创建 / 复用 Waitlist；
+- 不要求客户再点一次“候补”；
+- Waitlist 排序按原 `LockRequest.created_at`；同时间再用稳定 request_id 作确定性 tie-break；
+- 不因申请先后获得正式 Lock 优先权；
+- 已 sold / offline / unavailable / cycle ended 等不允许候补时，不机械建 Waitlist；
+- Waitlist 不占车、不自动升级 Lock；
+- 原 Lock 释放后仍需人工重新确认和最新 Guard；
+- LockRequest 本体保持独立终态（`LOCK_CONFLICT`），并关联新/已有 Waitlist，不把 LockRequest 直接改成 Waitlist 状态。
+
+Priority-origin Lock 场景：
+- 其他已有 PENDING 仍可形成业务层 Waitlist；
+- 但排他可见性不因此被打破；
+- 客户侧只允许在“我的候补”等位置看到必要安全摘要，不重新开放普通 Vehicle Detail。
+
+### B
+保持旧规则：LOCK_CONFLICT 后客户必须再次手工选择候补。
+
+**推荐：A。**采用 A 后正式修正 P18-A06 / P18-A13 相关局部文字。
+
+---
+
+## P18-B4-03｜Waitlist responsible 如何确定
+
+### A｜推荐
+创建 Waitlist 时按以下优先级选择当前合法 responsible：
+
+1. 本次真实 Recommendation 的 recommender；
+2. 当前 active / paused Demand 的 responsible；
+3. Customer current owner；
+4. 前三者均无合法承接人时，先完成合法 owner / responsible assignment，再创建 Waitlist。
+
+并且：
+- 创建成功后 responsible 固化；
+- 普通 owner / Demand responsible 后续变化不自动漂移；
+- inactive / 离职 / 失去资格必须正式 handoff；
+- 自动 Waitlist 也使用同一套 responsible 规则，不把“批准别人的 Lock 的员工”自动变成所有候补负责销售。
+
+### B
+Waitlist 永远跟随 Customer current owner 自动变化。
+
+**推荐：A。**与历史规则和 PDM-17 责任分层一致。
+
+---
+
+## P18-B4-04｜Waitlist 的结束矩阵
+
+### A｜推荐
+- Vehicle 当前 cycle 真实 `completed / offline / unavailable / sold_external`：结束对应 active Waitlist，保留历史和结束原因；
+- 单纯 hidden：不结束 Waitlist；
+- 某候补 Customer 后来获得该 Vehicle 正式 Lock：只结束该 Customer 自己的 Waitlist；
+- 原占用 Lock release / expiry / cancel：不自动结束其他 Waitlist，也不自动晋升；进入人工重新确认；
+- listing_cycle 结束后旧 Waitlist 只留历史，新 cycle 不继承；
+- 误成交纠错 / 状态纠正不得自动复活已经 ended 的 Waitlist。
+
+### B
+除人工结束外，Waitlist 尽量一直保持 active。
+
+**推荐：A。**
+
+---
+
+## P18-B4-05｜正式 Lock responsible 与审批 actor 分离
+
+### A｜推荐
+- 正式 Lock 必须有独立 responsible，不允许 `responsible=null`；
+- 客户 LockRequest 路径：默认使用该客户当前合法业务承接员工（通常 current owner；如已正式 handoff/assignment，则使用当前合法承接人）作为 Lock responsible；
+- 授权经理/管理人员代为 approve 时，记录真实 approver/actor，但**不因为代审批就自动把经理变成 Lock responsible**；
+- 员工直接为客户创建 Lock：若 actor 本人就是当前合法业务承接人，则 actor 为 responsible；否则必须明确选择/确认合法 responsible；
+- 后续 Customer owner 变化不自动漂移 Lock responsible；
+- inactive / 离职必须正式 handoff，保留 old/new responsible、actor、time、reason。
+
+### B
+谁最后点击“批准 / 创建 Lock”，谁自动成为 Lock responsible。
+
+**推荐：A。**避免管理人员代审批后错误抢走业务责任。
+
+---
+
+## P18-B4-06｜Lock release/cancel 与 Waitlist manual end 的原因和权限
+
+### A｜推荐
+人工 mutation 必须：
+- 重新检查 identity + permission/capability + data scope + object state；
+- Lock 人工 release / cancel 必填 reason；
+- Waitlist 人工 end 必填 reason；
+- 当前 responsible 可在自身合法范围处理；
+- 其他管理人员必须有明确 capability + scope，不能仅凭“经理/店长”职位名；
+- 自动 expiry / Vehicle terminal 等系统结束使用系统 reason，不要求人工输入；
+- 全部保留 actor / time / before / after / reason 审计。
+
+### B
+人工结束原因可选，职位名可直接作为处理权限。
+
+**推荐：A。**
+
+---
+
+## P18-B4-07｜供应异常时如何处理已有 Lock
+
+### A｜推荐
+Vehicle 在已有 active Lock 后出现上游失效 / 供应异常：
+- 不自动取消 Lock；
+- 不删除 price snapshot / Deposit / 历史；
+- Lock 保持原业务事实，同时挂接独立 `supply_anomaly` 事实 / 标记；
+- 由当前 responsible / 合法管理人员人工核实后决定后续 release、换车、Transaction/Refund 等路径；
+- 供应异常本身不能伪造成 Lock 正常到期；
+- 对应 Waitlist 若 Vehicle 已真实进入不可售终态，则按 B4-04 结束；
+- 具体资金 / 换车 / Transaction 后果交 PDM-19。
+
+### B
+供应异常即自动取消 Lock 并释放车辆。
+
+**推荐：A。**这也是 R8 已确立的核心边界。
+
+---
+
+## P18-B4-08｜旧“到期前默认 30 分钟提醒”是否恢复
+
+该规则只存在于更早历史，后续 R8/R10 没有再次确认，当前证据状态一直是：
+
+> `TO_VERIFY_LEGACY_NOT_RECONFIRMED`
+
+### A｜推荐
+- **不恢复固定“默认提前 30 分钟”业务规则**；
+- PDM-18 只提供 expires_at / 当前 Lock 状态；
+- 如需要即将到期提醒，由 PDM-23 通知 + PDM-22 配置体系定义是否开启及提前量；
+- 不在 PDM-18 写死 30 分钟。
+
+### B
+恢复“默认提前 30 分钟提醒，可后台配置”。
+
+**推荐：A。**避免把未重新确认的旧规则重新带回。
+
+---
+
+## P18-B4-09｜默认 Lock 时长配置权限与生效边界
+
+### A｜推荐
+- 默认 Lock 时长属于业务配置；
+- 由具有明确 business-config permission/capability 且 scope 合法的身份修改；
+- **System Admin 控制平面身份本身不自动拥有该业务配置权**；
+- 不硬编码“经理/店长=必然可改”，由权限模板决定；
+- 修改需要审计 old/new/actor/time；
+- 只影响之后创建的新 Lock；
+- 已存在 Lock 的 expires_at 不追改；
+- PDM-18 不额外发明固定 min/max，若产品以后需要范围限制交配置 Authority 明确。
+
+### B
+只要能进入 PC 后台或是 System Admin 就可以修改默认 Lock 时长。
+
+**推荐：A。**
+
+---
+
+## P18-B4-10｜V1 是否提供批量 Lock / Waitlist mutation
+
+### A｜推荐
+V1 不提供批量：
+- 创建正式 Lock；
+- 批量 approve LockRequest；
+- 批量 release/cancel Lock；
+- 批量延期；
+- 批量创建 / 结束 Waitlist。
+
+允许批量查看、筛选、导出/治理列表，但每个占车 / 候补 mutation 必须逐对象独立提交和 Guard，避免并发占用与误释放扩大。
+
+### B
+建设批量 Lock / Waitlist mutation，但每项独立 Guard、允许 partial success。
+
+**推荐：A。**当前没有足够业务需求证明批量占车操作值得进入 V1。
+
+---
+
+## 11.1 Batch 4 Cross-PDM 待修正 / 待交接影响
+
+若采用推荐 A 组合，需要：
+
+- 修正 P18-A06 / P18-A13 的“LOCK_CONFLICT 不自动 Waitlist”局部口径；
+- P18-A18 保持“Priority 成立/结束与 Lock 分层”，并补“Priority-origin Lock 继承排他可见性”；
+- PDM-13 / PDM-14 completed Authority 不直接改写，先登记 cross-PDM source backwrite / alignment；
+- PDM-20 承接普通 Lock 与 Priority-origin Lock 的客户端可见性、我的候补最小安全投影；
+- PDM-21 承接员工端 LockRequest / Waitlist / Lock 状态与操作入口；
+- PDM-22 承接默认 Lock 时长业务配置 carrier；
+- PDM-23 承接到期 / 自动候补等通知策略；
+- PDM-25 承接审计、并发、幂等与 worker 测试；
+- PDM-19 承接供应异常后的 Deposit / Transaction / Refund / 换车后果。
+
+当前唯一下一步：
+
+> **用户审查 P18-B4-01～P18-B4-10。未经用户裁决与确认执行，不得进入 Final 前完整性复核。**
