@@ -1,3 +1,16 @@
+## 2026-10-07｜PDM-22 R1 修复已执行；Prefinal R2 PASS
+
+- `P22-LIA-01～P22-LIA-06 = PASS / USER_APPROVED / APPLIED`；
+- R1 repair closed = `6 / 6`；
+- PDM-22 → PDM-23 / PDM-25 outgoing handoff 已正式登记为 `HANDOFF_OPEN`；
+- Final 前完整性复核 R2 = `PASS / FINAL_CANDIDATE_READY`；
+- 正式规则 / 裁决单元 = `58`；
+- missing=0；semantic gap=0；completed-PDM conflict=0；incoming gap=0；outgoing gap=0；local product choice=0；
+- 18/18 incoming handoff 仍保持 `HANDOFF_ACCEPTED`，最终批准前不关闭；
+- Final Domain Overview 已生成：`07_重建工作区/PDM-22_最终完整规则总览_待用户批准.md`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户最终审查 / 批准 PDM-22 Final Domain Overview。
+
 ## 2026-10-07｜PDM-22 Batch 4 已执行；Final 前完整性复核 R1 = REPAIR_REQUIRED
 
 - `P22-B4-01～P22-B4-08 = PASS / USER_APPROVED / APPLIED`；
@@ -395,7 +408,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-22_PREFINAL_R1_REPAIR_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-22_FINAL_OVERVIEW_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -405,7 +418,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PASS / PREFINAL_R1_REPAIR_REQUIRED`
+> `IN_PROGRESS / PREFINAL_R2_PASS / FINAL_CANDIDATE_READY / PENDING_USER_FINAL_APPROVAL`
 
 当前工作文件：
 
@@ -421,7 +434,7 @@
 
 当前唯一下一步：
 
-> **PDM-22 Batch 4 已 `PASS / USER_APPROVED / APPLIED`；Prefinal R1 = `REPAIR_REQUIRED / NO_HARD_CONFLICT`。当前唯一下一步：用户审查 P22-LIA-01～P22-LIA-06。**
+> **PDM-22 Prefinal R2 已 `PASS / FINAL_CANDIDATE_READY`。当前唯一下一步：用户最终审查 / 批准 PDM-22 Final Domain Overview。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
