@@ -491,7 +491,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 |---|---|---|---|---|---|
 | HO-P20-P21-001 | PDM-21 | 员工端承接与客户端列表/详情占用投影相对应的 Employee Vehicle Feed / Detail：占用状态优先级保持 trading > locked；员工列表不得泄露 Customer 姓名、手机号、Deposit 金额、详细 Transaction 进度；不得把客户侧“我的锁车/我的候补”等文案直接复用到员工端；员工动作继续读取 PDM-18/PDM-19 真实 Authority。 | HANDOFF_CLOSED | \`07_重建工作区/PDM-21_最终完整规则.md\` | YES |
 | HO-P20-P22-001 | PDM-22 | PC 配置承接 PDM-20 已冻结的客户端配置需求：全局单一“服务/购买说明”内容、基础富文本/Word 基础格式兼容与安全清理、保存/更新/审计；普通分享标题模板、默认分享图、Customer Safe 字段白名单等轻量配置；不得扩张为无限通用模板引擎。 | HANDOFF_CLOSED | `07_重建工作区/PDM-22_最终完整规则.md` | YES |
-| HO-P20-P24-001 | PDM-24 | 公告/Banner 运营 Authority 承接客户端投影背后的创建/编辑/启停/active-history、Schedule、Placement、后台排序与运营管理；Banner placement 至少承接 HOME_TOP / VEHICLE_DETAIL，客户端数量投影继续服从 PDM-20 Final；不得反向改变 Customer Safe 展示与导航边界。 | HANDOFF_ACCEPTED | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | YES |
+| HO-P20-P24-001 | PDM-24 | 公告/Banner 运营 Authority 承接客户端投影背后的创建/编辑/启停/active-history、Schedule、Placement、后台排序与运营管理；Banner placement 至少承接 HOME_TOP / VEHICLE_DETAIL，客户端数量投影继续服从 PDM-20 Final；不得反向改变 Customer Safe 展示与导航边界。 | HANDOFF_CLOSED | `07_重建工作区/PDM-24_最终完整规则.md` | YES |
 | HO-P20-P25-001 | PDM-25 | 统一横切审计/完整性承接客户端权限变化后的旧敏感 UI/payload 撤销、copy-before-view Guard、Historical Detail 只读、query context restore、submit idempotency/duplicate prevention、Customer Safe Projection 字段级测试矩阵、stale carrier alignment 与跨 PDM Final 审计。 | HANDOFF_OPEN | - | YES |
 
 ---
@@ -679,10 +679,10 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-23 正式规则 / 裁决单元：65；
 - target=PDM-23 的 10 / 10 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
 - `HO-P23-P25-001 = HANDOFF_OPEN`；
-- PDM-20 → PDM-24 的 `HO-P20-P24-001 = HANDOFF_ACCEPTED`，已由 PDM-24 Startup Gate 正式接收；Final Closeout 前不关闭、不 source backwrite；
+- PDM-20 → PDM-24 的 `HO-P20-P24-001 = HANDOFF_CLOSED / source_backwrite=YES`，target landing=`07_重建工作区/PDM-24_最终完整规则.md`；
 - IA / Low-Fi / Engineering 继续 `NO_CONSTRUCTION`；
 - `HO-P24-P25-001 = HANDOFF_OPEN`；
-- 当前唯一下一步：**形成 PDM-24 Final Domain Overview，并提交用户最终批准**。
+- 当前唯一下一步：**PDM-25 Startup Gate**。
 
 ## 12L. PDM-22 来源 handoff
 
@@ -711,3 +711,6 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 
 > 2026-10-07 PDM-24 Prefinal R2：PASS / FINAL_CANDIDATE_READY；40 个正式规则/裁决单元完成 Source↔Atom、Semantic Completeness、completed-PDM invariant、handoff 与 negative claims 二次复核；HO-P20-P24-001 继续 HANDOFF_ACCEPTED，HO-P24-P25-001 继续 HANDOFF_OPEN；Final Closeout 前不关闭 incoming、不 source backwrite PDM-20；当前唯一下一步为形成 PDM-24 Final Domain Overview 并提交用户最终批准。
+
+
+> 2026-10-07 PDM-24 Final Closeout：用户已最终批准并明确“确定执行”；正式 Authority=`07_重建工作区/PDM-24_最终完整规则.md`；Final Integrity=`07_重建工作区/PDM-24_最终完整性复核_2026-10-07.md / PASS`；`HO-P20-P24-001 = HANDOFF_CLOSED / source_backwrite=YES`，PDM-20 已完成反向回写；`HO-P24-P25-001 = HANDOFF_OPEN`；PDM-24=`COMPLETE / INTEGRITY_PASS`；当前唯一下一步为 PDM-25 Startup Gate。
