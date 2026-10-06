@@ -1185,3 +1185,6 @@
 | PDM24-DEC-B2-11 | PDM-24 | P24-B2-11 | 公告不自动升级为外部通知任务；用户对 Batch 2 全部同意并明确“确认执行”。 | USER_APPROVED / APPLIED；Reverse Conflict Scan 项。 | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
 | PDM24-DEC-B2-12 | PDM-24 | P24-B2-12 | Banner点击不构成业务授权或mutation；用户对 Batch 2 全部同意并明确“确认执行”。 | USER_APPROVED / APPLIED；Reverse Conflict Scan 项。 | 07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md | 2026-10-07 |
 | PDM24-GATE-B2 | PDM-24 | Batch 2 Gate | P24-B2-01～P24-B2-12 全部批准并执行；Reverse Conflict Scan=PASS；FALSE_DEPRECATION_COUNT=0；未引入新产品选择。 | PASS / USER_APPROVED / APPLIED | PDM-24 工作版 + 2026-10-07 用户确认执行 | 2026-10-07 |
+
+| PDM24-GATE-B3 | PDM-24 | Batch 3 Gate | 后续明确新增 / 知情修改扫描确认均已由 Startup Gate / Batch 1 / Batch 2 承接，无需新增重复规则原子。 | PASS / USER_APPROVED / APPLIED / NO_NEW_ATOMS / MISCLASSIFIED_PRODUCT_CHOICE=0 | PDM-24 工作版 + 2026-10-07 用户“同意”并“确认执行” | 2026-10-07 |
+| PDM24-WINDOW-HANDOFF-20261007 | PDM-24 | 窗口切换上下文冻结 | 用户明确表示完成 Batch 3 后准备换窗口；当前已执行结果、P24-R00/R01、Batch 1/2/3、HO-P20-P24-001 状态与 Batch 4 唯一下一步已保存。 | CONTEXT_SAVED / NOT_FINAL / NEXT=PDM24_BATCH4_FINAL_GAP_SCAN | 07_重建工作区/PDM-24_窗口切换交接_2026-10-07.md | 2026-10-07 |
