@@ -296,7 +296,7 @@ Collector 如何保存 / 测试 / 回滚名邦 Integration API 连接参数：
 ### 17.2 仍待后续 PDM 承接
 
 - PDM-21｜`HANDOFF_CLOSED`：PDM-21 Final 已正式承接员工端电话 latest/cache/latest failed+cached/unavailable、拨打不复制及 source_type/permission 裁剪；`HO-P09-P21-001 = HANDOFF_CLOSED / source_backwrite=YES`；
-- PDM-22｜`HANDOFF_OPEN`：P03-05 publisher cache / 诊断页按 `source_platform + upstream_publisher_id` 展示；Integration API 状态、credential、回传日志与电话明文权限必须隔离，`integration/Collector manage` 不得自动获得上游电话明文能力；
+- PDM-22｜`HANDOFF_CLOSED / source_backwrite=YES`：P03-05 publisher cache / 诊断、复合 publisher identity、Integration / 电话明文权限隔离已由 PDM-22 Final 承接；
 - PDM-23｜`HANDOFF_OPEN`：Collector / 电话链路 incident、异常/恢复通知、运行事件；通知层不得重新定义 publisher phone 当前值或缓存状态；
 - PDM-25｜`HANDOFF_OPEN`：电话查看、拨打、latest、latest 成功/失败/无有效号码、缓存 before/after、source_platform + publisher、必要 Vehicle / Customer / Demand context 的统一审计。
 
@@ -355,3 +355,5 @@ HANDOFF_REGISTER_SYNC = PASS
 > **PDM-10｜Legacy Final Integrity Audit**
 
 PDM-09 正式封版。后续 PDM / IA / Low-Fi / Engineering 不得静默改写本文件；若发现真实跨域冲突，必须显式提出并重新裁决。
+
+> 2026-10-07 Source Backwrite：对应 PDM-22 handoff 已由 `07_重建工作区/PDM-22_最终完整规则.md` 正式承接；以 CROSS_PDM_HANDOFF_REGISTER 的 `HANDOFF_CLOSED / source_backwrite=YES` 为准。
