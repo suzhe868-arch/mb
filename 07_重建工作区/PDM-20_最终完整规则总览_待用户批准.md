@@ -1,9 +1,10 @@
 
-# PDM-20｜最终完整规则总览｜待用户最终批准
+# PDM-20｜最终完整规则总览｜用户已最终批准
 
 > 域：客户端浏览 / 搜索 / 筛选 / 排序 / 列表 / 详情 / 收藏 / 分享 / 个人中心 / 地域  
-> 当前状态：`PENDING_USER_FINAL_APPROVAL`  
+> 当前状态：`USER_FINAL_APPROVED / FINAL_CLOSEOUT_DONE`  
 > Final 前完整性复核：`R2 PASS / FINAL_CANDIDATE_READY`  
+> 本文件保留 PDM-20 Final Domain Overview 最终批准留痕；用户已最终批准并确认执行，Final closeout 已完成。  
 > 正式规则 / 用户裁决单元：`53`
 
 ## 1. 核心定位
@@ -1054,7 +1055,7 @@ Share / external direct、没有有效上一页：
 
 ## 46. Cross-PDM Handoff
 
-### Incoming｜Final closeout 前保持 HANDOFF_ACCEPTED
+### Incoming｜Final closeout 已关闭
 
 14 条：
 
@@ -1119,18 +1120,15 @@ R2：
 - `PDM20_FORMAL_UNITS = 53`
 - `PDM20_FINAL_CANDIDATE_READY = YES`
 
-## 49. Final Gate
+## 49. Final Closeout
 
-当前：
+用户已最终批准并确认执行。
 
-> **等待用户最终批准本 PDM-20 Final Domain Overview。**
-
-在用户最终批准并明确确认执行前：
-
-- 不发布正式 `PDM-20_最终完整规则.md`；
-- 不关闭 14 条 incoming handoff；
-- 不做 source backwrite；
-- 不把 PDM-20 标记 COMPLETE；
-- 不进入 PDM-21 Startup Gate；
-- 不修改 IA / Low-Fi；
-- 不执行 Engineering Delta。
+- 正式 Authority：`07_重建工作区/PDM-20_最终完整规则.md`；
+- Final Integrity：`07_重建工作区/PDM-20_最终完整性复核_2026-10-06.md / PASS`；
+- 53 个正式规则 / 用户裁决单元全部进入 Final；
+- 14 / 14 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
+- 4 条 outgoing handoff：继续 `HANDOFF_OPEN`；
+- PDM-20：`COMPLETE / INTEGRITY_PASS`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：`PDM-21 Startup Gate`.
