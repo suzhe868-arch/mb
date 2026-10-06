@@ -843,3 +843,5 @@
 | PDM18-PREFINAL-REPAIR-R1 | PDM-18 | R1 Repair Gate | P18-LIA-01～P18-LIA-06 全部批准并执行，6/6 R1 修复闭环；6 条 outgoing handoff 已登记 HANDOFF_OPEN；stale carrier 已登记。 | 允许重新运行 Final 前完整性复核 R2。 | 07_重建工作区/PDM-18_LockRequest正式LockWaitlist延期释放_规则原子重建_工作版.md | 2026-10-06 |
 | PDM18-PREFINAL-R2 | PDM-18 | Final 前完整性复核 R2 | R1 修复闭环后重新执行完整性复核，结论 PASS / FINAL_CANDIDATE_READY。 | SOURCE_TO_ATOM=PASS；ATOM_TO_SOURCE=PASS；SEMANTIC_COMPLETENESS=PASS；MISSING_RULE_UNRESOLVED=0；SEMANTIC_DETAIL_GAP_UNRESOLVED=0；COMPLETED_PDM_INVARIANT_CONFLICT=0；INCOMING_HANDOFF_GAP=0；OUTGOING_HANDOFF_GAP=0；NEGATIVE_CLAIMS_VERIFIED=PASS；Local Product Choice=0。 | 07_重建工作区/PDM-18_Final前完整性复核_R2_2026-10-06.md | 2026-10-06 |
 | PDM18-FINAL-OVERVIEW-CANDIDATE | PDM-18 | Final Domain Overview | 已生成 PDM-18 最终完整规则总览候选，当前仅等待用户最终批准。 | 批准前不得发布 Final、关闭 incoming handoff、source backwrite 或进入 PDM-19。 | 07_重建工作区/PDM-18_最终完整规则总览_待用户批准.md | 2026-10-06 |
+
+| PDM18-FINAL-APPROVAL | PDM-18 | Final Domain Overview | 用户对 PDM-18 最终完整规则总览明确“同意”，视为最终批准。 | USER_FINAL_APPROVED；仅记录最终产品批准，等待后续明确执行授权后才允许 Final closeout、关闭 incoming handoff、source backwrite 或进入 PDM-19。 | 2026-10-06 用户“同意” | 2026-10-06 |
