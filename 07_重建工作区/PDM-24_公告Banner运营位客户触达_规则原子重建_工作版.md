@@ -1,7 +1,7 @@
 # PDM-24｜公告 / Banner / 运营位 / 客户触达｜规则原子重建工作版
 
 > 域：Announcement / Banner / Placement / Schedule / Customer-facing Operations  
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PENDING_SCAN`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
 
 ---
@@ -444,7 +444,7 @@ Banner 只能导航到当前合法目标；进入目标后仍由目标 Domain Gu
 
 ---
 
-# 5. Batch 3｜明确新增 / 后续变化扫描｜PENDING_USER_REVIEW
+# 5. Batch 3｜明确新增 / 后续变化扫描｜PASS / USER_APPROVED / APPLIED
 
 本轮重新对照：
 
@@ -489,18 +489,30 @@ Banner 只能导航到当前合法目标；进入目标后仍由目标 Domain Gu
 - `DUPLICATE_RULE_CREATION = 0`
 - `MISCLASSIFIED_PRODUCT_CHOICE = 0`
 - `BATCH_3_CONFLICT_ISOLATION = PASS`
-- `BATCH_3 = NO_NEW_ATOMS / PENDING_USER_REVIEW`
+- `BATCH_3 = NO_NEW_ATOMS / PASS / USER_APPROVED / APPLIED`
 
 这并不代表 PDM-24 已经没有 Final-gap。真正的遗漏 / 缺口 / 新产品选择仍应留到 Batch 4，不得偷渡进 Batch 3。
 
-# 6. 当前唯一下一步
+# 6. Batch 3 执行结果
 
-> **用户审查 PDM-24 Batch 3“无新增独立规则原子”结论。**
+- `BATCH_3 = NO_NEW_ATOMS / PASS / USER_APPROVED / APPLIED`
+- `BATCH_3_CONFLICT_ISOLATION = PASS`
+- `NEW_INDEPENDENT_ATOMS = 0`
+- `DUPLICATE_RULE_CREATION = 0`
+- `MISCLASSIFIED_PRODUCT_CHOICE = 0`
+- `HO-P20-P24-001 = HANDOFF_ACCEPTED`
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
 
-未经用户批准与明确执行：
+# 7. 当前唯一下一步
 
-- 不把 Batch 3 标 PASS；
-- 不进入 Batch 4；
-- 不关闭 HO-P20-P24-001；
-- 不 source backwrite PDM-20；
+> **PDM-24 Batch 4 Final-gap Scan：冲突、历史遗漏、证据不足、新业务选择。**
+
+窗口切换后继续时：
+
+- 先读取本工作版与窗口切换交接快照；
+- 不重复 Startup Gate / Batch 1 / Batch 2 / Batch 3；
+- 直接进入 Batch 4 Final-gap Scan；
+- Batch 4 任何候选仍需用户逐项审查；
+- Final Closeout 前不得关闭 `HO-P20-P24-001`；
+- Final Closeout 前不得 source backwrite PDM-20；
 - 不施工 IA / Low-Fi / Engineering。
