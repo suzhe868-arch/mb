@@ -274,7 +274,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | HO-P04-P21-001 | PDM-21 | 员工端车辆详情、source_type、一键转名邦、隐藏/上下架等真实操作入口 | HANDOFF_CLOSED | \`07_重建工作区/PDM-21_最终完整规则.md\` | YES |
 | HO-P04-P22-001 | PDM-22 | PC 车辆、隐藏规则、集成配置与运行管理界面；不得改变 PDM-04 车辆 Authority | HANDOFF_CLOSED | `07_重建工作区/PDM-22_最终完整规则.md` | YES |
 | HO-P04-P22-002 | PDM-22 | 三个固定车源同步业务 API 的启停、名邦同步 API credential、调用统计与运行状态管理；credential 不得与 JYT 登录凭证或 Collector 电话鉴权混用 | HANDOFF_CLOSED | `07_重建工作区/PDM-22_最终完整规则.md` | YES |
-| HO-P04-P23-001 | PDM-23 | JYT / Supply Anomaly 相关 Incident、飞书、SLA、夜间免打扰、通知与异常日志；不得把通知层重新定义成车辆业务状态 | HANDOFF_OPEN | - | YES |
+| HO-P04-P23-001 | PDM-23 | JYT / Supply Anomaly 相关 Incident、飞书、SLA、夜间免打扰、通知与异常日志；不得把通知层重新定义成车辆业务状态 | HANDOFF_ACCEPTED | - | YES |
 | HO-P04-P25-001 | PDM-25 | vehicle/source/listing/visibility/conversion 的统一审计、历史和终态不回写规则 | HANDOFF_OPEN | - | YES |
 
 ### 6.1 PDM-04 Integrity Audit 候选转正式 handoff 记录
@@ -351,7 +351,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 |---|---|---|---|---|---|
 | HO-P09-P21-001 | PDM-21 | 员工端上游电话区域、cache available/unavailable、latest、latest failed + cached、拨打、不提供复制，以及 3A：仅当前 wholesale/JYT source_type 显示电话入口，转名邦/4S 后关闭日常入口 | HANDOFF_CLOSED | \`07_重建工作区/PDM-21_最终完整规则.md\` | YES |
 | HO-P09-P22-001 | PDM-22 | P03-05 publisher cache/诊断按 source_platform + upstream_publisher_id 唯一定位；Integration API 状态/credential/回传日志与电话明文权限隔离，integration/Collector manage 不自动授明文电话能力 | HANDOFF_CLOSED | `07_重建工作区/PDM-22_最终完整规则.md` | YES |
-| HO-P09-P23-001 | PDM-23 | Collector/电话链路 incident、异常与恢复通知、运行事件；通知层不得重新定义 publisher 当前电话/缓存状态，也不得把无有效号码误标成业务成功 | HANDOFF_OPEN | - | YES |
+| HO-P09-P23-001 | PDM-23 | Collector/电话链路 incident、异常与恢复通知、运行事件；通知层不得重新定义 publisher 当前电话/缓存状态，也不得把无有效号码误标成业务成功 | HANDOFF_ACCEPTED | - | YES |
 | HO-P09-P25-001 | PDM-25 | 电话查看、拨打、latest、latest 成功/失败/无有效号码、缓存 before/after、source_platform + publisher、必要 Vehicle/Customer/Demand context 的统一审计 | HANDOFF_OPEN | - | YES |
 
 ---
@@ -423,7 +423,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | HO-P14-P19-001 | PDM-19 | in-progress Transaction / Recommendation 分层：只要 Vehicle 底层仍真实可售、当前 listing_cycle 有效且 Recommendation 其他 Guard 合法，Transaction 占用事实本身不自动禁止 Recommendation；Recommendation 不接管、不取消、不回写既有 Transaction。Vehicle sold/offline/unavailable 或 cycle end 后不得新建当前周期 Recommendation；Transaction/Refund/Correction 完整状态机由 PDM-19 冻结。 | HANDOFF_CLOSED | 07_重建工作区/PDM-19_最终完整规则.md | YES |
 | HO-P14-P20-001 | PDM-20 | 客户端承接“我的推荐”仅正式 Recommendation 且区分当前/历史；历史推荐价快照与当前价格分层；普通 share link 无固定 N 天 TTL、可继续转发但不传播 Recommendation/price-right/visibility/Internal Mode，每次打开按当前 Vehicle/listing_cycle/Customer/Priority/访问 Authority 重算；hidden/公开/失效/新 cycle 均不得被旧链接绕过；Recommendation/visibility 仅授 Customer Safe Projection，不泄露内部价敏感字段、上游电话、VIN/敏感档案、Priority/Match 内部事实。页面布局与文案由 PDM-20 冻结。 | HANDOFF_CLOSED | 07_重建工作区/PDM-20_最终完整规则.md | YES |
 | HO-P14-P21-001 | PDM-21 | 员工端承接 Recommendation 真人动作：车辆详情/CRM客户详情/找车候选上下文三入口；批量推荐 UI 可一次选择多车但底层逐车 Guard/幂等/create-reuse；create/end/void 提交时重验 active eligible 名邦 Employee、当前合法业务责任、permission/capability、data scope、对象状态及 Priority/Customer 等 Guard；4S hard DENY，System Admin 身份本身不自动执行业务；历史 recommender 不等于永久当前操作权；终态/历史只读边界服从 PDM-14。 | HANDOFF_CLOSED | \`07_重建工作区/PDM-21_最终完整规则.md\` | YES |
-| HO-P14-P23-001 | PDM-23 | Recommendation create/end/void 不自动扩展为微信主动消息/发送成功失败状态机；V1 不因 Recommendation 本身新增客户侧微信订阅消息体系。未来若通知层消费明确 allowlist 事件，通知失败只能形成通知/incident 事实，不得回滚或改写 Recommendation/visibility/price-right 业务事实。 | HANDOFF_OPEN | - | YES |
+| HO-P14-P23-001 | PDM-23 | Recommendation create/end/void 不自动扩展为微信主动消息/发送成功失败状态机；V1 不因 Recommendation 本身新增客户侧微信订阅消息体系。未来若通知层消费明确 allowlist 事件，通知失败只能形成通知/incident 事实，不得回滚或改写 Recommendation/visibility/price-right 业务事实。 | HANDOFF_ACCEPTED | - | YES |
 | HO-P14-P25-001 | PDM-25 | 统一审计 Recommendation / visibility grant：create/reuse/touch/end/void、void reason、customer/vehicle/listing_cycle/recommender/source_demand/price snapshot、visible↔hidden 时 grant effective change、Priority suppression/restore、Customer disable/restore 与 find-car entitlement loss/restore 的客户侧能力暂停恢复、批量逐车结果、actor/time/identity/permission/data scope/object state/before-after/source context；历史不可物理删除，上游同步不得直接覆盖这些 Business Data。 | HANDOFF_OPEN | - | YES |
 
 | HO-P15-P16-001 | PDM-16 | CRM 承接 Consultation 的真实 follow-up 与统一客户跟进历史：PDM-16 可消费 Consultation 上下文形成 CRM 跟进/服务记录，但不得复制第二套 Consultation 状态机；普通 CRM 跟进不得自动被视为首次 SLA 响应，只有满足 PDM-15“可审计真实人工服务动作”的事实才可完成 first response；CRM 阶段也不得反向改 Consultation 主状态、assignee 或初始来源。 | HANDOFF_CLOSED | 07_重建工作区/PDM-16_最终完整规则.md | YES |
@@ -433,7 +433,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | HO-P15-P21-001 | PDM-21 | 员工端承接 Consultation 工作台与处理投影：PDM-15 只冻结 SLA 业务事实和首次响应是否完成；PDM-21 审查并承载历史“已超时 > 即将超时 > 新咨询/新服务意向”的工作台优先级、即将超时阈值与展示。开始处理/记录跟进/解决/无效/正常关闭/转派等员工动作必须服从 PDM-15 当前 Consultation Authority：当前 assignee 可处理自己负责对象；经理/店长须具对应 Consultation management capability/permission 且 data scope 覆盖；其他普通销售不得修改别人负责对象；Collaboration 不自动授终结/转派权；转派目标须 active/eligible/合法名邦 Employee；4S hard DENY；System Admin 身份本身不取得业务处理权。不得把 UI 的 CANCELLED 投影恢复为第五主状态，也不得把打开/已读/改 processing/转派误算为首次真实响应。 | HANDOFF_CLOSED | \`07_重建工作区/PDM-21_最终完整规则.md\` | YES |
 
 | HO-P15-P22-001 | PDM-22 | PC 后台承接 Consultation 管理与 SLA 配置：首次人工响应 SLA 初始默认 15 分钟、后台可配置；Consultation 创建时读取当时有效配置并固化 first-response deadline，后续改配置不追改旧对象；timeout 仅派生标记/筛选/提醒，不是第五主状态；配置/管理入口不得把 System Admin 身份本身扩张成 Consultation 业务处理权。 | HANDOFF_CLOSED | `07_重建工作区/PDM-22_最终完整规则.md` | YES |
-| HO-P15-P23-001 | PDM-23 | 通知层承接新 Consultation 与 SLA timeout allowlist；DND/quiet hours 只影响主动通知投递，不暂停 SLA 业务计时（Customer disable hold 除外，按 PDM-15 Authority）；FAILED/SKIPPED/DEDUPED/通知成功均不得改变 Consultation 主状态、assignee、first-response fact 或 deadline。 | HANDOFF_OPEN | - | YES |
+| HO-P15-P23-001 | PDM-23 | 通知层承接新 Consultation 与 SLA timeout allowlist；DND/quiet hours 只影响主动通知投递，不暂停 SLA 业务计时（Customer disable hold 除外，按 PDM-15 Authority）；FAILED/SKIPPED/DEDUPED/通知成功均不得改变 Consultation 主状态、assignee、first-response fact 或 deadline。 | HANDOFF_ACCEPTED | - | YES |
 | HO-P15-P25-001 | PDM-25 | 统一审计 Consultation create/reuse/touch/start-processing/follow-up/reassign/assignee_handover_pending/resolve/invalid/normal-close/customer-withdraw/customer_disabled_hold/resume、SLA deadline/first-real-human-response/timeout，以及 actor/time/identity/permission/data scope/object state/old-new assignee/close_reason/source context；历史不可物理删除或由后续状态回写。 | HANDOFF_OPEN | - | YES |
 
 ---
@@ -445,7 +445,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | HO-P16-P17-001 | PDM-17 | 公海/待公海治理必须消费 PDM-16 CRM 当前事实：未完成 CRM 跟进任务、回访提醒、未来跟进计划属于未完成责任，进入公海前必须完成、取消或正式交接；“暂不联系/暂无意向”只属于 CRM Stage/Tag/服务判断，不自动清 owner、不自动进公海；长期未跟进公海候选由 PDM-17 冻结人工治理，不得把 Customer Opportunity 直接当自动进公海机制；Customer 进出公海/重新领取不得清空 CRM Stage、Customer Tags、原始 source、历史 Follow-up、Shared Profile 或合法公司服务历史；公海领取后的首次跟进超时只形成提醒/待处理事实，不自动收回 Customer、不自动重新进公海，具体治理由 PDM-17 冻结。 | HANDOFF_CLOSED | 07_重建工作区/PDM-17_最终完整规则.md | YES |
 | HO-P16-P21-001 | PDM-21 | 员工端承接 CRM list/detail、记录跟进、我的客户/团队客户、Customer Opportunity、Source Radar 等 carrier；Customer Opportunity=聚合客户机会信号、Source Radar=Demand-centered Matching change discovery、强待办=真实服务责任，三类不得合并成一个 task/state system。Source Radar“推荐给客户”进入 PDM-14 Recommendation Authority；“标记不适合”只抑制当前 Demand×Vehicle 当前有效匹配事实，不改 PDM-12 Match Result/Rule Dictionary/Demand 条件，底层合法 Matching 输入实质变化后可重新出现；不得恢复 CRM 直接锁车入口；最近行为只显示聚合兴趣，不开放逐点击监控。 | HANDOFF_CLOSED | \`07_重建工作区/PDM-21_最终完整规则.md\` | YES |
 | HO-P16-P22-001 | PDM-22 | PC 后台承接公司级受控 CRM Stage 字典与 Customer Tag 字典的真实配置 carrier：支持新增、改名/排序、启用/停用，历史已使用 Stage/Tag 不普通物理删除，停用不回写历史 Customer 事实；配置提交服从当前 identity+permission/capability+data scope+object/config state 并留审计。P06-07“客户机会规则”页面名不得反推任意 Opportunity rule CRUD/config；V1 不建设通用 Customer Opportunity 规则引擎，只消费以后明确产品批准的 deterministic signal producer。若 PDM-17 保留公海领取后首次跟进提醒时长，其后台配置 carrier 由 PDM-22 按合法配置权限承接，不得把超时配置成自动收回/自动进公海。 | HANDOFF_CLOSED | `07_重建工作区/PDM-22_最终完整规则.md` | YES |
-| HO-P16-P23-001 | PDM-23 | CRM 待办、回访提醒、未来跟进计划若需要主动提醒，其渠道、频控、DND/quiet-hours、失败/跳过/去重日志由 PDM-23 承接；通知结果不得改写 CRM Stage/Tag/Follow-up/责任事实。公海领取后的首次跟进超时若由 PDM-17 确认为提醒事件，则通知层只负责投递/日志，不自动收回 Customer、不自动重新进公海。Customer Opportunity 不逐条自动飞书；普通 Source Radar 变化不得默认升级成强通知，除非后续存在明确 allowlist Authority。 | HANDOFF_OPEN | - | YES |
+| HO-P16-P23-001 | PDM-23 | CRM 待办、回访提醒、未来跟进计划若需要主动提醒，其渠道、频控、DND/quiet-hours、失败/跳过/去重日志由 PDM-23 承接；通知结果不得改写 CRM Stage/Tag/Follow-up/责任事实。公海领取后的首次跟进超时若由 PDM-17 确认为提醒事件，则通知层只负责投递/日志，不自动收回 Customer、不自动重新进公海。Customer Opportunity 不逐条自动飞书；普通 Source Radar 变化不得默认升级成强通知，除非后续存在明确 allowlist Authority。 | HANDOFF_ACCEPTED | - | YES |
 | HO-P16-P25-001 | PDM-25 | 统一审计/历史承接 PDM-16 CRM 核心事实：CRM Stage before/after/actor/time/source context；重要 Customer Tag 增删替换的可追溯变化；Shared Profile before/after；员工内部服务称呼 author/time/source/修改历史且不得覆盖旧事实；Follow-up append-only、更正/作废/无效历史；Stage/Tag 字典新增/改名/排序/启停与历史停用语义；当前 access 与公司历史事实分离；历史不可因 owner/public-pool/employee inactive 被物理删除。 | HANDOFF_OPEN | - | YES |
 ---
 
@@ -457,7 +457,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | HO-P17-P19-001 | PDM-19 | Transaction / Refund 在途责任继续作为公海保护事实；Customer owner / 公海变化不得静默取消、漂移或重建 Transaction/Refund 当前责任与历史；进入公海前必须先按 PDM-19 完成、取消或正式交接未完成责任。 | HANDOFF_CLOSED | 07_重建工作区/PDM-19_最终完整规则.md | YES |
 | HO-P17-P21-001 | PDM-21 | 员工端承接公海 / 待公海真人操作投影：后台指定分配 / 人工治理为主，主动领取为保留但弱化且受 permission/config 控制；承载待公海三向处理、主动领取、批量治理、Collaboration 建立/结束/范围操作，并服从当前 owner、permission/capability、data scope、保护事实、敏感字段与并发 Guard。 | HANDOFF_CLOSED | \`07_重建工作区/PDM-21_最终完整规则.md\` | YES |
 | HO-P17-P22-001 | PDM-22 | PC 后台承接待公海候选条件、继续当前 owner 后重新检查周期、主动领取数量上限/频率限制、领取后首次跟进提醒时间等配置 carrier；PDM-17 只冻结“可配置”，不写死数值；配置不得把提醒升级成自动收回/自动进公海。 | HANDOFF_CLOSED | `07_重建工作区/PDM-22_最终完整规则.md` | YES |
-| HO-P17-P23-001 | PDM-23 | 通知层承接待公海与领取后首次跟进提醒的渠道、频控、DND/quiet-hours、失败/跳过/去重与日志；长期未跟进三条件候选本身不自动飞书，任何通知结果都不得改写 owner、公海状态或 Collaboration。 | HANDOFF_OPEN | - | YES |
+| HO-P17-P23-001 | PDM-23 | 通知层承接待公海与领取后首次跟进提醒的渠道、频控、DND/quiet-hours、失败/跳过/去重与日志；长期未跟进三条件候选本身不自动飞书，任何通知结果都不得改写 owner、公海状态或 Collaboration。 | HANDOFF_ACCEPTED | - | YES |
 | HO-P17-P25-001 | PDM-25 | 统一审计/历史承接 PDM-17 核心变化：正式进入/退出公海、主动领取、后台指定分配/owner transfer、继续当前 owner 确认、Collaboration 新增/移除/scope 变化，以及 before/after/actor/time、可选 reason/note、每轮公海历史与不可物理删除语义。 | HANDOFF_OPEN | - | YES |
 ---
 ## 12H. PDM-18 来源 handoff
@@ -468,7 +468,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | HO-P18-P20-001 | PDM-20 | 客户端承接 LockRequest / Lock / Waitlist Customer Safe Projection：普通 VIP/粉丝 Lock 只占车不自动全客户隐藏；Priority-origin Lock 在 Priority ended(converted_to_lock) 后继承客户侧排他 visibility；自动 Waitlist 的客户可在“我的候补”等位置看到必要安全摘要但不得穿透 Priority-origin Lock 普通详情；普通 Lock/Waitlist 当前与历史、延期后 expires_at、已收 Deposit 持续锁定文案由 PDM-20 投影；Waitlist 内部存在处理顺序但客户端不得展示保证性“第几名”。 | HANDOFF_CLOSED | 07_重建工作区/PDM-20_最终完整规则.md | YES |
 | HO-P18-P21-001 | PDM-21 | 员工端承接 LockRequest 待处理与 Lock/Waitlist 管理：LockRequest PENDING/APPROVED/REJECTED/EXPIRED/LOCK_CONFLICT/CLOSED_NOT_LOCKABLE 投影，4S hard DENY；名邦合法 Employee 可在明确 Customer+Vehicle 上下文直接创建 Lock；approve 必须重验并原子创建 Lock；支持普通 Lock 延期、人工 release/cancel、Waitlist end、responsible handoff；人工 mutation 服从 permission/capability+scope+object state 并保留 reason/audit。V1 不新增批量 Lock/approve/release/extension/Waitlist mutation。 | HANDOFF_CLOSED | \`07_重建工作区/PDM-21_最终完整规则.md\` | YES |
 | HO-P18-P22-001 | PDM-22 | PC 配置承接默认正式 Lock 时长：当前业务默认 72h、后台可配置；新 Lock 创建时读取并固化 expires_at，后改默认值不追改旧 Lock；修改默认时长必须由具有 business-config permission/capability 且 scope 合法的身份执行，System Admin 控制平面身份本身不自动获得该业务配置权；配置变更记录 old/new/actor/time。PDM-18 不恢复固定 30 分钟到期提醒默认值。 | HANDOFF_CLOSED | `07_重建工作区/PDM-22_最终完整规则.md` | YES |
-| HO-P18-P23-001 | PDM-23 | 通知层承接 LockRequest APPROVED/REJECTED/EXPIRED/LOCK_CONFLICT/CLOSED_NOT_LOCKABLE、自动 Waitlist、Lock 即将到期等 allowlist / 渠道 / DND / 频控 / 去重 / 失败日志；PDM-18 不写死默认提前 30 分钟，是否提醒及提前量由 PDM-23 + PDM-22 当前配置决定；任何通知成功/失败/SKIPPED 均不得改写 LockRequest/Lock/Waitlist 主业务事实。 | HANDOFF_OPEN | - | YES |
+| HO-P18-P23-001 | PDM-23 | 通知层承接 LockRequest APPROVED/REJECTED/EXPIRED/LOCK_CONFLICT/CLOSED_NOT_LOCKABLE、自动 Waitlist、Lock 即将到期等 allowlist / 渠道 / DND / 频控 / 去重 / 失败日志；PDM-18 不写死默认提前 30 分钟，是否提醒及提前量由 PDM-23 + PDM-22 当前配置决定；任何通知成功/失败/SKIPPED 均不得改写 LockRequest/Lock/Waitlist 主业务事实。 | HANDOFF_ACCEPTED | - | YES |
 | HO-P18-P25-001 | PDM-25 | 统一审计与工程完整性承接 LockRequest / Lock / Waitlist：create/reuse/approve/reject/expire/conflict/closed-not-lockable、resulting_lock_id/resulting_waitlist_id、Lock create/extend/release/cancel/expiry/responsible handoff、Waitlist create/reuse/auto-create/end/vehicle-terminal end、price/duration snapshot、supply_anomaly、before/after/actor/system/time/reason；验证单车唯一 active Lock、幂等/retry-safe、并发 winner、timeout worker、配置 snapshot 不追改、自动候补与唯一 active Waitlist。历史不可物理删除。 | HANDOFF_OPEN | - | YES |
 
 ---
@@ -480,7 +480,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | HO-P19-P20-001 | PDM-20 | 客户端承接 PDM-19 Customer Safe Projection：我的交易 / 意向金 / 退款中仅展示客户本人合法可见的 Vehicle 摘要、Transaction 当前/历史状态、时间、当前负责人、客户自身 Deposit/Refund 事实与换车新旧业务必要关联；不得下发内部资金权限、上游电话、内部价、其他 Customer 信息。Transaction completed/cancelled/corrected 不自动改变 Consultation/Demand 页面状态；真实业务状态只读 PDM-19/PDM-11/PDM-15 Authority。 | HANDOFF_CLOSED | 07_重建工作区/PDM-20_最终完整规则.md | YES |
 | HO-P19-P21-001 | PDM-21 | 员工端承接 Deposit / Transaction / Refund / correction 真实 Action Contract：记录真实 Deposit 与资金 correction 分权；Transaction create/complete/cancel/correct；Refund create、真实退款确认、pending 直接 close+reason；supply anomaly 后 cancel/change-car/refund；Transaction responsible handoff。员工 Vehicle Feed 占用状态遵守 trading > locked，列表不得泄露客户姓名/手机号/Deposit 金额/详细交易进度。所有敏感动作服从 identity+permission/capability+scope+object state。 | HANDOFF_CLOSED | \`07_重建工作区/PDM-21_最终完整规则.md\` | YES |
 | HO-P19-P22-001 | PDM-22 | PC 后台承接 P07 Deposit / Transaction / Refund / correction 真实业务管理 carrier，以及 Dashboard 进行中 Transaction / 资金待办等统计口径；System Admin 控制平面身份本身不获得 Transaction/资金业务执行权。PC carrier 不得把 closed 当 refunded，不得允许覆盖式改写历史。 | HANDOFF_CLOSED | `07_重建工作区/PDM-22_最终完整规则.md` | YES |
-| HO-P19-P23-001 | PDM-23 | 通知层承接 Transaction / Refund 关键状态变化的渠道、DND、去重、失败日志与 allowlist；包括 Transaction created/completed/cancelled/corrected、Refund pending/refunded/closed、supply anomaly 等适用事件。通知成功/失败/SKIPPED 均不得改变 Deposit/Transaction/Refund/correction 业务事实。 | HANDOFF_OPEN | - | YES |
+| HO-P19-P23-001 | PDM-23 | 通知层承接 Transaction / Refund 关键状态变化的渠道、DND、去重、失败日志与 allowlist；包括 Transaction created/completed/cancelled/corrected、Refund pending/refunded/closed、supply anomaly 等适用事件。通知成功/失败/SKIPPED 均不得改变 Deposit/Transaction/Refund/correction 业务事实。 | HANDOFF_ACCEPTED | - | YES |
 | HO-P19-P25-001 | PDM-25 | 统一审计与工程完整性承接 Deposit/Transaction/Refund/correction：append-only history、Lock→Transaction 原子转换、single in-progress Transaction per Vehicle、retry-safe/idempotency、Refund Lock XOR Transaction subject、refundable_balance、防并发超退、真实当场退款直达 refunded、terminal read-only、correction before/after、actual_deal_price 历史主价格、responsible handoff、supply_anomaly、误成交 correction 不制造假 relist/new cycle；统一验证 actor/time/reason/provenance/transaction isolation。 | HANDOFF_OPEN | - | YES |
 
 ---
@@ -500,7 +500,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 | handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
 |---|---|---|---|---|---|
-| HO-P21-P23-001 | PDM-23 | 通知 / 飞书层承接 PDM-21 员工端工作台与敏感页面的通知投影：通知只消费真实 Consultation SLA、LockRequest deadline、Priority expires_at、Transaction/业务事件等 completed-PDM 事实；不得把 E01 urgency 排序反向写成新的业务状态。通知 deep-link 进入 E01/E06/E07 等当前合法员工上下文时必须重新校验 identity、permission/capability、data scope、object state；打开通知/打开详情本身不得误算 Consultation first response。 | HANDOFF_OPEN | - | YES |
+| HO-P21-P23-001 | PDM-23 | 通知 / 飞书层承接 PDM-21 员工端工作台与敏感页面的通知投影：通知只消费真实 Consultation SLA、LockRequest deadline、Priority expires_at、Transaction/业务事件等 completed-PDM 事实；不得把 E01 urgency 排序反向写成新的业务状态。通知 deep-link 进入 E01/E06/E07 等当前合法员工上下文时必须重新校验 identity、permission/capability、data scope、object state；打开通知/打开详情本身不得误算 Consultation first response。 | HANDOFF_ACCEPTED | - | YES |
 | HO-P21-P25-001 | PDM-25 | 统一审计 / 历史 / 横切完整性承接 PDM-21 员工体验规则：Internal Mode 临时 session、长按进入、后台5分钟退出、权限撤销后旧页面失效；高风险员工 Action 的 entry_context、actor、time、before/after、result、failure；source_type、hidden/restore、价格、电话、Archive、Recommendation、Lock/Transaction 等继续复用对应业务域审计事实，不由 PDM-21 建第二套日志；E01 排序、UI 状态、disabled/hidden carrier 不得反向改写底层历史。 | HANDOFF_OPEN | - | YES |
 
 ---
@@ -679,7 +679,9 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 | handoff_id | target | 语义 | status | target_landing | source_backwrite_required |
 |---|---|---|---|---|---|
-| HO-P22-P23-001 | PDM-23 | 通知 / 飞书层承接 PDM-22 已冻结的业务配置值与通知 carrier 边界：Consultation 首次响应 SLA、公海领取后首次跟进提醒、Lock 即将到期提醒等业务配置值由对应业务/PC 配置提供；PDM-23 负责通知 allowlist、渠道、飞书、DND、频控、去重、失败 / skipped 日志。通知成功、失败、跳过均不得改写 Consultation / Customer owner / Lock 等底层业务状态。 | HANDOFF_OPEN | - | YES |
+| HO-P22-P23-001 | PDM-23 | 通知 / 飞书层承接 PDM-22 已冻结的业务配置值与通知 carrier 边界：Consultation 首次响应 SLA、公海领取后首次跟进提醒、Lock 即将到期提醒等业务配置值由对应业务/PC 配置提供；PDM-23 负责通知 allowlist、渠道、飞书、DND、频控、去重、失败 / skipped 日志。通知成功、失败、跳过均不得改写 Consultation / Customer owner / Lock 等底层业务状态。 | HANDOFF_ACCEPTED | - | YES |
 | HO-P22-P25-001 | PDM-25 | 统一审计 / 历史 / 配置版本承接 PDM-22 PC 管理规则：重要配置 before/after/actor/time、配置版本、统一历史检索、时区规范，以及 Employee / System Admin PC credential 治理 mutation 的统一审计；继续复用各业务域既有审计事实，不由 PDM-22 再造第二套跨域日志或历史 Authority。 | HANDOFF_OPEN | - | YES |
 
 > 2026-10-07 PDM-22 Final Closeout：target=PDM-22 的 18 / 18 incoming handoff 已全部 `HANDOFF_CLOSED`，target landing=`07_重建工作区/PDM-22_最终完整规则.md`，source backwrite=YES；HO-P22-P23-001 / HO-P22-P25-001 继续 `HANDOFF_OPEN`。
+
+> 2026-10-07 PDM-23 Startup Gate：target=PDM-23 的 10 / 10 incoming handoff 已由 P23-R00 / Startup Gate 正式接收为 `HANDOFF_ACCEPTED`；最终关闭与 source backwrite 仍须等待 PDM-23 Final Closeout。
