@@ -459,7 +459,7 @@ PDM-12 承接状态：
 ### 20.4 客户端 / 员工端 / PC / 审计承接
 
 - PDM-20｜`HANDOFF_CLOSED`：PDM-20 Final 已正式承接 customer_visible 档案/报告、无可见资料整块隐藏、VIN/敏感原件禁止下发，以及 JYT/人工/名邦真实检测 provenance 的 Customer Safe Projection；`HO-P07-P20-001 = HANDOFF_CLOSED / source_backwrite=YES`；
-- PDM-21｜`HANDOFF_OPEN`：员工端档案上传、后补、更新/替换、作废、历史、核验、`customer_visible` 设置/取消，以及 4S 仅操作自己有权 Vehicle 的真实动作投影；
+- PDM-21｜`HANDOFF_CLOSED`：PDM-21 Final 已正式承接档案上传/后补/替换/作废/历史/核验/customer_visible 与 4S 合法范围投影；`HO-P07-P21-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-22｜`HANDOFF_OPEN`：成交/交付 required-field set 的 PC 配置承载；必须要求明确员工业务配置能力，System Admin 身份本身不自动获得该业务配置权；
 - PDM-25｜`HANDOFF_OPEN`：archive create/update/replace/void/verify、customer visibility before/after、required-field config change、上传人/时间、新旧版本关系等统一审计与历史留存标准。
 
