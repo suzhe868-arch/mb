@@ -1,3 +1,17 @@
+## 2026-10-07｜PDM-23 Batch 4 历史重扫重建版已批准并执行
+
+- 历史重扫已完成：9/06 SSOT/Decision、R12、001～078、Current P09 carrier 与 completed-PDM Final 已复核；
+- 旧 `P23-B4-01～P23-B4-06` 保留为历史草案，状态 `SUPERSEDED_NOT_APPROVED_NOT_APPLIED`；
+- 新正式 Batch 4：`P23-B4R-01～P23-B4R-10 = PASS / USER_APPROVED / APPLIED`；
+- 微信小程序订阅消息：保留未来接入能力，当前不作为核心业务依赖，不建通用客户消息中心；
+- 飞书：保留公司总开关、员工个人提醒开关、合法总群路由；取消重复的独立“群总开关”；
+- 员工级“其 SLA 超时是否进入飞书总群”正式保留，默认开启，由合法管理/配置能力控制；
+- 未来独立 App Push 仅预留 notification channel 接入能力，V1 不实现；PC 主动 Push V1 不做；
+- `HO-P23-P25-001` 已正式登记为 HANDOFF_OPEN；
+- completed-PDM hard conflict = 0；local product choice unresolved = 0；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：**PDM-23 Final 前完整性复核（Prefinal Integrity）**。
+
 ## 2026-10-07｜PDM-23 窗口切换交接已保存｜Batch 4 暂停审查并要求重建
 
 - Startup Gate + Batch 1～3 = 已正式 PASS / APPLIED；

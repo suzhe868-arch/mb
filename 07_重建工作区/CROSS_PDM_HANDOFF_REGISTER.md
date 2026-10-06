@@ -505,6 +505,17 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
+
+## 12M. PDM-23 来源 handoff
+
+| handoff_id | target | 语义 | status | target_landing | source_backwrite_required |
+|---|---|---|---|---|---|
+| HO-P23-P25-001 | PDM-25 | 统一审计 / 历史 / 时区承接 PDM-23 Notification 规则：Notification Config before/after/actor/time、employee_id↔飞书接收身份映射历史、公司飞书总开关、员工个人提醒开关、员工级 SLA 总群开关、DND/群路由/incident cadence 配置历史、Notification Log 统一时间与历史检索、业务事件与 Notification fact 关联、SENT/FAILED/SKIPPED/DEDUPED/NOT_ALLOWLISTED 查询边界、敏感字段最小化与 audit visibility。PDM-25 不得反向改变 PDM-23 已冻结的通知渠道/开关/业务解耦语义。 | HANDOFF_OPEN | - | YES |
+
+> 2026-10-07 PDM-23 Batch 4 重建版已 USER_APPROVED / APPLIED；HO-P23-P25-001 正式登记。待 PDM-25 承接后关闭并回写来源。
+
+---
+
 ## 13. Post-PDM25 IA / Low-Fi Carrier Ledger｜持续累积
 
 > 当前只登记，不施工；统一在 PDM-25 完成 + PDM-01～25 全局最终总复核 PASS 后集中对齐。

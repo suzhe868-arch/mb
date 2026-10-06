@@ -1,6 +1,6 @@
 # PDM-23｜通知 / 飞书 / SLA / 夜间免打扰 / Incident / 通知日志｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_REBUILT_PASS / USER_APPROVED / APPLIED`  
 > 核心定位：`P23-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：10 / 10 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -795,7 +795,7 @@ P09 可以展示：
 > **P23-B3-01～P23-B3-16 已全部批准并执行；进入 Batch 4 / Final-gap scan。**
 ---
 
-# 9. Batch 4｜Final-gap / 产品边界扫描｜PENDING_USER_REVIEW
+# 9. 旧版 Batch 4 草案｜HISTORICAL / SUPERSEDED_NOT_APPROVED_NOT_APPLIED
 
 > 结果：未发现新的 completed-PDM hard conflict；发现 1 个真实产品承载选择 + 5 个稳定收口项。  
 > 本批目标是让 PDM-23 可以进入 Final 前完整性复核，而不是扩建新的消息平台。
@@ -936,7 +936,7 @@ PDM-25 负责统一审计 / 历史标准，PDM-23 不建设第二套跨域审计
 
 ---
 
-# 10. Batch 4 Gate｜PENDING_USER_REVIEW
+# 10. 旧版 Batch 4 Gate｜SUPERSEDED_NOT_APPROVED_NOT_APPLIED
 
 当前：
 
@@ -1000,3 +1000,181 @@ PDM-25 负责统一审计 / 历史标准，PDM-23 不建设第二套跨域审计
 - CROSS_PDM_HANDOFF_REGISTER；
 
 然后重扫微信 / 飞书 / 总群 / SLA timeout / 员工级总群豁免 / DND / Incident / Notification Config 历史，再重新生成完整 Batch 4 交用户裁决。
+
+
+---
+
+# 12. Batch 4 重建版｜历史重扫后正式产品边界｜PASS / USER_APPROVED / APPLIED
+
+> 2026-10-07 历史重扫范围：9/06 SSOT / Decision Register、R12、001～078 M18、Current P09 carrier、PDM-15/16/17/18/19/21/22 Final，以及窗口切换恢复候选。  
+> 旧 P23-B4-01～P23-B4-06 从未 USER_APPROVED / APPLIED，本节以新的 `P23-B4R-01～P23-B4R-10` 作为 Batch 4 唯一正式 Authority。  
+> 用户先确认产品口径“可以”，随后明确“确认执行”。
+
+## P23-B4R-01｜V1 不建设通用通知模板中心 / 任意事件渠道矩阵
+
+V1 不建设“大而全”的 Notification Strategy Center，不提供任意业务事件自行组合短信 / 微信 / 飞书 / App / PC、模板、频率、接收组的通用矩阵。
+
+当前只保留明确批准的通知能力与配置：
+
+- allowlist；
+- 员工飞书映射；
+- 公司飞书总开关；
+- 员工个人飞书提醒开关；
+- 飞书总群合法路由；
+- 员工级 SLA 超时是否进入总群；
+- DND；
+- 已批准 reminder / incident cadence；
+- Notification Log。
+
+未来新增渠道必须通过明确产品 Authority，再接入现有通知投递层；不得由 Engineering 自行把渠道扩成业务规则。
+
+## P23-B4R-02｜微信小程序订阅消息保留接入能力，当前不作为核心依赖
+
+V1 不把微信小程序订阅消息做成核心业务依赖，但通知架构必须保留后续接入能力。
+
+当前冻结：
+
+- 允许未来把“微信小程序订阅消息 / 平台允许的客户服务通知能力”作为新的 customer notification channel 接入；
+- 当前阶段不冻结具体腾讯模板、授权次数、发送资格、类目限制或 provider 实现细节；
+- 实际启用时必须服从届时微信小程序平台规则、合法模板与用户授权；
+- 未授权、无合法模板、渠道不可用、provider 发送失败均不得使 LockRequest / Waitlist / Transaction / Refund / Recommendation 等业务失败或回滚；
+- 不建设通用客户消息中心 / 已读未读状态机；
+- 不假定“一次授权即可永久主动推送”。
+
+因此，早期“V1 完全不建设微信订阅消息接入”的负向边界被本条用户新裁决部分取代；“不把微信通知变成核心业务依赖 / 通用消息中心”的边界继续有效。
+
+## P23-B4R-03｜公司飞书总开关
+
+通知配置保留公司级飞书总开关。
+
+关闭时：
+
+- 所有飞书个人通知与飞书总群主动投递停止；
+- 业务事件、SLA、Incident、工作台事实与 Notification Log 继续正常产生；
+- 不改变 owner / assignee / responsible / deadline / 业务主状态；
+- 适用时记录 channel disabled / SKIPPED 类投递结果。
+
+重新开启后仍需按当前 event validity、recipient、DND、frequency、dedupe 重新判断，不机械补发全部历史事件。
+
+## P23-B4R-04｜员工个人飞书业务提醒开关
+
+每个 Employee 可有独立的“个人飞书业务提醒”开关，默认开启。
+
+关闭只影响发送给该员工个人飞书身份的主动业务提醒：
+
+- 不影响 E01 / E06 / E07 等工作台业务投影；
+- 不改变其 Customer owner、业务 assignee / responsible；
+- 不改变 SLA / Incident / Lock / Transaction 等事实；
+- 不自动关闭其 SLA 总群告警资格。
+
+开关的配置权限仍受 Notification Config permission/capability + scope 约束。
+
+## P23-B4R-05｜飞书总群只保留合法路由，不再另造重复“群总开关”
+
+飞书总群 / 业务群作为群告警路由配置保留。
+
+V1 不再单独建设与“公司飞书总开关”重复的“群通知总开关”。
+
+群通知实际发送至少要求：
+
+- 公司飞书总开关开启；
+- 当前事件允许群告警；
+- 当前存在合法群 / 路由配置；
+- event validity、DND、frequency / dedupe 等发送条件通过。
+
+群路由缺失或失效只产生通知层 FAILED / SKIPPED，不得改写底层业务责任。
+
+## P23-B4R-06｜员工级“其 SLA 超时是否进入飞书总群”开关
+
+对 Employee 保留独立配置：
+
+> **该员工负责的 Consultation 首次响应 SLA 超时，是否进入飞书总群通告。**
+
+规则：
+
+- 默认开启；
+- 由具备相应管理 / Notification Config 能力与 scope 的合法人员配置，不把它做成员工规避管理的无约束自助开关；
+- 关闭后，仅停止“该员工负责 Consultation 的 SLA timeout → 飞书总群”投递；
+- SLA timeout 事实仍成立；
+- E01 / E06 的超时强待办 / 排序仍成立；
+- Notification / audit 相关事实仍记录；
+- 不改变 Consultation assignee、deadline、first-response 或主状态；
+- 不等于关闭该员工个人飞书提醒；
+- 不等于关闭公司飞书渠道。
+
+本条属于本轮用户明确新增的产品规则；历史只明确冻结“SLA 超时直接飞书大群”，未找到此前已经固化的员工级豁免开关。
+
+## P23-B4R-07｜个人接收人按真实业务责任解析；无路由不得改派
+
+个人员工通知：
+
+- 按来源业务对象的当前合法 owner / assignee / responsible / handoff 事实解析目标 Employee；
+- 再读取该 employee_id 当前有效飞书映射和个人提醒开关；
+- PDM-23 不维护第二套 notification owner / assignee。
+
+若 Employee inactive、飞书映射缺失/失效或当前事件没有合法个人接收人：
+
+- 只记录 FAILED / SKIPPED / recipient unavailable 等通知结果；
+- 不自动改 owner；
+- 不自动换 assignee / responsible；
+- 不创建新的业务接替关系。
+
+## P23-B4R-08｜DND 无隐式紧急绕过；统一使用业务时区
+
+V1 不新增任何隐藏的“紧急事件自动绕过 DND”规则。
+
+包括：
+
+- SLA timeout；
+- supply anomaly；
+- Transaction / Refund；
+- Incident；
+
+均服从当前 DND Authority。
+
+DND 起止、event created、planned send、actual send、retry 等时间统一按项目业务时区解释，不由客户端本地时区改变 quiet-hours 判定。统一 timezone / timestamp / history 标准继续交 PDM-25 收口。
+
+## P23-B4R-09｜未来 App Push 预留接入；PC 主动 Push V1 不做
+
+通知架构保留未来独立 App Push channel 的扩展能力，但 V1 当前不实现：
+
+- device token 产品管理；
+- App Push 配置页面；
+- App 通知中心；
+- 已读未读状态机；
+- 通用 Push 模板中心。
+
+未来正式开发独立 App 时，可以在不改写业务域状态机的前提下接入 PDM-23 notification channel adapter。
+
+PC 端 V1 不建设浏览器 Push / 桌面主动弹窗；PC 继续承载业务管理、工作台、Notification Config 与 Notification Log。
+
+## P23-B4R-10｜正式登记 PDM-23 → PDM-25 交接
+
+PDM-23 向 PDM-25 正式交接：
+
+- Notification Config before / after / actor / time；
+- employee_id ↔ 飞书接收身份映射历史；
+- 公司飞书总开关、员工个人提醒开关、员工级 SLA 总群开关的配置历史；
+- DND / 群路由 / incident cadence 配置历史；
+- Notification Log 的统一时间字段 / 历史检索标准；
+- 业务事件与 Notification fact 的关联审计；
+- SENT / FAILED / SKIPPED / DEDUPED / NOT_ALLOWLISTED 等结果的统一历史查询边界；
+- 敏感字段最小化、audit visibility 与统一业务时区标准。
+
+PDM-25 只承接统一审计 / 历史 / 时区规范，不得反向改变 PDM-23 已冻结的通知产品语义。
+
+## 12.1 Batch 4 重建版 Gate｜PASS
+
+当前：
+
+- `P23-B4R-01～P23-B4R-10 = PASS / USER_APPROVED / APPLIED`
+- `OLD_P23-B4-01～P23-B4-06 = SUPERSEDED_NOT_APPROVED_NOT_APPLIED`
+- `HISTORICAL_RESCAN = COMPLETE`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+- `COMPLETED_PDM_HARD_CONFLICT = 0`
+- `P23_TO_P25_HANDOFF = REGISTERED / HANDOFF_OPEN`
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
+当前唯一下一步：
+
+> **执行 PDM-23 Final 前完整性复核（Prefinal Integrity）。**
