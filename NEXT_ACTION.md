@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-23（Startup Gate 待开始；PDM-22 已 COMPLETE / INTEGRITY_PASS）
+- 当前域：PDM-23（Startup Gate = PASS；Batch 1 待用户审查；PDM-22 已 COMPLETE / INTEGRITY_PASS）
 - PDM-20 = COMPLETE / INTEGRITY_PASS
 - PDM-21 Startup Gate = PASS
 - PDM-21 核心定位 P21-R00 = USER_APPROVED / APPLIED
@@ -55,6 +55,11 @@
 - PDM-22 Final Integrity = `07_重建工作区/PDM-22_最终完整性复核_2026-10-07.md` / PASS
 - PDM-22 Source Backwrite = 18 / 18 DONE
 - PDM-22 Final Closeout = COMPLETE
+- PDM-23 Startup Gate = PASS
+- PDM-23 核心定位 P23-R00 = USER_APPROVED / APPLIED
+- PDM-23 incoming handoffs = 10 / 10 HANDOFF_ACCEPTED
+- PDM-23 工作版 = `07_重建工作区/PDM-23_通知飞书SLA免打扰Incident通知日志_规则原子重建_工作版.md`
+- PDM-23 Batch 1 = P23-A01～P23-A20 / PENDING_USER_REVIEW
 - PDM-22 Outgoing Handoffs = PDM-23 / PDM-25 / 2 HANDOFF_OPEN
 - PDM-22 completed-PDM hard conflict = 0
 - PDM-22 incoming handoff gap = 0
@@ -252,7 +257,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-22 已 `COMPLETE / INTEGRITY_PASS`。当前唯一下一步：PDM-23 Startup Gate。**
+> **PDM-23 Startup Gate 已 `PASS`。当前唯一下一步：用户审查 P23-A01～P23-A20。**
 
 每个 PDM 必须同时执行：
 
