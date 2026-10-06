@@ -1,7 +1,7 @@
 # PDM-17｜公海 / 待公海处理 / 领取 / 指定分配 / Collaboration（协作）｜规则原子重建工作版
 
 > 日期：2026-10-06  
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_RUNNING`  
 > 当前 Authority：本文件仅为 PDM-17 工作 Authority；四批用户审查、Final 前完整性复核与最终总览批准完成后，才可生成正式 Final。  
 > 禁止：当前不得修改 IA / Low-Fi / Engineering，不得提前关闭 incoming handoff。
 
@@ -606,12 +606,13 @@ Customer 已经处于公海 / 待公海治理链路时：
 
 ---
 
-# 10. Batch 4｜真实冲突 / 遗漏 / 缺口 / 新产品选择
+# 10. Batch 4｜真实冲突 / 遗漏 / 缺口 / 新产品选择｜PASS / USER_APPROVED / APPLIED
 
-> 状态：`P17-B4-01～P17-B4-09 / PENDING_USER_REVIEW`。  
+> 状态：`PASS / USER_APPROVED / APPLIED / CHOICES=1A,2A,3A,4A,5A,6A,7A,8A,9A`。  
+> 用户裁决：1A～9A；随后确认执行。  
 > 本批可以覆盖此前“历史稳定但仍留产品选择”的局部运营语义，但不得静默破坏 Customer 唯一 owner、权限模型、未完成责任 Guard、历史不可删除等已完成 PDM 硬约束。
 
-## P17-B4-01｜公海运营主路径：后台指定分配 vs 主动领取
+## P17-B4-01｜公海运营主路径：后台指定分配 vs 主动领取｜CHOICE=A / USER_APPROVED / APPLIED
 
 仓库当前正式证据保留两条路径：
 
@@ -632,7 +633,7 @@ Customer 已经处于公海 / 待公海治理链路时：
 - 主动领取与后台指定分配都是正式主路径；
 - 不强调其中一条优先。
 
-## P17-B4-02｜恢复“疑似长期未真实跟进”人工候选的三条件 AND
+## P17-B4-02｜恢复“疑似长期未真实跟进”人工候选的三条件 AND｜CHOICE=A / USER_APPROVED / APPLIED
 
 001～078 历史反向差集明确发现整条规则在 Current 丢失。
 
@@ -662,7 +663,7 @@ Customer 已经处于公海 / 待公海治理链路时：
 - 只允许 owner 主动释放、管理者人工发起检查等显式入口；
 - 系统不根据未跟进事实生成这类候选。
 
-## P17-B4-03｜待公海候选条件 / 重新检查周期是否写死默认值
+## P17-B4-03｜待公海候选条件 / 重新检查周期是否写死默认值｜CHOICE=A / USER_APPROVED / APPLIED
 
 R6 / R12 明确“可配置”，但没有可靠证据支持固定默认天数。
 
@@ -677,7 +678,7 @@ R6 / R12 明确“可配置”，但没有可靠证据支持固定默认天数�
 
 - 需要另行明确具体天数 / 阈值。
 
-## P17-B4-04｜领取数量 / 频率的计数口径
+## P17-B4-04｜领取数量 / 频率的计数口径｜CHOICE=A / USER_APPROVED / APPLIED
 
 历史只明确存在“数量上限 + 频率限制”，并未形成足够可靠的当前固定数字。
 
@@ -693,7 +694,7 @@ R6 / R12 明确“可配置”，但没有可靠证据支持固定默认天数�
 
 - 需要用户继续给出具体数字。
 
-## P17-B4-05｜领取后的首次跟进提醒默认时长
+## P17-B4-05｜领取后的首次跟进提醒默认时长｜CHOICE=A / USER_APPROVED / APPLIED
 
 当前已冻结“超时只提醒，不自动收回 / 不自动进公海”，但默认时长未冻结。
 
@@ -708,7 +709,7 @@ R6 / R12 明确“可配置”，但没有可靠证据支持固定默认天数�
 
 - 需要用户继续给出具体时间。
 
-## P17-B4-06｜是否支持批量公海治理
+## P17-B4-06｜是否支持批量公海治理｜CHOICE=A / USER_APPROVED / APPLIED
 
 R6 明确历史支持管理人员批量处理，但 Current 承载不足。
 
@@ -730,7 +731,7 @@ R6 明确历史支持管理人员批量处理，但 Current 承载不足。
 
 **B｜V1 不做批量治理，只允许逐个 Customer 处理。**
 
-## P17-B4-07｜进入公海 / owner 释放是否强制填写原因
+## P17-B4-07｜进入公海 / owner 释放是否强制填写原因｜CHOICE=A / USER_APPROVED / APPLIED
 
 R6 当前历史规则为：
 
@@ -745,7 +746,7 @@ R6 当前历史规则为：
 
 **C｜所有释放 / 入公海 / 指定移交都强制填写原因。**
 
-## P17-B4-08｜Collaboration scope 是否继续只保留两级
+## P17-B4-08｜Collaboration scope 是否继续只保留两级｜CHOICE=A / USER_APPROVED / APPLIED
 
 历史正式规则已经存在两层：
 
@@ -763,7 +764,7 @@ R6 当前历史规则为：
 - 例如只读、可跟进、可咨询、可交易等；
 - 会形成第二层权限配置体系。
 
-## P17-B4-09｜公海领取前敏感信息可见性
+## P17-B4-09｜公海领取前敏感信息可见性｜CHOICE=A / USER_APPROVED / APPLIED
 
 R6 明确存在历史规则：
 
@@ -802,4 +803,15 @@ Batch 1 尚未把这一字段级 object-state Guard 完整写入。
 
 当前唯一下一步：
 
-> **用户裁决 P17-B4-01～P17-B4-09。**
+> **P17-B4-01～P17-B4-09 已按 1A～9A 批准并执行。当前进入 Final 前完整性复核 R1。**
+
+---
+
+## 10.2 Batch 4 Gate｜PASS
+
+- 用户裁决：`1A、2A、3A、4A、5A、6A、7A、8A、9A`；
+- 用户随后明确“确认执行”；
+- `P17-B4-01～P17-B4-09 = PASS / USER_APPROVED / APPLIED`；
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- 6 / 6 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工。
