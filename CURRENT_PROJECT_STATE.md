@@ -1,3 +1,17 @@
+## 2026-10-07｜PDM-22 新增 PC 网页登录身份规则已执行
+
+- 用户明确确认：现有销售 / 经理 / 店长 Employee 不新建第二身份，而是在原 `employee_id` 上增加 PC 网页“登录账号 + 密码”；
+- `P22-ADD-01 = USER_APPROVED / APPLIED`；
+- 客户端 / 销售端微信侧入口与 PC 网页后台认证正式分层；
+- PC 登录成功后继续读取原 Employee 的角色、permission、data scope、account status 与 object state；
+- 开通 PC 登录不增加业务权限，Employee 停用后 PC 登录及旧登录态立即失效；
+- System Admin 继续独立系统身份 / 独立登录凭证，不与 Employee PC 登录合并；
+- 4S 默认不开 PC，仅明确授予 PC 车辆管理能力时才允许启用对应登录；
+- B2-01 已同步补充“网页认证 ≠ 第二 Employee 身份”的边界；
+- Batch 2 本身仍为 `P22-B2-01～P22-B2-11 / PENDING_USER_REVIEW`，未偷渡通过；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：继续审查 PDM-22 Batch 2。
+
 ## 2026-10-07｜PDM-22 Batch 1 用户批准并执行
 
 - 用户对 `P22-A01～P22-A22` 全部同意，随后确认执行；

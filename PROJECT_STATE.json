@@ -264,7 +264,8 @@
     "P22-A19",
     "P22-A20",
     "P22-A21",
-    "P22-A22"
+    "P22-A22",
+    "P22-ADD-01"
   ],
   "batch_1_confirmed_count": 15,
   "batch_1_pending_count": 0,
@@ -3885,5 +3886,22 @@
     "P22-B2-09",
     "P22-B2-10",
     "P22-B2-11"
-  ]
+  ],
+  "pdm_22_user_added_rules": [
+    {
+      "id": "P22-ADD-01",
+      "status": "USER_APPROVED_APPLIED",
+      "summary": "Employee PC web credential (login account + password) binds to existing employee_id; no second Employee; uses existing role/permission/data scope/account state; System Admin credential remains separate; 4S PC login only if explicitly granted PC vehicle management capability."
+    }
+  ],
+  "pdm_22_pc_auth_model": {
+    "employee_identity_key": "employee_id",
+    "pc_auth": "LOGIN_ACCOUNT_PLUS_PASSWORD",
+    "creates_second_employee": false,
+    "grants_business_permission": false,
+    "employee_inactive_invalidates_pc_login": true,
+    "system_admin_identity": "SEPARATE_SYSTEM_IDENTITY_AND_CREDENTIAL",
+    "wechat_employee_surface": "SEPARATE_FROM_PC_WEB_AUTH",
+    "four_s_pc_default": "DENY_UNLESS_EXPLICIT_PC_VEHICLE_MANAGEMENT_CAPABILITY"
+  }
 }

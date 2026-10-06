@@ -41,6 +41,7 @@
 - PDM-22 incoming handoffs = 18 / 18 HANDOFF_ACCEPTED
 - PDM-22 工作版 = `07_重建工作区/PDM-22_PC后台信息架构业务管理配置归属上游运行管理_规则原子重建_工作版.md`
 - PDM-22 Batch 1 = P22-A01～P22-A22 / PASS / USER_APPROVED / APPLIED
+- PDM-22 新增规则 P22-ADD-01 = PC 网页账号密码绑定现有 employee_id / USER_APPROVED / APPLIED
 - PDM-22 Batch 2 = P22-B2-01～P22-B2-11 / PENDING_USER_REVIEW
 - PDM-22 Batch 2 Reverse Conflict Scan = PASS / FALSE_DEPRECATION_COUNT=0
 - PDM-22 completed-PDM hard conflict = 0

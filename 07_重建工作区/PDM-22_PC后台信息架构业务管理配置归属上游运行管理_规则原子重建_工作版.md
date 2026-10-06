@@ -521,6 +521,45 @@ PDM-22 可承载已批准的轻量配置，包括：
 
 ---
 
+# 4A. B2 审查中新增已裁决规则｜USER_APPROVED / APPLIED
+
+## P22-ADD-01｜Employee PC 网页登录凭证绑定现有 employee_id｜USER_APPROVED / APPLIED
+
+PC 网页后台采用独立网页认证入口，不复用客户端 / 销售端的微信身份进入方式。
+
+对于已经存在的 Employee：
+
+- 继续以稳定 `employee_id` 作为唯一员工业务身份；
+- 如需要使用 PC 网页后台，可由有权后台治理者为该 `employee_id` 开通一套 PC 登录凭证；
+- V1 当前凭证采用“登录账号 + 密码”的网页认证方式；
+- PC 登录凭证只是认证入口，不创建第二个 Employee，不生成新的 `employee_id`；
+- 登录成功后，继续读取该 `employee_id` 当前角色、permission、data scope、account status 与 object state；
+- 开通 PC 登录本身不增加任何业务 permission，也不扩大 data scope；
+- Employee inactive / 停用后，PC 登录必须立即失效，既有 PC 登录态不得继续操作；
+- 密码重置 / PC 登录启停属于账号治理动作，不得改变该 Employee 的业务身份历史。
+
+客户端 / 销售端与 PC 网页后台因此明确分层：
+
+> 微信侧客户端 / 销售端 = 微信侧身份入口；  
+> PC 后台 = 独立网页账号密码入口；  
+> 两者在 Employee 场景最终都指向同一个 `employee_id`。
+
+System Admin 继续使用独立系统身份 / 独立登录凭证：
+
+- 不绑定成某个 Employee 的 PC 登录凭证；
+- 同一真人同时拥有 System Admin 与 Employee 身份时，仍是两套身份；
+- System Admin 登录态不得自动切换或继承 Employee 业务权限。
+
+4S 边界继续继承 PDM-02：
+
+- 4S 默认不进入名邦 PC 业务后台；
+- 只有已被明确授予 PC 车辆管理能力的 4S 账号，才允许启用对应 PC 网页登录；
+- 登录后仍只看到其合法 4S 车辆裁剪范围，4S hard DENY 不变。
+
+本规则只冻结产品身份 / 认证关系，不在本阶段写死密码强度、加密算法、验证码、MFA、Session 实现等 Engineering 细节。
+
+---
+
 # 5. Batch 2｜旧规则反向冲突扫描｜PENDING_USER_REVIEW
 
 > 目标：只处理已被 PDM-01～21 Final 明确替代、废弃或收窄的旧规则 / stale carrier。  
@@ -531,9 +570,10 @@ PDM-22 可承载已批准的轻量配置，包括：
 旧 `/admin` / PC carrier 若把 P01～P04、P06～P12 解释成只有 System Admin 才能进入，正式废弃。
 
 当前：
-- 员工业务后台按 Employee identity + permission + data scope + object state 使用；
-- P05 才是 System Admin 独立控制平面；
-- System Admin 不因进入 PC 自动取得员工业务权。
+- PC 是独立网页后台；Employee 通过绑定在现有 `employee_id` 上的 PC 登录账号 + 密码进入，不新建第二员工身份；
+- 登录成功后仍按 Employee identity + permission + data scope + account/object state 使用业务后台；
+- P05 才是 System Admin 独立控制平面，System Admin 使用独立系统身份 / 登录凭证；
+- System Admin 不因进入 PC 自动取得员工业务权，也不得把 System Admin 登录态当成 Employee 登录态。
 
 ## P22-B2-02｜废弃旧“内部价无需独立 permission”口径，但不恢复其他已删除伪权限
 
