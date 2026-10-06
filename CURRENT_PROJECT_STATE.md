@@ -1,3 +1,16 @@
+## 2026-10-06｜PDM-21 Final 正式发布并完成 Closeout
+
+- 用户明确“最终批准确认执行”；
+- 正式 Authority：`07_重建工作区/PDM-21_最终完整规则.md`；
+- Final Integrity：`07_重建工作区/PDM-21_最终完整性复核_2026-10-06.md / PASS`；
+- `PDM-21 = COMPLETE / INTEGRITY_PASS`；
+- 56 个正式规则 / 用户裁决单元全部进入 Final；
+- 19 / 19 incoming handoff = `HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE`；
+- 来源 PDM-02～PDM-20 共 19 个 Final 已反向回写；
+- PDM-21 → PDM-23 / PDM-25 两条 outgoing handoff 继续 `HANDOFF_OPEN`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：PDM-22 Startup Gate。
+
 ## 2026-10-06｜PDM-21 Prefinal R1 修复执行完成，R2 PASS
 
 - 用户对 `P21-LIA-01～P21-LIA-09` 全部同意，随后明确“确认执行”；
@@ -304,21 +317,21 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-21_FINAL_OVERVIEW_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-22_STARTUP_GATE`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
 当前域：
 
-> **PDM-21｜员工工作台 / 车辆列表 / 客户中心 / 内部模式 / 敏感动作裁剪**
+> **PDM-22｜PC 后台信息架构 / 业务管理 / 配置归属 / 上游运行管理**
 
 当前域状态：
 
-> `IN_PROGRESS / PREFINAL_R2_PASS / FINAL_OVERVIEW_PENDING_USER_APPROVAL`
+> `STARTUP_GATE_PENDING`
 
 当前工作文件：
 
-> `07_重建工作区/PDM-21_员工工作台车辆列表客户中心内部模式敏感动作裁剪_规则原子重建_工作版.md`
+> `待 PDM-22 Startup Gate 建立`
 
 当前已纠正：
 
@@ -330,7 +343,7 @@
 
 当前唯一下一步：
 
-> **PDM-21 Prefinal R2 = `PASS / FINAL_CANDIDATE_READY`；当前唯一下一步：用户最终批准 PDM-21 Final Domain Overview。**
+> **PDM-21 已 `COMPLETE / INTEGRITY_PASS`；当前唯一下一步：PDM-22 Startup Gate。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
