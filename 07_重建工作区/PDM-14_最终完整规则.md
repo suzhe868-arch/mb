@@ -474,11 +474,11 @@ PDM-14 正式输出：
 - HO-P14-P18-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-18 Final 已正式承接 Lock/Waitlist × Recommendation；Recommendation 不产生 Lock 排队优先级、抢车分值或 takeover 权，Recommendation end/void 不反向取消合法 Lock；Priority-origin Lock 的客户侧排他可见性也不得被 Recommendation 绕过；
 - HO-P14-P19-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-19 Final 已正式承接 Transaction × Recommendation；in-progress Transaction 占用本身不自动禁止仍合法 Recommendation，Recommendation 不 takeover / cancel / rewrite Transaction，真实 sold/offline/unavailable/cycle end 仍按 Vehicle Authority 阻断新业务；
 - HO-P14-P20-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-20 Final 已正式承接“我的推荐”、普通 share、Share Direct、历史详情、Customer Safe Projection、hidden visibility 与 current-cycle price access 的客户端投影；
-- HO-P14-P21-001：员工端 create/batch/end/void/Guard；
+- HO-P14-P21-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-21 Final 已正式承接 Recommendation create/batch/end/void 真人入口及逐车 Guard/idempotency；
 - HO-P14-P23-001：Recommendation 不自动形成微信主动通知状态机；
 - HO-P14-P25-001：Recommendation/visibility 全量审计与历史标准。
 
-其中 PDM-15 / PDM-18 / PDM-19 / PDM-20 已完成承接并 source backwrite；PDM-21 / PDM-23 / PDM-25 继续 `HANDOFF_OPEN`。
+其中 PDM-15 / PDM-18 / PDM-19 / PDM-20 / PDM-21 已完成承接并 source backwrite；PDM-23 / PDM-25 继续 `HANDOFF_OPEN`。
 
 ---
 
