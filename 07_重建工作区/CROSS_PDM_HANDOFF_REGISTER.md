@@ -670,7 +670,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - `HO-P23-P25-001 = HANDOFF_OPEN`；
 - PDM-20 → PDM-24 的 `HO-P20-P24-001 = HANDOFF_ACCEPTED`，已由 PDM-24 Startup Gate 正式接收；Final Closeout 前不关闭、不 source backwrite；
 - IA / Low-Fi / Engineering 继续 `NO_CONSTRUCTION`；
-- 当前唯一下一步：**用户审查 PDM-24 Batch 1（P24-A01～P24-A15）**。
+- 当前唯一下一步：**PDM-24 Batch 4 Final-gap Scan**。
 
 ## 12L. PDM-22 来源 handoff
 
@@ -687,3 +687,6 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 
 > 2026-10-07 PDM-24 Startup Gate：P24-R00 与 P24-R01 已 USER_APPROVED / APPLIED；HO-P20-P24-001 已从 HANDOFF_OPEN 正式接收为 HANDOFF_ACCEPTED，target landing=`07_重建工作区/PDM-24_公告Banner运营位客户触达_规则原子重建_工作版.md`；Final Closeout 前不得 HANDOFF_CLOSED / source backwrite。
+
+
+> 2026-10-07 PDM-24 窗口切换：Batch 1 / Batch 2 已 PASS / USER_APPROVED / APPLIED；Batch 3 = NO_NEW_ATOMS / PASS / USER_APPROVED / APPLIED；HO-P20-P24-001 继续 HANDOFF_ACCEPTED，Final Closeout 前不关闭、不 source backwrite；当前唯一下一步为 PDM-24 Batch 4 Final-gap Scan。
