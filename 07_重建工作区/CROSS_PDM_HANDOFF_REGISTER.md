@@ -473,6 +473,18 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ---
 
+## 12I. PDM-19 来源 handoff
+
+| handoff_id | 目标 | 完整移交语义 | 状态 | 目标 Authority | source_backwrite |
+|---|---|---|---|---|---|
+| HO-P19-P20-001 | PDM-20 | 客户端承接 PDM-19 Customer Safe Projection：我的交易 / 意向金 / 退款中仅展示客户本人合法可见的 Vehicle 摘要、Transaction 当前/历史状态、时间、当前负责人、客户自身 Deposit/Refund 事实与换车新旧业务必要关联；不得下发内部资金权限、上游电话、内部价、其他 Customer 信息。Transaction completed/cancelled/corrected 不自动改变 Consultation/Demand 页面状态；真实业务状态只读 PDM-19/PDM-11/PDM-15 Authority。 | HANDOFF_OPEN | - | YES |
+| HO-P19-P21-001 | PDM-21 | 员工端承接 Deposit / Transaction / Refund / correction 真实 Action Contract：记录真实 Deposit 与资金 correction 分权；Transaction create/complete/cancel/correct；Refund create、真实退款确认、pending 直接 close+reason；supply anomaly 后 cancel/change-car/refund；Transaction responsible handoff。员工 Vehicle Feed 占用状态遵守 trading > locked，列表不得泄露客户姓名/手机号/Deposit 金额/详细交易进度。所有敏感动作服从 identity+permission/capability+scope+object state。 | HANDOFF_OPEN | - | YES |
+| HO-P19-P22-001 | PDM-22 | PC 后台承接 P07 Deposit / Transaction / Refund / correction 真实业务管理 carrier，以及 Dashboard 进行中 Transaction / 资金待办等统计口径；System Admin 控制平面身份本身不获得 Transaction/资金业务执行权。PC carrier 不得把 closed 当 refunded，不得允许覆盖式改写历史。 | HANDOFF_OPEN | - | YES |
+| HO-P19-P23-001 | PDM-23 | 通知层承接 Transaction / Refund 关键状态变化的渠道、DND、去重、失败日志与 allowlist；包括 Transaction created/completed/cancelled/corrected、Refund pending/refunded/closed、supply anomaly 等适用事件。通知成功/失败/SKIPPED 均不得改变 Deposit/Transaction/Refund/correction 业务事实。 | HANDOFF_OPEN | - | YES |
+| HO-P19-P25-001 | PDM-25 | 统一审计与工程完整性承接 Deposit/Transaction/Refund/correction：append-only history、Lock→Transaction 原子转换、single in-progress Transaction per Vehicle、retry-safe/idempotency、Refund Lock XOR Transaction subject、refundable_balance、防并发超退、真实当场退款直达 refunded、terminal read-only、correction before/after、actual_deal_price 历史主价格、responsible handoff、supply_anomaly、误成交 correction 不制造假 relist/new cycle；统一验证 actor/time/reason/provenance/transaction isolation。 | HANDOFF_OPEN | - | YES |
+
+---
+
 ## 13. Post-PDM25 IA / Low-Fi Carrier Ledger｜持续累积
 
 > 当前只登记，不施工；统一在 PDM-25 完成 + PDM-01～25 全局最终总复核 PASS 后集中对齐。
@@ -587,6 +599,11 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | PDM-18 | Lock 配置 carrier 仍写“Lock 不是独立配置对象 / 无配置入口”；当前 Authority 为默认72h且后台可配置、只影响新 Lock | CARRIER_DEFERRED |
 | PDM-18 | 正式 Lock 延期、新 expires_at、已延期、供应异常与 Waitlist 结束矩阵在 Current/Low-Fi 仍存在真实操作投影不足 | CARRIER_DEFERRED |
 
+| PDM-19 | Current IA 中“pending Refund 关闭必须额外独立 refund-management permission”；当前 Authority 已改为合法处理人直接 close + reason，不新增专门 close permission/审批 | CARRIER_DEFERRED |
+| PDM-19 | 旧 Refund 仅 pending/refunded 两主状态；当前 Authority 已扩展为 pending/refunded/closed，closed=未实际退款而关闭 | CARRIER_DEFERRED |
+| PDM-19 | 旧“System Admin 可参与 completed Transaction correction”残留；当前 Authority 明确 System Admin 控制平面身份本身无成交纠错业务权 | CARRIER_DEFERRED |
+| PDM-19 | 客户端/员工端/PC 当前通用交易资金状态壳可能缺 actual_deal_price、Refund closed、Deposit correction、Transaction responsible handoff、误成交 correction listing_cycle 后果等完整投影 | CARRIER_DEFERRED |
+
 ---
 
 ## 14. 强制使用规则
@@ -619,7 +636,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - PDM-16：COMPLETE / INTEGRITY_PASS；
 - PDM-17：COMPLETE / INTEGRITY_PASS；34 个正式规则/裁决单元进入 Final；6/6 incoming handoff = HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE；outgoing HO-P17-P18 已由 PDM-18 Final 承接并 CLOSED/source backwrite，HO-P17-P19 已由 PDM-19 Startup Gate 接收为 HANDOFF_ACCEPTED，P21/P22/P23/P25 继续 HANDOFF_OPEN；正式 Authority=`07_重建工作区/PDM-17_最终完整规则.md`；
 - PDM-18：COMPLETE / INTEGRITY_PASS；43 个正式规则/裁决单元进入 Final；10/10 incoming handoff = HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE；HO-P18-P19 已由 PDM-19 Startup Gate 接收为 HANDOFF_ACCEPTED，其余 P20/P21/P22/P23/P25 继续 HANDOFF_OPEN；正式 Authority=`07_重建工作区/PDM-18_最终完整规则.md`；
-- PDM-19：IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_REPAIR_REQUIRED；P19-R00 已 USER_APPROVED / APPLIED；10/10 incoming handoff = HANDOFF_ACCEPTED；Batch 4=1A～11A 已 APPLIED；Prefinal R1=`REPAIR_REQUIRED / NO_HARD_CONFLICT`；outgoing handoff 待 P19-LIA-06 用户批准后正式登记；工作版=`07_重建工作区/PDM-19_意向金Transaction退款成交纠错换车_规则原子重建_工作版.md`；当前唯一下一步：用户审查 P19-LIA-01～P19-LIA-06；
+- PDM-19：IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R2_PASS / FINAL_REVIEW_PENDING；P19-R00 已 USER_APPROVED / APPLIED；10/10 incoming handoff = HANDOFF_ACCEPTED；P19-LIA-01～P19-LIA-06 已 APPLIED；5 条 outgoing handoff=P20/P21/P22/P23/P25 HANDOFF_OPEN；Prefinal R2=`PASS / FINAL_CANDIDATE_READY`；工作版=`07_重建工作区/PDM-19_意向金Transaction退款成交纠错换车_规则原子重建_工作版.md`；当前唯一下一步：用户最终审查 PDM-19 Final Domain Overview；
 - PDM-12：COMPLETE / INTEGRITY_PASS；4 条 incoming handoff 全部 CLOSED 并完成 source backwrite；其中指向 PDM-18 的 Lock/Matching handoff 已由 PDM-18 Final 承接并 CLOSED/source backwrite；
 - PDM-13：COMPLETE / INTEGRITY_PASS；PDM-13→PDM-14/17/18/19/20/21/22/25 future handoff 已登记；HO-P13-P14/P17/P18 已分别由对应 Final 承接并 CLOSED/source backwrite；HO-P13-P19 已由 PDM-19 Startup Gate 接收为 HANDOFF_ACCEPTED；P20/P21/P22/P25 继续 HANDOFF_OPEN；
 - PDM-14：COMPLETE / INTEGRITY_PASS；52 个正式规则/裁决单元全部进入 Final；8 条 incoming handoff 全部 HANDOFF_CLOSED 并完成 source backwrite；outgoing HO-P14-P15 与 HO-P14-P18 已由目标 Final 承接并 CLOSED/source backwrite，HO-P14-P19 已由 PDM-19 Startup Gate 接收为 HANDOFF_ACCEPTED；P20/P21/P23/P25 继续 HANDOFF_OPEN；正式 Authority=`07_重建工作区/PDM-14_最终完整规则.md`；
