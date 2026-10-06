@@ -1,7 +1,7 @@
 # PDM-24｜公告 / Banner / 运营位 / 客户触达｜规则原子重建工作版
 
 > 域：Announcement / Banner / Placement / Schedule / Customer-facing Operations  
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
 
 ---
@@ -274,7 +274,7 @@ V1 当前明确不建设：
 
 ---
 
-# 3. Batch 2｜明确废弃 / 已覆盖 / 不得恢复｜PENDING_USER_REVIEW
+# 3. Batch 2｜明确废弃 / 已覆盖 / 不得恢复｜PASS / USER_APPROVED / APPLIED
 
 本批只收纳有明确来源证据、且已经被当前 Authority 覆盖的旧方向。  
 Reverse Conflict Scan 规则：
@@ -290,7 +290,7 @@ Reverse Conflict Scan 规则：
 - `FALSE_DEPRECATION_COUNT = 0`
 - `NEW_PRODUCT_CHOICE_INTRODUCED = 0`
 
-## P24-B2-01｜不恢复客户端第四个“消息”Tab / 泛化消息中心
+## P24-B2-01｜不恢复客户端第四个“消息”Tab / 泛化消息中心｜USER_APPROVED / APPLIED
 
 明确不得恢复：
 
@@ -302,7 +302,7 @@ Reverse Conflict Scan 规则：
 
 > 客户端公告 = Announcement；其他业务回到各自已完成 Domain Authority。
 
-## P24-B2-02｜不恢复公告已读 / 未读主状态机
+## P24-B2-02｜不恢复公告已读 / 未读主状态机｜USER_APPROVED / APPLIED
 
 明确不得恢复：
 
@@ -312,7 +312,7 @@ Reverse Conflict Scan 规则：
 
 公告 active / history 与客户端是否主动打开是两类不同事实。
 
-## P24-B2-03｜关闭公告弹层 ≠ 已读公告
+## P24-B2-03｜关闭公告弹层 ≠ 已读公告｜USER_APPROVED / APPLIED
 
 明确不得恢复：
 
@@ -322,7 +322,7 @@ Reverse Conflict Scan 规则：
 
 关闭只结束本次主动展示。
 
-## P24-B2-04｜不恢复“VEHICLE_DETAIL 广告位本身可有可无”
+## P24-B2-04｜不恢复“VEHICLE_DETAIL 广告位本身可有可无”｜USER_APPROVED / APPLIED
 
 历史“详情 Banner 是可选模块 / 不强制所有车辆显示”的表述中：
 
@@ -333,7 +333,7 @@ Reverse Conflict Scan 规则：
 
 > 某些车辆详情页没有 VEHICLE_DETAIL placement，或由单车字段决定是否拥有广告位。
 
-## P24-B2-05｜不恢复任意 / 通用多运营位
+## P24-B2-05｜不恢复任意 / 通用多运营位｜USER_APPROVED / APPLIED
 
 V1 不恢复：
 
@@ -347,7 +347,7 @@ V1 不恢复：
 - HOME_TOP；
 - VEHICLE_DETAIL。
 
-## P24-B2-06｜不把 Banner 扩成广告推荐 / 定向 / 计费平台
+## P24-B2-06｜不把 Banner 扩成广告推荐 / 定向 / 计费平台｜USER_APPROVED / APPLIED
 
 明确不得恢复或新增为 V1：
 
@@ -361,7 +361,7 @@ V1 不恢复：
 
 PDM-24 当前只是固定 placement 的运营配置，不是广告平台。
 
-## P24-B2-07｜不恢复任意外链 / 任意目标字符串
+## P24-B2-07｜不恢复任意外链 / 任意目标字符串｜USER_APPROVED / APPLIED
 
 Banner target 不得恢复为：
 
@@ -374,7 +374,7 @@ Banner target 不得恢复为：
 
 > 已存在、内部白名单、合法的页面 / 业务对象目标。
 
-## P24-B2-08｜无效 / 失效 target 不得继续跳转
+## P24-B2-08｜无效 / 失效 target 不得继续跳转｜USER_APPROVED / APPLIED
 
 明确不得恢复：
 
@@ -384,7 +384,7 @@ Banner target 不得恢复为：
 
 目标失效时可保留纯展示，但点击不得产生非法导航。
 
-## P24-B2-09｜target 为空不等于 Banner 无效
+## P24-B2-09｜target 为空不等于 Banner 无效｜USER_APPROVED / APPLIED
 
 明确不得恢复：
 
@@ -396,7 +396,7 @@ Banner target 不得恢复为：
 
 > target 可为空；为空时是纯展示 Banner。
 
-## P24-B2-10｜不恢复连续强迫多个主动弹层
+## P24-B2-10｜不恢复连续强迫多个主动弹层｜USER_APPROVED / APPLIED
 
 当 Announcement 与资料完善提醒等同时命中时，不得恢复：
 
@@ -408,7 +408,7 @@ Banner target 不得恢复为：
 
 > 同一时刻只主动展示一个；具体视觉优先级 / 调度表现留后续 IA。
 
-## P24-B2-11｜公告不自动升级为微信 / 飞书 / 通知发送任务
+## P24-B2-11｜公告不自动升级为微信 / 飞书 / 通知发送任务｜USER_APPROVED / APPLIED
 
 明确不得把 Announcement 自动映射成：
 
@@ -420,7 +420,7 @@ Banner target 不得恢复为：
 
 公告自身的客户端 active/history/主动弹层属于 PDM-24；若未来新增外部主动渠道，必须重新获得明确产品 Authority，并服从 PDM-23 渠道边界。
 
-## P24-B2-12｜不把 Banner 点击当业务授权或业务 mutation
+## P24-B2-12｜不把 Banner 点击当业务授权或业务 mutation｜USER_APPROVED / APPLIED
 
 Banner 点击不得：
 
@@ -433,22 +433,74 @@ Banner 只能导航到当前合法目标；进入目标后仍由目标 Domain Gu
 
 ---
 
-# 4. Batch 1 执行结果
+# 4. Batch 2 执行结果
 
-- `P24-A01～P24-A15 = PASS / USER_APPROVED / APPLIED`
-- `BATCH_1_CONFIRMED_COUNT = 15`
-- `COMPLETED_PDM_HARD_CONFLICT = 0`
-- `INCOMING_HANDOFF = HO-P20-P24-001 / HANDOFF_ACCEPTED`
+- `P24-B2-01～P24-B2-12 = PASS / USER_APPROVED / APPLIED`
+- `REVERSE_CONFLICT_SCAN = PASS`
+- `FALSE_DEPRECATION_COUNT = 0`
+- `NEW_PRODUCT_CHOICE_INTRODUCED = 0`
+- `HO-P20-P24-001 = HANDOFF_ACCEPTED`
 - `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
 
-# 5. 当前唯一下一步
+---
 
-> **用户审查 PDM-24 Batch 2：P24-B2-01～P24-B2-12。**
+# 5. Batch 3｜明确新增 / 后续变化扫描｜PENDING_USER_REVIEW
+
+本轮重新对照：
+
+- Phase 1.5 D6；
+- HR-14；
+- S4-C13 / S4-C15；
+- Step 7 Announcement / Banner closure；
+- NEW4-01 Announcement lifecycle；
+- fifth-round Banner reorder；
+- Current IA 的 `BANNER_DISPLAY_ONLY` / `DAILY_ANNOUNCEMENT_FREQUENCY`；
+- PDM-20 Final；
+- 用户在 PDM-24 Startup Gate 新增的 `P24-R01`。
+
+## 5.1 后续变化映射
+
+| 后续新增 / 变化事实 | 当前已承接位置 |
+|---|---|
+| Banner target 可选；无 target 纯展示；失效 target 不可点击；只允许内部白名单 | P24-A10 / A11 + P24-B2-07 / B2-08 / B2-09 |
+| Announcement 同公告+同客户按统一业务时区每日最多主动弹一次 | P24-A04 |
+| 关闭公告弹层不创建已读事实 | P24-A05 + P24-B2-02 / B2-03 |
+| Announcement lifecycle 的 draft / scheduled / active / ended / reorder | P24-A02 / A12 / A14 |
+| Banner reorder 只改展示顺序，不改 target / schedule / placement | P24-A12 / A14 |
+| 当前身份 + permission/capability + scope + object/config state 提交重验 | P24-A13 |
+| Announcement / Banner 生命周期与关键变更进入审计历史 | P24-A14 |
+| `VEHICLE_DETAIL` 详情页广告位固定存在 | P24-R01 / P24-A08 / P24-B2-04 |
+| 不建设通用消息中心 / 广告推荐平台 / 任意 Placement Engine | P24-A15 + P24-B2-01 / B2-05 / B2-06 |
+
+## 5.2 Conflict Isolation
+
+扫描结论：
+
+- 上述 later additions / explicit changes 已被 Startup Gate、Batch 1 或 Batch 2 完整吸收；
+- 不需要再复制为第二组重复正式规则；
+- 未发现新的独立业务对象；
+- 未发现新的独立产品状态机；
+- 未发现需要用户在多个产品方向间选择却被误塞进 Batch 3 的事项；
+- 未把 IA / Low-Fi 视觉承载差异误当成产品规则新增。
+
+因此：
+
+- `NEW_INDEPENDENT_ATOMS = 0`
+- `DUPLICATE_RULE_CREATION = 0`
+- `MISCLASSIFIED_PRODUCT_CHOICE = 0`
+- `BATCH_3_CONFLICT_ISOLATION = PASS`
+- `BATCH_3 = NO_NEW_ATOMS / PENDING_USER_REVIEW`
+
+这并不代表 PDM-24 已经没有 Final-gap。真正的遗漏 / 缺口 / 新产品选择仍应留到 Batch 4，不得偷渡进 Batch 3。
+
+# 6. 当前唯一下一步
+
+> **用户审查 PDM-24 Batch 3“无新增独立规则原子”结论。**
 
 未经用户批准与明确执行：
 
-- 不把 Batch 2 标 PASS；
-- 不进入 Batch 3；
+- 不把 Batch 3 标 PASS；
+- 不进入 Batch 4；
 - 不关闭 HO-P20-P24-001；
 - 不 source backwrite PDM-20；
 - 不施工 IA / Low-Fi / Engineering。
