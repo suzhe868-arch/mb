@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-23",
-  "current_domain_status": "STARTUP_GATE_PASS_BATCH_1_PASS_BATCH_2_PASS_BATCH_3_PASS_BATCH_4_PENDING_USER_REVIEW",
+  "current_domain_status": "STARTUP_GATE_PASS_BATCH_1_PASS_BATCH_2_PASS_BATCH_3_PASS_BATCH_4_REVIEW_SUSPENDED_REBUILD_REQUIRED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-23 Batch 4 用户审查",
+  "current_task": "PDM-23 窗口切换交接已保存；Batch 4 历史重扫后重建",
   "current_work_file": "07_重建工作区/PDM-23_通知飞书SLA免打扰Incident通知日志_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -28,7 +28,8 @@
   "forbidden_now": [
     "Do not modify IA or Low-Fi during PDM-01 through PDM-25 product-rule reconstruction",
     "Do not execute Engineering Delta",
-    "Do not run PDM-23 Prefinal Integrity before user approval and explicit execution of P23-B4-01 through P23-B4-06"
+    "Do not approve or execute the preserved old P23-B4-01 through P23-B4-06 draft directly",
+    "Do not run PDM-23 Prefinal Integrity before historical rescan, rebuilt Batch 4 user approval, and explicit execution"
   ],
   "confirmed_rule_atoms": [
     "P01-A01",
@@ -367,7 +368,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-23_BATCH_4",
+  "current_review_batch": "PDM-23_BATCH_4_REBUILD_PENDING",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3137,7 +3138,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "用户审查 P23-B4-01～P23-B4-06",
+  "next_action": "新窗口读取 PDM-23 窗口切换交接快照，重扫微信/飞书/总群/SLA/DND/Incident/Notification Config 历史后重新生成完整 Batch 4",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4206,15 +4207,8 @@
     "P23-B3-16"
   ],
   "pdm_23_batch_3_confirmed_count": 16,
-  "pdm_23_batch_4_status": "PENDING_USER_REVIEW",
-  "pdm_23_batch_4_pending_atoms": [
-    "P23-B4-01",
-    "P23-B4-02",
-    "P23-B4-03",
-    "P23-B4-04",
-    "P23-B4-05",
-    "P23-B4-06"
-  ],
+  "pdm_23_batch_4_status": "REVIEW_SUSPENDED_REBUILD_REQUIRED",
+  "pdm_23_batch_4_pending_atoms": [],
   "pdm_23_batch_4_true_product_choice_count": 1,
   "pdm_23_batch_4_stable_closure_count": 5,
   "pdm_23_batch_4_recommended_choices": [
@@ -4225,5 +4219,35 @@
     "5_AGREE",
     "6_AGREE"
   ],
-  "pdm_23_outgoing_handoff_gap": "P23_TO_P25_PENDING_APPROVAL"
+  "pdm_23_outgoing_handoff_gap": "P23_TO_P25_PENDING_APPROVAL",
+  "pdm_23_batch_4_old_draft_atoms": [
+    "P23-B4-01",
+    "P23-B4-02",
+    "P23-B4-03",
+    "P23-B4-04",
+    "P23-B4-05",
+    "P23-B4-06"
+  ],
+  "pdm_23_batch_4_old_draft_status": "PRESERVED_NOT_APPROVED_NOT_APPLIED",
+  "pdm_23_window_handoff": "07_重建工作区/PDM-23_窗口切换交接_2026-10-07.md",
+  "pdm_23_window_handoff_status": "SAVED",
+  "pdm_23_batch_4_rescan_required": true,
+  "pdm_23_batch_4_rescan_focus": [
+    "微信小程序订阅消息/服务通知实际能力与平台约束",
+    "公司飞书渠道总开关",
+    "员工个人飞书业务提醒开关",
+    "飞书业务总群/群告警开关",
+    "员工级SLA超时是否进入飞书总群通告开关",
+    "PC主动通知V1暂不考虑",
+    "未来独立App Push仅预留不实施",
+    "DND/Incident/Notification Config历史",
+    "PDM-23到PDM-25审计/历史/时区handoff"
+  ],
+  "pdm_23_conversation_recovered_candidates": [
+    {
+      "id": "P23-CAND-FEISHU-EMPLOYEE-GROUP-OVERTIME-TOGGLE",
+      "status": "HISTORICAL_RESCAN_REQUIRED_NOT_APPROVED_NOT_APPLIED",
+      "summary": "员工级配置其负责业务SLA超时是否进入飞书总群通告；关闭只影响总群投递，不改变SLA或业务状态。"
+    }
+  ]
 }
