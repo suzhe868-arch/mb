@@ -1,3 +1,16 @@
+## 2026-10-06｜PDM-20 Batch 3 用户批准并执行
+
+- 用户对 `P20-B3-01～P20-B3-08` 全部同意，随后明确“确认执行”；
+- `P20-B3-01～P20-B3-08 = PASS / USER_APPROVED / APPLIED`；
+- Conflict Isolation = `PASS / MISCLASSIFIED_PRODUCT_CHOICE=0`；
+- Batch 4 Gap / Choice Scan 已完成；
+- 形成 `P20-B4-01～P20-B4-10 / PENDING_USER_REVIEW`，推荐 `1A～10A`；
+- completed-PDM mutation = 0；
+- new domain state machine = 0；
+- 14 / 14 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 PDM-20 Batch 4。
+
 ## 2026-10-06｜PDM-20 Batch 2 用户批准并执行
 
 - 用户对 `P20-B2-01～P20-B2-09` 全部同意，随后以“确认指型”明确执行；
@@ -160,7 +173,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-20_BATCH_3_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-20_BATCH_4_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -170,7 +183,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`
+> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -186,7 +199,7 @@
 
 当前唯一下一步：
 
-> **PDM-20 Batch 2 已 `PASS / USER_APPROVED / APPLIED`；Batch 3 Conflict Isolation = PASS / MISCLASSIFIED_PRODUCT_CHOICE=0，形成 P20-B3-01～P20-B3-08。当前唯一下一步：用户审查 PDM-20 Batch 3；未经确认不得进入 Batch 4。**
+> **PDM-20 Batch 3 已 `PASS / USER_APPROVED / APPLIED`；Batch 4 Gap/Choice Scan 已形成 P20-B4-01～P20-B4-10，推荐 1A～10A。当前唯一下一步：用户审查 PDM-20 Batch 4；未经批准与后续明确执行，不得运行 Prefinal R1。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
