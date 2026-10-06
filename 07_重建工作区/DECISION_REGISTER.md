@@ -778,3 +778,6 @@
 
 | PDM17-FINAL-APPROVAL | PDM-17 | Final Domain Overview | 用户对 PDM-17 Final Domain Overview 明确“最终批准”。 | 只记录最终产品批准；等待后续明确执行授权后才允许 Final closeout。 | 2026-10-06 用户“最终批准” | 2026-10-06 |
 | PDM17-FINAL-CLOSEOUT | PDM-17 | Final Closeout | 用户随后明确“确认执行”；正式发布 PDM-17 Final，Final Integrity PASS；6/6 incoming handoff CLOSED 且 6/6 source backwrite DONE；6 条 outgoing handoff 保持 OPEN。 | PDM-17 = COMPLETE / INTEGRITY_PASS；下一步 PDM-18 Startup Gate。 | PDM-17 Final + Final Integrity + Handoff Register | 2026-10-06 |
+
+| PDM18-CORE-R00 | PDM-18 | P18-R00 | PDM-18 定位为 LockRequest / 正式 Lock / Waitlist 以及延期、释放、到期、责任交接的唯一业务 Authority；Deposit / Transaction / Refund / 换车继续由 PDM-19 承接。 | 用户批准核心定位；不得用旧“我要这辆车”混合模型覆盖后续已冻结 LockRequest 前置对象。 | 9/19 R8/R10/R12 + 001～078 M13 + PDM-01/02/03/04/07/10/12/13/14/17 Final + 2026-10-06 用户“同意”并“确认执行” | 2026-10-06 |
+| PDM18-STARTUP-GATE | PDM-18 | Startup Gate | P18-R00 已 USER_APPROVED / APPLIED；target=PDM-18 的 10 条 incoming handoff 全部 HANDOFF_ACCEPTED；completed-PDM hard conflict=0；incoming handoff gap=0；建立 P18-A01～P18-A18 Batch 1 候选。 | 当前只进入 Batch 1 用户审查；未经用户批准不得进入 Batch 2；IA/Low-Fi/Engineering 不施工。 | 07_重建工作区/PDM-18_LockRequest正式LockWaitlist延期释放_规则原子重建_工作版.md | 2026-10-06 |
