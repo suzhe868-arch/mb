@@ -1056,7 +1056,7 @@ Share / external direct、没有有效上一页：
 
 ## 46. Cross-PDM Handoff
 
-### Incoming｜Final closeout 前保持 HANDOFF_ACCEPTED
+### Incoming｜Final closeout 已关闭
 
 14 条：
 
