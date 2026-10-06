@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-20（Startup Gate 尚未执行）
+- 当前域：PDM-20（Startup Gate = PASS；Batch 1 待用户审查）
 - PDM-15 Startup Gate = PASS
 - PDM-15 incoming handoffs = 5 / 5 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-15 工作版 = `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
@@ -122,7 +122,14 @@
 - PDM-19 Final Integrity = `07_重建工作区/PDM-19_最终完整性复核_2026-10-06.md` / PASS
 - PDM-19 Source Backwrite = 10 / 10 DONE
 - PDM-19 Final Closeout = COMPLETE
-- PDM-20 Startup Gate = PENDING
+- PDM-20 Startup Gate = PASS
+- PDM-20 核心定位 P20-R00 = USER_APPROVED / APPLIED
+- PDM-20 incoming handoffs = 14 / 14 HANDOFF_ACCEPTED
+- PDM-20 completed-PDM hard conflict = 0
+- PDM-20 incoming handoff gap = 0
+- PDM-20 Current Authority Refresh = PASS
+- PDM-20 工作版 = `07_重建工作区/PDM-20_客户端浏览搜索筛选排序列表详情收藏分享个人中心地域_规则原子重建_工作版.md`
+- PDM-20 Batch 1 = P20-A01～P20-A18 / PENDING_USER_REVIEW
 - PDM-19 Batch 4 Cross-PDM Review = PASS / NO_COMPLETED_PDM_MUTATION
 - PDM-19 Batch 3 Conflict Isolation = PASS / MISCLASSIFIED_PRODUCT_CHOICE=0
 - PDM-19 Batch 2 Reverse Conflict Scan = PASS / FALSE_DEPRECATION_COUNT=0
@@ -180,7 +187,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-19 已正式 `COMPLETE / INTEGRITY_PASS`：41 个规则/裁决单元进入 Final，10/10 incoming handoff CLOSED 且 source backwrite 完成，5 条 outgoing handoff 保持 OPEN。当前唯一下一步：PDM-20 Startup Gate。**
+> **PDM-20 Startup Gate 已 PASS；P20-R00 已 USER_APPROVED / APPLIED；14/14 incoming handoff 已 HANDOFF_ACCEPTED。当前唯一下一步：用户审查 P20-A01～P20-A18；未经批准与后续明确执行，不得进入 Batch 2。**
 
 每个 PDM 必须同时执行：
 
@@ -234,7 +241,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-19 均已 `COMPLETE / INTEGRITY_PASS`。PDM-19 的 10 条 incoming handoff 已全部 `HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE`，5 条 outgoing 继续 `HANDOFF_OPEN`。当前唯一下一步为 PDM-20 Startup Gate；Startup Gate 执行前不得提前进入 Batch 1。
+当前 PDM-01～PDM-19 均已 `COMPLETE / INTEGRITY_PASS`。PDM-20 Startup Gate 已 `PASS`，14/14 incoming handoff 已 `HANDOFF_ACCEPTED`；当前唯一下一步为用户审查 PDM-20 Batch 1（P20-A01～P20-A18）。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
