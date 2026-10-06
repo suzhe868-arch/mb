@@ -1,3 +1,18 @@
+## 2026-10-06｜PDM-21 Batch 4 批准执行并完成 Final 前 R1
+
+- 用户裁决 `P21-B4-01～P21-B4-07 = 1A～7A`，随后明确“确认执行”；
+- `P21-B4-01～P21-B4-07 = PASS / USER_APPROVED / APPLIED`；
+- 用户补充确认：正常车辆详情 Internal Mode 有“隐藏车源”，hidden Vehicle 对应“恢复显示 / 解除隐藏”；hidden/restore 与 offline/relist 严格分离；
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- Final 前完整性复核 R1 = `REPAIR_REQUIRED / NO_HARD_CONFLICT`；
+- 报告：`07_重建工作区/PDM-21_Final前完整性复核_R1_2026-10-06.md`；
+- 形成 `P21-LIA-01～P21-LIA-09 / PENDING_USER_REVIEW`；
+- R1：missing=5，semantic detail=3，incoming landing gap=7，outgoing handoff gap=1 group；
+- completed-PDM hard conflict = 0；
+- 19 / 19 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 P21-LIA-01～P21-LIA-09。
+
 ## 2026-10-06｜PDM-21 Batch 3 用户批准并执行
 
 - 用户对 `P21-B3-01～P21-B3-10` 全部同意，随后明确“确认执行”；
@@ -272,7 +287,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-21_BATCH_4_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-21_PREFINAL_R1_REPAIR_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -282,7 +297,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`
+> `IN_PROGRESS / BATCH_4_PASS / PREFINAL_R1_REPAIR_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -298,7 +313,7 @@
 
 当前唯一下一步：
 
-> **PDM-21 Batch 3 已 `PASS / USER_APPROVED / APPLIED`；Batch 4 Gap / Choice Scan 已形成 P21-B4-01～P21-B4-07。当前唯一下一步：用户裁决 PDM-21 Batch 4。**
+> **PDM-21 Batch 4 已 `PASS / USER_APPROVED / APPLIED`；Prefinal R1 = REPAIR_REQUIRED，形成 P21-LIA-01～P21-LIA-09。当前唯一下一步：用户审查 R1 修复项。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
