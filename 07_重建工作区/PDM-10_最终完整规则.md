@@ -669,7 +669,7 @@ Recommendation / Lock 等关键业务已经形成的价格快照属于不可变�
 - PDM-14｜`HANDOFF_CLOSED`：PDM-14 Final 已承接 Recommendation 免费授 `customer + vehicle + current listing_cycle` 批发查价权；Recommendation end、owner/负责人变化、原销售离职不追回；Recommendation 创建时仅“价格咨询”也立即建立免费权，同 cycle 后续出现数字价不扣 daily quota；历史推荐价快照与当前价格分层；`HO-P10-P14-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-18｜`HANDOFF_CLOSED`：PDM-18 Final 已正式承接 Lock 创建价格快照；数字价保存真实数字，“价格咨询”保存明确事实，后续上游调价、阶梯、覆盖价、人工价格或 source_type 变化不得回写既有 Lock snapshot；`HO-P10-P18-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-20｜`HANDOFF_CLOSED`：PDM-20 Final 已正式承接 LIMITED/UNLIMITED 客户价格投影、详情自动解锁、quota exhausted=`--万`、权益升级/联系顾问加次数提示、价格咨询、筛选排序不泄露 payload 以及 Customer disable 价格权益暂停；`HO-P10-P20-001 = HANDOFF_CLOSED / source_backwrite=YES`；
-- PDM-21｜`HANDOFF_OPEN`：员工端 customer_list_price/internal_wholesale_price 保存修改、internal-price permission、override、临时追加次数、UNLIMITED 禁止追加、4S 正常价格编辑与 hard DENY 投影；
+- PDM-21｜`HANDOFF_CLOSED`：PDM-21 Final 已正式承接 customer_list_price/internal_wholesale_price 编辑、独立 internal-price permission、override、临时 quota、UNLIMITED 禁止追加及 4S 价格裁剪；`HO-P10-P21-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-22｜`HANDOFF_OPEN`：阶梯加价、markup ON/OFF、客户等级权益配置、LIMITED/UNLIMITED、daily base quota、找车权益等跨域 level entitlement 配置入口、permission 与相关后台承载；
 - PDM-25｜`HANDOFF_OPEN`：价格/覆盖/临时额度/低价风险/转换快照/等级权益配置变化等统一审计与历史。
 
