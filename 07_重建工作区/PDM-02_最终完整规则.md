@@ -359,7 +359,7 @@ PDM-10 经用户最终批准后，对本 PDM 的价格动作语义形成以下�
 - CRM 业务细节 → PDM-16｜`HANDOFF_CLOSED`：PDM-16 Final 已正式承接 CRM 当前访问继续服从统一 identity + permission/capability + data scope + object/account state，并冻结 4S/System Admin 边界；`HO-P02-P16-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - 公海 / Collaboration → PDM-17｜`HANDOFF_CLOSED`：PDM-17 Final 已正式承接公海/待公海治理、主动领取、后台指定分配、Collaboration，并继续服从统一 identity + permission/capability + data scope + object/account state Guard；`HO-P02-P17-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - Lock / Waitlist → PDM-18｜`HANDOFF_CLOSED`：PDM-18 Final 已正式承接 LockRequest / Lock / Waitlist mutation，并继续服从统一 identity + permission/capability + data scope + object/account state Guard；4S hard DENY、System Admin 控制平面身份本身不自动获得业务执行权；`HO-P02-P18-001 = HANDOFF_CLOSED / source_backwrite=YES`；
-- Transaction / Refund / 成交纠错 → PDM-19；
+- Transaction / Refund / 成交纠错 → PDM-19｜`HANDOFF_CLOSED`：PDM-19 Final 已正式承接 Transaction / Refund / correction，并继续服从统一 identity + permission/capability + data scope + object/account state；4S hard DENY 与 System Admin 控制平面边界继续有效；`HO-P02-P19-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - 员工端具体页面与内部模式视觉投影 → PDM-21；
 - PC 后台具体 IA → PDM-22；
 - 横切审计字段 / 审计留存规范 → PDM-25。
