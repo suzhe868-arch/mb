@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-21（Batch 4 = PASS；Prefinal R1 修复项待用户审查）
+- 当前域：PDM-21（Prefinal R2 = PASS；Final Overview 待用户最终批准）
 - PDM-20 = COMPLETE / INTEGRITY_PASS
 - PDM-21 Startup Gate = PASS
 - PDM-21 核心定位 P21-R00 = USER_APPROVED / APPLIED
@@ -28,7 +28,10 @@
 - PDM-21 Batch 3 = P21-B3-01～P21-B3-10 / PASS / USER_APPROVED / APPLIED
 - PDM-21 Batch 4 = P21-B4-01～P21-B4-07 / PASS / USER_APPROVED / APPLIED / CHOICES=1A～7A
 - PDM-21 Prefinal R1 = REPAIR_REQUIRED / NO_HARD_CONFLICT / REPORT=`07_重建工作区/PDM-21_Final前完整性复核_R1_2026-10-06.md`
-- PDM-21 Prefinal Repair R1 = P21-LIA-01～P21-LIA-09 / PENDING_USER_REVIEW
+- PDM-21 Prefinal Repair R1 = P21-LIA-01～P21-LIA-09 / PASS / USER_APPROVED / APPLIED
+- PDM-21 Outgoing Handoffs = PDM-23 / PDM-25 / 2 HANDOFF_OPEN
+- PDM-21 Prefinal R2 = PASS / FINAL_CANDIDATE_READY / REPORT=`07_重建工作区/PDM-21_Final前完整性复核_R2_2026-10-06.md`
+- PDM-21 Final Overview = `07_重建工作区/PDM-21_最终完整规则总览_待用户批准.md` / PENDING_USER_FINAL_APPROVAL
 - PDM-21 Local Product Choice Unresolved = 0
 - PDM-21 Batch 3 Conflict Isolation = PASS / MISCLASSIFIED_PRODUCT_CHOICE=0
 - PDM-21 Batch 2 Reverse Conflict Scan = PASS / FALSE_DEPRECATION_COUNT=0
@@ -276,7 +279,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-20 均已 `COMPLETE / INTEGRITY_PASS`。PDM-21 Batch 4 已 PASS / USER_APPROVED / APPLIED；Final 前完整性复核 R1 = REPAIR_REQUIRED / NO_HARD_CONFLICT。当前唯一下一步为用户审查 P21-LIA-01～P21-LIA-09；批准并明确执行后进行 Prefinal R2。
+当前 PDM-01～PDM-20 均已 `COMPLETE / INTEGRITY_PASS`。PDM-21 Prefinal R1 九项修复已全部执行，R2 = PASS / FINAL_CANDIDATE_READY。当前唯一下一步：用户最终批准 PDM-21 Final Domain Overview；最终批准前不得发布正式 Final、关闭 incoming handoff、source backwrite 或进入 PDM-22。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
