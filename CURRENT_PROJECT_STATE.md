@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-18_STARTUP_GATE`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-18_BATCH_1_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,11 +16,11 @@
 
 当前域状态：
 
-> `NOT_STARTED / STARTUP_GATE_PENDING`
+> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`
 
 当前工作文件：
 
-> `07_重建工作区/PDM-17_公海待公海领取指定分配与协作_规则原子重建_工作版.md`
+> `07_重建工作区/PDM-18_LockRequest正式LockWaitlist延期释放_规则原子重建_工作版.md`
 
 当前已纠正：
 
@@ -32,7 +32,24 @@
 
 当前唯一下一步：
 
-> **PDM-17 已 `COMPLETE / INTEGRITY_PASS`：Final 已发布，Final Integrity PASS，6/6 incoming handoff CLOSED 并完成 source backwrite，6 条 outgoing handoff 保持 HANDOFF_OPEN。当前唯一下一步：PDM-18 Startup Gate。**
+> **PDM-18 Startup Gate 已 `PASS`：P18-R00 已用户批准并执行，target=PDM-18 的 10/10 incoming handoff 已全部 `HANDOFF_ACCEPTED`，completed-PDM hard conflict=0，incoming handoff gap=0。当前唯一下一步：用户审查 PDM-18 Batch 1（P18-A01～P18-A18）。**
+
+## 2026-10-06｜PDM-18 Startup Gate 通过并进入 Batch 1 审查
+
+- 用户已确认并授权执行 P18-R00：PDM-18 是 LockRequest / 正式 Lock / Waitlist / 延期 / 释放 / 到期 / 责任交接的唯一业务 Authority；
+- Deposit / Transaction / Refund / 换车继续由 PDM-19 承接；
+- Startup Gate = `PASS`；
+- target=PDM-18 的 10 条 incoming handoff 已由 `HANDOFF_OPEN` → `HANDOFF_ACCEPTED`；
+- incoming：HO-P01-P18-001 / HO-P02-P18-001 / HO-P03-P18-001 / HO-P04-P18-001 / HO-P07-P18-001 / HO-P10-P18-001 / HO-P12-P18-001 / HO-P13-P18-001 / HO-P14-P18-001 / HO-P17-P18-001；
+- completed-PDM hard conflict = 0；
+- incoming handoff gap = 0；
+- Current Authority Refresh 已覆盖 9/19 R8/R10/R12、001～078 M13、Current C01-01/E07-08/P07，以及 PDM-01/02/03/04/07/10/12/13/14/17 Final；
+- 明确识别 9/19 后新增 LockRequest 前置模型：客户锁车申请不等于正式 Lock，PENDING 6h 不占车，approve 成功才创建正式 Lock 并开始 72h；
+- 旧“到期前默认 30 分钟提醒”等未重新确认细节未进入 Batch 1；
+- 工作版：`07_重建工作区/PDM-18_LockRequest正式LockWaitlist延期释放_规则原子重建_工作版.md`；
+- Batch 1 候选：`P18-A01～P18-A18`，状态 `PENDING_USER_REVIEW`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 PDM-18 Batch 1。
 
 ## 2026-10-06｜PDM-17 Final 正式发布并完成 Closeout
 
