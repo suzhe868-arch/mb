@@ -1,7 +1,7 @@
-# PDM-23｜最终完整规则总览｜待用户最终批准
+# PDM-23｜最终完整规则总览｜用户已最终批准
 
 > 域：通知 / 飞书 / SLA / 夜间免打扰 / Incident / 通知日志  
-> 当前状态：`FINAL_REVIEW_PENDING`  
+> 当前状态：`USER_FINAL_APPROVED / FINAL_CLOSEOUT_DONE`  
 > Final 前完整性复核：`R2 PASS / FINAL_CANDIDATE_READY`  
 > 正式规则 / 用户裁决单元：`65`
 
@@ -287,9 +287,9 @@ PDM-25 承接 Notification Config / 飞书映射 / 开关 / DND / 群路由 / ca
 
 target=PDM-23：
 
-> **10 / 10 = HANDOFF_ACCEPTED**
+> **10 / 10 = HANDOFF_CLOSED / source_backwrite=YES**
 
-最终批准前不关闭、不 source backwrite。
+已在 Final Closeout 中正式关闭并完成 source backwrite。
 
 ### Outgoing
 
@@ -310,17 +310,14 @@ target=PDM-23：
 - `PDM23_FORMAL_UNITS = 65`
 - `PDM23_FINAL_CANDIDATE_READY = YES`
 
-## 23. 当前门禁
+## 23. Final Closeout
 
-当前：
-
-> `FINAL_REVIEW_PENDING`
-
-只有用户最终批准并明确执行后，才允许：
-
-- 生成 / 发布 PDM-23 正式 Final；
-- 执行 Final Integrity；
-- 将 10 / 10 incoming handoff 关闭并 source backwrite；
-- 推进到下一 PDM。
-
-IA / Low-Fi / Engineering 当前仍不施工。
+- 用户已最终批准并明确“确认执行”；
+- 正式 Authority：`07_重建工作区/PDM-23_最终完整规则.md`；
+- Final Integrity：`07_重建工作区/PDM-23_最终完整性复核_2026-10-07.md / PASS`；
+- 65 个正式规则 / 用户裁决单元全部进入 Final；
+- 10 / 10 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
+- `HO-P23-P25-001 = HANDOFF_OPEN`；
+- PDM-23 = `COMPLETE / INTEGRITY_PASS`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：`PDM-24 Startup Gate`。
