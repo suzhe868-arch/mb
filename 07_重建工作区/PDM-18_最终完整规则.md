@@ -527,7 +527,7 @@ create/reuse/auto-create、source LockRequest（适用时）、responsible、int
 - HO-P14-P18-001｜`HANDOFF_CLOSED / source_backwrite=YES`；
 - HO-P17-P18-001。
 
-### Outgoing｜保持 HANDOFF_OPEN
+### Outgoing｜PDM-19 已 CLOSED，其余未来 handoff 保持 OPEN
 
 - HO-P18-P19-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-19 Final 已正式承接正式 Lock 后的 Deposit / Transaction / Refund / 换车；真实 Deposit 阻止普通 Lock timeout 自动释放；Lock→Transaction 原子转换、供应异常、退款/换车均建立新真实事实，不回写 PDM-18 Lock 历史；
 - HO-P18-P20-001；
