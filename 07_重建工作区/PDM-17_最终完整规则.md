@@ -231,7 +231,7 @@ V1 采用：
 
 释放 / 完成处理后，是否恢复额度按当前配置重新计算。
 
-PDM-17 不写死具体数字、时间窗口或默认值；配置 carrier 交 PDM-22。
+PDM-17 不写死具体数字、时间窗口或默认值；配置 carrier 已由 PDM-22 Final 承接。
 
 ## 13. 公海 Customer 主动发起人工服务
 
@@ -501,7 +501,7 @@ reason / note 默认可选。
 
 PDM-17 只冻结业务语义“可配置”，不写死数值。
 
-交 PDM-22 的配置 carrier：
+已由 PDM-22 Final 承接的配置 carrier：
 
 - 待公海候选条件；
 - 继续当前 owner 后重新检查周期；
@@ -546,7 +546,7 @@ PDM-17 只冻结业务语义“可配置”，不写死数值。
 - HO-P17-P18-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-18 Final 已正式承接 active Lock/Waitlist 作为公海保护事实，并冻结 Customer owner 与 Lock/Waitlist responsible 分层；owner / 公海变化不得静默取消、漂移或改写既有 Lock/Waitlist，未完成责任进入公海前必须完成、取消或正式交接；
 - HO-P17-P19-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-19 Final 已正式承接 in-progress Transaction / pending Refund 作为未完成责任与公海保护事实；owner / 公海变化不得静默取消、漂移或重建 Transaction/Refund 当前责任与历史，进入公海前必须完成、取消或正式 handoff；
 - HO-P17-P21-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-21 Final 已正式承接员工端公海/待公海、主动领取、人工治理结果与 Collaboration 操作投影；
-- HO-P17-P22-001｜公海配置 carrier；
+- HO-P17-P22-001｜`HANDOFF_CLOSED / source_backwrite=YES`：公海配置 carrier 已由 PDM-22 Final 承接；
 - HO-P17-P23-001｜提醒 / 通知 carrier；
 - HO-P17-P25-001｜统一审计 / 历史。
 
@@ -590,3 +590,5 @@ R2：
 - PDM-17：`COMPLETE / INTEGRITY_PASS`；
 - 下一步：`PDM-18 Startup Gate`；
 - IA / Low-Fi / Engineering 继续禁止提前施工。
+
+> 2026-10-07 Source Backwrite：对应 PDM-22 handoff 已由 `07_重建工作区/PDM-22_最终完整规则.md` 正式承接；以 CROSS_PDM_HANDOFF_REGISTER 的 `HANDOFF_CLOSED / source_backwrite=YES` 为准。
