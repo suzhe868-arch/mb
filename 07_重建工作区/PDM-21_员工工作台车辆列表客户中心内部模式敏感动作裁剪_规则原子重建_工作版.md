@@ -1,6 +1,6 @@
 # PDM-21｜员工工作台 / 车辆列表 / 客户中心 / 内部模式 / 敏感动作裁剪｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / BATCH_4_PASS / PREFINAL_R1_REPAIR_PENDING_USER_REVIEW`  
 > 核心定位：`P21-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：19 / 19 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -717,13 +717,14 @@ E08 应承载 PDM-17 已冻结的真人动作入口：
 
 ---
 
-# 9. Batch 4｜员工端最终产品裁决候选
+# 9. Batch 4｜员工端最终产品裁决｜PASS / USER_APPROVED / APPLIED
 
-> 状态：`PENDING_USER_REVIEW`。  
+> 状态：`PASS / USER_APPROVED / APPLIED`。  
+> 用户裁决：`1A / 2A / 3A / 4A / 5A / 6A / 7A`；随后明确“确认执行”。  
 > Gap / Choice Scan：`PASS`。  
 > 本批只保留仓库现有 Authority 无法自动替用户决定的员工端产品取舍；推荐方案以“最少新体系、优先复用已冻结结构、避免权限语义再次分叉”为原则。
 
-## P21-B4-01｜4S 成员如何进入内部管理投影
+## P21-B4-01｜4S 成员如何进入内部管理投影｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐：进入同一个 E02-M01 Internal Mode，但按 4S 身份做严格裁剪
 
@@ -744,7 +745,7 @@ E08 应承载 PDM-17 已冻结的真人动作入口：
 **推荐 A。**  
 理由：PDM-02 已明确不建立独立 4S App / IA；同页裁剪最不容易形成第二套权限语义。
 
-## P21-B4-02｜客户安全详情外层与 Internal Mode 的敏感 Action 归位
+## P21-B4-02｜客户安全详情外层与 Internal Mode 的敏感 Action 归位｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐：外层只保留安全/高频业务入口，内部经营动作统一进入 Internal Mode
 
@@ -775,14 +776,16 @@ E02-01 客户安全详情外层保留：
 **推荐 A。**  
 理由：与“默认客户安全视图”边界一致，也避免 Navigation 与页面语义再次打架。
 
-## P21-B4-03｜隐藏车源入口位置
+## P21-B4-03｜隐藏车源入口位置｜CHOICE=A / USER_APPROVED / APPLIED
 
-### A｜推荐：固定为 E02「更多 → 隐藏车源」
+### A｜已选：固定为 E02「更多 → 隐藏车源」
 
 - hidden 不混入默认车辆列表；
 - 只有具备对应查看/管理能力的员工显示该入口；
 - 无权限员工完全不显示；
 - 进入后仍按 data scope、source_type 与对象状态过滤；
+- **正常可见 Vehicle 在详情 Internal Mode 中显示“隐藏车源”；已 hidden Vehicle 在详情 Internal Mode 中显示“恢复显示 / 解除隐藏”**；
+- “隐藏 / 恢复显示”与“真实下架 / 重新上架”必须是两套动作、两套语义，不得互相代替；
 - 恢复显示继续是独立真实动作，不因进入隐藏列表自动 visible。
 
 ### B｜把“隐藏车源”做成 E02 顶部固定 Tab
@@ -792,7 +795,7 @@ E02-01 客户安全详情外层保留：
 **推荐 A。**  
 理由：延续历史结构，且避免把低频敏感管理入口升级成一级导航。
 
-## P21-B4-04｜一键转名邦是否必须二次确认
+## P21-B4-04｜一键转名邦是否必须二次确认｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜推荐：必须使用专门确认 Sheet / Page
 
@@ -812,7 +815,7 @@ E02-01 客户安全详情外层保留：
 **推荐 A。**  
 理由：来源转换为单向经营动作，影响价格、图片与可见性，不适合误触即执行。
 
-## P21-B4-05｜Consultation“即将超时”的阈值
+## P21-B4-05｜Consultation“即将超时”的阈值｜CHOICE=A / USER_APPROVED / APPLIED
 
 Consultation 自身 SLA deadline 继续由 PDM-15 冻结；这里只决定 E01 工作台何时把它标成“即将超时”。
 
@@ -841,7 +844,7 @@ Consultation 自身 SLA deadline 继续由 PDM-15 冻结；这里只决定 E01 �
 **推荐 A。**  
 理由：默认 15 分钟时保持直观的最后 5 分钟，同时避免 SLA 被配置得很短时整段生命周期都处于“即将超时”，也不新增第二个配置项。
 
-## P21-B4-06｜Internal Mode 长时间进入后台后的自动退出阈值
+## P21-B4-06｜Internal Mode 长时间进入后台后的自动退出阈值｜CHOICE=A / USER_APPROVED / APPLIED
 
 已经冻结：离开详情、重新打开、切车、分享、推荐、身份/权限变化时均恢复客户安全视图。这里只决定“App 进入后台后多久回来视为需要退出 Internal Mode”。
 
@@ -860,7 +863,7 @@ Consultation 自身 SLA deadline 继续由 PDM-15 冻结；这里只决定 E01 �
 
 **推荐 A。**
 
-## P21-B4-07｜E01 多类“强待办”的统一排序
+## P21-B4-07｜E01 多类“强待办”的统一排序｜CHOICE=A / USER_APPROVED / APPLIED
 
 历史只明确 Consultation 内部优先级，没有冻结 LockRequest、Application、Priority 与 Consultation 之间的全局固定类别顺序。
 
@@ -887,18 +890,150 @@ Consultation 自身 SLA deadline 继续由 PDM-15 冻结；这里只决定 E01 �
 
 ---
 
-# 10. Batch 4 Gate
+# 10. Batch 4 Gate｜PASS
 
-当前：
-
-- `P21-B4-01～P21-B4-07 = PENDING_USER_REVIEW`
-- 推荐：`1A / 2A / 3A / 4A / 5A / 6A / 7A`
-- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 7`
+- `P21-B4-01～P21-B4-07 = PASS / USER_APPROVED / APPLIED / CHOICES=1A～7A`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
 - `COMPLETED_PDM_MUTATION = 0`
 - `NEW_DOMAIN_STATE_MACHINE = 0`
 - `19 / 19 incoming handoff = HANDOFF_ACCEPTED`
 - `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
 
+---
+
+# 11. Final 前完整性复核 R1｜REPAIR_REQUIRED / NO_HARD_CONFLICT
+
+- `SOURCE_TO_ATOM = REPAIR_REQUIRED`
+- `ATOM_TO_SOURCE = PASS`
+- `SEMANTIC_COMPLETENESS = REPAIR_REQUIRED`
+- `COMPLETED_PDM_INVARIANT = PASS`
+- `COMPLETED_PDM_HARD_CONFLICT = 0`
+- `INCOMING_HANDOFF_ACCEPTED = 19 / 19`
+- `INCOMING_HANDOFF_LANDING_GAP = 7`
+- `NEGATIVE_CLAIM_PROOF = PASS`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+- `MISSING_RULE_UNRESOLVED = 5`
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 3`
+- `OUTGOING_HANDOFF_GAP = 1_GROUP`
+- `FINAL_CANDIDATE_READY = NO`
+
+报告：`07_重建工作区/PDM-21_Final前完整性复核_R1_2026-10-06.md`
+
+## P21-LIA-01｜Internal Mode 进入、退出、旧页面失效与无权限裁剪
+
+- 长按价格区域约 3 秒进入 Internal Mode；
+- 进入本身不增加 permission；
+- 返回/离开详情、重新打开/页面重进、切换 Vehicle、分享、Recommendation、后台连续 ≥5 分钟时恢复客户安全视图；
+- 后台 <5 分钟返回也必须重新校验 identity + permission/capability + data scope + object state；
+- inactive、权限撤销、scope 变化、Vehicle 状态变化后旧页面不得继续执行敏感 mutation；
+- 缺少 permission/capability 的敏感字段、区域、动作不返回/不展示；只有“能力合法但当前 object state 暂不可执行”时才允许 disabled + reason；
+- 分享/Recommendation/外部链接不得携带 Internal Mode、内部价、电话或其他内部敏感状态。
+
+## P21-LIA-02｜正式 Vehicle source_type 修改与单车隐藏/恢复闭环
+
+- 合法名邦 Employee 可在权限、scope、object state 合法时，把正式人工 Vehicle 在名邦 ↔ 4S 间修改 source_type；
+- 不允许人工改成批发/JYT；
+- source_type 修改不重建 vehicle_id、不新建 listing_cycle、不改写历史；
+- 修改后立即按新来源重算可编辑字段、权限、责任和可见性；
+- 4S Member 不得把自己管理的 4S Vehicle 改成名邦；
+- 正常可见 Vehicle 的 Internal Mode 显示“隐藏车源”，hidden Vehicle 显示“恢复显示 / 解除隐藏”；
+- hidden/visible 与 offline/relist 严格分离，解除隐藏不得把真实 offline Vehicle 错误恢复在售。
+
+## P21-LIA-03｜车型固定属性 / MODEL_MISSING / mapping 状态投影
+
+- 选择有效具体车型后，自动带出车型年款、排量、变速箱、排放、能源等由车型唯一确定的固定属性；
+- 销售不重复录入这些固定属性；
+- MODEL_MISSING 处理期间保留原 draft_id 与已填内容，System Admin 补齐后返回原草稿并带回有效车型，再重新执行发布校验；
+- JYT 已明确车型事实但本地 mapping pending 时，不得显示为“车型未知”或阻断正常业务；
+- “车型映射冲突”明确提示，但冲突本身不自动等于 Vehicle 不可售；
+- 员工端只做状态投影，不提供 System Admin 车型主数据治理动作。
+
+## P21-LIA-04｜Vehicle Archive 员工端完整操作闭环
+
+承载：上传/新增、后补、更新/替换、作废、历史/版本、核验、设置/取消 customer_visible、查看当前合法内部原始档案。
+
+边界：
+- 原记录、上传人、上传时间、作废/替换历史不得覆盖删除；
+- customer_visible 不等于开放 VIN/绿本/行驶证等敏感原件；
+- 4S Member 只在自己有权管理的 4S Vehicle 范围内执行允许动作；
+- Archive 不完整本身不得被投影为“不可推荐/不可咨询/不可锁车”，继续读取 completed PDM Guard。
+
+## P21-LIA-05｜Application / Demand 的等级、结束请求与责任历史投影
+
+- 无正式找车 entitlement 的 Customer 仍可保持 pending Application；
+- 员工可按权限合法调整 Customer Level，但等级变化本身不得自动激活 Demand；
+- 激活时重验 entitlement、手机号、identity、permission、scope、object state；
+- Demand detail 承载 active/paused/completed/cancelled 的合法动作组合；
+- 客户结束请求进入员工待处理，员工按真实语义落 completed 或 cancelled；
+- 合法 Employee 也可直接结束 Demand，不要求先有客户结束请求；
+- owner/responsible 交接、inactive/离职不得改写历史负责人和历史状态。
+
+## P21-LIA-06｜Matching stale / recalc failed / retry 安全投影
+
+- 旧 Match Result 失效时显示为历史/stale，不得冒充 current；
+- recalculation pending/failed 必须有明确员工状态反馈；
+- partial failure 时成功对象保留新结果，失败对象进入可重试集合；
+- retry 只针对失败集合且幂等；
+- stale/failed 结果不得驱动新的 Priority/Recommendation；
+- confirmation_needed 仍只能“补事实 → 重算 → 读取新正式 tier”。
+
+## P21-LIA-07｜E03 / E04 / E01 与 CRM / Radar / 公海入口补全
+
+E04 只展示姓名/头像、角色、名邦员工主门店、接客状态、权限摘要、飞书绑定、账号/必要设置；4S 不伪造主门店；不重复业务模块或第二个接客开关。
+
+E03：
+- 搜索/筛选消费 PDM-16；
+- 经理/店长在合法 scope 内可切“我的客户 / 团队客户”；
+- Customer Detail 快捷操作只保留记录跟进、找车服务、推荐车辆，不恢复无 Vehicle 上下文直接锁车。
+
+Source Radar“标记不适合”：
+- 不改 Match Result/Rule Dictionary/Demand；
+- 只抑制当前 Demand × Vehicle 的当前 Radar 事实；
+- 不形成永久黑名单；
+- 合法 Matching 输入实质变化后允许再次生成 Radar Event。
+
+E01 → E08：
+- 具合法公海查看/领取能力时显示“公海”入口；
+- 无权限不显示。
+
+## P21-LIA-08｜LockRequest 完整结果状态与 E01 强待办投影
+
+员工端区分 PENDING / APPROVED / REJECTED / EXPIRED / LOCK_CONFLICT / CLOSED_NOT_LOCKABLE。
+
+- PENDING 进入 E01 强待办，以 6h 服务端 deadline 参与 urgency 排序；
+- approve/reject 进入 E07 上下文并在提交时重验 PDM-18 Guard；
+- APPROVED 关联 resulting_lock_id；
+- LOCK_CONFLICT 表示其他请求先形成 active Lock，并在合法时关联 resulting_waitlist_id；
+- CLOSED_NOT_LOCKABLE 表示非竞争原因最终不可锁；
+- 各终态不回到 PENDING；
+- 不恢复客户端主动撤回 LockRequest，也不建设第二套员工端状态机。
+
+## P21-LIA-09｜登记 PDM-21 → PDM-23 / PDM-25 后续 handoff
+
+PDM-23：
+- 通知/飞书只消费真实 deadline/SLA/incident；
+- 不得把 P21 工作台排序反向写成业务状态；
+- deep-link 到员工页面时重验身份、scope、对象状态；
+- 打开通知/详情本身不得误算 Consultation first response。
+
+PDM-25：
+- 承接 Internal Mode 临时 session、5 分钟后台退出、权限撤销旧页面失效；
+- 高风险员工动作的 entry_context/actor/time/before-after/result/失败事实；
+- 继续复用各业务域审计事实，不由 P21 再造第二套日志；
+- P21 工作台排序/UI 状态不得改写底层历史。
+
+LIA-09 获批执行后，再正式登记 CROSS_PDM_HANDOFF_REGISTER。
+
+---
+
+# 12. R1 Repair Gate
+
+- `P21-LIA-01～P21-LIA-09 = PENDING_USER_REVIEW`
+- `R1_REPAIR_REQUIRED = 9`
+- `FINAL_CANDIDATE_READY = NO`
+- `19 / 19 incoming handoff = HANDOFF_ACCEPTED`
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
 当前唯一下一步：
 
-> **用户裁决 P21-B4-01～P21-B4-07。完成裁决并明确执行后，进入 PDM-21 Final 前完整性复核。**
+> **用户审查 P21-LIA-01～P21-LIA-09。全部修复执行后进行 Final 前完整性复核 R2。**
