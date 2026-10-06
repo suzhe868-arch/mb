@@ -1,3 +1,15 @@
+## 2026-10-07｜PDM-24 Startup Gate PASS 并进入 Batch 1
+
+- `P24-R00 = USER_APPROVED / APPLIED`；
+- `P24-R01 = USER_APPROVED / APPLIED`：VEHICLE_DETAIL 为车辆详情页固定广告位能力；无有效 Banner 时可不展示具体广告内容，但广告位能力本身固定存在；
+- `HO-P20-P24-001 = HANDOFF_ACCEPTED`，Final Closeout 前不关闭、不 source backwrite；
+- completed-PDM hard conflict = 0；incoming gap = 0；
+- 当前正式 placement = `HOME_TOP / VEHICLE_DETAIL`；
+- 不建设通用消息中心、营销自动化平台或万能 Placement Engine；
+- Batch 1 候选：`P24-A01～P24-A15 / PENDING_USER_REVIEW`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：**用户审查 PDM-24 Batch 1。**
+
 ## 2026-10-07｜PDM-23 Final Closeout COMPLETE
 
 - 用户已最终批准并明确“确认执行”；
@@ -519,7 +531,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-24_STARTUP_GATE_PENDING`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-24_BATCH_1_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -529,7 +541,7 @@
 
 当前域状态：
 
-> `PDM-23 COMPLETE / INTEGRITY_PASS；PDM-24 STARTUP_GATE_PENDING`
+> `PDM-23 COMPLETE / INTEGRITY_PASS；PDM-24 STARTUP_GATE_PASS / BATCH_1_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -545,7 +557,7 @@
 
 当前唯一下一步：
 
-> **PDM-24 Startup Gate。**
+> **用户审查 PDM-24 Batch 1（P24-A01～P24-A15）。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
