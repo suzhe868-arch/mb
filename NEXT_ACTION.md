@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-23（Startup Gate / Batch 1 = PASS；Batch 2 待用户审查；PDM-22 已 COMPLETE / INTEGRITY_PASS）
+- 当前域：PDM-23（Startup Gate / Batch 1 / Batch 2 = PASS；Batch 3 待用户审查；PDM-22 已 COMPLETE / INTEGRITY_PASS）
 - PDM-20 = COMPLETE / INTEGRITY_PASS
 - PDM-21 Startup Gate = PASS
 - PDM-21 核心定位 P21-R00 = USER_APPROVED / APPLIED
@@ -60,8 +60,10 @@
 - PDM-23 incoming handoffs = 10 / 10 HANDOFF_ACCEPTED
 - PDM-23 工作版 = `07_重建工作区/PDM-23_通知飞书SLA免打扰Incident通知日志_规则原子重建_工作版.md`
 - PDM-23 Batch 1 = P23-A01～P23-A20 / PASS / USER_APPROVED / APPLIED
-- PDM-23 Batch 2 = P23-B2-01～P23-B2-14 / PENDING_USER_REVIEW
+- PDM-23 Batch 2 = P23-B2-01～P23-B2-14 / PASS / USER_APPROVED / APPLIED
 - PDM-23 Batch 2 Reverse Conflict Scan = PASS / FALSE_DEPRECATION_COUNT=0
+- PDM-23 Batch 3 = P23-B3-01～P23-B3-16 / PENDING_USER_REVIEW
+- PDM-23 Batch 3 New Product Choice = 0
 - PDM-22 Outgoing Handoffs = PDM-23 / PDM-25 / 2 HANDOFF_OPEN
 - PDM-22 completed-PDM hard conflict = 0
 - PDM-22 incoming handoff gap = 0
@@ -259,7 +261,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-23 Batch 1 已 `PASS / USER_APPROVED / APPLIED`。当前唯一下一步：用户审查 P23-B2-01～P23-B2-14。**
+> **PDM-23 Batch 2 已 `PASS / USER_APPROVED / APPLIED`。当前唯一下一步：用户审查 P23-B3-01～P23-B3-16。**
 
 每个 PDM 必须同时执行：
 
