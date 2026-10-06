@@ -1,3 +1,13 @@
+## 2026-10-06｜PDM-18 Final Overview 用户最终批准
+
+- 用户明确“同意”；
+- `PDM-18 Final Overview = USER_FINAL_APPROVED`；
+- `Final closeout = PENDING_EXECUTION_CONFIRMATION`；
+- 10/10 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- 6 条 outgoing handoff 继续 `HANDOFF_OPEN`；
+- 当前不得发布 Final、不得 source backwrite、不得进入 PDM-19；
+- 当前唯一下一步：等待明确执行 Final closeout。
+
 # 名邦汽车 V1｜当前项目状态
 
 > 更新时间：2026-10-06  
@@ -6,7 +16,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-18_FINAL_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-18_FINAL_CLOSEOUT_PENDING_EXECUTION`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +26,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R2_PASS / FINAL_REVIEW_PENDING`
+> `IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R2_PASS / USER_FINAL_APPROVED / FINAL_CLOSEOUT_PENDING_EXECUTION`
 
 当前工作文件：
 
@@ -32,7 +42,7 @@
 
 当前唯一下一步：
 
-> **P18-LIA-01～P18-LIA-06 已全部批准并执行；Final 前完整性复核 R2 = PASS / FINAL_CANDIDATE_READY；PDM-18 最终完整规则总览候选已生成。当前唯一下一步：用户最终审查总览。批准前不得发布 Final、关闭 incoming handoff、source backwrite 或进入 PDM-19。**
+> **PDM-18 最终完整规则总览已获用户最终批准；Prefinal R2 = PASS / FINAL_CANDIDATE_READY。当前唯一下一步：等待明确执行 Final closeout。执行前不得发布 Final、关闭 incoming handoff、source backwrite 或进入 PDM-19。**
 
 ## 2026-10-06｜PDM-18 R1 修复完成并通过 R2
 
