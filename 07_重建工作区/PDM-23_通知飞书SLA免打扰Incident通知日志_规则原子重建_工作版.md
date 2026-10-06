@@ -1,6 +1,6 @@
 # PDM-23｜通知 / 飞书 / SLA / 夜间免打扰 / Incident / 通知日志｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_REBUILT_PASS / PREFINAL_R2_PASS / FINAL_CANDIDATE_READY`  
+> 当前状态：`COMPLETE / INTEGRITY_PASS`  
 > 核心定位：`P23-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：10 / 10 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -1289,3 +1289,19 @@ R2：
 当前唯一下一步：
 
 > **用户最终审查 / 批准《PDM-23 最终完整规则总览》。最终批准前不发布正式 Final、不关闭 incoming handoff、不做 source backwrite、不进入下一 PDM。**
+
+
+---
+
+# 15. Final Closeout｜COMPLETE / INTEGRITY_PASS
+
+用户已最终批准《PDM-23 最终完整规则总览》，并明确“确认执行”。
+
+- 正式 Authority：`07_重建工作区/PDM-23_最终完整规则.md`；
+- Final Integrity：`07_重建工作区/PDM-23_最终完整性复核_2026-10-07.md / PASS`；
+- 65 个正式规则 / 用户裁决单元全部进入 Final；
+- 10 / 10 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
+- `HO-P23-P25-001 = HANDOFF_OPEN`；
+- PDM-23：`COMPLETE / INTEGRITY_PASS`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：`PDM-24 Startup Gate`。
