@@ -1,6 +1,6 @@
 # PDM-20｜客户端浏览 / 搜索 / 筛选 / 排序 / 列表 / 详情 / 收藏 / 分享 / 个人中心 / 地域｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`  
 > 核心定位：`P20-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：14 / 14 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -456,13 +456,14 @@ C02 可同时投影：
 
 ---
 
-# 6. Batch 2｜明确废弃 / Superseded / DO_NOT_RESTORE 候选
+# 6. Batch 2｜明确废弃 / Superseded / DO_NOT_RESTORE｜PASS / USER_APPROVED / APPLIED
 
-> 状态：`PENDING_USER_REVIEW`。  
+> 状态：`PASS / USER_APPROVED / APPLIED`。  
+> 用户裁决：`P20-B2-01～P20-B2-09 = 全部同意`；随后以“确认指型”明确执行。  
 > Reverse Conflict Scan：`PASS / FALSE_DEPRECATION_COUNT=0`。  
 > 原则：只登记已被 R10 后续冻结、PDM-10/13/14/15/18 等 completed Authority 明确覆盖或禁止恢复的旧客户端方向；“Current/Low-Fi 缺承载”的能力不在本批误判为废弃。
 
-## P20-B2-01｜“默认定位城市 / 700km 自动扩展”不得恢复
+## P20-B2-01｜“默认定位城市 / 700km 自动扩展”不得恢复｜USER_APPROVED / APPLIED
 
 旧客户端地域曾采用：
 
@@ -485,7 +486,7 @@ R10 后续已明确覆盖为：
 
 > **默认定位城市 + 700km 自动扩展 = SUPERSEDED / DO_NOT_RESTORE。**
 
-## P20-B2-02｜“综合排序”不得恢复
+## P20-B2-02｜“综合排序”不得恢复｜USER_APPROVED / APPLIED
 
 R10 已明确删除：
 
@@ -504,7 +505,7 @@ R10 已明确删除：
 
 > **综合排序 = DO_NOT_RESTORE。**
 
-## P20-B2-03｜旧“我要这辆车”合并咨询 + 锁车语义不得恢复
+## P20-B2-03｜旧“我要这辆车”合并咨询 + 锁车语义不得恢复｜USER_APPROVED / APPLIED
 
 旧客户端曾用一个：
 
@@ -522,7 +523,7 @@ PDM-15 / PDM-18 已明确拆分：
 
 > **旧“我要这辆车”混合入口 = SUPERSEDED / DO_NOT_RESTORE。**
 
-## P20-B2-04｜Consultation `CANCELLED` 第五主状态不得恢复
+## P20-B2-04｜Consultation `CANCELLED` 第五主状态不得恢复｜USER_APPROVED / APPLIED
 
 PDM-15 正式 Consultation 主状态只有：
 
@@ -541,7 +542,7 @@ PDM-15 正式 Consultation 主状态只有：
 
 因此 Current/Low-Fi 若仍保留 CANCELLED carrier，只能作为 stale display carrier 后续对齐。
 
-## P20-B2-05｜Priority 自动授客户详情 visibility / 客户端暴露 Priority 内部术语不得恢复
+## P20-B2-05｜Priority 自动授客户详情 visibility / 客户端暴露 Priority 内部术语不得恢复｜USER_APPROVED / APPLIED
 
 PDM-13 已明确禁止：
 
@@ -554,7 +555,7 @@ Priority Customer 本人也不能仅凭 Priority 就自动打开详情；必须�
 
 > **“有 Priority = 客户天然可看详情”与“客户端展示 Priority 内部身份”均 = DO_NOT_RESTORE。**
 
-## P20-B2-06｜LIMITED 客户“进入详情后再点一次查看价格”不得恢复
+## P20-B2-06｜LIMITED 客户“进入详情后再点一次查看价格”不得恢复｜USER_APPROVED / APPLIED
 
 PDM-10 已明确取消：
 
@@ -575,7 +576,7 @@ PDM-10 已明确取消：
 
 > `SUPERSEDED / DO_NOT_RESTORE`
 
-## P20-B2-07｜普通分享固定 TTL / 权限继承链 / 第二套 Share Detail 不得恢复
+## P20-B2-07｜普通分享固定 TTL / 权限继承链 / 第二套 Share Detail 不得恢复｜USER_APPROVED / APPLIED
 
 PDM-14 已明确：
 
@@ -592,7 +593,7 @@ PDM-14 已明确：
 - 分享页维护独立的业务状态机；
 - 旧 share link 穿透 hidden / Priority / offline / sold。
 
-## P20-B2-08｜Waitlist 客户端保证性排名 / 自动晋升不得恢复
+## P20-B2-08｜Waitlist 客户端保证性排名 / 自动晋升不得恢复｜USER_APPROVED / APPLIED
 
 PDM-18 已明确：
 
@@ -609,7 +610,7 @@ PDM-18 已明确：
 
 > **保证性排名 / 自动晋升 = DO_NOT_RESTORE。**
 
-## P20-B2-09｜LockRequest 客户端主动撤回 / 独立申请进度详情页不得恢复
+## P20-B2-09｜LockRequest 客户端主动撤回 / 独立申请进度详情页不得恢复｜USER_APPROVED / APPLIED
 
 PDM-18 已冻结 V1 边界：
 
@@ -655,4 +656,251 @@ PDM-18 已冻结 V1 边界：
 
 当前唯一下一步：
 
-> **用户审查 P20-B2-01～P20-B2-09。未经用户批准与后续明确执行，不得进入 Batch 3。**
+> **P20-B2-01～P20-B2-09 已批准并执行。当前唯一下一步：用户审查 Batch 3（P20-B3-01～P20-B3-08）。未经确认不得进入 Batch 4。**
+
+---
+
+## 6.2 Batch 2 Gate｜PASS
+
+- `P20-B2-01～P20-B2-09 = PASS / USER_APPROVED / APPLIED`；
+- Reverse Conflict Scan = `PASS`；
+- `FALSE_DEPRECATION_COUNT = 0`；
+- 14 / 14 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工。
+
+---
+
+# 7. Batch 3｜后续明确新增 / 明确变更候选
+
+> 状态：`PENDING_USER_REVIEW`。  
+> Conflict Isolation：`PASS / MISCLASSIFIED_PRODUCT_CHOICE=0`。  
+> 原则：只收录 completed PDM 已明确冻结、相对于旧 R10 / Current 属于后续明确新增或明确变更的客户端语义；Current/Low-Fi 单纯缺页面、缺字段、缺导航等留 Batch 4 / Final 前完整性复核。
+
+## P20-B3-01｜首次进入后 Customer owner 规则改为“优先来源，否则立即轮询”
+
+PDM-01 / PDM-03 后续已明确覆盖旧首入模型：
+
+- 微信身份识别成功后创建 / 找到 customer_id；
+- 先判断有效分享 / 转介绍等优先归属来源；
+- 有合法优先来源 → 按该来源形成唯一 current owner；
+- 无优先来源 → 立即进入 `active + eligible + accepting` 接客池轮询；
+- 不再等待第一次咨询 / 找车 / 锁车等人工服务动作才分配 owner；
+- 只有接客池异常为 0 时，才允许 `owner_assignment_pending`；
+- 页面打开 / 刷新 / 重试不得重复改 owner。
+
+客户端因此不得继续投影旧“刚进入暂时没有 owner、等以后服务动作再分配”的正常主流程。
+
+若确实处于 pool-empty 异常：
+
+> 可以显示“暂无服务顾问 / 服务顾问分配中”类安全结果，但不得让 System Admin 临时冒充 owner。
+
+## P20-B3-02｜客户车源分享 / 直接转介绍可以形成 ownerless 新客户的销售归属
+
+PDM-03 后续已明确修改“普通客户分享只记 SOURCE_ONLY”的旧规则。
+
+对 ownerless 新客户 B：
+
+### 明确销售绑定分享上下文
+- A 转发绑定销售 S 的链接 → B 归 S；
+- S 必须仍 active + eligible；
+- S 仅暂停 accepting 不影响本人主动分享获客。
+
+### 客户 A 自己的分享上下文
+- 保存 A→B 直接来源 / 推荐关系；
+- B 在有效进入时读取 **A 当时的 current owner**；
+- B 归 A 当时的 current owner；
+- A 以后 owner 变化，只影响之后新发生的分享进入，不回写旧 B。
+
+### 已有 owner 的客户
+- 后续任何普通分享不得抢原 owner。
+
+直接转介绍也采用：
+
+> 新客户由推荐人在事件发生时的 current owner 承接。
+
+V1 只保留直接关系，不做多级归属 / 佣金 / 积分。
+
+客户端 P20 因此必须提供真实“推荐朋友 / 直接转介绍”入口与安全归因，但不能把分享本身变成 Recommendation。
+
+## P20-B3-03｜客户点击“锁车”只创建 / 复用 LockRequest.PENDING
+
+9 月 22 日后的 LockRequest 规则已经明确变更客户端锁车入口：
+
+客户点击“锁车”：
+
+> 创建 / 复用 `LockRequest.PENDING`
+
+而不是：
+
+- 直接形成正式 Lock；
+- 直接占车；
+- 直接开始 Lock 72h；
+- 直接冻结 Lock price snapshot。
+
+LockRequest PENDING 最长：
+
+> **6 小时**
+
+合法结果包括：
+
+- APPROVED；
+- REJECTED；
+- EXPIRED；
+- LOCK_CONFLICT；
+- CLOSED_NOT_LOCKABLE。
+
+客户端详情 / “我的”只投影真实结果，不自己创造额外申请主状态。
+
+## P20-B3-04｜竞争 LockRequest 失败后自动创建 / 复用 Waitlist
+
+PDM-18 后续明确新增：
+
+当同一 Vehicle + listing_cycle 的某一 LockRequest 首先合法 approve 并成功创建正式 Lock 后：
+
+- 其他仍有效、且仅因该 Lock 成立失去机会的 PENDING → `LOCK_CONFLICT`；
+- 同时自动创建 / 复用 Waitlist；
+- 客户不需要再次点击“登记候补”；
+- LockRequest 本体仍保留 LOCK_CONFLICT，不直接改成 Waitlist 状态；
+- 如果车辆已经 sold / offline / unavailable / cycle ended，不机械创建 Waitlist。
+
+客户端应安全展示：
+
+- 锁车申请未成功；
+- 已进入候补 / 等待确认（如 Waitlist 实际成立）；
+
+但不得展示保证性排名或自动晋升承诺。
+
+## P20-B3-05｜普通 Lock 与 Priority-origin Lock 的客户端可见性必须分开
+
+PDM-18 后续已明确两种正式 Lock 的客户侧可见性不同。
+
+### 普通 VIP / 粉丝直接 Lock
+- 只形成正式占车；
+- Vehicle 底层仍公开在售时，其他合法普通 Customer 仍可看到该车；
+- 对其他人显示安全“已锁定”；
+- 其他人可按合法 Waitlist 规则候补。
+
+### Priority-origin Lock
+当 active Priority Customer 转成正式 Lock：
+- Priority 本体 ended；
+- Lock 继承该客户原 Priority 的客户侧排他 visibility；
+- Lock 有效期间，除该 Lock Customer 外，其他普通 Customer 不进入普通公开列表 / 详情；
+- 内部 Employee / PC / Matching 继续读取真实 Vehicle 与占用事实；
+- 竞争 PENDING 可以形成 Waitlist，但 Waitlist 本身不恢复普通 Vehicle Detail。
+
+因此客户端不能使用“一切 Lock 都公开显示已锁定”或“一切 Lock 都隐藏”这种单一规则。
+
+## P20-B3-06｜真实 Deposit 后，客户自己的 Lock 不再展示普通倒计时
+
+PDM-18 / PDM-19 后续明确：
+
+普通无 Deposit 的 Lock：
+
+- 客户可看到当前 expires_at；
+- 默认新 Lock 时长 72h，后台可配置；
+- 员工合法延期后显示新的 expires_at / 已延期。
+
+一旦该 Lock 已存在真实 Deposit：
+
+- 不得仅因普通 expires_at 自动释放；
+- 客户端不再继续把普通倒计时当作“到点一定释放”的承诺；
+- “我的锁车 / 交易”可安全展示：
+  > **已支付意向金 · 车辆持续锁定中**
+- 可以展示该 Customer 自己真实支付的 Deposit 事实 / 金额；
+- 不得向其他 Customer 泄露 Deposit 金额。
+
+本条只负责客户端投影，不重新定义资金 / Lock lifecycle。
+
+## P20-B3-07｜C02 找车改为“Application 先 pending，Demand 人工激活 + 客户结束请求”
+
+PDM-11 已明确新增 / 修改客户端找车流程：
+
+### 所有 Customer 都可以提交 Application
+- 最低必填“想找什么车”；
+- 无正式 find-car entitlement 的 Customer 也能提交；
+- Application 先进入 pending；
+- 不自动创建 active Demand。
+
+### 已有 entitlement 也不再自动 active
+- 正式 Demand 只能由有权限员工人工激活；
+- 等级升级只恢复“具备被激活资格”，不会自动激活旧 pending Application。
+
+### 客户结束 Demand
+- 客户点击“结束找车”不直接猜 completed / cancelled；
+- 创建待员工确认的结束请求；
+- Demand 主状态暂时保持 active / paused；
+- 客户端可以展示派生：
+  > **结束处理中**
+- “结束处理中”不是第五个 Demand 主状态。
+
+### 动态等级提示
+- 文案读取当前 Customer Level 配置；
+- 不永久写死“粉丝 / VIP 才能找车”。
+
+P20 必须投影这套真实流程，而不是恢复旧单状态“找车页”。
+
+## P20-B3-08｜“我的交易”新增 Refund `closed` 与 PDM-19 Customer Safe Projection
+
+PDM-19 后续已把资金 / 交易模型进一步收口，客户端“我的交易”必须消费这些新事实：
+
+### Transaction
+- `in_progress / completed / cancelled`；
+- completed / cancelled 为历史终态；
+- Transaction cancel 不复活旧 Lock / Waitlist；
+- Customer 只看安全 Vehicle 摘要、状态、时间、当前负责人等本人相关信息。
+
+### Deposit
+- 展示 Customer 自己真实 Deposit 事实；
+- 不展示内部资金权限 / correction 权限；
+- 多笔 Deposit / correction 由 PDM-19 计算真实结果。
+
+### Refund
+当前正式主状态：
+- `pending`
+- `refunded`
+- `closed`
+
+其中：
+- `closed` = 决定不再退款而关闭；
+- 不得把 closed 显示成“已退款”；
+- 实际当场已经退款可以直接 refunded，不要求先出现假的 pending；
+- 只展示 Customer 自己相关退款事实。
+
+客户端不得暴露：
+
+- 内部审批 / permission；
+- 其他 Customer；
+- 内部资金操作细节；
+- correction 内部治理字段。
+
+---
+
+## 7.1 Conflict Isolation
+
+以下内容没有偷渡到 Batch 3：
+
+- C01/C03 当前缺失的具体 Navigation；
+- “我的交易 / 我的顾问 / 我的推荐 / 我的咨询 / 我的锁车候补”真人页面具体字段排版；
+- 客户详情当前顾问模块；
+- customer_visible 档案 / 检测报告模块；
+- 车况来源模块；
+- “服务 / 购买说明”及 PC 配置；
+- 首页统计/来源切换/机会块 Current carrier 缺失；
+- 分享标题模板与默认分享图配置；
+- 通用 loading/error/retry；
+- 复制权限合同；
+- 图片全屏细节；
+- 价格“万”显示格式与顶部 back/home 的具体 visual contract。
+
+这些多数是历史规则仍有效但 Current / Low-Fi 未完整投影，属于 Batch 4 / Final 前完整性修复，不属于“后续新增 / 明确变更”。
+
+因此：
+
+- `NEW_INDEPENDENT_ATOMS = 8`
+- `DUPLICATE_RULE_CREATION = 0`
+- `MISCLASSIFIED_PRODUCT_CHOICE = 0`
+- `BATCH_3 = P20-B3-01～P20-B3-08 / PENDING_USER_REVIEW`
+
+当前唯一下一步：
+
+> **用户审查 P20-B3-01～P20-B3-08。未经用户批准与后续明确执行，不得进入 Batch 4。**
