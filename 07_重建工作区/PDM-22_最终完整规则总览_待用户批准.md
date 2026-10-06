@@ -1,7 +1,7 @@
-# PDM-22｜最终完整规则总览｜待用户最终批准
+# PDM-22｜最终完整规则总览｜用户已最终批准
 
 > 域：PC 后台信息架构 / 业务管理 / 配置归属 / 上游运行管理  
-> 当前状态：`FINAL_CANDIDATE_READY / PENDING_USER_FINAL_APPROVAL`  
+> 当前状态：`USER_FINAL_APPROVED / FINAL_CLOSEOUT_DONE`  
 > Final 前完整性复核：`R2 PASS / FINAL_CANDIDATE_READY`  
 > 正式规则 / 用户裁决单元：`58`
 
@@ -541,9 +541,9 @@ PDM-22 可承载：
 
 target=PDM-22：
 
-> **18 / 18 = HANDOFF_ACCEPTED**
+> **18 / 18 = HANDOFF_CLOSED / source_backwrite=YES**
 
-R2 已确认全部有明确 landing，但在用户最终批准 Final 前不得关闭或 source backwrite。
+用户已最终批准并确认执行；18 条 incoming handoff 已全部关闭并完成 source backwrite。
 
 ### Outgoing
 
@@ -569,15 +569,14 @@ R2：
 - PDM22_FORMAL_UNITS = 58；
 - PDM22_FINAL_CANDIDATE_READY = YES。
 
-## 18. 当前唯一下一步
+## 18. Final Closeout
 
-> **用户最终审查 / 批准本 PDM-22 Final Domain Overview。**
-
-最终批准前：
-
-- 不发布 PDM-22 正式 Final；
-- 不关闭 18 条 incoming handoff；
-- 不做 source backwrite；
-- 不进入 PDM-23；
-- 不修改 IA / Low-Fi；
-- 不启动 Engineering。
+- 用户已最终批准并确认执行；
+- 正式 Authority：`07_重建工作区/PDM-22_最终完整规则.md`；
+- Final Integrity：`07_重建工作区/PDM-22_最终完整性复核_2026-10-07.md / PASS`；
+- 58 个正式规则 / 裁决单元全部进入 Final；
+- 18 / 18 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
+- HO-P22-P23-001 / HO-P22-P25-001 继续 `HANDOFF_OPEN`；
+- PDM-22 = `COMPLETE / INTEGRITY_PASS`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：`PDM-23 Startup Gate`。
