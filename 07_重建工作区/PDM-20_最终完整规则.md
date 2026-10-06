@@ -939,9 +939,9 @@ Customer disable 后：
 
 Vehicle Detail Banner：
 
-> 可选，不强制每车显示。
+> **VEHICLE_DETAIL 为所有合法车辆详情页固定具备的广告位能力；无有效 Banner 时只是不渲染具体广告内容，不代表该详情页没有广告位。**
 
-Announcement/Banner 的创建、编辑、启停、Schedule、Placement、排序与运营管理由 PDM-24 Authority 承接。
+Announcement/Banner 的创建、编辑、启停、Schedule、Placement、排序与运营管理已由 PDM-24 Final Authority 正式承接。
 
 ## 41. 服务 / 购买说明
 
@@ -1075,11 +1075,11 @@ Share / external direct、没有有效上一页：
 - HO-P18-P20-001；
 - HO-P19-P20-001。
 
-### Outgoing｜保持 HANDOFF_OPEN
+### Outgoing
 
 - HO-P20-P21-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-21 Final 已正式承接 Employee Vehicle Feed / Detail 的 occupancy `trading > locked`、客户/资金敏感字段裁剪与员工文案边界；
 - HO-P20-P22-001｜`HANDOFF_CLOSED / source_backwrite=YES`：服务/购买说明、分享标题模板、默认分享图、Customer Safe 白名单等轻量配置已由 PDM-22 Final 承接；
-- HO-P20-P24-001；
+- HO-P20-P24-001｜`HANDOFF_CLOSED / source_backwrite=YES`：PDM-24 Final 已正式承接 Announcement / Banner 运营 Authority；`VEHICLE_DETAIL` 固定广告位能力已完成 source backwrite；
 - HO-P20-P25-001。
 
 ## 47. Stale Carrier
@@ -1140,3 +1140,6 @@ R2：
 > **PDM-21 Startup Gate。**
 
 > 2026-10-07 Source Backwrite：对应 PDM-22 handoff 已由 `07_重建工作区/PDM-22_最终完整规则.md` 正式承接；以 CROSS_PDM_HANDOFF_REGISTER 的 `HANDOFF_CLOSED / source_backwrite=YES` 为准。
+
+
+> 2026-10-07 Source Backwrite｜PDM-24 Final Closeout：`HO-P20-P24-001 = HANDOFF_CLOSED / source_backwrite=YES`。PDM-20 §40 中旧“Vehicle Detail Banner 可选，不强制每车显示”已正式回写为：`VEHICLE_DETAIL` 是所有合法车辆详情页固定具备的广告位能力；无有效 Banner 时只是不渲染具体广告内容。Announcement / Banner 后台运营 Authority 以 `07_重建工作区/PDM-24_最终完整规则.md` 为准；PDM-20 Customer Safe Projection、数量投影和导航 Guard 继续有效。
