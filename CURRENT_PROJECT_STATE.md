@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-18_BATCH_3_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-18_BATCH_4_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PENDING_USER_REVIEW`
+> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`
 
 当前工作文件：
 
@@ -32,7 +32,18 @@
 
 当前唯一下一步：
 
-> **PDM-18 Batch 2 已 `PASS / USER_APPROVED / APPLIED`。Batch 3 原 3 条候选中，P18-B3-02 已按用户新裁决撤回并重分类到 Batch 4；当前 Batch 3 仅剩 P18-B3-01、P18-B3-03。Batch 4 已登记两个用户方向：Priority→Lock 继承排他可见性，以及竞争 LockRequest 自动转 Waitlist；二者均 NOT_APPLIED。当前唯一下一步：用户审查 P18-B3-01 与 P18-B3-03。**
+> **PDM-18 Batch 3 已 `PASS / USER_APPROVED / APPLIED`：P18-B3-01、P18-B3-03 正式进入当前 Authority，P18-B3-02 已转 Batch 4。Batch 4 已形成 P18-B4-01～P18-B4-10 十项冲突/遗漏/缺口/产品选择候选，其中 B4-01/B4-02 沿用用户已确认方向但尚未应用。当前唯一下一步：用户审查 PDM-18 Batch 4。**
+
+## 2026-10-06｜PDM-18 Batch 3 用户批准并执行
+
+- 用户对当前 Batch 3 剩余 `P18-B3-01 + P18-B3-03` 明确“全部同意”，随后“确认执行”；
+- `P18-B3-01 + P18-B3-03 = PASS / USER_APPROVED / APPLIED`；
+- `P18-B3-02` 保持 `WITHDRAWN_FROM_BATCH3 / MOVED_TO_BATCH4`；
+- Batch 4 扫描已形成 `P18-B4-01～P18-B4-10 / PENDING_USER_REVIEW`；
+- B4-01（Priority→Lock 排他可见性）与 B4-02（竞争 LockRequest 自动候补）沿用用户已确认方向，但尚未正式应用；
+- 10 条 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 PDM-18 Batch 4。
 
 ## 2026-10-06｜PDM-18 Batch 3 候选重分类
 
