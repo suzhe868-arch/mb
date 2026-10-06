@@ -17,7 +17,7 @@
 - PDM-09 Integrity Audit = INTEGRITY_PASS
 - PDM-10 Integrity Audit = INTEGRITY_PASS
 - PDM-01～10 Global Cross-PDM / Handoff / Global Invariant Audit = PASS
-- 当前域：PDM-18（Final Overview 已最终批准，等待 Final closeout 执行确认）
+- 当前域：PDM-19（Startup Gate 尚未执行）
 - PDM-15 Startup Gate = PASS
 - PDM-15 incoming handoffs = 5 / 5 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-15 工作版 = `07_重建工作区/PDM-15_Consultation咨询生命周期来源负责人转派与SLA_规则原子重建_工作版.md`
@@ -81,7 +81,7 @@
 - PDM-17 Source Backwrite = 6 / 6 DONE
 - PDM-18 Startup Gate = PASS
 - PDM-18 核心定位 P18-R00 = USER_APPROVED / APPLIED
-- PDM-18 incoming handoffs = 10 / 10 HANDOFF_ACCEPTED
+- PDM-18 incoming handoffs = 10 / 10 HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE
 - PDM-18 工作版 = `07_重建工作区/PDM-18_LockRequest正式LockWaitlist延期释放_规则原子重建_工作版.md`
 - PDM-18 Batch 1 = P18-A01～P18-A18 / PASS / USER_APPROVED / APPLIED
 - PDM-18 Batch 2 = P18-B2-01～P18-B2-06 / PASS / USER_APPROVED / APPLIED
@@ -96,7 +96,11 @@
 - PDM-18 Prefinal Repair = P18-LIA-01～P18-LIA-06 / PASS / USER_APPROVED / APPLIED
 - PDM-18 Prefinal R2 = PASS / FINAL_CANDIDATE_READY
 - PDM-18 Final Overview = 07_重建工作区/PDM-18_最终完整规则总览_待用户批准.md / USER_FINAL_APPROVED
-- PDM-18 Final Closeout = PENDING_EXECUTION_CONFIRMATION
+- PDM-18 Final = 07_重建工作区/PDM-18_最终完整规则.md / COMPLETE / INTEGRITY_PASS
+- PDM-18 Final Integrity = 07_重建工作区/PDM-18_最终完整性复核_2026-10-06.md / PASS
+- PDM-18 Source Backwrite = 10 / 10 DONE
+- PDM-18 Outgoing Handoffs = 6 / HANDOFF_OPEN
+- PDM-18 Final Closeout = COMPLETE
 - PDM-18 Batch 4 = P18-B4-01～P18-B4-10 / PASS / USER_APPROVED / APPLIED / CHOICES=1A～10A
 - PDM-18 Batch 4 Cross-PDM Review = PASS / COMPLETED_PDM_NO_HARD_CONFLICT
 - PDM-11 = COMPLETE / INTEGRITY_PASS
@@ -150,7 +154,7 @@
 
 ## 当前唯一下一步
 
-> **PDM-18 Final Overview 已 USER_FINAL_APPROVED。当前唯一下一步：等待明确执行 Final closeout；执行前不得发布 Final、关闭 incoming handoff、source backwrite 或进入 PDM-19。**
+> **PDM-18 已正式 `COMPLETE / INTEGRITY_PASS`：43 个规则/裁决单元进入 Final，10/10 incoming handoff CLOSED 且 source backwrite 完成，6 条 outgoing handoff 保持 OPEN。当前唯一下一步：PDM-19 Startup Gate。**
 
 每个 PDM 必须同时执行：
 
@@ -204,7 +208,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-17 均已 `COMPLETE / INTEGRITY_PASS`。PDM-18 Startup Gate 已通过，target=PDM-18 的 10 条 incoming handoff 已全部 `HANDOFF_ACCEPTED`；在 PDM-18 Final / Integrity closeout 前不得提前关闭。当前只允许进行 Batch 1 用户审查。
+当前 PDM-01～PDM-18 均已 `COMPLETE / INTEGRITY_PASS`。PDM-18 的 10 条 incoming handoff 已全部 `HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE`。当前唯一下一步为 PDM-19 Startup Gate；PDM-19 未执行 Startup Gate 前不得提前接受其 incoming handoff 或进入 Batch 1。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
