@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-18",
-  "current_domain_status": "BATCH_1_PASS_BATCH_2_PENDING_USER_REVIEW",
+  "current_domain_status": "BATCH_2_PASS_BATCH_3_PENDING_USER_REVIEW",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-18 Batch 2 用户审查",
+  "current_task": "PDM-18 Batch 3 用户审查",
   "current_work_file": "07_重建工作区/PDM-18_LockRequest正式LockWaitlist延期释放_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -28,7 +28,8 @@
   "forbidden_now": [
     "Do not modify IA or Low-Fi during PDM-01 through PDM-25 product-rule reconstruction",
     "Do not execute Engineering Delta",
-    "Do not skip PDM-18 Batch 2 user review"
+    "Do not skip PDM-18 Batch 3 user review",
+    "Do not apply P18-B4-PRE-01 before Batch 4 formal review"
   ],
   "confirmed_rule_atoms": [
     "P01-A01",
@@ -115,7 +116,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-18_BATCH_2",
+  "current_review_batch": "PDM-18_BATCH_3",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -127,7 +128,13 @@
     "P17-B2-01",
     "P17-B2-02",
     "P17-B2-03",
-    "P17-B2-04"
+    "P17-B2-04",
+    "P18-B2-01",
+    "P18-B2-02",
+    "P18-B2-03",
+    "P18-B2-04",
+    "P18-B2-05",
+    "P18-B2-06"
   ],
   "recovered_evidence_root": "01_证据_A_9月19日产品业务锚点/补回原始证据_2026-09-24",
   "recovered_phase1_sources": {
@@ -2872,7 +2879,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "用户审查 P18-B2-01～P18-B2-06",
+  "next_action": "用户审查 P18-B3-01～P18-B3-03",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -2990,20 +2997,27 @@
   "pdm_18_batch_1_status": "PASS_USER_APPROVED_APPLIED",
   "pdm_18_batch_1_pending_atoms": [],
   "pdm_18_batch_1_confirmed_count": 18,
-  "pdm_18_batch_2_status": "PENDING_USER_REVIEW",
-  "pdm_18_batch_2_pending_atoms": [
-    "P18-B2-01",
-    "P18-B2-02",
-    "P18-B2-03",
-    "P18-B2-04",
-    "P18-B2-05",
-    "P18-B2-06"
-  ],
+  "pdm_18_batch_2_status": "PASS_USER_APPROVED_APPLIED",
+  "pdm_18_batch_2_pending_atoms": [],
   "pdm_18_batch_2_reverse_conflict_scan": "PASS_FALSE_DEPRECATION_COUNT_0",
   "pdm_18_batch_2_false_deprecation_guard": [
     "AUTHORIZED_MINGBANG_EMPLOYEE_DIRECT_LOCK_RETAINS",
     "LOCKREQUEST_RETAINS",
     "WAITLIST_RETAINS",
     "ACTIVE_LOCK_MATCHING_RETAINS"
-  ]
+  ],
+  "pdm_18_batch_2_confirmed_count": 6,
+  "pdm_18_batch_3_status": "PENDING_USER_REVIEW",
+  "pdm_18_batch_3_pending_atoms": [
+    "P18-B3-01",
+    "P18-B3-02",
+    "P18-B3-03"
+  ],
+  "pdm_18_batch_3_conflict_isolation": "PASS_MISCLASSIFIED_PRODUCT_CHOICE_0",
+  "pdm_18_batch_3_new_independent_atoms": 3,
+  "pdm_18_batch_4_pending_direction": {
+    "id": "P18-B4-PRE-01",
+    "status": "USER_DIRECTION_APPROVED_NOT_APPLIED",
+    "summary": "普通 Lock 只占车不自动全客户隐藏；Priority Customer 转 Lock 时 Priority ended，但 Lock 继承原 Priority 客户侧排他可见性；Lock 结束后按当前事实重算可见性"
+  }
 }
