@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-18_BATCH_4_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-18_PREFINAL_R1_REPAIR_REVIEW`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -16,7 +16,7 @@
 
 当前域状态：
 
-> `IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`
+> `IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_REPAIR_REQUIRED`
 
 当前工作文件：
 
@@ -32,7 +32,20 @@
 
 当前唯一下一步：
 
-> **PDM-18 Batch 3 已 `PASS / USER_APPROVED / APPLIED`：P18-B3-01、P18-B3-03 正式进入当前 Authority，P18-B3-02 已转 Batch 4。Batch 4 已形成 P18-B4-01～P18-B4-10 十项冲突/遗漏/缺口/产品选择候选，其中 B4-01/B4-02 沿用用户已确认方向但尚未应用。当前唯一下一步：用户审查 PDM-18 Batch 4。**
+> **PDM-18 Batch 4 已按 1A～10A `PASS / USER_APPROVED / APPLIED`；P18-A06/A13/A18 已完成对应修正。Final 前完整性复核 R1 = REPAIR_REQUIRED，形成 P18-LIA-01～P18-LIA-06 六项修复候选。当前唯一下一步：用户审查这 6 项；未经确认不得运行 R2 或生成 Final。**
+
+## 2026-10-06｜PDM-18 Batch 4 批准执行并完成 Final 前 R1
+
+- 用户裁决 `1A～10A`，随后明确执行；
+- `P18-B4-01～P18-B4-10 = PASS / USER_APPROVED / APPLIED`；
+- P18-A06/A13 已按“竞争 LockRequest 自动候补”修正；
+- P18-A18 已补“Priority-origin Lock 继承客户侧排他可见性”；
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- Final 前完整性复核 R1 已完成：`REPAIR_REQUIRED`；
+- 形成 `P18-LIA-01～P18-LIA-06`：手机号候补门槛、客户不自助取消候补、LockRequest 结果/审计、Lock 幂等、内部候补顺序 vs 客户不展示保证性排名、outgoing handoff + stale carrier/alignment；
+- 10 / 10 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：用户审查 P18-LIA-01～P18-LIA-06。
 
 ## 2026-10-06｜PDM-18 Batch 3 用户批准并执行
 
