@@ -1,8 +1,8 @@
-# PDM-21｜最终完整规则总览｜待用户最终批准
+# PDM-21｜最终完整规则总览｜用户已最终批准
 
 > 域：员工工作台 / 车辆列表 / 客户中心 / Internal Mode / 敏感动作裁剪  
-> 当前状态：`FINAL_CANDIDATE_READY / PENDING_USER_FINAL_APPROVAL`  
-> Final 前完整性复核：`R2 PASS`  
+> 当前状态：`USER_FINAL_APPROVED / FINAL_CLOSEOUT_DONE`  
+> Final 前完整性复核：`R2 PASS / FINAL_CANDIDATE_READY`  
 > 正式规则 / 用户裁决单元：`56`
 
 ## 1. 核心定位
@@ -903,22 +903,15 @@ R2：
 - `PDM21_FORMAL_UNITS = 56`
 - `PDM21_FINAL_CANDIDATE_READY = YES`
 
-## 46. 当前审批门禁
+## 46. Final Closeout
 
-当前仅完成：
+用户已最终批准并确认执行。
 
-> **Final Candidate Ready**
-
-尚未执行：
-
-- 正式 PDM-21 Final 发布；
-- 19 条 incoming handoff closure；
-- source backwrite；
-- PDM-21 Final Integrity closeout；
-- PDM-22 Startup Gate。
-
-当前唯一下一步：
-
-> **用户最终批准 PDM-21 Final Domain Overview。**
-
-用户最终批准后，仍需单独明确“确认执行”才进行 Final closeout。
+- 正式 Authority：`07_重建工作区/PDM-21_最终完整规则.md`；
+- Final Integrity：`07_重建工作区/PDM-21_最终完整性复核_2026-10-06.md / PASS`；
+- 56 个正式规则 / 用户裁决单元全部进入 Final；
+- 19 / 19 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
+- 2 条 outgoing handoff：继续 `HANDOFF_OPEN`；
+- PDM-21：`COMPLETE / INTEGRITY_PASS`；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：`PDM-22 Startup Gate`.
