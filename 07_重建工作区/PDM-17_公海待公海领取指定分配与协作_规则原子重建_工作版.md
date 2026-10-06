@@ -964,3 +964,20 @@ Final Overview 候选：
 当前唯一下一步：
 
 > **等待用户最终批准 Final Domain Overview。批准前不得发布正式 Final、不得关闭 incoming handoff、不得 source backwrite、不得进入 PDM-18。**
+
+
+---
+
+## 14. Final Closeout｜COMPLETE
+
+用户已最终批准并确认执行。
+
+- 正式 Authority：`07_重建工作区/PDM-17_最终完整规则.md`；
+- Final Integrity：`07_重建工作区/PDM-17_最终完整性复核_2026-10-06.md / PASS`；
+- 34 个正式规则 / 用户裁决单元全部进入 Final；
+- 6 / 6 incoming handoff = `HANDOFF_CLOSED / SOURCE_BACKWRITE_DONE`；
+- 来源 PDM-02 / 03 / 11 / 13 / 15 / 16 Final 已反向回写；
+- 6 条 outgoing handoff 继续 `HANDOFF_OPEN`；
+- PDM-17 = `COMPLETE / INTEGRITY_PASS`；
+- 下一步：PDM-18 Startup Gate；
+- IA / Low-Fi / Engineering 未施工。
