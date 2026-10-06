@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-17",
-  "current_domain_status": "BATCH_4_PASS_PREFINAL_R1_RUNNING",
+  "current_domain_status": "PREFINAL_R1_REPAIR_REQUIRED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-17 Final前完整性复核 R1",
+  "current_task": "PDM-17 Final前完整性复核 R1 修复项用户审查",
   "current_work_file": "07_重建工作区/PDM-17_公海待公海领取指定分配与协作_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -91,7 +91,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-17_PREFINAL_R1",
+  "current_review_batch": "PDM-17_PREFINAL_R1_REPAIR",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -2848,7 +2848,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "执行 PDM-17 Final 前完整性复核 R1",
+  "next_action": "用户审查 P17-LIA-01～P17-LIA-05",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -2907,5 +2907,15 @@
     "7A",
     "8A",
     "9A"
-  ]
+  ],
+  "pdm_17_pre_final_integrity_r1_status": "REPAIR_REQUIRED",
+  "pdm_17_pre_final_integrity_r1_report": "07_重建工作区/PDM-17_Final前完整性复核_R1_2026-10-06.md",
+  "pdm_17_pre_final_repair_atoms": [
+    "P17-LIA-01",
+    "P17-LIA-02",
+    "P17-LIA-03",
+    "P17-LIA-04",
+    "P17-LIA-05"
+  ],
+  "pdm_17_pre_final_repair_status": "PENDING_USER_REVIEW"
 }
