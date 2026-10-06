@@ -1,6 +1,6 @@
 # PDM-20｜客户端浏览 / 搜索 / 筛选 / 排序 / 列表 / 详情 / 收藏 / 分享 / 个人中心 / 地域｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`  
+> 当前状态：`IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_REPAIR_REQUIRED`  
 > 核心定位：`P20-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：14 / 14 `HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -918,13 +918,14 @@ PDM-19 后续已把资金 / 交易模型进一步收口，客户端“我的交�
 
 ---
 
-# 8. Batch 4｜冲突 / 遗漏 / 语义缺口 / 最终裁决候选
+# 8. Batch 4｜冲突 / 遗漏 / 语义缺口 / 最终裁决｜PASS / USER_APPROVED / APPLIED
 
-> 状态：`PENDING_USER_REVIEW`。  
+> 状态：`PASS / USER_APPROVED / APPLIED / CHOICES=1A,2A,3A,4A,5A,6A,7A,8A,9A,10A`。  
+> 用户裁决：`全部同意`，按推荐 `1A～10A`；随后明确“确认执行”。  
 > 本批不再重开已完成 PDM 的底层业务规则，只补 PDM-20 客户端 Authority 中尚未完整冻结的真实页面行为。  
 > 建议：`1A～10A`。
 
-## P20-B4-01｜车辆详情 / 分享直达 CTA 状态矩阵
+## P20-B4-01｜车辆详情 / 分享直达 CTA 状态矩阵｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜按真实对象分离 CTA（推荐）
 
@@ -956,7 +957,7 @@ PDM-19 后续已把资金 / 交易模型进一步收口，客户端“我的交�
 
 **建议：A。**
 
-## P20-B4-02｜客户列表占用标签采用单一最高优先级
+## P20-B4-02｜客户列表占用标签采用单一最高优先级｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜固定优先级（推荐）
 
@@ -980,7 +981,7 @@ PDM-19 后续已把资金 / 交易模型进一步收口，客户端“我的交�
 
 **建议：A。**
 
-## P20-B4-03｜车辆详情顾问 / 参数 / 档案 / 车况 / 来源标签
+## P20-B4-03｜车辆详情顾问 / 参数 / 档案 / 车况 / 来源标签｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜恢复完整 Customer Safe Detail Contract（推荐）
 
@@ -1046,7 +1047,7 @@ Vehicle Detail 当前顾问优先级：
 
 **建议：A。**
 
-## P20-B4-04｜C03「我的」必须是真实主导航与业务历史页，不保留通用壳
+## P20-B4-04｜C03「我的」必须是真实主导航与业务历史页，不保留通用壳｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜补齐真实入口和字段（推荐）
 
@@ -1123,7 +1124,7 @@ C03 一级必须可进入：
 
 **建议：A。**
 
-## P20-B4-05｜车辆详情统一“服务 / 购买说明”
+## P20-B4-05｜车辆详情统一“服务 / 购买说明”｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜恢复单一全局模块（推荐）
 
@@ -1147,7 +1148,7 @@ C03 一级必须可进入：
 
 **建议：A。**
 
-## P20-B4-06｜普通分享内容采用轻量安全配置，不把营销文案写死
+## P20-B4-06｜普通分享内容采用轻量安全配置，不把营销文案写死｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜轻量模板 + 安全图片选择（推荐）
 
@@ -1175,7 +1176,7 @@ Vehicle 分享：
 
 **建议：A。**
 
-## P20-B4-07｜历史详情只读 + 旧分享链接按当前事实实时重算
+## P20-B4-07｜历史详情只读 + 旧分享链接按当前事实实时重算｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜严格区分公开分享与本人历史（推荐）
 
@@ -1194,7 +1195,7 @@ Vehicle 分享：
 
 **建议：A。**
 
-## P20-B4-08｜手机号授权拒绝后的找车表单只做页面临时保真
+## P20-B4-08｜手机号授权拒绝后的找车表单只做页面临时保真｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜临时保留当前填写内容，不创建服务端草稿（推荐）
 
@@ -1213,7 +1214,7 @@ Customer 已填写找车表单后，提交时因无手机号触发统一手机�
 
 **建议：A。**
 
-## P20-B4-09｜客户端通用加载 / 失败 / 重试 / 复制权限合同
+## P20-B4-09｜客户端通用加载 / 失败 / 重试 / 复制权限合同｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜统一交互安全合同（推荐）
 
@@ -1249,7 +1250,7 @@ Customer 已填写找车表单后，提交时因无手机号触发统一手机�
 
 **建议：A。**
 
-## P20-B4-10｜价格格式与 Vehicle Detail 顶部导航
+## P20-B4-10｜价格格式与 Vehicle Detail 顶部导航｜CHOICE=A / USER_APPROVED / APPLIED
 
 ### A｜恢复明确显示与 entry-context 导航（推荐）
 
@@ -1289,7 +1290,7 @@ Customer 已填写找车表单后，提交时因无手机号触发统一手机�
 
 ## 8.1 Batch 4 Gate（待用户裁决）
 
-- `P20-B4-01～P20-B4-10 = PENDING_USER_REVIEW`
+- `P20-B4-01～P20-B4-10 = PASS / USER_APPROVED / APPLIED / CHOICES=1A～10A`
 - 推荐：`1A,2A,3A,4A,5A,6A,7A,8A,9A,10A`
 - `COMPLETED_PDM_MUTATION = 0`
 - `NEW_DOMAIN_STATE_MACHINE = 0`
@@ -1297,4 +1298,257 @@ Customer 已填写找车表单后，提交时因无手机号触发统一手机�
 
 本批批准后：
 
-> **先执行 Batch 4，再运行 PDM-20 Final 前完整性复核 R1；不得直接跳 Final。**
+> **Batch 4 已执行。Final 前完整性复核 R1 = REPAIR_REQUIRED；当前唯一下一步：用户审查 P20-LIA-01～P20-LIA-07。**
+
+---
+
+## 8.2 Batch 4 Gate｜PASS
+
+- 用户裁决：`P20-B4-01～P20-B4-10 = 全部同意 / 1A～10A`；
+- 用户随后明确“确认执行”；
+- `P20-B4-01～P20-B4-10 = PASS / USER_APPROVED / APPLIED`；
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- 14 / 14 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- IA / Low-Fi / Engineering 未施工。
+
+---
+
+# 9. Final 前完整性复核 R1
+
+> 报告：`07_重建工作区/PDM-20_Final前完整性复核_R1_2026-10-06.md`  
+> 结果：`REPAIR_REQUIRED / NO_HARD_CONFLICT`。  
+> Final candidate：`NOT_READY`。
+
+本轮 Source→Atom / Atom→Source / Incoming Handoff / Semantic Detail / M16 全域 / Negative Claim / Cross-PDM 扫描发现 7 组 Final 前补齐项。
+
+## P20-LIA-01｜Vehicle 时间字段客户端标签必须分离
+
+PDM-04 已明确把以下时间事实分开：
+
+- `listing_started_at`：当前 listing_cycle 正式上架 / 重新上架时间；
+- 人工车上传 / 首次创建时间：名邦 / 4S 人工录入事实；
+- JYT `first_seen_at` / 平台收录时间：名邦第一次接入 / 收录该 JYT Vehicle 的事实。
+
+客户端必须保持这些语义分离：
+
+- “最新上架”排序继续读取当前 cycle 的 `listing_started_at`；
+- 如展示“上架时间”，指当前 cycle 的 listing_started_at；
+- 如展示人工车“上传/创建时间”，必须明确这是名邦/4S 本地录入事实；
+- 如展示 JYT `first_seen_at`，只能使用“平台收录时间 / 名邦收录时间”等真实标签；
+- **不得把 `first_seen_at` 伪称“上游上传时间 / 车商发布时间”**；
+- relist 后 listing_started_at 可以变化，但 first_seen_at / 原始人工创建时间不随新 cycle 改写；
+- “今日新增”继续按 P20-A10，不把 relist 伪造成第一次新增。
+
+本条补齐 `HO-P04-P20-001` 中尚未显式承接的时间展示语义。
+
+## P20-LIA-02｜DAILY_PRICE_QUOTA_EXHAUSTED 的客户端提示必须完整
+
+P20-A16 / B4-10 已承接 `--万` 与“价格咨询”的区分，但 `HO-P10-P20-001` 还要求完整权益提示。
+
+LIMITED Customer 当前 cycle 未解锁、存在合法数字价、但当日 quota 已耗尽时：
+
+- 主价格字段：`--万`；
+- 不用“无权限查看价格”长文替代主价格字段；
+- 价格区之外明确提示：
+  - 今日批发车数字价格查看次数已用完；
+  - 可升级到**当前实际配置为 UNLIMITED 的等级**；
+  - 业务文案可举粉丝 / VIP，但不能把等级名写死进算法；
+  - 也可联系顾问**免费增加今日查看次数**；
+- “联系顾问”本身不自动加次数；只有合法员工真实追加后 quota 才变化；
+- Customer disable 时价格权益暂停，页面不得用旧缓存继续显示本不应显示的数字价；
+- `--万` 只代表“有数字价但当前 quota exhausted”，车辆本身无数字价仍为“价格咨询”。
+
+## P20-LIA-03｜Customer disable 的客户端跨对象投影必须形成一张统一矩阵
+
+当前各 completed PDM 已分别冻结 disable 语义，PDM-20 Final 必须统一投影：
+
+### 公开浏览
+- Customer 身份仍存在；
+- 普通公开浏览可继续；
+- 不因停用删除收藏 / 历史 / owner / 来源。
+
+### Price
+- 价格权益暂停；
+- 不得继续使用停用前缓存的受保护数字价作为当前可见权。
+
+### Find-car Application / Demand
+- pending Application 保留；
+- 停用期间不得激活；
+- Customer 侧依赖账号能力的新增 / 编辑暂停；
+- active Demand → paused；
+- 已 paused 保持；
+- completed / cancelled 不改；
+- 恢复账号后不自动激活 pending Application，不自动恢复 Demand active。
+
+### Consultation
+- open Consultation 保留原主状态；
+- 进入独立 `customer_disabled_hold` Guard；
+- 客户侧普通动作暂停；
+- **不得把 hold 显示成 resolved / invalid / cancelled 等终态**；
+- 账号恢复后也不由客户端自动解除 hold，等合法 Employee 恢复。
+
+### Lock / Transaction / Deposit / Refund
+- 历史和真实当前事实不删除；
+- 是否允许新的 mutation 继续服从各自 Authority；
+- 客户端只展示安全真实状态，不伪造业务“消失”。
+
+本条补齐 `HO-P01-P20-001`、`HO-P10-P20-001`、`HO-P11-P20-001`、`HO-P15-P20-001` 的共同客户端 Guard。
+
+## P20-LIA-04｜Search / Filter 与六类 auto-Matching 排除字段必须显式解耦
+
+PDM-12 已明确：
+
+> 变速箱、配置偏好、过户次数、城市/距离、排放标准、车源类型不参与 V1 自动四级 Matching，不等于客户端禁止搜索/筛选这些字段。
+
+PDM-20 必须冻结：
+
+- 客户端 Search / Filter 可以合法消费这些结构化 Vehicle 字段；
+- 当前已经存在的“变速箱 / 地域 / 来源频道”等继续正常作为客户端查询条件；
+- 后续若在“更多”中承载配置偏好、过户次数、排放标准等，也只能作为 Feed Query / Filter；
+- **不得因为用户设置了这些客户端筛选，就反向把它们升级成 Demand Matching hard condition**；
+- 同样，Rule Dictionary 能解析这些字段，也不代表正式 Matching 自动使用；
+- P20-A06 的主筛选 UI 与 PDM-12 Matching field set 是两套用途，不得错误绑定。
+
+本条不强制新增一套复杂筛选页，只补“客户端可筛选 ≠ 自动 Matching 条件”的边界。
+
+## P20-LIA-05｜Announcement / Banner 客户端投影必须正式承接，运营 Authority 留 PDM-24
+
+R10 明确保留客户端公告与 Banner，但 PDM-20 Batch 1～4 尚未完整写入。
+
+### Announcement
+客户端不建设泛化“消息中心”。
+
+保留：
+
+> **公告**
+
+用于：
+
+- active 公告；
+- history 公告。
+
+公告与头像/昵称提醒同时需要主动弹出时：
+
+> 同一时刻只展示一个主动弹层。
+
+具体优先级可以留后续 Low-Fi，但不能连续强迫弹多个。
+
+### Banner
+客户端支持两个 placement：
+
+- `HOME_TOP`
+- `VEHICLE_DETAIL`
+
+数量投影：
+
+- 0 条 → 整个区域隐藏；
+- 1 条 → 单张；
+- 2～5 条 → 轮播；
+- >5 条 → 按当前后台排序只取前 5。
+
+Vehicle Detail Banner 是可选模块，不强制每车显示。
+
+PDM-20 只冻结：
+
+> 客户端展示 / 导航 / 空态投影。
+
+公告/Banner 创建、编辑、启停、Schedule、Placement、后台排序与运营管理仍由 **PDM-24** 承接。
+
+## P20-LIA-06｜PDM-19 客户交易资金投影补齐 correction / 换车 / 跨对象负向边界
+
+`HO-P19-P20-001` 不只要求 Refund `closed`。
+
+客户端“我的交易”还必须明确：
+
+- Transaction `completed / cancelled / corrected` 等事实不得自动改变 Consultation 页面主状态；
+- Transaction completed 不自动把 Customer 的 Demand 批量完成/取消；
+- completed Transaction correction 只投影真实更正后的安全结果与历史，不把旧成交历史“删掉”；
+- 误成交 correction 如果 Vehicle 从未真实不可售，不得在客户端制造“重新上架 / 今日新增 / 新 cycle”假象；
+- 换车不显示成一个独立 Domain 状态机：
+  - 旧车 Lock / Transaction / Deposit / Refund 保留历史；
+  - 新车建立新的 Lock / Transaction / Deposit；
+  - 客户端可以做必要的“旧业务 → 新业务”安全关联说明；
+  - 不得表现为“旧 Deposit 已直接转到新车”；
+- Customer 只能看到自己的 Deposit / Refund / Transaction 安全事实，不下发内部 correction permission / actor 治理字段 / 其他 Customer 信息。
+
+## P20-LIA-07｜Outgoing Handoff + stale carrier / Final alignment
+
+PDM-20 Final 前必须正式登记自身产生的 future handoff。
+
+### PDM-20 → PDM-21
+承接 M16 中员工侧客户端体验越界部分：
+
+- Employee Vehicle Feed 的占用状态：
+  - `交易中 > 已锁定`；
+- 不在列表泄露 Customer 姓名、手机号、Deposit 金额、详细交易进度；
+- Employee 车辆详情/工作台继续消费真实 Lock/Transaction Authority；
+- 不把客户侧“我的锁车 / 我的候补”文案直接复用到员工端。
+
+### PDM-20 → PDM-22
+承接 PC 配置：
+
+- “服务 / 购买说明”全局单内容配置；
+- 基础富文本、Word 基础格式兼容与安全清理；
+- 保存 / 更新 / 审计；
+- 普通分享标题模板 / 默认分享图 / 允许字段白名单等轻量配置；
+- 不建设无限通用模板引擎。
+
+### PDM-20 → PDM-24
+承接：
+
+- Announcement 创建 / 编辑 / 启停 / active-history；
+- Banner `HOME_TOP / VEHICLE_DETAIL`；
+- 数量、排序、Schedule、Placement 与运营位管理；
+- 客户主动弹层运营策略。
+
+PDM-24 不得反向改变 PDM-20 已冻结的客户安全展示与导航边界。
+
+### PDM-20 → PDM-25
+承接：
+
+- 客户端权限变化后旧敏感 UI / payload 撤销；
+- copy-before-view Guard；
+- historical detail 只读；
+- query context restore；
+- submit idempotency / duplicate prevention；
+- Customer Safe Projection 的字段级测试矩阵；
+- stale carrier alignment 与跨 PDM Final 审计。
+
+同时登记至少以下 stale carrier：
+
+1. Current 正常首入“暂不 owner”旧语义；
+2. `700km` / 默认定位城市旧地域 carrier；
+3. 旧“我要这辆车”混合 Consultation/Lock；
+4. Consultation `CANCELLED` 第五状态；
+5. Priority 自动授客户 visibility / 客户端 Priority 内部术语；
+6. LIMITED 二次点击“查看价格”；
+7. Waitlist 保证排名 / 自动晋升；
+8. LockRequest 手动再点候补、独立申请进度/主动撤回；
+9. C03 多个页面仍是通用壳 / 主导航缺失；
+10. Vehicle Detail 顾问/档案/车况/服务说明/顶部导航/价格格式等 Current 投影不足；
+11. Announcement / Banner Current carrier 不完整；
+12. PDM-19 Refund closed / 交易资金投影旧壳。
+
+统一：
+
+> `STALE_CARRIER / DEFERRED_TO_POST_PDM25_IA_LOWFI_ALIGNMENT`
+
+---
+
+## 9.1 R1 结论
+
+- `PDM20_PREFINAL_R1 = REPAIR_REQUIRED`
+- `SOURCE_ATOMS_CHECKED = 46`
+- `MISSING_RULE_UNRESOLVED = 3`
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 3`
+- `CROSS_PDM_ALIGNMENT_GAP = 1`
+- `OUTGOING_HANDOFF_GAP = 1_GROUP`
+- `COMPLETED_PDM_HARD_CONFLICT = 0`
+- `INCOMING_HANDOFF_GAP = 0`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+- `REPAIR_ATOMS = P20-LIA-01～P20-LIA-07`
+- `FINAL_CANDIDATE_READY = false`
+
+当前唯一下一步：
+
+> **用户审查 P20-LIA-01～P20-LIA-07。全部批准并执行后，重新运行 Final 前完整性复核 R2。**
