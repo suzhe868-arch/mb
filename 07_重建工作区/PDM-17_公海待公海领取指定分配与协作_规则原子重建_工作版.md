@@ -1,7 +1,7 @@
 # PDM-17｜公海 / 待公海处理 / 领取 / 指定分配 / Collaboration（协作）｜规则原子重建工作版
 
 > 日期：2026-10-06  
-> 当前状态：`IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_REPAIR_REQUIRED`  
+> 当前状态：`IN_PROGRESS / BATCH_1_2_3_4_PASS / PREFINAL_R1_REPAIR_APPLIED / R2_RUNNING`  
 > 当前 Authority：本文件仅为 PDM-17 工作 Authority；四批用户审查、Final 前完整性复核与最终总览批准完成后，才可生成正式 Final。  
 > 禁止：当前不得修改 IA / Low-Fi / Engineering，不得提前关闭 incoming handoff。
 
@@ -833,3 +833,106 @@ Batch 1 尚未把这一字段级 object-state Guard 完整写入。
 当前唯一下一步：
 
 > **用户审查 P17-LIA-01～P17-LIA-05。未经确认不得进入 R2 / Final Overview。**
+
+---
+
+# 12. Final 前修复 R1｜PASS / USER_APPROVED / APPLIED
+
+> 用户对 `P17-LIA-01～P17-LIA-05` 明确“全部同意”，随后确认执行。
+
+## P17-LIA-01｜原 owner 重新领取资格｜USER_APPROVED / APPLIED
+
+原 owner 若当前仍满足全部现行领取条件：
+
+- active + eligible；
+- 具备公海领取 permission/capability；
+- data scope 覆盖；
+- 未触发当前领取数量 / 频率限制；
+- Customer 仍处于可领取公海状态；
+
+则可与其他合法 claimant 一样重新领取自己曾释放的 Customer。
+
+但：
+
+- 没有历史优先权；
+- 不恢复旧 owner；
+- 不绕过并发 winner、保护事实或其他当前 Guard。
+
+## P17-LIA-02｜正式进入公海终止旧 Collaboration｜USER_APPROVED / APPLIED
+
+正式进入公海成功属于正式 owner 变化（owner → null）：
+
+- 旧 Customer-level Collaboration 立即结束；
+- 历史 Collaboration 保留；
+- 具体业务级 Collaboration 若仍依附未完成业务，则该业务必须先完成、取消或正式交接；
+- 未完成责任未处理时，P17-A05 继续阻止正式入公海。
+
+因此正式进入公海成功后，不保留依附旧 owner 或未完成业务的有效旧 Collaboration。
+
+## P17-LIA-03｜合法 collaborator 正向允许动作｜USER_APPROVED / APPLIED
+
+合法 collaborator 在明确 Collaboration scope 内，可以：
+
+- 新增 CRM Follow-up；
+- 处理被明确授权的具体协作业务；
+- 在自身当前 permission/capability + data scope + object/account state 允许范围内参与服务。
+
+仍不得因为 Collaboration 自动获得：
+
+- Customer 主阶段修改权；
+- owner / source 修改权；
+- 敏感内部价格；
+- 退款、资金、交易纠错等额外能力。
+
+CRM Follow-up 本体继续以 PDM-16 为 Authority，不在 PDM-17 建第二套 Follow-up 模型。
+
+## P17-LIA-04｜公海 / Collaboration 核心审计清单｜USER_APPROVED / APPLIED
+
+以下核心 mutation 至少记录：
+
+- before；
+- after；
+- actor；
+- time。
+
+覆盖至少：
+
+- 正式进入 / 退出公海；
+- 主动领取；
+- 后台指定分配 / owner transfer；
+- “继续当前 owner”人工确认；
+- Collaboration 新增 / 移除；
+- Collaboration scope 变化。
+
+原因 / 备注默认可选，不作为成功硬门槛。
+
+普通日常 CRM Follow-up 继续走 PDM-16 append-only history，不因为本条升级为重型 mutation audit。
+
+## P17-LIA-05｜Outgoing Handoff + Stale Carrier｜USER_APPROVED / APPLIED
+
+已在 `CROSS_PDM_HANDOFF_REGISTER.md` 正式登记：
+
+- HO-P17-P18-001；
+- HO-P17-P19-001；
+- HO-P17-P21-001；
+- HO-P17-P22-001；
+- HO-P17-P23-001；
+- HO-P17-P25-001。
+
+以上统一保持 `HANDOFF_OPEN`，由目标 PDM 后续正式承接。
+
+同时已登记 stale carrier：
+
+- `04_证据_D_实际_LowFi/CURRENT/PC/P06-05/P06-05-V5-PUBLIC_POOL_ASSIGN_CONFIRM_REQUIRED.svg`
+
+该旧 carrier 与 P17-A11 冲突；正确 Authority 为：合法后台指定分配成功后目标员工立即成为唯一 current owner，不存在目标员工二次确认主状态。
+
+当前只登记 `CARRIER_DEFERRED`，不修改 IA / Low-Fi；统一留到 PDM-25 完成 + PDM-01～25 全局最终总复核 PASS 后集中对齐。
+
+## 12.1 Repair Gate
+
+- `P17-LIA-01～P17-LIA-05 = PASS / USER_APPROVED / APPLIED`；
+- incoming handoff = 6 / 6 `HANDOFF_ACCEPTED`；
+- outgoing handoff = 6 / 6 `HANDOFF_OPEN`；
+- stale carrier = REGISTERED / CARRIER_DEFERRED；
+- 当前下一步：重新执行 Final 前完整性复核 R2。
