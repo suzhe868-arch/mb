@@ -1,3 +1,14 @@
+## 2026-10-07｜PDM-23 窗口切换交接已保存｜Batch 4 暂停审查并要求重建
+
+- Startup Gate + Batch 1～3 = 已正式 PASS / APPLIED；
+- 原 P23-B4-01～P23-B4-06 完整保留，但改为“旧版 Batch 4 草案”，未批准、未执行；
+- 本窗口新增讨论已保存：微信小程序消息能力、飞书多层开关、员工级总群 SLA 超时通告开关、PC 暂不做主动通知、未来 App Push 仅预留；
+- “员工级总群 SLA 超时通告开关”当前只标记为 conversation-recovered candidate，必须历史重扫；
+- 交接文件：`07_重建工作区/PDM-23_窗口切换交接_2026-10-07.md`；
+- 当前门禁：`BATCH_4_REVIEW_SUSPENDED / REBUILD_REQUIRED_AFTER_HISTORICAL_RESCAN`；
+- 当前唯一下一步：新窗口读取交接快照并重新扫描通知历史，再生成完整 Batch 4；
+- IA / Low-Fi / Engineering 未施工。
+
 ## 2026-10-07｜PDM-23 Batch 3 已执行并进入 Batch 4
 
 - `P23-B3-01～P23-B3-16 = PASS / USER_APPROVED / APPLIED`；
@@ -464,7 +475,7 @@
 
 ## 当前阶段
 
-`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-23_BATCH_4_REVIEW`
+`PRODUCT_BASELINE_REBUILD / DOMAIN_RULE_RECONSTRUCTION / PDM-23_BATCH_4_REBUILD_PENDING`
 
 > **当前有效快照以本文件顶部、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 为准。下方按日期保留的旧“当前状态 / 下一步”属于历史审计轨迹，不代表现在仍停留在该节点。**
 
@@ -474,7 +485,7 @@
 
 当前域状态：
 
-> `PDM-22 COMPLETE / INTEGRITY_PASS；PDM-23 STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_PENDING_USER_REVIEW`
+> `PDM-22 COMPLETE / INTEGRITY_PASS；PDM-23 STARTUP_GATE_PASS / BATCH_1_PASS / BATCH_2_PASS / BATCH_3_PASS / BATCH_4_REVIEW_SUSPENDED_REBUILD_REQUIRED`
 
 当前工作文件：
 
