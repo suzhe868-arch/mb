@@ -29,8 +29,8 @@
     "Do not modify IA or Low-Fi during PDM-01 through PDM-25 product-rule reconstruction",
     "Do not execute Engineering Delta",
     "Do not close HO-P20-P24-001 or source-backwrite PDM-20 before PDM-24 Final Closeout",
-    "Do not mark PDM-24 Batch 3 as PASS before explicit user approval and execution",
-    "Do not advance to PDM-24 Batch 4 before Batch 3 user approval and execution",
+    "Do not mark PDM-24 Batch 3 PASS before explicit user approval and execution",
+    "Do not advance to PDM-24 Batch 4 before Batch 3 review is approved and executed",
     "Do not advance to PDM-25 before PDM-24 is completed"
   ],
   "confirmed_rule_atoms": [
