@@ -402,7 +402,7 @@ PDM-02 的以下规则继续有效：
 - Recommendation 生命周期、正式推荐关系、hidden 单车可见授权 → PDM-14｜`HANDOFF_CLOSED`：PDM-14 Final 已冻结 Recommendation/普通分享分离、ownerless 分享归属继续服从 PDM-03、已有 owner 不被抢、hidden Vehicle 需 Recommendation + customer-specific visibility；`HO-P03-P14-001 = HANDOFF_CLOSED / source_backwrite=YES`。
 - Consultation 完整负责人 / 转派 / SLA → PDM-15｜`HANDOFF_CLOSED`：PDM-15 Final 已冻结 Customer owner 与 Consultation assignee 分层、owner 变化不自动漂移 assignee、owner_assignment_pending / 公海创建顺序、正式 handover、15 分钟 SLA 与首次真实人工响应；`HO-P03-P15-001 = HANDOFF_CLOSED / source_backwrite=YES`。
 - CRM 跟进、画像、阶段、Source Radar 与公司客户历史的具体页面 / 字段访问投影 → PDM-16｜`HANDOFF_CLOSED`：PDM-16 Final 已承接，并明确“历史服务过”不产生永久访问权；current owner / valid Collaboration / authorized manager scope 与统一 Guard 决定当前访问；`HO-P03-P16-001 = HANDOFF_CLOSED / source_backwrite=YES`。
-- 公海 / 待公海处理 / 后台分配 / 领取 / Collaboration → PDM-17；不得通过分享链接绕过已有 owner / 公海的正式治理规则。
+- 公海 / 待公海处理 / 后台分配 / 领取 / Collaboration → PDM-17｜`HANDOFF_CLOSED`：PDM-17 Final 已正式承接唯一 current owner、公海 owner=null、人工治理/领取/指定分配/Collaboration，并明确分享/转介绍不得绕过已有 owner 或正式公海治理；`HO-P03-P17-001 = HANDOFF_CLOSED / source_backwrite=YES`。
 - Waitlist / Lock 负责人状态机 → PDM-18。
 - Transaction / Refund 负责人状态机 → PDM-19。
 - 客户端分享入口、分享页、直接转介绍 / 推荐朋友入口、交互和视觉 → PDM-20。
