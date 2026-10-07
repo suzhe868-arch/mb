@@ -1,5 +1,12 @@
 # IA V5 Permission Contract
 
+<!-- IA-GLOBAL-B4-PERMISSION -->
+> **IA Batch 4 Permission 正规化｜2026-10-08**
+>
+> 1. 4S Employee 对名邦 Recommendation 业务仍为 hard DENY；该 hard DENY 只约束 Actor，不约束 Vehicle Source。合法名邦业务 responsible 可对 4S 合作车源建立 Recommendation。
+> 2. CRM 当前访问不是“历史服务永久权限”：必须同时满足当前 identity、permission/capability、data scope、current owner / valid Collaboration / manager scope 与 object/account state；正式交接后旧 owner 不因历史服务继续拥有完整 CRM 访问。
+> 3. 独立 Recommendation qualification permission/page/action 已删除；Recommendation 资格由 Customer Level 当前 find-car entitlement 给出。
+
 <!-- IA-GLOBAL-B2-B3-PERMISSION -->
 > **IA Batch 2 + 3 Permission 覆盖｜2026-10-08**
 >
