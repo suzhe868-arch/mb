@@ -59,6 +59,18 @@ jobs:
         run: node --test f02-g0/tests/*.test.mjs
       - name: PostgreSQL16 真实身份/只读事务负例
         run: node f02-g0/preflight.mjs
+      - name: 真实 PostgreSQL 错误凭据与 F01 库连接拒绝负例
+        run: |
+          if F02_G0_DATABASE_URL=postgres://f02_ci:deliberately_wrong_password@127.0.0.1:5432/f02_schema_test node f02-g0/preflight.mjs; then
+            echo 'SECURITY FAILURE: wrong credential accepted'
+            exit 1
+          fi
+          echo 'F02-G0 live wrong-password negative PASS'
+          if F02_G0_DATABASE_URL=postgres://f02_ci:f02_ci_ephemeral_fixture@127.0.0.1:5432/f01_foundation node f02-g0/preflight.mjs; then
+            echo 'SECURITY FAILURE: F01 database target accepted'
+            exit 1
+          fi
+          echo 'F02-G0 F01-database negative PASS'
       - name: 任何执行参数都必须失败
         run: |
           if node f02-g0/preflight.mjs --apply; then echo 'SECURITY FAILURE'; exit 1; fi
