@@ -1211,3 +1211,6 @@
 
 | PDM24-GATE-FINAL-OVERVIEW | PDM-24 | Final Domain Overview | 用户已对 PDM-24 Final Domain Overview 明确“最终批准”；40 个正式规则/裁决单元进入 Final Closeout。 | USER_FINAL_APPROVED | 2026-10-07 用户“最终批准” | 2026-10-07 |
 | PDM24-GATE-FINAL-CLOSEOUT | PDM-24 | Final Closeout | 用户随后明确“确定执行”；正式发布 PDM-24 Final 与 Final Integrity，关闭 HO-P20-P24-001 并 source backwrite PDM-20；HO-P24-P25-001 保持 HANDOFF_OPEN。 | COMPLETE / INTEGRITY_PASS / SOURCE_BACKWRITE_DONE / NEXT=PDM-25_STARTUP_GATE | PDM-24 Final + Final Integrity + CROSS_PDM_HANDOFF_REGISTER | 2026-10-07 |
+
+| PDM25-DEC-R00 | PDM-25 | P25-R00 | PDM-25 定位为全项目审计 / 历史 / 时区 / 配置版本 / 终态真实性 / 横切完整性唯一产品 Authority；不重建业务主状态，不恢复已废弃能力，不冻结数据库/MQ/事务框架等工程实现。 | USER_APPROVED / APPLIED | 2026-10-07 用户“全部同意”“确认这些”并最终“确认执行” | 2026-10-07 |
+| PDM25-GATE-STARTUP | PDM-25 | Startup Gate | 24 条 target=PDM-25 incoming handoff 全部正式接收；审计只读、重要 mutation 可追溯、敏感字段最小化、配置不追改历史、终态真实性、UTC+8、权限撤销旧载体失效、横切完整性边界进入当前 Authority。 | PASS / USER_APPROVED / APPLIED / INCOMING=24_24_HANDOFF_ACCEPTED / NEXT=PDM25_BATCH1 | PDM-25 工作版 + CROSS_PDM_HANDOFF_REGISTER | 2026-10-07 |
