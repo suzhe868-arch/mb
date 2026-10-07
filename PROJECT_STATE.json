@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "GLOBAL_POST_PDM25",
-  "current_domain_status": "IA_GLOBAL_ALIGNMENT_IN_PROGRESS_BATCH1_APPLIED",
+  "current_domain_status": "IA_GLOBAL_ALIGNMENT_IN_PROGRESS_BATCH1_2_3_APPLIED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "IA Batch 2｜明确废弃 / 已覆盖 / 不得恢复审查",
+  "current_task": "IA Batch 4｜Final-gap Scan（冲突 / 遗漏 / 缺口 / 新选择）",
   "current_work_file": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -422,7 +422,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "IA_BATCH_2_PENDING_USER_REVIEW",
+  "current_review_batch": "IA_BATCH_4_FINAL_GAP_SCAN_PENDING",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -4641,7 +4641,7 @@
   "global_pdm01_25_final_integrity_audit_report": "07_重建工作区/PDM-01至25_全局跨域移交与全局不变量最终总复核_2026-10-07.md",
   "historical_tail_cleanup_status": "PASS",
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
-  "ia_status": "IN_PROGRESS_BATCH1_APPLIED",
+  "ia_status": "IN_PROGRESS_BATCH1_2_3_APPLIED",
   "lowfi_status": "NO_CONSTRUCTION",
   "engineering_status": "NO_CONSTRUCTION",
   "ia_global_alignment": {
@@ -4649,8 +4649,14 @@
     "batch_1": "PASS_USER_APPROVED_APPLIED",
     "batch_1_atoms": "IA-B1-01..IA-B1-16",
     "carrier_closed_count": 16,
-    "next": "IA_BATCH_2_REVIEW",
+    "next": "IA_BATCH_4_FINAL_GAP_SCAN",
     "low_fi": "NO_CONSTRUCTION",
-    "engineering": "NO_CONSTRUCTION"
+    "engineering": "NO_CONSTRUCTION",
+    "batch_2": "PASS_USER_APPROVED_APPLIED",
+    "batch_3": "PASS_USER_APPROVED_APPLIED",
+    "batch_2_atoms": "IA-B2-01..IA-B2-19",
+    "batch_3_atoms": "IA-B3-01..IA-B3-30",
+    "batch_23_carrier_closed_count": 104,
+    "carrier_deferred_remaining": 4
   }
 }
