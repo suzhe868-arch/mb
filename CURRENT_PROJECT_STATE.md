@@ -2738,3 +2738,17 @@ Decision Register 已登记 PDM10-DEC-B2-01～B2-12 与 PDM10-GATE-B2。
 - PDM-10 当前进入 `BATCH_4_EVIDENCE_REVIEW`。
 
 本次未修改 R11 / IA / Low-Fi 历史证据原件。
+
+
+## 2026-10-08｜Legacy Engineering Baseline 纳入规则
+
+- 用户确认将 2026-09-17 CR007 历史工程资产作为后续工程复用底盘纳入当前仓库。
+- 已建立：`09_历史工程资产基线/`。
+- 该目录定位为 `Legacy Engineering Baseline`，不是 Current Product Authority，不改变 PDM-01～25 Final 的权威结论。
+- Authority 顺序固定为：`PDM-01～25 Final → Current IA → Current Low-Fi → Current Engineering Baseline / Work Order → Legacy Engineering Baseline`。
+- 后续工程施工前，旧工程资产必须经过 Engineering Delta，并按 `KEEP_DATA / KEEP_CANDIDATE_VERIFY / MODIFY_REQUIRED / ADD_REQUIRED / DEPRECATED_LOGIC_REFERENCE / REFERENCE_ONLY` 分类。
+- 已冻结禁恢复项包括：旧 Mingbang→Collector Phone API 方向、旧 Collector Base URL / Phone Path 后台配置、旧 vehicles.biz_status 单一 Authority、旧锁车冲突不自动候补、旧草稿自动保存等。
+- 采集 / Collector 程序本体为独立已运行系统，本项目不重写采集后台，只完成名邦侧 Integration API Contract 与联调。
+- 当前产品阶段不因此前移：`PRODUCT_BASELINE = NOT_READY`。
+- 当前唯一下一步保持：**IA 全局集中对齐**（`NEXT = IA_GLOBAL_ALIGNMENT`）。
+- 说明：治理入口已纳入仓库；大体积 Legacy 工程资产本体需解压后置于 `09_历史工程资产基线/01_ENGINEERING_STARTER_LEGACY/`，不得只提交 ZIP。
