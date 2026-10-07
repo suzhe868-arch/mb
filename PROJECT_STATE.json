@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "PDM-25",
-  "current_domain_status": "STARTUP_GATE_PENDING",
+  "current_domain_status": "STARTUP_GATE_PASS_BATCH_1_PENDING",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,16 +20,17 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-25 Startup Gate",
-  "current_work_file": "PENDING_PDM-25_STARTUP_GATE",
+  "current_task": "PDM-25 Batch 1｜稳定一致规则审查",
+  "current_work_file": "07_重建工作区/PDM-25_审计历史时区配置版本终态与横切完整性_规则原子重建_工作版.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
     "Do not modify IA or Low-Fi during PDM-01 through PDM-25 product-rule reconstruction",
     "Do not execute Engineering Delta",
-    "Do not treat any target=PDM-25 handoff as accepted before PDM-25 Startup Gate",
-    "Do not skip PDM-25 Startup Gate",
+    "Do not close or source-backwrite target=PDM-25 incoming handoffs before PDM-25 Final Closeout",
+    "Do not skip PDM-25 review batches",
+    "Do not mark PDM-25 COMPLETE before Prefinal Integrity, Final Overview approval and Final Closeout",
     "Do not begin post-PDM25 global final audit or IA/Low-Fi alignment before PDM-25 Final Closeout"
   ],
   "confirmed_rule_atoms": [
@@ -423,7 +424,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-25_STARTUP_GATE",
+  "current_review_batch": "PDM-25_BATCH_1_STABLE_CONSISTENT",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3194,7 +3195,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "PDM-25 Startup Gate",
+  "next_action": "PDM-25 Batch 1｜稳定一致规则审查",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4491,10 +4492,10 @@
   "pdm_24_final_integrity_status": "PASS",
   "pdm_24_final_closeout": "COMPLETE",
   "pdm_24_source_backwrite": "1_1_DONE",
-  "pdm_25_status": "NOT_STARTED_STARTUP_GATE_PENDING",
-  "pdm_25_next_gate": "STARTUP_GATE",
+  "pdm_25_status": "IN_PROGRESS_STARTUP_GATE_PASS_BATCH_1_PENDING",
+  "pdm_25_next_gate": "BATCH_1_STABLE_CONSISTENT",
   "pdm_25_incoming_handoffs": {
-    "status": "24_HANDOFFS_PENDING_STARTUP_GATE_ACCEPTANCE",
+    "status": "24_HANDOFF_ACCEPTED",
     "count": 24,
     "ids": [
       "HO-P01-P25-001",
@@ -4522,5 +4523,12 @@
       "HO-P23-P25-001",
       "HO-P24-P25-001"
     ]
-  }
+  },
+  "pdm_25_core_direction": "P25-R00_USER_APPROVED_APPLIED",
+  "pdm_25_startup_gate": "PASS",
+  "pdm_25_incoming_handoff_gap": 0,
+  "pdm_25_completed_pdm_hard_conflict": 0,
+  "pdm_25_global_invariant_conflict": 0,
+  "pdm_25_local_product_choice_unresolved": 0,
+  "pdm_25_workfile": "07_重建工作区/PDM-25_审计历史时区配置版本终态与横切完整性_规则原子重建_工作版.md"
 }
