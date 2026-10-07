@@ -3,6 +3,18 @@
 > 更新时间：2026-10-07
 
 
+## PDM-25 Batch 1 执行结果
+
+- P25-A01～P25-A17：PASS / USER_APPROVED / APPLIED
+- Batch 1 confirmed count：17
+- COMPLETED_PDM_HARD_CONFLICT：0
+- INCOMING_HANDOFF_GAP：0
+- GLOBAL_INVARIANT_CONFLICT：0
+- LOCAL_PRODUCT_CHOICE_UNRESOLVED：0
+- PDM-25 incoming handoffs：24 / 24 HANDOFF_ACCEPTED（Final Closeout 前不关闭）
+- IA / Low-Fi / Engineering：NO_CONSTRUCTION
+- Batch 2：明确废弃 / 已覆盖 / 不得恢复 / PENDING_USER_REVIEW
+
 ## PDM-25 Startup Gate 结果
 
 - P25-R00：USER_APPROVED / APPLIED
@@ -392,7 +404,7 @@
 
 ## 当前唯一下一步
 
-> **当前唯一下一步：PDM-25 Batch 1｜稳定一致规则审查。**
+> **当前唯一下一步：PDM-25 Batch 2｜明确废弃 / 已覆盖 / 不得恢复审查。**
 
 每个 PDM 必须同时执行：
 
@@ -446,7 +458,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-24 均已完成对应 Final / Integrity Closeout；PDM-25 Startup Gate 已 PASS，24/24 incoming handoff 已 HANDOFF_ACCEPTED。当前唯一下一步：PDM-25 Batch 1｜稳定一致规则审查。
+当前 PDM-01～PDM-24 均已完成对应 Final / Integrity Closeout；PDM-25 Startup Gate 已 PASS，24/24 incoming handoff 已 HANDOFF_ACCEPTED。当前唯一下一步：PDM-25 Batch 2｜明确废弃 / 已覆盖 / 不得恢复审查。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
