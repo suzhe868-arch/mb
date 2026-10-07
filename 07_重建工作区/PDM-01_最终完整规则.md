@@ -267,3 +267,6 @@ V1 保留轻量后台控制，不建设复杂的客户注销 / 账号删除状�
 PDM-01 已通过当前新完整性标准。PDM-01～10 本轮复核的下一域为：
 
 > **PDM-02｜Legacy Final Integrity Audit**
+
+
+> 2026-10-07 Source Backwrite｜HO-P01-P25-001：`HANDOFF_CLOSED / source_backwrite=YES`。PDM-25 已由 `07_重建工作区/PDM-25_最终完整规则.md` 正式承接本域移交的审计 / 历史 / 时区 / 配置版本 / 横切完整性语义；PDM-25 不反向改写本 PDM 已冻结的业务状态机与产品规则。
