@@ -1,5 +1,18 @@
 # IA V5 Permission Contract
 
+<!-- IA-GLOBAL-B1-PERMISSION -->
+> **IA Batch 1 Permission 覆盖｜2026-10-08**
+>
+> 当前统一鉴权：角色模板默认 permission + 员工个人明确 allow/deny + data scope + object state + 产品级 hard DENY；页面进入、字段返回、按钮展示和提交均按当前事实重验。
+>
+> - System Admin 与员工业务身份分离；可治理员工/4S账号、角色模板、permission、data scope、接客资格/状态等，但不自动获得 CRM、Vehicle、Consultation、Lock、Transaction 等业务能力。
+> - 首个 System Admin 由 bootstrap 建立；后续 Admin 新增/启用/停用仅由 active System Admin 执行；至少保留 1 个 active Admin。
+> - 4S hard DENY 不可被角色模板、个人授权或 System Admin 配置绕过；4S PC 车辆管理只覆盖当前有权管理的 4S Vehicle。
+> - 一键转名邦不再存在额外独立 vehicle.convert_mingbang permission；使用当前 Vehicle 正常管理能力 + data scope + object state，并继续对 4S 禁止。
+> - 名邦↔4S source_type 修改不要求经理/店长专属角色；名邦员工只要对该 Vehicle 有合法正常管理能力即可执行。
+> - Customer owner 正式移交与 Handover Batch 必须由具备相应管理能力且范围覆盖的合法人员执行；普通销售不得自行抢走他人 Customer。
+
+
 8 roles × 17 sensitive actions。CONDITIONAL 表示“身份/职位本身不授权；满足独立 permission × scope × object state × submit recheck 后才允许”。
 
 | PERMISSION_CELL_ID | ROLE | SENSITIVE_ACTION | RESULT | DATA_SCOPE_RULE | OBJECT_STATE_RULE | SUBMIT_RECHECK | UPSTREAM_EVIDENCE | CURRENT_CONTRACT | EVIDENCE_NOTE |
