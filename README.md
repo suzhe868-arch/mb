@@ -59,10 +59,11 @@
 - `FINAL_INTEGRITY_HISTORICAL_TAIL_CLEANUP = PASS`
 - `HISTORICAL_CARRIER_LABELED = 68 / 68`
 - `STALE_CURRENT_POINTER_UNQUALIFIED = 0`
-- IA：`IN_PROGRESS / BATCH_1_APPLIED`
+- IA：`IN_PROGRESS / BATCH_1_2_3_APPLIED`
 - Low-Fi / Engineering：`NO_CONSTRUCTION`
-- 当前唯一下一步：**IA Batch 2｜明确废弃 / 已覆盖 / 不得恢复审查**
-- `NEXT = IA_GLOBAL_ALIGNMENT_BATCH_2_REVIEW`
+- 当前唯一下一步：**IA Batch 4｜Final-gap Scan（冲突 / 遗漏 / 缺口 / 新选择）**
+- `NEXT = IA_GLOBAL_ALIGNMENT_BATCH_4_FINAL_GAP_SCAN`
+- IA Batch 2 + 3 已于 2026-10-08 经用户“全部同意，确认执行”后正式落库；剩余 4 条 carrier 进入 Batch 4 Final-gap Scan。
 - IA Batch 1 已于 2026-10-08 经用户“全部同意，确认执行”后正式落库；Low-Fi / Engineering 仍不施工。
 - 历史尾巴复核报告：`07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md`
 
