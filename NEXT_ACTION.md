@@ -7,7 +7,7 @@
 - Final Integrity stale stage tail fixed：13
 - STALE_CURRENT_POINTER_UNQUALIFIED：0
 - Final Business Semantic Change：0
-- IA：IN_PROGRESS / BATCH_1_APPLIED
+- IA：IN_PROGRESS / BATCH_1_2_3_APPLIED
 - Low-Fi / Engineering：NO_CONSTRUCTION
 - Product Baseline：NOT_READY
 - 报告：`07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md`
@@ -19,12 +19,15 @@
 ## Current｜当前唯一动作
 
 - 当前阶段：`IA_GLOBAL_ALIGNMENT_IN_PROGRESS`
-- 当前唯一下一步：**IA Batch 2｜明确废弃 / 已覆盖 / 不得恢复审查**
-- IA 当前状态：`IN_PROGRESS / BATCH_1_APPLIED`
+- 当前唯一下一步：**IA Batch 4｜Final-gap Scan（冲突 / 遗漏 / 缺口 / 新选择）**
+- IA 当前状态：`IN_PROGRESS / BATCH_1_2_3_APPLIED`
 - IA 对齐必须以 PDM-01～25 Final 为产品 Authority，不得由旧 IA carrier 反向覆盖产品规则
 - Low-Fi：本阶段不施工
 - Engineering：不施工
 - `IA-B1-01～IA-B1-16 = PASS / USER_APPROVED / APPLIED`
+- `IA-B2-01～IA-B2-19 = PASS / USER_APPROVED / APPLIED`
+- `IA-B3-01～IA-B3-30 = PASS / USER_APPROVED / APPLIED`
+- B2+B3 本轮关闭 stale carrier：104；剩余 CARRIER_DEFERRED：4
 - PDM-01～04 对应 16 条 stale carrier 已关闭；未属本批的 carrier 继续待对齐
 
 ## HISTORICAL_AUDIT_TRAIL｜以下为历史执行记录
