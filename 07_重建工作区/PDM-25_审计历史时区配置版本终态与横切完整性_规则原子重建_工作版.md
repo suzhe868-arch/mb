@@ -1,6 +1,6 @@
 # PDM-25｜审计 / 历史 / 时区 / 配置版本 / 终态 / 横切完整性｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_4_PASS`  
+> 当前状态：`IN_PROGRESS / PREFINAL_R2_PASS / FINAL_CANDIDATE_READY`  
 > 核心定位：`P25-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：`24 / 24 HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -829,6 +829,123 @@ PDM-25 只冻结该产品结果，不规定 idempotency key、unique index、MQ 
 - PDM-25 Final Closeout 前不得提前关闭 / source backwrite；
 - `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
 
-# 14. 当前唯一下一步
+# 14. Final 前完整性复核 R1｜REPAIR_REQUIRED / NO_HARD_CONFLICT
 
-> **PDM-25 Final 前完整性复核（Prefinal Integrity）。**
+R1 发现 3 组 Final 前修复项：
+
+## P25-LIA-01｜建立 PDM-25 专属信息保真与一次性收口检查卡｜USER_APPROVED / APPLIED
+
+执行规范要求每个 PDM 建立专属检查卡，禁止只在聊天中口头声称已检查。
+
+已建立：
+
+> `07_重建工作区/PDM-25_信息保真与一次性收口检查卡_2026-10-07.md`
+
+检查卡已补齐：
+- Current Authority Refresh；
+- Completed-PDM Dependency Card；
+- Global Invariant Scan；
+- Terminology Normalization；
+- Full Evidence Matrix；
+- Negative Claim Proof；
+- 24 条 incoming handoff landing；
+- Change Impact Analysis；
+- Source → Final；
+- Final → Source；
+- Semantic Completeness Matrix；
+- Implementation-Ready Check。
+
+该检查卡是执行证据，不建立新产品 Authority。
+
+## P25-LIA-02｜显式承接 HO-P20-P25-001 客户端安全合同｜USER_APPROVED / APPLIED
+
+补齐 PDM-20 已批准 handoff：
+
+- copy-before-view：没有当前查看权限，就没有复制权限；
+- 复制动作不得成为字段权限旁路；
+- permission / visibility / Customer/account/object state 变化后，不仅敏感按钮失效，旧 payload 中已返回的受保护字段也必须撤销；
+- Customer Safe Projection 需要按字段级安全矩阵验证，不能只验证页面按钮；
+- Historical Detail 继续只读；
+- query / scroll context restore 继续属于 PDM-20 客户端体验事实，PDM-25 不建立新的 UI navigation state machine；
+- submit duplicate prevention 继续服从 P25-B4-03 幂等 / retry-safe 规则。
+
+## P25-LIA-03｜显式承接 HO-P21-P25-001 Internal Mode / entry_context｜USER_APPROVED / APPLIED
+
+补齐 PDM-21 已批准 handoff：
+
+- Internal Mode 是临时 session，不是永久 permission state；
+- 连续后台 `>= 5 分钟` 自动退出 Internal Mode，恢复 Customer Safe View；
+- 后台 `< 5 分钟` 返回也必须重新校验 current identity / permission / data scope / object state，全部合法才可继续当前 Internal Mode；
+- 离开详情、重新打开、切车、分享、推荐或权限变化时，继续服从 PDM-21 已冻结的安全恢复 / 重验规则；
+- 权限撤销后旧 Internal Mode 页面立即失效；
+- 来源域要求审计的高风险员工动作，除 actor/time/before/after/result/failure 外，还应保留必要 `entry_context`；
+- `entry_context` 仅描述动作从何合法入口发生，不授予额外 permission；
+- E01 排序与 UI 状态不得反向改写底层业务历史。
+
+---
+
+# 15. R1 Repair Gate｜PASS
+
+- `P25-LIA-01～P25-LIA-03 = PASS / USER_APPROVED / APPLIED`
+- `R1_REPAIR_CLOSED = 3 / 3`
+- `EXECUTION_EVIDENCE_GAP = 0`
+- `INCOMING_HANDOFF_LANDING = 24 / 24 PASS`
+- 24 / 24 incoming handoff 继续 `HANDOFF_ACCEPTED`
+- Final Closeout 前不关闭、不 source backwrite
+- IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
+
+# 16. Final 前完整性复核 R2｜PASS / FINAL_CANDIDATE_READY
+
+R2 重新核对：
+- 9/19 R12；
+- 9/22 VR-P-035～038；
+- PDM-01～24 completed Final / Integrity；
+- Decision Register；
+- 24 条 incoming handoff；
+- P25-R00、Batch 1～4、LIA-01～03；
+- Negative / DO_NOT_RESTORE；
+- IA / Low-Fi stale carrier；
+- Source↔Final 双向追溯；
+- Semantic Completeness；
+- Implementation-Ready。
+
+结果：
+
+- `SOURCE_TO_ATOM = PASS`
+- `ATOM_TO_SOURCE = PASS`
+- `SOURCE_DECISION_COVERAGE = 100%`
+- `UNMAPPED = 0`
+- `FINAL_TO_SOURCE_TRACEABILITY = 100%`
+- `SEMANTIC_COMPLETENESS = PASS`
+- `SEMANTIC_INTEGRITY = PASS`
+- `MISSING_RULE_UNRESOLVED = 0`
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 0`
+- `EXECUTION_EVIDENCE_GAP = 0`
+- `COMPLETED_PDM_INVARIANT_CONFLICT = 0`
+- `GLOBAL_INVARIANT_CONFLICT = 0`
+- `INCOMING_HANDOFF_GAP = 0`
+- `NEGATIVE_CLAIMS_VERIFIED = PASS`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+- `IMPLEMENTATION_READY = PASS`
+- `PDM25_FORMAL_UNITS = 37`
+- `PDM25_FINAL_CANDIDATE_READY = YES`
+
+R2 报告：
+
+> `07_重建工作区/PDM-25_Final前完整性复核_R2_2026-10-07.md`
+
+Final Domain Overview：
+
+> `07_重建工作区/PDM-25_最终完整规则总览_待用户批准.md`
+
+# 17. 当前唯一下一步
+
+> **用户最终审查 / 批准 PDM-25 Final Domain Overview。**
+
+最终批准前不得：
+- 发布正式 Final；
+- 标记 PDM-25 COMPLETE / INTEGRITY_PASS；
+- 关闭 24 条 incoming handoff；
+- source backwrite；
+- 进入 PDM-01～25 全局最终总复核；
+- 施工 IA / Low-Fi / Engineering。
