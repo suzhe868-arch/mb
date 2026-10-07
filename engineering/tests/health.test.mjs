@@ -4,8 +4,8 @@ import { once } from 'node:events';
 import { createFoundationServer } from '../src/app.mjs';
 import { loadConfig } from '../src/config.mjs';
 
-async function withServer(probe, fn) {
-  const server = createFoundationServer({ readinessProbe: probe });
+async function withServer(probe, fn, options = {}) {
+  const server = createFoundationServer({ readinessProbe: probe, ...options });
   server.listen(0, '127.0.0.1');
   await once(server, 'listening');
   const url = 'http://127.0.0.1:' + server.address().port;
@@ -37,6 +37,19 @@ test('探针抛错按未就绪处理，不能暴露内部报错', async () => {
     assert.equal(response.status, 503);
     assert.equal(JSON.stringify(await response.json()).includes('private-database-password'), false);
   });
+});
+
+test('探针长期无响应时必须限时失败且不泄漏细节', async () => {
+  await withServer(() => new Promise(() => {}), async base => {
+    const response = await fetch(base + '/api/v1/health/ready');
+    assert.equal(response.status, 503);
+    assert.equal((await response.json()).code, 'DEPENDENCY_NOT_READY');
+  }, { readinessTimeoutMs: 30 });
+});
+
+test('拒绝无效探针超时配置', () => {
+  assert.throws(() => createFoundationServer({ readinessTimeoutMs: 0 }), /INVALID_READINESS_TIMEOUT/);
+  assert.throws(() => createFoundationServer({ readinessTimeoutMs: 10001 }), /INVALID_READINESS_TIMEOUT/);
 });
 
 test('环境和端口检查', () => {

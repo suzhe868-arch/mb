@@ -4,8 +4,8 @@ const ALLOWED_BIND_HOSTS = new Set(['127.0.0.1', 'localhost', '::1', '0.0.0.0'])
 export function loadConfig(env = process.env) {
   const mode = env.APP_ENV ?? 'development';
   if (!ALLOWED_ENVS.has(mode)) throw new Error('APP_ENV must be development, test or production');
-  // 尚无正式数据库探针、鉴权和业务合同；禁止误将本骨架当生产服务。
-  if (mode === 'production') throw new Error('F01_PRODUCTION_NOT_READY');
+  // 禁止通过遗失 APP_ENV、仅设置 NODE_ENV=production 绕过未完工生产门禁。
+  if (mode === 'production' || env.NODE_ENV === 'production') throw new Error('F01_PRODUCTION_NOT_READY');
   const portText = env.API_PORT ?? '3000';
   if (!/^\d+$/.test(portText)) throw new Error('API_PORT must be an integer from 1 to 65535');
   const port = Number(portText);

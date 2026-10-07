@@ -13,8 +13,10 @@ test('测试与开发环境只监听明确允许的地址', () => {
   }).host, '0.0.0.0');
 });
 
-test('生产模式在完整安全与就绪合同交付前硬阻断', () => {
+test('生产模式无论用 APP_ENV 或 NODE_ENV 均强制阻断', () => {
   assert.throws(() => loadConfig({ APP_ENV: 'production' }), /F01_PRODUCTION_NOT_READY/);
+  assert.throws(() => loadConfig({ NODE_ENV: 'production' }), /F01_PRODUCTION_NOT_READY/);
+  assert.throws(() => loadConfig({ NODE_ENV: 'production', APP_ENV: 'development' }), /F01_PRODUCTION_NOT_READY/);
 });
 
 test('不允许隐式有效的错误端口和主机', () => {
