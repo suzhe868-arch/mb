@@ -1,5 +1,10 @@
 # 04 LOW-FI PAGE MANIFEST — PHASE 1.5 IA CURRENT
 
+<!-- IA-GLOBAL-B4-PAGE -->
+> **IA Batch 4 Page Manifest 正规化｜2026-10-08**
+>
+> P03-03“Collector 电话连接”与 P03-04“Collector 连接测试”退出 Current Page Manifest；P03 当前以车源同步 / Integration API 与 Publisher / 电话诊断承载业务。CRM 客户画像页继续承载分离的 Personal Note、Shared Profile、服务称呼，不新增大字段画像页。
+
 <!-- IA-GLOBAL-B2-B3-PAGE -->
 > **IA Batch 2 + 3 Page Manifest 覆盖｜2026-10-08**
 >
@@ -102,8 +107,6 @@
 | P03 | 金鱼塘同步 / API 管理 | NORMAL | 1 |
 | P03-01 | 运行状态 | NORMAL, ERROR, PARTIAL_FAILURE | 3 |
 | P03-02 | 三个固定车源同步 API | NORMAL | 1 |
-| P03-03 | Collector 电话连接 | NORMAL, PERMISSION_DENIED, ERROR | 3 |
-| P03-04 | Collector 连接测试 | NORMAL, PROCESSING, ERROR | 3 |
 | P03-05 | publisher 电话缓存 | NORMAL | 1 |
 | P03-06 | Incident | NORMAL, PROCESSING, COMPLETED, ERROR | 4 |
 | P03-07 | 调用 / 异常日志 | NORMAL | 1 |
