@@ -1,5 +1,18 @@
 # IA Source Index — V5 FR-V5-001～003 Final Targeted Remediation
 
+<!-- IA-GLOBAL-B2-B3-SOURCE-INDEX -->
+> **IA 全局集中对齐 Source Index｜Batch 2 + 3｜2026-10-08**
+>
+> 当前状态：`IA_GLOBAL_ALIGNMENT_IN_PROGRESS / BATCH_1_2_3_APPLIED`。
+>
+> 产品 Authority 仍唯一来自 `PDM-01～PDM-25 Final + Decision Register`。旧 Phase1.5/V5 资料保留为历史证据与 stale-carrier 定位来源，不得覆盖 Current Final。
+>
+> - Batch 2：19 组明确废弃/已覆盖/DO_NOT_RESTORE 已批准并执行。
+> - Batch 3：30 组后续明确新增/承载补齐已批准并执行。
+> - Current / Navigation / Page / State / Action / Guard / Permission / Lifecycle 已建立 Batch 2+3 Authority 覆盖。
+> - 未经 Batch 4 最终缺口扫描与全量 Final→IA coverage 复核，不得宣告 IA 完成，也不得进入 Low-Fi。
+
+
 <!-- IA-GLOBAL-B1-SOURCE-INDEX -->
 > **IA 全局集中对齐 Source Index 覆盖｜2026-10-08**
 >
