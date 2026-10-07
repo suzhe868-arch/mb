@@ -731,7 +731,7 @@ HANDOFF_REGISTER_SYNC = PASS
 
 > **PDM-10 = COMPLETE / INTEGRITY_PASS**
 
-下一阶段：
+历史阶段记录（HISTORICAL_AUDIT_TRAIL，当时下一阶段）：
 
 > **GLOBAL_PDM01_10_CROSS_PDM_AUDIT｜PDM-01～10 Cross-PDM / Handoff / Global Invariant 总复核**
 
