@@ -531,3 +531,6 @@ PDM14_FINAL_CANDIDATE_READY = YES
 > `07_重建工作区/PDM-14_最终完整规则.md`
 
 当前状态：**`PDM-14 = COMPLETE / INTEGRITY_PASS`**。8 条 incoming handoff 已关闭并完成 source backwrite。下一域允许进入：**PDM-15｜Consultation / 咨询 / SLA / 负责人**。IA / Low-Fi / Engineering 继续禁止施工。
+
+
+> 2026-10-07 Source Backwrite｜HO-P14-P25-001：`HANDOFF_CLOSED / source_backwrite=YES`。PDM-25 已由 `07_重建工作区/PDM-25_最终完整规则.md` 正式承接本域移交的审计 / 历史 / 时区 / 配置版本 / 横切完整性语义；PDM-25 不反向改写本 PDM 已冻结的业务状态机与产品规则。
