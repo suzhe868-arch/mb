@@ -154,7 +154,7 @@
 | E02-02 | ERROR | Generic UI execution state; no domain mutation | 加载/提交失败 + 重试 |
 | E02-02 | DISABLED | Generic UI execution state; no domain mutation | 前置条件不满足，展示阻断原因 |
 | E02-02 | MODEL_MISSING | Current manual-upload valid-local-model requirement | 未找到可绑定的有效本地车型；普通销售只能保留草稿；`vehicle.model.manage` 人员可进入 P02-08 绑定既有有效节点或保留/纠正现有映射，车辆页不推导创建车型权限 |
-| E02-02 | DRAFT_RESUME | 再次进入时继续上次或放弃重新发布 | 不创建 listing_cycle；放弃需删除本人未完成草稿 |
+| E02-02 | DRAFT_LIST | 从 E02→更多→草稿车源进入多草稿列表 | 仅当前有权管理范围内 draft；目标 draft 独立继续编辑/发布/删除；不自动恢复单一旧草稿 |
 | E02-03 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | E02-04 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | E03 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
@@ -388,7 +388,7 @@ No new product/business state. Banner effective/empty is a render condition; cop
 
 | SCREEN_ID | States | Rule |
 |---|---|---|
-| E02-02 | NORMAL / PROCESSING / PARTIAL_FAILURE / ERROR / DISABLED / MODEL_MISSING / DRAFT_RESUME | PREVIEW removed; draft recovery is explicit |
+| E02-02 | NORMAL / PROCESSING / PARTIAL_FAILURE / ERROR / DISABLED / MODEL_MISSING / DRAFT_LIST | PREVIEW removed; draft recovery is explicit |
 | E02-05 | NORMAL | wholesale source snapshot is read-only |
 | C01-BS01 / C01-BS02 / C01-M01 / C01-M02 / E07-M01 / P07-M01 / P12-M01 | NORMAL | physical overlays for registered actions |
 
