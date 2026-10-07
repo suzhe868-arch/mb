@@ -1,13 +1,13 @@
 条目ID	候选实体	候选字段	物理类型建议	可空性建议	键/约束候选	约束承担层	规则语义与验证关注点	来源正式PDM	物理冻结状态	F02测试状态
 F02-F-0001	customers	customer_id	BIGINT	NO	PK	DB	唯一客户主键	PDM-01/PDM-03/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0002	customers	account_status	TEXT	NO	CHECK_CANDIDATE	TX	停用与恢复状态	PDM-01/PDM-03/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0003	customers	current_owner_employee_id	BIGINT	YES	FK:employees.employee_id	TX	公海时 owner 空	PDM-01/PDM-03/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0003	customers	current_owner_employee_id	BIGINT	YES	FK:employees.employee_id	TX	同一客户唯一当前owner；只有正式公海或合规异常待分配时允许为空；不得把历史来源与责任人变成第二owner	PDM-01/PDM-03/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0004	customers	customer_level_id	BIGINT	REVIEW	FK:customer_levels.level_id	DB	客户等级归属	PDM-01/PDM-03/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0005	customers	created_at	TIMESTAMPTZ	NO	SERVER_TIME	DB	可信首次建立	PDM-01/PDM-03/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0006	customers	updated_at	TIMESTAMPTZ	REVIEW	SERVER_TIME	AUDIT	更新时间	PDM-01/PDM-03/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0007	customer_phone_facts	phone_fact_id	BIGINT	NO	PK	DB	电话事实主键	PDM-01/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0008	customer_phone_facts	customer_id	BIGINT	NO	FK:customers.customer_id	DB	手机号归属客户	PDM-01/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0009	customer_phone_facts	phone_ciphertext	BYTEA	REVIEW	SENSITIVE	F03	敏感电话号码	PDM-01/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0009	customer_phone_facts	phone_ciphertext	BYTEA	REVIEW	SENSITIVE	F03	同号可登记多个不同Customer；手机号不是身份主键，禁止手机号唯一约束推导或任何Customer合并	PDM-01	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0010	customer_phone_facts	valid_from	TIMESTAMPTZ	REVIEW	TIME_FACT	AUDIT	号码关联生效	PDM-01/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0011	customer_phone_facts	ended_at	TIMESTAMPTZ	YES	TIME_FACT	AUDIT	关联失效	PDM-01/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0012	customer_owner_history	owner_history_id	BIGINT	NO	PK	DB	历史主键	PDM-03/PDM-17/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
@@ -16,11 +16,6 @@ F02-F-0014	customer_owner_history	from_employee_id	BIGINT	YES	FK:employees.emplo
 F02-F-0015	customer_owner_history	to_employee_id	BIGINT	YES	FK:employees.employee_id	TX	现 owner或公海	PDM-03/PDM-17/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0016	customer_owner_history	changed_at	TIMESTAMPTZ	NO	SERVER_TIME	AUDIT	历史事件时间	PDM-03/PDM-17/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0017	customer_owner_history	change_reason	TEXT	REVIEW	AUDIT_REASON	AUDIT	真实分配或转移原因	PDM-03/PDM-17/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0018	customer_merge_history	merge_id	BIGINT	NO	PK	DB	合并历史	PDM-01/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0019	customer_merge_history	from_customer_id	BIGINT	NO	FK:customers.customer_id	TX	原客户	PDM-01/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0020	customer_merge_history	to_customer_id	BIGINT	NO	FK:customers.customer_id	TX	合并后客户	PDM-01/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0021	customer_merge_history	actor_id	BIGINT	REVIEW	ACTOR	F03	合并责任主体	PDM-01/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0022	customer_merge_history	occurred_at	TIMESTAMPTZ	NO	SERVER_TIME	AUDIT	不可丢合并轨迹	PDM-01/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0023	stores	store_id	BIGINT	NO	PK	DB	门店身份	PDM-02	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0024	stores	store_name	TEXT	REVIEW	ATTRIBUTE	DB	门店名称	PDM-02	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0025	stores	status	TEXT	REVIEW	STATUS	TX	停用事实	PDM-02	CANDIDATE_UNFROZEN	NOT_RUN
@@ -111,7 +106,7 @@ F02-F-0109	vehicle_series	status	TEXT	REVIEW	STATUS	TX	治理状态	PDM-05	CANDI
 F02-F-0110	vehicle_models	model_id	BIGINT	NO	PK	DB	具体车型身份	PDM-05	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0111	vehicle_models	series_id	BIGINT	YES	FK:vehicle_series.series_id	TX	缺车系可治理但不可假推断	PDM-05	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0112	vehicle_models	brand_id	BIGINT	YES	FK:vehicle_brands.brand_id	TX	待补齐车型主数据	PDM-05	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0113	vehicle_models	model_year	INTEGER	YES	ATTRIBUTE_NOT_NODE	DB	年款字段而非第四层	PDM-05	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0113	vehicle_models	model_year	INTEGER	YES	ATTRIBUTE_NOT_NODE	DB	年款是具体车型属性；不建立独立第四级车型主数据节点	PDM-05	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0114	vehicle_models	model_name	TEXT	REVIEW	DISPLAY	DB	具体车型	PDM-05	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0115	vehicle_models	profile_status	TEXT	REVIEW	STATUS	TX	部分和冲突状态	PDM-05	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0116	jyt_model_source_mappings	mapping_id	BIGINT	NO	PK	DB	映射事实	PDM-05	CANDIDATE_UNFROZEN	NOT_RUN
@@ -158,7 +153,7 @@ F02-F-0156	pricing_rule_ranges	min_price_cents	BIGINT	NO	RANGE	DB	区间下限	P
 F02-F-0157	pricing_rule_ranges	max_price_cents	BIGINT	REVIEW	RANGE	DB	区间上限	PDM-10	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0158	pricing_rule_ranges	markup_cents	BIGINT	NO	AMOUNT	DB	阶梯加价	PDM-10	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0159	pricing_rule_ranges	range_exclusion	TEXT	REVIEW	NON_OVERLAP	TX	正式启用不重叠无空档	PDM-10	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0160	customer_daily_price_access	access_id	BIGINT	NO	PK	DB	查价记录	PDM-10/PDM-20	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0160	customer_daily_price_access	access_id	BIGINT	NO	PK	DB	客户批发车当前周期查价记录候选主键；不可用每日记录替代customer+vehicle+listing_cycle的单车解锁权	PDM-10	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0161	customer_daily_price_access	customer_id	BIGINT	NO	FK:customers.customer_id	DB	查价客户	PDM-10/PDM-20	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0162	customer_daily_price_access	vehicle_id	BIGINT	NO	FK:vehicles.vehicle_id	DB	只能合法批发车	PDM-10/PDM-20	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0163	customer_daily_price_access	business_day_shanghai	DATE	NO	TZ_ASIA_SHANGHAI	TX	UTC+8自然日	PDM-10/PDM-20	CANDIDATE_UNFROZEN	NOT_RUN
@@ -173,14 +168,14 @@ F02-F-0171	customer_quota_adjustments	changed_by	BIGINT	NO	ACTOR	F03	销售店�
 F02-F-0172	customer_quota_adjustments	occurred_at	TIMESTAMPTZ	NO	SERVER_TIME	AUDIT	可追溯	PDM-10/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0173	find_car_applications	application_id	BIGINT	NO	PK	DB	意向/申请与Demand分开	PDM-11	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0174	find_car_applications	customer_id	BIGINT	NO	FK:customers.customer_id	DB	申请客户	PDM-11	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0175	find_car_applications	status	TEXT	NO	STATE_MACHINE	TX	pending后人工激活	PDM-11	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0175	find_car_applications	status	TEXT	NO	CHECK_pending_activated_closed	TX	Application只有pending/activated/closed；activated关联唯一真实Demand，closed后不能激活	PDM-11	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0176	find_car_applications	assigned_employee_id	BIGINT	YES	FK:employees.employee_id	TX	服务负责人	PDM-11	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0177	find_car_applications	activated_demand_id	BIGINT	YES	FK:demands.demand_id	TX	原子关联正式Demand	PDM-11	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0178	find_car_applications	created_at	TIMESTAMPTZ	NO	SERVER_TIME	AUDIT	申请事实	PDM-11	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0179	demands	demand_id	BIGINT	NO	PK	DB	正式需求	PDM-11/PDM-12	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0180	demands	customer_id	BIGINT	NO	FK:customers.customer_id	DB	归属Customer	PDM-11/PDM-12	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0181	demands	responsible_employee_id	BIGINT	REVIEW	FK:employees.employee_id	F03	Demand负责人不随owner自动漂移	PDM-11/PDM-12	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0182	demands	demand_state	TEXT	NO	STATE_MACHINE	TX	active paused ended	PDM-11/PDM-12	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0182	demands	demand_state	TEXT	NO	CHECK_active_paused_completed_cancelled	TX	Demand仅active/paused/completed/cancelled；paused可按正式动作恢复，completed/cancelled为终态不reopen	PDM-11	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0183	demands	criteria_json	JSONB	REVIEW	STRUCTURED	F04	结构化找车条件	PDM-11/PDM-12	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0184	demands	created_at	TIMESTAMPTZ	NO	SERVER_TIME	AUDIT	独立生命周期	PDM-11/PDM-12	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0185	matching_dictionary_rules	rule_id	BIGINT	NO	PK	DB	规则字典	PDM-12	CANDIDATE_UNFROZEN	NOT_RUN
@@ -218,7 +213,7 @@ F02-F-0216	consultations	consultation_id	BIGINT	NO	PK	DB	咨询工单	PDM-15	CAN
 F02-F-0217	consultations	customer_id	BIGINT	NO	FK:customers.customer_id	DB	客户	PDM-15	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0218	consultations	vehicle_id	BIGINT	REVIEW	FK:vehicles.vehicle_id	DB	咨询车辆可选	PDM-15	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0219	consultations	assignee_employee_id	BIGINT	REVIEW	FK:employees.employee_id	F03	负责人独立	PDM-15	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0220	consultations	status	TEXT	NO	STATE_MACHINE	TX	pending processing resolved invalid	PDM-15	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0220	consultations	status	TEXT	NO	CHECK_pending_processing_resolved_invalid	TX	Consultation只有pending/processing/resolved/invalid四主状态；不得增加cancelled/timeout主状态	PDM-15	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0221	consultations	source_relation	JSONB	REVIEW	STRUCTURED	F04	真实direct source	PDM-15	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0222	consultations	first_response_deadline	TIMESTAMPTZ	YES	SERVER_TIME	TX	SLA冻结	PDM-15	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0223	consultations	completed_at	TIMESTAMPTZ	YES	HISTORY	AUDIT	终结事实	PDM-15	CANDIDATE_UNFROZEN	NOT_RUN
@@ -243,7 +238,7 @@ F02-F-0241	lock_requests	lock_request_id	BIGINT	NO	PK	DB	LockRequest独立申请
 F02-F-0242	lock_requests	customer_id	BIGINT	NO	FK:customers.customer_id	DB	申请客户	PDM-18	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0243	lock_requests	vehicle_id	BIGINT	NO	FK:vehicles.vehicle_id	DB	车辆	PDM-18	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0244	lock_requests	listing_cycle_id	BIGINT	NO	FK:vehicle_listing_cycles.listing_cycle_id	TX	周期	PDM-18	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0245	lock_requests	status	TEXT	NO	PENDING_6H_TERMINAL	TX	多个PENDING不占锁	PDM-18	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0245	lock_requests	status	TEXT	NO	CHECK_PENDING_APPROVED_REJECTED_EXPIRED_LOCK_CONFLICT_CLOSED_NOT_LOCKABLE	TX	PENDING最长6h不占Lock；终态APPROVED/REJECTED/EXPIRED/LOCK_CONFLICT/CLOSED_NOT_LOCKABLE不可返回PENDING	PDM-18	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0246	lock_requests	created_at	TIMESTAMPTZ	NO	SERVER_TIME	DB	服务器创建时间	PDM-18	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0247	lock_requests	expires_at	TIMESTAMPTZ	NO	SNAPSHOT_6H	TX	6小时批准上限	PDM-18	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0248	lock_requests	resulting_lock_id	BIGINT	YES	FK:locks.lock_id	TX	获锁关联	PDM-18	CANDIDATE_UNFROZEN	NOT_RUN
@@ -285,7 +280,7 @@ F02-F-0283	refund_cases	refund_id	BIGINT	NO	PK	DB	Refund独立	PDM-19	CANDIDATE_
 F02-F-0284	refund_cases	customer_id	BIGINT	NO	FK:customers.customer_id	DB	退款客户	PDM-19	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0285	refund_cases	lock_id	BIGINT	YES	XOR_FK:locks.lock_id	DB	退款对象二选一	PDM-19	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0286	refund_cases	transaction_id	BIGINT	YES	XOR_FK:transactions.transaction_id	DB	不能同时绑定两个	PDM-19	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0287	refund_cases	status	TEXT	NO	CHECK_pending_refunded_closed	DB	关闭与退款不同	PDM-19	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0287	refund_cases	status	TEXT	NO	CHECK_pending_refunded_closed	DB	Refund仅pending/refunded/closed；closed必须有关闭原因且不是资金真实退回	PDM-19	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0288	refund_cases	close_reason	TEXT	YES	CHECK_closed_reason	DB	关闭非退款必有原因	PDM-19	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0289	refund_cases	expected_amount_cents	BIGINT	REVIEW	AMOUNT	TX	资金余额重验	PDM-19	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0290	refund_cases	created_at	TIMESTAMPTZ	NO	SERVER_TIME	AUDIT	申请事实	PDM-19	CANDIDATE_UNFROZEN	NOT_RUN
@@ -372,3 +367,11 @@ F02-F-0370	share_attributions	vehicle_id	BIGINT	REVIEW	FK:vehicles.vehicle_id	DB
 F02-F-0371	share_attributions	sharer_customer_id	BIGINT	REVIEW	FK:customers.customer_id	AUDIT	客户介绍者	PDM-03/PDM-14/PDM-20	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0372	share_attributions	source_employee_id	BIGINT	REVIEW	FK:employees.employee_id	TX	归属销售规则	PDM-03/PDM-14/PDM-20	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0373	share_attributions	created_at	TIMESTAMPTZ	NO	SERVER_TIME	AUDIT	来源可追溯	PDM-03/PDM-14/PDM-20	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0374	customers	owner_assignment_state	TEXT	REVIEW	OWNER_PENDING_GUARD	TX	无有效优先归属且接客池异常为空时owner_assignment_pending；池恢复后重试且不得建立无负责人正式人工服务对象	PDM-01/PDM-03	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0375	customer_wechat_identities	wechat_identity_id	BIGINT	NO	PK	DB	微信身份关联候选行主键，不能代替customer_id作为业务身份	PDM-01	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0376	customer_wechat_identities	customer_id	BIGINT	NO	FK:customers.customer_id	DB	不同微信身份各自稳定绑定Customer；不得在不同customer_id之间进行合并或历史权益转移	PDM-01	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0377	customer_wechat_identities	identity_scope	TEXT	REVIEW	SOURCE_IDENTITY_CONTEXT	TX	微信识别来源上下文；具体平台ID方案待F02-1字段审查	PDM-01	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0378	customer_wechat_identities	wechat_identity_key	TEXT	NO	SCOPED_IDENTITY_UNIQUE_CANDIDATE	DB	同一微信身份定位Customer；不因相同手机号把不同微信身份合并	PDM-01	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0379	customer_wechat_identities	first_seen_at	TIMESTAMPTZ	NO	SERVER_TIME	AUDIT	微信身份首次登记时间事实，保持customer_id连续性	PDM-01/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0380	customer_daily_price_access	listing_cycle_id	BIGINT	NO	FK:vehicle_listing_cycles.listing_cycle_id	TX	单车查价权益与扣额幂等必须以customer+vehicle+listing_cycle共同定位	PDM-10	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0381	consultations	close_reason	TEXT	YES	CHECK_RESOLVED_CLOSE_REASON	TX	resolved记录RESOLVED/NORMAL_CLOSED/CUSTOMER_WITHDRAWN等正式结束原因；不创造第五主状态	PDM-15	CANDIDATE_UNFROZEN	NOT_RUN
