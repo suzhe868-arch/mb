@@ -273,12 +273,6 @@
 | P03-01 | ERROR | Generic UI execution state; no domain mutation | 加载/提交失败 + 重试 |
 | P03-01 | PARTIAL_FAILURE | Underlying SSOT/IA business state/history/recovery fact | 部分失败，列出成功/失败并允许合法重试 |
 | P03-02 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
-| P03-05 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
-| P03-06 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
-| P03-06 | PROCESSING | Underlying SSOT/IA business state/history/recovery fact | 处理中，防重复提交 |
-| P03-06 | COMPLETED | Underlying SSOT/IA business state/history/recovery fact | 业务已完成/终态只读 |
-| P03-06 | ERROR | Generic UI execution state; no domain mutation | 加载/提交失败 + 重试 |
-| P03-07 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | P04 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | P04-01 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | P04-02 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
