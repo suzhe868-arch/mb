@@ -1,5 +1,26 @@
 # IA V5 State Contract
 
+<!-- IA-GLOBAL-B2-B3-STATE-CONTRACT -->
+> **IA Batch 2 + 3 State Contract 覆盖｜2026-10-08**
+>
+> 1. Recommendation qualification 独立状态退出；正式 Recommendation 资格读取 Customer Level 当前 find-car entitlement。
+> 2. Priority qualification 是 Customer 长期独立属性；车辆级 Priority 由 current legal Match Result + qualification + arbitration 自动产生。Priority active/ended 与 Customer visibility/price-right 分离。
+> 3. Opportunity 仅是合法 deterministic signal 的当前投影，不建立独立 assignee/SLA/close 状态机。
+> 4. Draft、正式 Vehicle、listing_cycle 三层分离；多 draft 可并存，draft source_type 合法修改不形成正式 Vehicle 历史。
+> 5. Model mapping_pending/model_missing/mapping_conflict 不能覆盖 JYT 已知车型事实。
+> 6. Archive 的内部事实、版本历史与 customer_visible 三个维度分离。
+> 7. Image assetization processing/success/partial_failed/failed 仅描述图片子任务；失败不回滚已成立 Vehicle source conversion。
+> 8. Phone latest 失败/无新号码时，若旧缓存仍有效则保留 cached；只有无可用缓存时才 PHONE_UNAVAILABLE。
+> 9. LIMITED/UNLIMITED 是价格权益模式；disable 暂停新受保护价格动作但不删除已成立单车/周期查价事实。
+> 10. Match Result 固定 high/acceptable/confirmation_needed/no_match；confirmation 是事实补充触发重算，不是 tier 直接 mutation。
+> 11. LockRequest LOCK_CONFLICT 与 Waitlist 是两个对象；可通过 resulting_waitlist_id 关联。
+> 12. Waitlist 不自动晋升 Lock，不向 Customer 承诺保证性排名。
+> 13. Lock 保留普通 Lock / Priority-origin Lock 两种 visibility projection；Deposit 后持续占用不服从普通 expires_at 自动释放语义。
+> 14. Refund 主状态仅 pending/refunded/closed；partial 由多笔真实退款事实和 refundable balance 表达。
+> 15. Consultation 主状态仅 pending/processing/resolved/invalid；“已取消/撤回”是 resolved 的 close_reason/UI 投影，不新增 CANCELLED 主状态。
+> 16. Announcement 与 Banner 独立；Banner placement 固定 HOME_TOP / VEHICLE_DETAIL。
+
+
 <!-- IA-GLOBAL-B1-STATE-CONTRACT -->
 > **IA Batch 1 State Contract 覆盖｜2026-10-08**
 >
