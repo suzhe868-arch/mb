@@ -1214,3 +1214,21 @@
 
 | PDM25-DEC-R00 | PDM-25 | P25-R00 | PDM-25 定位为全项目审计 / 历史 / 时区 / 配置版本 / 终态真实性 / 横切完整性唯一产品 Authority；不重建业务主状态，不恢复已废弃能力，不冻结数据库/MQ/事务框架等工程实现。 | USER_APPROVED / APPLIED | 2026-10-07 用户“全部同意”“确认这些”并最终“确认执行” | 2026-10-07 |
 | PDM25-GATE-STARTUP | PDM-25 | Startup Gate | 24 条 target=PDM-25 incoming handoff 全部正式接收；审计只读、重要 mutation 可追溯、敏感字段最小化、配置不追改历史、终态真实性、UTC+8、权限撤销旧载体失效、横切完整性边界进入当前 Authority。 | PASS / USER_APPROVED / APPLIED / INCOMING=24_24_HANDOFF_ACCEPTED / NEXT=PDM25_BATCH1 | PDM-25 工作版 + CROSS_PDM_HANDOFF_REGISTER | 2026-10-07 |
+| PDM25-DEC-A01 | PDM-25 | P25-A01 | 全项目统一审计入口只读；查询/筛选/详情/合法关联查看；普通业务后台不可改写、覆盖、删除真实审计。 | USER_APPROVED / APPLIED | 2026-10-07 用户确认“确定执行” | 2026-10-07 |
+| PDM25-DEC-A02 | PDM-25 | P25-A02 | 重要 mutation 统一追溯 time、actor/system actor、identity/role context、domain/object、action、before/after、result 与必要 source context。 | USER_APPROVED / APPLIED | 2026-10-07 用户确认“确定执行” | 2026-10-07 |
+| PDM25-DEC-A03 | PDM-25 | P25-A03 | reason/note 只在来源业务明确要求时强制；PDM-25 不统一提高提交门槛。 | USER_APPROVED / APPLIED | 2026-10-07 用户确认“确定执行” | 2026-10-07 |
+| PDM25-DEC-A04 | PDM-25 | P25-A04 | 普通浏览/页面打开/无风险展示不强制逐条形成高等级 Audit Event。 | USER_APPROVED / APPLIED | 2026-10-07 用户确认“确定执行” | 2026-10-07 |
+| PDM25-DEC-A05 | PDM-25 | P25-A05 | 审计/历史不得成为越权入口；当前查看继续受 identity + permission + data scope + object/account state 约束。 | USER_APPROVED / APPLIED | 2026-10-07 用户确认“确定执行” | 2026-10-07 |
+| PDM25-DEC-A06 | PDM-25 | P25-A06 | Token/Secret 不保留完整明文；手机号、电话、内部价格、资金、敏感身份资料按当前权限最小化/脱敏。 | USER_APPROVED / APPLIED | 2026-10-07 用户确认“确定执行” | 2026-10-07 |
+| PDM25-DEC-A07 | PDM-25 | P25-A07 | ended/cancelled/voided/refunded/delisted 等真实历史及历史 Recommendation/Match/Listing Cycle 不因后续状态被删除或抹写。 | USER_APPROVED / APPLIED | 2026-10-07 用户确认“确定执行” | 2026-10-07 |
+| PDM25-DEC-A08 | PDM-25 | P25-A08 | Current Projection 与 Historical Fact 分离；当前事实与历史事实互不静默覆盖。 | USER_APPROVED / APPLIED | 2026-10-07 用户确认“确定执行” | 2026-10-07 |
+| PDM25-DEC-A09 | PDM-25 | P25-A09 | 纠错以 correction/void/replacement/新事件追加表达；原错误、成交、资金等真实事实不抹除。 | USER_APPROVED / APPLIED | 2026-10-07 用户确认“确定执行” | 2026-10-07 |
+| PDM25-DEC-A10 | PDM-25 | P25-A10 | 重要配置变更至少记录 before/after/actor/time。 | USER_APPROVED / APPLIED | 2026-10-07 用户确认“确定执行” | 2026-10-07 |
+| PDM25-DEC-A11 | PDM-25 | P25-A11 | 配置继续归属原业务域；PDM-25 只统一配置历史/版本与横切规则，不建万能配置中心。 | USER_APPROVED / APPLIED | 2026-10-07 用户确认“确定执行” | 2026-10-07 |
+| PDM25-DEC-A12 | PDM-25 | P25-A12 | 新配置默认不追改已固化 snapshot / historical fact；来源域明确动态配置者除外。 | USER_APPROVED / APPLIED | 2026-10-07 用户确认“确定执行” | 2026-10-07 |
+| PDM25-DEC-A13 | PDM-25 | P25-A13 | V1 横切业务自然日统一 Asia/Shanghai（UTC+8）；不冻结 timestamp 物理存储格式。 | USER_APPROVED / APPLIED | 2026-10-07 用户确认“确定执行” | 2026-10-07 |
+| PDM25-DEC-A14 | PDM-25 | P25-A14 | 权限/范围/账号/对象状态变化后旧页面、session、deep-link、敏感 payload 不得继续作为授权；敏感提交重验 current Guard。 | USER_APPROVED / APPLIED | 2026-10-07 用户确认“确定执行” | 2026-10-07 |
+| PDM25-DEC-A15 | PDM-25 | P25-A15 | 审计区分 human actor 与 system actor；系统自动事实不得伪装成员工人工操作。 | USER_APPROVED / APPLIED | 2026-10-07 用户确认“确定执行” | 2026-10-07 |
+| PDM25-DEC-A16 | PDM-25 | P25-A16 | PDM-25 可冻结幂等、唯一 active、并发 winner、不重复扣减、不超退、append-only、terminal read-only 等产品结果，但不冻结 DB/MQ/锁/事务框架。 | USER_APPROVED / APPLIED | 2026-10-07 用户确认“确定执行” | 2026-10-07 |
+| PDM25-DEC-A17 | PDM-25 | P25-A17 | 各业务状态机继续由 completed-PDM Final 决定；PDM-25 是统一横切 Audit/History Authority，不得出现第二套跨域审计体系。 | USER_APPROVED / APPLIED | 2026-10-07 用户确认“确定执行” | 2026-10-07 |
+| PDM25-GATE-BATCH1 | PDM-25 | Batch 1｜稳定一致规则 | P25-A01～P25-A17 全部完成用户审查并执行；completed-PDM hard conflict=0；incoming handoff 24/24 继续 HANDOFF_ACCEPTED；local product choice unresolved=0。 | PASS / USER_APPROVED / APPLIED / NEXT=PDM25_BATCH2 | PDM-25 工作版 + Decision Register | 2026-10-07 |
