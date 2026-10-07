@@ -1232,3 +1232,12 @@
 | PDM25-DEC-A16 | PDM-25 | P25-A16 | PDM-25 可冻结幂等、唯一 active、并发 winner、不重复扣减、不超退、append-only、terminal read-only 等产品结果，但不冻结 DB/MQ/锁/事务框架。 | USER_APPROVED / APPLIED | 2026-10-07 用户确认“确定执行” | 2026-10-07 |
 | PDM25-DEC-A17 | PDM-25 | P25-A17 | 各业务状态机继续由 completed-PDM Final 决定；PDM-25 是统一横切 Audit/History Authority，不得出现第二套跨域审计体系。 | USER_APPROVED / APPLIED | 2026-10-07 用户确认“确定执行” | 2026-10-07 |
 | PDM25-GATE-BATCH1 | PDM-25 | Batch 1｜稳定一致规则 | P25-A01～P25-A17 全部完成用户审查并执行；completed-PDM hard conflict=0；incoming handoff 24/24 继续 HANDOFF_ACCEPTED；local product choice unresolved=0。 | PASS / USER_APPROVED / APPLIED / NEXT=PDM25_BATCH2 | PDM-25 工作版 + Decision Register | 2026-10-07 |
+| PDM25-DEC-B2-01 | PDM-25 | P25-B2-01 | Customer Merge 不得因历史审计对象清单恢复；PDM-01 Final 已取消自动/人工 Merge，旧真实 Merge 记录只作为历史事实。 | USER_APPROVED / APPLIED | 2026-10-07 用户“全部同意”后明确“确定执行” | 2026-10-07 |
+| PDM25-DEC-B2-02 | PDM-25 | P25-B2-02 | 独立 Recommendation qualification / P06-06 / RECOMMENDATION_QUALIFIED 不得恢复；当前由 Customer Level 的 find-car entitlement 决定普通 Recommendation 资格。 | USER_APPROVED / APPLIED | 2026-10-07 用户“全部同意”后明确“确定执行” | 2026-10-07 |
+| PDM25-DEC-B2-03 | PDM-25 | P25-B2-03 | 独立“调价”Action / permission 不得恢复；名邦/4S 正常价格字段按 PDM-10 走车辆保存修改，客户展示价覆盖保持独立。 | USER_APPROVED / APPLIED | 2026-10-07 用户“全部同意”后明确“确定执行” | 2026-10-07 |
+| PDM25-DEC-B2-04 | PDM-25 | P25-B2-04 | 不得新增独立 can_call_wholesale_phone；电话查看/latest/拨打继续复用上游电话敏感能力 + current Guard。 | USER_APPROVED / APPLIED | 2026-10-07 用户“全部同意”后明确“确定执行” | 2026-10-07 |
+| PDM25-DEC-B2-05 | PDM-25 | P25-B2-05 | Announcement 旧“仅首次/每天一次/不自动弹”三档频率及重新发布重置触达模型不得恢复；服从 PDM-24 Final。 | USER_APPROVED / APPLIED | 2026-10-07 用户“全部同意”后明确“确定执行” | 2026-10-07 |
+| PDM25-DEC-B2-06 | PDM-25 | P25-B2-06 | 历史“详情 Banner 不是强制模块”不得恢复；VEHICLE_DETAIL 为固定 placement 能力，无有效内容时仅不渲染广告。 | USER_APPROVED / APPLIED | 2026-10-07 用户“全部同意”后明确“确定执行” | 2026-10-07 |
+| PDM25-DEC-B2-07 | PDM-25 | P25-B2-07 | VR-P-036 的 reason 字段不得解释成全局必填；是否必填由来源业务规则决定，不得伪造历史 reason。 | USER_APPROVED / APPLIED | 2026-10-07 用户“全部同意”后明确“确定执行” | 2026-10-07 |
+| PDM25-DEC-B2-08 | PDM-25 | P25-B2-08 | 旧审计对象清单不是业务能力复活清单；已 supersede 的 Action/permission/state/UI entry 只能保留真实历史，不得恢复为 Current。 | USER_APPROVED / APPLIED | 2026-10-07 用户“全部同意”后明确“确定执行” | 2026-10-07 |
+| PDM25-GATE-BATCH2 | PDM-25 | Batch 2｜明确废弃 / 已覆盖 / 不得恢复 | P25-B2-01～P25-B2-08 全部批准并执行；Reverse Conflict Scan PASS；FALSE_DEPRECATION_COUNT=0；24/24 incoming 继续 HANDOFF_ACCEPTED。 | PASS / USER_APPROVED / APPLIED / NEXT=PDM25_BATCH3 | PDM-25 工作版 + completed-PDM Final reverse scan | 2026-10-07 |
