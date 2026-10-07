@@ -680,8 +680,9 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 - `SOURCE_BACKWRITE_PENDING = 0`；
 - PDM-01～25 Global Final Audit：`PASS`；
 - 正式报告：`07_重建工作区/PDM-01至25_全局跨域移交与全局不变量最终总复核_2026-10-07.md`；
-- IA / Low-Fi / Engineering：继续 `NO_CONSTRUCTION`；
-- 当前唯一下一步：**PDM-01～25 Final / Integrity 历史阶段尾巴统一清理与 Current / History 边界标注。**
+- IA：`READY_TO_START / NO_CHANGES_APPLIED`；
+- Low-Fi / Engineering：继续 `NO_CONSTRUCTION`；
+- 当前唯一下一步：**IA 全局集中对齐。**
 
 > 本节为 Current 实时汇总；后续带日期记录属于 `HISTORICAL_AUDIT_TRAIL`，不作为当前状态指针。
 
