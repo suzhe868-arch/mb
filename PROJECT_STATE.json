@@ -424,7 +424,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "PDM-25_FINAL_OVERVIEW_REVIEW",
+  "current_review_batch": "GLOBAL_PDM01_25_FINAL_INTEGRITY_AUDIT",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3195,7 +3195,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "用户最终审查 / 批准 PDM-25 Final Domain Overview",
+  "next_action": "PDM-01～25 全局 Cross-PDM / Handoff / Global Invariant 最终总复核",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4492,10 +4492,10 @@
   "pdm_24_final_integrity_status": "PASS",
   "pdm_24_final_closeout": "COMPLETE",
   "pdm_24_source_backwrite": "1_1_DONE",
-  "pdm_25_status": "IN_PROGRESS_PREFINAL_R2_PASS_FINAL_CANDIDATE_READY",
-  "pdm_25_next_gate": "FINAL_OVERVIEW_USER_REVIEW",
+  "pdm_25_status": "COMPLETE_INTEGRITY_PASS",
+  "pdm_25_next_gate": "COMPLETE",
   "pdm_25_incoming_handoffs": {
-    "status": "24_HANDOFF_ACCEPTED",
+    "status": "24_HANDOFF_CLOSED_SOURCE_BACKWRITE_DONE",
     "count": 24,
     "ids": [
       "HO-P01-P25-001",
@@ -4610,7 +4610,7 @@
   "pdm_25_prefinal_r2_report": "07_重建工作区/PDM-25_Final前完整性复核_R2_2026-10-07.md",
   "pdm_25_integrity_check_card": "07_重建工作区/PDM-25_信息保真与一次性收口检查卡_2026-10-07.md",
   "pdm_25_final_overview": "07_重建工作区/PDM-25_最终完整规则总览_待用户批准.md",
-  "pdm_25_final_overview_status": "FINAL_REVIEW_PENDING",
+  "pdm_25_final_overview_status": "USER_FINAL_APPROVED_FINAL_CLOSEOUT_DONE",
   "pdm_25_formal_units": 37,
   "pdm_25_final_candidate_ready": true,
   "pdm_25_source_decision_coverage": "100%",
@@ -4621,5 +4621,13 @@
   "pdm_25_negative_claims_verified": "PASS",
   "pdm_25_implementation_ready": "PASS",
   "pdm_25_execution_evidence_gap": 0,
-  "pdm_25_incoming_handoff_landing": "24_24_PASS"
+  "pdm_25_incoming_handoff_landing": "24_24_PASS",
+  "pdm_25_final": "07_重建工作区/PDM-25_最终完整规则.md",
+  "pdm_25_final_integrity": "07_重建工作区/PDM-25_最终完整性复核_2026-10-07.md",
+  "pdm_25_final_integrity_status": "PASS",
+  "pdm_25_final_closeout": "COMPLETE",
+  "pdm_25_user_final_approved": true,
+  "pdm_25_source_backwrite": "24_24_DONE",
+  "global_pdm01_25_final_audit_status": "PENDING",
+  "product_baseline": "NOT_READY"
 }
