@@ -1,9 +1,10 @@
 ## Low-Fi Global Alignment
 
 - LF-B1-01～LF-B1-07：PASS / USER_APPROVED / APPLIED
-- Low-Fi：IN_PROGRESS / BATCH_1_APPLIED
-- LF-B1 targeted stale-current scan：0
-- Retired Low-Fi SVG：25
+- LF-B2-01～LF-B2-07：PASS / USER_APPROVED / APPLIED
+- Low-Fi：IN_PROGRESS / BATCH_1_2_APPLIED
+- LF-B2 targeted stale-current scan：0
+- Retired Low-Fi SVG / retained historical assets：26
 - IA：COMPLETE / FINAL_GAP_PASS
 - Engineering：NO_CONSTRUCTION
 - Product Baseline：NOT_READY
@@ -15,9 +16,10 @@
 ## Current｜当前唯一动作
 
 - 当前阶段：`LOW_FI_GLOBAL_ALIGNMENT_IN_PROGRESS`
-- 当前唯一下一步：**Low-Fi Batch 2｜明确废弃 / 已覆盖 / 不得恢复审查**
+- 当前唯一下一步：**Low-Fi Batch 3｜后续明确新增 / 承载补齐审查**
 - 上层 Authority：`PDM-01～25 Final + Current IA`
 - `LF-B1-01～LF-B1-07 = PASS / USER_APPROVED / APPLIED`
+- `LF-B2-01～LF-B2-07 = PASS / USER_APPROVED / APPLIED`
 - Low-Fi 不得反向覆盖 PDM Final / Current IA
 - Engineering：本阶段不施工
 
