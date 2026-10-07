@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "LOW_FI_GLOBAL_ALIGNMENT_READY",
+  "substage": "LOW_FI_GLOBAL_ALIGNMENT_IN_PROGRESS",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "GLOBAL_POST_PDM25",
-  "current_domain_status": "IA_GLOBAL_ALIGNMENT_COMPLETE_LOW_FI_READY",
+  "current_domain_status": "LOW_FI_GLOBAL_ALIGNMENT_IN_PROGRESS_BATCH1_APPLIED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,15 +20,15 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Low-Fi 全局集中对齐",
-  "current_work_file": "03_证据_C_IA_V5_Current/IA_CURRENT.md",
+  "current_task": "Low-Fi Batch 2｜明确废弃 / 已覆盖 / 不得恢复审查",
+  "current_work_file": "04_证据_D_实际_LowFi/REGISTERS/LOW_FI_PAGE_REGISTER.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
     "Do not let Low-Fi override or redefine approved PDM-01~25 Final or Current IA semantics",
     "Do not execute Engineering Delta before Low-Fi global alignment passes",
-    "Preserve HISTORICAL_AUDIT_TRAIL and Current/History boundary during Low-Fi alignment"
+    "Preserve retired Low-Fi assets as historical evidence and do not restore them as Current"
   ],
   "confirmed_rule_atoms": [
     "P01-A01",
@@ -4665,5 +4665,16 @@
     "local_product_choice_unresolved": 0,
     "pdm_final_business_semantic_change": 0
   },
-  "low_fi_status": "READY_TO_START"
+  "low_fi_status": "IN_PROGRESS_BATCH1_APPLIED",
+  "low_fi_global_alignment": {
+    "status": "IN_PROGRESS",
+    "batch_1": "PASS_USER_APPROVED_APPLIED",
+    "batch_1_atoms": "LF-B1-01..LF-B1-07",
+    "batch_1_targeted_stale_current": 0,
+    "retired_svg_count": 25,
+    "ia_post_closeout_carrier_repair": "PASS_NO_PRODUCT_SEMANTIC_CHANGE",
+    "local_product_choice_unresolved": 0,
+    "engineering": "NO_CONSTRUCTION",
+    "next": "LOW_FI_BATCH_2_DEPRECATED_SUPERSEDED_DO_NOT_RESTORE"
+  }
 }
