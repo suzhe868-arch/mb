@@ -914,7 +914,7 @@ R2：
 - HO-P21-P23-001 已 `HANDOFF_CLOSED / source_backwrite=YES`；HO-P21-P25-001 继续 `HANDOFF_OPEN`；
 - PDM-21：`COMPLETE / INTEGRITY_PASS`；
 - IA / Low-Fi / Engineering 未施工；
-- 当前唯一下一步：`PDM-22 Startup Gate`.
+- 历史阶段下一步（HISTORICAL_AUDIT_TRAIL，当时）：`PDM-22 Startup Gate`.
 
 
 > 2026-10-07 Source Backwrite｜HO-P21-P25-001：`HANDOFF_CLOSED / source_backwrite=YES`。PDM-25 已由 `07_重建工作区/PDM-25_最终完整规则.md` 正式承接本域移交的审计 / 历史 / 时区 / 配置版本 / 横切完整性语义；PDM-25 不反向改写本 PDM 已冻结的业务状态机与产品规则。
