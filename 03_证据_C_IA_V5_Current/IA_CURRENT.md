@@ -1,5 +1,33 @@
 # 名邦汽车 V1｜Phase 1.5 IA CURRENT
 
+<!-- IA-GLOBAL-B1-CURRENT -->
+> **IA 全局集中对齐状态｜2026-10-08**
+>
+> 当前阶段：`IA_GLOBAL_ALIGNMENT_IN_PROGRESS / BATCH_1_APPLIED`。
+> 当前产品 Authority：`PDM-01～PDM-25 Final + Decision Register`。本文件原 Phase 1.5 文本仅在不与当前 Final 冲突时继续有效；发生冲突时，以本轮 IA 全局集中对齐区块及对应 PDM Final 为准。
+>
+> ### Batch 1 当前不变量（PDM-01～04）
+>
+> 1. Customer 首次进入以稳定 `customer_id` 建立/识别身份；手机号、头像、昵称均不得作为首次进入与普通浏览硬门槛。
+> 2. ownerless 新 Customer：先解析有效分享/转介绍归属；无优先归属来源时，立即从 `active + eligible + accepting` 接客池自然轮询形成唯一 `current owner`。
+> 3. 接客池因异常被动为 0 时进入 `owner_assignment_pending`；不得使用 System Admin 或 `responsible = null` 兜底；接客池恢复后自动补分并留告警/审计。
+> 4. 客户分享不再固定为 `SOURCE_ONLY`：ownerless 新客户可沿有效分享链形成销售归属，同时独立保存来源客户、分享/推荐事件、销售绑定解析来源与最终 owner；已有 owner 不被后续分享抢走。
+> 5. V1 不存在 Customer Merge。任何 `MERGE_*`、merge blocked/ready/confirm/merged、跨 customer_id 业务迁移均为 `DO_NOT_RESTORE`。
+> 6. Customer owner、来源客户/来源销售/推荐人、各业务对象负责人必须分层；owner 变化不自动漂移 Demand / Priority / Consultation / Waitlist / Lock / Transaction 等负责人。
+> 7. 离职/inactive/调店/降权导致承责资格变化时进入正式 Handover Batch；逐对象映射，部分失败不整体回滚，未完成项可重试。
+> 8. 权限统一按“角色模板默认 permission + 员工个人 allow/deny + data scope + object state + hard DENY”判定；敏感提交按当前事实重新鉴权。
+> 9. System Admin 为独立控制平面身份；可治理员工、4S、角色、permission、data scope 等，但不自动取得销售业务能力。首个 Admin 由 bootstrap 建立；后续由 active System Admin 治理；至少保留 1 个 active Admin。
+> 10. 4S 不建立独立 App/组织 IA；继续使用员工端裁剪视图。被明确授权 PC 车辆管理时，仅进入本人当前有权 4S 车辆的 P02 裁剪投影；hard DENY 不得绕过。
+> 11. Vehicle 的真实资源/可售事实、平台 visibility、业务占用/交易事实分层；`hidden != offline`，Lock/Transaction 不回写为单一巨大 vehicle status。
+> 12. 正式人工车名邦 ↔ 4S 修改 `source_type` 复用原 `vehicle_id`，不因来源变化新建 listing_cycle；变更后重算权限、隐藏规则与承责资格。
+> 13. 一键转名邦固定为同一真实车辆、同一 `vehicle_id` 的 `wholesale/JYT -> mingbang` 来源转换；旧“双 Vehicle + conversion relation”模型失效。
+> 14. 一键转名邦不设置独立 `vehicle.convert_mingbang` permission；继续服从当前车辆管理能力、data scope、object state 与 4S hard DENY。
+> 15. 已有 Lock / active Transaction 的批发车仍可在同一 vehicle 上转名邦；Customer、Waitlist、Lock、Transaction、价格快照等既有关系不迁移、不重建。
+> 16. 批发→名邦不新建 listing_cycle、不重置 `listing_started_at`；只有“真实不可售/失效 → 再次真实可售”才新建 cycle，hidden↔visible 不新建 cycle。
+>
+> 上述 16 条已经用户逐批审查并于 2026-10-08 明确“全部同意，确认执行”。本文件后续任何旧 Phase 1.5 行如与上述内容冲突，均视为 stale carrier，不再具有 Current 解释权。
+
+
 日期：2026-09-20  
 状态：`CURRENT_V5_FR001_003_REMEDIATION_PENDING`  
 业务来源：`PHASE1.5_FINAL_GATE = PASS`
