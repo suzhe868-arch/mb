@@ -169,7 +169,6 @@ This register is the self-contained current IA authority for action routing. It 
 | P08-01 | 启用阶梯规则 | P08-01 | no overlaps + complete declared range |
 | P10-02 | 启用/停用公告 | P10-01 | valid effective window |
 | P12-02 | 保存/启用 Banner | P12-01/C01 | target optional; if present it must resolve to an internal allowlisted mini-program page/business object; valid time range |
-| P03-04 | 测试 Collector 连接 | P03-04 | connection parameters submitted |
 | E02 | 发布车辆 | E02-02 | REF_GUARD[PUBLISH_UNPUBLISH]；local_ui_fact=authenticated and eligible source |
 | E02-02 | 自动保存 | E02-02 | form changed; debounce/leave flush |
 | E02-02 | 发布 | E02-01 | REF_GUARD[PUBLISH_UNPUBLISH]；local_ui_fact=source, brand, series, valid model, year, mileage, city; image count may be 0 |
@@ -191,9 +190,6 @@ This register is the self-contained current IA authority for action routing. It 
 | P07-05 | 撤回/关闭 pending Refund | P07-M03 | REF_GUARD[REFUND_CLOSE]；local_ui_fact=same business guard as E07-05; manager/store manager with refund-management permission and covering data scope; reason required |
 | P07-M03 | 确认撤回/关闭 | P07-05 | revalidate pending Refund and authority; append closed-not-refunded history; vehicle occupancy unchanged |
 | P07-M03 | 取消 | P07-05 | Refund remains pending |
-| P06-01 | 合并重复 Customer | P06-M01 | either customer has active/paused Demand; merge is blocked until those Demands are completed or cancelled |
-| P06-M01 | 返回处理 Demand | P06-09 | no merge mutation; resolve active/paused Demand first |
-| P06-M01 | 取消 | P06-01 | no merge mutation |
 | P08-04 | 查看新 cycle 覆盖价结果 | P08-04 / P02-07 | REF_GUARD[PRICE_OVERRIDE]；local_ui_fact=a new listing cycle never inherits an old manual-vehicle display-price override |
 | P08 | 设置客户展示价覆盖 | P08 | actor has display-price override permission and covering vehicle data scope; record before/after value, actor and time |
 | P08 | 取消客户展示价覆盖 | P08 | actor has display-price override permission and covering vehicle data scope; return to current latest customer display price; record before/after value, actor and time |
@@ -256,8 +252,6 @@ This register is the self-contained current IA authority for action routing. It 
 | E01-01 | 确认客户车辆意向并发起 Lock | E02-04 / E07-01 | REF_GUARD[LOCK_CREATE_CANCEL]；local_ui_fact=pending vehicle-intent work item; actor is current responsible employee or authorized manager/store manager in scope; apply the canonical Lock guard: active eligible Mingbang identity, explicit Lock capability, customer/vehicle scope, current listing_cycle/source/occupancy and submit recheck |
 | E01-01 | 关闭车辆意向—当前不可锁 | E01-01 / C01-01 | pending work item; canonical Lock guard fails because vehicle/source/cycle/occupancy is not lockable; close as CLOSED_NOT_LOCKABLE with reason/history; never create Lock |
 | C02-01 | 撤回待处理申请 | C02-01 | application=pending and belongs to current customer; revalidate then close as CANCELLED; never create Demand |
-| P06-01 | 合并重复 Customer | P06-01 | neither side has active/paused Demand and actor has merge permission/scope; enter MERGE_READY then explicit confirm; preserve source, owner and business history |
-| P06-01 | 确认合并 | P06-01 | state=MERGE_READY; revalidate both customers and Demand guard; create merged projection and immutable merge history |
 | P06-03 / P06-04 | 建立 Collaboration | P06-03 / P06-04 | actor is current owner or authorized manager in customer/business scope; participants active/eligible; persist exact scope |
 | P06-03 / P06-04 | 结束 Collaboration | P06-03 / P06-04 | actor authorized or owner/business/participant eligibility ended; close current collaboration and preserve history; rebuild requires a new record |
 | P06-05 | 指定分配公海客户 | P06-02 | REF_GUARD[PUBLIC_POOL]；local_ui_fact=actor has public-pool assignment permission and customer scope; owner=NULL; protections clear; target active/eligible; revalidate and audit source/old/new owner |
