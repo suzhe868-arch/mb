@@ -377,7 +377,7 @@ PDM-06 当前已冻结：
 - PDM-20｜`HANDOFF_CLOSED`：客户端车型搜索 / 筛选 / 年款分组已由 PDM-20 Final 正式承接；年款只作为分组/条件，不投影成第四级主数据，车型年款与首次上牌年份严格分离；`HO-P05-P20-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-21｜`HANDOFF_CLOSED`：PDM-21 Final 已正式承接员工端车型选择、MODEL_MISSING、固定车型属性自动带出、mapping pending/conflict 状态投影；`HO-P05-P21-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-22｜`HANDOFF_CLOSED / source_backwrite=YES`：System Admin 车型主数据、JYT mapping、冲突、MODEL_MISSING、重复车型合并等 PC 治理页面已由 PDM-22 Final 承接；
-- PDM-25｜`HANDOFF_OPEN`：mapping before/after、车型节点修正、合并迁移、主档纠错与历史不可追改的统一审计 / 历史标准。
+- PDM-25｜`HANDOFF_CLOSED / source_backwrite=YES`：mapping before/after、车型节点修正、合并迁移、主档纠错与历史不可追改的统一审计 / 历史标准。
 
 PDM-12 承接状态：
 
@@ -438,3 +438,6 @@ HANDOFF_REGISTER_SYNC = PASS
 > **PDM-06｜Legacy Final Integrity Audit**
 
 > 2026-10-07 Source Backwrite：对应 PDM-22 handoff 已由 `07_重建工作区/PDM-22_最终完整规则.md` 正式承接；以 CROSS_PDM_HANDOFF_REGISTER 的 `HANDOFF_CLOSED / source_backwrite=YES` 为准。
+
+
+> 2026-10-07 Source Backwrite｜HO-P05-P25-001：`HANDOFF_CLOSED / source_backwrite=YES`。PDM-25 已由 `07_重建工作区/PDM-25_最终完整规则.md` 正式承接本域移交的审计 / 历史 / 时区 / 配置版本 / 横切完整性语义；PDM-25 不反向改写本 PDM 已冻结的业务状态机与产品规则。
