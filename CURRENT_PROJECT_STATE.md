@@ -1,3 +1,13 @@
+## 2026-10-08｜IA Batch 2 + 3 已执行，进入 Batch 4
+
+- `IA-B2-01～IA-B2-19 = PASS / USER_APPROVED / APPLIED`
+- `IA-B3-01～IA-B3-30 = PASS / USER_APPROVED / APPLIED`
+- IA：`IN_PROGRESS / BATCH_1_2_3_APPLIED`
+- 本轮关闭 stale carrier：`104`
+- 当前剩余 `CARRIER_DEFERRED = 4`
+- Low-Fi / Engineering：`NO_CONSTRUCTION`
+- 当前唯一下一步：**IA Batch 4｜Final-gap Scan（冲突 / 遗漏 / 缺口 / 新选择）**
+
 ## 2026-10-08｜IA Batch 1 已执行
 
 - `IA-B1-01～IA-B1-16 = PASS / USER_APPROVED / APPLIED`
