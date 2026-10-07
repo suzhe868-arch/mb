@@ -1,5 +1,10 @@
 # IA Source Index — V5 FR-V5-001～003 Final Targeted Remediation
 
+<!-- IA-POST-CLOSEOUT-LF-B2-SOURCE -->
+> **Low-Fi Batch 2 反向发现的 IA carrier 修复｜2026-10-08**
+>
+> 已将分享归属、Recommendation responsibility、hidden Customer visibility、CRM Lock entry、Opportunity rules、Refund lifecycle/close authority、Announcement proactive frequency 等 IA stale mirror 对齐到现行 PDM Final。修复只改变承载，不改变产品业务语义；IA 继续保持 `COMPLETE / FINAL_GAP_PASS`。
+
 <!-- IA-POST-CLOSEOUT-LF-B1-SOURCE -->
 > **Low-Fi Batch 1 反向发现的 IA carrier 修复｜2026-10-08**
 >
