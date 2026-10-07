@@ -172,8 +172,6 @@ This register is the self-contained current IA authority for action routing. It 
 | P03-04 | 测试 Collector 连接 | P03-04 | connection parameters submitted |
 | E02 | 发布车辆 | E02-02 | REF_GUARD[PUBLISH_UNPUBLISH]；local_ui_fact=authenticated and eligible source |
 | E02-02 | 自动保存 | E02-02 | form changed; debounce/leave flush |
-| E02-02 | 继续上次 | E02-02 | page state=DRAFT_RESUME; unfinished own draft exists; no listing_cycle is created |
-| E02-02 | 放弃重新发布 | E02-02 | REF_GUARD[PUBLISH_UNPUBLISH]；local_ui_fact=page state=DRAFT_RESUME; unfinished own draft exists; delete only own unfinished draft; no formal vehicle/history deletion |
 | E02-02 | 发布 | E02-01 | REF_GUARD[PUBLISH_UNPUBLISH]；local_ui_fact=source, brand, series, valid model, year, mileage, city; image count may be 0 |
 | E02-02 | MODEL_MISSING 交由车型映射 | P02-08 | REF_GUARD[MAPPING_CORRECTION]；local_ui_fact=save originating manual-upload draft; actor has vehicle.model.manage; no model creation is inferred |
 | E02-M01 | 查看名邦内部价 | E02-M01 | active Mingbang employee, not 4S; vehicle in data scope; existing employee internal-price visibility applies; internal mode itself grants nothing |
@@ -224,7 +222,7 @@ This register is the self-contained current IA authority for action routing. It 
 | P02-08 | 绑定已有车型 | P02-08 / P02-07 | vehicle.model.manage permission; select canonical model; preserve upstream facts; audit before/after mapping |
 | P02-08 | 确认保留/纠正映射并关闭任务 | P02-08 / P02-07 | REF_GUARD[MAPPING_CORRECTION]；local_ui_fact=vehicle.model.manage permission; conflict task open; retain or correct explicitly; audit actor/time/old/new mapping |
 | P02-08 | MODEL_MISSING 处理 | P02-08 | REF_GUARD[MAPPING_CORRECTION]；local_ui_fact=vehicle.model.manage permission; bind/select an existing valid local model or retain/correct an existing mapping; no model-creation authority is inferred; manual-upload draft stays unpublished until valid model exists |
-| P02-08 | 完成 MODEL_MISSING 映射并恢复草稿 | E02-02 | REF_GUARD[MAPPING_CORRECTION]；local_ui_fact=originating manual-upload draft exists; valid existing local model is now bound; return in DRAFT_RESUME and revalidate all publish fields before publish |
+| P02-08 | 完成 MODEL_MISSING 映射并恢复草稿 | E02-02 | REF_GUARD[MAPPING_CORRECTION]；local_ui_fact=originating manual-upload draft exists; valid existing local model is now bound; return to the originating draft and revalidate all publish fields before publish |
 | E07-02 | 收到 Lock 释放后的候补待办 | E07-02 | REF_GUARD[WAITLIST]；local_ui_fact=prior Lock ended; active Waitlist remains historical/awaiting manual reconfirmation; responsible employee is notified; no automatic promotion |
 | E07-02 | 人工重新确认并发起 Lock | E02-04 / E07-01 | REF_GUARD[LOCK_CREATE_CANCEL]；local_ui_fact=same canonical Lock guard as E02-04/E03-06/P07-01: active eligible Mingbang identity, not 4S, current responsibility/authorized manager-store-manager authority, explicit Lock capability, customer/vehicle scope and current listing_cycle/source/occupancy submit recheck |
 | E07-02 | 车辆不可锁 | E07-02 | vehicle not lockable due to real source state/current cycle/other active occupancy; show NOT_LOCKABLE and keep history; do not create Lock |
@@ -270,7 +268,6 @@ This register is the self-contained current IA authority for action routing. It 
 | P04-07 | 为交接对象逐项选择新负责人 | P04-07 | REF_GUARD[EMPLOYEE_HANDOFF]；local_ui_fact=batch open; each Customer/Demand/Consultation/Lock/Transaction/vehicle responsibility maps to an active eligible target with covering scope; preserve original responsibility history |
 | P04-07 | 确认交接批次 | P04-07 / P04-06 | REF_GUARD[EMPLOYEE_HANDOFF]；local_ui_fact=every affected object mapped; submit rechecks target eligibility, scope and object state; partial failure keeps unresolved objects in batch and does not roll back completed mappings |
 | P06-02 | owner 变化后的 Collaboration 处理 | P06-03 / P06-04 | terminate affected collaboration; do not rewrite its historical owner/participants; create a new collaboration only after current eligibility validation |
-| E05-05 | 创建 Priority | E05-05 | confirmed eligible match; freeze TTL at creation; one customer+vehicle+listing_cycle only; handoff never rewrites creator/history |
 | P02-06 | 查看系统/上游已标记的 identity conflict / supply anomaly | P02-06 | anomaly is produced by verified source/system evidence; page is read/triage entry, not an invented manual anomaly-creation authority; anomaly itself does not block all new business; current source/resource saleability, visibility and each business object's own Guard decide action availability; existing Lock/funds/Transaction and history remain |
 | P02-06 | 人工审查并清除异常 | P02-06 | authorized reviewer; evidence/reason required; revalidate actual source before allowing new business; never erase anomaly history |
 | E02-01 / E02-02 / P02-07 | 重试失败图片 | E02-01 / E02-02 / P02-07 | image state partial_failed/failed; retry only failed items; successful frozen images and business facts remain |
@@ -294,3 +291,7 @@ Only new Consultation, SLA timeout, Waitlist release, Lock expiry, supply anomal
 ## V5 canonical action authority
 
 旧 Journey/Object 摘要型 Action Registry 已撤销。当前真实 command/action 全集由 `IA_V5_ACTION_CONTRACT.md` 定义；本登记表仅保留实际页面/控件路由，并通过 V5 canonical guard contract 引用统一 guard。
+
+| E02 | 更多→草稿车源 | E02-02 | actor has current manual-vehicle publish/manage capability and scope; open DRAFT_LIST; never auto-select a single old draft |
+| E02-02 | 继续编辑目标草稿 | E02-02 | selected draft remains in current scope; reopen same draft_id; revalidate permission/scope/model/source_type and current form facts |
+| E02-02 | 删除纯草稿 | E02-02 | selected object is still pure draft; second confirmation; submit revalidates permission/scope/object state; only target draft is deleted |
