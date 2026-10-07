@@ -1,5 +1,14 @@
 # IA V5 State Contract
 
+<!-- IA-GLOBAL-B1-STATE-CONTRACT -->
+> **IA Batch 1 State Contract 覆盖｜2026-10-08**
+>
+> - owner_assignment_pending：接客池异常为空且无其他合法优先归属来源时使用；恢复后系统自动重试 owner 分配。
+> - MERGE_* / merge_blocked / merge_ready / merge_confirm / merged：DEPRECATED / DO_NOT_RESTORE，不再属于 V1 Current。
+> - Vehicle 状态分层：资源/可售事实、visibility、业务占用/交易事实分别承载；hidden != offline，locked/trading 不改写真实车辆事实。
+> - source_type 变更及 wholesale→mingbang 转换不等于 listing_cycle transition；只有真实不可售/失效→再次真实可售创建新 cycle。
+
+
 | STATE_ID | BUSINESS_OBJECT | STATE_MEANING | ENTRY_TRIGGER | ENTRY_FROM | ALLOWED_TRANSITION | EXIT_TRIGGER | EXIT_TO | CANCEL_BEHAVIOR | RECOVERY_BEHAVIOR | ERROR_RELATION | TERMINAL_OR_NOT | VISIBLE_TO_ROLE | RELATED_ACTION | RELATED_PAGE | UPSTREAM_EVIDENCE | CURRENT_CARRIER | SEMANTIC_SUPPORT |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | BUS-V4-001 | 首次进入 | 识别失败可重试 | 微信身份识别 → customer_id → 首页浏览 | 微信身份识别 | 微信身份识别 → customer_id → 首页浏览；异常/恢复：识别失败可重试；浏览不要求手机号 | 识别失败可重试；浏览不要求手机号 | 建立客户身份，不自动建立 owner | N/A_EXPLICIT｜BUS-V4-001 的来源没有独立取消该状态的命令；退出条件已由“识别失败可重试；浏览不要求手机号”限定。 | 识别失败可重试 | 识别失败可重试；浏览不要求手机号 | NO | 客户可见其安全投影；需要员工动作的转换仅由当前负责人/授权员工执行。 | ACT-V4-001 | N/A_EXPLICIT｜domain state 无独立页面；由对象投影状态在 Page/State Register 承载。 | Phase1.5上游权威/STEP5_END_TO_END_JOURNEY_REPORT.md:L32｜\| C01 \| 首次进入 \| 微信身份识别 → customer_id → 首页浏览 \| 识别失败可重试；浏览不要求手机号 \| 建立客户身份，不自动建立 owner \| `MATCH` \| | 当前IA/IA_CURRENT.md:L438#V5-STATE-BUS-V4-001 | FULL |
