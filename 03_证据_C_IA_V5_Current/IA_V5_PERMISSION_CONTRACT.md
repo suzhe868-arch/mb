@@ -1,5 +1,24 @@
 # IA V5 Permission Contract
 
+<!-- IA-GLOBAL-B2-B3-PERMISSION -->
+> **IA Batch 2 + 3 Permission 覆盖｜2026-10-08**
+>
+> 1. Recommendation 不再有独立 qualification permission；是否具备正式 Recommendation 资格读取 Customer Level 当前 find-car entitlement。创建/结束 Recommendation 仍要求当前合法业务 responsible + permission/capability + data scope + object state。
+> 2. 独立“调价” permission/action 删除；车辆价格字段服从 Vehicle 编辑权限，internal_wholesale_price 仍受独立敏感查看/字段能力保护，customer display override 服从其自身权限。
+> 3. 不新增 can_call_wholesale_phone。上游电话继续使用现有 phone-sensitive capability + Vehicle scope；Integration/Collector manage 不推导明文电话查看权。
+> 4. 不存在 priority.view/manage/override 全局穿透权限。Priority 读取/处理基于当前业务责任、合法管理 capability、data scope 与 object state。
+> 5. vehicle.model.manage 属于 System Admin 车型治理能力；普通销售/经理/店长/4S 不因 Vehicle edit/manage 自动得到。
+> 6. matching.rule.manage 属于名邦 Employee 业务治理 capability；角色名本身不自动拥有；4S hard DENY；System Admin 可配置该 permission，但控制平面身份本身不执行 Matching 业务修改。
+> 7. Archive 原始敏感资料不另建 VIN/raw-archive 独立查看权限；名邦/4S Employee 只有在对该 Vehicle 有合法管理能力且 scope 覆盖时查看维护。customer_visible 设置仍受档案类型 hard rule。
+> 8. Temp price quota add：普通销售必须是 current owner + permission；经理/店长可在 scope 内且有 permission；4S hard DENY；System Admin 只配置 permission，不以控制平面身份执行。
+> 9. Priority qualification 开/关、Lock duration config、Announcement/Banner 等业务配置均要求其来源域明确 business-config capability；System Admin 身份本身不自动获得这些员工业务配置权。
+> 10. Public pool assignment 需要 assignment capability + scope；成功后直接形成 owner，不增加目标 Employee confirmation permission。
+> 11. LockRequest approve/reject、Lock create/release/extension、Waitlist end、Refund actual-confirm/close、Transaction correction/handoff 各自按来源域 permission + scope + state；职位名本身不自动授敏感动作。
+> 12. Refund close 不另造专门 close permission；由当前合法可处理该 Refund 的业务人员在既有业务权限模型内 close + reason。
+> 13. System Admin 控制平面身份不得直接执行 completed Transaction correction、员工 Lock/Refund/Recommendation 等业务动作。
+> 14. Audit/history 不产生 permission；旧 session、旧 deep-link、旧 payload、Internal Mode 均不得成为永久授权票据。
+
+
 <!-- IA-GLOBAL-B1-PERMISSION -->
 > **IA Batch 1 Permission 覆盖｜2026-10-08**
 >
