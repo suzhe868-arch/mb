@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "IA_GLOBAL_ALIGNMENT_IN_PROGRESS",
+  "substage": "LOW_FI_GLOBAL_ALIGNMENT_READY",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "GLOBAL_POST_PDM25",
-  "current_domain_status": "IA_GLOBAL_ALIGNMENT_IN_PROGRESS_BATCH1_2_3_APPLIED",
+  "current_domain_status": "IA_GLOBAL_ALIGNMENT_COMPLETE_LOW_FI_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,16 +20,15 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "IA Batch 4｜Final-gap Scan（冲突 / 遗漏 / 缺口 / 新选择）",
-  "current_work_file": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
+  "current_task": "Low-Fi 全局集中对齐",
+  "current_work_file": "03_证据_C_IA_V5_Current/IA_CURRENT.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
-    "Do not let IA override or redefine approved PDM-01~25 Final product semantics",
-    "Do not begin Low-Fi before IA global alignment passes",
-    "Do not execute Engineering Delta",
-    "Preserve HISTORICAL_AUDIT_TRAIL and Current/History boundary during IA alignment"
+    "Do not let Low-Fi override or redefine approved PDM-01~25 Final or Current IA semantics",
+    "Do not execute Engineering Delta before Low-Fi global alignment passes",
+    "Preserve HISTORICAL_AUDIT_TRAIL and Current/History boundary during Low-Fi alignment"
   ],
   "confirmed_rule_atoms": [
     "P01-A01",
@@ -4641,22 +4640,30 @@
   "global_pdm01_25_final_integrity_audit_report": "07_重建工作区/PDM-01至25_全局跨域移交与全局不变量最终总复核_2026-10-07.md",
   "historical_tail_cleanup_status": "PASS",
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
-  "ia_status": "IN_PROGRESS_BATCH1_2_3_APPLIED",
+  "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "NO_CONSTRUCTION",
   "engineering_status": "NO_CONSTRUCTION",
   "ia_global_alignment": {
-    "status": "IN_PROGRESS",
+    "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
     "batch_1_atoms": "IA-B1-01..IA-B1-16",
     "carrier_closed_count": 16,
-    "next": "IA_BATCH_4_FINAL_GAP_SCAN",
-    "low_fi": "NO_CONSTRUCTION",
+    "next": "LOW_FI_GLOBAL_ALIGNMENT",
+    "low_fi": "READY_TO_START",
     "engineering": "NO_CONSTRUCTION",
     "batch_2": "PASS_USER_APPROVED_APPLIED",
     "batch_3": "PASS_USER_APPROVED_APPLIED",
     "batch_2_atoms": "IA-B2-01..IA-B2-19",
     "batch_3_atoms": "IA-B3-01..IA-B3-30",
     "batch_23_carrier_closed_count": 104,
-    "carrier_deferred_remaining": 4
-  }
+    "carrier_deferred_remaining": 0,
+    "batch_4": "PASS_USER_APPROVED_APPLIED",
+    "batch_4_atoms": "IA-B4-01..IA-B4-06",
+    "batch_4_carrier_closed_count": 4,
+    "final_gap_scan": "PASS",
+    "current_row_stale": 0,
+    "local_product_choice_unresolved": 0,
+    "pdm_final_business_semantic_change": 0
+  },
+  "low_fi_status": "READY_TO_START"
 }
