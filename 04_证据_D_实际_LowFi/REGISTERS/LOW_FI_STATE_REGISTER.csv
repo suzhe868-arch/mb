@@ -23,9 +23,9 @@ C01-M02::NORMAL,C01-M02,候补登记确认,NORMAL,Existing Waitlist confirmation
 C01-M03::DIRECT_REFERRAL_CAPTURED,C01-M03,分享 / 直接转介绍结果与来源归属说明,DIRECT_REFERRAL_CAPTURED,Step5 C04; third-round NEW-04,Freeze direct referrer and referrer's current owner at event time; later owner change does not rewrite source; no multilevel/commission,CURRENT/OVERLAYS/C01-M03/C01-M03-V5-DIRECT_REFERRAL_CAPTURED.svg,COMPLETE,SINGLE,DEFAULT
 C01-M03::ERROR,C01-M03,分享 / 直接转介绍结果与来源归属说明,ERROR,Generic UI failure,分享结果未确认；可重试，不伪造 owner,CURRENT/OVERLAYS/C01-M03/C01-M03-V5-ERROR.svg,COMPLETE,SINGLE,DEFAULT
 C01-M03::NORMAL,C01-M03,分享 / 直接转介绍结果与来源归属说明,NORMAL,Overlay interaction shell,Waiting for share/referral result; no source or owner fact is implied before completion,CURRENT/OVERLAYS/C01-M03/C01-M03-V5-NORMAL.svg,COMPLETE,SINGLE,DEFAULT
-C01-M03::OWNER_ASSIGNED,C01-M03,分享 / 直接转介绍结果与来源归属说明,OWNER_ASSIGNED,D1; Step5 C02,无 owner 且本人有效分享人 active/合格时形成 owner；按 originating action 返回 E02-01,CURRENT/OVERLAYS/C01-M03/C01-M03-V5-OWNER_ASSIGNED.svg,COMPLETE,SINGLE,DEFAULT
+C01-M03::OWNER_ASSIGNED,C01-M03,分享 / 直接转介绍结果与来源归属说明,OWNER_ASSIGNED,PDM-03 current share attribution,ownerless new Customer + valid eligible share/referral owner => assign unique current owner; preserve source customer/share event; existing owner is never overwritten,CURRENT/OVERLAYS/C01-M03/C01-M03-V5-OWNER_ASSIGNED.svg,COMPLETE,SINGLE,DEFAULT
 C01-M03::OWNER_UNCHANGED,C01-M03,分享 / 直接转介绍结果与来源归属说明,OWNER_UNCHANGED,Step5 C03,已有 owner 时追加触达但不抢客；按 originating action 返回 E02-01,CURRENT/OVERLAYS/C01-M03/C01-M03-V5-OWNER_UNCHANGED.svg,COMPLETE,SINGLE,DEFAULT
-C01-M03::SOURCE_ONLY,C01-M03,分享 / 直接转介绍结果与来源归属说明,SOURCE_ONLY,D1; Step5 C02,有效分享已记录来源，但分享人不合格/inactive 或其他 owner 规则不成立；按原始入口返回,CURRENT/OVERLAYS/C01-M03/C01-M03-V5-SOURCE_ONLY.svg,COMPLETE,SINGLE,DEFAULT
+C01-M03::SOURCE_ONLY,C01-M03,分享 / 直接转介绍结果与来源归属说明,SOURCE_ONLY,PDM-03 current share attribution,source/share relation recorded but no eligible share/referral owner could be assigned; continue PDM-03 fallback to accepting pool or owner_assignment_pending; this state is not the universal result of customer re-share,CURRENT/OVERLAYS/C01-M03/C01-M03-V5-SOURCE_ONLY.svg,COMPLETE,SINGLE,DEFAULT
 C02::CANCELLED,C02,帮我找车 / 我的找车【一级 Tab】,CANCELLED,Underlying SSOT/IA business state/history/recovery fact,已取消/终态只读,CURRENT/CLIENT/C02/C02-S07-CANCELLED.svg,COMPLETE,SINGLE,DEFAULT
 C02::COMPLETED,C02,帮我找车 / 我的找车【一级 Tab】,COMPLETED,Underlying SSOT/IA business state/history/recovery fact,业务已完成/终态只读,CURRENT/CLIENT/C02/C02-S06-COMPLETED.svg,COMPLETE,SINGLE,DEFAULT
 C02::EMPTY,C02,帮我找车 / 我的找车【一级 Tab】,EMPTY,Generic UI execution state; no domain mutation,真实空态 + 合法下一步,CURRENT/CLIENT/C02/C02-S03-EMPTY.svg,COMPLETE,SINGLE,DEFAULT
@@ -141,11 +141,11 @@ E03-02::NORMAL,E03-02,客户画像,NORMAL,Underlying SSOT/IA business state/hist
 E03-03::NORMAL,E03-03,客户跟进时间线,NORMAL,Underlying SSOT/IA business state/history/recovery fact,正常业务内容,CURRENT/EMPLOYEE/E03-03/E03-03-S01-NORMAL.svg,COMPLETE,SINGLE,DEFAULT
 E03-04::HISTORICAL,E03-04,客户业务历史,HISTORICAL,Underlying customer business history,Recommendation 终态和 cycle 历史只读,CURRENT/EMPLOYEE/E03-04/E03-04-V5-HISTORICAL.svg,COMPLETE,SINGLE,DEFAULT
 E03-04::NORMAL,E03-04,客户业务历史,NORMAL,Underlying SSOT/IA business state/history/recovery fact,正常业务内容,CURRENT/EMPLOYEE/E03-04/E03-04-S01-NORMAL.svg,COMPLETE,SINGLE,DEFAULT
-E03-04::RECOMMENDATION_ACTIVE,E03-04,客户业务历史,RECOMMENDATION_ACTIVE,Underlying active Recommendation fact,仅 current owner 可按已确认边界结束/作废本人负责客户的有效 Recommendation,CURRENT/EMPLOYEE/E03-04/E03-04-V5-RECOMMENDATION_ACTIVE.svg,COMPLETE,SINGLE,DEFAULT
+E03-04::RECOMMENDATION_ACTIVE,E03-04,客户业务历史,RECOMMENDATION_ACTIVE,PDM-14 Recommendation,current legal business responsible may end/void under current permission/capability + scope + object-state Guard; 4S Employee hard DENY; source_type=4S Vehicle itself is not denied,CURRENT/EMPLOYEE/E03-04/E03-04-V5-RECOMMENDATION_ACTIVE.svg,COMPLETE,SINGLE,DEFAULT
 E03-04::RECOMMENDATION_ENDED,E03-04,客户业务历史,RECOMMENDATION_ENDED,Manual end or listing_cycle end,终止当前有效性并保留历史；资格恢复不复活,CURRENT/EMPLOYEE/E03-04/E03-04-V5-RECOMMENDATION_ENDED.svg,COMPLETE,SINGLE,DEFAULT
 E03-04::RECOMMENDATION_VOID,E03-04,客户业务历史,RECOMMENDATION_VOID,Current owner voided incorrect object,记录原因、操作者、时间；重建新对象，不覆盖旧事实,CURRENT/EMPLOYEE/E03-04/E03-04-V5-RECOMMENDATION_VOID.svg,COMPLETE,SINGLE,DEFAULT
 E03-05::NORMAL,E03-05,从客户推荐车辆,NORMAL,Underlying SSOT/IA business state/history/recovery fact,正常业务内容,CURRENT/EMPLOYEE/E03-05/E03-05-S01-NORMAL.svg,COMPLETE,SINGLE,DEFAULT
-E03-06::NORMAL,E03-06,从客户锁车,NORMAL,Underlying SSOT/IA business state/history/recovery fact,正常业务内容,CURRENT/EMPLOYEE/E03-06/E03-06-S01-NORMAL.svg,COMPLETE,SINGLE,DEFAULT
+E03-06::NORMAL,E03-06,从客户锁车 / 选择车辆,NORMAL,PDM-16/PDM-18 Lock entry boundary,CRM context fixes Customer only; select a real Vehicle/listing_cycle first, then enter common Lock confirmation; this page never creates Lock directly,CURRENT/EMPLOYEE/E03-06/E03-06-S01-NORMAL.svg,COMPLETE,SINGLE,DEFAULT
 E04::NORMAL,E04,我的【一级 Tab】,NORMAL,Underlying SSOT/IA business state/history/recovery fact,正常业务内容,CURRENT/EMPLOYEE/E04/E04-S01-NORMAL.svg ; CURRENT/EMPLOYEE/E04/E04-S4S01-NORMAL.svg,COMPLETE,MULTI_VARIANT,DEFAULT_EMPLOYEE[ROLE_CONTEXT!=FOUR_S_MEMBER] ; FOUR_S_PERMISSION_CROPPED[ROLE_CONTEXT=FOUR_S_MEMBER]
 E05::NORMAL,E05,找车服务【业务模块】,NORMAL,Underlying SSOT/IA business state/history/recovery fact,正常业务内容,CURRENT/EMPLOYEE/E05/E05-S01-NORMAL.svg,COMPLETE,SINGLE,DEFAULT
 E05-01::EMPTY,E05-01,找车申请 / 意向列表,EMPTY,Generic UI execution state; no domain mutation,真实空态 + 合法下一步,CURRENT/EMPLOYEE/E05-01/E05-01-S02-EMPTY.svg,COMPLETE,SINGLE,DEFAULT
@@ -167,7 +167,7 @@ E05-04::PROCESSING,E05-04,正式 demand 详情 / 编辑【核心页】,PROCESSIN
 E05-05::ACCEPTABLE,E05-05,匹配候选列表,ACCEPTABLE,HR-01 four-tier Matching result,可接受候选；仍需服从 Priority 仲裁与对象状态,CURRENT/EMPLOYEE/E05-05/E05-05-V5-ACCEPTABLE.svg,COMPLETE,SINGLE,DEFAULT
 E05-05::CONFIRMATION_NEEDED,E05-05,匹配候选列表,CONFIRMATION_NEEDED,HR-01 four-tier Matching result,进入 E05-06 人工确认；未确认前不创建 Priority,CURRENT/EMPLOYEE/E05-05/E05-05-V5-CONFIRMATION_NEEDED.svg,COMPLETE,SINGLE,DEFAULT
 E05-05::EMPTY,E05-05,匹配候选列表,EMPTY,Generic UI execution state; no domain mutation,真实空态 + 合法下一步,CURRENT/EMPLOYEE/E05-05/E05-05-S02-EMPTY.svg,COMPLETE,SINGLE,DEFAULT
-E05-05::HIDDEN_CONTROLLED,E05-05,匹配候选列表,HIDDEN_CONTROLLED,HR-03 controlled hidden-vehicle visibility,仅对应客户与授权员工在 Demand/Priority 上下文可见；不进入公共 Feed,CURRENT/EMPLOYEE/E05-05/E05-05-V5-HIDDEN_CONTROLLED.svg,COMPLETE,SINGLE,DEFAULT
+E05-05::HIDDEN_CONTROLLED,E05-05,匹配候选列表,HIDDEN_CONTROLLED,PDM-13/PDM-14 controlled hidden candidate,authorized Mingbang employee may inspect candidate in current Matching/Priority context; Demand/Priority alone never grants Customer hidden visibility; Customer access requires independent current visibility Authority,CURRENT/EMPLOYEE/E05-05/E05-05-V5-HIDDEN_CONTROLLED.svg,COMPLETE,SINGLE,DEFAULT
 E05-05::HIGH,E05-05,匹配候选列表,HIGH,HR-01 four-tier Matching result,高匹配候选；仍需服从 Priority 仲裁与对象状态，不自动成为 Recommendation,CURRENT/EMPLOYEE/E05-05/E05-05-V5-HIGH.svg,COMPLETE,SINGLE,DEFAULT
 E05-05::NORMAL,E05-05,匹配候选列表,NORMAL,Underlying SSOT/IA business state/history/recovery fact,正常业务内容,CURRENT/EMPLOYEE/E05-05/E05-05-S01-NORMAL.svg,COMPLETE,SINGLE,DEFAULT
 E05-05::NO_MATCH,E05-05,匹配候选列表,NO_MATCH,HR-01 four-tier Matching result,无匹配；允许修改 Demand 条件或等待后续匹配，不偷偷放宽硬条件,CURRENT/EMPLOYEE/E05-05/E05-05-V5-NO_MATCH.svg,COMPLETE,SINGLE,DEFAULT
@@ -218,10 +218,10 @@ E07-04::EMPTY,E07-04,意向金,EMPTY,Generic UI execution state; no domain mutat
 E07-04::ERROR,E07-04,意向金,ERROR,Generic UI execution state; no domain mutation,加载/提交失败 + 重试,CURRENT/EMPLOYEE/E07-04/E07-04-S03-ERROR.svg,COMPLETE,SINGLE,DEFAULT
 E07-04::NORMAL,E07-04,意向金,NORMAL,Underlying SSOT/IA business state/history/recovery fact,正常业务内容,CURRENT/EMPLOYEE/E07-04/E07-04-S01-NORMAL.svg,COMPLETE,SINGLE,DEFAULT
 E07-05::CLOSED,E07-05,退款,CLOSED,D11 pending Refund close/withdraw fact,已关闭但未退款；保留原因、操作者、时间，不占车,CURRENT/EMPLOYEE/E07-05/E07-05-V5-CLOSED.svg,COMPLETE,SINGLE,DEFAULT
-E07-05::COMPLETED,E07-05,退款,COMPLETED,Underlying SSOT/IA business state/history/recovery fact,业务已完成/终态只读,CURRENT/EMPLOYEE/E07-05/E07-05-S02-COMPLETED.svg,COMPLETE,SINGLE,DEFAULT
+E07-05::REFUNDED,E07-05,退款,REFUNDED,PDM-19 Refund lifecycle,真实退款事实已发生；保留金额/操作者/时间/来源与多笔退款历史；不等于 closed,CURRENT/EMPLOYEE/E07-05/E07-05-S02-COMPLETED.svg,COMPLETE,SINGLE,DEFAULT
 E07-05::ERROR,E07-05,退款,ERROR,Generic UI execution state; no domain mutation,加载/提交失败 + 重试,CURRENT/EMPLOYEE/E07-05/E07-05-S03-ERROR.svg,COMPLETE,SINGLE,DEFAULT
-E07-05::HISTORICAL,E07-05,退款,HISTORICAL,Underlying Refund history,pending/completed/closed 均保留来源与多笔事实；车辆可锁性另按正常 guard,CURRENT/EMPLOYEE/E07-05/E07-05-V5-HISTORICAL.svg,COMPLETE,SINGLE,DEFAULT
-E07-05::PROCESSING,E07-05,退款,PROCESSING,Underlying SSOT/IA business state/history/recovery fact,处理中，防重复提交,CURRENT/EMPLOYEE/E07-05/E07-05-S01-PROCESSING.svg,COMPLETE,SINGLE,DEFAULT
+E07-05::HISTORICAL,E07-05,退款,HISTORICAL,Underlying Refund history,pending/refunded/closed 均保留来源与多笔事实；车辆可锁性另按正常 guard,CURRENT/EMPLOYEE/E07-05/E07-05-V5-HISTORICAL.svg,COMPLETE,SINGLE,DEFAULT
+E07-05::PENDING,E07-05,退款,PENDING,PDM-19 Refund lifecycle,退款尚未真实发生；可继续按当前权限确认实际退款或以 close_reason 关闭；不占车,CURRENT/EMPLOYEE/E07-05/E07-05-S01-PROCESSING.svg,COMPLETE,SINGLE,DEFAULT
 E07-06::ERROR,E07-06,业务关联视图 / 时间线,ERROR,Generic UI execution state; no domain mutation,加载/提交失败 + 重试,CURRENT/EMPLOYEE/E07-06/E07-06-S03-ERROR.svg,COMPLETE,SINGLE,DEFAULT
 E07-06::HISTORICAL,E07-06,业务关联视图 / 时间线,HISTORICAL,Underlying SSOT/IA business state/history/recovery fact,历史只读安全投影,CURRENT/EMPLOYEE/E07-06/E07-06-S02-HISTORICAL.svg,COMPLETE,SINGLE,DEFAULT
 E07-06::NORMAL,E07-06,业务关联视图 / 时间线,NORMAL,Underlying SSOT/IA business state/history/recovery fact,正常业务内容,CURRENT/EMPLOYEE/E07-06/E07-06-S01-NORMAL.svg,COMPLETE,SINGLE,DEFAULT
@@ -319,7 +319,6 @@ P06-05::NORMAL,P06-05,公海,NORMAL,Underlying SSOT/IA business state/history/re
 P06-05::PERMISSION_DENIED,P06-05,公海,PERMISSION_DENIED,Generic UI execution state; no domain mutation,无权限，不泄露受保护字段,CURRENT/PC/P06-05/P06-05-S04-PERMISSION_DENIED.svg,COMPLETE,SINGLE,DEFAULT
 P06-05::PUBLIC_POOL_ASSIGN_CONFIRM_REQUIRED,P06-05,公海,PUBLIC_POOL_ASSIGN_CONFIRM_REQUIRED,fifth-round A-NEW-02,"Permission, scope, owner-null, protections and target eligibility rechecked; audit owner/source history",CURRENT/PC/P06-05/P06-05-V5-PUBLIC_POOL_ASSIGN_CONFIRM_REQUIRED.svg,COMPLETE,SINGLE,DEFAULT
 P06-06::NORMAL,P06-06,客户等级 / 标签 / 业务权益,NORMAL,Underlying SSOT/IA business state/history/recovery fact,正常业务内容,CURRENT/PC/P06-06/P06-06-S01-NORMAL.svg,COMPLETE,SINGLE,DEFAULT
-P06-07::NORMAL,P06-07,客户机会规则,NORMAL,Underlying SSOT/IA business state/history/recovery fact,正常业务内容,CURRENT/PC/P06-07/P06-07-S01-NORMAL.svg,COMPLETE,SINGLE,DEFAULT
 P06-08::NORMAL,P06-08,找车申请 / 待确认申请,NORMAL,Underlying SSOT/IA business state/history/recovery fact,正常业务内容,CURRENT/PC/P06-08/P06-08-S01-NORMAL.svg,COMPLETE,SINGLE,DEFAULT
 P06-09::NORMAL,P06-09,正式 demand,NORMAL,Underlying SSOT/IA business state/history/recovery fact,正常业务内容,CURRENT/PC/P06-09/P06-09-S01-NORMAL.svg,COMPLETE,SINGLE,DEFAULT
 P06-10::ERROR,P06-10,匹配词典 / 规则词典【精简】,ERROR,Generic UI execution state; no domain mutation,加载/提交失败 + 重试,CURRENT/PC/P06-10/P06-10-S04-ERROR.svg,COMPLETE,SINGLE,DEFAULT
@@ -363,12 +362,12 @@ P07-04::NORMAL,P07-04,交易,NORMAL,Underlying SSOT/IA business state/history/re
 P07-04::PERMISSION_DENIED,P07-04,交易,PERMISSION_DENIED,Transaction action authz/scope guard,不创建、完成或取消 Transaction,CURRENT/PC/P07-04/P07-04-V5-PERMISSION_DENIED.svg,COMPLETE,SINGLE,DEFAULT
 P07-04::REQUIRED_FIELDS_MISSING_CONFIGURED,P07-04,交易,REQUIRED_FIELDS_MISSING_CONFIGURED,N4-02,Display only configured validator output; IA does not define an unfrozen complete field set,CURRENT/PC/P07-04/P07-04-V5-REQUIRED_FIELDS_MISSING_CONFIGURED.svg,COMPLETE,SINGLE,DEFAULT
 P07-04::REQUIRED_FIELDS_VALID,P07-04,交易,REQUIRED_FIELDS_VALID,N4-02,Display only configured validator output; IA does not define an unfrozen complete field set,CURRENT/PC/P07-04/P07-04-V5-REQUIRED_FIELDS_VALID.svg,COMPLETE,SINGLE,DEFAULT
-P07-05::CLOSED,P07-05,退款,CLOSED,Refund lifecycle fact,pending/completed/closed 均不占车；CLOSED 不是 refunded,CURRENT/PC/P07-05/P07-05-V5-CLOSED.svg,COMPLETE,SINGLE,DEFAULT
-P07-05::COMPLETED,P07-05,退款,COMPLETED,Refund lifecycle fact,pending/completed/closed 均不占车；CLOSED 不是 refunded,CURRENT/PC/P07-05/P07-05-V5-COMPLETED.svg,COMPLETE,SINGLE,DEFAULT
-P07-05::HISTORICAL,P07-05,退款,HISTORICAL,Refund lifecycle fact,pending/completed/closed 均不占车；CLOSED 不是 refunded,CURRENT/PC/P07-05/P07-05-V5-HISTORICAL.svg,COMPLETE,SINGLE,DEFAULT
-P07-05::NORMAL,P07-05,退款,NORMAL,Underlying SSOT/IA business state/history/recovery fact,正常业务内容,CURRENT/PC/P07-05/P07-05-S01-NORMAL.svg,COMPLETE,SINGLE,DEFAULT
+P07-05::CLOSED,P07-05,退款,CLOSED,Refund lifecycle fact,pending/refunded/closed 均不占车；CLOSED 不是 refunded,CURRENT/PC/P07-05/P07-05-V5-CLOSED.svg,COMPLETE,SINGLE,DEFAULT
+P07-05::REFUNDED,P07-05,退款,REFUNDED,PDM-19 Refund lifecycle,真实退款事实已发生；保留金额/操作者/时间/来源与多笔退款历史；不等于 closed,CURRENT/PC/P07-05/P07-05-V5-COMPLETED.svg,COMPLETE,SINGLE,DEFAULT
+P07-05::HISTORICAL,P07-05,退款,HISTORICAL,Refund lifecycle fact,pending/refunded/closed 均不占车；CLOSED 不是 refunded,CURRENT/PC/P07-05/P07-05-V5-HISTORICAL.svg,COMPLETE,SINGLE,DEFAULT
+P07-05::NORMAL,P07-05,退款,NORMAL,Generic UI shell; not a Refund business state,页面容器本身不代表 Refund lifecycle；当前业务状态必须读取 pending/refunded/closed；不得把 NORMAL 当第四主状态,CURRENT/PC/P07-05/P07-05-S01-NORMAL.svg,COMPLETE,SINGLE,DEFAULT
 P07-05::PERMISSION_DENIED,P07-05,退款,PERMISSION_DENIED,Refund action authz/scope guard,不创建、确认或关闭 Refund,CURRENT/PC/P07-05/P07-05-V5-PERMISSION_DENIED.svg,COMPLETE,SINGLE,DEFAULT
-P07-05::PROCESSING,P07-05,退款,PROCESSING,Refund lifecycle fact,pending/completed/closed 均不占车；CLOSED 不是 refunded,CURRENT/PC/P07-05/P07-05-V5-PROCESSING.svg,COMPLETE,SINGLE,DEFAULT
+P07-05::PENDING,P07-05,退款,PENDING,PDM-19 Refund lifecycle,退款尚未真实发生；可继续按当前权限确认实际退款或以 close_reason 关闭；不占车,CURRENT/PC/P07-05/P07-05-V5-PROCESSING.svg,COMPLETE,SINGLE,DEFAULT
 P07-06::ERROR,P07-06,成交撤销 / 纠错,ERROR,Generic UI execution state; no domain mutation,加载/提交失败 + 重试,CURRENT/PC/P07-06/P07-06-S03-ERROR.svg,COMPLETE,SINGLE,DEFAULT
 P07-06::HISTORICAL,P07-06,成交撤销 / 纠错,HISTORICAL,Underlying SSOT/IA business state/history/recovery fact,历史只读安全投影,CURRENT/PC/P07-06/P07-06-S04-HISTORICAL.svg,COMPLETE,SINGLE,DEFAULT
 P07-06::NORMAL,P07-06,成交撤销 / 纠错,NORMAL,Underlying SSOT/IA business state/history/recovery fact,正常业务内容,CURRENT/PC/P07-06/P07-06-S01-NORMAL.svg,COMPLETE,SINGLE,DEFAULT
@@ -412,14 +411,14 @@ P09-04::NOTIFICATION_NOT_ALLOWLISTED,P09-04,通知日志 / 失败记录,NOTIFICA
 P09-04::NOTIFICATION_SENT,P09-04,通知日志 / 失败记录,NOTIFICATION_SENT,NEW4-04; fifth-round,"Log outcome only; business state unchanged; automatic queue retry remains Phase 2 engineering and revalidates allowlist, event validity and DND",CURRENT/PC/P09-04/P09-04-V5-NOTIFICATION_SENT.svg,COMPLETE,SINGLE,DEFAULT
 P09-04::SKIPPED,P09-04,通知日志 / 失败记录,SKIPPED,NEW4-04; fifth-round,"Log outcome only; business state unchanged; automatic queue retry remains Phase 2 engineering and revalidates allowlist, event validity and DND",CURRENT/PC/P09-04/P09-04-V5-SKIPPED.svg,COMPLETE,SINGLE,DEFAULT
 P10::NORMAL,P10,客户小程序公告,NORMAL,Underlying SSOT/IA business state/history/recovery fact,正常业务内容,CURRENT/PC/P10/P10-S01-NORMAL.svg,COMPLETE,SINGLE,DEFAULT
-P10-01::ACTIVE,P10-01,公告列表,ACTIVE,NEW4-01,"CRUD, schedule and reorder audited; customer UTC+8 display frequency remains separate",CURRENT/PC/P10-01/P10-01-V5-ACTIVE.svg,COMPLETE,SINGLE,DEFAULT
-P10-01::ANNOUNCEMENT_DRAFT,P10-01,公告列表,ANNOUNCEMENT_DRAFT,NEW4-01,"CRUD, schedule and reorder audited; customer UTC+8 display frequency remains separate",CURRENT/PC/P10-01/P10-01-V5-ANNOUNCEMENT_DRAFT.svg,COMPLETE,SINGLE,DEFAULT
+P10-01::ACTIVE,P10-01,公告列表,ACTIVE,NEW4-01,"CRUD, schedule and reorder audited; proactive display uses one global Customer/day cap: first app entry opportunity, enabled+effective+auto-popup ON candidates, sorted to one winner; manual Announcement view remains separate",CURRENT/PC/P10-01/P10-01-V5-ACTIVE.svg,COMPLETE,SINGLE,DEFAULT
+P10-01::ANNOUNCEMENT_DRAFT,P10-01,公告列表,ANNOUNCEMENT_DRAFT,NEW4-01,"CRUD, schedule and reorder audited; proactive display uses one global Customer/day cap: first app entry opportunity, enabled+effective+auto-popup ON candidates, sorted to one winner; manual Announcement view remains separate",CURRENT/PC/P10-01/P10-01-V5-ANNOUNCEMENT_DRAFT.svg,COMPLETE,SINGLE,DEFAULT
 P10-01::EMPTY,P10-01,公告列表,EMPTY,Generic UI execution state; no domain mutation,真实空态 + 合法下一步,CURRENT/PC/P10-01/P10-01-S02-EMPTY.svg,COMPLETE,SINGLE,DEFAULT
-P10-01::ENDED,P10-01,公告列表,ENDED,NEW4-01,"CRUD, schedule and reorder audited; customer UTC+8 display frequency remains separate",CURRENT/PC/P10-01/P10-01-V5-ENDED.svg,COMPLETE,SINGLE,DEFAULT
+P10-01::ENDED,P10-01,公告列表,ENDED,NEW4-01,"CRUD, schedule and reorder audited; proactive display uses one global Customer/day cap: first app entry opportunity, enabled+effective+auto-popup ON candidates, sorted to one winner; manual Announcement view remains separate",CURRENT/PC/P10-01/P10-01-V5-ENDED.svg,COMPLETE,SINGLE,DEFAULT
 P10-01::ERROR,P10-01,公告列表,ERROR,Generic UI execution state; no domain mutation,加载/提交失败 + 重试,CURRENT/PC/P10-01/P10-01-S03-ERROR.svg,COMPLETE,SINGLE,DEFAULT
 P10-01::NORMAL,P10-01,公告列表,NORMAL,Underlying SSOT/IA business state/history/recovery fact,正常业务内容,CURRENT/PC/P10-01/P10-01-S01-NORMAL.svg,COMPLETE,SINGLE,DEFAULT
-P10-01::REORDERED,P10-01,公告列表,REORDERED,NEW4-01,"CRUD, schedule and reorder audited; customer UTC+8 display frequency remains separate",CURRENT/PC/P10-01/P10-01-V5-REORDERED.svg,COMPLETE,SINGLE,DEFAULT
-P10-01::SCHEDULED,P10-01,公告列表,SCHEDULED,NEW4-01,"CRUD, schedule and reorder audited; customer UTC+8 display frequency remains separate",CURRENT/PC/P10-01/P10-01-V5-SCHEDULED.svg,COMPLETE,SINGLE,DEFAULT
+P10-01::REORDERED,P10-01,公告列表,REORDERED,NEW4-01,"CRUD, schedule and reorder audited; proactive display uses one global Customer/day cap: first app entry opportunity, enabled+effective+auto-popup ON candidates, sorted to one winner; manual Announcement view remains separate",CURRENT/PC/P10-01/P10-01-V5-REORDERED.svg,COMPLETE,SINGLE,DEFAULT
+P10-01::SCHEDULED,P10-01,公告列表,SCHEDULED,NEW4-01,"CRUD, schedule and reorder audited; proactive display uses one global Customer/day cap: first app entry opportunity, enabled+effective+auto-popup ON candidates, sorted to one winner; manual Announcement view remains separate",CURRENT/PC/P10-01/P10-01-V5-SCHEDULED.svg,COMPLETE,SINGLE,DEFAULT
 P10-02::NORMAL,P10-02,新建 / 编辑公告,NORMAL,Underlying SSOT/IA business state/history/recovery fact,正常业务内容,CURRENT/PC/P10-02/P10-02-S01-NORMAL.svg,COMPLETE,SINGLE,DEFAULT
 P11::EMPTY,P11,审计日志,EMPTY,Generic UI execution state; no domain mutation,真实空态 + 合法下一步,CURRENT/PC/P11/P11-S02-EMPTY.svg,COMPLETE,SINGLE,DEFAULT
 P11::ERROR,P11,审计日志,ERROR,Generic UI execution state; no domain mutation,加载/提交失败 + 重试,CURRENT/PC/P11/P11-S03-ERROR.svg,COMPLETE,SINGLE,DEFAULT
