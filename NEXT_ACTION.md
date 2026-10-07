@@ -14,6 +14,15 @@
 
 > 更新时间：2026-10-07
 
+## Current｜当前唯一动作
+
+- PDM-01～25：全部 COMPLETE / INTEGRITY_PASS
+- Global PDM-01～25 Final Audit：R1 repair 已批准并执行，当前进入 R2
+- Cross-PDM Handoff 主表：165 条；164 HANDOFF_CLOSED；1 HANDOFF_SUPERSEDED；OPEN=0；ACCEPTED=0；source_backwrite pending=0
+- IA / Low-Fi / Engineering：继续 NO_CONSTRUCTION
+- 当前唯一下一步：**PDM-01～25 全局 Cross-PDM / Handoff / Global Invariant 最终总复核 R2**
+
+## HISTORICAL_AUDIT_TRAIL｜以下为历史执行记录
 
 ## PDM-25 Prefinal R2 执行结果
 
