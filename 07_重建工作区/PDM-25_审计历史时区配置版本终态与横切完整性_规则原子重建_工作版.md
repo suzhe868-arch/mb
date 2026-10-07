@@ -1,6 +1,6 @@
 # PDM-25｜审计 / 历史 / 时区 / 配置版本 / 终态 / 横切完整性｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / PREFINAL_R2_PASS / FINAL_CANDIDATE_READY`  
+> 当前状态：`COMPLETE / INTEGRITY_PASS`  
 > 核心定位：`P25-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：`24 / 24 HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -949,3 +949,16 @@ Final Domain Overview：
 - source backwrite；
 - 进入 PDM-01～25 全局最终总复核；
 - 施工 IA / Low-Fi / Engineering。
+
+
+# 18. Final Closeout｜COMPLETE / INTEGRITY_PASS
+
+- 用户最终批准 PDM-25 Final Domain Overview；
+- 用户随后明确“确定执行”；
+- 正式 Final：`07_重建工作区/PDM-25_最终完整规则.md`；
+- Final Integrity：`07_重建工作区/PDM-25_最终完整性复核_2026-10-07.md / PASS`；
+- 37 个正式规则 / 用户裁决单元全部进入 Final；
+- 24 / 24 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
+- 来源 PDM-01～24 Final / Integrity 反向回写全部完成；
+- IA / Low-Fi / Engineering 未施工；
+- 当前唯一下一步：**PDM-01～25 全局 Cross-PDM / Handoff / Global Invariant 最终总复核。**
