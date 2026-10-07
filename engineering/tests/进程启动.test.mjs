@@ -17,7 +17,7 @@ test('真实 Node 子进程启动后 live=200、未连接数据库 ready=503', {
   const port = await allocateTestPort();
   const child = spawn(process.execPath, ['src/server.mjs'], {
     cwd: new URL('../', import.meta.url),
-    env: { ...process.env, APP_ENV: 'test', NODE_ENV: 'test', API_HOST: '127.0.0.1', API_PORT: String(port) },
+    env: { ...process.env, APP_ENV: 'test', NODE_ENV: 'test', API_HOST: '127.0.0.1', API_PORT: String(port), DATABASE_URL: '', F01_TEST_DB_CONSENT: '' },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   const base = 'http://127.0.0.1:' + port;
