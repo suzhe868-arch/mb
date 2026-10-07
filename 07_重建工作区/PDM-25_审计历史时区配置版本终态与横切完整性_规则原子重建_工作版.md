@@ -1,6 +1,6 @@
 # PDM-25｜审计 / 历史 / 时区 / 配置版本 / 终态 / 横切完整性｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PENDING`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS`  
 > 核心定位：`P25-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：`24 / 24 HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -252,6 +252,248 @@ PDM-25 完成前：
 - 不得开始 IA / Low-Fi 集中对齐；
 - 不得执行 Engineering Delta。
 
-# 6. 当前唯一下一步
+# 6. Batch 1｜稳定一致规则｜PASS / USER_APPROVED / APPLIED
 
-> **PDM-25 Batch 1｜稳定一致规则审查。**
+以下规则已由用户审查，并在明确“确定执行”后正式进入 PDM-25 当前 Authority。
+
+## P25-A01｜全项目统一审计入口只读｜USER_APPROVED / APPLIED
+
+P11 作为全项目统一审计检索入口，支持合法范围内的：
+
+- 查询；
+- 筛选；
+- 详情；
+- 必要关联查看 / 跳转。
+
+普通业务后台不得：
+
+- 修改已有真实 Audit Event；
+- 覆盖旧事件；
+- 删除真实历史；
+- 通过所谓“修正”把原错误事实抹掉。
+
+需要纠正时，继续通过来源业务域合法的 correction / void / replacement / 新事件表达。
+
+## P25-A02｜重要业务变更统一可追溯｜USER_APPROVED / APPLIED
+
+重要业务 mutation 至少应能表达：
+
+- time；
+- actor / system actor；
+- 当时合法 identity / role context；
+- business domain / object；
+- action；
+- before；
+- after；
+- result；
+- 来源业务明确要求时的 reason / note；
+- 必要关联 ID / source context。
+
+PDM-25 统一最低追溯语义，但不重定义来源 PDM 的业务动作与结果。
+
+## P25-A03｜reason / note 不做全局强制｜USER_APPROVED / APPLIED
+
+- 来源业务已经明确要求 reason / note 的动作，必须继续记录；
+- 来源业务没有明确要求的，不由 PDM-25 额外强制每次填写原因；
+- 不得因为建立统一审计而改变原业务动作的提交门槛。
+
+## P25-A04｜普通浏览不强制升级为高等级审计｜USER_APPROVED / APPLIED
+
+日常普通浏览、普通页面打开、无风险展示、普通非敏感查看：
+
+- 不强制逐条形成高等级 Audit Event；
+- 是否保留运行日志、埋点或技术日志留 Engineering / Analytics 处理；
+- PDM-25 重点覆盖重要 mutation、敏感动作与必须保留的业务历史事实。
+
+## P25-A05｜审计 / 历史不得成为越权入口｜USER_APPROVED / APPLIED
+
+审计可以证明：
+
+> **发生过什么。**
+
+但不因此自动授予：
+
+> **查看完整敏感值的当前权限。**
+
+审计查询、筛选、详情与关联查看继续服从：
+
+- current identity；
+- explicit permission / capability；
+- data scope；
+- 当前账号 / 对象状态；
+- 来源业务额外 hard DENY。
+
+## P25-A06｜敏感字段最小化与脱敏｜USER_APPROVED / APPLIED
+
+统一原则：
+
+- Token / Secret 不记录或展示完整明文；
+- 手机号、上游电话、内部价格、资金、敏感身份资料等，按 current permission + data scope 做最小展示 / 脱敏；
+- Audit / History 不得成为绕过 PDM-02、PDM-09、PDM-10、PDM-19 等当前敏感权限边界的旁路。
+
+## P25-A07｜业务历史不可被普通修改覆盖｜USER_APPROVED / APPLIED
+
+已真实形成的历史事实，包括但不限于：
+
+- ended；
+- cancelled；
+- voided；
+- refunded；
+- delisted；
+- historical Recommendation；
+- historical Match Result；
+- historical Listing Cycle；
+- 已完成 / 已撤销 / 已纠错业务事实；
+
+不得因为后续当前状态变化而物理删除，或重写成“从未发生”。
+
+## P25-A08｜Current Projection 与 Historical Fact 分离｜USER_APPROVED / APPLIED
+
+- Current Projection 负责表达对象“现在是什么”；
+- Historical Fact 负责表达对象“过去真实发生过什么”；
+- 当前状态变化不得反向改写真实历史；
+- 历史事实也不得被误当成当前授权、当前状态或当前业务入口。
+
+## P25-A09｜纠错通过追加新事实表达｜USER_APPROVED / APPLIED
+
+需要纠正真实历史时：
+
+- 使用 correction / void / replacement / 新事件等追加事实表达；
+- 原错误操作、原成交、原资金、原业务状态变化事实不得为了得到“干净结果”而抹除；
+- 纠错主体、权限、对象状态、结果与副作用继续服从来源 completed-PDM Final。
+
+## P25-A10｜重要配置变更统一留痕｜USER_APPROVED / APPLIED
+
+会改变业务行为、权限、安全或客户展示结果的重要配置，至少保留：
+
+- before；
+- after；
+- actor；
+- time。
+
+如来源业务明确要求额外字段、原因、版本关系或验证结果，继续完整保留。
+
+## P25-A11｜配置继续归属原业务域｜USER_APPROVED / APPLIED
+
+PDM-25 不建设脱离业务的万能配置中心。
+
+例如：
+
+- Lock 配置继续归 PDM-18 / 对应 PC 业务模块；
+- 价格 / 查价配置继续归 PDM-10；
+- permission / scope 配置继续归 PDM-02 / PDM-22；
+- Notification / DND / cadence 继续归 PDM-23；
+- Announcement / Banner 继续归 PDM-24。
+
+PDM-25 只统一：
+
+- 配置历史；
+- 配置版本；
+- before / after / actor / time；
+- 配置与历史事实的横切关系。
+
+## P25-A12｜新配置默认不追改已固化历史事实｜USER_APPROVED / APPLIED
+
+默认配置或业务配置变化后，不得自动追改已经形成的 snapshot / historical fact。
+
+典型包括：
+
+- Lock duration / expires_at；
+- Consultation SLA deadline；
+- price / entitlement / conversion snapshot；
+- Priority TTL snapshot；
+- Transaction / Refund 已形成金额事实。
+
+若某 completed-PDM 明确规定某项动态读取 current config，则继续服从该域 Final；PDM-25 不把所有配置强制改成 snapshot。
+
+## P25-A13｜统一业务自然日为 Asia/Shanghai（UTC+8）｜USER_APPROVED / APPLIED
+
+V1 横切业务自然日统一使用：
+
+> **Asia/Shanghai（UTC+8）**
+
+用于解释：
+
+- 当天；
+- 每日；
+- 业务日；
+- 历史 / 审计时间的业务展示与边界判断。
+
+PDM-25 不在产品层规定数据库 timestamp 的物理存储格式，也不反向改变 PDM-23 / PDM-24 已冻结的 DND / 每日频控业务语义。
+
+## P25-A14｜权限撤销后旧载体不得继续授权｜USER_APPROVED / APPLIED
+
+当 current identity / permission / data scope / account state / object state 变化后：
+
+- 旧页面；
+- 旧 session；
+- 旧 deep-link；
+- 旧敏感 payload；
+- 已复制但尚未合法使用的敏感载体；
+
+不得作为永久授权凭证。
+
+敏感 mutation 提交时必须继续执行来源域 current Guard。
+
+## P25-A15｜区分 human actor 与 system actor｜USER_APPROVED / APPLIED
+
+审计 / 历史必须能够区分：
+
+- 人工操作；
+- 系统自动操作。
+
+自动分配、自动过期、自动状态处理、worker / scheduler 触发的产品事实，不得伪装成某个员工人工执行。
+
+PDM-25 只冻结 actor 语义，不规定具体 worker / scheduler 技术实现。
+
+## P25-A16｜横切完整性只冻结产品结果，不冻结工程方案｜USER_APPROVED / APPLIED
+
+PDM-25 可以要求以下产品层结果必须成立：
+
+- idempotent / retry-safe；
+- unique active；
+- concurrent winner；
+- no duplicate consumption；
+- no over-refund；
+- snapshot not retroactively rewritten；
+- append-only history；
+- terminal read-only；
+- cross-object historical truth。
+
+但不在本阶段冻结：
+
+- 数据库类型 / 表结构；
+- index / unique index；
+- MQ；
+- distributed lock；
+- transaction framework；
+- retry count / backoff；
+- log storage engine / retention implementation。
+
+## P25-A17｜各业务域不得另建第二套 Audit / History Authority｜USER_APPROVED / APPLIED
+
+Customer、Employee、Vehicle、Demand、Matching、Priority、Recommendation、Consultation、CRM、Public Pool、LockRequest、Lock、Waitlist、Deposit、Transaction、Refund、Notification、Announcement、Banner 等：
+
+- 业务状态机继续以各 completed-PDM Final 为 Authority；
+- PDM-25 统一横切审计 / 历史 / 时区 / 配置版本 / 完整性标准；
+- 不复制第二套业务状态；
+- 不借审计名义恢复已废弃能力；
+- 不允许某业务域再造与 PDM-25 冲突的跨域审计体系。
+
+---
+
+# 7. Batch 1 执行结果
+
+- `P25-A01～P25-A17 = PASS / USER_APPROVED / APPLIED`
+- `BATCH_1_CONFIRMED_COUNT = 17`
+- `COMPLETED_PDM_HARD_CONFLICT = 0`
+- `INCOMING_HANDOFF_GAP = 0`
+- `GLOBAL_INVARIANT_CONFLICT = 0`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+- `PDM-25 incoming handoffs = 24 / 24 HANDOFF_ACCEPTED`
+- Final Closeout 前不得提前关闭 incoming handoff 或 source backwrite；
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
+# 8. 当前唯一下一步
+
+> **PDM-25 Batch 2｜明确废弃 / 已覆盖 / 不得恢复审查。**
