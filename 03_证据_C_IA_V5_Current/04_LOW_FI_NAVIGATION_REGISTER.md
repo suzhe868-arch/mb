@@ -235,6 +235,22 @@ This register is the self-contained current IA authority for action routing. It 
 | C03-03 | 查看 Consultation 终态 | C03-03 | same Consultation projects PROCESSING/COMPLETED/INVALID/CANCELLED/HISTORICAL from employee-side facts; timeout remains reminder only |
 | C02-01 | 查看申请关闭结果 | C02-01 | employee closed/withdrawn pending application projects CANCELLED; no formal Demand is created |
 
+
+<!-- LOW-FI-B4-LOCKREQUEST-NAV-CLOSURE -->
+## Low-Fi Batch 4｜LockRequest V2 Current navigation 索引补齐
+
+| source_page | control | target_page | condition |
+|---|---|---|---|
+| C01-M04 | 确认申请 | C01-01 | revalidate customer identity/phone/view permission/current listing_cycle/no own PENDING LockRequest/idempotency; success creates or reuses LockRequest.PENDING only; never directly creates formal Lock |
+| C01-M04 | 取消返回 | C01-01 | always; create no LockRequest/Lock/Waitlist fact |
+| E07 | 锁车申请 | E07-07 | actor is eligible Mingbang employee with current LockRequest review capability and covering responsibility/data scope; 4S DENY |
+| E07-08 | 同意 | E07-M04 | request=PENDING; server time before expires_at; actor currently eligible; open confirmation only, no Lock yet |
+| E07-M04 | 确认同意 | E07-01 | final submit revalidates PENDING/6h/identity/capability/scope/customer/vehicle/listing_cycle/current lockability/active Lock/idempotency; success atomically creates Lock and sets APPROVED; conflict follows PDM-18 LOCK_CONFLICT→Waitlist rule |
+| E07-M04 | 取消 | E07-08 | no LockRequest/Lock mutation |
+| E07-08 | 拒绝 | E07-M05 | request=PENDING; server time before expires_at; actor currently eligible; open confirmation only |
+| E07-M05 | 确认拒绝 | E07-08 | final submit revalidates PENDING and current actor authority/scope; set REJECTED; create no Lock/Waitlist |
+| E07-M05 | 取消 | E07-08 | request remains PENDING |
+
 ## Phase 1.5 authority note
 
 - This register is the current IA navigation authority for the Phase 1.5-adjusted set.

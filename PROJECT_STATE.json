@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "LOW_FI_GLOBAL_ALIGNMENT_IN_PROGRESS",
+  "substage": "ENGINEERING_READY_TO_START",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "GLOBAL_POST_PDM25",
-  "current_domain_status": "LOW_FI_GLOBAL_ALIGNMENT_IN_PROGRESS_BATCH1_2_3_APPLIED",
+  "current_domain_status": "LOW_FI_GLOBAL_ALIGNMENT_COMPLETE_FINAL_GAP_PASS",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,15 +20,15 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Low-Fi Batch 4｜Final-gap Scan（冲突 / 遗漏 / 缺口 / 新选择）",
-  "current_work_file": "04_证据_D_实际_LowFi/REGISTERS/LOW_FI_PAGE_REGISTER.md",
+  "current_task": "Engineering / 施工",
+  "current_work_file": "05_证据_E_工程总闭环待执行Delta/工程总闭环待执行Delta清单.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
-    "Do not let Low-Fi override or redefine approved PDM-01~25 Final or Current IA semantics",
-    "Do not execute Engineering Delta before Low-Fi global alignment passes",
-    "Preserve retired Low-Fi assets as historical evidence and do not restore them as Current"
+    "Engineering may not override approved PDM-01~25 Final, Current IA, or Current Low-Fi",
+    "RETAIN_FILE_NOT_CURRENT and DO_NOT_RESTORE Low-Fi assets may not return to Current",
+    "Historical implementation must be revalidated before becoming Current engineering behavior"
   ],
   "confirmed_rule_atoms": [
     "P01-A01",
@@ -407,7 +407,8 @@
     "LF-B3-01",
     "LF-B3-02",
     "LF-B3-03",
-    "LF-B3-04"
+    "LF-B3-04",
+    "LF-B4-01"
   ],
   "batch_1_confirmed_count": 15,
   "batch_1_pending_count": 0,
@@ -4645,8 +4646,8 @@
   "historical_tail_cleanup_status": "PASS",
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
-  "lowfi_status": "NO_CONSTRUCTION",
-  "engineering_status": "NO_CONSTRUCTION",
+  "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
+  "engineering_status": "READY_TO_START_NO_CONSTRUCTION",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4669,17 +4670,17 @@
     "local_product_choice_unresolved": 0,
     "pdm_final_business_semantic_change": 0
   },
-  "low_fi_status": "IN_PROGRESS_BATCH1_2_3_APPLIED",
+  "low_fi_status": "COMPLETE_FINAL_GAP_PASS",
   "low_fi_global_alignment": {
-    "status": "IN_PROGRESS",
+    "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
     "batch_1_atoms": "LF-B1-01..LF-B1-07",
     "batch_1_targeted_stale_current": 0,
     "retired_svg_count": 26,
     "ia_post_closeout_carrier_repair": "PASS_NO_PRODUCT_SEMANTIC_CHANGE",
     "local_product_choice_unresolved": 0,
-    "engineering": "NO_CONSTRUCTION",
-    "next": "LOW_FI_BATCH_4_FINAL_GAP_SCAN",
+    "engineering": "READY_TO_START_NO_CONSTRUCTION",
+    "next": "ENGINEERING",
     "batch_2": "PASS_USER_APPROVED_APPLIED",
     "batch_2_atoms": "LF-B2-01..LF-B2-07",
     "batch_2_targeted_stale_current": 0,
@@ -4691,6 +4692,17 @@
     "low_fi_new_state": 0,
     "low_fi_new_svg": 0,
     "ia_stale_carrier_repair": "4_4_PASS_NO_PRODUCT_SEMANTIC_CHANGE",
-    "false_missing_carrier": "E01-01_DO_NOT_ADD"
+    "false_missing_carrier": "E01-01_DO_NOT_ADD",
+    "batch_4": "PASS_USER_APPROVED_APPLIED",
+    "batch_4_atoms": "LF-B4-01",
+    "final_gap_scan": "PASS",
+    "low_fi_business_conflict": 0,
+    "low_fi_valid_missing_carrier": 0,
+    "low_fi_dangling_nav_target": 0,
+    "low_fi_missing_physical_asset": 0,
+    "low_fi_state_asset_gap": 0,
+    "low_fi_incomplete_page": 0,
+    "lockrequest_v2_carrier_index_closure": "5_5_PASS_NO_PRODUCT_SEMANTIC_CHANGE",
+    "retired_asset_count": 26
   }
 }

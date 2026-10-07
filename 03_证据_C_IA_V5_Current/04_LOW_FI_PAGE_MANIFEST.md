@@ -29,7 +29,7 @@
 > Customer 首入不增加强制资料页；Customer Merge 页面全部退出 Current。P04/Handover 必须体现批次与逐对象映射、校验结果、失败项与重试。P05 System Admin 增加后续 Admin 治理入口。4S PC 只保留授权后的 P02 车辆裁剪投影。P02 Vehicle 承载合法人工车 source_type 修改与同 vehicle_id 的一键转名邦。
 
 
-- Current logical Page/Overlay rows: **135** (logical IA carriers; not a physical asset count)
+- Current logical Page/Overlay rows: **140** (logical IA carriers; not a physical asset count)
 - Baseline product SVG assets: **289**
 - Technical auth bootstrap SVG assets outside the product-page table: **4** (`E-AUTH01`, `P-AUTH01`)
 - Unique baseline physical SVG assets: **293**; archive entries: **586** because two package roots contain the same 293 relative assets
@@ -185,6 +185,19 @@ Updated existing NORMAL artifacts only: C01-01, E02-01, E03-01, E03-02, E05-02, 
 | P07-M02 | 意向金冲正 / 更正确认 | NORMAL, DENIED, ERROR | 0 |
 | E07-M03 | pending Refund 撤回 / 关闭确认 | NORMAL, DENIED, ERROR | 0 |
 | P07-M03 | pending Refund 撤回 / 关闭确认 | NORMAL, DENIED, ERROR | 0 |
+
+<!-- LOW-FI-B4-LOCKREQUEST-CARRIER-CLOSURE -->
+## Low-Fi Batch 4｜LockRequest V2 Current carrier 索引补齐
+
+下列 5 个 carrier 均已在实际 Low-Fi Current 中存在完整 SVG / State / Navigation，本节仅把已存在承载回填为 IA Current 索引；**不是新增产品页面、不是新增业务语义、不是新增 SVG**。其 Authority 仍为 PDM-18 / PDM-20 / PDM-21 Final。
+
+| Page ID | Name | Logical Visual States | Current Low-Fi Physical SVG Count |
+|---|---|---|---:|
+| C01-M04 | 锁车申请确认 | NORMAL | 1 |
+| E07-07 | 锁车申请列表 | NORMAL, EMPTY, LOADING | 3 |
+| E07-08 | 锁车申请详情 | PENDING, PROCESSING, APPROVED, REJECTED, EXPIRED, LOCK_CONFLICT, CLOSED_NOT_LOCKABLE, PERMISSION_DENIED, HISTORICAL | 9 |
+| E07-M04 | 同意锁车申请确认 | NORMAL | 1 |
+| E07-M05 | 拒绝锁车申请确认 | NORMAL | 1 |
 
 ## Phase 1.5 IA adjustment overlay
 

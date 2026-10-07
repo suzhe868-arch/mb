@@ -500,6 +500,28 @@ These are UI/IA projections or historical outcomes. They do not create additiona
 | P10-01 / P10-02 | ANNOUNCEMENT_DRAFT / SCHEDULED / ACTIVE / ENDED / REORDERED | NEW4-01 | CRUD, schedule and reorder audited; customer UTC+8 display frequency remains separate |
 | P12-01 / P12-02 | BANNER_REORDERED | fifth-round expansion | Reorder changes presentation only; target/window remain independently validated |
 
+
+<!-- LOW-FI-B4-LOCKREQUEST-STATE-CLOSURE -->
+## Low-Fi Batch 4｜LockRequest V2 Current state 索引补齐
+
+| Page ID | State | Authority basis | Rendering rule |
+|---|---|---|---|
+| C01-M04 | NORMAL | PDM-18 / Current LockRequest | 客户确认申请；最终提交只创建/复用 `LockRequest.PENDING`，不直接创建正式 Lock；取消不产生业务事实 |
+| E07-07 | NORMAL | PDM-18 / PDM-21 LockRequest work queue | 展示 actor 当前责任/范围内有效 LockRequest；可进入 E07-08；显示剩余有效时间 |
+| E07-07 | EMPTY | PDM-18 / PDM-21 LockRequest work queue | 当前范围无可处理 LockRequest；不伪造待办 |
+| E07-07 | LOADING | Generic UI execution state; no domain mutation | 加载中；终止为 NORMAL / EMPTY / error-safe 投影，不显示伪数据 |
+| E07-08 | PENDING | PDM-18 LockRequest lifecycle | 唯一 live 申请态；服务端未过 6h expires_at；可按当前权限与最终 Guard 执行同意/拒绝 |
+| E07-08 | PROCESSING | UI submit execution state over PENDING | approve/reject 提交处理中；防重复提交；不得提前展示 Lock/Waitlist 结果 |
+| E07-08 | APPROVED | PDM-18 LockRequest lifecycle | 正式 Lock 已原子创建成功并关联 `resulting_lock_id`；LockRequest 终态，不回 PENDING |
+| E07-08 | REJECTED | PDM-18 LockRequest lifecycle | 合法员工明确拒绝；终态历史；后续真实申请必须创建新的 LockRequest |
+| E07-08 | EXPIRED | PDM-18 LockRequest lifecycle | PENDING 超过服务端 6h；不可再 approve；终态历史 |
+| E07-08 | LOCK_CONFLICT | PDM-18 LockRequest lifecycle | 其他请求/直接 Lock 抢先形成 active Lock；本申请终态，可关联 `resulting_waitlist_id`；符合条件时系统自动创建/复用 Waitlist，不要求客户再次点击 |
+| E07-08 | CLOSED_NOT_LOCKABLE | PDM-18 LockRequest lifecycle | 最终重验因 sold/offline/unavailable/listing_cycle ended 等非竞争原因不可锁；不创建正式 Lock |
+| E07-08 | PERMISSION_DENIED | PDM-18 authz/scope guard | 当前 actor 无合法审核权限/范围；不执行 approve/reject，不泄露越权字段 |
+| E07-08 | HISTORICAL | PDM-18 LockRequest terminal history | APPROVED/REJECTED/EXPIRED/LOCK_CONFLICT/CLOSED_NOT_LOCKABLE 终态只读历史 |
+| E07-M04 | NORMAL | PDM-18 approve confirmation | 同意确认层；确认时重验 PENDING、6h、identity、capability、scope、Vehicle/listing_cycle/current lockability/active Lock 与幂等键 |
+| E07-M05 | NORMAL | PDM-18 reject confirmation | 拒绝确认层；确认时重验 PENDING 与 actor 当前合法权限/范围；取消保持原 PENDING |
+
 ## V5 canonical state authority
 
 旧的 journey/object 句子拆分型 Canonical State Registry 与 Manifest mirror 已撤销。当前 canonical state dictionary 与 projection contract 分别由 `证据工程V5/IA_V5_CANONICAL_STATE_DICTIONARY.csv`、`证据工程V5/IA_V5_STATE_PROJECTION_CONTRACT.csv` 定义。

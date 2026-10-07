@@ -1,5 +1,13 @@
 # Phase 1.5 IA Changelog
 
+<!-- IA-POST-CLOSEOUT-LF-B4-REPAIR -->
+## 2026-10-08｜Low-Fi Batch 4 Final-gap 反向 carrier 索引补齐
+
+状态：`PASS / CARRIER_INDEX_CLOSURE / NO_PRODUCT_SEMANTIC_CHANGE`
+
+Low-Fi Final-gap Scan 确认实际 Current 中 `C01-M04 / E07-07 / E07-08 / E07-M04 / E07-M05` 已具备完整页面、状态、导航与 SVG，但 IA Page/State/Navigation 索引未完全登记。现按 PDM-18/PDM-20/PDM-21 Final 回填 5 个 carrier 及其 LockRequest V2 状态/确认导航；不新增 Low-Fi 页面、不新增 SVG、不改变 LockRequest 产品规则。最终 IA→Low-Fi 页面引用闭环、Low-Fi 物理资产闭环、导航目标闭环均 PASS。
+
+
 <!-- IA-POST-CLOSEOUT-LF-B3-REPAIR -->
 ## 2026-10-08｜Low-Fi Batch 3 反向发现的 IA stale carrier 修复
 
