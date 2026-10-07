@@ -25,15 +25,15 @@ E02-01,员工车辆详情,PAGE,MODIFY,员工/4S裁剪,14,14,C-O04：关闭图片
 E02-M01,内部模式授权投影 / 敏感动作裁剪,OVERLAY,MODIFY,员工/4S裁剪,7,7,E02-01：进入内部模式；E02-M01：查看名邦内部价；E02-M01：拨打,退出内部模式；查看名邦内部价；编辑；拨打；最新电话,E02-M01,5,退出内部模式→E02-01,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 E02-02,发布 / 编辑人工车辆 / 草稿车源,PAGE,MODIFY,员工/4S裁剪,10,10,C-O04：关闭图片预览；E02：发布车辆；E02：更多→草稿车源；E02-02：自动保存,查看车辆图片；自动保存；查看草稿列表；继续编辑目标草稿；正式发布目标草稿；删除纯草稿,C-O04,8,返回 E02 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,VIEW_CONTEXT
 E02-05,编辑（批发源数据只读）,PAGE,MODIFY,员工/4S裁剪,1,1,E02-M01：编辑,修改 source_type,—,1,返回 E02 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
-E02-03,选择客户 / 推荐,PAGE,MODIFY,员工/4S裁剪,1,1,E02-01：推荐给客户,确认正式推荐；取消推荐,—,2,取消推荐→E02-01,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
+E02-03,选择客户 / 推荐,PAGE,MODIFY,名邦员工（4S成员 DENY）,1,1,E02-01：推荐给客户,确认正式推荐；取消推荐,—,2,取消推荐→E02-01,Recommendation mutation 读取当前合法业务 responsible；4S Employee hard DENY；source_type=4S Vehicle 本身可被合法名邦负责销售推荐,COMPLETE,SINGLE_DEFAULT
 E02-04,选择客户 / 锁车,PAGE,MODIFY,员工/4S裁剪,1,1,E02-01：锁车；E07-02：人工重新确认并发起 Lock,确认创建 Lock；取消,—,2,取消→E02-01,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 E03,客户【一级 Tab】,PAGE,KEEP,员工/4S裁剪,5,5,员工端一级 Tab / 启动结构入口,只读/结构入口,—,0,系统级返回/一级导航切换；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 E03-01,客户详情【CRM 中心枢纽】,PAGE,MODIFY,员工/4S裁剪,4,4,E03-05：取消推荐；E03-06：取消；E08：认领客户,记录跟进；找车服务；推荐车辆；锁车；查看业务历史,—,7,返回 E03 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 E03-02,客户画像,PAGE,MODIFY,员工/4S裁剪,1,1,E03-02 / P06-03：新增/更新本人 Personal Note；E03-02 / P06-03：更新 Shared Profile；E03-02 / P06-03：新增/更新员工内部客户称呼 / 服务称呼；E03-02：客户画像摘要复制,新增/更新本人 Personal Note；更新 Shared Profile；新增/更新员工内部客户称呼 / 服务称呼；客户画像摘要复制,—,4,返回 E03 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 E03-03,客户跟进时间线,PAGE,MODIFY,员工/4S裁剪,1,1,E03-01：记录跟进；E06-02：记录真实跟进；P06-11：记录真实跟进,只读/结构入口,—,0,返回 E03 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
-E03-04,客户业务历史,PAGE,MODIFY,员工/4S裁剪,5,5,E03-01：查看业务历史；E02-03：确认正式推荐；E03-05：确认正式推荐,结束 Recommendation；作废 Recommendation；查看 cycle 结束后的推荐历史,—,3,返回 E03 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
+E03-04,客户业务历史,PAGE,MODIFY,名邦员工（4S成员 DENY）,5,5,E03-01：查看业务历史；E02-03：确认正式推荐；E03-05：确认正式推荐,结束 Recommendation；作废 Recommendation；查看 cycle 结束后的推荐历史,—,3,返回 E03 页面组；不产生业务事实,Recommendation mutation 读取当前合法业务 responsible；4S Employee hard DENY；历史只读仍服从当前 CRM access,COMPLETE,SINGLE_DEFAULT
 E03-05,从客户推荐车辆,PAGE,MODIFY,名邦员工（4S成员 DENY）,1,1,E01-04：推荐给客户；E03-01：推荐车辆；E05-05：正式推荐,确认正式推荐；取消推荐,—,2,取消推荐→E03-01,按 IA V5 Permission Contract；4S member 不进入名邦 CRM/找车/咨询/Lock/Transaction；提交时重验 permission + scope + object state,COMPLETE,SINGLE_DEFAULT
-E03-06,从客户锁车,PAGE,MODIFY,员工/4S裁剪,1,1,E03-01：锁车,确认创建 Lock；取消,—,2,取消→E03-01,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
+E03-06,从客户锁车 / 选择车辆,PAGE,MODIFY,名邦员工（4S成员 DENY）,1,1,E03-01：锁车,选择 Vehicle 并进入锁车确认；取消,—,2,取消→E03-01,CRM 不直接创建 Lock；必须先形成合法 Customer + Vehicle 上下文，再进入统一 Lock Guard / E02-04 确认,COMPLETE,SINGLE_DEFAULT
 E04,我的【一级 Tab】,PAGE,MODIFY,员工/4S裁剪,1,2,E04：查看合作身份与本人 4S 管理范围,查看合作身份与本人 4S 管理范围,—,1,系统级返回/一级导航切换；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,ROLE_CONTEXT
 E05,找车服务【业务模块】,PAGE,KEEP,名邦员工（4S成员 DENY）,1,1,E03-01：找车服务,只读/结构入口,—,0,返回来源页；不产生业务事实,按 IA V5 Permission Contract；4S member 不进入名邦 CRM/找车/咨询/Lock/Transaction；提交时重验 permission + scope + object state,COMPLETE,SINGLE_DEFAULT
 E05-01,找车申请 / 意向列表,PAGE,KEEP,名邦员工（4S成员 DENY）,3,3,E05 页面组内结构入口（继承旧 Low-Fi 层级）,只读/结构入口,—,0,返回 E05 页面组；不产生业务事实,按 IA V5 Permission Contract；4S member 不进入名邦 CRM/找车/咨询/Lock/Transaction；提交时重验 permission + scope + object state,COMPLETE,SINGLE_DEFAULT
@@ -50,7 +50,7 @@ E07-01,正式锁车,PAGE,MODIFY,员工/4S裁剪,5,5,E02-01：锁车；E03-01：�
 E07-02,候补,PAGE,MODIFY,员工/4S裁剪,4,4,E07-02：结束候补；E07-02：收到 Lock 释放后的候补待办；E07-02：车辆不可锁,结束候补；收到 Lock 释放后的候补待办；人工重新确认并发起 Lock；车辆不可锁,—,4,返回 E07 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 E07-03,交易,PAGE,MODIFY,员工/4S裁剪,5,5,E07-01：开始交易；E07-03：成交；E07-03：取消交易,成交；取消交易；取消交易后的车辆投影,—,3,取消交易→E07-03；取消交易后的车辆投影→E07-03 / E02-01,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 E07-04,意向金,PAGE,MODIFY,员工/4S裁剪,3,3,E07-01：记录意向金；E07-M02：确认追加冲正/更正；E07-M02：取消,追加冲正/更正,E07-M02,1,返回 E07 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
-E07-05,退款,PAGE,MODIFY,员工/4S裁剪,5,5,E07-05：记录实际退款；E07-05：创建退款单；E07-M03：确认撤回/关闭,记录实际退款；创建退款单；撤回/关闭 pending Refund；Refund 状态后的车辆投影,E07-M03,4,撤回/关闭 pending Refund→E07-M03,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
+E07-05,退款,PAGE,MODIFY,员工/4S裁剪,5,5,E07-05：记录实际退款；E07-05：创建退款单；E07-M03：确认关闭 pending Refund,记录实际退款；创建退款单；关闭 pending Refund；Refund 状态后的车辆投影,E07-M03,4,关闭 pending Refund→E07-M03,Refund 主状态=pending/refunded/closed；closed 必须 close_reason；不新增专门 close permission/审批,COMPLETE,SINGLE_DEFAULT
 E07-06,业务关联视图 / 时间线,PAGE,MODIFY,员工/4S裁剪,3,3,E07 页面组内结构入口（继承旧 Low-Fi 层级）,只读/结构入口,—,0,返回 E07 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 E08,公海【业务模块】,PAGE,MODIFY,员工/4S裁剪,3,3,员工端业务模块入口（继承旧 Low-Fi 层级）,认领客户,—,1,返回来源页；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 E08-01,公海客户详情,PAGE,KEEP,员工/4S裁剪,1,1,E08 页面组内结构入口（继承旧 Low-Fi 层级）,只读/结构入口,—,0,返回 E08 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
@@ -84,7 +84,6 @@ P06-03,客户画像,PAGE,MODIFY,PC/后台,5,5,E03-02 / P06-03：新增/更新本
 P06-04,客户跟进时间线,PAGE,MODIFY,PC/后台,4,4,P06-03 / P06-04：建立 Collaboration；P06-03 / P06-04：结束 Collaboration；P06-02：owner 变化后的 Collaboration 处理,建立 Collaboration；结束 Collaboration,—,2,返回 P06 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 P06-05,公海,PAGE,MODIFY,PC/后台,7,7,P06-05：放入公海,放入公海；指定分配公海客户,—,2,返回 P06 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 P06-06,客户等级 / 标签 / 业务权益,PAGE,MODIFY,PC/后台,1,1,P06 页面组内结构入口,维护 Customer Level；维护标签；维护等级 entitlement / quota 配置,—,3,返回 P06 页面组；不产生业务事实,Recommendation 资格不独立配置；读取 Customer Level 当前 find-car entitlement,COMPLETE,SINGLE_DEFAULT
-P06-07,客户机会规则,PAGE,MODIFY,PC/后台,1,1,P06 页面组内结构入口（继承旧 Low-Fi 层级）,只读/结构入口,—,0,返回 P06 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 P06-08,找车申请 / 待确认申请,PAGE,KEEP,PC/后台,1,1,P06 页面组内结构入口（继承旧 Low-Fi 层级）,只读/结构入口,—,0,返回 P06 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 P06-09,正式 demand,PAGE,MODIFY,PC/后台,1,1,P06 页面组内结构入口,只读/结构入口,—,0,返回 P06 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 P06-10,匹配词典 / 规则词典【精简】,PAGE,KEEP,PC/后台,4,4,P06 页面组内结构入口（继承旧 Low-Fi 层级）,只读/结构入口,—,0,返回 P06 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
@@ -94,7 +93,7 @@ P07-01,锁车,PAGE,MODIFY,PC/后台,9,9,E07-M01：确认释放/取消；E07-M01�
 P07-02,候补,PAGE,MODIFY,PC/后台,6,6,P07-01：取消创建 Lock；P07-02：结束候补；P07-02：车辆不可锁,结束候补；人工重验并发起 Lock；车辆不可锁,—,3,返回 P07 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 P07-03,意向金,PAGE,MODIFY,PC/后台,6,6,P07-01：记录意向金；P07-03：记录实际意向金；P07-M02：确认追加冲正/更正,记录实际意向金；追加冲正/更正,P07-M02,2,返回 P07 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 P07-04,交易,PAGE,MODIFY,PC/后台,8,8,P07-01：开始交易；P07-04：创建交易；P07-04：首次完成交易,创建交易；首次完成交易；取消交易；校验交易/交付材料,—,4,取消交易→P07-04,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
-P07-05,退款,PAGE,MODIFY,PC/后台,6,6,P07-05：创建退款单；P07-05：记录实际退款；P07-M03：确认撤回/关闭,创建退款单；记录实际退款；撤回/关闭 pending Refund,P07-M03,3,撤回/关闭 pending Refund→P07-M03,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
+P07-05,退款,PAGE,MODIFY,PC/后台,6,6,P07-05：创建退款单；P07-05：记录实际退款；P07-M03：确认关闭 pending Refund,创建退款单；记录实际退款；关闭 pending Refund,P07-M03,3,关闭 pending Refund→P07-M03,Refund 主状态=pending/refunded/closed；closed 必须 close_reason；不新增专门 close permission/审批,COMPLETE,SINGLE_DEFAULT
 P07-06,成交撤销 / 纠错,PAGE,MODIFY,PC/后台,4,4,P07-M01：确认成交撤销/纠错；P07-M01：取消,成交撤销/纠错,P07-M01,1,返回 P07 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 P08,价格 / 查价规则,PAGE,MODIFY,PC/后台,1,1,P08：设置客户展示价覆盖；P08：取消客户展示价覆盖,设置客户展示价覆盖；取消客户展示价覆盖,—,2,取消客户展示价覆盖→P08,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 P08-01,批发客户展示价 / 阶梯加价,PAGE,MODIFY,PC/后台,7,7,P08-01：启用阶梯规则；P08-01：新建/修改/保存阶梯价格规则,启用阶梯规则；新建/修改/保存阶梯价格规则,—,2,返回 P08 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
@@ -108,7 +107,7 @@ P09-03,夜间免打扰,PAGE,MODIFY,PC/后台,2,2,P09-01 / P09-02 / P09-03：配�
 P09-04,通知日志 / 失败记录,PAGE,MODIFY,PC/后台,8,8,P09-04：查看发送结果,查看发送结果,—,1,返回 P09 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 P10,客户小程序公告,PAGE,KEEP,PC/后台,1,1,PC 左侧导航（继承旧 Low-Fi 层级）,只读/结构入口,—,0,系统级返回/一级导航切换；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 P10-01,公告列表,PAGE,MODIFY,PC/后台,8,8,P10-02：启用/停用公告；P10-01 / P10-02：新建/编辑/保存/排期/排序公告,新建/编辑/保存/排期/排序公告,—,1,返回 P10 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
-P10-02,新建 / 编辑公告,PAGE,MODIFY,PC/后台,1,1,P10-01 / P10-02：新建/编辑/保存/排期/排序公告,启用/停用公告；新建/编辑/保存/排期/排序公告,—,2,返回 P10 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
+P10-02,新建 / 编辑公告,PAGE,MODIFY,PC/后台,1,1,P10-01 / P10-02：新建/编辑/保存/排期/排序公告,启用/停用公告；设置 auto-popup；新建/编辑/保存/排期/排序公告,—,3,返回 P10 页面组；不产生业务事实,auto-popup 独立于 Announcement active；主动弹层按同一 Customer 每 UTC+8 自然日全局最多 1 条,COMPLETE,SINGLE_DEFAULT
 P12,Banner / 运营位管理,PAGE,KEEP,PC/后台,1,1,PC 左侧导航（继承旧 Low-Fi 层级）,只读/结构入口,—,0,系统级返回/一级导航切换；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 P12-01,Banner 列表,PAGE,MODIFY,PC/后台,5,5,P12-02：保存/启用 Banner；P12-01：启用/停用；P12-M01：确认启用/停用,启用/停用；调整 Banner 排序,P12-M01,2,返回 P12 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 P12-02,新建 / 编辑 Banner,PAGE,MODIFY,PC/后台,3,3,P12 页面组内结构入口（继承旧 Low-Fi 层级）,保存/启用 Banner；保存 placement；调整 Banner 排序,—,3,返回 P12 页面组；不产生业务事实,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
@@ -125,8 +124,8 @@ C01-M03,分享 / 直接转介绍结果与来源归属说明,OVERLAY,ADD,客户,6
 E06-M01,Consultation 转派确认,OVERLAY,ADD,名邦员工（4S成员 DENY）,3,3,E06-02：转派；P06-11：转派,确认转派；取消,—,2,取消→E06-02 / P06-11,按 IA V5 Permission Contract；4S member 不进入名邦 CRM/找车/咨询/Lock/Transaction；提交时重验 permission + scope + object state,COMPLETE,SINGLE_DEFAULT
 E07-M02,意向金冲正 / 更正确认,OVERLAY,ADD,员工/4S裁剪,3,3,E07-04：追加冲正/更正,确认追加冲正/更正；取消,—,2,取消→E07-04,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
 P07-M02,意向金冲正 / 更正确认,OVERLAY,ADD,PC/后台,3,3,P07-03：追加冲正/更正,确认追加冲正/更正；取消,—,2,取消→P07-03,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
-E07-M03,pending Refund 撤回 / 关闭确认,OVERLAY,ADD,员工/4S裁剪,3,3,E07-05：撤回/关闭 pending Refund,确认撤回/关闭；取消,—,2,确认撤回/关闭→E07-05；取消→E07-05,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
-P07-M03,pending Refund 撤回 / 关闭确认,OVERLAY,ADD,PC/后台,3,3,P07-05：撤回/关闭 pending Refund,确认撤回/关闭；取消,—,2,确认撤回/关闭→P07-05；取消→P07-05,按 IA V5 Permission/Guard；UI 可见不等同授权,COMPLETE,SINGLE_DEFAULT
+E07-M03,pending Refund 关闭确认,OVERLAY,ADD,员工/4S裁剪,3,3,E07-05：关闭 pending Refund,确认关闭；取消,—,2,确认关闭→E07-05；取消→E07-05,当前合法 Refund 处理人 + 现有适用 refund/funds permission + data scope；必须 close_reason；不新增专门 close permission/审批,COMPLETE,SINGLE_DEFAULT
+P07-M03,pending Refund 关闭确认,OVERLAY,ADD,PC/后台,3,3,P07-05：关闭 pending Refund,确认关闭；取消,—,2,确认关闭→P07-05；取消→P07-05,当前合法 Refund 处理人 + 现有适用 refund/funds permission + data scope；必须 close_reason；不新增专门 close permission/审批,COMPLETE,SINGLE_DEFAULT
 C01-M04,锁车申请确认,OVERLAY,ADD,客户,1,1,C01-01,确认申请；取消返回,—,2,返回来源页；取消不产生业务事实,客户；按当前有效权限 Delta,COMPLETE,SINGLE_DEFAULT
 E07-07,锁车申请列表,PAGE,ADD,有 Lock 审核能力的名邦员工（4S DENY）,3,3,E01 / E07,打开申请,—,1,返回来源页；取消不产生业务事实,有 Lock 审核能力的名邦员工（4S DENY）；按当前有效权限 Delta,COMPLETE,SINGLE_DEFAULT
 E07-08,锁车申请详情,PAGE,ADD,有 Lock 审核能力的名邦员工（4S DENY）,9,9,E07-07,同意；拒绝,"E07-M04, E07-M05",2,返回来源页；取消不产生业务事实,有 Lock 审核能力的名邦员工（4S DENY）；按当前有效权限 Delta,COMPLETE,SINGLE_DEFAULT
