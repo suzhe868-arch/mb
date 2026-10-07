@@ -1,0 +1,22 @@
+/* H01 设计评审令牌；与设计令牌_候选.json 的 semantic 对齐。H03 另需单独放行。 */
+:root, svg {
+  --semantic-brand-primary: #80611F;
+  --semantic-brand-subtle: #F1E7D1;
+  --semantic-brand-on-primary: #FFFFFF;
+  --semantic-brand-light-metal: #C4A66A;
+  --semantic-surface-canvas: #F8F6F1;
+  --semantic-surface-panel: #FFFFFF;
+  --semantic-surface-soft: #F6F2E9;
+  --semantic-surface-disabled: #EDECE7;
+  --semantic-surface-dark: #25282B;
+  --semantic-foreground-primary: #25282B;
+  --semantic-foreground-secondary: #6B6860;
+  --semantic-foreground-muted: #756F63;
+  --semantic-foreground-inverse: #FFFFFF;
+  --semantic-border-subtle: #E5E0D7;
+  --semantic-border-strong: #C5BBA9;
+  --semantic-feedback-success: #176A45;
+  --semantic-feedback-warning: #995A13;
+  --semantic-feedback-danger: #B42318;
+  --semantic-feedback-focus: #2563EB;
+}
