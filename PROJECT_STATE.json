@@ -3201,7 +3201,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "PDM-01～25 全局 Cross-PDM / Handoff / Global Invariant 最终总复核",
+  "next_action": "IA 全局集中对齐",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4634,7 +4634,7 @@
   "pdm_25_final_closeout": "COMPLETE",
   "pdm_25_user_final_approved": true,
   "pdm_25_source_backwrite": "24_24_DONE",
-  "global_pdm01_25_final_audit_status": "PENDING",
+  "global_pdm01_25_final_audit_status": "PASS",
   "product_baseline": "NOT_READY",
   "global_pdm01_25_final_integrity_audit": "PASS",
   "global_lia_01_04": "USER_APPROVED_APPLIED",
