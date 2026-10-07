@@ -169,12 +169,12 @@
 | E03-02 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | E03-03 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | E03-04 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
-| E03-04 | RECOMMENDATION_ACTIVE | Underlying active Recommendation fact | 仅 current owner 可按已确认边界结束/作废本人负责客户的有效 Recommendation |
+| E03-04 | RECOMMENDATION_ACTIVE | PDM-14 Recommendation | current legal business responsible may end/void under current permission/capability + scope + object-state Guard; 4S Employee hard DENY; source_type=4S Vehicle itself is not denied |
 | E03-04 | RECOMMENDATION_ENDED | Manual end or listing_cycle end | 终止当前有效性并保留历史；资格恢复不复活 |
 | E03-04 | RECOMMENDATION_VOID | Current owner voided incorrect object | 记录原因、操作者、时间；重建新对象，不覆盖旧事实 |
 | E03-04 | HISTORICAL | Underlying customer business history | Recommendation 终态和 cycle 历史只读 |
 | E03-05 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
-| E03-06 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
+| E03-06 | NORMAL | PDM-16/PDM-18 Lock entry boundary | CRM context fixes Customer only; select a real Vehicle/listing_cycle first, then enter common Lock confirmation; this page never creates Lock directly |
 | E04 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | E05 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | E05-01 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
@@ -237,10 +237,10 @@
 | E07-04 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | E07-04 | EMPTY | Generic UI execution state; no domain mutation | 真实空态 + 合法下一步 |
 | E07-04 | ERROR | Generic UI execution state; no domain mutation | 加载/提交失败 + 重试 |
-| E07-05 | PROCESSING | Underlying SSOT/IA business state/history/recovery fact | 处理中，防重复提交 |
-| E07-05 | COMPLETED | Underlying SSOT/IA business state/history/recovery fact | 业务已完成/终态只读 |
+| E07-05 | PENDING | PDM-19 Refund lifecycle | 退款尚未真实发生；可继续按当前权限确认实际退款或以 close_reason 关闭；不占车 |
+| E07-05 | REFUNDED | PDM-19 Refund lifecycle | 真实退款事实已发生；保留金额/操作者/时间/来源与多笔退款历史；不等于 closed |
 | E07-05 | CLOSED | D11 pending Refund close/withdraw fact | 已关闭但未退款；保留原因、操作者、时间，不占车 |
-| E07-05 | HISTORICAL | Underlying Refund history | pending/completed/closed 均保留来源与多笔事实；车辆可锁性另按正常 guard |
+| E07-05 | HISTORICAL | Underlying Refund history | pending/refunded/closed 均保留来源与多笔事实；车辆可锁性另按正常 guard |
 | E07-05 | ERROR | Generic UI execution state; no domain mutation | 加载/提交失败 + 重试 |
 | E07-06 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | E07-06 | HISTORICAL | Underlying SSOT/IA business state/history/recovery fact | 历史只读安全投影 |
@@ -300,7 +300,6 @@
 | P06-05 | EMPTY | Generic UI execution state; no domain mutation | 真实空态 + 合法下一步 |
 | P06-05 | DISABLED | Generic UI execution state; no domain mutation | 前置条件不满足，展示阻断原因 |
 | P06-05 | PERMISSION_DENIED | Generic UI execution state; no domain mutation | 无权限，不泄露受保护字段 |
-| P06-07 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | P06-08 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | P06-09 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | P06-10 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
@@ -329,7 +328,7 @@
 | P07-04 | IN_PROGRESS / COMPLETED / CANCELLED / HISTORICAL | Transaction lifecycle fact | 首次完成独立鉴权；取消不恢复旧 Lock/Waitlist |
 | P07-04 | PERMISSION_DENIED | Transaction action authz/scope guard | 不创建、完成或取消 Transaction |
 | P07-05 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
-| P07-05 | PROCESSING / COMPLETED / CLOSED / HISTORICAL | Refund lifecycle fact | pending/completed/closed 均不占车；CLOSED 不是 refunded |
+| P07-05 | PENDING / REFUNDED / CLOSED / HISTORICAL | PDM-19 Refund lifecycle | pending/refunded/closed 均不占车；CLOSED 不是 refunded；NORMAL/PERMISSION_DENIED 仅为 UI / access projection，不是 Refund 主状态 |
 | P07-05 | PERMISSION_DENIED | Refund action authz/scope guard | 不创建、确认或关闭 Refund |
 | P07-06 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | P07-06 | PROCESSING | Underlying SSOT/IA business state/history/recovery fact | 处理中，防重复提交 |
@@ -397,7 +396,7 @@ These are UI/IA projections or historical outcomes. They do not create additiona
 | E06-02 / P06-11 | REASSIGN_DENIED | Actor lacks authority/scope or target is inactive/ineligible; consultation master state is unchanged |
 | E07-03 / P07-04 | COMPLETE_PERMISSION_DENIED | Only an authorized manager/store manager in scope may first mark completed; transaction remains in progress |
 | E07-04 / P07-03 | CORRECTION_CONFIRM_REQUIRED | Append-only deposit correction requires funds-correction authority, reason and audit |
-| E07-05 / P07-05 | REFUND_PENDING_CLOSE_AVAILABLE | Authorized manager/store manager may withdraw/close an unexecuted pending refund with reason |
+| E07-05 / P07-05 | REFUND_PENDING_CLOSE_AVAILABLE | current legal Refund handler may close an unexecuted pending Refund when existing applicable refund/funds permission + data scope are satisfied; close_reason required; no dedicated close permission/approval |
 | E07-05 / P07-05 | REFUND_CLOSED_NOT_REFUNDED | Historical display after withdrawal/closure; it is not `refunded` and does not change vehicle occupancy |
 | C01-M01 / C01-01 | PRICE_CHECK_FAILED_NO_DEBIT | Failure/timeout does not debit quota; retry is idempotent; no internal wholesale price is exposed |
 | P08-04 / P02-07 | NEW_CYCLE_OVERRIDE_NOT_INHERITED | Old manual display-price override ended with old listing cycle |
@@ -431,7 +430,7 @@ These are UI/IA projections or historical outcomes. They do not create additiona
 | P07-M01 | NORMAL | HO-07 correction confirmation | P07-06 进入；确认追加纠错并回 P07-06/P02-07，取消无变更 |
 | E06-M01 | NORMAL / DENIED / ERROR | D5 Consultation reassignment | E06-02 进入；确认后回 E06-02；拒绝/错误不改变 Consultation |
 | E07-M02 / P07-M02 | NORMAL / DENIED / ERROR | D10 Deposit correction | E07-04/P07-03 进入；确认追加事实；取消/拒绝不改变 Deposit |
-| E07-M03 / P07-M03 | NORMAL / DENIED / ERROR | D11 Refund close | E07-05/P07-05 进入；确认形成 CLOSED_NOT_REFUNDED；取消保持 pending |
+| E07-M03 / P07-M03 | NORMAL / DENIED / ERROR | PDM-19 Refund close | E07-05/P07-05 进入；确认形成 CLOSED；必须 close_reason；取消保持 pending；不新增专门 close permission/审批 |
 | P12-M01 | NORMAL | D6 Banner lifecycle confirmation | P12-01 进入；确认/取消均回 P12-01；无效目标不得启用导航 |
 | E02-M01 | AUTHORIZED | DP-05; Step4 E02/S4-C15 | 仅代表 active Mingbang employee 通过身份/范围校验；各字段/动作继续独立鉴权；退出回 E02-01 |
 | E02-M01 | PERMISSION_DENIED | DP-05 | 保持客户安全详情，不返回内部价/电话/VIN；退出回 E02-01 |
@@ -441,8 +440,8 @@ These are UI/IA projections or historical outcomes. They do not create additiona
 | E05-05 | PRIORITY_ENDED | HR-02/03 | 到期/释放/Lock 接管等结束后恢复底层可见性；hidden 仍不回公共 Feed |
 | E07-02 / C03-04 | WAITLIST_RELEASE_REVIEW | HO-06 | Waitlist never occupies the vehicle; after prior Lock release notify responsibility, then manual recheck may enter normal Lock; never auto-promote |
 | E07-03 / C03-05 | TRANSACTION_CANCELLED | HO-05 | Transaction 终止并历史化；旧 Lock/候补不复活；车辆资格按真实车源、current cycle、其他占用重算 |
-| E07-05 / C03-05 | REFUND_PENDING | HO-04/D11 | 单 pending、余额和客户一致；不占车；等待授权经理/店长完成或关闭 |
-| E07-05 / C03-05 | REFUND_COMPLETED | HO-04/D4 | 实际退款事实已确认；保留来源/金额；不单独改变车辆可锁性 |
+| E07-05 / C03-05 | REFUND_PENDING | PDM-19 | 单 pending、余额和客户一致；不占车；等待具有现有适用 refund/funds permission + scope 的合法 actor 处理 |
+| E07-05 / C03-05 | REFUND_REFUNDED | PDM-19 | 实际退款事实已确认；保留来源/金额/操作者/时间；不单独改变车辆可锁性 |
 | E07-05 / C03-05 | REFUND_CLOSED_NOT_REFUNDED | D11 | 未执行 pending 已关闭；不是 refunded，不占车；后续走正常 Lock/Transaction guard |
 | E02-01 / P02-07 | LISTING_CYCLE_ENDED | Step5 C15/V05; Step7 Listing Cycle | 真实下架结束旧 cycle；隐藏不触发 |
 | E02-01 / P02-07 | RELIST_NEW_CYCLE | Step5 C15/V05; D8 | 同车真实再上架创建新 cycle；旧覆盖价不继承；普通 relist 不重抓冻结图片 |
