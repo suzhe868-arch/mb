@@ -1,0 +1,52 @@
+name: F01 基础构建与真实 PostgreSQL 验证
+on:
+  push:
+    branches: [feat/f01-foundation]
+  workflow_dispatch:
+jobs:
+  foundation:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: f01_foundation
+          POSTGRES_USER: f01_ci
+          POSTGRES_PASSWORD: f01_disposable_only_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U f01_ci -d f01_foundation"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      APP_ENV: test
+      NODE_ENV: test
+      F01_TEST_DB_CONSENT: I_CONFIRM_ISOLATED_TEST_DATABASE
+      F01_TEST_DB_DISPOSABLE: yes
+      DATABASE_URL: postgres://f01_ci:f01_disposable_only_ci@127.0.0.1:5432/f01_foundation
+    defaults:
+      run:
+        working-directory: engineering
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: 工具链实际版本
+        run: |
+          node --version
+          npm --version
+      - name: 冻结依赖安装
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: 预检、安全、依赖、构建与基础回归
+        run: npm run check
+      - name: PostgreSQL 实际连接、失败与进程入口回归
+        run: npm run test:postgres
+      - name: 同一进程断库与恢复
+        run: npm run test:db-recovery
