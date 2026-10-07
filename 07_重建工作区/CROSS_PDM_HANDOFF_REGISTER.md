@@ -6,6 +6,13 @@
 > 方法 Authority：`00_先读/01_产品基线重建执行规范_冻结工作版.md` Gate 11。  
 > 注意：本文件管理“任务状态与承接关系”，不凭自身创造新的产品业务规则；产品 Authority 仍来自用户裁决、PDM Final 与 Decision Register。
 
+## IA Batch 2 + 3 Carrier Closeout
+
+- 2026-10-08：`IA-B2-01～19` 与 `IA-B3-01～30` 已由用户“全部同意，确认执行”后落库。
+- 本轮直接关闭可明确映射的 stale carrier：`104` 条，状态=`CARRIER_CLOSED_IA_BATCH23`。
+- 保留未直接覆盖的 carrier 进入 Batch 4 Final-gap Scan，不为追求数字清零强制关闭。
+- Low-Fi / Engineering：继续 `NO_CONSTRUCTION`。
+
 ## IA 全局集中对齐执行状态
 
 - 2026-10-08：IA Batch 1 已执行，PDM-01～04 对应 16 条 stale carrier 已关闭为 `CARRIER_CLOSED_IA_BATCH1`。
@@ -74,7 +81,7 @@
 | P03-LIA-06 | PDM-10 已完成分享 / 查价权，但 PDM-03 仍显示待后续 | RESOLVED / HANDOFF_CLOSED |
 | P03-LIA-07 | 公司客户历史访问边界未进入 Final | RESOLVED |
 | P03-LIA-08 | Customer 停用 / 恢复对 owner 连续性未同步 | RESOLVED |
-| P03-LIA-09 | 首次无 owner / SOURCE_ONLY / 转介绍入口 / handover 通用壳等 stale carrier | RESOLVED / CARRIER_DEFERRED |
+| P03-LIA-09 | 首次无 owner / SOURCE_ONLY / 转介绍入口 / handover 通用壳等 stale carrier | RESOLVED / CARRIER_CLOSED_IA_BATCH23 |
 
 审计报告：`PDM-03_历史最终版完整性复核_2026-10-05.md`。
 
@@ -91,7 +98,7 @@
 | P04-LIA-07 | PDM-05 / PDM-06 等已完成目标未反向关闭 | RESOLVED / STALE_HANDOFF_CLEANED |
 | P04-LIA-08 | car_code 与 PDM-09 publisher identity 电话定位边界未显式隔离 | RESOLVED / HANDOFF_CLOSED |
 | P04-LIA-09 | JYT 三个固定业务 API 及 PDM-22 / PDM-23 handoff 未正式登记 | RESOLVED / HANDOFF_OPEN_REGISTERED |
-| P04-LIA-10 | 双 Vehicle、旧粗粒度 normal-only Guard、旧 conversion relation 等 carrier stale | RESOLVED / CARRIER_DEFERRED |
+| P04-LIA-10 | 双 Vehicle、旧粗粒度 normal-only Guard、旧 conversion relation 等 carrier stale | RESOLVED / CARRIER_CLOSED_IA_BATCH23 |
 | P04-LIA-11 | Supply Anomaly 是否统一阻断新增业务 | RESOLVED / USER_DECISION_B |
 
 用户最终裁决 P04-LIA-11：**Supply Anomaly 本身只作为风险告警，不统一阻断新增业务；真实 `offline / unavailable` 才按不可售事实硬阻断新增普通销售业务。**
@@ -108,7 +115,7 @@ PDM-04 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | P05-LIA-04 | “后台 Admin”与 PDM-02 System Admin 身份发生歧义 | RESOLVED / USER_DECISION_4A |
 | P05-LIA-05 | 车型主档纠错后已发布车辆固定属性当前值与历史快照边界未闭环 | RESOLVED / USER_DECISION_5A |
 | P05-LIA-06 | PDM-12/20/21/22/25 future handoff 未正式进入总账 | RESOLVED / HANDOFF_OPEN_REGISTERED |
-| P05-LIA-07 | IA/Low-Fi 仍有 name-match、no-model-creation、四级年款、pending=unknown 等 stale carrier | RESOLVED / CARRIER_DEFERRED |
+| P05-LIA-07 | IA/Low-Fi 仍有 name-match、no-model-creation、四级年款、pending=unknown 等 stale carrier | RESOLVED / CARRIER_CLOSED_IA_BATCH23 |
 
 用户最终裁决：
 
@@ -126,7 +133,7 @@ PDM-05 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | P06-LIA-03 | PDM-08 已完整承接人工车 0 图/补图/删图规则，但未登记闭环 | RESOLVED / HANDOFF_CLOSED |
 | P06-LIA-04 | PDM-10 已完成价格 supersession，但 Register 未形成正式闭环 | RESOLVED / HANDOFF_CLOSED |
 | P06-LIA-05 | PDM-21/22/25 future handoff 未正式登记 | RESOLVED / HANDOFF_OPEN_REGISTERED |
-| P06-LIA-06 | IA/Low-Fi 仍有 DRAFT_RESUME、旧 MODEL_MISSING return、VIN Gate/保存修改缺失等 stale carrier | RESOLVED / CARRIER_DEFERRED |
+| P06-LIA-06 | IA/Low-Fi 仍有 DRAFT_RESUME、旧 MODEL_MISSING return、VIN Gate/保存修改缺失等 stale carrier | RESOLVED / CARRIER_CLOSED_IA_BATCH23 |
 
 PDM-06 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
@@ -137,7 +144,7 @@ PDM-06 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | P07-LIA-01 | PDM-08 已完成报告/档案图片、出险图片、4S维保图片/H5 与相册隔离承载，但 PDM-07 未反向闭环 | RESOLVED / HANDOFF_CLOSED |
 | P07-LIA-02 | PDM-12/13/14/15/18/19 的车况/档案业务 Guard 未正式进入总账 | RESOLVED / HANDOFF_OPEN_REGISTERED |
 | P07-LIA-03 | PDM-20/21/22/25 的客户端/员工端/配置/审计承接未正式进入总账 | RESOLVED / HANDOFF_OPEN_REGISTERED |
-| P07-LIA-04 | IA/Low-Fi 仍缺 archive maintenance / customer_visible / provenance / 4S archive access / audit 等真实 carrier | RESOLVED / CARRIER_DEFERRED |
+| P07-LIA-04 | IA/Low-Fi 仍缺 archive maintenance / customer_visible / provenance / 4S archive access / audit 等真实 carrier | RESOLVED / CARRIER_CLOSED_IA_BATCH23 |
 
 PDM-07 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
@@ -161,7 +168,7 @@ PDM-08 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | P09-LIA-02 | JYT 返回空号/非法号码时是否覆盖现有有效缓存未显式 | RESOLVED |
 | P09-LIA-03 | 批发→名邦后车辆详情是否继续显示原上游电话未定义 | RESOLVED / USER_DECISION_3A |
 | P09-LIA-04 | PDM-21/22/23/25 future handoff 未正式登记 | RESOLVED / HANDOFF_OPEN_REGISTERED |
-| P09-LIA-05 | IA/Low-Fi/旧实现仍有 Collector 旧方向、publisher_id 泛化、集成权限=电话明文权限等 stale carrier | RESOLVED / CARRIER_DEFERRED |
+| P09-LIA-05 | IA/Low-Fi/旧实现仍有 Collector 旧方向、publisher_id 泛化、集成权限=电话明文权限等 stale carrier | RESOLVED / CARRIER_CLOSED_IA_BATCH23 |
 
 PDM-09 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
@@ -173,7 +180,7 @@ PDM-09 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | P10-LIA-02 | M11-001 `DAILY_PRICE_QUOTA_EXHAUSTED → 联系顾问` 未进入 Final，且与“查看价格 / 价格咨询”状态未严格分层 | RESOLVED |
 | P10-LIA-03 | UNLIMITED 与当天临时追加额度关系未定义 | RESOLVED / USER_DECISION_3A |
 | P10-LIA-04 | PDM-14/18/20/21/22/25 future handoff 未按正式状态机登记 | RESOLVED / HANDOFF_OPEN_REGISTERED |
-| P10-LIA-05 | 价格域 Current/Low-Fi 仍有 4S internal mode、旧调价、override、quota/level config 等 stale carrier | RESOLVED / CARRIER_DEFERRED |
+| P10-LIA-05 | 价格域 Current/Low-Fi 仍有 4S internal mode、旧调价、override、quota/level config 等 stale carrier | RESOLVED / CARRIER_CLOSED_IA_BATCH23 |
 
 PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
@@ -540,17 +547,17 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 | 来源 | stale carrier | 状态 |
 |---|---|---|
-| PDM-20 | Current 正常首入“暂不 owner”旧语义 | CARRIER_DEFERRED |
-| PDM-20 | 旧默认定位城市 / 700km 自动扩展 / 综合排序 | CARRIER_DEFERRED |
-| PDM-20 | 旧“我要这辆车”混合 Consultation / Lock 入口 | CARRIER_DEFERRED |
-| PDM-20 | Consultation `CANCELLED` 第五主状态 carrier | CARRIER_DEFERRED |
-| PDM-20 | Priority 自动授 Customer visibility / 客户端 Priority 内部术语 | CARRIER_DEFERRED |
-| PDM-20 | LIMITED 二次点击“查看价格”旧流程 | CARRIER_DEFERRED |
-| PDM-20 | Waitlist 保证排名 / 自动晋升；LockRequest 手动再候补/独立进度/主动撤回 | CARRIER_DEFERRED |
-| PDM-20 | C03 多页面通用壳 / 主导航缺失 | CARRIER_DEFERRED |
-| PDM-20 | Vehicle Detail 顾问/档案/车况/服务说明/顶部导航/价格格式等 Current 投影不足 | CARRIER_DEFERRED |
-| PDM-20 | Announcement / Banner Current carrier 不完整 | CARRIER_DEFERRED |
-| PDM-20 | PDM-19 Refund closed / correction / change-car 客户端交易资金旧壳 | CARRIER_DEFERRED |
+| PDM-20 | Current 正常首入“暂不 owner”旧语义 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-20 | 旧默认定位城市 / 700km 自动扩展 / 综合排序 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-20 | 旧“我要这辆车”混合 Consultation / Lock 入口 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-20 | Consultation `CANCELLED` 第五主状态 carrier | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-20 | Priority 自动授 Customer visibility / 客户端 Priority 内部术语 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-20 | LIMITED 二次点击“查看价格”旧流程 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-20 | Waitlist 保证排名 / 自动晋升；LockRequest 手动再候补/独立进度/主动撤回 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-20 | C03 多页面通用壳 / 主导航缺失 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-20 | Vehicle Detail 顾问/档案/车况/服务说明/顶部导航/价格格式等 Current 投影不足 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-20 | Announcement / Banner Current carrier 不完整 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-20 | PDM-19 Refund closed / correction / change-car 客户端交易资金旧壳 | CARRIER_CLOSED_IA_BATCH23 |
 | PDM-01 | 首次进入不形成 owner 的旧承载 | CARRIER_CLOSED_IA_BATCH1 |
 | PDM-01 | 客户分享永久 SOURCE_ONLY | CARRIER_CLOSED_IA_BATCH1 |
 | PDM-01 | Customer Merge / merge flow | CARRIER_CLOSED_IA_BATCH1 |
@@ -558,9 +565,9 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | PDM-02 | P05 System Admin 缺真实“新增 System Admin”动作入口 | CARRIER_CLOSED_IA_BATCH1 |
 | PDM-02 | 4S internal vehicle-management 被旧 not-4S Guard 整体挡住 | CARRIER_CLOSED_IA_BATCH1 |
 | PDM-02 | 旧 vehicle.convert_mingbang 独立 permission | CARRIER_CLOSED_IA_BATCH1 |
-| PDM-02 | 旧独立调价 permission / action | CARRIER_DEFERRED |
+| PDM-02 | 旧独立调价 permission / action | CARRIER_CLOSED_IA_BATCH23 |
 | PDM-02 | P04 / handoff 页面仍是通用壳 | CARRIER_CLOSED_IA_BATCH1 |
-| PDM-02 | permission 文案与 PDM-10 当前价格模型不一致 | CARRIER_DEFERRED |
+| PDM-02 | permission 文案与 PDM-10 当前价格模型不一致 | CARRIER_CLOSED_IA_BATCH23 |
 | PDM-03 | 首次进入无 owner 的旧首入投影 | CARRIER_CLOSED_IA_BATCH1 |
 | PDM-03 | 客户侧分享固定 SOURCE_ONLY | CARRIER_CLOSED_IA_BATCH1 |
 | PDM-03 | 推荐朋友 / 直接转介绍真人入口不足 | CARRIER_CLOSED_IA_BATCH1 |
@@ -568,101 +575,101 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | PDM-04 | 旧“双 vehicle + conversion relation”一键转名邦承载 | CARRIER_CLOSED_IA_BATCH1 |
 | PDM-04 | 旧“只有 biz_status=normal 才可 convert”的 Guard | CARRIER_CLOSED_IA_BATCH1 |
 | PDM-04 | 旧 conversion relation / 原批发新名邦两车身份 | CARRIER_CLOSED_IA_BATCH1 |
-| PDM-04 | 旧价格 / 调价 carrier | CARRIER_DEFERRED |
+| PDM-04 | 旧价格 / 调价 carrier | CARRIER_CLOSED_IA_BATCH23 |
 | PDM-04 | 4S 车辆管理入口旧限制 | CARRIER_CLOSED_IA_BATCH1 |
 | PDM-04 | P02/P03 车源、集成、供应异常等页面通用壳 / 状态承载不足 | CARRIER_DEFERRED |
-| PDM-05 | 完整车型名称完全一致→自动 mapping 的旧主规则 | CARRIER_DEFERRED |
-| PDM-05 | `no model creation is inferred` 与 System Admin 可补品牌/车系/具体车型冲突 | CARRIER_DEFERRED |
-| PDM-05 | 年款在页面上易被误做第四级主数据 | CARRIER_DEFERRED |
-| PDM-05 | mapping pending/conflict 时把 JYT 已明确车型事实错误降为 unknown | CARRIER_DEFERRED |
-| PDM-06 | `DRAFT_RESUME` 与“继续上次 / 放弃重新发布”旧单草稿流程 | CARRIER_DEFERRED |
-| PDM-06 | MODEL_MISSING 完成后错误返回 DRAFT_RESUME | CARRIER_DEFERRED |
-| PDM-06 | `no model creation is inferred` 旧 Guard 与 PDM-05 当前 System Admin 治理冲突 | CARRIER_DEFERRED |
-| PDM-06 | 缺真正“更多 → 草稿车源”多草稿列表承载 | CARRIER_DEFERRED |
-| PDM-06 | 缺 VIN 完全一致重复 Gate、“查看已有车辆 / 返回修改” | CARRIER_DEFERRED |
-| PDM-06 | 已发布车辆缺真实“保存修改”动作投影 | CARRIER_DEFERRED |
-| PDM-06 | source_type 新建/草稿阶段修改细节承载不完整 | CARRIER_DEFERRED |
-| PDM-07 | 缺档案上传/后补/更新/替换完整操作链 | CARRIER_DEFERRED |
-| PDM-07 | 缺档案作废/新版本替代/档案历史真实动作 | CARRIER_DEFERRED |
-| PDM-07 | 缺单份档案 customer_visible 设置/取消动作 | CARRIER_DEFERRED |
-| PDM-07 | 客户端缺无客户可见档案/报告时整块隐藏完整投影 | CARRIER_DEFERRED |
-| PDM-07 | JYT/manual/Mingbang真实检测 provenance 区分承载不完整 | CARRIER_DEFERRED |
-| PDM-07 | 4S 本人有权 Vehicle 的内部档案访问路径受旧 Internal Mode DENY 污染风险 | CARRIER_DEFERRED |
-| PDM-07 | Vehicle Archive 专属 audit carrier 不完整 | CARRIER_DEFERRED |
-| PDM-08 | 泛化 IMAGE_PARTIAL_FAILED / IMAGE_FAILED / IMAGE_RETRYING / IMAGE_MANUAL_RECOVERY / IMAGE_RECOVERED 混用不同图片生命周期 | CARRIER_DEFERRED |
-| PDM-08 | 旧页面/状态仍可能隐含普通批发浏览逐张永久吞图旧链路 | CARRIER_DEFERRED |
-| PDM-08 | 分享卡片缺客户展示价/动态价格禁止固化完整投影 | CARRIER_DEFERRED |
-| PDM-08 | 4S维保H5/报告旧 URL 当前权限重验承载不完整 | CARRIER_DEFERRED |
-| PDM-08 | 统一图片浏览序列可能被误实现为自动轮播 | CARRIER_DEFERRED |
-| PDM-08 | 3A 资产化未闭环临时受控回源缺 Current/Low-Fi 状态投影 | CARRIER_DEFERRED |
-| PDM-09 | 保存/测试 Collector 电话连接、Collector Base URL / relative Phone Path / allowlisted host 旧方向 | CARRIER_DEFERRED |
-| PDM-09 | 部分 carrier 仍使用泛化 publisher_id，未统一 upstream_publisher_id | CARRIER_DEFERRED |
-| PDM-09 | P03-05/旧 CR-007 存在把 integration.collector.manage 等集成管理能力误解成电话明文权限的风险 | CARRIER_DEFERRED |
-| PDM-09 | PHONE_UNAVAILABLE 未完整区分“本次无有效新号码但旧缓存仍存在”与“完全无缓存” | CARRIER_DEFERRED |
-| PDM-09 | 3A 批发→名邦/4S 后电话入口关闭缺 Current/Low-Fi source_type 投影 | CARRIER_DEFERRED |
-| PDM-10 | 4S member internal mode 整体 DENY 仍可能阻断本人有权 4S 车辆价格管理 | CARRIER_DEFERRED |
-| PDM-10 | internal-price permission 的角色投影与当前独立可配置 permission 模型不完全一致 | CARRIER_DEFERRED |
-| PDM-10 | 独立调价 permission/action 旧 carrier 残留 | CARRIER_DEFERRED |
-| PDM-10 | 员工端 customer display override 真实入口不完整 | CARRIER_DEFERRED |
-| PDM-10 | P08 价格后台仍偏通用 CRUD，LIMITED/UNLIMITED、markup、quota 等真实配置投影不完整 | CARRIER_DEFERRED |
-| PDM-10 | 临时增加当天查价次数员工入口不完整 | CARRIER_DEFERRED |
-| PDM-10 | DAILY_PRICE_QUOTA_EXHAUSTED→联系顾问缺完整 Current/Low-Fi 投影 | CARRIER_DEFERRED |
-| PDM-10 | Customer 停用后的价格权益暂停缺独立价格状态投影 | CARRIER_DEFERRED |
-| PDM-10 | 3A UNLIMITED/temp additions 切换规则缺 Current/Low-Fi 状态投影 | CARRIER_DEFERRED |
-| PDM-12 | E05-06 仍可能把“确认候选”投影成直接成功 Match / 直接具备 Priority 资格；正确 Authority 是确认事实→重算→读取新 tier | CARRIER_DEFERRED |
-| PDM-12 | E05-05 HIDDEN_CONTROLLED 仍可能把 Demand/Priority 本身当作隐藏车客户详情可见权；正确 Authority 仍需 Recommendation/visibility grant | CARRIER_DEFERRED |
-| PDM-12 | E05-04 缺完整“保存销售匹配描述→确定性解析→更新标准条件→受影响范围重算”真人 Action | CARRIER_DEFERRED |
-| PDM-12 | P06-10 仍偏 NORMAL/PROCESSING/PARTIAL_FAILURE/ERROR 通用状态壳，缺 Rule Dictionary 新增/编辑/启停/作用域/测试/审计/失败集合重试真实 Action Contract | CARRIER_DEFERRED |
-| PDM-12 | Current carrier 对“正式 Matching 禁止 AI 猜测”表达不足 | CARRIER_DEFERRED |
-| PDM-12 | Current carrier 对“车源主页搜索与 Demand Matching 共用 deterministic parser / Rule Dictionary”表达不足 | CARRIER_DEFERRED |
-| PDM-13 | Current Navigation `E05-05｜创建 Priority` 残留人工创建 Priority 旧语义；正确 Authority 为系统基于合法 Match Result + Priority 资格 + 仲裁自动产生 | CARRIER_DEFERRED |
-| PDM-13 | E05-05 HIDDEN_CONTROLLED 残留“Demand/Priority 直接授客户详情可见”旧语义；正确 Authority 为 Priority 不授 visibility，需 Recommendation/visibility grant | CARRIER_DEFERRED |
-| PDM-13 | 历史独立 `priority.view` 全局穿透查看方向已被 B4-01 supersede；当前 Priority 查看/处理跟随业务责任、合法管理范围及 PDM-02 通用权限模型 | CARRIER_DEFERRED |
-| PDM-13 | 客户端普通公共“在售车源/今日新增”统计尚未完整表达 active Priority 保护 Vehicle 必须从普通公开统计排除 | CARRIER_DEFERRED |
-| PDM-13 | PC 当前缺单 Customer Priority 资格开关与全局 24h TTL 默认配置真实 Action；员工端缺合法 responsible Priority 处理/释放/剩余TTL 真人 Action Contract | CARRIER_DEFERRED |
+| PDM-05 | 完整车型名称完全一致→自动 mapping 的旧主规则 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-05 | `no model creation is inferred` 与 System Admin 可补品牌/车系/具体车型冲突 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-05 | 年款在页面上易被误做第四级主数据 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-05 | mapping pending/conflict 时把 JYT 已明确车型事实错误降为 unknown | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-06 | `DRAFT_RESUME` 与“继续上次 / 放弃重新发布”旧单草稿流程 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-06 | MODEL_MISSING 完成后错误返回 DRAFT_RESUME | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-06 | `no model creation is inferred` 旧 Guard 与 PDM-05 当前 System Admin 治理冲突 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-06 | 缺真正“更多 → 草稿车源”多草稿列表承载 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-06 | 缺 VIN 完全一致重复 Gate、“查看已有车辆 / 返回修改” | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-06 | 已发布车辆缺真实“保存修改”动作投影 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-06 | source_type 新建/草稿阶段修改细节承载不完整 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-07 | 缺档案上传/后补/更新/替换完整操作链 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-07 | 缺档案作废/新版本替代/档案历史真实动作 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-07 | 缺单份档案 customer_visible 设置/取消动作 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-07 | 客户端缺无客户可见档案/报告时整块隐藏完整投影 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-07 | JYT/manual/Mingbang真实检测 provenance 区分承载不完整 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-07 | 4S 本人有权 Vehicle 的内部档案访问路径受旧 Internal Mode DENY 污染风险 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-07 | Vehicle Archive 专属 audit carrier 不完整 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-08 | 泛化 IMAGE_PARTIAL_FAILED / IMAGE_FAILED / IMAGE_RETRYING / IMAGE_MANUAL_RECOVERY / IMAGE_RECOVERED 混用不同图片生命周期 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-08 | 旧页面/状态仍可能隐含普通批发浏览逐张永久吞图旧链路 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-08 | 分享卡片缺客户展示价/动态价格禁止固化完整投影 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-08 | 4S维保H5/报告旧 URL 当前权限重验承载不完整 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-08 | 统一图片浏览序列可能被误实现为自动轮播 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-08 | 3A 资产化未闭环临时受控回源缺 Current/Low-Fi 状态投影 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-09 | 保存/测试 Collector 电话连接、Collector Base URL / relative Phone Path / allowlisted host 旧方向 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-09 | 部分 carrier 仍使用泛化 publisher_id，未统一 upstream_publisher_id | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-09 | P03-05/旧 CR-007 存在把 integration.collector.manage 等集成管理能力误解成电话明文权限的风险 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-09 | PHONE_UNAVAILABLE 未完整区分“本次无有效新号码但旧缓存仍存在”与“完全无缓存” | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-09 | 3A 批发→名邦/4S 后电话入口关闭缺 Current/Low-Fi source_type 投影 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-10 | 4S member internal mode 整体 DENY 仍可能阻断本人有权 4S 车辆价格管理 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-10 | internal-price permission 的角色投影与当前独立可配置 permission 模型不完全一致 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-10 | 独立调价 permission/action 旧 carrier 残留 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-10 | 员工端 customer display override 真实入口不完整 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-10 | P08 价格后台仍偏通用 CRUD，LIMITED/UNLIMITED、markup、quota 等真实配置投影不完整 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-10 | 临时增加当天查价次数员工入口不完整 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-10 | DAILY_PRICE_QUOTA_EXHAUSTED→联系顾问缺完整 Current/Low-Fi 投影 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-10 | Customer 停用后的价格权益暂停缺独立价格状态投影 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-10 | 3A UNLIMITED/temp additions 切换规则缺 Current/Low-Fi 状态投影 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-12 | E05-06 仍可能把“确认候选”投影成直接成功 Match / 直接具备 Priority 资格；正确 Authority 是确认事实→重算→读取新 tier | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-12 | E05-05 HIDDEN_CONTROLLED 仍可能把 Demand/Priority 本身当作隐藏车客户详情可见权；正确 Authority 仍需 Recommendation/visibility grant | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-12 | E05-04 缺完整“保存销售匹配描述→确定性解析→更新标准条件→受影响范围重算”真人 Action | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-12 | P06-10 仍偏 NORMAL/PROCESSING/PARTIAL_FAILURE/ERROR 通用状态壳，缺 Rule Dictionary 新增/编辑/启停/作用域/测试/审计/失败集合重试真实 Action Contract | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-12 | Current carrier 对“正式 Matching 禁止 AI 猜测”表达不足 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-12 | Current carrier 对“车源主页搜索与 Demand Matching 共用 deterministic parser / Rule Dictionary”表达不足 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-13 | Current Navigation `E05-05｜创建 Priority` 残留人工创建 Priority 旧语义；正确 Authority 为系统基于合法 Match Result + Priority 资格 + 仲裁自动产生 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-13 | E05-05 HIDDEN_CONTROLLED 残留“Demand/Priority 直接授客户详情可见”旧语义；正确 Authority 为 Priority 不授 visibility，需 Recommendation/visibility grant | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-13 | 历史独立 `priority.view` 全局穿透查看方向已被 B4-01 supersede；当前 Priority 查看/处理跟随业务责任、合法管理范围及 PDM-02 通用权限模型 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-13 | 客户端普通公共“在售车源/今日新增”统计尚未完整表达 active Priority 保护 Vehicle 必须从普通公开统计排除 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-13 | PC 当前缺单 Customer Priority 资格开关与全局 24h TTL 默认配置真实 Action；员工端缺合法 responsible Priority 处理/释放/剩余TTL 真人 Action Contract | CARRIER_CLOSED_IA_BATCH23 |
 
-| PDM-14 | P06-06 独立 Recommendation 资格开关、RECOMMENDATION_QUALIFIED/NOT_QUALIFIED 与独立资格管理权限残留；当前 Authority 已改为 Customer Level find-car entitlement 决定正式找车/Recommendation 资格 | CARRIER_DEFERRED |
-| PDM-14 | 把 Priority responsible 误实现为新的 Recommendation 授权来源；正确 Authority 是 Priority 不改变既有 owner/handover/Demand responsibility 关系 | CARRIER_DEFERRED |
-| PDM-14 | 其他 Customer active Priority 期间直接删除/结束既有 Recommendation/visibility；正确 Authority 是历史保留、客户侧访问临时 suppression，Priority ended 后按当前事实 restore | CARRIER_DEFERRED |
-| PDM-14 | 旧“只有 Customer current owner 才能创建 Recommendation”若用于阻断合法 source Demand responsible / handover；正确 Authority 是当前合法业务负责关系，且不得扩大成任意 Employee 可推荐 | CARRIER_DEFERRED |
-| PDM-14 | 客户侧 re-share 永远 SOURCE_ONLY、永远不形成 owner 的旧表达；正确 Authority 服从 PDM-03 分享/转介绍归属，SOURCE_ONLY 状态本身保留 | CARRIER_DEFERRED |
-| PDM-14 | REC 专属 URL / Recommendation-specific link / 第二套推荐分享页残留；正确 Authority 是 Recommendation 为内部正式事实，对外继续普通车辆分享 | CARRIER_DEFERRED |
-| PDM-14 | Current IA / Low-Fi HIDDEN_CONTROLLED 仅凭 Demand/Priority 直接授 Customer hidden Vehicle 详情权；正确 Authority 是 Recommendation + customer-specific visibility grant | CARRIER_DEFERRED |
-| PDM-14 | Current IA / Low-Fi P06-01 / P06-M01 Customer Merge 状态机及 Recommendation/权益迁移；PDM-01 Final 已全面取消 Customer Merge | CARRIER_DEFERRED |
+| PDM-14 | P06-06 独立 Recommendation 资格开关、RECOMMENDATION_QUALIFIED/NOT_QUALIFIED 与独立资格管理权限残留；当前 Authority 已改为 Customer Level find-car entitlement 决定正式找车/Recommendation 资格 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-14 | 把 Priority responsible 误实现为新的 Recommendation 授权来源；正确 Authority 是 Priority 不改变既有 owner/handover/Demand responsibility 关系 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-14 | 其他 Customer active Priority 期间直接删除/结束既有 Recommendation/visibility；正确 Authority 是历史保留、客户侧访问临时 suppression，Priority ended 后按当前事实 restore | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-14 | 旧“只有 Customer current owner 才能创建 Recommendation”若用于阻断合法 source Demand responsible / handover；正确 Authority 是当前合法业务负责关系，且不得扩大成任意 Employee 可推荐 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-14 | 客户侧 re-share 永远 SOURCE_ONLY、永远不形成 owner 的旧表达；正确 Authority 服从 PDM-03 分享/转介绍归属，SOURCE_ONLY 状态本身保留 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-14 | REC 专属 URL / Recommendation-specific link / 第二套推荐分享页残留；正确 Authority 是 Recommendation 为内部正式事实，对外继续普通车辆分享 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-14 | Current IA / Low-Fi HIDDEN_CONTROLLED 仅凭 Demand/Priority 直接授 Customer hidden Vehicle 详情权；正确 Authority 是 Recommendation + customer-specific visibility grant | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-14 | Current IA / Low-Fi P06-01 / P06-M01 Customer Merge 状态机及 Recommendation/权益迁移；PDM-01 Final 已全面取消 Customer Merge | CARRIER_CLOSED_IA_BATCH23 |
 | PDM-14 | 把“4S 成员 hard DENY Recommendation”误实现成“4S 车源不可被名邦合法销售 Recommendation” | CARRIER_DEFERRED |
-| PDM-14 | 批量推荐被实现成 group Recommendation / 共享 recommendation_id / 共享生命周期，而不是逐车对象 | CARRIER_DEFERRED |
-| PDM-14 | Recommendation create/end/void 顺带修改 Customer owner 或 Demand responsible | CARRIER_DEFERRED |
-| PDM-14 | 普通 share link 使用固定 N 天 TTL，或二次转发继承上一 Customer 的 Recommendation/price/visibility | CARRIER_DEFERRED |
-| PDM-14 | Recommendation 创建时价格咨询、同 cycle 后出现数字价却再次扣 daily quota | CARRIER_DEFERRED |
-| PDM-14 | Recommendation/visibility grant 把 Internal Mode、敏感内部价、上游电话、VIN/敏感档案、Priority/Match 内部事实一起下发 Customer | CARRIER_DEFERRED |
-| PDM-14 | JYT/上游同步直接 create/end/void/delete/overwrite Recommendation 或 customer-specific visibility grant | CARRIER_DEFERRED |
-| PDM-14 | Consultation 自动创建 Recommendation、赠送 Recommendation price-right 或直接授 hidden visibility | CARRIER_DEFERRED |
+| PDM-14 | 批量推荐被实现成 group Recommendation / 共享 recommendation_id / 共享生命周期，而不是逐车对象 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-14 | Recommendation create/end/void 顺带修改 Customer owner 或 Demand responsible | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-14 | 普通 share link 使用固定 N 天 TTL，或二次转发继承上一 Customer 的 Recommendation/price/visibility | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-14 | Recommendation 创建时价格咨询、同 cycle 后出现数字价却再次扣 daily quota | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-14 | Recommendation/visibility grant 把 Internal Mode、敏感内部价、上游电话、VIN/敏感档案、Priority/Match 内部事实一起下发 Customer | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-14 | JYT/上游同步直接 create/end/void/delete/overwrite Recommendation 或 customer-specific visibility grant | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-14 | Consultation 自动创建 Recommendation、赠送 Recommendation price-right 或直接授 hidden visibility | CARRIER_CLOSED_IA_BATCH23 |
 
 
-| PDM-16 | Customer Merge / MERGE_* 及跨 Customer CRM 历史迁移旧方向 | CARRIER_DEFERRED |
-| PDM-16 | CRM Customer Detail 直接“锁车→再选 Vehicle”旧入口 | CARRIER_DEFERRED |
-| PDM-16 | Customer Opportunity 旧 7 天 / 单日 >40 / 连续 3 天阈值及对应配置控件 | CARRIER_DEFERRED |
+| PDM-16 | Customer Merge / MERGE_* 及跨 Customer CRM 历史迁移旧方向 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-16 | CRM Customer Detail 直接“锁车→再选 Vehicle”旧入口 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-16 | Customer Opportunity 旧 7 天 / 单日 >40 / 连续 3 天阈值及对应配置控件 | CARRIER_CLOSED_IA_BATCH23 |
 | PDM-16 | 大字段 CRM 画像 / 把 Personal Note、Shared Profile、服务称呼重新合并为一个大备注字段 | CARRIER_DEFERRED |
 | PDM-16 | 历史服务过即可永久访问 Customer CRM 的旧误义 | CARRIER_DEFERRED |
-| PDM-16 | P06-07 页面壳反推任意 Customer Opportunity 规则 CRUD/config | CARRIER_DEFERRED |
-| PDM-16 | Customer Opportunity 被实现成独立工单 / assignee / SLA / close lifecycle | CARRIER_DEFERRED |
-| PDM-16 | E03-03 只有“记录跟进”导航而无真实 Follow-up mutation submit chain | CARRIER_DEFERRED |
-| PDM-16 | Customer Opportunity / Source Radar / 强待办混成同一 task/state system | CARRIER_DEFERRED |
-| PDM-16 | Source Radar“标记不适合”直接反写 PDM-12 Match Result / Rule Dictionary / Demand 条件 | CARRIER_DEFERRED |
-| PDM-16 | Consultation / Demand / Lock / Transaction 等具体业务事件自动改写 CRM Stage | CARRIER_DEFERRED |
+| PDM-16 | P06-07 页面壳反推任意 Customer Opportunity 规则 CRUD/config | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-16 | Customer Opportunity 被实现成独立工单 / assignee / SLA / close lifecycle | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-16 | E03-03 只有“记录跟进”导航而无真实 Follow-up mutation submit chain | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-16 | Customer Opportunity / Source Radar / 强待办混成同一 task/state system | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-16 | Source Radar“标记不适合”直接反写 PDM-12 Match Result / Rule Dictionary / Demand 条件 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-16 | Consultation / Demand / Lock / Transaction 等具体业务事件自动改写 CRM Stage | CARRIER_CLOSED_IA_BATCH23 |
 
-| PDM-17 | P06-05-V5-PUBLIC_POOL_ASSIGN_CONFIRM_REQUIRED.svg：旧“指定分配后还需目标销售二次确认”与 P17-A11 当前 Authority 冲突；正确语义为合法指定分配成功后目标员工立即成为唯一 owner，无二次确认主状态 | CARRIER_DEFERRED |
+| PDM-17 | P06-05-V5-PUBLIC_POOL_ASSIGN_CONFIRM_REQUIRED.svg：旧“指定分配后还需目标销售二次确认”与 P17-A11 当前 Authority 冲突；正确语义为合法指定分配成功后目标员工立即成为唯一 owner，无二次确认主状态 | CARRIER_CLOSED_IA_BATCH23 |
 
-| PDM-18 | 旧“LOCK_CONFLICT 不自动转 Waitlist / 客户必须再次手工点候补”承载；当前 Authority 已改为竞争请求自动创建/复用 Waitlist，LockRequest 本体保留 LOCK_CONFLICT 并关联 resulting_waitlist_id | CARRIER_DEFERRED |
-| PDM-18 | 把所有正式 Lock 客户可见性做成完全相同；当前 Authority 区分普通 Lock“占车不全客户隐藏”与 Priority-origin Lock“继承客户侧排他可见性” | CARRIER_DEFERRED |
-| PDM-18 | 把内部 Waitlist created_at 处理顺序直接展示成客户保证性“第几名”；当前 Authority 只保留内部稳定顺序，客户端不承诺排名/自动晋升 | CARRIER_DEFERRED |
-| PDM-18 | Lock 配置 carrier 仍写“Lock 不是独立配置对象 / 无配置入口”；当前 Authority 为默认72h且后台可配置、只影响新 Lock | CARRIER_DEFERRED |
-| PDM-18 | 正式 Lock 延期、新 expires_at、已延期、供应异常与 Waitlist 结束矩阵在 Current/Low-Fi 仍存在真实操作投影不足 | CARRIER_DEFERRED |
+| PDM-18 | 旧“LOCK_CONFLICT 不自动转 Waitlist / 客户必须再次手工点候补”承载；当前 Authority 已改为竞争请求自动创建/复用 Waitlist，LockRequest 本体保留 LOCK_CONFLICT 并关联 resulting_waitlist_id | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-18 | 把所有正式 Lock 客户可见性做成完全相同；当前 Authority 区分普通 Lock“占车不全客户隐藏”与 Priority-origin Lock“继承客户侧排他可见性” | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-18 | 把内部 Waitlist created_at 处理顺序直接展示成客户保证性“第几名”；当前 Authority 只保留内部稳定顺序，客户端不承诺排名/自动晋升 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-18 | Lock 配置 carrier 仍写“Lock 不是独立配置对象 / 无配置入口”；当前 Authority 为默认72h且后台可配置、只影响新 Lock | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-18 | 正式 Lock 延期、新 expires_at、已延期、供应异常与 Waitlist 结束矩阵在 Current/Low-Fi 仍存在真实操作投影不足 | CARRIER_CLOSED_IA_BATCH23 |
 
-| PDM-19 | Current IA 中“pending Refund 关闭必须额外独立 refund-management permission”；当前 Authority 已改为合法处理人直接 close + reason，不新增专门 close permission/审批 | CARRIER_DEFERRED |
-| PDM-19 | 旧 Refund 仅 pending/refunded 两主状态；当前 Authority 已扩展为 pending/refunded/closed，closed=未实际退款而关闭 | CARRIER_DEFERRED |
-| PDM-19 | 旧“System Admin 可参与 completed Transaction correction”残留；当前 Authority 明确 System Admin 控制平面身份本身无成交纠错业务权 | CARRIER_DEFERRED |
-| PDM-19 | 客户端/员工端/PC 当前通用交易资金状态壳可能缺 actual_deal_price、Refund closed、Deposit correction、Transaction responsible handoff、误成交 correction listing_cycle 后果等完整投影 | CARRIER_DEFERRED |
+| PDM-19 | Current IA 中“pending Refund 关闭必须额外独立 refund-management permission”；当前 Authority 已改为合法处理人直接 close + reason，不新增专门 close permission/审批 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-19 | 旧 Refund 仅 pending/refunded 两主状态；当前 Authority 已扩展为 pending/refunded/closed，closed=未实际退款而关闭 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-19 | 旧“System Admin 可参与 completed Transaction correction”残留；当前 Authority 明确 System Admin 控制平面身份本身无成交纠错业务权 | CARRIER_CLOSED_IA_BATCH23 |
+| PDM-19 | 客户端/员工端/PC 当前通用交易资金状态壳可能缺 actual_deal_price、Refund closed、Deposit correction、Transaction responsible handoff、误成交 correction listing_cycle 后果等完整投影 | CARRIER_CLOSED_IA_BATCH23 |
 
 ---
 
