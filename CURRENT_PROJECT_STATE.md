@@ -1,4 +1,15 @@
-# 2026-10-08｜F01 基础工程已验收并安全合并（现行最新状态）
+# 2026-10-08｜F02-G0 与条件 F02-1 隔离施工获批（现行最新状态）
+
+- 用户明确“确认执行”：批准从本次全部 main 状态文件落库后最新提交新建 `feat/f02-schema`，并向 B 放行 F02-G0 独立测试环境/字段基线；**F02-G0 经 A 实证验收后**才可施工 F02-1 的 disposable PG16 新装 Current Schema 与真实测试。正式工作单 `07_重建工作区/F02_正式施工单_数据库模型与隔离开发_2026-10-08.md`、技术裁定 `07_重建工作区/F02_主控技术裁定与开工门禁_2026-10-08.md`。
+- B 旧 `feat/f01-foundation` 上新增的三份 F02/F03/F04 Gate 材料已原文收录 main；旧分支不重置、未合并旧分支的落后主控内容；未来 F02 仅在新分支施工。
+- A-G02-01～10 工程裁定包括：PG16 隔离、受控 `pg` 迁移器原子/checksum/advisory lock；新装与真实已迁库升级分流；独立多草稿、三级车型/source mapping、LockRequest/Lock/Waitlist 与 Refund 三态分离；F03 权限 hard DENY 不由数据库表存在隐含授权；F04 单入口 TypeScript/Fastify 仍需独立验证。
+- **未授权**：F02-2 已迁/生产真实数据库兼容升级、F02-3 正式历史 CSV 导入、F02-4 业务跨域施工、F03/F04 正式施工、旧清库脚本、main 合并；未经批准不能访问任何真实用户数据。F02 Schema/DDL/集成测试当前为 `NOT_RUN`。
+- F01=`ACCEPTED/MERGED_TO_MAIN` 不变；C/H01 仍待 A 修订复核与用户视觉确认，C 分支未修改/合并；PDM-01～25 Final、Current IA 和 Current Low-Fi 不变。
+- 当前唯一执行指针 `F02_G0_THEN_F02_1_ISOLATED_H01_REVIEW`，`PRODUCT_BASELINE=NOT_READY`。以下是此前历史状态快照，不得覆盖本条最新状态。
+
+---
+
+# HISTORICAL｜2026-10-08 F01 验收及合并时的旧主控状态
 
 - **F01 = ACCEPTED / MERGED_TO_MAIN / 用户“确认执行”**；A 主控完成 `feat/f01-foundation` 的 11 个提交、27 个新增文件检查，以及 [PR #1](https://github.com/suzhe868-arch/mb/pull/1) 合并；GitHub merge commit = `16354f9784cb187dfc44289d9e5010e1471b1b81`。
 - 正式 A 验收记录与风险台账：`07_重建工作区/F01_工程基础验收与合并记录_2026-10-08.md`。验证来源为 B 分支 GitHub CI 运行 `37695813678`：13 项基础测试 + 5 项真实 PG 集成测试通过，隔离 PostgreSQL 16 停库/同一 HTTP 进程恢复成功。**main 合并后没有新增独立 CI 成功记录**，不可虚报。

@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F01_ACCEPTED_H01_REVIEW_ENGINEERING_NEXT_GATE",
+  "substage": "F02_G0_AUTHORIZED_F02_1_CONDITIONAL_H01_REVIEW",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "GLOBAL_POST_PDM25",
-  "current_domain_status": "F01_ACCEPTED_MERGED_MAIN_H01_REVIEW_F02_F03_F04_STAGE_GATE_PENDING",
+  "current_domain_status": "F02_G0_ISOLATED_AUTHORIZED_F02_1_CONDITIONAL_NO_OTHER_CONSTRUCTION",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "H01 设计返修与用户视觉方向复核 + F02/F03/F04 非破坏性技术准备及独立开工门禁（尚未批准施工）",
-  "current_work_file": "07_重建工作区/F01_工程基础验收与合并记录_2026-10-08.md",
+  "current_task": "F02-G0 环境与模型门禁施工；A验收 G0 后 F02-1 隔离 PG16 空库 Schema 开发测试；C/H01 修订复核",
+  "current_work_file": "07_重建工作区/F02_正式施工单_数据库模型与隔离开发_2026-10-08.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "F01_ACCEPTED_H01_REVIEW_ENGINEERING_NEXT_GATE",
+  "next_action": "F02_G0_THEN_F02_1_ISOLATED_H01_REVIEW",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F01_ACCEPTED_MERGED_TO_MAIN_F02_F03_F04_GATE_PENDING",
+  "engineering_status": "F01_ACCEPTED_F02_G0_AUTHORIZED_F02_1_CONDITIONAL_OTHER_STAGES_NOT_AUTHORIZED",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "F01 已验收并合并 main；C 继续 H01 修订与视觉方向确认；B/A 准备 F02/F03/F04 施工门禁（仅方案，不授权实际 DB/API/权限施工）",
+  "next_action_detail": "F02-G0 立即授权；F02-1 仅 G0 A验收后授权隔离PG16新装数据库开发；F02-2/3/4、F03/F04运行施工、生产/真实旧库与main合并未批准，H01仍待修订与用户视觉确认",
   "abc_parallel_workflow": {
     "status": "USER_APPROVED_APPLIED_DOCUMENTATION_ONLY",
     "confirmed_at": "2026-10-08",
@@ -4800,15 +4800,15 @@
     "design_branch_modified": false,
     "implementation_status_unchanged": true,
     "active_tracks": [
-      "H01_DESIGN_REVIEW",
-      "F02_F03_F04_ENGINEERING_GATE_PREPARATION_ONLY"
+      "F02_G0_AND_CONDITIONAL_F02_1",
+      "H01_DESIGN_REVIEW"
     ],
     "execution_requires_separate_scope_approval": true,
     "global_state_owner": "A_MAIN",
     "engineering": {
       "owner": "B",
-      "branch": "feat/f01-foundation",
-      "active_work_order": null,
+      "branch": "feat/f02-schema",
+      "active_work_order": "F02-G0",
       "later_work_orders": [
         "F02",
         "F03",
@@ -4823,11 +4823,13 @@
         "F01"
       ],
       "next_work_orders_gate_pending": [
-        "F02",
+        "F02-2",
+        "F02-3",
+        "F02-4",
         "F03",
         "F04"
       ],
-      "current_activity": "NEXT_STAGE_GATE_PREPARATION_ONLY_NO_CONSTRUCTION"
+      "current_activity": "ISOLATED_F02_G0_AUTHORIZED_F02_1_CONDITIONAL_AFTER_G0_A_ACCEPTANCE"
     },
     "design": {
       "owner": "C",
@@ -4908,6 +4910,37 @@
       "F01-RES-03",
       "F01-RES-04",
       "F01-RES-05"
+    ]
+  },
+  "f02_authorization": {
+    "status": "USER_APPROVED_F02_G0_AND_CONDITIONAL_F02_1",
+    "date": "2026-10-08",
+    "confirmed_phrase": "确认执行",
+    "branch": "feat/f02-schema",
+    "work_order": "07_重建工作区/F02_正式施工单_数据库模型与隔离开发_2026-10-08.md",
+    "technical_adjudication": "07_重建工作区/F02_主控技术裁定与开工门禁_2026-10-08.md",
+    "phase": {
+      "F02-G0": "AUTHORIZED_NOT_RUN",
+      "F02-1": "CONDITIONAL_AFTER_G0_A_ACCEPTANCE_NOT_RUN",
+      "F02-2": "NOT_AUTHORIZED",
+      "F02-3": "NOT_AUTHORIZED",
+      "F02-4": "NOT_AUTHORIZED",
+      "F03": "DESIGN_PREPARATION_ONLY",
+      "F04": "DESIGN_PREPARATION_ONLY"
+    },
+    "allowed_database": "DISPOSABLE_LOCAL_OR_CI_POSTGRESQL_16_ONLY",
+    "f01_probe_guard_unchanged": true,
+    "real_database_access": "FORBIDDEN",
+    "production_access": "FORBIDDEN",
+    "historical_scripts_execution": "FORBIDDEN",
+    "merge_main": "NOT_AUTHORIZED",
+    "schema_tests": "NOT_RUN",
+    "business_authority_unchanged": true,
+    "design_branch_unchanged": true,
+    "source_reports": [
+      "F02_开工门禁准备_数据库模型与安全迁移方案_2026-10-08.md",
+      "F02至F04_开工门禁风险与A待裁定清单_2026-10-08.md",
+      "F03_F04_开工门禁准备_权限与接口依赖方案_2026-10-08.md"
     ]
   }
 }
