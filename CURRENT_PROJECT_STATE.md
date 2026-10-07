@@ -1,3 +1,22 @@
+## 2026-10-07｜PDM-25 Final Closeout 完成，进入 PDM-01～25 全局最终总复核
+
+- PDM-25 Final Domain Overview：`USER_FINAL_APPROVED`；
+- 用户随后明确：`确定执行`；
+- PDM-25：`COMPLETE / INTEGRITY_PASS`；
+- 正式 Final：`07_重建工作区/PDM-25_最终完整规则.md`；
+- Final Integrity：`07_重建工作区/PDM-25_最终完整性复核_2026-10-07.md / PASS`；
+- `PDM25_FORMAL_UNITS = 37`；
+- 24 / 24 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
+- PDM-01～24 Final / Integrity source backwrite：`24 / 24 DONE`；
+- `SOURCE_DECISION_COVERAGE = 100%`；
+- `FINAL_TO_SOURCE_TRACEABILITY = 100%`；
+- `SEMANTIC_INTEGRITY = PASS`；
+- `NEGATIVE_CLAIMS_VERIFIED = PASS`；
+- `IMPLEMENTATION_READY = PASS`；
+- IA / Low-Fi / Engineering：`NO_CONSTRUCTION`；
+- `PRODUCT_BASELINE = NOT_READY`，仍需完成 PDM-01～25 全局最终总复核以及后续 carrier 集中对齐；
+- 当前唯一下一步：**PDM-01～25 全局 Cross-PDM / Handoff / Global Invariant 最终总复核。**
+
 ## 2026-10-07｜PDM-25 Prefinal R1 修复完成，R2 PASS / FINAL_CANDIDATE_READY
 
 - `P25-LIA-01～P25-LIA-03 = PASS / USER_APPROVED / APPLIED`；
