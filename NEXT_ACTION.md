@@ -1,14 +1,16 @@
-## Global Final Audit Closeout
+## Historical Tail Cleanup Closeout
 
-- PDM-01～25：25 / 25 COMPLETE / INTEGRITY_PASS
 - Global PDM-01～25 Final Audit：PASS
-- 报告：`07_重建工作区/PDM-01至25_全局跨域移交与全局不变量最终总复核_2026-10-07.md`
-- Cross-PDM Handoff：165 = 164 CLOSED + 1 SUPERSEDED
-- HANDOFF_OPEN：0
-- HANDOFF_ACCEPTED：0
-- SOURCE_BACKWRITE_PENDING：0
-- IA / Low-Fi / Engineering：NO_CONSTRUCTION
+- Final / Integrity Historical Tail Cleanup：PASS
+- Historical Carrier：68 / 68 已标注
+- Final stale stage tail fixed：12
+- Final Integrity stale stage tail fixed：13
+- STALE_CURRENT_POINTER_UNQUALIFIED：0
+- Final Business Semantic Change：0
+- IA：READY_TO_START / NO_CHANGES_APPLIED
+- Low-Fi / Engineering：NO_CONSTRUCTION
 - Product Baseline：NOT_READY
+- 报告：`07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md`
 
 # 名邦汽车 V1｜下一步唯一动作
 
@@ -16,11 +18,11 @@
 
 ## Current｜当前唯一动作
 
-- 当前阶段：`FINAL_INTEGRITY_HISTORICAL_TAIL_CLEANUP`
-- 当前唯一下一步：**PDM-01～25 Final / Integrity 历史阶段尾巴统一清理与 Current / History 边界标注**
-- 清理原则：保留历史审计事实；只清除会被误读为 Current 的旧阶段指针，并明确标注 `HISTORICAL_AUDIT_TRAIL`
-- Final 业务语义：不得改变
-- IA / Low-Fi：本阶段仍不施工
+- 当前阶段：`IA_GLOBAL_ALIGNMENT_READY`
+- 当前唯一下一步：**IA 全局集中对齐**
+- IA 当前状态：`READY_TO_START / NO_CHANGES_APPLIED`
+- IA 对齐必须以 PDM-01～25 Final 为产品 Authority，不得由旧 IA carrier 反向覆盖产品规则
+- Low-Fi：本阶段不施工
 - Engineering：不施工
 
 ## HISTORICAL_AUDIT_TRAIL｜以下为历史执行记录
