@@ -1,5 +1,15 @@
 # IA Source Index — V5 FR-V5-001～003 Final Targeted Remediation
 
+<!-- IA-GLOBAL-B1-SOURCE-INDEX -->
+> **IA 全局集中对齐 Source Index 覆盖｜2026-10-08**
+>
+> 当前产品 Authority 已切换为：`PDM-01～PDM-25 Final + Decision Register`。原 `Phase1.5上游权威/` 与 V5 证据工程继续作为历史来源/承载证据，但不得覆盖当前 PDM Final。
+>
+> 当前 IA 状态：`IA_GLOBAL_ALIGNMENT_IN_PROGRESS / BATCH_1_APPLIED`。
+>
+> Batch 1 已对齐 PDM-01～04 的 Customer/Owner/分享归属、Permission/Data Scope/System Admin/4S、Handover、Vehicle/source_type/listing_cycle/一键转名邦不变量。对应 Current / Navigation / Page / State / Action / Guard / Permission / Lifecycle 已建立当前覆盖。
+
+
 状态：`CURRENT / CANONICAL / V5 FR001_003 TARGETED REMEDIATION`
 
 ## 1. 业务权威
