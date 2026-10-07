@@ -446,3 +446,6 @@ IA / Low-Fi 不具有反向覆盖当前 PDM Final 的产品 Authority。
 2026-09-24 用户最终明确批准本总览；2026-10-05 用户对本轮 9 组 Legacy Integrity 修正全部同意并确认执行。
 
 PDM-03 历史 COMPLETE 保留；2026-10-05 已通过当前 Legacy Final Integrity Audit。PDM-01～10 本轮复核的下一域为 PDM-04。
+
+
+> 2026-10-07 Source Backwrite｜HO-P03-P25-001：`HANDOFF_CLOSED / source_backwrite=YES`。PDM-25 已由 `07_重建工作区/PDM-25_最终完整规则.md` 正式承接本域移交的审计 / 历史 / 时区 / 配置版本 / 横切完整性语义；PDM-25 不反向改写本 PDM 已冻结的业务状态机与产品规则。
