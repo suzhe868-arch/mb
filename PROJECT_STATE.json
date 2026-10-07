@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "DOMAIN_RULE_RECONSTRUCTION",
+  "substage": "GLOBAL_PDM01_25_FINAL_INTEGRITY_AUDIT",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "PDM-25",
-  "current_domain_status": "STARTUP_GATE_PASS_BATCH_1_PENDING",
+  "current_domain": "GLOBAL_PDM01_25",
+  "current_domain_status": "GLOBAL_FINAL_AUDIT_R1_REPAIR_APPLIED_R2_PENDING",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,18 +20,17 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-25 Batch 1｜稳定一致规则审查",
-  "current_work_file": "07_重建工作区/PDM-25_审计历史时区配置版本终态与横切完整性_规则原子重建_工作版.md",
+  "current_task": "PDM-01～25 全局 Cross-PDM / Handoff / Global Invariant 最终总复核 R2",
+  "current_work_file": "07_重建工作区/PDM-01至25_全局Cross-PDM_Handoff_GlobalInvariant最终总复核_2026-10-07.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
-    "Do not modify IA or Low-Fi during PDM-01 through PDM-25 product-rule reconstruction",
+    "Do not modify IA or Low-Fi before GLOBAL_PDM01_25_FINAL_INTEGRITY_AUDIT passes",
     "Do not execute Engineering Delta",
-    "Do not close or source-backwrite target=PDM-25 incoming handoffs before PDM-25 Final Closeout",
-    "Do not skip PDM-25 review batches",
-    "Do not mark PDM-25 COMPLETE before Prefinal Integrity, Final Overview approval and Final Closeout",
-    "Do not begin post-PDM25 global final audit or IA/Low-Fi alignment before PDM-25 Final Closeout"
+    "Do not begin bulk Final/Integrity historical-tail cleanup before the global final audit passes",
+    "Preserve historical audit trail; do not physically delete historical stage facts",
+    "Do not change approved product semantics during control-plane synchronization without an explicit new user decision"
   ],
   "confirmed_rule_atoms": [
     "P01-A01",
@@ -538,8 +537,16 @@
     "PDM-13",
     "PDM-14",
     "PDM-15",
+    "PDM-16",
+    "PDM-17",
+    "PDM-18",
+    "PDM-19",
+    "PDM-20",
     "PDM-21",
-    "PDM-24"
+    "PDM-22",
+    "PDM-23",
+    "PDM-24",
+    "PDM-25"
   ],
   "pdm_02_batch_1_pending_atoms": [],
   "pdm_02_batch_1_status": "COMPLETE_USER_CONFIRMED",
@@ -4629,5 +4636,7 @@
   "pdm_25_user_final_approved": true,
   "pdm_25_source_backwrite": "24_24_DONE",
   "global_pdm01_25_final_audit_status": "PENDING",
-  "product_baseline": "NOT_READY"
+  "product_baseline": "NOT_READY",
+  "global_pdm01_25_final_integrity_audit": "R1_REPAIR_APPLIED_R2_PENDING",
+  "global_lia_01_04": "USER_APPROVED_APPLIED"
 }
