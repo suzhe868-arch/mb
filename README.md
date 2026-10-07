@@ -23,7 +23,7 @@
 
 ## A/B/C 三窗口协作与分支接力（2026-10-08 用户确认执行）
 
-- 当前唯一并行焦点仍是 **F01 工程基础环境与骨架 + H01 设计系统/核心模板**；本次新增的路线图是长期规划，**不等于 F02～F08、H02～H04 已获施工或合并授权**。
+- **当前状态（2026-10-08）**：F01 工程基础已由 A 验收并通过 PR #1 合并 main；设计 H01 仍在 A 返修复核/用户视觉方向待确认；F02/F03/F04 仅能准备技术方案及各自开工门禁，不得越级施工。其余 F/H 仍需分别授权。
 - **A 主控**负责全局状态、风险、验收、申请合并授权；**B 工程**只在 `feat/f01-foundation` 执行已批准的 F 单并留下真实测试证据；**C 设计**只在 `design/h01-design-system` 执行已批准的 H01/H02 设计任务，H03/H04 按依赖另行调度。
 - 先阅读：`07_重建工作区/A_B_C三窗口协作与验收规范.md`。
 - B 继续阅读：`07_重建工作区/B工程完整施工路线图_F01至F08.md`。
@@ -64,7 +64,7 @@
 ## 当前状态
 
 - `PRODUCT_BASELINE = NOT_READY`
-- `CURRENT_STAGE = PRODUCT_BASELINE_REBUILD / ENGINEERING_FOUNDATION_AND_HIGH_FI_READY`
+- `CURRENT_STAGE = PRODUCT_BASELINE_REBUILD / F01_ACCEPTED_H01_REVIEW_NEXT_ENGINEERING_GATE`
 - `PDM-01_TO_PDM-25 = COMPLETE / INTEGRITY_PASS`
 - `GLOBAL_PDM01_25_FINAL_INTEGRITY_AUDIT = PASS`
 - `FINAL_INTEGRITY_HISTORICAL_TAIL_CLEANUP = PASS`
@@ -72,19 +72,19 @@
 - `STALE_CURRENT_POINTER_UNQUALIFIED = 0`
 - IA：`COMPLETE / FINAL_GAP_PASS`
 - Low-Fi：`COMPLETE / FINAL_GAP_PASS`
-- Engineering：`STARTUP_GATE_PASS / FOUNDATION_READY / NO_CONSTRUCTION`
-- 当前唯一下一组行动：**F01 工程基础环境与骨架 + H01 Design System / 核心模板（双轨并行）**
-- `NEXT = ENGINEERING_FOUNDATION_F01_AND_HIGH_FI_H01`
+- Engineering：`F01_ACCEPTED / MERGED_TO_MAIN`（**仅基础工程已施工；其余业务仍未施工**）
+- 当前唯一下一组行动：**H01 设计返修/视觉方向复核 + 工程 F02/F03/F04 分阶段开工门禁准备（不施工）**
+- `NEXT = F01_ACCEPTED_H01_REVIEW_ENGINEERING_NEXT_GATE`
 - IA Batch 4 已于 2026-10-08 经用户“全部同意确认执行”后正式落库；6 项 Final-gap 全部关闭，剩余 `CARRIER_DEFERRED=0`，IA 全局集中对齐完成。
 - `LF-B1-01～LF-B1-07` 已于 2026-10-08 经用户“全部同意，确认执行”后正式落库；25 个旧 Low-Fi SVG 已明确退役，定向 stale-current scan=0。
 - `LF-B2-01～LF-B2-07` 已于 2026-10-08 经用户确认执行后正式落库；累计 26 个历史 Low-Fi 资产明确不再作为 Current，Batch 2 定向 stale-current scan=0。
 - `LF-B3-01～LF-B3-04` 已于 2026-10-08 经用户“全部同意，确认执行”后正式落库；有效新 carrier 缺口=0，Low-Fi 新 Page/State/SVG=0/0/0，4 组 IA stale carrier 已回修，Batch 3 定向 stale-current scan=0。
 - `LF-B4-01` 已于 2026-10-08 经用户“同意确认执行”后正式落库；5 个 LockRequest V2 已存在 Low-Fi carrier 完成 IA 索引补齐，Final-gap Scan 全部通过，Low-Fi 全局集中对齐正式 `COMPLETE / FINAL_GAP_PASS`。
 - 9/22 旧 Delta：`05_证据_E_工程总闭环待执行Delta/工程总闭环待执行Delta清单.md`，仍仅作历史输入，禁止直接施工。
-- 工程启动门禁已于 2026-10-08 经用户“确认执行”批准落库：`PASS / USER_APPROVED / APPLIED`；历史文件 160/160 及旧接口 218/218 完成路径级分类与施工归属；逐字段/运行验收仍属未来 F01～F08。
-- Startup Gate 已 PASS；下一步按施工单进入 `F01 Engineering Foundation + H01 High-Fi / Design System` 双轨；正式前端按“High-Fi 确认一批 → 开发一批”放行。
-- High-Fi / Design System：`READY_TO_START / NOT_STARTED`。
-- IA Batch 1 已于 2026-10-08 经用户“全部同意，确认执行”后正式落库；Low-Fi / Engineering 仍不施工。
+- 工程启动门禁已于 2026-10-08 经用户“确认执行”批准：`PASS / USER_APPROVED / APPLIED`；路径级分类覆盖 160 文件、旧接口归属覆盖 218 项。**F01 单独完成基础工程验收**，F02～F08 的接口逐字段和运行验收仍未完成。
+- **F01 验收记录**：`07_重建工作区/F01_工程基础验收与合并记录_2026-10-08.md`；合并 [PR #1](https://github.com/suzhe868-arch/mb/pull/1)，工程分支 CI [37695813678](https://github.com/suzhe868-arch/mb/actions/runs/37695813678)。H01/H02 仍按“核心视觉/High-Fi 确认一批 → 前端仅开发已放行批次”执行。
+- High-Fi / Design System：`H01_READY_FOR_A_REVIEW / REVISIONS_AND_USER_VISUAL_PENDING`；C 分支不因 F01 合并而验收或合并。
+- HISTORICAL｜IA Batch 1 时曾记录 Low-Fi / Engineering 尚未施工；现已被本段 F01 验收结论替代。
 - 历史尾巴复核报告：`07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md`
 
 详细阶段历史、用户裁决和逐 PDM 进度保留在 `CURRENT_PROJECT_STATE.md`、`07_重建工作区/DECISION_REGISTER.md`、各 PDM Final / Integrity 与 Cross-PDM Handoff Register 中。
@@ -98,7 +98,7 @@
   - `07_重建工作区/工程启动门禁_历史工程复用与差异台账_2026-10-08.md`
   - `07_重建工作区/工程启动门禁_工程基础施工单与验收标准_2026-10-08.md`
   - `07_重建工作区/工程启动门禁_最终审查报告_2026-10-08.md`
-- 当前唯一并行下一步：`F01` 工程基础环境与骨架 + `H01` Design System / 核心模板。
+- HISTORICAL｜工程启动门禁通过时曾指定 `F01 + H01` 双轨开始；现 F01 已完成，最新执行指针以本段及 `NEXT_ACTION.md` 为准。
 - 施工必须服从 PDM-01～25 Final、Current IA、Current Low-Fi；禁止直接恢复旧逻辑、用旧迁移施工或先按 Low-Fi 批量写正式页面。
 
 ## Git 使用
