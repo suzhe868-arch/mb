@@ -406,7 +406,6 @@ These are UI/IA projections or historical outcomes. They do not create additiona
 | E07-05 / P07-05 | REFUND_PENDING_CLOSE_AVAILABLE | Authorized manager/store manager may withdraw/close an unexecuted pending refund with reason |
 | E07-05 / P07-05 | REFUND_CLOSED_NOT_REFUNDED | Historical display after withdrawal/closure; it is not `refunded` and does not change vehicle occupancy |
 | C01-M01 / C01-01 | PRICE_CHECK_FAILED_NO_DEBIT | Failure/timeout does not debit quota; retry is idempotent; no internal wholesale price is exposed |
-| P06-01 | CUSTOMER_MERGE_BLOCKED_ACTIVE_DEMAND | Merge cannot proceed until active/paused Demand is completed or cancelled |
 | P08-04 / P02-07 | NEW_CYCLE_OVERRIDE_NOT_INHERITED | Old manual display-price override ended with old listing cycle |
 | E02-01 / P03-05 | LATEST_PHONE_FAILED_CACHE_AVAILABLE | Latest fetch failed; cached phone may remain usable but must not be labeled latest |
 | C01 / C01-01 | BANNER_DISPLAY_ONLY | No target, invalid target or expired target; display is allowed but navigation is disabled |
@@ -439,7 +438,6 @@ These are UI/IA projections or historical outcomes. They do not create additiona
 | E06-M01 | NORMAL / DENIED / ERROR | D5 Consultation reassignment | E06-02 进入；确认后回 E06-02；拒绝/错误不改变 Consultation |
 | E07-M02 / P07-M02 | NORMAL / DENIED / ERROR | D10 Deposit correction | E07-04/P07-03 进入；确认追加事实；取消/拒绝不改变 Deposit |
 | E07-M03 / P07-M03 | NORMAL / DENIED / ERROR | D11 Refund close | E07-05/P07-05 进入；确认形成 CLOSED_NOT_REFUNDED；取消保持 pending |
-| P06-M01 | NORMAL / MERGE_BLOCKED / MERGE_READY / MERGING / MERGED / MERGE_HISTORICAL | D13; Step7; NEW-01 | NORMAL 为 overlay shell；active/paused Demand 时只能返回 P06-09 处理或取消；无阻断后可显示 READY、显式确认并投影 MERGING/MERGED；历史不可变 |
 | P12-M01 | NORMAL | D6 Banner lifecycle confirmation | P12-01 进入；确认/取消均回 P12-01；无效目标不得启用导航 |
 | E02-M01 | AUTHORIZED | DP-05; Step4 E02/S4-C15 | 仅代表 active Mingbang employee 通过身份/范围校验；各字段/动作继续独立鉴权；退出回 E02-01 |
 | E02-M01 | PERMISSION_DENIED | DP-05 | 保持客户安全详情，不返回内部价/电话/VIN；退出回 E02-01 |
@@ -486,7 +484,6 @@ These are UI/IA projections or historical outcomes. They do not create additiona
 | C01-M03 / C03-07 | DIRECT_REFERRAL_CAPTURED | Step5 C04; third-round NEW-04 | Freeze direct referrer and referrer's current owner at event time; later owner change does not rewrite source; no multilevel/commission |
 | C01-M03 / C01 | SOURCE_ONLY | D1 actor boundary | Customer-side re-share uses the same source-only result, never assigns owner, and returns to C01 |
 | C01-01 / E01-01 | VEHICLE_INTENT_WORK_ITEM_PENDING / CONFIRM_LOCK_GUARD / CONFIRMED / CLOSED_NOT_LOCKABLE | third-round NEW-05 | Phone required; creates employee work item, not Lock; confirmation enters the canonical submit-time Lock guard; unavailable vehicle closes without Lock |
-| P06-01 / P06-M01 | MERGE_BLOCKED / MERGE_READY / MERGING / MERGED / MERGE_HISTORICAL | D13; Step7; NEW-01 | active/paused Demand yields BLOCKED; after complete/cancel recheck, explicit confirmation reaches MERGED; both entry page and overlay use the same projection and preserve immutable history |
 | P06-03 / P06-04 | COLLABORATION_ACTIVE / COLLABORATION_ENDED / REBUILD_REQUIRED / COLLABORATION_HISTORICAL | Step5; NEW-03 | Exact customer/business scope; owner change, business end or inactive participant ends current record; rebuild is new record |
 | P04-01 / P04-06 / P04-07 | EMPLOYEE_ACTIVE / INACTIVE_HANDOFF_REQUIRED / HANDOFF_IN_PROGRESS / HANDOFF_COMPLETED / REINSTATED_NO_AUTO_RESTORE | Step4/5; NEW-02/NEW4-01 | employee_id remains stable; inactive/lost eligibility blocks new responsibility and active work is mapped; reinstatement requires fresh authorization, accepting defaults OFF, and never revives old permissions/customers/business/responsibility |
 | P04-01 / P04-06 / P02-04 | FOUR_S_DISABLED_TAKEOVER_REQUIRED / FOUR_S_VEHICLES_PAUSED / MINGBANG_TAKEOVER_IN_PROGRESS / TAKEOVER_COMPLETED / SUPPLY_ANOMALY_REVIEW | Step5 V09; D7 | Disable revokes access and pauses affected display/matching; preserve source_type=4S and existing Lock/funds/Transaction; map responsibility to eligible Mingbang target; invalid supply enters anomaly review |
