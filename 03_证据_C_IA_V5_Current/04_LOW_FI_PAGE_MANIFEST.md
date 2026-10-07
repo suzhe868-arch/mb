@@ -122,7 +122,7 @@
 | P05-01 | System Admin 账号 | NORMAL, EMPTY, PERMISSION_DENIED, DISABLED | 4 |
 | P05-02 | System Admin 权限 / 状态 | NORMAL | 1 |
 | P06 | 客户与找车服务 | NORMAL | 1 |
-| P06-01 | 客户管理 | NORMAL, MERGE_BLOCKED, MERGE_READY, MERGING, MERGED, MERGE_HISTORICAL | 1 |
+| P06-01 | 客户管理 | NORMAL | 1 |
 | P06-02 | 客户归属 / 归属历史 | NORMAL | 1 |
 | P06-03 | 客户画像 | NORMAL, COLLABORATION_ACTIVE, COLLABORATION_ENDED, REBUILD_REQUIRED, COLLABORATION_HISTORICAL | 1 |
 | P06-04 | 客户跟进时间线 | NORMAL, COLLABORATION_ACTIVE, COLLABORATION_ENDED, COLLABORATION_HISTORICAL | 1 |
@@ -190,7 +190,6 @@ Updated existing NORMAL artifacts only: C01-01, E02-01, E03-01, E03-02, E05-02, 
 | P07-M02 | 意向金冲正 / 更正确认 | NORMAL, DENIED, ERROR | 0 |
 | E07-M03 | pending Refund 撤回 / 关闭确认 | NORMAL, DENIED, ERROR | 0 |
 | P07-M03 | pending Refund 撤回 / 关闭确认 | NORMAL, DENIED, ERROR | 0 |
-| P06-M01 | Customer 合并 Demand 阻断 | NORMAL, MERGE_BLOCKED, MERGE_READY, MERGING, MERGED, MERGE_HISTORICAL | 0 |
 
 ## Phase 1.5 IA adjustment overlay
 
