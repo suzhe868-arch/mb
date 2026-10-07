@@ -53,17 +53,18 @@
 ## 当前状态
 
 - `PRODUCT_BASELINE = NOT_READY`
-- `CURRENT_STAGE = PRODUCT_BASELINE_REBUILD / IA_GLOBAL_ALIGNMENT_IN_PROGRESS`
+- `CURRENT_STAGE = PRODUCT_BASELINE_REBUILD / LOW_FI_GLOBAL_ALIGNMENT_READY`
 - `PDM-01_TO_PDM-25 = COMPLETE / INTEGRITY_PASS`
 - `GLOBAL_PDM01_25_FINAL_INTEGRITY_AUDIT = PASS`
 - `FINAL_INTEGRITY_HISTORICAL_TAIL_CLEANUP = PASS`
 - `HISTORICAL_CARRIER_LABELED = 68 / 68`
 - `STALE_CURRENT_POINTER_UNQUALIFIED = 0`
-- IA：`IN_PROGRESS / BATCH_1_2_3_APPLIED`
-- Low-Fi / Engineering：`NO_CONSTRUCTION`
-- 当前唯一下一步：**IA Batch 4｜Final-gap Scan（冲突 / 遗漏 / 缺口 / 新选择）**
-- `NEXT = IA_GLOBAL_ALIGNMENT_BATCH_4_FINAL_GAP_SCAN`
-- IA Batch 2 + 3 已于 2026-10-08 经用户“全部同意，确认执行”后正式落库；剩余 4 条 carrier 进入 Batch 4 Final-gap Scan。
+- IA：`COMPLETE / FINAL_GAP_PASS`
+- Low-Fi：`READY_TO_START`
+- Engineering：`NO_CONSTRUCTION`
+- 当前唯一下一步：**Low-Fi 全局集中对齐**
+- `NEXT = LOW_FI_GLOBAL_ALIGNMENT`
+- IA Batch 4 已于 2026-10-08 经用户“全部同意确认执行”后正式落库；6 项 Final-gap 全部关闭，剩余 `CARRIER_DEFERRED=0`，IA 全局集中对齐完成。
 - IA Batch 1 已于 2026-10-08 经用户“全部同意，确认执行”后正式落库；Low-Fi / Engineering 仍不施工。
 - 历史尾巴复核报告：`07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md`
 
