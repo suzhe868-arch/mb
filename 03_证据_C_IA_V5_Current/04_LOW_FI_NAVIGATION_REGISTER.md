@@ -1,5 +1,13 @@
 # 04 LOW-FI NAVIGATION REGISTER — PHASE 1.5 IA CURRENT
 
+<!-- IA-GLOBAL-B4-NAV -->
+> **IA Batch 4 Navigation 正规化｜2026-10-08**
+>
+> - 删除 P03“保存/测试 Collector 电话连接”和 P06-06 Recommendation qualification 当前入口。
+> - P02-06 Supply Anomaly 只提供真实异常查看/复核/清除，不因 anomaly 标签统一隐藏所有新业务动作；动作是否可用读取真实 source/resource 与对应业务 Guard。
+> - Recommendation 入口按当前合法业务 responsible + find-car entitlement + permission/capability + scope + object state 重验；4S Vehicle 不因来源类型被禁止名邦合法推荐。
+> - E03-02 / P06-03 增加独立服务称呼维护承载；不得并入 Personal Note / Shared Profile。
+
 <!-- IA-GLOBAL-B2-B3-NAV -->
 > **IA Batch 2 + 3 Navigation 覆盖｜2026-10-08**
 >
@@ -73,7 +81,7 @@ This register is the self-contained current IA authority for action routing. It 
 | C02 | 新增找车需求 | C02 | none |
 | C03-03 | 提交咨询 | C03-03 | phone authorized; eligible vehicle/business context; create or idempotently reuse one open Consultation and project it as pending in E06-01/E06-02 |
 | C03-03 | 撤回咨询 | C03-03 | current customer owns the same pending/processing Consultation; submit revalidates identity and open state; close normally as CANCELLED, never INVALID |
-| E01-04 | 推荐给客户 | E03-05 | REF_GUARD[RECOMMENDATION]；local_ui_fact=actor is current customer owner; customer+demand+vehicle+listing_cycle known; vehicle recommendable; open shared Recommendation confirmation flow |
+| E01-04 | 推荐给客户 | E03-05 | REF_GUARD[RECOMMENDATION]；local_ui_fact=actor is current legal business responsible; customer+demand+vehicle+listing_cycle known; vehicle recommendable; open shared Recommendation confirmation flow |
 | E01-04 | 标记不合适 | E01-04 | match exists |
 | E02-01 | 推荐给客户 | E02-03 / E02-01 | REF_GUARD[RECOMMENDATION]；local_ui_fact=actor is current customer owner; customer+vehicle+listing_cycle known; vehicle recommendable; idempotent in cycle |
 | E02-01 | 锁车 | E02-04 / E07-01 | REF_GUARD[LOCK_CREATE_CANCEL]；local_ui_fact=actor is active eligible Mingbang employee, not 4S; explicit Lock capability; customer and vehicle in data scope; current listing_cycle/source/occupancy lockable; final submit rechecks identity, capability, scope and object state; internal wholesale price may be absent |
@@ -83,16 +91,17 @@ This register is the self-contained current IA authority for action routing. It 
 | E03-01 | 记录跟进 | E03-03 | customer visible in scope |
 | E03-02 / P06-03 | 新增/更新本人 Personal Note | E03-02 / P06-03 | actor is the note author and customer is visible in scope; personal note remains author-private and is not transferred with owner |
 | E03-02 / P06-03 | 更新 Shared Profile | E03-02 / P06-03 | actor is current owner, explicit collaborator within collaboration scope, or authorized manager/store manager covering customer scope; audit before/after; never expose personal notes |
+| E03-02 / P06-03 | 新增/更新员工内部客户称呼 / 服务称呼 | E03-02 / P06-03 | actor has current CRM access in scope; service-name fact is separate from Personal Note and Shared Profile; preserve author/time/source/change history; former service history alone grants no current CRM access |
 | E03-01 | 找车服务 | E05 | customer visible |
 | E03-01 | 推荐车辆 | E03-05 | REF_GUARD[RECOMMENDATION]；local_ui_fact=actor is current customer owner; customer+vehicle+listing_cycle known; vehicle recommendable; idempotent in cycle |
 | E03-01 | 锁车 | E03-06/E07-01 | REF_GUARD[LOCK_CREATE_CANCEL]；local_ui_fact=same canonical Lock guard as E02-01/P07-01: active eligible Mingbang employee, not 4S; explicit Lock capability; customer and vehicle scope; current listing_cycle/source/occupancy; submit recheck |
 | E03-01 | 查看业务历史 | E03-04 | customer is visible in actor data scope; read-only history projection |
-| E02-03 | 确认正式推荐 | E03-04 | REF_GUARD[RECOMMENDATION]；local_ui_fact=revalidate current owner, customer, vehicle, demand when present and listing_cycle; create/reuse one Recommendation idempotently |
+| E02-03 | 确认正式推荐 | E03-04 | REF_GUARD[RECOMMENDATION]；local_ui_fact=revalidate current legal business responsible, customer, vehicle, demand when present and listing_cycle; create/reuse one Recommendation idempotently |
 | E02-03 | 取消推荐 | E02-01 | REF_GUARD[RECOMMENDATION]；local_ui_fact=no Recommendation mutation |
-| E03-05 | 确认正式推荐 | E03-04 | REF_GUARD[RECOMMENDATION]；local_ui_fact=revalidate current owner, customer, vehicle, demand when present and listing_cycle; create/reuse one Recommendation idempotently |
+| E03-05 | 确认正式推荐 | E03-04 | REF_GUARD[RECOMMENDATION]；local_ui_fact=revalidate current legal business responsible, customer, vehicle, demand when present and listing_cycle; create/reuse one Recommendation idempotently |
 | E03-05 | 取消推荐 | E03-01 | REF_GUARD[RECOMMENDATION]；local_ui_fact=no Recommendation mutation |
-| E03-04 | 结束 Recommendation | E03-04 / C03-02 | REF_GUARD[RECOMMENDATION]；local_ui_fact=active Recommendation; actor is the current customer owner (the only creation actor established by current authority); submit revalidates owner, object and listing_cycle; end current object and preserve history; do not alter Priority or price-check facts already granted for the cycle |
-| E03-04 | 作废 Recommendation | E03-04 / C03-02 | REF_GUARD[RECOMMENDATION]；local_ui_fact=active Recommendation was created incorrectly; actor is the current customer owner; submit revalidates owner and object; mark VOID with reason and preserve history; correction requires a new Recommendation |
+| E03-04 | 结束 Recommendation | E03-04 / C03-02 | REF_GUARD[RECOMMENDATION]；local_ui_fact=active Recommendation; actor is the current legal business responsible; submit revalidates owner, object and listing_cycle; end current object and preserve history; do not alter Priority or price-check facts already granted for the cycle |
+| E03-04 | 作废 Recommendation | E03-04 / C03-02 | REF_GUARD[RECOMMENDATION]；local_ui_fact=active Recommendation was created incorrectly; actor is the current legal business responsible; submit revalidates owner and object; mark VOID with reason and preserve history; correction requires a new Recommendation |
 | E03-04 | 查看 cycle 结束后的推荐历史 | E03-04 / C03-02 | REF_GUARD[RECOMMENDATION]；local_ui_fact=listing_cycle ended; Recommendation is no longer active and never revives if qualification or a later cycle appears |
 | E02-04 | 确认创建 Lock | E07-01 | REF_GUARD[LOCK_CREATE_CANCEL]；local_ui_fact=canonical final-submit Lock guard: actor is active eligible Mingbang employee, not 4S, with explicit Lock capability; customer and vehicle in data scope; current listing_cycle/source/occupancy lockable; recheck identity, capability, scope and object state; create/reuse one active Lock idempotently and project LOCKED to C03-04 |
 | E02-04 | 取消 | E02-01 | no Lock mutation |
@@ -112,7 +121,7 @@ This register is the self-contained current IA authority for action routing. It 
 | E05-06 | 确认候选条件 | E05-05 | actor is current responsible employee or authorized manager/store manager in scope; result becomes eligible for normal Priority arbitration |
 | E05-06 | 拒绝/返回修正 | E05-04 | no Priority created; Demand remains active unless separately paused/completed/cancelled |
 | E05-05 | 查看隐藏车受控详情 | E02-01 | REF_GUARD[HIDE_RESTORE]；local_ui_fact=active authorized Demand/Priority context; visible only to corresponding customer and authorized employee; never restores public Feed |
-| E05-05 | 正式推荐 | E03-05 | REF_GUARD[RECOMMENDATION]；local_ui_fact=actor is current customer owner; confirmed candidate; customer+vehicle+listing_cycle known; Recommendation idempotent in cycle and distinct from Priority/price-check right |
+| E05-05 | 正式推荐 | E03-05 | REF_GUARD[RECOMMENDATION]；local_ui_fact=actor is current legal business responsible; confirmed candidate; customer+vehicle+listing_cycle known; Recommendation idempotent in cycle and distinct from Priority/price-check right |
 | E06-02 | 开始处理/标记处理中 | E06-02 | consultation pending |
 | E06-02 | 记录真实跟进 | E06-02/E03-03 | consultation open |
 | E06-02 | 解决 | E06-02 | consultation open |
@@ -197,8 +206,6 @@ This register is the self-contained current IA authority for action routing. It 
 | P04-04 | 设置 4S cooperation scope | P04-04 / P02-04 | actor has 4S-member-management permission and covers target cooperation scope; changes affect current visibility/actions and are audited |
 | E04 | 查看合作身份与本人 4S 管理范围 | E04 | active 4S member; show cooperation identity instead of fictitious main-store field; no Mingbang CRM/internal-price entry |
 | P02-04 | 管理合作范围内 4S 车源 | P02-04 / P02-07 | active employee with corresponding vehicle action permission and covering cooperation scope; source remains 4S; sensitive actions separately authorized |
-| P03 | 保存 Collector 电话连接 | P03 | HTTPS + deployment allowlisted host + relative path + valid timeout + secret reference |
-| P03 | 发送测试 | P03 | Collector connection parameters complete + publisher_id available |
 | P12-01 | 启用/停用 | P12-M01/P12-01 | banner exists |
 | P12-M01 | 确认启用/停用 | P12-01 | revalidate banner, schedule, placement and optional allowlisted target; audit transition |
 | P12-M01 | 取消 | P12-01 | no Banner mutation |
@@ -256,7 +263,6 @@ This register is the self-contained current IA authority for action routing. It 
 | P06-03 / P06-04 | 建立 Collaboration | P06-03 / P06-04 | actor is current owner or authorized manager in customer/business scope; participants active/eligible; persist exact scope |
 | P06-03 / P06-04 | 结束 Collaboration | P06-03 / P06-04 | actor authorized or owner/business/participant eligibility ended; close current collaboration and preserve history; rebuild requires a new record |
 | P06-05 | 指定分配公海客户 | P06-02 | REF_GUARD[PUBLIC_POOL]；local_ui_fact=actor has public-pool assignment permission and customer scope; owner=NULL; protections clear; target active/eligible; revalidate and audit source/old/new owner |
-| P06-06 | 开启/关闭 Recommendation 资格 | P06-06 | REF_GUARD[RECOMMENDATION]；local_ui_fact=independent permission + customer scope; off blocks future creation but does not revoke current-cycle granted benefit; qualification follows customer, not owner |
 | E01 | 开启/关闭本人接客 | E01 | active eligible employee; cannot close the last active eligible accepting employee; affects future natural registration/auto-round-robin only; existing customers/responsibilities do not move; D1-valid own share can still establish owner while employee remains active/eligible |
 | P04-01 | 新增/停用/恢复普通员工 | P04-01 | authorized store/business manager in scope; employee_id remains the stable identity across reinstatement; inactive triggers handoff and blocks new responsibility; restore requires fresh authorization, accepting defaults OFF, and does not revive old permissions/customers/business |
 | P04-02 / P04-03 / P04-04 | 设置角色/权限覆盖/数据范围/接客状态 | P04-02 / P04-03 / P04-04 | authorizer may not grant beyond own boundary or self-elevate; change audited; loss of eligibility triggers handoff |
@@ -265,7 +271,7 @@ This register is the self-contained current IA authority for action routing. It 
 | P04-07 | 确认交接批次 | P04-07 / P04-06 | REF_GUARD[EMPLOYEE_HANDOFF]；local_ui_fact=every affected object mapped; submit rechecks target eligibility, scope and object state; partial failure keeps unresolved objects in batch and does not roll back completed mappings |
 | P06-02 | owner 变化后的 Collaboration 处理 | P06-03 / P06-04 | terminate affected collaboration; do not rewrite its historical owner/participants; create a new collaboration only after current eligibility validation |
 | E05-05 | 创建 Priority | E05-05 | confirmed eligible match; freeze TTL at creation; one customer+vehicle+listing_cycle only; handoff never rewrites creator/history |
-| P02-06 | 查看系统/上游已标记的 identity conflict / supply anomaly | P02-06 | anomaly is produced by verified source/system evidence; page is read/triage entry, not an invented manual anomaly-creation authority; new business stops while existing Lock/funds/Transaction and history remain |
+| P02-06 | 查看系统/上游已标记的 identity conflict / supply anomaly | P02-06 | anomaly is produced by verified source/system evidence; page is read/triage entry, not an invented manual anomaly-creation authority; anomaly itself does not block all new business; current source/resource saleability, visibility and each business object's own Guard decide action availability; existing Lock/funds/Transaction and history remain |
 | P02-06 | 人工审查并清除异常 | P02-06 | authorized reviewer; evidence/reason required; revalidate actual source before allowing new business; never erase anomaly history |
 | E02-01 / E02-02 / P02-07 | 重试失败图片 | E02-01 / E02-02 / P02-07 | image state partial_failed/failed; retry only failed items; successful frozen images and business facts remain |
 | E02-01 / E02-02 / P02-07 | 人工补录/恢复图片 | E02-01 / E02-02 / P02-07 | authorized vehicle editor in scope; append recovery fact and audit; no rollback of successful frozen set |
