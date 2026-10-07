@@ -1,5 +1,38 @@
 # 04 LOW-FI STATE REGISTER — PHASE 1.5 IA CURRENT
 
+<!-- IA-GLOBAL-B2-B3-STATE -->
+> **IA Batch 2 + 3 State 覆盖｜2026-10-08**
+>
+> **DEPRECATED / DO_NOT_RESTORE**
+> - RECOMMENDATION_QUALIFIED / NOT_QUALIFIED；
+> - Customer-specific Matching / customer-exclusive Matching states；
+> - 人工 Priority create/transfer/override/renew/revive；
+> - Opportunity 旧阈值/工单/SLA/close 主状态机；
+> - Consultation CANCELLED 第五主状态；
+> - Refund partial 主状态；
+> - Waitlist 自动晋升 Lock；
+> - 客户保证性候补排名；
+> - Announcement 旧三档 frequency / republish-reset；
+> - 通用消息 read/unread 主状态机。
+>
+> **当前真实状态**
+> - Model governance：mapping_pending、model_missing、mapping_conflict 必须分层；JYT 已知车型事实不因本地 mapping pending/conflict 变 unknown。
+> - Draft：多个独立 draft；正式发布前不进入 Vehicle/listing_cycle。
+> - Archive：current version / invalidated / superseded history 与 customer_visible 独立。
+> - Image assetization：processing / success / partial_failed / failed；临时受控回源不等于 success。
+> - Phone：cached/latest/PHONE_UNAVAILABLE 分层；latest 未取新号码但存在旧有效缓存时不得进入“完全无号码”状态。
+> - Price：LIMITED / UNLIMITED；customer disable 只暂停 protected price capability，不删除既有 price-right。
+> - Matching：high / acceptable / confirmation_needed / no_match；confirmation 后先补事实再重算，不直接写 tier。
+> - Priority：qualification enabled/disabled 与 active/ended Priority 分层；active Priority 不等于 visibility/price-right。
+> - Recommendation：其他 Customer Priority 期间可临时 suppression，但历史对象不删除。
+> - LockRequest：PENDING / APPROVED / REJECTED / EXPIRED / LOCK_CONFLICT / CLOSED_NOT_LOCKABLE；LOCK_CONFLICT 可关联 resulting_waitlist_id。
+> - Waitlist：active/history/end；无自动 promotion。
+> - Lock：active/ended + expires_at；普通 Lock 与 Priority-origin Lock 的 visibility projection 分层；Deposit 后不再按普通倒计时释放语义。
+> - Refund：pending / refunded / closed；closed ≠ refunded。
+> - Transaction：in_progress / completed / cancelled；correction 是追加真实事实，不抹除历史，不自动 relist/new cycle。
+> - Announcement 与 Banner 为独立对象；Banner placement = HOME_TOP / VEHICLE_DETAIL。
+
+
 <!-- IA-GLOBAL-B1-STATE -->
 > **IA Batch 1 状态覆盖｜2026-10-08**
 >
