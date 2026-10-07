@@ -195,4 +195,4 @@ target=PDM-25 的 24 条 incoming handoff 均已在产品语义上明确 landing
 - 来源 PDM-01～24 Final 与 Integrity 均已反向回写；
 - PDM-25：`COMPLETE / INTEGRITY_PASS`；
 - IA / Low-Fi / Engineering 未施工；
-- 当前唯一下一步：**PDM-01～25 全局 Cross-PDM / Handoff / Global Invariant 最终总复核。**
+- 历史阶段下一步（HISTORICAL_AUDIT_TRAIL，当时）：**PDM-01～25 全局 Cross-PDM / Handoff / Global Invariant 最终总复核。**
