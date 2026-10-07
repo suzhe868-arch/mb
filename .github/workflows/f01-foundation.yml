@@ -16,9 +16,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
-          cache: npm
-          cache-dependency-path: engineering/package-lock.json
-      - name: 锁文件安装
-        run: npm ci --ignore-scripts --offline --no-audit --no-fund
-      - name: 预检、构建与测试
-        run: npm run check
+      # F01-3 技术引入阶段：由 GitHub CI 生成并回传依赖锁草案，
+      # 下一次工程提交必须回写锁文件，恢复强制 npm ci。
+      - name: 临时生成 pg 锁文件草案（一次性依赖引入）
+        run: |
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          echo "F01_LOCK_BEGIN"
+          base64 -w0 package-lock.json
+          echo
+          echo "F01_LOCK_END"
+      - name: 依赖安装与基础验证
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run check
