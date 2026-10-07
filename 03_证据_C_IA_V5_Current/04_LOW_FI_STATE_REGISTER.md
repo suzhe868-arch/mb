@@ -200,7 +200,7 @@
 | E05-05 | ACCEPTABLE | HR-01 four-tier Matching result | 可接受候选；仍需服从 Priority 仲裁与对象状态 |
 | E05-05 | CONFIRMATION_NEEDED | HR-01 four-tier Matching result | 进入 E05-06 人工确认；未确认前不创建 Priority |
 | E05-05 | NO_MATCH | HR-01 four-tier Matching result | 无匹配；允许修改 Demand 条件或等待后续匹配，不偷偷放宽硬条件 |
-| E05-05 | HIDDEN_CONTROLLED | HR-03 controlled hidden-vehicle visibility | 仅对应客户与授权员工在 Demand/Priority 上下文可见；不进入公共 Feed |
+| E05-05 | HIDDEN_CONTROLLED | PDM-13/PDM-14 controlled hidden candidate | 授权名邦员工可在当前 Matching/Priority 内部上下文查看候选；Demand/Priority 本身不授 Customer hidden visibility；Customer 访问需独立 Recommendation visibility grant / valid Lock / Transaction 等当前 Authority |
 | E05-06 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | E05-06 | EMPTY | Generic UI execution state; no domain mutation | 真实空态 + 合法下一步 |
 | E05-06 | ERROR | Generic UI execution state; no domain mutation | 加载/提交失败 + 重试 |
