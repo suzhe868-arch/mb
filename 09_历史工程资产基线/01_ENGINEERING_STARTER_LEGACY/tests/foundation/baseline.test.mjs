@@ -1,0 +1,2 @@
+import test from "node:test"; import assert from "node:assert/strict"; import { readFile } from "node:fs/promises";
+test("baseline is .10 CR-007 with image re-review frozen and engineering sync pending", async()=>{ const t=await readFile(new URL("../../spec/FINAL_DEV_READY/FINAL_BASELINE_VERSION.md",import.meta.url),"utf8"); assert.match(t,/Baseline ID: `MB-V1-PREDEV-FINAL-2026-09-10\.10`/); assert.match(t,/FINAL_DEV_READY = FALSE_PENDING_IMAGE_ENGINEERING_SYNC/); assert.match(t,/IMAGE_MODULE_REVIEW = COMPLETE/); assert.match(t,/IMAGE_ENGINEERING_SYNC = PENDING/); });

@@ -1,0 +1,12 @@
+{
+  "name": "@mingbang/contracts",
+  "private": true,
+  "version": "0.0.0-dev00",
+  "type": "module",
+  "exports": {
+    "./permissions": "./src/permissions.ts",
+    "./capabilities": "./src/capabilities.ts",
+    "./operations": "./generated/operation-index.json",
+    "./types": "./generated/types.ts"
+  }
+}

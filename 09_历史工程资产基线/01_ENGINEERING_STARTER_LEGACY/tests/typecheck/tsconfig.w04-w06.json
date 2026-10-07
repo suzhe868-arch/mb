@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "ES2024",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "paths": {
+      "@mingbang/contracts/permissions": [
+        "../../packages/contracts/src/permissions.ts"
+      ],
+      "@mingbang/contracts/types": [
+        "../../packages/contracts/generated/types.ts"
+      ]
+    }
+  },
+  "include": [
+    "shims.d.ts",
+    "../../apps/api/src/core/db-types.ts",
+    "../../apps/api/src/core/errors.ts",
+    "../../apps/api/src/core/authz.ts",
+    "../../apps/api/src/core/object-scope.ts",
+    "../../apps/api/src/modules/customer/customer-read.repository.ts",
+    "../../apps/api/src/modules/vehicle/vehicle-read.repository.ts",
+    "../../packages/contracts/src/permissions.ts",
+    "../../packages/contracts/generated/types.ts",
+    "../../apps/api/src/modules/customer/customer-read.routes.ts",
+    "../../apps/api/src/modules/vehicle/vehicle-read.routes.ts",
+    "../../apps/api/src/modules/auth/staff-self.repository.ts",
+    "../../apps/api/src/modules/auth/staff-self.routes.ts"
+  ]
+}

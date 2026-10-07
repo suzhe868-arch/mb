@@ -1,0 +1,32 @@
+{
+  "name": "mingbang-auto-v1",
+  "private": true,
+  "version": "0.0.0-dev00",
+  "type": "module",
+  "packageManager": "pnpm@11.19.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "preflight": "node scripts/preflight.mjs",
+    "verify:baseline": "node scripts/verify-baseline.mjs",
+    "verify:contracts": "node scripts/verify-contracts.mjs",
+    "test:foundation": "node --experimental-strip-types --test tests/foundation/*.test.mjs",
+    "typecheck": "pnpm --filter @mingbang/api build",
+    "build": "pnpm typecheck && pnpm --filter @mingbang/admin-web build && pnpm --filter @mingbang/customer-miniapp build:mp-weixin && pnpm --filter @mingbang/staff-miniapp build:mp-weixin",
+    "db:migrate": "node scripts/db-migrate.mjs",
+    "db:clean-rebuild": "node scripts/db-clean-rebuild.mjs",
+    "dev:api": "pnpm --filter @mingbang/api dev",
+    "dev:customer": "pnpm --filter @mingbang/customer-miniapp dev:mp-weixin",
+    "dev:staff": "pnpm --filter @mingbang/staff-miniapp dev:mp-weixin",
+    "dev:admin": "pnpm --filter @mingbang/admin-web dev",
+    "generate:contracts": "python3 scripts/generate-contract-types.py && python3 scripts/generate-operation-index.py && node scripts/generate-operation-ownership.mjs && node scripts/generate-workstream-operation-manifests.mjs"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2"
+  }
+}

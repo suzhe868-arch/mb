@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: mingbang_v1
+      POSTGRES_USER: mingbang
+      POSTGRES_PASSWORD: ${MINGBANG_DEV_DB_PASSWORD:?set MINGBANG_DEV_DB_PASSWORD for this disposable environment}
+      TZ: Asia/Shanghai
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mingbang -d mingbang_v1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - mingbang_pgdata:/var/lib/postgresql/data
+volumes:
+  mingbang_pgdata:
