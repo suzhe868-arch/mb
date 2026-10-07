@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "status": "DESIGN_PROPOSAL",
+    "branch": "design/h01-design-system",
+    "approved": false
+  },
+  "components": [
+    {
+      "id": "DS-03",
+      "template": "C01",
+      "states": [
+        "normal",
+        "loading",
+        "no-image",
+        "price-hidden",
+        "price-visible"
+      ],
+      "guards": [
+        "PDM-10",
+        "PDM-20"
+      ]
+    },
+    {
+      "id": "DS-05",
+      "template": "C01/C01-01",
+      "states": [
+        "limited-list-hidden",
+        "limited-detail-auto-unlock",
+        "quota-exhausted",
+        "price-consultation",
+        "unlimited-visible"
+      ],
+      "guards": [
+        "PDM-10"
+      ]
+    },
+    {
+      "id": "DS-07",
+      "template": "C01-01",
+      "states": [
+        "lockable",
+        "lock-request-pending",
+        "locked-by-self",
+        "locked-by-other",
+        "waitlisted",
+        "read-only"
+      ],
+      "guards": [
+        "PDM-18",
+        "PDM-20"
+      ]
+    },
+    {
+      "id": "DS-09",
+      "template": "E02-02",
+      "states": [
+        "blank-no-draft",
+        "auto-saving",
+        "auto-saved",
+        "save-failed",
+        "draft-list",
+        "resume"
+      ],
+      "guards": [
+        "PDM-06",
+        "PDM-21"
+      ]
+    },
+    {
+      "id": "DS-10",
+      "template": "E01",
+      "states": [
+        "loading",
+        "normal",
+        "empty",
+        "error",
+        "four-s-cropped",
+        "accepting-on",
+        "accepting-off"
+      ],
+      "guards": [
+        "PDM-21"
+      ]
+    },
+    {
+      "id": "DS-11",
+      "template": "E07-08",
+      "states": [
+        "pending",
+        "submitting",
+        "approved",
+        "rejected",
+        "expired",
+        "lock-conflict",
+        "server-denied",
+        "permission-hidden"
+      ],
+      "guards": [
+        "PDM-18",
+        "PDM-21"
+      ]
+    },
+    {
+      "id": "DS-12",
+      "template": "P02",
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "filtered-by-scope",
+        "row-action-hidden",
+        "object-disabled"
+      ],
+      "guards": [
+        "PDM-22"
+      ]
+    }
+  ]
+}
