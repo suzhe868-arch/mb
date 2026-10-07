@@ -461,7 +461,7 @@ PDM-12 承接状态：
 - PDM-20｜`HANDOFF_CLOSED`：PDM-20 Final 已正式承接 customer_visible 档案/报告、无可见资料整块隐藏、VIN/敏感原件禁止下发，以及 JYT/人工/名邦真实检测 provenance 的 Customer Safe Projection；`HO-P07-P20-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-21｜`HANDOFF_CLOSED`：PDM-21 Final 已正式承接档案上传/后补/替换/作废/历史/核验/customer_visible 与 4S 合法范围投影；`HO-P07-P21-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-22｜`HANDOFF_CLOSED / source_backwrite=YES`：成交/交付 required-field set 的 PC 配置 carrier 已由 PDM-22 Final 承接；System Admin 身份本身仍不自动获得该业务配置权；
-- PDM-25｜`HANDOFF_OPEN`：archive create/update/replace/void/verify、customer visibility before/after、required-field config change、上传人/时间、新旧版本关系等统一审计与历史留存标准。
+- PDM-25｜`HANDOFF_CLOSED / source_backwrite=YES`：archive create/update/replace/void/verify、customer visibility before/after、required-field config change、上传人/时间、新旧版本关系等统一审计与历史留存标准。
 
 统一登记：
 
@@ -520,3 +520,6 @@ HANDOFF_REGISTER_SYNC = PASS
 > **PDM-08｜Legacy Final Integrity Audit**
 
 > 2026-10-07 Source Backwrite：对应 PDM-22 handoff 已由 `07_重建工作区/PDM-22_最终完整规则.md` 正式承接；以 CROSS_PDM_HANDOFF_REGISTER 的 `HANDOFF_CLOSED / source_backwrite=YES` 为准。
+
+
+> 2026-10-07 Source Backwrite｜HO-P07-P25-001：`HANDOFF_CLOSED / source_backwrite=YES`。PDM-25 已由 `07_重建工作区/PDM-25_最终完整规则.md` 正式承接本域移交的审计 / 历史 / 时区 / 配置版本 / 横切完整性语义；PDM-25 不反向改写本 PDM 已冻结的业务状态机与产品规则。
