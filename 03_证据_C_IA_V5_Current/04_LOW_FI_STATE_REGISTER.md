@@ -1,5 +1,18 @@
 # 04 LOW-FI STATE REGISTER — PHASE 1.5 IA CURRENT
 
+<!-- IA-GLOBAL-B1-STATE -->
+> **IA Batch 1 状态覆盖｜2026-10-08**
+>
+> 当前新增/修正 canonical state 语义：
+>
+> - `owner_assignment_pending`：仅用于接客池异常为空且无其他合法优先归属来源的新 Customer；接客池恢复后自动重试 owner 分配。
+> - `MERGE_*` / `merge_blocked` / `merge_ready` / `merge_confirm` / `merged`：全部 `DEPRECATED / DO_NOT_RESTORE`，不再属于 V1 Current 状态集合。
+> - Vehicle 状态按三层事实承载：真实资源/可售事实、visibility（visible/hidden）、业务对象占用/交易事实；禁止合并成单一 `vehicle_status`。
+> - `hidden` 不代表 offline；`locked` / `trading` 不改变底层真实车辆事实。
+> - `source_type` 修改及 wholesale→mingbang 转换不是 listing_cycle 状态迁移；不产生新 cycle。
+> - 只有真实不可售/失效后再次真实可售才产生新 `listing_cycle`。
+
+
 ## Rules
 
 - `LOADING / EMPTY / ERROR / PERMISSION_DENIED / DISABLED` are rendering/control states only.
