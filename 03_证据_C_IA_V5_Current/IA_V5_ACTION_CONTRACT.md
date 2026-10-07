@@ -1,5 +1,57 @@
 # IA V5 Action Contract
 
+<!-- IA-GLOBAL-B2-B3-ACTION -->
+> **IA Batch 2 + 3 Action Contract 覆盖｜2026-10-08**
+>
+> ### 明确删除的旧 Action
+> - Customer Merge 全部 mutation；
+> - P06-06 Recommendation qualification toggle；
+> - 独立“调价” Action；
+> - Collector Base URL / Phone Path / JYT 电话凭证配置；
+> - 人工 create/transfer/override/renew/revive Priority；
+> - Match confirmation 直接写 high/acceptable；
+> - CRM“先锁车再选 Vehicle”；
+> - Lock conflict 后客户再次手动转候补作为唯一流程；
+> - Waitlist 自动 promotion→Lock；
+> - Refund close 专门审批/专门 close permission；
+> - Opportunity 通用规则 CRUD；
+> - Announcement republish-reset touch；
+> - 通用消息 read/unread mutation。
+>
+> ### 当前必须存在的真人 / 系统 Action
+>
+> | Action | Actor | 当前结果 |
+> |---|---|---|
+> | Model master create/update/mapping resolve | System Admin + vehicle.model.manage | 建/改品牌、车系、具体车型；处理 MODEL_MISSING/mapping/conflict/duplicate；保留 source facts |
+> | Draft continue/publish/delete | 合法人工车发布/管理 Employee | 在 data scope 内处理目标 draft；发布前重新校验最终 source_type 与最低字段 |
+> | VIN duplicate gate | 系统 | 完全一致 VIN 命中时阻止普通发布并给出“查看已有车辆/返回修改” |
+> | Published Vehicle save | 合法 Vehicle manager | 保存允许修改的当前事实；不得借编辑重建 vehicle_id/listing_cycle |
+> | Archive upload/update/replace/invalidate/new-version | 合法 Vehicle manager | 保留 provenance/version/history；customer_visible 独立设置 |
+> | Image assetization retry | 系统/合法运维链路 | 只重试失败项；成功项不回滚；临时受控回源不伪 success |
+> | Publisher phone cache-miss fetch | 合法电话敏感业务上下文 | 无缓存时按 upstream_publisher_id 请求；合法号码才写缓存并可调系统拨号器 |
+> | Get latest publisher phone | 具电话敏感能力且 scope 合法 Employee | 强制 latest；失败/无新号不覆盖旧有效缓存 |
+> | Temp daily price quota add | current owner 或合法 manager/store manager + permission | 增加 customer-day quota；UNLIMITED 时动作隐藏/禁用 |
+> | LIMITED detail auto-unlock | 系统 | Customer 主动进详情且 Guard 满足时首次解锁并按规则扣一次，不需要第二次点击 |
+> | Save sales matching description | Demand responsible / 合法 Employee | 保存描述→deterministic parse→标准条件→受影响范围重算 |
+> | Matching confirmation | 合法 Employee | 只补/确认事实→重新 Matching；不得直接写最终 tier |
+> | Rule Dictionary manage/test | matching.rule.manage Employee | 新增/编辑/启停/scope/save/test/history；正式保存触发受影响范围重算 |
+> | Priority qualification enable/disable | 合法后台业务管理者 | 单 Customer 开/关；关闭结束其 active Priority 并触发重仲裁 |
+> | Priority auto-create / re-arbitrate | 系统 | current high/acceptable + qualification + arbitration → active Priority |
+> | Priority release | trigger Demand 当前合法 responsible | 提前释放并触发同 Vehicle 重仲裁；不是修改 TTL |
+> | Recommendation create/end/void | 当前合法业务 responsible | 逐 Vehicle 对象；不改 owner/Demand responsible；敏感字段不随 visibility grant 外泄 |
+> | Follow-up create | 合法 CRM Employee | 写真实 Follow-up mutation/history；不自动改其他业务状态机 |
+> | Public pool assign | 有 assignment capability + scope 的 Employee | 成功后目标 Employee 立即成为唯一 owner，无二次确认 |
+> | Bulk public-pool governance | 授权管理人员 | 每 Customer 独立重验，允许 partial success，返回逐项结果 |
+> | LockRequest conflict handling | 系统 | 竞争失败→LOCK_CONFLICT + 自动 create/reuse Waitlist + resulting_waitlist_id |
+> | Lock duration config | 有 business-config capability 的合法 Employee | 更新默认 72h 配置，仅影响新 Lock |
+> | Lock extension | 当前 responsible / 合法管理者 | 延长同一 Lock expires_at，保留 old/new/actor/time |
+> | Refund close | 当前合法可处理 Refund 的业务人员 | pending→closed + close_reason；不发生真实退款，不走新增专门审批 |
+> | Refund record actual | 具资金/退款确认 permission 的合法人员 | 真退款直接/最终进入 refunded |
+> | Deposit correction / Transaction handoff / completed correction | 对应合法业务 actor | 追加真实纠错/责任变化事实，不删除历史，不自动 relist/new cycle |
+> | Announcement manage | 合法运营/业务配置 actor | 创建/编辑/启停/schedule/auto-popup；新一轮触达通过新建 Announcement |
+> | Banner manage | 合法运营/业务配置 actor | 管理 HOME_TOP / VEHICLE_DETAIL placement、排序、有效期 |
+
+
 <!-- IA-GLOBAL-B1-ACTION -->
 > **IA Batch 1 Action Contract 覆盖｜2026-10-08**
 >
