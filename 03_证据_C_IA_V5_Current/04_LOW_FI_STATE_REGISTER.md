@@ -1,5 +1,12 @@
 # 04 LOW-FI STATE REGISTER — PHASE 1.5 IA CURRENT
 
+<!-- IA-GLOBAL-B4-STATE -->
+> **IA Batch 4 State 正规化｜2026-10-08**
+>
+> - P02-06 的 `SUPPLY_ANOMALY / REVIEWING / CLEARED_HISTORICAL` 是风险事实/复核状态，不是“全部新业务禁止”总状态。
+> - P03-03 / P03-04 Collector 电话连接状态退出 Current。
+> - P06-06 独立 Recommendation qualification 状态退出 Current。
+
 <!-- IA-GLOBAL-B2-B3-STATE -->
 > **IA Batch 2 + 3 State 覆盖｜2026-10-08**
 >
@@ -266,12 +273,6 @@
 | P03-01 | ERROR | Generic UI execution state; no domain mutation | 加载/提交失败 + 重试 |
 | P03-01 | PARTIAL_FAILURE | Underlying SSOT/IA business state/history/recovery fact | 部分失败，列出成功/失败并允许合法重试 |
 | P03-02 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
-| P03-03 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
-| P03-03 | PERMISSION_DENIED | Generic UI execution state; no domain mutation | 无权限，不泄露受保护字段 |
-| P03-03 | ERROR | Generic UI execution state; no domain mutation | 加载/提交失败 + 重试 |
-| P03-04 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
-| P03-04 | PROCESSING | Underlying SSOT/IA business state/history/recovery fact | 处理中，防重复提交 |
-| P03-04 | ERROR | Generic UI execution state; no domain mutation | 加载/提交失败 + 重试 |
 | P03-05 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | P03-06 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | P03-06 | PROCESSING | Underlying SSOT/IA business state/history/recovery fact | 处理中，防重复提交 |
@@ -305,7 +306,6 @@
 | P06-05 | EMPTY | Generic UI execution state; no domain mutation | 真实空态 + 合法下一步 |
 | P06-05 | DISABLED | Generic UI execution state; no domain mutation | 前置条件不满足，展示阻断原因 |
 | P06-05 | PERMISSION_DENIED | Generic UI execution state; no domain mutation | 无权限，不泄露受保护字段 |
-| P06-06 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | P06-07 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | P06-08 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | P06-09 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
@@ -491,9 +491,8 @@ These are UI/IA projections or historical outcomes. They do not create additiona
 | P04-01 / P04-06 / P04-07 | EMPLOYEE_ACTIVE / INACTIVE_HANDOFF_REQUIRED / HANDOFF_IN_PROGRESS / HANDOFF_COMPLETED / REINSTATED_NO_AUTO_RESTORE | Step4/5; NEW-02/NEW4-01 | employee_id remains stable; inactive/lost eligibility blocks new responsibility and active work is mapped; reinstatement requires fresh authorization, accepting defaults OFF, and never revives old permissions/customers/business/responsibility |
 | P04-01 / P04-06 / P02-04 | FOUR_S_DISABLED_TAKEOVER_REQUIRED / FOUR_S_VEHICLES_PAUSED / MINGBANG_TAKEOVER_IN_PROGRESS / TAKEOVER_COMPLETED / SUPPLY_ANOMALY_REVIEW | Step5 V09; D7 | Disable revokes access and pauses affected display/matching; preserve source_type=4S and existing Lock/funds/Transaction; map responsibility to eligible Mingbang target; invalid supply enters anomaly review |
 | P04-07 | HANDOFF_MAPPING_REQUIRED / HANDOFF_MAPPING_PARTIAL / HANDOFF_READY_TO_CONFIRM / HANDOFF_COMPLETED | Step4/5; NEW-02 | Every affected active object requires an eligible scoped target; confirmation rechecks all mappings; partial failure preserves completed mappings and keeps unresolved items open |
-| P06-06 | RECOMMENDATION_QUALIFIED / NOT_QUALIFIED | Step5 | Independent permission and customer scope; off blocks future creation but current-cycle benefit remains; follows customer not owner |
 | E05-05 | PRIORITY_ACTIVE_TTL_FROZEN / PRIORITY_DUPLICATE_SUPPRESSED / PRIORITY_HISTORICAL | NEW4-03 | TTL snapshot at create; unique within customer+vehicle+cycle; handoff never rewrites creator/history |
-| P02-06 | VEHICLE_IDENTITY_CONFLICT / SUPPLY_ANOMALY / REVIEWING / CLEARED_HISTORICAL | NEW4-02 | Conflict/anomaly blocks new business but preserves existing Lock/funds/Transaction; authorized manual clear retains history |
+| P02-06 | VEHICLE_IDENTITY_CONFLICT / SUPPLY_ANOMALY / REVIEWING / CLEARED_HISTORICAL | IA-B4-01 | Anomaly is a risk/review fact and does not uniformly block new business; real offline/unavailable/sold source facts plus each object's Guard decide availability; authorized clear retains history |
 | E02-01 / E02-02 / P02-07 | IMAGE_PARTIAL_FAILED / IMAGE_FAILED / IMAGE_RETRYING / IMAGE_MANUAL_RECOVERY / IMAGE_RECOVERED | fifth-round A-NEW-03 | Retry failed images only; successful frozen set and business facts remain; manual recovery is audited |
 | P02-08 / P02-07 | JYT_MAPPING_PENDING_NON_BLOCKING | NEW-06; Step5/6 | Upstream mapping remains pending independently; does not block otherwise valid publish/business; manual MODEL_MISSING draft rule unchanged |
 | E02-M01 / E02-01 / P03-05 | PHONE_LATEST / PHONE_CACHE_AVAILABLE / PHONE_LATEST_FAILED_CACHE_AVAILABLE / PHONE_UNAVAILABLE | NEW-07 | One consistent projection; failed latest fetch never overwrites cache or labels cache as latest |
