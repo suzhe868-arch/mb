@@ -1,3 +1,7 @@
+> **HISTORICAL_AUDIT_TRAIL｜历史执行记录**  
+> 本文件记录当时阶段性审查 / 待批准 / 覆盖检查 / 切窗状态。文中的“当前 / 下一步 / PENDING / BLOCKED / Startup Gate / Batch”等阶段表述均只代表当时，不是仓库当前状态。  
+> 当前状态与唯一下一步以根目录 `README.md`、`CURRENT_PROJECT_STATE.md`、`NEXT_ACTION.md`、`PROJECT_STATE.json` 为准；不得据本文件恢复旧阶段指针或覆盖正式 Final。
+
 # PDM-13｜Priority / 仲裁 / TTL / 排他保护｜最终完整规则总览｜用户已最终批准
 
 > 日期：2026-10-05  
