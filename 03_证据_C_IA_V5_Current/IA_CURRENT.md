@@ -1,5 +1,68 @@
 # 名邦汽车 V1｜Phase 1.5 IA CURRENT
 
+<!-- IA-GLOBAL-B2-B3-CURRENT -->
+> **IA 全局集中对齐｜Batch 2 + Batch 3｜2026-10-08**
+>
+> 状态：`USER_APPROVED / APPLIED`。产品 Authority 继续为 `PDM-01～PDM-25 Final + Decision Register`。本节覆盖本文件内全部与当前 Final 冲突的旧 Phase1.5 承载。
+>
+> ### Batch 2｜明确废弃 / 已覆盖 / DO_NOT_RESTORE
+>
+> 1. 独立 Recommendation qualification、`RECOMMENDATION_QUALIFIED / NOT_QUALIFIED`、P06-06 推荐资格开关及其独立资格管理能力全部退出 Current；Recommendation 资格统一读取 Customer Level 当前 find-car entitlement。
+> 2. 独立“调价” Action / permission 退出 Current；customer_list_price / internal_wholesale_price 继续作为车辆编辑字段，其中内部价仍受独立敏感字段 permission 保护，客户展示价 override 继续按其自身规则治理。
+> 3. 独立 `can_call_wholesale_phone`、car_code/vehicle_id 电话身份、Collector Base URL / Phone Path、名邦直连 JYT 电话接口、名邦持有 JYT 电话 Token/Header/callCode 等旧模型全部 DO_NOT_RESTORE。
+> 4. 第二套客户专属 Matching、设为/解除客户专属、Priority 专用 Matching 全部退出；只保留 PDM-12 唯一公共 Matching Engine。
+> 5. 客户原话直接 Matching、AI 猜正式条件、无结果静默放宽、closest/nearest fallback、Match Result 自动创建 Recommendation/Priority/Lock/visibility/owner 全部禁止。
+> 6. 人工创建/转让 Priority、priority override、人工改 expires_at/续期、ended Priority 强制恢复、独立 priority.view/manage/override 全部退出。
+> 7. Customer Level 自动产生 Priority、Priority 自动授 Customer 详情 visibility/价格权、客户端暴露 Priority 内部术语全部退出。
+> 8. Demand/Priority 直接授 hidden visibility、REC 专属 URL、二次分享继承上一 Customer 权益、group Recommendation、JYT/Consultation 自动写 Recommendation 全部退出。
+> 9. Opportunity 旧 7 天/单日>40/连续3天阈值、通用 Opportunity 规则引擎、P06-07 通用 CRUD/config 全部退出。
+> 10. CRM“先锁车再选 Vehicle”退出；Lock 必须从合法 Customer + Vehicle 上下文进入。
+> 11. “我要这辆车”不再混合 Consultation/LockRequest/Lock；客户点击不得直接创建正式 Lock。
+> 12. LOCK_CONFLICT 后手工再点候补、Waitlist 自动升级 Lock、保证性候补名次、普通 owner 变化自动漂移 Lock/Waitlist responsible、固定30分钟提醒全部退出。
+> 13. Refund partial 主状态、closed=refunded、pending close 另造专门 close permission/审批全部退出。
+> 14. Transaction cancel 自动恢复旧 Lock/Waitlist、System Admin 直接做 completed Transaction correction、成交自动结束全部 Demand/Consultation、纠错自动 relist/new cycle 全部退出。
+> 15. 泛化客户端消息中心、read/unread 主状态机、万能通知策略中心不建设。
+> 16. Announcement 旧“仅首次一次/每天一次/不自动弹”三档 frequency 与 republish-reset touch 模型退出。
+> 17. 万能大杂烩配置中心不建设；配置回所属业务模块。
+> 18. Audit reason 全局强制必填、旧 audit object list 作为业务能力复活清单、audit/history 绕过 current permission、retry/duplicate 伪造多次成功全部禁止。
+> 19. VEHICLE_DETAIL Banner “可有可无”的旧解释退出；该 placement 是正式固定广告位能力，无有效 Banner 时仅不渲染内容。
+>
+> ### Batch 3｜后续明确新增 / 补齐承载
+>
+> 1. 车型主数据 = 品牌→车系→具体车型；年款是具体车型结构化字段，不是第四级主数据节点。JYT model_id 与本地 vehicle_model_id 通过 source mapping 关联。
+> 2. System Admin 通过 vehicle.model.manage 治理品牌/车系/具体车型、MODEL_MISSING、待映射、mapping conflict、重复车型；普通 Employee 不因车辆编辑能力自动获得车型治理权。
+> 3. mapping pending/conflict 不把 JYT 已明确车型事实降 unknown；已知来源事实继续用于展示、搜索、筛选与 Matching。
+> 4. 人工车采用多草稿自动保存；入口 E02→更多→草稿车源；不存在“继续上次/放弃重新发布”单草稿总弹层。
+> 5. MODEL_MISSING 完成后必须返回原 draft_id；VIN 完全一致重复 Gate 提供查看已有车辆/返回修改；已发布 Vehicle 提供真实“保存修改”。
+> 6. draft 首次正式发布前，操作者可在自身合法范围内修改 mingbang/4S source_type；首次发布后进入正式 Vehicle source_type mutation。
+> 7. Vehicle Archive 支持上传/后补/更新/替换/作废/新版本/历史；可公开报告支持单份 customer_visible on/off；没有客户可见资料时客户端整个模块隐藏。
+> 8. Archive provenance 区分 JYT 原始、员工维护、名邦真实检测等；4S 只维护本人有权 Vehicle；Archive mutation/audit 独立可追溯。
+> 9. 图片资产化区分 processing/success/partial_failed/failed；批发→名邦后未闭环图片可通过名邦受控 CDN 临时回源，但不得伪 success、不得回滚 source_type/vehicle_id/listing_cycle，也不得长期依赖 JYT。
+> 10. 分享卡片不固化动态客户展示价；4S 维保 H5/报告受控 URL 每次访问按当前权限重验；普通车辆图片按顺序左右滑动，不是自动轮播。
+> 11. 上游电话身份统一 source_platform + upstream_publisher_id；latest 无新号码但有旧缓存与完全无缓存 PHONE_UNAVAILABLE 分开；Vehicle 转为名邦/4S 后日常详情电话入口关闭。
+> 12. P03-05 是电话缓存管理/诊断页；展示缓存/历史/刷新结果/异常/审计；Integration/Collector manage 不自动获得电话明文权限。
+> 13. 价格后台真实承载 LIMITED/UNLIMITED、markup、quota、customer display override；LIMITED 客户主动进入批发详情时按 Guard 自动完成首次数字价解锁，不再二次点击“查看价格”。
+> 14. 员工增加当天查价次数必须有真实 Action；UNLIMITED 隐藏/禁用追加；Customer disable 暂停价格权益但不删除既有 customer+vehicle+listing_cycle 查价事实。
+> 15. Matching 真人链路：销售匹配描述→deterministic parser→Rule Dictionary→标准条件→受影响范围重算→四级 Match Result；人工 confirmation 只补事实后重算。
+> 16. Rule Dictionary 是真实治理对象：新增/编辑/启停/scope/保存/测试解析/历史审计/partial failure/失败集合 retry；客户端搜索与 Demand Matching 共用 parser/dictionary。
+> 17. Priority 支持单 Customer qualification 开/关；全局默认 TTL=24h 可配置且只影响新 Priority；合法 responsible 可查看剩余 TTL并提前 release。
+> 18. 公共“在售车源/今日新增”统计排除当前非公开的 active Priority protected Vehicle。
+> 19. Recommendation mutation 读取当前合法业务负责关系，不把历史 current owner 永久写死；其他 Customer active Priority 期间既有 Recommendation/visibility 只临时 suppression，不删除历史，结束后按当前事实恢复。
+> 20. 批量推荐仍逐 Vehicle 建独立 Recommendation；Recommendation/visibility grant 不下发 Internal Mode、内部价、上游电话、VIN、Priority/Match 等敏感内部事实。
+> 21. CRM“记录跟进”必须有真实 Follow-up mutation；Opportunity 只是真实合法 signal 的当前投影，不是独立工单/assignee/SLA/close lifecycle。
+> 22. Source Radar 只消费 PDM-12 Matching change fact；CRM“不适合”等动作不得反写 Match Result/Rule Dictionary/Demand；Consultation/Lock/Transaction 事件不自动改 CRM Stage。
+> 23. 公海后台合法指定分配成功后目标员工立即成为唯一 owner，无二次确认；批量治理逐 Customer 独立重验并允许 partial success。
+> 24. LOCK_CONFLICT 自动创建/复用 Waitlist，LockRequest 保留 LOCK_CONFLICT 并关联 resulting_waitlist_id；客户端不要求再次点候补。
+> 25. Lock 默认72h、后台可配置且只影响新 Lock；合法延期修改同一 Lock expires_at；真实 Deposit 后不再按普通倒计时模型。
+> 26. 普通 Lock 与 Priority-origin Lock 客户 visibility 分层：普通 Lock 可继续安全公开“已锁定”；Priority-origin Lock 在有效期内继承客户侧排他 visibility。
+> 27. Refund 主状态 = pending/refunded/closed；closed 表示决定不再退款且必须有 close_reason，绝不显示成已退款。
+> 28. Transaction/资金 IA 必须承载 actual_deal_price、Deposit correction、responsible handoff、误成交 correction 对 listing_cycle 的真实后果，以及换车的新旧业务关联。
+> 29. 客户端 C01/C02/C03 与 Vehicle Detail 使用真实业务导航：搜索/7种排序、顾问、档案、车况、服务说明、价格格式、收藏/咨询/锁车候补状态、我的推荐/咨询/锁车/交易/公告/顾问/推荐朋友。
+> 30. 客户端 Announcement/Banner 补齐真实承载：公告不是消息中心；Banner placement 固定 HOME_TOP / VEHICLE_DETAIL；无有效 Banner 仅隐藏内容。
+>
+> 本节由用户于 2026-10-08 明确“全部同意，确认执行”。任何旧 IA 行与本节冲突时均视为 stale carrier，不具有 Current 解释权。
+
+
 <!-- IA-GLOBAL-B1-CURRENT -->
 > **IA 全局集中对齐状态｜2026-10-08**
 >
