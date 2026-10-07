@@ -1,3 +1,25 @@
+## 2026-10-07｜PDM-25 Prefinal R1 修复完成，R2 PASS / FINAL_CANDIDATE_READY
+
+- `P25-LIA-01～P25-LIA-03 = PASS / USER_APPROVED / APPLIED`；
+- PDM-25 专属信息保真检查卡已建立；
+- HO-P20-P25-001：copy-before-view / Customer Safe Projection 字段级安全 landing 已补齐；
+- HO-P21-P25-001：Internal Mode / 5 分钟后台退出 / entry_context landing 已补齐；
+- `R1_REPAIR_CLOSED = 3 / 3`；
+- `SOURCE_TO_ATOM = PASS`；
+- `ATOM_TO_SOURCE = PASS`；
+- `SOURCE_DECISION_COVERAGE = 100%`；
+- `UNMAPPED = 0`；
+- `FINAL_TO_SOURCE_TRACEABILITY = 100%`；
+- `SEMANTIC_COMPLETENESS = PASS`；
+- `NEGATIVE_CLAIMS_VERIFIED = PASS`；
+- `IMPLEMENTATION_READY = PASS`；
+- `PDM25_FORMAL_UNITS = 37`；
+- `PDM25_FINAL_CANDIDATE_READY = YES`；
+- 24 / 24 incoming handoff landing 已通过，但仍保持 `HANDOFF_ACCEPTED`，最终批准前不关闭 / 不 source backwrite；
+- Final Overview 候选：`07_重建工作区/PDM-25_最终完整规则总览_待用户批准.md`；
+- IA / Low-Fi / Engineering：`NO_CONSTRUCTION`；
+- 当前唯一下一步：**用户最终审查 / 批准 PDM-25 Final Domain Overview。**
+
 ## 2026-10-07｜PDM-25 Batch 4 已批准并执行，进入 Prefinal Integrity
 
 - `P25-B4-01～P25-B4-04 = PASS / USER_APPROVED / APPLIED`；
