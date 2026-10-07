@@ -89,7 +89,7 @@
 | P06-06 | 客户等级 / 标签 / 业务权益 | PAGE | MODIFY | PC/后台 | 1 | 1 | P06 页面组内结构入口 | 维护 Customer Level；维护标签；维护等级 entitlement / quota 配置 | — | 3 | 返回 P06 页面组；不产生业务事实 | Recommendation 资格不独立配置，读取 Customer Level 当前 find-car entitlement | COMPLETE | SINGLE_DEFAULT |
 | P06-07 | 客户机会规则 | PAGE | MODIFY | PC/后台 | 1 | 1 | P06 页面组内结构入口（继承旧 Low-Fi 层级） | 只读/结构入口 | — | 0 | 返回 P06 页面组；不产生业务事实 | 按 IA V5 Permission/Guard；UI 可见不等同授权 | COMPLETE | SINGLE_DEFAULT |
 | P06-08 | 找车申请 / 待确认申请 | PAGE | KEEP | PC/后台 | 1 | 1 | P06 页面组内结构入口（继承旧 Low-Fi 层级） | 只读/结构入口 | — | 0 | 返回 P06 页面组；不产生业务事实 | 按 IA V5 Permission/Guard；UI 可见不等同授权 | COMPLETE | SINGLE_DEFAULT |
-| P06-09 | 正式 demand | PAGE | MODIFY | PC/后台 | 1 | 1 | P06-M01：返回处理 Demand | 只读/结构入口 | — | 0 | 返回 P06 页面组；不产生业务事实 | 按 IA V5 Permission/Guard；UI 可见不等同授权 | COMPLETE | SINGLE_DEFAULT |
+| P06-09 | 正式 demand | PAGE | MODIFY | PC/后台 | 1 | 1 | P06 页面组内结构入口 | 只读/结构入口 | — | 0 | 返回 P06 页面组；不产生业务事实 | 按 IA V5 Permission/Guard；UI 可见不等同授权 | COMPLETE | SINGLE_DEFAULT |
 | P06-10 | 匹配词典 / 规则词典【精简】 | PAGE | KEEP | PC/后台 | 4 | 4 | P06 页面组内结构入口（继承旧 Low-Fi 层级） | 只读/结构入口 | — | 0 | 返回 P06 页面组；不产生业务事实 | 按 IA V5 Permission/Guard；UI 可见不等同授权 | COMPLETE | SINGLE_DEFAULT |
 | P06-11 | 咨询管理 | PAGE | MODIFY | PC/后台 | 7 | 7 | E06-M01：确认转派；E06-M01：取消；P06-11：开始处理/标记处理中 | 开始处理/标记处理中；记录真实跟进；解决；无效；正常关闭 | E06-M01 | 6 | 正常关闭→P06-11 / C03-03 | 按 IA V5 Permission/Guard；UI 可见不等同授权 | COMPLETE | SINGLE_DEFAULT |
 | P07 | 锁车 / 候补 / 交易 / 资金 | PAGE | KEEP | PC/后台 | 1 | 1 | PC 左侧导航（继承旧 Low-Fi 层级） | 只读/结构入口 | — | 0 | 系统级返回/一级导航切换；不产生业务事实 | 按 IA V5 Permission/Guard；UI 可见不等同授权 | COMPLETE | SINGLE_DEFAULT |
