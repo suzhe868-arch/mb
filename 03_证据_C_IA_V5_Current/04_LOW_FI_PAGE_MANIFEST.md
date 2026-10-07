@@ -1,5 +1,23 @@
 # 04 LOW-FI PAGE MANIFEST — PHASE 1.5 IA CURRENT
 
+<!-- IA-GLOBAL-B2-B3-PAGE -->
+> **IA Batch 2 + 3 Page Manifest 覆盖｜2026-10-08**
+>
+> 页面级 Current 要求：
+>
+> - 删除/退役：Customer Merge、P06-06 Recommendation 资格、人工 Priority 创建/override、独立调价、Collector 电话 URL 配置、Opportunity 通用规则配置、泛化消息中心、LockRequest 独立进度页、CRM 先锁车后选车、万能配置中心。
+> - P05 车型治理页必须能处理品牌/车系/具体车型、JYT mapping、MODEL_MISSING、mapping conflict、duplicate model。
+> - E02“更多”必须含草稿车源；草稿列表支持多条独立 draft；Vehicle 编辑页支持正式保存修改、source_type 合法修改、Archive/报告维护。
+> - P03-05 仅作为 publisher 电话缓存/历史/latest/异常/审计诊断页。
+> - P08 承载价格等级模式、markup/quota、客户覆盖价及临时增加当天次数；UNLIMITED 客户不显示追加动作。
+> - E05/P06 必须承载 Matching 描述→解析→标准条件→四级结果→确认事实→重算，并提供真实 Rule Dictionary 管理与 Priority qualification/TTL/release。
+> - CRM 必须有真实 Follow-up 提交；Source Radar 不提供反写 Matching 的入口。
+> - 公海指定分配成功即完成 owner 变化，不增加目标销售确认页。
+> - C03/E07/P07 必须真实承载 LockRequest/Waitlist/Lock/Refund/Transaction/Deposit/correction/handoff 当前与历史事实。
+> - C01/C02/C03 与 Vehicle Detail 不再使用“通用壳”替代真实业务字段；Vehicle Detail 同时承载 Current Advisor、Archive/车况、服务说明、价格、图片、CTA、Banner placement。
+> - Announcement 与 Banner 分离：公告不是消息中心；VEHICLE_DETAIL 是固定 Banner placement 能力。
+
+
 <!-- IA-GLOBAL-B1-PAGE -->
 > **IA Batch 1 Page Manifest 覆盖｜2026-10-08**
 >
