@@ -53,6 +53,8 @@ jobs:
           docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f02_ci WITH LOGIN PASSWORD 'f02_ci_ephemeral_fixture' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
           docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f02_schema_test OWNER f02_ci"
           echo 'F02-G0 temporary account/database bootstrapped; no business schema'
+      - name: F02 Current 字段候选静态完整性与禁虚报检查
+        run: node f02-g0/matrix-audit.mjs
       - name: 环境白名单/迁移禁执行正反例
         run: node --test f02-g0/tests/*.test.mjs
       - name: PostgreSQL16 真实身份/只读事务负例
