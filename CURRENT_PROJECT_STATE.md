@@ -1,3 +1,20 @@
+## 2026-10-07｜PDM-01～25 全局最终总复核 PASS，进入历史阶段尾巴统一清理
+
+- PDM-01～25：`25 / 25 COMPLETE / INTEGRITY_PASS`；
+- Global Final Audit R1：4 组控制面 stale pointer 已全部修复；
+- Global Final Audit R2：`PASS`；
+- 正式报告：`07_重建工作区/PDM-01至25_全局跨域移交与全局不变量最终总复核_2026-10-07.md`；
+- Cross-PDM Handoff：165 条 = 164 `HANDOFF_CLOSED` + 1 `HANDOFF_SUPERSEDED`；
+- `HANDOFF_OPEN = 0`；
+- `HANDOFF_ACCEPTED = 0`；
+- `SOURCE_BACKWRITE_PENDING = 0`；
+- `CROSS_PDM_CONFLICT = 0`；
+- `GLOBAL_INVARIANT_CONFLICT = 0`；
+- `NEGATIVE_CLAIMS_VERIFIED = PASS`；
+- IA / Low-Fi / Engineering：`NO_CONSTRUCTION`；
+- `PRODUCT_BASELINE = NOT_READY`；
+- 当前唯一下一步：**PDM-01～25 Final / Integrity 历史阶段尾巴统一清理与 Current / History 边界标注。**
+
 ## 2026-10-07｜PDM-25 Final Closeout 完成，进入 PDM-01～25 全局最终总复核
 
 - PDM-25 Final Domain Overview：`USER_FINAL_APPROVED`；
