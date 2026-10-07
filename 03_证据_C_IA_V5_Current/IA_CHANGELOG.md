@@ -1,5 +1,23 @@
 # Phase 1.5 IA Changelog
 
+<!-- IA-GLOBAL-B4-CHANGELOG -->
+## 2026-10-08｜IA 全局集中对齐 Batch 4 Final-gap
+
+状态：`PASS / USER_APPROVED / APPLIED`
+
+用户明确：**“全部同意确认执行。”**
+
+- `IA-B4-01`：Supply Anomaly 从“异常即统一阻断新增业务”修正为“异常只做风险告警；真实 offline/unavailable/sold 等不可售事实才按业务 Guard 阻断”。
+- `IA-B4-02`：删除 P03 保存/测试 Collector 电话连接、Collector Base URL / Phone Path 等旧网络方向；保留三个固定车源同步 API + 名邦侧 credential/统计/运行状态 + Publisher 电话诊断。
+- `IA-B4-03`：明确 4S Employee hard DENY Recommendation ≠ 4S Vehicle 不可被合法名邦业务 responsible 推荐。
+- `IA-B4-04`：补齐服务称呼独立承载与 author/time/source/change history；与 Personal Note / Shared Profile 分离。
+- `IA-B4-05`：CRM Access 固化为当前事实重验；历史服务不形成永久访问票据。
+- `IA-B4-06`：Current 明细正规化；退出旧 P06-06 Recommendation qualification、current-owner-only Recommendation actor、旧 Collector 连接、Supply Anomaly 总阻断 carrier。
+- 剩余 4 条 `CARRIER_DEFERRED` 已全部关闭为 `CARRIER_CLOSED_IA_BATCH4`。
+- IA Current 目录 11 份文件 current-row stale 机械扫描：`0`。
+- `FINAL_GAP_SCAN = PASS`；`LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；`PDM_FINAL_BUSINESS_SEMANTIC_CHANGE = 0`。
+- IA 全局集中对齐完成；下一阶段：Low-Fi 全局集中对齐。
+
 <!-- IA-GLOBAL-B2-B3-CHANGELOG -->
 ## 2026-10-08｜IA 全局集中对齐 Batch 2 + 3
 
