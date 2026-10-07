@@ -2,8 +2,11 @@
 
 - LF-B1-01～LF-B1-07：PASS / USER_APPROVED / APPLIED
 - LF-B2-01～LF-B2-07：PASS / USER_APPROVED / APPLIED
-- Low-Fi：IN_PROGRESS / BATCH_1_2_APPLIED
-- LF-B2 targeted stale-current scan：0
+- LF-B3-01～LF-B3-04：PASS / USER_APPROVED / APPLIED
+- Low-Fi：IN_PROGRESS / BATCH_1_2_3_APPLIED
+- LF-B3 targeted stale-current scan：0
+- VALID_NEW_CARRIER_GAP：0
+- LOW_FI_NEW_PAGE / STATE / SVG：0 / 0 / 0
 - Retired Low-Fi SVG / retained historical assets：26
 - IA：COMPLETE / FINAL_GAP_PASS
 - Engineering：NO_CONSTRUCTION
@@ -16,10 +19,13 @@
 ## Current｜当前唯一动作
 
 - 当前阶段：`LOW_FI_GLOBAL_ALIGNMENT_IN_PROGRESS`
-- 当前唯一下一步：**Low-Fi Batch 3｜后续明确新增 / 承载补齐审查**
+- 当前唯一下一步：**Low-Fi Batch 4｜Final-gap Scan（冲突 / 遗漏 / 缺口 / 新选择）**
 - 上层 Authority：`PDM-01～25 Final + Current IA`
 - `LF-B1-01～LF-B1-07 = PASS / USER_APPROVED / APPLIED`
 - `LF-B2-01～LF-B2-07 = PASS / USER_APPROVED / APPLIED`
+- `LF-B3-01～LF-B3-04 = PASS / USER_APPROVED / APPLIED`
+- `VALID_NEW_CARRIER_GAP = 0`
+- `LOW_FI_NEW_PAGE / STATE / SVG = 0 / 0 / 0`
 - Low-Fi 不得反向覆盖 PDM Final / Current IA
 - Engineering：本阶段不施工
 

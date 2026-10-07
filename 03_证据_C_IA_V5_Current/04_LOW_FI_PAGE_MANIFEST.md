@@ -13,7 +13,7 @@
 > - 删除/退役：Customer Merge、P06-06 Recommendation 资格、人工 Priority 创建/override、独立调价、Collector 电话 URL 配置、Opportunity 通用规则配置、泛化消息中心、LockRequest 独立进度页、CRM 先锁车后选车、万能配置中心。
 > - P05 车型治理页必须能处理品牌/车系/具体车型、JYT mapping、MODEL_MISSING、mapping conflict、duplicate model。
 > - E02“更多”必须含草稿车源；草稿列表支持多条独立 draft；Vehicle 编辑页支持正式保存修改、source_type 合法修改、Archive/报告维护。
-> - P03-05 仅作为 publisher 电话缓存/历史/latest/异常/审计诊断页。
+> - P03-02 作为 Publisher / 电话诊断页，承载 publisher 电话缓存/历史/latest/异常/审计诊断。
 > - P08 承载价格等级模式、markup/quota、客户覆盖价及临时增加当天次数；UNLIMITED 客户不显示追加动作。
 > - E05/P06 必须承载 Matching 描述→解析→标准条件→四级结果→确认事实→重算，并提供真实 Rule Dictionary 管理与 Priority qualification/TTL/release。
 > - CRM 必须有真实 Follow-up 提交；Source Radar 不提供反写 Matching 的入口。
@@ -40,7 +40,7 @@
 | Page ID | Name | Logical Visual States | Baseline Physical SVG Count |
 |---|---|---|---:|
 | C01 | 车源【一级 Tab】 | NORMAL, LOADING, EMPTY, ERROR | 4 |
-| C01-01 | 客户车辆详情 | NORMAL, LOADING, ERROR, LOCKED, WAITLISTED, HISTORICAL, PERMISSION_DENIED, VEHICLE_INTENT_WORK_ITEM_PENDING, CLOSED_NOT_LOCKABLE, CUSTOMER_PRICE_EFFECTIVE, PRICE_CONSULTATION_VALUE_FACT | 7 |
+| C01-01 | 客户车辆详情 | NORMAL, LOADING, ERROR, LOCK_REQUEST_PENDING, LOCKED_BY_SELF, LOCKED_BY_OTHER, WAITLISTED, HISTORICAL, PERMISSION_DENIED, CLOSED_NOT_LOCKABLE, CUSTOMER_PRICE_EFFECTIVE, PRICE_CONSULTATION_VALUE_FACT | 18 |
 | C02 | 帮我找车 / 我的找车【一级 Tab】 | NORMAL, LOADING, EMPTY, ERROR, PROCESSING, COMPLETED, CANCELLED | 7 |
 | C02-01 | 找车申请详情 / 编辑 | NORMAL, PROCESSING, COMPLETED, CANCELLED, ERROR, WITHDRAW_CONFIRM_REQUIRED | 4 |
 | C02-02 | 正式找车需求详情 | NORMAL, PROCESSING, PAUSED, COMPLETED, CANCELLED, HISTORICAL | 5 |
@@ -57,7 +57,6 @@
 | C-O03 | 客户公告弹层 | NORMAL | 1 |
 | C-O04 | 图片全屏预览 | NORMAL | 1 |
 | E01 | 工作台【一级 Tab】 | NORMAL, LOADING, EMPTY, ERROR, PERMISSION_DENIED, SELF_ACCEPTING_ON, SELF_ACCEPTING_OFF | 6 |
-| E01-01 | 今日待处理列表 / 详情 | NORMAL, VEHICLE_INTENT_WORK_ITEM_PENDING, CONFIRM_LOCK_GUARD, CONFIRMED, CLOSED_NOT_LOCKABLE | 1 |
 | E01-02 | 客户机会列表 / 详情 | NORMAL | 1 |
 | E01-03 | 车源雷达 | NORMAL | 1 |
 | E01-04 | 雷达事件 / 匹配详情 | NORMAL | 1 |

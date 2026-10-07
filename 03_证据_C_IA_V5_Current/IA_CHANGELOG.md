@@ -1,5 +1,13 @@
 # Phase 1.5 IA Changelog
 
+<!-- IA-POST-CLOSEOUT-LF-B3-REPAIR -->
+## 2026-10-08｜Low-Fi Batch 3 反向发现的 IA stale carrier 修复
+
+状态：`PASS / CARRIER_REPAIR / NO_PRODUCT_SEMANTIC_CHANGE`
+
+Low-Fi Batch 3“后续明确新增 / 承载补齐”差集确认：有效新 Low-Fi 页面/状态缺口为 0。机械差集暴露的 E01-01“我要这辆车”员工工作项属于已被 PDM-14/15/18/20/21 Final 明确替代的 stale carrier，不得补画；Current IA 已改为 Consultation 与 LockRequest 分链，并对齐 C01-01 的 `LOCK_REQUEST_PENDING / LOCKED_BY_SELF / LOCKED_BY_OTHER`。同时将 Publisher 电话诊断旧 P03-05 指针正规化为 P03-02，并将 Refund 确认文案统一为“确认关闭”。本轮不新增 Low-Fi page/state/SVG，不改变产品业务语义；定向 stale-current scan=`0`。
+
+
 <!-- IA-POST-CLOSEOUT-LF-B2-REPAIR -->
 ## 2026-10-08｜Low-Fi Batch 2 反向发现的 IA stale carrier 修复
 

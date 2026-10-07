@@ -68,7 +68,9 @@
 | C01-01 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | C01-01 | LOADING | Generic UI execution state; no domain mutation | 骨架屏；不显示伪数据 |
 | C01-01 | ERROR | Generic UI execution state; no domain mutation | 加载/提交失败 + 重试 |
-| C01-01 | LOCKED | Underlying SSOT/IA business state/history/recovery fact | 车辆/锁车已锁定事实 |
+| C01-01 | LOCK_REQUEST_PENDING | PDM-18/PDM-20 Current LockRequest | 当前客户已有 PENDING LockRequest；尚未正式锁车，不占车；终止后按实时 Vehicle/listing_cycle 状态重新投影 |
+| C01-01 | LOCKED_BY_SELF | PDM-18/PDM-20 Current Lock | 当前客户拥有 active Lock；展示锁车进度并进入 C03-04 |
+| C01-01 | LOCKED_BY_OTHER | PDM-18/PDM-20 Current Lock | 其他客户拥有 active Lock；当前客户可按 Waitlist Guard 进入候补 |
 | C01-01 | WAITLISTED | Underlying SSOT/IA business state/history/recovery fact | 当前有效候补事实 |
 | C01-01 | HISTORICAL | Underlying SSOT/IA business state/history/recovery fact | 历史只读安全投影 |
 | C01-01 | PERMISSION_DENIED | Generic UI execution state; no domain mutation | 无权限，不泄露受保护字段 |
@@ -132,7 +134,6 @@
 | E01 | EMPTY | Generic UI execution state; no domain mutation | 真实空态 + 合法下一步 |
 | E01 | ERROR | Generic UI execution state; no domain mutation | 加载/提交失败 + 重试 |
 | E01 | PERMISSION_DENIED | Generic UI execution state; no domain mutation | 无权限，不泄露受保护字段 |
-| E01-01 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | E01-02 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | E01-03 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
 | E01-04 | NORMAL | Underlying SSOT/IA business state/history/recovery fact | 正常业务内容 |
@@ -400,7 +401,7 @@ These are UI/IA projections or historical outcomes. They do not create additiona
 | E07-05 / P07-05 | REFUND_CLOSED_NOT_REFUNDED | Historical display after withdrawal/closure; it is not `refunded` and does not change vehicle occupancy |
 | C01-M01 / C01-01 | PRICE_CHECK_FAILED_NO_DEBIT | Failure/timeout does not debit quota; retry is idempotent; no internal wholesale price is exposed |
 | P08-04 / P02-07 | NEW_CYCLE_OVERRIDE_NOT_INHERITED | Old manual display-price override ended with old listing cycle |
-| E02-01 / P03-05 | LATEST_PHONE_FAILED_CACHE_AVAILABLE | Latest fetch failed; cached phone may remain usable but must not be labeled latest |
+| E02-01 / P03-02 | LATEST_PHONE_FAILED_CACHE_AVAILABLE | Latest fetch failed; cached phone may remain usable but must not be labeled latest |
 | C01 / C01-01 | BANNER_DISPLAY_ONLY | No target, invalid target or expired target; display is allowed but navigation is disabled |
 | P09-04 / P11 | NOTIFICATION_FAILED_BUSINESS_UNCHANGED | Delivery failure is logged; business fact and master state do not change |
 
@@ -476,7 +477,6 @@ These are UI/IA projections or historical outcomes. They do not create additiona
 | C01-M03 | SOURCE_ONLY / OWNER_ASSIGNED / OWNER_UNCHANGED | D1; Step5 | Employee-originated share uses these outcomes; it never implies customer referral, Recommendation or quota rights |
 | C01-M03 / C03-07 | DIRECT_REFERRAL_CAPTURED | Step5 C04; third-round NEW-04 | Freeze direct referrer and referrer's current owner at event time; later owner change does not rewrite source; no multilevel/commission |
 | C01-M03 / C01 | SOURCE_ONLY | D1 actor boundary | Customer-side re-share uses the same source-only result, never assigns owner, and returns to C01 |
-| C01-01 / E01-01 | VEHICLE_INTENT_WORK_ITEM_PENDING / CONFIRM_LOCK_GUARD / CONFIRMED / CLOSED_NOT_LOCKABLE | third-round NEW-05 | Phone required; creates employee work item, not Lock; confirmation enters the canonical submit-time Lock guard; unavailable vehicle closes without Lock |
 | P06-03 / P06-04 | COLLABORATION_ACTIVE / COLLABORATION_ENDED / REBUILD_REQUIRED / COLLABORATION_HISTORICAL | Step5; NEW-03 | Exact customer/business scope; owner change, business end or inactive participant ends current record; rebuild is new record |
 | P04-01 / P04-06 / P04-07 | EMPLOYEE_ACTIVE / INACTIVE_HANDOFF_REQUIRED / HANDOFF_IN_PROGRESS / HANDOFF_COMPLETED / REINSTATED_NO_AUTO_RESTORE | Step4/5; NEW-02/NEW4-01 | employee_id remains stable; inactive/lost eligibility blocks new responsibility and active work is mapped; reinstatement requires fresh authorization, accepting defaults OFF, and never revives old permissions/customers/business/responsibility |
 | P04-01 / P04-06 / P02-04 | FOUR_S_DISABLED_TAKEOVER_REQUIRED / FOUR_S_VEHICLES_PAUSED / MINGBANG_TAKEOVER_IN_PROGRESS / TAKEOVER_COMPLETED / SUPPLY_ANOMALY_REVIEW | Step5 V09; D7 | Disable revokes access and pauses affected display/matching; preserve source_type=4S and existing Lock/funds/Transaction; map responsibility to eligible Mingbang target; invalid supply enters anomaly review |
@@ -485,7 +485,7 @@ These are UI/IA projections or historical outcomes. They do not create additiona
 | P02-06 | VEHICLE_IDENTITY_CONFLICT / SUPPLY_ANOMALY / REVIEWING / CLEARED_HISTORICAL | IA-B4-01 | Anomaly is a risk/review fact and does not uniformly block new business; real offline/unavailable/sold source facts plus each object's Guard decide availability; authorized clear retains history |
 | E02-01 / E02-02 / P02-07 | IMAGE_PARTIAL_FAILED / IMAGE_FAILED / IMAGE_RETRYING / IMAGE_MANUAL_RECOVERY / IMAGE_RECOVERED | fifth-round A-NEW-03 | Retry failed images only; successful frozen set and business facts remain; manual recovery is audited |
 | P02-08 / P02-07 | JYT_MAPPING_PENDING_NON_BLOCKING | NEW-06; Step5/6 | Upstream mapping remains pending independently; does not block otherwise valid publish/business; manual MODEL_MISSING draft rule unchanged |
-| E02-M01 / E02-01 / P03-05 | PHONE_LATEST / PHONE_CACHE_AVAILABLE / PHONE_LATEST_FAILED_CACHE_AVAILABLE / PHONE_UNAVAILABLE | NEW-07 | One consistent projection; failed latest fetch never overwrites cache or labels cache as latest |
+| E02-M01 / E02-01 / P03-02 | PHONE_LATEST / PHONE_CACHE_AVAILABLE / PHONE_LATEST_FAILED_CACHE_AVAILABLE / PHONE_UNAVAILABLE | NEW-07 | One consistent projection; failed latest fetch never overwrites cache or labels cache as latest |
 | C01-M01 / P08-02 | QUOTA_DAY_UTC8_ACTIVE / QUOTA_DAY_RESET / PRICE_CHECK_FAILED_NO_DEBIT | HR-12; D12; NEW-08 | Server UTC+8 business-day key changes at 00:00; success debits once; fail/timeout no debit; retry idempotent |
 | C01 / C01-01 | CUSTOMER_PRICE_EFFECTIVE / PRICE_CONSULTATION_VALUE_FACT | NEW4-05 | No effective price renders non-clickable `价格咨询`; never exposes internal price or invents a CTA |
 | P08-01 / P08-04 | PRICE_DRAFT / PRICE_SAVE_FAILED_EFFECTIVE_UNCHANGED / PRICE_EFFECTIVE | NEW4-01/05 | Draft/failure never replaces current effective price; activation audits before/after and cycle |

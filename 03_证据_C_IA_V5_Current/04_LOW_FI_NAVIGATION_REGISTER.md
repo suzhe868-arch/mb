@@ -19,7 +19,7 @@
 > - E02→更多→草稿车源：多草稿列表/继续编辑/正式发布/删除；MODEL_MISSING 完成后回原 draft。
 > - E02/P02 Vehicle：已发布车辆保存修改；合法 source_type 修改；Archive/报告维护；同 vehicle_id source conversion。
 > - P05：车型主数据/JYT mapping/MODEL_MISSING/conflict/duplicate 治理。
-> - P03-05：publisher 电话缓存/历史/latest/异常/审计诊断，不出现 Collector 电话 URL 配置。
+> - P03-02：Publisher / 电话诊断承载 publisher 电话缓存/历史/latest/异常/审计诊断，不出现 Collector 电话 URL 配置。
 > - P08：LIMITED/UNLIMITED、markup/quota、customer display override、临时增加当天查价次数。
 > - E05/P06：销售匹配描述保存、确定性解析、四级 Match Result、confirmation 后重算、Rule Dictionary 全生命周期、Priority qualification/TTL/release。
 > - CRM：真实“记录跟进”提交；Source Radar 只读消费 Matching change fact。
@@ -72,7 +72,7 @@ This register is the self-contained current IA authority for action routing. It 
 | C01-M01 | 成功确认 | C01-01 | price unlock succeeded; debit once for customer+vehicle+listing_cycle; persist price snapshot |
 | C01-M01 | 失败/超时重试 | C01-M01 | no quota debit; same idempotency key; cached/customer-safe state remains |
 | C01-M01 | 取消 | C01-01 | no quota debit or price unlock mutation |
-| C01-01 | 我要这辆车 | E01-01 / C01-01 | phone authorized; create/reuse one employee work item, never a Lock; employee confirmation later applies normal lockability guard; unavailable vehicle creates no Lock |
+| C01-01 | 锁车 | C01-M04 | no active Lock; no own PENDING LockRequest; Vehicle/listing_cycle currently requestable; confirmation creates/reuses LockRequest.PENDING only and never directly creates formal Lock |
 | C01-01 | 登记候补 | C01-M02 | REF_GUARD[WAITLIST]；local_ui_fact=other customer has active lock; no own lock/waitlist |
 | C01-M02 | 确认登记候补 | C03-04 | REF_GUARD[WAITLIST]；local_ui_fact=revalidate other active Lock and no own active Lock/Waitlist; create/reuse active Waitlist idempotently |
 | C01-M02 | 取消 | C01-01 | no Waitlist mutation |
@@ -176,7 +176,7 @@ This register is the self-contained current IA authority for action routing. It 
 | E02-M01 | 查看名邦内部价 | E02-M01 | active Mingbang employee, not 4S; vehicle in data scope; existing employee internal-price visibility applies; internal mode itself grants nothing |
 | E02-M01 | 编辑 | E02-05 / E02-02 | active eligible employee; corresponding vehicle edit permission; vehicle in data scope; source_type and object state determine editable fields; no uploader-only rule |
 | E02-M01 | 拨打 | E02-M01 | active employee with independent phone capability; vehicle in data scope; cached phone present or cache-miss fetch succeeds |
-| E02-M01 | 最新电话 | E02-M01 / E02-01 / P03-05 | REF_GUARD[PHONE_REFRESH]；local_ui_fact=active employee with independent phone capability; vehicle in data scope; publisher_id available; success labels latest; failure keeps cached phone labeled cached and offers idempotent retry |
+| E02-M01 | 最新电话 | E02-M01 / E02-01 / P03-02 | REF_GUARD[PHONE_REFRESH]；local_ui_fact=active employee with current sensitive phone capability; vehicle in data scope; upstream_publisher_id available; success labels latest; failure keeps cached phone labeled cached and offers idempotent retry |
 | E07-05 | 创建退款单 | E07-05 | REF_GUARD[REFUND_CLOSE]；local_ui_fact=actor is current business/Transaction owner with covering data scope; exactly one subject: refundable Lock with valid deposit and no owning Transaction, or completed/cancelled Transaction; refundable balance > 0; no conflicting open case |
 | E07-04 | 追加冲正/更正 | E07-M02 | manager/store manager with funds-correction permission and covering data scope; append-only reason required |
 | E07-M02 | 确认追加冲正/更正 | E07-04 | revalidate authority/scope; append correction fact; preserve original deposit and audit actor/time/reason |
@@ -185,10 +185,10 @@ This register is the self-contained current IA authority for action routing. It 
 | P07-M02 | 确认追加冲正/更正 | P07-03 | revalidate authority/scope; append correction fact and audit; preserve original deposit |
 | P07-M02 | 取消 | P07-03 | no Deposit mutation |
 | E07-05 | 关闭 pending Refund | E07-M03 | REF_GUARD[REFUND_CLOSE]；local_ui_fact=current legal Refund handler with existing applicable refund/funds permission and covering data scope; close_reason required; no dedicated close permission or extra approval; never record as refunded |
-| E07-M03 | 确认撤回/关闭 | E07-05 | revalidate pending Refund and authority; append closed-not-refunded history; vehicle occupancy unchanged |
+| E07-M03 | 确认关闭 | E07-05 | revalidate pending Refund and authority; append closed-not-refunded history; vehicle occupancy unchanged |
 | E07-M03 | 取消 | E07-05 | Refund remains pending |
 | P07-05 | 关闭 pending Refund | P07-M03 | REF_GUARD[REFUND_CLOSE]；local_ui_fact=current legal Refund handler with existing applicable refund/funds permission and covering data scope; close_reason required; no dedicated close permission or extra approval |
-| P07-M03 | 确认撤回/关闭 | P07-05 | revalidate pending Refund and authority; append closed-not-refunded history; vehicle occupancy unchanged |
+| P07-M03 | 确认关闭 | P07-05 | revalidate pending Refund and authority; append closed-not-refunded history; vehicle occupancy unchanged |
 | P07-M03 | 取消 | P07-05 | Refund remains pending |
 | P08-04 | 查看新 cycle 覆盖价结果 | P08-04 / P02-07 | REF_GUARD[PRICE_OVERRIDE]；local_ui_fact=a new listing cycle never inherits an old manual-vehicle display-price override |
 | P08 | 设置客户展示价覆盖 | P08 | actor has display-price override permission and covering vehicle data scope; record before/after value, actor and time |
@@ -249,8 +249,8 @@ This register is the self-contained current IA authority for action routing. It 
 | source_page | control | target_page | condition |
 |---|---|---|---|
 | C03-07 | 发起直接转介绍 | C01-M03 | current customer identifies direct referrer; record one-level referral; assign new customer to referrer's current owner at event time when eligible; later owner change never rewrites source; no commission |
-| E01-01 | 确认客户车辆意向并发起 Lock | E02-04 / E07-01 | REF_GUARD[LOCK_CREATE_CANCEL]；local_ui_fact=pending vehicle-intent work item; actor is current responsible employee or authorized manager/store manager in scope; apply the canonical Lock guard: active eligible Mingbang identity, explicit Lock capability, customer/vehicle scope, current listing_cycle/source/occupancy and submit recheck |
-| E01-01 | 关闭车辆意向—当前不可锁 | E01-01 / C01-01 | pending work item; canonical Lock guard fails because vehicle/source/cycle/occupancy is not lockable; close as CLOSED_NOT_LOCKABLE with reason/history; never create Lock |
+| E01 | 锁车申请待处理（N） | E07-07 | actor has pending LockRequest in current responsibility/data scope; eligible Mingbang employee with review capability; 4S DENY; strong-task ordering follows current deadline/urgency rules |
+| E07-07 | 打开锁车申请 | E07-08 | request is in actor current responsibility/data scope; approve/reject final submit revalidates current LockRequest/Lock guard |
 | C02-01 | 撤回待处理申请 | C02-01 | application=pending and belongs to current customer; revalidate then close as CANCELLED; never create Demand |
 | P06-03 / P06-04 | 建立 Collaboration | P06-03 / P06-04 | actor is current owner or authorized manager in customer/business scope; participants active/eligible; persist exact scope |
 | P06-03 / P06-04 | 结束 Collaboration | P06-03 / P06-04 | actor authorized or owner/business/participant eligibility ended; close current collaboration and preserve history; rebuild requires a new record |
