@@ -1,6 +1,6 @@
 # PDM-25｜审计 / 历史 / 时区 / 配置版本 / 终态 / 横切完整性｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_2_PASS`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_3_PASS`  
 > 核心定位：`P25-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：`24 / 24 HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -623,6 +623,103 @@ R12 P11 / VR-P-037 等历史审计清单只能说明：
 - Final Closeout 前不得提前关闭 / source backwrite；
 - `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
 
-# 10. 当前唯一下一步
+# 10. Batch 3｜明确知情修改 / 后续明确新增｜PASS / USER_APPROVED / APPLIED
 
-> **PDM-25 Batch 3｜明确知情修改 / 后续明确新增审查。**
+本批不重复 Batch 1 已冻结的通用审计 / 历史原则，只承接 completed-PDM 后续 Final 中才逐步明确形成的横切语义。
+
+## P25-B3-01｜版本化配置区分 Current Version 与 Historical Version｜USER_APPROVED / APPLIED
+
+当且仅当来源业务 Authority 本身已经定义“版本”语义时，PDM-25 统一其版本历史关系：
+
+- 草稿 / 未生效版本；
+- 当前生效版本；
+- 历史版本；
+
+必须能够区分。
+
+新版本必须先满足来源业务的合法校验与启用 Guard，才能成为 current。
+
+校验失败 / 保存失败：
+- 不得替换当前有效版本；
+- 不得把失败草稿伪装为 current。
+
+新版本正式生效后：
+- 旧版本退出 current；
+- 旧版本及其历史仍保留；
+- 已引用旧版本形成的业务 snapshot / 历史事实不得被新版本追改。
+
+PDM-25 不要求所有普通配置强行建设 version state machine；没有来源 Authority 的配置版本模型，不由本域擅自新增。
+
+## P25-B3-02｜失败 / 跳过 / 去重 / 无有效结果不得伪装成成功｜USER_APPROVED / APPLIED
+
+当来源业务明确要求记录执行结果时，必须保留真实结果语义。
+
+典型包括：
+- 电话 latest 请求完成但未取得有效号码，不等于号码刷新成功；
+- Matching recalc failure / retry 保留真实失败 / 重试结果；
+- Notification 的 `SENT / FAILED / SKIPPED / DEDUPED / NOT_ALLOWLISTED` 必须区分；
+- 高风险 Action 的 result / failure 必须反映真实执行结果。
+
+统一原则：
+> 请求被接收、任务被执行、worker 跑过或发生 retry，都不自动等于业务成功。
+
+PDM-25 不因此把所有普通技术报错升级为高等级业务审计；是否需要正式 Audit / History 仍服从来源域。
+
+## P25-B3-03｜合法批量操作保留逐对象结果与来源允许的 partial success｜USER_APPROVED / APPLIED
+
+仅对来源 PDM 已经允许的批量 mutation 适用。
+
+批量操作必须：
+- 对每个对象独立重验 current Guard；
+- 对每个对象保留独立成功 / 失败结果；
+- 保留必要失败原因；
+- 能关联原 batch / batch identity；
+- 保留已经成功项的真实历史。
+
+当来源业务明确允许 partial success 时：
+- 已成功对象不得仅因其他对象失败而整体回滚；
+- 未完成 / 失败对象保持待处理或失败事实；
+- retry 只处理仍未闭环对象；
+- 不得因为 retry 抹除原批次与已成功事实。
+
+PDM-25 不据此给来源 PDM 明确不支持批量 mutation 的 Lock / Waitlist 等对象新增批量能力。
+
+## P25-B3-04｜组合入口不得合并独立 domain action 的状态事实｜USER_APPROVED / APPLIED
+
+UI / 员工体验层可以提供组合入口，但底层独立业务动作仍必须保持独立产品事实。
+
+例如：
+- Recommendation end 与 Priority release 可以有组合入口，但仍是两个独立 domain action；
+- LockRequest approved 可以关联 `resulting_lock_id`；
+- Lock conflict 可以关联 `resulting_waitlist_id`；
+- Notification fact 可以关联其来源 business event。
+
+统一要求：
+- 不同 domain action 分别 Guard；
+- 分别执行；
+- 分别记录 result；
+- 分别保留历史；
+- 可以通过 correlation / related IDs 关联；
+- 一个动作成功不得伪造另一个动作成功；
+- “有关联”不等于共享状态机；
+- “有关联”不等于互相授予 permission / entitlement / authority。
+
+---
+
+# 11. Batch 3 Conflict Isolation
+
+- `P25-B3-01～P25-B3-04 = PASS / USER_APPROVED / APPLIED`
+- `BATCH_3_CONFLICT_ISOLATION = PASS`
+- `MISCLASSIFIED_PRODUCT_CHOICE = 0`
+- `DUPLICATE_RULE_CREATION = 0`
+- `NEW_BUSINESS_STATE_MACHINE = 0`
+- `COMPLETED_PDM_HARD_CONFLICT = 0`
+- `INCOMING_HANDOFF_GAP = 0`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+- 24 / 24 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- Final Closeout 前不得提前关闭 / source backwrite；
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
+# 12. 当前唯一下一步
+
+> **PDM-25 Batch 4｜Final-gap Scan（冲突 / 遗漏 / 缺口 / 新选择）。**
