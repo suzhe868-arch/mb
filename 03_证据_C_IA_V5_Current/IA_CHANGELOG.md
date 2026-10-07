@@ -1,5 +1,31 @@
 # Phase 1.5 IA Changelog
 
+<!-- IA-GLOBAL-B1-CHANGELOG -->
+## 2026-10-08｜IA 全局集中对齐 Batch 1
+
+状态：`USER_APPROVED / APPLIED`
+
+用户已明确：**“全部同意，确认执行。”**
+
+本批只落库 PDM-01～04 对 IA 的 16 条已批准映射，未提前处理后续价格、匹配、Priority、Recommendation、Lock/Waitlist、资金/交易等批次。
+
+| 范围 | 结果 |
+|---|---|
+| Customer 首入 / owner | 分享/转介绍优先；无优先来源自然轮询；池空进入 owner_assignment_pending |
+| 分享 / 转介绍 | 不再永久 SOURCE_ONLY；ownerless 新客可形成销售归属；已有 owner 不被抢走 |
+| Customer Merge | V1 Current 全面退出；MERGE_* = DO_NOT_RESTORE |
+| Owner / Handover | owner 与具体业务负责人分层；Handover Batch 逐对象映射，部分失败不整体回滚 |
+| Permission / Data Scope | 统一角色模板 + 个人 allow/deny + data scope + object state + hard DENY |
+| System Admin | 独立控制平面；新增/启停后续 Admin 由 active Admin 管理；至少保留 1 个 active Admin |
+| 4S | 共用员工端裁剪视图；PC 仅授权后的本人有权 4S Vehicle P02 投影 |
+| Vehicle 状态 | 资源/visibility/业务占用分层；hidden != offline |
+| source_type | 名邦↔4S 同 vehicle_id，不新建 listing_cycle |
+| 一键转名邦 | wholesale/JYT→mingbang 同 vehicle_id；不建第二 Vehicle；既有业务关系不迁移 |
+| Listing Cycle | 只有真实不可售/失效→再次真实可售才新建 cycle |
+
+本批变更已同步到 IA_CURRENT、Page/Navigation/State Register、Action/State/Guard/Permission/Lifecycle Contract 与 Source Index。
+
+
 日期：2026-09-20  
 范围：IA-01～IA-25
 
