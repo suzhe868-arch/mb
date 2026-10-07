@@ -1,3 +1,14 @@
+## Engineering Startup Gate｜READY
+
+- 当前唯一动作：Engineering Startup Gate｜工程启动门禁
+- Engineering：STARTUP_GATE_READY / NO_CONSTRUCTION
+- High-Fi / Design System：PLANNED_AFTER_GATE / NOT_STARTED
+- Startup Gate 只做审计、对齐、分类和施工单，不直接施工
+- Current Authority：PDM-01～25 Final → Current IA → Current Low-Fi
+- 9/22 Engineering Delta / Legacy Engineering：INPUT_ONLY，必须重验
+- Gate PASS 后双轨：Engineering Foundation + High-Fi / Design System
+- 正式前端：High-Fi 确认一批 → Frontend 放行一批
+
 ## Low-Fi Global Alignment｜COMPLETE
 
 - LF-B1-01～LF-B1-07：PASS / USER_APPROVED / APPLIED
@@ -23,8 +34,8 @@
 
 ## Current｜当前唯一动作
 
-- 当前阶段：`ENGINEERING_READY_TO_START`
-- 当前唯一下一步：**Engineering / 施工**
+- 当前阶段：`ENGINEERING_STARTUP_GATE_READY`
+- 当前唯一下一步：**Engineering Startup Gate｜工程启动门禁**
 - 上层 Authority：`PDM-01～25 Final + Current IA + Current Low-Fi`
 - `LF-B1-01～LF-B1-07 = PASS / USER_APPROVED / APPLIED`
 - `LF-B2-01～LF-B2-07 = PASS / USER_APPROVED / APPLIED`
@@ -34,8 +45,12 @@
 - `FINAL_GAP_SCAN = PASS`
 - `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
 - Engineering 施工必须读取 PDM Final + Current IA + Current Low-Fi；不得反向改写产品 Authority
-- Engineering：`READY_TO_START / NO_CONSTRUCTION`
-- 当前工程入口：`05_证据_E_工程总闭环待执行Delta/工程总闭环待执行Delta清单.md`
+- Engineering：`STARTUP_GATE_READY / NO_CONSTRUCTION`
+- 当前 Gate 输入：`05_证据_E_工程总闭环待执行Delta/工程总闭环待执行Delta清单.md`
+- Gate 期间：`NO_CONSTRUCTION`，只做旧工程 / Schema / API / Permission / Test / Delta 盘点、Current Authority 对齐与施工分类
+- Gate PASS 后：`Engineering Foundation + High-Fi / Design System` 双轨并行
+- 前端放行规则：`High-Fi 确认一批 → Frontend 开发一批`
+- High-Fi / Design System：`PLANNED_AFTER_GATE / NOT_STARTED`
 
 ## HISTORICAL_AUDIT_TRAIL｜以下为历史执行记录
 

@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "ENGINEERING_READY_TO_START",
+  "substage": "ENGINEERING_STARTUP_GATE_READY",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "GLOBAL_POST_PDM25",
-  "current_domain_status": "LOW_FI_GLOBAL_ALIGNMENT_COMPLETE_FINAL_GAP_PASS",
+  "current_domain_status": "LOW_FI_COMPLETE_ENGINEERING_STARTUP_GATE_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,15 +20,17 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Engineering / 施工",
+  "current_task": "Engineering Startup Gate｜工程启动门禁",
   "current_work_file": "05_证据_E_工程总闭环待执行Delta/工程总闭环待执行Delta清单.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
-    "Engineering may not override approved PDM-01~25 Final, Current IA, or Current Low-Fi",
-    "RETAIN_FILE_NOT_CURRENT and DO_NOT_RESTORE Low-Fi assets may not return to Current",
-    "Historical implementation must be revalidated before becoming Current engineering behavior"
+    "Do not modify production business code, schema, API, permissions, or formal frontend before Engineering Startup Gate passes",
+    "Engineering and High-Fi may not override approved PDM-01~25 Final, Current IA, or Current Low-Fi",
+    "Do not execute the 2026-09-22 Engineering Delta or Legacy Engineering Baseline directly; revalidate every reuse candidate",
+    "Do not restore RETAIN_FILE_NOT_CURRENT or DO_NOT_RESTORE assets as Current",
+    "Do not batch-build formal UI directly from Low-Fi before the corresponding High-Fi/Design-System batch is accepted"
   ],
   "confirmed_rule_atoms": [
     "P01-A01",
@@ -1336,7 +1338,9 @@
     "PDM_FINAL_INTEGRITY_HISTORICAL_TAIL_CLEANUP_AND_CURRENT_HISTORY_LABELING",
     "IA_GLOBAL_ALIGNMENT",
     "LOW_FI_GLOBAL_ALIGNMENT",
-    "ENGINEERING"
+    "ENGINEERING_STARTUP_GATE",
+    "ENGINEERING_FOUNDATION_AND_HIGH_FI_DESIGN_SYSTEM_PARALLEL",
+    "FRONTEND_BATCH_RELEASE"
   ],
   "pdm_03_integrity_status": "INTEGRITY_PASS",
   "pdm_03_integrity_audit_file": "07_重建工作区/PDM-03_历史最终版完整性复核_2026-10-05.md",
@@ -4647,7 +4651,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "READY_TO_START_NO_CONSTRUCTION",
+  "engineering_status": "STARTUP_GATE_READY_NO_CONSTRUCTION",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4679,8 +4683,8 @@
     "retired_svg_count": 26,
     "ia_post_closeout_carrier_repair": "PASS_NO_PRODUCT_SEMANTIC_CHANGE",
     "local_product_choice_unresolved": 0,
-    "engineering": "READY_TO_START_NO_CONSTRUCTION",
-    "next": "ENGINEERING",
+    "engineering": "STARTUP_GATE_READY_NO_CONSTRUCTION",
+    "next": "ENGINEERING_STARTUP_GATE",
     "batch_2": "PASS_USER_APPROVED_APPLIED",
     "batch_2_atoms": "LF-B2-01..LF-B2-07",
     "batch_2_targeted_stale_current": 0,
@@ -4704,5 +4708,36 @@
     "low_fi_incomplete_page": 0,
     "lockrequest_v2_carrier_index_closure": "5_5_PASS_NO_PRODUCT_SEMANTIC_CHANGE",
     "retired_asset_count": 26
+  },
+  "high_fi_status": "PLANNED_AFTER_STARTUP_GATE_NOT_STARTED",
+  "design_system_status": "PLANNED_AFTER_STARTUP_GATE_NOT_STARTED",
+  "engineering_startup_gate": {
+    "status": "READY_TO_START",
+    "construction": "NO",
+    "authority_order": [
+      "PDM_01_25_FINAL",
+      "CURRENT_IA",
+      "CURRENT_LOW_FI"
+    ],
+    "inputs": [
+      "05_证据_E_工程总闭环待执行Delta/工程总闭环待执行Delta清单.md",
+      "09_历史工程资产基线/",
+      "CURRENT_ENGINEERING_ASSETS_WHEN_AVAILABLE"
+    ],
+    "classifications": [
+      "FOUNDATION_READY",
+      "REUSE_CANDIDATE",
+      "REBUILD_REQUIRED",
+      "RETIRE_DO_NOT_RESTORE",
+      "HIGH_FI_DEPENDENT",
+      "PRODUCT_CONFLICT_REVIEW"
+    ],
+    "pass_output": "BATCHED_ENGINEERING_WORK_ORDERS_WITH_DEPENDENCIES_AND_RISKS",
+    "post_gate_parallel": [
+      "ENGINEERING_FOUNDATION",
+      "HIGH_FI_DESIGN_SYSTEM"
+    ],
+    "frontend_release_rule": "HIGH_FI_BATCH_ACCEPTED_THEN_FRONTEND_BATCH_RELEASE",
+    "conflict_return_rule": "REGISTER_DELTA_PAUSE_AFFECTED_ITEM_PRODUCT_REVIEW_USER_CONFIRM_UPDATE_AUTHORITY_RESUME"
   }
 }

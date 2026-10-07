@@ -1,3 +1,22 @@
+## 2026-10-08｜工程启动流程已冻结，当前进入 Engineering Startup Gate
+
+- PDM-01～25 Final：继续作为最高产品业务 Authority
+- IA：`COMPLETE / FINAL_GAP_PASS`
+- Low-Fi：`COMPLETE / FINAL_GAP_PASS`
+- Engineering：`STARTUP_GATE_READY / NO_CONSTRUCTION`
+- High-Fi / Design System：`PLANNED_AFTER_GATE / NOT_STARTED`
+- 当前唯一下一步：**Engineering Startup Gate｜工程启动门禁**
+- Gate 输入：`05_证据_E_工程总闭环待执行Delta/工程总闭环待执行Delta清单.md` + `09_历史工程资产基线/` + 当前可取得工程资产
+- Gate 期间：只读、比对、分类、登记风险、生成施工单；**禁止正式业务代码 / Schema / API / 权限 / 前端施工**
+- 旧工程与 9/22 Delta：只作候选复用/历史证据，必须按 `PDM Final → Current IA → Current Low-Fi` 重验
+- Gate PASS 后双轨：`Engineering Foundation` + `High-Fi / Design System`
+- 工程底层可先做：Database / Domain Model / Permission / State Machine / API / Service / Test Harness
+- 正式前端：`High-Fi 确认一批 → Frontend 放行一批`
+- High-Fi 不要求全部 Low-Fi SVG 逐张确认；先 Design System / 代表模板 / 核心页面 / 关键链路，再批量覆盖重复状态
+- Engineering / High-Fi 如发现产品冲突：登记 Delta → 暂停受影响项 → 返回产品裁决 → 用户确认 → 更新 Authority → 再施工
+- AI 为主执行者；用户保留新产品选择、Authority 修改、核心视觉方向、真实生产账号/环境、UAT/上线批准
+- Product Baseline：`NOT_READY`
+
 ## 2026-10-08｜Low-Fi Batch 4 Final-gap 已执行，Low-Fi 全局集中对齐 COMPLETE
 
 - `LF-B4-01 = PASS / USER_APPROVED / APPLIED`

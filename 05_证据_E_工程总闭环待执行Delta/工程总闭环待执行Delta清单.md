@@ -1,5 +1,11 @@
 # 名邦汽车 V1｜工程总闭环待执行 Delta 清单｜2026-09-22
 
+> **2026-10-08 Current 使用规则：`STARTUP_GATE_INPUT_ONLY / MUST_REFRESH_BEFORE_EXECUTION`**
+>
+> 本文件是 2026-09-22 历史工程 Delta 输入，可能包含已被后续 PDM Final / Current IA / Current Low-Fi 替代的旧语义。**不得直接按本文件施工。**
+>
+> 当前必须先进入 `Engineering Startup Gate`，逐条按 `PDM-01～25 Final → Current IA → Current Low-Fi` 复核，并分类为 `FOUNDATION_READY / REUSE_CANDIDATE / REBUILD_REQUIRED / RETIRE_DO_NOT_RESTORE / HIGH_FI_DEPENDENT / PRODUCT_CONFLICT_REVIEW`。只有 Gate PASS 后进入正式施工单的条目才可执行。
+
 > 状态：`ENGINEERING_CLOSURE_PHASE = READY`；本清单是工程实施输入，不代表代码、数据库或 API 已经完成。
 
 ## 1. Business Rule Delta｜业务规则
