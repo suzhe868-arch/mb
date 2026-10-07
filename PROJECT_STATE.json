@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "FINAL_INTEGRITY_HISTORICAL_TAIL_CLEANUP",
+  "substage": "IA_GLOBAL_ALIGNMENT_READY",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "GLOBAL_POST_PDM25",
-  "current_domain_status": "GLOBAL_FINAL_AUDIT_PASS_HISTORICAL_TAIL_CLEANUP_PENDING",
+  "current_domain_status": "HISTORICAL_TAIL_CLEANUP_PASS_IA_GLOBAL_ALIGNMENT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,16 +20,16 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PDM-01～25 Final / Integrity 历史阶段尾巴统一清理与 Current / History 边界标注",
-  "current_work_file": "07_重建工作区/PDM-01至25_全局跨域移交与全局不变量最终总复核_2026-10-07.md",
+  "current_task": "IA 全局集中对齐",
+  "current_work_file": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
   "forbidden_now": [
-    "Do not modify IA or Low-Fi before Final/Integrity historical-tail cleanup and Current/History labeling completes",
+    "Do not let IA override or redefine approved PDM-01~25 Final product semantics",
+    "Do not begin Low-Fi before IA global alignment passes",
     "Do not execute Engineering Delta",
-    "Preserve historical audit trail; do not physically delete historical stage facts",
-    "Historical-tail cleanup may only remove stale-current ambiguity and add Current/History labels; it must not change approved product semantics"
+    "Preserve HISTORICAL_AUDIT_TRAIL and Current/History boundary during IA alignment"
   ],
   "confirmed_rule_atoms": [
     "P01-A01",
@@ -422,7 +422,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "POST_GLOBAL_AUDIT_HISTORICAL_TAIL_CLEANUP",
+  "current_review_batch": "IA_GLOBAL_ALIGNMENT_READY",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -4639,5 +4639,9 @@
   "global_pdm01_25_final_integrity_audit": "PASS",
   "global_lia_01_04": "USER_APPROVED_APPLIED",
   "global_pdm01_25_final_integrity_audit_report": "07_重建工作区/PDM-01至25_全局跨域移交与全局不变量最终总复核_2026-10-07.md",
-  "historical_tail_cleanup_status": "PENDING"
+  "historical_tail_cleanup_status": "PASS",
+  "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
+  "ia_status": "READY_TO_START_NO_CHANGES_APPLIED",
+  "lowfi_status": "NO_CONSTRUCTION",
+  "engineering_status": "NO_CONSTRUCTION"
 }
