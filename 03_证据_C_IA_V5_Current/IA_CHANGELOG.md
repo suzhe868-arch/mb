@@ -1,5 +1,12 @@
 # Phase 1.5 IA Changelog
 
+<!-- IA-POST-CLOSEOUT-LF-B2-REPAIR -->
+## 2026-10-08｜Low-Fi Batch 2 反向发现的 IA stale carrier 修复
+
+状态：`PASS / CARRIER_REPAIR / NO_PRODUCT_SEMANTIC_CHANGE`
+
+Low-Fi Batch 2 执行时反向发现 IA 明细仍存在分享 SOURCE_ONLY-only、Recommendation current-owner-only、Demand/Priority 客户 hidden visibility、CRM 直接 Lock、P06-07 Opportunity rules、Refund 旧 PROCESSING/COMPLETED 与 manager-only close、Announcement per-announcement daily cap 等 stale mirror。已全部按 PDM-03/13/14/16/18/19/24 Final 正规化；最终定向 stale-current scan=`0`。
+
 <!-- IA-POST-CLOSEOUT-LF-B1-REPAIR -->
 ## 2026-10-08｜Low-Fi Batch 1 发现的 IA 后闭环 stale carrier 修复
 
