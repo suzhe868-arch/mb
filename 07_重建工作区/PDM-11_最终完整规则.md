@@ -686,3 +686,6 @@ PDM-11 已正式完成：
 PDM-11 Final 完成不代表这些后续 handoff 已落地；其状态继续由目标 PDM 的 ACCEPTED / CLOSED 流程管理。
 
 > 2026-10-07 Source Backwrite：对应 PDM-22 handoff 已由 `07_重建工作区/PDM-22_最终完整规则.md` 正式承接；以 CROSS_PDM_HANDOFF_REGISTER 的 `HANDOFF_CLOSED / source_backwrite=YES` 为准。
+
+
+> 2026-10-07 Source Backwrite｜HO-P11-P25-001：`HANDOFF_CLOSED / source_backwrite=YES`。PDM-25 已由 `07_重建工作区/PDM-25_最终完整规则.md` 正式承接本域移交的审计 / 历史 / 时区 / 配置版本 / 横切完整性语义；PDM-25 不反向改写本 PDM 已冻结的业务状态机与产品规则。
