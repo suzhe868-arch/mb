@@ -1,5 +1,19 @@
 # 04 LOW-FI NAVIGATION REGISTER — PHASE 1.5 IA CURRENT
 
+<!-- IA-GLOBAL-B1-NAV -->
+> **IA Batch 1 导航/入口覆盖｜2026-10-08**
+>
+> - Customer 首入不新增独立登录/资料完善页；身份识别后直接进入客户端，owner 归属由分享/转介绍优先、自然轮询兜底。
+> - `owner_assignment_pending` 为异常待分配状态，不构造“无负责人正式业务”页面。
+> - 客户分享/转介绍入口必须能保留来源客户与销售归属解析；已有 owner 不提供“被分享链接改绑销售”动作。
+> - Customer Merge 相关页面/弹层/确认入口全部从 Current IA 移除，不得恢复。
+> - P04/Handover 必须承载批次→受影响 Customer/活跃业务→原负责人→目标负责人→校验结果→失败项重试的真实映射，不再使用仅有成功/失败提示的通用壳。
+> - P05 System Admin 必须存在后续 System Admin 的新增/启用/停用/基础治理入口，并保护“最后 1 个 active Admin 不可停用”。
+> - 4S 继续员工端裁剪视图；明确授予 PC 车辆管理能力后，只进入其有权 4S 车辆的 P02 裁剪投影。
+> - P02 Vehicle 必须提供合法人工车 `source_type: mingbang <-> 4S` 修改入口；4S 成员本人上传车不得自行改为名邦。
+> - “一键转名邦”入口作用于当前同一 vehicle，不跳转/创建第二 Vehicle；成功后仍停留/进入同一 vehicle 的名邦来源详情。
+
+
 This register is the self-contained current IA authority for action routing. It does not normatively depend on any historical `06_PAGE_ACTION_MATRIX.md`; pure read-only pages receive no invented business action.
 
 | source_page | control | target_page | condition |
