@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "H01-2 候选设计令牌；视觉方向未确认，严禁当作最终品牌色或完整 H03 实现",
+  "status": "PROPOSAL_ONLY",
+  "project": "名邦汽车 V1",
+  "date": "2026-10-08",
+  "base": {
+    "color": {
+      "textPrimary": "#24282E",
+      "textSecondary": "#626B76",
+      "canvas": "#F6F7F8",
+      "panel": "#FFFFFF",
+      "border": "#E3E7EA",
+      "success": "#176A45",
+      "warning": "#995A13",
+      "danger": "#B42318",
+      "disabledSurface": "#ECEFF1"
+    },
+    "spacingPx": [
+      4,
+      8,
+      12,
+      16,
+      20,
+      24,
+      32,
+      40,
+      48
+    ],
+    "radiusPx": {
+      "small": 8,
+      "card": 12,
+      "dialog": 16,
+      "highlight": 24
+    },
+    "typographyPx": {
+      "hero": {
+        "size": 26,
+        "lineHeight": 32
+      },
+      "pageTitle": {
+        "size": 22,
+        "lineHeight": 30
+      },
+      "cardTitle": {
+        "size": 17,
+        "lineHeight": 25
+      },
+      "body": {
+        "size": 15,
+        "lineHeight": 23
+      },
+      "support": {
+        "size": 13,
+        "lineHeight": 19
+      },
+      "dataLabel": {
+        "size": 12,
+        "lineHeight": 18
+      }
+    }
+  },
+  "visualCandidates": {
+    "A": {
+      "label": "蓝灰现代商务",
+      "brand": "#2563EB",
+      "brandSubtle": "#EAF1FF",
+      "approved": false
+    },
+    "B": {
+      "label": "石墨汽车品牌",
+      "brand": "#D65438",
+      "brandSubtle": "#FCE9E4",
+      "approved": false
+    }
+  },
+  "contexts": {
+    "C": {
+      "referenceViewport": "390x844",
+      "minTargetPx": 44,
+      "horizontalInsetPx": 16
+    },
+    "E": {
+      "referenceViewport": "390x844",
+      "minTargetPx": 44,
+      "horizontalInsetPx": 16,
+      "fourSSeparateApp": false
+    },
+    "P": {
+      "referenceViewport": "1440x900",
+      "contentInsetPx": 24,
+      "tableRowHeightPx": 48
+    }
+  },
+  "gates": {
+    "userVisualDirection": "PENDING",
+    "designAReview": "PENDING",
+    "frontendImplementation": "NOT_AUTHORIZED",
+    "contrastChecks": "NOT_RUN"
+  }
+}
