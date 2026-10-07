@@ -1137,7 +1137,7 @@ R2：
 
 历史阶段下一步（HISTORICAL_AUDIT_TRAIL，当时）：
 
-> **PDM-21 Startup Gate。**
+> **历史阶段记录（HISTORICAL_AUDIT_TRAIL，当时）：PDM-21 Startup Gate。**
 
 > 2026-10-07 Source Backwrite：对应 PDM-22 handoff 已由 `07_重建工作区/PDM-22_最终完整规则.md` 正式承接；以 CROSS_PDM_HANDOFF_REGISTER 的 `HANDOFF_CLOSED / source_backwrite=YES` 为准。
 
