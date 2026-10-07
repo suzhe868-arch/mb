@@ -1,3 +1,21 @@
+## 2026-10-07｜PDM-25 Batch 2 已批准并执行，进入 Batch 3
+
+- `P25-B2-01～P25-B2-08 = PASS / USER_APPROVED / APPLIED`；
+- Reverse Conflict Scan：`PASS / FALSE_DEPRECATION_COUNT=0`；
+- Customer Merge 不得因历史审计项恢复；
+- 独立 Recommendation qualification / P06-06 不得恢复；
+- 独立“调价”Action / permission 不得恢复；
+- 不新增独立 `can_call_wholesale_phone`；
+- Announcement 旧三档频率 / 重新发布重置触达模型不得恢复；
+- “详情 Banner 不是强制模块”旧语义不得恢复，VEHICLE_DETAIL 继续是固定 placement 能力；
+- reason 不做全局必填；
+- 历史审计对象清单不得作为 Current 业务能力复活清单；
+- 24 / 24 incoming handoff 继续 `HANDOFF_ACCEPTED`，Final Closeout 前不关闭 / 不 source backwrite；
+- `COMPLETED_PDM_HARD_CONFLICT = 0`；
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- IA / Low-Fi / Engineering：`NO_CONSTRUCTION`；
+- 当前唯一下一步：**PDM-25 Batch 3｜明确知情修改 / 后续明确新增审查。**
+
 ## 2026-10-07｜PDM-25 Batch 1 已批准并执行，进入 Batch 2
 
 - `P25-A01～P25-A17 = PASS / USER_APPROVED / APPLIED`；
