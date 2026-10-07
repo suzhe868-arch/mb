@@ -6,6 +6,13 @@
 > 方法 Authority：`00_先读/01_产品基线重建执行规范_冻结工作版.md` Gate 11。  
 > 注意：本文件管理“任务状态与承接关系”，不凭自身创造新的产品业务规则；产品 Authority 仍来自用户裁决、PDM Final 与 Decision Register。
 
+## IA 全局集中对齐执行状态
+
+- 2026-10-08：IA Batch 1 已执行，PDM-01～04 对应 16 条 stale carrier 已关闭为 `CARRIER_CLOSED_IA_BATCH1`。
+- 未属于本批的价格、供应异常及其他 carrier 继续保持 `CARRIER_DEFERRED`。
+- 当前唯一下一步：IA Batch 2｜明确废弃 / 已覆盖 / 不得恢复审查。
+
+
 ---
 
 ## 1. 状态定义
@@ -544,25 +551,25 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | PDM-20 | Vehicle Detail 顾问/档案/车况/服务说明/顶部导航/价格格式等 Current 投影不足 | CARRIER_DEFERRED |
 | PDM-20 | Announcement / Banner Current carrier 不完整 | CARRIER_DEFERRED |
 | PDM-20 | PDM-19 Refund closed / correction / change-car 客户端交易资金旧壳 | CARRIER_DEFERRED |
-| PDM-01 | 首次进入不形成 owner 的旧承载 | CARRIER_DEFERRED |
-| PDM-01 | 客户分享永久 SOURCE_ONLY | CARRIER_DEFERRED |
-| PDM-01 | Customer Merge / merge flow | CARRIER_DEFERRED |
-| PDM-01 | 头像/昵称仍可能被标成 required | CARRIER_DEFERRED |
-| PDM-02 | P05 System Admin 缺真实“新增 System Admin”动作入口 | CARRIER_DEFERRED |
-| PDM-02 | 4S internal vehicle-management 被旧 not-4S Guard 整体挡住 | CARRIER_DEFERRED |
-| PDM-02 | 旧 vehicle.convert_mingbang 独立 permission | CARRIER_DEFERRED |
+| PDM-01 | 首次进入不形成 owner 的旧承载 | CARRIER_CLOSED_IA_BATCH1 |
+| PDM-01 | 客户分享永久 SOURCE_ONLY | CARRIER_CLOSED_IA_BATCH1 |
+| PDM-01 | Customer Merge / merge flow | CARRIER_CLOSED_IA_BATCH1 |
+| PDM-01 | 头像/昵称仍可能被标成 required | CARRIER_CLOSED_IA_BATCH1 |
+| PDM-02 | P05 System Admin 缺真实“新增 System Admin”动作入口 | CARRIER_CLOSED_IA_BATCH1 |
+| PDM-02 | 4S internal vehicle-management 被旧 not-4S Guard 整体挡住 | CARRIER_CLOSED_IA_BATCH1 |
+| PDM-02 | 旧 vehicle.convert_mingbang 独立 permission | CARRIER_CLOSED_IA_BATCH1 |
 | PDM-02 | 旧独立调价 permission / action | CARRIER_DEFERRED |
-| PDM-02 | P04 / handoff 页面仍是通用壳 | CARRIER_DEFERRED |
+| PDM-02 | P04 / handoff 页面仍是通用壳 | CARRIER_CLOSED_IA_BATCH1 |
 | PDM-02 | permission 文案与 PDM-10 当前价格模型不一致 | CARRIER_DEFERRED |
-| PDM-03 | 首次进入无 owner 的旧首入投影 | CARRIER_DEFERRED |
-| PDM-03 | 客户侧分享固定 SOURCE_ONLY | CARRIER_DEFERRED |
-| PDM-03 | 推荐朋友 / 直接转介绍真人入口不足 | CARRIER_DEFERRED |
-| PDM-03 | handover 页面未完整表现对象映射、失败/重试 | CARRIER_DEFERRED |
-| PDM-04 | 旧“双 vehicle + conversion relation”一键转名邦承载 | CARRIER_DEFERRED |
-| PDM-04 | 旧“只有 biz_status=normal 才可 convert”的 Guard | CARRIER_DEFERRED |
-| PDM-04 | 旧 conversion relation / 原批发新名邦两车身份 | CARRIER_DEFERRED |
+| PDM-03 | 首次进入无 owner 的旧首入投影 | CARRIER_CLOSED_IA_BATCH1 |
+| PDM-03 | 客户侧分享固定 SOURCE_ONLY | CARRIER_CLOSED_IA_BATCH1 |
+| PDM-03 | 推荐朋友 / 直接转介绍真人入口不足 | CARRIER_CLOSED_IA_BATCH1 |
+| PDM-03 | handover 页面未完整表现对象映射、失败/重试 | CARRIER_CLOSED_IA_BATCH1 |
+| PDM-04 | 旧“双 vehicle + conversion relation”一键转名邦承载 | CARRIER_CLOSED_IA_BATCH1 |
+| PDM-04 | 旧“只有 biz_status=normal 才可 convert”的 Guard | CARRIER_CLOSED_IA_BATCH1 |
+| PDM-04 | 旧 conversion relation / 原批发新名邦两车身份 | CARRIER_CLOSED_IA_BATCH1 |
 | PDM-04 | 旧价格 / 调价 carrier | CARRIER_DEFERRED |
-| PDM-04 | 4S 车辆管理入口旧限制 | CARRIER_DEFERRED |
+| PDM-04 | 4S 车辆管理入口旧限制 | CARRIER_CLOSED_IA_BATCH1 |
 | PDM-04 | P02/P03 车源、集成、供应异常等页面通用壳 / 状态承载不足 | CARRIER_DEFERRED |
 | PDM-05 | 完整车型名称完全一致→自动 mapping 的旧主规则 | CARRIER_DEFERRED |
 | PDM-05 | `no model creation is inferred` 与 System Admin 可补品牌/车系/具体车型冲突 | CARRIER_DEFERRED |
