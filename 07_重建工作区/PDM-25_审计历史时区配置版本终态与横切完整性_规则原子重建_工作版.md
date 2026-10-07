@@ -1,6 +1,6 @@
 # PDM-25｜审计 / 历史 / 时区 / 配置版本 / 终态 / 横切完整性｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_1_PASS`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_2_PASS`  
 > 核心定位：`P25-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：`24 / 24 HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -494,6 +494,135 @@ Customer、Employee、Vehicle、Demand、Matching、Priority、Recommendation、
 - Final Closeout 前不得提前关闭 incoming handoff 或 source backwrite；
 - `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
 
-# 8. 当前唯一下一步
+# 8. Batch 2｜明确废弃 / 已覆盖 / 不得恢复｜PASS / USER_APPROVED / APPLIED
 
-> **PDM-25 Batch 2｜明确废弃 / 已覆盖 / 不得恢复审查。**
+以下规则均属于历史 carrier、旧冻结台账或旧业务入口中仍可见，但已经被 completed-PDM Final 明确覆盖的旧语义。
+
+## P25-B2-01｜Customer Merge 不得因审计项恢复｜USER_APPROVED / APPLIED
+
+旧 R12 P11 / VR-P-037 曾把 Customer Merge 列为审计对象。
+
+当前 Authority：
+- PDM-01 Final 已明确 V1 完全取消 Customer Merge；
+- 不提供自动 Merge；
+- 不提供人工 Merge；
+- 不提供手机号合并账号；
+- 不提供确认同一自然人后的账号合并。
+
+PDM-25 允许保留历史上真实存在过的旧 Merge 相关记录作为 Historical Fact，但不得因“审计对象清单曾包含 Customer Merge”重新建立：
+- Merge Action；
+- Merge permission；
+- Merge 状态机；
+- surviving customer_id；
+- owner / 权益 / 业务迁移体系。
+
+## P25-B2-02｜独立 Recommendation qualification 不得恢复｜USER_APPROVED / APPLIED
+
+旧 R12 曾保留：
+- Recommendation 资格开启 / 关闭；
+- 独立 Recommendation qualification 管理。
+
+PDM-14 Final 已明确废弃：
+- 独立 Recommendation qualification；
+- `RECOMMENDATION_QUALIFIED / NOT_QUALIFIED`；
+- P06-06 推荐资格开关；
+- 仅服务旧资格开关的独立管理能力。
+
+当前正式 Recommendation 资格统一由 Customer Level 当前 `find-car entitlement` 决定；Priority qualification 继续独立，仅决定 Priority 排他保护。
+
+PDM-25 可以审计历史旧资格事实，不得恢复旧资格开关或第二套资格状态。
+
+## P25-B2-03｜独立“调价”动作 / permission 不得因审计恢复｜USER_APPROVED / APPLIED
+
+旧 R12 / 历史 carrier 曾把“调价”作为独立权限或独立业务动作。
+
+PDM-10 Final 已明确：
+- 名邦 / 4S 的 `customer_list_price`、`internal_wholesale_price` 属于正常车辆业务字段；
+- 不再建立独立“调价 permission”；
+- 不再建立独立“调价业务动作”；
+- 合法人员通过普通车辆编辑“保存修改”完成正常价格字段修改。
+
+客户展示价覆盖继续是独立敏感能力，不与旧“调价”概念混同。
+
+历史调价记录可以保留，但不得据此恢复旧 Action / permission。
+
+## P25-B2-04｜旧独立拨打电话 permission 不得恢复｜USER_APPROVED / APPLIED
+
+上游发布人电话仍是独立敏感能力，但 PDM-09 Final 已明确：
+- 不新增独立 `can_call_wholesale_phone`；
+- 查看 / latest / 拨打继续复用现有上游电话敏感能力；
+- 同时叠加 current employee、data scope、当前 Vehicle source_type 等 Guard。
+
+PDM-25 审计电话查看 / latest / 拨打，不代表重新创建“拨打专属 permission”。
+
+## P25-B2-05｜Announcement 旧三档频率 / 重新发布模型不得恢复｜USER_APPROVED / APPLIED
+
+9/22 VR-P-033 曾保留：
+- 仅首次一次；
+- 每天最多一次；
+- 不自动弹。
+
+VR-P-034 还出现过“重新发布 / 新公告”表述。
+
+PDM-24 Final 已覆盖为：
+- 独立 `auto-popup` 开关；
+- 同一 Customer 同一 UTC+8 业务自然日 Announcement 主动弹层全局最多实际展示 1 条；
+- 不建设“重新发布并重置触达”动作；
+- 需要新一轮触达时，新建 Announcement。
+
+PDM-25 只审计当前模型，不得恢复旧三档频率或重新发布状态机。
+
+## P25-B2-06｜“VEHICLE_DETAIL Banner 不是强制模块”不得恢复｜USER_APPROVED / APPLIED
+
+R12 历史 carrier 曾写：
+> 详情 Banner 不是强制模块。
+
+PDM-24 Final 已明确：
+- `VEHICLE_DETAIL` 是所有合法车辆详情页固定具备的广告位能力；
+- 无有效 Banner 时只是不渲染具体广告内容；
+- 不代表该 placement 能力不存在。
+
+PDM-25 的配置版本 / 历史不得把旧“可有可无的详情 placement”重新解释为 Current Authority。
+
+## P25-B2-07｜Audit reason 不得恢复为全局必填｜USER_APPROVED / APPLIED
+
+VR-P-036 曾把 reason 写入日志最小字段列表，不能据此推导为“所有动作都必须填写原因”。
+
+当前统一规则：
+- 来源业务明确要求 reason / note → 必填；
+- 来源业务未要求 → PDM-25 不额外强制；
+- 历史真实事件没有 reason 时，不得为了格式完整性伪造 / 补写虚假原因。
+
+## P25-B2-08｜旧审计对象清单不得成为业务能力复活清单｜USER_APPROVED / APPLIED
+
+R12 P11 / VR-P-037 等历史审计清单只能说明：
+> 当时认为哪些行为应进入审计。
+
+它们不能反向成为业务能力 Authority。
+
+因此历史清单中出现的：
+- Customer Merge；
+- 独立 Recommendation qualification；
+- 旧 Announcement frequency；
+- 旧独立调价；
+- 其他已被 completed-PDM Final supersede 的旧业务动作；
+
+均只能按真实历史事实留存，不得因为“审计里有名字”重新创造 Current Action / permission / state machine / UI entry。
+
+---
+
+# 9. Batch 2 Reverse Conflict Scan
+
+- `P25-B2-01～P25-B2-08 = PASS / USER_APPROVED / APPLIED`
+- `REVERSE_CONFLICT_SCAN = PASS`
+- `FALSE_DEPRECATION_COUNT = 0`
+- `COMPLETED_PDM_HARD_CONFLICT = 0`
+- `INCOMING_HANDOFF_GAP = 0`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+- 24 / 24 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- Final Closeout 前不得提前关闭 / source backwrite；
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
+# 10. 当前唯一下一步
+
+> **PDM-25 Batch 3｜明确知情修改 / 后续明确新增审查。**
