@@ -1,3 +1,20 @@
+## 2026-10-07｜PDM-25 Batch 1 已批准并执行，进入 Batch 2
+
+- `P25-A01～P25-A17 = PASS / USER_APPROVED / APPLIED`；
+- Batch 1 confirmed count = 17；
+- 审计只读、重要 mutation 可追溯、reason 按来源域决定、普通浏览不强制高等级审计；
+- Current Projection / Historical Fact 分离，纠错采用追加事实，不抹除真实历史；
+- 重要配置 before/after/actor/time 可追溯，新配置默认不追改已固化 snapshot；
+- 统一业务自然日：`Asia/Shanghai (UTC+8)`；
+- 权限撤销后旧页面/session/deep-link/敏感 payload 不再构成授权；
+- human actor / system actor 必须可区分；
+- 幂等、唯一 active、并发 winner、不重复扣减、不超退等只冻结产品结果，不冻结 DB/MQ/事务框架；
+- 24 / 24 incoming handoff 继续 `HANDOFF_ACCEPTED`，Final Closeout 前不得关闭或 source backwrite；
+- `COMPLETED_PDM_HARD_CONFLICT = 0`；
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- IA / Low-Fi / Engineering：`NO_CONSTRUCTION`；
+- 当前唯一下一步：**PDM-25 Batch 2｜明确废弃 / 已覆盖 / 不得恢复审查。**
+
 ## 2026-10-07｜PDM-25 Startup Gate 已批准并执行
 
 - `P25-R00 = USER_APPROVED / APPLIED`；
