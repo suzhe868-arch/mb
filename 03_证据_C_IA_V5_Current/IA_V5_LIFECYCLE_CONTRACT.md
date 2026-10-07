@@ -1,5 +1,17 @@
 # IA V5 Lifecycle Contract — Final Closure Rebound
 
+<!-- IA-GLOBAL-B1-LIFECYCLE -->
+> **IA Batch 1 Lifecycle 覆盖｜2026-10-08**
+>
+> Customer：创建/识别后立即进入 owner attribution；分享/转介绍优先，否则自然轮询。接客池异常为空时进入 owner_assignment_pending，恢复后自动补分。V1 无 Customer Merge lifecycle，所有 Merge lifecycle 行均 DEPRECATED / DO_NOT_RESTORE。
+>
+> Ownership/Handover：owner 历史永久保留；owner 变化不反写来源，也不自动迁移具体业务负责人。inactive/离职/调店/降权导致承责资格变化时，Handover Batch 覆盖 Customer 与适用活跃业务；逐项成功即保留，失败项继续待处理/重试。复职复用 employee_id，但不自动拿回旧 Customer、旧业务责任、旧 permission 或 accepting。
+>
+> Vehicle/Listing Cycle：Vehicle identity 与 source_type、visibility、业务占用分层。mingbang↔4S 合法 source_type 修改不改变 vehicle_id、不产生新 listing_cycle。wholesale/JYT→mingbang 一键转换复用同 vehicle_id、同当前 listing_cycle、同 listing_started_at；Customer、Waitlist、Lock、Transaction、价格快照等关系继续绑定原 Vehicle。转换后不得人工转回 wholesale。
+>
+> 新 listing_cycle 的唯一业务条件是“真实不可售/失效 → 再次真实可售”；hidden 恢复、普通资料编辑、改价、自动隐藏变化、人工 hidden 恢复、source conversion 均不新建 cycle。
+
+
 | OBJECT_ID | BUSINESS_OBJECT | DIMENSION | STATUS | UPSTREAM_SOURCE | UPSTREAM_EVIDENCE | CURRENT_SEMANTICS | CURRENT_CARRIER | WHY_NA_OR_ENGINEERING | SUPPORTING_CURRENT_REF |
 |---|---|---|---|---|---|---|---|---|---|
 | CO-O01 | Customer | CREATE | FULL | Phase1.5上游权威/STEP7_OPERATION_CLOSURE_REPORT.md:L30 | 首次进入建立稳定 customer_id；业务事件形成 owner | Customer 的建立/形成入口：首次进入建立稳定 customer_id；业务事件形成 owner | 当前IA/IA_CURRENT.md:L494#V5-LIFE-CO-O01-CREATE |  | 当前IA/IA_CURRENT.md:L311｜\| CO-O01 \| Customer \| STEP7_OPERATION_CLOSURE_REPORT.md:L30 \| 首次进入建立稳定 customerid；业务事件形成 owner \| 身份失败可重试；停用不删历史；确认身份可恢复 \| 合并、来源、owner 留历史 \| 闭合 \| |
