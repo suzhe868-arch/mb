@@ -1,5 +1,26 @@
 # Phase 1.5 IA Changelog
 
+<!-- IA-GLOBAL-B2-B3-CHANGELOG -->
+## 2026-10-08｜IA 全局集中对齐 Batch 2 + 3
+
+状态：`PASS / USER_APPROVED / APPLIED`
+
+用户明确：**“全部同意，确认执行”**。
+
+### Batch 2
+- `IA-B2-01～IA-B2-19 = PASS / USER_APPROVED / APPLIED`
+- 已将明确废弃/已覆盖旧方向标为 `DO_NOT_RESTORE / SUPERSEDED`，包括独立 Recommendation qualification、独立调价、独立 can_call_wholesale_phone、第二套客户专属 Matching、人工 Priority/priority.*、旧 Opportunity 规则引擎、混合“我要这辆车”、Waitlist 自动晋升、Refund partial/专门 close permission、通用消息中心、Announcement 旧三档 frequency、万能配置中心等。
+
+### Batch 3
+- `IA-B3-01～IA-B3-30 = PASS / USER_APPROVED / APPLIED`
+- 已补齐车型主数据/映射、多草稿、VIN Gate、Archive、图片资产化、publisher phone、价格等级与额度、Matching/Rule Dictionary、Priority、Recommendation、CRM Follow-up/Source Radar、公海指定分配、LockRequest/Waitlist/Lock、Refund/Transaction、C01/C02/C03/Vehicle Detail、Announcement/Banner 等真实 Current 承载。
+
+### 边界
+- PDM Final 不改。
+- Low-Fi / Engineering 不施工。
+- 未经 Batch 4 Final-gap Scan 与 Final→IA coverage 复核，不宣告 IA 完成。
+
+
 <!-- IA-GLOBAL-B1-CHANGELOG -->
 ## 2026-10-08｜IA 全局集中对齐 Batch 1
 
