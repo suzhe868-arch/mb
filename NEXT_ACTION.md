@@ -1,15 +1,10 @@
-## IA Global Alignment Closeout
+## Low-Fi Global Alignment
 
-- IA Batch 1：16 / 16 PASS / USER_APPROVED / APPLIED
-- IA Batch 2：19 / 19 PASS / USER_APPROVED / APPLIED
-- IA Batch 3：30 / 30 PASS / USER_APPROVED / APPLIED
-- IA Batch 4：6 / 6 PASS / USER_APPROVED / APPLIED
-- CARRIER_DEFERRED：0
-- Final-gap Scan：PASS
-- Current IA current-row stale：0
-- PDM Final Business Semantic Change：0
+- LF-B1-01～LF-B1-07：PASS / USER_APPROVED / APPLIED
+- Low-Fi：IN_PROGRESS / BATCH_1_APPLIED
+- LF-B1 targeted stale-current scan：0
+- Retired Low-Fi SVG：25
 - IA：COMPLETE / FINAL_GAP_PASS
-- Low-Fi：READY_TO_START
 - Engineering：NO_CONSTRUCTION
 - Product Baseline：NOT_READY
 
@@ -19,13 +14,12 @@
 
 ## Current｜当前唯一动作
 
-- 当前阶段：`LOW_FI_GLOBAL_ALIGNMENT_READY`
-- 当前唯一下一步：**Low-Fi 全局集中对齐**
-- IA 当前状态：`COMPLETE / FINAL_GAP_PASS`
-- Low-Fi 对齐必须以 `PDM-01～25 Final + Current IA` 为上层 Authority，不得由旧 Low-Fi carrier 反向覆盖
+- 当前阶段：`LOW_FI_GLOBAL_ALIGNMENT_IN_PROGRESS`
+- 当前唯一下一步：**Low-Fi Batch 2｜明确废弃 / 已覆盖 / 不得恢复审查**
+- 上层 Authority：`PDM-01～25 Final + Current IA`
+- `LF-B1-01～LF-B1-07 = PASS / USER_APPROVED / APPLIED`
+- Low-Fi 不得反向覆盖 PDM Final / Current IA
 - Engineering：本阶段不施工
-- `IA-B4-01～IA-B4-06 = PASS / USER_APPROVED / APPLIED`
-- 剩余 `CARRIER_DEFERRED = 0`
 
 ## HISTORICAL_AUDIT_TRAIL｜以下为历史执行记录
 
