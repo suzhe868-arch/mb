@@ -1,3 +1,22 @@
+# 2026-10-08｜工程启动门禁正式 PASS（用户确认执行，仅文档与状态落库）
+
+- Gate：`PASS / USER_APPROVED / APPLIED`；不等于 F01/H01 已启动，更不等于工程代码、数据库、接口或页面已施工。
+- 审查源 HEAD：`0ff42c5782192541baa06bf12f8bfdc285a5f5ca`；本次文档/状态同步提交为正式写入凭据。
+- 历史工程资产：160/160 路径级分类（39 候选复用、30 必须改、1 禁恢复旧实现、6 数据校验、2 重新生成、30 重做测试基准、52 历史参考）。
+- 旧接口：218/218 路径级 PDM 主要归属与施工责任（207 待逐字段审查、6 重构、4 禁恢复、1 可复用候选）；字段安全、运行路由和测试不在 Gate 内冒充 PASS。
+- 差异风险：EG-01～32；新增当前需求：ADD-01～09；对应 F01～F08 施工单，H01～H04 设计/前端门禁。
+- 门禁三份交付：
+  - `07_重建工作区/工程启动门禁_历史工程复用与差异台账_2026-10-08.md`
+  - `07_重建工作区/工程启动门禁_工程基础施工单与验收标准_2026-10-08.md`
+  - `07_重建工作区/工程启动门禁_最终审查报告_2026-10-08.md`
+- Current Authority：PDM-01～25 Final → Current IA → Current Low-Fi；历史 9/22 Delta / Legacy Engineering = INPUT_ONLY，不得直接施工。
+- 特别封堵 PDM-06 草稿歧义：以 **多草稿自动保存、无手动保存按钮** 为 Current；历史“禁止自动保存”说法不是权威。
+- 当前唯一下一组行动：**F01 工程基础环境与骨架 + H01 Design System / 核心模板（并行）**；F02～F04 仅可先做不破坏的设计准备。
+- F01/H01 开工之后每项另按施工单验收；正式前端依然是“高保真确认一批 → 开发一批”。
+- `PRODUCT_BASELINE=NOT_READY`；`ENGINEERING=STARTUP_GATE_PASS / FOUNDATION_READY / NO_CONSTRUCTION`；`HIGH_FI=READY_TO_START / NOT_STARTED`。
+
+## HISTORICAL_AUDIT_TRAIL｜以下保留先前阶段真实状态，不再作为当前指针
+
 ## 2026-10-08｜工程启动流程已冻结，当前进入 Engineering Startup Gate
 
 - PDM-01～25 Final：继续作为最高产品业务 Authority

@@ -1,4 +1,30 @@
-## Engineering Startup Gate｜READY
+# 名邦汽车 V1｜当前唯一下一步｜2026-10-08
+
+## Engineering Startup Gate｜PASS / USER_APPROVED / APPLIED
+
+- 门禁已通过：`PASS`（只针对旧资产分类、风险、施工单/验收标准和开工资格，不证明实际功能实现）。
+- **唯一并行下一组任务：`F01｜工程基础环境与骨架` + `H01｜Design System / 核心模板`**。
+- 工程：`FOUNDATION_READY / NO_CONSTRUCTION`；高保真：`READY_TO_START / NOT_STARTED`；产品总基线：`NOT_READY`。
+- 主控必须先读：三份门禁文档 → PDM-01～25 Final → Current IA → Current Low-Fi；旧工程与 9/22 Delta 均为 INPUT_ONLY。
+- F01 建可运行工程骨架、依赖/预检、健康检查、隔离数据库安全基线；H01 做统一设计规范和核心模板；双方可并行。
+- F02/F03/F04 的设计准备可并行，但禁止在没有对应施工单执行批准与环境核验时运行迁移或修改正式业务代码。
+- 正式前端：**High-Fi 确认一批 → Frontend 只开发该批**；不要求所有 Low-Fi 图片逐张确认。
+- 用户对新产品裁决、关键视觉方向、真实账号/环境、UAT/上线保持批准权；技术细节可按已冻结规则实施并审计。
+- 不得恢复：旧 Collector 电话 API 方向和电话连接配置、单草稿索引、旧 Refund 两态、旧锁车冲突不候补、其他与 PDM Final 冲突项。
+- **本次门禁提交未执行代码、数据库、测试、页面施工。**
+
+## 当前工作载体
+
+- `07_重建工作区/工程启动门禁_历史工程复用与差异台账_2026-10-08.md`
+- `07_重建工作区/工程启动门禁_工程基础施工单与验收标准_2026-10-08.md`
+- `07_重建工作区/工程启动门禁_最终审查报告_2026-10-08.md`
+- 仓库控制入口：README、CURRENT_PROJECT_STATE、NEXT_ACTION、PROJECT_STATE.json、DECISION_REGISTER。
+
+---
+
+# 历史阶段记录｜先前的“当前唯一下一步”仅作历史，不再作为执行指针
+
+## HISTORICAL｜Engineering Startup Gate 曾为 READY（已被 Gate PASS 替代）
 
 - 当前唯一动作：Engineering Startup Gate｜工程启动门禁
 - Engineering：STARTUP_GATE_READY / NO_CONSTRUCTION
@@ -28,11 +54,11 @@
 - Engineering：READY_TO_START / NO_CONSTRUCTION
 - Product Baseline：NOT_READY
 
-# 名邦汽车 V1｜下一步唯一动作
+# HISTORICAL｜旧版名邦汽车 V1 下一步唯一动作记录
 
 > 更新时间：2026-10-08
 
-## Current｜当前唯一动作
+## HISTORICAL｜当时记录的当前唯一动作
 
 - 当前阶段：`ENGINEERING_STARTUP_GATE_READY`
 - 当前唯一下一步：**Engineering Startup Gate｜工程启动门禁**
