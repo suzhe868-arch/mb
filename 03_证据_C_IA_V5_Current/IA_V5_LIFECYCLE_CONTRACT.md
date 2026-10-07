@@ -1,5 +1,49 @@
 # IA V5 Lifecycle Contract — Final Closure Rebound
 
+<!-- IA-GLOBAL-B2-B3-LIFECYCLE -->
+> **IA Batch 2 + 3 Lifecycle 覆盖｜2026-10-08**
+>
+> **Model / Draft / Vehicle**
+> - model mapping pending/conflict 不删除 JYT 已知车型事实；System Admin 完成 mapping 后建立/修正本地归属，不反写原始 source facts。
+> - 多 draft 独立存在；draft 未发布前不进入 Vehicle/listing_cycle；MODEL_MISSING 完成后回原 draft_id。
+> - draft source_type 合法修改只影响草稿；首次正式发布后 source_type 变化进入正式 Vehicle mutation。
+>
+> **Archive / Image**
+> - Archive 内部事实、版本、customer_visible 分层；作废/新版本不抹除历史。
+> - image assetization processing→success/partial_failed/failed 只描述图片子任务；批发→名邦 source conversion 已成立时图片失败不回滚 Vehicle/业务关系；未闭环可临时受控回源，成功后切回名邦资产链路。
+>
+> **Phone / Price**
+> - publisher 当前电话缓存按 source_platform+upstream_publisher_id；latest 失败不覆盖旧有效缓存；Vehicle 当前 source_type 离开 wholesale 后日常详情电话入口结束，但历史/cache/audit 保留。
+> - LIMITED/UNLIMITED 模式切换按当前等级事实；Customer disable 暂停新受保护价格动作，不删除已成立单车/周期 price-right；恢复不复活已自然失效权利。
+>
+> **Matching / Priority / Recommendation**
+> - Matching 先形成 current legal Match Result；confirmation 只补事实并重算。
+> - Priority qualification 是 Customer 长期属性；active Priority 由系统仲裁产生。关闭 qualification 结束其 active Priority并重仲裁，但不结束 Demand。
+> - Priority release/expiry/match-invalidated 与 Recommendation end/void 是独立 lifecycle；一方结束不自动结束另一方。
+> - Recommendation 逐 Vehicle 独立；其他 Customer active Priority 期间既有 Recommendation/visibility 可 suppression，但历史对象不删除；Priority 结束后按当前事实重新判断。
+>
+> **CRM / Public Pool**
+> - Follow-up 是真实 CRM history；Opportunity/Source Radar 不复制其他业务状态机。
+> - 公海指定分配成功即 Customer owner 变化并退出公海；批量治理允许 partial success；历史 owner/source/CRM/business facts 不清空。
+>
+> **LockRequest / Waitlist / Lock**
+> - LockRequest PENDING 竞争失败可进入 LOCK_CONFLICT，并自动 create/reuse Waitlist；LockRequest 与 Waitlist 保持独立对象关联。
+> - Waitlist 结束不自动创建 Lock；Lock release/expiry/cancel 后进入人工重新确认。
+> - 新 Lock 按创建时配置冻结初始 expires_at；默认72h。合法延期修改同一 Lock；配置变化不追改已存在 Lock。
+> - 有真实 Deposit 后，Lock 持续占用不再按普通 expires_at 自动释放。
+> - ordinary Lock 与 Priority-origin Lock 的 visibility 生命周期不同；后者在 Lock 有效期继承排他 Customer visibility，结束后重新读取当前 Vehicle/Recommendation/Priority facts。
+>
+> **Refund / Transaction**
+> - Refund pending→refunded 表示真实退款发生；pending→closed 表示决定不再退款并记录 close_reason。closed 不等于 refunded，不回 pending；新退款需求新建 Refund。
+> - partial 结果由多笔真实 refunded facts + refundable balance 表达，不设 partial 主状态。
+> - Transaction correction、Deposit correction、responsible handoff 采用追加事实/正式 handoff；不删除原事实，不自动重建 Lock，不自动 relist/new cycle。
+> - 换车不建独立状态机：旧车业务按真实结果结束/保留历史，新车重新建立业务对象。
+>
+> **Announcement / Banner**
+> - Announcement 普通编辑不重置已发生 touch；新一轮触达通过新建 Announcement。
+> - Banner HOME_TOP/VEHICLE_DETAIL placement 能力持续存在；无有效 Banner 时只不渲染内容。
+
+
 <!-- IA-GLOBAL-B1-LIFECYCLE -->
 > **IA Batch 1 Lifecycle 覆盖｜2026-10-08**
 >
