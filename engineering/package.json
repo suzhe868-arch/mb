@@ -9,8 +9,10 @@
   },
   "scripts": {
     "preflight": "node scripts/preflight.mjs",
+    "safety": "node scripts/safety-check.mjs",
     "build": "node scripts/build.mjs",
     "test": "node --test tests/*.test.mjs",
-    "check": "npm run preflight && npm run build && npm test"
+    "check": "npm run preflight && npm run safety && npm run build && npm test",
+    "start": "node dist/server.mjs"
   }
 }
