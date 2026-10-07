@@ -4790,5 +4790,50 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "F01 工程基础环境与骨架 + H01 Design System / 核心模板（并行，尚未施工）"
+  "next_action_detail": "F01 工程基础环境与骨架 + H01 Design System / 核心模板（并行，尚未施工）",
+  "abc_parallel_workflow": {
+    "status": "USER_APPROVED_APPLIED_DOCUMENTATION_ONLY",
+    "confirmed_at": "2026-10-08",
+    "authority_unchanged": true,
+    "business_code_modified": false,
+    "database_modified": false,
+    "design_branch_modified": false,
+    "implementation_status_unchanged": true,
+    "active_tracks": [
+      "F01_ENGINEERING_FOUNDATION",
+      "H01_DESIGN_SYSTEM"
+    ],
+    "execution_requires_separate_scope_approval": true,
+    "global_state_owner": "A_MAIN",
+    "engineering": {
+      "owner": "B",
+      "branch": "feat/f01-foundation",
+      "active_work_order": "F01",
+      "later_work_orders": [
+        "F02",
+        "F03",
+        "F04",
+        "F05",
+        "F06",
+        "F07",
+        "F08"
+      ],
+      "later_orders_not_authorized_by_this_plan": true
+    },
+    "design": {
+      "owner": "C",
+      "branch": "design/h01-design-system",
+      "active_work_order": "H01",
+      "later_design": "H02_REQUIRES_VISUAL_AND_BATCH_APPROVAL",
+      "frontend": "H03_REQUIRES_ACCEPTED_HIGH_FI_AND_API",
+      "integration": "H04_REQUIRES_IMPLEMENTATION_AND_USER_UAT_APPROVAL"
+    },
+    "paths": {
+      "governance": "07_重建工作区/A_B_C三窗口协作与验收规范.md",
+      "engineering_plan": "07_重建工作区/B工程完整施工路线图_F01至F08.md",
+      "design_plan": "07_重建工作区/C设计完整执行路线图_H01至H04.md"
+    },
+    "handoff": "READ_MAIN_DOCUMENTS_EXPLICITLY_KEEP_EXECUTION_ON_OWN_BRANCH_SUBMIT_EVIDENCE_FOR_A_REVIEW",
+    "merge_policy": "USER_APPROVAL_REQUIRED"
+  }
 }
