@@ -426,7 +426,7 @@ Final 前 R2：
 - 正式 Authority：`07_重建工作区/PDM-16_最终完整规则.md`；
 - Final 前完整性复核 R2：`PASS / FINAL_CANDIDATE_READY`；
 - 6 条 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
-- 1 条 outgoing（PDM-17）已 `HANDOFF_CLOSED / source_backwrite=YES`；其余未来 handoff 中 PDM-23 已 `HANDOFF_CLOSED / source_backwrite=YES`，PDM-25 继续 `HANDOFF_OPEN`；
+- 1 条 outgoing（PDM-17）已 `HANDOFF_CLOSED / source_backwrite=YES`；其余未来 handoff 中 PDM-23 已 `HANDOFF_CLOSED / source_backwrite=YES`，PDM-25 已 `HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-16：`COMPLETE / INTEGRITY_PASS`；
 - 下一步：`PDM-17 Startup Gate`；
 - IA / Low-Fi / Engineering 继续禁止提前施工。
