@@ -1,5 +1,26 @@
 # 04 LOW-FI NAVIGATION REGISTER — PHASE 1.5 IA CURRENT
 
+<!-- IA-GLOBAL-B2-B3-NAV -->
+> **IA Batch 2 + 3 Navigation 覆盖｜2026-10-08**
+>
+> **移除/禁用旧入口**
+> - P06-06 独立 Recommendation 资格页；人工 Priority 创建/转让/override；独立 priority.view/manage/override。
+> - 独立“调价”页/动作；Collector Base URL / Phone Path/JYT 电话凭证配置；客户端泛化消息中心；Opportunity 通用规则配置；CRM“先锁车再选 Vehicle”；LockRequest 独立进度中心；客户主动取消 Waitlist；Announcement republish-reset；万能杂项配置中心。
+>
+> **补齐真实入口**
+> - E02→更多→草稿车源：多草稿列表/继续编辑/正式发布/删除；MODEL_MISSING 完成后回原 draft。
+> - E02/P02 Vehicle：已发布车辆保存修改；合法 source_type 修改；Archive/报告维护；同 vehicle_id source conversion。
+> - P05：车型主数据/JYT mapping/MODEL_MISSING/conflict/duplicate 治理。
+> - P03-05：publisher 电话缓存/历史/latest/异常/审计诊断，不出现 Collector 电话 URL 配置。
+> - P08：LIMITED/UNLIMITED、markup/quota、customer display override、临时增加当天查价次数。
+> - E05/P06：销售匹配描述保存、确定性解析、四级 Match Result、confirmation 后重算、Rule Dictionary 全生命周期、Priority qualification/TTL/release。
+> - CRM：真实“记录跟进”提交；Source Radar 只读消费 Matching change fact。
+> - 公海：合法指定分配后立即形成 owner；批量治理逐客户返回结果。
+> - E07/P07/C03：LockRequest conflict→Waitlist、Lock 72h/延期、普通 Lock 与 Priority-origin Lock visibility、Refund closed、Transaction/Deposit correction/handoff。
+> - C01/C02/C03：真实搜索/筛选/7种排序、Vehicle Detail、我的推荐/咨询/锁车候补/交易/公告/顾问/推荐朋友。
+> - Banner：HOME_TOP / VEHICLE_DETAIL 两个正式 placement。
+
+
 <!-- IA-GLOBAL-B1-NAV -->
 > **IA Batch 1 导航/入口覆盖｜2026-10-08**
 >
