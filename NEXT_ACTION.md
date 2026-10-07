@@ -3,6 +3,26 @@
 > 更新时间：2026-10-07
 
 
+## PDM-25 Prefinal R2 执行结果
+
+- P25-LIA-01～P25-LIA-03：PASS / USER_APPROVED / APPLIED
+- R1 Repair Closed：3 / 3
+- PDM-25 信息保真检查卡：CREATED / COMPLETE
+- Source → Atom：PASS
+- Atom → Source：PASS
+- SOURCE_DECISION_COVERAGE：100%
+- UNMAPPED：0
+- FINAL_TO_SOURCE_TRACEABILITY：100%
+- SEMANTIC_COMPLETENESS：PASS
+- NEGATIVE_CLAIMS_VERIFIED：PASS
+- IMPLEMENTATION_READY：PASS
+- PDM25_FORMAL_UNITS：37
+- PDM25_FINAL_CANDIDATE_READY：YES
+- Incoming Handoff Landing：24 / 24 PASS
+- Incoming Handoff Status：24 / 24 HANDOFF_ACCEPTED（最终批准前不关闭 / 不 source backwrite）
+- Final Overview：`07_重建工作区/PDM-25_最终完整规则总览_待用户批准.md` / FINAL_REVIEW_PENDING
+- IA / Low-Fi / Engineering：NO_CONSTRUCTION
+
 ## PDM-25 Batch 4 执行结果
 
 - P25-B4-01～P25-B4-04：PASS / USER_APPROVED / APPLIED
@@ -443,7 +463,7 @@
 
 ## 当前唯一下一步
 
-> **当前唯一下一步：PDM-25 Final 前完整性复核（Prefinal Integrity）。**
+> **当前唯一下一步：用户最终审查 / 批准 PDM-25 Final Domain Overview。**
 
 每个 PDM 必须同时执行：
 
@@ -497,7 +517,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-24 均已完成对应 Final / Integrity Closeout；PDM-25 Startup Gate 已 PASS，24/24 incoming handoff 已 HANDOFF_ACCEPTED。当前唯一下一步：PDM-25 Final 前完整性复核（Prefinal Integrity）。
+当前 PDM-01～PDM-24 均已完成对应 Final / Integrity Closeout；PDM-25 Startup Gate 已 PASS，24/24 incoming handoff 已 HANDOFF_ACCEPTED。当前唯一下一步：用户最终审查 / 批准 PDM-25 Final Domain Overview。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
