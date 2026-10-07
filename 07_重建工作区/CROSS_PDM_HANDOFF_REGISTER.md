@@ -673,16 +673,17 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 
 ## 15. 当前下一步
 
-- PDM-01～PDM-23：已完成对应 Final / Integrity Closeout，其中 PDM-23 当前为 `COMPLETE / INTEGRITY_PASS`；
-- PDM-23 正式 Authority：`07_重建工作区/PDM-23_最终完整规则.md`；
-- PDM-23 Final Integrity：`07_重建工作区/PDM-23_最终完整性复核_2026-10-07.md / PASS`；
-- PDM-23 正式规则 / 裁决单元：65；
-- target=PDM-23 的 10 / 10 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
-- `HO-P23-P25-001 = HANDOFF_OPEN`；
-- PDM-20 → PDM-24 的 `HO-P20-P24-001 = HANDOFF_CLOSED / source_backwrite=YES`，target landing=`07_重建工作区/PDM-24_最终完整规则.md`；
+- PDM-01～PDM-25：全部已完成 Final / Integrity Closeout，状态均为 `COMPLETE / INTEGRITY_PASS`；
+- Handoff 主表共 165 条：`HANDOFF_CLOSED = 164`，`HANDOFF_SUPERSEDED = 1`；
+- `HANDOFF_OPEN = 0`；
+- `HANDOFF_ACCEPTED = 0`；
+- `SOURCE_BACKWRITE_PENDING = 0`；
+- target=PDM-25 的 24 / 24 incoming handoff 已全部 `HANDOFF_CLOSED / source_backwrite=YES`；
+- PDM-01～24 Final / Integrity 对 PDM-25 的 source backwrite 已完成；
 - IA / Low-Fi / Engineering 继续 `NO_CONSTRUCTION`；
-- `HO-P24-P25-001 = HANDOFF_OPEN`；
-- 当前唯一下一步：**PDM-25 Startup Gate**。
+- 当前唯一下一步：**PDM-01～25 全局 Cross-PDM / Handoff / Global Invariant 最终总复核 R2。**
+
+> 本节为 Current 实时汇总；后续带日期的 Startup Gate / Batch / Prefinal / Final Closeout 记录属于 `HISTORICAL_AUDIT_TRAIL`，保留历史事实，不作为当前状态指针。
 
 ## 12L. PDM-22 来源 handoff
 
