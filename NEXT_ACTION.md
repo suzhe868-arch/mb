@@ -1,14 +1,14 @@
-## PDM-25 Final Closeout
+## Global Final Audit Closeout
 
-- PDM-25：COMPLETE / INTEGRITY_PASS
-- Final：`07_重建工作区/PDM-25_最终完整规则.md`
-- Final Integrity：`07_重建工作区/PDM-25_最终完整性复核_2026-10-07.md / PASS`
-- Formal Units：37
-- Incoming Handoff：24 / 24 HANDOFF_CLOSED
-- Source Backwrite：24 / 24 DONE（PDM-01～24 Final + Integrity）
+- PDM-01～25：25 / 25 COMPLETE / INTEGRITY_PASS
+- Global PDM-01～25 Final Audit：PASS
+- 报告：`07_重建工作区/PDM-01至25_全局跨域移交与全局不变量最终总复核_2026-10-07.md`
+- Cross-PDM Handoff：165 = 164 CLOSED + 1 SUPERSEDED
+- HANDOFF_OPEN：0
+- HANDOFF_ACCEPTED：0
+- SOURCE_BACKWRITE_PENDING：0
 - IA / Low-Fi / Engineering：NO_CONSTRUCTION
 - Product Baseline：NOT_READY
-- Global PDM-01～25 Final Audit：PENDING
 
 # 名邦汽车 V1｜下一步唯一动作
 
@@ -16,11 +16,12 @@
 
 ## Current｜当前唯一动作
 
-- PDM-01～25：全部 COMPLETE / INTEGRITY_PASS
-- Global PDM-01～25 Final Audit：R1 repair 已批准并执行，当前进入 R2
-- Cross-PDM Handoff 主表：165 条；164 HANDOFF_CLOSED；1 HANDOFF_SUPERSEDED；OPEN=0；ACCEPTED=0；source_backwrite pending=0
-- IA / Low-Fi / Engineering：继续 NO_CONSTRUCTION
-- 当前唯一下一步：**PDM-01～25 全局 Cross-PDM / Handoff / Global Invariant 最终总复核 R2**
+- 当前阶段：`FINAL_INTEGRITY_HISTORICAL_TAIL_CLEANUP`
+- 当前唯一下一步：**PDM-01～25 Final / Integrity 历史阶段尾巴统一清理与 Current / History 边界标注**
+- 清理原则：保留历史审计事实；只清除会被误读为 Current 的旧阶段指针，并明确标注 `HISTORICAL_AUDIT_TRAIL`
+- Final 业务语义：不得改变
+- IA / Low-Fi：本阶段仍不施工
+- Engineering：不施工
 
 ## HISTORICAL_AUDIT_TRAIL｜以下为历史执行记录
 
