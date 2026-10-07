@@ -1,5 +1,18 @@
 # IA V5 Canonical Guard Contract
 
+<!-- IA-GLOBAL-B1-GUARD -->
+> **IA Batch 1 Guard 覆盖｜2026-10-08**
+>
+> - CUSTOMER_OWNER_ASSIGNMENT：分享/转介绍优先；无优先来源才进入 active+eligible+accepting 池；池异常为 0 → owner_assignment_pending。
+> - CUSTOMER_SHARE_ATTRIBUTION：仅 ownerless 新客允许通过有效分享链形成 owner；已有 owner 仅追加来源/触达历史。
+> - OWNER_REASSIGNMENT / HANDOVER_BATCH：操作者须具备相应管理能力且 data scope 覆盖；目标人员当前合法；提交/重试重新校验；成功项不得因失败项整体回滚。
+> - SYSTEM_ADMIN_GOVERNANCE：后续 Admin 由 active System Admin 治理；不得停用最后 1 个 active Admin；控制平面治理不等于员工业务执行权。
+> - FOURS_PC_VEHICLE_SCOPE：4S 默认不进 PC；明确授予后只看本人有权 4S Vehicle 的 P02 裁剪投影。
+> - SOURCE_TYPE_CHANGE：只允许合法人工车 mingbang↔4S；不得人工改为 wholesale；4S 成员本人上传车不得自行改为 mingbang。
+> - CONVERT_MINGBANG：wholesale/JYT→mingbang，同 vehicle_id；不要求 biz_status=normal；已有 Lock / active Transaction 不构成统一禁止；4S 不得执行。
+> - LISTING_CYCLE_CREATE：只有真实不可售/失效→再次真实可售才建新 cycle；hidden 恢复、source_type 变化、一键转名邦均不得建新 cycle。
+
+
 页面/Navigation 只引用本表 family；family 必须与业务对象、权限、数据范围、对象状态及提交重验一致。
 
 | COMMAND_FAMILY_ID | CANONICAL_ACTION | CANONICAL_GUARD | PERMISSION | DATA_SCOPE | OBJECT_STATE | SUBMIT_RECHECK | RESULT_STATE | UPSTREAM_EVIDENCE | ENTRY_COUNT |
