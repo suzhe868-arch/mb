@@ -1,5 +1,11 @@
 # 04 LOW-FI PAGE MANIFEST — PHASE 1.5 IA CURRENT
 
+<!-- IA-GLOBAL-B1-PAGE -->
+> **IA Batch 1 Page Manifest 覆盖｜2026-10-08**
+>
+> Customer 首入不增加强制资料页；Customer Merge 页面全部退出 Current。P04/Handover 必须体现批次与逐对象映射、校验结果、失败项与重试。P05 System Admin 增加后续 Admin 治理入口。4S PC 只保留授权后的 P02 车辆裁剪投影。P02 Vehicle 承载合法人工车 source_type 修改与同 vehicle_id 的一键转名邦。
+
+
 - Current logical Page/Overlay rows: **135** (logical IA carriers; not a physical asset count)
 - Baseline product SVG assets: **289**
 - Technical auth bootstrap SVG assets outside the product-page table: **4** (`E-AUTH01`, `P-AUTH01`)
