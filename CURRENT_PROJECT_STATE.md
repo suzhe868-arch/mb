@@ -1,3 +1,20 @@
+## 2026-10-07｜PDM-25 Batch 4 已批准并执行，进入 Prefinal Integrity
+
+- `P25-B4-01～P25-B4-04 = PASS / USER_APPROVED / APPLIED`；
+- `CHOICES = 1A / 2A / 3A / 4A`；
+- Final-gap Scan：`PASS`；
+- 审计保留动作发生当时的身份上下文，后续角色 / 门店 / scope 变化不回写旧事件；
+- UTC+8 统一业务自然日与展示解释，不把 source / received / planned / actual 等不同时间事实压成一个时间；
+- 幂等 / retry-safe 不制造重复业务成功历史，attempt 与 actual success 分离；
+- 采用 4A：不规定全局统一 Audit Log retention 天数；来源域要求永久保留的业务历史继续永久真实，技术日志 retention / 归档实现留 Engineering / 合规；
+- `COMPLETED_PDM_HARD_CONFLICT = 0`；
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 0`；
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- `INCOMING_HANDOFF_GAP = 0`；
+- 24 / 24 incoming handoff 继续 `HANDOFF_ACCEPTED`，PDM-25 Final Closeout 前不关闭 / 不 source backwrite；
+- IA / Low-Fi / Engineering：`NO_CONSTRUCTION`；
+- 当前唯一下一步：**PDM-25 Final 前完整性复核（Prefinal Integrity）。**
+
 ## 2026-10-07｜PDM-25 Batch 3 已批准并执行，进入 Batch 4 Final-gap Scan
 
 - `P25-B3-01～P25-B3-04 = PASS / USER_APPROVED / APPLIED`；
