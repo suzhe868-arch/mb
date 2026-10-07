@@ -1,5 +1,12 @@
 # Phase 1.5 IA Changelog
 
+<!-- IA-POST-CLOSEOUT-LF-B1-REPAIR -->
+## 2026-10-08｜Low-Fi Batch 1 发现的 IA 后闭环 stale carrier 修复
+
+状态：`PASS / CARRIER_REPAIR / NO_PRODUCT_SEMANTIC_CHANGE`
+
+Low-Fi 首轮实际载体扫描发现 IA 明细仍残留少量已被 PDM Final 否定的 Current carrier：Customer Merge 页面/状态、人工创建 Priority 引用、单草稿 DRAFT_RESUME、P03 超出两子页结构及旧 phone capability 表述。已按既有 PDM Final / 已批准 IA 顶层 Authority 正规化；没有新增产品选择，也不重开 IA 产品审查。
+
 <!-- IA-GLOBAL-B4-CHANGELOG -->
 ## 2026-10-08｜IA 全局集中对齐 Batch 4 Final-gap
 
