@@ -1,3 +1,15 @@
+## PDM-25 Final Closeout
+
+- PDM-25：COMPLETE / INTEGRITY_PASS
+- Final：`07_重建工作区/PDM-25_最终完整规则.md`
+- Final Integrity：`07_重建工作区/PDM-25_最终完整性复核_2026-10-07.md / PASS`
+- Formal Units：37
+- Incoming Handoff：24 / 24 HANDOFF_CLOSED
+- Source Backwrite：24 / 24 DONE（PDM-01～24 Final + Integrity）
+- IA / Low-Fi / Engineering：NO_CONSTRUCTION
+- Product Baseline：NOT_READY
+- Global PDM-01～25 Final Audit：PENDING
+
 # 名邦汽车 V1｜下一步唯一动作
 
 > 更新时间：2026-10-07
@@ -463,7 +475,7 @@
 
 ## 当前唯一下一步
 
-> **当前唯一下一步：用户最终审查 / 批准 PDM-25 Final Domain Overview。**
+> **当前唯一下一步：PDM-01～25 全局 Cross-PDM / Handoff / Global Invariant 最终总复核。**
 
 每个 PDM 必须同时执行：
 
@@ -517,7 +529,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-24 均已完成对应 Final / Integrity Closeout；PDM-25 Startup Gate 已 PASS，24/24 incoming handoff 已 HANDOFF_ACCEPTED。当前唯一下一步：用户最终审查 / 批准 PDM-25 Final Domain Overview。
+当前 PDM-01～PDM-24 均已完成对应 Final / Integrity Closeout；PDM-25 Startup Gate 已 PASS，24/24 incoming handoff 已 HANDOFF_ACCEPTED。当前唯一下一步：PDM-01～25 全局 Cross-PDM / Handoff / Global Invariant 最终总复核。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
