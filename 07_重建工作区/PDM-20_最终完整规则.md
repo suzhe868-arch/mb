@@ -1143,3 +1143,6 @@ R2：
 
 
 > 2026-10-07 Source Backwrite｜PDM-24 Final Closeout：`HO-P20-P24-001 = HANDOFF_CLOSED / source_backwrite=YES`。PDM-20 §40 中旧“Vehicle Detail Banner 可选，不强制每车显示”已正式回写为：`VEHICLE_DETAIL` 是所有合法车辆详情页固定具备的广告位能力；无有效 Banner 时只是不渲染具体广告内容。Announcement / Banner 后台运营 Authority 以 `07_重建工作区/PDM-24_最终完整规则.md` 为准；PDM-20 Customer Safe Projection、数量投影和导航 Guard 继续有效。
+
+
+> 2026-10-07 Source Backwrite｜HO-P20-P25-001：`HANDOFF_CLOSED / source_backwrite=YES`。PDM-25 已由 `07_重建工作区/PDM-25_最终完整规则.md` 正式承接本域移交的审计 / 历史 / 时区 / 配置版本 / 横切完整性语义；PDM-25 不反向改写本 PDM 已冻结的业务状态机与产品规则。
