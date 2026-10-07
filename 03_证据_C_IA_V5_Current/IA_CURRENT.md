@@ -263,7 +263,6 @@ PHASE_2_STARTED = NO
 本节与三张登记表中的“V2 unified remediation”条目是当前规则；若与此前简写冲突，以本节和 V2 条目为准。
 
 - 分享分两类：员工有效分享按 D1 判定来源/接客；客户直接转介绍单独记录 referrer，事件发生时把新客户分配给 referrer 当时的 current owner，后续 owner 变化不改写来源；不支持多级关系或佣金。
-- Customer Merge 必须经历 blocked/ready/confirm/merged/history；任一侧 active/paused Demand 时 blocked，完成或取消相关 Demand 后重新校验才可合并。
 - Collaboration 是显式生命周期：owner 或范围内授权经理按客户/业务范围建立；owner 变化、业务结束或参与员工 inactive 时终止；恢复只能新建，旧历史不复活。
 - “我要这辆车”必须先取得手机号并创建员工工作项，不直接创建 Lock；员工确认时仍按真实车源、cycle、占用、身份、权限和范围校验，不可锁则不建 Lock。
 - 上游 JYT mapping pending 独立存在且不阻塞已满足发布条件车辆的发布与正常业务；人工上传 `MODEL_MISSING` 草稿仍须绑定有效本地车型后才能发布。
