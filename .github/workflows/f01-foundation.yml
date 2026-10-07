@@ -1,4 +1,4 @@
-name: F01 基础构建与安全校验
+name: F01 基础构建与真实 PostgreSQL 验证
 on:
   push:
     branches: [feat/f01-foundation]
@@ -8,6 +8,26 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: f01_foundation
+          POSTGRES_USER: f01_ci
+          POSTGRES_PASSWORD: f01_disposable_only_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U f01_ci -d f01_foundation"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      APP_ENV: test
+      NODE_ENV: test
+      F01_TEST_DB_CONSENT: I_CONFIRM_ISOLATED_TEST_DATABASE
+      F01_TEST_DB_DISPOSABLE: yes
+      DATABASE_URL: postgres://f01_ci:f01_disposable_only_ci@127.0.0.1:5432/f01_foundation
     defaults:
       run:
         working-directory: engineering
@@ -16,16 +36,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
-      # F01-3 技术引入阶段：由 GitHub CI 生成并回传依赖锁草案，
-      # 下一次工程提交必须回写锁文件，恢复强制 npm ci。
-      - name: 临时生成 pg 锁文件草案（一次性依赖引入）
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: 工具链实际版本
         run: |
-          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-          echo "F01_LOCK_BEGIN"
-          base64 -w0 package-lock.json
-          echo
-          echo "F01_LOCK_END"
-      - name: 依赖安装与基础验证
-        run: |
-          npm ci --ignore-scripts --no-audit --no-fund
-          npm run check
+          node --version
+          npm --version
+      - name: 冻结依赖安装
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: 预检、安全、构建与基础回归
+        run: npm run check
+      - name: PostgreSQL 实际连接、失败与认证负例
+        run: npm run test:postgres
+      - name: 同一进程断库与恢复
+        run: npm run test:db-recovery
