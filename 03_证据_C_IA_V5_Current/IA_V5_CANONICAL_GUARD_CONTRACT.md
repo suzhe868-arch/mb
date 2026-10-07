@@ -1,5 +1,37 @@
 # IA V5 Canonical Guard Contract
 
+<!-- IA-GLOBAL-B2-B3-GUARD -->
+> **IA Batch 2 + 3 Canonical Guard 覆盖｜2026-10-08**
+>
+> - MODEL_GOVERNANCE：仅 System Admin 控制平面 + vehicle.model.manage；普通 Vehicle 编辑权不推导车型治理权。
+> - DRAFT_PUBLISH：当前 Employee 对目标 draft/source_type/data scope 合法；首次发布重验最低字段；VIN 有值时执行 exact-VIN Gate。
+> - ARCHIVE_MUTATION：actor 对 Vehicle 有当前管理能力且 scope 覆盖；固定敏感原件不得通过 customer_visible 直接公开。
+> - IMAGE_ASSETIZATION：图片子任务失败不回滚 source conversion/Vehicle/业务关系；临时 JYT 回源只能经名邦受控 CDN，且仅限未闭环阶段。
+> - PUBLISHER_PHONE：Vehicle 当前 source_type 必须 wholesale/JYT + Employee active + phone-sensitive capability + vehicle scope；名邦/4S 当前来源日常详情无电话入口。
+> - PHONE_LATEST：latest 失败/空/非法号码不得覆盖旧有效缓存；无缓存才 PHONE_UNAVAILABLE。
+> - PRICE_TEMP_ADD：UNLIMITED 禁止新增 temp additions；LIMITED 时按 current owner 或合法 manager/store manager + permission + scope + object state。
+> - PRICE_AUTO_UNLOCK：只在 Customer 主动进入当前 wholesale Vehicle detail、同 cycle 尚未解锁、有合法数字客户价、quota/免费权合法时建立首次解锁；预加载/失败/timeout/retry 不扣额。
+> - MATCHING_INPUT：正式输入只来自销售匹配描述→deterministic parser→Rule Dictionary/标准条件；AI/客户原话不得直接成为正式 Authority。
+> - MATCHING_CONFIRM：只补合法事实并触发重算；confirmation action 不直接指定 high/acceptable。
+> - RULE_DICTIONARY_MUTATION：active Mingbang Employee + matching.rule.manage + submit recheck；4S hard DENY；System Admin 控制平面身份本身不执行 Matching 业务修改。
+> - PRIORITY_CREATE：只允许系统基于 current high/acceptable Match Result + Customer Priority qualification + arbitration 自动产生；active Lock 阻止新 Priority。
+> - PRIORITY_RELEASE：当前 trigger Demand 合法 responsible；release 不等于 Recommendation end，且不得改 expires_at 伪装成 release。
+> - RECOMMENDATION_MUTATION：读取当前合法业务 responsible，不把 historical recommender/current owner 永久固化；每 Vehicle 独立对象；不外泄敏感内部字段。
+> - HIDDEN_VISIBILITY：Demand/Priority/Match Result 均不直接授 Customer hidden Vehicle 详情权；按 Recommendation + customer-specific visibility authority 建立。
+> - CRM_FOLLOWUP：当前 CRM access + permission + scope；Follow-up 不自动写 Demand/Consultation/Lock/Transaction/CRM Stage。
+> - SOURCE_RADAR：只消费 Matching change fact，不允许反写 PDM-12 Authority。
+> - PUBLIC_POOL_ASSIGN：Customer 当前仍合法在公海，目标 Employee active+eligible，actor 有 assignment capability+scope；成功即 owner 变化，无目标确认态。
+> - LOCK_CONFLICT_WAITLIST：只有仍有效且仅因竞争 Lock 失败的 pending request 才自动候补；sold/offline/unavailable/cycle-ended 不机械建 Waitlist。
+> - LOCK_DURATION_CONFIG：业务配置 actor + permission/capability + config scope；默认值变化不追改已有 Lock。
+> - LOCK_EXTENSION：仅合法 active Lock 且仍适用普通有效期管理；真实 Deposit 后不走普通延期/倒计时模型。
+> - LOCK_VISIBILITY：ordinary Lock 不全局隐藏；Priority-origin Lock 有效期继承对应 Customer 排他 visibility。
+> - REFUND_CLOSE：pending + 当前合法处理人 + close_reason；不要求新增专门 close permission/审批；closed 不计 refunded_amount。
+> - TRANSACTION_CORRECTION：System Admin 控制平面身份本身不得执行 completed Transaction correction；纠错不自动 relist/new cycle。
+> - ANNOUNCEMENT_AUTO_POPUP：enabled + active period + auto-popup ON + Customer 当天第一次进入机会；UTC+8 每 Customer 每日全局最多实际展示 1 条。
+> - BANNER_PLACEMENT：仅 HOME_TOP / VEHICLE_DETAIL；无有效内容时不渲染，但 placement capability 不消失。
+> - AUDIT_HISTORY：audit/history 永远不能替代 current permission/data scope/object state；reason 是否必填由来源域决定。
+
+
 <!-- IA-GLOBAL-B1-GUARD -->
 > **IA Batch 1 Guard 覆盖｜2026-10-08**
 >
