@@ -1,5 +1,24 @@
 # IA V5 Action Contract
 
+<!-- IA-GLOBAL-B1-ACTION -->
+> **IA Batch 1 Action Contract 覆盖｜2026-10-08**
+>
+> 以下为当前有效动作族；旧 Phase 1.5 同名/冲突动作由本节覆盖：
+>
+> | Action | Actor | Current result |
+> |---|---|---|
+> | Customer 首次归属解析 | 系统 | 有效分享/转介绍优先；否则自然轮询；形成唯一 current owner |
+> | owner pending 自动补分 | 系统 | 接客池恢复后重试并补建 owner，保留异常/补分审计 |
+> | 客户分享进入 | 系统 | ownerless 新客可形成销售归属并保存 A→B 来源；已有 owner 仅记录触达/来源 |
+> | Owner 正式移交 | 有权限且 data scope 覆盖的合法管理者 | 变更 Customer current owner，历史 owner 不覆盖；不自动迁移具体业务负责人 |
+> | Handover Batch 提交/重试 | 合法交接处理者 | 逐对象重新校验并映射；成功项保留，失败项待重试 |
+> | System Admin 新增/启用/停用 | active System Admin | 治理独立 Admin 身份；不得停用最后 1 个 active Admin |
+> | 人工车 source_type 修改 | 对 Vehicle 有合法管理能力的名邦员工 | mingbang↔4S，同 vehicle_id，不建新 listing_cycle |
+> | 一键转名邦 | 对 Vehicle 有合法管理能力的名邦员工 | wholesale/JYT→mingbang，同 vehicle_id；既有业务关系不迁移 |
+>
+> 明确删除动作：Customer Merge 全部动作；独立 `vehicle.convert_mingbang` permission 所代表的额外授权动作模型。
+
+
 | ACTION_ID | BUSINESS_OBJECT | CLASSIFICATION | ACTOR | ENTRY | PRECONDITION | PERMISSION | GUARD | TRIGGER | INPUT | PROCESSING | SUCCESS | FAILURE | CANCEL | RETRY | RECOVER | RESULT_STATE | SIDE_EFFECT | NAVIGATION | AUDIT_HISTORY | UPSTREAM_EVIDENCE | CURRENT_CARRIER | SEMANTIC_SUPPORT |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | ACT-V4-001 | 首次进入 | ACTION | 客户入口 + 微信身份识别服务 | 首次进入｜微信身份识别 | 进入前必须满足：微信身份识别 | 客户入口 + 微信身份识别服务；Current carrier 明确承载该动作/系统事件；不得由职位名称或本条证明额外扩权。 | 识别失败可重试；浏览不要求手机号 | 微信身份识别 → customer_id → 首页浏览 | 来源条目中的目标对象与必要上下文：首次进入 | 微信身份识别 → customer_id → 首页浏览 | 建立客户身份，不自动建立 owner | 识别失败可重试；浏览不要求手机号 | N/A_EXPLICIT｜ACT-V4-001 CANCEL：来源对该 command 未定义独立取消；已定义的异常/出口是“识别失败可重试；浏览不要求手机号”。 | 识别失败可重试 | 识别失败可重试 | BUS-V4-001 | 建立客户身份，不自动建立 owner | N/A_EXPLICIT｜ACT-V4-001 首次进入 由系统事件或对象状态转换触发，没有独立人工 Navigation 入口。 | N/A_EXPLICIT｜该上游行未单列额外 audit 事件；只保留其已明确 result/history 语义：建立客户身份，不自动建立 owner | Phase1.5上游权威/STEP5_END_TO_END_JOURNEY_REPORT.md:L32｜\| C01 \| 首次进入 \| 微信身份识别 → customer_id → 首页浏览 \| 识别失败可重试；浏览不要求手机号 \| 建立客户身份，不自动建立 owner \| `MATCH` \| | 当前IA/IA_CURRENT.md:L382#V5-ACT-ACT-V4-001 | FULL |
