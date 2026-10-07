@@ -1,5 +1,18 @@
 # IA Source Index — V5 FR-V5-001～003 Final Targeted Remediation
 
+<!-- IA-GLOBAL-B4-SOURCE-INDEX -->
+> **IA 全局集中对齐 Source Index｜Batch 4 Closeout｜2026-10-08**
+>
+> 当前状态：`IA_GLOBAL_ALIGNMENT_COMPLETE / FINAL_GAP_PASS`。
+>
+> - Batch 1：16 组稳定 Current 对齐已执行。
+> - Batch 2：19 组明确废弃/DO_NOT_RESTORE 已执行。
+> - Batch 3：30 组明确新增/承载补齐已执行。
+> - Batch 4：6 组 Final-gap 已执行；剩余 4 条 deferred carrier 全部关闭。
+> - Current / Navigation / Page / State / Action / Guard / Permission / Lifecycle 全部继续服从 `PDM-01～PDM-25 Final + Decision Register`。
+> - IA Current 目录 current-row stale 机械复核=`0`；`CARRIER_DEFERRED_REMAINING=0`；`LOCAL_PRODUCT_CHOICE_UNRESOLVED=0`。
+> - IA 不再阻塞 Low-Fi；下一阶段进入 Low-Fi 全局集中对齐。
+
 <!-- IA-GLOBAL-B2-B3-SOURCE-INDEX -->
 > **IA 全局集中对齐 Source Index｜Batch 2 + 3｜2026-10-08**
 >
