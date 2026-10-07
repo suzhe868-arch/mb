@@ -1,3 +1,11 @@
+## 2026-10-08｜IA Batch 1 已执行
+
+- `IA-B1-01～IA-B1-16 = PASS / USER_APPROVED / APPLIED`
+- IA：`IN_PROGRESS / BATCH_1_APPLIED`
+- 对应 16 条 stale carrier：`CARRIER_CLOSED_IA_BATCH1`
+- Low-Fi / Engineering：`NO_CONSTRUCTION`
+- 当前唯一下一步：**IA Batch 2｜明确废弃 / 已覆盖 / 不得恢复审查**
+
 ## 2026-10-07｜Final / Integrity 历史尾巴清理 PASS，IA 全局集中对齐 READY_TO_START
 
 - PDM-01～25 Global Final Audit：`PASS`；
