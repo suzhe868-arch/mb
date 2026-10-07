@@ -1,3 +1,19 @@
+## 2026-10-07｜PDM-25 Batch 3 已批准并执行，进入 Batch 4 Final-gap Scan
+
+- `P25-B3-01～P25-B3-04 = PASS / USER_APPROVED / APPLIED`；
+- Conflict Isolation：`PASS`；
+- `MISCLASSIFIED_PRODUCT_CHOICE = 0`；
+- `DUPLICATE_RULE_CREATION = 0`；
+- version 模型只承接来源域已存在版本语义，不给普通配置强造版本状态机；
+- 失败 / 跳过 / 去重 / 无有效结果不得伪装成成功；
+- 合法批量 mutation 保留逐对象结果，并服从来源域是否允许 partial success；
+- 组合入口不合并独立 domain action，分别 Guard / result / history；
+- 24 / 24 incoming handoff 继续 `HANDOFF_ACCEPTED`，Final Closeout 前不关闭 / 不 source backwrite；
+- `COMPLETED_PDM_HARD_CONFLICT = 0`；
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`；
+- IA / Low-Fi / Engineering：`NO_CONSTRUCTION`；
+- 当前唯一下一步：**PDM-25 Batch 4｜Final-gap Scan（冲突 / 遗漏 / 缺口 / 新选择）。**
+
 ## 2026-10-07｜PDM-25 Batch 2 已批准并执行，进入 Batch 3
 
 - `P25-B2-01～P25-B2-08 = PASS / USER_APPROVED / APPLIED`；
