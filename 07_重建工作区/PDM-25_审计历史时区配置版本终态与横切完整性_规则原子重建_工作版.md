@@ -1,6 +1,6 @@
 # PDM-25｜审计 / 历史 / 时区 / 配置版本 / 终态 / 横切完整性｜规则原子重建工作版
 
-> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_3_PASS`  
+> 当前状态：`IN_PROGRESS / STARTUP_GATE_PASS / BATCH_4_PASS`  
 > 核心定位：`P25-R00 = USER_APPROVED / APPLIED`  
 > Incoming Handoff：`24 / 24 HANDOFF_ACCEPTED`  
 > IA / Low-Fi / Engineering：`NO_CONSTRUCTION`
@@ -720,6 +720,115 @@ UI / 员工体验层可以提供组合入口，但底层独立业务动作仍必
 - Final Closeout 前不得提前关闭 / source backwrite；
 - `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
 
-# 12. 当前唯一下一步
+# 12. Batch 4｜Final-gap Scan｜PASS / USER_APPROVED / APPLIED
 
-> **PDM-25 Batch 4｜Final-gap Scan（冲突 / 遗漏 / 缺口 / 新选择）。**
+本批只处理 Batch 1～3 后仍存在的真实语义缺口与局部产品选择，不新增第二套业务状态机。
+
+## P25-B4-01｜审计保留动作发生当时的身份上下文｜CHOICE_1A / USER_APPROVED / APPLIED
+
+稳定 `employee_id` 用于长期关联同一员工，但历史事件必须表达动作发生当时的身份上下文。
+
+后续发生：
+- 调店；
+- 升职 / 降职；
+- role 变化；
+- permission 变化；
+- data scope 变化；
+- inactive / 离职；
+- 再次入职；
+
+都不得把旧审计事件动态改写成当前角色 / 当前门店 / 当前 scope。
+
+因此重要 Audit / History 在来源域要求的范围内，应能够回看：
+- actor stable identity；
+- 当时 role / identity context；
+- 当时适用组织 / 门店上下文；
+- 当时适用 permission / data scope / object context（来源域需要时）。
+
+当前权限仍用于“现在是否允许查看这条审计 / 历史”，但不得反向改写“当时以什么身份发生”。
+
+## P25-B4-02｜统一业务时区不等于把所有时间事实压成一个 timestamp｜CHOICE_2A / USER_APPROVED / APPLIED
+
+`Asia/Shanghai（UTC+8）` 统一的是：
+- 业务自然日；
+- “当天 / 每日 / 跨日”边界；
+- 业务展示与横切时间解释。
+
+它不意味着不同语义的时间事实可以合并。
+
+来源域已经区分的时间继续分别保真，例如：
+- `listing_started_at`；
+- JYT `first_seen_at`；
+- 人工上传 / 创建时间；
+- 外部 source time；
+- 系统 received / synced time；
+- created_at；
+- expires_at / deadline；
+- Notification planned time / actual sent time；
+- Announcement actual display fact。
+
+统一规则：
+- 系统自身正式 mutation / Audit Event 的 Authority time 以可信后台 / 服务端事实为准，不以客户端本地时钟作为最终业务 Authority；
+- 外部来源提供的真实 source time 继续作为来源事实保留；
+- source time 与系统 received / first_seen / processed time 不得互相冒充；
+- 不得把 JYT `first_seen_at` 伪称为上游真实上传时间；
+- planned / actual、created / expired、source / received 等，只要来源域定义为不同事实，就继续分离；
+- UTC+8 业务展示 / 边界解释不得追改原始来源时间事实。
+
+PDM-25 不规定数据库 timestamp 的物理存储格式。
+
+## P25-B4-03｜幂等 / retry-safe 不制造重复业务成功历史｜CHOICE_3A / USER_APPROVED / APPLIED
+
+同一个实际业务 mutation 在幂等重试、重复点击、网络 retry、worker retry 或重复消费下：
+
+> 只能形成与真实业务结果一致的一次正式成功业务事实。
+
+不得因为多次 attempt 伪造：
+- 第二次 Transaction 成功；
+- 第二次 Lock；
+- 第二次额度扣减；
+- 第二次 Recommendation；
+- 第二次 Refund；
+- 其他实际只成功一次的业务状态变化。
+
+如果来源业务要求记录 attempt / retry / duplicate / failure：
+- 可以分别保留 attempt 事实；
+- 必须能关联到同一实际 business mutation / correlation；
+- “尝试了多次”与“业务成功了多次”必须分离。
+
+PDM-25 只冻结该产品结果，不规定 idempotency key、unique index、MQ dedupe、transaction framework 等实现。
+
+## P25-B4-04｜业务历史永久真实性与技术日志 retention 分离｜CHOICE_4A / USER_APPROVED / APPLIED
+
+采用 4A：
+
+> **PDM-25 不规定全局统一固定保存天数，也不要求所有 Audit Event 永久热存储。**
+
+统一边界：
+
+1. 来源 completed-PDM 已明确要求“永久保留 / 不物理删除 / append-only / terminal history preserved”的业务历史事实，继续保持其产品级永久真实性；
+2. 普通业务后台不得自行修改、覆盖、删除真实 Audit / History；
+3. PDM-25 不新增统一 180 天 / 1 年 / 3 年 / 永久等 Audit Log retention 数值；
+4. 技术日志、运行日志、冷热分层、归档方式、具体 retention implementation 留 Engineering / 合规策略；
+5. 任何未来 retention / archive 实现，都不得破坏来源域已经冻结的永久业务历史事实与可追溯关系；
+6. “技术日志可按策略归档 / 清理”不得被解释为“可以删除来源域要求长期存在的业务历史”。
+
+---
+
+# 13. Batch 4 Final-gap Scan 结果
+
+- `P25-B4-01～P25-B4-04 = PASS / USER_APPROVED / APPLIED`
+- `CHOICES = 1A / 2A / 3A / 4A`
+- `FINAL_GAP_SCAN = PASS`
+- `COMPLETED_PDM_HARD_CONFLICT = 0`
+- `NEW_BUSINESS_STATE_MACHINE = 0`
+- `SEMANTIC_DETAIL_GAP_UNRESOLVED = 0`
+- `LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
+- `INCOMING_HANDOFF_GAP = 0`
+- 24 / 24 incoming handoff 继续 `HANDOFF_ACCEPTED`；
+- PDM-25 Final Closeout 前不得提前关闭 / source backwrite；
+- `IA_LOWFI_ENGINEERING_CONSTRUCTION = NO`
+
+# 14. 当前唯一下一步
+
+> **PDM-25 Final 前完整性复核（Prefinal Integrity）。**
