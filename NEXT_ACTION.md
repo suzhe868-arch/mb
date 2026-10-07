@@ -3,6 +3,19 @@
 > 更新时间：2026-10-07
 
 
+## PDM-25 Batch 4 执行结果
+
+- P25-B4-01～P25-B4-04：PASS / USER_APPROVED / APPLIED
+- CHOICES：1A / 2A / 3A / 4A
+- Final-gap Scan：PASS
+- COMPLETED_PDM_HARD_CONFLICT：0
+- SEMANTIC_DETAIL_GAP_UNRESOLVED：0
+- LOCAL_PRODUCT_CHOICE_UNRESOLVED：0
+- INCOMING_HANDOFF_GAP：0
+- PDM-25 incoming handoffs：24 / 24 HANDOFF_ACCEPTED（Final Closeout 前不关闭）
+- IA / Low-Fi / Engineering：NO_CONSTRUCTION
+- Prefinal Integrity：PENDING
+
 ## PDM-25 Batch 3 执行结果
 
 - P25-B3-01～P25-B3-04：PASS / USER_APPROVED / APPLIED
@@ -430,7 +443,7 @@
 
 ## 当前唯一下一步
 
-> **当前唯一下一步：PDM-25 Batch 4｜Final-gap Scan（冲突 / 遗漏 / 缺口 / 新选择）。**
+> **当前唯一下一步：PDM-25 Final 前完整性复核（Prefinal Integrity）。**
 
 每个 PDM 必须同时执行：
 
@@ -484,7 +497,7 @@
 - 目标已 COMPLETE 但来源仍写“留后续” = `STALE_HANDOFF / SOURCE_BACKWRITE_PENDING`；
 - 当前 PDM 作为目标时，只要 incoming handoff 未关闭，不得 COMPLETE / INTEGRITY_PASS。
 
-当前 PDM-01～PDM-24 均已完成对应 Final / Integrity Closeout；PDM-25 Startup Gate 已 PASS，24/24 incoming handoff 已 HANDOFF_ACCEPTED。当前唯一下一步：PDM-25 Batch 4｜Final-gap Scan（冲突 / 遗漏 / 缺口 / 新选择）。
+当前 PDM-01～PDM-24 均已完成对应 Final / Integrity Closeout；PDM-25 Startup Gate 已 PASS，24/24 incoming handoff 已 HANDOFF_ACCEPTED。当前唯一下一步：PDM-25 Final 前完整性复核（Prefinal Integrity）。
 
 ## PDM-25 后 Carrier 对齐硬顺序
 
