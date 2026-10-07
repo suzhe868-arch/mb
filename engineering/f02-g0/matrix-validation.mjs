@@ -27,7 +27,7 @@ export function validateMatrix(source){
     requireResult(!fields.has(key),'F02_G0_DUPLICATE_FIELD');
     requireResult(!BANNED.test(table)&&!BANNED.test(field)&&!BANNED.test(constraint),'F02_G0_BANNED_CUSTOMER_MERGE');
     requireResult(['NO','YES','REVIEW'].includes(nullable),'F02_G0_BAD_NULLABILITY');
-    requireResult(['DB','TX','F03','F04','AUDIT'].includes(layer),'F02_G0_UNKNOWN_OWNER_LAYER');
+    requireResult(['DB','TX','F03','F04','F05','AUDIT'].includes(layer),'F02_G0_UNKNOWN_OWNER_LAYER');
     requireResult(meaning.trim().length>=2,'F02_G0_MISSING_FIELD_MEANING');
     requireResult(freeze==='CANDIDATE_UNFROZEN'&&test==='NOT_RUN','F02_G0_FALSE_IMPLEMENTATION_CLAIM');
     const references=[...pdms.matchAll(/PDM-(\d{2})/g)].map(m=>Number(m[1]));
