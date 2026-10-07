@@ -44,9 +44,9 @@ jobs:
           npm --version
       - name: 冻结依赖安装
         run: npm ci --ignore-scripts --no-audit --no-fund
-      - name: 预检、安全、构建与基础回归
+      - name: 预检、安全、依赖、构建与基础回归
         run: npm run check
-      - name: PostgreSQL 实际连接、失败与认证负例
+      - name: PostgreSQL 实际连接、失败与进程入口回归
         run: npm run test:postgres
       - name: 同一进程断库与恢复
         run: npm run test:db-recovery

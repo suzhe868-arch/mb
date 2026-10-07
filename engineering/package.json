@@ -14,7 +14,9 @@
     "test": "node --test tests/*.test.mjs",
     "test:postgres": "node --test integration/*.test.mjs",
     "test:db-recovery": "node integration/验证断库恢复.mjs",
-    "check": "npm run preflight && npm run safety && npm run build && npm test",
+    "verify:deps": "npm ls --depth=0",
+    "verify:boundaries": "node scripts/verify-boundaries.mjs",
+    "check": "npm run preflight && npm run safety && npm run verify:boundaries && npm run verify:deps && npm run build && npm test",
     "start": "node dist/server.mjs"
   },
   "dependencies": {
