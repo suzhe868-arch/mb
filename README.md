@@ -53,18 +53,19 @@
 ## 当前状态
 
 - `PRODUCT_BASELINE = NOT_READY`
-- `CURRENT_STAGE = PRODUCT_BASELINE_REBUILD / LOW_FI_GLOBAL_ALIGNMENT_READY`
+- `CURRENT_STAGE = PRODUCT_BASELINE_REBUILD / LOW_FI_GLOBAL_ALIGNMENT_IN_PROGRESS`
 - `PDM-01_TO_PDM-25 = COMPLETE / INTEGRITY_PASS`
 - `GLOBAL_PDM01_25_FINAL_INTEGRITY_AUDIT = PASS`
 - `FINAL_INTEGRITY_HISTORICAL_TAIL_CLEANUP = PASS`
 - `HISTORICAL_CARRIER_LABELED = 68 / 68`
 - `STALE_CURRENT_POINTER_UNQUALIFIED = 0`
 - IA：`COMPLETE / FINAL_GAP_PASS`
-- Low-Fi：`READY_TO_START`
+- Low-Fi：`IN_PROGRESS / BATCH_1_APPLIED`
 - Engineering：`NO_CONSTRUCTION`
-- 当前唯一下一步：**Low-Fi 全局集中对齐**
-- `NEXT = LOW_FI_GLOBAL_ALIGNMENT`
+- 当前唯一下一步：**Low-Fi Batch 2｜明确废弃 / 已覆盖 / 不得恢复审查**
+- `NEXT = LOW_FI_BATCH_2_DEPRECATED_SUPERSEDED_DO_NOT_RESTORE`
 - IA Batch 4 已于 2026-10-08 经用户“全部同意确认执行”后正式落库；6 项 Final-gap 全部关闭，剩余 `CARRIER_DEFERRED=0`，IA 全局集中对齐完成。
+- `LF-B1-01～LF-B1-07` 已于 2026-10-08 经用户“全部同意，确认执行”后正式落库；25 个旧 Low-Fi SVG 已明确退役，定向 stale-current scan=0。
 - IA Batch 1 已于 2026-10-08 经用户“全部同意，确认执行”后正式落库；Low-Fi / Engineering 仍不施工。
 - 历史尾巴复核报告：`07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md`
 
