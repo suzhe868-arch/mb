@@ -588,7 +588,7 @@ PDM-08 只冻结业务结果和边界。
 - PDM-20｜`HANDOFF_CLOSED`：PDM-20 Final 已正式承接 4:3 列表/详情、统一图片序列、全屏交互、车辆分享图/分享卡片、安全字段白名单与旧分享实时重验；`HO-P08-P20-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-21｜`HANDOFF_CLOSED`：PDM-21 Final 已正式承接人工图片上传/删除/排序、资产化状态、失败重试/人工恢复，并区分 CDN 加载失败、批发→名邦资产化失败与人工恢复；`HO-P08-P21-001 = HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-22｜`HANDOFF_CLOSED / source_backwrite=YES`：名邦公开图片域名、JYT Origin、report 域名、对象存储源站以及首页/品牌分享配置入口已由 PDM-22 Final 承接；厂商/TTL/并发等仍留 Engineering；
-- PDM-25｜`HANDOFF_OPEN`：影响线上资源访问与权限安全的公开域名、Origin、report proxy target 等配置变更，以及资产化/recovery 关键状态变化的统一审计与历史。
+- PDM-25｜`HANDOFF_CLOSED / source_backwrite=YES`：影响线上资源访问与权限安全的公开域名、Origin、report proxy target 等配置变更，以及资产化/recovery 关键状态变化的统一审计与历史。
 
 ### 28.3 IA / Low-Fi stale carrier
 
@@ -646,3 +646,6 @@ HANDOFF_REGISTER_SYNC = PASS
 PDM-11 继续 BLOCKED，直到 PDM-01～PDM-10 全部 INTEGRITY_PASS 且 01～10 全局 Cross-PDM / Handoff / Global Invariant 总复核 PASS。
 
 > 2026-10-07 Source Backwrite：对应 PDM-22 handoff 已由 `07_重建工作区/PDM-22_最终完整规则.md` 正式承接；以 CROSS_PDM_HANDOFF_REGISTER 的 `HANDOFF_CLOSED / source_backwrite=YES` 为准。
+
+
+> 2026-10-07 Source Backwrite｜HO-P08-P25-001：`HANDOFF_CLOSED / source_backwrite=YES`。PDM-25 已由 `07_重建工作区/PDM-25_最终完整规则.md` 正式承接本域移交的审计 / 历史 / 时区 / 配置版本 / 横切完整性语义；PDM-25 不反向改写本 PDM 已冻结的业务状态机与产品规则。
