@@ -1,7 +1,7 @@
-# PDM-25｜最终完整规则总览｜待用户最终批准
+# PDM-25｜最终完整规则总览｜用户已最终批准
 
 > 域：审计 / 历史 / 时区 / 配置版本 / 终态 / 横切完整性  
-> 当前状态：`FINAL_REVIEW_PENDING`  
+> 当前状态：`USER_FINAL_APPROVED / FINAL_CLOSEOUT_DONE`  
 > Final 前完整性：`R2 PASS / FINAL_CANDIDATE_READY`  
 > 正式规则 / 用户裁决单元：`37`
 
@@ -161,9 +161,9 @@ target=PDM-25 的 24 条 incoming handoff 均已在产品语义上明确 landing
 
 当前仍保持：
 
-> **24 / 24 = HANDOFF_ACCEPTED**
+> **24 / 24 = HANDOFF_CLOSED / source_backwrite=YES**
 
-最终用户批准并确认执行前，不 CLOSED、不 source backwrite。
+24 条 incoming handoff 已关闭并完成 source backwrite。
 
 ## 16. Final 前完整性结果
 
@@ -184,16 +184,14 @@ target=PDM-25 的 24 条 incoming handoff 均已在产品语义上明确 landing
 - `PDM25_FORMAL_UNITS = 37`
 - `PDM25_FINAL_CANDIDATE_READY = YES`
 
-## 17. 当前 Gate
+## 17. Final Closeout
 
-当前只等待：
-
-> **用户最终审查 / 批准 PDM-25 Final Domain Overview。**
-
-最终批准前：
-- 不发布 `PDM-25_最终完整规则.md`；
-- 不把 PDM-25 标为 COMPLETE / INTEGRITY_PASS；
-- 不关闭 24 条 incoming handoff；
-- 不 source backwrite；
-- 不进入 PDM-01～25 全局最终总复核；
-- 不施工 IA / Low-Fi / Engineering。
+- 用户已最终批准；
+- 用户随后明确“确定执行”；
+- 正式 Final：`07_重建工作区/PDM-25_最终完整规则.md`；
+- Final Integrity：`07_重建工作区/PDM-25_最终完整性复核_2026-10-07.md / PASS`；
+- 37 个正式规则 / 用户裁决单元全部进入 Final；
+- 24 / 24 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
+- 来源 PDM-01～24 Final / Integrity 已全部反向回写；
+- PDM-25：`COMPLETE / INTEGRITY_PASS`；
+- 当前唯一下一步：PDM-01～25 全局 Cross-PDM / Handoff / Global Invariant 最终总复核。
