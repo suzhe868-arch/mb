@@ -93,7 +93,7 @@ This register is the self-contained current IA authority for action routing. It 
 | E03-02 / P06-03 | 更新 Shared Profile | E03-02 / P06-03 | actor is current owner, explicit collaborator within collaboration scope, or authorized manager/store manager covering customer scope; audit before/after; never expose personal notes |
 | E03-02 / P06-03 | 新增/更新员工内部客户称呼 / 服务称呼 | E03-02 / P06-03 | actor has current CRM access in scope; service-name fact is separate from Personal Note and Shared Profile; preserve author/time/source/change history; former service history alone grants no current CRM access |
 | E03-01 | 找车服务 | E05 | customer visible |
-| E03-01 | 推荐车辆 | E03-05 | REF_GUARD[RECOMMENDATION]；local_ui_fact=actor is current customer owner; customer+vehicle+listing_cycle known; vehicle recommendable; idempotent in cycle |
+| E03-01 | 推荐车辆 | E03-05 | REF_GUARD[RECOMMENDATION]；local_ui_fact=actor is current legal business responsible; customer+vehicle+listing_cycle known; vehicle recommendable; 4S Employee hard DENY but source_type=4S Vehicle is recommendable by legal Mingbang responsible; idempotent in cycle |
 | E03-01 | 锁车 | E03-06 | actor has current CRM access and Lock capability; Customer known; no Vehicle selected yet; enter Vehicle selection only; no Lock is created until Customer + Vehicle context exists |
 | E03-01 | 查看业务历史 | E03-04 | customer is visible in actor data scope; read-only history projection |
 | E02-03 | 确认正式推荐 | E03-04 | REF_GUARD[RECOMMENDATION]；local_ui_fact=revalidate current legal business responsible, find-car entitlement, permission/capability, data scope, customer, vehicle, demand when present, listing_cycle and active Priority guards; create/reuse one Recommendation idempotently |
