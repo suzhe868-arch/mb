@@ -1130,7 +1130,7 @@ R2：
 - Final Integrity：`PASS`；
 - 53 个正式规则 / 用户裁决单元全部进入 Final；
 - 14 / 14 incoming handoff：`HANDOFF_CLOSED / source_backwrite=YES`；
-- PDM-20 → PDM-21 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-22 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-24 / PDM-25 继续 `HANDOFF_OPEN`；
+- PDM-20 → PDM-21 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-22 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-24 / PDM-25 已 `HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-20：`COMPLETE / INTEGRITY_PASS`；
 - IA / Low-Fi / Engineering 继续禁止提前施工；
 - 下一步：`PDM-21 Startup Gate`。
