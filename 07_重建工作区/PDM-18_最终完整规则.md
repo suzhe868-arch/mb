@@ -564,7 +564,7 @@ R2：
 - `PDM18_LOCAL_PRODUCT_CHOICE_UNRESOLVED = 0`
 - `PDM18_FINAL_CANDIDATE_READY = YES`
 
-当前唯一下一步：
+历史阶段下一步（HISTORICAL_AUDIT_TRAIL，当时）：
 
 ## 37. Final Closeout
 
@@ -578,9 +578,9 @@ R2：
 - HO-P18-P19-001、HO-P18-P20-001、HO-P18-P21-001 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-22 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-23 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-25 已 `HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-18：`COMPLETE / INTEGRITY_PASS`；
 - IA / Low-Fi / Engineering 继续禁止提前施工；
-- 下一步：`PDM-19 Startup Gate`。
+- 历史阶段下一步（HISTORICAL_AUDIT_TRAIL，当时）：`PDM-19 Startup Gate`。
 
-当前唯一下一步：
+历史阶段下一步（HISTORICAL_AUDIT_TRAIL，当时）：
 
 > **PDM-19 Startup Gate。**
 
