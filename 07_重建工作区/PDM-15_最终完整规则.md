@@ -839,7 +839,7 @@ PDM-15 已正式登记以下 outgoing handoff：
 - `HO-P15-P23-001`｜`HANDOFF_CLOSED / source_backwrite=YES`：新 Consultation / SLA timeout 通知与 DND 已由 `07_重建工作区/PDM-23_最终完整规则.md` 正式承接；
 - `HO-P15-P25-001`：统一审计 / 历史。
 
-`HO-P15-P16-001`、`HO-P15-P17-001`、`HO-P15-P19-001`、`HO-P15-P20-001`、`HO-P15-P21-001` 已分别由目标 Final 正式承接并关闭；PDM-22 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-23 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-25 继续 `HANDOFF_OPEN`。
+`HO-P15-P16-001`、`HO-P15-P17-001`、`HO-P15-P19-001`、`HO-P15-P20-001`、`HO-P15-P21-001` 已分别由目标 Final 正式承接并关闭；PDM-22 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-23 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-25 已 `HANDOFF_CLOSED / source_backwrite=YES`。
 
 ---
 
