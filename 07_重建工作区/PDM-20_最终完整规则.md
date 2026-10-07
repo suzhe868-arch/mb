@@ -1133,9 +1133,9 @@ R2：
 - PDM-20 → PDM-21 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-22 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-24 / PDM-25 已 `HANDOFF_CLOSED / source_backwrite=YES`；
 - PDM-20：`COMPLETE / INTEGRITY_PASS`；
 - IA / Low-Fi / Engineering 继续禁止提前施工；
-- 下一步：`PDM-21 Startup Gate`。
+- 历史阶段下一步（HISTORICAL_AUDIT_TRAIL，当时）：`PDM-21 Startup Gate`。
 
-当前唯一下一步：
+历史阶段下一步（HISTORICAL_AUDIT_TRAIL，当时）：
 
 > **PDM-21 Startup Gate。**
 
