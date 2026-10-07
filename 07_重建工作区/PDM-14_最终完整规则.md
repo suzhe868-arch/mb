@@ -478,7 +478,7 @@ PDM-14 正式输出：
 - HO-P14-P23-001｜`HANDOFF_CLOSED / source_backwrite=YES`：Recommendation 不自动形成微信主动通知状态机；已由 `07_重建工作区/PDM-23_最终完整规则.md` 正式承接；
 - HO-P14-P25-001：Recommendation/visibility 全量审计与历史标准。
 
-其中 PDM-15 / PDM-18 / PDM-19 / PDM-20 / PDM-21 已完成承接并 source backwrite；PDM-23 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-25 继续 `HANDOFF_OPEN`。
+其中 PDM-15 / PDM-18 / PDM-19 / PDM-20 / PDM-21 已完成承接并 source backwrite；PDM-23 已 `HANDOFF_CLOSED / source_backwrite=YES`；PDM-25 已 `HANDOFF_CLOSED / source_backwrite=YES`。
 
 ---
 
