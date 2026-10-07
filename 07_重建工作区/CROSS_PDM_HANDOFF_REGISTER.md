@@ -6,6 +6,14 @@
 > 方法 Authority：`00_先读/01_产品基线重建执行规范_冻结工作版.md` Gate 11。  
 > 注意：本文件管理“任务状态与承接关系”，不凭自身创造新的产品业务规则；产品 Authority 仍来自用户裁决、PDM Final 与 Decision Register。
 
+## IA Batch 4 Carrier Closeout
+- 2026-10-08：`IA-B4-01～IA-B4-06` 已由用户“全部同意确认执行”后正式落库。
+- Batch 4 关闭剩余 `4` 条 `CARRIER_DEFERRED`，统一状态=`CARRIER_CLOSED_IA_BATCH4`。
+- Final-gap Scan：`PASS`；新增产品业务选择：`0`；PDM Final 业务语义修改：`0`。
+- Current IA 11 份文件 current-row stale 扫描：`0`。
+- `CARRIER_DEFERRED_REMAINING = 0`。
+- Low-Fi：下一阶段进入全局集中对齐；Engineering 继续 `NO_CONSTRUCTION`。
+
 ## IA Batch 2 + 3 Carrier Closeout
 
 - 2026-10-08：`IA-B2-01～19` 与 `IA-B3-01～30` 已由用户“全部同意，确认执行”后落库。
@@ -577,7 +585,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | PDM-04 | 旧 conversion relation / 原批发新名邦两车身份 | CARRIER_CLOSED_IA_BATCH1 |
 | PDM-04 | 旧价格 / 调价 carrier | CARRIER_CLOSED_IA_BATCH23 |
 | PDM-04 | 4S 车辆管理入口旧限制 | CARRIER_CLOSED_IA_BATCH1 |
-| PDM-04 | P02/P03 车源、集成、供应异常等页面通用壳 / 状态承载不足 | CARRIER_DEFERRED |
+| PDM-04 | P02/P03 车源、集成、供应异常等页面通用壳 / 状态承载不足 | CARRIER_CLOSED_IA_BATCH4 |
 | PDM-05 | 完整车型名称完全一致→自动 mapping 的旧主规则 | CARRIER_CLOSED_IA_BATCH23 |
 | PDM-05 | `no model creation is inferred` 与 System Admin 可补品牌/车系/具体车型冲突 | CARRIER_CLOSED_IA_BATCH23 |
 | PDM-05 | 年款在页面上易被误做第四级主数据 | CARRIER_CLOSED_IA_BATCH23 |
@@ -636,7 +644,7 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | PDM-14 | REC 专属 URL / Recommendation-specific link / 第二套推荐分享页残留；正确 Authority 是 Recommendation 为内部正式事实，对外继续普通车辆分享 | CARRIER_CLOSED_IA_BATCH23 |
 | PDM-14 | Current IA / Low-Fi HIDDEN_CONTROLLED 仅凭 Demand/Priority 直接授 Customer hidden Vehicle 详情权；正确 Authority 是 Recommendation + customer-specific visibility grant | CARRIER_CLOSED_IA_BATCH23 |
 | PDM-14 | Current IA / Low-Fi P06-01 / P06-M01 Customer Merge 状态机及 Recommendation/权益迁移；PDM-01 Final 已全面取消 Customer Merge | CARRIER_CLOSED_IA_BATCH23 |
-| PDM-14 | 把“4S 成员 hard DENY Recommendation”误实现成“4S 车源不可被名邦合法销售 Recommendation” | CARRIER_DEFERRED |
+| PDM-14 | 把“4S 成员 hard DENY Recommendation”误实现成“4S 车源不可被名邦合法销售 Recommendation” | CARRIER_CLOSED_IA_BATCH4 |
 | PDM-14 | 批量推荐被实现成 group Recommendation / 共享 recommendation_id / 共享生命周期，而不是逐车对象 | CARRIER_CLOSED_IA_BATCH23 |
 | PDM-14 | Recommendation create/end/void 顺带修改 Customer owner 或 Demand responsible | CARRIER_CLOSED_IA_BATCH23 |
 | PDM-14 | 普通 share link 使用固定 N 天 TTL，或二次转发继承上一 Customer 的 Recommendation/price/visibility | CARRIER_CLOSED_IA_BATCH23 |
@@ -649,8 +657,8 @@ PDM-10 Legacy Final Integrity Audit：`INTEGRITY_PASS`。
 | PDM-16 | Customer Merge / MERGE_* 及跨 Customer CRM 历史迁移旧方向 | CARRIER_CLOSED_IA_BATCH23 |
 | PDM-16 | CRM Customer Detail 直接“锁车→再选 Vehicle”旧入口 | CARRIER_CLOSED_IA_BATCH23 |
 | PDM-16 | Customer Opportunity 旧 7 天 / 单日 >40 / 连续 3 天阈值及对应配置控件 | CARRIER_CLOSED_IA_BATCH23 |
-| PDM-16 | 大字段 CRM 画像 / 把 Personal Note、Shared Profile、服务称呼重新合并为一个大备注字段 | CARRIER_DEFERRED |
-| PDM-16 | 历史服务过即可永久访问 Customer CRM 的旧误义 | CARRIER_DEFERRED |
+| PDM-16 | 大字段 CRM 画像 / 把 Personal Note、Shared Profile、服务称呼重新合并为一个大备注字段 | CARRIER_CLOSED_IA_BATCH4 |
+| PDM-16 | 历史服务过即可永久访问 Customer CRM 的旧误义 | CARRIER_CLOSED_IA_BATCH4 |
 | PDM-16 | P06-07 页面壳反推任意 Customer Opportunity 规则 CRUD/config | CARRIER_CLOSED_IA_BATCH23 |
 | PDM-16 | Customer Opportunity 被实现成独立工单 / assignee / SLA / close lifecycle | CARRIER_CLOSED_IA_BATCH23 |
 | PDM-16 | E03-03 只有“记录跟进”导航而无真实 Follow-up mutation submit chain | CARRIER_CLOSED_IA_BATCH23 |
