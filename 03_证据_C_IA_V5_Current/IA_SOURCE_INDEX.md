@@ -1,5 +1,10 @@
 # IA Source Index — V5 FR-V5-001～003 Final Targeted Remediation
 
+<!-- IA-POST-CLOSEOUT-LF-B1-SOURCE -->
+> **Low-Fi Batch 1 反向发现的 IA carrier 修复｜2026-10-08**
+>
+> Low-Fi 实际载体对齐时反向发现并修正 IA 明细残留：Customer Merge、人工 Priority create、DRAFT_RESUME、P03 多余子页/旧电话能力措辞。修复仅使明细与既有 PDM Final / Current IA 顶层 Authority 一致，不改变任何产品业务语义。IA 仍保持 `COMPLETE / FINAL_GAP_PASS`。
+
 <!-- IA-GLOBAL-B4-SOURCE-INDEX -->
 > **IA 全局集中对齐 Source Index｜Batch 4 Closeout｜2026-10-08**
 >
