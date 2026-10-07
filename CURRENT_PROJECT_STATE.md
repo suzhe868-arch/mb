@@ -1,3 +1,17 @@
+## 2026-10-07｜PDM-25 Startup Gate 已批准并执行
+
+- `P25-R00 = USER_APPROVED / APPLIED`；
+- PDM-25 定位：全项目审计 / 历史 / 时区 / 配置版本 / 终态真实性 / 横切完整性的唯一产品 Authority；
+- 工作版：`07_重建工作区/PDM-25_审计历史时区配置版本终态与横切完整性_规则原子重建_工作版.md`；
+- target=PDM-25 的 24 / 24 incoming handoff：`HANDOFF_ACCEPTED`；
+- `INCOMING_HANDOFF_GAP = 0`；
+- `COMPLETED_PDM_HARD_CONFLICT = 0`；
+- `GLOBAL_INVARIANT_CONFLICT = 0`；
+- 历史 R12 P11“Customer Merge 审计”仅保留历史 carrier，不恢复 V1 Customer Merge；
+- 统一业务时区：`Asia/Shanghai (UTC+8)`；
+- IA / Low-Fi / Engineering：`NO_CONSTRUCTION`；
+- 当前唯一下一步：**PDM-25 Batch 1｜稳定一致规则审查。**
+
 ## 2026-10-07｜PDM-24 Final Closeout COMPLETE
 
 - 用户已最终批准 PDM-24 Final Domain Overview，并随后明确“确定执行”；
