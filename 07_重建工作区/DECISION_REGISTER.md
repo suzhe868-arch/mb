@@ -1322,3 +1322,6 @@
 
 
 | EG-F03-G0-ACCEPT-MERGE-20261009 | ENGINEERING_F03_G0 | F03-G0正式验收合并与下一批工作单准备 | 用户在A窗口“同意”；A复验b4b56401b68ba91776ddd7edfa0b545586137720，两项阻断闭合，CI37852018024成功34/34；PR #3已合并，merge=6983709937ebf1d9ae8a7f6cd0a4267bb2269ac6；F03-1安全工作单准备完成待批准 | F03_G0_ACCEPTED_MERGED；下一批NOT_AUTHORIZED；无真实登录/DB/生产操作；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F03-G0_A主控验收与合并记录_2026-10-09.md`；`07_重建工作区/F03-1_账号登录与密码安全工作单_待批准_2026-10-09.md` | 2026-10-09 |
+
+
+| EG-F03-1-G0-RELEASE-20261009 | ENGINEERING_F03_1_G0 | 登录密码安全方案限定小批正式放行 | 用户在A窗口明确“同意”；B从含本登记的最新main新建feat/f03-login，仅做安全方案、状态/会话合同、精确结构差异与纯假数据检查及CI，交A验收 | USER_APPROVED / F03_1_G0_DESIGN_ONLY_AUTHORIZED；真实登录/HTTP认证/DB迁移与后续批未授权；不合并B/C；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F03-1-G0_A主控登录安全方案施工放行_2026-10-09.md`；`07_重建工作区/F03-1_账号登录与密码安全工作单_待批准_2026-10-09.md`顶部增补 | 2026-10-09 |
