@@ -30,8 +30,8 @@ F02-F-0121	jyt_model_source_mappings.conflict_flag	DEFER_WITH_REASON	YES	PDM-05�
 F02-F-0129	vehicle_images.relative_path	A_TECHNICAL_HOLD	YES	PDM-08（实际业务语义见各Final，列属性为技术建议）	PDM-08源图片与自有相对路径可能存在资产化失败中间态，需明确路径空值合同。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
 F02-F-0131	vehicle_images.sort_index	DEFER_WITH_REASON	YES	PDM-08（实际业务语义见各Final，列属性为技术建议）	该项涉及后续实现或可派生细节：真实图片排序；F02-1若无需该列不应把它强制成基线，待下游合同确认。	DEFERRED_PENDING_A_ACKNOWLEDGMENT
 F02-F-0132	vehicle_images.asset_storage_status	CORE_PROPOSAL	NO	PDM-08（实际业务语义见各Final，列属性为技术建议）	该字段对应当前领域事实：转名邦资产化补偿；建议非空是技术方案，仍须A确认具体枚举/数据迁移边界。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
-F02-F-0136	vehicle_documents.customer_visible	DEFER_WITH_REASON	NO	PDM-07/PDM-08（实际业务语义见各Final，列属性为技术建议）	该项涉及后续实现或可派生细节：单份报告对客投影；F02-1若无需该列不应把它强制成基线，待下游合同确认。	DEFERRED_PENDING_A_ACKNOWLEDGMENT
-F02-F-0142	image_asset_jobs.retry_count	DEFER_WITH_REASON	NO	PDM-08（实际业务语义见各Final，列属性为技术建议）	该项涉及后续实现或可派生细节：工程补偿；F02-1若无需该列不应把它强制成基线，待下游合同确认。	DEFERRED_PENDING_A_ACKNOWLEDGMENT
+F02-F-0136	vehicle_documents.customer_visible	CORE_PROPOSAL	REVIEW	PDM-07/PDM-08（实际业务语义见各Final，列属性为技术建议）	G0-ALL全域正式F02-1最低承载补审：本字段旧延期意见替代为纳入候选，仍待A复审签发。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
+F02-F-0142	image_asset_jobs.retry_count	CORE_PROPOSAL	REVIEW	PDM-08（实际业务语义见各Final，列属性为技术建议）	G0-ALL全域正式F02-1最低承载补审：本字段旧延期意见替代为纳入候选，仍待A复审签发。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
 F02-F-0149	vehicle_price_history.changed_by	A_TECHNICAL_HOLD	YES	PDM-10（实际业务语义见各Final，列属性为技术建议）	上游价格同步与员工手动调价actor不同；裸changed_by员工ID不足覆盖系统来源。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
 F02-F-0153	pricing_rule_versions.approved_by	A_TECHNICAL_HOLD	YES	PDM-10/PDM-25（实际业务语义见各Final，列属性为技术建议）	生效配置可能由不同控制平面actor批准，需明确actor_kind后设FK。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
 F02-F-0157	pricing_rule_ranges.max_price_cents	A_TECHNICAL_HOLD	YES	PDM-10（实际业务语义见各Final，列属性为技术建议）	阶梯区间是否允许最后一个开放上界要以正式计算合同证明，不能自行把NULL解释为无穷。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
@@ -40,7 +40,7 @@ F02-F-0165	customer_daily_price_access.unlock_origin	CORE_PROPOSAL	NO	PDM-10/PDM
 F02-F-0181	demands.responsible_employee_id	CORE_PROPOSAL	NO	PDM-11/PDM-12（实际业务语义见各Final，列属性为技术建议）	正式Demand需要实际负责人；owner变更不回写历史负责人，建议非空FK。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
 F02-F-0183	demands.criteria_json	CORE_PROPOSAL	NO	PDM-11/PDM-12（实际业务语义见各Final，列属性为技术建议）	该字段对应当前领域事实：结构化找车条件；建议非空是技术方案，仍须A确认具体枚举/数据迁移边界。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
 F02-F-0186	matching_dictionary_rules.rule_scope	CORE_PROPOSAL	NO	PDM-12（实际业务语义见各Final，列属性为技术建议）	该字段对应当前领域事实：生效范围优先级；建议非空是技术方案，仍须A确认具体枚举/数据迁移边界。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
-F02-F-0188	matching_dictionary_rules.version	DEFER_WITH_REASON	NO	PDM-12（实际业务语义见各Final，列属性为技术建议）	该项涉及后续实现或可派生细节：版本治理；F02-1若无需该列不应把它强制成基线，待下游合同确认。	DEFERRED_PENDING_A_ACKNOWLEDGMENT
+F02-F-0188	matching_dictionary_rules.version	CORE_PROPOSAL	REVIEW	PDM-12（实际业务语义见各Final，列属性为技术建议）	G0-ALL全域正式F02-1最低承载补审：本字段旧延期意见替代为纳入候选，仍待A复审签发。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
 F02-F-0195	demand_match_results.match_explanation	CORE_PROPOSAL	NO	PDM-12/PDM-13（实际业务语义见各Final，列属性为技术建议）	G0-SC-02正式F02-1范围要求可解释四级结果与历史边界，替代原仅作实现细节延期的建议；待A最终冻结。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
 F02-F-0196	demand_match_results.current_state	CORE_PROPOSAL	NO	PDM-12/PDM-13（实际业务语义见各Final，列属性为技术建议）	G0-SC-02正式F02-1范围要求可解释四级结果与历史边界，替代原仅作实现细节延期的建议；待A最终冻结。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
 F02-F-0200	priority_leases.trigger_demand_id	A_TECHNICAL_HOLD	YES	PDM-13（实际业务语义见各Final，列属性为技术建议）	Priority可以有关联Demand上下文但不能等同Demand；可空候选须核验实际创建入口。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
@@ -63,7 +63,7 @@ F02-F-0307	publisher_phone_cache.fetched_at	A_TECHNICAL_HOLD	YES	PDM-09（实际
 F02-F-0308	publisher_phone_cache.source_status	CORE_PROPOSAL	NO	PDM-09（实际业务语义见各Final，列属性为技术建议）	该字段对应当前领域事实：有效失败状态；建议非空是技术方案，仍须A确认具体枚举/数据迁移边界。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
 F02-F-0309	publisher_phone_cache.last_updated_at	DEFER_WITH_REASON	YES	PDM-09（实际业务语义见各Final，列属性为技术建议）	该项涉及后续实现或可派生细节：不能用car_code替代；F02-1若无需该列不应把它强制成基线，待下游合同确认。	DEFERRED_PENDING_A_ACKNOWLEDGMENT
 F02-F-0324	notification_events.source_object_id	A_TECHNICAL_HOLD	YES	PDM-23（实际业务语义见各Final，列属性为技术建议）	通知未必有单一实体对象ID，需按事件类型确定条件非空。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
-F02-F-0325	notification_events.dedupe_key	DEFER_WITH_REASON	YES	PDM-23（实际业务语义见各Final，列属性为技术建议）	该项涉及后续实现或可派生细节：重复通知抑制；F02-1若无需该列不应把它强制成基线，待下游合同确认。	DEFERRED_PENDING_A_ACKNOWLEDGMENT
+F02-F-0325	notification_events.dedupe_key	CORE_PROPOSAL	REVIEW	PDM-23（实际业务语义见各Final，列属性为技术建议）	G0-ALL全域正式F02-1最低承载补审：本字段旧延期意见替代为纳入候选，仍待A复审签发。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
 F02-F-0328	announcements.version_id	DEFER_WITH_REASON	YES	PDM-24（实际业务语义见各Final，列属性为技术建议）	该项涉及后续实现或可派生细节：编辑与重新触达；F02-1若无需该列不应把它强制成基线，待下游合同确认。	DEFERRED_PENDING_A_ACKNOWLEDGMENT
 F02-F-0334	banners.target_kind	DEFER_WITH_REASON	YES	PDM-24/PDM-22（实际业务语义见各Final，列属性为技术建议）	该项涉及后续实现或可派生细节：跳转目标；F02-1若无需该列不应把它强制成基线，待下游合同确认。	DEFERRED_PENDING_A_ACKNOWLEDGMENT
 F02-F-0336	banners.sort_order	DEFER_WITH_REASON	NO	PDM-24/PDM-22（实际业务语义见各Final，列属性为技术建议）	该项涉及后续实现或可派生细节：排序；F02-1若无需该列不应把它强制成基线，待下游合同确认。	DEFERRED_PENDING_A_ACKNOWLEDGMENT
@@ -73,7 +73,7 @@ F02-F-0341	audit_events.role_context	A_TECHNICAL_HOLD	YES	PDM-25（实际业务�
 F02-F-0343	audit_events.object_id	A_TECHNICAL_HOLD	YES	PDM-25（实际业务语义见各Final，列属性为技术建议）	全局治理动作未必对应单个object_id；需按object_kind核对。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
 F02-F-0351	config_versions.payload_json	A_TECHNICAL_HOLD	NO	PDM-25/PDM-10/PDM-22（实际业务语义见各Final，列属性为技术建议）	版本化配置需保留真实payload，但结构化字段的强制条件要按配置域决断。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
 F02-F-0357	idempotency_records.result_ref	DEFER_WITH_REASON	YES	PDM-25（实际业务语义见各Final，列属性为技术建议）	该项涉及后续实现或可派生细节：只出现一次真实成功；F02-1若无需该列不应把它强制成基线，待下游合同确认。	DEFERRED_PENDING_A_ACKNOWLEDGMENT
-F02-F-0363	outbox_events.result_state	DEFER_WITH_REASON	YES	PDM-23/PDM-25（实际业务语义见各Final，列属性为技术建议）	该项涉及后续实现或可派生细节：真实处理结果；F02-1若无需该列不应把它强制成基线，待下游合同确认。	DEFERRED_PENDING_A_ACKNOWLEDGMENT
+F02-F-0363	outbox_events.result_state	CORE_PROPOSAL	REVIEW	PDM-23/PDM-25（实际业务语义见各Final，列属性为技术建议）	G0-ALL全域正式F02-1最低承载补审：本字段旧延期意见替代为纳入候选，仍待A复审签发。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
 F02-F-0370	share_attributions.vehicle_id	A_TECHNICAL_HOLD	YES	PDM-03/PDM-14/PDM-20（实际业务语义见各Final，列属性为技术建议）	分享事件可能不是车辆链接，车辆ID应随分享种类条件出现。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
 F02-F-0371	share_attributions.sharer_customer_id	A_TECHNICAL_HOLD	YES	PDM-03/PDM-14/PDM-20（实际业务语义见各Final，列属性为技术建议）	不能为没有已登录分享客户的合法获客事实伪造sharer_customer_id。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
 F02-F-0372	share_attributions.source_employee_id	A_TECHNICAL_HOLD	YES	PDM-03/PDM-14/PDM-20（实际业务语义见各Final，列属性为技术建议）	只有真实绑定销售的分享/转介绍事件才需要员工归属FK。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
