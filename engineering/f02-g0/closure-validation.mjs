@@ -7,6 +7,24 @@ export const COMPOSITE_IDENTITY_KEYS=Object.freeze({
 const MINIMUM={
   customer_levels:['level_id','level_code'],
   stores:['store_id','store_name','status'],
+  matching_dictionary_rules:['rule_id','rule_scope','rule_expression','version','rule_status','normalized_mapping_json','created_by_employee_id','updated_by_employee_id','created_at','updated_at'],
+  matching_rule_change_history:['event_id','rule_id','rule_version','after_json','actor_employee_id','occurred_at'],
+  pc_login_accounts:['account_id','normalized_login_key','principal_kind','employee_id','system_admin_id','password_hash','credential_state','force_password_change','created_at'],
+  vehicle_hide_rules:['rule_id','source_scope_json','conditions_json','is_enabled','updated_by_employee_id'],
+  vehicle_conversions:['conversion_id','vehicle_id','from_source','to_source','converted_at'],
+  vehicle_documents:['document_id','vehicle_id','document_kind','customer_visible','origin_ref','added_at'],
+  image_asset_jobs:['asset_job_id','vehicle_id','status','retry_count','last_attempt_at'],
+  vehicle_model_review_cases:['case_id','upstream_model_id','vehicle_id','case_state','resolved_by'],
+  publisher_phone_history:['phone_history_id','source_platform','upstream_publisher_id','result_status','received_at'],
+  collector_integration_events:['integration_event_id','source_platform','upstream_publisher_id','event_kind','dedupe_key','received_at'],
+  crm_stage_dictionary:['stage_id','stage_name','sort_order','status'],
+  crm_customer_stages:['customer_id','stage_id','updated_by_employee_id','updated_at'],
+  crm_tag_dictionary:['tag_id','tag_name','sort_order','status'],
+  crm_customer_tag_links:['link_id','customer_id','tag_id','assigned_by_employee_id','ended_at'],
+  crm_personal_notes:['note_id','customer_id','author_employee_id','note_text','created_at'],
+  crm_shared_profiles:['profile_id','customer_id','profile_json','updated_by_employee_id','updated_at'],
+  crm_service_labels:['label_id','customer_id','author_employee_id','label_text','source_kind','occurred_at'],
+  matching_change_events:['event_id','result_id','trigger_kind','before_json','after_json','occurred_at','idempotency_key'],
   system_admins:['system_admin_id','account_status','created_at','login_account','credential_hash','bootstrap_origin','created_by_system_admin_id'],
   demand_match_results:['result_id','demand_id','vehicle_id','listing_cycle_id','match_tier','match_explanation','current_state','calculated_at','invalidated_at'],
   crm_followups:['followup_id','customer_id','responsible_employee_id','actor_employee_id','occurred_at','content','business_demand_id','source_context_json'],
@@ -34,7 +52,7 @@ const staticRefs=r=>[...r[5].matchAll(/(FK|XOR_FK):([a-z_]+)\.([a-z_]+)/g)];
 export function validateBuildableClosure(matrixText,freezeText,tierText){
   const matrix=parse(matrixText),freeze=parse(freezeText),tier=parse(tierText);
   const baseline=validateMatrix(matrixText);
-  insist(matrix.length===437&&freeze.length===437&&tier.length===437,'ROW_413_COUNT');
+  insist(matrix.length===511&&freeze.length===511&&tier.length===511,'ROW_510_COUNT');
   const m=new Map(matrix.slice(1).map(r=>[r[0],r])),f=new Map(),tiers=new Map(tier.slice(1).map(r=>[r[0],r]));
   const kindPattern=/^(INCLUDE_(CORE_CANDIDATE|SUPPORT_CANDIDATE|WITH_A_REVIEW|MINIMUM_COMPLETE_ENTITY)|DEFER_WITH_REASON|EXCLUDE_(4S_ORG|OLD_MIXED))$/;
   for(const r of freeze.slice(1)){
@@ -125,6 +143,21 @@ export function validateBuildableClosure(matrixText,freezeText,tierText){
   insist(required(fields,'customer_price_unlock_events','business_day_shanghai','DAILY_EVENT')[5].includes('FK_LOGICAL_CUSTOMER_DAY'),'DAILY_LEDGER_LOGICAL_RELATION_MISSING');
   insist(has(required(fields,'vehicle_listing_cycles','ended_at','ACTIVE_CYCLE'),'PARTIAL_UNIQUE_ACTIVE_VEHICLE_CYCLE'),'ACTIVE_CYCLE_UNIQUENESS_MISSING');
   insist(required(fields,'consultations','listing_cycle_id','CONSULTATION_ACTIVE')[5].includes('PARTIAL_UNIQUE_ACTIVE_CONSULTATION_TRIPLE'),'ACTIVE_CONSULTATION_UNIQUENESS_MISSING');
+  // Full-domain source-derived minimum physical carriers; real execution belongs to future stages.
+  for(const k of ['rule_id','rule_scope','rule_expression','version','rule_status','normalized_mapping_json','created_by_employee_id','updated_by_employee_id','created_at','updated_at'])required(fields,'matching_dictionary_rules',k,'ALL_RULE');
+  for(const k of ['event_id','rule_id','rule_version','after_json','actor_employee_id','occurred_at'])required(fields,'matching_rule_change_history',k,'ALL_RULE_HISTORY');
+  insist(required(fields,'matching_dictionary_rules','rule_scope','ALL')[5].includes('SCOPE_PRIORITY_MODEL_YEAR_SERIES_BRAND_GLOBAL'),'ALL_SCOPE_PRIORITY');
+  insist(required(fields,'matching_dictionary_rules','rule_status','ALL')[5].includes('CHECK_enabled_disabled_retired'),'ALL_RULE_STATE');
+  for(const k of ['account_id','normalized_login_key','principal_kind','employee_id','system_admin_id','password_hash','credential_state','force_password_change'])required(fields,'pc_login_accounts',k,'ALL_PC');
+  insist(required(fields,'pc_login_accounts','normalized_login_key','ALL')[5].includes('UNIQUE_GLOBAL_PC_LOGIN_KEY'),'ALL_PC_UNIQUE');
+  insist(required(fields,'pc_login_accounts','principal_kind','ALL')[5].includes('XOR_PRINCIPAL_ID'),'ALL_PC_XOR');
+  for(const table of ['crm_stage_dictionary','crm_customer_stages','crm_tag_dictionary','crm_customer_tag_links','crm_personal_notes','crm_shared_profiles','crm_service_labels'])insist(included.has(table),'ALL_CRM_PARTITION_'+table);
+  for(const table of ['vehicle_conversions','vehicle_documents','image_asset_jobs','vehicle_model_review_cases','publisher_phone_history','collector_integration_events','vehicle_hide_rules','matching_change_events'])insist(included.has(table),'ALL_ARCHIVE_'+table);
+  insist(required(fields,'vehicle_hide_rules','source_scope_json','ALL')[5].includes('NONEMPTY_EXPLICIT_SOURCE_SCOPE'),'ALL_HIDE_SCOPE');
+  insist(required(fields,'vehicle_hide_rules','conditions_json','ALL')[5].includes('AND_FIELDS_OR_VALUES_OR_RULES'),'ALL_HIDE_COMBINATOR');
+  insist(required(fields,'image_asset_jobs','status','ALL')[5].includes('CHECK_processing_success_partial_failed_failed'),'ALL_IMAGE_STATUS');
+  for(const k of ['dedupe_key','channel_kind','recipient_ref','notification_stage'])required(fields,'notification_events',k,'ALL_NOTIFY');
+  insist(required(fields,'notification_events','dedupe_key','ALL')[5].includes('PARTIAL_UQ_EVENT_CHANNEL_RECIPIENT_STAGE_WHEN_PRESENT'),'ALL_NOTIFY_DEDUPE');
   // G0-SC F02-1 mandatory physical carriers; all runtime authorization, transactional concurrency and real DDL remain NOT_RUN.
   for(const k of ['system_admin_id','account_status','created_at','login_account','credential_hash','bootstrap_origin','created_by_system_admin_id'])required(fields,'system_admins',k,'SC01');
   insist(required(fields,'system_admins','created_by_system_admin_id','SC01')[5].includes('FK:system_admins.system_admin_id'),'SC01_CREATOR_MISSING');
@@ -146,11 +179,11 @@ export function validateBuildableClosure(matrixText,freezeText,tierText){
     insist(dispositions.length===1,'DEFERRED_ENTITY_MIXED_'+t);
     const kind=dispositions[0];
     insist(kind==='DEFER_WITH_REASON'||kind.startsWith('EXCLUDE_'),'DEFERRED_ENTITY_INVALID_'+t);
-    const reason=kind==='EXCLUDE_4S_ORG'?'PDM-02 Final禁止独立4S组织层级，4S成员账号直接代表合作主体':kind==='EXCLUDE_OLD_MIXED'?'已由客户每日额度账本、单车周期权益、幂等成功扣额事件三表替代，不得施工混合表':'非此阶段基础身份/FK的必需实体；全表整体保留到后续对应领域工程并由A决定';
+    const reason=kind==='EXCLUDE_4S_ORG'?'PDM-02 Final禁止独立4S组织层级，4S成员账号直接代表合作主体':kind==='EXCLUDE_OLD_MIXED'?'已由客户每日额度账本、单车周期权益、幂等成功扣额事件三表替代，不得施工混合表':'非F02-1初始域最低必须：实体整体留待对应领域功能的F02后续增量承载，当前基础实体无反向FK引用；须由A按正式施工范围复核';
     deferredEntities.push([t,rows.map(x=>x.row[2]).join('+'),kind,reason,rows[0].row[8],'PENDING_A_FINAL_FREEZE']);
   }
   const counts={included:[...included.values()].reduce((a,r)=>a+r.length,0),deferred:freeze.slice(1).filter(x=>x[4]==='DEFER_WITH_REASON').length,excluded:freeze.slice(1).filter(x=>x[4].startsWith('EXCLUDE_')).length};
-  insist(counts.included+counts.deferred+counts.excluded===436,'CLASSIFICATION_NOT_DISJOINT');
+  insist(counts.included+counts.deferred+counts.excluded===510,'CLASSIFICATION_NOT_DISJOINT');
   insist(entityRows.length===included.size,'ENTITY_ROWS_MISMATCH');
   return {fieldCount:baseline.fieldCount,entityCount:entityRows.length,foreignKeyCount:foreignKeyRows.length,deferredEntityCount:deferredEntities.length,counts,entities:entityRows,foreignKeys:foreignKeyRows,deferredEntities,keys};
 }

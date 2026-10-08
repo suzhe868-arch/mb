@@ -9,7 +9,7 @@ const original=inputs.map(split);
 function check(arr=original){return validateFourDomainScope(...arr.map(tsv));}
 function altered(table,col,fn){const a=original.map(x=>x.map(r=>[...r]));const m=a[0].find(x=>x[1]===table&&x[2]===col);assert.ok(m,'fixture field '+table+'.'+col);const f=a[1].find(x=>x[0]===m[0]),t=a[2].find(x=>x[0]===m[0]);fn(m,f,t);f[5]=m[4]+' | '+m[5]+' | '+m[6];return a;}
 function deferred(table,col){return altered(table,col,(m,f,t)=>{f[4]='DEFER_WITH_REASON';f[3]=t[2]='P2_DEFERRED_DETAIL';});}
-test('G0-SC四域14事实与字段ID/Authority/阶段/A待签完整，CL门禁继续闭合',()=>{let r=check();assert.deepEqual([r.domainCount,r.factCount,r.fieldCount,r.entities,r.staticFKs],[4,14,436,58,112]);assert.deepEqual(r.counts,{included:353,deferred:72,excluded:11});});
+test('G0-SC四域14事实与字段ID/Authority/阶段/A待签完整，CL门禁继续闭合',()=>{let r=check();assert.deepEqual([r.domainCount,r.factCount,r.fieldCount,r.entities,r.staticFKs],[4,14,510,76,137]);assert.deepEqual(r.counts,{included:353,deferred:72,excluded:11});});
 test('System Admin：延期独立身份和账号哈希，必须拒绝',()=>{for(const k of ['system_admin_id','credential_hash'])assert.throws(()=>check(deferred('system_admins',k)),/F02_G0_CL_|F02_G0_SC_/);});
 test('System Admin：不得把独立system_admin_id当Employee业务身份',()=>{const x=altered('system_admins','system_admin_id',(r)=>{r[5]='PK;FK:employees.employee_id';});assert.throws(()=>check(x),/F02_G0_SC_SYSTEM_ADMIN_EMPLOYEE_IDENTITY_COLLISION/);});
 test('System Admin：bootstrap控制平面创建者自引用FK不可丢',()=>{const x=altered('system_admins','created_by_system_admin_id',r=>{r[5]='CONDITIONAL_NON_BOOTSTRAP_CREATOR';});assert.throws(()=>check(x),/F02_G0_CL_|F02_G0_SC_/);});
