@@ -1316,3 +1316,6 @@
 
 
 | EG-F02-1-MERGE-F03-GATE-20261009 | ENGINEERING_INTEGRATION | 已验收B合并及F03门禁准备 | 用户“同意开始实行”，A通过PR #2纳入已验收B SHA 9f10f65be293fd892e4787a3a3bdff2676c487ea，merge=3412dc76815e97a7df9024d8b7812a2aece7036c；F03-G0限定首批门禁准备完成待用户审查 | B合并已授权并完成；F03施工NOT_AUTHORIZED；C不合并；不访问真实库；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F02-1_工程合并main与后续门禁记录_2026-10-09.md`；`07_重建工作区/F03_开工门禁与分批施工建议_待用户批准_2026-10-09.md` | 2026-10-09 |
+
+
+| EG-F03-G0-RELEASE-20261009 | ENGINEERING_F03_G0 | F03-G0限定首批正式放行 | 用户在A窗口明确“同意放行”；B从最新main新建feat/f03-auth，仅权限/身份会话合同、纯服务端决策和假数据静态核验与CI，自验后交A独立验收 | F03_G0_AUTHORIZED_ONLY；不连接DB；真实登录/会话迁移/F03后续批/F04仍未授权；不合并main；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F03-G0_A主控正式施工放行_2026-10-09.md`；`07_重建工作区/F03_开工门禁与分批施工建议_待用户批准_2026-10-09.md` | 2026-10-09 |

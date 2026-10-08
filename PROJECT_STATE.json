@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F03_G0_PENDING_USER_APPROVAL_AND_H01_VISUAL_REVIEW",
+  "substage": "F03_G0_B_IMPLEMENTATION_A_REVIEW_AND_H01_VISUAL_REVIEW",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "GLOBAL_POST_PDM25",
-  "current_domain_status": "F02_1_ACCEPTED_MERGED_F03_G0_GATE_PENDING_USER_APPROVAL",
+  "current_domain_status": "F03_G0_AUTHORIZED_USER_APPROVED_NOT_YET_IMPLEMENTED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "用户审查F03-G0限定首批门禁；A等待批准，B不施工；C/H01独立视觉复核",
-  "current_work_file": "07_重建工作区/F03_开工门禁与分批施工建议_待用户批准_2026-10-09.md",
+  "current_task": "B从最新main新建feat/f03-auth施工F03-G0权限合同与纯决策假数据核验，提交真实SHA/CI/覆盖表/风险交A；C/H01独立视觉审查",
+  "current_work_file": "07_重建工作区/F03-G0_A主控正式施工放行_2026-10-09.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F03_G0_GATE_PENDING_USER_APPROVAL",
+  "current_review_batch": "F03_G0_AUTHORIZED_B_IMPLEMENTATION_A_REVIEW",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "F03_G0_PENDING_USER_APPROVAL_AND_H01_VISUAL_REVIEW",
+  "next_action": "F03_G0_B_IMPLEMENTATION_A_REVIEW_AND_H01_VISUAL_REVIEW",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F01_F02_G0_F02_1_ACCEPTED_MERGED_F03_GATE_PREPARED_NOT_AUTHORIZED",
+  "engineering_status": "F01_F02_G0_F02_1_ACCEPTED_MERGED_F03_G0_AUTHORIZED_OTHER_STAGES_NOT_AUTHORIZED",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "F02-G0/F02-1已通过PR #2合并main，工程blob与已验收B一致；F03-G0权限合同与静态决策核验门禁已准备，需用户另行批准才能在新feat/f03-auth施工；真实登录/会话迁移/后续F03及F04未授权",
+  "next_action_detail": "用户同意放行F03-G0；仅权限/身份合同、纯决策模块、假数据静态测试与CI；不连接DB，不做真实登录/会话迁移/F04接口，后续各批另授权",
   "abc_parallel_workflow": {
     "status": "USER_APPROVED_APPLIED_DOCUMENTATION_ONLY",
     "confirmed_at": "2026-10-08",
@@ -4800,15 +4800,15 @@
     "design_branch_modified": false,
     "implementation_status_unchanged": true,
     "active_tracks": [
-      "F03_G0_GATE_PENDING_USER_APPROVAL",
+      "F03_G0_AUTHORIZED_B_IMPLEMENTATION_A_REVIEW",
       "H01_DESIGN_REVIEW"
     ],
     "execution_requires_separate_scope_approval": true,
     "global_state_owner": "A_MAIN",
     "engineering": {
       "owner": "B",
-      "branch": "feat/f02-schema",
-      "active_work_order": "NONE_PENDING_USER_APPROVAL",
+      "branch": "feat/f03-auth",
+      "active_work_order": "F03-G0",
       "later_work_orders": [
         "F02",
         "F03",
@@ -4831,8 +4831,10 @@
         "F03",
         "F04"
       ],
-      "current_activity": "F02_1_MERGED_F03_G0_WAIT_FOR_USER_APPROVAL",
-      "proposed_next_branch": "feat/f03-auth"
+      "current_activity": "CREATE_FEAT_F03_AUTH_FROM_LATEST_MAIN_AND_IMPLEMENT_AUTHORIZED_F03_G0_ONLY",
+      "proposed_next_branch": "feat/f03-auth",
+      "branch_status": "AUTHORIZED_TO_CREATE_BY_B",
+      "historical_accepted_branch": "feat/f02-schema"
     },
     "design": {
       "owner": "C",
@@ -4928,7 +4930,7 @@
       "F02-2": "NOT_AUTHORIZED",
       "F02-3": "NOT_AUTHORIZED",
       "F02-4": "NOT_AUTHORIZED",
-      "F03": "DESIGN_PREPARATION_ONLY",
+      "F03": "F03_G0_ONLY_AUTHORIZED_LATER_F03_BATCHES_NOT_AUTHORIZED",
       "F04": "DESIGN_PREPARATION_ONLY"
     },
     "allowed_database": "DISPOSABLE_LOCAL_OR_CI_POSTGRESQL_16_ONLY",
@@ -5021,14 +5023,19 @@
     }
   },
   "f03_gate": {
-    "status": "PREPARED_PENDING_USER_APPROVAL",
+    "status": "USER_APPROVED_AUTHORIZED_F03_G0_ONLY",
     "report": "07_重建工作区/F03_开工门禁与分批施工建议_待用户批准_2026-10-09.md",
     "proposed_first_batch": "F03-G0_PERMISSION_CONTRACT_AND_STATIC_POLICY_VERIFICATION",
-    "construction": "NOT_AUTHORIZED",
+    "construction": "F03_G0_ONLY_AUTHORIZED",
     "proposed_branch": "feat/f03-auth",
     "branch_created": false,
     "real_login": "NOT_RUN_NOT_AUTHORIZED",
     "session_schema_migration": "NOT_AUTHORIZED",
-    "later_batches": "SEPARATE_A_REVIEW_AND_USER_APPROVAL"
+    "later_batches": "SEPARATE_A_REVIEW_AND_USER_APPROVAL",
+    "approval_date": "2026-10-09",
+    "confirmed_phrase": "同意放行",
+    "release_report": "07_重建工作区/F03-G0_A主控正式施工放行_2026-10-09.md",
+    "implementation": "NOT_YET_IMPLEMENTED",
+    "tests": "NOT_RUN"
   }
 }
