@@ -1,0 +1,54 @@
+name: F03-G0 isolated static authorization contract
+on:
+  push:
+    branches: [feat/f03-auth]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  static-f03-g0:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: engineering
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Existing F01 and F02-G0 read-only regressions
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run check
+          node f02-g0/closure-audit.mjs
+          node f02-g0/full-domain-audit.mjs
+          node f02-g0/scope-audit.mjs
+      - name: No database or real authentication side effects in F03-G0
+        run: |
+          set -euo pipefail
+          node f03/verify-contract.mjs
+          node --check f03/policy.mjs
+          node --check f03/tests/policy.test.mjs
+          node --check f03/tests/contract.test.mjs
+          node --check f03/tests/sensitivity.test.mjs
+      - name: Node ESM positive, negative, projection and mutation sensitivity tests
+        run: |
+          set -euo pipefail
+          mkdir -p f03/artifacts
+          node --test f03/tests/*.test.mjs 2>&1 | tee f03/artifacts/f03-g0-node-test.log
+          grep -q 'F03-G0 TRACEABILITY PASS' f03/artifacts/f03-g0-node-test.log
+          grep -q 'F03-G0 ALL ACTION POSITIVE BRANCHES PASS' f03/artifacts/f03-g0-node-test.log
+          grep -q '# fail 0' f03/artifacts/f03-g0-node-test.log
+          echo 'F03-G0 STATIC CONTRACT, POLICY, PROJECTION AND SENSITIVITY PASS'
+      - name: Upload exact-SHA no-database test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f03-g0-static-policy-evidence
+          path: engineering/f03/artifacts/
+          retention-days: 30
+          if-no-files-found: warn
