@@ -18,8 +18,8 @@ async function mutant(text,check){
  try{
   const file=join(dir,'policy.mjs');
   await writeFile(file,text);
-  const {authorize:changed}=await import(pathToFileURL(file).href);
-  return check(changed);
+  const {authorize:changed,projectRecord:changedProject}=await import(pathToFileURL(file).href);
+  return check(changed,changedProject);
  }finally{await rm(dir,{recursive:true,force:true})}
 }
 test('mutation sensitivity: both 4S hard DENY guard rails are observable by negative cases',async()=>{
@@ -59,11 +59,10 @@ test('A整改敏感性：移除车辆或客户记录身份校验时，缺编号�
  const equal="if(recordIdField&&record[recordIdField]!==context.resource.id)return {allowed:false,reason:'RECORD_RESOURCE_ID_MISMATCH',fields:{}};";
  assert.ok(source.includes(required)&&source.includes(equal),'both identity checks must exist');
  const weakened=source.replace(required,'/* removed required primary ID */').replace(equal,'/* removed cross-object primary ID equality */');
- await mutant(weakened,async mod=>{
-  const c=await import('node:assert/strict');
-  const changed=mod.projectRecord('vehicle.read',missingVehicle,vehicleContext);
+ await mutant(weakened,(unused,changedProject)=>{
+  const changed=changedProject('vehicle.read',missingVehicle,vehicleContext);
   assert.equal(changed.allowed,true,'removing identity guards must expose a vehicle row without ID');
-  assert.throws(()=>c.default.deepEqual(changed,{allowed:false,reason:'RECORD_RESOURCE_ID_REQUIRED',fields:{}}));
+  assert.throws(()=>assert.deepEqual(changed,{allowed:false,reason:'RECORD_RESOURCE_ID_REQUIRED',fields:{}}));
   const customerContext={
    actor:{kind:'employee',id:11,status:'active',role:'sales'},
    resource:{kind:'customer',id:25,state:'active',accountStatus:'active'},
@@ -71,7 +70,7 @@ test('A整改敏感性：移除车辆或客户记录身份校验时，缺编号�
      scopeGrants:[{actorId:11,resourceKind:'customer',resourceId:25,capability:'crm.customer.view',relation:'global',active:true}]}
   };
   assert.equal(projectRecord('customer.history.read',{history_event:'handover'},customerContext).allowed,false);
-  assert.equal(mod.projectRecord('customer.history.read',{history_event:'handover'},customerContext).allowed,true,'missing Customer ID must be observable after guard removal');
+  assert.equal(changedProject('customer.history.read',{history_event:'handover'},customerContext).allowed,true,'missing Customer ID must be observable after guard removal');
  });
 });
 test('A整改敏感性：移除历史嵌套安全检查会真实透出嵌套秘密',async()=>{
@@ -87,8 +86,8 @@ test('A整改敏感性：移除历史嵌套安全检查会真实透出嵌套秘�
  assert.deepEqual(safe,{allowed:false,reason:'UNSAFE_NESTED_HISTORY_VALUE',fields:{}});
  const check="if(operation==='customer.history.read'&&[...SAFE_CUSTOMER,...SAFE_HISTORY].some(key=>own(record,key)&&!safeHistoricalScalar(record[key])))return {allowed:false,reason:'UNSAFE_NESTED_HISTORY_VALUE',fields:{}};";
  assert.ok(source.includes(check),'nested structure guard must exist');
- await mutant(source.replace(check,'/* mutation removed nested historical value filter */'),changed=>{
-  const leaked=changed.projectRecord('customer.history.read',record,sample);
+ await mutant(source.replace(check,'/* mutation removed nested historical value filter */'),(unused,changedProject)=>{
+  const leaked=changedProject('customer.history.read',record,sample);
   assert.equal(leaked.allowed,true,'without nested protection, history projection must leak the payload');
   assert.ok(JSON.stringify(leaked).includes(secret),'demonstrate secret leak after security guard removal');
   assert.throws(()=>assert.deepEqual(leaked,safe),'old reject assertion must fail on mutant');
