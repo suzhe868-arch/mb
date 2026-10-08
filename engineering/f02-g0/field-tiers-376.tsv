@@ -412,8 +412,8 @@ F02-F-0415	customer_price_unlock_events.listing_cycle_id	P1_F02_1_SUPPORT	PDM-10
 F02-F-0416	customer_price_unlock_events.business_day_shanghai	P1_F02_1_SUPPORT	PDM-10/PDM-25	CANDIDATE_UNFROZEN	A最终复审后可列入F02-1施工矩阵，尚未签发
 F02-F-0417	customer_price_unlock_events.event_kind	P1_F02_1_SUPPORT	PDM-10/PDM-25	CANDIDATE_UNFROZEN	A最终复审后可列入F02-1施工矩阵，尚未签发
 F02-F-0418	customer_price_unlock_events.occurred_at	P1_F02_1_SUPPORT	PDM-10/PDM-25	CANDIDATE_UNFROZEN	A最终复审后可列入F02-1施工矩阵，尚未签发
-F02-F-0419	system_admins.login_account	P1_F02_1_SUPPORT	PDM-02/PDM-22	CANDIDATE_UNFROZEN	G0-SC最小承载新增；A未签发字段冻结
-F02-F-0420	system_admins.credential_hash	P1_F02_1_SUPPORT	PDM-02/PDM-22	CANDIDATE_UNFROZEN	G0-SC最小承载新增；A未签发字段冻结
+F02-F-0419	system_admins.login_account	P2_EXCLUDE_DUPLICATE_PC_CREDENTIAL	PDM-02/PDM-22	CANDIDATE_UNFROZEN	A已批准G0-ALL-05：历史字段ID仅审查用；F02-1不建此列，不可写凭证；统一凭证pc_login_accounts。
+F02-F-0420	system_admins.credential_hash	P2_EXCLUDE_DUPLICATE_PC_CREDENTIAL	PDM-02/PDM-22	CANDIDATE_UNFROZEN	A已批准G0-ALL-05：历史字段ID仅审查用；F02-1不建此列，不可写凭证；统一凭证pc_login_accounts。
 F02-F-0421	system_admins.bootstrap_origin	P1_F02_1_SUPPORT	PDM-02/PDM-22	CANDIDATE_UNFROZEN	G0-SC最小承载新增；A未签发字段冻结
 F02-F-0422	system_admins.created_by_system_admin_id	P1_F02_1_SUPPORT	PDM-02/PDM-22	CANDIDATE_UNFROZEN	G0-SC最小承载新增；A未签发字段冻结
 F02-F-0423	demand_match_results.calculated_at	P1_F02_1_SUPPORT	PDM-12/PDM-13	CANDIDATE_UNFROZEN	G0-SC最小承载新增；A未签发字段冻结
