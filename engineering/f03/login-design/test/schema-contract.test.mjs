@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {compileCurrentInitial} from '../../../f02-1/compile-current.mjs';
-const root=new URL('../../f02-g0/',import.meta.url);
+const root=new URL('../../../f02-g0/',import.meta.url);
 const here=new URL('../',import.meta.url);
 const tsv=s=>s.trimEnd().split(/\r?\n/).map(l=>l.split('\t'));
 const matrix=tsv(await readFile(new URL('field-matrix.tsv',root),'utf8')).slice(1);
