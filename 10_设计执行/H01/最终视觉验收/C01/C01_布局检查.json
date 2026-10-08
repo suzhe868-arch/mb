@@ -1,0 +1,831 @@
+{
+  "tool": "Chromium headless via Playwright; viewport 1700x1120 gallery; phone screenshots are exact 320/390 CSS px",
+  "note": "Page content is source HTML with local JPEG URLs replaced by identical JPEG data URIs because file:// navigation is blocked by the tool sandbox. This does not change DOM structure/CSS.",
+  "cases": [
+    {
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "photos": [
+        {
+          "loaded": true,
+          "naturalWidth": 1536,
+          "naturalHeight": 517,
+          "display": {
+            "w": 146,
+            "h": 122,
+            "left": 131,
+            "right": 277
+          },
+          "objectFit": "cover",
+          "urlPrefix": "data:image/jpeg"
+        },
+        {
+          "loaded": true,
+          "naturalWidth": 1536,
+          "naturalHeight": 484,
+          "display": {
+            "w": 146,
+            "h": 122,
+            "left": 131,
+            "right": 277
+          },
+          "objectFit": "cover",
+          "urlPrefix": "data:image/jpeg"
+        },
+        {
+          "loaded": true,
+          "naturalWidth": 1536,
+          "naturalHeight": 517,
+          "display": {
+            "w": 146,
+            "h": 122,
+            "left": 131,
+            "right": 277
+          },
+          "objectFit": "cover",
+          "urlPrefix": "data:image/jpeg"
+        }
+      ],
+      "priceDisplays": [
+        "block",
+        "block",
+        "block"
+      ],
+      "cards": [
+        {
+          "w": 362,
+          "h": 180,
+          "left": 118,
+          "right": 480
+        },
+        {
+          "w": 362,
+          "h": 180,
+          "left": 118,
+          "right": 480
+        },
+        {
+          "w": 362,
+          "h": 180,
+          "left": 118,
+          "right": 480
+        }
+      ],
+      "title": [
+        {
+          "box": {
+            "w": 178,
+            "h": 21,
+            "left": 289,
+            "right": 467
+          },
+          "fontSize": "15px",
+          "lineHeight": "21px",
+          "clamp": "2"
+        },
+        {
+          "box": {
+            "w": 178,
+            "h": 21,
+            "left": 289,
+            "right": 467
+          },
+          "fontSize": "15px",
+          "lineHeight": "21px",
+          "clamp": "2"
+        },
+        {
+          "box": {
+            "w": 178,
+            "h": 42,
+            "left": 289,
+            "right": 467
+          },
+          "fontSize": "15px",
+          "lineHeight": "21px",
+          "clamp": "2"
+        }
+      ],
+      "filters": [
+        {
+          "text": "排序",
+          "box": {
+            "w": 116,
+            "h": 43,
+            "left": 118,
+            "right": 234
+          }
+        },
+        {
+          "text": "品牌/车系",
+          "box": {
+            "w": 116,
+            "h": 43,
+            "left": 241,
+            "right": 357
+          }
+        },
+        {
+          "text": "价格",
+          "box": {
+            "w": 116,
+            "h": 43,
+            "left": 364,
+            "right": 480
+          }
+        },
+        {
+          "text": "年份",
+          "box": {
+            "w": 116,
+            "h": 43,
+            "left": 118,
+            "right": 234
+          }
+        },
+        {
+          "text": "里程",
+          "box": {
+            "w": 116,
+            "h": 43,
+            "left": 241,
+            "right": 357
+          }
+        },
+        {
+          "text": "更多",
+          "box": {
+            "w": 116,
+            "h": 43,
+            "left": 364,
+            "right": 480
+          }
+        }
+      ],
+      "channels": [
+        "批发车源",
+        "名邦车源",
+        "4S店车源"
+      ],
+      "tabs": [
+        "车源",
+        "帮我找车",
+        "我的"
+      ],
+      "banner": 1,
+      "search": {
+        "w": 362,
+        "h": 47,
+        "left": 118,
+        "right": 480
+      },
+      "nav": {
+        "w": 390,
+        "h": 78,
+        "left": 104,
+        "right": 494
+      },
+      "top": {
+        "w": 390,
+        "h": 68,
+        "left": 104,
+        "right": 494
+      },
+      "height": 844,
+      "width": 390,
+      "mode": "full",
+      "pass": true,
+      "screenshot": "C01_390_full.png",
+      "screenshot_sha256": "1bbc3905f0a7b9e4a0255832d2ee0ce1b88d691c4f8e4f381148a64f2470280a",
+      "screenshot_dimensions": [
+        390,
+        844
+      ]
+    },
+    {
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "photos": [
+        {
+          "loaded": true,
+          "naturalWidth": 1536,
+          "naturalHeight": 517,
+          "display": {
+            "w": 146,
+            "h": 122,
+            "left": 545,
+            "right": 691
+          },
+          "objectFit": "cover",
+          "urlPrefix": "data:image/jpeg"
+        },
+        {
+          "loaded": true,
+          "naturalWidth": 1536,
+          "naturalHeight": 484,
+          "display": {
+            "w": 146,
+            "h": 122,
+            "left": 545,
+            "right": 691
+          },
+          "objectFit": "cover",
+          "urlPrefix": "data:image/jpeg"
+        },
+        {
+          "loaded": true,
+          "naturalWidth": 1536,
+          "naturalHeight": 517,
+          "display": {
+            "w": 146,
+            "h": 122,
+            "left": 545,
+            "right": 691
+          },
+          "objectFit": "cover",
+          "urlPrefix": "data:image/jpeg"
+        }
+      ],
+      "priceDisplays": [
+        "block",
+        "block",
+        "block"
+      ],
+      "cards": [
+        {
+          "w": 362,
+          "h": 180,
+          "left": 532,
+          "right": 894
+        },
+        {
+          "w": 362,
+          "h": 180,
+          "left": 532,
+          "right": 894
+        },
+        {
+          "w": 362,
+          "h": 180,
+          "left": 532,
+          "right": 894
+        }
+      ],
+      "title": [
+        {
+          "box": {
+            "w": 178,
+            "h": 21,
+            "left": 703,
+            "right": 881
+          },
+          "fontSize": "15px",
+          "lineHeight": "21px",
+          "clamp": "2"
+        },
+        {
+          "box": {
+            "w": 178,
+            "h": 21,
+            "left": 703,
+            "right": 881
+          },
+          "fontSize": "15px",
+          "lineHeight": "21px",
+          "clamp": "2"
+        },
+        {
+          "box": {
+            "w": 178,
+            "h": 42,
+            "left": 703,
+            "right": 881
+          },
+          "fontSize": "15px",
+          "lineHeight": "21px",
+          "clamp": "2"
+        }
+      ],
+      "filters": [
+        {
+          "text": "排序",
+          "box": {
+            "w": 116,
+            "h": 43,
+            "left": 532,
+            "right": 648
+          }
+        },
+        {
+          "text": "品牌/车系",
+          "box": {
+            "w": 116,
+            "h": 43,
+            "left": 655,
+            "right": 771
+          }
+        },
+        {
+          "text": "价格",
+          "box": {
+            "w": 116,
+            "h": 43,
+            "left": 778,
+            "right": 894
+          }
+        },
+        {
+          "text": "年份",
+          "box": {
+            "w": 116,
+            "h": 43,
+            "left": 532,
+            "right": 648
+          }
+        },
+        {
+          "text": "里程",
+          "box": {
+            "w": 116,
+            "h": 43,
+            "left": 655,
+            "right": 771
+          }
+        },
+        {
+          "text": "更多",
+          "box": {
+            "w": 116,
+            "h": 43,
+            "left": 778,
+            "right": 894
+          }
+        }
+      ],
+      "channels": [
+        "批发车源",
+        "名邦车源",
+        "4S店车源"
+      ],
+      "tabs": [
+        "车源",
+        "帮我找车",
+        "我的"
+      ],
+      "banner": 0,
+      "search": {
+        "w": 362,
+        "h": 47,
+        "left": 532,
+        "right": 894
+      },
+      "nav": {
+        "w": 390,
+        "h": 78,
+        "left": 518,
+        "right": 908
+      },
+      "top": {
+        "w": 390,
+        "h": 68,
+        "left": 518,
+        "right": 908
+      },
+      "height": 844,
+      "width": 390,
+      "mode": "compact",
+      "pass": true,
+      "screenshot": "C01_390_compact.png",
+      "screenshot_sha256": "e25a463b44f2b6ef6c42892a06fecba96a7548c62fff4a0ba75aebe1399f8d70",
+      "screenshot_dimensions": [
+        390,
+        844
+      ]
+    },
+    {
+      "clientWidth": 320,
+      "scrollWidth": 320,
+      "photos": [
+        {
+          "loaded": true,
+          "naturalWidth": 1536,
+          "naturalHeight": 517,
+          "display": {
+            "w": 112,
+            "h": 121,
+            "left": 957,
+            "right": 1069
+          },
+          "objectFit": "cover",
+          "urlPrefix": "data:image/jpeg"
+        },
+        {
+          "loaded": true,
+          "naturalWidth": 1536,
+          "naturalHeight": 484,
+          "display": {
+            "w": 112,
+            "h": 121,
+            "left": 957,
+            "right": 1069
+          },
+          "objectFit": "cover",
+          "urlPrefix": "data:image/jpeg"
+        },
+        {
+          "loaded": true,
+          "naturalWidth": 1536,
+          "naturalHeight": 517,
+          "display": {
+            "w": 112,
+            "h": 121,
+            "left": 957,
+            "right": 1069
+          },
+          "objectFit": "cover",
+          "urlPrefix": "data:image/jpeg"
+        }
+      ],
+      "priceDisplays": [
+        "block",
+        "block",
+        "block"
+      ],
+      "cards": [
+        {
+          "w": 292,
+          "h": 180,
+          "left": 946,
+          "right": 1238
+        },
+        {
+          "w": 292,
+          "h": 180,
+          "left": 946,
+          "right": 1238
+        },
+        {
+          "w": 292,
+          "h": 180,
+          "left": 946,
+          "right": 1238
+        }
+      ],
+      "title": [
+        {
+          "box": {
+            "w": 148,
+            "h": 38,
+            "left": 1079,
+            "right": 1227
+          },
+          "fontSize": "13.3px",
+          "lineHeight": "19px",
+          "clamp": "2"
+        },
+        {
+          "box": {
+            "w": 148,
+            "h": 19,
+            "left": 1079,
+            "right": 1227
+          },
+          "fontSize": "13.3px",
+          "lineHeight": "19px",
+          "clamp": "2"
+        },
+        {
+          "box": {
+            "w": 148,
+            "h": 38,
+            "left": 1079,
+            "right": 1227
+          },
+          "fontSize": "13.3px",
+          "lineHeight": "19px",
+          "clamp": "2"
+        }
+      ],
+      "filters": [
+        {
+          "text": "排序",
+          "box": {
+            "w": 92.7,
+            "h": 43,
+            "left": 946,
+            "right": 1038.7
+          }
+        },
+        {
+          "text": "品牌/车系",
+          "box": {
+            "w": 92.7,
+            "h": 43,
+            "left": 1045.7,
+            "right": 1138.3
+          }
+        },
+        {
+          "text": "价格",
+          "box": {
+            "w": 92.7,
+            "h": 43,
+            "left": 1145.3,
+            "right": 1238
+          }
+        },
+        {
+          "text": "年份",
+          "box": {
+            "w": 92.7,
+            "h": 43,
+            "left": 946,
+            "right": 1038.7
+          }
+        },
+        {
+          "text": "里程",
+          "box": {
+            "w": 92.7,
+            "h": 43,
+            "left": 1045.7,
+            "right": 1138.3
+          }
+        },
+        {
+          "text": "更多",
+          "box": {
+            "w": 92.7,
+            "h": 43,
+            "left": 1145.3,
+            "right": 1238
+          }
+        }
+      ],
+      "channels": [
+        "批发车源",
+        "名邦车源",
+        "4S店车源"
+      ],
+      "tabs": [
+        "车源",
+        "帮我找车",
+        "我的"
+      ],
+      "banner": 1,
+      "search": {
+        "w": 292,
+        "h": 47,
+        "left": 946,
+        "right": 1238
+      },
+      "nav": {
+        "w": 320,
+        "h": 78,
+        "left": 932,
+        "right": 1252
+      },
+      "top": {
+        "w": 320,
+        "h": 68,
+        "left": 932,
+        "right": 1252
+      },
+      "height": 844,
+      "width": 320,
+      "mode": "full",
+      "pass": true,
+      "screenshot": "C01_320_full.png",
+      "screenshot_sha256": "ab3cc4b2b44ec332ba70d4c02570681fc28606b529e665659c6522e6de19190e",
+      "screenshot_dimensions": [
+        320,
+        844
+      ]
+    },
+    {
+      "clientWidth": 320,
+      "scrollWidth": 320,
+      "photos": [
+        {
+          "loaded": true,
+          "naturalWidth": 1536,
+          "naturalHeight": 517,
+          "display": {
+            "w": 112,
+            "h": 121,
+            "left": 1301,
+            "right": 1413
+          },
+          "objectFit": "cover",
+          "urlPrefix": "data:image/jpeg"
+        },
+        {
+          "loaded": true,
+          "naturalWidth": 1536,
+          "naturalHeight": 484,
+          "display": {
+            "w": 112,
+            "h": 121,
+            "left": 1301,
+            "right": 1413
+          },
+          "objectFit": "cover",
+          "urlPrefix": "data:image/jpeg"
+        },
+        {
+          "loaded": true,
+          "naturalWidth": 1536,
+          "naturalHeight": 517,
+          "display": {
+            "w": 112,
+            "h": 121,
+            "left": 1301,
+            "right": 1413
+          },
+          "objectFit": "cover",
+          "urlPrefix": "data:image/jpeg"
+        }
+      ],
+      "priceDisplays": [
+        "block",
+        "block",
+        "block"
+      ],
+      "cards": [
+        {
+          "w": 292,
+          "h": 180,
+          "left": 1290,
+          "right": 1582
+        },
+        {
+          "w": 292,
+          "h": 180,
+          "left": 1290,
+          "right": 1582
+        },
+        {
+          "w": 292,
+          "h": 180,
+          "left": 1290,
+          "right": 1582
+        }
+      ],
+      "title": [
+        {
+          "box": {
+            "w": 148,
+            "h": 38,
+            "left": 1423,
+            "right": 1571
+          },
+          "fontSize": "13.3px",
+          "lineHeight": "19px",
+          "clamp": "2"
+        },
+        {
+          "box": {
+            "w": 148,
+            "h": 19,
+            "left": 1423,
+            "right": 1571
+          },
+          "fontSize": "13.3px",
+          "lineHeight": "19px",
+          "clamp": "2"
+        },
+        {
+          "box": {
+            "w": 148,
+            "h": 38,
+            "left": 1423,
+            "right": 1571
+          },
+          "fontSize": "13.3px",
+          "lineHeight": "19px",
+          "clamp": "2"
+        }
+      ],
+      "filters": [
+        {
+          "text": "排序",
+          "box": {
+            "w": 92.7,
+            "h": 43,
+            "left": 1290,
+            "right": 1382.7
+          }
+        },
+        {
+          "text": "品牌/车系",
+          "box": {
+            "w": 92.7,
+            "h": 43,
+            "left": 1389.7,
+            "right": 1482.3
+          }
+        },
+        {
+          "text": "价格",
+          "box": {
+            "w": 92.7,
+            "h": 43,
+            "left": 1489.3,
+            "right": 1582
+          }
+        },
+        {
+          "text": "年份",
+          "box": {
+            "w": 92.7,
+            "h": 43,
+            "left": 1290,
+            "right": 1382.7
+          }
+        },
+        {
+          "text": "里程",
+          "box": {
+            "w": 92.7,
+            "h": 43,
+            "left": 1389.7,
+            "right": 1482.3
+          }
+        },
+        {
+          "text": "更多",
+          "box": {
+            "w": 92.7,
+            "h": 43,
+            "left": 1489.3,
+            "right": 1582
+          }
+        }
+      ],
+      "channels": [
+        "批发车源",
+        "名邦车源",
+        "4S店车源"
+      ],
+      "tabs": [
+        "车源",
+        "帮我找车",
+        "我的"
+      ],
+      "banner": 0,
+      "search": {
+        "w": 292,
+        "h": 47,
+        "left": 1290,
+        "right": 1582
+      },
+      "nav": {
+        "w": 320,
+        "h": 78,
+        "left": 1276,
+        "right": 1596
+      },
+      "top": {
+        "w": 320,
+        "h": 68,
+        "left": 1276,
+        "right": 1596
+      },
+      "height": 844,
+      "width": 320,
+      "mode": "compact",
+      "pass": true,
+      "screenshot": "C01_320_compact.png",
+      "screenshot_sha256": "3cf12535079963574299a6fb7870b83af3c353e674d1c23edd72763fb5f9d9bf",
+      "screenshot_dimensions": [
+        320,
+        844
+      ]
+    }
+  ],
+  "passes": 4,
+  "case_count": 4,
+  "PDM10_LIMITED_no_price": true,
+  "image_sources": [
+    {
+      "name": "car_sample_1.jpg",
+      "width": 1536,
+      "height": 517,
+      "bytes": 188437,
+      "sha256": "43e9aa9abc992bc9145ed9d3dbffed4ba7df146bcf3c7e9e35e9012f2e423c6c"
+    },
+    {
+      "name": "car_sample_2.jpg",
+      "width": 1536,
+      "height": 484,
+      "bytes": 150984,
+      "sha256": "15d881c049cc92d6d6527cc5b2f7b92a17e1bd2ebd1dd9c651d9f850344599ba"
+    }
+  ],
+  "limitations": [
+    "A approval pending",
+    "not tested on physical 320/390 phones, Android/iOS, WeChat mini-program runtime",
+    "not connected to real Vehicle APIs",
+    "this is a static H01 design, not H02 or H03"
+  ]
+}

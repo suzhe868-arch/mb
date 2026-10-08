@@ -1,0 +1,35 @@
+{
+  "assets": [
+    {
+      "filename": "car_sample_1.jpg",
+      "width": 1536,
+      "height": 517,
+      "sha256": "43e9aa9abc992bc9145ed9d3dbffed4ba7df146bcf3c7e9e35e9012f2e423c6c"
+    },
+    {
+      "filename": "car_sample_2.jpg",
+      "width": 1536,
+      "height": 484,
+      "sha256": "15d881c049cc92d6d6527cc5b2f7b92a17e1bd2ebd1dd9c651d9f850344599ba"
+    }
+  ],
+  "states": [
+    {
+      "width": 390,
+      "mode": "full"
+    },
+    {
+      "width": 390,
+      "mode": "compact"
+    },
+    {
+      "width": 320,
+      "mode": "full"
+    },
+    {
+      "width": 320,
+      "mode": "compact"
+    }
+  ],
+  "photo_provenance": "image_gen 原图裁切；合成场景，不对应真实车源；不代表车辆品牌或鉴定结论"
+}
