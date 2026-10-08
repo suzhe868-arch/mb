@@ -77,6 +77,7 @@ export function authorize(operation,context){
  if(actor.role==='four_s'&&resource.sourceType!=='four_s')return deny('FOUR_S_SOURCE_BOUNDARY');
  if(actor.role==='four_s'&&resource.fourSEmployeeId!==actor.id)return deny('FOUR_S_OWN_VEHICLE_ONLY');
  if(!validId(resource.id)||resource.kind!==rule.resource||typeof resource.state!=='string')return deny('INVALID_OBJECT_FACTS');
+ if(operation==='system.four_s_account.manage'&&resource.role!=='four_s')return deny('FOUR_S_ACCOUNT_TARGET_REQUIRED');
  if(!rule.statuses.includes(resource.state))return deny('OBJECT_STATE_DENIED');
  if(rule.source&&resource.sourceType!==rule.source)return deny('SOURCE_TYPE_DENIED');
  if(['vehicle.publisher_phone.read','vehicle.publisher_phone.latest','vehicle.publisher_phone.dial'].includes(operation)&&(!validId(resource.upstreamPublisherId)||resource.sourceType!=='wholesale'))return deny('PUBLISHER_CONTEXT_MISSING');
@@ -90,7 +91,7 @@ export function authorize(operation,context){
  if(resource.accountStatus==='inactive'&&!['customer.account.disable','customer.history.read','customer.crm.read'].includes(operation))return deny('RESOURCE_ACCOUNT_INACTIVE');
  // Governance cannot change its own privilege through this generic policy; later
  // F03-2 enforces full grantor/target escalation and transactional audit.
- if(['system.employee.manage','system.role_template.manage'].includes(operation)&&resource.id===actor.id)return deny('SELF_GOVERNANCE_DENIED');
+ if(resource.kind==='system_admin'&&resource.id===actor.id&&operation.startsWith('system.'))return deny('SELF_GOVERNANCE_DENIED');
  return allow(capabilities);
 }
 const SAFE_VEHICLE=['vehicle_id','source_type','source_sale_status','platform_visibility','display_price','photos'];
@@ -101,6 +102,8 @@ export function projectRecord(operation,record,context){
  const base=authorize(operation,context);
  if(!base.allowed)return {allowed:false,reason:base.reason,fields:{}};
  if(!isObj(record))return {allowed:false,reason:'INVALID_RECORD',fields:{}};
+ const recordIdField=operation==='vehicle.read'?'vehicle_id':operation.startsWith('customer.')?'customer_id':null;
+ if(recordIdField&&own(record,recordIdField)&&record[recordIdField]!==context.resource.id)return {allowed:false,reason:'RECORD_RESOURCE_ID_MISMATCH',fields:{}};
  const safe=operation==='vehicle.read'?SAFE_VEHICLE:
   ['customer.history.read','customer.crm.read'].includes(operation)?SAFE_CUSTOMER:null;
  if(!safe)return {allowed:false,reason:'PROJECTION_NOT_CONTRACTED',fields:{}};
