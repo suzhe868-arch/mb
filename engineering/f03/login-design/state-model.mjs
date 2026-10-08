@@ -48,8 +48,10 @@ export function credentialDecision(intent,facts){
  }
  if(intent==='LOGOUT')return permit('LOGOUT_ONLY',['REVOKE_THIS_SESSION','AUDIT_LOGOUT_METADATA_ONLY']);
  if(issue)return reject(issue);
- if(intent==='AUTH_SUCCESS')
+ if(intent==='AUTH_SUCCESS'){
+  if(facts.passwordProofVerified!==true||facts.rateLimitPassed!==true)return reject('PASSWORD_PROOF_REQUIRED');
   return permit(account.forcePasswordChange?'RESTRICTED_CHANGE_ONLY':'NORMAL_SESSION_ELIGIBLE',[account.forcePasswordChange?'ISSUE_RESTRICTED_SESSION':'ISSUE_SESSION_AFTER_RATE_LIMIT']);
+ }
  if(intent==='SELF_CHANGE_PASSWORD'){
   if(facts.reauthenticated!==true||facts.currentPasswordVerified!==true||facts.samePrincipal!==true)return reject('CURRENT_PASSWORD_PROOF_REQUIRED');
   return permit('PASSWORD_CHANGE_ELIGIBLE',['STORE_NEW_HASH_ONLY_IN_PC_LOGIN_ACCOUNTS','CLEAR_FORCE_PASSWORD_CHANGE','INCREMENT_CREDENTIAL_EPOCH','REVOKE_ALL_SESSIONS','AUDIT_BEFORE_AFTER_ACTOR_TIME','REAUTHENTICATE_FOR_NEW_SESSION']);
