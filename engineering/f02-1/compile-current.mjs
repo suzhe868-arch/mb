@@ -52,7 +52,13 @@ export async function compileCurrentInitial(){
   ['transactions',['transaction_id','customer_id']],
   ['recommendations',['recommendation_id','customer_id','vehicle_id','listing_cycle_id']],
   ['lock_requests',['lock_request_id','customer_id','vehicle_id','listing_cycle_id']],
-  ['demand_match_results',['result_id','demand_id','vehicle_id','listing_cycle_id']]
+  ['demand_match_results',['result_id','demand_id','vehicle_id','listing_cycle_id']],
+  ['demand_match_results',['result_id','vehicle_id','listing_cycle_id']],
+  ['recommendations',['recommendation_id','customer_id','vehicle_id']],
+  ['locks',['lock_id','customer_id','vehicle_id','listing_cycle_id']],
+  ['lock_requests',['lock_request_id','customer_id','vehicle_id','listing_cycle_id']],
+  ['waitlists',['waitlist_id','customer_id','vehicle_id','listing_cycle_id']],
+  ['demands',['demand_id','customer_id']]
  ];
  for(const [t,cols] of composite){
   cols.forEach(c=>get(t,c));
@@ -76,12 +82,19 @@ export async function compileCurrentInitial(){
   ['refund_cases',['lock_id','customer_id'],'locks',['lock_id','customer_id']],
   ['refund_cases',['transaction_id','customer_id'],'transactions',['transaction_id','customer_id']],
   ['public_pool_events',['source_owner_history_id','customer_id'],'customer_owner_history',['owner_history_id','customer_id']],
-  ['vehicle_visibility_grants',['source_recommendation_id','customer_id','vehicle_id'],'recommendations',['recommendation_id','customer_id','vehicle_id']]
+  ['vehicle_visibility_grants',['source_recommendation_id','customer_id','vehicle_id'],'recommendations',['recommendation_id','customer_id','vehicle_id']],
+  ['customer_price_cycle_unlocks',['source_recommendation_id','customer_id','vehicle_id','listing_cycle_id'],'recommendations',['recommendation_id','customer_id','vehicle_id','listing_cycle_id']],
+  ['lock_requests',['resulting_lock_id','customer_id','vehicle_id','listing_cycle_id'],'locks',['lock_id','customer_id','vehicle_id','listing_cycle_id']],
+  ['lock_requests',['resulting_waitlist_id','customer_id','vehicle_id','listing_cycle_id'],'waitlists',['waitlist_id','customer_id','vehicle_id','listing_cycle_id']],
+  ['locks',['source_lock_request_id','customer_id','vehicle_id','listing_cycle_id'],'lock_requests',['lock_request_id','customer_id','vehicle_id','listing_cycle_id']],
+  ['waitlists',['source_lock_request_id','customer_id','vehicle_id','listing_cycle_id'],'lock_requests',['lock_request_id','customer_id','vehicle_id','listing_cycle_id']],
+  ['transactions',['source_lock_id','customer_id','vehicle_id','listing_cycle_id'],'locks',['lock_id','customer_id','vehicle_id','listing_cycle_id']],
+  ['find_car_applications',['activated_demand_id','customer_id'],'demands',['demand_id','customer_id']],
+  ['priority_leases',['source_match_result_id','vehicle_id','listing_cycle_id'],'demand_match_results',['result_id','vehicle_id','listing_cycle_id']],
+  ['priority_leases',['source_match_result_id','trigger_demand_id','vehicle_id','listing_cycle_id'],'demand_match_results',['result_id','demand_id','vehicle_id','listing_cycle_id']]
  ];
  for(const [t,cols,p,parents] of extraFK){
   cols.forEach(c=>get(t,c));parents.forEach(c=>get(p,c));
-  // grant triple references a UNIQUE four-field Recommendation: same customer/vehicle requires cycle fact, but grant has no cycle.
-  if(t==='vehicle_visibility_grants')continue;
   out.push('ALTER TABLE public.'+quote(t)+' ADD CONSTRAINT '+quote(key('fk_comp',t,...cols))+' FOREIGN KEY ('+cols.map(quote).join(', ')+') REFERENCES public.'+quote(p)+' ('+parents.map(quote).join(', ')+') DEFERRABLE INITIALLY IMMEDIATE;');
  }
  // Static CHECKs are limited to explicitly frozen enumerations and invariant facts.
@@ -91,6 +104,10 @@ export async function compileCurrentInitial(){
   ['pc_login_accounts','normalized_login_key',"char_length(normalized_login_key)>0 AND normalized_login_key=lower(btrim(normalized_login_key))"],
   ['pc_login_accounts','password_hash',"char_length(password_hash)>0"],
   ['pc_login_accounts','credential_state',"credential_state IN ('enabled','disabled')"],
+  ['vehicles','source_type',"source_type IN ('wholesale','mingbang','four_s')"],
+  ['vehicles','source_sale_status',"(source_type='wholesale' AND source_sale_status IN ('active','offline')) OR (source_type IN ('mingbang','four_s') AND source_sale_status IN ('available','unavailable','sold_external'))"],
+  ['vehicles','platform_visibility',"platform_visibility IN ('visible','hidden')"],
+  ['customer_price_unlock_events','event_kind',"event_kind='successful_limited_charge'"],
   ['demands','demand_state',"demand_state IN ('active','paused','completed','cancelled')"],
   ['find_car_applications','status',"status IN ('pending','activated','closed')"],
   ['demand_match_results','match_tier',"match_tier IN ('high','acceptable','confirmation_needed','no_match')"],
@@ -119,12 +136,15 @@ export async function compileCurrentInitial(){
   ['pricing_rule_ranges','max_price_cents','max_price_cents IS NULL OR max_price_cents>min_price_cents'],
   ['pricing_rule_ranges','markup_cents','markup_cents>=0'],
   ['refund_payments','amount_cents','amount_cents>0'],
-  ['crm_followups','content',"length(btrim(content))>0"]
+  ['crm_followups','content',"length(btrim(content))>0"],
+  ['outbox_events','attempt_count','attempt_count>=0']
  ];
  for(const [t,c,expr] of checks){get(t,c);out.push(statementCheck(t,c,expr))}
  // Identity and history uniqueness, partial current states.
  const unique=[
  ['pc_login_accounts',['normalized_login_key'],null],
+ ['idempotency_records',['actor_key','operation_key','request_key'],null],
+ ['publisher_phone_cache',['source_platform','upstream_publisher_id'],null],
  ['pc_login_accounts',['employee_id'],'employee_id IS NOT NULL'],
  ['pc_login_accounts',['system_admin_id'],'system_admin_id IS NOT NULL'],
  ['customer_wechat_identities',['identity_scope','wechat_identity_key'],null],
@@ -158,5 +178,5 @@ export async function compileCurrentInitial(){
   out.push('CREATE TRIGGER '+quote(key('append',t))+' BEFORE UPDATE OR DELETE ON public.'+quote(t)+' FOR EACH ROW EXECUTE FUNCTION public.f02_forbid_history_mutation();');
  }
  const text=out.join('\n')+'\n';
- return {sql:text,checksum:createHash('sha256').update(text).digest('hex'),stats:{tables:tables.size,columns:included.length,staticForeignKeys:fks.length,extraForeignKeys:extraFK.length-1,uniqueIndexes:unique.length,checks:checks.length,historyTriggers:5}};
+ return {sql:text,checksum:createHash('sha256').update(text).digest('hex'),stats:{tables:tables.size,columns:included.length,staticForeignKeys:fks.length,extraForeignKeys:extraFK.length,uniqueIndexes:unique.length,checks:checks.length,historyTriggers:5}};
 }

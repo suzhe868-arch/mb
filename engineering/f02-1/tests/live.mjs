@@ -32,8 +32,10 @@ try{
  await reject('refund statuses three-valued',"INSERT INTO public.refund_cases(refund_id,customer_id,status,created_at) VALUES (2,1,'rejected',now())",'23514');
  await client.query("INSERT INTO public.manual_vehicle_drafts(draft_id,created_by_employee_id,draft_source_type,draft_payload) VALUES (1,1,'mingbang','{}'::jsonb),(2,1,'mingbang','{}'::jsonb)");
  pass('multiple simultaneous Employee drafts supported');
- await client.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,created_at) VALUES (1,'mingbang','on_sale','visible',now()),(2,'mingbang','on_sale','visible',now())");
+ await client.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,created_at) VALUES (1,'mingbang','available','visible',now()),(2,'mingbang','available','visible',now())");
  await client.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES (1,1,now()),(2,2,now())");
+ await reject('wholesale cannot receive manual-only availability',"INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,created_at) VALUES (3,'wholesale','available','visible',now())",'23514');
+ await reject('hidden is not an invented platform status',"INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,created_at) VALUES (4,'mingbang','available','offline',now())",'23514');
  await reject('single active listing cycle',"INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES (3,1,now())",'23505');
  await reject('cross vehicle cycle mismatch',"INSERT INTO public.consultations(consultation_id,customer_id,vehicle_id,listing_cycle_id,assignee_employee_id,status,source_relation) VALUES (1,1,2,1,1,'pending','{}'::jsonb)",'23503');
  await client.query("INSERT INTO public.locks(lock_id,vehicle_id,customer_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) VALUES (1,1,1,1,'active',1,now(),now()+interval '3 days')");
