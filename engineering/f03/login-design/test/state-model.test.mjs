@@ -55,12 +55,71 @@ test('governance must be independently authorized and audited, never implicit fr
   deny(credentialDecision(intent,{...f,governanceApproved:true,governanceActorValid:false,governanceScopeValid:true,governanceTargetBound:true}),'GOVERNANCE_AUTHORITY_REQUIRED');
  }
  const allowed={...f,governanceApproved:true,governanceActorValid:true,governanceScopeValid:true,governanceTargetBound:true};
- for(const intent of ['ADMIN_RESET_PASSWORD','DISABLE_CREDENTIAL','SET_INITIAL_PASSWORD']){
+ for(const intent of ['ADMIN_RESET_PASSWORD','DISABLE_CREDENTIAL']){
   const result=credentialDecision(intent,allowed);
   assert.equal(result.allowed,true,intent);
   assert.ok(result.effects.includes('INCREMENT_CREDENTIAL_EPOCH'));
   assert.ok(result.effects.includes('REVOKE_ALL_SESSIONS'));
   assert.ok(result.effects.includes('AUDIT_BEFORE_AFTER_ACTOR_TIME'));
+ }
+ const initial=credentialDecision('SET_INITIAL_PASSWORD',{...allowed,account:{...f.account,forcePasswordChange:true},initialProvisioning:true});
+ assert.equal(initial.allowed,true);
+ assert.ok(initial.effects.includes('FORCE_PASSWORD_CHANGE'));
+ const enabled=credentialDecision('ENABLE_CREDENTIAL',{...allowed,account:{...f.account,credentialState:'disabled',forcePasswordChange:true}});
+ assert.equal(enabled.allowed,true,'a disabled but still active legitimate account is re-enableable');
+ assert.equal(enabled.reason,'GOVERNANCE_ENABLED');
+ for(const effect of ['SET_ENABLED','KEEP_FORCE_CHANGE','INCREMENT_CREDENTIAL_EPOCH','REVOKE_ALL_SESSIONS','AUDIT_BEFORE_AFTER_ACTOR_TIME'])
+  assert.ok(enabled.effects.includes(effect));
+});
+test('A复核：所有四类治理操作即使 targetBound=true 也必须校验真实 account/subject kind 和 ID',()=>{
+ const approvals={governanceApproved:true,governanceActorValid:true,governanceScopeValid:true,governanceTargetBound:true,initialProvisioning:true};
+ for(const base of [employee(),admin()]){
+  for(const intent of ['ADMIN_RESET_PASSWORD','DISABLE_CREDENTIAL','ENABLE_CREDENTIAL','SET_INITIAL_PASSWORD']){
+   const acct={...base.account,credentialState:intent==='ENABLE_CREDENTIAL'?'disabled':'enabled',forcePasswordChange:intent==='SET_INITIAL_PASSWORD'};
+   const normal={...base,account:acct,...approvals};
+   const wrongKind={...normal,subject:{...normal.subject,kind:normal.subject.kind==='employee'?'system_admin':'employee'}};
+   const wrongId={...normal,subject:{...normal.subject,id:normal.subject.id+10}};
+   deny(credentialDecision(intent,wrongKind),'PRINCIPAL_BINDING_MISMATCH');
+   deny(credentialDecision(intent,wrongId),'PRINCIPAL_BINDING_MISMATCH');
+   deny(credentialDecision(intent,{...normal,account:{...acct,principalId:acct.principalId+10}}),'INVALID_PRINCIPAL');
+  }
+ }
+});
+test('A复核：按操作独立检查当前 credential/subject 状态；停用时不得重置，disabled active 可以启用',()=>{
+ const approvals={governanceApproved:true,governanceActorValid:true,governanceScopeValid:true,governanceTargetBound:true};
+ for(const base of [employee(),admin()]){
+  const inactive={...base,subject:{...base.subject,status:'inactive'},...approvals};
+  deny(credentialDecision('ADMIN_RESET_PASSWORD',inactive),'INACTIVE_PRINCIPAL');
+  deny(credentialDecision('SET_INITIAL_PASSWORD',{...inactive,initialProvisioning:true,account:{...base.account,forcePasswordChange:true}}),'INACTIVE_PRINCIPAL');
+  deny(credentialDecision('ENABLE_CREDENTIAL',{...inactive,account:{...base.account,credentialState:'disabled'}}),'INACTIVE_PRINCIPAL');
+  const disabled={...base,account:{...base.account,credentialState:'disabled'},...approvals};
+  deny(credentialDecision('ADMIN_RESET_PASSWORD',disabled),'CREDENTIAL_STATE_DENIED');
+  deny(credentialDecision('SET_INITIAL_PASSWORD',{...disabled,initialProvisioning:true}),'CREDENTIAL_STATE_DENIED');
+  deny(credentialDecision('DISABLE_CREDENTIAL',disabled),'CREDENTIAL_STATE_DENIED');
+  const enabled={...base,...approvals};
+  deny(credentialDecision('ENABLE_CREDENTIAL',enabled),'CREDENTIAL_STATE_DENIED');
+  deny(credentialDecision('SET_INITIAL_PASSWORD',enabled),'INITIAL_PROVISIONING_REQUIRED');
+  deny(credentialDecision('SET_INITIAL_PASSWORD',{...enabled,initialProvisioning:true,account:{...base.account,forcePasswordChange:false}}),'INITIAL_PROVISIONING_REQUIRED');
+  const legalEnable=credentialDecision('ENABLE_CREDENTIAL',disabled);
+  assert.equal(legalEnable.allowed,true,'disabled+active must be a legal re-enable state');
+  // Already inactive principals still permit authorized explicit revocation of a
+  // currently enabled credential, but never issuing a usable session.
+  const revoke=credentialDecision('DISABLE_CREDENTIAL',inactive);
+  assert.equal(revoke.allowed,true);
+  assert.ok(revoke.effects.includes('REVOKE_ALL_SESSIONS'));
+ }
+});
+test('A复核：治理源事实不完整时默认拒绝，而不是把真假 targetBound 视为授权',()=>{
+ const f=employee(),approve={governanceApproved:true,governanceActorValid:true,governanceScopeValid:true,governanceTargetBound:true};
+ for(const change of [
+  {account:{...f.account,credentialEpoch:undefined}},
+  {account:{...f.account,forcePasswordChange:undefined}},
+  {account:{...f.account,credentialState:'unknown'}},
+  {subject:{...f.subject,status:'unknown'}}
+ ]){
+  const result=credentialDecision('ADMIN_RESET_PASSWORD',{...f,...approve,...change});
+  assert.equal(result.allowed,false);
+  assert.deepEqual(result.effects,[]);
  }
 });
 test('disabled/inactive/rehire remains denied until fresh verification and new session generation',()=>{

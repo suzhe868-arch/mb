@@ -16,16 +16,22 @@
 |---|---|---|
 | KDF | `scrypt`（Node 内置标准成熟实现） | 内存硬化，减少纯 CPU 暴力破解效率 |
 | salt | 加密安全随机字节不少于 16B，**每次写新随机盐** | 同密码不同哈希 |
-| N / r / p | `N=32768, r=8, p=1` | 约 32MiB KDF 工作集；必须按部署机器及并发容量实测 |
+| N / r / p | `N=32768, r=8, p=3` | 对应 OWASP scrypt 最小等效组合之一：N=2^15、r=8、p=3；约 32MiB 工作集，计算负担比 p=1 更高，必须按部署机器与并发容量实测 |
 | keylen | `32` 字节 | 足够的 KDF 输出 |
 | maxmem | `64*1024*1024` 字节 | 容纳以上 KDF 工作内存；实际进程峰值需另测 |
 | 版本标记 | `scrypt$v1$N$r$p$<salt编码>$<derived编码>` | 自描述格式，解析必须严格、设置参数白名单与大小上限 |
 | 校验 | 相同参数计算 KDF 后使用常量时间字节比较；**实际认证逻辑本批 NOT_RUN** | 禁止字符串直接比较或返回不同账号存在信息 |
 | 升级 | 验证旧方案成功后，在后续受控事务中条件更新为新参数版本，并使旧会话世代失效 | 不在未认证状态被动信任用户输入升级 |
 
+OWASP [Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html) 的 scrypt 分档明确列出 `N=2^15, r=8, p=3`。此前方案 `p=1` 已撤销，**不得将旧 CI 的 p=1 性能数据作为当前合规性依据**；本次 CI 以 `benchmark-scrypt.mjs` 运行 p=3，实测只支持“Node 算法/该组合可运行”，不代表生产规模或实际认证实现通过。p=3 是 scrypt 成本参数，不是三线程并行性能承诺。
+
+**A 复核管理目标硬边界：** `governanceTargetBound=true` 只是调用侧的一个授权证明标记，绝不可代替 `account.kind/account.principalId` 与 `subject.kind/subject.id` 的独立等值校验。当前有效的目标状态也必须逐操作重验：`ADMIN_RESET_PASSWORD` 仅 active 主体且 enabled 凭证；`ENABLE_CREDENTIAL` 仅 active 主体且 disabled 凭证，保持改密标记、提高凭证世代并撤销旧会话；`DISABLE_CREDENTIAL` 仅 enabled 凭证，可对已经 inactive 的主体继续进行授权撤销；`SET_INITIAL_PASSWORD` 限 active 主体、已新建的 enabled 且强制改密账号、明确的受信 `initialProvisioning` 事实。这些是本批纯假数据状态合同，不是完整治理事务或授权能力的新来源，后续实现必须从可信持久层核验，不能信任客户端自报。
+
 该格式为方案说明，不向日志、事件或 CI 工件输出实际 salt、密码、KDF 输出/哈希/令牌，真实数据库只保存完整结果在 `pc_login_accounts.password_hash`。不要把测试中的伪造 `hash` 常量视为实际用户密码哈希。Node 环境中的 KDF 成本可用仅驻留内存的**固定合成字符串**测量；仅报告耗时、算法可用性与参数，不保存/显示任何产生的派生结果或盐。
 
 ### 成本、节流与并发
+
+本次将 scrypt `p` 从 1 提升到 3，估计单次计算 CPU 成本相应增加，实际延迟以新的合成 CI 日志为准；严禁将其与原 p=1 延迟直接混用。
 
 - 基于 CI 的 Node 22 `crypto.scrypt` 成功运行和实测耗时决定成本是否适用；性能受 CPU/内存影响，**测量结果非生产容量证明**。
 - 服务端独立限制 KDF 并发和队列、统一“账号不存在/密码错误”响应、匿名错误码，并为未知账号使用等成本的哑元校验，防止账号枚举与时序泄露。

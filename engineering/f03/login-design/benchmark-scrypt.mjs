@@ -4,8 +4,9 @@ import {performance} from 'node:perf_hooks';
 import {promisify} from 'node:util';
 import assert from 'node:assert/strict';
 const derive=promisify(scrypt);
-const parameters=Object.freeze({N:32768,r:8,p:1,maxmem:64*1024*1024});
+const parameters=Object.freeze({N:32768,r:8,p:3,maxmem:64*1024*1024});
 assert.equal(process.versions.node.split('.').map(Number)[0]>=22,true,'Requires Node 22');
+assert.deepEqual([parameters.N,parameters.r,parameters.p],[32768,8,3],'OWASP scrypt 2^15 / 8 / 3 minimum equivalent profile');
 const results=[];
 for(let i=0;i<2;i++){
  const salt=randomBytes(16);

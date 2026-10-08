@@ -11,18 +11,27 @@ const principal=(account)=>{
   !('systemAdminId'in account)&&account.employeeId===account.principalId:
   !('employeeId'in account)&&account.systemAdminId===account.principalId;
 };
-function eligibility(facts){
+// Validate the stored principal binding independently of a governance caller's
+// targetBound assertion. Applied to EVERY governance action before any effects.
+function principalFacts(facts){
  if(!obj(facts)||!principal(facts.account)||!obj(facts.subject))return 'INVALID_PRINCIPAL';
  const {account,subject}=facts;
  if(subject.kind!==account.kind||subject.id!==account.principalId)return 'PRINCIPAL_BINDING_MISMATCH';
  if(!['active','inactive'].includes(subject.status))return 'MISSING_SUBJECT_STATUS';
+ if(!['enabled','disabled'].includes(account.credentialState))return 'MISSING_CREDENTIAL_STATE';
+ if(!id(account.credentialEpoch))return 'MISSING_CREDENTIAL_EPOCH';
+ if(typeof account.forcePasswordChange!=='boolean')return 'MISSING_FORCE_PASSWORD_CHANGE';
+ return null;
+}
+function eligibility(facts){
+ const issue=principalFacts(facts);
+ if(issue)return issue;
+ const {account,subject}=facts;
  if(account.credentialState!=='enabled'||subject.status!=='active')return 'DISABLED_OR_INACTIVE';
  if(account.kind==='employee'){
   if(!['sales','manager','store_manager','four_s'].includes(subject.role))return 'UNKNOWN_EMPLOYEE_ROLE';
   if(subject.role==='four_s'&&subject.pcVehicleAccess!==true)return 'FOUR_S_PC_NOT_GRANTED';
  }
- if(!id(account.credentialEpoch))return 'MISSING_CREDENTIAL_EPOCH';
- if(typeof account.forcePasswordChange!=='boolean')return 'MISSING_FORCE_PASSWORD_CHANGE';
  return null;
 }
 export const INTENTS=Object.freeze([
@@ -31,22 +40,31 @@ export const INTENTS=Object.freeze([
 ]);
 export function credentialDecision(intent,facts){
  if(!INTENTS.includes(intent))return reject('UNKNOWN_CREDENTIAL_INTENT');
- const issue=eligibility(facts);
- if(!obj(facts)||!obj(facts.account)||!obj(facts.subject)||!principal(facts.account))return reject('INVALID_PRINCIPAL');
- const {account}=facts;
- // Governance operations require separately verified authority and audit; no
- // simulation may auto-grant account management to an ordinary PC login.
+ // A governance approval never substitutes for a matching subject kind and
+ // stable ID; even disable/reset are rejected on a mismatched target.
+ const binding=principalFacts(facts);
+ if(binding)return reject(binding);
+ const {account,subject}=facts;
+ // Governance uses the current target status, not a pre-approved checkbox.
+ // Revoke an enabled account even if its subject is already inactive; do not
+ // allow reset/provisioning/re-enable on an inactive subject.
  if(['ADMIN_RESET_PASSWORD','DISABLE_CREDENTIAL','ENABLE_CREDENTIAL','SET_INITIAL_PASSWORD'].includes(intent)){
   if(facts.governanceApproved!==true||facts.governanceActorValid!==true||facts.governanceScopeValid!==true||facts.governanceTargetBound!==true)return reject('GOVERNANCE_AUTHORITY_REQUIRED');
-  if(intent==='ENABLE_CREDENTIAL'){
-   if(facts.subject.status!=='active')return reject('INACTIVE_PRINCIPAL');
-   return permit('GOVERNANCE_ENABLED',[ 'SET_ENABLED','KEEP_FORCE_CHANGE','AUDIT_BEFORE_AFTER_ACTOR_TIME' ]);
+  if(intent==='DISABLE_CREDENTIAL'){
+   if(account.credentialState!=='enabled')return reject('CREDENTIAL_STATE_DENIED');
+   return permit('GOVERNANCE_DISABLED',['SET_DISABLED','INCREMENT_CREDENTIAL_EPOCH','REVOKE_ALL_SESSIONS','AUDIT_BEFORE_AFTER_ACTOR_TIME']);
   }
-  if(intent==='DISABLE_CREDENTIAL')return permit('GOVERNANCE_DISABLED',['SET_DISABLED','INCREMENT_CREDENTIAL_EPOCH','REVOKE_ALL_SESSIONS','AUDIT_BEFORE_AFTER_ACTOR_TIME']);
-  if(intent==='SET_INITIAL_PASSWORD'||intent==='ADMIN_RESET_PASSWORD')
-   return permit('GOVERNANCE_PASSWORD_SET',['STORE_NEW_HASH_ONLY_IN_PC_LOGIN_ACCOUNTS','FORCE_PASSWORD_CHANGE','INCREMENT_CREDENTIAL_EPOCH','REVOKE_ALL_SESSIONS','AUDIT_BEFORE_AFTER_ACTOR_TIME']);
+  if(subject.status!=='active')return reject('INACTIVE_PRINCIPAL');
+  if(intent==='ENABLE_CREDENTIAL'){
+   if(account.credentialState!=='disabled')return reject('CREDENTIAL_STATE_DENIED');
+   return permit('GOVERNANCE_ENABLED',['SET_ENABLED','KEEP_FORCE_CHANGE','INCREMENT_CREDENTIAL_EPOCH','REVOKE_ALL_SESSIONS','AUDIT_BEFORE_AFTER_ACTOR_TIME']);
+  }
+  if(account.credentialState!=='enabled')return reject('CREDENTIAL_STATE_DENIED');
+  if(intent==='SET_INITIAL_PASSWORD'&&(facts.initialProvisioning!==true||account.forcePasswordChange!==true))return reject('INITIAL_PROVISIONING_REQUIRED');
+  return permit('GOVERNANCE_PASSWORD_SET',['STORE_NEW_HASH_ONLY_IN_PC_LOGIN_ACCOUNTS','FORCE_PASSWORD_CHANGE','INCREMENT_CREDENTIAL_EPOCH','REVOKE_ALL_SESSIONS','AUDIT_BEFORE_AFTER_ACTOR_TIME']);
  }
  if(intent==='LOGOUT')return permit('LOGOUT_ONLY',['REVOKE_THIS_SESSION','AUDIT_LOGOUT_METADATA_ONLY']);
+ const issue=eligibility(facts);
  if(issue)return reject(issue);
  if(intent==='AUTH_SUCCESS'){
   if(facts.passwordProofVerified!==true||facts.rateLimitPassed!==true)return reject('PASSWORD_PROOF_REQUIRED');

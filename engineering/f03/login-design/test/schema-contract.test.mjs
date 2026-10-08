@@ -74,3 +74,12 @@ test('no production migration, authentication API or physical initial SQL change
  assert.match(password,/scrypt/);
  assert.match(password,/Argon2id/);
 });
+
+test('A复核：scrypt方案与合成性能探针采用OWASP 2^15/r8/p3组合',async()=>{
+ const doc=await readFile(new URL('password-session-design.md',here),'utf8');
+ const benchmark=await readFile(new URL('benchmark-scrypt.mjs',here),'utf8');
+ assert.match(doc,/N=32768, r=8, p=3/);
+ assert.match(doc,/OWASP/);
+ assert.match(benchmark,/N:32768,r:8,p:3,maxmem:64\*1024\*1024/);
+ assert.doesNotMatch(benchmark,/N:32768,r:8,p:1/);
+});
