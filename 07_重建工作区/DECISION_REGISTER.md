@@ -1319,3 +1319,6 @@
 
 
 | EG-F03-G0-RELEASE-20261009 | ENGINEERING_F03_G0 | F03-G0限定首批正式放行 | 用户在A窗口明确“同意放行”；B从最新main新建feat/f03-auth，仅权限/身份会话合同、纯服务端决策和假数据静态核验与CI，自验后交A独立验收 | F03_G0_AUTHORIZED_ONLY；不连接DB；真实登录/会话迁移/F03后续批/F04仍未授权；不合并main；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F03-G0_A主控正式施工放行_2026-10-09.md`；`07_重建工作区/F03_开工门禁与分批施工建议_待用户批准_2026-10-09.md` | 2026-10-09 |
+
+
+| EG-F03-G0-ACCEPT-MERGE-20261009 | ENGINEERING_F03_G0 | F03-G0正式验收合并与下一批工作单准备 | 用户在A窗口“同意”；A复验b4b56401b68ba91776ddd7edfa0b545586137720，两项阻断闭合，CI37852018024成功34/34；PR #3已合并，merge=6983709937ebf1d9ae8a7f6cd0a4267bb2269ac6；F03-1安全工作单准备完成待批准 | F03_G0_ACCEPTED_MERGED；下一批NOT_AUTHORIZED；无真实登录/DB/生产操作；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F03-G0_A主控验收与合并记录_2026-10-09.md`；`07_重建工作区/F03-1_账号登录与密码安全工作单_待批准_2026-10-09.md` | 2026-10-09 |
