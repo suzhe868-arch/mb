@@ -181,7 +181,7 @@ F02-F-0184	demands	created_at	TIMESTAMPTZ	NO	SERVER_TIME	AUDIT	独立生命周�
 F02-F-0185	matching_dictionary_rules	rule_id	BIGINT	NO	PK	DB	规则字典	PDM-12	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0186	matching_dictionary_rules	rule_scope	TEXT	NO	SCOPE_PRIORITY_MODEL_YEAR_SERIES_BRAND_GLOBAL	TX	具体车型+年款 > 车系+年款 > 车系 > 品牌 > 全局；同级冲突须可检出	PDM-12	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0187	matching_dictionary_rules	rule_expression	TEXT	NO	STRUCTURED_DICTIONARY_EXPRESSION	F04	搜索与正式Demand共用确定性parser输入，禁用AI推测	PDM-12	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0188	matching_dictionary_rules	version	INTEGER	NO	VERSION_NUMBER;UNIQUE_RULE_VERSION_CANDIDATE	AUDIT	PDM-12 Final§21-23正式Rule版本与历史，不可物理删除已正式保存版本	PDM-12	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0188	matching_dictionary_rules	version	INTEGER	NO	CURRENT_RULE_VERSION_NUMBER	AUDIT	PDM-12 Final§21-23正式Rule版本与历史，不可物理删除已正式保存版本	PDM-12	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0189	matching_dictionary_rules	retired_at	TIMESTAMPTZ	YES	HISTORY	AUDIT	正式规则不普通物理删	PDM-12	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0190	demand_match_results	result_id	BIGINT	NO	PK;UNIQUE_MATCH_RESULT_DEMAND_VEHICLE_CYCLE	DB	Matching只出候选事实	PDM-12/PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0191	demand_match_results	demand_id	BIGINT	NO	FK:demands.demand_id;PARTIAL_UNIQUE_CURRENT_DEMAND_VEHICLE_CYCLE	DB	命中需求	PDM-12/PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
@@ -443,8 +443,8 @@ F02-F-0446	matching_dictionary_rules	updated_by_employee_id	BIGINT	NO	FK:employe
 F02-F-0447	matching_dictionary_rules	created_at	TIMESTAMPTZ	NO	SERVER_TIME	AUDIT	正式规则创建时间，不删除历史	PDM-12/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0448	matching_dictionary_rules	updated_at	TIMESTAMPTZ	NO	SERVER_TIME	AUDIT	规则启停编辑后时间事实，版本历史单独留存	PDM-12/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0449	matching_rule_change_history	event_id	BIGINT	NO	PK	DB	Rule Dictionary版本编辑启停与scope前后不可变事件	PDM-12/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0450	matching_rule_change_history	rule_id	BIGINT	NO	FK:matching_dictionary_rules.rule_id	DB	源正式Rule身份，不能产生第二个Matching引擎	PDM-12	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0451	matching_rule_change_history	rule_version	INTEGER	NO	VERSION_NUMBER	DB	保留每次正式保存/启停的版本号及解释时旧版本	PDM-12	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0450	matching_rule_change_history	rule_id	BIGINT	NO	FK:matching_dictionary_rules.rule_id;UNIQUE_RULE_VERSION_PAIR	DB	源正式Rule身份，不能产生第二个Matching引擎	PDM-12	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0451	matching_rule_change_history	rule_version	INTEGER	NO	VERSION_NUMBER;UNIQUE_RULE_VERSION_PAIR	DB	保留每次正式保存/启停的版本号及解释时旧版本	PDM-12	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0452	matching_rule_change_history	change_action	TEXT	NO	CHECK_CREATE_EDIT_ENABLE_DISABLE_RETIRE	AUDIT	正式治理操作种类，不物理Delete	PDM-12/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0453	matching_rule_change_history	before_json	JSONB	YES	REDACTED_BEFORE_JSON	AUDIT	规则作用域、映射、状态的变更前快照	PDM-12/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0454	matching_rule_change_history	after_json	JSONB	NO	IMMUTABLE_RULE_SNAPSHOT	AUDIT	正式变更后完整快照，可追溯旧Match Result解释	PDM-12/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
@@ -473,8 +473,8 @@ F02-F-0476	crm_tag_dictionary	tag_name	TEXT	NO	UNIQUE_ACTIVE_TAG_NAME	DB	Tag名�
 F02-F-0477	crm_tag_dictionary	sort_order	INTEGER	NO	ORDER_INDEX	DB	Tag字典展示顺序	PDM-16	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0478	crm_tag_dictionary	status	TEXT	NO	CHECK_ENABLED_DISABLED	TX	Tag启停历史保留	PDM-16	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0479	crm_customer_tag_links	link_id	BIGINT	NO	PK	DB	Customer多选共享Tag历史记录	PDM-16	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0480	crm_customer_tag_links	customer_id	BIGINT	NO	FK:customers.customer_id	DB	共享Customer标签不随owner转移删除	PDM-16	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0481	crm_customer_tag_links	tag_id	BIGINT	NO	FK:crm_tag_dictionary.tag_id;PARTIAL_UQ_ACTIVE_CUSTOMER_TAG	DB	同Customer同Tag最多一个active关联，历史保留	PDM-16	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0480	crm_customer_tag_links	customer_id	BIGINT	NO	FK:customers.customer_id;PARTIAL_UQ_ACTIVE_CUSTOMER_TAG_PAIR	DB	共享Customer标签不随owner转移删除	PDM-16	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0481	crm_customer_tag_links	tag_id	BIGINT	NO	FK:crm_tag_dictionary.tag_id;PARTIAL_UQ_ACTIVE_CUSTOMER_TAG_PAIR	DB	同Customer同Tag最多一个active关联，历史保留	PDM-16	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0482	crm_customer_tag_links	assigned_by_employee_id	BIGINT	NO	FK:employees.employee_id	F03	真实合法标签操作人	PDM-16	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0483	crm_customer_tag_links	ended_at	TIMESTAMPTZ	YES	HISTORY	AUDIT	停用不覆写标签历史	PDM-16/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0484	crm_personal_notes	note_id	BIGINT	NO	PK	DB	作者私有CRM note，禁止混共享画像	PDM-16	CANDIDATE_UNFROZEN	NOT_RUN
@@ -506,6 +506,6 @@ F02-F-0509	matching_change_events	before_json	JSONB	YES	BEFORE_SNAPSHOT	AUDIT	�
 F02-F-0510	matching_change_events	after_json	JSONB	YES	AFTER_SNAPSHOT	AUDIT	新current/stale/failed事实，不复活旧结果	PDM-12/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0511	matching_change_events	occurred_at	TIMESTAMPTZ	NO	SERVER_TIME_APPEND_ONLY	AUDIT	发生时间和原触发不覆写	PDM-12/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0512	matching_change_events	idempotency_key	TEXT	NO	UNIQUE_MATCH_CHANGE_IDEMPOTENCY	DB	重算部分失败/重试不会双写影响事件	PDM-12/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0513	notification_events	channel_kind	TEXT	NO	ALLOWED_NOTIFICATION_CHANNEL	TX	PDM23通知投递渠道，有实际发送记录	PDM-23	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0514	notification_events	recipient_ref	TEXT	NO	RECIPIENT_IDENTITY_REF	F03	通知目标身份，去重必须含真实目标	PDM-23	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0515	notification_events	notification_stage	TEXT	NO	NOTIFICATION_PHASE_IDENTITY	TX	同事件同阶段不重复发，持续incident合法例外	PDM-23	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0513	notification_events	channel_kind	TEXT	NO	ALLOWED_NOTIFICATION_CHANNEL;COMPOSITE_NOTIFICATION_DEDUPE_FACT	TX	PDM23通知投递渠道，有实际发送记录	PDM-23	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0514	notification_events	recipient_ref	TEXT	NO	RECIPIENT_IDENTITY_REF;COMPOSITE_NOTIFICATION_DEDUPE_FACT	F03	通知目标身份，去重必须含真实目标	PDM-23	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0515	notification_events	notification_stage	TEXT	NO	NOTIFICATION_PHASE_IDENTITY;COMPOSITE_NOTIFICATION_DEDUPE_FACT	TX	同事件同阶段不重复发，持续incident合法例外	PDM-23	CANDIDATE_UNFROZEN	NOT_RUN
