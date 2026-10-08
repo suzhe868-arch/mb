@@ -26,6 +26,7 @@ test('each registered action is reachable with valid isolated synthetic current 
   const system=rule.actor==='system_admin';
   const actor=system?{kind:'system_admin',id:91,status:'active'}:{kind:'employee',id:11,status:'active',role:fourS?'four_s':'sales',storeId:4};
   const resource={kind:rule.resource,id:45,state:rule.statuses[0],accountStatus:'active',sourceType:rule.source||(fourS?'four_s':'mingbang'),fourSEmployeeId:fourS?actor.id:undefined,storeId:4};
+  if(action==='system.four_s_account.manage')resource.role='four_s';
   if(action.startsWith('vehicle.publisher_phone.'))resource.upstreamPublisherId=12;
   const caps=system?[rule.systemCap]:rule.cap;
   const ctx={actor,resource,facts:{roleDefaults:[...caps],personalDecisions:{},hardDenies:[],systemCapabilities:system?[rule.systemCap]:[],scopeGrants:caps.map(capability=>({
