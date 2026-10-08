@@ -55,6 +55,8 @@ jobs:
           echo 'F02-G0 temporary account/database bootstrapped; no business schema'
       - name: F02 Current 字段候选静态完整性与禁虚报检查
         run: node f02-g0/matrix-audit.mjs
+      - name: G0-CL-01/02 外键闭合与最小可实施实体强制门禁
+        run: node f02-g0/closure-audit.mjs
       - name: 376候选分级与80项可空性处理验证
         run: node --test f02-g0/tests/review-coverage.test.mjs
       - name: 环境白名单/迁移禁执行正反例
