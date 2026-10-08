@@ -2,7 +2,7 @@
 
 日期：2026-10-09（Asia/Singapore）。A 签发单：`07_重建工作区/F03-1-G0_A主控登录安全方案施工放行_2026-10-09.md`。
 
-状态：**DESIGN_ONLY / B_IMPLEMENTED / CI_PENDING_FINAL_EVIDENCE / F03_1_G0_ACCEPTED=NO**。
+状态：**DESIGN_ONLY / B_STATIC_TEST_PASS / READY_FOR_A_REVIEW / F03_1_G0_ACCEPTED=NO**。报告单独提交后形成的新 HEAD 仍须以其自身 CI 复核。
 
 ## 一、施工基线
 - `feat/f03-login` 基于 main `872ae597c7e5ced71b82be0433fb2be94bdc3ee8` 新建，未修改 main、旧验收分支、F02冻结SQL/checksum、PDM/IA/Low-Fi。
@@ -17,10 +17,31 @@
 6. `authority-test-coverage.tsv`：15 项 PDM 权威到静态检查/未施工责任对应；技术别名未成为新权限。
 7. Node 假数据测试：未知身份、不同主体、禁用、首次强制改密、不能从旧会话取得权限、凭证世代变化、管理员与Employee隔离、4S资格、scope/state、审计/秘密不回显，以及实际冻结矩阵及编译 SQL 字段交叉核验。
 
-## 三、真实 CI 证据（待补）
-- 将以**本报告最后提交产生的新 HEAD 的同 SHA completed/success**为准填入。
-- 执行命令：`npm run check`、F02-G0 三项审计、F03-G0 假数据回归、`node f03/login-design/verify-contract.mjs`、`node --test f03/login-design/test/*.test.mjs`、`node f03/login-design/benchmark-scrypt.mjs`。
-- 合成 KDF 成本只报告时长与参数，不输出或上传盐、密码、哈希或真实令牌。
+## 三、真实 CI 证据、命令及工件
+
+**已核验源码提交 SHA：** `c5bb9d966ebcc3893d40d4db271814073d03f96b`。
+- [F03-1-G0 CI #37855224165](https://github.com/suzhe868-arch/mb/actions/runs/37855224165)，`head_sha=c5bb9d966ebcc3893d40d4db271814073d03f96b`，`completed/success`；[完整 job #113577670220](https://github.com/suzhe868-arch/mb/actions/runs/37855224165/job/113577670220)，全部关键检查成功。
+- 真实输出：F01 **13/13 PASS**、F03-G0 **34/34 PASS**、F02-G0 CL/ALL/SCOPE **PASS**、F03-1-G0 **15/15 PASS（0 FAIL）**；包括从冻结 F02-G0 矩阵和 F02-1 编译 Initial SQL **只读机械核对** 31 已纳字段、2 排除字段、76 表、464 字段、160 外键，拟议迁移列/索引只在 TSV 中存在。
+- Node22 `crypto.scrypt` 两次瞬时**合成**可用性测量：`N=32768,r=8,p=1,maxmem=64MiB,keyLength=32B,salt=16B`；分别 **46ms、44ms**。样本 KDF 派生结果、盐与合成口令均未写磁盘或输出；性能值不能外推真实主机容量和安全阈值，参数须 A 复审。
+- 已上传工件 `f03-1-g0-login-design-evidence`，artifact ID `11583831530`（来自该 SHA CI）；内含假数据测试日志、静态无数据库边界检查、scrypt 成本日志，不包含 pg_dump（本批无数据库）。
+- 初始 [CI #37855122827](https://github.com/suzhe868-arch/mb/actions/runs/37855122827) 的冻结矩阵测试相对路径错误已修复；认证成功的纯合成事件另新增 `passwordProofVerified===true`、`rateLimitPassed===true` 双项显式证明守卫与负例。这些整改包含在本次成功 CI 代码 SHA。
+- 实际工作流命令：
+
+```sh
+cd engineering
+npm ci --ignore-scripts --no-audit --no-fund
+npm run check
+node f02-g0/closure-audit.mjs
+node f02-g0/full-domain-audit.mjs
+node f02-g0/scope-audit.mjs
+node f03/verify-contract.mjs
+node --test f03/tests/*.test.mjs
+node f03/login-design/verify-contract.mjs
+node --test f03/login-design/test/*.test.mjs
+node f03/login-design/benchmark-scrypt.mjs
+```
+
+本报告自身新增提交之后，A 应以分支最终 HEAD 对应的**新 CI SUCCESS**作为交接精确证据，避免引用上一版源码 CI。
 
 ## 四、未执行事项与风险
 - 无 PostgreSQL 连接/建表/迁移、真实密码校验、真实登录/HTTP服务、真正会话签发或 Cookie、真实角色授权、账号、手机号/微信、JYT、业务/生产库、并发事务/限流实现或部署；全部 **NOT_RUN**。
