@@ -12,11 +12,14 @@ const run=(expected)=>{
 };
 try{
  await client.connect();
- const original=(await client.query("SELECT checksum FROM public.f02_schema_migrations WHERE migration_id='000001_current_initial'")).rows[0]?.checksum;
+ const initial=(await client.query("SELECT checksum,structure_sha256 FROM public.f02_schema_migrations WHERE migration_id='000001_current_initial'")).rows[0];
+ const original=initial?.checksum;
  assert.match(original,/^[a-f0-9]{64}$/);
+ assert.match(initial?.structure_sha256,/^[a-f0-9]{64}$/);
  let mode='';
  try{
-  await client.query("INSERT INTO public.f02_schema_migrations (migration_id,checksum) VALUES ('999999_unknown_test','fixture')");
+  // A structurally valid registry record must reach the unknown-version guard, not fail NOT NULL.
+  await client.query('INSERT INTO public.f02_schema_migrations (migration_id,checksum,structure_sha256) VALUES ($1,$2,$3)',['999999_unknown_test',original,initial.structure_sha256]);
   mode='unknown';
   run('F02_1_UNKNOWN_MIGRATION_VERSION');
  }finally{if(mode==='unknown')await client.query("DELETE FROM public.f02_schema_migrations WHERE migration_id='999999_unknown_test'")}
