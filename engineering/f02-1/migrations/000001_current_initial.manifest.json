@@ -1,0 +1,17 @@
+{
+  "version": "000001_current_initial",
+  "source": "F02-G0 A_SIGNED; 510 candidate fields / 464 included / 33 deferred / 13 excluded; PDM-01..25 Final / Current IA / Current Low-Fi",
+  "sha256": "df078212b95701af12144a43ef85a70fc491e5dca9948644df415bd888c5b4e4",
+  "stats": {
+    "tables": 76,
+    "columns": 464,
+    "staticForeignKeys": 137,
+    "extraForeignKeys": 23,
+    "uniqueIndexes": 28,
+    "checks": 39,
+    "historyTriggers": 5
+  },
+  "apply": "CI isolated new PG16 only; runner.mjs --apply with exact F02_1 authorization env",
+  "ddl_file": "engineering/f02-1/artifacts/current_initial.sql (generated and uploaded by CI)",
+  "acceptance": "F02_1_ACCEPTED=NO; A reviews independently"
+}

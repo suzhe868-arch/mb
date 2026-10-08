@@ -1,9 +1,12 @@
 import pg from 'pg';
+import {readFile} from 'node:fs/promises';
 import {compileCurrentInitial} from './compile-current.mjs';
 import {verifyF021Target,verifyDatabaseIdentity,checkMigrationVersions} from './guard.mjs';
 const mode=process.argv.slice(2);
 if(mode.length!==1||!['--apply','--verify','--verify-empty'].includes(mode[0]))throw Error('F02_1_REFUSED_ARGUMENTS');
 const cfg=verifyF021Target(),candidate=await compileCurrentInitial();
+const pinned=JSON.parse(await readFile(new URL('./migrations/000001_current_initial.manifest.json',import.meta.url),'utf8'));
+if(pinned.version!=='000001_current_initial'||candidate.checksum!==pinned.sha256||JSON.stringify(candidate.stats)!==JSON.stringify(pinned.stats))throw Error('F02_1_PINNED_INITIAL_SQL_CHECKSUM_MISMATCH');
 const client=new pg.Client({connectionString:cfg.connectionString,connectionTimeoutMillis:2000,query_timeout:90000,statement_timeout:90000,application_name:'mb_f02_1_disposable_only'});
 let begun=false;
 try{
