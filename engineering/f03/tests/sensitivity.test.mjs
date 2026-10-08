@@ -53,6 +53,8 @@ test('mutation sensitivity: removing scope guard causes an out-of-scope test to 
 test('A整改敏感性：移除车辆或客户记录身份校验时，缺编号负例必须翻转',async()=>{
  const vehicleContext=base('sales');
  vehicleContext.resource={kind:'vehicle',id:45,state:'visible',sourceType:'mingbang'};
+ vehicleContext.facts.scopeGrants=[{actorId:11,resourceKind:'vehicle',resourceId:45,capability:'vehicle.read',relation:'global',active:true}];
+ assert.equal(authorize('vehicle.read',vehicleContext).allowed,true,'fixture must have legal permission and scope before projection');
  const missingVehicle={display_price:1234,source_type:'mingbang'};
  assert.deepEqual(projectRecord('vehicle.read',missingVehicle,vehicleContext),{allowed:false,reason:'RECORD_RESOURCE_ID_REQUIRED',fields:{}});
  const required="if(recordIdField&&(!own(record,recordIdField)||!validId(record[recordIdField])))return {allowed:false,reason:'RECORD_RESOURCE_ID_REQUIRED',fields:{}};";
