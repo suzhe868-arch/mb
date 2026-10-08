@@ -64,6 +64,8 @@ jobs:
           if node f02-1/runner.mjs --reset; then exit 1; fi
           if node f02-g0/preflight.mjs --apply; then exit 1; fi
           echo 'F02-1 isolated target and G0 hard-deny PASS'
+      - name: Reject public views, sequences, functions, enums and domains in empty database
+        run: node f02-1/tests/empty-public-objects.mjs
       - name: Force SQL failure after DDL and check transaction rollback
         run: |
           set -euo pipefail
@@ -89,6 +91,8 @@ jobs:
         run: node f02-1/tests/live.mjs
       - name: Actual unknown-version, checksum drift, rogue object refusal, and exact 464-field projection
         run: node f02-1/tests/migration-metadata.mjs
+      - name: Export named object definitions and assert the physical structure baseline
+        run: node f02-1/export-physical.mjs
       - name: Export actual PG16 schema and compare critical columns
         run: |
           set -euo pipefail
@@ -99,7 +103,9 @@ jobs:
           grep -q 'CREATE TABLE public.pc_login_accounts' f02-1/artifacts/pg16_schema_dump.sql
           grep -q 'CREATE TABLE public.system_admins' f02-1/artifacts/pg16_schema_dump.sql
           ! grep -A15 'CREATE TABLE public.system_admins' f02-1/artifacts/pg16_schema_dump.sql | grep -E 'login_account|credential_hash'
+          test -s f02-1/artifacts/pg16_object_inventory.json
           sha256sum f02-1/artifacts/pg16_schema_dump.sql f02-1/artifacts/current_initial.sql
+          sha256sum f02-1/artifacts/pg16_object_inventory.json
           echo 'F02-1 physical schema export PASS'
       - name: Upload initial SQL, actual pg_dump, parallel worker logs, manifest
         if: always()
