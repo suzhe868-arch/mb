@@ -24,6 +24,15 @@ test('scrypt real salt, strict params, tampered version and Unicode/length guard
  assert.throws(()=>normalizeLogin(' test\nname'));
  console.log('F03-1 REAL KDF CHECKS PASS');
 });
+test('scrypt CI capacity: two active, eight bounded queued, saturation denies and later recovers',async()=>{
+ const results=await Promise.allSettled(Array.from({length:13},(_,i)=>hashPassword('SyntheticCapacity_'+i+'_2026_Protected')));
+ const rejected=results.filter(x=>x.status==='rejected');
+ assert.ok(rejected.length>=3,'at least three requests must be denied beyond 2 active + 8 waiting');
+ for(const v of rejected)assert.equal(v.reason.message,'AUTH_CAPACITY');
+ assert.ok(results.some(v=>v.status==='fulfilled'));
+ assert.ok((await hashPassword('SyntheticRecovery_2026_Protected')).startsWith('scrypt$v1$'));
+ console.log('F03-1 REAL KDF 2 ACTIVE / 8 QUEUED / SATURATION / RECOVERY PASS');
+});
 test('unknown, wrong password, inactive, disabled and no 4S PC access uniformly rejected',async()=>{
  for(const input of [
   {login:'not_exists_001',password:'SyntheticPassword_12345'},
