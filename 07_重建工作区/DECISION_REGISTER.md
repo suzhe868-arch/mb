@@ -1331,3 +1331,6 @@
 
 
 | EG-F03-1-IMPL-PREPARE-20261009 | ENGINEERING_GATE_PREPARATION | A整理真实登录实现施工单 | 用户对“A整理实际登录施工单”回复同意；A形成单入口/白名单/PG16独立追加版本/真实HTTPS与事务并发验收范围，提交用户审查 | GOVERNANCE_ONLY / PREPARED_NOT_AUTHORIZED；G0方案B合并及F03-1实现均需另批；C不合并；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F03-1_真实登录与密码安全实现施工单_待批准_2026-10-09.md`；当前main f3baa6e71b853dd23903968e0dd4d94ceee11a52与已验收G0 SHA d5987afc14d591db683facf15ebf767f9762af2a | 2026-10-09 |
+
+
+| EG-F03-1-MERGE-RELEASE-20261009 | ENGINEERING_F03_1 | 用户批准G0方案合并及限定真实登录实现施工 | 用户明确“同意”；A合并PR #4，merge=aa09c9a21752a5d3ce428253e29d2a0b88f76f46；15验收文件一致、原main1061文件保留；放行B从最新main新建feat/f03-login-impl，仅工作单登录/密码/会话/独立追加迁移及全新CI PG16测试 | USER_APPROVED / G0_ACCEPTED_MERGED / F03_1_IMPLEMENTATION_AUTHORIZED_NOT_YET_IMPLEMENTED；后续批/生产未授权，C不合并；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F03-1_A主控方案合并与真实登录隔离施工放行_2026-10-09.md`；`07_重建工作区/F03-1_真实登录与密码安全实现施工单_待批准_2026-10-09.md`顶部增补；PR #4 | 2026-10-09 |
