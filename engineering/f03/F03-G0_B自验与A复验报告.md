@@ -3,6 +3,19 @@
 > 2026-10-09｜A 放行：`F03_G0_AUTHORIZED / USER_APPROVED`；A 放行单：`07_重建工作区/F03-G0_A主控正式施工放行_2026-10-09.md`。
 > 本报告记录 B 自验，通过后只提交 A 独立复验。状态：**`READY_FOR_A_REVIEW / F03_G0_ACCEPTED=NO`**；本轮仅纯 Node ESM 假数据静态检验，非真实会话或数据库授权验收。
 
+## 本轮追加｜A 两项定向整改（2026-10-09）
+
+> 当前为 B 整改自验记录，**不是 A 最终签发**。`F03_G0_ACCEPTED=NO`。以下为已验证**源码提交** `5a55dbb29d70c502c0b828af9205ffd35230046a` 的 CI；本交接文字提交后产生的新 HEAD 必须再核验对应同一 SHA 的 GitHub Actions SUCCESS，不得用先前提交的 CI 代替。
+
+1. **车辆/客户主键缺失不得投影**：`policy.mjs projectRecord` 在已获当前身份、capability、scope、object state 许可后，另行强制要求 `vehicle.read` 的 `record.vehicle_id` 或 `customer.crm.read/customer.history.read` 的 `record.customer_id` 存在、有效且与授权 `context.resource.id` 严格相等。不存在、`undefined`、`null`、0、空字符串、对象/数组 → `RECORD_RESOURCE_ID_REQUIRED`；ID 存在却不一致 → `RECORD_RESOURCE_ID_MISMATCH`。所有拒绝均返回 `allowed:false,fields:{}`。
+2. **历史嵌套敏感值绝不原样返回**：历史投影检查所有允许输出的 Customer 基础字段及历史 actor/role/store/event/time 字段。任意白名单字段含数组、对象、Date、函数或其它非基础标量时整体拒绝，错误 `UNSAFE_NESTED_HISTORY_VALUE`，输出空对象；未列入白名单的外层及嵌套数据始终不复制。嵌套史实未来如需合法展示，必须在后续获批批次为每个允许子字段建立独立投影规则，不能把原始审计 JSON 直接透传。
+3. **正反例**：`tests/policy.test.mjs` 证明授权和 scope 本身已通过时，缺主键、错主键仍被拒绝；合法的同一车辆、同一客户可通过。历史白名单内 `history_event`、`contact_name`、`actor_role_at_time`、`actor_store_at_time`、`customer_level` 的嵌套敏感夹具必须拒绝；非白名单嵌套值不泄漏，合法扁平历史保留当时 actor/role/store。
+4. **敏感性证明**：`tests/sensitivity.test.mjs` 构造真实模块变体，移除数据主键存在性/一致性检查后，无编号记录由拒绝变允许；移除历史嵌套过滤后秘密确实进入输出，使原始安全断言失败。夹具明确使用合法当前 scope，防止其它拒绝机制掩盖目标缺口。
+5. **真实代码 CI**：[F03-G0 #37851898309](https://github.com/suzhe868-arch/mb/actions/runs/37851898309)；`head_sha=5a55dbb29d70c502c0b828af9205ffd35230046a`，`completed/success`。前一轮 [#37851805040](https://github.com/suzhe868-arch/mb/actions/runs/37851805040) 的测试夹具曾先命中 `SCOPE_DENIED`，本轮修复了夹具并要求 scope 先通过；不得把该失败记录误作生产守卫失效。
+6. **执行边界**：只改 `engineering/f03/policy.mjs`、`tests/policy.test.mjs`、`tests/sensitivity.test.mjs` 和本批 B 工程交接材料；不触碰 Final、IA、Low-Fi、main、F02 结构、业务/生产库、真实账号与会话，也不开展 F03-1/2/3 或 F04。保留 `READY_FOR_A_REVIEW`。
+
+---
+
 ## 一、基线 / 施工边界
 
 - 从最新 main `570022a663c51cce137178a8ad90f1a8f35c41b4` 创建 `feat/f03-auth`。
