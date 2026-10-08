@@ -4,7 +4,7 @@ const fetch=n=>readFile(new URL(n,import.meta.url),'utf8');
 const [m,f,t,e,k,d]=await Promise.all(['field-matrix.tsv','field-freeze-candidates.tsv','field-tiers-376.tsv','buildable-entity-contract.tsv','foreign-key-closure.tsv','deferred-entity-register.tsv'].map(fetch));
 const a=validateBuildableClosure(m,f,t);
 const tsv=rows=>rows.map(x=>x.join('\t')).join('\n')+'\n';
-const eq=(actual,header,rows,code)=>{if(actual!==tsv([header,...rows]))throw Error(code)};
+const eq=(actual,header,rows,code)=>{const expected=tsv([header,...rows]);if(actual!==expected){const left=actual.split('\n'),right=expected.split('\n');const at=right.findIndex((x,i)=>x!==left[i]);throw Error(code+' row='+at+' submitted='+JSON.stringify(left[at])+' generated='+JSON.stringify(right[at]));}};
 eq(e,['实体','拟建字段数','身份键类型','主键或复合候选键字段','当前必要非空字段','静态外键目标实体','本轮实体裁定','建表与挂FK顺序候选','A签发状态','Authority'],a.entities,'F02_G0_CL_ENTITY_CONTRACT_DRIFT');
 eq(k,['来源实体','来源字段','外键类型','父实体','父字段','来源身份键','拟实施阶段','A签发状态'],a.foreignKeys,'F02_G0_CL_FK_CONTRACT_DRIFT');
 eq(d,['整体不拟施工实体','全部候选字段','候选处理分类','依据及延期或排除理由','Authority','A签发状态'],a.deferredEntities,'F02_G0_CL_DEFERRED_ENTITY_CONTRACT_DRIFT');
