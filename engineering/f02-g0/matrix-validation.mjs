@@ -1,11 +1,11 @@
 const HEADERS=['条目ID','候选实体','候选字段','物理类型建议','可空性建议','键/约束候选','约束承担层','规则语义与验证关注点','来源正式PDM','物理冻结状态','F02测试状态'];
 const REQUIRED_SOURCES=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,22,23,24,25];
-const REQUIRED_TABLES=['customers','customer_wechat_identities','customer_phone_facts','customer_owner_history','manual_vehicle_drafts','lock_requests','locks','waitlists','refund_cases','vehicle_models','jyt_model_source_mappings','audit_events','public_pool_events'];
+const REQUIRED_TABLES=['customers','customer_wechat_identities','customer_phone_facts','customer_owner_history','manual_vehicle_drafts','customer_day_quota_ledger','customer_price_cycle_unlocks','customer_price_unlock_events','lock_requests','locks','waitlists','refund_cases','vehicle_models','jyt_model_source_mappings','audit_events','public_pool_events'];
 const REQUIRED_FIELDS=[
   'customers.customer_id','customers.current_owner_employee_id','customers.owner_assignment_state',
   'customer_wechat_identities.customer_id','customer_wechat_identities.wechat_identity_key',
   'customer_phone_facts.customer_id','customer_phone_facts.phone_ciphertext',
-  'customer_daily_price_access.customer_id','customer_daily_price_access.vehicle_id','customer_daily_price_access.listing_cycle_id',
+  'customer_day_quota_ledger.customer_id','customer_day_quota_ledger.business_day_shanghai','customer_price_cycle_unlocks.customer_id','customer_price_cycle_unlocks.listing_cycle_id','customer_price_unlock_events.idempotency_key',
   'demands.demand_state','consultations.status','consultations.close_reason',
   'find_car_applications.status','lock_requests.status','refund_cases.status','refund_cases.close_reason','refund_cases.lock_id','refund_cases.transaction_id',
   'manual_vehicle_drafts.created_by_employee_id','vehicles.vehicle_id','vehicle_models.model_year','jyt_model_source_mappings.upstream_model_id','jyt_model_source_mappings.local_model_id',
@@ -36,6 +36,8 @@ export function validateMatrix(source){
     fields.set(key,r);tables.add(table);
   }
   requireResult(tables.size>=50,'F02_G0_DOMAIN_COVERAGE_TOO_SMALL');
+  for(const r of data.filter(x=>x[1]==='four_s_organizations'))requireResult(r[5]==='REJECTED_4S_ORGANIZATION_LAYER','F02_G0_4S_ORG_NOT_EXCLUDED');
+  for(const r of data.filter(x=>x[1]==='customer_daily_price_access'))requireResult(r[5]==='REPLACED_SPLIT_NOT_CURRENT','F02_G0_DAILY_CYCLE_MIXED');
   for(const x of REQUIRED_SOURCES)requireResult(sources.has(x),'F02_G0_MISSING_PDM_'+x);
   for(const x of REQUIRED_TABLES)requireResult(tables.has(x),'F02_G0_MISSING_ENTITY_'+x);
   for(const x of REQUIRED_FIELDS)requireResult(fields.has(x),'F02_G0_MISSING_RULE_FIELD_'+x);

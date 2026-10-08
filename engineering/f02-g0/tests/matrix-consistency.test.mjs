@@ -12,7 +12,7 @@ function changeRow(match,fn){
 }
 test('当前矩阵在禁止客户合并前提下通过逐字段静态校验',()=>{
   const result=validateMatrix(original);
-  assert.ok(result.fieldCount>350);
+  assert.equal(result.fieldCount,413);
   assert.ok(result.entityCount>=60);
 });
 test('V1 完全取消 Customer Merge，旧合并历史实体不得回到矩阵',()=>{
@@ -32,7 +32,7 @@ test('Demand completed/cancelled 必须是终态，不允许旧 ended 替代',()
   assert.throws(()=>validateMatrix(bad),/F02_G0_WRONG_DEMAND_STATUSES/);
 });
 test('PDM-10 不得漏掉 listing_cycle 查价身份',()=>{
-  const bad=changeRow(['customer_daily_price_access','listing_cycle_id'],r=>r[2]='legacy_cycle');
+  const bad=changeRow(['customer_price_cycle_unlocks','listing_cycle_id'],r=>r[2]='legacy_cycle');
   assert.throws(()=>validateMatrix(bad),/F02_G0_MISSING_RULE_FIELD/);
 });
 test('PDM-18 LockRequest 正式结果态必须完整',()=>{
