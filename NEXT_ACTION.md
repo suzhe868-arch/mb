@@ -1,5 +1,15 @@
 # 名邦汽车 V1｜当前唯一下一步｜2026-10-08
 
+## 当前最新执行焦点｜F02-G0 四域物理承载范围一致性补审（2026-10-08）
+
+- 用户明确“同意，确定执行”，批准 A 主控将四项范围一致性发现落实为正式补审单：`07_重建工作区/F02-G0_A主控范围一致性定向补审单_SystemAdmin_匹配_CRM_公海_2026-10-08.md`。B 分支 `feat/f02-schema` 上次 A 核验 HEAD `ea14fb372a6ab598177d1a8a067e2b1df3ebf480`，GitHub CI [37712078050](https://github.com/suzhe868-arch/mb/actions/runs/37712078050) 成功。
+- **已闭环**：F02-G0 环境与静态安全测试、G0-CL-01 外键依赖、G0-CL-02 最小完整实体结构；413 字段、53 拟建实体、96 显式静态 FK 的 A 独立核验通过，本次不得无故重做。
+- **B 当前唯一工程任务**：核实整表延期的 `system_admins`、`demand_match_results`、`crm_followups`、`public_pool_events` 是否完整覆盖 F02-1 正式施工单要求；逐事实提供具体拟施工实体/字段、历史和身份约束、最小补纳或合法延期理由及对应自动负例。若无法闭合，精确标 `BLOCKED` 交 A 技术裁定；不可将笼统“以后做”充当范围裁定。只在 `feat/f02-schema` 提交和测试。
+- 当前门禁：`G0_ENVIRONMENT_PASS / G0_CL01_CL02_PASS / G0_SCOPE_COVERAGE_PENDING / G0_MODEL_FREEZE_PENDING / G0_ACCEPTED=NO`。F02-1 尚未启动（此前只是通过 G0 后的条件授权），F02-2/3/4、F03/F04、真实业务库、main 合并继续禁止。
+- C/H01 仍独立视觉整改，不启动 H02。**全局唯一下一步**：`F02_G0_FOUR_DOMAIN_SCOPE_MAPPING_B_EXECUTION_A_REVIEW_AND_H01_VISUAL_REVIEW`。以下较早焦点和指针为历史施工背景，以本节为准。
+
+---
+
 ## 当前执行焦点｜F02-G0 最终门禁定向整改（2026-10-08，用户确认执行）
 
 - **用户“同意，确定执行”后 A 已签发**：`07_重建工作区/F02-G0_A主控最终门禁整改单_外键闭合与实体完整性_2026-10-08.md`。A 独立审查 B 分支 `feat/f02-schema` HEAD `95fb1776eec535fb4e83b48d292034dfcb49c8fb`，CI `37710259345` 成功，确认 413 字段候选/30 项 G0 单测及 PG16 隔离边界；但发现拟施工外键指向延期目标、局部实体缺主键/基础依赖两类未闭合缺口。
