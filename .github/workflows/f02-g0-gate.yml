@@ -57,6 +57,8 @@ jobs:
         run: node f02-g0/matrix-audit.mjs
       - name: G0-CL-01/02 外键闭合与最小可实施实体强制门禁
         run: node f02-g0/closure-audit.mjs
+      - name: G0-ALL 全域25 PDM与510字段82实体一次性完整审计门禁
+        run: node f02-g0/full-domain-audit.mjs
       - name: G0-SC-01至04 四域最小事实持久化范围一致性门禁
         run: node f02-g0/scope-audit.mjs
       - name: 376候选分级与80项可空性处理验证
