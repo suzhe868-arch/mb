@@ -15,7 +15,7 @@ F02-F-0205	recommendations.vehicle_id	NO	FK:vehicles.vehicle_id；交叉对象�
 F02-F-0206	recommendations.customer_id	NO	FK:customers.customer_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(recommendation_id); UNIQUE(customer,vehicle,cycle) WHERE active	PDM-14	PENDING_A_CORE_FREEZE
 F02-F-0207	recommendations.listing_cycle_id	NO	FK:vehicle_listing_cycles.listing_cycle_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(recommendation_id); UNIQUE(customer,vehicle,cycle) WHERE active	PDM-14	PENDING_A_CORE_FREEZE
 F02-F-0217	consultations.customer_id	NO	FK:customers.customer_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(consultation_id); 同customer+vehicle+cycle非终结唯一；缺listing_cycle_id	PDM-15	PENDING_A_CORE_FREEZE
-F02-F-0218	consultations.vehicle_id	REVIEW	FK:vehicles.vehicle_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(consultation_id); 同customer+vehicle+cycle非终结唯一；缺listing_cycle_id	PDM-15	PENDING_A_CORE_FREEZE
+F02-F-0218	consultations.vehicle_id	NO	FK:vehicles.vehicle_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(consultation_id); 同customer+vehicle+cycle非终结唯一；缺listing_cycle_id	PDM-15	PENDING_A_CORE_FREEZE
 F02-F-0242	lock_requests.customer_id	NO	FK:customers.customer_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(lock_request_id); request身份对应同customer/vehicle/cycle	PDM-18	PENDING_A_CORE_FREEZE
 F02-F-0243	lock_requests.vehicle_id	NO	FK:vehicles.vehicle_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(lock_request_id); request身份对应同customer/vehicle/cycle	PDM-18	PENDING_A_CORE_FREEZE
 F02-F-0244	lock_requests.listing_cycle_id	NO	FK:vehicle_listing_cycles.listing_cycle_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(lock_request_id); request身份对应同customer/vehicle/cycle	PDM-18	PENDING_A_CORE_FREEZE
