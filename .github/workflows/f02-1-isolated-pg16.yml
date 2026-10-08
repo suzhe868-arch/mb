@@ -1,0 +1,109 @@
+name: F02-1 isolated PG16 Current Schema
+on:
+  push:
+    branches: [feat/f02-schema]
+  workflow_dispatch:
+jobs:
+  isolated-f02-1:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: f02_disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      CI: 'true'
+      GITHUB_ACTIONS: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F02_1_ISOLATION_CONFIRM: I_AUTHORIZE_F02_1_NEW_EMPTY_PG16_SCHEMA_ONLY
+      F02_1_OPERATION: isolated_current_schema
+      F02_1_DATABASE_URL: postgres://f02_ci:f02_ci_ephemeral_fixture@127.0.0.1:5432/f02_schema_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Existing foundation and G0 invariants
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run check
+          node f02-g0/closure-audit.mjs
+          node f02-g0/full-domain-audit.mjs
+          node f02-g0/scope-audit.mjs
+      - name: Create fresh ephemeral PG16 role and f02_schema_test only
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f02_ci WITH LOGIN PASSWORD 'f02_ci_ephemeral_fixture' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f02_schema_test OWNER f02_ci"
+      - name: Generate fixed G0-selected Initial Schema and sha256
+        run: node f02-1/export.mjs
+      - name: Unsafe URL and unauthorized execution attempts must fail
+        run: |
+          set -euo pipefail
+          if F02_1_DATABASE_URL=postgres://f02_ci:test@127.0.0.1:5432/f01_foundation node f02-1/runner.mjs --apply; then exit 1; fi
+          if F02_1_DATABASE_URL=postgres://f02_ci:test@remote.invalid:5432/f02_schema_test node f02-1/runner.mjs --apply; then exit 1; fi
+          if F02_1_ISOLATION_CONFIRM=NO node f02-1/runner.mjs --apply; then exit 1; fi
+          if node f02-1/runner.mjs --reset; then exit 1; fi
+          if node f02-g0/preflight.mjs --apply; then exit 1; fi
+          echo 'F02-1 isolated target and G0 hard-deny PASS'
+      - name: Force SQL failure after DDL and check transaction rollback
+        run: |
+          set -euo pipefail
+          if F02_1_INJECT_TX_FAILURE=CI_TEST_AFTER_DDL node f02-1/runner.mjs --apply; then
+            echo 'FAILED: fault injection committed'; exit 1
+          fi
+          node f02-1/runner.mjs --verify-empty
+          echo 'F02-1 actual SQL rollback PASS'
+      - name: Concurrent four migration workers and idempotent recovery
+        run: |
+          set -euo pipefail
+          mkdir -p f02-1/artifacts
+          node f02-1/runner.mjs --apply > f02-1/artifacts/worker1.log 2>&1 & p1=$!
+          node f02-1/runner.mjs --apply > f02-1/artifacts/worker2.log 2>&1 & p2=$!
+          node f02-1/runner.mjs --apply > f02-1/artifacts/worker3.log 2>&1 & p3=$!
+          node f02-1/runner.mjs --apply > f02-1/artifacts/worker4.log 2>&1 & p4=$!
+          wait "$p1"; wait "$p2"; wait "$p3"; wait "$p4"
+          for f in f02-1/artifacts/worker*.log; do cat "$f"; done
+          node f02-1/runner.mjs --apply
+          node f02-1/runner.mjs --verify
+          echo 'F02-1 four parallel migrations and repeat PASS'
+      - name: Real PostgreSQL16 DDL check constraints and negative fixtures
+        run: node f02-1/tests/live.mjs
+      - name: Export actual PG16 schema and compare critical columns
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec -e PGPASSWORD=f02_ci_ephemeral_fixture "$ids" pg_dump --host=127.0.0.1 --username=f02_ci --dbname=f02_schema_test --schema-only --no-owner --no-privileges --schema=public > f02-1/artifacts/pg16_schema_dump.sql
+          test -s f02-1/artifacts/pg16_schema_dump.sql
+          grep -q 'CREATE TABLE public.pc_login_accounts' f02-1/artifacts/pg16_schema_dump.sql
+          grep -q 'CREATE TABLE public.system_admins' f02-1/artifacts/pg16_schema_dump.sql
+          ! grep -A15 'CREATE TABLE public.system_admins' f02-1/artifacts/pg16_schema_dump.sql | grep -E 'login_account|credential_hash'
+          sha256sum f02-1/artifacts/pg16_schema_dump.sql f02-1/artifacts/current_initial.sql
+          echo 'F02-1 physical schema export PASS'
+      - name: Upload initial SQL, actual pg_dump, parallel worker logs, manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f02-1-pg16-current-schema
+          path: engineering/f02-1/artifacts/
+          if-no-files-found: warn
+          retention-days: 30
