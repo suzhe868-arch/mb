@@ -127,7 +127,7 @@ export function validateBuildableClosure(matrixText,freezeText,tierText){
     insist(dispositions.length===1,'DEFERRED_ENTITY_MIXED_'+t);
     const kind=dispositions[0];
     insist(kind==='DEFER_WITH_REASON'||kind.startsWith('EXCLUDE_'),'DEFERRED_ENTITY_INVALID_'+t);
-    const reason=kind==='EXCLUDE_4S_ORG'?'PDM-02 Final禁止独立4S组织层级，4S成员账号直接代表合作主体':kind==='EXCLUDE_OLD_MIXED'?'原混合日账/单车周期已拆为三张独立候选，不能进入Current DDL':'后续对应领域处理；该实体并非F02-1当前身份与外键闭合所必需，整体延期且无拟纳入字段';
+    const reason=kind==='EXCLUDE_4S_ORG'?'PDM-02 Final禁止独立4S组织层级，4S成员账号直接代表合作主体':kind==='EXCLUDE_OLD_MIXED'?'原混合日账/单车周期已拆为三张独立候选，不能进入Current DDL':'非此阶段基础身份/FK的必需实体；全表整体保留到后续对应领域工程并由A决定';
     deferredEntities.push([t,rows.map(x=>x.row[2]).join('+'),kind,reason,rows[0].row[8],'PENDING_A_FINAL_FREEZE']);
   }
   const counts={included:[...included.values()].reduce((a,r)=>a+r.length,0),deferred:freeze.slice(1).filter(x=>x[4]==='DEFER_WITH_REASON').length,excluded:freeze.slice(1).filter(x=>x[4].startsWith('EXCLUDE_')).length};
