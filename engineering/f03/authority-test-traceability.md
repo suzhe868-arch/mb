@@ -34,3 +34,15 @@
 - 4S、System Admin 控制面治理及账户状态仍必须在后续真实事务层防自我提权、并发和旧权限穿透。
 - 状态机/自动候补/退款余额/持续匹配等跨域业务条件未建模：`NOT_RUN`。
 - 全局 `PRODUCT_BASELINE=NOT_READY`；本批只申请 A 复验，不自行签发通过。
+
+## 2026-10-09｜A 定向复验两项额外防线
+
+| A复验发现 | Current Authority / 已授权边界 | 对应代码 | 正反例与敏感性测试 | 后续责任 |
+|---|---|---|---|---|
+| 授权通过但车辆/客户投影行丢失主键 | PDM-02 §4：current identity + capability + scope + object state；PDM-21 §9/13；PDM-03 §12；F03-G0 只做安全示例 | `policy.mjs projectRecord` 要求业务行 `vehicle_id/customer_id` 有效存在且等于本次授权 `resource.id`，否则拒绝而不是返回匿名记录 | `policy.test.mjs`：获授权且合法scope时缺失、null、0、数组、错ID全部拒绝，合法同ID通过；`sensitivity.test.mjs`：移除双重ID检查后负例翻转为允许 | F03-3/F04 实际 serializer/ORM 查询与多对象批量投影防关联错绑 |
+| 历史白名单字段出现嵌套敏感对象 | PDM-02 §4/9 当前权限与历史不改写；PDM-03 §12 历史查阅限当前 scope；PDM-25 Final 审计历史；F03-G0只允许示例白名单 | `projectRecord('customer.history.read')` 若任何白名单字段是非标量，`UNSAFE_NESTED_HISTORY_VALUE` 整体拒绝；非白名单字段从不复制 | `policy.test.mjs`：嵌套密钥/上游电话/内部价和数组/Date阻断，合法扁平历史输出，非白名单嵌套丢弃；`sensitivity.test.mjs`：去掉检查后实际泄露秘密 | F03-3 若需显示合法嵌套历史，必须提供明确的逐字段映射/投影测试，不能透传审计JSON |
+
+保留风险：不对真实数据库行、批量分页、缓存、旧会话、实际接口 serializer 作运行承诺；这些仍需下一批独立授权。**F03-G0仍等待A验收。**
+
+---
+
