@@ -123,6 +123,24 @@ jobs:
           node --test f03-1/tests/https.test.mjs 2>&1 | tee f03-1/artifacts/https-auth-tests.log
           grep -q '# fail 0' f03-1/artifacts/https-auth-tests.log
           echo 'F03-1 REAL AUTHENTICATION AND HTTPS PASS'
+      - name: Re-run frozen F02-1 PG16 migration in a separate fresh disposable database
+        env:
+          F02_1_ISOLATION_CONFIRM: I_AUTHORIZE_F02_1_NEW_EMPTY_PG16_SCHEMA_ONLY
+          F02_1_OPERATION: isolated_current_schema
+          F02_1_DATABASE_URL: postgres://f02_ci:f02_ci_ephemeral_fixture@127.0.0.1:5432/f02_schema_test
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f02_ci WITH LOGIN PASSWORD 'f02_ci_ephemeral_fixture' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f02_schema_test OWNER f02_ci"
+          node f02-1/tests/empty-public-objects.mjs
+          if F02_1_INJECT_TX_FAILURE=CI_TEST_AFTER_DDL node f02-1/runner.mjs --apply; then exit 1; fi
+          node f02-1/runner.mjs --verify-empty
+          node f02-1/runner.mjs --apply
+          node f02-1/runner.mjs --verify
+          node f02-1/tests/live.mjs
+          node f02-1/tests/migration-metadata.mjs
+          echo 'F03-1 SEPARATE F02-1 REAL PG16 REGRESSION PASS'
       - name: Scan checked in and uploadable artifacts for unexpected secrets
         if: always()
         run: |

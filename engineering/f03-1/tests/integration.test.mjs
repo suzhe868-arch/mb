@@ -98,6 +98,60 @@ test('simultaneous double password change admits at most one and never revives o
  assert.equal(await auth.withSession(before.token,async()=>true),null);
  console.log('F03-1 REAL SERIALIZED DOUBLE CHANGE PASS');
 });
+test('actual login vs reset/disable and password-change vs reset are serialized, no stale session survives',async()=>{
+ const admin=await auth.login({login:'admin_test',password:'SyntheticAdmin_1234567',source:'races_admin'});
+ assert.equal(admin.code,'AUTH_OK');
+ const [rLogin,rReset]=await Promise.all([
+  auth.login({login:'race_test',password:'SyntheticRace_1234567',source:'race_login'}),
+  auth.govern({actorToken:admin.token,targetId:7,action:'reset',temporaryPassword:'SyntheticRaceReset_1234567'})
+ ]);
+ assert.equal(rReset.code,'GOVERNANCE_OK');
+ if(rLogin.code==='AUTH_OK')assert.equal(await auth.withSession(rLogin.token,async()=>true),null);
+ assert.deepEqual(await auth.login({login:'race_test',password:'SyntheticRace_1234567',source:'race_old'}),fail);
+ const [rLogin2,rDisable]=await Promise.all([
+  auth.login({login:'race_test',password:'SyntheticRaceReset_1234567',source:'race_again'}),
+  auth.govern({actorToken:admin.token,targetId:7,action:'disable'})
+ ]);
+ assert.equal(rDisable.code,'GOVERNANCE_OK');
+ if(rLogin2.code==='AUTH_OK')assert.equal(await auth.withSession(rLogin2.token,async()=>true),null);
+ assert.deepEqual(await auth.login({login:'race_test',password:'SyntheticRaceReset_1234567',source:'race_disabled'}),fail);
+ assert.equal((await auth.govern({actorToken:admin.token,targetId:7,action:'enable'})).code,'GOVERNANCE_OK');
+ const session=await auth.login({login:'race_test',password:'SyntheticRaceReset_1234567',source:'race_change'});
+ assert.equal(session.code,'AUTH_OK');assert.equal(session.restricted,true);
+ const [change,reset]=await Promise.all([
+  auth.change({token:session.token,csrf:session.csrf,oldPassword:'SyntheticRaceReset_1234567',newPassword:'SyntheticChangeRace_1234567'}),
+  auth.govern({actorToken:admin.token,targetId:7,action:'reset',temporaryPassword:'SyntheticResetRace2_1234567'})
+ ]);
+ assert.equal(reset.code,'GOVERNANCE_OK');
+ assert.ok(['PASSWORD_CHANGED_REAUTH_REQUIRED','AUTH_FAILED'].includes(change.code));
+ assert.equal(await auth.withSession(session.token,async()=>true),null);
+ const fresh=await auth.login({login:'race_test',password:'SyntheticResetRace2_1234567',source:'race_final'});
+ assert.equal(fresh.code,'AUTH_OK');
+ const c=await connect();
+ try{
+  await c.query('BEGIN');
+  await c.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=6");
+  await c.query('UPDATE public.pc_login_accounts SET credential_epoch=credential_epoch+1 WHERE account_id=7');
+  await c.query("UPDATE public.pc_auth_sessions SET revoked_at=COALESCE(revoked_at,now()) WHERE account_id=7");
+  await c.query('COMMIT');
+  assert.equal(await auth.withSession(fresh.token,async()=>true),null);
+  await c.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=6");
+  assert.equal(await auth.withSession(fresh.token,async()=>true),null,'rehire cannot resurrect stale session');
+ }finally{await c.end()}
+ console.log('F03-1 PG16 LOGIN RESET DISABLE CHANGE STATUS CONCURRENCY PASS');
+});
+test('account failed-attempt limit and cooldown reset (single-process CI topology)',async()=>{
+ for(let i=0;i<5;i++)assert.deepEqual(await auth.login({login:'limit_test',password:'SyntheticWrong_1234567',source:'limit_ip_'+i}),fail);
+ assert.deepEqual(await auth.login({login:'limit_test',password:'SyntheticLimit_1234567',source:'limit_burst'}),fail);
+ const entry=auth.attempts.get('a:limit_test');
+ assert.ok(entry.blocked>Date.now());
+ // Synthetic clock transition of the in-memory limiter; no 60s sleep.
+ entry.blocked=Date.now()-1;
+ const recovered=await auth.login({login:'limit_test',password:'SyntheticLimit_1234567',source:'limit_cooldown'});
+ assert.equal(recovered.code,'AUTH_OK');
+ assert.equal(auth.attempts.has('a:limit_test'),false,'successful proof clears failure counter');
+ console.log('F03-1 ONE PROCESS ACCOUNT FAILURE LIMIT AND COOLDOWN PASS');
+});
 test('audit contains only redacted version and states, not synthetic test secrets',async()=>{
  const c=await connect();
  try{

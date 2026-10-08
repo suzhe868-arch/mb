@@ -8,6 +8,7 @@ import {readFile} from 'node:fs/promises';
 const {host,port}=loadConfig();
 let server,service;
 if(process.env.F03_1_ENABLE_ISOLATED_AUTH==='I_AUTHORIZE_F03_1_AUTH_IN_NEW_TEST_PG16'){
+ if(host!=='127.0.0.1')throw Error('F03_AUTH_LOOPBACK_REQUIRED');
  const raw=process.env.F03_1_HMAC_KEY_BASE64||'';
  const key=Buffer.from(raw,'base64');
  if(key.length!==32)throw Error('F03_AUTH_SECRET_REQUIRED');

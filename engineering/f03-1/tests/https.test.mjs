@@ -68,7 +68,10 @@ test('real HTTPS initial restricted login, CSRF, password change, cookie clearin
  assert.equal(old.status,401);
  const now=await request('/api/v1/auth/login',{data:{login:'http_test',password:'NewSyntheticHttps_34567'}});
  assert.equal(now.status,200);assert.equal(now.body.restricted,false);
- const out=await request('/api/v1/auth/logout',{cookie:(now.headers['set-cookie']||[''])[0].split(';')[0],csrf:now.body.csrf});
+ const currentCookie=(now.headers['set-cookie']||[''])[0].split(';')[0];
+ const noCsrf=await request('/api/v1/auth/logout',{cookie:currentCookie});
+ assert.equal(noCsrf.status,403,'valid session logout requires CSRF, even when clearing cookie');
+ const out=await request('/api/v1/auth/logout',{cookie:currentCookie,csrf:now.body.csrf});
  assert.equal(out.status,200);
  assert.ok((out.headers['set-cookie']?.[0]||'').includes('Max-Age=0'));
  console.log('F03-1 LIVE HTTPS COOKIE, CSRF, FORCE-CHANGE, REVOKE, LOGOUT PASS');

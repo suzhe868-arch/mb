@@ -33,9 +33,9 @@ export function createAuthHandler(service){
     return true;
    }
    if(path.endsWith('/logout')){
-    if(token&&typeof req.headers['x-csrf-token']==='string'){
-     const expected=service.csrfFor?service.csrfFor(token):null;
-     if(!expected||!constantMatch(req.headers['x-csrf-token'],expected)){
+    if(token){
+     const expected=service.csrfFor(token);
+     if(typeof req.headers['x-csrf-token']!=='string'||!constantMatch(req.headers['x-csrf-token'],expected)){
       send(res,403,{code:'AUTH_FAILED'}, {'set-cookie':clear});return true;
      }
     }
