@@ -1,98 +1,554 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>名邦汽车｜H01 C01 视觉验收预览</title><style>
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>名邦汽车｜H01 C01 视觉验收预览</title>
+<style>
 :root {
---semantic-brand-primary:#80611F;--semantic-brand-subtle:#F1E7D1;--semantic-brand-metal:#C4A66A;
---semantic-surface-canvas:#F8F6F1;--semantic-surface-panel:#FFFFFF;--semantic-surface-soft:#F6F2E9;--semantic-surface-dark:#25282B;
---semantic-foreground-primary:#25282B;--semantic-foreground-secondary:#6B6860;--semantic-border-subtle:#E5E0D7;
---feedback-success:#176A45;--feedback-warning:#995A13;--feedback-danger:#B42318;
+  --bg: #F9F8F6;
+  --black: #1A1C1E;
+  --black-muted: #3F4145;
+  --gold: #C4A265;
+  --gold-bg: #F8F3E9;
+  --gray-text: #8A8C90;
+  --gray-border: #EAE6DE;
+  --white: #FFFFFF;
 }
-*{box-sizing:border-box}
-html,body{margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans CJK SC","Microsoft YaHei",system-ui,sans-serif;background:#e9e9e7;color:var(--semantic-foreground-primary);font-size:14px; -webkit-font-smoothing:antialiased;}
-.review{margin:auto;max-width:1740px;padding:32px 26px 60px}
-.review h1{font-size:24px;letter-spacing:-.025em;margin:0 0 7px;font-weight:720;}
-.review-sub{font-size:12px;color:#777;margin:0 0 25px}
-.review-grid{display:flex;gap:24px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
-.device{flex:0 0 auto}
-.device-label{font-size:14px;font-weight:700;margin-bottom:12px;letter-spacing:-.025em}
-.device-meta{color:#7c7c7c;font-size:11px;font-weight:500;margin-left:4px}
-.phone{background:var(--semantic-surface-canvas);position:relative;width:var(--screen-width);height:844px;overflow:hidden;box-shadow:0 10px 28px #1c171214,0 0 0 1px #28231921;border-radius:22px;isolation:isolate}
-.screen{height:100%;display:flex;flex-direction:column;min-width:0;}
-.topbar{height:68px;flex:none;background:var(--semantic-surface-dark);color:#fff;padding:19px 16px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;position:relative;}
-.topbar:after{content:"";position:absolute;left:16px;bottom:0;width:36px;height:2px;background:var(--semantic-brand-metal);}
-.wordmark{font-size:23px;font-weight:740;letter-spacing:.055em;white-space:nowrap;line-height:1}
-.city{display:inline-flex;align-items:center;gap:3px;white-space:nowrap;font-size:12px;opacity:.97;font-weight:500}
-.city svg{width:13px;height:13px}
-.sticky-stack{background:var(--semantic-surface-canvas);z-index:4;flex:none;box-shadow:0 3px 10px #25282b06}
-.hero{padding:11px 14px 0;display:block}
-.hero-card{height:97px;border-radius:14px;background:linear-gradient(112deg,#2c3032 3%,#49463c 56%,#6e5e3c 100%);position:relative;overflow:hidden;color:#fefcf6;display:flex;align-items:center;padding:0 18px;}
-.hero-card::before{content:"";position:absolute;right:-36px;top:-44px;border:1px solid #e7d2a344;border-radius:50%;width:160px;height:160px;}
-.hero-card::after{content:"";position:absolute;right:21px;top:25px;width:65px;height:65px;border-radius:50%;border:1px solid #e7d2a366;}
-.hero-text{position:relative;z-index:1}
-.hero-title{font-size:18px;font-weight:730;line-height:1.2;letter-spacing:.015em}
-.hero-subtitle{font-size:11px;color:#ede2c9;line-height:1.5;margin-top:9px;letter-spacing:.02em}
-.hero-index{position:absolute;right:18px;bottom:13px;font-size:10px;color:#eadbbd;font-variant-numeric:tabular-nums}
-.searchline{padding:12px 14px 0}
-.search{height:47px;border:1px solid #e8e2d8;border-radius:12px;background:white;display:flex;align-items:center;gap:10px;padding:0 14px;box-shadow:0 2px 9px #1b130b06;color:#82796d;font-size:13px;letter-spacing:.005em;}
-.search svg{flex:none;width:18px;height:18px;stroke:var(--semantic-brand-primary);stroke-width:1.8;}
-.search-value{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.channels{margin:12px 14px 0;background:#fff;border-radius:11px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));height:45px;box-shadow:0 1px 6px #322b2010;overflow:hidden;padding:3px;}
-.channel{display:flex;align-items:center;justify-content:center;min-width:0;border-radius:8px;font-size:12px;color:#68635a;font-weight:560;letter-spacing:-.025em;white-space:nowrap;}
-.channel.active{background:var(--semantic-brand-subtle);color:var(--semantic-brand-primary);font-weight:760}
-.filter-box{padding:11px 14px 12px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;}
-.filter{height:43px;background:#fff;border:1px solid #e5e0d8;display:flex;align-items:center;justify-content:center;gap:4px;font-size:12px;letter-spacing:-.03em;border-radius:8px;color:#3a3936;font-weight:590;min-width:0;}
-.filter svg{width:10px;height:10px;stroke:#8d8678;stroke-width:1.65;}
-.filter .name{white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}
-.feed{min-height:0;overflow:hidden;flex:1;position:relative;padding:4px 14px 30px;background:var(--semantic-surface-canvas)}
-.feed-heading{height:38px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
-.feed-heading h2{margin:0;font-size:16px;font-weight:770;letter-spacing:-.025em;color:#292b2c}
-.feed-heading small{font-size:11px;color:#868079;white-space:nowrap;}
-.vehicle{background:#fff;border-radius:14px;box-shadow:0 2px 12px #40382b0b;border:1px solid #ece8e1;margin-bottom:11px;min-height:180px;padding:12px;display:flex;gap:12px;position:relative;overflow:hidden;}
-.vehicle:active{background:#faf8f4;}
-.vehicle-photo{flex:0 0 var(--image-width);width:var(--image-width);height:122px;overflow:hidden;border-radius:10px;background:#e8e6e2;align-self:flex-start;}
-.vehicle-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;}
-.vehicle-info{min-width:0;display:flex;flex-direction:column;flex:1;padding:0;}
-.vehicle-title{color:#25282b;font-size:15px;line-height:21px;font-weight:745;letter-spacing:-.03em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-height:42px;overflow-wrap:anywhere;margin:0;}
-.vehicle-subtitle{color:#77716b;font-size:11.5px;line-height:17px;margin:4px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.vehicle-data{margin:8px 0 0;color:#706d68;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
-.vehicle-city{margin:5px 0 0;color:#77716a;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
-.vehicle-price{font-size:20px;line-height:25px;font-weight:800;color:var(--semantic-brand-primary);letter-spacing:-.045em;margin:auto 0 0;white-space:nowrap}
-.vehicle-price .unit{font-size:12px;font-weight:600;letter-spacing:0;margin-left:2px}
-.vehicle-bottom{position:absolute;bottom:11px;left:12px;right:12px;border-top:1px solid #f0ece5;padding-top:8px;display:flex;align-items:center;justify-content:space-between;min-width:0;height:31px;}
-.source{color:var(--semantic-brand-primary);background:#f6f0e2;border-radius:5px;font-weight:670;font-size:10.5px;padding:3px 7px;line-height:1.4;}
-.listing-date{color:#8e867c;font-size:10px;white-space:nowrap;}
-.nav{flex:none;height:78px;display:grid;grid-template-columns:repeat(3,1fr);background:#fff;border-top:1px solid #eee8de;align-items:start;padding-top:11px;box-shadow:0 -3px 13px #2b221006;z-index:5;}
-.nav-item{height:53px;display:flex;align-items:center;justify-content:flex-start;flex-direction:column;gap:4px;color:#89847c;font-size:11.5px;font-weight:575;white-space:nowrap}
-.nav-item.current{color:var(--semantic-brand-primary);font-weight:740}
-.nav-item svg{width:21px;height:21px;stroke:currentColor;stroke-width:1.85;stroke-linecap:round;stroke-linejoin:round;fill:none}
-@media(max-width:360px){
- .phone{--image-width:114px!important}
- .vehicle{padding:10px;gap:10px;min-height:178px}
- .vehicle-photo{height:119px}
- .vehicle-info .vehicle-title{font-size:13.3px;line-height:19px;max-height:38px}
- .vehicle-subtitle{font-size:10.5px}
- .vehicle-data,.vehicle-city{font-size:10px}
- .vehicle-price{font-size:18px}
- .vehicle-bottom{bottom:10px;left:10px;right:10px}
- .filter{font-size:11px}
- .channel{font-size:11px}
- .wordmark{font-size:22px}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+  background: #E5E5E5;
+  margin: 0;
+  padding: 40px;
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  flex-wrap: wrap;
+  -webkit-font-smoothing: antialiased;
 }
-@media(max-width:380px){.vehicle-info{letter-spacing:-.01em}}
+.review-header {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.review-header h1 { margin: 0; font-size: 24px; color: #333; }
+.device-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.device-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+.device {
+  width: 390px;
+  height: 844px;
+  background: var(--bg);
+  border-radius: 40px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1), 0 0 0 10px #000;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.header {
+  background: var(--black);
+  color: var(--white);
+  padding: 16px 20px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.wordmark {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--gold);
+}
+.city-selector {
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+.city-selector svg { width: 14px; height: 14px; }
+.banner-container {
+  padding: 16px 16px 8px;
+  background: var(--bg);
+}
+.banner {
+  background: linear-gradient(135deg, #2A2D32 0%, #1A1C1E 100%);
+  border-radius: 16px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  color: var(--gold);
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.banner::after {
+  content: '';
+  position: absolute;
+  right: -30px;
+  top: -30px;
+  width: 140px;
+  height: 140px;
+  border: 1px solid rgba(196, 162, 101, 0.15);
+  border-radius: 50%;
+}
+.banner::before {
+  content: '';
+  position: absolute;
+  right: 20px;
+  top: 10px;
+  width: 90px;
+  height: 90px;
+  border: 1px solid rgba(196, 162, 101, 0.3);
+  border-radius: 50%;
+}
+.banner h2 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: 1px; z-index: 1;}
+.banner p { margin: 6px 0 0; font-size: 13px; color: rgba(255,255,255,0.8); z-index: 1;}
+.sticky-header {
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding-bottom: 12px;
+}
+.search-wrapper {
+  padding: 8px 16px 12px;
+}
+.search-bar {
+  background: var(--white);
+  border: 1px solid var(--gray-border);
+  border-radius: 20px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 8px;
+  color: var(--gray-text);
+  font-size: 14px;
+}
+.search-bar svg { width: 16px; height: 16px; stroke: var(--gold); stroke-width: 2; fill: none; }
+.channels {
+  display: flex;
+  margin: 0 16px;
+  background: var(--white);
+  border-radius: 12px;
+  padding: 4px;
+  border: 1px solid var(--gray-border);
+}
+.channel-tab {
+  flex: 1;
+  text-align: center;
+  padding: 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-text);
+  border-radius: 8px;
+}
+.channel-tab.active {
+  background: var(--gold-bg);
+  color: var(--gold);
+}
+.filters {
+  display: flex;
+  padding: 12px 16px 0;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.filters::-webkit-scrollbar { display: none; }
+.filter-tag {
+  flex: 0 0 auto;
+  background: var(--white);
+  border: 1px solid var(--gray-border);
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--black-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.filter-tag svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2; }
+.feed {
+  padding: 16px;
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.feed::-webkit-scrollbar { display: none; }
+.feed-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.feed-header h3 { margin: 0; font-size: 16px; font-weight: 700; color: var(--black); }
+.feed-header span { font-size: 12px; color: var(--gray-text); }
+.card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 12px;
+  display: flex;
+  gap: 14px;
+  margin-bottom: 12px;
+  border: 1px solid var(--gray-border);
+}
+.card-img {
+  width: 120px;
+  height: 90px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: #eee;
+  flex-shrink: 0;
+}
+.card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+}
+.card-title {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--black);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card-specs {
+  font-size: 12px;
+  color: var(--gray-text);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.card-tags {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.source-tag {
+  background: var(--gold-bg);
+  color: var(--gold);
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  width: fit-content;
+}
+.date-tag {
+  font-size: 10px;
+  color: var(--gray-text);
+}
+.card-price {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--gold);
+  line-height: 1;
+}
+.card-price span { font-size: 12px; font-weight: 600; margin-left: 2px; }
+.bottom-nav {
+  background: var(--white);
+  border-top: 1px solid var(--gray-border);
+  display: flex;
+  padding: 8px 0 24px;
+  z-index: 20;
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--gray-text);
+  font-size: 10px;
+  font-weight: 600;
+}
+.nav-item.active {
+  color: var(--gold);
+}
+.nav-item svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; }
+.nav-item.active svg { fill: currentColor; stroke: none; }
+[data-entitlement="LIMITED"] .card-price { display: none; }
+</style>
+</head>
+<body>
 
-.phone[data-width="320"] {--image-width:112px}
-.phone[data-width="390"] {--image-width:146px}
-.phone[data-width="320"] .vehicle{padding:10px;gap:10px;min-height:180px}
-.phone[data-width="320"] .vehicle-photo{height:121px}
-.phone[data-width="320"] .vehicle-title{font-size:13.3px;line-height:19px;max-height:38px}
-.phone[data-width="320"] .vehicle-subtitle{font-size:10.2px;line-height:15px}
-.phone[data-width="320"] .vehicle-data,.phone[data-width="320"] .vehicle-city{font-size:10px}
-.phone[data-width="320"] .vehicle-price{font-size:18px}
-.phone[data-width="320"] .vehicle-bottom{left:10px;right:10px}
-.phone[data-entitlement="LIMITED"] .vehicle-price{display:none}
-.phone[data-width="320"] .filter{font-size:11px}
-.phone[data-width="320"] .channel{font-size:10.7px}
-.phone[data-width="320"] .search{font-size:12px}
-</style></head><body><div class="review"><h1>C01｜车源首页 · 视觉验收预览</h1><p class="review-sub">以下样稿均为独立页面截图输入；所有数据、照片为合法的视觉示例，非真实车源。说明文字不属于页面本体。</p><div class="review-grid"><section class="device"><div class="device-label">390px · 首页完整态 <span class="device-meta">客户展示价可见</span></div><div class="phone" data-width="390" data-mode="full" data-entitlement="VIP" id="phone-390-full" style="--screen-width:390px; --image-width:146px"><div class="screen"><header class="topbar"><strong class="wordmark">名邦汽车</strong><span class="city"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.65"><path d="M10 18s6-5.4 6-10A6 6 0 0 0 4 8c0 4.6 6 10 6 10z"/><circle cx="10" cy="8" r="2.1"/></svg>全国 <svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></span></header><div class="sticky-stack"><div class="hero"><div class="hero-card" data-banner="HOME_TOP"><div class="hero-text"><div class="hero-title">全国车源</div><div class="hero-subtitle">车型 · 地区 · 价格，按需筛选</div></div><div class="hero-index">01 / 03</div></div></div><div class="searchline"><div class="search" role="search"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10.6" cy="10.6" r="6.7"/><path d="M15.7 15.7L20.5 20.5"/></svg><span class="search-value">搜索品牌、车系、车型</span></div></div><div class="channels" role="tablist"><span class="channel active" data-source="0">批发车源</span><span class="channel " data-source="1">名邦车源</span><span class="channel " data-source="2">4S店车源</span></div><div class="filter-box"><div class="filter"><span class="name">排序</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div><div class="filter"><span class="name">品牌/车系</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div><div class="filter"><span class="name">价格</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div><div class="filter"><span class="name">年份</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div><div class="filter"><span class="name">里程</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div><div class="filter"><span class="name">更多</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div></div></div><main class="feed"><div class="feed-heading"><h2>最新上架</h2><small>按上架时间排序</small></div><article class="vehicle" data-index="1"><div class="vehicle-photo"><img alt="车辆示例照片" src="assets/car_sample_1.jpg"/></div><div class="vehicle-info"><h3 class="vehicle-title">2025款 中大型轿车 45 TFSI</h3><p class="vehicle-subtitle">自动 · 2.0T</p><p class="vehicle-data">2025年03月上牌 · 2.8万公里</p><p class="vehicle-city">北京 · 朝阳区</p><div class="vehicle-price" data-price><span>18.60</span><span class="unit">万</span></div></div><div class="vehicle-bottom"><span class="source">批发车源</span><span class="listing-date">10月08日上架</span></div></article><article class="vehicle" data-index="2"><div class="vehicle-photo"><img alt="车辆示例照片" src="assets/car_sample_2.jpg"/></div><div class="vehicle-info"><h3 class="vehicle-title">2024款 中大型轿车 530Li</h3><p class="vehicle-subtitle">自动 · 2.0T</p><p class="vehicle-data">2024年06月上牌 · 3.9万公里</p><p class="vehicle-city">广州 · 天河区</p><div class="vehicle-price" data-price><span>22.80</span><span class="unit">万</span></div></div><div class="vehicle-bottom"><span class="source">批发车源</span><span class="listing-date">10月07日上架</span></div></article><article class="vehicle" data-index="3"><div class="vehicle-photo"><img alt="车辆示例照片" src="assets/car_sample_1.jpg"/></div><div class="vehicle-info"><h3 class="vehicle-title">2023款 商务中大型轿车 尊享版</h3><p class="vehicle-subtitle">自动 · 2.0T</p><p class="vehicle-data">2023年09月上牌 · 4.6万公里</p><p class="vehicle-city">上海 · 浦东新区</p><div class="vehicle-price" data-price><span>16.20</span><span class="unit">万</span></div></div><div class="vehicle-bottom"><span class="source">批发车源</span><span class="listing-date">10月06日上架</span></div></article></main><footer class="nav"><div class="nav-item current"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21H3V10.5z"/><path d="M8.5 21v-6.5h7V21"/></svg><span>车源</span></div><div class="nav-item "><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.8"/><path d="m15.7 15.7 4.4 4.4"/><path d="M8 10.5h5m-2.5-2.5v5"/></svg><span>帮我找车</span></div><div class="nav-item "><svg viewBox="0 0 24 24"><circle cx="12" cy="7.3" r="3.3"/><path d="M5.3 21v-2c0-3.5 2.7-5.4 6.7-5.4s6.7 1.9 6.7 5.4v2"/></svg><span>我的</span></div></footer></div></div></section>
-<section class="device"><div class="device-label">390px · 下滑紧凑态 <span class="device-meta">客户展示价可见</span></div><div class="phone" data-width="390" data-mode="compact" data-entitlement="VIP" id="phone-390-compact" style="--screen-width:390px; --image-width:146px"><div class="screen"><header class="topbar"><strong class="wordmark">名邦汽车</strong><span class="city"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.65"><path d="M10 18s6-5.4 6-10A6 6 0 0 0 4 8c0 4.6 6 10 6 10z"/><circle cx="10" cy="8" r="2.1"/></svg>全国 <svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></span></header><div class="sticky-stack"><div class="searchline"><div class="search" role="search"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10.6" cy="10.6" r="6.7"/><path d="M15.7 15.7L20.5 20.5"/></svg><span class="search-value">搜索品牌、车系、车型</span></div></div><div class="channels" role="tablist"><span class="channel active" data-source="0">批发车源</span><span class="channel " data-source="1">名邦车源</span><span class="channel " data-source="2">4S店车源</span></div><div class="filter-box"><div class="filter"><span class="name">排序</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div><div class="filter"><span class="name">品牌/车系</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div><div class="filter"><span class="name">价格</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div><div class="filter"><span class="name">年份</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div><div class="filter"><span class="name">里程</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div><div class="filter"><span class="name">更多</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div></div></div><main class="feed"><div class="feed-heading"><h2>最新上架</h2><small>按上架时间排序</small></div><article class="vehicle" data-index="1"><div class="vehicle-photo"><img alt="车辆示例照片" src="assets/car_sample_1.jpg"/></div><div class="vehicle-info"><h3 class="vehicle-title">2025款 中大型轿车 45 TFSI</h3><p class="vehicle-subtitle">自动 · 2.0T</p><p class="vehicle-data">2025年03月上牌 · 2.8万公里</p><p class="vehicle-city">北京 · 朝阳区</p><div class="vehicle-price" data-price><span>18.60</span><span class="unit">万</span></div></div><div class="vehicle-bottom"><span class="source">批发车源</span><span class="listing-date">10月08日上架</span></div></article><article class="vehicle" data-index="2"><div class="vehicle-photo"><img alt="车辆示例照片" src="assets/car_sample_2.jpg"/></div><div class="vehicle-info"><h3 class="vehicle-title">2024款 中大型轿车 530Li</h3><p class="vehicle-subtitle">自动 · 2.0T</p><p class="vehicle-data">2024年06月上牌 · 3.9万公里</p><p class="vehicle-city">广州 · 天河区</p><div class="vehicle-price" data-price><span>22.80</span><span class="unit">万</span></div></div><div class="vehicle-bottom"><span class="source">批发车源</span><span class="listing-date">10月07日上架</span></div></article><article class="vehicle" data-index="3"><div class="vehicle-photo"><img alt="车辆示例照片" src="assets/car_sample_1.jpg"/></div><div class="vehicle-info"><h3 class="vehicle-title">2023款 商务中大型轿车 尊享版</h3><p class="vehicle-subtitle">自动 · 2.0T</p><p class="vehicle-data">2023年09月上牌 · 4.6万公里</p><p class="vehicle-city">上海 · 浦东新区</p><div class="vehicle-price" data-price><span>16.20</span><span class="unit">万</span></div></div><div class="vehicle-bottom"><span class="source">批发车源</span><span class="listing-date">10月06日上架</span></div></article></main><footer class="nav"><div class="nav-item current"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21H3V10.5z"/><path d="M8.5 21v-6.5h7V21"/></svg><span>车源</span></div><div class="nav-item "><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.8"/><path d="m15.7 15.7 4.4 4.4"/><path d="M8 10.5h5m-2.5-2.5v5"/></svg><span>帮我找车</span></div><div class="nav-item "><svg viewBox="0 0 24 24"><circle cx="12" cy="7.3" r="3.3"/><path d="M5.3 21v-2c0-3.5 2.7-5.4 6.7-5.4s6.7 1.9 6.7 5.4v2"/></svg><span>我的</span></div></footer></div></div></section>
-<section class="device"><div class="device-label">320px · 首页完整态 <span class="device-meta">客户展示价可见</span></div><div class="phone" data-width="320" data-mode="full" data-entitlement="VIP" id="phone-320-full" style="--screen-width:320px; --image-width:112px"><div class="screen"><header class="topbar"><strong class="wordmark">名邦汽车</strong><span class="city"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.65"><path d="M10 18s6-5.4 6-10A6 6 0 0 0 4 8c0 4.6 6 10 6 10z"/><circle cx="10" cy="8" r="2.1"/></svg>全国 <svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></span></header><div class="sticky-stack"><div class="hero"><div class="hero-card" data-banner="HOME_TOP"><div class="hero-text"><div class="hero-title">全国车源</div><div class="hero-subtitle">车型 · 地区 · 价格，按需筛选</div></div><div class="hero-index">01 / 03</div></div></div><div class="searchline"><div class="search" role="search"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10.6" cy="10.6" r="6.7"/><path d="M15.7 15.7L20.5 20.5"/></svg><span class="search-value">搜索品牌、车系、车型</span></div></div><div class="channels" role="tablist"><span class="channel active" data-source="0">批发车源</span><span class="channel " data-source="1">名邦车源</span><span class="channel " data-source="2">4S店车源</span></div><div class="filter-box"><div class="filter"><span class="name">排序</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div><div class="filter"><span class="name">品牌/车系</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div><div class="filter"><span class="name">价格</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div><div class="filter"><span class="name">年份</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div><div class="filter"><span class="name">里程</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div><div class="filter"><span class="name">更多</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div></div></div><main class="feed"><div class="feed-heading"><h2>最新上架</h2><small>按上架时间排序</small></div><article class="vehicle" data-index="1"><div class="vehicle-photo"><img alt="车辆示例照片" src="assets/car_sample_1.jpg"/></div><div class="vehicle-info"><h3 class="vehicle-title">2025款 中大型轿车 45 TFSI</h3><p class="vehicle-subtitle">自动 · 2.0T</p><p class="vehicle-data">2025年03月上牌 · 2.8万公里</p><p class="vehicle-city">北京 · 朝阳区</p><div class="vehicle-price" data-price><span>18.60</span><span class="unit">万</span></div></div><div class="vehicle-bottom"><span class="source">批发车源</span><span class="listing-date">10月08日上架</span></div></article><article class="vehicle" data-index="2"><div class="vehicle-photo"><img alt="车辆示例照片" src="assets/car_sample_2.jpg"/></div><div class="vehicle-info"><h3 class="vehicle-title">2024款 中大型轿车 530Li</h3><p class="vehicle-subtitle">自动 · 2.0T</p><p class="vehicle-data">2024年06月上牌 · 3.9万公里</p><p class="vehicle-city">广州 · 天河区</p><div class="vehicle-price" data-price><span>22.80</span><span class="unit">万</span></div></div><div class="vehicle-bottom"><span class="source">批发车源</span><span class="listing-date">10月07日上架</span></div></article><article class="vehicle" data-index="3"><div class="vehicle-photo"><img alt="车辆示例照片" src="assets/car_sample_1.jpg"/></div><div class="vehicle-info"><h3 class="vehicle-title">2023款 商务中大型轿车 尊享版</h3><p class="vehicle-subtitle">自动 · 2.0T</p><p class="vehicle-data">2023年09月上牌 · 4.6万公里</p><p class="vehicle-city">上海 · 浦东新区</p><div class="vehicle-price" data-price><span>16.20</span><span class="unit">万</span></div></div><div class="vehicle-bottom"><span class="source">批发车源</span><span class="listing-date">10月06日上架</span></div></article></main><footer class="nav"><div class="nav-item current"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21H3V10.5z"/><path d="M8.5 21v-6.5h7V21"/></svg><span>车源</span></div><div class="nav-item "><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.8"/><path d="m15.7 15.7 4.4 4.4"/><path d="M8 10.5h5m-2.5-2.5v5"/></svg><span>帮我找车</span></div><div class="nav-item "><svg viewBox="0 0 24 24"><circle cx="12" cy="7.3" r="3.3"/><path d="M5.3 21v-2c0-3.5 2.7-5.4 6.7-5.4s6.7 1.9 6.7 5.4v2"/></svg><span>我的</span></div></footer></div></div></section>
-<section class="device"><div class="device-label">320px · 下滑紧凑态 <span class="device-meta">客户展示价可见</span></div><div class="phone" data-width="320" data-mode="compact" data-entitlement="VIP" id="phone-320-compact" style="--screen-width:320px; --image-width:112px"><div class="screen"><header class="topbar"><strong class="wordmark">名邦汽车</strong><span class="city"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.65"><path d="M10 18s6-5.4 6-10A6 6 0 0 0 4 8c0 4.6 6 10 6 10z"/><circle cx="10" cy="8" r="2.1"/></svg>全国 <svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></span></header><div class="sticky-stack"><div class="searchline"><div class="search" role="search"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10.6" cy="10.6" r="6.7"/><path d="M15.7 15.7L20.5 20.5"/></svg><span class="search-value">搜索品牌、车系、车型</span></div></div><div class="channels" role="tablist"><span class="channel active" data-source="0">批发车源</span><span class="channel " data-source="1">名邦车源</span><span class="channel " data-source="2">4S店车源</span></div><div class="filter-box"><div class="filter"><span class="name">排序</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div><div class="filter"><span class="name">品牌/车系</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div><div class="filter"><span class="name">价格</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div><div class="filter"><span class="name">年份</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div><div class="filter"><span class="name">里程</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div><div class="filter"><span class="name">更多</span><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4"/></svg></div></div></div><main class="feed"><div class="feed-heading"><h2>最新上架</h2><small>按上架时间排序</small></div><article class="vehicle" data-index="1"><div class="vehicle-photo"><img alt="车辆示例照片" src="assets/car_sample_1.jpg"/></div><div class="vehicle-info"><h3 class="vehicle-title">2025款 中大型轿车 45 TFSI</h3><p class="vehicle-subtitle">自动 · 2.0T</p><p class="vehicle-data">2025年03月上牌 · 2.8万公里</p><p class="vehicle-city">北京 · 朝阳区</p><div class="vehicle-price" data-price><span>18.60</span><span class="unit">万</span></div></div><div class="vehicle-bottom"><span class="source">批发车源</span><span class="listing-date">10月08日上架</span></div></article><article class="vehicle" data-index="2"><div class="vehicle-photo"><img alt="车辆示例照片" src="assets/car_sample_2.jpg"/></div><div class="vehicle-info"><h3 class="vehicle-title">2024款 中大型轿车 530Li</h3><p class="vehicle-subtitle">自动 · 2.0T</p><p class="vehicle-data">2024年06月上牌 · 3.9万公里</p><p class="vehicle-city">广州 · 天河区</p><div class="vehicle-price" data-price><span>22.80</span><span class="unit">万</span></div></div><div class="vehicle-bottom"><span class="source">批发车源</span><span class="listing-date">10月07日上架</span></div></article><article class="vehicle" data-index="3"><div class="vehicle-photo"><img alt="车辆示例照片" src="assets/car_sample_1.jpg"/></div><div class="vehicle-info"><h3 class="vehicle-title">2023款 商务中大型轿车 尊享版</h3><p class="vehicle-subtitle">自动 · 2.0T</p><p class="vehicle-data">2023年09月上牌 · 4.6万公里</p><p class="vehicle-city">上海 · 浦东新区</p><div class="vehicle-price" data-price><span>16.20</span><span class="unit">万</span></div></div><div class="vehicle-bottom"><span class="source">批发车源</span><span class="listing-date">10月06日上架</span></div></article></main><footer class="nav"><div class="nav-item current"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21H3V10.5z"/><path d="M8.5 21v-6.5h7V21"/></svg><span>车源</span></div><div class="nav-item "><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.8"/><path d="m15.7 15.7 4.4 4.4"/><path d="M8 10.5h5m-2.5-2.5v5"/></svg><span>帮我找车</span></div><div class="nav-item "><svg viewBox="0 0 24 24"><circle cx="12" cy="7.3" r="3.3"/><path d="M5.3 21v-2c0-3.5 2.7-5.4 6.7-5.4s6.7 1.9 6.7 5.4v2"/></svg><span>我的</span></div></footer></div></div></section></div></div></body></html>
+<div class="review-header">
+  <h1>名邦汽车 H01 C01 视觉设计重构</h1>
+</div>
+
+<div class="device-container">
+  <div class="device-label">390px · 首页完整态 (客户展示价可见)</div>
+  <div class="device" id="phone-390-full" data-entitlement="VIP">
+    <div class="header">
+      <div class="wordmark">名邦汽车</div>
+      <div class="city-selector">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+        全国
+      </div>
+    </div>
+
+    <div class="banner-container">
+      <div class="banner">
+        <h2>全国车源</h2>
+        <p>车型 · 地区 · 价格，按需筛选</p>
+      </div>
+    </div>
+
+    <div class="sticky-header">
+      <div class="search-wrapper">
+        <div class="search-bar">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          搜索品牌、车系、车型
+        </div>
+      </div>
+
+      <div class="channels">
+        <div class="channel-tab active">批发车源</div>
+        <div class="channel-tab">名邦车源</div>
+        <div class="channel-tab">4S店车源</div>
+      </div>
+
+      <div class="filters">
+        <div class="filter-tag">排序 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+        <div class="filter-tag">品牌/车系 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+        <div class="filter-tag">价格 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+        <div class="filter-tag">年份 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+        <div class="filter-tag">里程 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+        <div class="filter-tag">更多 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+      </div>
+    </div>
+
+    <div class="feed">
+      <div class="feed-header">
+        <h3>最新上架</h3>
+        <span>按上架时间排序</span>
+      </div>
+
+      <!-- Card 1 -->
+      <div class="card">
+        <img src="assets/car_sample_1.jpg" alt="Car" class="card-img" />
+        <div class="card-content">
+          <div>
+            <h4 class="card-title">2025款 中大型轿车 45 TFSI</h4>
+            <div class="card-specs">自动 · 2.0T | 2.8万公里 | 北京</div>
+          </div>
+          <div class="card-bottom">
+            <div class="card-tags">
+              <span class="source-tag">批发车源</span>
+              <span class="date-tag">10月08日上架</span>
+            </div>
+            <div class="card-price">18.60<span>万</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="card">
+        <img src="assets/car_sample_2.jpg" alt="Car" class="card-img" />
+        <div class="card-content">
+          <div>
+            <h4 class="card-title">2024款 中大型轿车 530Li</h4>
+            <div class="card-specs">自动 · 2.0T | 3.9万公里 | 广州</div>
+          </div>
+          <div class="card-bottom">
+            <div class="card-tags">
+              <span class="source-tag">批发车源</span>
+              <span class="date-tag">10月07日上架</span>
+            </div>
+            <div class="card-price">22.80<span>万</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="card">
+        <img src="assets/car_sample_1.jpg" alt="Car" class="card-img" />
+        <div class="card-content">
+          <div>
+            <h4 class="card-title">2023款 商务中大型轿车 尊享版</h4>
+            <div class="card-specs">自动 · 2.0T | 4.6万公里 | 上海</div>
+          </div>
+          <div class="card-bottom">
+            <div class="card-tags">
+              <span class="source-tag">批发车源</span>
+              <span class="date-tag">10月06日上架</span>
+            </div>
+            <div class="card-price">16.20<span>万</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item active">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        车源
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+        帮我找车
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        我的
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="device-container">
+  <div class="device-label">390px · 下滑紧凑态 (客户展示价可见)</div>
+  <div class="device" id="phone-390-compact" data-entitlement="VIP">
+    <div class="header">
+      <div class="wordmark">名邦汽车</div>
+      <div class="city-selector">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+        全国
+      </div>
+    </div>
+
+    <div class="sticky-header" style="padding-top: 12px;">
+      <div class="search-wrapper">
+        <div class="search-bar">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          搜索品牌、车系、车型
+        </div>
+      </div>
+
+      <div class="channels">
+        <div class="channel-tab active">批发车源</div>
+        <div class="channel-tab">名邦车源</div>
+        <div class="channel-tab">4S店车源</div>
+      </div>
+
+      <div class="filters">
+        <div class="filter-tag">排序 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+        <div class="filter-tag">品牌/车系 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+        <div class="filter-tag">价格 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+        <div class="filter-tag">年份 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+        <div class="filter-tag">里程 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+        <div class="filter-tag">更多 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+      </div>
+    </div>
+
+    <div class="feed">
+      <div class="feed-header">
+        <h3>最新上架</h3>
+        <span>按上架时间排序</span>
+      </div>
+
+      <!-- Card 1 -->
+      <div class="card">
+        <img src="assets/car_sample_1.jpg" alt="Car" class="card-img" />
+        <div class="card-content">
+          <div>
+            <h4 class="card-title">2025款 中大型轿车 45 TFSI</h4>
+            <div class="card-specs">自动 · 2.0T | 2.8万公里 | 北京</div>
+          </div>
+          <div class="card-bottom">
+            <div class="card-tags">
+              <span class="source-tag">批发车源</span>
+              <span class="date-tag">10月08日上架</span>
+            </div>
+            <div class="card-price">18.60<span>万</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="card">
+        <img src="assets/car_sample_2.jpg" alt="Car" class="card-img" />
+        <div class="card-content">
+          <div>
+            <h4 class="card-title">2024款 中大型轿车 530Li</h4>
+            <div class="card-specs">自动 · 2.0T | 3.9万公里 | 广州</div>
+          </div>
+          <div class="card-bottom">
+            <div class="card-tags">
+              <span class="source-tag">批发车源</span>
+              <span class="date-tag">10月07日上架</span>
+            </div>
+            <div class="card-price">22.80<span>万</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="card">
+        <img src="assets/car_sample_1.jpg" alt="Car" class="card-img" />
+        <div class="card-content">
+          <div>
+            <h4 class="card-title">2023款 商务中大型轿车 尊享版</h4>
+            <div class="card-specs">自动 · 2.0T | 4.6万公里 | 上海</div>
+          </div>
+          <div class="card-bottom">
+            <div class="card-tags">
+              <span class="source-tag">批发车源</span>
+              <span class="date-tag">10月06日上架</span>
+            </div>
+            <div class="card-price">16.20<span>万</span></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Card 4 (extra to show scrolling) -->
+      <div class="card">
+        <img src="assets/car_sample_2.jpg" alt="Car" class="card-img" />
+        <div class="card-content">
+          <div>
+            <h4 class="card-title">2022款 豪华SUV 运动版</h4>
+            <div class="card-specs">自动 · 3.0T | 6.2万公里 | 深圳</div>
+          </div>
+          <div class="card-bottom">
+            <div class="card-tags">
+              <span class="source-tag">批发车源</span>
+              <span class="date-tag">10月05日上架</span>
+            </div>
+            <div class="card-price">35.50<span>万</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item active">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        车源
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+        帮我找车
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        我的
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
