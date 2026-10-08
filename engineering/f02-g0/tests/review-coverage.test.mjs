@@ -4,11 +4,11 @@ import {readFile} from 'node:fs/promises';
 const root=new URL('../',import.meta.url);
 const read=n=>readFile(new URL(n,root),'utf8');
 const parse=s=>s.trim().split(/\r?\n/).map(x=>x.split('\t'));
-test('376行分级、80项review全部有处理分类和明确依据且没有擅自冻结',async()=>{
+test('原376字段与新增37字段逐项分级、原80项REVIEW全覆盖且无擅自冻结',async()=>{
  const m=parse(await read('field-matrix.tsv')).slice(1), r=parse(await read('nullable-review-80.tsv')).slice(1),t=parse(await read('field-tiers-376.tsv')).slice(1);
  assert.equal(m.length,413);assert.equal(r.length,80);assert.equal(t.length,413);assert.equal(m.filter(z=>Number(z[0].slice(-4))<=381).length,376);
  const lookup=new Map(m.map(z=>[z[0],z]));
- assert.equal(new Set(t.map(z=>z[0])).size,376);assert.equal(new Set(r.map(z=>z[0])).size,80);
+ assert.equal(new Set(t.map(z=>z[0])).size,413);assert.equal(new Set(r.map(z=>z[0])).size,80);
  for(const row of r){
   assert.equal(row.length,7);assert.ok(['REVIEW','YES','NO'].includes(lookup.get(row[0])[4]));
   assert.equal(row[1],lookup.get(row[0])[1]+'.'+lookup.get(row[0])[2]);

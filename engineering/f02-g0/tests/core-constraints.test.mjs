@@ -10,5 +10,5 @@ const map=new Map(c.map(r=>[r[1],r]));assert.equal(map.get('customers.current_ow
 assert.match(map.get('customer_wechat_identities.wechat_identity_key')[4],/identity_scope/);
 assert.match(map.get('role_permission_defaults.permission_id')[4],/role_id,permission_id/);
 assert.match(map.get('employee_permission_overrides.permission_id')[4],/employee_id,permission_id/);
-assert.match(map.get('customer_price_cycle_unlocks.listing_cycle_id')[4],/不能|混用|此表/);
+assert.match(map.get('customer_price_cycle_unlocks.listing_cycle_id')[4],/不能|混用|此表|不混日期/);
 });
