@@ -6,6 +6,24 @@ const client=new pg.Client({connectionString:verifyF021Target().connectionString
 let checks=0;
 const pass=label=>{checks++;console.log('F02-1 LIVE PASS: '+label)};
 const constraintName=(...parts)=>'f02_'+createHash('sha256').update(parts.join(':')).digest('hex').slice(0,20);
+// Within the disposable fixture transaction, drop only the named UNIQUE index,
+// prove the previously rejected *valid* duplicate INSERT now succeeds, then roll
+// back the savepoint so both index and test row are restored atomically.
+async function verifyTargetUniqueIsNecessary(label,targetIndex,validDuplicateSql){
+ assert.match(targetIndex,/^f02_[0-9a-f]{20}$/);
+ const exists=await client.query("SELECT i.indexrelid::regclass::text AS index_name FROM pg_index i WHERE i.indrelid='public.pc_login_accounts'::regclass AND i.indexrelid=$1::regclass AND i.indisunique",[ 'public.'+targetIndex ]);
+ assert.equal(exists.rowCount,1,label+' missing expected unique index');
+ await client.query('SAVEPOINT f02_target_removed');
+ try{
+  await client.query('DROP INDEX public."'+targetIndex+'"');
+  await client.query(validDuplicateSql);
+  checks++;
+  console.log('F02-1 TARGET UNIQUE NECESSITY PASS: '+label+'; target='+targetIndex+'; duplicate succeeds without target');
+ }finally{
+  await client.query('ROLLBACK TO SAVEPOINT f02_target_removed');
+  await client.query('RELEASE SAVEPOINT f02_target_removed');
+ }
+}
 async function reject(label,sql,code,targetConstraint){
  await client.query('SAVEPOINT f02_neg');
  try{await client.query(sql);throw Error('NEGATIVE_UNEXPECTED_SUCCESS_'+label)}
@@ -20,14 +38,16 @@ try{
  await client.query("INSERT INTO public.system_admins(system_admin_id,account_status,created_at,bootstrap_origin) VALUES (1,'active',now(),'bootstrap')");
  await client.query("INSERT INTO public.pc_login_accounts(account_id,normalized_login_key,principal_kind,employee_id,system_admin_id,password_hash,credential_state,force_password_change,created_at,updated_at) VALUES (1,'employee_a','employee',1,NULL,'sample_hash_a','enabled',TRUE,now(),now()),(2,'admin_a','system_admin',NULL,1,'sample_hash_b','enabled',TRUE,now(),now())");
  pass('Employee and System Admin separate identities, unified credential table');
- await reject('cross identity duplicated login',"INSERT INTO public.pc_login_accounts(normalized_login_key,principal_kind,employee_id,password_hash,credential_state,force_password_change) VALUES ('admin_a','employee',2,'hash','enabled',true)",'23505',constraintName('idx','pc_login_accounts','normalized_login_key','all'));
- await reject('duplicate admin credentials',"INSERT INTO public.pc_login_accounts(normalized_login_key,principal_kind,system_admin_id,password_hash,credential_state,force_password_change) VALUES ('admin_b','system_admin',1,'hash','enabled',true)",'23505',constraintName('idx','pc_login_accounts','system_admin_id','system_admin_id IS NOT NULL'));
- await reject('XOR two identities',"INSERT INTO public.pc_login_accounts(normalized_login_key,principal_kind,employee_id,system_admin_id,password_hash,credential_state,force_password_change) VALUES ('bad_a','employee',2,1,'hash','enabled',true)",'23514',constraintName('pc_login_accounts','principal_kind',"((principal_kind='employee' AND employee_id IS NOT NULL AND system_admin_id IS NULL) OR (principal_kind='system_admin' AND system_admin_id IS NOT NULL AND employee_id IS NULL))"));
- await reject('XOR no identity',"INSERT INTO public.pc_login_accounts(normalized_login_key,principal_kind,password_hash,credential_state,force_password_change) VALUES ('bad_b','employee','hash','enabled',true)",'23514');
- await reject('principal kind mismatch',"INSERT INTO public.pc_login_accounts(normalized_login_key,principal_kind,employee_id,password_hash,credential_state,force_password_change) VALUES ('bad_c','system_admin',2,'hash','enabled',true)",'23514');
- await reject('4S cannot become third principal kind',"INSERT INTO public.pc_login_accounts(normalized_login_key,principal_kind,employee_id,password_hash,credential_state,force_password_change) VALUES ('bad_d','four_s',2,'hash','enabled',true)",'23514');
- await reject('unnormalized login disallowed',"INSERT INTO public.pc_login_accounts(normalized_login_key,principal_kind,employee_id,password_hash,credential_state,force_password_change) VALUES ('UpperCase','employee',2,'hash','enabled',true)",'23514');
- await reject('invalid employee FK',"INSERT INTO public.pc_login_accounts(normalized_login_key,principal_kind,employee_id,password_hash,credential_state,force_password_change) VALUES ('ghost','employee',9999,'hash','enabled',true)",'23503');
+ await reject('cross identity duplicated login',"INSERT INTO public.pc_login_accounts(account_id,normalized_login_key,principal_kind,employee_id,password_hash,credential_state,force_password_change) VALUES (101,'admin_a','employee',2,'hash','enabled',true)",'23505',constraintName('idx','pc_login_accounts','normalized_login_key','all'));
+ await verifyTargetUniqueIsNecessary('cross identity duplicated login',constraintName('idx','pc_login_accounts','normalized_login_key','all'),"INSERT INTO public.pc_login_accounts(account_id,normalized_login_key,principal_kind,employee_id,password_hash,credential_state,force_password_change) VALUES (111,'admin_a','employee',2,'hash','enabled',true)");
+ await reject('duplicate admin credentials',"INSERT INTO public.pc_login_accounts(account_id,normalized_login_key,principal_kind,system_admin_id,password_hash,credential_state,force_password_change) VALUES (102,'admin_b','system_admin',1,'hash','enabled',true)",'23505',constraintName('idx','pc_login_accounts','system_admin_id','system_admin_id IS NOT NULL'));
+ await verifyTargetUniqueIsNecessary('duplicate admin credentials',constraintName('idx','pc_login_accounts','system_admin_id','system_admin_id IS NOT NULL'),"INSERT INTO public.pc_login_accounts(account_id,normalized_login_key,principal_kind,system_admin_id,password_hash,credential_state,force_password_change) VALUES (112,'admin_b','system_admin',1,'hash','enabled',true)");
+ await reject('XOR two identities',"INSERT INTO public.pc_login_accounts(account_id,normalized_login_key,principal_kind,employee_id,system_admin_id,password_hash,credential_state,force_password_change) VALUES (103,'bad_a','employee',2,1,'hash','enabled',true)",'23514',constraintName('pc_login_accounts','principal_kind',"((principal_kind='employee' AND employee_id IS NOT NULL AND system_admin_id IS NULL) OR (principal_kind='system_admin' AND system_admin_id IS NOT NULL AND employee_id IS NULL))"));
+ await reject('XOR no identity',"INSERT INTO public.pc_login_accounts(account_id,normalized_login_key,principal_kind,password_hash,credential_state,force_password_change) VALUES (104,'bad_b','employee','hash','enabled',true)",'23514');
+ await reject('principal kind mismatch',"INSERT INTO public.pc_login_accounts(account_id,normalized_login_key,principal_kind,employee_id,password_hash,credential_state,force_password_change) VALUES (105,'bad_c','system_admin',2,'hash','enabled',true)",'23514');
+ await reject('4S cannot become third principal kind',"INSERT INTO public.pc_login_accounts(account_id,normalized_login_key,principal_kind,employee_id,password_hash,credential_state,force_password_change) VALUES (106,'bad_d','four_s',2,'hash','enabled',true)",'23514');
+ await reject('unnormalized login disallowed',"INSERT INTO public.pc_login_accounts(account_id,normalized_login_key,principal_kind,employee_id,password_hash,credential_state,force_password_change) VALUES (107,'UpperCase','employee',2,'hash','enabled',true)",'23514');
+ await reject('invalid employee FK',"INSERT INTO public.pc_login_accounts(account_id,normalized_login_key,principal_kind,employee_id,password_hash,credential_state,force_password_change) VALUES (108,'ghost','employee',9999,'hash','enabled',true)",'23503');
  await client.query("INSERT INTO public.customer_levels(level_id,level_code) VALUES (1,'ordinary')");
  await client.query("INSERT INTO public.customers(customer_id,account_status,current_owner_employee_id,customer_level_id,created_at,owner_assignment_state) VALUES (1,'active',1,1,now(),'assigned')");
  await reject('refund XOR must have subject',"INSERT INTO public.refund_cases(refund_id,customer_id,status,created_at) VALUES (1,1,'pending',now())",'23514');
