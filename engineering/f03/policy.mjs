@@ -98,15 +98,28 @@ const SAFE_VEHICLE=['vehicle_id','source_type','source_sale_status','platform_vi
 const SAFE_CUSTOMER=['customer_id','account_status','customer_level','contact_name'];
 const INTERNAL_PRICE=['internal_wholesale_price','upstream_wholesale_price','base_wholesale_price'];
 const PUBLISHER_PHONE=['publisher_phone'];
+const SAFE_HISTORY=['history_event','occurred_at','actor_id','actor_role_at_time','actor_store_at_time'];
+// No object, array, Date, function or other nested value may cross the
+// historical-record boundary, even when its TOP-LEVEL key is allowlisted.
+// Structured history payloads need an independently reviewed field mapper.
+const safeHistoricalScalar=value=>value===null||
+ typeof value==='string'||typeof value==='boolean'||
+ (typeof value==='number'&&Number.isFinite(value));
 export function projectRecord(operation,record,context){
  const base=authorize(operation,context);
  if(!base.allowed)return {allowed:false,reason:base.reason,fields:{}};
  if(!isObj(record))return {allowed:false,reason:'INVALID_RECORD',fields:{}};
  const recordIdField=operation==='vehicle.read'?'vehicle_id':operation.startsWith('customer.')?'customer_id':null;
- if(recordIdField&&own(record,recordIdField)&&record[recordIdField]!==context.resource.id)return {allowed:false,reason:'RECORD_RESOURCE_ID_MISMATCH',fields:{}};
+ // A valid current authorization is NOT permission to project a row whose
+ // primary business identity is absent: both identity and equality are required.
+ if(recordIdField&&(!own(record,recordIdField)||!validId(record[recordIdField])))return {allowed:false,reason:'RECORD_RESOURCE_ID_REQUIRED',fields:{}};
+ if(recordIdField&&record[recordIdField]!==context.resource.id)return {allowed:false,reason:'RECORD_RESOURCE_ID_MISMATCH',fields:{}};
  const safe=operation==='vehicle.read'?SAFE_VEHICLE:
   ['customer.history.read','customer.crm.read'].includes(operation)?SAFE_CUSTOMER:null;
  if(!safe)return {allowed:false,reason:'PROJECTION_NOT_CONTRACTED',fields:{}};
+ // A whitelist of property NAMES alone is insufficient: nested values can
+ // conceal credentials, contact numbers and internal prices.
+ if(operation==='customer.history.read'&&[...SAFE_CUSTOMER,...SAFE_HISTORY].some(key=>own(record,key)&&!safeHistoricalScalar(record[key])))return {allowed:false,reason:'UNSAFE_NESTED_HISTORY_VALUE',fields:{}};
  const fields={};
  for(const key of safe)if(own(record,key))fields[key]=record[key];
  if(operation==='vehicle.read'){
@@ -120,7 +133,7 @@ export function projectRecord(operation,record,context){
  }else if(operation==='customer.history.read'){
   // At-time actor/role/store remain immutable history, yet content is projected
   // using current authorization and a whitelist instead of returning DB rows.
-  for(const key of ['history_event','occurred_at','actor_id','actor_role_at_time','actor_store_at_time'])if(own(record,key))fields[key]=record[key];
+  for(const key of SAFE_HISTORY)if(own(record,key))fields[key]=record[key];
  }
  return {allowed:true,reason:'CURRENT_SCOPE_PROJECTED',fields};
 }
