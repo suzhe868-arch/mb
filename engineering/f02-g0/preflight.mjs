@@ -6,14 +6,14 @@ const client=new pg.Client({connectionString:cfg.connectionString,connectionTime
 try {
   await client.connect();
   await client.query('BEGIN READ ONLY');
-  const result=await client.query("SELECT current_database() AS database_name, current_user AS db_user, current_setting('server_version_num')::integer AS version_num, (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) AS is_superuser, (SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user) AS can_create_database, (SELECT rolcreaterole FROM pg_roles WHERE rolname=current_user) AS can_create_roles, (SELECT COUNT(*)::integer FROM pg_catalog.pg_tables WHERE schemaname='public') AS public_table_count,
+  const result=await client.query(`SELECT current_database() AS database_name, current_user AS db_user, current_setting('server_version_num')::integer AS version_num, (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) AS is_superuser, (SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user) AS can_create_database, (SELECT rolcreaterole FROM pg_roles WHERE rolname=current_user) AS can_create_roles, (SELECT COUNT(*)::integer FROM pg_catalog.pg_tables WHERE schemaname='public') AS public_table_count,
   (SELECT COUNT(*)::integer FROM pg_catalog.pg_namespace n WHERE n.nspname NOT IN ('pg_catalog','information_schema','public') AND n.nspname NOT LIKE 'pg_toast%' AND n.nspname NOT LIKE 'pg_temp%') AS non_public_user_schema_count,
   (SELECT COUNT(*)::integer FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
     WHERE c.relkind IN ('r','p','v','m','S','f','i','I')
     AND (n.nspname='public' OR (
       n.nspname NOT IN ('pg_catalog','information_schema','public')
       AND n.nspname NOT LIKE 'pg_toast%' AND n.nspname NOT LIKE 'pg_temp%'
-    ))) AS user_relation_count");
+    ))) AS user_relation_count`);
   assertReadOnlyPg16Identity(result.rows[0]);
   await client.query('SAVEPOINT readonly_probe');
   let refused=false;
