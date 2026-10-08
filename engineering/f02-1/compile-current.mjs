@@ -56,7 +56,6 @@ export async function compileCurrentInitial(){
   ['demand_match_results',['result_id','vehicle_id','listing_cycle_id']],
   ['recommendations',['recommendation_id','customer_id','vehicle_id']],
   ['locks',['lock_id','customer_id','vehicle_id','listing_cycle_id']],
-  ['lock_requests',['lock_request_id','customer_id','vehicle_id','listing_cycle_id']],
   ['waitlists',['waitlist_id','customer_id','vehicle_id','listing_cycle_id']],
   ['demands',['demand_id','customer_id']]
  ];
