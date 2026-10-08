@@ -34,7 +34,7 @@ const queries=[
       WHERE n.nspname='public' AND t.typtype IN ('e','d','r','m')`],
   ["sequence",`SELECT s.schemaname || '.' || s.sequencename AS name,
         s.data_type || '|start=' || s.start_value::text || '|min=' || s.min_value::text ||
-        '|max=' || s.max_value::text || '|increment=' || s.increment::text ||
+        '|max=' || s.max_value::text || '|increment=' || s.increment_by::text ||
         '|cycle=' || s.cycle::text || '|cache=' || s.cache_size::text AS definition
       FROM pg_sequences s WHERE s.schemaname='public'`],
   ["policy",`SELECT c.relname || '.' || p.polname AS name,
