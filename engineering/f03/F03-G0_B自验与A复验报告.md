@@ -1,7 +1,7 @@
 # 名邦汽车 V1｜F03-G0｜B 工程自验与 A 独立复验交接
 
 > 2026-10-09｜A 放行：`F03_G0_AUTHORIZED / USER_APPROVED`；A 放行单：`07_重建工作区/F03-G0_A主控正式施工放行_2026-10-09.md`。
-> 本报告初始与工程实现同一提交，**真实 CI 证据须在工作流完成后核实并追加登记**。本报告不是 A 正式验收凭据，`F03_G0_ACCEPTED=NO`。
+> 本报告记录 B 自验，通过后只提交 A 独立复验。状态：**`READY_FOR_A_REVIEW / F03_G0_ACCEPTED=NO`**；本轮仅纯 Node ESM 假数据静态检验，非真实会话或数据库授权验收。
 
 ## 一、基线 / 施工边界
 
@@ -18,12 +18,30 @@
 4. 假数据正反例、每个注册动作独立可达测试，以及移除hard DENY/scope后原拒绝测试应失败的变体敏感性测试。
 5. CI `f03-g0-static-policy.yml`：原 F01 工程与 F02-G0 只读检查、纯函数不连接数据库检查、Node ESM测试并上传完整输出工件。
 
-## 三、真实测试与交 A 应附证据
+## 三、真实 CI、执行命令与可核查证据
 
-- 精确 B HEAD SHA：以提交后 GitHub 分支实际 HEAD 和 Action `head_sha` 为准。
-- F03-G0 CI：必须取得 `completed/success` 与 job 原始输出，含通过测试数、失败数、正反例、敏感性、合同覆盖、F01/G0 回归。
-- 若 CI 未通过，标明 `NOT_VERIFIED/CHANGES_REQUIRED`，修正代码并重新提交到本分支。不能用旧 SHA 的结果顶替新 SHA。
-- 测试工件应包含 `f03-g0-node-test.log`；CI 不是数据库测试，**不生成 pg_dump，不应以缺少数据库结构导出视为缺口**。
+- 可核查工程代码 SHA：`2d38da86ab9781d8cc4491fe89a5c32c79a62e75`（初始首版 `76a8ab0d748f79bddbfa1a8b009277b9130e9be3` 后又补 4S 管理目标和资源记录匹配安全测试）。本报告落库产生的新 HEAD 必须以其**自身** CI 再次核实；不将上一 SHA 的通过虚报为最新 SHA。
+- [F03-G0 实测 CI #37849197221](https://github.com/suzhe868-arch/mb/actions/runs/37849197221)（code SHA `2d38da86ab9781d8cc4491fe89a5c32c79a62e75`）：`completed/success`；job `113557601563`，全部相关步骤成功。
+- 已运行的 CI 关键命令（工作目录 `engineering`）：
+
+```sh
+npm ci --ignore-scripts --no-audit --no-fund
+npm run check
+node f02-g0/closure-audit.mjs
+node f02-g0/full-domain-audit.mjs
+node f02-g0/scope-audit.mjs
+node f03/verify-contract.mjs
+node --check f03/policy.mjs
+node --check f03/tests/policy.test.mjs
+node --check f03/tests/contract.test.mjs
+node --check f03/tests/sensitivity.test.mjs
+node --test f03/tests/*.test.mjs
+```
+
+- 真实日志：F01 基础 **13/13 PASS**；F02-G0 CL/全域/SCOPE 静态审计 **PASS**；F03-G0 Node **29/29 PASS，0 FAIL**。测试包含 45 条来源与实现责任映射、23 个已注册纯动作逐项合法样本、未知身份/操作拒绝、4S hard DENY、System Admin 控制面、个人 deny 与当前模板、每 capability 的当前 scope、电话/内部价字段、历史安全投影、目标错绑拒绝，以及移除 hard DENY/scope 检查后负例翻转的真实变体测试。
+- [F03-G0 原始 job 运行日志](https://github.com/suzhe868-arch/mb/actions/runs/37849197221/job/113557601563)。测试 Artifact：`11580937532` / `f03-g0-static-policy-evidence`，包含 `f03-g0-node-test.log`；已完成上传。可从同一 run 的 Artifacts 下载。
+- 新增修改总范围：`engineering/f03/**` 和 `.github/workflows/f03-g0-static-policy.yml`。没有数据库服务、PostgreSQL连接、认证会话、旧 Schema 初始化或任何外部账户操作；因此**本批没有，也不应生成 pg_dump**。
+- GitHub Actions 中由第三方 actions 打印 Node 废弃提醒（punycode/url.parse/actions Node20）为**非阻断提示**，不将其视为 F03 业务代码已接入这些废弃 API。
 
 ## 四、责任范围和残余风险
 
