@@ -16,7 +16,13 @@ test('迁移/清库执行入口始终拒绝',()=>{
   for(const a of ['--apply','--migrate','--reset','000001_initial_schema.sql','db-clean-rebuild.mjs'])assert.throws(()=>forbidMigrationExecution([a]),/MIGRATION_EXECUTION_DISABLED/);
 });
 test('实际 PG16 只读身份/空表约束正反例',()=>{
-  const row={database_name:'f02_schema_test',db_user:'f02_ci',version_num:160015,is_superuser:false,can_create_database:false,can_create_roles:false,public_table_count:0};
+  const row={database_name:'f02_schema_test',db_user:'f02_ci',version_num:160015,is_superuser:false,can_create_database:false,can_create_roles:false,public_table_count:0,non_public_user_schema_count:0,user_relation_count:0};
   assert.doesNotThrow(()=>assertReadOnlyPg16Identity(row));
-  for(const patch of [{database_name:'f01_foundation'},{db_user:'postgres'},{version_num:170000},{version_num:150000},{is_superuser:true},{can_create_database:true},{can_create_roles:true},{public_table_count:1}])assert.throws(()=>assertReadOnlyPg16Identity({...row,...patch}),/F02_G0_DATABASE_IDENTITY/);
+  for(const patch of [{database_name:'f01_foundation'},{db_user:'postgres'},{version_num:170000},{version_num:150000},{is_superuser:true},{can_create_database:true},{can_create_roles:true},{public_table_count:1},{non_public_user_schema_count:1},{user_relation_count:1}])assert.throws(()=>assertReadOnlyPg16Identity({...row,...patch}),/F02_G0_DATABASE_IDENTITY/);
+});
+
+test('非 public 空用户Schema或任意用户关系必须拒绝',()=>{
+  const row={database_name:'f02_schema_test',db_user:'f02_ci',version_num:160015,is_superuser:false,can_create_database:false,can_create_roles:false,public_table_count:0,non_public_user_schema_count:0,user_relation_count:0};
+  assert.throws(()=>assertReadOnlyPg16Identity({...row,non_public_user_schema_count:1}),/F02_G0_DATABASE_IDENTITY/);
+  assert.throws(()=>assertReadOnlyPg16Identity({...row,user_relation_count:1}),/F02_G0_DATABASE_IDENTITY/);
 });

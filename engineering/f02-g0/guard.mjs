@@ -16,7 +16,7 @@ export function forbidMigrationExecution(args=[]) {
   if(args.length)throw Error('F02_G0_MIGRATION_EXECUTION_DISABLED');
 }
 export function assertReadOnlyPg16Identity(row) {
-  if(row?.database_name!=='f02_schema_test'||row.db_user!=='f02_ci'||!Number.isInteger(row.version_num)||row.version_num<160000||row.version_num>=170000||row.is_superuser!==false||row.can_create_database!==false||row.can_create_roles!==false||row.public_table_count!==0) {
+  if(row?.database_name!=='f02_schema_test'||row.db_user!=='f02_ci'||!Number.isInteger(row.version_num)||row.version_num<160000||row.version_num>=170000||row.is_superuser!==false||row.can_create_database!==false||row.can_create_roles!==false||row.public_table_count!==0||row.non_public_user_schema_count!==0||row.user_relation_count!==0) {
     throw Error('F02_G0_DATABASE_IDENTITY_OR_EMPTY_BOUNDARY_FAILED');
   }
 }

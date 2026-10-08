@@ -77,3 +77,20 @@ jobs:
         run: |
           if node f02-g0/preflight.mjs --apply; then echo 'SECURITY FAILURE'; exit 1; fi
           echo 'F02-G0 migration execution refused PASS'
+      - name: 非 public 用户 Schema 与用户表伪装空库必须拒绝
+        run: |
+          set -eu
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d f02_schema_test -c "CREATE SCHEMA f02_g0_negative_fixture AUTHORIZATION f02_ci"
+          if node f02-g0/preflight.mjs; then
+            echo 'F02-G0 SECURITY FAILURE: nonpublic user schema was treated as empty'
+            exit 1
+          fi
+          echo 'F02-G0 negative nonpublic schema refusal PASS'
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d f02_schema_test -c "CREATE TABLE f02_g0_negative_fixture.synthetic_probe (id integer)"
+          if node f02-g0/preflight.mjs; then
+            echo 'F02-G0 SECURITY FAILURE: nonpublic synthetic user relation was treated as empty'
+            exit 1
+          fi
+          echo 'F02-G0 negative nonpublic table refusal PASS'
