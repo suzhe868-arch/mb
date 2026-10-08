@@ -3,7 +3,7 @@ const assert=(ok,code)=>{if(!ok)throw Error('F02_G0_SC_'+code)};
 const parse=s=>s.trimEnd().split(/\r?\n/).map(x=>x.split('\t'));
 const included=x=>x.startsWith('INCLUDE_');
 const mandatory={
- '01':['system_admins.system_admin_id','system_admins.account_status','system_admins.created_at','system_admins.login_account','system_admins.credential_hash','system_admins.bootstrap_origin','system_admins.created_by_system_admin_id','audit_events.actor_id','audit_events.occurred_at'],
+ '01':['system_admins.system_admin_id','system_admins.account_status','system_admins.created_at','pc_login_accounts.normalized_login_key','pc_login_accounts.system_admin_id','pc_login_accounts.password_hash','pc_login_accounts.principal_kind','system_admins.bootstrap_origin','system_admins.created_by_system_admin_id','audit_events.actor_id','audit_events.occurred_at'],
  '02':['demand_match_results.result_id','demand_match_results.demand_id','demand_match_results.vehicle_id','demand_match_results.listing_cycle_id','demand_match_results.match_tier','demand_match_results.match_explanation','demand_match_results.current_state','demand_match_results.calculated_at','priority_leases.source_match_result_id','priority_leases.listing_cycle_id'],
  '03':['crm_followups.followup_id','crm_followups.customer_id','crm_followups.actor_employee_id','crm_followups.occurred_at','crm_followups.content','crm_followups.business_demand_id','crm_followup_tasks.task_id','crm_followup_tasks.customer_id','crm_followup_tasks.responsible_employee_id','crm_followup_tasks.planned_at','crm_followup_tasks.task_state'],
  '04':['public_pool_events.pool_event_id','public_pool_events.customer_id','public_pool_events.event_kind','public_pool_events.source_owner_history_id','public_pool_events.actor_kind','public_pool_events.occurred_at','customer_owner_history.owner_history_id','customer_owner_history.customer_id','customers.current_owner_employee_id','priority_leases.status','crm_followup_tasks.task_state']
@@ -46,7 +46,10 @@ export function validateFourDomainScope(matrix,freeze,tiers,mapping){
  const sys=get('system_admins.system_admin_id');
  assert(sys[5]==='PK'&&!sys[5].includes('FK:employees.'),'SYSTEM_ADMIN_EMPLOYEE_IDENTITY_COLLISION');
  assert(get('system_admins.created_by_system_admin_id')[5].includes('FK:system_admins.system_admin_id'),'SYSTEM_ADMIN_PROVENANCE');
- assert(get('system_admins.login_account')[5].includes('UNIQUE_SYSTEM_ADMIN_LOGIN_ACCOUNT'),'SYSTEM_ADMIN_CREDENTIAL_ID');
+ assert(get('pc_login_accounts.normalized_login_key')[5].includes('UNIQUE_GLOBAL_PC_LOGIN_KEY'),'PC_GLOBAL_ACCOUNT_UNIQUENESS');
+ assert(get('pc_login_accounts.password_hash')[5].includes('SINGLE_PC_CREDENTIAL_AUTHORITY'),'PC_SINGLE_WRITABLE_HASH');
+ assert(get('pc_login_accounts.principal_kind')[5].includes('XOR_PRINCIPAL_ID'),'PC_SEPARATE_IDENTITY');
+ for(const col of ['login_account','credential_hash']){const old=fields.get('system_admins.'+col);assert(old&&disposition.get(old[0])[4]==='EXCLUDE_DUPLICATE_PC_CREDENTIAL','ADMIN_DUPLICATE_CREDENTIAL_INCLUDED_'+col);}
  assert(get('demand_match_results.match_tier')[5].includes('CHECK_high_acceptable_confirmation_needed_no_match'),'FORMAL_MATCH_FOUR_TIERS');
  assert(get('demand_match_results.current_state')[5].includes('PARTIAL_UNIQUE_CURRENT_DEMAND_VEHICLE_CYCLE'),'FORMAL_MATCH_CURRENT_HISTORY');
  assert(get('priority_leases.source_match_result_id')[5].includes('CURRENT_HIGH_ACCEPTABLE_TX_GUARD'),'PRIORITY_CANNOT_CONSUME_STALE');

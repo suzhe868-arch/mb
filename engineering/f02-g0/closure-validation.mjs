@@ -25,7 +25,7 @@ const MINIMUM={
   crm_shared_profiles:['profile_id','customer_id','profile_json','updated_by_employee_id','updated_at'],
   crm_service_labels:['label_id','customer_id','author_employee_id','label_text','source_kind','occurred_at'],
   matching_change_events:['event_id','result_id','trigger_kind','before_json','after_json','occurred_at','idempotency_key'],
-  system_admins:['system_admin_id','account_status','created_at','login_account','credential_hash','bootstrap_origin','created_by_system_admin_id'],
+  system_admins:['system_admin_id','account_status','created_at','bootstrap_origin','created_by_system_admin_id'],
   demand_match_results:['result_id','demand_id','vehicle_id','listing_cycle_id','match_tier','match_explanation','current_state','calculated_at','invalidated_at'],
   crm_followups:['followup_id','customer_id','responsible_employee_id','actor_employee_id','occurred_at','content','business_demand_id','source_context_json'],
   crm_followup_tasks:['task_id','customer_id','responsible_employee_id','planned_at','task_state','created_at'],
@@ -54,7 +54,7 @@ export function validateBuildableClosure(matrixText,freezeText,tierText){
   const baseline=validateMatrix(matrixText);
   insist(matrix.length===511&&freeze.length===511&&tier.length===511,'ROW_510_COUNT');
   const m=new Map(matrix.slice(1).map(r=>[r[0],r])),f=new Map(),tiers=new Map(tier.slice(1).map(r=>[r[0],r]));
-  const kindPattern=/^(INCLUDE_(CORE_CANDIDATE|SUPPORT_CANDIDATE|WITH_A_REVIEW|MINIMUM_COMPLETE_ENTITY)|DEFER_WITH_REASON|EXCLUDE_(4S_ORG|OLD_MIXED))$/;
+  const kindPattern=/^(INCLUDE_(CORE_CANDIDATE|SUPPORT_CANDIDATE|WITH_A_REVIEW|MINIMUM_COMPLETE_ENTITY)|DEFER_WITH_REASON|EXCLUDE_(4S_ORG|OLD_MIXED|DUPLICATE_PC_CREDENTIAL))$/;
   for(const r of freeze.slice(1)){
     insist(r.length===8&&m.has(r[0])&&!f.has(r[0]),'FREEZE_ROW_ID');
     insist(kindPattern.test(r[4]),'FREEZE_DISPOSITION_'+r[0]);
@@ -152,6 +152,10 @@ export function validateBuildableClosure(matrixText,freezeText,tierText){
   for(const k of ['account_id','normalized_login_key','principal_kind','employee_id','system_admin_id','password_hash','credential_state','force_password_change'])required(fields,'pc_login_accounts',k,'ALL_PC');
   insist(required(fields,'pc_login_accounts','normalized_login_key','ALL')[5].includes('UNIQUE_GLOBAL_PC_LOGIN_KEY'),'ALL_PC_UNIQUE');
   insist(required(fields,'pc_login_accounts','principal_kind','ALL')[5].includes('XOR_PRINCIPAL_ID'),'ALL_PC_XOR');
+  for(const col of ['login_account','credential_hash']){const historical=fields.get('system_admins.'+col);insist(historical&&!historical.included&&historical.freeze[4]==='EXCLUDE_DUPLICATE_PC_CREDENTIAL'&&historical.row[5]==='RETIRED_DUPLICATE_PC_CREDENTIAL_NOT_IN_F02_1','ADMIN_DUPLICATE_PC_CREDENTIAL_RESTORED_'+col);}
+  insist(required(fields,'pc_login_accounts','password_hash','PC_SINGLE_AUTHORITY')[5].includes('SINGLE_PC_CREDENTIAL_AUTHORITY'),'PC_HASH_AUTHORITY_LOST');
+  insist(required(fields,'pc_login_accounts','normalized_login_key','PC_SINGLE_AUTHORITY')[5].includes('SINGLE_PC_CREDENTIAL_AUTHORITY'),'PC_KEY_AUTHORITY_LOST');
+  insist(required(fields,'pc_login_accounts','principal_kind','PC_ISOLATION')[5].includes('EXACTLY_ONE_PRINCIPAL_KIND_BINDING'),'PC_PRINCIPAL_MIXED');
   for(const table of ['crm_stage_dictionary','crm_customer_stages','crm_tag_dictionary','crm_customer_tag_links','crm_personal_notes','crm_shared_profiles','crm_service_labels'])insist(included.has(table),'ALL_CRM_PARTITION_'+table);
   for(const table of ['vehicle_conversions','vehicle_documents','image_asset_jobs','vehicle_model_review_cases','publisher_phone_history','collector_integration_events','vehicle_hide_rules','matching_change_events'])insist(included.has(table),'ALL_ARCHIVE_'+table);
   insist(required(fields,'vehicle_hide_rules','source_scope_json','ALL')[5].includes('NONEMPTY_EXPLICIT_SOURCE_SCOPE'),'ALL_HIDE_SCOPE');
@@ -160,7 +164,7 @@ export function validateBuildableClosure(matrixText,freezeText,tierText){
   for(const k of ['dedupe_key','channel_kind','recipient_ref','notification_stage'])required(fields,'notification_events',k,'ALL_NOTIFY');
   insist(required(fields,'notification_events','dedupe_key','ALL')[5].includes('PARTIAL_UQ_EVENT_CHANNEL_RECIPIENT_STAGE_WHEN_PRESENT'),'ALL_NOTIFY_DEDUPE');
   // G0-SC F02-1 mandatory physical carriers; all runtime authorization, transactional concurrency and real DDL remain NOT_RUN.
-  for(const k of ['system_admin_id','account_status','created_at','login_account','credential_hash','bootstrap_origin','created_by_system_admin_id'])required(fields,'system_admins',k,'SC01');
+  for(const k of ['system_admin_id','account_status','created_at','bootstrap_origin','created_by_system_admin_id'])required(fields,'system_admins',k,'SC01');
   insist(required(fields,'system_admins','created_by_system_admin_id','SC01')[5].includes('FK:system_admins.system_admin_id'),'SC01_CREATOR_MISSING');
   for(const k of ['result_id','demand_id','vehicle_id','listing_cycle_id','match_tier','match_explanation','current_state','calculated_at'])required(fields,'demand_match_results',k,'SC02');
   insist(required(fields,'demand_match_results','match_tier','SC02')[5].includes('CHECK_high_acceptable_confirmation_needed_no_match'),'SC02_FOUR_TIERS');

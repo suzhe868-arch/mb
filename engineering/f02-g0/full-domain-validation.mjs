@@ -7,7 +7,7 @@ function vals(rows,index){const result=new Map();for(const r of rows){check(!res
 export function validateFullDomain(matrix,freeze,tiers,fieldEvidence,entityEvidence,pdmEvidence,foreignKeys,issues){
  const closure=validateBuildableClosure(matrix,freeze,tiers);
  check(closure.fieldCount===510&&closure.entityCount===76&&closure.foreignKeyCount===137,'EXPECTED_COVERAGE_TOTALS');
- check(JSON.stringify(closure.counts)===JSON.stringify({included:466,deferred:33,excluded:11}),'EXPECTED_FREEZE_CLASSIFICATION');
+ check(JSON.stringify(closure.counts)===JSON.stringify({included:464,deferred:33,excluded:13}),'EXPECTED_FREEZE_CLASSIFICATION');
  const m=parse(matrix),f=parse(freeze),F=vals(f.slice(1),0),M=vals(m.slice(1),0),fk=parse(foreignKeys).slice(1);
  const evidence=parse(fieldEvidence),entities=parse(entityEvidence),domains=parse(pdmEvidence),findings=parse(issues);
  check(evidence.length===511&&entities.length===83&&domains.length===26&&findings.length===23,'EVIDENCE_COUNT');
@@ -49,12 +49,15 @@ export function validateFullDomain(matrix,freeze,tiers,fieldEvidence,entityEvide
   check(v&&v.length===9&&v[1].includes('PDM-')&&v[3].length>10&&v[5].length>10,'ISSUE_MISSING_'+code);
   check(!v.some(x=>x==='A_ACCEPTED'||x==='G0_ACCEPTED'),'ISSUE_FALSE_ACCEPTANCE_'+code);
  }
- check(issuesMap.get('G0-ALL-05')[7]==='A_TECHNICAL_ADJUDICATION_PENDING','ADMIN_CREDENTIAL_CONFLICT_NOT_DISCLOSED');
+ check(issuesMap.get('G0-ALL-05')[7]==='A_TECHNICAL_APPROVED_G0_CANDIDATE_APPLIED','ADMIN_CREDENTIAL_A_DIRECTION_NOT_APPLIED');
  const bykey=new Map(m.slice(1).map(x=>[x[1]+'.'+x[2],x]));
  const get=k=>{const r=bykey.get(k);check(!!r,'REQUIRED_'+k);check(F.get(r[0])[4].startsWith('INCLUDE_'),'REQUIRED_NOT_INCLUDED_'+k);return r};
  check(get('pc_login_accounts.normalized_login_key')[5].includes('UNIQUE_GLOBAL_PC_LOGIN_KEY'),'PC_GLOBAL_UNIQUE');
  check(get('pc_login_accounts.principal_kind')[5].includes('XOR_PRINCIPAL_ID'),'PC_PRINCIPAL_XOR');
- check(get('system_admins.login_account')[5].includes('GLOBAL_PC_REGISTRY_SAME_KEY_TX'),'PC_ADMIN_BINDING');
+ for(const k of ['system_admins.login_account','system_admins.credential_hash']){const r=bykey.get(k);check(r&&F.get(r[0])[4]==='EXCLUDE_DUPLICATE_PC_CREDENTIAL'&&r[5]==='RETIRED_DUPLICATE_PC_CREDENTIAL_NOT_IN_F02_1','PC_ADMIN_DUPLICATE_STORAGE_'+k);}
+ check(get('pc_login_accounts.password_hash')[5].includes('SINGLE_PC_CREDENTIAL_AUTHORITY'),'PC_SINGLE_HASH_AUTHORITY');
+ check(get('pc_login_accounts.normalized_login_key')[5].includes('SINGLE_PC_CREDENTIAL_AUTHORITY'),'PC_SINGLE_LOGIN_AUTHORITY');
+ check(get('pc_login_accounts.principal_kind')[5].includes('EXACTLY_ONE_PRINCIPAL_KIND_BINDING'),'PC_PRINCIPAL_MIX');
  check(get('matching_dictionary_rules.rule_scope')[5].includes('SCOPE_PRIORITY_MODEL_YEAR_SERIES_BRAND_GLOBAL'),'DICT_SCOPE_ORDER');
  check(get('matching_dictionary_rules.rule_status')[5].includes('CHECK_enabled_disabled_retired'),'DICT_ENABLE_DISABLE');
  check(get('matching_rule_change_history.after_json')[5].includes('IMMUTABLE_RULE_SNAPSHOT'),'DICT_VERSION_HISTORY');
