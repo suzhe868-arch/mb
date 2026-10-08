@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import {credentialDecision,sessionDecision,INTENTS} from '../state-model.mjs';
 const employee=(over={})=>({
  account:{accountId:17,kind:'employee',principalId:11,employeeId:11,credentialState:'enabled',forcePasswordChange:false,credentialEpoch:3},
- subject:{id:11,kind:'employee',status:'active',role:'sales'},...over
+ subject:{id:11,kind:'employee',status:'active',role:'sales'},passwordProofVerified:true,rateLimitPassed:true,...over
 });
 const admin=(over={})=>({
  account:{accountId:20,kind:'system_admin',principalId:19,systemAdminId:19,credentialState:'enabled',forcePasswordChange:false,credentialEpoch:8},
- subject:{id:19,kind:'system_admin',status:'active'},...over
+ subject:{id:19,kind:'system_admin',status:'active'},passwordProofVerified:true,rateLimitPassed:true,...over
 });
 const fourS=()=>employee({subject:{id:11,kind:'employee',status:'active',role:'four_s',pcVehicleAccess:false}});
 const session=(f=employee(),over={})=>({
@@ -20,6 +20,13 @@ test('explicit intentions, no invented login role or password privilege',()=>{
  deny(credentialDecision('GRANT_VEHICLE_PERMISSION',employee()),'UNKNOWN_CREDENTIAL_INTENT');
  deny(credentialDecision('AUTH_SUCCESS',employee({account:{...employee().account,employeeId:undefined}})),'INVALID_PRINCIPAL');
  deny(credentialDecision('AUTH_SUCCESS',employee({subject:{...employee().subject,id:99}})),'PRINCIPAL_BINDING_MISMATCH');
+});
+test('synthetic authenticated event rejects missing password proof or rate-limit check',()=>{
+ const f=employee();
+ deny(credentialDecision('AUTH_SUCCESS',{...f,passwordProofVerified:false}),'PASSWORD_PROOF_REQUIRED');
+ deny(credentialDecision('AUTH_SUCCESS',{...f,rateLimitPassed:false}),'PASSWORD_PROOF_REQUIRED');
+ deny(credentialDecision('AUTH_SUCCESS',{...f,passwordProofVerified:undefined}),'PASSWORD_PROOF_REQUIRED');
+ assert.equal(credentialDecision('AUTH_SUCCESS',f).allowed,true);
 });
 test('first successful proof is only restricted change, other session actions denied',()=>{
  const f=employee({account:{...employee().account,forcePasswordChange:true}});
