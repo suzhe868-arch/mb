@@ -58,6 +58,9 @@ export function validateFullDomain(matrix,freeze,tiers,fieldEvidence,entityEvide
  check(get('matching_dictionary_rules.rule_scope')[5].includes('SCOPE_PRIORITY_MODEL_YEAR_SERIES_BRAND_GLOBAL'),'DICT_SCOPE_ORDER');
  check(get('matching_dictionary_rules.rule_status')[5].includes('CHECK_enabled_disabled_retired'),'DICT_ENABLE_DISABLE');
  check(get('matching_rule_change_history.after_json')[5].includes('IMMUTABLE_RULE_SNAPSHOT'),'DICT_VERSION_HISTORY');
+ for(const k of ['rule_id','rule_version'])check(get('matching_rule_change_history.'+k)[5].includes('UNIQUE_RULE_VERSION_PAIR'),'RULE_VERSION_PAIR');
+ for(const k of ['customer_id','tag_id'])check(get('crm_customer_tag_links.'+k)[5].includes('PARTIAL_UQ_ACTIVE_CUSTOMER_TAG_PAIR'),'CRM_CUSTOMER_TAG_PAIR');
+ for(const k of ['channel_kind','recipient_ref','notification_stage'])check(get('notification_events.'+k)[5].includes('COMPOSITE_NOTIFICATION_DEDUPE_FACT'),'NOTIFICATION_COMPOSITE');
  check(get('vehicle_hide_rules.conditions_json')[5].includes('AND_FIELDS_OR_VALUES_OR_RULES'),'HIDE_BOOLEAN_LOGIC');
  check(get('image_asset_jobs.status')[5].includes('CHECK_processing_success_partial_failed_failed'),'IMAGE_ASSET_HISTORY');
  check(get('notification_events.dedupe_key')[5].includes('PARTIAL_UQ_EVENT_CHANNEL_RECIPIENT_STAGE_WHEN_PRESENT'),'NOTIFICATION_IDEMPOTENCE');

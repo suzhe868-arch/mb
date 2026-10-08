@@ -148,6 +148,7 @@ export function validateBuildableClosure(matrixText,freezeText,tierText){
   for(const k of ['event_id','rule_id','rule_version','after_json','actor_employee_id','occurred_at'])required(fields,'matching_rule_change_history',k,'ALL_RULE_HISTORY');
   insist(required(fields,'matching_dictionary_rules','rule_scope','ALL')[5].includes('SCOPE_PRIORITY_MODEL_YEAR_SERIES_BRAND_GLOBAL'),'ALL_SCOPE_PRIORITY');
   insist(required(fields,'matching_dictionary_rules','rule_status','ALL')[5].includes('CHECK_enabled_disabled_retired'),'ALL_RULE_STATE');
+  for(const k of ['rule_id','rule_version'])insist(required(fields,'matching_rule_change_history',k,'ALL')[5].includes('UNIQUE_RULE_VERSION_PAIR'),'ALL_RULE_VERSION_PAIR');
   for(const k of ['account_id','normalized_login_key','principal_kind','employee_id','system_admin_id','password_hash','credential_state','force_password_change'])required(fields,'pc_login_accounts',k,'ALL_PC');
   insist(required(fields,'pc_login_accounts','normalized_login_key','ALL')[5].includes('UNIQUE_GLOBAL_PC_LOGIN_KEY'),'ALL_PC_UNIQUE');
   insist(required(fields,'pc_login_accounts','principal_kind','ALL')[5].includes('XOR_PRINCIPAL_ID'),'ALL_PC_XOR');
