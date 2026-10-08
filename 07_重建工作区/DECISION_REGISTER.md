@@ -1325,3 +1325,6 @@
 
 
 | EG-F03-1-G0-RELEASE-20261009 | ENGINEERING_F03_1_G0 | 登录密码安全方案限定小批正式放行 | 用户在A窗口明确“同意”；B从含本登记的最新main新建feat/f03-login，仅做安全方案、状态/会话合同、精确结构差异与纯假数据检查及CI，交A验收 | USER_APPROVED / F03_1_G0_DESIGN_ONLY_AUTHORIZED；真实登录/HTTP认证/DB迁移与后续批未授权；不合并B/C；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F03-1-G0_A主控登录安全方案施工放行_2026-10-09.md`；`07_重建工作区/F03-1_账号登录与密码安全工作单_待批准_2026-10-09.md`顶部增补 | 2026-10-09 |
+
+
+| EG-F03-1-G0-ACCEPT-20261009 | ENGINEERING_F03_1_G0 | A限定方案批独立验收 | 用户要求A验收B最新整改；验收SHA d5987afc14d591db683facf15ebf767f9762af2a，同SHA CI37856201791成功19/19，A补查17/17，身份绑定与scrypt成本两处阻断闭合；F03_1_G0_ACCEPTED / A_SIGNED | DESIGN_FAKE_MODEL_ONLY；实际登录/DB迁移及后续批未授权；B未合并，合并需用户批准；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F03-1-G0_A主控验收签发与残余风险_2026-10-09.md`；CI37856201791/job113580861116/artifact11584022597 | 2026-10-09 |
