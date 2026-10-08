@@ -6,12 +6,12 @@
 <title>名邦汽车｜H01 C01 高保真重构</title>
 <style>
 :root {
-  --bg: #FAFAF8;
+  --bg: #F8F9FA;
   --white: #FFFFFF;
   --text-main: #111111;
-  --text-sub: #888888;
+  --text-sub: #7A7A7A;
   --text-light: #B0B0B0;
-  --gold: #B89762;
+  --gold: #C09A65;
   --border: #F0F0F0;
   --surface: #F5F5F5;
 }
@@ -42,12 +42,12 @@ body {
 /* 紧凑态时的吸顶 Logo栏 */
 .compact-header {
   background: var(--white);
-  height: 54px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 17px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   color: var(--text-main);
   letter-spacing: 0.5px;
   border-bottom: 1px solid var(--border);
@@ -55,53 +55,41 @@ body {
 
 /* Banner 区域 (仅完整态) */
 .banner-wrapper {
-  padding: 16px 20px 4px;
-  background: var(--bg);
+  padding: 16px 16px 8px;
+  background: var(--white);
 }
 .banner {
-  height: 100px;
-  background: linear-gradient(135deg, #2D3035 0%, #17181A 100%);
+  height: 110px;
+  /* 使用真实汽车图片作为 Banner 广告底图，大幅提升质感 */
+  background: linear-gradient(135deg, rgba(20,22,25,0.4) 0%, rgba(10,12,15,0.9) 100%), url('assets/car_sample_2.jpg') center/cover;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 0 24px;
-  color: #F0E6D2;
+  padding: 0 20px;
+  color: #F9F4EB;
   position: relative;
   overflow: hidden;
   box-shadow: 0 6px 16px rgba(0,0,0,0.06);
 }
-.banner::after {
-  content: '';
-  position: absolute;
-  right: -20px;
-  bottom: -30px;
-  width: 120px;
-  height: 120px;
-  border: 1px solid rgba(184, 151, 98, 0.1);
-  border-radius: 50%;
-}
-.banner-title { font-size: 20px; font-weight: 700; letter-spacing: 1px; z-index: 1;}
-.banner-sub { font-size: 12px; opacity: 0.7; margin-top: 6px; z-index: 1;}
+.banner-title { font-size: 20px; font-weight: 800; letter-spacing: 1px; }
+.banner-sub { font-size: 12px; opacity: 0.8; margin-top: 4px; font-weight: 500;}
 
 /* 搜索与定位 */
 .sticky-area {
-  background: var(--bg);
+  background: var(--white);
   position: sticky;
   top: 0;
   z-index: 10;
-  padding-top: 12px;
 }
 .search-container {
-  margin: 0 20px;
-  height: 44px;
-  background: var(--white);
-  border-radius: 22px;
+  margin: 8px 16px;
+  height: 40px;
+  background: var(--surface);
+  border-radius: 20px;
   display: flex;
   align-items: center;
   padding: 0 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-  border: 1px solid rgba(0,0,0,0.02);
 }
 .city-selector {
   font-size: 14px;
@@ -109,9 +97,9 @@ body {
   color: var(--text-main);
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   padding-right: 12px;
-  border-right: 1px solid var(--border);
+  border-right: 1px solid #DFDFDF;
 }
 .search-input {
   flex: 1;
@@ -124,18 +112,20 @@ body {
 }
 .search-input svg, .city-selector svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
 
-/* 频道 Tabs */
+/* 频道 Tabs：等宽分布 */
 .channels {
   display: flex;
-  gap: 28px;
-  padding: 20px 20px 16px;
+  padding: 4px 16px 0;
+  border-bottom: 1px solid var(--border);
 }
 .channel {
+  flex: 1;
+  text-align: center;
   font-size: 15px;
   color: var(--text-sub);
   font-weight: 500;
+  padding-bottom: 12px;
   position: relative;
-  padding-bottom: 6px;
   cursor: pointer;
 }
 .channel.active {
@@ -148,54 +138,67 @@ body {
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 16px;
+  width: 20px;
   height: 3px;
   background: var(--gold);
   border-radius: 2px;
 }
 
-/* 筛选器 Pills */
+/* 筛选器：排序、品牌、价格、筛选 */
 .filters {
   display: flex;
-  gap: 10px;
-  padding: 0 20px 16px;
-  overflow-x: auto;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--bg);
 }
-.filters::-webkit-scrollbar { display: none; }
+.filter-group {
+  display: flex;
+  gap: 16px;
+}
 .filter {
-  background: var(--surface);
+  font-size: 13px;
   color: var(--text-main);
-  font-size: 12px;
   font-weight: 500;
-  padding: 7px 14px;
-  border-radius: 16px;
   display: flex;
   align-items: center;
   gap: 4px;
-  white-space: nowrap;
 }
-.filter svg { width: 10px; height: 10px; stroke: var(--text-sub); stroke-width: 2; fill: none; }
+.filter svg { width: 12px; height: 12px; stroke: #999; stroke-width: 2; fill: none; }
+.filter-more {
+  font-size: 13px;
+  color: var(--text-main);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-left: 1px solid #DFDFDF;
+  padding-left: 16px;
+}
+.filter-more svg { width: 12px; height: 12px; stroke: currentColor; stroke-width: 2; fill: none; }
 
-/* 瀑布流 (移除最新上架文字) */
+/* 瀑布流 */
 .feed {
   flex: 1;
   overflow-y: auto;
   padding-bottom: 20px;
+  background: var(--bg);
 }
 .feed::-webkit-scrollbar { display: none; }
 
-/* 卡片设计 */
+/* 悬浮卡片设计：紧凑精致，消除多余中间空白 */
 .card {
   background: var(--white);
-  padding: 16px 20px;
-  margin-bottom: 10px;
+  margin: 0 16px 12px;
+  padding: 12px;
+  border-radius: 12px;
   display: flex;
-  gap: 16px;
-  align-items: flex-start;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
 }
 .card-img {
-  width: 132px;
-  height: 99px;
+  width: 120px;
+  height: 90px;
   border-radius: 8px;
   object-fit: cover;
   background: #EAEAEA;
@@ -206,58 +209,51 @@ body {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  min-height: 99px; /* align with image */
+  justify-content: space-between;
 }
 .card-title {
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-main);
   line-height: 1.4;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 .card-desc {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-sub);
-  margin-bottom: auto;
-  line-height: 1.5;
+  margin-bottom: 6px;
 }
 .card-bottom {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  margin-top: 8px;
-}
-.card-tags {
-  display: flex;
-  gap: 6px;
+  align-items: center;
 }
 .tag-badge {
   font-size: 10px;
   color: var(--gold);
-  background: rgba(184, 151, 98, 0.1);
+  background: rgba(192, 154, 101, 0.1);
   padding: 2px 6px;
   border-radius: 4px;
-  font-weight: 500;
+  font-weight: 600;
 }
 .card-price {
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--gold);
   line-height: 1;
 }
-.card-price span { font-size: 11px; font-weight: 500; margin-left: 2px; }
+.card-price span { font-size: 11px; font-weight: 600; margin-left: 2px; }
 
 /* Bottom Nav */
 .bottom-nav {
   background: var(--white);
   border-top: 1px solid var(--border);
   display: flex;
-  padding: 10px 0 24px;
+  padding: 8px 0 24px;
   z-index: 20;
 }
 .nav-item {
@@ -287,7 +283,7 @@ body {
     <div class="banner-wrapper">
       <div class="banner">
         <div class="banner-title">全国严选车源</div>
-        <div class="banner-sub">海量库存 · 真实车况</div>
+        <div class="banner-sub">海量库存 · 真实车况保障</div>
       </div>
     </div>
 
@@ -305,25 +301,27 @@ body {
         <div class="channel">名邦车源</div>
         <div class="channel">4S店车源</div>
       </div>
+    </div>
 
-      <div class="filters">
+    <div class="filters">
+      <div class="filter-group">
         <div class="filter">排序 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
-        <div class="filter">品牌/车系 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+        <div class="filter">品牌 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
         <div class="filter">价格 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
-        <div class="filter">年份 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+      </div>
+      <div class="filter-more">
+        筛选 <svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
       </div>
     </div>
 
-    <!-- 列表内容，移除了 "最新上架" -->
+    <!-- 列表内容，移除了 "最新上架"，调整为紧凑悬浮卡片 -->
     <div class="card">
       <img src="assets/car_sample_1.jpg" alt="Car" class="card-img" />
       <div class="card-content">
         <div class="card-title">2025款 中大型轿车 45 TFSI</div>
-        <div class="card-desc">2025年03月 | 2.8万公里 | 北京</div>
+        <div class="card-desc">2025年03月 · 2.8万公里 · 北京</div>
         <div class="card-bottom">
-          <div class="card-tags">
-            <span class="tag-badge">批发车源</span>
-          </div>
+          <div class="card-tags"><span class="tag-badge">批发车源</span></div>
           <div class="card-price">18.60<span>万</span></div>
         </div>
       </div>
@@ -333,11 +331,9 @@ body {
       <img src="assets/car_sample_2.jpg" alt="Car" class="card-img" />
       <div class="card-content">
         <div class="card-title">2024款 中大型轿车 530Li</div>
-        <div class="card-desc">2024年06月 | 3.9万公里 | 广州</div>
+        <div class="card-desc">2024年06月 · 3.9万公里 · 广州</div>
         <div class="card-bottom">
-          <div class="card-tags">
-            <span class="tag-badge">批发车源</span>
-          </div>
+          <div class="card-tags"><span class="tag-badge">批发车源</span></div>
           <div class="card-price">22.80<span>万</span></div>
         </div>
       </div>
@@ -347,11 +343,9 @@ body {
       <img src="assets/car_sample_1.jpg" alt="Car" class="card-img" />
       <div class="card-content">
         <div class="card-title">2023款 商务中大型轿车 尊享版</div>
-        <div class="card-desc">2023年09月 | 4.6万公里 | 上海</div>
+        <div class="card-desc">2023年09月 · 4.6万公里 · 上海</div>
         <div class="card-bottom">
-          <div class="card-tags">
-            <span class="tag-badge">批发车源</span>
-          </div>
+          <div class="card-tags"><span class="tag-badge">批发车源</span></div>
           <div class="card-price">16.20<span>万</span></div>
         </div>
       </div>
@@ -382,8 +376,8 @@ body {
     名邦汽车
   </div>
 
-  <div class="feed">
-    <div class="sticky-area" style="padding-top: 12px;">
+  <div class="feed" style="background: var(--white);">
+    <div class="sticky-area">
       <div class="search-container">
         <div class="city-selector">全国 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
         <div class="search-input">
@@ -397,54 +391,54 @@ body {
         <div class="channel">名邦车源</div>
         <div class="channel">4S店车源</div>
       </div>
+    </div>
 
+    <div style="background: var(--bg); padding-top: 1px;">
       <div class="filters">
-        <div class="filter">排序 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
-        <div class="filter">品牌/车系 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
-        <div class="filter">价格 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
-        <div class="filter">年份 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
-      </div>
-    </div>
-
-    <!-- 列表内容 -->
-    <div class="card">
-      <img src="assets/car_sample_1.jpg" alt="Car" class="card-img" />
-      <div class="card-content">
-        <div class="card-title">2025款 中大型轿车 45 TFSI</div>
-        <div class="card-desc">2025年03月 | 2.8万公里 | 北京</div>
-        <div class="card-bottom">
-          <div class="card-tags">
-            <span class="tag-badge">批发车源</span>
-          </div>
-          <div class="card-price">18.60<span>万</span></div>
+        <div class="filter-group">
+          <div class="filter">排序 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+          <div class="filter">品牌 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+          <div class="filter">价格 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+        </div>
+        <div class="filter-more">
+          筛选 <svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
         </div>
       </div>
-    </div>
 
-    <div class="card">
-      <img src="assets/car_sample_2.jpg" alt="Car" class="card-img" />
-      <div class="card-content">
-        <div class="card-title">2024款 中大型轿车 530Li</div>
-        <div class="card-desc">2024年06月 | 3.9万公里 | 广州</div>
-        <div class="card-bottom">
-          <div class="card-tags">
-            <span class="tag-badge">批发车源</span>
+      <!-- 列表内容 -->
+      <div class="card">
+        <img src="assets/car_sample_1.jpg" alt="Car" class="card-img" />
+        <div class="card-content">
+          <div class="card-title">2025款 中大型轿车 45 TFSI</div>
+          <div class="card-desc">2025年03月 · 2.8万公里 · 北京</div>
+          <div class="card-bottom">
+            <div class="card-tags"><span class="tag-badge">批发车源</span></div>
+            <div class="card-price">18.60<span>万</span></div>
           </div>
-          <div class="card-price">22.80<span>万</span></div>
         </div>
       </div>
-    </div>
 
-    <div class="card">
-      <img src="assets/car_sample_1.jpg" alt="Car" class="card-img" />
-      <div class="card-content">
-        <div class="card-title">2023款 商务中大型轿车 尊享版</div>
-        <div class="card-desc">2023年09月 | 4.6万公里 | 上海</div>
-        <div class="card-bottom">
-          <div class="card-tags">
-            <span class="tag-badge">批发车源</span>
+      <div class="card">
+        <img src="assets/car_sample_2.jpg" alt="Car" class="card-img" />
+        <div class="card-content">
+          <div class="card-title">2024款 中大型轿车 530Li</div>
+          <div class="card-desc">2024年06月 · 3.9万公里 · 广州</div>
+          <div class="card-bottom">
+            <div class="card-tags"><span class="tag-badge">批发车源</span></div>
+            <div class="card-price">22.80<span>万</span></div>
           </div>
-          <div class="card-price">16.20<span>万</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <img src="assets/car_sample_1.jpg" alt="Car" class="card-img" />
+        <div class="card-content">
+          <div class="card-title">2023款 商务中大型轿车 尊享版</div>
+          <div class="card-desc">2023年09月 · 4.6万公里 · 上海</div>
+          <div class="card-bottom">
+            <div class="card-tags"><span class="tag-badge">批发车源</span></div>
+            <div class="card-price">16.20<span>万</span></div>
+          </div>
         </div>
       </div>
     </div>
