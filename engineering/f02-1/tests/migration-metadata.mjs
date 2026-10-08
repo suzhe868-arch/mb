@@ -33,6 +33,43 @@ try{
   run('F02_1_REFUSED_UNKNOWN_TABLES_OR_MISSING_TABLES');
  }finally{if(mode==='rogue')await client.query('DROP TABLE public.f02_1_rogue_fixture')}
  run(null);
+
+ // Mutation probes run only in this disposable CI PG16 database. Restore every
+ // object definition before continuing; assertions run from a separate connection.
+ const xor=(await client.query(`SELECT conname,pg_get_constraintdef(oid,true) AS definition
+   FROM pg_constraint WHERE conrelid='public.pc_login_accounts'::regclass
+   AND contype='c' AND pg_get_constraintdef(oid,true) LIKE '%employee_id%'
+   AND pg_get_constraintdef(oid,true) LIKE '%system_admin_id%'`)).rows;
+ assert.equal(xor.length,1,'exact PC principal XOR CHECK should exist');
+ const constraint=xor[0],quoted='"'+constraint.conname.replaceAll('"','""')+'"';
+ const restoreConstraint=()=>client.query('ALTER TABLE public.pc_login_accounts ADD CONSTRAINT '+quoted+' '+constraint.definition);
+ try{
+  await client.query('ALTER TABLE public.pc_login_accounts DROP CONSTRAINT '+quoted);
+  run('F02_1_PHYSICAL_OBJECT_OR_DEFINITION_DRIFT');
+  console.log('F02-1 PHYSICAL MUTATION NEGATIVE PASS: missing PC XOR CHECK rejected');
+ }finally{await restoreConstraint()}
+ run(null);
+ try{
+  await client.query('ALTER TABLE public.pc_login_accounts DROP CONSTRAINT '+quoted);
+  await client.query('ALTER TABLE public.pc_login_accounts ADD CONSTRAINT '+quoted+' CHECK (true)');
+  run('F02_1_PHYSICAL_OBJECT_OR_DEFINITION_DRIFT');
+  console.log('F02-1 PHYSICAL MUTATION NEGATIVE PASS: weakened PC XOR definition rejected');
+ }finally{
+  await client.query('ALTER TABLE public.pc_login_accounts DROP CONSTRAINT IF EXISTS '+quoted);
+  await restoreConstraint();
+ }
+ run(null);
+ const idx=(await client.query(`SELECT i.indexrelid::regclass::text AS index_name,pg_get_indexdef(i.indexrelid) AS definition
+   FROM pg_index i WHERE i.indrelid='public.pc_login_accounts'::regclass
+   AND i.indisunique AND pg_get_indexdef(i.indexrelid) LIKE '%(normalized_login_key)%'`)).rows;
+ assert.equal(idx.length,1,'exact PC global login unique index should exist');
+ const unique=idx[0];
+ try{
+  await client.query('DROP INDEX '+unique.index_name);
+  run('F02_1_PHYSICAL_OBJECT_OR_DEFINITION_DRIFT');
+  console.log('F02-1 PHYSICAL MUTATION NEGATIVE PASS: missing global login UNIQUE rejected');
+ }finally{await client.query(unique.definition)}
+ run(null);
  const [m,f]=await Promise.all(['field-matrix.tsv','field-freeze-candidates.tsv'].map(name=>readFile(new URL('../../f02-g0/'+name,import.meta.url),'utf8')));
  const matrix=m.trimEnd().split(/\r?\n/).slice(1).map(x=>x.split('\t'));
  const freeze=new Map(f.trimEnd().split(/\r?\n/).slice(1).map(x=>x.split('\t')).map(x=>[x[0],x[4]]));
