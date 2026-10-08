@@ -10,8 +10,8 @@ F02-F-0008	customer_phone_facts	customer_id	BIGINT	NO	FK:customers.customer_id	D
 F02-F-0009	customer_phone_facts	phone_ciphertext	BYTEA	NO	SENSITIVE	F03	同号可登记多个不同Customer；手机号不是身份主键，禁止手机号唯一约束推导或任何Customer合并	PDM-01	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0010	customer_phone_facts	valid_from	TIMESTAMPTZ	NO	TIME_FACT	AUDIT	号码关联生效	PDM-01/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0011	customer_phone_facts	ended_at	TIMESTAMPTZ	YES	TIME_FACT	AUDIT	关联失效	PDM-01/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0012	customer_owner_history	owner_history_id	BIGINT	NO	PK	DB	历史主键	PDM-03/PDM-17/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0013	customer_owner_history	customer_id	BIGINT	NO	FK:customers.customer_id	DB	被变更客户	PDM-03/PDM-17/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0012	customer_owner_history	owner_history_id	BIGINT	NO	PK;UNIQUE_OWNER_HISTORY_CUSTOMER_PAIR	DB	历史主键；公海事件引用同Customer真实owner历史的复合唯一父键	PDM-03/PDM-17/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0013	customer_owner_history	customer_id	BIGINT	NO	FK:customers.customer_id;UNIQUE_OWNER_HISTORY_CUSTOMER_PAIR	DB	被变更客户；公海事件引用同Customer真实owner历史的复合唯一父键	PDM-03/PDM-17/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0014	customer_owner_history	from_employee_id	BIGINT	YES	FK:employees.employee_id	AUDIT	原 owner	PDM-03/PDM-17/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0015	customer_owner_history	to_employee_id	BIGINT	YES	FK:employees.employee_id	TX	现 owner或公海	PDM-03/PDM-17/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0016	customer_owner_history	changed_at	TIMESTAMPTZ	NO	SERVER_TIME	AUDIT	历史事件时间	PDM-03/PDM-17/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
@@ -183,13 +183,13 @@ F02-F-0186	matching_dictionary_rules	rule_scope	TEXT	NO	SCOPE	TX	生效范围优
 F02-F-0187	matching_dictionary_rules	rule_expression	TEXT	NO	STRUCTURED	F04	搜索Matching复用词典	PDM-12	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0188	matching_dictionary_rules	version	INTEGER	REVIEW	VERSION	AUDIT	版本治理	PDM-12	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0189	matching_dictionary_rules	retired_at	TIMESTAMPTZ	YES	HISTORY	AUDIT	正式规则不普通物理删	PDM-12	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0190	demand_match_results	result_id	BIGINT	NO	PK	DB	Matching只出候选事实	PDM-12/PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0191	demand_match_results	demand_id	BIGINT	NO	FK:demands.demand_id	DB	命中需求	PDM-12/PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0190	demand_match_results	result_id	BIGINT	NO	PK;UNIQUE_MATCH_RESULT_DEMAND_VEHICLE_CYCLE	DB	Matching只出候选事实	PDM-12/PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0191	demand_match_results	demand_id	BIGINT	NO	FK:demands.demand_id;PARTIAL_UNIQUE_CURRENT_DEMAND_VEHICLE_CYCLE	DB	命中需求	PDM-12/PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0192	demand_match_results	vehicle_id	BIGINT	NO	FK:vehicles.vehicle_id	DB	命中车	PDM-12/PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0193	demand_match_results	listing_cycle_id	BIGINT	NO	FK:vehicle_listing_cycles.listing_cycle_id	TX	周期事实	PDM-12/PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0194	demand_match_results	match_tier	TEXT	NO	STATUS	TX	匹配等级	PDM-12/PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0195	demand_match_results	match_explanation	JSONB	REVIEW	STRUCTURED	F04	可解释信息	PDM-12/PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0196	demand_match_results	current_state	TEXT	REVIEW	HISTORY	TX	失效保留历史	PDM-12/PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0193	demand_match_results	listing_cycle_id	BIGINT	NO	FK:vehicle_listing_cycles.listing_cycle_id;COMPOSITE_FK_LISTING_CYCLE_VEHICLE	TX	真实匹配Demand×Vehicle×listing_cycle；不同Vehicle的cycle必须被复合FK拒绝	PDM-12/PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0194	demand_match_results	match_tier	TEXT	NO	CHECK_high_acceptable_confirmation_needed_no_match	TX	PDM-12 Final§8四级正式结果，不用最近似结果顶替	PDM-12/PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0195	demand_match_results	match_explanation	JSONB	NO	STRUCTURED_EXPLANATION_REQUIRED	F04	PDM-12 Final§26原始条件、标准事实、Dictionary Rule、hard/preferred/tolerance、失败/unknown与原因留痕	PDM-12/PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0196	demand_match_results	current_state	TEXT	NO	CHECK_current_stale_invalidated;PARTIAL_UNIQUE_CURRENT_DEMAND_VEHICLE_CYCLE	TX	PDM-12 Final§29-30 current/stale/invalidated与历史，失败重算不继续驱动Priority	PDM-12/PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0197	priority_leases	priority_id	BIGINT	NO	PK	DB	Priority独立对象	PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0198	priority_leases	vehicle_id	BIGINT	NO	FK:vehicles.vehicle_id	DB	同车排他	PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0199	priority_leases	customer_id	BIGINT	NO	FK:customers.customer_id	DB	受保护客户	PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
@@ -219,15 +219,15 @@ F02-F-0222	consultations	first_response_deadline	TIMESTAMPTZ	YES	SERVER_TIME	TX	
 F02-F-0223	consultations	completed_at	TIMESTAMPTZ	YES	HISTORY	AUDIT	终结事实	PDM-15	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0224	crm_followups	followup_id	BIGINT	NO	PK	DB	CRM服务事实	PDM-16/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0225	crm_followups	customer_id	BIGINT	NO	FK:customers.customer_id	DB	服务客户	PDM-16/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0226	crm_followups	responsible_employee_id	BIGINT	NO	FK:employees.employee_id	F03	责任人	PDM-16/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0227	crm_followups	planned_at	TIMESTAMPTZ	YES	SERVER_TIME	TX	计划回访	PDM-16/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0228	crm_followups	completed_at	TIMESTAMPTZ	YES	HISTORY	AUDIT	真实完成	PDM-16/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0229	crm_followups	status	TEXT	NO	STATE_MACHINE	TX	公海保护事实	PDM-16/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0226	crm_followups	responsible_employee_id	BIGINT	NO	FK:employees.employee_id	F03	原责任员工单独保存，不因owner变化覆写；真实actor另存	PDM-16/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0227	crm_followups	planned_at	TIMESTAMPTZ	YES	SERVER_TIME	TX	计划回访；G0-SC-03延期旧混合字段，不替代真实Follow-up；未来保护责任由独立crm_followup_tasks承载	PDM-16/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0228	crm_followups	completed_at	TIMESTAMPTZ	YES	HISTORY	AUDIT	真实完成；G0-SC-03延期旧混合字段，不替代真实Follow-up；未来保护责任由独立crm_followup_tasks承载	PDM-16/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0229	crm_followups	status	TEXT	NO	STATE_MACHINE	TX	公海保护事实；G0-SC-03延期旧混合字段，不替代真实Follow-up；未来保护责任由独立crm_followup_tasks承载	PDM-16/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0230	public_pool_events	pool_event_id	BIGINT	NO	PK	DB	公海进入与退出事件	PDM-03/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0231	public_pool_events	customer_id	BIGINT	NO	FK:customers.customer_id	DB	同一客户	PDM-03/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0232	public_pool_events	from_owner_id	BIGINT	YES	FK:employees.employee_id	AUDIT	历史负责人	PDM-03/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0233	public_pool_events	to_owner_id	BIGINT	YES	FK:employees.employee_id	TX	进入公海为null	PDM-03/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0234	public_pool_events	event_reason	TEXT	NO	STATUS	AUDIT	处理原因	PDM-03/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0234	public_pool_events	event_reason	TEXT	NO	FORMAL_POOL_EVENT_REASON	AUDIT	公海实际释放/领取/分配原因；候选提醒不得形成正式流转事件	PDM-03/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0235	public_pool_events	occurred_at	TIMESTAMPTZ	NO	SERVER_TIME	AUDIT	保护事实重验	PDM-03/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0236	customer_collaborations	collaboration_id	BIGINT	NO	PK	DB	合作访问事实	PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0237	customer_collaborations	customer_id	BIGINT	NO	FK:customers.customer_id	DB	合作客户	PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
@@ -412,3 +412,26 @@ F02-F-0415	customer_price_unlock_events	listing_cycle_id	BIGINT	NO	FK:vehicle_li
 F02-F-0416	customer_price_unlock_events	business_day_shanghai	DATE	NO	FK_LOGICAL_CUSTOMER_DAY	TX	LIMITED首次成功数字价解锁才产生幂等扣额事件，失败/UNLIMITED/预取不扣	PDM-10/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0417	customer_price_unlock_events	event_kind	TEXT	NO	CHECK_SUCCESSFUL_LIMITED_CHARGE	TX	LIMITED首次成功数字价解锁才产生幂等扣额事件，失败/UNLIMITED/预取不扣	PDM-10/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0418	customer_price_unlock_events	occurred_at	TIMESTAMPTZ	NO	SERVER_TIME	AUDIT	LIMITED首次成功数字价解锁才产生幂等扣额事件，失败/UNLIMITED/预取不扣	PDM-10/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0419	system_admins	login_account	TEXT	NO	UNIQUE_SYSTEM_ADMIN_LOGIN_ACCOUNT	DB	独立系统管理员PC凭证账号，不复用Employee	PDM-02/PDM-22	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0420	system_admins	credential_hash	TEXT	NO	SENSITIVE_HASH_ONLY	F03	独立凭证哈希承载，登录及安全策略属于F03	PDM-02/PDM-22	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0421	system_admins	bootstrap_origin	TEXT	NO	CHECK_BOOTSTRAP_OR_ACTIVE_ADMIN_CREATED	TX	首个bootstrap；以后active管理员治理，最后一个active不准停用	PDM-02/PDM-22	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0422	system_admins	created_by_system_admin_id	BIGINT	YES	FK:system_admins.system_admin_id;CONDITIONAL_NON_BOOTSTRAP_CREATOR	AUDIT	bootstrap无管理员父级，后续真实admin治理关联；不映射Employee	PDM-02/PDM-22	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0423	demand_match_results	calculated_at	TIMESTAMPTZ	NO	SERVER_TIME	AUDIT	四级正式结果真实计算时间；旧结果历史保留	PDM-12/PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0424	demand_match_results	invalidated_at	TIMESTAMPTZ	YES	STATE_TRANSITION_TIME	AUDIT	退出current后真实失效时间；旧结果不被重算覆盖	PDM-12/PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0425	priority_leases	listing_cycle_id	BIGINT	NO	FK:vehicle_listing_cycles.listing_cycle_id;COMPOSITE_FK_LISTING_CYCLE_VEHICLE	DB	Priority实际Vehicle×周期，不承继错车cycle	PDM-12/PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0426	priority_leases	source_match_result_id	BIGINT	NO	FK:demand_match_results.result_id;CURRENT_HIGH_ACCEPTABLE_TX_GUARD	TX	必须消费current合法high/acceptable，不使用stale/no_match；运行重验未来执行	PDM-12/PDM-13	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0427	crm_followups	actor_employee_id	BIGINT	NO	FK:employees.employee_id	DB	实际服务操作人，保留不可变历史	PDM-16	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0428	crm_followups	occurred_at	TIMESTAMPTZ	NO	SERVER_TIME_APPEND_ONLY	AUDIT	已发生Follow-up时间，区别未来任务planned_at	PDM-16	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0429	crm_followups	content	TEXT	NO	NONEMPTY_FOLLOWUP_CONTENT	DB	原文保留，不直接覆盖，纠错追加审计	PDM-16	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0430	crm_followups	business_demand_id	BIGINT	YES	FK:demands.demand_id;CONDITIONAL_SAME_CUSTOMER	TX	Demand跟进在统一CRM Follow-up，不创建第二个跟进实体	PDM-11/PDM-16	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0431	crm_followups	source_context_json	JSONB	YES	OPTIONAL_STRUCTURED_SOURCE_CONTEXT	AUDIT	必要来源上下文与真实业务关联，不复制Consultation状态	PDM-15/PDM-16	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0432	crm_followup_tasks	task_id	BIGINT	NO	PK	DB	未来待办独立承载，不冒充历史Follow-up	PDM-16/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0433	crm_followup_tasks	customer_id	BIGINT	NO	FK:customers.customer_id	DB	未完成未来责任的Customer	PDM-16/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0434	crm_followup_tasks	responsible_employee_id	BIGINT	NO	FK:employees.employee_id	F03	合法现任任务责任人；交接与权限在F03重验	PDM-16/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0435	crm_followup_tasks	planned_at	TIMESTAMPTZ	NO	FUTURE_DUE_TIME	TX	待办回访计划日，不是发生历史	PDM-16/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0436	crm_followup_tasks	task_state	TEXT	NO	FUTURE_TASK_LIFECYCLE_CANDIDATE	TX	未完成责任公海前完成/取消/交接；具体枚举待A审定	PDM-16/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0437	crm_followup_tasks	created_at	TIMESTAMPTZ	NO	SERVER_TIME	AUDIT	真实待办创建时间，变更审计	PDM-16/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0438	public_pool_events	event_kind	TEXT	NO	FORMAL_POOL_ENTER_EXIT_TRANSFER_ONLY	DB	正式进入/退出/分配；待公海候选不是此类事实	PDM-03/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0439	public_pool_events	source_owner_history_id	BIGINT	NO	FK:customer_owner_history.owner_history_id;COMPOSITE_SAME_CUSTOMER_OWNER_HISTORY	DB	公海事件绑定同Customer真实owner历史，不能只看当前owner	PDM-03/PDM-17/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0440	public_pool_events	actor_kind	TEXT	NO	VALID_GOVERNANCE_ACTOR_KIND	AUDIT	真实有权处理的actor类型，System Admin不得成为owner	PDM-02/PDM-17	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0441	public_pool_events	actor_id	TEXT	YES	CONDITIONAL_ACTOR_ID	AUDIT	有真人身份保留真实来源，不伪造操作主体	PDM-17/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
