@@ -57,6 +57,8 @@ jobs:
         run: node f02-g0/matrix-audit.mjs
       - name: G0-CL-01/02 外键闭合与最小可实施实体强制门禁
         run: node f02-g0/closure-audit.mjs
+      - name: G0-SC-01至04 四域最小事实持久化范围一致性门禁
+        run: node f02-g0/scope-audit.mjs
       - name: 376候选分级与80项可空性处理验证
         run: node --test f02-g0/tests/review-coverage.test.mjs
       - name: 环境白名单/迁移禁执行正反例
