@@ -1,0 +1,34 @@
+字段ID	实体字段	G0建议可空	现有FK或必要复合FK	必须审核的唯一性与历史策略	具体Authority	A确认状态
+F02-F-0001	customers.customer_id	NO	无直接FK／对应关系按跨域合同核验	PK(customer_id); current_owner_fk非unique	PDM-01/PDM-03/PDM-17	PENDING_A_CORE_FREEZE
+F02-F-0003	customers.current_owner_employee_id	YES	FK:employees.employee_id	PK(customer_id); current_owner_fk非unique	PDM-01/PDM-03/PDM-17	PENDING_A_CORE_FREEZE
+F02-F-0044	role_permission_defaults.role_id	NO	FK:roles.role_id	UNIQUE(role_id,permission_id) 当前投影唯一；role_default_permission_history单独append-only留痕；运行权限归F03	PDM-02	PENDING_A_CORE_FREEZE
+F02-F-0045	role_permission_defaults.permission_id	NO	FK:permissions.permission_id	UNIQUE(role_id,permission_id) 当前投影唯一；role_default_permission_history单独append-only留痕；运行权限归F03	PDM-02	PENDING_A_CORE_FREEZE
+F02-F-0047	employee_permission_overrides.employee_id	NO	FK:employees.employee_id	UNIQUE(employee_id,permission_id) 当前投影唯一；employee_permission_override_history单独append-only留痕；运行权限归F03	PDM-02	PENDING_A_CORE_FREEZE
+F02-F-0048	employee_permission_overrides.permission_id	NO	FK:permissions.permission_id	UNIQUE(employee_id,permission_id) 当前投影唯一；employee_permission_override_history单独append-only留痕；运行权限归F03	PDM-02	PENDING_A_CORE_FREEZE
+F02-F-0064	vehicles.vehicle_id	NO	无直接FK／对应关系按跨域合同核验	PK(vehicle_id); 来源转换不得新建车	PDM-04/PDM-06/PDM-07	PENDING_A_CORE_FREEZE
+F02-F-0081	vehicle_listing_cycles.listing_cycle_id	NO	无直接FK／对应关系按跨域合同核验	PK(listing_cycle_id); UNIQUE(listing_cycle_id,vehicle_id); 同车active部分唯一	PDM-04/PDM-18	PENDING_A_CORE_FREEZE
+F02-F-0082	vehicle_listing_cycles.vehicle_id	NO	FK:vehicles.vehicle_id	PK(listing_cycle_id); UNIQUE(listing_cycle_id,vehicle_id); 同车active部分唯一	PDM-04/PDM-18	PENDING_A_CORE_FREEZE
+F02-F-0180	demands.customer_id	NO	FK:customers.customer_id	PK(demand_id); Demand.customer_id必须等于来源Application/customer	PDM-11/PDM-12	PENDING_A_CORE_FREEZE
+F02-F-0205	recommendations.vehicle_id	NO	FK:vehicles.vehicle_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(recommendation_id); UNIQUE(customer,vehicle,cycle) WHERE active	PDM-14	PENDING_A_CORE_FREEZE
+F02-F-0206	recommendations.customer_id	NO	FK:customers.customer_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(recommendation_id); UNIQUE(customer,vehicle,cycle) WHERE active	PDM-14	PENDING_A_CORE_FREEZE
+F02-F-0207	recommendations.listing_cycle_id	NO	FK:vehicle_listing_cycles.listing_cycle_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(recommendation_id); UNIQUE(customer,vehicle,cycle) WHERE active	PDM-14	PENDING_A_CORE_FREEZE
+F02-F-0217	consultations.customer_id	NO	FK:customers.customer_id；交叉对象须同Customer/Vehicle/listing_cycle；候选复合FK(listing_cycle_id,vehicle_id)	同customer+vehicle+cycle中pending/processing未终结部分唯一；listing_cycle_id已作为F02-F-0382补齐；合法终结后可重新咨询	PDM-15	PENDING_A_CORE_FREEZE
+F02-F-0218	consultations.vehicle_id	NO	FK:vehicles.vehicle_id；交叉对象须同Customer/Vehicle/listing_cycle；候选复合FK(listing_cycle_id,vehicle_id)	同customer+vehicle+cycle中pending/processing未终结部分唯一；listing_cycle_id已作为F02-F-0382补齐；合法终结后可重新咨询	PDM-15	PENDING_A_CORE_FREEZE
+F02-F-0242	lock_requests.customer_id	NO	FK:customers.customer_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(lock_request_id); request身份对应同customer/vehicle/cycle	PDM-18	PENDING_A_CORE_FREEZE
+F02-F-0243	lock_requests.vehicle_id	NO	FK:vehicles.vehicle_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(lock_request_id); request身份对应同customer/vehicle/cycle	PDM-18	PENDING_A_CORE_FREEZE
+F02-F-0244	lock_requests.listing_cycle_id	NO	FK:vehicle_listing_cycles.listing_cycle_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(lock_request_id); request身份对应同customer/vehicle/cycle	PDM-18	PENDING_A_CORE_FREEZE
+F02-F-0252	locks.vehicle_id	NO	FK:vehicles.vehicle_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(lock_id); UNIQUE(vehicle_id) WHERE active; source request需同主体	PDM-18/PDM-19	PENDING_A_CORE_FREEZE
+F02-F-0253	locks.customer_id	NO	FK:customers.customer_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(lock_id); UNIQUE(vehicle_id) WHERE active; source request需同主体	PDM-18/PDM-19	PENDING_A_CORE_FREEZE
+F02-F-0254	locks.listing_cycle_id	NO	FK:vehicle_listing_cycles.listing_cycle_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(lock_id); UNIQUE(vehicle_id) WHERE active; source request需同主体	PDM-18/PDM-19	PENDING_A_CORE_FREEZE
+F02-F-0262	waitlists.customer_id	NO	FK:customers.customer_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(waitlist_id); 按合法Request对应同customer/vehicle/cycle	PDM-18	PENDING_A_CORE_FREEZE
+F02-F-0263	waitlists.vehicle_id	NO	FK:vehicles.vehicle_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(waitlist_id); 按合法Request对应同customer/vehicle/cycle	PDM-18	PENDING_A_CORE_FREEZE
+F02-F-0264	waitlists.listing_cycle_id	NO	FK:vehicle_listing_cycles.listing_cycle_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(waitlist_id); 按合法Request对应同customer/vehicle/cycle	PDM-18	PENDING_A_CORE_FREEZE
+F02-F-0277	transactions.customer_id	NO	FK:customers.customer_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(transaction_id); UNIQUE(vehicle_id) WHERE in_progress; source_lock保持同主体	PDM-19	PENDING_A_CORE_FREEZE
+F02-F-0278	transactions.vehicle_id	NO	FK:vehicles.vehicle_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(transaction_id); UNIQUE(vehicle_id) WHERE in_progress; source_lock保持同主体	PDM-19	PENDING_A_CORE_FREEZE
+F02-F-0279	transactions.listing_cycle_id	NO	FK:vehicle_listing_cycles.listing_cycle_id；交叉对象须同Customer/Vehicle/listing_cycle	PK(transaction_id); UNIQUE(vehicle_id) WHERE in_progress; source_lock保持同主体	PDM-19	PENDING_A_CORE_FREEZE
+F02-F-0284	refund_cases.customer_id	NO	FK:customers.customer_id；交叉对象须同Customer/Vehicle/listing_cycle；与Lock或Transaction退款主体同Customer的复合键或事务守卫	Lock XOR Transaction；同customer+vehicle+cycle，余额并发/真实来源属于后续TX Guard	PDM-19	PENDING_A_CORE_FREEZE
+F02-F-0376	customer_wechat_identities.customer_id	NO	FK:customers.customer_id	UNIQUE(identity_scope,wechat_identity_key)候选；不按phone合并	PDM-01	PENDING_A_CORE_FREEZE
+F02-F-0378	customer_wechat_identities.wechat_identity_key	NO	无直接FK／对应关系按跨域合同核验	UNIQUE(identity_scope,wechat_identity_key)候选；不按phone合并	PDM-01	PENDING_A_CORE_FREEZE
+F02-F-0382	consultations.listing_cycle_id	NO	FK:vehicle_listing_cycles.listing_cycle_id;COMPOSITE_FK_LISTING_CYCLE_VEHICLE;PARTIAL_UNIQUE_ACTIVE_CONSULTATION_TRIPLE；候选复合FK(listing_cycle_id,vehicle_id)	同customer+vehicle+cycle中pending/processing未终结部分唯一；listing_cycle_id已作为F02-F-0382补齐；合法终结后可重新咨询	PDM-15/PDM-04	PENDING_A_CORE_FREEZE
+F02-F-0398	customer_day_quota_ledger.customer_id	NO	FK:customers.customer_id;UNIQUE_CUSTOMER_DAY	UNIQUE(customer,business_day_shanghai)；不混周期	PDM-10	PENDING_A_CORE_FREEZE
+F02-F-0407	customer_price_cycle_unlocks.listing_cycle_id	NO	FK:vehicle_listing_cycles.listing_cycle_id;UNIQUE_CUSTOMER_VEHICLE_CYCLE;COMPOSITE_FK_LISTING_CYCLE_VEHICLE	UNIQUE(customer,vehicle,listing_cycle)；不混日期	PDM-10/PDM-14	PENDING_A_CORE_FREEZE

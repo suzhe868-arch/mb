@@ -1,0 +1,29 @@
+字段ID	实体字段	候选可空	候选约束	责任层	技术收口建议	禁止负例	正式Authority	A最终确认
+F02-F-0027	employees.store_id	YES	FK:stores.store_id;CONDITIONAL_MB_EMPLOYEE	DB	名邦员工最多一个当前主店；4S账户无需虚挂名邦门店	不得对4S账号强制名邦主店	PDM-02/PDM-03/PDM-21（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0030	employees.main_role_id	NO	FK:roles.role_id;SINGLE_CURRENT_ROLE	F03	同一时点一个主角色，历史转换不改写employee_id	4S不能同时有名邦主角色	PDM-02/PDM-03/PDM-21（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0054	employee_data_scopes.scope_reference_id	YES	SCOPE_KIND_CONDITIONAL_REFERENCE	F03	全局scope不强制对象ID；指定对象scope必须真实关联	对象scope缺目标不可授权	PDM-02/PDM-17（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0062	customer_entitlement_events.granted_by	YES	ACTOR_KIND_CONDITIONAL_ID	AUDIT	系统发放无真实employee时允许NULL，员工动作必须留真实身份	系统不能伪造操作员工	PDM-10/PDM-11/PDM-25（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0105	vehicle_brands.status	YES	PARTIAL_MASTERDATA_STATUS_OPTIONAL	DB	品牌治理资料缺失时保留治理状态待补而不填假枚举	不得编造未批准的状态枚举	PDM-05（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0109	vehicle_series.status	YES	PARTIAL_MASTERDATA_STATUS_OPTIONAL	DB	未补齐车系允许后续治理，不假定完整枚举	不能强制新采集车系立刻完整	PDM-05（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0114	vehicle_models.model_name	YES	JYT_MODEL_PARTIAL_NAME_ALLOWED	DB	JYT model_id可先形成不完整本地车型，名称后补	不因名称缺失拒收JYT车型	PDM-05（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0129	vehicle_images.relative_path	YES	ASSET_PATH_CONDITIONAL	TX	本地化未成功时路径可空且保留来源和补偿记录	资产化失败不得回滚来源转换	PDM-08（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0149	vehicle_price_history.changed_by	YES	ACTOR_KIND_CONDITIONAL_ID	AUDIT	上游自动改价与员工改价分类型留证	上游同步不得伪造员工	PDM-10（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0153	pricing_rule_versions.approved_by	YES	APPROVER_KIND_CONDITIONAL_ID	AUDIT	合法批准主体按来源分类，不能把系统审批伪作员工	System Admin不冒用销售身份	PDM-10/PDM-25（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0157	pricing_rule_ranges.max_price_cents	YES	LAST_PRICE_RANGE_OPEN_UPPER_ONLY	DB	只有有依据的最后一档可开放上界；不可重叠	中间区间不得错误开放上界	PDM-10（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0200	priority_leases.trigger_demand_id	YES	FK:demands.demand_id;OPTIONAL_TRIGGER_CONTEXT	TX	Priority关联Demand可选，不等同Demand也不允许手动创建	不得把Priority误作找车需求	PDM-13（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0239	customer_collaborations.scope_json	NO	VALID_SCOPED_JSON_OBJECT	F03	协作必须有明确受限能力结构与审计历史	空作用域不得变成全权限	PDM-17（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0266	waitlists.active_lock_id	YES	FK:locks.lock_id;HISTORICAL_SOURCE	TX	候补可以关联历史锁，但不能要求永久active锁	锁结束后不得制造仍active假状态	PDM-18（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0271	deposit_receipts.lock_id	YES	FK:locks.lock_id;SUBJECT_PROVENANCE_CONDITIONAL	TX	真实Deposit来源在Lock转交易后仍保留，交易关联需后续合同	不能删除或挪走Deposit历史	PDM-19（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0289	refund_cases.expected_amount_cents	YES	DYNAMIC_BALANCE_NOT_FIXED_AUTHORITY	TX	expected仅辅助快照，可退余额必须实时重算	不得按快照余额并发超退	PDM-19（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0300	financial_corrections.correction_amount_cents	YES	CORRECTION_KIND_CONDITIONAL_AMOUNT	AUDIT	非金额性质的纠错允许无金额	不能强行录入假金额	PDM-19/PDM-25（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0306	publisher_phone_cache.phone_secret	YES	SUCCESS_PHONE_SECRET_ONLY	F03	失败取号无合法密文，成功时才保存	取号失败不得造号码	PDM-09（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0307	publisher_phone_cache.fetched_at	YES	SUCCESS_FETCHED_AT_ONLY	AUDIT	成功取号才有成功时间，失败另存尝试时间	失败不得造成功时刻	PDM-09（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0324	notification_events.source_object_id	YES	SOURCE_KIND_CONDITIONAL_ID	AUDIT	全局通知允许无单一来源对象，局部事件需真实来源	不允许填入虚假对象ID	PDM-23（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0340	audit_events.actor_id	YES	ACTOR_KIND_CONDITIONAL_ID	AUDIT	系统actor可没有真人ID，具身份操作者必须真实引用	不伪造真人身份	PDM-25（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0341	audit_events.role_context	YES	REDACTED_CONTEXT_OPTIONAL	AUDIT	只记脱敏最小权限上下文，不要求全量敏感快照	日志不得包含秘密权限明文	PDM-25（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0343	audit_events.object_id	YES	OBJECT_KIND_CONDITIONAL_ID	AUDIT	全局治理可能没有单个目标对象	不能制造假目标	PDM-25（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0351	config_versions.payload_json	NO	VALID_VERSIONED_PAYLOAD	AUDIT	配置版本必须保留可核对的真实结构化载荷	不得用空造版本替代真实配置	PDM-25/PDM-10/PDM-22（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0370	share_attributions.vehicle_id	YES	SHARE_KIND_CONDITIONAL_VEHICLE	TX	非车辆分享允许无vehicle，车辆分享必须关联车	不能把所有分享视作车辆分享	PDM-03/PDM-14/PDM-20（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0371	share_attributions.sharer_customer_id	YES	AUTHENTICATED_SHARER_OPTIONAL	AUDIT	匿名分享链无合法Customer时允许空，仍留来源	不得伪造分享用户	PDM-03/PDM-14/PDM-20（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0372	share_attributions.source_employee_id	YES	BOUND_SALESPERSON_CONDITIONAL	TX	只有真实销售绑定来源才建立其归属FK	分享不得抢已有owner	PDM-03/PDM-14/PDM-20（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE
+F02-F-0377	customer_wechat_identities.identity_scope	NO	UNIQUE_SCOPED_WECHAT_IDENTITY	DB	微信身份以scope+identity_key唯一，不按手机号合并	不能全局手机号合并身份	PDM-01（实际业务语义见各Final，列属性为技术建议）	PENDING_A_FINAL_FREEZE

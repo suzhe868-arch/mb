@@ -1,0 +1,24 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {validateFullDomain} from '../full-domain-validation.mjs';
+const names=['field-matrix.tsv','field-freeze-candidates.tsv','field-tiers-376.tsv','F02-G0_全域510字段逐项物理承载审查.tsv','F02-G0_全域82实体主键外键与延期审查.tsv','F02-G0_PDM01至25正式施工承载总矩阵.tsv','foreign-key-closure.tsv','F02-G0_全域集中问题及处理结果_22项.tsv'];
+const original=await Promise.all(names.map(n=>readFile(new URL('../'+n,import.meta.url),'utf8')));
+const parse=s=>s.trimEnd().split(/\r?\n/).map(x=>x.split('\t')),ser=a=>a.map(x=>x.join('\t')).join('\n')+'\n';
+const source=original.map(parse),clone=()=>source.map(x=>x.map(r=>[...r]));
+const check=a=>validateFullDomain(...(a||source).map(ser));
+const mutate=(table,col,fn)=>{const x=clone(),r=x[0].find(z=>z[1]===table&&z[2]===col);assert.ok(r,'fixture');const f=x[1].find(z=>z[0]===r[0]),q=x[3].find(z=>z[0]===r[0]);fn(r,f,q);return x;};
+test('G0-ALL正例：25 PDM、510字段、82实体、137 FK、22集中发现和禁恢复全部闭合',()=>{let x=check();assert.deepEqual([x.pdm,x.fields,x.entities,x.buildable,x.foreignKeys,x.issues],[25,510,82,76,137,22]);});
+test('删除原有任意字段证明记录必须拒绝',()=>{let a=clone();a[3].splice(1,1);assert.throws(()=>check(a),/F02_G0_ALL_EVIDENCE_COUNT/);});
+test('删除任一实体或失配FK数量必须拒绝',()=>{let a=clone();a[4].splice(1,1);assert.throws(()=>check(a),/F02_G0_ALL_EVIDENCE_COUNT/);let b=clone();b[4][1][6]='0';assert.throws(()=>check(b),/F02_G0_ALL_ENTITY_IDENTITY_OR_FK/);});
+test('漏PDM-12或错误宣称PDM24实体已纳入必须拒绝',()=>{let a=clone();a[5].splice(13,1);assert.throws(()=>check(a),/F02_G0_ALL_EVIDENCE_COUNT/);let b=clone();const q=b[5].find(x=>x[0]==='PDM-24');q[3]='F02-F-9999';assert.throws(()=>check(b),/F02_G0_ALL_PDM_CURRENT_DRIFT/);});
+test('延期字段理由不能回退笼统以后做',()=>{let a=clone(),q=a[3].find(x=>x[1]==='customer_favorites.favorite_id');q[10]='以后做';assert.throws(()=>check(a),/F02_G0_ALL_UNEXPLAINED_DEFER/);});
+test('SystemAdmin全局PC账号规范唯一、同管理员绑定与XOR禁混用',()=>{let a=mutate('pc_login_accounts','normalized_login_key',(r,f,q)=>{r[5]='UNIQUE_WITHIN_EMPLOYEE_ONLY';f[5]=r[4]+' | '+r[5]+' | '+r[6];q[7]=r[5];});assert.throws(()=>check(a),/F02_G0_/);let b=mutate('pc_login_accounts','principal_kind',(r,f,q)=>{r[5]='CHECK_EMPLOYEE_OR_SYSTEM_ADMIN';f[5]=r[4]+' | '+r[5]+' | '+r[6];q[7]=r[5];});assert.throws(()=>check(b),/F02_G0_/);});
+test('Rule Dictionary作用域优先、启停和版本历史不能丢',()=>{for(const [t,c] of [['matching_dictionary_rules','rule_scope'],['matching_dictionary_rules','rule_status'],['matching_rule_change_history','after_json']]){const a=mutate(t,c,(r,f,q)=>{r[5]='UNSAFE_OLD';f[5]=r[4]+' | '+r[5]+' | '+r[6];q[7]=r[5];});assert.throws(()=>check(a),/F02_G0_/);}});
+test('CRM私有/共享/服务称呼独立实体，不能被延期',()=>{let a=mutate('crm_personal_notes','note_id',(r,f,q)=>{f[4]='DEFER_WITH_REASON';f[3]='P2_DEFERRED_DETAIL';});assert.throws(()=>check(a),/F02_G0_/);});
+test('隐藏规则AND/OR与图片partial_failed不能退化',()=>{for(const [t,c] of [['vehicle_hide_rules','conditions_json'],['image_asset_jobs','status']]){let a=mutate(t,c,(r,f,q)=>{r[5]='UNSAFE';f[5]=r[4]+' | '+r[5]+' | '+r[6];q[7]=r[5];});assert.throws(()=>check(a),/F02_G0_/);}});
+test('通知去重目标和阶段不可删或编造',()=>{let a=mutate('notification_events','dedupe_key',(r,f,q)=>{r[5]='NO_DEDUPE';f[5]=r[4]+' | '+r[5]+' | '+r[6];q[7]=r[5];});assert.throws(()=>check(a),/F02_G0_/);});
+test('历史禁恢复：独立4S组织与自然日周期混合不能重新纳入',()=>{for(const [t,c] of [['four_s_organizations','organization_id'],['customer_daily_price_access','access_id']]){const a=mutate(t,c,(r,f,q)=>{f[4]='INCLUDE_SUPPORT_CANDIDATE';f[3]='P1_F02_1_SUPPORT';q[3]='F02_1_MINIMUM';q[4]=f[4];});assert.throws(()=>check(a),/F02_G0_/);}});
+test('22问题中Admin最终单一凭证技术批准不能撤回或伪报A已验收',()=>{let a=clone();a[7].find(x=>x[0]==='G0-ALL-05')[7]='A_TECHNICAL_ADJUDICATION_PENDING';assert.throws(()=>check(a),/F02_G0_ALL_ADMIN_CREDENTIAL_A_DIRECTION_NOT_APPLIED/);let b=clone();b[3][1][11]='G0_ACCEPTED';assert.throws(()=>check(b),/F02_G0_ALL_FAKE_A_FREEZE/);});
+
+test('规则版本、客户Tag和通知目标的复合身份缺一条就阻断',()=>{for(const [tb,col,token] of [['matching_rule_change_history','rule_version','UNIQUE_RULE_VERSION_PAIR'],['crm_customer_tag_links','customer_id','PARTIAL_UQ_ACTIVE_CUSTOMER_TAG_PAIR'],['notification_events','channel_kind','COMPOSITE_NOTIFICATION_DEDUPE_FACT']]){const x=mutate(tb,col,(r,f,q)=>{r[5]=r[5].replace(';'+token,'').replace(token,'');f[5]=r[4]+' | '+r[5]+' | '+r[6];q[7]=r[5];});assert.throws(()=>check(x),/F02_G0_/);}});

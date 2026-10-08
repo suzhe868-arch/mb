@@ -1,0 +1,102 @@
+name: F02-G0 隔离 PostgreSQL16 安全预检
+on:
+  push:
+    branches: [feat/f02-schema]
+  workflow_dispatch:
+jobs:
+  isolated-g0:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: f02_ephemeral_bootstrap_only
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F02_G0_ISOLATION_CONFIRM: I_ACKNOWLEDGE_F02_G0_DISPOSABLE_DATABASE
+      F02_G0_OPERATION: readonly_preflight
+      F02_G0_DATABASE_URL: postgres://f02_ci:f02_ci_ephemeral_fixture@127.0.0.1:5432/f02_schema_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: F01 基线依赖、构建与安全回归
+        run: |
+          node --version
+          npm --version
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run check
+      - name: CI 临时角色与测试数据库初始化（非业务 Schema）
+        run: |
+          set -eu
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f02_ci WITH LOGIN PASSWORD 'f02_ci_ephemeral_fixture' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f02_schema_test OWNER f02_ci"
+          echo 'F02-G0 temporary account/database bootstrapped; no business schema'
+      - name: F02 Current 字段候选静态完整性与禁虚报检查
+        run: node f02-g0/matrix-audit.mjs
+      - name: G0-CL-01/02 外键闭合与最小可实施实体强制门禁
+        run: node f02-g0/closure-audit.mjs
+      - name: G0-ALL 全域25 PDM与510字段82实体一次性完整审计门禁
+        run: node f02-g0/full-domain-audit.mjs
+      - name: G0-SC-01至04 四域最小事实持久化范围一致性门禁
+        run: node f02-g0/scope-audit.mjs
+      - name: 376候选分级与80项可空性处理验证
+        run: node --test f02-g0/tests/review-coverage.test.mjs
+      - name: 环境白名单/迁移禁执行正反例
+        run: node --test f02-g0/tests/*.test.mjs
+      - name: PostgreSQL16 真实身份/只读事务负例
+        run: node f02-g0/preflight.mjs
+      - name: 真实 PostgreSQL 错误凭据与 F01 库连接拒绝负例
+        run: |
+          if F02_G0_DATABASE_URL=postgres://f02_ci:deliberately_wrong_password@127.0.0.1:5432/f02_schema_test node f02-g0/preflight.mjs; then
+            echo 'SECURITY FAILURE: wrong credential accepted'
+            exit 1
+          fi
+          echo 'F02-G0 live wrong-password negative PASS'
+          if F02_G0_DATABASE_URL=postgres://f02_ci:f02_ci_ephemeral_fixture@127.0.0.1:5432/f01_foundation node f02-g0/preflight.mjs; then
+            echo 'SECURITY FAILURE: F01 database target accepted'
+            exit 1
+          fi
+          echo 'F02-G0 F01-database negative PASS'
+      - name: 任何执行参数都必须失败
+        run: |
+          if node f02-g0/preflight.mjs --apply; then echo 'SECURITY FAILURE'; exit 1; fi
+          echo 'F02-G0 migration execution refused PASS'
+      - name: 非 public 用户 Schema 与用户表伪装空库必须拒绝
+        run: |
+          set -eu
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d f02_schema_test -c "CREATE SCHEMA f02_g0_negative_fixture AUTHORIZATION f02_ci"
+          if node f02-g0/preflight.mjs; then
+            echo 'F02-G0 SECURITY FAILURE: nonpublic user schema was treated as empty'
+            exit 1
+          fi
+          echo 'F02-G0 negative nonpublic schema refusal PASS'
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d f02_schema_test -c "CREATE TABLE f02_g0_negative_fixture.synthetic_probe (id integer)"
+          if node f02-g0/preflight.mjs; then
+            echo 'F02-G0 SECURITY FAILURE: nonpublic synthetic user relation was treated as empty'
+            exit 1
+          fi
+          echo 'F02-G0 negative nonpublic table refusal PASS'
