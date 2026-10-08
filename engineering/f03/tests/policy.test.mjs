@@ -99,6 +99,19 @@ test('System Admin control plane is not an employee business actor, or default o
  denied('system.role_template.manage',ctx('system.role_template.manage',{actor:employee(),resource:{kind:'role',id:7,state:'active'}}),'EMPLOYEE_IS_NOT_SYSTEM_ADMIN');
  denied('system.employee.manage',ctx('system.employee.manage',{actor:{...a,status:'inactive'},resource:{kind:'employee',id:12,state:'active'}}),'INVALID_OR_INACTIVE_ACTOR');
 });
+test('separate principal IDs never block valid system governance by numerical collision',()=>{
+ const a=admin(),r={kind:'employee',id:a.id,state:'active'};
+ ok('system.employee.manage',ctx('system.employee.manage',{actor:a,resource:r}));
+});
+test('4S governance capability cannot target a non-4S Employee',()=>{
+ const op='system.four_s_account.manage',a=admin();
+ denied(op,ctx(op,{actor:a,resource:{kind:'employee',id:72,state:'active',role:'sales'}}),'FOUR_S_ACCOUNT_TARGET_REQUIRED');
+ ok(op,ctx(op,{actor:a,resource:{kind:'employee',id:72,state:'active',role:'four_s'}}));
+});
+test('projection refuses mismatching database row identity even with permission',()=>{
+ const context=ctx('vehicle.read',{resource:vehicle()});
+ assert.deepEqual(projectRecord('vehicle.read',{vehicle_id:99,display_price:3},context),{allowed:false,reason:'RECORD_RESOURCE_ID_MISMATCH',fields:{}});
+});
 test('System Admin may act on customer account control plane, never on employee CRM',()=>{
  const a=admin(),r=customer();
  ok('customer.account.disable',ctx('customer.account.disable',{actor:a,resource:r}));
