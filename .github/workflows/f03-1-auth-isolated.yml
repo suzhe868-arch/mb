@@ -107,7 +107,10 @@ jobs:
           openssl req -x509 -newkey rsa:2048 -nodes -days 1 -keyout /tmp/f03-1-key.pem -out /tmp/f03-1-cert.pem -subj '/CN=127.0.0.1' -addext 'subjectAltName=IP:127.0.0.1' >/dev/null 2>&1
           printf 'F03_1_TLS_KEY_PATH=/tmp/f03-1-key.pem\n' >> "$GITHUB_ENV"
           printf 'F03_1_TLS_CERT_PATH=/tmp/f03-1-cert.pem\n' >> "$GITHUB_ENV"
-          printf 'F03_1_HMAC_KEY_BASE64=%s\n' "$(openssl rand -base64 32 | tr -d '\n')" >> "$GITHUB_ENV"
+          key="$(openssl rand -base64 32 | tr -d '\n')"
+          echo "::add-mask::$key"
+          printf 'F03_1_HMAC_KEY_BASE64=%s\n' "$key" >> "$GITHUB_ENV"
+          unset key
       - name: True synthetic PG16 credential fixtures and transactional concurrent tests
         run: |
           set -euo pipefail

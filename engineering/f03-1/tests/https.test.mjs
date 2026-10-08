@@ -7,7 +7,8 @@ const port=48331,origin='https://127.0.0.1:'+port,cert=await readFile(process.en
 function request(path,{method='POST',data={},cookie=null,csrf=null,sendOrigin=true,contentType='application/json'}={}){
  return new Promise((resolve,reject)=>{
   const payload=JSON.stringify(data);
-  const headers={'Content-Type':contentType, 'Content-Length':Buffer.byteLength(payload)};
+  const headers={'Content-Type':contentType};
+  if(method!=='GET')headers['Content-Length']=Buffer.byteLength(payload);
   if(sendOrigin)headers.Origin=origin;
   if(cookie)headers.Cookie=cookie;
   if(csrf)headers['X-CSRF-Token']=csrf;
