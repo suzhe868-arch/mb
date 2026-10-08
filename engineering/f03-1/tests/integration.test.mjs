@@ -152,6 +152,27 @@ test('account failed-attempt limit and cooldown reset (single-process CI topolog
  assert.equal(auth.attempts.has('a:limit_test'),false,'successful proof clears failure counter');
  console.log('F03-1 ONE PROCESS ACCOUNT FAILURE LIMIT AND COOLDOWN PASS');
 });
+test('real PG16 forged tokens, absolute expiry, idle expiry and future last_seen deny',async()=>{
+ assert.equal(await auth.withSession('A'.repeat(43),async()=>true),null);
+ const entry=await auth.login({login:'limit_test',password:'SyntheticLimit_1234567',source:'session_expiry'});
+ assert.equal(entry.code,'AUTH_OK');
+ const digest=(await import('../../src/f03-auth-crypto.mjs')).sessionDigest(entry.token,secret);
+ const c=await connect();
+ try{
+  const row=(await c.query('SELECT session_id FROM public.pc_auth_sessions WHERE token_digest=$1',[digest])).rows[0];
+  assert.ok(row?.session_id);
+  const id=row.session_id;
+  await c.query("UPDATE public.pc_auth_sessions SET issued_at=now()-interval '1 hour',expires_at=now()-interval '1 second',last_seen_at=NULL WHERE session_id=$1",[id]);
+  assert.equal(await auth.withSession(entry.token,async()=>true),null,'absolute expiry');
+  await c.query("UPDATE public.pc_auth_sessions SET issued_at=now()-interval '1 hour',expires_at=now()+interval '11 hours',last_seen_at=now()-interval '31 minutes' WHERE session_id=$1",[id]);
+  assert.equal(await auth.withSession(entry.token,async()=>true),null,'idle expiry');
+  await c.query("UPDATE public.pc_auth_sessions SET issued_at=now()-interval '1 minute',expires_at=now()+interval '11 hours',last_seen_at=now()+interval '5 minutes' WHERE session_id=$1",[id]);
+  assert.equal(await auth.withSession(entry.token,async()=>true),null,'future activity not authorized');
+  await c.query("UPDATE public.pc_auth_sessions SET issued_at=now()-interval '1 minute',expires_at=now()+interval '11 hours',last_seen_at=now()-interval '1 second',credential_epoch=credential_epoch+1 WHERE session_id=$1",[id]);
+  assert.equal(await auth.withSession(entry.token,async()=>true),null,'wrong credential epoch');
+ }finally{await c.end()}
+ console.log('F03-1 LIVE SESSION FORGERY, ABSOLUTE/IDLE/FUTURE TIME, EPOCH PASS');
+});
 test('audit contains only redacted version and states, not synthetic test secrets',async()=>{
  const c=await connect();
  try{
