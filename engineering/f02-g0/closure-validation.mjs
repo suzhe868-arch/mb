@@ -61,6 +61,14 @@ export function validateBuildableClosure(matrixText,freezeText,tierText){
     }
   }
   for(const t of BANNED_TABLES)insist(!included.has(t),'BANNED_AS_PARENT_'+t);
+  // Validate all included source FKs before evaluating entity PKs so a deferred parent
+  // is reported as a foreign-key disconnection even when its PK was also deferred.
+  for(const rows of included.values())for(const source of rows){
+    for(const [,kind,parent,column] of staticRefs(source)){
+      required(fields,parent,column,'FK_PARENT_FOR_'+source[1]+'.'+source[2]);
+      insist(!BANNED_TABLES.has(parent),'FORBIDDEN_FK_PARENT_'+parent);
+    }
+  }
   const entityRows=[],foreignKeyRows=[],keys={};
   for(const [t,rows] of [...included].sort(([a],[b])=>a.localeCompare(b))){
     const explicit=rows.filter(r=>has(r,'PK'));

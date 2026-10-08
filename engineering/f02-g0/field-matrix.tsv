@@ -400,7 +400,7 @@ F02-F-0403	customer_day_quota_ledger	updated_at	TIMESTAMPTZ	NO	SERVER_TIME	AUDIT
 F02-F-0404	customer_price_cycle_unlocks	unlock_id	BIGINT	NO	PK	DB	单车周期权跨日有效，新cycle不继承，Recommendation免费权独立	PDM-10/PDM-14	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0405	customer_price_cycle_unlocks	customer_id	BIGINT	NO	FK:customers.customer_id;UNIQUE_CUSTOMER_VEHICLE_CYCLE	DB	单车周期权跨日有效，新cycle不继承，Recommendation免费权独立	PDM-10/PDM-14	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0406	customer_price_cycle_unlocks	vehicle_id	BIGINT	NO	FK:vehicles.vehicle_id;COMPOSITE_FK_LISTING_CYCLE_VEHICLE	DB	单车周期权跨日有效，新cycle不继承，Recommendation免费权独立	PDM-10/PDM-14	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0407	customer_price_cycle_unlocks	listing_cycle_id	BIGINT	NO	FK:vehicle_listing_cycles.listing_cycle_id;UNIQUE_CUSTOMER_VEHICLE_CYCLE	DB	单车周期权跨日有效，新cycle不继承，Recommendation免费权独立	PDM-10/PDM-14	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0407	customer_price_cycle_unlocks	listing_cycle_id	BIGINT	NO	FK:vehicle_listing_cycles.listing_cycle_id;UNIQUE_CUSTOMER_VEHICLE_CYCLE;COMPOSITE_FK_LISTING_CYCLE_VEHICLE	DB	单车周期权跨日有效，新cycle不继承，Recommendation免费权独立；同真实Vehicle的listing_cycle_id成对复合FK，拒绝仅单列FK合法但跨车错配	PDM-10/PDM-14	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0408	customer_price_cycle_unlocks	grant_origin	TEXT	NO	GRANT_KIND	TX	单车周期权跨日有效，新cycle不继承，Recommendation免费权独立	PDM-10/PDM-14	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0409	customer_price_cycle_unlocks	source_recommendation_id	BIGINT	YES	FK:recommendations.recommendation_id;CONDITIONAL_SAME_TRIPLE	TX	单车周期权跨日有效，新cycle不继承，Recommendation免费权独立	PDM-10/PDM-14	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0410	customer_price_cycle_unlocks	granted_at	TIMESTAMPTZ	NO	SERVER_TIME	AUDIT	单车周期权跨日有效，新cycle不继承，Recommendation免费权独立	PDM-10/PDM-14	CANDIDATE_UNFROZEN	NOT_RUN
@@ -408,7 +408,7 @@ F02-F-0411	customer_price_unlock_events	unlock_event_id	BIGINT	NO	PK	DB	LIMITED�
 F02-F-0412	customer_price_unlock_events	idempotency_key	TEXT	NO	UNIQUE_IDEMPOTENCY_KEY	DB	LIMITED首次成功数字价解锁才产生幂等扣额事件，失败/UNLIMITED/预取不扣	PDM-10/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0413	customer_price_unlock_events	customer_id	BIGINT	NO	FK:customers.customer_id;UNIQUE_SUCCESSFUL_UNLOCK_TRIPLE	DB	LIMITED首次成功数字价解锁才产生幂等扣额事件，失败/UNLIMITED/预取不扣	PDM-10/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0414	customer_price_unlock_events	vehicle_id	BIGINT	NO	FK:vehicles.vehicle_id;COMPOSITE_FK_LISTING_CYCLE_VEHICLE	DB	LIMITED首次成功数字价解锁才产生幂等扣额事件，失败/UNLIMITED/预取不扣	PDM-10/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
-F02-F-0415	customer_price_unlock_events	listing_cycle_id	BIGINT	NO	FK:vehicle_listing_cycles.listing_cycle_id;UNIQUE_SUCCESSFUL_UNLOCK_TRIPLE	DB	LIMITED首次成功数字价解锁才产生幂等扣额事件，失败/UNLIMITED/预取不扣	PDM-10/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
+F02-F-0415	customer_price_unlock_events	listing_cycle_id	BIGINT	NO	FK:vehicle_listing_cycles.listing_cycle_id;UNIQUE_SUCCESSFUL_UNLOCK_TRIPLE;COMPOSITE_FK_LISTING_CYCLE_VEHICLE	DB	LIMITED首次成功数字价解锁才产生幂等扣额事件，失败/UNLIMITED/预取不扣；同真实Vehicle的listing_cycle_id成对复合FK，拒绝仅单列FK合法但跨车错配	PDM-10/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0416	customer_price_unlock_events	business_day_shanghai	DATE	NO	FK_LOGICAL_CUSTOMER_DAY	TX	LIMITED首次成功数字价解锁才产生幂等扣额事件，失败/UNLIMITED/预取不扣	PDM-10/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0417	customer_price_unlock_events	event_kind	TEXT	NO	CHECK_SUCCESSFUL_LIMITED_CHARGE	TX	LIMITED首次成功数字价解锁才产生幂等扣额事件，失败/UNLIMITED/预取不扣	PDM-10/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
 F02-F-0418	customer_price_unlock_events	occurred_at	TIMESTAMPTZ	NO	SERVER_TIME	AUDIT	LIMITED首次成功数字价解锁才产生幂等扣额事件，失败/UNLIMITED/预取不扣	PDM-10/PDM-25	CANDIDATE_UNFROZEN	NOT_RUN
