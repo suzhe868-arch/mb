@@ -112,6 +112,49 @@ test('projection refuses mismatching database row identity even with permission'
  const context=ctx('vehicle.read',{resource:vehicle()});
  assert.deepEqual(projectRecord('vehicle.read',{vehicle_id:99,display_price:3},context),{allowed:false,reason:'RECORD_RESOURCE_ID_MISMATCH',fields:{}});
 });
+test('A整改：车辆详情即使已获授权，也必须具备有效且匹配的 vehicle_id',()=>{
+ const context=ctx('vehicle.read',{resource:vehicle()});
+ ok('vehicle.read',context); // authorization succeeds; row identity is a separate guard
+ const expected={allowed:false,reason:'RECORD_RESOURCE_ID_REQUIRED',fields:{}};
+ for(const row of [{source_type:'mingbang',display_price:20},{vehicle_id:undefined,display_price:20},{vehicle_id:null},{vehicle_id:0},{vehicle_id:{id:45}}]){
+  assert.deepEqual(projectRecord('vehicle.read',row,context),expected);
+ }
+ assert.deepEqual(projectRecord('vehicle.read',{vehicle_id:46,display_price:20},context),{allowed:false,reason:'RECORD_RESOURCE_ID_MISMATCH',fields:{}});
+ assert.deepEqual(projectRecord('vehicle.read',{vehicle_id:45,display_price:20},context),{allowed:true,reason:'CURRENT_SCOPE_PROJECTED',fields:{vehicle_id:45,display_price:20}});
+});
+test('A整改：CRM与历史两种客户投影都必须具备匹配的 customer_id',()=>{
+ for(const op of ['customer.crm.read','customer.history.read']){
+  const context=ctx(op,{resource:customer()});
+  ok(op,context);
+  const required={allowed:false,reason:'RECORD_RESOURCE_ID_REQUIRED',fields:{}};
+  for(const row of [{history_event:'handover',account_status:'active'}, {customer_id:null}, {customer_id:''}, {customer_id:0}, {customer_id:['25']}])
+   assert.deepEqual(projectRecord(op,row,context),required,op+' missing/invalid customer_id');
+  assert.deepEqual(projectRecord(op,{customer_id:26,account_status:'active'},context),{allowed:false,reason:'RECORD_RESOURCE_ID_MISMATCH',fields:{}});
+  assert.deepEqual(projectRecord(op,{customer_id:25,account_status:'active'},context),{allowed:true,reason:'CURRENT_SCOPE_PROJECTED',fields:{customer_id:25,account_status:'active'}});
+ }
+});
+test('A整改：历史记录任何白名单内嵌套敏感字段必须整体拒绝，不得返回部分或原始值',()=>{
+ const op='customer.history.read',context=ctx(op,{resource:customer()});
+ const secret='NEVER_LEAK_NESTED_SECRET';
+ const base={customer_id:25,account_status:'active',history_event:'handover',occurred_at:'2026-10-01',actor_id:31,actor_role_at_time:'sales',actor_store_at_time:8};
+ const badRows=[
+  {...base,history_event:{type:'handover',metadata:{password_hash:secret}}},
+  {...base,history_event:[{source:{publisher_phone:secret}}]},
+  {...base,contact_name:{display:'normal',secrets:[{internal_wholesale_price:secret}]}},
+  {...base,actor_role_at_time:{old_role:'sales',security:{token:secret}}},
+  {...base,actor_store_at_time:new Date('2026-10-01T00:00:00Z')},
+  {...base,customer_level:{safe:'VIP',private:{token:secret}}}
+ ];
+ for(const row of badRows){
+  const projection=projectRecord(op,row,context);
+  assert.deepEqual(projection,{allowed:false,reason:'UNSAFE_NESTED_HISTORY_VALUE',fields:{}});
+  assert.ok(!JSON.stringify(projection).includes(secret),'nested sensitive payload leaked');
+ }
+ const valid=projectRecord(op,{...base,unlisted_secret:{nested:{password_hash:secret}}},context);
+ assert.equal(valid.allowed,true);
+ assert.deepEqual(valid.fields,base);
+ assert.ok(!JSON.stringify(valid).includes(secret));
+});
 test('System Admin may act on customer account control plane, never on employee CRM',()=>{
  const a=admin(),r=customer();
  ok('customer.account.disable',ctx('customer.account.disable',{actor:a,resource:r}));
