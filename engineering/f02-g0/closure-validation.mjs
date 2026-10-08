@@ -7,6 +7,11 @@ export const COMPOSITE_IDENTITY_KEYS=Object.freeze({
 const MINIMUM={
   customer_levels:['level_id','level_code'],
   stores:['store_id','store_name','status'],
+  system_admins:['system_admin_id','account_status','created_at','login_account','credential_hash','bootstrap_origin','created_by_system_admin_id'],
+  demand_match_results:['result_id','demand_id','vehicle_id','listing_cycle_id','match_tier','match_explanation','current_state','calculated_at','invalidated_at'],
+  crm_followups:['followup_id','customer_id','responsible_employee_id','actor_employee_id','occurred_at','content','business_demand_id','source_context_json'],
+  crm_followup_tasks:['task_id','customer_id','responsible_employee_id','planned_at','task_state','created_at'],
+  public_pool_events:['pool_event_id','customer_id','from_owner_id','to_owner_id','event_reason','occurred_at','event_kind','source_owner_history_id','actor_kind','actor_id'],
   customer_entitlement_events:['entitlement_event_id','customer_id','entitlement_kind','occurred_at'],
   vehicle_images:['image_id','vehicle_id','relative_path','source_url_fact','asset_storage_status'],
   vehicle_price_history:['price_event_id','vehicle_id','price_kind','amount_cents','valid_from','changed_by'],
@@ -29,7 +34,7 @@ const staticRefs=r=>[...r[5].matchAll(/(FK|XOR_FK):([a-z_]+)\.([a-z_]+)/g)];
 export function validateBuildableClosure(matrixText,freezeText,tierText){
   const matrix=parse(matrixText),freeze=parse(freezeText),tier=parse(tierText);
   const baseline=validateMatrix(matrixText);
-  insist(matrix.length===414&&freeze.length===414&&tier.length===414,'ROW_413_COUNT');
+  insist(matrix.length===437&&freeze.length===437&&tier.length===437,'ROW_413_COUNT');
   const m=new Map(matrix.slice(1).map(r=>[r[0],r])),f=new Map(),tiers=new Map(tier.slice(1).map(r=>[r[0],r]));
   const kindPattern=/^(INCLUDE_(CORE_CANDIDATE|SUPPORT_CANDIDATE|WITH_A_REVIEW|MINIMUM_COMPLETE_ENTITY)|DEFER_WITH_REASON|EXCLUDE_(4S_ORG|OLD_MIXED))$/;
   for(const r of freeze.slice(1)){
@@ -97,7 +102,7 @@ export function validateBuildableClosure(matrixText,freezeText,tierText){
   }
   // Referential consistency to the real Vehicle/cycle is not two unrelated FK facts.
   for(const key of ['listing_cycle_id','vehicle_id'])insist(has(required(fields,'vehicle_listing_cycles',key,'CYCLE_PARENT'),'UNIQUE_LISTING_CYCLE_VEHICLE_PAIR'),'MISSING_CYCLE_PARENT_COMPOSITE');
-  for(const child of ['recommendations','consultations','lock_requests','locks','waitlists','transactions','customer_price_cycle_unlocks','customer_price_unlock_events']){
+  for(const child of ['demand_match_results','priority_leases','recommendations','consultations','lock_requests','locks','waitlists','transactions','customer_price_cycle_unlocks','customer_price_unlock_events']){
     const cycle=required(fields,child,'listing_cycle_id','CYCLE_CHILD');
     required(fields,child,'vehicle_id','CYCLE_CHILD');
     insist(cycle[5].includes('COMPOSITE_FK_LISTING_CYCLE_VEHICLE'),'MISSING_COMPOSITE_CYCLE_'+child);
@@ -120,6 +125,20 @@ export function validateBuildableClosure(matrixText,freezeText,tierText){
   insist(required(fields,'customer_price_unlock_events','business_day_shanghai','DAILY_EVENT')[5].includes('FK_LOGICAL_CUSTOMER_DAY'),'DAILY_LEDGER_LOGICAL_RELATION_MISSING');
   insist(has(required(fields,'vehicle_listing_cycles','ended_at','ACTIVE_CYCLE'),'PARTIAL_UNIQUE_ACTIVE_VEHICLE_CYCLE'),'ACTIVE_CYCLE_UNIQUENESS_MISSING');
   insist(required(fields,'consultations','listing_cycle_id','CONSULTATION_ACTIVE')[5].includes('PARTIAL_UNIQUE_ACTIVE_CONSULTATION_TRIPLE'),'ACTIVE_CONSULTATION_UNIQUENESS_MISSING');
+  // G0-SC F02-1 mandatory physical carriers; all runtime authorization, transactional concurrency and real DDL remain NOT_RUN.
+  for(const k of ['system_admin_id','account_status','created_at','login_account','credential_hash','bootstrap_origin','created_by_system_admin_id'])required(fields,'system_admins',k,'SC01');
+  insist(required(fields,'system_admins','created_by_system_admin_id','SC01')[5].includes('FK:system_admins.system_admin_id'),'SC01_CREATOR_MISSING');
+  for(const k of ['result_id','demand_id','vehicle_id','listing_cycle_id','match_tier','match_explanation','current_state','calculated_at'])required(fields,'demand_match_results',k,'SC02');
+  insist(required(fields,'demand_match_results','match_tier','SC02')[5].includes('CHECK_high_acceptable_confirmation_needed_no_match'),'SC02_FOUR_TIERS');
+  insist(required(fields,'demand_match_results','current_state','SC02')[5].includes('PARTIAL_UNIQUE_CURRENT_DEMAND_VEHICLE_CYCLE'),'SC02_CURRENT_STALE');
+  insist(required(fields,'priority_leases','source_match_result_id','SC02')[5].includes('FK:demand_match_results.result_id'),'SC02_PRIORITY_CONSUMES_MATCH_RESULT');
+  for(const k of ['followup_id','customer_id','actor_employee_id','occurred_at','content','business_demand_id'])required(fields,'crm_followups',k,'SC03');
+  insist(required(fields,'crm_followups','occurred_at','SC03')[5].includes('APPEND_ONLY'),'SC03_NOT_APPEND_ONLY');
+  for(const k of ['task_id','customer_id','responsible_employee_id','planned_at','task_state'])required(fields,'crm_followup_tasks',k,'SC03_TASK');
+  for(const k of ['pool_event_id','customer_id','event_kind','source_owner_history_id','occurred_at'])required(fields,'public_pool_events',k,'SC04');
+  insist(required(fields,'public_pool_events','event_kind','SC04')[5].includes('FORMAL_POOL_ENTER_EXIT_TRANSFER_ONLY'),'SC04_CANDIDATE_AS_POOL');
+  insist(required(fields,'public_pool_events','source_owner_history_id','SC04')[5].includes('COMPOSITE_SAME_CUSTOMER_OWNER_HISTORY'),'SC04_NOT_OWNER_HISTORY');
+  for(const k of ['owner_history_id','customer_id'])insist(has(required(fields,'customer_owner_history',k,'SC04_PARENT'),'UNIQUE_OWNER_HISTORY_CUSTOMER_PAIR'),'SC04_OWNER_PAIR_MISSING');
   for(const t of ['publisher_phone_cache'])for(const k of ['source_platform','upstream_publisher_id','source_status'])required(fields,t,k,'PUBLISHER_KEY');
   const deferredEntities=[];
   for(const [t,rows] of allTables)if(!included.has(t)){
@@ -131,7 +150,7 @@ export function validateBuildableClosure(matrixText,freezeText,tierText){
     deferredEntities.push([t,rows.map(x=>x.row[2]).join('+'),kind,reason,rows[0].row[8],'PENDING_A_FINAL_FREEZE']);
   }
   const counts={included:[...included.values()].reduce((a,r)=>a+r.length,0),deferred:freeze.slice(1).filter(x=>x[4]==='DEFER_WITH_REASON').length,excluded:freeze.slice(1).filter(x=>x[4].startsWith('EXCLUDE_')).length};
-  insist(counts.included+counts.deferred+counts.excluded===413,'CLASSIFICATION_NOT_DISJOINT');
+  insist(counts.included+counts.deferred+counts.excluded===436,'CLASSIFICATION_NOT_DISJOINT');
   insist(entityRows.length===included.size,'ENTITY_ROWS_MISMATCH');
   return {fieldCount:baseline.fieldCount,entityCount:entityRows.length,foreignKeyCount:foreignKeyRows.length,deferredEntityCount:deferredEntities.length,counts,entities:entityRows,foreignKeys:foreignKeyRows,deferredEntities,keys};
 }

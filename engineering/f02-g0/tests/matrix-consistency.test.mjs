@@ -12,7 +12,7 @@ function changeRow(match,fn){
 }
 test('当前矩阵在禁止客户合并前提下通过逐字段静态校验',()=>{
   const result=validateMatrix(original);
-  assert.equal(result.fieldCount,413);
+  assert.equal(result.fieldCount,436);
   assert.ok(result.entityCount>=60);
 });
 test('V1 完全取消 Customer Merge，旧合并历史实体不得回到矩阵',()=>{

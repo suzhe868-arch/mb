@@ -6,7 +6,7 @@ const REQUIRED_FIELDS=[
   'customer_wechat_identities.customer_id','customer_wechat_identities.wechat_identity_key',
   'customer_phone_facts.customer_id','customer_phone_facts.phone_ciphertext',
   'customer_day_quota_ledger.customer_id','customer_day_quota_ledger.business_day_shanghai','customer_price_cycle_unlocks.customer_id','customer_price_cycle_unlocks.listing_cycle_id','customer_price_unlock_events.idempotency_key',
-  'demands.demand_state','consultations.status','consultations.close_reason',
+  'demands.demand_state','system_admins.system_admin_id','demand_match_results.match_tier','crm_followups.content','crm_followup_tasks.task_id','public_pool_events.event_kind','consultations.status','consultations.close_reason',
   'find_car_applications.status','lock_requests.status','refund_cases.status','refund_cases.close_reason','refund_cases.lock_id','refund_cases.transaction_id',
   'manual_vehicle_drafts.created_by_employee_id','vehicles.vehicle_id','vehicle_models.model_year','jyt_model_source_mappings.upstream_model_id','jyt_model_source_mappings.local_model_id',
 ];
