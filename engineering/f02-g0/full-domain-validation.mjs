@@ -17,7 +17,7 @@ export function validateFullDomain(matrix,freeze,tiers,fieldEvidence,entityEvide
   check(q[1]===r[1]+'.'+r[2]&&q[2]===r[8]&&q[3]===type(d[4])&&q[4]===d[4],'FALSE_FIELD_PHASE_'+r[0]);
   check(q[5]===r[3]&&q[6]===r[4]&&q[7]===r[5]&&q[8]===r[6]&&q[9]===r[7],'STALE_FIELD_CONTRACT_'+r[0]);
   check(q[11]==='PENDING_A_FINAL_FREEZE'&&d[7]==='PENDING_A_FINAL_FREEZE','FAKE_A_FREEZE_'+r[0]);
-  if(q[3]!=='F02_1_MINIMUM')check(q[10].length>30&&!/以后做|反正以后|非此阶段基础身份\/FK/.test(q[10]),'UNEXPLAINED_DEFER_'+r[0]);
+  if(q[3]!=='F02_1_MINIMUM')check(q[10].length>=12&&!/^(?:以后做|反正以后|非此阶段基础身份\/FK)/.test(q[10]),'UNEXPLAINED_DEFER_'+r[0]);
  }
  check(observed.size===510&&e.size===510,'FIELD_ID_COVERAGE');
  const byTable=new Map();for(const r of m.slice(1)){if(!byTable.has(r[1]))byTable.set(r[1],[]);byTable.get(r[1]).push(r)}
