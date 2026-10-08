@@ -1,0 +1,57 @@
+name: F03-1-G0 password/session design and schema delta only
+on:
+  push:
+    branches: [feat/f03-login]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  login-design-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: engineering
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Existing F01/F02/F03-G0 read-only regression
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run check
+          node f02-g0/closure-audit.mjs
+          node f02-g0/full-domain-audit.mjs
+          node f02-g0/scope-audit.mjs
+          node f03/verify-contract.mjs
+          node --test f03/tests/*.test.mjs
+      - name: Design-only static boundary and read-only frozen-schema check
+        run: |
+          set -euo pipefail
+          mkdir -p f03/login-design/artifacts
+          node --check f03/login-design/state-model.mjs
+          node --check f03/login-design/benchmark-scrypt.mjs
+          node --check f03/login-design/verify-contract.mjs
+          node f03/login-design/verify-contract.mjs | tee f03/login-design/artifacts/safety-scope.log
+          node --test f03/login-design/test/*.test.mjs 2>&1 | tee f03/login-design/artifacts/f03-1-g0-tests.log
+          grep -q 'F03-1-G0 SCHEMA ORIGINAL MATCH PASS' f03/login-design/artifacts/f03-1-g0-tests.log
+          grep -q 'F03-1-G0 AUTHORITY/STATE COVERAGE PASS' f03/login-design/artifacts/f03-1-g0-tests.log
+          grep -q '# fail 0' f03/login-design/artifacts/f03-1-g0-tests.log
+      - name: Ephemeral built-in scrypt availability and cost (no hash output)
+        run: |
+          set -euo pipefail
+          node f03/login-design/benchmark-scrypt.mjs | tee f03/login-design/artifacts/scrypt-cost.log
+          grep -q 'F03-1-G0 SCRYPT AVAILABILITY PASS' f03/login-design/artifacts/scrypt-cost.log
+          echo 'F03-1-G0 DESIGN-ONLY / ALL STATIC CONTRACT TESTS PASS / NO DATABASE'
+      - name: Upload this SHA synthetic checks only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f03-1-g0-login-design-evidence
+          path: engineering/f03/login-design/artifacts/
+          if-no-files-found: warn
+          retention-days: 30
