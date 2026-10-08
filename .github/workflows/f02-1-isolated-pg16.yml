@@ -87,6 +87,8 @@ jobs:
           echo 'F02-1 four parallel migrations and repeat PASS'
       - name: Real PostgreSQL16 DDL check constraints and negative fixtures
         run: node f02-1/tests/live.mjs
+      - name: Actual unknown-version, checksum drift, rogue object refusal, and exact 464-field projection
+        run: node f02-1/tests/migration-metadata.mjs
       - name: Export actual PG16 schema and compare critical columns
         run: |
           set -euo pipefail
