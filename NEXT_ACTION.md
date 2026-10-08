@@ -1,6 +1,18 @@
 # 名邦汽车 V1｜当前唯一下一步｜2026-10-08
 
-## 当前最新执行焦点｜F02-G0 四域物理承载范围一致性补审（2026-10-08）
+## 当前唯一下一步｜F02-1 独立 PG16 空库 Current Schema 施工（G0 已获 A 验收）
+
+- **A 正式签发：`G0_ACCEPTED / A_SIGNED`**。用户明确同意；验收依据 `07_重建工作区/F02-G0_A主控最终验收签发与F02-1隔离施工放行_2026-10-08.md`、B `feat/f02-schema` HEAD `f2cdb0e8c7967aeaa8cfea5c6b466c9b45a68946`、[真实 CI #37722491859](https://github.com/suzhe868-arch/mb/actions/runs/37722491859)（90/90 PASS）。
+- 现行 F02-G0 模型合同：510 条候选字段，其中 `464 INCLUDE / 33 DEFER / 13 EXCLUDE`；76 个拟建最小实体、137 条显式静态 FK。PC 登录凭证唯一权威在 `pc_login_accounts`；原管理员两套重复凭证字段保留编号并排除建表。
+- **B 当前工程任务**：按 `07_重建工作区/F02_正式施工单_数据库模型与隔离开发_2026-10-08.md` §2 在**原工程分支** `feat/f02-schema` 实施 F02-1：全新一次性隔离 PostgreSQL 16 空库建表/迁移、真实约束与安全门禁、重复/失败恢复/并发测试和 schema dump；提交 SHA、执行命令、真实测试日志、残余风险交 A 独立验收。
+- **禁越界**：不合并 main，不访问真实已迁/生产数据库，不使用旧危险迁移；F02-2/3/4、F03/F04 业务施工未自动授权。F02-1 `AUTHORIZED_FOR_ISOLATED_IMPLEMENTATION / NOT_RUN`，须 A 以后另行验收；G0 静态 PASS 不等于物理建表 PASS。
+- **C/H01**：独立对照用户视觉参考返修验收；不因 F02-G0 放行 H02，不增加折叠屏专项范围。全项目 `PRODUCT_BASELINE=NOT_READY`。
+- **全局唯一下一步**：`F02_1_ISOLATED_CURRENT_SCHEMA_B_IMPLEMENTATION_A_REVIEW_AND_H01_VISUAL_REVIEW`。下面旧“当前/最新”工作焦点全部属于历史背景，以上为唯一现行指针。
+
+---
+
+
+## HISTORICAL｜F02-G0 四域物理承载范围一致性补审（此前阶段）
 
 - 用户明确“同意，确定执行”，批准 A 主控将四项范围一致性发现落实为正式补审单：`07_重建工作区/F02-G0_A主控范围一致性定向补审单_SystemAdmin_匹配_CRM_公海_2026-10-08.md`。B 分支 `feat/f02-schema` 上次 A 核验 HEAD `ea14fb372a6ab598177d1a8a067e2b1df3ebf480`，GitHub CI [37712078050](https://github.com/suzhe868-arch/mb/actions/runs/37712078050) 成功。
 - **已闭环**：F02-G0 环境与静态安全测试、G0-CL-01 外键依赖、G0-CL-02 最小完整实体结构；413 字段、53 拟建实体、96 显式静态 FK 的 A 独立核验通过，本次不得无故重做。

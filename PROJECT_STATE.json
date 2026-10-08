@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F02_G0_FOUR_DOMAIN_SCOPE_MAPPING_B_EXECUTE_A_REVIEW_H01_REVIEW",
+  "substage": "F02_1_ISOLATED_CURRENT_SCHEMA_B_IMPLEMENTATION_A_REVIEW_H01_VISUAL_REVIEW",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "GLOBAL_POST_PDM25",
-  "current_domain_status": "F02_G0_ENVIRONMENT_AND_CL01_CL02_PASS_SCOPE_COVERAGE_PENDING_NOT_ACCEPTED",
+  "current_domain_status": "F02_G0_ACCEPTED_A_SIGNED_F02_1_ISOLATED_IMPLEMENTATION_AUTHORIZED_NOT_RUN",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "B在feat/f02-schema核对system_admins、demand_match_results、crm_followups、public_pool_events四域F02-1最小持久化承载/合法分期，提交逐字段映射、负例和CI交A复核；F02-1仍待A签发G0_ACCEPTED，C/H01独立审查",
-  "current_work_file": "07_重建工作区/F02-G0_A主控范围一致性定向补审单_SystemAdmin_匹配_CRM_公海_2026-10-08.md",
+  "current_task": "B在feat/f02-schema按F02正式施工单§2启动F02-1：隔离一次性PG16新空库Current Schema真实DDL/迁移与恢复/约束/幂等/并发测试，提交SHA、日志和schema dump给A独立复审；C/H01视觉独立复核",
+  "current_work_file": "07_重建工作区/F02-G0_A主控最终验收签发与F02-1隔离施工放行_2026-10-08.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "F02_G0_THEN_F02_1_ISOLATED_H01_REVIEW",
+  "next_action": "F02_1_ISOLATED_CURRENT_SCHEMA_B_IMPLEMENTATION_A_REVIEW_AND_H01_VISUAL_REVIEW",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F01_ACCEPTED_F02_G0_AUTHORIZED_F02_1_CONDITIONAL_OTHER_STAGES_NOT_AUTHORIZED",
+  "engineering_status": "F01_ACCEPTED_F02_G0_ACCEPTED_F02_1_ISOLATED_IMPLEMENTATION_AUTHORIZED_OTHER_STAGES_NOT_AUTHORIZED",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "F02-G0 立即授权；F02-1 仅 G0 A验收后授权隔离PG16新装数据库开发；F02-2/3/4、F03/F04运行施工、生产/真实旧库与main合并未批准，H01仍待修订与用户视觉确认",
+  "next_action_detail": "A已签发G0_ACCEPTED（B SHA f2cdb0e8c7967aeaa8cfea5c6b466c9b45a68946，CI 37722491859，90/90 PASS）；F02-1现获准仅在一次性隔离PostgreSQL16新空库施工及真实验证，F02-2/3/4、F03/F04运行施工、真实/生产库、main合并仍不授权；C/H01独立视觉审查",
   "abc_parallel_workflow": {
     "status": "USER_APPROVED_APPLIED_DOCUMENTATION_ONLY",
     "confirmed_at": "2026-10-08",
@@ -4920,8 +4920,8 @@
     "work_order": "07_重建工作区/F02_正式施工单_数据库模型与隔离开发_2026-10-08.md",
     "technical_adjudication": "07_重建工作区/F02_主控技术裁定与开工门禁_2026-10-08.md",
     "phase": {
-      "F02-G0": "AUTHORIZED_NOT_RUN",
-      "F02-1": "CONDITIONAL_AFTER_G0_A_ACCEPTANCE_NOT_RUN",
+      "F02-G0": "G0_ACCEPTED_A_SIGNED",
+      "F02-1": "AUTHORIZED_FOR_ISOLATED_IMPLEMENTATION_NOT_RUN",
       "F02-2": "NOT_AUTHORIZED",
       "F02-3": "NOT_AUTHORIZED",
       "F02-4": "NOT_AUTHORIZED",
@@ -4934,13 +4934,43 @@
     "production_access": "FORBIDDEN",
     "historical_scripts_execution": "FORBIDDEN",
     "merge_main": "NOT_AUTHORIZED",
-    "schema_tests": "NOT_RUN",
+    "schema_tests": "G0_STATIC_AND_PG16_SAFETY_90_PASS_F02_1_REAL_DDL_NOT_RUN",
     "business_authority_unchanged": true,
     "design_branch_unchanged": true,
     "source_reports": [
       "F02_开工门禁准备_数据库模型与安全迁移方案_2026-10-08.md",
       "F02至F04_开工门禁风险与A待裁定清单_2026-10-08.md",
       "F03_F04_开工门禁准备_权限与接口依赖方案_2026-10-08.md"
-    ]
+    ],
+    "g0_acceptance": {
+      "status": "G0_ACCEPTED",
+      "signed_by": "A_MAIN_CONTROLLER",
+      "user_approved": true,
+      "signed_date": "2026-10-08",
+      "report": "07_重建工作区/F02-G0_A主控最终验收签发与F02-1隔离施工放行_2026-10-08.md",
+      "reviewed_branch": "feat/f02-schema",
+      "reviewed_sha": "f2cdb0e8c7967aeaa8cfea5c6b466c9b45a68946",
+      "ci_run_id": 37722491859,
+      "ci_url": "https://github.com/suzhe868-arch/mb/actions/runs/37722491859",
+      "ci_result": "SUCCESS",
+      "test_counts": {
+        "f01": 13,
+        "field_tiering": 2,
+        "g0": 75,
+        "total": 90
+      },
+      "scope": {
+        "candidate_fields": 510,
+        "include_fields": 464,
+        "defer_fields": 33,
+        "exclude_fields": 13,
+        "candidate_entities": 82,
+        "buildable_entities": 76,
+        "explicit_foreign_keys": 137
+      },
+      "physical_schema": "NOT_RUN",
+      "approval_effect": "UNLOCK_F02_1_ISOLATED_POSTGRES16_NEW_EMPTY_DB_ONLY",
+      "branch_merge": "NOT_AUTHORIZED"
+    }
   }
 }

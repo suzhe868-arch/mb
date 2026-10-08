@@ -1,4 +1,13 @@
-# 2026-10-08｜A 主控 F02-G0 四域范围一致性定向补审获用户确认（当前最新状态）
+# 2026-10-08｜A 主控正式签发 G0_ACCEPTED 并放行 F02-1 隔离施工（当前最新状态）
+
+- 用户本轮明确“同意”，正式批准 A 将 F02-G0 最终通过结果落库；验收签发：`07_重建工作区/F02-G0_A主控最终验收签发与F02-1隔离施工放行_2026-10-08.md`。A 已验证 B 工程 HEAD `f2cdb0e8c7967aeaa8cfea5c6b466c9b45a68946` 对应真实 CI `37722491859`，F01 13/13 + G0分级2/2 + G0全量75/75 共 90/90 PASS。
+- G0 经独立终审的候选台账：25/25 PDM 全域映射、510/510 字段编号完整（464 INCLUDE / 33 DEFER / 13 EXCLUDE）、82 候选实体、76 F02-1 最小拟建实体、137 显式外键断链为0；System Admin/Matching/CRM/公海与G0-ALL-05单一 PC 凭证全部静态闭环。A 正式签发 `G0_ACCEPTED / A_SIGNED`；不等于已运行 F02-1 业务 DDL。
+- B 现行施工单 `07_重建工作区/F02_正式施工单_数据库模型与隔离开发_2026-10-08.md` §2，按原用户条件批准 `F02-1 AUTHORIZED_FOR_ISOLATED_IMPLEMENTATION / NOT_RUN`，仅在 `feat/f02-schema` 的一次性隔离 PG16 空库进行新 Current Schema 建表、迁移/回滚/幂等/约束/并发实测，提交真实代码 SHA、迁移/SQL、日志及 schema dump 交 A 复验。
+- F02-2/3/4、F03/F04 正式施工、生产/已迁真实库、危险旧脚本及 B 合并 main 未获批准；C/H01 独立视觉审查，H02 未授权。正式 PDM Final / Current IA / Low-Fi 未改，`PRODUCT_BASELINE=NOT_READY`。以下此前标记“当前”的 G0-CL/G0-SC 状态均是历史，不再覆盖本签发。
+
+---
+
+# HISTORICAL｜2026-10-08 四域范围一致性补审（此前状态）
 
 - 用户明确“同意，确定执行”：正式 A 补审单 `07_重建工作区/F02-G0_A主控范围一致性定向补审单_SystemAdmin_匹配_CRM_公海_2026-10-08.md` 已落库；发现 F02-1 正式施工单涉及 System Admin 身份、Demand/Match Result、CRM Follow-up 与公海历史保护，但 B `deferred-entity-register.tsv` 对应四实体仍整表延期、尚未提供完整替代承载映射。
 - B 最新独立复验基点 `feat/f02-schema=ea14fb372a6ab598177d1a8a067e2b1df3ebf480`，CI `37712078050` SUCCESS。F01 13/13、G0 40/40、PG16 安全隔离通过；413 字段分流、53 拟建实体、96 静态 FK 断链 0。G0-CL-01/02 本轮确认闭环，**不重做**。
