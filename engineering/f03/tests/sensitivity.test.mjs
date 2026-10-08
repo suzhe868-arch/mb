@@ -4,7 +4,7 @@ import {readFile,writeFile,mkdtemp,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {pathToFileURL} from 'node:url';
-import {authorize} from '../policy.mjs';
+import {authorize,projectRecord} from '../policy.mjs';
 const source=await readFile(new URL('../policy.mjs',import.meta.url),'utf8');
 const base=(role='four_s')=>({
  actor:{kind:'employee',id:11,status:'active',role,storeId:4},
@@ -47,5 +47,50 @@ test('mutation sensitivity: removing scope guard causes an out-of-scope test to 
   const result=changed(op,sample);
   assert.equal(result.allowed,true,'scope mutation must grant out-of-scope object');
   assert.throws(()=>assert.equal(result.allowed,false),'baseline scope negative would fail on mutant');
+ });
+});
+
+test('A整改敏感性：移除车辆或客户记录身份校验时，缺编号负例必须翻转',async()=>{
+ const vehicleContext=base('sales');
+ vehicleContext.resource={kind:'vehicle',id:45,state:'visible',sourceType:'mingbang'};
+ const missingVehicle={display_price:1234,source_type:'mingbang'};
+ assert.deepEqual(projectRecord('vehicle.read',missingVehicle,vehicleContext),{allowed:false,reason:'RECORD_RESOURCE_ID_REQUIRED',fields:{}});
+ const required="if(recordIdField&&(!own(record,recordIdField)||!validId(record[recordIdField])))return {allowed:false,reason:'RECORD_RESOURCE_ID_REQUIRED',fields:{}};";
+ const equal="if(recordIdField&&record[recordIdField]!==context.resource.id)return {allowed:false,reason:'RECORD_RESOURCE_ID_MISMATCH',fields:{}};";
+ assert.ok(source.includes(required)&&source.includes(equal),'both identity checks must exist');
+ const weakened=source.replace(required,'/* removed required primary ID */').replace(equal,'/* removed cross-object primary ID equality */');
+ await mutant(weakened,async mod=>{
+  const c=await import('node:assert/strict');
+  const changed=mod.projectRecord('vehicle.read',missingVehicle,vehicleContext);
+  assert.equal(changed.allowed,true,'removing identity guards must expose a vehicle row without ID');
+  assert.throws(()=>c.default.deepEqual(changed,{allowed:false,reason:'RECORD_RESOURCE_ID_REQUIRED',fields:{}}));
+  const customerContext={
+   actor:{kind:'employee',id:11,status:'active',role:'sales'},
+   resource:{kind:'customer',id:25,state:'active',accountStatus:'active'},
+   facts:{roleDefaults:['crm.customer.view'],personalDecisions:{},hardDenies:[],
+     scopeGrants:[{actorId:11,resourceKind:'customer',resourceId:25,capability:'crm.customer.view',relation:'global',active:true}]}
+  };
+  assert.equal(projectRecord('customer.history.read',{history_event:'handover'},customerContext).allowed,false);
+  assert.equal(mod.projectRecord('customer.history.read',{history_event:'handover'},customerContext).allowed,true,'missing Customer ID must be observable after guard removal');
+ });
+});
+test('A整改敏感性：移除历史嵌套安全检查会真实透出嵌套秘密',async()=>{
+ const sample={
+  actor:{kind:'employee',id:11,status:'active',role:'sales'},
+  resource:{kind:'customer',id:25,state:'active',accountStatus:'active'},
+  facts:{roleDefaults:['crm.customer.view'],personalDecisions:{},hardDenies:[],
+    scopeGrants:[{actorId:11,resourceKind:'customer',resourceId:25,capability:'crm.customer.view',relation:'global',active:true}]}
+ };
+ const secret='MUTANT_SENSITIVE_SECRET';
+ const record={customer_id:25,history_event:{kind:'handover',details:{password_hash:secret}}};
+ const safe=projectRecord('customer.history.read',record,sample);
+ assert.deepEqual(safe,{allowed:false,reason:'UNSAFE_NESTED_HISTORY_VALUE',fields:{}});
+ const check="if(operation==='customer.history.read'&&[...SAFE_CUSTOMER,...SAFE_HISTORY].some(key=>own(record,key)&&!safeHistoricalScalar(record[key])))return {allowed:false,reason:'UNSAFE_NESTED_HISTORY_VALUE',fields:{}};";
+ assert.ok(source.includes(check),'nested structure guard must exist');
+ await mutant(source.replace(check,'/* mutation removed nested historical value filter */'),changed=>{
+  const leaked=changed.projectRecord('customer.history.read',record,sample);
+  assert.equal(leaked.allowed,true,'without nested protection, history projection must leak the payload');
+  assert.ok(JSON.stringify(leaked).includes(secret),'demonstrate secret leak after security guard removal');
+  assert.throws(()=>assert.deepEqual(leaked,safe),'old reject assertion must fail on mutant');
  });
 });
