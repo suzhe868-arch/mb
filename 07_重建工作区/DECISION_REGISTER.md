@@ -1313,3 +1313,6 @@
 | ID | 范围 | 事项 | 裁决 | 授权边界 | 证据 | 日期 |
 |---|---|---|---|---|---|---|
 | EG-F02-1-ACCEPT-20261009 | ENGINEERING_F02_1 | 一次性隔离PG16 Current Initial Schema验收及A签发 | 用户明确“同意开始执行”，批准A将独立复验通过结论正式写入main；验收B SHA 9f10f65be293fd892e4787a3a3bdff2676c487ea，真实F02-1/G0 CI均成功，物理结构与冻结矩阵一致，历次阻断已闭合；F02_1_ACCEPTED / A_SIGNED | GOVERNANCE_ONLY；B/C不合并；F02-2/3/4、F03/F04正式施工不授权；不得访问真实/生产库；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F02-1_A主控最终验收签发与残余风险_2026-10-09.md`；CI 37843224982、37843225062；artifact 11578297739 | 2026-10-09 |
+
+
+| EG-F02-1-MERGE-F03-GATE-20261009 | ENGINEERING_INTEGRATION | 已验收B合并及F03门禁准备 | 用户“同意开始实行”，A通过PR #2纳入已验收B SHA 9f10f65be293fd892e4787a3a3bdff2676c487ea，merge=3412dc76815e97a7df9024d8b7812a2aece7036c；F03-G0限定首批门禁准备完成待用户审查 | B合并已授权并完成；F03施工NOT_AUTHORIZED；C不合并；不访问真实库；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F02-1_工程合并main与后续门禁记录_2026-10-09.md`；`07_重建工作区/F03_开工门禁与分批施工建议_待用户批准_2026-10-09.md` | 2026-10-09 |
