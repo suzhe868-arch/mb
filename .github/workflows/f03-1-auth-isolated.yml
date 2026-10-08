@@ -85,6 +85,12 @@ jobs:
           node f03-1/runner.mjs --apply
           node f03-1/runner.mjs --verify
           echo 'F03-1 REAL PG16 CONCURRENT IDEMPOTENT MIGRATION PASS'
+      - name: Reject a different CI-run seal, unknown schema, checksum drift and version tampering
+        run: |
+          set -euo pipefail
+          if GITHUB_RUN_ID=99999999 node f03-1/runner.mjs --apply; then exit 1; fi
+          node f03-1/tests/migration-negative.mjs | tee f03-1/artifacts/migration-negative.log
+          echo 'F03-1 CI RUN SEAL, UNKNOWN VERSION, ROGUE VIEW, CHECKSUM GUARDS PASS'
       - name: Export true PG16 schema-only dump and object inventory
         run: |
           set -euo pipefail

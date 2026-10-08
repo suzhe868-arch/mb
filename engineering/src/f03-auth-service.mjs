@@ -40,26 +40,30 @@ export class IsolatedAuth{
    let v=this.attempts.get(k);
    if(!v||v.until<=now){v={count:0,until:now+window,blocked:0};this.attempts.set(k,v)}
    if(now<v.blocked)throw Error('AUTH_RATE_LIMIT');
+   if(v.blocked&&now>=v.blocked){v.blocked=0;v.count=0}
    if(v.count>=limit){v.blocked=now+60000;throw Error('AUTH_RATE_LIMIT')}
-   v.count++;
+   // Per-source: count all attempts; per-account: count failures ONLY.
+   if(k.startsWith('i:'))v.count++;
   }
  }
+ failed(key){const v=this.attempts.get('a:'+key);if(v)v.count++;return FAIL}
  async login({login,password,source='loopback'}){
   let key;try{key=normalizeLogin(login);validatePassword(password);this.rate(key,source)}catch{return FAIL}
   const c=await this.pool.connect();
   try{
    const base=(await c.query('SELECT account_id,password_hash,credential_epoch FROM public.pc_login_accounts WHERE normalized_login_key=$1',[key])).rows[0];
-   if(!base){await dummyCheck(password);return FAIL}
-   if(!await verifyPassword(password,base.password_hash))return FAIL;
+   if(!base){await dummyCheck(password);return this.failed(key)}
+   if(!await verifyPassword(password,base.password_hash))return this.failed(key);
    await c.query('BEGIN');
    try{
     const a=await this.get(c,base.account_id,true);
-    if(!valid(a)||a.credential_epoch!==base.credential_epoch||a.password_hash!==base.password_hash){await c.query('ROLLBACK');return FAIL}
+    if(!valid(a)||a.credential_epoch!==base.credential_epoch||a.password_hash!==base.password_hash){await c.query('ROLLBACK');return this.failed(key)}
     const token=newOpaqueToken(),restricted=a.force_password_change;
     const now=this.clock(),expires=new Date(now.getTime()+(restricted?600000:43200000));
     await c.query('INSERT INTO public.pc_auth_sessions(account_id,token_digest,credential_epoch,issued_at,expires_at,restricted) VALUES ($1,$2,$3,$4,$5,$6)',
       [a.account_id,sessionDigest(token,this.secret),a.credential_epoch,now,expires,restricted]);
     await c.query('COMMIT');
+    this.attempts.delete('a:'+key);
     return {code:'AUTH_OK',restricted,token,csrf:csrfValue(token,this.secret)};
    }catch(e){await c.query('ROLLBACK');throw e}
   }finally{c.release()}
