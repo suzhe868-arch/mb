@@ -1,15 +1,15 @@
 {
   "project": "名邦汽车 V1",
-  "updated_at": "2026-10-08",
+  "updated_at": "2026-10-09",
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F02_1_ISOLATED_CURRENT_SCHEMA_B_IMPLEMENTATION_A_REVIEW_H01_VISUAL_REVIEW",
+  "substage": "F02_1_ACCEPTED_A_NEXT_GATE_PENDING_USER_APPROVAL_AND_H01_VISUAL_REVIEW",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "GLOBAL_POST_PDM25",
-  "current_domain_status": "F02_G0_ACCEPTED_A_SIGNED_F02_1_ISOLATED_IMPLEMENTATION_AUTHORIZED_NOT_RUN",
+  "current_domain_status": "F02_1_ACCEPTED_A_SIGNED_ENGINEERING_NOT_MERGED_NEXT_GATE_PENDING",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "B在feat/f02-schema按F02正式施工单§2启动F02-1：隔离一次性PG16新空库Current Schema真实DDL/迁移与恢复/约束/幂等/并发测试，提交SHA、日志和schema dump给A独立复审；C/H01视觉独立复核",
-  "current_work_file": "07_重建工作区/F02-G0_A主控最终验收签发与F02-1隔离施工放行_2026-10-08.md",
+  "current_task": "A登记F02-1验收，提出工程合并与下一阶段独立门禁建议，等待用户批准；B本阶段完成待指令；C/H01继续独立视觉审查",
+  "current_work_file": "07_重建工作区/F02-1_A主控最终验收签发与残余风险_2026-10-09.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "ENGINEERING_F01_AND_HIGHFI_H01_READY",
+  "current_review_batch": "F02_1_ACCEPTED_NEXT_ENGINEERING_GATE_PENDING_H01_VISUAL_REVIEW",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "F02_1_ISOLATED_CURRENT_SCHEMA_B_IMPLEMENTATION_A_REVIEW_AND_H01_VISUAL_REVIEW",
+  "next_action": "F02_1_ACCEPTED_A_NEXT_GATE_PENDING_USER_APPROVAL_AND_H01_VISUAL_REVIEW",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F01_ACCEPTED_F02_G0_ACCEPTED_F02_1_ISOLATED_IMPLEMENTATION_AUTHORIZED_OTHER_STAGES_NOT_AUTHORIZED",
+  "engineering_status": "F01_ACCEPTED_MERGED_F02_G0_ACCEPTED_F02_1_ACCEPTED_NOT_MERGED_OTHER_STAGES_NOT_AUTHORIZED",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "A已签发G0_ACCEPTED（B SHA f2cdb0e8c7967aeaa8cfea5c6b466c9b45a68946，CI 37722491859，90/90 PASS）；F02-1现获准仅在一次性隔离PostgreSQL16新空库施工及真实验证，F02-2/3/4、F03/F04运行施工、真实/生产库、main合并仍不授权；C/H01独立视觉审查",
+  "next_action_detail": "F02_1_ACCEPTED（B SHA 9f10f65be293fd892e4787a3a3bdff2676c487ea；F02-1 CI 37843224982、G0 CI 37843225062均成功）；A正式登记验收和状态；工程代码未合并main，下一阶段和分支合并需用户另行批准；C/H01独立视觉审查，PRODUCT_BASELINE=NOT_READY",
   "abc_parallel_workflow": {
     "status": "USER_APPROVED_APPLIED_DOCUMENTATION_ONLY",
     "confirmed_at": "2026-10-08",
@@ -4800,7 +4800,7 @@
     "design_branch_modified": false,
     "implementation_status_unchanged": true,
     "active_tracks": [
-      "F02_G0_AND_CONDITIONAL_F02_1",
+      "F02_1_ACCEPTED_NEXT_GATE_PENDING",
       "H01_DESIGN_REVIEW"
     ],
     "execution_requires_separate_scope_approval": true,
@@ -4808,7 +4808,7 @@
     "engineering": {
       "owner": "B",
       "branch": "feat/f02-schema",
-      "active_work_order": "F02-G0",
+      "active_work_order": "NONE_PENDING_USER_APPROVAL",
       "later_work_orders": [
         "F02",
         "F03",
@@ -4820,7 +4820,9 @@
       ],
       "later_orders_not_authorized_by_this_plan": true,
       "completed_work_orders": [
-        "F01"
+        "F01",
+        "F02-G0",
+        "F02-1"
       ],
       "next_work_orders_gate_pending": [
         "F02-2",
@@ -4829,7 +4831,7 @@
         "F03",
         "F04"
       ],
-      "current_activity": "ISOLATED_F02_G0_AUTHORIZED_F02_1_CONDITIONAL_AFTER_G0_A_ACCEPTANCE"
+      "current_activity": "F02_1_ACCEPTED_WAIT_FOR_A_USER_NEXT_INSTRUCTION"
     },
     "design": {
       "owner": "C",
@@ -4913,7 +4915,7 @@
     ]
   },
   "f02_authorization": {
-    "status": "USER_APPROVED_F02_G0_AND_CONDITIONAL_F02_1",
+    "status": "F02_G0_AND_F02_1_ACCEPTED_OTHERS_NOT_AUTHORIZED",
     "date": "2026-10-08",
     "confirmed_phrase": "确认执行",
     "branch": "feat/f02-schema",
@@ -4921,7 +4923,7 @@
     "technical_adjudication": "07_重建工作区/F02_主控技术裁定与开工门禁_2026-10-08.md",
     "phase": {
       "F02-G0": "G0_ACCEPTED_A_SIGNED",
-      "F02-1": "AUTHORIZED_FOR_ISOLATED_IMPLEMENTATION_NOT_RUN",
+      "F02-1": "F02_1_ACCEPTED_A_SIGNED_NOT_MERGED",
       "F02-2": "NOT_AUTHORIZED",
       "F02-3": "NOT_AUTHORIZED",
       "F02-4": "NOT_AUTHORIZED",
@@ -4934,7 +4936,7 @@
     "production_access": "FORBIDDEN",
     "historical_scripts_execution": "FORBIDDEN",
     "merge_main": "NOT_AUTHORIZED",
-    "schema_tests": "G0_STATIC_AND_PG16_SAFETY_90_PASS_F02_1_REAL_DDL_NOT_RUN",
+    "schema_tests": "F02_1_REAL_PG16_DDL_ROLLBACK_IDEMPOTENCY_CONCURRENCY_CONSTRAINTS_PASS_AND_G0_90_PASS",
     "business_authority_unchanged": true,
     "design_branch_unchanged": true,
     "source_reports": [
@@ -4971,6 +4973,39 @@
       "physical_schema": "NOT_RUN",
       "approval_effect": "UNLOCK_F02_1_ISOLATED_POSTGRES16_NEW_EMPTY_DB_ONLY",
       "branch_merge": "NOT_AUTHORIZED"
+    },
+    "f02_1_acceptance": {
+      "status": "F02_1_ACCEPTED",
+      "signed_by": "A_MAIN_CONTROLLER",
+      "user_approved": true,
+      "signed_date": "2026-10-09",
+      "confirmed_phrase": "同意开始执行",
+      "report": "07_重建工作区/F02-1_A主控最终验收签发与残余风险_2026-10-09.md",
+      "reviewed_branch": "feat/f02-schema",
+      "reviewed_sha": "9f10f65be293fd892e4787a3a3bdff2676c487ea",
+      "ci_run_id": 37843224982,
+      "g0_ci_run_id": 37843225062,
+      "ci_result": "SUCCESS",
+      "artifact_id": 11578297739,
+      "test_counts": {
+        "non_table_object_fixtures": 5,
+        "live_fixture_checks": 32,
+        "g0_regression_total": 90
+      },
+      "physical_schema": {
+        "business_tables": 76,
+        "business_columns": 464,
+        "foreign_keys": 160,
+        "additional_unique_indexes": 28,
+        "check_constraints": 39,
+        "history_triggers": 5,
+        "object_inventory_records": 1607
+      },
+      "verification_source": "B_CI_ARTIFACT_INDEPENDENTLY_REVIEWED_BY_A_NO_A_DATABASE_RERUN",
+      "branch_merge": "NOT_AUTHORIZED",
+      "next_stage_construction": "NOT_AUTHORIZED",
+      "main_scope": "ACCEPTANCE_AND_STATE_DOCUMENTATION_ONLY",
+      "product_baseline": "NOT_READY"
     }
   }
 }

@@ -1,6 +1,28 @@
-# 名邦汽车 V1｜当前唯一下一步｜2026-10-08
+# 名邦汽车 V1｜当前唯一下一步｜2026-10-09
 
-## 当前唯一下一步｜F02-1 独立 PG16 空库 Current Schema 施工（G0 已获 A 验收）
+## F02-1已验收；后续工程门禁等待用户批准
+
+- **A 正式签发：`F02_1_ACCEPTED / A_SIGNED / USER_APPROVED`**。验收 B `feat/f02-schema` 精确 SHA `9f10f65be293fd892e4787a3a3bdff2676c487ea`；[F02-1 CI 37843224982](https://github.com/suzhe868-arch/mb/actions/runs/37843224982) 与 [G0 CI 37843225062](https://github.com/suzhe868-arch/mb/actions/runs/37843225062) 同一 SHA、completed/success。
+- 正式签发与风险记录：`07_重建工作区/F02-1_A主控最终验收签发与残余风险_2026-10-09.md`。独立核验实际工件：76业务表、464字段、160外键、28额外唯一索引、39 CHECK、5历史触发器；5/5非表对象拒绝、32项fixture、事务失败回滚、1 applied +3 idempotent并发及结构漂移负例通过。
+- **本次仅将 A 验收与状态登记 main；B 工程代码仍在 B 分支，未合并。** main 没有因此获得 F02-1 工程实现；上述运行证据来自已验收 B SHA，不是 main 业务/部署测试。
+- 当前工程下一步：A 提交已验收工程合并及下一阶段门禁建议，等待用户另行批准；B 本阶段结束，暂不启动新施工。C/H01 独立视觉复核继续，未最终验收，暂不增加折叠屏专项。
+- F02-2/3/4、F03/F04正式施工、B/C合并main、业务/已迁/生产库访问仍未授权；PDM Final / Current IA / Current Low-Fi 不变，`PRODUCT_BASELINE=NOT_READY`。
+- 唯一现行指针：`F02_1_ACCEPTED_A_NEXT_GATE_PENDING_USER_APPROVAL_AND_H01_VISUAL_REVIEW`。以下历史“当前/最新”描述不覆盖本节。
+
+### 下一阶段建议与必须具备的门禁（建议，不是施工授权）
+
+1. 先单独审核并申请将已验收 B 提交纳入 main：确认只包含获验收的 G0/F02-1工程文件，保留main最新治理资料，处理冲突并确定合并后的回归验证范围；本次不执行合并。
+2. F03身份与动态权限可作为下一张独立开工门禁建议：逐项引用PDM Final、落实hard DENY/身份隔离/范围与审计、列出静态Schema未覆盖的运行期守卫、隔离环境、假数据正反例和批次验收标准；正式代码施工须用户批准独立工作单。
+3. F02-2无获批历史库快照/版本证据，继续UNKNOWN/NO_OPERATION；F02-3仅可提出CSV只读核验/staging方案，正式导入不授权；F02-4与F04需先核对各自合同和依赖，不借本次验收自动开工。
+4. C/H01沿原独立视觉审查推进；H02/H03不因工程验收自动放行。
+
+B无需重做本阶段已通过的整改，当前等待A/用户下一阶段明确指令。
+
+---
+
+# HISTORICAL｜名邦汽车 V1 下一步快照｜2026-10-08
+
+## HISTORICAL｜F02-1获准隔离施工时的下一步
 
 - **A 正式签发：`G0_ACCEPTED / A_SIGNED`**。用户明确同意；验收依据 `07_重建工作区/F02-G0_A主控最终验收签发与F02-1隔离施工放行_2026-10-08.md`、B `feat/f02-schema` HEAD `f2cdb0e8c7967aeaa8cfea5c6b466c9b45a68946`、[真实 CI #37722491859](https://github.com/suzhe868-arch/mb/actions/runs/37722491859)（90/90 PASS）。
 - 现行 F02-G0 模型合同：510 条候选字段，其中 `464 INCLUDE / 33 DEFER / 13 EXCLUDE`；76 个拟建最小实体、137 条显式静态 FK。PC 登录凭证唯一权威在 `pc_login_accounts`；原管理员两套重复凭证字段保留编号并排除建表。

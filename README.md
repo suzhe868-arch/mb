@@ -1,6 +1,16 @@
 # 名邦汽车 V1｜产品基线重建 GitHub 工作包 V1
 
-## 当前最新｜F02-G0 A验收已签发，F02-1 隔离施工放行（2026-10-08）
+## 当前最新｜F02-1 A验收正式签发（2026-10-09）
+
+- **A 正式签发：`F02_1_ACCEPTED / A_SIGNED / USER_APPROVED`**。验收 B `feat/f02-schema` 精确 SHA `9f10f65be293fd892e4787a3a3bdff2676c487ea`；[F02-1 CI 37843224982](https://github.com/suzhe868-arch/mb/actions/runs/37843224982) 与 [G0 CI 37843225062](https://github.com/suzhe868-arch/mb/actions/runs/37843225062) 同一 SHA、completed/success。
+- 正式签发与风险记录：`07_重建工作区/F02-1_A主控最终验收签发与残余风险_2026-10-09.md`。独立核验实际工件：76业务表、464字段、160外键、28额外唯一索引、39 CHECK、5历史触发器；5/5非表对象拒绝、32项fixture、事务失败回滚、1 applied +3 idempotent并发及结构漂移负例通过。
+- **本次仅将 A 验收与状态登记 main；B 工程代码仍在 B 分支，未合并。** main 没有因此获得 F02-1 工程实现；上述运行证据来自已验收 B SHA，不是 main 业务/部署测试。
+- 当前工程下一步：A 提交已验收工程合并及下一阶段门禁建议，等待用户另行批准；B 本阶段结束，暂不启动新施工。C/H01 独立视觉复核继续，未最终验收，暂不增加折叠屏专项。
+- F02-2/3/4、F03/F04正式施工、B/C合并main、业务/已迁/生产库访问仍未授权；PDM Final / Current IA / Current Low-Fi 不变，`PRODUCT_BASELINE=NOT_READY`。
+- 唯一现行指针：`F02_1_ACCEPTED_A_NEXT_GATE_PENDING_USER_APPROVAL_AND_H01_VISUAL_REVIEW`。以下历史“当前/最新”描述不覆盖本节。
+
+
+## HISTORICAL｜F02-G0 A验收及F02-1隔离施工放行（2026-10-08）
 
 - **用户明确“同意”批准 A 最终验收落库**；正式签发文档：`07_重建工作区/F02-G0_A主控最终验收签发与F02-1隔离施工放行_2026-10-08.md`。A 验收 B 精确 SHA `f2cdb0e8c7967aeaa8cfea5c6b466c9b45a68946`，真实 CI [37722491859](https://github.com/suzhe868-arch/mb/actions/runs/37722491859) SUCCESS：F01 13/13、G0候选2/2、G0全量75/75，共90/90 PASS。
 - `G0_ACCEPTED / A_SIGNED`：510 个字段候选（464 拟纳入 / 33 延期 / 13 排除）、82 候选实体、76 最小拟建实体、137 显式静态 FK，G0-ALL-05 单一 PC 凭证权威已闭环。
@@ -50,7 +60,7 @@
 
 不要使用旧聊天记忆替代仓库证据。
 
-## A/B/C 三窗口协作与分支接力（2026-10-08 用户确认执行）
+## HISTORICAL｜A/B/C 三窗口协作建立时的分支接力（2026-10-08）
 
 - **当前状态（2026-10-08）**：F01 工程基础已由 A 验收并通过 PR #1 合并 main；设计 H01 仍在 A 返修复核/用户视觉方向待确认；F02/F03/F04 仅能准备技术方案及各自开工门禁，不得越级施工。其余 F/H 仍需分别授权。
 - **A 主控**负责全局状态、风险、验收、申请合并授权；**B 工程**只在 `feat/f01-foundation` 执行已批准的 F 单并留下真实测试证据；**C 设计**只在 `design/h01-design-system` 执行已批准的 H01/H02 设计任务，H03/H04 按依赖另行调度。
@@ -90,7 +100,7 @@
 - API、字段、枚举、状态码、代码符号等技术标识保持英文原文。
 - 中英文不一致时以中文权威源为准。
 
-## 当前状态
+## HISTORICAL｜F01验收时的状态快照（现行以顶部为准）
 
 - `PRODUCT_BASELINE = NOT_READY`
 - `CURRENT_STAGE = PRODUCT_BASELINE_REBUILD / F01_ACCEPTED_H01_REVIEW_NEXT_ENGINEERING_GATE`

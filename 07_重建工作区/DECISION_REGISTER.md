@@ -1306,3 +1306,10 @@
 | EG-F01-ACCEPT-20261008 | ENGINEERING_F01 | F01 四批基础工程验收、B 工程分支合并 main 与遗留风险接管 | 用户先“同意”后明确“确认执行”，A 主控独立核查 F01-1～F01-4、成功 CI 37695813678（基础 13/13、PG 集成 5/5、真实断库/恢复 PASS），通过 PR #1 将 feat/f01-foundation 的 11 提交、27 文件安全合并 main，merge commit 16354f9784cb187dfc44289d9e5010e1471b1b81；F01=ACCEPTED。风险 F01-RES-01～05 继续交后续工程门禁，main 合并后没有独立 main CI 证明。 | USER_APPROVED / ACCEPTED / MERGED_TO_MAIN / PRODUCT_AUTHORITY_UNCHANGED / F02_F03_F04_GATE_ONLY / C_BRANCH_UNCHANGED | 2026-10-08 用户“确认执行” + `07_重建工作区/F01_工程基础验收与合并记录_2026-10-08.md` + [PR #1](https://github.com/suzhe868-arch/mb/pull/1) + [CI 37695813678](https://github.com/suzhe868-arch/mb/actions/runs/37695813678) | 2026-10-08 |
 | EG-F02-TECH-20261008 | ENGINEERING_GATE | A-G02-01～10 F02/F03/F04 技术裁定 | 从新 main 开 feat/f02-schema、隔离 PG16、new-install 与 existing-db 分通道、受控 pg 原子 checksum 锁迁移、独立多草稿、三级车型 source mapping、CSV 只读审查、F02 优先 F03/F04 仅设计准备；TS/Fastify 为 F04 单入口待验证，F02 不产生权限授权。 | USER_APPROVED / A_TECHNICAL_REVIEW_PASS / PRODUCT_AUTHORITY_UNCHANGED | `07_重建工作区/F02_主控技术裁定与开工门禁_2026-10-08.md` + B 三份 Gate 交接报告 + 用户“确认执行” | 2026-10-08 |
 | EG-F02-G0G1-20261008 | ENGINEERING_RELEASE | 用户批准 F02-G0 与有条件 F02-1 隔离开发测试 | F02-G0 环境与模型审查允许开工；只有 G0 被 A 实证验收，F02-1 才能在 disposable PG16 新装空库开发/测试。F02-2/3/4、真实已迁/生产库、F03/F04 代码、历史清库和 main 合并禁止。本轮 F02 测试 NOT_RUN，C/H01 独立继续。 | USER_APPROVED / G0_AUTHORIZED / F02_1_CONDITIONAL / OTHERS_NOT_AUTHORIZED | `07_重建工作区/F02_正式施工单_数据库模型与隔离开发_2026-10-08.md` + 用户“确认执行” | 2026-10-08 |
+
+
+## 2026-10-09｜F02-1 工程验收与状态落库（不改变产品语义）
+
+| ID | 范围 | 事项 | 裁决 | 授权边界 | 证据 | 日期 |
+|---|---|---|---|---|---|---|
+| EG-F02-1-ACCEPT-20261009 | ENGINEERING_F02_1 | 一次性隔离PG16 Current Initial Schema验收及A签发 | 用户明确“同意开始执行”，批准A将独立复验通过结论正式写入main；验收B SHA 9f10f65be293fd892e4787a3a3bdff2676c487ea，真实F02-1/G0 CI均成功，物理结构与冻结矩阵一致，历次阻断已闭合；F02_1_ACCEPTED / A_SIGNED | GOVERNANCE_ONLY；B/C不合并；F02-2/3/4、F03/F04正式施工不授权；不得访问真实/生产库；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F02-1_A主控最终验收签发与残余风险_2026-10-09.md`；CI 37843224982、37843225062；artifact 11578297739 | 2026-10-09 |

@@ -1,4 +1,15 @@
-# 2026-10-08｜A 主控正式签发 G0_ACCEPTED 并放行 F02-1 隔离施工（当前最新状态）
+# 2026-10-09｜F02-1 A独立验收通过并正式登记（当前最新状态）
+
+- **A 正式签发：`F02_1_ACCEPTED / A_SIGNED / USER_APPROVED`**。验收 B `feat/f02-schema` 精确 SHA `9f10f65be293fd892e4787a3a3bdff2676c487ea`；[F02-1 CI 37843224982](https://github.com/suzhe868-arch/mb/actions/runs/37843224982) 与 [G0 CI 37843225062](https://github.com/suzhe868-arch/mb/actions/runs/37843225062) 同一 SHA、completed/success。
+- 正式签发与风险记录：`07_重建工作区/F02-1_A主控最终验收签发与残余风险_2026-10-09.md`。独立核验实际工件：76业务表、464字段、160外键、28额外唯一索引、39 CHECK、5历史触发器；5/5非表对象拒绝、32项fixture、事务失败回滚、1 applied +3 idempotent并发及结构漂移负例通过。
+- **本次仅将 A 验收与状态登记 main；B 工程代码仍在 B 分支，未合并。** main 没有因此获得 F02-1 工程实现；上述运行证据来自已验收 B SHA，不是 main 业务/部署测试。
+- 当前工程下一步：A 提交已验收工程合并及下一阶段门禁建议，等待用户另行批准；B 本阶段结束，暂不启动新施工。C/H01 独立视觉复核继续，未最终验收，暂不增加折叠屏专项。
+- F02-2/3/4、F03/F04正式施工、B/C合并main、业务/已迁/生产库访问仍未授权；PDM Final / Current IA / Current Low-Fi 不变，`PRODUCT_BASELINE=NOT_READY`。
+- 唯一现行指针：`F02_1_ACCEPTED_A_NEXT_GATE_PENDING_USER_APPROVAL_AND_H01_VISUAL_REVIEW`。以下历史“当前/最新”描述不覆盖本节。
+
+---
+
+# HISTORICAL｜2026-10-08 A签发G0并放行F02-1时的状态
 
 - 用户本轮明确“同意”，正式批准 A 将 F02-G0 最终通过结果落库；验收签发：`07_重建工作区/F02-G0_A主控最终验收签发与F02-1隔离施工放行_2026-10-08.md`。A 已验证 B 工程 HEAD `f2cdb0e8c7967aeaa8cfea5c6b466c9b45a68946` 对应真实 CI `37722491859`，F01 13/13 + G0分级2/2 + G0全量75/75 共 90/90 PASS。
 - G0 经独立终审的候选台账：25/25 PDM 全域映射、510/510 字段编号完整（464 INCLUDE / 33 DEFER / 13 EXCLUDE）、82 候选实体、76 F02-1 最小拟建实体、137 显式外键断链为0；System Admin/Matching/CRM/公海与G0-ALL-05单一 PC 凭证全部静态闭环。A 正式签发 `G0_ACCEPTED / A_SIGNED`；不等于已运行 F02-1 业务 DDL。
