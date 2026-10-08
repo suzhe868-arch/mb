@@ -45,7 +45,7 @@ F02-F-0195	demand_match_results.match_explanation	DEFER_WITH_REASON	YES	PDM-12/P
 F02-F-0196	demand_match_results.current_state	DEFER_WITH_REASON	NO	PDM-12/PDM-13（实际业务语义见各Final，列属性为技术建议）	该项涉及后续实现或可派生细节：失效保留历史；F02-1若无需该列不应把它强制成基线，待下游合同确认。	DEFERRED_PENDING_A_ACKNOWLEDGMENT
 F02-F-0200	priority_leases.trigger_demand_id	A_TECHNICAL_HOLD	YES	PDM-13（实际业务语义见各Final，列属性为技术建议）	Priority可以有关联Demand上下文但不能等同Demand；可空候选须核验实际创建入口。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
 F02-F-0210	recommendations.recommender_employee_id	CORE_PROPOSAL	NO	PDM-14（实际业务语义见各Final，列属性为技术建议）	PDM-14创建当时真正执行推荐的员工是不变历史；建议FK非空。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
-F02-F-0218	consultations.vehicle_id	CORE_PROPOSAL	NO	PDM-15（实际业务语义见各Final，列属性为技术建议）	PDM-15正式咨询必定针对合法Vehicle，建议非空，同时缺少listing_cycle_id需补齐。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
+F02-F-0218	consultations.vehicle_id	CORE_PROPOSAL	NO	PDM-15（实际业务语义见各Final，列属性为技术建议）	PDM-15正式咨询必定针对合法Vehicle，建议非空，已新增listing_cycle_id候选F02-F-0382；待A最终复核复合FK与非终结唯一。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
 F02-F-0219	consultations.assignee_employee_id	CORE_PROPOSAL	NO	PDM-15（实际业务语义见各Final，列属性为技术建议）	PDM-15负责人独立，正式人工业务不能无负责人；建议非空。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
 F02-F-0221	consultations.source_relation	CORE_PROPOSAL	NO	PDM-15（实际业务语义见各Final，列属性为技术建议）	该字段对应当前领域事实：真实direct source；建议非空是技术方案，仍须A确认具体枚举/数据迁移边界。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
 F02-F-0239	customer_collaborations.scope_json	A_TECHNICAL_HOLD	NO	PDM-17（实际业务语义见各Final，列属性为技术建议）	该字段对应当前领域事实：限定协作能力；建议非空是技术方案，仍须A确认具体枚举/数据迁移边界。	A_DIRECTION_REVIEW_PENDING_FINAL_FREEZE
