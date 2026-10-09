@@ -1508,3 +1508,10 @@ A补充代码路径复现显示幂等apply/rollback遗漏旧版本行核验，ve
 - F03-2-2B B最终SHA`448869df7258a868292601791d8460c346414dd3`同SHA [GitHub CI 37955103517](https://github.com/suzhe868-arch/mb/actions/runs/37955103517)五独立PG16作业全success（82表SG05管理员保护10/10、空库首次bootstrap1/1、原81表模板9/9、原80表认证11/11及HTTPS4/4）。A核对源代码/物理证据和Git tree；基线1189旧文件完整保留不变、仅19新增。标准[PR #10](https://github.com/suzhe868-arch/mb/pull/10)合并完成，merge SHA`bd31e81a16a9fe219e678f1f01020965deae320b`。A签收/合并报告：`07_重建工作区/F03-2-2B_A主控独立验收及PR10合并闭环_2026-10-10.md`。
 - A按持续一次性完整闭环规则已完成下一SG03技术裁定和施工单，限定在新一次性PG16内实现**可信显式employee receiving eligibility与最后合格接客池正常OFF/撤资格保护**，仅员工本人接客ON/OFF及独立System Admin内部资格治理，独立追加`000005`，未知物理值必须先核对事实；其余委托/客户Owner/生产业务尚未授权。正式施工单：`07_重建工作区/F03-2-2C_A主控接客资格与最后接客池完整施工单_2026-10-10.md`。
 - **下一责任人B**：仅在指定`feat/f03-receiving-pool-2c`从最新main执行全部真实实现、CI失败整改、证据归档直到`READY_FOR_A_REVIEW`再交A，不须每一步再问用户。尚未施工/未跑2C CI，`PRODUCT_BASELINE=NOT_READY`、完整F03-2不签、C/H01独立视觉待验。本条为工程裁定与已发生验收事实，不更改PDM Final或许可真实生产/外部凭据。
+
+
+## 2026-10-10｜F03-2-2C A独立验收/PR11正常合并；F03-2-2D SG02团队可信范围A完整放行
+
+- F03-2-2C B最终SHA`d7eb69e1fd2a8c53ef75aa250f5a01e5aa645dd4`；同SHA [CI37959483511](https://github.com/suzhe868-arch/mb/actions/runs/37959483511) 六独立PG16作业全部success，SG03真实接客/并发/最后合格员工保护与原子回滚11/11、旧82 SG05管理员10/10和bootstrap1/1、旧81模板9/9、旧80认证11/11和HTTPS4/4。新版本`000005`精确84表/502列/314约束/129索引、旧82表目录原样不变且只新增22项。A核验冻结源码、同SHA日志、结构归档、文件树：原main1210文件零修改/删除，新17文件均获批。标准 [PR #11](https://github.com/suzhe868-arch/mb/pull/11) 合并SHA`955a6bb8da6213e13a6249709fb11db65841a3bc`；A签发`07_重建工作区/F03-2-2C_A主控独立验收与PR11正式合并闭环_2026-10-10.md`。用户无需额外点击。
+- 按现行三窗口连续执行规范，A已在PDM-02/03/22 Final权限界内技术裁定后续SG02只做显式名邦team与employee-team有效期结构、可信team capability scope内部事实证明和独立隔离PG16原子审计测试；严禁同店即同team、经理自动有团队治理权、自动成为Customer owner、真实生产/团队业务路由。只准追加`000006`两表、不得改旧版本；完整施工单`07_重建工作区/F03-2-2D_A主控SG02团队关系与可信范围完整工程施工单_2026-10-10.md`，**A正式放行、下一责任人B**，分支`feat/f03-team-scope-2d`，尚未开始施工或运行新CI。B一次完成所有实施、真实并发/负例/独立版本回归、原结构证据及同SHA成功CI，到`READY_FOR_A_REVIEW`交A。
+- 本次不是改变Final组织模型或授予任何新产品permission；SG04/06/07/08、经理实际写、生产接口与客户Owner都不在范围内。完整`F03_2_ACCEPTED=NO`，C/H01仍独立待审，`PRODUCT_BASELINE=NOT_READY`。
