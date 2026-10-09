@@ -1,6 +1,5 @@
 // SG04 narrow CI-only System Admin governance: no DDL, no manager business writes.
 import {verify} from '../runtime-handover-ledger/migration.mjs';
-import {canManageTargetTeamScope} from '../runtime-team-scope/service.mjs';
 
 const result=(code,changed=false)=>Object.freeze({code,changed});
 const valid=n=>Number.isSafeInteger(n)&&n>0;
@@ -129,13 +128,26 @@ export async function endManagerTeamCapabilityScope(auth,token,p,opts){
   return result('SG04_TEAM_ENDED',true);
  },opts);
 }
+const proofResult=(code,allowed=false)=>Object.freeze({code,allowed});
+const role=x=>['sales','manager','store_head'].includes(x);
+async function actorFacts(c,a){
+ return (await c.query("SELECT a.account_id::text id,a.principal_kind,a.employee_id::text employee_id,a.system_admin_id::text admin_id,a.credential_state,a.force_password_change,e.employment_status,e.main_role_id,r.role_code FROM public.pc_login_accounts a LEFT JOIN public.employees e ON e.employee_id=a.employee_id LEFT JOIN public.roles r ON r.role_id=e.main_role_id WHERE a.account_id=$1",[a.account_id])).rows[0];
+}
 export async function readManagerTeamGovernanceProof(auth,token,p){
  if(!exact(p,'employeeId,managerEmployeeId,teamId')||!valid(p.employeeId)||!valid(p.managerEmployeeId)||!valid(p.teamId))return Object.freeze({code:'SG04_PROOF_INPUT_DENY',allowed:false});
  await seal(auth);
- const identity=await auth.withSession(token,async(c,a,s)=>{
-  if(s.restricted||a.principal_kind!=='employee'||a.system_admin_id!==null||String(a.employee_id)!==String(p.managerEmployeeId))return false;
-  return true;
+ const out=await auth.withSession(token,async(c,a,s)=>{
+  if(s.restricted||a.principal_kind!=='employee'||a.employee_id===null||a.system_admin_id!==null||String(a.employee_id)!==String(p.managerEmployeeId))return proofResult('TEAM_MANAGER_SESSION_DENY');
+  const self=await actorFacts(c,a);
+  if(!self||self.id!==String(a.account_id)||self.principal_kind!=='employee'||self.admin_id!==null||self.employee_id!==String(a.employee_id)||self.credential_state!=='enabled'||self.force_password_change!==false||self.employment_status!=='active'||self.role_code!=='manager')return result('TEAM_MANAGER_CURRENT_DENY');
+  const rows=(await c.query("SELECT t.team_status,st.status store_status,e.employment_status target_status,r.role_code target_role,p.permission_id,o.decision personal_decision,d.enabled role_enabled, EXISTS(SELECT 1 FROM public.employee_team_memberships m WHERE m.team_id=t.team_id AND m.employee_id=$1 AND m.valid_from<=statement_timestamp() AND (m.ended_at IS NULL OR m.ended_at>statement_timestamp())) manager_member, EXISTS(SELECT 1 FROM public.employee_team_memberships m WHERE m.team_id=t.team_id AND m.employee_id=$2 AND m.valid_from<=statement_timestamp() AND (m.ended_at IS NULL OR m.ended_at>statement_timestamp())) target_member, EXISTS(SELECT 1 FROM public.employee_data_scopes sc JOIN public.employee_capability_scope_bindings b ON b.scope_id=sc.scope_id AND b.employee_id=sc.employee_id AND b.permission_id=p.permission_id WHERE sc.employee_id=$1 AND sc.scope_kind='team' AND sc.scope_reference_id=t.team_id AND (sc.ended_at IS NULL OR sc.ended_at>statement_timestamp()) AND b.granted_at<=statement_timestamp() AND (b.ended_at IS NULL OR b.ended_at>statement_timestamp())) exact_scope FROM public.teams t JOIN public.stores st ON st.store_id=t.store_id JOIN public.employees e ON e.employee_id=$2 JOIN public.roles r ON r.role_id=e.main_role_id LEFT JOIN public.permissions p ON p.permission_code=$3 LEFT JOIN public.employee_permission_overrides o ON o.employee_id=$1 AND o.permission_id=p.permission_id LEFT JOIN public.role_permission_defaults d ON d.role_id=$4 AND d.permission_id=p.permission_id WHERE t.team_id=$5",[a.employee_id,p.employeeId,'employee.manage',self.main_role_id,p.teamId])).rows;
+  if(rows.length!==1)return result('TEAM_TARGET_OR_TEAM_NOT_FOUND');
+  const x=rows[0];
+  if(x.team_status!=='active'||x.store_status!=='active'||x.target_status!=='active'||!role(x.target_role))return result('TEAM_TARGET_OR_STORE_INACTIVE');
+  if(!x.manager_member||!x.target_member)return result('TEAM_MEMBERSHIP_NOT_CURRENT');
+  if(x.permission_id==null||x.personal_decision==='deny'||(x.personal_decision!=='allow'&&x.role_enabled!==true))return result('TEAM_MANAGER_CAPABILITY_DENY');
+  if(x.exact_scope!==true)return result('TEAM_EXACT_CAPABILITY_SCOPE_DENY');
+  return result('TEAM_SCOPE_PROVEN_READ_ONLY',true);
  },{normalOnly:true});
- if(identity!==true)return Object.freeze({code:'SG04_MANAGER_IDENTITY_MISMATCH',allowed:false});
- return canManageTargetTeamScope(auth,token,{capability:'employee.manage',employeeId:p.employeeId,teamId:p.teamId});
+ return out??result('TEAM_SESSION_DENY');
 }
