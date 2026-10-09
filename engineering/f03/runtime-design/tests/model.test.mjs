@@ -96,9 +96,13 @@ test('G0-06 prevents self-grant, 4S staff governance, and bypass via request for
 });
 test('G0-07 admin effective-pool optimistic prepare/commit and last-admin protection',()=>{
  const s=makeFixture();
+ // Both synthetic admins are explicitly granted this control action; race must
+ // reach the COMMIT serialization gate, not fail earlier on missing actor scope.
+ s.governanceGrants.push({kind:'system_admin',actor_id:'202',action:'admin.disable',active:true});
  const command=gov('admin.disable','201');
  const a=govern(s,command);pass(a.result);
  deny(govern(a.state,gov('admin.disable','202','5',0)).result,'COMMIT_RECHECK_STALE');
+ deny(govern(a.state,gov('admin.disable','202','5',1)).result,'LAST_EFFECTIVE_ADMIN_PROTECTED');
  // The second current admin has no grant as fixture, so use 201 actor with fresh
  // session denial: an already disabled actor may no longer govern.
  deny(govern(a.state,gov('admin.disable','202','4',1)).result);
