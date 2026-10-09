@@ -14,7 +14,15 @@ async function scope(c,actor,from,to,team,customer,allowInactive=false){
 }
 async function authTx(auth,token,fn,opts={}){
  if(!hookAllowed(opts.testCheckpoint))return out('K02_TEST_HOOK_DENY');
- const v=await auth.pool.connect();try{await verify(v)}finally{v.release()}
+ const v=await auth.pool.connect();try{
+  if(opts.crossDomainRequestKeyCommit===true){
+   const l=(await v.query("SELECT to_regclass('public.lock_responsible_handover_receipts')::text AS tbl")).rows[0]?.tbl;
+   if(l==='lock_responsible_handover_receipts'){
+    const {verify:verifyL}=await import('../runtime-lock-responsible-handover/migration.mjs');
+    await verifyL(v);
+   }else await verify(v);
+  }else await verify(v);
+ }finally{v.release()}
  try{
   return await auth.withSession(token,async(c,a,s)=>{
    if(s.restricted||a.principal_kind!=='employee'||a.employee_id===null||a.system_admin_id!==null||!['manager','store_head'].includes(a.role_code)||a.credential_state!=='enabled'||a.subject_status!=='active'||a.force_password_change!==false)return out('K02_NOT_CURRENT_MANAGER_OR_HEAD');
@@ -107,6 +115,8 @@ async function transfer(c,actor,p,hook){
  for(const table of ['customer_owner_handover_receipts','demand_responsible_handover_receipts','consultation_assignee_handover_receipts']){
   if((await c.query('SELECT 1 FROM public.'+table+' WHERE request_key_sha256=$1 FOR SHARE',[key])).rowCount)return out('K05_CROSS_DOMAIN_KEY_DENY');
  }
+ const lTable=(await c.query("SELECT to_regclass('public.lock_responsible_handover_receipts')::text AS tbl")).rows[0]?.tbl;
+ if(lTable==='lock_responsible_handover_receipts'&&(await c.query('SELECT 1 FROM public.lock_responsible_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[key])).rowCount)return out('K05_CROSS_DOMAIN_KEY_DENY');
  const conflict=(await c.query('SELECT item_id FROM public.waitlist_responsible_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[key])).rows[0];
  if(conflict)return out('K05_COLLISION_DENY');
  if(str(f.waitlist.responsible_employee_id)!==str(p.fromEmployeeId))return out('K04_CAS_CONFLICT');
@@ -121,7 +131,7 @@ async function transfer(c,actor,p,hook){
  if(hook)await hook('before_commit',c);
  return out('K04_WAITLIST_TRANSFERRED',{receipt:display(receipt),otherDomainsPending:true,waitlistOrderUnchanged:true,idempotent:false});
 }
-export const commitWaitlistResponsibleHandover=(a,t,p,o)=>!request(p)?Promise.resolve(out('K04_BAD_REQUEST')):authTx(a,t,(c,actor,h)=>transfer(c,actor,p,h),o);
+export const commitWaitlistResponsibleHandover=(a,t,p,o)=>!request(p)?Promise.resolve(out('K04_BAD_REQUEST')):authTx(a,t,(c,actor,h)=>transfer(c,actor,p,h),{...o,crossDomainRequestKeyCommit:true});
 export const retryWaitlistResponsibleHandover=(a,t,p,o)=>!request(p)?Promise.resolve(out('K05_BAD_RETRY')):authTx(a,t,(c,actor,h)=>transfer(c,actor,p,h),o);
 export async function readWaitlistResponsibleHandoverReceipt(auth,token,p,o){
  if(!exact(p,'batchId,itemId,teamId')||![p.batchId,p.itemId,p.teamId].every(valid))return out('K05_BAD_READ');
