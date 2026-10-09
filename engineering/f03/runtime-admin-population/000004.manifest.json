@@ -1,10 +1,22 @@
 {
   "migration_id": "000004_governance_population_guards",
   "previous_structure_sha256": "229aa6dc167cd3ccb8da89fd9d08076af2588b6b4bd1cfbdc8d779c31dfeffe0",
-  "sql_sha256": "PENDING_CI_DISCOVERY",
-  "structure_sha256": "PENDING_CI_DISCOVERY",
+  "sql_sha256": "52705b21a0143fc86427d563bfedd00be7e64707e0321744d0d7f0aee5afa0a8",
+  "structure_sha256": "555ddc5bffa745014e68eab79fa83312c9b18ed06f484434fc5d76e2064336ea",
   "tables": 82,
   "columns": 495,
   "constraints": 307,
-  "indexes": 127
+  "indexes": 127,
+  "approved_physical_added_keys": [
+    "column\u0000governance_population_guards.bootstrap_claimed_at",
+    "column\u0000governance_population_guards.guard_name",
+    "column\u0000governance_population_guards.version",
+    "column\u0000governance_population_guards_pkey.guard_name",
+    "constraint\u0000governance_population_guards.f03_2_2b_guard_name_chk",
+    "constraint\u0000governance_population_guards.f03_2_2b_guard_version_chk",
+    "constraint\u0000governance_population_guards.governance_population_guards_pkey",
+    "index\u0000governance_population_guards_pkey",
+    "relation\u0000governance_population_guards",
+    "relation\u0000governance_population_guards_pkey"
+  ]
 }
