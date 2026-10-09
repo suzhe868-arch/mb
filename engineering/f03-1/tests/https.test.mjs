@@ -82,8 +82,8 @@ test('real HTTPS initial restricted login, CSRF, password change, cookie clearin
  const out=await request('/api/v1/auth/logout',{cookie:mixedCurrent,csrf:now.body.csrf});
  assert.equal(out.status,200);
  assert.ok((out.headers['set-cookie']?.[0]||'').includes('Max-Age=0'));
- const replay=await request('/api/v1/auth/password',{data:{oldPassword:'NewSyntheticHttps_34567',newPassword:'NotAllowedSynthetic_8777'},cookie:mixedCurrent,csrf:now.body.csrf});
- assert.equal(replay.status,401,'after logout real old session must be invalid');
+ const replayAfterLogout=await request('/api/v1/auth/password',{data:{oldPassword:'NewSyntheticHttps_34567',newPassword:'NotAllowedSynthetic_8777'},cookie:mixedCurrent,csrf:now.body.csrf});
+ assert.equal(replayAfterLogout.status,401,'after logout real old session must be invalid');
  const c=new pg.Client({connectionString:process.env.F03_1_DATABASE_URL});await c.connect();
  try{
   const key=Buffer.from(process.env.F03_1_HMAC_KEY_BASE64,'base64');
@@ -112,4 +112,21 @@ test('health readiness and auth routes fail closed during PG structure drift and
   assert.equal((await request('/api/v1/auth/logout',{cookie,csrf:resumed.body.csrf})).status,200);
  }finally{await c.end()}
  console.log('F03-1 LIVE DB STRUCTURE GUARD FAIL CLOSED AND RESTORED PASS');
+});
+
+test('actual HTTPS authentication entry rejects invalid CI run seal before binding socket',async()=>{
+ const wrongPort=port+2;
+ const denied=spawn(process.execPath,['dist/server.mjs'],{
+  cwd:new URL('../../',import.meta.url),
+  env:{...process.env,API_HOST:'127.0.0.1',API_PORT:String(wrongPort),
+   F03_1_ENABLE_ISOLATED_AUTH:'I_AUTHORIZE_F03_1_AUTH_IN_NEW_TEST_PG16',
+   F03_1_TRUSTED_ORIGIN:'https://127.0.0.1:'+wrongPort,GITHUB_RUN_ID:'999999999'},
+  stdio:'ignore'
+ });
+ const exit=await Promise.race([
+  new Promise(resolve=>denied.once('exit',(code,signal)=>resolve({code,signal}))),
+  new Promise((_,reject)=>setTimeout(()=>reject(Error('INVALID_GUARD_SERVER_DID_NOT_EXIT')),5000))
+ ]);
+ assert.notEqual(exit.code,0,'invalid CI seal must terminate without starting HTTPS listener');
+ console.log('F03-1 AUTH STARTUP CI SEAL MISMATCH CANNOT BIND PASS');
 });
