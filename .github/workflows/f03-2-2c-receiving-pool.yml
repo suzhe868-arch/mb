@@ -6,8 +6,10 @@ on:
 permissions:
   contents: read
 jobs:
-  f03-2c-discovery:
-    name: F03-2-2C fresh 82-table to 84-table PostgreSQL 16 rollback-only discovery
+  f03-2c-receiving-pg16:
+    name: F03-2-2C exact 84-table eligibility and last receiver transactional PG16
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
@@ -47,6 +49,10 @@ jobs:
           npm run check
           node --check f03/runtime-receiving-pool/migration.mjs
           node --check f03/runtime-receiving-pool/runner.mjs
+          node --check f03/runtime-receiving-pool/service.mjs
+          node --check f03/runtime-receiving-pool/evidence.mjs
+          node --check f03/runtime-receiving-pool/fixtures.mjs
+          node --check f03/runtime-receiving-pool/tests/integration.test.mjs
       - name: Disposable non-superuser new PG16 exact approved 000001 to 000004 baseline
         run: |
           set -euo pipefail
@@ -59,11 +65,64 @@ jobs:
           node f03/runtime-scope/runner.mjs --apply
           node f03/runtime-admin-population/runner.mjs --apply
           node f03/runtime-admin-population/runner.mjs --verify
-      - name: Physical full-catalog discover from exact 82-table, roll back without leaving schema
+      - name: Capture old exact 82-table structure, create synthetic identity and migrate to locked 84-table
         run: |
           set -euo pipefail
-          node f03/runtime-receiving-pool/runner.mjs --discover
+          mkdir -p f03/runtime-receiving-pool/artifacts
+          node f03/runtime-receiving-pool/evidence.mjs --old
+          if node f03/runtime-receiving-pool/runner.mjs --inject; then echo 'INJECTION_MUST_ROLL_BACK'; exit 1; fi
           node f03/runtime-admin-population/runner.mjs --verify
+          node f03/runtime-receiving-pool/runner.mjs --apply
+          node f03/runtime-receiving-pool/runner.mjs --verify
+          node f03/runtime-receiving-pool/runner.mjs --apply
+          node f03-1/fixtures.mjs
+          node f03/runtime-scope/fixtures.mjs
+          node f03/runtime-governance-template/fixtures.mjs
+          node f03/runtime-receiving-pool/fixtures.mjs
+      - name: Execute real A-approved S03-01 to S03-08 transactions, last-receiver races, fault rollback and spoof denial
+        run: |
+          set -euo pipefail
+          node --test f03/runtime-receiving-pool/tests/integration.test.mjs 2>&1 | tee f03/runtime-receiving-pool/artifacts/pg16-receiving-tests.log
+          grep -q '# fail 0' f03/runtime-receiving-pool/artifacts/pg16-receiving-tests.log
+          if node f03/runtime-receiving-pool/runner.mjs --rollback; then echo 'USED_POOL_ROLLBACK_MUST_DENY'; exit 1; fi
+          node f03/runtime-receiving-pool/runner.mjs --verify
+      - name: Export exact 84-table original structure SQL, version inventory, SHA256 and old definition equality
+        run: |
+          set -euo pipefail
+          node f03/runtime-receiving-pool/evidence.mjs --new
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > f03/runtime-receiving-pool/artifacts/pg16_schema_only.sql
+          sha256sum f03/runtime-receiving-pool/artifacts/pg16_schema_only.sql f03/runtime-receiving-pool/artifacts/pg16_inventory.json > f03/runtime-receiving-pool/artifacts/sha256sums.txt
+          if test -f f03/runtime-receiving-pool/evidence/SOURCE.md; then node f03/runtime-receiving-pool/evidence.mjs --archive-check; fi
+      - name: Prohibit credentials and secret payload in deliverable evidence
+        run: |
+          set -euo pipefail
+          if grep -R -nE 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|BEGIN PRIVATE KEY|SyntheticReceiverHead_2026|SyntheticRace_1234567|SyntheticLimit_1234567' f03/runtime-receiving-pool/artifacts; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f03-2-2c-real-pg16-84-table-structure-and-pool-evidence
+          path: engineering/f03/runtime-receiving-pool/artifacts/
+          retention-days: 30
+          if-no-files-found: error
+      - name: Archive original tested structure in B branch only, later CI read-only verifies byte equality
+        run: |
+          set -euo pipefail
+          if test -f f03/runtime-receiving-pool/evidence/SOURCE.md; then
+            echo 'F03-2-2C source structure frozen and final-run byte checks passed'
+          else
+            test "$GITHUB_REF" = 'refs/heads/feat/f03-receiving-pool-2c'
+            mkdir -p f03/runtime-receiving-pool/evidence
+            for file in old-structure.json new-structure.json pg16_schema_only.sql pg16_inventory.json sha256sums.txt; do
+              cp "f03/runtime-receiving-pool/artifacts/$file" "f03/runtime-receiving-pool/evidence/$file"
+            done
+            printf 'source_run_id: %s\nsource_commit_sha: %s\nsource_job_name: f03-2c-receiving-pg16\nsource_artifact_name: f03-2-2c-real-pg16-84-table-structure-and-pool-evidence\nsource_files: original CI-only bytes, no business rows, no real credentials\n' "$GITHUB_RUN_ID" "$GITHUB_SHA" > f03/runtime-receiving-pool/evidence/SOURCE.md
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -- f03/runtime-receiving-pool/evidence/
+            git diff --cached --quiet && { echo 'ARCHIVE_EVIDENCE_NOT_STAGED'; exit 1; }
+            git commit -m 'F03-2-2C: archive original PG16 84-table physical evidence with CI source'
+            git push origin HEAD:refs/heads/feat/f03-receiving-pool-2c
+          fi
   f03-2b-population-82:
     name: F03-2-2B exact 82-table admin two-population / rollback / structure
     permissions:
