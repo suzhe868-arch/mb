@@ -3,7 +3,7 @@ import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import assert from 'node:assert/strict';
 import {connect,verify,PREVIOUS} from './migration.mjs';
-import {verify as verify84} from '../runtime-team-scope/migration.mjs';
+import {verify as verify84} from '../runtime-receiving-pool/migration.mjs';
 import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
 const root=new URL('./artifacts/',import.meta.url);
 const file=name=>new URL(name,root);
