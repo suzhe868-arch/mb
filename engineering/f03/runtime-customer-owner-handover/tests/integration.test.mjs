@@ -143,3 +143,23 @@ test('H04 rollback after receipt usage denied, checksum tamper and extra schema 
  finally{await db.query('DROP SCHEMA f03_h_illegal')}
  assert.equal((await verify(db)).verified,true);
 });
+
+test('H06 FK-valid fabricated receipt and unrelated audit/history do NOT constitute Customer Owner transfer',async()=>{
+ const original=await owner(305);
+ const fakeBatch=6006,fakeItem=7007;
+ await db.query("INSERT INTO public.handover_batches(batch_id,source_employee_id,change_kind,initiated_by_kind,initiated_by_id,client_request_key,reason) VALUES(6006,7,'planned_transfer','employee',5,'h-ci-forgery-batch-6006','CI forged receipt negative')");
+ await db.query("INSERT INTO public.handover_items(item_id,batch_id,object_kind,object_id,from_employee_id,intended_to_employee_id) VALUES(7007,6006,'Customer','305',7,4)");
+ const h=BigInt((await db.query('SELECT COALESCE(MAX(owner_history_id),0)::bigint+1 n FROM public.customer_owner_history')).rows[0].n);
+ await db.query("INSERT INTO public.customer_owner_history(owner_history_id,customer_id,from_employee_id,to_employee_id,changed_at,change_reason) VALUES($1,305,7,4,transaction_timestamp(),'CI forged unrelated history proof')",[h.toString()]);
+ const fakeAudit=(await db.query("INSERT INTO public.audit_events(actor_kind,actor_id,object_kind,object_id,action,before_json,after_json,occurred_at) VALUES('employee','5','Customer','305','pc_password_self_change','{}'::jsonb,'{}'::jsonb,transaction_timestamp()) RETURNING audit_id")).rows[0].audit_id;
+ const req=p(fakeBatch,fakeItem,4,'h-ci-forged-key-000006');
+ const fakeDigest=await import('node:crypto').then(m=>m.createHash('sha256').update(req.clientRequestKey).digest('hex'));
+ await db.query("INSERT INTO public.customer_owner_handover_receipts(item_id,batch_id,customer_id,from_employee_id,to_employee_id,actor_employee_id,scope_team_id,owner_history_id,audit_id,request_key_sha256) VALUES(7007,6006,305,7,4,5,901,$1,$2,$3)",[h.toString(),fakeAudit,fakeDigest]);
+ assert.equal((await read(auth,manager,view(fakeBatch,fakeItem))).code,'H04_RECEIPT_PROOF_DENY');
+ assert.equal((await retry(auth,manager,req)).code,'H04_RECEIPT_PROOF_DENY');
+ assert.equal((await commit(auth,manager,req)).code,'H04_RECEIPT_PROOF_DENY');
+ assert.equal(await owner(305),original);
+ assert.equal((await db.query('SELECT status FROM public.handover_items WHERE item_id=7007')).rows[0].status,'pending');
+ // Forged rows are deliberately retained only in this disposable PG16 test database:
+ // genuine append-only history/receipt triggers correctly forbid removal or rewriting.
+});
