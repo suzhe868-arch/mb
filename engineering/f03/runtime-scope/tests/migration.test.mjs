@@ -28,7 +28,7 @@ test('M03 four concurrent CI-only PG16 workers serialize and apply new migration
 test('M04 original 80-table verifier MUST reject 81-table DB; wrong CI seal fails closed',async()=>{
  await assert.rejects(()=>verifyOld(c),/F03_1_NOT_APPLIED/);
  const old=process.env.GITHUB_RUN_ID;
- try{process.env.GITHUB_RUN_ID='99999999';await assert.rejects(()=>verify(c),/F03_2_1B_RUN_SEAL_DENY/)}
+ try{process.env.GITHUB_RUN_ID='99999999';await assert.rejects(()=>verify(c),/F03_2_1B_RUN_SEAL_OR_F02_BASELINE_DENY/)}
  finally{process.env.GITHUB_RUN_ID=old}
 });
 test('M05 unknown physical object, wrong migration checksum/version, tampering of granted DDL all denied',async()=>{
