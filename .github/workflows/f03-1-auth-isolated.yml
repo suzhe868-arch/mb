@@ -67,6 +67,12 @@ jobs:
           echo 'F03-1 TARGET GUARD DENY PASS'
       - name: Bootstrap pinned F02 Initial and isolated CI run seal
         run: node f03-1/runner.mjs --bootstrap
+      - name: Assert --verify never installs missing migration or changes DB
+        run: |
+          set -euo pipefail
+          if node f03-1/runner.mjs --verify; then echo 'unexpected verify apply'; exit 1; fi
+          node f03-1/tests/verify-readonly-negative.mjs
+          echo 'F03-1 READONLY VERIFY NEGATIVE PASS'
       - name: Real injected post-DDL rollback preserving sealed F02 baseline
         run: |
           set -euo pipefail
@@ -111,6 +117,14 @@ jobs:
           echo "::add-mask::$key"
           printf 'F03_1_HMAC_KEY_BASE64=%s\n' "$key" >> "$GITHUB_ENV"
           unset key
+      - name: Deterministic KDF reserved slot races, queue, timeout and recovery
+        run: |
+          set -euo pipefail
+          node --test f03-1/tests/kdf-budget.test.mjs
+      - name: Readiness real DB identity, version chain, CI seal and physical drift
+        run: |
+          set -euo pipefail
+          node --test f03-1/tests/runtime-guard.test.mjs
       - name: True synthetic PG16 credential fixtures and transactional concurrent tests
         run: |
           set -euo pipefail
