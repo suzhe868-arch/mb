@@ -1,0 +1,11 @@
+{
+  "migration_id": "000011_waitlist_responsible_handover_receipts",
+  "previous_structure_sha256": "ef3bcd0c89c959225764d0853b203047116282c3bd6f976e41aff1cd7b95e735",
+  "sql_sha256": "PENDING_REAL_PG16_DISCOVERY",
+  "structure_sha256": "PENDING_REAL_PG16_DISCOVERY",
+  "tables": 0,
+  "columns": 0,
+  "constraints": 0,
+  "indexes": 0,
+  "approved_physical_added_keys": []
+}
