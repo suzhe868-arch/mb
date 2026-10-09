@@ -1,3 +1,29 @@
+# F03-2-2I｜A-I-01/02 定向整改 B 自验补充（2026-10-10）
+
+> **B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A**。此节为最新整改结论，覆盖下方初次交付时21/21与“仅新增文件”的历史叙述；本报告最终HEAD仍必须重新取得同SHA 12/12独立PG16成功CI。
+
+## A-I-01：跨域RequestKey双向原子拒绝
+
+- H与I使用原SG06共享事务锁306/309，I保留检查H摘要，H反向检查I摘要；双向先后顺序和两名独立PC员工会话真实并发，同原始Key仅一域成功，另一域明确返回碰撞拒绝。不同Key各域独立合法成功，I故障注入回滚后不会留下幽灵收据。
+- **唯一例外修改旧文件**：`engineering/f03/runtime-customer-owner-handover/service.mjs`，只为H的commit/retry提供跨域请求摘要检查与新90表密封入口。按`to_regclass`确认I收据表存在，调用新I完整封印校验；不存在时严格运行旧H自己的89表校验。没有改旧H业务权限、旧000008 SQL/迁移、旧Guard或H CI。H旧89表独立真实PG16工作全部保留并通过。
+
+## A-I-02：后继移交与不可变收据审计链
+
+- I收据按每笔真实batch/item、来源、操作人和不可变审计证明，并对同一Demand完整收据按时间/审计ID及前笔to→后笔from链接核验，最新to必须等于真实现任负责人。不再以早期收据to等于今日负责人作为历史有效性的错误前提。
+- 真正合成Demand 440先7→4后4→5的两次合法事务均成功，先后收据可读，旧item同Key重试幂等；无合法后继收据的直接现任人漂移仍拒绝。历史source失活或离开Team时，有合法**当前**scope/permission的管理者仍可审计；个人deny、撤scope、角色变动/操作人失活、Team越权必须拒绝。
+- 未修改000001～000009任一数据库迁移文件、PDM Final或其它Domain业务事实。
+
+## 真实PG16整改验收固定证据
+
+- 改正后源代码受检 SHA `7bf8b051ccec72a7055941c2ba5b5fc3f99fa0a3`，[CI 37991568263](https://github.com/suzhe868-arch/mb/actions/runs/37991568263)：真实12/12独立PG16作业全部成功，I集成**27/27通过、0失败**。包含旧H89表独立PG16、I90表同时真实H/I双方向/并发测试，以及F03-1/2A～2G冻结原回归。
+- 旧89表/548列/360约束/143索引/1890目录对象，结构SHA `2ffb014e044173837b1a2ce081e518e68b9e723cf440a08c063779c4db9ac0ac` 均无改变；新000009仍仅新增一张收据表，90表/560列/375约束/147索引/1936目录对象，新增46个结构定义键，结构SHA `1532f5b34379e5ec207d9a2b909a11322d0eb6755cc23d6dfc7a419ea6d13eb0`。
+- 原始结构SOURCE run 37988363315及归档原始字节均保留，实测全目录一致和跨run原始字节校验PASS。仅新的I专用CI工作流改用官方PostgreSQL16公开ECR镜像来源以绕过Docker Hub匿名拉取限额；不降低任何测试、身份及旧封印。没有变更任何旧CI工作流。
+- **最终同HEAD真实12作业全绿是交A的必要条件**；本报告落库后必须对其最终commit重新核验CI。A验收前不合并main、不启动2J、不触碰生产或其它域。F03-2整体/C-H01仍未验收，产品基线`NOT_READY`。
+
+**B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A（仅当最终报告HEAD同SHA CI全绿时生效）**
+
+---
+
 # 名邦汽车 V1｜F03-2-2I B工程完整自验与A独立复核交接
 
 > **日期：2026-10-10（新加坡）** ｜**B_SELF_TESTED / READY_FOR_A_REVIEW（以本报告所在最终HEAD同SHA CI 12/12 success为生效门禁）**｜**NEXT_OWNER=A**｜**PRODUCT_BASELINE=NOT_READY**。
