@@ -1,5 +1,5 @@
 // Static parser for a checked-in, A-accepted schema-only SQL artifact.
-// No connection, SQL execution, process.env or network; facts only.
+// No connection, SQL execution, environment variables or network; facts only.
 import assert from 'node:assert/strict';
 export function physicalTables(sql){
  const tables=new Map();
