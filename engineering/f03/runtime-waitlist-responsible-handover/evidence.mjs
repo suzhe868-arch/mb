@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto';
 import assert from 'node:assert/strict';
 import {connect,verify} from './migration.mjs';
 import {verify as verify91} from '../runtime-consultation-assignee-handover/migration.mjs';
-const PREVIOUS='1532f5b34379e5ec207d9a2b909a11322d0eb6755cc23d6dfc7a419ea6d13eb0';
+const PREVIOUS='ef3bcd0c89c959225764d0853b203047116282c3bd6f976e41aff1cd7b95e735';
 
 import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
 const root=new URL('./artifacts/',import.meta.url);
