@@ -1,9 +1,9 @@
 {
   "migration_id": "000003_employee_capability_scope_bindings",
-  "sql_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "sql_sha256": "fe34a689d4b11d5c4225f609f1415a26b16ec43891e5723b417ca45aa9a154d0",
   "old_checksum": "3d7f0a539941e4089147a9c7a82ecfdb2ccebd64ba513e01deeb0fcf1d2bd6ab",
   "previous_structure_sha256": "8af70f5f3ca32f2a7b84a4ad69d68dbf7c81bd9b6c97d79ad7481ce3a8c23ee5",
-  "structure_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "structure_sha256": "229aa6dc167cd3ccb8da89fd9d08076af2588b6b4bd1cfbdc8d779c31dfeffe0",
   "tables": 81,
   "columns": 492,
   "constraints": 304,
