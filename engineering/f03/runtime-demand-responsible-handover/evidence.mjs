@@ -57,7 +57,7 @@ async function snapshots(mode){
   const measured=await counts(c);
   for(const name of ['tables','columns','constraints','indexes'])assert.equal(measured[name],m[name],name+'_FROZEN_COUNT_DRIFT');
   const versionRows=(await c.query('SELECT migration_id,checksum,structure_sha256 FROM public.f02_schema_migrations UNION ALL SELECT migration_id,checksum,structure_sha256 FROM public.f03_schema_migrations ORDER BY migration_id')).rows;
-  assert.deepEqual(versionRows.map(x=>x.migration_id),['000001_current_initial','000002_pc_auth_sessions','000003_employee_capability_scope_bindings','000004_governance_population_guards','000005_employee_receiving_pool_eligibility','000006_explicit_team_memberships','000007_handover_batch_item_ledger','000008_demand_responsible_handover_receipts','000009_demand_responsible_handover_receipts']);
+  assert.deepEqual(versionRows.map(x=>x.migration_id),['000001_current_initial','000002_pc_auth_sessions','000003_employee_capability_scope_bindings','000004_governance_population_guards','000005_employee_receiving_pool_eligibility','000006_explicit_team_memberships','000007_handover_batch_item_ledger','000008_customer_owner_handover_receipts','000009_demand_responsible_handover_receipts']);
   await writeFile(file('pg16_inventory.json'),JSON.stringify({...measured,structure_sha256:s.sha256,added_catalog_keys:delta,versions:versionRows},null,2)+'\n');
   console.log('F03_2I_EVIDENCE_FULL_CATALOG_PASS '+JSON.stringify({measured,delta:delta.length,sha:s.sha256}));
  }finally{await c.end()}
@@ -75,7 +75,7 @@ async function rawManifest(dir){
  assert.equal(lines.length,2);
  const entries={};
  for(const line of lines){
-  const q=/^([a-f0-9]{64})  f03\/runtime-customer-owner-handover\/artifacts\/(pg16_schema_only\.sql|pg16_inventory\.json)$/.exec(line);
+  const q=/^([a-f0-9]{64})  f03\/runtime-demand-responsible-handover\/artifacts\/(pg16_schema_only\.sql|pg16_inventory\.json)$/.exec(line);
   assert.ok(q,'BAD_SHA256_MANIFEST');
   assert.ok(!entries[q[2]]);
   const actual=sha(await readFile(new URL(q[2],dir)));
