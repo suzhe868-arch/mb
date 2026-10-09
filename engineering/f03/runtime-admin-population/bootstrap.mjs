@@ -1,5 +1,5 @@
 // Full first-account bootstrap restricted to disposable CI installer; never exported to HTTP.
-import {connect,verify,isolate} from './migration.mjs';
+import {connect,verify} from './migration.mjs';
 import {hashPassword} from '../../src/f03-auth-crypto.mjs';
 const allowed=()=>process.env.CI==='true'&&process.env.GITHUB_ACTIONS==='true'&&process.env.F03_2B_INSTALLER_CONFIRM==='I_AUTHORIZE_DISPOSABLE_PG16_FIRST_BOOTSTRAP_ONLY';
 export async function claimFirstBootstrap(){
