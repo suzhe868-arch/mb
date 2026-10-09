@@ -137,3 +137,31 @@ test('E08 fail-closed on invalid scope, inactive source/target and stale structu
  try{await assert.rejects(()=>verify(db),/F03_2E_ISOLATION_DENY/)}finally{await db.query('DROP SCHEMA sg06_unexpected')}
  assert.equal((await verify(db)).verified,true);
 });
+
+test('E04 independent current scoped managers race same draft key: one commits, other collision, no impersonation',async()=>{
+ const key='sg06-cross-actor-race-0001';
+ const prior=(await auditRows()).length;
+ const [a,b]=await Promise.all([create(auth,manager,draft(key)),create(auth,other,draft(key))]);
+ assert.equal([a,b].filter(x=>x.code==='LEDGER_DRAFT_CREATED').length,1);
+ assert.equal([a,b].filter(x=>x.code==='LEDGER_REQUEST_KEY_COLLISION').length,1);
+ assert.equal((await db.query('SELECT count(*)::int n FROM public.handover_batches WHERE client_request_key=$1',[key])).rows[0].n,1);
+ assert.equal((await auditRows()).length,prior+1);
+ const winner=a.code==='LEDGER_DRAFT_CREATED'?manager:other;
+ const loser=a.code==='LEDGER_DRAFT_CREATED'?other:manager;
+ assert.equal((await create(auth,loser,draft(key))).code,'LEDGER_REQUEST_KEY_COLLISION');
+ assert.equal((await create(auth,winner,draft(key))).code,'LEDGER_DRAFT_NOOP');
+});
+test('E07 database CHECK independently forbids completed batch/item even on direct disposable SQL',async()=>{
+ const original=await snap();
+ for(const sql of [
+  "UPDATE public.handover_batches SET status='completed' WHERE batch_id="+batchId,
+  "UPDATE public.handover_items SET status='completed' WHERE item_id="+item1
+ ]){
+  await db.query('BEGIN');
+  let error;
+  try{await db.query(sql)}catch(e){error=e}
+  await db.query('ROLLBACK');
+  assert.equal(error?.code,'23514');
+ }
+ assert.deepEqual(await snap(),original);
+});
