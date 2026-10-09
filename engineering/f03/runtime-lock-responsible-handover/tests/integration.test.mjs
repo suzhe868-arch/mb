@@ -323,7 +323,8 @@ test('A-L-01 competing PG16 Lock state transition wins first: transfer fails clo
  try{
   await other.query('BEGIN');
   await other.query("UPDATE public.locks SET lock_status='released' WHERE lock_id=18029");
-  const transfer=commit(auth,manager,p);
+  // Synthetic SG06 batch 8429 was initiated by store-head employee 6 (not manager 5).
+  const transfer=commit(auth,head,p);
   await other.query('SELECT pg_sleep(0.12)');
   await other.query('COMMIT');
   const baseline=await snapshot(),r=await transfer;
