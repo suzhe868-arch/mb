@@ -35,7 +35,7 @@ export async function discovery(c){
  }finally{await c.query('ROLLBACK')}
 }
 async function identity(c){
- if(process.env.CI!=='true'||process.env.GITHUB_ACTIONS!=='true')throw Error('J_CJ_ONLY');
+ if(process.env.CI!=='true'||process.env.GITHUB_ACTIONS!=='true')throw Error('J_CI_ONLY');
  const x=(await c.query("SELECT current_database() db,current_user usr,current_setting('server_version_num')::int ver,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su,(SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user) cdb,(SELECT rolcreaterole FROM pg_roles WHERE rolname=current_user) cr,(SELECT count(*)::int FROM pg_namespace WHERE nspname NOT IN ('pg_catalog','information_schema','public') AND nspname NOT LIKE 'pg_toast%' AND nspname NOT LIKE 'pg_temp%') ns")).rows[0];
  if(x.db!=='f03_auth_test'||x.usr!=='f03_ci'||x.ver<160000||x.ver>=170000||x.su||x.cdb||x.cr||x.ns!==0)throw Error('J_ISOLATION_DENY');
  const seal=(await c.query('SELECT run_id FROM public.f03_isolation_seal')).rows;
@@ -44,10 +44,10 @@ async function identity(c){
 async function check(c,m,phase){
  await identity(c);
  const versions=(await c.query('SELECT migration_id,checksum,structure_sha256 FROM public.f03_schema_migrations ORDER BY migration_id')).rows;
- if(versions.length!==(phase==='new'?9:8)||versions[7]?.migration_id!=='000009_customer_owner_handover_receipts'||versions[7]?.checksum!==oldChecksum||versions[7]?.structure_sha256!==PREVIOUS)throw Error('J_CHAIN_DENY');
+ if(versions.length!==(phase==='new'?9:8)||versions[7]?.migration_id!=='000009_demand_responsible_handover_receipts'||versions[7]?.checksum!==oldChecksum||versions[7]?.structure_sha256!==PREVIOUS)throw Error('J_CHAIN_DENY');
  const old=versions.slice(0,8),baseline=JSON.parse(await readFile(new URL('../runtime-demand-responsible-handover/evidence/pg16_inventory.json',import.meta.url),'utf8'));
  for(let i=0;i<8;i++){if(old[i].migration_id!==baseline.versions[i+1].migration_id||old[i].checksum!==baseline.versions[i+1].checksum||old[i].structure_sha256!==baseline.versions[i+1].structure_sha256)throw Error('J_FROZEN_CHAIN_TAMPER')}
- if(phase==='new'&&(versions[7].migration_id!==ID||versions[7].checksum!==checksum||versions[7].structure_sha256!==m.structure_sha256))throw Error('J_000010_VERSION_TAMPER');
+ if(phase==='new'&&(versions[8].migration_id!==ID||versions[8].checksum!==checksum||versions[8].structure_sha256!==m.structure_sha256))throw Error('J_000010_VERSION_TAMPER');
  const s=await getPublicStructure(c);
  if(s.sha256!==(phase==='new'?m.structure_sha256:PREVIOUS))throw Error('J_SCHEMA_TAMPER');
  if(phase==='new'){
