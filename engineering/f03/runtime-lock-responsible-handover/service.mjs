@@ -5,6 +5,9 @@ const valid=x=>Number.isSafeInteger(x)&&x>0;
 const exact=(o,k)=>o&&typeof o==='object'&&!Array.isArray(o)&&Object.keys(o).sort().join(',')===k;
 const str=x=>x===undefined||x===null?null:String(x);
 const out=(code,more={})=>Object.freeze({code,...more});
+// A-L-01: throw after any successful CAS: F03-1 withSession rolls back all owner/audit/receipt writes.
+const expiryRollback=(depositCount)=>Object.assign(new Error('L_EXPIRY_PRECOMMIT_ATOMIC_ROLLBACK'),{code:depositCount>0?'L03_EXPIRED_WITH_DEPOSIT_DEFER_DENY':'L03_EXPIRED_WITHOUT_DEPOSIT_DEFER_DENY'});
+
 const sha=x=>createHash('sha256').update(x,'utf8').digest('hex');
 const hookAllowed=x=>x===undefined||(process.env.CI==='true'&&process.env.GITHUB_ACTIONS==='true'&&typeof x==='function');
 const request=p=>exact(p,'batchId,clientRequestKey,fromEmployeeId,itemId,recipientEmployeeId,teamId')&&[p.batchId,p.itemId,p.fromEmployeeId,p.recipientEmployeeId,p.teamId].every(valid)&&p.fromEmployeeId!==p.recipientEmployeeId&&typeof p.clientRequestKey==='string'&&/^[A-Za-z0-9._:-]{12,90}$/.test(p.clientRequestKey);
@@ -25,6 +28,8 @@ async function authTx(auth,token,fn,opts={}){
    return fn(c,a,opts.testCheckpoint);
   },{normalOnly:true})??out('L02_SESSION_DENY');
  }catch(e){
+  if(['L03_EXPIRED_WITH_DEPOSIT_DEFER_DENY','L03_EXPIRED_WITHOUT_DEPOSIT_DEFER_DENY'].includes(e.code)&&e.message==='L_EXPIRY_PRECOMMIT_ATOMIC_ROLLBACK')return out(e.code,{transactionRolledBack:true});
+  if(e.code==='L04_FINANCIAL_OR_LOCK_RELATION_DEFER_DENY'&&e.message==='L_PRECOMMIT_RELATION_CHANGED_ATOMIC_ROLLBACK')return out(e.code,{transactionRolledBack:true});
   if(['55P03','40P01','57014','40001'].includes(e.code))return out('L04_CONTENTION_DEFER_DENY');
   if(e.code==='23505'&&/f03_2_2l_receipt_(request_key_unique|item_unique)/.test(e.constraint||''))return out('L05_COLLISION_DENY');
   throw e;
@@ -56,13 +61,13 @@ async function facts(c,actor,p,locking=false){
  const refunds=(await c.query('SELECT refund_id,status FROM public.refund_cases WHERE lock_id=$1 FOR SHARE',[lockId])).rows;
  if(refunds.length)return {error:'L03_REFUND_FINANCIAL_SCOPE_DEFER_DENY'};
  if((await c.query('SELECT 1 FROM public.transactions WHERE source_lock_id=$1 FOR SHARE',[lockId])).rowCount)return {error:'L03_TRANSACTION_SCOPE_DEFER_DENY'};
- if(lock.expires_at<=new Date())return {error:deposits.length?'L03_EXPIRED_WITH_DEPOSIT_DEFER_DENY':'L03_EXPIRED_WITHOUT_DEPOSIT_DEFER_DENY'};
+ if((await c.query('SELECT $1::timestamptz <= clock_timestamp() AS expired',[lock.expires_at])).rows[0].expired)return {error:deposits.length?'L03_EXPIRED_WITH_DEPOSIT_DEFER_DENY':'L03_EXPIRED_WITHOUT_DEPOSIT_DEFER_DENY'};
  const src=(await c.query('SELECT employment_status FROM public.employees WHERE employee_id=$1 FOR SHARE',[p.fromEmployeeId])).rows[0];
  const dst=(await c.query('SELECT employment_status FROM public.employees WHERE employee_id=$1 FOR SHARE',[p.recipientEmployeeId])).rows[0];
  if(!src||!dst||src.employment_status!=='active'&&!['planned_disable','sudden_inactive'].includes(b.change_kind))return {error:'L03_SOURCE_INVALID'};
  if(dst.employment_status!=='active')return {error:'L03_RECIPIENT_INVALID'};
  if(!await scope(c,actor.employee_id,p.fromEmployeeId,p.recipientEmployeeId,p.teamId,lock.customer_id,src.employment_status!=='active'))return {error:'L02_LOCK_PERMISSION_SCOPE_DENY'};
- return {batch:b,item:i,lock,lockId,customerId:Number(lock.customer_id),sourceInactive:src.employment_status!=='active'};
+ return {batch:b,item:i,lock,lockId,customerId:Number(lock.customer_id),depositCount:deposits.length,sourceInactive:src.employment_status!=='active'};
 }
 const display=r=>({receiptId:Number(r.receipt_id),batchId:Number(r.batch_id),itemId:Number(r.item_id),lockId:Number(r.lock_id),customerId:Number(r.customer_id),fromEmployeeId:Number(r.from_employee_id),toEmployeeId:Number(r.to_employee_id),actorEmployeeId:Number(r.actor_employee_id),teamId:Number(r.scope_team_id),auditId:Number(r.audit_id),requestKeySha256:r.request_key_sha256,committedAt:r.committed_at.toISOString(),lockDomainTransferred:true,lockLifecycleUnchanged:true,otherDomainsCompleted:false,batchCompleted:false});
 async function eventProven(c,r){
@@ -115,14 +120,32 @@ async function transfer(c,actor,p,hook){
  if(conflict)return out('L05_COLLISION_DENY');
  if(str(f.lock.responsible_employee_id)!==str(p.fromEmployeeId))return out('L04_CAS_CONFLICT');
  if(hook)await hook('before_update',c);
- const change=await c.query("UPDATE public.locks SET responsible_employee_id=$1 WHERE lock_id=$2 AND responsible_employee_id=$3 AND lock_status='active' RETURNING lock_id",[p.recipientEmployeeId,f.lockId,p.fromEmployeeId]);
- if(change.rowCount!==1)return out('L04_CAS_CONFLICT');
+ // clock_timestamp() is the real PG wall clock, unlike frozen now()/transaction_timestamp().
+ const change=await c.query("UPDATE public.locks SET responsible_employee_id=$1 WHERE lock_id=$2 AND responsible_employee_id=$3 AND lock_status='active' AND expires_at > clock_timestamp() RETURNING lock_id",[p.recipientEmployeeId,f.lockId,p.fromEmployeeId]);
+ if(change.rowCount!==1){
+  const state=(await c.query('SELECT responsible_employee_id,lock_status,expires_at<=clock_timestamp() AS expired FROM public.locks WHERE lock_id=$1 FOR UPDATE',[f.lockId])).rows[0];
+  if(state?.expired&&state.lock_status==='active'&&str(state.responsible_employee_id)===str(p.fromEmployeeId))return out(f.depositCount?'L03_EXPIRED_WITH_DEPOSIT_DEFER_DENY':'L03_EXPIRED_WITHOUT_DEPOSIT_DEFER_DENY');
+  return out('L04_CAS_CONFLICT');
+ }
  if(hook)await hook('after_update',c);
  const audit=(await c.query("INSERT INTO public.audit_events(actor_kind,actor_id,role_context,object_kind,object_id,action,before_json,after_json,occurred_at) VALUES('employee',$1,$2::jsonb,'Lock',$3,'lock.responsible.handover',$4::jsonb,$5::jsonb,transaction_timestamp()) RETURNING audit_id",[str(actor.employee_id),JSON.stringify({scope:'SG06_CI_ONLY_LOCK',batchId:p.batchId,itemId:p.itemId,teamId:p.teamId,requestKeySha256:key}),str(f.lockId),JSON.stringify({responsible:p.fromEmployeeId}),JSON.stringify({responsible:p.recipientEmployeeId})])).rows[0].audit_id;
  if(hook)await hook('after_audit',c);
  const receipt=(await c.query('INSERT INTO public.lock_responsible_handover_receipts(item_id,batch_id,lock_id,customer_id,from_employee_id,to_employee_id,actor_employee_id,scope_team_id,audit_id,request_key_sha256) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *',[p.itemId,p.batchId,f.lockId,f.customerId,p.fromEmployeeId,p.recipientEmployeeId,actor.employee_id,p.teamId,audit,key])).rows[0];
  if(hook)await hook('after_receipt',c);
  if(hook)await hook('before_commit',c);
+ // Final live-time DB business statement. Lock row remains FOR UPDATE locked.
+ // CRITICAL: throw (never return DENY) after modifying owner/audit/receipt:
+ // withSession will ROLLBACK everything, including session last_seen_at.
+ const final=(await c.query(`SELECT l.lock_status,l.responsible_employee_id,
+  l.expires_at>clock_timestamp() AS still_valid,
+  (SELECT count(*)::int FROM public.deposit_receipts d WHERE d.lock_id=l.lock_id) AS deposit_count,
+  EXISTS(SELECT 1 FROM public.refund_cases r WHERE r.lock_id=l.lock_id) AS has_refund,
+  EXISTS(SELECT 1 FROM public.transactions t WHERE t.source_lock_id=l.lock_id) AS has_transaction
+  FROM public.locks l WHERE l.lock_id=$1 FOR UPDATE`,[f.lockId])).rows[0];
+ if(!final||final.lock_status!=='active'||str(final.responsible_employee_id)!==str(p.recipientEmployeeId)||final.has_refund||final.has_transaction||final.deposit_count!==f.depositCount){
+  throw Object.assign(new Error('L_PRECOMMIT_RELATION_CHANGED_ATOMIC_ROLLBACK'),{code:'L04_FINANCIAL_OR_LOCK_RELATION_DEFER_DENY'});
+ }
+ if(!final.still_valid)throw expiryRollback(final.deposit_count);
  return out('L04_LOCK_TRANSFERRED',{receipt:display(receipt),otherDomainsPending:true,lockLifecycleUnchanged:true,idempotent:false});
 }
 export const commitLockResponsibleHandover=(a,t,p,o)=>!request(p)?Promise.resolve(out('L04_BAD_REQUEST')):authTx(a,t,(c,actor,h)=>transfer(c,actor,p,h),o);
