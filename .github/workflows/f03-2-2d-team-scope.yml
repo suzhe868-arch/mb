@@ -85,7 +85,7 @@ jobs:
         run: |
           set -euo pipefail
           node --test f03/runtime-team-scope/tests/integration.test.mjs 2>&1 | tee f03/runtime-team-scope/artifacts/pg16-team-scope-tests.log
-          grep -q '# fail 0' f03/runtime-team-scope/artifacts/pg16-receiving-tests.log
+          grep -q '# fail 0' f03/runtime-team-scope/artifacts/pg16-team-scope-tests.log
           if node f03/runtime-team-scope/runner.mjs --rollback; then echo 'USED_POOL_ROLLBACK_MUST_DENY'; exit 1; fi
           node f03/runtime-team-scope/runner.mjs --verify
       - name: Export exact 86-table original structure SQL, version inventory, SHA256 and old definition equality
