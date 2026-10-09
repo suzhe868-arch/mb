@@ -6,5 +6,9 @@ H04	before_owner_update/after_owner_update/after_history/after_receipt/after_aud
 H05	旧Customer来源、级别/其他Domain七类责任/TTL、旧SG06 batch/item pending-only全部保持；Customer单域Receipt!=batch/domain completed	tests/integration.test.mjs	OTHER_DOMAINS_NOT_TRANSFERRED
 H06	独立收据append-only trigger、唯一item/history/audit FK/正则+来源不同CHECK，FK可用但audit/history不一致仍拒绝，额外schema/迁移checksum被篡改拒绝	tests/integration.test.mjs	H04_RECEIPT_PROOF_DENY
 H07	2G 88表、2F 88表、2E 88表、2D 86表、2C 84表、2B 82表双、2A 81表、F03-1 80表认证及HTTPS所有旧Guard分别独立PG16工作流	.github/workflows/f03-2-2h-customer-owner-handover.yml	11 distinct jobs
-H08	真实89表/548列/359约束/142索引+1886完整catalog，旧1840逐项不变、授权46新增键与原始schema-only/inventory/source+SHA256跨运行归档核验	evidence.mjs evidence/ 000008.manifest.json	F03_2H_ARCHIVE_EXACT_REAL_RAW_BYTES_PASS
+H08	真实89表/548列/360约束/143索引+1890完整catalog，旧1840逐项不变、授权50新增键与原始schema-only/inventory/source+SHA256跨运行归档核验	evidence.mjs evidence/ 000008.manifest.json	F03_2H_ARCHIVE_EXACT_REAL_RAW_BYTES_PASS
 H09	只新增本工程目录及单独workflow，旧main文件零修改/删除，当前分支HEAD和最终run.head_sha一致、H完整测试及11作业全绿，A独立复验后才PR合并	GitHub compare, B自验与A复验交接.md	READY_FOR_A_REVIEW / NEXT_OWNER=A
+A-H-01	UNIQUE(request_key_sha256)独立Pg16物理约束+跨批/客户/目标同Key阻断+两个员工不同Customer并发仅一个成功+回滚释放Key重试	000008.sql tests/integration.test.mjs	H04_COLLISION_DENY / no double history
+A-H-02	manager/store_head处于paused accepting但有效owner permission+scope可成功单域提交，个人deny/inactive/授权到期拒绝，recipient的receiving+eligible保留	tests/integration.test.mjs service.mjs	OPERATOR_PAUSED_NOT_A_DENY
+A-H-03	经理main Store1对Store2 Team906显式已绑定权/三人现行membership才成功，同店Team907无绑定拒绝，跨店store_head即使有Team906绑定也拒绝	tests/integration.test.mjs fixtures.mjs	EXACT_TEAM_SCOPE / STORE_HEAD_HOME_STORE
+A-H-证据	新000008 SQL sha256=252b931dddc411337a5e787e7512a01a77d5320a299c6714033d73e87b1f3e26；新目录sha256=2ffb014e044173837b1a2ce081e518e68b9e723cf440a08c063779c4db9ac0ac；50新增目录键，source run37985015633，最终同SHA 11成功作业重新归一核查原始schema-only	000008.manifest.json evidence/SOURCE.md evidence/	SOURCE_CURRENT_EXACT_RAW_BYTES_PASS
