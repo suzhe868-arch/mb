@@ -1340,3 +1340,6 @@
 
 
 | EG-F03-1-MERGE-20261009 | ENGINEERING_INTEGRATION | 用户批准F03-1工程纳入main | 用户明确“同意”，A通过PR #5合并B归档SHA73e794119fea9630fd81eb84dd7c08eda7c9f664，merge=3a7e5dbc389533cdcf05850cbaff595b97e3812b；22工程blob与B一致，1076无关main文件原样保留，新增20文件；A下一步仅准备F03-2门禁 | F03_1_ACCEPTED_MERGED_USER_APPROVED；后续施工/生产/C合并未授权；本次未额外运行测试；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F03-1_工程合并main与后续门禁记录_2026-10-09.md`；PR #5；工程CI37863317173属于已验收工程SHA | 2026-10-09 |
+
+
+| EG-F03-2-G0-PREPARE-20261009 | ENGINEERING_GATE_PREPARATION | A整理运行期权限与治理事务分批工作单 | 用户对A整理下一批工作单回复“同意”；A读取PDM-02/03/22/25 Final、已验收G0权限合同、F03-1认证实现与实际Schema，建议先F03-2-G0事实映射/scope/治理事务设计及静态核验，真实DBGuard与治理/交接另批 | GOVERNANCE_ONLY / PREPARED_NOT_CONSTRUCTION_AUTHORIZED；B暂不创建新分支，不连接DB；不改产品Authority，不合并C；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F03-2_运行期权限校验与治理事务施工单_待用户批准_2026-10-09.md`；main e3ccaffda57f135d44f5009758f2d1c943938633；F03-1已验收合并记录 | 2026-10-09 |

@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F03_2_A_GATE_PREPARATION_PENDING_USER_APPROVAL_AND_H01_VISUAL_REVIEW",
+  "substage": "F03_2_G0_RUNTIME_DESIGN_PENDING_USER_APPROVAL_AND_H01_VISUAL_REVIEW",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "GLOBAL_POST_PDM25",
-  "current_domain_status": "F03_1_ACCEPTED_MERGED_F03_2_GATE_NOT_AUTHORIZED",
+  "current_domain_status": "F03_1_ACCEPTED_MERGED_F03_2_G0_WORK_ORDER_PREPARED_NOT_AUTHORIZED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A准备F03-2运行期权限校验施工单与验收门禁交用户审查；B暂不施工，C/H01独立审查",
-  "current_work_file": "07_重建工作区/F03-1_工程合并main与后续门禁记录_2026-10-09.md",
+  "current_task": "用户审查F03-2施工单，决定是否批准仅F03-2-G0事实映射与事务方案静态核验；B暂不施工，C/H01独立审查",
+  "current_work_file": "07_重建工作区/F03-2_运行期权限校验与治理事务施工单_待用户批准_2026-10-09.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F03_1_ACCEPTED_MERGED_F03_2_A_GATE_PREPARATION",
+  "current_review_batch": "F03_2_G0_WORK_ORDER_PENDING_USER_APPROVAL",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "F03_2_A_GATE_PREPARATION_PENDING_USER_APPROVAL_AND_H01_VISUAL_REVIEW",
+  "next_action": "F03_2_G0_RUNTIME_DESIGN_PENDING_USER_APPROVAL_AND_H01_VISUAL_REVIEW",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "用户批准F03-1工程合并，PR5已merged且22工程blob一致、1076无关main文件保留；A下一步仅准备F03-2门禁，后续施工和生产未授权。",
+  "next_action_detail": "A已按Final与真实Schema整理F03-2分批工作单；建议先审查当前事实、scope、治理和并发合同，G0不连接DB；真实Guard及治理/交接分别后续授权。",
   "abc_parallel_workflow": {
     "status": "USER_APPROVED_APPLIED_DOCUMENTATION_ONLY",
     "confirmed_at": "2026-10-08",
@@ -5141,10 +5141,25 @@
     "next_batch_construction": "NOT_AUTHORIZED_F03_2_GATE_PREPARATION_ONLY"
   },
   "f03_2_gate": {
-    "status": "A_GATE_PREPARATION_NOT_CONSTRUCTION_AUTHORIZED",
-    "work_order_prepared": false,
+    "status": "F03_2_G0_WORK_ORDER_PREPARED_PENDING_USER_APPROVAL",
+    "work_order_prepared": true,
     "construction": "NOT_AUTHORIZED",
     "branch_created": false,
-    "scope_note": "A下一步准备运行期权限校验工作单和验收门禁，须用户另批后才能施工"
+    "scope_note": "G0只对齐真实字段与权限/事务设计，保留既有工程及Authority；G0验收不等于F03_2_ACCEPTED",
+    "work_order": "07_重建工作区/F03-2_运行期权限校验与治理事务施工单_待用户批准_2026-10-09.md",
+    "preparation_authorization": "用户同意A整理F03-2施工单；不含B施工授权",
+    "proposed_first_batch": "F03_2_G0_TRUSTED_FACT_MAPPING_SCOPE_GOVERNANCE_TRANSACTION_DESIGN_AND_STATIC_TESTS",
+    "proposed_branch": "feat/f03-runtime-g0",
+    "tests": "NOT_RUN_WORK_ORDER_PREPARATION_ONLY",
+    "database_access": "NOT_AUTHORIZED_G0_NO_DB",
+    "actual_guard": "NOT_RUN_NOT_AUTHORIZED",
+    "later_batches": "F03_2_1_F03_2_2_F03_2_3_SEPARATE_A_REVIEW_USER_APPROVAL",
+    "technical_gaps_to_resolve": [
+      "TEAM_RELATION_TRUSTED_MAPPING_NOT_ESTABLISHED",
+      "RECEIVING_ELIGIBILITY_PERSISTENT_FACT_MAPPING_NOT_ESTABLISHED",
+      "SCOPE_ENUM_REFERENCE_EXPIRY_OBJECT_RELATION_CONTRACT_REQUIRED",
+      "GOVERNANCE_ACTOR_AND_TARGET_MATRIX_BEYOND_STATIC_G0_DEMO_REQUIRED",
+      "F03_1_GUARD_AND_VERSION_CHAIN_COMPATIBILITY_FOR_FUTURE_SCHEMA_DELTA"
+    ]
   }
 }
