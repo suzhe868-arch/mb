@@ -100,6 +100,63 @@ test('H04 identical item/key exact retry idempotent; mismatched key/batch/recipi
  assert.equal((await prep(auth,manager,p())).code,'H01_OWNER_NOT_SOURCE');
  assert.deepEqual(await snapshot(),before);
 });
+test('A-H-01 GLOBAL request digest unique in real PG16, same key other item/batch/customer/to denied BEFORE any owner write',async()=>{
+ const begin=await snapshot();
+ const key=p().clientRequestKey; // previously committed Customer301 / item7001
+ const cross=[
+  [manager,p(6003,7003,4,key),'Customer302 different item & batch'],
+  [head,p(6005,7006,6,key),'different recipient and initiated-by actor'],
+  [manager,p(6004,7004,4,key),'different Customer304'],
+  [head,p(6008,7009,4,key),'different Customer306 and store-head']
+ ];
+ for(const [actor,request,kind] of cross){
+  const result=await commit(auth,actor,request);
+  assert.equal(result.code,'H04_COLLISION_DENY',kind);
+ }
+ const idx=(await db.query("SELECT indexdef FROM pg_indexes WHERE schemaname='public' AND tablename='customer_owner_handover_receipts' AND indexname='f03_2_2h_receipt_request_key_unique'")).rows[0];
+ assert.match(idx?.indexdef??'',/CREATE UNIQUE INDEX.*request_key_sha256/);
+ const con=(await db.query("SELECT contype FROM pg_constraint WHERE conname='f03_2_2h_receipt_request_key_unique'")).rows[0];
+ assert.equal(con.contype,'u');
+ for(const id of [302,304,306])assert.equal(await owner(id),'7');
+ assert.deepEqual(await snapshot(),begin);
+});
+test('A-H-01 same request key two valid different-Customer batches race on two physical PG16 sessions: exactly ONE winner',async()=>{
+ const key='h-ci-cross-item-global-00019';
+ const before=await snapshot();
+ const [a,b]=await Promise.all([
+  commit(auth,manager,p(6019,7019,4,key)),
+  commit(auth,head,p(6020,7020,6,key))
+ ]);
+ assert.equal([a,b].filter(x=>x.code==='H03_OWNER_DOMAIN_TRANSFERRED').length,1);
+ assert.equal([a,b].filter(x=>x.code==='H04_COLLISION_DENY').length,1);
+ const receipts=(await db.query("SELECT * FROM public.customer_owner_handover_receipts WHERE request_key_sha256=(SELECT request_key_sha256 FROM public.customer_owner_handover_receipts WHERE item_id=ANY($1::bigint[]))",[ [7019,7020] ])).rows;
+ assert.equal(receipts.length,1);
+ const now=await snapshot();
+ assert.equal(now.customer_owner_handover_receipts.length,before.customer_owner_handover_receipts.length+1);
+ assert.equal(now.customer_owner_history.length,before.customer_owner_history.length+1);
+ assert.equal(now.audit_events.length,before.audit_events.length+1);
+ assert.equal([await owner(319),await owner(320)].filter(x=>x==='7').length,1);
+ assert.deepEqual(now.handover_items,before.handover_items);
+ assert.deepEqual(now.handover_batches,before.handover_batches);
+ for(const t of ['demands','priority_leases','recommendations','consultations','waitlists','locks','transactions'])assert.deepEqual(now[t],before[t]);
+ const loser=String((await db.query('SELECT object_id FROM public.handover_items WHERE item_id=$1',[a.code==='H04_COLLISION_DENY'?7019:7020])).rows[0].object_id);
+ assert.equal(await owner(Number(loser)),'7');
+});
+test('A-H-01 injected receipt failure rolls back key claim and allows a subsequent retry with exactly one new audit+history',async()=>{
+ const request=p(6021,7021,4,'h-ci-retry-after-failure-00021');
+ const before=await snapshot();
+ await assert.rejects(()=>commit(auth,manager,request,{testCheckpoint:async phase=>{if(phase==='after_receipt')throw Error('H_CLAIM_ROLLBACK')}}),/H_CLAIM_ROLLBACK/);
+ assert.deepEqual(await snapshot(),before);
+ const first=await retry(auth,manager,request);
+ assert.equal(first.code,'H03_OWNER_DOMAIN_TRANSFERRED');
+ const second=await retry(auth,manager,request);
+ assert.equal(second.code,'H04_IDEMPOTENT_RECEIPT');assert.deepEqual(second.receipt,first.receipt);
+ const after=await snapshot();
+ assert.equal(after.customer_owner_history.length,before.customer_owner_history.length+1);
+ assert.equal(after.audit_events.length,before.audit_events.length+1);
+ assert.equal(after.customer_owner_handover_receipts.length,before.customer_owner_handover_receipts.length+1);
+ assert.equal(await owner(321),'4');
+});
 test('H04 receipt/history immutable DB triggers reject update and delete; no ledger completed state',async()=>{
  const before=await snapshot();
  const r=(await db.query("SELECT receipt_id FROM public.customer_owner_handover_receipts WHERE item_id=7001")).rows[0].receipt_id;
@@ -156,6 +213,70 @@ test('H02 legal store_head must have separately bound store scope and cannot bor
  }finally{await db.query("UPDATE public.employee_capability_scope_bindings SET ended_at=NULL WHERE employee_id=6 AND scope_id=204 AND permission_id=15")}
  const after=await snapshot();
  for(const table of ['demands','recommendations','priority_leases','consultations','waitlists','locks','transactions','handover_batches','handover_items'])assert.deepEqual(after[table],before[table],table);
+});
+test('A-H-02 legitimate manager and store-head PAUSED accepting continue owner transfer; personal deny/inactive/revoked scope still deny',async()=>{
+ const before=await snapshot();
+ for(const [actor,employee,batch,item,customer,key] of [
+  [manager,5,6017,7017,317,'h-ci-paused-manager-00017'],
+  [head,6,6018,7018,318,'h-ci-paused-head-00018']
+ ]){
+  const req=p(batch,item,4,key);
+  await db.query("UPDATE public.employees SET receiving_status='paused' WHERE employee_id=$1",[employee]);
+  try{
+   const prepared=await prep(auth,actor,req);assert.equal(prepared.code,'H01_PREPARED_READ_ONLY');
+   await db.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=$1 AND permission_id=15",[employee]);
+   try{assert.equal((await commit(auth,actor,req)).code,'H02_CUSTOMER_OWNER_PERMISSION_DENY')}
+   finally{await db.query("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=$1 AND permission_id=15",[employee])}
+   await db.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=$1",[employee]);
+   try{assert.notEqual((await commit(auth,actor,req)).code,'H03_OWNER_DOMAIN_TRANSFERRED')}
+   finally{await db.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=$1",[employee])}
+   const scopeId=employee===5?201:205;
+   await db.query("UPDATE public.employee_capability_scope_bindings SET ended_at=now() WHERE employee_id=$1 AND permission_id=15 AND scope_id=$2",[employee,scopeId]);
+   if(employee===6)await db.query("UPDATE public.employee_capability_scope_bindings SET ended_at=now() WHERE employee_id=6 AND permission_id=15 AND scope_id=204");
+   try{assert.equal((await commit(auth,actor,req)).code,'H02_CUSTOMER_OWNER_PERMISSION_DENY')}
+   finally{
+    await db.query("UPDATE public.employee_capability_scope_bindings SET ended_at=NULL WHERE employee_id=$1 AND permission_id=15 AND scope_id=$2",[employee,scopeId]);
+    if(employee===6)await db.query("UPDATE public.employee_capability_scope_bindings SET ended_at=NULL WHERE employee_id=6 AND permission_id=15 AND scope_id=204");
+   }
+   const transferred=await commit(auth,actor,req);
+   assert.equal(transferred.code,'H03_OWNER_DOMAIN_TRANSFERRED');
+   assert.equal(await owner(customer),'4');
+  }finally{await db.query("UPDATE public.employees SET receiving_status='receiving' WHERE employee_id=$1",[employee])}
+ }
+ const after=await snapshot();
+ assert.equal(after.customer_owner_history.length,before.customer_owner_history.length+2);
+ assert.equal(after.customer_owner_handover_receipts.length,before.customer_owner_handover_receipts.length+2);
+ assert.equal(after.audit_events.length,before.audit_events.length+2);
+ for(const t of ['handover_items','handover_batches','demands','priority_leases','recommendations','consultations','waitlists','locks','transactions','employees','employee_permission_overrides','employee_capability_scope_bindings'])assert.deepEqual(after[t],before[t]);
+});
+test('A-H-03 manager can execute only explicit current TARGET Team scope across main stores; same-store without binding and cross-store head both deny',async()=>{
+ const before=await snapshot();
+ const cross=p(6015,7015,4,'h-ci-cross-store-team-0015');
+ cross.teamId=906;
+ // Actor, source and recipient have main store 1; Team 906 is explicitly in store 2.
+ const team=(await db.query("SELECT store_id FROM public.teams WHERE team_id=906")).rows[0].store_id;
+ assert.equal(String(team),'2');
+ for(const id of [5,7,4])assert.equal(String((await db.query('SELECT store_id FROM public.employees WHERE employee_id=$1',[id])).rows[0].store_id),'1');
+ assert.equal((await prep(auth,manager,cross)).code,'H01_PREPARED_READ_ONLY');
+ const noGrant={...p(6016,7016,4,'h-ci-same-store-unbound-016'),teamId:907};
+ assert.equal((await prep(auth,manager,noGrant)).code,'H02_CUSTOMER_OWNER_PERMISSION_DENY');
+ assert.equal((await commit(auth,manager,noGrant)).code,'H02_CUSTOMER_OWNER_PERMISSION_DENY');
+ const headCross={...p(6022,7022,4,'h-ci-head-foreign-deny-022'),teamId:906};
+ assert.equal((await commit(auth,head,headCross)).code,'H02_CUSTOMER_OWNER_PERMISSION_DENY');
+ assert.equal(await owner(322),'7');
+ // Explicit grant does NOT replace current actor membership or personal deny.
+ await db.query('UPDATE public.employee_team_memberships SET ended_at=now() WHERE team_id=906 AND employee_id=5');
+ try{assert.equal((await commit(auth,manager,cross)).code,'H02_CUSTOMER_OWNER_PERMISSION_DENY')}
+ finally{await db.query('UPDATE public.employee_team_memberships SET ended_at=NULL WHERE team_id=906 AND employee_id=5')}
+ await db.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=5 AND permission_id=15");
+ try{assert.equal((await commit(auth,manager,cross)).code,'H02_CUSTOMER_OWNER_PERMISSION_DENY')}
+ finally{await db.query("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=5 AND permission_id=15")}
+ const done=await commit(auth,manager,cross);
+ assert.equal(done.code,'H03_OWNER_DOMAIN_TRANSFERRED');
+ assert.equal(done.receipt.teamId,906);
+ assert.equal(await owner(315),'4');
+ const after=await snapshot();
+ for(const t of ['handover_items','handover_batches','demands','priority_leases','recommendations','consultations','waitlists','locks','transactions','employees','employee_permission_overrides','employee_capability_scope_bindings'])assert.deepEqual(after[t],before[t]);
 });
 test('H04 rollback after receipt usage denied, checksum tamper and extra schema fail closed',async()=>{
  await assert.rejects(()=>rollback(db),/H_RECEIPT_USED_ROLLBACK_DENY/);
