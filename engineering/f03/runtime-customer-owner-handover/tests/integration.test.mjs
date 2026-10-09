@@ -120,6 +120,18 @@ test('H03 two independent real PG16 PC actors concurrently compete to transfer C
  assert.equal((await db.query("SELECT count(*)::int n FROM public.audit_events WHERE object_kind='Customer' AND object_id='302' AND action='customer.owner.handover'")).rows[0].n,1);
  assert.equal((await db.query("SELECT count(*)::int n FROM public.handover_items WHERE status='pending'")).rows[0].n,(before.handover_items.length));
 });
+test('H01 sudden_inactive verified existing Customer batch permits only legal current-scope read when source has become inactive',async()=>{
+ const before=await snapshot();
+ await db.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=7");
+ try{
+  const r=await prep(auth,manager,p(6007,7008,4,'h-ci-sudden-preview-00007'));
+  assert.equal(r.code,'H01_PREPARED_READ_ONLY');assert.equal(r.sourceInactive,true);assert.equal(r.reusableCommitToken,false);
+  await db.query("UPDATE public.employee_team_memberships SET ended_at=now() WHERE employee_id=7 AND team_id=901");
+  try{assert.equal((await prep(auth,manager,p(6007,7008,4,'h-ci-sudden-preview-00007'))).code,'H02_CUSTOMER_OWNER_PERMISSION_DENY');}
+  finally{await db.query("UPDATE public.employee_team_memberships SET ended_at=NULL WHERE employee_id=7 AND team_id=901")}
+ }finally{await db.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=7")}
+ assert.deepEqual(await snapshot(),before);
+});
 test('H02 sudden inactive source cannot write without approved batch/Team; planned disable source preserves secured one-domain handover',async()=>{
  const before=await snapshot();
  await db.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=7");
@@ -131,6 +143,19 @@ test('H02 sudden inactive source cannot write without approved batch/Team; plann
  }finally{await db.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=7")}
  const after=await snapshot();
  for(const t of ['demands','recommendations','priority_leases','consultations','locks','transactions','waitlists','handover_batches','handover_items'])assert.deepEqual(after[t],before[t]);
+});
+test('H02 legal store_head must have separately bound store scope and cannot borrow team employee.manage',async()=>{
+ const before=await snapshot();
+ await db.query("UPDATE public.employee_capability_scope_bindings SET ended_at=now() WHERE employee_id=6 AND scope_id=204 AND permission_id=15");
+ try{
+  const r=await commit(auth,head,p(6008,7009,4,'h-ci-store-head-000008'));
+  assert.equal(r.code,'H03_OWNER_DOMAIN_TRANSFERRED');
+  assert.equal(String(r.receipt.actorEmployeeId),'6');
+  assert.equal(await owner(306),'4');
+  assert.equal((await read(auth,head,view(6008,7009))).code,'H04_RECEIPT_READ_ONLY');
+ }finally{await db.query("UPDATE public.employee_capability_scope_bindings SET ended_at=NULL WHERE employee_id=6 AND scope_id=204 AND permission_id=15")}
+ const after=await snapshot();
+ for(const table of ['demands','recommendations','priority_leases','consultations','waitlists','locks','transactions','handover_batches','handover_items'])assert.deepEqual(after[table],before[table],table);
 });
 test('H04 rollback after receipt usage denied, checksum tamper and extra schema fail closed',async()=>{
  await assert.rejects(()=>rollback(db),/H_RECEIPT_USED_ROLLBACK_DENY/);
