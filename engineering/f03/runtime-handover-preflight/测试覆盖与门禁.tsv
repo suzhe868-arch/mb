@@ -1,0 +1,10 @@
+编号	测试与证明	业务写权限	拒绝口径
+G01	PG16真实000001～000007、1840完整对象、88表/536列/344约束/138索引零目录差异；额外schema/迁移tamper拒绝	无	EXACT_SEAL_FAIL_CLOSED
+G02	只认发起经理自身当前已登录PC会话、已存在SG06 batch和源employee、显式team employee.manage；Admin/4S/restricted/旧session/个人deny拒绝	无	MANAGER_CURRENT_DENY
+G03	Customer有0/1/多Demand；独立Priority Lease及trigger Demand与Recommendation；Consultation、Waitlist、Lock、Transaction active/paused/terminal/unknown及TTL	无	UNKNOWN_DEFER_DENY
+G04	接替人当前employee名邦角色+eligible receiving+same active Team及manager当前scope；同店不同Team/4S/SystemAdmin/disabled/无资格/历史成员拒绝	无	RECEIVER_CURRENT_DENY
+G05	独立PG16会话注入Owner或个人权限改变，双遍当前状态失效拒绝、无可复用token	无	CONCURRENT_STATE_REVALIDATE
+G06	逐对象batch/item kind/id/from/to/state比较；pending、错负责人/目标、缺项、retry、独立Recommendation及未知域一律不视为完成	无	DEFER_DENY
+G07	对business/owner_history/所有域/employee权限/Team/ledger/audit整行前后完全一致；仅F03-1自己last_seen正常更新	无	NO_BUSINESS_WRITES
+G08	专用十独立真PG16旧2F、2E、2D、2C、2B、2A、F03-1及HTTPS回归+原始pg_dump/inventory/SOURCE SHA跨运行核对	无	SAME_SHA_CI_ALL_GREEN
+G09	只新增engineering/f03/runtime-handover-preflight/**与专用CI，无旧文件修改、无生产/HTTP/外部路由；中文交接+A独立验收	无	READY_FOR_A_REVIEW
