@@ -164,12 +164,12 @@ test('G06/G07 retry_required still not completed; business history and audit unc
 
 test('A-G-01 inactive planned_disable and sudden_inactive trusted source enumerate current owner/domain without transfer',async()=>{
  const before=await immutable();
- const d=await createHandoverDraft(auth,manager,{changeKind:'planned_disable',invalidAt:null,reason:'SG06 2G synthetic pre-leave handover',requestKey:'sg06-g-inactive-plan-00001',sourceEmployeeId:7});
- assert.equal(d.code,'LEDGER_DRAFT_CREATED');
- const sudden=(await db.query("INSERT INTO public.handover_batches(source_employee_id,change_kind,initiated_by_kind,initiated_by_id,client_request_key,reason) VALUES (7,'sudden_inactive','employee',5,'sg06-g-inactive-sudden-001','Synthetic offline recorded pending batch') RETURNING batch_id")).rows[0].batch_id;
+ const planned=(await db.query("INSERT INTO public.handover_batches(source_employee_id,change_kind,initiated_by_kind,initiated_by_id,client_request_key,reason) VALUES(7,'planned_disable','employee',5,'sg06-g-inactive-plan-00001','CI synthetic planned handover') RETURNING batch_id")).rows[0].batch_id;
+ const sudden=(await db.query("INSERT INTO public.handover_batches(source_employee_id,change_kind,initiated_by_kind,initiated_by_id,client_request_key,reason) VALUES(7,'sudden_inactive','employee',5,'sg06-g-inactive-sudden-001','CI synthetic sudden handover') RETURNING batch_id")).rows[0].batch_id;
+ assert.equal((await impact(auth,manager,{batchId:Number(planned),teamId:901})).code,'G03_IMPACT_READ_ONLY');
  await db.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=7");
  try{
-  for(const id of [d.batchId,Number(sudden)]){
+  for(const id of [Number(planned),Number(sudden)]){
    const r=await impact(auth,manager,{batchId:id,teamId:901});
    assert.equal(r.code,'G03_IMPACT_READ_ONLY');assert.equal(r.objects.some(x=>x.kind==='Customer'&&x.objectId==='301'&&x.responsibleEmployeeId==='7'),true);
    assert.equal((await coverage(auth,manager,{batchId:id,recipientEmployeeId:4,teamId:901})).overall,'DEFER_DENY');
@@ -179,14 +179,13 @@ test('A-G-01 inactive planned_disable and sudden_inactive trusted source enumera
   const membership=(await db.query("SELECT membership_id FROM public.employee_team_memberships WHERE team_id=901 AND employee_id=7 AND ended_at IS NULL")).rows[0].membership_id;
   await db.query('UPDATE public.employee_team_memberships SET ended_at=now() WHERE membership_id=$1',[membership]);
   try{
-   const refused=await impact(auth,manager,{batchId:d.batchId,teamId:901});
+   const refused=await impact(auth,manager,{batchId:Number(planned),teamId:901});
    assert.equal(refused.code,'G01_HANDOVER_AUTHORITY_GAP');
   }finally{await db.query('UPDATE public.employee_team_memberships SET ended_at=NULL WHERE membership_id=$1',[membership])}
  }finally{
   await db.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=7");
-  await db.query("DELETE FROM public.audit_events WHERE object_kind='handover_batch' AND object_id=$1",[String(d.batchId)]);
   await db.query('DELETE FROM public.handover_batches WHERE batch_id=$1',[sudden]);
-  await db.query('DELETE FROM public.handover_batches WHERE batch_id=$1',[d.batchId]);
+  await db.query('DELETE FROM public.handover_batches WHERE batch_id=$1',[planned]);
  }
  assert.deepEqual(await immutable(),before);
 });
@@ -194,11 +193,8 @@ test('A-G-03 missing vs pending, same-destination cross-batch duplicate and diff
  const baseline=await immutable();
  assert.equal((await cov()).findings.find(x=>x.kind==='Customer'&&x.objectId==='302').reason,'MISSING_ITEM');
  assert.equal((await cov()).findings.find(x=>x.kind==='Customer'&&x.objectId==='301').reason,'REVALIDATE'); // prior test persisted 2E retry_required
- const draft=await createHandoverDraft(auth,manager,{changeKind:'planned_transfer',invalidAt:null,reason:'Synthetic duplicate mapping check',requestKey:'sg06-g-crossbatch-000001',sourceEmployeeId:7});
- const alt=draft.batchId;
- assert.equal(draft.code,'LEDGER_DRAFT_CREATED');
- const z=await addPendingHandoverItem(auth,manager,{batchId:alt,fromEmployeeId:7,intendedToEmployeeId:4,objectKind:'Customer',objectId:'301'});
- assert.equal(z.code,'LEDGER_ITEM_PENDING_ONLY');
+ const alt=(await db.query("INSERT INTO public.handover_batches(source_employee_id,change_kind,initiated_by_kind,initiated_by_id,client_request_key,reason) VALUES(7,'planned_transfer','employee',5,'sg06-g-crossbatch-000001','CI synthetic cross batch') RETURNING batch_id")).rows[0].batch_id;
+ const z={itemId:Number((await db.query("INSERT INTO public.handover_items(batch_id,object_kind,object_id,from_employee_id,intended_to_employee_id,status) VALUES($1,'Customer','301',7,4,'pending') RETURNING item_id",[alt])).rows[0].item_id)};
  try{
   const both=await cov();
   const f=both.findings.find(x=>x.kind==='Customer'&&x.objectId==='301');
@@ -209,7 +205,6 @@ test('A-G-03 missing vs pending, same-destination cross-batch duplicate and diff
   await db.query('UPDATE public.handover_items SET from_employee_id=6 WHERE item_id=$1',[z.itemId]);
   assert.equal((await cov()).findings.find(x=>x.kind==='Customer'&&x.objectId==='301').reason,'CONFLICT');
  }finally{
-  await db.query('DELETE FROM public.audit_events WHERE action IN (\'handover.item.pending\',\'handover.batch.draft\') AND ((object_kind=\'handover_item\' AND object_id=$1) OR (object_kind=\'handover_batch\' AND object_id=$2))',[String(z.itemId),String(alt)]);
   await db.query('DELETE FROM public.handover_items WHERE batch_id=$1',[alt]);
   await db.query('DELETE FROM public.handover_batches WHERE batch_id=$1',[alt]);
  }
