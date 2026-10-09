@@ -184,6 +184,7 @@ test('A-G-01 inactive planned_disable and sudden_inactive trusted source enumera
   }finally{await db.query('UPDATE public.employee_team_memberships SET ended_at=NULL WHERE membership_id=$1',[membership])}
  }finally{
   await db.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=7");
+  await db.query("DELETE FROM public.audit_events WHERE object_kind='handover_batch' AND object_id=$1",[String(d.batchId)]);
   await db.query('DELETE FROM public.handover_batches WHERE batch_id=$1',[sudden]);
   await db.query('DELETE FROM public.handover_batches WHERE batch_id=$1',[d.batchId]);
  }
