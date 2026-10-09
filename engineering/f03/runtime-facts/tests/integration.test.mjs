@@ -60,7 +60,7 @@ test('G03: template changes in PostgreSQL visible to SAME old session on next in
 test('G04: missing permission, unknown operation, forbidden request facts, invalid ID are denied',async()=>{
  const checks=['not.a.real.operation','customer.phone.manage;DROP TABLE public.employees','__proto__','vehicle.not_known'];
  for(const op of checks)assert.equal((await probe(employeeToken,op)).code,'UNKNOWN_OR_RETIRED_OPERATION');
- await db.query('DELETE FROM public.permissions WHERE permission_id=11'); // FK restrict, must first delete role default.
+ assert.equal((await probe(employeeToken,'matching.rule.manage')).code,'CAPABILITY_NOT_IN_CURRENT_CATALOG');
 });
 test('G05: F03-1 live 4S personal allow controls all PC requests; template/history cannot substitute',async()=>{
  assert.equal((await probe(fourSToken,'vehicle.read')).code,'TECH_ALIAS_NOT_APPROVED');
