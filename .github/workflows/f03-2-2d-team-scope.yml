@@ -81,7 +81,7 @@ jobs:
           node f03/runtime-governance-template/fixtures.mjs
           node f03/runtime-receiving-pool/fixtures.mjs
           node f03/runtime-team-scope/fixtures.mjs
-      - name: Execute real A-approved D01 to D10: real permission/scope, dual-Admin join races and injected rollback
+      - name: Execute real A-approved D01 to D10 real permission/scope, dual-Admin join races and injected rollback
         run: |
           set -euo pipefail
           node --test f03/runtime-team-scope/tests/integration.test.mjs 2>&1 | tee f03/runtime-team-scope/artifacts/pg16-team-scope-tests.log
@@ -122,7 +122,7 @@ jobs:
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git add -- f03/runtime-team-scope/evidence/
             git diff --cached --quiet && { echo 'ARCHIVE_EVIDENCE_NOT_STAGED'; exit 1; }
-            git commit -m 'F03-2-2D: archive original PG16 84-table physical evidence with CI source'
+            git commit -m 'F03-2-2D: archive original PG16 86-table physical evidence with CI source'
             git push origin HEAD:refs/heads/feat/f03-team-scope-2d
           fi
   f03-2c-regression-84:
