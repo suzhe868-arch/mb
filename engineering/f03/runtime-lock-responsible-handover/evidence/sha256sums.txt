@@ -1,0 +1,2 @@
+3adb4c3b9418905d6209b45d876bbbfd6e9d20a7136dcae276ebcbe0967e7a61  f03/runtime-lock-responsible-handover/artifacts/pg16_schema_only.sql
+fb8f7ff29e969800bab843c26724209306c53c5f11ce13748cd6bac442afef30  f03/runtime-lock-responsible-handover/artifacts/pg16_inventory.json
