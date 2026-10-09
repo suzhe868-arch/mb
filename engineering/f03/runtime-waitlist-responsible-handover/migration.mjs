@@ -6,7 +6,7 @@ import {isolate} from '../../f03-1/migration.mjs';
 import {checksum as oldChecksum} from '../runtime-consultation-assignee-handover/migration.mjs';
 export {connect};
 export const ID='000011_waitlist_responsible_handover_receipts';
-export const PREVIOUS='1532f5b34379e5ec207d9a2b909a11322d0eb6755cc23d6dfc7a419ea6d13eb0';
+export const PREVIOUS='ef3bcd0c89c959225764d0853b203047116282c3bd6f976e41aff1cd7b95e735';
 export const SQL=await readFile(new URL('./000011.sql',import.meta.url),'utf8');
 export const checksum=createHash('sha256').update(SQL).digest('hex');
 const manifest=async()=>JSON.parse(await readFile(new URL('./000011.manifest.json',import.meta.url),'utf8'));
