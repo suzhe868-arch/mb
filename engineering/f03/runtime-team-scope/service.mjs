@@ -24,7 +24,7 @@ export async function setTeamMembership(auth,token,p,{testCheckpoint}={}){
     const target=(await c.query("SELECT e.employee_id,e.employment_status,r.role_code FROM public.employees e LEFT JOIN public.roles r ON r.role_id=e.main_role_id WHERE e.employee_id=$1 FOR UPDATE OF e",[p.employeeId])).rows[0];
     if(!target||target.employment_status!=='active'||!role(target.role_code))return result('TEAM_TARGET_NOT_EMPLOYEE');
     const history=(await c.query('SELECT membership_id,valid_from,ended_at FROM public.employee_team_memberships WHERE team_id=$1 AND employee_id=$2 ORDER BY valid_from,membership_id FOR UPDATE',[p.teamId,p.employeeId])).rows;
-    const now=(await c.query('SELECT transaction_timestamp() at')).rows[0].at;
+    const now=(await c.query('SELECT transaction_timestamp() AS ts')).rows[0].ts;
     const active=history.filter(x=>x.valid_from<=now&&(x.ended_at===null||x.ended_at>now));
     if(active.length>1)return result('TEAM_OVERLAPPING_MEMBERS_DENY');
     if(p.action==='join'){
