@@ -3,8 +3,10 @@ import {promisify} from 'node:util';
 const kdf=promisify(scrypt);
 export const params=Object.freeze({N:32768,r:8,p:3,maxmem:64*1024*1024});
 let running=0;const waiting=[];
-async function budget(task){
- if(running>=2){
+// Ownership of a freed slot transfers directly to the oldest waiting task.
+export async function runKdfBounded(task){
+ if(running<2&&waiting.length===0)running++;
+ else{
   if(waiting.length>=8)throw Error('AUTH_CAPACITY');
   await new Promise((resolve,reject)=>{
    const item={resolve:null};
@@ -12,8 +14,12 @@ async function budget(task){
    item.resolve=()=>{clearTimeout(timer);resolve()};
    waiting.push(item);
   });
+  // A woken waiter owns the still-occupied slot; do not increment running.
  }
- running++;try{return await task()}finally{running--;waiting.shift()?.resolve()}
+ try{return await task()}finally{
+  const next=waiting.shift();
+  if(next)next.resolve();else running--;
+ }
 }
 export function validatePassword(p){
  if(typeof p!=='string'||/[\uFFFD\p{Cs}]/u.test(p))throw Error('AUTH_INPUT');
@@ -26,7 +32,7 @@ export function normalizeLogin(s){
  if(!v||[...v].length>128||Buffer.byteLength(v,'utf8')>512||/[\p{Cc}\p{Cf}]/u.test(v))throw Error('AUTH_INPUT');
  return v;
 }
-async function derive(password,salt){return budget(()=>kdf(password,salt,32,params))}
+async function derive(password,salt){return runKdfBounded(()=>kdf(password,salt,32,params))}
 export async function hashPassword(password){
  validatePassword(password);
  const salt=randomBytes(16);

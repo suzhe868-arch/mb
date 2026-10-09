@@ -5,11 +5,26 @@ const send=(res,status,body,headers={})=>{
  res.end(JSON.stringify(body));
 };
 const clear='__Host-mb_pc=; Secure; HttpOnly; Path=/; SameSite=Lax; Max-Age=0';
-export function createAuthHandler(service){
+export function readSessionCookie(header){
+ if(header===undefined)return null;
+ if(typeof header!=='string')throw Error('AUTH_COOKIE_INVALID');
+ let value=null,seen=false;
+ for(const part of header.split(';')){
+  const s=part.trim(),i=s.indexOf('='),name=(i<0?s:s.slice(0,i)).trim();
+  if(name!=='__Host-mb_pc')continue;
+  if(seen)throw Error('AUTH_COOKIE_DUPLICATE');
+  seen=true;const token=i<0?'':s.slice(i+1).trim();
+  if(!/^[A-Za-z0-9_-]{43}$/.test(token))throw Error('AUTH_COOKIE_INVALID');
+  value=token;
+ }
+ return value;
+}
+export function createAuthHandler(service,verifyReady=async()=>false){
  return async(req,res)=>{
   const path=(req.url||'').split('?')[0];
   if(!['/api/v1/auth/login','/api/v1/auth/password','/api/v1/auth/logout'].includes(path))return false;
   if(req.method!=='POST'){send(res,405,{code:'METHOD_NOT_ALLOWED'});return true}
+  if(!await verifyReady()){send(res,503,{code:'AUTH_UNAVAILABLE'});return true}
   const source=req.socket?.remoteAddress||'unknown';
   const secure=req.socket.encrypted===true,origin=req.headers.origin;
   if(!secure||origin!==service.origin){
@@ -24,7 +39,7 @@ export function createAuthHandler(service){
    for await(const part of req){content+=part.toString();if(Buffer.byteLength(content)>4096)throw Error('AUTH_BODY_LIMIT')}
    const data=JSON.parse(content);
    if(data===null||typeof data!=='object'||Array.isArray(data))throw Error('AUTH_INPUT');
-   const token=(/^__Host-mb_pc=([A-Za-z0-9_-]{43})$/.exec((req.headers.cookie||'').trim())||[])[1];
+   const token=readSessionCookie(req.headers.cookie);
    if(path.endsWith('/login')){
     const result=await service.login({login:data.login,password:data.password,source});
     if(result.code!=='AUTH_OK'){send(res,401,{code:'AUTH_FAILED'});return true}

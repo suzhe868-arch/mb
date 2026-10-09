@@ -3,6 +3,7 @@ import {loadConfig} from './config.mjs';
 import {createPgReadinessProbe} from './postgres.mjs';
 import {IsolatedAuth} from './f03-auth-service.mjs';
 import {createAuthHandler} from './f03-auth-http.mjs';
+import {verifyAuthDatabase} from './f03-auth-readiness.mjs';
 import {createServer as createHttpsServer} from 'node:https';
 import {readFile} from 'node:fs/promises';
 const {host,port}=loadConfig();
@@ -14,13 +15,20 @@ if(process.env.F03_1_ENABLE_ISOLATED_AUTH==='I_AUTHORIZE_F03_1_AUTH_IN_NEW_TEST_
  if(key.length!==32)throw Error('F03_AUTH_SECRET_REQUIRED');
  service=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret:key,origin:process.env.F03_1_TRUSTED_ORIGIN});
  if(!process.env.F03_1_TLS_KEY_PATH||!process.env.F03_1_TLS_CERT_PATH)throw Error('F03_AUTH_TLS_REQUIRED');
+ // Physical PG16 identity and complete sealed schema must pass before binding.
+ try{await verifyAuthDatabase(service.pool,{connectionString:process.env.F03_1_DATABASE_URL})}
+ catch{await service.close();throw Error('F03_AUTH_STARTUP_ISOLATION_REFUSED')}
+ const guardedReady=async()=>{
+  try{return await verifyAuthDatabase(service.pool,{connectionString:process.env.F03_1_DATABASE_URL})}
+  catch{return false}
+ };
  server=createHttpsServer({
   key:await readFile(process.env.F03_1_TLS_KEY_PATH),
   cert:await readFile(process.env.F03_1_TLS_CERT_PATH),
  },createFoundationHandler({
-  authHandler:createAuthHandler(service),
-  readinessProbe:async()=>{try{await service.pool.query('SELECT 1');return true}catch{return false}},
-  readinessTimeoutMs:3000,
+  authHandler:createAuthHandler(service,guardedReady),
+  readinessProbe:guardedReady,
+  readinessTimeoutMs:10000,
  }));
 }else{
  server=createFoundationServer({readinessProbe:createPgReadinessProbe(process.env),readinessTimeoutMs:3000});

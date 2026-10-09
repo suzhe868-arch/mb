@@ -91,4 +91,17 @@ export async function apply(c,{inject=false}={}){
   return {applied:false,schemaSha:rows[0].structure_sha256};
  });
 }
+// --verify is deliberately read-only: never install a missing schema.
+export async function verify(c){
+ const {run}=isolate();await identity(c);const cand=await candidate();
+ await c.query('BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY');
+ try{
+  const {names}=await requireSeal(c,cand,run);
+  if(names.length!==80)throw Error('F03_1_NOT_APPLIED');
+  const rows=(await c.query('SELECT migration_id,checksum,structure_sha256 FROM public.f03_schema_migrations')).rows;
+  if(rows.length!==1||rows[0].migration_id!=='000002_pc_auth_sessions'||rows[0].checksum!==checksum)throw Error('F03_1_MIGRATION_VERSION_CHECKSUM_DRIFT');
+  await requireSamePublicStructure(c,rows[0].structure_sha256);
+  await c.query('COMMIT');return {applied:false,verified:true,schemaSha:rows[0].structure_sha256};
+ }catch(e){await c.query('ROLLBACK');throw e}
+}
 export async function connect(){const cfg=isolate();const c=new pg.Client({connectionString:cfg.url,connectionTimeoutMillis:3000,query_timeout:90000,statement_timeout:90000});await c.connect();await identity(c);return c}
