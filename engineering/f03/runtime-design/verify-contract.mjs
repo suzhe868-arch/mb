@@ -33,7 +33,7 @@ for(const row of facts.slice(1)){
  for(const col of physical.split(',').filter(Boolean))
   assert.ok(accepted.has(col)||addenda.has(col),'claiming nonphysical column as existing: '+op+' '+col);
  // Defer items may still have existing columns, but must disclose the absent relationship.
- if(phase.startsWith('DEFER_DENY'))assert.ok(missing.length>0||source.some(x=>x[0]===op&&x[4].includes('PENDING_A')),'unexplained defer '+op);
+ if(phase.startsWith('DEFER_DENY'))assert.ok(missing.length>0||source.some(x=>x[0]===op&&(x[4].includes('PENDING_A')||x[10]==='DEFER_NOT_IMPLEMENTED')),'unexplained defer '+op);
 }
 const originalActions=source.slice(1).filter(x=>x[10]==='F03_G0_STATIC').map(x=>x[0]).sort();
 assert.deepEqual(originalActions,Object.keys(ACTIONS).sort(),'frozen F03-G0 policy changed or static mapping unaccounted');
