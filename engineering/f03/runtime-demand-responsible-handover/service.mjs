@@ -105,7 +105,7 @@ async function transfer(c,actor,p,hook){
  // ownership precondition. Verify current reader scope plus the entire chain.
  const existing=(await c.query('SELECT * FROM public.demand_responsible_handover_receipts WHERE item_id=$1 FOR SHARE',[p.itemId])).rows[0];
  if(existing){
-  if(!await receiptReadScope(c,actor,p.teamId,existing.customer_id))return out('I02_DEMAND_PERMISSION_SCOPE_DENY');
+  if(!await receiptReadScope(c,actor.employee_id,p.teamId,existing.customer_id))return out('I02_DEMAND_PERMISSION_SCOPE_DENY');
   if(str(existing.actor_employee_id)!==str(actor.employee_id)||str(existing.batch_id)!==str(p.batchId)||str(existing.from_employee_id)!==str(p.fromEmployeeId)||str(existing.to_employee_id)!==str(p.recipientEmployeeId)||str(existing.scope_team_id)!==str(p.teamId)||existing.request_key_sha256!==k)return out('I05_COLLISION_DENY');
   if(!await proven(c,existing))return out('I05_RECEIPT_PROOF_DENY');
   return out('I05_IDEMPOTENT_RECEIPT',{receipt:display(existing),idempotent:true});
@@ -134,7 +134,7 @@ export async function readDemandResponsibleHandoverReceipt(auth,token,p,o){
  return authTx(auth,token,async(c,actor)=>{
   const r=(await c.query('SELECT * FROM public.demand_responsible_handover_receipts WHERE item_id=$1 AND batch_id=$2 FOR SHARE',[p.itemId,p.batchId])).rows[0];
   if(!r||str(r.scope_team_id)!==str(p.teamId))return out('I05_RECEIPT_ABSENT');
-  if(!await receiptReadScope(c,actor,p.teamId,r.customer_id))return out('I02_DEMAND_PERMISSION_SCOPE_DENY');
+  if(!await receiptReadScope(c,actor.employee_id,p.teamId,r.customer_id))return out('I02_DEMAND_PERMISSION_SCOPE_DENY');
   if(!await proven(c,r))return out('I05_RECEIPT_PROOF_DENY');
   return out('I05_RECEIPT_READ_ONLY',{receipt:display(r),batchCompleted:false});
  },o);

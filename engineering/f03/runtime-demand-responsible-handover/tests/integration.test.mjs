@@ -268,12 +268,12 @@ test('I05 different Demand and different batch but SAME request key racing: at m
 });
 
 test('I07 actor role downgrade invalidates existing PC manager authority without any stale-session bypass',async()=>{
- const reqRole=req(6125,8125,4,'i-ci-role-revoked-0025');
+ const reqRole=req(6146,8146,4,'i-ci-role-revoked-0046');
  const original=(await db.query('SELECT main_role_id FROM public.employees WHERE employee_id=5')).rows[0].main_role_id;
  await db.query('UPDATE public.employees SET main_role_id=(SELECT main_role_id FROM public.employees WHERE employee_id=7) WHERE employee_id=5');
  try{assert.notEqual((await commit(auth,manager,reqRole)).code,'I04_DEMAND_DOMAIN_TRANSFERRED')}
  finally{await db.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=5',[original])}
- assert.equal(await owner(425),'7');
+ assert.equal(await owner(446),'7');
 });
 
 test('I07 inactive recipient or lost recipient Team membership must DENY; paused store-head operator remains authorized',async()=>{
