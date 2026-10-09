@@ -4,7 +4,7 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F03_2_1A_B_CLOSE_TEST_AND_EVIDENCE_GAPS_A_REVIEW_AND_H01_VISUAL_REVIEW",
+  "substage": "F03_2_1A_ACCEPTED_A_MERGE_AND_SCOPE_GUARD_GATE_PREPARATION_AND_H01_VISUAL_REVIEW",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "B补齐1A当前主店/身份负例、既有真实认证回归与结构附件，交A复验",
-  "current_work_file": "07_重建工作区/F03-2-1A_A主控首轮复验与补测补证清单_2026-10-09.md",
+  "current_task": "A整理1A合并核验及逐能力scope/完整Guard下一批技术裁决施工单供用户审查；B等待",
+  "current_work_file": "07_重建工作区/F03-2-1A_A主控最终验收签发与残余风险_2026-10-09.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "F03_2_1A_B_CLOSE_TEST_AND_EVIDENCE_GAPS_A_REVIEW_AND_H01_VISUAL_REVIEW",
+  "next_action": "F03_2_1A_ACCEPTED_A_MERGE_AND_SCOPE_GUARD_GATE_PREPARATION_AND_H01_VISUAL_REVIEW",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F03_2_G0_ACCEPTED_MERGED_F03_2_1A_AUTHORIZED_NOT_IMPLEMENTED",
+  "engineering_status": "F03_2_G0_ACCEPTED_MERGED_F03_2_1A_ACCEPTED_NOT_MERGED",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "本批真实PG9/9和HTTPS3/3成功但合同覆盖/既有真实安全回归与独立可读结构证据待补齐，尚未验收。",
+  "next_action_detail": "1A补项闭合，限定当前事实读取/撤权验收通过；B未合并，完整范围Guard和后批未授权。",
   "abc_parallel_workflow": {
     "status": "USER_APPROVED_APPLIED_DOCUMENTATION_ONLY",
     "confirmed_at": "2026-10-08",
@@ -5217,42 +5217,81 @@
       "merge_report": "07_重建工作区/F03-2-1A_A主控方案合并与当前权限事实隔离施工放行_2026-10-09.md"
     },
     "f03_2_1a": {
-      "status": "CHANGES_REQUESTED_AUTHORIZED_SCOPE_ONLY",
+      "status": "F03_2_1A_ACCEPTED_LIMITED_CURRENT_FACTS_AND_REVOCATION_ONLY",
       "work_order": "07_重建工作区/F03-2-1A_当前身份权限事实读取与撤权重验施工单_待用户批准_2026-10-09.md",
       "branch": "feat/f03-runtime-facts",
       "branch_created": true,
-      "tests": "CI_PARTIAL_CONTRACT_COVERAGE_PASS_CHANGES_REQUESTED",
+      "tests": "SAME_FINAL_HEAD_REAL_CI_ALL_THREE_JOBS_SUCCESS_A_SCHEMA_HASH_VERIFIED",
       "database_access": "ONLY_CI_ISOLATED_PG16_FRESH_EMPTY_DB_EXISTING_BASELINE_NO_NEW_DDL",
       "ddl": "NO_NEW_DDL_AUTHORIZED",
       "scope": "TRUSTED_CURRENT_IDENTITY_PERMISSION_FACTS_AND_OLD_SESSION_REVOCATION_SCOPE_GAPS_DENY",
-      "acceptance": "NOT_SIGNED",
+      "acceptance": "F03_2_1A_ACCEPTED_A_SIGNED_NOT_FULL_F03_2",
       "later_scope_guard_and_governance": "SEPARATE_TECHNICAL_DECISIONS_AND_APPROVALS",
       "authorization": "USER_APPROVED",
       "confirmed_phrase": "确实",
       "authorized_at": "2026-10-09",
       "release_report": "07_重建工作区/F03-2-1A_A主控方案合并与当前权限事实隔离施工放行_2026-10-09.md",
-      "reviewed_sha": "319db71604e1efd2ce12dbba7990c7ed1d3bc62a",
-      "review_ci_run_id": 37886758651,
+      "reviewed_sha": "bc1261ce090180d87b262744bd2b16e7c6caf60f",
+      "review_ci_run_id": 37891029812,
       "review_ci_job_id": 113678367229,
       "review_tests": {
-        "pg16_passed": 9,
-        "https_passed": 3,
+        "current_facts_pg16": 12,
+        "https_probe": 3,
+        "evidence_checks": 4,
+        "original_auth_integration": 11,
+        "original_auth_https": 4,
         "failed": 0,
-        "scope": "B_SAME_SHA_CI_NOT_COMPLETE_A_ACCEPTANCE"
+        "skipped": 0
       },
       "a_supplemental_probes": {
         "passed": 5,
         "scope": "TOOL_JS_INTERPRETER_NOT_PG_RERUN"
       },
-      "review_report": "07_重建工作区/F03-2-1A_A主控首轮复验与补测补证清单_2026-10-09.md",
-      "review_blockers": [
-        "R1_CURRENT_STORE_AND_IDENTITY_TEST_GAPS",
-        "R2_EXISTING_REAL_AUTH_HTTPS_REGRESSION_MISSING"
+      "review_report": "07_重建工作区/F03-2-1A_A主控最终验收签发与残余风险_2026-10-09.md",
+      "review_blockers": [],
+      "evidence_pending": [],
+      "artifact_id": 11597767898,
+      "first_review": {
+        "sha": "319db71604e1efd2ce12dbba7990c7ed1d3bc62a",
+        "run_id": 37886758651,
+        "report": "07_重建工作区/F03-2-1A_A主控首轮复验与补测补证清单_2026-10-09.md",
+        "blockers": [
+          "R1_CURRENT_STORE_AND_IDENTITY_TEST_GAPS",
+          "R2_EXISTING_REAL_AUTH_HTTPS_REGRESSION_MISSING"
+        ],
+        "evidence_pending": [
+          "E1_ARCHIVED_SCHEMA_INVENTORY_REAL_HASH_VERIFICATION"
+        ]
+      },
+      "review_ci_job_ids": [
+        113691770230,
+        113691770142,
+        113691769981
       ],
-      "evidence_pending": [
-        "E1_ARCHIVED_SCHEMA_INVENTORY_REAL_HASH_VERIFICATION"
+      "acceptance_report": "07_重建工作区/F03-2-1A_A主控最终验收签发与残余风险_2026-10-09.md",
+      "closed_items": [
+        "R1",
+        "R2",
+        "E1"
       ],
-      "artifact_id": 11596384588
+      "merge_status": "NOT_MERGED_PENDING_USER_APPROVAL",
+      "archive_source_run_id": 37890672133,
+      "archive_source_sha": "a64398702706bbb035d744965dc485bf4e650146",
+      "structure_evidence": {
+        "raw": {
+          "sql": "d8b97b54f5beea7bcc07eee2dd2762789ac913729d4645825f9b4cebf6e78b1f",
+          "inventory": "98c8bbe019ba5025504873c8a77d73ef3a28382449a3bda199dedb4dd47e7119"
+        },
+        "sameAcceptedSql": true,
+        "inventory": {
+          "tables": 80,
+          "columns": 487,
+          "constraints": 299,
+          "indexes": 123
+        },
+        "match": true
+      },
+      "next": "A_PREPARE_MERGE_AND_SCOPE_GUARD_GATE_B_WAIT"
     },
     "merge_sha": "df4135f1e2eb37b109e4e23ff63642c211a643fa",
     "merge_pr": 6
