@@ -32,7 +32,17 @@ async function facts(c,a,p,lock=false){
 }
 async function authenticated(auth,token,fn,options={}){
  if(!permitCheckpoint(options.testCheckpoint))return out('H_TEST_HOOK_DENY');
- const sealed=await auth.pool.connect();try{await verify(sealed)}finally{sealed.release()}
+ const sealed=await auth.pool.connect();try{
+  // Existing 89-table verifier stays strict. Only H commit/retry may use the
+  // separately sealed 90-table I verifier when its actual migration exists.
+  if(options.crossDomainRequestKeyCommit===true){
+   const exists=(await sealed.query("SELECT to_regclass('public.demand_responsible_handover_receipts')::text AS receipt_table")).rows[0]?.receipt_table;
+   if(exists==='demand_responsible_handover_receipts'){
+    const {verify:verifyI}=await import('../runtime-demand-responsible-handover/migration.mjs');
+    await verifyI(sealed);
+   }else await verify(sealed);
+  }else await verify(sealed);
+ }finally{sealed.release()}
  try{return await auth.withSession(token,async(c,a,s)=>{
   if(s.restricted||a.principal_kind!=='employee'||a.employee_id===null||a.system_admin_id!==null||!['manager','store_head'].includes(a.role_code)||a.credential_state!=='enabled'||a.subject_status!=='active'||a.force_password_change!==false)return out('H02_NOT_CURRENT_MANAGER_OR_HEAD');
   await c.query("SET LOCAL lock_timeout='1200ms'");
@@ -69,6 +79,13 @@ export async function prepareCustomerOwnerHandover(auth,token,p,opt){
 async function transfer(c,a,p,hook){
  const f=await facts(c,a,p,true);if(f.error)return out(f.error);
  const sha=digest(p.clientRequestKey);
+ // A-I-01: shared transaction locks (306/309) serialize both domains, while
+ // this real-table guard provides the missing reverse cross-Domain Key denial.
+ // Missing I table is legitimate ONLY on the original sealed 89-table H CI.
+ const iTable=(await c.query("SELECT to_regclass('public.demand_responsible_handover_receipts')::text AS receipt_table")).rows[0]?.receipt_table;
+ if(iTable==='demand_responsible_handover_receipts'){
+  if((await c.query('SELECT 1 FROM public.demand_responsible_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[sha])).rowCount)return out('H04_CROSS_DOMAIN_KEY_DENY');
+ }
  // H-01: the SHA256 request key identifies ONE intent across every Customer,
  // batch and item; DB UNIQUE is authoritative for concurrent writers.
  const keyed=(await c.query('SELECT receipt_id,item_id FROM public.customer_owner_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[sha])).rows[0];
@@ -97,8 +114,8 @@ async function transfer(c,a,p,hook){
  if(hook)await hook('before_commit',c);
  return out('H03_OWNER_DOMAIN_TRANSFERRED',{receipt:display(receipt),otherDomainsPending:true,idempotent:false});
 }
-export const commitCustomerOwnerHandover=(a,t,p,o)=>!input(p)?Promise.resolve(out('H03_BAD_REQUEST')):authenticated(a,t,(c,actor,h)=>transfer(c,actor,p,h),o);
-export const retryCustomerOwnerHandover=(a,t,p,o)=>!input(p)?Promise.resolve(out('H04_BAD_RETRY')):authenticated(a,t,(c,actor,h)=>transfer(c,actor,p,h),o);
+export const commitCustomerOwnerHandover=(a,t,p,o)=>!input(p)?Promise.resolve(out('H03_BAD_REQUEST')):authenticated(a,t,(c,actor,h)=>transfer(c,actor,p,h),{...o,crossDomainRequestKeyCommit:true});
+export const retryCustomerOwnerHandover=(a,t,p,o)=>!input(p)?Promise.resolve(out('H04_BAD_RETRY')):authenticated(a,t,(c,actor,h)=>transfer(c,actor,p,h),{...o,crossDomainRequestKeyCommit:true});
 export async function readCustomerOwnerHandoverReceipt(auth,token,p,opt){
  if(!exact(p,'batchId,itemId,teamId')||![p.batchId,p.itemId,p.teamId].every(valid))return out('H04_BAD_RECEIPT_READ');
  return authenticated(auth,token,async(c,a)=>{
