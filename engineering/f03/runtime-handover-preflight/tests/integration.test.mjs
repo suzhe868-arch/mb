@@ -202,7 +202,7 @@ test('A-G-03 missing vs pending, same-destination cross-batch duplicate and diff
   assert.equal(f.relatedItemIds.includes(String(z.itemId)),true);assert.equal(f.crossBatchSourceOrTargetMismatch,false);
   await db.query('UPDATE public.handover_items SET intended_to_employee_id=6 WHERE item_id=$1',[z.itemId]);
   assert.equal((await cov()).findings.find(x=>x.kind==='Customer'&&x.objectId==='301').crossBatchSourceOrTargetMismatch,true);
-  await db.query('UPDATE public.handover_items SET from_employee_id=6 WHERE item_id=$1',[z.itemId]);
+  await db.query('UPDATE public.handover_items SET from_employee_id=1 WHERE item_id=$1',[z.itemId]);
   assert.equal((await cov()).findings.find(x=>x.kind==='Customer'&&x.objectId==='301').reason,'CONFLICT');
  }finally{
   await db.query('DELETE FROM public.handover_items WHERE batch_id=$1',[alt]);
