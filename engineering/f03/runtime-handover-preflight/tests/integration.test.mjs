@@ -262,6 +262,36 @@ test('A-G-02 lock contention fails closed and prevents phantom Demand/Lock inser
  finally{await db.query('DELETE FROM public.demands WHERE demand_id=407')}
  assert.deepEqual(await immutable(),base);
 });
+test('A-G-02 actual Demand/Lock responsibility and batch item + Team membership changes block under PG16 commit-preflight locks',async()=>{
+ const cases=[
+  {name:'Demand',sql:"UPDATE public.demands SET responsible_employee_id=4 WHERE demand_id=401",restore:"UPDATE public.demands SET responsible_employee_id=7 WHERE demand_id=401"},
+  {name:'Lock',sql:"UPDATE public.locks SET responsible_employee_id=4 WHERE lock_id=5051",restore:"UPDATE public.locks SET responsible_employee_id=7 WHERE lock_id=5051"},
+  {name:'item',sql:"UPDATE public.handover_items SET status='blocked' WHERE object_kind='Demand' AND object_id='401' AND batch_id="+batchId,restore:"UPDATE public.handover_items SET status='pending' WHERE object_kind='Demand' AND object_id='401' AND batch_id="+batchId},
+  {name:'membership',sql:"UPDATE public.employee_team_memberships SET ended_at=now() WHERE team_id=901 AND employee_id=7",restore:"UPDATE public.employee_team_memberships SET ended_at=NULL WHERE team_id=901 AND employee_id=7"}
+ ];
+ for(const x of cases){
+  const before=await immutable();let complete=false,queued;
+  const result=await pref(manager,4,901,{testCheckpoint:async stage=>{if(stage==='after_first_read'){
+   queued=db.query(x.sql).then(()=>{complete=true});
+   await new Promise(resolve=>setTimeout(resolve,75));
+   assert.equal(complete,false,'A-G-02 '+x.name+' database writer cannot change current facts before locked preflight returns');
+  }}});
+  assert.equal(result.code,'PREFLIGHT_FACTS_CURRENT_BUT_WRITE_DENIED',x.name);
+  await queued;assert.equal(complete,true);
+  await db.query(x.restore);
+  assert.deepEqual(await immutable(),before,'A-G-02 '+x.name+' all synthetic changes restored');
+ }
+});
+test('A-G-03 orphan current-batch item never disappears or masquerades as mapped source responsibility',async()=>{
+ const baseline=await immutable();
+ const id=(await db.query("INSERT INTO public.handover_items(batch_id,object_kind,object_id,from_employee_id,intended_to_employee_id,status) VALUES($1,'Customer','99999',7,4,'pending') RETURNING item_id",[batchId])).rows[0].item_id;
+ try{
+  const result=await cov();assert.equal(result.overall,'DEFER_DENY');
+  const orphan=result.findings.find(x=>x.itemId===String(id));
+  assert.equal(orphan.reason,'REVALIDATE');assert.equal(orphan.detail,'ORPHAN_ITEM_NO_CURRENT_AUTHORIZED_OBJECT');
+ }finally{await db.query('DELETE FROM public.handover_items WHERE item_id=$1',[id])}
+ assert.deepEqual(await immutable(),baseline);
+});
 test('G01/G07 existing migration tamper and extra public schema fail closed; nothing persists',async()=>{
  const before=await immutable();
  const checksum=(await db.query("SELECT checksum FROM public.f03_schema_migrations WHERE migration_id='000007_handover_batch_item_ledger'")).rows[0].checksum;
