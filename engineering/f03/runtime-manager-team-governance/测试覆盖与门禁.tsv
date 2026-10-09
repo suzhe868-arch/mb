@@ -1,0 +1,11 @@
+编号	真实PG16覆盖	源码/运行证据	门禁
+F01	000001至000007精确88表/536列/344约束/138索引，1840对象逐一相同、旧版本/陌生schema变更DENY	migration.verify+evidence.mjs+pg_dump	ZERO_DDL
+F02	System Admin独立真实正常PC会话写；manager/4S/普通/restricted/旧session/伪actor/global拒绝	service.mjs/tests integration	DENY_NEGATIVE
+F03	只读已存在employee.manage，目标当前active manager且真实active Team/Store/成员关系，无默认manager权限	fixtures+service.mjs/tests integration	EXACT_SCOPE_ONLY
+F04	allow/deny/revoke当前覆盖/不可变history/audit同TX；revoke不存在及同值NO_OP	service.mjs/tests integration	ATOMIC_HISTORY
+F05	同店/role本身、缺Team/成员、expired/future Team、个人deny、能力binding不同与经理身份伪造一律拒绝	service.mjs/tests integration	FAIL_CLOSED
+F06	两真实PC System Admin并发同目标当前覆盖及同Team scope首次授权仅一人改变，无重复有效binding	service.mjs/tests integration	CONCURRENT_ATOMIC
+F07	回收employee.manage不误回收共享scope仍被vehicle.read使用；SG06未闭环账本撤权DENY	service.mjs/tests integration	SHARED_CAPABILITY_PRESERVED
+F08	个人current后/不可变history后/audit后/commit前故障全回滚，Team grant/end各阶段全回滚；最小脱敏审计	tests integration	ROLLBACK
+F09	2E旧88、2D旧86、2C旧84、2B旧82、2A旧81、F03-1旧80认证与HTTPS各自独立新PG16回归	9作业Actions CI	NO_OLD_GUARD_WEAKENING
+F10	原始schema-only PG16/新旧目录/sha256sums/SOURCE归档，最终SHA同9 success且仅新增授权目录	最终CI/evidence/B自验交接	READY_FOR_A_REVIEW
