@@ -120,7 +120,7 @@ export async function endManagerTeamCapabilityScope(auth,token,p,opts){
   const others=(await c.query("SELECT count(*)::int n FROM public.employee_capability_scope_bindings WHERE scope_id=$1 AND permission_id<>$2 AND (ended_at IS NULL OR ended_at>statement_timestamp())",[scopeId,permissionId])).rows[0].n;
   if(others===0)await c.query('UPDATE public.employee_data_scopes SET ended_at=transaction_timestamp() WHERE scope_id=$1',[scopeId]);
   if(hook)await hook('after_history',c);
-  const prior={manager_employee_id:p.managerEmployeeId,team_id:p.teamId,permission_id:permissionId,active:true,scope_id};
+  const prior={manager_employee_id:p.managerEmployeeId,team_id:p.teamId,permission_id:permissionId,active:true,scope_id:scopeId};
   const after={...prior,active:false,retained_for_other_capability:others>0};
   await audit(c,a,'employee_team_capability_scope',p.managerEmployeeId,'sg04.employee.manage.team.end',prior,after);
   if(hook)await hook('after_audit',c);
