@@ -51,7 +51,7 @@ const tables=async c=>(await c.query("SELECT tablename FROM pg_tables WHERE sche
 const manifest=async()=>{
  const m=await manifestPromise;
  if(m.migration_id!==ID||m.sql_sha256!==checksum||m.previous_structure_sha256!==OLD_SHA||
-   m.old_checksum!==OLD_CHECKSUM||m.tables!==81||m.columns!==492||m.constraints!==304||m.indexes!==126||
+   m.old_checksum!==OLD_CHECKSUM||m.f02_checksum!==F02_CHECKSUM||m.approved_physical_added_keys?.length!==23||m.tables!==81||m.columns!==492||m.constraints!==304||m.indexes!==126||
    !/^[0-9a-f]{64}$/.test(m.structure_sha256))throw Error('F03_2_1B_FROZEN_MANIFEST_INVALID');
  return m;
 };

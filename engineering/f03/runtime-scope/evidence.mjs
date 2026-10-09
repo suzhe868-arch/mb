@@ -50,7 +50,8 @@ try{
    ...['f03_2_1b_scope_employee_unique','f03_2_1b_cap_scope_pk','f03_2_1b_cap_permission_fk','f03_2_1b_cap_scope_employee_fk','f03_2_1b_cap_time_chk'].map(n=>['constraint',n==='f03_2_1b_scope_employee_unique'?'employee_data_scopes.'+n:'employee_capability_scope_bindings.'+n]),
    ...['f03_2_1b_cap_scope_pk','f03_2_1b_scope_employee_unique','f03_2_1b_employee_cap_idx'].map(n=>['index',n])
   ].map(x=>x.join('\0')).sort();
-  assert.deepEqual(adds,expected,'UNAPPROVED_FULL_PHYSICAL_DELTA');
+  assert.deepEqual(manifest.approved_physical_added_keys,expected,'FROZEN_MANIFEST_DELTA_KEYS_MISMATCH');
+  assert.deepEqual(adds,manifest.approved_physical_added_keys,'UNAPPROVED_FULL_PHYSICAL_DELTA');
   const pg=sql.toString();assert.equal([...pg.matchAll(/^CREATE TABLE public\./gm)].length,81);
   assert.match(pg,/CREATE TABLE public\.employee_capability_scope_bindings/);
   const sum=new Map(manifestText.toString().trim().split(/\r?\n/).map(x=>{const m=/^([0-9a-f]{64})  f03\/runtime-scope\/artifacts\/(pg16_schema_only\.sql|pg16_inventory\.json)$/.exec(x);assert.ok(m);return[m[2],m[1]]}));

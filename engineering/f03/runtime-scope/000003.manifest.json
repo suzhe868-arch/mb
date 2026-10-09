@@ -7,5 +7,31 @@
   "tables": 81,
   "columns": 492,
   "constraints": 304,
-  "indexes": 126
+  "indexes": 126,
+  "approved_physical_added_keys": [
+    "column\u0000employee_capability_scope_bindings.employee_id",
+    "column\u0000employee_capability_scope_bindings.ended_at",
+    "column\u0000employee_capability_scope_bindings.granted_at",
+    "column\u0000employee_capability_scope_bindings.permission_id",
+    "column\u0000employee_capability_scope_bindings.scope_id",
+    "column\u0000f03_2_1b_cap_scope_pk.permission_id",
+    "column\u0000f03_2_1b_cap_scope_pk.scope_id",
+    "column\u0000f03_2_1b_employee_cap_idx.employee_id",
+    "column\u0000f03_2_1b_employee_cap_idx.permission_id",
+    "column\u0000f03_2_1b_scope_employee_unique.employee_id",
+    "column\u0000f03_2_1b_scope_employee_unique.scope_id",
+    "constraint\u0000employee_capability_scope_bindings.f03_2_1b_cap_permission_fk",
+    "constraint\u0000employee_capability_scope_bindings.f03_2_1b_cap_scope_employee_fk",
+    "constraint\u0000employee_capability_scope_bindings.f03_2_1b_cap_scope_pk",
+    "constraint\u0000employee_capability_scope_bindings.f03_2_1b_cap_time_chk",
+    "constraint\u0000employee_data_scopes.f03_2_1b_scope_employee_unique",
+    "index\u0000f03_2_1b_cap_scope_pk",
+    "index\u0000f03_2_1b_employee_cap_idx",
+    "index\u0000f03_2_1b_scope_employee_unique",
+    "relation\u0000employee_capability_scope_bindings",
+    "relation\u0000f03_2_1b_cap_scope_pk",
+    "relation\u0000f03_2_1b_employee_cap_idx",
+    "relation\u0000f03_2_1b_scope_employee_unique"
+  ],
+  "f02_checksum": "df078212b95701af12144a43ef85a70fc491e5dca9948644df415bd888c5b4e4"
 }
