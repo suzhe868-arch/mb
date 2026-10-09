@@ -1,0 +1,10 @@
+{
+  "migration_id": "000006_explicit_team_memberships",
+  "previous_structure_sha256": "c90b94247b5ad1d8f4a9a63ffed94cab47d9ec147f0ad852329eb8cc4625d97a",
+  "sql_sha256": "PENDING_REAL_PG16_DISCOVERY",
+  "structure_sha256": "PENDING_REAL_PG16_DISCOVERY",
+  "tables": 86,
+  "columns": 512,
+  "constraints": 322,
+  "indexes": 132
+}
