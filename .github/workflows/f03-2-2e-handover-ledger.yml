@@ -67,5 +67,8 @@ jobs:
       - name: Real PG16 000007 catalog fingerprint and observed counts, rollback cleanly
         run: |
           set -euo pipefail
-          node f03/runtime-handover-ledger/runner.mjs --discover
-          node f03/runtime-team-scope/runner.mjs --verify
+          mkdir -p f03/runtime-handover-ledger/artifacts
+          node f03/runtime-handover-ledger/evidence.mjs --old
+          node f03/runtime-handover-ledger/runner.mjs --apply
+          node f03/runtime-handover-ledger/evidence.mjs --candidate
+          node f03/runtime-handover-ledger/runner.mjs --verify
