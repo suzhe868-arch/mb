@@ -1,0 +1,2 @@
+557a741f23112c906456dacdb87baa63ff737aa4c3bc8d922dd1cab010047283  f03/runtime-demand-responsible-handover/artifacts/pg16_schema_only.sql
+70f04fcedfefcf500f58c4af4a0ff41a47214d2130a0f9d2115b195e89a369e4  f03/runtime-demand-responsible-handover/artifacts/pg16_inventory.json
