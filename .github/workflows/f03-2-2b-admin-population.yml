@@ -36,6 +36,7 @@ jobs:
       F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
       F03_2B_INSTALLER_CONFIRM: I_AUTHORIZE_DISPOSABLE_PG16_FIRST_BOOTSTRAP_ONLY
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
@@ -140,6 +141,7 @@ jobs:
       F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
       F03_2B_INSTALLER_CONFIRM: I_AUTHORIZE_DISPOSABLE_PG16_FIRST_BOOTSTRAP_ONLY
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
