@@ -39,7 +39,11 @@ async function authenticated(auth,token,fn,options={}){
    const exists=(await sealed.query("SELECT to_regclass('public.demand_responsible_handover_receipts')::text AS receipt_table")).rows[0]?.receipt_table;
    if(exists==='demand_responsible_handover_receipts'){
     const {verify:verifyI}=await import('../runtime-demand-responsible-handover/migration.mjs');
-    await verifyI(sealed);
+    const j=(await sealed.query("SELECT to_regclass('public.consultation_assignee_handover_receipts')::text AS tbl")).rows[0]?.tbl;
+    if(j==='consultation_assignee_handover_receipts'){
+     const {verify:verifyJ}=await import('../runtime-consultation-assignee-handover/migration.mjs');
+     await verifyJ(sealed);
+    }else await verifyI(sealed);
    }else await verify(sealed);
   }else await verify(sealed);
  }finally{sealed.release()}
@@ -86,6 +90,8 @@ async function transfer(c,a,p,hook){
  if(iTable==='demand_responsible_handover_receipts'){
   if((await c.query('SELECT 1 FROM public.demand_responsible_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[sha])).rowCount)return out('H04_CROSS_DOMAIN_KEY_DENY');
  }
+ const j=(await c.query("SELECT to_regclass('public.consultation_assignee_handover_receipts')::text AS tbl")).rows[0]?.tbl;
+ if(j==='consultation_assignee_handover_receipts'&&(await c.query('SELECT 1 FROM public.consultation_assignee_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[sha])).rowCount)return out('H04_CROSS_DOMAIN_KEY_DENY');
  // H-01: the SHA256 request key identifies ONE intent across every Customer,
  // batch and item; DB UNIQUE is authoritative for concurrent writers.
  const keyed=(await c.query('SELECT receipt_id,item_id FROM public.customer_owner_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[sha])).rows[0];
