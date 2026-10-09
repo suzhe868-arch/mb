@@ -14,6 +14,7 @@ CREATE TABLE public.customer_owner_handover_receipts (
  committed_at TIMESTAMPTZ NOT NULL DEFAULT transaction_timestamp(),
  CONSTRAINT f03_2_2h_receipt_pk PRIMARY KEY(receipt_id),
  CONSTRAINT f03_2_2h_receipt_item_unique UNIQUE(item_id),
+ CONSTRAINT f03_2_2h_receipt_request_key_unique UNIQUE(request_key_sha256),
  CONSTRAINT f03_2_2h_receipt_history_unique UNIQUE(owner_history_id),
  CONSTRAINT f03_2_2h_receipt_audit_unique UNIQUE(audit_id),
  CONSTRAINT f03_2_2h_receipt_distinct_people CHECK(from_employee_id<>to_employee_id)

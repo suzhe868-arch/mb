@@ -67,6 +67,12 @@ jobs:
           node f03/runtime-receiving-pool/runner.mjs --verify
           node f03/runtime-team-scope/runner.mjs --apply
           node f03/runtime-team-scope/runner.mjs --verify
+      - name: Discover new pinned 000008 request-digest unique constraint in real PG16 and roll back
+        run: |
+          set -euo pipefail
+          node f03/runtime-handover-ledger/runner.mjs --apply
+          node f03/runtime-customer-owner-handover/runner.mjs --discover
+          node f03/runtime-handover-ledger/runner.mjs --verify
       - name: Apply 000007 genuine frozen 88-table, seed ONLY CI synthetic identities/domain and old physical evidence
         run: |
           set -euo pipefail
