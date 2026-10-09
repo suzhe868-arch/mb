@@ -76,6 +76,8 @@ test('F05: role alone, same store, absent/team inactive/expired manager membersh
  assert.equal((await proof(manager5,5,904)).allowed,false);
  assert.equal((await proof(manager5,5,905)).allowed,false);
  assert.equal((await proof(manager5,5,903)).allowed,false); // Only vehicle.read 14 on 202, no 13 binding
+ assert.equal((await proof(manager5,6,901)).allowed,false); // PC actor cannot spoof other current manager
+ assert.equal((await proof(four,5,901)).allowed,false); // hard 4S deny
  assert.equal((await team(adminA,5,905)).changed,false);
  assert.equal((await team(adminA,5,999)).changed,false);
  assert.equal((await team(adminA,7,904)).changed,false);
@@ -110,6 +112,12 @@ test('F06: concurrent personal override same desired value only one current/hist
 test('F07: team capability end preserves shared scope if other permission still bound',async()=>{
  const r=await team(adminA,5,903);assert.equal(r.code,'SG04_TEAM_GRANTED');
  assert.equal((await proof(manager5,5,903)).allowed,true);
+ for(const point of ['after_current','after_history','after_audit','before_commit']){
+  const prior=await state();
+  await assert.rejects(()=>remove(adminB,5,903,{testCheckpoint:async s=>{if(s===point)throw Error('CI_TEAM_END_ROLLBACK_'+point)}}),new RegExp('CI_TEAM_END_ROLLBACK_'+point));
+  assert.deepEqual(await state(),prior);
+  assert.equal((await proof(manager5,5,903)).allowed,true);
+ }
  assert.equal((await remove(adminB,5,903)).code,'SG04_TEAM_ENDED');
  const scope=(await db.query("SELECT ended_at FROM public.employee_data_scopes WHERE scope_id=202")).rows[0];
  assert.equal(scope.ended_at,null);
