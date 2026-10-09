@@ -49,6 +49,9 @@ jobs:
           npm run check
           node --check f03/runtime-consultation-assignee-handover/migration.mjs
           node --check f03/runtime-consultation-assignee-handover/evidence.mjs
+          node --check f03/runtime-consultation-assignee-handover/service.mjs
+          node --check f03/runtime-consultation-assignee-handover/fixtures.mjs
+          node --check f03/runtime-consultation-assignee-handover/tests/integration.test.mjs
       - name: Disposable non-superuser new PG16 exact approved 000001 to 000004 baseline
         run: |
           set -euo pipefail
@@ -64,15 +67,88 @@ jobs:
           node f03/runtime-receiving-pool/runner.mjs --verify
           node f03/runtime-team-scope/runner.mjs --apply
           node f03/runtime-team-scope/runner.mjs --verify
-      - name: Real isolated PG16 old 90-table sealed and J 000010 one-table discovery strictly rolled back
+      - name: Discover proposed 000010 46-catalog-object delta only and confirm old I 90-table seal
         run: |
           set -euo pipefail
           node f03/runtime-handover-ledger/runner.mjs --apply
           node f03/runtime-customer-owner-handover/runner.mjs --apply
           node f03/runtime-demand-responsible-handover/runner.mjs --apply
-          node f03/runtime-demand-responsible-handover/runner.mjs --verify
           node f03/runtime-consultation-assignee-handover/runner.mjs --discover
           node f03/runtime-demand-responsible-handover/runner.mjs --verify
+      - name: Seed synthetic F03-1 and E/F/G/H/I/J facts and capture original genuine PG16 90-table catalog
+        run: |
+          set -euo pipefail
+          mkdir -p f03/runtime-consultation-assignee-handover/artifacts
+          node f03-1/fixtures.mjs
+          node f03/runtime-scope/fixtures.mjs
+          node f03/runtime-governance-template/fixtures.mjs
+          node f03/runtime-receiving-pool/fixtures.mjs
+          node f03/runtime-team-scope/fixtures.mjs
+          node f03/runtime-handover-ledger/fixtures.mjs
+          node f03/runtime-manager-team-governance/fixtures.mjs
+          node f03/runtime-handover-preflight/fixtures.mjs
+          node f03/runtime-customer-owner-handover/fixtures.mjs
+          node f03/runtime-demand-responsible-handover/fixtures.mjs
+          node f03/runtime-consultation-assignee-handover/fixtures.mjs
+          node f03/runtime-consultation-assignee-handover/evidence.mjs --old
+      - name: Prove migration 000010 rollback under injection and old 90-table verifier integrity
+        run: |
+          set -euo pipefail
+          if node f03/runtime-consultation-assignee-handover/runner.mjs --inject; then echo 'J_INJECTION_MUST_FAIL'; exit 1; fi
+          node f03/runtime-demand-responsible-handover/runner.mjs --verify
+      - name: Apply and verify only approved 000010 immutable Consultation receipts and exact rollback/apply
+        run: |
+          set -euo pipefail
+          node f03/runtime-consultation-assignee-handover/runner.mjs --apply
+          node f03/runtime-consultation-assignee-handover/runner.mjs --verify
+          if node f03/runtime-demand-responsible-handover/runner.mjs --verify; then echo 'OLD_I_GUARD_WRONGLY_ACCEPTED_91'; exit 1; fi
+          node f03/runtime-consultation-assignee-handover/runner.mjs --rollback
+          node f03/runtime-demand-responsible-handover/runner.mjs --verify
+          node f03/runtime-consultation-assignee-handover/runner.mjs --apply
+          node f03/runtime-consultation-assignee-handover/runner.mjs --verify
+      - name: J01-J10 genuine isolated PG16 25 Consultation tests SLA, two-actor races and H/I/J shared keys
+        run: |
+          set -euo pipefail
+          node --test f03/runtime-consultation-assignee-handover/tests/integration.test.mjs 2>&1 | tee f03/runtime-consultation-assignee-handover/artifacts/pg16-consultation-handover-tests.log
+          grep -q '# fail 0' f03/runtime-consultation-assignee-handover/artifacts/pg16-consultation-handover-tests.log
+          node f03/runtime-consultation-assignee-handover/runner.mjs --verify
+      - name: PG16 original schema-only raw SQL 90 to 91 full catalog, inventories and immutable SHA source
+        run: |
+          set -euo pipefail
+          node f03/runtime-consultation-assignee-handover/evidence.mjs --new
+          ids="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
+          docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > f03/runtime-consultation-assignee-handover/artifacts/pg16_schema_only.sql
+          sha256sum f03/runtime-consultation-assignee-handover/artifacts/pg16_schema_only.sql f03/runtime-consultation-assignee-handover/artifacts/pg16_inventory.json > f03/runtime-consultation-assignee-handover/artifacts/sha256sums.txt
+          if test -f f03/runtime-consultation-assignee-handover/evidence/SOURCE.md; then node f03/runtime-consultation-assignee-handover/evidence.mjs --archive-check; fi
+      - name: Exclude real credentials, password hash and session cookies from all Consultation evidence
+        run: |
+          set -euo pipefail
+          if grep -R -nE 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|BEGIN PRIVATE KEY|Synthetic2J_Consultation_2026|SyntheticGovAdminTwo_2026' f03/runtime-consultation-assignee-handover/artifacts; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f03-2-2j-real-pg16-91-consultation-assignee-sla-and-immutable-evidence
+          path: engineering/f03/runtime-consultation-assignee-handover/artifacts/
+          retention-days: 30
+          if-no-files-found: error
+      - name: Archive only first genuinely produced PG16 91-table original structure evidence once on B branch
+        run: |
+          set -euo pipefail
+          if test -f f03/runtime-consultation-assignee-handover/evidence/SOURCE.md; then
+            echo 'F03-2-2J original source archived and cross-run raw bytes validated'
+          else
+            test "$GITHUB_REF" = 'refs/heads/feat/f03-consultation-assignee-handover-2j'
+            mkdir -p f03/runtime-consultation-assignee-handover/evidence
+            for file in old-structure.json new-structure.json pg16_schema_only.sql pg16_inventory.json sha256sums.txt; do
+              cp "f03/runtime-consultation-assignee-handover/artifacts/$file" "f03/runtime-consultation-assignee-handover/evidence/$file"
+            done
+            printf 'source_run_id: %s\nsource_commit_sha: %s\nsource_job_name: f03-2j-consultation-assignee-handover-pg16\nsource_artifact_name: f03-2-2j-real-pg16-91-consultation-assignee-sla-and-immutable-evidence\nsource_files: genuine disposable PG16 physical catalog, no business rows or live credentials\n' "$GITHUB_RUN_ID" "$GITHUB_SHA" > f03/runtime-consultation-assignee-handover/evidence/SOURCE.md
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -- f03/runtime-consultation-assignee-handover/evidence/
+            git diff --cached --quiet && { echo 'J_ARCHIVE_NOT_STAGED'; exit 1; }
+            git commit -m 'F03-2-2J: archive exact original PG16 91-table evidence source'
+            git push origin HEAD:refs/heads/feat/f03-consultation-assignee-handover-2j
+          fi
   f03-2h-customer-owner-handover-pg16:
     name: F03-2-2H exact 89-table CI-only Customer Owner CAS/history/receipt on genuine PG16
     permissions:
