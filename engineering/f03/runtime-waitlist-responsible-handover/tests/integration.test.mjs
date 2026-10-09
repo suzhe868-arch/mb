@@ -209,8 +209,8 @@ test('K05 J->K and K->J same request key each reject second domain',async()=>{
 test('K05 previous H/I two directions stay fully protected inside new 92-table schema',async()=>{
  const a='k-global-h-before-i-001',b='k-global-i-before-h-002';
  assert.equal((await hCommit(auth,manager,h(6016,7016,a))).code,'H03_OWNER_DOMAIN_TRANSFERRED');
- assert.equal((await iCommit(auth,manager,h(6103,8103,a))).code,'I05_CROSS_DOMAIN_KEY_DENY');
- assert.equal((await iCommit(auth,manager,h(6104,8104,b))).code,'I04_DEMAND_DOMAIN_TRANSFERRED');
+ assert.equal((await iCommit(auth,manager,h(6113,8113,a))).code,'I05_CROSS_DOMAIN_KEY_DENY');
+ assert.equal((await iCommit(auth,manager,h(6114,8114,b))).code,'I04_DEMAND_DOMAIN_TRANSFERRED');
  assert.equal((await hCommit(auth,manager,h(6020,7020,b,901,6))).code,'H02_BATCH_IDENTITY_DENY');
  assert.equal((await hCommit(auth,head,h(6020,7020,b,901,6))).code,'H04_CROSS_DOMAIN_KEY_DENY');
 });
