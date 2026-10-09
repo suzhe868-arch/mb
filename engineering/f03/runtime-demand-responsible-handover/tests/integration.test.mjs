@@ -98,10 +98,9 @@ test('I06 trigger Demand current responsible derives dynamically without changin
  assert.equal(r.priorityUpdated,false);assert.equal(r.ttlUnmodified,true);
  const other=await priority(auth,manager,{priorityId:999999,teamId:901});
  assert.equal(other.code,'I06_PRIORITY_RELATION_REVALIDATE');
- const exp=(await db.query('SELECT expires_at FROM public.priority_leases WHERE priority_id=5011')).rows[0].expires_at;
- await db.query("UPDATE public.priority_leases SET expires_at=now()-interval '1 second' WHERE priority_id=5011");
+ await db.query("UPDATE public.priority_leases SET expires_at=expires_at-interval '100 days' WHERE priority_id=5011");
  try{assert.equal((await priority(auth,manager,{priorityId:5011,teamId:901})).code,'I06_PRIORITY_RELATION_REVALIDATE')}
- finally{await db.query('UPDATE public.priority_leases SET expires_at=$1 WHERE priority_id=5011',[exp])}
+ finally{await db.query("UPDATE public.priority_leases SET expires_at=expires_at+interval '100 days' WHERE priority_id=5011")}
  assert.deepEqual(await snap(),b);
 });
 test('I04 paused Demand can reassign; recipient paused automatic accepting does not silently veto manual Demand transfer',async()=>{
@@ -166,6 +165,33 @@ test('I05 schema protects receipts from UPDATE and DELETE, honest audit provenan
  await assert.rejects(()=>db.query('UPDATE public.demand_responsible_handover_receipts SET request_key_sha256=$1 WHERE receipt_id=$2',['a'.repeat(64),id]));
  await assert.rejects(()=>db.query('DELETE FROM public.demand_responsible_handover_receipts WHERE receipt_id=$1',[id]));
 });
+
+test('I06 status/trigger/Match fail closed but never writes Priority during derived reads',async()=>{
+ const before=await snap();
+ const cases=[
+  ["UPDATE public.demands SET demand_state='paused' WHERE demand_id=401","UPDATE public.demands SET demand_state='active' WHERE demand_id=401"],
+  ["UPDATE public.priority_leases SET status='ended' WHERE priority_id=5011","UPDATE public.priority_leases SET status='active' WHERE priority_id=5011"],
+  ["UPDATE public.priority_leases SET trigger_demand_id=NULL WHERE priority_id=5011","UPDATE public.priority_leases SET trigger_demand_id=401 WHERE priority_id=5011"],
+  ["UPDATE public.demand_match_results SET current_state='stale' WHERE result_id=3011","UPDATE public.demand_match_results SET current_state='current' WHERE result_id=3011"],
+  ["UPDATE public.demand_match_results SET match_tier='no_match' WHERE result_id=3011","UPDATE public.demand_match_results SET match_tier='high' WHERE result_id=3011"]
+ ];
+ for(const [change,restore] of cases){await db.query(change);try{
+  const r=await priority(auth,manager,{priorityId:5011,teamId:901});
+  assert.equal(r.code,'I06_PRIORITY_RELATION_REVALIDATE');
+  assert.notEqual(r.priorityUpdated,true);
+ }finally{await db.query(restore)}}
+ assert.deepEqual(await snap(),before);
+});
+test('I05 FK-valid but semantically forged Domain receipt/audit cannot pass authenticated proof',async()=>{
+ const p=req(6132,8132,4,'i-ci-forged-receipt-0032'),key=createHash('sha256').update(p.clientRequestKey).digest('hex');
+ const audit=(await db.query("INSERT INTO public.audit_events(actor_kind,actor_id,role_context,object_kind,object_id,action,before_json,after_json,occurred_at) VALUES('employee','5','{}'::jsonb,'Demand','432','pc_password_self_change','{}'::jsonb,'{}'::jsonb,transaction_timestamp()) RETURNING audit_id")).rows[0].audit_id;
+ await db.query("INSERT INTO public.demand_responsible_handover_receipts(item_id,batch_id,demand_id,customer_id,from_employee_id,to_employee_id,actor_employee_id,scope_team_id,audit_id,request_key_sha256) VALUES(8132,6132,432,302,7,4,5,901,$1,$2)",[audit,key]);
+ assert.equal((await read(auth,manager,view(6132,8132))).code,'I05_RECEIPT_PROOF_DENY');
+ assert.equal((await retry(auth,manager,p)).code,'I05_RECEIPT_PROOF_DENY');
+ assert.equal((await commit(auth,manager,p)).code,'I05_RECEIPT_PROOF_DENY');
+ assert.equal(await owner(432),'7');
+});
+
 test('I01 old new migrate checksum and one-table append-only receipt irreversible after use; extra schema guard',async()=>{
  await assert.rejects(()=>rollback(db),/I_RECEIPT_USED_ROLLBACK_DENY/);
  const old=(await db.query("SELECT checksum FROM public.f03_schema_migrations WHERE migration_id='000009_demand_responsible_handover_receipts'")).rows[0].checksum;
