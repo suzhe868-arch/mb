@@ -112,7 +112,7 @@ test('L05 all 20 directed five-domain keys (H/I/J/K/L) in real PG16, each with f
  ['H',6016,'I',6113],['I',6114,'H',6002],['H',6021,'J',7211],['J',7206,'H',6001],
  ['I',6115,'J',7214],['J',7207,'I',6116],['H',6017,'K',7406],['K',7407,'H',6019],
  ['I',6101,'K',7408],['K',7409,'I',6102],['J',7205,'K',7414],['K',7415,'J',7219],
- ['H',6018,'L',10],['L',11,'H',6003],['I',6103,'L',12],['L',13,'I',6104],
+ ['H',6019,'L',10],['L',11,'H',6003],['I',6110,'L',12],['L',13,'I',6111],
  ['J',7208,'L',14],['L',15,'J',7209],['K',7410,'L',16],['L',17,'K',7411]
  ];
  for(const [index,[a,ai,b,bi]] of cases.entries()){
@@ -145,7 +145,7 @@ test('L05 five distinct domain keys can each succeed independently on five PC se
  const sessions=await Promise.all(Array.from({length:5},()=>login('manager').then(x=>x.token)));
  const before=await snapshot();
  const results=await Promise.all([
-  hCommit(auth,head,other(6005,7006,'l-distinct-H-0005',901,6)),
+  hCommit(auth,manager,other(6004,7004,'l-distinct-H-0005')),
   iCommit(auth,sessions[1],other(6146,8146,'l-distinct-I-0046')),
   jCommit(auth,sessions[2],other(7221,9221,'l-distinct-J-0021')),
   kCommit(auth,sessions[3],other(7430,9430,'l-distinct-K-0030')),
