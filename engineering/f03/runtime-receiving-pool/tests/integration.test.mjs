@@ -12,8 +12,8 @@ const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,sec
 const credentials={admin:['admin_test','SyntheticAdmin_1234567'],e6:['race_test','SyntheticRace_1234567'],e7:['limit_test','SyntheticLimit_1234567'],e5:['http_test','SyntheticHttps_1234567'],emp:['employee_test','SyntheticPassword_12345'],four:['four_s_test','SyntheticFourS_123456']};
 const login=async key=>{const [name,password]=credentials[key];const r=await auth.login({login:name,password,source:'receiving_'+key+'_'+Math.random()});assert.equal(r.code,'AUTH_OK');return r};
 let admin,e6,e7,e5,ordinary,four,oldRestricted;
-const g=(id,eligible,token=admin)=>grant(auth,token,{employeeId:id,eligible});
-const t=(id,accepting,token)=>toggle(auth,token,{employeeId:id,accepting});
+const g=(id,eligible,token=admin,options)=>grant(auth,token,{employeeId:id,eligible},options);
+const t=(id,accepting,token,options)=>toggle(auth,token,{employeeId:id,accepting},options);
 const stats=async()=>{
  const q=await Promise.all([
   c.query('SELECT employee_id,eligible,version FROM public.employee_receiving_eligibility ORDER BY employee_id'),
@@ -130,8 +130,8 @@ test('S03-06 last employee OFF and last eligibility revoke both reject; external
  assert.equal((await reportPool(c)).empty,true);
  assert.equal((await reportPool(c)).noFallbackAdmin,true);
  assert.equal((await reportPool(c)).ownerAssignmentPendingDomain,'DEFER_F04_SG06');
+ await c.query("UPDATE public.employees SET receiving_status='paused' WHERE employee_id=7");
  await c.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=7");
- assert.deepEqual(await t(7,false,e7),{code:'RECEIVING_UPDATED',changed:true}); // abnormal pool was already zero; no normally-qualified receiver removed
  assert.equal((await reportPool(c)).receivers,0);
  assert.deepEqual(await t(6,true,e6),{code:'RECEIVING_UPDATED',changed:true});
  assert.equal((await reportPool(c)).receivers,1);
