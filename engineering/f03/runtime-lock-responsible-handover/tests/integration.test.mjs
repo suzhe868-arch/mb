@@ -95,7 +95,12 @@ test('L04 five fault injection points rollback all Lock/Deposit/Refund/audit/rec
 });
 test('L05 all 20 directed five-domain keys (H/I/J/K/L) in real PG16, each with first valid receipt',async()=>{
  const execute=async(d,n,key)=>{
-  if(d==='H')return hCommit(auth,manager,other(n,n+1000,key));
+  if(d==='H'){
+   const headBatch=[6002,6005,6018,6020,6022].includes(n);
+   const item=n===6005?7006:n+1000;
+   const recipient=[6002,6005,6020].includes(n)?6:4;
+   return hCommit(auth,headBatch?head:manager,other(n,item,key,901,recipient));
+  }
   if(d==='I')return iCommit(auth,manager,other(n,n+2000,key));
   if(d==='J')return jCommit(auth,manager,other(n,n+2000,key));
   if(d==='K')return kCommit(auth,manager,other(n,n+2000,key));
@@ -140,7 +145,7 @@ test('L05 five distinct domain keys can each succeed independently on five PC se
  const sessions=await Promise.all(Array.from({length:5},()=>login('manager').then(x=>x.token)));
  const before=await snapshot();
  const results=await Promise.all([
-  hCommit(auth,sessions[0],other(6005,7005,'l-distinct-H-0005')),
+  hCommit(auth,head,other(6005,7006,'l-distinct-H-0005',901,6)),
   iCommit(auth,sessions[1],other(6146,8146,'l-distinct-I-0046')),
   jCommit(auth,sessions[2],other(7221,9221,'l-distinct-J-0021')),
   kCommit(auth,sessions[3],other(7430,9430,'l-distinct-K-0030')),
