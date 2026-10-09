@@ -17,7 +17,7 @@ CREATE TABLE public.governance_population_guards(
 );
 INSERT INTO public.governance_population_guards(guard_name,version,bootstrap_claimed_at)
  SELECT 'system_admin',0,CASE WHEN EXISTS(SELECT 1 FROM public.system_admins) THEN transaction_timestamp() ELSE NULL END;
-\`;
+`;
 export const checksum=createHash('sha256').update(SQL).digest('hex');
 const config=()=>readFile(new URL('./000004.manifest.json',import.meta.url),'utf8').then(JSON.parse);
 export async function verifyIdentity(c){
