@@ -1454,3 +1454,11 @@ R1/R2/E1闭合，仅签限定当前事实读取及新请求撤权重验F03_2_1A_
 - 当前指针：`F03_2_1B_B_FIX_VERSION_ISOLATION_TEST_GAPS_AND_ARCHIVE_EVIDENCE_A_REVIEW_AND_H01_VISUAL_REVIEW`；以下初次放行信息为历史。
 
 A补充代码路径复现显示幂等apply/rollback遗漏旧版本行核验，verify同异常则拒绝；非public用户namespace未检查，部分约束与HTTPS测试受其他拒绝掩盖。限定原范围整改及补实际结构原文，不签F03_2_1B_ACCEPTED。
+
+
+## 2026-10-09｜F03-2-1B限定工程验收签发（非新增产品裁决）
+
+- 用户同意A正式登记已独立复验通过的1B及准备合并审核材料，**不包含立即合并或后续施工授权**。
+- A正式签发 `F03_2_1B_ACCEPTED / A_SIGNED / NOT_MERGED`，固定B HEAD `3376f2efff8f95462d7bdaa79c688c3208d2eeac`、同SHA真实成功CI37904745833，三个独立PG16作业；R1/R2/R3/E1关闭。A独立读取归档并校验SHA256、旧1664项/新1687项仅批准23项新增，旧对象无修改。
+- 验收报告：`07_重建工作区/F03-2-1B_A主控最终验收签发与残余风险_2026-10-09.md`；合并待批：`07_重建工作区/F03-2-1B_A主控合并核验材料_待用户批准_2026-10-09.md`。
+- 当前唯一下一步：用户单独批准合并前B等待。完整F03-2验收、其他scope/动作、SG02～08、治理/交接、部署/C/H01仍未授权；PDM Final/Current IA/Low-Fi不变，`PRODUCT_BASELINE=NOT_READY`。

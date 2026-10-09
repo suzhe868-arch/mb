@@ -4,7 +4,7 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F03_2_1B_B_FIX_VERSION_ISOLATION_TEST_GAPS_AND_ARCHIVE_EVIDENCE_A_REVIEW_AND_H01_VISUAL_REVIEW",
+  "substage": "F03_2_1B_ACCEPTED_A_MERGE_PENDING_USER_APPROVAL_AND_H01_VISUAL_REVIEW",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "B修复1B完整版本链/命名空间隔离及目标负例，归档结构证据交A复验",
-  "current_work_file": "07_重建工作区/F03-2-1B_A主控首轮复验与三项整改及补证清单_2026-10-09.md",
+  "current_task": "A已签F03-2-1B限定验收，准备合并核验；用户单独批准前B等待，不合并或开后批",
+  "current_work_file": "07_重建工作区/F03-2-1B_A主控合并核验材料_待用户批准_2026-10-09.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F03_2_1A_ACCEPTED_MERGED_F03_2_1B_AUTHORIZED_NOT_IMPLEMENTED",
+  "engineering_status": "F03_2_1A_ACCEPTED_MERGED_F03_2_1B_ACCEPTED_NOT_MERGED",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "同SHA三个CI作业成功，但幂等apply/rollback旧链遗漏、非public隔离及约束/HTTPS负例未闭合，结构原文待A独立核验。",
+  "next_action_detail": "A独立闭合R1/R2/R3/E1；同SHA真实CI3/3成功，结构原文及哈希核验通过。A合并待用户单独批准，H01视觉独立待审。",
   "abc_parallel_workflow": {
     "status": "USER_APPROVED_APPLIED_DOCUMENTATION_ONLY",
     "confirmed_at": "2026-10-08",
@@ -5141,9 +5141,9 @@
     "next_batch_construction": "NOT_AUTHORIZED_F03_2_GATE_PREPARATION_ONLY"
   },
   "f03_2_gate": {
-    "status": "F03_2_G0_ACCEPTED_STATIC_DESIGN_ONLY",
+    "status": "F03_2_1B_ACCEPTED_NOT_FULL_F03_2",
     "work_order_prepared": true,
-    "construction": "F03_2_G0_STATIC_COMPLETED_LATER_IMPLEMENTATION_NOT_AUTHORIZED",
+    "construction": "F03_2_1B_LIMITED_SG01_IMPLEMENTATION_ACCEPTED_NO_NEXT_BATCH_AUTHORIZATION",
     "branch_created": true,
     "scope_note": "G0只对齐真实字段与权限/事务设计，保留既有工程及Authority；G0验收不等于F03_2_ACCEPTED",
     "work_order": "07_重建工作区/F03-2_运行期权限校验与治理事务施工单_待用户批准_2026-10-09.md",
@@ -5152,7 +5152,7 @@
     "proposed_branch": "feat/f03-runtime-g0",
     "tests": "SAME_SHA_CI_36_PASS_A_11_MODEL_PROBES_PASS",
     "database_access": "NOT_AUTHORIZED_G0_NO_DB",
-    "actual_guard": "NOT_RUN_NOT_AUTHORIZED",
+    "actual_guard": "F03_2_1B_CI_ISOLATED_CUSTOMER_PHONE_MANAGE_EXPLICIT_OBJECT_SCOPE_INTERNAL_ONLY",
     "later_batches": "F03_2_1_F03_2_2_F03_2_3_SEPARATE_A_REVIEW_USER_APPROVAL",
     "technical_gaps_to_resolve": [
       "TEAM_RELATION_TRUSTED_MAPPING_NOT_ESTABLISHED",
@@ -5204,8 +5204,8 @@
       "R5"
     ],
     "merge_status": "MERGED_TO_MAIN_USER_APPROVED",
-    "schema_proposals": "SG01_TO_SG08_PENDING_A_DECISION_NO_DDL_SG09_EXISTING_REUSE",
-    "next": "B_F03_2_1A_IMPLEMENTATION_A_INDEPENDENT_REVIEW",
+    "schema_proposals": "SG01_LIMITED_000003_ACCEPTED_SG02_TO_SG08_NOT_AUTHORIZED",
+    "next": "A_MERGE_PREPARATION_USER_APPROVAL_PENDING",
     "merge_preparation": {
       "report": "07_重建工作区/F03-2-G0_A主控合并核验材料_待用户批准_2026-10-09.md",
       "pr": 6,
@@ -5308,16 +5308,16 @@
     "merge_sha": "df4135f1e2eb37b109e4e23ff63642c211a643fa",
     "merge_pr": 6,
     "f03_2_1b": {
-      "status": "CHANGES_REQUESTED_AUTHORIZED_SCOPE_ONLY",
+      "status": "F03_2_1B_ACCEPTED_A_SIGNED_NOT_MERGED",
       "work_order": "07_重建工作区/F03-2-1B_逐能力客户范围与限定真实Guard施工单_待用户批准_2026-10-09.md",
       "branch": "feat/f03-runtime-scope",
       "branch_created": true,
       "database_access": "ONLY_CI_ISOLATED_PG16_FRESH_EMPTY_BASELINE_AND_APPROVED_000003",
-      "tests": "CI_PASS_A_CHANGES_REQUESTED",
-      "ddl_proposal": "SG01_ONE_SCOPE_BINDING_TABLE_PLUS_COMPOSITE_UNIQUE_ON_EXISTING_SCOPE_AND_000003_ONLY_PENDING_APPROVAL",
-      "scope_proposal": "CUSTOMER_PHONE_MANAGE_EXPLICIT_OBJECT_SCOPE_INTERNAL_GUARD_ONLY_NO_PHONE_MUTATION",
-      "new_guard_proposal": "EXACT_THREE_VERSION_81_TABLE_SCHEMA_SEPARATE_GUARD_OLD_80_TABLE_GUARD_UNCHANGED",
-      "acceptance": "NOT_SIGNED",
+      "tests": "SAME_FINAL_HEAD_THREE_REAL_PG16_CI_JOBS_SUCCESS_A_EVIDENCE_INDEPENDENTLY_CHECKED",
+      "ddl_proposal": "SG01_APPROVED_IMPLEMENTED_ACCEPTED_CI_ONLY",
+      "scope_proposal": "CUSTOMER_PHONE_MANAGE_OBJECT_SCOPE_INTERNAL_ONLY_ACCEPTED",
+      "new_guard_proposal": "THREE_VERSION_EXACT_81_TABLE_NEW_GUARD_ACCEPTED_OLD_GUARD_UNCHANGED",
+      "acceptance": "F03_2_1B_ACCEPTED_A_SIGNED_NOT_FULL_F03_2",
       "later_batches": "OTHER_ACTION_SCOPE_TEAM_ELIGIBLE_CONTROL_GOVERNANCE_HANDOVER_SEPARATE_APPROVAL",
       "authorization": "USER_APPROVED",
       "confirmed_phrase": "确认",
@@ -5326,39 +5326,100 @@
       "ddl_authorization": "SG01_FIVE_COLUMN_BINDING_TABLE_PLUS_EXACT_COMPOSITE_UNIQUE_FK_CHECK_INDEX_DELTA_ONLY",
       "migration_id": "000003_employee_capability_scope_bindings",
       "scope_authorization": "CUSTOMER_PHONE_MANAGE_EXPLICIT_OBJECT_INTERNAL_GUARD_NO_PHONE_MUTATION",
-      "merge_status": "NOT_AUTHORIZED",
-      "reviewed_sha": "df27522891438c51ff8847cc5e018b698c0a98fc",
-      "review_ci_run_id": 37901077203,
+      "merge_status": "NOT_MERGED_USER_APPROVAL_REQUIRED",
+      "reviewed_sha": "3376f2efff8f95462d7bdaa79c688c3208d2eeac",
+      "review_ci_run_id": 37904745833,
       "review_ci_job_ids": [
-        113723526760,
-        113723526334,
-        113723526556
+        113735394475,
+        113735394282,
+        113735394164
       ],
       "review_tests": {
-        "migration": 6,
+        "migration": 9,
         "scope": 7,
         "https": 2,
         "original_auth_integration": 11,
         "original_auth_https": 4,
+        "archive_unit": 4,
+        "archive_crossrun": 4,
         "failed": 0,
-        "scope_note": "B_REAL_CI_SUCCESS_NOT_COMPLETE_A_ACCEPTANCE"
+        "skipped": 0,
+        "scope_note": "ONLY_AUTHORIZED_DISPOSABLE_PG16_AND_INTERNAL_PHONE_SCOPE_NOT_FULL_F03_2"
       },
-      "review_report": "07_重建工作区/F03-2-1B_A主控首轮复验与三项整改及补证清单_2026-10-09.md",
-      "review_blockers": [
-        "R1_IDEMPOTENT_APPLY_ROLLBACK_OLD_VERSION_CHAIN_BYPASS",
-        "R2_NON_PUBLIC_NAMESPACE_ISOLATION_GAP",
-        "R3_CHECK_AND_HTTPS_NEGATIVE_TEST_FALSE_COVERAGE"
-      ],
-      "evidence_pending": [
-        "E1_RAW_STRUCTURAL_ARCHIVE_AND_A_INDEPENDENT_HASH_DIFF"
-      ],
-      "artifact_id": 11602367762,
+      "review_report": "07_重建工作区/F03-2-1B_A主控最终验收签发与残余风险_2026-10-09.md",
+      "review_blockers": [],
+      "evidence_pending": [],
+      "artifact_id": 11603329759,
       "a_model_probe": {
         "idempotentApplyAllowedWithTamperedOldChecksum": true,
         "normalVerifyRejectsSameTampering": true,
         "rollbackAllowedWithTamperedOldChecksum": true,
         "queryIncludesNamespaceCheck": false
-      }
+      },
+      "closed_items": [
+        "R1",
+        "R2",
+        "R3",
+        "E1"
+      ],
+      "first_review": {
+        "sha": "df27522891438c51ff8847cc5e018b698c0a98fc",
+        "run_id": 37901077203,
+        "report": "07_重建工作区/F03-2-1B_A主控首轮复验与三项整改及补证清单_2026-10-09.md",
+        "blockers": [
+          "R1_OLD_MIGRATION_VERSION_CHAIN",
+          "R2_NONPUBLIC_SCHEMA_ISOLATION",
+          "R3_EXACT_CONSTRAINT_HTTPS_NEGATIVES"
+        ],
+        "evidence_pending": [
+          "E1_SOURCE_RAW_FILES_AND_HASHES"
+        ]
+      },
+      "acceptance_report": "07_重建工作区/F03-2-1B_A主控最终验收签发与残余风险_2026-10-09.md",
+      "acceptance_date": "2026-10-09",
+      "review_ci_artifact_id": 11603329759,
+      "source_artifact_id": 11602367762,
+      "source_run_id": 37901077203,
+      "structure_evidence": {
+        "old_structure_sha256": "4ff7f9ae1c8d1ae8ddd87f23ebba2e268a407e6c040821122475606325e39c64",
+        "new_structure_sha256": "04453c9183db93757ab181ae3875d7f65d97f9eb4a0a032c37500b36ba967d6c",
+        "source_sql_sha256": "659687f2997d74a02c785ebecbf0d717c06637ee0ef8552b8d50bb0c0541f3de",
+        "source_inventory_sha256": "652067086722d7ef6db6bc237430842cbe936ed49649837c6587bae9ff3ece46",
+        "current_ci_sql_sha256": "a81bbcd7fa5192f844e41fd46758b9b902c145963cdd4d47cec606b6da79c34a",
+        "physical_delta": {
+          "old": 1664,
+          "new": 1687,
+          "added": 23,
+          "removed": 0,
+          "changed": 0,
+          "unapproved": 0
+        },
+        "inventory": {
+          "tables": 81,
+          "columns": 492,
+          "constraints": 304,
+          "indexes": 126
+        },
+        "cross_run_sql_only_paired_pgdump_random_restrict_key": true
+      },
+      "merge_preparation": {
+        "status": "PREPARED_USER_APPROVAL_REQUIRED",
+        "report": "07_重建工作区/F03-2-1B_A主控合并核验材料_待用户批准_2026-10-09.md",
+        "branch": "feat/f03-runtime-scope",
+        "head_sha": "3376f2efff8f95462d7bdaa79c688c3208d2eeac",
+        "compared_main_sha": "5f9ea2df0b0134e76a872de5a65d99ec8d5f5eb7",
+        "added_files": 24,
+        "modified_or_deleted_files": 0,
+        "pr": "NOT_CREATED",
+        "merge_sha": null
+      },
+      "residual_risks": [
+        "CI_DISPOSABLE_PG16_ONLY_NO_PRODUCTION",
+        "ONLY_CUSTOMER_PHONE_MANAGE_INTERNAL_OBJECT_SCOPE_OTHER_ACTIONS_DEFER",
+        "NO_SENSITIVE_WRITE_TRANSACTION_TOCTOU_PROOF",
+        "C_H01_NOT_ACCEPTED_NO_FRONTEND",
+        "NO_DEPLOYMENT_AND_NO_USER_APPROVED_MERGE"
+      ]
     }
   }
 }
