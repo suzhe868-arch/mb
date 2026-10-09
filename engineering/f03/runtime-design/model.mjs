@@ -176,7 +176,7 @@ const commit=(s,actor,command,kind,fn)=>{
  const before=auditState(s,command);
  const copy=clone(s);const out=fn(copy);
  if(out!==true)return {state:s,result:denied(out)};
- const after=auditState(copy,command);
+ const after=auditState(copy,command)??(command.action==='override.revoke'?{employee_id:command.targetId,permission_id:command.permissionId,decision:null}:null);
  if(after===null)return {state:s,result:denied('AUDIT_AFTER_VALUE_MISSING')};
  if(command.simulateAuditFailure===true)return {state:s,result:denied('ATOMIC_AUDIT_FAILURE')};
  audit(copy,actor,command.action,command.targetId??null,before,after);

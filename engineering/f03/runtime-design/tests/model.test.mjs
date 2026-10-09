@@ -15,8 +15,8 @@ test('G0-02 current template changes: gain/removal; personal allow exception, pe
  deny(evaluate(s,q),'NO_CURRENT_PERMISSION');
  s.overrides.push({employee_id:'101',permission_id:p(s,'crm.customer.view'),decision:'allow'});
  pass(evaluate(s,q));
- s.overrides[0].decision='deny';deny(evaluate(s,q),'PERSONAL_DENY');
- s.overrides[0].decision='allow';s.hardDeniedCapabilities.push('crm.customer.view');deny(evaluate(s,q),'HARD_DENY_CAPABILITY');
+ s.overrides.find(x=>x.employee_id==='101'&&x.permission_id===p(s,'crm.customer.view')).decision='deny';deny(evaluate(s,q),'PERSONAL_DENY');
+ s.overrides.find(x=>x.employee_id==='101'&&x.permission_id===p(s,'crm.customer.view')).decision='allow';s.hardDeniedCapabilities.push('crm.customer.view');deny(evaluate(s,q),'HARD_DENY_CAPABILITY');
  s.hardDeniedCapabilities=[];s.approvedOperationMappings['customer.crm.read']=false;deny(evaluate(s,q),'TECH_ALIAS_PENDING_A');
 });
 test('G0-03 old same session sees scope ended, changed store, inactivity, epoch reset, return no resurrection',()=>{
@@ -144,7 +144,7 @@ test('G0-09 audit failure is all-or-nothing; retry makes one current mutation an
  const s=makeFixture(),command=gov('override.set','101','2',0,{decision:'deny',permissionId:p(s,'crm.customer.view')});
  const failed=govern(s,{...command,simulateAuditFailure:true});deny(failed.result,'ATOMIC_AUDIT_FAILURE');
  assert.deepEqual(failed.state,s);const good=govern(failed.state,command);pass(good.result);
- assert.equal(good.state.overrides.length,1);assert.equal(good.state.overrideHistory.length,1);assert.equal(good.state.audit.length,1);
+ assert.equal(good.state.overrides.filter(x=>x.employee_id==='101').length,1);assert.equal(good.state.overrideHistory.length,1);assert.equal(good.state.audit.length,1);
  deny(govern(good.state,command).result,'COMMIT_RECHECK_STALE');
 });
 test('G0-09 batch handover preserves successes and retries only failed item, each atomic',()=>{
