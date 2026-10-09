@@ -1,0 +1,11 @@
+编号	真实隔离PG16验证	证据	exit
+E01	精确000001至000007；88表、完整物理差异、旧Guard严拒新版，DDL注入回滚、重复apply	migration.mjs/evidence.mjs/八作业CI	PASS
+E02	manager当前独立有效scope及PC session；4S、Admin、restricted、旧token、spoof DENY；actor/source/kind key绑定	integration.test.mjs	PASS
+E03	Customer301/302 Demand401实际owner一致，仅登记pending；Priority及无Guard域拒绝	integration.test.mjs	PASS
+E04	两独立登录session争同item只写一次；两合法经理独立账户同key并发只一方创建	integration.test.mjs	PASS
+E05	item1失败事务提交；item2注入current后故障只回滚item2，保留item1	integration.test.mjs	PASS
+E06	failure/retry同意图跨事务NOOP；并发失败只增一次；after_current/after_audit全回滚	integration.test.mjs	PASS
+E07	真实业务Customers Owner、Demand responsible、Employee角色/店/状态不变；物理CHECK禁止completed	integration.test.mjs	PASS
+E08	Personal deny、active source/target、旧版本tamper、陌生schema和合成敏感值过滤均拒绝	integration.test.mjs/CI	PASS
+E09	旧80认证/HTTPS、81模板、82人口/bootstrap、84接客、86团队权限：各自独立新PG16与旧Guard不变	八作业GitHub Actions	PASS
+E10	最新B HEAD同SHA八作业success、88表原始schema SQL/目录/sha256/SOURCE完整、中文交接	final CI/evidence/SOURCE.md/B交接	A独立复验
