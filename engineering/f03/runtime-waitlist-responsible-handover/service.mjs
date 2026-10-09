@@ -45,7 +45,7 @@ async function facts(c,actor,p,locking=false){
  if(!lc||lc.ended_at!==null||!['available','active'].includes(lc.source_sale_status))return {error:'K03_VEHICLE_LISTING_INVALID'};
  if(waitlist.source_lock_request_id!==null){
   const lr=(await c.query('SELECT * FROM public.lock_requests WHERE lock_request_id=$1 FOR SHARE',[waitlist.source_lock_request_id])).rows[0];
-  if(!lr||str(lr.customer_id)!==str(waitlist.customer_id)||str(lr.vehicle_id)!==str(waitlist.vehicle_id)||str(lr.listing_cycle_id)!==str(waitlist.listing_cycle_id)||lr.resulting_waitlist_id!==null&&str(lr.resulting_waitlist_id)!==str(waitlistId)||!['pending','approved','rejected','expired','lock_conflict','closed_not_lockable'].includes(lr.status))return {error:'K03_SOURCE_LOCK_REQUEST_INVALID'};
+  if(!lr||str(lr.customer_id)!==str(waitlist.customer_id)||str(lr.vehicle_id)!==str(waitlist.vehicle_id)||str(lr.listing_cycle_id)!==str(waitlist.listing_cycle_id)||lr.resulting_waitlist_id!==null&&str(lr.resulting_waitlist_id)!==str(waitlistId)||lr.status!=='lock_conflict')return {error:'K03_SOURCE_LOCK_REQUEST_INVALID'};
  }
  if(waitlist.active_lock_id!==null){
   const lock=(await c.query('SELECT * FROM public.locks WHERE lock_id=$1 FOR SHARE',[waitlist.active_lock_id])).rows[0];
