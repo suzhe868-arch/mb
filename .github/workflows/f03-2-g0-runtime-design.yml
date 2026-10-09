@@ -1,0 +1,48 @@
+name: F03-2-G0 isolated static facts and governance design
+on:
+  push:
+    branches: [feat/f03-runtime-g0]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  f03-2-g0-static-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      APP_ENV: test
+      NODE_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Existing F01 static checks and safe packaging
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run check
+      - name: Frozen F02-G0 and F03/F03-1-G0 static regressions ONLY
+        run: |
+          set -euo pipefail
+          node f02-g0/closure-audit.mjs
+          node f02-g0/full-domain-audit.mjs
+          node f02-g0/scope-audit.mjs
+          node f03/verify-contract.mjs
+          node --test f03/tests/*.test.mjs
+          node f03/login-design/verify-contract.mjs
+          node --test f03/login-design/test/*.test.mjs
+      - name: Current 464 physical columns, all 45 action contracts, 12 acceptance gates
+        run: node f03/runtime-design/verify-contract.mjs
+      - name: Synthetic permission, scope, admin/receiving races and sensitivity mutations
+        run: |
+          set -euo pipefail
+          node --test f03/runtime-design/tests/*.test.mjs
+      - name: Report static-only completion
+        run: |
+          echo 'F03-2-G0 STATIC-ONLY PASS; NO DATABASE SERVICE OR SQL MIGRATION EXECUTED'

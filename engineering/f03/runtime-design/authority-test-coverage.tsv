@@ -1,0 +1,13 @@
+gate_id	requirement	static_evidence	positive_case	negative_case	status	future_real_gate
+G0-01	Final全45动作和冻结实体字段完整反向映射	authority-fact-map.tsv;capability-scope-contract.tsv;verify-contract.mjs	45行唯一且全字段INCLUDE或明确缺口	缺行/伪造字段/重复字段/未映射operation拒绝	STATIC_TEST	F03-2-1
+G0-02	模板当前优先级/个人allow-deny/hard DENY	model.mjs;tests/model.test.mjs	模板添加/个人allow有效	模板取消/个人deny/hard DENY拒绝	SYNTHETIC	F03-2-1/2
+G0-03	旧会话读当前scope与身份	model.mjs;tests/model.test.mjs	未来结束时仍在当前有效窗口	当前ended_at、inactive、credential_epoch失效、调店拒绝	SYNTHETIC	F03-2-1 HTTPS-PG16
+G0-04	请求伪造/每cap独立scope及复杂ID	model.mjs;tests/model.test.mjs	owner+store合法当前范围	伪造actor/global/team、越对象、不安全JS整数、多cap仅一证明拒绝	SYNTHETIC	F03-2-1
+G0-05	4S/System Admin强隔离和合法控制面	model.mjs;tests/model.test.mjs	4S本人车辆与Admin员工控制面例外	跨车/4S敏感内部价/禁止账号/系统业务拒绝;撤销PC个人allow后旧会话全拒绝	SYNTHETIC	F03-2-1/2
+G0-06	权限治理主体及越权target	governance-action-contract.tsv;model.mjs;tests/model.test.mjs	本人receiving、经理合法团队、店长本店	销售越权、团队证据丢失、自提权、4S治理拒绝;经理/店长伪模板授权拒绝	SYNTHETIC	F03-2-2
+G0-07	Admin/接客并发写偏斜与bootstrap	transaction-and-revocation.md;tests/model.test.mjs	有有效接客/管理员的合法减少、首次bootstrap	旧版本交叉停用、最后有效Admin/最后接客者、计划停用最后接客者拒绝和交错重验;4S伪eligible不计;重复bootstrap拒绝	SYNTHETIC_NOT_PG	F03-2-2
+G0-08	计划交接/突发失效/复职不复权	model.mjs;transaction-and-revocation.md;tests/model.test.mjs	分域handover完成后计划调店	未证明handover拒绝/复职旧会话不恢复/突发待分配	SYNTHETIC_NOT_PG	F03-2-2/3
+G0-09	权限历史审计原子、失败重试、部分交接	model.mjs;tests/model.test.mjs	成功项保留且失败项重试;单次audit	审计失败无治理或历史写入;真实审计前后值及actor/role/store不可改;重复旧版本拒绝	SYNTHETIC_NOT_PG	F03-2-2/3
+G0-10	hard DENY/scope/提交重验mutation负例	model.mjs;tests/sensitivity.test.mjs	原版负例全部拒绝	去掉任一保护时对应mutation被负例识别	SYNTHETIC_MUTATION	F03-2-1/2
+G0-11	结构有据可查、缺口明确拒绝或建议	schema-gap-and-migration-advice.md;authority-fact-map.tsv;verify-contract.mjs	冻结字段mechanical INCLUDED追溯	team/eligible/handover/绑定缺口不能冒充已建;role_default_permission_history已有须复用	STATIC_TEST	F03-2-1/2/3
+G0-12	原静态回归且不连接数据库、不改Authority	verify-contract.mjs;.github/workflows/f03-2-g0-runtime-design.yml	本批Node ESM及既有静态门禁通过	无pg/network/http/TLS/环境DB与运行时写入	STATIC_CI	A_REVIEW
