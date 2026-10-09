@@ -1,3 +1,11 @@
+# 2026-10-10｜F03-2-2H三项整改A二轮复验通过并PR16合并，F03-2-2I已正式放行（当前最新）
+
+- **F03-2-2H A正式签收**：B最终SHA `f60d15aaa8fcc4c6fb955c2eaf394fea5895d4df`、同SHA真实[PG16 CI `37985367539`](https://github.com/suzhe868-arch/mb/actions/runs/37985367539) **11/11独立PG16作业成功、本批19/19测试通过**。前轮A-H-01跨item/batch请求Key唯一冲突、A-H-02暂停接客经理/店长合法交接、A-H-03精确跨店Team scope全部独立复验闭环。18个授权新增文件，旧文件无修改；原88表/1840目录对象保留，新000008仅新增一张收据表至89表/548列/360约束/143索引/1890目录对象(增量50)。原始结构来源`37985015633`与最终新run目录及来源字节校验PASS。标准[PR #16](https://github.com/suzhe868-arch/mb/pull/16) `mergeable=clean`后合并成功，合并提交 `acdc65e140c341916160bd02dd92eb93448ade06`。正式验收报告：`07_重建工作区/F03-2-2H_A主控二轮独立验收及PR16正式合并闭环_2026-10-10.md`。
+- **下一批F03-2-2I（A已技术裁决签发）**：仅在新隔离PG16合成环境演练Demand当前responsible单域权限、CAS、逐项不可变历史/收据与Priority trigger Demand派生责任/TTL保持；其它Domain不得改写，不得把单域收据冒充整批SG06 completed。旧000001～000008封印不动，只有本批新目录和专用CI，允许在可证明安全边界下提出000009最多一张新收据表。完整施工单：`07_重建工作区/F03-2-2I_A主控SG06_Demand负责人单域移交与Priority派生责任完整施工单_2026-10-10.md`；B指定分支`feat/f03-demand-responsible-handover-2i`，全部自测/归档并取得最新同SHA成功CI后交A，不能自行合并。
+- **NEXT_OWNER=B**。C/H01高保真仍未独立通过；完整F03-2、真实生产交接、其它七域适配及SG07整体仍未完成，`PRODUCT_BASELINE=NOT_READY`。本段覆盖下文过时的2H暂缓验收台账，旧历史保留。
+
+---
+
 # 2026-10-10｜F03-2-2H B交付A独立复核提出3项阻断整改（当前最新）
 
 - B固定受检SHA `88c762eb88e8cdbb7d1bc9850fa29d39f47bde50`、同SHA [PG16 CI37982757484](https://github.com/suzhe868-arch/mb/actions/runs/37982757484) **11/11独立作业全success、本批14/14测试全通过**，仅18个授权新增文件，旧main零修改，旧88表结构封印不变；000008提议新增唯一一张收据表并生成89表/548列/359约束/142索引与完整目录。B已`READY_FOR_A_REVIEW`，但**A尚不验收也未合并**。

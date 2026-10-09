@@ -4,7 +4,7 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F03_2_2H_B_READY_A_CHANGES_REQUESTED_THREE_GAPS_NEXT_OWNER_B_H01_VISUAL_PENDING",
+  "substage": "F03_2_2H_A_ACCEPTED_MERGED_PR16_F03_2_2I_A_RELEASED_NEXT_OWNER_B_H01_VISUAL_PENDING",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F03-2-2H已B完成14/14 PG16自验、11/11独立作业但A发现三项权限/幂等阻断项，下一责任人B在原2H分支整改再复验",
-  "current_work_file": "07_重建工作区/F03-2-2H_A主控独立验收完整定向整改单_2026-10-10.md",
+  "current_task": "F03-2-2H三项定向整改A二轮复验通过标准PR16合并；下一F03-2-2I Demand单域负责人移交及Priority派生守卫A已裁决正式放行，B负责执行",
+  "current_work_file": "07_重建工作区/F03-2-2I_A主控SG06_Demand负责人单域移交与Priority派生责任完整施工单_2026-10-10.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_FIX_F03_2_2H_A_H_01_03_SAME_SHA_PG16_READY_FOR_A",
+  "next_action": "B_F03_2_2I_DEMAND_SINGLE_DOMAIN_PG16_HANDOVER_PRIORITY_DERIVED_READY_FOR_A",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F03_2_2G_A_ACCEPTED_MERGED_PR15_F03_2_2H_A_CHANGES_REQUESTED_NOT_MERGED",
+  "engineering_status": "F03_2_2H_A_ACCEPTED_MERGED_PR16_F03_2_2I_A_RELEASED_B_NOT_STARTED",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B在原feat/f03-customer-owner-handover-2h分支一次性修复跨item/batch请求Key唯一碰撞、操作者暂停接客不会撤销合法交接管理权限、显式跨店Team/store data scope覆盖，并补真PG16并发/完整负例与新000008结构原字节归档，11独立作业同最新版HEAD全success后READY_FOR_A_REVIEW交A；禁止提前PR合并",
+  "next_action_detail": "B从最新main新建或核验现有feat/f03-demand-responsible-handover-2i；按A正式2I施工单完成隔离PG16中Demand当前responsible单域独立权限/CAS/原子历史及不可变收据、Priority触发Demand实时派生与TTL不重置守卫，旧000001～000008物理目录和所有老CI冻结；允许本批专用000009最多新增一张收据表，严禁其它Domain/整批completed/真实业务，最终真实同SHA CI全绿和完整证据READY_FOR_A_REVIEW交A",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -5176,7 +5176,7 @@
     ],
     "merge_status": "MERGED_TO_MAIN_USER_APPROVED",
     "schema_proposals": "SG01_LIMITED_000003_ACCEPTED_SG02_TO_SG08_NOT_AUTHORIZED",
-    "next": "B_IMPLEMENT_F03_2_2H_CUSTOMER_SINGLE_DOMAIN_SYNTHETIC_PG16_RECEIPT_READY_FOR_A",
+    "next": "B_IMPLEMENT_F03_2_2I_DEMAND_SINGLE_DOMAIN_WITH_PG16_EVIDENCE_READY_FOR_A",
     "merge_preparation": {
       "report": "07_重建工作区/F03-2-G0_A主控合并核验材料_待用户批准_2026-10-09.md",
       "pr": 6,
@@ -5582,7 +5582,7 @@
       "added_files": 14
     },
     "f03_2_2h": {
-      "status": "A_CHANGES_REQUESTED_B_REMEDIATION_REQUIRED",
+      "status": "F03_2_2H_A_ACCEPTED_MERGED_PR16",
       "owner": "B",
       "next_owner_after_b": "A",
       "branch": "feat/f03-customer-owner-handover-2h",
@@ -5591,18 +5591,35 @@
       "authorization": "STANDING_A_B_C_CONTINUOUS_ISOLATED_TECHNICAL_IMPLEMENTATION",
       "scope": "SG06_CUSTOMER_OWNER_ONLY_SYNTHETIC_PG16_SENSITIVE_PERMISSION_ATOMIC_HISTORY_RECEIPT",
       "schema_authorization": "ONLY_NEW_000008_ONE_APPEND_ONLY_RECEIPT_TABLE_IF_PROVEN_REQUIRED_OLD_000001_TO_000007_UNCHANGED",
-      "tests": "B_CI_37982757484_11_OF_11_SUCCESS_2H_14_OF_14_BUT_A_THREE_GAPS",
-      "ci_sha": "88c762eb88e8cdbb7d1bc9850fa29d39f47bde50",
-      "ci_run_id": 37982757484,
-      "acceptance": "A_CHANGES_REQUESTED_NOT_ACCEPTED",
-      "merge": "NOT_STARTED",
+      "tests": "REAL_CI_37985367539_11_OF_11_SUCCESS_H_19_OF_19",
+      "ci_sha": "f60d15aaa8fcc4c6fb955c2eaf394fea5895d4df",
+      "ci_run_id": 37985367539,
+      "acceptance": "A_ACCEPTED_SIGNED_ONLY_F03_2_2H_NOT_FULL_F03_2",
+      "merge": "MERGED_TO_MAIN_PR16",
       "forbidden": "REAL_CUSTOMERS_PRODUCTION_ALL_DOMAIN_COMPLETED_ANY_OTHER_DOMAIN_RESPONSIBLE_CHANGES_ADMIN_EMPLOYEE_MANAGE_AUTH_BYPASS",
       "a_review_report": "07_重建工作区/F03-2-2H_A主控独立验收完整定向整改单_2026-10-10.md",
-      "required_changes": [
-        "A-H-01_REQUEST_KEY_GLOBAL_CROSS_ITEM_COLLISION",
-        "A-H-02_MANAGER_RECEIVING_PAUSE_NOT_PERMISSION_REVOKE",
-        "A-H-03_EXPLICIT_CROSS_STORE_SCOPE"
-      ]
+      "required_changes": [],
+      "merge_pr": 16,
+      "merge_sha": "acdc65e140c341916160bd02dd92eb93448ade06",
+      "acceptance_report": "07_重建工作区/F03-2-2H_A主控二轮独立验收及PR16正式合并闭环_2026-10-10.md",
+      "added_files": 18,
+      "pg16_physical": "89_tables_548_columns_360_constraints_143_indexes_1890_catalog_objects_plus50"
+    },
+    "f03_2_2i": {
+      "status": "A_TECH_ADJUDICATED_AND_RELEASED_B_NOT_STARTED",
+      "owner": "B",
+      "next_owner_after_b": "A",
+      "branch": "feat/f03-demand-responsible-handover-2i",
+      "branch_created": false,
+      "work_order": "07_重建工作区/F03-2-2I_A主控SG06_Demand负责人单域移交与Priority派生责任完整施工单_2026-10-10.md",
+      "authorization": "STANDING_A_B_C_CONTINUOUS_ISOLATED_TECHNICAL_CONSTRUCTION",
+      "scope": "SG06_DEMAND_RESPONSIBLE_SINGLE_DOMAIN_CI_PG16_AND_PRIORITY_DERIVED_OWNER_TTL_GUARD",
+      "schema_authorization": "ONLY_NEW_000009_ONE_APPEND_ONLY_DEMAND_RECEIPT_TABLE_IF_STRICTLY_PROVEN_OLD_000001_TO_000008_FROZEN",
+      "tests": "NOT_RUN",
+      "acceptance": "NOT_STARTED",
+      "merge": "NOT_STARTED",
+      "ci_sha": null,
+      "ci_run_id": null
     }
   },
   "a_batch_approval_mode": "STANDING_USER_DIRECTED_CONTINUOUS_TECHNICAL_WORKFLOW_IN_FROZEN_SCOPE; A_SCOPES_AND_RELEASES_B_C; EACH_WINDOW_COMPLETES_END_TO_END; A_INDEPENDENT_ACCEPTANCE_AND_CLEAN_PR_MERGE_WITHOUT_REPEAT_APPROVAL; NEW_PRODUCT_CHOICE_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_EXTERNAL_WRITES_REQUIRE_USER",
