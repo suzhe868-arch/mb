@@ -135,7 +135,7 @@ test('T07 forged authority/target, downgrade, batch, extra fields denied with no
   {roleCode:'sales',permissionCode:'customer.phone.manage',enabled:true,action:'delete'},
   {roleCode:'sales',permissionCode:'customer.phone.manage'},undefined,null,[],'sales',{}
  ];
- for(const input of bad)assert.deepEqual(await request(admin1,input),deny());
+ for(const input of bad)assert.deepEqual(await enable(auth,admin1,input),deny());
  const after=await counts();
  assert.equal(after.current,before.current);assert.equal(after.history.length,before.history.length);
  assert.equal(after.audit.length,before.audit.length);
