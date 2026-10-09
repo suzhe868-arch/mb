@@ -1,0 +1,2 @@
+659687f2997d74a02c785ebecbf0d717c06637ee0ef8552b8d50bb0c0541f3de  f03/runtime-scope/artifacts/pg16_schema_only.sql
+652067086722d7ef6db6bc237430842cbe936ed49649837c6587bae9ff3ece46  f03/runtime-scope/artifacts/pg16_inventory.json
