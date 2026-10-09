@@ -1,3 +1,11 @@
+# 2026-10-10｜F03-2-2I A二轮独立复验通过、PR17正式合并；F03-2-2J已正式放行（当前最新）
+
+- **2I已正式闭环**：B最终SHA`c92ff2a07b06b94dd7a8c53a9b888248856f61bd`、同SHA[真实PG16 CI37991845213](https://github.com/suzhe868-arch/mb/actions/runs/37991845213)**12/12独立作业成功、I27/27集成测试通过**；A-I-01 H/I双向请求Key真实顺序与并发拒绝、A-I-02 Demand合法二次交接不可变收据及历史链均已验收。旧H只依A正式整改单限定修改单个服务跨域Key守卫，其余旧工程/迁移/CI未改。旧89表/1890目录键零改、新000009一张Demand收据表后90表/560列/375约束/147索引/1936目录键新增46，PG16原始归档和物理指纹跨run PASS。A标准[PR17](https://github.com/suzhe868-arch/mb/pull/17)已合并，merge SHA`9bc5e17be2153d4646816c808d6af77409513308`。正式A签字：`07_重建工作区/F03-2-2I_A主控二轮独立验收及PR17正式合并闭环_2026-10-10.md`。
+- **2J已A技术裁决并放行B**：依据PDM-15 Consultation四状态、正式咨询负责人转派/15分钟首响SLA，PDM-14 Recommendation不反写及PDM-03业务与Customer owner分层，B在独立隔离PG16真实测试Consultation assignee单域CAS/不可变交接收据、首响deadline不重置、历史连转可审计；H/I/J三域请求Key必须三向全局保护。仅允许新的`000010`最多一张合成收据表与两个已验收H/I服务入口的最小跨域守卫兼容补强；旧迁移、旧CI、旧业务规则绝不修改。正式施工单`07_重建工作区/F03-2-2J_A主控SG06_Consultation咨询负责人单域移交与SLA保留完整施工单_2026-10-10.md`，B指定分支`feat/f03-consultation-assignee-handover-2j`，完整实施+PG16+证据+最新同SHA全成功后交A，不得自行合并main。
+- **NEXT_OWNER=B**；C/H01高保真、F03-2整体和产品基线仍`NOT_READY`。本段覆盖下文旧2I待整改历史状态，历史记录不删除。
+
+---
+
 # 2026-10-10｜F03-2-2I B自验全绿，但A发现2项跨域幂等/不可变历史阻断（当前最新）
 
 - B分支`feat/f03-demand-responsible-handover-2i`真实HEAD`9445a68c00a809b9f69aba7542af3b403f9b7b1c`，同SHA[真实CI 37989284356](https://github.com/suzhe868-arch/mb/actions/runs/37989284356)**12/12独立PG16作业success、新I 21/21测试通过**；仅18个批准新文件、旧main零修改。旧000001～000008 89表1890完整目录对象零变更；候选000009一张Demand收据表后90表/560列/375约束/147索引、1936对象新增46目录键，真实原始结构跨运行校验成功。**B自验通过不等于A验收。**
