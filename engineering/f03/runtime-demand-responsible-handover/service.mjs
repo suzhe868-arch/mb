@@ -16,10 +16,12 @@ async function scope(c,actor,from,to,team,customer,allowInactive=false){
 async function authTx(auth,token,fn,opts={}){
  if(!hookAllowed(opts.testCheckpoint))return out('I02_TEST_HOOK_DENY');
  const v=await auth.pool.connect();try{
-  const j=(await v.query("SELECT to_regclass('public.consultation_assignee_handover_receipts')::text AS tbl")).rows[0]?.tbl;
-  if(j==='consultation_assignee_handover_receipts'){
-   const {verify:verifyJ}=await import('../runtime-consultation-assignee-handover/migration.mjs');
-   await verifyJ(v);
+  if(opts.crossDomainRequestKeyCommit===true){
+   const j=(await v.query("SELECT to_regclass('public.consultation_assignee_handover_receipts')::text AS tbl")).rows[0]?.tbl;
+   if(j==='consultation_assignee_handover_receipts'){
+    const {verify:verifyJ}=await import('../runtime-consultation-assignee-handover/migration.mjs');
+    await verifyJ(v);
+   }else await verify(v);
   }else await verify(v);
  }finally{v.release()}
  try{
@@ -135,8 +137,8 @@ async function transfer(c,actor,p,hook){
  if(hook)await hook('before_commit',c);
  return out('I04_DEMAND_DOMAIN_TRANSFERRED',{receipt:display(receipt),priorityLifecycleNotChanged:true,otherDomainsPending:true,idempotent:false});
 }
-export const commitDemandResponsibleHandover=(a,t,p,o)=>!request(p)?Promise.resolve(out('I04_BAD_REQUEST')):authTx(a,t,(c,actor,h)=>transfer(c,actor,p,h),o);
-export const retryDemandResponsibleHandover=(a,t,p,o)=>!request(p)?Promise.resolve(out('I05_BAD_RETRY')):authTx(a,t,(c,actor,h)=>transfer(c,actor,p,h),o);
+export const commitDemandResponsibleHandover=(a,t,p,o)=>!request(p)?Promise.resolve(out('I04_BAD_REQUEST')):authTx(a,t,(c,actor,h)=>transfer(c,actor,p,h),{...o,crossDomainRequestKeyCommit:true});
+export const retryDemandResponsibleHandover=(a,t,p,o)=>!request(p)?Promise.resolve(out('I05_BAD_RETRY')):authTx(a,t,(c,actor,h)=>transfer(c,actor,p,h),{...o,crossDomainRequestKeyCommit:true});
 export async function readDemandResponsibleHandoverReceipt(auth,token,p,o){
  if(!exact(p,'batchId,itemId,teamId')||![p.batchId,p.itemId,p.teamId].every(valid))return out('I05_BAD_READ');
  return authTx(auth,token,async(c,actor)=>{
