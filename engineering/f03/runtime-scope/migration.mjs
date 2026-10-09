@@ -31,8 +31,9 @@ export const OLD_CHECKSUM='3d7f0a539941e4089147a9c7a82ecfdb2ccebd64ba513e01deeb0
 export const F02_CHECKSUM='df078212b95701af12144a43ef85a70fc491e5dca9948644df415bd888c5b4e4';
 export const F02_STRUCTURE='d5535d72fe17d7981b006bcd1223eb11cb67660b53e7603f1125bfab8dba9cde';
 const verifyIdentity=async c=>{
- const a=(await c.query("SELECT current_database() db,current_user usr,current_setting('server_version_num')::integer ver,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su,(SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user) cdb,(SELECT rolcreaterole FROM pg_roles WHERE rolname=current_user) cr")).rows[0];
+ const a=(await c.query("SELECT current_database() db,current_user usr,current_setting('server_version_num')::integer ver,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su,(SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user) cdb,(SELECT rolcreaterole FROM pg_roles WHERE rolname=current_user) cr,(SELECT count(*)::integer FROM pg_namespace WHERE nspname NOT IN ('pg_catalog','information_schema','public') AND nspname NOT LIKE 'pg_toast%' AND nspname NOT LIKE 'pg_temp%') ns")).rows[0];
  if(a.db!=='f03_auth_test'||a.usr!=='f03_ci'||a.ver<160000||a.ver>=170000||a.su!==false||a.cdb!==false||a.cr!==false)throw Error('F03_2_1B_ISOLATION_IDENTITY_DENY');
+ if(a.ns!==0)throw Error('F03_2_1B_NONPUBLIC_NAMESPACE_DENY');
 };
 const verifySeal=async(c)=>{
  const run=isolate().run;await verifyIdentity(c);
@@ -47,6 +48,21 @@ const verifySeal=async(c)=>{
    f02[0].structure_sha256!==F02_STRUCTURE)throw Error('F03_2_1B_RUN_SEAL_OR_F02_BASELINE_DENY');
 };
 const versionRows=async c=>(await c.query("SELECT migration_id,checksum,structure_sha256 FROM public.f03_schema_migrations ORDER BY migration_id")).rows;
+// R1: every entry point checks THE SAME exact version chain (including
+// original 000001 via verifySeal) *inside its actual transaction*.
+// A real physical fingerprint cannot detect changes to migration-row values.
+async function requireVersionChain(c,m,phase){
+ const rows=await versionRows(c);
+ if(![1,2].includes(rows.length)||
+    rows[0]?.migration_id!=='000002_pc_auth_sessions'||
+    rows[0]?.checksum!==OLD_CHECKSUM||rows[0]?.structure_sha256!==OLD_SHA)
+   throw Error('F03_2_1B_VERSION_DRIFT');
+ if(rows.length===2&&(rows[1]?.migration_id!==ID||rows[1]?.checksum!==checksum||
+                         rows[1]?.structure_sha256!==m.structure_sha256))
+   throw Error('F03_2_1B_VERSION_DRIFT');
+ if(phase==='new'&&rows.length!==2)throw Error('F03_2_1B_VERSION_DRIFT');
+ return rows.length===2?'new':'old';
+}
 const tables=async c=>(await c.query("SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename")).rows.map(x=>x.tablename);
 const manifest=async()=>{
  const m=await manifestPromise;
@@ -60,8 +76,7 @@ export async function verify(c){
  await c.query('BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY');
  try{
   await verifySeal(c);
-  const v=await versionRows(c);if(v.length!==2||v[0].migration_id!=='000002_pc_auth_sessions'||v[0].checksum!==OLD_CHECKSUM||v[0].structure_sha256!==OLD_SHA||
-   v[1].migration_id!==ID||v[1].checksum!==checksum||v[1].structure_sha256!==m.structure_sha256)throw Error('F03_2_1B_VERSION_DRIFT');
+  await requireVersionChain(c,m,'new');
   if((await tables(c)).length!==81)throw Error('F03_2_1B_81_TABLES_REQUIRED');
   const physical=await getPublicStructure(c);
   if(physical.sha256!==m.structure_sha256)throw Error('F03_2_1B_FULL_PHYSICAL_DRIFT');
@@ -69,18 +84,16 @@ export async function verify(c){
  }catch(e){await c.query('ROLLBACK');throw e}
 }
 export async function apply(c,{inject=false}={}){
- await verifySeal(c);const m=await manifest();
+ const m=await manifest();
  await c.query('BEGIN');
  try{
   await c.query('SELECT pg_advisory_xact_lock(20261009,303)');
-  const rows=await versionRows(c);
-  if(rows.length===2){
-   // Old checksum and full physical fingerprint must match, not just version count.
-   const ver=rows[1];if(ver.migration_id!==ID||ver.checksum!==checksum||ver.structure_sha256!==m.structure_sha256||
-    (await getPublicStructure(c)).sha256!==m.structure_sha256)throw Error('F03_2_1B_ALREADY_APPLIED_DRIFT');
+  await verifySeal(c);
+  const phase=await requireVersionChain(c,m);
+  if(phase==='new'){
+   if((await getPublicStructure(c)).sha256!==m.structure_sha256)throw Error('F03_2_1B_ALREADY_APPLIED_DRIFT');
    await c.query('COMMIT');return {applied:false,schemaSha:m.structure_sha256};
   }
-  if(rows.length!==1||rows[0].migration_id!=='000002_pc_auth_sessions'||rows[0].checksum!==OLD_CHECKSUM||rows[0].structure_sha256!==OLD_SHA)throw Error('F03_2_1B_BASELINE_VERSION_DRIFT');
   if((await tables(c)).length!==80||(await getPublicStructure(c)).sha256!==OLD_SHA)throw Error('F03_2_1B_BASELINE_PHYSICAL_DRIFT');
   await c.query(SQL);
   if(inject)throw Error('F03_2_1B_INJECTED_POST_DDL_ROLLBACK');
@@ -92,13 +105,13 @@ export async function apply(c,{inject=false}={}){
  }catch(e){await c.query('ROLLBACK');throw e}
 }
 export async function rollback(c){
- await verifySeal(c);const m=await manifest();
+ const m=await manifest();
  await c.query('BEGIN');
  try{
   await c.query('SELECT pg_advisory_xact_lock(20261009,303)');
-  const rows=await versionRows(c);
-  if(rows.length!==2||rows[1].migration_id!==ID||rows[1].checksum!==checksum||rows[1].structure_sha256!==m.structure_sha256||
-    (await getPublicStructure(c)).sha256!==m.structure_sha256)throw Error('F03_2_1B_ROLLBACK_DRIFT_DENY');
+  await verifySeal(c);
+  await requireVersionChain(c,m,'new');
+  if((await getPublicStructure(c)).sha256!==m.structure_sha256)throw Error('F03_2_1B_ROLLBACK_DRIFT_DENY');
   const count=(await c.query('SELECT count(*)::integer AS n FROM public.employee_capability_scope_bindings')).rows[0].n;
   if(count!==0)throw Error('F03_2_1B_ROLLBACK_NONEMPTY_DENY');
   await c.query('DROP TABLE public.employee_capability_scope_bindings');
