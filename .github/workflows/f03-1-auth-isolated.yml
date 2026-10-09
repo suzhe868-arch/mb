@@ -1,0 +1,170 @@
+name: F03-1 isolated PG16 real authentication
+on:
+  push:
+    branches: [feat/f03-login-impl]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  f03-1-real-auth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: F01/F02-G0/F03-G0/F03-1-G0 existing static regression
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run check
+          node f02-g0/closure-audit.mjs
+          node f02-g0/full-domain-audit.mjs
+          node f02-g0/scope-audit.mjs
+          node f03/verify-contract.mjs
+          node --test f03/tests/*.test.mjs
+          node f03/login-design/verify-contract.mjs
+          node --test f03/login-design/test/*.test.mjs
+      - name: Disposable PG16 role and empty isolated database
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
+      - name: Refuse unsafe target, missing confirmation and alternate SQL mode
+        run: |
+          set -euo pipefail
+          if F03_1_DATABASE_URL=postgres://f03_ci:test@127.0.0.1:5432/f02_schema_test node f03-1/runner.mjs --bootstrap; then exit 1; fi
+          if F03_1_ISOLATION_CONFIRM=NO node f03-1/runner.mjs --bootstrap; then exit 1; fi
+          if node f03-1/runner.mjs --drop; then exit 1; fi
+          echo 'F03-1 TARGET GUARD DENY PASS'
+      - name: Bootstrap pinned F02 Initial and isolated CI run seal
+        run: node f03-1/runner.mjs --bootstrap
+      - name: Assert --verify never installs missing migration or changes DB
+        run: |
+          set -euo pipefail
+          if node f03-1/runner.mjs --verify; then echo 'unexpected verify apply'; exit 1; fi
+          node f03-1/tests/verify-readonly-negative.mjs
+          echo 'F03-1 READONLY VERIFY NEGATIVE PASS'
+      - name: Real injected post-DDL rollback preserving sealed F02 baseline
+        run: |
+          set -euo pipefail
+          if node f03-1/runner.mjs --inject; then echo 'unexpected migration success';exit 1;fi
+          echo 'F03-1 DDL POST-INJECTION TRANSACTION ROLLBACK PASS'
+      - name: Four concurrent workers, retry and verification of exact migration chain
+        run: |
+          set -euo pipefail
+          mkdir -p f03-1/artifacts
+          node f03-1/runner.mjs --apply >f03-1/artifacts/worker1.log 2>&1 & a=$!
+          node f03-1/runner.mjs --apply >f03-1/artifacts/worker2.log 2>&1 & b=$!
+          node f03-1/runner.mjs --apply >f03-1/artifacts/worker3.log 2>&1 & c=$!
+          node f03-1/runner.mjs --apply >f03-1/artifacts/worker4.log 2>&1 & d=$!
+          wait "$a"; wait "$b"; wait "$c"; wait "$d"
+          cat f03-1/artifacts/worker*.log
+          node f03-1/runner.mjs --apply
+          node f03-1/runner.mjs --verify
+          echo 'F03-1 REAL PG16 CONCURRENT IDEMPOTENT MIGRATION PASS'
+      - name: Reject a different CI-run seal, unknown schema, checksum drift and version tampering
+        run: |
+          set -euo pipefail
+          if GITHUB_RUN_ID=99999999 node f03-1/runner.mjs --apply; then exit 1; fi
+          node f03-1/tests/migration-negative.mjs | tee f03-1/artifacts/migration-negative.log
+          echo 'F03-1 CI RUN SEAL, UNKNOWN VERSION, ROGUE VIEW, CHECKSUM GUARDS PASS'
+      - name: Export true PG16 schema-only dump and object inventory
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > f03-1/artifacts/pg16_schema_only.sql
+          test -s f03-1/artifacts/pg16_schema_only.sql
+          grep -q 'CREATE TABLE public.pc_auth_sessions' f03-1/artifacts/pg16_schema_only.sql
+          grep -q 'credential_epoch bigint' f03-1/artifacts/pg16_schema_only.sql
+          node f03-1/inventory.mjs > f03-1/artifacts/pg16_inventory.json
+          sha256sum f03-1/artifacts/pg16_schema_only.sql f03-1/artifacts/pg16_inventory.json
+      - name: Generate temporary loopback TLS and HMAC key without artifact secrets
+        run: |
+          set -euo pipefail
+          openssl req -x509 -newkey rsa:2048 -nodes -days 1 -keyout /tmp/f03-1-key.pem -out /tmp/f03-1-cert.pem -subj '/CN=127.0.0.1' -addext 'subjectAltName=IP:127.0.0.1' >/dev/null 2>&1
+          printf 'F03_1_TLS_KEY_PATH=/tmp/f03-1-key.pem\n' >> "$GITHUB_ENV"
+          printf 'F03_1_TLS_CERT_PATH=/tmp/f03-1-cert.pem\n' >> "$GITHUB_ENV"
+          key="$(openssl rand -base64 32 | tr -d '\n')"
+          echo "::add-mask::$key"
+          printf 'F03_1_HMAC_KEY_BASE64=%s\n' "$key" >> "$GITHUB_ENV"
+          unset key
+      - name: Deterministic KDF reserved slot races, queue, timeout and recovery
+        run: |
+          set -euo pipefail
+          node --test f03-1/tests/kdf-budget.test.mjs
+      - name: Readiness real DB identity, version chain, CI seal and physical drift
+        run: |
+          set -euo pipefail
+          node --test f03-1/tests/runtime-guard.test.mjs
+      - name: True synthetic PG16 credential fixtures and transactional concurrent tests
+        run: |
+          set -euo pipefail
+          node f03-1/fixtures.mjs
+          node --test f03-1/tests/integration.test.mjs 2>&1 | tee f03-1/artifacts/pg16-auth-tests.log
+          grep -q '# fail 0' f03-1/artifacts/pg16-auth-tests.log
+      - name: Real HTTPS TLS/cookie/CSRF/restricted-password/change/logout test
+        run: |
+          set -euo pipefail
+          node --test f03-1/tests/https.test.mjs 2>&1 | tee f03-1/artifacts/https-auth-tests.log
+          grep -q '# fail 0' f03-1/artifacts/https-auth-tests.log
+          echo 'F03-1 REAL AUTHENTICATION AND HTTPS PASS'
+      - name: Re-run frozen F02-1 PG16 migration in a separate fresh disposable database
+        env:
+          F02_1_ISOLATION_CONFIRM: I_AUTHORIZE_F02_1_NEW_EMPTY_PG16_SCHEMA_ONLY
+          F02_1_OPERATION: isolated_current_schema
+          F02_1_DATABASE_URL: postgres://f02_ci:f02_ci_ephemeral_fixture@127.0.0.1:5432/f02_schema_test
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f02_ci WITH LOGIN PASSWORD 'f02_ci_ephemeral_fixture' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f02_schema_test OWNER f02_ci"
+          node f02-1/tests/empty-public-objects.mjs
+          if F02_1_INJECT_TX_FAILURE=CI_TEST_AFTER_DDL node f02-1/runner.mjs --apply; then exit 1; fi
+          node f02-1/runner.mjs --verify-empty
+          node f02-1/runner.mjs --apply
+          node f02-1/runner.mjs --verify
+          node f02-1/tests/live.mjs
+          node f02-1/tests/migration-metadata.mjs
+          echo 'F03-1 SEPARATE F02-1 REAL PG16 REGRESSION PASS'
+      - name: Scan checked in and uploadable artifacts for unexpected secrets
+        if: always()
+        run: |
+          set -euo pipefail
+          if grep -R -nE --exclude='*.mjs' --exclude='*.md' 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|(BEGIN PRIVATE KEY)' f03-1/artifacts; then exit 1; fi
+          echo 'F03-1 ARTIFACT SECRET SCAN PASS'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f03-1-pg16-auth-and-schema
+          path: engineering/f03-1/artifacts/
+          retention-days: 30
+          if-no-files-found: warn

@@ -21,11 +21,11 @@ async function checkReady(readinessProbe, timeoutMs) {
   }
 }
 
-export function createFoundationServer({ readinessProbe = async () => false, readinessTimeoutMs = 1000 } = {}) {
+export function createFoundationHandler({ readinessProbe = async () => false, readinessTimeoutMs = 1000, authHandler = null } = {}) {
   if (!Number.isInteger(readinessTimeoutMs) || readinessTimeoutMs < 1 || readinessTimeoutMs > 10000) {
     throw new Error('INVALID_READINESS_TIMEOUT');
   }
-  return createServer(async (req, res) => {
+  return async (req, res) => {
     const pathname = (req.url ?? '/').split('?')[0];
     if (pathname === '/api/v1/health/live' || pathname === '/api/v1/health/ready') {
       if (req.method !== 'GET') return sendJson(res, 405, { code: 'METHOD_NOT_ALLOWED' });
@@ -38,6 +38,9 @@ export function createFoundationServer({ readinessProbe = async () => false, rea
         return sendJson(res, 503, { ok: false, code: 'DEPENDENCY_NOT_READY' });
       }
     }
+    if (authHandler && await authHandler(req, res) === true) return;
     return sendJson(res, 404, { code: 'NOT_IMPLEMENTED' });
-  });
+  };
 }
+export function createFoundationServer(options = {}) {return createServer(createFoundationHandler(options))}
+
