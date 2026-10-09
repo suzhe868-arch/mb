@@ -1231,3 +1231,132 @@ jobs:
           path: engineering/f03/runtime-facts/artifacts-auth-https/
           retention-days: 30
           if-no-files-found: warn
+  f03-2i-demand-responsible-handover-pg16:
+    name: F03-2-2I FROZEN independent 90-table PG16 full 27 tests + archival source verification
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Validate frozen project and read-only structural checks
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run check
+          node --check f03/runtime-demand-responsible-handover/migration.mjs
+          node --check f03/runtime-demand-responsible-handover/service.mjs
+          node --check f03/runtime-demand-responsible-handover/evidence.mjs
+          node --check f03/runtime-demand-responsible-handover/fixtures.mjs
+          node --check f03/runtime-demand-responsible-handover/tests/integration.test.mjs
+      - name: Disposable non-superuser new PG16 exact approved 000001 to 000004 baseline
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
+          node f03-1/runner.mjs --bootstrap
+          node f03-1/runner.mjs --apply
+          node f03/runtime-scope/runner.mjs --apply
+          node f03/runtime-admin-population/runner.mjs --apply
+          node f03/runtime-receiving-pool/runner.mjs --apply
+          node f03/runtime-receiving-pool/runner.mjs --verify
+          node f03/runtime-team-scope/runner.mjs --apply
+          node f03/runtime-team-scope/runner.mjs --verify
+      - name: Discover authorized 000009 46-catalog-object delta in real PG16 and roll back
+        run: |
+          set -euo pipefail
+          node f03/runtime-handover-ledger/runner.mjs --apply
+          node f03/runtime-customer-owner-handover/runner.mjs --apply
+          node f03/runtime-demand-responsible-handover/runner.mjs --discover
+          node f03/runtime-customer-owner-handover/runner.mjs --verify
+      - name: Use existing frozen 000008 89-table; seed only synthetic scoped Demand facts and old physical evidence
+        run: |
+          set -euo pipefail
+          mkdir -p f03/runtime-demand-responsible-handover/artifacts
+          node f03/runtime-customer-owner-handover/runner.mjs --verify
+          node f03-1/fixtures.mjs
+          node f03/runtime-scope/fixtures.mjs
+          node f03/runtime-governance-template/fixtures.mjs
+          node f03/runtime-receiving-pool/fixtures.mjs
+          node f03/runtime-team-scope/fixtures.mjs
+          node f03/runtime-handover-ledger/fixtures.mjs
+          node f03/runtime-manager-team-governance/fixtures.mjs
+          node f03/runtime-handover-preflight/fixtures.mjs
+          node f03/runtime-customer-owner-handover/fixtures.mjs
+          node f03/runtime-demand-responsible-handover/fixtures.mjs
+          node f03/runtime-demand-responsible-handover/evidence.mjs --old
+      - name: Prove injected 000009 rollback and preserve strict old frozen 89-table verifier
+        run: |
+          set -euo pipefail
+          if node f03/runtime-demand-responsible-handover/runner.mjs --inject; then echo 'I_INJECT_UNEXPECTED_SUCCESS'; exit 1; fi
+          node f03/runtime-customer-owner-handover/runner.mjs --verify
+      - name: Apply dedicated exactly pinned 000009 one-table immutable Demand receipt migration
+        run: |
+          set -euo pipefail
+          node f03/runtime-demand-responsible-handover/runner.mjs --apply
+          node f03/runtime-demand-responsible-handover/runner.mjs --verify
+          if node f03/runtime-customer-owner-handover/runner.mjs --verify; then echo 'OLD_89_GUARD_WRONGLY_ALLOWED_90'; exit 1; fi
+          node f03/runtime-demand-responsible-handover/runner.mjs --rollback
+          node f03/runtime-customer-owner-handover/runner.mjs --verify
+          node f03/runtime-demand-responsible-handover/runner.mjs --apply
+          node f03/runtime-demand-responsible-handover/runner.mjs --verify
+      - name: I01-I10 real PG16 21 tests Demand CAS, two actor races and five fault rollback points
+        run: |
+          set -euo pipefail
+          node --test f03/runtime-demand-responsible-handover/tests/integration.test.mjs 2>&1 | tee f03/runtime-demand-responsible-handover/artifacts/pg16-demand-handover-tests.log
+          grep -q '# fail 0' f03/runtime-demand-responsible-handover/artifacts/pg16-demand-handover-tests.log
+          node f03/runtime-demand-responsible-handover/runner.mjs --verify
+      - name: Export original PG16 full 89-to-90 table physical catalog original schema-only and version inventory
+        run: |
+          set -euo pipefail
+          node f03/runtime-demand-responsible-handover/evidence.mjs --new
+          ids="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
+          docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > f03/runtime-demand-responsible-handover/artifacts/pg16_schema_only.sql
+          sha256sum f03/runtime-demand-responsible-handover/artifacts/pg16_schema_only.sql f03/runtime-demand-responsible-handover/artifacts/pg16_inventory.json > f03/runtime-demand-responsible-handover/artifacts/sha256sums.txt
+          if test -f f03/runtime-demand-responsible-handover/evidence/SOURCE.md; then node f03/runtime-demand-responsible-handover/evidence.mjs --archive-check; fi
+      - name: Audit raw output for forbidden live credentials and token payloads
+        run: |
+          set -euo pipefail
+          if grep -R -nE 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|BEGIN PRIVATE KEY|Synthetic2I_Demand_2026|SyntheticGovAdminTwo_2026|SyntheticAdmin_1234567' f03/runtime-demand-responsible-handover/artifacts; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f03-2-2i-real-pg16-90-demand-domain-immutable-receipt-evidence
+          path: engineering/f03/runtime-demand-responsible-handover/artifacts/
+          retention-days: 30
+          if-no-files-found: error
+      - name: Verify original archived I90 source identity and PG16 bytes; never mutate I branch
+        run: |
+          set -euo pipefail
+          test -f f03/runtime-demand-responsible-handover/evidence/SOURCE.md
+          grep -q '^source_run_id: 37988363315$' f03/runtime-demand-responsible-handover/evidence/SOURCE.md
+          node f03/runtime-demand-responsible-handover/evidence.mjs --archive-check
