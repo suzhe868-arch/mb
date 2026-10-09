@@ -1,3 +1,13 @@
+# 2026-10-10｜F03-2-2E已验收并正式合并，A已放行下一受限权限治理批（当前最新）
+
+- **上一工程批F03-2-2E完整闭环**：B最终SHA `86e838fa1f66f44827dfb399dbaf1887a9934283`、同SHA [真实CI 37968929785](https://github.com/suzhe868-arch/mb/actions/runs/37968929785) 八独立PG16作业全部success，本批88表pending-only ledger 11/11，旧86/84/82/81/80表冻结回归均通过。A复核原main1248文件完整未动、仅17个批准新增文件，正常[PR #13](https://github.com/suzhe868-arch/mb/pull/13) merge SHA `59fdb3623c1d9d2845e7bed9dd13c1b6ef0b41bf`。结构000007仅增加两表、88表/536列/344约束/138索引。A正式签发：`07_重建工作区/F03-2-2E_A主控独立验收及PR13正式合并闭环_2026-10-10.md`。
+- **A已完整审查并放行下一批F03-2-2F**：SG04中严格限定`employee.manage`个人allow/deny/revoke及现有显式Team capability scope可信治理，仅在全新隔离PG16中运行、**无新增DDL**、不改旧权限/结构/生产。正式全量施工单：`07_重建工作区/F03-2-2F_A主控SG04员工个人权限与Team范围受限治理施工单_2026-10-10.md`。不允许把该能力扩成经理默认高权、正式业务写、Customer owner交接或员工调店降权。
+- **下一唯一工程责任人：B**。B从执行时最新main创建`feat/f03-manager-team-governance-2f`，按现行三窗口连续执行规范一次完成全部实现、同SHA真实CI、并发/故障回滚、旧各版本独立PG16回归、原始结构零变更证据与完整B交接，最终`READY_FOR_A_REVIEW`交A；A独立验收合格后标准PR合并，不再逐项问用户。
+- C/H01仍独立等待高保真视觉最终审查。F03-2完整治理/SG06各域业务交接/SG07/SG08和产品基线尚未通过；`PRODUCT_BASELINE=NOT_READY`。**2F是A放行但B未施工，不得报告2F已验收。**
+- 最新唯一指针：`F03_2_2E_ACCEPTED_MERGED_PR13_F03_2_2F_A_RELEASED_NEXT_OWNER_B_H01_VISUAL_PENDING`。下文曾有的2E待施工等属于旧阶段历史。
+
+---
+
 # 2026-10-10｜F03-2-2D已验收并合并，A已放行SG06账本下一工程批（当前最新）
 
 - **F03-2-2D全链路闭环**：A独立复核B最终HEAD `1f4578f4d9604e426c46f442e6e658402ad70b85`，同SHA [真实CI37964554999](https://github.com/suzhe868-arch/mb/actions/runs/37964554999) 七个相互独立PG16作业全部success；SG02 Team Scope真实9/9，旧SG03 11/11、SG05 10/10与bootstrap1/1、2A模板9/9、原F03-1认证11/11及HTTPS4/4。正式[PR #12](https://github.com/suzhe868-arch/mb/pull/12)正常merge提交 `e53a4faa0228afb9ec18372f32125ccd3a4befcf`；原main1229个文件全部未改，仅17新增授权范围文件。A签发报告：`07_重建工作区/F03-2-2D_A主控独立验收与PR12合并闭环_2026-10-10.md`。
