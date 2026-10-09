@@ -76,7 +76,7 @@ test('E04 two real PC sessions race for one object in a new batch, only single r
  const outcomes=await Promise.all([add(auth,manager,p),add(auth,secondToken,p)]);
  assert.equal(outcomes.filter(x=>x.code==='LEDGER_ITEM_PENDING_ONLY').length,1);
  assert.equal(outcomes.filter(x=>x.code==='LEDGER_ITEM_NOOP').length,1);
- assert.equal((await auditRows()).length,previous+2); // one batch draft + one item, since previous captured before this batch?
+ assert.equal((await auditRows()).length,previous+1); // one item; batch draft was already counted
 });
 test('E05 one item failure commits while injected audit failure for another item rolls back only that item',async()=>{
  const f=await fail(auth,manager,{itemId:item1,attemptKey:'sg06-failure-item1-001',errorCode:'DOMAIN_ADAPTER_UNAVAILABLE'});assert.equal(f.code,'LEDGER_FAILURE_RECORDED');
