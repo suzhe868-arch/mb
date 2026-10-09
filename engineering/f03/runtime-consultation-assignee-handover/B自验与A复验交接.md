@@ -14,7 +14,7 @@ A正式单：`07_重建工作区/F03-2-2J_A主控SG06_Consultation咨询负责�
 
 **唯一旧文件修改**（在A正式施工单预授权内）：
 - `engineering/f03/runtime-customer-owner-handover/service.mjs`：只在H单域`commit/retry`已存在的跨域请求Key入口追加`to_regclass`确认J表后的摘要反查；J新表存在时采用J的完整91表密封，旧89表直接H全封印、旧90表走I全封印。
-- `engineering/f03/runtime-demand-responsible-handover/service.mjs`：I入口按J表是否存在选择J91或旧I90完整封印；已有H摘要查重旁仅加J请求摘要反查。旧90表无J时全部原行为保持。
+- `engineering/f03/runtime-demand-responsible-handover/service.mjs`：I单域交接commit/retry入口按J表是否存在选择J91或旧I90完整封印；I的prepare/read/Priority派生读取仍严格沿用旧I90结构Guard；已有H摘要查重旁仅加J请求摘要反查。旧90表无J时全部原行为保持。
 
 这两份旧文件的业务对象、旧角色+scope检查、原有receipt/audit和正式服务语义均未改。**旧000001～000009所有迁移、H/I测试、旧CI工作流、PDM Final及权限种子文件未修改**。共享SG06 advisory transaction lock 306/309保证H/I/J按原顺序串行，J另持有312专用锁，三方物理UNIQUE+双向冲突Guard保单意图。
 
@@ -34,7 +34,7 @@ A正式单：`07_重建工作区/F03-2-2J_A主控SG06_Consultation咨询负责�
 
 PG16真实discovery `37993373853`实际发出的`F03_2J_DISCOVERY_CANDIDATE`：`000010` SQL SHA256 `1ead4f8987aaa22e5f569b2e7da24eb496cb1d82b2aaee2db2b82df13271e297`；旧90表完整目录SHA `1532f5b34379e5ec207d9a2b909a11322d0eb6755cc23d6dfc7a419ea6d13eb0`。新91表/572列/390约束/151索引，完整目录SHA `ef3bcd0c89c959225764d0853b203047116282c3bd6f976e41aff1cd7b95e735`；旧1936目录项零修改、只新增46项批准键，新完整目录1982键。
 
-首次全绿[GitHub Actions `37994016455`](https://github.com/suzhe868-arch/mb/actions/runs/37994016455)，代码SHA`6c64aa5782dd87aa1bd018158bccce931a390bf0`，12/12全部成功，J当时25/25；原始证据已由CI归档至本分支`evidence/`，`SOURCE.md`准确记录来源run/SHA。此后补了两个真实PG16并发/权限正反例至27项，**必须由下一个最终HEAD专属CI验证27/27，不可把第一次25/25冒充最终27项**。
+首次全绿[GitHub Actions `37994016455`](https://github.com/suzhe868-arch/mb/actions/runs/37994016455)，代码SHA`6c64aa5782dd87aa1bd018158bccce931a390bf0`，12/12全部成功，J当时25/25；原始证据已由CI归档至本分支`evidence/`，`SOURCE.md`准确记录来源run/SHA。此后新增三域不同Key同时合法提交、人工转派接替人暂停接客及权限负例，**实测[GitHub Actions `37994196513`](https://github.com/suzhe868-arch/mb/actions/runs/37994196513)（SHA `9e0432b76a5c6200a30d62ecf69059a130d7a961`）12/12个独立真PG16作业全绿、J27/27、0失败**，完整目录及原字节跨run比对PASS。此后为A授权边界再次仅限I提交/重试缩小旧服务兼容入口，并补中文交接，**仍需本最终文档HEAD专属CI再全部12/12、J27/27成功，旧run不冒充最终同SHA**。
 
 ## 5. 当前边界和A验收门禁
 
