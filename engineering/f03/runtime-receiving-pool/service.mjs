@@ -23,7 +23,7 @@ async function call(auth,token,proposal,admin,{testCheckpoint}={}){
     if(admin){
      if(actor.principal_kind!=='system_admin'||actor.employee_id!==null||actor.system_admin_id===null)return deny();
     }else{
-     if(actor.principal_kind!=='employee'||actor.system_admin_id!==null||actor.employee_id!==proposal.employeeId||!allowedRole(actor.role_code))return deny();
+     if(actor.principal_kind!=='employee'||actor.system_admin_id!==null||Number(actor.employee_id)!==proposal.employeeId||!allowedRole(actor.role_code))return deny();
     }
     const guard=(await c.query("SELECT version FROM public.receiving_pool_guards WHERE guard_name='receiving_pool' FOR UPDATE")).rows;
     if(guard.length!==1)return deny();
