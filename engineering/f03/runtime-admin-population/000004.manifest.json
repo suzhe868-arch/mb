@@ -1,0 +1,10 @@
+{
+  "migration_id": "000004_governance_population_guards",
+  "previous_structure_sha256": "229aa6dc167cd3ccb8da89fd9d08076af2588b6b4bd1cfbdc8d779c31dfeffe0",
+  "sql_sha256": "PENDING_CI_DISCOVERY",
+  "structure_sha256": "PENDING_CI_DISCOVERY",
+  "tables": 82,
+  "columns": 495,
+  "constraints": 307,
+  "indexes": 127
+}
