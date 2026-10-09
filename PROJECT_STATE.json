@@ -4,7 +4,7 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F03_2_1B_MERGED_A_NEXT_GATE_PREP_B_WAIT_H01_VISUAL_REVIEW",
+  "substage": "F03_2_2A_A_WORK_ORDER_PREPARED_USER_ONE_APPROVAL_PENDING_B_WAIT_H01_VISUAL_REVIEW",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A准备F03-2-1剩余对象范围与F03-2-2治理事务前置裁决及下一批施工单；B等待",
-  "current_work_file": "07_重建工作区/F03-2-1B_A主控PR8合并完成及后续门禁_2026-10-09.md",
+  "current_task": "A完成F03-2-2A限定施工单及依赖审查；用户一次批准本新批后方可开工，B等待",
+  "current_work_file": "07_重建工作区/F03-2-2A_角色模板限定启用与原子历史审计施工单_待用户批准_2026-10-09.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F03_2_1A_ACCEPTED_MERGED_F03_2_1B_ACCEPTED_MERGED_PR8",
+  "engineering_status": "F03_2_1B_ACCEPTED_MERGED_F03_2_2A_PREPARED_NOT_AUTHORIZED",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "A独立闭合R1/R2/R3/E1；同SHA真实CI3/3成功，结构原文及哈希核验通过。A合并待用户单独批准，H01视觉独立待审。",
+  "next_action_detail": "等待用户一次审批F03-2-2A限定施工；批准后A放行B施工，A独立验收通过即直接合并，无二次确认。C/H01仍待视觉确认。",
   "abc_parallel_workflow": {
     "status": "USER_APPROVED_APPLIED_DOCUMENTATION_ONLY",
     "confirmed_at": "2026-10-08",
@@ -5141,7 +5141,7 @@
     "next_batch_construction": "NOT_AUTHORIZED_F03_2_GATE_PREPARATION_ONLY"
   },
   "f03_2_gate": {
-    "status": "F03_2_1B_ACCEPTED_MERGED_NOT_FULL_F03_2",
+    "status": "F03_2_1B_ACCEPTED_MERGED_F03_2_2A_A_PREPARED",
     "work_order_prepared": true,
     "construction": "F03_2_1B_LIMITED_SG01_IMPLEMENTATION_ACCEPTED_NO_NEXT_BATCH_AUTHORIZATION",
     "branch_created": true,
@@ -5205,7 +5205,7 @@
     ],
     "merge_status": "MERGED_TO_MAIN_USER_APPROVED",
     "schema_proposals": "SG01_LIMITED_000003_ACCEPTED_SG02_TO_SG08_NOT_AUTHORIZED",
-    "next": "A_PREP_NEXT_F03_2_SCOPE_AND_GOVERNANCE_GATE_B_WAIT",
+    "next": "F03_2_2A_USER_ONCE_APPROVAL_B_WAIT",
     "merge_preparation": {
       "report": "07_重建工作区/F03-2-G0_A主控合并核验材料_待用户批准_2026-10-09.md",
       "pr": 6,
@@ -5426,6 +5426,22 @@
       "merge_sha": "eeeb4f12936b313c0405ebd880717d4be90feb53",
       "merge_pr": 8,
       "merge_report": "07_重建工作区/F03-2-1B_A主控PR8合并完成及后续门禁_2026-10-09.md"
+    },
+    "f03_2_2a": {
+      "status": "A_PREPARED_NOT_AUTHORIZED",
+      "work_order": "07_重建工作区/F03-2-2A_角色模板限定启用与原子历史审计施工单_待用户批准_2026-10-09.md",
+      "a_gate_report": "07_重建工作区/F03-2-2A_A主控依赖裁决与启动门禁_待用户批准_2026-10-09.md",
+      "dependency_matrix": "07_重建工作区/F03-2-1B后_45项能力及14类治理承接矩阵_2026-10-09.tsv",
+      "scope": "ONLY_DISPOSABLE_PG16_SALES_CUSTOMER_PHONE_MANAGE_TEMPLATE_ENABLE_TRUE_ATOMIC_HISTORY_AUDIT",
+      "new_ddl": "NOT_AUTHORIZED_NONE_EXPECTED",
+      "branch": "feat/f03-governance-template-2a",
+      "branch_created": false,
+      "tests": "NOT_RUN",
+      "merge": "NOT_STARTED",
+      "authorization": "USER_ONE_BATCH_APPROVAL_REQUIRED",
+      "acceptance": "NOT_STARTED",
+      "other_scopes": "DEFER_DENY",
+      "full_f03_2": "NOT_ACCEPTED"
     }
   },
   "a_batch_approval_mode": "ONE_EXPLICIT_AUTHORIZATION_PER_BATCH_INCLUDES_INDEPENDENT_A_ACCEPTANCE_AND_CLEAN_MERGE; NEW_BATCH_SEPARATE_APPROVAL; STOP_ON_BLOCKERS"
