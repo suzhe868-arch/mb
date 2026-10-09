@@ -1,0 +1,21 @@
+Gate	Physical / business claim	True test or CI step	Positive	Negative	Evidence / deferred boundary
+M01	exact 000001→000002 prior 80-table baseline pinned	tests/migration.test.mjs M01; old-structure.json	old checksum+fingerprint exact	other baseline not accepted	new migration never overwrites old rows
+M02	post-DDL failure atomic rollback to 80 tables	tests/migration.test.mjs M02	read-only exact old verifier	injected failure no table/constraint/index/version residual	only disposable CI
+M03	4 concurrent apply idempotent single committed instance	tests/migration.test.mjs M03	1 apply + 3 no-op	repeat no-op	advisory transaction lock on new 000003
+M04	80-table old guard rejects new 81-table DB and cross-run seal rejects	tests/migration.test.mjs M04	new 81-table exact guard	old guard throws; forged GITHUB_RUN_ID throws	frozen original guard unchanged
+M05	full fingerprint+version+unknown-object fail closed	tests/migration.test.mjs M05	known 000003, pinned SHA	rogue view, checksum and unknown version rejected	no dynamic database-self-approved fingerprint
+M06	exact CI-only migration reversal and reapply	tests/migration.test.mjs M06	back to exact F03-1 fingerprint then reapply	nonmatching structure / nonempty binding rollback denied	no destructive production rollback tools
+S01	only customer.phone.manage+employee+permission+object scope+active customer allow	tests/integration.test.mjs S01	specific customer 301 internal allow	other employee/customer inactive/out of scope deny	no phone mutation or public API
+S02	capability-specific binding and object-only scope	tests/integration.test.mjs S02	valid object restored	other cap binding, store kind, customer302, unknown op deny	no team/owner/global widening
+S03	real PG16 composite FK, permission FK, temporal CHECK, PK	tests/integration.test.mjs S03	approved rows seeded	other employee borrowed scope, fake permission, ended<granted, duplicate rejected	5 columns, no other SG DDL
+S04	current personal deny precedence and template revocation	tests/integration.test.mjs S04	current template or explicit personal allow	deny, template off, removed binding	history not an authorization source
+S05	two-layer validity window and target status	tests/integration.test.mjs S05	future end timestamp valid	not started, binding ended, scope ended, customer inactive denied	one SQL statement snapshot
+S06	4S/admin hard denials and untrusted ID/action	tests/integration.test.mjs S06	normal employee only	partner, admin, invalid bigint, unknown action, missing session deny	all other actions DEFER
+S07	old 80-table guard stays strict	tests/integration.test.mjs S07	new exact 81 guard	old F03-1 verifyAuthDatabase DENY	do not patch old guard
+H01	true HTTPS allow then independent DB commit revoke same token	tests/https.test.mjs H01	200 limited internal allow	template off, scope-ended, target inactive, credential-epoch revoke 403	test-only loopback TLS no business phone API
+H02	HTTP only restricted operation/cross-customer	tests/https.test.mjs H02	minimal allowed/denied code	unsupported action and other object deny	no facts or secrets in response
+E01	full old-to-new actual PG class diff	evidence.mjs --check; old-structure.json; new-structure.json	81/492/304/126, 23 additive catalog objects	no deletion or changed previous objects	approved scope one table + one composite unique
+E02	actual bytes SQL/inventory SHA256 and checked versions	evidence.mjs --check; artifacts/sha256sums.txt	raw hashed exports and 3 version rows	wrong hash or wrong version fails	source-run artifact, no records/tokens
+R01	frozen existing security regressions across separate 80-table fresh PG16	workflow two original F03-1 jobs	11 real integration + 4 HTTPS	old 80 guards unaffected	separate CI jobs & DBs, no reconnect to existing
+R02	F01/F02/F03/G0 and auth-design static frozen tests	workflow static step	all static suites pass	static script failure stops job	not substitute for real PG tests
+B01	only customer.phone.manage has internal allow	customer-phone-guard.mjs; tests S01/S06	internal true conditional on all 3 dimensions	other operation return OTHER_ACTION_DEFER_DENY	no F04 or customer/phone data mutation
