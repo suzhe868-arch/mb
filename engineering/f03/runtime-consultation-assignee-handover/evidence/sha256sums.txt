@@ -1,0 +1,2 @@
+701bd8d6506392ded5143f7de876a13a5ab8178a0c16aef121a09861afcf3ad8  f03/runtime-consultation-assignee-handover/artifacts/pg16_schema_only.sql
+59caa33c0ccc100c373eb1ba9722af3ff4d832b171a7443f1c9fb3417afc583e  f03/runtime-consultation-assignee-handover/artifacts/pg16_inventory.json
