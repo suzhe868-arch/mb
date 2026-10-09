@@ -1,0 +1,2 @@
+88143b1ca6e6d1cce38beccb8e022bcab891110a01271f9e2eb55226d0bd8377  f03/runtime-customer-owner-handover/artifacts/pg16_schema_only.sql
+6975019eeb78d2c006eff1d9dc9634c438435b83467fcbb4729930b523ad1590  f03/runtime-customer-owner-handover/artifacts/pg16_inventory.json

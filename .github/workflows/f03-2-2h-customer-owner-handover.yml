@@ -1,0 +1,1090 @@
+name: F03-2-2H SG06 Customer Owner synthetic CAS and one-table receipt PG16
+on:
+  push:
+    branches: [feat/f03-customer-owner-handover-2h]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  f03-2h-customer-owner-handover-pg16:
+    name: F03-2-2H exact 89-table CI-only Customer Owner CAS/history/receipt on genuine PG16
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Validate frozen project and read-only structural checks
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run check
+          node --check f03/runtime-customer-owner-handover/migration.mjs
+          node --check f03/runtime-customer-owner-handover/service.mjs
+          node --check f03/runtime-customer-owner-handover/evidence.mjs
+          node --check f03/runtime-customer-owner-handover/fixtures.mjs
+          node --check f03/runtime-customer-owner-handover/tests/integration.test.mjs
+      - name: Disposable non-superuser new PG16 exact approved 000001 to 000004 baseline
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
+          node f03-1/runner.mjs --bootstrap
+          node f03-1/runner.mjs --apply
+          node f03/runtime-scope/runner.mjs --apply
+          node f03/runtime-admin-population/runner.mjs --apply
+          node f03/runtime-receiving-pool/runner.mjs --apply
+          node f03/runtime-receiving-pool/runner.mjs --verify
+          node f03/runtime-team-scope/runner.mjs --apply
+          node f03/runtime-team-scope/runner.mjs --verify
+      - name: Discover new pinned 000008 request-digest unique constraint in real PG16 and roll back
+        run: |
+          set -euo pipefail
+          node f03/runtime-handover-ledger/runner.mjs --apply
+          node f03/runtime-customer-owner-handover/runner.mjs --discover
+          node f03/runtime-handover-ledger/runner.mjs --verify
+      - name: Apply 000007 genuine frozen 88-table, seed ONLY CI synthetic identities/domain and old physical evidence
+        run: |
+          set -euo pipefail
+          mkdir -p f03/runtime-customer-owner-handover/artifacts
+          node f03/runtime-handover-ledger/runner.mjs --apply
+          node f03/runtime-handover-ledger/runner.mjs --verify
+          node f03-1/fixtures.mjs
+          node f03/runtime-scope/fixtures.mjs
+          node f03/runtime-governance-template/fixtures.mjs
+          node f03/runtime-receiving-pool/fixtures.mjs
+          node f03/runtime-team-scope/fixtures.mjs
+          node f03/runtime-handover-ledger/fixtures.mjs
+          node f03/runtime-manager-team-governance/fixtures.mjs
+          node f03/runtime-handover-preflight/fixtures.mjs
+          node f03/runtime-customer-owner-handover/fixtures.mjs
+          node f03/runtime-customer-owner-handover/evidence.mjs --old
+      - name: Prove injected 000008 migration fully rolled back with old frozen strict 88-table check
+        run: |
+          set -euo pipefail
+          if node f03/runtime-customer-owner-handover/runner.mjs --inject; then echo 'H_INJECT_UNEXPECTED_SUCCESS'; exit 1; fi
+          node f03/runtime-handover-ledger/runner.mjs --verify
+      - name: Apply dedicated exactly pinned 000008 one-table append-only receipt migration
+        run: |
+          set -euo pipefail
+          node f03/runtime-customer-owner-handover/runner.mjs --apply
+          node f03/runtime-customer-owner-handover/runner.mjs --verify
+          if node f03/runtime-handover-ledger/runner.mjs --verify; then echo 'OLD_88_GUARD_WRONGLY_ALLOWED_89'; exit 1; fi
+          node f03/runtime-customer-owner-handover/runner.mjs --rollback
+          node f03/runtime-handover-ledger/runner.mjs --verify
+          node f03/runtime-customer-owner-handover/runner.mjs --apply
+          node f03/runtime-customer-owner-handover/runner.mjs --verify
+      - name: H01-H09 real PG16 two actor competing Customer Owner single domain receipt and 6 fault rollback points
+        run: |
+          set -euo pipefail
+          node --test f03/runtime-customer-owner-handover/tests/integration.test.mjs 2>&1 | tee f03/runtime-customer-owner-handover/artifacts/pg16-owner-handover-tests.log
+          grep -q '# fail 0' f03/runtime-customer-owner-handover/artifacts/pg16-owner-handover-tests.log
+          node f03/runtime-customer-owner-handover/runner.mjs --verify
+      - name: Export original PG16 full 88-to-89 table physical catalog original schema-only and version inventory
+        run: |
+          set -euo pipefail
+          node f03/runtime-customer-owner-handover/evidence.mjs --new
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > f03/runtime-customer-owner-handover/artifacts/pg16_schema_only.sql
+          sha256sum f03/runtime-customer-owner-handover/artifacts/pg16_schema_only.sql f03/runtime-customer-owner-handover/artifacts/pg16_inventory.json > f03/runtime-customer-owner-handover/artifacts/sha256sums.txt
+          if test -f f03/runtime-customer-owner-handover/evidence/SOURCE.md; then node f03/runtime-customer-owner-handover/evidence.mjs --archive-check; fi
+      - name: Audit raw output for forbidden live credentials and token payloads
+        run: |
+          set -euo pipefail
+          if grep -R -nE 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|BEGIN PRIVATE KEY|SyntheticH2CustomerOwner_2026|SyntheticGovAdminTwo_2026|SyntheticAdmin_1234567' f03/runtime-customer-owner-handover/artifacts; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f03-2-2h-real-pg16-89-owner-domain-immutable-receipt-evidence
+          path: engineering/f03/runtime-customer-owner-handover/artifacts/
+          retention-days: 30
+          if-no-files-found: error
+      - name: Archive only ORIGINAL CI 89-table physical evidence once to B branch
+        run: |
+          set -euo pipefail
+          if test -f f03/runtime-customer-owner-handover/evidence/SOURCE.md; then
+            echo 'F03-2-2H SOURCE archived, current physical catalog and normalized raw bytes verified'
+          else
+            test "$GITHUB_REF" = 'refs/heads/feat/f03-customer-owner-handover-2h'
+            mkdir -p f03/runtime-customer-owner-handover/evidence
+            for file in old-structure.json new-structure.json pg16_schema_only.sql pg16_inventory.json sha256sums.txt; do
+              cp "f03/runtime-customer-owner-handover/artifacts/$file" "f03/runtime-customer-owner-handover/evidence/$file"
+            done
+            printf 'source_run_id: %s\nsource_commit_sha: %s\nsource_job_name: f03-2h-customer-owner-handover-pg16\nsource_artifact_name: f03-2-2h-real-pg16-89-owner-domain-immutable-receipt-evidence\nsource_files: original disposable PG16 physical bytes, no business rows, no live credentials\n' "$GITHUB_RUN_ID" "$GITHUB_SHA" > f03/runtime-customer-owner-handover/evidence/SOURCE.md
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -- f03/runtime-customer-owner-handover/evidence/
+            git diff --cached --quiet && { echo 'ARCHIVE_NOT_STAGED'; exit 1; }
+            git commit -m 'F03-2-2H: archive original real PG16 000008 physical evidence source'
+            git push origin HEAD:refs/heads/feat/f03-customer-owner-handover-2h
+          fi
+  f03-2g-regression-88:
+    name: F03-2-2G frozen 88-table SG06 preflight regression independent genuine PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Validate frozen project and read-only structural checks
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run check
+          node --check f03/runtime-handover-preflight/service.mjs
+          node --check f03/runtime-handover-preflight/evidence.mjs
+          node --check f03/runtime-handover-preflight/fixtures.mjs
+          node --check f03/runtime-handover-preflight/tests/integration.test.mjs
+      - name: Disposable non-superuser new PG16 exact approved 000001 to 000004 baseline
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
+          node f03-1/runner.mjs --bootstrap
+          node f03-1/runner.mjs --apply
+          node f03/runtime-scope/runner.mjs --apply
+          node f03/runtime-admin-population/runner.mjs --apply
+          node f03/runtime-receiving-pool/runner.mjs --apply
+          node f03/runtime-receiving-pool/runner.mjs --verify
+          node f03/runtime-team-scope/runner.mjs --apply
+          node f03/runtime-team-scope/runner.mjs --verify
+      - name: Create trusted 88-table zero-DDL fixture and capture baseline
+        run: |
+          set -euo pipefail
+          mkdir -p f03/runtime-handover-preflight/artifacts
+          node f03/runtime-handover-ledger/runner.mjs --apply
+          node f03/runtime-handover-ledger/runner.mjs --verify
+          node f03-1/fixtures.mjs
+          node f03/runtime-scope/fixtures.mjs
+          node f03/runtime-governance-template/fixtures.mjs
+          node f03/runtime-receiving-pool/fixtures.mjs
+          node f03/runtime-team-scope/fixtures.mjs
+          node f03/runtime-handover-ledger/fixtures.mjs
+          node f03/runtime-manager-team-governance/fixtures.mjs
+          node f03/runtime-handover-preflight/fixtures.mjs
+          node f03/runtime-handover-preflight/evidence.mjs --old
+      - name: Execute G01 to G09 real PG16 read-only impact/coverage/recipient/preflight tests
+        run: |
+          set -euo pipefail
+          node --test f03/runtime-handover-preflight/tests/integration.test.mjs 2>&1 | tee f03/runtime-handover-preflight/artifacts/pg16-handover-preflight-tests.log
+          grep -q '# fail 0' f03/runtime-handover-preflight/artifacts/pg16-handover-preflight-tests.log
+          node f03/runtime-handover-ledger/runner.mjs --verify
+      - name: Export exact no-DDL 88-table original structure SQL, version inventory, SHA256 and old definition equality
+        run: |
+          set -euo pipefail
+          node f03/runtime-handover-preflight/evidence.mjs --new
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > f03/runtime-handover-preflight/artifacts/pg16_schema_only.sql
+          sha256sum f03/runtime-handover-preflight/artifacts/pg16_schema_only.sql f03/runtime-handover-preflight/artifacts/pg16_inventory.json > f03/runtime-handover-preflight/artifacts/sha256sums.txt
+          if test -f f03/runtime-handover-preflight/evidence/SOURCE.md; then node f03/runtime-handover-preflight/evidence.mjs --archive-check; fi
+      - name: Prohibit credentials and secret payload in deliverable evidence
+        run: |
+          set -euo pipefail
+          if grep -R -nE 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|BEGIN PRIVATE KEY|Synthetic2G_ManagerNew_2026|SyntheticGovAdminTwo_2026|SyntheticAdmin_1234567' f03/runtime-handover-preflight/artifacts; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f03-2-2g-real-pg16-88-no-ddl-preflight-evidence
+          path: engineering/f03/runtime-handover-preflight/artifacts/
+          retention-days: 30
+          if-no-files-found: error
+  f03-2f-regression-88:
+    name: F03-2-2F frozen 88-table Team capability governance regression own PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Validate frozen project and read-only structural checks
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run check
+          node --check f03/runtime-manager-team-governance/service.mjs
+          node --check f03/runtime-manager-team-governance/evidence.mjs
+          node --check f03/runtime-manager-team-governance/fixtures.mjs
+          node --check f03/runtime-manager-team-governance/tests/integration.test.mjs
+      - name: Disposable non-superuser new PG16 exact approved 000001 to 000004 baseline
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
+          node f03-1/runner.mjs --bootstrap
+          node f03-1/runner.mjs --apply
+          node f03/runtime-scope/runner.mjs --apply
+          node f03/runtime-admin-population/runner.mjs --apply
+          node f03/runtime-receiving-pool/runner.mjs --apply
+          node f03/runtime-receiving-pool/runner.mjs --verify
+          node f03/runtime-team-scope/runner.mjs --apply
+          node f03/runtime-team-scope/runner.mjs --verify
+      - name: Apply frozen 000007 and seed synthetic current manager Team and SG06 scope facts
+        run: |
+          set -euo pipefail
+          mkdir -p f03/runtime-manager-team-governance/artifacts
+          node f03/runtime-handover-ledger/runner.mjs --apply
+          node f03/runtime-handover-ledger/runner.mjs --verify
+          node f03-1/fixtures.mjs
+          node f03/runtime-scope/fixtures.mjs
+          node f03/runtime-governance-template/fixtures.mjs
+          node f03/runtime-receiving-pool/fixtures.mjs
+          node f03/runtime-team-scope/fixtures.mjs
+          node f03/runtime-handover-ledger/fixtures.mjs
+          node f03/runtime-manager-team-governance/fixtures.mjs
+          node f03/runtime-manager-team-governance/evidence.mjs --old
+      - name: Execute F01 to F10 real PG16 two-Admin concurrent permissions and scope governance
+        run: |
+          set -euo pipefail
+          node --test f03/runtime-manager-team-governance/tests/integration.test.mjs 2>&1 | tee f03/runtime-manager-team-governance/artifacts/pg16-manager-team-tests.log
+          grep -q '# fail 0' f03/runtime-manager-team-governance/artifacts/pg16-manager-team-tests.log
+          node f03/runtime-handover-ledger/runner.mjs --verify
+      - name: Export exact no-DDL 88-table original structure SQL, version inventory, SHA256 and old definition equality
+        run: |
+          set -euo pipefail
+          node f03/runtime-manager-team-governance/evidence.mjs --new
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > f03/runtime-manager-team-governance/artifacts/pg16_schema_only.sql
+          sha256sum f03/runtime-manager-team-governance/artifacts/pg16_schema_only.sql f03/runtime-manager-team-governance/artifacts/pg16_inventory.json > f03/runtime-manager-team-governance/artifacts/sha256sums.txt
+          if test -f f03/runtime-manager-team-governance/evidence/SOURCE.md; then node f03/runtime-manager-team-governance/evidence.mjs --archive-check; fi
+      - name: Prohibit credentials and secret payload in deliverable evidence
+        run: |
+          set -euo pipefail
+          if grep -R -nE 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|BEGIN PRIVATE KEY|SyntheticSG04ManagerNew_2026|SyntheticGovAdminTwo_2026|SyntheticAdmin_1234567' f03/runtime-manager-team-governance/artifacts; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f03-2-2f-real-pg16-88-no-ddl-manager-team-evidence
+          path: engineering/f03/runtime-manager-team-governance/artifacts/
+          retention-days: 30
+          if-no-files-found: error
+  f03-2e-regression-88:
+    name: F03-2-2E frozen 88-table SG06 ledger regression on own PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Validate static safety and additive migration syntax
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run check
+          node --check f03/runtime-handover-ledger/migration.mjs
+          node --check f03/runtime-handover-ledger/runner.mjs
+          node --check f03/runtime-handover-ledger/service.mjs
+          node --check f03/runtime-handover-ledger/evidence.mjs
+          node --check f03/runtime-handover-ledger/fixtures.mjs
+          node --check f03/runtime-handover-ledger/tests/integration.test.mjs
+      - name: Disposable non-superuser new PG16 exact approved 000001 to 000004 baseline
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
+          node f03-1/runner.mjs --bootstrap
+          node f03-1/runner.mjs --apply
+          node f03/runtime-scope/runner.mjs --apply
+          node f03/runtime-admin-population/runner.mjs --apply
+          node f03/runtime-receiving-pool/runner.mjs --apply
+          node f03/runtime-receiving-pool/runner.mjs --verify
+          node f03/runtime-team-scope/runner.mjs --apply
+          node f03/runtime-team-scope/runner.mjs --verify
+      - name: Capture 86-table baseline; inject rollback; migrate sealed 000007 and create synthetic ledger facts
+        run: |
+          set -euo pipefail
+          mkdir -p f03/runtime-handover-ledger/artifacts
+          node f03/runtime-handover-ledger/evidence.mjs --old
+          if node f03/runtime-handover-ledger/runner.mjs --inject; then echo 'INJECTION_MUST_ROLL_BACK'; exit 1; fi
+          node f03/runtime-team-scope/runner.mjs --verify
+          node f03/runtime-handover-ledger/runner.mjs --apply
+          node f03/runtime-handover-ledger/runner.mjs --verify
+          node f03/runtime-handover-ledger/runner.mjs --apply
+          node f03-1/fixtures.mjs
+          node f03/runtime-scope/fixtures.mjs
+          node f03/runtime-governance-template/fixtures.mjs
+          node f03/runtime-receiving-pool/fixtures.mjs
+          node f03/runtime-team-scope/fixtures.mjs
+          node f03/runtime-handover-ledger/fixtures.mjs
+      - name: Execute E01 to E10 true PG16 session/scope/idempotent workers and partial rollback
+        run: |
+          set -euo pipefail
+          node --test f03/runtime-handover-ledger/tests/integration.test.mjs 2>&1 | tee f03/runtime-handover-ledger/artifacts/pg16-handover-ledger-tests.log
+          grep -q '# fail 0' f03/runtime-handover-ledger/artifacts/pg16-handover-ledger-tests.log
+          if node f03/runtime-handover-ledger/runner.mjs --rollback; then echo 'USED_POOL_ROLLBACK_MUST_DENY'; exit 1; fi
+          node f03/runtime-handover-ledger/runner.mjs --verify
+      - name: Export exact 88-table original structure SQL, version inventory, SHA256 and old definition equality
+        run: |
+          set -euo pipefail
+          node f03/runtime-handover-ledger/evidence.mjs --new
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > f03/runtime-handover-ledger/artifacts/pg16_schema_only.sql
+          sha256sum f03/runtime-handover-ledger/artifacts/pg16_schema_only.sql f03/runtime-handover-ledger/artifacts/pg16_inventory.json > f03/runtime-handover-ledger/artifacts/sha256sums.txt
+          if test -f f03/runtime-handover-ledger/evidence/SOURCE.md; then node f03/runtime-handover-ledger/evidence.mjs --archive-check; fi
+      - name: Prohibit credentials and secret payload in deliverable evidence
+        run: |
+          set -euo pipefail
+          if grep -R -nE 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|BEGIN PRIVATE KEY|SyntheticHandoverManager_2026|SyntheticGovAdminTwo_2026|SyntheticAdmin_1234567' f03/runtime-handover-ledger/artifacts; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f03-2-2e-real-pg16-88-handover-ledger-evidence
+          path: engineering/f03/runtime-handover-ledger/artifacts/
+          retention-days: 30
+          if-no-files-found: error
+  f03-2d-regression-86:
+    name: F03-2-2D frozen 86-table Team Scope regression on own new PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Validate static safety and additive migration syntax
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run check
+          node --check f03/runtime-team-scope/migration.mjs
+          node --check f03/runtime-team-scope/runner.mjs
+          node --check f03/runtime-team-scope/service.mjs
+          node --check f03/runtime-team-scope/evidence.mjs
+          node --check f03/runtime-team-scope/fixtures.mjs
+          node --check f03/runtime-team-scope/tests/integration.test.mjs
+      - name: Disposable non-superuser new PG16 exact approved 000001 to 000004 baseline
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
+          node f03-1/runner.mjs --bootstrap
+          node f03-1/runner.mjs --apply
+          node f03/runtime-scope/runner.mjs --apply
+          node f03/runtime-admin-population/runner.mjs --apply
+          node f03/runtime-receiving-pool/runner.mjs --apply
+          node f03/runtime-receiving-pool/runner.mjs --verify
+      - name: Capture 84-table baseline; inject+rollback; migrate sealed 000006 and build explicit team fixtures
+        run: |
+          set -euo pipefail
+          mkdir -p f03/runtime-team-scope/artifacts
+          node f03/runtime-team-scope/evidence.mjs --old
+          if node f03/runtime-team-scope/runner.mjs --inject; then echo 'INJECTION_MUST_ROLL_BACK'; exit 1; fi
+          node f03/runtime-receiving-pool/runner.mjs --verify
+          node f03/runtime-team-scope/runner.mjs --apply
+          node f03/runtime-team-scope/runner.mjs --verify
+          node f03/runtime-team-scope/runner.mjs --apply
+          node f03-1/fixtures.mjs
+          node f03/runtime-scope/fixtures.mjs
+          node f03/runtime-governance-template/fixtures.mjs
+          node f03/runtime-receiving-pool/fixtures.mjs
+          node f03/runtime-team-scope/fixtures.mjs
+      - name: Execute real A-approved D01 to D10 real permission/scope, dual-Admin join races and injected rollback
+        run: |
+          set -euo pipefail
+          node --test f03/runtime-team-scope/tests/integration.test.mjs 2>&1 | tee f03/runtime-team-scope/artifacts/pg16-team-scope-tests.log
+          grep -q '# fail 0' f03/runtime-team-scope/artifacts/pg16-team-scope-tests.log
+          if node f03/runtime-team-scope/runner.mjs --rollback; then echo 'USED_POOL_ROLLBACK_MUST_DENY'; exit 1; fi
+          node f03/runtime-team-scope/runner.mjs --verify
+      - name: Export exact 86-table original structure SQL, version inventory, SHA256 and old definition equality
+        run: |
+          set -euo pipefail
+          node f03/runtime-team-scope/evidence.mjs --new
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > f03/runtime-team-scope/artifacts/pg16_schema_only.sql
+          sha256sum f03/runtime-team-scope/artifacts/pg16_schema_only.sql f03/runtime-team-scope/artifacts/pg16_inventory.json > f03/runtime-team-scope/artifacts/sha256sums.txt
+          if test -f f03/runtime-team-scope/evidence/SOURCE.md; then node f03/runtime-team-scope/evidence.mjs --archive-check; fi
+      - name: Prohibit credentials and secret payload in deliverable evidence
+        run: |
+          set -euo pipefail
+          if grep -R -nE 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|BEGIN PRIVATE KEY|SyntheticManagerNormal_2026|SyntheticGovAdminTwo_2026|SyntheticAdmin_1234567' f03/runtime-team-scope/artifacts; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f03-2-2d-real-pg16-86-team-scope-evidence
+          path: engineering/f03/runtime-team-scope/artifacts/
+          retention-days: 30
+          if-no-files-found: error
+  f03-2c-regression-84:
+    name: F03-2-2C frozen 84-table authentic SG03 regression on own PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Validate static safety and additive migration syntax
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run check
+          node --check f03/runtime-receiving-pool/migration.mjs
+          node --check f03/runtime-receiving-pool/runner.mjs
+          node --check f03/runtime-receiving-pool/service.mjs
+          node --check f03/runtime-receiving-pool/evidence.mjs
+          node --check f03/runtime-receiving-pool/fixtures.mjs
+          node --check f03/runtime-receiving-pool/tests/integration.test.mjs
+      - name: Disposable non-superuser new PG16 exact approved 000001 to 000004 baseline
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
+          node f03-1/runner.mjs --bootstrap
+          node f03-1/runner.mjs --apply
+          node f03/runtime-scope/runner.mjs --apply
+          node f03/runtime-admin-population/runner.mjs --apply
+          node f03/runtime-admin-population/runner.mjs --verify
+      - name: Capture old exact 82-table structure, create synthetic identity and migrate to locked 84-table
+        run: |
+          set -euo pipefail
+          mkdir -p f03/runtime-receiving-pool/artifacts
+          node f03/runtime-receiving-pool/evidence.mjs --old
+          if node f03/runtime-receiving-pool/runner.mjs --inject; then echo 'INJECTION_MUST_ROLL_BACK'; exit 1; fi
+          node f03/runtime-admin-population/runner.mjs --verify
+          node f03/runtime-receiving-pool/runner.mjs --apply
+          node f03/runtime-receiving-pool/runner.mjs --verify
+          node f03/runtime-receiving-pool/runner.mjs --apply
+          node f03-1/fixtures.mjs
+          node f03/runtime-scope/fixtures.mjs
+          node f03/runtime-governance-template/fixtures.mjs
+          node f03/runtime-receiving-pool/fixtures.mjs
+      - name: Execute real A-approved S03-01 to S03-08 transactions, last-receiver races, fault rollback and spoof denial
+        run: |
+          set -euo pipefail
+          node --test f03/runtime-receiving-pool/tests/integration.test.mjs 2>&1 | tee f03/runtime-receiving-pool/artifacts/pg16-receiving-tests.log
+          grep -q '# fail 0' f03/runtime-receiving-pool/artifacts/pg16-receiving-tests.log
+          if node f03/runtime-receiving-pool/runner.mjs --rollback; then echo 'USED_POOL_ROLLBACK_MUST_DENY'; exit 1; fi
+          node f03/runtime-receiving-pool/runner.mjs --verify
+      - name: Export exact 84-table original structure SQL, version inventory, SHA256 and old definition equality
+        run: |
+          set -euo pipefail
+          node f03/runtime-receiving-pool/evidence.mjs --new
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > f03/runtime-receiving-pool/artifacts/pg16_schema_only.sql
+          sha256sum f03/runtime-receiving-pool/artifacts/pg16_schema_only.sql f03/runtime-receiving-pool/artifacts/pg16_inventory.json > f03/runtime-receiving-pool/artifacts/sha256sums.txt
+          if test -f f03/runtime-receiving-pool/evidence/SOURCE.md; then node f03/runtime-receiving-pool/evidence.mjs --archive-check; fi
+      - name: Prohibit credentials and secret payload in deliverable evidence
+        run: |
+          set -euo pipefail
+          if grep -R -nE 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|BEGIN PRIVATE KEY|SyntheticReceiverHead_2026|SyntheticRace_1234567|SyntheticLimit_1234567' f03/runtime-receiving-pool/artifacts; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f03-2-2c-real-pg16-84-table-structure-and-pool-evidence
+          path: engineering/f03/runtime-receiving-pool/artifacts/
+          retention-days: 30
+          if-no-files-found: error
+  f03-2b-population-82:
+    name: F03-2-2B exact 82-table admin two-population / rollback / structure
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_2B_INSTALLER_CONFIRM: I_AUTHORIZE_DISPOSABLE_PG16_FIRST_BOOTSTRAP_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Validate frozen project safety, source syntax and pinned manifest
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run check
+          for name in migration governance bootstrap runner evidence fixtures; do node --check "f03/runtime-admin-population/$name.mjs"; done
+          node --check f03/runtime-admin-population/tests/integration.test.mjs
+          node --check f03/runtime-admin-population/tests/bootstrap.test.mjs
+      - name: Seal disposable PostgreSQL 16 and prepare historical synthetic population
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
+          node f03-1/runner.mjs --bootstrap
+          node f03-1/runner.mjs --apply
+          node f03/runtime-scope/runner.mjs --apply
+          mkdir -p f03/runtime-admin-population/artifacts
+          node f03/runtime-admin-population/evidence.mjs --old
+          node f03-1/fixtures.mjs
+          node f03/runtime-scope/fixtures.mjs
+          node f03/runtime-governance-template/fixtures.mjs
+          node f03/runtime-admin-population/fixtures.mjs
+          node f03/runtime-admin-population/runner.mjs --apply
+          node f03/runtime-admin-population/runner.mjs --verify
+          node f03/runtime-admin-population/runner.mjs --apply
+          if node f03/runtime-admin-population/runner.mjs --rollback; then echo 'CLAIMED_ROLLBACK_MUST_DENY'; exit 1; fi
+          node f03/runtime-admin-population/runner.mjs --verify
+      - name: Run real PG16 A2B identity/session/population, concurrency, fault and namespace negatives
+        run: |
+          set -euo pipefail
+          node --test f03/runtime-admin-population/tests/integration.test.mjs 2>&1 | tee f03/runtime-admin-population/artifacts/pg16-population.log
+          grep -q '# fail 0' f03/runtime-admin-population/artifacts/pg16-population.log
+          node f03/runtime-admin-population/runner.mjs --verify
+      - name: Export original PG16 physical SQL, immutable manifest version chain and raw SHA256
+        run: |
+          set -euo pipefail
+          node f03/runtime-admin-population/evidence.mjs --new
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > f03/runtime-admin-population/artifacts/pg16_schema_only.sql
+          sha256sum f03/runtime-admin-population/artifacts/pg16_schema_only.sql f03/runtime-admin-population/artifacts/pg16_inventory.json > f03/runtime-admin-population/artifacts/sha256sums.txt
+          if test -f f03/runtime-admin-population/evidence/SOURCE.md; then node f03/runtime-admin-population/evidence.mjs --archive-check; fi
+      - name: Fail if credentials, tokens, password hashes or private keys leak to evidence
+        run: |
+          set -euo pipefail
+          if grep -R -nE 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|BEGIN PRIVATE KEY|SyntheticBootstrapAdmin_2026|SyntheticThirdAdmin_2026' f03/runtime-admin-population/artifacts; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f03-2-2b-sg05-82-pg16-physical-and-negative-evidence
+          path: engineering/f03/runtime-admin-population/artifacts/
+          retention-days: 30
+          if-no-files-found: error
+      - name: Archive original tested PG16 structural bytes on B branch once; final CI read-only
+        run: |
+          set -euo pipefail
+          if test -f f03/runtime-admin-population/evidence/SOURCE.md; then
+            echo 'F03-2-2B source structural evidence already frozen; current-run raw hash and catalog check passed'
+          else
+            test "$GITHUB_REF" = 'refs/heads/feat/f03-admin-population-2b'
+            mkdir -p f03/runtime-admin-population/evidence
+            for name in old-structure.json new-structure.json pg16_schema_only.sql pg16_inventory.json sha256sums.txt; do
+              cp "f03/runtime-admin-population/artifacts/$name" "f03/runtime-admin-population/evidence/$name"
+            done
+            printf 'source_run_id: %s\nsource_commit_sha: %s\nsource_job_name: f03-2b-population-82\nsource_artifact_name: f03-2-2b-sg05-82-pg16-physical-and-negative-evidence\nsource_files: raw CI bytes only, no credentials or fixture rows\n' "$GITHUB_RUN_ID" "$GITHUB_SHA" > f03/runtime-admin-population/evidence/SOURCE.md
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -- f03/runtime-admin-population/evidence/
+            git diff --cached --quiet && { echo 'MISSING_EVIDENCE_DELTA'; exit 1; }
+            git commit -m 'F03-2-2B: archive original PG16 structural bytes and CI source provenance'
+            git push origin HEAD:refs/heads/feat/f03-admin-population-2b
+          fi
+  f03-2b-bootstrap-empty:
+    name: F03-2-2B empty 82-table first-admin atomic bootstrap race
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_2B_INSTALLER_CONFIRM: I_AUTHORIZE_DISPOSABLE_PG16_FIRST_BOOTSTRAP_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Validate frozen project safety, source syntax and pinned manifest
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run check
+          for name in migration governance bootstrap runner evidence fixtures; do node --check "f03/runtime-admin-population/$name.mjs"; done
+          node --check f03/runtime-admin-population/tests/integration.test.mjs
+          node --check f03/runtime-admin-population/tests/bootstrap.test.mjs
+      - name: Initialize separate clean PG16 without ANY System Admin fixture
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
+          node f03-1/runner.mjs --bootstrap
+          node f03-1/runner.mjs --apply
+          node f03/runtime-scope/runner.mjs --apply
+          if node f03/runtime-admin-population/runner.mjs --inject; then echo 'DDL_FAILURE_INJECTION_MUST_DENY'; exit 1; fi
+          node f03/runtime-scope/runner.mjs --verify
+          node f03/runtime-admin-population/runner.mjs --apply
+          node f03/runtime-admin-population/runner.mjs --rollback
+          node f03/runtime-scope/runner.mjs --verify
+          node f03/runtime-admin-population/runner.mjs --apply
+          node f03/runtime-admin-population/runner.mjs --verify
+      - name: Real concurrent first-account claim, actual login and irrevocability
+        run: |
+          set -euo pipefail
+          node --test f03/runtime-admin-population/tests/bootstrap.test.mjs
+          if node f03/runtime-admin-population/runner.mjs --rollback; then echo 'BOOTSTRAP_CLAIMED_ROLLBACK_MUST_DENY'; exit 1; fi
+          node f03/runtime-admin-population/runner.mjs --verify
+  f03-2-2a-pg16-template:
+    name: F03-2-2A sealed 81-table admin governance CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Original F01/F02/F03/F03-2-G0 static safety regressions and new source syntax check
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run check
+          node --check f03/runtime-governance-template/enable-template.mjs
+          node --check f03/runtime-governance-template/fixtures.mjs
+          node --check f03/runtime-governance-template/tests/integration.test.mjs
+          node f02-g0/closure-audit.mjs
+          node f02-g0/full-domain-audit.mjs
+          node f02-g0/scope-audit.mjs
+          node f03/verify-contract.mjs
+          node --test f03/tests/*.test.mjs
+          node f03/login-design/verify-contract.mjs
+          node --test f03/login-design/test/*.test.mjs
+          node f03/runtime-design/verify-contract.mjs
+          node --test f03/runtime-design/tests/*.test.mjs
+          node --test f03/runtime-facts/tests/evidence-hashes.test.mjs
+          node --test f03/runtime-scope/tests/archive-evidence.test.mjs
+      - name: Create one disposable isolated PG16, no old/customer/prod database
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
+          if F03_1_DATABASE_URL=postgres://f03_ci:wrong@127.0.0.1:5432/other node f03-1/runner.mjs --bootstrap; then exit 1; fi
+          if F03_1_ISOLATION_CONFIRM=NO node f03-1/runner.mjs --bootstrap; then exit 1; fi
+      - name: Apply exact frozen F02 000001, F03-1 000002 and 1B 000003 only
+        run: |
+          set -euo pipefail
+          node f03-1/runner.mjs --bootstrap
+          node f03-1/runner.mjs --apply
+          node f03-1/runner.mjs --verify
+          node f03/runtime-scope/runner.mjs --apply
+          node f03/runtime-scope/runner.mjs --verify
+      - name: Make ONLY synthetic prior-auth, existing customer scope and second Admin fixture
+        run: |
+          set -euo pipefail
+          node f03-1/fixtures.mjs
+          node f03/runtime-scope/fixtures.mjs
+          node f03/runtime-governance-template/fixtures.mjs
+      - name: T01-T08 and T10 real PG16 scoped governance writes, faults and concurrent Admin tests
+        run: |
+          set -euo pipefail
+          mkdir -p f03/runtime-governance-template/artifacts
+          node --test f03/runtime-governance-template/tests/integration.test.mjs 2>&1 | tee f03/runtime-governance-template/artifacts/pg16-governance.log
+          grep -q '# fail 0' f03/runtime-governance-template/artifacts/pg16-governance.log
+          node f03/runtime-scope/runner.mjs --verify
+      - name: Export 81-table structure and full inventory using unchanged approved evidence logic
+        run: |
+          set -euo pipefail
+          mkdir -p f03/runtime-scope/artifacts
+          node f03/runtime-scope/evidence.mjs --new
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > f03/runtime-governance-template/artifacts/pg16_schema_only.sql
+          cp f03/runtime-scope/artifacts/pg16_inventory.json f03/runtime-governance-template/artifacts/pg16_inventory.json
+          cp f03/runtime-scope/artifacts/new-structure.json f03/runtime-governance-template/artifacts/new-structure.json
+          sha256sum f03/runtime-governance-template/artifacts/{pg16_schema_only.sql,pg16_inventory.json,new-structure.json} > f03/runtime-governance-template/artifacts/sha256sums.txt
+          node --input-type=module -e "import assert from 'node:assert/strict';import{readFileSync}from'node:fs';const m=JSON.parse(readFileSync('f03/runtime-scope/000003.manifest.json'));const i=JSON.parse(readFileSync('f03/runtime-governance-template/artifacts/pg16_inventory.json'));const n=JSON.parse(readFileSync('f03/runtime-governance-template/artifacts/new-structure.json'));assert.deepEqual([i.tables,i.columns,i.constraints,i.indexes],[81,492,304,126]);assert.equal(n.structure_sha256,m.structure_sha256);assert.equal(i.versionChain.length,3);console.log('T10 sealed schema+versions PASS')"
+      - name: Redact and restrict test artifacts
+        if: always()
+        run: |
+          set -euo pipefail
+          if test -d f03/runtime-governance-template/artifacts; then
+            if grep -R -nE 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|BEGIN PRIVATE KEY|SyntheticGovernanceEmployee_2026|SyntheticGovAdminTwo_2026' f03/runtime-governance-template/artifacts; then exit 1; fi
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f03-2-2a-isolated-pg16-template-governance-evidence
+          path: engineering/f03/runtime-governance-template/artifacts/
+          retention-days: 30
+          if-no-files-found: warn
+
+  f03-1-frozen-integration-2a:
+    name: F03-1 frozen real security integration - its OWN new PG16
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Check exact frozen F03-1 build and current F01/F02 safety guard
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run check
+      - name: Bootstrap separate fresh PG16 only with F02 000001 and F03-1 000002 sealed migrations
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
+          node f03-1/runner.mjs --bootstrap
+          node f03-1/runner.mjs --apply
+          node f03-1/runner.mjs --verify
+          node f03-1/fixtures.mjs
+      - name: Run UNMODIFIED F03-1 real KDF/login/password/governance/session tests
+        run: |
+          set -euo pipefail
+          mkdir -p f03/runtime-facts/artifacts-auth-integration
+          node --test f03-1/tests/integration.test.mjs 2>&1 | tee f03/runtime-facts/artifacts-auth-integration/original-integration.log
+          grep -q '# fail 0' f03/runtime-facts/artifacts-auth-integration/original-integration.log
+          node f03-1/runner.mjs --verify
+      - name: Ensure original regression artifacts exclude secrets
+        if: always()
+        run: |
+          set -euo pipefail
+          if test -d f03/runtime-facts/artifacts-auth-integration; then
+            if grep -R -nE 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|BEGIN PRIVATE KEY|SyntheticPassword_12345' f03/runtime-facts/artifacts-auth-integration; then exit 1; fi
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f03-2-1a-f03-1-integration-security-isolated-pg16
+          path: engineering/f03/runtime-facts/artifacts-auth-integration/
+          retention-days: 30
+          if-no-files-found: warn
+
+  f03-1-frozen-https-2a:
+    name: F03-1 frozen HTTPS security - its OWN new PG16
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Check exact frozen F03-1 build and current F01/F02 safety guard
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run check
+      - name: Bootstrap separate fresh PG16 only with F02 000001 and F03-1 000002 sealed migrations
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
+          node f03-1/runner.mjs --bootstrap
+          node f03-1/runner.mjs --apply
+          node f03-1/runner.mjs --verify
+          node f03-1/fixtures.mjs
+      - name: Temporary TLS/HMAC strictly for original F03-1 HTTPS security regression
+        run: |
+          set -euo pipefail
+          openssl req -x509 -newkey rsa:2048 -nodes -days 1 -keyout /tmp/f03-1-key.pem -out /tmp/f03-1-cert.pem -subj '/CN=127.0.0.1' -addext 'subjectAltName=IP:127.0.0.1' >/dev/null 2>&1
+          echo 'F03_1_TLS_KEY_PATH=/tmp/f03-1-key.pem' >> "$GITHUB_ENV"
+          echo 'F03_1_TLS_CERT_PATH=/tmp/f03-1-cert.pem' >> "$GITHUB_ENV"
+          key="$(openssl rand -base64 32 | tr -d '\n')"
+          echo "::add-mask::$key"
+          printf 'F03_1_HMAC_KEY_BASE64=%s\n' "$key" >> "$GITHUB_ENV"
+          unset key
+      - name: Run UNMODIFIED F03-1 real HTTPS and Origin/CSRF/Cookie/readiness tests
+        run: |
+          set -euo pipefail
+          mkdir -p f03/runtime-facts/artifacts-auth-https
+          node --test f03-1/tests/https.test.mjs 2>&1 | tee f03/runtime-facts/artifacts-auth-https/original-https.log
+          grep -q '# fail 0' f03/runtime-facts/artifacts-auth-https/original-https.log
+          node f03-1/runner.mjs --verify
+      - name: Ensure original regression artifacts exclude secrets
+        if: always()
+        run: |
+          set -euo pipefail
+          if test -d f03/runtime-facts/artifacts-auth-https; then
+            if grep -R -nE 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|BEGIN PRIVATE KEY|SyntheticPassword_12345' f03/runtime-facts/artifacts-auth-https; then exit 1; fi
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f03-2-1a-f03-1-https-security-isolated-pg16
+          path: engineering/f03/runtime-facts/artifacts-auth-https/
+          retention-days: 30
+          if-no-files-found: warn
