@@ -31,7 +31,7 @@ export async function discovery(c){
   const added=s.objects.filter(x=>!o.has(x.kind+'\0'+x.name)).map(x=>x.kind+'\0'+x.name).sort();
   const proposal={migration_id:ID,previous_structure_sha256:PREVIOUS,sql_sha256:checksum,structure_sha256:s.sha256,...num,approved_physical_added_keys:added};
   console.log('F03_2L_DISCOVERY_CANDIDATE '+JSON.stringify(proposal));
-  throw Error('F03_2L_DISCOVERY_ROLLBACL_ONLY');
+  throw Error('F03_2L_DISCOVERY_ROLLBACK_ONLY');
  }finally{await c.query('ROLLBACK')}
 }
 async function identity(c){
@@ -85,13 +85,13 @@ export async function apply(c,{inject=false}={}){
 export async function rollback(c){
  const m=await manifest();await check(c,m,'new');
  const r=(await c.query('SELECT count(*)::int n FROM public.lock_responsible_handover_receipts')).rows[0].n;
- if(r!==0)throw Error('L_RECEIPT_USED_ROLLBACL_DENY');
+ if(r!==0)throw Error('L_RECEIPT_USED_ROLLBACK_DENY');
  await c.query('BEGIN');
  try{
   await c.query('SELECT pg_advisory_xact_lock(20261010,310)');
   await c.query('DROP TABLE public.lock_responsible_handover_receipts');
   await c.query('DELETE FROM public.f03_schema_migrations WHERE migration_id=$1',[ID]);
-  if((await getPublicStructure(c)).sha256!==PREVIOUS)throw Error('L_ROLLBACL_INEXACT');
+  if((await getPublicStructure(c)).sha256!==PREVIOUS)throw Error('L_ROLLBACK_INEXACT');
   await c.query('COMMIT');return {rolledBack:true};
  }catch(e){await c.query('ROLLBACK');throw e}
 }
