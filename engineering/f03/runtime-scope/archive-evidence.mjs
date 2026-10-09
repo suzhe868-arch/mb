@@ -18,7 +18,7 @@ export function verifyTwoFileManifest(root,manifest){
   assert.equal(m[1],hash(root[m[2]]),'REAL_SHA256_BYTES_MISMATCH_'+m[2]);
   map.set(m[2],m[1]);
  }
- assert.deepEqual([...map.keys()].sort(),expected,'MISSING_MANDATORY_HASH_ENTRY');
+ assert.deepEqual([...map.keys()].sort(),[...expected].sort(),'MISSING_MANDATORY_HASH_ENTRY');
  return map;
 }
 export function canonicalPgDumpOnlyPairedRestrict(x){
