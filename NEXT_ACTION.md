@@ -1,3 +1,11 @@
+# 2026-10-10｜F03-2-2K A独立验收通过标准PR19合并，F03-2-2L正式施工单已放行（当前最新）
+
+- **2K已正式签收**：B最终SHA `8cc1f7b6e7df5ecdb57d6e4d2b8be7e3627bde7b`、同SHA真实[CI37999317037](https://github.com/suzhe868-arch/mb/actions/runs/37999317037) **14/14独立PG16成功，K92 29/29、J91 27/27、I90 27/27**，旧H89、G/F/E88、D86、C84、B82双、A81、F03-1认证/HTTPS80全独立通过；H/I/J/K四Domain相同Key全向/四会话并发与Waitlist交接不可变收据已受限验证。旧91表/1982目录项零更改，新000011仅新增一张Waitlist不可变收据表至92表/584列/405约束/155索引/2028完整目录项（+46），新结构SHA `6b6932e4855074ed63ec0ceda89b568e1b4b1f62d111c759f9c7a77a841a3c76`，SOURCE原始字节与catalog三域校验PASS。标准[PR19](https://github.com/suzhe868-arch/mb/pull/19) merge SHA `3fdb965733fce0750bc00a4a6b04f12e338fda5e`。完整A验收报告`07_重建工作区/F03-2-2K_A主控独立验收及PR19正式合并闭环_2026-10-10.md`。
+- **下一批2L已正式技术裁决并放行B**：根据PDM-18/03/19，只限新隔离PG16的**正式Lock当前负责人单域受控移交**、锁车有效期/真实Deposit独立守卫、原价格/LockRequest/Waitlist/Transaction不反写、H/I/J/K/L五Domain全局Key双向阻重。旧000001～000011及旧CI/已签规则全部冻结；新`000012`最多一张Lock逐项不可变收据表，必要时旧H/I/J/K只限commit/retry跨域Key守卫新表检查。正式施工单`07_重建工作区/F03-2-2L_A主控SG06_Lock正式锁车负责人单域移交完整施工单_2026-10-10.md`。B指定分支`feat/f03-lock-responsible-handover-2l`，**新旧共15/15独立PG16 CI成功**（K29/J27/I27均完整回归）后交A，B不得自行合并或进入下一批。
+- **NEXT_OWNER=B**；C/H01高保真、完整F03-2与产品基线继续`NOT_READY`，不宣称生产上线。
+
+---
+
 # 2026-10-10｜F03-2-2J A二轮正式验收通过PR18合并，下一F03-2-2K已放行（当前最新）
 
 - **F03-2-2J A正式签收并合并**：B最终SHA `8abd2849877ff7884ea3ff2c27cde59f14b70ce7`、同SHA[真实PG16 CI `37996676662`](https://github.com/suzhe868-arch/mb/actions/runs/37996676662)**13/13独立PG16 job成功**，旧I90真实27/27、新J91真实27/27、H89/G/F/E88/D86/C84/B82双/A81/F03-1认证与HTTPS80全部独立成功，前轮A-J-01缺失I90完整回归已关闭。旧90表1936完整目录对象未改，新000010只添1张Consultation不可变收据表至91表/572列/390约束/151索引/1982目录对象(+46)，SOURCE全目录及原始字节校验PASS；H/I旧服务仅为A已授权的J跨域Key守卫最小补强。标准[PR #18](https://github.com/suzhe868-arch/mb/pull/18)合并SHA `367ff5d16fe913f5e6b2002abd559522f4cc4d26`。正式验收：`07_重建工作区/F03-2-2J_A主控二轮独立验收及PR18正式合并闭环_2026-10-10.md`。
