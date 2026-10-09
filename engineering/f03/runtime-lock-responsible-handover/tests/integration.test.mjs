@@ -178,6 +178,38 @@ test('L06 genuine successive Lock transfer preserves older receipt and detects u
  try{assert.equal((await read(auth,manager,{batchId:8401,itemId:10401,teamId:901})).code,'L05_RECEIPT_PROOF_DENY')}
  finally{await db.query('UPDATE public.locks SET responsible_employee_id=5 WHERE lock_id=18001')}
 });
+test('L06 historical Lock receipt stays auditable after original responsible employee becomes inactive',async()=>{
+ const baseline=await snapshot();
+ await db.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=7");
+ try{
+  const original=await read(auth,manager,{batchId:8401,itemId:10401,teamId:901});
+  const subsequent=await read(auth,manager,{batchId:8460,itemId:10460,teamId:901});
+  assert.equal(original.code,'L05_RECEIPT_READ_ONLY');
+  assert.equal(subsequent.code,'L05_RECEIPT_READ_ONLY');
+ }finally{await db.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=7")}
+ assert.deepEqual(await snapshot(),baseline);
+});
+test('L06 revoked current auditor personal permission and team capability deny historic receipt access',async()=>{
+ const p={batchId:8401,itemId:10401,teamId:901};
+ assert.equal((await read(auth,manager,p)).code,'L05_RECEIPT_READ_ONLY');
+ await db.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=5 AND permission_id=19");
+ try{assert.equal((await read(auth,manager,p)).code,'L02_LOCK_PERMISSION_SCOPE_DENY')}
+ finally{await db.query("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=5 AND permission_id=19")}
+ await db.query("UPDATE public.employee_capability_scope_bindings SET ended_at=now() WHERE employee_id=5 AND permission_id=19 AND scope_id=201");
+ try{assert.equal((await read(auth,manager,p)).code,'L02_LOCK_PERMISSION_SCOPE_DENY')}
+ finally{await db.query("UPDATE public.employee_capability_scope_bindings SET ended_at=NULL WHERE employee_id=5 AND permission_id=19 AND scope_id=201")}
+ assert.equal((await read(auth,manager,p)).code,'L05_RECEIPT_READ_ONLY');
+});
+test('L03 refundable financial case requires independent authority; Lock transfer does not touch funds or refund facts',async()=>{
+ const before=await snapshot(),p=req(8,4,'l-existing-refund-deny-0008');
+ await db.query("INSERT INTO public.refund_cases(refund_id,customer_id,lock_id,status,created_at) VALUES(98981,14308,18008,'pending',now())");
+ try{
+  assert.equal((await commit(auth,manager,p)).code,'L03_REFUND_FINANCIAL_SCOPE_DEFER_DENY');
+  assert.equal(await owner(8),'7');
+ }finally{await db.query('DELETE FROM public.refund_cases WHERE refund_id=98981')}
+ assert.deepEqual(await snapshot(),before);
+});
+
 test('L02 inactive source with trusted SG06 batch differs from unexpected inactive source and recipient',async()=>{
  await db.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=7");
  try{
