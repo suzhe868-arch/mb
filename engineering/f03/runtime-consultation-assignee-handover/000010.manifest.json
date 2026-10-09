@@ -1,0 +1,11 @@
+{
+  "migration_id": "000010_consultation_assignee_handover_receipts",
+  "previous_structure_sha256": "1532f5b34379e5ec207d9a2b909a11322d0eb6755cc23d6dfc7a419ea6d13eb0",
+  "sql_sha256": "PENDING_REAL_SHA",
+  "structure_sha256": "PENDING_REAL_PG16_DISCOVERY",
+  "tables": 0,
+  "columns": 0,
+  "constraints": 0,
+  "indexes": 0,
+  "approved_physical_added_keys": []
+}
