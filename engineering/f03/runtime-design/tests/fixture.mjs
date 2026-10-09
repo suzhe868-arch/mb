@@ -28,7 +28,7 @@ export function makeFixture(){
    {role_id:'3',permission_id:pid('vehicle.read'),enabled:true},
    {role_id:'3',permission_id:pid('pc.four_s.vehicle.manage'),enabled:true},
   ],
-  overrides:[],overrideHistory:[],
+  overrides:[{employee_id:'103',permission_id:pid('pc.four_s.vehicle.manage'),decision:'allow'}],overrideHistory:[],roleDefaultHistory:[],
   scopes:[
    {scope_id:'1',employee_id:'101',scope_kind:'owner_customer',scope_reference_id:'301',ended_at:null},
    {scope_id:'2',employee_id:'101',scope_kind:'store',scope_reference_id:'10',ended_at:null},
