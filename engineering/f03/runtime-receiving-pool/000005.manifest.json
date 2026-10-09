@@ -1,0 +1,10 @@
+{
+  "migration_id": "000005_employee_receiving_pool_eligibility",
+  "previous_structure_sha256": "555ddc5bffa745014e68eab79fa83312c9b18ed06f484434fc5d76e2064336ea",
+  "sql_sha256": "PENDING_PG16",
+  "structure_sha256": "PENDING_PG16",
+  "tables": 84,
+  "columns": 502,
+  "constraints": 314,
+  "indexes": 129
+}
