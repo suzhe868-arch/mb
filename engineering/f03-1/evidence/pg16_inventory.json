@@ -1,0 +1,5849 @@
+{
+  "kind": "F03_1_PG16_SCHEMA_ONLY",
+  "identity": {
+    "database_name": "f03_auth_test",
+    "db_user": "f03_ci",
+    "version_num": 160015
+  },
+  "tables": 80,
+  "columns": 487,
+  "constraints": 299,
+  "indexes": 123,
+  "additionChecksum": "3d7f0a539941e4089147a9c7a82ecfdb2ccebd64ba513e01deeb0fcf1d2bd6ab",
+  "versionChain": [
+    {
+      "migration_id": "000001_current_initial",
+      "checksum": "df078212b95701af12144a43ef85a70fc491e5dca9948644df415bd888c5b4e4",
+      "structure_sha256": "d5535d72fe17d7981b006bcd1223eb11cb67660b53e7603f1125bfab8dba9cde"
+    },
+    {
+      "migration_id": "000002_pc_auth_sessions",
+      "checksum": "3d7f0a539941e4089147a9c7a82ecfdb2ccebd64ba513e01deeb0fcf1d2bd6ab",
+      "structure_sha256": "8af70f5f3ca32f2a7b84a4ad69d68dbf7c81bd9b6c97d79ad7481ce3a8c23ee5"
+    }
+  ],
+  "columnsDetail": [
+    {
+      "table_name": "audit_events",
+      "column_name": "audit_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "audit_events",
+      "column_name": "actor_kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "audit_events",
+      "column_name": "actor_id",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "audit_events",
+      "column_name": "role_context",
+      "data_type": "jsonb",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "audit_events",
+      "column_name": "object_kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "audit_events",
+      "column_name": "object_id",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "audit_events",
+      "column_name": "action",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "audit_events",
+      "column_name": "before_json",
+      "data_type": "jsonb",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "audit_events",
+      "column_name": "after_json",
+      "data_type": "jsonb",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "audit_events",
+      "column_name": "occurred_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "collector_integration_events",
+      "column_name": "integration_event_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "collector_integration_events",
+      "column_name": "source_platform",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "collector_integration_events",
+      "column_name": "upstream_publisher_id",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "collector_integration_events",
+      "column_name": "event_kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "collector_integration_events",
+      "column_name": "dedupe_key",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "collector_integration_events",
+      "column_name": "received_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "config_versions",
+      "column_name": "config_version_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "config_versions",
+      "column_name": "domain_kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "config_versions",
+      "column_name": "version_state",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "config_versions",
+      "column_name": "payload_json",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "config_versions",
+      "column_name": "activated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "consultations",
+      "column_name": "consultation_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "consultations",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "consultations",
+      "column_name": "vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "consultations",
+      "column_name": "assignee_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "consultations",
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "consultations",
+      "column_name": "source_relation",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "consultations",
+      "column_name": "first_response_deadline",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "consultations",
+      "column_name": "completed_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "consultations",
+      "column_name": "close_reason",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "consultations",
+      "column_name": "listing_cycle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_customer_stages",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_customer_stages",
+      "column_name": "stage_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_customer_stages",
+      "column_name": "updated_by_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_customer_stages",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "crm_customer_tag_links",
+      "column_name": "link_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_customer_tag_links",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_customer_tag_links",
+      "column_name": "tag_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_customer_tag_links",
+      "column_name": "assigned_by_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_customer_tag_links",
+      "column_name": "ended_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_followup_tasks",
+      "column_name": "task_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_followup_tasks",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_followup_tasks",
+      "column_name": "responsible_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_followup_tasks",
+      "column_name": "planned_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_followup_tasks",
+      "column_name": "task_state",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_followup_tasks",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "crm_followups",
+      "column_name": "followup_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_followups",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_followups",
+      "column_name": "responsible_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_followups",
+      "column_name": "actor_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_followups",
+      "column_name": "occurred_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "crm_followups",
+      "column_name": "content",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_followups",
+      "column_name": "business_demand_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_followups",
+      "column_name": "source_context_json",
+      "data_type": "jsonb",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_personal_notes",
+      "column_name": "note_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_personal_notes",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_personal_notes",
+      "column_name": "author_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_personal_notes",
+      "column_name": "note_text",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_personal_notes",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "crm_service_labels",
+      "column_name": "label_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_service_labels",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_service_labels",
+      "column_name": "author_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_service_labels",
+      "column_name": "label_text",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_service_labels",
+      "column_name": "source_kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_service_labels",
+      "column_name": "occurred_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "crm_shared_profiles",
+      "column_name": "profile_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_shared_profiles",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_shared_profiles",
+      "column_name": "profile_json",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_shared_profiles",
+      "column_name": "updated_by_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_shared_profiles",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "crm_stage_dictionary",
+      "column_name": "stage_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_stage_dictionary",
+      "column_name": "stage_name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_stage_dictionary",
+      "column_name": "sort_order",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_stage_dictionary",
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_tag_dictionary",
+      "column_name": "tag_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_tag_dictionary",
+      "column_name": "tag_name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_tag_dictionary",
+      "column_name": "sort_order",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "crm_tag_dictionary",
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_collaborations",
+      "column_name": "collaboration_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_collaborations",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_collaborations",
+      "column_name": "employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_collaborations",
+      "column_name": "scope_json",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_collaborations",
+      "column_name": "ended_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_day_quota_ledger",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_day_quota_ledger",
+      "column_name": "business_day_shanghai",
+      "data_type": "date",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_day_quota_ledger",
+      "column_name": "base_quota",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_day_quota_ledger",
+      "column_name": "temp_additions",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_day_quota_ledger",
+      "column_name": "consumed_count",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_day_quota_ledger",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "customer_entitlement_events",
+      "column_name": "entitlement_event_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_entitlement_events",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_entitlement_events",
+      "column_name": "entitlement_kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_entitlement_events",
+      "column_name": "granted_by",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_entitlement_events",
+      "column_name": "occurred_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "customer_levels",
+      "column_name": "level_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_levels",
+      "column_name": "level_code",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_owner_history",
+      "column_name": "owner_history_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_owner_history",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_owner_history",
+      "column_name": "from_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_owner_history",
+      "column_name": "to_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_owner_history",
+      "column_name": "changed_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_owner_history",
+      "column_name": "change_reason",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_phone_facts",
+      "column_name": "phone_fact_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_phone_facts",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_phone_facts",
+      "column_name": "phone_ciphertext",
+      "data_type": "bytea",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_phone_facts",
+      "column_name": "valid_from",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_phone_facts",
+      "column_name": "ended_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_price_cycle_unlocks",
+      "column_name": "unlock_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_price_cycle_unlocks",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_price_cycle_unlocks",
+      "column_name": "vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_price_cycle_unlocks",
+      "column_name": "listing_cycle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_price_cycle_unlocks",
+      "column_name": "grant_origin",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_price_cycle_unlocks",
+      "column_name": "source_recommendation_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_price_cycle_unlocks",
+      "column_name": "granted_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "customer_price_unlock_events",
+      "column_name": "unlock_event_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_price_unlock_events",
+      "column_name": "idempotency_key",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_price_unlock_events",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_price_unlock_events",
+      "column_name": "vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_price_unlock_events",
+      "column_name": "listing_cycle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_price_unlock_events",
+      "column_name": "business_day_shanghai",
+      "data_type": "date",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_price_unlock_events",
+      "column_name": "event_kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_price_unlock_events",
+      "column_name": "occurred_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "customer_quota_adjustments",
+      "column_name": "adjustment_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_quota_adjustments",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_quota_adjustments",
+      "column_name": "business_day_shanghai",
+      "data_type": "date",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_quota_adjustments",
+      "column_name": "delta",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_quota_adjustments",
+      "column_name": "changed_by",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_quota_adjustments",
+      "column_name": "occurred_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "customer_wechat_identities",
+      "column_name": "wechat_identity_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_wechat_identities",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_wechat_identities",
+      "column_name": "identity_scope",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_wechat_identities",
+      "column_name": "wechat_identity_key",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customer_wechat_identities",
+      "column_name": "first_seen_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "customers",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customers",
+      "column_name": "account_status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customers",
+      "column_name": "current_owner_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "customers",
+      "column_name": "customer_level_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "customers",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "customers",
+      "column_name": "owner_assignment_state",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "demand_match_results",
+      "column_name": "result_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "demand_match_results",
+      "column_name": "demand_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "demand_match_results",
+      "column_name": "vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "demand_match_results",
+      "column_name": "listing_cycle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "demand_match_results",
+      "column_name": "match_tier",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "demand_match_results",
+      "column_name": "match_explanation",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "demand_match_results",
+      "column_name": "current_state",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "demand_match_results",
+      "column_name": "calculated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "demand_match_results",
+      "column_name": "invalidated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "demands",
+      "column_name": "demand_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "demands",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "demands",
+      "column_name": "responsible_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "demands",
+      "column_name": "demand_state",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "demands",
+      "column_name": "criteria_json",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "demands",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "deposit_receipts",
+      "column_name": "deposit_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "deposit_receipts",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "deposit_receipts",
+      "column_name": "lock_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "deposit_receipts",
+      "column_name": "amount_cents",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "deposit_receipts",
+      "column_name": "received_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "deposit_receipts",
+      "column_name": "recorded_by",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "employee_data_scopes",
+      "column_name": "scope_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "employee_data_scopes",
+      "column_name": "employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "employee_data_scopes",
+      "column_name": "scope_kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "employee_data_scopes",
+      "column_name": "scope_reference_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "employee_data_scopes",
+      "column_name": "ended_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "employee_permission_override_history",
+      "column_name": "event_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "employee_permission_override_history",
+      "column_name": "employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "employee_permission_override_history",
+      "column_name": "permission_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "employee_permission_override_history",
+      "column_name": "decision",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "employee_permission_override_history",
+      "column_name": "actor_kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "employee_permission_override_history",
+      "column_name": "actor_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "employee_permission_override_history",
+      "column_name": "occurred_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "employee_permission_overrides",
+      "column_name": "employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "employee_permission_overrides",
+      "column_name": "permission_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "employee_permission_overrides",
+      "column_name": "decision",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "employee_permission_overrides",
+      "column_name": "changed_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "employees",
+      "column_name": "employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "employees",
+      "column_name": "store_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "employees",
+      "column_name": "employment_status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "employees",
+      "column_name": "receiving_status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "employees",
+      "column_name": "main_role_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "employees",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "f02_schema_migrations",
+      "column_name": "migration_id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "f02_schema_migrations",
+      "column_name": "checksum",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "f02_schema_migrations",
+      "column_name": "structure_sha256",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "f02_schema_migrations",
+      "column_name": "applied_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "f03_isolation_seal",
+      "column_name": "run_id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "f03_isolation_seal",
+      "column_name": "f02_checksum",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "f03_isolation_seal",
+      "column_name": "f02_structure_sha256",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "f03_isolation_seal",
+      "column_name": "base_structure_sha256",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "f03_isolation_seal",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "f03_schema_migrations",
+      "column_name": "migration_id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "f03_schema_migrations",
+      "column_name": "checksum",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "f03_schema_migrations",
+      "column_name": "structure_sha256",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "f03_schema_migrations",
+      "column_name": "applied_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "financial_corrections",
+      "column_name": "correction_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "financial_corrections",
+      "column_name": "subject_kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "financial_corrections",
+      "column_name": "subject_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "financial_corrections",
+      "column_name": "correction_amount_cents",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "financial_corrections",
+      "column_name": "actor_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "financial_corrections",
+      "column_name": "occurred_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "find_car_applications",
+      "column_name": "application_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "find_car_applications",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "find_car_applications",
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "find_car_applications",
+      "column_name": "assigned_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "find_car_applications",
+      "column_name": "activated_demand_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "find_car_applications",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "idempotency_records",
+      "column_name": "idempotency_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "idempotency_records",
+      "column_name": "actor_key",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "idempotency_records",
+      "column_name": "operation_key",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "idempotency_records",
+      "column_name": "request_key",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "idempotency_records",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "image_asset_jobs",
+      "column_name": "asset_job_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "image_asset_jobs",
+      "column_name": "vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "image_asset_jobs",
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "image_asset_jobs",
+      "column_name": "retry_count",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "table_name": "image_asset_jobs",
+      "column_name": "last_attempt_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "jyt_model_source_mappings",
+      "column_name": "mapping_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "jyt_model_source_mappings",
+      "column_name": "source_platform",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "jyt_model_source_mappings",
+      "column_name": "upstream_model_id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "jyt_model_source_mappings",
+      "column_name": "local_model_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "jyt_model_source_mappings",
+      "column_name": "mapping_status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "lock_requests",
+      "column_name": "lock_request_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "lock_requests",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "lock_requests",
+      "column_name": "vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "lock_requests",
+      "column_name": "listing_cycle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "lock_requests",
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "lock_requests",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "lock_requests",
+      "column_name": "expires_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "lock_requests",
+      "column_name": "resulting_lock_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "lock_requests",
+      "column_name": "resulting_waitlist_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "lock_requests",
+      "column_name": "processed_by",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "locks",
+      "column_name": "lock_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "locks",
+      "column_name": "vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "locks",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "locks",
+      "column_name": "listing_cycle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "locks",
+      "column_name": "lock_status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "locks",
+      "column_name": "responsible_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "locks",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "locks",
+      "column_name": "expires_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "locks",
+      "column_name": "source_lock_request_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "locks",
+      "column_name": "end_reason",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "manual_vehicle_drafts",
+      "column_name": "draft_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "manual_vehicle_drafts",
+      "column_name": "created_by_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "manual_vehicle_drafts",
+      "column_name": "draft_source_type",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "manual_vehicle_drafts",
+      "column_name": "draft_payload",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "manual_vehicle_drafts",
+      "column_name": "first_meaningful_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "manual_vehicle_drafts",
+      "column_name": "last_autosaved_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "manual_vehicle_drafts",
+      "column_name": "published_vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "manual_vehicle_drafts",
+      "column_name": "deleted_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_change_events",
+      "column_name": "event_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_change_events",
+      "column_name": "result_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_change_events",
+      "column_name": "trigger_kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_change_events",
+      "column_name": "before_json",
+      "data_type": "jsonb",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_change_events",
+      "column_name": "after_json",
+      "data_type": "jsonb",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_change_events",
+      "column_name": "occurred_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "matching_change_events",
+      "column_name": "idempotency_key",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_dictionary_rules",
+      "column_name": "rule_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_dictionary_rules",
+      "column_name": "rule_scope",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_dictionary_rules",
+      "column_name": "rule_expression",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_dictionary_rules",
+      "column_name": "version",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_dictionary_rules",
+      "column_name": "retired_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_dictionary_rules",
+      "column_name": "normalized_mapping_json",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_dictionary_rules",
+      "column_name": "rule_status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_dictionary_rules",
+      "column_name": "rule_note",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_dictionary_rules",
+      "column_name": "created_by_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_dictionary_rules",
+      "column_name": "updated_by_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_dictionary_rules",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "matching_dictionary_rules",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "matching_rule_change_history",
+      "column_name": "event_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_rule_change_history",
+      "column_name": "rule_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_rule_change_history",
+      "column_name": "rule_version",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_rule_change_history",
+      "column_name": "change_action",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_rule_change_history",
+      "column_name": "before_json",
+      "data_type": "jsonb",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_rule_change_history",
+      "column_name": "after_json",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_rule_change_history",
+      "column_name": "actor_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "matching_rule_change_history",
+      "column_name": "occurred_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "notification_events",
+      "column_name": "notification_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "notification_events",
+      "column_name": "recipient_kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "notification_events",
+      "column_name": "source_object_kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "notification_events",
+      "column_name": "source_object_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "notification_events",
+      "column_name": "dedupe_key",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "notification_events",
+      "column_name": "result_state",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "notification_events",
+      "column_name": "channel_kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "notification_events",
+      "column_name": "recipient_ref",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "notification_events",
+      "column_name": "notification_stage",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "outbox_events",
+      "column_name": "outbox_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "outbox_events",
+      "column_name": "event_kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "outbox_events",
+      "column_name": "aggregate_ref",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "outbox_events",
+      "column_name": "attempt_count",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "outbox_events",
+      "column_name": "result_state",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "outbox_events",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "pc_auth_sessions",
+      "column_name": "session_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "pc_auth_sessions",
+      "column_name": "account_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "pc_auth_sessions",
+      "column_name": "token_digest",
+      "data_type": "bytea",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "pc_auth_sessions",
+      "column_name": "credential_epoch",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "pc_auth_sessions",
+      "column_name": "issued_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "pc_auth_sessions",
+      "column_name": "expires_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "pc_auth_sessions",
+      "column_name": "revoked_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "pc_auth_sessions",
+      "column_name": "last_seen_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "pc_auth_sessions",
+      "column_name": "restricted",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "true"
+    },
+    {
+      "table_name": "pc_login_accounts",
+      "column_name": "account_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "pc_login_accounts",
+      "column_name": "normalized_login_key",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "pc_login_accounts",
+      "column_name": "principal_kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "pc_login_accounts",
+      "column_name": "employee_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "pc_login_accounts",
+      "column_name": "system_admin_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "pc_login_accounts",
+      "column_name": "password_hash",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "pc_login_accounts",
+      "column_name": "credential_state",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "pc_login_accounts",
+      "column_name": "force_password_change",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "true"
+    },
+    {
+      "table_name": "pc_login_accounts",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "pc_login_accounts",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "pc_login_accounts",
+      "column_name": "credential_epoch",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": "1"
+    },
+    {
+      "table_name": "permissions",
+      "column_name": "permission_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "permissions",
+      "column_name": "permission_code",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "pricing_rule_ranges",
+      "column_name": "range_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "pricing_rule_ranges",
+      "column_name": "version_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "pricing_rule_ranges",
+      "column_name": "min_price_cents",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "pricing_rule_ranges",
+      "column_name": "max_price_cents",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "pricing_rule_ranges",
+      "column_name": "markup_cents",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "pricing_rule_versions",
+      "column_name": "version_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "pricing_rule_versions",
+      "column_name": "version_state",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "pricing_rule_versions",
+      "column_name": "effective_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "pricing_rule_versions",
+      "column_name": "approved_by",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "priority_leases",
+      "column_name": "priority_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "priority_leases",
+      "column_name": "vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "priority_leases",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "priority_leases",
+      "column_name": "trigger_demand_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "priority_leases",
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "priority_leases",
+      "column_name": "expires_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "priority_leases",
+      "column_name": "ended_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "priority_leases",
+      "column_name": "listing_cycle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "priority_leases",
+      "column_name": "source_match_result_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "public_pool_events",
+      "column_name": "pool_event_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "public_pool_events",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "public_pool_events",
+      "column_name": "from_owner_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "public_pool_events",
+      "column_name": "to_owner_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "public_pool_events",
+      "column_name": "event_reason",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "public_pool_events",
+      "column_name": "occurred_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "public_pool_events",
+      "column_name": "event_kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "public_pool_events",
+      "column_name": "source_owner_history_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "public_pool_events",
+      "column_name": "actor_kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "public_pool_events",
+      "column_name": "actor_id",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "publisher_phone_cache",
+      "column_name": "cache_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "publisher_phone_cache",
+      "column_name": "source_platform",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "publisher_phone_cache",
+      "column_name": "upstream_publisher_id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "publisher_phone_cache",
+      "column_name": "phone_secret",
+      "data_type": "bytea",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "publisher_phone_cache",
+      "column_name": "fetched_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "publisher_phone_cache",
+      "column_name": "source_status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "publisher_phone_history",
+      "column_name": "phone_history_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "publisher_phone_history",
+      "column_name": "source_platform",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "publisher_phone_history",
+      "column_name": "upstream_publisher_id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "publisher_phone_history",
+      "column_name": "result_status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "publisher_phone_history",
+      "column_name": "received_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "recommendations",
+      "column_name": "recommendation_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "recommendations",
+      "column_name": "vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "recommendations",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "recommendations",
+      "column_name": "listing_cycle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "recommendations",
+      "column_name": "source_demand_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "recommendations",
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "recommendations",
+      "column_name": "recommender_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "refund_cases",
+      "column_name": "refund_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "refund_cases",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "refund_cases",
+      "column_name": "lock_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "refund_cases",
+      "column_name": "transaction_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "refund_cases",
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "refund_cases",
+      "column_name": "close_reason",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "refund_cases",
+      "column_name": "expected_amount_cents",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "refund_cases",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "refund_cases",
+      "column_name": "closed_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "refund_payments",
+      "column_name": "payment_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "refund_payments",
+      "column_name": "refund_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "refund_payments",
+      "column_name": "amount_cents",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "refund_payments",
+      "column_name": "paid_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "role_default_permission_history",
+      "column_name": "event_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "role_default_permission_history",
+      "column_name": "role_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "role_default_permission_history",
+      "column_name": "permission_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "role_default_permission_history",
+      "column_name": "enabled",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "role_default_permission_history",
+      "column_name": "actor_kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "role_default_permission_history",
+      "column_name": "actor_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "role_default_permission_history",
+      "column_name": "occurred_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "role_permission_defaults",
+      "column_name": "role_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "role_permission_defaults",
+      "column_name": "permission_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "role_permission_defaults",
+      "column_name": "enabled",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "role_permission_defaults",
+      "column_name": "changed_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "roles",
+      "column_name": "role_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "roles",
+      "column_name": "role_code",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "share_attributions",
+      "column_name": "share_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "share_attributions",
+      "column_name": "vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "share_attributions",
+      "column_name": "sharer_customer_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "share_attributions",
+      "column_name": "source_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "share_attributions",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "stores",
+      "column_name": "store_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "stores",
+      "column_name": "store_name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "stores",
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "system_admins",
+      "column_name": "system_admin_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "system_admins",
+      "column_name": "account_status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "system_admins",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "system_admins",
+      "column_name": "bootstrap_origin",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "system_admins",
+      "column_name": "created_by_system_admin_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "transactions",
+      "column_name": "transaction_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "transactions",
+      "column_name": "source_lock_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "transactions",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "transactions",
+      "column_name": "vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "transactions",
+      "column_name": "listing_cycle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "transactions",
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "transactions",
+      "column_name": "responsible_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "transactions",
+      "column_name": "completed_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_brands",
+      "column_name": "brand_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_brands",
+      "column_name": "brand_name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_brands",
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_conversions",
+      "column_name": "conversion_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_conversions",
+      "column_name": "vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_conversions",
+      "column_name": "from_source",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_conversions",
+      "column_name": "to_source",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_conversions",
+      "column_name": "converted_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_documents",
+      "column_name": "document_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_documents",
+      "column_name": "vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_documents",
+      "column_name": "document_kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_documents",
+      "column_name": "customer_visible",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_documents",
+      "column_name": "origin_ref",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_documents",
+      "column_name": "added_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_hide_rules",
+      "column_name": "rule_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_hide_rules",
+      "column_name": "source_scope_json",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_hide_rules",
+      "column_name": "conditions_json",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_hide_rules",
+      "column_name": "is_enabled",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_hide_rules",
+      "column_name": "updated_by_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_hide_rules",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "vehicle_images",
+      "column_name": "image_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_images",
+      "column_name": "vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_images",
+      "column_name": "relative_path",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_images",
+      "column_name": "source_url_fact",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_images",
+      "column_name": "asset_storage_status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_listing_cycles",
+      "column_name": "listing_cycle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_listing_cycles",
+      "column_name": "vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_listing_cycles",
+      "column_name": "started_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_listing_cycles",
+      "column_name": "ended_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_listing_cycles",
+      "column_name": "end_reason",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_model_review_cases",
+      "column_name": "case_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_model_review_cases",
+      "column_name": "upstream_model_id",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_model_review_cases",
+      "column_name": "vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_model_review_cases",
+      "column_name": "case_state",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_model_review_cases",
+      "column_name": "resolved_by",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_models",
+      "column_name": "model_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_models",
+      "column_name": "series_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_models",
+      "column_name": "brand_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_models",
+      "column_name": "model_year",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_models",
+      "column_name": "model_name",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_models",
+      "column_name": "profile_status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_price_history",
+      "column_name": "price_event_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_price_history",
+      "column_name": "vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_price_history",
+      "column_name": "price_kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_price_history",
+      "column_name": "amount_cents",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_price_history",
+      "column_name": "valid_from",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_price_history",
+      "column_name": "changed_by",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_series",
+      "column_name": "series_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_series",
+      "column_name": "brand_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_series",
+      "column_name": "series_name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_series",
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_source_facts",
+      "column_name": "source_fact_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_source_facts",
+      "column_name": "vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_source_facts",
+      "column_name": "source_platform",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_source_facts",
+      "column_name": "upstream_publisher_id",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_source_facts",
+      "column_name": "upstream_updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_source_facts",
+      "column_name": "received_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "vehicle_visibility_grants",
+      "column_name": "grant_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_visibility_grants",
+      "column_name": "vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_visibility_grants",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_visibility_grants",
+      "column_name": "source_recommendation_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicle_visibility_grants",
+      "column_name": "revoked_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicles",
+      "column_name": "vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicles",
+      "column_name": "source_type",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicles",
+      "column_name": "source_sale_status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicles",
+      "column_name": "platform_visibility",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicles",
+      "column_name": "model_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicles",
+      "column_name": "vin",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicles",
+      "column_name": "formally_published_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicles",
+      "column_name": "created_by_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "vehicles",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "vehicles",
+      "column_name": "archived_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "waitlists",
+      "column_name": "waitlist_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "waitlists",
+      "column_name": "customer_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "waitlists",
+      "column_name": "vehicle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "waitlists",
+      "column_name": "listing_cycle_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "waitlists",
+      "column_name": "source_lock_request_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "waitlists",
+      "column_name": "active_lock_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "waitlists",
+      "column_name": "responsible_employee_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "waitlists",
+      "column_name": "ended_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    }
+  ],
+  "constraintDetail": [
+    {
+      "table_name": "audit_events",
+      "conname": "f02_a32d124cbcfeb1ea09bf",
+      "contype": "p",
+      "definition": "PRIMARY KEY (audit_id)"
+    },
+    {
+      "table_name": "collector_integration_events",
+      "conname": "f02_d150111edf7c7de1d2ae",
+      "contype": "p",
+      "definition": "PRIMARY KEY (integration_event_id)"
+    },
+    {
+      "table_name": "config_versions",
+      "conname": "f02_96ce61e7ee8de5bbc584",
+      "contype": "p",
+      "definition": "PRIMARY KEY (config_version_id)"
+    },
+    {
+      "table_name": "consultations",
+      "conname": "f02_00f3b8cc549e1816be16",
+      "contype": "f",
+      "definition": "FOREIGN KEY (assignee_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "consultations",
+      "conname": "f02_12fc3aa28f909a51ec2f",
+      "contype": "f",
+      "definition": "FOREIGN KEY (listing_cycle_id) REFERENCES vehicle_listing_cycles(listing_cycle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "consultations",
+      "conname": "f02_2654995d8f404af44242",
+      "contype": "f",
+      "definition": "FOREIGN KEY (listing_cycle_id, vehicle_id) REFERENCES vehicle_listing_cycles(listing_cycle_id, vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "consultations",
+      "conname": "f02_3e343e1eaa5db15e0a3f",
+      "contype": "c",
+      "definition": "CHECK ((status = ANY (ARRAY['pending'::text, 'processing'::text, 'resolved'::text, 'invalid'::text])))"
+    },
+    {
+      "table_name": "consultations",
+      "conname": "f02_5745345248463b9a6136",
+      "contype": "f",
+      "definition": "FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "consultations",
+      "conname": "f02_c5732a997052fbcc6fd7",
+      "contype": "p",
+      "definition": "PRIMARY KEY (consultation_id)"
+    },
+    {
+      "table_name": "consultations",
+      "conname": "f02_ff7e4237bc7e30cb8325",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "crm_customer_stages",
+      "conname": "f02_b2cc66a1702659fa613f",
+      "contype": "f",
+      "definition": "FOREIGN KEY (updated_by_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "crm_customer_stages",
+      "conname": "f02_b67cc525f0d739fc36bf",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "crm_customer_stages",
+      "conname": "f02_dce62170c86b8610155c",
+      "contype": "p",
+      "definition": "PRIMARY KEY (customer_id)"
+    },
+    {
+      "table_name": "crm_customer_stages",
+      "conname": "f02_edb21c3542ff0f60f365",
+      "contype": "f",
+      "definition": "FOREIGN KEY (stage_id) REFERENCES crm_stage_dictionary(stage_id) DEFERRABLE"
+    },
+    {
+      "table_name": "crm_customer_tag_links",
+      "conname": "f02_35236e8c05dcf05553f0",
+      "contype": "f",
+      "definition": "FOREIGN KEY (tag_id) REFERENCES crm_tag_dictionary(tag_id) DEFERRABLE"
+    },
+    {
+      "table_name": "crm_customer_tag_links",
+      "conname": "f02_39a385d1fc021fd1f22b",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "crm_customer_tag_links",
+      "conname": "f02_f32abbf6ad94f9c91c7c",
+      "contype": "f",
+      "definition": "FOREIGN KEY (assigned_by_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "crm_customer_tag_links",
+      "conname": "f02_f86eba397d365cc9c369",
+      "contype": "p",
+      "definition": "PRIMARY KEY (link_id)"
+    },
+    {
+      "table_name": "crm_followup_tasks",
+      "conname": "f02_2ac532d3dbd609db61c3",
+      "contype": "f",
+      "definition": "FOREIGN KEY (responsible_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "crm_followup_tasks",
+      "conname": "f02_4c87ef91c08a6822480e",
+      "contype": "p",
+      "definition": "PRIMARY KEY (task_id)"
+    },
+    {
+      "table_name": "crm_followup_tasks",
+      "conname": "f02_e1b2fffa5db76068fc7c",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "crm_followups",
+      "conname": "f02_0e8ed56efa013322a01d",
+      "contype": "p",
+      "definition": "PRIMARY KEY (followup_id)"
+    },
+    {
+      "table_name": "crm_followups",
+      "conname": "f02_29f12400639f7a92575c",
+      "contype": "f",
+      "definition": "FOREIGN KEY (business_demand_id) REFERENCES demands(demand_id) DEFERRABLE"
+    },
+    {
+      "table_name": "crm_followups",
+      "conname": "f02_2b14601dbc10a5ec7f17",
+      "contype": "f",
+      "definition": "FOREIGN KEY (actor_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "crm_followups",
+      "conname": "f02_5e1b705deca8297ca946",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "crm_followups",
+      "conname": "f02_62445b5937f39264cd8e",
+      "contype": "f",
+      "definition": "FOREIGN KEY (responsible_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "crm_followups",
+      "conname": "f02_636f8d2272d9f38d885a",
+      "contype": "c",
+      "definition": "CHECK ((length(btrim(content)) > 0))"
+    },
+    {
+      "table_name": "crm_personal_notes",
+      "conname": "f02_14826eaec2deaeb3fcc2",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "crm_personal_notes",
+      "conname": "f02_66b97b5aae61b1c03010",
+      "contype": "p",
+      "definition": "PRIMARY KEY (note_id)"
+    },
+    {
+      "table_name": "crm_personal_notes",
+      "conname": "f02_ff68a0f554beb4a29b41",
+      "contype": "f",
+      "definition": "FOREIGN KEY (author_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "crm_service_labels",
+      "conname": "f02_3ef361be5b4a64261c8d",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "crm_service_labels",
+      "conname": "f02_858d97d57a374326c389",
+      "contype": "f",
+      "definition": "FOREIGN KEY (author_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "crm_service_labels",
+      "conname": "f02_e99a704ce91fd47aa30b",
+      "contype": "p",
+      "definition": "PRIMARY KEY (label_id)"
+    },
+    {
+      "table_name": "crm_shared_profiles",
+      "conname": "f02_4fa5430a1dc0faf695e4",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "crm_shared_profiles",
+      "conname": "f02_a437fb55a8e295660027",
+      "contype": "p",
+      "definition": "PRIMARY KEY (profile_id)"
+    },
+    {
+      "table_name": "crm_shared_profiles",
+      "conname": "f02_c281d89cf94eec11a67e",
+      "contype": "f",
+      "definition": "FOREIGN KEY (updated_by_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "crm_stage_dictionary",
+      "conname": "f02_864dd473d4319b15e7f9",
+      "contype": "c",
+      "definition": "CHECK ((status = ANY (ARRAY['enabled'::text, 'disabled'::text])))"
+    },
+    {
+      "table_name": "crm_stage_dictionary",
+      "conname": "f02_ca813abdb74767be0e09",
+      "contype": "p",
+      "definition": "PRIMARY KEY (stage_id)"
+    },
+    {
+      "table_name": "crm_tag_dictionary",
+      "conname": "f02_06d8f4ca17e522723d2e",
+      "contype": "p",
+      "definition": "PRIMARY KEY (tag_id)"
+    },
+    {
+      "table_name": "crm_tag_dictionary",
+      "conname": "f02_c1b1a8ab8638fc41e7e8",
+      "contype": "c",
+      "definition": "CHECK ((status = ANY (ARRAY['enabled'::text, 'disabled'::text])))"
+    },
+    {
+      "table_name": "customer_collaborations",
+      "conname": "f02_3a100b02699a503ee733",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "customer_collaborations",
+      "conname": "f02_6c590d0d36286d8b6c3f",
+      "contype": "f",
+      "definition": "FOREIGN KEY (employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "customer_collaborations",
+      "conname": "f02_b9c686b13bd58453d0fb",
+      "contype": "p",
+      "definition": "PRIMARY KEY (collaboration_id)"
+    },
+    {
+      "table_name": "customer_day_quota_ledger",
+      "conname": "f02_2f9f383b005731a5af24",
+      "contype": "p",
+      "definition": "PRIMARY KEY (customer_id, business_day_shanghai)"
+    },
+    {
+      "table_name": "customer_day_quota_ledger",
+      "conname": "f02_3a84464fb43d8ce8acf3",
+      "contype": "c",
+      "definition": "CHECK ((base_quota >= 0))"
+    },
+    {
+      "table_name": "customer_day_quota_ledger",
+      "conname": "f02_6d269fb11b923cf52751",
+      "contype": "c",
+      "definition": "CHECK ((consumed_count >= 0))"
+    },
+    {
+      "table_name": "customer_day_quota_ledger",
+      "conname": "f02_a9a6ada6c161291f8277",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "customer_day_quota_ledger",
+      "conname": "f02_eee995f0ce2d0649fd15",
+      "contype": "c",
+      "definition": "CHECK ((temp_additions >= 0))"
+    },
+    {
+      "table_name": "customer_entitlement_events",
+      "conname": "f02_60258c348ff04916bc20",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "customer_entitlement_events",
+      "conname": "f02_b234db4ccfad8167f1aa",
+      "contype": "p",
+      "definition": "PRIMARY KEY (entitlement_event_id)"
+    },
+    {
+      "table_name": "customer_levels",
+      "conname": "f02_2e2f9240e646287d3474",
+      "contype": "p",
+      "definition": "PRIMARY KEY (level_id)"
+    },
+    {
+      "table_name": "customer_owner_history",
+      "conname": "f02_0341b508ad2273e68a9c",
+      "contype": "f",
+      "definition": "FOREIGN KEY (from_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "customer_owner_history",
+      "conname": "f02_4ecbc4690e67a2925451",
+      "contype": "f",
+      "definition": "FOREIGN KEY (to_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "customer_owner_history",
+      "conname": "f02_9bbce3c1485af7a1e980",
+      "contype": "u",
+      "definition": "UNIQUE (owner_history_id, customer_id)"
+    },
+    {
+      "table_name": "customer_owner_history",
+      "conname": "f02_bcb5bdadba24dea82ddf",
+      "contype": "p",
+      "definition": "PRIMARY KEY (owner_history_id)"
+    },
+    {
+      "table_name": "customer_owner_history",
+      "conname": "f02_dea9560b01a990ecdb1e",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "customer_phone_facts",
+      "conname": "f02_0372dc0cea282295acfc",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "customer_phone_facts",
+      "conname": "f02_99a9e3635e75282cce14",
+      "contype": "p",
+      "definition": "PRIMARY KEY (phone_fact_id)"
+    },
+    {
+      "table_name": "customer_price_cycle_unlocks",
+      "conname": "f02_389a2360975680877b86",
+      "contype": "f",
+      "definition": "FOREIGN KEY (source_recommendation_id, customer_id, vehicle_id, listing_cycle_id) REFERENCES recommendations(recommendation_id, customer_id, vehicle_id, listing_cycle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "customer_price_cycle_unlocks",
+      "conname": "f02_4cd3ffba6367aa1becb5",
+      "contype": "f",
+      "definition": "FOREIGN KEY (listing_cycle_id) REFERENCES vehicle_listing_cycles(listing_cycle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "customer_price_cycle_unlocks",
+      "conname": "f02_523c34cf2ef2bbc80465",
+      "contype": "p",
+      "definition": "PRIMARY KEY (unlock_id)"
+    },
+    {
+      "table_name": "customer_price_cycle_unlocks",
+      "conname": "f02_5b9941c57d49a0eaa601",
+      "contype": "f",
+      "definition": "FOREIGN KEY (listing_cycle_id, vehicle_id) REFERENCES vehicle_listing_cycles(listing_cycle_id, vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "customer_price_cycle_unlocks",
+      "conname": "f02_629533d47794c62a4cd6",
+      "contype": "f",
+      "definition": "FOREIGN KEY (source_recommendation_id) REFERENCES recommendations(recommendation_id) DEFERRABLE"
+    },
+    {
+      "table_name": "customer_price_cycle_unlocks",
+      "conname": "f02_d06363c33b6ccf755ed3",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "customer_price_cycle_unlocks",
+      "conname": "f02_d202cc8fefd3b6907d60",
+      "contype": "f",
+      "definition": "FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "customer_price_unlock_events",
+      "conname": "f02_256d3a439ef4b2840c80",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "customer_price_unlock_events",
+      "conname": "f02_2730ae8acf770e1a16b1",
+      "contype": "f",
+      "definition": "FOREIGN KEY (listing_cycle_id, vehicle_id) REFERENCES vehicle_listing_cycles(listing_cycle_id, vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "customer_price_unlock_events",
+      "conname": "f02_2e90a1dd1e23ecc7e1e5",
+      "contype": "p",
+      "definition": "PRIMARY KEY (unlock_event_id)"
+    },
+    {
+      "table_name": "customer_price_unlock_events",
+      "conname": "f02_c2ae638936228af2b692",
+      "contype": "c",
+      "definition": "CHECK ((event_kind = 'successful_limited_charge'::text))"
+    },
+    {
+      "table_name": "customer_price_unlock_events",
+      "conname": "f02_e6c00aa0f000b3594920",
+      "contype": "f",
+      "definition": "FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "customer_price_unlock_events",
+      "conname": "f02_fbe2721f47d09cf076ff",
+      "contype": "f",
+      "definition": "FOREIGN KEY (listing_cycle_id) REFERENCES vehicle_listing_cycles(listing_cycle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "customer_quota_adjustments",
+      "conname": "f02_8f03517ef34d591ca2c6",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "customer_quota_adjustments",
+      "conname": "f02_dca467027842da5c1ad5",
+      "contype": "p",
+      "definition": "PRIMARY KEY (adjustment_id)"
+    },
+    {
+      "table_name": "customer_wechat_identities",
+      "conname": "f02_1751fb54fd378c559d9b",
+      "contype": "p",
+      "definition": "PRIMARY KEY (wechat_identity_id)"
+    },
+    {
+      "table_name": "customer_wechat_identities",
+      "conname": "f02_f39243f41cd6bcb808f1",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "customers",
+      "conname": "f02_dccd47cd938e60900f7f",
+      "contype": "p",
+      "definition": "PRIMARY KEY (customer_id)"
+    },
+    {
+      "table_name": "customers",
+      "conname": "f02_ddabeeb8ecf726bc1048",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_level_id) REFERENCES customer_levels(level_id) DEFERRABLE"
+    },
+    {
+      "table_name": "customers",
+      "conname": "f02_f153af06cf6dff1b528f",
+      "contype": "f",
+      "definition": "FOREIGN KEY (current_owner_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "demand_match_results",
+      "conname": "f02_0223791159d266d48cdb",
+      "contype": "f",
+      "definition": "FOREIGN KEY (listing_cycle_id, vehicle_id) REFERENCES vehicle_listing_cycles(listing_cycle_id, vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "demand_match_results",
+      "conname": "f02_03e130b27f44dd80d2b1",
+      "contype": "p",
+      "definition": "PRIMARY KEY (result_id)"
+    },
+    {
+      "table_name": "demand_match_results",
+      "conname": "f02_155ce3bb4e929da0336a",
+      "contype": "f",
+      "definition": "FOREIGN KEY (demand_id) REFERENCES demands(demand_id) DEFERRABLE"
+    },
+    {
+      "table_name": "demand_match_results",
+      "conname": "f02_3a5b658ff11a65d4cd1b",
+      "contype": "c",
+      "definition": "CHECK ((match_tier = ANY (ARRAY['high'::text, 'acceptable'::text, 'confirmation_needed'::text, 'no_match'::text])))"
+    },
+    {
+      "table_name": "demand_match_results",
+      "conname": "f02_4c7fb3b98f0b5a62df1a",
+      "contype": "f",
+      "definition": "FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "demand_match_results",
+      "conname": "f02_5d89ea05dd3bbba8a438",
+      "contype": "c",
+      "definition": "CHECK ((current_state = ANY (ARRAY['current'::text, 'stale'::text, 'invalidated'::text])))"
+    },
+    {
+      "table_name": "demand_match_results",
+      "conname": "f02_aaf00554a144ceac2362",
+      "contype": "u",
+      "definition": "UNIQUE (result_id, demand_id, vehicle_id, listing_cycle_id)"
+    },
+    {
+      "table_name": "demand_match_results",
+      "conname": "f02_d96532ffe2324ef5bc77",
+      "contype": "f",
+      "definition": "FOREIGN KEY (listing_cycle_id) REFERENCES vehicle_listing_cycles(listing_cycle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "demand_match_results",
+      "conname": "f02_ee6c5d2790817d6dd10b",
+      "contype": "u",
+      "definition": "UNIQUE (result_id, vehicle_id, listing_cycle_id)"
+    },
+    {
+      "table_name": "demands",
+      "conname": "f02_08db79b0a479bbce0585",
+      "contype": "u",
+      "definition": "UNIQUE (demand_id, customer_id)"
+    },
+    {
+      "table_name": "demands",
+      "conname": "f02_0e18b52d1f16fabc8d58",
+      "contype": "p",
+      "definition": "PRIMARY KEY (demand_id)"
+    },
+    {
+      "table_name": "demands",
+      "conname": "f02_16c2a0dc3aa70ba93679",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "demands",
+      "conname": "f02_399e3225c07e89bb2025",
+      "contype": "f",
+      "definition": "FOREIGN KEY (responsible_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "demands",
+      "conname": "f02_670cd68328699f643d65",
+      "contype": "c",
+      "definition": "CHECK ((demand_state = ANY (ARRAY['active'::text, 'paused'::text, 'completed'::text, 'cancelled'::text])))"
+    },
+    {
+      "table_name": "deposit_receipts",
+      "conname": "f02_00fbf43d92b790de4036",
+      "contype": "p",
+      "definition": "PRIMARY KEY (deposit_id)"
+    },
+    {
+      "table_name": "deposit_receipts",
+      "conname": "f02_0649cd16267c5c5198f6",
+      "contype": "f",
+      "definition": "FOREIGN KEY (lock_id) REFERENCES locks(lock_id) DEFERRABLE"
+    },
+    {
+      "table_name": "deposit_receipts",
+      "conname": "f02_2a0c58d3dd5402995a3e",
+      "contype": "f",
+      "definition": "FOREIGN KEY (recorded_by) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "deposit_receipts",
+      "conname": "f02_77b32e439404b4b7502f",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "employee_data_scopes",
+      "conname": "f02_3a284948b358a9e07fc0",
+      "contype": "p",
+      "definition": "PRIMARY KEY (scope_id)"
+    },
+    {
+      "table_name": "employee_data_scopes",
+      "conname": "f02_f820e3496fcc8f912a1a",
+      "contype": "f",
+      "definition": "FOREIGN KEY (employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "employee_permission_override_history",
+      "conname": "f02_4e173fb6a6e9fd5e75e8",
+      "contype": "f",
+      "definition": "FOREIGN KEY (employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "employee_permission_override_history",
+      "conname": "f02_9d4a44782c4e854c86cd",
+      "contype": "f",
+      "definition": "FOREIGN KEY (permission_id) REFERENCES permissions(permission_id) DEFERRABLE"
+    },
+    {
+      "table_name": "employee_permission_override_history",
+      "conname": "f02_b4bdbab2797d910c5922",
+      "contype": "p",
+      "definition": "PRIMARY KEY (event_id)"
+    },
+    {
+      "table_name": "employee_permission_override_history",
+      "conname": "f02_d56930dd0e40882a9ae1",
+      "contype": "c",
+      "definition": "CHECK ((decision = ANY (ARRAY['allow'::text, 'deny'::text, 'revoked'::text])))"
+    },
+    {
+      "table_name": "employee_permission_overrides",
+      "conname": "f02_160f73f0f3b840396cba",
+      "contype": "p",
+      "definition": "PRIMARY KEY (employee_id, permission_id)"
+    },
+    {
+      "table_name": "employee_permission_overrides",
+      "conname": "f02_1f1f356f84de825bd467",
+      "contype": "f",
+      "definition": "FOREIGN KEY (permission_id) REFERENCES permissions(permission_id) DEFERRABLE"
+    },
+    {
+      "table_name": "employee_permission_overrides",
+      "conname": "f02_45d0279a74f4cd6134bc",
+      "contype": "f",
+      "definition": "FOREIGN KEY (employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "employee_permission_overrides",
+      "conname": "f02_d5bd57eae923bf229d10",
+      "contype": "c",
+      "definition": "CHECK ((decision = ANY (ARRAY['allow'::text, 'deny'::text])))"
+    },
+    {
+      "table_name": "employees",
+      "conname": "f02_6196188069464b0c09d6",
+      "contype": "p",
+      "definition": "PRIMARY KEY (employee_id)"
+    },
+    {
+      "table_name": "employees",
+      "conname": "f02_b627cbef96e5c8246c9d",
+      "contype": "f",
+      "definition": "FOREIGN KEY (store_id) REFERENCES stores(store_id) DEFERRABLE"
+    },
+    {
+      "table_name": "employees",
+      "conname": "f02_ba9e04a4da8d21d40bac",
+      "contype": "f",
+      "definition": "FOREIGN KEY (main_role_id) REFERENCES roles(role_id) DEFERRABLE"
+    },
+    {
+      "table_name": "f02_schema_migrations",
+      "conname": "f02_schema_migrations_pkey",
+      "contype": "p",
+      "definition": "PRIMARY KEY (migration_id)"
+    },
+    {
+      "table_name": "f03_isolation_seal",
+      "conname": "f03_isolation_seal_pkey",
+      "contype": "p",
+      "definition": "PRIMARY KEY (run_id)"
+    },
+    {
+      "table_name": "f03_schema_migrations",
+      "conname": "f03_schema_migrations_pkey",
+      "contype": "p",
+      "definition": "PRIMARY KEY (migration_id)"
+    },
+    {
+      "table_name": "financial_corrections",
+      "conname": "f02_a2eb4b179202741b4467",
+      "contype": "p",
+      "definition": "PRIMARY KEY (correction_id)"
+    },
+    {
+      "table_name": "financial_corrections",
+      "conname": "f02_c4a20ca3012183cebe07",
+      "contype": "f",
+      "definition": "FOREIGN KEY (actor_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "find_car_applications",
+      "conname": "f02_13a90b4e8647a22530d5",
+      "contype": "f",
+      "definition": "FOREIGN KEY (assigned_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "find_car_applications",
+      "conname": "f02_15e7ad82f4a93b093382",
+      "contype": "f",
+      "definition": "FOREIGN KEY (activated_demand_id, customer_id) REFERENCES demands(demand_id, customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "find_car_applications",
+      "conname": "f02_1ffd3a0cab9ecf4a9aaf",
+      "contype": "f",
+      "definition": "FOREIGN KEY (activated_demand_id) REFERENCES demands(demand_id) DEFERRABLE"
+    },
+    {
+      "table_name": "find_car_applications",
+      "conname": "f02_61bc14b8bfd60bcb87a7",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "find_car_applications",
+      "conname": "f02_89025b31f413d1dacf59",
+      "contype": "c",
+      "definition": "CHECK ((status = ANY (ARRAY['pending'::text, 'activated'::text, 'closed'::text])))"
+    },
+    {
+      "table_name": "find_car_applications",
+      "conname": "f02_d347e9466643e94b0cdd",
+      "contype": "p",
+      "definition": "PRIMARY KEY (application_id)"
+    },
+    {
+      "table_name": "idempotency_records",
+      "conname": "f02_43b432573968316d2828",
+      "contype": "p",
+      "definition": "PRIMARY KEY (idempotency_id)"
+    },
+    {
+      "table_name": "image_asset_jobs",
+      "conname": "f02_04c46999ef3495c1051c",
+      "contype": "c",
+      "definition": "CHECK ((retry_count >= 0))"
+    },
+    {
+      "table_name": "image_asset_jobs",
+      "conname": "f02_0991ef304832a229ec91",
+      "contype": "f",
+      "definition": "FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "image_asset_jobs",
+      "conname": "f02_2ffc56890d189e9bb718",
+      "contype": "c",
+      "definition": "CHECK ((status = ANY (ARRAY['processing'::text, 'success'::text, 'partial_failed'::text, 'failed'::text])))"
+    },
+    {
+      "table_name": "image_asset_jobs",
+      "conname": "f02_e00044e795bfeed3d17b",
+      "contype": "p",
+      "definition": "PRIMARY KEY (asset_job_id)"
+    },
+    {
+      "table_name": "jyt_model_source_mappings",
+      "conname": "f02_490b69891a63d37047cd",
+      "contype": "f",
+      "definition": "FOREIGN KEY (local_model_id) REFERENCES vehicle_models(model_id) DEFERRABLE"
+    },
+    {
+      "table_name": "jyt_model_source_mappings",
+      "conname": "f02_766175c580e782bf9b8e",
+      "contype": "p",
+      "definition": "PRIMARY KEY (mapping_id)"
+    },
+    {
+      "table_name": "lock_requests",
+      "conname": "f02_228d33ddf552e10826a2",
+      "contype": "f",
+      "definition": "FOREIGN KEY (resulting_lock_id, customer_id, vehicle_id, listing_cycle_id) REFERENCES locks(lock_id, customer_id, vehicle_id, listing_cycle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "lock_requests",
+      "conname": "f02_5cff81b0f7858a93c979",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "lock_requests",
+      "conname": "f02_6f73f4edb25b4284358a",
+      "contype": "f",
+      "definition": "FOREIGN KEY (listing_cycle_id, vehicle_id) REFERENCES vehicle_listing_cycles(listing_cycle_id, vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "lock_requests",
+      "conname": "f02_8169a5d3137899368572",
+      "contype": "c",
+      "definition": "CHECK ((status = ANY (ARRAY['pending'::text, 'approved'::text, 'rejected'::text, 'expired'::text, 'lock_conflict'::text, 'closed_not_lockable'::text])))"
+    },
+    {
+      "table_name": "lock_requests",
+      "conname": "f02_8daf4bf5f3a7be67f181",
+      "contype": "u",
+      "definition": "UNIQUE (lock_request_id, customer_id, vehicle_id, listing_cycle_id)"
+    },
+    {
+      "table_name": "lock_requests",
+      "conname": "f02_a529295e03acb6ed1311",
+      "contype": "p",
+      "definition": "PRIMARY KEY (lock_request_id)"
+    },
+    {
+      "table_name": "lock_requests",
+      "conname": "f02_a74d722b6c0e67536691",
+      "contype": "f",
+      "definition": "FOREIGN KEY (resulting_lock_id) REFERENCES locks(lock_id) DEFERRABLE"
+    },
+    {
+      "table_name": "lock_requests",
+      "conname": "f02_b42fdb29fa1b4df92a9d",
+      "contype": "f",
+      "definition": "FOREIGN KEY (listing_cycle_id) REFERENCES vehicle_listing_cycles(listing_cycle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "lock_requests",
+      "conname": "f02_c1c3ed5b8628b510a18c",
+      "contype": "f",
+      "definition": "FOREIGN KEY (resulting_waitlist_id) REFERENCES waitlists(waitlist_id) DEFERRABLE"
+    },
+    {
+      "table_name": "lock_requests",
+      "conname": "f02_c728085af6795a3f490c",
+      "contype": "f",
+      "definition": "FOREIGN KEY (processed_by) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "lock_requests",
+      "conname": "f02_cb6899c6d1d482ea8bbd",
+      "contype": "f",
+      "definition": "FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "lock_requests",
+      "conname": "f02_d9ef146c394ed8b3d165",
+      "contype": "f",
+      "definition": "FOREIGN KEY (resulting_waitlist_id, customer_id, vehicle_id, listing_cycle_id) REFERENCES waitlists(waitlist_id, customer_id, vehicle_id, listing_cycle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "lock_requests",
+      "conname": "f02_f16cc85a508c53e8194f",
+      "contype": "c",
+      "definition": "CHECK ((expires_at > created_at))"
+    },
+    {
+      "table_name": "locks",
+      "conname": "f02_06e6b8cdc878d1a15e41",
+      "contype": "u",
+      "definition": "UNIQUE (lock_id, customer_id)"
+    },
+    {
+      "table_name": "locks",
+      "conname": "f02_0aa398a5a9e55987a2f2",
+      "contype": "f",
+      "definition": "FOREIGN KEY (listing_cycle_id, vehicle_id) REFERENCES vehicle_listing_cycles(listing_cycle_id, vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "locks",
+      "conname": "f02_0b2ee3dbd2932cf9aa73",
+      "contype": "f",
+      "definition": "FOREIGN KEY (responsible_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "locks",
+      "conname": "f02_172dadc1d11bb2dbf965",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "locks",
+      "conname": "f02_1c0d077ee07ec2305a13",
+      "contype": "f",
+      "definition": "FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "locks",
+      "conname": "f02_68a880add17053bee162",
+      "contype": "u",
+      "definition": "UNIQUE (lock_id, customer_id, vehicle_id, listing_cycle_id)"
+    },
+    {
+      "table_name": "locks",
+      "conname": "f02_6b7dcabeb3ed0c40dcfc",
+      "contype": "f",
+      "definition": "FOREIGN KEY (listing_cycle_id) REFERENCES vehicle_listing_cycles(listing_cycle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "locks",
+      "conname": "f02_ad7d93ac8f4fa2033f43",
+      "contype": "c",
+      "definition": "CHECK ((expires_at > created_at))"
+    },
+    {
+      "table_name": "locks",
+      "conname": "f02_ca6ba3de95f7964e572e",
+      "contype": "f",
+      "definition": "FOREIGN KEY (source_lock_request_id) REFERENCES lock_requests(lock_request_id) DEFERRABLE"
+    },
+    {
+      "table_name": "locks",
+      "conname": "f02_cf4d70b38163611105c3",
+      "contype": "p",
+      "definition": "PRIMARY KEY (lock_id)"
+    },
+    {
+      "table_name": "locks",
+      "conname": "f02_e4786b300261d55d390a",
+      "contype": "f",
+      "definition": "FOREIGN KEY (source_lock_request_id, customer_id, vehicle_id, listing_cycle_id) REFERENCES lock_requests(lock_request_id, customer_id, vehicle_id, listing_cycle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "manual_vehicle_drafts",
+      "conname": "f02_1c2b6d6d5b28fc5e7cde",
+      "contype": "f",
+      "definition": "FOREIGN KEY (created_by_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "manual_vehicle_drafts",
+      "conname": "f02_99cdb020aada7d16b071",
+      "contype": "f",
+      "definition": "FOREIGN KEY (published_vehicle_id) REFERENCES vehicles(vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "manual_vehicle_drafts",
+      "conname": "f02_acb983e257ccd6af0f87",
+      "contype": "p",
+      "definition": "PRIMARY KEY (draft_id)"
+    },
+    {
+      "table_name": "matching_change_events",
+      "conname": "f02_8d3fe44c9c34ac0b298d",
+      "contype": "f",
+      "definition": "FOREIGN KEY (result_id) REFERENCES demand_match_results(result_id) DEFERRABLE"
+    },
+    {
+      "table_name": "matching_change_events",
+      "conname": "f02_a431de2b3ff9ba928ce9",
+      "contype": "p",
+      "definition": "PRIMARY KEY (event_id)"
+    },
+    {
+      "table_name": "matching_dictionary_rules",
+      "conname": "f02_4eeb49afd916be74e290",
+      "contype": "f",
+      "definition": "FOREIGN KEY (created_by_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "matching_dictionary_rules",
+      "conname": "f02_b6d296e3231a16588c21",
+      "contype": "f",
+      "definition": "FOREIGN KEY (updated_by_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "matching_dictionary_rules",
+      "conname": "f02_e31326f289034be72ee4",
+      "contype": "p",
+      "definition": "PRIMARY KEY (rule_id)"
+    },
+    {
+      "table_name": "matching_dictionary_rules",
+      "conname": "f02_fb985e3baf5d2878de45",
+      "contype": "c",
+      "definition": "CHECK ((rule_status = ANY (ARRAY['enabled'::text, 'disabled'::text, 'retired'::text])))"
+    },
+    {
+      "table_name": "matching_rule_change_history",
+      "conname": "f02_698fe41d9326ea773d27",
+      "contype": "p",
+      "definition": "PRIMARY KEY (event_id)"
+    },
+    {
+      "table_name": "matching_rule_change_history",
+      "conname": "f02_820bf5d1a624b1e07faf",
+      "contype": "c",
+      "definition": "CHECK ((change_action = ANY (ARRAY['create'::text, 'edit'::text, 'enable'::text, 'disable'::text, 'retire'::text])))"
+    },
+    {
+      "table_name": "matching_rule_change_history",
+      "conname": "f02_87ac65fdcb3b0d726b6a",
+      "contype": "f",
+      "definition": "FOREIGN KEY (rule_id) REFERENCES matching_dictionary_rules(rule_id) DEFERRABLE"
+    },
+    {
+      "table_name": "matching_rule_change_history",
+      "conname": "f02_d601a690c79fea7c5ca0",
+      "contype": "f",
+      "definition": "FOREIGN KEY (actor_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "notification_events",
+      "conname": "f02_c0a8eef8a28c544ecaca",
+      "contype": "p",
+      "definition": "PRIMARY KEY (notification_id)"
+    },
+    {
+      "table_name": "outbox_events",
+      "conname": "f02_a7e725e303ea7f28b684",
+      "contype": "c",
+      "definition": "CHECK ((attempt_count >= 0))"
+    },
+    {
+      "table_name": "outbox_events",
+      "conname": "f02_bef7f96e4e8d28305468",
+      "contype": "p",
+      "definition": "PRIMARY KEY (outbox_id)"
+    },
+    {
+      "table_name": "pc_auth_sessions",
+      "conname": "pc_auth_sessions_account_id_fkey",
+      "contype": "f",
+      "definition": "FOREIGN KEY (account_id) REFERENCES pc_login_accounts(account_id) ON DELETE RESTRICT"
+    },
+    {
+      "table_name": "pc_auth_sessions",
+      "conname": "pc_auth_sessions_check",
+      "contype": "c",
+      "definition": "CHECK ((expires_at > issued_at))"
+    },
+    {
+      "table_name": "pc_auth_sessions",
+      "conname": "pc_auth_sessions_check1",
+      "contype": "c",
+      "definition": "CHECK (((last_seen_at IS NULL) OR ((last_seen_at >= issued_at) AND (last_seen_at <= expires_at))))"
+    },
+    {
+      "table_name": "pc_auth_sessions",
+      "conname": "pc_auth_sessions_check2",
+      "contype": "c",
+      "definition": "CHECK (((revoked_at IS NULL) OR (revoked_at >= issued_at)))"
+    },
+    {
+      "table_name": "pc_auth_sessions",
+      "conname": "pc_auth_sessions_credential_epoch_check",
+      "contype": "c",
+      "definition": "CHECK ((credential_epoch > 0))"
+    },
+    {
+      "table_name": "pc_auth_sessions",
+      "conname": "pc_auth_sessions_pkey",
+      "contype": "p",
+      "definition": "PRIMARY KEY (session_id)"
+    },
+    {
+      "table_name": "pc_auth_sessions",
+      "conname": "pc_auth_sessions_token_digest_check",
+      "contype": "c",
+      "definition": "CHECK ((octet_length(token_digest) = 32))"
+    },
+    {
+      "table_name": "pc_auth_sessions",
+      "conname": "pc_auth_sessions_token_digest_key",
+      "contype": "u",
+      "definition": "UNIQUE (token_digest)"
+    },
+    {
+      "table_name": "pc_login_accounts",
+      "conname": "f02_1435272e70eb9dcb4283",
+      "contype": "f",
+      "definition": "FOREIGN KEY (employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "pc_login_accounts",
+      "conname": "f02_16b36d3a138aaa361baa",
+      "contype": "c",
+      "definition": "CHECK ((((principal_kind = 'employee'::text) AND (employee_id IS NOT NULL) AND (system_admin_id IS NULL)) OR ((principal_kind = 'system_admin'::text) AND (system_admin_id IS NOT NULL) AND (employee_id IS NULL))))"
+    },
+    {
+      "table_name": "pc_login_accounts",
+      "conname": "f02_4405081da1f21a632078",
+      "contype": "c",
+      "definition": "CHECK ((char_length(password_hash) > 0))"
+    },
+    {
+      "table_name": "pc_login_accounts",
+      "conname": "f02_51cc50455ae72805cc97",
+      "contype": "c",
+      "definition": "CHECK (((char_length(normalized_login_key) > 0) AND (normalized_login_key = lower(btrim(normalized_login_key)))))"
+    },
+    {
+      "table_name": "pc_login_accounts",
+      "conname": "f02_55ab54deca1ecdb53b0f",
+      "contype": "p",
+      "definition": "PRIMARY KEY (account_id)"
+    },
+    {
+      "table_name": "pc_login_accounts",
+      "conname": "f02_6927a44d2f0a448216b4",
+      "contype": "c",
+      "definition": "CHECK ((principal_kind = ANY (ARRAY['employee'::text, 'system_admin'::text])))"
+    },
+    {
+      "table_name": "pc_login_accounts",
+      "conname": "f02_cbbadfa0aa564d4d8519",
+      "contype": "c",
+      "definition": "CHECK ((credential_state = ANY (ARRAY['enabled'::text, 'disabled'::text])))"
+    },
+    {
+      "table_name": "pc_login_accounts",
+      "conname": "f02_fbac19fa91b060e2f252",
+      "contype": "f",
+      "definition": "FOREIGN KEY (system_admin_id) REFERENCES system_admins(system_admin_id) DEFERRABLE"
+    },
+    {
+      "table_name": "pc_login_accounts",
+      "conname": "pc_login_accounts_credential_epoch_check",
+      "contype": "c",
+      "definition": "CHECK ((credential_epoch > 0))"
+    },
+    {
+      "table_name": "permissions",
+      "conname": "f02_d4a59949c7436a5f8021",
+      "contype": "p",
+      "definition": "PRIMARY KEY (permission_id)"
+    },
+    {
+      "table_name": "pricing_rule_ranges",
+      "conname": "f02_216fa26042a624584b91",
+      "contype": "c",
+      "definition": "CHECK (((max_price_cents IS NULL) OR (max_price_cents > min_price_cents)))"
+    },
+    {
+      "table_name": "pricing_rule_ranges",
+      "conname": "f02_7a9bb6fab0dcf73fee55",
+      "contype": "p",
+      "definition": "PRIMARY KEY (range_id)"
+    },
+    {
+      "table_name": "pricing_rule_ranges",
+      "conname": "f02_7c2bf1f950e581618aa9",
+      "contype": "c",
+      "definition": "CHECK ((markup_cents >= 0))"
+    },
+    {
+      "table_name": "pricing_rule_ranges",
+      "conname": "f02_a31186d14678fd45074d",
+      "contype": "c",
+      "definition": "CHECK ((min_price_cents >= 0))"
+    },
+    {
+      "table_name": "pricing_rule_ranges",
+      "conname": "f02_c3d19093d14ba10cc9e2",
+      "contype": "f",
+      "definition": "FOREIGN KEY (version_id) REFERENCES pricing_rule_versions(version_id) DEFERRABLE"
+    },
+    {
+      "table_name": "pricing_rule_versions",
+      "conname": "f02_748e996d8885578f35b0",
+      "contype": "p",
+      "definition": "PRIMARY KEY (version_id)"
+    },
+    {
+      "table_name": "priority_leases",
+      "conname": "f02_0a6bb22b7cbede9fe9b7",
+      "contype": "p",
+      "definition": "PRIMARY KEY (priority_id)"
+    },
+    {
+      "table_name": "priority_leases",
+      "conname": "f02_3adb00803f4acca240cf",
+      "contype": "f",
+      "definition": "FOREIGN KEY (source_match_result_id, trigger_demand_id, vehicle_id, listing_cycle_id) REFERENCES demand_match_results(result_id, demand_id, vehicle_id, listing_cycle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "priority_leases",
+      "conname": "f02_3d349a2d86dd1c227cce",
+      "contype": "f",
+      "definition": "FOREIGN KEY (source_match_result_id) REFERENCES demand_match_results(result_id) DEFERRABLE"
+    },
+    {
+      "table_name": "priority_leases",
+      "conname": "f02_429746d0b57fc884a64b",
+      "contype": "f",
+      "definition": "FOREIGN KEY (listing_cycle_id) REFERENCES vehicle_listing_cycles(listing_cycle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "priority_leases",
+      "conname": "f02_5c9855b44782aa81153e",
+      "contype": "f",
+      "definition": "FOREIGN KEY (trigger_demand_id) REFERENCES demands(demand_id) DEFERRABLE"
+    },
+    {
+      "table_name": "priority_leases",
+      "conname": "f02_94cafd10c9b726d194c9",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "priority_leases",
+      "conname": "f02_b601ce24842bd60030cf",
+      "contype": "f",
+      "definition": "FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "priority_leases",
+      "conname": "f02_b7787b105c429bc1b97b",
+      "contype": "f",
+      "definition": "FOREIGN KEY (listing_cycle_id, vehicle_id) REFERENCES vehicle_listing_cycles(listing_cycle_id, vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "priority_leases",
+      "conname": "f02_d8d3c4a8a835d8f5234a",
+      "contype": "f",
+      "definition": "FOREIGN KEY (source_match_result_id, vehicle_id, listing_cycle_id) REFERENCES demand_match_results(result_id, vehicle_id, listing_cycle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "public_pool_events",
+      "conname": "f02_2699946e56a2ee6cbf65",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "public_pool_events",
+      "conname": "f02_3325494eec0b52f4ec0d",
+      "contype": "f",
+      "definition": "FOREIGN KEY (from_owner_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "public_pool_events",
+      "conname": "f02_5bd68afa4dcb60fe91f0",
+      "contype": "p",
+      "definition": "PRIMARY KEY (pool_event_id)"
+    },
+    {
+      "table_name": "public_pool_events",
+      "conname": "f02_86c0a8164080c63eeb72",
+      "contype": "f",
+      "definition": "FOREIGN KEY (source_owner_history_id, customer_id) REFERENCES customer_owner_history(owner_history_id, customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "public_pool_events",
+      "conname": "f02_c2e8967bb29ebf141858",
+      "contype": "f",
+      "definition": "FOREIGN KEY (to_owner_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "public_pool_events",
+      "conname": "f02_d774426ac407d2aae57d",
+      "contype": "f",
+      "definition": "FOREIGN KEY (source_owner_history_id) REFERENCES customer_owner_history(owner_history_id) DEFERRABLE"
+    },
+    {
+      "table_name": "publisher_phone_cache",
+      "conname": "f02_4895ad779f526a8e8b1c",
+      "contype": "p",
+      "definition": "PRIMARY KEY (cache_id)"
+    },
+    {
+      "table_name": "publisher_phone_history",
+      "conname": "f02_ea9edfe707aecf90347e",
+      "contype": "p",
+      "definition": "PRIMARY KEY (phone_history_id)"
+    },
+    {
+      "table_name": "recommendations",
+      "conname": "f02_0e4efa486187deae0972",
+      "contype": "f",
+      "definition": "FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "recommendations",
+      "conname": "f02_50f496d831c3e179c955",
+      "contype": "f",
+      "definition": "FOREIGN KEY (listing_cycle_id) REFERENCES vehicle_listing_cycles(listing_cycle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "recommendations",
+      "conname": "f02_68cda83733a7d39771ba",
+      "contype": "u",
+      "definition": "UNIQUE (recommendation_id, customer_id, vehicle_id)"
+    },
+    {
+      "table_name": "recommendations",
+      "conname": "f02_a11646ddb280d98fb691",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "recommendations",
+      "conname": "f02_c5f5bb9810cf472c8c1b",
+      "contype": "f",
+      "definition": "FOREIGN KEY (source_demand_id) REFERENCES demands(demand_id) DEFERRABLE"
+    },
+    {
+      "table_name": "recommendations",
+      "conname": "f02_d4e9dd1f6eceec25e43a",
+      "contype": "f",
+      "definition": "FOREIGN KEY (listing_cycle_id, vehicle_id) REFERENCES vehicle_listing_cycles(listing_cycle_id, vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "recommendations",
+      "conname": "f02_de470b13b3c39dcdcd02",
+      "contype": "p",
+      "definition": "PRIMARY KEY (recommendation_id)"
+    },
+    {
+      "table_name": "recommendations",
+      "conname": "f02_e254ad87cce7930e8e07",
+      "contype": "u",
+      "definition": "UNIQUE (recommendation_id, customer_id, vehicle_id, listing_cycle_id)"
+    },
+    {
+      "table_name": "recommendations",
+      "conname": "f02_f598d0a6f428ec19892a",
+      "contype": "f",
+      "definition": "FOREIGN KEY (recommender_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "refund_cases",
+      "conname": "f02_0d93b9449a8b167e0548",
+      "contype": "c",
+      "definition": "CHECK (((status <> 'closed'::text) OR ((close_reason IS NOT NULL) AND (length(btrim(close_reason)) > 0))))"
+    },
+    {
+      "table_name": "refund_cases",
+      "conname": "f02_33cab1710404d0ee49cf",
+      "contype": "f",
+      "definition": "FOREIGN KEY (lock_id, customer_id) REFERENCES locks(lock_id, customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "refund_cases",
+      "conname": "f02_4972fa6903c95f8ca17a",
+      "contype": "p",
+      "definition": "PRIMARY KEY (refund_id)"
+    },
+    {
+      "table_name": "refund_cases",
+      "conname": "f02_4fff18aa7793ec565f20",
+      "contype": "f",
+      "definition": "FOREIGN KEY (lock_id) REFERENCES locks(lock_id) DEFERRABLE"
+    },
+    {
+      "table_name": "refund_cases",
+      "conname": "f02_7681e139469ffa74fa8e",
+      "contype": "f",
+      "definition": "FOREIGN KEY (transaction_id, customer_id) REFERENCES transactions(transaction_id, customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "refund_cases",
+      "conname": "f02_c3567cc4541c26021bb7",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "refund_cases",
+      "conname": "f02_c4015352be72cf5cccf0",
+      "contype": "f",
+      "definition": "FOREIGN KEY (transaction_id) REFERENCES transactions(transaction_id) DEFERRABLE"
+    },
+    {
+      "table_name": "refund_cases",
+      "conname": "f02_e45aba41a164cd9ab2cc",
+      "contype": "c",
+      "definition": "CHECK ((status = ANY (ARRAY['pending'::text, 'refunded'::text, 'closed'::text])))"
+    },
+    {
+      "table_name": "refund_cases",
+      "conname": "f02_eb8c3e15a9cf310b5536",
+      "contype": "c",
+      "definition": "CHECK (((lock_id IS NOT NULL) <> (transaction_id IS NOT NULL)))"
+    },
+    {
+      "table_name": "refund_payments",
+      "conname": "f02_06d5cf6a5ad42103f158",
+      "contype": "c",
+      "definition": "CHECK ((amount_cents > 0))"
+    },
+    {
+      "table_name": "refund_payments",
+      "conname": "f02_441c1444ebef7de50b2b",
+      "contype": "p",
+      "definition": "PRIMARY KEY (payment_id)"
+    },
+    {
+      "table_name": "refund_payments",
+      "conname": "f02_a4d98363871589819fa9",
+      "contype": "f",
+      "definition": "FOREIGN KEY (refund_id) REFERENCES refund_cases(refund_id) DEFERRABLE"
+    },
+    {
+      "table_name": "role_default_permission_history",
+      "conname": "f02_062194398c87bd6f605a",
+      "contype": "f",
+      "definition": "FOREIGN KEY (role_id) REFERENCES roles(role_id) DEFERRABLE"
+    },
+    {
+      "table_name": "role_default_permission_history",
+      "conname": "f02_29d2c0454860e9c75dd3",
+      "contype": "f",
+      "definition": "FOREIGN KEY (permission_id) REFERENCES permissions(permission_id) DEFERRABLE"
+    },
+    {
+      "table_name": "role_default_permission_history",
+      "conname": "f02_fc85f51152ba012ba373",
+      "contype": "p",
+      "definition": "PRIMARY KEY (event_id)"
+    },
+    {
+      "table_name": "role_permission_defaults",
+      "conname": "f02_0575e290ebd108974144",
+      "contype": "p",
+      "definition": "PRIMARY KEY (role_id, permission_id)"
+    },
+    {
+      "table_name": "role_permission_defaults",
+      "conname": "f02_8a3ca875e3a998aa5364",
+      "contype": "f",
+      "definition": "FOREIGN KEY (role_id) REFERENCES roles(role_id) DEFERRABLE"
+    },
+    {
+      "table_name": "role_permission_defaults",
+      "conname": "f02_f79da3d2c0b0b5d82c52",
+      "contype": "f",
+      "definition": "FOREIGN KEY (permission_id) REFERENCES permissions(permission_id) DEFERRABLE"
+    },
+    {
+      "table_name": "roles",
+      "conname": "f02_0dd4582b91e1b5711c54",
+      "contype": "p",
+      "definition": "PRIMARY KEY (role_id)"
+    },
+    {
+      "table_name": "share_attributions",
+      "conname": "f02_4ccfa482d592e2e0c6f9",
+      "contype": "f",
+      "definition": "FOREIGN KEY (sharer_customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "share_attributions",
+      "conname": "f02_8062612bbc9fa5d2b2fc",
+      "contype": "f",
+      "definition": "FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "share_attributions",
+      "conname": "f02_ed16f2eecbfc83af064b",
+      "contype": "f",
+      "definition": "FOREIGN KEY (source_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "share_attributions",
+      "conname": "f02_ee67cb72a36a618a42ca",
+      "contype": "p",
+      "definition": "PRIMARY KEY (share_id)"
+    },
+    {
+      "table_name": "stores",
+      "conname": "f02_ab72b7453bfd7ec8ff49",
+      "contype": "p",
+      "definition": "PRIMARY KEY (store_id)"
+    },
+    {
+      "table_name": "system_admins",
+      "conname": "f02_0b98ec6ed5940bb9e9e4",
+      "contype": "f",
+      "definition": "FOREIGN KEY (created_by_system_admin_id) REFERENCES system_admins(system_admin_id) DEFERRABLE"
+    },
+    {
+      "table_name": "system_admins",
+      "conname": "f02_13b8b7595134df6008d0",
+      "contype": "p",
+      "definition": "PRIMARY KEY (system_admin_id)"
+    },
+    {
+      "table_name": "transactions",
+      "conname": "f02_12f0d1a3ada5f9a9bbd0",
+      "contype": "u",
+      "definition": "UNIQUE (transaction_id, customer_id)"
+    },
+    {
+      "table_name": "transactions",
+      "conname": "f02_177cbd74f061c3749454",
+      "contype": "f",
+      "definition": "FOREIGN KEY (responsible_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "transactions",
+      "conname": "f02_6c8da9ccc927ed9fe9a6",
+      "contype": "f",
+      "definition": "FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "transactions",
+      "conname": "f02_72d356163d50d90763e2",
+      "contype": "f",
+      "definition": "FOREIGN KEY (listing_cycle_id, vehicle_id) REFERENCES vehicle_listing_cycles(listing_cycle_id, vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "transactions",
+      "conname": "f02_777301d3434af0cab36d",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "transactions",
+      "conname": "f02_9f6ed1e8999669b1fe5c",
+      "contype": "f",
+      "definition": "FOREIGN KEY (listing_cycle_id) REFERENCES vehicle_listing_cycles(listing_cycle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "transactions",
+      "conname": "f02_b460ce8c3101286e5f9c",
+      "contype": "f",
+      "definition": "FOREIGN KEY (source_lock_id, customer_id, vehicle_id, listing_cycle_id) REFERENCES locks(lock_id, customer_id, vehicle_id, listing_cycle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "transactions",
+      "conname": "f02_cecd5deaf89f582c7c1a",
+      "contype": "f",
+      "definition": "FOREIGN KEY (source_lock_id) REFERENCES locks(lock_id) DEFERRABLE"
+    },
+    {
+      "table_name": "transactions",
+      "conname": "f02_d485888520164cf3a481",
+      "contype": "p",
+      "definition": "PRIMARY KEY (transaction_id)"
+    },
+    {
+      "table_name": "vehicle_brands",
+      "conname": "f02_332b99cbacc83a1b4d33",
+      "contype": "p",
+      "definition": "PRIMARY KEY (brand_id)"
+    },
+    {
+      "table_name": "vehicle_conversions",
+      "conname": "f02_eb2bbf76a532235dc589",
+      "contype": "f",
+      "definition": "FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "vehicle_conversions",
+      "conname": "f02_fee07bbcb67521d4e226",
+      "contype": "p",
+      "definition": "PRIMARY KEY (conversion_id)"
+    },
+    {
+      "table_name": "vehicle_documents",
+      "conname": "f02_62f0dad981c6d7912e1a",
+      "contype": "p",
+      "definition": "PRIMARY KEY (document_id)"
+    },
+    {
+      "table_name": "vehicle_documents",
+      "conname": "f02_73915492a5eddce0d195",
+      "contype": "f",
+      "definition": "FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "vehicle_hide_rules",
+      "conname": "f02_94a2f3306b74eddf1669",
+      "contype": "p",
+      "definition": "PRIMARY KEY (rule_id)"
+    },
+    {
+      "table_name": "vehicle_hide_rules",
+      "conname": "f02_b884112d5ff6df993607",
+      "contype": "f",
+      "definition": "FOREIGN KEY (updated_by_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "vehicle_images",
+      "conname": "f02_100423911b83ac2aed30",
+      "contype": "f",
+      "definition": "FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "vehicle_images",
+      "conname": "f02_18a50e1d9205eeec5ed9",
+      "contype": "c",
+      "definition": "CHECK ((relative_path <> ''::text))"
+    },
+    {
+      "table_name": "vehicle_images",
+      "conname": "f02_40d7eda918f2a4801881",
+      "contype": "p",
+      "definition": "PRIMARY KEY (image_id)"
+    },
+    {
+      "table_name": "vehicle_listing_cycles",
+      "conname": "f02_168bb6fdfb6102761b31",
+      "contype": "u",
+      "definition": "UNIQUE (listing_cycle_id, vehicle_id)"
+    },
+    {
+      "table_name": "vehicle_listing_cycles",
+      "conname": "f02_21837fcdf2fc21031d1f",
+      "contype": "c",
+      "definition": "CHECK (((ended_at IS NULL) OR (ended_at >= started_at)))"
+    },
+    {
+      "table_name": "vehicle_listing_cycles",
+      "conname": "f02_576ffa036c11047fd2f1",
+      "contype": "f",
+      "definition": "FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "vehicle_listing_cycles",
+      "conname": "f02_e29e64daebc8414081ce",
+      "contype": "p",
+      "definition": "PRIMARY KEY (listing_cycle_id)"
+    },
+    {
+      "table_name": "vehicle_model_review_cases",
+      "conname": "f02_2789f6d871fba3cc3edd",
+      "contype": "f",
+      "definition": "FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "vehicle_model_review_cases",
+      "conname": "f02_a8ca3dd6c84c5c2077ad",
+      "contype": "p",
+      "definition": "PRIMARY KEY (case_id)"
+    },
+    {
+      "table_name": "vehicle_model_review_cases",
+      "conname": "f02_cf03f4da248b68de5ab1",
+      "contype": "f",
+      "definition": "FOREIGN KEY (resolved_by) REFERENCES system_admins(system_admin_id) DEFERRABLE"
+    },
+    {
+      "table_name": "vehicle_models",
+      "conname": "f02_5184b82248626956a633",
+      "contype": "f",
+      "definition": "FOREIGN KEY (brand_id) REFERENCES vehicle_brands(brand_id) DEFERRABLE"
+    },
+    {
+      "table_name": "vehicle_models",
+      "conname": "f02_9c679f4ed21754e827fe",
+      "contype": "p",
+      "definition": "PRIMARY KEY (model_id)"
+    },
+    {
+      "table_name": "vehicle_models",
+      "conname": "f02_a252a4869da638b1cf5e",
+      "contype": "f",
+      "definition": "FOREIGN KEY (series_id) REFERENCES vehicle_series(series_id) DEFERRABLE"
+    },
+    {
+      "table_name": "vehicle_price_history",
+      "conname": "f02_3c8108af8373ca3b31f4",
+      "contype": "f",
+      "definition": "FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "vehicle_price_history",
+      "conname": "f02_73f6f3dc2c7891971a61",
+      "contype": "p",
+      "definition": "PRIMARY KEY (price_event_id)"
+    },
+    {
+      "table_name": "vehicle_series",
+      "conname": "f02_b4b06a78494b58f2894c",
+      "contype": "p",
+      "definition": "PRIMARY KEY (series_id)"
+    },
+    {
+      "table_name": "vehicle_series",
+      "conname": "f02_d00679e636bb3948acbf",
+      "contype": "f",
+      "definition": "FOREIGN KEY (brand_id) REFERENCES vehicle_brands(brand_id) DEFERRABLE"
+    },
+    {
+      "table_name": "vehicle_source_facts",
+      "conname": "f02_326129f9f98577b11459",
+      "contype": "p",
+      "definition": "PRIMARY KEY (source_fact_id)"
+    },
+    {
+      "table_name": "vehicle_source_facts",
+      "conname": "f02_6562496329caf146e0a8",
+      "contype": "f",
+      "definition": "FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "vehicle_visibility_grants",
+      "conname": "f02_0be6e76fcfd0da5a301d",
+      "contype": "f",
+      "definition": "FOREIGN KEY (source_recommendation_id) REFERENCES recommendations(recommendation_id) DEFERRABLE"
+    },
+    {
+      "table_name": "vehicle_visibility_grants",
+      "conname": "f02_0cf41335a9f28f1ce58c",
+      "contype": "f",
+      "definition": "FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "vehicle_visibility_grants",
+      "conname": "f02_77ff9353061b9eee9c2c",
+      "contype": "f",
+      "definition": "FOREIGN KEY (source_recommendation_id, customer_id, vehicle_id) REFERENCES recommendations(recommendation_id, customer_id, vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "vehicle_visibility_grants",
+      "conname": "f02_9c704be775960a25fe99",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "vehicle_visibility_grants",
+      "conname": "f02_b9f4ad99d18620d5e8ae",
+      "contype": "p",
+      "definition": "PRIMARY KEY (grant_id)"
+    },
+    {
+      "table_name": "vehicles",
+      "conname": "f02_1adb062a6a33127670c1",
+      "contype": "f",
+      "definition": "FOREIGN KEY (created_by_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    },
+    {
+      "table_name": "vehicles",
+      "conname": "f02_418fb6992692294941d0",
+      "contype": "c",
+      "definition": "CHECK ((platform_visibility = ANY (ARRAY['visible'::text, 'hidden'::text])))"
+    },
+    {
+      "table_name": "vehicles",
+      "conname": "f02_4c3077e762adbfad16aa",
+      "contype": "p",
+      "definition": "PRIMARY KEY (vehicle_id)"
+    },
+    {
+      "table_name": "vehicles",
+      "conname": "f02_5e80791b0c7cf51d3646",
+      "contype": "c",
+      "definition": "CHECK ((((source_type = 'wholesale'::text) AND (source_sale_status = ANY (ARRAY['active'::text, 'offline'::text]))) OR ((source_type = ANY (ARRAY['mingbang'::text, 'four_s'::text])) AND (source_sale_status = ANY (ARRAY['available'::text, 'unavailable'::text, 'sold_external'::text])))))"
+    },
+    {
+      "table_name": "vehicles",
+      "conname": "f02_66eb7b1fb2fce18e30dc",
+      "contype": "c",
+      "definition": "CHECK ((source_type = ANY (ARRAY['wholesale'::text, 'mingbang'::text, 'four_s'::text])))"
+    },
+    {
+      "table_name": "vehicles",
+      "conname": "f02_ea838d104b488f164523",
+      "contype": "f",
+      "definition": "FOREIGN KEY (model_id) REFERENCES vehicle_models(model_id) DEFERRABLE"
+    },
+    {
+      "table_name": "waitlists",
+      "conname": "f02_06d75a98dfe921c8d3c2",
+      "contype": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(customer_id) DEFERRABLE"
+    },
+    {
+      "table_name": "waitlists",
+      "conname": "f02_1755f5fb6a4c57792497",
+      "contype": "f",
+      "definition": "FOREIGN KEY (source_lock_request_id, customer_id, vehicle_id, listing_cycle_id) REFERENCES lock_requests(lock_request_id, customer_id, vehicle_id, listing_cycle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "waitlists",
+      "conname": "f02_180f79ba6e8a04b0357c",
+      "contype": "p",
+      "definition": "PRIMARY KEY (waitlist_id)"
+    },
+    {
+      "table_name": "waitlists",
+      "conname": "f02_185cba8c2ec98b160c83",
+      "contype": "f",
+      "definition": "FOREIGN KEY (active_lock_id) REFERENCES locks(lock_id) DEFERRABLE"
+    },
+    {
+      "table_name": "waitlists",
+      "conname": "f02_30dd1da65234ed4b9293",
+      "contype": "u",
+      "definition": "UNIQUE (waitlist_id, customer_id, vehicle_id, listing_cycle_id)"
+    },
+    {
+      "table_name": "waitlists",
+      "conname": "f02_37d5a486c6591e89a7d9",
+      "contype": "f",
+      "definition": "FOREIGN KEY (listing_cycle_id) REFERENCES vehicle_listing_cycles(listing_cycle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "waitlists",
+      "conname": "f02_4d16fa42caad85e84708",
+      "contype": "f",
+      "definition": "FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "waitlists",
+      "conname": "f02_4fe79b900989716ca50a",
+      "contype": "f",
+      "definition": "FOREIGN KEY (source_lock_request_id) REFERENCES lock_requests(lock_request_id) DEFERRABLE"
+    },
+    {
+      "table_name": "waitlists",
+      "conname": "f02_7ebc76f36e7ddaf6b293",
+      "contype": "f",
+      "definition": "FOREIGN KEY (listing_cycle_id, vehicle_id) REFERENCES vehicle_listing_cycles(listing_cycle_id, vehicle_id) DEFERRABLE"
+    },
+    {
+      "table_name": "waitlists",
+      "conname": "f02_de994cd36fdc82c3ff68",
+      "contype": "f",
+      "definition": "FOREIGN KEY (responsible_employee_id) REFERENCES employees(employee_id) DEFERRABLE"
+    }
+  ],
+  "indexDetail": [
+    {
+      "tablename": "audit_events",
+      "indexname": "f02_a32d124cbcfeb1ea09bf",
+      "indexdef": "CREATE UNIQUE INDEX f02_a32d124cbcfeb1ea09bf ON public.audit_events USING btree (audit_id)"
+    },
+    {
+      "tablename": "collector_integration_events",
+      "indexname": "f02_aab0a34ddd4ed7c2ae3b",
+      "indexdef": "CREATE UNIQUE INDEX f02_aab0a34ddd4ed7c2ae3b ON public.collector_integration_events USING btree (dedupe_key)"
+    },
+    {
+      "tablename": "collector_integration_events",
+      "indexname": "f02_d150111edf7c7de1d2ae",
+      "indexdef": "CREATE UNIQUE INDEX f02_d150111edf7c7de1d2ae ON public.collector_integration_events USING btree (integration_event_id)"
+    },
+    {
+      "tablename": "config_versions",
+      "indexname": "f02_96ce61e7ee8de5bbc584",
+      "indexdef": "CREATE UNIQUE INDEX f02_96ce61e7ee8de5bbc584 ON public.config_versions USING btree (config_version_id)"
+    },
+    {
+      "tablename": "consultations",
+      "indexname": "f02_1ac324bae52436967aae",
+      "indexdef": "CREATE UNIQUE INDEX f02_1ac324bae52436967aae ON public.consultations USING btree (customer_id, vehicle_id, listing_cycle_id) WHERE (status = ANY (ARRAY['pending'::text, 'processing'::text]))"
+    },
+    {
+      "tablename": "consultations",
+      "indexname": "f02_c5732a997052fbcc6fd7",
+      "indexdef": "CREATE UNIQUE INDEX f02_c5732a997052fbcc6fd7 ON public.consultations USING btree (consultation_id)"
+    },
+    {
+      "tablename": "crm_customer_stages",
+      "indexname": "f02_dce62170c86b8610155c",
+      "indexdef": "CREATE UNIQUE INDEX f02_dce62170c86b8610155c ON public.crm_customer_stages USING btree (customer_id)"
+    },
+    {
+      "tablename": "crm_customer_tag_links",
+      "indexname": "f02_5013e57a9ce462a38827",
+      "indexdef": "CREATE UNIQUE INDEX f02_5013e57a9ce462a38827 ON public.crm_customer_tag_links USING btree (customer_id, tag_id) WHERE (ended_at IS NULL)"
+    },
+    {
+      "tablename": "crm_customer_tag_links",
+      "indexname": "f02_f86eba397d365cc9c369",
+      "indexdef": "CREATE UNIQUE INDEX f02_f86eba397d365cc9c369 ON public.crm_customer_tag_links USING btree (link_id)"
+    },
+    {
+      "tablename": "crm_followup_tasks",
+      "indexname": "f02_4c87ef91c08a6822480e",
+      "indexdef": "CREATE UNIQUE INDEX f02_4c87ef91c08a6822480e ON public.crm_followup_tasks USING btree (task_id)"
+    },
+    {
+      "tablename": "crm_followups",
+      "indexname": "f02_0e8ed56efa013322a01d",
+      "indexdef": "CREATE UNIQUE INDEX f02_0e8ed56efa013322a01d ON public.crm_followups USING btree (followup_id)"
+    },
+    {
+      "tablename": "crm_personal_notes",
+      "indexname": "f02_66b97b5aae61b1c03010",
+      "indexdef": "CREATE UNIQUE INDEX f02_66b97b5aae61b1c03010 ON public.crm_personal_notes USING btree (note_id)"
+    },
+    {
+      "tablename": "crm_service_labels",
+      "indexname": "f02_e99a704ce91fd47aa30b",
+      "indexdef": "CREATE UNIQUE INDEX f02_e99a704ce91fd47aa30b ON public.crm_service_labels USING btree (label_id)"
+    },
+    {
+      "tablename": "crm_shared_profiles",
+      "indexname": "f02_41a610f6aa68f79dac98",
+      "indexdef": "CREATE UNIQUE INDEX f02_41a610f6aa68f79dac98 ON public.crm_shared_profiles USING btree (customer_id)"
+    },
+    {
+      "tablename": "crm_shared_profiles",
+      "indexname": "f02_a437fb55a8e295660027",
+      "indexdef": "CREATE UNIQUE INDEX f02_a437fb55a8e295660027 ON public.crm_shared_profiles USING btree (profile_id)"
+    },
+    {
+      "tablename": "crm_stage_dictionary",
+      "indexname": "f02_0931c68273ce95066a6f",
+      "indexdef": "CREATE UNIQUE INDEX f02_0931c68273ce95066a6f ON public.crm_stage_dictionary USING btree (stage_name) WHERE (status = 'enabled'::text)"
+    },
+    {
+      "tablename": "crm_stage_dictionary",
+      "indexname": "f02_ca813abdb74767be0e09",
+      "indexdef": "CREATE UNIQUE INDEX f02_ca813abdb74767be0e09 ON public.crm_stage_dictionary USING btree (stage_id)"
+    },
+    {
+      "tablename": "crm_tag_dictionary",
+      "indexname": "f02_06d8f4ca17e522723d2e",
+      "indexdef": "CREATE UNIQUE INDEX f02_06d8f4ca17e522723d2e ON public.crm_tag_dictionary USING btree (tag_id)"
+    },
+    {
+      "tablename": "crm_tag_dictionary",
+      "indexname": "f02_83c10b938d9c15f5feb6",
+      "indexdef": "CREATE UNIQUE INDEX f02_83c10b938d9c15f5feb6 ON public.crm_tag_dictionary USING btree (tag_name) WHERE (status = 'enabled'::text)"
+    },
+    {
+      "tablename": "customer_collaborations",
+      "indexname": "f02_b9c686b13bd58453d0fb",
+      "indexdef": "CREATE UNIQUE INDEX f02_b9c686b13bd58453d0fb ON public.customer_collaborations USING btree (collaboration_id)"
+    },
+    {
+      "tablename": "customer_day_quota_ledger",
+      "indexname": "f02_2f9f383b005731a5af24",
+      "indexdef": "CREATE UNIQUE INDEX f02_2f9f383b005731a5af24 ON public.customer_day_quota_ledger USING btree (customer_id, business_day_shanghai)"
+    },
+    {
+      "tablename": "customer_day_quota_ledger",
+      "indexname": "f02_ca7552f621b55505b8a1",
+      "indexdef": "CREATE UNIQUE INDEX f02_ca7552f621b55505b8a1 ON public.customer_day_quota_ledger USING btree (customer_id, business_day_shanghai)"
+    },
+    {
+      "tablename": "customer_entitlement_events",
+      "indexname": "f02_b234db4ccfad8167f1aa",
+      "indexdef": "CREATE UNIQUE INDEX f02_b234db4ccfad8167f1aa ON public.customer_entitlement_events USING btree (entitlement_event_id)"
+    },
+    {
+      "tablename": "customer_levels",
+      "indexname": "f02_2e2f9240e646287d3474",
+      "indexdef": "CREATE UNIQUE INDEX f02_2e2f9240e646287d3474 ON public.customer_levels USING btree (level_id)"
+    },
+    {
+      "tablename": "customer_owner_history",
+      "indexname": "f02_9bbce3c1485af7a1e980",
+      "indexdef": "CREATE UNIQUE INDEX f02_9bbce3c1485af7a1e980 ON public.customer_owner_history USING btree (owner_history_id, customer_id)"
+    },
+    {
+      "tablename": "customer_owner_history",
+      "indexname": "f02_bcb5bdadba24dea82ddf",
+      "indexdef": "CREATE UNIQUE INDEX f02_bcb5bdadba24dea82ddf ON public.customer_owner_history USING btree (owner_history_id)"
+    },
+    {
+      "tablename": "customer_phone_facts",
+      "indexname": "f02_99a9e3635e75282cce14",
+      "indexdef": "CREATE UNIQUE INDEX f02_99a9e3635e75282cce14 ON public.customer_phone_facts USING btree (phone_fact_id)"
+    },
+    {
+      "tablename": "customer_price_cycle_unlocks",
+      "indexname": "f02_33f729ce69b4bdd06b01",
+      "indexdef": "CREATE UNIQUE INDEX f02_33f729ce69b4bdd06b01 ON public.customer_price_cycle_unlocks USING btree (customer_id, vehicle_id, listing_cycle_id)"
+    },
+    {
+      "tablename": "customer_price_cycle_unlocks",
+      "indexname": "f02_523c34cf2ef2bbc80465",
+      "indexdef": "CREATE UNIQUE INDEX f02_523c34cf2ef2bbc80465 ON public.customer_price_cycle_unlocks USING btree (unlock_id)"
+    },
+    {
+      "tablename": "customer_price_unlock_events",
+      "indexname": "f02_2e90a1dd1e23ecc7e1e5",
+      "indexdef": "CREATE UNIQUE INDEX f02_2e90a1dd1e23ecc7e1e5 ON public.customer_price_unlock_events USING btree (unlock_event_id)"
+    },
+    {
+      "tablename": "customer_price_unlock_events",
+      "indexname": "f02_56d4043724f4396bffe7",
+      "indexdef": "CREATE UNIQUE INDEX f02_56d4043724f4396bffe7 ON public.customer_price_unlock_events USING btree (customer_id, vehicle_id, listing_cycle_id) WHERE (event_kind = 'successful_limited_charge'::text)"
+    },
+    {
+      "tablename": "customer_price_unlock_events",
+      "indexname": "f02_d40bfe037f8e22ddc4bd",
+      "indexdef": "CREATE UNIQUE INDEX f02_d40bfe037f8e22ddc4bd ON public.customer_price_unlock_events USING btree (idempotency_key)"
+    },
+    {
+      "tablename": "customer_quota_adjustments",
+      "indexname": "f02_dca467027842da5c1ad5",
+      "indexdef": "CREATE UNIQUE INDEX f02_dca467027842da5c1ad5 ON public.customer_quota_adjustments USING btree (adjustment_id)"
+    },
+    {
+      "tablename": "customer_wechat_identities",
+      "indexname": "f02_1751fb54fd378c559d9b",
+      "indexdef": "CREATE UNIQUE INDEX f02_1751fb54fd378c559d9b ON public.customer_wechat_identities USING btree (wechat_identity_id)"
+    },
+    {
+      "tablename": "customer_wechat_identities",
+      "indexname": "f02_f76a44b4c1461ac5c632",
+      "indexdef": "CREATE UNIQUE INDEX f02_f76a44b4c1461ac5c632 ON public.customer_wechat_identities USING btree (identity_scope, wechat_identity_key)"
+    },
+    {
+      "tablename": "customers",
+      "indexname": "f02_dccd47cd938e60900f7f",
+      "indexdef": "CREATE UNIQUE INDEX f02_dccd47cd938e60900f7f ON public.customers USING btree (customer_id)"
+    },
+    {
+      "tablename": "demand_match_results",
+      "indexname": "f02_03e130b27f44dd80d2b1",
+      "indexdef": "CREATE UNIQUE INDEX f02_03e130b27f44dd80d2b1 ON public.demand_match_results USING btree (result_id)"
+    },
+    {
+      "tablename": "demand_match_results",
+      "indexname": "f02_0a7b34ace98bc4fd96a1",
+      "indexdef": "CREATE UNIQUE INDEX f02_0a7b34ace98bc4fd96a1 ON public.demand_match_results USING btree (demand_id, vehicle_id, listing_cycle_id) WHERE (current_state = 'current'::text)"
+    },
+    {
+      "tablename": "demand_match_results",
+      "indexname": "f02_aaf00554a144ceac2362",
+      "indexdef": "CREATE UNIQUE INDEX f02_aaf00554a144ceac2362 ON public.demand_match_results USING btree (result_id, demand_id, vehicle_id, listing_cycle_id)"
+    },
+    {
+      "tablename": "demand_match_results",
+      "indexname": "f02_ee6c5d2790817d6dd10b",
+      "indexdef": "CREATE UNIQUE INDEX f02_ee6c5d2790817d6dd10b ON public.demand_match_results USING btree (result_id, vehicle_id, listing_cycle_id)"
+    },
+    {
+      "tablename": "demands",
+      "indexname": "f02_08db79b0a479bbce0585",
+      "indexdef": "CREATE UNIQUE INDEX f02_08db79b0a479bbce0585 ON public.demands USING btree (demand_id, customer_id)"
+    },
+    {
+      "tablename": "demands",
+      "indexname": "f02_0e18b52d1f16fabc8d58",
+      "indexdef": "CREATE UNIQUE INDEX f02_0e18b52d1f16fabc8d58 ON public.demands USING btree (demand_id)"
+    },
+    {
+      "tablename": "deposit_receipts",
+      "indexname": "f02_00fbf43d92b790de4036",
+      "indexdef": "CREATE UNIQUE INDEX f02_00fbf43d92b790de4036 ON public.deposit_receipts USING btree (deposit_id)"
+    },
+    {
+      "tablename": "employee_data_scopes",
+      "indexname": "f02_3a284948b358a9e07fc0",
+      "indexdef": "CREATE UNIQUE INDEX f02_3a284948b358a9e07fc0 ON public.employee_data_scopes USING btree (scope_id)"
+    },
+    {
+      "tablename": "employee_permission_override_history",
+      "indexname": "f02_b4bdbab2797d910c5922",
+      "indexdef": "CREATE UNIQUE INDEX f02_b4bdbab2797d910c5922 ON public.employee_permission_override_history USING btree (event_id)"
+    },
+    {
+      "tablename": "employee_permission_overrides",
+      "indexname": "f02_160f73f0f3b840396cba",
+      "indexdef": "CREATE UNIQUE INDEX f02_160f73f0f3b840396cba ON public.employee_permission_overrides USING btree (employee_id, permission_id)"
+    },
+    {
+      "tablename": "employees",
+      "indexname": "f02_6196188069464b0c09d6",
+      "indexdef": "CREATE UNIQUE INDEX f02_6196188069464b0c09d6 ON public.employees USING btree (employee_id)"
+    },
+    {
+      "tablename": "f02_schema_migrations",
+      "indexname": "f02_schema_migrations_pkey",
+      "indexdef": "CREATE UNIQUE INDEX f02_schema_migrations_pkey ON public.f02_schema_migrations USING btree (migration_id)"
+    },
+    {
+      "tablename": "f03_isolation_seal",
+      "indexname": "f03_isolation_seal_pkey",
+      "indexdef": "CREATE UNIQUE INDEX f03_isolation_seal_pkey ON public.f03_isolation_seal USING btree (run_id)"
+    },
+    {
+      "tablename": "f03_schema_migrations",
+      "indexname": "f03_schema_migrations_pkey",
+      "indexdef": "CREATE UNIQUE INDEX f03_schema_migrations_pkey ON public.f03_schema_migrations USING btree (migration_id)"
+    },
+    {
+      "tablename": "financial_corrections",
+      "indexname": "f02_a2eb4b179202741b4467",
+      "indexdef": "CREATE UNIQUE INDEX f02_a2eb4b179202741b4467 ON public.financial_corrections USING btree (correction_id)"
+    },
+    {
+      "tablename": "find_car_applications",
+      "indexname": "f02_d347e9466643e94b0cdd",
+      "indexdef": "CREATE UNIQUE INDEX f02_d347e9466643e94b0cdd ON public.find_car_applications USING btree (application_id)"
+    },
+    {
+      "tablename": "idempotency_records",
+      "indexname": "f02_43b432573968316d2828",
+      "indexdef": "CREATE UNIQUE INDEX f02_43b432573968316d2828 ON public.idempotency_records USING btree (idempotency_id)"
+    },
+    {
+      "tablename": "idempotency_records",
+      "indexname": "f02_c7208aff2c266bf11a93",
+      "indexdef": "CREATE UNIQUE INDEX f02_c7208aff2c266bf11a93 ON public.idempotency_records USING btree (actor_key, operation_key, request_key)"
+    },
+    {
+      "tablename": "image_asset_jobs",
+      "indexname": "f02_e00044e795bfeed3d17b",
+      "indexdef": "CREATE UNIQUE INDEX f02_e00044e795bfeed3d17b ON public.image_asset_jobs USING btree (asset_job_id)"
+    },
+    {
+      "tablename": "jyt_model_source_mappings",
+      "indexname": "f02_766175c580e782bf9b8e",
+      "indexdef": "CREATE UNIQUE INDEX f02_766175c580e782bf9b8e ON public.jyt_model_source_mappings USING btree (mapping_id)"
+    },
+    {
+      "tablename": "lock_requests",
+      "indexname": "f02_8daf4bf5f3a7be67f181",
+      "indexdef": "CREATE UNIQUE INDEX f02_8daf4bf5f3a7be67f181 ON public.lock_requests USING btree (lock_request_id, customer_id, vehicle_id, listing_cycle_id)"
+    },
+    {
+      "tablename": "lock_requests",
+      "indexname": "f02_a529295e03acb6ed1311",
+      "indexdef": "CREATE UNIQUE INDEX f02_a529295e03acb6ed1311 ON public.lock_requests USING btree (lock_request_id)"
+    },
+    {
+      "tablename": "locks",
+      "indexname": "f02_06e6b8cdc878d1a15e41",
+      "indexdef": "CREATE UNIQUE INDEX f02_06e6b8cdc878d1a15e41 ON public.locks USING btree (lock_id, customer_id)"
+    },
+    {
+      "tablename": "locks",
+      "indexname": "f02_0e345c849c3f8e6d3216",
+      "indexdef": "CREATE UNIQUE INDEX f02_0e345c849c3f8e6d3216 ON public.locks USING btree (vehicle_id) WHERE (lock_status = 'active'::text)"
+    },
+    {
+      "tablename": "locks",
+      "indexname": "f02_68a880add17053bee162",
+      "indexdef": "CREATE UNIQUE INDEX f02_68a880add17053bee162 ON public.locks USING btree (lock_id, customer_id, vehicle_id, listing_cycle_id)"
+    },
+    {
+      "tablename": "locks",
+      "indexname": "f02_cf4d70b38163611105c3",
+      "indexdef": "CREATE UNIQUE INDEX f02_cf4d70b38163611105c3 ON public.locks USING btree (lock_id)"
+    },
+    {
+      "tablename": "manual_vehicle_drafts",
+      "indexname": "f02_acb983e257ccd6af0f87",
+      "indexdef": "CREATE UNIQUE INDEX f02_acb983e257ccd6af0f87 ON public.manual_vehicle_drafts USING btree (draft_id)"
+    },
+    {
+      "tablename": "matching_change_events",
+      "indexname": "f02_a431de2b3ff9ba928ce9",
+      "indexdef": "CREATE UNIQUE INDEX f02_a431de2b3ff9ba928ce9 ON public.matching_change_events USING btree (event_id)"
+    },
+    {
+      "tablename": "matching_change_events",
+      "indexname": "f02_c54bca00649de5128047",
+      "indexdef": "CREATE UNIQUE INDEX f02_c54bca00649de5128047 ON public.matching_change_events USING btree (idempotency_key)"
+    },
+    {
+      "tablename": "matching_dictionary_rules",
+      "indexname": "f02_e31326f289034be72ee4",
+      "indexdef": "CREATE UNIQUE INDEX f02_e31326f289034be72ee4 ON public.matching_dictionary_rules USING btree (rule_id)"
+    },
+    {
+      "tablename": "matching_rule_change_history",
+      "indexname": "f02_698fe41d9326ea773d27",
+      "indexdef": "CREATE UNIQUE INDEX f02_698fe41d9326ea773d27 ON public.matching_rule_change_history USING btree (event_id)"
+    },
+    {
+      "tablename": "matching_rule_change_history",
+      "indexname": "f02_b8f5bf317afba67ffc85",
+      "indexdef": "CREATE UNIQUE INDEX f02_b8f5bf317afba67ffc85 ON public.matching_rule_change_history USING btree (rule_id, rule_version)"
+    },
+    {
+      "tablename": "notification_events",
+      "indexname": "f02_6c48124d47a6ed86628b",
+      "indexdef": "CREATE UNIQUE INDEX f02_6c48124d47a6ed86628b ON public.notification_events USING btree (dedupe_key) WHERE (dedupe_key IS NOT NULL)"
+    },
+    {
+      "tablename": "notification_events",
+      "indexname": "f02_8212b0f331db5530febb",
+      "indexdef": "CREATE UNIQUE INDEX f02_8212b0f331db5530febb ON public.notification_events USING btree (source_object_kind, source_object_id, notification_stage, recipient_ref, channel_kind) WHERE (dedupe_key IS NOT NULL)"
+    },
+    {
+      "tablename": "notification_events",
+      "indexname": "f02_c0a8eef8a28c544ecaca",
+      "indexdef": "CREATE UNIQUE INDEX f02_c0a8eef8a28c544ecaca ON public.notification_events USING btree (notification_id)"
+    },
+    {
+      "tablename": "outbox_events",
+      "indexname": "f02_bef7f96e4e8d28305468",
+      "indexdef": "CREATE UNIQUE INDEX f02_bef7f96e4e8d28305468 ON public.outbox_events USING btree (outbox_id)"
+    },
+    {
+      "tablename": "pc_auth_sessions",
+      "indexname": "idx_pc_auth_sessions_account_expiry",
+      "indexdef": "CREATE INDEX idx_pc_auth_sessions_account_expiry ON public.pc_auth_sessions USING btree (account_id, expires_at)"
+    },
+    {
+      "tablename": "pc_auth_sessions",
+      "indexname": "idx_pc_auth_sessions_expiry",
+      "indexdef": "CREATE INDEX idx_pc_auth_sessions_expiry ON public.pc_auth_sessions USING btree (expires_at)"
+    },
+    {
+      "tablename": "pc_auth_sessions",
+      "indexname": "pc_auth_sessions_pkey",
+      "indexdef": "CREATE UNIQUE INDEX pc_auth_sessions_pkey ON public.pc_auth_sessions USING btree (session_id)"
+    },
+    {
+      "tablename": "pc_auth_sessions",
+      "indexname": "pc_auth_sessions_token_digest_key",
+      "indexdef": "CREATE UNIQUE INDEX pc_auth_sessions_token_digest_key ON public.pc_auth_sessions USING btree (token_digest)"
+    },
+    {
+      "tablename": "pc_login_accounts",
+      "indexname": "f02_1b63c937ca1cbcd1fe6d",
+      "indexdef": "CREATE UNIQUE INDEX f02_1b63c937ca1cbcd1fe6d ON public.pc_login_accounts USING btree (system_admin_id) WHERE (system_admin_id IS NOT NULL)"
+    },
+    {
+      "tablename": "pc_login_accounts",
+      "indexname": "f02_55ab54deca1ecdb53b0f",
+      "indexdef": "CREATE UNIQUE INDEX f02_55ab54deca1ecdb53b0f ON public.pc_login_accounts USING btree (account_id)"
+    },
+    {
+      "tablename": "pc_login_accounts",
+      "indexname": "f02_b4ed6d27216e7060d2aa",
+      "indexdef": "CREATE UNIQUE INDEX f02_b4ed6d27216e7060d2aa ON public.pc_login_accounts USING btree (normalized_login_key)"
+    },
+    {
+      "tablename": "pc_login_accounts",
+      "indexname": "f02_f7dcf0c8a5cc8828aad0",
+      "indexdef": "CREATE UNIQUE INDEX f02_f7dcf0c8a5cc8828aad0 ON public.pc_login_accounts USING btree (employee_id) WHERE (employee_id IS NOT NULL)"
+    },
+    {
+      "tablename": "permissions",
+      "indexname": "f02_d4a59949c7436a5f8021",
+      "indexdef": "CREATE UNIQUE INDEX f02_d4a59949c7436a5f8021 ON public.permissions USING btree (permission_id)"
+    },
+    {
+      "tablename": "pricing_rule_ranges",
+      "indexname": "f02_7a9bb6fab0dcf73fee55",
+      "indexdef": "CREATE UNIQUE INDEX f02_7a9bb6fab0dcf73fee55 ON public.pricing_rule_ranges USING btree (range_id)"
+    },
+    {
+      "tablename": "pricing_rule_versions",
+      "indexname": "f02_748e996d8885578f35b0",
+      "indexdef": "CREATE UNIQUE INDEX f02_748e996d8885578f35b0 ON public.pricing_rule_versions USING btree (version_id)"
+    },
+    {
+      "tablename": "priority_leases",
+      "indexname": "f02_0a6bb22b7cbede9fe9b7",
+      "indexdef": "CREATE UNIQUE INDEX f02_0a6bb22b7cbede9fe9b7 ON public.priority_leases USING btree (priority_id)"
+    },
+    {
+      "tablename": "priority_leases",
+      "indexname": "f02_a439709ae03384828c21",
+      "indexdef": "CREATE UNIQUE INDEX f02_a439709ae03384828c21 ON public.priority_leases USING btree (vehicle_id) WHERE (status = 'active'::text)"
+    },
+    {
+      "tablename": "public_pool_events",
+      "indexname": "f02_5bd68afa4dcb60fe91f0",
+      "indexdef": "CREATE UNIQUE INDEX f02_5bd68afa4dcb60fe91f0 ON public.public_pool_events USING btree (pool_event_id)"
+    },
+    {
+      "tablename": "publisher_phone_cache",
+      "indexname": "f02_4895ad779f526a8e8b1c",
+      "indexdef": "CREATE UNIQUE INDEX f02_4895ad779f526a8e8b1c ON public.publisher_phone_cache USING btree (cache_id)"
+    },
+    {
+      "tablename": "publisher_phone_cache",
+      "indexname": "f02_5b8a434ad30c7b1edfca",
+      "indexdef": "CREATE UNIQUE INDEX f02_5b8a434ad30c7b1edfca ON public.publisher_phone_cache USING btree (source_platform, upstream_publisher_id)"
+    },
+    {
+      "tablename": "publisher_phone_history",
+      "indexname": "f02_ea9edfe707aecf90347e",
+      "indexdef": "CREATE UNIQUE INDEX f02_ea9edfe707aecf90347e ON public.publisher_phone_history USING btree (phone_history_id)"
+    },
+    {
+      "tablename": "recommendations",
+      "indexname": "f02_68cda83733a7d39771ba",
+      "indexdef": "CREATE UNIQUE INDEX f02_68cda83733a7d39771ba ON public.recommendations USING btree (recommendation_id, customer_id, vehicle_id)"
+    },
+    {
+      "tablename": "recommendations",
+      "indexname": "f02_a33edaa7318b6dcf308e",
+      "indexdef": "CREATE UNIQUE INDEX f02_a33edaa7318b6dcf308e ON public.recommendations USING btree (customer_id, vehicle_id, listing_cycle_id) WHERE (status = 'active'::text)"
+    },
+    {
+      "tablename": "recommendations",
+      "indexname": "f02_de470b13b3c39dcdcd02",
+      "indexdef": "CREATE UNIQUE INDEX f02_de470b13b3c39dcdcd02 ON public.recommendations USING btree (recommendation_id)"
+    },
+    {
+      "tablename": "recommendations",
+      "indexname": "f02_e254ad87cce7930e8e07",
+      "indexdef": "CREATE UNIQUE INDEX f02_e254ad87cce7930e8e07 ON public.recommendations USING btree (recommendation_id, customer_id, vehicle_id, listing_cycle_id)"
+    },
+    {
+      "tablename": "refund_cases",
+      "indexname": "f02_4972fa6903c95f8ca17a",
+      "indexdef": "CREATE UNIQUE INDEX f02_4972fa6903c95f8ca17a ON public.refund_cases USING btree (refund_id)"
+    },
+    {
+      "tablename": "refund_payments",
+      "indexname": "f02_441c1444ebef7de50b2b",
+      "indexdef": "CREATE UNIQUE INDEX f02_441c1444ebef7de50b2b ON public.refund_payments USING btree (payment_id)"
+    },
+    {
+      "tablename": "role_default_permission_history",
+      "indexname": "f02_fc85f51152ba012ba373",
+      "indexdef": "CREATE UNIQUE INDEX f02_fc85f51152ba012ba373 ON public.role_default_permission_history USING btree (event_id)"
+    },
+    {
+      "tablename": "role_permission_defaults",
+      "indexname": "f02_0575e290ebd108974144",
+      "indexdef": "CREATE UNIQUE INDEX f02_0575e290ebd108974144 ON public.role_permission_defaults USING btree (role_id, permission_id)"
+    },
+    {
+      "tablename": "roles",
+      "indexname": "f02_0dd4582b91e1b5711c54",
+      "indexdef": "CREATE UNIQUE INDEX f02_0dd4582b91e1b5711c54 ON public.roles USING btree (role_id)"
+    },
+    {
+      "tablename": "share_attributions",
+      "indexname": "f02_ee67cb72a36a618a42ca",
+      "indexdef": "CREATE UNIQUE INDEX f02_ee67cb72a36a618a42ca ON public.share_attributions USING btree (share_id)"
+    },
+    {
+      "tablename": "stores",
+      "indexname": "f02_ab72b7453bfd7ec8ff49",
+      "indexdef": "CREATE UNIQUE INDEX f02_ab72b7453bfd7ec8ff49 ON public.stores USING btree (store_id)"
+    },
+    {
+      "tablename": "system_admins",
+      "indexname": "f02_13b8b7595134df6008d0",
+      "indexdef": "CREATE UNIQUE INDEX f02_13b8b7595134df6008d0 ON public.system_admins USING btree (system_admin_id)"
+    },
+    {
+      "tablename": "transactions",
+      "indexname": "f02_12f0d1a3ada5f9a9bbd0",
+      "indexdef": "CREATE UNIQUE INDEX f02_12f0d1a3ada5f9a9bbd0 ON public.transactions USING btree (transaction_id, customer_id)"
+    },
+    {
+      "tablename": "transactions",
+      "indexname": "f02_39e21310042d09466ee8",
+      "indexdef": "CREATE UNIQUE INDEX f02_39e21310042d09466ee8 ON public.transactions USING btree (vehicle_id) WHERE (status = 'in_progress'::text)"
+    },
+    {
+      "tablename": "transactions",
+      "indexname": "f02_d485888520164cf3a481",
+      "indexdef": "CREATE UNIQUE INDEX f02_d485888520164cf3a481 ON public.transactions USING btree (transaction_id)"
+    },
+    {
+      "tablename": "vehicle_brands",
+      "indexname": "f02_332b99cbacc83a1b4d33",
+      "indexdef": "CREATE UNIQUE INDEX f02_332b99cbacc83a1b4d33 ON public.vehicle_brands USING btree (brand_id)"
+    },
+    {
+      "tablename": "vehicle_conversions",
+      "indexname": "f02_fee07bbcb67521d4e226",
+      "indexdef": "CREATE UNIQUE INDEX f02_fee07bbcb67521d4e226 ON public.vehicle_conversions USING btree (conversion_id)"
+    },
+    {
+      "tablename": "vehicle_documents",
+      "indexname": "f02_62f0dad981c6d7912e1a",
+      "indexdef": "CREATE UNIQUE INDEX f02_62f0dad981c6d7912e1a ON public.vehicle_documents USING btree (document_id)"
+    },
+    {
+      "tablename": "vehicle_hide_rules",
+      "indexname": "f02_94a2f3306b74eddf1669",
+      "indexdef": "CREATE UNIQUE INDEX f02_94a2f3306b74eddf1669 ON public.vehicle_hide_rules USING btree (rule_id)"
+    },
+    {
+      "tablename": "vehicle_images",
+      "indexname": "f02_40d7eda918f2a4801881",
+      "indexdef": "CREATE UNIQUE INDEX f02_40d7eda918f2a4801881 ON public.vehicle_images USING btree (image_id)"
+    },
+    {
+      "tablename": "vehicle_listing_cycles",
+      "indexname": "f02_168bb6fdfb6102761b31",
+      "indexdef": "CREATE UNIQUE INDEX f02_168bb6fdfb6102761b31 ON public.vehicle_listing_cycles USING btree (listing_cycle_id, vehicle_id)"
+    },
+    {
+      "tablename": "vehicle_listing_cycles",
+      "indexname": "f02_e29e64daebc8414081ce",
+      "indexdef": "CREATE UNIQUE INDEX f02_e29e64daebc8414081ce ON public.vehicle_listing_cycles USING btree (listing_cycle_id)"
+    },
+    {
+      "tablename": "vehicle_listing_cycles",
+      "indexname": "f02_fade9175b1ec8f7f4b5f",
+      "indexdef": "CREATE UNIQUE INDEX f02_fade9175b1ec8f7f4b5f ON public.vehicle_listing_cycles USING btree (vehicle_id) WHERE (ended_at IS NULL)"
+    },
+    {
+      "tablename": "vehicle_model_review_cases",
+      "indexname": "f02_a8ca3dd6c84c5c2077ad",
+      "indexdef": "CREATE UNIQUE INDEX f02_a8ca3dd6c84c5c2077ad ON public.vehicle_model_review_cases USING btree (case_id)"
+    },
+    {
+      "tablename": "vehicle_models",
+      "indexname": "f02_9c679f4ed21754e827fe",
+      "indexdef": "CREATE UNIQUE INDEX f02_9c679f4ed21754e827fe ON public.vehicle_models USING btree (model_id)"
+    },
+    {
+      "tablename": "vehicle_price_history",
+      "indexname": "f02_73f6f3dc2c7891971a61",
+      "indexdef": "CREATE UNIQUE INDEX f02_73f6f3dc2c7891971a61 ON public.vehicle_price_history USING btree (price_event_id)"
+    },
+    {
+      "tablename": "vehicle_series",
+      "indexname": "f02_b4b06a78494b58f2894c",
+      "indexdef": "CREATE UNIQUE INDEX f02_b4b06a78494b58f2894c ON public.vehicle_series USING btree (series_id)"
+    },
+    {
+      "tablename": "vehicle_source_facts",
+      "indexname": "f02_326129f9f98577b11459",
+      "indexdef": "CREATE UNIQUE INDEX f02_326129f9f98577b11459 ON public.vehicle_source_facts USING btree (source_fact_id)"
+    },
+    {
+      "tablename": "vehicle_visibility_grants",
+      "indexname": "f02_9de824cfc5dfa4e13314",
+      "indexdef": "CREATE UNIQUE INDEX f02_9de824cfc5dfa4e13314 ON public.vehicle_visibility_grants USING btree (source_recommendation_id, customer_id, vehicle_id) WHERE (revoked_at IS NULL)"
+    },
+    {
+      "tablename": "vehicle_visibility_grants",
+      "indexname": "f02_b9f4ad99d18620d5e8ae",
+      "indexdef": "CREATE UNIQUE INDEX f02_b9f4ad99d18620d5e8ae ON public.vehicle_visibility_grants USING btree (grant_id)"
+    },
+    {
+      "tablename": "vehicles",
+      "indexname": "f02_4c3077e762adbfad16aa",
+      "indexdef": "CREATE UNIQUE INDEX f02_4c3077e762adbfad16aa ON public.vehicles USING btree (vehicle_id)"
+    },
+    {
+      "tablename": "waitlists",
+      "indexname": "f02_11e3f51a52a0bc5f8799",
+      "indexdef": "CREATE UNIQUE INDEX f02_11e3f51a52a0bc5f8799 ON public.waitlists USING btree (customer_id, vehicle_id, listing_cycle_id) WHERE (ended_at IS NULL)"
+    },
+    {
+      "tablename": "waitlists",
+      "indexname": "f02_180f79ba6e8a04b0357c",
+      "indexdef": "CREATE UNIQUE INDEX f02_180f79ba6e8a04b0357c ON public.waitlists USING btree (waitlist_id)"
+    },
+    {
+      "tablename": "waitlists",
+      "indexname": "f02_30dd1da65234ed4b9293",
+      "indexdef": "CREATE UNIQUE INDEX f02_30dd1da65234ed4b9293 ON public.waitlists USING btree (waitlist_id, customer_id, vehicle_id, listing_cycle_id)"
+    }
+  ]
+}
