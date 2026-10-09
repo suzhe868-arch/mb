@@ -28,14 +28,23 @@ export const checksum=createHash('sha256').update(SQL).digest('hex');
 const manifestPromise=readFile(new URL('./000003.manifest.json',import.meta.url),'utf8').then(JSON.parse);
 export const OLD_SHA='8af70f5f3ca32f2a7b84a4ad69d68dbf7c81bd9b6c97d79ad7481ce3a8c23ee5';
 export const OLD_CHECKSUM='3d7f0a539941e4089147a9c7a82ecfdb2ccebd64ba513e01deeb0fcf1d2bd6ab';
+export const F02_CHECKSUM='df078212b95701af12144a43ef85a70fc491e5dca9948644df415bd888c5b4e4';
+export const F02_STRUCTURE='d5535d72fe17d7981b006bcd1223eb11cb67660b53e7603f1125bfab8dba9cde';
 const verifyIdentity=async c=>{
  const a=(await c.query("SELECT current_database() db,current_user usr,current_setting('server_version_num')::integer ver,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su,(SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user) cdb,(SELECT rolcreaterole FROM pg_roles WHERE rolname=current_user) cr")).rows[0];
  if(a.db!=='f03_auth_test'||a.usr!=='f03_ci'||a.ver<160000||a.ver>=170000||a.su!==false||a.cdb!==false||a.cr!==false)throw Error('F03_2_1B_ISOLATION_IDENTITY_DENY');
 };
 const verifySeal=async(c)=>{
  const run=isolate().run;await verifyIdentity(c);
- const a=(await c.query("SELECT run_id FROM public.f03_isolation_seal")).rows;
- if(a.length!==1||a[0].run_id!==run)throw Error('F03_2_1B_RUN_SEAL_DENY');
+ const [seal,f02]=(await Promise.all([
+   c.query("SELECT run_id,f02_checksum,f02_structure_sha256,base_structure_sha256 FROM public.f03_isolation_seal"),
+   c.query("SELECT migration_id,checksum,structure_sha256 FROM public.f02_schema_migrations")
+ ] )).map(x=>x.rows);
+ if(seal.length!==1||seal[0].run_id!==run||seal[0].f02_checksum!==F02_CHECKSUM||
+   seal[0].f02_structure_sha256!==F02_STRUCTURE||
+   !/^[0-9a-f]{64}$/.test(seal[0].base_structure_sha256)||f02.length!==1||
+   f02[0].migration_id!=='000001_current_initial'||f02[0].checksum!==F02_CHECKSUM||
+   f02[0].structure_sha256!==F02_STRUCTURE)throw Error('F03_2_1B_RUN_SEAL_OR_F02_BASELINE_DENY');
 };
 const versionRows=async c=>(await c.query("SELECT migration_id,checksum,structure_sha256 FROM public.f03_schema_migrations ORDER BY migration_id")).rows;
 const tables=async c=>(await c.query("SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename")).rows.map(x=>x.tablename);
@@ -47,9 +56,10 @@ const manifest=async()=>{
  return m;
 };
 export async function verify(c){
- await verifySeal(c);const m=await manifest();
+ const m=await manifest();
  await c.query('BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY');
  try{
+  await verifySeal(c);
   const v=await versionRows(c);if(v.length!==2||v[0].migration_id!=='000002_pc_auth_sessions'||v[0].checksum!==OLD_CHECKSUM||v[0].structure_sha256!==OLD_SHA||
    v[1].migration_id!==ID||v[1].checksum!==checksum||v[1].structure_sha256!==m.structure_sha256)throw Error('F03_2_1B_VERSION_DRIFT');
   if((await tables(c)).length!==81)throw Error('F03_2_1B_81_TABLES_REQUIRED');
