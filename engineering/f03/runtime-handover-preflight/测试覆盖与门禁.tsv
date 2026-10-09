@@ -8,3 +8,7 @@ G06	逐对象batch/item kind/id/from/to/state比较；pending、错负责人/目
 G07	对business/owner_history/所有域/employee权限/Team/ledger/audit整行前后完全一致；仅F03-1自己last_seen正常更新	无	NO_BUSINESS_WRITES
 G08	专用十独立真PG16旧2F、2E、2D、2C、2B、2A、F03-1及HTTPS回归+原始pg_dump/inventory/SOURCE SHA跨运行核对	无	SAME_SHA_CI_ALL_GREEN
 G09	只新增engineering/f03/runtime-handover-preflight/**与专用CI，无旧文件修改、无生产/HTTP/外部路由；中文交接+A独立验收	无	READY_FOR_A_REVIEW
+A-G-01	两类预置可信planned_disable/sudden_inactive账本，源inactive仍读影响；失效Team成员时HANDOVER_AUTHORITY_GAP；预检零业务写	无	INACTIVE_SCOPED_READ_ONLY
+A-G-02	真实双PG16连接Customer/Demand/Lock/Team/权限/ledger item阻塞；phantom Demand插入被表锁阻塞；lock_timeout直接DENY	无	PG_ROW_TABLE_LOCKED_NO_COMMIT_TOKEN
+A-G-03	MISSING_ITEM与PENDING_ITEM机读区分，同recipient重复跨batch或from/to冲突、retry及孤儿项列出ID/标志；始终不能完成	无	MISSING_CONFLICT_ORPHAN_DEFER
+A-G-04	跨Team共享Customer、他人Demand/Consultation/Lock/Priority/Recommendation只输出按域聚合缺口数，无越权ID或状态	无	OUT_OF_SCOPE_DEFER_DENY
