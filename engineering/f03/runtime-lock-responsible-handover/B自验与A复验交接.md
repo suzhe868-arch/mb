@@ -44,6 +44,35 @@
 - L真实21项覆盖：只读准备、正式CAS、一列更新、同item幂等/异Key拒绝、本人改密后会话/无权身份拒绝、个人deny与capability/team撤权、已终结锁车、客户停用、下架和周期结束、合法LockRequest源核对、真实意向金/退款事实、到期两类拒绝、暂停接客不影响已有管理权、五个事务故障点、五域20方向Key碰撞、五名员工PC会话同Key一胜/五不同Key可成功、单Lock双会话竞争、连续两次移交收据、旧source inactive历史可读、reader撤权立即拒绝、伪造FK收据拒绝、不可变收据禁止更新删除。
 - 另外十四个独立成功的真实旧域作业：旧K92、J91、I90、H89、G/F/E88、D86、C84、B82两个作业、A81、F03-1认证80、HTTPS80。不能以单个L93作业冒充任何旧库独立回归。
 
+## 四-A、A主控复核整改单A-L-01：锁车到期事务竞态（2026-10-10追加完成）
+
+**唯一正式整改依据**：`07_重建工作区/F03-2-2L_A主控独立复核锁车到期事务竞态定向整改单_2026-10-10.md`。A明确结论为`A_CHANGES_REQUESTED`、`NEXT_OWNER=B`；原绿色L21、H/I/J/K旧库成绩保留但不构成到期时序通过，本轮补足真实数据库时间约束后才准交A。
+
+### A-L-01｜实质代码整改和原子性证明
+
+- **首道数据库时钟CAS**：`facts()`的初始时限校验也改读`SELECT clock_timestamp()`（不用Node `new Date()`模拟“当前有效”）。`transfer()`真正的PG16写入CAS添加`AND expires_at > clock_timestamp()`，锁车行`FOR UPDATE`只能阻止其他事务修改当前行，不能阻止真实时钟跨期。CAS零行时独立读取当前PG16时钟，若确实过期，则按照已存在Deposit关系分别返回`L03_EXPIRED_WITH_DEPOSIT_DEFER_DENY`或`L03_EXPIRED_WITHOUT_DEPOSIT_DEFER_DENY`；其他CAS冲突维持`L04_CAS_CONFLICT`。
+- **第二道提交前事务保护**：五个可能注错位置正常走完后、准备让F03-1 `withSession`提交之前，重新执行真实PG16当前时钟/正式Lock状态/目标负责人/存量Deposit数量及Refund/Transaction事实查询。任何新到期或关系被破坏时都**抛出内部专用异常**，由`withSession`捕捉并真正`ROLLBACK`整个事务，只有回滚完毕后`authTx`才返回分类`DEFER_DENY`和`transactionRolledBack:true`。绝不采用在CAS、审计、不可变收据均写入后“仅返回DENY但提交成功”的做法。
+- **不引入资金猜测**：对过期且已经关联合法`deposit_receipts`的Lock保留与无Deposit不同的DEFER分类，但两种都不能在本批自动解锁/延期/退款，不新增状态字段、不改任何`000001～000012` SQL/manifest/structure SHA及收据定义，不动已验收旧H/I/J/K服务、权限边界与产品规则。真正发生的资金变化由独立资金Authority核验；资金插入的真实FK行级锁冲突通过受控第二PG16连接实证阻塞，不将其当成资金已经结清。
+- **本轮实际修改范围**：仅`engineering/f03/runtime-lock-responsible-handover/service.mjs`、`tests/integration.test.mjs`及本中文交接；旧迁移和旧回归工作流没有变更。
+
+### A-L-01｜新增八项独立真实PostgreSQL 16时序用例
+
+| 时序测试 | 真实数据库证明 |
+|---|---|
+| 1. 边界内的合法有效Lock提交 | PostgreSQL服务端时间和`expires_at`核对，CAS只赢一次，返回真正成功收据 |
+| 2. 普通无Deposit在`before_update`跨期 | `SELECT pg_sleep()`使PG16真实墙钟越过期限；**CAS零更新**且快照零副作用 |
+| 3. 已关联Deposit在`before_update`跨期 | 独立真实PG16合成Deposit收据，按Deposit类型DEFER；资金行及锁车状态全不动 |
+| 4. `after_receipt`已经写审计/收据才过期 | 真实PostgreSQL慢点后提交前检查失败，**ROLLBACK**；Lock/收据/审计及SG06均与前快照一致 |
+| 5. 有Deposit的`before_commit`跨期 | CAS与审计、收据之后真实到期，仍整事务回滚，原资金记录完全留存 |
+| 6. 并发另一个数据库事务先修改Lock有效期 | 第二非超级用户PG16连接先锁行并使Lock到期；受控移交拒绝旧有效期快照，原业务行无幽灵更改 |
+| 7. 并发事务先合法终结Lock状态 | 真PG16行锁与另一店长身份的SG06发起人守卫同时生效，正式Lock已非active，不可再移交 |
+| 8. 并发资金收据插入竞争 | 第二PG16连接在受控锁车行`FOR UPDATE`期间尝试FK支持的Deposit插入，真实返回`55P03`；资金没有幽灵插入，正常有效期内的一方移交仍可正确成功 |
+
+- **新增后完整新L测试为29/29**（原21 + 新增8），不是只运行新增子集；特意继续覆盖了旧全局20方向重复Key、五个独立正式PC会话同Key只能一胜、后续合法二次交接、历史不可变收据与资金/身份拒绝，禁止以修到期bug破坏原21项。
+- 第一轮时序测试曾有单项不通过，原因是合成SG06第8429批的真正发起人为店长账号6，测试错误地用经理账号5进行操作，服务器正确拒绝`L03_BATCH_IDENTITY_DENY`。已修正**测试账号为真实正式批次发起人**，没有放宽原权限代码或改数据库fixture。
+- **真实完整成功CI #38005609616**：<https://github.com/suzhe868-arch/mb/actions/runs/38005609616>，该次`run.head_sha=e7827cda918e2aded25867936ded4f3889a92875`，`completed/success`，**15/15独立PG16 jobs success**，L29/29、旧K29/J27/I27及其余冻结库各自回归成功；原92→93完整目录`F03_2L_EVIDENCE_FULL_CATALOG_PASS`、`F03_2L_ARCHIVE_EXACT_REAL_RAW_BYTES_PASS`保持成功，旧92表2028项和新93表2074项/原始SOURCE不变。
+- **交接最终门禁**：上一条CI是在**本整改交接文字落库以前**获得的，不得用它冒充此报告提交后的最终同SHA结果。A复验前必须再得到**本报告提交后新B HEAD自己的15/15 `completed/success`**，L29/29、旧K29/J27/I27、原始物理SOURCE跨运行校验都继续通过，且分支HEAD与CI `head_sha`**逐字相同**。满足方可生效`B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A`。
+
 ## 五、必须由A独立复验的限制和未完成项
 
 - 按正式L施工单L01～L11逐项复审：业务`facts`中资金证据保守拒绝、Lock/LockRequest/Deposit关系真实锁保护、精确权限与历史来源校验；旧H/I/J/K四处服务最小差异；新SQL只有一张append-only收据表；五域20个方向及五会话真实竞争；全库物理目录、SOURCE、最终同SHA独立CI。
@@ -52,4 +81,4 @@
 - 当前C/H01高保真设计、F03-2整体及名邦汽车V1产品基线**继续`NOT_READY`**，不对外宣称已可上线或完结。
 - **A复审前B不合并main，不进入2M，不改冻结PDM Final，不要求用户逐项批准普通技术问题**。
 
-**交接状态：`B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A`，严格以本报告自身提交后最新同SHA完整成功CI为最终生效证据。**
+**A-L-01 已整改并完成 L29/29 与真实PG16时序测试，交接状态：`B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A`，严格以本报告提交后最新同SHA 15/15 CI成功为最终生效证据。**
