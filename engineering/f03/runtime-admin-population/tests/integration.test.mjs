@@ -74,7 +74,7 @@ test('A2B-06 successful deactivate atomically revokes old session and increments
  const before=await facts();
  assert.deepEqual(await op(actor,11),{code:'ADMIN_POPULATION_UPDATED',changed:true});
  const after=await facts();
- assert.equal(after.guard.version,Number(before.guard.version)+1);
+ assert.equal(Number(after.guard.version),Number(before.guard.version)+1);
  assert.equal(after.audit.length,before.audit.length+1);
  assert.equal(after.admin.find(x=>Number(x.system_admin_id)===11).account_status,'inactive');
  assert.equal(after.credentials.find(x=>Number(x.system_admin_id)===11).credential_state,'disabled');
