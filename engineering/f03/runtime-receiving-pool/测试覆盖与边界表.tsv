@@ -1,0 +1,11 @@
+编号	独立真实PG16判定	结果依据
+S03-01	82→84表追加、旧版本Chain/物理不变、旧80/81/82隔离回归	migration及独立CI
+S03-02	无资格行、active+receiving仍不在池；非白名单角色硬拒	真实PG16
+S03-03	独立可信admin授予/撤资格、restricted/失效/旧session拒绝、NO_OP	真实PG16
+S03-04	员工本人ON/OFF、经理店长、4S/inactive/未eligible拒绝、不可代理	真实PG16
+S03-05	两名不同员工并发OFF、管理撤资格与员工OFF、OFF+ON锁竞争	真实PG16
+S03-06	突发0池后合法0→1安全恢复；1→0不可正常关闭	真实PG16
+S03-07	current/audit/version故障注入原子回滚，无成功假审计	真实PG16
+S03-08	只读异常池报告、既有客户owner/锁车/咨询不变	真实PG16
+S03-09	原80表F03-1 11+4、81表2A 9、82表2B 10+bootstrap回归	独立全新PG16 jobs
+S03-10	提交同SHA全绿、原始完整PG16 SQL和inventory原文及哈希已归档	最终CI和B交接
