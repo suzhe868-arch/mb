@@ -100,7 +100,7 @@ test('G07: SQL parameter integrity and lossless BIGINT > JS safe integer',async(
 test('G08: restricted, revoked and expired sessions never expose current facts',async()=>{
  const login=await auth.login({login:'admin_test',password:'SyntheticAdmin_1234567',source:'expire_ci'});
  assert.equal(login.code,'AUTH_OK');
- await db.query("UPDATE public.pc_auth_sessions SET expires_at=now()-interval '1 second' WHERE token_digest=$1",[ (await import('../../../src/f03-auth-crypto.mjs')).sessionDigest(login.token,secret)]);
+ await db.query("UPDATE public.pc_auth_sessions SET issued_at=now()-interval '2 days',last_seen_at=now()-interval '1 day',expires_at=now()-interval '1 hour' WHERE token_digest=$1",[ (await import('../../../src/f03-auth-crypto.mjs')).sessionDigest(login.token,secret)]);
  assert.equal((await probe(login.token,'system.employee.manage')).code,'SESSION_OR_ADMISSION_DENIED');
  const old=await auth.logout(adminToken);
  assert.equal(old.code,'LOGOUT_OK');
