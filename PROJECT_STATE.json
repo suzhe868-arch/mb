@@ -4,7 +4,7 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F03_2_G0_MERGE_AND_F03_2_1A_WORK_ORDER_PENDING_USER_APPROVAL_AND_H01_VISUAL_REVIEW",
+  "substage": "F03_2_1A_B_TRUSTED_RUNTIME_FACTS_AND_REVOCATION_A_REVIEW_AND_H01_VISUAL_REVIEW",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "用户审查G0合并材料与F03-2-1A施工单，分别批准后A登记执行；B等待",
-  "current_work_file": "07_重建工作区/F03-2-1A_当前身份权限事实读取与撤权重验施工单_待用户批准_2026-10-09.md",
+  "current_task": "B执行F03-2-1A当前身份权限事实读取与真实旧会话撤权测试交A验收；C/H01独立",
+  "current_work_file": "07_重建工作区/F03-2-1A_A主控方案合并与当前权限事实隔离施工放行_2026-10-09.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "F03_2_G0_MERGE_AND_F03_2_1A_WORK_ORDER_PENDING_USER_APPROVAL_AND_H01_VISUAL_REVIEW",
+  "next_action": "F03_2_1A_B_TRUSTED_RUNTIME_FACTS_AND_REVOCATION_A_REVIEW_AND_H01_VISUAL_REVIEW",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F03_1_ACCEPTED_MERGED_F03_2_G0_ACCEPTED_STATIC_NOT_MERGED",
+  "engineering_status": "F03_2_G0_ACCEPTED_MERGED_F03_2_1A_AUTHORIZED_NOT_IMPLEMENTED",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "A已准备PR6及当前事实读取/撤权重验施工单；未合并、未正式放行真实DB、无新测试或施工分支。",
+  "next_action_detail": "G0经PR6合并；1A正式放行，仅独立一次性PG16无新DDL，缺scope最终拒绝；真实工程尚未完成，等待B交接。",
   "abc_parallel_workflow": {
     "status": "USER_APPROVED_APPLIED_DOCUMENTATION_ONLY",
     "confirmed_at": "2026-10-08",
@@ -5203,28 +5203,36 @@
       "R4",
       "R5"
     ],
-    "merge_status": "NOT_MERGED_PENDING_USER_APPROVAL",
+    "merge_status": "MERGED_TO_MAIN_USER_APPROVED",
     "schema_proposals": "SG01_TO_SG08_PENDING_A_DECISION_NO_DDL_SG09_EXISTING_REUSE",
-    "next": "A_PREPARE_MERGE_AND_F03_2_1_GATE_FOR_USER_REVIEW_B_WAIT",
+    "next": "B_F03_2_1A_IMPLEMENTATION_A_INDEPENDENT_REVIEW",
     "merge_preparation": {
       "report": "07_重建工作区/F03-2-G0_A主控合并核验材料_待用户批准_2026-10-09.md",
       "pr": 6,
       "url": "https://github.com/suzhe868-arch/mb/pull/6",
-      "status": "DRAFT_NOT_MERGED_PENDING_USER_APPROVAL",
+      "status": "MERGED_USER_APPROVED",
       "head_sha": "d2c76ef2d27775a700fe1dbfa4be546c03253f1a",
-      "changed_files": 18
+      "changed_files": 18,
+      "merge_sha": "df4135f1e2eb37b109e4e23ff63642c211a643fa",
+      "merge_report": "07_重建工作区/F03-2-1A_A主控方案合并与当前权限事实隔离施工放行_2026-10-09.md"
     },
     "f03_2_1a": {
-      "status": "WORK_ORDER_PREPARED_NOT_AUTHORIZED",
+      "status": "AUTHORIZED_USER_APPROVED_A_RELEASED_NOT_IMPLEMENTED",
       "work_order": "07_重建工作区/F03-2-1A_当前身份权限事实读取与撤权重验施工单_待用户批准_2026-10-09.md",
       "branch": "feat/f03-runtime-facts",
       "branch_created": false,
-      "tests": "NOT_RUN_PREPARATION_ONLY",
-      "database_access": "NOT_AUTHORIZED_PENDING_SEPARATE_RELEASE",
-      "ddl": "NO_NEW_DDL_PROPOSED",
+      "tests": "NOT_RUN_RELEASE_REGISTRATION_ONLY",
+      "database_access": "ONLY_CI_ISOLATED_PG16_FRESH_EMPTY_DB_EXISTING_BASELINE_NO_NEW_DDL",
+      "ddl": "NO_NEW_DDL_AUTHORIZED",
       "scope": "TRUSTED_CURRENT_IDENTITY_PERMISSION_FACTS_AND_OLD_SESSION_REVOCATION_SCOPE_GAPS_DENY",
       "acceptance": "NOT_SIGNED",
-      "later_scope_guard_and_governance": "SEPARATE_TECHNICAL_DECISIONS_AND_APPROVALS"
-    }
+      "later_scope_guard_and_governance": "SEPARATE_TECHNICAL_DECISIONS_AND_APPROVALS",
+      "authorization": "USER_APPROVED",
+      "confirmed_phrase": "确实",
+      "authorized_at": "2026-10-09",
+      "release_report": "07_重建工作区/F03-2-1A_A主控方案合并与当前权限事实隔离施工放行_2026-10-09.md"
+    },
+    "merge_sha": "df4135f1e2eb37b109e4e23ff63642c211a643fa",
+    "merge_pr": 6
   }
 }
