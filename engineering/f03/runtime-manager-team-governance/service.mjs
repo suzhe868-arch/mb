@@ -131,5 +131,11 @@ export async function endManagerTeamCapabilityScope(auth,token,p,opts){
 }
 export async function readManagerTeamGovernanceProof(auth,token,p){
  if(!exact(p,'employeeId,managerEmployeeId,teamId')||!valid(p.employeeId)||!valid(p.managerEmployeeId)||!valid(p.teamId))return Object.freeze({code:'SG04_PROOF_INPUT_DENY',allowed:false});
+ await seal(auth);
+ const identity=await auth.withSession(token,async(c,a,s)=>{
+  if(s.restricted||a.principal_kind!=='employee'||a.system_admin_id!==null||String(a.employee_id)!==String(p.managerEmployeeId))return false;
+  return true;
+ },{normalOnly:true});
+ if(identity!==true)return Object.freeze({code:'SG04_MANAGER_IDENTITY_MISMATCH',allowed:false});
  return canManageTargetTeamScope(auth,token,{capability:'employee.manage',employeeId:p.employeeId,teamId:p.teamId});
 }
