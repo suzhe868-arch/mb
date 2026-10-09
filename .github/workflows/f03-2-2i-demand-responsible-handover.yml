@@ -67,14 +67,14 @@ jobs:
           node f03/runtime-receiving-pool/runner.mjs --verify
           node f03/runtime-team-scope/runner.mjs --apply
           node f03/runtime-team-scope/runner.mjs --verify
-      - name: Discover new pinned 000009 request-digest unique constraint in real PG16 and roll back
+      - name: Discover authorized 000009 46-catalog-object delta in real PG16 and roll back
         run: |
           set -euo pipefail
           node f03/runtime-handover-ledger/runner.mjs --apply
           node f03/runtime-customer-owner-handover/runner.mjs --apply
           node f03/runtime-demand-responsible-handover/runner.mjs --discover
           node f03/runtime-customer-owner-handover/runner.mjs --verify
-      - name: Apply 000007 genuine frozen 88-table, seed ONLY CI synthetic identities/domain and old physical evidence
+      - name: Use existing frozen 000008 89-table; seed only synthetic scoped Demand facts and old physical evidence
         run: |
           set -euo pipefail
           mkdir -p f03/runtime-demand-responsible-handover/artifacts
@@ -90,12 +90,12 @@ jobs:
           node f03/runtime-customer-owner-handover/fixtures.mjs
           node f03/runtime-demand-responsible-handover/fixtures.mjs
           node f03/runtime-demand-responsible-handover/evidence.mjs --old
-      - name: Prove injected 000009 migration fully rolled back with old frozen strict 88-table check
+      - name: Prove injected 000009 rollback and preserve strict old frozen 89-table verifier
         run: |
           set -euo pipefail
           if node f03/runtime-demand-responsible-handover/runner.mjs --inject; then echo 'I_INJECT_UNEXPECTED_SUCCESS'; exit 1; fi
           node f03/runtime-customer-owner-handover/runner.mjs --verify
-      - name: Apply dedicated exactly pinned 000009 one-table append-only receipt migration
+      - name: Apply dedicated exactly pinned 000009 one-table immutable Demand receipt migration
         run: |
           set -euo pipefail
           node f03/runtime-demand-responsible-handover/runner.mjs --apply
@@ -105,7 +105,7 @@ jobs:
           node f03/runtime-customer-owner-handover/runner.mjs --verify
           node f03/runtime-demand-responsible-handover/runner.mjs --apply
           node f03/runtime-demand-responsible-handover/runner.mjs --verify
-      - name: I01-I10 real PG16 two actor competing Demand Responsible single domain receipt and 6 fault rollback points
+      - name: I01-I10 real PG16 21 tests Demand CAS, two actor races and five fault rollback points
         run: |
           set -euo pipefail
           node --test f03/runtime-demand-responsible-handover/tests/integration.test.mjs 2>&1 | tee f03/runtime-demand-responsible-handover/artifacts/pg16-demand-handover-tests.log
