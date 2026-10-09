@@ -1,0 +1,11 @@
+{
+  "migration_id": "000007_handover_batch_item_ledger",
+  "previous_structure_sha256": "b5e4c698ffa648d5ab7af4d7e389c23a40eb080849a812e0fc50699b4687e572",
+  "sql_sha256": "DISCOVERY_PENDING",
+  "structure_sha256": "DISCOVERY_PENDING",
+  "tables": 88,
+  "columns": 0,
+  "constraints": 0,
+  "indexes": 0,
+  "approved_physical_added_keys": []
+}
