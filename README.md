@@ -1,3 +1,11 @@
+# 2026-10-10｜F03-2-2J A二轮正式验收通过PR18合并，下一F03-2-2K已放行（当前最新）
+
+- **F03-2-2J A正式签收并合并**：B最终SHA `8abd2849877ff7884ea3ff2c27cde59f14b70ce7`、同SHA[真实PG16 CI `37996676662`](https://github.com/suzhe868-arch/mb/actions/runs/37996676662)**13/13独立PG16 job成功**，旧I90真实27/27、新J91真实27/27、H89/G/F/E88/D86/C84/B82双/A81/F03-1认证与HTTPS80全部独立成功，前轮A-J-01缺失I90完整回归已关闭。旧90表1936完整目录对象未改，新000010只添1张Consultation不可变收据表至91表/572列/390约束/151索引/1982目录对象(+46)，SOURCE全目录及原始字节校验PASS；H/I旧服务仅为A已授权的J跨域Key守卫最小补强。标准[PR #18](https://github.com/suzhe868-arch/mb/pull/18)合并SHA `367ff5d16fe913f5e6b2002abd559522f4cc4d26`。正式验收：`07_重建工作区/F03-2-2J_A主控二轮独立验收及PR18正式合并闭环_2026-10-10.md`。
+- **F03-2-2K A技术裁决并正式放行B**：依据PDM-18 Waitlist既有responsible固化、inactive正式移交、`ended_at`/active Lock/锁车申请关系与候补顺序不反写，仅在隔离真实PG16合成Waitlist单域CAS、不可变收据、四域H/I/J/K全局Key唯一及旧完整回归；允许本批000011最多一张新收据表及H/I/J旧服务中仅跨域Key最小Guard兼容补强，旧迁移/旧CI完全冻结。完整施工单`07_重建工作区/F03-2-2K_A主控SG06_Waitlist候补负责人单域移交完整施工单_2026-10-10.md`。B分支`feat/f03-waitlist-responsible-handover-2k`，**必须新旧共14个独立PG16 CI全绿**（含旧J91/I90各完整27例），最终HEAD同SHA才交A，不得B自行合并。
+- **NEXT_OWNER=B**，C/H01及完整F03-2/产品基线仍`NOT_READY`。此段覆盖后文过时的J旧I90待整改历史记录，历史不删除。
+
+---
+
 # 2026-10-10｜F03-2-2J B自验完成但A发现旧I90独立PG16回归缺失（当前最新）
 
 - B分支`feat/f03-consultation-assignee-handover-2j`最终受检SHA`b2e296d8b49b69a40e3b6ea053eec41386b6ffa5`，同SHA[真实CI 37994434333](https://github.com/suzhe868-arch/mb/actions/runs/37994434333)现有12/12独立job success、新J91真实27/27测试成功，旧90表catalog不变、新000010仅新增一张收据表至91表/572列/390约束/151索引/1982目录定义。A独立审查确认J咨询转派/SLA保持与三域Key防重本批测试已通过。

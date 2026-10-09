@@ -4,7 +4,7 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F03_2_2J_B_READY_A_CHANGES_REQUESTED_MISSING_OLD_I90_INDEPENDENT_CI_NEXT_OWNER_B_H01_PENDING",
+  "substage": "F03_2_2J_A_ACCEPTED_MERGED_PR18_F03_2_2K_A_RELEASED_NEXT_OWNER_B_H01_VISUAL_PENDING",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "B的F03-2-2J最终SHA自测J27及现12独立CI都成功，但J08明确要求的旧2I90独立PG16全量回归漏跑，A不签收、不合并，B原分支增补后复验",
-  "current_work_file": "07_重建工作区/F03-2-2J_A主控独立复核旧I90表回归缺失定向整改单_2026-10-10.md",
+  "current_task": "F03-2-2J补足旧I90独立27例门禁及总13作业后A二轮独立验收通过，PR18合并；下一F03-2-2K Waitlist负责人单域合成PG16已正式签发，B执行",
+  "current_work_file": "07_重建工作区/F03-2-2K_A主控SG06_Waitlist候补负责人单域移交完整施工单_2026-10-10.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_F03_2_2J_A_J_01_ADD_I90_OWN_NEW_PG16_13_OF_13_READY_FOR_A",
+  "next_action": "B_F03_2_2K_WAITLIST_RESPONSIBLE_SINGLE_DOMAIN_CI_PG16_14_JOB_READY_FOR_A",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F03_2_2I_MERGED_PR17_F03_2_2J_A_CHANGES_REQUESTED_NOT_MERGED",
+  "engineering_status": "F03_2_2J_A_ACCEPTED_MERGED_PR18_F03_2_2K_A_RELEASED_B_NOT_STARTED",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B按A完整定向整改单在原feat/f03-consultation-assignee-handover-2j分支仅补本批新CI工作流独立旧I90表真实PG16完整27例，保留新J91与其余11个旧CI作业，取最终HEAD同SHA 13/13 success、I90/J91各27/27、完整原始结构证据后B_SELF_TESTED READY_FOR_A_REVIEW交A；不得擅自合并main",
+  "next_action_detail": "B以当前最新main新建/核验feat/f03-waitlist-responsible-handover-2k，按A 2K完整施工单只在一次性独立PG16合成Waitlist负责人的CAS/不可变收据/历史转派、正确ended_at与Lock关联/内部顺序不反写、H/I/J/K四域全局RequestKey；旧000001～000010封印，允许新000011最多一张新收据表，旧H/I/J服务仅A批准跨域Key最小守卫。新K + 旧J91/I90/H89/GFE88/D86/C84/B82双/A81/F03-1认证/HTTPS80共14个真正独立PG16 success，旧J/I各27例，最新SHA同CI并完整证据 READY_FOR_A_REVIEW交A；B不得合并或开启2L",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -5176,7 +5176,7 @@
     ],
     "merge_status": "MERGED_TO_MAIN_USER_APPROVED",
     "schema_proposals": "SG01_LIMITED_000003_ACCEPTED_SG02_TO_SG08_NOT_AUTHORIZED",
-    "next": "B_ADD_OLD_I90_PG16_INDEPENDENT_JOB_TO_2J_WORKFLOW_AND_RUN_ALL_13_READY_FOR_A",
+    "next": "B_IMPLEMENT_F03_2_2K_WAITLIST_RESPONSIBLE_CI_PG16_14_INDEPENDENT_JOBS_READY_FOR_A",
     "merge_preparation": {
       "report": "07_重建工作区/F03-2-G0_A主控合并核验材料_待用户批准_2026-10-09.md",
       "pr": 6,
@@ -5634,7 +5634,7 @@
       "pg16_physical": "90_TABLES_560_COLUMNS_375_CONSTRAINTS_147_INDEXES_1936_CATALOG_KEYS_PLUS46"
     },
     "f03_2_2j": {
-      "status": "A_CHANGES_REQUESTED_B_REMEDIATION_REQUIRED",
+      "status": "F03_2_2J_A_ACCEPTED_MERGED_PR18",
       "owner": "B",
       "next_owner_after_b": "A",
       "branch": "feat/f03-consultation-assignee-handover-2j",
@@ -5644,17 +5644,37 @@
       "scope": "SG06_CONSULTATION_ASSIGNEE_CI_ONLY_PG16_REASSIGNMENT_IMMUTABLE_RECEIPT_SLA_FIRST_RESPONSE_UNCHANGED",
       "schema_authorization": "000010_MAX_ONE_APPEND_ONLY_CONSULTATION_RECEIPT_TABLE_OLD_000001_TO_000009_UNCHANGED",
       "technical_exception": "ONLY_H_AND_I_SERVICE_CROSS_DOMAIN_KEY_GUARDS_WHEN_REQUIRED_AND_OLD_H89_I90_CI_COMPATIBILITY",
-      "tests": "B_CI_37994434333_12_OF_12_ACTUAL_SUCCESS_J_27_OF_27_BUT_I90_INDEPENDENT_JOB_MISSING",
-      "acceptance": "A_CHANGES_REQUESTED_NOT_ACCEPTED",
-      "merge": "NOT_STARTED",
-      "ci_sha": "b2e296d8b49b69a40e3b6ea053eec41386b6ffa5",
-      "ci_run_id": 37994434333,
+      "tests": "REAL_CI_37996676662_13_OF_13_SUCCESS_J_27_OF_27_I_27_OF_27",
+      "acceptance": "A_ACCEPTED_SIGNED_ONLY_F03_2_2J_NOT_FULL_F03_2",
+      "merge": "MERGED_TO_MAIN_PR18",
+      "ci_sha": "8abd2849877ff7884ea3ff2c27cde59f14b70ce7",
+      "ci_run_id": 37996676662,
       "a_review_report": "07_重建工作区/F03-2-2J_A主控独立复核旧I90表回归缺失定向整改单_2026-10-10.md",
-      "required_changes": [
-        "A-J-01_MISSING_INDEPENDENT_OLD_F03_2I_90_TABLE_PG16_27_TESTS"
-      ],
-      "observed_ci_jobs": 12,
-      "required_ci_jobs": 13
+      "required_changes": [],
+      "observed_ci_jobs": 13,
+      "required_ci_jobs": 13,
+      "merge_pr": 18,
+      "merge_sha": "367ff5d16fe913f5e6b2002abd559522f4cc4d26",
+      "acceptance_report": "07_重建工作区/F03-2-2J_A主控二轮独立验收及PR18正式合并闭环_2026-10-10.md",
+      "pg16_physical": "91_TABLES_572_COLUMNS_390_CONSTRAINTS_151_INDEXES_1982_CATALOG_KEYS_PLUS46"
+    },
+    "f03_2_2k": {
+      "status": "A_TECH_ADJUDICATED_AND_RELEASED_B_NOT_STARTED",
+      "owner": "B",
+      "next_owner_after_b": "A",
+      "branch": "feat/f03-waitlist-responsible-handover-2k",
+      "branch_created": false,
+      "work_order": "07_重建工作区/F03-2-2K_A主控SG06_Waitlist候补负责人单域移交完整施工单_2026-10-10.md",
+      "authorization": "STANDING_A_B_C_CONTINUOUS_ISOLATED_TECHNICAL_CONSTRUCTION",
+      "scope": "SG06_WAITLIST_RESPONSIBLE_SINGLE_DOMAIN_CI_PG16_APPONLY_RECEIPT_FOUR_DOMAIN_GLOBAL_KEYS",
+      "schema_authorization": "000011_MAX_ONE_NEW_APPEND_ONLY_WAITLIST_RECEIPT_TABLE_OLD_000001_TO_000010_FROZEN",
+      "technical_exception": "ONLY_H_I_J_SERVICE_COMMIT_RETRY_CROSS_DOMAIN_KEY_GUARD_WHEN_REQUIRED_AND_OLD_H89_I90_J91_COMPATIBILITY",
+      "required_ci_jobs": 14,
+      "tests": "NOT_RUN",
+      "ci_run_id": null,
+      "ci_sha": null,
+      "acceptance": "NOT_STARTED",
+      "merge": "NOT_STARTED"
     }
   },
   "a_batch_approval_mode": "STANDING_USER_DIRECTED_CONTINUOUS_TECHNICAL_WORKFLOW_IN_FROZEN_SCOPE; A_SCOPES_AND_RELEASES_B_C; EACH_WINDOW_COMPLETES_END_TO_END; A_INDEPENDENT_ACCEPTANCE_AND_CLEAN_PR_MERGE_WITHOUT_REPEAT_APPROVAL; NEW_PRODUCT_CHOICE_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_EXTERNAL_WRITES_REQUIRE_USER",
