@@ -1334,3 +1334,6 @@
 
 
 | EG-F03-1-MERGE-RELEASE-20261009 | ENGINEERING_F03_1 | 用户批准G0方案合并及限定真实登录实现施工 | 用户明确“同意”；A合并PR #4，merge=aa09c9a21752a5d3ce428253e29d2a0b88f76f46；15验收文件一致、原main1061文件保留；放行B从最新main新建feat/f03-login-impl，仅工作单登录/密码/会话/独立追加迁移及全新CI PG16测试 | USER_APPROVED / G0_ACCEPTED_MERGED / F03_1_IMPLEMENTATION_AUTHORIZED_NOT_YET_IMPLEMENTED；后续批/生产未授权，C不合并；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F03-1_A主控方案合并与真实登录隔离施工放行_2026-10-09.md`；`07_重建工作区/F03-1_真实登录与密码安全实现施工单_待批准_2026-10-09.md`顶部增补；PR #4 | 2026-10-09 |
+
+
+| EG-F03-1-ACCEPT-20261009 | ENGINEERING_F03_1 | A限定真实登录实现验收签发 | 用户要求A复验B；四项阻断闭合，工程SHA 0c2a9d3c998149fb086a5eac19639a1a0ca9e71a真实CI37863317173成功、专项19/19；归档SHA73e794119fea9630fd81eb84dd7c08eda7c9f664仅追加原始证据，A独立校验SHA256及80表/487字段/299约束/123索引；F03_1_ACCEPTED / A_SIGNED | ISOLATED_IMPLEMENTATION_ONLY / GOVERNANCE_ONLY / NOT_MERGED；工程合并需用户批准，后续施工及生产未授权；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F03-1_A主控最终验收签发与残余风险_2026-10-09.md`；job113603999025/artifact11587760762；engineering/f03-1/evidence | 2026-10-09 |

@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F03_1_B_ISOLATED_LOGIN_IMPLEMENTATION_A_REVIEW_AND_H01_VISUAL_REVIEW",
+  "substage": "F03_1_ACCEPTED_A_MERGE_PENDING_USER_APPROVAL_AND_H01_VISUAL_REVIEW",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "GLOBAL_POST_PDM25",
-  "current_domain_status": "F03_1_G0_ACCEPTED_MERGED_F03_1_IMPLEMENTATION_AUTHORIZED",
+  "current_domain_status": "F03_1_ACCEPTED_ISOLATED_IMPLEMENTATION_NOT_MERGED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "B从最新main新建feat/f03-login-impl，完成限定隔离登录/改密/会话撤销/追加迁移及真实测试交A验收；C/H01独立审查",
-  "current_work_file": "07_重建工作区/F03-1_A主控方案合并与真实登录隔离施工放行_2026-10-09.md",
+  "current_task": "A提出已验收B工程合并建议，等待用户批准；B本阶段完成暂不施工下一批，C/H01独立审查",
+  "current_work_file": "07_重建工作区/F03-1_A主控最终验收签发与残余风险_2026-10-09.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F03_1_IMPLEMENTATION_AUTHORIZED_A_REVIEW_PENDING",
+  "current_review_batch": "F03_1_IMPLEMENTATION_ACCEPTED_A_SIGNED",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "F03_1_B_ISOLATED_LOGIN_IMPLEMENTATION_A_REVIEW_AND_H01_VISUAL_REVIEW",
+  "next_action": "F03_1_ACCEPTED_A_MERGE_PENDING_USER_APPROVAL_AND_H01_VISUAL_REVIEW",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "用户已批准方案合并和F03-1限定实现；PR4已合并，A正式放行B在CI全新PG16施工测试；提交同SHA CI/schema-only/并发/回滚证据。后续批和生产未授权。",
+  "next_action_detail": "F03-1四项阻断及原始导出复验闭合，A签发限定隔离实现验收；工程合并需用户另批，后续施工/生产未授权。",
   "abc_parallel_workflow": {
     "status": "USER_APPROVED_APPLIED_DOCUMENTATION_ONLY",
     "confirmed_at": "2026-10-08",
@@ -5051,12 +5051,12 @@
     "merge_sha": "6983709937ebf1d9ae8a7f6cd0a4267bb2269ac6"
   },
   "f03_1_gate": {
-    "status": "F03_1_G0_ACCEPTED_MERGED_F03_1_IMPLEMENTATION_AUTHORIZED",
+    "status": "F03_1_ACCEPTED_ISOLATED_IMPLEMENTATION_NOT_MERGED",
     "work_order": "07_重建工作区/F03-1_账号登录与密码安全工作单_待批准_2026-10-09.md",
     "proposed_first_batch": "F03-1-G0_SAFETY_DESIGN_AND_SCHEMA_DELTA_ONLY",
     "construction": "DESIGN_AND_FAKE_MODEL_COMPLETED",
-    "actual_login": "AUTHORIZED_ISOLATED_ONLY_NOT_RUN",
-    "session_migration": "AUTHORIZED_NEW_CI_PG16_ONLY_NOT_RUN",
+    "actual_login": "ACCEPTED_NEW_DISPOSABLE_CI_PG16_ONLY",
+    "session_migration": "ACCEPTED_NEW_DISPOSABLE_CI_PG16_ONLY",
     "proposed_branch": "feat/f03-login",
     "branch_created": true,
     "release_report": "07_重建工作区/F03-1-G0_A主控登录安全方案施工放行_2026-10-09.md",
@@ -5071,17 +5071,17 @@
     "artifact_id": 11584022597,
     "tests": "F03_1_G0_19_PASS_A_SUPPLEMENT_17_PASS",
     "merge_status": "MERGED_TO_MAIN_USER_APPROVED",
-    "implementation": "AUTHORIZED_NOT_YET_IMPLEMENTED",
+    "implementation": "COMPLETED_ACCEPTED_ISOLATED_ONLY",
     "implementation_work_order": "07_重建工作区/F03-1_真实登录与密码安全实现施工单_待批准_2026-10-09.md",
     "implementation_gate": "USER_APPROVED_A_RELEASED",
     "proposed_implementation_branch": "feat/f03-login-impl",
     "merge_pr": 4,
     "merge_sha": "aa09c9a21752a5d3ce428253e29d2a0b88f76f46",
     "implementation_branch": "feat/f03-login-impl",
-    "implementation_branch_created": false,
+    "implementation_branch_created": true,
     "implementation_release_report": "07_重建工作区/F03-1_A主控方案合并与真实登录隔离施工放行_2026-10-09.md",
     "implementation_authorized_at": "2026-10-09",
-    "implementation_acceptance": "NOT_SIGNED_PENDING_B_EVIDENCE",
+    "implementation_acceptance": "F03_1_ACCEPTED_A_SIGNED",
     "isolation": {
       "host": "127.0.0.1",
       "port": 5432,
@@ -5090,6 +5090,40 @@
       "major": 16,
       "mode": "NEW_DISPOSABLE_CI_ONLY",
       "consent": "I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY"
-    }
+    },
+    "implementation_acceptance_report": "07_重建工作区/F03-1_A主控最终验收签发与残余风险_2026-10-09.md",
+    "implementation_reviewed_sha": "0c2a9d3c998149fb086a5eac19639a1a0ca9e71a",
+    "evidence_archive_sha": "73e794119fea9630fd81eb84dd7c08eda7c9f664",
+    "implementation_ci_run_id": 37863317173,
+    "implementation_ci_job_id": 113603999025,
+    "implementation_artifact_id": 11587760762,
+    "implementation_merge_status": "NOT_MERGED_PENDING_USER_APPROVAL",
+    "archive_ci_status": "SKIPPED_EVIDENCE_ONLY_SOURCE_AND_WORKFLOW_IDENTICAL_TO_TESTED_SHA",
+    "implementation_special_tests": {
+      "passed": 19,
+      "failed": 0,
+      "kdf": 3,
+      "runtime_guard": 1,
+      "pg_auth": 11,
+      "https": 4
+    },
+    "physical_inventory": {
+      "tables": 80,
+      "columns": 487,
+      "constraints": 299,
+      "indexes": 123
+    },
+    "artifact_file_sha256": {
+      "sql": "422bac4f54e938daa003e1b105356360f0b371dfa335771a7bbc781166bd0972",
+      "json": "98c8bbe019ba5025504873c8a77d73ef3a28382449a3bda199dedb4dd47e7119"
+    },
+    "residual_risks": [
+      "ISOLATED_ONLY_NO_PRODUCTION",
+      "SINGLE_PROCESS_LIMITER_NO_MULTINODE_CAPACITY_PROOF",
+      "RUNTIME_CATALOG_FINGERPRINT_PRODUCTION_PERFORMANCE_NOT_RUN",
+      "ALL_ADMIN_DISABLE_DENIED_FULL_LAST_ACTIVE_ADMIN_GOVERNANCE_PENDING",
+      "F03_2_3_AND_F04_NOT_AUTHORIZED"
+    ],
+    "acceptance_date": "2026-10-09"
   }
 }
