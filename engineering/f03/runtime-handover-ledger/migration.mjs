@@ -82,7 +82,7 @@ export async function discover(c){
   if(await chain(c,m,true)!=='old'||await tables(c)!==86||(await getPublicStructure(c)).sha256!==PREVIOUS)throw Error('F03_2E_DISCOVERY_BASELINE_DENY');
   await c.query(SQL);
   const s=await getPublicStructure(c);
-  console.log('F03_2E_DISCOVERY '+JSON.stringify({sql_sha256:checksum,structure_sha256:s.sha256,tables:await tables(c),objects:s.objectCount}));
+  console.log('F03_2E_DISCOVERY '+JSON.stringify({sql_sha256:checksum,structure_sha256:s.sha256,tables:await tables(c),objects:s.objectCount,columns:(await c.query("SELECT count(*)::int n FROM pg_attribute a JOIN pg_class cl ON cl.oid=a.attrelid JOIN pg_namespace ns ON ns.oid=cl.relnamespace WHERE ns.nspname='public' AND cl.relkind='r' AND a.attnum>0 AND NOT a.attisdropped")).rows[0].n,constraints:(await c.query("SELECT count(*)::int n FROM pg_constraint co JOIN pg_namespace ns ON ns.oid=co.connamespace WHERE ns.nspname='public'")).rows[0].n,indexes:(await c.query("SELECT count(*)::int n FROM pg_index i JOIN pg_class cl ON cl.oid=i.indrelid JOIN pg_namespace ns ON ns.oid=cl.relnamespace WHERE ns.nspname='public'")).rows[0].n}));
   throw Error('F03_2E_DISCOVERY_ROLLBACK_ONLY');
  });
 }
