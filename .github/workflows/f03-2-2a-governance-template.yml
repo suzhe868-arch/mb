@@ -94,6 +94,7 @@ jobs:
       - name: Export 81-table structure and full inventory using unchanged approved evidence logic
         run: |
           set -euo pipefail
+          mkdir -p f03/runtime-scope/artifacts
           node f03/runtime-scope/evidence.mjs --new
           ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
           docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > f03/runtime-governance-template/artifacts/pg16_schema_only.sql
