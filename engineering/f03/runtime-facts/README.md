@@ -30,3 +30,10 @@
 - 工作流同时跑已验收F01/F02-G0/F03-G0/F03-1-G0/F03-2-G0静态回归及F03-1原真实KDF、结构guard回归；最终`f03-1/runner --verify`再次核验全物理指纹/运行号封印。
 
 本README不代替真实CI记录。A须核对**最终提交SHA对应的**`completed/success`真实run/job、测试覆盖表、schema和inventory及sha256、残余风险。B不合并main、不进入后续批次。
+
+## 2026-10-09 A首轮复验补测补证（R1/R2/E1）
+
+- R1真实调店与身份越权负例：`tests/integration.test.mjs` 的R1-01/02/03；只观测测试内部事实，不改正式服务或业务scope。
+- R2两套未修改的F03-1真实安全回归：分别在本工作流各自**全新PG16独立job**跑原integration和HTTPS测试，不能替换为静态login-design测试。
+- E1结构归档：`evidence/`原始SQL+inventory+manifest+SOURCE.md；`evidence-hashes.mjs`分别实际哈希核验归档与本次CI原始字节。跨run只允许`pg_dump`配对随机restrict/unrestrict key不同，库存原字节相同；其余SQL内容一字不得变。
+- 逐项闭合：`A首轮R1-R2-E1补测补证闭合表.tsv`；最终HEAD同SHA3个PG16 job全部成功才可交A，A未签`F03_2_1A_ACCEPTED`。
