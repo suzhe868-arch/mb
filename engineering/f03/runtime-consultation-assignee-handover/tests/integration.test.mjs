@@ -16,7 +16,7 @@ const view=(batch,item,team=901)=>({batchId:batch,itemId:item,teamId:team});
 const owner=async id=>String((await db.query('SELECT assignee_employee_id FROM public.consultations WHERE consultation_id=$1',[id])).rows[0].assignee_employee_id);
 const domains=['customers','customer_owner_history','customer_owner_handover_receipts','demands','demand_responsible_handover_receipts','consultations','consultation_assignee_handover_receipts','priority_leases','demand_match_results','recommendations','waitlists','locks','transactions','handover_batches','handover_items','audit_events','employees'];
 const snap=async()=>{const x={};for(const tab of domains)x[tab]=(await db.query('SELECT to_jsonb(t)::text body FROM public.'+tab+' t ORDER BY to_jsonb(t)::text')).rows.map(r=>r.body);return x};
-const consult=async id=5301=>(await db.query('SELECT * FROM public.consultations WHERE consultation_id=$1',[id])).rows[0];
+const consult=async (id=5301)=>(await db.query('SELECT * FROM public.consultations WHERE consultation_id=$1',[id])).rows[0];
 let manager,manager2,head,admin,four,ordinary,restricted;
 test.before(async()=>{
  assert.equal((await verify(db)).verified,true);
