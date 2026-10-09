@@ -65,8 +65,11 @@ test('H01 real login and first password change -> internal allow -> independent 
  // Explicit current account epoch invalidates same real cookie; restoration never revives.
  await db.query('UPDATE public.pc_login_accounts SET credential_epoch=credential_epoch+1 WHERE account_id=6');
  assert.deepEqual(await call(),{status:403,code:'SESSION_OR_PC_ADMISSION_DENIED',allowed:false});
- await db.query('UPDATE public.pc_login_accounts SET credential_epoch=credential_epoch-1 WHERE account_id=6');
- assert.equal((await call()).allowed,true); // If reverted, F03-1 epoch alone is reversible; cannot pretend unrevokable.
+ // Permissions/scope/object facts can be restored; do not roll back an auth epoch.
+ // A revoked old session must stay denied even when business permission facts recover.
+ await db.query("UPDATE public.role_permission_defaults SET enabled=true,changed_at=now() WHERE role_id=1 AND permission_id=11");
+ await db.query("UPDATE public.employee_capability_scope_bindings SET ended_at=null WHERE scope_id=105 AND permission_id=11");
+ assert.deepEqual(await call(),{status:403,code:'SESSION_OR_PC_ADMISSION_DENIED',allowed:false});
 });
 test('H02 test-only HTTPS rejects forged principal, unsupported action, duplicate cookie and cross-customer',async()=>{
  assert.deepEqual(await call('vehicle.read'),{status:403,code:'OTHER_ACTION_DEFER_DENY',allowed:false});
