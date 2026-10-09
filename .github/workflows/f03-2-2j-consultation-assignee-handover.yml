@@ -106,7 +106,7 @@ jobs:
           node f03/runtime-demand-responsible-handover/runner.mjs --verify
           node f03/runtime-consultation-assignee-handover/runner.mjs --apply
           node f03/runtime-consultation-assignee-handover/runner.mjs --verify
-      - name: J01-J10 genuine isolated PG16 25 Consultation tests SLA, two-actor races and H/I/J shared keys
+      - name: J01-J10 genuine isolated PG16 27 Consultation tests SLA, two-actor races and H/I/J shared keys
         run: |
           set -euo pipefail
           node --test f03/runtime-consultation-assignee-handover/tests/integration.test.mjs 2>&1 | tee f03/runtime-consultation-assignee-handover/artifacts/pg16-consultation-handover-tests.log

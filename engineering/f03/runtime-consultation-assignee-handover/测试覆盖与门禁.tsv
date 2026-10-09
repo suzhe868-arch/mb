@@ -1,0 +1,11 @@
+批次	PG16实际证明	强制结论
+J01	新旧完整目录、000010事务discover/inject/apply/rollback/version/seal	只增46目录对象，不修改旧1936键
+J02	三类不受权身份/失活/个人deny/角色失效/Team/store约束	仅当前独立Consultation转派权限
+J03	pending/processing与terminal/失效关系/Customer/Vehicle/listing_cycle	不可越权启用已终结或错误对象
+J04	assignee单列CAS、五点注错整事务回滚、两个PC会话相同咨询竞争	单实体仅一胜、无脏审计/收据
+J05	H/I/J所有6方向、三域同key并发、三域不同key并发	物理约束+事务锁+双向摘要查重
+J06	连续7→4→5历史、原source失活、无真实后继伪造、当前审计scope	两张历史收据可验证，无授权漂移必拒绝
+J07	原始deadline/status/source/Recommendation/其它七域整行快照	只改Consultation.assignee不重置SLA
+J08	11个独立PG16旧模块+J91新模块	12/12旧新强制全绿
+J09	原始pg_dump/catalog/inventory/SOURCE+sha256跨run严格比对	SOURCE不可伪造，旧目录精确封印
+J10	最终提交SHA等于run.head_sha、complete/success、中文B报告	READY_FOR_A_REVIEW/NEXT_OWNER=A
