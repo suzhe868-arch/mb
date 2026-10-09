@@ -1,3 +1,11 @@
+# 2026-10-10｜F03-2-2L A二轮正式验收PR20已合并，下一F03-2-2M正式施工单已签发（当前最新）
+
+- **2L已A正式签收并合并**：B最终SHA 408e7a581264c43220ce3cc326a73ee610c051a5、同SHA [真实CI38005762988](https://github.com/suzhe868-arch/mb/actions/runs/38005762988) **15/15独立真实PG16作业success**；新L29/29含8项到期事务竞态与全回滚测试，旧K29/29、J27/27、I27/27及其它全部旧模块独立成功。旧92表2028完整目录不变，新000012仅一张Lock收据表后93表596列420约束159索引2074项(+46)，结构SHA 9ab7221f9a0f5f81c0af37441d4cd5b824e2ac7322f8d40f952ba2cecea0e2f9，真实SOURCE字节和全catalog校验PASS。A-L-01用PG数据库即时钟CAS及正式提交前throw整事务ROLLBACK完全闭环；旧SQL/旧CI/业务Final不改。标准 [PR20](https://github.com/suzhe868-arch/mb/pull/20) merge SHA 9ed6db2a6aeefb382298460004768edd11df20b6。正式A验收：07_重建工作区/F03-2-2L_A主控二轮独立验收及PR20正式合并闭环_2026-10-10.md。
+- **下一批2M已A技术裁决放行**：依据PDM-19 Transaction独立负责人及真实资金/交易终态不可变，仅CI隔离PG16合成Transaction current responsible单域CAS+append-only receipt；H/I/J/K/L/M六域RequestKey 30方向必须双向保护，旧000001～000012完整冻结，新000013最多一张Transaction收据表。仅允许旧H/I/J/K/L service commit/retry跨域Key与结构封印最小守卫。完整施工单07_重建工作区/F03-2-2M_A主控SG06_Transaction交易负责人单域移交完整施工单_2026-10-10.md，B指定 feat/f03-transaction-responsible-handover-2m，最终**16/16个独立PG16作业成功**含旧L29/K29/J27/I27原版全测试后交A，不能自行合并。
+- NEXT_OWNER=B。F03-2整体、C/H01高保真、真实SG06离职交接及产品基线均NOT_READY。
+
+---
+
 # 2026-10-10｜F03-2-2L B自验CI全绿，A独立复核发现锁车到期临界事务阻断（当前最新）
 
 - B原分支`feat/f03-lock-responsible-handover-2l`，最终受检HEAD `244b68a2e168624e2a4f65aa17fc1cc587d54fcf`，同SHA真实[CI38003745347](https://github.com/suzhe868-arch/mb/actions/runs/38003745347)**15/15独立PG16 job全成功**：新L21/21、旧K29/29、J27/27、I27/27及其余全部旧模块独立回归成功。旧92表2028物理目录不变，新增000012唯一一张合成Lock收据表后93表/596列/420约束/159索引/2074完整键(+46)，新结构SHA`9ab7221f9a0f5f81c0af37441d4cd5b824e2ac7322f8d40f952ba2cecea0e2f9`，完整catalog/source原字节校验PASS。H/I/J/K/L跨域Key真实20个方向与5会话并发测试通过。保留B已完成合格项。
