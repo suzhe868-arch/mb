@@ -12,11 +12,11 @@ const port=48501,origin='https://127.0.0.1:'+port;
 const secret=randomBytes(32),cert=await readFile(process.env.F03_1_TLS_CERT_PATH),key=await readFile(process.env.F03_1_TLS_KEY_PATH);
 const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin});
 const db=await connect();let server,token;
-function call(op='customer.phone.manage',customerId='301',cookie=token){
- const body=JSON.stringify({operation:op,customerId});
+function call(op='customer.phone.manage',customerId='301',cookie=token,extra={},cookieOverride=null){
+ const body=JSON.stringify({operation:op,customerId,...extra});
  return new Promise((resolve,reject)=>{
   const req=https.request({hostname:'127.0.0.1',port,path:'/__f03_2_1b_internal_probe',method:'POST',ca:cert,
-   headers:{Origin:origin,'Content-Type':'application/json','Content-Length':Buffer.byteLength(body),Cookie:'__Host-mb_pc='+cookie}},res=>{
+   headers:{Origin:origin,'Content-Type':'application/json','Content-Length':Buffer.byteLength(body),Cookie:cookieOverride??'__Host-mb_pc='+cookie}},res=>{
    let raw='';res.on('data',chunk=>raw+=chunk.toString());res.on('end',()=>{try{resolve({status:res.statusCode,...JSON.parse(raw)})}catch(e){reject(e)}});
   });req.on('error',reject);req.end(body);
  });
@@ -71,7 +71,19 @@ test('H01 real login and first password change -> internal allow -> independent 
  await db.query("UPDATE public.employee_capability_scope_bindings SET ended_at=null WHERE scope_id=105 AND permission_id=11");
  assert.deepEqual(await call(),{status:403,code:'SESSION_OR_PC_ADMISSION_DENIED',allowed:false});
 });
-test('H02 test-only HTTPS rejects forged principal, unsupported action, duplicate cookie and cross-customer',async()=>{
+test('H02 A-R3: re-login normal live token, prove 301 ALLOW then 302 scope DENY; forged principal, duplicate cookie, unsupported action exact errors',async()=>{
+ // H01 deliberately invalidated its old session. This must be a NEW, truly
+ // valid normal F03-1 login so 302 cannot pass due to a dead cookie.
+ const latest=await auth.login({login:'http_test',password:'SyntheticScopeHttps_2026',source:'f03_2_1b_H02_fresh'});
+ assert.equal(latest.code,'AUTH_OK');assert.equal(latest.restricted,false);
+ token=latest.token;
+ assert.deepEqual(await call('customer.phone.manage','301'),{status:200,code:'INTERNAL_CUSTOMER_PHONE_SCOPE_ALLOW',allowed:true});
+ assert.deepEqual(await call('customer.phone.manage','302'),{status:403,code:'CAPABILITY_OBJECT_SCOPE_DENIED',allowed:false});
  assert.deepEqual(await call('vehicle.read'),{status:403,code:'OTHER_ACTION_DEFER_DENY',allowed:false});
- assert.equal((await call('customer.phone.manage','302')).allowed,false);
+ for(const extra of [{actor:'system_admin'},{role:'manager'},{team:'all'},{global:true},{owner:'1'}]){
+  assert.deepEqual(await call('customer.phone.manage','301',token,extra),{status:400,code:'BAD_REQUEST',allowed:false});
+ }
+ const duplicated='__Host-mb_pc='+token+'; __Host-mb_pc='+token;
+ assert.deepEqual(await call('customer.phone.manage','301',token,{},duplicated),{status:401,code:'SESSION_DENIED',allowed:false});
+ assert.deepEqual(await call('customer.phone.manage','301'),{status:200,code:'INTERNAL_CUSTOMER_PHONE_SCOPE_ALLOW',allowed:true});
 });

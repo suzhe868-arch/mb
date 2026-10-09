@@ -39,17 +39,28 @@ test('S02 absent binding, other capability, cross-customer, current role not aut
  await c.query("UPDATE public.employee_data_scopes SET scope_kind='object' WHERE scope_id=101");
  assert.deepEqual(await go(),result('INTERNAL_CUSTOMER_PHONE_SCOPE_ALLOW',true));
 });
-test('S03 PostgreSQL composite FK rejects stealing another employee scope; CHECK/time and PK/FK deny',async()=>{
- const bad=async(sql,params=[])=>{
-  await c.query('SAVEPOINT tmp');try{await c.query(sql,params);await c.query('ROLLBACK TO SAVEPOINT tmp');assert.fail('PG constraint unexpectedly allowed bogus binding')}
-  catch(e){if(e.code===undefined)throw e;await c.query('ROLLBACK TO SAVEPOINT tmp');assert.ok(['23503','23505','23514'].includes(e.code),e.code)}
-  finally{await c.query('RELEASE SAVEPOINT tmp')}
+test('S03 A-R3: each real PostgreSQL FK / temporal CHECK / PK negative must be rejected by the intended EXACT constraint',async()=>{
+ const bad=async(sql,code,constraint)=>{
+  await c.query('SAVEPOINT targeted_constraint');
+  let error;
+  try{await c.query(sql)}catch(e){error=e}
+  await c.query('ROLLBACK TO SAVEPOINT targeted_constraint');
+  await c.query('RELEASE SAVEPOINT targeted_constraint');
+  assert.ok(error,'must fail PostgreSQL constraint '+constraint);
+  assert.equal(error.code,code,'wrong SQLSTATE instead of intended '+constraint);
+  assert.equal(error.constraint,constraint,'negative blocked by a different constraint');
  };
- await c.query('BEGIN');try{
-  await bad("INSERT INTO public.employee_capability_scope_bindings(employee_id,scope_id,permission_id,granted_at) VALUES (7,103,12,now())");
-  await bad("INSERT INTO public.employee_capability_scope_bindings(employee_id,scope_id,permission_id,granted_at) VALUES (1,101,999,now())");
-  await bad("INSERT INTO public.employee_capability_scope_bindings(employee_id,scope_id,permission_id,granted_at,ended_at) VALUES (1,11,104,now(),now()-interval '1 day')");
-  await bad("INSERT INTO public.employee_capability_scope_bindings(employee_id,scope_id,permission_id,granted_at) VALUES (1,101,11,now())");
+ await c.query('BEGIN');
+ try{
+  // scope 103 really belongs to employee 2, permission 12 really exists.
+  await bad("INSERT INTO public.employee_capability_scope_bindings(employee_id,scope_id,permission_id,granted_at) VALUES (7,103,12,now())",'23503','f03_2_1b_cap_scope_employee_fk');
+  // employee 1 + scope 101 are valid; only permission 999 is missing.
+  await bad("INSERT INTO public.employee_capability_scope_bindings(employee_id,scope_id,permission_id,granted_at) VALUES (1,101,999,now())",'23503','f03_2_1b_cap_permission_fk');
+  // Employee 1 owns EXISTING scope 104; permission 11 EXISTS; (104,11)
+  // does NOT already exist. ONLY ended_at<granted_at makes this invalid.
+  await bad("INSERT INTO public.employee_capability_scope_bindings(employee_id,scope_id,permission_id,granted_at,ended_at) VALUES (1,104,11,now(),now()-interval '1 day')",'23514','f03_2_1b_cap_time_chk');
+  // Existing (scope 101, permission 11), other FKs and timestamp are valid.
+  await bad("INSERT INTO public.employee_capability_scope_bindings(employee_id,scope_id,permission_id,granted_at) VALUES (1,101,11,now())",'23505','f03_2_1b_cap_scope_pk');
   await c.query('COMMIT');
  }catch(e){await c.query('ROLLBACK');throw e}
 });
