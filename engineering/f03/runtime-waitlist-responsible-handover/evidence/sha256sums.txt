@@ -1,0 +1,2 @@
+33ce499d876f3a180d8a888bcfa1f9b0b74db6118341d8d00a78c8fbf9b1d7e5  f03/runtime-waitlist-responsible-handover/artifacts/pg16_schema_only.sql
+9465b4d8e457b249f4f70a13f6b21cbbb45fd7b320918590e1afc566c0ea18c8  f03/runtime-waitlist-responsible-handover/artifacts/pg16_inventory.json
