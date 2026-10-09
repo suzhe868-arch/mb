@@ -1388,3 +1388,15 @@
 - 当前指针：`F03_2_1A_B_TRUSTED_RUNTIME_FACTS_AND_REVOCATION_A_REVIEW_AND_H01_VISUAL_REVIEW`。以下准备时“未批准/等待”状态仅为历史。
 
 本记录仅改变工程门禁授权：G0方案合并已执行，1A真实当前事实读取与旧会话撤权限定施工已放行。施工单提出的无DDL、缺范围证据拒绝和隔离测试策略只在此批适用；不新增产品规则，不批准SG01～08结构或完整后续Guard/治理/交接。
+
+
+## 2026-10-09｜F03-2-1A首轮复验补测补证（工程门禁）
+
+- A独立复验B `feat/f03-runtime-facts` HEAD `319db71604e1efd2ce12dbba7990c7ed1d3bc62a`；同SHA [CI37886758651](https://github.com/suzhe868-arch/mb/actions/runs/37886758651)成功，当前PG16测试9/9、HTTPS探针3/3。旧会话撤权测试可见，但完整验收仍有补项。
+- **结论：CHANGES_REQUESTED / F03_2_1A_ACCEPTED尚未签发。** 报告：`07_重建工作区/F03-2-1A_A主控首轮复验与补测补证清单_2026-10-09.md`。
+- **当前唯一工程下一步：B在当前分支补齐当前主店变化/身份硬禁令的真实测试、已验收F03-1真实认证与HTTPS安全回归，并归档本批CI结构证据，提交新SHA与同SHA成功CI交A复验。**
+- 本批限定隔离PG16、无新DDL的授权持续有效；只允许原runtime-facts目录和本批工作流。完整scope Guard、SG01～08结构、治理/交接及后批未授权；不合并本B分支或C。
+- G0已验收合并；PDM Final/Current IA/Low-Fi及既有工程保持。C/H01独立未最终验收、不增加折叠屏专项；不访问已有/业务/生产库、不部署或正式前端施工，`PRODUCT_BASELINE=NOT_READY`。
+- 当前指针：`F03_2_1A_B_CLOSE_TEST_AND_EVIDENCE_GAPS_A_REVIEW_AND_H01_VISUAL_REVIEW`；以下初次放行信息为历史。
+
+当前工程12项真实测试成功，但合同主店变化和身份负例、原真实认证/HTTPS安全回归及A可读结构证据未完全闭合；不签F03_2_1A_ACCEPTED。仅继续原限定范围补测补证，不新增产品权限、DDL或业务接口。

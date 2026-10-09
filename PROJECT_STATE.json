@@ -4,7 +4,7 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F03_2_1A_B_TRUSTED_RUNTIME_FACTS_AND_REVOCATION_A_REVIEW_AND_H01_VISUAL_REVIEW",
+  "substage": "F03_2_1A_B_CLOSE_TEST_AND_EVIDENCE_GAPS_A_REVIEW_AND_H01_VISUAL_REVIEW",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "B执行F03-2-1A当前身份权限事实读取与真实旧会话撤权测试交A验收；C/H01独立",
-  "current_work_file": "07_重建工作区/F03-2-1A_A主控方案合并与当前权限事实隔离施工放行_2026-10-09.md",
+  "current_task": "B补齐1A当前主店/身份负例、既有真实认证回归与结构附件，交A复验",
+  "current_work_file": "07_重建工作区/F03-2-1A_A主控首轮复验与补测补证清单_2026-10-09.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "F03_2_1A_B_TRUSTED_RUNTIME_FACTS_AND_REVOCATION_A_REVIEW_AND_H01_VISUAL_REVIEW",
+  "next_action": "F03_2_1A_B_CLOSE_TEST_AND_EVIDENCE_GAPS_A_REVIEW_AND_H01_VISUAL_REVIEW",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "G0经PR6合并；1A正式放行，仅独立一次性PG16无新DDL，缺scope最终拒绝；真实工程尚未完成，等待B交接。",
+  "next_action_detail": "本批真实PG9/9和HTTPS3/3成功但合同覆盖/既有真实安全回归与独立可读结构证据待补齐，尚未验收。",
   "abc_parallel_workflow": {
     "status": "USER_APPROVED_APPLIED_DOCUMENTATION_ONLY",
     "confirmed_at": "2026-10-08",
@@ -5217,11 +5217,11 @@
       "merge_report": "07_重建工作区/F03-2-1A_A主控方案合并与当前权限事实隔离施工放行_2026-10-09.md"
     },
     "f03_2_1a": {
-      "status": "AUTHORIZED_USER_APPROVED_A_RELEASED_NOT_IMPLEMENTED",
+      "status": "CHANGES_REQUESTED_AUTHORIZED_SCOPE_ONLY",
       "work_order": "07_重建工作区/F03-2-1A_当前身份权限事实读取与撤权重验施工单_待用户批准_2026-10-09.md",
       "branch": "feat/f03-runtime-facts",
-      "branch_created": false,
-      "tests": "NOT_RUN_RELEASE_REGISTRATION_ONLY",
+      "branch_created": true,
+      "tests": "CI_PARTIAL_CONTRACT_COVERAGE_PASS_CHANGES_REQUESTED",
       "database_access": "ONLY_CI_ISOLATED_PG16_FRESH_EMPTY_DB_EXISTING_BASELINE_NO_NEW_DDL",
       "ddl": "NO_NEW_DDL_AUTHORIZED",
       "scope": "TRUSTED_CURRENT_IDENTITY_PERMISSION_FACTS_AND_OLD_SESSION_REVOCATION_SCOPE_GAPS_DENY",
@@ -5230,7 +5230,29 @@
       "authorization": "USER_APPROVED",
       "confirmed_phrase": "确实",
       "authorized_at": "2026-10-09",
-      "release_report": "07_重建工作区/F03-2-1A_A主控方案合并与当前权限事实隔离施工放行_2026-10-09.md"
+      "release_report": "07_重建工作区/F03-2-1A_A主控方案合并与当前权限事实隔离施工放行_2026-10-09.md",
+      "reviewed_sha": "319db71604e1efd2ce12dbba7990c7ed1d3bc62a",
+      "review_ci_run_id": 37886758651,
+      "review_ci_job_id": 113678367229,
+      "review_tests": {
+        "pg16_passed": 9,
+        "https_passed": 3,
+        "failed": 0,
+        "scope": "B_SAME_SHA_CI_NOT_COMPLETE_A_ACCEPTANCE"
+      },
+      "a_supplemental_probes": {
+        "passed": 5,
+        "scope": "TOOL_JS_INTERPRETER_NOT_PG_RERUN"
+      },
+      "review_report": "07_重建工作区/F03-2-1A_A主控首轮复验与补测补证清单_2026-10-09.md",
+      "review_blockers": [
+        "R1_CURRENT_STORE_AND_IDENTITY_TEST_GAPS",
+        "R2_EXISTING_REAL_AUTH_HTTPS_REGRESSION_MISSING"
+      ],
+      "evidence_pending": [
+        "E1_ARCHIVED_SCHEMA_INVENTORY_REAL_HASH_VERIFICATION"
+      ],
+      "artifact_id": 11596384588
     },
     "merge_sha": "df4135f1e2eb37b109e4e23ff63642c211a643fa",
     "merge_pr": 6
