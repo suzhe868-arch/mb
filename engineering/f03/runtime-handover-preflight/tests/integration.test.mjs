@@ -98,10 +98,10 @@ test('G06 every active domain unsupported until adapter; pending-only ledger can
  const r=errorFree(await cov());assert.equal(r.code,'G06_COVERAGE_DEFER_DENY');
  assert.equal(r.overall,'DEFER_DENY');assert.equal(r.noDomainAdapterAccepted,true);
  for(const kind of ['Priority','Recommendation','Consultation','Waitlist','Lock','Transaction'])assert.equal(r.findings.some(x=>x.kind===kind&&x.reason==='UNSUPPORTED'),true);
- assert.equal(r.findings.find(x=>x.kind==='Customer'&&x.objectId==='301').reason,'PENDING');
- assert.equal(r.findings.find(x=>x.kind==='Demand'&&x.objectId==='401').reason,'PENDING');
+ assert.equal(r.findings.find(x=>x.kind==='Customer'&&x.objectId==='301').reason,'PENDING_ITEM');
+ assert.equal(r.findings.find(x=>x.kind==='Demand'&&x.objectId==='401').reason,'PENDING_ITEM');
  assert.equal(r.findings.find(x=>x.kind==='Demand'&&x.objectId==='402').reason,'REVALIDATE');
- assert.equal(r.findings.find(x=>x.kind==='Customer'&&x.objectId==='302').reason,'PENDING');
+ assert.equal(r.findings.find(x=>x.kind==='Customer'&&x.objectId==='302').reason,'MISSING_ITEM');
  const original=await immutable();
  await db.query('UPDATE public.handover_items SET from_employee_id=6 WHERE item_id=$1',[customerItem]);
  try{assert.equal((await cov()).findings.find(x=>x.kind==='Customer'&&x.objectId==='301').reason,'CONFLICT')}
@@ -114,20 +114,31 @@ test('G05 preflight current facts return explicit write denied, no reusable toke
  const before=await immutable();const r=errorFree(await pref());assert.equal(r.code,'PREFLIGHT_FACTS_CURRENT_BUT_WRITE_DENIED');assert.equal(r.noReusableCommitToken,true);
  assert.equal(r.coverage.overall,'DEFER_DENY');assert.deepEqual(await immutable(),before);
 });
-test('G05 concurrent customer owner change after first read forces revalidation without writing',async()=>{
- const before=await immutable();
- try{
-  const r=await pref(manager,4,901,{testCheckpoint:async step=>{if(step==='after_first_read')await db.query('UPDATE public.customers SET current_owner_employee_id=4 WHERE customer_id=301')}});
-  assert.equal(r.code,'G05_CONCURRENT_STATE_CHANGED_REVALIDATE');
- }finally{await db.query('UPDATE public.customers SET current_owner_employee_id=7 WHERE customer_id=301')}
+test('G05 concurrent owner changes cannot pass locked PG16 Customer row; same transaction returns WRITE_DENIED',async()=>{
+ const before=await immutable();let pending,finished=false;
+ const r=await pref(manager,4,901,{testCheckpoint:async step=>{if(step==='after_first_read'){
+  pending=db.query('UPDATE public.customers SET current_owner_employee_id=4 WHERE customer_id=301').then(()=>{finished=true});
+  await new Promise(resolve=>setTimeout(resolve,110));
+  assert.equal(finished,false,'PG16 row lock must prevent owner update before preflight releases');
+ }}});
+ assert.equal(r.code,'PREFLIGHT_FACTS_CURRENT_BUT_WRITE_DENIED');
+ assert.equal(r.lockedReadOnly,true);
+ await pending;
+ assert.equal(finished,true);
+ assert.equal((await cov()).findings.find(x=>x.kind==='Customer'&&x.objectId==='301').reason,'REVALIDATE');
+ await db.query('UPDATE public.customers SET current_owner_employee_id=7 WHERE customer_id=301');
  assert.deepEqual(await immutable(),before);
 });
-test('G05 concurrent team permission withdraw cannot reuse first-read authority',async()=>{
- const before=await immutable();
- try{
-  const r=await pref(manager,4,901,{testCheckpoint:async step=>{if(step==='after_first_read')await db.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=5 AND permission_id=13")}});
-  assert.equal(r.code,'G05_CURRENT_MANAGER_OR_BATCH_CHANGED');
- }finally{await db.query("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=5 AND permission_id=13")}
+test('G05 a different PG16 session cannot withdraw Team permission during preflight locked scope read',async()=>{
+ const before=await immutable();let pending,finished=false;
+ const r=await pref(manager,4,901,{testCheckpoint:async step=>{if(step==='after_first_read'){
+  pending=db.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=5 AND permission_id=13").then(()=>{finished=true});
+  await new Promise(resolve=>setTimeout(resolve,110));
+  assert.equal(finished,false,'PG16 Team permission revoke blocked by transaction lock');
+ }}});
+ assert.equal(r.code,'PREFLIGHT_FACTS_CURRENT_BUT_WRITE_DENIED');await pending;
+ assert.equal((await imp()).code,'G02_TEAM_SCOPE_DENY');
+ await db.query("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=5 AND permission_id=13");
  assert.deepEqual(await immutable(),before);
 });
 test('G03/G06 unknown priority status never inferred closed, newer independent source business still enumerated',async()=>{
