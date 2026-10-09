@@ -1,3 +1,11 @@
+# 2026-10-10｜F03-2-2H B交付A独立复核提出3项阻断整改（当前最新）
+
+- B固定受检SHA `88c762eb88e8cdbb7d1bc9850fa29d39f47bde50`、同SHA [PG16 CI37982757484](https://github.com/suzhe868-arch/mb/actions/runs/37982757484) **11/11独立作业全success、本批14/14测试全通过**，仅18个授权新增文件，旧main零修改，旧88表结构封印不变；000008提议新增唯一一张收据表并生成89表/548列/359约束/142索引与完整目录。B已`READY_FOR_A_REVIEW`，但**A尚不验收也未合并**。
+- A独立审查发现三项施工单/PDM边界未闭环：①**相同请求Key可以跨item/batch/Customer生成第二个收据与Owner改写**，不满足A批准的`COLLISION_DENY`；②代码要求操作经理/店长处于`receiving`，把暂停接客误当成撤销其合法管理员工/Customer交接权；③要求经理和双方业务员工当前主门店一律等于Team店，未正确覆盖PDM-02批准的显式跨门店权限/data scope。完整一次性整改单：`07_重建工作区/F03-2-2H_A主控独立验收完整定向整改单_2026-10-10.md`。
+- **NEXT_OWNER=B**。B在**原**`feat/f03-customer-owner-handover-2h`分支一次性整改A-H-01～03，重新生成000008物理证据和最新同SHA11作业PG16成功CI，更新中文交接，再交A独立复验。**未经A通过不得PR合并或开启下一批**。C/H01高保真与F03-2整体仍未验收，`PRODUCT_BASELINE=NOT_READY`。
+
+---
+
 # 2026-10-10｜F03-2-2G整改四项A独立复验通过、标准PR15合并、F03-2-2H已正式放行（当前最新）
 
 - **本批2G闭环通过**：B固定SHA `1069f26b87f772f28d9ed1bfb19c983a4e197729`、同SHA [PG16 CI `37978981732`](https://github.com/suzhe868-arch/mb/actions/runs/37978981732) **10/10个独立作业success、本批18/18真实测试**；A复核前轮A-G-01～04（离职inactive源仍合法只读、PG16行锁和防幻读、跨批账本缺项重复、跨Team最小披露）全部闭环。14个新增文件、旧main无修改；88表/536列/344约束/138索引，1840完整catalog对象零变动，跨运行原始字节校验成功。标准[PR #15](https://github.com/suzhe868-arch/mb/pull/15)成功合并SHA `b405e83cfadf9f0f6d89ada32ae2f45b5b20a6bd`。A正式验收：`07_重建工作区/F03-2-2G_A主控二轮独立验收及PR15正式合并闭环_2026-10-10.md`。
