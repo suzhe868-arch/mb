@@ -4,7 +4,7 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F03_2_1B_B_CAPABILITY_CUSTOMER_SCOPE_GUARD_A_REVIEW_AND_H01_VISUAL_REVIEW",
+  "substage": "F03_2_1B_B_FIX_VERSION_ISOLATION_TEST_GAPS_AND_ARCHIVE_EVIDENCE_A_REVIEW_AND_H01_VISUAL_REVIEW",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "B在新分支执行1B逐能力客户范围与限定真实Guard，交A独立验收；C/H01独立",
-  "current_work_file": "07_重建工作区/F03-2-1B_A主控成果合并与客户范围隔离施工放行_2026-10-09.md",
+  "current_task": "B修复1B完整版本链/命名空间隔离及目标负例，归档结构证据交A复验",
+  "current_work_file": "07_重建工作区/F03-2-1B_A主控首轮复验与三项整改及补证清单_2026-10-09.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "F03_2_1B_B_CAPABILITY_CUSTOMER_SCOPE_GUARD_A_REVIEW_AND_H01_VISUAL_REVIEW",
+  "next_action": "F03_2_1B_B_FIX_VERSION_ISOLATION_TEST_GAPS_AND_ARCHIVE_EVIDENCE_A_REVIEW_AND_H01_VISUAL_REVIEW",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "1A成果PR7已合并，1B明确技术范围已放行，仅CI一次性PG16新库追加000003，B尚未施工，测试未运行。",
+  "next_action_detail": "同SHA三个CI作业成功，但幂等apply/rollback旧链遗漏、非public隔离及约束/HTTPS负例未闭合，结构原文待A独立核验。",
   "abc_parallel_workflow": {
     "status": "USER_APPROVED_APPLIED_DOCUMENTATION_ONLY",
     "confirmed_at": "2026-10-08",
@@ -5308,12 +5308,12 @@
     "merge_sha": "df4135f1e2eb37b109e4e23ff63642c211a643fa",
     "merge_pr": 6,
     "f03_2_1b": {
-      "status": "USER_APPROVED_A_RELEASED_NOT_IMPLEMENTED",
+      "status": "CHANGES_REQUESTED_AUTHORIZED_SCOPE_ONLY",
       "work_order": "07_重建工作区/F03-2-1B_逐能力客户范围与限定真实Guard施工单_待用户批准_2026-10-09.md",
       "branch": "feat/f03-runtime-scope",
-      "branch_created": false,
+      "branch_created": true,
       "database_access": "ONLY_CI_ISOLATED_PG16_FRESH_EMPTY_BASELINE_AND_APPROVED_000003",
-      "tests": "NOT_RUN_RELEASE_REGISTRATION_ONLY",
+      "tests": "CI_PASS_A_CHANGES_REQUESTED",
       "ddl_proposal": "SG01_ONE_SCOPE_BINDING_TABLE_PLUS_COMPOSITE_UNIQUE_ON_EXISTING_SCOPE_AND_000003_ONLY_PENDING_APPROVAL",
       "scope_proposal": "CUSTOMER_PHONE_MANAGE_EXPLICIT_OBJECT_SCOPE_INTERNAL_GUARD_ONLY_NO_PHONE_MUTATION",
       "new_guard_proposal": "EXACT_THREE_VERSION_81_TABLE_SCHEMA_SEPARATE_GUARD_OLD_80_TABLE_GUARD_UNCHANGED",
@@ -5326,7 +5326,39 @@
       "ddl_authorization": "SG01_FIVE_COLUMN_BINDING_TABLE_PLUS_EXACT_COMPOSITE_UNIQUE_FK_CHECK_INDEX_DELTA_ONLY",
       "migration_id": "000003_employee_capability_scope_bindings",
       "scope_authorization": "CUSTOMER_PHONE_MANAGE_EXPLICIT_OBJECT_INTERNAL_GUARD_NO_PHONE_MUTATION",
-      "merge_status": "NOT_AUTHORIZED"
+      "merge_status": "NOT_AUTHORIZED",
+      "reviewed_sha": "df27522891438c51ff8847cc5e018b698c0a98fc",
+      "review_ci_run_id": 37901077203,
+      "review_ci_job_ids": [
+        113723526760,
+        113723526334,
+        113723526556
+      ],
+      "review_tests": {
+        "migration": 6,
+        "scope": 7,
+        "https": 2,
+        "original_auth_integration": 11,
+        "original_auth_https": 4,
+        "failed": 0,
+        "scope_note": "B_REAL_CI_SUCCESS_NOT_COMPLETE_A_ACCEPTANCE"
+      },
+      "review_report": "07_重建工作区/F03-2-1B_A主控首轮复验与三项整改及补证清单_2026-10-09.md",
+      "review_blockers": [
+        "R1_IDEMPOTENT_APPLY_ROLLBACK_OLD_VERSION_CHAIN_BYPASS",
+        "R2_NON_PUBLIC_NAMESPACE_ISOLATION_GAP",
+        "R3_CHECK_AND_HTTPS_NEGATIVE_TEST_FALSE_COVERAGE"
+      ],
+      "evidence_pending": [
+        "E1_RAW_STRUCTURAL_ARCHIVE_AND_A_INDEPENDENT_HASH_DIFF"
+      ],
+      "artifact_id": 11602367762,
+      "a_model_probe": {
+        "idempotentApplyAllowedWithTamperedOldChecksum": true,
+        "normalVerifyRejectsSameTampering": true,
+        "rollbackAllowedWithTamperedOldChecksum": true,
+        "queryIncludesNamespaceCheck": false
+      }
     }
   }
 }

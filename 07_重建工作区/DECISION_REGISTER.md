@@ -1442,3 +1442,15 @@ R1/R2/E1闭合，仅签限定当前事实读取及新请求撤权重验F03_2_1A_
 - 当前指针：`F03_2_1B_B_CAPABILITY_CUSTOMER_SCOPE_GUARD_A_REVIEW_AND_H01_VISUAL_REVIEW`；以下旧待批准/等待信息为历史。
 
 此次明确批准工程技术delta：SG01五列关联表、scope复合唯一及所列约束/索引、000003独立追加迁移与精确新Guard；PDM-02 §4/§11仍是既有Authority。只实现限定customer.phone.manage内部object范围判断，不授业务电话变更、其他scope/动作或SG02～08施工权。
+
+
+## 2026-10-09｜F03-2-1B首轮独立复验未通过
+
+- A独立复验B `feat/f03-runtime-scope` HEAD `df27522891438c51ff8847cc5e018b698c0a98fc`；同SHA [CI37901077203](https://github.com/suzhe868-arch/mb/actions/runs/37901077203)三个独立PG16作业成功。本批迁移6/6、范围7/7、HTTPS2/2，但存在版本门禁与测试覆盖缺口。
+- **结论：CHANGES_REQUESTED / F03_2_1B_ACCEPTED尚未签发。** 报告：`07_重建工作区/F03-2-1B_A主控首轮复验与三项整改及补证清单_2026-10-09.md`。
+- **当前唯一工程下一步：B在当前分支闭合R1完整版本链、R2非public命名空间隔离、R3有针对性的约束/HTTPS负例，补可读结构原文和实际校验，提交新SHA与同SHA成功CI交A复验。**
+- 原1B限定结构/Guard及独立全新PG16授权持续有效；只在runtime-scope及本批新工作流整改，不改旧工程/产品Authority、不新增范围或业务接口、不合并B/C。
+- 1A已验收合并；后续治理/交接、其他动作/范围、SG02～08、F03-3/F04、部署/正式前端未授权。C/H01独立未最终验收、不加折叠屏专项；不访问已有/业务/生产库，`PRODUCT_BASELINE=NOT_READY`。
+- 当前指针：`F03_2_1B_B_FIX_VERSION_ISOLATION_TEST_GAPS_AND_ARCHIVE_EVIDENCE_A_REVIEW_AND_H01_VISUAL_REVIEW`；以下初次放行信息为历史。
+
+A补充代码路径复现显示幂等apply/rollback遗漏旧版本行核验，verify同异常则拒绝；非public用户namespace未检查，部分约束与HTTPS测试受其他拒绝掩盖。限定原范围整改及补实际结构原文，不签F03_2_1B_ACCEPTED。
