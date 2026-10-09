@@ -229,6 +229,133 @@ test('L06 forged FK-valid immutable receipt cannot substitute for exact auditor 
  assert.equal(await owner(7),'7');
 });
 
+// A-L-01 clock boundary tests are real PG16: the independent SQL wall clock is
+// advanced with pg_sleep at precisely the CI-only transaction checkpoint.
+// No mocked timer, no production finances, no relaxing a frozen upstream module.
+test('A-L-01 live database expiry: valid just before the PG16 deadline commits once',async()=>{
+ const p=req(19,4,'l-expiry-real-clock-positive-0019');
+ await db.query("UPDATE public.locks SET expires_at=clock_timestamp()+interval '3 seconds' WHERE lock_id=18019");
+ const before=await snapshot();
+ const started=(await db.query('SELECT clock_timestamp() AS t')).rows[0].t;
+ const r=await commit(auth,manager,p);
+ assert.equal(r.code,'L04_LOCK_TRANSFERRED');
+ assert.equal(await owner(19),'4');
+ const rows=(await db.query("SELECT expires_at,clock_timestamp() AS current_time FROM public.locks WHERE lock_id=18019")).rows[0];
+ assert.ok(started<rows.expires_at,'the synthetic deadline was future when commit began');
+ assert.ok(rows.current_time<rows.expires_at,'business transaction finished before deadline');
+ const after=await snapshot();
+ assert.equal(after.audit_events.length,before.audit_events.length+1);
+ assert.equal(after.lock_responsible_handover_receipts.length,before.lock_responsible_handover_receipts.length+1);
+});
+test('A-L-01 PG16 before_update crosses no-Deposit deadline: CAS must reject with no owner or audit writes',async()=>{
+ const p=req(20,4,'l-pg16-before-cas-expired-0020');
+ await db.query("UPDATE public.locks SET expires_at=clock_timestamp()+interval '250 milliseconds' WHERE lock_id=18020");
+ const before=await snapshot();
+ const r=await commit(auth,manager,p,{testCheckpoint:async(stage,c)=>{
+  if(stage==='before_update')await c.query('SELECT pg_sleep(0.38),clock_timestamp()');
+ }});
+ assert.equal(r.code,'L03_EXPIRED_WITHOUT_DEPOSIT_DEFER_DENY');
+ assert.equal(await owner(20),'7');
+ assert.deepEqual(await snapshot(),before,'no ghost receipt/audit/Lock or SG06 mutation');
+});
+test('A-L-01 PG16 before_update expires with linked Deposit: distinct DEFER, never auto-release, financial rows immutable',async()=>{
+ const p=req(21,4,'l-pg16-before-cas-deposit-0021');
+ await db.query("INSERT INTO public.deposit_receipts(deposit_id,customer_id,lock_id,amount_cents,received_at,recorded_by) VALUES(18821,14321,18021,30000,clock_timestamp(),5)");
+ try{
+  await db.query("UPDATE public.locks SET expires_at=clock_timestamp()+interval '250 milliseconds' WHERE lock_id=18021");
+  const before=await snapshot();
+  const r=await commit(auth,manager,p,{testCheckpoint:async(stage,c)=>{
+   if(stage==='before_update')await c.query('SELECT pg_sleep(0.38)');
+  }});
+  assert.equal(r.code,'L03_EXPIRED_WITH_DEPOSIT_DEFER_DENY');
+  assert.equal(await owner(21),'7');
+  assert.deepEqual(await snapshot(),before,'Deposit remains, no owner, audit, receipt, expiry/status or SG06 mutation');
+ }finally{await db.query('DELETE FROM public.deposit_receipts WHERE deposit_id=18821')}
+});
+test('A-L-01 PG16 after_receipt expiry: must throw, ROLLBACK Lock/audit/receipt, not return DENY and COMMIT',async()=>{
+ const p=req(22,4,'l-pg16-after-receipt-expired-0022');
+ await db.query("UPDATE public.locks SET expires_at=clock_timestamp()+interval '400 milliseconds' WHERE lock_id=18022");
+ const before=await snapshot(),stages=[];
+ const r=await commit(auth,manager,p,{testCheckpoint:async(stage,c)=>{
+  stages.push(stage);
+  if(stage==='after_receipt')await c.query('SELECT pg_sleep(0.55),clock_timestamp()');
+ }});
+ assert.equal(r.code,'L03_EXPIRED_WITHOUT_DEPOSIT_DEFER_DENY');
+ assert.equal(r.transactionRolledBack,true);
+ assert.ok(stages.includes('after_receipt'),'the owner, audit and receipt were inserted *before* wall-clock transition');
+ assert.equal(await owner(22),'7');
+ assert.deepEqual(await snapshot(),before,'atomic PostgreSQL rollback did not leave a ghost owner, receipt, audit or item');
+});
+test('A-L-01 PG16 before_commit expiry with real linked Deposit: full ROLLBACK, retain frozen financial facts',async()=>{
+ const p=req(23,4,'l-pg16-last-check-deposit-0023');
+ await db.query("INSERT INTO public.deposit_receipts(deposit_id,customer_id,lock_id,amount_cents,received_at,recorded_by) VALUES(18823,14323,18023,30000,clock_timestamp(),5)");
+ try{
+  await db.query("UPDATE public.locks SET expires_at=clock_timestamp()+interval '400 milliseconds' WHERE lock_id=18023");
+  const before=await snapshot(),stages=[];
+  const r=await commit(auth,manager,p,{testCheckpoint:async(stage,c)=>{
+   stages.push(stage);
+   if(stage==='before_commit')await c.query('SELECT pg_sleep(0.55),clock_timestamp()');
+  }});
+  assert.equal(r.code,'L03_EXPIRED_WITH_DEPOSIT_DEFER_DENY');
+  assert.equal(r.transactionRolledBack,true);
+  assert.ok(stages.includes('before_commit'));
+  assert.equal(await owner(23),'7');
+  assert.deepEqual(await snapshot(),before,'no ghost receipt, audit or mutation despite post-CAS delay');
+ }finally{await db.query('DELETE FROM public.deposit_receipts WHERE deposit_id=18823')}
+});
+test('A-L-01 competing PG16 transaction expires Lock before transfer row lock: no stale-CAS win',async()=>{
+ const p=req(8,4,'l-external-tx-expiry-0008'),other=await connect();
+ try{
+  await other.query('BEGIN');
+  await other.query("UPDATE public.locks SET expires_at=clock_timestamp()-interval '1 second' WHERE lock_id=18008");
+  const task=commit(auth,manager,p);
+  await other.query('SELECT pg_sleep(0.12)');
+  await other.query('COMMIT');
+  const afterExternal=await snapshot();
+  const outcome=await task;
+  assert.ok(['L03_EXPIRED_WITHOUT_DEPOSIT_DEFER_DENY','L04_CONTENTION_DEFER_DENY'].includes(outcome.code),JSON.stringify(outcome));
+  assert.equal(await owner(8),'7');
+  assert.deepEqual(await snapshot(),afterExternal,'only external authorized expiry change is observable');
+ }finally{if(other)await other.end()}
+});
+test('A-L-01 competing PG16 Lock state transition wins first: transfer fails closed with no ghost row',async()=>{
+ const p=req(29,4,'l-external-state-race-0029'),other=await connect();
+ try{
+  await other.query('BEGIN');
+  await other.query("UPDATE public.locks SET lock_status='released' WHERE lock_id=18029");
+  const transfer=commit(auth,manager,p);
+  await other.query('SELECT pg_sleep(0.12)');
+  await other.query('COMMIT');
+  const baseline=await snapshot(),r=await transfer;
+  assert.ok(['L03_LOCK_NOT_ACTIVE','L04_CONTENTION_DEFER_DENY'].includes(r.code),JSON.stringify(r));
+  assert.equal(await owner(29),'7');
+  assert.deepEqual(await snapshot(),baseline,'external lifecycle transition is preserved, no transfer side effect');
+ }finally{await other.end()}
+});
+test('A-L-01 concurrent PG16 FK-backed Deposit insertion blocks behind locked Lock and never becomes a phantom',async()=>{
+ const p=req(26,4,'l-concurrent-funds-locked-0026');
+ const original=await snapshot(),observed=[];
+ const r=await commit(auth,manager,p,{testCheckpoint:async(stage)=>{
+  if(stage!=='before_update')return;
+  const other=await connect();
+  try{
+   await other.query('BEGIN');
+   await other.query("SET LOCAL lock_timeout='180ms'");
+   await assert.rejects(()=>other.query("INSERT INTO public.deposit_receipts(deposit_id,customer_id,lock_id,amount_cents,received_at,recorded_by) VALUES(18826,14326,18026,10000,clock_timestamp(),5)"),e=>{
+    observed.push(e.code);
+    return e.code==='55P03';
+   });
+   await other.query('ROLLBACK');
+  }finally{await other.end()}
+ }});
+ assert.equal(r.code,'L04_LOCK_TRANSFERRED');
+ assert.deepEqual(observed,['55P03'],'real FK row lock prevented concurrent untrusted Deposit phantom');
+ const after=await snapshot();
+ assert.deepEqual(after.deposit_receipts,original.deposit_receipts,'no unreviewed synthetic funds persisted');
+ assert.equal(after.audit_events.length,original.audit_events.length+1);
+ assert.equal(after.lock_responsible_handover_receipts.length,original.lock_responsible_handover_receipts.length+1);
+});
+
 test('L06 append-only record refuses mutation and migration rollback after use',async()=>{
  await assert.rejects(()=>db.query("DELETE FROM public.lock_responsible_handover_receipts WHERE item_id=10401"));
  await assert.rejects(()=>rollback(db),/L_RECEIPT_USED_ROLLBACK_DENY/);
