@@ -1,3 +1,11 @@
+# 2026-10-10｜F03-2-2G整改四项A独立复验通过、标准PR15合并、F03-2-2H已正式放行（当前最新）
+
+- **本批2G闭环通过**：B固定SHA `1069f26b87f772f28d9ed1bfb19c983a4e197729`、同SHA [PG16 CI `37978981732`](https://github.com/suzhe868-arch/mb/actions/runs/37978981732) **10/10个独立作业success、本批18/18真实测试**；A复核前轮A-G-01～04（离职inactive源仍合法只读、PG16行锁和防幻读、跨批账本缺项重复、跨Team最小披露）全部闭环。14个新增文件、旧main无修改；88表/536列/344约束/138索引，1840完整catalog对象零变动，跨运行原始字节校验成功。标准[PR #15](https://github.com/suzhe868-arch/mb/pull/15)成功合并SHA `b405e83cfadf9f0f6d89ada32ae2f45b5b20a6bd`。A正式验收：`07_重建工作区/F03-2-2G_A主控二轮独立验收及PR15正式合并闭环_2026-10-10.md`。
+- **正式放行下一F03-2-2H**：严格只在新隔离PG16合成数据中演练SG06 **Customer唯一current owner的单域受控敏感写、独立权限/范围、owner历史与幂等不可变收据**；不得借`employee.manage`越权，不得迁移其它七域负责人或把单域收据冒充整个batch completed；允许专用`000008`最多一张收据表的隔离增量技术提案，旧000001～000007和旧88表Guard全部保持不变。正式施工单：`07_重建工作区/F03-2-2H_A主控SG06唯一CustomerOwner受限真实逐项移交及事务收据施工单_2026-10-10.md`；指定B分支`feat/f03-customer-owner-handover-2h`，从最新main创建，全部测试/归档/同SHA全绿后`READY_FOR_A_REVIEW`交A，无需逐项请用户点击。
+- **NEXT_OWNER=B**。C/H01高保真仍未独立通过；F03-2整体、真实各域逐项移交及生产均未验收，`PRODUCT_BASELINE=NOT_READY`。本段覆盖下文历史过期2G整改未完成状态，旧条目不删除。
+
+---
+
 # 2026-10-10｜F03-2-2G B已交审、A独立验收提出四项定向整改（当前最新）
 
 - B分支 `feat/f03-handover-preflight-2g` 实际最新HEAD `f9f42c4fde6832522b770403029a4ec2ddc11f7f`；同SHA真实 [PG16 CI37976033469](https://github.com/suzhe868-arch/mb/actions/runs/37976033469) **10/10独立作业成功**、本批12/12测试全绿；14个文件均为授权新增，旧main无修改/删除、真实88表/536列/344约束/138索引的结构SHA不变。B交接达到`READY_FOR_A_REVIEW`，但**CI绿不代表A验收通过**。
