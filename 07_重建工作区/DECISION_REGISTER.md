@@ -1349,3 +1349,16 @@
 
 
 | EG-F03-2-G0-REVIEW-20261009 | ENGINEERING_F03_2_G0 | A首轮独立复验要求五项整改 | B HEAD a56cb746ae14a2047be791a204b8b367767c7c9f同SHA CI37877324106成功22/22，14文件范围正确；A核验已存在role_default_permission_history并独立复现模板经理越权、正常停用清空接客池、4S PC撤权旧会话放行、审计占位前后值；CHANGES_REQUESTED，未签验收 | G0原静态授权持续，仅当前分支整改；不连接DB，不改已验收工程，不放行后续批，不合并B/C；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F03-2-G0_A主控首轮复验与五项整改清单_2026-10-09.md`；job113648785834；main已验收SQL/PDM-02 Final；A独立合成探针 | 2026-10-09 |
+
+
+## 2026-10-09｜F03-2-G0最终验收签发（工程门禁）
+
+- A正式签发 **F03_2_G0_ACCEPTED / A_SIGNED / STATIC_DESIGN_ONLY / NOT_MERGED**；五项整改R1～R5已闭合。本结论不等于F03_2_ACCEPTED。
+- 验收工程：B `feat/f03-runtime-g0`，SHA `d2c76ef2d27775a700fe1dbfa4be546c03253f1a`；同SHA [CI37880600267](https://github.com/suzhe868-arch/mb/actions/runs/37880600267)成功，G0测试36/36；A独立补充检查11/11通过。
+- 验收记录：`07_重建工作区/F03-2-G0_A主控最终验收签发与残余风险_2026-10-09.md`。范围仅设计、合同、纯假数据模型及静态检查；没有真实数据库、运行期Guard或治理事务验收。
+- **当前唯一工程下一步：A整理本批合并核验材料，以及F03-2-1真实权限校验所需的技术裁决和施工单，交用户审查；B等待，不开始新施工。** 分支合并及下一批施工仍须分别授权。
+- SG09复用已有`role_default_permission_history`；SG01～08仍为待裁决建议，不能据G0验收直接建表。真实锁/并发、撤权HTTP重验、事务审计及交接适配未执行。
+- F03-1已验收合并；C/H01独立未最终验收。PDM Final/Current IA/Low-Fi不变；不访问已有/业务/生产库、不部署、不启动正式前端；F03-2后续实现批、F03-3、F02-2/3/4、F04未授权，`PRODUCT_BASELINE=NOT_READY`。
+- 现行指针：`F03_2_G0_ACCEPTED_A_MERGE_AND_IMPLEMENTATION_GATE_PREPARATION_AND_H01_VISUAL_REVIEW`。以下首轮整改和初次放行信息仅保留为历史。
+
+本记录为工程门禁，不改动PDM产品规则。B整改R1～R5闭合；真实CI36/36和A工具内假数据模型检查11/11通过。依据：`07_重建工作区/F03-2-G0_A主控最终验收签发与残余风险_2026-10-09.md`。保留首次未通过报告作为历史，不以本批验收自动批准合并、新表、真实Guard或下一批施工。

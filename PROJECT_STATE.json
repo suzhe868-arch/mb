@@ -4,7 +4,7 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F03_2_G0_B_FIX_FIVE_BLOCKERS_A_REVIEW_AND_H01_VISUAL_REVIEW",
+  "substage": "F03_2_G0_ACCEPTED_A_MERGE_AND_IMPLEMENTATION_GATE_PREPARATION_AND_H01_VISUAL_REVIEW",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "B在feat/f03-runtime-g0修复A五项G0阻断，补静态负例/合同与同SHA成功CI交A复验；C/H01独立",
-  "current_work_file": "07_重建工作区/F03-2-G0_A主控首轮复验与五项整改清单_2026-10-09.md",
+  "current_task": "A整理F03-2-G0合并核验与F03-2-1技术裁决/施工单供用户审查；B等待，C/H01独立",
+  "current_work_file": "07_重建工作区/F03-2-G0_A主控最终验收签发与残余风险_2026-10-09.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "F03_2_G0_B_FIX_FIVE_BLOCKERS_A_REVIEW_AND_H01_VISUAL_REVIEW",
+  "next_action": "F03_2_G0_ACCEPTED_A_MERGE_AND_IMPLEMENTATION_GATE_PREPARATION_AND_H01_VISUAL_REVIEW",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F01_F02_G0_F02_1_F03_G0_F03_1_G0_ACCEPTED_MERGED_F03_1_IMPLEMENTATION_AUTHORIZED",
+  "engineering_status": "F03_1_ACCEPTED_MERGED_F03_2_G0_ACCEPTED_STATIC_NOT_MERGED",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "G0范围/CI通过但真实历史表误报及模板身份/接客池/4S撤权/审计前后值未闭合；限定静态整改，无数据库或后续施工授权。",
+  "next_action_detail": "G0五项整改闭合，设计及静态验收通过；B尚未合并，真实Guard/数据库施工尚未授权。",
   "abc_parallel_workflow": {
     "status": "USER_APPROVED_APPLIED_DOCUMENTATION_ONLY",
     "confirmed_at": "2026-10-08",
@@ -5141,16 +5141,16 @@
     "next_batch_construction": "NOT_AUTHORIZED_F03_2_GATE_PREPARATION_ONLY"
   },
   "f03_2_gate": {
-    "status": "F03_2_G0_CHANGES_REQUESTED_AUTHORIZED_STATIC_SCOPE_ONLY",
+    "status": "F03_2_G0_ACCEPTED_STATIC_DESIGN_ONLY",
     "work_order_prepared": true,
-    "construction": "F03_2_G0_DESIGN_STATIC_CHECKS_ONLY_AUTHORIZED",
+    "construction": "F03_2_G0_STATIC_COMPLETED_LATER_IMPLEMENTATION_NOT_AUTHORIZED",
     "branch_created": true,
     "scope_note": "G0只对齐真实字段与权限/事务设计，保留既有工程及Authority；G0验收不等于F03_2_ACCEPTED",
     "work_order": "07_重建工作区/F03-2_运行期权限校验与治理事务施工单_待用户批准_2026-10-09.md",
     "preparation_authorization": "用户同意A整理F03-2施工单；不含B施工授权",
     "proposed_first_batch": "F03_2_G0_TRUSTED_FACT_MAPPING_SCOPE_GOVERNANCE_TRANSACTION_DESIGN_AND_STATIC_TESTS",
     "proposed_branch": "feat/f03-runtime-g0",
-    "tests": "NOT_RUN_A_RELEASE_REGISTRATION_ONLY",
+    "tests": "SAME_SHA_CI_36_PASS_A_11_MODEL_PROBES_PASS",
     "database_access": "NOT_AUTHORIZED_G0_NO_DB",
     "actual_guard": "NOT_RUN_NOT_AUTHORIZED",
     "later_batches": "F03_2_1_F03_2_2_F03_2_3_SEPARATE_A_REVIEW_USER_APPROVAL",
@@ -5166,22 +5166,45 @@
     "confirmed_phrase": "同意",
     "release_report": "07_重建工作区/F03-2-G0_A主控事实映射与事务方案施工放行_2026-10-09.md",
     "branch": "feat/f03-runtime-g0",
-    "acceptance": "CHANGES_REQUESTED_NOT_ACCEPTED",
-    "reviewed_sha": "a56cb746ae14a2047be791a204b8b367767c7c9f",
-    "review_ci_run_id": 37877324106,
-    "review_ci_job_id": 113648785834,
+    "acceptance": "F03_2_G0_ACCEPTED_A_SIGNED_NOT_F03_2_ACCEPTED",
+    "reviewed_sha": "d2c76ef2d27775a700fe1dbfa4be546c03253f1a",
+    "review_ci_run_id": 37880600267,
+    "review_ci_job_id": 113659169455,
     "review_tests": {
-      "passed": 22,
+      "passed": 36,
       "failed": 0,
-      "scope": "B_STATIC_CI_NOT_A_ACCEPTANCE"
+      "scope": "B_SAME_SHA_STATIC_CI"
     },
-    "review_report": "07_重建工作区/F03-2-G0_A主控首轮复验与五项整改清单_2026-10-09.md",
-    "review_blockers": [
-      "R1_EXISTING_ROLE_HISTORY_MISCLASSIFIED",
-      "R2_EMPLOYEE_ALLOWED_ROLE_TEMPLATE_CHANGE",
-      "R3_PLANNED_DISABLE_LAST_RECEIVER_ZERO_POOL",
-      "R4_FOUR_S_PC_PERMISSION_REVOKED_OLD_SESSION_ALLOWED",
-      "R5_AUDIT_BEFORE_AFTER_PLACEHOLDERS"
-    ]
+    "review_report": "07_重建工作区/F03-2-G0_A主控最终验收签发与残余风险_2026-10-09.md",
+    "review_blockers": [],
+    "first_review": {
+      "reviewed_sha": "a56cb746ae14a2047be791a204b8b367767c7c9f",
+      "run_id": 37877324106,
+      "job_id": 113648785834,
+      "blockers": [
+        "R1_EXISTING_ROLE_HISTORY_MISCLASSIFIED",
+        "R2_EMPLOYEE_ALLOWED_ROLE_TEMPLATE_CHANGE",
+        "R3_PLANNED_DISABLE_LAST_RECEIVER_ZERO_POOL",
+        "R4_FOUR_S_PC_PERMISSION_REVOKED_OLD_SESSION_ALLOWED",
+        "R5_AUDIT_BEFORE_AFTER_PLACEHOLDERS"
+      ],
+      "report": "07_重建工作区/F03-2-G0_A主控首轮复验与五项整改清单_2026-10-09.md"
+    },
+    "a_independent_probes": {
+      "passed": 11,
+      "failed": 0,
+      "scope": "TOOL_JAVASCRIPT_FAKE_MODEL_NOT_NODE_PG_RERUN"
+    },
+    "acceptance_report": "07_重建工作区/F03-2-G0_A主控最终验收签发与残余风险_2026-10-09.md",
+    "closed_blockers": [
+      "R1",
+      "R2",
+      "R3",
+      "R4",
+      "R5"
+    ],
+    "merge_status": "NOT_MERGED_PENDING_USER_APPROVAL",
+    "schema_proposals": "SG01_TO_SG08_PENDING_A_DECISION_NO_DDL_SG09_EXISTING_REUSE",
+    "next": "A_PREPARE_MERGE_AND_F03_2_1_GATE_FOR_USER_REVIEW_B_WAIT"
   }
 }
