@@ -1,0 +1,2 @@
+9b9250ca225f57452af5704d113ad6acef3fcdc2e3a901c356843390acc25c82  f03/runtime-handover-preflight/artifacts/pg16_schema_only.sql
+81cc7625348791b19f71ad357d9bd3aa5478345ec3de8ca27889f7cd909677c7  f03/runtime-handover-preflight/artifacts/pg16_inventory.json
