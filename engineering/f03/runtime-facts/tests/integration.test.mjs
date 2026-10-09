@@ -53,6 +53,93 @@ test('G02b: every one of the 23 frozen F03-G0 operations stays finally denied wi
   assert.equal(typeof decision.code,'string');
  }
 });
+
+const observedFactsAuth=(mapRows, onQuery)=>({
+ pool:auth.pool,
+ withSession:(token, fn, options)=>auth.withSession(token,async(c,account,session,now)=>{
+   const tracedClient={query:async(...args)=>{
+     const result=await c.query(...args);
+     if(typeof args[0]==='object'&&args[0]?.text?.includes('CROSS JOIN unnest($2::text[]) AS requested(code)')){
+       const rows=result.rows.map(x=>({...x}));
+       onQuery?.(rows,account);
+       return {...result,rows:mapRows?mapRows(rows,account):rows};
+     }
+     return result;
+   }};
+   return fn(tracedClient,account,session,now);
+ },options)
+});
+test('R1-01 independent PG16 change of current store_id is read by same old session; no public facts and no scope grant',async()=>{
+ const seen=[];
+ const observer=observedFactsAuth(null,rows=>seen.push([...new Set(rows.map(r=>r.store_id))]));
+ assert.equal((await readCurrentFacts(observer,employeeToken,'customer.phone.manage')).code,'CURRENT_CAPABILITY_PRESENT_SCOPE_AND_OBJECT_DEFER');
+ assert.deepEqual(seen.at(-1),['1']);
+ await db.query("INSERT INTO public.stores(store_id,store_name,status) VALUES(11,'F03-2-1A synthetic reassignment store','active')");
+ await db.query('BEGIN');
+ try{
+  await db.query('UPDATE public.employees SET store_id=$1 WHERE employee_id=$2',['11','1']);
+  await db.query('COMMIT');
+ }catch(e){await db.query('ROLLBACK');throw e}
+ const changed=await readCurrentFacts(observer,employeeToken,'customer.phone.manage');
+ assert.deepEqual(changed,{code:'CURRENT_CAPABILITY_PRESENT_SCOPE_AND_OBJECT_DEFER',finalAllowed:false});
+ assert.deepEqual(seen.at(-1),['11'],'actual current permission SQL must read the changed committed store');
+ assert.equal((await db.query('SELECT store_id::text AS store_id FROM public.employees WHERE employee_id=1')).rows[0].store_id,'11');
+ await db.query('UPDATE public.employees SET store_id=$1 WHERE employee_id=$2',['1','1']);
+ assert.equal((await readCurrentFacts(observer,employeeToken,'customer.phone.manage')).finalAllowed,false);
+ assert.deepEqual(seen.at(-1),['1']);
+});
+test('R1-02 frozen 4S CRM/lock/transaction/internal price HARD DENY and System Admin business identity refusal',async()=>{
+ const nowOp=['customer.crm.read','customer.history.read','lock.manage','transaction.manage','vehicle.internal_wholesale_price.read','vehicle.internal_wholesale_price.edit'];
+ // Synthetic high grants in CURRENT physical catalog must not override identity.
+ await db.query('BEGIN');
+ try{
+  await db.query("INSERT INTO public.permissions(permission_id,permission_code) VALUES(16,'internal.price.view'),(17,'transaction.manage')");
+  await db.query("INSERT INTO public.role_permission_defaults(role_id,permission_id,enabled,changed_at) VALUES(2,12,true,now()),(2,15,true,now()),(2,16,true,now()),(2,17,true,now())");
+  await db.query("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(2,12,'allow',now()),(2,15,'allow',now()),(2,16,'allow',now()),(2,17,'allow',now())");
+  await db.query('COMMIT');
+ }catch(e){await db.query('ROLLBACK');throw e}
+ for(const operation of nowOp){
+  assert.deepEqual(await probe(fourSToken,operation),{code:'HARD_DENY_FOUR_S',finalAllowed:false},operation);
+  assert.deepEqual(await probe(adminToken,operation),{code:'SYSTEM_ADMIN_NO_BUSINESS_RIGHT',finalAllowed:false},operation);
+ }
+ assert.deepEqual(await probe(adminToken,'customer.account.disable'),{code:'SYSTEM_CONTROL_SCOPE_DEFER',finalAllowed:false});
+ assert.deepEqual(await probe(employeeToken,'system.employee.manage'),{code:'EMPLOYEE_NO_SYSTEM_CONTROL',finalAllowed:false});
+});
+test('R1-03 invalid or mixed employee/admin identity denied at trusted fact-ingestion boundary',async()=>{
+ const injected=(changeRows, changeActor)=>({
+  pool:auth.pool,
+  withSession:(token,fn,options)=>auth.withSession(token,(c,a,s,n)=>{
+   const modifiedActor=changeActor?changeActor({...a}):a;
+   return fn({query:async(...args)=>{
+    const out=await c.query(...args);
+    if(typeof args[0]==='object'&&args[0]?.text?.includes('CROSS JOIN unnest')){
+     return {...out,rows:changeRows(out.rows.map(x=>({...x})))};
+    }
+    return out;
+   }},modifiedActor,s,n);
+  },options)
+ });
+ // Distort trusted decoded row ONLY in test, never update DB against accepted FK/CHECKs.
+ for(const [label,manipulate] of [
+  ['invalid employee id',rows=>rows.map(r=>({...r,employee_id:'0'}))],
+  ['unsafe JS cast or bad ID',rows=>rows.map(r=>({...r,account_employee_id:'9007199254740993',employee_id:'9007199254740992'}))],
+  ['mixed principal',rows=>rows.map(r=>({...r,account_admin_id:'9'}))],
+  ['account id mismatch',rows=>rows.map(r=>({...r,account_id:'999'}))],
+  ['role missing',rows=>rows.map(r=>({...r,role_code:null}))],
+  ['duplicate candidate result',rows=>[...rows,...rows.slice(0,1)]]
+ ]){
+  const res=await readCurrentFacts(injected(manipulate),employeeToken,'customer.phone.manage');
+  assert.equal(res.finalAllowed,false,label);
+  assert.ok(['CURRENT_PRINCIPAL_DENIED','INCOMPLETE_CURRENT_FACTS'].includes(res.code),label+' '+res.code);
+ }
+ const mismatch=await readCurrentFacts(injected(rows=>rows,a=>({...a,system_admin_id:'9'})),employeeToken,'customer.phone.manage');
+ assert.deepEqual(mismatch,{code:'CURRENT_PRINCIPAL_DENIED',finalAllowed:false});
+ const mixedAdmin=await readCurrentFacts(injected(rows=>rows.map(r=>({...r,account_employee_id:'1'}))),adminToken,'system.employee.manage');
+ assert.deepEqual(mixedAdmin,{code:'CURRENT_PRINCIPAL_DENIED',finalAllowed:false});
+ // Physical CI database remains unchanged; rogue mixed identity cannot become a real session.
+ assert.equal((await probe(employeeToken,'customer.phone.manage')).finalAllowed,false);
+});
+
 test('G03: template changes in PostgreSQL visible to SAME old session on next independent call',async()=>{
  assert.equal((await probe(employeeToken,'customer.phone.manage')).code,'CURRENT_CAPABILITY_PRESENT_SCOPE_AND_OBJECT_DEFER');
  await db.query('BEGIN');await db.query('UPDATE public.role_permission_defaults SET enabled=false,changed_at=now() WHERE role_id=1 AND permission_id=11');await db.query('COMMIT');
@@ -67,7 +154,7 @@ test('G03: template changes in PostgreSQL visible to SAME old session on next in
  await db.query('UPDATE public.role_permission_defaults SET enabled=true,changed_at=now() WHERE role_id=1 AND permission_id=11');
  assert.equal((await probe(employeeToken,'customer.phone.manage')).code,'CURRENT_CAPABILITY_PRESENT_SCOPE_AND_OBJECT_DEFER');
 });
-test('G04: missing permission, unknown operation, forbidden request facts, invalid ID are denied',async()=>{
+test('G04: missing permission, unknown operation and SQL injection text fail closed; R1-03 covers invalid IDs',async()=>{
  const checks=['not.a.real.operation','customer.phone.manage;DROP TABLE public.employees','__proto__','vehicle.not_known'];
  for(const op of checks)assert.equal((await probe(employeeToken,op)).code,'UNKNOWN_OR_RETIRED_OPERATION');
  assert.equal((await probe(employeeToken,'matching.rule.manage')).code,'CAPABILITY_NOT_IN_CURRENT_CATALOG');
