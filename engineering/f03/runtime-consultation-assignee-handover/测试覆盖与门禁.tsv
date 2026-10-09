@@ -6,6 +6,7 @@ J04	assignee单列CAS、五点注错整事务回滚、两个PC会话相同咨询
 J05	H/I/J所有6方向、三域同key并发、三域不同key并发	物理约束+事务锁+双向摘要查重
 J06	连续7→4→5历史、原source失活、无真实后继伪造、当前审计scope	两张历史收据可验证，无授权漂移必拒绝
 J07	原始deadline/status/source/Recommendation/其它七域整行快照	只改Consultation.assignee不重置SLA
-J08	11个独立PG16旧模块+J91新模块	12/12旧新强制全绿
-J09	原始pg_dump/catalog/inventory/SOURCE+sha256跨run严格比对	SOURCE不可伪造，旧目录精确封印
-J10	最终提交SHA等于run.head_sha、complete/success、中文B报告	READY_FOR_A_REVIEW/NEXT_OWNER=A
+J08	旧I90完整27项、H89与其余10个旧模块作业、新J91完整27项分别在独立真实PG16	13/13独立作业全绿，I27/27且J27/27
+J09	原始pg_dump/catalog/inventory/SOURCE+sha256跨run严格比对	I90/J91各自独立artifact及历史SOURCE真实run/SHA/目录/字节复核通过
+J10	最终提交SHA等于run.head_sha、complete/success、中文B报告	最终run.head_sha同HEAD且13/13通过，READY_FOR_A_REVIEW/NEXT_OWNER=A
+A-J-01	独立I90全新非超级管理员PG16仅apply到000009，I原27项+完整物理目录/SOURCE检验	I90实测27/27，严禁以J91兼容测试替代
