@@ -4,6 +4,7 @@ import {randomBytes,createHash} from 'node:crypto';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {connect,verify,rollback} from '../migration.mjs';
 import {verify as verify89} from '../../runtime-customer-owner-handover/migration.mjs';
+import {commitCustomerOwnerHandover as hCommit,retryCustomerOwnerHandover as hRetry} from '../../runtime-customer-owner-handover/service.mjs';
 import {prepareDemandResponsibleHandover as prep,commitDemandResponsibleHandover as commit,retryDemandResponsibleHandover as retry,readDemandResponsibleHandoverReceipt as read,readPriorityDerivedResponsibility as priority} from '../service.mjs';
 const db=await connect(),secret=randomBytes(32);
 const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin:'https://127.0.0.1:48981'});
@@ -136,12 +137,111 @@ test('I05 idempotent same item key; changed key and cross-batch/item key are den
  assert.equal((await retry(auth,head,{...p,itemId:8122,batchId:6122,clientRequestKey:p.clientRequestKey})).code,'I05_COLLISION_DENY');
  assert.deepEqual(await snap(),before);
 });
-test('I05 global key existing Customer Owner domain is rejected without side effects',async()=>{
- const old=await db.query('SELECT request_key_sha256 FROM public.customer_owner_handover_receipts LIMIT 1');
- // prior H fixtures in this I run have no submitted H domain receipt: prove real conflict using a
- // standalone transaction that creates a valid H receipt would break independent H invariants;
- // absent token cannot claim coverage, so assert no premature cross-domain authority.
- assert.equal(old.rowCount,0);
+test('A-I-01 H then I same RequestKey is denied across real H/I 90-table transactions; other Key independently succeeds',async()=>{
+ const key='i-ci-h-first-global-key-0001',h={batchId:6015,itemId:7015,fromEmployeeId:7,recipientEmployeeId:4,teamId:906,clientRequestKey:key};
+ const done=await hCommit(auth,manager,h);
+ assert.equal(done.code,'H03_OWNER_DOMAIN_TRANSFERRED');
+ const before=await snap();
+ const i=req(6123,8123,4,key);
+ assert.equal((await commit(auth,manager,i)).code,'I05_CROSS_DOMAIN_KEY_DENY');
+ assert.deepEqual(await snap(),before);
+ assert.equal(await owner(423),'7');
+ assert.equal((await commit(auth,manager,{...i,clientRequestKey:'i-ci-h-first-different-key-002'})).code,'I04_DEMAND_DOMAIN_TRANSFERRED');
+ assert.equal(await owner(423),'4');
+});
+test('A-I-01 I then H RequestKey must deny reverse duplicate without changing Customer owner/history/audit',async()=>{
+ const key='i-ci-i-first-global-key-0002';
+ assert.equal((await commit(auth,manager,req(6125,8125,4,key))).code,'I04_DEMAND_DOMAIN_TRANSFERRED');
+ const before=await snap();
+ const h={batchId:6019,itemId:7019,fromEmployeeId:7,recipientEmployeeId:4,teamId:901,clientRequestKey:key};
+ assert.equal((await hCommit(auth,manager,h)).code,'H04_CROSS_DOMAIN_KEY_DENY');
+ assert.deepEqual(await snap(),before);
+ assert.equal(String((await db.query('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=319')).rows[0].current_owner_employee_id),'7');
+ assert.equal((await hCommit(auth,manager,{...h,clientRequestKey:'i-ci-i-first-different-key-003'})).code,'H03_OWNER_DOMAIN_TRANSFERRED');
+});
+test('A-I-01 REAL 2-PC-session H/I concurrent same key: one domain wins, other explicit collision and no orphan side effects',async()=>{
+ const key='i-ci-h-i-true-race-key-0003';
+ const h={batchId:6017,itemId:7017,fromEmployeeId:7,recipientEmployeeId:4,teamId:901,clientRequestKey:key};
+ const i=req(6143,8143,4,key),before=await snap();
+ const results=await Promise.all([hCommit(auth,manager,h),commit(auth,manager2,i)]);
+ const success=results.filter(x=>['H03_OWNER_DOMAIN_TRANSFERRED','I04_DEMAND_DOMAIN_TRANSFERRED'].includes(x.code));
+ const collisions=results.filter(x=>['H04_CROSS_DOMAIN_KEY_DENY','I05_CROSS_DOMAIN_KEY_DENY'].includes(x.code));
+ assert.equal(success.length,1,JSON.stringify(results));assert.equal(collisions.length,1,JSON.stringify(results));
+ const after=await snap();
+ assert.equal(after.audit_events.length,before.audit_events.length+1);
+ assert.equal(after.customer_owner_handover_receipts.length+after.demand_responsible_handover_receipts.length,before.customer_owner_handover_receipts.length+before.demand_responsible_handover_receipts.length+1);
+ assert.equal((await db.query("SELECT count(*)::int n FROM (SELECT request_key_sha256 FROM public.customer_owner_handover_receipts UNION ALL SELECT request_key_sha256 FROM public.demand_responsible_handover_receipts) x WHERE request_key_sha256=$1",[createHash('sha256').update(key).digest('hex')])).rows[0].n,1);
+});
+test('A-I-01 fault-rolled-back I RequestKey is not reserved; independent valid H can commit after aborted I',async()=>{
+ const key='i-ci-h-i-fault-no-partial-0004',before=await snap();
+ await assert.rejects(()=>commit(auth,manager,req(6144,8144,4,key),{testCheckpoint:async phase=>{if(phase==='after_receipt')throw Error('A_I_CROSS_DOMAIN_FORCED_ROLLBACK')}}),/A_I_CROSS_DOMAIN_FORCED_ROLLBACK/);
+ assert.deepEqual(await snap(),before);
+ const h={batchId:6021,itemId:7021,fromEmployeeId:7,recipientEmployeeId:4,teamId:901,clientRequestKey:key};
+ assert.equal((await hCommit(auth,manager,h)).code,'H03_OWNER_DOMAIN_TRANSFERRED');
+ const now=await snap();
+ assert.equal(now.demand_responsible_handover_receipts.length,before.demand_responsible_handover_receipts.length);
+ assert.equal(now.customer_owner_handover_receipts.length,before.customer_owner_handover_receipts.length+1);
+});
+test('A-I-01 distinct legitimate cross-domain request keys both commit without changed PDM facts',async()=>{
+ const prior=await snap();
+ const i=await commit(auth,manager,req(6145,8145,4,'i-ci-i-domain-separate-0005'));
+ const h=await hCommit(auth,head,{batchId:6018,itemId:7018,fromEmployeeId:7,recipientEmployeeId:4,teamId:901,clientRequestKey:'i-ci-h-domain-separate-0006'});
+ assert.equal(i.code,'I04_DEMAND_DOMAIN_TRANSFERRED');
+ assert.equal(h.code,'H03_OWNER_DOMAIN_TRANSFERRED');
+ const after=await snap();
+ for(const table of ['priority_leases','recommendations','demand_match_results','consultations','waitlists','locks','transactions','handover_batches','handover_items'])assert.deepEqual(after[table],prior[table],table);
+});
+test('A-I-02 two serial real Demand transfers preserve both immutable receipt provenance, then reject unproven current-owner drift',async()=>{
+ const a={...req(6140,8140,4,'i-ci-history-first-key-0007')};
+ const b={...req(6141,8141,5,'i-ci-history-second-key-0008'),fromEmployeeId:4};
+ assert.equal((await commit(auth,manager,a)).code,'I04_DEMAND_DOMAIN_TRANSFERRED');
+ assert.equal(await owner(440),'4');
+ const firstReceipt=(await read(auth,manager,view(6140,8140))).receipt;
+ assert.equal((await commit(auth,manager,b)).code,'I04_DEMAND_DOMAIN_TRANSFERRED');
+ assert.equal(await owner(440),'5');
+ const early=await read(auth,manager,view(6140,8140));
+ const late=await read(auth,manager,view(6141,8141));
+ assert.equal(early.code,'I05_RECEIPT_READ_ONLY');assert.equal(late.code,'I05_RECEIPT_READ_ONLY');
+ assert.deepEqual(early.receipt,firstReceipt);
+ const before=await snap();
+ assert.equal((await retry(auth,manager,a)).code,'I05_IDEMPOTENT_RECEIPT');
+ assert.equal((await retry(auth,manager,{...a,clientRequestKey:'i-ci-history-other-key-0009'})).code,'I05_COLLISION_DENY');
+ assert.deepEqual(await snap(),before);
+ // Historical source could leave afterwards; a CURRENT legally scoped reader
+ // must still see the signed chain (not assume historic source/target active).
+ await db.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=4");
+ await db.query("UPDATE public.employee_team_memberships SET ended_at=now() WHERE team_id=901 AND employee_id=4");
+ try{
+  assert.equal((await read(auth,manager,view(6140,8140))).code,'I05_RECEIPT_READ_ONLY');
+  assert.equal((await read(auth,manager,view(6141,8141))).code,'I05_RECEIPT_READ_ONLY');
+ }finally{
+  await db.query("UPDATE public.employee_team_memberships SET ended_at=NULL WHERE team_id=901 AND employee_id=4");
+  await db.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=4");
+ }
+ await db.query('UPDATE public.demands SET responsible_employee_id=6 WHERE demand_id=440');
+ try{
+  assert.equal((await read(auth,manager,view(6140,8140))).code,'I05_RECEIPT_PROOF_DENY');
+  assert.equal((await retry(auth,manager,a)).code,'I05_RECEIPT_PROOF_DENY');
+ }finally{await db.query('UPDATE public.demands SET responsible_employee_id=5 WHERE demand_id=440')}
+ assert.equal((await read(auth,manager,view(6140,8140))).code,'I05_RECEIPT_READ_ONLY');
+});
+test('A-I-02 historical audit read independently denies personal override, actor inactive and revoked Team scope',async()=>{
+ const target=view(6140,8140);
+ assert.equal((await read(auth,manager,target)).code,'I05_RECEIPT_READ_ONLY');
+ const mutations=[
+ ["UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=5 AND permission_id=16","UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=5 AND permission_id=16"],
+ ["UPDATE public.employee_capability_scope_bindings SET ended_at=now() WHERE employee_id=5 AND permission_id=16 AND scope_id=201","UPDATE public.employee_capability_scope_bindings SET ended_at=NULL WHERE employee_id=5 AND permission_id=16 AND scope_id=201"],
+ ["UPDATE public.employees SET employment_status='inactive' WHERE employee_id=5","UPDATE public.employees SET employment_status='active' WHERE employee_id=5"],
+ ["UPDATE public.employee_team_memberships SET ended_at=now() WHERE team_id=901 AND employee_id=5","UPDATE public.employee_team_memberships SET ended_at=NULL WHERE team_id=901 AND employee_id=5"]
+ ];
+ for(const [set,undo] of mutations){
+  await db.query(set);
+  try{assert.notEqual((await read(auth,manager,target)).code,'I05_RECEIPT_READ_ONLY')}
+  finally{await db.query(undo)}
+ }
+ const revoked=view(6140,8140,906);
+ assert.notEqual((await read(auth,manager,revoked)).code,'I05_RECEIPT_READ_ONLY');
+ assert.equal((await read(auth,manager,target)).code,'I05_RECEIPT_READ_ONLY');
 });
 test('I05 two REAL independent manager PC sessions race same Demand: one transfer/receipt/audit only',async()=>{
  const p=req(6121,8121,4,'i-ci-same-demand-race-0021');
