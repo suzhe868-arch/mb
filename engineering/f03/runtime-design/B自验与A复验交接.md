@@ -1,6 +1,20 @@
 # F03-2-G0｜B自验与A独立复验交接｜2026-10-09
 
-**状态：B_R1_R5_REMEDIATION_PENDING_FINAL_CI / F03_2_G0_ACCEPTED=NO / F03_2_ACCEPTED=NO / PRODUCT_BASELINE=NOT_READY**。
+**状态：B_READY_FOR_A_REVIEW_AFTER_FINAL_SAME_SHA_CI / F03_2_G0_ACCEPTED=NO / F03_2_ACCEPTED=NO / PRODUCT_BASELINE=NOT_READY**。
+
+## A首轮复验后R1～R5整改闭合证据（2026-10-09，等待A签发）
+
+- A审查源：`main/07_重建工作区/F03-2-G0_A主控首轮复验与五项整改清单_2026-10-09.md`；首次拒绝旧版本为`a56cb746ae14a2047be791a204b8b367767c7c9f`。本次只在原分支追加整改，绝无旧工程/main变更。
+- B本轮实际整改中间完整代码版本：`ed22072f496f526b04d7d41660302b63b578386f`；[真实静态CI `37880483331`](https://github.com/suzhe868-arch/mb/actions/runs/37880483331)，job `113658801976`，本批已核对所有steps completed/success，原F01 13/13、F03-G0 34/34、F03-1-G0 19/19、本批合成36/36成功；其中包含新增14组A独立整改探针及R1真实SQL反查/错误缺口变异负例。
+- **最终交接提交另包含本闭合表和报告，不能拿上述较早代码版的CI替代。A须再次核对最终分支HEAD的同SHA新成功CI（具体运行号由提交后产生的Actions决定）。**
+- 独立闭合表：`A首轮R1-R5整改闭合表.tsv`，每条有原阻断、现有证据、正反例、残余风险，状态均`B_FIXED_A_REVIEW_PENDING`，**绝不标为A已签发**。
+- R1：已验收SQL `role_default_permission_history` 含7字段；改成现有结构的模板历史原子追加方案，不再建议重复表。
+- R2：`template.set`只认当前System Admin，经理/店长的员工治理权益仍单独保留，伪高权限无法跨身份。
+- R3：`planned_disable`与正常接客关闭同池保护，操作后仍须≥1合法active+eligible+accepting；4S/System Admin不计数；突然失效仍先撤权。
+- R4：4S保持F03-1的个人明确allow PC准入，不通过模板自动扩权，旧会话在deny/revoke后所有PC车辆动作拒绝。
+- R5：最小真实治理before/after、当时actor/role/store、模板history与审计同一合成提交边界；新建before可空、撤销after真实null、审计失败事实与历史不残留，敏感秘密不入审计。
+
+**保留风险**：这仍是纯合成模型、静态矩阵和已归档SQL文本校验，未连接任何数据库；未执行真实授权查询、数据库跨事务锁/并发或权限审计写入。结构SG-01～08仍为待A裁定建议，SG-09现有表已确认，产品Authority不变。A最多签发`F03_2_G0_ACCEPTED`，不能签`F03_2_ACCEPTED`。
 
 ## 1. 基准、放行与提交
 - A正式签发`F03_2_G0_AUTHORIZED / USER_APPROVED / A_RELEASED`；正式放行：`07_重建工作区/F03-2-G0_A主控事实映射与事务方案施工放行_2026-10-09.md`。详细范围遵守F03-2工作单§§4～7。

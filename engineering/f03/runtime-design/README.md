@@ -13,8 +13,9 @@ A 正式放行：`07_重建工作区/F03-2-G0_A主控事实映射与事务方案
 - `schema-physical-claims.tsv`：按已验收原始SQL机械反查九项结构状态，防止已存在表误报为缺口。
 - `schema-gap-and-migration-advice.md`：基于冻结F02 464 INCLUDE字段与F03-1精确追加结构的证据和未来独立迁移建议（本批不执行）。
 - `model.mjs`：只接受显式`trustedSyntheticFixture=true`的合成状态，不接收客户端角色、global或handover完成旗标。模型中`approvedOperationMappings`及`capabilityScopeProofs`只是假设A未来批准并可信加载的实验输入，**不是当前持久事实，不产生真实业务allow**。
-- `tests/`：零数据库、无登录、无HTTP，覆盖身份/撤权/scope/4S/System Admin/接客/治理交错、审计故障和差异敏感性。
+- `tests/`：零数据库、无登录、无HTTP；加测A的R1～R5语义负例及历史物理表反向探针。
 - `verify-contract.mjs`：冻结字段及全45动作反向校验、无外部副作用检查。
+- `A首轮R1-R5整改闭合表.tsv`：A五项阻断逐条事实、修复、正反例、残余风险、待A复验状态。
 - `authority-test-coverage.tsv`与`B自验与A复验交接.md`：G0-01～12覆盖/结果、待A技术裁定及残余。
 
 ## 执行（独立无数据库）
