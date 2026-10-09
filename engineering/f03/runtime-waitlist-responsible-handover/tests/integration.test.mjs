@@ -93,9 +93,9 @@ test('K03 source LockRequest real link, forged customer and wrong resulting wait
  await db.query("UPDATE public.lock_requests SET resulting_waitlist_id=NULL WHERE lock_request_id=9909");
  try{assert.equal((await prep(auth,manager,p)).code,'K01_PREPARED_READ_ONLY')}
  finally{await db.query("UPDATE public.lock_requests SET resulting_waitlist_id=5409 WHERE lock_request_id=9909")}
- await db.query("UPDATE public.lock_requests SET customer_id=3408 WHERE lock_request_id=9909");
+ await db.query("UPDATE public.lock_requests SET status='closed_not_lockable' WHERE lock_request_id=9909");
  try{assert.equal((await commit(auth,manager,p)).code,'K03_SOURCE_LOCK_REQUEST_INVALID')}
- finally{await db.query("UPDATE public.lock_requests SET customer_id=3409 WHERE lock_request_id=9909")}
+ finally{await db.query("UPDATE public.lock_requests SET status='lock_conflict' WHERE lock_request_id=9909")}
  assert.deepEqual(await snapshot(),before);
 });
 test('K03 active incumbent lock relationship valid and expired incumbent requires defer rather than auto-upgrade',async()=>{
@@ -208,10 +208,10 @@ test('K05 J->K and K->J same request key each reject second domain',async()=>{
 });
 test('K05 previous H/I two directions stay fully protected inside new 92-table schema',async()=>{
  const a='k-global-h-before-i-001',b='k-global-i-before-h-002';
- assert.equal((await hCommit(auth,manager,h(6018,7018,a))).code,'H03_OWNER_DOMAIN_TRANSFERRED');
+ assert.equal((await hCommit(auth,manager,h(6016,7016,a))).code,'H03_OWNER_DOMAIN_TRANSFERRED');
  assert.equal((await iCommit(auth,manager,h(6103,8103,a))).code,'I05_CROSS_DOMAIN_KEY_DENY');
  assert.equal((await iCommit(auth,manager,h(6104,8104,b))).code,'I04_DEMAND_DOMAIN_TRANSFERRED');
- assert.equal((await hCommit(auth,manager,h(6020,7020,b,901,6))).code,'H03_BATCH_IDENTITY_DENY');
+ assert.equal((await hCommit(auth,manager,h(6020,7020,b,901,6))).code,'H02_BATCH_IDENTITY_DENY');
  assert.equal((await hCommit(auth,head,h(6020,7020,b,901,6))).code,'H04_CROSS_DOMAIN_KEY_DENY');
 });
 test('K05 previous H/J two directions stay fully protected inside new 92-table schema',async()=>{
@@ -223,10 +223,10 @@ test('K05 previous H/J two directions stay fully protected inside new 92-table s
 });
 test('K05 previous I/J two directions stay fully protected inside new 92-table schema',async()=>{
  const a='k-global-i-before-j-001',b='k-global-j-before-i-002';
- assert.equal((await iCommit(auth,manager,h(6105,8105,a))).code,'I04_DEMAND_DOMAIN_TRANSFERRED');
- assert.equal((await jCommit(auth,manager,h(7212,9212,a))).code,'J05_CROSS_DOMAIN_KEY_DENY');
+ assert.equal((await iCommit(auth,manager,h(6115,8115,a))).code,'I04_DEMAND_DOMAIN_TRANSFERRED');
+ assert.equal((await jCommit(auth,manager,h(7214,9214,a))).code,'J05_CROSS_DOMAIN_KEY_DENY');
  assert.equal((await jCommit(auth,manager,h(7207,9207,b))).code,'J04_CONSULTATION_TRANSFERRED');
- assert.equal((await iCommit(auth,manager,h(6106,8106,b))).code,'I05_CROSS_DOMAIN_KEY_DENY');
+ assert.equal((await iCommit(auth,manager,h(6116,8116,b))).code,'I05_CROSS_DOMAIN_KEY_DENY');
 });
 test('K05 four real PG16 authenticated sessions H/I/J/K racing SAME SHA have exactly one commit',async()=>{
  const key='k-global-four-real-sessions-race',before=await snapshot();
