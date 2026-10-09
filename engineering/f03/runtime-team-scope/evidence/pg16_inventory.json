@@ -1,0 +1,83 @@
+{
+  "tables": 86,
+  "columns": 513,
+  "constraints": 323,
+  "indexes": 132,
+  "structure_sha256": "b5e4c698ffa648d5ab7af4d7e389c23a40eb080849a812e0fc50699b4687e572",
+  "added_catalog_keys": [
+    "column\u0000employee_team_memberships.changed_by_system_admin_id",
+    "column\u0000employee_team_memberships.employee_id",
+    "column\u0000employee_team_memberships.ended_at",
+    "column\u0000employee_team_memberships.membership_id",
+    "column\u0000employee_team_memberships.team_id",
+    "column\u0000employee_team_memberships.valid_from",
+    "column\u0000employee_team_memberships_membership_id_seq.is_called",
+    "column\u0000employee_team_memberships_membership_id_seq.last_value",
+    "column\u0000employee_team_memberships_membership_id_seq.log_cnt",
+    "column\u0000f03_2_2d_membership_pk.membership_id",
+    "column\u0000f03_2_2d_one_open_team_membership.employee_id",
+    "column\u0000f03_2_2d_one_open_team_membership.team_id",
+    "column\u0000f03_2_2d_team_pk.team_id",
+    "column\u0000teams.created_at",
+    "column\u0000teams.membership_version",
+    "column\u0000teams.store_id",
+    "column\u0000teams.team_id",
+    "column\u0000teams.team_status",
+    "column\u0000teams_team_id_seq.is_called",
+    "column\u0000teams_team_id_seq.last_value",
+    "column\u0000teams_team_id_seq.log_cnt",
+    "constraint\u0000employee_team_memberships.f03_2_2d_membership_admin_fk",
+    "constraint\u0000employee_team_memberships.f03_2_2d_membership_employee_fk",
+    "constraint\u0000employee_team_memberships.f03_2_2d_membership_pk",
+    "constraint\u0000employee_team_memberships.f03_2_2d_membership_team_fk",
+    "constraint\u0000employee_team_memberships.f03_2_2d_membership_time_chk",
+    "constraint\u0000teams.f03_2_2d_team_pk",
+    "constraint\u0000teams.f03_2_2d_team_status_chk",
+    "constraint\u0000teams.f03_2_2d_team_store_fk",
+    "constraint\u0000teams.f03_2_2d_team_version_chk",
+    "index\u0000f03_2_2d_membership_pk",
+    "index\u0000f03_2_2d_one_open_team_membership",
+    "index\u0000f03_2_2d_team_pk",
+    "relation\u0000employee_team_memberships",
+    "relation\u0000employee_team_memberships_membership_id_seq",
+    "relation\u0000f03_2_2d_membership_pk",
+    "relation\u0000f03_2_2d_one_open_team_membership",
+    "relation\u0000f03_2_2d_team_pk",
+    "relation\u0000teams",
+    "relation\u0000teams_team_id_seq",
+    "sequence\u0000public.employee_team_memberships_membership_id_seq",
+    "sequence\u0000public.teams_team_id_seq"
+  ],
+  "versions": [
+    {
+      "migration_id": "000001_current_initial",
+      "checksum": "df078212b95701af12144a43ef85a70fc491e5dca9948644df415bd888c5b4e4",
+      "structure_sha256": "d5535d72fe17d7981b006bcd1223eb11cb67660b53e7603f1125bfab8dba9cde"
+    },
+    {
+      "migration_id": "000002_pc_auth_sessions",
+      "checksum": "3d7f0a539941e4089147a9c7a82ecfdb2ccebd64ba513e01deeb0fcf1d2bd6ab",
+      "structure_sha256": "8af70f5f3ca32f2a7b84a4ad69d68dbf7c81bd9b6c97d79ad7481ce3a8c23ee5"
+    },
+    {
+      "migration_id": "000003_employee_capability_scope_bindings",
+      "checksum": "fe34a689d4b11d5c4225f609f1415a26b16ec43891e5723b417ca45aa9a154d0",
+      "structure_sha256": "229aa6dc167cd3ccb8da89fd9d08076af2588b6b4bd1cfbdc8d779c31dfeffe0"
+    },
+    {
+      "migration_id": "000004_governance_population_guards",
+      "checksum": "52705b21a0143fc86427d563bfedd00be7e64707e0321744d0d7f0aee5afa0a8",
+      "structure_sha256": "555ddc5bffa745014e68eab79fa83312c9b18ed06f484434fc5d76e2064336ea"
+    },
+    {
+      "migration_id": "000005_employee_receiving_pool_eligibility",
+      "checksum": "ddf1ef937c76997f9fe7e27909d0b63ef6cf1425c056acb6dc9b65527d2e4cce",
+      "structure_sha256": "c90b94247b5ad1d8f4a9a63ffed94cab47d9ec147f0ad852329eb8cc4625d97a"
+    },
+    {
+      "migration_id": "000006_explicit_team_memberships",
+      "checksum": "77f22227c1e8bcec118c54b6f1b707c07c641307b51d10ade3ca392592a799af",
+      "structure_sha256": "b5e4c698ffa648d5ab7af4d7e389c23a40eb080849a812e0fc50699b4687e572"
+    }
+  ]
+}
