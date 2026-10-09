@@ -1,11 +1,11 @@
 {
   "migration_id": "000007_handover_batch_item_ledger",
   "previous_structure_sha256": "b5e4c698ffa648d5ab7af4d7e389c23a40eb080849a812e0fc50699b4687e572",
-  "sql_sha256": "DISCOVERY_PENDING",
-  "structure_sha256": "DISCOVERY_PENDING",
+  "sql_sha256": "e35fcda4e7a730a3e0342dbfc74fd780e3f7ccca4680c6de2725f89396d8730a",
+  "structure_sha256": "96328994b19e1fef7261ae41bd890575bd196210e85baec685d0192676aff0dd",
   "tables": 88,
-  "columns": 0,
-  "constraints": 0,
-  "indexes": 0,
+  "columns": 536,
+  "constraints": 344,
+  "indexes": 138,
   "approved_physical_added_keys": []
 }

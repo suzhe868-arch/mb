@@ -60,7 +60,7 @@ async function chain(c,m,old=false){
 async function config(discovery=false){
  const m=await manifest();
  if(m.migration_id!==ID||m.previous_structure_sha256!==PREVIOUS)throw Error('F03_2E_MANIFEST_DENY');
- if(!discovery&&(m.sql_sha256!==checksum||!/^[a-f0-9]{64}$/.test(m.structure_sha256)||m.tables!==88||m.columns!==0||m.constraints!==0||m.indexes!==0))throw Error('F03_2E_MANIFEST_UNPINNED');
+ if(!discovery&&(m.sql_sha256!==checksum||!/^[a-f0-9]{64}$/.test(m.structure_sha256)||m.tables!==88||m.columns!==536||m.constraints!==344||m.indexes!==138))throw Error('F03_2E_MANIFEST_UNPINNED');
  return m;
 }
 const tables=async c=>(await c.query("SELECT count(*)::integer n FROM pg_tables WHERE schemaname='public'")).rows[0].n;
