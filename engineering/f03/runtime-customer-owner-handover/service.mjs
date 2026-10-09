@@ -43,6 +43,21 @@ async function authenticated(auth,token,fn,options={}){
  },{normalOnly:true})??out('H02_SESSION_DENY')}catch(e){if(['55P03','40P01','57014','40001'].includes(e.code))return out('H04_CONTENTION_DEFER_DENY');throw e}
 }
 const display=r=>({receiptId:Number(r.receipt_id),batchId:Number(r.batch_id),itemId:Number(r.item_id),customerId:Number(r.customer_id),fromEmployeeId:Number(r.from_employee_id),toEmployeeId:Number(r.to_employee_id),actorEmployeeId:Number(r.actor_employee_id),teamId:Number(r.scope_team_id),ownerHistoryId:Number(r.owner_history_id),auditId:Number(r.audit_id),requestKeySha256:r.request_key_sha256,committedAt:r.committed_at.toISOString(),customerOwnerDomainTransferred:true,otherDomainsCompleted:false,batchCompleted:false,noSourceDowngradePermission:true});
+async function receiptProven(c,r){
+ // An FK-valid forged receipt alone proves nothing. Verify the exact linked
+ // frozen pending Customer item, immutable owner history and matching actor audit.
+ const q=await c.query("SELECT h.customer_id hc,h.from_employee_id hf,h.to_employee_id ht,h.changed_at ht_at,b.source_employee_id bs,b.initiated_by_id ba,i.batch_id ib,i.object_kind ik,i.object_id io,i.from_employee_id ifrom,i.intended_to_employee_id ito,a.actor_kind ak,a.actor_id aid,a.object_kind aok,a.object_id aoid,a.action act,a.role_context rc,a.before_json bj,a.after_json aj,a.occurred_at at FROM public.customer_owner_history h JOIN public.handover_batches b ON b.batch_id=$2 JOIN public.handover_items i ON i.item_id=$3 JOIN public.audit_events a ON a.audit_id=$4 WHERE h.owner_history_id=$1",[r.owner_history_id,r.batch_id,r.item_id,r.audit_id]);
+ const v=q.rows[0];
+ if(!v||q.rows.length!==1)return false;
+ return str(v.hc)===str(r.customer_id)&&str(v.hf)===str(r.from_employee_id)&&str(v.ht)===str(r.to_employee_id)&&
+  str(v.bs)===str(r.from_employee_id)&&str(v.ba)===str(r.actor_employee_id)&&
+  str(v.ib)===str(r.batch_id)&&v.ik==='Customer'&&v.io===str(r.customer_id)&&
+  str(v.ifrom)===str(r.from_employee_id)&&str(v.ito)===str(r.to_employee_id)&&
+  v.ak==='employee'&&v.aid===str(r.actor_employee_id)&&v.aok==='Customer'&&v.aoid===str(r.customer_id)&&v.act==='customer.owner.handover'&&
+  v.rc?.scope==='SG06_CI_ONLY_CUSTOMER_OWNER'&&str(v.rc?.batchId)===str(r.batch_id)&&str(v.rc?.itemId)===str(r.item_id)&&str(v.rc?.teamId)===str(r.scope_team_id)&&v.rc?.requestKeySha256===r.request_key_sha256&&
+  str(v.bj?.owner)===str(r.from_employee_id)&&str(v.aj?.owner)===str(r.to_employee_id)&&str(v.aj?.historyId)===str(r.owner_history_id)&&
+  v.ht_at?.getTime()===r.committed_at?.getTime()&&v.at?.getTime()===r.committed_at?.getTime();
+}
 export async function prepareCustomerOwnerHandover(auth,token,p,opt){
  if(!input(p))return out('H01_BAD_REQUEST');
  return authenticated(auth,token,async(c,a)=>{
@@ -55,6 +70,7 @@ async function transfer(c,a,p,hook){
  const f=await facts(c,a,p,true);if(f.error)return out(f.error);
  const old=(await c.query('SELECT * FROM public.customer_owner_handover_receipts WHERE item_id=$1 FOR SHARE',[p.itemId])).rows[0],sha=digest(p.clientRequestKey);
  if(old){
+  if(!await receiptProven(c,old))return out('H04_RECEIPT_PROOF_DENY');
   if(str(old.batch_id)!==str(p.batchId)||str(old.from_employee_id)!==str(p.fromEmployeeId)||str(old.to_employee_id)!==str(p.recipientEmployeeId)||str(old.customer_id)!==str(f.customerId)||old.request_key_sha256!==sha)return out('H04_COLLISION_DENY');
   if(str(f.customer.current_owner_employee_id)!==str(p.recipientEmployeeId))return out('H04_RECEIPT_OWNER_TAMPER_DENY');
   return out('H04_IDEMPOTENT_RECEIPT',{receipt:display(old),idempotent:true});
@@ -81,6 +97,7 @@ export async function readCustomerOwnerHandoverReceipt(auth,token,p,opt){
  return authenticated(auth,token,async(c,a)=>{
   const r=(await c.query('SELECT * FROM public.customer_owner_handover_receipts WHERE batch_id=$1 AND item_id=$2 FOR SHARE',[p.batchId,p.itemId])).rows[0];
   if(!r||str(r.scope_team_id)!==str(p.teamId))return out('H04_RECEIPT_ABSENT');
+  if(!await receiptProven(c,r))return out('H04_RECEIPT_PROOF_DENY');
   const f=await facts(c,a,{...p,fromEmployeeId:Number(r.from_employee_id),recipientEmployeeId:Number(r.to_employee_id)});
   if(f.error)return out(f.error);
   return out('H04_RECEIPT_READ_ONLY',{receipt:display(r),otherDomainsCompleted:false});
