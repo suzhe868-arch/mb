@@ -84,6 +84,7 @@ test('G11 HTTPS refuses forged identity, duplicate cookie, unknown operation and
  assert.deepEqual(await call(token,{operation:'?;DROP TABLE system_admins'}),{status:403,code:'UNKNOWN_OR_RETIRED_OPERATION'});
 });
 test('G12 4S revoke through independent PG session denies old authenticated HTTPS PC probe',async()=>{
+ await db.query("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(2,10,'allow',now()) ON CONFLICT(employee_id,permission_id) DO UPDATE SET decision='allow',changed_at=now()");
  const s=await auth.login({login:'four_s_test',password:'SyntheticFourS_123456',source:'f03_2_https_4s'});
  assert.equal(s.code,'AUTH_OK');
  assert.equal((await call(s.token,{operation:'vehicle.read'})).code,'TECH_ALIAS_NOT_APPROVED');
