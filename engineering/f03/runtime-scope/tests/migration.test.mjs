@@ -35,16 +35,12 @@ test('M05 unknown physical object, wrong migration checksum/version, tampering o
  await c.query('CREATE VIEW public.ci_rogue_scope_view AS SELECT 1 AS rogue');
  await assert.rejects(()=>verify(c),/F03_2_1B_FULL_PHYSICAL_DRIFT/);
  await c.query('DROP VIEW public.ci_rogue_scope_view');
- await c.query('BEGIN');
- try{
-  await c.query("UPDATE public.f03_schema_migrations SET checksum='tampered' WHERE migration_id='000003_employee_capability_scope_bindings'");
-  await assert.rejects(()=>verify(c),/F03_2_1B_VERSION_DRIFT/);
- }finally{await c.query('ROLLBACK')}
- await c.query('BEGIN');
- try{
-  await c.query("UPDATE public.f03_schema_migrations SET migration_id='wrong_version' WHERE migration_id='000003_employee_capability_scope_bindings'");
-  await assert.rejects(()=>verify(c),/F03_2_1B_VERSION_DRIFT/);
- }finally{await c.query('ROLLBACK')}
+ await c.query("UPDATE public.f03_schema_migrations SET checksum='tampered' WHERE migration_id='000003_employee_capability_scope_bindings'");
+ await assert.rejects(()=>verify(c),/F03_2_1B_VERSION_DRIFT/);
+ await c.query("UPDATE public.f03_schema_migrations SET checksum=$1 WHERE migration_id='000003_employee_capability_scope_bindings'",[(await import('../migration.mjs')).checksum]);
+ await c.query("UPDATE public.f03_schema_migrations SET migration_id='wrong_version' WHERE migration_id='000003_employee_capability_scope_bindings'");
+ await assert.rejects(()=>verify(c),/F03_2_1B_VERSION_DRIFT/);
+ await c.query("UPDATE public.f03_schema_migrations SET migration_id='000003_employee_capability_scope_bindings' WHERE migration_id='wrong_version'");
  assert.equal((await verify(c)).verified,true);
 });
 test('M06 exact CI-only inverse rollback leaves original 80-table structure with original SHA, then reapply',async()=>{
