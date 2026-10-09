@@ -161,6 +161,111 @@ test('G06/G07 retry_required still not completed; business history and audit unc
  assert.deepEqual(await immutable(),afterSetup);
  assert.equal(afterSetup.handover_items.length,before.handover_items.length);
 });
+
+test('A-G-01 inactive planned_disable and sudden_inactive trusted source enumerate current owner/domain without transfer',async()=>{
+ const before=await immutable();
+ const d=await createHandoverDraft(auth,manager,{changeKind:'planned_disable',invalidAt:null,reason:'SG06 2G synthetic pre-leave handover',requestKey:'sg06-g-inactive-plan-00001',sourceEmployeeId:7});
+ assert.equal(d.code,'LEDGER_DRAFT_CREATED');
+ const sudden=(await db.query("INSERT INTO public.handover_batches(source_employee_id,change_kind,initiated_by_kind,initiated_by_id,client_request_key,reason) VALUES (7,'sudden_inactive','employee',5,'sg06-g-inactive-sudden-001','Synthetic offline recorded pending batch') RETURNING batch_id")).rows[0].batch_id;
+ await db.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=7");
+ try{
+  for(const id of [d.batchId,Number(sudden)]){
+   const r=await impact(auth,manager,{batchId:id,teamId:901});
+   assert.equal(r.code,'G03_IMPACT_READ_ONLY');assert.equal(r.objects.some(x=>x.kind==='Customer'&&x.objectId==='301'&&x.responsibleEmployeeId==='7'),true);
+   assert.equal((await coverage(auth,manager,{batchId:id,recipientEmployeeId:4,teamId:901})).overall,'DEFER_DENY');
+  }
+  const unchangedPlan=await imp();
+  assert.equal(unchangedPlan.code,'G02_BATCH_NOT_OWNED_OR_INACTIVE_SOURCE');
+  const membership=(await db.query("SELECT membership_id FROM public.employee_team_memberships WHERE team_id=901 AND employee_id=7 AND ended_at IS NULL")).rows[0].membership_id;
+  await db.query('UPDATE public.employee_team_memberships SET ended_at=now() WHERE membership_id=$1',[membership]);
+  try{
+   const refused=await impact(auth,manager,{batchId:d.batchId,teamId:901});
+   assert.equal(refused.code,'G01_HANDOVER_AUTHORITY_GAP');
+  }finally{await db.query('UPDATE public.employee_team_memberships SET ended_at=NULL WHERE membership_id=$1',[membership])}
+ }finally{
+  await db.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=7");
+  await db.query('DELETE FROM public.handover_batches WHERE batch_id=$1',[sudden]);
+  await db.query('DELETE FROM public.handover_batches WHERE batch_id=$1',[d.batchId]);
+ }
+ assert.deepEqual(await immutable(),before);
+});
+test('A-G-03 missing vs pending, same-destination cross-batch duplicate and differing target/owner conflicts',async()=>{
+ const baseline=await immutable();
+ assert.equal((await cov()).findings.find(x=>x.kind==='Customer'&&x.objectId==='302').reason,'MISSING_ITEM');
+ assert.equal((await cov()).findings.find(x=>x.kind==='Customer'&&x.objectId==='301').reason,'REVALIDATE'); // prior test persisted 2E retry_required
+ const draft=await createHandoverDraft(auth,manager,{changeKind:'planned_transfer',invalidAt:null,reason:'Synthetic duplicate mapping check',requestKey:'sg06-g-crossbatch-000001',sourceEmployeeId:7});
+ const alt=draft.batchId;
+ assert.equal(draft.code,'LEDGER_DRAFT_CREATED');
+ const z=await addPendingHandoverItem(auth,manager,{batchId:alt,fromEmployeeId:7,intendedToEmployeeId:4,objectKind:'Customer',objectId:'301'});
+ assert.equal(z.code,'LEDGER_ITEM_PENDING_ONLY');
+ try{
+  const both=await cov();
+  const f=both.findings.find(x=>x.kind==='Customer'&&x.objectId==='301');
+  assert.equal(f.reason,'CONFLICT');assert.equal(f.relatedBatchIds.includes(String(alt)),true);
+  assert.equal(f.relatedItemIds.includes(String(z.itemId)),true);assert.equal(f.crossBatchSourceOrTargetMismatch,false);
+  await db.query('UPDATE public.handover_items SET intended_to_employee_id=6 WHERE item_id=$1',[z.itemId]);
+  assert.equal((await cov()).findings.find(x=>x.kind==='Customer'&&x.objectId==='301').crossBatchSourceOrTargetMismatch,true);
+  await db.query('UPDATE public.handover_items SET from_employee_id=6 WHERE item_id=$1',[z.itemId]);
+  assert.equal((await cov()).findings.find(x=>x.kind==='Customer'&&x.objectId==='301').reason,'CONFLICT');
+ }finally{
+  await db.query('DELETE FROM public.audit_events WHERE action IN (\'handover.item.pending\',\'handover.batch.draft\') AND ((object_kind=\'handover_item\' AND object_id=$1) OR (object_kind=\'handover_batch\' AND object_id=$2))',[String(z.itemId),String(alt)]);
+  await db.query('DELETE FROM public.handover_items WHERE batch_id=$1',[alt]);
+  await db.query('DELETE FROM public.handover_batches WHERE batch_id=$1',[alt]);
+ }
+ assert.deepEqual(await immutable(),baseline);
+});
+test('A-G-04 cross-Team same Customer foreign Demand/Consultation/Lock/Priority/Recommendation never disclose foreign object ID, assignee or state',async()=>{
+ const baseline=await immutable();
+ await db.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility) VALUES(1003,'mingbang','available','visible')");
+ await db.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES(2003,1003,now()-interval '1 day')");
+ try{
+  await db.query("INSERT INTO public.demands(demand_id,customer_id,responsible_employee_id,demand_state,criteria_json) VALUES (406,301,1,'active','{}'::jsonb)");
+  await db.query("INSERT INTO public.consultations(consultation_id,customer_id,vehicle_id,assignee_employee_id,status,source_relation,listing_cycle_id) VALUES(5033,301,1003,1,'processing','{}'::jsonb,2003)");
+  await db.query("INSERT INTO public.locks(lock_id,vehicle_id,customer_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) VALUES(5053,1003,301,2003,'active',1,now()-interval '1 hour',now()+interval '3 hours')");
+  await db.query("INSERT INTO public.recommendations(recommendation_id,vehicle_id,customer_id,listing_cycle_id,source_demand_id,status,recommender_employee_id) VALUES (5022,1003,301,2003,406,'active',1)");
+  await db.query("INSERT INTO public.demand_match_results(result_id,demand_id,vehicle_id,listing_cycle_id,match_tier,match_explanation,current_state,calculated_at) VALUES(3012,406,1003,2003,'high','{}'::jsonb,'current',now())");
+  await db.query("INSERT INTO public.priority_leases(priority_id,vehicle_id,customer_id,trigger_demand_id,status,expires_at,listing_cycle_id,source_match_result_id) VALUES(5012,1003,301,406,'active',now()+interval '3 hours',2003,3012)");
+  const r=await imp();
+  assert.equal(r.code,'G03_IMPACT_READ_ONLY');
+  for(const [kind,id] of [['Demand','406'],['Consultation','5033'],['Lock','5053'],['Recommendation','5022'],['Priority','5012']])assert.equal(r.objects.some(x=>x.kind===kind&&x.objectId===id),false);
+  for(const kind of ['Demand','Consultation','Lock','Recommendation','Priority'])assert.equal(r.protectedGaps.some(x=>x.kind===kind&&x.reason==='OUT_OF_SCOPE_DEFER_DENY'&&x.count>=1),true);
+  const covr=await cov();
+  assert.equal(covr.overall,'DEFER_DENY');assert.equal(covr.findings.some(x=>x.reason==='OUT_OF_SCOPE_DEFER_DENY'),true);
+  const serialized=JSON.stringify({objects:r.objects,findings:covr.findings});
+  for(const sensitiveId of ['406','5033','5053','5022','5012'])assert.equal(serialized.includes('"objectId":"'+sensitiveId+'"'),false);
+  assert.equal((await pref()).code,'PREFLIGHT_FACTS_CURRENT_BUT_WRITE_DENIED');
+ }finally{
+  await db.query('DELETE FROM public.priority_leases WHERE priority_id=5012');
+  await db.query('DELETE FROM public.demand_match_results WHERE result_id=3012');
+  await db.query('DELETE FROM public.recommendations WHERE recommendation_id=5022');
+  await db.query('DELETE FROM public.consultations WHERE consultation_id=5033');
+  await db.query('DELETE FROM public.locks WHERE lock_id=5053');
+  await db.query('DELETE FROM public.demands WHERE demand_id=406');
+  await db.query('DELETE FROM public.vehicle_listing_cycles WHERE listing_cycle_id=2003');
+  await db.query('DELETE FROM public.vehicles WHERE vehicle_id=1003');
+ }
+ assert.deepEqual(await immutable(),baseline);
+});
+test('A-G-02 lock contention fails closed and prevents phantom Demand/Lock insert across PG16 sessions',async()=>{
+ const base=await immutable();
+ await db.query('BEGIN');
+ await db.query("UPDATE public.customers SET owner_assignment_state='assigned' WHERE customer_id=301");
+ try{
+  const r=await pref();assert.equal(r.code,'G05_LOCK_CONTENTION_DEFER_DENY');
+ }finally{await db.query('ROLLBACK')}
+ assert.deepEqual(await immutable(),base);
+ let pending,done=false;
+ const locked=await pref(manager,4,901,{testCheckpoint:async step=>{if(step==='after_first_read'){
+  pending=db.query("INSERT INTO public.demands(demand_id,customer_id,responsible_employee_id,demand_state,criteria_json) VALUES(407,301,7,'active','{}'::jsonb)").then(()=>{done=true});
+  await new Promise(ok=>setTimeout(ok,110));
+  assert.equal(done,false,'SHARE table lock forbids new Demand phantom while preflight is active');
+ }}});
+ assert.equal(locked.code,'PREFLIGHT_FACTS_CURRENT_BUT_WRITE_DENIED');
+ await pending;
+ try{assert.equal((await imp()).objects.some(x=>x.kind==='Demand'&&x.objectId==='407'),true)}
+ finally{await db.query('DELETE FROM public.demands WHERE demand_id=407')}
+ assert.deepEqual(await immutable(),base);
+});
 test('G01/G07 existing migration tamper and extra public schema fail closed; nothing persists',async()=>{
  const before=await immutable();
  const checksum=(await db.query("SELECT checksum FROM public.f03_schema_migrations WHERE migration_id='000007_handover_batch_item_ledger'")).rows[0].checksum;
