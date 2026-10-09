@@ -9,3 +9,7 @@ A2B-07	事务故障注入、NO_OP无历史/审计	integration.test	完整回滚
 A2B-08	额外命名空间、非白名单动作硬拒	integration.test	拒绝
 A2B-09	冻结80/81表分别新PG16回归	独立CI jobs	不能用82表冒充
 A2B-10	固定SHA、完整manifest、原始结构/清单和证据归档	最终成功CI和交接	READY_FOR_A_REVIEW
+A2B-01-N	000003历史checksum篡改校验及幂等迁移拒绝	integration.test	严格拒绝并恢复
+A2B-02-N	bootstrap各阶段失败注入完全回滚	bootstrap.test	无admin/account/claim/audit副作用
+A2B-03-N	正常员工/4S/撤销旧会话均无管理权	integration.test	拒绝
+A2B-07-N	真实82表已使用claim不能回退，未使用前精确回退	独立bootstrap CI	只允许干净一次性回滚

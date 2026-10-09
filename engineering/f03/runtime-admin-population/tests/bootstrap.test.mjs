@@ -8,6 +8,14 @@ const db=await connect();
 test.after(async()=>db.end());
 test('A2B-02 fresh disposable database atomic claim: exactly one winner and audited identity',async()=>{
  const before=(await db.query("SELECT count(*)::integer n FROM public.system_admins")).rows[0].n;assert.equal(before,0);
+ for(const stage of ['after_admin','after_credential','after_audit','before_commit']){
+  await assert.rejects(()=>claim({testCheckpoint:async point=>{if(point===stage)throw Error('CI_BOOTSTRAP_ROLLBACK_'+point)}}),new RegExp('CI_BOOTSTRAP_ROLLBACK_'+stage));
+  assert.equal((await db.query('SELECT count(*)::integer n FROM public.system_admins')).rows[0].n,0);
+  assert.equal((await db.query("SELECT count(*)::integer n FROM public.pc_login_accounts WHERE principal_kind='system_admin'")).rows[0].n,0);
+  assert.equal((await db.query("SELECT count(*)::integer n FROM public.audit_events WHERE action='system_admin.bootstrap_claim'")).rows[0].n,0);
+  const guard=(await db.query('SELECT version,bootstrap_claimed_at FROM public.governance_population_guards')).rows[0];
+  assert.equal(Number(guard.version),0);assert.equal(guard.bootstrap_claimed_at,null);
+ }
  const claims=await Promise.allSettled([claim(),claim(),claim()]);
  assert.equal(claims.filter(x=>x.status==='fulfilled').length,1);
  assert.equal(claims.filter(x=>x.status==='rejected'&&/BOOTSTRAP_ALREADY_USED/.test(x.reason?.message)).length,2);

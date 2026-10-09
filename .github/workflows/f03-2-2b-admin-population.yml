@@ -70,6 +70,8 @@ jobs:
           node f03/runtime-admin-population/runner.mjs --apply
           node f03/runtime-admin-population/runner.mjs --verify
           node f03/runtime-admin-population/runner.mjs --apply
+          if node f03/runtime-admin-population/runner.mjs --rollback; then echo 'CLAIMED_ROLLBACK_MUST_DENY'; exit 1; fi
+          node f03/runtime-admin-population/runner.mjs --verify
       - name: Run real PG16 A2B identity/session/population, concurrency, fault and namespace negatives
         run: |
           set -euo pipefail
@@ -166,12 +168,18 @@ jobs:
           node f03-1/runner.mjs --bootstrap
           node f03-1/runner.mjs --apply
           node f03/runtime-scope/runner.mjs --apply
+          if node f03/runtime-admin-population/runner.mjs --inject; then echo 'DDL_FAILURE_INJECTION_MUST_DENY'; exit 1; fi
+          node f03/runtime-scope/runner.mjs --verify
+          node f03/runtime-admin-population/runner.mjs --apply
+          node f03/runtime-admin-population/runner.mjs --rollback
+          node f03/runtime-scope/runner.mjs --verify
           node f03/runtime-admin-population/runner.mjs --apply
           node f03/runtime-admin-population/runner.mjs --verify
       - name: Real concurrent first-account claim, actual login and irrevocability
         run: |
           set -euo pipefail
           node --test f03/runtime-admin-population/tests/bootstrap.test.mjs
+          if node f03/runtime-admin-population/runner.mjs --rollback; then echo 'BOOTSTRAP_CLAIMED_ROLLBACK_MUST_DENY'; exit 1; fi
           node f03/runtime-admin-population/runner.mjs --verify
   f03-2-2a-pg16-template:
     name: F03-2-2A sealed 81-table admin governance CI

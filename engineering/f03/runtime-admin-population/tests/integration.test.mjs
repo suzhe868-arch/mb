@@ -44,8 +44,15 @@ test('A2B-03 only normal current genuine Admin session, never employee/forged/re
  const admin=await login(9);
  const employee=await auth.login({login:'employee_test',password:'SyntheticPassword_12345',source:'employee_restricted'});
  assert.equal(employee.restricted,true);
+ const upgraded=await auth.change({token:employee.token,csrf:employee.csrf,oldPassword:'SyntheticPassword_12345',newPassword:'SyntheticSG05Employee_2026'});
+ assert.equal(upgraded.code,'PASSWORD_CHANGED_REAUTH_REQUIRED');
+ const employeeNormal=await auth.login({login:'employee_test',password:'SyntheticSG05Employee_2026',source:'sg05_employee_normal'});
+ assert.equal(employeeNormal.code,'AUTH_OK');assert.equal(employeeNormal.restricted,false);
+ const four=await auth.login({login:'four_s_test',password:'SyntheticFourS_123456',source:'sg05_four_s'});
+ assert.equal(four.code,'AUTH_OK');
+ const revoked=await login(10);await auth.logout(revoked);
  const before=await facts();
- for(const token of [employee.token,null,'x'.repeat(43),123]){
+ for(const token of [employee.token,employeeNormal.token,four.token,revoked,null,'x'.repeat(43),123]){
   assert.equal((await op(token,11)).changed,false);
  }
  for(const bad of [
@@ -123,5 +130,22 @@ test('A2B-08 unsupported target or extra namespace fails closed without widening
  await assert.rejects(()=>verify(db),/F03_2B_IDENTITY_OR_NAMESPACE_DENY/);
  await assert.rejects(()=>op(actor,11),/F03_2B_IDENTITY_OR_NAMESPACE_DENY/);
  await db.query('DROP SCHEMA ci_rogue_scope CASCADE');
+ assert.equal((await verify(db)).verified,true);
+});
+
+test('A2B-01 historical migration checksum/structure seal tamper denies verification and idempotent reapply without DDL changes',async()=>{
+ const {apply}=await import('../migration.mjs');
+ const rows=(await db.query("SELECT migration_id,checksum FROM public.f03_schema_migrations WHERE migration_id='000003_employee_capability_scope_bindings'")).rows;
+ assert.equal(rows.length,1);const original=rows[0].checksum;
+ const before=await facts();
+ try{
+  await db.query("UPDATE public.f03_schema_migrations SET checksum='CI_UNAPPROVED' WHERE migration_id='000003_employee_capability_scope_bindings'");
+  await assert.rejects(()=>verify(db),/F03_2B_MIGRATION_CHAIN_DRIFT/);
+  await assert.rejects(()=>apply(db),/F03_2B_MIGRATION_CHAIN_DRIFT/);
+ }finally{
+  await db.query('UPDATE public.f03_schema_migrations SET checksum=$1 WHERE migration_id=$2',[original,rows[0].migration_id]);
+ }
+ const after=await facts();
+ assert.deepEqual(after,before);
  assert.equal((await verify(db)).verified,true);
 });
