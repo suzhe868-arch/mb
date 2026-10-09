@@ -9,6 +9,9 @@ jobs:
   f03-2-1b-pg16-scope:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: write  # only commit approved sanitized structure evidence to this B branch
+      actions: read    # retrieve a precisely named past SUCCESSFUL source-run artifact
     services:
       postgres:
         image: postgres:16-alpine
@@ -54,6 +57,7 @@ jobs:
           node f03/runtime-design/verify-contract.mjs
           node --test f03/runtime-design/tests/*.test.mjs
           node --test f03/runtime-facts/tests/evidence-hashes.test.mjs
+          node --test f03/runtime-scope/tests/archive-evidence.test.mjs
       - name: Create only single disposable PG16 and refuse unsafe URL/seal
         run: |
           set -euo pipefail
@@ -115,6 +119,26 @@ jobs:
           docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > f03/runtime-scope/artifacts/pg16_schema_only.sql
           sha256sum f03/runtime-scope/artifacts/pg16_schema_only.sql f03/runtime-scope/artifacts/pg16_inventory.json | tee f03/runtime-scope/artifacts/sha256sums.txt
           node f03/runtime-scope/evidence.mjs --check
+      - name: Download original full-structure evidence from successful CI37901077203, no user-provided files
+        uses: actions/download-artifact@v4
+        with:
+          name: f03-2-1b-sealed-pg16-scope-structure-and-revocation
+          run-id: 37901077203
+          repository: suzhe868-arch/mb
+          github-token: ${{ github.token }}
+          path: /tmp/f03-2-1b-source-artifact
+      - name: Materialize five ORIGINAL byte-for-byte source-run structure files, check original+current real SHA256
+        run: |
+          set -euo pipefail
+          if test ! -f f03/runtime-scope/evidence/SOURCE.md; then
+            mkdir -p f03/runtime-scope/evidence
+            for name in old-structure.json new-structure.json pg16_schema_only.sql pg16_inventory.json sha256sums.txt; do
+              test -s "/tmp/f03-2-1b-source-artifact/$name"
+              cp "/tmp/f03-2-1b-source-artifact/$name" "f03/runtime-scope/evidence/$name"
+            done
+            printf 'source_run_id: 37901077203\nsource_job_id: 113723526760\nsource_commit_sha: df27522891438c51ff8847cc5e018b698c0a98fc\nsource_artifact_id: 11602367762\nsource_name: f03-2-1b-sealed-pg16-scope-structure-and-revocation\nraw_original_files: untouched, not synthesized\nonly_pg_dump_variance: paired per-export restrict/unrestrict random key\n' > f03/runtime-scope/evidence/SOURCE.md
+          fi
+          node f03/runtime-scope/archive-evidence.mjs
       - name: Secret scan and only structural tests in artifacts
         if: always()
         run: |
@@ -129,6 +153,23 @@ jobs:
           path: engineering/f03/runtime-scope/artifacts/
           retention-days: 30
           if-no-files-found: warn
+      - name: Persist ORIGINAL verified PG16 source schema evidence in B branch only (no existing file overwrite)
+        if: success()
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = 'refs/heads/feat/f03-runtime-scope'
+          if git ls-files --error-unmatch f03/runtime-scope/evidence/SOURCE.md >/dev/null 2>&1; then
+            echo 'F03-2-1B E1 source archive already committed; final CI read-only validation successful'
+          else
+            git config user.name 'F03-2-1B sealed evidence bot'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -- f03/runtime-scope/evidence/SOURCE.md f03/runtime-scope/evidence/old-structure.json f03/runtime-scope/evidence/new-structure.json f03/runtime-scope/evidence/pg16_schema_only.sql f03/runtime-scope/evidence/pg16_inventory.json f03/runtime-scope/evidence/sha256sums.txt
+            git diff --cached --quiet && { echo 'E1_SOURCE_ARCHIVE_NOT_STAGED'; exit 1; }
+            git commit -m 'F03-2-1B E1: archive five original CI37901077203 structure artifacts with SHA provenance'
+            git push origin HEAD:refs/heads/feat/f03-runtime-scope
+            echo 'NEW_COMMIT_REQUIRES_ITS_OWN_FINAL_SAME_SHA_CI'
+          fi
+
   f03-1-original-real-integration:
     name: F03-1 frozen real security integration - its OWN new PG16
     runs-on: ubuntu-latest
