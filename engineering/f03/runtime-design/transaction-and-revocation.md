@@ -15,7 +15,7 @@
 - 只读请求在其可信一致性快照内检查当前事实；后续独立请求不得使用会话内缓存的role、template、scope、object grants。F03-1仍负责身份凭证撤销；F03-2-1需先由A另行批准独立真实PG16 Guard测试。
 - 业务写事务必须在同一数据库事务内完成授权相关状态锁定、最新事实/对象重验、业务变更和审计；先HTTP授权再在另一个无关联事务写入是不合格的TOCTOU。提交前发生撤权时，**拒绝提交或在串行冲突后重试整个资格判定**。
 - 仅假模型使用`versions.policy/admin/receiving`与`observedVersion`模拟串行点。真实实现不得把前端传入`observedVersion`当成可信凭证；必须后端事务读取当前版本/锁。
-- 普通权限变更：当前状态→不可变对应history→`audit_events`最小脱敏before/after及当时role/store→版本变化，在**同一个事务**内完成。失败回滚权限与history/audit；重试幂等须按actor、target、动作、请求去重键验证身份范围，不能只看布尔成功。
+- 普通权限变更：当前状态→不可变对应history（模板复用现有`role_default_permission_history`）→`audit_events`真实最小脱敏before/after及当时role/store→版本变化，在**同一个事务**内完成。失败回滚权限与history/audit；重试幂等须按actor、target、动作、请求去重键验证身份范围，不能只看布尔成功。
 - planned角色/主店/权限减少：先扫描当前Customer owner、Demand/Priority、Consultation assignee、Waitlist/Lock/Transaction responsible及每域依赖；若受影响则要求每项可信已提交的handover证明，未完成拒绝计划变更。User`handoverComplete=true`无效。
 - sudden inactive：先原子更新无资格身份、撤当前敏感能力/旧PC会话，随后由当前合法接手者分域交接。异常接客池空进入`customers.owner_assignment_state=owner_assignment_pending`并告警，不为了凑人数复活失效者，不生成无负责人正式业务。复职保留`employee_id`，不复活旧会话、个人覆盖、已交责任，接客默认OFF；当前新role模板只有获批有效事实可重新适用。
 
@@ -42,3 +42,11 @@
 
 ## 5. 合成模型限制与未来门禁
 `model.mjs`仅是不可接线业务的算法说明：`approvedOperationMappings`和`capabilityScopeProofs`均为**假设存在且由A审查后的受信事实**，不代表生产字段/预设权限。`F03-2-1/2/3`按各自独立施工单实测PG16跨事务交错、advisory锁/更新冲突、commit前重验、负例及审计回滚。当前G0任何静态PASS不能宣称已部署动态授权。
+
+## A首轮复验 R1～R5 明确限制
+
+- **R1**：模板历史表`public.role_default_permission_history(event_id,role_id,permission_id,enabled,actor_kind,actor_id,occurred_at)`已存在；不新增同义表，必须与当前enabled变更和`audit_events`同事务。历史不授当前权。
+- **R2**：`template.set`只能由System Admin控制面执行，不能由经理/店长的员工授权替代；员工管理其他合法动作按Final保留。
+- **R3**：`receiving.off`及`employee.planned_disable`正常操作共享变更后池检查：只能计算当前名邦Employee合法角色、active、可信eligible、accepting；排除4S和System Admin。操作不能使最后合格接客者归零；突发inactive应先撤权，异常池空进入待分配。
+- **R4**：4S必须每次重验F03-1规定的`employee_permission_overrides.decision=allow`且`permissions.permission_code=pc.four_s.vehicle.manage`，模板默认值不替代PC入口个人允许，deny/revoke则旧会话所有PC业务拒绝。
+- **R5**：只记录最小、真实、脱敏的模板enabled、个人decision、scope ended_at、员工角色/门店/接客、管理员凭证、handover状态等before/after和当时actor/role/store。新增before可为null，撤销after须为真实无覆盖状态；审计失败治理与历史一起回滚，禁止hash/token/密码/完整电话。

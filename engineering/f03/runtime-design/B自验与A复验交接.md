@@ -1,6 +1,6 @@
 # F03-2-G0｜B自验与A独立复验交接｜2026-10-09
 
-**状态：B_READY_FOR_A_REVIEW / F03_2_G0_ACCEPTED=NO / F03_2_ACCEPTED=NO / PRODUCT_BASELINE=NOT_READY**。
+**状态：B_R1_R5_REMEDIATION_PENDING_FINAL_CI / F03_2_G0_ACCEPTED=NO / F03_2_ACCEPTED=NO / PRODUCT_BASELINE=NOT_READY**。
 
 ## 1. 基准、放行与提交
 - A正式签发`F03_2_G0_AUTHORIZED / USER_APPROVED / A_RELEASED`；正式放行：`07_重建工作区/F03-2-G0_A主控事实映射与事务方案施工放行_2026-10-09.md`。详细范围遵守F03-2工作单§§4～7。
@@ -36,7 +36,7 @@
 2. **SG-02/03** 无现行团队关系表与独立eligible字段；经理team跨对象管理及接客资格不能靠同门店/accepting推定。
 3. **SG-04/05** 管理员固有控制面与自定义范围、最后effective Admin（身份+凭证）及正常接客池全体串行锁需A裁定并真实并发验证。
 4. **SG-06/07** 批次/单对象handover物理承载和模板/权限提交版本协议尚缺；静态`observedVersion`不允许接客户端输入。
-5. **SG-08/09** Vehicle与publisher上游ID的合法链接尚待核实；角色模板独立不可变历史的实际承载需要A复核，不能将已写changed_at冒充历史。
+5. **SG-08** Vehicle与publisher上游ID的合法链接仍待核实；**SG-09已按已验收SQL闭合**：`role_default_permission_history`及全部七字段真实存在，无需重复表；真实模板治理及历史审计原子性仍待F03-2-2。
 6. **TECH_ALIAS_PENDING_A** 的英文动作名不能假设获批，也不为缺少证据的客户/4S/管理员隐式开启权限。
 7. 静态历史/权限投影不意味着F03-3缓存、导出、字段隔离已经完成；敏感数据一经发至客户端不可宣称远端撤回。
 

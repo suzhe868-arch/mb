@@ -6,7 +6,7 @@
 | 域 | 已纳入当前字段（举证） | 不能推导 |
 |---|---|---|
 | 主体 | `pc_login_accounts.account_id,principal_kind,employee_id,system_admin_id,credential_state,force_password_change`；F03-1`credential_epoch`/sessions；`employees.employee_id,store_id,employment_status,receiving_status,main_role_id`；`system_admins.system_admin_id,account_status` | 登录成功不能授业务权，System Admin不可成为owner |
-| 模板与覆盖 | `roles.role_id,role_code`；`permissions.permission_id,permission_code`；`role_permission_defaults(role_id,permission_id,enabled,changed_at)`；`employee_permission_overrides(employee_id,permission_id,decision,changed_at)`；`employee_permission_override_history(event_id,employee_id,permission_id,decision,actor_kind,actor_id,occurred_at)` | 角色模板历史不可冒充当前；`roles.status`、`permissions.hard_deny_category`均为`DEFER`；不要推定其存在 |
+| 模板与覆盖 | `roles.role_id,role_code`；`permissions.permission_id,permission_code`；`role_permission_defaults(role_id,permission_id,enabled,changed_at)`；`employee_permission_overrides(employee_id,permission_id,decision,changed_at)`；`employee_permission_override_history(event_id,employee_id,permission_id,decision,actor_kind,actor_id,occurred_at)`；**已验收SQL存在** `role_default_permission_history(event_id,role_id,permission_id,enabled,actor_kind,actor_id,occurred_at)` | 角色模板历史不可冒充当前；`roles.status`、`permissions.hard_deny_category`均为`DEFER`；不要推定其存在 |
 | scope | `employee_data_scopes(scope_id,employee_id,scope_kind,scope_reference_id,ended_at)` | 不包含`permission_id`，团队关系无独立授权键、global scope语义未裁定 |
 | 客户与责任 | `customers.current_owner_employee_id,account_status,owner_assignment_state`，`customer_owner_history`；`demands.responsible_employee_id`、`consultations.assignee_employee_id`、`waitlists/locks/transactions.responsible_employee_id` | 各自负责人不自动随Customer owner，历史owner不等于当前 |
 | 车辆/4S | `vehicles.source_type,created_by_employee_id,source_sale_status,platform_visibility` | 4S上传人仅用于自己合法4S车的候选证据；非全域业务owner，不产生跨店team |
@@ -25,8 +25,10 @@
 | SG-06 | `handover_batches(batch_id BIGINT PK, source_employee_id BIGINT FK, initiated_by_kind TEXT, initiated_by_id TEXT, status TEXT, created_at TIMESTAMPTZ)`，`handover_items(item_id BIGINT PK,batch_id BIGINT FK,object_kind TEXT,object_id TEXT,from_employee_id BIGINT,to_employee_id BIGINT,status TEXT,reason TEXT,attempt_count INTEGER,committed_at TIMESTAMPTZ)` | `UNIQUE(batch_id,object_kind,object_id)`幂等；逐域FK/当前负责人验证靠批准的域Guard；每item单独提交，成功不可被失败整体回滚 | 计划降权/调店无已完成受影响责任交接证明即拒绝 |
 | SG-07 | `permission_fact_versions(subject_kind TEXT, subject_id BIGINT, version BIGINT, changed_at TIMESTAMPTZ)` 或经批准的模板/员工/对象行锁协议 | 旧会话缓存权限不可作为提交授权；提交时同TX重验scope、模板及目标状态；全局模板变更需要能使受影响者失效的版本协议 | **DEFER_DENY**跨事务先放权后写入的敏感操作 |
 | SG-08 | 真实`Vehicle → source_platform/upstream_publisher_id`可信链接（建议单独`vehicle_upstream_publishers(vehicle_id BIGINT FK, source_platform TEXT, upstream_publisher_id TEXT,...)`） | `publisher_phone_cache`确有`(source_platform,upstream_publisher_id)`，但冻结`vehicles`无直接upstream_publisher_id；严禁car_code代替，必须先查F05/F04已有来源表并A裁定最小链接 | **DEFER_DENY**无法溯源的取电话/拨号 |
-| SG-09 | `role_permission_default_history(event_id BIGINT PK,role_id BIGINT FK,permission_id BIGINT FK,enabled BOOLEAN,actor_kind TEXT,actor_id TEXT,occurred_at TIMESTAMPTZ)`（若审计事件不能满足独立不可变历史合同） | 当前`role_permission_defaults.changed_at`可证明投影时间，`audit_events`可存脱敏事件；历史独立承载是否已满足需A核实，不能虚称已建专表 | 仅设计，不实施模板变更；待审计与历史结构裁定 |
+| SG-09｜**已闭合，无须新增表** | **现有** `public.role_default_permission_history(event_id BIGINT PK,role_id BIGINT,permission_id BIGINT,enabled BOOLEAN,actor_kind TEXT,actor_id BIGINT NULL,occurred_at TIMESTAMPTZ)`；证据：`engineering/f03-1/evidence/pg16_schema_only.sql` 的真实 `CREATE TABLE` | `role_permission_defaults.enabled,changed_at` 更新与**现有表**历史追加、`audit_events`最小脱敏before/after应同一事务；严禁重复建同义历史表；实际并发需后批验证 | **REUSE_EXISTING / NO_DDL** |
 
-每一条建议都需要 **A书面裁定编号、独立追加迁移ID（高于F03-1的`000002`）、精确checksum/physical fingerprint、事前版本及锁冲突计划、事务回滚/幂等与全新一次性PG16真实证据**；不得改写F02 `000001`或F03-1 `000002`、manifest、已验收runner，不关闭F03-1 80表/版本/真实PG16结构阻断。若新结构与现有startup checker不兼容，需要后批同步支持精确新版本而非绕过Guard。
+SG-01～SG-08新增结构建议需 **A书面裁定编号、独立追加迁移ID（高于F03-1的`000002`）、精确checksum/physical fingerprint、事前版本及锁冲突计划、事务回滚/幂等与全新一次性PG16真实证据**；不得改写F02 `000001`或F03-1 `000002`、manifest、已验收runner，不关闭F03-1 80表/版本/真实PG16结构阻断。若新结构与现有startup checker不兼容，需要后批同步支持精确新版本而非绕过Guard。
+
+SG-09已依已验收SQL认定为真实存在的历史承载。其存在不代表模板治理事务已施工，追加历史及审计的原子性仍需F03-2-2真实隔离环境验证。
 
 本单**只形成文本建议**；物理DDL、角色权限种子、正式团队/接客/交接语义及产品规则均保持未授权。
