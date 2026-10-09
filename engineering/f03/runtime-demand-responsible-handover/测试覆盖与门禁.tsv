@@ -1,0 +1,11 @@
+编号	真实PG16校验	拒绝/结果
+I01	89表完整封印/000009唯一表/严格version+catalog	结构与checksum变化一律DENY
+I02	独立许可+个人deny+当前Team/跨店与店长本店+暂停操作者	permission scope fail-closed
+I03	active/paused支持，completed/cancelled禁止，多Demand独立	DOMAIN_STATE_DENY
+I04	Demand条件更新、审计及单表收据原子提交/5失败注错点	全部rollback
+I05	全局Key跨对象去重，同域幂等，双会话并发单胜	COLLISION_DENY
+I06	Priority有效trigger Demand派生/TTL到期/paused与Match无效拒绝	READ_ONLY/REVALIDATE
+I07	登录态/权限即时撤销、源/承接人失活和Team失效	CURRENT_SCOPE_DENY
+I08	schema-only+full catalog+inventory+SOURCE/跨运行原始字节	ARCHIVE_EXACT_PASS
+I09	2H/2G/2F/2E/2D/2C/2B双/2A/F03-1认证与HTTPS独立新PG16回归	FROZEN_TESTS_PASS
+I10	仅新目录与新workflow、同SHA全绿和中文交接	READY_FOR_A_REVIEW
