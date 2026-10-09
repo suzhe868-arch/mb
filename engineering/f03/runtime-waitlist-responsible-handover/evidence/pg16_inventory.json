@@ -1,0 +1,112 @@
+{
+  "tables": 92,
+  "columns": 584,
+  "constraints": 405,
+  "indexes": 155,
+  "structure_sha256": "6b6932e4855074ed63ec0ceda89b568e1b4b1f62d111c759f9c7a77a841a3c76",
+  "added_catalog_keys": [
+    "column\u0000f03_2_2k_receipt_audit_unique.audit_id",
+    "column\u0000f03_2_2k_receipt_item_unique.item_id",
+    "column\u0000f03_2_2k_receipt_pk.receipt_id",
+    "column\u0000f03_2_2k_receipt_request_key_unique.request_key_sha256",
+    "column\u0000waitlist_responsible_handover_receipts.actor_employee_id",
+    "column\u0000waitlist_responsible_handover_receipts.audit_id",
+    "column\u0000waitlist_responsible_handover_receipts.batch_id",
+    "column\u0000waitlist_responsible_handover_receipts.committed_at",
+    "column\u0000waitlist_responsible_handover_receipts.customer_id",
+    "column\u0000waitlist_responsible_handover_receipts.from_employee_id",
+    "column\u0000waitlist_responsible_handover_receipts.item_id",
+    "column\u0000waitlist_responsible_handover_receipts.receipt_id",
+    "column\u0000waitlist_responsible_handover_receipts.request_key_sha256",
+    "column\u0000waitlist_responsible_handover_receipts.scope_team_id",
+    "column\u0000waitlist_responsible_handover_receipts.to_employee_id",
+    "column\u0000waitlist_responsible_handover_receipts.waitlist_id",
+    "column\u0000waitlist_responsible_handover_receipts_receipt_id_seq.is_called",
+    "column\u0000waitlist_responsible_handover_receipts_receipt_id_seq.last_value",
+    "column\u0000waitlist_responsible_handover_receipts_receipt_id_seq.log_cnt",
+    "constraint\u0000waitlist_responsible_handover_receipts.f03_2_2k_receipt_audit_unique",
+    "constraint\u0000waitlist_responsible_handover_receipts.f03_2_2k_receipt_distinct_people",
+    "constraint\u0000waitlist_responsible_handover_receipts.f03_2_2k_receipt_item_unique",
+    "constraint\u0000waitlist_responsible_handover_receipts.f03_2_2k_receipt_pk",
+    "constraint\u0000waitlist_responsible_handover_receipts.f03_2_2k_receipt_request_key_unique",
+    "constraint\u0000waitlist_responsible_handover_receipts.waitlist_responsible_handover_receipts_actor_employee_id_fkey",
+    "constraint\u0000waitlist_responsible_handover_receipts.waitlist_responsible_handover_receipts_audit_id_fkey",
+    "constraint\u0000waitlist_responsible_handover_receipts.waitlist_responsible_handover_receipts_batch_id_fkey",
+    "constraint\u0000waitlist_responsible_handover_receipts.waitlist_responsible_handover_receipts_customer_id_fkey",
+    "constraint\u0000waitlist_responsible_handover_receipts.waitlist_responsible_handover_receipts_from_employee_id_fkey",
+    "constraint\u0000waitlist_responsible_handover_receipts.waitlist_responsible_handover_receipts_item_id_fkey",
+    "constraint\u0000waitlist_responsible_handover_receipts.waitlist_responsible_handover_receipts_request_key_sha256_check",
+    "constraint\u0000waitlist_responsible_handover_receipts.waitlist_responsible_handover_receipts_scope_team_id_fkey",
+    "constraint\u0000waitlist_responsible_handover_receipts.waitlist_responsible_handover_receipts_to_employee_id_fkey",
+    "constraint\u0000waitlist_responsible_handover_receipts.waitlist_responsible_handover_receipts_waitlist_id_fkey",
+    "index\u0000f03_2_2k_receipt_audit_unique",
+    "index\u0000f03_2_2k_receipt_item_unique",
+    "index\u0000f03_2_2k_receipt_pk",
+    "index\u0000f03_2_2k_receipt_request_key_unique",
+    "relation\u0000f03_2_2k_receipt_audit_unique",
+    "relation\u0000f03_2_2k_receipt_item_unique",
+    "relation\u0000f03_2_2k_receipt_pk",
+    "relation\u0000f03_2_2k_receipt_request_key_unique",
+    "relation\u0000waitlist_responsible_handover_receipts",
+    "relation\u0000waitlist_responsible_handover_receipts_receipt_id_seq",
+    "sequence\u0000public.waitlist_responsible_handover_receipts_receipt_id_seq",
+    "trigger\u0000waitlist_responsible_handover_receipts.f03_2_2k_receipt_append_only"
+  ],
+  "versions": [
+    {
+      "migration_id": "000001_current_initial",
+      "checksum": "df078212b95701af12144a43ef85a70fc491e5dca9948644df415bd888c5b4e4",
+      "structure_sha256": "d5535d72fe17d7981b006bcd1223eb11cb67660b53e7603f1125bfab8dba9cde"
+    },
+    {
+      "migration_id": "000002_pc_auth_sessions",
+      "checksum": "3d7f0a539941e4089147a9c7a82ecfdb2ccebd64ba513e01deeb0fcf1d2bd6ab",
+      "structure_sha256": "8af70f5f3ca32f2a7b84a4ad69d68dbf7c81bd9b6c97d79ad7481ce3a8c23ee5"
+    },
+    {
+      "migration_id": "000003_employee_capability_scope_bindings",
+      "checksum": "fe34a689d4b11d5c4225f609f1415a26b16ec43891e5723b417ca45aa9a154d0",
+      "structure_sha256": "229aa6dc167cd3ccb8da89fd9d08076af2588b6b4bd1cfbdc8d779c31dfeffe0"
+    },
+    {
+      "migration_id": "000004_governance_population_guards",
+      "checksum": "52705b21a0143fc86427d563bfedd00be7e64707e0321744d0d7f0aee5afa0a8",
+      "structure_sha256": "555ddc5bffa745014e68eab79fa83312c9b18ed06f484434fc5d76e2064336ea"
+    },
+    {
+      "migration_id": "000005_employee_receiving_pool_eligibility",
+      "checksum": "ddf1ef937c76997f9fe7e27909d0b63ef6cf1425c056acb6dc9b65527d2e4cce",
+      "structure_sha256": "c90b94247b5ad1d8f4a9a63ffed94cab47d9ec147f0ad852329eb8cc4625d97a"
+    },
+    {
+      "migration_id": "000006_explicit_team_memberships",
+      "checksum": "77f22227c1e8bcec118c54b6f1b707c07c641307b51d10ade3ca392592a799af",
+      "structure_sha256": "b5e4c698ffa648d5ab7af4d7e389c23a40eb080849a812e0fc50699b4687e572"
+    },
+    {
+      "migration_id": "000007_handover_batch_item_ledger",
+      "checksum": "e35fcda4e7a730a3e0342dbfc74fd780e3f7ccca4680c6de2725f89396d8730a",
+      "structure_sha256": "96328994b19e1fef7261ae41bd890575bd196210e85baec685d0192676aff0dd"
+    },
+    {
+      "migration_id": "000008_customer_owner_handover_receipts",
+      "checksum": "252b931dddc411337a5e787e7512a01a77d5320a299c6714033d73e87b1f3e26",
+      "structure_sha256": "2ffb014e044173837b1a2ce081e518e68b9e723cf440a08c063779c4db9ac0ac"
+    },
+    {
+      "migration_id": "000009_demand_responsible_handover_receipts",
+      "checksum": "9df7e45b338add71cc05aace8d9a42d6e6664bd5ae0c0bf980d2f11ab6cc797b",
+      "structure_sha256": "1532f5b34379e5ec207d9a2b909a11322d0eb6755cc23d6dfc7a419ea6d13eb0"
+    },
+    {
+      "migration_id": "000010_consultation_assignee_handover_receipts",
+      "checksum": "1ead4f8987aaa22e5f569b2e7da24eb496cb1d82b2aaee2db2b82df13271e297",
+      "structure_sha256": "ef3bcd0c89c959225764d0853b203047116282c3bd6f976e41aff1cd7b95e735"
+    },
+    {
+      "migration_id": "000011_waitlist_responsible_handover_receipts",
+      "checksum": "2a0cd1eb915b14efc6564bb29adb4dd0c5348f8d5805b3ab3e4a955888cd1717",
+      "structure_sha256": "6b6932e4855074ed63ec0ceda89b568e1b4b1f62d111c759f9c7a77a841a3c76"
+    }
+  ]
+}
