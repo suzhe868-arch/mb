@@ -50,8 +50,11 @@ test('G02 deny System Admin / 4S / ordinary / restricted / non-own manager / rev
  assert.deepEqual(await immutable(),before);
 });
 test('G03 full separate Customer / Demand 0,1,multiple / Priority Lease + Recommendation and seven domains',async()=>{
- const r=errorFree(await imp());assert.equal(r.code,'G03_IMPACT_READ_ONLY');assert.equal(r.customerCount,2);
+ const r=errorFree(await imp());assert.equal(r.code,'G03_IMPACT_READ_ONLY');assert.equal(r.customerCount,4);
  const kinds=new Set(r.objects.map(x=>x.kind));assert.deepEqual([...kinds].sort(),['Customer','Demand','Priority','Recommendation','Consultation','Waitlist','Lock','Transaction'].sort());
+ assert.equal(r.objects.filter(x=>x.customerId==='304'&&x.kind==='Demand').length,0); // zero Demand
+ assert.equal(r.objects.filter(x=>x.customerId==='305'&&x.kind==='Demand').length,1); // one Demand
+ assert.equal(r.objects.filter(x=>x.customerId==='301'&&x.kind==='Demand').length,3); // multiple Demands
  assert.equal(r.objects.find(x=>x.kind==='Priority').relation.triggerDemandId,'401');
  assert.equal(r.objects.find(x=>x.kind==='Recommendation').relation.sourceDemandId,'401');
  assert.equal(r.objects.find(x=>x.objectId==='402').lifecycle,'REVALIDATE');
@@ -67,8 +70,15 @@ test('G04 recipient exact active receiving + eligible + current Team scope; no s
  assert.equal((await elig(manager,6)).code,'G04_ELIGIBILITY_FACTS_ONLY');
  assert.equal((await elig(manager,7)).code,'G04_SAME_EMPLOYEE_DENY');
  assert.equal((await elig(manager,2)).code,'G04_RECEIVER_NOT_ELIGIBLE');
+ assert.equal((await elig(manager,9)).code,'G04_RECEIVER_NOT_ELIGIBLE');
+ assert.equal((await elig(manager,1)).code,'G04_TARGET_OUTSIDE_TEAM_SCOPE'); // same active store + receiving eligibility but non-member
  assert.equal((await elig(manager,3)).code,'G04_RECEIVER_NOT_ELIGIBLE');
  assert.equal((await elig(manager,4,903)).code,'G02_TEAM_SCOPE_DENY');
+ const memberBefore=await immutable();
+ await db.query('UPDATE public.employee_team_memberships SET ended_at=now() WHERE employee_id=4 AND team_id=901');
+ try{assert.equal((await elig()).code,'G04_TARGET_OUTSIDE_TEAM_SCOPE')}
+ finally{await db.query('UPDATE public.employee_team_memberships SET ended_at=NULL WHERE employee_id=4 AND team_id=901')}
+ assert.deepEqual(await immutable(),memberBefore);
  const before=await immutable();
  await db.query("UPDATE public.employee_receiving_eligibility SET eligible=false WHERE employee_id=4");
  try{assert.equal((await elig()).code,'G04_RECEIVER_NOT_ELIGIBLE');}finally{await db.query("UPDATE public.employee_receiving_eligibility SET eligible=true WHERE employee_id=4")}
@@ -92,6 +102,11 @@ test('G06 every active domain unsupported until adapter; pending-only ledger can
  assert.equal(r.findings.find(x=>x.kind==='Demand'&&x.objectId==='401').reason,'PENDING');
  assert.equal(r.findings.find(x=>x.kind==='Demand'&&x.objectId==='402').reason,'REVALIDATE');
  assert.equal(r.findings.find(x=>x.kind==='Customer'&&x.objectId==='302').reason,'PENDING');
+ const original=await immutable();
+ await db.query('UPDATE public.handover_items SET from_employee_id=6 WHERE item_id=$1',[customerItem]);
+ try{assert.equal((await cov()).findings.find(x=>x.kind==='Customer'&&x.objectId==='301').reason,'CONFLICT')}
+ finally{await db.query('UPDATE public.handover_items SET from_employee_id=7 WHERE item_id=$1',[customerItem])}
+ assert.deepEqual(await immutable(),original);
  const otherReceiver=await cov(manager,6);assert.equal(otherReceiver.code,'G06_COVERAGE_DEFER_DENY');
  assert.equal(otherReceiver.findings.find(x=>x.kind==='Customer'&&x.objectId==='301').reason,'CONFLICT');
 });
