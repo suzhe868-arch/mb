@@ -7,7 +7,7 @@ import {checksum as previousChecksum,OLD_CHECKSUM as authChecksum,OLD_SHA as aut
 export {connect};
 export const ID='000004_governance_population_guards';
 export const PREVIOUS='229aa6dc167cd3ccb8da89fd9d08076af2588b6b4bd1cfbdc8d779c31dfeffe0';
-export const SQL=String.raw\`
+export const SQL=String.raw`
 CREATE TABLE public.governance_population_guards(
  guard_name TEXT NOT NULL PRIMARY KEY,
  version BIGINT NOT NULL DEFAULT 0,
