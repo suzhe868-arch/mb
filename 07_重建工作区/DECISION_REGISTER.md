@@ -1343,3 +1343,6 @@
 
 
 | EG-F03-2-G0-PREPARE-20261009 | ENGINEERING_GATE_PREPARATION | A整理运行期权限与治理事务分批工作单 | 用户对A整理下一批工作单回复“同意”；A读取PDM-02/03/22/25 Final、已验收G0权限合同、F03-1认证实现与实际Schema，建议先F03-2-G0事实映射/scope/治理事务设计及静态核验，真实DBGuard与治理/交接另批 | GOVERNANCE_ONLY / PREPARED_NOT_CONSTRUCTION_AUTHORIZED；B暂不创建新分支，不连接DB；不改产品Authority，不合并C；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F03-2_运行期权限校验与治理事务施工单_待用户批准_2026-10-09.md`；main e3ccaffda57f135d44f5009758f2d1c943938633；F03-1已验收合并记录 | 2026-10-09 |
+
+
+| EG-F03-2-G0-RELEASE-20261009 | ENGINEERING_F03_2_G0 | 限定事实映射与事务方案小批正式放行 | 用户对A明确限定G0范围回复“同意”；A正式放行B从含登记的最新main新建feat/f03-runtime-g0，只做真实字段/scope/治理与撤权并发设计、结构建议、纯假数据及静态CI，交A独立验收 | USER_APPROVED / F03_2_G0_DESIGN_STATIC_ONLY_AUTHORIZED；不连接数据库，不改已验收工程；真实Guard/治理/交接后续另批，不合并B/C；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F03-2-G0_A主控事实映射与事务方案施工放行_2026-10-09.md`；`07_重建工作区/F03-2_运行期权限校验与治理事务施工单_待用户批准_2026-10-09.md`顶部正式放行增补 | 2026-10-09 |
