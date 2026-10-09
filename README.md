@@ -1,3 +1,11 @@
+# 2026-10-10｜F03-2-2G B已交审、A独立验收提出四项定向整改（当前最新）
+
+- B分支 `feat/f03-handover-preflight-2g` 实际最新HEAD `f9f42c4fde6832522b770403029a4ec2ddc11f7f`；同SHA真实 [PG16 CI37976033469](https://github.com/suzhe868-arch/mb/actions/runs/37976033469) **10/10独立作业成功**、本批12/12测试全绿；14个文件均为授权新增，旧main无修改/删除、真实88表/536列/344约束/138索引的结构SHA不变。B交接达到`READY_FOR_A_REVIEW`，但**CI绿不代表A验收通过**。
+- A独立检查`service.mjs`、交接、测试及旧PDM Final后判定 `A_CHANGES_REQUESTED`：①已离职/inactive源员工会被`batch()`硬拒，无法清点突发失效交接；②模拟提交前未锁Customer Owner及七域责任行，G05仅二次SELECT；③缺失账本item被混报PENDING且同目标跨批重复未辨识；④仅验证源员工Team scope却回传关联客户其他团队负责域明细。全部整改与新增测试在 `07_重建工作区/F03-2-2G_A主控独立复核一次性整改清单_2026-10-10.md`，不改变Final、旧迁移或准许业务写。
+- 本轮**无A验收、无PR合并**。**NEXT_OWNER=B**，继续原分支一次性完成A-G-01～04全部整改、最新同SHA 10独立PG16成功CI、归档与完整中文交接后交A；无需用户每步同意。C/H01仍未最终验收，完整F03-2和产品基线`NOT_READY`。
+
+---
+
 # 2026-10-10｜A验收F03-2-2F并正式合并PR14，已放行F03-2-2G只读交接预检（当前最新）
 
 - **F03-2-2F全部闭环**：B验收SHA `703d96a492a62870dbf9e70e13a808b981802bc4`，同SHA [真实PG16 CI 37972431347](https://github.com/suzhe868-arch/mb/actions/runs/37972431347) **9/9独立作业成功**，本批10/10；原main全文件未改，仅14个批准新增文件。原始1840个数据库目录对象零变更，88表/536列/344约束/138索引，SHA `96328994b19e1fef7261ae41bd890575bd196210e85baec685d0192676aff0dd`，源CI37972106107与末次run结构原文跨运行核验成功。A独立审查后标准[PR #14](https://github.com/suzhe868-arch/mb/pull/14)合并SHA `25fd4634e76915d9c5a6409ff753b4c4b7432b94`。报告：`07_重建工作区/F03-2-2F_A主控独立验收及PR14正式合并闭环_2026-10-10.md`。

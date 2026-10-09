@@ -4,7 +4,7 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F03_2_2F_ACCEPTED_MERGED_PR14_F03_2_2G_A_RELEASED_NEXT_OWNER_B_H01_VISUAL_PENDING",
+  "substage": "F03_2_2G_B_SELF_TESTED_A_CHANGES_REQUESTED_NEXT_OWNER_B_H01_VISUAL_PENDING",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F03-2-2F已B交付A独立验收并标准PR14合并，A已完成F03-2-2G只读承接预检完整技术裁决及施工单并放行，下一责任人为B。",
-  "current_work_file": "07_重建工作区/F03-2-2G_A主控SG06客户与活跃业务承接预检完整施工单_2026-10-10.md",
+  "current_task": "A独立复核F03-2-2G B已交审但4项整改未关闭，不能合并；B继续现有2G分支整改A-G-01～04并重新取同SHA成功CI",
+  "current_work_file": "07_重建工作区/F03-2-2G_A主控独立复核一次性整改清单_2026-10-10.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_F03_2_2G_SG06_READ_ONLY_CUSTOMER_ACTIVE_DOMAIN_HANDOVER_PREFLIGHT_PG16_READY_FOR_A",
+  "next_action": "B_FIX_F03_2_2G_A_G_01_04_AND_SAME_SHA_PG16_READY_FOR_A",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F03_2_2E_MERGED_PR13_F03_2_2F_ACCEPTED_MERGED_PR14_F03_2_2G_A_RELEASED_B_NOT_STARTED",
+  "engineering_status": "F03_2_2F_A_ACCEPTED_MERGED_PR14_F03_2_2G_B_READY_A_CHANGES_REQUESTED_NOT_MERGED",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B从最新main创建feat/f03-handover-preflight-2g，按A已签正式施工单在新隔离PG16的旧88表无DDL基线上完整实施Customer与活跃业务承责影响只读清单、接替资格当前事实、逐项映射缺口和模拟提交前重验，严格不写Owner/责任/账本completed，完成同SHA真实CI、独立冻结回归和原始零结构证据，READY_FOR_A_REVIEW交A。",
+  "next_action_detail": "B按07_重建工作区/F03-2-2G_A主控独立复核一次性整改清单_2026-10-10.md在现有feat/f03-handover-preflight-2g分支一次性修正inactive源员工预检、真实Customer/域行锁、missing/跨批重复、跨Team对象scope，然后真实PG16并发/负例/无DDL旧CI全部同SHA成功，原始证据归档，READY_FOR_A_REVIEW交A。不得提交Customer Owner或域责任写、不得自行合并main",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -5559,7 +5559,7 @@
       "added_files": 14
     },
     "f03_2_2g": {
-      "status": "A_TECH_ADJUDICATED_AND_RELEASED_B_NOT_STARTED",
+      "status": "A_CHANGES_REQUESTED_B_REMEDIATION_REQUIRED",
       "work_order": "07_重建工作区/F03-2-2G_A主控SG06客户与活跃业务承接预检完整施工单_2026-10-10.md",
       "owner": "B",
       "next_owner_after_b": "A",
@@ -5567,12 +5567,20 @@
       "authorization": "STANDING_A_B_C_CONTINUOUS_ISOLATED_TECHNICAL_IMPLEMENTATION",
       "scope": "SG06_READ_ONLY_CUSTOMER_AND_ACTIVE_DOMAIN_IMPACT_ELIGIBILITY_COVERAGE_AND_REVALIDATION",
       "new_migration": "NONE_88_TABLES_FROZEN",
-      "tests": "NOT_RUN",
-      "ci_sha": null,
-      "ci_run_id": null,
-      "acceptance": "NOT_STARTED",
+      "tests": "B_CI_37976033469_10_OF_10_SUCCESS_BUT_A_FOUR_GAPS",
+      "ci_sha": "f9f42c4fde6832522b770403029a4ec2ddc11f7f",
+      "ci_run_id": 37976033469,
+      "acceptance": "A_CHANGES_REQUESTED_NOT_ACCEPTED",
       "merge": "NOT_STARTED",
-      "forbidden": "CUSTOMER_OWNER_BUSINESS_RESPONSIBLE_OR_HANDOVER_COMPLETED_WRITES_PRODUCTION_REAL_DATA_AND_P04_HTTP"
+      "forbidden": "CUSTOMER_OWNER_BUSINESS_RESPONSIBLE_OR_HANDOVER_COMPLETED_WRITES_PRODUCTION_REAL_DATA_AND_P04_HTTP",
+      "branch_created": true,
+      "a_review_report": "07_重建工作区/F03-2-2G_A主控独立复核一次性整改清单_2026-10-10.md",
+      "required_changes": [
+        "A-G-01_INACTIVE_SOURCE_BATCH_PRECHECK",
+        "A-G-02_OBJECT_LOCK_PRECOMMIT",
+        "A-G-03_MISSING_CROSS_BATCH_LEDGER_PROOF",
+        "A-G-04_CROSS_TEAM_OBJECT_SCOPE"
+      ]
     }
   },
   "a_batch_approval_mode": "STANDING_USER_DIRECTED_CONTINUOUS_TECHNICAL_WORKFLOW_IN_FROZEN_SCOPE; A_SCOPES_AND_RELEASES_B_C; EACH_WINDOW_COMPLETES_END_TO_END; A_INDEPENDENT_ACCEPTANCE_AND_CLEAN_PR_MERGE_WITHOUT_REPEAT_APPROVAL; NEW_PRODUCT_CHOICE_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_EXTERNAL_WRITES_REQUIRE_USER",
