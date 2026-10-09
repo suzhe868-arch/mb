@@ -77,6 +77,12 @@ test('I02 cross-store manager explicit Team membership, same-store unbound Team 
  await db.query('UPDATE public.employee_team_memberships SET ended_at=now() WHERE team_id=906 AND employee_id=5');
  try{assert.equal((await commit(auth,manager,cross)).code,'I02_DEMAND_PERMISSION_SCOPE_DENY')}finally{await db.query('UPDATE public.employee_team_memberships SET ended_at=NULL WHERE team_id=906 AND employee_id=5')}
  assert.deepEqual(await snap(),before);
+ const transferred=await commit(auth,manager,cross);
+ assert.equal(transferred.code,'I04_DEMAND_DOMAIN_TRANSFERRED');
+ assert.equal(transferred.receipt.teamId,906);
+ assert.equal(await owner(419),'4');
+ const after=await snap();
+ for(const t of ['customers','customer_owner_history','customer_owner_handover_receipts','priority_leases','recommendations','consultations','waitlists','locks','transactions','handover_batches','handover_items'])assert.deepEqual(after[t],before[t],t);
 });
 test('I04 one Demand CAS, append-only receipt/audit, all other domain rows and SG06 ledger untouched',async()=>{
  const before=await snap();
@@ -159,6 +165,15 @@ test('I05 different Demand and different batch but SAME request key racing: at m
  assert.equal(after.demand_responsible_handover_receipts.length,before.demand_responsible_handover_receipts.length+1);
  assert.equal(after.audit_events.length,before.audit_events.length+1);
  assert.equal([await owner(427),await owner(428)].filter(x=>x==='4').length,1);
+});
+
+test('I07 actor role downgrade invalidates existing PC manager authority without any stale-session bypass',async()=>{
+ const reqRole=req(6125,8125,4,'i-ci-role-revoked-0025');
+ const original=(await db.query('SELECT main_role_id FROM public.employees WHERE employee_id=5')).rows[0].main_role_id;
+ await db.query('UPDATE public.employees SET main_role_id=(SELECT main_role_id FROM public.employees WHERE employee_id=7) WHERE employee_id=5');
+ try{assert.notEqual((await commit(auth,manager,reqRole)).code,'I04_DEMAND_DOMAIN_TRANSFERRED')}
+ finally{await db.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=5',[original])}
+ assert.equal(await owner(425),'7');
 });
 
 test('I07 inactive recipient or lost recipient Team membership must DENY; paused store-head operator remains authorized',async()=>{
