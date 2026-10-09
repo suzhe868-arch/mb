@@ -6,6 +6,7 @@ import {randomBytes} from 'node:crypto';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {connect,verify} from '../../../f03-1/migration.mjs';
 import {readCurrentFacts} from '../current-facts.mjs';
+import {ACTIONS} from '../../policy.mjs';
 import {parseHostCookie,validateProbe} from '../test-probe-contract.mjs';
 
 const origin='https://127.0.0.1:48491',port=48491,secret=randomBytes(32);
@@ -42,6 +43,15 @@ test('G01/02: a real normal F03-1 session proves current permission only; no sco
  assert.deepEqual(await probe(employeeToken,'customer.crm.read'),{code:'TECH_ALIAS_NOT_APPROVED',finalAllowed:false});
  assert.deepEqual(await probe(adminToken,'customer.crm.read'),{code:'SYSTEM_ADMIN_NO_BUSINESS_RIGHT',finalAllowed:false});
  assert.deepEqual(await probe(adminToken,'system.employee.manage'),{code:'SYSTEM_CONTROL_SCOPE_DEFER',finalAllowed:false});
+});
+test('G02b: every one of the 23 frozen F03-G0 operations stays finally denied without approved scope/object proof',async()=>{
+ const ops=Object.keys(ACTIONS);
+ assert.equal(ops.length,23);
+ for(const op of ops){
+  const decision=await probe(employeeToken,op);
+  assert.equal(decision.finalAllowed,false,'unexpected business grant: '+op);
+  assert.equal(typeof decision.code,'string');
+ }
 });
 test('G03: template changes in PostgreSQL visible to SAME old session on next independent call',async()=>{
  assert.equal((await probe(employeeToken,'customer.phone.manage')).code,'CURRENT_CAPABILITY_PRESENT_SCOPE_AND_OBJECT_DEFER');
