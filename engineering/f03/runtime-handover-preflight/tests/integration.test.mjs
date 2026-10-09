@@ -103,7 +103,7 @@ test('G06 every active domain unsupported until adapter; pending-only ledger can
  assert.equal(r.findings.find(x=>x.kind==='Demand'&&x.objectId==='402').reason,'REVALIDATE');
  assert.equal(r.findings.find(x=>x.kind==='Customer'&&x.objectId==='302').reason,'MISSING_ITEM');
  const original=await immutable();
- await db.query('UPDATE public.handover_items SET from_employee_id=6 WHERE item_id=$1',[customerItem]);
+ await db.query('UPDATE public.handover_items SET from_employee_id=1 WHERE item_id=$1',[customerItem]);
  try{assert.equal((await cov()).findings.find(x=>x.kind==='Customer'&&x.objectId==='301').reason,'CONFLICT')}
  finally{await db.query('UPDATE public.handover_items SET from_employee_id=7 WHERE item_id=$1',[customerItem])}
  assert.deepEqual(await immutable(),original);
