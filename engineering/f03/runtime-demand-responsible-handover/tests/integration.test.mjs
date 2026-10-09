@@ -160,6 +160,47 @@ test('I05 different Demand and different batch but SAME request key racing: at m
  assert.equal(after.audit_events.length,before.audit_events.length+1);
  assert.equal([await owner(427),await owner(428)].filter(x=>x==='4').length,1);
 });
+
+test('I07 inactive recipient or lost recipient Team membership must DENY; paused store-head operator remains authorized',async()=>{
+ const p=req(6122,8122,4,'i-ci-head-paused-0022');
+ const before=await snap();
+ await db.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=4");
+ try{assert.notEqual((await commit(auth,head,p)).code,'I04_DEMAND_DOMAIN_TRANSFERRED')}
+ finally{await db.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=4")}
+ await db.query("UPDATE public.employee_team_memberships SET ended_at=now() WHERE employee_id=4 AND team_id=901");
+ try{assert.notEqual((await commit(auth,head,p)).code,'I04_DEMAND_DOMAIN_TRANSFERRED')}
+ finally{await db.query("UPDATE public.employee_team_memberships SET ended_at=NULL WHERE employee_id=4 AND team_id=901")}
+ assert.deepEqual(await snap(),before);
+ await db.query("UPDATE public.employees SET receiving_status='paused' WHERE employee_id=6");
+ try{const result=await commit(auth,head,p);assert.equal(result.code,'I04_DEMAND_DOMAIN_TRANSFERRED');assert.equal(await owner(422),'4')}
+ finally{await db.query("UPDATE public.employees SET receiving_status='receiving' WHERE employee_id=6")}
+});
+test('I07 approved sudden_inactive original source can be formally reassigned with still-legal Team; no random inactive source bypass',async()=>{
+ const before=await snap();
+ const approved=req(6130,8130,4,'i-ci-sudden-inactive-0030');
+ const unapproved=req(6131,8131,4,'i-ci-unapproved-inactive31');
+ await db.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=7");
+ try{
+  assert.equal((await commit(auth,manager,unapproved)).code,'I03_SOURCE_INVALID');
+  const r=await commit(auth,manager,approved);
+  assert.equal(r.code,'I04_DEMAND_DOMAIN_TRANSFERRED');assert.equal(await owner(430),'4');
+ }finally{await db.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=7")}
+ const after=await snap();
+ for(const table of ['customers','customer_owner_history','customer_owner_handover_receipts','priority_leases','recommendations','handover_batches','handover_items','employees'])assert.deepEqual(after[table],before[table]);
+});
+test('I05 global request key collision between independent Customers and distinct batches stays atomic',async()=>{
+ const key='i-ci-cross-customer-0033',before=await snap();
+ const first=req(6129,8129,4,key); // Demand 429, Customer 301
+ const second=req(6131,8131,4,key); // Demand 431, Customer 302
+ const result=await Promise.all([commit(auth,manager,first),commit(auth,manager2,second)]);
+ assert.equal(result.filter(x=>x.code==='I04_DEMAND_DOMAIN_TRANSFERRED').length,1);
+ assert.equal(result.filter(x=>x.code==='I05_COLLISION_DENY').length,1);
+ const after=await snap();
+ assert.equal(after.audit_events.length,before.audit_events.length+1);
+ assert.equal(after.demand_responsible_handover_receipts.length,before.demand_responsible_handover_receipts.length+1);
+ assert.equal([await owner(429),await owner(431)].filter(x=>x==='4').length,1);
+});
+
 test('I05 schema protects receipts from UPDATE and DELETE, honest audit provenance',async()=>{
  const id=(await db.query('SELECT receipt_id FROM public.demand_responsible_handover_receipts ORDER BY receipt_id LIMIT 1')).rows[0].receipt_id;
  await assert.rejects(()=>db.query('UPDATE public.demand_responsible_handover_receipts SET request_key_sha256=$1 WHERE receipt_id=$2',['a'.repeat(64),id]));

@@ -19,7 +19,8 @@ try{
  [6130,5,8130,430,4],[6131,5,8131,431,4],[6132,5,8132,432,4],
  ];
  for(const [batch,actor,item,demand,to] of rows){
-  await db.query("INSERT INTO public.handover_batches(batch_id,source_employee_id,change_kind,initiated_by_kind,initiated_by_id,client_request_key,reason) VALUES($1,7,'planned_transfer','employee',$2,$3,'CI Demand only with Priority readonly proof')",[batch,actor,'i2-batch-'+batch+'-fixture']);
+  const kind=batch===6130?'sudden_inactive':'planned_transfer';
+  await db.query("INSERT INTO public.handover_batches(batch_id,source_employee_id,change_kind,initiated_by_kind,initiated_by_id,client_request_key,reason) VALUES($1,7,$4,'employee',$2,$3,'CI Demand only with Priority readonly proof')",[batch,actor,'i2-batch-'+batch+'-fixture',kind]);
   await db.query("INSERT INTO public.handover_items(item_id,batch_id,object_kind,object_id,from_employee_id,intended_to_employee_id) VALUES($1,$2,'Demand',$3,7,$4)",[item,batch,String(demand),to]);
  }
  await db.query('COMMIT');console.log('F03_2I_CI_SYNTHETIC_DEMAND_FIXTURES_PASS');
