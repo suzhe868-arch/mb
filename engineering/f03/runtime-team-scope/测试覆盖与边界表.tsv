@@ -1,0 +1,11 @@
+编号	真实验证内容	来源	预期
+D01	PG16只追加000006两表、86表/42新增物理键，旧84/82/81/80严格隔离Guard	2D真实CI及旧回归	结构准确不兼容放宽
+D02	当前System Admin join/end；员工/4S/受限/撤session和伪造字段拒绝	2D tests integration	准确身份才写
+D03	同店/角色不推team、未来有效/已结束member、inactive team无范围	2D tests integration	DENY
+D04	manager缺现行权限、个人deny、权限码错、绑定错误、范围过期即拒绝	2D tests integration	DENY
+D05	显式manager角色/许可/team-scope/capability绑定和双方membership全部有效只读允许	2D tests integration	READ_ONLY_ALLOW
+D06	两独立Admin同成员并发join、end+join；重叠不允许，旧history保留	2D tests integration	无重复活跃/丢历史
+D07	current变更后、recheck后、audit后、commit前失败注入全回滚；NO_OP无审计	2D tests integration	原子性PASS
+D08	非法对象/失活/4S/多余字段/错capability/额外PG namespace拒绝	2D tests integration	DENY
+D09	80/81/82/84各自独立全新PG16回归，不更改旧Guard	七个GitHub Actions作业	success
+D10	最新B HEAD对应同SHA七成功CI、原始物理SQL/清单/hash、完整中文交接	最终成功CI及evidence/SOURCE	READY_FOR_A_REVIEW
