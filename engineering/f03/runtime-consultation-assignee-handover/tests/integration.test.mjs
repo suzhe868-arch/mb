@@ -244,3 +244,36 @@ test('J07 frozen all other domains, original SLA and Recommendation non-reversal
  for(const domain of domains.filter(x=>!['consultations','consultation_assignee_handover_receipts','audit_events'].includes(x)))assert.deepEqual(after[domain],before[domain],domain);
  assert.equal((await verify(db)).verified,true);
 });
+
+test('J05 real three independent manager/head PG16 sessions H/I/J with DIFFERENT request keys all commit atomically',async()=>{
+ const a={batchId:6001,itemId:7001,fromEmployeeId:7,recipientEmployeeId:4,teamId:901,clientRequestKey:'j-ci-independent-H-key-0030'};
+ const b={batchId:6146,itemId:8146,fromEmployeeId:7,recipientEmployeeId:4,teamId:901,clientRequestKey:'j-ci-independent-I-key-0031'};
+ const c=req(11,4,'j-ci-independent-J-key-0032');
+ const before=await snap();
+ const res=await Promise.all([hCommit(auth,manager,a),iCommit(auth,manager2,b),commit(auth,manager,c)]);
+ assert.deepEqual(res.map(x=>x.code),['H03_OWNER_DOMAIN_TRANSFERRED','I04_DEMAND_DOMAIN_TRANSFERRED','J04_CONSULTATION_TRANSFERRED'],JSON.stringify(res));
+ const after=await snap();
+ assert.equal(after.audit_events.length,before.audit_events.length+3);
+ assert.equal(after.customer_owner_handover_receipts.length,before.customer_owner_handover_receipts.length+1);
+ assert.equal(after.demand_responsible_handover_receipts.length,before.demand_responsible_handover_receipts.length+1);
+ assert.equal(after.consultation_assignee_handover_receipts.length,before.consultation_assignee_handover_receipts.length+1);
+ assert.equal(await owner(5311),'4');
+ assert.equal((await verify(db)).verified,true);
+});
+test('J02 genuine paused recipient is valid for manual Consultation transfer; inactive recipient and unapproved inactive source DENY',async()=>{
+ const a=req(13,4,'j-ci-paused-manual-recipient-0033');
+ const before=await snap();
+ await db.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=4");
+ try{assert.equal((await commit(auth,manager,a)).code,'J03_RECIPIENT_INVALID')}
+ finally{await db.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=4")}
+ await db.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=7");
+ try{assert.equal((await commit(auth,manager,a)).code,'J03_SOURCE_INVALID')}
+ finally{await db.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=7")}
+ assert.deepEqual(await snap(),before);
+ await db.query("UPDATE public.employees SET receiving_status='paused' WHERE employee_id=4");
+ try{assert.equal((await commit(auth,manager,a)).code,'J04_CONSULTATION_TRANSFERRED')}
+ finally{await db.query("UPDATE public.employees SET receiving_status='receiving' WHERE employee_id=4")}
+ const changed=await consult(5313);
+ assert.equal(String(changed.assignee_employee_id),'4');
+ assert.equal(changed.status,'pending');
+});
