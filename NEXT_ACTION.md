@@ -1,3 +1,11 @@
+# 2026-10-10｜F03-2-2L B自验CI全绿，A独立复核发现锁车到期临界事务阻断（当前最新）
+
+- B原分支`feat/f03-lock-responsible-handover-2l`，最终受检HEAD `244b68a2e168624e2a4f65aa17fc1cc587d54fcf`，同SHA真实[CI38003745347](https://github.com/suzhe868-arch/mb/actions/runs/38003745347)**15/15独立PG16 job全成功**：新L21/21、旧K29/29、J27/27、I27/27及其余全部旧模块独立回归成功。旧92表2028物理目录不变，新增000012唯一一张合成Lock收据表后93表/596列/420约束/159索引/2074完整键(+46)，新结构SHA`9ab7221f9a0f5f81c0af37441d4cd5b824e2ac7322f8d40f952ba2cecea0e2f9`，完整catalog/source原字节校验PASS。H/I/J/K/L跨域Key真实20个方向与5会话并发测试通过。保留B已完成合格项。
+- **A-L-01阻断**：`service.mjs`的`facts()`仅在早期第59行以`new Date()`检`expires_at`，真正锁车负责人CAS第118行只校验`lock_status='active'`/旧employee，**没有DB当前时钟有效期谓词，也没有最终COMMIT前过期的原子回滚守卫**；Lock可在第一次检查与CAS或后续事务提交间自然到期而仍成功转派。旧L21测试无实际中途到期的PG16时序用例，违反L03/L04/L10门禁。正式唯一整改单`07_重建工作区/F03-2-2L_A主控独立复核锁车到期事务竞态定向整改单_2026-10-10.md`，要求B只改新L服务/测试（旧迁移、H/I/J/K均不可变），增加PG16真正`before_update`和`after_receipt/before_commit`跨有效期时序与整事务回滚，最终同SHA15/15全成功并更新B交接。
+- **A_CHANGES_REQUESTED / NOT_ACCEPTED / NOT_MERGED / NEXT_OWNER=B**。不能先验收/合并2L或启动2M。产品F03-2整体/C-H01仍`NOT_READY`。此段覆盖下文历史已放行2L的旧状态，历史保留。
+
+---
+
 # 2026-10-10｜F03-2-2K A独立验收通过标准PR19合并，F03-2-2L正式施工单已放行（当前最新）
 
 - **2K已正式签收**：B最终SHA `8cc1f7b6e7df5ecdb57d6e4d2b8be7e3627bde7b`、同SHA真实[CI37999317037](https://github.com/suzhe868-arch/mb/actions/runs/37999317037) **14/14独立PG16成功，K92 29/29、J91 27/27、I90 27/27**，旧H89、G/F/E88、D86、C84、B82双、A81、F03-1认证/HTTPS80全独立通过；H/I/J/K四Domain相同Key全向/四会话并发与Waitlist交接不可变收据已受限验证。旧91表/1982目录项零更改，新000011仅新增一张Waitlist不可变收据表至92表/584列/405约束/155索引/2028完整目录项（+46），新结构SHA `6b6932e4855074ed63ec0ceda89b568e1b4b1f62d111c759f9c7a77a841a3c76`，SOURCE原始字节与catalog三域校验PASS。标准[PR19](https://github.com/suzhe868-arch/mb/pull/19) merge SHA `3fdb965733fce0750bc00a4a6b04f12e338fda5e`。完整A验收报告`07_重建工作区/F03-2-2K_A主控独立验收及PR19正式合并闭环_2026-10-10.md`。

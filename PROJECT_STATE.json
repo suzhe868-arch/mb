@@ -4,7 +4,7 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F03_2_2K_A_ACCEPTED_MERGED_PR19_F03_2_2L_A_RELEASED_NEXT_OWNER_B_H01_VISUAL_PENDING",
+  "substage": "F03_2_2L_B_SELF_TESTED_A_CHANGES_REQUESTED_EXPIRY_RACE_NEXT_OWNER_B_H01_PENDING",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F03-2-2K合成Waitlist责任单域A正式验收通过PR19已合并；A已签发2L正式Lock负责人单域移交与真实Deposit/有效期守卫完整施工单，B执行",
-  "current_work_file": "07_重建工作区/F03-2-2L_A主控SG06_Lock正式锁车负责人单域移交完整施工单_2026-10-10.md",
+  "current_task": "A独立验收F03-2-2L确认同SHA15/15独立PG16成功，新L21/21旧K29/J27/I27均过，但Lock到期瞬间仍可能被CAS改负责人，缺少提交前当前数据库时钟守卫与原子回滚，A退B定向整改",
+  "current_work_file": "07_重建工作区/F03-2-2L_A主控独立复核锁车到期事务竞态定向整改单_2026-10-10.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_F03_2_2L_LOCK_RESPONSIBLE_SINGLE_DOMAIN_CI_PG16_15_JOB_READY_FOR_A",
+  "next_action": "B_FIX_F03_2_2L_A_L_01_EXPIRY_RACE_CAS_PRECOMMIT_ATOMIC_ROLLBACK_READY_FOR_A",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F03_2_2K_A_ACCEPTED_MERGED_PR19_F03_2_2L_A_RELEASED_B_NOT_STARTED",
+  "engineering_status": "F03_2_2K_A_ACCEPTED_PR19_F03_2_2L_A_CHANGES_REQUESTED_NOT_MERGED",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B从最新main新建或核验feat/f03-lock-responsible-handover-2l；按A 2L完整施工单只在隔离真实PG16实施Lock负责人CAS/不可变逐项收据、真实Deposit与普通锁车到期守卫/旧价格及LockRequest等不反写，H/I/J/K/L五域全局RequestKey双向保护。旧000001～000011及所有旧CI冻结，可提000012最多1张Lock收据表，旧H/I/J/K仅准最小跨域Key/结构封印守卫。新L+K92/J91/I90/H89/GFE88/D86/C84/B82双/A81/F03-1认证+HTTPS共15/15独立PG16成功、旧K29/J27/I27完整回归、最终run HEAD精确一致及原始结构证据后READY_FOR_A_REVIEW交A，不自行合并",
+  "next_action_detail": "B在原feat/f03-lock-responsible-handover-2l一次性修正新L service中有效期在CAS与COMMIT边界的PostgreSQL当前DB时钟校验与整事务rollback，补before_update/after_receipt/before_commit跨到期、真实Deposit与无Deposit安全拒绝、并发状态校验的真实PG16正负例；旧SQL000001～000012/旧H/I/J/K代码/CI/产品Final不改，保持15/15独立PG16 success、旧K29/J27/I27完整、最新HEAD同run SHA，修正中文B交接后READY_FOR_A_REVIEW交A，不得合并或启动2M",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -5176,7 +5176,7 @@
     ],
     "merge_status": "MERGED_TO_MAIN_USER_APPROVED",
     "schema_proposals": "SG01_LIMITED_000003_ACCEPTED_SG02_TO_SG08_NOT_AUTHORIZED",
-    "next": "B_IMPLEMENT_F03_2_2L_LOCK_RESPONSIBLE_15_INDEPENDENT_PG16_JOBS_READY_FOR_A",
+    "next": "B_REMEDIATE_2L_EXPIRY_RACE_WITH_NEW_REAL_PG16_TESTS_15_INDEPENDENT_JOBS_READY_FOR_A",
     "merge_preparation": {
       "report": "07_重建工作区/F03-2-G0_A主控合并核验材料_待用户批准_2026-10-09.md",
       "pr": 6,
@@ -5683,22 +5683,27 @@
       "pg16_physical": "92_TABLES_584_COLUMNS_405_CONSTRAINTS_155_INDEXES_2028_CATALOG_KEYS_PLUS46"
     },
     "f03_2_2l": {
-      "status": "A_TECH_ADJUDICATED_AND_RELEASED_B_NOT_STARTED",
+      "status": "A_CHANGES_REQUESTED_B_REMEDIATION_REQUIRED",
       "owner": "B",
       "next_owner_after_b": "A",
       "branch": "feat/f03-lock-responsible-handover-2l",
-      "branch_created": false,
+      "branch_created": true,
       "work_order": "07_重建工作区/F03-2-2L_A主控SG06_Lock正式锁车负责人单域移交完整施工单_2026-10-10.md",
       "authorization": "STANDING_A_B_C_CONTINUOUS_ISOLATED_TECHNICAL_CONSTRUCTION",
       "scope": "SG06_LOCK_RESPONSIBLE_SINGLE_DOMAIN_CI_PG16_REAL_DEPOSIT_SEMANTICS_GUARD_FIVE_DOMAIN_KEY",
       "schema_authorization": "000012_MAX_ONE_NEW_APPEND_ONLY_LOCK_RECEIPT_TABLE_OLD_000001_TO_000011_FROZEN",
       "technical_exception": "ONLY_H_I_J_K_SERVICE_COMMIT_RETRY_CROSS_DOMAIN_KEY_GUARD_WHEN_REQUIRED_AND_OLD_H89_I90_J91_K92_CI_COMPATIBILITY",
       "required_ci_jobs": 15,
-      "tests": "NOT_RUN",
-      "ci_run_id": null,
-      "ci_sha": null,
-      "acceptance": "NOT_STARTED",
-      "merge": "NOT_STARTED"
+      "tests": "REAL_CI_38003745347_15_OF_15_SUCCESS_L21_K29_J27_I27_BUT_L_EXPIRY_CAS_PRECOMMIT_GAP",
+      "ci_run_id": 38003745347,
+      "ci_sha": "244b68a2e168624e2a4f65aa17fc1cc587d54fcf",
+      "acceptance": "A_CHANGES_REQUESTED_NOT_ACCEPTED",
+      "merge": "NOT_STARTED",
+      "a_review_report": "07_重建工作区/F03-2-2L_A主控独立复核锁车到期事务竞态定向整改单_2026-10-10.md",
+      "required_changes": [
+        "A-L-01_LOCK_EXPIRES_DURING_TRANSFER_MISSING_DB_CLOCK_CAS_AND_PRECOMMIT_ROLLBACK"
+      ],
+      "observed_ci_jobs": 15
     }
   },
   "a_batch_approval_mode": "STANDING_USER_DIRECTED_CONTINUOUS_TECHNICAL_WORKFLOW_IN_FROZEN_SCOPE; A_SCOPES_AND_RELEASES_B_C; EACH_WINDOW_COMPLETES_END_TO_END; A_INDEPENDENT_ACCEPTANCE_AND_CLEAN_PR_MERGE_WITHOUT_REPEAT_APPROVAL; NEW_PRODUCT_CHOICE_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_EXTERNAL_WRITES_REQUIRE_USER",
