@@ -1530,3 +1530,9 @@ A补充代码路径复现显示幂等apply/rollback遗漏旧版本行核验，ve
 - 本批准严格只涉及受限合成PG16中的Handover Batch/Item待处理/失败重试幂等ledger，`completed`物理CHECK拒绝，**没有真实Customer owner、Demand/Lock/Transaction负责人及员工调店降权写提交，不能把ledger视为业务移交成功**。
 - A依PDM-02 Final与已存在SG01/SG02/SG06物理事实，独立完成下一小批F03-2-2F书面裁决：仅System Admin在CI可为真实active manager管理已存在`employee.manage`个人allow/deny/revoke和精确Team capability scope生效/截止，复用现有历史、审计、scope/binding与物理88表，**不新增DDL、不允许经理默认管理权或业务域写、不修改旧mig**。正式施工单`07_重建工作区/F03-2-2F_A主控SG04员工个人权限与Team范围受限治理施工单_2026-10-10.md`。下一责任人B，指定`feat/f03-manager-team-governance-2f`，A已放行但B尚未施工/没有同SHA新CI。
 - PDM Final/IA/Low-Fi不变。SG04其它管理、SG06真实域adapter、SG07/08及完整F03-2未验收；C/H01独立视觉待审，`PRODUCT_BASELINE=NOT_READY`。此次属于现行A/B/C已授权隔离技术流程，B收到任务一次执行到`READY_FOR_A_REVIEW`交A，不向用户每步索要确认。
+
+
+## 2026-10-10｜F03-2-2F A独立验收PR14合并及F03-2-2G受限技术放行（技术台账；不新增产品规则）
+
+- A以PDM-02 Final §4/7/9、PDM-03 Final §11～14、三窗口规范核验本批2F：B SHA `703d96a492a62870dbf9e70e13a808b981802bc4`，同SHA真实CI`37972431347`9/9成功，2F 10/10，原main无修改删除、新增14个批准文件，88表结构`96328994b19e1fef7261ae41bd890575bd196210e85baec685d0192676aff0dd`保持；PR #14 标准合并 `25fd4634e76915d9c5a6409ff753b4c4b7432b94`。独立验收记录：`07_重建工作区/F03-2-2F_A主控独立验收及PR14正式合并闭环_2026-10-10.md`。
+- 下一F03-2-2G技术裁决：只在真实隔离PG16合成数据中验证SG06客户与活跃业务承责映射、接替资格与当前权限、跨域遗漏和重复预检的安全边界。基于目前F03-2缺少已验收正式业务写权限及各域adapter，**明确拒绝把个人`employee.manage`和Team scope等同Customer owner修改权**，不授权owner/业务负责人/账本completed写入、降权或生产。完整工作单：`07_重建工作区/F03-2-2G_A主控SG06客户与活跃业务承接预检完整施工单_2026-10-10.md`。下一责任人B；C/H01待验收，`PRODUCT_BASELINE=NOT_READY`。

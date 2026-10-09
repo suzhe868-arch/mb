@@ -1,3 +1,11 @@
+# 2026-10-10｜A验收F03-2-2F并正式合并PR14，已放行F03-2-2G只读交接预检（当前最新）
+
+- **F03-2-2F全部闭环**：B验收SHA `703d96a492a62870dbf9e70e13a808b981802bc4`，同SHA [真实PG16 CI 37972431347](https://github.com/suzhe868-arch/mb/actions/runs/37972431347) **9/9独立作业成功**，本批10/10；原main全文件未改，仅14个批准新增文件。原始1840个数据库目录对象零变更，88表/536列/344约束/138索引，SHA `96328994b19e1fef7261ae41bd890575bd196210e85baec685d0192676aff0dd`，源CI37972106107与末次run结构原文跨运行核验成功。A独立审查后标准[PR #14](https://github.com/suzhe868-arch/mb/pull/14)合并SHA `25fd4634e76915d9c5a6409ff753b4c4b7432b94`。报告：`07_重建工作区/F03-2-2F_A主控独立验收及PR14正式合并闭环_2026-10-10.md`。
+- **A已正式准备并限定放行下一批F03-2-2G**：只在全新隔离PG16、沿用88表原结构，完成SG06 Customer Owner及Demand/Priority/Consultation/Waitlist/Lock/Transaction活跃承责映射的真实**只读预检**、合法经理/接替人/Team/current权限/跨域缺口证明；**不新增DDL、不执行Owner/任何业务负责人变更、不写completed、不放行调店或降权**。完整施工单：`07_重建工作区/F03-2-2G_A主控SG06客户与活跃业务承接预检完整施工单_2026-10-10.md`。B执行分支`feat/f03-handover-preflight-2g`，完成全量代码、真实并发/失败测试、旧多版回归、原始PG16零变更证据和最新同SHA成功CI后`READY_FOR_A_REVIEW`交A，不需用户反复确认。
+- **当前唯一工程下一责任人：B**；C/H01仍未最终验收，完整F03-2尚未验收，`PRODUCT_BASELINE=NOT_READY`。最新指针：`F03_2_2F_ACCEPTED_MERGED_PR14_F03_2_2G_A_RELEASED_NEXT_OWNER_B_H01_VISUAL_PENDING`，下文旧2F未施工仅为历史记录。
+
+---
+
 # 2026-10-10｜F03-2-2E已验收并正式合并，A已放行下一受限权限治理批（当前最新）
 
 - **上一工程批F03-2-2E完整闭环**：B最终SHA `86e838fa1f66f44827dfb399dbaf1887a9934283`、同SHA [真实CI 37968929785](https://github.com/suzhe868-arch/mb/actions/runs/37968929785) 八独立PG16作业全部success，本批88表pending-only ledger 11/11，旧86/84/82/81/80表冻结回归均通过。A复核原main1248文件完整未动、仅17个批准新增文件，正常[PR #13](https://github.com/suzhe868-arch/mb/pull/13) merge SHA `59fdb3623c1d9d2845e7bed9dd13c1b6ef0b41bf`。结构000007仅增加两表、88表/536列/344约束/138索引。A正式签发：`07_重建工作区/F03-2-2E_A主控独立验收及PR13正式合并闭环_2026-10-10.md`。
