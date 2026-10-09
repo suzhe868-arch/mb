@@ -97,10 +97,10 @@ export async function rollback(c){
  const m=await config();
  return tx(c,async()=>{
   if(await chain(c,m,false)!=='new'||(await getPublicStructure(c)).sha256!==m.structure_sha256)throw Error('F03_2D_ROLLBACK_DRIFT');
-  const rows=(await c.query("SELECT version FROM public.receiving_pool_guards WHERE guard_name='receiving_pool' FOR UPDATE")).rows;
-  if(rows.length!==1||Number(rows[0].version)!==0||(await c.query('SELECT count(*)::int n FROM public.employee_receiving_eligibility')).rows[0].n!==0)throw Error('F03_2D_ROLLBACK_USED_DENY');
-  await c.query('DROP TABLE public.employee_receiving_eligibility');
-  await c.query('DROP TABLE public.receiving_pool_guards');
+  const facts=(await c.query("SELECT (SELECT count(*)::int FROM public.teams) teams,(SELECT count(*)::int FROM public.employee_team_memberships) memberships")).rows[0];
+  if(facts.teams!==0||facts.memberships!==0)throw Error('F03_2D_ROLLBACK_USED_DENY');
+  await c.query('DROP TABLE public.employee_team_memberships');
+  await c.query('DROP TABLE public.teams');
   await c.query('DELETE FROM public.f03_schema_migrations WHERE migration_id=$1',[ID]);
   if((await getPublicStructure(c)).sha256!==PREVIOUS)throw Error('F03_2D_INEXACT_ROLLBACK');
   return {rolledBack:true};
