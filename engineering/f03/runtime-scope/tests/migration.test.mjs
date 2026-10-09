@@ -72,12 +72,12 @@ test('M06 nonempty rollback DENIES without DDL/version side effects; after clean
 const original0002={id:'000002_pc_auth_sessions',
  checksum:'3d7f0a539941e4089147a9c7a82ecfdb2ccebd64ba513e01deeb0fcf1d2bd6ab',
  structure:'8af70f5f3ca32f2a7b84a4ad69d68dbf7c81bd9b6c97d79ad7481ce3a8c23ee5'};
-const refuseAll=async(label,pattern=/F03_2_1B_VERSION_DRIFT|F03_2_1B_RUN_SEAL_OR_F02_BASELINE_DENY/)=>{
+const refuseAll=async(label,pattern=/F03_2_1B_VERSION_DRIFT|F03_2_1B_RUN_SEAL_OR_F02_BASELINE_DENY/,expectedCount=2)=>{
  for(const [name,fn] of [['verify',()=>verify(c)],['idempotent apply',()=>apply(c)],['rollback',()=>rollback(c)]]){
   await assert.rejects(fn,pattern,label+' '+name);
  }
  const count=(await c.query("SELECT count(*)::integer AS n FROM public.f03_schema_migrations")).rows[0].n;
- assert.equal(count,2,label+' must preserve original migration rows');
+ assert.equal(count,expectedCount,label+' must preserve the tampered version row count without DDL side effects');
  assert.equal((await c.query("SELECT count(*)::integer AS n FROM pg_tables WHERE schemaname='public' AND tablename='employee_capability_scope_bindings'")).rows[0].n,1,
    label+' must not remove the new table');
 };
@@ -96,11 +96,11 @@ test('M08 A-R1: missing 000002, extra unknown version, F02 checksum corruption a
  // Move the old row out in a single test transaction, exercising a real
  // missing-version state without permanently changing a trusted migration.
  await c.query("DELETE FROM public.f03_schema_migrations WHERE migration_id='000002_pc_auth_sessions'");
- try{await refuseAll('missing 000002',/F03_2_1B_VERSION_DRIFT/)}
+ try{await refuseAll('missing 000002',/F03_2_1B_VERSION_DRIFT/,1)}
  finally{await c.query("INSERT INTO public.f03_schema_migrations(migration_id,checksum,structure_sha256) VALUES($1,$2,$3)",
   [original0002.id,original0002.checksum,original0002.structure])}
  await c.query("INSERT INTO public.f03_schema_migrations(migration_id,checksum,structure_sha256) VALUES('000004_rogue','bogus','bogus')");
- try{await refuseAll('extra unknown migration')}
+ try{await refuseAll('extra unknown migration',/F03_2_1B_VERSION_DRIFT/,3)}
  finally{await c.query("DELETE FROM public.f03_schema_migrations WHERE migration_id='000004_rogue'")}
  const before=(await c.query("SELECT checksum FROM public.f02_schema_migrations WHERE migration_id='000001_current_initial'")).rows[0].checksum;
  await c.query("UPDATE public.f02_schema_migrations SET checksum='TAMPERED' WHERE migration_id='000001_current_initial'");
