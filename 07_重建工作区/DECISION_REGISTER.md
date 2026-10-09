@@ -1346,3 +1346,6 @@
 
 
 | EG-F03-2-G0-RELEASE-20261009 | ENGINEERING_F03_2_G0 | 限定事实映射与事务方案小批正式放行 | 用户对A明确限定G0范围回复“同意”；A正式放行B从含登记的最新main新建feat/f03-runtime-g0，只做真实字段/scope/治理与撤权并发设计、结构建议、纯假数据及静态CI，交A独立验收 | USER_APPROVED / F03_2_G0_DESIGN_STATIC_ONLY_AUTHORIZED；不连接数据库，不改已验收工程；真实Guard/治理/交接后续另批，不合并B/C；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F03-2-G0_A主控事实映射与事务方案施工放行_2026-10-09.md`；`07_重建工作区/F03-2_运行期权限校验与治理事务施工单_待用户批准_2026-10-09.md`顶部正式放行增补 | 2026-10-09 |
+
+
+| EG-F03-2-G0-REVIEW-20261009 | ENGINEERING_F03_2_G0 | A首轮独立复验要求五项整改 | B HEAD a56cb746ae14a2047be791a204b8b367767c7c9f同SHA CI37877324106成功22/22，14文件范围正确；A核验已存在role_default_permission_history并独立复现模板经理越权、正常停用清空接客池、4S PC撤权旧会话放行、审计占位前后值；CHANGES_REQUESTED，未签验收 | G0原静态授权持续，仅当前分支整改；不连接DB，不改已验收工程，不放行后续批，不合并B/C；PRODUCT_BASELINE=NOT_READY | `07_重建工作区/F03-2-G0_A主控首轮复验与五项整改清单_2026-10-09.md`；job113648785834；main已验收SQL/PDM-02 Final；A独立合成探针 | 2026-10-09 |

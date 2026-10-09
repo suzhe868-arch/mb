@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F03_2_G0_B_RUNTIME_DESIGN_A_REVIEW_AND_H01_VISUAL_REVIEW",
+  "substage": "F03_2_G0_B_FIX_FIVE_BLOCKERS_A_REVIEW_AND_H01_VISUAL_REVIEW",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "GLOBAL_POST_PDM25",
-  "current_domain_status": "F03_1_ACCEPTED_MERGED_F03_2_G0_AUTHORIZED",
+  "current_domain_status": "F03_1_ACCEPTED_MERGED_F03_2_G0_CHANGES_REQUESTED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "B从最新main新建feat/f03-runtime-g0，只做事实字段映射、scope/治理事务方案、纯假数据核验与同SHA静态CI，交A独立验收；C/H01独立审查",
-  "current_work_file": "07_重建工作区/F03-2-G0_A主控事实映射与事务方案施工放行_2026-10-09.md",
+  "current_task": "B在feat/f03-runtime-g0修复A五项G0阻断，补静态负例/合同与同SHA成功CI交A复验；C/H01独立",
+  "current_work_file": "07_重建工作区/F03-2-G0_A主控首轮复验与五项整改清单_2026-10-09.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F03_2_G0_AUTHORIZED_A_REVIEW_PENDING",
+  "current_review_batch": "F03_2_G0_FIVE_BLOCKERS_FIX_AND_A_REVIEW",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "F03_2_G0_B_RUNTIME_DESIGN_A_REVIEW_AND_H01_VISUAL_REVIEW",
+  "next_action": "F03_2_G0_B_FIX_FIVE_BLOCKERS_A_REVIEW_AND_H01_VISUAL_REVIEW",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "用户批准限定G0，A正式放行设计与静态核验；不连接数据库，不改已验收工程，真实Guard及治理/交接后续另批。",
+  "next_action_detail": "G0范围/CI通过但真实历史表误报及模板身份/接客池/4S撤权/审计前后值未闭合；限定静态整改，无数据库或后续施工授权。",
   "abc_parallel_workflow": {
     "status": "USER_APPROVED_APPLIED_DOCUMENTATION_ONLY",
     "confirmed_at": "2026-10-08",
@@ -5141,10 +5141,10 @@
     "next_batch_construction": "NOT_AUTHORIZED_F03_2_GATE_PREPARATION_ONLY"
   },
   "f03_2_gate": {
-    "status": "F03_2_G0_AUTHORIZED_USER_APPROVED_A_RELEASED",
+    "status": "F03_2_G0_CHANGES_REQUESTED_AUTHORIZED_STATIC_SCOPE_ONLY",
     "work_order_prepared": true,
     "construction": "F03_2_G0_DESIGN_STATIC_CHECKS_ONLY_AUTHORIZED",
-    "branch_created": false,
+    "branch_created": true,
     "scope_note": "G0只对齐真实字段与权限/事务设计，保留既有工程及Authority；G0验收不等于F03_2_ACCEPTED",
     "work_order": "07_重建工作区/F03-2_运行期权限校验与治理事务施工单_待用户批准_2026-10-09.md",
     "preparation_authorization": "用户同意A整理F03-2施工单；不含B施工授权",
@@ -5166,6 +5166,22 @@
     "confirmed_phrase": "同意",
     "release_report": "07_重建工作区/F03-2-G0_A主控事实映射与事务方案施工放行_2026-10-09.md",
     "branch": "feat/f03-runtime-g0",
-    "acceptance": "NOT_SIGNED_PENDING_B_EVIDENCE"
+    "acceptance": "CHANGES_REQUESTED_NOT_ACCEPTED",
+    "reviewed_sha": "a56cb746ae14a2047be791a204b8b367767c7c9f",
+    "review_ci_run_id": 37877324106,
+    "review_ci_job_id": 113648785834,
+    "review_tests": {
+      "passed": 22,
+      "failed": 0,
+      "scope": "B_STATIC_CI_NOT_A_ACCEPTANCE"
+    },
+    "review_report": "07_重建工作区/F03-2-G0_A主控首轮复验与五项整改清单_2026-10-09.md",
+    "review_blockers": [
+      "R1_EXISTING_ROLE_HISTORY_MISCLASSIFIED",
+      "R2_EMPLOYEE_ALLOWED_ROLE_TEMPLATE_CHANGE",
+      "R3_PLANNED_DISABLE_LAST_RECEIVER_ZERO_POOL",
+      "R4_FOUR_S_PC_PERMISSION_REVOKED_OLD_SESSION_ALLOWED",
+      "R5_AUDIT_BEFORE_AFTER_PLACEHOLDERS"
+    ]
   }
 }
