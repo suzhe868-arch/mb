@@ -1,10 +1,11 @@
 {
   "migration_id": "000006_explicit_team_memberships",
   "previous_structure_sha256": "c90b94247b5ad1d8f4a9a63ffed94cab47d9ec147f0ad852329eb8cc4625d97a",
-  "sql_sha256": "PENDING_REAL_PG16_DISCOVERY",
-  "structure_sha256": "PENDING_REAL_PG16_DISCOVERY",
+  "sql_sha256": "77f22227c1e8bcec118c54b6f1b707c07c641307b51d10ade3ca392592a799af",
+  "structure_sha256": "b5e4c698ffa648d5ab7af4d7e389c23a40eb080849a812e0fc50699b4687e572",
   "tables": 86,
-  "columns": 512,
-  "constraints": 322,
-  "indexes": 132
+  "columns": 513,
+  "constraints": 323,
+  "indexes": 132,
+  "approved_physical_added_keys": []
 }

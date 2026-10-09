@@ -65,5 +65,8 @@ jobs:
       - name: Discover actual 000006 PostgreSQL16 catalog rollback only
         run: |
           set -euo pipefail
-          node f03/runtime-team-scope/runner.mjs --discover
-          node f03/runtime-receiving-pool/runner.mjs --verify
+          mkdir -p f03/runtime-team-scope/artifacts
+          node f03/runtime-team-scope/evidence.mjs --old
+          node f03/runtime-team-scope/runner.mjs --apply
+          node f03/runtime-team-scope/evidence.mjs --candidate
+          node f03/runtime-team-scope/runner.mjs --verify
