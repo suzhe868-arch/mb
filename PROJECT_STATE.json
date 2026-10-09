@@ -4,7 +4,7 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F03_2_2A_MERGED_A_REVIEW_NEXT_F03_2_DEPENDENCIES_B_WAIT_H01_VISUAL_PENDING",
+  "substage": "F03_2_2B_A_FULL_SCOPE_RELEASED_NEXT_OWNER_B_C_H01_VISUAL_PENDING",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F03-2-2A验收成功并经标准PR9合并main，A继续审查下一独立施工批的真实依赖；B等待新批授权，C/H01独立视觉待审",
-  "current_work_file": "07_重建工作区/F03-2-2A_A主控PR9合并完成与下一步_2026-10-09.md",
+  "current_task": "A已独立完成A/B/C最新一次性闭环协作规范及F03-2-2B SG05管理员人口最后保留机制完整技术裁决和正式施工单；现在B可在独立PG16连续执行到READY_FOR_A_REVIEW",
+  "current_work_file": "07_重建工作区/F03-2-2B_A主控技术裁决与完整工程施工单_2026-10-09.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "F03_2_1B_B_FIX_VERSION_ISOLATION_TEST_GAPS_AND_ARCHIVE_EVIDENCE_A_REVIEW_AND_H01_VISUAL_REVIEW",
+  "next_action": "B_F03_2_2B_RUN_FULL_SCOPE_UNTIL_SAME_SHA_SUCCESS_CI_AND_HANDOFF_A",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F03_2_1B_ACCEPTED_MERGED_F03_2_2A_ACCEPTED_MERGED_PR9_NEXT_BATCH_UNAUTHORIZED",
+  "engineering_status": "F03_2_1B_MERGED_F03_2_2A_MERGED_PR9_F03_2_2B_A_TECH_RELEASED_B_NOT_STARTED",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,9 +4790,9 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "本批F03-2-2A已闭环无待用户点击。A准备F03-2后续独立工程技术审查及施工单；下一批开工仍需独立一次授权；C/H01视觉待验。",
+  "next_action_detail": "NEXT_OWNER=B；读取main正式施工单，创建feat/f03-admin-population-2b，完成000004后置精确迁移、最后active和最后可登录管理员真实并发防护、bootstrap claim、事务原子审计、80/81隔离回归、同SHA成功CI、结构证据及B最终交接。无需子步骤多次请用户确认；完成后NEXT_OWNER=A独立复验并标准PR合并。C/H01平行设计返工不与B混合。",
   "abc_parallel_workflow": {
-    "status": "USER_APPROVED_APPLIED_DOCUMENTATION_ONLY",
+    "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
     "authority_unchanged": true,
     "business_code_modified": false,
@@ -4800,57 +4800,22 @@
     "design_branch_modified": false,
     "implementation_status_unchanged": true,
     "active_tracks": [
-      "F03_1_B_ISOLATED_IMPLEMENTATION_A_REVIEW",
-      "H01_DESIGN_REVIEW"
+      "F03_2_2B_B_READY_TO_EXECUTE",
+      "H01_C_VISUAL_REWORK_PARALLEL"
     ],
-    "execution_requires_separate_scope_approval": true,
+    "execution_requires_separate_scope_approval": false,
     "global_state_owner": "A_MAIN",
     "engineering": {
       "owner": "B",
-      "branch": "feat/f03-login-impl",
-      "active_work_order": "F03-1",
-      "later_work_orders": [
-        "F02",
-        "F03",
-        "F04",
-        "F05",
-        "F06",
-        "F07",
-        "F08"
-      ],
-      "later_orders_not_authorized_by_this_plan": true,
-      "completed_work_orders": [
-        "F01",
-        "F02-G0",
-        "F02-1",
-        "F03-G0",
-        "F03-1-G0"
-      ],
-      "next_work_orders_gate_pending": [
-        "F02-2",
-        "F02-3",
-        "F02-4",
-        "F03",
-        "F04"
-      ],
-      "current_activity": "F03_1_ISOLATED_IMPLEMENTATION_AUTHORIZED",
-      "proposed_next_branch": "feat/f03-login-impl",
-      "branch_status": "AUTHORIZED_TO_CREATE_BY_B_NOT_YET_VERIFIED_CREATED",
-      "historical_accepted_branch": "feat/f03-login",
-      "historical_accepted_branches": [
-        "feat/f03-login",
-        "feat/f03-auth",
-        "feat/f02-schema"
-      ]
+      "branch": "feat/f03-admin-population-2b",
+      "active_work_order": "07_重建工作区/F03-2-2B_A主控技术裁决与完整工程施工单_2026-10-09.md",
+      "execution_status": "A_RELEASED_B_NOT_STARTED"
     },
     "design": {
       "owner": "C",
       "branch": "design/h01-design-system",
-      "active_work_order": "H01",
-      "later_design": "H02_REQUIRES_VISUAL_AND_BATCH_APPROVAL",
-      "frontend": "H03_REQUIRES_ACCEPTED_HIGH_FI_AND_API",
-      "integration": "H04_REQUIRES_IMPLEMENTATION_AND_USER_UAT_APPROVAL",
-      "current_activity": "H01_A_REVIEW_CHANGES_REQUESTED_USER_VISUAL_PENDING"
+      "execution_status": "H01_VISUAL_PENDING_A_REVIEW",
+      "work_scope": "H01_ONLY_NOT_H02_ACCEPTED"
     },
     "paths": {
       "governance": "07_重建工作区/A_B_C三窗口协作与验收规范.md",
@@ -4858,7 +4823,13 @@
       "design_plan": "07_重建工作区/C设计完整执行路线图_H01至H04.md"
     },
     "handoff": "READ_MAIN_DOCUMENTS_EXPLICITLY_KEEP_EXECUTION_ON_OWN_BRANCH_SUBMIT_EVIDENCE_FOR_A_REVIEW",
-    "merge_policy": "USER_APPROVAL_REQUIRED"
+    "merge_policy": "USER_APPROVAL_REQUIRED",
+    "execution_requires_a_formal_scope": true,
+    "user_click_for_each_step": false,
+    "automatic_after_a_acceptance_clean_standard_pr_merge": true,
+    "scope_doc": "07_重建工作区/A_B_C三窗口协作与验收规范.md",
+    "authority": "PDM_FINAL_CURRENT_IA_LOWFI_UNCHANGED",
+    "high_risk_gate": "USER_APPROVAL_FOR_NEW_PRODUCT_DECISIONS_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_THIRD_PARTY_WRITES"
   },
   "f01_acceptance": {
     "status": "ACCEPTED_USER_APPROVED_MERGED_TO_MAIN",
@@ -5141,7 +5112,7 @@
     "next_batch_construction": "NOT_AUTHORIZED_F03_2_GATE_PREPARATION_ONLY"
   },
   "f03_2_gate": {
-    "status": "F03_2_2A_ACCEPTED_MERGED_NOT_FULL_F03_2",
+    "status": "F03_2_2B_A_RELEASED_B_IMPLEMENTATION_PENDING_F03_2_FULL_NOT_ACCEPTED",
     "work_order_prepared": true,
     "construction": "F03_2_1B_LIMITED_SG01_IMPLEMENTATION_ACCEPTED_NO_NEXT_BATCH_AUTHORIZATION",
     "branch_created": true,
@@ -5205,7 +5176,7 @@
     ],
     "merge_status": "MERGED_TO_MAIN_USER_APPROVED",
     "schema_proposals": "SG01_LIMITED_000003_ACCEPTED_SG02_TO_SG08_NOT_AUTHORIZED",
-    "next": "A_PREPARE_NEXT_F03_2_DEPENDENCY_GATE_B_WAIT",
+    "next": "B_IMPLEMENT_F03_2_2B_SG05_ADMIN_POPULATION_GUARDS_SAME_SHA_REAL_CI_READY_FOR_A",
     "merge_preparation": {
       "report": "07_重建工作区/F03-2-G0_A主控合并核验材料_待用户批准_2026-10-09.md",
       "pr": 6,
@@ -5475,14 +5446,37 @@
         "old_modified": 0,
         "old_deleted": 0
       }
+    },
+    "f03_2_2b": {
+      "status": "A_TECH_ADJUDICATED_AND_RELEASED_B_NOT_STARTED",
+      "work_order": "07_重建工作区/F03-2-2B_A主控技术裁决与完整工程施工单_2026-10-09.md",
+      "owner": "B",
+      "next_owner_after_b": "A",
+      "branch": "feat/f03-admin-population-2b",
+      "branch_created": false,
+      "authorization": "USER_STANDING_CONTINUOUS_ISOLATED_TECHNICAL_IMPLEMENTATION_WITH_A_EXPLICIT_SCOPE_RELEASE",
+      "scope": "SG05_SYSTEM_ADMIN_LAST_ACTIVE_AND_LAST_LOGIN_ENABLED_PLUS_DURABLE_BOOTSTRAP_CLAIM_ONLY",
+      "db_plan": "NEW_DISPOSABLE_PG16_APPEND_000004_ONLY_OLD_000001_TO_000003_IMMUTABLE",
+      "tests": "NOT_RUN",
+      "ci_sha": null,
+      "ci_run_id": null,
+      "acceptance": "NOT_STARTED",
+      "merge": "NOT_STARTED",
+      "forbidden": "PRODUCTION_REAL_ACCOUNTS_CREDENTIALS_BUSINESS_ROUTES_EMPLOYEE_ROLE_ESCALATION_SG03_SG06_SG07_OTHER_F03_SCOPE",
+      "handoff": "B_COMPLETE_ALL_IMPLEMENTATION_REAL_CI_FIXES_AND_EVIDENCE_THEN_READY_FOR_A_REVIEW"
     }
   },
-  "a_batch_approval_mode": "ONE_EXPLICIT_AUTHORIZATION_PER_BATCH_INCLUDES_INDEPENDENT_A_ACCEPTANCE_AND_CLEAN_MERGE; NEW_BATCH_SEPARATE_APPROVAL; STOP_ON_BLOCKERS",
-  "current_pending_user_decisions": [
-    {
-      "id": "F03_NEXT_BATCH_AUTHORIZATION",
-      "status": "NOT_YET_PROPOSED",
-      "detail": "A先完成后批技术依赖审查并给出明确施工单，B不能提前开工"
-    }
-  ]
+  "a_batch_approval_mode": "STANDING_USER_DIRECTED_CONTINUOUS_TECHNICAL_WORKFLOW_IN_FROZEN_SCOPE; A_SCOPES_AND_RELEASES_B_C; EACH_WINDOW_COMPLETES_END_TO_END; A_INDEPENDENT_ACCEPTANCE_AND_CLEAN_PR_MERGE_WITHOUT_REPEAT_APPROVAL; NEW_PRODUCT_CHOICE_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_EXTERNAL_WRITES_REQUIRE_USER",
+  "current_pending_user_decisions": [],
+  "next_action_owner": "B",
+  "abc_continuous_execution_rule": {
+    "status": "USER_DIRECTIVE_APPLIED",
+    "confirmed_at": "2026-10-09",
+    "rule_file": "07_重建工作区/A_B_C三窗口协作与验收规范.md",
+    "window_completion": "ALL_AUTHORIZED_IN_SCOPE_TASKS_THEN_HANDOFF",
+    "a_prepares_all_before_saying_b_execute": true,
+    "b_c_self_test_fix_evidence_until_ready_for_a": true,
+    "a_reviews_and_merges_without_repeat_click": true,
+    "user_required_only_for": "MATERIAL_PRODUCT_AND_BRAND_CHOICES_OR_REAL_EXTERNAL_PRODUCTION_IRREVERSIBLE_ACTIONS"
+  }
 }
