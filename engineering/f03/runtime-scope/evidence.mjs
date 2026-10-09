@@ -44,8 +44,11 @@ try{
   const expected=[
    ['relation','employee_capability_scope_bindings'],['relation','f03_2_1b_cap_scope_pk'],['relation','f03_2_1b_scope_employee_unique'],['relation','f03_2_1b_employee_cap_idx'],
    ...['employee_id','permission_id','scope_id','granted_at','ended_at'].map(n=>['column','employee_capability_scope_bindings.'+n]),
+   ...['scope_id','permission_id'].map(n=>['column','f03_2_1b_cap_scope_pk.'+n]),
+   ...['employee_id','permission_id'].map(n=>['column','f03_2_1b_employee_cap_idx.'+n]),
+   ...['scope_id','employee_id'].map(n=>['column','f03_2_1b_scope_employee_unique.'+n]),
    ...['f03_2_1b_scope_employee_unique','f03_2_1b_cap_scope_pk','f03_2_1b_cap_permission_fk','f03_2_1b_cap_scope_employee_fk','f03_2_1b_cap_time_chk'].map(n=>['constraint',n==='f03_2_1b_scope_employee_unique'?'employee_data_scopes.'+n:'employee_capability_scope_bindings.'+n]),
-   ...['f03_2_1b_cap_scope_pk','f03_2_1b_scope_employee_unique','f03_2_1b_employee_cap_idx'].map(n=>['index','public.'+n])
+   ...['f03_2_1b_cap_scope_pk','f03_2_1b_scope_employee_unique','f03_2_1b_employee_cap_idx'].map(n=>['index',n])
   ].map(x=>x.join('\0')).sort();
   assert.deepEqual(adds,expected,'UNAPPROVED_FULL_PHYSICAL_DELTA');
   const pg=sql.toString();assert.equal([...pg.matchAll(/^CREATE TABLE public\./gm)].length,81);
@@ -54,7 +57,7 @@ try{
   assert.equal(sum.size,2);
   assert.equal(sum.get('pg16_schema_only.sql'),createHash('sha256').update(sql).digest('hex'));
   assert.equal(sum.get('pg16_inventory.json'),createHash('sha256').update(inv).digest('hex'));
-  console.log('F03-2-1B EVIDENCE PASS exact approved 17-object physical diff, 81 tables, 492 columns, 304 constraints, 126 indexes; real SHA256');
+  console.log('F03-2-1B EVIDENCE PASS exact approved 23-object catalog diff (5 table fields plus 6 physical-index attribute entries), 81 tables, 492 columns, 304 constraints, 126 indexes; real SHA256');
  }
 }catch(e){console.error('F03-2-1B EVIDENCE FAILURE '+e.message);process.exitCode=1}
 finally{await c.end()}
