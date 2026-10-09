@@ -2,7 +2,7 @@
 import {readFile} from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import {existsSync} from 'node:fs';
-import {verifyArtifactHashes} from './evidence-hashes.mjs';
+import {verifyArtifactHashes,assertSameApprovedSchemaExceptPgDumpKey} from './evidence-hashes.mjs';
 const root=new URL('./artifacts/',import.meta.url);
 const [sqlBytes,inventoryBytes,manifestBytes]=await Promise.all(['pg16_schema_only.sql','pg16_inventory.json','sha256sums.txt'].map(n=>readFile(new URL(n,root))));
 const sql=sqlBytes.toString('utf8'),raw=inventoryBytes.toString('utf8'),hashes=manifestBytes.toString('utf8');
@@ -23,13 +23,21 @@ for(const t of ['role_default_permission_history','role_permission_defaults','em
 for(const forbidden of ['employee_capability_scope_bindings','employee_team_memberships','employee_receiving_eligibility','governance_control_scopes','handover_batches','handover_items','permission_fact_versions','vehicle_upstream_publishers'])assert.ok(!physicalTables.includes(forbidden),'UNAUTHORIZED_F03_2_SCHEMA_'+forbidden);
 const evidenceRoot=new URL('./evidence/',import.meta.url);
 if(existsSync(new URL('pg16_schema_only.sql',evidenceRoot))){
- for(const [name,live] of [['pg16_schema_only.sql',sqlBytes],['pg16_inventory.json',inventoryBytes],['sha256sums.txt',manifestBytes]]){
-  const saved=await readFile(new URL(name,evidenceRoot));
-  assert.ok(live.equals(saved),'ARCHIVED_BYTES_DIFFER_FROM_CURRENT_CI_'+name);
- }
+ const archivedSql=await readFile(new URL('pg16_schema_only.sql',evidenceRoot));
+ const archivedInventory=await readFile(new URL('pg16_inventory.json',evidenceRoot));
+ const archivedManifestBytes=await readFile(new URL('sha256sums.txt',evidenceRoot));
+ // Independently verify the ORIGINAL archived bytes using their OWN source-run manifest.
+ const archivedHashes=verifyArtifactHashes({'pg16_schema_only.sql':archivedSql,'pg16_inventory.json':archivedInventory},archivedManifestBytes.toString('utf8'));
+ assert.ok(inventoryBytes.equals(archivedInventory),'ARCHIVED_INVENTORY_BYTES_DIFFER_FROM_CURRENT_CI');
+ assertSameApprovedSchemaExceptPgDumpKey(archivedSql,sqlBytes);
+ // Every raw SQL export has a fresh paired pg_dump restrict key. Source and
+ // current SHA256 MUST each match its original raw bytes; manifest strings
+ // MUST NOT be deceptively rewritten into matching cross-run hashes.
+ console.log('F03-2-1A E1 ARCHIVE SOURCE RAW SHA256 '+JSON.stringify(archivedHashes));
+ console.log('F03-2-1A E1 CURRENT RAW SHA256 '+JSON.stringify(actualHashes));
  const source=await readFile(new URL('SOURCE.md',evidenceRoot),'utf8');
  assert.ok(/source_run_id:\s*\d+/.test(source)&&/source_commit_sha:\s*[0-9a-f]{40}/.test(source),'ARCHIVE_PROVENANCE_REQUIRED');
- console.log('F03-2-1A E1 CURRENT CI ARTIFACT BYTES == ARCHIVED VERIFIED BYTES');
+ console.log('F03-2-1A E1 VERIFICATION: RAW SOURCE/CI HASHES VALID, inventory identical, SQL identical except paired pg_dump ephemeral restrict key');
 }else console.log('F03-2-1A E1 ARCHIVE_NOT_YET_COMMITTED: current run will publish immutable source after successful checks');
 console.log('F03-2-1A E1 VERIFIED SHA-256 '+JSON.stringify(actualHashes));
 console.log('F03-2-1A SEALED PG16 EVIDENCE PASS: unchanged 80 tables / 487 columns / 299 constraints / 123 indexes; two migrations; no F03-2 DDL');

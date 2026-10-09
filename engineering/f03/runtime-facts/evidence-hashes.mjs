@@ -21,3 +21,23 @@ export function verifyArtifactHashes(files,manifest){
  assert.deepEqual([...seen].sort(),[...keys].sort(),'REQUIRED_SHA_FILE_MISSING');
  return Object.fromEntries(keys.map(n=>[n,artifactHash(files[n])]));
 }
+
+// pg_dump 16.15 chooses a fresh SQL client-side \restrict key on every run.
+// For cross-run semantic comparison ONLY, allow this exact paired-key change,
+// never treat canonical content as an original archive or as a raw SHA match.
+export function normalizeOnlyPgDumpRestrictKey(raw){
+ assert.ok(Buffer.isBuffer(raw),'PG_DUMP_BYTES_REQUIRED');
+ const s=raw.toString('utf8');
+ const start=[...s.matchAll(/^\\restrict ([A-Za-z0-9]{32,128})\r?$/gm)];
+ const end=[...s.matchAll(/^\\unrestrict ([A-Za-z0-9]{32,128})\r?$/gm)];
+ assert.equal(start.length,1,'PG_DUMP_RESTRICT_MARKER_REQUIRED');
+ assert.equal(end.length,1,'PG_DUMP_UNRESTRICT_MARKER_REQUIRED');
+ assert.equal(start[0][1],end[0][1],'PG_DUMP_RESTRICT_KEY_PAIR_MISMATCH');
+ assert.ok(start[0].index<end[0].index,'PG_DUMP_RESTRICT_ORDER_INVALID');
+ return s.replace(/^\\restrict ([A-Za-z0-9]{32,128})\r?$/gm,'\\restrict __PG_DUMP_RANDOM_KEY__')
+         .replace(/^\\unrestrict ([A-Za-z0-9]{32,128})\r?$/gm,'\\unrestrict __PG_DUMP_RANDOM_KEY__');
+}
+export function assertSameApprovedSchemaExceptPgDumpKey(sourceBytes,currentBytes){
+ assert.equal(normalizeOnlyPgDumpRestrictKey(sourceBytes),normalizeOnlyPgDumpRestrictKey(currentBytes),
+   'PG_DUMP_NON_RANDOM_STRUCTURE_BYTES_DIFFER');
+}

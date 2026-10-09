@@ -23,3 +23,14 @@ test('E1-03 wrong path, duplicates, dropped line and reordering with invalid map
  assert.throws(()=>verifyArtifactHashes(base,manifest.replace('pg16_schema_only.sql','pg16_other.sql')), /UNSAFE_OR_BAD_SHA256_MANIFEST_FORMAT/);
  assert.throws(()=>verifyArtifactHashes(base,manifest.replace(/f03\/runtime-facts\/artifacts\//g,'elsewhere/')), /UNSAFE_OR_BAD_SHA256_MANIFEST_FORMAT/);
 });
+
+test('E1-04 pg_dump restrict/unrestrict run key is the ONLY allowed cross-run difference',async()=>{
+ const {normalizeOnlyPgDumpRestrictKey,assertSameApprovedSchemaExceptPgDumpKey}=await import('../evidence-hashes.mjs');
+ const keyA='A'.repeat(64),keyB='B'.repeat(64);
+ const dump=(key)=>Buffer.from('-- PostgreSQL database dump\n\\restrict '+key+'\nCREATE TABLE public.example (id bigint);\n\\unrestrict '+key+'\n');
+ assert.doesNotThrow(()=>assertSameApprovedSchemaExceptPgDumpKey(dump(keyA),dump(keyB)));
+ assert.notEqual(artifactHash(dump(keyA)),artifactHash(dump(keyB)));
+ assert.throws(()=>assertSameApprovedSchemaExceptPgDumpKey(dump(keyA),Buffer.from(dump(keyB).toString().replace('id bigint','id text'))),/PG_DUMP_NON_RANDOM_STRUCTURE_BYTES_DIFFER/);
+ assert.throws(()=>normalizeOnlyPgDumpRestrictKey(Buffer.from(dump(keyA).toString().replace('unrestrict '+keyA,'unrestrict '+keyB))),/PG_DUMP_RESTRICT_KEY_PAIR_MISMATCH/);
+ assert.throws(()=>normalizeOnlyPgDumpRestrictKey(Buffer.from('-- no dump markers')),/PG_DUMP_RESTRICT_MARKER_REQUIRED/);
+});
