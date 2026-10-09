@@ -15,7 +15,13 @@ async function scope(c,actor,from,to,team,customer,allowInactive=false){
 }
 async function authTx(auth,token,fn,opts={}){
  if(!hookAllowed(opts.testCheckpoint))return out('I02_TEST_HOOK_DENY');
- const v=await auth.pool.connect();try{await verify(v)}finally{v.release()}
+ const v=await auth.pool.connect();try{
+  const j=(await v.query("SELECT to_regclass('public.consultation_assignee_handover_receipts')::text AS tbl")).rows[0]?.tbl;
+  if(j==='consultation_assignee_handover_receipts'){
+   const {verify:verifyJ}=await import('../runtime-consultation-assignee-handover/migration.mjs');
+   await verifyJ(v);
+  }else await verify(v);
+ }finally{v.release()}
  try{
   return await auth.withSession(token,async(c,a,s)=>{
    if(s.restricted||a.principal_kind!=='employee'||a.employee_id===null||a.system_admin_id!==null||!['manager','store_head'].includes(a.role_code)||a.credential_state!=='enabled'||a.subject_status!=='active'||a.force_password_change!==false)return out('I02_NOT_CURRENT_MANAGER_OR_HEAD');
@@ -113,6 +119,8 @@ async function transfer(c,actor,p,hook){
  const f=await facts(c,actor,p,true);if(f.error)return out(f.error);
  // Domain H legacy receipt may already own this key: never reuse its intent in Domain I.
  if((await c.query('SELECT 1 FROM public.customer_owner_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[k])).rowCount)return out('I05_CROSS_DOMAIN_KEY_DENY');
+ const j=(await c.query("SELECT to_regclass('public.consultation_assignee_handover_receipts')::text AS tbl")).rows[0]?.tbl;
+ if(j==='consultation_assignee_handover_receipts'&&(await c.query('SELECT 1 FROM public.consultation_assignee_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[k])).rowCount)return out('I05_CROSS_DOMAIN_KEY_DENY');
  const cross=(await c.query('SELECT item_id FROM public.demand_responsible_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[k])).rows[0];
  if(cross&&str(cross.item_id)!==str(p.itemId))return out('I05_COLLISION_DENY');
  if(str(f.demand.responsible_employee_id)!==str(p.fromEmployeeId))return out('I04_DEMAND_CAS_CONFLICT');
