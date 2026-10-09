@@ -16,24 +16,25 @@ const defs=[
  ['Transaction','transactions','transaction_id','responsible_employee_id','status']
 ];
 async function guard(auth){const c=await auth.pool.connect();try{await verify(c)}finally{c.release()}}
-async function capable(c,manager,employee,team){
- const q="SELECT EXISTS(SELECT 1 FROM public.employees m JOIN public.roles mr ON mr.role_id=m.main_role_id JOIN public.employees e ON e.employee_id=$2 JOIN public.roles er ON er.role_id=e.main_role_id JOIN public.permissions p ON p.permission_code='employee.manage' LEFT JOIN public.role_permission_defaults rd ON rd.role_id=m.main_role_id AND rd.permission_id=p.permission_id LEFT JOIN public.employee_permission_overrides ov ON ov.employee_id=m.employee_id AND ov.permission_id=p.permission_id JOIN public.employee_data_scopes sc ON sc.employee_id=m.employee_id AND sc.scope_kind='team' AND sc.scope_reference_id=$3 JOIN public.employee_capability_scope_bindings cb ON cb.employee_id=m.employee_id AND cb.scope_id=sc.scope_id AND cb.permission_id=p.permission_id JOIN public.teams t ON t.team_id=sc.scope_reference_id JOIN public.stores st ON st.store_id=t.store_id JOIN public.employee_team_memberships mm ON mm.team_id=t.team_id AND mm.employee_id=m.employee_id JOIN public.employee_team_memberships em ON em.team_id=t.team_id AND em.employee_id=e.employee_id WHERE m.employee_id=$1 AND mr.role_code='manager' AND m.employment_status='active' AND e.employment_status='active' AND er.role_code=ANY($4::text[]) AND t.team_status='active' AND st.status='active' AND (ov.decision='allow' OR (ov.decision IS NULL AND rd.enabled=true)) AND ov.decision IS DISTINCT FROM 'deny' AND (sc.ended_at IS NULL OR sc.ended_at>statement_timestamp()) AND cb.granted_at<=statement_timestamp() AND (cb.ended_at IS NULL OR cb.ended_at>statement_timestamp()) AND mm.valid_from<=statement_timestamp() AND (mm.ended_at IS NULL OR mm.ended_at>statement_timestamp()) AND em.valid_from<=statement_timestamp() AND (em.ended_at IS NULL OR em.ended_at>statement_timestamp())) permitted";
- return (await c.query(q,[manager,employee,team,roles])).rows[0].permitted===true;
+async function capable(c,manager,employee,team,allowInactive=false){
+ const q="SELECT EXISTS(SELECT 1 FROM public.employees m JOIN public.roles mr ON mr.role_id=m.main_role_id JOIN public.employees e ON e.employee_id=$2 JOIN public.roles er ON er.role_id=e.main_role_id JOIN public.permissions p ON p.permission_code='employee.manage' LEFT JOIN public.role_permission_defaults rd ON rd.role_id=m.main_role_id AND rd.permission_id=p.permission_id LEFT JOIN public.employee_permission_overrides ov ON ov.employee_id=m.employee_id AND ov.permission_id=p.permission_id JOIN public.employee_data_scopes sc ON sc.employee_id=m.employee_id AND sc.scope_kind='team' AND sc.scope_reference_id=$3 JOIN public.employee_capability_scope_bindings cb ON cb.employee_id=m.employee_id AND cb.scope_id=sc.scope_id AND cb.permission_id=p.permission_id JOIN public.teams t ON t.team_id=sc.scope_reference_id JOIN public.stores st ON st.store_id=t.store_id JOIN public.employee_team_memberships mm ON mm.team_id=t.team_id AND mm.employee_id=m.employee_id JOIN public.employee_team_memberships em ON em.team_id=t.team_id AND em.employee_id=e.employee_id WHERE m.employee_id=$1 AND mr.role_code='manager' AND m.employment_status='active' AND ($5::boolean OR e.employment_status='active') AND er.role_code=ANY($4::text[]) AND t.team_status='active' AND st.status='active' AND (ov.decision='allow' OR (ov.decision IS NULL AND rd.enabled=true)) AND ov.decision IS DISTINCT FROM 'deny' AND (sc.ended_at IS NULL OR sc.ended_at>statement_timestamp()) AND cb.granted_at<=statement_timestamp() AND (cb.ended_at IS NULL OR cb.ended_at>statement_timestamp()) AND mm.valid_from<=statement_timestamp() AND (mm.ended_at IS NULL OR mm.ended_at>statement_timestamp()) AND em.valid_from<=statement_timestamp() AND (em.ended_at IS NULL OR em.ended_at>statement_timestamp())) permitted";
+ return (await c.query(q,[manager,employee,team,roles,allowInactive])).rows[0].permitted===true;
 }
 async function batch(c,a,p){
- const b=(await c.query('SELECT batch_id,source_employee_id,initiated_by_kind,initiated_by_id,status,version FROM public.handover_batches WHERE batch_id=$1 FOR SHARE',[p.batchId])).rows[0];
+ const b=(await c.query('SELECT batch_id,source_employee_id,initiated_by_kind,initiated_by_id,status,change_kind,version FROM public.handover_batches WHERE batch_id=$1 FOR SHARE',[p.batchId])).rows[0];
  if(!b||b.initiated_by_kind!=='employee'||str(b.initiated_by_id)!==str(a.employee_id)||!['collecting','pending_domain_handover','blocked'].includes(b.status))return null;
  const e=(await c.query('SELECT employment_status FROM public.employees WHERE employee_id=$1',[b.source_employee_id])).rows[0];
- if(e?.employment_status!=='active')return null;
- return b;
+ if(!e)return null;
+ if(e.employment_status!=='active'&&!['sudden_inactive','planned_disable'].includes(b.change_kind))return null;
+ return {...b,sourceEmploymentStatus:e.employment_status};
 }
 async function context(c,a,s,p){
  if(s.restricted||a.principal_kind!=='employee'||a.employee_id===null||a.system_admin_id!==null||a.credential_state!=='enabled'||a.subject_status!=='active'||a.force_password_change!==false||a.role_code!=='manager')return {error:'G02_MANAGER_SESSION_DENY'};
  await c.query('SELECT pg_advisory_xact_lock(20261010,306)');
  const b=await batch(c,a,p);
  if(!b)return {error:'G02_BATCH_NOT_OWNED_OR_INACTIVE_SOURCE'};
- if(!await capable(c,a.employee_id,b.source_employee_id,p.teamId))return {error:'G02_TEAM_SCOPE_DENY'};
- return {batch:b,source:str(b.source_employee_id),manager:str(a.employee_id)};
+ if(!await capable(c,a.employee_id,b.source_employee_id,p.teamId,b.sourceEmploymentStatus!=='active'))return {error:b.sourceEmploymentStatus==='active'?'G02_TEAM_SCOPE_DENY':'G01_HANDOVER_AUTHORITY_GAP'};
+ return {batch:b,source:str(b.source_employee_id),manager:str(a.employee_id),inactiveSource:b.sourceEmploymentStatus!=='active'};
 }
 async function eligibility(c,ctx,p){
  if(ctx.source===str(p.recipientEmployeeId))return {eligible:false,code:'G04_SAME_EMPLOYEE_DENY'};
@@ -55,37 +56,63 @@ function classOf(kind,r){
  return 'UNKNOWN_DEFER_DENY';
 }
 async function impact(c,source){
+ // A-G-04: ONLY source-owned domain rows; other team's related rows are counted,
+ // never returned with object IDs, assignee IDs or status. Unknown scope => defer.
  const idsQ="SELECT customer_id,account_status,owner_assignment_state,current_owner_employee_id FROM public.customers WHERE current_owner_employee_id=$1 OR customer_id IN (SELECT customer_id FROM public.demands WHERE responsible_employee_id=$1 UNION SELECT customer_id FROM public.consultations WHERE assignee_employee_id=$1 UNION SELECT customer_id FROM public.waitlists WHERE responsible_employee_id=$1 UNION SELECT customer_id FROM public.locks WHERE responsible_employee_id=$1 UNION SELECT customer_id FROM public.transactions WHERE responsible_employee_id=$1 UNION SELECT customer_id FROM public.recommendations WHERE recommender_employee_id=$1) ORDER BY customer_id LIMIT 101";
  const customers=(await c.query(idsQ,[source])).rows;
  if(customers.length>100)return {error:'G03_INVENTORY_TRUNCATED_DEFER_DENY'};
- const ids=customers.map(r=>r.customer_id),objects=[];
- for(const cst of customers)objects.push({kind:'Customer',objectId:str(cst.customer_id),customerId:str(cst.customer_id),responsibleEmployeeId:str(cst.current_owner_employee_id),state:cst.account_status+':'+cst.owner_assignment_state,lifecycle:classOf('Customer',cst),relation:null});
+ const ids=customers.map(r=>r.customer_id),objects=[],hidden={};
+ const hide=kind=>{hidden[kind]=(hidden[kind]??0)+1};
+ for(const x of customers){
+  const own=str(x.current_owner_employee_id)===str(source);
+  if(!own)hide('Customer');
+  objects.push({kind:'Customer',objectId:str(x.customer_id),customerId:str(x.customer_id),responsibleEmployeeId:own?str(source):null,state:own?x.account_status+':'+x.owner_assignment_state:'OWNER_OUT_OF_SCOPE',lifecycle:own?classOf('Customer',x):'REVALIDATE',relation:null});
+ }
+ // Source-linked Demand is the ONLY accepted trigger owner provenance for Priority.
+ const sourceDemands=new Set();
+ const domainRows=[];
  for(const [kind,table,key,owner,state] of defs){
   const rows=(await c.query('SELECT * FROM public.'+table+' WHERE customer_id=ANY($1::bigint[]) ORDER BY '+key+' LIMIT 501',[ids])).rows;
   if(rows.length>500)return {error:'G03_INVENTORY_TRUNCATED_DEFER_DENY'};
-  for(const r of rows)objects.push({kind,objectId:str(r[key]),customerId:str(r.customer_id),responsibleEmployeeId:owner?str(r[owner]):null,state:state?str(r[state]):r.ended_at===null?'open':'ended',lifecycle:classOf(kind,r),relation:kind==='Priority'?{triggerDemandId:str(r.trigger_demand_id)}:kind==='Recommendation'?{sourceDemandId:str(r.source_demand_id)}:null});
+  domainRows.push({kind,key,owner,state,rows});
+  if(kind==='Demand')for(const r of rows)if(str(r.responsible_employee_id)===str(source))sourceDemands.add(str(r.demand_id));
  }
- return {objects,openObjects:objects.filter(o=>o.lifecycle!=='TERMINAL'),customerCount:customers.length,writeCapability:'WRITE_CAPABILITY_UNPROVEN',noBusinessHandoverProof:true};
+ for(const {kind,key,owner,state,rows} of domainRows)for(const r of rows){
+  const sourceOwned=owner?str(r[owner])===str(source):kind==='Priority'&&r.trigger_demand_id!==null&&sourceDemands.has(str(r.trigger_demand_id));
+  if(!sourceOwned){hide(kind);continue}
+  objects.push({kind,objectId:str(r[key]),customerId:str(r.customer_id),responsibleEmployeeId:owner?str(source):null,state:state?str(r[state]):r.ended_at===null?'open':'ended',lifecycle:classOf(kind,r),relation:kind==='Priority'?{triggerDemandId:str(r.trigger_demand_id)}:kind==='Recommendation'?{sourceDemandId:sourceDemands.has(str(r.source_demand_id))?str(r.source_demand_id):null}:null});
+ }
+ const protectedGaps=Object.entries(hidden).sort(([a],[b])=>a.localeCompare(b)).map(([kind,count])=>({kind,reason:'OUT_OF_SCOPE_DEFER_DENY',count}));
+ return {objects,openObjects:objects.filter(o=>o.lifecycle!=='TERMINAL'),protectedGaps,protectedGapCount:protectedGaps.reduce((a,x)=>a+x.count,0),customerCount:customers.length,writeCapability:'WRITE_CAPABILITY_UNPROVEN',noBusinessHandoverProof:true};
 }
 async function cover(c,ctx,p,imp){
  const ledger=(await c.query("SELECT item_id,object_kind,object_id,from_employee_id,intended_to_employee_id,status,attempt_count,last_error_code FROM public.handover_items WHERE batch_id=$1 ORDER BY item_id FOR SHARE LIMIT 501",[p.batchId])).rows;
  if(ledger.length>500)return {error:'G06_LEDGER_TRUNCATED_DEFER_DENY'};
- const all=(await c.query("SELECT i.batch_id,i.object_kind,i.object_id,i.intended_to_employee_id FROM public.handover_items i JOIN public.handover_batches b ON b.batch_id=i.batch_id WHERE b.source_employee_id=$1 ORDER BY i.item_id LIMIT 501",[ctx.source])).rows;
+ const items=ledger.map(x=>({itemId:str(x.item_id),kind:x.object_kind,objectId:x.object_id,fromEmployeeId:str(x.from_employee_id)===ctx.source?ctx.source:null,recipientEmployeeId:str(x.intended_to_employee_id)===str(p.recipientEmployeeId)?str(p.recipientEmployeeId):null,sourceMismatch:str(x.from_employee_id)!==ctx.source,recipientMismatch:str(x.intended_to_employee_id)!==str(p.recipientEmployeeId),state:x.status,lastError:x.last_error_code}));
+ // A-G-03: cross-batch rows must be considered even for identical destination
+ // or an inconsistent from_employee_id. Only disclose internal batch/item IDs.
+ const keys=imp.openObjects.filter(x=>x.kind!=='Recommendation').map(x=>[x.kind,x.objectId]);
+ const all=keys.length?(await c.query("SELECT i.item_id,i.batch_id,i.object_kind,i.object_id,i.from_employee_id,i.intended_to_employee_id,i.status FROM public.handover_items i JOIN unnest($1::text[],$2::text[]) AS k(kind,object_id) ON i.object_kind=k.kind AND i.object_id=k.object_id ORDER BY i.item_id LIMIT 501",[keys.map(x=>x[0]),keys.map(x=>x[1])])).rows:[];
  if(all.length>500)return {error:'G06_LEDGER_TRUNCATED_DEFER_DENY'};
- const items=ledger.map(x=>({itemId:str(x.item_id),kind:x.object_kind,objectId:x.object_id,fromEmployeeId:str(x.from_employee_id),recipientEmployeeId:str(x.intended_to_employee_id),state:x.status,lastError:x.last_error_code}));
  const findings=[];
  for(const x of imp.openObjects){
   const matches=items.filter(i=>i.kind===x.kind&&i.objectId===x.objectId),one=matches[0];
-  const conflicting=all.some(v=>v.object_kind===x.kind&&v.object_id===x.objectId&&str(v.batch_id)!==str(p.batchId)&&str(v.intended_to_employee_id)!==str(p.recipientEmployeeId));
-  let reason='PENDING';
-  if(x.kind==='Recommendation'||!['Customer','Demand'].includes(x.kind))reason='UNSUPPORTED';
-  else if(x.lifecycle==='UNKNOWN_DEFER_DENY'||x.lifecycle==='REVALIDATE'||x.responsibleEmployeeId!==ctx.source)reason='REVALIDATE';
-  else if(matches.length>1||conflicting||one&&(one.fromEmployeeId!==ctx.source||one.recipientEmployeeId!==str(p.recipientEmployeeId)))reason='CONFLICT';
-  else if(one&&one.state!=='pending')reason='REVALIDATE';
-  findings.push({kind:x.kind,objectId:x.objectId,customerId:x.customerId,reason,itemId:one?.itemId??null});
+  const extra=all.filter(r=>r.object_kind===x.kind&&r.object_id===x.objectId&&str(r.batch_id)!==str(p.batchId));
+  const relatedBatchIds=[...new Set(extra.map(r=>str(r.batch_id)))].sort();
+  const mismatch=extra.some(r=>str(r.from_employee_id)!==ctx.source||str(r.intended_to_employee_id)!==str(p.recipientEmployeeId));
+  let reason,detail;
+  if(matches.length>1||extra.length>0||one&&(one.sourceMismatch||one.recipientMismatch)){reason='CONFLICT';detail=extra.length?'CROSS_BATCH_DUPLICATE': 'SOURCE_OR_TARGET_MISMATCH'}
+  else if(x.kind==='Recommendation'||!['Customer','Demand'].includes(x.kind)){reason='UNSUPPORTED';detail='DOMAIN_ADAPTER_UNAVAILABLE'}
+  else if(x.lifecycle==='UNKNOWN_DEFER_DENY'||x.lifecycle==='REVALIDATE'||x.responsibleEmployeeId!==ctx.source){reason='REVALIDATE';detail='LIFECYCLE_OR_OWNER_UNPROVEN'}
+  else if(!one){reason='MISSING_ITEM';detail='NO_LEDGER_ITEM'}
+  else if(one.state!=='pending'){reason='REVALIDATE';detail='ITEM_NOT_PENDING'}
+  else{reason='PENDING_ITEM';detail='REAL_PENDING_ONLY_NO_COMPLETION'}
+  findings.push({kind:x.kind,objectId:x.objectId,customerId:x.customerId,reason,detail,itemId:one?.itemId??null,missingItem:!one,relatedBatchIds,relatedItemIds:extra.map(r=>str(r.item_id)),crossBatchSourceOrTargetMismatch:mismatch});
  }
- for(const i of items)if(!imp.openObjects.some(x=>x.kind===i.kind&&x.objectId===i.objectId))findings.push({kind:i.kind,objectId:i.objectId,customerId:null,reason:'REVALIDATE',itemId:i.itemId});
- return {items,findings,overall:'DEFER_DENY',noDomainAdapterAccepted:true,writeCapability:'WRITE_CAPABILITY_UNPROVEN',batchState:ctx.batch.status};
+ // Items without a current scoped object are orphans: no silent completion.
+ for(const i of items)if(!imp.openObjects.some(x=>x.kind===i.kind&&x.objectId===i.objectId))findings.push({kind:i.kind,objectId:i.objectId,customerId:null,reason:'REVALIDATE',detail:'ORPHAN_ITEM_NO_CURRENT_AUTHORIZED_OBJECT',itemId:i.itemId,missingItem:false,relatedBatchIds:[],relatedItemIds:[]});
+ for(const x of imp.protectedGaps)findings.push({kind:x.kind,reason:'OUT_OF_SCOPE_DEFER_DENY',count:x.count,detail:'HIDDEN_FOREIGN_OWNER_OR_RELATION'});
+ return {items,findings,overall:'DEFER_DENY',noDomainAdapterAccepted:true,writeCapability:'WRITE_CAPABILITY_UNPROVEN',batchState:ctx.batch.status,protectedGapCount:imp.protectedGapCount};
 }
 async function execute(auth,token,p,fields,callback,opts){
  if(!shape(p,fields)||!valid(p.batchId)||!valid(p.teamId)||('recipientEmployeeId' in p&&!valid(p.recipientEmployeeId))||!chk(opts?.testCheckpoint))return fail('G02_INPUT_DENY');
@@ -108,18 +135,47 @@ export const readHandoverBatchCoverage=(a,t,p,o)=>execute(a,t,p,'batchId,recipie
  const i=await impact(c,ctx.source);if(i.error)return fail(i.error);
  const cv=await cover(c,ctx,p,i);return cv.error?fail(cv.error):fail('G06_COVERAGE_DEFER_DENY',{recipient:e,customerCount:i.customerCount,...cv});
 },o);
-export const readHandoverCommitPreflight=(a,t,p,o)=>execute(a,t,p,'batchId,recipientEmployeeId,teamId',async(c,ctx,checkpoint)=>{
- const again=async()=>{
-  const b=await batch(c,{employee_id:ctx.manager},p);
-  if(!b||str(b.source_employee_id)!==ctx.source||!await capable(c,ctx.manager,ctx.source,p.teamId))return {error:'G05_CURRENT_MANAGER_OR_BATCH_CHANGED'};
-  const e=await eligibility(c,ctx,p);if(!e.eligible)return {error:e.code};
-  const i=await impact(c,ctx.source);if(i.error)return {error:i.error};
-  const cv=await cover(c,ctx,p,i);if(cv.error)return {error:cv.error};
-  return {e,i,cv,signature:JSON.stringify({version:str(b.version),state:b.status,recipient:e,objects:i.objects,items:cv.items,findings:cv.findings})};
- };
- const first=await again();if(first.error)return fail(first.error);
- if(checkpoint)await checkpoint('after_first_read',c);
- const latest=await again();if(latest.error)return fail(latest.error);
- if(first.signature!==latest.signature)return fail('G05_CONCURRENT_STATE_CHANGED_REVALIDATE');
- return fail('PREFLIGHT_FACTS_CURRENT_BUT_WRITE_DENIED',{recipient:latest.e,coverage:latest.cv,customerCount:latest.i.customerCount,noReusableCommitToken:true});
-},o);
+// A-G-02: CI-only simulation. Global ordered SHARE table gates prevent
+// INSERT phantoms as well as writes to prechecked rows; explicit stable-order
+// FOR SHARE locks cover Customer owner and each domain responsibility row.
+// No commit authorization is ever issued, even on a fully stable read.
+const lockedTables=[
+ 'audit_events','consultations','customers','demands','employee_capability_scope_bindings',
+ 'employee_data_scopes','employee_permission_overrides','employee_receiving_eligibility',
+ 'employee_team_memberships','employees','handover_batches','handover_items','locks',
+ 'permissions','priority_leases','recommendations','role_permission_defaults','roles',
+ 'stores','teams','transactions','waitlists'
+];
+async function lockPreflightFacts(c,source,checkpoint){
+ await c.query("SET LOCAL lock_timeout='1200ms'");
+ await c.query("SET LOCAL statement_timeout='7000ms'");
+ for(const table of lockedTables)await c.query('LOCK TABLE public.'+table+' IN SHARE MODE');
+ if(checkpoint)await checkpoint('after_table_locks',c);
+ const customers=(await c.query("SELECT customer_id FROM public.customers WHERE current_owner_employee_id=$1 OR customer_id IN (SELECT customer_id FROM public.demands WHERE responsible_employee_id=$1 UNION SELECT customer_id FROM public.consultations WHERE assignee_employee_id=$1 UNION SELECT customer_id FROM public.waitlists WHERE responsible_employee_id=$1 UNION SELECT customer_id FROM public.locks WHERE responsible_employee_id=$1 UNION SELECT customer_id FROM public.transactions WHERE responsible_employee_id=$1 UNION SELECT customer_id FROM public.recommendations WHERE recommender_employee_id=$1) ORDER BY customer_id FOR SHARE",[source])).rows.map(x=>x.customer_id);
+ for(const [kind,table,key] of defs){
+  await c.query('SELECT '+key+' FROM public.'+table+' WHERE customer_id=ANY($1::bigint[]) ORDER BY '+key+' FOR SHARE',[customers]);
+ }
+ // Trustworthy batch and item FOR SHARE performed by batch()/cover().
+ if(checkpoint)await checkpoint('after_row_locks',c);
+}
+export const readHandoverCommitPreflight=async(a,t,p,o)=>{
+ try{return await execute(a,t,p,'batchId,recipientEmployeeId,teamId',async(c,ctx,checkpoint)=>{
+  await lockPreflightFacts(c,ctx.source,checkpoint);
+  const again=async()=>{
+   const b=await batch(c,{employee_id:ctx.manager},p);
+   if(!b||str(b.source_employee_id)!==ctx.source||!await capable(c,ctx.manager,ctx.source,p.teamId,b.sourceEmploymentStatus!=='active'))return {error:'G05_CURRENT_MANAGER_OR_BATCH_CHANGED'};
+   const e=await eligibility(c,ctx,p);if(!e.eligible)return {error:e.code};
+   const i=await impact(c,ctx.source);if(i.error)return {error:i.error};
+   const cv=await cover(c,ctx,p,i);if(cv.error)return {error:cv.error};
+   return {e,i,cv,signature:JSON.stringify({version:str(b.version),state:b.status,recipient:e,objects:i.objects,protectedGaps:i.protectedGaps,items:cv.items,findings:cv.findings})};
+  };
+  const first=await again();if(first.error)return fail(first.error);
+  if(checkpoint)await checkpoint('after_first_read',c);
+  const latest=await again();if(latest.error)return fail(latest.error);
+  if(first.signature!==latest.signature)return fail('G05_CONCURRENT_STATE_CHANGED_REVALIDATE');
+  return fail('PREFLIGHT_FACTS_CURRENT_BUT_WRITE_DENIED',{recipient:latest.e,coverage:latest.cv,customerCount:latest.i.customerCount,noReusableCommitToken:true,lockedReadOnly:true});
+ },o)}catch(e){
+  if(['55P03','40P01','57014'].includes(e?.code))return fail('G05_LOCK_CONTENTION_DEFER_DENY');
+  throw e;
+ }
+};
