@@ -1,0 +1,9 @@
+item	A_review_gap	B_closure	proof	status	residual_risk
+R1-A	真实主店变更无验证	真实PG16当前员工store_id从1→11→1,同一旧F03-1正常session通过读事实器的实际SQL行探针观测	tests/integration.test.mjs R1-01;没有对外facts/不增加业务grant	B_FIXED_A_REVIEW_PENDING	尚无真实调店治理/对象scope;仅测试数据库模拟当前事实变化
+R1-B	4S及Admin身份硬禁令证据不足	4S CRM/Lock/Transaction/内部批发价即使有伪高权限也明确HARD_DENY_FOUR_S; Admin CRM/Lock/Transaction明确SYSTEM_ADMIN_NO_BUSINESS_RIGHT	tests/integration.test.mjs R1-02;tests/https-revocation.test.mjs G11	B_FIXED_A_REVIEW_PENDING	未实现完整对象读写与真实交易
+R1-C	缺无效/混合身份ID和重复当前事实行负例	受控注入无效employee ID/跨admin字段混合/账号ID不匹配/重复行/角色空;断言CURRENT_PRINCIPAL_DENIED或INCOMPLETE_CURRENT_FACTS	tests/integration.test.mjs R1-03;只篡改测试包装器返回行,不破坏已验收物理约束	B_FIXED_A_REVIEW_PENDING	模拟非法行用于负例,不宣称PG约束允许混合主体
+R2-I	未跑F03-1既有真实认证集成回归	全新独立PG16作业运行原integration.test.mjs;源run37890672133为11/11	workflow独立f03-1-original-real-integration job;上传原始测试日志	B_FIXED_A_REVIEW_PENDING	不将静态login-design19项冒称为真实安全测试
+R2-H	未跑F03-1既有真实HTTPS安全回归	另一个全新独立PG16作业运行原https.test.mjs;源run37890672133为4/4	workflow独立f03-1-original-real-https job;含真实Origin/CSRF/Cookie/readiness/startup	B_FIXED_A_REVIEW_PENDING	仅临时回环HTTPS安全回归,不是部署
+E1-1	真实结构文件未入库	从同一已成功源run37890672133原样归档schema-only 133772 bytes/inventory 180215 bytes/原哈希清单;注明原SHA与run	engineering/f03/runtime-facts/evidence/ 4项; SOURCE.md	B_FIXED_A_REVIEW_PENDING	需A直接独立复算已归档文件字节
+E1-2	只检查哈希格式,未计算实际SHA	用node:crypto在源归档和本次CI原始bytes分别计算SHA256并核对各自sha256sums;伪造/损坏/错名均拒绝	evidence-hashes.mjs;tests/evidence-hashes.test.mjs;check-evidence.mjs	B_FIXED_A_REVIEW_PENDING	每次pg_dump SQL有不可控restrict随机key,跨运行只可标准化这两个key再对照其余SQL全文
+E1-3	归档后新SHA缺专属CI	工作流把源归档commit到同一B分支后,后续最终HEAD执行同SHA3个PG16 job并校验原文与本次结构导出;不得复用来源run代替最终CI	GitHub最终Actions completed/success及同SHA;工作流check-evidence后逐项sha和变化限制;A独立复核	B_FIXED_A_REVIEW_PENDING	A尚未正式签发;治理/完整scope/F03-2后批未授权

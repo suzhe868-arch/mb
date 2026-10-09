@@ -1,0 +1,2 @@
+d8b97b54f5beea7bcc07eee2dd2762789ac913729d4645825f9b4cebf6e78b1f  f03/runtime-facts/artifacts/pg16_schema_only.sql
+98c8bbe019ba5025504873c8a77d73ef3a28382449a3bda199dedb4dd47e7119  f03/runtime-facts/artifacts/pg16_inventory.json
