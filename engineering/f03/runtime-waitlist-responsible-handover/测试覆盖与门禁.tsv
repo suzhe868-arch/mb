@@ -1,0 +1,12 @@
+批次	真实PG16测试证据	受控验收结论
+K01	旧J91完整目录1982项、K000011一表+46键至2028、校验SHA/版本、discover/inject/apply/rollback/verify	只有新Waitlist收据表，不允许旧迁移/目录变更
+K02	受控F03-1员工会话、经理/店长、独立permission=18、个人deny/scope、inactive/普通销售/4S/System Admin/旧session	显式Team/store授权，暂停接客经理合法管理权保留
+K03	Waitlist无status、ended_at/Customer状态、Vehicle周期及供给、hidden、原LockRequest来源、active Lock/本人已有Lock	终态、断关联DENY；不升级锁车或候补顺序
+K04	Waitlist.responsible_employee_id单列CAS、五个注错点、PG事务原子audit+receipt、两个PC真实会话竞争	事务失败无幽灵收据，其他列/Domain不变
+K05	四Domain六对12向真实PG16原同Key对撞、四个PC Session同Key一胜、不同Key全部成功	H/I/J/K全部双向防重复，原表物理UNIQUE
+K06	真实两次合法7->4->5历史连续链，旧source失活、伪造FK审计、current reader权限撤销、直接责任漂移	不可变历史可核、伪造和越权历史不可读
+K07	Customer/Demand/Recommendation/Priority/Consultation/SLA/LockRequest/Lock/Transaction/Vehicle/SG06前后全行快照	不反写，不完成SG06批次，不创建/结束候补
+K08	全新K92、旧J91完整27例、旧I90完整27例、H89、G/F/E88、D86、C84、B82两项、A81及F03-1 80两项各独立PG16	14/14不同容器启动的新PG16库成功
+K09	新K pg_dump schema-only原始、old/new全目录/manifest/SOURCE、J旧1982定义零修改、源run SHA	只有匹配restrict/unrestrict成对随机键可规范化；归档不可伪造
+K10	权限撤销、角色变动、source/recipient失活、原Lock不合法、真实四会话跨域争抢、两会话CAS	Fail closed、并发只一个生效、旧H/I/J完全回归
+K11	最终B HEAD与全部成功CI run.head_sha完全相同、14/14、K29/29、J27/27、I27/27、原始归档源真实	B_SELF_TESTED/READY_FOR_A_REVIEW/NEXT_OWNER=A
