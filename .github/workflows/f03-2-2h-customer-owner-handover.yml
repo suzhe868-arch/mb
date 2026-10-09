@@ -94,6 +94,10 @@ jobs:
           node f03/runtime-customer-owner-handover/runner.mjs --apply
           node f03/runtime-customer-owner-handover/runner.mjs --verify
           if node f03/runtime-handover-ledger/runner.mjs --verify; then echo 'OLD_88_GUARD_WRONGLY_ALLOWED_89'; exit 1; fi
+          node f03/runtime-customer-owner-handover/runner.mjs --rollback
+          node f03/runtime-handover-ledger/runner.mjs --verify
+          node f03/runtime-customer-owner-handover/runner.mjs --apply
+          node f03/runtime-customer-owner-handover/runner.mjs --verify
       - name: H01-H09 real PG16 two actor competing Customer Owner single domain receipt and 6 fault rollback points
         run: |
           set -euo pipefail
