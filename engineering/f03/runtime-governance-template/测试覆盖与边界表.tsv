@@ -1,0 +1,11 @@
+Gate	What real evidence tests	Scope and expected result	Negative and stop boundary
+T01	CI disposable PG16 000001-000003 sealed startup plus old 80 guard	81 tables; old guard 80 rejects new	extra DB/seal/physical drift fails
+T02	real System Admin token to current-history-audit	new default row true, one immutable event, one redact audit	unauthorized actor never written
+T03	repeat twice and false-to-true update	no-op no added event, false-to-true exactly once	no fake repeated success
+T04	two actual distinct Admin token sessions Promise.all missing-row race	one TEMPLATE_ENABLED, one ALREADY	role FOR UPDATE even when template absent
+T05	fault checkpoints after_current after_history before_commit plus invalid actor before commit	every rollback restores current/history/audit	no half-success
+T06	employee/4S/restricted/disabled/inactive/revoked token	all denied, zero side effects	no permission from Employee admin impersonation
+T07	wrong role/permission, false, delete, batch, forged actor/extra keys	all denied, zero side effects	no other template writes
+T08	same old Employee session after template change; object 301/302, scope, deny, 4S, inactive customer	allowed only on verified object and current facts	template enable no implicit global scope
+T09	old F03-1 original 11 real auth and 4 HTTPS tests, each own new 80 PG16	no original code modification	do not count static design as real HTTPS
+T10	sealed PG16 physical SQL/inventory and exact three versions after mutation	81/492/304/126 no changed original structure	CI HEAD must exactly match final B commit
