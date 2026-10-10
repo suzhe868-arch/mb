@@ -53,6 +53,23 @@ test('G2 genuine immutable M94 source 76 receipt and completed G batch gate plan
   assert.equal(bad.code,'G_PLANNED_UNPROVEN_RECEIPT_AUDIT',JSON.stringify(bad));
   assert.equal((await c.query('SELECT employment_status FROM public.employees WHERE employee_id=76')).rows[0].employment_status,original.employment_status);
  }finally{await c.query('UPDATE public.customers SET current_owner_employee_id=$1 WHERE customer_id=37601',[prior])}
+ // A-G-01-d: current data-scope revoke independently blocks planned action.
+ const cap=(await c.query('SELECT ended_at FROM public.employee_capability_scope_bindings WHERE employee_id=5 AND permission_id=13 AND scope_id=201')).rows[0];
+ try{
+  await c.query("UPDATE public.employee_capability_scope_bindings SET ended_at=clock_timestamp()-interval '1 second' WHERE employee_id=5 AND permission_id=13 AND scope_id=201");
+  const denied=await commitPlannedGovernance(auth,manager,{action:'planned_disable',batchId:97001,employeeId:76,teamId:901});
+  assert.equal(denied.code,'G_PLANNED_NOT_CERTIFIED',JSON.stringify(denied));
+ }finally{await c.query('UPDATE public.employee_capability_scope_bindings SET ended_at=$1 WHERE employee_id=5 AND permission_id=13 AND scope_id=201',[cap.ended_at])}
+ // A-G-01-d: even after moving Customer ownership, a pending Refund for
+ // this batch's customer must still block personnel governance.
+ await c.query("INSERT INTO public.locks(lock_id,vehicle_id,customer_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) VALUES(99201,1001,37601,2001,'released',4,clock_timestamp()-interval '1 hour',clock_timestamp()+interval '2 hours')");
+ try{
+  await c.query("INSERT INTO public.refund_cases(refund_id,customer_id,lock_id,status) VALUES(99201,37601,99201,'pending')");
+  try{
+   const denied=await commitPlannedGovernance(auth,manager,{action:'planned_disable',batchId:97001,employeeId:76,teamId:901});
+   assert.equal(denied.code,'G_PLANNED_UNPROVEN_RECEIPT_AUDIT',JSON.stringify(denied));
+  }finally{await c.query('DELETE FROM public.refund_cases WHERE refund_id=99201')}
+ }finally{await c.query('DELETE FROM public.locks WHERE lock_id=99201')}
  // A-G-01-e: independent PostgreSQL session cannot alter the locked
  // customer's responsibility during G2's proof-to-commit interval.
  let racingWriteRejected=false;
