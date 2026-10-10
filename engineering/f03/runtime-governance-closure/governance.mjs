@@ -10,6 +10,25 @@ async function guard(c,a,team,employee){
  const q=await c.query("SELECT EXISTS(SELECT 1 FROM public.employees mgr JOIN public.roles role ON role.role_id=mgr.main_role_id JOIN public.permissions p ON p.permission_code='employee.manage' LEFT JOIN public.role_permission_defaults rd ON rd.role_id=mgr.main_role_id AND rd.permission_id=p.permission_id LEFT JOIN public.employee_permission_overrides ov ON ov.employee_id=mgr.employee_id AND ov.permission_id=p.permission_id JOIN public.employee_data_scopes sc ON sc.employee_id=mgr.employee_id JOIN public.employee_capability_scope_bindings cb ON cb.employee_id=mgr.employee_id AND cb.permission_id=p.permission_id AND cb.scope_id=sc.scope_id JOIN public.teams t ON t.team_id=$2 JOIN public.stores st ON st.store_id=t.store_id JOIN public.employee_team_memberships me ON me.team_id=t.team_id AND me.employee_id=$3 JOIN public.employee_team_memberships mm ON mm.team_id=t.team_id AND mm.employee_id=mgr.employee_id WHERE mgr.employee_id=$1 AND mgr.employment_status='active' AND role.role_code IN('manager','store_head') AND (role.role_code='manager' OR mgr.store_id=t.store_id) AND t.team_status='active' AND st.status='active' AND (ov.decision='allow' OR (ov.decision IS NULL AND rd.enabled=true)) AND ov.decision IS DISTINCT FROM 'deny' AND (sc.ended_at IS NULL OR sc.ended_at>clock_timestamp()) AND (cb.ended_at IS NULL OR cb.ended_at>clock_timestamp()) AND cb.granted_at<=clock_timestamp() AND sc.scope_kind='team' AND sc.scope_reference_id=t.team_id AND mm.valid_from<=clock_timestamp() AND (mm.ended_at IS NULL OR mm.ended_at>clock_timestamp()) AND me.valid_from<=clock_timestamp() AND (me.ended_at IS NULL OR me.ended_at>clock_timestamp())) ok",[a.employee_id,team,employee]);
  return q.rows[0]?.ok===true;
 }
+
+async function actorCurrentScope(c,a,teamId){
+ const q=await c.query("SELECT EXISTS(SELECT 1 FROM public.employees e JOIN public.roles r ON r.role_id=e.main_role_id JOIN public.permissions p ON p.permission_code='employee.manage' LEFT JOIN public.role_permission_defaults rd ON rd.role_id=e.main_role_id AND rd.permission_id=p.permission_id LEFT JOIN public.employee_permission_overrides ov ON ov.employee_id=e.employee_id AND ov.permission_id=p.permission_id JOIN public.employee_data_scopes sc ON sc.employee_id=e.employee_id JOIN public.employee_capability_scope_bindings cb ON cb.employee_id=e.employee_id AND cb.scope_id=sc.scope_id AND cb.permission_id=p.permission_id JOIN public.teams t ON t.team_id=$2 JOIN public.stores st ON st.store_id=t.store_id LEFT JOIN public.employee_team_memberships mm ON mm.team_id=t.team_id AND mm.employee_id=e.employee_id WHERE e.employee_id=$1 AND e.employment_status='active' AND r.role_code IN ('manager','store_head') AND st.status='active' AND t.team_status='active' AND (r.role_code='manager' OR e.store_id=t.store_id) AND (ov.decision='allow' OR (ov.decision IS NULL AND rd.enabled=true)) AND ov.decision IS DISTINCT FROM 'deny' AND (sc.ended_at IS NULL OR sc.ended_at>clock_timestamp()) AND cb.granted_at<=clock_timestamp() AND (cb.ended_at IS NULL OR cb.ended_at>clock_timestamp()) AND ((r.role_code='manager' AND sc.scope_kind='team' AND sc.scope_reference_id=t.team_id AND mm.valid_from<=clock_timestamp() AND (mm.ended_at IS NULL OR mm.ended_at>clock_timestamp())) OR (r.role_code='store_head' AND ((sc.scope_kind='store' AND sc.scope_reference_id=t.store_id) OR (sc.scope_kind='team' AND sc.scope_reference_id=t.team_id AND mm.valid_from<=clock_timestamp() AND (mm.ended_at IS NULL OR mm.ended_at>clock_timestamp()))))) ok",[a.employee_id,teamId]);
+ return q.rows[0]?.ok===true;
+}
+async function lockActorScopeFacts(c,a,teamId,sourceId){
+ // FOR SHARE/UPDATE locks remain until withSession COMMIT or ROLLBACK.
+ // Prevent a concurrent second PG16 session from revoking a capability,
+ // scope, team membership, or store while planned governance is in flight.
+ await c.query('SELECT employee_id FROM public.employees WHERE employee_id=$1 FOR SHARE',[a.employee_id]);
+ const team=(await c.query('SELECT team_id,store_id FROM public.teams WHERE team_id=$1 FOR SHARE',[teamId])).rows[0];
+ if(!team)return false;
+ await c.query('SELECT store_id FROM public.stores WHERE store_id=$1 FOR SHARE',[team.store_id]);
+ await c.query("SELECT scope_id FROM public.employee_data_scopes WHERE employee_id=$1 FOR SHARE",[a.employee_id]);
+ await c.query('SELECT permission_id,scope_id FROM public.employee_capability_scope_bindings WHERE employee_id=$1 FOR SHARE',[a.employee_id]);
+ await c.query('SELECT permission_id FROM public.employee_permission_overrides WHERE employee_id=$1 FOR SHARE',[a.employee_id]);
+ await c.query('SELECT membership_id FROM public.employee_team_memberships WHERE employee_id IN($1,$2) FOR SHARE',[a.employee_id,sourceId]);
+ return actorCurrentScope(c,a,teamId);
+}
 async function unowned(c,emp){
  const entries=[
  ['customers','current_owner_employee_id',"account_status='active'"],
