@@ -1,0 +1,10 @@
+主体	Vehicle来源	合法4S信源	预期detail	理由
+真实Session四S成员2	历史four_s现有49004	无	403	名邦员工上传4S来源车辆不自动移交
+真实Session四S成员2	名邦员工同事务发布four_s新车	属于员工1	403	成员身份不同且无经营Scope
+真实Session四S成员2	wholesale/JYT49006	无	403	源类型不是经营Owner
+真实Session四S成员2	明邦49002	无	403	不可跨来源读取
+System Admin9	任何Vehicle	无业务签发	403	账户治理不能兼任业务主体
+普通名邦员工1	自己正式新发four_s	已签F05-2合法来源	200最小三字段	F05-2合格正例不授予4S成员
+其他four_s成员	未认证或未签账号范围	无	403	不得把role级权限传播给其它账号
+恢复active的四S成员2	旧车辆	无新发布事件	403	复职不恢复不存在/已终止的对象关系
+四S真实成员2	首次合法4S本人新发	未存在可信发布/Scope关系	BLOCKED_SOURCE_GAP	禁止凭造seed制造200
