@@ -12,11 +12,11 @@
 
 ## 2. F04-1A：旧218接口资产核账
 
-- 原始`09_历史工程资产基线/01_ENGINEERING_STARTER_LEGACY/packages/contracts/openapi.yaml`共18,459行，**136路径、218组method+path**。
+- 原始`09_历史工程资产基线/01_ENGINEERING_STARTER_LEGACY/packages/contracts/openapi.yaml`共18,459行，**198路径、218组method+path（62含冒号）**。
 - `legacy-endpoint-inventory.tsv`逐项记录LEGACY-001～218原源文件及精确行、方法、路径、operationId、原声明identity/permission/scope/projection/idempotency，以及建议责任域。
 - 每条新增当前 C/E/P 或 Integration 来源域、现行页面动作 ID、PDM Final逐行权威、敏感字段、审计/状态和对象scope列；**原OpenAPI没有提供可直接证明的现行页面/Final绑定，统一明确UNVERIFIED/SOURCE_GAP**，不可将路径前缀映射误称已完成Current IA审查。
-- 所有218条均`CONTRACT_ONLY`，不是生产路由，也未推断业务实现。旧资产数量无数量性缺口；旧实现真实性、Current IA的页面到路由一一对应、PDM逐条产品最终授权尚不能仅由旧OpenAPI证明，仍按`SOURCE_GAP/OPEN_DEPENDENCY`留给F04后续路由批严格核定。
-- 现行受限路由合同`current-route-contracts.tsv`：R01真实PC会话证明；R02员工车辆对象scope安全拒绝；R03当前员工为客户owner且独立CRM权限、个人deny和动态Team/Store均有效时才返回最小customerId；R04～R09不具备生产真实性，一律`OPEN_DEPENDENCY`。
+- 3条已禁止的Collector连接GET/PATCH/TEST为`RETIRE/FORBIDDEN`；其余215条`UNREVIEWED_SOURCE_GAP/SOURCE_GAP`，不是生产路由，也未推断业务实现。源路径62项由严格YAML解析重建并逐条核准（见`62条冒号路径修正对照.tsv`）；旧资产数量无数量性缺口；旧实现真实性、Current IA的页面到路由一一对应、PDM逐条产品最终授权尚不能仅由旧OpenAPI证明，仍按`SOURCE_GAP/OPEN_DEPENDENCY`留给F04后续路由批严格核定。
+- 现行受限路由合同`current-route-contracts.tsv`：R01真实PC会话证明；R02员工车辆对象scope安全拒绝；R03当前员工为客户owner、独立CRM权限与**该目标Customer精确现时object范围**、个人deny均有效时才返回最小customerId；R04～R09不具备生产真实性，一律`OPEN_DEPENDENCY`。
 - `contracts-inventory.test.mjs`逐行回读218组OpenAPI源行、真实PG16 M94及当前合同，不补造第219项。
 
 ## 3. F04-1B：安全路由测试
@@ -49,7 +49,8 @@
 
 - 已检查：源码路径白名单、业务默认DENY、伪造Origin/Team/4S/客户等级/RequestKey、非TLS、冻结授权与旧域未变、M94/G14物理隔离及跨域旧回归；未将合成成功当成生产权限。
 - 所有正向数据仅限CI客户当前owner证明；客户敏感字段、真实Vehicle价格与资金的正向接口**未获授权**，真实下游调用仍保持关闭。
-- 当前交付结论必须以最终HEAD同SHA26/26 CI实际结果为准。**若26/26最后通过，则 B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A；否则 B_CHANGES_REQUIRED / NEXT_OWNER=B。**
+- A首次独立复核A-F04-01/02/03的三项阻断均在原工作分支修复：旧真实OpenAPI严格198/218、62条冒号映射纠错；3条禁恢复永久RETIRE与215条待核SOURCE_GAP；R03不再用任意Team/store冒认客户scope，只接受现时target Customer object绑定。新增冒号路径损坏、禁恢复误标、跨Team/store对象/撤权/owner漂移/过期正反例。
+- 当前交付结论必须以**整改之后**最终HEAD同SHA26/26 CI实际结果为准。**若26/26最后通过，则 B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A；否则 B_CHANGES_REQUIRED / NEXT_OWNER=B。**
 - B不会创建合并到main的提交，也不代表A独立验收通过。
 
 产品状态：**PRODUCT_BASELINE_STATUS=NOT_READY**；C/H01高保真与正式三端UAT未最终验收。
