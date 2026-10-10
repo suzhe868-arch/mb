@@ -1,11 +1,11 @@
-// F03-2-2L: synthetic PG16 Transaction current-responsible transfer; no production entrypoint or financial mutations.
+// F03-2-2M: synthetic PG16 Transaction current-responsible transfer; no production entrypoint or financial mutations.
 import {createHash} from 'node:crypto';
 import {verify} from './migration.mjs';
 const valid=x=>Number.isSafeInteger(x)&&x>0;
 const exact=(o,k)=>o&&typeof o==='object'&&!Array.isArray(o)&&Object.keys(o).sort().join(',')===k;
 const str=x=>x===undefined||x===null?null:String(x);
 const out=(code,more={})=>Object.freeze({code,...more});
-// A-L-01: throw after any successful CAS: F03-1 withSession rolls back all owner/audit/receipt writes.
+// M10: throw after any successful CAS: F03-1 withSession rolls back all owner/audit/receipt writes.
 
 const sha=x=>createHash('sha256').update(x,'utf8').digest('hex');
 const hookAllowed=x=>x===undefined||(process.env.CI==='true'&&process.env.GITHUB_ACTIONS==='true'&&typeof x==='function');
@@ -122,6 +122,17 @@ async function transfer(c,actor,p,hook){
  const receipt=(await c.query('INSERT INTO public.transaction_responsible_handover_receipts(item_id,batch_id,transaction_id,customer_id,from_employee_id,to_employee_id,actor_employee_id,scope_team_id,audit_id,request_key_sha256) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *',[p.itemId,p.batchId,f.transactionId,f.customerId,p.fromEmployeeId,p.recipientEmployeeId,actor.employee_id,p.teamId,audit,key])).rows[0];
  if(hook)await hook('after_receipt',c);
  if(hook)await hook('before_commit',c);
+ // M10 precommit proof is fresh business authorization, not merely an owner CAS.
+ // Recheck current Team/store/employee permission and customer/listing after late hooks.
+ // Any denial after writes is an exception, never a returned error: withSession ROLLBACKs.
+ const freshScope=await scope(c,actor.employee_id,p.fromEmployeeId,p.recipientEmployeeId,p.teamId,f.customerId,f.sourceInactive);
+ const freshCustomer=(await c.query('SELECT account_status,owner_assignment_state FROM public.customers WHERE customer_id=$1 FOR SHARE',[f.customerId])).rows[0];
+ const freshListing=(await c.query('SELECT v.source_sale_status,lc.ended_at FROM public.vehicle_listing_cycles lc JOIN public.vehicles v ON v.vehicle_id=lc.vehicle_id WHERE lc.listing_cycle_id=$1 AND lc.vehicle_id=$2 FOR SHARE OF lc,v',[f.tx.listing_cycle_id,f.tx.vehicle_id])).rows[0];
+ const freshBatch=(await c.query('SELECT source_employee_id,initiated_by_kind,initiated_by_id,status FROM public.handover_batches WHERE batch_id=$1 FOR UPDATE',[p.batchId])).rows[0];
+ const freshItem=(await c.query('SELECT batch_id,object_kind,object_id,from_employee_id,intended_to_employee_id,status FROM public.handover_items WHERE item_id=$1 FOR UPDATE',[p.itemId])).rows[0];
+ if(!freshScope||!freshCustomer||freshCustomer.account_status!=='active'||freshCustomer.owner_assignment_state!=='assigned'||!freshListing||freshListing.ended_at!==null||!['available','active'].includes(freshListing.source_sale_status)||!freshBatch||str(freshBatch.source_employee_id)!==str(p.fromEmployeeId)||freshBatch.initiated_by_kind!=='employee'||str(freshBatch.initiated_by_id)!==str(actor.employee_id)||!['collecting','pending_domain_handover','blocked'].includes(freshBatch.status)||!freshItem||str(freshItem.batch_id)!==str(p.batchId)||freshItem.object_kind!=='Transaction'||str(freshItem.object_id)!==str(f.transactionId)||str(freshItem.from_employee_id)!==str(p.fromEmployeeId)||str(freshItem.intended_to_employee_id)!==str(p.recipientEmployeeId)||!['pending','retry_required'].includes(freshItem.status)){
+  throw Object.assign(new Error('M_PRECOMMIT_RELATION_CHANGED_ATOMIC_ROLLBACK'),{code:'M04_UNSAFE_FINANCIAL_OR_TRANSACTION_STATE_DEFER_DENY'});
+ }
  // A signed Transaction owner change must remain valid at the last DB statement.
  // Throw on any post-CAS inconsistency so F03-1 withSession actually ROLLBACKs.
  const final=(await c.query("SELECT t.status,t.completed_at,t.responsible_employee_id,t.source_lock_id,t.customer_id,t.vehicle_id,t.listing_cycle_id,l.customer_id AS source_customer_id,l.vehicle_id AS source_vehicle_id,l.listing_cycle_id AS source_cycle_id,l.lock_status,(SELECT count(*)::int FROM public.deposit_receipts d WHERE d.lock_id=l.lock_id) AS deposit_count,(SELECT count(*)::int FROM public.refund_cases r WHERE r.transaction_id=t.transaction_id OR r.lock_id=l.lock_id) AS refund_count FROM public.transactions t JOIN public.locks l ON l.lock_id=t.source_lock_id WHERE t.transaction_id=$1 FOR UPDATE OF t,l",[f.transactionId])).rows[0];
