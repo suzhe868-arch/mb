@@ -1,3 +1,12 @@
+# 2026-10-10｜F04-1 B自验26/26通过，但A独立审查发现三项接口来源与对象权限证明阻断（当前唯一最新）
+
+- **本轮B交审事实保留**：指定`feat/f04-1-contract-safety-gate`分支受检HEAD `cb5a96699a4b93bc42dc0f81188c22ee8d5b49c7`，真实同SHA[Actions 38029582060](https://github.com/suzhe868-arch/mb/actions/runs/38029582060) `26/26`独立PG16 `completed/success`（冻结旧24+F04新增2），新HTTP 15/15、Inventory 7/7，10个新增文件严格白名单，未改旧F03服务/迁移/CI；当前B仅`READY_FOR_A_REVIEW`，**不等于A验收成功**。
+- **A独立复核不通过**：A-F04-01 实际OpenAPI **198个不同路径/218 method+path**，B仅记录136个不同路径、62条含冒号的路径错归前一条（`phone:authorize`、`price-access:unlock`、`connection:test`等），旧Inventory测试同错正则自证；A-F04-02 218条全部`MODIFY`，甚至已禁恢复Collector连接GET/PATCH/TEST，须按真实Final/IA分类，禁恢复`RETIRE`、未核实`UNREVIEWED_SOURCE_GAP`不得假认；A-F04-03 已允许的最小客户本人owner正向HTTP读没有证明目标Customer本身与当前data scope的对象级授权链，需真实对象范围证明和跨Team/store正反例，缺证回安全拒绝。
+- **正式一次性整改单**：`07_重建工作区/F04-1_A主控首次独立审查与接口溯源权限证明完整定向整改单_2026-10-10.md`，并已写[PR26审查评论](https://github.com/suzhe868-arch/mb/pull/26)。**A_CHANGES_REQUESTED / NOT_ACCEPTED / NOT_MERGED / NEXT_OWNER=B**。B留原`feat/f04-1-contract-safety-gate`分支一次性整改，修复可解决问题并取得最终新HEAD一致的26/26独立真PG16成功，归档完整源路径、负例、权限证明及中文交接后交A；**禁止自行合并PR26及开启F04-2**。
+- F03-V已验收合并PR25，已签产品Final/既有工程封印不变；C/H01高保真、F04全业务、F05～F07及产品整体仍`NOT_READY`。本段覆盖下文历史`F04-1首次放行、B未施工`的过时指针，不覆盖历史证据。
+
+---
+
 # 2026-10-10｜F03工作包V A独立验收PR25已合并；F04-1接口合同与隔离安全路由完整施工单正式放行（当前唯一最新）
 
 - **F03-V A验收及标准合并完成**：B受检提交 `2ee8c0327b7e59792cf22e908b12d780494fa3a5` 与 [真实Actions 38027132087](https://github.com/suzhe868-arch/mb/actions/runs/38027132087) head SHA完全一致；**24/24独立真实非特权PostgreSQL16作业成功**（旧17+G3+P2+V2），V新增两个独立作业各7/7。A审查59条（45能力+14治理）与59条负断言、M94/G000014双物理封印、九文件白名单及原始schema/source/catalog；标准[PR25](https://github.com/suzhe868-arch/mb/pull/25)已合并，merge SHA `1a0f0d85eb6cc7d120d754fc82d1a4131f3b653e`。独立A报告：`07_重建工作区/F03工作包V_A主控独立验收PR25合并及阶段技术裁决_2026-10-10.md`。
