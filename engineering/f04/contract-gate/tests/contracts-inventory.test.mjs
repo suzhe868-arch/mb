@@ -98,6 +98,7 @@ test('F04-I02c only three explicit prohibited Collector method-paths are retired
   assert.equal(rows.length,1);
   const r=rows[0];
   assert.equal(r.review_action,'RETIRE');
+  assert.equal(r.review_status,'CURRENT_AUTHORITY_CONFIRMED_DO_NOT_RESTORE');
   assert.equal(r.current_stage,'FORBIDDEN');
   assert.ok(r.authority_evidence.includes('IA_V5_ACTION_CONTRACT'));
   assert.ok(r.pdm_final_authority.includes('DO_NOT_RESTORE'));
@@ -106,15 +107,17 @@ test('F04-I02c only three explicit prohibited Collector method-paths are retired
   }
   assert.throws(()=>assertLegacyDecision({...r,current_stage:'CONTRACT_ONLY'}),/FORBIDDEN_LEGACY_NOT_RETIRED/);
  }
- assert.equal(legacy.filter(r=>r.review_action==='UNREVIEWED_SOURCE_GAP').length,215);
+ assert.equal(legacy.filter(r=>r.review_status==='UNREVIEWED_SOURCE_GAP').length,215);
  for(const row of legacy.filter(r=>!forbiddenKey(r.http_method,r.legacy_path))){
-  assert.equal(row.review_action,'UNREVIEWED_SOURCE_GAP');
+  assert.equal(row.review_action,'');
+  assert.equal(row.review_status,'UNREVIEWED_SOURCE_GAP');
+  assert.equal(row.next_review_owner,'F04_NEXT_AUTHORITY_MAPPING_WITH_A');
   assert.equal(row.current_stage,'SOURCE_GAP');
   assert.equal(row.authority_evidence,'UNVERIFIED');
   assert.equal(row.pdm_final_authority,'PDM_FINAL_ROW_AUTHORITY_NOT_MAPPED');
   assert.ok(row.source_gap_reason.includes('UNREVIEWED_SOURCE_GAP'));
   assertLegacyDecision(row);
-  assert.throws(()=>assertLegacyDecision({...row,review_action:'MODIFY'}),/APPROVED_ACTION_MISSING_AUTHORITY/);
+  assert.throws(()=>assertLegacyDecision({...row,review_action:'MODIFY'}),/GAP_MISLABELED/);
  }
 });
 test('F04-I03 current routes belong to F04 explicit safe registry; no legacy routes as successful apps',()=>{
