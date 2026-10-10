@@ -52,9 +52,9 @@ export function validateRegistry(contractText=read(base+'current-route-contracts
  for(const r of contracts){
   if(!/^CURRENTACTION_[A-Z0-9_]+$/.test(r.action_id)||seen.has(r.action_id))fail('F04_3_DUPLICATE_OPERATION',r.action_id);
   seen.add(r.action_id);
-  if(!['GET','POST','PUT','PATCH','DELETE'].includes(r.method)||!/^\/__ci__\/current\/v1\/[a-z0-9_{}\/-]+$/.test(r.path)||
+  if(!['GET','POST','PUT','PATCH','DELETE'].includes(r.method)||!/^\/__ci__\/current\/v1\/[a-zA-Z0-9_{}\/-]+$/.test(r.path)||
      /\/\.\.?($|\/)|\/\//.test(r.path)||forbidden.some(x=>r.path.includes(x))||
-     /\/(customer|staff|admin)\//.test(r.path)||r.path.includes(':'))fail('F04_3_LEGACY_ROUTE_RESURRECTION',r.action_id);
+     /\/(customer|staff|admin)\//.test(r.path)||r.path.includes(':')||r.path.replace(/\{customerId\}/g,'')!==r.path.replace(/\{customerId\}/g,'').toLowerCase())fail('F04_3_LEGACY_ROUTE_RESURRECTION',r.action_id);
   const key=r.method+' '+norm(r.path);
   if(templates.has(key))fail('F04_3_TEMPLATE_COLLISION',r.action_id);
   templates.add(key);

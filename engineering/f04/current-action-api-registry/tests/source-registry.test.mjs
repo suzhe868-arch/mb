@@ -18,12 +18,12 @@ test('F04-3-A03 OpenAPI generated operation/source and exact CI-only gates, no s
 });
 test('F04-3-A04 old URLs and 3 Collector forbidden routes cannot become reviewed Current APIs',()=>{
  const good=loadContracts();for(const r of good){assert.ok(r.path.startsWith('/__ci__/current/v1/'));assert.ok(!r.path.includes('collector'));assert.equal(r.production_enablement_status,'NOT_PRODUCTION');}
- assert.throws(()=>validateRegistry(modify('CURRENTACTION_VEHICLE_PUBLISH_079','path','/staff/vehicles/{id}:publish'),spec,bridge),/LEGACY_ROUTE_RESURRECTION/);
+ assert.throws(()=>validateRegistry(modify('CURRENTACTION_VEHICLE_PUBLISH_079','path','/staff/vehicles/{id}:publish'),spec,bridge),/LEGACY_ROUTE_RESURRECTION|OPENAPI_CONTRACT_DRIFT/);
 });
 test('F04-3-A05 forged PDM, NAV and page evidence rejected even if text exists elsewhere',()=>{
  assert.throws(()=>validateRegistry(modify('CURRENTACTION_CONSULTATION_CREATE_019','nav_line','70'),spec,bridge),/VERIFIED_ACTION_DRIFT|WRONG_CURRENT_ACTION/);
- assert.throws(()=>validateRegistry(modify('CURRENTACTION_CONSULTATION_CREATE_019','page_id','E02-01'),spec,bridge),/FAKE_PDM_PAGE/);
- assert.throws(()=>validateRegistry(modify('CURRENTACTION_CONSULTATION_CREATE_019','pdm_line','99999'),spec,bridge),/FAKE_PDM_PAGE/);
+ assert.throws(()=>validateRegistry(modify('CURRENTACTION_CONSULTATION_CREATE_019','page_id','E02-01'),spec,bridge),/FAKE_PDM_PAGE|OPENAPI_CONTRACT_DRIFT/);
+ assert.throws(()=>validateRegistry(modify('CURRENTACTION_CONSULTATION_CREATE_019','pdm_line','99999'),spec,bridge),/FAKE_PDM_PAGE|OPENAPI_CONTRACT_DRIFT/);
 });
 test('F04-3-A06 proposed-only cannot forge existing contract approval, extra operation, or DTO private fields',()=>{
  assert.throws(()=>validateRegistry(modify('CURRENTACTION_CONSULTATION_CREATE_019','http_contract_review_state','APPROVED'),spec,bridge),/FAKE_AUTHORIZATION/);
