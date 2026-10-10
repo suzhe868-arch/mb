@@ -1622,3 +1622,15 @@ G最终SHA708fb889db8c473cc1cd92d38896aa1bbfdfb973真实CI38022820421 20/20独�
 ## 2026-10-10｜G/P双包A二轮验收PR23+PR24合并与V工程核账总回归正式放行
 
 G受检最终HEAD19af2955d81ac14d79e0c4e6adc661a3a1aabd8e同SHA CI38025357614 20/20独立PG16 success，新G1 16/G2 7/G3 4及旧N21/M31/L29/K29/J27/I27等完整独立回归；A-G-01当前责任人/后继收据真实链、并发锁竞争和末端整事务rollback关闭，000014仅两个handover completed CHECK全catalog2120项，新真SHA863538a8dd81e85c8f50bec2d18ad714f6c3d87abf3b10844a3c80421d54cdb1；PR23合并SHA2073397070270aeda3056b75a21112e81763cc1a。P受检HEAD97087f2aab4dcb7ad94cd5ea6cc4777b76900459同SHA CI38024572379 19/19 PG16 success，P1 10/P2 11及旧17全回归；A-P-01员工Vehicle不能仅凭CRM+Team擅自读/导出，没有正式Vehicle→Team/4S归属时P_VEHICLE_SCOPE_UNPROVEN安全拒绝，F04/F07接续；PR24合并SHA2c65bbfd04fbba5438160f8b0e8fe8274f15d940。A报告：07_重建工作区/F03双工作包G_P_A主控二轮独立验收PR23_PR24正式合并闭环_2026-10-10.md。按多包协作规范正式放行F03工作包V：07_重建工作区/F03工作包V_A主控工程覆盖核账跨模块总回归与后续承接完整施工单_2026-10-10.md，B唯一下一责任，24/24独立PG16、新旧两个物理版本不混用，59条能力/治理逐项真实核账，下游承接不允许虚报F03/产品上线。C/H01与产品基线NOT_READY。
+
+## 2026-10-10｜A主控F03-V独立验收PR25正式合并与F04-1技术施工单放行（工程裁决，不新增PDM业务规则）
+
+- **V受检与真实证据**：B分支`feat/f03-package-v-coverage-final-gate`最终HEAD `2ee8c0327b7e59792cf22e908b12d780494fa3a5`，同SHA GitHub Actions `38027132087`，24/24个独立非特权真实PG16 job `completed/success`。A检查V新增两个独立job各7/7、全目录各2120项、原生source字节M94与G000014仅2个CHECK差异、九文件新增白名单、59行45能力+14治理审计与59条负断言；旧服务/迁移不改。PR #25 经标准GitHub merge合法合入main，merge SHA `1a0f0d85eb6cc7d120d754fc82d1a4131f3b653e`。A独立签收报告：`07_重建工作区/F03工作包V_A主控独立验收PR25合并及阶段技术裁决_2026-10-10.md`。这是**F03合成隔离技术阶段有限签收**，不自动验收生产业务、真实财务、H01或整体V1产品。
+
+- **A技术裁决 F03-V-DEC-01（历史能力#8）**：`vehicle.internal_wholesale_price.read` 的正向业务读取及真实Vehicle数据/内价来源在**F05**实现，F04实现合法HTTP会话、当前Vehicle对象scope与独立`internal.price.view`边界；PDM-02§8、PDM-10§6为唯一正式产品Authority。4S查看名邦内价HARD DENY，不因经理/店长角色或Internal Mode默认获得；没有真实对象Team/商户绑定及独立权限一律DENY。
+- **A技术裁决 F03-V-DEC-02（历史能力#9）**：`vehicle.internal_wholesale_price.edit` 按 PDM-10§5/5.1 归F05的**正常车辆编辑字段**，需`vehicle.manage`与额外独立`internal.price.view`及当前对象scope/state，F04路由校验；不得恢复独立调价动作/permission或把上游批发价变可写。
+- **A技术裁决 F03-V-DEC-03（历史能力#21）**：`system.four_s_account.manage` 归**F04 System Admin控制平面**正式账户正向治理/允许permission及审计；PDM-02§3及P02-A19支持，不赋予4S互管或新建4S组织层级。
+- 上述三项在V原始覆盖TSV中保留历史`F03_STILL_OPEN`，当前A裁决标记**`A_RESOLVED_TO_F04_F05_OPEN_DEPENDENCY`**，表示**已决定责任归属而非实现完成**；原F03技术安全拒绝保持，F04/F05仍需各自真实施工、验收和最终生产门禁。
+
+- **A正式工作单放行**：`07_重建工作区/F04-1_A主控接口合同与安全路由启动完整施工单_2026-10-10.md`，唯一B工程分支`feat/f04-1-contract-safety-gate`，从最新main启动并独立自验：历史218旧接口源追踪不造假、Current IA/Low-Fi现行路由DTO/权限、隔离HTTP/PG16现时多主体撤权与无可信对象全拒、F05/F06/F07/H03/H04后续消费合同。**旧24项独立PG16冻结回归+2项新独立PG16=26/26同最终B SHA CI成功**、完整中文交接后交A独立验收；仅许可施工单白名单路径，禁止新DDL、旧F03服务改写、真实生产/第三方/资金及B自行PR合并。
+- **唯一下一责任B｜NEXT_TASK F04_1_CONTRACT_AND_SAFE_HTTP_CI_PACKAGE**；C/H01高保真独立未最终验收；F04～F07与用户UAT待做；`PRODUCT_BASELINE=NOT_READY`，不得称V1已可上线。该工程裁决不改写以上任一已确认PDM Final产品规则。
