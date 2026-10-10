@@ -1,3 +1,12 @@
+# 2026-10-11｜F05-3A A首次独立审查：真实4S来源缺口属实；原PR32保留Draft，A技术裁决及定向补证交B（唯一最新）
+
+- **A已实查工程及原生证据**：[PR #32](https://github.com/suzhe868-arch/mb/pull/32) B/PR HEAD `6785b5e7130b5ba9b0c7996c70de2a5222bd8a46`与[Actions #38076660267](https://github.com/suzhe868-arch/mb/actions/runs/38076660267) `run.head_sha`完全一致，官方**38/38独立非特权PG16 CI成功**；原F05-2签收的**36个Job全文冻结未变**，新真实物理`G-A01～07 7/7`、真实HTTPS`G-B01～07 7/7`；原生**69份Artifacts**，新物理 `11678686225`、TLS `11679205872` 未过期；本PR仅**8项批准的新增白名单文件**、旧迁移/生产/Final/IA/C零改。**此仅证明没有受信source时安全拒绝，未有4S本人合法正式发布的正向200**；A独立确认`SOURCE_GAP_EVIDENCE_VERIFIED / F05_3A_BUSINESS_POSITIVE_NOT_ACCEPTED`。
+- **缺口实质**：真实F03 PG16可证employee2 4S账号、active、`pc.four_s.vehicle.manage`个人allow，但现有scope仅Customer301、没有经授权的新Vehicle创建范围与4S本人同正式发布事务的Vehicle+Cycle+owner+审计收据；F05-2`team_id NOT NULL`只属名邦Team，不能拿4S来源字段或旧上传者伪签。A据PDM-02 Final§3/4、PDM-04§9/10及PDM-06§1/6/7/13作出**已有产品规则下技术裁决**：一个4S成员账号直接作为合作经营主体，不增4S组织；先由受信System Admin管控真实“仅创建本人新4S车”的资格/Scope，再由4S本人合规Session+正式发布完整字段在单PG16事务建立全新Vehicle/Cycle/本人的当前对象责任和不可变审计；旧车不得追认，没授权则403。
+- **正式A定向补证施工单**：`07_重建工作区/F05-3A_A主控首次独立审查4S受信来源缺口技术裁决与定向补证施工单_2026-10-11.md`；[PR32正式A评论](https://github.com/suzhe868-arch/mb/pull/32#issuecomment-6101074294)。**状态`F05_3A_A_SOURCE_BRIDGE_RELEASED_FOR_B / PR32_DRAFT_NOT_MERGED / NEXT_OWNER=B`**，原分支`feat/f05-3a-four-s-member-trust-scope`追加许可内的受信来源/真PG16事务和独立正反测试，旧36冻结＋新2同SHA38/38、两原生Artifacts归档后交A复审；不擅自合并main、不开始F05-3B、不接生产。技术源证明仍缺则明确BLOCKED，不造200。
+- F05全阶段、F04生产Vehicle接口、C/H01高保真与V1产品基线保持`NOT_READY`。F05-2已PASS并入main，原五项阻断不是当前问题。
+
+---
+
 # 2026-10-11｜F05-2 A第三轮验收PASS、PR31已合并；F05-3A 4S单成员可信来源隔离包正式放行（唯一最新）
 
 - **F05-2 A正式PASS/CLOSED**：五项`A-F05-2-01～05`独立验收全部通过；[PR #31](https://github.com/suzhe868-arch/mb/pull/31)已由A**标准合并main**，merge SHA `fec72e9245845c252c551f6c172ecca7de5b4467`。受检B最终HEAD `50e28b69b60c4a48c50714abb003e514ec1f8205`与[Actions #38074648994](https://github.com/suzhe868-arch/mb/actions/runs/38074648994) run.head_sha一致，**36/36独立真实PG16 job success**；旧34个Job逐项原文冻结，新物理**21/21**、真实HTTPS**11/11**；59份Artifacts，新`11677953440`/`11677713304`未过期，旧M94封印不变，合并16项仅在批准新增白名单。A合并批准评论[6100698698](https://github.com/suzhe868-arch/mb/pull/31#issuecomment-6100698698)。
