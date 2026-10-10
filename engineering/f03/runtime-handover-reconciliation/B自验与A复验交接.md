@@ -53,3 +53,38 @@ B 交付：新只读 `service.mjs`、真实 CI 专用 `fixtures.mjs`、`tests/in
 本次工作仅是**只读对账和受限合成 PG16 门禁**，不是生产真实离职交接，没有将 `handover_batches` / `handover_items` 改为 completed、没有禁用员工、撤权、公海释放、资金操作或生产上线。
 
 最终门禁成功后唯一下一责任人 **A 主控**：独立复验并决定是否通过/合并 `main`，随后再按正式审批规划下一施工单。B 不自行 PR 合并，不启动 2O；F03-2 整体、C/H01 高保真及产品基线均 `NOT_READY`。
+
+## 七、A-N-01｜Priority跨批来源证明定向整改及真实自验
+
+**A正式退改单**：`07_重建工作区/F03-2-2N_A主控独立复核Priority派生跨批次来源证明定向整改单_2026-10-10.md`。这是对前述第一轮B_SELF_TESTED但A_NOT_ACCEPTED状态的追加闭环，不删改前轮证据或假称A已验收。
+
+### 7.1 实际修改与因果来源（非推定）
+
+- 仅整改新N服务及其原生真实PG16测试，再追加本中文交接；没有修改旧H/I/J/K/L/M实现、数据库迁移、正式产品规则、权限种子、既有旧CI或main。主要代码提交为`cebdf2f393abc11a516c7367470ac596152aec8b`，21例测试源码提交为`cfd032c1faf204759aa464545f50347907948eb3`。
+- Priority待交接item必须明确保持本批`batch_id`、`from_employee_id`、`intended_to_employee_id`与batch source一致，且真正的trigger Demand本批immutable receipt必须存在并与同批Demand item、顾客、trigger Demand、原负责人、目标负责人完全一致。审计与连续历史链通过原N `proof(Demand)`逐条检验；本次证实的必须是**该Demand最后一张可信收据**，早期合法收据不能替后续批次冒领。
+- Team来源不再读不存在的`handover_items.scope_team_id`或用receipt Team自行代填：先按当前请求Team重验manager/店长、scope、personal deny及参与员工关系；若真实历史Demand收据Team不同，仍对收据历史Team重新进行当前授权核验。显式获授权跨Team场景可以安全读取；任一作用域不可信则只读输出`DERIVATION_UNPROVEN`或`OUT_OF_SCOPE`。
+- 无Priority独立transfer或receipt，无TTL续时/Grant增加/员工撤权/账本completed，且永远`batchCloseAuthorized=false / employeeDisableAuthorized=false / globalReady=false`。
+
+### 7.2 新增七项真实PG16正负例及旧用例完整保留
+
+A-N-01-1 同批真实Demand收据来源和Priority一致，正例仍派生证明。
+
+A-N-01-2 仅旧批存在Demand receipt，新批同Priority pending与retry_required均不能冒领。
+
+A-N-01-3 同批Priority原员工与可信Demand来源不符，必须拒绝证明。
+
+A-N-01-4 跨店Team 906与真实历史Team 901两重当前权限均合法时正例通过；仅撤历史Team授权时拒绝，未知Team 999拒绝。没有以硬编码同Team替代精确scope。
+
+A-N-01-5 Priority TTL过期、Match invalidated均拒绝；后续原有真正Demand二次移交旧N测试继续拒绝旧目标的Priority派生。
+
+A-N-01-6 六域收据均可信、合成隔离库中退款已按非付款关闭且没有pending Refund时，故意注入Priority错误来源，仍只能`DEFER_DENY`，全对象快照及账本/审计/可见授权不因只读服务变化。测试临时事实在finally恢复，不是真实客户退款或财务结算。
+
+A-N-01-7 同一PG16事务两个检查阶段间恶意修改Priority来源，返回`N08_DRIFT_DEFER_DENY`，事务全部回滚并保持前后业务/历史快照完全一致。
+
+### 7.3 首次真实整改CI与正式交A门禁
+
+- [真实Actions整改运行 #38018632801](https://github.com/suzhe868-arch/mb/actions/runs/38018632801)：源码SHA `cfd032c1faf204759aa464545f50347907948eb3`，`completed/success`，**17/17独立PG16 job success**；新N **21/21**，原14项保留加7项，零失败。旧M94 31/31、L93 29/29、K92 29/29、J91/I90各27/27和其它旧独立回归均success。
+- 新N同一日志明确：`F03_2M_EVIDENCE_FULL_CATALOG_PASS`（94表/608列/435约束/163索引/2120对象、SHA `7cd90248f51555fff26eb475320b9a10c6f52880263234a31e22210657a2c659`）、`F03_2M_ARCHIVE_EXACT_REAL_RAW_BYTES_PASS`及`F03_2N_ORIGINAL_FULL_CATALOG_AND_INVENTORY_BYTE_PASS`，无000014、无任何DDL delta。原始N SOURCE已归档且不覆写。
+- **最终提交原则**：本交接报告也属正式分支提交，因此须以本报告落库之后的**最终分支HEAD自身**与GitHub最新一轮`completed/success` **17/17独立job run.head_sha完全一致**为最终交付门禁，不可用本节中首次源码成功运行替代。若该最终门禁未完成/失败，仍为`B_VERIFY_PENDING`，不得交A。
+
+**A-N-01 已经B实施与21项PG16自验；保留A独立复验权限。最终同SHA门禁绿灯后，B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A。F03-2整体、SG06真实生产闭环、C/H01与产品基线始终NOT_READY。**
