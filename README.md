@@ -1,3 +1,12 @@
+# 2026-10-10｜F04-2 B自验28/28成功、A独立审查发现Authority语义错配及Domain责任错分（唯一当前最新）
+
+- **B真实证据合格但不等于A通过**：PR [#27](https://github.com/suzhe868-arch/mb/pull/27) 原B分支`feat/f04-2-authority-route-mapping`受检HEAD `b3535bbe70c0708e4ba386293e7298408f163da8`与真实[Actions38034145668](https://github.com/suzhe868-arch/mb/actions/runs/38034145668) head SHA一致，**28/28独立非特权PostgreSQL16作业success**（冻结旧26+2新）；新Authority原生PG16 **8/8**与新4S真实HTTPS **9/9**，37份原始Artifacts，新Artifact IDs 11662184264/11662909011、M94原94表2120对象封印PASS；11文件严格新增白名单。B所做4S CI-only System Admin最小身份自检/未证明商户归属均403拒绝，本轮无单独安全阻断；此前F04-1/旧F03源码与正式PDM/IA没有改动。
+- **A-F04-2-01阻断：语义失配**。B矩阵215行中**105行标`EVIDENCE_MATCHED`、110行`SOURCE_GAP`**，但多条真实引文引用了**另一种动作**：LEGACY-001微信会话↔手机号授权；LEGACY-019创建Consultation↔“C01打开车辆”；LEGACY-020登记候补↔“C01打开车辆”；LEGACY-069～072咨询处理/完结/转派↔“修改内部客户称呼”；LEGACY-079车辆发布↔“进入内部模式”；LEGACY-085价格修改不可借“内部模式”证明编辑权限。当前`source-verifier.mjs::quoteCheck`只验证真实文档字节存在，不核动作/主体/PDM相符，原8/8无法识别此类错配。B须反查所有105`EVIDENCE_MATCHED`、更换真正同动作权限来源或降`SOURCE_GAP`、补真实但**不相关**引文的负例与重审前后数量统计，不能编造批准KEEP/MODIFY。
+- **A-F04-2-02阻断：Domain/Owner错配**。LEGACY-019 Consultation创建与LEGACY-020 Waitlist候补按URL前缀被分至`VEHICLE/F05`，实际PDM-15/18独立业务域；尤其Waitlist属PDM-18、下游F06锁车候补，不得借vehicle前缀移交F05。明确区分F04 HTTP路由合同Owner与各业务Domain真实实施Owner，真缺口记`OWNER_REVIEW_GAP`；补跨域真实对应测试和中文交接。
+- **正式一次性A整改单**：`07_重建工作区/F04-2_A主控首次独立复核Authority动作误配完整定向整改单_2026-10-10.md`，PR27已有A审核评论ID `6095831957`。**A_CHANGES_REQUESTED / PR27_NOT_MERGED / NEXT_OWNER=B**。B只能在原`feat/f04-2-authority-route-mapping`完成本批全部整改，自审/更新原生Artifacts、重新取得最新HEAD同SHA完整**28/28独立PG16 success**后交A；不自行合并或启动F04-3。F04-1 PR26已签并合并、F04整体/真实4S治理/F05～F07/C-H01高保真/三端UAT/产品基线均`NOT_READY`。本段覆盖以下旧“F04-2 B未开始”历史指针，不重写旧事实。
+
+---
+
 # 2026-10-10｜F04-1 A二轮独立验收通过、PR26正式合并；F04-2完整施工单已正式放行B（唯一当前最新）
 
 - **F04-1最终验收且标准合并完成**：PR [#26](https://github.com/suzhe868-arch/mb/pull/26) 受检B HEAD `6af50664ec230f11caf62c73562449069d086b15`；同SHA真实[Actions 38031443210](https://github.com/suzhe868-arch/mb/actions/runs/38031443210) **26/26独立非特权PG16 job全部成功**（旧24+F04-1 2），新F04 Route-security原始HTTPS日志 **20/20**、Contracts-inventory原始PG16日志 **10/10**，33份run原始Artifacts；合并SHA **`20479f3712a5aaa862f7db4378d8db2369695d79`**，已实查PR `closed / merged=true`。A正式复验：`07_重建工作区/F04-1_A主控二轮独立验收PR26正式合并与下一阶段归属_2026-10-10.md`。F04-1仅**隔离CI合同/安全路由**子批签收，并非218历史API上线或F04全阶段通过。
