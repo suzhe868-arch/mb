@@ -34,7 +34,7 @@ test('F05-1-A05 physical release requires signed business proof, not public info
  assert.ok(a.listing_cycle_id);
  assert.equal(redactMinimal(a,{trustedCurrentVehicleOwnership:false,signedBusinessRead:true}),null);
  assert.equal(redactMinimal(a,{trustedCurrentVehicleOwnership:true,signedBusinessRead:false}),null);
- assert.deepEqual(Object.keys(redactMinimal(a,{trustedCurrentVehicleOwnership:true,signedBusinessRead:true})).sort(),['listingCycleId','sourceKind','vehicleId']);
+ assert.equal(redactMinimal(a,{trustedCurrentVehicleOwnership:true,signedBusinessRead:true}),null); // caller-generated booleans cannot mint a signed current Vehicle ownership proof
  for(const p of [{claimedOwner:1},{merchantId:1},{teamId:1},{}]){
   const r=await proveCurrentVehicleScope(db,{employeeId:1},{vehicleId:39001,outlet:'detail',...p});
   assert.equal(r.proven,false);

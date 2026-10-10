@@ -76,9 +76,10 @@ export function verifyPhysicalSource(
   checksumMatrix:createHash('sha256').update(scopeText).digest('hex')});
 }
 const positiveId=v=>Number.isSafeInteger(v)&&v>0;
+const INTERNAL_TRUSTED_SCOPE=Symbol('F05_1_NOT_MINTABLE_WITHOUT_SIGNED_PHYSICAL_VEHICLE_OWNER');
 export function redactMinimal({vehicle_id,listing_cycle_id,source_type},scope){
  // Explicitly unexportable without distinct signed current object-ownership proof.
- if(scope?.trustedCurrentVehicleOwnership!==true||scope?.signedBusinessRead!==true||
+ if(scope!==INTERNAL_TRUSTED_SCOPE||
   !positiveId(Number(vehicle_id))||!positiveId(Number(listing_cycle_id))||
   !sourceTypes.includes(source_type))return null;
  return Object.freeze({vehicleId:Number(vehicle_id),listingCycleId:Number(listing_cycle_id),sourceKind:source_type});
