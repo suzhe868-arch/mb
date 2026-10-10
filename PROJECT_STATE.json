@@ -4,7 +4,7 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F03_2_2N_B_SELF_TESTED_A_CHANGES_REQUESTED_PRIORITY_PROVENANCE_NEXT_OWNER_B",
+  "substage": "F03_2_2N_A_ACCEPTED_MERGED_PR22_F03_MULTI_PACKAGE_G_P_A_RELEASED_NEXT_OWNER_B",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A独立核验2N最终同SHA17/17独立PG16成功，新N14、旧M31/L29/K29/J27/I27均通过，但Priority派生未绑定当前SG06 item原员工/批次/Team与可信Demand交接来源，错批可冒领已证明；A-N-01退B原分支定向整改",
-  "current_work_file": "07_重建工作区/F03-2-2N_A主控独立复核Priority派生跨批次来源证明定向整改单_2026-10-10.md",
+  "current_task": "F03-2-2N A-N-01 Priority批次来源PG16七项补测闭环N21/21、17/17独立CI通过并PR22合并；按用户同意正式双任务包G（SG06收口+F03-2-3治理）与P（F03-3字段安全投影）并行独立分支一次性放行B包内持续施工",
+  "current_work_file": "07_重建工作区/F03工作包G_A主控SG06真实收口与F03-2-3员工治理完整施工单_2026-10-10.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_FIX_F03_2_2N_A_N_01_PRIORITY_BATCH_SOURCE_TEAM_EVIDENCE_17_INDEPENDENT_JOBS_READY_FOR_A",
+  "next_action": "B_EXECUTE_F03_PACKAGES_G_AND_P_END_TO_END_SELF_REVIEW_READY_FOR_A_SINGLE_HANDOFF",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F03_2_2M_A_ACCEPTED_MERGED_PR21_F03_2_2N_A_CHANGES_REQUESTED_PRIORITY_BATCH_PROVENANCE_NOT_MERGED",
+  "engineering_status": "F03_2_2N_A_ACCEPTED_PR22_G_P_MULTI_PACKAGE_RELEASED_B_NOT_STARTED",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B沿用feat/f03-handover-reconciliation-2n原分支，按A-N-01唯一整改单只修新N priority只读来源校验及fixtures/integration tests/中文交接：真实SG06 Priority item from/to/batch与可信Demand历史receipt/audit/Team和trigger Demand必须逐项对应；不存在的item.scope_team_id回退条件不算校验。补真实PG16跨批pending伪证明、source不符、跨Team许可正反例、后二次转派、整批不乐观完成与只读全表不反写。旧SQL/全部旧服务/旧CI保持冻结，最终HEAD同真实17/17独立PG16 success（旧M31/L29/K29/J27/I27完整），原94表2120 catalog/SOURCE原字节PASS后READY_FOR_A_REVIEW交A。不得创建PR/自行合并/启动2O或预排G/P/V包。",
+  "next_action_detail": "B从最新main分别在feat/f03-package-g-governance-closure与feat/f03-package-p-field-projection完整执行两份A正式包级施工单。G含G1真实SG06当前逐项签收/批次完成、G2计划调店降权停用、G3突发inactive复职撤权，000014只批准两个handover completed CHECK增量，G1/G2/G3新三个独立PG16+旧N/M/L/K/J/I/H..F03-1共20/20全成功并逐阶段源码和真结构证据。P含P1身份/价格/电话字段敏感投影、P2历史/导出/缓存权限撤销、P3 F04～F07字段/DTO交接，不改DDL，新两个独立PG16+17旧独立共19/19成功。两分支不互用未经合并新代码、不改旧迁移/旧CI/Final、都不自行PR合并，连续完成开发自审整改全回归及中文B全包交接，双包均READY后一次性交A独立验收；V仍未授权，完整产品NOT_READY。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -5176,7 +5176,7 @@
     ],
     "merge_status": "MERGED_TO_MAIN_USER_APPROVED",
     "schema_proposals": "SG01_LIMITED_000003_ACCEPTED_SG02_TO_SG08_NOT_AUTHORIZED",
-    "next": "B_REMEDIATE_2N_PRIORITY_PROVENANCE_WITH_REAL_PG16_17_JOBS_READY_FOR_A",
+    "next": "B_IMPLEMENT_G_AND_P_TWO_SEPARATE_BRANCHES_PACKAGE_LEVEL_SINGLE_A_HANDOFF",
     "merge_preparation": {
       "report": "07_重建工作区/F03-2-G0_A主控合并核验材料_待用户批准_2026-10-09.md",
       "pr": 6,
@@ -5733,7 +5733,7 @@
       "pg16_physical": "94_TABLES_608_COLUMNS_435_CONSTRAINTS_163_INDEXES_2120_CATALOG_KEYS_PLUS46"
     },
     "f03_2_2n": {
-      "status": "A_CHANGES_REQUESTED_B_REMEDIATION_REQUIRED",
+      "status": "F03_2_2N_A_ACCEPTED_MERGED_PR22",
       "owner": "B",
       "next_owner_after_b": "A",
       "branch": "feat/f03-handover-reconciliation-2n",
@@ -5743,16 +5743,53 @@
       "authorization": "STANDING_A_B_C_CONTINUOUS_ISOLATED_TECHNICAL_CONSTRUCTION",
       "schema_authorization": "NO_DDL_NO_000014_94_TABLE_2120_CATALOG_ITEMS_FROZEN",
       "required_ci_jobs": 17,
-      "tests": "REAL_CI_38016127258_17_OF_17_SUCCESS_N14_M31_L29_K29_J27_I27_BUT_PRIORITY_CROSS_BATCH_PROOF_GAP",
-      "ci_run_id": 38016127258,
-      "ci_sha": "70fdae880cfc707a405d607378aa5ab172b432a0",
-      "acceptance": "A_CHANGES_REQUESTED_NOT_ACCEPTED",
-      "merge": "NOT_STARTED",
+      "tests": "REAL_CI_38018758218_17_OF_17_SUCCESS_N21_M31_L29_K29_J27_I27",
+      "ci_run_id": 38018758218,
+      "ci_sha": "5ae79377c5c09155ac1b04105e5a265a61ced20e",
+      "acceptance": "A_ACCEPTED_SIGNED_ONLY_F03_2_2N",
+      "merge": "MERGED_TO_MAIN_PR22",
       "a_review_report": "07_重建工作区/F03-2-2N_A主控独立复核Priority派生跨批次来源证明定向整改单_2026-10-10.md",
-      "required_changes": [
-        "A-N-01_PRIORITY_DERIVED_WITHOUT_ITEM_BATCH_SOURCE_TEAM_PROVENANCE"
+      "required_changes": [],
+      "observed_ci_jobs": 17,
+      "merge_pr": 22,
+      "merge_sha": "32419cff011b15c1e2f1f202d257f7b2c00cb30d",
+      "acceptance_report": "07_重建工作区/F03-2-2N_A主控二轮独立验收及PR22正式合并闭环_2026-10-10.md",
+      "pg16_physical": "94_TABLES_608_COLUMNS_435_CONSTRAINTS_163_INDEXES_2120_CATALOG_KEYS_NO_DELTA"
+    },
+    "package_g": {
+      "status": "A_RELEASED_FOR_B_B_NOT_STARTED",
+      "owner": "B",
+      "branch": "feat/f03-package-g-governance-closure",
+      "work_order": "07_重建工作区/F03工作包G_A主控SG06真实收口与F03-2-3员工治理完整施工单_2026-10-10.md",
+      "sub_units": [
+        "G1_SG06_COMPLETE",
+        "G2_PLANNED_EMPLOYEE_GOVERNANCE",
+        "G3_SUDDEN_INACTIVE_AND_REHIRE"
       ],
-      "observed_ci_jobs": 17
+      "schema_authorization": "ONLY_000014_APPEND_REPLACE_TWO_HANDOVER_COMPLETED_STATUS_CHECKS_NO_OTHERS",
+      "required_ci_jobs": 20,
+      "merge": "NOT_STARTED",
+      "acceptance": "NOT_STARTED"
+    },
+    "package_p": {
+      "status": "A_RELEASED_FOR_B_B_NOT_STARTED",
+      "owner": "B",
+      "branch": "feat/f03-package-p-field-projection",
+      "work_order": "07_重建工作区/F03工作包P_A主控F03-3字段权限与安全投影完整施工单_2026-10-10.md",
+      "sub_units": [
+        "P1_FIELD_PROJECTION_MATRIX",
+        "P2_HISTORY_EXPORT_CACHE_REVOKE",
+        "P3_F04_F07_FIELD_CONTRACT_HANDOFF"
+      ],
+      "schema_authorization": "NO_DDL_M94_2120_CATALOG_FROZEN",
+      "required_ci_jobs": 19,
+      "merge": "NOT_STARTED",
+      "acceptance": "NOT_STARTED"
+    },
+    "package_v": {
+      "status": "A_PREPLAN_NOT_RELEASED",
+      "owner": "A",
+      "activation_rule": "AFTER_G_AND_P_A_ACCEPTED"
     }
   },
   "a_batch_approval_mode": "STANDING_USER_DIRECTED_CONTINUOUS_TECHNICAL_WORKFLOW_IN_FROZEN_SCOPE; A_SCOPES_AND_RELEASES_B_C; EACH_WINDOW_COMPLETES_END_TO_END; A_INDEPENDENT_ACCEPTANCE_AND_CLEAN_PR_MERGE_WITHOUT_REPEAT_APPROVAL; NEW_PRODUCT_CHOICE_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_EXTERNAL_WRITES_REQUIRE_USER",
