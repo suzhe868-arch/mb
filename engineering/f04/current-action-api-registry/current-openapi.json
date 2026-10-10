@@ -28,11 +28,7 @@
         "x-resource-kind": "favorites",
         "x-dto-schema-ref": "DTO_CURRENTACTION_FAVORITE_TOGGLE_007",
         "x-current-action-contract-state": "CI_ONLY_PROPOSED_NOT_REVIEWED",
-        "security": [
-          {
-            "futureCustomerSessionBlocked": []
-          }
-        ],
+        "security": [],
         "responses": {
           "400": {
             "description": "真实安全门禁拒绝/最小合成响应",
@@ -250,6 +246,12 @@
               }
             }
           }
+        },
+        "x-customer-authentication-dependency": {
+          "status": "BLOCKED",
+          "identity": "REAL_CUSTOMER_SESSION_NOT_IMPLEMENTED",
+          "pcEmployeeCookie": "HARD_DENY",
+          "futureMechanism": "SEPARATE_CUSTOMER_SESSION_AUTHORITY_REQUIRED"
         }
       },
       "delete": {
@@ -267,11 +269,7 @@
         "x-resource-kind": "favorites",
         "x-dto-schema-ref": "DTO_CURRENTACTION_FAVORITE_TOGGLE_008",
         "x-current-action-contract-state": "CI_ONLY_PROPOSED_NOT_REVIEWED",
-        "security": [
-          {
-            "futureCustomerSessionBlocked": []
-          }
-        ],
+        "security": [],
         "responses": {
           "400": {
             "description": "真实安全门禁拒绝/最小合成响应",
@@ -461,6 +459,12 @@
               }
             }
           }
+        },
+        "x-customer-authentication-dependency": {
+          "status": "BLOCKED",
+          "identity": "REAL_CUSTOMER_SESSION_NOT_IMPLEMENTED",
+          "pcEmployeeCookie": "HARD_DENY",
+          "futureMechanism": "SEPARATE_CUSTOMER_SESSION_AUTHORITY_REQUIRED"
         }
       }
     },
@@ -480,11 +484,7 @@
         "x-resource-kind": "consultations",
         "x-dto-schema-ref": "DTO_CURRENTACTION_CONSULTATION_CREATE_019",
         "x-current-action-contract-state": "CI_ONLY_PROPOSED_NOT_REVIEWED",
-        "security": [
-          {
-            "futureCustomerSessionBlocked": []
-          }
-        ],
+        "security": [],
         "responses": {
           "400": {
             "description": "真实安全门禁拒绝/最小合成响应",
@@ -702,6 +702,12 @@
               }
             }
           }
+        },
+        "x-customer-authentication-dependency": {
+          "status": "BLOCKED",
+          "identity": "REAL_CUSTOMER_SESSION_NOT_IMPLEMENTED",
+          "pcEmployeeCookie": "HARD_DENY",
+          "futureMechanism": "SEPARATE_CUSTOMER_SESSION_AUTHORITY_REQUIRED"
         }
       }
     },
@@ -721,11 +727,7 @@
         "x-resource-kind": "waitlists",
         "x-dto-schema-ref": "DTO_CURRENTACTION_WAITLIST_REGISTER_020",
         "x-current-action-contract-state": "CI_ONLY_PROPOSED_NOT_REVIEWED",
-        "security": [
-          {
-            "futureCustomerSessionBlocked": []
-          }
-        ],
+        "security": [],
         "responses": {
           "400": {
             "description": "真实安全门禁拒绝/最小合成响应",
@@ -943,6 +945,12 @@
               }
             }
           }
+        },
+        "x-customer-authentication-dependency": {
+          "status": "BLOCKED",
+          "identity": "REAL_CUSTOMER_SESSION_NOT_IMPLEMENTED",
+          "pcEmployeeCookie": "HARD_DENY",
+          "futureMechanism": "SEPARATE_CUSTOMER_SESSION_AUTHORITY_REQUIRED"
         }
       }
     },
@@ -5431,11 +5439,7 @@
         "x-resource-kind": "lockrequests",
         "x-dto-schema-ref": "DTO_CURRENTACTION_LOCKREQUEST_PENDING_CREATE",
         "x-current-action-contract-state": "CI_ONLY_PROPOSED_NOT_REVIEWED",
-        "security": [
-          {
-            "futureCustomerSessionBlocked": []
-          }
-        ],
+        "security": [],
         "responses": {
           "400": {
             "description": "真实安全门禁拒绝/最小合成响应",
@@ -5653,6 +5657,12 @@
               }
             }
           }
+        },
+        "x-customer-authentication-dependency": {
+          "status": "BLOCKED",
+          "identity": "REAL_CUSTOMER_SESSION_NOT_IMPLEMENTED",
+          "pcEmployeeCookie": "HARD_DENY",
+          "futureMechanism": "SEPARATE_CUSTOMER_SESSION_AUTHORITY_REQUIRED"
         }
       }
     },
@@ -5885,11 +5895,7 @@
         "x-resource-kind": "applications",
         "x-dto-schema-ref": "DTO_CURRENTACTION_APPLICATION_PENDING_WITHDRAW",
         "x-current-action-contract-state": "CI_ONLY_PROPOSED_NOT_REVIEWED",
-        "security": [
-          {
-            "futureCustomerSessionBlocked": []
-          }
-        ],
+        "security": [],
         "responses": {
           "400": {
             "description": "真实安全门禁拒绝/最小合成响应",
@@ -6101,6 +6107,12 @@
               }
             }
           }
+        },
+        "x-customer-authentication-dependency": {
+          "status": "BLOCKED",
+          "identity": "REAL_CUSTOMER_SESSION_NOT_IMPLEMENTED",
+          "pcEmployeeCookie": "HARD_DENY",
+          "futureMechanism": "SEPARATE_CUSTOMER_SESSION_AUTHORITY_REQUIRED"
         }
       }
     },
@@ -7574,7 +7586,8 @@
         "type": "apiKey",
         "in": "header",
         "name": "X-Future-Customer-Auth-NOT-IMPLEMENTED",
-        "description": "声明未来客户独立认证的未实现依赖，本CI路由不能用此header认证；所有Customer动作硬403"
+        "description": "仅将来独立客户身份设计占位：当前未实现、不能通过传入任意Header或PC Cookie取得客户授权。",
+        "x-runtime-disabled": true
       }
     },
     "schemas": {
