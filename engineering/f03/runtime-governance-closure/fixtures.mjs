@@ -9,7 +9,7 @@ try{
   await c.query("INSERT INTO public.employees(employee_id,store_id,employment_status,receiving_status,main_role_id) VALUES($1,1,'active','paused',$2)",[n,role]);
   await c.query("INSERT INTO public.employee_team_memberships(team_id,employee_id,valid_from,changed_by_system_admin_id) VALUES(901,$1,clock_timestamp()-interval '5 minutes',9)",[n]);
   const password=await hashPassword('SyntheticG_Disposable_'+n+'_2026');
-  await c.query("INSERT INTO public.pc_login_accounts(normalized_login_key,principal_kind,employee_id,password_hash,credential_state,force_password_change) VALUES($1,'employee',$2,$3,'enabled',false)",['synthetic_g_user_'+n,n,password]);
+  await c.query("INSERT INTO public.pc_login_accounts(account_id,normalized_login_key,principal_kind,employee_id,password_hash,credential_state,force_password_change) VALUES($4,$1,'employee',$2,$3,'enabled',false)",['synthetic_g_user_'+n,n,password,300+n]);
  }
  const kinds=[['planned_disable',97001,17601,37601,76],['planned_downgrade',97002,17602,37602,77],['planned_transfer',97003,17603,37603,78]];
  for(const [kind,batch,item,customer,src] of kinds){
