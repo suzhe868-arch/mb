@@ -31,41 +31,43 @@ export const F04_ROUTE_CONTRACTS=Object.freeze([
   {method:'POST',path:'/api/v1/f04/4s/accounts',actor:'system_admin_current_session',stage:'CONTRACT_ONLY',response:'OPEN_DEPENDENCY'},
 ]);
 const safeAddress=x=>x==='127.0.0.1'||x==='::1'||x==='::ffff:127.0.0.1';
-// The one permitted customer business positive: current owner ONLY, current
-// independent CRM capability + personally effective grant + current Team/store
-// membership & scoped binding, locked live Customer fact. No phone/history DTO.
+// F04 A-F04-03: an Employee may read the minimum synthetic customer-id
+// ONLY when the current CRM capability is bound to the *target Customer* by
+// a physical, current, explicit object scope. Merely owning the customer and
+// holding an unrelated Team/store scope cannot prove access to this customer.
+// Explicit object permission does not require a same-store shortcut.
 async function trustedOwnCustomer(auth,token,customerId){
   return await auth.withSession(token,async(c,a,s)=>{
     if(s.restricted||a.principal_kind!=='employee'||a.system_admin_id!==null||
-       a.role_code==='four_s'||a.subject_status!=='active')return false;
+       a.role_code==='four_s'||a.subject_status!=='active'||
+       a.force_password_change!==false)return false;
     const sql=String.raw`
-SELECT c.customer_id FROM public.customers c
+SELECT c.customer_id
+FROM public.customers c
 JOIN public.employees e ON e.employee_id=c.current_owner_employee_id
 JOIN public.permissions p ON p.permission_code='crm.customer.view'
-LEFT JOIN public.role_permission_defaults d ON d.role_id=e.main_role_id AND d.permission_id=p.permission_id
-LEFT JOIN public.employee_permission_overrides ov ON ov.employee_id=e.employee_id AND ov.permission_id=p.permission_id
-JOIN public.employee_capability_scope_bindings b ON b.employee_id=e.employee_id AND b.permission_id=p.permission_id
-JOIN public.employee_data_scopes sc ON sc.scope_id=b.scope_id AND sc.employee_id=e.employee_id
-JOIN public.teams t ON ((sc.scope_kind='team' AND sc.scope_reference_id=t.team_id)
- OR (sc.scope_kind='store' AND sc.scope_reference_id=t.store_id))
-JOIN public.stores st ON st.store_id=t.store_id
-JOIN public.employee_team_memberships tm ON tm.employee_id=e.employee_id AND tm.team_id=t.team_id
+LEFT JOIN public.role_permission_defaults d
+  ON d.role_id=e.main_role_id AND d.permission_id=p.permission_id
+LEFT JOIN public.employee_permission_overrides ov
+  ON ov.employee_id=e.employee_id AND ov.permission_id=p.permission_id
+JOIN public.employee_data_scopes sc
+  ON sc.employee_id=e.employee_id AND sc.scope_kind='object'
+  AND sc.scope_reference_id=c.customer_id
+JOIN public.employee_capability_scope_bindings b
+  ON b.employee_id=e.employee_id AND b.permission_id=p.permission_id
+  AND b.scope_id=sc.scope_id
 WHERE c.customer_id=$1 AND c.current_owner_employee_id=$2
  AND c.account_status='active' AND c.owner_assignment_state='assigned'
- AND e.employment_status='active' AND e.store_id=st.store_id
- AND t.team_status='active' AND st.status='active'
+ AND e.employment_status='active'
  AND (ov.decision='allow' OR (ov.decision IS NULL AND d.enabled=true))
  AND ov.decision IS DISTINCT FROM 'deny'
  AND (sc.ended_at IS NULL OR sc.ended_at>statement_timestamp())
  AND b.granted_at<=statement_timestamp()
  AND (b.ended_at IS NULL OR b.ended_at>statement_timestamp())
- AND tm.valid_from<=statement_timestamp()
- AND (tm.ended_at IS NULL OR tm.ended_at>statement_timestamp())
-LIMIT 1 FOR SHARE OF c`;
+LIMIT 1 FOR SHARE OF c,e,sc,b`;
     return (await c.query(sql,[customerId,a.employee_id])).rowCount===1;
   },{normalOnly:true})===true;
 }
-
 
 export async function createF04ContractHandler(auth,{readinessProbe=async()=>true}={}){
   const env=process.env;
