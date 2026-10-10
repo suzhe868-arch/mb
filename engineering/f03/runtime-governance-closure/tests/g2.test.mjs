@@ -79,6 +79,9 @@ test('G2 genuine immutable M94 source 76 receipt and completed G batch gate plan
 });
 test('G2 verified planned manager downgrade requires store head role and never resurrects old permissions',async()=>{
  await close(97002,17602);
+ // A-G-01-c: 77→4→6 has two actual frozen H receipts/audits.
+ assert.equal((await c.query('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=37602')).rows[0].current_owner_employee_id,'6');
+ assert.equal((await c.query('SELECT count(*)::int n FROM public.customer_owner_handover_receipts WHERE customer_id=37602')).rows[0].n,2);
  const originalOwner=(await c.query('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=37602')).rows[0].current_owner_employee_id;
  try{
   await c.query('UPDATE public.customers SET current_owner_employee_id=5 WHERE customer_id=37602');
