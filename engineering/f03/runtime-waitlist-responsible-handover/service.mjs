@@ -16,11 +16,17 @@ async function authTx(auth,token,fn,opts={}){
  if(!hookAllowed(opts.testCheckpoint))return out('K02_TEST_HOOK_DENY');
  const v=await auth.pool.connect();try{
   if(opts.crossDomainRequestKeyCommit===true){
+   const mTable=(await v.query("SELECT to_regclass('public.transaction_responsible_handover_receipts')::text AS tbl")).rows[0]?.tbl;
+   if(mTable==='transaction_responsible_handover_receipts'){
+    const {verify:verifyM}=await import('../runtime-transaction-responsible-handover/migration.mjs');
+    await verifyM(v);
+   }else{
    const l=(await v.query("SELECT to_regclass('public.lock_responsible_handover_receipts')::text AS tbl")).rows[0]?.tbl;
    if(l==='lock_responsible_handover_receipts'){
     const {verify:verifyL}=await import('../runtime-lock-responsible-handover/migration.mjs');
     await verifyL(v);
-   }else await verify(v);
+    }
+  }else await verify(v);
   }else await verify(v);
  }finally{v.release()}
  try{
@@ -117,6 +123,8 @@ async function transfer(c,actor,p,hook){
  }
  const lTable=(await c.query("SELECT to_regclass('public.lock_responsible_handover_receipts')::text AS tbl")).rows[0]?.tbl;
  if(lTable==='lock_responsible_handover_receipts'&&(await c.query('SELECT 1 FROM public.lock_responsible_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[key])).rowCount)return out('K05_CROSS_DOMAIN_KEY_DENY');
+ const mGuard=(await c.query("SELECT to_regclass('public.transaction_responsible_handover_receipts')::text AS tbl")).rows[0]?.tbl;
+ if(mGuard==='transaction_responsible_handover_receipts'&&(await c.query('SELECT 1 FROM public.transaction_responsible_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[key])).rowCount)return out('K05_CROSS_DOMAIN_KEY_DENY');
  const conflict=(await c.query('SELECT item_id FROM public.waitlist_responsible_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[key])).rows[0];
  if(conflict)return out('K05_COLLISION_DENY');
  if(str(f.waitlist.responsible_employee_id)!==str(p.fromEmployeeId))return out('K04_CAS_CONFLICT');

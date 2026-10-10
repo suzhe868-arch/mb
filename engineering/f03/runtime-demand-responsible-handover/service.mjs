@@ -17,6 +17,11 @@ async function authTx(auth,token,fn,opts={}){
  if(!hookAllowed(opts.testCheckpoint))return out('I02_TEST_HOOK_DENY');
  const v=await auth.pool.connect();try{
   if(opts.crossDomainRequestKeyCommit===true){
+   const mTable=(await v.query("SELECT to_regclass('public.transaction_responsible_handover_receipts')::text AS tbl")).rows[0]?.tbl;
+   if(mTable==='transaction_responsible_handover_receipts'){
+    const {verify:verifyM}=await import('../runtime-transaction-responsible-handover/migration.mjs');
+    await verifyM(v);
+   }else{
    const l=(await v.query("SELECT to_regclass('public.lock_responsible_handover_receipts')::text AS tbl")).rows[0]?.tbl;
    if(l==='lock_responsible_handover_receipts'){
     const {verify:verifyL}=await import('../runtime-lock-responsible-handover/migration.mjs');
@@ -30,7 +35,8 @@ async function authTx(auth,token,fn,opts={}){
      const {verify:verifyK}=await import('../runtime-waitlist-responsible-handover/migration.mjs');
      await verifyK(v);
     }else await verifyJ(v);
-   }else await verify(v);
+    }
+  }else await verify(v);
    }
   }else await verify(v);
  }finally{v.release()}
@@ -137,6 +143,8 @@ async function transfer(c,actor,p,hook){
  if(kTable==='waitlist_responsible_handover_receipts'&&(await c.query('SELECT 1 FROM public.waitlist_responsible_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[k])).rowCount)return out('I05_CROSS_DOMAIN_KEY_DENY');
  const lTable=(await c.query("SELECT to_regclass('public.lock_responsible_handover_receipts')::text AS tbl")).rows[0]?.tbl;
  if(lTable==='lock_responsible_handover_receipts'&&(await c.query('SELECT 1 FROM public.lock_responsible_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[k])).rowCount)return out('I05_CROSS_DOMAIN_KEY_DENY');
+ const mGuard=(await c.query("SELECT to_regclass('public.transaction_responsible_handover_receipts')::text AS tbl")).rows[0]?.tbl;
+ if(mGuard==='transaction_responsible_handover_receipts'&&(await c.query('SELECT 1 FROM public.transaction_responsible_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[k])).rowCount)return out('I05_CROSS_DOMAIN_KEY_DENY');
  const cross=(await c.query('SELECT item_id FROM public.demand_responsible_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[k])).rows[0];
  if(cross&&str(cross.item_id)!==str(p.itemId))return out('I05_COLLISION_DENY');
  if(str(f.demand.responsible_employee_id)!==str(p.fromEmployeeId))return out('I04_DEMAND_CAS_CONFLICT');
