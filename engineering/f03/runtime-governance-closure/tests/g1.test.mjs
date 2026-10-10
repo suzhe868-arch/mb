@@ -62,3 +62,30 @@ test('G1 after-CAS fault rolls back both completed and audit effects',async()=>{
  const after=(await db.query("SELECT status,attempt_count FROM public.handover_items WHERE item_id=13604")).rows[0];
  assert.deepEqual(after,before);assert.equal((await db.query("SELECT count(*)::int n FROM public.audit_events WHERE object_kind='handover_item' AND object_id='13604'")).rows[0].n,count);
 });
+
+
+test('G1 real M94 Customer handover receipt now completes exactly one genuine new G item and batch',async()=>{
+ const before=(await db.query('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=37601')).rows[0];
+ assert.equal(Number(before.current_owner_employee_id),4,'H old-domain receipt must already have moved current owner');
+ const itemRequest={batchId:97001,itemId:17601,teamId:901,requestKey:'g-first-valid-item-17601'};
+ const prepared=await certifyHandoverItem(auth,token,{batchId:97001,itemId:17601,teamId:901});
+ assert.equal(prepared.code,'G_ITEM_CERTIFIED',JSON.stringify(prepared));
+ const first=await commitHandoverItem(auth,token,itemRequest);
+ assert.equal(first.code,'G_ITEM_COMPLETED',JSON.stringify(first));
+ const retry=await commitHandoverItem(auth,token,itemRequest);
+ assert.equal(retry.code,'G_ITEM_IDEMPOTENT',JSON.stringify(retry));
+ assert.equal((await db.query('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=37601')).rows[0].current_owner_employee_id,before.current_owner_employee_id);
+ const batchRequest={batchId:97001,teamId:901,requestKey:'g-first-valid-batch-97001'};
+ const batch=await commitHandoverBatch(auth,token,batchRequest);
+ assert.equal(batch.code,'G_BATCH_COMPLETED',JSON.stringify(batch));
+ assert.equal((await commitHandoverBatch(auth,token,batchRequest)).code,'G_BATCH_IDEMPOTENT');
+ assert.equal((await db.query("SELECT count(*)::int n FROM public.audit_events WHERE object_kind='handover_item' AND object_id='17601' AND action='sg06.item.complete'")).rows[0].n,1);
+ assert.equal((await db.query("SELECT count(*)::int n FROM public.audit_events WHERE object_kind='handover_batch' AND object_id='97001' AND action='sg06.batch.complete'")).rows[0].n,1);
+ const bad=await commitHandoverBatch(auth,token,{...batchRequest,requestKey:'g-different-batch-idempotence'});
+ assert.equal(bad.code,'G_BATCH_ALREADY_COMPLETED');
+});
+test('G1 committed batch cannot be forged as permission to act on a second pending SG06 batch',async()=>{
+ const another=await commitHandoverBatch(auth,token,{batchId:97002,teamId:901,requestKey:'g-incorrect-crossbatch-completion'});
+ assert.equal(another.ok,false,JSON.stringify(another));
+ assert.notEqual((await db.query('SELECT status FROM public.handover_batches WHERE batch_id=97002')).rows[0].status,'completed');
+});
