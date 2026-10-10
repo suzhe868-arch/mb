@@ -1,3 +1,21 @@
+# F05-3A｜A二轮三项安全阻断 B 定向整改交接（最新）
+
+> 2026-10-11｜本节覆盖下文首次/二轮历史记录，只涉及A正式整改单 `F05-3A_A主控二轮独立复验对象归属绑定复活与并发证据完整定向整改单_2026-10-11.md` 的三项；最终CI/Artifacts以同SHA成功的GitHub Actions和PR正式B交审评论为准，CI未全部成功前不标记READY。
+
+## 本轮实际修改（仅原PR32允许的F05-3A新目录）
+
+1. **A-F05-3A-01**：隔离新迁移`000016_four_s_member_trust.sql`在许可证主表增加`UNIQUE(license_id,employee_id)`并在当前发表对象增加`FOREIGN KEY(license_id,member_employee_id)`复合外键；两张关系均用数据库BEFORE触发器冻结已签发的身份、来源、vehicle/cycle和eventKey。已签署4S Vehicle的历史`created_by_employee_id`不能通过直接UPDATE转让给另一4S账号；详情查询额外按真实会话核对license.employee_id=publication.member_employee_id。
+2. **A-F05-3A-02**：许可证/发布对象的数据库转移仅允许`revoked_at=NULL → 非NULL`且`version`恰好增加1；已撤销行拒绝任何UPDATE，禁止version回退、撤销复活与删除。不影响既有System Admin撤权、账号自动撤权、单车source/cycle变更的正常事务与SYSTEM审计。
+3. **A-F05-3A-03**：原H-A11和H-A14去掉“仅Promise尚未完成”的非确定性断言，改为两个实际隔离非特权PG16连接与不同`pg_backend_pid()`，目标治理SQL在另一个会话采用`SET LOCAL lock_timeout='250ms'`，必须实测`SQLSTATE 55P03`（锁等待超时）后ROLLBACK；释放读/发布锁后，另一真实事务提交治理撤权，再读取应403且历史不能复活。
+4. **新增反例**：H-A15验证两个独立4S身份与不同Admin license、直接更新来源身份触发器拒绝、真正物理复合FK拒绝错误账号（SQLSTATE 23503）；H-A16直接复活旧许可证/发布历史与回退version必须失败。HTTPS H-B04a对另一4S已独立取得license后的物理篡改仍403、本人大三字段200；H-B09追加撤权复活非法UPDATE后HTTPS仍403。保留旧G-A/G-B及其原14+10测试。
+5. **冻结**：只修改本包原新`000016`、`source-gate.mjs`、两份bridge测试和本份中文交接。F05-2旧36个独立作业及`000001～000015`、生产server、PDM Final/IA/Low-Fi/C与main未动；新的F05-3A专属workflow没有变动。
+
+## 再交审门禁
+
+只接受最终**B分支HEAD = PR #32 HEAD = 对应最新成功Actions run.head_sha**；必须38/38独立非特权真实PG16 CI success，新增物理和HTTPS原生Artifacts均包含真实schema-only/catalog/inventory/checksum和日志；旧36 Job正文逐字冻结。此前首次SOURCE_GAP闭环、真实Admin→4S本人→新Vehicle+Cycle→审计→最小HTTPS200仍需保持回归。若有任何一项失败，不得宣告PASS/READY，也不得合并main或进入F05-3B及生产。
+
+---
+
 # F05-3A｜A定向来源补证后续工程交接（现行）
 
 > 本节覆盖下文**初轮历史SOURCE_GAP勘验**。原始证据保留，不是当前工程的最终结论。本次严格执行A于main的`F05-3A_A主控首次独立审查4S受信来源缺口技术裁决与定向补证施工单_2026-10-11.md`。本报告CI具体run/SHA/Artifacts以PR#32最终正式B交审评论为准，未获最新完整同SHA绿灯不计交审完成。
