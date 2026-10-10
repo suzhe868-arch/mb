@@ -10,10 +10,11 @@
 ## 当前可运行范围
 - F04-R01：隔离PG16/HTTPS中通过冻结F03-1会话确认，仅返回受限证明；不是生产登录。
 - F04-R02：以M94及F03-P对象授权完整签名为前置测试员工车辆字段出口。旧M94无法证明vehicle→Team/4S业务归属，**只允许安全拒绝**，绝不能当员工车辆阅读/导出已完成。
-- R03～R09为严格 `OPEN_DEPENDENCY` 合同；未接入真实Customer/Vehicle/价格/Lock/Transaction/Refund/采集发行人。
+- F04-R03：仅在员工为客户**当前负责人**、CRM独立能力和个人deny/动态Team范围可证时，返回最小customerId且仅CI，绝无电话/历史资料；非法对象一律拒绝。
+- R04～R09为严格 `OPEN_DEPENDENCY` 合同；未接入真实Customer/Vehicle/价格/Lock/Transaction/Refund/采集发行人。
 
 ## 明确不满足的正向依赖
-1. F04：System Admin与4S账号正式控制面、角色和实际客户对象授权/业务HTTP/audit仍无正式数据来源；目前不提供客户资料正向读/写。
+1. F04：System Admin与4S账号正式控制面、角色和实际客户对象授权/业务HTTP/audit仍无正式数据来源；当前只允许本人客户ID的受限正向证明，不提供完整客户资料或任何正式生产CRM读/写。
 2. F05：真实车辆→员工Team或4S商户归属、独立Vehicle权限、内部价`internal.price.view`及正常编辑权限，以及等级/每日账本/原子解锁均待签可验来源。
 3. F06：LockRequest 六小时门禁、候补、交易转换、付款与Refund原子真实业务生命周期，不能由合成F03负责人移交证明代替。
 4. F07：JYT源端publisher_id、合法取号、图片CDN和Collector链；不得恢复car_code取电话。
