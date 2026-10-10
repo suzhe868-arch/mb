@@ -1683,3 +1683,10 @@ G受检最终HEAD19af2955d81ac14d79e0c4e6adc661a3a1aabd8e同SHA CI38025357614 20
 - B最终SHA `f86f592056303e9ac6e04ad5af5be93accf41b80`与真实Actions `38048203956` head SHA一致，30/30独立非特权PG16 success；新Source/DTO/Current语义16/16、新TLS/身份/对象安全13/13、41份原生Artifacts，新IDs `11668517606/11668526569`，M94 94表2120项/G14封印完整。16个文件仅增F04-3批准白名单，冻结旧28 CI不变。
 - A-F04-3-01/02/03定向整改经独立源码、错误引文负例、Source/DTO schema/Actor/Auth隔离审查全部PASS；A正式评论`6097071207`；标准[PR28](https://github.com/suzhe868-arch/mb/pull/28)真实合并SHA `a1f7ebcbfdf1184ed2b1e1143afe01e877119694`；正式A报告`07_重建工作区/F04-3_A主控二轮独立验收PR28正式合并与F04-4接力_2026-10-10.md`。F04-3 `A_ACCEPTED_MERGED_PR28_CI_ONLY`，不是生产实现，旧215/32新候选无旧URL或业务权限自动批准。
 - A按既有PDM Final/Current IA规则**新签F04-4完整技术工作单** `07_重建工作区/F04-4_A主控Current全量动作覆盖消费合同与隔离安全门禁完整施工单_2026-10-10.md`；`NEXT_OWNER=B / A_RELEASED_FOR_B / B_NOT_STARTED`，限Current全动作与C/E/P/4S消费者覆盖台账、typed DTO追加、独立32/32真PG16验收；不变更任何产品原子/Final、不复活Collector、不造4S组织、不对真实资金/账号/第三方操作，不擅合并main。C/H01/F04整体/V1仍`NOT_READY`。
+
+
+## 2026-10-10｜F04-4首次A独立技术验收：增量typed DTO动作语义单项整改（无新产品裁决）
+
+- B受检HEAD`3e2e5a2f27c2c88dbc595f3312a6520f843c6a84`与官方Actions`38051029689`完全同SHA、32/32独立真非特权PG16 success、45份原生Artifacts（新Source`11669133122`及TLS`11669622637`）及14新增文件白名单通过。437 Current行级来源/258三向桥接与215旧候选23/192、3禁恢复仍保守。
+- 技术整改`A-F04-4-01`：8项新增typed DTO均只接受一个正整数对象ID；PDM24 Announcement“新建”没有证据要求客户端先传既存announcementId，Vehicle source_type修改未携目标类型，Markup规则save与车型mapping bind未携能定义动作的业务参数；不能将形式上类型化的单ID占位称为实质业务请求合同。A整改单`07_重建工作区/F04-4_A主控首次独立审查增量动作DTO业务语义完整定向整改单_2026-10-10.md`，PR29审核评论`6097622718`；B在原分支整改真实字段语义/按源降缺口并补负例、最后32/32同SHA再交A，当前`A_CHANGES_REQUESTED/PR29_NOT_MERGED/NEXT_OWNER=B`。
+- Page Manifest文件标题自称140 logical载体但目前物理C/E/P表可实证132，差8项保留`SOURCE_GAP`，**不是本轮独立阻断、没有确认是哪8个真实页面**。Final/IA/Low-Fi保持冻结、禁止编造页面或恢复旧禁项。F04全阶段与H01、V1产品仍`NOT_READY`。
