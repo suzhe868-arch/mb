@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_3A_A_SOURCE_BRIDGE_RELEASED_FOR_B_PR32_DRAFT_NOT_MERGED",
+  "substage": "F05_3A_A_SECOND_REVIEW_CHANGES_REQUESTED_PR32_NEXT_OWNER_B",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F05",
-  "current_domain_status": "F05_2_A_ACCEPTED_MERGED_F05_3A_A_SOURCE_GAP_CONFIRMED_B_BRIDGE_RELEASED",
+  "current_domain_status": "F05_2_ACCEPTED_F05_3A_A_SECOND_REVIEW_CHANGES_REQUESTED_PR32",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F05-3A PR32 A独立复核证实38/38真PG16负例及来源缺口；4S本人合法首次发布正向200尚未成立；A依PDM Final裁决受信System Admin许可范围→4S本人正式发布同事务归属审计的技术桥接，原PR32暂不合并。",
-  "current_work_file": "07_重建工作区/F05-3A_A主控首次独立审查4S受信来源缺口技术裁决与定向补证施工单_2026-10-11.md",
+  "current_task": "F05-3A A二轮独立复核B最终SHA4bd39d7与Actions38085191145 38/38 PG16：4S首发真Admin受信链与TLS200已经证明，但publication/license跨账号绑定、撤权物理不可逆、并发确定性锁等待三项未闭环，PR32不合并，已签二轮完整技术整改单交B原分支整改。",
+  "current_work_file": "07_重建工作区/F05-3A_A主控二轮独立复验对象归属绑定复活与并发证据完整定向整改单_2026-10-11.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F05_3A_SOURCE_GAP_EVIDENCE_VERIFIED_BUSINESS_POSITIVE_BLOCKED",
+  "current_review_batch": "F05_3A_A_SECOND_REVIEW_THREE_SECURITY_BLOCKERS",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_IMPLEMENT_F05_3A_TRUSTED_FOUR_S_PUBLICATION_SOURCE_BRIDGE_PR32",
+  "next_action": "B_FIX_F05_3A_A_THREE_OBJECT_SCOPE_REVIVAL_AND_RACE_BLOCKERS_PR32",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B读取main A首次4S来源缺口技术裁决与定向补证施工单 07_重建工作区/F05-3A_A主控首次独立审查4S受信来源缺口技术裁决与定向补证施工单_2026-10-11.md，在原feat/f05-3a-four-s-member-trust-scope/PR32内证明真实System Admin控制面向4S本人新车首发创建许可/范围，不许凭Customer301 scope或静态allow发Vehicle经营权；经真实4S Session及PDM06正式发布七字段的PG16事务创建新Vehicle/Cycle/本人当前对象责任与不可变来源审计，补同源合法最小200、跨账户/名邦/JYT/六出口403及账号降权/并发回归。旧36冻结+2新CI同最终SHA38/38及两原生Artifacts中文交A；若管理员受信源无法物理证明继续SOURCE_GAP，不得伪造200、不得合并PR32或施工F05-3B。",
+  "next_action_detail": "B读取main最新 07_重建工作区/F05-3A_A主控二轮独立复验对象归属绑定复活与并发证据完整定向整改单_2026-10-11.md，继续feat/f05-3a-four-s-member-trust-scope和PR32，仅修01 publication与license同员工物理归属约束+发布来源身份不可篡改+read证、02许可证及对象revoked_at不可逆且真实PG16防复活、03双独立非特权PG16连接确实撞锁/55P03或wait确认后才放行的COMMIT时序测试；保留已经真实证明的SystemAdmin许可→4S本人发布单事务正向200。原36独立CI job定义冻结＋两新作业最终同B/PR SHA38/38成功，两原生Artifact及中文完整交接再交A。不得合并PR32、生产接入或开始F05-3B。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -6084,8 +6084,8 @@
     "new_pg16_catalog_sha": "4438b0ae158531eaf13e2555c544603088d97511d31bd78abdf2162dc381c513"
   },
   "f05_3a_gate": {
-    "status": "A_SOURCE_GAP_CONFIRMED_SOURCE_BRIDGE_RELEASED_FOR_B",
-    "execution": "SOURCE_GAP_EVIDENCE_VERIFIED_BUSINESS_POSITIVE_NOT_ACCEPTED",
+    "status": "A_CHANGES_REQUESTED_SECOND_REVIEW",
+    "execution": "B_ADMIN_TRUST_POSITIVE_SELF_TESTED_A_SECURITY_REVIEW_NOT_ACCEPTED",
     "work_order": "07_重建工作区/F05-3A_A主控4S单成员经营责任可信来源与Vehicle隔离权限验证完整施工单_2026-10-11.md",
     "branch": "feat/f05-3a-four-s-member-trust-scope",
     "branch_created": true,
@@ -6102,21 +6102,23 @@
     "next_owner": "B",
     "pr": 32,
     "pr_merged": false,
-    "pr_draft": true,
-    "reviewed_sha": "6785b5e7130b5ba9b0c7996c70de2a5222bd8a46",
-    "reviewed_ci_run": 38076660267,
+    "pr_draft": false,
+    "reviewed_sha": "4bd39d7e4b925346a6867870399260d9aaf85d87",
+    "reviewed_ci_run": 38085191145,
     "ci_success_jobs": 38,
-    "physical_tests": "7/7_FAIL_CLOSED",
-    "https_tests": "7/7_FAIL_CLOSED",
-    "artifacts_count": 69,
-    "source_artifact_id": 11678686225,
-    "tls_artifact_id": 11679205872,
-    "a_review_comment_id": 6101074294,
+    "physical_tests": "14/14",
+    "https_tests": "10/10",
+    "artifacts_count": 71,
+    "source_artifact_id": 11682206471,
+    "tls_artifact_id": 11681796730,
+    "a_review_comment_id": 6102199600,
     "a_blockers": [
-      "4S_TRUSTED_FIRST_PUBLICATION_AND_ADMIN_GOVERNED_NEW_OBJECT_SCOPE_SOURCE_GAP"
+      "A-F05-3A-01_LICENSE_MEMBER_IDENTITY_BINDING",
+      "A-F05-3A-02_REVOKED_ROW_PHYSICAL_REANIMATION",
+      "A-F05-3A-03_DETERMINISTIC_TWO_PG16_COMMIT_RACE"
     ],
-    "a_correction_order": "07_重建工作区/F05-3A_A主控首次独立审查4S受信来源缺口技术裁决与定向补证施工单_2026-10-11.md",
-    "a_positive_grant_proven": false,
+    "a_correction_order": "07_重建工作区/F05-3A_A主控二轮独立复验对象归属绑定复活与并发证据完整定向整改单_2026-10-11.md",
+    "a_positive_grant_proven": true,
     "production_ready": false
   }
 }
