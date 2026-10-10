@@ -4,7 +4,7 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F04_4_A_CHANGES_REQUESTED_PR29_NOT_MERGED",
+  "substage": "F04_4_A_ACCEPTED_MERGED_PR29_F05_1_A_RELEASED_FOR_B",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "B最终PR29/HEAD 3e2e5a2f27c2c88dbc595f3312a6520f843c6a84与Actions38051029689匹配且32/32真PG16成功，45原生Artifacts；A发现A-F04-4-01 8项incremental typed DTO全部采用单整数ID导致操作语义不完整，如新建公告要求已有announcementId、Vehicle source_type edit缺目标source_type。A已正式下发整改单，PR29未合并，由B原分支整改并重新跑最终同SHA32/32。Current来源437行及三向258行保留，Page Manifest140 vs132为非本轮单独阻断的SOURCE_GAP。F04/H01/产品基线NOT_READY。",
-  "current_work_file": "07_重建工作区/F04-4_A主控首次独立审查增量动作DTO业务语义完整定向整改单_2026-10-10.md",
+  "current_task": "A已对B F04-4增量DTO语义A-F04-4-01二轮独立复核通过：B最终92452b124c293bfe646cea99d3a8afd46e54f2e8与官方Actions38053741869同SHA、32/32独立PG16成功、新Source18/18、TLS8/8、45原生Artifacts，旧30job原文不变，PR29标准合并SHA8de73cdf0fa89d3aa02af9a352b5e203e66e8bb8。F04-4新8项中仅1项最小合成typed，7项intent-only SOURCE_GAP；437 Current来源/258三向追溯、旧215=23/192/3 Collector禁恢复均保守。PageManifest140/132差8未闭。A已放行F05-1车辆可信物理归属与最小安全投影完整单，下一责任B。F04整体/H01/V1 NOT_READY。",
+  "current_work_file": "07_重建工作区/F05-1_A主控Vehicle可信归属与最小安全投影完整施工单_2026-10-10.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_REMEDIATE_F04_4_A_01_INCREMENTAL_TYPED_DTO_SEMANTICS_PR29_32_PG16",
+  "next_action": "B_EXECUTE_F05_1_VEHICLE_PHYSICAL_SCOPE_AND_MINIMAL_SAFE_PROJECTION_34_PG16",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F04_4_A_CHANGES_REQUESTED_PR29_NOT_MERGED",
+  "engineering_status": "F04_4_A_ACCEPTED_MERGED_PR29_F05_1_A_RELEASED_FOR_B",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B读取main最新07_重建工作区/F04-4_A主控首次独立审查增量动作DTO业务语义完整定向整改单_2026-10-10.md，在原feat/f04-4-current-action-coverage-gate分支/PR29按Final+Current IA一次性修正8项增量Current合同的真实业务操作DTO字段语义；尤其ANNOUNCEMENT_CREATE不能无证强制旧announcementId、VEHICLE_SOURCE_TYPE_EDIT应反映目标source_type、Markup草稿规则与模型绑定须区分参数/来源。确无合法原文者降REQUEST_SCHEMA_SOURCE_GAP/INTENT_ONLY_CI_CONTRACT，不伪称typed业务接口已完成，补真正能杀死错误DTO的变异负例；冻结旧30作业，新增两独立PG16，最后同SHA32/32成功、原生Artifacts完整、中文交接后交A复验。无生产/资金/第三方/产品规则变更。",
+  "next_action_detail": "B读取最新main正式F05-1完整施工单07_重建工作区/F05-1_A主控Vehicle可信归属与最小安全投影完整施工单_2026-10-10.md，从main新建feat/f05-1-vehicle-scope-safe-projection，依Final/IA和M94逐表查证Vehicle、ListingCycle、真实名邦门店/团队与4S合作主体绑定及现时employee permission/data scope/个人deny；只要真实归属未证，Employee/4S车辆业务读取/导出/敏感字段继续403，绝不用Uploader/历史CRM owner/客户端merchant猜测，允许的最小CI字段投影必须有真实物理授权正反例；无DDL、不改旧F03/F04/迁移/生产/PDM/IA/C，源缺口归F05-2完整差异方案。冻结F04-4旧32真PG16 jobs，新增2独立真PG16 jobs，总34/34最终同SHA成功与原生Artifacts/中文交接后交A验收，不得自行合并或启动下一包。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -5966,8 +5966,8 @@
     "merge_sha": "a1f7ebcbfdf1184ed2b1e1143afe01e877119694"
   },
   "f04_4_gate": {
-    "status": "A_CHANGES_REQUESTED",
-    "execution": "B_SELF_TESTED_A_FIRST_REVIEW_REMEDIATION_REQUIRED",
+    "status": "A_ACCEPTED_MERGED_PR29_CI_ONLY",
+    "execution": "A_ACCEPTED_MERGED_PR29",
     "work_order": "07_重建工作区/F04-4_A主控Current全量动作覆盖消费合同与隔离安全门禁完整施工单_2026-10-10.md",
     "branch": "feat/f04-4-current-action-coverage-gate",
     "branch_created": true,
@@ -5982,18 +5982,44 @@
     "product_baseline": "NOT_READY",
     "next_owner": "B",
     "pr": 29,
-    "pr_merged": false,
+    "pr_merged": true,
     "reviewed_sha": "3e2e5a2f27c2c88dbc595f3312a6520f843c6a84",
     "reviewed_ci_run": 38051029689,
     "reviewed_success_jobs": 32,
     "reviewed_artifacts": 45,
     "new_source_artifact_id": 11669133122,
     "new_tls_artifact_id": 11669622637,
-    "a_report": "07_重建工作区/F04-4_A主控首次独立审查增量动作DTO业务语义完整定向整改单_2026-10-10.md",
-    "a_review_comment_id": 6097622718,
-    "a_blockers": [
-      "A-F04-4-01"
-    ],
-    "unreconciled_page_manifest_count": 8
+    "a_report": "07_重建工作区/F04-4_A主控二轮独立验收PR29正式合并与F05-1交接_2026-10-10.md",
+    "a_review_comment_id": 6097766248,
+    "a_blockers": [],
+    "unreconciled_page_manifest_count": 8,
+    "final_b_sha": "92452b124c293bfe646cea99d3a8afd46e54f2e8",
+    "final_ci_run": 38053741869,
+    "ci_success_jobs": 32,
+    "new_source_tests": "18/18",
+    "new_tls_tests": "8/8",
+    "artifacts_count": 45,
+    "source_artifact_id": 11670013141,
+    "tls_artifact_id": 11670647334,
+    "merge_sha": "8de73cdf0fa89d3aa02af9a352b5e203e66e8bb8",
+    "typed_ci_only_minimal": 1,
+    "intent_only_source_gap": 7,
+    "production_ready": false
+  },
+  "f05_1_gate": {
+    "status": "A_RELEASED_FOR_B",
+    "execution": "B_NOT_STARTED",
+    "work_order": "07_重建工作区/F05-1_A主控Vehicle可信归属与最小安全投影完整施工单_2026-10-10.md",
+    "branch": "feat/f05-1-vehicle-scope-safe-projection",
+    "branch_created": false,
+    "scope": "REAL_M94_VEHICLE_OWNERSHIP_SCOPE_FIELD_SAFE_CI_ONLY_PREFLIGHT",
+    "prior_frozen_pg16_jobs": 32,
+    "new_pg16_jobs": 2,
+    "independent_pg16_ci_jobs_required": 34,
+    "allow_ddl": false,
+    "allow_production": false,
+    "allow_money_or_external_writes": false,
+    "product_baseline": "NOT_READY",
+    "next_owner": "B"
   }
 }
