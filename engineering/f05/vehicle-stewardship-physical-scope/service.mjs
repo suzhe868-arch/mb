@@ -142,6 +142,9 @@ export async function transferCurrentResponsibility(auth,token,p,{testCheckpoint
   const v=await lookup(c,Number(locator.vehicle_id),{exclusive:true});
   if(!basic(v))return deny('F05_2_TRANSFER_VEHICLE_INVALID');
   const old=(await c.query("SELECT * FROM public.vehicle_current_responsibilities WHERE responsibility_id=$1 FOR UPDATE",[p.responsibilityId])).rows[0];
+  // Recipient eligibility/permission changes are serialized with this grant:
+  // a governance trigger closing links for recipient uses the same advisory key.
+  await c.query('SELECT pg_advisory_xact_lock(20261011,$1::integer)',[p.targetEmployeeId]);
   if(!old||old.revoked_at||Number(old.version)!==p.version||
      Number(old.listing_cycle_id)!==Number(v.listing_cycle_id)||
      Number(old.team_id)!==p.teamId||old.source_snapshot!==v.source_type||
