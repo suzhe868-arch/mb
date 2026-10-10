@@ -77,6 +77,8 @@ export function validateIncremental(content=read(d+'incremental-contracts.json')
 }
 export function validateCoverage(text=read(d+'Current全量动作覆盖与页面消费台账.tsv'),metaText=read(d+'Current覆盖计数与原文封印.json'),incrementText=read(d+'incremental-contracts.json')){
  const data=parse(text),meta=JSON.parse(metaText),inc=JSON.parse(incrementText);
+ const signedByNav=new Map(loadContracts().filter(x=>Number(x.nav_line)>0).map(x=>[Number(x.nav_line),x]));
+ const addedByNav=new Map(inc.actions.map(x=>[x.nav_line,x]));
  if(meta.version!=='F04_4_CURRENT_COVERAGE_V1'||meta.baseline!=='74fa9943062519310704f03e348aad9c85b27e1d'||
  meta.f04_3_frozen_contracts!==32||meta.types.join('|')!==classes.join('|'))fail('VERSION_DRIFT');
  const expected=new Map(),source={};
@@ -102,7 +104,17 @@ export function validateCoverage(text=read(d+'Current全量动作覆盖与页面
   if(raw.k==='NAV'){
    const f=raw.l.split('|').slice(1,-1).map(x=>x.trim());
    if(row.source_page!==f[0]||row.control!==f[1]||row.target_page!==f[2]||
-   row.object_state_guard!==f[3]||row.authority_review==='APPROVED')fail('NAV_SEMANTIC_CONDITION_DRIFT');
+   row.object_state_guard!==f[3]||row.authority_review==='APPROVED'||
+   row.legacy_bridge==='KEEP'||row.dto_state==='PRODUCTION')fail('NAV_SEMANTIC_CONDITION_DRIFT');
+   const prior=signedByNav.get(raw.n),added=addedByNav.get(raw.n);
+   if(prior&&(
+      row.actor!==prior.subject||row.target_resource!==prior.resource_kind||
+      row.legacy_bridge!==(prior.source_legacy_id||'SOURCE_GAP')||
+      row.dto_state!==prior.dto_schema_ref||row.implementation_owner!==prior.owner))
+     fail('SIGNED_NAV_ACTOR_RESOURCE_BRIDGE_DRIFT');
+   if(!prior&&added&&(row.actor!==added.actor||row.target_resource!==added.resource||
+       row.dto_state!==added.intent||row.implementation_owner!==added.owner))
+     fail('ADDITIONAL_NAV_ACTOR_RESOURCE_BRIDGE_DRIFT');
   }
  }
  if(Object.entries(counts).some(([k,n])=>meta.counts[k]!==n)||
