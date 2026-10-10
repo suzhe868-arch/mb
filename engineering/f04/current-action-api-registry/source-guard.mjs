@@ -127,6 +127,8 @@ export function validateRegistry(
    }
    const expectedParam=r.intent==='LOCKREQUEST_REVIEW_OPEN'?[{name:'lockRequestId',in:'path',required:true,schema:{type:'integer',minimum:1,maximum:9007199254740991}}]:r.intent==='CRM_SCOPE_MINIMAL_PROOF'?[{name:'customerId',in:'path',required:true,schema:{type:'integer',minimum:1}}]:undefined;
    if(!equal(op.parameters,expectedParam))failed('F04_3_OBJECT_PATH_DTO_PARAMETER_DRIFT',r.action_id);
+   if(!equal(spec.components.schemas?.[dto.id+'_Request'],dto.request.schema))
+     failed('F04_3_OPENAPI_COMPONENT_DTO_DRIFT',r.action_id);
    const isBody=r.method!=='GET'&&r.method!=='DELETE';
    if(isBody){
     if(!equal(op.requestBody?.content?.['application/json']?.schema,dto.request.schema)||

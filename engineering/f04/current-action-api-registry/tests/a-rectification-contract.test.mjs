@@ -111,7 +111,9 @@ test('A-F04-3-01-4 authoritative draft target, placement enum, LockRequest targe
  assert.deepEqual(banner.request.schema.properties.placement.enum,['HOME_TOP','VEHICLE_DETAIL']);
  assert.equal(validateDtoValue(banner.actionId,{placement:'HOME_TOP'}),true);
  assert.equal(validateDtoValue(banner.actionId,{placementId:1}),false);
- assert.equal(validateDtoValue(banner.actionId,{placement:'FAKE_NEW'},false),false);
+ assert.equal(validateDtoValue(banner.actionId,{placement:'FAKE_NEW'}),false);
+ const comp=JSON.parse(spec);comp.components.schemas.DTO_CURRENTACTION_VEHICLE_PUBLISH_079_Request.properties.privatePhone={type:'string'};
+ assert.throws(()=>validateRegistry(registry,JSON.stringify(comp),bridge,dto,sem),/OPENAPI_COMPONENT_DTO_DRIFT/);
  const s=JSON.parse(spec),lock=s.paths['/__ci__/current/v1/lockrequests/{lockRequestId}/review-open'].get;
  assert.equal(lock.parameters[0].name,'lockRequestId');
  assert.equal(lock.parameters[0].required,true);
