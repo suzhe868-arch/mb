@@ -1,0 +1,11 @@
+场景	受信来源	本阶段签发	权限事实	拒绝与历史原则
+名邦人工首次正式发布	PDM-06§6及PDM-04§9经后端确认的合法发布事件	条件签发CI_ONLY	发布员工 active+vehicle.manage+scope+有效Cycle	创建人字段或UI来源不可替代发布事件
+名邦员工上传4S合作车	PDM-06§13.2/04§9	保持名邦业务责任	必须具合法名邦员工权限	不能把source=four_s视为4S成员授权
+4S自己上传	PDM-02§3和PDM-06§13.3	TRUST_SOURCE_GAP	需签发4S代表账号与具体车辆关系	暂时403不创建4S组织层
+批发JYT上游车辆	PDM-04§3	TRUST_SOURCE_GAP	无当前经营责任签发事件	Publisher/upload/CRM owner全部禁止冒权
+人工车正式责任交接	PDM-04§9/PDM-02§9	条件签发CI_ONLY	具管辖权限的签发人和合格接收者	旧负责人状态保留历史新责任重新校验
+人工来源名邦↔4S改变	PDM-04§9	现有责任需重新评估	新来源不得自动升权	4S source不等于合作账号绑定
+4S失效停用	PDM-04§10.2	需撤权或交接	不可自动开放给其他4S	保留Vehicle及Lock/Transaction
+人员调店或失活	PDM-02§9	现时校验否决	不沿用旧权限/旧scope	历史不可修改
+一键转名邦	PDM-04§11/§13	TRUST_SOURCE_GAP	独立真实转换流程未实现	同vehicle_id不重新生造新车
+优先推荐或可见grant	PDM-13/PDM-04	一律不签发	仅客户可见性与推荐规则	禁止经营权限冒用
