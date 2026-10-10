@@ -1690,3 +1690,10 @@ G受检最终HEAD19af2955d81ac14d79e0c4e6adc661a3a1aabd8e同SHA CI38025357614 20
 - B受检HEAD`3e2e5a2f27c2c88dbc595f3312a6520f843c6a84`与官方Actions`38051029689`完全同SHA、32/32独立真非特权PG16 success、45份原生Artifacts（新Source`11669133122`及TLS`11669622637`）及14新增文件白名单通过。437 Current行级来源/258三向桥接与215旧候选23/192、3禁恢复仍保守。
 - 技术整改`A-F04-4-01`：8项新增typed DTO均只接受一个正整数对象ID；PDM24 Announcement“新建”没有证据要求客户端先传既存announcementId，Vehicle source_type修改未携目标类型，Markup规则save与车型mapping bind未携能定义动作的业务参数；不能将形式上类型化的单ID占位称为实质业务请求合同。A整改单`07_重建工作区/F04-4_A主控首次独立审查增量动作DTO业务语义完整定向整改单_2026-10-10.md`，PR29审核评论`6097622718`；B在原分支整改真实字段语义/按源降缺口并补负例、最后32/32同SHA再交A，当前`A_CHANGES_REQUESTED/PR29_NOT_MERGED/NEXT_OWNER=B`。
 - Page Manifest文件标题自称140 logical载体但目前物理C/E/P表可实证132，差8项保留`SOURCE_GAP`，**不是本轮独立阻断、没有确认是哪8个真实页面**。Final/IA/Low-Fi保持冻结、禁止编造页面或恢复旧禁项。F04全阶段与H01、V1产品仍`NOT_READY`。
+
+
+## 2026-10-10｜F04-4二轮A验收、PR29标准合并、F05-1下一工程单放行（无新增产品裁决）
+
+- B最终HEAD`92452b124c293bfe646cea99d3a8afd46e54f2e8`与官方Actions`38053741869` head.sha一致，32/32独立真实PG16 jobs通过，Source18/18+TLS8/8、45原生Artifacts、旧30 job定义不变、14文件白名单无越界；A-F04-4-01整改真实二轮PASS。PR29 A评论`6097766248`，标准merge SHA`8de73cdf0fa89d3aa02af9a352b5e203e66e8bb8`，A验收报告`07_重建工作区/F04-4_A主控二轮独立验收PR29正式合并与F05-1交接_2026-10-10.md`。
+- 新8 Current动作严格只有1项Vehicle source_type最小CI合成typed请求，其余7项`INTENT_ONLY/REQUEST_SCHEMA_SOURCE_GAP`且不授业务生产许可；437来源/258三向追溯、215老候选23/192与3个禁恢复Collector继续保守；PageManifest140声明/132可检行差8仍未证，禁止造页。F04总体、H01、V1均NOT_READY。
+- A正式签发F05-1`07_重建工作区/F05-1_A主控Vehicle可信归属与最小安全投影完整施工单_2026-10-10.md`；`NEXT_OWNER=B / B_NOT_STARTED`，新分支`feat/f05-1-vehicle-scope-safe-projection`从最新main建立，限真实M94物理车辆归属/4S合作主体/员工scope证明与字段安全最小投影、隔离34/34真实PG16；没有可信归属不能准许车辆操作，禁止本包新DDL/生产写/旧Final变更。F05-2所需结构和实施独立后续放行。
