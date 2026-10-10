@@ -51,6 +51,32 @@ async function lookup(c,vehicleId,{exclusive=false}={}){
 }
 const basic=v=>v&&v.ended_at===null&&v.archived_at===null&&['mingbang','four_s'].includes(v.source_type)&&
  ['available'].includes(v.source_sale_status);
+// CI synthetic trusted publication fact, inserted by a separate authenticated transaction.
+// Client-controlled eventKey alone cannot mint ownership: a verified physical audit event
+// must pre-exist before issueFromTrustedManualPublication can sign responsibility.
+export async function recordTrustedManualPublicationEvent(auth,token,p){
+ if(!shape(p,'eventKey,listingCycleId,teamId,vehicleId')||![p.vehicleId,p.listingCycleId,p.teamId].every(valid)||!eventKey(p.eventKey))
+  return deny('F05_2_EVENT_INPUT_DENY');
+ await verify(auth.pool);
+ return session(auth,token,async(c,actor)=>{
+  const v=await lookup(c,p.vehicleId,{exclusive:true});
+  if(!basic(v)||Number(v.listing_cycle_id)!==p.listingCycleId||
+    Number(v.created_by_employee_id)!==actor||v.formally_published_at===null)
+   return deny('F05_2_NO_TRUSTED_PHYSICAL_PUBLICATION');
+  if(!await currentCapability(c,actor,p.teamId,'vehicle.manage'))return deny('F05_2_EVENT_ACTOR_SCOPE_DENIED');
+  const fact={vehicleId:p.vehicleId,listingCycleId:p.listingCycleId,teamId:p.teamId,sourceKind:v.source_type,eventKey:p.eventKey};
+  const old=(await c.query("SELECT after_json,actor_id FROM public.audit_events WHERE object_kind='Vehicle' AND action='vehicle.manual.published' AND after_json->>'eventKey'=$1 FOR SHARE",[p.eventKey])).rows;
+  if(old.length){
+   if(old.length===1&&old[0].actor_id===String(actor)&&JSON.stringify(old[0].after_json)===JSON.stringify(fact))return ok('F05_2_EVENT_IDEMPOTENT');
+   // Even if an earlier fabricated or conflicting audit fact exists, never sign it.
+   return deny('F05_2_EVENT_COLLISION');
+  }
+  await c.query("INSERT INTO public.audit_events(actor_kind,actor_id,role_context,object_kind,object_id,action,before_json,after_json,occurred_at) VALUES('employee',$1,$2::jsonb,'Vehicle',$3,'vehicle.manual.published',NULL,$4::jsonb,transaction_timestamp())",
+   [String(actor),JSON.stringify({ciOnly:true,source:'F05_2_TRUSTED_MANUAL_PUBLICATION_EVENT'}),String(p.vehicleId),JSON.stringify(fact)]);
+  return ok('F05_2_TRUSTED_PUBLICATION_EVENT_RECORDED');
+ });
+}
+
 export async function issueFromTrustedManualPublication(auth,token,p){
  if(!shape(p,'eventKey,listingCycleId,teamId,vehicleId')||![p.vehicleId,p.listingCycleId,p.teamId].every(valid)||!eventKey(p.eventKey))
   return deny('F05_2_INVALID_TRUST_EVENT');
@@ -60,6 +86,20 @@ export async function issueFromTrustedManualPublication(auth,token,p){
   if(!basic(v)||Number(v.listing_cycle_id)!==p.listingCycleId||Number(v.created_by_employee_id)!==actor||
      v.formally_published_at===null)return deny('F05_2_NOT_TRUSTED_PUBLISHED_EVENT');
   if(!await currentCapability(c,actor,p.teamId,'vehicle.manage'))return deny('F05_2_MANAGE_SCOPE_DENIED');
+  // Prove an independent authenticated publication event exists and agrees with
+  // current real Vehicle + ListingCycle/issuer/team/source facts.
+  const events=(await c.query(
+   "SELECT actor_kind,actor_id,object_id,role_context,after_json FROM public.audit_events "+
+   "WHERE object_kind='Vehicle' AND action='vehicle.manual.published' AND after_json->>'eventKey'=$1 FOR SHARE",
+   [p.eventKey])).rows;
+  if(events.length!==1)return deny('F05_2_PUBLISHED_EVENT_SOURCE_GAP');
+  const record=events[0],d=record.after_json;
+  if(record.actor_kind!=='employee'||record.actor_id!==String(actor)||record.object_id!==String(p.vehicleId)||
+    record.role_context?.source!=='F05_2_TRUSTED_MANUAL_PUBLICATION_EVENT'||
+    d.vehicleId!==p.vehicleId||d.listingCycleId!==p.listingCycleId||d.teamId!==p.teamId||
+    d.sourceKind!==v.source_type||d.eventKey!==p.eventKey)
+   return deny('F05_2_PUBLISHED_EVENT_PROOF_CHANGED');
+
   const exists=(await c.query("SELECT * FROM public.vehicle_current_responsibilities WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND revoked_at IS NULL FOR UPDATE",[p.vehicleId,p.listingCycleId])).rows[0];
   if(exists){
    if(exists.trusted_event_key===p.eventKey&&Number(exists.responsible_employee_id)===actor&&Number(exists.team_id)===p.teamId)return ok('F05_2_IDEMPOTENT',{responsibilityId:Number(exists.responsibility_id)});
