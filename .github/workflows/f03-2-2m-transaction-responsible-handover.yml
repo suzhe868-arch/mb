@@ -103,7 +103,7 @@ jobs:
       - name: Reject injected 000013 and prove frozen 94-table full original seal
         run: |
           set -euo pipefail
-          if node f03/runtime-transaction-responsible-handover/runner.mjs --inject; then echo 'L_INJECT_UNEXPECTED_ACCEPT'; exit 1; fi
+          if node f03/runtime-transaction-responsible-handover/runner.mjs --inject; then echo 'M_INJECT_UNEXPECTED_ACCEPT'; exit 1; fi
           node f03/runtime-lock-responsible-handover/runner.mjs --verify
       - name: Apply only pinned 000013, verify 94-table, prove 93 fails, rollback to 93, repeat exact 94
         run: |
@@ -145,18 +145,18 @@ jobs:
           if test -f f03/runtime-transaction-responsible-handover/evidence/SOURCE.md; then
             echo 'F03-2-2M SOURCE archived and subsequent runs verify full physical catalog plus original raw bytes'
           else
-            test "$GITHUB_REF" = 'refs/heads/feat/f03-transaction-responsible-handover-2l'
+            test "$GITHUB_REF" = 'refs/heads/feat/f03-transaction-responsible-handover-2m'
             mkdir -p f03/runtime-transaction-responsible-handover/evidence
             for file in old-structure.json new-structure.json pg16_schema_only.sql pg16_inventory.json sha256sums.txt; do
               cp "f03/runtime-transaction-responsible-handover/artifacts/$file" "f03/runtime-transaction-responsible-handover/evidence/$file"
             done
-            printf 'source_run_id: %s\nsource_commit_sha: %s\nsource_job_name: f03-2l-transaction-responsible-handover-pg16\nsource_artifact_name: f03-2-2m-real-pg16-94-transaction-responsible-immutable-sg06-evidence\nsource_files: original isolated non-privileged real PG16 physical catalog bytes, no customer rows or live secrets\n' "$GITHUB_RUN_ID" "$GITHUB_SHA" > f03/runtime-transaction-responsible-handover/evidence/SOURCE.md
+            printf 'source_run_id: %s\nsource_commit_sha: %s\nsource_job_name: f03-2m-transaction-responsible-handover-pg16\nsource_artifact_name: f03-2-2m-real-pg16-94-transaction-responsible-immutable-sg06-evidence\nsource_files: original isolated non-privileged real PG16 physical catalog bytes, no customer rows or live secrets\n' "$GITHUB_RUN_ID" "$GITHUB_SHA" > f03/runtime-transaction-responsible-handover/evidence/SOURCE.md
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git add -- f03/runtime-transaction-responsible-handover/evidence/
-            git diff --cached --quiet && { echo 'L_ARCHIVE_NOT_STAGED'; exit 1; }
+            git diff --cached --quiet && { echo 'M_ARCHIVE_NOT_STAGED'; exit 1; }
             git commit -m 'F03-2-2M: archive genuine 94-table PG16 original structure source'
-            git push origin HEAD:refs/heads/feat/f03-transaction-responsible-handover-2l
+            git push origin HEAD:refs/heads/feat/f03-transaction-responsible-handover-2m
           fi
   f03-2l-lock-responsible-handover-pg16:
     name: F03-2-2L isolated PG16 Lock 92-to-93 one-table discovery
@@ -252,7 +252,7 @@ jobs:
       - name: Reject injected 000012 and prove frozen 93-table full original seal
         run: |
           set -euo pipefail
-          if node f03/runtime-lock-responsible-handover/runner.mjs --inject; then echo 'L_INJECT_UNEXPECTED_ACCEPT'; exit 1; fi
+          if node f03/runtime-lock-responsible-handover/runner.mjs --inject; then echo 'M_INJECT_UNEXPECTED_ACCEPT'; exit 1; fi
           node f03/runtime-waitlist-responsible-handover/runner.mjs --verify
       - name: Apply only pinned 000012, verify 93-table, prove 91 fails, rollback to 91, repeat exact 92
         run: |
@@ -303,7 +303,7 @@ jobs:
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git add -- f03/runtime-lock-responsible-handover/evidence/
-            git diff --cached --quiet && { echo 'L_ARCHIVE_NOT_STAGED'; exit 1; }
+            git diff --cached --quiet && { echo 'M_ARCHIVE_NOT_STAGED'; exit 1; }
             git commit -m 'F03-2-2L: archive genuine 93-table PG16 original structure source'
             git push origin HEAD:refs/heads/feat/f03-lock-responsible-handover-2l
           fi
