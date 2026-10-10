@@ -1,3 +1,13 @@
+# 2026-10-11｜F05-3A A二轮独立复验：4S首次合法正向链PASS，新增3项物理归属与并发阻断；PR32不合并，B整改（唯一最新）
+
+- **A已独立确认真实正向及CI来源**：[PR #32](https://github.com/suzhe868-arch/mb/pull/32) 最新B/PR HEAD `4bd39d7e4b925346a6867870399260d9aaf85d87` = [Actions #38085191145](https://github.com/suzhe868-arch/mb/actions/runs/38085191145) `run.head_sha`；官方38/38真实非特权独立PG16 jobs success，冻结旧36全文不变；新增数据库14/14、HTTPS10/10，71原生Artifacts、新物理`11682206471`与TLS`11681796730`未过期；PR全部18项仅本包新白名单，000001～000015/旧F03/F04/F05/生产server/Final/IA/Low-Fi/C未改。
+- **此前4S合法发布可信来源`SOURCE_GAP`已由本次受信链解决、无需重做**：System Admin真Session签发仅创建本人新4S人工Vehicle的license/scope，4S本人Session经PG16车型与必要字段核对，在同一DB事务建立全新Vehicle+ListingCycle+当前4S本人经营对象责任和不可变审计；真实TLS自己最小详情200，另4S/名邦/System Admin/旧车/JYT/六非详情出口403。
+- **A二轮另发现3项必须修复的技术安全阻断**：`A-F05-3A-01` 新publication的license_id和member_employee_id各自独立FK、不强制license归于同一4S成员，现时read缺license.employee_id一致性校验且发布者身份事实可直接SQL改，可能把员工2合法license授权给未受管理员许可的员工8；`A-F05-3A-02` 两当前关系表缺`revoked_at`撤销后禁止UPDATE恢复的数据库不可逆约束，旧授权/旧归属可能物理复活；`A-F05-3A-03` H-A11/H-A14仅检查Promise启动瞬间尚未完成即释放锁，没有第二真实PG16 SQL确定已进入锁等待的可复现证据。
+- **A正式完整二轮整改施工单**：`07_重建工作区/F05-3A_A主控二轮独立复验对象归属绑定复活与并发证据完整定向整改单_2026-10-11.md`；[PR32 A审核评论](https://github.com/suzhe868-arch/mb/pull/32#issuecomment-6102199600)。状态 **`F05_3A_A_CHANGES_REQUESTED_THREE_BLOCKERS / PR32_NOT_MERGED / NEXT_OWNER=B`**：B继续`feat/f05-3a-four-s-member-trust-scope`原PR32，仅修三项、真实PG16负例及独立确定性竞态，冻结旧36Jobs＋新2最终同SHA38/38与两新原生Artifacts及中文交接，再交A三轮复验；不得自行合并/进入F05-3B/生产。
+- F05整体、F04生产Vehicle API、C/H01高保真和V1产品基线持续`NOT_READY`；本次仍仅隔离PG16和本地TLS验收，不触真实业务环境。
+
+---
+
 # 2026-10-11｜F05-3A A首次独立审查：真实4S来源缺口属实；原PR32保留Draft，A技术裁决及定向补证交B（唯一最新）
 
 - **A已实查工程及原生证据**：[PR #32](https://github.com/suzhe868-arch/mb/pull/32) B/PR HEAD `6785b5e7130b5ba9b0c7996c70de2a5222bd8a46`与[Actions #38076660267](https://github.com/suzhe868-arch/mb/actions/runs/38076660267) `run.head_sha`完全一致，官方**38/38独立非特权PG16 CI成功**；原F05-2签收的**36个Job全文冻结未变**，新真实物理`G-A01～07 7/7`、真实HTTPS`G-B01～07 7/7`；原生**69份Artifacts**，新物理 `11678686225`、TLS `11679205872` 未过期；本PR仅**8项批准的新增白名单文件**、旧迁移/生产/Final/IA/C零改。**此仅证明没有受信source时安全拒绝，未有4S本人合法正式发布的正向200**；A独立确认`SOURCE_GAP_EVIDENCE_VERIFIED / F05_3A_BUSINESS_POSITIVE_NOT_ACCEPTED`。
