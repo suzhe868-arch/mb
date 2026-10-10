@@ -1710,3 +1710,9 @@ G受检最终HEAD19af2955d81ac14d79e0c4e6adc661a3a1aabd8e同SHA CI38025357614 20
 - PR31最终HEAD `52078ba41fe205ead1da373bc4bf52fc2610ccd8`、Actions `38059665296` 同SHA36/36真独立PG16成功、59原生Artifacts及16新增文件白名单均已由A复核属实；工程CI绿灯不等于正式权限验收。
 - **A-F05-2-01** 主负责人交接后原普通销售仍可能按Team `vehicle.read` 读取；**A-F05-2-02** inactive后复职可意外恢复旧车辆责任；**A-F05-2-03** 自签所谓受信人工发布历史事件未具真正独立业务来源；**A-F05-2-04** 权限撤销/读取和source变更的真实跨事务竞态缺口。四项均为现行PDM Final与原F05-2施工单的技术门禁，不是A新授予业务规则。
 - 正式状态 `A_CHANGES_REQUESTED / PR31_NOT_MERGED / NEXT_OWNER=B`；完整整改单：`07_重建工作区/F05-2_A主控首次独立复验权限交接与并发闭环完整整改单_2026-10-11.md`；PR评论ID `6099902681`。B在原分支一次性整改，更新真实PG16负例与同最终SHA36/36及原生Artifacts，复交A；不进入F05-3、不生产、不合并。F05/H01/V1保持`NOT_READY`。
+
+## 2026-10-11｜F05-2 A二轮独立复验：旧四项PASS、自动撤权Actor真实性新阻断（技术门禁，不是新产品选择）
+
+- B/PR31受检最终HEAD`68a263add2ae68ba3860f939a78b949589a0bb55`与Actions`38071814138`完全同SHA，36/36独立PG16成功；旧34 job原文不变，物理16/16、HTTPS11/11；59份Artifacts新`11676863942/11676953699`可用，16文件全部新增白名单。A-F05-2-01～04均经过独立审查判`PASS/CLOSED`，不再要求重做。
+- **A-F05-2-05=A_CHANGES_REQUESTED**：F05-2新迁移自动治理撤权触发器 `f05_2_close_steward_links` 将受影响原负责人 `responsible_employee_id`误写进审计执行人`actor_employee_id`，自动撤权或他人治理修改不可变地记为被撤权者本人操作，违反PDM-25 Final §2真实human/system actor要求。B在本批专属目录修正真实Actor vs SYSTEM触发器/受影响负责人、原生历史因果及新PG16负例，既有旧四项不返工。
+- 正式整改单`07_重建工作区/F05-2_A主控二轮独立复验自动撤权审计Actor真实性完整定向整改单_2026-10-11.md`，PR31审核评论ID`6100420933`。当前`F05_2=A_CHANGES_REQUESTED / PR31_NOT_MERGED / NEXT_OWNER=B`，不得合并、提前F05-3或进入生产；整改同SHA36/36与两原生Artifacts再交A第三轮复验。F05/H01/V1`NOT_READY`。
