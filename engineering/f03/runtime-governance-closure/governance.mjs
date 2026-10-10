@@ -98,7 +98,7 @@ export async function deactivateSuddenInactive(auth,token,p,opts={}){
 export async function restoreEmployeeSafely(auth,token,p){
  if(!p||Object.keys(p).sort().join(',')!=='employeeId,reason'||!valid(p.employeeId)||typeof p.reason!=='string'||p.reason.length<8)return out('G_RESTORE_INPUT_DENY');
  return withUser(auth,token,async(c,a)=>{
-  if(a.principal_kind!=='system_admin'||a.employee_id!==null||!valid(a.system_admin_id))return out('G_RESTORE_CONTROL_PLANE_DENY');
+  if(a.principal_kind!=='system_admin'||a.employee_id!==null||!valid(Number(a.system_admin_id)))return out('G_RESTORE_CONTROL_PLANE_DENY');
   const admin=(await c.query('SELECT account_status FROM public.system_admins WHERE system_admin_id=$1 FOR SHARE',[a.system_admin_id])).rows[0];
   if(!admin||admin.account_status!=='active')return out('G_RESTORE_ADMIN_INVALID');
   const e=(await c.query('SELECT * FROM public.employees WHERE employee_id=$1 FOR UPDATE',[p.employeeId])).rows[0];
