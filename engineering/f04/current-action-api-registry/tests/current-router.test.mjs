@@ -46,10 +46,10 @@ test.after(async()=>{
  await auth.close();await db.end();secret.fill(0);
 });
 const MINIMAL='/__ci__/current/v1/objects/customers/302/proof';
-const PUBLISH='/__ci__/current/v1/actions/vehicle-publish-079';
+const PUBLISH='/__ci__/current/v1/vehicles/publish';
 test('F04-3-B01 exact Current registry 30 entries & PG16 M94 physically authentic',async()=>{
  assert.equal((await verifyM94(db)).verified,true);
- assert.equal(CURRENT_ROUTE_COUNT,30);assert.equal(loadContracts().length,30);
+ assert.equal(CURRENT_ROUTE_COUNT,32);assert.equal(loadContracts().length,32);
 });
 test('F04-3-B02 positive ONLY existing F04-1 physical employee/object CRM scope -> minimal fields',async()=>{
  const x=await call('GET',MINIMAL,cookie(ownerToken));
@@ -79,14 +79,14 @@ test('F04-3-B05 real proposed Employee operation is never fake 200 or data write
  assert.equal((await db.query("SELECT count(*)::int n FROM public.vehicles")).rows[0].n,before);
 });
 test('F04-3-B06 Customer/4S/System Admin cannot inherit Employee business actions',async()=>{
- for(const t of [adminToken,fourToken])assert.equal((await call('GET','/__ci__/current/v1/actions/lockrequest-review-open',cookie(t))).status,403);
- assert.equal((await call('POST','/__ci__/current/v1/actions/consultation-create-019',{...cookie(ownerToken),'x-csrf-token':auth.csrfFor(ownerToken),'x-request-key':'F04_3_test_valid_002'})).status,403);
+ for(const t of [adminToken,fourToken])assert.equal((await call('GET','/__ci__/current/v1/lockrequests/review-open',cookie(t))).status,403);
+ assert.equal((await call('POST','/__ci__/current/v1/consultations/create',{...cookie(ownerToken),'x-csrf-token':auth.csrfFor(ownerToken),'x-request-key':'F04_3_test_valid_002'})).status,403);
 });
 test('F04-3-B07 known action with wrong method=405, unknown and old legacy paths=404',async()=>{
  assert.equal((await call('GET',PUBLISH,cookie(ownerToken))).status,405);
  assert.equal((await call('GET','/__ci__/current/v1/actions/unknown',cookie(ownerToken))).status,404);
  for(const path of ['/customer/vehicles','/staff/vehicles','/admin/integrations/collector/connection',
-   '/admin/integrations/collector/connection:test','/__ci__/current/v1/actions/vehicle-publish-079/extra'])
+   '/admin/integrations/collector/connection:test','/__ci__/current/v1/vehicles/publish/extra'])
   assert.equal((await call('GET',path,cookie(ownerToken))).status,404,path);
 });
 test('F04-3-B08 duplicate/malformed cookies, bearer, Host, Origin and caller CI spoof denied',async()=>{
