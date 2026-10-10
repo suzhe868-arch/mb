@@ -1729,3 +1729,9 @@ G受检最终HEAD19af2955d81ac14d79e0c4e6adc661a3a1aabd8e同SHA CI38025357614 20
 - PR32 B最终HEAD`6785b5e7130b5ba9b0c7996c70de2a5222bd8a46`与Actions`38076660267`同SHA38/38真非特权PG16全部success，冻结旧36Job逐项字节完全一致，新两个Job源码真实G-A01～07 7/7、G-B01～07 7/7，69原生Artifacts（新`11678686225/11679205872`有效），8项仅批准新增白名单。A确认来源缺口与fail-closed保护实证通过，但由于没有4S合法首发200，**F05-3A没有达到业务正向门禁，PR32保持Draft不合并**。
 - PDM-02 Final§3、PDM-04 Final§9/10、PDM-06 Final§1/6/7/13已经批准4S单账号=合作主体、4S本人固定只发4S、System Admin控制许可/数据范围、正式发布服务端重验；不需要用户新产品裁决。A定向明确**受信System Admin确认新对象创建资格/范围→真实4S本人Session正式首发→同事务新Vehicle/Cycle、4S本人对象Scope、不可变审计**；先证创建资格再拥有新对象，旧车不补权；禁止额外4S组织/假名邦Team和测试seed偷渡200。若admin可信来源无法证明则继续SOURCE_GAP。
 - 正式一单技术补证指令`07_重建工作区/F05-3A_A主控首次独立审查4S受信来源缺口技术裁决与定向补证施工单_2026-10-11.md`；PR32 A评论ID`6101074294`；`NEXT_OWNER=B`继续原`feat/f05-3a-four-s-member-trust-scope`和PR32，补合法正向及跨账号/撤权/并发负例，并以最新同SHA38/38、原生两制品交A；B不合并，F05/H01/V1持续NOT_READY。
+
+## 2026-10-11｜F05-3A A主控二轮独立复验与三项物理可信归属定向整改（非新增产品决议）
+
+- 官方PR32受检HEAD`4bd39d7e4b925346a6867870399260d9aaf85d87`=Actions`38085191145`同SHA38/38独立真PG16成功，原F05-2旧36 Job逐字冻结，新物理14/14、HTTPS10/10，原生71个Artifacts新`11682206471/11681796730`均可用，18个批准新文件无越界；4S可信Admin发证→本人真实首次发布→同事务Vehicle/Cycle/经营对象/审计→真实HTTPS最小200及负例已通过A源码/官方日志复核。
+- A独立发现3个本包工程安全缺口：①新的publication.license_id与member_employee_id没有复合归属约束，读路径未校验license.employee_id=当前member，且当前来源身份可直接SQL改导致跨账号挪用有效license；② revoked_at可直接由非NULL改NULL以复活旧license/Vehicle对象责任，物理不可逆性缺失；③H-A11/H-A14并发测试仅同步读取尚未完成的Promise即放行，没有第二真实PG16写SQL确已等待锁的证据。要求补DB强制约束/身份不可变、撤权不可逆触发器及真正跨连接锁冲突/最终COMMIT负例。
+- 完整定向整改单`07_重建工作区/F05-3A_A主控二轮独立复验对象归属绑定复活与并发证据完整定向整改单_2026-10-11.md`，PR32审核评论`6102199600`。现`F05_3A=A_CHANGES_REQUESTED / PR32_NOT_MERGED / NEXT_OWNER=B`，原分支`feat/f05-3a-four-s-member-trust-scope`最小修复、旧36全文冻结、新2新增测试最终同SHA38/38+两新原生Artifact，再交A复验；不返工已合格Admin治理+4S首发正向、不新增产品许可、不进F05-3B/生产，F05/H01/V1`NOT_READY`。
