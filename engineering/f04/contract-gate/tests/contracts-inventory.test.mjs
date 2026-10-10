@@ -47,8 +47,8 @@ test('F04-I03 current routes belong to F04 explicit safe registry; no legacy rou
   assert.equal(current[i].stage,F04_ROUTE_CONTRACTS[i].stage);
   assert.ok(!current[i].stage.includes('PRODUCTION'));
  }
- assert.equal(current.filter(r=>r.stage.startsWith('IMPLEMENTED_')).length,2);
- assert.equal(current.filter(r=>r.stage==='CONTRACT_ONLY').length,7);
+ assert.equal(current.filter(r=>r.stage.startsWith('IMPLEMENTED_')).length,3);
+ assert.equal(current.filter(r=>r.stage==='CONTRACT_ONLY').length,6);
 });
 test('F04-I04 F05 quota and customer price remain dependent on external authoritative state',()=>{
  for(const r of current.filter(x=>/price|locks|transactions|refunds/.test(x.path))){
@@ -67,7 +67,7 @@ test('F04-I05 publisher phone never uses old car_code identity and 4S cannot sel
 });
 test('F04-I06 current route contract has no business success without real object ownership and current permissions',()=>{
  for(const row of current){
-  if(row.route_id==='F04-R01')continue;
+  if(['F04-R01','F04-R03'].includes(row.route_id))continue;
   assert.ok(['P_VEHICLE_SCOPE_UNPROVEN','OPEN_DEPENDENCY'].includes(row.current_result));
  }
 });
