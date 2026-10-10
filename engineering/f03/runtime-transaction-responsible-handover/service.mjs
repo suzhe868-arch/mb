@@ -27,7 +27,7 @@ async function authTx(auth,token,fn,opts={}){
    return fn(c,a,opts.testCheckpoint);
   },{normalOnly:true})??out('M02_SESSION_DENY');
  }catch(e){
-  if(e.code==='M04_FINANCIAM_OR_LOCK_RELATION_DEFER_DENY'&&e.message==='M_PRECOMMIT_RELATION_CHANGED_ATOMIC_ROLLBACK')return out(e.code,{transactionRolledBack:true});
+  if(e.code==='M04_UNSAFE_FINANCIAL_OR_TRANSACTION_STATE_DEFER_DENY'&&e.message==='M_PRECOMMIT_RELATION_CHANGED_ATOMIC_ROLLBACK')return out(e.code,{transactionRolledBack:true});
   if(['55P03','40P01','57014','40001'].includes(e.code))return out('M04_CONTENTION_DEFER_DENY');
   if(e.code==='23505'&&/f03_2_2m_receipt_(request_key_unique|item_unique)/.test(e.constraint||''))return out('M05_COLLISION_DENY');
   throw e;
@@ -66,7 +66,7 @@ const display=r=>({receiptId:Number(r.receipt_id),batchId:Number(r.batch_id),ite
 async function eventProven(c,r){
  const q=await c.query("SELECT b.source_employee_id bs,b.initiated_by_id ba,i.batch_id ib,i.object_kind ik,i.object_id io,i.from_employee_id iff,i.intended_to_employee_id ito,w.customer_id wc,a.actor_kind ak,a.actor_id aid,a.object_kind aok,a.object_id aoid,a.action act,a.role_context rc,a.before_json bj,a.after_json aj,a.occurred_at ats FROM public.handover_batches b JOIN public.handover_items i ON i.item_id=$2 JOIN public.transactions w ON w.transaction_id=$3 JOIN public.audit_events a ON a.audit_id=$4 WHERE b.batch_id=$1",[r.batch_id,r.item_id,r.transaction_id,r.audit_id]);
  const v=q.rows[0];
- return !!v&&q.rows.length===1&&str(v.bs)===str(r.from_employee_id)&&str(v.ba)===str(r.actor_employee_id)&&str(v.ib)===str(r.batch_id)&&v.ik==='Transaction'&&v.io===str(r.transaction_id)&&str(v.iff)===str(r.from_employee_id)&&str(v.ito)===str(r.to_employee_id)&&str(v.wc)===str(r.customer_id)&&v.ak==='employee'&&v.aid===str(r.actor_employee_id)&&v.aok==='Transaction'&&v.aoid===str(r.transaction_id)&&v.act==='transaction.responsible.handover'&&v.rc?.scope==='SG06_CI_ONLY_LOCK'&&str(v.rc.batchId)===str(r.batch_id)&&str(v.rc.itemId)===str(r.item_id)&&str(v.rc.teamId)===str(r.scope_team_id)&&v.rc.requestKeySha256===r.request_key_sha256&&str(v.bj?.responsible)===str(r.from_employee_id)&&str(v.aj?.responsible)===str(r.to_employee_id)&&v.ats?.getTime()===r.committed_at?.getTime();
+ return !!v&&q.rows.length===1&&str(v.bs)===str(r.from_employee_id)&&str(v.ba)===str(r.actor_employee_id)&&str(v.ib)===str(r.batch_id)&&v.ik==='Transaction'&&v.io===str(r.transaction_id)&&str(v.iff)===str(r.from_employee_id)&&str(v.ito)===str(r.to_employee_id)&&str(v.wc)===str(r.customer_id)&&v.ak==='employee'&&v.aid===str(r.actor_employee_id)&&v.aok==='Transaction'&&v.aoid===str(r.transaction_id)&&v.act==='transaction.responsible.handover'&&v.rc?.scope==='SG06_CI_ONLY_TRANSACTION'&&str(v.rc.batchId)===str(r.batch_id)&&str(v.rc.itemId)===str(r.item_id)&&str(v.rc.teamId)===str(r.scope_team_id)&&v.rc.requestKeySha256===r.request_key_sha256&&str(v.bj?.responsible)===str(r.from_employee_id)&&str(v.aj?.responsible)===str(r.to_employee_id)&&v.ats?.getTime()===r.committed_at?.getTime();
 }
 async function proven(c,r){
  const rows=(await c.query('SELECT * FROM public.transaction_responsible_handover_receipts WHERE transaction_id=$1 ORDER BY committed_at,receipt_id FOR SHARE',[r.transaction_id])).rows;
@@ -100,7 +100,7 @@ async function transfer(c,actor,p,hook){
  const key=sha(p.clientRequestKey);
  const old=(await c.query('SELECT * FROM public.transaction_responsible_handover_receipts WHERE item_id=$1 FOR SHARE',[p.itemId])).rows[0];
  if(old){
-  if(!await receiptReadScope(c,actor.employee_id,p.teamId,old.customer_id))return out('M02_LOCK_PERMISSION_SCOPE_DENY');
+  if(!await receiptReadScope(c,actor.employee_id,p.teamId,old.customer_id))return out('M02_TRANSACTION_PERMISSION_SCOPE_DENY');
   if(str(old.actor_employee_id)!==str(actor.employee_id)||str(old.batch_id)!==str(p.batchId)||str(old.from_employee_id)!==str(p.fromEmployeeId)||str(old.to_employee_id)!==str(p.recipientEmployeeId)||str(old.scope_team_id)!==str(p.teamId)||old.request_key_sha256!==key)return out('M05_COLLISION_DENY');
   if(!await proven(c,old))return out('M05_RECEIPT_PROOF_DENY');
   return out('M05_IDEMPOTENT_RECEIPT',{receipt:display(old),idempotent:true});
@@ -117,7 +117,7 @@ async function transfer(c,actor,p,hook){
  const change=await c.query("UPDATE public.transactions SET responsible_employee_id=$1 WHERE transaction_id=$2 AND responsible_employee_id=$3 AND status='in_progress' AND completed_at IS NULL RETURNING transaction_id",[p.recipientEmployeeId,f.transactionId,p.fromEmployeeId]);
  if(change.rowCount!==1)return out('M04_CAS_CONFLICT');
  if(hook)await hook('after_update',c);
- const audit=(await c.query("INSERT INTO public.audit_events(actor_kind,actor_id,role_context,object_kind,object_id,action,before_json,after_json,occurred_at) VALUES('employee',$1,$2::jsonb,'Transaction',$3,'transaction.responsible.handover',$4::jsonb,$5::jsonb,transaction_timestamp()) RETURNING audit_id",[str(actor.employee_id),JSON.stringify({scope:'SG06_CI_ONLY_LOCK',batchId:p.batchId,itemId:p.itemId,teamId:p.teamId,requestKeySha256:key}),str(f.transactionId),JSON.stringify({responsible:p.fromEmployeeId}),JSON.stringify({responsible:p.recipientEmployeeId})])).rows[0].audit_id;
+ const audit=(await c.query("INSERT INTO public.audit_events(actor_kind,actor_id,role_context,object_kind,object_id,action,before_json,after_json,occurred_at) VALUES('employee',$1,$2::jsonb,'Transaction',$3,'transaction.responsible.handover',$4::jsonb,$5::jsonb,transaction_timestamp()) RETURNING audit_id",[str(actor.employee_id),JSON.stringify({scope:'SG06_CI_ONLY_TRANSACTION',batchId:p.batchId,itemId:p.itemId,teamId:p.teamId,requestKeySha256:key}),str(f.transactionId),JSON.stringify({responsible:p.fromEmployeeId}),JSON.stringify({responsible:p.recipientEmployeeId})])).rows[0].audit_id;
  if(hook)await hook('after_audit',c);
  const receipt=(await c.query('INSERT INTO public.transaction_responsible_handover_receipts(item_id,batch_id,transaction_id,customer_id,from_employee_id,to_employee_id,actor_employee_id,scope_team_id,audit_id,request_key_sha256) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *',[p.itemId,p.batchId,f.transactionId,f.customerId,p.fromEmployeeId,p.recipientEmployeeId,actor.employee_id,p.teamId,audit,key])).rows[0];
  if(hook)await hook('after_receipt',c);
@@ -137,7 +137,7 @@ export async function readTransactionResponsibleHandoverReceipt(auth,token,p,o){
  return authTx(auth,token,async(c,actor)=>{
   const r=(await c.query('SELECT * FROM public.transaction_responsible_handover_receipts WHERE item_id=$1 AND batch_id=$2 FOR SHARE',[p.itemId,p.batchId])).rows[0];
   if(!r||str(r.scope_team_id)!==str(p.teamId))return out('M05_RECEIPT_ABSENT');
-  if(!await receiptReadScope(c,actor.employee_id,p.teamId,r.customer_id))return out('M02_LOCK_PERMISSION_SCOPE_DENY');
+  if(!await receiptReadScope(c,actor.employee_id,p.teamId,r.customer_id))return out('M02_TRANSACTION_PERMISSION_SCOPE_DENY');
   if(!await proven(c,r))return out('M05_RECEIPT_PROOF_DENY');
   return out('M05_RECEIPT_READ_ONLY',{receipt:display(r),transactionLifecycleUnchanged:true,batchCompleted:false});
  },o);
