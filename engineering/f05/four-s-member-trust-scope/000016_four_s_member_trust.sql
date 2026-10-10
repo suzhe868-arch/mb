@@ -97,7 +97,7 @@ FOR EACH ROW EXECUTE FUNCTION public.f05_3a_license_revocation_cascade();
 -- Object lifecycle mutation ends ONLY this Vehicle/Cycle scope; it must never
 -- globally strip the member's Admin-granted right to publish their OTHER cars.
 CREATE FUNCTION public.f05_3a_close_single_publication(which_vehicle BIGINT, cause TEXT)
- RETURNS VOID LANGUAGE plpgsql AS $
+ RETURNS VOID LANGUAGE plpgsql AS $$
 DECLARE x RECORD;
 BEGIN
  FOR x IN UPDATE public.f05_3a_member_publications
@@ -111,7 +111,7 @@ BEGIN
    jsonb_build_object('active',true,'version',x.version-1,'vehicle_id',which_vehicle),
    jsonb_build_object('active',false,'version',x.version,'revoked_at',x.revoked_at,'vehicle_id',which_vehicle));
  END LOOP;
-END $;
+END $$;
 CREATE FUNCTION public.f05_3a_invalidate_member() RETURNS trigger LANGUAGE plpgsql AS $$
 DECLARE who BIGINT; x RECORD;
 BEGIN
