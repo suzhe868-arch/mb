@@ -148,3 +148,26 @@ test('F04-R12 body injection, stale privilege and logout deny sensitive output',
   await auth.logout(token);
   assert.equal((await http('GET','/api/v1/f04/session/proof',cookie(token))).status,401);
 });
+
+test('F04-R13 two independent current PG16 sessions with same request key cannot mutate F06',async()=>{
+  const x=await auth.login({login:'http_test',password:'SyntheticF04_2026_ContractGate',source:'f04parallel'});
+  assert.equal(x.code,'AUTH_OK');
+  const before=(await db.query('SELECT count(*)::int n FROM public.transactions')).rows[0].n;
+  const key='f04_same_key_concurrency_20261010';
+  const p=(tok)=>http('POST','/api/v1/f04/transactions',
+    {...cookie(tok),'x-csrf-token':auth.csrfFor(tok),'x-request-key':key});
+  try{
+    const answers=await Promise.all([p(token),p(x.token)]);
+    assert.deepEqual(answers.map(a=>a.status),[501,501]);
+    assert.ok(answers.every(a=>a.body.code==='OPEN_DEPENDENCY'));
+    const after=(await db.query('SELECT count(*)::int n FROM public.transactions')).rows[0].n;
+    assert.equal(after,before,'NO_BUSINESS_WRITE_WHILE_CONTRACT_ONLY');
+  }finally{await auth.logout(x.token)}
+});
+test('F04-R14 missing explicit isolation gate prevents any route startup',async()=>{
+  const old=process.env.F04_1_ISOLATION_CONFIRM;
+  try{
+    delete process.env.F04_1_ISOLATION_CONFIRM;
+    await assert.rejects(()=>createF04ContractHandler(auth),/F04_NON_PRODUCTION_GATE/);
+  }finally{process.env.F04_1_ISOLATION_CONFIRM=old}
+});
