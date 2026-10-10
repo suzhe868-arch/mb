@@ -80,14 +80,22 @@ export const FORBIDDEN_LEGACY_ENDPOINTS=Object.freeze([
 export const forbiddenKey=(method,path)=>
  FORBIDDEN_LEGACY_ENDPOINTS.some(r=>r.method===String(method).toUpperCase()&&r.path===path);
 export function assertLegacyDecision(record){
-  const key=forbiddenKey(record.http_method,record.legacy_path);
-  if(key&&(record.review_action!=='RETIRE'||record.current_stage!=='FORBIDDEN'))
-    throw Error('FORBIDDEN_LEGACY_NOT_RETIRED_'+record.legacy_id);
-  if(!key&&record.review_action==='RETIRE'&&record.authority_evidence==='UNVERIFIED')
-    throw Error('RETIRE_WITHOUT_AUTHORITY_'+record.legacy_id);
-  if(!key&&record.review_action==='UNREVIEWED_SOURCE_GAP'&&record.current_stage!=='SOURCE_GAP')
-    throw Error('GAP_MISLABELED_'+record.legacy_id);
-  if(!key&&['KEEP','MODIFY','RETIRE','REPLACE','ADD'].includes(record.review_action)&&
-     (!record.pdm_final_authority||record.pdm_final_authority.includes('NOT_MAPPED')))
+  const forbidden=forbiddenKey(record.http_method,record.legacy_path);
+  if(forbidden){
+    if(record.review_action!=='RETIRE'||record.current_stage!=='FORBIDDEN'||
+       record.review_status!=='CURRENT_AUTHORITY_CONFIRMED_DO_NOT_RESTORE'||
+       record.authority_evidence==='UNVERIFIED')
+      throw Error('FORBIDDEN_LEGACY_NOT_RETIRED_'+record.legacy_id);
+    return;
+  }
+  if(record.review_status==='UNREVIEWED_SOURCE_GAP'){
+    if(record.review_action!==''||record.current_stage!=='SOURCE_GAP'||
+       record.authority_evidence!=='UNVERIFIED')
+      throw Error('GAP_MISLABELED_'+record.legacy_id);
+    return;
+  }
+  if(!['KEEP','MODIFY','RETIRE','REPLACE'].includes(record.review_action)||
+     !record.pdm_final_authority||record.pdm_final_authority.includes('NOT_MAPPED')||
+     record.authority_evidence==='UNVERIFIED')
     throw Error('APPROVED_ACTION_MISSING_AUTHORITY_'+record.legacy_id);
 }
