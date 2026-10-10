@@ -17,3 +17,9 @@ F04应当建立真正的受信客户认证，以及引用当前等级与价格�
 ## 测试与证据引用
 
 P独立CI两项使用原M94结构和合成会话、权限否决/失活/Scope撤销负例，另有旧17个已验收独立PG16版本回归。不修改原000001～000013迁移、不创建000014、无生产数据/微信/Collector/外部写入。最终同SHA运行号与具体通过数见本分支《B全包自验与A复验交接》。
+
+## A-P-01 车辆对象归属与各出口独立权限正式移交
+
+A首次复核明确禁止将员工`crm.customer.view`或请求者自带`teamId`作为Vehicle归属证明。现存M94的`vehicles.source_type`、`created_by_employee_id`、可见状态及Publisher字段都不足以证明所有批发/名邦/4S车辆的当前Team与4S商户归属。本包所有员工Vehicle business view/export/history/copy/print/cache返回`P_VEHICLE_SCOPE_UNPROVEN`，不附带`fields`，不创建权限放行。
+
+F04/F07后续必须在新的正式授权下，提供来源可信且**当前有效**的车辆归属事实：`vehicle_id + listing_cycle_id + source_type + true merchant/store/team ownership + current employee object scope`；F04另需正式受控`vehicle.read`、独立的`vehicle.export`及历史/缓存访问能力解析。每次请求校验当前有效员工身份、所属Team、scope版本、person deny和对应车辆对象，禁止旧缓存、session或前端入参代替证明。没有这份可信事实时不得通过审查，也不得以通用CRM权限、客户公开车价、4S成员的客户页读取反推员工业务导出权。
