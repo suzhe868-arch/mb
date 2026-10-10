@@ -36,6 +36,14 @@ test('F04-I02 all 218 original method+path rows have exact source line and no in
   assert.ok(located,'PROVENANCE_PATH_LINE_ERROR '+row.legacy_id);
   assert.equal(row.current_stage,'CONTRACT_ONLY');
   assert.equal(row.review_action,'MODIFY');
+  assert.ok(['C','E','P','INTEGRATION'].includes(row.current_UI_domain));
+  assert.ok(row.current_page_action.endsWith('UNVERIFIED'));
+  assert.equal(row.pdm_final_authority,'PDM_FINAL_ROW_AUTHORITY_NOT_MAPPED');
+  assert.ok(row.sensitive_fields_gate.length>15);
+  assert.ok(row.object_status_and_audit.includes('UNVERIFIED'));
+  assert.ok(row.current_verified_scope.includes('NOT_VERIFIED'));
+  assert.ok(row.source_gap_reason.includes('UNVERIFIED'));
+
   assert.ok(['F04','F05','F06','F07'].includes(row.suggested_domain));
  }
 });
