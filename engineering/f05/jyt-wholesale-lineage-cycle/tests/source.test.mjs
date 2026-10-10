@@ -176,6 +176,10 @@ test('B-A16 converted wholesale historical car_code never becomes second Vehicle
  await db.query("UPDATE public.vehicles SET source_type='mingbang',source_sale_status='available' WHERE vehicle_id=$1",[vid]);
  const r=await syncUpsert(auth,token,candidate('converted-source-identity','active'));
  assert.equal(r.code,'F05_3B_CONVERTED_UPSTREAM_SUPPRESSED');
+ const collision=await syncUpsert(auth,token,candidate('converted-different-model-year','active',{modelYear:2023}));
+ assert.equal(collision.code,'F05_3B_CONVERTED_UPSTREAM_SUPPRESSED','converted historical JYT identity conflict must AUTO suppress, never manual review');
+ const suppressed=(await db.query("SELECT outcome FROM public.f05_3b_sync_receipts WHERE event_key=$1",[ev('converted-different-model-year')])).rows[0];
+ assert.equal(suppressed.outcome,'CONVERTED_SUPPRESSED');
  assert.equal((await db.query('SELECT source_type FROM public.vehicles WHERE vehicle_id=$1',[vid])).rows[0].source_type,'mingbang');
  const a=(await db.query("SELECT outcome,actor_kind FROM public.f05_3b_sync_receipts WHERE event_key=$1",[ev('converted-source-identity')])).rows[0];
  assert.equal(a.outcome,'CONVERTED_SUPPRESSED');assert.equal(a.actor_kind,'INTEGRATION');
