@@ -1999,6 +1999,8 @@ jobs:
           node --check f03/runtime-governance-closure/runner.mjs
           node --check f03/runtime-governance-closure/service.mjs
           node --check f03/runtime-governance-closure/governance.mjs
+          node --check f03/runtime-governance-closure/fixtures.mjs
+          node --check f03/runtime-governance-closure/precommit.mjs
           node --check f03/runtime-governance-closure/tests/g1.test.mjs
           node --check f03/runtime-governance-closure/tests/g2.test.mjs
           node --check f03/runtime-governance-closure/tests/g3.test.mjs
@@ -2110,6 +2112,8 @@ jobs:
       - name: G1 apply strictly pinned 000014 two CHECK-only migration after frozen N test and immutable evidence
         run: |
           set -euo pipefail
+          node f03/runtime-governance-closure/fixtures.mjs
+          node f03/runtime-governance-closure/precommit.mjs
           node f03/runtime-governance-closure/runner.mjs --apply
           node f03/runtime-governance-closure/runner.mjs --verify
       - name: G1 CI-only full governance PG16 true G1 positive and fail-closed tests
@@ -2178,6 +2182,8 @@ jobs:
           node --check f03/runtime-governance-closure/runner.mjs
           node --check f03/runtime-governance-closure/service.mjs
           node --check f03/runtime-governance-closure/governance.mjs
+          node --check f03/runtime-governance-closure/fixtures.mjs
+          node --check f03/runtime-governance-closure/precommit.mjs
           node --check f03/runtime-governance-closure/tests/g1.test.mjs
           node --check f03/runtime-governance-closure/tests/g2.test.mjs
           node --check f03/runtime-governance-closure/tests/g3.test.mjs
@@ -2289,6 +2295,8 @@ jobs:
       - name: G2 apply strictly pinned 000014 two CHECK-only migration after frozen N test and immutable evidence
         run: |
           set -euo pipefail
+          node f03/runtime-governance-closure/fixtures.mjs
+          node f03/runtime-governance-closure/precommit.mjs
           node f03/runtime-governance-closure/runner.mjs --apply
           node f03/runtime-governance-closure/runner.mjs --verify
       - name: G2 CI-only full governance PG16 true G2 positive and fail-closed tests
@@ -2357,6 +2365,8 @@ jobs:
           node --check f03/runtime-governance-closure/runner.mjs
           node --check f03/runtime-governance-closure/service.mjs
           node --check f03/runtime-governance-closure/governance.mjs
+          node --check f03/runtime-governance-closure/fixtures.mjs
+          node --check f03/runtime-governance-closure/precommit.mjs
           node --check f03/runtime-governance-closure/tests/g1.test.mjs
           node --check f03/runtime-governance-closure/tests/g2.test.mjs
           node --check f03/runtime-governance-closure/tests/g3.test.mjs
@@ -2468,6 +2478,8 @@ jobs:
       - name: G3 apply strictly pinned 000014 two CHECK-only migration after frozen N test and immutable evidence
         run: |
           set -euo pipefail
+          node f03/runtime-governance-closure/fixtures.mjs
+          node f03/runtime-governance-closure/precommit.mjs
           node f03/runtime-governance-closure/runner.mjs --apply
           node f03/runtime-governance-closure/runner.mjs --verify
       - name: G3 CI-only full governance PG16 true G3 positive and fail-closed tests
