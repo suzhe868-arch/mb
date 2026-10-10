@@ -1,0 +1,18 @@
+{
+  "migration_id": "000014_sg06_completed_checks",
+  "previous_structure_sha256": "7cd90248f51555fff26eb475320b9a10c6f52880263234a31e22210657a2c659",
+  "sql_sha256": "a07b5635ad887cd73905d3df64b25a5b77f187a04b83d38dcca9ccef64793c66",
+  "structure_sha256": "863538a8dd81e85c8f50bec2d18ad714f6c3d87abf3b10844a3c80421d54cdb1",
+  "approved_changed_constraints": [
+    "handover_batches.handover_batches_status_check",
+    "handover_items.handover_items_status_check"
+  ],
+  "counts": {
+    "tables": 94,
+    "columns": 608,
+    "constraints": 435,
+    "indexes": 163
+  },
+  "source_run_id": 38020114437,
+  "source_commit": "1604bf562c147956d308c537ffa54e53ade6dd71"
+}
