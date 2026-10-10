@@ -1,3 +1,12 @@
+# 2026-10-10｜F05-1 A主控独立验收正式通过、PR30合并；F05-2 Vehicle可信责任物理关系及权限并发包正式放行（唯一最新）
+
+- **F05-1已由A独立验收/标准合并**：[PR #30](https://github.com/suzhe868-arch/mb/pull/30)；B最终HEAD `146129d94af0df6570bba7bb17781f1528d00a7c`与官方[Actions #38056158521](https://github.com/suzhe868-arch/mb/actions/runs/38056158521) `run.head_sha`完全相同，**34/34真实独立非特权PG16 jobs success**；新增真实物理/99条约束 **9/9**、TLS/Session/Vehicle七出口 **9/9**；**51份原生Artifacts**，新Source `11671056231`、新TLS `11671291921`；A对照旧F04-4原**32个job正文逐一不变**、仅12项批准白名单新增文件，无旧迁移/Final/IA/生产server/C设计改动。A正面验收评论`6098084371`；**标准merge SHA `5f70588905a8cadbb47a3bc4a8eb6af411b94597`**。正式验收报告`07_重建工作区/F05-1_A主控独立验收PR30正式合并与F05-2可信归属接力_2026-10-10.md`。
+- **正式源事实，不能误判为功能已完成**：M94真实94表/608列/435约束/163索引/2120目录项；26表153列、99项原FK/PK/UNIQUE/CHECK实证，Vehicle物理source值`wholesale/mingbang/four_s`。目前**REAL_VEHICLE_SCOPE_PROVEN=0**，即未有可信签发的Vehicle→当前经营负责人/Team/4S代表主体绑定，不是零车辆。员工上传者/Employee.store_id/CRM owner/历史/客户端merchantId/Priority/Recommendation grant均不能发放经营读取权限。6主体×3来源×2周期×7业务出口252项全部保守拒，七类Vehicle detail/list/export/copy/cache/print/history在归属未证时统一`403 F05_VEHICLE_SCOPE_UNPROVEN`且无敏感字段，F04-1原CustomerId精准CRM合法合成读仍为唯一既签正例。F05-1仅CI-only，F05全阶段/正式生产Vehicle读写仍`NOT_READY`。
+- **A现正式放行F05-2完整施工单**：`07_重建工作区/F05-2_A主控Vehicle当前管理责任可信关系增量迁移与真实权限闭环完整施工单_2026-10-10.md`，状态**`F05_2_A_RELEASED_FOR_B / B_NOT_STARTED / NEXT_OWNER=B`**。B执行时从最新main新建`feat/f05-2-vehicle-stewardship-physical-scope`，依据PDM-02/04/06/21/22/25及现时F03权限/Scope审查可信车辆业务责任事件/历史；只在一次性隔离非特权PG16**安全增量新版本迁移**和受信合成实体证明合法责任签发、撤权/交接与现时最小Vehicle读，**必须真实正向PG16授权证据**，并发/越权负例完整，不能把created_by或4S source_type自动当Owner，不建立4S组织层；无源动作持续403/显式阻断，不造许可。**冻结旧34个独立真PG16 job，加2个独立真PG16 job，最终36/36同SHA成功**；仅新增F05-2包与新workflow、不得修改000001～000014、旧源码、Final/IA/生产server/C，不得真实生产DDL/账号/资金/第三方写入。B完成归档原生Artifacts和中文自验后交A独立复核，不自合并main、不提前F05-3。
+- **产品及设计不变**：F04真实生产路由、F05 Vehicle全域、F06/F07和C/H01高保真、H03/H04及V1整体保持`NOT_READY`，用户生产迁移、资金或真实第三方连接另行独立授权。本节覆盖历史“F05-1等待B交审”的状态指针，不改写其真实工程过程。
+
+---
+
 # 2026-10-10｜F04-4 A二轮独立验收通过、PR29合并；F05-1车辆可信归属与最小安全投影完整施工单放行（唯一最新）
 
 - **正式F04-4验收与合并**：B最终SHA `92452b124c293bfe646cea99d3a8afd46e54f2e8`；[Actions #38053741869](https://github.com/suzhe868-arch/mb/actions/runs/38053741869)同SHA**32/32真正独立非特权PG16 jobs success**，新Source 18/18、Consumer TLS 8/8，45份原生Artifacts，新Source `11670013141`及TLS `11670647334`；A独立比较旧30个job逐一正文未修改，14个新增文件仅在F04-4批准白名单。PR [#29](https://github.com/suzhe868-arch/mb/pull/29)由A二轮正面复核评论`6097766248`正式许可并**标准合并**，merge SHA **`8de73cdf0fa89d3aa02af9a352b5e203e66e8bb8`**。正式A验收报告：`07_重建工作区/F04-4_A主控二轮独立验收PR29正式合并与F05-1交接_2026-10-10.md`。旧阻断`A-F04-4-01=PASS/CLOSED`。
