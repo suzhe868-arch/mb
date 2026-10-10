@@ -67,7 +67,7 @@ export async function recordTrustedManualPublicationEvent(auth,token,p){
   const fact={vehicleId:p.vehicleId,listingCycleId:p.listingCycleId,teamId:p.teamId,sourceKind:v.source_type,eventKey:p.eventKey};
   const old=(await c.query("SELECT after_json,actor_id FROM public.audit_events WHERE object_kind='Vehicle' AND action='vehicle.manual.published' AND after_json->>'eventKey'=$1 FOR SHARE",[p.eventKey])).rows;
   if(old.length){
-   if(old.length===1&&old[0].actor_id===String(actor)&&JSON.stringify(old[0].after_json)===JSON.stringify(fact))return ok('F05_2_EVENT_IDEMPOTENT');
+   if(old.length===1&&old[0].actor_id===String(actor)&&Object.entries(fact).every(([k,value])=>old[0].after_json?.[k]===value))return ok('F05_2_EVENT_IDEMPOTENT');
    // Even if an earlier fabricated or conflicting audit fact exists, never sign it.
    return deny('F05_2_EVENT_COLLISION');
   }
