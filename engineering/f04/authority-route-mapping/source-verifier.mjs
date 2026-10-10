@@ -9,7 +9,7 @@ import {parseLegacyOpenApi,assertLegacyDecision} from '../contract-gate/parse-le
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'../../..');
 const read=p=>readFileSync(join(root,p),'utf8');
 export const splitTsv=src=>{
- const lines=src.trimEnd().split(/\r?\n/),headers=lines.shift().split('\t');
+ const lines=src.replace(/\r?\n$/,'').split(/\r?\n/),headers=lines.shift().split('\t');
  if(new Set(headers).size!==headers.length)throw Error('F04_2_DUPLICATE_TSV_COLUMN');
  return lines.map((line,index)=>{
   const vals=line.split('\t');if(vals.length!==headers.length)throw Error('F04_2_TSV_SHAPE_'+index);
