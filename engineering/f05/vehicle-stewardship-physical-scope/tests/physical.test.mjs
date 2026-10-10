@@ -225,3 +225,76 @@ test('R-A16 actual publication transaction and capability revocation have a sing
   assert.equal((await view(staff,59018)).allowed,false,'permission restore does not resurrect old signed owner');
  }finally{await other.end()}
 });
+
+// A-F05-2-05: genuine nonprivileged PG16 facts, no mocked audit or actor.
+test('R-A17 a separate PG16 governance writer cannot impersonate the revoked employee',async()=>{
+ const items=(await db.query("SELECT a.*,r.vehicle_id,r.responsible_employee_id FROM public.vehicle_responsibility_audit_events a JOIN public.vehicle_current_responsibilities r USING(responsibility_id) WHERE r.vehicle_id=59002 AND a.event_kind='REVOKE' AND a.source_evidence LIKE 'F05_2_CI_AUTOMATIC_INVALIDATION_%' ORDER BY a.audit_id")).rows;
+ assert.equal(items.length,1);
+ const a=items[0];
+ assert.equal(a.actor_kind,'SYSTEM');
+ assert.equal(a.actor_employee_id,null,'SYSTEM cannot claim affected employee ID as human actor');
+ assert.equal(a.actor_system_code,'F05_2_GOVERNANCE_INVALIDATION');
+ assert.equal(Number(a.previous_employee_id),1);
+ assert.equal(a.current_employee_id,null);
+ assert.equal(Number(a.responsible_employee_id),1);
+ assert.equal(a.actor_context.trigger,'f05_2_governance_invalidate');
+ assert.equal(a.actor_context.cause,'GOVERNANCE_employee_permission_overrides');
+ assert.equal(a.actor_context.source.source_table,'employee_permission_overrides');
+ assert.equal(a.actor_context.source.source_operation,'UPDATE');
+ assert.equal(Number(a.actor_context.source.affected_employee_id),1);
+ assert.equal(a.actor_context.database_actor,'f03_ci');
+ assert.ok(Number(a.actor_context.transaction_id)>0);
+ assert.equal(a.before_state.active,true);
+ assert.equal(a.after_state.active,false);
+ assert.equal(a.before_state.revoked_at,null);
+ assert.ok(a.after_state.revoked_at);
+ assert.equal(Number(a.after_state.version),Number(a.before_state.version)+1);
+ assert.equal(Number(a.after_state.responsible_employee_id),1);
+ assert.ok(a.happened_at);
+});
+test('R-A18 employee inactive at automatic revoke remains the subject and never a human actor',async()=>{
+ const x=(await db.query("SELECT a.actor_kind,a.actor_employee_id,a.actor_system_code,a.actor_context,a.previous_employee_id,a.current_employee_id,a.before_state,a.after_state FROM public.vehicle_responsibility_audit_events a JOIN public.vehicle_current_responsibilities r USING(responsibility_id) WHERE r.vehicle_id=59006 AND a.event_kind='REVOKE'")).rows;
+ assert.equal(x.length,1);
+ const e=x[0];
+ assert.equal(e.actor_kind,'SYSTEM');assert.equal(e.actor_employee_id,null);
+ assert.equal(e.actor_system_code,'F05_2_GOVERNANCE_INVALIDATION');
+ assert.equal(Number(e.previous_employee_id),1);assert.equal(e.current_employee_id,null);
+ assert.equal(e.actor_context.cause,'GOVERNANCE_employees');
+ assert.equal(e.actor_context.source.source_table,'employees');
+ assert.equal(e.actor_context.source.source_operation,'UPDATE');
+ assert.equal(e.before_state.active,true);assert.equal(e.after_state.active,false);
+ assert.equal((await db.query("SELECT employment_status FROM public.employees WHERE employee_id=1")).rows[0].employment_status,'active');
+});
+test('R-A19 direct employee ISSUE/REVOKE and manager TRANSFER keep separately proven real human actors',async()=>{
+ const x=(await db.query("SELECT r.vehicle_id,a.event_kind,a.actor_kind,a.actor_employee_id,a.actor_system_code,a.previous_employee_id,a.current_employee_id FROM public.vehicle_responsibility_audit_events a JOIN public.vehicle_current_responsibilities r USING(responsibility_id) WHERE r.vehicle_id IN(59009,59010) ORDER BY r.vehicle_id,a.audit_id")).rows;
+ const p=x.filter(z=>Number(z.vehicle_id)===59009);
+ assert.equal(p.length,2);assert.deepEqual(p.map(z=>z.event_kind),['ISSUE','REVOKE']);
+ for(const a of p){assert.equal(a.actor_kind,'EMPLOYEE');assert.equal(Number(a.actor_employee_id),1);assert.equal(a.actor_system_code,null)}
+ const h=x.filter(z=>Number(z.vehicle_id)===59010);
+ assert.equal(h.length,3);assert.equal(h[0].event_kind,'ISSUE');
+ assert.equal(Number(h[0].actor_employee_id),1);
+ for(const a of h.slice(1)){
+  assert.equal(a.event_kind,'TRANSFER');assert.equal(a.actor_kind,'EMPLOYEE');
+  assert.equal(Number(a.actor_employee_id),6,'true manager rather than the old owner');
+  assert.equal(a.actor_system_code,null);
+  assert.equal(Number(a.previous_employee_id),1);
+  assert.equal(Number(a.current_employee_id),7);
+ }
+});
+test('R-A20 duplicate governance trigger and post-inactive reactivation cannot create another SYSTEM event',async()=>{
+ const count=async()=>(await db.query("SELECT count(*)::int n FROM public.vehicle_responsibility_audit_events a JOIN public.vehicle_current_responsibilities r USING(responsibility_id) WHERE r.vehicle_id=59002 AND a.actor_kind='SYSTEM'")).rows[0].n;
+ assert.equal(await count(),1);
+ await db.query("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=1 AND permission_id=14");
+ await db.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=1");
+ assert.equal(await count(),1);
+ assert.equal((await view(staff,59002)).allowed,false);
+ const id=(await db.query("SELECT a.audit_id FROM public.vehicle_responsibility_audit_events a JOIN public.vehicle_current_responsibilities r USING(responsibility_id) WHERE r.vehicle_id=59002 AND a.actor_kind='SYSTEM'")).rows[0].audit_id;
+ await assert.rejects(db.query("UPDATE public.vehicle_responsibility_audit_events SET actor_employee_id=1 WHERE audit_id=$1",[id]),/F05_2_AUDIT_IMMUTABLE/);
+});
+test('R-A21 physical actor CHECK rejects SYSTEM+human and anonymous EMPLOYEE, preserving immutable audit',async()=>{
+ const id=(await db.query("SELECT responsibility_id FROM public.vehicle_current_responsibilities WHERE vehicle_id=59002")).rows[0].responsibility_id;
+ await assert.rejects(db.query("INSERT INTO public.vehicle_responsibility_audit_events(responsibility_id,event_key,event_kind,actor_kind,actor_employee_id,actor_system_code,actor_context,previous_employee_id,source_evidence) VALUES($1,'invalid-system-human-identity-59002','REVOKE','SYSTEM',1,'F05_2_GOVERNANCE_INVALIDATION','{\"trigger\":\"f05_2_governance_invalidate\"}'::jsonb,1,'REJECT_MISATTRIBUTED_SYSTEM_ACTOR')",[id]),e=>e.code==='23514');
+ await assert.rejects(db.query("INSERT INTO public.vehicle_responsibility_audit_events(responsibility_id,event_key,event_kind,actor_kind,actor_employee_id,previous_employee_id,source_evidence) VALUES($1,'invalid-anonymous-human-identity-59002','REVOKE','EMPLOYEE',NULL,1,'REJECT_ANONYMOUS_HUMAN_ACTOR')",[id]),e=>e.code==='23514');
+ const count=(await db.query("SELECT count(*)::int n FROM public.vehicle_responsibility_audit_events a JOIN public.vehicle_current_responsibilities r USING(responsibility_id) WHERE r.vehicle_id=59002")).rows[0].n;
+ assert.equal(count,2,'only historical manual issue and system revoke persist');
+});
