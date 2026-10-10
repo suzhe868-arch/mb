@@ -1,3 +1,12 @@
+# 2026-10-10｜F04-4 B同SHA32/32真PG16成功，但A独立审查发现新增动作DTO业务语义单项阻断（唯一最新）
+
+- **B交审的工程测试/证据真实成立**：PR [#29](https://github.com/suzhe868-arch/mb/pull/29) 指定`feat/f04-4-current-action-coverage-gate`最终HEAD `3e2e5a2f27c2c88dbc595f3312a6520f843c6a84`，与[Actions 38051029689](https://github.com/suzhe868-arch/mb/actions/runs/38051029689) head SHA逐字相同；分页全取真实**32/32独立非特权PostgreSQL16 jobs success**，**45份原生Artifacts**（新Source `11669133122`、新TLS `11669622637`），14个新增文件严格在白名单，不改F03/F04-1/2/3冻结旧代码/工作流及000001～000014/产品Final/IA/C。437条逐原文Current来源、258条旧新三向桥接、旧215个23 matched/192 SOURCE_GAP及3个Collector禁恢复核账仍保留。上述测试绿灯不自动等于A通过。
+- **A-F04-4-01独立阻断：8条“typed DTO”全把单一正整数ID当唯一必填动作参数**。明确业务不匹配：`ANNOUNCEMENT_CREATE`强制现有`announcementId`但PDM-24/Current导航没有为“新建”证明既存ID输入；`VEHICLE_SOURCE_TYPE_EDIT`只有`vehicleId`不携目标`source_type`；`MARKUP_RULE_SAVE`只有`markupRuleId`不带规则参数/草稿范围；`SYSTEM_MODEL_MAPPING_BIND`仅有mapping ID而无目标车型绑定事实。验证器/负例只证明单个整数、禁额外敏感字段，无法证明Current操作的有效输入。B必须按Final/IA补**动作语义正确且字段出处真实的最小typed合同**，缺业务请求出处标`REQUEST_SCHEMA_SOURCE_GAP/INTENT_ONLY_CI_CONTRACT`并不得冒称可执行typed DTO；新增变异负例后完整同SHA32/32重新验收。
+- **140 vs132 Page Manifest真实差额另立未闭来源事实**：B对Current C/E/P页面物理表行可独立证明132、文件标题声明140，8项差额未能证具体Page ID，已保守`SOURCE_GAP`；A判**本轮不是额外阻断**，禁止捏造8张页面或修改权威Final/IA，可继续后续来源核查。
+- **A正式单份完整技术整改单已落主线**：`07_重建工作区/F04-4_A主控首次独立审查增量动作DTO业务语义完整定向整改单_2026-10-10.md`；PR29 A审核评论`6097622718`；**`F04_4=A_CHANGES_REQUESTED / PR29_NOT_MERGED / NEXT_OWNER=B`**。B留原`feat/f04-4-current-action-coverage-gate`分支/PR29一次性整改、自测、完整最终SHA对应32/32真PG16全成功、两新原生Artifacts及中文交接再交A二轮审查。不得自行合并main、改Final/旧迁移/生产server、开启实账户/资金/第三方或启动F04-5/F05。F04全阶段、C/H01高保真与产品V1基线继续`NOT_READY`。本节覆盖旧“F04-4 A已放行/B未开始”的过时指针，不改写F04-3正式验收事实。
+
+---
+
 # 2026-10-10｜F04-3 A二轮独立验收通过、PR28标准合并；F04-4完整施工单正式放行B（唯一最新）
 
 - **F04-3已由A真实验收并标准合并**：[PR #28](https://github.com/suzhe868-arch/mb/pull/28) 为 `closed/merged=true`；B最终HEAD `f86f592056303e9ac6e04ad5af5be93accf41b80` 与 [Actions #38048203956](https://github.com/suzhe868-arch/mb/actions/runs/38048203956) `head_sha`完全一致，**30/30独立非特权PostgreSQL16 jobs全部成功**，新增Source/DTO/语义 **16/16**、TLS/身份与对象权限 **13/13**；41份原生Artifacts，新Source ID `11668517606`、新TLS ID `11668526569`；M94原94表/2120目录及G000014不同版本封印未损。全部16个变更文件均属新增F04-3白名单，原冻结28 job正文未修改。A正面审查评论ID `6097071207`；**GitHub标准merge提交 `a1f7ebcbfdf1184ed2b1e1143afe01e877119694`**。二轮报告：`07_重建工作区/F04-3_A主控二轮独立验收PR28正式合并与F04-4接力_2026-10-10.md`。
