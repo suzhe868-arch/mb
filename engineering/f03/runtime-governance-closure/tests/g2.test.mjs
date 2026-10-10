@@ -90,6 +90,10 @@ test('G2 genuine immutable M94 source 76 receipt and completed G batch gate plan
      await second.query('BEGIN');
      await second.query("SET LOCAL lock_timeout='90ms'");
      await assert.rejects(()=>second.query('UPDATE public.customers SET current_owner_employee_id=6 WHERE customer_id=37601'),e=>{racingWriteRejected=e.code==='55P03';return racingWriteRejected});
+     await second.query('ROLLBACK');
+     await second.query('BEGIN');
+     await second.query("SET LOCAL lock_timeout='90ms'");
+     await assert.rejects(()=>second.query("UPDATE public.employee_capability_scope_bindings SET ended_at=clock_timestamp() WHERE employee_id=5 AND permission_id=13 AND scope_id=201"),e=>e.code==='55P03');
     }finally{await second.query('ROLLBACK');await second.end()}
    }
   }
