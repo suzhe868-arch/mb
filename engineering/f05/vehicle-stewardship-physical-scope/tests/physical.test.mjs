@@ -181,3 +181,39 @@ test('R-A14 concurrent recipient capability revoke meets handover at advisory lo
   assert.equal((await view(receiver,59015)).allowed,false,'revoked receiver cannot auto-reactivate');
  }finally{await other.end()}
 });
+
+test('R-A15 scope/role governance cannot COMMIT between proven Vehicle row lock and read COMMIT',async()=>{
+ const s=await publish(59017);assert.equal(s.code,'F05_2_ISSUED');
+ const other=await connect();
+ try{
+  const r=await readMinimalCurrentVehicle(auth,staff,{vehicleId:59017,outlet:'detail'},{
+   testCheckpoint:async()=>{
+    await other.query('BEGIN');await other.query("SET LOCAL lock_timeout='250ms'");
+    await assert.rejects(other.query("UPDATE public.employee_data_scopes SET ended_at=now() WHERE scope_id=29001"),e=>e.code==='55P03','scope governance trigger must wait for signed current Vehicle read COMMIT');
+    await other.query('ROLLBACK');
+   }});
+  assert.equal(r.allowed,true);
+  await other.query("UPDATE public.employee_data_scopes SET ended_at=now() WHERE scope_id=29001");
+  assert.equal((await view(staff,59017)).allowed,false);
+  await other.query("UPDATE public.employee_data_scopes SET ended_at=NULL WHERE scope_id=29001");
+  assert.equal((await view(staff,59017)).allowed,false);
+ }finally{await other.end()}
+});
+test('R-A16 actual publication transaction and capability revocation have a single COMMIT order',async()=>{
+ const other=await connect(),p=fresh(59018);
+ try{
+  const signed=await publishAndIssueFromCurrentTransaction(auth,staff,p,{
+   testCheckpoint:async phase=>{
+    assert.equal(phase,'publisher_permission_proven');
+    await other.query('BEGIN');await other.query("SET LOCAL lock_timeout='250ms'");
+    await assert.rejects(other.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=1 AND permission_id=399"),e=>e.code==='55P03','publisher must serialize before governance capability revoke');
+    await other.query('ROLLBACK');
+   }});
+  assert.equal(signed.code,'F05_2_ISSUED',JSON.stringify(signed));
+  assert.equal((await view(staff,59018)).allowed,true);
+  await other.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=1 AND permission_id=399");
+  assert.equal((await view(staff,59018)).allowed,false);
+  await other.query("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=1 AND permission_id=399");
+  assert.equal((await view(staff,59018)).allowed,false,'permission restore does not resurrect old signed owner');
+ }finally{await other.end()}
+});
