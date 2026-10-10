@@ -1669,3 +1669,10 @@ G受检最终HEAD19af2955d81ac14d79e0c4e6adc661a3a1aabd8e同SHA CI38025357614 20
 - **A-F04-2-01/02全部`PASS/CLOSED`**：原215候选映射从105粗簇匹配/110未证，严格改为**23同动作/同主体`EVIDENCE_MATCHED`+192`SOURCE_GAP`**；旧来源218 methods/198 paths/62含冒号路径、3禁恢复Collector严格保留。引入真文档“存在却不同动作”语义负例，Consultation域PDM-15、Waitlist域PDM-18→F06，F04 HTTP合同与真实业务实施责任分离。全部215仍`UNDECIDED/CONTRACT_ONLY`，23仅现行业务动作证据充分，不代表旧URL获正式迁移/生产批准。
 - A独立正面PR27评论ID `6096462233`；GitHub标准PR `merge`并核实`closed/merged=true`，**合并提交`70d1f68490c851823cf5d1415c703667c0305cb4`**；正式二轮报告`07_重建工作区/F04-2_A主控二轮独立验收PR27正式合并与F04-3交接_2026-10-10.md`已落main。F04-2状态**`A_ACCEPTED_MERGED_PR27_CI_ONLY`**。
 - **新完整施工授权**：`07_重建工作区/F04-3_A主控Current新接口注册表DTO与路由安全门禁完整施工单_2026-10-10.md`；**`F04_3_A_RELEASED_FOR_B / B_NOT_STARTED / NEXT_OWNER=B`**；指定**`feat/f04-3-current-action-api-registry`**，实际B开工从最新main新建。整包实施Current动作导出的**新**HTTP/DTO合同、23证实与192缺口、真实PG16+loopback TLS安全路由/拒绝边界，保留F04-2冻结旧28个独立CI job并新增2个PG16 job，最终**30/30**同B最终SHA success＋真实Artifacts、中文交接，**B不直接合并main/不启F04-4**。仅CI-only合成可测，无生产启用、新DDL、4S真实账号/资金写、第三方实际调用；高保真C/H01及产品总基线保持`NOT_READY`。
+
+
+## 2026-10-10｜F04-3首次A独立技术审查：三项整改，业务Final不变
+
+- PR28 B最终HEAD `ce99e604d4fb58aa04f859231fd55fd37daa3891`，同SHA GitHub Actions `38045766826`、30/30独立真PG16 success，41原生Artifacts、13文件白名单与旧28 CI冻结保留，确认为真实工程证据而非已签收业务接口合同。
+- A发现并签发三项**工程阻断**：`A-F04-3-01` 29个业务DTO占位、OpenAPI字段schema不完整；`A-F04-3-02` 6个新增Current动作同操作/主体/资源语义证据和真实异动作负例不足；`A-F04-3-03` CUSTOMER误声明PC Cookie合法认证，以及员工治理缺System Admin控制平面合法主体独立边界。见`07_重建工作区/F04-3_A主控首次独立复核DTO实质合同与主体权限完整定向整改单_2026-10-10.md`，PR28 A评论 `6096753581`。
+- **不是新产品决策**，PDM Final/IA/Low-Fi一律不变；既有21X旧接口禁恢复、F05～F07实施及C/H01安全门禁不变。`F04_3=A_CHANGES_REQUESTED / PR28_NOT_MERGED / NEXT_OWNER=B`。B在原分支一次性整改、完整同SHA30/30真PG16+Artifacts交A复验，不能自行合并main或启动F04-4。产品基线仍`NOT_READY`。
