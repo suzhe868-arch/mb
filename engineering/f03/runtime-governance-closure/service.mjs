@@ -143,7 +143,14 @@ async function itemFact(c,item,team,actor){
  if(!obj||!usable(obj))return deny('G_OBJECT_INACTIVE_OR_TERMINAL');
  const permission=item.object_kind==='Priority'?'demand.responsible.transfer':domain[item.object_kind][4];
  if(!await allowed(c,actor.employee_id,team,obj.customer_id,permission,item.from_employee_id,item.intended_to_employee_id))return deny('G_ITEM_SCOPE_DENY');
- const details=item.object_kind==='Priority'?await priority(c,actor.employee_id,team,obj,item.status==='completed'?{...item,status:'pending'}:item):await proof(c,item.object_kind,obj,item,team);
+ let details=item.object_kind==='Priority'?await priority(c,actor.employee_id,team,obj,item.status==='completed'?{...item,status:'pending'}:item):await proof(c,item.object_kind,obj,item,team);
+ if(item.object_kind==='Priority'&&details.status!=='PRIORITY_DERIVED_ONLY'){
+  // For a genuine subsequent Demand transfer, the original Priority item
+  // stays in its original batch while responsibility follows the CURRENT
+  // Demand's fully audited successor chain (never a direct Priority receipt).
+  const successor=await verifyLiveHandoverChain(c,{...item,status:'completed'},team);
+  if(successor.ok)details={status:'PRIORITY_DERIVED_ONLY',triggerDemandId:successor.triggerDemandId,ttlUnmodified:true};
+ }
  if(!['PROVEN_RECEIPT','PRIORITY_DERIVED_ONLY'].includes(details.status))return deny('G_EVIDENCE_UNPROVEN',{evidenceStatus:details.status});
  if(item.object_kind==='Transaction'){
   const l=(await c.query('SELECT lock_status,end_reason,customer_id,vehicle_id,listing_cycle_id FROM public.locks WHERE lock_id=$1',[obj.source_lock_id])).rows[0];
