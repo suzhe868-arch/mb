@@ -86,7 +86,7 @@ export function validateCoverage(text=read(d+'Current全量动作覆盖与页面
   if(seen.has(row.stable_key))fail('DUPLICATE_KEY');seen.add(row.stable_key);
   const raw=expected.get(row.stable_key);
   if(!raw||row.source_kind!==raw.k||Number(row.source_line)!==raw.n||
-  row.source_original!==raw.l||row.source_path!==files[raw.k]||row.version!=='CURRENT_2026_10_10')
+  row.source_original.replace(/\\t/g,'\t')!==raw.l||row.source_path!==files[raw.k]||row.version!=='CURRENT_2026_10_10')
    fail('TRUE_QUOTE_WRONG_ACTION_OR_OMISSION');
   const klass=raw.k==='NAV'?navClass(raw.l,raw.n,inc):
     raw.k==='ACTION'?raw.l.split('|')[3].trim()==='ACTION'?'CURRENT_ACTION_COVERAGE':'PAGE_NAV_ONLY':
