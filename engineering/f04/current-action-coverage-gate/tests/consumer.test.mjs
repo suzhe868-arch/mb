@@ -52,7 +52,7 @@ test('F04-4-B04 4S and SystemAdmin cannot inherit unrelated employee business sc
  let a=candidate.find(x=>x.actor==='SYSTEM_ADMIN');let r=await call(a.method,a.path,{...cookie(staff),'x-csrf-token':auth.csrfFor(staff),'x-request-key':'F04_4_CI_valid_key_00004'});assert.equal(r.status,403);
 });
 test('F04-4-B05 no cookie/header spoof grants Customer, fake VIP or 4S merchant',async()=>{
- let a=candidate[0];for(const h of [{},{authorization:'Bearer fake'},cookie:'__Host-mb_pc=invalid'},cookie:'__Host-mb_pc='+staff+'; __Host-mb_pc='+staff}, {...cookie(staff),'x-future-customer-auth-not-implemented':'yes'}]){
+ let a=candidate[0];for(const h of [{},{authorization:'Bearer fake'},{cookie:'__Host-mb_pc=invalid'},{cookie:'__Host-mb_pc='+staff+'; __Host-mb_pc='+staff}, {...cookie(staff),'x-future-customer-auth-not-implemented':'yes'}]){
   let x=await call(a.method,a.path,h);assert.equal(x.status,403,JSON.stringify(x));
  }
 });
