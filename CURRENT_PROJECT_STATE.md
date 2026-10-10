@@ -1,3 +1,12 @@
+# 2026-10-11｜F05-2 A二轮独立复验：旧四项均PASS，新增自动撤权审计Actor真实性唯一阻断（唯一最新）
+
+- **二轮原生事实已独立证明**：[PR31](https://github.com/suzhe868-arch/mb/pull/31)最终受检B/PR HEAD `68a263add2ae68ba3860f939a78b949589a0bb55` = [Actions 38071814138](https://github.com/suzhe868-arch/mb/actions/runs/38071814138) run.head_sha；官方**36/36真实独立非特权PG16 job success**，冻结旧34个job逐一原文不变，新增真实物理**16/16**、HTTPS**11/11**；59份原生Artifacts，新物理`11676863942`、TLS`11676953699`均未过期；PR16项全部是批准的新增路径，无生产/原旧迁移/Final/IA/C改动。
+- **旧阻断 A-F05-2-01/02/03/04 全部 PASS/CLOSED（不要求返工）**：经A审源码及真实PG16/HTTPS负例，原普通销售交接后403、复职不自动恢复旧Vehicle责任、禁止历史created_by事后补造信任源、真正新人工发布同事务创建Vehicle/Cycle/责任/审计、独立两PG16连接验证权限/source/交接与读写最终COMMIT顺序，均满足本批CI-only门禁。
+- **A二轮仅新增 `A-F05-2-05` 审计Actor真实性阻断**：在新增`000015_vehicle_responsibility.sql` `f05_2_close_steward_links`内，自动撤权的审计`actor_employee_id`错误地取自被撤权的`responsible_employee_id`，可把System Admin/其他治理人或系统触发的权限变化不可变地记成该员工“本人执行”，违反PDM-25 Final §2与PDM-02治理历史真实性。应准确区分SYSTEM自动动作、真实人工操作者及被影响原负责员工，不许捏造human Actor。
+- **已正式写完整单份二轮整改单**：`07_重建工作区/F05-2_A主控二轮独立复验自动撤权审计Actor真实性完整定向整改单_2026-10-11.md`，PR31 A评论`6100420933`。状态 **`F05_2=A_CHANGES_REQUESTED / PR31_NOT_MERGED / NEXT_OWNER=B`**：B继续原`feat/f05-2-vehicle-stewardship-physical-scope`和PR31，仅修复审计归责/添加真实PG16负例，旧34冻结＋2新全部重跑最终同SHA36/36、两原生Artifacts与中文自验再交A，不得擅合并或先施工F05-3。F05整体、F04真实生产、C/H01和V1基线依旧`NOT_READY`。
+
+---
+
 # 2026-10-11｜F05-2 A首次独立复验发现四项对象权限及并发阻断（唯一最新）
 
 - **受检PR [#31](https://github.com/suzhe868-arch/mb/pull/31) CI事实全部有效**：B最终SHA `52078ba41fe205ead1da373bc4bf52fc2610ccd8` = PR HEAD = [Actions 38059665296](https://github.com/suzhe868-arch/mb/actions/runs/38059665296) head_sha；官方36/36独立真实非特权PG16 jobs success（冻结旧34不变，新2），新增A物理11/11、HTTPS9/9，59份原生Artifacts（新`11672373434`、`11673021019`），本PR仅16份批准的新增文件。上述不等于A接受权限语义。
