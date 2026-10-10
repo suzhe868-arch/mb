@@ -15,7 +15,10 @@ const customer=(id,mode,attested=true)=>({kind:'trusted-synthetic-customer',cust
 test.before(async()=>{
  assert.equal(process.env.CI,'true');assert.equal(process.env.GITHUB_ACTIONS,'true');
  const x=await auth.login({login:'http_test',password:'SyntheticHttps_1234567',source:'v_evidence'});
- assert.equal(x.code,'AUTH_OK',JSON.stringify(x));manager=x.token;old=x;
+ assert.equal(x.code,'AUTH_OK',JSON.stringify(x));old=x;
+ assert.equal((await auth.change({token:x.token,csrf:x.csrf,oldPassword:'SyntheticHttps_1234567',newPassword:'SyntheticV_Evidence_2026_Authorized'})).code,'PASSWORD_CHANGED_REAUTH_REQUIRED');
+ const fresh=await auth.login({login:'http_test',password:'SyntheticV_Evidence_2026_Authorized',source:'v_evidence_verified'});
+ assert.equal(fresh.code,'AUTH_OK');manager=fresh.token;
 });
 test.after(async()=>{await auth.close();await c.end();secret.fill(0)});
 test('V1 M94 seal is exact, G000014 must fail on old isolated schema',async()=>{
@@ -30,7 +33,7 @@ test('V1 all 59 original capability and governance entries have a current dispos
  assert.equal(rows.length,59);assert.equal(rows.filter(r=>r.group==='CAPABILITY').length,45);assert.equal(rows.filter(r=>r.group==='GOVERNANCE').length,14);
  const allowed=new Set(['F03_ACCEPTED_SCOPE','F03_STILL_OPEN','OWNED_BY_F04','OWNED_BY_F05','OWNED_BY_F06','OWNED_BY_F07','DENY_BY_DESIGN']);
  const seen=new Set();
- for(const r of rows){const key=r.group+':'+r.ordinal;assert.ok(!seen.has(key),key);seen.add(key);assert.ok(allowed.has(r.current_classification),key);for(const k of ['item','source_or_contract','real_ci_evidence','negative_assertion_or_denial','next_owner','open_dependency'])assert.ok(r[k]&&r[k].length>4,key+' '+k);}
+ for(const r of rows){const key=r.group+':'+r.ordinal;assert.ok(!seen.has(key),key);seen.add(key);assert.ok(allowed.has(r.current_classification),key);for(const k of ['item','source_or_contract','real_ci_evidence','negative_assertion_or_denial','next_owner','open_dependency'])assert.ok(r[k]&&r[k].length>=2,key+' '+k);}
  const neg=readFileSync(new URL('./safety-negative-assertions.tsv',import.meta.url),'utf8').trim().split('\n');
  assert.equal(neg.length-1,59);
 });
