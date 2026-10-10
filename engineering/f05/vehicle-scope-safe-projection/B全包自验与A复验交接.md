@@ -42,3 +42,8 @@
 - 请A最后独立核查：Physical真实缺口未冒充已证scope、TLS拒绝是否包含一切出口与角色、旧32冻结字节、最终HEAD=PR HEAD=Actions run.head_sha、34/34 success、两个新Artifact未过期、无生产/DDL/旧CI/PDM/IA改动。
 
 **最终交审时目标：B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A，PR仍不得由B合并main。**
+
+
+## 补证｜真实FK/唯一/Check并非业务Vehicle归属
+
+新增Vehicle真实FK唯一状态约束核验.tsv，对上述26张真实表的99条PG16 M94原constraint（FK/PK/UNIQUE/CHECK）按原目录definition完整追溯，包括车辆created_by→Employee仅为上传引用、Employee.store_id→Store和Team.store_id→Store仅证明员工组织、ListingCycle→Vehicle证明周期实体完整性、Priority与visibility_grants证明客户侧权限对象，**均不推出可信现时Vehicle业务owner/team/4S represented-principal**。两新独立CI artifacts均随源字段记录一起归档该约束原文与SHA256；不能把有外键误作有业务归属。

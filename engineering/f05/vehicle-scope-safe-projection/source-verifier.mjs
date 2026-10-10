@@ -46,6 +46,23 @@ export function verifyPhysicalSource(
   if(x.projection_policy!==(safe?'SAFE_CANDIDATE_REQUIRES_CURRENT_AUTH':restricted?'NEVER_DIRECTLY_EXPOSE':'INTERNAL_ONLY_NOT_PROVEN'))fail('SOURCE_FIELD_SAFETY_DOWNGRADE');
   if(!['NOT_OBJECT_OWNERSHIP_AUTHORITY','NO_SIGNED_VEHICLE_OWNER_BINDING'].includes(x.ownership_policy))fail('FORGED_OWNERSHIP');
  }
+ const constraintPath=base+'Vehicle真实FK唯一状态约束核验.tsv';
+ const constraints=parse(read(constraintPath));
+ const frozenConstraints=archived.objects.filter(x=>x.kind==='constraint'&&physical.relevant_tables.some(t=>x.name.startsWith(t+'.')));
+ if(constraints.length!==frozenConstraints.length||constraints.length!==physical.constraint_rows)fail('M94_FK_UNIQUE_CHECK_OMISSION');
+ for(let i=0;i<frozenConstraints.length;i++){
+  const o=frozenConstraints[i],r=constraints[i],table=o.name.split('.')[0];
+  const actual=o.name.slice(table.length+1);
+  const scope=o.name==='vehicles.f02_1adb062a6a33127670c1'?'UPLOAD_FK_NOT_BUSINESS_OWNER':
+   o.definition.includes('REFERENCES stores(store_id)')?'STAFF_STORE_ONLY_NO_VEHICLE_OWNER':
+   o.name.startsWith('vehicle_visibility_grants')?'CUSTOMER_VISIBILITY_NOT_EMPLOYEE_READ':
+   o.name.startsWith('priority_leases')?'PRIORITY_NOT_VEHICLE_SCOPE':'PHYSICAL_CONSTRAINT_NOT_AUTHORIZATION';
+  if(r.table!==table||r.constraint_name!==actual||r.kind!==o.definition[0]||
+    r.physical_definition!==o.definition||
+    r.business_scope_interpretation!==scope||
+    r.m94_original_locator!==catalogPath+'#constraint:'+o.name)
+    fail('FAKE_FK_UNIQUE_OR_BUSINESS_OWNER_'+i);
+ }
  for(const req of physical.required_columns){
   if(!seen.has(req.table+'.'+req.column)||fields.find(x=>x.table===req.table&&x.column===req.column)?.physical_type!==req.type)fail('REQUIRED_TRUE_COLUMN_MISSING');
  }

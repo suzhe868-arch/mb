@@ -61,3 +61,11 @@ test('F05-1-A08 privilege denial and read-only guarantee on physical provenance'
  const after=await db.query("SELECT count(*)::int n FROM public.vehicles");
  assert.equal(before.rows[0].n,after.rows[0].n);
 });
+
+test('F05-1-A09 verified 99 physical PK/FK/UNIQUE/CHECK sources never equal Vehicle current ownership',()=>{
+ const x=f('Vehicle真实FK唯一状态约束核验.tsv');
+ assert.equal(x.trimEnd().split('\n').length,100);
+ assert.match(x,/UPLOAD_FK_NOT_BUSINESS_OWNER/);
+ assert.match(x,/STAFF_STORE_ONLY_NO_VEHICLE_OWNER/);
+ assert.equal(verifyPhysicalSource().physicalPositiveScope,0); 
+});
