@@ -20,12 +20,12 @@ try{
  await c.query("INSERT INTO public.permissions(permission_id,permission_code) VALUES(399,'vehicle.manage') ON CONFLICT(permission_id) DO NOTHING");
  const manage=(await c.query("SELECT permission_id FROM public.permissions WHERE permission_code='vehicle.manage'")).rows[0];
  if(!manage||Number(manage.permission_id)!==399)throw Error('F05_2_MANAGE_CAPABILITY_CONFLICT');
- await c.query("INSERT INTO public.employee_data_scopes(scope_id,employee_id,scope_kind,scope_reference_id) VALUES (29001,1,'team',901)");
+ await c.query("INSERT INTO public.employee_data_scopes(scope_id,employee_id,scope_kind,scope_reference_id) VALUES (29001,1,'team',901),(29006,6,'team',901),(29007,7,'team',901)");
  await c.query("INSERT INTO public.employee_team_memberships(team_id,employee_id,valid_from,changed_by_system_admin_id) SELECT 901,1,now()-interval '10 minutes',9 WHERE NOT EXISTS(SELECT 1 FROM public.employee_team_memberships WHERE team_id=901 AND employee_id=1 AND ended_at IS NULL)");
  await c.query("INSERT INTO public.employee_team_memberships(team_id,employee_id,valid_from,changed_by_system_admin_id) SELECT 901,5,now()-interval '10 minutes',9 WHERE NOT EXISTS(SELECT 1 FROM public.employee_team_memberships WHERE team_id=901 AND employee_id=5 AND ended_at IS NULL)");
- for(const employee of [1,5])for(const capability of [readId,399]){
+ for(const employee of [1,5,6,7])for(const capability of [readId,399]){
   await c.query("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES($1,$2,'allow',now()) ON CONFLICT(employee_id,permission_id) DO UPDATE SET decision='allow',changed_at=now()",[employee,capability]);
-  await c.query("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES($1,$2,$3,now()-interval '1 minute') ON CONFLICT(scope_id,permission_id) DO NOTHING",[employee,capability,employee===1?29001:201]);
+  await c.query("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES($1,$2,$3,now()-interval '1 minute') ON CONFLICT(scope_id,permission_id) DO NOTHING",[employee,capability,employee===1?29001:employee===5?201:employee===6?29006:29007]);
  }
  const fixtures=[[49002,49012,'mingbang','available'],[49004,49014,'four_s','available'],[49006,49016,'wholesale','active']];
  for(const [vehicle,cycle,source,state] of fixtures){
