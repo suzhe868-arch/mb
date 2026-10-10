@@ -6105,6 +6105,46 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
+      - name: F05-3A H physical Admin trust bridge migration rollback and exact prior seal
+        run: |
+          set -euo pipefail
+          node --check f05/four-s-member-trust-scope/migration.mjs
+          node --check f05/four-s-member-trust-scope/source-gate.mjs
+          node --check f05/four-s-member-trust-scope/runner.mjs
+          node --check f05/four-s-member-trust-scope/tests/bridge-source.test.mjs
+          node f05/four-s-member-trust-scope/runner.mjs --inject-rollback
+          node f05/four-s-member-trust-scope/runner.mjs --apply
+          node f05/four-s-member-trust-scope/runner.mjs --verify
+          node f05/four-s-member-trust-scope/fixtures.mjs
+      - name: F05-3A H independent nonprivileged PG16 System Admin current license and member same-TX Vehicle ownership
+        run: |
+          set -euo pipefail
+          artifact=f05/four-s-member-trust-scope/artifacts/bridge-physical
+          mkdir -p "$artifact"
+          node --test f05/four-s-member-trust-scope/tests/bridge-source.test.mjs 2>&1 | tee "$artifact/true-pg16-admin-governance-member-publish.log"
+          grep -q '# fail 0' "$artifact/true-pg16-admin-governance-member-publish.log"
+          node f05/four-s-member-trust-scope/runner.mjs --verify
+      - name: F05-3A H genuine 000016 schema, real PG16 catalog and source-checksum provenance
+        run: |
+          set -euo pipefail
+          artifact=f05/four-s-member-trust-scope/artifacts/bridge-physical
+          node f05/four-s-member-trust-scope/evidence.mjs --record
+          cp f05/four-s-member-trust-scope/artifacts/current/full-catalog.json "$artifact/full-catalog.json"
+          cp f05/four-s-member-trust-scope/artifacts/current/inventory.json "$artifact/inventory.json"
+          cp f05/four-s-member-trust-scope/artifacts/current/source-provenance.json "$artifact/source-provenance.json"
+          cp f05/four-s-member-trust-scope/000016_four_s_member_trust.sql "$artifact/new-only-000016-source.sql"
+          cp f05/four-s-member-trust-scope/4S当前业务Owner及敏感出口隔离矩阵.tsv "$artifact/source-matrix.tsv"
+          ids="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > "$artifact/schema-only.sql"
+          (cd "$artifact" && sha256sum * > sha256sums.txt)
+          if grep -R -nE 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|BEGIN PRIVATE KEY' "$artifact"; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f05-3a-physical-admin-member-same-tx-independent-real-PG16-evidence
+          path: engineering/f05/four-s-member-trust-scope/artifacts/bridge-physical/
+          retention-days: 30
+          if-no-files-found: error
 
   f05-3a-member-https-source-gap-pg16:
     name: F05-3A B real PG16 HTTPS 4S member fail-closed isolation
@@ -6415,3 +6455,40 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
+      - name: F05-3A H TLS session Admin-signed current creation permit and true member Vehicle positive
+        run: |
+          set -euo pipefail
+          node --check f05/four-s-member-trust-scope/ci-four-s-handler.mjs
+          node --check f05/four-s-member-trust-scope/tests/bridge-https.test.mjs
+          node f05/four-s-member-trust-scope/runner.mjs --inject-rollback
+          node f05/four-s-member-trust-scope/runner.mjs --apply
+          node f05/four-s-member-trust-scope/runner.mjs --verify
+          node f05/four-s-member-trust-scope/fixtures.mjs
+      - name: F05-3A H independent real TLS Session current-member Vehicle detail and zero cross-subject leak
+        run: |
+          set -euo pipefail
+          artifact=f05/four-s-member-trust-scope/artifacts/bridge-https
+          mkdir -p "$artifact"
+          node --test f05/four-s-member-trust-scope/tests/bridge-https.test.mjs 2>&1 | tee "$artifact/true-pg16-https-own-member-vs-others.log"
+          grep -q '# fail 0' "$artifact/true-pg16-https-own-member-vs-others.log"
+          node f05/four-s-member-trust-scope/runner.mjs --verify
+      - name: F05-3A H independent TLS original model, PG16 physical catalog and snapshot exact hashes
+        run: |
+          set -euo pipefail
+          artifact=f05/four-s-member-trust-scope/artifacts/bridge-https
+          node f05/four-s-member-trust-scope/evidence.mjs --record
+          cp f05/four-s-member-trust-scope/artifacts/current/full-catalog.json "$artifact/full-catalog.json"
+          cp f05/four-s-member-trust-scope/artifacts/current/inventory.json "$artifact/inventory.json"
+          cp f05/four-s-member-trust-scope/artifacts/current/source-provenance.json "$artifact/source-provenance.json"
+          cp f05/four-s-member-trust-scope/4S当前业务Owner及敏感出口隔离矩阵.tsv "$artifact/source-matrix.tsv"
+          ids="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > "$artifact/schema-only.sql"
+          (cd "$artifact" && sha256sum * > sha256sums.txt)
+          if grep -R -nE 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|BEGIN PRIVATE KEY' "$artifact"; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f05-3a-https-admin-member-positive-independent-real-PG16-evidence
+          path: engineering/f05/four-s-member-trust-scope/artifacts/bridge-https/
+          retention-days: 30
+          if-no-files-found: error
