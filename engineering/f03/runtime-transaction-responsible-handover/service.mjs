@@ -15,7 +15,7 @@ async function scope(c,actor,from,to,team,customer,allowInactive=false){
  return (await c.query(sql,[actor,from,to,team,customer,allowInactive])).rows[0].permitted===true;
 }
 async function authTx(auth,token,fn,opts={}){
- if(!hookAllowed(opts.testCheckpoint))return out('M02_TEST_HOOM_DENY');
+ if(!hookAllowed(opts.testCheckpoint))return out('M02_TEST_HOOK_DENY');
  const v=await auth.pool.connect();try{await verify(v)}finally{v.release()}
  try{
   return await auth.withSession(token,async(c,a,s)=>{
@@ -60,7 +60,7 @@ async function facts(c,actor,p,locking=false){
  if(!src||!dst||src.employment_status!=='active'&&!['planned_disable','sudden_inactive'].includes(b.change_kind))return {error:'M03_SOURCE_INVALID'};
  if(dst.employment_status!=='active')return {error:'M03_RECIPIENT_INVALID'};
  if(!await scope(c,actor.employee_id,p.fromEmployeeId,p.recipientEmployeeId,p.teamId,tx.customer_id,src.employment_status!=='active'))return {error:'M02_TRANSACTION_PERMISSION_SCOPE_DENY'};
- return {batch:b,item:i,tx,transactionId,sourceLockId:Number(tx.source_lock_id),customerId:Number(tx.customer_id),depositCount:deposits.length};
+ return {batch:b,item:i,tx,transactionId,sourceLockId:Number(tx.source_lock_id),customerId:Number(tx.customer_id),depositCount:deposits.length,sourceInactive:src.employment_status!=='active'};
 }
 const display=r=>({receiptId:Number(r.receipt_id),batchId:Number(r.batch_id),itemId:Number(r.item_id),transactionId:Number(r.transaction_id),customerId:Number(r.customer_id),fromEmployeeId:Number(r.from_employee_id),toEmployeeId:Number(r.to_employee_id),actorEmployeeId:Number(r.actor_employee_id),teamId:Number(r.scope_team_id),auditId:Number(r.audit_id),requestKeySha256:r.request_key_sha256,committedAt:r.committed_at.toISOString(),transactionDomainTransferred:true,transactionLifecycleUnchanged:true,otherDomainsCompleted:false,batchCompleted:false});
 async function eventProven(c,r){
@@ -92,7 +92,7 @@ export async function prepareTransactionResponsibleHandover(auth,token,p,o){
  if(!request(p))return out('M01_BAD_REQUEST');
  return authTx(auth,token,async(c,actor)=>{
   const f=await facts(c,actor,p);if(f.error)return out(f.error);
-  if(str(f.lock.responsible_employee_id)!==str(p.fromEmployeeId))return out('M03_SOURCE_NOT_CURRENT');
+  if(str(f.tx.responsible_employee_id)!==str(p.fromEmployeeId))return out('M03_SOURCE_NOT_CURRENT');
   return out('M01_PREPARED_READ_ONLY',{batchId:p.batchId,itemId:p.itemId,transactionId:f.transactionId,customerId:f.customerId,sourceInactive:f.sourceInactive,commitTokenIssued:false,transactionLifecycleUnchanged:true,batchCompleted:false});
  },o);
 }
