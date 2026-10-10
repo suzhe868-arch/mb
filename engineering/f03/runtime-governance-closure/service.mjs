@@ -101,7 +101,7 @@ async function itemFact(c,item,team,actor){
  if(!obj||!usable(obj))return deny('G_OBJECT_INACTIVE_OR_TERMINAL');
  const permission=item.object_kind==='Priority'?'demand.responsible.transfer':domain[item.object_kind][4];
  if(!await allowed(c,actor.employee_id,team,obj.customer_id,permission,item.from_employee_id,item.intended_to_employee_id))return deny('G_ITEM_SCOPE_DENY');
- const details=item.object_kind==='Priority'?await priority(c,actor.employee_id,team,obj,item):await proof(c,item.object_kind,obj,item,team);
+ const details=item.object_kind==='Priority'?await priority(c,actor.employee_id,team,obj,item.status==='completed'?{...item,status:'pending'}:item):await proof(c,item.object_kind,obj,item,team);
  if(!['PROVEN_RECEIPT','PRIORITY_DERIVED_ONLY'].includes(details.status))return deny('G_EVIDENCE_UNPROVEN',{evidenceStatus:details.status});
  if(item.object_kind==='Transaction'){
   const l=(await c.query('SELECT lock_status,end_reason,customer_id,vehicle_id,listing_cycle_id FROM public.locks WHERE lock_id=$1',[obj.source_lock_id])).rows[0];
@@ -187,7 +187,17 @@ async function closedBatchSafe(c,a,x,team){
   const n=(await c.query('SELECT count(*)::int n FROM public.'+table+' WHERE '+field+'=$1 AND '+status,[x.b.source_employee_id])).rows[0].n;
   if(n>0)return deny('G_SOURCE_ACTIVE_OBLIGATIONS_'+kind);
  }
- const refund=(await c.query("SELECT count(*)::int n FROM public.refund_cases WHERE status='pending' AND customer_id IN (SELECT customer_id FROM public.customers WHERE current_owner_employee_id=$1)",[x.b.source_employee_id])).rows[0].n;
+ // Refund responsibility is bound to the customers in this batch, even if
+ // the Customer owner has already transferred to a different employee.
+ // Checking only source-owned customers would miss an in-flight refund.
+ const customerIds=new Set();
+ for(const i of x.items){
+  const kind=kinds[i.object_kind];
+  const customer=(await c.query('SELECT customer_id FROM public.'+kind[0]+' WHERE '+kind[1]+'=$1',[i.object_id])).rows[0];
+  if(!customer)return deny('G_BATCH_STALE_CUSTOMER_FACT');
+  customerIds.add(str(customer.customer_id));
+ }
+ const refund=(await c.query("SELECT count(*)::int n FROM public.refund_cases WHERE status='pending' AND (customer_id = ANY($1::bigint[]) OR customer_id IN (SELECT customer_id FROM public.customers WHERE current_owner_employee_id=$2))",[[...customerIds],x.b.source_employee_id])).rows[0].n;
  if(refund>0)return deny('G_PENDING_FINANCIAL_OBLIGATION');
  for(const t of tables){
   const refs=(await c.query('SELECT item_id FROM public.'+t+' WHERE batch_id=$1',[x.b.batch_id])).rows;
