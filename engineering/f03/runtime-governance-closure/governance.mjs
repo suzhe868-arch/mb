@@ -45,7 +45,8 @@ async function revokeAll(c,emp){
  }
  await c.query("UPDATE public.employee_data_scopes SET ended_at=COALESCE(ended_at,transaction_timestamp()) WHERE employee_id=$1 AND (ended_at IS NULL OR ended_at>transaction_timestamp())",[emp]);
  await c.query("UPDATE public.employee_capability_scope_bindings SET ended_at=GREATEST(granted_at,LEAST(COALESCE(ended_at,transaction_timestamp()),transaction_timestamp())) WHERE employee_id=$1 AND (ended_at IS NULL OR ended_at>transaction_timestamp())",[emp]);
- await c.query("UPDATE public.employee_team_memberships SET ended_at=GREATEST(valid_from+interval '1 microsecond',transaction_timestamp()) WHERE employee_id=$1 AND (ended_at IS NULL OR ended_at>transaction_timestamp())",[emp]);
+ // Membership-version changes invalidate legacy Team routing caches after revocation.
+ await c.query("WITH ended AS (UPDATE public.employee_team_memberships SET ended_at=GREATEST(valid_from+interval '1 microsecond',transaction_timestamp()) WHERE employee_id=$1 AND (ended_at IS NULL OR ended_at>transaction_timestamp()) RETURNING team_id) UPDATE public.teams SET membership_version=membership_version+1 WHERE team_id IN (SELECT DISTINCT team_id FROM ended)",[emp]);
 }
 async function lastReceiver(c,emp){
  const n=(await c.query("SELECT count(*)::int n FROM public.employees e JOIN public.employee_receiving_eligibility x ON x.employee_id=e.employee_id WHERE e.employee_id<>$1 AND e.employment_status='active' AND e.receiving_status='receiving' AND x.eligible=true",[emp])).rows[0].n;
@@ -165,6 +166,7 @@ export async function commitPlannedStoreTransferAsSystemAdmin(auth,token,p,opts=
   await revokeAll(c,p.employeeId);
   await c.query("UPDATE public.employees SET store_id=$2,receiving_status='paused' WHERE employee_id=$1",[p.employeeId,p.targetStoreId]);
   await c.query('INSERT INTO public.employee_team_memberships(team_id,employee_id,valid_from,changed_by_system_admin_id) VALUES($1,$2,transaction_timestamp(),$3)',[p.targetTeamId,p.employeeId,a.system_admin_id]);
+  await c.query('UPDATE public.teams SET membership_version=membership_version+1 WHERE team_id=$1',[p.targetTeamId]);
   await audit(c,a,p.employeeId,'sg06.personnel.planned_transfer',original,{storeId:p.targetStoreId,teamId:p.targetTeamId,receiving:'paused',credentialsDisabledUntilReissue:true},p.reason);
   if(opts.testCheckpoint)await opts.testCheckpoint('after_audit',c);
   if(!await batchAuditProven(c,b)||!await unowned(c,p.employeeId))throw Error('G_GOV_FINAL_ROLLBACK');
