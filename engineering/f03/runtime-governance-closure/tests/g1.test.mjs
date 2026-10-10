@@ -141,3 +141,17 @@ test('G1 two current managers cannot both close one batch with different request
  assert.equal(winners.length,1,JSON.stringify(attempts));
  assert.equal((await db.query("SELECT count(*)::int n FROM public.audit_events WHERE object_kind='handover_batch' AND object_id='97003' AND action='sg06.batch.complete'")).rows[0].n,1);
 });
+
+
+test('G1 a legitimate H domain receipt key cannot be reused to create SG06 completion audit',async()=>{
+ const item=(await db.query('SELECT status FROM public.handover_items WHERE item_id=13604')).rows[0];
+ assert.equal(item.status,'pending');
+ const result=await commitHandoverItem(auth,token,{batchId:96601,itemId:13604,teamId:901,requestKey:'g-m94-genuine-source-97001'});
+ assert.equal(result.code,'G_GLOBAL_REQUEST_KEY_COLLISION',JSON.stringify(result));
+ assert.equal((await db.query('SELECT status FROM public.handover_items WHERE item_id=13604')).rows[0].status,'pending');
+});
+test('G1 a different manager cannot replay original committed item with copied requestKey',async()=>{
+ const second=(await auth.login({login:'race_test',password:'SyntheticRace_1234567',source:'g1_replay_foreign_manager'})).token;
+ const result=await commitHandoverItem(auth,second,{batchId:97001,itemId:17601,teamId:901,requestKey:'g-first-valid-item-17601'});
+ assert.equal(result.ok,false,JSON.stringify(result));
+});
