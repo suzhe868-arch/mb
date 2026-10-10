@@ -20,7 +20,7 @@ const old='engineering/f04/contract-gate/legacy-endpoint-inventory.tsv';
 const current='engineering/f04/authority-route-mapping/current-authority-route-matrix.tsv';
 const quoteCheck=(row,prefix,cache)=>{
  const path=row[prefix+'_file'],line=row[prefix+'_line'],quote=row[prefix+'_quote'];
- if(!path)return (!line&&!quote);
+ if(!path)return ((!line||line==='0')&&!quote);
  if(!path.startsWith(prefix==='pdm'?'07_重建工作区/PDM-':'03_证据_C_IA_V5_Current/'))return false;
  let lines=cache.get(path);
  if(!lines){try{lines=read(path).split(/\r?\n/);cache.set(path,lines)}catch{return false}}
