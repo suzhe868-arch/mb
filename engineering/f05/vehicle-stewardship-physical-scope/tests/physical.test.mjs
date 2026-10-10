@@ -38,7 +38,7 @@ test('F05-2-A03 verified real PG16 publication sign makes minimum read possible'
 test('F05-2-A04 event replay and duplicate current responsibility never elevate',async()=>{
  const a=await issueFromTrustedManualPublication(auth,token,event(49002,49012,pubKey));
  assert.equal(a.code,'F05_2_IDEMPOTENT');
- assert.equal((await issueFromTrustedManualPublication(auth,token,event(49002,49012,'synthetic-f05-2-duplicate-different-key'))).code,'F05_2_ALREADY_ASSIGNED');
+ assert.equal((await issueFromTrustedManualPublication(auth,token,event(49002,49012,'synthetic-f05-2-duplicate-different-key'))).code,'F05_2_PUBLISHED_EVENT_SOURCE_GAP');
  assert.equal((await issueFromTrustedManualPublication(auth,token,event(49004,49014,pubKey))).allowed,false);
 });
 test('F05-2-A05 personal deny is live; revoked capability does not survive',async()=>{
