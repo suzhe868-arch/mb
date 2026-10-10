@@ -80,7 +80,7 @@ test('B-A07 real JYT source import signs SAME-TX Vehicle+first ListingCycle+line
  const d=(await db.query('SELECT v.source_type,v.source_sale_status,v.platform_visibility,v.created_by_employee_id,l.car_code,l.current_cycle_id,cy.ended_at,a.actor_kind,a.outcome FROM public.f05_3b_sync_lineages l JOIN public.vehicles v USING(vehicle_id) JOIN public.vehicle_listing_cycles cy ON cy.listing_cycle_id=l.current_cycle_id JOIN public.f05_3b_sync_receipts a ON a.vehicle_id=l.vehicle_id AND a.outcome=$1 WHERE l.car_code=$2',['IMPORTED',car])).rows[0];
  assert.equal(d.source_type,'wholesale');assert.equal(d.source_sale_status,'active');
  assert.equal(d.created_by_employee_id,null);
- assert.equal(d.actor_kind,'INTEGRATION');assert.equal(d.current_cycle_id,firstCycle);
+ assert.equal(d.actor_kind,'INTEGRATION');assert.equal(Number(d.current_cycle_id),firstCycle);
  assert.equal(d.ended_at,null);
 });
 test('B-A08 same car_code repeated current sync reuses Vehicle/Cycle and idempotent event receipt',async()=>{
