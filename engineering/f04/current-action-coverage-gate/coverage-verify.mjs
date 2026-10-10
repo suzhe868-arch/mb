@@ -104,7 +104,7 @@ export function validateCoverage(text=read(d+'Current全量动作覆盖与页面
  if(meta.legacy_originals?.candidates!==215||meta.legacy_originals?.source_gap!==192||
  meta.legacy_originals?.retired!==3)fail('LEGACY_SOURCE_GAP_FAKE_APPROVAL');
  for(const [k,m] of Object.entries(meta.source_meta||{})){
-  if(!files[k]||m.file!==files[k]||read(m.file).length!==m.length||source[k]?.length!==m.lines)fail('UPSTREAM_SOURCE_DRIFT');
+  if(!files[k]||m.file!==files[k]||read(m.file).length!==m.length||(source[k]??read(m.file).split(/\r?\n/)).length!==m.lines)fail('UPSTREAM_SOURCE_DRIFT');
  }
  const checked=validateIncremental(incrementText);
  return {total:data.length,counts,sourceCounts:meta.by_source,...checked,sourceSha256:Object.fromEntries(Object.entries(files).map(([k,p])=>[k,createHash('sha256').update(read(p)).digest('hex')]))};
