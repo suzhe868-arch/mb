@@ -32,3 +32,13 @@ A已放行施工单：`07_重建工作区/F03工作包P_A主控F03-3字段权限
 P包不依赖尚未合并的G新000014和治理实现；G/P不得自行合并main。工作包V尚未签发。真实生产身份、额度扣减、正式车辆价格、权限Cache API、手机号及前端联调均按P3交接待F04～F07/H03/H04独立实施和验收。F03-2整体、C/H01高保真及产品基线`NOT_READY`。
 
 最终提交同SHA CI全绿后：**B_SELF_TESTED / READY_FOR_A_REVIEW**（须与G包共同交A集中验收）；`NEXT_OWNER=A`。B不自行合并。
+
+## 五、A-P-01 定向整改与二轮送审门禁
+
+A首轮集中复核结论`A_CHANGES_REQUESTED`，整改单：`07_重建工作区/F03多任务包G_P_A主控首次独立审查与两项定向整改清单_2026-10-10.md`。曾通过的19/19 CI只证明旧测试，不能替代针对独立Vehicle对象scope的正式授权证明。
+
+本轮已在原P分支修复：`projectEmployeeVehicle`的现时CRM Team授权只是**必要非充分**条件。现有M94没有通用车辆到Team/4S商户业务归属权威关系，因此所有员工Vehicle list/detail/export/history/cache/copy/print出口返回`P_VEHICLE_SCOPE_UNPROVEN`，且不输出车辆`fields`。若未来有Vehicle对象权威映射，也必须额外证明各业务出口独立权限；`crm.customer.view`永远不能替代`vehicle.read`或导出。客户公开列表与LIMITED/UNLIMITED详情的现有正当投影单独保留。
+
+新增测试覆盖批发/名邦/4S不同来源但同Team CRM权限、不同teamId、自报旧角色/缓存、来源类型改变、personal deny/Scope撤销，以及不可伪造旧M94不存在的归属权。原P1 10项、原P2 6项保留且针对旧P2正例错误授权口径更新为安全拒绝。
+
+**最终仍以中文交接提交后的最新P HEAD对应新CI连续19/19真实独立PG16成功为准**，并需要原M94的94表、608列、435约束、163索引、2120 catalog物理零差异，旧N/M字节归档验证不变。最新Run ID/HEAD应当从实时Actions核对，不能用上一轮38020721875冒充二轮通过。G/P双包均自验后一次性交A，A独立复验后才能合并。PRODUCT_BASELINE=NOT_READY。
