@@ -68,11 +68,11 @@ test('N04 all six domain original authentic commits get six immutable linked aud
  assert.equal(r.observedReadOnlyState,'DEFER_DENY'); // true pending refund in distinct source-owned customer
  assert.equal(r.batchCloseAuthorized,false);assert.equal(r.globalReady,false);assert.deepEqual(await snapshot(),before);
 });
-test('N04 fake audit action is not a valid receipt and does not trigger any write',async()=>{
+test('N04 append-only audit cannot be tampered and reconciler creates no new audit history',async()=>{
  const before=await snapshot(),id=(await db.query('SELECT audit_id FROM public.consultation_assignee_handover_receipts WHERE item_id=13604')).rows[0].audit_id;
- await db.query("UPDATE public.audit_events SET action='fake.cross.domain' WHERE audit_id=$1",[id]);
- try{assert.equal(row(await reconcile(auth,manager,p()),'Consultation').status,'UNPROVEN_CHAIN')}
- finally{await db.query("UPDATE public.audit_events SET action='consultation.assignee.handover' WHERE audit_id=$1",[id])}
+ await assert.rejects(()=>db.query("UPDATE public.audit_events SET action='fake.cross.domain' WHERE audit_id=$1",[id]),e=>e.message?.includes('F02_HISTORY_APPEND_ONLY'));
+ const report=await reconcile(auth,manager,p());
+ assert.equal(row(report,'Consultation').status,'PROVEN_RECEIPT');
  assert.deepEqual(await snapshot(),before);
 });
 test('N05 orphan/mismatched ledger item with same object cannot claim historical receipt',async()=>{
