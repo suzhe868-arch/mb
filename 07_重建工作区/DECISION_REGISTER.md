@@ -1704,3 +1704,9 @@ G受检最终HEAD19af2955d81ac14d79e0c4e6adc661a3a1aabd8e同SHA CI38025357614 20
 - B最终SHA`146129d94af0df6570bba7bb17781f1528d00a7c`=官方Actions`38056158521`的head.sha，34/34独立真PG16 success、原生51个Artifacts，物理源9/9+TLS9/9，旧32job全文冻结。F05-1由A签收、A评论`6098084371`、[PR30](https://github.com/suzhe868-arch/mb/pull/30)已标准merge SHA`5f70588905a8cadbb47a3bc4a8eb6af411b94597`，正式报告`07_重建工作区/F05-1_A主控独立验收PR30正式合并与F05-2可信归属接力_2026-10-10.md`。
 - M94现存26表153字段/99FK等真实证明Vehicle/ListingCycle存在，但`REAL_VEHICLE_SCOPE_PROVEN=0`（归属物理权源缺失），不能以created_by/店铺/4S来源/CRM owner/客户可见grant/Publisher自动放权；252矩阵三类来源7出口全部403，安全仅CI-only。F05完整经营业务、F04生产路由/H01和V1均NOT_READY。
 - A依据已签PDM Final/Current IA批准`07_重建工作区/F05-2_A主控Vehicle当前管理责任可信关系增量迁移与真实权限闭环完整施工单_2026-10-10.md`：`F05_2_A_RELEASED_FOR_B / NEXT_OWNER=B / B_NOT_STARTED`，在新`feat/f05-2-vehicle-stewardship-physical-scope`分支建立可信Vehicle现时责任关系/独立历史、只在临时PG16执行单独增量迁移并测试真实正向+撤权/来源变更/最后提交并发；不可新建4S组织、不可伪造权益或自动回填旧车，旧M94/G14各自封印不可混用。冻结旧34独立PG16加2个新真PG16，最终36/36同SHA成功，B自验后交A。无生产DDL/真实资金/第三方许可。
+
+## 2026-10-11｜F05-2 A首次独立复验与四项定向技术整改单（非产品决议）
+
+- PR31最终HEAD `52078ba41fe205ead1da373bc4bf52fc2610ccd8`、Actions `38059665296` 同SHA36/36真独立PG16成功、59原生Artifacts及16新增文件白名单均已由A复核属实；工程CI绿灯不等于正式权限验收。
+- **A-F05-2-01** 主负责人交接后原普通销售仍可能按Team `vehicle.read` 读取；**A-F05-2-02** inactive后复职可意外恢复旧车辆责任；**A-F05-2-03** 自签所谓受信人工发布历史事件未具真正独立业务来源；**A-F05-2-04** 权限撤销/读取和source变更的真实跨事务竞态缺口。四项均为现行PDM Final与原F05-2施工单的技术门禁，不是A新授予业务规则。
+- 正式状态 `A_CHANGES_REQUESTED / PR31_NOT_MERGED / NEXT_OWNER=B`；完整整改单：`07_重建工作区/F05-2_A主控首次独立复验权限交接与并发闭环完整整改单_2026-10-11.md`；PR评论ID `6099902681`。B在原分支一次性整改，更新真实PG16负例与同最终SHA36/36及原生Artifacts，复交A；不进入F05-3、不生产、不合并。F05/H01/V1保持`NOT_READY`。
