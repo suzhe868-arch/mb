@@ -29,11 +29,25 @@ CREATE TABLE public.vehicle_responsibility_audit_events (
  responsibility_id BIGINT NOT NULL REFERENCES public.vehicle_current_responsibilities(responsibility_id) ON DELETE RESTRICT,
  event_key TEXT NOT NULL UNIQUE CHECK(length(event_key) BETWEEN 20 AND 160),
  event_kind TEXT NOT NULL CHECK(event_kind IN ('ISSUE','REVOKE','TRANSFER')),
- actor_employee_id BIGINT NOT NULL REFERENCES public.employees(employee_id) ON DELETE RESTRICT,
+ -- Human actor is proved by authenticated Session service. A database trigger with no
+ -- independently authenticated governance event is SYSTEM, never the affected subject.
+ actor_kind TEXT NOT NULL DEFAULT 'EMPLOYEE' CHECK(actor_kind IN ('EMPLOYEE','SYSTEM')),
+ actor_employee_id BIGINT REFERENCES public.employees(employee_id) ON DELETE RESTRICT,
+ actor_system_code TEXT,
+ actor_context JSONB NOT NULL DEFAULT '{}'::jsonb CHECK(jsonb_typeof(actor_context)='object'),
  previous_employee_id BIGINT REFERENCES public.employees(employee_id) ON DELETE RESTRICT,
  current_employee_id BIGINT REFERENCES public.employees(employee_id) ON DELETE RESTRICT,
+ before_state JSONB NOT NULL DEFAULT '{}'::jsonb CHECK(jsonb_typeof(before_state)='object'),
+ after_state JSONB NOT NULL DEFAULT '{}'::jsonb CHECK(jsonb_typeof(after_state)='object'),
  source_evidence TEXT NOT NULL CHECK(length(source_evidence)>10),
- happened_at TIMESTAMPTZ NOT NULL DEFAULT transaction_timestamp()
+ happened_at TIMESTAMPTZ NOT NULL DEFAULT transaction_timestamp(),
+ CONSTRAINT f05_2_audit_actor_truth CHECK (
+   (actor_kind='EMPLOYEE' AND actor_employee_id IS NOT NULL AND actor_system_code IS NULL)
+   OR
+   (actor_kind='SYSTEM' AND actor_employee_id IS NULL
+    AND actor_system_code='F05_2_GOVERNANCE_INVALIDATION'
+    AND actor_context->>'trigger'='f05_2_governance_invalidate')
+ )
 );
 CREATE FUNCTION public.f05_2_audit_immutable() RETURNS trigger
  LANGUAGE plpgsql AS $$
@@ -85,7 +99,10 @@ CREATE FUNCTION public.f05_2_governance_invalidate() RETURNS trigger
        WHERE e.main_role_id=COALESCE(NEW.role_id,OLD.role_id)
      LOOP
        -- Each affected employee's current steward link is closed once and audited.
-       PERFORM public.f05_2_close_steward_links(invalidated.actor,NULL,NULL,'ROLE_TEMPLATE_CHANGE');
+       PERFORM public.f05_2_close_steward_links(invalidated.actor,NULL,NULL,'ROLE_TEMPLATE_CHANGE',
+         jsonb_build_object('source_table',TG_TABLE_NAME,'source_operation',TG_OP,
+          'governance_role_id',COALESCE(NEW.role_id,OLD.role_id),
+          'affected_employee_id',invalidated.actor));
      END LOOP;
      RETURN COALESCE(NEW,OLD);
    ELSIF TG_TABLE_NAME='stores' THEN
@@ -93,18 +110,23 @@ CREATE FUNCTION public.f05_2_governance_invalidate() RETURNS trigger
        SELECT t.team_id AS affected_team FROM public.teams t
        WHERE t.store_id=COALESCE(NEW.store_id,OLD.store_id)
      LOOP
-       PERFORM public.f05_2_close_steward_links(NULL,invalidated.affected_team,NULL,'STORE_STATE_CHANGE');
+       PERFORM public.f05_2_close_steward_links(NULL,invalidated.affected_team,NULL,'STORE_STATE_CHANGE',
+         jsonb_build_object('source_table',TG_TABLE_NAME,'source_operation',TG_OP,
+          'governance_store_id',COALESCE(NEW.store_id,OLD.store_id),
+          'affected_team_id',invalidated.affected_team));
      END LOOP;
      RETURN COALESCE(NEW,OLD);
    END IF;
-   PERFORM public.f05_2_close_steward_links(who,team,vehicle,'GOVERNANCE_'||TG_TABLE_NAME);
+   PERFORM public.f05_2_close_steward_links(who,team,vehicle,'GOVERNANCE_'||TG_TABLE_NAME,
+     jsonb_build_object('source_table',TG_TABLE_NAME,'source_operation',TG_OP,
+      'affected_employee_id',who,'affected_team_id',team,'affected_vehicle_id',vehicle));
    IF TG_OP='DELETE' THEN RETURN OLD; END IF;
    RETURN NEW;
  END
  $$;
 -- Current responsibilities are closed and immutable audit inserted atomically;
 -- the originating trigger transaction's COMMIT decides which request wins.
-CREATE FUNCTION public.f05_2_close_steward_links(who BIGINT, team BIGINT, vehicle BIGINT, cause TEXT)
+CREATE FUNCTION public.f05_2_close_steward_links(who BIGINT, team BIGINT, vehicle BIGINT, cause TEXT, governance_context JSONB)
  RETURNS VOID LANGUAGE plpgsql AS $$
  DECLARE rowx RECORD;
  BEGIN
@@ -119,13 +141,32 @@ CREATE FUNCTION public.f05_2_close_steward_links(who BIGINT, team BIGINT, vehicl
        AND ((who IS NOT NULL AND x.responsible_employee_id=who) OR
             (team IS NOT NULL AND x.team_id=team) OR
             (vehicle IS NOT NULL AND x.vehicle_id=vehicle))
-     RETURNING x.responsibility_id,x.responsible_employee_id
+     RETURNING x.responsibility_id,x.responsible_employee_id,x.version,x.revoked_at,
+               x.vehicle_id,x.listing_cycle_id,x.team_id
    LOOP
+     -- The PostgreSQL trigger proves automatic causality, NOT the identity of
+     -- whichever human (if any) initiated the upstream governance write.
+     -- Never copy the revoked subject into actor_employee_id.
      INSERT INTO public.vehicle_responsibility_audit_events
-       (responsibility_id,event_key,event_kind,actor_employee_id,previous_employee_id,source_evidence)
+       (responsibility_id,event_key,event_kind,actor_kind,actor_employee_id,
+        actor_system_code,actor_context,previous_employee_id,current_employee_id,
+        before_state,after_state,source_evidence)
      VALUES(rowx.responsibility_id,
        'auto:'||rowx.responsibility_id||':'||txid_current()::text||':'||cause,
-       'REVOKE',rowx.responsible_employee_id,rowx.responsible_employee_id,
+       'REVOKE','SYSTEM',NULL,'F05_2_GOVERNANCE_INVALIDATION',
+       jsonb_build_object('trigger','f05_2_governance_invalidate',
+         'causal_action','GOVERNANCE_AFTER_ROW_TRIGGER','cause',cause,
+         'transaction_id',txid_current(),'database_actor',current_user,
+         'source',governance_context),
+       rowx.responsible_employee_id,NULL,
+       jsonb_build_object('active',true,'version',rowx.version-1,
+         'revoked_at',NULL,'vehicle_id',rowx.vehicle_id,
+         'listing_cycle_id',rowx.listing_cycle_id,'team_id',rowx.team_id,
+         'responsible_employee_id',rowx.responsible_employee_id),
+       jsonb_build_object('active',false,'version',rowx.version,
+         'revoked_at',rowx.revoked_at,'vehicle_id',rowx.vehicle_id,
+         'listing_cycle_id',rowx.listing_cycle_id,'team_id',rowx.team_id,
+         'responsible_employee_id',rowx.responsible_employee_id),
        'F05_2_CI_AUTOMATIC_INVALIDATION_'||cause);
    END LOOP;
  END
