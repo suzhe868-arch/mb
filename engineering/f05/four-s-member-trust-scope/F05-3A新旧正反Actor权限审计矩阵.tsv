@@ -1,0 +1,15 @@
+案例	Actor	治理来源	当前Vehicle归属	预期结果	审计保证
+Q01	4S本人2	无Admin签发许可	新车未创建	403/SOURCE_GAP	无直接seed、无自动Owner
+Q02	真实System Admin9	当前active管理员Session	向4S本人2颁发首发资格	受控授权成功	ADMIN_GRANT实名Actor，before/after
+Q03	4S本人2	System Admin已签有效创建许可	同事务新Vehicle+Cycle+本人Scope	200（最小detail）	MEMBER_PUBLISH=本人真实Session
+Q04	另一4S本人8	自己无本车责任	访问Q03车辆	403	账号不共享经营Scope
+Q05	名邦员工/经理/系统管理员	无4S个人对象范围	访问Q03车辆	403	治理Actor不是车主
+Q06	4S本人2	来自名邦员工1上传的four_s车辆	旧车49004/59251	403	不把source_type转为本人责任
+Q07	4S本人2	JYT wholesale/名邦明邦车辆	49006/49002	403	来源不符
+Q08	4S本人2	当前有效许可但请求旧Vehicle	历史已存在Vehicle	403	禁止追认owner
+Q09	4S本人2	Admin许可撤销	Q03已签车辆	403	ADMIN_REVOKE+SYSTEM_OBJECT_REVOKE
+Q10	4S本人2	permission deny/账号停用/角色修改	Q03历史车辆	403	SYSTEM_LICENSE_REVOKE；复原不复活
+Q11	4S本人2	合法创建许可仍有效	旧cycle结束或sourceType改变	403	SYSTEM因果撤销
+Q12	4S本人2	许可撤销与首发并发	最后提交顺序决定	许可仍有效时可发布，撤销提交后403	双真实PG16连接锁/CAS
+Q13	4S本人2	本人已签新车	导出/列表/复制/缓存/打印/历史	403	仅detail有限返回
+Q14	外部请求	伪装owner/merchant/team/header/cookie	访问任何4S当前车	403	JWT/参数均不取代当前DB Scope
