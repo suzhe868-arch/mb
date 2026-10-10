@@ -10,8 +10,8 @@ try{
  assert.equal((await verify(c)).verified,true);
  const r=await auth.login({login:'http_test',password:'SyntheticN_2026_CI_Authority',source:'g_precommit'});
  assert.equal(r.code,'AUTH_OK');
- for(const [batch,item,src] of [[97001,17601,76],[97002,17602,77],[97003,17603,78]]){
-  const result=await H(auth,r.token,{batchId:batch,itemId:item,fromEmployeeId:src,recipientEmployeeId:4,teamId:901,clientRequestKey:'g-m94-genuine-source-'+batch});
+ for(const [batch,item,src] of [[97001,17601,76],[97002,17602,77],[97003,17603,78],[97004,17604,4]]){
+  const result=await H(auth,r.token,{batchId:batch,itemId:item,fromEmployeeId:src,recipientEmployeeId:batch===97004?6:4,teamId:901,clientRequestKey:'g-m94-genuine-source-'+batch});
   assert.equal(result.code,'H03_OWNER_DOMAIN_TRANSFERRED',JSON.stringify(result));
  }
  console.log('G_M94_THREE_ACTUAL_H_RECEIPTS_BEFORE_000014_PASS');
