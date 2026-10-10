@@ -23,7 +23,7 @@
 
 ## 三、复验必要证据
 
-- R-A01～A14：独立真实PG16物理测试，含14项现时对象责任和事务并发断言。
+- R-A01～A16：独立真实PG16物理测试，含16项现时对象责任、治理撤销、并发和事务COMMIT断言。
 - R-B01～B11：实际loopback TLS+真实Session+真PG16读写，含11项反例与最小合法 200。
 - `runner.mjs --inject-rollback/--apply/--verify`：原生结构/版本检查、隔离守卫、DDL注入回滚、非特权用户。
 - `evidence.mjs --record`：原始/新增 schema catalog、原生 PG16 schema-only SQL、变更diff、来源链、sha256、真正测试控制台输出。

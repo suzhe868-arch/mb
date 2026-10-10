@@ -37,3 +37,5 @@ R-B08	HTTPS撤权与权限恢复	签发记录因deny终止,重新allow仍403;新
 R-B09	显式revoke和历史审计	撤权后即使会话有效仍403	403	A-02
 R-B10	Receiver inactive→active + 新登录	旧签发责任不复活	403	A-02
 R-B11	登出Cookie复用	已撤销Session不能借历史关系重新登录	403	A-01/04
+R-A15	独立PG16当前scope变更与Vehicle读冲突	同scope终止/再授权与Vehicle现时读取互斥,生效之后旧责任不可复活	COMMIT有序/403	A-02/04
+R-A16	受信发布事务与vehicle.manage权限撤销同时发生	同Session签发前权限检查,不同PG16连接更新cap不得越过当前签发事务的Commit;恢复cap不复活旧证	COMMIT有序/403	A-03/04
