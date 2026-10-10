@@ -85,19 +85,23 @@ export async function verifyLiveHandoverChain(c,item,originalTeamId){
  if(!item||!Object.hasOwn(domain,item.object_kind)&&item.object_kind!=='Priority'||!/^[1-9][0-9]{0,17}$/.test(item.object_id)||item.status!=='completed')return {ok:false,code:'G_LIVE_ITEM_INVALID'};
  if(item.object_kind!=='Priority'){
   const d=domain[item.object_kind];
-  const obj=(await c.query('SELECT * FROM public.'+d[2]+' WHERE '+d[1]+'=$1',[item.object_id])).rows[0];
+  const obj=(await c.query('SELECT * FROM public.'+d[2]+' WHERE '+d[1]+'=$1 FOR SHARE',[item.object_id])).rows[0];
   if(!obj)return {ok:false,code:'G_LIVE_OBJECT_MISSING'};
+  const customer=(await c.query('SELECT customer_id FROM public.customers WHERE customer_id=$1 FOR UPDATE',[obj.customer_id])).rows[0];
+  if(!customer)return {ok:false,code:'G_LIVE_CUSTOMER_MISSING'};
   const result=await proof(c,item.object_kind,obj,item,originalTeamId);
   if(result.status!=='PROVEN_RECEIPT')return {ok:false,code:'G_LIVE_CHAIN_UNPROVEN',detail:result.status};
   return {ok:true,code:'G_LIVE_CHAIN_PROVEN',receiptId:result.receiptId};
  }
- const lease=(await c.query('SELECT * FROM public.priority_leases WHERE priority_id=$1',[item.object_id])).rows[0];
+ const lease=(await c.query('SELECT * FROM public.priority_leases WHERE priority_id=$1 FOR SHARE',[item.object_id])).rows[0];
  const now=(await c.query('SELECT clock_timestamp() now')).rows[0].now;
  if(!lease||lease.status!=='active'||lease.ended_at!==null||lease.expires_at<=now||lease.trigger_demand_id===null)return {ok:false,code:'G_PRIORITY_INVALID'};
- const matching=(await c.query("SELECT * FROM public.demand_match_results WHERE result_id=$1",[lease.source_match_result_id])).rows[0];
+ const matching=(await c.query("SELECT * FROM public.demand_match_results WHERE result_id=$1 FOR SHARE",[lease.source_match_result_id])).rows[0];
  if(!matching||String(matching.demand_id)!==String(lease.trigger_demand_id)||String(matching.vehicle_id)!==String(lease.vehicle_id)||String(matching.listing_cycle_id)!==String(lease.listing_cycle_id)||matching.current_state!=='current'||matching.invalidated_at!==null||!['high','acceptable'].includes(matching.match_tier))return {ok:false,code:'G_PRIORITY_MATCH_INVALID'};
- const d=(await c.query('SELECT * FROM public.demands WHERE demand_id=$1',[lease.trigger_demand_id])).rows[0];
+ const d=(await c.query('SELECT * FROM public.demands WHERE demand_id=$1 FOR SHARE',[lease.trigger_demand_id])).rows[0];
  if(!d||d.demand_state!=='active'||String(d.customer_id)!==String(lease.customer_id))return {ok:false,code:'G_PRIORITY_DEMAND_INVALID'};
+ const customer=(await c.query('SELECT customer_id FROM public.customers WHERE customer_id=$1 FOR UPDATE',[lease.customer_id])).rows[0];
+ if(!customer)return {ok:false,code:'G_PRIORITY_CUSTOMER_INVALID'};
  const employee=(await c.query('SELECT employment_status FROM public.employees WHERE employee_id=$1',[d.responsible_employee_id])).rows[0];
  if(employee?.employment_status!=='active')return {ok:false,code:'G_PRIORITY_EMPLOYEE_INVALID'};
  const itemRows=(await c.query("SELECT * FROM public.handover_items WHERE batch_id=$1 AND object_kind='Demand' AND object_id=$2 AND from_employee_id=$3 AND intended_to_employee_id=$4",[item.batch_id,String(lease.trigger_demand_id),item.from_employee_id,item.intended_to_employee_id])).rows;
