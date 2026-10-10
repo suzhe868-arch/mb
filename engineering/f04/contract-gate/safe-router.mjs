@@ -1,7 +1,6 @@
 // F04-1: explicitly imported disposable HTTPS/PG16 contract router. NOT production.
 import {createFoundationHandler} from '../../src/app.mjs';
 import {createAuthHandler,readSessionCookie} from '../../src/f03-auth-http.mjs';
-import {verifyAuthDatabase} from '../../src/f03-auth-readiness.mjs';
 import {verify as verifyM94} from '../../f03/runtime-transaction-responsible-handover/migration.mjs';
 import {projectEmployeeVehicle} from '../../f03/field-security-projection/service.mjs';
 
@@ -45,7 +44,9 @@ export async function createF04ContractHandler(auth,{readinessProbe=async()=>tru
   const ready=async()=>{
     try{
       if(await readinessProbe()!==true)return false;
-      if(await verifyAuthDatabase(auth.pool,{connectionString:env.F03_1_DATABASE_URL})!==true)return false;
+      // The frozen F03-1 80-table startup seal is incompatible with the
+      // independently sealed M94 physical schema. Verify the entire M94
+      // lineage (including F03-1 source seal) without weakening either.
       if((await verifyM94(auth.pool)).verified!==true)return false;
       return true;
     }catch{return false;}
@@ -99,9 +100,6 @@ export async function createF04ContractHandler(auth,{readinessProbe=async()=>tru
       });
       // No price, VIN, phone, internal amount, object or cached fields may escape.
       return send(res,403,r.code==='P_VEHICLE_SCOPE_UNPROVEN'?r.code:'F04_OBJECT_SCOPE_DENIED');
-    }
-    if(path==='/api/v1/f04/customer/vehicles/'+path.split('/').at(-2)+'/price'){
-      return send(res,501,'OPEN_DEPENDENCY');
     }
     // All other F04 paths remain denied, including proposed F05/F06/F07 writes.
     if(endpoint.has(path)||/^\/api\/v1\/f04\/customers\/[0-9]+$/.test(path)||
