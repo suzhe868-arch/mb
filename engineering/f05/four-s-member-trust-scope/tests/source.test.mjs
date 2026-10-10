@@ -45,8 +45,8 @@ test('G-A05 Mingbang-uploaded four_s and wholesale are not member publication au
  const v=(await db.query("SELECT vehicle_id,source_type,created_by_employee_id FROM public.vehicles WHERE vehicle_id IN(49004,49006) ORDER BY vehicle_id")).rows;
  assert.deepEqual(v.map(x=>x.source_type),['four_s','wholesale']);
  assert.equal(Number(v[0].created_by_employee_id),1,'Mingbang uploader never promotes unrelated 4S member');
- assert.equal(await publishFourSVehicle(),Object.freeze({allowed:false,code:BLOCKED}));
- assert.equal(await issueFourSResponsibility(),Object.freeze({allowed:false,code:BLOCKED}));
+ assert.deepEqual(await publishFourSVehicle(),{allowed:false,code:BLOCKED});
+ assert.deepEqual(await issueFourSResponsibility(),{allowed:false,code:BLOCKED});
 });
 test('G-A06 system_admin, Mingbang sales and no Session do not substitute four_s trusted source',async()=>{
  for(const tok of [admin,staff,''])
