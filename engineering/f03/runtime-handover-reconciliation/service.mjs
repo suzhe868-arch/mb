@@ -42,8 +42,12 @@ async function proof(c,kind,obj,item,team){
 async function priority(c,obj,item){
  const r=(await c.query("SELECT d.customer_id dc,d.responsible_employee_id dr,d.demand_state ds,e.employment_status es,m.demand_id md,m.vehicle_id mv,m.listing_cycle_id ml,m.match_tier tier,m.current_state ms,m.invalidated_at mi FROM public.demands d JOIN public.demand_match_results m ON m.result_id=$2 JOIN public.employees e ON e.employee_id=d.responsible_employee_id WHERE d.demand_id=$1",[obj.trigger_demand_id,obj.source_match_result_id])).rows[0];
  if(!r||obj.status!=='active'||obj.ended_at!==null||obj.expires_at<=new Date()||r.ds!=='active'||r.es!=='active'||str(r.dc)!==str(obj.customer_id)||str(r.md)!==str(obj.trigger_demand_id)||str(r.mv)!==str(obj.vehicle_id)||str(r.ml)!==str(obj.listing_cycle_id)||!['high','acceptable'].includes(r.tier)||r.ms!=='current'||r.mi!==null||str(r.dr)!==str(item.intended_to_employee_id))return {status:'DERIVATION_UNPROVEN'};
- const last=(await c.query('SELECT to_employee_id FROM public.demand_responsible_handover_receipts WHERE demand_id=$1 ORDER BY committed_at DESC,receipt_id DESC LIMIT 1',[obj.trigger_demand_id])).rows[0];
- return last&&str(last.to_employee_id)===str(r.dr)?{status:'PRIORITY_DERIVED_ONLY',triggerDemandId:Number(obj.trigger_demand_id),ttlUnmodified:true}:{status:'DERIVATION_UNPROVEN'};
+ const last=(await c.query('SELECT * FROM public.demand_responsible_handover_receipts WHERE demand_id=$1 ORDER BY committed_at DESC,receipt_id DESC LIMIT 1',[obj.trigger_demand_id])).rows[0];
+ if(!last||str(last.to_employee_id)!==str(r.dr)||str(last.scope_team_id)!==str(item.scope_team_id??last.scope_team_id))return {status:'DERIVATION_UNPROVEN'};
+ const d=(await c.query('SELECT * FROM public.demands WHERE demand_id=$1',[obj.trigger_demand_id])).rows[0];
+ const i=(await c.query('SELECT * FROM public.handover_items WHERE item_id=$1',[last.item_id])).rows[0];
+ if(!d||!i||(await proof(c,'Demand',d,i,last.scope_team_id)).status!=='PROVEN_RECEIPT')return {status:'DERIVATION_UNPROVEN'};
+ return {status:'PRIORITY_DERIVED_ONLY',triggerDemandId:Number(obj.trigger_demand_id),ttlUnmodified:true};
 }
 async function examine(c,actor,team,item){
  const kind=item.object_kind,d=domain[kind];
@@ -78,11 +82,11 @@ export async function reconcileHandoverBatchReadOnly(auth,token,p,opts={}){
   const inspect=async()=>{const out=[];for(const item of items)out.push(await examine(c,a.employee_id,p.teamId,item));return out};
   const first=await inspect();if(opts.testCheckpoint)await opts.testCheckpoint('before_last_guard',c);
   const last=await inspect();const fresh=(await c.query('SELECT * FROM public.handover_items WHERE batch_id=$1 ORDER BY item_id',[p.batchId])).rows;
-  if(JSON.stringify(first)!==JSON.stringify(last)||JSON.stringify(items)!==JSON.stringify(fresh))return deny('N08_DRIFT_DEFER_DENY');
+  if(JSON.stringify(first)!==JSON.stringify(last)||JSON.stringify(items)!==JSON.stringify(fresh))throw Object.assign(new Error('N_READ_ONLY_CURRENT_FACT_DRIFT_ROLLBACK'),{code:'N08_ROLLBACK'});
   const refund=(await c.query("SELECT count(*)::int n FROM public.refund_cases WHERE status='pending' AND customer_id IN (SELECT customer_id FROM public.customers WHERE current_owner_employee_id=$1)",[b.source_employee_id])).rows[0].n;
   const complete=refund===0&&first.every(x=>['PROVEN_RECEIPT','PRIORITY_DERIVED_ONLY'].includes(x.status));
   return deny('N03_RECONCILED_READ_ONLY',{batchId:p.batchId,items:first,observedItemCount:first.length,pendingRefundBlocker:refund>0,observedReadOnlyState:complete?'ALL_OBSERVED_ITEMS_RECONCILED_READ_ONLY':'DEFER_DENY',batchStatusUnchanged:true});
- },{normalOnly:true})??deny('N02_SESSION_DENY')}catch(e){if(['55P03','40P01','57014','40001'].includes(e.code))return deny('N08_DRIFT_DEFER_DENY');throw e}
+ },{normalOnly:true})??deny('N02_SESSION_DENY')}catch(e){if(e.code==='N08_ROLLBACK'||['55P03','40P01','57014','40001'].includes(e.code))return deny('N08_DRIFT_DEFER_DENY');throw e}
 }
 export const prepareHandoverReconciliationReadOnly=reconcileHandoverBatchReadOnly;
 export const readHandoverReconciliationReadOnly=reconcileHandoverBatchReadOnly;
