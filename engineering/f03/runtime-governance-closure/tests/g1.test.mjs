@@ -115,3 +115,29 @@ test('G1 real PG16 batch before_commit drift rolls back batch completion and app
  assert.equal((await db.query("SELECT count(*)::int n FROM public.audit_events WHERE object_kind='handover_batch' AND object_id='97002' AND action='sg06.batch.complete'")).rows[0].n,0);
  assert.equal((await db.query('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=37602')).rows[0].current_owner_employee_id,4);
 });
+
+
+test('G1 pending Refund for a customer after Customer owner moved blocks completed batch',async()=>{
+ const r=await commitHandoverItem(auth,token,{batchId:97003,itemId:17603,teamId:901,requestKey:'g1-third-true-customer-receipt'});
+ assert.equal(r.code,'G_ITEM_COMPLETED',JSON.stringify(r));
+ await db.query("INSERT INTO public.locks(lock_id,vehicle_id,customer_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) VALUES(99003,1001,37603,2001,'released',4,clock_timestamp()-interval '1 hour',clock_timestamp()+interval '2 hours')");
+ try{
+  await db.query("INSERT INTO public.refund_cases(refund_id,customer_id,lock_id,status) VALUES(99003,37603,99003,'pending')");
+  try{
+   const denial=await commitHandoverBatch(auth,token,{batchId:97003,teamId:901,requestKey:'g1-unpaid-refund-must-block'});
+   assert.equal(denial.code,'G_PENDING_REFUND',JSON.stringify(denial));
+   assert.notEqual((await db.query('SELECT status FROM public.handover_batches WHERE batch_id=97003')).rows[0].status,'completed');
+  }finally{await db.query('DELETE FROM public.refund_cases WHERE refund_id=99003')}
+ }finally{await db.query('DELETE FROM public.locks WHERE lock_id=99003')}
+});
+test('G1 two current managers cannot both close one batch with different request keys',async()=>{
+ const adminSession=(await auth.login({login:'race_test',password:'SyntheticRace_1234567',source:'g1_second_manager'})).token;
+ assert.ok(adminSession);
+ const attempts=await Promise.all([
+  commitHandoverBatch(auth,token,{batchId:97003,teamId:901,requestKey:'g1-race-0001'}),
+  commitHandoverBatch(auth,adminSession,{batchId:97003,teamId:901,requestKey:'g1-race-0002'})
+ ]);
+ const winners=attempts.filter(x=>x.code==='G_BATCH_COMPLETED');
+ assert.equal(winners.length,1,JSON.stringify(attempts));
+ assert.equal((await db.query("SELECT count(*)::int n FROM public.audit_events WHERE object_kind='handover_batch' AND object_id='97003' AND action='sg06.batch.complete'")).rows[0].n,1);
+});
