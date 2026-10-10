@@ -1,0 +1,47 @@
+序号	物理证据	业务验收目标	失败时拒绝	源权威
+A01	真实M94和新版本PG16	旧目录字节不变、物理2新表+审计及实际SHA	停止版本签发	PDM02/PDM04+F03M94
+A02	实际员工Session+Vehicle	未签发即不可读取	403	PDM02§4
+A03	独立认证审计发布事件+真实PG16	合成真实发布事件签发后最小读取	来源缺口拒签	PDM06§6
+A04	重复或不同事件号	幂等、不同意图拒绝	重复不得升权	PDM25§7
+A05	当前员工个人deny	即时失权恢复必须具许可	403	PDM02§4
+A06	Vehicle来源变化/ListingCycle结束	旧签发不得跨来源/周期复活	403	PDM04§6/9
+A07	真实Employee inactive和scope撤销	不得沿用历史授权	403	PDM02§9
+A08	4S/JYT未证关系及六出口	保守拒绝非独立批准业务	403	PDM02§3+PDM21
+A09	真实撤权事务+数据库审计触发	旧读拒绝、历史不可变	回滚拒绝删除已用历史	PDM25
+A10	正式经理+接收者真实权限事实	合法责任交接、旧责任结束、新责任可读	普通销售/旧版本拒	PDM02/PDM04
+A11	两独立PG16连接锁同一当前责任	NOWAIT捕获锁竞争不使用sleep	竞争访问数据库拒绝	F05-2正式单
+B01-B09	真实loopback HTTPS+真实PG16+Session	最小合法200与其他403无敏感泄露	不得扩散字段/缓存	PDM21/PDM25
+
+R-A01	新物理schema守卫/追加触发	M94原始catalog键值不变;版本000015和同SHA可查	隔离真PG16	A-02/04
+R-A02	旧Vehicle uploader和时间戳补签	旧表既存vehicle_id无后补owner;旧record/issue接口显式拒绝	403	A-03
+R-A03	正式人工车辆真实发布新事务	单事务先验Employee+scope再创建Vehicle+Cycle+签发责任审计;正向200	合法最小字段200	A-03
+R-A04	发布源事件重放/异身份换钥	签发严格幂等;另事件号/另actor/批发禁止回填	拒绝新owner	A-03
+R-A05	个人override deny→allow	旧Vehicle当前责任永久失效不可复活	403	A-02
+R-A06	source_type改变回退和ListingCycle结束后恢复	触发器持久关闭旧当前责任	403	A-02
+R-A07	inactive复职/scope撤发/调店回店	历史不可变,无第二合法业务签发不恢复	403	A-02
+R-A08	JYT旧4S与其他非详情出口	不得复用Employee团队或VisibilityGrant为新Vehicle对象授权	403	A-01/03
+R-A09	正式撤权/历史不可变	原责任受控撤销,审计防篡改,有数据回滚拒绝	403	A-02
+R-A10	跨同Team责任交接	原Sales 403,新Sales 200,经理有两个独立cap且scope有效才200	各对象动态权限	A-01
+R-A11	两物理PG16连接read与override更新碰撞	真Session在签发责任行持FOR SHARE与actor治理advisory锁,撤权事务lock_timeout,随后COMMIT后403	COMMIT有序	A-04
+R-A12	PG16读和Vehicle来源修改碰撞	FOR SHARE与真实UPDATE冲突,读提交后变更使旧关系永久失效	COMMIT有序	A-04
+R-A13	并行同一事件键真实发布	两个并行Session只落一条责任记录与发布审计,其余幂等	ONE_CURRENT	A-03/04
+R-A14	manager交接与Receiver失权并发	actor+接收人治理锁,另一PG16更新override不能抢先提交,正式事务之后立即撤权	COMMIT有序	A-04
+R-B01	旧车HTTPS回归	旧source类型与上传人不能授权	403	A-03
+R-B02	真TLS正式新人工车发布	实际PG16当前关系与Session+最小payload三字段	200	A-03
+R-B03	4S来源和批发区别	合法名邦员工发布4S车辆可读,4S账号不自动代管	200/403	A-01/03
+R-B04	admin/no session/前端伪造范围	拒绝系统管理身份和自报owner/team/merchant	403	A-01
+R-B05	安全范围与敏感出口	只有detail批准,其他六出口无隐私泄露	403	A-01
+R-B06	重复Cookie、Bearer、旧Collector	方法/Session/path校验防止扩权	403/405	A-01
+R-B07	交接后原普通销售HTTPS回归	old same-team Sales403,new Sales200,有证Manager200/无证403	动态对象权限	A-01
+R-B08	HTTPS撤权与权限恢复	签发记录因deny终止,重新allow仍403;新合法发布可200	403/200	A-02
+R-B09	显式revoke和历史审计	撤权后即使会话有效仍403	403	A-02
+R-B10	Receiver inactive→active + 新登录	旧签发责任不复活	403	A-02
+R-B11	登出Cookie复用	已撤销Session不能借历史关系重新登录	403	A-01/04
+R-A15	独立PG16当前scope变更与Vehicle读冲突	同scope终止/再授权与Vehicle现时读取互斥,生效之后旧责任不可复活	COMMIT有序/403	A-02/04
+R-A16	受信发布事务与vehicle.manage权限撤销同时发生	同Session签发前权限检查,不同PG16连接更新cap不得越过当前签发事务的Commit;恢复cap不复活旧证	COMMIT有序/403	A-03/04
+
+R-A17	人员权限治理（另一PG16 actor）触发撤权	SYSTEM+NULL human，previous_employee保留原被影响员工；记录触发器、表/操作、前后版本和PG txid	实证日志待最终CI	A-F05-2-05
+R-A18	员工inactive时撤权而其后又复职	旧历史记录SYSTEM而非已inactive员工，不允许复职改写	实证日志待最终CI	A-F05-2-05
+R-A19	实名ISSUE、员工直接REVOKE和经理TRANSFER	真实Session Employee actor=1/6；交接经理=6、old owner=1、new owner=7	实证日志待最终CI	A-F05-2-05
+R-A20	重复治理触发与历史变更尝试	旧责任不复活、SYSTEM审计不重复；UPDATE因immutable被拒	实证日志待最终CI	A-F05-2-05
+R-A21	伪SYSTEM携human或伪EMPLOYEE无actor	PG16 CHECK返回23514；仅合法历史事件留存	实证日志待最终CI	A-F05-2-05
