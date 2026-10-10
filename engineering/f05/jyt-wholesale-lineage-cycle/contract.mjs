@@ -125,9 +125,16 @@ export async function syncUpsert(auth,token,p,{checkpoint}={}){
  return transactional(auth,token,'upsert',async(c,credentialId)=>{
   await c.query('SELECT pg_advisory_xact_lock(20261011,hashtext($1))',['JYT:'+p.carCode]);
   const prev=(await c.query('SELECT * FROM public.f05_3b_sync_receipts WHERE event_key=$1 FOR SHARE',[p.eventKey])).rows[0];
-  if(prev)return prev.payload_sha256===serialize(p)&&prev.action==='upsert'
-   ?ok('F05_3B_EVENT_ALREADY_PROCESSED',{vehicleId:prev.vehicle_id===null?null:Number(prev.vehicle_id),outcome:prev.outcome})
-   :deny('F05_3B_EVENT_KEY_PAYLOAD_COLLISION');
+  if(prev){
+   if(prev.payload_sha256!==serialize(p)||prev.action!=='upsert')
+    return deny('F05_3B_EVENT_KEY_PAYLOAD_COLLISION');
+   // Idempotence must preserve a prior denial; an anomaly replay may never
+   // turn the original unsafe source event into an apparent success.
+   if(prev.outcome==='IDENTITY_CONFLICT')return deny('F05_3B_CORE_IDENTITY_ANOMALY');
+   if(prev.outcome==='CONVERTED_SUPPRESSED')return deny('F05_3B_CONVERTED_UPSTREAM_SUPPRESSED');
+   return ok('F05_3B_EVENT_ALREADY_PROCESSED',
+    {vehicleId:prev.vehicle_id===null?null:Number(prev.vehicle_id),outcome:prev.outcome});
+  }
   const line=(await c.query("SELECT * FROM public.f05_3b_sync_lineages WHERE source_platform='JYT' AND car_code=$1 FOR UPDATE",[p.carCode])).rows[0];
   if(checkpoint)await checkpoint('source_locked',c);
   if(line){

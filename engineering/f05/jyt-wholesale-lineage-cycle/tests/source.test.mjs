@@ -130,6 +130,8 @@ test('B-A12 contradictory model/year is anomaly, cannot silently overwrite or ma
  // For a real model alternative, the actual verified identity must still be compared to immutable original.
  const bad=await syncUpsert(auth,token,candidate('core-id-still-bad','active',{brandId:97001,modelId:97003,modelYear:2024}));
  assert.equal(bad.allowed,false);
+ const replay=await syncUpsert(auth,token,candidate('core-id-changed','active',{modelYear:2025}));
+ assert.equal(replay.allowed,false,'original core anomaly replay must remain denied');
  assert.equal((await db.query('SELECT count(*)::int n FROM public.f05_3b_sync_lineages WHERE car_code=$1',[car])).rows[0].n,1);
  await assert.rejects(()=>db.query('UPDATE public.f05_3b_sync_lineages SET car_code=$1 WHERE vehicle_id=$2',['HACKED',vid]),/F05_3B_LINEAGE_IDENTITY_IMMUTABLE/);
 });
@@ -180,6 +182,8 @@ test('B-A16 converted wholesale historical car_code never becomes second Vehicle
  assert.equal(collision.code,'F05_3B_CONVERTED_UPSTREAM_SUPPRESSED','converted historical JYT identity conflict must AUTO suppress, never manual review');
  const suppressed=(await db.query("SELECT outcome FROM public.f05_3b_sync_receipts WHERE event_key=$1",[ev('converted-different-model-year')])).rows[0];
  assert.equal(suppressed.outcome,'CONVERTED_SUPPRESSED');
+ const replay=await syncUpsert(auth,token,candidate('converted-different-model-year','active',{modelYear:2023}));
+ assert.equal(replay.code,'F05_3B_CONVERTED_UPSTREAM_SUPPRESSED','repeat suppressed event cannot become accepted');
  assert.equal((await db.query('SELECT source_type FROM public.vehicles WHERE vehicle_id=$1',[vid])).rows[0].source_type,'mingbang');
  const a=(await db.query("SELECT outcome,actor_kind FROM public.f05_3b_sync_receipts WHERE event_key=$1",[ev('converted-source-identity')])).rows[0];
  assert.equal(a.outcome,'CONVERTED_SUPPRESSED');assert.equal(a.actor_kind,'INTEGRATION');
