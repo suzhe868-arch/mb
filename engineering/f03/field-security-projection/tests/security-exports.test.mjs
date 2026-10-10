@@ -18,14 +18,12 @@ test.before(async()=>{
 });
 test.after(async()=>{await auth.close();await db.end();secret.fill(0)});
 const p=view=>({vehicleId:39001,teamId:901,view});
-test('P2 current manager reads minimally allowed fields for detail/cache/export/history/print',async()=>{
+test('P2 current CRM manager cannot use CRM scope as vehicle detail/export permission',async()=>{
  for(const view of ['detail','history','cache','export','copy','print']){
   const r=await projectEmployeeVehicle(auth,token,p(view));
-  assert.equal(r.code,'P_EMPLOYEE_REDACTED',JSON.stringify(r));
-  assert.equal(r.fields.price,9880000);
-  assert.equal(r.internalPrice,null);
-  assert.equal(r.publisherPhone,null);
-  assert.ok(!JSON.stringify(r).includes('9100000'));
+  assert.equal(r.code,'P_VEHICLE_SCOPE_UNPROVEN',JSON.stringify(r));
+  assert.equal(r.fields,undefined);
+  assert.equal(r.deferredTo,'F04_F07_SIGNED_OBJECT_OWNERSHIP');
  }
 });
 test('P2 invalid/restricted/System Admin/4S sessions denied',async()=>{
