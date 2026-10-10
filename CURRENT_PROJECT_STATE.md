@@ -1,3 +1,12 @@
+# 2026-10-10｜F04-4 A二轮独立验收通过、PR29合并；F05-1车辆可信归属与最小安全投影完整施工单放行（唯一最新）
+
+- **正式F04-4验收与合并**：B最终SHA `92452b124c293bfe646cea99d3a8afd46e54f2e8`；[Actions #38053741869](https://github.com/suzhe868-arch/mb/actions/runs/38053741869)同SHA**32/32真正独立非特权PG16 jobs success**，新Source 18/18、Consumer TLS 8/8，45份原生Artifacts，新Source `11670013141`及TLS `11670647334`；A独立比较旧30个job逐一正文未修改，14个新增文件仅在F04-4批准白名单。PR [#29](https://github.com/suzhe868-arch/mb/pull/29)由A二轮正面复核评论`6097766248`正式许可并**标准合并**，merge SHA **`8de73cdf0fa89d3aa02af9a352b5e203e66e8bb8`**。正式A验收报告：`07_重建工作区/F04-4_A主控二轮独立验收PR29正式合并与F05-1交接_2026-10-10.md`。旧阻断`A-F04-4-01=PASS/CLOSED`。
+- **DTO实际边界（不能混淆）**：新增8项Current动作有真实意图来源，但只**1项Vehicle source_type修改有合法最小CI合成typed字段**`vehicleId/targetSourceType∈{名邦,4S}`，物理wire/scope仍待后续证实；其余**7项INTENT_ONLY_CI_CONTRACT/REQUEST_SCHEMA_SOURCE_GAP**，禁止冒称8个可执行生产DTO。Current逐原文437项，三向桥接258项，旧215=23同动作有证/192 SOURCE_GAP且全部UNDECIDED、3 Collector禁恢复；Page Manifest标题140 logical与可检表行132差8保留SOURCE_GAP、不造页面、不阻本批签收。F04整体、C/H01、真实业务接口、V1总基线继续`NOT_READY`。
+- **唯一新工程工作包**：A已正式下发`07_重建工作区/F05-1_A主控Vehicle可信归属与最小安全投影完整施工单_2026-10-10.md`，**`F05_1_A_RELEASED_FOR_B / B_NOT_STARTED / NEXT_OWNER=B`**。B必须从执行时最新main新建`feat/f05-1-vehicle-scope-safe-projection`，按当前Final/IA/Low-Fi核M94真实Vehicle/ListingCycle/三种车源及员工/4S归属scope，独立字段白名单安全投影和HTTPS现时Session安全；无可信物理scope一律403，不用uploader/store/CRM owner/客户端merchant字段发放业务权限；**禁止本包新DDL、旧迁移/冻结代码改动、生产server接线/资金/第三方业务写入**，将实际缺口/独立迁移方案归F05-2。新专属workflow冻结原32真PG16旧job+独立2个真PG16，最终**34/34个独立PG16 success、B HEAD=PR HEAD=run.head_sha、两新原生Artifacts**与中文交接后交A独立验收。
+- **当前A主控已完成所有合法签收、合并、报告与新工作单放行；不需要用户做技术子项确认。** 本节覆盖上一段F04-4 A_CHANGES_REQUESTED / PR29未合并的历史指针，但其审计事实及首次整改单持续留库。
+
+---
+
 # 2026-10-10｜F04-4 B同SHA32/32真PG16成功，但A独立审查发现新增动作DTO业务语义单项阻断（唯一最新）
 
 - **B交审的工程测试/证据真实成立**：PR [#29](https://github.com/suzhe868-arch/mb/pull/29) 指定`feat/f04-4-current-action-coverage-gate`最终HEAD `3e2e5a2f27c2c88dbc595f3312a6520f843c6a84`，与[Actions 38051029689](https://github.com/suzhe868-arch/mb/actions/runs/38051029689) head SHA逐字相同；分页全取真实**32/32独立非特权PostgreSQL16 jobs success**，**45份原生Artifacts**（新Source `11669133122`、新TLS `11669622637`），14个新增文件严格在白名单，不改F03/F04-1/2/3冻结旧代码/工作流及000001～000014/产品Final/IA/C。437条逐原文Current来源、258条旧新三向桥接、旧215个23 matched/192 SOURCE_GAP及3个Collector禁恢复核账仍保留。上述测试绿灯不自动等于A通过。
