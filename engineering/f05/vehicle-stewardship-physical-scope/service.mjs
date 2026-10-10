@@ -119,9 +119,11 @@ export async function revokeCurrentResponsibility(auth,token,p){
  if(!shape(p,'eventKey,responsibilityId,version')||![p.responsibilityId,p.version].every(valid)||!eventKey(p.eventKey))return deny('F05_2_REVOKE_INPUT');
  await verify(auth.pool);
  return session(auth,token,async(c,actor)=>{
+  const locator=(await c.query('SELECT vehicle_id FROM public.vehicle_current_responsibilities WHERE responsibility_id=$1',[p.responsibilityId])).rows[0];
+  if(!locator)return deny('F05_2_REVOKED_OR_STALE');
+  const v=await lookup(c,Number(locator.vehicle_id),{exclusive:true});
   const r=(await c.query('SELECT * FROM public.vehicle_current_responsibilities WHERE responsibility_id=$1 FOR UPDATE',[p.responsibilityId])).rows[0];
   if(!r||r.revoked_at||Number(r.version)!==p.version)return deny('F05_2_REVOKED_OR_STALE');
-  const v=await lookup(c,Number(r.vehicle_id),{exclusive:true});
   if(!v||Number(v.listing_cycle_id)!==Number(r.listing_cycle_id)||v.source_type!==r.source_snapshot)
    return deny('F05_2_SOURCE_OR_CYCLE_CHANGED');
   if(!await currentCapability(c,actor,Number(r.team_id),'vehicle.manage'))return deny('F05_2_REVOKER_SCOPE_DENIED');
@@ -131,6 +133,45 @@ export async function revokeCurrentResponsibility(auth,token,p){
   return ok('F05_2_REVOKED');
  });
 }
+// Formal CI-only stewardship handover requires a separate manager actor with actual
+// current Vehicle manage scope, eligible target permission+scope, and locked CAS history.
+export async function transferCurrentResponsibility(auth,token,p){
+ if(!shape(p,'eventKey,responsibilityId,teamId,targetEmployeeId,version')||
+    ![p.responsibilityId,p.teamId,p.targetEmployeeId,p.version].every(valid)||!eventKey(p.eventKey))
+    return deny('F05_2_TRANSFER_INPUT_DENIED');
+ await verify(auth.pool);
+ return session(auth,token,async(c,actor)=>{
+  const role=(await c.query("SELECT r.role_code FROM public.employees e JOIN public.roles r ON r.role_id=e.main_role_id WHERE e.employee_id=$1 AND e.employment_status='active' FOR SHARE OF e",[actor])).rows[0]?.role_code;
+  if(!['manager','store_head'].includes(role)||actor===p.targetEmployeeId)return deny('F05_2_TRANSFER_MANAGER_REQUIRED');
+  // Keep the same lock order for issue, revoke and transfer: Vehicle -> current relationship.
+  const locator=(await c.query("SELECT vehicle_id FROM public.vehicle_current_responsibilities WHERE responsibility_id=$1",[p.responsibilityId])).rows[0];
+  if(!locator)return deny('F05_2_TRANSFER_SOURCE_MISSING');
+  const v=await lookup(c,Number(locator.vehicle_id),{exclusive:true});
+  if(!basic(v))return deny('F05_2_TRANSFER_VEHICLE_INVALID');
+  const old=(await c.query("SELECT * FROM public.vehicle_current_responsibilities WHERE responsibility_id=$1 FOR UPDATE",[p.responsibilityId])).rows[0];
+  if(!old||old.revoked_at||Number(old.version)!==p.version||
+     Number(old.listing_cycle_id)!==Number(v.listing_cycle_id)||
+     Number(old.team_id)!==p.teamId||old.source_snapshot!==v.source_type||
+     Number(old.responsible_employee_id)===p.targetEmployeeId)
+   return deny('F05_2_TRANSFER_STALE');
+  if(!await currentCapability(c,actor,p.teamId,'vehicle.manage')||
+     !await currentCapability(c,p.targetEmployeeId,p.teamId,'vehicle.manage')||
+     !await currentCapability(c,p.targetEmployeeId,p.teamId,'vehicle.read'))
+   return deny('F05_2_TRANSFER_PERMISSION_OR_RECEIVER_DENIED');
+  const existed=(await c.query('SELECT responsibility_id FROM public.vehicle_current_responsibilities WHERE trusted_event_key=$1',[p.eventKey])).rows[0];
+  if(existed)return deny('F05_2_TRANSFER_REPLAY_OR_COLLISION');
+  await c.query("UPDATE public.vehicle_current_responsibilities SET revoked_at=transaction_timestamp(),version=version+1 WHERE responsibility_id=$1 AND version=$2",[p.responsibilityId,p.version]);
+  const next=(await c.query("INSERT INTO public.vehicle_current_responsibilities(vehicle_id,listing_cycle_id,responsible_employee_id,team_id,source_snapshot,provenance_kind,trusted_event_key,issuer_employee_id) VALUES($1,$2,$3,$4,$5,'AUTHORIZED_FORMAL_HANDOVER',$6,$7) RETURNING responsibility_id",
+   [v.vehicle_id,v.listing_cycle_id,p.targetEmployeeId,p.teamId,v.source_type,p.eventKey,actor])).rows[0];
+  // Two append-only audit facts: old owner ended and current steward accepted in the same TX.
+  await c.query("INSERT INTO public.vehicle_responsibility_audit_events(responsibility_id,event_key,event_kind,actor_employee_id,previous_employee_id,current_employee_id,source_evidence) VALUES($1,$2,'TRANSFER',$3,$4,$5,$6)",
+   [p.responsibilityId,'old:'+p.eventKey,actor,old.responsible_employee_id,p.targetEmployeeId,'PDM04_PDM02_AUTHORITATIVE_MANAGER_TRANSFER']);
+  await c.query("INSERT INTO public.vehicle_responsibility_audit_events(responsibility_id,event_key,event_kind,actor_employee_id,previous_employee_id,current_employee_id,source_evidence) VALUES($1,$2,'TRANSFER',$3,$4,$5,$6)",
+   [next.responsibility_id,'new:'+p.eventKey,actor,old.responsible_employee_id,p.targetEmployeeId,'PDM04_PDM02_AUTHORITATIVE_MANAGER_TRANSFER']);
+  return ok('F05_2_TRANSFERRED',{responsibilityId:Number(next.responsibility_id)});
+ });
+}
+
 export async function readMinimalCurrentVehicle(auth,token,p){
  if(!shape(p,'outlet,vehicleId')||!valid(p.vehicleId)||p.outlet!=='detail')return deny('F05_2_DETAIL_ONLY');
  return session(auth,token,async(c,actor)=>{
