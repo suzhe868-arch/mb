@@ -31,7 +31,7 @@ test('F04-3-A06 proposed-only cannot forge existing contract approval, extra ope
  assert.throws(()=>validateRegistry(registry,JSON.stringify(copy),bridge),/OPENAPI_CONTRACT_DRIFT/);
 });
 test('F04-3-A07 proof of CRM minimal read cannot widen to full Customer or fake Vehicle scope',()=>{
- assert.throws(()=>validateRegistry(modify('CURRENTACTION_CRM_SCOPE_MINIMAL_PROOF','scope','ANY_VEHICLE_ANY_EMPLOYEE'),spec,bridge),/CRM_PROOF_EXPANSION|OPENAPI_CONTRACT_DRIFT|FAKE/);
+ assert.throws(()=>validateRegistry(modify('CURRENTACTION_CRM_SCOPE_MINIMAL_PROOF','scope','ANY_VEHICLE_ANY_EMPLOYEE'),spec,bridge),/CRM_SCOPE_PROOF_EXPANSION|OPENAPI_CONTRACT_DRIFT|FAKE/);
 });
 test('F04-3-A08 Consultation PDM15, Waitlist PDM18 and F05 vehicle remain separate domains',()=>{
  const x=loadContracts(),a=x.find(r=>r.source_legacy_id==='LEGACY-019'),b=x.find(r=>r.source_legacy_id==='LEGACY-020');
