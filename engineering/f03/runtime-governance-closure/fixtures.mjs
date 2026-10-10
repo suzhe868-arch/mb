@@ -17,6 +17,8 @@ try{
   await c.query("INSERT INTO public.handover_batches(batch_id,source_employee_id,change_kind,status,initiated_by_kind,initiated_by_id,client_request_key,reason) VALUES($1,$2,$3,'pending_domain_handover','employee',5,$4,'synthetic G1 provenance transfer')",[batch,src,kind,'g-initial-batch-'+batch+'-ci']);
   await c.query("INSERT INTO public.handover_items(item_id,batch_id,object_kind,object_id,from_employee_id,intended_to_employee_id,status) VALUES($1,$2,'Customer',$3,$4,4,'pending')",[item,batch,String(customer),src]);
  }
+ await c.query("INSERT INTO public.handover_batches(batch_id,source_employee_id,change_kind,status,initiated_by_kind,initiated_by_id,client_request_key,reason) VALUES(97004,4,'planned_transfer','pending_domain_handover','employee',5,'g-successor-97004-CI','PG16 consecutive receipt')");
+ await c.query("INSERT INTO public.handover_items(item_id,batch_id,object_kind,object_id,from_employee_id,intended_to_employee_id,status) VALUES(17604,97004,'Customer','37602',4,6,'pending')");
  await c.query('COMMIT');
  console.log('G_PRE_MIGRATION_SYNTHETIC_STABLE_CUSTOMER_BATCHES_PASS');
 }catch(e){await c.query('ROLLBACK');throw e}finally{await c.end()}
