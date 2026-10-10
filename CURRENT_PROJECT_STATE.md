@@ -1,3 +1,12 @@
+# 2026-10-11｜F05-3A 第三轮A独立验收正式PASS、PR32已合并；F05-3B JYT可信批发来源新包正式放行（唯一最新）
+
+- **F05-3A已经A正式签收合并**：[PR32](https://github.com/suzhe868-arch/mb/pull/32) 最终B/PR受审HEAD `285d0c7519ed28803eddbf160d37493aa16d5e87` 与 [Actions 38087341051](https://github.com/suzhe868-arch/mb/actions/runs/38087341051) run.head_sha严格一致，官方**38/38独立非特权真PG16 job全部success**，冻结旧36 job全文不变，新真实物理**16/16**及HTTPS**11/11**，71份原生Artifacts、新物理`11681669932`和新TLS`11681904341`有效；PR18个文件全是本包新增白名单，无旧迁移/旧签工程/Final/IA/生产/C修改。A正式验收评论[6102629625](https://github.com/suzhe868-arch/mb/pull/32#issuecomment-6102629625)，A亲自标准merge SHA **`73a369554d98b3afac58c414fda1815aef190e42`**。
+- **历史三项安全阻断彻底关闭**：`A-F05-3A-01` PostgreSQL复合FK与不可变来源身份、读路径强制license/subject同4S员工；`02` 已撤销license+Vehicle当前责任物理不可恢复、不可删、版本递增；`03` H-A11/14两真实独立PG16 backend通过`55P03`超时证明正在撞锁，真实rollback后治理COMMIT，末次读403。真实System Admin许可→4S本人新车发布Vehicle+Cycle+最小HTTPS detail200与所有跨账户/敏感403仍真实回归。无真实4S合作环境/生产连接，CI-only不代表生产可用。
+- **正式A验收报告**：`07_重建工作区/F05-3A_A主控第三轮独立验收PR32正式合并与F05-3B接力_2026-10-11.md`。现依PDM-04 Final三类车源和JYT规则**正式放行F05-3B**：`07_重建工作区/F05-3B_A主控JYT批发身份来源上架周期与三接口隔离安全完整施工单_2026-10-11.md`；目标只限批发JYT来源凭据隔离、car_code身份、offline/relist ListingCycle与三个固定车源同步接口的非生产合同/真实PG16并发，**不做批发→名邦一键转名邦（留F05-3C）、不触真实JYT、电话/资金、生产/账号数据**。新工作分支`feat/f05-3b-jyt-wholesale-lineage-cycle`由B从最新main创建；冻结F05-3A旧38个独立PG16 job定义全文，新增2项真正PG16，合法来源可实证时最终**40/40同SHA成功＋两原生Artifacts**后交A；来源不足必须SOURCE_GAP，不准造可信凭据。
+- **状态`F05_3A=A_ACCEPTED_MERGED_PR32_CI_ONLY / F05_3B=A_RELEASED_FOR_B_B_NOT_STARTED / NEXT_OWNER=B`**；F05全阶段、F04真实生产API、C/H01高保真及V1产品基线依旧`NOT_READY`。
+
+---
+
 # 2026-10-11｜F05-3A A二轮独立复验：4S首次合法正向链PASS，新增3项物理归属与并发阻断；PR32不合并，B整改（唯一最新）
 
 - **A已独立确认真实正向及CI来源**：[PR #32](https://github.com/suzhe868-arch/mb/pull/32) 最新B/PR HEAD `4bd39d7e4b925346a6867870399260d9aaf85d87` = [Actions #38085191145](https://github.com/suzhe868-arch/mb/actions/runs/38085191145) `run.head_sha`；官方38/38真实非特权独立PG16 jobs success，冻结旧36全文不变；新增数据库14/14、HTTPS10/10，71原生Artifacts、新物理`11682206471`与TLS`11681796730`未过期；PR全部18项仅本包新白名单，000001～000015/旧F03/F04/F05/生产server/Final/IA/Low-Fi/C未改。
