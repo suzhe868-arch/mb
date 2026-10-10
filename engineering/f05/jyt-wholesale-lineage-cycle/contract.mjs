@@ -130,6 +130,17 @@ export async function syncUpsert(auth,token,p,{checkpoint}={}){
    :deny('F05_3B_EVENT_KEY_PAYLOAD_COLLISION');
   const line=(await c.query("SELECT * FROM public.f05_3b_sync_lineages WHERE source_platform='JYT' AND car_code=$1 FOR UPDATE",[p.carCode])).rows[0];
   if(checkpoint)await checkpoint('source_locked',c);
+  if(line){
+   // PDM-04 §4.3 takes priority over ordinary conflict: a converted historical
+   // JYT car_code never becomes an operator-reviewable, reactivated wholesale car.
+   const live=(await c.query('SELECT source_type FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[line.vehicle_id])).rows[0];
+   if(!live)throw Error('F05_3B_LINEAGE_ORPHANED');
+   if(live.source_type!=='wholesale'){
+    await receipt(c,{eventKey:p.eventKey,action:'upsert',credentialId,carCode:p.carCode,
+     vehicleId:Number(line.vehicle_id),outcome:'CONVERTED_SUPPRESSED',payload:p});
+    return deny('F05_3B_CONVERTED_UPSTREAM_SUPPRESSED');
+   }
+  }
   if(line&&!identityMatches(line,p)){
    await receipt(c,{eventKey:p.eventKey,action:'upsert',credentialId,carCode:p.carCode,
     vehicleId:Number(line.vehicle_id),outcome:'IDENTITY_CONFLICT',payload:p});
