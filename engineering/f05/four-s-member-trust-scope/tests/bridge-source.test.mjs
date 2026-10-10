@@ -80,7 +80,7 @@ test('H-A07 attempt to replay event, reuse ID, claim uploaded old four_s or coll
  for(const p of [candidate(65031),candidate(49004),candidate(65032,{eventKey:event(65031)})]){
   assert.equal((await publishNewFourSMemberVehicle(auth,four,p)).allowed,false);
  }
- assert.equal((await grantMemberCreateLicense(auth,admin,{targetEmployeeId:2,eventKey:event('sysadmin-license-second')}).allowed),false);
+ assert.equal((await grantMemberCreateLicense(auth,admin,{targetEmployeeId:2,eventKey:event('sysadmin-license-second')})).allowed,false);
  assert.equal((await db.query("SELECT count(*)::int n FROM public.f05_3a_member_publications WHERE vehicle_id=65031")).rows[0].n,1);
 });
 test('H-A08 real Admin revocation CAS closes license AND active Vehicle scope; system auto actor distinct from 4S affected subject',async()=>{
