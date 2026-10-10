@@ -4,8 +4,8 @@
 - 原始证据为 `09_历史工程资产基线/01_ENGINEERING_STARTER_LEGACY/packages/contracts/openapi.yaml`，源文件有 18,459 行。
 - 提取到 **198 个不同路径、218 个 HTTP method + path 对（其中62个合法含冒号操作路径）**，见 `legacy-endpoint-inventory.tsv` 的 LEGACY-001～LEGACY-218，逐条真实 source_line 与 operationId 核对；62个曾被错误归属到相邻路径的项目见 `62条冒号路径修正对照.tsv`。
 - 每行保存原始行号、HTTP 方法、路径、operationId、原安全域、权限、scope、DTO、幂等字段和建议后续归属；`parse-legacy-openapi.mjs` 采用严格限定的独立 `paths` YAML结构解析，包含 `:authorize`、`:unlock`、`:test` 等合法冒号后缀，严格拒绝重复键/重复method/重复operationId与错误缩进；`contracts-inventory.test.mjs` 以**源HTTP方法行+完整path+operationId**逐行复验，加入结构损坏、相邻多method及全部62行变化的反例。
-- 数量与旧调查目标218相符，无数量缺失。**已正式禁恢复的3个Collector旧接口明确 `RETIRE/FORBIDDEN`，其余215项按 `UNREVIEWED_SOURCE_GAP/SOURCE_GAP` 保留**。旧实现与最新PDM Final、Current IA对应的页面动作未逐项证实，绝不能把这215项标为已确认KEEP/MODIFY或已允许生产的接口。
-- 禁恢复3项：GET/PATCH `/admin/integrations/collector/connection` 和 POST `/admin/integrations/collector/connection:test`，依据 `IA_V5_ACTION_CONTRACT.md` 中 `IA-GLOBAL-B4-ACTION`、F04-1 A-F04-02正式整改单。禁重命名/包装恢复。旧OpenAPI不是当前权威；215项 `UNREVIEWED_SOURCE_GAP` 是**尚未裁定**而非新的第六种已签业务决策；已批准五类KEEP/MODIFY/RETIRE/REPLACE/ADD仅在有逐行Authority证据后记录。
+- 数量与旧调查目标218相符，无数量缺失。**已正式禁恢复的3个Collector旧接口明确 `RETIRE/FORBIDDEN`，其余215项按 `review_action=空/空缺`＋独立`review_status=UNREVIEWED_SOURCE_GAP`/`current_stage=SOURCE_GAP` 保留**。旧实现与最新PDM Final、Current IA对应的页面动作未逐项证实，绝不能把这215项标为已确认KEEP/MODIFY或已允许生产的接口。
+- 禁恢复3项：GET/PATCH `/admin/integrations/collector/connection` 和 POST `/admin/integrations/collector/connection:test`，依据 `IA_V5_ACTION_CONTRACT.md` 中 `IA-GLOBAL-B4-ACTION`、F04-1 A-F04-02正式整改单。禁重命名/包装恢复。旧OpenAPI不是当前权威；215项 独立 `review_status=UNREVIEWED_SOURCE_GAP` 是**尚未裁定**而非新的第六种已签业务决策；已批准五类KEEP/MODIFY/RETIRE/REPLACE/ADD仅在有逐行Authority证据后记录。
 
 ## 当前可运行范围
 - F04-R01：隔离PG16/HTTPS中通过冻结F03-1会话确认，仅返回受限证明；不是生产登录。
