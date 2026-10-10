@@ -65,7 +65,7 @@ export async function issueFromTrustedManualPublication(){
 // An actual new manual publication, current Vehicle/Cycle creation, signed business
 // responsibility receipt, and both append-only audit facts share ONE PG16 transaction.
 // Neither created_by nor formally_published_at for an old row can enter this path.
-export async function publishAndIssueFromCurrentTransaction(auth,token,p){
+export async function publishAndIssueFromCurrentTransaction(auth,token,p,{testCheckpoint}={}){
  if(!shape(p,'eventKey,listingCycleId,sourceKind,teamId,vehicleId')||
     ![p.vehicleId,p.listingCycleId,p.teamId].every(valid)||!eventKey(p.eventKey)||
     !['mingbang','four_s'].includes(p.sourceKind)||
@@ -74,10 +74,25 @@ export async function publishAndIssueFromCurrentTransaction(auth,token,p){
  await verify(auth.pool);
  return session(auth,token,async(c,actor)=>{
   if(!await currentCapability(c,actor,p.teamId,'vehicle.manage'))return deny('F05_2_MANUAL_PUBLICATION_SCOPE_DENIED');
+  if(testCheckpoint!==undefined){
+   if(process.env.CI!=='true'||process.env.GITHUB_ACTIONS!=='true'||typeof testCheckpoint!=='function')
+    return deny('F05_2_CHECKPOINT_NOT_CI');
+   await testCheckpoint('publisher_permission_proven',c);
+  }
   // A real existing row, including one with apparently matching uploader and
   // timestamp, is explicitly not eligible for a backfilled ownership grant.
   const prior=(await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR KEY SHARE',[p.vehicleId])).rows;
-  if(prior.length)return deny('F05_2_PREEXISTING_VEHICLE_NEVER_BACKFILL');
+  if(prior.length){
+   const old=(await c.query("SELECT x.responsibility_id,x.responsible_employee_id,x.team_id,x.source_snapshot,x.revoked_at,y.actor_id,y.role_context,y.after_json FROM public.vehicle_current_responsibilities x JOIN public.audit_events y ON y.object_kind='Vehicle' AND y.object_id=$1::text AND y.action='vehicle.manual.published' AND y.after_json->>'eventKey'=$2 WHERE x.vehicle_id=$1 AND x.listing_cycle_id=$3 AND x.trusted_event_key=$2",
+    [p.vehicleId,p.eventKey,p.listingCycleId])).rows;
+   if(old.length===1&&old[0].revoked_at===null&&Number(old[0].responsible_employee_id)===actor&&
+      Number(old[0].team_id)===p.teamId&&old[0].source_snapshot===p.sourceKind&&
+      old[0].actor_id===String(actor)&&old[0].role_context?.origin==='F05_2_NEW_MANUAL_PUBLISH_IN_SAME_TX'&&
+      old[0].after_json?.vehicleId===p.vehicleId&&old[0].after_json?.listingCycleId===p.listingCycleId&&
+      old[0].after_json?.teamId===p.teamId&&old[0].after_json?.issuedTo===actor)
+       return ok('F05_2_IDEMPOTENT',{responsibilityId:Number(old[0].responsibility_id)});
+   return deny('F05_2_PREEXISTING_VEHICLE_NEVER_BACKFILL');
+  }
   const event=(await c.query("SELECT responsibility_id FROM public.vehicle_current_responsibilities WHERE trusted_event_key=$1",[p.eventKey])).rows;
   if(event.length)return deny('F05_2_EVENT_REPLAY_OR_COLLISION');
   await c.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,created_by_employee_id,formally_published_at) VALUES($1,$2,'available','visible',$3,transaction_timestamp())",[p.vehicleId,p.sourceKind,actor]);
@@ -113,7 +128,7 @@ export async function revokeCurrentResponsibility(auth,token,p){
 }
 // Formal CI-only stewardship handover requires a separate manager actor with actual
 // current Vehicle manage scope, eligible target permission+scope, and locked CAS history.
-export async function transferCurrentResponsibility(auth,token,p){
+export async function transferCurrentResponsibility(auth,token,p,{testCheckpoint}={}){
  if(!shape(p,'eventKey,responsibilityId,targetEmployeeId,teamId,version')||
     ![p.responsibilityId,p.teamId,p.targetEmployeeId,p.version].every(valid)||!eventKey(p.eventKey))
     return deny('F05_2_TRANSFER_INPUT_DENIED');
@@ -132,6 +147,11 @@ export async function transferCurrentResponsibility(auth,token,p){
      Number(old.team_id)!==p.teamId||old.source_snapshot!==v.source_type||
      Number(old.responsible_employee_id)===p.targetEmployeeId)
    return deny('F05_2_TRANSFER_STALE');
+  if(testCheckpoint!==undefined){
+   if(process.env.CI!=='true'||process.env.GITHUB_ACTIONS!=='true'||typeof testCheckpoint!=='function')
+    return deny('F05_2_CHECKPOINT_NOT_CI');
+   await testCheckpoint('handover_responsibility_locked',c);
+  }
   if(!await currentCapability(c,actor,p.teamId,'vehicle.manage')||
      !await currentCapability(c,p.targetEmployeeId,p.teamId,'vehicle.manage')||
      !await currentCapability(c,p.targetEmployeeId,p.teamId,'vehicle.read'))
@@ -150,7 +170,7 @@ export async function transferCurrentResponsibility(auth,token,p){
  });
 }
 
-export async function readMinimalCurrentVehicle(auth,token,p){
+export async function readMinimalCurrentVehicle(auth,token,p,{testCheckpoint}={}){
  if(!shape(p,'outlet,vehicleId')||!valid(p.vehicleId)||p.outlet!=='detail')return deny('F05_2_DETAIL_ONLY');
  return session(auth,token,async(c,actor)=>{
   const v=await lookup(c,p.vehicleId);
@@ -158,6 +178,11 @@ export async function readMinimalCurrentVehicle(auth,token,p){
   const r=(await c.query("SELECT responsibility_id,responsible_employee_id,team_id,source_snapshot,revoked_at FROM public.vehicle_current_responsibilities WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND revoked_at IS NULL FOR SHARE",
     [p.vehicleId,v.listing_cycle_id])).rows;
   if(r.length!==1||r[0].source_snapshot!==v.source_type)return deny('F05_2_SCOPE_UNPROVEN');
+  if(testCheckpoint!==undefined){
+   if(process.env.CI!=='true'||process.env.GITHUB_ACTIONS!=='true'||typeof testCheckpoint!=='function')
+    return deny('F05_2_CHECKPOINT_NOT_CI');
+   await testCheckpoint('responsibility_locked',c);
+  }
   // A-F05-2-01: ordinary sales cannot read a Vehicle handed to a different
   // CURRENT responsible employee, even if both still belong to the same team.
   const assignmentOwner=Number(r[0].responsible_employee_id);
