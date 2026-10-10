@@ -1,3 +1,42 @@
+# F05-2｜B 依 A 首轮整改单四项闭环整改与二轮交审证据
+
+> 2026-10-11 Asia/Singapore；原 PR #31 持续使用 `feat/f05-2-vehicle-stewardship-physical-scope`。本页为 B 重新交审依据，不是 A 已签收记录。
+> A 首轮结论：`A_CHANGES_REQUESTED / PR31_NOT_MERGED / NEXT_OWNER=B`。
+> 最新 CI 门槛：**最后提交 SHA = PR HEAD = Actions run.head_sha，且 36/36 真 PG16 jobs success、两项新 Artifacts 存在、原34 job正文冻结**；未满足前 `B_IN_PROGRESS`。
+
+## 一、正式整改单闭环
+
+依据 `07_重建工作区/F05-2_A主控首次独立复验权限交接与并发闭环完整整改单_2026-10-11.md`，不得使用 2026-10-10 旧绿灯 Actions 38059665296 取代整改回归。
+
+| A 阻断 | 失效复现与最小修复 | 新真实数据库负例 |
+|---|---|---|
+| A-F05-2-01 交接后旧销售可读 | Employee.sales 必须等于当前 `responsible_employee_id`；Manager/店长必须单独拥有实时 `vehicle.read` + `vehicle.manage` + Team/Object 范围，角色不自动授权。 | R-A10 / R-B07：old sales 同Team403；new sales200；有证manager200/权限deny403 |
+| A-F05-2-02 复职后旧责任自动复活 | 仅新增隔离PG16的 F05-2 DDL 中，受控员工身份、Team、scope、override、capability、Role、Store、Vehicle 来源与 Cycle 更新挂**治理失效触发器**；同治理事务把旧当前责任永久 `revoked_at` 关闭并写不可变审计。复职、重授权不能清空旧撤销事实。 | R-A05/A06/A07、R-B08/B10：失活→激活、scope终止→恢复、调店→回店、source变更→恢复仍403 |
+| A-F05-2-03 旧车可事后补造发布来源 | 原独立 `recordTrustedManualPublicationEvent` 与 `issueFromTrustedManualPublication` **始终拒绝**。改为仅 CI 隔离的 `publishAndIssueFromCurrentTransaction`：当前Session+车辆管理cap+团队范围校验之后，在**同一个SQL事务**创建此前不存在的人工车辆、ListingCycle、责任唯一索引记录、真实发布 `audit_events` 和不可变责任审计。旧车绝不能补办，无 JYT/无 4S组织伪关系。 | R-A02/A03/A04/A13、R-B01/B02/B03：旧 uploader/老时间戳/异身份重签一律403，合法新车同事务最小200，同事件并行唯一 |
+| A-F05-2-04 权限撤销读写竞态 | `withSession` 中为真实 Employee 使用同事务 advisory ownership 锁，独立 PG16 失效触发器持相同锁并更新当前责任行；读取锁 Vehicle/Cycle + 责任行至会话COMMIT，交接同锁校验接收人。任何治理COMMIT与读COMMIT形成可确定的先后顺序。 | R-A11/A12/A14：另一个非特权PG16连接尝试权限deny/source_type更新/接收人失权，以 `lock_timeout` 确定真实锁冲突；读/交接COMMIT后治理提交即403。无sleep/模拟权限 |
+
+## 二、白名单、原始来源和权威状态
+
+旧正式 M94 结构SHA = `7cd90248f51555fff26eb475320b9a10c6f52880263234a31e22210657a2c659`；仅在现有 F05-2 新迁移`000015_vehicle_responsibility.sql`添加独立触发器与事务守卫，无修改 000001～000014 的文件内容。审计触发器是追加目录对象，不覆盖任何旧物理对象的结构定义。生成的真实新目录 SHA 随迁移更改，应从**新原生 Artifact**核查，不得复用旧F05-2物理SHA。
+
+所有变更仅在 `engineering/f05/vehicle-stewardship-physical-scope/**` 与本批专属工作流 `.github/workflows/f05-2-vehicle-stewardship-physical-scope.yml`；仍只运行非特权一次性PG16 test库，绝不连接生产server、生产DDL、JYT、真实账号、资金或C设计。旧34个CI job全文保持不变，新两项为迁移与TLS安全，合计36项。
+
+## 三、复验必要证据
+
+- R-A01～A14：独立真实PG16物理测试，含14项现时对象责任和事务并发断言。
+- R-B01～B11：实际loopback TLS+真实Session+真PG16读写，含11项反例与最小合法 200。
+- `runner.mjs --inject-rollback/--apply/--verify`：原生结构/版本检查、隔离守卫、DDL注入回滚、非特权用户。
+- `evidence.mjs --record`：原始/新增 schema catalog、原生 PG16 schema-only SQL、变更diff、来源链、sha256、真正测试控制台输出。
+- GitHub 原生两项专属 Artifacts: `f05-2-vehicle-responsibility-migration-independent-real-PG16-evidence` 与 `f05-2-vehicle-https-current-scope-independent-real-PG16-evidence`。
+
+## 四、状态和交接
+
+工程审查必须同时验证最终同 SHA 36/36 成功、真实PG16日志、受信正式发布正向200、全部复现负例403、独立原生证据与最终 PR Head；否则本轮状态维持 `B_IN_PROGRESS`，由B原分支整改，不交A。仅全部确认后可将 PR31 交 A 二轮独立验收，B不得自行合并 main。
+
+F05完整业务、F04生产接口、F06/F07、C/H01高保真和V1产品基线均 `NOT_READY`，不可用本次CI替代上线批准。
+
+---
+
 # F05-2｜B工程完整自验与A独立复验交接
 
 > 日期：2026-10-10（新加坡时间）
