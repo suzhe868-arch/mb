@@ -160,9 +160,9 @@ export async function commitHandoverItem(auth,token,p,opts={}){
   await audit(c,a,'handover_item',p.itemId,'sg06.item.complete',{status:item.status,objectKind:item.object_kind,objectId:item.object_id},{status:'completed',evidenceType:evidence.evidenceType,receiptId:evidence.receiptId},p.requestKey,p.teamId);
   if(opts.testCheckpoint)await opts.testCheckpoint('after_audit',c);
   // All evidence is re-proven immediately before commit, not merely prepared.
+  if(opts.testCheckpoint)await opts.testCheckpoint('before_commit',c);
   const last=await itemFact(c,item,p.teamId,a);
   if(!last.ok)throw Error('G_COMMIT_ATOMIC_ROLLBACK');
-  if(opts.testCheckpoint)await opts.testCheckpoint('before_commit',c);
   return approved('G_ITEM_COMPLETED',{itemId:p.itemId,receiptId:evidence.receiptId??null,batchCompleted:false});
  });
 }
@@ -219,9 +219,9 @@ export async function commitHandoverBatch(auth,token,p,opts={}){
   if(v.rowCount!==1)throw Error('G_COMMIT_ATOMIC_ROLLBACK');
   await audit(c,a,'handover_batch',p.batchId,'sg06.batch.complete',{status:x.b.status,version:x.b.version},{status:'completed',version:Number(x.b.version)+1},p.requestKey,p.teamId);
   if(opts.testCheckpoint)await opts.testCheckpoint('after_audit',c);
+  if(opts.testCheckpoint)await opts.testCheckpoint('before_commit',c);
   const still=await closedBatchSafe(c,a,x,p.teamId);
   if(!still.ok)throw Error('G_COMMIT_ATOMIC_ROLLBACK');
-  if(opts.testCheckpoint)await opts.testCheckpoint('before_commit',c);
   return approved('G_BATCH_COMPLETED',{batchId:p.batchId,employeeDisableAuthorized:false});
  });
 }
