@@ -132,7 +132,7 @@ test('M05 all 30 directed H/I/J/K/L/M true cross-domain real PG16 duplicate requ
  ['H',6019,'L',10],['L',11,'H',6003],['I',6110,'L',12],['L',13,'I',6111],
  ['J',7208,'L',14],['L',15,'J',7209],['K',7410,'L',16],['L',17,'K',7411],
  ['H',6018,'M',10],['M',11,'H',6003],['I',6117,'M',12],['M',13,'I',6121],
- ['J',7212,'M',14],['M',15,'J',7213],['K',7412,'M',16],['M',17,'K',7413],
+ ['J',7216,'M',14],['M',15,'J',7213],['K',7416,'M',16],['M',17,'K',7413],
  ['L',18,'M',18],['M',19,'L',19]];
  for(const [index,[a,ai,b,bi]] of cases.entries()){
   const key='m-ordered-shared-key-'+String(index).padStart(3,'0')+'-once';
