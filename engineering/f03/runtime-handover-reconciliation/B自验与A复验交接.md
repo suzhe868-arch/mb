@@ -1,7 +1,7 @@
 # F03-2-2N｜B 工程完整自验及 A 独立复验交接
 
 > 日期：2026-10-10（亚洲/新加坡）｜B 工程执行分支 `feat/f03-handover-reconciliation-2n`
-> 状态：**B_SELF_TESTED / CI_SCHEDULING_BLOCKED / NOT_READY_FOR_A_REVIEW / NEXT_OWNER=B**。本报告自身最终提交 SHA 的同 SHA 17/17 PG16 CI 尚未取得；A 尚未验收或合并。
+> 状态：**B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A**，以本次交接报告最终 HEAD 同 SHA 17/17 PG16 job success 为验收条件；A 尚未独立复验或合并。
 
 ## 一、已签发 Authority 与允许范围
 
@@ -38,11 +38,18 @@ B 交付：新只读 `service.mjs`、真实 CI 专用 `fixtures.mjs`、`tests/in
 
 **仍未完成**：真实 SG06 离职对象全量迁移、所有 batch/items 正式 completed 状态扩展、正式员工失活与权限撤销、公海/退款闭环、线上服务接口以及完整 F03-2/C-H01 高保真和正式上线。产品基线继续为 `NOT_READY`。
 
-**CI_SCHEDULING_BLOCKED / NOT_READY_FOR_A_REVIEW / NEXT_OWNER=B**。待 GitHub Actions 可正常调度后，B须取得最终 HEAD 同SHA 17/17真正独立成功CI，才能改为 READY_FOR_A_REVIEW / NEXT_OWNER=A。
+**READY_FOR_A_REVIEW / NEXT_OWNER=A**（最终文档提交必须在同 SHA 17/17 PG16 success 门禁完成后交 A；未完成前暂不放行）。
 
-## 五、最终同 SHA 平台级阻断（不能冒充已通过）
+## 五、GitHub Actions 零步骤失败的实际恢复记录及最终同 SHA 门禁
 
-- 当前最后提交前的**真实完整成功**来源为 GitHub Actions #38013071166，受测代码/工作流 SHA `b6a8f85a7cd421466d961061745b269f2f174b27`，17/17 个独立PG16作业 success；该次原始物理证据已由 GitHub Actions 自动追加到 B 分支，且之后只新建 `evidence/**`、`工程说明.md` 和本中文交接，不改一行服务/测试/工作流代码。
-- 新中文交接最终提交 `af51e34c7e2503614195b99580830bcd2d32323d` 的 [Actions #38013280037](https://github.com/suzhe868-arch/mb/actions/runs/38013280037)：首轮和已尝试的第二轮共 34 个作业，**全部在启动执行步骤之前结束为 failure**；GitHub API 的 job.steps 均为空，计费运行时间 0ms，未运行一条新业务测试。相邻一次文档提交的 #38013276380 同样全部作业未进入步骤。
-- 这说明现阶段阻断在 GitHub Actions 作业调度/启动层。**具体原因尚未从 GitHub 取得可信诊断**，不能武断判定是额度、账户配置或代码，也不能据旧 SHA 的绿灯虚报最终同 SHA 17/17。
-- B 本批工程、原始证据和冻结范围已提交且可供 A 预审，但**同 SHA 强门禁未满足**。不得合并 main、开启 2O 或宣布 F03-2/SG06 整体完成；若平台恢复，按现有最终 HEAD 发起/重跑同 SHA 真正17/17成功CI，完成后交 A。
+- GitHub Actions 先前 #38013276380、#38013280037 及最终 B HEAD `fb2bad9c39862e36e6eab348429364312f5b8862` 的 [#38013437152](https://github.com/suzhe868-arch/mb/actions/runs/38013437152) 初始尝试均出现 17 个作业零步骤失败，尚无法从 GitHub 得到具体的账户/平台原因。此失败记录原样保留，不删除。
+- 2026-10-10 重新对**同一个最终 B HEAD** 重试 #38013437152，**第 3 次尝试正式 `completed/success`，17/17 个独立 PostgreSQL 16 作业成功**；GitHub 不再零步骤失败。
+- 本次真实日志复核：N14/14、M31/31、L29/29、K29/29、J27/27、I27/27、旧独立测试全部通过，`# fail 0`；`F03_2M_EVIDENCE_FULL_CATALOG_PASS`、`F03_2M_ARCHIVE_EXACT_REAL_RAW_BYTES_PASS`、`F03_2N_ORIGINAL_FULL_CATALOG_AND_INVENTORY_BYTE_PASS` 同时通过。
+- `fb2bad9c39862e36e6eab348429364312f5b8862` 分支 HEAD 与上述运行 head_sha 完全相同；此前归档的初次成功来源 #38013071166 和原始 PostgreSQL 全目录、结构 SQL、inventory、校验值仍完整保留；两批受检物理目录无新增表/列/约束/索引。
+- 本次文档更新不修改新 N 服务、测试、工作流或任何旧资产，会生成新 SHA，**须以此文档最终提交之后自动触发的新同 SHA 17/17 成功 CI 为 A 正式接收门禁**。不得借上一成功 SHA 直接宣称最新提交合格。
+
+## 六、真实未完成与后续责任
+
+本次工作仅是**只读对账和受限合成 PG16 门禁**，不是生产真实离职交接，没有将 `handover_batches` / `handover_items` 改为 completed、没有禁用员工、撤权、公海释放、资金操作或生产上线。
+
+最终门禁成功后唯一下一责任人 **A 主控**：独立复验并决定是否通过/合并 `main`，随后再按正式审批规划下一施工单。B 不自行 PR 合并，不启动 2O；F03-2 整体、C/H01 高保真及产品基线均 `NOT_READY`。
