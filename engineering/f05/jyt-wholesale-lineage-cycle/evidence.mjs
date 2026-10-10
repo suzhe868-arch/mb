@@ -10,7 +10,7 @@ try{
  const versions=(await c.query('SELECT migration_id,checksum,structure_sha256 FROM public.f03_schema_migrations ORDER BY migration_id')).rows;
  if(versions.length!==15||versions[13].structure_sha256!==check.priorSha||versions[14].structure_sha256!==check.newSha)
   throw Error('F05_3B_EVIDENCE_WRONG_MIGRATION_CHAIN');
- const counts=(await c.query('SELECT (SELECT count(*)::int FROM public.f05_3b_sync_credentials) credentials,(SELECT count(*)::int FROM public.f05_3b_sync_lineages) lineage,(SELECT count(*)::int FROM public.f05_3b_sync_receipts) receipts,(SELECT count(*)::int FROM public.f05_3b_control_audit) control_events')).rows[0];
+ const counts=(await c.query('SELECT (SELECT count(*)::int FROM public.f05_3b_sync_credentials) credentials,(SELECT count(*)::int FROM public.f05_3b_sync_lineages) lineage,(SELECT count(*)::int FROM public.f05_3b_sync_receipts) receipts,(SELECT count(*)::int FROM public.f05_3b_control_audit) control_events,(SELECT count(*)::int FROM public.f05_3b_api_call_logs) http_calls')).rows[0];
  const dir=new URL('./artifacts/current/',import.meta.url);
  await mkdir(dir,{recursive:true});
  const put=(name,data)=>writeFile(new URL(name,dir),JSON.stringify(data,null,2)+'\n','utf8');
