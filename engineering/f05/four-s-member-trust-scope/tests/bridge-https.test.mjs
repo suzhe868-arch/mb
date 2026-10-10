@@ -59,6 +59,17 @@ test('H-B04 second authenticated four_s account cannot read member2 actual objec
  denied(await get(path(),cookie(other)));
  assert.equal((await readFourSMemberMinimalVehicle(auth,other,{vehicleId:id,outlet:'detail'})).allowed,false);
 });
+test('H-B04a real HTTPS scope denies different 4S license even after direct PG16 provenance attack',async()=>{
+ const g=await grantMemberCreateLicense(auth,admin,{targetEmployeeId:8,eventKey:'f05-3a-https-independent-employee8-license'});
+ assert.equal(g.allowed,true,JSON.stringify(g));
+ await assert.rejects(()=>db.query('UPDATE public.f05_3a_member_publications SET member_employee_id=8 WHERE vehicle_id=$1',[id]),/F05_3A_PUBLICATION_PROVENANCE_IMMUTABLE/);
+ await assert.rejects(()=>db.query('UPDATE public.f05_3a_member_publications SET license_id=$1 WHERE vehicle_id=$2',[g.licenseId,id]),/F05_3A_PUBLICATION_PROVENANCE_IMMUTABLE/);
+ await assert.rejects(()=>db.query('UPDATE public.vehicles SET created_by_employee_id=8 WHERE vehicle_id=$1',[id]),/F05_3A_SIGNED_VEHICLE_CREATOR_IMMUTABLE/);
+ denied(await get(path(),cookie(other)));
+ const own=await get(path(),cookie(four));
+ assert.equal(own.status,200,JSON.stringify(own));
+ assert.deepEqual(Object.keys(own.body).sort(),['code','listingCycleId','sourceKind','vehicleId']);
+});
 test('H-B05 System Admin and Mingbang staff cannot read 4S business Vehicle',async()=>{
  denied(await get(path(),cookie(admin)));denied(await get(path(),cookie(staff)));
 });
@@ -80,6 +91,9 @@ test('H-B08 impersonation via headers, query, bearer token, origin and cookie ca
 test('H-B09 System Admin revokes member license, real TLS immediately 403, no stale historical reactivation',async()=>{
  const r=await revokeMemberCreateLicense(auth,admin,{licenseId:license,version:1,eventKey:'f05-3a-https-admin-explicit-revoke-66021'});
  assert.equal(r.code,'F05_3A_LICENSE_REVOKED');
+ denied(await get(path(),cookie(four)));
+ await assert.rejects(()=>db.query('UPDATE public.f05_3a_member_create_licenses SET revoked_at=NULL,version=version+1 WHERE license_id=$1',[license]),/F05_3A_LICENSE_REVOCATION_IRREVERSIBLE/);
+ await assert.rejects(()=>db.query('UPDATE public.f05_3a_member_publications SET revoked_at=NULL,version=version+1 WHERE vehicle_id=$1',[id]),/F05_3A_PUBLICATION_REVOCATION_IRREVERSIBLE/);
  denied(await get(path(),cookie(four)));
  const rows=(await db.query("SELECT actor_kind,actor_member_employee_id,actor_system_admin_id,event_kind FROM public.f05_3a_member_trust_audit WHERE license_id=$1 AND event_kind='SYSTEM_OBJECT_REVOKE'",[license])).rows;
  assert.equal(rows.length,1);assert.equal(rows[0].actor_kind,'SYSTEM');assert.equal(rows[0].actor_member_employee_id,null);
