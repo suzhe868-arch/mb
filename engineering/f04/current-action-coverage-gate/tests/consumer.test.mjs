@@ -20,9 +20,8 @@ async function call(method,path,headers={},body){
 }
 test.before(async()=>{
  assert.equal((await verifyM94(db)).verified,true);
- let first=await auth.login({login:'employee_test',password:'SyntheticPassword_12345',source:'f04-4-init'});
- assert.equal(first.code,'AUTH_OK');assert.equal((await auth.change({token:first.token,csrf:first.csrf,oldPassword:'SyntheticPassword_12345',newPassword:'SyntheticF04_4_2026_Password'})).code,'PASSWORD_CHANGED_REAUTH_REQUIRED');
- let x=await auth.login({login:'employee_test',password:'SyntheticF04_4_2026_Password',source:'f04-4-worker'});assert.equal(x.code,'AUTH_OK');staff=x.token;
+ // The old F04-3 frozen TLS regression has already changed this synthetic password on its own isolated PG16 DB.
+ let x=await auth.login({login:'employee_test',password:'SyntheticF04_3_CurrentProof_2026',source:'f04-4-worker'});assert.equal(x.code,'AUTH_OK');staff=x.token;
  x=await auth.login({login:'admin_test',password:'SyntheticAdmin_1234567',source:'f04-4-admin'});assert.equal(x.code,'AUTH_OK');admin=x.token;
  x=await auth.login({login:'four_s_test',password:'SyntheticFourS_123456',source:'f04-4-four-s'});assert.equal(x.code,'AUTH_OK');four=x.token;
  await db.query("UPDATE public.customers SET owner_assignment_state='assigned',current_owner_employee_id=1 WHERE customer_id=302");
