@@ -24,7 +24,7 @@ export async function verify(c){
  if(r.length!==15)throw Error('F05_3B_NOT_APPLIED');
  const cat=await getPublicStructure(c);
  if(cat.sha256!==r[14].structure_sha256)throw Error('F05_3B_PHYSICAL_DRIFT');
- for(const t of ['f05_3b_sync_credentials','f05_3b_api_controls','f05_3b_sync_lineages','f05_3b_control_audit','f05_3b_sync_receipts'])
+ for(const t of ['f05_3b_sync_credentials','f05_3b_api_controls','f05_3b_sync_lineages','f05_3b_control_audit','f05_3b_sync_receipts','f05_3b_api_call_logs'])
   if(!cat.objects.some(x=>x.kind==='relation'&&x.name===t))throw Error('F05_3B_TABLE_MISSING_'+t);
  return {verified:true,priorSha:r[13].structure_sha256,newSha:cat.sha256,checksum,objects:cat.objects.length};
 }
