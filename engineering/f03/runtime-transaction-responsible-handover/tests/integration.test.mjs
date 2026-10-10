@@ -1,4 +1,4 @@
-// F03-2-2L: disposable PG16 real integration tests, never production.
+// F03-2-2M: disposable PG16 real integration tests, never production.
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {randomBytes,createHash} from 'node:crypto';
@@ -70,6 +70,49 @@ test('M10 real in-flight Transaction completes at checkpoint: all owner/audit/re
  assert.equal(r.code,'M04_UNSAFE_FINANCIAL_OR_TRANSACTION_STATE_DEFER_DENY');
  assert.equal(r.transactionRolledBack,true);
  assert.equal(await owner(25),'7');
+ assert.deepEqual(await snapshot(),before);
+});
+test('M10 M permissions revoked AFTER receipt but BEFORE COMMIT: throw to rollback all owner/history',async()=>{
+ const p=req(37,4,'m-late-revoke-personal-0037'),before=await snapshot();
+ const stages=[];
+ const r=await commit(auth,manager,p,{testCheckpoint:async(stage,c)=>{
+  stages.push(stage);
+  if(stage==='after_receipt')await c.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=5 AND permission_id=20");
+ }});
+ assert.ok(stages.includes('after_receipt'));
+ assert.equal(r.code,'M04_UNSAFE_FINANCIAL_OR_TRANSACTION_STATE_DEFER_DENY');
+ assert.equal(r.transactionRolledBack,true);
+ assert.equal(await owner(37),'7');
+ assert.deepEqual(await snapshot(),before);
+});
+test('M10 M Team capability expires in late PG16 checkpoint: Transaction and audit fully rollback',async()=>{
+ const p=req(38,4,'m-late-expire-team-scope-0038'),before=await snapshot();
+ const r=await commit(auth,manager,p,{testCheckpoint:async(stage,c)=>{
+  if(stage==='before_commit')await c.query("UPDATE public.employee_capability_scope_bindings SET ended_at=clock_timestamp()-interval '1 second' WHERE employee_id=5 AND permission_id=20 AND scope_id=201");
+ }});
+ assert.equal(r.code,'M04_UNSAFE_FINANCIAL_OR_TRANSACTION_STATE_DEFER_DENY');
+ assert.equal(r.transactionRolledBack,true);
+ assert.equal(await owner(38),'7');
+ assert.deepEqual(await snapshot(),before);
+});
+test('M10 M customer disabled after audit: no phantom financial or handover receipts',async()=>{
+ const p=req(39,4,'m-late-customer-inactive-0039'),before=await snapshot();
+ const r=await commit(auth,manager,p,{testCheckpoint:async(stage,c)=>{
+  if(stage==='after_audit')await c.query("UPDATE public.customers SET account_status='inactive' WHERE customer_id=25039");
+ }});
+ assert.equal(r.code,'M04_UNSAFE_FINANCIAL_OR_TRANSACTION_STATE_DEFER_DENY');
+ assert.equal(r.transactionRolledBack,true);
+ assert.equal(await owner(39),'7');
+ assert.deepEqual(await snapshot(),before);
+});
+test('M10 M new trusted FK Refund AFTER receipt: cannot COMMIT owner, money or append-only history',async()=>{
+ const p=req(40,4,'m-late-refund-insert-0040'),before=await snapshot();
+ const r=await commit(auth,manager,p,{testCheckpoint:async(stage,c)=>{
+  if(stage==='after_receipt')await c.query("INSERT INTO public.refund_cases(refund_id,customer_id,transaction_id,status,created_at) VALUES(29840,25040,39040,'pending',clock_timestamp())");
+ }});
+ assert.equal(r.code,'M04_UNSAFE_FINANCIAL_OR_TRANSACTION_STATE_DEFER_DENY');
+ assert.equal(r.transactionRolledBack,true);
+ assert.equal(await owner(40),'7');
  assert.deepEqual(await snapshot(),before);
 });
 test('M02 current personal-deny, binding expiry and manager suspension deny new transfer',async()=>{
