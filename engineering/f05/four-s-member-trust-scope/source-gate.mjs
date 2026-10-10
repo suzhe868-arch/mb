@@ -92,10 +92,11 @@ export async function grantMemberCreateLicense(auth,adminToken,p){
   const rec=(await c.query("INSERT INTO public.f05_3a_member_create_licenses(employee_id,granted_by_system_admin_id,grant_event_key) VALUES($1,$2,$3) RETURNING license_id",
    [p.targetEmployeeId,admin,p.eventKey])).rows[0];
   const licenseId=Number(rec.license_id);
+  const dbTx=(await c.query('SELECT txid_current()::text AS txid')).rows[0].txid;
   const before={active:false,member:p.targetEmployeeId};
   const after={active:true,member:p.targetEmployeeId,licenseId,scopeKind:'NEW_OWN_FOUR_S_MANUAL_VEHICLE'};
   await c.query("INSERT INTO public.f05_3a_member_trust_audit(event_key,license_id,event_kind,actor_kind,actor_system_admin_id,affected_employee_id,actor_context,before_state,after_state) VALUES($1,$2,'ADMIN_GRANT','SYSTEM_ADMIN',$3,$4,$5::jsonb,$6::jsonb,$7::jsonb)",
-   ['audit:'+p.eventKey,licenseId,admin,p.targetEmployeeId,JSON.stringify({origin:'F05_3A_AUTHENTICATED_ADMIN_SESSION',transactionId:'PG16_IN_SAME_TX'}),JSON.stringify(before),JSON.stringify(after)]);
+   ['audit:'+p.eventKey,licenseId,admin,p.targetEmployeeId,JSON.stringify({origin:'F05_3A_AUTHENTICATED_ADMIN_SESSION',transactionId:dbTx}),JSON.stringify(before),JSON.stringify(after)]);
   return accept('F05_3A_LICENSE_GRANTED',{licenseId});
  });
 }
@@ -110,12 +111,13 @@ export async function revokeMemberCreateLicense(auth,adminToken,p){
   await c.query('SELECT pg_advisory_xact_lock(20261011,$1::integer)',[who]);
   const license=(await c.query("SELECT * FROM public.f05_3a_member_create_licenses WHERE license_id=$1 FOR UPDATE",[p.licenseId])).rows[0];
   if(!license||license.revoked_at!==null||Number(license.version)!==p.version)return deny('F05_3A_LICENSE_REVOKED_OR_STALE');
+  const dbTx=(await c.query('SELECT txid_current()::text AS txid')).rows[0].txid;
   const before={active:true,licenseId:p.licenseId,version:p.version};
   await c.query("UPDATE public.f05_3a_member_create_licenses SET revoked_at=transaction_timestamp(),version=version+1 WHERE license_id=$1",[p.licenseId]);
   // Trigger cascades all current objects to inactive and logs SYSTEM actor,
   // but explicit governance revocation actor is the authenticated real admin.
   await c.query("INSERT INTO public.f05_3a_member_trust_audit(event_key,license_id,event_kind,actor_kind,actor_system_admin_id,affected_employee_id,actor_context,before_state,after_state) VALUES($1,$2,'ADMIN_REVOKE','SYSTEM_ADMIN',$3,$4,$5::jsonb,$6::jsonb,$7::jsonb)",
-   [p.eventKey,p.licenseId,admin,who,JSON.stringify({origin:'F05_3A_AUTHENTICATED_ADMIN_SESSION'}),JSON.stringify(before),JSON.stringify({active:false,licenseId:p.licenseId,version:p.version+1})]);
+   [p.eventKey,p.licenseId,admin,who,JSON.stringify({origin:'F05_3A_AUTHENTICATED_ADMIN_SESSION',transactionId:dbTx}),JSON.stringify(before),JSON.stringify({active:false,licenseId:p.licenseId,version:p.version+1})]);
   return accept('F05_3A_LICENSE_REVOKED');
  });
 }
@@ -145,8 +147,9 @@ export async function publishNewFourSMemberVehicle(auth,token,p,{testCheckpoint}
   const issued=(await c.query("INSERT INTO public.f05_3a_member_publications(vehicle_id,listing_cycle_id,license_id,member_employee_id,trusted_event_key,brand_id,series_id,model_id,model_year,mileage_km,city) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING publication_id",
    [p.vehicleId,p.listingCycleId,license[0].license_id,who,p.eventKey,p.brandId,p.seriesId,p.modelId,p.modelYear,p.mileageKm,p.city])).rows[0];
   const publicationId=Number(issued.publication_id);
+  const dbTx=(await c.query('SELECT txid_current()::text AS txid')).rows[0].txid;
   await c.query("INSERT INTO public.f05_3a_member_trust_audit(event_key,license_id,publication_id,event_kind,actor_kind,actor_member_employee_id,affected_employee_id,actor_context,before_state,after_state) VALUES($1,$2,$3,'MEMBER_PUBLISH','FOUR_S_MEMBER',$4,$4,$5::jsonb,$6::jsonb,$7::jsonb)",
-   ['audit:'+p.eventKey,license[0].license_id,publicationId,who,JSON.stringify({origin:'F05_3A_OWN_NEW_FOUR_S_IN_CURRENT_TX',sessionSubject:who,tx:'SAME_PG16_TRANSACTION'}),JSON.stringify({vehicleExists:false}),JSON.stringify({vehicleId:p.vehicleId,listingCycleId:p.listingCycleId,licenseId:Number(license[0].license_id),member:who,brandId:p.brandId,seriesId:p.seriesId,modelId:p.modelId,modelYear:p.modelYear,mileageKm:p.mileageKm,city:p.city})]);
+   ['audit:'+p.eventKey,license[0].license_id,publicationId,who,JSON.stringify({origin:'F05_3A_OWN_NEW_FOUR_S_IN_CURRENT_TX',sessionSubject:who,tx:dbTx}),JSON.stringify({vehicleExists:false}),JSON.stringify({vehicleId:p.vehicleId,listingCycleId:p.listingCycleId,licenseId:Number(license[0].license_id),member:who,brandId:p.brandId,seriesId:p.seriesId,modelId:p.modelId,modelYear:p.modelYear,mileageKm:p.mileageKm,city:p.city})]);
   return accept('F05_3A_MEMBER_VEHICLE_ISSUED',{publicationId,vehicleId:p.vehicleId,listingCycleId:p.listingCycleId});
  },{normalOnly:true})}catch(e){if(['23505','23503'].includes(e?.code))return deny('F05_3A_DUPLICATE_OR_RACE_DENIED');throw e}
 }
