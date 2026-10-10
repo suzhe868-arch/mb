@@ -84,7 +84,7 @@ export async function commitPlannedGovernance(auth,token,p,opts={}){
   const pending=(await c.query("SELECT count(*)::int n FROM public.handover_items WHERE batch_id=$1 AND status<>'completed'",[p.batchId])).rows[0].n;
   if(pending>0)return out('G_PLANNED_PENDING_ITEM');
   if(!await lockActorScopeFacts(c,a,p.teamId,p.employeeId))return out('G_SCOPE_CURRENT_DENY');
-  if(!await batchAuditProven(c,b))return out('G_PLANNED_UNPROVEN_RECEIPT_AUDIT');
+  if(!await batchAuditProven(c,b,a))return out('G_PLANNED_UNPROVEN_RECEIPT_AUDIT');
   if(p.action==='planned_transfer')return out('G_PLANNED_TRANSFER_REQUIRES_APPROVED_MEMBERSHIP_ACTOR');
   if(p.action==='planned_downgrade'&&a.role_code!=='store_head')return out('G_ROLE_CHANGE_CONTROL_DENY');
   if(e.receiving_status==='receiving'&&!await lastReceiver(c,p.employeeId))return out('G_LAST_RECEIVER_DENY');
@@ -101,7 +101,7 @@ export async function commitPlannedGovernance(auth,token,p,opts={}){
   if(opts.testCheckpoint)await opts.testCheckpoint('before_commit',c);
   // Post-revocation, pre-COMMIT: never commit a personnel change against
   // a drifted (or revoked) downstream object/receipt/priority/refund fact.
-  if(!await actorCurrentScope(c,a,p.teamId)||!await batchAuditProven(c,b)||!await unowned(c,p.employeeId))throw Error('G_GOV_FINAL_ROLLBACK');
+  if(!await actorCurrentScope(c,a,p.teamId)||!await batchAuditProven(c,b,a)||!await unowned(c,p.employeeId))throw Error('G_GOV_FINAL_ROLLBACK');
   return out('G_PLANNED_APPLIED',true,{employeeId:p.employeeId,oldSessionsRevoked:true});
  });
 }
@@ -141,7 +141,8 @@ export async function restoreEmployeeSafely(auth,token,p){
 
 
 const receiptTable=Object.freeze({Customer:'customer_owner_handover_receipts',Demand:'demand_responsible_handover_receipts',Consultation:'consultation_assignee_handover_receipts',Waitlist:'waitlist_responsible_handover_receipts',Lock:'lock_responsible_handover_receipts',Transaction:'transaction_responsible_handover_receipts'});
-async function batchAuditProven(c,b){
+const domainObjectKey=Object.freeze({Customer:'customer_id',Demand:'demand_id',Consultation:'consultation_id',Waitlist:'waitlist_id',Lock:'lock_id',Transaction:'transaction_id'});
+async function batchAuditProven(c,b,a){
  const items=(await c.query('SELECT * FROM public.handover_items WHERE batch_id=$1 ORDER BY item_id FOR SHARE',[b.batch_id])).rows;
  if(!items.length||items.length>200||items.some(i=>i.status!=='completed'||String(i.from_employee_id)!==String(b.source_employee_id)))return false;
  const batchAudit=(await c.query("SELECT * FROM public.audit_events WHERE object_kind='handover_batch' AND object_id=$1 AND action='sg06.batch.complete'",[String(b.batch_id)])).rows;
@@ -154,6 +155,17 @@ async function batchAuditProven(c,b){
   // verify the entire immutable succession with present object and audit facts.
   const live=await verifyLiveHandoverChain(c,i,audit[0].role_context.teamId);
   if(!live.ok)return false;
+  // A-G-01: a manager with authority over original SG06 Team cannot use it
+  // to manage obligations last moved to a DIFFERENT Team without present
+  // independent scope. System Admin has a separate control-plane privilege.
+  if(a?.principal_kind==='employee'){
+   const table=i.object_kind==='Priority'?'demand_responsible_handover_receipts':receiptTable[i.object_kind];
+   const key=i.object_kind==='Priority'?'demand_id':domainObjectKey[i.object_kind];
+   const objectId=i.object_kind==='Priority'?(await c.query('SELECT trigger_demand_id FROM public.priority_leases WHERE priority_id=$1',[i.object_id])).rows[0]?.trigger_demand_id:i.object_id;
+   if(!table||!key||!objectId)return false;
+   const latest=(await c.query('SELECT scope_team_id FROM public.'+table+' WHERE '+key+'=$1 ORDER BY committed_at DESC,receipt_id DESC LIMIT 1',[objectId])).rows[0];
+   if(!latest||!await actorCurrentScope(c,a,latest.scope_team_id))return false;
+  }
   if(i.object_kind==='Priority'){
    const p=(await c.query('SELECT trigger_demand_id,customer_id,status,ended_at,expires_at FROM public.priority_leases WHERE priority_id=$1',[i.object_id])).rows[0];
    if(!p||p.status!=='active'||p.ended_at!==null||p.expires_at<=(await c.query('SELECT clock_timestamp() now')).rows[0].now)return false;
@@ -184,7 +196,7 @@ export async function commitPlannedStoreTransferAsSystemAdmin(auth,token,p,opts=
   const e=(await c.query('SELECT * FROM public.employees WHERE employee_id=$1 FOR UPDATE',[p.employeeId])).rows[0];
   const dest=(await c.query("SELECT t.store_id,t.team_status,s.status store_status FROM public.teams t JOIN public.stores s ON s.store_id=t.store_id WHERE t.team_id=$1",[p.targetTeamId])).rows[0];
   if(!b||!e||!dest||b.status!=='completed'||b.change_kind!=='planned_transfer'||String(b.source_employee_id)!==String(p.employeeId)||e.employment_status!=='active'||e.store_id===p.targetStoreId||String(dest.store_id)!==String(p.targetStoreId)||dest.team_status!=='active'||dest.store_status!=='active')return out('G_TRANSFER_PRECONDITION_DENY');
-  if(!await batchAuditProven(c,b)||!await unowned(c,p.employeeId))return out('G_TRANSFER_UNPROVEN_LEDGER');
+  if(!await batchAuditProven(c,b,a)||!await unowned(c,p.employeeId))return out('G_TRANSFER_UNPROVEN_LEDGER');
   if(e.receiving_status==='receiving'&&!await lastReceiver(c,p.employeeId))return out('G_TRANSFER_LAST_RECEIVER_DENY');
   const existing=(await c.query('SELECT 1 FROM public.employee_team_memberships WHERE team_id=$1 AND employee_id=$2 AND ended_at IS NULL',[p.targetTeamId,p.employeeId])).rowCount>0;
   if(existing)return out('G_TRANSFER_ALREADY_TEAM');
@@ -200,7 +212,7 @@ export async function commitPlannedStoreTransferAsSystemAdmin(auth,token,p,opts=
   await audit(c,a,p.employeeId,'sg06.personnel.planned_transfer',original,{storeId:p.targetStoreId,teamId:p.targetTeamId,receiving:'paused',credentialsDisabledUntilReissue:true},p.reason);
   if(opts.testCheckpoint)await opts.testCheckpoint('after_audit',c);
   if(opts.testCheckpoint)await opts.testCheckpoint('before_commit',c);
-  if(!await batchAuditProven(c,b)||!await unowned(c,p.employeeId))throw Error('G_GOV_FINAL_ROLLBACK');
+  if(!await batchAuditProven(c,b,a)||!await unowned(c,p.employeeId))throw Error('G_GOV_FINAL_ROLLBACK');
   return out('G_TRANSFER_APPLIED',true,{employeeId:p.employeeId,storeId:p.targetStoreId,sessionsRestored:false,permissionScopeRestored:false});
  });
 }
