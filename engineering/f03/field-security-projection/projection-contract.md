@@ -12,7 +12,7 @@
 
 - `projectCustomerVehicleList(auth, trustedContext, vehicleId)`：不保存报价权。合成当前customer、LEVEL、授权的LIMITED/UNLIMITED模式、车辆/周期/有效报价、隐身与Priority独占同时守卫后，最小投影；批发LIMITED列表**永远没有数字客户售价**。
 - `projectCustomerVehicleDetail(auth, trustedContext, vehicleId)`：已存在当前挂牌周期合法解锁方可返回LIMITED批发精确报价；未解锁但存在合法数字报价则返回`P_NEEDS_F05_ATOMIC_UNLOCK`和`--万`，由**F05原子扣次/解锁成功后**再次读取才能显示数字；没有可信数字报价返回`PRICE_CONSULT`，不能假造数字。
-- `projectEmployeeVehicle(auth, currentPcSession, {vehicleId,teamId,view})`：只为合法当前员工及当下读范围返公开客户展示字段。支持detail/list/export/history/copy/print/cache当前重验；始终剔除敏感批发内价、发布人电话和VIN，直到F04/F07有**额外独立合法当前能力、对象范围和电话发布人来源证明**，绝不恢复单独`can_call_wholesale_phone`。
+- `projectEmployeeVehicle(auth, currentPcSession, {vehicleId,teamId,view})`：必须在当前会话、当前权限和独立的权威Vehicle对象范围都证实后才能返回业务字段。本批旧M94**无法证明车辆到Team/4S商户的对象级归属**，因此员工detail/list/export/history/copy/print/cache一律返回`P_VEHICLE_SCOPE_UNPROVEN`、不附带车辆字段。即使拥有`crm.customer.view`也不得借用为`vehicle.read`或业务导出权限；始终剔除敏感批发内价、发布人电话和VIN，直到F04/F07有**额外独立合法当前能力、对象范围和电话发布人来源证明**，绝不恢复单独`can_call_wholesale_phone`。
 - `projectEmployeeExport`：仅上述调用的重新鉴权简化入口，不形成可复用的永久导出授权。不存在可以给生产用的完成授权Token。
 
 ## 字段和有效状态
@@ -31,3 +31,9 @@
 ## 尚不具备的正式可信事实（严禁擅填）
 
 现物理94表的`vehicle_price_history`有泛化`price_kind`而不是已经由F05正式版本签署的报价类型枚举；`customer_levels`只有level_code，没有持久化current entitlement mode/每日配额配置；`customer_price_cycle_unlocks`可证明存在解锁，但额度账本和有效授权需F05重新验证；车辆与4S具体商户的强制归属及专门`internal.price.view`能力没有在本包获授权的稳定消费合同。当前测试中的`customer_display`只是**合成测试数据价格类型**，不能等同生产正式报价来源。以上接口在F04/F05正式实现前必须`DENY/DEFER`，不能使用合成上下文作实际用户价格放行。
+
+## A-P-01｜对象归属及导出权限定向整改（2026-10-10）
+
+A 首轮复核发现员工CRM Team权限可代替Vehicle对象归属与导出权限，属于阻断。已修改`service.mjs`：先校验当前受信 F03-1 员工会话与CRM Team/data scope，再调用`currentVehicleObjectScope`检查客观物理数据；现M94仅有`source_type`、`created_by_employee_id`等不能证明业务归属的属性，没有所有批发/名邦/4S来源的正式当前`vehicle_id → Team/store/merchant`关系，故**不为任何员工返回车辆DTO**，统一`P_VEHICLE_SCOPE_UNPROVEN`且`fields`缺省，不给历史、导出、缓存、复制、打印或清单读取。此时不把VIN/内价脱敏误当可越权查询之授权。
+
+导出/历史/缓存/复制/打印另需各自**当前真实业务能力**；即使后续补足Vehicle归属，仍须在F04/F07正式补齐权限和对象映射之后才能开放，`crm.customer.view`不等同导出。所有映射和能力都必须来自服务端实际存储/签发、随当前员工状态与scope即时撤权。**禁止**以客户端提供Team、role、sourceType、合成`entitlementAttested`、车辆公开可见性或缓存旧对象冒充Vehicle业务可访问性。客户C端公开列表和等级价格的合法投影是另一独立合同，保留P1原10项回归。新增PG16三来源归属缺口、Team切换、改来源、个人deny与缓存负例。完整新旧CI记录详见B交接更新。
