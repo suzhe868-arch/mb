@@ -95,7 +95,7 @@ test('H-A08 real Admin revocation CAS closes license AND active Vehicle scope; s
  assert.equal(system.actor_system_admin_id,null);assert.equal(Number(system.affected_employee_id),2);
  assert.equal(system.actor_context.trigger,'f05_3a_invalidation');
  assert.equal(human.actor_kind,'SYSTEM_ADMIN');assert.equal(Number(human.actor_system_admin_id),9);
- assert.equal((await revokeMemberCreateLicense(auth,admin,{licenseId:first,version:1,eventKey:event('repeat-revoke')}).allowed),false);
+ assert.equal((await revokeMemberCreateLicense(auth,admin,{licenseId:first,version:1,eventKey:event('repeat-revoke')})).allowed,false);
 });
 test('H-A09 new independent Admin license, permission deny automatically revokes, allow restoration does NOT resurrect old Vehicle',async()=>{
  const g=await grantMemberCreateLicense(auth,admin,{targetEmployeeId:2,eventKey:event('sysadmin-license-third')});
