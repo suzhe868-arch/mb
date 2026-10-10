@@ -45,9 +45,9 @@ function compareCatalog(s){
 }
 async function versions(c){
  const rows=(await c.query("SELECT migration_id,checksum,structure_sha256 FROM public.f03_schema_migrations ORDER BY migration_id")).rows;
- if(INVENTORY.versions.length!==12)throw Error('F05_2_PREVIOUS_VERSION_INVENTORY');
+ if(INVENTORY.versions.length!==13)throw Error('F05_2_PREVIOUS_VERSION_INVENTORY');
  for(let i=0;i<12;i++){
-  const x=INVENTORY.versions[i];
+  const x=INVENTORY.versions[i+1];
   if(!rows[i]||rows[i].migration_id!==x.migration_id||rows[i].checksum!==x.checksum||rows[i].structure_sha256!==x.structure_sha256)
    throw Error('F05_2_FROZEN_VERSION_DRIFT_'+i);
  }
