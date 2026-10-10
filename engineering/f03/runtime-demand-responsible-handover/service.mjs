@@ -17,27 +17,13 @@ async function authTx(auth,token,fn,opts={}){
  if(!hookAllowed(opts.testCheckpoint))return out('I02_TEST_HOOK_DENY');
  const v=await auth.pool.connect();try{
   if(opts.crossDomainRequestKeyCommit===true){
-   const mTable=(await v.query("SELECT to_regclass('public.transaction_responsible_handover_receipts')::text AS tbl")).rows[0]?.tbl;
-   if(mTable==='transaction_responsible_handover_receipts'){
-    const {verify:verifyM}=await import('../runtime-transaction-responsible-handover/migration.mjs');
-    await verifyM(v);
-   }else{
-   const l=(await v.query("SELECT to_regclass('public.lock_responsible_handover_receipts')::text AS tbl")).rows[0]?.tbl;
-   if(l==='lock_responsible_handover_receipts'){
-    const {verify:verifyL}=await import('../runtime-lock-responsible-handover/migration.mjs');
-    await verifyL(v);
-   }else{
-   const j=(await v.query("SELECT to_regclass('public.consultation_assignee_handover_receipts')::text AS tbl")).rows[0]?.tbl;
-   if(j==='consultation_assignee_handover_receipts'){
-    const {verify:verifyJ}=await import('../runtime-consultation-assignee-handover/migration.mjs');
-    const k=(await v.query("SELECT to_regclass('public.waitlist_responsible_handover_receipts')::text AS tbl")).rows[0]?.tbl;
-    if(k==='waitlist_responsible_handover_receipts'){
-     const {verify:verifyK}=await import('../runtime-waitlist-responsible-handover/migration.mjs');
-     await verifyK(v);
-    }else await verifyJ(v);
-    }
-  }else await verify(v);
+   const supported=[['transaction_responsible_handover_receipts','../runtime-transaction-responsible-handover/migration.mjs'],['lock_responsible_handover_receipts','../runtime-lock-responsible-handover/migration.mjs'],['waitlist_responsible_handover_receipts','../runtime-waitlist-responsible-handover/migration.mjs'],['consultation_assignee_handover_receipts','../runtime-consultation-assignee-handover/migration.mjs']];
+   let pinned=false;
+   for(const [table,module] of supported){
+    const physical=(await v.query('SELECT to_regclass($1)::text AS tbl',['public.'+table])).rows[0]?.tbl;
+    if(physical===table){const {verify:verifyPinned}=await import(module);await verifyPinned(v);pinned=true;break;}
    }
+   if(!pinned)await verify(v);
   }else await verify(v);
  }finally{v.release()}
  try{
