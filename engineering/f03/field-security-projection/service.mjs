@@ -9,14 +9,14 @@ function syntheticOnly(){if(process.env.CI!=='true'||process.env.GITHUB_ACTIONS!
 const statusPrice=(amount,kind)=>amount==null?{price:null,priceState:'PRICE_CONSULT'}:{price:amount,priceState:kind};
 async function currentFacts(c,vehicleId){
  const v=(await c.query("SELECT v.vehicle_id,v.source_type,v.source_sale_status,v.platform_visibility,v.archived_at,cy.listing_cycle_id,cy.ended_at FROM public.vehicles v JOIN public.vehicle_listing_cycles cy ON cy.vehicle_id=v.vehicle_id WHERE v.vehicle_id=$1 AND cy.ended_at IS NULL ORDER BY cy.started_at DESC,cy.listing_cycle_id DESC LIMIT 1",[vehicleId])).rows[0];
- if(!v||v.archived_at!==null)return null;
+ if(!v||v.archived_at!==null||!((v.source_type==='wholesale'&&v.source_sale_status==='active')||(v.source_type!=='wholesale'&&v.source_sale_status==='available')))return null;
  const price=(await c.query("SELECT amount_cents FROM public.vehicle_price_history WHERE vehicle_id=$1 AND price_kind='customer_display' AND valid_from<=clock_timestamp() ORDER BY valid_from DESC,price_event_id DESC LIMIT 1",[vehicleId])).rows[0]?.amount_cents??null;
  return {v,price:price==null?null:Number(price)};
 }
 async function vehicleVisible(c,v,customerId){
  if(v.platform_visibility!=='visible'){
   if(!customerId)return false;
-  const grant=(await c.query('SELECT 1 FROM public.vehicle_visibility_grants WHERE vehicle_id=$1 AND customer_id=$2 AND revoked_at IS NULL LIMIT 1',[v.vehicle_id,customerId])).rowCount>0;
+  const grant=(await c.query("SELECT 1 FROM public.vehicle_visibility_grants g JOIN public.recommendations r ON r.recommendation_id=g.source_recommendation_id AND r.vehicle_id=g.vehicle_id AND r.customer_id=g.customer_id WHERE g.vehicle_id=$1 AND g.customer_id=$2 AND g.revoked_at IS NULL AND r.status='active' LIMIT 1",[v.vehicle_id,customerId])).rowCount>0;
   if(!grant)return false;
  }
  const x=(await c.query("SELECT customer_id FROM public.priority_leases WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active' AND ended_at IS NULL AND expires_at>clock_timestamp() LIMIT 2",[v.vehicle_id,v.listing_cycle_id])).rows;
@@ -67,6 +67,9 @@ export async function projectEmployeeVehicle(auth,sessionToken,request){
   if(!fact)return safe('P_VEHICLE_MISSING');
   const {v,price}=fact;
   if(v.platform_visibility!=='visible')return safe('P_HIDDEN_DEFER');
+  // A Priority-exclusive car is not a generic employee/CRM listing.
+  const priority=(await c.query("SELECT p.customer_id,d.responsible_employee_id FROM public.priority_leases p JOIN public.demands d ON d.demand_id=p.trigger_demand_id WHERE p.vehicle_id=$1 AND p.listing_cycle_id=$2 AND p.status='active' AND p.ended_at IS NULL AND p.expires_at>clock_timestamp()",[v.vehicle_id,v.listing_cycle_id])).rows;
+  if(priority.length>0&&(priority.length!==1||id(priority[0].responsible_employee_id)!==id(a.employee_id)))return safe('P_PRIORITY_EXCLUSIVE_DENY');
   const payload={vehicleId:Number(v.vehicle_id),listingCycleId:Number(v.listing_cycle_id),sourceType:v.source_type,price:price??null,priceState:price===null?'PRICE_CONSULT':'PRICE_VISIBLE'};
   // Internal price and upstream publisher phone are intentionally absent:
   // no signed current independent capability+source contract is present.
