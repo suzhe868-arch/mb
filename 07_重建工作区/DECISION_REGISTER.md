@@ -1643,3 +1643,13 @@ G受检最终HEAD19af2955d81ac14d79e0c4e6adc661a3a1aabd8e同SHA CI38025357614 20
 - **A-F04-02（旧接口处置错误）**：218行全部硬设`MODIFY`，包括现行已禁恢复的Collector连接GET/PATCH/TEST接口；须对确定已禁恢复标`RETIRE`并测试硬拒，对能由现行IA/PDM证明的逐一写实五类实际动作，对不可证的明确`UNREVIEWED_SOURCE_GAP`、不得冒充全部可修改或当前业务已映射。
 - **A-F04-03（对象scope正向证明不足）**：当前F04-R03最小本人Customer读取只核现时owner及员工**某个**有效Team scope，未建立目标Customer与该scope的权威当前范围链接；按PDM-02§4/PDM-16§9必须有实际对象范围证明和本人/越Team/跨店/撤权正反例。旧M94无法证明则保持业务对象读取DENY/OPEN_DEPENDENCY，绝不为取200新增未授权假事实/DDL。本条是待补**证明缺口**，非宣称已通过真实泄漏复现。
 - **唯一整改单已落main**：`07_重建工作区/F04-1_A主控首次独立审查与接口溯源权限证明完整定向整改单_2026-10-10.md`，PR26已留审查评论ID `6094614904`。正式状态 **`A_CHANGES_REQUESTED / NOT_ACCEPTED / NOT_MERGED / NEXT_OWNER=B`**，B继续原`feat/f04-1-contract-safety-gate`一次整改，重新取得最终HEAD匹配完整独立PG16 **26/26 success**和更新证据后交A。PR26不得先合并或启动F04-2；F03-V旧签收、C/H01及`PRODUCT_BASELINE=NOT_READY`不变。
+
+
+## 2026-10-10｜F04-1 PR26 A二轮正式验收通过、标准合并与F04-2下一包技术放行
+
+- **受检对象**：F04-1 原B分支`feat/f04-1-contract-safety-gate`，最终SHA `6af50664ec230f11caf62c73562449069d086b15`，真实同SHA [Actions38031443210](https://github.com/suzhe868-arch/mb/actions/runs/38031443210) **26/26独立真实非特权PG16 success**，两项新Job原生日志F04安全HTTP20/20、原始接口核账10/10，33真实Artifacts、F04原始artifact IDs 11663240223、11662501440；原94表/608列/435约束/163索引/2120目录SHA `7cd90248f51555fff26eb475320b9a10c6f52880263234a31e22210657a2c659`，12个新增文件均获授权且无旧SQL/业务服务/CI/正式server/产品Final修改。
+- **A-F04-01 CLOSED**：直接阅读源OpenAPI独立复算198真实path/218 method+path，其中62条含冒号path；新版每条`legacy_id/source_line/method/full_path`与原始文件逐一匹配，**零误映射**，Parser拒绝重复、畸形与缺method来源。
+- **A-F04-02 CLOSED**：禁止恢复的旧Collector connection GET/PATCH及connection:test POST 3项明确`RETIRE/FORBIDDEN`，真实隔离HTTP旧路由不可达；其余**215项当前Authority映射仍标`UNREVIEWED_SOURCE_GAP`**，不等于完成Current IA/PDM逐条业务决策，禁止泛设`MODIFY`。
+- **A-F04-03 CLOSED**：受限CI合成客户最小ID读取必须以可信现时target Customer的`object scope + crm.customer.view`同scope capability binding + current owner + 实时role/个人deny/session/account状态成立，原M94已有fixture合法正例，越Team、缺对象范围、owner改变、绑定过期、旧token、4S和System Admin业务越权等真HTTPS/PG16负例全部成功。不可从持有任意Team scope推断目标Customer可读。
+- **正式A动作**：PR #26 A独立验收评论 `6094838831`；标准GitHub PR合并返回`merged=true`，merge SHA **`20479f3712a5aaa862f7db4378d8db2369695d79`**，重新取PR证实`closed/merged=true`；正式报告`07_重建工作区/F04-1_A主控二轮独立验收PR26正式合并与下一阶段归属_2026-10-10.md`。**A_ACCEPTED_MERGED_PR26_CI_ONLY_SCOPE**，不是F04全业务实现、产品可上线。
+- **新的完整技术包A正式放行B**：`07_重建工作区/F04-2_A主控现行215接口Authority映射与4S账号安全控制前置完整施工单_2026-10-10.md`，指定`feat/f04-2-authority-route-mapping`（B开始时从最新main创建），要求真实Current IA/PDM/Low-Fi逐项证据映射215未裁候选，确实缺证不得猜Authority；4S账号System Admin控制面仅CI-only只读资格/对象安全预检，不开放账号变更。**28/28同B最终HEAD真正独立PG16 jobs（冻结旧26+新2）**、原生证据/反例/中文交接后交A，B不得自行合并或启动F04-3；当前`A_RELEASED_FOR_B / B_NOT_STARTED / NEXT_OWNER=B`。F04、F05～F07、C/H01、三端UAT和产品基线仍`NOT_READY`。
