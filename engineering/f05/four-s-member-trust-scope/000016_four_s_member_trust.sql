@@ -94,6 +94,24 @@ BEGIN
 END $$;
 CREATE TRIGGER f05_3a_cascade_license AFTER UPDATE ON public.f05_3a_member_create_licenses
 FOR EACH ROW EXECUTE FUNCTION public.f05_3a_license_revocation_cascade();
+-- Object lifecycle mutation ends ONLY this Vehicle/Cycle scope; it must never
+-- globally strip the member's Admin-granted right to publish their OTHER cars.
+CREATE FUNCTION public.f05_3a_close_single_publication(which_vehicle BIGINT, cause TEXT)
+ RETURNS VOID LANGUAGE plpgsql AS $
+DECLARE x RECORD;
+BEGIN
+ FOR x IN UPDATE public.f05_3a_member_publications
+   SET revoked_at=transaction_timestamp(),version=version+1
+   WHERE vehicle_id=which_vehicle AND revoked_at IS NULL
+   RETURNING publication_id,license_id,member_employee_id,version,revoked_at LOOP
+  INSERT INTO public.f05_3a_member_trust_audit(event_key,license_id,publication_id,event_kind,actor_kind,affected_employee_id,actor_context,before_state,after_state)
+  VALUES('auto:object:revoke:'||x.publication_id||':'||txid_current(),x.license_id,x.publication_id,
+   'SYSTEM_OBJECT_REVOKE','SYSTEM',x.member_employee_id,
+   jsonb_build_object('trigger','f05_3a_invalidation','cause',cause,'txid',txid_current()),
+   jsonb_build_object('active',true,'version',x.version-1,'vehicle_id',which_vehicle),
+   jsonb_build_object('active',false,'version',x.version,'revoked_at',x.revoked_at,'vehicle_id',which_vehicle));
+ END LOOP;
+END $;
 CREATE FUNCTION public.f05_3a_invalidate_member() RETURNS trigger LANGUAGE plpgsql AS $$
 DECLARE who BIGINT; x RECORD;
 BEGIN
@@ -114,18 +132,12 @@ BEGIN
  ELSIF TG_TABLE_NAME='vehicles' THEN
   IF ROW(NEW.source_type,NEW.source_sale_status,NEW.archived_at)
       IS NOT DISTINCT FROM ROW(OLD.source_type,OLD.source_sale_status,OLD.archived_at) THEN RETURN NEW; END IF;
-  FOR x IN SELECT DISTINCT p.member_employee_id FROM public.f05_3a_member_publications p
-      WHERE p.vehicle_id=NEW.vehicle_id AND p.revoked_at IS NULL LOOP
-   PERFORM public.f05_3a_close_member_license(x.member_employee_id,'VEHICLE_CHANGED');
-  END LOOP;
+  PERFORM public.f05_3a_close_single_publication(NEW.vehicle_id,'VEHICLE_CHANGED');
   RETURN NEW;
  ELSIF TG_TABLE_NAME='vehicle_listing_cycles' THEN
   IF ROW(NEW.ended_at,NEW.vehicle_id)
       IS NOT DISTINCT FROM ROW(OLD.ended_at,OLD.vehicle_id) THEN RETURN NEW; END IF;
-  FOR x IN SELECT DISTINCT p.member_employee_id FROM public.f05_3a_member_publications p
-      WHERE p.listing_cycle_id=NEW.listing_cycle_id AND p.revoked_at IS NULL LOOP
-   PERFORM public.f05_3a_close_member_license(x.member_employee_id,'CYCLE_CHANGED');
-  END LOOP;
+  PERFORM public.f05_3a_close_single_publication(NEW.vehicle_id,'CYCLE_CHANGED');
   RETURN NEW;
  END IF;
  PERFORM public.f05_3a_close_member_license(who,'GOVERNANCE_'||TG_TABLE_NAME);
