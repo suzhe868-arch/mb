@@ -44,3 +44,105 @@ CREATE FUNCTION public.f05_2_audit_immutable() RETURNS trigger
 CREATE TRIGGER f05_2_audit_no_update_delete
  BEFORE UPDATE OR DELETE ON public.vehicle_responsibility_audit_events
  FOR EACH ROW EXECUTE FUNCTION public.f05_2_audit_immutable();
+
+
+-- A-F05-2-02/04: INSERT/UPDATE/DELETE on current governance relations immediately
+-- invalidates signed stewardship in the SAME governance transaction. This is
+-- additive CI-only trigger DDL; every existing M94 catalog object is unchanged.
+-- Once invalidated, reactivation never reopens the old receipt.
+CREATE FUNCTION public.f05_2_governance_invalidate() RETURNS trigger
+ LANGUAGE plpgsql AS $$
+ DECLARE who BIGINT; team BIGINT; vehicle BIGINT; invalidated RECORD;
+ BEGIN
+   IF TG_TABLE_NAME='employees' THEN
+     who:=COALESCE(NEW.employee_id,OLD.employee_id);
+     IF TG_OP='UPDATE' AND
+       ROW(NEW.employment_status,NEW.main_role_id,NEW.store_id)
+       IS NOT DISTINCT FROM ROW(OLD.employment_status,OLD.main_role_id,OLD.store_id)
+     THEN RETURN NEW; END IF;
+   ELSIF TG_TABLE_NAME IN ('employee_data_scopes','employee_capability_scope_bindings',
+                           'employee_team_memberships','employee_permission_overrides') THEN
+     who:=CASE WHEN TG_OP='DELETE' THEN OLD.employee_id ELSE NEW.employee_id END;
+   ELSIF TG_TABLE_NAME='teams' THEN
+     team:=CASE WHEN TG_OP='DELETE' THEN OLD.team_id ELSE NEW.team_id END;
+     IF TG_OP='UPDATE' AND
+       ROW(NEW.team_status,NEW.store_id) IS NOT DISTINCT FROM ROW(OLD.team_status,OLD.store_id)
+     THEN RETURN NEW; END IF;
+   ELSIF TG_TABLE_NAME='vehicle_listing_cycles' THEN
+     vehicle:=COALESCE(NEW.vehicle_id,OLD.vehicle_id);
+     IF TG_OP='UPDATE' AND
+       ROW(NEW.ended_at,NEW.vehicle_id) IS NOT DISTINCT FROM ROW(OLD.ended_at,OLD.vehicle_id)
+     THEN RETURN NEW; END IF;
+   ELSIF TG_TABLE_NAME='vehicles' THEN
+     vehicle:=COALESCE(NEW.vehicle_id,OLD.vehicle_id);
+     IF TG_OP='UPDATE' AND
+       ROW(NEW.source_type,NEW.source_sale_status,NEW.archived_at)
+       IS NOT DISTINCT FROM ROW(OLD.source_type,OLD.source_sale_status,OLD.archived_at)
+     THEN RETURN NEW; END IF;
+   ELSIF TG_TABLE_NAME='role_permission_defaults' THEN
+     FOR invalidated IN
+       SELECT e.employee_id AS actor FROM public.employees e
+       WHERE e.main_role_id=COALESCE(NEW.role_id,OLD.role_id)
+     LOOP
+       -- Each affected employee's current steward link is closed once and audited.
+       PERFORM public.f05_2_close_steward_links(invalidated.actor,NULL,NULL,'ROLE_TEMPLATE_CHANGE');
+     END LOOP;
+     RETURN COALESCE(NEW,OLD);
+   ELSIF TG_TABLE_NAME='stores' THEN
+     FOR invalidated IN
+       SELECT t.team_id AS affected_team FROM public.teams t
+       WHERE t.store_id=COALESCE(NEW.store_id,OLD.store_id)
+     LOOP
+       PERFORM public.f05_2_close_steward_links(NULL,invalidated.affected_team,NULL,'STORE_STATE_CHANGE');
+     END LOOP;
+     RETURN COALESCE(NEW,OLD);
+   END IF;
+   PERFORM public.f05_2_close_steward_links(who,team,vehicle,'GOVERNANCE_'||TG_TABLE_NAME);
+   IF TG_OP='DELETE' THEN RETURN OLD; END IF;
+   RETURN NEW;
+ END
+ $$;
+-- Current responsibilities are closed and immutable audit inserted atomically;
+-- the originating trigger transaction's COMMIT decides which request wins.
+CREATE FUNCTION public.f05_2_close_steward_links(who BIGINT, team BIGINT, vehicle BIGINT, cause TEXT)
+ RETURNS VOID LANGUAGE plpgsql AS $$
+ DECLARE rowx RECORD;
+ BEGIN
+   FOR rowx IN
+     UPDATE public.vehicle_current_responsibilities x SET
+       revoked_at=transaction_timestamp(),version=version+1
+     WHERE x.revoked_at IS NULL
+       AND ((who IS NOT NULL AND x.responsible_employee_id=who) OR
+            (team IS NOT NULL AND x.team_id=team) OR
+            (vehicle IS NOT NULL AND x.vehicle_id=vehicle))
+     RETURNING x.responsibility_id,x.responsible_employee_id
+   LOOP
+     INSERT INTO public.vehicle_responsibility_audit_events
+       (responsibility_id,event_key,event_kind,actor_employee_id,previous_employee_id,source_evidence)
+     VALUES(rowx.responsibility_id,
+       'auto:'||rowx.responsibility_id||':'||txid_current()::text||':'||cause,
+       'REVOKE',rowx.responsible_employee_id,rowx.responsible_employee_id,
+       'F05_2_CI_AUTOMATIC_INVALIDATION_'||cause);
+   END LOOP;
+ END
+ $$;
+CREATE TRIGGER f05_2_employment_epoch_guard AFTER UPDATE ON public.employees
+ FOR EACH ROW EXECUTE FUNCTION public.f05_2_governance_invalidate();
+CREATE TRIGGER f05_2_scope_epoch_guard AFTER INSERT OR UPDATE OR DELETE ON public.employee_data_scopes
+ FOR EACH ROW EXECUTE FUNCTION public.f05_2_governance_invalidate();
+CREATE TRIGGER f05_2_capability_epoch_guard AFTER INSERT OR UPDATE OR DELETE ON public.employee_capability_scope_bindings
+ FOR EACH ROW EXECUTE FUNCTION public.f05_2_governance_invalidate();
+CREATE TRIGGER f05_2_membership_epoch_guard AFTER INSERT OR UPDATE OR DELETE ON public.employee_team_memberships
+ FOR EACH ROW EXECUTE FUNCTION public.f05_2_governance_invalidate();
+CREATE TRIGGER f05_2_override_epoch_guard AFTER INSERT OR UPDATE OR DELETE ON public.employee_permission_overrides
+ FOR EACH ROW EXECUTE FUNCTION public.f05_2_governance_invalidate();
+CREATE TRIGGER f05_2_role_template_guard AFTER UPDATE OR DELETE ON public.role_permission_defaults
+ FOR EACH ROW EXECUTE FUNCTION public.f05_2_governance_invalidate();
+CREATE TRIGGER f05_2_team_guard AFTER UPDATE ON public.teams
+ FOR EACH ROW EXECUTE FUNCTION public.f05_2_governance_invalidate();
+CREATE TRIGGER f05_2_store_guard AFTER UPDATE ON public.stores
+ FOR EACH ROW EXECUTE FUNCTION public.f05_2_governance_invalidate();
+CREATE TRIGGER f05_2_vehicle_state_guard AFTER UPDATE ON public.vehicles
+ FOR EACH ROW EXECUTE FUNCTION public.f05_2_governance_invalidate();
+CREATE TRIGGER f05_2_cycle_state_guard AFTER UPDATE ON public.vehicle_listing_cycles
+ FOR EACH ROW EXECUTE FUNCTION public.f05_2_governance_invalidate();
