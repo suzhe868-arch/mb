@@ -122,22 +122,28 @@ async function batchAuditProven(c,b){
  if(!items.length||items.length>200||items.some(i=>i.status!=='completed'||String(i.from_employee_id)!==String(b.source_employee_id)))return false;
  const batchAudit=(await c.query("SELECT * FROM public.audit_events WHERE object_kind='handover_batch' AND object_id=$1 AND action='sg06.batch.complete'",[String(b.batch_id)])).rows;
  if(batchAudit.length!==1||batchAudit[0].role_context?.scope!=='F03_G_CI_ONLY'||batchAudit[0].after_json?.status!=='completed')return false;
+ const affectedCustomers=new Set();
  for(const i of items){
   const audit=(await c.query("SELECT * FROM public.audit_events WHERE object_kind='handover_item' AND object_id=$1 AND action='sg06.item.complete'",[String(i.item_id)])).rows;
   if(audit.length!==1||audit[0].role_context?.scope!=='F03_G_CI_ONLY'||audit[0].after_json?.status!=='completed')return false;
   if(i.object_kind==='Priority'){
-   const p=(await c.query('SELECT trigger_demand_id,customer_id FROM public.priority_leases WHERE priority_id=$1',[i.object_id])).rows[0];
-   if(!p)return false;
+   const p=(await c.query('SELECT trigger_demand_id,customer_id,status,ended_at,expires_at FROM public.priority_leases WHERE priority_id=$1',[i.object_id])).rows[0];
+   if(!p||p.status!=='active'||p.ended_at!==null||p.expires_at<=(await c.query('SELECT clock_timestamp() now')).rows[0].now)return false;
+   affectedCustomers.add(String(p.customer_id));
    const d=(await c.query("SELECT i.* FROM public.handover_items i WHERE i.batch_id=$1 AND i.object_kind='Demand' AND i.object_id=$2 AND i.from_employee_id=$3 AND i.intended_to_employee_id=$4",[b.batch_id,String(p.trigger_demand_id),i.from_employee_id,i.intended_to_employee_id])).rows[0];
    if(!d||d.status!=='completed')return false;
+   const linked=(await c.query('SELECT * FROM public.demand_responsible_handover_receipts WHERE batch_id=$1 AND item_id=$2',[b.batch_id,d.item_id])).rows;
+   if(linked.length!==1||String(linked[0].from_employee_id)!==String(i.from_employee_id)||String(linked[0].to_employee_id)!==String(i.intended_to_employee_id)||String(audit[0].role_context?.teamId)!==String(linked[0].scope_team_id))return false;
    continue;
   }
   const table=receiptTable[i.object_kind];if(!table)return false;
   const q=(await c.query('SELECT * FROM public.'+table+' WHERE item_id=$1 AND batch_id=$2',[i.item_id,b.batch_id])).rows;
-  if(q.length!==1||String(q[0].from_employee_id)!==String(i.from_employee_id)||String(q[0].to_employee_id)!==String(i.intended_to_employee_id)||String(audit[0].after_json?.receiptId)!==String(q[0].receipt_id))return false;
+  if(q.length!==1||String(q[0].from_employee_id)!==String(i.from_employee_id)||String(q[0].to_employee_id)!==String(i.intended_to_employee_id)||String(audit[0].after_json?.receiptId)!==String(q[0].receipt_id)||String(audit[0].role_context?.teamId)!==String(q[0].scope_team_id))return false;
+  affectedCustomers.add(String(q[0].customer_id));
   const original=(await c.query("SELECT * FROM public.audit_events WHERE audit_id=$1",[q[0].audit_id])).rows[0];
-  if(!original||original.actor_kind!=='employee'||String(original.actor_id)!==String(q[0].actor_employee_id)||String(original.role_context?.batchId)!==String(b.batch_id)||String(original.role_context?.itemId)!==String(i.item_id))return false;
+  if(!original||original.actor_kind!=='employee'||String(original.actor_id)!==String(q[0].actor_employee_id)||String(original.role_context?.batchId)!==String(b.batch_id)||String(original.role_context?.itemId)!==String(i.item_id)||String(original.role_context?.teamId)!==String(q[0].scope_team_id)||original.role_context?.requestKeySha256!==q[0].request_key_sha256)return false;
  }
+ if((await c.query("SELECT count(*)::int n FROM public.refund_cases WHERE status='pending' AND customer_id=ANY($1::bigint[])",[[...affectedCustomers]])).rows[0].n!==0)return false;
  return true;
 }
 export async function commitPlannedStoreTransferAsSystemAdmin(auth,token,p,opts={}){
