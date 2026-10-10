@@ -1,3 +1,21 @@
+# F05-2｜A二轮整改单05 审计Actor真实性｜B三轮交审
+
+> 2026-10-11（新加坡）；A二轮确认 A-F05-2-01～04 已PASS，唯一补充 A-F05-2-05 审计 Actor 真实性。本段是本轮 B 整改事实与交审条件，不代替最终 CI 实证。对应正式整改单：`07_重建工作区/F05-2_A主控二轮独立复验自动撤权审计Actor真实性完整定向整改单_2026-10-11.md`。
+
+## 独立身份/审计合同
+
+- 人工 ISSUE/REVOKE/TRANSFER：Service 通过真实 Employee HTTPS Session 核验，审计行 `actor_kind='EMPLOYEE'`、`actor_employee_id` 为真实员工；经理交接记经理，不使用被交接销售ID冒充。
+- 自动 REVOKE：PG16 `f05_2_governance_invalidate` 为已证的技术执行者，而治理上游人类操作者未有独立受信receipt。新增本批物理审计列使其恒定标记 `actor_kind='SYSTEM'`、`actor_employee_id=NULL`、`actor_system_code='F05_2_GOVERNANCE_INVALIDATION'`，被撤权员工仍在 `previous_employee_id`。不从变更对象、原员工、数据库账号或客户端 header 伪推断操作人。
+- `actor_context` 记录 `trigger/cause/source_table/source_operation/transaction_id/database_actor/受影响员工、团队或车辆`；`before_state` 与 `after_state` 记录责任ID所指 Vehicle/Cycle、负责人、版本、撤权时点和有效状态；SYSTEM 自动撤权与责任关闭在同一真实PG16事务落库、失败回滚。
+- 数据库新增 `f05_2_audit_actor_truth` CHECK 拒绝 SYSTEM+human、匿名 EMPLOYEE 与伪SYSTEM code。旧不可变 `f05_2_audit_no_update_delete` 持续拦截篡改。自动触发器不再把 `responsible_employee_id` 复制给 `actor_employee_id`。
+- 新真实PG16反例 `R-A17～A21` 分别验证：独立权限治理人写入导致SYSTEM撤权；员工已inactive时也只记SYSTEM；显式员工 ISSUE/REVOKE 和经理 TRANSFER 的真 Actor；重复自动撤权无第二事件且不可更改；SQL CHECK拒绝虚假 SYSTEM、人类匿名身份。旧 `R-A01～A16`、HTTPS `R-B01～B11` 与原34独立非特权PG16 jobs 全部冻结保留。
+
+## 交审门槛
+
+仅在最终 `B_HEAD=PR31_HEAD=run.head_sha`、本轮独立非特权 PG16 **36/36 jobs success**、物理R-A01～A21 与HTTPS R-B01～B11均success、新两专属GitHub原生Artifact、schema-only/catalog/SHA、完整版本/回滚与审计来源证据验证后，B标记 `B_SELF_TESTED/READY_FOR_A_REVIEW/NEXT_OWNER=A`。旧成功运行 `38071814138` 不得代替新整改运行。PR31不合并main；F05全域/生产和V1仍 `NOT_READY`。
+
+---
+
 # F05-2｜B 依 A 首轮整改单四项闭环整改与二轮交审证据
 
 > 2026-10-11 Asia/Singapore；原 PR #31 持续使用 `feat/f05-2-vehicle-stewardship-physical-scope`。本页为 B 重新交审依据，不是 A 已签收记录。

@@ -39,3 +39,9 @@ R-B10	Receiver inactive→active + 新登录	旧签发责任不复活	403	A-02
 R-B11	登出Cookie复用	已撤销Session不能借历史关系重新登录	403	A-01/04
 R-A15	独立PG16当前scope变更与Vehicle读冲突	同scope终止/再授权与Vehicle现时读取互斥,生效之后旧责任不可复活	COMMIT有序/403	A-02/04
 R-A16	受信发布事务与vehicle.manage权限撤销同时发生	同Session签发前权限检查,不同PG16连接更新cap不得越过当前签发事务的Commit;恢复cap不复活旧证	COMMIT有序/403	A-03/04
+
+R-A17	人员权限治理（另一PG16 actor）触发撤权	SYSTEM+NULL human，previous_employee保留原被影响员工；记录触发器、表/操作、前后版本和PG txid	实证日志待最终CI	A-F05-2-05
+R-A18	员工inactive时撤权而其后又复职	旧历史记录SYSTEM而非已inactive员工，不允许复职改写	实证日志待最终CI	A-F05-2-05
+R-A19	实名ISSUE、员工直接REVOKE和经理TRANSFER	真实Session Employee actor=1/6；交接经理=6、old owner=1、new owner=7	实证日志待最终CI	A-F05-2-05
+R-A20	重复治理触发与历史变更尝试	旧责任不复活、SYSTEM审计不重复；UPDATE因immutable被拒	实证日志待最终CI	A-F05-2-05
+R-A21	伪SYSTEM携human或伪EMPLOYEE无actor	PG16 CHECK返回23514；仅合法历史事件留存	实证日志待最终CI	A-F05-2-05
