@@ -108,6 +108,10 @@ CREATE FUNCTION public.f05_2_close_steward_links(who BIGINT, team BIGINT, vehicl
  RETURNS VOID LANGUAGE plpgsql AS $$
  DECLARE rowx RECORD;
  BEGIN
+   -- Serialize new grants and all governance invalidations for the same subject.
+   IF who IS NOT NULL AND who BETWEEN 1 AND 2147483647 THEN
+     PERFORM pg_advisory_xact_lock(20261011,who::integer);
+   END IF;
    FOR rowx IN
      UPDATE public.vehicle_current_responsibilities x SET
        revoked_at=transaction_timestamp(),version=version+1
