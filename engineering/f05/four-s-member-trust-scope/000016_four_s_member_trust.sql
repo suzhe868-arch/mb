@@ -153,3 +153,72 @@ CREATE TRIGGER f05_3a_vehicle_lifecycle AFTER UPDATE ON public.vehicles
 FOR EACH ROW EXECUTE FUNCTION public.f05_3a_invalidate_member();
 CREATE TRIGGER f05_3a_listing_lifecycle AFTER UPDATE ON public.vehicle_listing_cycles
 FOR EACH ROW EXECUTE FUNCTION public.f05_3a_invalidate_member();
+
+
+-- A-F05-3A-01/02: credible publication identity is a DATABASE invariant,
+-- not merely an API gate. This additive CI-only migration is never deployed.
+ALTER TABLE public.f05_3a_member_create_licenses
+ ADD CONSTRAINT f05_3a_license_employee_pair UNIQUE (license_id,employee_id);
+ALTER TABLE public.f05_3a_member_publications
+ ADD CONSTRAINT f05_3a_publication_license_owner_fk
+ FOREIGN KEY(license_id,member_employee_id)
+ REFERENCES public.f05_3a_member_create_licenses(license_id,employee_id) ON DELETE RESTRICT;
+
+-- Only an irreversible active -> revoked CAS transition may update these
+-- signed facts. Historical actors, object identity and issuance data are sealed.
+CREATE FUNCTION public.f05_3a_guard_license_provenance() RETURNS trigger
+ LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP='DELETE' THEN RAISE EXCEPTION 'F05_3A_LICENSE_DELETE_FORBIDDEN'; END IF;
+ IF ROW(NEW.employee_id,NEW.scope_kind,NEW.granted_by_system_admin_id,
+        NEW.grant_event_key,NEW.granted_at,NEW.license_id)
+    IS DISTINCT FROM
+    ROW(OLD.employee_id,OLD.scope_kind,OLD.granted_by_system_admin_id,
+        OLD.grant_event_key,OLD.granted_at,OLD.license_id)
+ THEN RAISE EXCEPTION 'F05_3A_LICENSE_PROVENANCE_IMMUTABLE'; END IF;
+ IF OLD.revoked_at IS NOT NULL OR NEW.revoked_at IS NULL
+    OR NEW.version <> OLD.version+1
+ THEN RAISE EXCEPTION 'F05_3A_LICENSE_REVOCATION_IRREVERSIBLE'; END IF;
+ RETURN NEW;
+END $$;
+CREATE TRIGGER f05_3a_guard_license_history
+ BEFORE UPDATE OR DELETE ON public.f05_3a_member_create_licenses
+ FOR EACH ROW EXECUTE FUNCTION public.f05_3a_guard_license_provenance();
+
+CREATE FUNCTION public.f05_3a_guard_publication_provenance() RETURNS trigger
+ LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP='DELETE' THEN RAISE EXCEPTION 'F05_3A_PUBLICATION_DELETE_FORBIDDEN'; END IF;
+ IF ROW(NEW.publication_id,NEW.vehicle_id,NEW.listing_cycle_id,NEW.license_id,
+        NEW.member_employee_id,NEW.trusted_event_key,NEW.source_kind,
+        NEW.brand_id,NEW.series_id,NEW.model_id,NEW.model_year,NEW.mileage_km,
+        NEW.city,NEW.published_at)
+    IS DISTINCT FROM
+    ROW(OLD.publication_id,OLD.vehicle_id,OLD.listing_cycle_id,OLD.license_id,
+        OLD.member_employee_id,OLD.trusted_event_key,OLD.source_kind,
+        OLD.brand_id,OLD.series_id,OLD.model_id,OLD.model_year,OLD.mileage_km,
+        OLD.city,OLD.published_at)
+ THEN RAISE EXCEPTION 'F05_3A_PUBLICATION_PROVENANCE_IMMUTABLE'; END IF;
+ IF OLD.revoked_at IS NOT NULL OR NEW.revoked_at IS NULL
+    OR NEW.version <> OLD.version+1
+ THEN RAISE EXCEPTION 'F05_3A_PUBLICATION_REVOCATION_IRREVERSIBLE'; END IF;
+ RETURN NEW;
+END $$;
+CREATE TRIGGER f05_3a_guard_publication_history
+ BEFORE UPDATE OR DELETE ON public.f05_3a_member_publications
+ FOR EACH ROW EXECUTE FUNCTION public.f05_3a_guard_publication_provenance();
+
+-- A vehicle uploader is NOT a transferrable publication owner; an attempted
+-- rewrite of a signed vehicle's historical creator must fail at the PG16 edge.
+CREATE FUNCTION public.f05_3a_guard_signed_vehicle_creator() RETURNS trigger
+ LANGUAGE plpgsql AS $$
+BEGIN
+ IF NEW.created_by_employee_id IS DISTINCT FROM OLD.created_by_employee_id
+    AND EXISTS(SELECT 1 FROM public.f05_3a_member_publications
+               WHERE vehicle_id=OLD.vehicle_id)
+ THEN RAISE EXCEPTION 'F05_3A_SIGNED_VEHICLE_CREATOR_IMMUTABLE'; END IF;
+ RETURN NEW;
+END $$;
+CREATE TRIGGER f05_3a_guard_signed_vehicle_creator_update
+ BEFORE UPDATE OF created_by_employee_id ON public.vehicles
+ FOR EACH ROW EXECUTE FUNCTION public.f05_3a_guard_signed_vehicle_creator();
