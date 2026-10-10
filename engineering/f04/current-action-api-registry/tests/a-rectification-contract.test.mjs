@@ -71,9 +71,9 @@ test('A-F04-3-02-1 real but unrelated navigation/PDM quote cannot pass exact act
 });
 test('A-F04-3-02-2 cloned current action with wrong business Domain or principal denied',()=>{
  const id='CURRENTACTION_LOCKREQUEST_PENDING_CREATE';
- assert.throws(()=>validateRegistry(mutateTsv(id,'domain_authority','PDM-06'),spec,bridge,dto,sem),/DTO_ACTOR_CONTRACT_DRIFT|CURRENT_SEMANTIC_MISMATCH/);
- assert.throws(()=>validateRegistry(mutateTsv(id,'subject','EMPLOYEE'),spec,bridge,dto,sem),/DTO_ACTOR_CONTRACT_DRIFT|CURRENT_SEMANTIC_MISMATCH/);
- assert.throws(()=>validateRegistry(mutateTsv('CURRENTACTION_SYSTEM_ADMIN_EMPLOYEE_DISABLE','subject','EMPLOYEE_MANAGER'),spec,bridge,dto,sem),/DTO_ACTOR_CONTRACT_DRIFT|CURRENT_SEMANTIC_MISMATCH/);
+ assert.throws(()=>validateRegistry(mutateTsv(id,'domain_authority','PDM-06'),spec,bridge,dto,sem),/DTO_ACTOR_CONTRACT_DRIFT|DTO_IDENTITY_DRIFT|CURRENT_SEMANTIC_MISMATCH/);
+ assert.throws(()=>validateRegistry(mutateTsv(id,'subject','EMPLOYEE'),spec,bridge,dto,sem),/DTO_ACTOR_CONTRACT_DRIFT|DTO_IDENTITY_DRIFT|CURRENT_SEMANTIC_MISMATCH/);
+ assert.throws(()=>validateRegistry(mutateTsv('CURRENTACTION_SYSTEM_ADMIN_EMPLOYEE_DISABLE','subject','EMPLOYEE_MANAGER'),spec,bridge,dto,sem),/DTO_ACTOR_CONTRACT_DRIFT|DTO_IDENTITY_DRIFT|CURRENT_SEMANTIC_MISMATCH/);
 });
 test('A-F04-3-03-1 Customer PC authentication can never be represented as authorized',()=>{
  const s=JSON.parse(spec),a=loadContracts();
