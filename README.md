@@ -1,3 +1,13 @@
+# 2026-10-10｜F04-2 A二轮独立验收正式通过并合并PR27；F04-3完整施工单已放行B（唯一当前最新）
+
+- **A真实已合并PR27：** [PR #27](https://github.com/suzhe868-arch/mb/pull/27) `closed/merged=true`；最终B提交`d09038917c91446eb8914f53f3e1881345ba7d1a`；官方[Actions 38041020114](https://github.com/suzhe868-arch/mb/actions/runs/38041020114)与B最终HEAD完全同SHA、`completed/success`、**28/28独立真实非特权PostgreSQL16 jobs成功**（既有26全部冻结＋新2），新Authority 11/11、4S loopback HTTPS 9/9；37份原生Artifacts含新`11666040902/11665941117`、旧M94原94表与G14隔离封印无削弱。PR27共13个授权文件，只在`engineering/f04/authority-route-mapping/**`和新独立workflow；A正面验收评论ID `6096462233`；**标准merge提交`70d1f68490c851823cf5d1415c703667c0305cb4`**。正式报告：`07_重建工作区/F04-2_A主控二轮独立验收PR27正式合并与F04-3交接_2026-10-10.md`。
+- **上轮A双阻断均关闭**：F04-2 215个旧候选当前按真实同主体/同动作/Final/IA/Low-Fi语义重新核证后只有**23 `EVIDENCE_MATCHED` + 192 `SOURCE_GAP`**，原粗粒度105中的82下调缺口并有105条逐行复核。咨询Consultation归PDM-15，候补Waitlist归PDM-18/F06，F04合同责任与实际Domain实施分开；假Nav/PDM证据和真实但**不同动作**引用均有独立负例。旧218 methods/198 paths/62个冒号paths与3 Collector禁恢复仍原样保守；所有215依旧`decision=UNDECIDED / current_stage=CONTRACT_ONLY`，23不是已批准老路由，192不能私自恢复。
+- **本批只验收CI-only技术能力，不是正式业务完成**：System Admin→4S控制面仅是隔离HTTPS最小只读，真实4S商户对象绑定尚无证据，目标一律403；正式CRM/车辆价权/锁车交易退款/JYT-CDN/真实生产路由与C/H01高保真仍有缺口。F04整体及产品基线`NOT_READY`。
+- **A已独立正式签发下一完整工程施工单：** `07_重建工作区/F04-3_A主控Current新接口注册表DTO与路由安全门禁完整施工单_2026-10-10.md`。**NEXT_OWNER=B / F04_3_A_RELEASED_FOR_B / B_NOT_STARTED**，B需从执行时最新main建立新指定分支`feat/f04-3-current-action-api-registry`（尚未假称分支已创建），一次性完成Current PDM/IA/Low-Fi动作证实的**新**HTTP/DTO合同目录、23匹配/192缺口/3禁恢复追溯、CI-only安全路由和真实会话/object scope/错误/敏感出口门禁；所有未实现F05/F06/F07业务不得假200或生产启用。最终**30/30真正独立非特权PG16 CI jobs（冻结原28+新2）**、run.head_sha同最终B HEAD，独立原生Artifacts及完整中文交接后交A。B不得自行合并main、扩大生产/DDL/4S真实账号或资金权限，也不得启动F04-4。
+- **唯一正式下一步：B按新F04-3施工单整包施工、完整CI及证据交A复验；C设计原授权独立并行，A等待正式交付再独立验收。** 本段覆盖旧“F04-2未通过/PR27未合并”的历史状态叙述，不修改历史验收事实。
+
+---
+
 # 2026-10-10｜F04-2 B自验28/28成功、A独立审查发现Authority语义错配及Domain责任错分（唯一当前最新）
 
 - **B真实证据合格但不等于A通过**：PR [#27](https://github.com/suzhe868-arch/mb/pull/27) 原B分支`feat/f04-2-authority-route-mapping`受检HEAD `b3535bbe70c0708e4ba386293e7298408f163da8`与真实[Actions38034145668](https://github.com/suzhe868-arch/mb/actions/runs/38034145668) head SHA一致，**28/28独立非特权PostgreSQL16作业success**（冻结旧26+2新）；新Authority原生PG16 **8/8**与新4S真实HTTPS **9/9**，37份原始Artifacts，新Artifact IDs 11662184264/11662909011、M94原94表2120对象封印PASS；11文件严格新增白名单。B所做4S CI-only System Admin最小身份自检/未证明商户归属均403拒绝，本轮无单独安全阻断；此前F04-1/旧F03源码与正式PDM/IA没有改动。
