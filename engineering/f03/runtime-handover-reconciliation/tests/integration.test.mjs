@@ -113,3 +113,28 @@ test('N09 cannot forge completed SG06 states with old pending-only CHECK',async(
  await assert.rejects(()=>db.query("UPDATE public.handover_batches SET status='completed' WHERE batch_id=96601"),e=>e.code==='23514');
  await assert.rejects(()=>db.query("UPDATE public.handover_items SET status='completed' WHERE item_id=13601"),e=>e.code==='23514');
 });
+
+
+test('N02 recipient no longer active is stale, even if all historic receipts were authentic',async()=>{
+ const before=await snapshot();
+ await db.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=4");
+ try{
+  const r=await reconcile(auth,manager,p());
+  for(const k of ['Customer','Demand','Consultation','Waitlist','Lock','Transaction'])assert.equal(row(r,k).status,'STALE_OBJECT',k);
+  assert.equal(r.observedReadOnlyState,'DEFER_DENY');assert.equal(r.employeeDisableAuthorized,false);
+ }finally{await db.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=4")}
+ assert.deepEqual(await snapshot(),before);
+});
+test('N08 independent second real PG16 session revokes permission during reconciliation: no optimistic completion',async()=>{
+ const before=await snapshot(),another=await connect();
+ try{
+  const r=await reconcile(auth,manager,p(),{testCheckpoint:async stage=>{
+   if(stage==='before_last_guard')await another.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=5 AND permission_id=20");
+  }});
+  assert.equal(r.code,'N08_DRIFT_DEFER_DENY',JSON.stringify(r));assert.equal(r.batchCloseAuthorized,false);
+ }finally{
+  await another.query("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=5 AND permission_id=20");
+  await another.end();
+ }
+ assert.deepEqual(await snapshot(),before);
+});
