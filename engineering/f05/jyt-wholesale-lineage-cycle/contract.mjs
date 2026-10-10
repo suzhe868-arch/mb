@@ -128,9 +128,14 @@ export async function syncUpsert(auth,token,p,{checkpoint}={}){
   if(prev)return prev.payload_sha256===serialize(p)&&prev.action==='upsert'
    ?ok('F05_3B_EVENT_ALREADY_PROCESSED',{vehicleId:prev.vehicle_id===null?null:Number(prev.vehicle_id),outcome:prev.outcome})
    :deny('F05_3B_EVENT_KEY_PAYLOAD_COLLISION');
-  if(!await modelVerified(c,p))return deny('F05_3B_MODEL_MAPPING_SOURCE_GAP');
   const line=(await c.query("SELECT * FROM public.f05_3b_sync_lineages WHERE source_platform='JYT' AND car_code=$1 FOR UPDATE",[p.carCode])).rows[0];
   if(checkpoint)await checkpoint('source_locked',c);
+  if(line&&!identityMatches(line,p)){
+   await receipt(c,{eventKey:p.eventKey,action:'upsert',credentialId,carCode:p.carCode,
+    vehicleId:Number(line.vehicle_id),outcome:'IDENTITY_CONFLICT',payload:p});
+   return deny('F05_3B_CORE_IDENTITY_ANOMALY');
+  }
+  if(!await modelVerified(c,p))return deny('F05_3B_MODEL_MAPPING_SOURCE_GAP');
   if(!line){
    // No trust source is established by merely knowing a JYT publisher or car_code;
    // only this separately authenticated backend credential may create source facts.
