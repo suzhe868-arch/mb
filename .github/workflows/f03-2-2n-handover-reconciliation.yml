@@ -1811,7 +1811,7 @@ jobs:
   f03-2n-handover-reconciliation-pg16:
     name: F03-2-2N strictly read-only seven-kind six-receipt audit on genuine isolated PG16 M94
     permissions:
-      contents: read
+      contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
@@ -1930,3 +1930,26 @@ jobs:
           path: engineering/f03/runtime-handover-reconciliation/artifacts/
           retention-days: 30
           if-no-files-found: error
+      - name: N10 archive first genuine read-only PG16 physical source on B branch; later runs check byte exact catalog
+        run: |
+          set -euo pipefail
+          evidence=f03/runtime-handover-reconciliation/evidence
+          artifact=f03/runtime-handover-reconciliation/artifacts
+          if test -f "$evidence/SOURCE.md"; then
+            cmp "$evidence/pg16_full_catalog.json" "$artifact/pg16_full_catalog.json"
+            cmp "$evidence/pg16_inventory.json" "$artifact/pg16_inventory.json"
+            echo 'F03_2N_ORIGINAL_FULL_CATALOG_AND_INVENTORY_BYTE_PASS'
+          else
+            test "$GITHUB_REF" = 'refs/heads/feat/f03-handover-reconciliation-2n'
+            mkdir -p "$evidence"
+            for f in pg16_full_catalog.json pg16_schema_only.sql pg16_inventory.json sha256sums.txt; do
+              cp "$artifact/$f" "$evidence/$f"
+            done
+            printf 'source_run_id: %s\nsource_commit_sha: %s\nsource_job_name: f03-2n-handover-reconciliation-pg16\nsource_artifact_name: f03-2-2n-genuine-pg16-94-seven-kind-readonly-reconciliation-evidence\nsource_files: original PG16 physical schema-only/catalog/inventory/checksums, no user rows or credentials\n' "$GITHUB_RUN_ID" "$GITHUB_SHA" > "$evidence/SOURCE.md"
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -- "$evidence/"
+            git diff --cached --quiet && { echo 'N_ARCHIVE_NOT_STAGED'; exit 1; }
+            git commit -m 'F03-2-2N: archive original true PG16 M94 read-only full catalog and raw schema source'
+            git push origin HEAD:refs/heads/feat/f03-handover-reconciliation-2n
+          fi
