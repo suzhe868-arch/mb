@@ -121,3 +121,27 @@ test('F04-3-B11 no fake customer tier or 4S merchant object, no sensitive output
   assert.ok(!/vin|internal_wholesale_price|phone|password|token/.test(JSON.stringify(r.body)));
  }
 });
+
+test('A-F04-3-B12 Customer independent auth unavailable: PC Cookie and forged future header cannot authorize Customer',async()=>{
+ const customer='/__ci__/current/v1/consultations/create';
+ for(const t of [ownerToken,adminToken,fourToken,employeeToken,null]){
+  const h=t?cookie(t):{};
+  const r=await call('POST',customer,{...h,'X-Future-Customer-Auth-NOT-IMPLEMENTED':'forged','x-role':'customer'});
+  assert.equal(r.status,403,JSON.stringify(r));
+  assert.deepEqual(r.body,{code:'F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED'});
+ }
+});
+test('A-F04-3-B13 verified SystemAdmin control plane is separate from employee business manager and never writes an account',async()=>{
+ const ctrl='/__ci__/current/v1/employee-governance/control-plane-deactivate';
+ const biz='/__ci__/current/v1/employee-governance/business-deactivate';
+ const h=t=>({...cookie(t),'x-csrf-token':auth.csrfFor(t),'x-request-key':'F04_3_strict_test_014'});
+ const before=(await db.query("SELECT account_status FROM public.system_admins WHERE system_admin_id=1")).rows[0].account_status;
+ const admin=await call('POST',ctrl,h(adminToken));
+ assert.equal(admin.status,403,JSON.stringify(admin));
+ assert.deepEqual(admin.body,{code:'F04_3_CONTROL_PLANE_TARGET_UNPROVEN'});
+ assert.equal((await call('POST',ctrl,h(ownerToken))).status,403);
+ assert.equal((await call('POST',ctrl,h(fourToken))).status,403);
+ assert.equal((await call('POST',biz,h(adminToken))).status,403);
+ assert.equal((await call('POST',biz,h(ownerToken))).status,403);
+ assert.equal((await db.query("SELECT account_status FROM public.system_admins WHERE system_admin_id=1")).rows[0].account_status,before);
+});
