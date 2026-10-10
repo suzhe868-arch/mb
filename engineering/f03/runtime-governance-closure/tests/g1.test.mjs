@@ -35,6 +35,28 @@ test('G1 legal existing Customer immutable receipt can be completed once with au
  const audits=await db.query("SELECT * FROM public.audit_events WHERE object_kind='handover_item' AND object_id='13601' AND action='sg06.item.complete'");
  assert.equal(audits.rows.length,1);
 });
+test('A-G-01-d genuine Priority follows current Demand after its real second immutable receipt; expired lease or unaudited drift rejected',async()=>{
+ const demand=await commitHandoverItem(auth,token,item(13602));
+ assert.equal(demand.code,'G_ITEM_COMPLETED',JSON.stringify(demand));
+ const lease=(await db.query('SELECT expires_at FROM public.priority_leases WHERE priority_id=5011')).rows[0];
+ const current=(await db.query('SELECT responsible_employee_id FROM public.demands WHERE demand_id=401')).rows[0];
+ assert.equal(Number(current.responsible_employee_id),5);
+ const proven=await commitHandoverItem(auth,token,item(13603));
+ assert.equal(proven.code,'G_ITEM_COMPLETED',JSON.stringify(proven));
+ assert.equal((await db.query('SELECT expires_at FROM public.priority_leases WHERE priority_id=5011')).rows[0].expires_at.getTime(),lease.expires_at.getTime());
+ const invalid=(await db.query("SELECT count(*)::int n FROM public.audit_events WHERE object_kind='handover_item' AND object_id='13603' AND action='sg06.item.complete'")).rows[0].n;
+ assert.equal(invalid,1);
+ try{
+  await db.query("UPDATE public.priority_leases SET expires_at=clock_timestamp()-interval '1 second' WHERE priority_id=5011");
+  const denied=await certifyHandoverItem(auth,token,{batchId:96601,itemId:13603,teamId:901});
+  assert.equal(denied.ok,false,JSON.stringify(denied));
+ }finally{await db.query('UPDATE public.priority_leases SET expires_at=$1 WHERE priority_id=5011',[lease.expires_at])}
+ try{
+  await db.query('UPDATE public.demands SET responsible_employee_id=6 WHERE demand_id=401');
+  const denied=await certifyHandoverItem(auth,token,{batchId:96601,itemId:13603,teamId:901});
+  assert.equal(denied.ok,false,JSON.stringify(denied));
+ }finally{await db.query('UPDATE public.demands SET responsible_employee_id=$1 WHERE demand_id=401',[current.responsible_employee_id])}
+});
 test('G1 retry identical request key idempotent; another key cannot duplicate audit',async()=>{
  const r=await commitHandoverItem(auth,token,item(13601));
  assert.equal(r.code,'G_ITEM_IDEMPOTENT');
