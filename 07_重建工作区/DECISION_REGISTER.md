@@ -1634,3 +1634,12 @@ G受检最终HEAD19af2955d81ac14d79e0c4e6adc661a3a1aabd8e同SHA CI38025357614 20
 
 - **A正式工作单放行**：`07_重建工作区/F04-1_A主控接口合同与安全路由启动完整施工单_2026-10-10.md`，唯一B工程分支`feat/f04-1-contract-safety-gate`，从最新main启动并独立自验：历史218旧接口源追踪不造假、Current IA/Low-Fi现行路由DTO/权限、隔离HTTP/PG16现时多主体撤权与无可信对象全拒、F05/F06/F07/H03/H04后续消费合同。**旧24项独立PG16冻结回归+2项新独立PG16=26/26同最终B SHA CI成功**、完整中文交接后交A独立验收；仅许可施工单白名单路径，禁止新DDL、旧F03服务改写、真实生产/第三方/资金及B自行PR合并。
 - **唯一下一责任B｜NEXT_TASK F04_1_CONTRACT_AND_SAFE_HTTP_CI_PACKAGE**；C/H01高保真独立未最终验收；F04～F07与用户UAT待做；`PRODUCT_BASELINE=NOT_READY`，不得称V1已可上线。该工程裁决不改写以上任一已确认PDM Final产品规则。
+
+
+## 2026-10-10｜F04-1 PR26首次A独立审查：三项技术整改（无新产品规则裁决）
+
+- B原`feat/f04-1-contract-safety-gate`受检HEAD `cb5a96699a4b93bc42dc0f81188c22ee8d5b49c7`，同SHA CI `38029582060` 26/26独立真实非特权PG16作业成功，新HTTP15/15与库存溯源7/7、10个仅新增白名单文件全部确认；旧24项合格证据保留。**A拒绝将CI绿视为接口正确性与权限范围已验收。**
+- **A-F04-01（确定性真实来源错误）**：实际旧OpenAPI存在**198个真实paths、218对method/path**，B虽然记录218行，但仅136不同paths，包含操作后缀`:authorize/:unlock/:test`等合法**62条**被归入前一无冒号路由。实例 `POST /customer/me/phone:authorize`误记`POST /customer/me/profile`；`POST /customer/vehicles/{vehicle_id}/price-access:unlock`误记`POST /customer/me/favorites`；`POST /admin/integrations/collector/connection:test`误记无`:test`的connection路径。源代码测试的`[^:]*`路径正则同源漏检；需逐条真实path与源行检验，禁止虚报218准确映射。
+- **A-F04-02（旧接口处置错误）**：218行全部硬设`MODIFY`，包括现行已禁恢复的Collector连接GET/PATCH/TEST接口；须对确定已禁恢复标`RETIRE`并测试硬拒，对能由现行IA/PDM证明的逐一写实五类实际动作，对不可证的明确`UNREVIEWED_SOURCE_GAP`、不得冒充全部可修改或当前业务已映射。
+- **A-F04-03（对象scope正向证明不足）**：当前F04-R03最小本人Customer读取只核现时owner及员工**某个**有效Team scope，未建立目标Customer与该scope的权威当前范围链接；按PDM-02§4/PDM-16§9必须有实际对象范围证明和本人/越Team/跨店/撤权正反例。旧M94无法证明则保持业务对象读取DENY/OPEN_DEPENDENCY，绝不为取200新增未授权假事实/DDL。本条是待补**证明缺口**，非宣称已通过真实泄漏复现。
+- **唯一整改单已落main**：`07_重建工作区/F04-1_A主控首次独立审查与接口溯源权限证明完整定向整改单_2026-10-10.md`，PR26已留审查评论ID `6094614904`。正式状态 **`A_CHANGES_REQUESTED / NOT_ACCEPTED / NOT_MERGED / NEXT_OWNER=B`**，B继续原`feat/f04-1-contract-safety-gate`一次整改，重新取得最终HEAD匹配完整独立PG16 **26/26 success**和更新证据后交A。PR26不得先合并或启动F04-2；F03-V旧签收、C/H01及`PRODUCT_BASELINE=NOT_READY`不变。
