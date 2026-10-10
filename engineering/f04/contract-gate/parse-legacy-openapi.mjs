@@ -18,7 +18,7 @@ export function parseLegacyOpenApi(source){
     if(raw.includes('#')||raw.endsWith(':'))throw Error('OPENAPI_BAD_PATH_'+line);
     if(pathNames.has(raw))throw Error('OPENAPI_DUPLICATE_PATH_'+line);
     pathNames.add(raw);
-    active={path:raw,line};
+    active={path:raw,line,metadataKeys:new Set()};
     paths.push(active);
   }
   for(let i=0;i<lines.length;i++){
@@ -41,9 +41,14 @@ export function parseLegacyOpenApi(source){
     const m=line.match(METHOD);
     if(m){
       if(!active)throw Error('OPENAPI_ORPHAN_METHOD_'+lineno);
+      if(m[1]==='parameters'){
+        // OpenAPI permits path-item "parameters" at exactly the same
+        // indentation as a method. It is metadata, NEVER a route.
+        if(active.metadataKeys.has('parameters'))throw Error('OPENAPI_DUPLICATE_PATH_PARAMETERS_'+lineno);
+        active.metadataKeys.add('parameters');
+        checkPath();continue;
+      }
       if(!METHODS.has(m[1].toLowerCase())){
-        // Parameters below a path are not HTTP methods in this restricted subset:
-        // other method-width keys (e.g. path-level parameters) are explicit errors.
         throw Error('OPENAPI_UNKNOWN_METHOD_OR_PATH_KEY_'+lineno);
       }
       checkPath();
