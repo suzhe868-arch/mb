@@ -47,7 +47,7 @@ test('N03 seven objects and six missing domain receipts are strictly reported pe
 test('N02 current manager Team permission deny, wrong team, inactive account and store-head data scope fail closed',async()=>{
  const before=await snapshot();
  assert.notEqual((await reconcile(auth,head,p())).items?.some(x=>x.status==='PROVEN_RECEIPT'),true);
- const wrong=await reconcile(auth,manager,p(96601,906));assert.equal(wrong.items.every(x=>x.status==='OUT_OF_SCOPE'||x.status==='DERIVATION_UNPROVEN'),true);
+ const wrong=await reconcile(auth,manager,p(96601,999));assert.equal(wrong.items.every(x=>x.status==='OUT_OF_SCOPE'),true); // Team 906 can have explicit cross-store grants; 999 has none.
  await db.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=5 AND permission_id=20");
  try{assert.equal(row(await reconcile(auth,manager,p()),'Transaction').status,'OUT_OF_SCOPE')}
  finally{await db.query("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=5 AND permission_id=20")}
