@@ -83,6 +83,7 @@ export async function commitPlannedGovernance(auth,token,p,opts={}){
   if(!b||!e||b.status!=='completed'||b.change_kind!==p.action||String(b.source_employee_id)!==String(p.employeeId)||e.employment_status!=='active'||!await guard(c,a,p.teamId,p.employeeId)||!await unowned(c,p.employeeId))return out('G_PLANNED_NOT_CERTIFIED');
   const pending=(await c.query("SELECT count(*)::int n FROM public.handover_items WHERE batch_id=$1 AND status<>'completed'",[p.batchId])).rows[0].n;
   if(pending>0)return out('G_PLANNED_PENDING_ITEM');
+  if(!await lockActorScopeFacts(c,a,p.teamId,p.employeeId))return out('G_SCOPE_CURRENT_DENY');
   if(!await batchAuditProven(c,b))return out('G_PLANNED_UNPROVEN_RECEIPT_AUDIT');
   if(p.action==='planned_transfer')return out('G_PLANNED_TRANSFER_REQUIRES_APPROVED_MEMBERSHIP_ACTOR');
   if(p.action==='planned_downgrade'&&a.role_code!=='store_head')return out('G_ROLE_CHANGE_CONTROL_DENY');
@@ -100,7 +101,7 @@ export async function commitPlannedGovernance(auth,token,p,opts={}){
   if(opts.testCheckpoint)await opts.testCheckpoint('before_commit',c);
   // Post-revocation, pre-COMMIT: never commit a personnel change against
   // a drifted (or revoked) downstream object/receipt/priority/refund fact.
-  if(!await batchAuditProven(c,b)||!await unowned(c,p.employeeId))throw Error('G_GOV_FINAL_ROLLBACK');
+  if(!await actorCurrentScope(c,a,p.teamId)||!await batchAuditProven(c,b)||!await unowned(c,p.employeeId))throw Error('G_GOV_FINAL_ROLLBACK');
   return out('G_PLANNED_APPLIED',true,{employeeId:p.employeeId,oldSessionsRevoked:true});
  });
 }
@@ -188,6 +189,9 @@ export async function commitPlannedStoreTransferAsSystemAdmin(auth,token,p,opts=
   const existing=(await c.query('SELECT 1 FROM public.employee_team_memberships WHERE team_id=$1 AND employee_id=$2 AND ended_at IS NULL',[p.targetTeamId,p.employeeId])).rowCount>0;
   if(existing)return out('G_TRANSFER_ALREADY_TEAM');
   if(opts.testCheckpoint)await opts.testCheckpoint('before_commit_guard',c);
+  await c.query('SELECT scope_id FROM public.employee_data_scopes WHERE employee_id=$1 FOR SHARE',[p.employeeId]);
+  await c.query('SELECT permission_id,scope_id FROM public.employee_capability_scope_bindings WHERE employee_id=$1 FOR SHARE',[p.employeeId]);
+  await c.query('SELECT membership_id FROM public.employee_team_memberships WHERE employee_id=$1 FOR SHARE',[p.employeeId]);
   const original={storeId:e.store_id,receiving:e.receiving_status};
   await revokeAll(c,p.employeeId);
   await c.query("UPDATE public.employees SET store_id=$2,receiving_status='paused' WHERE employee_id=$1",[p.employeeId,p.targetStoreId]);
