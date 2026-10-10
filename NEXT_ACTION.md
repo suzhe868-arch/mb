@@ -1,3 +1,12 @@
+# 2026-10-10｜F03多任务包G/P首次A集中复核：两项定向整改、保持双包一次性交A（当前最新）
+
+- G原分支 feat/f03-package-g-governance-closure，受检最终SHA 708fb889db8c473cc1cd92d38896aa1bbfdfb973，Actions38022820421 同SHA 20/20独立真实PG16成功，新G1 15/G2 7/G3 4及旧N21/M31/L29/K29/J27/I27等全部旧版回归成功；000014仅替换handover_batches/items两CHECK，新物理目录2120项数量不变，SHA863538a8dd81e85c8f50bec2d18ad714f6c3d87abf3b10844a3c80421d54cdb1。**A-G-01阻断**：G2计划停用/降权/调店只验证完成SG06批次历史及源员工无活跃职责，未再核业务对象当前owner/responsible确实符合真实最后合法后继receipt链，可能放过无审计直接漂移。
+- P原分支 feat/f03-package-p-field-projection，受检SHA82fec31338040c020f147a1107bdbddc5364d916，Actions38020721875 同SHA 19/19独立PG16成功，新P1 10/P2 6和旧17作业全过，原M94 2120项零物理变化。**A-P-01阻断**：employee vehicle查询/导出只以crm.customer.view+当前员工请求Team作权限，未证明请求vehicle自身属于该业务对象范围/4S归属，缺来源还不应给business export。
+- 两包正式统一整改：07_重建工作区/F03多任务包G_P_A主控首次独立审查与两项定向整改清单_2026-10-10.md。B留在G/P原分支各自包内自行一次修复、完整回归与逆向自审，再分别取得与最终SHA相同G20/20、P19/19独立真实PG16成功，**两个包都READY后统一交A集中验收**；两包均A_CHANGES_REQUESTED、未合并、V仍PREPLAN_NOT_RELEASED，NEXT_OWNER=B。
+- F03-2整体、C/H01高保真及产品基线NOT_READY。
+
+---
+
 # 2026-10-10｜F03-2-2N A二轮正式验收PR22合并；F03多任务包G+P正式同批放行（最新）
 
 - **2N已正式A签收**：B最终HEAD`5ae79377c5c09155ac1b04105e5a265a61ced20e`，最新同SHA[Actions38018758218](https://github.com/suzhe868-arch/mb/actions/runs/38018758218) **17/17独立真实PG16 job success**，N94 **21/21**含A-N-01新增7个跨batch/source/Team派生Priority真实性测试及事务漂移全回滚，旧M31/L29/K29/J27/I27及其余独立原版全成功。94表608列435约束163索引2120全catalog一项不变，无000014；真实N+M来源原始PG16字节、完整目录封印PASS。标准[PR22](https://github.com/suzhe868-arch/mb/pull/22)已merge，merge SHA`32419cff011b15c1e2f1f202d257f7b2c00cb30d`。A正式验收：`07_重建工作区/F03-2-2N_A主控二轮独立验收及PR22正式合并闭环_2026-10-10.md`。
