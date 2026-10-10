@@ -54,7 +54,7 @@ async function facts(c,actor,p,locking=false){
  for(const d of deposits)if(str(d.customer_id)!==str(tx.customer_id)||str(d.lock_id)!==str(tx.source_lock_id)||Number(d.amount_cents)<=0||d.received_at<source.created_at)return {error:'M03_DEPOSIT_EVIDENCE_DEFER_DENY'};
  const refunds=(await c.query('SELECT refund_id,status,customer_id,lock_id,transaction_id FROM public.refund_cases WHERE transaction_id=$1 OR lock_id=$2 FOR SHARE',[transactionId,tx.source_lock_id])).rows;
  for(const r of refunds)if(str(r.customer_id)!==str(tx.customer_id)||!['pending','refunded','closed'].includes(r.status)||((r.lock_id!==null)===(r.transaction_id!==null)))return {error:'M03_REFUND_AUTHORITY_DEFER_DENY'};
- if(refunds.length)return {error:'M03_REFUND_FINANCIAM_SCOPE_DEFER_DENY'};
+ if(refunds.length)return {error:'M03_REFUND_FINANCIAL_SCOPE_DEFER_DENY'};
  const src=(await c.query('SELECT employment_status FROM public.employees WHERE employee_id=$1 FOR SHARE',[p.fromEmployeeId])).rows[0];
  const dst=(await c.query('SELECT employment_status FROM public.employees WHERE employee_id=$1 FOR SHARE',[p.recipientEmployeeId])).rows[0];
  if(!src||!dst||src.employment_status!=='active'&&!['planned_disable','sudden_inactive'].includes(b.change_kind))return {error:'M03_SOURCE_INVALID'};
@@ -126,7 +126,7 @@ async function transfer(c,actor,p,hook){
  // Throw on any post-CAS inconsistency so F03-1 withSession actually ROLLBACKs.
  const final=(await c.query("SELECT t.status,t.completed_at,t.responsible_employee_id,t.source_lock_id,t.customer_id,t.vehicle_id,t.listing_cycle_id,l.customer_id AS source_customer_id,l.vehicle_id AS source_vehicle_id,l.listing_cycle_id AS source_cycle_id,l.lock_status,(SELECT count(*)::int FROM public.deposit_receipts d WHERE d.lock_id=l.lock_id) AS deposit_count,(SELECT count(*)::int FROM public.refund_cases r WHERE r.transaction_id=t.transaction_id OR r.lock_id=l.lock_id) AS refund_count FROM public.transactions t JOIN public.locks l ON l.lock_id=t.source_lock_id WHERE t.transaction_id=$1 FOR UPDATE OF t,l",[f.transactionId])).rows[0];
  if(!final||final.status!=='in_progress'||final.completed_at!==null||str(final.responsible_employee_id)!==str(p.recipientEmployeeId)||str(final.source_lock_id)!==str(f.sourceLockId)||str(final.customer_id)!==str(f.customerId)||str(final.customer_id)!==str(final.source_customer_id)||str(final.vehicle_id)!==str(final.source_vehicle_id)||str(final.listing_cycle_id)!==str(final.source_cycle_id)||final.lock_status!=='released'||final.deposit_count!==f.depositCount||final.refund_count!==0){
-  throw Object.assign(new Error('M_PRECOMMIT_RELATION_CHANGED_ATOMIC_ROLLBACK'),{code:'M04_UNSAFE_FINANCIAM_OR_TRANSACTION_STATE_DEFER_DENY'});
+  throw Object.assign(new Error('M_PRECOMMIT_RELATION_CHANGED_ATOMIC_ROLLBACK'),{code:'M04_UNSAFE_FINANCIAL_OR_TRANSACTION_STATE_DEFER_DENY'});
  }
  return out('M04_TRANSACTION_TRANSFERRED',{receipt:display(receipt),otherDomainsPending:true,transactionLifecycleUnchanged:true,idempotent:false});
 }
