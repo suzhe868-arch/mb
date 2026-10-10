@@ -20,6 +20,12 @@ const proof=Object.freeze({
  ANNOUNCEMENT_CREATE:['AUTHORIZED_ADMIN','Announcement','PDM-24','F04',291,23,'announcementId','POST','announcements/create-new']
 });
 const parse=s=>{const [h,...l]=s.trimEnd().split('\n');const cols=h.split('\t');return l.map(x=>Object.fromEntries(x.split('\t').map((v,i)=>[cols[i],v])))};
+function semanticKey(r){
+ let src=[r.source_kind,r.source_line,r.source_page,r.control,r.actor,r.target_resource,r.object_state_guard,r.version,r.source_original].join('\x1f');
+ let h=0xcbf29ce484222325n;
+ for(const ch of src){h^=BigInt(ch.codePointAt(0));h=BigInt.asUintN(64,h*0x100000001b3n)}
+ return r.source_kind+':'+r.source_line+':'+h.toString(16).padStart(16,'0');
+}
 export const loadInventory=()=>parse(read(d+'Current全量动作覆盖与页面消费台账.tsv'));
 export const loadSeal=()=>JSON.parse(read(d+'Current覆盖计数与原文封印.json'));
 export const loadIncremental=()=>JSON.parse(read(d+'incremental-contracts.json'));
@@ -84,8 +90,8 @@ export function validateCoverage(text=read(d+'Current全量动作覆盖与页面
  let counts=Object.fromEntries(classes.map(k=>[k,0])),seen=new Set();
  for(const row of data){
   if(seen.has(row.stable_key))fail('DUPLICATE_KEY');seen.add(row.stable_key);
-  const raw=expected.get(row.stable_key);
-  if(!raw||row.source_kind!==raw.k||Number(row.source_line)!==raw.n||
+  const raw=expected.get(row.source_kind+':'+row.source_line);
+  if(!raw||row.stable_key!==semanticKey(row)||row.source_kind!==raw.k||Number(row.source_line)!==raw.n||
   row.source_original.replace(/\\t/g,'\t')!==raw.l||row.source_path!==files[raw.k]||row.version!=='CURRENT_2026_10_10')
    fail('TRUE_QUOTE_WRONG_ACTION_OR_OMISSION');
   const klass=raw.k==='NAV'?navClass(raw.l,raw.n,inc):

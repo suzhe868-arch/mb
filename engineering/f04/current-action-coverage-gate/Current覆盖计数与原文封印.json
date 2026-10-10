@@ -57,7 +57,7 @@
     "DOMAIN_IMPLEMENTATION_BLOCKED",
     "RETIRED_FORBIDDEN"
   ],
-  "nav_distinct_key_rule": "source_page + control + target_page + condition + original_line + CURRENT_2026_10_10",
+  "nav_distinct_key_rule": "FNV1a64 semantic tuple of source kind,line,page,control,actor,target resource,object state/guard,version and quoted Current original; each row independently source-byte/line cross-validated",
   "f04_3_frozen_contracts": 32,
   "legacy_originals": {
     "method_path": 218,
@@ -68,5 +68,6 @@
     "source_gap": 192,
     "retired": 3
   },
-  "category_partition_sum": 437
+  "category_partition_sum": 437,
+  "stable_key_algorithm": "FNV1a64 UTF8 codepoint tuple + source_kind:line prefix; hash is stable fingerprint not authorization/crypto signature"
 }
