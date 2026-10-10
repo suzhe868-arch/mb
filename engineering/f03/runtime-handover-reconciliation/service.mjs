@@ -68,7 +68,7 @@ export async function reconcileHandoverBatchReadOnly(auth,token,p,opts={}){
  if(!p||Object.keys(p).sort().join(',')!=='batchId,teamId'||!valid(p.batchId)||!valid(p.teamId)||Object.keys(opts).some(k=>k!=='testCheckpoint')||opts.testCheckpoint!==undefined&&!(process.env.CI==='true'&&process.env.GITHUB_ACTIONS==='true'&&typeof opts.testCheckpoint==='function'))return deny('N01_INPUT_DENY');
  const v=await auth.pool.connect();try{await verify(v)}catch{return deny('N01_SCHEMA_SEAL_DENY')}finally{v.release()}
  try{return await auth.withSession(token,async(c,a,s)=>{
-  if(s.restricted||a.principal_kind!=='employee'||a.system_admin_id!==null||!valid(a.employee_id)||!['manager','store_head'].includes(a.role_code)||a.credential_state!=='enabled'||a.subject_status!=='active'||a.force_password_change!==false)return deny('N02_SESSION_DENY');
+  if(s.restricted||a.principal_kind!=='employee'||a.system_admin_id!==null||a.employee_id===null||!['manager','store_head'].includes(a.role_code)||a.credential_state!=='enabled'||a.subject_status!=='active'||a.force_password_change!==false)return deny('N02_SESSION_DENY');
   await c.query("SET LOCAL lock_timeout='1200ms'");await c.query("SET LOCAL statement_timeout='16000ms'");
   await c.query('SELECT pg_advisory_xact_lock(20261010,306)');await c.query('SELECT pg_advisory_xact_lock(20261010,309)');
   const b=(await c.query('SELECT * FROM public.handover_batches WHERE batch_id=$1',[p.batchId])).rows[0];
