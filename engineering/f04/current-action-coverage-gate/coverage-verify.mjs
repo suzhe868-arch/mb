@@ -41,39 +41,117 @@ function navClass(src,line,inc){
  const mutation=!isRead&&/(确认|新增|创建|提交|保存|编辑|更新|撤回|开启|关闭|停用|恢复|删除|重试|配置|记录|切换|调整|下架|上架|分配|清除|处理|登记|补录|同意|拒绝|发布|修改|转换|建立)/.test(control);
  return !mutation?'PAGE_NAV_ONLY':/REF_GUARD|capability|scope|permission|authorized|active|revalidate|提交/.test(condition)?'DOMAIN_IMPLEMENTATION_BLOCKED':'CURRENT_AUTHORITY_GAP';
 }
+
+const policy=Object.freeze({
+ LOCKREQUEST_APPROVE_FINAL:['INTENT_ONLY_CI_CONTRACT','APPROVE_PENDING_LOCK_REQUEST',80],
+ LOCKREQUEST_REJECT_FINAL:['INTENT_ONLY_CI_CONTRACT','REJECT_PENDING_LOCK_REQUEST',71],
+ VEHICLE_SOURCE_TYPE_EDIT:['EXECUTABLE_TYPED_CI_SCHEMA','CHANGE_PUBLISHED_MANUAL_VEHICLE_SOURCE_TYPE',342],
+ VEHICLE_DELIST:['INTENT_ONLY_CI_CONTRACT','REAL_DELIST_NOT_HIDE',203],
+ SYSTEM_MODEL_MAPPING_BIND:['INTENT_ONLY_CI_CONTRACT','BIND_EXISTING_CANONICAL_MODEL',227],
+ MARKUP_RULE_SAVE:['INTENT_ONLY_CI_CONTRACT','SAVE_MARKUP_RULE_DRAFT',73],
+ IMAGE_FAILED_RETRY:['INTENT_ONLY_CI_CONTRACT','RETRY_FAILED_IMAGE_ITEMS_ONLY',355],
+ ANNOUNCEMENT_CREATE:['INTENT_ONLY_CI_CONTRACT','CREATE_NEW_ANNOUNCEMENT_NOT_UPDATE',23]
+});
+const vehicleSourceDto=Object.freeze({
+ type:'object',additionalProperties:false,
+ properties:{vehicleId:{type:'integer',minimum:1},targetSourceType:{type:'string',enum:['名邦','4S']}},
+ required:['vehicleId','targetSourceType']
+});
+const dtoExact=x=>JSON.stringify(x)===JSON.stringify(vehicleSourceDto);
 export function validateDtoValue(c,value){
- const d=c?.dto_body;if(!d||!value||typeof value!=='object'||Array.isArray(value)||d.additionalProperties!==false)return false;
- const keys=Object.keys(value);return !keys.some(k=>!Object.hasOwn(d.properties,k))&&d.required.every(k=>Object.hasOwn(value,k))&&keys.every(k=>Number.isSafeInteger(value[k])&&value[k]>=1);
+ if(c?.contract_class!=='EXECUTABLE_TYPED_CI_SCHEMA'||c.intent!=='VEHICLE_SOURCE_TYPE_EDIT'||
+   !dtoExact(c.dto_body)||!value||typeof value!=='object'||Array.isArray(value))return false;
+ const keys=Object.keys(value);
+ return keys.length===2&&keys.includes('vehicleId')&&keys.includes('targetSourceType')&&
+   Number.isSafeInteger(value.vehicleId)&&value.vehicleId>=1&&
+   ['名邦','4S'].includes(value.targetSourceType);
 }
 export function validateIncremental(content=read(d+'incremental-contracts.json')){
- const data=JSON.parse(content);if(data.version!=='F04_4_INCREMENTAL_CI_ONLY'||data.actions?.length!==8)fail('INCREMENTAL_COUNT');
- const seen=new Set(),paths=new Set(loadContracts().map(x=>x.path));
+ const data=JSON.parse(content);
+ if(data.version!=='F04_4_INCREMENTAL_CI_ONLY'||data.actions?.length!==8)fail('INCREMENTAL_COUNT');
+ const seen=new Set(),paths=new Set(loadContracts().map(x=>x.path));let typed=0,intentOnly=0;
  for(const a of data.actions){
-  const p=proof[a.intent];if(!p||seen.has(a.intent))fail('DUPLICATE_OR_INVENTED_ACTION');seen.add(a.intent);
-  if(a.id!=='F04_4_'+a.intent||a.actor!==p[0]||a.resource!==p[1]||a.domain!==p[2]||a.owner!==p[3]||
-   a.nav_line!==p[4]||a.pdm_line!==p[5]||a.field!==p[6]||a.method!==p[7]||
-   a.path!=='/__ci__/current/v1/coverage/'+p[8]||a.nav_path!==files.NAV||
-   a.pdm_path!=='07_重建工作区/'+p[2]+'_最终完整规则.md'||
-   a.nav_quote!==read(files.NAV).split('\n')[p[4]-1]||
-   a.pdm_quote!==read(a.pdm_path).split('\n')[p[5]-1]||
-   a.status!=='CI_ONLY_PROPOSED_NOT_PRODUCTION'||a.scope!=='DEPENDENCY_BLOCKED'||
-   a.customer_auth!=='NONE_IN_NEW_CANDIDATES')fail('ACTOR_OPERATION_DOMAIN_SOURCE_MISMATCH');
-  if(paths.has(a.path)||a.path.includes(':')||/collector|legacy|merchant/.test(a.path))fail('LEGACY_PATH_RESURRECTION');
+  const p=proof[a.intent],s=policy[a.intent];
+  if(!p||!s||seen.has(a.intent))fail('DUPLICATE_OR_INVENTED_ACTION');
+  seen.add(a.intent);
+  if(a.id!=='F04_4_'+a.intent||a.actor!==p[0]||a.resource!==p[1]||
+     a.domain!==p[2]||a.owner!==p[3]||a.nav_line!==p[4]||
+     a.pdm_line!==p[5]||a.method!==p[7]||
+     a.path!=='/__ci__/current/v1/coverage/'+p[8]||a.nav_path!==files.NAV||
+     a.pdm_path!=='07_重建工作区/'+p[2]+'_最终完整规则.md'||
+     a.nav_quote!==read(files.NAV).split('\n')[p[4]-1]||
+     a.pdm_quote!==read(a.pdm_path).split('\n')[p[5]-1]||
+     a.status!=='CI_ONLY_PROPOSED_NOT_PRODUCTION'||a.scope!=='DEPENDENCY_BLOCKED'||
+     a.customer_auth!=='NONE_IN_NEW_CANDIDATES')
+     fail('ACTOR_OPERATION_DOMAIN_SOURCE_MISMATCH');
+  if(paths.has(a.path)||a.path.includes(':')||/collector|legacy|merchant/.test(a.path))
+     fail('LEGACY_PATH_RESURRECTION');
   paths.add(a.path);
-  if(a.dto_body?.type!=='object'||a.dto_body?.additionalProperties!==false||
-   JSON.stringify(a.dto_body.required)!==JSON.stringify([p[6]])||
-   Object.keys(a.dto_body.properties||{}).length!==1||
-   a.dto_body.properties[p[6]]?.type!=='integer'||a.dto_body.properties[p[6]]?.minimum!==1||
-   Object.keys(a.response_codes||{}).sort().join(',')!=='403,501'||
-   a.response_codes['403']!=='F04_4_AUTH_OR_SCOPE_DENIED'||
-   a.response_codes['501']!=='F04_4_DOMAIN_DEPENDENCY_BLOCKED')fail('EXTRA_PRIVATE_DTO_OR_FAKE_RESPONSE');
+  if(a.contract_class!==s[0]||a.operation!==s[1]||
+     a.request_schema_state!==(s[0]==='EXECUTABLE_TYPED_CI_SCHEMA'?'FIELD_PROVEN_SYNTHETIC_CI_ONLY':'REQUEST_SCHEMA_SOURCE_GAP')||
+     a.operation_source?.pdm_path!==a.pdm_path||a.operation_source.line!==s[2]||
+     a.operation_source.quote!==read(a.pdm_path).split('\n')[s[2]-1]||
+     a.intent_semantics?.final_source!==a.pdm_path||
+     a.intent_semantics?.state_guard!==a.state_guard||
+     a.intent_semantics?.authority!=='PDM_FINAL_AND_CURRENT_NAV_ONLY'||
+     a.intent_semantics?.object_scope!=='REAL_OBJECT_SCOPE_UNPROVEN'||
+     a.intent_semantics?.business_execution!=='BLOCKED'||
+     a.intent_semantics?.http_production!=='NOT_APPROVED')
+     fail('OPERATION_INTENT_NOT_SAME_FINAL_NAV_ACTION');
+  if(a.state_guard!==a.nav_quote.split('|').slice(-2)[0].trim())
+     fail('OPERATION_STATE_GUARD_MISMATCH');
+  const fields=a.field_authority;
+  if(!Array.isArray(fields)||fields.length!==(s[0]==='EXECUTABLE_TYPED_CI_SCHEMA'?2:1))
+     fail('FIELD_LEVEL_AUTHORITY_REQUIRED');
+  for(const field of fields){
+   if(field.source_path!==a.pdm_path||!Number.isInteger(field.line)||field.line<1||
+      field.quote!==read(field.source_path).split('\n')[field.line-1]||
+      !field.semantic||!field.value_type||!field.wire_status)
+      fail('FALSE_FIELD_AUTHORITY');
+  }
+  if(s[0]==='EXECUTABLE_TYPED_CI_SCHEMA'){
+    if(a.field!=='vehicleId'||!dtoExact(a.dto_body)||
+       fields.map(x=>x.field).join(',')!=='vehicleId,targetSourceType'||
+       fields[0].line!==348||fields[1].line!==342||
+       fields[1].value_type!=='enum:名邦|4S'||
+       fields[1].wire_status!=='CI_LOCAL_LITERAL_NOT_PRODUCTION_ENUM'||
+       !fields[0].wire_status.includes('CI_SYNTHETIC_ID')||
+       a.intent_only_reason!==null)
+        fail('BUSINESS_DTO_REQUIRED_TARGET_SOURCE_TYPE');
+    typed++;
+  }else{
+    if(a.field!==null||a.dto_body!==null||!a.intent_only_reason||
+       a.intent_only_reason!==a.required_source_gap||
+       fields[0].field!=='INTENT_ONLY_NO_REQUEST_SCHEMA'||
+       fields[0].wire_status!=='REQUEST_SCHEMA_SOURCE_GAP'||
+       a.request_schema_state!=='REQUEST_SCHEMA_SOURCE_GAP')
+       fail('SOURCE_GAP_PRETENDED_EXECUTABLE_DTO');
+    intentOnly++;
+  }
+  if(Object.keys(a.response_codes||{}).sort().join(',')!=='403,501'||
+     a.response_codes['403']!=='F04_4_AUTH_OR_SCOPE_DENIED'||
+     a.response_codes['501']!=='F04_4_DOMAIN_DEPENDENCY_BLOCKED')
+      fail('EXTRA_PRIVATE_DTO_OR_FAKE_RESPONSE');
+  // The action coverage exists; this does not prove a production-ready HTTP/DB DTO.
+  if(a.intent==='ANNOUNCEMENT_CREATE'&&
+     (a.dto_body!==null||a.field!==null||JSON.stringify(a).includes('"announcementId"')))
+      fail('ANNOUNCEMENT_CREATE_MUST_NOT_REQUIRE_EXISTING_ID');
+  if(a.intent==='SYSTEM_MODEL_MAPPING_BIND'&&a.contract_class==='EXECUTABLE_TYPED_CI_SCHEMA'&&
+     !JSON.stringify(a.dto_body).includes('vehicle_model_id'))
+      fail('MODEL_MAPPING_MISSING_CANONICAL_TARGET');
+  if(a.intent==='MARKUP_RULE_SAVE'&&a.contract_class==='EXECUTABLE_TYPED_CI_SCHEMA'&&
+     !JSON.stringify(a.dto_body).includes('ranges'))
+      fail('MARKUP_RULE_MISSING_RANGE_AND_VALUE');
  }
  const old=verifyCurrent(),f03=verifyCurrentRegistry();
- if(old.routes!==215||old.EVIDENCE_MATCHED!==23||old.SOURCE_GAP!==192||old.retired!==3||old.originalMethods!==218||
- old.paths!==198||old.colonPaths!==62||f03.contracts!==32)fail('FROZEN_F04_2_F04_3_CHANGED');
+ if(old.routes!==215||old.EVIDENCE_MATCHED!==23||old.SOURCE_GAP!==192||old.retired!==3||
+    old.originalMethods!==218||old.paths!==198||old.colonPaths!==62||f03.contracts!==32)
+    fail('FROZEN_F04_2_F04_3_CHANGED');
  const p02=read('07_重建工作区/PDM-02_最终完整规则.md').split('\n');
- if(!p02[29].includes('不建设')||!p02[31].includes('一个 4S 成员账号直接代表')||!p02[36].includes('hard DENY'))fail('FORGED_4S_ORGANIZATION');
- return {newCandidates:8,oldCandidates:215,oldUnproven:192,oldProven:23,retired:3};
+ if(!p02[29].includes('不建设')||!p02[31].includes('一个 4S 成员账号直接代表')||
+    !p02[36].includes('hard DENY'))fail('FORGED_4S_ORGANIZATION');
+ return {newCandidates:8,verifiedExecutableTypedContracts:typed,intentOnlySourceGapContracts:intentOnly,
+         oldCandidates:215,oldUnproven:192,oldProven:23,retired:3};
 }
 export function validateCoverage(text=read(d+'Current全量动作覆盖与页面消费台账.tsv'),metaText=read(d+'Current覆盖计数与原文封印.json'),incrementText=read(d+'incremental-contracts.json')){
  const data=parse(text),meta=JSON.parse(metaText),inc=JSON.parse(incrementText);
