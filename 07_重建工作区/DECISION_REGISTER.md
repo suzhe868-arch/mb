@@ -1617,3 +1617,8 @@ B最终SHA 5ae79377c5c09155ac1b04105e5a265a61ced20e，同SHA真实CI38018758218 
 ## 2026-10-10｜F03工作包G/P首次A集中验收拒绝两项安全缺证
 
 G最终SHA708fb889db8c473cc1cd92d38896aa1bbfdfb973真实CI38022820421 20/20独立PG16成功、G1 15 G2 7 G3 4；P最终SHA82fec31338040c020f147a1107bdbddc5364d916真实CI38020721875 19/19独立PG16成功、P1 10 P2 6。A-G-01：已完成batch后的计划员工治理没核最终当前owner/responsible与合法后继交接链一致；A-P-01：员工查询/导出仅凭某Team的crm.customer.view未核实际vehicle对象业务权限，二者均须更强负例。正式集中整改单 07_重建工作区/F03多任务包G_P_A主控首次独立审查与两项定向整改清单_2026-10-10.md。保留两包原分支，一次性自审整改和全部CI过门，双包均READY再统一交A。均未验收/未合并，V未放行，产品NOT_READY。
+
+
+## 2026-10-10｜G/P双包A二轮验收PR23+PR24合并与V工程核账总回归正式放行
+
+G受检最终HEAD19af2955d81ac14d79e0c4e6adc661a3a1aabd8e同SHA CI38025357614 20/20独立PG16 success，新G1 16/G2 7/G3 4及旧N21/M31/L29/K29/J27/I27等完整独立回归；A-G-01当前责任人/后继收据真实链、并发锁竞争和末端整事务rollback关闭，000014仅两个handover completed CHECK全catalog2120项，新真SHA863538a8dd81e85c8f50bec2d18ad714f6c3d87abf3b10844a3c80421d54cdb1；PR23合并SHA2073397070270aeda3056b75a21112e81763cc1a。P受检HEAD97087f2aab4dcb7ad94cd5ea6cc4777b76900459同SHA CI38024572379 19/19 PG16 success，P1 10/P2 11及旧17全回归；A-P-01员工Vehicle不能仅凭CRM+Team擅自读/导出，没有正式Vehicle→Team/4S归属时P_VEHICLE_SCOPE_UNPROVEN安全拒绝，F04/F07接续；PR24合并SHA2c65bbfd04fbba5438160f8b0e8fe8274f15d940。A报告：07_重建工作区/F03双工作包G_P_A主控二轮独立验收PR23_PR24正式合并闭环_2026-10-10.md。按多包协作规范正式放行F03工作包V：07_重建工作区/F03工作包V_A主控工程覆盖核账跨模块总回归与后续承接完整施工单_2026-10-10.md，B唯一下一责任，24/24独立PG16、新旧两个物理版本不混用，59条能力/治理逐项真实核账，下游承接不允许虚报F03/产品上线。C/H01与产品基线NOT_READY。

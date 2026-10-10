@@ -1,3 +1,12 @@
+# 2026-10-10｜F03 G/P双工作包A二轮正式验收、PR23/PR24合并；V全量核账与最终总回归工作包正式放行（当前最新）
+
+- G包：B最终SHA 19af2955d81ac14d79e0c4e6adc661a3a1aabd8e，真实同SHA Actions38025357614 **20/20独立PG16全成功**（G1 16/G2 7/G3 4、旧N21/M31/L29/K29/J27/I27完整回归）。A-G-01已独立验证当前真实owner/responsible必须沿最后合法后继immutable receipt/audit链一致；计划员工治理最后COMMIT前再次重验，两个PG16会话竞争或源漂移真正全事务ROLLBACK。000014仅2个handover completed CHECK，旧94表608列435约束163索引2120项结构对象数保持，新真SHA 863538a8dd81e85c8f50bec2d18ad714f6c3d87abf3b10844a3c80421d54cdb1；原SOURCE/全catalog PASS。A标准PR23已合并，merge SHA 2073397070270aeda3056b75a21112e81763cc1a。
+- P包：B最终SHA 97087f2aab4dcb7ad94cd5ea6cc4777b76900459，真实同SHA Actions38024572379 **19/19独立PG16全成功**（P1 10/P2 11、旧17全回归）。A-P-01已以真实对象级fail-closed方式修正：员工拥有CRM Team权限≠有任意可见Vehicle业务查询/导出权；旧M94没有可信vehicle→Team/4S所属关系时所有员工对象业务出口不返回字段、明确P_VEHICLE_SCOPE_UNPROVEN并交F04/F07；未冒称真实业务已开放。无DDL，原94表2120项完整SHA/SOURCE原字节不变。A标准PR24已合并，merge SHA 2c65bbfd04fbba5438160f8b0e8fe8274f15d940。
+- A双包完整正式验收报告：07_重建工作区/F03双工作包G_P_A主控二轮独立验收PR23_PR24正式合并闭环_2026-10-10.md。**下一包V正式放行**：07_重建工作区/F03工作包V_A主控工程覆盖核账跨模块总回归与后续承接完整施工单_2026-10-10.md；分支feat/f03-package-v-coverage-final-gate，V1核账旧45权限+14治理的当前真实main完成/未做/硬DENY/正式F04～F07承接，V2两个真实隔离PG16跨模块与不同000013/000014 schema封印总回归，V3真实缺口/工程阶段候选和下游交接，总共**24/24独立PG16作业要求**（旧17+G3+P2+V2），B内部完成整个V包自审/回归/整改后一次性交A，**B不得自行合并或宣告F03全完成**。
+- **NEXT_OWNER=B**，G/P技术本批签收不代表真实离职权限、正式车辆导出/会员查价、F03全模块或C/H01高保真已生产可用；PRODUCT_BASELINE=NOT_READY。
+
+---
+
 # 2026-10-10｜F03多任务包G/P首次A集中复核：两项定向整改、保持双包一次性交A（当前最新）
 
 - G原分支 feat/f03-package-g-governance-closure，受检最终SHA 708fb889db8c473cc1cd92d38896aa1bbfdfb973，Actions38022820421 同SHA 20/20独立真实PG16成功，新G1 15/G2 7/G3 4及旧N21/M31/L29/K29/J27/I27等全部旧版回归成功；000014仅替换handover_batches/items两CHECK，新物理目录2120项数量不变，SHA863538a8dd81e85c8f50bec2d18ad714f6c3d87abf3b10844a3c80421d54cdb1。**A-G-01阻断**：G2计划停用/降权/调店只验证完成SG06批次历史及源员工无活跃职责，未再核业务对象当前owner/responsible确实符合真实最后合法后继receipt链，可能放过无审计直接漂移。
