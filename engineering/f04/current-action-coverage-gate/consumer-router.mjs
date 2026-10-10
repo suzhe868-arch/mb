@@ -14,7 +14,7 @@ export async function createCoverageConsumerHandler(auth,{readinessProbe=async()
  for(const [k,v] of Object.entries({CI:'true',GITHUB_ACTIONS:'true',APP_ENV:'test',NODE_ENV:'test',F04_4_ISOLATION_CONFIRM:'I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY'}))
  if(process.env[k]!==v)throw Error('F04_4_STARTUP_ENV_DENIED_'+k);
  if(!/^postgres:\/\/f03_ci:[^@]+@127\.0\.0\.1:5432\/f03_auth_test$/.test(process.env.F03_1_DATABASE_URL||'')||
- auth?.origin!==ORIGIN||!auth.pool||typeof auth.withSession!=='function)throw Error('F04_4_STARTUP_ISOLATION_DENIED');
+ auth?.origin!==ORIGIN||!auth.pool||typeof auth.withSession!=='function')throw Error('F04_4_STARTUP_ISOLATION_DENIED');
  verifyCoverage();
  const ready=async()=>await readinessProbe()===true&&(await verifyM94(auth.pool)).verified===true;
  if(!await ready())throw Error('F04_4_STARTUP_M94_SEAL_DENIED');
