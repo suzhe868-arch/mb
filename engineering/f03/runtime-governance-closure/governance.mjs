@@ -113,3 +113,54 @@ export async function restoreEmployeeSafely(auth,token,p){
   return out('G_RESTORE_ONLY',true,{sessionsRestored:false,permissionsRestored:false,receivingRestored:false});
  });
 }
+
+
+const receiptTable=Object.freeze({Customer:'customer_owner_handover_receipts',Demand:'demand_responsible_handover_receipts',Consultation:'consultation_assignee_handover_receipts',Waitlist:'waitlist_responsible_handover_receipts',Lock:'lock_responsible_handover_receipts',Transaction:'transaction_responsible_handover_receipts'});
+async function batchAuditProven(c,b){
+ const items=(await c.query('SELECT * FROM public.handover_items WHERE batch_id=$1 ORDER BY item_id FOR SHARE',[b.batch_id])).rows;
+ if(!items.length||items.length>200||items.some(i=>i.status!=='completed'||String(i.from_employee_id)!==String(b.source_employee_id)))return false;
+ const batchAudit=(await c.query("SELECT * FROM public.audit_events WHERE object_kind='handover_batch' AND object_id=$1 AND action='sg06.batch.complete'",[String(b.batch_id)])).rows;
+ if(batchAudit.length!==1||batchAudit[0].role_context?.scope!=='F03_G_CI_ONLY'||batchAudit[0].after_json?.status!=='completed')return false;
+ for(const i of items){
+  const audit=(await c.query("SELECT * FROM public.audit_events WHERE object_kind='handover_item' AND object_id=$1 AND action='sg06.item.complete'",[String(i.item_id)])).rows;
+  if(audit.length!==1||audit[0].role_context?.scope!=='F03_G_CI_ONLY'||audit[0].after_json?.status!=='completed')return false;
+  if(i.object_kind==='Priority'){
+   const p=(await c.query('SELECT trigger_demand_id,customer_id FROM public.priority_leases WHERE priority_id=$1',[i.object_id])).rows[0];
+   if(!p)return false;
+   const d=(await c.query("SELECT i.* FROM public.handover_items i WHERE i.batch_id=$1 AND i.object_kind='Demand' AND i.object_id=$2 AND i.from_employee_id=$3 AND i.intended_to_employee_id=$4",[b.batch_id,String(p.trigger_demand_id),i.from_employee_id,i.intended_to_employee_id])).rows[0];
+   if(!d||d.status!=='completed')return false;
+   continue;
+  }
+  const table=receiptTable[i.object_kind];if(!table)return false;
+  const q=(await c.query('SELECT * FROM public.'+table+' WHERE item_id=$1 AND batch_id=$2',[i.item_id,b.batch_id])).rows;
+  if(q.length!==1||String(q[0].from_employee_id)!==String(i.from_employee_id)||String(q[0].to_employee_id)!==String(i.intended_to_employee_id)||String(audit[0].after_json?.receiptId)!==String(q[0].receipt_id))return false;
+  const original=(await c.query("SELECT * FROM public.audit_events WHERE audit_id=$1",[q[0].audit_id])).rows[0];
+  if(!original||original.actor_kind!=='employee'||String(original.actor_id)!==String(q[0].actor_employee_id)||String(original.role_context?.batchId)!==String(b.batch_id)||String(original.role_context?.itemId)!==String(i.item_id))return false;
+ }
+ return true;
+}
+export async function commitPlannedStoreTransferAsSystemAdmin(auth,token,p,opts={}){
+ if(!p||Object.keys(p).sort().join(',')!=='batchId,employeeId,reason,targetStoreId,targetTeamId'||![p.batchId,p.employeeId,p.targetStoreId,p.targetTeamId].every(valid)||typeof p.reason!=='string'||p.reason.length<8||p.reason.length>160||Object.keys(opts).some(x=>x!=='testCheckpoint')||opts.testCheckpoint!==undefined&&!(process.env.CI==='true'&&process.env.GITHUB_ACTIONS==='true'&&typeof opts.testCheckpoint==='function'))return out('G_TRANSFER_INPUT_DENY');
+ return withUser(auth,token,async(c,a)=>{
+  if(a.principal_kind!=='system_admin'||a.employee_id!==null||!valid(Number(a.system_admin_id)))return out('G_TRANSFER_CONTROL_PLANE_DENY');
+  const admin=(await c.query('SELECT account_status FROM public.system_admins WHERE system_admin_id=$1 FOR SHARE',[a.system_admin_id])).rows[0];
+  if(admin?.account_status!=='active')return out('G_TRANSFER_ADMIN_DENY');
+  const b=(await c.query('SELECT * FROM public.handover_batches WHERE batch_id=$1 FOR UPDATE',[p.batchId])).rows[0];
+  const e=(await c.query('SELECT * FROM public.employees WHERE employee_id=$1 FOR UPDATE',[p.employeeId])).rows[0];
+  const dest=(await c.query("SELECT t.store_id,t.team_status,s.status store_status FROM public.teams t JOIN public.stores s ON s.store_id=t.store_id WHERE t.team_id=$1",[p.targetTeamId])).rows[0];
+  if(!b||!e||!dest||b.status!=='completed'||b.change_kind!=='planned_transfer'||String(b.source_employee_id)!==String(p.employeeId)||e.employment_status!=='active'||e.store_id===p.targetStoreId||String(dest.store_id)!==String(p.targetStoreId)||dest.team_status!=='active'||dest.store_status!=='active')return out('G_TRANSFER_PRECONDITION_DENY');
+  if(!await batchAuditProven(c,b)||!await unowned(c,p.employeeId))return out('G_TRANSFER_UNPROVEN_LEDGER');
+  if(e.receiving_status==='receiving'&&!await lastReceiver(c,p.employeeId))return out('G_TRANSFER_LAST_RECEIVER_DENY');
+  const existing=(await c.query('SELECT 1 FROM public.employee_team_memberships WHERE team_id=$1 AND employee_id=$2 AND ended_at IS NULL',[p.targetTeamId,p.employeeId])).rowCount>0;
+  if(existing)return out('G_TRANSFER_ALREADY_TEAM');
+  if(opts.testCheckpoint)await opts.testCheckpoint('before_commit_guard',c);
+  const original={storeId:e.store_id,receiving:e.receiving_status};
+  await revokeAll(c,p.employeeId);
+  await c.query('UPDATE public.employees SET store_id=$2,receiving_status=\'paused\' WHERE employee_id=$1',[p.employeeId,p.targetStoreId]);
+  await c.query('INSERT INTO public.employee_team_memberships(team_id,employee_id,valid_from,changed_by_system_admin_id) VALUES($1,$2,transaction_timestamp(),$3)',[p.targetTeamId,p.employeeId,a.system_admin_id]);
+  await audit(c,a,p.employeeId,'sg06.personnel.planned_transfer',original,{storeId:p.targetStoreId,teamId:p.targetTeamId,receiving:'paused',credentialsDisabledUntilReissue:true},p.reason);
+  if(opts.testCheckpoint)await opts.testCheckpoint('after_audit',c);
+  if(!await batchAuditProven(c,b)||!await unowned(c,p.employeeId))throw Error('G_GOV_FINAL_ROLLBACK');
+  return out('G_TRANSFER_APPLIED',true,{employeeId:p.employeeId,storeId:p.targetStoreId,sessionsRestored:false,permissionScopeRestored:false});
+ });
+}
