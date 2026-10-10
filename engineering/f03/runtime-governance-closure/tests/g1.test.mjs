@@ -113,7 +113,7 @@ test('G1 real PG16 batch before_commit drift rolls back batch completion and app
  assert.equal(result.code,'G_CONCURRENT_ROLLBACK',JSON.stringify(result));
  assert.deepEqual((await db.query('SELECT status,version FROM public.handover_batches WHERE batch_id=97002')).rows[0],before);
  assert.equal((await db.query("SELECT count(*)::int n FROM public.audit_events WHERE object_kind='handover_batch' AND object_id='97002' AND action='sg06.batch.complete'")).rows[0].n,0);
- assert.equal((await db.query('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=37602')).rows[0].current_owner_employee_id,4);
+ assert.equal(Number((await db.query('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=37602')).rows[0].current_owner_employee_id),4);
 });
 
 
