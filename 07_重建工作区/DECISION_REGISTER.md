@@ -1697,3 +1697,10 @@ G受检最终HEAD19af2955d81ac14d79e0c4e6adc661a3a1aabd8e同SHA CI38025357614 20
 - B最终HEAD`92452b124c293bfe646cea99d3a8afd46e54f2e8`与官方Actions`38053741869` head.sha一致，32/32独立真实PG16 jobs通过，Source18/18+TLS8/8、45原生Artifacts、旧30 job定义不变、14文件白名单无越界；A-F04-4-01整改真实二轮PASS。PR29 A评论`6097766248`，标准merge SHA`8de73cdf0fa89d3aa02af9a352b5e203e66e8bb8`，A验收报告`07_重建工作区/F04-4_A主控二轮独立验收PR29正式合并与F05-1交接_2026-10-10.md`。
 - 新8 Current动作严格只有1项Vehicle source_type最小CI合成typed请求，其余7项`INTENT_ONLY/REQUEST_SCHEMA_SOURCE_GAP`且不授业务生产许可；437来源/258三向追溯、215老候选23/192与3个禁恢复Collector继续保守；PageManifest140声明/132可检行差8仍未证，禁止造页。F04总体、H01、V1均NOT_READY。
 - A正式签发F05-1`07_重建工作区/F05-1_A主控Vehicle可信归属与最小安全投影完整施工单_2026-10-10.md`；`NEXT_OWNER=B / B_NOT_STARTED`，新分支`feat/f05-1-vehicle-scope-safe-projection`从最新main建立，限真实M94物理车辆归属/4S合作主体/员工scope证明与字段安全最小投影、隔离34/34真实PG16；没有可信归属不能准许车辆操作，禁止本包新DDL/生产写/旧Final变更。F05-2所需结构和实施独立后续放行。
+
+
+## 2026-10-10｜F05-1正式A验收PR30标准合并及F05-2新施工授权（无新增产品裁决）
+
+- B最终SHA`146129d94af0df6570bba7bb17781f1528d00a7c`=官方Actions`38056158521`的head.sha，34/34独立真PG16 success、原生51个Artifacts，物理源9/9+TLS9/9，旧32job全文冻结。F05-1由A签收、A评论`6098084371`、[PR30](https://github.com/suzhe868-arch/mb/pull/30)已标准merge SHA`5f70588905a8cadbb47a3bc4a8eb6af411b94597`，正式报告`07_重建工作区/F05-1_A主控独立验收PR30正式合并与F05-2可信归属接力_2026-10-10.md`。
+- M94现存26表153字段/99FK等真实证明Vehicle/ListingCycle存在，但`REAL_VEHICLE_SCOPE_PROVEN=0`（归属物理权源缺失），不能以created_by/店铺/4S来源/CRM owner/客户可见grant/Publisher自动放权；252矩阵三类来源7出口全部403，安全仅CI-only。F05完整经营业务、F04生产路由/H01和V1均NOT_READY。
+- A依据已签PDM Final/Current IA批准`07_重建工作区/F05-2_A主控Vehicle当前管理责任可信关系增量迁移与真实权限闭环完整施工单_2026-10-10.md`：`F05_2_A_RELEASED_FOR_B / NEXT_OWNER=B / B_NOT_STARTED`，在新`feat/f05-2-vehicle-stewardship-physical-scope`分支建立可信Vehicle现时责任关系/独立历史、只在临时PG16执行单独增量迁移并测试真实正向+撤权/来源变更/最后提交并发；不可新建4S组织、不可伪造权益或自动回填旧车，旧M94/G14各自封印不可混用。冻结旧34独立PG16加2个新真PG16，最终36/36同SHA成功，B自验后交A。无生产DDL/真实资金/第三方许可。
