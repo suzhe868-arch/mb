@@ -83,8 +83,8 @@ export async function publishAndIssueFromCurrentTransaction(auth,token,p,{testCh
   // timestamp, is explicitly not eligible for a backfilled ownership grant.
   const prior=(await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR KEY SHARE',[p.vehicleId])).rows;
   if(prior.length){
-   const old=(await c.query("SELECT x.responsibility_id,x.responsible_employee_id,x.team_id,x.source_snapshot,x.revoked_at,y.actor_id,y.role_context,y.after_json FROM public.vehicle_current_responsibilities x JOIN public.audit_events y ON y.object_kind='Vehicle' AND y.object_id=$1::text AND y.action='vehicle.manual.published' AND y.after_json->>'eventKey'=$2 WHERE x.vehicle_id=$1 AND x.listing_cycle_id=$3 AND x.trusted_event_key=$2",
-    [p.vehicleId,p.eventKey,p.listingCycleId])).rows;
+   const old=(await c.query("SELECT x.responsibility_id,x.responsible_employee_id,x.team_id,x.source_snapshot,x.revoked_at,y.actor_id,y.role_context,y.after_json FROM public.vehicle_current_responsibilities x JOIN public.audit_events y ON y.object_kind='Vehicle' AND y.object_id=$4::text AND y.action='vehicle.manual.published' AND y.after_json->>'eventKey'=$2 WHERE x.vehicle_id=$1 AND x.listing_cycle_id=$3 AND x.trusted_event_key=$2",
+    [p.vehicleId,p.eventKey,p.listingCycleId,String(p.vehicleId)])).rows;
    if(old.length===1&&old[0].revoked_at===null&&Number(old[0].responsible_employee_id)===actor&&
       Number(old[0].team_id)===p.teamId&&old[0].source_snapshot===p.sourceKind&&
       old[0].actor_id===String(actor)&&old[0].role_context?.origin==='F05_2_NEW_MANUAL_PUBLISH_IN_SAME_TX'&&
