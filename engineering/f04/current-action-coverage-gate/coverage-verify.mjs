@@ -107,6 +107,7 @@ export function validateCoverage(text=read(d+'Current全量动作覆盖与页面
  }
  if(Object.entries(counts).some(([k,n])=>meta.counts[k]!==n)||
  Object.values(counts).reduce((a,b)=>a+b,0)!==meta.category_partition_sum)fail('CLASSIFICATION_COUNT');
+ if(meta.page_manifest_declared_carriers!==140||meta.page_manifest_enumerated_current_rows!==132||meta.page_manifest_unresolved_carrier_delta!==8||!meta.page_manifest_discrepancy_state?.startsWith('SOURCE_GAP_'))fail('UNRECONCILED_PAGE_MANIFEST_CARRIER_DELTA');
  if(meta.legacy_originals?.candidates!==215||meta.legacy_originals?.source_gap!==192||
  meta.legacy_originals?.retired!==3)fail('LEGACY_SOURCE_GAP_FAKE_APPROVAL');
  for(const [k,m] of Object.entries(meta.source_meta||{})){

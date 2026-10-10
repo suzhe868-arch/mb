@@ -69,5 +69,10 @@
     "retired": 3
   },
   "category_partition_sum": 437,
-  "stable_key_algorithm": "FNV1a64 UTF8 codepoint tuple + source_kind:line prefix; hash is stable fingerprint not authorization/crypto signature"
+  "stable_key_algorithm": "FNV1a64 UTF8 codepoint tuple + source_kind:line prefix; hash is stable fingerprint not authorization/crypto signature",
+  "page_manifest_declared_carriers": 140,
+  "page_manifest_enumerated_current_rows": 132,
+  "page_manifest_unresolved_carrier_delta": 8,
+  "page_manifest_discrepancy_state": "SOURCE_GAP_DECLARED_140_VS_CURRENT_TABLE_132_NO_INVENTED_PAGE",
+  "tri_way_bridge_rows": 258
 }
