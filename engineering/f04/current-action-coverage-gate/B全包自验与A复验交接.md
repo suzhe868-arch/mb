@@ -42,3 +42,16 @@
 A独立复验请确认：最终PR HEAD与最后成功Actions`head_sha`一致、32/32个真实PG16 job success、新独立Source/TLS原生Artifacts存在未过期、旧30正文冻结、仅上述白名单新增文件、三向258/Current437台账机器能复现及Page Manifest 140 vs 132未证差额是否需要A后续裁定。B绝不自行合并`main`或启动F04-5/F05；本轮F04整体、H01和V1产品基线继续`NOT_READY`。
 
 **只有满足同SHA最终绿灯才标`B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A`；最终版本、run、job、artifact精确信息记录于PR交接评论。**
+
+## 2026-10-10｜A-F04-4-01 首次独立验收业务DTO整改（二轮交A）
+
+A认可既有437来源/258追溯/真实32独立PG16及45原生工件，但8个新增动作全用一个必填正整数ID是假typed业务请求。原PR29未合并，本批在原分支修复；F04-4仍CI-only。
+
+- 八个Current动作意图仍有PDM Final + Navigation原文；请求字段与物理对象/权限没有全部得到生产证明。严格计数：1项有据的最小CI合成typed请求 + 7项INTENT_ONLY/REQUEST_SCHEMA_SOURCE_GAP，不再称8项已完成可执行DTO。
+- VEHICLE_SOURCE_TYPE_EDIT明确Vehicle目标vehicleId，以及必填targetSourceType，仅支持名邦或4S（PDM-06第342/348行）。该vehicleId整数wire编码是CI合成假设，待F05证实；批发/错误enum与VIN/手机号/批发价/伪VIP不允许。
+- ANNOUNCEMENT_CREATE是新建，PDM-24第23/25行可证标题/正文/有效周期/开关/排序语义，但复合Nav291无法证明新建HTTP必填/可选字段与表示。撤销原伪必填announcementId，明确INTENT_ONLY_CI_CONTRACT，不冒充生产创建DTO。
+- MARKUP_RULE_SAVE有草稿/校验/范围/生效区别，但区间、加价金额和版本的真实请求结构未证；SYSTEM_MODEL_MAPPING_BIND应选已有合法vehicle_model_id，原modelMappingId作为必填未经证明。两者均降REQUEST_SCHEMA_SOURCE_GAP，必须在下游F05补全。
+- LockRequest approve/reject、Vehicle真实下架、图片失败重试均有动作证据，但HTTP请求编码、物理Scope/状态/幂等结构不完整：仅intent、不造完整DTO。
+- 校验器现在逐项锁定真实操作动词、Final/Nav原文、字段级Final来源、状态/枚举及响应。新增合法vehicle正例，以及缺目标source_type、公告CREATE误传旧ID、阶梯无区间仍声称完整、映射无canonical目标、错PDM/Actor等实质负例。
+- 新接口仅CI-only硬拒403/501，唯旧F04-1受签收的精准CRM CustomerId合成只读可200；不改生产/第三方/资金，不恢复Collector3条。
+- 页面Manifest声明140、实际来源枚举132差8仍SOURCE_GAP，非本轮单独阻断；旧215=23/192不变。最终需要同HEAD真实32/32独立PG16，且原生新Source/TLS artifacts；A二轮复审后方可合并。

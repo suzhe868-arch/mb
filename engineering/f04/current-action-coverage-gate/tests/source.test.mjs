@@ -15,7 +15,66 @@ test('F04-4-A04 real but wrong PDM/Nav action citation and missing records fail'
 test('F04-4-A05 fake legacy approvals, counts and category partitions denied',()=>{let m=JSON.parse(seal);m.legacy_originals.source_gap=0;assert.throws(()=>validateCoverage(table,JSON.stringify(m),inc),/LEGACY_SOURCE/);m=JSON.parse(seal);m.counts.PAGE_NAV_ONLY=999;assert.throws(()=>validateCoverage(table,JSON.stringify(m),inc),/CLASSIFICATION_COUNT/)});
 test('F04-4-A06 8 Current same actor/action/resource/state/domain sealed',()=>{assert.equal(validateIncremental().newCandidates,8);assert.throws(()=>validateIncremental(proof('LOCKREQUEST_APPROVE_FINAL',x=>x.nav_line=251)),/ACTOR_OPERATION/);assert.throws(()=>validateIncremental(proof('LOCKREQUEST_REJECT_FINAL',x=>x.actor='CUSTOMER')),/ACTOR_OPERATION/);assert.throws(()=>validateIncremental(proof('VEHICLE_DELIST',x=>x.domain='PDM-18')),/ACTOR_OPERATION/)});
 test('F04-4-A07 SystemAdmin control plane does not acquire Employee Vehicle business powers',()=>{assert.throws(()=>validateIncremental(proof('SYSTEM_MODEL_MAPPING_BIND',x=>x.actor='EMPLOYEE_MANAGER')),/ACTOR_OPERATION/);assert.throws(()=>validateIncremental(proof('VEHICLE_SOURCE_TYPE_EDIT',x=>x.actor='SYSTEM_ADMIN')),/ACTOR_OPERATION/)});
-test('F04-4-A08 strict DTO typed/required/extra sensitive VIN/phone/internal price denied',()=>{let x=loadIncremental().actions[0],body={[x.field]:23};assert.equal(validateDtoValue(x,body),true);for(const bad of [{},{[x.field]:'23'},{...body,vin:'PRIVATE'},{...body,phone:'PRIVATE'},{...body,internalWholesalePrice:2300},{...body,merchantId:123},{...body,role:'SYSTEM_ADMIN'},{...body,customerLevel:'VIP'}])assert.equal(validateDtoValue(x,bad),false);assert.throws(()=>validateIncremental(proof('VEHICLE_DELIST',a=>a.dto_body.properties.vin={type:'string'})),/EXTRA_PRIVATE/)});
+test('F04-4-A08 exact two-field synthetic typed vehicle source change, target mandatory',()=>{
+ const all=loadIncremental(),typed=all.actions.filter(a=>a.contract_class==='EXECUTABLE_TYPED_CI_SCHEMA');
+ assert.equal(typed.length,1);assert.equal(validateIncremental().verifiedExecutableTypedContracts,1);
+ assert.equal(validateIncremental().intentOnlySourceGapContracts,7);
+ const v=typed[0];assert.equal(v.intent,'VEHICLE_SOURCE_TYPE_EDIT');
+ for(const choice of ['名邦','4S'])assert.equal(validateDtoValue(v,{vehicleId:12,targetSourceType:choice}),true);
+ for(const bad of [{vehicleId:12},{targetSourceType:'名邦'},
+  {vehicleId:12,targetSourceType:'WHOLESALE'},{vehicleId:12,targetSourceType:'4s'},
+  {vehicleId:'12',targetSourceType:'4S'},{vehicleId:0,targetSourceType:'名邦'},
+  {vehicleId:12,targetSourceType:'名邦',vin:'SECRET'},
+  {vehicleId:12,targetSourceType:'名邦',phone:'PRIVATE'},
+  {vehicleId:12,targetSourceType:'名邦',internalWholesalePrice:299},
+  {vehicleId:12,targetSourceType:'名邦',customerLevel:'VIP'},
+  {vehicleId:12,targetSourceType:'名邦',merchantId:1},
+  {vehicleId:12,targetSourceType:'名邦',role:'SYSTEM_ADMIN'}])
+  assert.equal(validateDtoValue(v,bad),false);
+ assert.throws(()=>validateIncremental(proof('VEHICLE_SOURCE_TYPE_EDIT',x=>{
+  x.dto_body.required=['vehicleId'];delete x.dto_body.properties.targetSourceType;
+ })),/BUSINESS_DTO/);
+ assert.throws(()=>validateIncremental(proof('VEHICLE_SOURCE_TYPE_EDIT',x=>{
+  x.field_authority[1].quote=x.field_authority[0].quote;
+ })),/FALSE_FIELD_AUTHORITY/);
+ assert.throws(()=>validateIncremental(proof('VEHICLE_SOURCE_TYPE_EDIT',x=>{
+  x.dto_body.properties.targetSourceType.enum.push('批发');
+ })),/BUSINESS_DTO/);
+});
+test('F04-4-A12 CREATE has no old announcementId; missing source is not fake executable DTO',()=>{
+ const candidates=loadIncremental().actions;const announce=candidates.find(a=>a.intent==='ANNOUNCEMENT_CREATE');
+ assert.equal(announce.contract_class,'INTENT_ONLY_CI_CONTRACT');
+ assert.equal(announce.request_schema_state,'REQUEST_SCHEMA_SOURCE_GAP');
+ assert.equal(announce.dto_body,null);assert.equal(announce.field,null);
+ assert.equal(validateDtoValue(announce,{announcementId:11}),false);
+ assert.throws(()=>validateIncremental(proof('ANNOUNCEMENT_CREATE',x=>{
+  x.field='announcementId';
+  x.dto_body={type:'object',properties:{announcementId:{type:'integer'}},required:['announcementId'],additionalProperties:false};
+ })),/SOURCE_GAP_PRETENDED_EXECUTABLE|ANNOUNCEMENT_CREATE/);
+ assert.throws(()=>validateIncremental(proof('ANNOUNCEMENT_CREATE',x=>{
+  x.operation='EDIT_EXISTING_ANNOUNCEMENT';
+ })),/OPERATION_INTENT/);
+});
+test('F04-4-A13 Markup needs intervals/value; model mapping needs canonical model: otherwise remain intent-only',()=>{
+ for(const id of ['MARKUP_RULE_SAVE','SYSTEM_MODEL_MAPPING_BIND']){
+  const a=loadIncremental().actions.find(x=>x.intent===id);
+  assert.equal(a.request_schema_state,'REQUEST_SCHEMA_SOURCE_GAP');
+  assert.equal(a.contract_class,'INTENT_ONLY_CI_CONTRACT');
+  assert.equal(a.dto_body,null);
+  assert.equal(validateDtoValue(a,{[a.intent==='MARKUP_RULE_SAVE'?'markupRuleId':'modelMappingId']:1}),false);
+  assert.throws(()=>validateIncremental(proof(id,x=>{
+   x.contract_class='EXECUTABLE_TYPED_CI_SCHEMA';
+   x.request_schema_state='FIELD_PROVEN_SYNTHETIC_CI_ONLY';
+   x.dto_body={type:'object',properties:{[id==='MARKUP_RULE_SAVE'?'markupRuleId':'modelMappingId']:{type:'integer'}},required:[id==='MARKUP_RULE_SAVE'?'markupRuleId':'modelMappingId'],additionalProperties:false};
+  })),/OPERATION_INTENT|SOURCE_GAP_PRETENDED_EXECUTABLE/);
+ }
+});
+test('F04-4-A14 spoofed actor, Final/Nav and dependency no longer pass synthetic contract',()=>{
+ assert.throws(()=>validateIncremental(proof('VEHICLE_SOURCE_TYPE_EDIT',x=>x.operation='EDIT_VEHICLE_DETAILS')),/OPERATION_INTENT/);
+ assert.throws(()=>validateIncremental(proof('LOCKREQUEST_APPROVE_FINAL',x=>x.operation_source.line=71)),/OPERATION_INTENT/);
+ assert.throws(()=>validateIncremental(proof('VEHICLE_DELIST',x=>x.intent_semantics.object_scope='GLOBAL_ALL')),/OPERATION_INTENT/);
+ assert.throws(()=>validateIncremental(proof('ANNOUNCEMENT_CREATE',x=>x.response_codes[200]='CREATED')),/EXTRA_PRIVATE/);
+});
 test('F04-4-A11 forged action actor, old approval and Current object resource on real NAV line fail',()=>{
  assert.throws(()=>validateCoverage(mutate('NAV:269','actor','SYSTEM_ADMIN'),seal,inc),/TRUE_QUOTE|SIGNED_NAV_ACTOR|NAV_SEMANTIC/);
  assert.throws(()=>validateCoverage(mutate('NAV:248','target_resource','4S_MERCHANT_TREE'),seal,inc),/TRUE_QUOTE|ADDITIONAL_NAV|NAV_SEMANTIC/);
