@@ -157,11 +157,11 @@ export async function readFourSMemberMinimalVehicle(auth,token,p,{testCheckpoint
  if(!shape(p,'outlet,vehicleId')||p.outlet!=='detail'||!valid(p.vehicleId))return deny('F05_3A_DETAIL_ONLY');
  await ready(auth);
  return memberSession(auth,token,async(c,who)=>{
-  const q=(await c.query("SELECT x.publication_id,x.vehicle_id,x.listing_cycle_id,x.member_employee_id,x.license_id,v.source_type,v.source_sale_status,v.archived_at,v.created_by_employee_id,cy.ended_at FROM public.f05_3a_member_publications x JOIN public.f05_3a_member_create_licenses l ON l.license_id=x.license_id JOIN public.vehicles v ON v.vehicle_id=x.vehicle_id JOIN public.vehicle_listing_cycles cy ON cy.listing_cycle_id=x.listing_cycle_id AND cy.vehicle_id=x.vehicle_id WHERE x.vehicle_id=$1 AND x.member_employee_id=$2 AND x.revoked_at IS NULL AND l.revoked_at IS NULL FOR SHARE OF x,l,v,cy",
+  const q=(await c.query("SELECT x.publication_id,x.vehicle_id,x.listing_cycle_id,x.member_employee_id,x.license_id,v.source_type,v.source_sale_status,v.archived_at,v.created_by_employee_id,cy.ended_at FROM public.f05_3a_member_publications x JOIN public.f05_3a_member_create_licenses l ON l.license_id=x.license_id JOIN public.vehicles v ON v.vehicle_id=x.vehicle_id JOIN public.vehicle_listing_cycles cy ON cy.listing_cycle_id=x.listing_cycle_id AND cy.vehicle_id=x.vehicle_id WHERE x.vehicle_id=$1 AND x.member_employee_id=$2 AND l.employee_id=x.member_employee_id AND l.employee_id=$2 AND x.revoked_at IS NULL AND l.revoked_at IS NULL FOR SHARE OF x,l,v,cy",
    [p.vehicleId,who])).rows;
   if(q.length!==1)return deny('F05_3A_NO_CURRENT_OWN_OBJECT_SCOPE');
   const x=q[0];
-  if(x.source_type!=='four_s'||x.source_sale_status!=='available'||x.archived_at!==null||x.ended_at!==null||
+  if(Number(x.member_employee_id)!==who||x.source_type!=='four_s'||x.source_sale_status!=='available'||x.archived_at!==null||x.ended_at!==null||
      Number(x.created_by_employee_id)!==who)return deny('F05_3A_SOURCE_OR_CYCLE_INVALID');
   if(testCheckpoint!==undefined){
    if(process.env.CI!=='true'||process.env.GITHUB_ACTIONS!=='true'||typeof testCheckpoint!=='function')
