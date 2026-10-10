@@ -126,6 +126,15 @@ async function batchFacts(c,a,batchId,teamId,forWrite){
  // is never taken as authority for all six receipt domains.
  return {b,items:first,source};
 }
+async function unusedGlobalGRequestKey(c,key){
+ const h=digest(key);
+ const mine=(await c.query("SELECT 1 FROM public.audit_events WHERE action IN ('sg06.item.complete','sg06.batch.complete') AND role_context->>'keySha256'=$1 LIMIT 1",[h])).rowCount;
+ if(mine)return false;
+ for(const receiptTable of tables){
+  if((await c.query('SELECT 1 FROM public.'+receiptTable+' WHERE request_key_sha256=$1 LIMIT 1',[h])).rowCount)return false;
+ }
+ return true;
+}
 async function audit(c,a,objectKind,objectId,action,before,after,requestKey,team){
  const key=digest(requestKey);
  await c.query("INSERT INTO public.audit_events(actor_kind,actor_id,role_context,object_kind,object_id,action,before_json,after_json,occurred_at) VALUES('employee',$1,$2::jsonb,$3,$4,$5,$6::jsonb,$7::jsonb,transaction_timestamp())",[str(a.employee_id),JSON.stringify({scope:'F03_G_CI_ONLY',teamId:team,keySha256:key}),objectKind,str(objectId),action,JSON.stringify(before),JSON.stringify(after)]);
@@ -145,12 +154,17 @@ export async function commitHandoverItem(auth,token,p,opts={}){
  if(!p||Object.keys(p).sort().join(',')!=='batchId,itemId,requestKey,teamId'||![p.batchId,p.itemId,p.teamId].every(valid)||!KEY(p.requestKey)||Object.keys(opts).some(x=>x!=='testCheckpoint')||opts.testCheckpoint!==undefined&&!(process.env.CI==='true'&&process.env.GITHUB_ACTIONS==='true'&&typeof opts.testCheckpoint==='function'))return deny('G_INPUT_DENY');
  return actorSession(auth,token,async(c,a)=>{
   const x=await batchFacts(c,a,p.batchId,p.teamId,true);
-  if(!x||!['pending_domain_handover','blocked','collecting'].includes(x.b.status))return deny('G_BATCH_NOT_WRITABLE');
+  if(!x)return deny('G_BATCH_NOT_WRITABLE');
   const item=x.items.find(i=>Number(i.item_id)===p.itemId);
   if(!item)return deny('G_ITEM_NOT_FOUND');
   const audits=(await c.query("SELECT actor_id,role_context,before_json,after_json FROM public.audit_events WHERE object_kind='handover_item' AND object_id=$1 AND action='sg06.item.complete' ORDER BY audit_id",[str(p.itemId)])).rows;
-  if(item.status==='completed')return audits.length===1&&audits[0].role_context?.keySha256===digest(p.requestKey)?approved('G_ITEM_IDEMPOTENT',{itemId:p.itemId}):deny('G_ITEM_ALREADY_COMPLETED');
+  if(item.status==='completed'){
+   if(audits.length===1&&str(audits[0].actor_id)===str(a.employee_id)&&audits[0].role_context?.keySha256===digest(p.requestKey)&&(await itemFact(c,item,p.teamId,a)).ok)return approved('G_ITEM_IDEMPOTENT',{itemId:p.itemId});
+   return deny('G_ITEM_ALREADY_COMPLETED');
+  }
+  if(!['pending_domain_handover','blocked','collecting'].includes(x.b.status))return deny('G_BATCH_NOT_WRITABLE');
   if(!['pending','retry_required'].includes(item.status)||audits.length!==0)return deny('G_ITEM_STATE_DENY');
+  if(!await unusedGlobalGRequestKey(c,p.requestKey))return deny('G_GLOBAL_REQUEST_KEY_COLLISION');
   const evidence=await itemFact(c,item,p.teamId,a);
   if(!evidence.ok)return evidence;
   if(opts.testCheckpoint)await opts.testCheckpoint('before_cas',c);
@@ -210,9 +224,13 @@ export async function commitHandoverBatch(auth,token,p,opts={}){
  return actorSession(auth,token,async(c,a)=>{
   const x=await batchFacts(c,a,p.batchId,p.teamId,true);
   if(!x)return deny('G_BATCH_SCOPE_DENY');
-  const audits=(await c.query("SELECT role_context FROM public.audit_events WHERE object_kind='handover_batch' AND object_id=$1 AND action='sg06.batch.complete'",[str(p.batchId)])).rows;
-  if(x.b.status==='completed')return audits.length===1&&audits[0].role_context?.keySha256===digest(p.requestKey)?approved('G_BATCH_IDEMPOTENT'):deny('G_BATCH_ALREADY_COMPLETED');
+  const audits=(await c.query("SELECT actor_id,role_context FROM public.audit_events WHERE object_kind='handover_batch' AND object_id=$1 AND action='sg06.batch.complete'",[str(p.batchId)])).rows;
+  if(x.b.status==='completed'){
+   if(audits.length===1&&str(audits[0].actor_id)===str(a.employee_id)&&audits[0].role_context?.keySha256===digest(p.requestKey)&&(await closedBatchSafe(c,a,x,p.teamId)).ok)return approved('G_BATCH_IDEMPOTENT');
+   return deny('G_BATCH_ALREADY_COMPLETED');
+  }
   if(x.b.status!=='pending_domain_handover'||audits.length!==0)return deny('G_BATCH_STATE_DENY');
+  if(!await unusedGlobalGRequestKey(c,p.requestKey))return deny('G_GLOBAL_REQUEST_KEY_COLLISION');
   const fact=await closedBatchSafe(c,a,x,p.teamId);if(!fact.ok)return fact;
   if(opts.testCheckpoint)await opts.testCheckpoint('before_cas',c);
   const v=await c.query("UPDATE public.handover_batches SET status='completed',version=version+1,updated_at=transaction_timestamp() WHERE batch_id=$1 AND status='pending_domain_handover' AND version=$2",[p.batchId,x.b.version]);
