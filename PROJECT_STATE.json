@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F03_V_A_ACCEPTED_MERGED_PR25_F04_1_B_READY_CI26_A_CHANGES_REQUESTED_NEXT_OWNER_B",
+  "substage": "F04_1_A_ACCEPTED_MERGED_PR26_F04_2_A_RELEASED_FOR_B",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "GLOBAL_POST_PDM25",
-  "current_domain_status": "F03_SYNTHETIC_SCOPE_ACCEPTED_F04_1_A_CHANGES_REQUESTED_PR26_NOT_MERGED",
+  "current_domain": "F04",
+  "current_domain_status": "F04_1_CI_ONLY_ACCEPTED_MERGED_PR26_F04_2_CURRENT_AUTHORITY_4S_PRECHECK_A_RELEASED_FOR_B_F04_FULL_NOT_COMPLETE",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F04-1 B最终SHA cb5a96699a4b93bc42dc0f81188c22ee8d5b49c7同SHA真实CI38029582060 26/26独立PG16成功，但A独立审查发现A-F04-01旧OpenAPI路径198/218而B只记录136条distinct路径，62条包含冒号path错归；A-F04-02旧Collector禁止恢复三接口被统一MODIFY误分类，旧218缺Current IA/PDM逐行权威未证；A-F04-03本人客户最小正向HTTP未证明目标Customer对象与当前data scope绑定。PR26暂不通过未合并，正式整改单落main，B原分支一次性整改并取最新同SHA CI26/26重新交A。产品与C/H01保持NOT_READY。",
-  "current_work_file": "07_重建工作区/F04-1_A主控首次独立审查与接口溯源权限证明完整定向整改单_2026-10-10.md",
+  "current_task": "F04-1 B最终6af50664ec230f11caf62c73562449069d086b15同SHA真实Actions38031443210 26/26独立PG16成功，A复核198 paths/218 method+path、62冒号路径零错归、3条禁恢复RETIRE、215未映射SOURCE_GAP、目标Customer object scope精确授权HTTP验证，PR26标准合并SHA20479f3712a5aaa862f7db4378d8db2369695d79。已正式签发F04-2：逐行映射215项当前IA/PDM证据、System Admin→4S账号隔离只读资格前置、旧26+新2共28个同最终HEAD真实PG16成功；B从执行时最新main创建feat/f04-2-authority-route-mapping，全部开发测试证据后交A；无生产或现行业务正式可用承诺，产品基线NOT_READY。",
+  "current_work_file": "07_重建工作区/F04-2_A主控现行215接口Authority映射与4S账号安全控制前置完整施工单_2026-10-10.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F04_1_A_CHANGES_REQUESTED_A_F04_01_02_03",
+  "current_review_batch": "F04_2_CURRENT_215_AUTHORITY_MAPPING_4S_ADMIN_CI_PRECHECK",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_RECTIFY_F04_1_PR26_SAME_BRANCH_26_GENUINE_PG16_JOBS_READY_FOR_A",
+  "next_action": "B_EXECUTE_F04_2_215_CURRENT_AUTHORITY_AND_4S_PRECHECK_28_INDEPENDENT_PG16_JOBS_READY_FOR_A",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F04_1_A_CHANGES_REQUESTED_PR26_NOT_MERGED_NEXT_OWNER_B",
+  "engineering_status": "F04_1_ACCEPTED_MERGED_PR26_F04_2_A_RELEASED_FOR_B_NOT_PRODUCTION",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B在feat/f04-1-contract-safety-gate原分支完成一次性A-F04-01至03整改：修正旧OpenAPI 198个真实path/218个method+path，62条冒号path错归清零并增加独立验真测试；按Current IA/Final真实权限禁恢复分类Collector连接GET/PATCH/TEST为RETIRE，未核实逐行Authority标UNREVIEWED_SOURCE_GAP不冒充MODIFY；本人Customer当前owner正向读必须证明目标对象当前data scope，否则保持DENY/OPEN_DEPENDENCY，并补跨Team/store/个人deny/撤权真实PG16+HTTP正反例。冻结旧F03服务/迁移/CI，保留旧24+新2共26/26各自独立非特权PG16同最终新HEAD成功及原生目录和中文交接后READY_FOR_A_REVIEW交A。PR26未合并不得自行合并或进入F04-2。",
+  "next_action_detail": "B先读main README/CURRENT_PROJECT_STATE/NEXT_ACTION/PROJECT_STATE/DECISION_REGISTER与F04-2正式完整单，从最新main新建feat/f04-2-authority-route-mapping；在批准隔离目录一轮完成215旧候选逐行真实Current IA/Low-Fi/PDM source映射（缺证SOURCE_GAP不得猜测）、禁恢复Collector三项RETIRE始终不可达、System Admin/4S账户真实PG16非生产身份/对象范围只读前置并将真实账户修改保持DENY、独立HTTP负例安全审计、旧26个PG16原版+新2个独立PG16共28/28成功且run.head_sha等于最后B HEAD、完整原始artifact和中文B交接；B不合并main、不打开生产、不擅改旧迁移/F04-1服务或产品Final、不可宣称F04整体完成；交A集中独立验收。C/H01和整体产品NOT_READY。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -4829,7 +4829,11 @@
     "automatic_after_a_acceptance_clean_standard_pr_merge": true,
     "scope_doc": "07_重建工作区/A_B_C三窗口协作与验收规范.md",
     "authority": "PDM_FINAL_CURRENT_IA_LOWFI_UNCHANGED",
-    "high_risk_gate": "USER_APPROVAL_FOR_NEW_PRODUCT_DECISIONS_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_THIRD_PARTY_WRITES"
+    "high_risk_gate": "USER_APPROVAL_FOR_NEW_PRODUCT_DECISIONS_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_THIRD_PARTY_WRITES",
+    "next_owner": "B",
+    "current_work_branch": "feat/f04-2-authority-route-mapping",
+    "current_work_order": "07_重建工作区/F04-2_A主控现行215接口Authority映射与4S账号安全控制前置完整施工单_2026-10-10.md",
+    "engineering_status": "F04_2_A_RELEASED_FOR_B"
   },
   "f01_acceptance": {
     "status": "ACCEPTED_USER_APPROVED_MERGED_TO_MAIN",
@@ -5861,11 +5865,11 @@
     "production_ready": false
   },
   "f04_1_gate": {
-    "status": "A_CHANGES_REQUESTED",
+    "status": "A_ACCEPTED_MERGED_PR26_CI_ONLY",
     "work_order": "07_重建工作区/F04-1_A主控接口合同与安全路由启动完整施工单_2026-10-10.md",
     "branch": "feat/f04-1-contract-safety-gate",
     "branch_created": false,
-    "execution": "B_REVIEWED_CHANGES_REQUESTED_SAME_BRANCH",
+    "execution": "A_ACCEPTED_MERGED_PR26",
     "ci_required": "26_INDEPENDENT_GENUINE_PG16_JOBS_SAME_FINAL_SHA",
     "white_list": [
       "engineering/f04/contract-gate/**",
@@ -5877,12 +5881,30 @@
     "reviewed_sha": "cb5a96699a4b93bc42dc0f81188c22ee8d5b49c7",
     "reviewed_ci_run": 38029582060,
     "reviewed_ci_success_jobs": 26,
-    "a_report": "07_重建工作区/F04-1_A主控首次独立审查与接口溯源权限证明完整定向整改单_2026-10-10.md",
-    "a_blockers": [
-      "A-F04-01_OPENAPI_62_COLON_PATH_MISMATCH",
-      "A-F04-02_218_ALL_MODIFY_INCLUDING_FORBIDDEN_COLLECTOR",
-      "A-F04-03_CUSTOMER_OBJECT_SCOPE_PROOF_MISSING"
-    ],
-    "pr_merged": false
+    "a_report": "07_重建工作区/F04-1_A主控二轮独立验收PR26正式合并与下一阶段归属_2026-10-10.md",
+    "a_blockers": [],
+    "pr_merged": true,
+    "final_b_sha": "6af50664ec230f11caf62c73562449069d086b15",
+    "final_ci_run": 38031443210,
+    "ci_success_jobs": 26,
+    "new_route_security_tests": "20/20",
+    "new_inventory_tests": "10/10",
+    "merge_sha": "20479f3712a5aaa862f7db4378d8db2369695d79"
+  },
+  "f04_2_gate": {
+    "status": "A_RELEASED_FOR_B",
+    "work_order": "07_重建工作区/F04-2_A主控现行215接口Authority映射与4S账号安全控制前置完整施工单_2026-10-10.md",
+    "branch": "feat/f04-2-authority-route-mapping",
+    "branch_created": false,
+    "execution": "B_NOT_STARTED",
+    "parent_f04_1_merge_sha": "20479f3712a5aaa862f7db4378d8db2369695d79",
+    "scope": "215_CURRENT_IA_PDM_AUTHORITY_SOURCE_MAPPING_PLUS_CI_ONLY_SYSTEM_ADMIN_4S_ACCOUNT_READONLY_PREFLIGHT",
+    "independent_pg16_ci_jobs_required": 28,
+    "prior_frozen_jobs": 26,
+    "new_jobs": 2,
+    "allow_production": false,
+    "allow_account_mutation": false,
+    "allow_financial_actions": false,
+    "product_baseline": "NOT_READY"
   }
 }
