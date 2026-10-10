@@ -1,3 +1,11 @@
+# 2026-10-10｜F03-2-2N B真实PG16 CI全绿，但A独立复核Priority跨批来源映射缺口（当前最新）
+
+- B最终SHA`70fdae880cfc707a405d607378aa5ab172b432a0`，同SHA真实[CI38016127258](https://github.com/suzhe868-arch/mb/actions/runs/38016127258) **17/17独立PG16 job success**：新N14/14、旧M31/31、L29/29、K29/29、J/I27/27，其余旧H/G/F/E/D/C/B/A/F03-1各自独立成功；94表608列435约束163索引2120完整catalog项一项未改，N真实SOURCE、原字节和全目录校验PASS。仅11个新N模块/专用workflow文件，旧000001～000013及H/I/J/K/L/M服务均未修改。
+- **A-N-01技术安全阻断**：新N`priority()`只验证当前trigger Demand负责人和任一最新可信Demand收据，**未证明当前Priority待交接item的原员工、所属batch和授权Team与对应Demand正式交接事实吻合**；代码引用旧handover_items上不存在的`scope_team_id`后自行回退当前receipt Team，等同未验Team来源。其它批次已经合法Demand交接可能被错误拿来证明当前批次的Priority也已承接，违反2N N03/N04/PDM-03逐项来源证明。原N14项未覆盖**跨batch pending Priority+仅旧batch Demand receipt**、错误source/Team负例。唯一A正式整改单：`07_重建工作区/F03-2-2N_A主控独立复核Priority派生跨批次来源证明定向整改单_2026-10-10.md`；B沿用原`feat/f03-handover-reconciliation-2n`，只修新N服务/合成数据/PG16测试/交接，最终同SHA17/17成功交A。其余已过门禁保持冻结。
+- **A_CHANGES_REQUESTED / NOT_ACCEPTED / NOT_MERGED / NEXT_OWNER=B**；多任务包G/P/V已预排但继续`A_PREPLAN_NOT_RELEASED`，不得提前施工或修改既有2N授权。F03-2整体/C-H01/产品基线`NOT_READY`。
+
+---
+
 # 2026-10-10｜F03-2-2M A二轮正式验收通过PR21合并；F03-2-2N已签发（当前最新）
 
 - **2M经A二轮独立验收并正式合并**：B最终SHA 556720eb8a80a5ff83fe0a02fc54ea44cf40476e，同SHA[CI 38010658030](https://github.com/suzhe868-arch/mb/actions/runs/38010658030)**16/16独立PG16成功，新M94 31/31**（含A-M-01新6项实际合法converted_to_transaction来源、五种伪released、prepared漂移、CAS后源码失真全rollback及双会话锁竞争），旧L29/K29/J27/I27全部原版本完整通过。旧93表2074项零改，新000013仅1张不可变Transaction收据表后94表/608列/435约束/163索引/2120完整目录项，仅增46，PG16全目录和SOURCE原始字节PASS。A审查22个白名单变更，标准[PR21](https://github.com/suzhe868-arch/mb/pull/21) merge SHA 71847176ccd2fd93a323fe274f0f144d4aea2712。正式验收报告：07_重建工作区/F03-2-2M_A主控二轮独立验收及PR21正式合并闭环_2026-10-10.md。

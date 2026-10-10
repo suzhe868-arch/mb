@@ -1602,3 +1602,8 @@ B最终SHA 608779547db3f6ffce76f8c7ee030e4f30242eeb 同SHA真实CI38008698898 16
 ## 2026-10-10｜F03-2-2M A二轮正式验收PR21合并与2N只读统一收据对账放行（非PDM规则变更）
 
 B最终SHA556720eb8a80a5ff83fe0a02fc54ea44cf40476e同SHA真实PG16 CI38010658030 16/16独立job成功、M31含6项A-M-01已真实锁车converted_to_transaction来源/前后漂移和整事务回滚，旧L29/K29/J27/I27独立回归通过。旧93表2074目录全不变，新000013仅一张Transaction不可变收据表后94表/608列/435约束/163索引/2120完整项；SOURCE原字节真实核验通过。A标准PR21合并SHA71847176ccd2fd93a323fe274f0f144d4aea2712，正式验收07_重建工作区/F03-2-2M_A主控二轮独立验收及PR21正式合并闭环_2026-10-10.md。下批正式N仅CI隔离PG16 H/I/J/K/L/M六域receipt/audit、Priority从Demand派生及部分失败收口前置只读对账；禁止写completed/离职撤权/真实资金和任何DDL，要求17/17独立PG16 job通过、旧M31/L29/K29/J27/I27全套回归，B负责，详见07_重建工作区/F03-2-2N_A主控SG06全域收据对账与正式收口前置门禁只读施工单_2026-10-10.md。F03-2整体/H01/产品仍NOT_READY。
+
+
+## 2026-10-10｜F03-2-2N A独立复核发现Priority跨批/来源/Team派生证明缺口（工程定向整改）
+
+B最终SHA 70fdae880cfc707a405d607378aa5ab172b432a0，真实同SHA CI38016127258 17/17独立PG16全success、N14/M31/L29/K29/J27/I27各完整通过、原94表2120目录原字节零增量PASS。但新N只读Priority派生未证当前SG06 item的source employee、batch与对应真实Demand交接历史/Team吻合，读取不存在的item.scope_team_id自回退等于没有Team关联；跨批次未交接Priority可冒充已证明。A正式整改单`07_重建工作区/F03-2-2N_A主控独立复核Priority派生跨批次来源证明定向整改单_2026-10-10.md`；B继续原2N分支修新N服务/fixtures/tests且不得改旧迁移/权限旧服务，最终同SHA17/17 PG16成功及真来源证据后交A。**2N未验收未合并；G/P/V仍为预规划不得启动，F03-2/C-H01/产品NOT_READY。**
