@@ -1,3 +1,12 @@
+# 2026-10-11｜F05-2 A第三轮验收PASS、PR31已合并；F05-3A 4S单成员可信来源隔离包正式放行（唯一最新）
+
+- **F05-2 A正式PASS/CLOSED**：五项`A-F05-2-01～05`独立验收全部通过；[PR #31](https://github.com/suzhe868-arch/mb/pull/31)已由A**标准合并main**，merge SHA `fec72e9245845c252c551f6c172ecca7de5b4467`。受检B最终HEAD `50e28b69b60c4a48c50714abb003e514ec1f8205`与[Actions #38074648994](https://github.com/suzhe868-arch/mb/actions/runs/38074648994) run.head_sha一致，**36/36独立真实PG16 job success**；旧34个Job逐项原文冻结，新物理**21/21**、真实HTTPS**11/11**；59份Artifacts，新`11677953440`/`11677713304`未过期，旧M94封印不变，合并16项仅在批准新增白名单。A合并批准评论[6100698698](https://github.com/suzhe868-arch/mb/pull/31#issuecomment-6100698698)。
+- **审计Actor问题真正关闭**：隔离`000015`治理触发器自动撤权为`SYSTEM`、human actor `NULL`、被撤权原负责员工仍单记`previous_employee_id`，before/after/事务/因果有物理证据、不可变；人工签发/主动撤权/经理交接记当前真实Session操作者；R-A17～21真实PG16反例合格。五项历史阻断只保留为审计记录，不再视为当前待修。
+- **正式A报告**：`07_重建工作区/F05-2_A主控第三轮独立验收PR31正式合并与F05-3接力_2026-10-11.md`。**F05-3A新完整施工单已放行**：`07_重建工作区/F05-3A_A主控4S单成员经营责任可信来源与Vehicle隔离权限验证完整施工单_2026-10-11.md`，范围仅“4S单成员真实身份发布来源及经营责任+最小隔离授权/撤权审计”（旧36真PG16全文冻结、至少新2项独立真PG16=>条件具备时**38/38**）。指定新分支`feat/f05-3a-four-s-member-trust-scope`，**NEXT_OWNER=B / B_NOT_STARTED**，由B从最新main创建并一次性开发/自测/归档后交A，不擅自合并；来源实证不足必须`SOURCE_GAP`阻断，禁止造4S组织或越权200。
+- **边界不变**：F05整体、F04生产Vehicle端点、C/H01高保真和V1总基线`NOT_READY`；F05-2 CI-only并非生产授权，不接真实JYT/采购价格/电话/资金或现有车辆自动回填Owner。F05-3B JYT/转名邦/定价等另行放行。
+
+---
+
 # 2026-10-11｜F05-2 A二轮独立复验：旧四项均PASS，新增自动撤权审计Actor真实性唯一阻断（唯一最新）
 
 - **二轮原生事实已独立证明**：[PR31](https://github.com/suzhe868-arch/mb/pull/31)最终受检B/PR HEAD `68a263add2ae68ba3860f939a78b949589a0bb55` = [Actions 38071814138](https://github.com/suzhe868-arch/mb/actions/runs/38071814138) run.head_sha；官方**36/36真实独立非特权PG16 job success**，冻结旧34个job逐一原文不变，新增真实物理**16/16**、HTTPS**11/11**；59份原生Artifacts，新物理`11676863942`、TLS`11676953699`均未过期；PR16项全部是批准的新增路径，无生产/原旧迁移/Final/IA/C改动。
