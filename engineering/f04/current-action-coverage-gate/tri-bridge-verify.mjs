@@ -1,6 +1,7 @@
 // F04-4 signed tri-way provenance: 215 historical -> 32 frozen F04-3 -> 8 additional CI proposals, and 3 retired.
 import {readFileSync} from 'node:fs';
 import {dirname,resolve,join} from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {loadIncremental} from './coverage-verify.mjs';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'../../..');
 const d='engineering/f04/current-action-coverage-gate/';

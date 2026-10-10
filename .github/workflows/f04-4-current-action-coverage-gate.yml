@@ -4473,7 +4473,7 @@ jobs:
           mkdir -p "$artifact"
           node --check f04/current-action-coverage-gate/coverage-verify.mjs
           node --check f04/current-action-coverage-gate/tests/source.test.mjs
-          node --test f04/current-action-coverage-gate/tests/source.test.mjs 2>&1 | tee "$artifact/true-pg16-tests.log"
+          node --test f04/current-action-coverage-gate/tests/source.test.mjs f04/current-action-coverage-gate/tests/tri-bridge.test.mjs 2>&1 | tee "$artifact/true-pg16-tests.log"
           grep -q '# fail 0' "$artifact/true-pg16-tests.log"
           node f03/runtime-transaction-responsible-handover/runner.mjs --verify
       - name: F04-4 A original independent M94 physical source/coverage/sha256sums
@@ -4486,11 +4486,12 @@ jobs:
           docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > "$artifact/schema-only.sql"
           cp f03/runtime-handover-reconciliation/evidence/SOURCE.md "$artifact/frozen-source.md"
           cp f04/current-action-coverage-gate/Current全量动作覆盖与页面消费台账.tsv "$artifact/current-coverage.tsv"
+          cp f04/current-action-coverage-gate/Current旧新三向可追溯台账.tsv "$artifact/tri-way-provenance.tsv"
           cp f04/current-action-coverage-gate/Current覆盖计数与原文封印.json "$artifact/current-source-seal.json"
           cp f04/current-action-coverage-gate/incremental-contracts.json "$artifact/typed-consumer-contracts.json"
           cp ../03_证据_C_IA_V5_Current/IA_V5_ACTION_CONTRACT.md "$artifact/action-authority.md"
           cp ../03_证据_C_IA_V5_Current/04_LOW_FI_NAVIGATION_REGISTER.md "$artifact/navigation-authority.md"
-          (cd "$artifact" && sha256sum full-catalog.json inventory.json schema-only.sql frozen-source.md current-coverage.tsv current-source-seal.json typed-consumer-contracts.json action-authority.md navigation-authority.md true-pg16-tests.log > sha256sums.txt)
+          (cd "$artifact" && sha256sum full-catalog.json inventory.json schema-only.sql frozen-source.md current-coverage.tsv tri-way-provenance.tsv current-source-seal.json typed-consumer-contracts.json action-authority.md navigation-authority.md true-pg16-tests.log > sha256sums.txt)
           if grep -R -nE 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|BEGIN PRIVATE KEY' "$artifact"; then exit 1; fi
       - uses: actions/upload-artifact@v4
         with:
