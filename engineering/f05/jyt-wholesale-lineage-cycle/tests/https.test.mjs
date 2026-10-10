@@ -93,7 +93,7 @@ test('B-B07 route/method traversal, oversize input and unsafe contract shape can
  assert.equal((await call(prefix+'current','POST',signed('wrong-method'))).status,405);
  assert.equal((await call(prefix+'%2e%2e/current','GET')).status,400);
  assert.equal((await call(prefix+'sync?danger=1','POST',signed('wrong-query'))).status,400);
- assert.equal((await call(prefix+'sync','POST',signed('bad-body',{unexpected:'field'}))).status,403);
+ assert.equal((await call(prefix+'sync','POST',{...signed('bad-body'),unexpected:'field'})).status,403);
 });
 test('B-B08 credential revocation is effective without restart or cached privileges, old secret cannot recover',async()=>{
  const rev=await revokeCredential(auth,admin,{credentialId,version:1,eventKey:ev('revoke-real-tls-credential')});
