@@ -1,0 +1,5967 @@
+{
+  "version": "F04_3_DTO_V2_CI_ONLY",
+  "status": "NOT_APPROVED_NOT_PRODUCTION",
+  "schemas": [
+    {
+      "id": "DTO_CURRENTACTION_FAVORITE_TOGGLE_007",
+      "actionId": "CURRENTACTION_FAVORITE_TOGGLE_007",
+      "intent": "FAVORITE_TOGGLE",
+      "resourceKind": "favorites",
+      "actor": "CUSTOMER",
+      "authenticationContract": "CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+      "domain": "PDM-20",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "vehicleId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "listingCycleId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "vehicleId",
+            "listingCycleId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "vehicleId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-20_最终完整规则.md",
+            "authorityLine": 517,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "C01-01"
+          },
+          {
+            "field": "listingCycleId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-20_最终完整规则.md",
+            "authorityLine": 517,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "C01-01"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-007"
+    },
+    {
+      "id": "DTO_CURRENTACTION_FAVORITE_TOGGLE_008",
+      "actionId": "CURRENTACTION_FAVORITE_TOGGLE_008",
+      "intent": "FAVORITE_TOGGLE",
+      "resourceKind": "favorites",
+      "actor": "CUSTOMER",
+      "authenticationContract": "CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+      "domain": "PDM-20",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "vehicleId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "listingCycleId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "vehicleId",
+            "listingCycleId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "vehicleId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-20_最终完整规则.md",
+            "authorityLine": 517,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "C01-01"
+          },
+          {
+            "field": "listingCycleId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-20_最终完整规则.md",
+            "authorityLine": 517,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "C01-01"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-008"
+    },
+    {
+      "id": "DTO_CURRENTACTION_CONSULTATION_CREATE_019",
+      "actionId": "CURRENTACTION_CONSULTATION_CREATE_019",
+      "intent": "CONSULTATION_CREATE",
+      "resourceKind": "consultations",
+      "actor": "CUSTOMER",
+      "authenticationContract": "CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+      "domain": "PDM-15",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "vehicleId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "listingCycleId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "vehicleId",
+            "listingCycleId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "vehicleId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-15_最终完整规则.md",
+            "authorityLine": 72,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "C03-03"
+          },
+          {
+            "field": "listingCycleId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-15_最终完整规则.md",
+            "authorityLine": 72,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "C03-03"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-019"
+    },
+    {
+      "id": "DTO_CURRENTACTION_WAITLIST_REGISTER_020",
+      "actionId": "CURRENTACTION_WAITLIST_REGISTER_020",
+      "intent": "WAITLIST_REGISTER",
+      "resourceKind": "waitlists",
+      "actor": "CUSTOMER",
+      "authenticationContract": "CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+      "domain": "PDM-18",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "vehicleId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "listingCycleId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "vehicleId",
+            "listingCycleId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "vehicleId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-18_最终完整规则.md",
+            "authorityLine": 154,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "C01-M02"
+          },
+          {
+            "field": "listingCycleId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-18_最终完整规则.md",
+            "authorityLine": 154,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "C01-M02"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-020"
+    },
+    {
+      "id": "DTO_CURRENTACTION_CONSULTATION_PROCESS_069",
+      "actionId": "CURRENTACTION_CONSULTATION_PROCESS_069",
+      "intent": "CONSULTATION_PROCESS",
+      "resourceKind": "consultations",
+      "actor": "EMPLOYEE",
+      "authenticationContract": "EMPLOYEE_BUSINESS_PC_CAPABILITY_REQUIRED",
+      "domain": "PDM-15",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "consultationId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "consultationId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "consultationId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-15_最终完整规则.md",
+            "authorityLine": 128,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "E06-02"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-069"
+    },
+    {
+      "id": "DTO_CURRENTACTION_CONSULTATION_RESOLVE_070",
+      "actionId": "CURRENTACTION_CONSULTATION_RESOLVE_070",
+      "intent": "CONSULTATION_RESOLVE",
+      "resourceKind": "consultations",
+      "actor": "EMPLOYEE",
+      "authenticationContract": "EMPLOYEE_BUSINESS_PC_CAPABILITY_REQUIRED",
+      "domain": "PDM-15",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "consultationId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "consultationId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "consultationId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-15_最终完整规则.md",
+            "authorityLine": 497,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "E06-02"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-070"
+    },
+    {
+      "id": "DTO_CURRENTACTION_CONSULTATION_INVALIDATE_071",
+      "actionId": "CURRENTACTION_CONSULTATION_INVALIDATE_071",
+      "intent": "CONSULTATION_INVALIDATE",
+      "resourceKind": "consultations",
+      "actor": "EMPLOYEE",
+      "authenticationContract": "EMPLOYEE_BUSINESS_PC_CAPABILITY_REQUIRED",
+      "domain": "PDM-15",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "consultationId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "consultationId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "consultationId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-15_最终完整规则.md",
+            "authorityLine": 505,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "E06-02"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-071"
+    },
+    {
+      "id": "DTO_CURRENTACTION_CONSULTATION_REASSIGN_072",
+      "actionId": "CURRENTACTION_CONSULTATION_REASSIGN_072",
+      "intent": "CONSULTATION_REASSIGN",
+      "resourceKind": "consultations",
+      "actor": "EMPLOYEE",
+      "authenticationContract": "EMPLOYEE_BUSINESS_PC_CAPABILITY_REQUIRED",
+      "domain": "PDM-15",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "consultationId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "consultationId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "consultationId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-15_最终完整规则.md",
+            "authorityLine": 294,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "E06-02"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-072"
+    },
+    {
+      "id": "DTO_CURRENTACTION_VEHICLE_PUBLISH_079",
+      "actionId": "CURRENTACTION_VEHICLE_PUBLISH_079",
+      "intent": "VEHICLE_PUBLISH",
+      "resourceKind": "vehicles",
+      "actor": "EMPLOYEE",
+      "authenticationContract": "EMPLOYEE_BUSINESS_PC_CAPABILITY_REQUIRED",
+      "domain": "PDM-06",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "draftId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "draftId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "draftId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-06_最终完整规则.md",
+            "authorityLine": 80,
+            "evidenceState": "CURRENT_FINAL_DRAFT_TARGET_CI_ONLY",
+            "consumer": "E02-02"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-079"
+    },
+    {
+      "id": "DTO_CURRENTACTION_PUBLISHER_PHONE_REFRESH_087",
+      "actionId": "CURRENTACTION_PUBLISHER_PHONE_REFRESH_087",
+      "intent": "PUBLISHER_PHONE_REFRESH",
+      "resourceKind": "publisher-phone",
+      "actor": "EMPLOYEE",
+      "authenticationContract": "EMPLOYEE_BUSINESS_PC_CAPABILITY_REQUIRED",
+      "domain": "PDM-09",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "vehicleId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "vehicleId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "vehicleId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-09_最终完整规则.md",
+            "authorityLine": 43,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "E02-M01"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-087"
+    },
+    {
+      "id": "DTO_CURRENTACTION_VEHICLE_CONVERT_SOURCE_088",
+      "actionId": "CURRENTACTION_VEHICLE_CONVERT_SOURCE_088",
+      "intent": "VEHICLE_CONVERT_SOURCE",
+      "resourceKind": "vehicles",
+      "actor": "EMPLOYEE",
+      "authenticationContract": "EMPLOYEE_BUSINESS_PC_CAPABILITY_REQUIRED",
+      "domain": "PDM-21",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "vehicleId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "vehicleId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "vehicleId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-21_最终完整规则.md",
+            "authorityLine": 278,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "E02-01"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-088"
+    },
+    {
+      "id": "DTO_CURRENTACTION_PUBLIC_POOL_PUT_115",
+      "actionId": "CURRENTACTION_PUBLIC_POOL_PUT_115",
+      "intent": "PUBLIC_POOL_PUT",
+      "resourceKind": "public-pool",
+      "actor": "AUTHORIZED_EMPLOYEE",
+      "authenticationContract": "EMPLOYEE_BUSINESS_PC_CAPABILITY_REQUIRED",
+      "domain": "PDM-17",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "customerId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "customerId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "customerId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-17_最终完整规则.md",
+            "authorityLine": 172,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "P06-05"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-115"
+    },
+    {
+      "id": "DTO_CURRENTACTION_EMPLOYEE_DEACTIVATE_117",
+      "actionId": "CURRENTACTION_EMPLOYEE_DEACTIVATE_117",
+      "intent": "EMPLOYEE_DEACTIVATE",
+      "resourceKind": "employee-governance",
+      "actor": "EMPLOYEE_MANAGER",
+      "authenticationContract": "MANAGER_CAPABILITY_SCOPE_REQUIRED",
+      "domain": "PDM-02",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "targetEmployeeId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "targetEmployeeId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "targetEmployeeId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-02_最终完整规则.md",
+            "authorityLine": 91,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "P04-01"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-117"
+    },
+    {
+      "id": "DTO_CURRENTACTION_EMPLOYEE_REACTIVATE_118",
+      "actionId": "CURRENTACTION_EMPLOYEE_REACTIVATE_118",
+      "intent": "EMPLOYEE_REACTIVATE",
+      "resourceKind": "employee-governance",
+      "actor": "EMPLOYEE_MANAGER",
+      "authenticationContract": "MANAGER_CAPABILITY_SCOPE_REQUIRED",
+      "domain": "PDM-02",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "targetEmployeeId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "targetEmployeeId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "targetEmployeeId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-02_最终完整规则.md",
+            "authorityLine": 194,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "P04-01"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-118"
+    },
+    {
+      "id": "DTO_CURRENTACTION_PERMISSION_OVERRIDE_119",
+      "actionId": "CURRENTACTION_PERMISSION_OVERRIDE_119",
+      "intent": "PERMISSION_OVERRIDE",
+      "resourceKind": "employee-governance",
+      "actor": "EMPLOYEE_MANAGER",
+      "authenticationContract": "MANAGER_CAPABILITY_SCOPE_REQUIRED",
+      "domain": "PDM-02",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "targetEmployeeId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "targetEmployeeId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "targetEmployeeId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-02_最终完整规则.md",
+            "authorityLine": 54,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "P04-03"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-119"
+    },
+    {
+      "id": "DTO_CURRENTACTION_DATA_SCOPE_CONFIG_120",
+      "actionId": "CURRENTACTION_DATA_SCOPE_CONFIG_120",
+      "intent": "DATA_SCOPE_CONFIG",
+      "resourceKind": "employee-governance",
+      "actor": "EMPLOYEE_MANAGER",
+      "authenticationContract": "MANAGER_CAPABILITY_SCOPE_REQUIRED",
+      "domain": "PDM-02",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "targetEmployeeId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "targetEmployeeId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "targetEmployeeId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-02_最终完整规则.md",
+            "authorityLine": 54,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "P04-04"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-120"
+    },
+    {
+      "id": "DTO_CURRENTACTION_RECEIVING_CONFIG_121",
+      "actionId": "CURRENTACTION_RECEIVING_CONFIG_121",
+      "intent": "RECEIVING_CONFIG",
+      "resourceKind": "employees",
+      "actor": "EMPLOYEE_MANAGER",
+      "authenticationContract": "MANAGER_CAPABILITY_SCOPE_REQUIRED",
+      "domain": "PDM-02",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "targetEmployeeId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "accepting": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "targetEmployeeId",
+            "accepting"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "targetEmployeeId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-02_最终完整规则.md",
+            "authorityLine": 211,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "P04-04"
+          },
+          {
+            "field": "accepting",
+            "type": "boolean",
+            "authorityFile": "07_重建工作区/PDM-02_最终完整规则.md",
+            "authorityLine": 211,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "P04-04"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-121"
+    },
+    {
+      "id": "DTO_CURRENTACTION_ANNOUNCEMENT_ENABLE_138",
+      "actionId": "CURRENTACTION_ANNOUNCEMENT_ENABLE_138",
+      "intent": "ANNOUNCEMENT_ENABLE",
+      "resourceKind": "announcements",
+      "actor": "AUTHORIZED_ADMIN",
+      "authenticationContract": "BUSINESS_CONTENT_MANAGER_CAPABILITY_REQUIRED",
+      "domain": "PDM-24",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "announcementId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "announcementId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "announcementId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-24_最终完整规则.md",
+            "authorityLine": 23,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "P10-01"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-138"
+    },
+    {
+      "id": "DTO_CURRENTACTION_ANNOUNCEMENT_DISABLE_139",
+      "actionId": "CURRENTACTION_ANNOUNCEMENT_DISABLE_139",
+      "intent": "ANNOUNCEMENT_DISABLE",
+      "resourceKind": "announcements",
+      "actor": "AUTHORIZED_ADMIN",
+      "authenticationContract": "BUSINESS_CONTENT_MANAGER_CAPABILITY_REQUIRED",
+      "domain": "PDM-24",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "announcementId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "announcementId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "announcementId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-24_最终完整规则.md",
+            "authorityLine": 23,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "P10-01"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-139"
+    },
+    {
+      "id": "DTO_CURRENTACTION_BANNER_CREATE_142",
+      "actionId": "CURRENTACTION_BANNER_CREATE_142",
+      "intent": "BANNER_CREATE",
+      "resourceKind": "banners",
+      "actor": "AUTHORIZED_ADMIN",
+      "authenticationContract": "BUSINESS_CONTENT_MANAGER_CAPABILITY_REQUIRED",
+      "domain": "PDM-24",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "placement": {
+              "type": "string",
+              "enum": [
+                "HOME_TOP",
+                "VEHICLE_DETAIL"
+              ]
+            }
+          },
+          "required": [
+            "placement"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "placement",
+            "type": "string",
+            "authorityFile": "07_重建工作区/PDM-24_最终完整规则.md",
+            "authorityLine": 84,
+            "evidenceState": "CURRENT_FINAL_PLACEMENT_ENUM_CI_ONLY",
+            "consumer": "P12-01"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-142"
+    },
+    {
+      "id": "DTO_CURRENTACTION_BANNER_EDIT_143",
+      "actionId": "CURRENTACTION_BANNER_EDIT_143",
+      "intent": "BANNER_EDIT",
+      "resourceKind": "banners",
+      "actor": "AUTHORIZED_ADMIN",
+      "authenticationContract": "BUSINESS_CONTENT_MANAGER_CAPABILITY_REQUIRED",
+      "domain": "PDM-24",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "bannerId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "bannerId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "bannerId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-24_最终完整规则.md",
+            "authorityLine": 104,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "P12-01"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-143"
+    },
+    {
+      "id": "DTO_CURRENTACTION_BANNER_ENABLE_144",
+      "actionId": "CURRENTACTION_BANNER_ENABLE_144",
+      "intent": "BANNER_ENABLE",
+      "resourceKind": "banners",
+      "actor": "AUTHORIZED_ADMIN",
+      "authenticationContract": "BUSINESS_CONTENT_MANAGER_CAPABILITY_REQUIRED",
+      "domain": "PDM-24",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "bannerId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "bannerId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "bannerId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-24_最终完整规则.md",
+            "authorityLine": 104,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "P12-01"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-144"
+    },
+    {
+      "id": "DTO_CURRENTACTION_BANNER_DISABLE_145",
+      "actionId": "CURRENTACTION_BANNER_DISABLE_145",
+      "intent": "BANNER_DISABLE",
+      "resourceKind": "banners",
+      "actor": "AUTHORIZED_ADMIN",
+      "authenticationContract": "BUSINESS_CONTENT_MANAGER_CAPABILITY_REQUIRED",
+      "domain": "PDM-24",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "bannerId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "bannerId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "bannerId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-24_最终完整规则.md",
+            "authorityLine": 122,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "P12-01"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_2_A_ACCEPTED_LEGACY-145"
+    },
+    {
+      "id": "DTO_CURRENTACTION_LOCKREQUEST_PENDING_CREATE",
+      "actionId": "CURRENTACTION_LOCKREQUEST_PENDING_CREATE",
+      "intent": "LOCKREQUEST_PENDING_CREATE",
+      "resourceKind": "lockrequests",
+      "actor": "CUSTOMER",
+      "authenticationContract": "CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+      "domain": "PDM-18",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "vehicleId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "listingCycleId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "vehicleId",
+            "listingCycleId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "vehicleId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-18_最终完整规则.md",
+            "authorityLine": 56,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "C01-01"
+          },
+          {
+            "field": "listingCycleId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-18_最终完整规则.md",
+            "authorityLine": 56,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "C01-01"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "CURRENT_SEMANTIC_LOCKREQUEST_PENDING_CREATE"
+    },
+    {
+      "id": "DTO_CURRENTACTION_LOCKREQUEST_REVIEW_OPEN",
+      "actionId": "CURRENTACTION_LOCKREQUEST_REVIEW_OPEN",
+      "intent": "LOCKREQUEST_REVIEW_OPEN",
+      "resourceKind": "lockrequests",
+      "actor": "EMPLOYEE",
+      "authenticationContract": "EMPLOYEE_BUSINESS_PC_CAPABILITY_REQUIRED",
+      "domain": "PDM-18",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {},
+          "required": []
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "CURRENT_SEMANTIC_LOCKREQUEST_REVIEW_OPEN"
+    },
+    {
+      "id": "DTO_CURRENTACTION_APPLICATION_PENDING_WITHDRAW",
+      "actionId": "CURRENTACTION_APPLICATION_PENDING_WITHDRAW",
+      "intent": "APPLICATION_PENDING_WITHDRAW",
+      "resourceKind": "applications",
+      "actor": "CUSTOMER",
+      "authenticationContract": "CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+      "domain": "PDM-11",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "applicationId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "applicationId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "applicationId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-11_最终完整规则.md",
+            "authorityLine": 73,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "C02-01"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "CURRENT_SEMANTIC_APPLICATION_PENDING_WITHDRAW"
+    },
+    {
+      "id": "DTO_CURRENTACTION_EMPLOYEE_SELF_RECEIVING",
+      "actionId": "CURRENTACTION_EMPLOYEE_SELF_RECEIVING",
+      "intent": "EMPLOYEE_SELF_RECEIVING",
+      "resourceKind": "employees",
+      "actor": "EMPLOYEE",
+      "authenticationContract": "EMPLOYEE_BUSINESS_PC_CAPABILITY_REQUIRED",
+      "domain": "PDM-02",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "accepting": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "accepting"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "accepting",
+            "type": "boolean",
+            "authorityFile": "07_重建工作区/PDM-02_最终完整规则.md",
+            "authorityLine": 210,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "E01"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "CURRENT_SEMANTIC_EMPLOYEE_SELF_RECEIVING"
+    },
+    {
+      "id": "DTO_CURRENTACTION_PRICE_QUOTA_CONFIG",
+      "actionId": "CURRENTACTION_PRICE_QUOTA_CONFIG",
+      "intent": "PRICE_QUOTA_CONFIG",
+      "resourceKind": "price-entitlements",
+      "actor": "EMPLOYEE_MANAGER",
+      "authenticationContract": "MANAGER_CAPABILITY_SCOPE_REQUIRED",
+      "domain": "PDM-10",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "customerLevelId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "dailyBaseQuota": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000
+            }
+          },
+          "required": [
+            "customerLevelId",
+            "dailyBaseQuota"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "customerLevelId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-10_最终完整规则.md",
+            "authorityLine": 188,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "P08-02"
+          },
+          {
+            "field": "dailyBaseQuota",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-10_最终完整规则.md",
+            "authorityLine": 188,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "P08-02"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "CURRENT_SEMANTIC_PRICE_QUOTA_CONFIG"
+    },
+    {
+      "id": "DTO_CURRENTACTION_CONSULTATION_NORMAL_CLOSE",
+      "actionId": "CURRENTACTION_CONSULTATION_NORMAL_CLOSE",
+      "intent": "CONSULTATION_NORMAL_CLOSE",
+      "resourceKind": "consultations",
+      "actor": "EMPLOYEE",
+      "authenticationContract": "EMPLOYEE_BUSINESS_PC_CAPABILITY_REQUIRED",
+      "domain": "PDM-15",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "consultationId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "closeReason": {
+              "type": "string",
+              "enum": [
+                "NORMAL_CLOSED"
+              ]
+            }
+          },
+          "required": [
+            "consultationId",
+            "closeReason"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "consultationId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-15_最终完整规则.md",
+            "authorityLine": 502,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "E06-02"
+          },
+          {
+            "field": "closeReason",
+            "type": "string",
+            "authorityFile": "07_重建工作区/PDM-15_最终完整规则.md",
+            "authorityLine": 502,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "E06-02"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "CURRENT_SEMANTIC_CONSULTATION_NORMAL_CLOSE"
+    },
+    {
+      "id": "DTO_CURRENTACTION_CRM_SCOPE_MINIMAL_PROOF",
+      "actionId": "CURRENTACTION_CRM_SCOPE_MINIMAL_PROOF",
+      "intent": "CRM_SCOPE_MINIMAL_PROOF",
+      "resourceKind": "Customer",
+      "actor": "EMPLOYEE",
+      "authenticationContract": "EMPLOYEE_BUSINESS_PC_CAPABILITY_REQUIRED",
+      "domain": "PDM-16",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {},
+          "required": []
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": false
+      },
+      "responseSchemas": {
+        "200": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "const": "F04_CUSTOMER_CURRENT_OWNER"
+            },
+            "customerId": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "objectScope": {
+              "type": "string",
+              "const": "CURRENT_OWNER_ONLY"
+            },
+            "disposable": {
+              "type": "boolean",
+              "const": true
+            }
+          },
+          "required": [
+            "code",
+            "customerId",
+            "objectScope",
+            "disposable"
+          ]
+        },
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "F04_1_CI_SCOPED"
+    },
+    {
+      "id": "DTO_CURRENTACTION_SYSTEM_ADMIN_EMPLOYEE_DISABLE",
+      "actionId": "CURRENTACTION_SYSTEM_ADMIN_EMPLOYEE_DISABLE",
+      "intent": "SYSTEM_ADMIN_EMPLOYEE_DISABLE",
+      "resourceKind": "employee-governance",
+      "actor": "SYSTEM_ADMIN",
+      "authenticationContract": "SYSTEM_ADMIN_CONTROL_PLANE_PC",
+      "domain": "PDM-02",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "targetEmployeeId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "targetEmployeeId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "targetEmployeeId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-02_最终完整规则.md",
+            "authorityLine": 91,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "P04-01"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "CURRENT_SEMANTIC_SYSTEM_ADMIN_EMPLOYEE_DISABLE"
+    },
+    {
+      "id": "DTO_CURRENTACTION_SYSTEM_ADMIN_EMPLOYEE_ENABLE",
+      "actionId": "CURRENTACTION_SYSTEM_ADMIN_EMPLOYEE_ENABLE",
+      "intent": "SYSTEM_ADMIN_EMPLOYEE_ENABLE",
+      "resourceKind": "employee-governance",
+      "actor": "SYSTEM_ADMIN",
+      "authenticationContract": "SYSTEM_ADMIN_CONTROL_PLANE_PC",
+      "domain": "PDM-02",
+      "request": {
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "targetEmployeeId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "targetEmployeeId"
+          ]
+        },
+        "bodyAllowedByRuntime": false,
+        "fieldSources": [
+          {
+            "field": "targetEmployeeId",
+            "type": "integer",
+            "authorityFile": "07_重建工作区/PDM-02_最终完整规则.md",
+            "authorityLine": 91,
+            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "consumer": "P04-01"
+          }
+        ],
+        "unprovenFields": [
+          "full_business_payload",
+          "price",
+          "vin",
+          "phone",
+          "internalWholesalePrice",
+          "permissionsOverrideDetails",
+          "externalCredentials"
+        ],
+        "needsDownstreamImplementation": true
+      },
+      "responseSchemas": {
+        "400": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_BAD_PATH",
+                "F04_3_BODY_NOT_AUTHORIZED",
+                "F04_3_COOKIE_INVALID"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "401": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_PC_COOKIE_REQUIRED",
+                "F04_3_SESSION_REVOKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "403": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                "F04_3_TLS_ORIGIN_DENIED",
+                "F04_3_CSRF_DENIED",
+                "F04_CUSTOMER_SCOPE_DENIED",
+                "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "404": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_NOT_REGISTERED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "405": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_METHOD_DENIED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "422": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_QUERY_NOT_ALLOWED",
+                "F04_3_REQUEST_KEY_DENIED",
+                "F04_3_INVALID_TARGET"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "501": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_DEPENDENCY_BLOCKED"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "503": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "status": "CI_ONLY_NOT_PRODUCTION",
+      "evidenceRef": "CURRENT_SEMANTIC_SYSTEM_ADMIN_EMPLOYEE_ENABLE"
+    }
+  ]
+}

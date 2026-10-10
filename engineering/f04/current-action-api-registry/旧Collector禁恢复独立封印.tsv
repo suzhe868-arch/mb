@@ -1,0 +1,4 @@
+legacy_id	method	old_path	decision
+FORBIDDEN-1	GET	/admin/integrations/collector/connection	RETIRE/FORBIDDEN
+FORBIDDEN-2	PATCH	/admin/integrations/collector/connection	RETIRE/FORBIDDEN
+FORBIDDEN-3	POST	/admin/integrations/collector/connection:test	RETIRE/FORBIDDEN

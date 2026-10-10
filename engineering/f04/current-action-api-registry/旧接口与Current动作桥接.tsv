@@ -1,0 +1,216 @@
+legacy_id	method	legacy_path	source_evidence	source_legacy_decision	current_action_contract	current_route_status	domain_authority	business_implementation_owner	gap
+LEGACY-001	POST	/customer/session/wechat	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-01/16	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-002	GET	/customer/me	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-01/16	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-003	PATCH	/customer/me/profile	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-01/16	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-004	POST	/customer/me/phone:authorize	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-01/16	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-005	GET	/customer/vehicles	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-006	GET	/customer/vehicles/{vehicle_id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-007	PUT	/customer/me/favorites/{vehicle_id}	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_FAVORITE_TOGGLE_007	NOT_APPROVED	PDM-04/06	F05	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-008	DELETE	/customer/me/favorites/{vehicle_id}	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_FAVORITE_TOGGLE_008	NOT_APPROVED	PDM-04/06	F05	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-009	GET	/customer/me/favorites	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-01/16	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-010	POST	/customer/vehicles/{vehicle_id}/price-access:unlock	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-18	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-011	GET	/customer/me/price-quota/today	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-10	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-012	GET	/customer/find-car/workspace	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-013	POST	/customer/find-car/applications	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-014	GET	/customer/find-car/applications/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-015	PATCH	/customer/find-car/applications/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-016	GET	/customer/demands/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-017	GET	/customer/me/recommendations	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-14	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-018	GET	/customer/me/recommendations/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-14	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-019	POST	/customer/vehicles/{vehicle_id}/consultations	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_CONSULTATION_CREATE_019	NOT_APPROVED	PDM-15	OWNER_REVIEW_GAP	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-020	POST	/customer/vehicles/{vehicle_id}/waitlist	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_WAITLIST_REGISTER_020	NOT_APPROVED	PDM-18	F06	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-021	GET	/customer/me/consultations	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-15	OWNER_REVIEW_GAP	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-022	GET	/customer/me/locks	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-18	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-023	GET	/customer/me/waitlists	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-18	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-024	GET	/customer/me/transactions	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-19	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-025	GET	/customer/me/transactions/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-19	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-026	GET	/customer/announcements/current	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-24	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-027	POST	/customer/announcements/{id}:shown	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-24	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-028	GET	/customer/announcements	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-24	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-029	POST	/customer/vehicles/{id}/share-context	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-030	POST	/customer/share-entry:resolve	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-01/16	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-031	GET	/customer/banners	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-24	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-032	GET	/staff/me	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	OWNER_REVIEW_GAP	OWNER_REVIEW_GAP	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-033	GET	/staff/workbench	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	OWNER_REVIEW_GAP	OWNER_REVIEW_GAP	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-034	GET	/staff/workbench/todos	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	OWNER_REVIEW_GAP	OWNER_REVIEW_GAP	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-035	GET	/staff/workbench/opportunities	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	OWNER_REVIEW_GAP	OWNER_REVIEW_GAP	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-036	GET	/staff/radar	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	OWNER_REVIEW_GAP	OWNER_REVIEW_GAP	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-037	GET	/staff/radar/events/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	OWNER_REVIEW_GAP	OWNER_REVIEW_GAP	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-038	GET	/staff/customers	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-01/16	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-039	GET	/staff/customers/{customer_id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-01/16	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-040	PATCH	/staff/customers/{id}/profile	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-01/16	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-041	POST	/staff/customers/{id}/followups	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-01/16	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-042	POST	/staff/customers/{id}/alias-notes	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-01/16	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-043	POST	/staff/customers/{id}/price-quota:add	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-10	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-044	POST	/staff/recommendations	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-14	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-045	POST	/staff/recommendations/{id}:cancel	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-14	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-046	POST	/staff/matching/priorities/{id}:release	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-047	GET	/staff/find-car/applications	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-048	GET	/staff/find-car/applications/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-049	POST	/staff/find-car/applications/{id}:activate	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-050	POST	/staff/find-car/applications/{id}:close	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-051	GET	/staff/demands	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-052	GET	/staff/demands/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-053	PUT	/staff/demands/{id}/match-description	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-054	PATCH	/staff/demands/{id}/note	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-055	POST	/staff/demands/{id}:pause	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-056	POST	/staff/demands/{id}:resume	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-057	POST	/staff/demands/{id}:complete	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-058	POST	/staff/demands/{id}:cancel	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-059	POST	/staff/demands/{id}:reassign	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-060	GET	/staff/demands/{id}/matches	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-061	POST	/staff/demand-matches/{match_id}:reject	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-062	POST	/staff/demand-matches/{match_id}:recommend	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-063	GET	/admin/matching-rules	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-064	POST	/admin/matching-rules	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-065	PATCH	/admin/matching-rules/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-066	POST	/admin/matching-rules:test	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-067	GET	/staff/consultations	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-15	OWNER_REVIEW_GAP	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-068	GET	/staff/consultations/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-15	OWNER_REVIEW_GAP	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-069	POST	/staff/consultations/{id}:start-processing	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_CONSULTATION_PROCESS_069	NOT_APPROVED	PDM-15	OWNER_REVIEW_GAP	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-070	POST	/staff/consultations/{id}:resolve	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_CONSULTATION_RESOLVE_070	NOT_APPROVED	PDM-15	OWNER_REVIEW_GAP	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-071	POST	/staff/consultations/{id}:invalidate	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_CONSULTATION_INVALIDATE_071	NOT_APPROVED	PDM-15	OWNER_REVIEW_GAP	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-072	POST	/staff/consultations/{id}:reassign	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_CONSULTATION_REASSIGN_072	NOT_APPROVED	PDM-15	OWNER_REVIEW_GAP	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-073	GET	/staff/vehicles	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-074	POST	/staff/vehicles	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-075	GET	/staff/vehicles/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-076	PATCH	/staff/vehicles/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-077	DELETE	/staff/vehicles/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-078	GET	/staff/vehicles/{id}/internal	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-079	POST	/staff/vehicles/{id}:publish	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_VEHICLE_PUBLISH_079	NOT_APPROVED	PDM-04/06	F05	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-080	POST	/staff/vehicles/{id}:hide	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-081	POST	/staff/vehicles/{id}:show	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-082	POST	/staff/vehicles/{id}:mark-unavailable	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-083	POST	/staff/vehicles/{id}:mark-sold-external	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-084	POST	/staff/vehicles/{id}:relist	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-085	POST	/staff/vehicles/{id}/price-override	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-10	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-086	DELETE	/staff/vehicles/{id}/price-override	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-10	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-087	POST	/staff/vehicles/{id}/upstream-phone:refresh	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_PUBLISHER_PHONE_REFRESH_087	NOT_APPROVED	PDM-09	F07	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-088	POST	/staff/vehicles/{id}:convert-to-mingbang	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_VEHICLE_CONVERT_SOURCE_088	NOT_APPROVED	PDM-04/06	F05	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-089	POST	/staff/locks	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-18	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-090	GET	/staff/locks	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-18	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-091	GET	/staff/locks/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-18	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-092	POST	/staff/locks/{id}:release	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-18	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-093	POST	/staff/locks/{id}:reassign	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-18	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-094	PATCH	/staff/locks/{id}/expires-at	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-18	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-095	POST	/staff/locks/{id}/deposits	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-18	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-096	GET	/staff/locks/{id}/deposits	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-18	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-097	POST	/staff/waitlists	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-18	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-098	GET	/staff/waitlists	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-18	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-099	GET	/staff/waitlists/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-18	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-100	POST	/staff/waitlists/{id}:end	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-18	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-101	POST	/staff/waitlists/{id}:reassign	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-18	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-102	POST	/staff/locks/{lock_id}/transaction	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-18	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-103	GET	/staff/transactions	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-19	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-104	GET	/staff/transactions/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-19	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-105	POST	/staff/transactions/{id}:complete	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-19	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-106	POST	/staff/transactions/{id}:cancel	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-19	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-107	POST	/staff/transactions/{id}:reassign	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-19	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-108	POST	/staff/refunds	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-19	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-109	POST	/staff/refunds/{id}/payments	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-19	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-110	GET	/staff/refunds/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-19	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-111	GET	/staff/business-timeline	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	OWNER_REVIEW_GAP	OWNER_REVIEW_GAP	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-112	GET	/staff/public-pool	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-17	F04	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-113	GET	/staff/public-pool/candidates	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-17	F04	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-114	POST	/staff/public-pool/customers/{customer_id}:claim	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-17	F04	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-115	POST	/admin/public-pool/customers/{id}:put	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_PUBLIC_POOL_PUT_115	NOT_APPROVED	PDM-17	F04	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-116	POST	/admin/customers/{id}:reassign-owner	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-01/16	F04	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-117	POST	/admin/employees/{id}:deactivate	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_EMPLOYEE_DEACTIVATE_117	NOT_APPROVED	PDM-02	F04	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-118	POST	/admin/employees/{id}:reactivate	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_EMPLOYEE_REACTIVATE_118	NOT_APPROVED	PDM-02	F04	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-119	PUT	/admin/employees/{id}/permission-overrides	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_PERMISSION_OVERRIDE_119	NOT_APPROVED	PDM-02	F04	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-120	PUT	/admin/employees/{id}/data-scope	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_DATA_SCOPE_CONFIG_120	NOT_APPROVED	PDM-02	F04	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-121	PATCH	/admin/employees/{id}/receiving	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_RECEIVING_CONFIG_121	NOT_APPROVED	PDM-02	F04	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-122	POST	/admin/handover-batches	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	OWNER_REVIEW_GAP	OWNER_REVIEW_GAP	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-123	GET	/admin/handover-batches/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	OWNER_REVIEW_GAP	OWNER_REVIEW_GAP	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-124	POST	/admin/handover-batches/{id}:assign-customers	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-01/16	F04	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-125	POST	/admin/business-reassignments	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	OWNER_REVIEW_GAP	OWNER_REVIEW_GAP	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-126	PUT	/system-admin/customers/{id}/priority	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-02	F04	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-127	GET	/system-admin/admins	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-02	F04	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-128	POST	/system-admin/admins	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-02	F04	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-129	PATCH	/system-admin/admins/{id}/permissions	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-02	F04	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-130	POST	/system-admin/admins/{id}:deactivate	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-02	F04	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-131	POST	/system-admin/admins/{id}:reactivate	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-02	F04	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-132	GET	/admin/pricing/ladder-sets	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-10	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-133	POST	/admin/pricing/ladder-sets	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-10	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-134	PUT	/admin/pricing/ladder-sets/{id}/rules	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-10	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-135	POST	/admin/pricing/ladder-sets/{id}:activate	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-10	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-136	GET	/admin/notification-deliveries	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	OWNER_REVIEW_GAP	OWNER_REVIEW_GAP	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-137	GET	/admin/feishu-bindings	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	OWNER_REVIEW_GAP	OWNER_REVIEW_GAP	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-138	POST	/admin/announcements/{id}:enable	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_ANNOUNCEMENT_ENABLE_138	NOT_APPROVED	PDM-24	F04	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-139	POST	/admin/announcements/{id}:disable	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_ANNOUNCEMENT_DISABLE_139	NOT_APPROVED	PDM-24	F04	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-140	GET	/admin/audit-logs	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	OWNER_REVIEW_GAP	OWNER_REVIEW_GAP	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-141	GET	/admin/banners	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-24	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-142	POST	/admin/banners	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_BANNER_CREATE_142	NOT_APPROVED	PDM-24	F04	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-143	PATCH	/admin/banners/{id}	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_BANNER_EDIT_143	NOT_APPROVED	PDM-24	F04	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-144	POST	/admin/banners/{id}:enable	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_BANNER_ENABLE_144	NOT_APPROVED	PDM-24	F04	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-145	POST	/admin/banners/{id}:disable	EVIDENCE_MATCHED	UNDECIDED	CURRENTACTION_BANNER_DISABLE_145	NOT_APPROVED	PDM-24	F04	REQUIRES_DOWNSTREAM_IMPL
+LEGACY-146	POST	/admin/banners:reorder	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-24	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-147	POST	/integrations/jyt/vehicle-prices	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-10	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-148	POST	/integrations/jyt/vehicles:upsert	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-09	F07	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-149	POST	/integrations/jyt/vehicles:offline-batch	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-09	F07	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-150	GET	/integrations/jyt/vehicles:active	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-09	F07	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-151	GET	/admin/employees	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-02	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-152	POST	/admin/employees	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-02	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-153	PATCH	/admin/employees/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-02	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-154	GET	/admin/roles	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-02	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-155	PATCH	/admin/roles/{role_code}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-02	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-156	GET	/admin/permissions	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-02	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-157	PATCH	/admin/permissions/{permission_code}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-02	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-158	GET	/admin/notification-config/sla	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	OWNER_REVIEW_GAP	OWNER_REVIEW_GAP	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-159	PUT	/admin/notification-config/sla	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	OWNER_REVIEW_GAP	OWNER_REVIEW_GAP	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-160	GET	/admin/notification-config/quiet-hours	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	OWNER_REVIEW_GAP	OWNER_REVIEW_GAP	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-161	PUT	/admin/notification-config/quiet-hours	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	OWNER_REVIEW_GAP	OWNER_REVIEW_GAP	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-162	GET	/admin/notification-config/lock-expiry-reminder	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-18	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-163	PUT	/admin/notification-config/lock-expiry-reminder	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-18	F06	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-164	GET	/admin/announcements	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-24	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-165	POST	/admin/announcements	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-24	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-166	PATCH	/admin/announcements/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-24	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-167	POST	/auth/staff/session:exchange	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	OWNER_REVIEW_GAP	OWNER_REVIEW_GAP	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-168	GET	/auth/staff/context	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	OWNER_REVIEW_GAP	OWNER_REVIEW_GAP	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-169	POST	/auth/staff/session:revoke	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	OWNER_REVIEW_GAP	OWNER_REVIEW_GAP	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-170	POST	/auth/system-admin/session:exchange	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-02	F04	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-171	GET	/auth/system-admin/context	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-02	F04	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-172	POST	/auth/system-admin/session:revoke	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-02	F04	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-173	GET	/admin/dashboard	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	OWNER_REVIEW_GAP	OWNER_REVIEW_GAP	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-174	GET	/admin/vehicles	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-175	GET	/admin/vehicles/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-176	GET	/admin/vehicles/{id}/history	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-177	GET	/admin/jyt/status	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-09	F07	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-178	GET	/admin/integrations/collector/publisher-phone-cache	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-09	F07	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-179	GET	/admin/jyt/incidents	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-09	F07	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-180	GET	/admin/jyt/logs	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-09	F07	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-181	GET	/admin/customers	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-01/16	F04	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-182	GET	/admin/customers/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-01/16	F04	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-183	GET	/admin/find-car/applications	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-184	GET	/admin/demands	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-185	GET	/admin/demands/{id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-11/13	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-186	GET	/admin/consultations	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-15	OWNER_REVIEW_GAP	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-187	GET	/admin/locks	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-18	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-188	GET	/admin/waitlists	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-18	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-189	GET	/admin/deposits	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-19	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-190	GET	/admin/transactions	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-19	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-191	GET	/admin/refunds	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-19	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-192	POST	/admin/transactions/{id}:correct	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-19	F06	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-193	GET	/admin/customer-levels	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-01/16	F04	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-194	GET	/admin/vehicle-price-overrides	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-10	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-195	PUT	/admin/feishu-bindings/{employee_id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-02	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-196	PUT	/admin/customers/{id}/level	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-01/16	F04	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-197	GET	/customer/vehicle-catalog/brands	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-198	GET	/customer/vehicle-catalog/brands/{brand_id}/series	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-199	GET	/customer/vehicle-catalog/series/{series_id}/models	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-200	GET	/staff/vehicle-catalog/brands	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-201	GET	/staff/vehicle-catalog/brands/{brand_id}/series	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-202	GET	/staff/vehicle-catalog/series/{series_id}/models	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-203	GET	/admin/vehicle-model-match-cases	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-204	GET	/admin/vehicle-model-match-cases/{case_id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-205	POST	/admin/vehicle-model-match-cases/{case_id}:bind-existing	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-206	POST	/admin/vehicle-model-match-cases/{case_id}:create-and-bind	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-207	POST	/admin/vehicle-models	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-208	GET	/admin/vehicle-models	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-209	PATCH	/admin/vehicle-models/{model_id}	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-210	GET	/admin/vehicle-model-field-conflicts	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-211	POST	/admin/vehicle-model-field-conflicts/{conflict_id}:resolve	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-212	POST	/admin/vehicle-brands	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-213	POST	/admin/vehicle-series	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	该旧method/path缺乏同主体Current IA导航动作＋目标Low-Fi页面＋现行PDM Final三方实证；保留SOURCE_GAP、禁止旧URL复活
+LEGACY-214	PATCH	/admin/employees/{id}/report-preferences	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-02	F04	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
+LEGACY-215	GET	/staff/vehicles/{id}/source-data	SOURCE_GAP	UNDECIDED		NO_CURRENT_CONTRACT	PDM-04/06	F05	A-F04-2-01：原来簇级或相邻动作的真实引文不能证明本候选的同主体、同操作、同对象状态；当前方法合同未证，保守维持SOURCE_GAP/UNDECIDED。
