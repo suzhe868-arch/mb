@@ -6,7 +6,7 @@ import {randomBytes} from 'node:crypto';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {connect,verify} from '../migration.mjs';
 import {createF052VehicleHandler} from '../ci-vehicle-router.mjs';
-import {issueFromTrustedManualPublication,revokeCurrentResponsibility} from '../service.mjs';
+import {issueFromTrustedManualPublication,recordTrustedManualPublicationEvent,revokeCurrentResponsibility} from '../service.mjs';
 const origin='https://127.0.0.1:48983',secret=randomBytes(32);
 const db=await connect(),auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin});
 let server,staff,admin,four;
@@ -42,6 +42,8 @@ test('F05-2-B01 genuine TLS and absence of physical responsibility closes detail
  expectDeny(await call('GET',loc(49002),cookie(staff)));
 });
 test('F05-2-B02 signed current PG16 publishing event permits exactly 3 safe fields',async()=>{
+ const origin=await recordTrustedManualPublicationEvent(auth,staff,{vehicleId:49002,listingCycleId:49012,teamId:901,eventKey:'synthetic-f05-2-https-publish-49002'});
+ assert.equal(origin.allowed,true,JSON.stringify(origin));
  const out=await issueFromTrustedManualPublication(auth,staff,{vehicleId:49002,listingCycleId:49012,teamId:901,eventKey:'synthetic-f05-2-https-publish-49002'});
  assert.equal(out.code,'F05_2_ISSUED',JSON.stringify(out));
  const res=await call('GET',loc(49002),cookie(staff));
@@ -52,6 +54,8 @@ test('F05-2-B02 signed current PG16 publishing event permits exactly 3 safe fiel
 });
 test('F05-2-B03 no unsigned wholesale/4S grant and 4S member cannot steal Mingbang-owned 4S asset',async()=>{
  for(const id of [49004,49006])expectDeny(await call('GET',loc(id),cookie(staff)));
+ const origin=await recordTrustedManualPublicationEvent(auth,staff,{vehicleId:49004,listingCycleId:49014,teamId:901,eventKey:'synthetic-f05-2-https-publish-four-s-49004'});
+ assert.equal(origin.allowed,true,JSON.stringify(origin));
  const signed=await issueFromTrustedManualPublication(auth,staff,{vehicleId:49004,listingCycleId:49014,teamId:901,eventKey:'synthetic-f05-2-https-publish-four-s-49004'});
  assert.equal(signed.code,'F05_2_ISSUED');
  assert.equal((await call('GET',loc(49004),cookie(staff))).status,200);
