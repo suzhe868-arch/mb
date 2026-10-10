@@ -1,6 +1,7 @@
 // F04-1: explicitly imported disposable HTTPS/PG16 contract router. NOT production.
 import {createFoundationHandler} from '../../src/app.mjs';
 import {createAuthHandler,readSessionCookie} from '../../src/f03-auth-http.mjs';
+import {constantMatch} from '../../src/f03-auth-crypto.mjs';
 import {verify as verifyM94} from '../../f03/runtime-transaction-responsible-handover/migration.mjs';
 import {projectEmployeeVehicle} from '../../f03/field-security-projection/service.mjs';
 
@@ -93,12 +94,14 @@ export async function createF04ContractHandler(auth,{readinessProbe=async()=>tru
     if(raw.length>2048)return send(res,414,'INVALID_URL');
     let url;
     try{url=new URL(raw,auth.origin);}catch{return send(res,400,'INVALID_URL');}
+    if(!raw.startsWith('/')||url.origin!==auth.origin)return send(res,400,'INVALID_URL');
     const path=url.pathname;
     if(path==='/api/v1/health/live'||path==='/api/v1/health/ready'||path.startsWith('/api/v1/auth/'))
       return foundation(req,res);
     if(!path.startsWith('/api/v1/f04/'))return send(res,404,'NOT_IMPLEMENTED');
     // CI or caller-provided headers never establish isolation or trusted identity.
-    if(req.socket?.encrypted!==true||!safeAddress(req.socket.remoteAddress)||req.headers.origin!==auth.origin)
+    if(req.socket?.encrypted!==true||!safeAddress(req.socket.remoteAddress)||
+      req.headers.origin!==auth.origin||req.headers.host!==new URL(auth.origin).host)
       return send(res,403,'F04_TRANSPORT_DENIED');
     if(!await ready())return send(res,503,'F04_SEAL_UNAVAILABLE');
     if(req.headers.authorization)return send(res,401,'F04_PC_SESSION_REQUIRED');
@@ -157,7 +160,7 @@ export async function createF04ContractHandler(auth,{readinessProbe=async()=>tru
         return send(res,403,'F04_BUSINESS_PRINCIPAL_DENIED');
       if(proposed.method==='POST'){
         const csrf=req.headers['x-csrf-token'];
-        if(typeof csrf!=='string'||csrf!==auth.csrfFor(token))
+        if(typeof csrf!=='string'||!constantMatch(csrf,auth.csrfFor(token)))
           return send(res,403,'F04_CSRF_DENIED');
         const key=req.headers['x-request-key'];
         if(key!==undefined&&(typeof key!=='string'||!/^[a-zA-Z0-9._:-]{12,90}$/.test(key)))
