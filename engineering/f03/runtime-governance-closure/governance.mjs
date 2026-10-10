@@ -62,6 +62,7 @@ export async function commitPlannedGovernance(auth,token,p,opts={}){
   if(!b||!e||b.status!=='completed'||b.change_kind!==p.action||String(b.source_employee_id)!==String(p.employeeId)||e.employment_status!=='active'||!await guard(c,a,p.teamId,p.employeeId)||!await unowned(c,p.employeeId))return out('G_PLANNED_NOT_CERTIFIED');
   const pending=(await c.query("SELECT count(*)::int n FROM public.handover_items WHERE batch_id=$1 AND status<>'completed'",[p.batchId])).rows[0].n;
   if(pending>0)return out('G_PLANNED_PENDING_ITEM');
+  if(!await batchAuditProven(c,b))return out('G_PLANNED_UNPROVEN_RECEIPT_AUDIT');
   if(p.action==='planned_transfer')return out('G_PLANNED_TRANSFER_REQUIRES_APPROVED_MEMBERSHIP_ACTOR');
   if(p.action==='planned_downgrade'&&a.role_code!=='store_head')return out('G_ROLE_CHANGE_CONTROL_DENY');
   if(e.receiving_status==='receiving'&&!await lastReceiver(c,p.employeeId))return out('G_LAST_RECEIVER_DENY');
@@ -156,7 +157,7 @@ export async function commitPlannedStoreTransferAsSystemAdmin(auth,token,p,opts=
   if(opts.testCheckpoint)await opts.testCheckpoint('before_commit_guard',c);
   const original={storeId:e.store_id,receiving:e.receiving_status};
   await revokeAll(c,p.employeeId);
-  await c.query('UPDATE public.employees SET store_id=$2,receiving_status=\'paused\' WHERE employee_id=$1',[p.employeeId,p.targetStoreId]);
+  await c.query("UPDATE public.employees SET store_id=$2,receiving_status='paused' WHERE employee_id=$1",[p.employeeId,p.targetStoreId]);
   await c.query('INSERT INTO public.employee_team_memberships(team_id,employee_id,valid_from,changed_by_system_admin_id) VALUES($1,$2,transaction_timestamp(),$3)',[p.targetTeamId,p.employeeId,a.system_admin_id]);
   await audit(c,a,p.employeeId,'sg06.personnel.planned_transfer',original,{storeId:p.targetStoreId,teamId:p.targetTeamId,receiving:'paused',credentialsDisabledUntilReissue:true},p.reason);
   if(opts.testCheckpoint)await opts.testCheckpoint('after_audit',c);
