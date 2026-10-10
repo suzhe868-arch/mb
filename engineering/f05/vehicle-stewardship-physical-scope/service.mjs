@@ -136,7 +136,7 @@ export async function revokeCurrentResponsibility(auth,token,p){
 // Formal CI-only stewardship handover requires a separate manager actor with actual
 // current Vehicle manage scope, eligible target permission+scope, and locked CAS history.
 export async function transferCurrentResponsibility(auth,token,p){
- if(!shape(p,'eventKey,responsibilityId,teamId,targetEmployeeId,version')||
+ if(!shape(p,'eventKey,responsibilityId,targetEmployeeId,teamId,version')||
     ![p.responsibilityId,p.teamId,p.targetEmployeeId,p.version].every(valid)||!eventKey(p.eventKey))
     return deny('F05_2_TRANSFER_INPUT_DENIED');
  await verify(auth.pool);
