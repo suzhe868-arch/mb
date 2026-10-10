@@ -11,3 +11,7 @@ N09	请求锁车/交易/退款真实写	OPEN_DEPENDENCY	否	F06
 N10	publisher电话/4S管理外部动作	OPEN_DEPENDENCY	否	F07/F04
 N11	旧218的生产路由	NOT_IMPLEMENTED	否	A重新签发
 N12	对象参数缺失/重复/畸形	F04_INVALID_DTO	否	F04
+
+N13	当前owner有CRM Team绑定却没有target Customer object scope	F04_CUSTOMER_SCOPE_DENIED	否	F04
+N14	当前owner有准确crm.customer.view物理object范围且即时有效	F04_CUSTOMER_CURRENT_OWNER仅最小ID	仅CI限制	F04
+N15	旧Collector连接GET/PATCH/TEST	NOT_IMPLEMENTED	否	F07/P03 禁恢复
