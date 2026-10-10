@@ -79,7 +79,7 @@ test('F04-3-B05 real proposed Employee operation is never fake 200 or data write
  assert.equal((await db.query("SELECT count(*)::int n FROM public.vehicles")).rows[0].n,before);
 });
 test('F04-3-B06 Customer/4S/System Admin cannot inherit Employee business actions',async()=>{
- for(const t of [adminToken,fourToken])assert.equal((await call('GET','/__ci__/current/v1/lockrequests/review-open',cookie(t))).status,403);
+ for(const t of [adminToken,fourToken])assert.equal((await call('GET','/__ci__/current/v1/lockrequests/72/review-open',cookie(t))).status,403);
  assert.equal((await call('POST','/__ci__/current/v1/consultations/create',{...cookie(ownerToken),'x-csrf-token':auth.csrfFor(ownerToken),'x-request-key':'F04_3_test_valid_002'})).status,403);
 });
 test('F04-3-B07 known action with wrong method=405, unknown and old legacy paths=404',async()=>{
@@ -116,7 +116,7 @@ test('F04-3-B10 bad CSRF, invalid replay key, wrong payload, expired lifecycle d
 test('F04-3-B11 no fake customer tier or 4S merchant object, no sensitive output for registered route',async()=>{
  for(const x of loadContracts().filter(z=>z.source_kind==='NEW_CURRENT_ACTION').slice(0,3)){
   const headers={...cookie(ownerToken),'x-csrf-token':auth.csrfFor(ownerToken),'x-request-key':'F04_3_test_valid_011'};
-  const r=await call(x.method,x.path,headers);
+  const r=await call(x.method,x.path.replace('{lockRequestId}','72'),headers);
   assert.notEqual(r.status,200);assert.ok(r.status===403||r.status===501,JSON.stringify(r));
   assert.ok(!/vin|internal_wholesale_price|phone|password|token/.test(JSON.stringify(r.body)));
  }

@@ -102,3 +102,19 @@ test('A-F04-3-03-2 PDM02 SystemAdmin governance and business manager are indepen
  bad.paths[admin.path].post.security=[{managerEmployeePcSession:[]}];
  assert.throws(()=>validateRegistry(registry,JSON.stringify(bad),bridge,dto,sem),/AUTH_SCHEME_MISMATCH/);
 });
+
+test('A-F04-3-01-4 authoritative draft target, placement enum, LockRequest target identity and no hidden account bypass',()=>{
+ const publish=modelBy('VEHICLE_PUBLISH'),banner=modelBy('BANNER_CREATE');
+ assert.deepEqual(publish.request.schema.required,['draftId']);
+ assert.equal(validateDtoValue(publish.actionId,{draftId:9}),true);
+ assert.equal(validateDtoValue(publish.actionId,{vehicleId:9}),false);
+ assert.deepEqual(banner.request.schema.properties.placement.enum,['HOME_TOP','VEHICLE_DETAIL']);
+ assert.equal(validateDtoValue(banner.actionId,{placement:'HOME_TOP'}),true);
+ assert.equal(validateDtoValue(banner.actionId,{placementId:1}),false);
+ assert.equal(validateDtoValue(banner.actionId,{placement:'FAKE_NEW'},false),false);
+ const s=JSON.parse(spec),lock=s.paths['/__ci__/current/v1/lockrequests/{lockRequestId}/review-open'].get;
+ assert.equal(lock.parameters[0].name,'lockRequestId');
+ assert.equal(lock.parameters[0].required,true);
+ const x=JSON.parse(spec);x.paths['/__ci__/current/v1/lockrequests/{lockRequestId}/review-open'].get.parameters[0].required=false;
+ assert.throws(()=>validateRegistry(registry,JSON.stringify(x),bridge,dto,sem),/OBJECT_PATH_DTO_PARAMETER_DRIFT/);
+});

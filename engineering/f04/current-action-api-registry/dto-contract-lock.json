@@ -1535,24 +1535,24 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "vehicleId": {
+            "draftId": {
               "type": "integer",
               "minimum": 1,
               "maximum": 9007199254740991
             }
           },
           "required": [
-            "vehicleId"
+            "draftId"
           ]
         },
         "bodyAllowedByRuntime": false,
         "fieldSources": [
           {
-            "field": "vehicleId",
+            "field": "draftId",
             "type": "integer",
             "authorityFile": "07_重建工作区/PDM-06_最终完整规则.md",
-            "authorityLine": 109,
-            "evidenceState": "CURRENT_DOMAIN_OBJECT_ID_OR_STATE_REFERENCE_CI_ONLY",
+            "authorityLine": 80,
+            "evidenceState": "CURRENT_FINAL_DRAFT_TARGET_CI_ONLY",
             "consumer": "E02-02"
           }
         ],
@@ -3560,24 +3560,26 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "placementId": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 9007199254740991
+            "placement": {
+              "type": "string",
+              "enum": [
+                "HOME_TOP",
+                "VEHICLE_DETAIL"
+              ]
             }
           },
           "required": [
-            "placementId"
+            "placement"
           ]
         },
         "bodyAllowedByRuntime": false,
         "fieldSources": [
           {
-            "field": "placementId",
-            "type": "integer",
+            "field": "placement",
+            "type": "string",
             "authorityFile": "07_重建工作区/PDM-24_最终完整规则.md",
-            "authorityLine": 104,
-            "evidenceState": "SOURCE_GAP_DEFER_FINAL_FIELD_APPROVAL",
+            "authorityLine": 84,
+            "evidenceState": "CURRENT_FINAL_PLACEMENT_ENUM_CI_ONLY",
             "consumer": "P12-01"
           }
         ],

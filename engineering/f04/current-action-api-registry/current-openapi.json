@@ -2123,14 +2123,14 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
-                  "vehicleId": {
+                  "draftId": {
                     "type": "integer",
                     "minimum": 1,
                     "maximum": 9007199254740991
                   }
                 },
                 "required": [
-                  "vehicleId"
+                  "draftId"
                 ]
               }
             }
@@ -4723,14 +4723,16 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
-                  "placementId": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 9007199254740991
+                  "placement": {
+                    "type": "string",
+                    "enum": [
+                      "HOME_TOP",
+                      "VEHICLE_DETAIL"
+                    ]
                   }
                 },
                 "required": [
-                  "placementId"
+                  "placement"
                 ]
               }
             }
@@ -5687,220 +5689,6 @@
           "identity": "REAL_CUSTOMER_SESSION_NOT_IMPLEMENTED",
           "pcEmployeeCookie": "HARD_DENY",
           "futureMechanism": "SEPARATE_CUSTOMER_SESSION_AUTHORITY_REQUIRED"
-        }
-      }
-    },
-    "/__ci__/current/v1/lockrequests/review-open": {
-      "get": {
-        "operationId": "CURRENTACTION_LOCKREQUEST_REVIEW_OPEN",
-        "summary": "打开锁车申请",
-        "x-current-ci-only": true,
-        "x-not-production": true,
-        "x-product-evidence": "CURRENT_ACTION_NOT_LEGACY_URL",
-        "x-pdm-file": "07_重建工作区/PDM-18_最终完整规则.md",
-        "x-pdm-line": 80,
-        "x-page-action": "E07-08",
-        "x-owner": "F06",
-        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
-        "x-authentication-contract": "EMPLOYEE_BUSINESS_PC_CAPABILITY_REQUIRED",
-        "x-resource-kind": "lockrequests",
-        "x-dto-schema-ref": "DTO_CURRENTACTION_LOCKREQUEST_REVIEW_OPEN",
-        "x-current-action-contract-state": "CI_ONLY_PROPOSED_NOT_REVIEWED",
-        "security": [
-          {
-            "employeePcSession": []
-          }
-        ],
-        "responses": {
-          "400": {
-            "description": "真实安全门禁拒绝/最小合成响应",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "properties": {
-                    "code": {
-                      "type": "string",
-                      "enum": [
-                        "F04_3_BAD_PATH",
-                        "F04_3_BODY_NOT_AUTHORIZED",
-                        "F04_3_COOKIE_INVALID"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "code"
-                  ]
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "真实安全门禁拒绝/最小合成响应",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "properties": {
-                    "code": {
-                      "type": "string",
-                      "enum": [
-                        "F04_3_PC_COOKIE_REQUIRED",
-                        "F04_3_SESSION_REVOKED"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "code"
-                  ]
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "真实安全门禁拒绝/最小合成响应",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "properties": {
-                    "code": {
-                      "type": "string",
-                      "enum": [
-                        "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
-                        "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
-                        "F04_3_BUSINESS_PRINCIPAL_DENIED",
-                        "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
-                        "F04_3_TLS_ORIGIN_DENIED",
-                        "F04_3_CSRF_DENIED",
-                        "F04_CUSTOMER_SCOPE_DENIED",
-                        "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
-                        "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "code"
-                  ]
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "真实安全门禁拒绝/最小合成响应",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "properties": {
-                    "code": {
-                      "type": "string",
-                      "enum": [
-                        "F04_3_NOT_REGISTERED"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "code"
-                  ]
-                }
-              }
-            }
-          },
-          "405": {
-            "description": "真实安全门禁拒绝/最小合成响应",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "properties": {
-                    "code": {
-                      "type": "string",
-                      "enum": [
-                        "F04_3_METHOD_DENIED"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "code"
-                  ]
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "真实安全门禁拒绝/最小合成响应",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "properties": {
-                    "code": {
-                      "type": "string",
-                      "enum": [
-                        "F04_3_QUERY_NOT_ALLOWED",
-                        "F04_3_REQUEST_KEY_DENIED",
-                        "F04_3_INVALID_TARGET"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "code"
-                  ]
-                }
-              }
-            }
-          },
-          "501": {
-            "description": "明确未实现真实业务",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "properties": {
-                    "code": {
-                      "type": "string",
-                      "enum": [
-                        "F04_3_DEPENDENCY_BLOCKED"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "code"
-                  ]
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "真实安全门禁拒绝/最小合成响应",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "properties": {
-                    "code": {
-                      "type": "string",
-                      "enum": [
-                        "F04_3_SCHEMA_SEAL_UNAVAILABLE"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "code"
-                  ]
-                }
-              }
-            }
-          }
         }
       }
     },
@@ -7592,6 +7380,232 @@
           }
         }
       }
+    },
+    "/__ci__/current/v1/lockrequests/{lockRequestId}/review-open": {
+      "get": {
+        "operationId": "CURRENTACTION_LOCKREQUEST_REVIEW_OPEN",
+        "summary": "打开锁车申请",
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "CURRENT_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-18_最终完整规则.md",
+        "x-pdm-line": 80,
+        "x-page-action": "E07-08",
+        "x-owner": "F06",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "x-authentication-contract": "EMPLOYEE_BUSINESS_PC_CAPABILITY_REQUIRED",
+        "x-resource-kind": "lockrequests",
+        "x-dto-schema-ref": "DTO_CURRENTACTION_LOCKREQUEST_REVIEW_OPEN",
+        "x-current-action-contract-state": "CI_ONLY_PROPOSED_NOT_REVIEWED",
+        "security": [
+          {
+            "employeePcSession": []
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "真实安全门禁拒绝/最小合成响应",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "enum": [
+                        "F04_3_BAD_PATH",
+                        "F04_3_BODY_NOT_AUTHORIZED",
+                        "F04_3_COOKIE_INVALID"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "真实安全门禁拒绝/最小合成响应",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "enum": [
+                        "F04_3_PC_COOKIE_REQUIRED",
+                        "F04_3_SESSION_REVOKED"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "真实安全门禁拒绝/最小合成响应",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "enum": [
+                        "F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED",
+                        "F04_3_CUSTOMER_IDENTITY_UNPROVEN",
+                        "F04_3_BUSINESS_PRINCIPAL_DENIED",
+                        "F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN",
+                        "F04_3_TLS_ORIGIN_DENIED",
+                        "F04_3_CSRF_DENIED",
+                        "F04_CUSTOMER_SCOPE_DENIED",
+                        "F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED",
+                        "F04_3_CONTROL_PLANE_TARGET_UNPROVEN"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "真实安全门禁拒绝/最小合成响应",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "enum": [
+                        "F04_3_NOT_REGISTERED"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ]
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "真实安全门禁拒绝/最小合成响应",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "enum": [
+                        "F04_3_METHOD_DENIED"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "真实安全门禁拒绝/最小合成响应",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "enum": [
+                        "F04_3_QUERY_NOT_ALLOWED",
+                        "F04_3_REQUEST_KEY_DENIED",
+                        "F04_3_INVALID_TARGET"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ]
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "明确未实现真实业务",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "enum": [
+                        "F04_3_DEPENDENCY_BLOCKED"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实安全门禁拒绝/最小合成响应",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "enum": [
+                        "F04_3_SCHEMA_SEAL_UNAVAILABLE"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "lockRequestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -7763,14 +7777,14 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "vehicleId": {
+          "draftId": {
             "type": "integer",
             "minimum": 1,
             "maximum": 9007199254740991
           }
         },
         "required": [
-          "vehicleId"
+          "draftId"
         ]
       },
       "DTO_CURRENTACTION_PUBLISHER_PHONE_REFRESH_087_Request": {
@@ -7921,14 +7935,16 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "placementId": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 9007199254740991
+          "placement": {
+            "type": "string",
+            "enum": [
+              "HOME_TOP",
+              "VEHICLE_DETAIL"
+            ]
           }
         },
         "required": [
-          "placementId"
+          "placement"
         ]
       },
       "DTO_CURRENTACTION_BANNER_EDIT_143_Request": {

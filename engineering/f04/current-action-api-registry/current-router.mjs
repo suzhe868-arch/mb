@@ -11,7 +11,7 @@ const HEADERS={'content-type':'application/json; charset=utf-8','cache-control':
 const send=(res,status,code,extra={})=>{res.writeHead(status,HEADERS);res.end(JSON.stringify({code,...extra}))};
 const loopback=x=>['127.0.0.1','::1','::ffff:127.0.0.1'].includes(x);
 const compiled=loadContracts().map(r=>({
- ...r,pattern:new RegExp('^'+r.path.replace(/[.*+?^$|()[\]\\]/g,'\\$&').replace(/\{customerId\}/g,'([1-9][0-9]{0,14})')+'$')
+ ...r,pattern:new RegExp('^'+r.path.replace(/[.*+?^$|()[\]\\]/g,'\\$&').replace(/\{customerId\}/g,'([1-9][0-9]{0,14})').replace(/\{lockRequestId\}/g,'([1-9][0-9]{0,14})')+'$')
 }));
 export const CURRENT_ROUTE_COUNT=compiled.length;
 function gates(auth){

@@ -32,7 +32,7 @@ const canonicalRoutes=Object.freeze({
  DATA_SCOPE_CONFIG:'/employee-governance/data-scope',RECEIVING_CONFIG:'/employees/receiving-config',
  ANNOUNCEMENT_ENABLE:'/announcements/enable',ANNOUNCEMENT_DISABLE:'/announcements/disable',
  BANNER_CREATE:'/banners/create',BANNER_EDIT:'/banners/edit',BANNER_ENABLE:'/banners/enable',BANNER_DISABLE:'/banners/disable',
- LOCKREQUEST_PENDING_CREATE:'/lockrequests/request-pending',LOCKREQUEST_REVIEW_OPEN:'/lockrequests/review-open',
+ LOCKREQUEST_PENDING_CREATE:'/lockrequests/request-pending',LOCKREQUEST_REVIEW_OPEN:'/lockrequests/{lockRequestId}/review-open',
  APPLICATION_PENDING_WITHDRAW:'/applications/withdraw-pending',EMPLOYEE_SELF_RECEIVING:'/employees/self-receiving',
  PRICE_QUOTA_CONFIG:'/price-entitlements/daily-quota',CONSULTATION_NORMAL_CLOSE:'/consultations/normal-close',
  SYSTEM_ADMIN_EMPLOYEE_DISABLE:'/employee-governance/control-plane-deactivate',
@@ -125,6 +125,8 @@ export function validateRegistry(
      op['x-customer-authentication-dependency']?.pcEmployeeCookie!=='HARD_DENY')
      failed('F04_3_CUSTOMER_PC_AUTH_FALSE_CLAIM',r.action_id);
    }
+   const expectedParam=r.intent==='LOCKREQUEST_REVIEW_OPEN'?[{name:'lockRequestId',in:'path',required:true,schema:{type:'integer',minimum:1,maximum:9007199254740991}}]:r.intent==='CRM_SCOPE_MINIMAL_PROOF'?[{name:'customerId',in:'path',required:true,schema:{type:'integer',minimum:1}}]:undefined;
+   if(!equal(op.parameters,expectedParam))failed('F04_3_OBJECT_PATH_DTO_PARAMETER_DRIFT',r.action_id);
    const isBody=r.method!=='GET'&&r.method!=='DELETE';
    if(isBody){
     if(!equal(op.requestBody?.content?.['application/json']?.schema,dto.request.schema)||
