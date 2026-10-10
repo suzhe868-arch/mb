@@ -46,7 +46,11 @@ test('F04-A05 fake PDM/IA/Low-Fi file, position or literal bytes cannot be certi
 test('F04-A06 SOURCE_GAP cannot be relabeled as approved route or business permission',()=>{
  assert.throws(()=>validateMapping(mutate((r,c)=>r[c.decision]='KEEP'),old,api),/ACTION_WITHOUT_VERIFIED_API_CONTRACT/);
  assert.throws(()=>validateMapping(mutate((r,c)=>r[c.current_stage]='IMPLEMENTED_CI_ONLY'),old,api),/LEGACY_ROUTE_OPENED/);
- assert.throws(()=>validateMapping(mutate((r,c)=>r[c.mapping_evidence]='EVIDENCE_MATCHED'),old,api),/NO_TRIPLE_AUTHORITY|FORGED_AUTHORITY/);
+ const gapAt=rows.findIndex(r=>r.mapping_evidence==='SOURCE_GAP');
+ assert.ok(gapAt>=0);
+ const bad=raw.trimEnd().split('\n'),h=bad[0].split('\t'),vals=bad[gapAt+1].split('\t');
+ vals[h.indexOf('mapping_evidence')]='EVIDENCE_MATCHED';bad[gapAt+1]=vals.join('\t');
+ assert.throws(()=>validateMapping(bad.join('\n')+'\n',old,api),/NO_TRIPLE_AUTHORITY|FORGED_AUTHORITY/);
 });
 test('F04-A07 changing the physical historic OpenAPI cannot validate against a stale mapping',()=>{
  assert.throws(()=>validateMapping(raw,old,api.replace('  /customer/me:', '  /customer/me:spoof:')),/SOURCE_SEAL_COUNT|REBUILT_OPENAPI_DRIFT|FROZEN_OLD_ROUTE_DRIFT/);
