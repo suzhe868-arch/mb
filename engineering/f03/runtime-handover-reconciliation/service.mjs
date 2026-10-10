@@ -39,14 +39,32 @@ async function proof(c,kind,obj,item,team){
  if(str(selected.from_employee_id)!==str(item.from_employee_id)||str(selected.to_employee_id)!==str(item.intended_to_employee_id)||str(selected.scope_team_id)!==str(team)||str(obj[d[3]])!==str(last.to_employee_id))return {status:'UNPROVEN_CHAIN'};
  return {status:'PROVEN_RECEIPT',receiptId:Number(selected.receipt_id),auditId:Number(selected.audit_id)};
 }
-async function priority(c,obj,item){
+async function priority(c,actor,team,obj,item){
+ // Priority has no independent handover receipt. Its item may be derived only
+ // from the genuine Demand transfer in THIS batch, with the SAME source and
+ // recipient, and with current authority over both scopes if they differ.
+ if(!['pending','retry_required'].includes(item.status))return {status:'DERIVATION_UNPROVEN'};
+ const batch=(await c.query('SELECT source_employee_id,initiated_by_kind FROM public.handover_batches WHERE batch_id=$1',[item.batch_id])).rows[0];
+ if(!batch||batch.initiated_by_kind!=='employee'||str(batch.source_employee_id)!==str(item.from_employee_id))return {status:'DERIVATION_UNPROVEN'};
  const r=(await c.query("SELECT d.customer_id dc,d.responsible_employee_id dr,d.demand_state ds,e.employment_status es,m.demand_id md,m.vehicle_id mv,m.listing_cycle_id ml,m.match_tier tier,m.current_state ms,m.invalidated_at mi FROM public.demands d JOIN public.demand_match_results m ON m.result_id=$2 JOIN public.employees e ON e.employee_id=d.responsible_employee_id WHERE d.demand_id=$1",[obj.trigger_demand_id,obj.source_match_result_id])).rows[0];
  if(!r||obj.status!=='active'||obj.ended_at!==null||obj.expires_at<=new Date()||r.ds!=='active'||r.es!=='active'||str(r.dc)!==str(obj.customer_id)||str(r.md)!==str(obj.trigger_demand_id)||str(r.mv)!==str(obj.vehicle_id)||str(r.ml)!==str(obj.listing_cycle_id)||!['high','acceptable'].includes(r.tier)||r.ms!=='current'||r.mi!==null||str(r.dr)!==str(item.intended_to_employee_id))return {status:'DERIVATION_UNPROVEN'};
- const last=(await c.query('SELECT * FROM public.demand_responsible_handover_receipts WHERE demand_id=$1 ORDER BY committed_at DESC,receipt_id DESC LIMIT 1',[obj.trigger_demand_id])).rows[0];
- if(!last||str(last.to_employee_id)!==str(r.dr)||str(last.scope_team_id)!==str(item.scope_team_id??last.scope_team_id))return {status:'DERIVATION_UNPROVEN'};
+ // A receipt from a PREVIOUS batch is never evidence that THIS Priority item
+ // was carried. The domain item and its immutable receipt/audit must share
+ // exactly this batch, Demand, customer, source and recipient.
+ const candidates=(await c.query("SELECT r.*,i.object_kind ik,i.object_id io,i.from_employee_id fr,i.intended_to_employee_id dest,i.batch_id ib FROM public.demand_responsible_handover_receipts r JOIN public.handover_items i ON i.item_id=r.item_id WHERE r.demand_id=$1 AND r.batch_id=$2",[obj.trigger_demand_id,item.batch_id])).rows;
+ if(candidates.length!==1)return {status:'DERIVATION_UNPROVEN'};
+ const selected=candidates[0];
+ if(selected.ik!=='Demand'||str(selected.io)!==str(obj.trigger_demand_id)||str(selected.ib)!==str(item.batch_id)||str(selected.from_employee_id)!==str(item.from_employee_id)||str(selected.fr)!==str(item.from_employee_id)||str(selected.to_employee_id)!==str(item.intended_to_employee_id)||str(selected.dest)!==str(item.intended_to_employee_id)||str(selected.customer_id)!==str(obj.customer_id))return {status:'DERIVATION_UNPROVEN'};
+ const last=(await c.query('SELECT receipt_id,to_employee_id FROM public.demand_responsible_handover_receipts WHERE demand_id=$1 ORDER BY committed_at DESC,receipt_id DESC LIMIT 1',[obj.trigger_demand_id])).rows[0];
+ if(!last||str(last.receipt_id)!==str(selected.receipt_id)||str(last.to_employee_id)!==str(r.dr))return {status:'DERIVATION_UNPROVEN'};
+ // A team is NOT a column of handover_items. Never fall back to the receipt's
+ // own team as a substitute for the caller's currently authorized team.
+ // An explicitly scoped cross-team manager must hold BOTH current rights;
+ // lack of either scope fails closed, even for a formerly authentic receipt.
+ if(!await allowed(c,actor,selected.scope_team_id,obj.customer_id,'demand.responsible.transfer',item.from_employee_id,item.intended_to_employee_id))return {status:'DERIVATION_UNPROVEN'};
  const d=(await c.query('SELECT * FROM public.demands WHERE demand_id=$1',[obj.trigger_demand_id])).rows[0];
- const i=(await c.query('SELECT * FROM public.handover_items WHERE item_id=$1',[last.item_id])).rows[0];
- if(!d||!i||(await proof(c,'Demand',d,i,last.scope_team_id)).status!=='PROVEN_RECEIPT')return {status:'DERIVATION_UNPROVEN'};
+ const demandItem=(await c.query('SELECT * FROM public.handover_items WHERE item_id=$1',[selected.item_id])).rows[0];
+ if(!d||!demandItem||(await proof(c,'Demand',d,demandItem,selected.scope_team_id)).status!=='PROVEN_RECEIPT')return {status:'DERIVATION_UNPROVEN'};
  return {status:'PRIORITY_DERIVED_ONLY',triggerDemandId:Number(obj.trigger_demand_id),ttlUnmodified:true};
 }
 async function examine(c,actor,team,item){
@@ -59,7 +77,7 @@ async function examine(c,actor,team,item){
  if(item.status==='blocked')return {itemId:Number(item.item_id),kind,status:'BLOCKED'};
  const dest=(await c.query('SELECT employment_status FROM public.employees WHERE employee_id=$1',[item.intended_to_employee_id])).rows[0];
  if(!dest||dest.employment_status!=='active')return {itemId:Number(item.item_id),kind,status:'STALE_OBJECT'};
- let result=kind==='Priority'?await priority(c,obj,item):await proof(c,kind,obj,item,team);
+ let result=kind==='Priority'?await priority(c,actor,team,obj,item):await proof(c,kind,obj,item,team);
  if(kind==='Transaction'&&result.status==='PROVEN_RECEIPT'){
   const l=(await c.query('SELECT * FROM public.locks WHERE lock_id=$1',[obj.source_lock_id])).rows[0];
   if(!l||l.lock_status!=='released'||l.end_reason!=='converted_to_transaction'||str(l.customer_id)!==str(obj.customer_id)||str(l.vehicle_id)!==str(obj.vehicle_id)||str(l.listing_cycle_id)!==str(obj.listing_cycle_id))result={status:'UNPROVEN_CHAIN'};
