@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_2_A_SECOND_REVIEW_CHANGES_REQUESTED_PR31",
+  "substage": "F05_3A_A_RELEASED_FOR_B_B_NOT_STARTED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F05",
-  "current_domain_status": "F05_1_ACCEPTED_F05_2_SECOND_REVIEW_CHANGES_REQUESTED",
+  "current_domain_status": "F05_2_A_ACCEPTED_MERGED_PR31_F05_3A_A_RELEASED_FOR_B",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F05-2 PR31 A二轮验收：B整改SHA68a263a经Actions38071814138 36/36真PG16、59 Artifacts确认，原四项阻断PASS；新增A-F05-2-05自动治理撤权错误归责审计Actor唯一阻断，已发二轮完整整改单，交B原分支整改，PR31不合并。",
-  "current_work_file": "07_重建工作区/F05-2_A主控Vehicle当前管理责任可信关系增量迁移与真实权限闭环完整施工单_2026-10-10.md",
+  "current_task": "F05-2 PR31已由A第三轮PASS并标准合并；现正式放行F05-3A 4S单成员可信发布/经营责任隔离PG16验证包，B待从最新main建立新分支施工。",
+  "current_work_file": "07_重建工作区/F05-3A_A主控4S单成员经营责任可信来源与Vehicle隔离权限验证完整施工单_2026-10-11.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F05_2_A_CHANGES_REQUESTED_PR31",
+  "current_review_batch": "F05_3A_A_RELEASED_FOR_B_B_NOT_STARTED",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_FIX_F05_2_A_F05_2_05_TRUE_AUDIT_ACTOR",
+  "next_action": "B_IMPLEMENT_F05_3A_FOUR_S_MEMBER_TRUST_SCOPE_CI_ONLY",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B读取main最新二轮整改单 07_重建工作区/F05-2_A主控二轮独立复验自动撤权审计Actor真实性完整定向整改单_2026-10-11.md，在原feat/f05-2-vehicle-stewardship-physical-scope/PR31仅修自动治理撤权audit.actor_employee_id伪归属，区分system触发Actor、已签真实治理human Actor与原responsible subject，补真实PG16准确审计来源及immutable负例；A-F05-2-01/02/03/04已经PASS不得重新扩大整改；旧34Job冻结，新2Job包含补测，同最终SHA36/36真PG16及两原生Artifacts、中文交接后交A复验。不自行合并main，不启动F05-3、不启生产/资金/第三方。",
+  "next_action_detail": "B按最新main README/CURRENT_PROJECT_STATE/NEXT_ACTION/PROJECT_STATE/Decision Register及07_重建工作区/F05-3A_A主控4S单成员经营责任可信来源与Vehicle隔离权限验证完整施工单_2026-10-11.md，从main建立feat/f05-3a-four-s-member-trust-scope，只在批准新增目录实施4S单成员受信发布身份/经营责任/精确scope/系统自动撤权真实审计/PG16双连接+HTTPS隔离验证；旧36真实PG16 job全文冻结，新2独立PG16，来源具备时同最终SHA38/38及两原生Artifacts后提交中文自验交A；可信4S来源不足则SOURCE_GAP阻断，绝不造正向200；不改已签代码/不生产/不合并/不擅自做F05-3B。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -6042,8 +6042,8 @@
     "production_ready": false
   },
   "f05_2_gate": {
-    "status": "A_CHANGES_REQUESTED_SECOND_REVIEW",
-    "execution": "B_FIRST_CORRECTION_SELF_TESTED_A_SECOND_REVIEW_FAILED",
+    "status": "A_ACCEPTED_MERGED_PR31_CI_ONLY",
+    "execution": "A_THIRD_REVIEW_ACCEPTED_MERGED",
     "work_order": "07_重建工作区/F05-2_A主控Vehicle当前管理责任可信关系增量迁移与真实权限闭环完整施工单_2026-10-10.md",
     "branch": "feat/f05-2-vehicle-stewardship-physical-scope",
     "branch_created": true,
@@ -6055,28 +6055,52 @@
     "allow_production": false,
     "allow_real_account_or_money_writes": false,
     "product_baseline": "NOT_READY",
-    "next_owner": "B",
+    "next_owner": "A_CLOSED",
     "pr": 31,
-    "pr_merged": false,
+    "pr_merged": true,
     "reviewed_sha": "68a263add2ae68ba3860f939a78b949589a0bb55",
     "reviewed_ci_run": 38071814138,
     "ci_success_jobs": 36,
     "artifacts_count": 59,
-    "source_artifact_id": 11676863942,
-    "tls_artifact_id": 11676953699,
-    "a_review_comment_id": 6100420933,
-    "a_blockers": [
-      "A-F05-2-05"
-    ],
+    "source_artifact_id": 11677953440,
+    "tls_artifact_id": 11677713304,
+    "a_review_comment_id": 6100698698,
+    "a_blockers": [],
     "a_correction_order": "07_重建工作区/F05-2_A主控二轮独立复验自动撤权审计Actor真实性完整定向整改单_2026-10-11.md",
     "production_ready": false,
-    "physical_tests": "16/16",
+    "physical_tests": "21/21",
     "https_tests": "11/11",
     "a_closed_blockers": [
       "A-F05-2-01",
       "A-F05-2-02",
       "A-F05-2-03",
-      "A-F05-2-04"
-    ]
+      "A-F05-2-04",
+      "A-F05-2-05"
+    ],
+    "final_b_sha": "50e28b69b60c4a48c50714abb003e514ec1f8205",
+    "final_ci_run": 38074648994,
+    "a_report": "07_重建工作区/F05-2_A主控第三轮独立验收PR31正式合并与F05-3接力_2026-10-11.md",
+    "merge_sha": "fec72e9245845c252c551f6c172ecca7de5b4467",
+    "new_pg16_catalog_sha": "4438b0ae158531eaf13e2555c544603088d97511d31bd78abdf2162dc381c513"
+  },
+  "f05_3a_gate": {
+    "status": "A_RELEASED_FOR_B_B_NOT_STARTED",
+    "execution": "B_NOT_STARTED",
+    "work_order": "07_重建工作区/F05-3A_A主控4S单成员经营责任可信来源与Vehicle隔离权限验证完整施工单_2026-10-11.md",
+    "branch": "feat/f05-3a-four-s-member-trust-scope",
+    "branch_created": false,
+    "scope": "FOUR_S_SINGLE_MEMBER_TRUSTED_MANUAL_PUBLICATION_AND_CURRENT_VEHICLE_CI_SCOPE",
+    "prior_frozen_pg16_jobs": 36,
+    "new_pg16_jobs": 2,
+    "independent_pg16_ci_jobs_required": 38,
+    "ci_only": true,
+    "allow_production": false,
+    "allow_real_jyt_or_money_writes": false,
+    "positive_4s_source_must_be_real_pg16_proven": true,
+    "source_gap_requires_block": true,
+    "product_baseline": "NOT_READY",
+    "next_owner": "B",
+    "pr": null,
+    "pr_merged": false
   }
 }
