@@ -130,9 +130,9 @@ export async function publishNewFourSMemberVehicle(auth,token,p,{testCheckpoint}
   if(testCheckpoint)await testCheckpoint('after_license_locked',c);
   // Read PHYSICAL current model, brand, series and modelYear; do not trust UI
   // supplied names or an unconfirmed UPS/JYT model mapping.
-  const model=(await c.query("SELECT m.model_id,m.brand_id,m.series_id,m.model_year,m.profile_status,b.brand_name,s.series_name,m.model_name FROM public.vehicle_models m JOIN public.vehicle_series s ON s.series_id=m.series_id AND s.brand_id=m.brand_id JOIN public.vehicle_brands b ON b.brand_id=m.brand_id WHERE m.model_id=$1 AND m.brand_id=$2 AND m.series_id=$3 AND m.model_year=$4 FOR SHARE OF m,b,s",
+  const model=(await c.query("SELECT m.model_id,m.brand_id,m.series_id,m.model_year,m.profile_status,b.brand_name,b.status AS brand_status,s.series_name,s.status AS series_status,m.model_name FROM public.vehicle_models m JOIN public.vehicle_series s ON s.series_id=m.series_id AND s.brand_id=m.brand_id JOIN public.vehicle_brands b ON b.brand_id=m.brand_id WHERE m.model_id=$1 AND m.brand_id=$2 AND m.series_id=$3 AND m.model_year=$4 FOR SHARE OF m,b,s",
    [p.modelId,p.brandId,p.seriesId,p.modelYear])).rows;
-  if(model.length!==1||!model[0].brand_name?.trim()||!model[0].series_name?.trim()||!model[0].model_name?.trim())
+  if(model.length!==1||model[0].profile_status!=='complete'||model[0].brand_status!=='active'||model[0].series_status!=='active'||!model[0].brand_name?.trim()||!model[0].series_name?.trim()||!model[0].model_name?.trim())
    return deny('F05_3A_INVALID_PHYSICAL_MODEL_ID');
   if((await c.query("SELECT 1 FROM public.vehicles WHERE vehicle_id=$1",[p.vehicleId])).rowCount)
    return deny('F05_3A_EXISTING_VEHICLE_NO_RETROACTIVE_OWNER');
