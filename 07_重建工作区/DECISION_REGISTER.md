@@ -1676,3 +1676,10 @@ G受检最终HEAD19af2955d81ac14d79e0c4e6adc661a3a1aabd8e同SHA CI38025357614 20
 - PR28 B最终HEAD `ce99e604d4fb58aa04f859231fd55fd37daa3891`，同SHA GitHub Actions `38045766826`、30/30独立真PG16 success，41原生Artifacts、13文件白名单与旧28 CI冻结保留，确认为真实工程证据而非已签收业务接口合同。
 - A发现并签发三项**工程阻断**：`A-F04-3-01` 29个业务DTO占位、OpenAPI字段schema不完整；`A-F04-3-02` 6个新增Current动作同操作/主体/资源语义证据和真实异动作负例不足；`A-F04-3-03` CUSTOMER误声明PC Cookie合法认证，以及员工治理缺System Admin控制平面合法主体独立边界。见`07_重建工作区/F04-3_A主控首次独立复核DTO实质合同与主体权限完整定向整改单_2026-10-10.md`，PR28 A评论 `6096753581`。
 - **不是新产品决策**，PDM Final/IA/Low-Fi一律不变；既有21X旧接口禁恢复、F05～F07实施及C/H01安全门禁不变。`F04_3=A_CHANGES_REQUESTED / PR28_NOT_MERGED / NEXT_OWNER=B`。B在原分支一次性整改、完整同SHA30/30真PG16+Artifacts交A复验，不能自行合并main或启动F04-4。产品基线仍`NOT_READY`。
+
+
+## 2026-10-10｜F04-3二轮A独立验收正式闭环、PR28合并；F04-4现行技术包授权（无新产品裁决）
+
+- B最终SHA `f86f592056303e9ac6e04ad5af5be93accf41b80`与真实Actions `38048203956` head SHA一致，30/30独立非特权PG16 success；新Source/DTO/Current语义16/16、新TLS/身份/对象安全13/13、41份原生Artifacts，新IDs `11668517606/11668526569`，M94 94表2120项/G14封印完整。16个文件仅增F04-3批准白名单，冻结旧28 CI不变。
+- A-F04-3-01/02/03定向整改经独立源码、错误引文负例、Source/DTO schema/Actor/Auth隔离审查全部PASS；A正式评论`6097071207`；标准[PR28](https://github.com/suzhe868-arch/mb/pull/28)真实合并SHA `a1f7ebcbfdf1184ed2b1e1143afe01e877119694`；正式A报告`07_重建工作区/F04-3_A主控二轮独立验收PR28正式合并与F04-4接力_2026-10-10.md`。F04-3 `A_ACCEPTED_MERGED_PR28_CI_ONLY`，不是生产实现，旧215/32新候选无旧URL或业务权限自动批准。
+- A按既有PDM Final/Current IA规则**新签F04-4完整技术工作单** `07_重建工作区/F04-4_A主控Current全量动作覆盖消费合同与隔离安全门禁完整施工单_2026-10-10.md`；`NEXT_OWNER=B / A_RELEASED_FOR_B / B_NOT_STARTED`，限Current全动作与C/E/P/4S消费者覆盖台账、typed DTO追加、独立32/32真PG16验收；不变更任何产品原子/Final、不复活Collector、不造4S组织、不对真实资金/账号/第三方操作，不擅合并main。C/H01/F04整体/V1仍`NOT_READY`。
