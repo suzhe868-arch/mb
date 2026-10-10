@@ -1,0 +1,144 @@
+{
+  "version": "F05_1_M94_PHYSICAL_SOURCE_LOCK",
+  "main_sha": "b0be8663d3cdf5652d7f372a489ec67a02d415e6",
+  "archived_catalog": "engineering/f03/runtime-handover-reconciliation/evidence/pg16_full_catalog.json",
+  "structure_sha256": "7cd90248f51555fff26eb475320b9a10c6f52880263234a31e22210657a2c659",
+  "inventory_sha256": "7cd90248f51555fff26eb475320b9a10c6f52880263234a31e22210657a2c659",
+  "counts": {
+    "tables": 94,
+    "columns": 608,
+    "constraints": 435,
+    "indexes": 163,
+    "objects": 2120
+  },
+  "relevant_tables": [
+    "vehicles",
+    "vehicle_listing_cycles",
+    "vehicle_source_facts",
+    "vehicle_conversions",
+    "vehicle_visibility_grants",
+    "priority_leases",
+    "vehicle_images",
+    "image_asset_jobs",
+    "vehicle_price_history",
+    "customer_price_cycle_unlocks",
+    "customer_price_unlock_events",
+    "employees",
+    "pc_login_accounts",
+    "roles",
+    "role_permission_defaults",
+    "employee_permission_overrides",
+    "employee_data_scopes",
+    "employee_capability_scope_bindings",
+    "employee_team_memberships",
+    "teams",
+    "stores",
+    "publisher_phone_cache",
+    "publisher_phone_history",
+    "vehicle_documents",
+    "customer_owner_history",
+    "manual_vehicle_drafts"
+  ],
+  "source_rows": 153,
+  "required_columns": [
+    {
+      "table": "vehicles",
+      "column": "vehicle_id",
+      "type": "bigint"
+    },
+    {
+      "table": "vehicles",
+      "column": "source_type",
+      "type": "text"
+    },
+    {
+      "table": "vehicles",
+      "column": "created_by_employee_id",
+      "type": "bigint"
+    },
+    {
+      "table": "vehicle_listing_cycles",
+      "column": "vehicle_id",
+      "type": "bigint"
+    },
+    {
+      "table": "vehicle_listing_cycles",
+      "column": "listing_cycle_id",
+      "type": "bigint"
+    },
+    {
+      "table": "vehicle_listing_cycles",
+      "column": "ended_at",
+      "type": "timestamp with time zone"
+    },
+    {
+      "table": "employees",
+      "column": "store_id",
+      "type": "bigint"
+    },
+    {
+      "table": "employee_data_scopes",
+      "column": "scope_kind",
+      "type": "text"
+    },
+    {
+      "table": "vehicle_visibility_grants",
+      "column": "source_recommendation_id",
+      "type": "bigint"
+    },
+    {
+      "table": "priority_leases",
+      "column": "listing_cycle_id",
+      "type": "bigint"
+    },
+    {
+      "table": "vehicle_source_facts",
+      "column": "upstream_publisher_id",
+      "type": "text"
+    },
+    {
+      "table": "vehicle_images",
+      "column": "asset_storage_status",
+      "type": "text"
+    },
+    {
+      "table": "vehicle_price_history",
+      "column": "price_kind",
+      "type": "text"
+    }
+  ],
+  "no_owner_binding_table_names": [
+    "vehicle_current_business_ownership",
+    "vehicle_4s_represented_principals",
+    "vehicle_owner_team_bindings",
+    "vehicle_business_object_scopes"
+  ],
+  "source_types": {
+    "wholesale": "JYT批发",
+    "mingbang": "名邦自有",
+    "four_s": "4S合作"
+  },
+  "vehicle_scope_classification": "VEHICLE_SCOPE_SOURCE_GAP_BLOCKED",
+  "positive_vehicle_scope_count": 0,
+  "proof_required": [
+    "real_current_vehicle_ownership",
+    "signed_capability",
+    "employee_live_session",
+    "scope",
+    "object_cycle",
+    "four_s_represented_principal_if_needed"
+  ],
+  "non_authoritative": [
+    "created_by_employee_id",
+    "employee.store_id",
+    "customer.current_owner_employee_id",
+    "front_end_merchantId",
+    "staff.teamId",
+    "priority_lease",
+    "recommendation_visibility_grant",
+    "upstream_publisher_id"
+  ],
+  "source_type_not_owner": true,
+  "all_business_outlets_deny_if_missing_physical_binding": true,
+  "constraint_rows": 99
+}
