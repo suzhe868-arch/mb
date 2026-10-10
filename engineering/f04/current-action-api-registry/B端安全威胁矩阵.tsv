@@ -1,0 +1,13 @@
+编号	风险	防护	测试证据	后续责任
+T01	伪造页面已可见就认定业务permission	每条合同默认NOT_APPROVED，业务依赖一律501/403	A02/B05/B06	F04后续
+T02	旧218路径与禁恢复Collector管理接口复活	新前缀仅__ci__，旧路径404，禁恢复3项单独封印	A04/B07	F04
+T03	105项曾泛动作匹配回退或SOURCE_GAP伪KEEP	F04-2冻结23/192，桥接215逐项UNDECIDED	A02/A05/A06	F04
+T04	Consultation/Waitlist按Vehicle URL前缀错派F05	PDM-15 OWNER_REVIEW_GAP；Waitlist PDM-18/F06	A08	A/F04/F06
+T05	System Admin/4S越权读取Employee CRM	身份源当前PC/PG16，四种角色隔离，最小对象scope	B02/B03/B06	F04
+T06	当前Customer owner漂移后历史员工读取	委托冻结F04-1现时数据库object scope，每次重校验	B04	F04
+T07	客户端自报VIP/Team商户/内部价	前端声明不参与授权，未证Price/Vehicle/4S返回403/501	B06/B09/B11	F05/F04
+T08	DTO泄漏VIN/电话/内价、Copy/Print/Export	仅CustomerId最小已签字段返回200；其他全未实现	B02/B09	F05/F07
+T09	跨Origin/Host/Bearer/重复Cookie和失效Session	本机TLS、当前Cookie、原F03有效会话+schema封印	B03/B08	F04
+T10	未证业务写入/CSRF/幂等冲突	不接业务写服务、POST须CSRF+idempotency且只返回501	B05/B10	F05/F06/F07
+T11	SQL迁移或历史CI偷偷削弱	仅新目录+新工作流，保留28个原作业完整原码，PG16源seal	A01/B01	F04
+T12	假PG16/CI绿灯	run.head_sha与B HEAD一致、30 jobs和独立原生Artifacts后交A	CI运行证据	A
