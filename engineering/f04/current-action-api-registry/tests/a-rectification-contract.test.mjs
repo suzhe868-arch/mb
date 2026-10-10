@@ -56,7 +56,7 @@ test('A-F04-3-01-3 OpenAPI request, response and error enumeration mutations are
  assert.throws(()=>validateRegistry(registry,JSON.stringify(m3),bridge,dto,sem),/RESPONSE_DTO_SCHEMA_DRIFT/);
  const d=JSON.parse(dto);
  d.schemas.find(x=>x.intent==='CONSULTATION_CREATE').request.schema.properties.phone={type:'string'};
- assert.throws(()=>validateRegistry(registry,spec,bridge,JSON.stringify(d),sem),/REQUEST_DTO_SCHEMA_DRIFT|FIELD_WHITELIST_GAP/);
+ assert.throws(()=>validateRegistry(registry,spec,bridge,JSON.stringify(d),sem),/OPENAPI_COMPONENT_DTO_DRIFT|REQUEST_DTO_SCHEMA_DRIFT|FIELD_WHITELIST_GAP/);
 });
 test('A-F04-3-02-1 real but unrelated navigation/PDM quote cannot pass exact actor/resource/domain/action semantic seal',()=>{
  const bad=JSON.parse(sem);
