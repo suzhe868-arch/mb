@@ -46,6 +46,9 @@ export async function createCurrentRouteHandler(auth,{readinessProbe=async()=>tr
     return send(res,403,'F04_3_TLS_ORIGIN_DENIED');
   if(!await ready())return send(res,503,'F04_3_SCHEMA_SEAL_UNAVAILABLE');
   if(u.search)return send(res,422,'F04_3_QUERY_NOT_ALLOWED');
+  // CUSTOMER不是F03员工PC身份：合法客户会话尚未实现。未来认证Header和任何PC Cookie均不能授权此动作。
+  if(route.authentication_contract==='CUSTOMER_AUTH_DEPENDENCY_BLOCKED')
+    return send(res,403,'F04_3_CUSTOMER_AUTH_DEPENDENCY_BLOCKED');
   if(req.headers.authorization)return send(res,401,'F04_3_PC_COOKIE_REQUIRED');
   if((req.headers['content-length']&&req.headers['content-length']!=='0')||req.headers['transfer-encoding'])
     return send(res,400,'F04_3_BODY_NOT_AUTHORIZED');
@@ -56,12 +59,17 @@ export async function createCurrentRouteHandler(auth,{readinessProbe=async()=>tr
    return {kind:a.principal_kind,role:a.role_code,employeeId:a.employee_id};
   },{normalOnly:true});
   if(!actor)return send(res,401,'F04_3_SESSION_REVOKED');
-  // 旧PC身份不能冒充Customer/4S业务主体；SystemAdmin也不能继承Employee权限。
-  if(route.subject==='CUSTOMER')return send(res,403,'F04_3_CUSTOMER_IDENTITY_UNPROVEN');
+  // System Admin真实控制平面：与员工业务身份不可互换；当前缺目标治理授权/商户绑定事实，所以两类均不修改账号。
+  if(route.authentication_contract==='SYSTEM_ADMIN_CONTROL_PLANE_PC'){
+    if(actor.kind!=='system_admin')return send(res,403,'F04_3_SYSTEM_ADMIN_CONTROL_PLANE_DENIED');
+    return send(res,403,'F04_3_CONTROL_PLANE_TARGET_UNPROVEN');
+  }
   if(actor.kind!=='employee'||actor.role==='four_s')
     return send(res,403,'F04_3_BUSINESS_PRINCIPAL_DENIED');
-  if(route.subject==='EMPLOYEE_MANAGER'&&!['manager','store_head'].includes(actor.role||''))
-    return send(res,403,'F04_3_MANAGEMENT_SCOPE_UNPROVEN');
+  // 角色/职位本身不授员工管理或业务配置能力。缺准确PG16 target、capability、data scope的动作在本包保持硬拒。
+  if(route.authentication_contract==='MANAGER_CAPABILITY_SCOPE_REQUIRED'||
+     route.authentication_contract==='BUSINESS_CONTENT_MANAGER_CAPABILITY_REQUIRED')
+    return send(res,403,'F04_3_MANAGER_CAPABILITY_SCOPE_UNPROVEN');
   if(!['GET','HEAD'].includes(req.method)){
    const csrf=req.headers['x-csrf-token'];
    if(typeof csrf!=='string'||!constantMatch(csrf,auth.csrfFor(token)))
