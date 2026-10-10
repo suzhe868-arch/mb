@@ -4,7 +4,7 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F04_3_A_CHANGES_REQUESTED_PR28_NOT_MERGED",
+  "substage": "F04_3_A_ACCEPTED_MERGED_PR28_F04_4_A_RELEASED_FOR_B",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F04-3 B最终同SHA30/30真PG16成功，但A独立复核发现A-F04-3-01请求/响应DTO占位及OpenAPI Schema缺口、A-F04-3-02新增Current动作同主体/同操作/资源语义证明不足、A-F04-3-03 PC Cookie与Customer操作身份混淆及System Admin控制平面账号治理主体缺口。PR28未合并，B继续原分支完整整改并补真实变异负例、最终同SHA30/30真PG16与Artifacts后交A。F04/H01/产品基线NOT_READY。",
-  "current_work_file": "07_重建工作区/F04-3_A主控首次独立复核DTO实质合同与主体权限完整定向整改单_2026-10-10.md",
+  "current_task": "A已完成F04-3二轮独立验收并标准合并PR28：B最终f86f592056303e9ac6e04ad5af5be93accf41b80与Actions38048203956同SHA、30/30独立真PG16 success、新Source16/16、TLS13/13、41原生Artifacts与M94/G14旧seal无弱化；A三项整改PASS。32 Current候选仍CI-only/NOT_APPROVED/NOT_PRODUCTION、旧215候选23 MATCHED/192 SOURCE_GAP/UNDECIDED、禁恢复Collector三项。A正式下发F04-4全量Current动作覆盖与消费合同安全门禁完整施工单，B从最新main新建指定分支，在32个独立真PG16门禁下施工。产品基线与C/H01及F04整体NOT_READY。",
+  "current_work_file": "07_重建工作区/F04-4_A主控Current全量动作覆盖消费合同与隔离安全门禁完整施工单_2026-10-10.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_REMEDIATE_F04_3_A_01_02_03_AND_RETEST_SAME_HEAD_30_PG16_PR28",
+  "next_action": "B_EXECUTE_F04_4_FULL_CURRENT_ACTION_COVERAGE_AND_CONSUMER_CONTRACT_32_PG16",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F04_3_A_CHANGES_REQUESTED_PR28_NOT_MERGED",
+  "engineering_status": "F04_3_A_ACCEPTED_MERGED_PR28_F04_4_A_RELEASED_FOR_B",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B读取main已签F04-3首次A完整定向整改单，在原feat/f04-3-current-action-api-registry分支和PR28整改29个DTO占位/Schema与字段白名单、NEW_CURRENT_ACTION语义对应、Customer与PC认证以及System Admin治理控制面主体/权限分离。只改已批准F04-3新增代码与workflow，保持旧28独立PG16、禁恢复Collector/215条UNDECIDED及最终安全硬拒；新旧30/30独立真PG16成功、同最终HEAD，完整原生Artifacts/中文交接后交A二轮复验。B不得合并PR、启动F04-4、改Final/迁移/真实生产。",
+  "next_action_detail": "B读取main的F04-4正式完整施工单07_重建工作区/F04-4_A主控Current全量动作覆盖消费合同与隔离安全门禁完整施工单_2026-10-10.md；执行时从最新main新建feat/f04-4-current-action-coverage-gate，先全量枚举Current Final/IA/Action/Nav/Guard真实动作并严格证明来源、主体、对象状态、消费C/E/P/4S、Domain与旧218追溯，按证据可得性制作新增CI-only typed DTO和独立消费者安全验证，未证明要标SOURCE_GAP，旧215=23 matched+192缺口和3 Collector禁恢复保持；不建4S额外组织层、不做新DDL/生产/资金/第三方写入。保留已签F04-3原30独立PG16旧作业，增加2个独立真实PG16作业，最终32/32 success与B最终SHA一致、原生Artifacts与中文交接交A。B不得自合并或跳到F05。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -5925,11 +5925,11 @@
     "a_review_comment_id": 6096462233
   },
   "f04_3_gate": {
-    "status": "A_CHANGES_REQUESTED",
+    "status": "A_ACCEPTED_MERGED_PR28_CI_ONLY",
     "work_order": "07_重建工作区/F04-3_A主控Current新接口注册表DTO与路由安全门禁完整施工单_2026-10-10.md",
     "branch": "feat/f04-3-current-action-api-registry",
     "branch_created": true,
-    "execution": "B_SELF_TESTED_A_FIRST_REVIEW_REMEDIATION_REQUIRED",
+    "execution": "A_ACCEPTED_MERGED_PR28",
     "scope": "CURRENT_PDM_IA_ACTION_TO_NEW_HTTP_DTO_CONTRACTS_AND_ISOLATED_REAL_PG16_TLS_ROUTE_SAFETY",
     "source_f04_2_merge_sha": "70d1f68490c851823cf5d1415c703667c0305cb4",
     "current_semantic_matched": 23,
@@ -5943,21 +5943,43 @@
     "allow_DDL": false,
     "product_baseline": "NOT_READY",
     "pr": 28,
-    "pr_merged": false,
+    "pr_merged": true,
     "reviewed_sha": "ce99e604d4fb58aa04f859231fd55fd37daa3891",
     "reviewed_ci_run": 38045766826,
     "reviewed_success_jobs": 30,
     "reviewed_artifacts": 41,
     "new_artifact_source_id": 11667603668,
     "new_artifact_tls_id": 11667613585,
-    "a_report": "07_重建工作区/F04-3_A主控首次独立复核DTO实质合同与主体权限完整定向整改单_2026-10-10.md",
-    "a_review_comment_id": 6096753581,
-    "a_blockers": [
-      "A-F04-3-01",
-      "A-F04-3-02",
-      "A-F04-3-03"
-    ],
+    "a_report": "07_重建工作区/F04-3_A主控二轮独立验收PR28正式合并与F04-4接力_2026-10-10.md",
+    "a_review_comment_id": 6097071207,
+    "a_blockers": [],
     "production_ready": false,
+    "next_owner": "B",
+    "final_b_sha": "f86f592056303e9ac6e04ad5af5be93accf41b80",
+    "final_ci_run": 38048203956,
+    "ci_success_jobs": 30,
+    "new_source_tests": "16/16",
+    "new_tls_tests": "13/13",
+    "artifacts_count": 41,
+    "source_artifact_id": 11668517606,
+    "tls_artifact_id": 11668526569,
+    "merge_sha": "a1f7ebcbfdf1184ed2b1e1143afe01e877119694"
+  },
+  "f04_4_gate": {
+    "status": "A_RELEASED_FOR_B",
+    "execution": "B_NOT_STARTED",
+    "work_order": "07_重建工作区/F04-4_A主控Current全量动作覆盖消费合同与隔离安全门禁完整施工单_2026-10-10.md",
+    "branch": "feat/f04-4-current-action-coverage-gate",
+    "branch_created": false,
+    "source_f04_3_merge_sha": "a1f7ebcbfdf1184ed2b1e1143afe01e877119694",
+    "scope": "FULL_CURRENT_IA_ACTION_COVERAGE_AND_CEP4S_CONSUMER_DTO_CI_ONLY_GATE",
+    "prior_frozen_pg16_jobs": 30,
+    "new_pg16_jobs": 2,
+    "independent_pg16_ci_jobs_required": 32,
+    "allow_ddl": false,
+    "allow_production": false,
+    "allow_real_account_or_money_writes": false,
+    "product_baseline": "NOT_READY",
     "next_owner": "B"
   }
 }
