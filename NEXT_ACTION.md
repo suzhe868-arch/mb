@@ -1,3 +1,12 @@
+# 2026-10-10｜F03工作包V A独立验收PR25已合并；F04-1接口合同与隔离安全路由完整施工单正式放行（当前唯一最新）
+
+- **F03-V A验收及标准合并完成**：B受检提交 `2ee8c0327b7e59792cf22e908b12d780494fa3a5` 与 [真实Actions 38027132087](https://github.com/suzhe868-arch/mb/actions/runs/38027132087) head SHA完全一致；**24/24独立真实非特权PostgreSQL16作业成功**（旧17+G3+P2+V2），V新增两个独立作业各7/7。A审查59条（45能力+14治理）与59条负断言、M94/G000014双物理封印、九文件白名单及原始schema/source/catalog；标准[PR25](https://github.com/suzhe868-arch/mb/pull/25)已合并，merge SHA `1a0f0d85eb6cc7d120d754fc82d1a4131f3b653e`。独立A报告：`07_重建工作区/F03工作包V_A主控独立验收PR25合并及阶段技术裁决_2026-10-10.md`。
+- **A完成三个遗留能力的真实责任归属技术裁决**：内部批发价独立权限读取以及在正常Vehicle编辑下附带的内部价修改，由**F05车辆价格业务＋F04现时对象授权/安全路由**正式实现；4S账号管理由**F04 System Admin控制面**实现。V源覆盖矩阵原3项`F03_STILL_OPEN`作为历史审计保留，正式下游状态为`A_RESOLVED_TO_F04_F05_OPEN_DEPENDENCY`，**不是已实施**。未知vehicle→Team/4S商户归属、独立Vehicle/内部价权限/数据scope或合法对象状态一律保持硬拒；4S名邦内部价HARD DENY，4S不可互管。
+- **A已签发下一完整工程包F04-1**：施工单`07_重建工作区/F04-1_A主控接口合同与安全路由启动完整施工单_2026-10-10.md`，分支`feat/f04-1-contract-safety-gate`；B须从执行时最新main建立，连续完成历史218接口的可追溯核账（缺证标SOURCE_GAP不得编造）、新现行route/DTO/权限及错误合同、CI-only真实PG16安全路由、F05～F07/H03/H04消费合同、B全包自验，最终**26/26独立PG16成功（冻结旧24+新2）且与B最终SHA一致**后交A。不准修改旧迁移/服务/产品Final、未经授权开放生产或自行合并。
+- **NEXT_OWNER=B；NEXT_TASK=F04_1_CONTRACT_AND_SAFE_HTTP_CI_PACKAGE**。F03技术**仅已验收隔离合成安全范围**，F04/F05/F06/F07真实接口、C/H01高保真及三端UAT均未最终验收；`PRODUCT_BASELINE_STATUS=NOT_READY`。本段覆盖以下历史旧“V待B执行”快照，历史不删除。
+
+---
+
 # 2026-10-10｜F03 G/P双工作包A二轮正式验收、PR23/PR24合并；V全量核账与最终总回归工作包正式放行（当前最新）
 
 - G包：B最终SHA 19af2955d81ac14d79e0c4e6adc661a3a1aabd8e，真实同SHA Actions38025357614 **20/20独立PG16全成功**（G1 16/G2 7/G3 4、旧N21/M31/L29/K29/J27/I27完整回归）。A-G-01已独立验证当前真实owner/responsible必须沿最后合法后继immutable receipt/audit链一致；计划员工治理最后COMMIT前再次重验，两个PG16会话竞争或源漂移真正全事务ROLLBACK。000014仅2个handover completed CHECK，旧94表608列435约束163索引2120项结构对象数保持，新真SHA 863538a8dd81e85c8f50bec2d18ad714f6c3d87abf3b10844a3c80421d54cdb1；原SOURCE/全catalog PASS。A标准PR23已合并，merge SHA 2073397070270aeda3056b75a21112e81763cc1a。
