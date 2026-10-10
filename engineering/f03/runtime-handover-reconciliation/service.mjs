@@ -57,6 +57,8 @@ async function examine(c,actor,team,item){
  if(!obj)return {itemId:Number(item.item_id),kind,status:'STALE_OBJECT'};
  if(!await allowed(c,actor,team,obj.customer_id,kind==='Priority'?'demand.responsible.transfer':d[4],item.from_employee_id,item.intended_to_employee_id))return {itemId:Number(item.item_id),kind,status:'OUT_OF_SCOPE'};
  if(item.status==='blocked')return {itemId:Number(item.item_id),kind,status:'BLOCKED'};
+ const dest=(await c.query('SELECT employment_status FROM public.employees WHERE employee_id=$1',[item.intended_to_employee_id])).rows[0];
+ if(!dest||dest.employment_status!=='active')return {itemId:Number(item.item_id),kind,status:'STALE_OBJECT'};
  let result=kind==='Priority'?await priority(c,obj,item):await proof(c,kind,obj,item,team);
  if(kind==='Transaction'&&result.status==='PROVEN_RECEIPT'){
   const l=(await c.query('SELECT * FROM public.locks WHERE lock_id=$1',[obj.source_lock_id])).rows[0];
@@ -83,9 +85,23 @@ export async function reconcileHandoverBatchReadOnly(auth,token,p,opts={}){
   const first=await inspect();if(opts.testCheckpoint)await opts.testCheckpoint('before_last_guard',c);
   const last=await inspect();const fresh=(await c.query('SELECT * FROM public.handover_items WHERE batch_id=$1 ORDER BY item_id',[p.batchId])).rows;
   if(JSON.stringify(first)!==JSON.stringify(last)||JSON.stringify(items)!==JSON.stringify(fresh))throw Object.assign(new Error('N_READ_ONLY_CURRENT_FACT_DRIFT_ROLLBACK'),{code:'N08_ROLLBACK'});
-  const refund=(await c.query("SELECT count(*)::int n FROM public.refund_cases WHERE status='pending' AND customer_id IN (SELECT customer_id FROM public.customers WHERE current_owner_employee_id=$1)",[b.source_employee_id])).rows[0].n;
-  const complete=refund===0&&first.every(x=>['PROVEN_RECEIPT','PRIORITY_DERIVED_ONLY'].includes(x.status));
-  return deny('N03_RECONCILED_READ_ONLY',{batchId:p.batchId,items:first,observedItemCount:first.length,pendingRefundBlocker:refund>0,observedReadOnlyState:complete?'ALL_OBSERVED_ITEMS_RECONCILED_READ_ONLY':'DEFER_DENY',batchStatusUnchanged:true});
+  const seenCustomers=new Set();
+  for(const [index,item] of items.entries()){
+   if(first[index].status==='OUT_OF_SCOPE')continue;
+   const d=domain[item.object_kind];const table=item.object_kind==='Priority'?'priority_leases':d?.[2];const pk=item.object_kind==='Priority'?'priority_id':d?.[1];
+   if(!table)continue;
+   const r=(await c.query('SELECT customer_id FROM public.'+table+' WHERE '+pk+'=$1',[item.object_id])).rows[0];
+   if(r)seenCustomers.add(str(r.customer_id));
+  }
+  const refund=(await c.query("SELECT count(*)::int n FROM public.refund_cases WHERE status='pending' AND (customer_id = ANY($2::bigint[]) OR customer_id IN (SELECT customer_id FROM public.customers WHERE current_owner_employee_id=$1))",[b.source_employee_id,[...seenCustomers]])).rows[0].n;
+  let orphanReceiptCount=0;
+  const itemIds=new Set(items.map(i=>str(i.item_id)));
+  for(const table of tables){
+   const rr=(await c.query('SELECT item_id FROM public.'+table+' WHERE batch_id=$1',[p.batchId])).rows;
+   for(const rec of rr)if(!itemIds.has(str(rec.item_id)))orphanReceiptCount++;
+  }
+  const complete=refund===0&&orphanReceiptCount===0&&first.every(x=>['PROVEN_RECEIPT','PRIORITY_DERIVED_ONLY'].includes(x.status));
+  return deny('N03_RECONCILED_READ_ONLY',{batchId:p.batchId,items:first,observedItemCount:first.length,pendingRefundBlocker:refund>0,orphanReceiptBlocker:orphanReceiptCount>0,observedReadOnlyState:complete?'ALL_OBSERVED_ITEMS_RECONCILED_READ_ONLY':'DEFER_DENY',batchStatusUnchanged:true});
  },{normalOnly:true})??deny('N02_SESSION_DENY')}catch(e){if(e.code==='N08_ROLLBACK'||['55P03','40P01','57014','40001'].includes(e.code))return deny('N08_DRIFT_DEFER_DENY');throw e}
 }
 export const prepareHandoverReconciliationReadOnly=reconcileHandoverBatchReadOnly;
