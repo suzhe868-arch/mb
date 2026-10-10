@@ -1,3 +1,13 @@
+# 2026-10-10｜F04-3 B自验同SHA30/30成功，但A独立复核发现三项合同阻断（唯一当前最新）
+
+- **B真实工程及CI核验成功但不等于A签收**：PR [#28](https://github.com/suzhe868-arch/mb/pull/28) 当前open，指定分支`feat/f04-3-current-action-api-registry` 最终B HEAD `ce99e604d4fb58aa04f859231fd55fd37daa3891`，与原生 [Actions 38045766826](https://github.com/suzhe868-arch/mb/actions/runs/38045766826) head_sha完全一致，`completed/success`、**30/30独立真实非特权PostgreSQL16作业成功**（冻结旧28+新2）；**41份原生Artifacts**，新Source ID `11667603668`、TLS ID `11667613585`，均未过期。PR只新增13份授权文件，旧28份workflows job正文未改变、冻结F03/F04-1/2及迁移/产品Final/IA/Low-Fi未动。新增来源8/8、HTTP/TLS11/11为已证明的隔离合成测试，不是全合同验收。
+- **A-F04-3-01 DTO实质性阻断**：30条候选中29条仍用`v1:none/unknown-blocked`或`v1:pending-domain-implementation`，且统一`code+dependency`占位响应；OpenAPI仅定义`CiMinimalCustomer`一个数据Schema，29条业务动作缺逐动作可执行请求/响应字段白名单、对象身份、类型和Schema强校验。`source-guard`只判断`v1:`前缀，没有实质敏感字段负例。沿历史旧号生成`/actions/...-019`也不能自动等同基于Current业务对象产生的接口合同。按Current真Authority落实可类型校验的CI-only DTO；未证字段显式gap，不能编造生产实施。
+- **A-F04-3-02 Current新动作Authority语义不足**：6条NEW_CURRENT_ACTION的证据校验当前只证Final文档目标行存在和某Nav行字面动作，并无同主体/资源/业务状态/Domain强约束或真实但不相关引文负例；必须按Current Final+IA+Low-Fi重证并加入相关变异测试。
+- **A-F04-3-03 Actor/认证边界错配**：OpenAPI全部30操作声明PC员工Cookie方案，尽管有CUSTOMER主体动作，真实路由全部对CUSTOMER硬拒；不能将PC认证写成客户动作合法认证合同。员工新增/停用/恢复等仅`EMPLOYEE_MANAGER`也漏掉PDM-02 §6.2 System Admin控制平面的合法治理语义。需区分Control Plane与Business Actor、合法客户身份尚未实现的依赖缺口，同时保持当前硬拒和CI-only。
+- **A已正式签署整改单并留PR评论ID `6096753581`**：`07_重建工作区/F04-3_A主控首次独立复核DTO实质合同与主体权限完整定向整改单_2026-10-10.md`；当前**`A_CHANGES_REQUESTED / PR28_NOT_MERGED / NEXT_OWNER=B`**。B继续原分支按同份整改单一次性整改上述三项、补真变异负例、完整30/30真PG16旧新回归与最终SHA匹配、两份新原生Artifacts和中文交接，再交A二轮独立验收。**不得B自行合并、启动F04-4、扩大生产/DDL/资金/第三方或变更已冻结规则**。H01未签、F04整个阶段及产品基线依旧`NOT_READY`。此段覆盖下方旧“F04-3 B_NOT_STARTED”的过时历史指针，不改写F04-2已验收事实。
+
+---
+
 # 2026-10-10｜F04-2 A二轮独立验收正式通过并合并PR27；F04-3完整施工单已放行B（唯一当前最新）
 
 - **A真实已合并PR27：** [PR #27](https://github.com/suzhe868-arch/mb/pull/27) `closed/merged=true`；最终B提交`d09038917c91446eb8914f53f3e1881345ba7d1a`；官方[Actions 38041020114](https://github.com/suzhe868-arch/mb/actions/runs/38041020114)与B最终HEAD完全同SHA、`completed/success`、**28/28独立真实非特权PostgreSQL16 jobs成功**（既有26全部冻结＋新2），新Authority 11/11、4S loopback HTTPS 9/9；37份原生Artifacts含新`11666040902/11665941117`、旧M94原94表与G14隔离封印无削弱。PR27共13个授权文件，只在`engineering/f04/authority-route-mapping/**`和新独立workflow；A正面验收评论ID `6096462233`；**标准merge提交`70d1f68490c851823cf5d1415c703667c0305cb4`**。正式报告：`07_重建工作区/F04-2_A主控二轮独立验收PR27正式合并与F04-3交接_2026-10-10.md`。
