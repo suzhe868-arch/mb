@@ -12,7 +12,7 @@ import {createF04ContractHandler} from '../safe-router.mjs';
 const ORIGIN='https://127.0.0.1:48981',SECRET=randomBytes(32);
 const db=await connect();
 const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret:SECRET,origin:ORIGIN});
-let server,token,oldToken,adminToken,fourToken;
+let server,token,oldToken,adminToken,fourToken,objectToken,objectOldToken;
 const cookie=t=>({'cookie':'__Host-mb_pc='+t});
 async function http(method,path,headers={},body){
   return await new Promise((resolve,reject)=>{
@@ -37,6 +37,17 @@ test.before(async()=>{
   assert.equal(four.code,'AUTH_OK');fourToken=four.token;
   const adm=await auth.login({login:'admin_test',password:'SyntheticAdmin_1234567',source:'f04admin'});
   assert.equal(adm.code,'AUTH_OK');adminToken=adm.token;
+  // M94 F03-2 scope fixture already contains exact employee1->customer302
+  // object scope 102 bound to independent crm.customer.view (permission 12).
+  // Only the synthetic customer's current owner fact is made current here;
+  // no new or forged object/scope/capability binding is inserted.
+  const ownerLogin=await auth.login({login:'employee_test',password:'SyntheticPassword_12345',source:'f04-object'});
+  assert.equal(ownerLogin.code,'AUTH_OK');objectOldToken=ownerLogin.token;
+  assert.equal((await auth.change({token:ownerLogin.token,csrf:ownerLogin.csrf,
+    oldPassword:'SyntheticPassword_12345',newPassword:'SyntheticF04_Object_2026_Current'})).code,'PASSWORD_CHANGED_REAUTH_REQUIRED');
+  const ownerSecond=await auth.login({login:'employee_test',password:'SyntheticF04_Object_2026_Current',source:'f04-object-new'});
+  assert.equal(ownerSecond.code,'AUTH_OK');objectToken=ownerSecond.token;
+  await db.query("UPDATE public.customers SET owner_assignment_state='assigned',current_owner_employee_id=1 WHERE customer_id=302");
   await db.query("INSERT INTO public.customers(customer_id,account_status,customer_level_id,owner_assignment_state,current_owner_employee_id) VALUES(44041,'active',1,'assigned',5)");
   const handler=await createF04ContractHandler(auth);
   server=tlsServer({key:readFileSync('/tmp/f04-ci-key.pem'),cert:readFileSync('/tmp/f04-ci-cert.pem')},handler);
@@ -45,6 +56,7 @@ test.before(async()=>{
 test.after(async()=>{
   if(server)await new Promise(resolve=>server.close(resolve));
   await db.query('DELETE FROM public.customers WHERE customer_id=44041');
+  await db.query("UPDATE public.customers SET owner_assignment_state='unassigned',current_owner_employee_id=NULL WHERE customer_id=302");
   await auth.close();await db.end();SECRET.fill(0);
 });
 test('F04-R01 current authenticated PC session gives only synthetic proof, no private fields',async()=>{
@@ -105,16 +117,70 @@ test('F04-R08 no client claim can bypass missing Vehicle-Team/4S ownership',asyn
     assert.ok(!JSON.stringify(r.body).includes('9880000'));
   }
 });
-test('F04-R09 current owner+CRM+Team scope authorizes only minimal own Customer',async()=>{
-  const good=await http('GET','/api/v1/f04/customers/44041',cookie(token));
-  assert.equal(good.status,200,JSON.stringify(good));
-  assert.deepEqual(good.body,{code:'F04_CUSTOMER_CURRENT_OWNER',customerId:44041,objectScope:'CURRENT_OWNER_ONLY',disposable:true});
+test('F04-R09 A-F04-03 owner+unrelated CRM Team grant cannot authorize target Customer',async()=>{
+  const x=await http('GET','/api/v1/f04/customers/44041',cookie(token));
+  assert.equal(x.status,403);assert.deepEqual(x.body,{code:'F04_CUSTOMER_SCOPE_DENIED'});
+  // Employee5 has real Team grant and current owner, but lacks the actual
+  // object-scope binding to the target 44041. No CRM fields may leak.
+  assert.equal((await http('GET','/api/v1/f04/customers/44041?teamId=901',cookie(token))).status,422);
   assert.equal((await http('GET','/api/v1/f04/customers/44041',cookie(adminToken))).status,403);
   assert.equal((await http('GET','/api/v1/f04/customers/44041',cookie(fourToken))).status,403);
-  assert.equal((await http('GET','/api/v1/f04/customers/44041?teamId=901',cookie(token))).status,422);
-  await db.query('UPDATE public.customers SET current_owner_employee_id=7 WHERE customer_id=44041');
-  try{assert.equal((await http('GET','/api/v1/f04/customers/44041',cookie(token))).status,403)}
-  finally{await db.query('UPDATE public.customers SET current_owner_employee_id=5 WHERE customer_id=44041')}
+  for(const other of [301,303,306,44041]){
+    const r=await http('GET','/api/v1/f04/customers/'+other,cookie(token));
+    assert.equal(r.status,403,JSON.stringify({other,r}));
+    assert.deepEqual(Object.keys(r.body),['code']);
+  }
+});
+test('F04-R09a M94 existing target object scope + current owner is only positive case',async()=>{
+  const original=(await db.query("SELECT b.employee_id,b.permission_id,b.scope_id,s.scope_kind,s.scope_reference_id FROM public.employee_capability_scope_bindings b JOIN public.employee_data_scopes s ON s.scope_id=b.scope_id WHERE b.employee_id=1 AND b.permission_id=12 AND b.scope_id=102")).rows;
+  assert.equal(original.length,1);
+  assert.equal(original[0].scope_kind,'object');
+  assert.equal(Number(original[0].scope_reference_id),302);
+  const r=await http('GET','/api/v1/f04/customers/302',cookie(objectToken));
+  assert.equal(r.status,200,JSON.stringify(r));
+  assert.deepEqual(r.body,{code:'F04_CUSTOMER_CURRENT_OWNER',customerId:302,objectScope:'CURRENT_OWNER_ONLY',disposable:true});
+  assert.equal(r.headers['cache-control'],'no-store, private, max-age=0');
+  assert.equal((await http('GET','/api/v1/f04/customers/302',cookie(token))).status,403);
+});
+test('F04-R09c owner changes revoke prior object grant and current Team membership cannot steal',async()=>{
+  await db.query('UPDATE public.customers SET current_owner_employee_id=7 WHERE customer_id=302');
+  try{
+    assert.equal((await http('GET','/api/v1/f04/customers/302',cookie(objectToken))).status,403);
+    assert.equal((await http('GET','/api/v1/f04/customers/302',cookie(token))).status,403);
+  }finally{await db.query('UPDATE public.customers SET current_owner_employee_id=1 WHERE customer_id=302')}
+  const r=await http('GET','/api/v1/f04/customers/302',cookie(objectToken));
+  assert.equal(r.status,200);
+});
+test('F04-R09d current personal deny and exact capability object scope expiry both revoke',async()=>{
+  await db.query("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(1,12,'deny',now())");
+  try{
+    assert.equal((await http('GET','/api/v1/f04/customers/302',cookie(objectToken))).status,403);
+  }finally{await db.query("DELETE FROM public.employee_permission_overrides WHERE employee_id=1 AND permission_id=12")}
+  const old=(await db.query('SELECT ended_at FROM public.employee_capability_scope_bindings WHERE employee_id=1 AND permission_id=12 AND scope_id=102')).rows[0];
+  await db.query("UPDATE public.employee_capability_scope_bindings SET ended_at=clock_timestamp()-interval '2 seconds' WHERE employee_id=1 AND permission_id=12 AND scope_id=102");
+  try{assert.equal((await http('GET','/api/v1/f04/customers/302',cookie(objectToken))).status,403)}
+  finally{await db.query('UPDATE public.employee_capability_scope_bindings SET ended_at=$1 WHERE employee_id=1 AND permission_id=12 AND scope_id=102',[old.ended_at])}
+});
+test('F04-R09e explicit real object grant survives synthetic cross-store movement, no implicit Team grants',async()=>{
+  const old=(await db.query('SELECT store_id FROM public.employees WHERE employee_id=1')).rows[0];
+  await db.query('UPDATE public.employees SET store_id=2 WHERE employee_id=1');
+  try{
+    // Unlike a generic actor-Team check, M94 target object capability
+    // is explicit and independent of a same-store guessing shortcut.
+    const r=await http('GET','/api/v1/f04/customers/302',cookie(objectToken));
+    assert.equal(r.status,200,JSON.stringify(r));
+    assert.equal((await http('GET','/api/v1/f04/customers/44041',cookie(objectToken))).status,403);
+  }finally{await db.query('UPDATE public.employees SET store_id=$1 WHERE employee_id=1',[old.store_id])}
+});
+test('F04-R09f old password session cannot inherit current object permission; logout revokes',async()=>{
+  assert.equal((await http('GET','/api/v1/f04/customers/302',cookie(objectOldToken))).status,401);
+  const another=await auth.login({login:'employee_test',password:'SyntheticF04_Object_2026_Current',source:'f04-object-final'});
+  assert.equal(another.code,'AUTH_OK');
+  try{
+    assert.equal((await http('GET','/api/v1/f04/customers/302',cookie(another.token))).status,200);
+    await auth.logout(another.token);
+    assert.equal((await http('GET','/api/v1/f04/customers/302',cookie(another.token))).status,401);
+  }finally{await auth.logout(another.token)}
 });
 test('F04-R09b personal deny takes effect immediately for a previously logged-in PC session',async()=>{
   await db.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=5 AND permission_id=12");
