@@ -1,3 +1,11 @@
+# 2026-10-10｜F03-2-2M A二轮正式验收通过PR21合并；F03-2-2N已签发（当前最新）
+
+- **2M经A二轮独立验收并正式合并**：B最终SHA 556720eb8a80a5ff83fe0a02fc54ea44cf40476e，同SHA[CI 38010658030](https://github.com/suzhe868-arch/mb/actions/runs/38010658030)**16/16独立PG16成功，新M94 31/31**（含A-M-01新6项实际合法converted_to_transaction来源、五种伪released、prepared漂移、CAS后源码失真全rollback及双会话锁竞争），旧L29/K29/J27/I27全部原版本完整通过。旧93表2074项零改，新000013仅1张不可变Transaction收据表后94表/608列/435约束/163索引/2120完整目录项，仅增46，PG16全目录和SOURCE原始字节PASS。A审查22个白名单变更，标准[PR21](https://github.com/suzhe868-arch/mb/pull/21) merge SHA 71847176ccd2fd93a323fe274f0f144d4aea2712。正式验收报告：07_重建工作区/F03-2-2M_A主控二轮独立验收及PR21正式合并闭环_2026-10-10.md。
+- **下一2N正式放行B**：SG06已有6个域H/I/J/K/L/M的受限CI单域不可变收据，Priority只能从trigger Demand当前合法责任派生。但数据库handover_items和batch现物理CHECK均**没有completed终态**，不能据单域已转派宣布实际整批完成/解除离职权限。因此A正式签发**全域收据安全只读对账与收口前置门禁**：07_重建工作区/F03-2-2N_A主控SG06全域收据对账与正式收口前置门禁只读施工单_2026-10-10.md；分支 feat/f03-handover-reconciliation-2n，只能新增新N服务/独立CI、不批准旧DDL或生产更新，**17/17个独立真实PG16 job全成功**（包含旧M31/L29/K29/J27/I27原版完整回归），只读输出绝不得使handover_batches/items completed或员工禁用。
+- **NEXT_OWNER=B**。完整F03-2/正式SG06生产交接/C-H01高保真仍未最终验收，PRODUCT_BASELINE=NOT_READY。
+
+---
+
 # 2026-10-10｜F03-2-2M B自验全绿，A发现来源Lock真实转换缺证，正式定向整改（当前最新）
 
 - B分支`feat/f03-transaction-responsible-handover-2m`最终受检SHA`608779547db3f6ffce76f8c7ee030e4f30242eeb`、同SHA真实[Actions38008698898](https://github.com/suzhe868-arch/mb/actions/runs/38008698898)**16/16独立PG16作业success**、M25/25、旧L29/K29/J27/I27各自在冻结旧库完整成功；H/I/J/K/L/M六域30向Key冲突及并发通过。旧93表2074物理catalog定义零改，新增000013仅一张Transaction收据表后94表608列435约束163索引2120目录定义(+46)，PG16 SOURCE原始字节及完整catalog PASS。

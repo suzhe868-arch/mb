@@ -1597,3 +1597,8 @@ B最终SHA408e7a581264c43220ce3cc326a73ee610c051a5同SHA真实CI38005762988 15/1
 ## 2026-10-10｜F03-2-2M A独立审查发现source Lock真实转交易证据缺口（工程台账，不改PDM Final）
 
 B最终SHA 608779547db3f6ffce76f8c7ee030e4f30242eeb 同SHA真实CI38008698898 16/16独立PG16成功，M25/25与旧L29/K29/J27/I27全通过，新000013仅加一表后94表2120目录键且旧93表2074目录键全不变。A复核发现新M仅source Lock released即认为合法转换、未核PDM-19必需converted_to_transaction类end_reason及交易对应历史；fixture全部Lock end_reason NULL，故没有实证来源合法性。完整整改单 07_重建工作区/F03-2-2M_A主控独立复核来源Lock合法转交易证据定向整改单_2026-10-10.md，B继续原分支只补新M服务/fixture/测试的来源证明与事务末端守卫，最后同SHA16/16全部通过交A；2M未验收/未合并，不进入2N，F03-2整体/H01产品NOT_READY。
+
+
+## 2026-10-10｜F03-2-2M A二轮正式验收PR21合并与2N只读统一收据对账放行（非PDM规则变更）
+
+B最终SHA556720eb8a80a5ff83fe0a02fc54ea44cf40476e同SHA真实PG16 CI38010658030 16/16独立job成功、M31含6项A-M-01已真实锁车converted_to_transaction来源/前后漂移和整事务回滚，旧L29/K29/J27/I27独立回归通过。旧93表2074目录全不变，新000013仅一张Transaction不可变收据表后94表/608列/435约束/163索引/2120完整项；SOURCE原字节真实核验通过。A标准PR21合并SHA71847176ccd2fd93a323fe274f0f144d4aea2712，正式验收07_重建工作区/F03-2-2M_A主控二轮独立验收及PR21正式合并闭环_2026-10-10.md。下批正式N仅CI隔离PG16 H/I/J/K/L/M六域receipt/audit、Priority从Demand派生及部分失败收口前置只读对账；禁止写completed/离职撤权/真实资金和任何DDL，要求17/17独立PG16 job通过、旧M31/L29/K29/J27/I27全套回归，B负责，详见07_重建工作区/F03-2-2N_A主控SG06全域收据对账与正式收口前置门禁只读施工单_2026-10-10.md。F03-2整体/H01/产品仍NOT_READY。
