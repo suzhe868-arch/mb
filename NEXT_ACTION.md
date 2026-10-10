@@ -1,3 +1,13 @@
+# 2026-10-10｜F04-3 A二轮独立验收通过、PR28标准合并；F04-4完整施工单正式放行B（唯一最新）
+
+- **F04-3已由A真实验收并标准合并**：[PR #28](https://github.com/suzhe868-arch/mb/pull/28) 为 `closed/merged=true`；B最终HEAD `f86f592056303e9ac6e04ad5af5be93accf41b80` 与 [Actions #38048203956](https://github.com/suzhe868-arch/mb/actions/runs/38048203956) `head_sha`完全一致，**30/30独立非特权PostgreSQL16 jobs全部成功**，新增Source/DTO/语义 **16/16**、TLS/身份与对象权限 **13/13**；41份原生Artifacts，新Source ID `11668517606`、新TLS ID `11668526569`；M94原94表/2120目录及G000014不同版本封印未损。全部16个变更文件均属新增F04-3白名单，原冻结28 job正文未修改。A正面审查评论ID `6097071207`；**GitHub标准merge提交 `a1f7ebcbfdf1184ed2b1e1143afe01e877119694`**。二轮报告：`07_重建工作区/F04-3_A主控二轮独立验收PR28正式合并与F04-4接力_2026-10-10.md`。
+- **A-F04-3-01/02/03全部PASS/CLOSED**：B按首次A定向整改单，将占位DTO升级成32项类型化合成Current合同并有OpenAPI/DTO双方字节/schema/字段白名单与敏感字段反例，6个Current新动作与2个System Admin治理新动作核真实Final/IA/Low-Fi语义，Customer认证不能借员工PC Cookie、SystemAdmin控制面与业务经理独立，4S未证scope继续硬拒。只有F04-1原签最小CustomerId对象级CI只读返回合成200；其他未实施业务仍403/501。32项全部 `NOT_APPROVED/NOT_PRODUCTION`，**不是生产32个已上线接口**。
+- **F04-2历史来源冻结**：旧218 method+path/198 paths/62个冒号paths，215候选中23个同动作Current证据、192个`SOURCE_GAP`，215项全部`UNDECIDED/CONTRACT_ONLY`，三条Collector连接管理禁恢复持续RETIRE；F04-1/2/3均仅CI-only技术批验收，F04全量Current/真实4S商户管理/客户认证/F05～F07/C-H01及产品基线依然`NOT_READY`。
+- **A正式放行新的完整F04-4施工包**：工作单`07_重建工作区/F04-4_A主控Current全量动作覆盖消费合同与隔离安全门禁完整施工单_2026-10-10.md`；**`NEXT_OWNER=B / F04_4_A_RELEASED_FOR_B / B_NOT_STARTED`**；B在执行时从最新main新建独立分支 `feat/f04-4-current-action-coverage-gate`（A没有假称已创建），完整清点Current IA/Navigation/Guard全部真实动作与C/E/P/4S消费缺口，构建三向旧新追溯与新增合法CI-only typed DTO/消费权限门禁；不编造旧192条批准状态，不创4S组织层级、不增加DDL、不启生产/资金/真实第三方。**最终32/32彼此独立真非特权PG16 CI成功（冻结旧30+新增2）**且run.head_sha同B最终HEAD，原生Artifacts和完整中文交接后交A。B不得自行合并main或启动F04-5/F05，C/H01仍未最终验收、按原授权独立并行。
+- **唯一下一步：B按F04-4完整单施工、测试、自验与证据交A；本轮无需用户裁决。** 本节覆盖旧“F04-3待B整改/PR28未合并”的历史指针，不更改其历史审计事实。
+
+---
+
 # 2026-10-10｜F04-3 B自验同SHA30/30成功，但A独立复核发现三项合同阻断（唯一当前最新）
 
 - **B真实工程及CI核验成功但不等于A签收**：PR [#28](https://github.com/suzhe868-arch/mb/pull/28) 当前open，指定分支`feat/f04-3-current-action-api-registry` 最终B HEAD `ce99e604d4fb58aa04f859231fd55fd37daa3891`，与原生 [Actions 38045766826](https://github.com/suzhe868-arch/mb/actions/runs/38045766826) head_sha完全一致，`completed/success`、**30/30独立真实非特权PostgreSQL16作业成功**（冻结旧28+新2）；**41份原生Artifacts**，新Source ID `11667603668`、TLS ID `11667613585`，均未过期。PR只新增13份授权文件，旧28份workflows job正文未改变、冻结F03/F04-1/2及迁移/产品Final/IA/Low-Fi未动。新增来源8/8、HTTP/TLS11/11为已证明的隔离合成测试，不是全合同验收。
