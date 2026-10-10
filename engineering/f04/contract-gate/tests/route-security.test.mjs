@@ -37,12 +37,14 @@ test.before(async()=>{
   assert.equal(four.code,'AUTH_OK');fourToken=four.token;
   const adm=await auth.login({login:'admin_test',password:'SyntheticAdmin_1234567',source:'f04admin'});
   assert.equal(adm.code,'AUTH_OK');adminToken=adm.token;
+  await db.query("INSERT INTO public.customers(customer_id,account_status,customer_level_id,owner_assignment_state,current_owner_employee_id) VALUES(44041,'active',1,'assigned',5)");
   const handler=await createF04ContractHandler(auth);
   server=tlsServer({key:readFileSync('/tmp/f04-ci-key.pem'),cert:readFileSync('/tmp/f04-ci-cert.pem')},handler);
   await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(48981,'127.0.0.1',resolve)});
 });
 test.after(async()=>{
   if(server)await new Promise(resolve=>server.close(resolve));
+  await db.query('DELETE FROM public.customers WHERE customer_id=44041');
   await auth.close();await db.end();SECRET.fill(0);
 });
 test('F04-R01 current authenticated PC session gives only synthetic proof, no private fields',async()=>{
@@ -92,7 +94,8 @@ test('F04-R07 invalid team, client entitlement, DTO pollution and duplicate team
     assert.equal(r.status,422,JSON.stringify(r));
   }
   const p=await http('GET','/api/v1/f04/customer/vehicles/39001/price?entitlement=UNLIMITED',cookie(token));
-  assert.equal(p.status,501);assert.deepEqual(p.body,{code:'OPEN_DEPENDENCY'});
+  assert.equal(p.status,422);assert.deepEqual(p.body,{code:'F04_INVALID_DTO'});
+  assert.equal((await http('GET','/api/v1/f04/customer/vehicles/39001/price',cookie(token))).status,501);
 });
 test('F04-R08 no client claim can bypass missing Vehicle-Team/4S ownership',async()=>{
   for(const v of [39001,39002,39005]){
@@ -102,7 +105,18 @@ test('F04-R08 no client claim can bypass missing Vehicle-Team/4S ownership',asyn
     assert.ok(!JSON.stringify(r.body).includes('9880000'));
   }
 });
-test('F04-R09 personal deny takes effect immediately for a previously logged-in PC session',async()=>{
+test('F04-R09 current owner+CRM+Team scope authorizes only minimal own Customer',async()=>{
+  const good=await http('GET','/api/v1/f04/customers/44041',cookie(token));
+  assert.equal(good.status,200,JSON.stringify(good));
+  assert.deepEqual(good.body,{code:'F04_CUSTOMER_CURRENT_OWNER',customerId:44041,objectScope:'CURRENT_OWNER_ONLY',disposable:true});
+  assert.equal((await http('GET','/api/v1/f04/customers/44041',cookie(adminToken))).status,403);
+  assert.equal((await http('GET','/api/v1/f04/customers/44041',cookie(fourToken))).status,403);
+  assert.equal((await http('GET','/api/v1/f04/customers/44041?teamId=901',cookie(token))).status,422);
+  await db.query('UPDATE public.customers SET current_owner_employee_id=7 WHERE customer_id=44041');
+  try{assert.equal((await http('GET','/api/v1/f04/customers/44041',cookie(token))).status,403)}
+  finally{await db.query('UPDATE public.customers SET current_owner_employee_id=5 WHERE customer_id=44041')}
+});
+test('F04-R09b personal deny takes effect immediately for a previously logged-in PC session',async()=>{
   await db.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=5 AND permission_id=12");
   try{
     const r=await http('GET','/api/v1/f04/vehicles/39001?teamId=901&view=export',cookie(token));
@@ -116,11 +130,18 @@ test('F04-R10 inactive employee revokes prior valid session immediately',async()
 });
 test('F04-R11 all transactions/refund/lock/phone/4S management endpoints remain closed',async()=>{
   for(const path of ['/api/v1/f04/locks','/api/v1/f04/transactions','/api/v1/f04/refunds',
-    '/api/v1/f04/publisher-phone','/api/v1/f04/4s/accounts']){
-    const r=await http('POST',path,cookie(token));
+    '/api/v1/f04/publisher-phone']){
+    const headers={...cookie(token),'x-csrf-token':auth.csrfFor(token)};
+    const r=await http('POST',path,headers);
     assert.equal(r.status,501,JSON.stringify({path,r}));
     assert.deepEqual(r.body,{code:'OPEN_DEPENDENCY'});
+    assert.equal((await http('POST',path,cookie(token))).status,403);
+    assert.equal((await http('GET',path,headers)).status,405);
   }
+  const adminHeader={...cookie(adminToken),'x-csrf-token':auth.csrfFor(adminToken)};
+  assert.equal((await http('POST','/api/v1/f04/4s/accounts',adminHeader)).status,501);
+  assert.equal((await http('POST','/api/v1/f04/4s/accounts',{...cookie(token),'x-csrf-token':auth.csrfFor(token)})).status,403);
+  assert.equal((await http('POST','/api/v1/f04/locks',{...cookie(token),'x-csrf-token':auth.csrfFor(token),'x-request-key':'short'})).status,422);
 });
 test('F04-R12 body injection, stale privilege and logout deny sensitive output',async()=>{
   assert.equal((await http('GET','/api/v1/f04/session/proof',cookie(token),'{"team":901}')).status,400);
