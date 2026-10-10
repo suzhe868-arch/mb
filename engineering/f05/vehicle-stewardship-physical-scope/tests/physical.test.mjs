@@ -119,6 +119,7 @@ test('R-A10 real manager and scope transfer: old same-team sales 403, receiver 2
  assert.equal((await view(manager,59010)).allowed,false,'manager role alone cannot bypass missing cap');
  assert.equal((await view(receiver,59010)).allowed,true,'manager losing own capability must not revoke recipient');
  assert.equal((await transferCurrentResponsibility(auth,manager,p)).allowed,false,'stale CAS and removed capability denied');
+ await db.query("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=6 AND permission_id=399");
 });
 test('R-A11 two independent PG16 sessions: read-before-governance COMMIT or revoke-before-read, never stale-after-commit',async()=>{
  const s=await publish(59011);assert.equal(s.code,'F05_2_ISSUED');
