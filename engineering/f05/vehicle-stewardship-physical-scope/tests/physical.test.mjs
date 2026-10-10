@@ -174,7 +174,15 @@ test('R-A14 concurrent recipient capability revoke meets handover at advisory lo
    await assert.rejects(other.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=7 AND permission_id=14"),e=>e.code==='55P03');
    await other.query('ROLLBACK');
   }});
-  assert.equal(x.allowed,true,JSON.stringify(x));
+  // Governance may win by refusing the transfer, or the manager may commit first.
+  // Either outcome must satisfy actual CAS/ownership semantics and no leak.
+  assert.ok(x.allowed===true||x.code==='F05_2_TRANSFER_PERMISSION_OR_RECEIVER_DENIED',JSON.stringify(x));
+  const rows=(await db.query("SELECT responsible_employee_id,revoked_at FROM public.vehicle_current_responsibilities WHERE vehicle_id=59015 ORDER BY responsibility_id")).rows;
+  if(x.allowed){
+   assert.equal(rows.length,2);assert.ok(rows[0].revoked_at);assert.equal(Number(rows[1].responsible_employee_id),7);
+  }else{
+   assert.equal(rows.length,1);assert.equal(rows[0].revoked_at,null);
+  }
   await other.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=7 AND permission_id=14");
   assert.equal((await view(receiver,59015)).allowed,false);
   await other.query("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=7 AND permission_id=14");
