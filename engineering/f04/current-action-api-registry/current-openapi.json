@@ -1,0 +1,1333 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "名邦汽车 V1｜F04-3 Current动作候选合同（仅隔离CI）",
+    "version": "0.0.3-ci-only",
+    "description": "任何path仅CI_ONLY_PROPOSED，NOT_APPROVED/NOT_PRODUCTION；所有真实业务保留后续依赖。"
+  },
+  "servers": [
+    {
+      "url": "https://127.0.0.1:48983",
+      "description": "仅一次性非特权PG16+loopback HTTPS，不是生产服务"
+    }
+  ],
+  "paths": {
+    "/__ci__/current/v1/actions/favorite-toggle-007": {
+      "put": {
+        "operationId": "CURRENTACTION_FAVORITE_TOGGLE_007",
+        "summary": "收藏/取消收藏",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-20_最终完整规则.md",
+        "x-pdm-line": 517,
+        "x-page-action": "C01-01",
+        "x-owner": "F05",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/favorite-toggle-008": {
+      "delete": {
+        "operationId": "CURRENTACTION_FAVORITE_TOGGLE_008",
+        "summary": "收藏/取消收藏",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-20_最终完整规则.md",
+        "x-pdm-line": 517,
+        "x-page-action": "C01-01",
+        "x-owner": "F05",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/consultation-create-019": {
+      "post": {
+        "operationId": "CURRENTACTION_CONSULTATION_CREATE_019",
+        "summary": "提交咨询",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-15_最终完整规则.md",
+        "x-pdm-line": 72,
+        "x-page-action": "C03-03",
+        "x-owner": "OWNER_REVIEW_GAP",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/waitlist-register-020": {
+      "post": {
+        "operationId": "CURRENTACTION_WAITLIST_REGISTER_020",
+        "summary": "确认登记候补",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-18_最终完整规则.md",
+        "x-pdm-line": 154,
+        "x-page-action": "C01-M02",
+        "x-owner": "F06",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/consultation-process-069": {
+      "post": {
+        "operationId": "CURRENTACTION_CONSULTATION_PROCESS_069",
+        "summary": "开始处理/标记处理中",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-15_最终完整规则.md",
+        "x-pdm-line": 128,
+        "x-page-action": "E06-02",
+        "x-owner": "OWNER_REVIEW_GAP",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/consultation-resolve-070": {
+      "post": {
+        "operationId": "CURRENTACTION_CONSULTATION_RESOLVE_070",
+        "summary": "解决",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-15_最终完整规则.md",
+        "x-pdm-line": 497,
+        "x-page-action": "E06-02",
+        "x-owner": "OWNER_REVIEW_GAP",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/consultation-invalidate-071": {
+      "post": {
+        "operationId": "CURRENTACTION_CONSULTATION_INVALIDATE_071",
+        "summary": "无效",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-15_最终完整规则.md",
+        "x-pdm-line": 505,
+        "x-page-action": "E06-02",
+        "x-owner": "OWNER_REVIEW_GAP",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/consultation-reassign-072": {
+      "post": {
+        "operationId": "CURRENTACTION_CONSULTATION_REASSIGN_072",
+        "summary": "转派",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-15_最终完整规则.md",
+        "x-pdm-line": 294,
+        "x-page-action": "E06-02",
+        "x-owner": "OWNER_REVIEW_GAP",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/vehicle-publish-079": {
+      "post": {
+        "operationId": "CURRENTACTION_VEHICLE_PUBLISH_079",
+        "summary": "发布",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-06_最终完整规则.md",
+        "x-pdm-line": 109,
+        "x-page-action": "E02-02",
+        "x-owner": "F05",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/publisher-phone-refresh-087": {
+      "post": {
+        "operationId": "CURRENTACTION_PUBLISHER_PHONE_REFRESH_087",
+        "summary": "最新电话",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-09_最终完整规则.md",
+        "x-pdm-line": 43,
+        "x-page-action": "E02-M01",
+        "x-owner": "F07",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/vehicle-convert-source-088": {
+      "post": {
+        "operationId": "CURRENTACTION_VEHICLE_CONVERT_SOURCE_088",
+        "summary": "一键转名邦",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-21_最终完整规则.md",
+        "x-pdm-line": 278,
+        "x-page-action": "E02-01",
+        "x-owner": "F05",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/public-pool-put-115": {
+      "post": {
+        "operationId": "CURRENTACTION_PUBLIC_POOL_PUT_115",
+        "summary": "放入公海",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-17_最终完整规则.md",
+        "x-pdm-line": 172,
+        "x-page-action": "P06-05",
+        "x-owner": "F04",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/employee-deactivate-117": {
+      "post": {
+        "operationId": "CURRENTACTION_EMPLOYEE_DEACTIVATE_117",
+        "summary": "新增/停用/恢复普通员工",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-02_最终完整规则.md",
+        "x-pdm-line": 91,
+        "x-page-action": "P04-01",
+        "x-owner": "F04",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/employee-reactivate-118": {
+      "post": {
+        "operationId": "CURRENTACTION_EMPLOYEE_REACTIVATE_118",
+        "summary": "新增/停用/恢复普通员工",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-02_最终完整规则.md",
+        "x-pdm-line": 194,
+        "x-page-action": "P04-01",
+        "x-owner": "F04",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/permission-override-119": {
+      "put": {
+        "operationId": "CURRENTACTION_PERMISSION_OVERRIDE_119",
+        "summary": "设置角色/权限覆盖/数据范围/接客状态",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-02_最终完整规则.md",
+        "x-pdm-line": 54,
+        "x-page-action": "P04-03",
+        "x-owner": "F04",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/data-scope-config-120": {
+      "put": {
+        "operationId": "CURRENTACTION_DATA_SCOPE_CONFIG_120",
+        "summary": "设置角色/权限覆盖/数据范围/接客状态",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-02_最终完整规则.md",
+        "x-pdm-line": 54,
+        "x-page-action": "P04-04",
+        "x-owner": "F04",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/receiving-config-121": {
+      "patch": {
+        "operationId": "CURRENTACTION_RECEIVING_CONFIG_121",
+        "summary": "设置角色/权限覆盖/数据范围/接客状态",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-02_最终完整规则.md",
+        "x-pdm-line": 211,
+        "x-page-action": "P04-04",
+        "x-owner": "F04",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/announcement-enable-138": {
+      "post": {
+        "operationId": "CURRENTACTION_ANNOUNCEMENT_ENABLE_138",
+        "summary": "启用/停用公告",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-24_最终完整规则.md",
+        "x-pdm-line": 23,
+        "x-page-action": "P10-01",
+        "x-owner": "F04",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/announcement-disable-139": {
+      "post": {
+        "operationId": "CURRENTACTION_ANNOUNCEMENT_DISABLE_139",
+        "summary": "启用/停用公告",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-24_最终完整规则.md",
+        "x-pdm-line": 23,
+        "x-page-action": "P10-01",
+        "x-owner": "F04",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/banner-create-142": {
+      "post": {
+        "operationId": "CURRENTACTION_BANNER_CREATE_142",
+        "summary": "保存/启用 Banner",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-24_最终完整规则.md",
+        "x-pdm-line": 104,
+        "x-page-action": "P12-01",
+        "x-owner": "F04",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/banner-edit-143": {
+      "patch": {
+        "operationId": "CURRENTACTION_BANNER_EDIT_143",
+        "summary": "保存/启用 Banner",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-24_最终完整规则.md",
+        "x-pdm-line": 104,
+        "x-page-action": "P12-01",
+        "x-owner": "F04",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/banner-enable-144": {
+      "post": {
+        "operationId": "CURRENTACTION_BANNER_ENABLE_144",
+        "summary": "启用/停用",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-24_最终完整规则.md",
+        "x-pdm-line": 104,
+        "x-page-action": "P12-01",
+        "x-owner": "F04",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/banner-disable-145": {
+      "post": {
+        "operationId": "CURRENTACTION_BANNER_DISABLE_145",
+        "summary": "启用/停用",
+        "tags": [
+          "F04_2_VERIFIED_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "MATCHED_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-24_最终完整规则.md",
+        "x-pdm-line": 122,
+        "x-page-action": "P12-01",
+        "x-owner": "F04",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/lockrequest-pending-create": {
+      "post": {
+        "operationId": "CURRENTACTION_LOCKREQUEST_PENDING_CREATE",
+        "summary": "锁车",
+        "tags": [
+          "NEW_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "CURRENT_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-18_最终完整规则.md",
+        "x-pdm-line": 56,
+        "x-page-action": "C01-01",
+        "x-owner": "F06",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/lockrequest-review-open": {
+      "get": {
+        "operationId": "CURRENTACTION_LOCKREQUEST_REVIEW_OPEN",
+        "summary": "打开锁车申请",
+        "tags": [
+          "NEW_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "CURRENT_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-18_最终完整规则.md",
+        "x-pdm-line": 80,
+        "x-page-action": "E07-08",
+        "x-owner": "F06",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/application-pending-withdraw": {
+      "post": {
+        "operationId": "CURRENTACTION_APPLICATION_PENDING_WITHDRAW",
+        "summary": "撤回待处理申请",
+        "tags": [
+          "NEW_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "CURRENT_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-11_最终完整规则.md",
+        "x-pdm-line": 73,
+        "x-page-action": "C02-01",
+        "x-owner": "F06",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/employee-self-receiving": {
+      "patch": {
+        "operationId": "CURRENTACTION_EMPLOYEE_SELF_RECEIVING",
+        "summary": "开启/关闭本人接客",
+        "tags": [
+          "NEW_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "CURRENT_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-02_最终完整规则.md",
+        "x-pdm-line": 210,
+        "x-page-action": "E01",
+        "x-owner": "F04",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/price-quota-config": {
+      "put": {
+        "operationId": "CURRENTACTION_PRICE_QUOTA_CONFIG",
+        "summary": "配置每日查价额度/权益",
+        "tags": [
+          "NEW_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "CURRENT_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-10_最终完整规则.md",
+        "x-pdm-line": 182,
+        "x-page-action": "P08-02",
+        "x-owner": "F05",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/actions/consultation-normal-close": {
+      "post": {
+        "operationId": "CURRENTACTION_CONSULTATION_NORMAL_CLOSE",
+        "summary": "正常关闭",
+        "tags": [
+          "NEW_CURRENT_ACTION"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "CURRENT_ACTION_NOT_LEGACY_URL",
+        "x-pdm-file": "07_重建工作区/PDM-15_最终完整规则.md",
+        "x-pdm-line": 500,
+        "x-page-action": "E06-02",
+        "x-owner": "OWNER_REVIEW_GAP",
+        "x-domain-implementation-state": "DEPENDENCY_BLOCKED",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    },
+    "/__ci__/current/v1/objects/customers/{customerId}/proof": {
+      "get": {
+        "operationId": "CURRENTACTION_CRM_SCOPE_MINIMAL_PROOF",
+        "summary": "CRM对象级最小安全读取，F04-1隔离已验收",
+        "tags": [
+          "F04_1_ACCEPTED_TECHNICAL_PROOF"
+        ],
+        "x-current-ci-only": true,
+        "x-not-production": true,
+        "x-product-evidence": "F04_1_ACCEPTED_CI_ONLY_NOT_FULL_CRM",
+        "x-pdm-file": "07_重建工作区/PDM-16_最终完整规则.md",
+        "x-pdm-line": 228,
+        "x-page-action": "E03-01",
+        "x-owner": "F04",
+        "x-domain-implementation-state": "CI_ONLY_TESTED_MINIMAL_READ",
+        "security": [
+          {
+            "isolatedPcSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "customerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "仅CI的真实Customer对象scope最小证明",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CiMinimalCustomer"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "真实会话无效"
+          },
+          "403": {
+            "description": "权限及对象范围拒绝"
+          },
+          "405": {
+            "description": "方法不允许"
+          },
+          "422": {
+            "description": "请求DTO错误"
+          },
+          "501": {
+            "description": "业务实施缺口"
+          },
+          "503": {
+            "description": "数据库封印不可用"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "isolatedPcSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-mb_pc",
+        "description": "仅一次性CI所用真实F03会话，不接受前端身份声明"
+      }
+    },
+    "schemas": {
+      "CiMinimalCustomer": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "customerId",
+          "objectScope",
+          "disposable"
+        ],
+        "properties": {
+          "code": {
+            "const": "F04_CUSTOMER_CURRENT_OWNER"
+          },
+          "customerId": {
+            "type": "integer"
+          },
+          "objectScope": {
+            "const": "CURRENT_OWNER_ONLY"
+          },
+          "disposable": {
+            "const": true
+          }
+        }
+      }
+    }
+  }
+}
