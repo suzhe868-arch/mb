@@ -83,7 +83,7 @@ BEGIN
    WHERE license_id=NEW.license_id AND revoked_at IS NULL
    RETURNING publication_id,member_employee_id,version,revoked_at LOOP
    INSERT INTO public.f05_3a_member_trust_audit(event_key,license_id,publication_id,event_kind,actor_kind,affected_employee_id,actor_context,before_state,after_state)
-   VALUES('auto:object:'||x.publication_id||':'||txid_current(),NEW.license_id,x.publication_id,
+   VALUES('auto:object:revoke:'||x.publication_id||':'||txid_current(),NEW.license_id,x.publication_id,
     'SYSTEM_OBJECT_REVOKE','SYSTEM',x.member_employee_id,
     jsonb_build_object('trigger','f05_3a_invalidation','cause','LICENSE_REVOKED','txid',txid_current()),
     jsonb_build_object('active',true,'version',x.version-1),
