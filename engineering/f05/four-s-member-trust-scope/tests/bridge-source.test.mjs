@@ -142,3 +142,38 @@ test('H-A12 audit immutable and cannot spoof system-auto as 4S human or system_a
  await assert.rejects(()=>db.query('DELETE FROM public.f05_3a_member_trust_audit WHERE audit_id=$1',[row.audit_id]),/F05_3A_AUDIT_IMMUTABLE/);
  await assert.rejects(()=>db.query("INSERT INTO public.f05_3a_member_trust_audit(event_key,license_id,event_kind,actor_kind,actor_member_employee_id,affected_employee_id) VALUES($1,$2,'SYSTEM_OBJECT_REVOKE','SYSTEM',2,2)",[event('forged-system-actor'),first]),/check constraint/i);
 });
+
+test('H-A13 source_type switch and old listing-cycle closing permanently revoke license and member object, no Team impersonation',async()=>{
+ const one=await grantMemberCreateLicense(auth,admin,{targetEmployeeId:2,eventKey:event('sysadmin-source-transition-one')});
+ allowed(one,'F05_3A_LICENSE_GRANTED');
+ allowed(await publishNewFourSMemberVehicle(auth,four,candidate(65071)),'F05_3A_MEMBER_VEHICLE_ISSUED');
+ await db.query("UPDATE public.vehicles SET source_type='mingbang' WHERE vehicle_id=65071");
+ assert.equal((await view(four,65071)).allowed,false);
+ assert.equal((await db.query('SELECT revoked_at IS NOT NULL AS closed FROM public.f05_3a_member_create_licenses WHERE license_id=$1',[one.licenseId])).rows[0].closed,true);
+ const two=await grantMemberCreateLicense(auth,admin,{targetEmployeeId:2,eventKey:event('sysadmin-cycle-close-two')});
+ allowed(two,'F05_3A_LICENSE_GRANTED');
+ allowed(await publishNewFourSMemberVehicle(auth,four,candidate(65081)),'F05_3A_MEMBER_VEHICLE_ISSUED');
+ await db.query("UPDATE public.vehicle_listing_cycles SET ended_at=transaction_timestamp() WHERE listing_cycle_id=66081");
+ assert.equal((await view(four,65081)).allowed,false);
+ const systems=(await db.query("SELECT actor_kind,actor_member_employee_id FROM public.f05_3a_member_trust_audit WHERE license_id IN($1,$2) AND event_kind='SYSTEM_LICENSE_REVOKE'",[one.licenseId,two.licenseId])).rows;
+ assert.equal(systems.length,2);assert.ok(systems.every(x=>x.actor_kind==='SYSTEM'&&x.actor_member_employee_id===null));
+});
+test('H-A14 real separate PG16 connection employee inactive COMMIT waits for detail read; afterward 403 and restored active never revives',async()=>{
+ const g=await grantMemberCreateLicense(auth,admin,{targetEmployeeId:2,eventKey:event('sysadmin-read-versus-inactive')});
+ allowed(g,'F05_3A_LICENSE_GRANTED');
+ allowed(await publishNewFourSMemberVehicle(auth,four,candidate(65091)),'F05_3A_MEMBER_VEHICLE_ISSUED');
+ let enter,release;const reached=new Promise(r=>enter=r),hold=new Promise(r=>release=r);
+ const viewFirst=readFourSMemberMinimalVehicle(auth,four,{vehicleId:65091,outlet:'detail'},{
+  testCheckpoint:async(label)=>{assert.equal(label,'owned_object_locked');enter();await hold}
+ });
+ await reached;
+ let committed=false;
+ const writer=db.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=2").then(x=>{committed=true;return x});
+ assert.equal(committed,false);
+ release();
+ allowed(await viewFirst,'F05_3A_MEMBER_MINIMAL_VEHICLE');
+ await writer;
+ assert.equal((await view(four,65091)).allowed,false);
+ await db.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=2");
+ assert.equal((await view(four,65091)).allowed,false);
+});
