@@ -16,17 +16,13 @@ async function authTx(auth,token,fn,opts={}){
  if(!hookAllowed(opts.testCheckpoint))return out('J02_TEST_HOOK_DENY');
  const v=await auth.pool.connect();try{
   if(opts.crossDomainRequestKeyCommit===true){
-   const l=(await v.query("SELECT to_regclass('public.lock_responsible_handover_receipts')::text AS tbl")).rows[0]?.tbl;
-   if(l==='lock_responsible_handover_receipts'){
-    const {verify:verifyL}=await import('../runtime-lock-responsible-handover/migration.mjs');
-    await verifyL(v);
-   }else{
-   const k=(await v.query("SELECT to_regclass('public.waitlist_responsible_handover_receipts')::text AS tbl")).rows[0]?.tbl;
-   if(k==='waitlist_responsible_handover_receipts'){
-    const {verify:verifyK}=await import('../runtime-waitlist-responsible-handover/migration.mjs');
-    await verifyK(v);
-   }else await verify(v);
+   const supported=[['transaction_responsible_handover_receipts','../runtime-transaction-responsible-handover/migration.mjs'],['lock_responsible_handover_receipts','../runtime-lock-responsible-handover/migration.mjs'],['waitlist_responsible_handover_receipts','../runtime-waitlist-responsible-handover/migration.mjs']];
+   let pinned=false;
+   for(const [table,module] of supported){
+    const physical=(await v.query('SELECT to_regclass($1)::text AS tbl',['public.'+table])).rows[0]?.tbl;
+    if(physical===table){const {verify:verifyPinned}=await import(module);await verifyPinned(v);pinned=true;break;}
    }
+   if(!pinned)await verify(v);
   }else await verify(v);
  }finally{v.release()}
  try{
@@ -116,6 +112,8 @@ async function transfer(c,actor,p,hook){
  if(kTable==='waitlist_responsible_handover_receipts'&&(await c.query('SELECT 1 FROM public.waitlist_responsible_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[key])).rowCount)return out('J05_CROSS_DOMAIN_KEY_DENY');
  const lTable=(await c.query("SELECT to_regclass('public.lock_responsible_handover_receipts')::text AS tbl")).rows[0]?.tbl;
  if(lTable==='lock_responsible_handover_receipts'&&(await c.query('SELECT 1 FROM public.lock_responsible_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[key])).rowCount)return out('J05_CROSS_DOMAIN_KEY_DENY');
+ const mGuard=(await c.query("SELECT to_regclass('public.transaction_responsible_handover_receipts')::text AS tbl")).rows[0]?.tbl;
+ if(mGuard==='transaction_responsible_handover_receipts'&&(await c.query('SELECT 1 FROM public.transaction_responsible_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[key])).rowCount)return out('J05_CROSS_DOMAIN_KEY_DENY');
  const conflict=(await c.query('SELECT item_id FROM public.consultation_assignee_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[key])).rows[0];
  if(conflict)return out('J05_COLLISION_DENY');
  if(str(f.consult.assignee_employee_id)!==str(p.fromEmployeeId))return out('J04_CAS_CONFLICT');

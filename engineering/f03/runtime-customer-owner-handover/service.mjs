@@ -33,28 +33,14 @@ async function facts(c,a,p,lock=false){
 async function authenticated(auth,token,fn,options={}){
  if(!permitCheckpoint(options.testCheckpoint))return out('H_TEST_HOOK_DENY');
  const sealed=await auth.pool.connect();try{
-  // Existing 89-table verifier stays strict. Only H commit/retry may use the
-  // separately sealed 90-table I verifier when its actual migration exists.
   if(options.crossDomainRequestKeyCommit===true){
-   const l=(await sealed.query("SELECT to_regclass('public.lock_responsible_handover_receipts')::text AS tbl")).rows[0]?.tbl;
-   if(l==='lock_responsible_handover_receipts'){
-    const {verify:verifyL}=await import('../runtime-lock-responsible-handover/migration.mjs');
-    await verifyL(sealed);
-   }else{
-   const exists=(await sealed.query("SELECT to_regclass('public.demand_responsible_handover_receipts')::text AS receipt_table")).rows[0]?.receipt_table;
-   if(exists==='demand_responsible_handover_receipts'){
-    const {verify:verifyI}=await import('../runtime-demand-responsible-handover/migration.mjs');
-    const j=(await sealed.query("SELECT to_regclass('public.consultation_assignee_handover_receipts')::text AS tbl")).rows[0]?.tbl;
-    if(j==='consultation_assignee_handover_receipts'){
-     const {verify:verifyJ}=await import('../runtime-consultation-assignee-handover/migration.mjs');
-     const k=(await sealed.query("SELECT to_regclass('public.waitlist_responsible_handover_receipts')::text AS tbl")).rows[0]?.tbl;
-     if(k==='waitlist_responsible_handover_receipts'){
-      const {verify:verifyK}=await import('../runtime-waitlist-responsible-handover/migration.mjs');
-      await verifyK(sealed);
-     }else await verifyJ(sealed);
-    }else await verifyI(sealed);
-   }else await verify(sealed);
+   const supported=[['transaction_responsible_handover_receipts','../runtime-transaction-responsible-handover/migration.mjs'],['lock_responsible_handover_receipts','../runtime-lock-responsible-handover/migration.mjs'],['waitlist_responsible_handover_receipts','../runtime-waitlist-responsible-handover/migration.mjs'],['consultation_assignee_handover_receipts','../runtime-consultation-assignee-handover/migration.mjs'],['demand_responsible_handover_receipts','../runtime-demand-responsible-handover/migration.mjs']];
+   let pinned=false;
+   for(const [table,module] of supported){
+    const physical=(await sealed.query('SELECT to_regclass($1)::text AS tbl',['public.'+table])).rows[0]?.tbl;
+    if(physical===table){const {verify:verifyPinned}=await import(module);await verifyPinned(sealed);pinned=true;break;}
    }
+   if(!pinned)await verify(sealed);
   }else await verify(sealed);
  }finally{sealed.release()}
  try{return await auth.withSession(token,async(c,a,s)=>{
@@ -106,6 +92,8 @@ async function transfer(c,a,p,hook){
  if(k==='waitlist_responsible_handover_receipts'&&(await c.query('SELECT 1 FROM public.waitlist_responsible_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[sha])).rowCount)return out('H04_CROSS_DOMAIN_KEY_DENY');
   const lTable=(await c.query("SELECT to_regclass('public.lock_responsible_handover_receipts')::text AS tbl")).rows[0]?.tbl;
  if(lTable==='lock_responsible_handover_receipts'&&(await c.query('SELECT 1 FROM public.lock_responsible_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[sha])).rowCount)return out('H04_CROSS_DOMAIN_KEY_DENY');
+ const mGuard=(await c.query("SELECT to_regclass('public.transaction_responsible_handover_receipts')::text AS tbl")).rows[0]?.tbl;
+ if(mGuard==='transaction_responsible_handover_receipts'&&(await c.query('SELECT 1 FROM public.transaction_responsible_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[sha])).rowCount)return out('H04_CROSS_DOMAIN_KEY_DENY');
  // H-01: the SHA256 request key identifies ONE intent across every Customer,
  // batch and item; DB UNIQUE is authoritative for concurrent writers.
  const keyed=(await c.query('SELECT receipt_id,item_id FROM public.customer_owner_handover_receipts WHERE request_key_sha256=$1 FOR SHARE',[sha])).rows[0];
