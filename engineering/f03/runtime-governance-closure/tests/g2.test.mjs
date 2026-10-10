@@ -70,6 +70,15 @@ test('G2 genuine immutable M94 source 76 receipt and completed G batch gate plan
    assert.equal(denied.code,'G_PLANNED_UNPROVEN_RECEIPT_AUDIT',JSON.stringify(denied));
   }finally{await c.query('DELETE FROM public.refund_cases WHERE refund_id=99201')}
  }finally{await c.query('DELETE FROM public.locks WHERE lock_id=99201')}
+ // A-G-01-e: even after SG06 status/audit preflight, any same-transaction
+ // owner drift at final COMMIT checkpoint must undo permission/session writes.
+ const drift=await commitPlannedGovernance(auth,manager,{action:'planned_disable',batchId:97001,employeeId:76,teamId:901},{
+  testCheckpoint:async(stage,c)=>{if(stage==='before_commit')await c.query('UPDATE public.customers SET current_owner_employee_id=5 WHERE customer_id=37601')}
+ });
+ assert.equal(drift.code,'G_GOV_RETRY_DENY',JSON.stringify(drift));
+ assert.equal((await c.query('SELECT employment_status FROM public.employees WHERE employee_id=76')).rows[0].employment_status,'active');
+ assert.equal((await c.query('SELECT credential_state FROM public.pc_login_accounts WHERE employee_id=76')).rows[0].credential_state,'enabled');
+ assert.equal((await c.query('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=37601')).rows[0].current_owner_employee_id,'4');
  // A-G-01-e: independent PostgreSQL session cannot alter the locked
  // customer's responsibility during G2's proof-to-commit interval.
  let racingWriteRejected=false;
@@ -126,6 +135,11 @@ test('G2 verified complete SG06 batch allows System Admin-only planned cross-sto
   assert.equal(deny.code,'G_TRANSFER_UNPROVEN_LEDGER',JSON.stringify(deny));
   assert.equal((await c.query('SELECT store_id FROM public.employees WHERE employee_id=78')).rows[0].store_id,'1');
  }finally{await c.query('UPDATE public.customers SET current_owner_employee_id=$1 WHERE customer_id=37603',[priorOwner])}
+ const rolled=await commitPlannedStoreTransferAsSystemAdmin(auth,admin,{batchId:97003,employeeId:78,targetStoreId:2,targetTeamId:906,reason:'race protected controlled SG06 transfer'},{
+  testCheckpoint:async(stage,c)=>{if(stage==='after_audit')await c.query('UPDATE public.customers SET current_owner_employee_id=5 WHERE customer_id=37603')}
+ });
+ assert.equal(rolled.code,'G_GOV_RETRY_DENY',JSON.stringify(rolled));
+ assert.equal((await c.query('SELECT store_id FROM public.employees WHERE employee_id=78')).rows[0].store_id,'1');
  const r=await commitPlannedStoreTransferAsSystemAdmin(auth,admin,{batchId:97003,employeeId:78,targetStoreId:2,targetTeamId:906,reason:'synthetic approved planned crossstore transfer'});
  assert.equal(r.code,'G_TRANSFER_APPLIED',JSON.stringify(r));
  const emp=(await c.query('SELECT store_id,receiving_status FROM public.employees WHERE employee_id=78')).rows[0];
