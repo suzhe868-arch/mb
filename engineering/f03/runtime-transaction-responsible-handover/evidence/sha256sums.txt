@@ -1,0 +1,2 @@
+c4c67ee89f0c9d9dd7d02c9f1f50af469eeb103bdb6685de759c15be9f4cf439  f03/runtime-transaction-responsible-handover/artifacts/pg16_schema_only.sql
+cde3a8d941ffceccad92e2703e55ec19c837949c26794f206346d67bb54f2e12  f03/runtime-transaction-responsible-handover/artifacts/pg16_inventory.json
