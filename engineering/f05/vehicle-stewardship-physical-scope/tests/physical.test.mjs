@@ -271,9 +271,16 @@ test('R-A19 direct employee ISSUE/REVOKE and manager TRANSFER keep separately pr
  assert.equal(p.length,2);assert.deepEqual(p.map(z=>z.event_kind),['ISSUE','REVOKE']);
  for(const a of p){assert.equal(a.actor_kind,'EMPLOYEE');assert.equal(Number(a.actor_employee_id),1);assert.equal(a.actor_system_code,null)}
  const h=x.filter(z=>Number(z.vehicle_id)===59010);
- assert.equal(h.length,3);assert.equal(h[0].event_kind,'ISSUE');
- assert.equal(Number(h[0].actor_employee_id),1);
- for(const a of h.slice(1)){
+ const manual=h.filter(z=>z.actor_kind==='EMPLOYEE');
+ const automatic=h.filter(z=>z.actor_kind==='SYSTEM');
+ assert.equal(manual.length,3,'historical manager handover has original issue and two transfer facts');
+ assert.equal(automatic.length,1,'receiver governance revocation must be an additional, distinct SYSTEM event');
+ assert.equal(automatic[0].event_kind,'REVOKE');
+ assert.equal(automatic[0].actor_employee_id,null,'receiver employee must never appear as the system event actor');
+ assert.equal(Number(automatic[0].previous_employee_id),7);
+ assert.equal(manual[0].event_kind,'ISSUE');
+ assert.equal(Number(manual[0].actor_employee_id),1);
+ for(const a of manual.slice(1)){
   assert.equal(a.event_kind,'TRANSFER');assert.equal(a.actor_kind,'EMPLOYEE');
   assert.equal(Number(a.actor_employee_id),6,'true manager rather than the old owner');
   assert.equal(a.actor_system_code,null);
