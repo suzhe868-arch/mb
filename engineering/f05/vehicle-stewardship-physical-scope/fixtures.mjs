@@ -1,9 +1,17 @@
 // Synthetic business publication facts. CI-only, no real customer or 4S account data.
 import {connect,verify} from './migration.mjs';
+import {hashPassword} from '../../src/f03-auth-crypto.mjs';
 const c=await connect();
 try{
  await verify(c);
  await c.query('BEGIN');
+ // The F05-1 SOURCE job preserves F03 initial employee_test password/forced-change;
+ // unlike the TLS job, it has not run the later F04-3 login setup.
+ // Reconcile ONLY this disposable PG16 synthetic fixture after all 34 frozen checks.
+ const isolatedPasswordHash=await hashPassword('SyntheticF04_3_CurrentProof_2026');
+ const updatedAccount=await c.query("UPDATE public.pc_login_accounts SET password_hash=$1,force_password_change=false,credential_state='enabled',credential_epoch=credential_epoch+1 WHERE normalized_login_key='employee_test' AND principal_kind='employee' AND employee_id=1 RETURNING account_id",[isolatedPasswordHash]);
+ if(updatedAccount.rowCount!==1)throw Error('F05_2_SYNTHETIC_LOGIN_IDENTITY_MISSING');
+
  // Vehicle.read exists in F03-2D. A new local capability only for synthetic authorized
  // publication; NO production permission grant is created by this file.
  const p=(await c.query("SELECT permission_id FROM public.permissions WHERE permission_code='vehicle.read'")).rows[0];
