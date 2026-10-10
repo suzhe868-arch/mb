@@ -5,8 +5,12 @@ const ORIGIN='https://127.0.0.1:48985';
 const base='/__ci__/f05-3b/v1/vehicles/';
 const headers={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store, max-age=0',
  'pragma':'no-cache','x-content-type-options':'nosniff','x-frame-options':'DENY','referrer-policy':'no-referrer'};
-function send(res,status,body){res.writeHead(status,headers);res.end(JSON.stringify(body))}
-function reject(res,status=403,code='F05_3B_CREDENTIAL_OR_API_DISABLED'){send(res,status,{code})}
+async function send(res,status,body){
+ try{if(typeof res.f05b_log==='function')await res.f05b_log(status,body)}
+ catch{status=503;body={code:'F05_3B_REQUIRED_AUDIT_UNAVAILABLE'}}
+ res.writeHead(status,headers);res.end(JSON.stringify(body));
+}
+function reject(res,status=403,code='F05_3B_CREDENTIAL_OR_API_DISABLED'){return send(res,status,{code})}
 const local=v=>['127.0.0.1','::1','::ffff:127.0.0.1'].includes(v);
 async function body(req){
  const n=Number(req.headers['content-length']);
@@ -26,7 +30,22 @@ export async function createJytSyncContractHandler(auth){
  if(!auth?.pool||!/^postgres:\/\/f03_ci:[^@]+@127\.0\.0\.1:5432\/f03_auth_test$/.test(process.env.F03_1_DATABASE_URL||''))
   throw Error('F05_3B_UNTRUSTED_DATABASE');
  await verify(auth.pool);
+ let windowStart=Date.now(),windowCalls=0;
  return async(req,res)=>{
+  let loggedAction='unknown',submittedCount=0;
+  // Fail closed if the immutable invocation receipt cannot be committed.
+  // Never store tokens, raw request bodies, caller IP, publisher phone or VIN.
+  res.f05b_log=async(status,body)=>{
+   const returnedCount=Array.isArray(body.items)?body.items.length:0;
+   const processedCount=Number.isInteger(body.count)?body.count:
+    status===200&&['F05_3B_IMPORTED','F05_3B_UPDATED','F05_3B_RELISTED','F05_3B_OFFLINED'].includes(body.code)?1:0;
+   await auth.pool.query("INSERT INTO public.f05_3b_api_call_logs(action,method,http_status,actor_kind,submitted_count,returned_count,processed_count,result_code) VALUES($1,$2,$3,$4,$5,$6,$7,$8)",
+    [loggedAction,['GET','POST'].includes(req.method)?req.method:'OTHER',status,status===200?'INTEGRATION':'SYSTEM',
+     submittedCount,returnedCount,processedCount,String(body.code||'F05_3B_UNKNOWN').slice(0,120)]);
+  };
+  const now=Date.now();
+  if(now-windowStart>=60000){windowStart=now;windowCalls=0}
+  if(++windowCalls>200)return reject(res,429,'F05_3B_CI_LOOPBACK_RATE_LIMIT');
   const raw=req.url||'';
   if(raw.length>2048||!raw.startsWith('/')||/%2e|%2f|%5c|%00|\\|\/\.\.?($|\/)|\/\//i.test(raw))
    return reject(res,400,'F05_3B_ROUTE_INVALID');
@@ -34,6 +53,8 @@ export async function createJytSyncContractHandler(auth){
   if(!url.pathname.startsWith(base)||url.origin!==ORIGIN||url.hash)
    return reject(res,404,'F05_3B_UNKNOWN_CONTRACT');
   const operation=url.pathname.slice(base.length);
+  if(['sync','offline','current'].includes(operation))
+   loggedAction=operation==='sync'?'upsert':operation;
   if(!['sync','offline','current'].includes(operation))return reject(res,404,'F05_3B_UNKNOWN_CONTRACT');
   if((operation==='current'&&req.method!=='GET')||(operation!=='current'&&req.method!=='POST'))
    return reject(res,405,'F05_3B_METHOD_NOT_ALLOWED');
@@ -58,6 +79,7 @@ export async function createJytSyncContractHandler(auth){
     if(req.headers['content-type']!=='application/json')return reject(res,415,'F05_3B_JSON_REQUIRED');
     args=await body(req);
    }
+   submittedCount=operation==='offline'&&Array.isArray(args.carCodes)?Math.min(args.carCodes.length,50):operation==='sync'?1:0;
    const out=operation==='sync'?await syncUpsert(auth,match[1],args):
     operation==='offline'?await syncBatchOffline(auth,match[1],args):
     await syncCurrent(auth,match[1],args);
