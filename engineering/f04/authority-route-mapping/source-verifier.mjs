@@ -3,6 +3,7 @@
 import {readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {dirname,resolve,join} from 'node:path';
+import {ACTION_PROOFS,currentBusinessDomain} from './action-semantic-contract.mjs';
 import {parseLegacyOpenApi,assertLegacyDecision} from '../contract-gate/parse-legacy-openapi.mjs';
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'../../..');
@@ -63,6 +64,26 @@ export function validateMapping(matrix,original,openApi){
   }
   if(r.mapping_evidence==='EVIDENCE_MATCHED'&&(!r.pdm_file||!r.nav_file||!r.page_file))
     throw Error('F04_2_NO_TRIPLE_AUTHORITY_'+r.legacy_id);
+
+  // Current业务对象≠HTTP vehicle URL前缀；F04合同责任≠领域实施责任。
+  const [domain,implementation]=currentBusinessDomain(r.legacy_path);
+  if(r.domain_authority!==domain||r.contract_owner!=='F04'||
+     r.business_implementation_owner!==implementation||
+     r.owner_review_gap!==(implementation==='OWNER_REVIEW_GAP'?'OWNER_REVIEW_GAP':''))
+    throw Error('F04_2_DOMAIN_OWNER_SEMANTIC_MISMATCH_'+r.legacy_id);
+  if(r.mapping_evidence==='EVIDENCE_MATCHED'){
+    const p=ACTION_PROOFS[r.legacy_id];
+    if(!p||r.nav_line!==String(p.navLine)||r.pdm_file!==p.pdmFile||
+       r.pdm_line!==String(p.pdmLine)||r.page_line!==String(p.pageLine)||
+       r.nav_file!=='03_证据_C_IA_V5_Current/04_LOW_FI_NAVIGATION_REGISTER.md'||
+       r.page_file!=='03_证据_C_IA_V5_Current/04_LOW_FI_PAGE_MANIFEST.md'||
+       !r.nav_quote.includes('| '+p.navAction+' |')||
+       !r.page_quote.startsWith('| '+p.pageId+' |')||
+       r.semantic_action_id!==r.nav_quote.split('|')[1].trim()||
+       r.semantic_subject!==p.subject||r.semantic_intent!==p.intent)
+       throw Error('F04_2_SEMANTIC_ACTION_MISMATCH_'+r.legacy_id);
+  }else if(r.semantic_action_id||r.semantic_subject||r.semantic_intent)
+    throw Error('F04_2_UNPROVEN_SEMANTIC_ASSERTION_'+r.legacy_id);
   if(r.mapping_evidence==='SOURCE_GAP'&&r.decision!=='UNDECIDED')
     throw Error('F04_2_UNREVIEWED_AS_APPROVED');
   summary[r.mapping_evidence]++;
