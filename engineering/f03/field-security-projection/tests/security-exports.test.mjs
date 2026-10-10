@@ -49,3 +49,30 @@ test('P2 wrong team and tainted cache fields fail closed',async()=>{
  assert.equal((await projectEmployeeVehicle(auth,token,{vehicleId:39001,teamId:999,view:'export'})).code,'P_EMPLOYEE_SCOPE_DENY');
  assert.equal((await projectEmployeeVehicle(auth,token,{...p('cache'),claimedOldRole:'manager'})).code,'P_EMPLOYEE_INPUT_DENY');
 });
+
+
+test('A-P-01-a valid CRM Team cannot authorize wholesale, Mingbang or 4S vehicle objects',async()=>{
+ for(const vehicleId of [39001,39002,39005]){
+  for(const view of ['detail','export','history','copy','print','cache']){
+   const r=await projectEmployeeVehicle(auth,token,{vehicleId,teamId:901,view});
+   assert.equal(r.code,'P_VEHICLE_SCOPE_UNPROVEN',JSON.stringify(r));
+   assert.equal(r.fields,undefined);
+  }
+ }
+});
+test('A-P-01-b no M94 authoritative vehicle-to-Team or merchant mapping means no synthetic positive',async()=>{
+ const row=(await db.query('SELECT source_type,created_by_employee_id FROM public.vehicles WHERE vehicle_id=39001')).rows[0];
+ assert.equal(row.source_type,'wholesale');
+ for(const view of ['detail','export']){
+  const r=await projectEmployeeVehicle(auth,token,{vehicleId:39001,teamId:901,view});
+  assert.equal(r.code,'P_VEHICLE_SCOPE_UNPROVEN');
+  assert.equal(r.deferredTo,'F04_F07_SIGNED_OBJECT_OWNERSHIP');
+ }
+});
+test('A-P-01-c changing current Team never carries stale vehicle entitlement',async()=>{
+ for(const teamId of [901,903,906,999]){
+  const r=await projectEmployeeVehicle(auth,token,{vehicleId:39005,teamId,view:'export'});
+  assert.notEqual(r.code,'P_EMPLOYEE_REDACTED');
+  assert.equal(r.fields,undefined);
+ }
+});
