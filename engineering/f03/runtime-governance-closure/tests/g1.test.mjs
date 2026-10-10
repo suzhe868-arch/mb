@@ -89,3 +89,29 @@ test('G1 committed batch cannot be forged as permission to act on a second pendi
  assert.equal(another.ok,false,JSON.stringify(another));
  assert.notEqual((await db.query('SELECT status FROM public.handover_batches WHERE batch_id=97002')).rows[0].status,'completed');
 });
+
+
+test('G1 real PG16 final item guard detects source owner drift at before_commit and rolls back CAS and audit',async()=>{
+ const row=(await db.query('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=37602')).rows[0];
+ const status=(await db.query('SELECT status FROM public.handover_items WHERE item_id=17602')).rows[0].status;
+ const old=(await db.query("SELECT count(*)::int n FROM public.audit_events WHERE object_kind='handover_item' AND object_id='17602' AND action='sg06.item.complete'")).rows[0].n;
+ const result=await commitHandoverItem(auth,token,{batchId:97002,itemId:17602,teamId:901,requestKey:'g1-beforecommit-drift-source'},{
+  testCheckpoint:async(stage,c)=>{if(stage==='before_commit')await c.query('UPDATE public.customers SET current_owner_employee_id=6 WHERE customer_id=37602')}
+ });
+ assert.equal(result.code,'G_CONCURRENT_ROLLBACK',JSON.stringify(result));
+ assert.equal((await db.query('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=37602')).rows[0].current_owner_employee_id,row.current_owner_employee_id);
+ assert.equal((await db.query('SELECT status FROM public.handover_items WHERE item_id=17602')).rows[0].status,status);
+ assert.equal((await db.query("SELECT count(*)::int n FROM public.audit_events WHERE object_kind='handover_item' AND object_id='17602' AND action='sg06.item.complete'")).rows[0].n,old);
+});
+test('G1 real PG16 batch before_commit drift rolls back batch completion and appended audit',async()=>{
+ const item=await commitHandoverItem(auth,token,{batchId:97002,itemId:17602,teamId:901,requestKey:'g1-legal-item-after-rollback'});
+ assert.equal(item.code,'G_ITEM_COMPLETED',JSON.stringify(item));
+ const before=(await db.query('SELECT status,version FROM public.handover_batches WHERE batch_id=97002')).rows[0];
+ const result=await commitHandoverBatch(auth,token,{batchId:97002,teamId:901,requestKey:'g1-batch-fault-beforecommit'},{
+  testCheckpoint:async(stage,c)=>{if(stage==='before_commit')await c.query('UPDATE public.customers SET current_owner_employee_id=6 WHERE customer_id=37602')}
+ });
+ assert.equal(result.code,'G_CONCURRENT_ROLLBACK',JSON.stringify(result));
+ assert.deepEqual((await db.query('SELECT status,version FROM public.handover_batches WHERE batch_id=97002')).rows[0],before);
+ assert.equal((await db.query("SELECT count(*)::int n FROM public.audit_events WHERE object_kind='handover_batch' AND object_id='97002' AND action='sg06.batch.complete'")).rows[0].n,0);
+ assert.equal((await db.query('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=37602')).rows[0].current_owner_employee_id,4);
+});
