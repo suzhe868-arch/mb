@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F04_1_ACCEPTED_MERGED_PR26_F04_2_A_CHANGES_REQUESTED_PR27",
+  "substage": "F04_2_A_ACCEPTED_MERGED_PR27_F04_3_A_RELEASED_FOR_B",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F04",
-  "current_domain_status": "F04_2_B_CI_28_OF_28_PASS_BUT_A_AUTHORITY_SEMANTIC_AND_BUSINESS_OWNER_BLOCKERS_PR27_NOT_MERGED",
+  "current_domain_status": "F04_1_F04_2_CI_ONLY_ACCEPTED_MERGED_F04_3_RELEASED_NOT_STARTED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F04-2 B最终HEAD b3535bbe70c0708e4ba386293e7298408f163da8同SHA真实Actions38034145668 28/28独立非特权PG16成功，新Authority8/8与4S loopback HTTPS9/9，37份Artifacts和11文件白名单均真实。A独立核对215行Current Authority矩阵发现A-F04-2-01多条EVIDENCE_MATCHED引用不相关动作（微信会话≠手机授权、咨询创建≠打开车辆、候补≠打开车辆、咨询处理≠修改内部称呼、车辆发布≠进入内部模式），source-verifier只检查原文字节存在不核相同业务动作；A-F04-2-02 Consultation/Waitlist错误按vehicle URL前缀分到VEHICLE/F05，缺业务Domain与路由合同Owner区分。A正式整改单落main，B原分支一轮整改并重新取得同最终SHA完整28/28真实PG16 success交A；PR27未合并，F04-3不放行，产品/C-H01 NOT_READY。",
-  "current_work_file": "07_重建工作区/F04-2_A主控首次独立复核Authority动作误配完整定向整改单_2026-10-10.md",
+  "current_task": "F04-2 PR27正式通过且已标准merge main：最终B SHA d09038917c91446eb8914f53f3e1881345ba7d1a同GitHub Actions38041020114，28/28独立真PG16 success，Authority11/11+4S真HTTPS9/9，37份Artifacts，M94/G14源目录隔离。215候选中23有同动作Current证据+192真实SOURCE_GAP、原3个Collector禁恢复；15咨询/18候补Domain修正，F04-2只是CI-only/CONTRACT_ONLY，4S目标授权证据未证仍403。A评论6096462233、PR27标准merge SHA70d1f68490c851823cf5d1415c703667c0305cb4；F04-3已正式签单，B应在新指定分支一次性实施Current API/DTO合同行与CI-only安全路由、最终30/30独立真实PG16交A。F04总体/C-H01/产品基线NOT_READY。",
+  "current_work_file": "07_重建工作区/F04-3_A主控Current新接口注册表DTO与路由安全门禁完整施工单_2026-10-10.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F04_2_A_CHANGES_REQUESTED_AUTHORITY_SEMANTIC_AND_DOMAIN_OWNER",
+  "current_review_batch": "F04_3_A_RELEASED_FOR_B_CURRENT_ACTION_API_REGISTRY",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_RECTIFY_F04_2_PR27_CURRENT_AUTHORITY_SEMANTIC_AND_DOMAIN_OWNER_SAME_BRANCH_28_PG16_READY_FOR_A",
+  "next_action": "B_EXECUTE_F04_3_CURRENT_ACTION_API_DTO_CI_SAFE_ROUTE_30_INDEPENDENT_PG16_READY_FOR_A",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F04_1_ACCEPTED_MERGED_PR26_F04_2_A_CHANGES_REQUESTED_PR27_NOT_MERGED",
+  "engineering_status": "F04_2_A_ACCEPTED_MERGED_PR27_F04_3_A_RELEASED_FOR_B",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B留feat/f04-2-authority-route-mapping原分支，依main完整A整改单一次性反向核全部原105条EVIDENCE_MATCHED的Current导航动作、主体、业务对象/状态和PDM语义，删除/修正对咨询、候补、发布、微信会话、价格权限等不相关真实引文，证据不足降SOURCE_GAP不得凑数；按PDM15/18及F04合同与F05/F06真实业务实现分开修正Domain/Owner，重点Waitlist不归VEHICLE/F05，更新矩阵、族统计、威胁与语义负向校验/中文交接，保留原28项独立PG16 job与全部旧源码冻结，最终新HEAD同SHA28/28全成功再交A独立复验。PR27不自行合并，不启动F04-3、无生产/资金/4S账号写入。",
+  "next_action_detail": "B读取main最新F04-3正式施工单07_重建工作区/F04-3_A主控Current新接口注册表DTO与路由安全门禁完整施工单_2026-10-10.md；从执行时main新建feat/f04-3-current-action-api-registry，只新增engineering/f04/current-action-api-registry/**和新专属CI workflow，建立Current Final/IA动作实证新HTTP/DTO合同行、对23实证/192缺口/3禁恢复追溯与Current新增动作，明确F04合同与F05/06/07实现、权限对象/字段与错误审计、CI_ONLY_PROPOSED非生产；用真正隔离PG16+HTTPS实现可测试受限Current route registry，有数据库证明的最小正例，未实现业务不冒200，未知4S权限/敏感字段/资金等fail closed。完整冻结之前28真正独立PG16 jobs，增加两个各自新PG16 job，最终B HEAD与run.head_sha同SHA30/30全成功、证据完整后交A；B不自行合并main或启动F04-4，C/H01及产品NOT_READY。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -4800,16 +4800,16 @@
     "design_branch_modified": false,
     "implementation_status_unchanged": true,
     "active_tracks": [
-      "F04_1_B_READY_TO_EXECUTE",
+      "F04_3_B_READY_TO_EXECUTE",
       "H01_C_VISUAL_REWORK_PARALLEL"
     ],
     "execution_requires_separate_scope_approval": false,
     "global_state_owner": "A_MAIN",
     "engineering": {
       "owner": "B",
-      "branch": "feat/f04-1-contract-safety-gate",
-      "active_work_order": "07_重建工作区/F04-1_A主控接口合同与安全路由启动完整施工单_2026-10-10.md",
-      "execution_status": "F04_1_A_CHANGES_REQUESTED_PR26_NOT_MERGED"
+      "branch": "feat/f04-3-current-action-api-registry",
+      "active_work_order": "07_重建工作区/F04-3_A主控Current新接口注册表DTO与路由安全门禁完整施工单_2026-10-10.md",
+      "execution_status": "F04_3_A_RELEASED_FOR_B_B_NOT_STARTED"
     },
     "design": {
       "owner": "C",
@@ -4831,9 +4831,9 @@
     "authority": "PDM_FINAL_CURRENT_IA_LOWFI_UNCHANGED",
     "high_risk_gate": "USER_APPROVAL_FOR_NEW_PRODUCT_DECISIONS_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_THIRD_PARTY_WRITES",
     "next_owner": "B",
-    "current_work_branch": "feat/f04-2-authority-route-mapping",
-    "current_work_order": "07_重建工作区/F04-2_A主控首次独立复核Authority动作误配完整定向整改单_2026-10-10.md",
-    "engineering_status": "F04_2_A_CHANGES_REQUESTED_PR27_NOT_MERGED"
+    "current_work_branch": "feat/f04-3-current-action-api-registry",
+    "current_work_order": "07_重建工作区/F04-3_A主控Current新接口注册表DTO与路由安全门禁完整施工单_2026-10-10.md",
+    "engineering_status": "F04_3_A_RELEASED_FOR_B_B_NOT_STARTED"
   },
   "f01_acceptance": {
     "status": "ACCEPTED_USER_APPROVED_MERGED_TO_MAIN",
@@ -5892,11 +5892,11 @@
     "merge_sha": "20479f3712a5aaa862f7db4378d8db2369695d79"
   },
   "f04_2_gate": {
-    "status": "A_CHANGES_REQUESTED",
+    "status": "A_ACCEPTED_MERGED_PR27_CI_ONLY",
     "work_order": "07_重建工作区/F04-2_A主控现行215接口Authority映射与4S账号安全控制前置完整施工单_2026-10-10.md",
     "branch": "feat/f04-2-authority-route-mapping",
     "branch_created": true,
-    "execution": "B_SELF_TESTED_A_REVIEWED_CHANGES_REQUESTED",
+    "execution": "A_ACCEPTED_MERGED_PR27",
     "parent_f04_1_merge_sha": "20479f3712a5aaa862f7db4378d8db2369695d79",
     "scope": "215_CURRENT_IA_PDM_AUTHORITY_SOURCE_MAPPING_PLUS_CI_ONLY_SYSTEM_ADMIN_4S_ACCOUNT_READONLY_PREFLIGHT",
     "independent_pg16_ci_jobs_required": 28,
@@ -5907,15 +5907,40 @@
     "allow_financial_actions": false,
     "product_baseline": "NOT_READY",
     "pr": 27,
-    "pr_merged": false,
-    "reviewed_sha": "b3535bbe70c0708e4ba386293e7298408f163da8",
-    "reviewed_ci_run": 38034145668,
+    "pr_merged": true,
+    "reviewed_sha": "d09038917c91446eb8914f53f3e1881345ba7d1a",
+    "reviewed_ci_run": 38041020114,
     "reviewed_success_jobs": 28,
-    "a_report": "07_重建工作区/F04-2_A主控首次独立复核Authority动作误配完整定向整改单_2026-10-10.md",
-    "a_blockers": [
-      "A-F04-2-01_EVIDENCE_MATCHED_TRUE_QUOTES_WRONG_BUSINESS_ACTION",
-      "A-F04-2-02_VEHICLE_PREFIX_CONSULTATION_WAITLIST_DOMAIN_OWNER_WRONG"
-    ],
-    "production_ready": false
+    "a_report": "07_重建工作区/F04-2_A主控二轮独立验收PR27正式合并与F04-3交接_2026-10-10.md",
+    "a_blockers": [],
+    "production_ready": false,
+    "final_b_sha": "d09038917c91446eb8914f53f3e1881345ba7d1a",
+    "final_ci_run": 38041020114,
+    "ci_success_jobs": 28,
+    "new_authority_tests": "11/11",
+    "new_four_s_tests": "9/9",
+    "authority_matched": 23,
+    "authority_source_gap": 192,
+    "merge_sha": "70d1f68490c851823cf5d1415c703667c0305cb4",
+    "a_review_comment_id": 6096462233
+  },
+  "f04_3_gate": {
+    "status": "A_RELEASED_FOR_B",
+    "work_order": "07_重建工作区/F04-3_A主控Current新接口注册表DTO与路由安全门禁完整施工单_2026-10-10.md",
+    "branch": "feat/f04-3-current-action-api-registry",
+    "branch_created": false,
+    "execution": "B_NOT_STARTED",
+    "scope": "CURRENT_PDM_IA_ACTION_TO_NEW_HTTP_DTO_CONTRACTS_AND_ISOLATED_REAL_PG16_TLS_ROUTE_SAFETY",
+    "source_f04_2_merge_sha": "70d1f68490c851823cf5d1415c703667c0305cb4",
+    "current_semantic_matched": 23,
+    "legacy_gap": 192,
+    "retired_collector_methods": 3,
+    "independent_pg16_ci_jobs_required": 30,
+    "prior_frozen_jobs": 28,
+    "new_jobs": 2,
+    "allow_production": false,
+    "allow_real_account_or_money_writes": false,
+    "allow_DDL": false,
+    "product_baseline": "NOT_READY"
   }
 }
