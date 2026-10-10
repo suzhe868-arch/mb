@@ -40,3 +40,26 @@
 
 - 本交接提交后 GitHub Actions 将产生**新的最终 HEAD 对应完整 20/20 CI**；只有其最终状态仍为 `completed/success` 且 `run.head_sha === 当前G分支HEAD` 才是最终 B 验收交付证据。本报告中 #38021801214 是提交报告之前的**功能最终代码受检来源**，不能替代交接提交后的同SHA验证。
 - 验证通过后：**G = B_SELF_TESTED / READY_FOR_A_REVIEW**；P 同条件已通过；**NEXT_OWNER=A**。B 不自行合并 main、不开 V 工作包及生产流量。
+
+## 六、A-G-01 首轮A退回：现时完整负责人链与计划员工治理二轮整改
+
+A正式整改单：`07_重建工作区/F03多任务包G_P_A主控首次独立审查与两项定向整改清单_2026-10-10.md`。前轮20/20 CI及000014真实封印保持原样，但原`governance.mjs batchAuditProven`仅查起始批次的immutable收据/audit、未核对**业务对象当下真负责人和全部后继因果链**，因此A判定`A_CHANGES_REQUESTED`。
+
+### 已整改的不可缩减安全事实
+
+- 新`service.mjs::verifyLiveHandoverChain`严格只读、在G2当前事务内执行：根据原批`item.object_kind/object_id`重取Customer/Demand/Consultation/Waitlist/Lock/Transaction物理对象，调用原已受检`proof()`，其逐张验证Domain receipt的真实batch、item、source、dest、customer、actor、历史Team/RequestKey、原审计before/after/time、前后交接连续性及**完整最后合法收据的to必须等于此刻对象实际owner/responsible**。既不能用原批目标负责人硬判终态，也不能在有人无审计直接更新当前responsible后继续放行。
+- Priority仍**无独立交接收据**，要求当前active/TTL未过期、来源match有效、客户/车辆/挂牌周期全同、同批真正Demand item/receipt原source/目标/Team一致，且触发Demand通过连续的原始+后续收据链并证明当前负责人active；过期或无权威历史证据必须拒绝。
+- G2原`batchAuditProven`保留全部原审计和历史完整性保护，并额外对每个已completed item调用`verifyLiveHandoverChain`。计划停用、计划降权和System Admin计划调店在任何员工状态、credentials、session、scope发生变更**之前**必验，完成写入/追加人员审计之后及`before_commit`检查点**再次验**，若对象漂移则**抛异常ROLLBACK整事务**，绝不返回一个已经有副作用的DENY。历史事实不可证时 fail closed。
+- 各当前业务对象使用PG行锁`FOR SHARE`，各关联客户行锁`FOR UPDATE`，确保与另一PG16会话争用当前负责人、有效财务Customer FK和Priority来源对象时按真实锁次序串行化或超时回滚。现存`lock_timeout`、SG06 advisory及最终审计门禁保留。
+- 突发inactive是防风险紧急撤权，不被误改成必须先完成所有交接的计划动作；复职不自动恢复旧会话、顾客归属、权限、Team、接客资格。**没有**修改旧000001～000014 SQL/manifest、冻结旧H～N服务、旧CI或PDM产品规则，也未跨用P分支。
+
+### 新增与保留的真实合成PG16自验
+
+- G-01-a 合法原H收据及已完成batch仍能计划性停用76、店长降权77、System Admin调店78。
+- G-01-b 原source已无承责，但人为把当前Customer owner改给没有下一笔收据的第三人，三种治理都拒绝，员工账号/会话与组织快照不变。
+- G-01-c 在原M94数据库结构下，通过**已验收的原H业务服务**为Customer37602形成顺序真实`77→4→6`双收据+原历史/audit，后续G已完成第一个批次后仍可证明当下负责人6合法，计划降权不因原批目标4而误拒。
+- G-01-d 当前Team capability结束、已转出原source的Customer仍有在途Refund时均阻断计划停用；Priority派生完整当前Demand链、有效match、TTL等已有严格helper守卫，无法证明则拒绝。
+- G-01-e 在人员治理证据核查与正式提交之间，以**独立第二PG16会话**更新锁定客户遇到真实lock_timeout；同一事务内注入最终COMMIT前客户负责人漂移，验证完整旧账号/员工/组织/审计/当前owner回滚。计划员工治理与控制平面调店两条路径均已加入此门禁。
+- 原G1/G2/G3全部测试与17个旧独立模块的结构封印/原始Source/真正非特权PG16完整回归必须继续保持。
+
+**二轮最终门禁**：此报告落库也产生分支新HEAD。只有对应新HEAD的最新GitHub Actions **20/20独立真实PG16 Job `completed/success`**、新`000014`两CHECK/2120目录封印无delta及全部原始旧证据PASS，才能再宣布`B_SELF_TESTED / READY_FOR_A_REVIEW`，同时P独立分支也要19/19同SHA成功后一次性交A。此前20/20 Run38022820421仅是A首轮受检证据，不得用来代替本整改最终版本证明。F03整体及V1基线依旧`NOT_READY`，B不得合并或启动V。
