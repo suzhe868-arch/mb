@@ -99,7 +99,7 @@ export async function rollback(c){
    ['vehicle_listing_cycles','f05_2_cycle_state_guard']])
     await c.query('DROP TRIGGER '+trigger+' ON public.'+t);
   await c.query('DROP FUNCTION public.f05_2_governance_invalidate()');
-  await c.query('DROP FUNCTION public.f05_2_close_steward_links(bigint,bigint,bigint,text)');
+  await c.query('DROP FUNCTION public.f05_2_close_steward_links(bigint,bigint,bigint,text,jsonb)');
   await c.query('DROP TABLE public.vehicle_responsibility_audit_events');
   await c.query('DROP TABLE public.vehicle_current_responsibilities');
   await c.query('DROP FUNCTION public.f05_2_audit_immutable()');
