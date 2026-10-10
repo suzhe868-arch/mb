@@ -143,20 +143,22 @@ test('H-A12 audit immutable and cannot spoof system-auto as 4S human or system_a
  await assert.rejects(()=>db.query("INSERT INTO public.f05_3a_member_trust_audit(event_key,license_id,event_kind,actor_kind,actor_member_employee_id,affected_employee_id) VALUES($1,$2,'SYSTEM_OBJECT_REVOKE','SYSTEM',2,2)",[event('forged-system-actor'),first]),/check constraint/i);
 });
 
-test('H-A13 source_type switch and old listing-cycle closing permanently revoke license and member object, no Team impersonation',async()=>{
- const one=await grantMemberCreateLicense(auth,admin,{targetEmployeeId:2,eventKey:event('sysadmin-source-transition-one')});
- allowed(one,'F05_3A_LICENSE_GRANTED');
+test('H-A13 vehicle source switch or cycle end revokes ONLY this object; same 4S member license and other own cars survive',async()=>{
+ const g=await grantMemberCreateLicense(auth,admin,{targetEmployeeId:2,eventKey:event('sysadmin-individual-cycle-scope')});
+ allowed(g,'F05_3A_LICENSE_GRANTED');
  allowed(await publishNewFourSMemberVehicle(auth,four,candidate(65071)),'F05_3A_MEMBER_VEHICLE_ISSUED');
+ allowed(await publishNewFourSMemberVehicle(auth,four,candidate(65081)),'F05_3A_MEMBER_VEHICLE_ISSUED');
  await db.query("UPDATE public.vehicles SET source_type='mingbang' WHERE vehicle_id=65071");
  assert.equal((await view(four,65071)).allowed,false);
- assert.equal((await db.query('SELECT revoked_at IS NOT NULL AS closed FROM public.f05_3a_member_create_licenses WHERE license_id=$1',[one.licenseId])).rows[0].closed,true);
- const two=await grantMemberCreateLicense(auth,admin,{targetEmployeeId:2,eventKey:event('sysadmin-cycle-close-two')});
- allowed(two,'F05_3A_LICENSE_GRANTED');
- allowed(await publishNewFourSMemberVehicle(auth,four,candidate(65081)),'F05_3A_MEMBER_VEHICLE_ISSUED');
+ allowed(await view(four,65081),'F05_3A_MEMBER_MINIMAL_VEHICLE');
+ assert.equal((await db.query('SELECT revoked_at IS NULL AS active FROM public.f05_3a_member_create_licenses WHERE license_id=$1',[g.licenseId])).rows[0].active,true);
  await db.query("UPDATE public.vehicle_listing_cycles SET ended_at=transaction_timestamp() WHERE listing_cycle_id=66081");
  assert.equal((await view(four,65081)).allowed,false);
- const systems=(await db.query("SELECT actor_kind,actor_member_employee_id FROM public.f05_3a_member_trust_audit WHERE license_id IN($1,$2) AND event_kind='SYSTEM_LICENSE_REVOKE'",[one.licenseId,two.licenseId])).rows;
- assert.equal(systems.length,2);assert.ok(systems.every(x=>x.actor_kind==='SYSTEM'&&x.actor_member_employee_id===null));
+ assert.equal((await db.query('SELECT revoked_at IS NULL AS active FROM public.f05_3a_member_create_licenses WHERE license_id=$1',[g.licenseId])).rows[0].active,true);
+ const system=(await db.query("SELECT actor_kind,actor_member_employee_id,actor_context->>'cause' as cause FROM public.f05_3a_member_trust_audit WHERE license_id=$1 AND event_kind='SYSTEM_OBJECT_REVOKE'",[g.licenseId])).rows;
+ assert.equal(system.length,2);assert.ok(system.every(x=>x.actor_kind==='SYSTEM'&&x.actor_member_employee_id===null));
+ assert.deepEqual(system.map(x=>x.cause).sort(),['CYCLE_CHANGED','VEHICLE_CHANGED']);
+ allowed(await revokeMemberCreateLicense(auth,admin,{licenseId:g.licenseId,version:1,eventKey:event('sysadmin-close-remaining-license')}),'F05_3A_LICENSE_REVOKED');
 });
 test('H-A14 real separate PG16 connection employee inactive COMMIT waits for detail read; afterward 403 and restored active never revives',async()=>{
  const g=await grantMemberCreateLicense(auth,admin,{targetEmployeeId:2,eventKey:event('sysadmin-read-versus-inactive')});
