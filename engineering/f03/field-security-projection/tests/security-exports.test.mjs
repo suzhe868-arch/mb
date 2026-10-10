@@ -76,3 +76,19 @@ test('A-P-01-c changing current Team never carries stale vehicle entitlement',as
   assert.equal(r.fields,undefined);
  }
 });
+
+test('A-P-01-d source change may not manufacture business object scope or export permission',async()=>{
+ const old=(await db.query('SELECT source_type,source_sale_status FROM public.vehicles WHERE vehicle_id=39001')).rows[0];
+ try{
+  await db.query("UPDATE public.vehicles SET source_type='mingbang',source_sale_status='available' WHERE vehicle_id=39001");
+  for(const view of ['detail','export','cache'])assert.equal((await projectEmployeeVehicle(auth,token,p(view))).code,'P_VEHICLE_SCOPE_UNPROVEN');
+ }finally{await db.query('UPDATE public.vehicles SET source_type=$1,source_sale_status=$2 WHERE vehicle_id=39001',[old.source_type,old.source_sale_status])}
+});
+test('A-P-01-e personal deny and scope expiration continue to supersede any stale export claim',async()=>{
+ const original=(await db.query('SELECT decision FROM public.employee_permission_overrides WHERE employee_id=5 AND permission_id=12')).rows[0];
+ try{
+  await db.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=5 AND permission_id=12");
+  assert.equal((await projectEmployeeVehicle(auth,token,p('export'))).code,'P_EMPLOYEE_SCOPE_DENY');
+ }finally{await db.query('UPDATE public.employee_permission_overrides SET decision=$1 WHERE employee_id=5 AND permission_id=12',[original.decision])}
+ assert.equal((await projectEmployeeVehicle(auth,token,p('history'))).code,'P_VEHICLE_SCOPE_UNPROVEN');
+});
