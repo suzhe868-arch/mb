@@ -1,7 +1,7 @@
 # F03-2-2N｜B 工程完整自验及 A 独立复验交接
 
 > 日期：2026-10-10（亚洲/新加坡）｜B 工程执行分支 `feat/f03-handover-reconciliation-2n`
-> 状态：**B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A**，须以**本报告自身最终提交 SHA 与最新同 SHA 17/17 PG16 CI 全 success** 为最终生效条件；A 尚未验收或合并。
+> 状态：**B_SELF_TESTED / CI_SCHEDULING_BLOCKED / NOT_READY_FOR_A_REVIEW / NEXT_OWNER=B**。本报告自身最终提交 SHA 的同 SHA 17/17 PG16 CI 尚未取得；A 尚未验收或合并。
 
 ## 一、已签发 Authority 与允许范围
 
@@ -38,4 +38,11 @@ B 交付：新只读 `service.mjs`、真实 CI 专用 `fixtures.mjs`、`tests/in
 
 **仍未完成**：真实 SG06 离职对象全量迁移、所有 batch/items 正式 completed 状态扩展、正式员工失活与权限撤销、公海/退款闭环、线上服务接口以及完整 F03-2/C-H01 高保真和正式上线。产品基线继续为 `NOT_READY`。
 
-**READY_FOR_A_REVIEW / NEXT_OWNER=A**（以上最终同 SHA 门禁全成功后生效）。
+**CI_SCHEDULING_BLOCKED / NOT_READY_FOR_A_REVIEW / NEXT_OWNER=B**。待 GitHub Actions 可正常调度后，B须取得最终 HEAD 同SHA 17/17真正独立成功CI，才能改为 READY_FOR_A_REVIEW / NEXT_OWNER=A。
+
+## 五、最终同 SHA 平台级阻断（不能冒充已通过）
+
+- 当前最后提交前的**真实完整成功**来源为 GitHub Actions #38013071166，受测代码/工作流 SHA `b6a8f85a7cd421466d961061745b269f2f174b27`，17/17 个独立PG16作业 success；该次原始物理证据已由 GitHub Actions 自动追加到 B 分支，且之后只新建 `evidence/**`、`工程说明.md` 和本中文交接，不改一行服务/测试/工作流代码。
+- 新中文交接最终提交 `af51e34c7e2503614195b99580830bcd2d32323d` 的 [Actions #38013280037](https://github.com/suzhe868-arch/mb/actions/runs/38013280037)：首轮和已尝试的第二轮共 34 个作业，**全部在启动执行步骤之前结束为 failure**；GitHub API 的 job.steps 均为空，计费运行时间 0ms，未运行一条新业务测试。相邻一次文档提交的 #38013276380 同样全部作业未进入步骤。
+- 这说明现阶段阻断在 GitHub Actions 作业调度/启动层。**具体原因尚未从 GitHub 取得可信诊断**，不能武断判定是额度、账户配置或代码，也不能据旧 SHA 的绿灯虚报最终同 SHA 17/17。
+- B 本批工程、原始证据和冻结范围已提交且可供 A 预审，但**同 SHA 强门禁未满足**。不得合并 main、开启 2O 或宣布 F03-2/SG06 整体完成；若平台恢复，按现有最终 HEAD 发起/重跑同 SHA 真正17/17成功CI，完成后交 A。
