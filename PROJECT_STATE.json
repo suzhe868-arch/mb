@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A完成F05-1独立验收PR30标准合并：B最终146129d94af0df6570bba7bb17781f1528d00a7c与Actions38056158521同SHA34/34真独立PG16成功、51原生Artifacts/新源9/9+TLS9/9；真实M94 153列99个PK/FK/CHECK查证，Vehicle当前经营scope可信正向数0，七出口继续403。A已正式签发F05-2可信Vehicle责任关系独立隔离PG16增量迁移/现时合法最小Vehicle读与并发权限闭环施工单，由B负责。F05整体/H01/产品基线NOT_READY。",
+  "current_task": "A完成F05-2 PR31首次独立复核：同SHA36/36真PG16/59原生Artifacts、16新增白名单成立；发现4项权限源及竞态阻断并签发完整整改单，PR31不合并，由B原分支一次性整改。",
   "current_work_file": "07_重建工作区/F05-2_A主控Vehicle当前管理责任可信关系增量迁移与真实权限闭环完整施工单_2026-10-10.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F04_3_A_RELEASED_FOR_B_CURRENT_ACTION_API_REGISTRY",
+  "current_review_batch": "F05_2_A_CHANGES_REQUESTED_PR31",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_EXECUTE_F05_2_TRUSTED_VEHICLE_STEWARDSHIP_ADDITIVE_MIGRATION_AND_REAL_SCOPE_36_PG16",
+  "next_action": "B_FIX_F05_2_A_4_SECURITY_BLOCKERS_PR31",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B读取main最新F05-2正式完整施工单07_重建工作区/F05-2_A主控Vehicle当前管理责任可信关系增量迁移与真实权限闭环完整施工单_2026-10-10.md；执行时从最新main建feat/f05-2-vehicle-stewardship-physical-scope，按PDM-02/04/06/21/22/25与当前F03/现行M94及G14独立版本核可信Vehicle当前业务责任来源，不凭上传者、UI source_type/4S角色、客户CRM owner或客户端merchant发经营权限；仅全新隔离非特权PG16允许单独新版本安全增量迁移/历史/签发与撤销，必须产生有源可信合法Vehicle最小业务读取正向与并发/权限/失活负例；不新建4S组织层，不真实生产DDL/账号资金第三方写入，不动旧迁移或冻结代码/Final/IA/Server；冻结旧34独立PG16 jobs加2独立新Job总36/36最后同SHA成功、原生Artifacts、中文交接后交A独立验收。真正产品规则冲突保守阻断单项集中A裁决，B不得自行合并或开F05-3。",
+  "next_action_detail": "B继续feat/f05-2-vehicle-stewardship-physical-scope原分支PR31，按07_重建工作区/F05-2_A主控首次独立复验权限交接与并发闭环完整整改单_2026-10-11.md一次性修正：旧普通销售交接后不得以Team read越权、inactive/重授后旧责任不得复活、人工发布来源不可仅凭created_by+发布时间事后自建可信凭据、权限撤销与读取/交接及source改变需真正两独立PG16连接并发与最后COMMIT守卫；旧34PG16 job全文冻结，最终B/PR/Actions同SHA36/36（或新增必要独立Job）全部绿，原生Artifact与完整中文交接后交A复验；未A接受不合并PR31或施工F05-3，生产/资金/第三方/H01/V1仍NOT_READY。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -6042,8 +6042,8 @@
     "production_ready": false
   },
   "f05_2_gate": {
-    "status": "A_RELEASED_FOR_B",
-    "execution": "B_NOT_STARTED",
+    "status": "A_CHANGES_REQUESTED",
+    "execution": "B_SELF_TESTED_A_REVIEW_FAILED",
     "work_order": "07_重建工作区/F05-2_A主控Vehicle当前管理责任可信关系增量迁移与真实权限闭环完整施工单_2026-10-10.md",
     "branch": "feat/f05-2-vehicle-stewardship-physical-scope",
     "branch_created": false,
@@ -6055,6 +6055,23 @@
     "allow_production": false,
     "allow_real_account_or_money_writes": false,
     "product_baseline": "NOT_READY",
-    "next_owner": "B"
+    "next_owner": "B",
+    "pr": 31,
+    "pr_merged": false,
+    "reviewed_sha": "52078ba41fe205ead1da373bc4bf52fc2610ccd8",
+    "reviewed_ci_run": 38059665296,
+    "ci_success_jobs": 36,
+    "artifacts_count": 59,
+    "source_artifact_id": 11672373434,
+    "tls_artifact_id": 11673021019,
+    "a_review_comment_id": 6099902681,
+    "a_blockers": [
+      "A-F05-2-01",
+      "A-F05-2-02",
+      "A-F05-2-03",
+      "A-F05-2-04"
+    ],
+    "a_correction_order": "07_重建工作区/F05-2_A主控首次独立复验权限交接与并发闭环完整整改单_2026-10-11.md",
+    "production_ready": false
   }
 }
