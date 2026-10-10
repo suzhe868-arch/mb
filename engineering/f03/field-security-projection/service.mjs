@@ -54,6 +54,25 @@ async function employeeAllowed(c,a,team,permission){
  const r=(await c.query("SELECT EXISTS(SELECT 1 FROM public.employees e JOIN public.roles ro ON ro.role_id=e.main_role_id JOIN public.permissions p ON p.permission_code=$3 LEFT JOIN public.role_permission_defaults d ON d.role_id=e.main_role_id AND d.permission_id=p.permission_id LEFT JOIN public.employee_permission_overrides ov ON ov.employee_id=e.employee_id AND ov.permission_id=p.permission_id JOIN public.employee_data_scopes s ON s.employee_id=e.employee_id JOIN public.employee_capability_scope_bindings b ON b.employee_id=e.employee_id AND b.permission_id=p.permission_id AND b.scope_id=s.scope_id JOIN public.teams t ON t.team_id=$2 JOIN public.stores st ON st.store_id=t.store_id LEFT JOIN public.employee_team_memberships em ON em.team_id=t.team_id AND em.employee_id=e.employee_id WHERE e.employee_id=$1 AND e.employment_status='active' AND st.status='active' AND t.team_status='active' AND (ov.decision='allow' OR (ov.decision IS NULL AND d.enabled=true)) AND ov.decision IS DISTINCT FROM 'deny' AND (s.ended_at IS NULL OR s.ended_at>statement_timestamp()) AND b.granted_at<=statement_timestamp() AND (b.ended_at IS NULL OR b.ended_at>statement_timestamp()) AND ((s.scope_kind='team' AND s.scope_reference_id=t.team_id) OR (s.scope_kind='store' AND s.scope_reference_id=t.store_id)) AND em.valid_from<=statement_timestamp() AND (em.ended_at IS NULL OR em.ended_at>statement_timestamp())) ok",[a.employee_id,team,permission])).rows[0];
  return r?.ok===true;
 }
+// Strict current business-vehicle attribution contract (A-P-01).
+// This frozen M94 schema does NOT bind wholesale, Mingbang and 4S vehicle
+// ownership to an authoritative current Team/employee/merchant data scope.
+// The client's teamId, public visibility and the customer's CRM permission
+// are NOT admissible evidence. No synthetic client claim or former account
+// role may substitute for a signed F04/F07 source+ownership contract.
+// Each business outlet is denied rather than inferred from created_by.
+// A future, formally approved implementation must revalidate the actual
+// vehicle-to-Team/4S merchant owner, the current employee data scope,
+// separate per-outlet capability, personal deny, revocation and history.
+async function currentVehicleObjectScope(c,actor,teamId,v,view){
+ const q=await c.query("SELECT source_type,created_by_employee_id FROM public.vehicles WHERE vehicle_id=$1",[v.vehicle_id]);
+ if(q.rows.length!==1||q.rows[0].source_type!==v.source_type)return {proven:false,reason:'VEHICLE_FACT_DRIFT'};
+ // No authoritative relation exists for any of the three types in M94.
+ // Deliberately do NOT permit a staff upload, Team membership, upstream
+ // publisher ID, source_type or an old cache token to grant vehicle access.
+ // All outlets, even customer-display-price-only details, need object scope.
+ return {proven:false,reason:'MISSING_AUTHORITY_VEHICLE_TEAM_MERCHANT'};
+}
 // Every export, cached response and history read re-enters this current-session
 // gate. No 'previously permitted' raw object is accepted as authorization.
 export async function projectEmployeeVehicle(auth,sessionToken,request){
@@ -67,6 +86,14 @@ export async function projectEmployeeVehicle(auth,sessionToken,request){
   if(!fact)return safe('P_VEHICLE_MISSING');
   const {v,price}=fact;
   if(v.platform_visibility!=='visible')return safe('P_HIDDEN_DEFER');
+  // CRM customer viewing is only an identity/scope precondition, not
+  // independent Vehicle object scope nor export/history capability.
+  const ownership=await currentVehicleObjectScope(c,a,request.teamId,v,request.view);
+  if(!ownership.proven)return safe('P_VEHICLE_SCOPE_UNPROVEN',{deferredTo:'F04_F07_SIGNED_OBJECT_OWNERSHIP'});
+  // Future allowed outlets must additionally check their OWN explicit
+  // current capabilities; a CRM read permission never grants business export.
+  if(['export','history','cache','copy','print'].includes(request.view))
+    return safe('P_OUTLET_CAPABILITY_UNPROVEN',{deferredTo:'F04_FORMAL_EXPORT_HISTORY_PERMISSION'});
   // A Priority-exclusive car is not a generic employee/CRM listing.
   const priority=(await c.query("SELECT p.customer_id,d.responsible_employee_id FROM public.priority_leases p JOIN public.demands d ON d.demand_id=p.trigger_demand_id WHERE p.vehicle_id=$1 AND p.listing_cycle_id=$2 AND p.status='active' AND p.ended_at IS NULL AND p.expires_at>clock_timestamp()",[v.vehicle_id,v.listing_cycle_id])).rows;
   if(priority.length>0&&(priority.length!==1||id(priority[0].responsible_employee_id)!==id(a.employee_id)))return safe('P_PRIORITY_EXCLUSIVE_DENY');
