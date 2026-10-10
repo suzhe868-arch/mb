@@ -73,6 +73,44 @@ async function priority(c,actor,team,obj,item){
  return {status:'PRIORITY_DERIVED_ONLY',triggerDemandId:Number(obj.trigger_demand_id),ttlUnmodified:true};
 }
 
+
+/**
+ * A-G-01: Fresh, DB-verified origin+all subsequent domain receipts.
+ * This is a read-only fact check inside the CALLER's existing PG transaction.
+ * It does not assume the current responsible is the recipient in the original
+ * SG06 batch; legitimate subsequent domain receipts are verified in sequence.
+ * No user-entered owner, callback, role claim or new schema is trusted.
+ */
+export async function verifyLiveHandoverChain(c,item,originalTeamId){
+ if(!item||!Object.hasOwn(domain,item.object_kind)&&item.object_kind!=='Priority'||!/^[1-9][0-9]{0,17}$/.test(item.object_id)||item.status!=='completed')return {ok:false,code:'G_LIVE_ITEM_INVALID'};
+ if(item.object_kind!=='Priority'){
+  const d=domain[item.object_kind];
+  const obj=(await c.query('SELECT * FROM public.'+d[2]+' WHERE '+d[1]+'=$1',[item.object_id])).rows[0];
+  if(!obj)return {ok:false,code:'G_LIVE_OBJECT_MISSING'};
+  const result=await proof(c,item.object_kind,obj,item,originalTeamId);
+  if(result.status!=='PROVEN_RECEIPT')return {ok:false,code:'G_LIVE_CHAIN_UNPROVEN',detail:result.status};
+  return {ok:true,code:'G_LIVE_CHAIN_PROVEN',receiptId:result.receiptId};
+ }
+ const lease=(await c.query('SELECT * FROM public.priority_leases WHERE priority_id=$1',[item.object_id])).rows[0];
+ const now=(await c.query('SELECT clock_timestamp() now')).rows[0].now;
+ if(!lease||lease.status!=='active'||lease.ended_at!==null||lease.expires_at<=now||lease.trigger_demand_id===null)return {ok:false,code:'G_PRIORITY_INVALID'};
+ const matching=(await c.query("SELECT * FROM public.demand_match_results WHERE result_id=$1",[lease.source_match_result_id])).rows[0];
+ if(!matching||String(matching.demand_id)!==String(lease.trigger_demand_id)||String(matching.vehicle_id)!==String(lease.vehicle_id)||String(matching.listing_cycle_id)!==String(lease.listing_cycle_id)||matching.current_state!=='current'||matching.invalidated_at!==null||!['high','acceptable'].includes(matching.match_tier))return {ok:false,code:'G_PRIORITY_MATCH_INVALID'};
+ const d=(await c.query('SELECT * FROM public.demands WHERE demand_id=$1',[lease.trigger_demand_id])).rows[0];
+ if(!d||d.demand_state!=='active'||String(d.customer_id)!==String(lease.customer_id))return {ok:false,code:'G_PRIORITY_DEMAND_INVALID'};
+ const employee=(await c.query('SELECT employment_status FROM public.employees WHERE employee_id=$1',[d.responsible_employee_id])).rows[0];
+ if(employee?.employment_status!=='active')return {ok:false,code:'G_PRIORITY_EMPLOYEE_INVALID'};
+ const itemRows=(await c.query("SELECT * FROM public.handover_items WHERE batch_id=$1 AND object_kind='Demand' AND object_id=$2 AND from_employee_id=$3 AND intended_to_employee_id=$4",[item.batch_id,String(lease.trigger_demand_id),item.from_employee_id,item.intended_to_employee_id])).rows;
+ if(itemRows.length!==1||itemRows[0].status!=='completed')return {ok:false,code:'G_PRIORITY_ORIGINAL_DEMAND_ITEM'};
+ const receipts=(await c.query('SELECT * FROM public.demand_responsible_handover_receipts WHERE batch_id=$1 AND item_id=$2',[item.batch_id,itemRows[0].item_id])).rows;
+ if(receipts.length!==1||String(receipts[0].customer_id)!==String(lease.customer_id)||String(receipts[0].scope_team_id)!==String(originalTeamId)||String(receipts[0].from_employee_id)!==String(item.from_employee_id)||String(receipts[0].to_employee_id)!==String(item.intended_to_employee_id))return {ok:false,code:'G_PRIORITY_ORIGINAL_DEMAND_RECEIPT'};
+ const verified=await proof(c,'Demand',d,itemRows[0],receipts[0].scope_team_id);
+ if(verified.status!=='PROVEN_RECEIPT')return {ok:false,code:'G_PRIORITY_DEMAND_CHAIN_UNPROVEN',detail:verified.status};
+ // Demand proof's last verified receipt recipient is the CURRENT responsible.
+ // Priority has no separate owner/transfer/TTL update and must follow Demand.
+ return {ok:true,code:'G_PRIORITY_DERIVED_CHAIN_PROVEN',triggerDemandId:Number(lease.trigger_demand_id)};
+}
+
 const kinds={Customer:['customers','customer_id','account_status',s=>s.account_status==='active'],Demand:['demands','demand_id','demand_state',s=>s.demand_state==='active'||s.demand_state==='paused'],Consultation:['consultations','consultation_id','status',s=>['pending','processing'].includes(s.status)],Waitlist:['waitlists','waitlist_id','ended_at',s=>s.ended_at===null],Lock:['locks','lock_id','lock_status',s=>s.lock_status==='active'&&s.expires_at>new Date()],Transaction:['transactions','transaction_id','status',s=>s.status==='in_progress'],Priority:['priority_leases','priority_id','status',s=>s.status==='active'&&s.ended_at===null&&s.expires_at>new Date()]};
 async function scopeFor(c,a,team,source,recipient){
  const permission='employee.manage';
