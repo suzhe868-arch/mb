@@ -15,3 +15,9 @@ P2-03	personal deny	当下权限拒绝	测试实现	F03治理
 P2-04	capability ended	旧缓存/导出失效	测试实现	F04跨端缓存
 P2-05	员工inactive	旧会话不能敏感读取	测试实现	G复职撤权
 P2-06	跨Team及伪cache claim	拒绝越权旧断言	测试实现	F04真实多端
+
+A-P-01-a	合法CRM Team但批发/名邦/4S对象归属缺失	全部员工业务出口P_VEHICLE_SCOPE_UNPROVEN且fields不存在	新增真实PG16负例	F04/F07 Vehicle真实归属映射
+A-P-01-b	M94 source/创建员工非权威归属	禁止生成合成Employee正例或伪签名	新增真实PG16负例	独立Vehicle数据域与操作权限
+A-P-01-c	切换合法或非法teamId	绝不借用旧Team访问对象	新增真实PG16负例	F04当前Team/员工/对象作用域
+A-P-01-d	业务source_type变化	不扩张车辆读出/导出	新增真实PG16负例	F07来源归属再校验
+A-P-01-e	personal deny和缓存	当前撤权优先，不返敏感DTO	新增真实PG16负例	F04缓存生命周期
