@@ -4,8 +4,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {connect,verify as verifyM94} from '../../../f03/runtime-transaction-responsible-handover/migration.mjs';
 import {F04_ROUTE_CONTRACTS,createF04ContractHandler} from '../safe-router.mjs';
-const root=new URL('../../../',import.meta.url);
-const oldSource=readFileSync(new URL('../../../09_历史工程资产基线/01_ENGINEERING_STARTER_LEGACY/packages/contracts/openapi.yaml',import.meta.url),'utf8');
+const oldSource=readFileSync(new URL('../../../../09_历史工程资产基线/01_ENGINEERING_STARTER_LEGACY/packages/contracts/openapi.yaml',import.meta.url),'utf8');
 const tsv=name=>{
  const [head,...rest]=readFileSync(new URL('../'+name,import.meta.url),'utf8').trimEnd().split('\n');
  const cols=head.split('\t');
@@ -31,9 +30,8 @@ test('F04-I02 all 218 original method+path rows have exact source line and no in
   assert.ok(line>10&&line<=sourceLines.length);
   assert.equal(sourceLines[line-1].trim(),row.http_method.toLowerCase()+':');
   let located=false;
-  for(let k=line-2;k>=0&&k>line-15;k--){
-    if(sourceLines[k]==='  '+row.legacy_path+':'){located=true;break;}
-    if(/^    (get|post|put|patch|delete):/.test(sourceLines[k]))break;
+  for(let k=line-2;k>=0;k--){
+    if(/^  \/[^:]*:\s*$/.test(sourceLines[k])){located=sourceLines[k]==='  '+row.legacy_path+':';break;}
   }
   assert.ok(located,'PROVENANCE_PATH_LINE_ERROR '+row.legacy_id);
   assert.equal(row.current_stage,'CONTRACT_ONLY');
