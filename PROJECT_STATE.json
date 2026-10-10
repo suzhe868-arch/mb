@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F03_V_A_ACCEPTED_MERGED_PR25_F03_TECHNICAL_SYNTHETIC_SCOPE_ACCEPTED_F04_1_A_RELEASED_NEXT_OWNER_B",
+  "substage": "F03_V_A_ACCEPTED_MERGED_PR25_F04_1_B_READY_CI26_A_CHANGES_REQUESTED_NEXT_OWNER_B",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "GLOBAL_POST_PDM25",
-  "current_domain_status": "F03_TECHNICAL_SYNTHETIC_SCOPE_ACCEPTED_BUSINESS_DEPENDENCIES_OPEN_F04_1_A_RELEASED",
+  "current_domain_status": "F03_SYNTHETIC_SCOPE_ACCEPTED_F04_1_A_CHANGES_REQUESTED_PR26_NOT_MERGED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F03工作包V已由A独立验收，受检B SHA 2ee8c0327b7e59792cf22e908b12d780494fa3a5 同SHA真实PG16 CI38027132087 24/24成功；PR25标准合并SHA 1a0f0d85eb6cc7d120d754fc82d1a4131f3b653e。V59条逐项真实核账，原3项F03_STILL_OPEN经A裁为F04/F05后续正向业务OPEN_DEPENDENCY、仍硬拒。正式签发F04-1接口旧218条证据核账/安全HTTP受限路由/新旧26独立PG16完整施工单，下一B实施。仅F03隔离技术范围通过，F04全业务和C/H01仍未验收，产品NOT_READY。",
-  "current_work_file": "07_重建工作区/F04-1_A主控接口合同与安全路由启动完整施工单_2026-10-10.md",
+  "current_task": "F04-1 B最终SHA cb5a96699a4b93bc42dc0f81188c22ee8d5b49c7同SHA真实CI38029582060 26/26独立PG16成功，但A独立审查发现A-F04-01旧OpenAPI路径198/218而B只记录136条distinct路径，62条包含冒号path错归；A-F04-02旧Collector禁止恢复三接口被统一MODIFY误分类，旧218缺Current IA/PDM逐行权威未证；A-F04-03本人客户最小正向HTTP未证明目标Customer对象与当前data scope绑定。PR26暂不通过未合并，正式整改单落main，B原分支一次性整改并取最新同SHA CI26/26重新交A。产品与C/H01保持NOT_READY。",
+  "current_work_file": "07_重建工作区/F04-1_A主控首次独立审查与接口溯源权限证明完整定向整改单_2026-10-10.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F04_1_A_RELEASED_FOR_B",
+  "current_review_batch": "F04_1_A_CHANGES_REQUESTED_A_F04_01_02_03",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_EXECUTE_F04_1_CONTRACT_SAFE_HTTP_26_INDEPENDENT_PG16_JOBS_READY_FOR_A",
+  "next_action": "B_RECTIFY_F04_1_PR26_SAME_BRANCH_26_GENUINE_PG16_JOBS_READY_FOR_A",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F03_V_A_ACCEPTED_MERGED_PR25_F04_1_A_RELEASED_B_NOT_STARTED",
+  "engineering_status": "F04_1_A_CHANGES_REQUESTED_PR26_NOT_MERGED_NEXT_OWNER_B",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B在最新main基于feat/f04-1-contract-safety-gate从F04-1 A主控完整施工单一次性完成旧218接口原始来源可追溯核账（不存在的原始接口必须SOURCE_GAP不得编造）、Current IA/Low-Fi真正DTO及权限合同、隔离CI-only真实PG16 HTTP安全路由与三主体对象scope/撤权/硬拒、F05～F07及H03/H04消费合同。只能新建engineering/f04/contract-gate/**和专用CI，必要时对engineering/src/app.mjs作极小handler注入，严禁修改旧F03迁移/服务及生产配置；旧24个独立PG16加F04自有2独立PG16共26/26同最终B SHA成功、完整反向自审和原生证据后交A独立验收。不得自并main或宣称F04、产品已完成。",
+  "next_action_detail": "B在feat/f04-1-contract-safety-gate原分支完成一次性A-F04-01至03整改：修正旧OpenAPI 198个真实path/218个method+path，62条冒号path错归清零并增加独立验真测试；按Current IA/Final真实权限禁恢复分类Collector连接GET/PATCH/TEST为RETIRE，未核实逐行Authority标UNREVIEWED_SOURCE_GAP不冒充MODIFY；本人Customer当前owner正向读必须证明目标对象当前data scope，否则保持DENY/OPEN_DEPENDENCY，并补跨Team/store/个人deny/撤权真实PG16+HTTP正反例。冻结旧F03服务/迁移/CI，保留旧24+新2共26/26各自独立非特权PG16同最终新HEAD成功及原生目录和中文交接后READY_FOR_A_REVIEW交A。PR26未合并不得自行合并或进入F04-2。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -4809,7 +4809,7 @@
       "owner": "B",
       "branch": "feat/f04-1-contract-safety-gate",
       "active_work_order": "07_重建工作区/F04-1_A主控接口合同与安全路由启动完整施工单_2026-10-10.md",
-      "execution_status": "F04_1_A_RELEASED_B_NOT_STARTED"
+      "execution_status": "F04_1_A_CHANGES_REQUESTED_PR26_NOT_MERGED"
     },
     "design": {
       "owner": "C",
@@ -5861,17 +5861,28 @@
     "production_ready": false
   },
   "f04_1_gate": {
-    "status": "A_RELEASED_FOR_B",
+    "status": "A_CHANGES_REQUESTED",
     "work_order": "07_重建工作区/F04-1_A主控接口合同与安全路由启动完整施工单_2026-10-10.md",
     "branch": "feat/f04-1-contract-safety-gate",
     "branch_created": false,
-    "execution": "B_NOT_STARTED",
+    "execution": "B_REVIEWED_CHANGES_REQUESTED_SAME_BRANCH",
     "ci_required": "26_INDEPENDENT_GENUINE_PG16_JOBS_SAME_FINAL_SHA",
     "white_list": [
       "engineering/f04/contract-gate/**",
       ".github/workflows/f04-1-contract-gate.yml",
       "engineering/src/app.mjs ONLY OPTIONAL_HANDLER_INJECTION"
     ],
-    "production_ready": false
+    "production_ready": false,
+    "pr": 26,
+    "reviewed_sha": "cb5a96699a4b93bc42dc0f81188c22ee8d5b49c7",
+    "reviewed_ci_run": 38029582060,
+    "reviewed_ci_success_jobs": 26,
+    "a_report": "07_重建工作区/F04-1_A主控首次独立审查与接口溯源权限证明完整定向整改单_2026-10-10.md",
+    "a_blockers": [
+      "A-F04-01_OPENAPI_62_COLON_PATH_MISMATCH",
+      "A-F04-02_218_ALL_MODIFY_INCLUDING_FORBIDDEN_COLLECTOR",
+      "A-F04-03_CUSTOMER_OBJECT_SCOPE_PROOF_MISSING"
+    ],
+    "pr_merged": false
   }
 }
