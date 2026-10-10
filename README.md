@@ -1,3 +1,12 @@
+# 2026-10-10｜F04-1 A二轮独立验收通过、PR26正式合并；F04-2完整施工单已正式放行B（唯一当前最新）
+
+- **F04-1最终验收且标准合并完成**：PR [#26](https://github.com/suzhe868-arch/mb/pull/26) 受检B HEAD `6af50664ec230f11caf62c73562449069d086b15`；同SHA真实[Actions 38031443210](https://github.com/suzhe868-arch/mb/actions/runs/38031443210) **26/26独立非特权PG16 job全部成功**（旧24+F04-1 2），新F04 Route-security原始HTTPS日志 **20/20**、Contracts-inventory原始PG16日志 **10/10**，33份run原始Artifacts；合并SHA **`20479f3712a5aaa862f7db4378d8db2369695d79`**，已实查PR `closed / merged=true`。A正式复验：`07_重建工作区/F04-1_A主控二轮独立验收PR26正式合并与下一阶段归属_2026-10-10.md`。F04-1仅**隔离CI合同/安全路由**子批签收，并非218历史API上线或F04全阶段通过。
+- **三项前轮阻断已由A独立关闭**：A-F04-01源OpenAPI**198真实paths/218 method+path/62含冒号paths**全与新台账匹配，0来源路径误归，独立严格Parser+结构反例；A-F04-02旧Collector连接GET/PATCH/TEST三条`RETIRE/FORBIDDEN`，其余215个旧候选**`UNREVIEWED_SOURCE_GAP`**，没有伪装成Final批准可改/可用；A-F04-03`crm.customer.view`当前独立能力＋目标**Customer exact object scope**＋current owner＋有效Session/Role个人deny才可隔离读取最小customerId，真PG16/TLS的owner变更、越Team、越界/撤权/跨店测试通过；无合法目标scope则403。
+- **A正式放行下一个完整B工程包F04-2**：工作单`07_重建工作区/F04-2_A主控现行215接口Authority映射与4S账号安全控制前置完整施工单_2026-10-10.md`；工作分支`feat/f04-2-authority-route-mapping`，由B从开始时最新main创建。F04-2A逐行按真实Current IA/Low-Fi/PDM映射215历史候选，证据缺口须标明不能编造；F04-2B在CI-only真实PG16/HTTPS做System Admin→4S账号控制面**只读资格/身份预检，业务修改硬禁**；F04-2C全链28个独立真实PG16 jobs（冻结旧26+新2），B负责一次性实施/测试/自审/证据交A；**本次A只签发，未宣布B分支已建或B已施工**。
+- **NEXT_OWNER=B / NEXT_TASK=F04_2_CURRENT_AUTHORITY_MAPPING_AND_4S_PRECHECK**；禁止B自行合并、擅改旧F03/F04-1或PDM、未授权生产/微信/JYT/资金与F04-3。剩余215项Current Authority、F04实际4S治理和CRM、F05～F07真实业务、C/H01高保真及三端UAT仍待后续真实实现/验收；`PRODUCT_BASELINE_STATUS=NOT_READY`。本段覆盖以下F04-1“待B整改”的历史指针（不删除旧证据）。
+
+---
+
 # 2026-10-10｜F04-1 B自验26/26通过，但A独立审查发现三项接口来源与对象权限证明阻断（当前唯一最新）
 
 - **本轮B交审事实保留**：指定`feat/f04-1-contract-safety-gate`分支受检HEAD `cb5a96699a4b93bc42dc0f81188c22ee8d5b49c7`，真实同SHA[Actions 38029582060](https://github.com/suzhe868-arch/mb/actions/runs/38029582060) `26/26`独立PG16 `completed/success`（冻结旧24+F04新增2），新HTTP 15/15、Inventory 7/7，10个新增文件严格白名单，未改旧F03服务/迁移/CI；当前B仅`READY_FOR_A_REVIEW`，**不等于A验收成功**。
