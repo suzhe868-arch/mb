@@ -122,19 +122,37 @@ test('H-A10 account disabled/restored and employment inactive/active cannot rest
  await db.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=2");
  assert.equal((await view(four,65051)).allowed,false);
 });
-test('H-A11 genuine double-connection license REVOKE waits for publisher COMMIT and denies only after revoke COMMIT',async()=>{
+test('H-A11 two independent PG16 sessions prove license revocation is physically blocked before publisher COMMIT',async()=>{
  const g=await grantMemberCreateLicense(auth,admin,{targetEmployeeId:2,eventKey:event('sysadmin-concurrency-issue')});
  allowed(g,'F05_3A_LICENSE_GRANTED');
- let signal,release;const locked=new Promise(r=>signal=r),hold=new Promise(r=>release=r);
- const publication=publishNewFourSMemberVehicle(auth,four,candidate(65061),{testCheckpoint:async(label)=>{assert.equal(label,'after_license_locked');signal();await hold}});
+ let signal,release,ownerPid;const locked=new Promise(r=>signal=r),hold=new Promise(r=>release=r);
+ const publication=publishNewFourSMemberVehicle(auth,four,candidate(65061),{testCheckpoint:async(label,c)=>{
+  assert.equal(label,'after_license_locked');
+  ownerPid=Number((await c.query('SELECT pg_backend_pid() AS pid')).rows[0].pid);
+  signal();await hold;
+ }});
  await locked;
- let revoked=false;
- const revocation=revokeMemberCreateLicense(auth,admin,{licenseId:g.licenseId,version:1,eventKey:event('sysadmin-concurrency-revoke')}).then(x=>{revoked=true;return x});
- assert.equal(revoked,false,'must not observe future revocation while own current permission is locked');
- release();
+ const contender=await connect();
+ try{
+  const contenderPid=Number((await contender.query('SELECT pg_backend_pid() AS pid')).rows[0].pid);
+  assert.notEqual(contenderPid,ownerPid,'two actual independent non-privileged PG16 backends');
+  await contender.query('BEGIN');
+  await contender.query("SET LOCAL lock_timeout = '250ms'");
+  await assert.rejects(
+   ()=>contender.query("UPDATE public.f05_3a_member_create_licenses SET revoked_at=transaction_timestamp(),version=version+1 WHERE license_id=$1 AND revoked_at IS NULL",[g.licenseId]),
+   e=>e?.code==='55P03'
+  ,'governance UPDATE must reach PG16 row lock wait and timeout before publication commits');
+ }finally{
+  await contender.query('ROLLBACK').catch(()=>{});
+  await contender.end();
+  release();
+ }
  allowed(await publication,'F05_3A_MEMBER_VEHICLE_ISSUED');
- allowed(await revocation,'F05_3A_LICENSE_REVOKED');
+ const revocation=await revokeMemberCreateLicense(auth,admin,{licenseId:g.licenseId,version:1,eventKey:event('sysadmin-concurrency-revoke')});
+ allowed(revocation,'F05_3A_LICENSE_REVOKED');
  assert.equal((await view(four,65061)).allowed,false);
+ const state=(await db.query('SELECT revoked_at IS NOT NULL AS revoked FROM public.f05_3a_member_publications WHERE vehicle_id=65061')).rows[0];
+ assert.equal(state.revoked,true,'AFTER governance commit publication is irreversibly revoked');
 });
 test('H-A12 audit immutable and cannot spoof system-auto as 4S human or system_admin',async()=>{
  const row=(await db.query('SELECT audit_id FROM public.f05_3a_member_trust_audit ORDER BY audit_id LIMIT 1')).rows[0];
@@ -160,22 +178,75 @@ test('H-A13 vehicle source switch or cycle end revokes ONLY this object; same 4S
  assert.deepEqual(system.map(x=>x.cause).sort(),['CYCLE_CHANGED','VEHICLE_CHANGED']);
  allowed(await revokeMemberCreateLicense(auth,admin,{licenseId:g.licenseId,version:1,eventKey:event('sysadmin-close-remaining-license')}),'F05_3A_LICENSE_REVOKED');
 });
-test('H-A14 real separate PG16 connection employee inactive COMMIT waits for detail read; afterward 403 and restored active never revives',async()=>{
+test('H-A14 two PG16 backends prove in-flight detail FOR SHARE blocks real employee inactive COMMIT',async()=>{
  const g=await grantMemberCreateLicense(auth,admin,{targetEmployeeId:2,eventKey:event('sysadmin-read-versus-inactive')});
  allowed(g,'F05_3A_LICENSE_GRANTED');
  allowed(await publishNewFourSMemberVehicle(auth,four,candidate(65091)),'F05_3A_MEMBER_VEHICLE_ISSUED');
- let enter,release;const reached=new Promise(r=>enter=r),hold=new Promise(r=>release=r);
+ let enter,release,readerPid;const reached=new Promise(r=>enter=r),hold=new Promise(r=>release=r);
  const viewFirst=readFourSMemberMinimalVehicle(auth,four,{vehicleId:65091,outlet:'detail'},{
-  testCheckpoint:async(label)=>{assert.equal(label,'owned_object_locked');enter();await hold}
+  testCheckpoint:async(label,c)=>{
+   assert.equal(label,'owned_object_locked');
+   readerPid=Number((await c.query('SELECT pg_backend_pid() AS pid')).rows[0].pid);
+   enter();await hold;
+  }
  });
  await reached;
- let committed=false;
- const writer=db.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=2").then(x=>{committed=true;return x});
- assert.equal(committed,false);
- release();
+ const writer=await connect();
+ try{
+  assert.notEqual(Number((await writer.query('SELECT pg_backend_pid() AS pid')).rows[0].pid),readerPid);
+  await writer.query('BEGIN');
+  await writer.query("SET LOCAL lock_timeout = '250ms'");
+  await assert.rejects(
+   ()=>writer.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=2"),
+   e=>e?.code==='55P03'
+  ,'inactive SQL must actually wait for the detail transaction row lock');
+ }finally{
+  await writer.query('ROLLBACK').catch(()=>{});
+  await writer.end();
+  release();
+ }
  allowed(await viewFirst,'F05_3A_MEMBER_MINIMAL_VEHICLE');
- await writer;
- assert.equal((await view(four,65091)).allowed,false);
+ const committed=await connect();
+ try{
+  await committed.query('BEGIN');
+  await committed.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=2");
+  await committed.query('COMMIT');
+ }catch(e){await committed.query('ROLLBACK').catch(()=>{});throw e}finally{await committed.end()}
+ assert.equal((await view(four,65091)).allowed,false,'AFTER separate actual governance COMMIT access is denied');
  await db.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=2");
- assert.equal((await view(four,65091)).allowed,false);
+ assert.equal((await view(four,65091)).allowed,false,'rehire never resurrects revoked license');
+});
+
+test('H-A15 composite license-member FK and source identity cannot be transferred to another 4S subject',async()=>{
+ const mine=await grantMemberCreateLicense(auth,admin,{targetEmployeeId:2,eventKey:event('my-bound-license-signed')});
+ const theirs=await grantMemberCreateLicense(auth,admin,{targetEmployeeId:8,eventKey:event('other-bound-license-signed')});
+ allowed(mine,'F05_3A_LICENSE_GRANTED');allowed(theirs,'F05_3A_LICENSE_GRANTED');
+ allowed(await publishNewFourSMemberVehicle(auth,four,candidate(65101)),'F05_3A_MEMBER_VEHICLE_ISSUED');
+ assert.equal((await view(other,65101)).allowed,false);
+ await assert.rejects(()=>db.query("UPDATE public.f05_3a_member_publications SET member_employee_id=8 WHERE vehicle_id=65101"),/F05_3A_PUBLICATION_PROVENANCE_IMMUTABLE/);
+ await assert.rejects(()=>db.query('UPDATE public.f05_3a_member_publications SET license_id=$1 WHERE vehicle_id=65101',[theirs.licenseId]),/F05_3A_PUBLICATION_PROVENANCE_IMMUTABLE/);
+ await assert.rejects(()=>db.query('UPDATE public.vehicles SET created_by_employee_id=8 WHERE vehicle_id=65101'),/F05_3A_SIGNED_VEHICLE_CREATOR_IMMUTABLE/);
+ await assert.rejects(()=>db.query('UPDATE public.f05_3a_member_create_licenses SET employee_id=8 WHERE license_id=$1',[mine.licenseId]),/F05_3A_LICENSE_PROVENANCE_IMMUTABLE/);
+ const fk=(await db.query("SELECT count(*)::int AS n FROM pg_constraint WHERE conrelid='public.f05_3a_member_publications'::regclass AND conname='f05_3a_publication_license_owner_fk' AND contype='f' AND array_length(conkey,1)=2")).rows[0];
+ assert.equal(fk.n,1,'PG16 must enforce BOTH license_id and signed employee_id');
+ // A mismatched pair on a fresh disposable object is rejected by PG16, not API validation.
+ await db.query('BEGIN');
+ try{
+  await db.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,created_by_employee_id,formally_published_at,model_id) VALUES(65111,'four_s','available','visible',8,transaction_timestamp(),97003)");
+  await db.query('INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES(66111,65111,transaction_timestamp())');
+  await assert.rejects(()=>db.query("INSERT INTO public.f05_3a_member_publications(vehicle_id,listing_cycle_id,license_id,member_employee_id,trusted_event_key,brand_id,series_id,model_id,model_year,mileage_km,city) VALUES(65111,66111,$1,8,$2,97001,97002,97003,2026,1000,'Suzhou')",[mine.licenseId,event('forged-license-member-binding')]),e=>e?.code==='23503');
+ }finally{await db.query('ROLLBACK')}
+ assert.equal((await view(other,65101)).allowed,false);
+ allowed(await view(four,65101),'F05_3A_MEMBER_MINIMAL_VEHICLE');
+});
+
+test('H-A16 revoked licenses, publications and versions are physically irreversible in PostgreSQL',async()=>{
+ const revoked=(await db.query('SELECT revoked_at,version FROM public.f05_3a_member_create_licenses WHERE license_id=$1',[first])).rows[0];
+ assert.notEqual(revoked.revoked_at,null);
+ await assert.rejects(()=>db.query('UPDATE public.f05_3a_member_create_licenses SET revoked_at=NULL,version=version+1 WHERE license_id=$1',[first]),/F05_3A_LICENSE_REVOCATION_IRREVERSIBLE/);
+ await assert.rejects(()=>db.query('UPDATE public.f05_3a_member_create_licenses SET version=1 WHERE license_id=$1',[first]),/F05_3A_LICENSE_REVOCATION_IRREVERSIBLE/);
+ await assert.rejects(()=>db.query('UPDATE public.f05_3a_member_publications SET revoked_at=NULL,version=version+1 WHERE vehicle_id=65031'),/F05_3A_PUBLICATION_REVOCATION_IRREVERSIBLE/);
+ await assert.rejects(()=>db.query('UPDATE public.f05_3a_member_publications SET version=1 WHERE vehicle_id=65031'),/F05_3A_PUBLICATION_REVOCATION_IRREVERSIBLE/);
+ assert.equal((await view(four,65031)).allowed,false);
+ assert.equal((await view(other,65031)).allowed,false);
 });
