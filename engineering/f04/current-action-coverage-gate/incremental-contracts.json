@@ -1,0 +1,325 @@
+{
+  "version": "F04_4_INCREMENTAL_CI_ONLY",
+  "actions": [
+    {
+      "id": "F04_4_LOCKREQUEST_APPROVE_FINAL",
+      "intent": "LOCKREQUEST_APPROVE_FINAL",
+      "actor": "EMPLOYEE",
+      "resource": "LockRequest",
+      "domain": "PDM-18",
+      "owner": "F06",
+      "field": "lockRequestId",
+      "method": "POST",
+      "path": "/__ci__/current/v1/coverage/lockrequests/approve-pending",
+      "source_page": "E07-M04",
+      "target_page": "E07-01",
+      "pdm_path": "07_重建工作区/PDM-18_最终完整规则.md",
+      "pdm_line": 80,
+      "pdm_quote": "LockRequest approve/reject 属于名邦内部受控业务动作。",
+      "nav_path": "03_证据_C_IA_V5_Current/04_LOW_FI_NAVIGATION_REGISTER.md",
+      "nav_line": 248,
+      "nav_quote": "| E07-M04 | 确认同意 | E07-01 | final submit revalidates PENDING/6h/identity/capability/scope/customer/vehicle/listing_cycle/current lockability/active Lock/idempotency; success atomically creates Lock and sets APPROVED; conflict follows PDM-18 LOCK_CONFLICT→Waitlist rule |",
+      "state_guard": "final submit revalidates PENDING/6h/identity/capability/scope/customer/vehicle/listing_cycle/current lockability/active Lock/idempotency; success atomically creates Lock and sets APPROVED; conflict follows PDM-18 LOCK_CONFLICT→Waitlist rule",
+      "status": "CI_ONLY_PROPOSED_NOT_PRODUCTION",
+      "customer_auth": "NONE_IN_NEW_CANDIDATES",
+      "scope": "DEPENDENCY_BLOCKED",
+      "dto_body": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "lockRequestId": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "lockRequestId"
+        ]
+      },
+      "response_codes": {
+        "403": "F04_4_AUTH_OR_SCOPE_DENIED",
+        "501": "F04_4_DOMAIN_DEPENDENCY_BLOCKED"
+      }
+    },
+    {
+      "id": "F04_4_LOCKREQUEST_REJECT_FINAL",
+      "intent": "LOCKREQUEST_REJECT_FINAL",
+      "actor": "EMPLOYEE",
+      "resource": "LockRequest",
+      "domain": "PDM-18",
+      "owner": "F06",
+      "field": "lockRequestId",
+      "method": "POST",
+      "path": "/__ci__/current/v1/coverage/lockrequests/reject-pending",
+      "source_page": "E07-M05",
+      "target_page": "E07-08",
+      "pdm_path": "07_重建工作区/PDM-18_最终完整规则.md",
+      "pdm_line": 71,
+      "pdm_quote": "- `REJECTED`：合法员工明确拒绝；",
+      "nav_path": "03_证据_C_IA_V5_Current/04_LOW_FI_NAVIGATION_REGISTER.md",
+      "nav_line": 251,
+      "nav_quote": "| E07-M05 | 确认拒绝 | E07-08 | final submit revalidates PENDING and current actor authority/scope; set REJECTED; create no Lock/Waitlist |",
+      "state_guard": "final submit revalidates PENDING and current actor authority/scope; set REJECTED; create no Lock/Waitlist",
+      "status": "CI_ONLY_PROPOSED_NOT_PRODUCTION",
+      "customer_auth": "NONE_IN_NEW_CANDIDATES",
+      "scope": "DEPENDENCY_BLOCKED",
+      "dto_body": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "lockRequestId": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "lockRequestId"
+        ]
+      },
+      "response_codes": {
+        "403": "F04_4_AUTH_OR_SCOPE_DENIED",
+        "501": "F04_4_DOMAIN_DEPENDENCY_BLOCKED"
+      }
+    },
+    {
+      "id": "F04_4_VEHICLE_SOURCE_TYPE_EDIT",
+      "intent": "VEHICLE_SOURCE_TYPE_EDIT",
+      "actor": "EMPLOYEE",
+      "resource": "Vehicle",
+      "domain": "PDM-06",
+      "owner": "F05",
+      "field": "vehicleId",
+      "method": "PATCH",
+      "path": "/__ci__/current/v1/coverage/vehicles/source-type-change",
+      "source_page": "E02-05 / P02-07",
+      "target_page": "P02-07",
+      "pdm_path": "07_重建工作区/PDM-06_最终完整规则.md",
+      "pdm_line": 347,
+      "pdm_quote": "- 修改后按新 source_type 重算当前权限与责任；",
+      "nav_path": "03_证据_C_IA_V5_Current/04_LOW_FI_NAVIGATION_REGISTER.md",
+      "nav_line": 234,
+      "nav_quote": "| E02-05 / P02-07 | 修改 source_type | E02-01 / P02-07 | REF_GUARD[SOURCE_TYPE]；local_ui_fact=corresponding vehicle edit permission and scope; preserve vehicle_id/cycle/history; immediately recompute responsibility, editable fields and visibility from new source_type |",
+      "state_guard": "REF_GUARD[SOURCE_TYPE]；local_ui_fact=corresponding vehicle edit permission and scope; preserve vehicle_id/cycle/history; immediately recompute responsibility, editable fields and visibility from new source_type",
+      "status": "CI_ONLY_PROPOSED_NOT_PRODUCTION",
+      "customer_auth": "NONE_IN_NEW_CANDIDATES",
+      "scope": "DEPENDENCY_BLOCKED",
+      "dto_body": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "vehicleId": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "vehicleId"
+        ]
+      },
+      "response_codes": {
+        "403": "F04_4_AUTH_OR_SCOPE_DENIED",
+        "501": "F04_4_DOMAIN_DEPENDENCY_BLOCKED"
+      }
+    },
+    {
+      "id": "F04_4_VEHICLE_DELIST",
+      "intent": "VEHICLE_DELIST",
+      "actor": "EMPLOYEE",
+      "resource": "Vehicle",
+      "domain": "PDM-04",
+      "owner": "F05",
+      "field": "vehicleId",
+      "method": "POST",
+      "path": "/__ci__/current/v1/coverage/vehicles/delist-current-cycle",
+      "source_page": "E02-01",
+      "target_page": "E02-01",
+      "pdm_path": "07_重建工作区/PDM-04_最终完整规则.md",
+      "pdm_line": 260,
+      "pdm_quote": "## 7. hidden 与真实下架严格分离",
+      "nav_path": "03_证据_C_IA_V5_Current/04_LOW_FI_NAVIGATION_REGISTER.md",
+      "nav_line": 227,
+      "nav_quote": "| E02-01 | 真实下架 | E02-01 / P02-07 | REF_GUARD[DELIST_RELIST]；local_ui_fact=authorized vehicle action; end current listing_cycle and public availability; hidden-only action is not delist |",
+      "state_guard": "REF_GUARD[DELIST_RELIST]；local_ui_fact=authorized vehicle action; end current listing_cycle and public availability; hidden-only action is not delist",
+      "status": "CI_ONLY_PROPOSED_NOT_PRODUCTION",
+      "customer_auth": "NONE_IN_NEW_CANDIDATES",
+      "scope": "DEPENDENCY_BLOCKED",
+      "dto_body": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "vehicleId": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "vehicleId"
+        ]
+      },
+      "response_codes": {
+        "403": "F04_4_AUTH_OR_SCOPE_DENIED",
+        "501": "F04_4_DOMAIN_DEPENDENCY_BLOCKED"
+      }
+    },
+    {
+      "id": "F04_4_SYSTEM_MODEL_MAPPING_BIND",
+      "intent": "SYSTEM_MODEL_MAPPING_BIND",
+      "actor": "SYSTEM_ADMIN",
+      "resource": "VehicleModelMapping",
+      "domain": "PDM-05",
+      "owner": "F05",
+      "field": "modelMappingId",
+      "method": "POST",
+      "path": "/__ci__/current/v1/coverage/models/source-mapping-bind",
+      "source_page": "P02-08",
+      "target_page": "P02-08",
+      "pdm_path": "07_重建工作区/PDM-05_最终完整规则.md",
+      "pdm_line": 164,
+      "pdm_quote": "车型主数据、JYT source mapping、MODEL_MISSING、映射冲突与重复车型治理属于：",
+      "nav_path": "03_证据_C_IA_V5_Current/04_LOW_FI_NAVIGATION_REGISTER.md",
+      "nav_line": 218,
+      "nav_quote": "| P02-08 | 绑定已有车型 | P02-08 / P02-07 | vehicle.model.manage permission; select canonical model; preserve upstream facts; audit before/after mapping |",
+      "state_guard": "vehicle.model.manage permission; select canonical model; preserve upstream facts; audit before/after mapping",
+      "status": "CI_ONLY_PROPOSED_NOT_PRODUCTION",
+      "customer_auth": "NONE_IN_NEW_CANDIDATES",
+      "scope": "DEPENDENCY_BLOCKED",
+      "dto_body": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "modelMappingId": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "modelMappingId"
+        ]
+      },
+      "response_codes": {
+        "403": "F04_4_AUTH_OR_SCOPE_DENIED",
+        "501": "F04_4_DOMAIN_DEPENDENCY_BLOCKED"
+      }
+    },
+    {
+      "id": "F04_4_MARKUP_RULE_SAVE",
+      "intent": "MARKUP_RULE_SAVE",
+      "actor": "EMPLOYEE_MANAGER",
+      "resource": "MarkupRule",
+      "domain": "PDM-10",
+      "owner": "F05",
+      "field": "markupRuleId",
+      "method": "POST",
+      "path": "/__ci__/current/v1/coverage/pricing/markup-rule-save",
+      "source_page": "P08-01",
+      "target_page": "P08-01",
+      "pdm_path": "07_重建工作区/PDM-10_最终完整规则.md",
+      "pdm_line": 63,
+      "pdm_quote": "## 3. 阶梯加价配置与生效",
+      "nav_path": "03_证据_C_IA_V5_Current/04_LOW_FI_NAVIGATION_REGISTER.md",
+      "nav_line": 286,
+      "nav_quote": "| P08-01 | 新建/修改/保存阶梯价格规则 | P08-01 | display-price permission/scope; draft validation includes no overlap and declared range; failed save leaves current effective rule unchanged |",
+      "state_guard": "display-price permission/scope; draft validation includes no overlap and declared range; failed save leaves current effective rule unchanged",
+      "status": "CI_ONLY_PROPOSED_NOT_PRODUCTION",
+      "customer_auth": "NONE_IN_NEW_CANDIDATES",
+      "scope": "DEPENDENCY_BLOCKED",
+      "dto_body": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "markupRuleId": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "markupRuleId"
+        ]
+      },
+      "response_codes": {
+        "403": "F04_4_AUTH_OR_SCOPE_DENIED",
+        "501": "F04_4_DOMAIN_DEPENDENCY_BLOCKED"
+      }
+    },
+    {
+      "id": "F04_4_IMAGE_FAILED_RETRY",
+      "intent": "IMAGE_FAILED_RETRY",
+      "actor": "EMPLOYEE",
+      "resource": "VehicleImageAsset",
+      "domain": "PDM-21",
+      "owner": "F07",
+      "field": "imageAssetId",
+      "method": "POST",
+      "path": "/__ci__/current/v1/coverage/vehicles/image-retry-failed",
+      "source_page": "E02-01 / E02-02 / P02-07",
+      "target_page": "E02-01",
+      "pdm_path": "07_重建工作区/PDM-21_最终完整规则.md",
+      "pdm_line": 360,
+      "pdm_quote": "图片失败不得回滚已完成来源转换。",
+      "nav_path": "03_证据_C_IA_V5_Current/04_LOW_FI_NAVIGATION_REGISTER.md",
+      "nav_line": 283,
+      "nav_quote": "| E02-01 / E02-02 / P02-07 | 重试失败图片 | E02-01 / E02-02 / P02-07 | image state partial_failed/failed; retry only failed items; successful frozen images and business facts remain |",
+      "state_guard": "image state partial_failed/failed; retry only failed items; successful frozen images and business facts remain",
+      "status": "CI_ONLY_PROPOSED_NOT_PRODUCTION",
+      "customer_auth": "NONE_IN_NEW_CANDIDATES",
+      "scope": "DEPENDENCY_BLOCKED",
+      "dto_body": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "imageAssetId": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "imageAssetId"
+        ]
+      },
+      "response_codes": {
+        "403": "F04_4_AUTH_OR_SCOPE_DENIED",
+        "501": "F04_4_DOMAIN_DEPENDENCY_BLOCKED"
+      }
+    },
+    {
+      "id": "F04_4_ANNOUNCEMENT_CREATE",
+      "intent": "ANNOUNCEMENT_CREATE",
+      "actor": "AUTHORIZED_ADMIN",
+      "resource": "Announcement",
+      "domain": "PDM-24",
+      "owner": "F04",
+      "field": "announcementId",
+      "method": "POST",
+      "path": "/__ci__/current/v1/coverage/announcements/create-new",
+      "source_page": "P10-01 / P10-02",
+      "target_page": "P10-01",
+      "pdm_path": "07_重建工作区/PDM-24_最终完整规则.md",
+      "pdm_line": 23,
+      "pdm_quote": "Announcement 至少支持：列表、新建、编辑、标题、正文、启用/停用、生效开始日期、结束日期、自动弹出开关、排序、创建人、修改人、创建/修改时间。",
+      "nav_path": "03_证据_C_IA_V5_Current/04_LOW_FI_NAVIGATION_REGISTER.md",
+      "nav_line": 291,
+      "nav_quote": "| P10-01 / P10-02 | 新建/编辑/保存/排期/排序公告 | P10-01 / P10-02 | authorized content manager; valid window; sorting changes presentation only and is audited |",
+      "state_guard": "authorized content manager; valid window; sorting changes presentation only and is audited",
+      "status": "CI_ONLY_PROPOSED_NOT_PRODUCTION",
+      "customer_auth": "NONE_IN_NEW_CANDIDATES",
+      "scope": "DEPENDENCY_BLOCKED",
+      "dto_body": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "announcementId": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "announcementId"
+        ]
+      },
+      "response_codes": {
+        "403": "F04_4_AUTH_OR_SCOPE_DENIED",
+        "501": "F04_4_DOMAIN_DEPENDENCY_BLOCKED"
+      }
+    }
+  ]
+}

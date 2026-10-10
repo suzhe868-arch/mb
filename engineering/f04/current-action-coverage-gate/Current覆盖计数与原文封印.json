@@ -1,0 +1,72 @@
+{
+  "version": "F04_4_CURRENT_COVERAGE_V1",
+  "baseline": "74fa9943062519310704f03e348aad9c85b27e1d",
+  "source_meta": {
+    "NAV": {
+      "file": "03_证据_C_IA_V5_Current/04_LOW_FI_NAVIGATION_REGISTER.md",
+      "length": 42608,
+      "lines": 307
+    },
+    "ACTION": {
+      "file": "03_证据_C_IA_V5_Current/IA_V5_ACTION_CONTRACT.md",
+      "length": 67915,
+      "lines": 147
+    },
+    "GUARD": {
+      "file": "03_证据_C_IA_V5_Current/IA_V5_CANONICAL_GUARD_CONTRACT.md",
+      "length": 17120,
+      "lines": 76
+    },
+    "PAGE": {
+      "file": "03_证据_C_IA_V5_Current/04_LOW_FI_PAGE_MANIFEST.md",
+      "length": 15042,
+      "lines": 235
+    },
+    "RETIRED": {
+      "file": "engineering/f04/current-action-api-registry/旧Collector禁恢复独立封印.tsv",
+      "length": 265,
+      "lines": 5
+    },
+    "CONTRACT": {
+      "file": "engineering/f04/current-action-api-registry/current-route-contracts.tsv",
+      "length": 29256,
+      "lines": 34
+    }
+  },
+  "counts": {
+    "CURRENT_ACTION_COVERAGE": 50,
+    "PAGE_NAV_ONLY": 258,
+    "CONTRACT_CANDIDATE_TYPED": 30,
+    "CURRENT_AUTHORITY_GAP": 19,
+    "DOMAIN_IMPLEMENTATION_BLOCKED": 77,
+    "RETIRED_FORBIDDEN": 3
+  },
+  "by_source": {
+    "NAV": 228,
+    "ACTION": 58,
+    "GUARD": 16,
+    "PAGE": 132,
+    "RETIRED": 3
+  },
+  "total": 437,
+  "types": [
+    "CURRENT_ACTION_COVERAGE",
+    "PAGE_NAV_ONLY",
+    "CONTRACT_CANDIDATE_TYPED",
+    "CURRENT_AUTHORITY_GAP",
+    "DOMAIN_IMPLEMENTATION_BLOCKED",
+    "RETIRED_FORBIDDEN"
+  ],
+  "nav_distinct_key_rule": "source_page + control + target_page + condition + original_line + CURRENT_2026_10_10",
+  "f04_3_frozen_contracts": 32,
+  "legacy_originals": {
+    "method_path": 218,
+    "paths": 198,
+    "colon_paths": 62,
+    "candidates": 215,
+    "verified": 23,
+    "source_gap": 192,
+    "retired": 3
+  },
+  "category_partition_sum": 437
+}
