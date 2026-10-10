@@ -89,6 +89,17 @@ export async function rollback(c){
  try{
   await c.query('SELECT pg_advisory_xact_lock(20261010,315)');
   await c.query('DROP TRIGGER f05_2_audit_no_update_delete ON public.vehicle_responsibility_audit_events');
+  for(const [t,trigger] of [
+   ['employees','f05_2_employment_epoch_guard'],['employee_data_scopes','f05_2_scope_epoch_guard'],
+   ['employee_capability_scope_bindings','f05_2_capability_epoch_guard'],
+   ['employee_team_memberships','f05_2_membership_epoch_guard'],
+   ['employee_permission_overrides','f05_2_override_epoch_guard'],
+   ['role_permission_defaults','f05_2_role_template_guard'],['teams','f05_2_team_guard'],
+   ['stores','f05_2_store_guard'],['vehicles','f05_2_vehicle_state_guard'],
+   ['vehicle_listing_cycles','f05_2_cycle_state_guard']])
+    await c.query('DROP TRIGGER '+trigger+' ON public.'+t);
+  await c.query('DROP FUNCTION public.f05_2_governance_invalidate()');
+  await c.query('DROP FUNCTION public.f05_2_close_steward_links(bigint,bigint,bigint,text)');
   await c.query('DROP TABLE public.vehicle_responsibility_audit_events');
   await c.query('DROP TABLE public.vehicle_current_responsibilities');
   await c.query('DROP FUNCTION public.f05_2_audit_immutable()');
