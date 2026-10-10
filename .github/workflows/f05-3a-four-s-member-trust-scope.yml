@@ -1,4 +1,4 @@
-name: F05-3A blocked 4S member source fact independent 36 frozen plus 2 source-gap negative PG16
+name: F05-3A Admin-governed four_s member same-transaction current Vehicle trust 36 frozen plus 2 true PG16
 on:
   push:
     branches: [feat/f05-3a-four-s-member-trust-scope]

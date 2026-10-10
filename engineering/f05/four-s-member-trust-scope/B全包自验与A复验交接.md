@@ -1,3 +1,22 @@
+# F05-3A｜A定向来源补证后续工程交接（现行）
+
+> 本节覆盖下文**初轮历史SOURCE_GAP勘验**。原始证据保留，不是当前工程的最终结论。本次严格执行A于main的`F05-3A_A主控首次独立审查4S受信来源缺口技术裁决与定向补证施工单_2026-10-11.md`。本报告CI具体run/SHA/Artifacts以PR#32最终正式B交审评论为准，未获最新完整同SHA绿灯不计交审完成。
+
+**已经补齐的受信路径**：在新隔离`000016`中新增System Admin审核并签发的4S`NEW_OWN_FOUR_S_MANUAL_VEHICLE`当前license、4S真实Session完成首次新Vehicle+Cycle+模型/城市/里程校验并同事务记录本人当前经营对象和不可变MEMBER_PUBLISH事件。未取代F05-2名邦Team来源，未创建4S组织，未追认旧Vehicle owner。缺Admin许可继续`POSITIVE_4S_TRUST_SOURCE_BLOCKED`。
+
+**实际代码**：
+- 新增`000016_four_s_member_trust.sql`、`migration.mjs`、`runner.mjs`、`evidence.mjs`、`fixtures.mjs`、`ci-four-s-handler.mjs`；
+- 仅重写本批`source-gate.mjs`，保留旧`publishFourSVehicle`/`issueFourSResponsibility`历史补填入口恒拒；
+- 新增`tests/bridge-source.test.mjs`的H-A01～14真实物理+CAS/双连接与`tests/bridge-https.test.mjs`的H-B01～10真实TLS/账号Scope正反；保留原G-A01～07/G-B01～07缺源拒绝回归；
+- 原F05-2完整36个job定义逐字冻结，仅本批新增的两项CI作业追加真实独立PG16增量版本、Admin许可证、同事务新车、撤权及审计测试；两job追加原生新版schema-only、catalog/inventory、sha256、真实测试日志和Artifact。
+- 当前来源与审计完整说明见`F05-3A受信Admin许可证与4S本人首发物理审计及回归合同.md`；14项新旧Actor矩阵见`F05-3A新旧正反Actor权限审计矩阵.tsv`。
+
+**关键真实安全事实**：业务Actor永远来自活跃4S本人Session；颁证Actor为活跃System Admin控制面Session；自动治理撤权为SYSTEM、无被影响者伪装human Actor；旧上架、另一4S账号、名邦发布4S/JYT、System Admin业务读、6非详情出口、伪造header均拒；账户/permission/Vehicle source/cycle变化关闭license和对象，重新active不会复活。全部只在独立PG16和loopback HTTPS运行，不修改000001～000015或生产Server。
+
+**最终交A门槛**：PR Head=最新分支HEAD=Actions run.head_sha，旧36+新2的**38/38成功**、新原生物理与TLS两个Artifacts、原生H-A14/H-B10不含假阳性，A独立复验后才可合并main；B不得自行合并。F05全域、F04生产、C/H01和V1基线仍`NOT_READY`。
+
+---
+
 # F05-3A｜B工程勘验、自验与 A 来源阻断交接
 
 > 2026-10-11 Asia/Singapore。任务：A正式施工单 `07_重建工作区/F05-3A_A主控4S单成员经营责任可信来源与Vehicle隔离权限验证完整施工单_2026-10-11.md`。
