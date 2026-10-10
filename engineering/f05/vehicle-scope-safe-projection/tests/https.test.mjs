@@ -48,11 +48,11 @@ test('F05-1-B01 genuine PG16 M94, real TLS, seven Vehicle outlets',async()=>{
  assert.equal((await verifyM94(db)).verified,true);
 });
 test('F05-1-B02 a valid Employee Session + uploader/current store cannot grant any of 3 sources',async()=>{
- for(const id of [39001,39002,39003])for(const outlet of VEHICLE_OUTLETS)
+ for(const id of [39001,39002,39005])for(const outlet of VEHICLE_OUTLETS)
   safeDenied(await call('GET',loc(id,outlet),cookie(staff)));
 });
 test('F05-1-B03 4S represented-principal absent, System Admin cannot pretend sales',async()=>{
- for(const token of [four,admin])for(const id of [39001,39002,39003])
+ for(const token of [four,admin])for(const id of [39001,39002,39005])
   safeDenied(await call('GET',loc(id),cookie(token)));
 });
 test('F05-1-B04 frontend owner/store/team/merchant/level and internal price spoof hard-denied',async()=>{
@@ -64,7 +64,7 @@ test('F05-1-B04 frontend owner/store/team/merchant/level and internal price spoo
 test('F05-1-B05 historical cycle or forged visible grants never permit old-owner cached read',async()=>{
  safeDenied(await call('GET',loc(39004,'history'),cookie(staff)));
  for(const view of ['cache','export','print','copy','history'])
-  safeDenied(await call('GET',loc(39003,view),cookie(staff)));
+  safeDenied(await call('GET',loc(39005,view),cookie(staff)));
 });
 test('F05-1-B06 missing Session, duplicate cookies, bearer and Customer auth header denied',async()=>{
  assert.equal((await call('GET',loc(39001))).status,403);
@@ -89,7 +89,7 @@ test('F05-1-B08 only F04-1 signed current-owner CustomerId read remains a 200 re
 });
 test('F05-1-B09 no new Vehicle rows, price/quota, financial or source-fact writes',async()=>{
  let before=(await db.query("SELECT (SELECT count(*) FROM public.vehicles) vehicles,(SELECT count(*) FROM public.vehicle_price_history) prices,(SELECT count(*) FROM public.customer_price_unlock_events) quotas,(SELECT count(*) FROM public.vehicle_conversions) conversions")).rows[0];
- for(const id of [39001,39002,39003])safeDenied(await call('GET',loc(id),cookie(staff)));
+ for(const id of [39001,39002,39005])safeDenied(await call('GET',loc(id),cookie(staff)));
  let after=(await db.query("SELECT (SELECT count(*) FROM public.vehicles) vehicles,(SELECT count(*) FROM public.vehicle_price_history) prices,(SELECT count(*) FROM public.customer_price_unlock_events) quotas,(SELECT count(*) FROM public.vehicle_conversions) conversions")).rows[0];
  assert.deepEqual(after,before);
 });

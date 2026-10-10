@@ -41,7 +41,7 @@ test('F05-1-A05 physical release requires signed business proof, not public info
  }
 });
 test('F05-1-A06 three real physical types cannot create owner scope by source alone',async()=>{
- for(const [id,source] of [[39001,'wholesale'],[39002,'mingbang'],[39003,'four_s']]){
+ for(const [id,source] of [[39001,'wholesale'],[39002,'mingbang'],[39005,'four_s']]){
   const v=await observePhysicalVehicle(db,id);assert.equal(v.source_type,source);
   for(const view of ['detail','export','cache']){
    assert.equal((await proveCurrentVehicleScope(db,{employeeId:1},{vehicleId:id,outlet:view})).proven,false);
