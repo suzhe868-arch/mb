@@ -139,5 +139,6 @@
     "upstream_publisher_id"
   ],
   "source_type_not_owner": true,
-  "all_business_outlets_deny_if_missing_physical_binding": true
+  "all_business_outlets_deny_if_missing_physical_binding": true,
+  "constraint_rows": 99
 }
