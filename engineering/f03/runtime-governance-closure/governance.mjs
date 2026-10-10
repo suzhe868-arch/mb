@@ -5,7 +5,7 @@ const valid=x=>Number.isSafeInteger(x)&&x>0;
 const ci=()=>{if(process.env.CI!=='true'||process.env.GITHUB_ACTIONS!=='true')throw Error('G_CI_ONLY')};
 async function guard(c,a,team,employee){
  const target=(await c.query('SELECT r.role_code FROM public.employees e JOIN public.roles r ON r.role_id=e.main_role_id WHERE e.employee_id=$1',[employee])).rows[0];
- if(!target||!['sales','manager','store_head'].includes(target.role_code)||a.role_code==='store_head'&&target.role_code!=='sales')return false;
+ if(!target||!['sales','manager','store_head'].includes(target.role_code)||a.role_code==='store_head'&&target.role_code==='store_head')return false;
  const q=await c.query("SELECT EXISTS(SELECT 1 FROM public.employees mgr JOIN public.roles role ON role.role_id=mgr.main_role_id JOIN public.permissions p ON p.permission_code='employee.manage' LEFT JOIN public.role_permission_defaults rd ON rd.role_id=mgr.main_role_id AND rd.permission_id=p.permission_id LEFT JOIN public.employee_permission_overrides ov ON ov.employee_id=mgr.employee_id AND ov.permission_id=p.permission_id JOIN public.employee_data_scopes sc ON sc.employee_id=mgr.employee_id JOIN public.employee_capability_scope_bindings cb ON cb.employee_id=mgr.employee_id AND cb.permission_id=p.permission_id AND cb.scope_id=sc.scope_id JOIN public.teams t ON t.team_id=$2 JOIN public.stores st ON st.store_id=t.store_id JOIN public.employee_team_memberships me ON me.team_id=t.team_id AND me.employee_id=$3 JOIN public.employee_team_memberships mm ON mm.team_id=t.team_id AND mm.employee_id=mgr.employee_id WHERE mgr.employee_id=$1 AND mgr.employment_status='active' AND role.role_code IN('manager','store_head') AND (role.role_code='manager' OR mgr.store_id=t.store_id) AND t.team_status='active' AND st.status='active' AND (ov.decision='allow' OR (ov.decision IS NULL AND rd.enabled=true)) AND ov.decision IS DISTINCT FROM 'deny' AND (sc.ended_at IS NULL OR sc.ended_at>clock_timestamp()) AND (cb.ended_at IS NULL OR cb.ended_at>clock_timestamp()) AND cb.granted_at<=clock_timestamp() AND sc.scope_kind='team' AND sc.scope_reference_id=t.team_id AND mm.valid_from<=clock_timestamp() AND (mm.ended_at IS NULL OR mm.ended_at>clock_timestamp()) AND me.valid_from<=clock_timestamp() AND (me.ended_at IS NULL OR me.ended_at>clock_timestamp())) ok",[a.employee_id,team,employee]);
  return q.rows[0]?.ok===true;
 }
@@ -63,6 +63,7 @@ export async function commitPlannedGovernance(auth,token,p,opts={}){
   const pending=(await c.query("SELECT count(*)::int n FROM public.handover_items WHERE batch_id=$1 AND status<>'completed'",[p.batchId])).rows[0].n;
   if(pending>0)return out('G_PLANNED_PENDING_ITEM');
   if(p.action==='planned_transfer')return out('G_PLANNED_TRANSFER_REQUIRES_APPROVED_MEMBERSHIP_ACTOR');
+  if(p.action==='planned_downgrade'&&a.role_code!=='store_head')return out('G_ROLE_CHANGE_CONTROL_DENY');
   if(e.receiving_status==='receiving'&&!await lastReceiver(c,p.employeeId))return out('G_LAST_RECEIVER_DENY');
   if(opts.testCheckpoint)await opts.testCheckpoint('before_revoke',c);
   await revokeAll(c,p.employeeId);
