@@ -1735,3 +1735,10 @@ G受检最终HEAD19af2955d81ac14d79e0c4e6adc661a3a1aabd8e同SHA CI38025357614 20
 - 官方PR32受检HEAD`4bd39d7e4b925346a6867870399260d9aaf85d87`=Actions`38085191145`同SHA38/38独立真PG16成功，原F05-2旧36 Job逐字冻结，新物理14/14、HTTPS10/10，原生71个Artifacts新`11682206471/11681796730`均可用，18个批准新文件无越界；4S可信Admin发证→本人真实首次发布→同事务Vehicle/Cycle/经营对象/审计→真实HTTPS最小200及负例已通过A源码/官方日志复核。
 - A独立发现3个本包工程安全缺口：①新的publication.license_id与member_employee_id没有复合归属约束，读路径未校验license.employee_id=当前member，且当前来源身份可直接SQL改导致跨账号挪用有效license；② revoked_at可直接由非NULL改NULL以复活旧license/Vehicle对象责任，物理不可逆性缺失；③H-A11/H-A14并发测试仅同步读取尚未完成的Promise即放行，没有第二真实PG16写SQL确已等待锁的证据。要求补DB强制约束/身份不可变、撤权不可逆触发器及真正跨连接锁冲突/最终COMMIT负例。
 - 完整定向整改单`07_重建工作区/F05-3A_A主控二轮独立复验对象归属绑定复活与并发证据完整定向整改单_2026-10-11.md`，PR32审核评论`6102199600`。现`F05_3A=A_CHANGES_REQUESTED / PR32_NOT_MERGED / NEXT_OWNER=B`，原分支`feat/f05-3a-four-s-member-trust-scope`最小修复、旧36全文冻结、新2新增测试最终同SHA38/38+两新原生Artifact，再交A复验；不返工已合格Admin治理+4S首发正向、不新增产品许可、不进F05-3B/生产，F05/H01/V1`NOT_READY`。
+
+## 2026-10-11｜F05-3A A三轮独立正式验收、PR32标准合并和F05-3B签发（无新增产品决议）
+
+- B/PR32 HEAD`285d0c7519ed28803eddbf160d37493aa16d5e87`和官方Actions`38087341051`同SHA，38/38非特权独立PG16真job完成，原36 job逐字不变，物理16/16+HTTPS11/11、71原生Artifacts（新`11681669932/11681904341`有效），仅18个本批新增白名单；A源码检查`000016`新增复合`license_id/member_employee_id`强FK、签发来源身份不可变、revoked_at严格不可逆，真实H-A11/14另一个PG16 backend实际锁等待超时`55P03`，重测末次403与不可变审计。原三项`A-F05-3A-01/02/03`全部PASS/CLOSED，4S本人受信正向最小detail200也已独立确认。
+- A正式PR评论`6102629625`，安全标准合并GitHub PR32 merge SHA`73a369554d98b3afac58c414fda1815aef190e42`；正式报告`07_重建工作区/F05-3A_A主控第三轮独立验收PR32正式合并与F05-3B接力_2026-10-11.md`。`F05_3A=A_ACCEPTED_MERGED_PR32_CI_ONLY`，非生产许可。
+- A据PDM-04 Final三个固定JYT同步API、car_code身份冲突、真实下架与ListingCycle等已确认规则正式下发新包`07_重建工作区/F05-3B_A主控JYT批发身份来源上架周期与三接口隔离安全完整施工单_2026-10-11.md`。`F05_3B_A_RELEASED_FOR_B / NEXT_OWNER=B / B_NOT_STARTED`；B从最新main新建`feat/f05-3b-jyt-wholesale-lineage-cycle`，隔离JYT合成来源与独立车源同步Credential/权限及三API合同，旧38 Job冻结加2真PG16=40/40同SHA，原生两Artifact后交A；无可信source即SOURCE_GAP，禁止生产/JYT真实网络/电话/资金、一键转名邦（后续F05-3C）及B合并main。
+- F05整体、F04生产、C/H01和V1基线仍`NOT_READY`。
