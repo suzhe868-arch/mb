@@ -1,7 +1,6 @@
 // F05-2 CI-only; no public/prod route registration. Every allow comes from real PG16 rows.
 import {verify,requireDatabaseIdentity} from './migration.mjs';
 const valid=n=>Number.isSafeInteger(n)&&n>0;
-const allowedEmployee=['sales','manager','store_head'];
 const deny=code=>Object.freeze({code,allowed:false});
 const ok=(code,extra={})=>Object.freeze({code,allowed:true,...extra});
 const eventKey=k=>typeof k==='string'&&/^[A-Za-z0-9._:-]{20,160}$/.test(k);
@@ -38,7 +37,11 @@ async function session(auth,token,fn){
   if(s.restricted||a.principal_kind!=='employee'||a.employee_id===null||a.system_admin_id!==null||
     a.subject_status!=='active'||a.credential_state!=='enabled'||a.force_password_change!==false)
    return deny('F05_2_EMPLOYEE_SESSION_REQUIRED');
-  return fn(c,Number(a.employee_id));
+  const subject=Number(a.employee_id);
+  if(!Number.isSafeInteger(subject)||subject<1||subject>2147483647)return deny('F05_2_EMPLOYEE_ID_INVALID');
+  // Governance triggers coordinate at transaction COMMIT with this lock.
+  await c.query('SELECT pg_advisory_xact_lock(20261011,$1::integer)',[subject]);
+  return fn(c,subject);
  },{normalOnly:true});
  return out??deny('F05_2_SESSION_DENIED');
 }
@@ -51,70 +54,45 @@ async function lookup(c,vehicleId,{exclusive=false}={}){
 }
 const basic=v=>v&&v.ended_at===null&&v.archived_at===null&&['mingbang','four_s'].includes(v.source_type)&&
  ['available'].includes(v.source_sale_status);
-// CI synthetic trusted publication fact, inserted by a separate authenticated transaction.
-// Client-controlled eventKey alone cannot mint ownership: a verified physical audit event
-// must pre-exist before issueFromTrustedManualPublication can sign responsibility.
-export async function recordTrustedManualPublicationEvent(auth,token,p){
- if(!shape(p,'eventKey,listingCycleId,teamId,vehicleId')||![p.vehicleId,p.listingCycleId,p.teamId].every(valid)||!eventKey(p.eventKey))
-  return deny('F05_2_EVENT_INPUT_DENY');
+// Legacy two-call path is permanently closed: uploaded/older car attributes and
+// caller-supplied EventKey cannot retroactively manufacture a Vehicle owner.
+export async function recordTrustedManualPublicationEvent(){
+ return deny('F05_2_RETROACTIVE_PUBLICATION_FORBIDDEN');
+}
+export async function issueFromTrustedManualPublication(){
+ return deny('F05_2_RETROACTIVE_PUBLICATION_FORBIDDEN');
+}
+// An actual new manual publication, current Vehicle/Cycle creation, signed business
+// responsibility receipt, and both append-only audit facts share ONE PG16 transaction.
+// Neither created_by nor formally_published_at for an old row can enter this path.
+export async function publishAndIssueFromCurrentTransaction(auth,token,p){
+ if(!shape(p,'eventKey,listingCycleId,sourceKind,teamId,vehicleId')||
+    ![p.vehicleId,p.listingCycleId,p.teamId].every(valid)||!eventKey(p.eventKey)||
+    !['mingbang','four_s'].includes(p.sourceKind)||
+    p.vehicleId<59000||p.listingCycleId<59000)
+  return deny('F05_2_NEW_MANUAL_PUBLICATION_INPUT_DENY');
  await verify(auth.pool);
  return session(auth,token,async(c,actor)=>{
-  const v=await lookup(c,p.vehicleId,{exclusive:true});
-  if(!basic(v)||Number(v.listing_cycle_id)!==p.listingCycleId||
-    Number(v.created_by_employee_id)!==actor||v.formally_published_at===null)
-   return deny('F05_2_NO_TRUSTED_PHYSICAL_PUBLICATION');
-  if(!await currentCapability(c,actor,p.teamId,'vehicle.manage'))return deny('F05_2_EVENT_ACTOR_SCOPE_DENIED');
-  const fact={vehicleId:p.vehicleId,listingCycleId:p.listingCycleId,teamId:p.teamId,sourceKind:v.source_type,eventKey:p.eventKey};
-  const old=(await c.query("SELECT after_json,actor_id FROM public.audit_events WHERE object_kind='Vehicle' AND action='vehicle.manual.published' AND after_json->>'eventKey'=$1 FOR SHARE",[p.eventKey])).rows;
-  if(old.length){
-   if(old.length===1&&old[0].actor_id===String(actor)&&Object.entries(fact).every(([k,value])=>old[0].after_json?.[k]===value))return ok('F05_2_EVENT_IDEMPOTENT');
-   // Even if an earlier fabricated or conflicting audit fact exists, never sign it.
-   return deny('F05_2_EVENT_COLLISION');
-  }
+  if(!await currentCapability(c,actor,p.teamId,'vehicle.manage'))return deny('F05_2_MANUAL_PUBLICATION_SCOPE_DENIED');
+  // A real existing row, including one with apparently matching uploader and
+  // timestamp, is explicitly not eligible for a backfilled ownership grant.
+  const prior=(await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR KEY SHARE',[p.vehicleId])).rows;
+  if(prior.length)return deny('F05_2_PREEXISTING_VEHICLE_NEVER_BACKFILL');
+  const event=(await c.query("SELECT responsibility_id FROM public.vehicle_current_responsibilities WHERE trusted_event_key=$1",[p.eventKey])).rows;
+  if(event.length)return deny('F05_2_EVENT_REPLAY_OR_COLLISION');
+  await c.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,created_by_employee_id,formally_published_at) VALUES($1,$2,'available','visible',$3,transaction_timestamp())",[p.vehicleId,p.sourceKind,actor]);
+  await c.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES($1,$2,transaction_timestamp())",[p.listingCycleId,p.vehicleId]);
+  const record=(await c.query("INSERT INTO public.vehicle_current_responsibilities(vehicle_id,listing_cycle_id,responsible_employee_id,team_id,source_snapshot,provenance_kind,trusted_event_key,issuer_employee_id) VALUES($1,$2,$3,$4,$5,'AUTHORIZED_MANUAL_PUBLICATION',$6,$3) RETURNING responsibility_id",
+    [p.vehicleId,p.listingCycleId,actor,p.teamId,p.sourceKind,p.eventKey])).rows[0];
   await c.query("INSERT INTO public.audit_events(actor_kind,actor_id,role_context,object_kind,object_id,action,before_json,after_json,occurred_at) VALUES('employee',$1,$2::jsonb,'Vehicle',$3,'vehicle.manual.published',NULL,$4::jsonb,transaction_timestamp())",
-   [String(actor),JSON.stringify({ciOnly:true,source:'F05_2_TRUSTED_MANUAL_PUBLICATION_EVENT'}),String(p.vehicleId),JSON.stringify(fact)]);
-  return ok('F05_2_TRUSTED_PUBLICATION_EVENT_RECORDED');
+    [String(actor),JSON.stringify({origin:'F05_2_NEW_MANUAL_PUBLISH_IN_SAME_TX',ciOnly:true}),String(p.vehicleId),
+    JSON.stringify({eventKey:p.eventKey,vehicleId:p.vehicleId,listingCycleId:p.listingCycleId,sourceKind:p.sourceKind,teamId:p.teamId,issuedTo:actor})]);
+  await c.query("INSERT INTO public.vehicle_responsibility_audit_events(responsibility_id,event_key,event_kind,actor_employee_id,current_employee_id,source_evidence) VALUES($1,$2,'ISSUE',$3,$3,'CI_ONLY_SAME_TX_PDM06_FORMAL_PUBLISH_WITH_VEHICLE_AND_CYCLE')",
+    [record.responsibility_id,'audit:'+p.eventKey,actor]);
+  return ok('F05_2_ISSUED',{responsibilityId:Number(record.responsibility_id)});
  });
 }
 
-export async function issueFromTrustedManualPublication(auth,token,p){
- if(!shape(p,'eventKey,listingCycleId,teamId,vehicleId')||![p.vehicleId,p.listingCycleId,p.teamId].every(valid)||!eventKey(p.eventKey))
-  return deny('F05_2_INVALID_TRUST_EVENT');
- await verify(auth.pool);
- return session(auth,token,async(c,actor)=>{
-  const v=await lookup(c,p.vehicleId,{exclusive:true});
-  if(!basic(v)||Number(v.listing_cycle_id)!==p.listingCycleId||Number(v.created_by_employee_id)!==actor||
-     v.formally_published_at===null)return deny('F05_2_NOT_TRUSTED_PUBLISHED_EVENT');
-  if(!await currentCapability(c,actor,p.teamId,'vehicle.manage'))return deny('F05_2_MANAGE_SCOPE_DENIED');
-  // Prove an independent authenticated publication event exists and agrees with
-  // current real Vehicle + ListingCycle/issuer/team/source facts.
-  const events=(await c.query(
-   "SELECT actor_kind,actor_id,object_id,role_context,after_json FROM public.audit_events "+
-   "WHERE object_kind='Vehicle' AND action='vehicle.manual.published' AND after_json->>'eventKey'=$1 FOR SHARE",
-   [p.eventKey])).rows;
-  if(events.length!==1)return deny('F05_2_PUBLISHED_EVENT_SOURCE_GAP');
-  const record=events[0],d=record.after_json;
-  if(record.actor_kind!=='employee'||record.actor_id!==String(actor)||record.object_id!==String(p.vehicleId)||
-    record.role_context?.source!=='F05_2_TRUSTED_MANUAL_PUBLICATION_EVENT'||
-    d.vehicleId!==p.vehicleId||d.listingCycleId!==p.listingCycleId||d.teamId!==p.teamId||
-    d.sourceKind!==v.source_type||d.eventKey!==p.eventKey)
-   return deny('F05_2_PUBLISHED_EVENT_PROOF_CHANGED');
-
-  const exists=(await c.query("SELECT * FROM public.vehicle_current_responsibilities WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND revoked_at IS NULL FOR UPDATE",[p.vehicleId,p.listingCycleId])).rows[0];
-  if(exists){
-   if(exists.trusted_event_key===p.eventKey&&Number(exists.responsible_employee_id)===actor&&Number(exists.team_id)===p.teamId)return ok('F05_2_IDEMPOTENT',{responsibilityId:Number(exists.responsibility_id)});
-   return deny('F05_2_ALREADY_ASSIGNED');
-  }
-  const old=(await c.query('SELECT responsibility_id FROM public.vehicle_current_responsibilities WHERE trusted_event_key=$1',[p.eventKey])).rows[0];
-  if(old)return deny('F05_2_REPLAYED_ENDED_EVENT');
-  const r=(await c.query("INSERT INTO public.vehicle_current_responsibilities(vehicle_id,listing_cycle_id,responsible_employee_id,team_id,source_snapshot,provenance_kind,trusted_event_key,issuer_employee_id) "+
-   "VALUES($1,$2,$3,$4,$5,'AUTHORIZED_MANUAL_PUBLICATION',$6,$3) RETURNING responsibility_id",
-   [p.vehicleId,p.listingCycleId,actor,p.teamId,v.source_type,p.eventKey])).rows[0];
-  await c.query("INSERT INTO public.vehicle_responsibility_audit_events(responsibility_id,event_key,event_kind,actor_employee_id,current_employee_id,source_evidence) VALUES($1,$2,'ISSUE',$3,$3,$4)",
-   [r.responsibility_id,'audit:'+p.eventKey,actor,'PDM06_MANUAL_FORMAL_PUBLISH_CURRENT_M94']);
-  return ok('F05_2_ISSUED',{responsibilityId:Number(r.responsibility_id)});
- });
-}
 export async function revokeCurrentResponsibility(auth,token,p){
  if(!shape(p,'eventKey,responsibilityId,version')||![p.responsibilityId,p.version].every(valid)||!eventKey(p.eventKey))return deny('F05_2_REVOKE_INPUT');
  await verify(auth.pool);
@@ -180,7 +158,17 @@ export async function readMinimalCurrentVehicle(auth,token,p){
   const r=(await c.query("SELECT responsibility_id,responsible_employee_id,team_id,source_snapshot,revoked_at FROM public.vehicle_current_responsibilities WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND revoked_at IS NULL FOR SHARE",
     [p.vehicleId,v.listing_cycle_id])).rows;
   if(r.length!==1||r[0].source_snapshot!==v.source_type)return deny('F05_2_SCOPE_UNPROVEN');
+  // A-F05-2-01: ordinary sales cannot read a Vehicle handed to a different
+  // CURRENT responsible employee, even if both still belong to the same team.
+  const assignmentOwner=Number(r[0].responsible_employee_id);
+  const readerRole=(await c.query("SELECT r.role_code FROM public.employees e JOIN public.roles r ON r.role_id=e.main_role_id WHERE e.employee_id=$1 AND e.employment_status='active' FOR SHARE OF e",[actor])).rows[0]?.role_code;
+  if(readerRole==='sales'&&actor!==assignmentOwner)return deny('F05_2_NOT_CURRENT_RESPONSIBLE');
+  if(!['sales','manager','store_head'].includes(readerRole))return deny('F05_2_READER_ROLE_DENIED');
   if(!await currentCapability(c,actor,Number(r[0].team_id),'vehicle.read'))return deny('F05_2_READ_SCOPE_DENIED');
+  // Managers have no general "all teammate Vehicles" implicit right.
+  // An independently proven current management capability + Team scope is required.
+  if(actor!==assignmentOwner&&!await currentCapability(c,actor,Number(r[0].team_id),'vehicle.manage'))
+   return deny('F05_2_MANAGER_CROSS_OBJECT_PROOF_MISSING');
   return ok('F05_2_MINIMAL_VEHICLE',{vehicleId:Number(v.vehicle_id),listingCycleId:Number(v.listing_cycle_id),sourceKind:v.source_type});
  });
 }
