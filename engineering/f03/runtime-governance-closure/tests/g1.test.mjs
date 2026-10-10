@@ -15,9 +15,14 @@ test('G1 only two authorized CHECK constraints changed, source M94 sha pinned',a
  const r=await verify(db);assert.equal(r.verified,true);assert.equal(r.objects,2120);
  const counts=await db.query("SELECT count(*)::int n FROM pg_tables WHERE schemaname='public'");assert.equal(counts.rows[0].n,94);
 });
-test('G1 forged precheck cannot mark a Demand with later legitimate transfer as completed',async()=>{
- const result=await certifyHandoverItem(auth,token,{batchId:96601,itemId:13602,teamId:901});assert.equal(result.ok,false);
- const latest=(await db.query('SELECT status FROM public.handover_items WHERE item_id=13602')).rows[0];assert.equal(latest.status,'pending');
+test('G1 genuine historical Demand receipt remains valid through a later proven recipient chain',async()=>{
+ const result=await certifyHandoverItem(auth,token,{batchId:96601,itemId:13602,teamId:901});
+ assert.equal(result.code,'G_ITEM_CERTIFIED',JSON.stringify(result));
+ const newest=(await db.query('SELECT responsible_employee_id FROM public.demands WHERE demand_id=401')).rows[0];
+ assert.equal(Number(newest.responsible_employee_id),5);
+ const forged=await certifyHandoverItem(auth,token,{batchId:96602,itemId:13612,teamId:901});
+ assert.equal(forged.ok,false);
+ assert.equal((await db.query('SELECT status FROM public.handover_items WHERE item_id=13612')).rows[0].status,'retry_required');
 });
 test('G1 legal existing Customer immutable receipt can be completed once with audit and no domain mutation',async()=>{
  const r=await certifyHandoverItem(auth,token,{batchId:96601,itemId:13601,teamId:901});
