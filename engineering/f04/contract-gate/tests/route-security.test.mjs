@@ -150,14 +150,17 @@ test('F04-R12 body injection, stale privilege and logout deny sensitive output',
 });
 
 test('F04-R13 two independent current PG16 sessions with same request key cannot mutate F06',async()=>{
-  const x=await auth.login({login:'http_test',password:'SyntheticF04_2026_ContractGate',source:'f04parallel'});
-  assert.equal(x.code,'AUTH_OK');
+  // Prior R12 deliberately revoked the original token; obtain two truly
+  // *current* independent sessions to test the F06 hard-deny boundary.
+  const x=await auth.login({login:'http_test',password:'SyntheticF04_2026_ContractGate',source:'f04parallelA'});
+  const y=await auth.login({login:'http_test',password:'SyntheticF04_2026_ContractGate',source:'f04parallelB'});
+  assert.equal(x.code,'AUTH_OK');assert.equal(y.code,'AUTH_OK');
   const before=(await db.query('SELECT count(*)::int n FROM public.transactions')).rows[0].n;
   const key='f04_same_key_concurrency_20261010';
   const p=(tok)=>http('POST','/api/v1/f04/transactions',
     {...cookie(tok),'x-csrf-token':auth.csrfFor(tok),'x-request-key':key});
   try{
-    const answers=await Promise.all([p(token),p(x.token)]);
+    const answers=await Promise.all([p(x.token),p(y.token)]);
     assert.deepEqual(answers.map(a=>a.status),[501,501]);
     assert.ok(answers.every(a=>a.body.code==='OPEN_DEPENDENCY'));
     const after=(await db.query('SELECT count(*)::int n FROM public.transactions')).rows[0].n;
