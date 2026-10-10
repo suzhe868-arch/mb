@@ -87,6 +87,7 @@ export function validateRegistry(contractText=read(base+'current-route-contracts
    if(r.intent!=='CRM_SCOPE_MINIMAL_PROOF'||r.method!=='GET'||r.subject!=='EMPLOYEE'||
       r.source_legacy_id||r.permission!=='crm.customer.view'||
       r.path!=='/__ci__/current/v1/objects/customers/{customerId}/proof'||
+      r.scope!=='F04_1_FROZEN_PHYSICAL_EXACT_CUSTOMER_OBJECT_SCOPE'||
       r.domain_implementation_status!=='CI_ONLY_TESTED_MINIMAL_READ')
       fail('F04_3_CRM_PROOF_EXPANSION');
   }else fail('F04_3_INVENTED_ACTION_SOURCE',r.action_id);
