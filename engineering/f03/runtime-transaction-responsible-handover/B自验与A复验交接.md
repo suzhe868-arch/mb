@@ -3,6 +3,21 @@
 > 日期：2026-10-10（Asia/Singapore）｜批次 F03-2-2M｜原仓库 `suzhe868-arch/mb`｜工作分支 `feat/f03-transaction-responsible-handover-2m`。
 > **B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A**，**严格以本交接落库后的最新同 SHA 16/16 个独立真实 PostgreSQL 16 CI 作业均 completed/success 为最终生效门禁**。B自验、原始证据和绿灯都不能代替 A 独立复验；B绝不自行 PR、合并 main 或开启后续批次。
 
+
+## 本轮 A-M-01 定向整改｜真实转换来源证明与数据库回归已闭环（2026-10-10）
+
+- **A当前正式退回依据**：07_重建工作区/F03-2-2M_A主控独立复核来源Lock合法转交易证据定向整改单_2026-10-10.md。严格沿用原2M分支，未创建PR、未合并或推进2N。
+- **原B代码缺口**：此前仅凭锁车 lock_status='released' 和Transaction关联ID一致放行；原60条合成Lock无 end_reason，普通人工释放也可能误判转交易。现已关闭。
+- **受限实现修正**：本批 service.mjs 同时在prepare、commit事实重核和CAS+audit+receipt后最终SQL中，强制原Lock lock_status='released'且**已有 end_reason='converted_to_transaction'**，并比对Transaction source_lock_id及Customer/Vehicle/listing_cycle四级源事实。事实读取依赖实际PG16 FOR SHARE/FOR UPDATE行锁；来源证明变化/未知一律拒绝，CAS后变化必须throw使withSession回滚，不留下责任人、资金、审计或收据部分变更。此字段是已冻结旧 public.locks.end_reason，不是新加测试标志；本批不虚构没有已签规范的转换审计事件。
+- **数据与测试**：fixtures.mjs 为所有合法Transaction补真实来源结束原因；n41～45分别植入人工释放、普通取消、过期释放、NULL与未知原因。新 tests/integration.test.mjs 增加A-M-01 **6条独立真实PG16测试**：合法来源成功且仅更新负责人列；五类released伪合法全部fail closed；复合FK身份错误及同四级ID假Lock来源拒绝；prepare到commit来源更改拒绝；CAS+receipt后注错更改来源原因并整事务回滚；第二个真实PG16会话持锁竞争造成安全拒绝和快照完整。
+- **A-M-01-5冻结回归完整**：旧M25全保留，现新M合计**31/31成功**（新增6）；H/I/J/K/L/M六域30有向重复Key、六会话同Key独占与不同Key正常、同Transaction连续合法移交、财务终态与5种故障注错均继续成功。
+- **预交接自验来源**：新增代码及31测试HEAD a1becfe42e68d1053a2d2653f1d781ec9f699380；真实 [GitHub Actions 38010451407](https://github.com/suzhe868-arch/mb/actions/runs/38010451407) 状态 completed/success，**16/16个相互独立非特权PostgreSQL16作业成功**。M31/31、冻结L29/K29/J27/I27旧完整版本测试与其它旧独立作业全部成功。M专用真实日志有F03_2M_EVIDENCE_FULL_CATALOG_PASS和F03_2M_ARCHIVE_EXACT_REAL_RAW_BYTES_PASS。
+- **物理与文件冻结**：原旧93表596列420约束159索引2074完整定义、M94表608列435约束163索引2120项、旧/新结构SHA、000013.sql/manifest/source-run 38008313116与原始pg_dump/inventory文件均不变；旧H/I/J/K/L服务、旧迁移/CI、PDM Final、生产种子未因本轮修复再改。
+- **最终同SHA强门禁**：本中文交接当前修订本自身提交后，还须以最终分支HEAD等于新触发的run.head_sha，且本次新CI **16/16 completed/success** 为最终READY_FOR_A_REVIEW生效条件。A不得用上述预交接成功运行冒充最终交接提交的同SHA运行。B不合并main，等待A独立复验。
+- **剩余边界**：只完成受限合成PG16 Transaction当前负责人单域演练，不代表Lock→Transaction真实创建流程已经实现、资金动作可生产执行、SG06全部业务域完整离职交接、F03-2整体/C-H01高保真最终验收或产品上线。PRODUCT_BASELINE=NOT_READY。
+
+---
+
 ## 一、正式施工Authority及已锁定的边界
 
 - 唯一正式施工单：`07_重建工作区/F03-2-2M_A主控SG06_Transaction交易负责人单域移交完整施工单_2026-10-10.md`。来源：PDM-19交易/Deposit/Refund资金最终口径、PDM-03逐项交接历史、PDM-02当前角色与Team/store/customer范围及个人deny、PDM-18来源Lock和PDM-25审计。
@@ -42,7 +57,7 @@
 - 最新已完成**预交接**独立[真实PG16运行 #38008501930](https://github.com/suzhe868-arch/mb/actions/runs/38008501930)：代码HEAD `6729b6bfa1f1d874df3967659d99f1860c975aff`，run `completed/success`、**16/16全部相互独立真实PG16成功**，新M**25/25**、旧L29/29、K29/29、J27/27、I27/27及独立H89、G/F/E88、D86、C84、B82双、A81、F03-1账号认证和HTTPS全部成功。日志含 `F03_2M_EVIDENCE_FULL_CATALOG_PASS`、`F03_2M_ARCHIVE_EXACT_REAL_RAW_BYTES_PASS`。
 - **最新同SHA门禁必须在本交接文件的提交后重新执行一次**。A不得把上一成功运行 #38008501930 当成本报告新HEAD已通过；由GitHub Actions新run再次确认16/16，branch HEAD与 `run.head_sha` 精确一致，才达到最终READY_FOR_A_REVIEW。
 
-## 四、M25完整测试覆盖清单
+## 四、M31完整测试覆盖清单（原M25及A-M-01新增6项）
 
 1. M01精确新迁移94表结构、固定物理目录及不可变收据；M02当前manager/store_head PC权限、4S/普通/System Admin/限制会话、个人deny/撤Team/停用身份、跨店范围。
 2. M03真实source Lock和Transaction四字段组合FK、in_progress/已完成/取消终态、顾客停用/周期结束/供应异常、多真实Deposit、真实pending Refund、安全拒绝。
@@ -54,7 +69,7 @@
 
 ## 五、交 A 的验收责任与仍未授权的内容
 
-- A应**独立**检查 `000013.sql`、manifest、全catalog/SOURCE、Transaction现时source/资金/终态Guard、CAS/审计/历史链、M10最终事务守卫、五份旧H/I/J/K/L服务新增内容是否确实仅跨域Key/版本识别、M的25例及旧L29/K29/J27/I27的实际日志，并比对**交接新最终HEAD = 最新同SHA 16/16 success**。
+- A应**独立**检查 `000013.sql`、manifest、全catalog/SOURCE、Transaction现时source/资金/终态Guard、CAS/审计/历史链、M10最终事务守卫、五份旧H/I/J/K/L服务新增内容是否确实仅跨域Key/版本识别、M的31例（含A-M-01六项）及旧L29/K29/J27/I27的实际日志，并比对**交接新最终HEAD = 最新同SHA 16/16 success**。
 - A验收通过后才由A决定标准PR合并 `main`，再单独决定是否签发下一批施工单；B不代替A验收、不创建PR、不自行合并、不得擅自开始2N。
 - 没有实现Transaction创建、完成、取消、成交更正、退款执行、支付结清、公海释放、全部SG06离职批次真实生产移交及生产HTTP开通。全部真实资金相关变化留待PDM-19唯一Authority下正式后续批次。
 - **F03-2整体与C/H01高保真设计尚未最终验收，名邦汽车V1 PRODUCT_BASELINE=`NOT_READY`**。
