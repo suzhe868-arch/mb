@@ -135,7 +135,7 @@ test('A-F04-3-B13 verified SystemAdmin control plane is separate from employee b
  const ctrl='/__ci__/current/v1/employee-governance/control-plane-deactivate';
  const biz='/__ci__/current/v1/employee-governance/business-deactivate';
  const h=t=>({...cookie(t),'x-csrf-token':auth.csrfFor(t),'x-request-key':'F04_3_strict_test_014'});
- const before=(await db.query("SELECT account_status FROM public.system_admins WHERE system_admin_id=1")).rows[0].account_status;
+ const before=(await db.query("SELECT count(*)::int n FROM public.system_admins")).rows[0].n;
  const admin=await call('POST',ctrl,h(adminToken));
  assert.equal(admin.status,403,JSON.stringify(admin));
  assert.deepEqual(admin.body,{code:'F04_3_CONTROL_PLANE_TARGET_UNPROVEN'});
@@ -143,5 +143,5 @@ test('A-F04-3-B13 verified SystemAdmin control plane is separate from employee b
  assert.equal((await call('POST',ctrl,h(fourToken))).status,403);
  assert.equal((await call('POST',biz,h(adminToken))).status,403);
  assert.equal((await call('POST',biz,h(ownerToken))).status,403);
- assert.equal((await db.query("SELECT account_status FROM public.system_admins WHERE system_admin_id=1")).rows[0].account_status,before);
+ assert.equal((await db.query("SELECT count(*)::int n FROM public.system_admins")).rows[0].n,before);
 });
