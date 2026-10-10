@@ -33,6 +33,83 @@ test('M01 one new append-only Transaction receipt; strict sealed 94-table real P
  assert.equal((await verify(db)).verified,true);
  assert.equal((await db.query("SELECT count(*)::int n FROM pg_tables WHERE schemaname='public'")).rows[0].n,94);
 });
+test('A-M-01-1 real converted_to_transaction source FK and persisted reason authorize only single Transaction owner CAS',async()=>{
+ const p=req(48,4,'m-conversion-trusted-source-0048'),before=await snapshot();
+ const f=(await db.query("SELECT t.transaction_id,t.source_lock_id,t.customer_id,t.vehicle_id,t.listing_cycle_id,l.lock_status,l.end_reason,l.customer_id AS lc,l.vehicle_id AS lv,l.listing_cycle_id AS ll FROM public.transactions t JOIN public.locks l ON l.lock_id=t.source_lock_id WHERE t.transaction_id=39048")).rows[0];
+ assert.equal(f.lock_status,'released');assert.equal(f.end_reason,'converted_to_transaction');
+ for(const [a,b] of [['customer_id','lc'],['vehicle_id','lv'],['listing_cycle_id','ll']])assert.equal(String(f[a]),String(f[b]));
+ assert.equal((await prepare(auth,manager,p)).code,'M01_PREPARED_READ_ONLY');
+ assert.equal((await commit(auth,manager,p)).code,'M04_TRANSACTION_TRANSFERRED');
+ assert.equal(await owner(48),'4');
+ const after=await snapshot();
+ for(const tab of tracked.filter(x=>!['transactions','transaction_responsible_handover_receipts','audit_events'].includes(x)))assert.deepEqual(after[tab],before[tab],tab);
+ assert.equal(after.transaction_responsible_handover_receipts.length,before.transaction_responsible_handover_receipts.length+1);
+ assert.equal(after.audit_events.length,before.audit_events.length+1);
+});
+test('A-M-01-2 released is NOT converted: manual, cancellation, expiry, NULL and unknown reasons all deny without side effects',async()=>{
+ const before=await snapshot();
+ for(const [n,reason] of [[41,'manual_release'],[42,'customer_cancelled'],[43,'expired'],[44,null],[45,'unknown']]){
+  const row=(await db.query('SELECT lock_status,end_reason FROM public.locks WHERE lock_id=$1',[29000+n])).rows[0];
+  assert.equal(row.lock_status,'released');assert.equal(row.end_reason,reason);
+  const p=req(n,4,'m-untrusted-released-'+String(n).padStart(4,'0'));
+  assert.equal((await prepare(auth,manager,p)).code,'M03_SOURCE_LOCK_AUTHORITY_DEFER_DENY',String(n));
+  assert.equal((await commit(auth,manager,p)).code,'M03_SOURCE_LOCK_AUTHORITY_DEFER_DENY',String(n));
+  assert.equal(await owner(n),'7');
+ }
+ assert.deepEqual(await snapshot(),before);
+});
+test('A-M-01-3 composite source identity must match and a FK-valid same-object fake released Lock cannot substitute the true conversion',async()=>{
+ const p=req(47,4,'m-false-source-fk-valid-0047'),before=await snapshot();
+ await assert.rejects(()=>db.query('UPDATE public.transactions SET source_lock_id=29046 WHERE transaction_id=39047'),e=>e.code==='23503');
+ await db.query("INSERT INTO public.locks(lock_id,customer_id,vehicle_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at,end_reason) SELECT 29947,customer_id,vehicle_id,listing_cycle_id,'released',7,created_at,expires_at,'manual_release' FROM public.locks WHERE lock_id=29047");
+ try{
+  await db.query('UPDATE public.transactions SET source_lock_id=29947 WHERE transaction_id=39047');
+  assert.equal((await prepare(auth,manager,p)).code,'M03_SOURCE_LOCK_AUTHORITY_DEFER_DENY');
+  assert.equal((await commit(auth,manager,p)).code,'M03_SOURCE_LOCK_AUTHORITY_DEFER_DENY');
+  assert.equal(await owner(47),'7');
+ }finally{
+  await db.query('UPDATE public.transactions SET source_lock_id=29047 WHERE transaction_id=39047');
+  await db.query('DELETE FROM public.locks WHERE lock_id=29947');
+ }
+ assert.deepEqual(await snapshot(),before);
+});
+test('A-M-01-4 prepare cannot authorize a subsequently invalidated source conversion',async()=>{
+ const p=req(49,4,'m-prepared-then-cancel-0049'),before=await snapshot();
+ assert.equal((await prepare(auth,manager,p)).code,'M01_PREPARED_READ_ONLY');
+ await db.query("UPDATE public.locks SET end_reason='manual_release' WHERE lock_id=29049");
+ try{
+  assert.equal((await commit(auth,manager,p)).code,'M03_SOURCE_LOCK_AUTHORITY_DEFER_DENY');
+  assert.equal(await owner(49),'7');
+ }finally{await db.query("UPDATE public.locks SET end_reason='converted_to_transaction' WHERE lock_id=29049")}
+ assert.deepEqual(await snapshot(),before);
+});
+test('A-M-01-4 source reason modified after CAS and receipt throws and rolls back all writes',async()=>{
+ const p=req(50,4,'m-post-cas-source-drift-0050'),before=await snapshot(),stages=[];
+ const r=await commit(auth,manager,p,{testCheckpoint:async(stage,c)=>{
+  stages.push(stage);
+  if(stage==='after_receipt')await c.query("UPDATE public.locks SET end_reason='customer_cancelled' WHERE lock_id=29050");
+ }});
+ assert.ok(stages.includes('after_receipt'));
+ assert.equal(r.code,'M04_UNSAFE_FINANCIAL_OR_TRANSACTION_STATE_DEFER_DENY');
+ assert.equal(r.transactionRolledBack,true);
+ assert.equal(await owner(50),'7');
+ assert.deepEqual(await snapshot(),before);
+});
+test('A-M-01-4 two real PG16 sessions cannot rewrite conversion proof underneath locked handover',async()=>{
+ const p=req(52,4,'m-other-pg-locked-source-0052'),before=await snapshot();
+ const other=await connect();
+ try{
+  await other.query('BEGIN');
+  await other.query("UPDATE public.locks SET end_reason='manual_release' WHERE lock_id=29052");
+  const result=await commit(auth,manager,p);
+  assert.equal(result.code,'M04_CONTENTION_DEFER_DENY',JSON.stringify(result));
+  assert.equal(await owner(52),'7');
+  await other.query('ROLLBACK');
+ }finally{
+  try{await other.query('ROLLBACK')}finally{await other.end()}
+ }
+ assert.deepEqual(await snapshot(),before);
+});
 test('M02 genuine F03-1 manager authorization: ordinary sales, 4S, admin, restricted, no session denied',async()=>{
  for(const token of [ordinary,four,admin,restricted,null])assert.notEqual((await commit(auth,token,req())).code,'M04_TRANSACTION_TRANSFERRED');
 });
