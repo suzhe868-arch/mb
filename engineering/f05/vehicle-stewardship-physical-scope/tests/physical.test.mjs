@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {randomBytes} from 'node:crypto';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {connect,verify,rollback,apply,PREVIOUS} from '../migration.mjs';
-import {issueFromTrustedManualPublication,readMinimalCurrentVehicle,revokeCurrentResponsibility} from '../service.mjs';
+import {issueFromTrustedManualPublication,recordTrustedManualPublicationEvent,readMinimalCurrentVehicle,revokeCurrentResponsibility} from '../service.mjs';
 const origin='https://127.0.0.1:48983',secret=randomBytes(32);
 const db=await connect(),auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin});
 let token;
@@ -28,6 +28,8 @@ test('F05-2-A02 even real vehicle uploader cannot read without a signed event',a
 });
 test('F05-2-A03 verified real PG16 publication sign makes minimum read possible',async()=>{
  assert.equal((await issueFromTrustedManualPublication(auth,token,event(49006,49016,'synthetic-f05-2-forbidden-wholesale-49006'))).allowed,false);
+ const origin=await recordTrustedManualPublicationEvent(auth,token,event(49002,49012,pubKey));
+ assert.equal(origin.allowed,true,JSON.stringify(origin));
  const s=await issueFromTrustedManualPublication(auth,token,event(49002,49012,pubKey));
  assert.equal(s.code,'F05_2_ISSUED',JSON.stringify(s));
  const r=await readMinimalCurrentVehicle(auth,token,{vehicleId:49002,outlet:'detail'});
