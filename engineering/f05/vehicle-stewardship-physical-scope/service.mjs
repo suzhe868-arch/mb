@@ -177,7 +177,7 @@ export async function readMinimalCurrentVehicle(auth,token,p){
  return session(auth,token,async(c,actor)=>{
   const v=await lookup(c,p.vehicleId);
   if(!basic(v))return deny('F05_2_VEHICLE_STATE_DENIED');
-  const r=(await c.query("SELECT responsibility_id,responsible_employee_id,team_id,source_snapshot,revoked_at FROM public.vehicle_current_responsibilities WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND revoked_at IS NULL",
+  const r=(await c.query("SELECT responsibility_id,responsible_employee_id,team_id,source_snapshot,revoked_at FROM public.vehicle_current_responsibilities WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND revoked_at IS NULL FOR SHARE",
     [p.vehicleId,v.listing_cycle_id])).rows;
   if(r.length!==1||r[0].source_snapshot!==v.source_type)return deny('F05_2_SCOPE_UNPROVEN');
   if(!await currentCapability(c,actor,Number(r[0].team_id),'vehicle.read'))return deny('F05_2_READ_SCOPE_DENIED');
