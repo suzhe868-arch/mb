@@ -1,0 +1,11 @@
+出口/能力	身份来源	最小输入	当前权限/事实	响应字段	明确排除	未有合同时
+批发列表	合成可信客户	customer+vehicle+cycle	LIMITED+当前可见	vehicleId,listingCycleId,sourceType,price=null	VIN,internalPrice,phone	LIST_PRICE_HIDDEN
+批发详情	合成可信客户	customer+vehicle+cycle	LIMITED+已有当前周期unlock	vehicleId,listingCycleId,price	raw transaction,资金,发布人电话	NEEDS_F05_ATOMIC_UNLOCK
+批发价格	合成可信客户	customer+vehicle+cycle	UNLIMITED+当前可见+合法报价	vehicleId,listingCycleId,price	chargeEvent,内价	DENY_UNTRUSTED_MODE
+名邦/4S列表	合成可信客户	customer+vehicle+cycle	上架当前可见+合法报价	vehicleId,listingCycleId,price	4S商户秘密,原始行	PRICE_CONSULT
+员工列表/详情	F03-1当前PC会话	vehicle+team	现时权限,personalDeny,scope	vehicleId,listingCycleId,sourceType,price	vin,资金,phone,internalPrice	SCOPE_DENY
+历史/审计	F03-1当前PC会话	object+team	现时有效权限和历史主体合法scope	最小脱敏证据	当时完整私人数据	DENY
+导出/复制/打印/PDF	F03-1当前PC会话	currentObject+currentTeam	每次授权再验证	最小白名单	旧下载任务敏感字段	DENY
+缓存命中	F03-1当前PC会话	currentObject+currentTeam	重新鉴权含状态/权限版本	最小白名单	旧原始JSON	DENY
+上游publisher电话	旧敏感能力+F07来源	publisher_id	独立业务能力+真实发布人来源	受控拨号资格	客户电话,car_code	DEFER_F07
+内部批发价	真实员工+业务对象+独立能力	vehicleId+team	internal.price.view和精确业务范围	内部价字段	4S/Customer/SystemAdmin	DEFER_SCOPE_SOURCE
