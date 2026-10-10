@@ -75,7 +75,7 @@ async function rawManifest(dir){
  assert.equal(lines.length,2);
  const entries={};
  for(const line of lines){
-  const q=/^([a-f0-9]{64})  f03\/runtime-lock-responsible-handover\/artifacts\/(pg16_schema_only\.sql|pg16_inventory\.json)$/.exec(line);
+  const q=/^([a-f0-9]{64})  f03\/runtime-transaction-responsible-handover\/artifacts\/(pg16_schema_only\.sql|pg16_inventory\.json)$/.exec(line);
   assert.ok(q,'BAD_SHA256_MANIFEST');
   assert.ok(!entries[q[2]]);
   const actual=sha(await readFile(new URL(q[2],dir)));
