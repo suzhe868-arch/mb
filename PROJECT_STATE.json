@@ -4,7 +4,7 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F04_3_A_ACCEPTED_MERGED_PR28_F04_4_A_RELEASED_FOR_B",
+  "substage": "F04_4_A_CHANGES_REQUESTED_PR29_NOT_MERGED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A已完成F04-3二轮独立验收并标准合并PR28：B最终f86f592056303e9ac6e04ad5af5be93accf41b80与Actions38048203956同SHA、30/30独立真PG16 success、新Source16/16、TLS13/13、41原生Artifacts与M94/G14旧seal无弱化；A三项整改PASS。32 Current候选仍CI-only/NOT_APPROVED/NOT_PRODUCTION、旧215候选23 MATCHED/192 SOURCE_GAP/UNDECIDED、禁恢复Collector三项。A正式下发F04-4全量Current动作覆盖与消费合同安全门禁完整施工单，B从最新main新建指定分支，在32个独立真PG16门禁下施工。产品基线与C/H01及F04整体NOT_READY。",
-  "current_work_file": "07_重建工作区/F04-4_A主控Current全量动作覆盖消费合同与隔离安全门禁完整施工单_2026-10-10.md",
+  "current_task": "B最终PR29/HEAD 3e2e5a2f27c2c88dbc595f3312a6520f843c6a84与Actions38051029689匹配且32/32真PG16成功，45原生Artifacts；A发现A-F04-4-01 8项incremental typed DTO全部采用单整数ID导致操作语义不完整，如新建公告要求已有announcementId、Vehicle source_type edit缺目标source_type。A已正式下发整改单，PR29未合并，由B原分支整改并重新跑最终同SHA32/32。Current来源437行及三向258行保留，Page Manifest140 vs132为非本轮单独阻断的SOURCE_GAP。F04/H01/产品基线NOT_READY。",
+  "current_work_file": "07_重建工作区/F04-4_A主控首次独立审查增量动作DTO业务语义完整定向整改单_2026-10-10.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_EXECUTE_F04_4_FULL_CURRENT_ACTION_COVERAGE_AND_CONSUMER_CONTRACT_32_PG16",
+  "next_action": "B_REMEDIATE_F04_4_A_01_INCREMENTAL_TYPED_DTO_SEMANTICS_PR29_32_PG16",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F04_3_A_ACCEPTED_MERGED_PR28_F04_4_A_RELEASED_FOR_B",
+  "engineering_status": "F04_4_A_CHANGES_REQUESTED_PR29_NOT_MERGED",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B读取main的F04-4正式完整施工单07_重建工作区/F04-4_A主控Current全量动作覆盖消费合同与隔离安全门禁完整施工单_2026-10-10.md；执行时从最新main新建feat/f04-4-current-action-coverage-gate，先全量枚举Current Final/IA/Action/Nav/Guard真实动作并严格证明来源、主体、对象状态、消费C/E/P/4S、Domain与旧218追溯，按证据可得性制作新增CI-only typed DTO和独立消费者安全验证，未证明要标SOURCE_GAP，旧215=23 matched+192缺口和3 Collector禁恢复保持；不建4S额外组织层、不做新DDL/生产/资金/第三方写入。保留已签F04-3原30独立PG16旧作业，增加2个独立真实PG16作业，最终32/32 success与B最终SHA一致、原生Artifacts与中文交接交A。B不得自合并或跳到F05。",
+  "next_action_detail": "B读取main最新07_重建工作区/F04-4_A主控首次独立审查增量动作DTO业务语义完整定向整改单_2026-10-10.md，在原feat/f04-4-current-action-coverage-gate分支/PR29按Final+Current IA一次性修正8项增量Current合同的真实业务操作DTO字段语义；尤其ANNOUNCEMENT_CREATE不能无证强制旧announcementId、VEHICLE_SOURCE_TYPE_EDIT应反映目标source_type、Markup草稿规则与模型绑定须区分参数/来源。确无合法原文者降REQUEST_SCHEMA_SOURCE_GAP/INTENT_ONLY_CI_CONTRACT，不伪称typed业务接口已完成，补真正能杀死错误DTO的变异负例；冻结旧30作业，新增两独立PG16，最后同SHA32/32成功、原生Artifacts完整、中文交接后交A复验。无生产/资金/第三方/产品规则变更。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -5966,11 +5966,11 @@
     "merge_sha": "a1f7ebcbfdf1184ed2b1e1143afe01e877119694"
   },
   "f04_4_gate": {
-    "status": "A_RELEASED_FOR_B",
-    "execution": "B_NOT_STARTED",
+    "status": "A_CHANGES_REQUESTED",
+    "execution": "B_SELF_TESTED_A_FIRST_REVIEW_REMEDIATION_REQUIRED",
     "work_order": "07_重建工作区/F04-4_A主控Current全量动作覆盖消费合同与隔离安全门禁完整施工单_2026-10-10.md",
     "branch": "feat/f04-4-current-action-coverage-gate",
-    "branch_created": false,
+    "branch_created": true,
     "source_f04_3_merge_sha": "a1f7ebcbfdf1184ed2b1e1143afe01e877119694",
     "scope": "FULL_CURRENT_IA_ACTION_COVERAGE_AND_CEP4S_CONSUMER_DTO_CI_ONLY_GATE",
     "prior_frozen_pg16_jobs": 30,
@@ -5980,6 +5980,20 @@
     "allow_production": false,
     "allow_real_account_or_money_writes": false,
     "product_baseline": "NOT_READY",
-    "next_owner": "B"
+    "next_owner": "B",
+    "pr": 29,
+    "pr_merged": false,
+    "reviewed_sha": "3e2e5a2f27c2c88dbc595f3312a6520f843c6a84",
+    "reviewed_ci_run": 38051029689,
+    "reviewed_success_jobs": 32,
+    "reviewed_artifacts": 45,
+    "new_source_artifact_id": 11669133122,
+    "new_tls_artifact_id": 11669622637,
+    "a_report": "07_重建工作区/F04-4_A主控首次独立审查增量动作DTO业务语义完整定向整改单_2026-10-10.md",
+    "a_review_comment_id": 6097622718,
+    "a_blockers": [
+      "A-F04-4-01"
+    ],
+    "unreconciled_page_manifest_count": 8
   }
 }
