@@ -5,6 +5,9 @@ const valid=x=>Number.isSafeInteger(x)&&x>0;
 const exact=(o,k)=>o&&typeof o==='object'&&!Array.isArray(o)&&Object.keys(o).sort().join(',')===k;
 const str=x=>x===undefined||x===null?null:String(x);
 const out=(code,more={})=>Object.freeze({code,...more});
+// PDM-19 §7: released alone cannot establish a legal Lock -> Transaction conversion.
+// The existing immutable-in-this-batch Lock end_reason is an authority fact, not a new testing flag.
+const TRANSACTION_CONVERSION_END_REASON='converted_to_transaction';
 // M10: throw after any successful CAS: F03-1 withSession rolls back all owner/audit/receipt writes.
 
 const sha=x=>createHash('sha256').update(x,'utf8').digest('hex');
@@ -42,8 +45,10 @@ async function facts(c,actor,p,locking=false){
  const transactionId=Number(i.object_id);if(!valid(transactionId))return {error:'M03_TRANSACTION_ID_DENY'};
  const tx=(await c.query('SELECT * FROM public.transactions WHERE transaction_id=$1'+suffix,[transactionId])).rows[0];
  if(!tx||tx.status!=='in_progress'||tx.completed_at!==null)return {error:'M03_TRANSACTION_NOT_IN_PROGRESS'};
+ // Both paths hold a genuine PostgreSQL row lock on the authoritative source Lock.
+ // Any competing reason rewrite waits or causes lock timeout; the final check below catches same-transaction drift.
  const source=(await c.query('SELECT * FROM public.locks WHERE lock_id=$1'+suffix,[tx.source_lock_id])).rows[0];
- if(!source||source.lock_status!=='released'||str(source.customer_id)!==str(tx.customer_id)||str(source.vehicle_id)!==str(tx.vehicle_id)||str(source.listing_cycle_id)!==str(tx.listing_cycle_id))return {error:'M03_SOURCE_LOCK_AUTHORITY_DEFER_DENY'};
+ if(!source||source.lock_status!=='released'||source.end_reason!==TRANSACTION_CONVERSION_END_REASON||str(source.customer_id)!==str(tx.customer_id)||str(source.vehicle_id)!==str(tx.vehicle_id)||str(source.listing_cycle_id)!==str(tx.listing_cycle_id))return {error:'M03_SOURCE_LOCK_AUTHORITY_DEFER_DENY'};
  const customer=(await c.query('SELECT * FROM public.customers WHERE customer_id=$1 FOR SHARE',[tx.customer_id])).rows[0];
  if(!customer||customer.account_status!=='active'||customer.owner_assignment_state!=='assigned')return {error:'M03_CUSTOMER_INVALID'};
  const listing=(await c.query('SELECT v.vehicle_id,v.source_sale_status,lc.listing_cycle_id,lc.ended_at FROM public.vehicle_listing_cycles lc JOIN public.vehicles v ON v.vehicle_id=lc.vehicle_id WHERE lc.listing_cycle_id=$1 AND lc.vehicle_id=$2 FOR SHARE OF lc,v',[tx.listing_cycle_id,tx.vehicle_id])).rows[0];
@@ -135,8 +140,8 @@ async function transfer(c,actor,p,hook){
  }
  // A signed Transaction owner change must remain valid at the last DB statement.
  // Throw on any post-CAS inconsistency so F03-1 withSession actually ROLLBACKs.
- const final=(await c.query("SELECT t.status,t.completed_at,t.responsible_employee_id,t.source_lock_id,t.customer_id,t.vehicle_id,t.listing_cycle_id,l.customer_id AS source_customer_id,l.vehicle_id AS source_vehicle_id,l.listing_cycle_id AS source_cycle_id,l.lock_status,(SELECT count(*)::int FROM public.deposit_receipts d WHERE d.lock_id=l.lock_id) AS deposit_count,(SELECT count(*)::int FROM public.refund_cases r WHERE r.transaction_id=t.transaction_id OR r.lock_id=l.lock_id) AS refund_count FROM public.transactions t JOIN public.locks l ON l.lock_id=t.source_lock_id WHERE t.transaction_id=$1 FOR UPDATE OF t,l",[f.transactionId])).rows[0];
- if(!final||final.status!=='in_progress'||final.completed_at!==null||str(final.responsible_employee_id)!==str(p.recipientEmployeeId)||str(final.source_lock_id)!==str(f.sourceLockId)||str(final.customer_id)!==str(f.customerId)||str(final.customer_id)!==str(final.source_customer_id)||str(final.vehicle_id)!==str(final.source_vehicle_id)||str(final.listing_cycle_id)!==str(final.source_cycle_id)||final.lock_status!=='released'||final.deposit_count!==f.depositCount||final.refund_count!==0){
+ const final=(await c.query("SELECT t.status,t.completed_at,t.responsible_employee_id,t.source_lock_id,t.customer_id,t.vehicle_id,t.listing_cycle_id,l.customer_id AS source_customer_id,l.vehicle_id AS source_vehicle_id,l.listing_cycle_id AS source_cycle_id,l.lock_status,l.end_reason AS source_end_reason,(SELECT count(*)::int FROM public.deposit_receipts d WHERE d.lock_id=l.lock_id) AS deposit_count,(SELECT count(*)::int FROM public.refund_cases r WHERE r.transaction_id=t.transaction_id OR r.lock_id=l.lock_id) AS refund_count FROM public.transactions t JOIN public.locks l ON l.lock_id=t.source_lock_id WHERE t.transaction_id=$1 FOR UPDATE OF t,l",[f.transactionId])).rows[0];
+ if(!final||final.status!=='in_progress'||final.completed_at!==null||str(final.responsible_employee_id)!==str(p.recipientEmployeeId)||str(final.source_lock_id)!==str(f.sourceLockId)||str(final.customer_id)!==str(f.customerId)||str(final.customer_id)!==str(final.source_customer_id)||str(final.vehicle_id)!==str(final.source_vehicle_id)||str(final.listing_cycle_id)!==str(final.source_cycle_id)||final.lock_status!=='released'||final.source_end_reason!==TRANSACTION_CONVERSION_END_REASON||final.deposit_count!==f.depositCount||final.refund_count!==0){
   throw Object.assign(new Error('M_PRECOMMIT_RELATION_CHANGED_ATOMIC_ROLLBACK'),{code:'M04_UNSAFE_FINANCIAL_OR_TRANSACTION_STATE_DEFER_DENY'});
  }
  return out('M04_TRANSACTION_TRANSFERRED',{receipt:display(receipt),otherDomainsPending:true,transactionLifecycleUnchanged:true,idempotent:false});
