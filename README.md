@@ -1,3 +1,11 @@
+# 2026-10-10｜F03-2-2M B自验全绿，A发现来源Lock真实转换缺证，正式定向整改（当前最新）
+
+- B分支`feat/f03-transaction-responsible-handover-2m`最终受检SHA`608779547db3f6ffce76f8c7ee030e4f30242eeb`、同SHA真实[Actions38008698898](https://github.com/suzhe868-arch/mb/actions/runs/38008698898)**16/16独立PG16作业success**、M25/25、旧L29/K29/J27/I27各自在冻结旧库完整成功；H/I/J/K/L/M六域30向Key冲突及并发通过。旧93表2074物理catalog定义零改，新增000013仅一张Transaction收据表后94表608列435约束163索引2120目录定义(+46)，PG16 SOURCE原始字节及完整catalog PASS。
+- **A-M-01唯一阻断**：新M`service.mjs`仅凭source Lock`lock_status='released'`加customer/vehicle/cycle相同就承认Transaction来源合法，完全未校验PDM-19正式必须存在的`converted_to_transaction`类真实历史结束原因；合成fixture所有source Lock都为`released`但没有`end_reason`（NULL），因此M25全绿没有证明合法来源。正式A完整整改单：`07_重建工作区/F03-2-2M_A主控独立复核来源Lock合法转交易证据定向整改单_2026-10-10.md`。B在原分支只补新M source转换真实性Guard及prepare/commit/precommit时序实测、正确合成fixture和源审计证明，最终同SHA16/16全成功后交A。冻结旧000001～000013及所有旧CI/业务服务不改。
+- **A_CHANGES_REQUESTED / NOT_ACCEPTED / NOT_MERGED；NEXT_OWNER=B**，暂不进入2N；完整F03-2、C/H01和产品基线`NOT_READY`。
+
+---
+
 # 2026-10-10｜F03-2-2L A二轮正式验收PR20已合并，下一F03-2-2M正式施工单已签发（当前最新）
 
 - **2L已A正式签收并合并**：B最终SHA 408e7a581264c43220ce3cc326a73ee610c051a5、同SHA [真实CI38005762988](https://github.com/suzhe868-arch/mb/actions/runs/38005762988) **15/15独立真实PG16作业success**；新L29/29含8项到期事务竞态与全回滚测试，旧K29/29、J27/27、I27/27及其它全部旧模块独立成功。旧92表2028完整目录不变，新000012仅一张Lock收据表后93表596列420约束159索引2074项(+46)，结构SHA 9ab7221f9a0f5f81c0af37441d4cd5b824e2ac7322f8d40f952ba2cecea0e2f9，真实SOURCE字节和全catalog校验PASS。A-L-01用PG数据库即时钟CAS及正式提交前throw整事务ROLLBACK完全闭环；旧SQL/旧CI/业务Final不改。标准 [PR20](https://github.com/suzhe868-arch/mb/pull/20) merge SHA 9ed6db2a6aeefb382298460004768edd11df20b6。正式A验收：07_重建工作区/F03-2-2L_A主控二轮独立验收及PR20正式合并闭环_2026-10-10.md。

@@ -4,7 +4,7 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F03_2_2L_A_ACCEPTED_MERGED_PR20_F03_2_2M_A_RELEASED_NEXT_OWNER_B_H01_VISUAL_PENDING",
+  "substage": "F03_2_2M_B_SELF_TESTED_A_CHANGES_REQUESTED_UNPROVEN_LOCK_TRANSACTION_CONVERSION_NEXT_OWNER_B",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F03-2-2L A-L-01 PG16临界时钟/完整回滚整改完成，A二轮复验15/15通过PR20合并；A正式签发Transaction负责人单域2M工程施工单，B负责",
-  "current_work_file": "07_重建工作区/F03-2-2M_A主控SG06_Transaction交易负责人单域移交完整施工单_2026-10-10.md",
+  "current_task": "A独立复核F03-2-2M虽新M25/25、同SHA16/16独立PG16全部成功，但真正Transaction来源Lock转换历史未被证明：仅Lock released就视为转交易，fixture全无end_reason。A退B原分支补来源真实性及PG16时序负例，不合并/不推进下一批",
+  "current_work_file": "07_重建工作区/F03-2-2M_A主控独立复核来源Lock合法转交易证据定向整改单_2026-10-10.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_F03_2_2M_TRANSACTION_RESPONSIBLE_SINGLE_DOMAIN_CI_PG16_16_JOBS_READY_FOR_A",
+  "next_action": "B_F03_2_2M_A_M_01_TRUE_LOCK_TO_TRANSACTION_CONVERSION_PROOF_PG16_16_OF_16_READY_FOR_A",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F03_2_2L_A_ACCEPTED_MERGED_PR20_F03_2_2M_A_RELEASED_B_NOT_STARTED",
+  "engineering_status": "F03_2_2L_A_ACCEPTED_MERGED_PR20_F03_2_2M_A_CHANGES_REQUESTED_NOT_MERGED",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B最新main建立或核验feat/f03-transaction-responsible-handover-2m，根据正式M施工单只在合成PG16安全实现Transaction in_progress负责人员工单列CAS/审计/不可变逐项收据，Lock/Deposit/Refund/已完成交易只读Guard、六域H/I/J/K/L/M全局Key真正30方向双向唯一，旧000001～000012冻结、可在新000013最多增加一张新收据表，旧H/I/J/K/L仅commit/retry跨域Key/结构完整封印最小补强。必须新M+旧L93/K92/J91/I90/H89/GFE88/D86/C84/B82双/A81/F03-1两项16/16个独立新PG16作业success，L29/K29/J27/I27完整回归、真实原始证据及同最终SHA CI后READY_FOR_A_REVIEW交A，B不得合并",
+  "next_action_detail": "B在feat/f03-transaction-responsible-handover-2m原分支严格按A-M-01完整整改单，修复新M service的来源Lock不可以泛released冒充converted_to_transaction类合法结单：必须核对end_reason与真实Transaction来源/客户/车/周期和可证历史，prepare/commit/precommit三处一致，异常整事务ROLLBACK；更新只限新M fixtures/tests/交接，新SQL000001～000013、旧H/I/J/K/L服务/CI、PDM Final不改。新增真实PG16合法转交易正例/普通released、cancelled、expired、NULL原因、不可信审计与并发状态漂移负例，旧M25和L29/K29/J27/I27全回归。最终HEAD同SHA16/16 success及原始物理证据齐全READY_FOR_A_REVIEW交A，B不合并不进入2N",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -5176,7 +5176,7 @@
     ],
     "merge_status": "MERGED_TO_MAIN_USER_APPROVED",
     "schema_proposals": "SG01_LIMITED_000003_ACCEPTED_SG02_TO_SG08_NOT_AUTHORIZED",
-    "next": "B_IMPLEMENT_F03_2_2M_TRANSACTION_RESPONSIBLE_PG16_16_JOBS_READY_FOR_A",
+    "next": "B_REMEDIATE_F03_2_2M_TRUE_LOCK_TO_TRANSACTION_SOURCE_PROOF_16_JOBS_READY_FOR_A",
     "merge_preparation": {
       "report": "07_重建工作区/F03-2-G0_A主控合并核验材料_待用户批准_2026-10-09.md",
       "pr": 6,
@@ -5708,22 +5708,27 @@
       "pg16_physical": "93_TABLES_596_COLUMNS_420_CONSTRAINTS_159_INDEXES_2074_CATALOG_KEYS_PLUS46"
     },
     "f03_2_2m": {
-      "status": "A_TECH_ADJUDICATED_AND_RELEASED_B_NOT_STARTED",
+      "status": "A_CHANGES_REQUESTED_B_REMEDIATION_REQUIRED",
       "owner": "B",
       "next_owner_after_b": "A",
       "branch": "feat/f03-transaction-responsible-handover-2m",
-      "branch_created": false,
+      "branch_created": true,
       "work_order": "07_重建工作区/F03-2-2M_A主控SG06_Transaction交易负责人单域移交完整施工单_2026-10-10.md",
       "authorization": "STANDING_A_B_C_CONTINUOUS_ISOLATED_TECHNICAL_CONSTRUCTION",
       "scope": "SG06_TRANSACTION_RESPONSIBLE_SINGLE_DOMAIN_CI_PG16_FINANCIAL_AND_TERMINAL_GUARDS_SIX_DOMAIN_KEYS",
       "schema_authorization": "000013_MAX_ONE_APPEND_ONLY_TRANSACTION_RECEIPT_TABLE_OLD_000001_TO_000012_FROZEN",
       "technical_exception": "ONLY_H_I_J_K_L_SERVICE_COMMIT_RETRY_CROSS_DOMAIN_KEY_AND_SCHEMA_SEAL",
       "required_ci_jobs": 16,
-      "tests": "NOT_RUN",
-      "ci_sha": null,
-      "ci_run_id": null,
-      "acceptance": "NOT_STARTED",
-      "merge": "NOT_STARTED"
+      "tests": "REAL_CI_38008698898_16_OF_16_SUCCESS_M_25_L29_K29_J27_I27_BUT_M03_SOURCE_LOCK_CONVERSION_NOT_PROVEN",
+      "ci_sha": "608779547db3f6ffce76f8c7ee030e4f30242eeb",
+      "ci_run_id": 38008698898,
+      "acceptance": "A_CHANGES_REQUESTED_NOT_ACCEPTED",
+      "merge": "NOT_STARTED",
+      "a_review_report": "07_重建工作区/F03-2-2M_A主控独立复核来源Lock合法转交易证据定向整改单_2026-10-10.md",
+      "required_changes": [
+        "A-M-01_SOURCE_LOCK_RELEASED_NOT_EQUIVALENT_TO_CONVERTED_TO_TRANSACTION_PROVENANCE"
+      ],
+      "observed_ci_jobs": 16
     }
   },
   "a_batch_approval_mode": "STANDING_USER_DIRECTED_CONTINUOUS_TECHNICAL_WORKFLOW_IN_FROZEN_SCOPE; A_SCOPES_AND_RELEASES_B_C; EACH_WINDOW_COMPLETES_END_TO_END; A_INDEPENDENT_ACCEPTANCE_AND_CLEAN_PR_MERGE_WITHOUT_REPEAT_APPROVAL; NEW_PRODUCT_CHOICE_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_EXTERNAL_WRITES_REQUIRE_USER",

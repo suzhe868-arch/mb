@@ -1592,3 +1592,8 @@ B`244b68a2e168624e2a4f65aa17fc1cc587d54fcf`同SHA真实CI`38003745347`15/15独�
 ## 2026-10-10｜F03-2-2L A二轮正式验收PR20合并及2M受限技术放行（不变更PDM Final）
 
 B最终SHA408e7a581264c43220ce3cc326a73ee610c051a5同SHA真实CI38005762988 15/15独立PG16成功，L29含8项A-L-01锁车临界时序、K29/J27/I27完整回归；旧92表2028完整catalog对象不变，新000012一张收据表后93表2074项，SOURCE原始字节PASS。A-L-01已按DB即时钟CAS加提交前整事务ROLLBACK闭环。PR20合并SHA 9ed6db2a6aeefb382298460004768edd11df20b6，正式验收 07_重建工作区/F03-2-2L_A主控二轮独立验收及PR20正式合并闭环_2026-10-10.md；下一M正式施工单 07_重建工作区/F03-2-2M_A主控SG06_Transaction交易负责人单域移交完整施工单_2026-10-10.md，Transaction负责人单域CI隔离PG16及六域Key安全，要求16/16个独立CI全绿，NEXT_OWNER=B；完整F03-2/H01/产品仍NOT_READY。
+
+
+## 2026-10-10｜F03-2-2M A独立审查发现source Lock真实转交易证据缺口（工程台账，不改PDM Final）
+
+B最终SHA 608779547db3f6ffce76f8c7ee030e4f30242eeb 同SHA真实CI38008698898 16/16独立PG16成功，M25/25与旧L29/K29/J27/I27全通过，新000013仅加一表后94表2120目录键且旧93表2074目录键全不变。A复核发现新M仅source Lock released即认为合法转换、未核PDM-19必需converted_to_transaction类end_reason及交易对应历史；fixture全部Lock end_reason NULL，故没有实证来源合法性。完整整改单 07_重建工作区/F03-2-2M_A主控独立复核来源Lock合法转交易证据定向整改单_2026-10-10.md，B继续原分支只补新M服务/fixture/测试的来源证明与事务末端守卫，最后同SHA16/16全部通过交A；2M未验收/未合并，不进入2N，F03-2整体/H01产品NOT_READY。
