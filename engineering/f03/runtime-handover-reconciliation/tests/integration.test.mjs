@@ -81,6 +81,91 @@ test('N05 orphan/mismatched ledger item with same object cannot claim historical
  assert.equal(row(r,'Priority').status,'BLOCKED');
  assert.deepEqual(await snapshot(),before);
 });
+test('A-N-01-1 current batch Priority source/recipient and Demand receipt audit are causally identical',async()=>{
+ const before=await snapshot(),r=await reconcile(auth,manager,p());
+ assert.equal(row(r,'Demand').status,'PROVEN_RECEIPT');
+ assert.equal(row(r,'Priority').status,'PRIORITY_DERIVED_ONLY',JSON.stringify(r));
+ assert.equal(r.batchCloseAuthorized,false);
+ assert.deepEqual(await snapshot(),before);
+});
+test('A-N-01-2 older Demand receipt cannot prove a pending or retry_required Priority in another batch',async()=>{
+ const old=(await db.query('SELECT status,updated_at FROM public.handover_items WHERE item_id=13613')).rows[0];
+ try{
+  for(const status of ['pending','retry_required']){
+   await db.query('UPDATE public.handover_items SET status=$1 WHERE item_id=13613',[status]);
+   const before=await snapshot(),r=await reconcile(auth,manager,p(96602));
+   assert.equal(row(r,'Priority').status,'DERIVATION_UNPROVEN',JSON.stringify(r));
+   assert.equal(r.observedReadOnlyState,'DEFER_DENY');
+   assert.deepEqual(await snapshot(),before);
+  }
+ }finally{await db.query('UPDATE public.handover_items SET status=$1,updated_at=$2 WHERE item_id=13613',[old.status,old.updated_at])}
+});
+test('A-N-01-3 matching batch with wrong Priority source is not a verified Demand handover',async()=>{
+ const old=(await db.query('SELECT from_employee_id,updated_at FROM public.handover_items WHERE item_id=13603')).rows[0];
+ try{
+  await db.query('UPDATE public.handover_items SET from_employee_id=6 WHERE item_id=13603');
+  const before=await snapshot(),r=await reconcile(auth,manager,p());
+  assert.equal(row(r,'Priority').status,'DERIVATION_UNPROVEN',JSON.stringify(r));
+  assert.deepEqual(await snapshot(),before);
+ }finally{await db.query('UPDATE public.handover_items SET from_employee_id=$1,updated_at=$2 WHERE item_id=13603',[old.from_employee_id,old.updated_at])}
+});
+test('A-N-01-4 explicit cross-store Team 906 reader needs independent authority over receipt origin Team 901',async()=>{
+ const legal=await reconcile(auth,manager,p(96601,906));
+ assert.equal(row(legal,'Priority').status,'PRIORITY_DERIVED_ONLY',JSON.stringify(legal));
+ const binding=(await db.query('SELECT ended_at FROM public.employee_capability_scope_bindings WHERE employee_id=5 AND permission_id=16 AND scope_id=201')).rows[0];
+ assert.ok(binding);
+ try{
+  await db.query("UPDATE public.employee_capability_scope_bindings SET ended_at=clock_timestamp()-interval '1 second' WHERE employee_id=5 AND permission_id=16 AND scope_id=201");
+  const before=await snapshot(),denied=await reconcile(auth,manager,p(96601,906));
+  assert.equal(row(denied,'Priority').status,'DERIVATION_UNPROVEN',JSON.stringify(denied));
+  assert.equal(denied.batchCloseAuthorized,false);
+  assert.deepEqual(await snapshot(),before);
+ }finally{await db.query('UPDATE public.employee_capability_scope_bindings SET ended_at=$1 WHERE employee_id=5 AND permission_id=16 AND scope_id=201',[binding.ended_at])}
+ const unsupported=await reconcile(auth,manager,p(96601,999));
+ assert.equal(row(unsupported,'Priority').status,'OUT_OF_SCOPE');
+});
+test('A-N-01-5 expired Priority or invalidated match never inherits an old Demand receipt',async()=>{
+ const old=(await db.query('SELECT expires_at,source_match_result_id FROM public.priority_leases WHERE priority_id=5011')).rows[0];
+ try{
+  await db.query("UPDATE public.priority_leases SET expires_at=clock_timestamp()-interval '1 minute' WHERE priority_id=5011");
+  const before=await snapshot(),r=await reconcile(auth,manager,p());
+  assert.equal(row(r,'Priority').status,'DERIVATION_UNPROVEN');
+  assert.deepEqual(await snapshot(),before);
+ }finally{await db.query('UPDATE public.priority_leases SET expires_at=$1 WHERE priority_id=5011',[old.expires_at])}
+ const match=(await db.query('SELECT invalidated_at FROM public.demand_match_results WHERE result_id=$1',[old.source_match_result_id])).rows[0];
+ try{
+  await db.query('UPDATE public.demand_match_results SET invalidated_at=clock_timestamp() WHERE result_id=$1',[old.source_match_result_id]);
+  const r=await reconcile(auth,manager,p());
+  assert.equal(row(r,'Priority').status,'DERIVATION_UNPROVEN');
+ }finally{await db.query('UPDATE public.demand_match_results SET invalidated_at=$1 WHERE result_id=$2',[match.invalidated_at,old.source_match_result_id])}
+});
+test('A-N-01-6 even without pending Refund six PROVEN receipts cannot close if Priority source is unproven',async()=>{
+ const oldItem=(await db.query('SELECT from_employee_id,updated_at FROM public.handover_items WHERE item_id=13603')).rows[0];
+ const refunds=(await db.query("SELECT refund_id,status,close_reason,closed_at FROM public.refund_cases WHERE status='pending'")).rows;
+ assert.ok(refunds.length>0);
+ try{
+  await db.query("UPDATE public.refund_cases SET status='closed',close_reason='synthetic PG16 evidence gate only, no money moved',closed_at=clock_timestamp() WHERE status='pending'");
+  await db.query('UPDATE public.handover_items SET from_employee_id=6 WHERE item_id=13603');
+  const before=await snapshot(),r=await reconcile(auth,manager,p());
+  for(const kind of ['Customer','Demand','Consultation','Waitlist','Lock','Transaction'])assert.equal(row(r,kind).status,'PROVEN_RECEIPT',kind);
+  assert.equal(r.pendingRefundBlocker,false);
+  assert.equal(row(r,'Priority').status,'DERIVATION_UNPROVEN');
+  assert.equal(r.observedReadOnlyState,'DEFER_DENY');
+  assert.equal(r.batchCloseAuthorized,false);assert.equal(r.employeeDisableAuthorized,false);assert.equal(r.globalReady,false);
+  assert.deepEqual(await snapshot(),before);
+ }finally{
+  await db.query('UPDATE public.handover_items SET from_employee_id=$1,updated_at=$2 WHERE item_id=13603',[oldItem.from_employee_id,oldItem.updated_at]);
+  for(const r of refunds)await db.query('UPDATE public.refund_cases SET status=$1,close_reason=$2,closed_at=$3 WHERE refund_id=$4',[r.status,r.close_reason,r.closed_at,r.refund_id]);
+ }
+});
+test('A-N-01-7 in-transaction Priority source drift between guards fails closed with full rollback',async()=>{
+ const before=await snapshot();
+ const result=await reconcile(auth,manager,p(),{testCheckpoint:async(stage,c)=>{
+  if(stage==='before_last_guard')await c.query('UPDATE public.handover_items SET from_employee_id=6 WHERE item_id=13603');
+ }});
+ assert.equal(result.code,'N08_DRIFT_DEFER_DENY',JSON.stringify(result));
+ assert.deepEqual(await snapshot(),before);
+});
 test('N05 multi-handover chain records genuine subsequent Demand recipient, without changing Priority TTL',async()=>{
  const old=(await db.query('SELECT expires_at FROM public.priority_leases WHERE priority_id=5011')).rows[0].expires_at;
  await db.query("INSERT INTO public.handover_batches(batch_id,source_employee_id,change_kind,initiated_by_kind,initiated_by_id,client_request_key,reason) VALUES(96603,4,'planned_transfer','employee',5,'n-subsequent-chain-96603','CI independent second Demand owner transfer')");
