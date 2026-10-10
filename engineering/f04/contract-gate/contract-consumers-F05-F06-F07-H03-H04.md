@@ -4,7 +4,7 @@
 
 | 责任域 | 必须来自后端现时可信来源 | 允许前的最小条件 | 缺证结果 |
 | --- | --- | --- | --- |
-| F04 客户资料 | 稳定customer_id、即时owner历史/门店Team、active、员工身份与个人deny | 本批本人客户最小ID的受限测试允许；完整CRM字段及业务audit仍待正式接口 | DENY |
+| F04 客户资料 | 稳定customer_id、即时owner历史/门店Team、active、员工身份与个人deny | 本批仅M94已有对象级crm.customer.view绑定且本人是current owner时的最小customerId受限测试允许，Team/store绑定不能代替目标Customer object-scope；完整CRM字段及业务audit仍待正式接口 | DENY |
 | F04 4S账号 | 分离的System Admin主体、合法4S账号和操作审计 | 仅active System Admin可管理；4S之间不得互管 | OPEN_DEPENDENCY |
 | F05 车辆归属 | vehicle_id、listing_cycle_id、source_type、真实Store/Team、4S商户绑定和来源版本 | `vehicle.read/vehicle.manage`独立权限、个人deny、业务对象归属及状态 | P_VEHICLE_SCOPE_UNPROVEN |
 | F05 内部批发价 | F05价格历史及本单车辆scope，不能从客户端传入 | `internal.price.view`独立授权；编辑另需正常`vehicle.manage`；4S硬拒 | DENY |
