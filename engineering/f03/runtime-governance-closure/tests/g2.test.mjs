@@ -44,7 +44,31 @@ const close=async(batch,item)=>{
 };
 test('G2 genuine immutable M94 source 76 receipt and completed G batch gate planned employee disable',async()=>{
  await close(97001,17601);
- const r=await commitPlannedGovernance(auth,manager,{action:'planned_disable',batchId:97001,employeeId:76,teamId:901});
+ // A-G-01-b: forged current owner not backed by any successor receipt.
+ const prior=(await c.query('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=37601')).rows[0].current_owner_employee_id;
+ const original=(await c.query('SELECT employment_status FROM public.employees WHERE employee_id=76')).rows[0];
+ try{
+  await c.query('UPDATE public.customers SET current_owner_employee_id=6 WHERE customer_id=37601');
+  const bad=await commitPlannedGovernance(auth,manager,{action:'planned_disable',batchId:97001,employeeId:76,teamId:901});
+  assert.equal(bad.code,'G_PLANNED_UNPROVEN_RECEIPT_AUDIT',JSON.stringify(bad));
+  assert.equal((await c.query('SELECT employment_status FROM public.employees WHERE employee_id=76')).rows[0].employment_status,original.employment_status);
+ }finally{await c.query('UPDATE public.customers SET current_owner_employee_id=$1 WHERE customer_id=37601',[prior])}
+ // A-G-01-e: independent PostgreSQL session cannot alter the locked
+ // customer's responsibility during G2's proof-to-commit interval.
+ let racingWriteRejected=false;
+ const r=await commitPlannedGovernance(auth,manager,{action:'planned_disable',batchId:97001,employeeId:76,teamId:901},{
+  testCheckpoint:async(stage)=>{
+   if(stage==='before_revoke'){
+    const second=await connect();
+    try{
+     await second.query('BEGIN');
+     await second.query("SET LOCAL lock_timeout='90ms'");
+     await assert.rejects(()=>second.query('UPDATE public.customers SET current_owner_employee_id=6 WHERE customer_id=37601'),e=>{racingWriteRejected=e.code==='55P03';return racingWriteRejected});
+    }finally{await second.query('ROLLBACK');await second.end()}
+   }
+  }
+ });
+ assert.equal(racingWriteRejected,true);
  assert.equal(r.code,'G_PLANNED_APPLIED',JSON.stringify(r));
  const e=(await c.query('SELECT employment_status,receiving_status FROM public.employees WHERE employee_id=76')).rows[0];
  assert.equal(e.employment_status,'inactive');assert.equal(e.receiving_status,'paused');
@@ -55,6 +79,13 @@ test('G2 genuine immutable M94 source 76 receipt and completed G batch gate plan
 });
 test('G2 verified planned manager downgrade requires store head role and never resurrects old permissions',async()=>{
  await close(97002,17602);
+ const originalOwner=(await c.query('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=37602')).rows[0].current_owner_employee_id;
+ try{
+  await c.query('UPDATE public.customers SET current_owner_employee_id=5 WHERE customer_id=37602');
+  const wrong=await commitPlannedGovernance(auth,head,{action:'planned_downgrade',batchId:97002,employeeId:77,teamId:901});
+  assert.equal(wrong.code,'G_PLANNED_UNPROVEN_RECEIPT_AUDIT',JSON.stringify(wrong));
+  assert.equal((await c.query('SELECT credential_state FROM public.pc_login_accounts WHERE employee_id=77')).rows[0].credential_state,'enabled');
+ }finally{await c.query('UPDATE public.customers SET current_owner_employee_id=$1 WHERE customer_id=37602',[originalOwner])}
  const forbidden=await commitPlannedGovernance(auth,manager,{action:'planned_downgrade',batchId:97002,employeeId:77,teamId:901});
  assert.equal(forbidden.ok,false,JSON.stringify(forbidden));
  const r=await commitPlannedGovernance(auth,head,{action:'planned_downgrade',batchId:97002,employeeId:77,teamId:901});
@@ -68,6 +99,13 @@ test('G2 verified complete SG06 batch allows System Admin-only planned cross-sto
  const wrong=await commitPlannedStoreTransferAsSystemAdmin(auth,manager,{batchId:97003,employeeId:78,targetStoreId:2,targetTeamId:906,reason:'CI cross store planned management'});
  assert.equal(wrong.code,'G_TRANSFER_CONTROL_PLANE_DENY');
  await close(97003,17603);
+ const priorOwner=(await c.query('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=37603')).rows[0].current_owner_employee_id;
+ try{
+  await c.query('UPDATE public.customers SET current_owner_employee_id=6 WHERE customer_id=37603');
+  const deny=await commitPlannedStoreTransferAsSystemAdmin(auth,admin,{batchId:97003,employeeId:78,targetStoreId:2,targetTeamId:906,reason:'refuse unattributed owner scope drift'});
+  assert.equal(deny.code,'G_TRANSFER_UNPROVEN_LEDGER',JSON.stringify(deny));
+  assert.equal((await c.query('SELECT store_id FROM public.employees WHERE employee_id=78')).rows[0].store_id,'1');
+ }finally{await c.query('UPDATE public.customers SET current_owner_employee_id=$1 WHERE customer_id=37603',[priorOwner])}
  const r=await commitPlannedStoreTransferAsSystemAdmin(auth,admin,{batchId:97003,employeeId:78,targetStoreId:2,targetTeamId:906,reason:'synthetic approved planned crossstore transfer'});
  assert.equal(r.code,'G_TRANSFER_APPLIED',JSON.stringify(r));
  const emp=(await c.query('SELECT store_id,receiving_status FROM public.employees WHERE employee_id=78')).rows[0];
