@@ -84,6 +84,18 @@ test('F04-R04 wrong method and malformed DTO reject; old routes cannot resurrect
   assert.equal((await http('GET','/customer/vehicles',cookie(token))).status,404);
   assert.equal((await http('GET','/api/v1/staff/vehicle/export',cookie(token))).status,404);
   assert.equal((await http('GET','/api/v1/f04/vehicle/unknown',cookie(token))).status,404);
+  // These three original Collector management calls are explicitly retired.
+  // Neither legacy URL nor a /api/v1 wrapper may silently restore them.
+  for(const [method,path] of [
+    ['GET','/admin/integrations/collector/connection'],
+    ['PATCH','/admin/integrations/collector/connection'],
+    ['POST','/admin/integrations/collector/connection:test']
+  ]){
+    const x=await http(method,path,cookie(token));
+    assert.equal(x.status,404,JSON.stringify(x));
+    const y=await http(method,'/api/v1'+path,cookie(token));
+    assert.equal(y.status,404,JSON.stringify(y));
+  }
 });
 test('F04-R05 valid current employee CRM scope cannot grant any Vehicle outlet',async()=>{
   for(const view of ['list','detail','history','cache','export','copy','print']){
