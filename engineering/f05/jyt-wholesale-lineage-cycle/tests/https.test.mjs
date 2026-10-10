@@ -102,3 +102,17 @@ test('B-B08 credential revocation is effective without restart or cached privile
  denied(await call(prefix+'sync','POST',signed('revoked-upsert')));
  await assert.rejects(()=>db.query('UPDATE public.f05_3b_sync_credentials SET revoked_at=NULL,version=version+1 WHERE credential_id=$1',[credentialId]),/F05_3B_CREDENTIAL_REVOCATION_IRREVERSIBLE/);
 });
+
+
+test('B-B09 actual HTTP successes and denied calls persist immutable sanitized counts without token or VIN',async()=>{
+ const data=(await db.query("SELECT action,method,http_status,actor_kind,submitted_count,returned_count,processed_count,result_code FROM public.f05_3b_api_call_logs ORDER BY call_id")).rows;
+ assert.ok(data.length>=12,'all accepted and rejected operations should be audited');
+ assert.ok(data.some(x=>x.action==='upsert'&&x.http_status===403&&x.actor_kind==='SYSTEM'));
+ assert.ok(data.some(x=>x.action==='current'&&x.http_status===200&&x.actor_kind==='INTEGRATION'));
+ assert.ok(data.some(x=>x.action==='offline'&&x.http_status===200&&Number(x.processed_count)===1));
+ const serialized=JSON.stringify(data);
+ for(const blocked of [token,'__Host-mb_pc','SyntheticAdmin_1234567','VIN-TEST-SECRET'])
+  assert.equal(serialized.includes(blocked),false);
+ const rec=(await db.query('SELECT call_id FROM public.f05_3b_api_call_logs ORDER BY call_id LIMIT 1')).rows[0];
+ await assert.rejects(()=>db.query('DELETE FROM public.f05_3b_api_call_logs WHERE call_id=$1',[rec.call_id]),/F05_3B_AUDIT_IMMUTABLE/);
+});
