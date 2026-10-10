@@ -1,3 +1,11 @@
+# 2026-10-11｜F05-2 A首次独立复验发现四项对象权限及并发阻断（唯一最新）
+
+- **受检PR [#31](https://github.com/suzhe868-arch/mb/pull/31) CI事实全部有效**：B最终SHA `52078ba41fe205ead1da373bc4bf52fc2610ccd8` = PR HEAD = [Actions 38059665296](https://github.com/suzhe868-arch/mb/actions/runs/38059665296) head_sha；官方36/36独立真实非特权PG16 jobs success（冻结旧34不变，新2），新增A物理11/11、HTTPS9/9，59份原生Artifacts（新`11672373434`、`11673021019`），本PR仅16份批准的新增文件。上述不等于A接受权限语义。
+- **A复审结论：`F05_2=A_CHANGES_REQUESTED / PR31_NOT_MERGED / NEXT_OWNER=B`**。四项明确阻断：**01** 交接后原普通销售仍凭Team vehicle.read看他人Vehicle；**02** inactive/旧scope恢复导致旧Vehicle责任自动复活（PDM-02 §9.4禁止）；**03** 旧车created_by+发布时间可事后自建受信发布审计并签发业务owner，缺真实发布事务独立来源；**04** 权限/身份/scope撤销与读取/交接的真实PG16最终COMMIT竞态未测且缺守卫。详见`07_重建工作区/F05-2_A主控首次独立复验权限交接与并发闭环完整整改单_2026-10-11.md`和PR31 A评论 `6099902681`。
+- **B立即在原分支一次性完成整单整改**：保留旧34项逐字冻结、补旧owner/复职/可信来源/权限并发正反例，再取得整改最终同SHA36/36（或补充新独立Job）、真实两新Artifacts及中文自验交A二轮复验。A未验收前不得合并PR31或开始F05-3。F05全域、F04正式生产、C/H01及V1产品基线继续`NOT_READY`；不新增生产/账号/资金/第三方权限。
+
+---
+
 # 2026-10-10｜F05-1 A主控独立验收正式通过、PR30合并；F05-2 Vehicle可信责任物理关系及权限并发包正式放行（唯一最新）
 
 - **F05-1已由A独立验收/标准合并**：[PR #30](https://github.com/suzhe868-arch/mb/pull/30)；B最终HEAD `146129d94af0df6570bba7bb17781f1528d00a7c`与官方[Actions #38056158521](https://github.com/suzhe868-arch/mb/actions/runs/38056158521) `run.head_sha`完全相同，**34/34真实独立非特权PG16 jobs success**；新增真实物理/99条约束 **9/9**、TLS/Session/Vehicle七出口 **9/9**；**51份原生Artifacts**，新Source `11671056231`、新TLS `11671291921`；A对照旧F04-4原**32个job正文逐一不变**、仅12项批准白名单新增文件，无旧迁移/Final/IA/生产server/C设计改动。A正面验收评论`6098084371`；**标准merge SHA `5f70588905a8cadbb47a3bc4a8eb6af411b94597`**。正式验收报告`07_重建工作区/F05-1_A主控独立验收PR30正式合并与F05-2可信归属接力_2026-10-10.md`。
