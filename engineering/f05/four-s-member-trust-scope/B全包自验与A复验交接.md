@@ -11,7 +11,7 @@
 - 原F05-2完整36个job定义逐字冻结，仅本批新增的两项CI作业追加真实独立PG16增量版本、Admin许可证、同事务新车、撤权及审计测试；两job追加原生新版schema-only、catalog/inventory、sha256、真实测试日志和Artifact。
 - 当前来源与审计完整说明见`F05-3A受信Admin许可证与4S本人首发物理审计及回归合同.md`；14项新旧Actor矩阵见`F05-3A新旧正反Actor权限审计矩阵.tsv`。
 
-**关键真实安全事实**：业务Actor永远来自活跃4S本人Session；颁证Actor为活跃System Admin控制面Session；自动治理撤权为SYSTEM、无被影响者伪装human Actor；旧上架、另一4S账号、名邦发布4S/JYT、System Admin业务读、6非详情出口、伪造header均拒；账户/permission/Vehicle source/cycle变化关闭license和对象，重新active不会复活。全部只在独立PG16和loopback HTTPS运行，不修改000001～000015或生产Server。
+**关键真实安全事实**：业务Actor永远来自活跃4S本人Session；颁证Actor为活跃System Admin控制面Session；自动治理撤权为SYSTEM、无被影响者伪装human Actor；旧上架、另一4S账号、名邦发布4S/JYT、System Admin业务读、6非详情出口、伪造header均拒；账户/permission变化关闭该member licence及关联当前对象；某一Vehicle source/cycle变化仅关闭**该车当前责任**、不连带撤销4S成员对其它自己车辆的管理或今后合法首次发布资格，重新active不会复活。全部只在独立PG16和loopback HTTPS运行，不修改000001～000015或生产Server。
 
 **最终交A门槛**：PR Head=最新分支HEAD=Actions run.head_sha，旧36+新2的**38/38成功**、新原生物理与TLS两个Artifacts、原生H-A14/H-B10不含假阳性，A独立复验后才可合并main；B不得自行合并。F05全域、F04生产、C/H01和V1基线仍`NOT_READY`。
 

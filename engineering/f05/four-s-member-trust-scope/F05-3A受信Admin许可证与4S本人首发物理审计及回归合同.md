@@ -13,7 +13,7 @@
 ## 二、撤销、Actor与终局并发
 
 - 显式`revokeMemberCreateLicense`在真实Admin Session/目标当前帐号行锁/CAS下注销license，记录真实`actor_kind=SYSTEM_ADMIN`和合法System Admin身份；同事务自动关闭该许可签发的全部当前Vehicle对象责任。
-- 账号停用、主角色/门店/employee状态、4S个人permission override、车辆source/status、listingCycle关闭都由**新增隔离PG16触发器**自动关闭受影响license和对象并记`actor_kind=SYSTEM`；自动系统事件不冒充受影响4S本人。
+- 账号停用、主角色/门店/employee状态及4S个人permission override由**新增隔离PG16触发器**注销当前member licence并连带关闭其当前经营对象；单车的source/status变更或listingCycle结束仅注销**该Vehicle/Cycle对象责任**，不误撤该成员其他车或新的首发资格，所有治理动作均记`actor_kind=SYSTEM`；自动系统事件不冒充受影响4S本人。
 - 旧成员恢复active、role/allow恢复、上架周期变化不会复活已经撤销的license或Vehicle责任。新授权只能由当前合法System Admin单独再次签发，且仅用于新的车辆。
 - 控制平面的目标账号行锁与业务发布当前同一账号Session互斥；member licence`FOR SHARE`和Admin撤销`FOR UPDATE`串行；已提交撤销后的读取/发布均不能返回200。真实双连接测试见`tests/bridge-source.test.mjs`。
 - 不可变审计含before/after、eventKey、licenseId、publicationId、SYSTEM_ADMIN/FOUR_S_MEMBER/SYSTEM三类Actor，无人类身份伪造。新Migration通过隔离PG16前版本结构封印+新版本SHA校验；旧000001~000015均禁止变更。
