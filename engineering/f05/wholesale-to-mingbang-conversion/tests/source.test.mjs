@@ -21,7 +21,7 @@ const snapshot=async(vehicle,cycle)=>{
  for(const name of tables){
   const filter=['vehicle_visibility_grants','vehicle_images','vehicle_price_history'].includes(name)?
    'vehicle_id=$1':'vehicle_id=$1 AND listing_cycle_id=$2';
-  result[name]=(await db.query('SELECT row_to_json(t) AS record FROM public.'+name+' t WHERE '+filter+' ORDER BY 1',[vehicle,...(filter.includes('$2')?[cycle]:[])])).rows.map(x=>x.record);
+  result[name]=(await db.query('SELECT row_to_json(t) AS record FROM public.'+name+' t WHERE '+filter+' ORDER BY to_jsonb(t)::text',[vehicle,...(filter.includes('$2')?[cycle]:[])])).rows.map(x=>x.record);
  }
  return {result,sha:createHash('sha256').update(JSON.stringify(result)).digest('hex')};
 };
