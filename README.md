@@ -1,3 +1,12 @@
+# 2026-10-11｜F05-3D A来源安全审计PASS，PR35已合并；F05-3E正式放行（唯一最新）
+
+- F05-3D B/PR35/[Actions 38122141246](https://github.com/suzhe868-arch/mb/actions/runs/38122141246) 同SHA `3dab7ee19b11a6f11d20d3e739ff202140b2f4f0`；官方真PG16非特权**44/44 success**，旧42 jobs全文未改，新source **8/8**、HTTPS **7/7**，原生Artifacts`11695554078/11695782435`未过期；PR35 GitHub已合并，merge SHA `876904c8bb1d7953d4e8fd08f22ee997f8d34f1b`。A审核评论 [6106873556](https://github.com/suzhe868-arch/mb/pull/35#issuecomment-6106873556)、正式报告`07_重建工作区/F05-3D_A主控独立来源审计PASS_PR35已合并与后续缺口规划_2026-10-11.md`。
+- **审计与越权拒绝门禁通过，不是普通批发正向管理授权通过**：真实PG16人工车`vehicle_current_responsibilities.source_snapshot`约束仅`mingbang/four_s`；JYT car_code/车型/上架周期没有真实具名名邦员工经营权限授予，Role/Team单独不足，普通无本人当前Lock/活动Transaction的JYT批发车保持`GENERAL_WHOLESALE_VEHICLE_SCOPE_SOURCE_GAP`与HTTP403。若要扩大单车经营操作资格，签发者与签发依据需用户产品裁决，未经确认不得创造通用Owner。
+- **唯一下一步**：A发布`07_重建工作区/F05-3E_A主控自动隐藏与人工原因可信来源及转换重算隔离完整施工单_2026-10-11.md`；B从最新main新建`feat/f05-3e-hide-reason-trust-recalculation`，冻结旧44 Job原文，增2个独立非特权PG16 Job，最终可信条件下**46/46同B/PR/Actions SHA success、两份原生证据与中文交接**交A。PDM04 Final隐藏规则source_scope及AND/OR与人工/其他原因，来源转换后可信重算；无来源继续保守hidden，不可伪造visible。真实图片资产化、Favorite载体、新JYT上游车型/生产接口及通用批发经营权继续SOURCE_GAP。
+- 当前`F05_3D_A_ACCEPTED_MERGED_PR35_AUDIT_ONLY / F05_3E_A_RELEASED_FOR_B_B_NOT_STARTED / NEXT_OWNER=B`；F05整体、F04生产、C/H01与V1基线持续`NOT_READY`。优先读取`CURRENT_PROJECT_STATE.md`、`NEXT_ACTION.md`、`PROJECT_STATE.json`、`07_重建工作区/DECISION_REGISTER.md`确认最新状态。
+
+---
+
 # 2026-10-11｜F05-3D A审计/安全拒绝PASS、PR35已合并；普通批发Owner受信来源仍缺，F05-3E隐藏规则来源重算已放行（唯一最新）
 
 - A官方独立核查B`feat/f05-3d-wholesale-object-scope-trust` / [PR35](https://github.com/suzhe868-arch/mb/pull/35) / [Actions #38122141246](https://github.com/suzhe868-arch/mb/actions/runs/38122141246) 受检B/PR/run HEAD **`3dab7ee19b11a6f11d20d3e739ff202140b2f4f0`**，GitHub **44/44独立非特权真PG16 jobs success**，原42个Job定义由A逐块全文校验**42/42原文不变**，新物理source D-A01～08 **8/8 PASS** 和loopback TLS D-B01～07 **7/7 PASS**；官方89份Artifacts中新物理`11695554078`、新TLS`11695782435`非空有效。PR仅6个白名单新增文件，无旧签000001～000018/F05-3C/Final/生产/C修改。
