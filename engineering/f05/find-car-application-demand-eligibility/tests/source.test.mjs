@@ -25,6 +25,8 @@ const snapshot=async id=>({
  events:await q('SELECT application_id,demand_id,actor_employee_id FROM public.f05_6_activation_events_ci WHERE customer_id=$1 ORDER BY event_id',[id])
 });
 const races=[];
+const downstreamBaseline={};
+const forbiddenDownstream=['demand_match_results','recommendations','priority_leases','locks','transactions','customer_price_unlock_events'];
 test.before(async()=>{
  assert.equal((await verify(db)).verified,true);
  for(const who of Object.keys(cred))token[who]=await login(who);
@@ -32,6 +34,10 @@ test.before(async()=>{
  oldPassword:cred.manager[1],newPassword:'SyntheticF056DemandManager_2026'});
  assert.equal(change.code,'PASSWORD_CHANGED_REAUTH_REQUIRED');
  cred.manager[1]='SyntheticF056DemandManager_2026';token.manager=await login('manager');
+ for(const table of forbiddenDownstream){
+  try{downstreamBaseline[table]=Number((await q('SELECT count(*)::int n FROM public.'+table))[0].n)}
+  catch(e){if(e.code!=='42P01')throw e;downstreamBaseline[table]='SOURCE_TABLE_NOT_CURRENT'}
+ }
 });
 test.after(async()=>{await auth.close();await db.end();secret.fill(0)});
 test('6-A01 genuine nonprivileged PG16 v22 signed M94-v21 ledger, actual catalog and rollback',async()=>{
@@ -164,11 +170,10 @@ test('6-A18 created_at immutable; no new Recommendation/Matching/price or quotas
  const before=await q('SELECT demand_id,created_at FROM public.demands WHERE customer_id=899612');
  await assert.rejects(()=>db.query("UPDATE public.demands SET created_at=now()-interval '1 day' WHERE demand_id=$1",[before[0].demand_id]),/F05_6_DEMAND_CREATION_TIME_FROZEN/);
  await assert.rejects(()=>db.query('UPDATE public.f05_6_activation_events_ci SET request_key=$1 WHERE demand_id=$2',[actKey('tamper'),before[0].demand_id]),/F05_6_SIGNED_APPLICATION_DEMAND_FACT_IMMUTABLE/);
- const forbidden=['demand_match_results','recommendations','priority_leases','locks','transactions','customer_price_unlock_events'];
- const result={};for(const table of forbidden){
+ const result={};for(const table of forbiddenDownstream){
   try{result[table]=Number((await q('SELECT count(*)::int n FROM public.'+table))[0].n)}catch(e){if(e.code!=='42P01')throw e;result[table]='SOURCE_TABLE_NOT_CURRENT'}
  }
- assert.ok(Object.values(result).every(z=>z===0||z==='SOURCE_TABLE_NOT_CURRENT'),JSON.stringify(result));
+ assert.deepEqual(result,downstreamBaseline,'F05-6 must not add Match/Recommendation/Priority/Lock/Transaction/Price events to already populated frozen PG16 fixtures');
 });
 async function race({id,customerId,name,sql,args,denial,restore}){
  const original=await application(customerId,'race-'+name);
