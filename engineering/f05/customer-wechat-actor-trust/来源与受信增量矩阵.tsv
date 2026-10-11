@@ -1,0 +1,9 @@
+环节	可信来源	审计结论	边界
+微信官方code换session	仓库尚无已验证服务端来源	SOURCE_GAP	禁止客户端自行声明认证成功
+Customer会话签发及撤销	无已签独立Customer Session	SOURCE_GAP	不接受员工端PC登录态
+当前Session与身份归属	缺实时持有权证明	SOURCE_GAP	不接受openid或customer_id自报
+微信身份与Customer关联	PG16中外键及复合唯一索引	SIGNED_SOURCE	只证明实体关系
+客户即时状态	PG16中customers.account_status	SIGNED_SOURCE	inactive禁止新操作
+Favorite现时与历史	已签v19 Current与Event物理关系	SIGNED_SOURCE	不等于真实前端授权
+本人收藏操作授权	缺受信顾客会话	SOURCE_GAP	拒绝HTTP成功
+CSRF及Origin和撤销	未签顾客安全频道	SOURCE_GAP	回环TLS拒绝
