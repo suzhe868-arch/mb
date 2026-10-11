@@ -8,6 +8,13 @@ jobs:
   i-source:
     name: F05-3I source true nonprivileged PostgreSQL16 v19 Favorite preconversion test
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
     timeout-minutes: 40
     permissions: {contents: read}
     steps:
@@ -24,6 +31,13 @@ jobs:
   i-https:
     name: F05-3I https true nonprivileged PostgreSQL16 v19 Favorite preconversion test
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
     timeout-minutes: 40
     permissions: {contents: read}
     steps:
