@@ -1,4 +1,4 @@
-name: F05-3E 44 frozen and two isolated PostgreSQL16 hide reason audits
+name: F05-3E 44 frozen and two scoped audit jobs
 on:
   push:
     branches: [feat/f05-3e-hide-reason-trust-recalculation]
@@ -7586,27 +7586,20 @@ jobs:
           if-no-files-found: error
 
   f05-3e-source-pg16:
-    name: F05-3E independent real PG16 hide reason source source audit
-    permissions:
-      contents: read
+    name: F05-3E true PostgreSQL16 hide reason source audit
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    permissions: {contents: read}
     services:
       postgres:
         image: public.ecr.aws/docker/library/postgres:16-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: disposable_bootstrap_only
-          POSTGRES_DB: postgres
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
         ports: [5432:5432]
         options: >-
-          --health-cmd "pg_isready -U postgres -d postgres"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 20
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 5s --health-retries 20
     defaults:
-      run:
-        working-directory: engineering
+      run: {working-directory: engineering}
     env:
       GITHUB_ACTIONS: 'true'
       CI: 'true'
@@ -7623,33 +7616,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version: '22.16.0'
-          cache: npm
-          cache-dependency-path: engineering/package-lock.json
-      - name: Establish disposable PG16 non-superuser and verify isolated source
-        run: |
-          set -euo pipefail
-          npm ci --ignore-scripts --no-audit --no-fund
-          ids="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
-          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
-          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
-          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
-          node f05/wholesale-to-mingbang-conversion/ci-run.mjs source
-          mkdir -p f05/hide-reason-trust-recalculation/artifacts/source
-          node --test f05/hide-reason-trust-recalculation/tests/source.test.mjs 2>&1 | tee f05/hide-reason-trust-recalculation/artifacts/source/true-pg16-source-tests.log
-      - name: Capture real PG16 schema-only full catalog inventory and source gaps
-        run: |
-          set -euo pipefail
-          artifact=f05/hide-reason-trust-recalculation/artifacts/source
-          node f05/wholesale-to-mingbang-conversion/evidence.mjs --record
-          cp f05/wholesale-to-mingbang-conversion/artifacts/current/* "$artifact/"
-          cp f05/hide-reason-trust-recalculation/来源与可信性审计矩阵.tsv "$artifact/source-gap-matrix.tsv"
-          cp f05/hide-reason-trust-recalculation/B全包自验与A复验交接.md "$artifact/B-technical-handoff.md"
-          ids="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
-          docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > "$artifact/schema-only.sql"
-          (cd "$artifact" && sha256sum * > sha256sums.txt)
-          if grep -R -nE 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|BEGIN PRIVATE KEY|mbci_[A-Za-z0-9_-]{43}' "$artifact"; then exit 1; fi
+        with: {node-version: '22.16.0'}
+      - run: bash f05/hide-reason-trust-recalculation/ci-job.sh source
       - uses: actions/upload-artifact@v4
         with:
           name: f05-3e-source-independent-native-pg16-audit-evidence
@@ -7658,27 +7626,20 @@ jobs:
           if-no-files-found: error
 
   f05-3e-https-pg16:
-    name: F05-3E independent real PG16 hide reason source https audit
-    permissions:
-      contents: read
+    name: F05-3E true PostgreSQL16 hide reason https audit
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    permissions: {contents: read}
     services:
       postgres:
         image: public.ecr.aws/docker/library/postgres:16-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: disposable_bootstrap_only
-          POSTGRES_DB: postgres
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
         ports: [5432:5432]
         options: >-
-          --health-cmd "pg_isready -U postgres -d postgres"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 20
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 5s --health-retries 20
     defaults:
-      run:
-        working-directory: engineering
+      run: {working-directory: engineering}
     env:
       GITHUB_ACTIONS: 'true'
       CI: 'true'
@@ -7695,34 +7656,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version: '22.16.0'
-          cache: npm
-          cache-dependency-path: engineering/package-lock.json
-      - name: Establish disposable PG16 non-superuser and verify isolated source
-        run: |
-          set -euo pipefail
-          npm ci --ignore-scripts --no-audit --no-fund
-          ids="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
-          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
-          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
-          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
-          openssl req -x509 -newkey rsa:2048 -sha256 -nodes -subj '/CN=127.0.0.1' -days 1 -keyout /tmp/f04-3-ci-key.pem -out /tmp/f04-3-ci-cert.pem >/dev/null 2>&1
-          node f05/wholesale-to-mingbang-conversion/ci-run.mjs https
-          mkdir -p f05/hide-reason-trust-recalculation/artifacts/https
-          node --test f05/hide-reason-trust-recalculation/tests/https.test.mjs 2>&1 | tee f05/hide-reason-trust-recalculation/artifacts/https/true-pg16-https-tests.log
-      - name: Capture real PG16 schema-only full catalog inventory and source gaps
-        run: |
-          set -euo pipefail
-          artifact=f05/hide-reason-trust-recalculation/artifacts/https
-          node f05/wholesale-to-mingbang-conversion/evidence.mjs --record
-          cp f05/wholesale-to-mingbang-conversion/artifacts/current/* "$artifact/"
-          cp f05/hide-reason-trust-recalculation/来源与可信性审计矩阵.tsv "$artifact/source-gap-matrix.tsv"
-          cp f05/hide-reason-trust-recalculation/B全包自验与A复验交接.md "$artifact/B-technical-handoff.md"
-          ids="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
-          docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > "$artifact/schema-only.sql"
-          (cd "$artifact" && sha256sum * > sha256sums.txt)
-          if grep -R -nE 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|BEGIN PRIVATE KEY|mbci_[A-Za-z0-9_-]{43}' "$artifact"; then exit 1; fi
+        with: {node-version: '22.16.0'}
+      - run: bash f05/hide-reason-trust-recalculation/ci-job.sh https
       - uses: actions/upload-artifact@v4
         with:
           name: f05-3e-https-independent-native-pg16-audit-evidence
