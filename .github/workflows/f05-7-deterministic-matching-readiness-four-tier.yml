@@ -1,7 +1,9 @@
-name: F05-7 real v21 PDM12 application pending/manual demand eligibility CI
+name: F05-7 v23 PDM12 deterministic Matching PG16 and TLS CI
 on:
   push:
     branches: [feat/f05-7-deterministic-matching-readiness-four-tier]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions: {contents: read}
 jobs:
