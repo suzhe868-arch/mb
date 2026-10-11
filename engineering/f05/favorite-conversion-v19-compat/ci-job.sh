@@ -18,10 +18,10 @@ export F05_1_ISOLATION_CONFIRM=I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
 # The tiny inherited 52-job workflow uses one independent Docker PG16 per new job.
 # Work within engineering/ where package-lock and all legacy paths are located.
 cd "$(dirname "${BASH_SOURCE[0]}")/../.."
-docker run --detach --rm --name f05i-ci-pg16 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=disposable_bootstrap_only -e POSTGRES_DB=postgres -p 5432:5432 public.ecr.aws/docker/library/postgres:16-alpine >/dev/null
+ids="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
 ready=0
 for attempt in $(seq 1 40); do
- if docker exec f05i-ci-pg16 pg_isready -U postgres -d postgres >/dev/null 2>&1; then ready=1; break; fi
+ if docker exec "$ids" pg_isready -U postgres -d postgres >/dev/null 2>&1; then ready=1; break; fi
  sleep 2
 done
 test "$ready" -eq 1
