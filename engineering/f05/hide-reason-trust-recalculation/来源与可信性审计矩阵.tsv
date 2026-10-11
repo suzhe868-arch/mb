@@ -1,0 +1,11 @@
+对象/规则	真实PG16原始来源	当前核证	禁止推断及结论	测试
+vehicle_hide_rules	M94已签pg_catalog的rule_id,is_enabled,source_scope_json,conditions_json,updated_by_employee_id,updated_at	规则存在且source_scope/conditions为JSONB;updated_by仅FK;未核可追溯已签发行、停用与不可变审计事件	不能把JSON当已签规则命中或可visible原因清空;HIDE_REASON_RECALCULATION_SOURCE_GAP	E-A01,E-A03,E-A04
+自动/批量规则逻辑	PDM04 Final不同字段AND/同字段OR/多规则OR、source_scope必须显式	该语义为产品已签,但物理JSON格式与品牌/地区/年款字段映射未形成可信现在时签发	不对虚构JSON做真实业务正向匹配;不释放hidden	E-A04
+车辆字段	PG16 vehicles.model_id,source_type,source_sale_status,platform_visibility	缺品牌/车系/年款/地区/关键词的已签真实车辆物理映射;单platform_visibility不是多原因日志	不可从hidden倒推出manual或规则原因;禁止猜测有效scope	E-A01,E-A02
+人工隐藏/其他原因	M94物理catalog没有已核实名邦人工隐藏独立当前cause ledger及可信撤销事件	不具可追溯手工原因签发/撤销及组合优先级	永远不根据仅关闭一条自动规则而解隐	E-A01,E-A03,E-B01
+批发转名邦已合法转换	F05-3C不可变conversion收据、F05-3B JYT lineage与原ListingCycle	同车同周期、原先wholesale到mingbang、platform_visibility='hidden'	CI-only审计不可修改Vehicle/Cycle/JYT/Lock/CRM/价格	E-A02,E-B07
+权限与会话	F03真实Employee Session、vehicle.read/manage、Role/个人deny/Team+Scope	合法Employee权限是必要非充分，SystemAdmin、4S、JYT不能自行“unhide”	无可信原因ledger时fail-closed	E-A05,E-A08,E-B01～05
+规则变更并发	vehicle_hide_rules实际PG16行锁	两个backend对锁定中的rule is_enabled更新原生55P03	来源停用不等于人工/其他原因消失;无合法visible	E-A06
+车辆/来源变更并发	vehicles+vehicle_listing_cycles实际PG16行锁	两个backend对锁定中Vehicle visibility变更原生55P03	不从本包产生新的unhide事件	E-A07
+Production/JYT/图片/资金	不存在本批授权的外部来源	未触真实生产凭据、外部接口及新真实数据	SOURCE_GAP_BLOCKED_FOR_PRODUCTION	排除
+通用批发经营Owner	F05-3D审计PASS保留GENERAL_WHOLESALE_VEHICLE_SCOPE_SOURCE_GAP	未经用户批准的新增经营权源未建立	不得作为规则匹配/权限发放依据	排除
