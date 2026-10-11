@@ -18,7 +18,7 @@ async function snapshot(v,cy){
  const tables={
  favorites:'SELECT row_to_json(x) v FROM public.f05_3g_customer_favorites x WHERE vehicle_id=$1 ORDER BY favorite_id',
  favoriteEvents:'SELECT row_to_json(x) v FROM public.f05_3g_favorite_events x WHERE vehicle_id=$1 ORDER BY event_id',
- customers:'SELECT row_to_json(x) v FROM public.customers x WHERE customer_id IN ($3,$4) ORDER BY customer_id',
+ customers:'SELECT row_to_json(x) v FROM public.customers x WHERE customer_id IN ($1,$2) ORDER BY customer_id',
  lock:'SELECT row_to_json(x) v FROM public.locks x WHERE vehicle_id=$1 ORDER BY lock_id',
  recommendations:'SELECT row_to_json(x) v FROM public.recommendations x WHERE vehicle_id=$1 AND listing_cycle_id=$2 ORDER BY recommendation_id',
  quota:'SELECT row_to_json(x) v FROM public.customer_price_cycle_unlocks x WHERE vehicle_id=$1 AND listing_cycle_id=$2 ORDER BY unlock_id',
@@ -30,8 +30,8 @@ async function snapshot(v,cy){
  lineage:'SELECT row_to_json(x) v FROM public.f05_3b_sync_lineages x WHERE vehicle_id=$1 ORDER BY lineage_id'
  };
  const results={};
- for(const [k,sql] of Object.entries(tables)){const count=sql.includes('$4')?4:sql.includes('$2')?2:1;
-  const rows=(await db.query(sql,[v,cy,customer,unscopedCustomer].slice(0,count))).rows.map(x=>x.v);results[k]={sha256:digest(rows),rowCount:rows.length};}
+ for(const [k,sql] of Object.entries(tables)){const params=k==='customers'?[customer,unscopedCustomer]:sql.includes('$2')?[v,cy]:[v];
+  const rows=(await db.query(sql,params)).rows.map(x=>x.v);results[k]={sha256:digest(rows),rowCount:rows.length};}
  return {results,sha256:digest(results)};
 }
 test.before(async()=>{
@@ -47,8 +47,6 @@ test.before(async()=>{
  }
  await db.query("INSERT INTO public.customers(customer_id,account_status,customer_level_id,owner_assignment_state,current_owner_employee_id) VALUES($1,'active',1,'assigned',1),($2,'active',1,'assigned',1)",[customer,unscopedCustomer]);
  // Current real Lock grants precisely this Employee/Vehicle/Cycle object scope, not Favorite.
- const granted=await db.query("UPDATE public.locks SET expires_at=now()+interval '2 hours' WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND lock_status='active' AND responsible_employee_id=1 RETURNING lock_id",[vehicle,cycle]);
- assert.equal(granted.rowCount,1,'restore real expired synthetic Lock into current owner scope');
  await db.query("INSERT INTO public.recommendations(recommendation_id,customer_id,vehicle_id,listing_cycle_id,recommender_employee_id,status) VALUES(899954,$1,$2,$3,1,'active')",[customer,vehicle,cycle]);
  await db.query("INSERT INTO public.customer_price_cycle_unlocks(unlock_id,customer_id,vehicle_id,listing_cycle_id,grant_origin) VALUES(899955,$1,$2,$3,'synthetic-f05-3i-current-cycle')",[customer,vehicle,cycle]);
 });
@@ -70,8 +68,17 @@ test('I-A02 original physical Favorite ADD is committed in v19 before ANY conver
  assert.equal(preConversion.results.favorites.rowCount,1);
  assert.equal(preConversion.results.favoriteEvents.rowCount,1);
 });
+test('I-A02b an actually saleable wholesale with committed Favorite but expired Lock has NO owner scope',async()=>{
+ const r=await convertWholesaleToMingbang(auth,employee,{vehicleId:vehicle,teamId:901,eventKey:event('favorite-alone-no-owner')});
+ assert.deepEqual(r,{allowed:false,code:SOURCE_GAP});
+ assert.equal((await db.query('SELECT source_type FROM public.vehicles WHERE vehicle_id=$1',[vehicle])).rows[0].source_type,'wholesale');
+ assert.equal((await db.query('SELECT count(*)::int n FROM public.f05_3g_customer_favorites WHERE vehicle_id=$1',[vehicle])).rows[0].n,1);
+});
 test('I-A03 actual F05-3C employee service converts v19 wholesale with existing Favorite keeping every relation hash',async()=>{
  assert.ok(preConversion?.sha256,'must have verified preexisting Favorite before conversion');
+ const granted=await db.query("UPDATE public.locks SET expires_at=now()+interval '2 hours' WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND lock_status='active' AND responsible_employee_id=1 RETURNING lock_id",[vehicle,cycle]);
+ assert.equal(granted.rowCount,1,'restore signed prior current Lock identity before authorized conversion');
+ preConversion=await snapshot(vehicle,cycle);
  let release,signal,pid;
  const held=new Promise(resolve=>release=resolve),entered=new Promise(resolve=>signal=resolve);
  const converting=convertWholesaleToMingbang(auth,employee,
@@ -116,7 +123,8 @@ test('I-A06 v19 synthetic Favorite alone NEVER grants conversion owner on unscop
  const f=await syntheticFavoriteChange(db,{customerId:unscopedCustomer,vehicleId:unscopedVehicle,action:'ADD',eventKey:event('favorite-without-lock')});
  assert.equal(f.allowed,true);
  const r=await convertWholesaleToMingbang(auth,employee,{vehicleId:unscopedVehicle,teamId:901,eventKey:event('favorite-does-not-grant-owner')});
- assert.deepEqual(r,{allowed:false,code:SOURCE_GAP});
+ assert.equal(r.allowed,false);
+ assert.equal(r.code,'F05_3C_NOT_CURRENT_SALEABLE_WHOLESALE');
  assert.equal((await db.query('SELECT source_type FROM public.vehicles WHERE vehicle_id=$1',[unscopedVehicle])).rows[0].source_type,'wholesale');
 });
 test('I-A07 v19 exact signature verifier rejects committed checksum tampering before any conversion',async()=>{
