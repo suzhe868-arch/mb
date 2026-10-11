@@ -1749,3 +1749,10 @@ G受检最终HEAD19af2955d81ac14d79e0c4e6adc661a3a1aabd8e同SHA CI38025357614 20
 - A正式签收PR评论`6103550202`，A按PR受检HEAD保护标准合并GitHub PR33，merge SHA`f983f13b6631d194c23c9b7ace77d6d691955c76`，完整报告`07_重建工作区/F05-3B_A主控独立验收PASS_PR33正式合并与F05-3C接力_2026-10-11.md`。仅`F05_3B=A_ACCEPTED_MERGED_PR33_CI_ONLY`，真实JYT源/生产依然SOURCE_GAP。
 - 依据现行PDM04 Final同车同周期单向转名邦、现时Employee正常管理许可/对象范围、锁车交易/客户权益保留、历史JYT lineage封印、隐藏重算及图片资产可信落地之规则，A正式放行`07_重建工作区/F05-3C_A主控批发一键转名邦同车同周期经营来源单向转换与历史安全完整施工单_2026-10-11.md`：`F05_3C_A_RELEASED_FOR_B_B_NOT_STARTED / NEXT_OWNER=B`，B从最新main建`feat/f05-3c-convert-wholesale-to-mingbang`，仅CI-only批准新目录，冻结旧40作业并增2真PG16，最终42/42同SHA与原生Artifacts、中文交接；来源/图片/历史权益carrier不足须报告SOURCE_GAP，不得伪造全通过或自行合并/接生产。
 - F05整个工程域、F04生产、C/H01、V1基线`NOT_READY`。
+
+## 2026-10-11｜F05-3C A首次独立复验跨版本技术裁决与PR34原分支一次性整改单（无新增产品规则）
+
+- PR34 Draft B最新HEAD`31edd5a0a83291f38bc1d9a4985ed76b89856bde`≠Actions`38097826807` HEAD`7cc68ca7078944728c7985511fe69086dbec7e83`；run真实42 Job/40 success/2新增物理与TLS失败，原生日志旧F05-3B`F05_3B_FROZEN_000016_REQUIRED`：`000018`后16版历史使旧签000017 v17源码只准15版而fail-closed。PR全部12新增白名单，旧40冻结jobs第一个39逐字一致，`f05-3b-jyt-three-apis-https-pg16`仅末尾额外空行；必须恢复原文。
+- A按正式PDM Final选定**真实双阶段源引导**：先在未迁v18的v17隔离PG16由原签F03 Admin/独立Sync Credential真实入库JYT批发Vehicle/Cycle/INTEGRATION审计，再严格物理封印追加000018并在新目录当前版本校验，后执行现时Employee/已有受信业务对象scope的单向同Vehicle同Cycle转换。旧v17在v18上拒绝是已签防篡改要求，不改旧000017/旧migration/旧CI、不删除版本或假签。v18三源API如要求继续工作，仅本包新目录中建严格v18兼容适配真实核凭据/开关/来源/锁/审计，并做物理/TLS正反；实证不足保留`F05_3B_V18_FORWARD_COMPAT_SOURCE_GAP`。
+- PDM08 Final §12/13/13.1转换与图片资产化解耦/3A受控CDN过渡规则既签，不重新请用户选择；无外部对象存储证据明确`IMAGE_LOCALIZATION_SOURCE_GAP`，缺多原因隐藏matcher保守hidden并标`HIDE_REASON_RECALCULATION_SOURCE_GAP`，缺Favorite现时carrier与无当期受信Vehicle对象scope各自SOURCE_GAP，不能用模拟表或历史JYT car_code授名邦经营权。
+- 正式A原PR34定向整改单`07_重建工作区/F05-3C_A主控首次独立验收跨版本兼容技术裁决与原PR34完整定向整改单_2026-10-11.md`，A正式PR评论`6104424172`；**`NEXT_OWNER=B`**原分支`feat/f05-3c-convert-wholesale-to-mingbang`完成受信source修复、旧40全文冻结、新2真PG16最终同SHA42/42与新两原生Artifacts+中文自验后交A。现在`F05_3C=A_REVIEW_BLOCKED`，**PR34不合并、不启F05-3D/生产**，F05/H01/V1`NOT_READY`。
