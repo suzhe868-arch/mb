@@ -1,0 +1,13 @@
+# F05-4｜SOURCE_GAP与签名链证据
+
+## 真实PG16版本链
+独立非超级用户PG16先跑原签M94→v15→v16→v17→v18→v19，新增v20前核旧v19结构签名及17行历史账；v20 apply同一事务添加CI-only表与旧成功扣额历史immutable trigger，计算新真实PG Catalog SHA并写入迁移账；verify核旧v18/v19封印、v20前17账atttestation、v20 checksum与实际catalog。原迁移文件全部冻结；注入失败原子回滚及历史篡改实际拒绝。
+
+## 生产尚未证明的受信来源
+1. CUSTOMER_WECHAT_SESSION_TO_FAVORITE_ACTOR_SOURCE_GAP：尚无微信code验签或真实Customer Session，不接受HTTP自报customer_id或合成上下文充当认证。
+2. CUSTOMER_DISPLAY_NUMERIC_PRICE_PRODUCTION_SOURCE_GAP：M94价格历史不足以可靠恢复当前周期最终客户展示价的加价/覆盖源；仅隔离v20合成标记价可跑正向单元。
+3. F05_4_RECOMMENDATION_GRANT_ISSUER_SOURCE_GAP：Recommendation对象FK存在不等于签发Issuer受信，当前免费价权主动拒绝。
+4. F05_4_EMPLOYEE_QUOTA_ADDITION_CURRENT_SCOPE_SOURCE_GAP：当前增加当天查价次数独立Permission、owner及data scope未形成可验签操作链，员工加次接口保守拒绝；CI当日追加仅预置合成历史。
+5. GENERAL_WHOLESALE_VEHICLE_SCOPE_SOURCE_GAP_PENDING_PRODUCT_DECISION、HIDE_REASON_RECALCULATION_SOURCE_GAP、IMAGE_LOCALIZATION_SOURCE_GAP仍在。
+
+真实微信/JYT/资金/电话/生产/前端均未验证。

@@ -1,0 +1,9 @@
+对象	原物理来源	新增内容	可核结论	缺口
+等级模式	customer_levels + customers.customer_level_id	f05_4_level_price_policy_ci	合成LIMITED/UNLIMITED受信状态机	真实配置Issuer未签
+当日额度	customer_day_quota_ledger	无	UTC+8额度加临时追加减真实成功消费	员工加次签发Scope缺口
+周期权益	customer_price_cycle_unlocks	无	同Customer+Vehicle+Cycle唯一权不跨周期	RecommendationIssuer缺口
+扣额事件	customer_price_unlock_events	v20 immutable trigger	首次成功消费唯一幂等且不可篡改	真实Customer会话缺口
+客户最终数字价	vehicle_price_history不足以证明当前最终展示	f05_4_current_price_ci合成价	CI可验证数字价格条件触发与不扣负例	正式价源缺口
+JYT上架周期	f05_3b_sync_lineages / Vehicle / ListingCycle	无	原JYT Credential接口真实导入隔离车	真实上游来源未签
+客户本人	customer_wechat_identities FK	无	HTTPS fail-closed	微信SessionIssuer缺口
+迁移封印	f03_schema_migrations+v19 attestation	v20 attestation	历史账与当前PG catalog签名逐项检验	生产不适用
