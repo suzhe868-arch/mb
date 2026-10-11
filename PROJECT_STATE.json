@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_5_A_RELEASED_FOR_B_B_NOT_STARTED",
+  "substage": "F05_5_A_FIRST_REVIEW_CORRECTION_REQUIRED_B_REWORK",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F05",
-  "current_domain_status": "F05_4_A_FINAL_ACCEPTED_MERGED_PR43_CI_ONLY_F05_5_A_RELEASED_FOR_B",
+  "current_domain_status": "F05_4_A_MERGED_PR43_CI_ONLY_F05_5_A_FIRST_REVIEW_CORRECTION_REQUIRED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F05-4 B分支/PR43最终HEAD cbf1c3f83e0c8f0b17ce89bd9f4edbc45bf9abfa，A独立验证同SHA官方五run旧H52(38177212934)52/52、I2(38177212886)2/2、J2(38177212901)2/2、K2(38177212889)2/2、新F05-4(38177212996)2/2，共60/60真隔离非特权PG16成功、0 skip。A实际逐字比对旧jobs原文510382/1969/1981/2012字符皆同，新Source16/16、TLS7/7真实日志，2PG backend同客户锁原子唯一扣额、UTC+8/3A/停用/无价/UNLIMITED/非客户HTTP阻断和v20 CI-only seal。source Artifact11716138787 81472B和https11715779852 80589B同SHA非空。GitHub PR43 A验收评论6114138032，expected_head_sha标准合并回执merged=true，merge SHAab664859aee927a6d1514d5654ba5fe2f8dba60b。真实微信Customer Session、正式数字展示价Issuer、Recommendation免费Issuer、Employee临时加次Issuer缺口未解除。A已放行F05-5专攻Employee当天免费增加查价次数Current owner/permission/scope可签可信来源和原子幂等日账，旧冻结60+新2目标同最终SHA62/62成功+两原生证据，仍CI only。",
-  "current_work_file": "07_重建工作区/F05-5_A主控Employee当天查价临时加次可信Owner权限和3A账本完整施工单_2026-10-12.md",
+  "current_task": "F05-5 PR44/B HEAD 8a5ed0fd8733e9f89f39f60d49c6a02a330e6086，A独立确认同最终SHA六官方Actions 52+2+2+2+2+2=62/62真实非特权PG16 success、0 skip，旧五组冻结Job jobs正文510382/1969/1981/2012/2015字符逐字一致，20个合法新增文件，新Source18/18、TLS7/7、双backend相同幂等键并发单追加及v21签名历史/原生Artifact11717147410、11716758591都真实有效。但A明确要求真实Owner交接与加次事务并发、Permission撤权与加次事务并发：现有5-A04只同Key并发，5-A13先静态deny再请求，5-A16先完成Owner变更再请求，缺实际事务交错与锁竞争及前后行事实，因此PR44暂不合并。A PR44整改单评论6114488249，指定原B分支一次完成A-F05-5-01/02/03，新SHA重新六run 62/62及新Artifact再交A。真实employee quota issuer、微信Customer/客户最终价、Recommendation免费Issuer和一般批发Owner等缺口仍在，V1 NOT_READY。",
+  "current_work_file": "07_重建工作区/F05-5_A主控首次独立验收62项同SHA全绿但Owner撤权并发证据不完整定向整改单_2026-10-12.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F05_5_A_RELEASED_FOR_B_B_NOT_STARTED",
+  "current_review_batch": "F05_5_A_FIRST_REVIEW_CORRECTION_REQUIRED_B_REWORK",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_IMPLEMENT_F05_5_EMPLOYEE_CURRENT_OWNER_SCOPE_PERMISSION_CUSTOMER_DAILY_QUOTA_TEMP_ADDITION_REAL_PG16_CI_ONLY",
+  "next_action": "B_FIX_F05_5_CONCURRENT_CUSTOMER_OWNER_AND_EMPLOYEE_PERMISSION_REVOCATION_IN_REAL_PG16_ON_EXISTING_PR44",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B依据最新main和正式F05-5施工单从main创建feat/f05-5-employee-price-quota-adjustment，先逐表核既有F03现时可信Employee/Role、个人deny、data scope、客户current owner以及M94客户当天日额/临时追加/不可变审计物理签发来源。按PDM-10 §11/§11.1在隔离PG16中完成可签员工免费临时加次功能、3A LIMITED-UNLIMITED-LIMITED留存、UTC+8日切、Customer停用/跨Owner/并发重放/4S硬拒/SystemAdmin不冒充销售以及CSRF和Origin真实负例；缺受信issuer时保守SOURCE_GAP，禁止fake有权200。只新增engineering/f05/employee-price-quota-adjustment/**、六份本批专属workflow和必要时唯一新增CI-only v21迁移，绝不修改旧签源码/旧迁移/旧CI或连接生产。冻结H52/I2/J2/K2/F05-4共60 jobs从jobs:起到EOF原文逐字不变，再本批Source+TLS两个独立真非特权PG16，六GitHub Actions runs final SHA均等B/PR最后40位SHA且62/62完成success+两原生非空有效Artifact+完整中文B交接后交A验收，不自行合并main或进后继批次。",
+  "next_action_detail": "B继续feat/f05-5-employee-price-quota-adjustment与PR44，不新起施工批次。按照F05-5 A定向整改单，使用真实F03 Employee会话和 addSyntheticDailyQuota 既有checkpoint，新增不同PG16 backend客户Owner更新与当前加次事务锁竞争、权限override deny与当前加次事务真实并发以及更新成功后旧owner/旧permission重放拒绝，记录真正SQLSTATE 55P03、两PID、commit先后次序和customer_day_quota_ledger/customer_quota_adjustments/f05_5_quota_addition_events_ci逐表准确审计值。不能拿已有同Key并发及静态deny取代这两个测试。仅修改原已授权B包目录内代码测试与证据，旧五组60个jobs源码完整冻结，重新取得新最终B HEAD=PR44 HEAD=六官方run.head_sha且52+2+2+2+2+2=62/62全部成功、2份新最终SHA有效Artifacts，更新中文B交接和PR评论之后交A二次独立验收；B不合并main，不启动F05-6，所有真实Customer微信、正式数字价和Employee业务Issuer仍SOURCE_GAP、生产NOT_READY。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -6668,11 +6668,11 @@
     "source_gap_open": true
   },
   "f05_5_gate": {
-    "status": "A_RELEASED_FOR_B_B_NOT_STARTED",
-    "execution": "B_NOT_STARTED",
+    "status": "A_FIRST_REVIEW_CORRECTION_REQUIRED_CI_ALL_PASS_BUT_MISSING_CONCURRENT_OWNER_PERMISSION_REVOCATION",
+    "execution": "B_CORRECTION_ON_EXISTING_PR44",
     "work_order": "07_重建工作区/F05-5_A主控Employee当天查价临时加次可信Owner权限和3A账本完整施工单_2026-10-12.md",
     "branch": "feat/f05-5-employee-price-quota-adjustment",
-    "branch_created": false,
+    "branch_created": true,
     "scope": "EMPLOYEE_CUSTOMER_QUOTA_TEMP_ADDITION_CURRENT_OWNER_PERMISSION_SCOPE_TRUST_UTC8_3A_CI_ONLY",
     "ci_only": true,
     "allow_production": false,
@@ -6691,7 +6691,31 @@
     "allow_real_money_phone_jyt": false,
     "product_baseline": "NOT_READY",
     "next_owner": "B",
-    "pr": null,
-    "pr_merged": false
+    "pr": 44,
+    "pr_merged": false,
+    "reviewed_sha": "8a5ed0fd8733e9f89f39f60d49c6a02a330e6086",
+    "a_review_comment_id": 6114488249,
+    "a_correction_order": "07_重建工作区/F05-5_A主控首次独立验收62项同SHA全绿但Owner撤权并发证据不完整定向整改单_2026-10-12.md",
+    "reviewed_ci_runs": [
+      38178976123,
+      38178976144,
+      38178976179,
+      38178976110,
+      38178976118,
+      38178976134
+    ],
+    "reviewed_ci_jobs_passed": 62,
+    "old_jobs_exact": true,
+    "new_source_tests": "18/18",
+    "new_https_tests": "7/7",
+    "source_artifact_id": 11717147410,
+    "https_artifact_id": 11716758591,
+    "a_blockers": [
+      "A-F05-5-01_CONCURRENT_CUSTOMER_OWNER_CHANGE_MISSING",
+      "A-F05-5-02_CONCURRENT_EMPLOYEE_PERMISSION_REVOCATION_MISSING",
+      "A-F05-5-03_RESEAL_FINAL_SHA_CI_AND_NATIVE_ARTIFACTS"
+    ],
+    "source_gap_open": true,
+    "production_ready": false
   }
 }
