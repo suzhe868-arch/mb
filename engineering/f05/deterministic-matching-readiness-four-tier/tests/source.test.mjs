@@ -100,7 +100,8 @@ test('7-A13 dictionary scopes override, same-rank conflicting rules are not rand
  const a=resolveRules('奥迪A6 黑色外观',r,{model_year:'97003:2026'});
  assert.equal(a.conditions.find(c=>c.field==='model_year').value,2025);
  assert.deepEqual(a.conflicts,['exterior_color']);
- assert.equal(a.conditions.some(c=>c.field==='exterior_color'),false);
+ assert.equal(a.conditions.find(c=>c.field==='exterior_color')?.conflict,true);
+ assert.equal(tierFor(a.conditions,{model_year:{value:2026},exterior_color:{value:'black'}}).tier,'confirmation_needed');
 });
 test('7-A14 OR within field/AND across fields, reverse exclusion, missing field unrestricted',async()=>{
  const c=[
