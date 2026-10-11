@@ -37,10 +37,11 @@ test.before(async()=>{
  }
  jyt='mbci_'+'a'.repeat(43);
  assert.match(jyt||'',/^mbci_[a-zA-Z0-9_-]{43}$/);
- const signed=(await db.query("SELECT l.vehicle_id,l.current_cycle_id FROM public.f05_3b_sync_lineages l WHERE l.source_platform='JYT' AND l.car_code=$1",['JYT-F05C-LOOPBACK-015'])).rows[0];
+ const signed=(await db.query("SELECT l.vehicle_id,l.current_cycle_id FROM public.f05_3b_sync_lineages l WHERE l.source_platform='JYT' AND l.car_code=$1",['JYTF05C-UNSCOPED'])).rows[0];
  assert.ok(signed,'signed v17 source missing before v18');vid=Number(signed.vehicle_id);cycle=Number(signed.current_cycle_id);
  await db.query("INSERT INTO public.customers(customer_id,account_status,customer_level_id,owner_assignment_state,current_owner_employee_id) VALUES(896900,'active',1,'assigned',1)");
- await db.query("INSERT INTO public.locks(lock_id,customer_id,vehicle_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) VALUES(896901,896900,$1,$2,'active',1,now()-interval '2 hours',now()+interval '2 hours')",[vid,cycle]);
+ const restored=await db.query("UPDATE public.locks SET expires_at=now()+interval '2 hours' WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND lock_status='active' AND responsible_employee_id=1 RETURNING lock_id",[vid,cycle]);
+ assert.equal(restored.rowCount,1,'restore one existing old v18 expired Lock in isolated PG16');
  const favorited=await syntheticFavoriteChange(db,{customerId:896900,vehicleId:vid,action:'ADD',eventKey:'f05-3i-pre-existing-favorite-before-http-conversion'});
  assert.equal(favorited.code,'F05_3G_APPLIED');
  server=createServer({key:readFileSync('/tmp/f04-3-ci-key.pem'),cert:readFileSync('/tmp/f04-3-ci-cert.pem')},await createConversionCIHandler(auth));
