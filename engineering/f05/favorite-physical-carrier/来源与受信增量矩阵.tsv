@@ -1,0 +1,12 @@
+核账项	真实PG16载体	本批工程语义	证据	余项
+Favorite当前关系	000019 f05_3g_customer_favorites	Customer+Vehicle唯一,active/removed,跨Cycle保留	G-A01/02/04/08	微信客户真实会话
+Favorite历史	000019 f05_3g_favorite_events	原始Customer Vehicle,eventKey唯一+摘要,历史append-only,NOOP幂等收据	G-A03/04/07	真实Customer actor
+版本封印	旧M94→000018＋本批000019	旧v18升级前验证,原子回滚,新增独立v19精确SHA,旧v18拒绝v19	Runner/G-A01	无生产升级许可
+状态事务	CI-only syntheticFavoriteChange	真实FK,客户状态校验,唯一行与不可变历史,不授别的权益	G-A02～07	生产身份/权限
+双独立PG16后端	advisory xact lock + Customer/Vehicle FOR SHARE	同一Customer与Vehicle串行;治理停用竞态55P03	G-A05/06	真实微信客户端
+源转换和跨Cycle	F05-3C已签v18历史/vehicle_listing_cycles	v18转换前已成功,Favorite新载体FK仅指vehicle_id,不依赖cycle	G-A08	v19在线转换联调需另行签发
+hidden/offline	public.vehicles	Favorite不穿透visibility,不授price/Recommendation/Lock	G-A02/G-A08	隐藏重算SourceGap
+真实TLS	/__ci__/f05-3g/**	Employee/4S/Admin/JYT/伪Customer均403,不对生产开放	G-B01～07	可信微信会话与正式接口
+Current无事件COMMIT	v19 defer constraint current_requires_event	原始SQL INSERT/UPDATE无Event在COMMIT自动拒绝	G-A09	旧48不变
+虚假事件COMMIT	v19 defer constraint event_requires_current	单独INSERT Event未对应Current变更,COMMIT拒绝	G-A09	真实微信客户Actor缺失
+全部旧16个迁移历史封印	f05_3g_migration_attestation + v19 verify	000018 checksum/struct及任意前16条原始历史篡改必须被新验签拒绝	G-A10	不得修改旧v18验证器
