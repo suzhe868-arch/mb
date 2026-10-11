@@ -1,0 +1,11 @@
+来源/动作	物理受信依据	结论	边界
+现有v18转换服务版本前置	真实PG16迁移记录恰16且last=000018并调用已签v18完整verify	SIGNED_SOURCE	旧v18权限规则原样
+已存在v19 Favorite再转换	真实PG16迁移17条尾部000018/000019且调用已签v19完整verify	SIGNED_SOURCE	v19先Favorite Current/Event，后旧F05-3C转换服务
+Customer Favorite现时与不可变事件	000019约束触发器与事件回放校验、原生ADD	SIGNED_SOURCE	同Vehicle同Cycle不迁移不重建
+当前Employee有效Token/Team与能力	F03受信服务及原F05-3C对象范围权限	SIGNED_SOURCE	系统管理员、4S、JYT令牌不得代签
+合法经营对象Owner	当前真PG16有效Lock或未完成Transaction且责任人匹配	SIGNED_SOURCE	普通无锁无交易批发车Owner仍SOURCE_GAP
+批发转名邦同车上架周期	F05-3C原Vehicle CAS/Lineage/receipt并发原语	SIGNED_SOURCE	新I任务不改CAS和权限代码
+微信Customer本人有效Session	无真实code-to-session签发/当前持有/撤销证据	SOURCE_GAP	CI合成Favorite不等于微信真实收藏
+图片本地化双成功	未有可信图片资产化来源	SOURCE_GAP	保留原警戒
+自动/人工隐藏理由重算	来源不全	SOURCE_GAP	保持hidden
+真实生产启用	缺现场微信/JYT/支付、最低DB runtime Role等	SOURCE_GAP	CI_ONLY NOT_READY
