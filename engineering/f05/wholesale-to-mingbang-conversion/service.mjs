@@ -1,6 +1,7 @@
 // F05-3C: CI-only wholesale to Mingbang, same Vehicle and same ListingCycle.
 // NO inferred wholesale ownership from car_code, creator, publisher or integration key.
-import {verify} from './migration.mjs';
+import {verify as verifyV18, ID as V18_ID} from './migration.mjs';
+import {verify as verifyV19, ID as V19_ID} from '../favorite-physical-carrier/migration.mjs';
 import {requireDatabaseIdentity} from '../vehicle-stewardship-physical-scope/migration.mjs';
 export const SOURCE_GAP='F05_3C_CURRENT_WHOLESALE_OBJECT_SCOPE_SOURCE_GAP';
 const deny=code=>({allowed:false,code});
@@ -13,6 +14,14 @@ const isolated=()=>{
  F05_2_ISOLATION_CONFIRM:'I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY'}))
   if(process.env[k]!==v)throw Error('F05_3C_CI_ONLY_'+k);
 };
+// Signed runtime compatibility gate: only the two A-accepted physical versions.
+ // Callers cannot supply a verifier, identity proof, or migration version.
+async function verifyExactCurrentConversionSchema(c){
+ const rows=(await c.query('SELECT migration_id FROM public.f03_schema_migrations ORDER BY migration_id')).rows;
+ if(rows.length===16&&rows[15]?.migration_id===V18_ID)return verifyV18(c);
+ if(rows.length===17&&rows[15]?.migration_id===V18_ID&&rows[16]?.migration_id===V19_ID)return verifyV19(c);
+ throw Error('F05_3I_UNTRUSTED_MIGRATION_VERSION_CHAIN');
+}
 async function capability(c,employee,team,code){
  const query="SELECT EXISTS(SELECT 1 FROM public.employees e JOIN public.roles r ON r.role_id=e.main_role_id "+
   "JOIN public.teams t ON t.team_id=$2 JOIN public.stores st ON st.store_id=t.store_id "+
@@ -53,7 +62,7 @@ export async function convertWholesaleToMingbang(auth,token,p,{checkpoint}={}){
  if(checkpoint!==undefined&&(process.env.CI!=='true'||typeof checkpoint!=='function'))
   return deny('F05_3C_TEST_CHECKPOINT_DENIED');
  if(!auth?.pool||typeof auth.withSession!=='function')throw Error('F05_3C_CURRENT_EMPLOYEE_SESSION_REQUIRED');
- await requireDatabaseIdentity(auth.pool);await verify(auth.pool);
+ await requireDatabaseIdentity(auth.pool);await verifyExactCurrentConversionSchema(auth.pool);
  try{
   return (await auth.withSession(token,async(c,a,s)=>{
    if(s.restricted||a.principal_kind!=='employee'||a.employee_id===null||a.system_admin_id!==null||
