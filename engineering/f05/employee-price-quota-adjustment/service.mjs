@@ -48,17 +48,17 @@ export async function addSyntheticDailyQuota(auth,token,p,{checkpoint}={}){
     "JOIN public.employee_permission_overrides ov ON ov.employee_id=$1 AND ov.permission_id=p.permission_id "+
     "JOIN public.employee_capability_scope_bindings b ON b.permission_id=p.permission_id AND b.employee_id=$1 "+
     "JOIN public.employee_data_scopes sc ON sc.scope_id=b.scope_id AND sc.employee_id=b.employee_id "+
-    "JOIN public.teams t ON t.team_id=$3 JOIN public.stores st ON st.store_id=t.store_id "+
+    "JOIN public.teams t ON t.team_id=$2 JOIN public.stores st ON st.store_id=t.store_id "+
     "JOIN public.employee_team_memberships member ON member.employee_id=$1 AND member.team_id=t.team_id "+
-    "JOIN public.employee_team_memberships ownerm ON ownerm.employee_id=$4 AND ownerm.team_id=t.team_id "+
+    "JOIN public.employee_team_memberships ownerm ON ownerm.employee_id=$3 AND ownerm.team_id=t.team_id "+
     "WHERE p.permission_code='customer.quota.add.ci.synthetic' AND ov.decision='allow' "+
-    "AND t.team_status='active' AND st.status='active' AND st.store_id=$5 "+
+    "AND t.team_status='active' AND st.status='active' AND st.store_id=$4 "+
     "AND member.valid_from<=statement_timestamp() AND (member.ended_at IS NULL OR member.ended_at>statement_timestamp()) "+
     "AND ownerm.valid_from<=statement_timestamp() AND (ownerm.ended_at IS NULL OR ownerm.ended_at>statement_timestamp()) "+
     "AND sc.ended_at IS NULL AND b.granted_at<=statement_timestamp() AND (b.ended_at IS NULL OR b.ended_at>statement_timestamp()) "+
     "AND ((sc.scope_kind='team' AND sc.scope_reference_id=t.team_id) OR "+
-    "(sc.scope_kind='store' AND sc.scope_reference_id=st.store_id AND $6 IN ('manager','store_head')))) allowed";
-   const scope=(await c.query(sql,[actor,p.customerId,p.teamId,owner,employee.store_id,employee.role_code])).rows[0];
+    "(sc.scope_kind='store' AND sc.scope_reference_id=st.store_id AND $5 IN ('manager','store_head')))) allowed";
+   const scope=(await c.query(sql,[actor,p.teamId,owner,employee.store_id,employee.role_code])).rows[0];
    if(scope?.allowed!==true)return deny(GAP);
    // Recheck under same transaction before append: Customer lock serializes current
    // owner and customer status; real session account lock protects revocation.
