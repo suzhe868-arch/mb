@@ -7,3 +7,6 @@ Favorite历史	000019 f05_3g_favorite_events	原始Customer Vehicle,eventKey唯�
 源转换和跨Cycle	F05-3C已签v18历史/vehicle_listing_cycles	v18转换前已成功,Favorite新载体FK仅指vehicle_id,不依赖cycle	G-A08	v19在线转换联调需另行签发
 hidden/offline	public.vehicles	Favorite不穿透visibility,不授price/Recommendation/Lock	G-A02/G-A08	隐藏重算SourceGap
 真实TLS	/__ci__/f05-3g/**	Employee/4S/Admin/JYT/伪Customer均403,不对生产开放	G-B01～07	可信微信会话与正式接口
+Current无事件COMMIT	v19 defer constraint current_requires_event	原始SQL INSERT/UPDATE无Event在COMMIT自动拒绝	G-A09	旧48不变
+虚假事件COMMIT	v19 defer constraint event_requires_current	单独INSERT Event未对应Current变更,COMMIT拒绝	G-A09	真实微信客户Actor缺失
+全部旧16个迁移历史封印	f05_3g_migration_attestation + v19 verify	000018 checksum/struct及任意前16条原始历史篡改必须被新验签拒绝	G-A10	不得修改旧v18验证器
