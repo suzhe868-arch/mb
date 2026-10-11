@@ -37,17 +37,17 @@ test.before(async()=>{
  }
  tokens.api=process.env.F05_3C_CI_EPHEMERAL_SYNC_TOKEN;
  assert.match(tokens.api||'',/^mbci_[a-zA-Z0-9_-]{43}$/);
- for(const s of ['LOCKED','UNSCOPED','TRADING','COMPLETED','CONCURRENT','REVOKED'])await sync(s);
+ for(const s of ['LOCKED','UNSCOPED','TRADING','COMPLETED','CONCURRENT','REVOKED','TX_RACE','SCOPE_RACE'])await sync(s);
  // Synthetic current business relationship: not a fake ownership flag or publisher,
  // actual nonprivileged PG16 FK-backed Customer and Lock with a current employee.
- for(const [i,s] of ['LOCKED','TRADING','COMPLETED','CONCURRENT','REVOKED'].entries()){
+ for(const [i,s] of ['LOCKED','TRADING','COMPLETED','CONCURRENT','REVOKED','TX_RACE','SCOPE_RACE'].entries()){
   const {vehicleId,listingCycleId}=identities.get(s),customer=894001+i,lock=895001+i;
   await db.query("INSERT INTO public.customers(customer_id,account_status,customer_level_id,owner_assignment_state,current_owner_employee_id) VALUES($1,'active',1,'assigned',1)",[customer]);
   await db.query("INSERT INTO public.locks(lock_id,customer_id,vehicle_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) VALUES($1,$2,$3,$4,'active',1,now()-interval '2 hours',now()+interval '2 hours')",
    [lock,customer,vehicleId,listingCycleId]);
-  if(s==='TRADING'||s==='COMPLETED'){
+  if(s==='TRADING'||s==='COMPLETED'||s==='TX_RACE'){
    await db.query("INSERT INTO public.transactions(transaction_id,customer_id,vehicle_id,listing_cycle_id,responsible_employee_id,source_lock_id,status,completed_at) VALUES($1,$2,$3,$4,1,$5,$6,$7)",
-    [896001+i,customer,vehicleId,listingCycleId,lock,s==='TRADING'?'trading':'completed',s==='TRADING'?null:new Date()]);
+    [896001+i,customer,vehicleId,listingCycleId,lock,s==='COMPLETED'?'completed':'trading',s==='COMPLETED'?new Date():null]);
   }
  }
  const {vehicleId,listingCycleId}=identities.get('LOCKED');
@@ -206,4 +206,57 @@ test('C-A14 true PG16 atomic v18 version record tamper fails closed and rolls ba
   }
  }finally{await db.query('ROLLBACK')}
  assert.equal((await verify(db)).newSha,before.newSha);
+});
+
+test('C-A15 concurrent Transaction completed update truly hits FOR SHARE row lock 55P03 before conversion commits',async()=>{
+ const {vehicleId}=identities.get('TX_RACE');
+ let release,notify,heldPid;
+ const pending=new Promise(resolve=>release=resolve);
+ const entered=new Promise(resolve=>notify=resolve);
+ const converting=convertWholesaleToMingbang(auth,tokens.employee,
+  {vehicleId,teamId:901,eventKey:ev('real-trading-vs-complete-tx')},
+  {checkpoint:async(point,c)=>{
+    assert.equal(point,'employee_and_source_physically_locked');
+    heldPid=Number((await c.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+    notify();await pending;
+  }});
+ await entered;
+ const contender=await connect();
+ try{
+  assert.notEqual(heldPid,Number((await contender.query('SELECT pg_backend_pid() pid')).rows[0].pid));
+  await contender.query('BEGIN');
+  await contender.query("SET LOCAL lock_timeout='300ms'");
+  await assert.rejects(()=>contender.query(
+   "UPDATE public.transactions SET status='completed',completed_at=now() WHERE vehicle_id=$1 AND status='trading'",
+   [vehicleId]),e=>e?.code==='55P03');
+ }finally{
+  await contender.query('ROLLBACK').catch(()=>{});await contender.end();release();
+ }
+ assert.equal((await converting).code,'F05_3C_CONVERTED_SAME_VEHICLE_CYCLE');
+ const preserved=(await db.query('SELECT status,completed_at FROM public.transactions WHERE vehicle_id=$1',[vehicleId])).rows[0];
+ assert.equal(preserved.status,'trading');assert.equal(preserved.completed_at,null);
+});
+test('C-A16 independent PG backend governance revoke waits on active conversion actor advisory 55P03',async()=>{
+ const {vehicleId}=identities.get('SCOPE_RACE');
+ let release,notify,actorBackend;
+ const pending=new Promise(resolve=>release=resolve);
+ const entered=new Promise(resolve=>notify=resolve);
+ const converting=convertWholesaleToMingbang(auth,tokens.employee,
+  {vehicleId,teamId:901,eventKey:ev('real-scope-revoke-vs-conversion')},
+  {checkpoint:async(point,c)=>{
+   assert.equal(point,'employee_and_source_physically_locked');
+   actorBackend=Number((await c.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+   notify();await pending;
+  }});
+ await entered;
+ const contender=await connect();
+ try{
+  assert.notEqual(actorBackend,Number((await contender.query('SELECT pg_backend_pid() pid')).rows[0].pid));
+  await contender.query('BEGIN');await contender.query("SET LOCAL lock_timeout='300ms'");
+  await assert.rejects(()=>contender.query(
+   "UPDATE public.employee_permission_overrides SET decision='deny',changed_at=now() WHERE employee_id=1 AND permission_id=(SELECT permission_id FROM public.permissions WHERE permission_code='vehicle.manage')"),e=>e?.code==='55P03');
+ }finally{
+  await contender.query('ROLLBACK').catch(()=>{});await contender.end();release();
+ }
+ assert.equal((await converting).code,'F05_3C_CONVERTED_SAME_VEHICLE_CYCLE');
 });

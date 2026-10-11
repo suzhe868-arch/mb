@@ -29,7 +29,7 @@ try{
   const a=await setApiEnabled(auth,login.token,{action,enabled:true,eventKey:ev('enable-'+action)});
   if(!a.allowed)throw Error('F05_3C_SYNC_SWITCH_FAILED_'+action);
  }
- for(const scenario of ['LOCKED','UNSCOPED','TRADING','COMPLETED','CONCURRENT','REVOKED','LOOPBACK','SYNC_V18']){
+ for(const scenario of ['LOCKED','UNSCOPED','TRADING','COMPLETED','CONCURRENT','REVOKED','TX_RACE','SCOPE_RACE','LOOPBACK','SYNC_V18']){
   const p={eventKey:scenario==='LOOPBACK'?'f05-3c-https-real-employee-current-sync-verified-model-car':ev('jyt-'+scenario),
    carCode:scenario==='LOOPBACK'?'JYT-F05C-LOOPBACK-015':scenario==='SYNC_V18'?'JYTF05C-SYNC-V18':'JYTF05C-'+scenario,
    brandId:97001,seriesId:97002,modelId:97003,modelYear:2026,state:'active'};
