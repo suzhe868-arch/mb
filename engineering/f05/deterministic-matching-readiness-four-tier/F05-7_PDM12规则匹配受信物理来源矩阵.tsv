@@ -1,0 +1,8 @@
+对象	真实继承来源	本批新增证明	线上来源状态
+Demand	F05-6 v22 original demands	真实签名账校验及当前状态锁	真实激活Issuer SOURCE_GAP
+Customer/find entitlement	F05-6 v22 find policy	PG实体行和FOR SHARE	CI合成非生产
+Rule Dictionary	PDM12 Final	v23 CI新增真实PG行和同级冲突	生产rule.manage SOURCE_GAP
+销售描述	PDM12 Final	v23 CI合成销售描述	真实销售受信Issuer SOURCE_GAP
+Vehicle/Listing Cycle	F05-3B签名lineage	真实原JYT导入行及cycle锁	正式车辆事实SOURCE_GAP
+客户数字售价	F05-4 v20	合成数值，分位算法	真实价格Issuer SOURCE_GAP
+结果与事件	v23 CI-only	真实PG状态/唯一索引/解释链	生产Matching未开放
