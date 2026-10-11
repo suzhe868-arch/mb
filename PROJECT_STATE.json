@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_3E_A_RELEASED_FOR_B_B_NOT_STARTED",
+  "substage": "F05_3F_A_RELEASED_FOR_B_B_NOT_STARTED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F05",
-  "current_domain_status": "F05_3D_A_AUDIT_ACCEPTED_MERGED_PR35_F05_3E_A_RELEASED_FOR_B",
+  "current_domain_status": "F05_3E_TRUST_SOURCE_AUDIT_ACCEPTED_MERGED_PR36_F05_3F_A_RELEASED_FOR_B",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F05-3D A独立验收44/44真PG16 CI、旧42 jobs逐字冻结、新source8/8与TLS7/7及原生Artifact；PR35 GitHub已合并876904c8。只验收普通JYT批发车无现时对象授权时来源审计及HTTPS403 fail-closed，通用经营转换Owner仍GENERAL_WHOLESALE_VEHICLE_SCOPE_SOURCE_GAP。正式放行F05-3E自动隐藏/人工隐藏多原因当前可信物理来源审计与转换后保守重算。",
-  "current_work_file": "07_重建工作区/F05-3E_A主控自动隐藏与人工原因可信来源及转换重算隔离完整施工单_2026-10-11.md",
+  "current_task": "F05-3E B/PR36/Actions38126797933同SHA19cbfae8，A独立验收46/46非特权真PG16 success，旧44 Job全文冻结、新PG16 source8/8与HTTPS7/7，官方两原生Artifacts和真正55P03并发全部核证。审计PASS确认隐藏人工/规则受信版本和原因历史来源缺口保守hidden，A正式合并PR36 merge SHA84c872。正式放行F05-3F独立核Favorite物理Carrier及同Vehicle/Cycle消费者关系保真、缺源拒绝。",
+  "current_work_file": "07_重建工作区/F05-3F_A主控收藏当前物理载体可信来源与同车同周期业务关系保真完整施工单_2026-10-11.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F05_3E_A_RELEASED_FOR_B_B_NOT_STARTED",
+  "current_review_batch": "F05_3F_A_RELEASED_FOR_B_B_NOT_STARTED",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_IMPLEMENT_F05_3E_HIDE_REASON_TRUST_RECALCULATION_CI_ONLY",
+  "next_action": "B_IMPLEMENT_F05_3F_FAVORITE_PHYSICAL_CARRIER_PRESERVATION_AUDIT_CI_ONLY",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B从最新main新建feat/f05-3e-hide-reason-trust-recalculation，按正式 07_重建工作区/F05-3E_A主控自动隐藏与人工原因可信来源及转换重算隔离完整施工单_2026-10-11.md 对PDM04自动/batch hidden适用source_scope多选、同字段多值OR、异字段AND、跨规则OR、人工/其他原因可信来源/规则停用与批发转名邦来源变化后的可见性重算进行真实PG16来源核证。无真实人工hidden/原因matcher的受信载体，不得解hidden或伪造visible，原已签F05-3C同车同Cycle/Lock/交易关系不可更改。冻结旧44独立PG16 Jobs全文，新增2真PG16 job，最后46/46同B/PR/Actions SHA success、两原生Artifacts+中文完整交接交A；不得改旧000001～000018/旧工程/生产/PDM/C/main或部署真实JYT/CDN/资金/电话。普通无本人Lock/活动Transaction批发车经营授权仍待用户产品决议、不在本包赋能。",
+  "next_action_detail": "B从最新main创建feat/f05-3f-favorite-carrier-preservation；按 07_重建工作区/F05-3F_A主控收藏当前物理载体可信来源与同车同周期业务关系保真完整施工单_2026-10-11.md 真实勘验现有Favorite/收藏物理客户身份、Vehicle/ListingCycle/FK/历史和当期权限可信来源，证明已有Lock/Transaction/Recommendation/周期查价等已签关系在批发→名邦同Vehicle同Cycle后不迁移和不丢失；Favorite现时表若缺必须真实FAVORITE_PHYSICAL_CARRIER_SOURCE_GAP，不准以合成表伪造正向或新增产品语义。冻结旧46独立真实PG16 Job全文，新增仅2 PG16 source/TLS作业，最后同B/PR/Actions SHA48/48成功、两个未过期原生Artifacts+中文完整交接后交A；不得改变旧000001～000018、生产Server/PDM/C、JYT/资金/电话/图片，不合并main、不开展F05-3G。待用户裁决普通无Lock/交易的JYT经营Scope不授权B臆造。F05/H01/V1仍NOT_READY。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -6268,8 +6268,8 @@
     "positive_general_wholesale_conversion_authorized": false
   },
   "f05_3e_gate": {
-    "status": "A_RELEASED_FOR_B_B_NOT_STARTED",
-    "execution": "B_NOT_STARTED",
+    "status": "A_TRUST_SOURCE_AUDIT_ACCEPTED_MERGED_PR36_SOURCE_GAP_RETAINED_CI_ONLY",
+    "execution": "A_INDEPENDENT_PG16_HIDE_SOURCE_AUDIT_ACCEPTED_MERGED",
     "work_order": "07_重建工作区/F05-3E_A主控自动隐藏与人工原因可信来源及转换重算隔离完整施工单_2026-10-11.md",
     "branch": "feat/f05-3e-hide-reason-trust-recalculation",
     "branch_created": false,
@@ -6281,9 +6281,30 @@
     "allow_production": false,
     "source_gap_requires_block": true,
     "product_baseline": "NOT_READY",
-    "next_owner": "B",
-    "pr": null,
-    "pr_merged": false
+    "next_owner": "A_CLOSED",
+    "pr": 36,
+    "pr_merged": true,
+    "pr_draft": false,
+    "final_b_sha": "19cbfae8aff44b7c3e1641db22a82b2f627d5932",
+    "reviewed_sha": "19cbfae8aff44b7c3e1641db22a82b2f627d5932",
+    "reviewed_ci_run": 38126797933,
+    "final_ci_run": 38126797933,
+    "ci_success_jobs": 46,
+    "old_frozen_job_exact": 44,
+    "old_frozen_jobs_total": 44,
+    "source_tests": "8/8",
+    "https_tests": "7/7",
+    "artifacts_count": 91,
+    "source_artifact_id": 11697378026,
+    "tls_artifact_id": 11697891984,
+    "a_review_comment_id": 6107603063,
+    "a_report": "07_重建工作区/F05-3E_A主控独立验收隐藏原因可信来源审计PASS_PR36正式合并与F05-3F接力_2026-10-11.md",
+    "merge_sha": "84c87268718de03ad5a8d04acdf6b5375289b4e0",
+    "a_blockers": [],
+    "physical_hide_reason_gap_open": true,
+    "hide_recalculation_positive_approved": false,
+    "production_ready": false,
+    "source_gap_for_production": true
   },
   "pending_product_decisions": {
     "general_wholesale_vehicle_scope": {
@@ -6293,5 +6314,24 @@
       "candidate_only": "Authorized Mingbang manager/store head may possibly assign named employee to one wholesale Vehicle/current listing cycle under verified business event with revocable source and immutable audit",
       "do_not_implement_without_approval": true
     }
+  },
+  "f05_3f_gate": {
+    "status": "A_RELEASED_FOR_B_B_NOT_STARTED",
+    "execution": "B_NOT_STARTED",
+    "work_order": "07_重建工作区/F05-3F_A主控收藏当前物理载体可信来源与同车同周期业务关系保真完整施工单_2026-10-11.md",
+    "branch": "feat/f05-3f-favorite-carrier-preservation",
+    "branch_created": false,
+    "scope": "FAVORITE_PHYSICAL_CARRIER_AND_SAME_VEHICLE_CYCLE_CUSTOMER_RELATIONS_CI_AUDIT_ONLY",
+    "prior_frozen_pg16_jobs": 46,
+    "new_pg16_jobs": 2,
+    "independent_pg16_ci_jobs_required": 48,
+    "ci_only": true,
+    "allow_production": false,
+    "source_gap_requires_block": true,
+    "source_gap_kind": "FAVORITE_PHYSICAL_CARRIER_SOURCE_GAP",
+    "product_baseline": "NOT_READY",
+    "next_owner": "B",
+    "pr": null,
+    "pr_merged": false
   }
 }
