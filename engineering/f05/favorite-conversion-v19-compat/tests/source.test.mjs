@@ -72,7 +72,24 @@ test('I-A02 original physical Favorite ADD is committed in v19 before ANY conver
 });
 test('I-A03 actual F05-3C employee service converts v19 wholesale with existing Favorite keeping every relation hash',async()=>{
  assert.ok(preConversion?.sha256,'must have verified preexisting Favorite before conversion');
- const out=await convertWholesaleToMingbang(auth,employee,{vehicleId:vehicle,teamId:901,eventKey:event('scoped-conversion')});
+ let release,signal,pid;
+ const held=new Promise(resolve=>release=resolve),entered=new Promise(resolve=>signal=resolve);
+ const converting=convertWholesaleToMingbang(auth,employee,
+  {vehicleId:vehicle,teamId:901,eventKey:event('scoped-conversion')},
+  {checkpoint:async(label,c)=>{
+   assert.equal(label,'employee_and_source_physically_locked');
+   pid=Number((await c.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+   signal();await held;
+  }});
+ const ready=await Promise.race([entered.then(()=>true),converting.then(()=>false)]);
+ if(!ready){await converting;assert.fail('trusted conversion failed before advisory checkpoint')}
+ const contender=await connect();
+ try{
+  assert.notEqual(pid,Number((await contender.query('SELECT pg_backend_pid() pid')).rows[0].pid));
+  await contender.query('BEGIN');await contender.query("SET LOCAL lock_timeout='250ms'");
+  await assert.rejects(()=>contender.query('SELECT pg_advisory_xact_lock(20261011,hashtext($1))',['JYT:JYTF05C-UNSCOPED']),e=>e.code==='55P03');
+ }finally{await contender.query('ROLLBACK').catch(()=>{});await contender.end();release()}
+ const out=await converting;
  assert.equal(out.allowed,true,JSON.stringify(out));
  assert.equal(out.code,'F05_3C_CONVERTED_SAME_VEHICLE_CYCLE');
  assert.equal(out.vehicleId,vehicle);assert.equal(out.listingCycleId,cycle);
@@ -111,22 +128,18 @@ test('I-A07 v19 exact signature verifier rejects committed checksum tampering be
  }finally{await db.query('UPDATE public.f03_schema_migrations SET checksum=$1 WHERE migration_id=$2',[old,id])}
  assert.equal((await verifyV19(db)).verified,true);
 });
-test('I-A08 genuine two-backend PG16 governance locks and conflict SQLSTATE 55P03 under conversion',async()=>{
- // Place a second real current Lock on the still-wholesale target.
- await db.query("INSERT INTO public.locks(lock_id,customer_id,vehicle_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) VALUES(899956,$1,$2,$3,'active',1,now()-interval '20 minutes',now()+interval '2 hours')",[unscopedCustomer,unscopedVehicle,unscopedCycle]);
- let release,notify,pid;
- const held=new Promise(r=>release=r),entered=new Promise(r=>notify=r);
- const conversion=convertWholesaleToMingbang(auth,employee,
-  {vehicleId:unscopedVehicle,teamId:901,eventKey:event('concurrent-physical-guard')},
-  {checkpoint:async(label,c)=>{assert.equal(label,'employee_and_source_physically_locked');pid=Number((await c.query('SELECT pg_backend_pid() pid')).rows[0].pid);notify();await held}});
- await entered;
- const contender=await connect();
+test('I-A08 two independent PG16 backends cannot concurrently rewrite signed Favorite Current ownership',async()=>{
+ const holder=await connect(),contender=await connect();
  try{
-  assert.notEqual(pid,Number((await contender.query('SELECT pg_backend_pid() pid')).rows[0].pid));
+  const [a,b]=await Promise.all([holder.query('SELECT pg_backend_pid() id'),contender.query('SELECT pg_backend_pid() id')]);
+  assert.notEqual(a.rows[0].id,b.rows[0].id);
+  await holder.query('BEGIN');
+  const row=await holder.query('SELECT favorite_id FROM public.f05_3g_customer_favorites WHERE customer_id=$1 AND vehicle_id=$2 FOR UPDATE',[customer,vehicle]);
+  assert.equal(row.rowCount,1);
   await contender.query('BEGIN');await contender.query("SET LOCAL lock_timeout='250ms'");
-  await assert.rejects(()=>contender.query("SELECT pg_advisory_xact_lock(20261011,hashtext($1))",['JYT:JYT-F05C-LOOPBACK-015']),e=>e.code==='55P03');
- }finally{await contender.query('ROLLBACK').catch(()=>{});await contender.end();release()}
- assert.equal((await conversion).code,'F05_3C_CONVERTED_SAME_VEHICLE_CYCLE');
+  await assert.rejects(()=>contender.query('SELECT favorite_id FROM public.f05_3g_customer_favorites WHERE customer_id=$1 AND vehicle_id=$2 FOR SHARE',[customer,vehicle]),e=>e.code==='55P03');
+ }finally{await holder.query('ROLLBACK').catch(()=>{});await contender.query('ROLLBACK').catch(()=>{});await holder.end();await contender.end()}
+ assert.deepEqual(await snapshot(vehicle,cycle),prior);
 });
 test('I-A09 after v19 conversion, previously committed Favorite Current and Event remain immutable and safe',async()=>{
  await assert.rejects(()=>db.query("UPDATE public.f05_3g_favorite_events SET event_key=$1 WHERE customer_id=$2 AND vehicle_id=$3",[event('historical-forge'),customer,vehicle]),/F05_3G_FAVORITE_EVENT_IMMUTABLE/);
