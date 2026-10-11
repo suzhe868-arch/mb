@@ -11,6 +11,14 @@
 - ④ `service.mjs`仍要求实际名邦Employee Session、vehicle.read/manage+team scope及当前Lock/活动Transaction责任对象；同Vehicle/Cycle、completed拒绝、不会因转换授予上游电话/价格敏感权限，原客户、价格、推荐和查价表按实际存在的物理关系做前后hash。`ci-router.mjs`为环回TLS单动作、CSRF与跨身份拒绝。
 - ⑤ 已使用GitHub逐块检查新Workflow的**旧40个Job正文原文完全一致**，清除A指出的唯一多余空行；只追加2个真正非特权PG16 Job。新测试必须产生两原生Artifacts与实际42/42。
 
+## 原生PostgreSQL 16竞态与版本兼容补证
+
+- `C-A09` 两不同PG16 backend同`car_code`事务advisory锁争用，真实报`55P03`，待首事务释放后不新建第二辆Vehicle。
+- `C-A15` 活动交易(trading)与来源转换同时运行：转换真实持有Transaction行级`FOR SHARE`时，另一PG16连接尝试`completed`，真实`55P03`，回滚后原交易仍保持不变。
+- `C-A16` 转换中持有名邦Employee当前权限治理事务锁，第二独立PG16连接执行`vehicle.manage`撤销触发数据库因果序列化，真实`55P03`，回滚前不应破坏已提交转换；当前授权失效的普通动作直接拒绝。
+- `C-A12～14` 同一已签源上，精确v18适配核验三动作独立开关/cred、重试幂等、普通批发更新、offline→active不同ListingCycle、当前查询最小字段、旧v17在v18正确fail-closed和迁移校验防篡改。
+- 这些都是隔离PG16原生测试目标；只有相应Actions Job原生日志显示全部PASS，才按实际结果签收。不得用测试文字冒充实际成功。
+
 ## 尚需保持的真实差异
 
 - `IMAGE_LOCALIZATION_SOURCE_GAP`：无真实对象存储字节和object_key双成功，不宣称资产化完成；转换与图片子任务按PDM08 Final解耦。
