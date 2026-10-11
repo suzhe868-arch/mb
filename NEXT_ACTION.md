@@ -1,3 +1,12 @@
+# 2026-10-12｜F05-3G A首次独立复验：官方50/50全绿但2项历史可信性门禁未通过，PR38暂不合并（唯一最新）
+
+- A独立核B`feat/f05-3g-favorite-physical-carrier`/[PR38](https://github.com/suzhe868-arch/mb/pull/38)/[Actions38159418079](https://github.com/suzhe868-arch/mb/actions/runs/38159418079)最终HEAD均`9bd9a0b91972dfa374d0a77ce9793c909519f750`；GitHub原生最终attempt2 **50/50非特权真实PG16独立Job success**，旧48 Job由A逐YAML全文比较**48/48完全一致**，新增原生Source G-A01～08 **8/8**、loopback TLS G-B01～07 **7/7**，两Backend真`55P03`及v18→v19真实增量回滚证据。官方本run95份Artifacts，新source ID`11709519396`（76053B）与TLS ID`11709848032`（75905B）非空未过期。差异仅12个本包允许新增文件，未碰冻结旧000001～000018/旧F03～F05-3F/Final/IA/C/生产server。**官方50/50成功真实有效但不代表A最终验收通过**。
+- **A独立源码复核2项真实验收阻断**：`A-F05-3G-01` 新`000019_favorite_carrier_ci.sql` 的Current Favorite trigger只查不可rekey/delete及版本/时间，允许合法DML直接切换`current_state`并递增`state_version`，没有强制当前变化与`f05_3g_favorite_events`在同事务受信一致，可出现Current变/历史无Event或伪Event；原G-A07未覆盖该负例。 `A-F05-3G-02` 新`migration.mjs` 的v19`verify`只核当期v19 catalog+最新记录，而升级后原v18旧账的checksum/结构签名未再受信校验，历史版本元数据变更有漏检路径，原v18 verifier在v19时预期拒绝。两项需原PG16直接SQL与v19历史改写负例实证修正。
+- A[PR38正式首次审查评论](https://github.com/suzhe868-arch/mb/pull/38#issuecomment-6111960790)与主线**唯一完整定向整改单**`07_重建工作区/F05-3G_A主控首次独立验收50项CI全绿但收藏事件因果与历史版本签名两项定向整改单_2026-10-12.md`已发布。B继续**原**`feat/f05-3g-favorite-physical-carrier`/PR38，限本包新文件修复上述两项，旧48 Job正文绝不改/不减，新最终**B HEAD=PR HEAD=Actions run.head_sha且50/50成功**+两新原生Artifacts和完整中文B交接再交A复验；PR38**未合并**，不得开始F05-3H或生产。当前`F05_3G_A_FIRST_REVIEW_CHANGES_REQUESTED / PR38_NOT_MERGED / NEXT_OWNER=B`。
+- 产品/生产边界保持：`CUSTOMER_WECHAT_SESSION_TO_FAVORITE_ACTOR_SOURCE_GAP`（v19独立CI关系不等于微信客户可收藏）、`GENERAL_WHOLESALE_VEHICLE_SCOPE_SOURCE_GAP_PENDING_PRODUCT_DECISION`（无Lock/活动Transaction普通批发车经营Scope用户未裁决）、`HIDE_REASON_RECALCULATION_SOURCE_GAP`、`IMAGE_LOCALIZATION_SOURCE_GAP`、未知车型/真实JYT、电话、资金与上线未授权；**F05/F04生产/C-H01/V1基线持续NOT_READY**。
+
+---
+
 # 2026-10-11｜F05-3F A独立Favorite来源审计限定PASS、PR37正式合并；F05-3G独立收藏物理载体工程正式放行（唯一最新）
 
 - B指定分支`feat/f05-3f-favorite-carrier-preservation`/[PR37](https://github.com/suzhe868-arch/mb/pull/37)/[Actions38131580736](https://github.com/suzhe868-arch/mb/actions/runs/38131580736)三方HEAD同为`0e84c08ca88b91aa19dc16ac32f9767fc207ee7a`，GitHub**48/48独立非特权真PG16 Jobs success**。A读取完整旧/新Workflow逐YAML Job块对照**旧46/46全文原样**；新增原生source Job `114446837464` F-A01～08 **8/8通过**（不同真PG16 backend、Lock争用`55P03`、同Vehicle+Cycle已有客户业务关系哈希完全相同），真实TLS Job `114446837672` F-B01～07 **7/7通过**。本run93份Artifacts中新source ID`11699197064`（75,383B）与TLS ID`11699177384`（75,269B）均未过期。全部仅8个白名单新增文件；旧000001～000018/已签F03～F05-3E/Final/IA/C/生产server均未改。
