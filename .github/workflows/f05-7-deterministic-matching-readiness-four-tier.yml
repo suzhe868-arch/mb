@@ -1,0 +1,53 @@
+name: F05-7 real v21 PDM12 application pending/manual demand eligibility CI
+on:
+  push:
+    branches: [feat/f05-7-deterministic-matching-readiness-four-tier]
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  match-source:
+    name: F05-7 source true nonprivileged PostgreSQL16 v23 PDM12 deterministic matching source test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    timeout-minutes: 40
+    permissions: {contents: read}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with: {node-version: '22.16.0'}
+    - run: bash engineering/f05/deterministic-matching-readiness-four-tier/ci-job.sh source
+    - uses: actions/upload-artifact@v4
+      with:
+        name: f05-7-source-native-evidence
+        path: engineering/f05/deterministic-matching-readiness-four-tier/artifacts/source/
+        retention-days: 30
+        if-no-files-found: error
+  match-https:
+    name: F05-7 https true nonprivileged PostgreSQL16 v23 PDM12 matching HTTPS denial test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    timeout-minutes: 40
+    permissions: {contents: read}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with: {node-version: '22.16.0'}
+    - run: bash engineering/f05/deterministic-matching-readiness-four-tier/ci-job.sh https
+    - uses: actions/upload-artifact@v4
+      with:
+        name: f05-7-https-native-evidence
+        path: engineering/f05/deterministic-matching-readiness-four-tier/artifacts/https/
+        retention-days: 30
+        if-no-files-found: error
