@@ -7322,7 +7322,7 @@ jobs:
           docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
           docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
           node --check f05/wholesale-to-mingbang-conversion/ci-prepare.mjs
-          node f05/wholesale-to-mingbang-conversion/ci-run.mjs ${{ github.job == 'f05-3c-source-pg16' && 'source' || 'https' }}
+          node f05/wholesale-to-mingbang-conversion/ci-run.mjs source
       - name: Verify two phase true PG16 run and exact sealed schema
         run: |
           set -euo pipefail
@@ -7397,7 +7397,7 @@ jobs:
           docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
           docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
           node --check f05/wholesale-to-mingbang-conversion/ci-prepare.mjs
-          node f05/wholesale-to-mingbang-conversion/ci-prepare.mjs
+          node f05/wholesale-to-mingbang-conversion/ci-run.mjs https
       - name: Verify two phase true PG16 run and exact sealed schema
         run: |
           set -euo pipefail
