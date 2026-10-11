@@ -32,10 +32,7 @@ const cmds=[
   ['f05/'+x+'/runner.mjs','--verify'],['f05/'+x+'/fixtures.mjs']]),
  ['f05/jyt-wholesale-lineage-cycle/runner.mjs','--inject-rollback'],
  ['f05/jyt-wholesale-lineage-cycle/runner.mjs','--apply'],
- ['f05/jyt-wholesale-lineage-cycle/runner.mjs','--verify'],
- ['f05/wholesale-to-mingbang-conversion/runner.mjs','--inject-rollback'],
- ['f05/wholesale-to-mingbang-conversion/runner.mjs','--apply'],
- ['f05/wholesale-to-mingbang-conversion/runner.mjs','--verify']
+ ['f05/jyt-wholesale-lineage-cycle/runner.mjs','--verify']
 ];
 for(const [file,...args] of cmds){
  console.log('F05_3C_BOOTSTRAP_STEP',file,...args);
