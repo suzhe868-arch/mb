@@ -37,6 +37,8 @@ test.before(async()=>{
  await db.query("UPDATE public.vehicles SET platform_visibility='hidden' WHERE vehicle_id=$1",[vid]);
  await db.query("INSERT INTO public.customers(customer_id,account_status,customer_level_id,owner_assignment_state,current_owner_employee_id) VALUES($1,'active',1,'assigned',1),($2,'active',1,'assigned',1)",[customer,other]);
  await db.query("INSERT INTO public.customer_price_cycle_unlocks(unlock_id,customer_id,vehicle_id,listing_cycle_id,grant_origin) VALUES(899973,$1,$2,$3,'synthetic-v19-old-cycle-only')",[customer,vid,oldCycle]);
+ // Independently committed LIMITED unlock charge belongs ONLY to original ListingCycle.
+ await db.query("INSERT INTO public.customer_price_unlock_events(unlock_event_id,idempotency_key,customer_id,vehicle_id,listing_cycle_id,business_day_shanghai,event_kind) VALUES(899974,$1,$2,$3,$4,(now() AT TIME ZONE 'Asia/Shanghai')::date,'successful_limited_charge')",[ev('real-price-charge-old-cycle'),customer,vid,oldCycle]);
 });
 test.after(async()=>{await auth.close();await db.end();secret.fill(0)});
 test('J-A01 genuine v19 structure and admin-issued source separate from PC Employee/4S',async()=>{
