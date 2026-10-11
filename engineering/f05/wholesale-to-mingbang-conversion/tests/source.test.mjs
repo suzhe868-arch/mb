@@ -168,9 +168,25 @@ test('C-A12 real v18 signed JYT unconverted wholesale sync/offline/relist stays 
  assert.equal(refresh.vehicleId,vid);assert.equal(refresh.listingCycleId,first);
  const duplicate=await syncUpsert(auth,tokens.api,p);
  assert.equal(duplicate.code,'F05_3B_EVENT_ALREADY_PROCESSED');
- const offline=await syncBatchOffline(auth,tokens.api,
-  {eventKey:ev('v18-real-source-offline'),carCodes:['JYTF05C-SYNC-V18']});
+ const batch1={eventKey:ev('v18-real-source-offline'),carCodes:['JYTF05C-SYNC-V18']};
+ const offline=await syncBatchOffline(auth,tokens.api,batch1);
  assert.equal(offline.count,1,JSON.stringify(offline));
+ const replay1=await syncBatchOffline(auth,tokens.api,batch1);
+ assert.equal(replay1.code,'F05_3B_OFFLINE_BATCH_IDEMPOTENT');
+ assert.equal(replay1.count,1,'replay preserves immutable original count_rows');
+ const receipt1=(await db.query(
+  'SELECT count_rows FROM public.f05_3b_sync_receipts WHERE event_key=$1',[batch1.eventKey])).rows;
+ assert.equal(receipt1.length,1);assert.equal(Number(receipt1[0].count_rows),1);
+ const changed=await syncBatchOffline(auth,tokens.api,
+  {...batch1,carCodes:[...batch1.carCodes,car('UNSCOPED')]});
+ assert.equal(changed.code,'F05_3C_V18_EVENT_PAYLOAD_COLLISION');
+ const zeroBatch={...batch1,eventKey:ev('v18-new-event-all-already-offline')};
+ assert.equal((await syncBatchOffline(auth,tokens.api,zeroBatch)).count,0);
+ assert.equal((await syncBatchOffline(auth,tokens.api,zeroBatch)).count,0);
+ const recZero=(await db.query(
+  'SELECT count_rows FROM public.f05_3b_sync_receipts WHERE event_key=$1',
+  [zeroBatch.eventKey])).rows;
+ assert.equal(recZero.length,1);assert.equal(Number(recZero[0].count_rows),0);
  const empty=await syncCurrent(auth,tokens.api,{eventKey:ev('v18-current-exclude-offline'),afterVehicleId:0,limit:50});
  assert.equal(empty.allowed,true);
  assert.equal(empty.items.some(x=>x.vehicleId===vid),false);
@@ -181,6 +197,34 @@ test('C-A12 real v18 signed JYT unconverted wholesale sync/offline/relist stays 
  assert.equal(current.allowed,true);assert.ok(current.items.some(x=>x.vehicleId===vid));
  const line=(await db.query("SELECT current_cycle_id FROM public.f05_3b_sync_lineages WHERE car_code='JYTF05C-SYNC-V18'")).rows[0];
  assert.equal(Number(line.current_cycle_id),relist.listingCycleId);
+ // Both cars were imported and signed by F05-3B before 000018.
+ const two={eventKey:ev('v18-two-real-cars-one-concurrent-batch'),
+  carCodes:['JYTF05C-SYNC-V18','JYT-F05C-LOOPBACK-015']};
+ const results=await Promise.all([
+  syncBatchOffline(auth,tokens.api,two),syncBatchOffline(auth,tokens.api,two)]);
+ assert.equal(results.length,2);
+ assert.ok(results.every(x=>x.allowed===true&&x.count===2),JSON.stringify(results));
+ assert.equal((await syncBatchOffline(auth,tokens.api,two)).count,2);
+ const receipts=(await db.query(
+  'SELECT count_rows,outcome FROM public.f05_3b_sync_receipts WHERE event_key=$1',
+  [two.eventKey])).rows;
+ assert.equal(receipts.length,1);
+ assert.equal(Number(receipts[0].count_rows),2);
+ assert.equal(receipts[0].outcome,'OFFLINED');
+ const rows=(await db.query(
+  "SELECT v.source_sale_status,cy.ended_at FROM public.f05_3b_sync_lineages l "+
+  "JOIN public.vehicles v ON v.vehicle_id=l.vehicle_id "+
+  "JOIN public.vehicle_listing_cycles cy ON cy.listing_cycle_id=l.current_cycle_id "+
+  "WHERE l.car_code=ANY($1)",[two.carCodes])).rows;
+ assert.equal(rows.length,2);
+ assert.ok(rows.every(x=>x.source_sale_status==='offline'&&x.ended_at!==null));
+ assert.equal((await syncBatchOffline(auth,tokens.api,
+  {...two,carCodes:[two.carCodes[0]]})).code,'F05_3C_V18_EVENT_PAYLOAD_COLLISION');
+ assert.equal((await syncUpsert(auth,tokens.api,
+  {...p,eventKey:two.eventKey,state:'offline'})).code,'F05_3C_V18_EVENT_PAYLOAD_COLLISION');
+ const allZero={...two,eventKey:ev('v18-two-offline-new-event-zero')};
+ assert.equal((await syncBatchOffline(auth,tokens.api,allZero)).count,0);
+ assert.equal((await syncBatchOffline(auth,tokens.api,allZero)).count,0);
 });
 test('C-A13 old v17 strict seal refuses v18; only new exact-v18 signed adapter accepts; forged API secret and switched-off action deny',async()=>{
  await assert.rejects(()=>frozenV17Verify(db),/F05_3B_FROZEN_000016_REQUIRED/);
@@ -259,4 +303,50 @@ test('C-A16 independent PG backend governance revoke waits on active conversion 
   await contender.query('ROLLBACK').catch(()=>{});await contender.end();release();
  }
  assert.equal((await converting).code,'F05_3C_CONVERTED_SAME_VEHICLE_CYCLE');
+});
+
+test('C-A17 two independent real PG16 backends lock current Lock-only scope FOR SHARE until commit',async()=>{
+ const {vehicleId,listingCycleId}=identities.get('REVOKED');
+ let resume,signal,backendPid;
+ const pending=new Promise(resolve=>resume=resolve),entered=new Promise(resolve=>signal=resolve);
+ const converting=convertWholesaleToMingbang(auth,tokens.employee,
+  {vehicleId,teamId:901,eventKey:ev('lock-only-current-authorization-concurrent-write')},
+  {checkpoint:async(point,c)=>{
+   assert.equal(point,'employee_and_source_physically_locked');
+   backendPid=Number((await c.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+   signal();await pending;
+  }});
+ await entered;
+ const writer=await connect();
+ try{
+  assert.notEqual(backendPid,Number((await writer.query('SELECT pg_backend_pid() pid')).rows[0].pid));
+  await writer.query('BEGIN');
+  await writer.query("SET LOCAL lock_timeout='300ms'");
+  await assert.rejects(()=>writer.query(
+   "UPDATE public.locks SET expires_at=now()-interval '2 minutes' WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND responsible_employee_id=1",
+   [vehicleId,listingCycleId]),e=>e?.code==='55P03');
+  await writer.query('ROLLBACK');
+  await writer.query('BEGIN');
+  await writer.query("SET LOCAL lock_timeout='300ms'");
+  await assert.rejects(()=>writer.query(
+   "UPDATE public.locks SET lock_status='cancelled' WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND responsible_employee_id=1",
+   [vehicleId,listingCycleId]),e=>e?.code==='55P03');
+ }finally{await writer.query('ROLLBACK').catch(()=>{});await writer.end();resume()}
+ assert.equal((await converting).code,'F05_3C_CONVERTED_SAME_VEHICLE_CYCLE');
+ assert.equal((await db.query('SELECT count(*)::int n FROM public.f05_3c_wholesale_conversions WHERE vehicle_id=$1',
+  [vehicleId])).rows[0].n,1);
+});
+
+test('C-A18 expired Lock-only scope fails closed without a new conversion receipt',async()=>{
+ const {vehicleId,listingCycleId}=identities.get('UNSCOPED');
+ await db.query("INSERT INTO public.customers(customer_id,account_status,customer_level_id,owner_assignment_state,current_owner_employee_id) VALUES(894099,'active',1,'assigned',1)");
+ await db.query("INSERT INTO public.locks(lock_id,customer_id,vehicle_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) VALUES(895099,894099,$1,$2,'active',1,now()-interval '2 hours',now()-interval '1 minute')",
+  [vehicleId,listingCycleId]);
+ const out=await convertWholesaleToMingbang(auth,tokens.employee,
+  {vehicleId,teamId:901,eventKey:ev('expired-lock-not-current-object-scope')});
+ assert.deepEqual(out,{allowed:false,code:SOURCE_GAP});
+ assert.equal((await db.query('SELECT source_type FROM public.vehicles WHERE vehicle_id=$1',
+  [vehicleId])).rows[0].source_type,'wholesale');
+ assert.equal((await db.query('SELECT count(*)::int n FROM public.f05_3c_wholesale_conversions WHERE vehicle_id=$1',
+  [vehicleId])).rows[0].n,0);
 });

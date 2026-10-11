@@ -1,3 +1,23 @@
+# F05-3C｜A第二轮定向整改与B复核记录（2026-10-11）
+
+**当前记载为补丁提交前的工程说明；CI、42/42及两项新增制品是否达标，必须以后续GitHub原生运行确认。未正式核验前不得标注READY_FOR_A_REVIEW。**
+
+## 二轮修复范围
+
+1. `A-F05-3C-04_LOCK_ONLY_OBJECT_SCOPE_COMMIT_RACE`：仅改新`service.mjs`的对象授权证明。Lock-only及活动Transaction按vehicle/cycle/responsible_employee/有效状态查询真实行，并`SELECT ... FOR SHARE`持有行锁到转换事务COMMIT；团队角色不能代替对象所有权。新增原生PG16独立backend验证：一方持锁转换，另一方试图缩短锁车期限或取消Lock均必须原生`55P03`；原生超时回滚后原锁车和转换账本保持一致。已过期Lock不允许转换（SOURCE_GAP）。
+2. `A-F05-3C-05_V18_OFFLINE_BATCH_IDEMPOTENT_COUNT_MISMATCH`：仅改新`v18-sync.mjs`，同事件批量先用事务级advisory锁串行化，再以原`f05_3b_sync_receipts.count_rows`返回原始处理数，不再将已处理事件默认写为0；同eventKey不同参数、不同action拒绝。扩展C-A12原生PG16用例：初始1→重试1、零次0→重试0、同批两辆不同JYT已签车在两个并发调用中均返回2，收据唯一、下架周期及状态真实一致。补C-A17/A18。
+3. **不修改**旧40个Workflow Job定义、F05-3B冻结旧源码、000001～000017迁移及正式PDM/IA/Low-Fi、生产接口或设计分支；只限原PR34的F05-3C工程目录。
+
+## 物理来源与生产门禁继续冻结
+
+`IMAGE_LOCALIZATION_SOURCE_GAP`、`HIDE_REASON_RECALCULATION_SOURCE_GAP`、`FAVORITE_PHYSICAL_CARRIER_SOURCE_GAP`、`CURRENT_WHOLESALE_OBJECT_SCOPE_SOURCE_GAP`、`F05_3C_V18_NEW_CAR_SOURCE_MAPPING_GAP`、`SOURCE_GAP_BLOCKED_FOR_PRODUCTION`仍存在。这里的测试只接受正式冻结链签发过的**合成**JYT数据和真实隔离PG16，绝不认定真实JYT生产/图片/交易/电话已经可用。
+
+## 完成门槛
+
+同一最终commit SHA必须等于PR34.head.sha与成功Actions的run.head_sha，且官方新运行全部42/42 job成功、两份新PG16+TLS原生制品未过期、schema-only/full-catalog/inventory/checksums与日志齐全；只有之后B才可提交`READY_FOR_A_REVIEW / NEXT_OWNER=A`，A独立验收前不得合并main、不得启动F05-3D。
+
+---
+
 # F05-3C｜A首次定向整改的 B工程完整来源核账
 
 > 当前：B已实施双阶段v17→v18真实源与兼容适配；**新最终42/42和同SHA仍须官方CI证实，不可提前报PASS**。全部仅用于独立非生产PG16。

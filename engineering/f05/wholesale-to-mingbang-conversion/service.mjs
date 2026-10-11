@@ -34,14 +34,17 @@ async function objectScope(c,employee,team,vehicle,cycle){
  // A signed current customer-business object connects the WHOLESALE vehicle/cycle
  // to this employee; team-based static roles or legacy uploader cannot forge it.
  // If there is no current Lock/Transaction object-owner: fail SOURCE_GAP.
- const q=(await c.query(
- "SELECT (SELECT count(*)::int FROM public.locks l WHERE l.vehicle_id=$1 AND l.listing_cycle_id=$2 "+
- "AND l.responsible_employee_id=$3 AND l.lock_status='active' AND l.expires_at>transaction_timestamp()) as locks, "+
- "(SELECT count(*)::int FROM public.transactions t WHERE t.vehicle_id=$1 AND t.listing_cycle_id=$2 "+
- "AND t.responsible_employee_id=$3 AND t.completed_at IS NULL AND t.status NOT IN ('completed','cancelled')) AS transactions",
- [vehicle,cycle,employee])).rows[0];
- // Team membership and two current capability scope bindings were proven by caller.
- return Number(q.locks)>0||Number(q.transactions)>0;
+ const locks=(await c.query(
+  "SELECT l.lock_id FROM public.locks l WHERE l.vehicle_id=$1 AND l.listing_cycle_id=$2 "+
+  "AND l.responsible_employee_id=$3 AND l.lock_status='active' AND l.expires_at>clock_timestamp() "+
+  "ORDER BY l.lock_id FOR SHARE",
+  [vehicle,cycle,employee])).rows;
+ const trades=(await c.query(
+  "SELECT t.transaction_id FROM public.transactions t WHERE t.vehicle_id=$1 AND t.listing_cycle_id=$2 "+
+  "AND t.responsible_employee_id=$3 AND t.completed_at IS NULL AND t.status NOT IN ('completed','cancelled') "+
+  "ORDER BY t.transaction_id FOR SHARE",
+  [vehicle,cycle,employee])).rows;
+ return locks.length>0||trades.length>0;
 }
 export async function convertWholesaleToMingbang(auth,token,p,{checkpoint}={}){
  if(!shape(p,'eventKey,teamId,vehicleId')||!valid(p.vehicleId)||!valid(p.teamId)||!event(p.eventKey))

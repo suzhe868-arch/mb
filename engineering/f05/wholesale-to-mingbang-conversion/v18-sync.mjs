@@ -106,8 +106,18 @@ export async function syncBatchOffline(auth,token,p){
  new Set(p.carCodes).size!==p.carCodes.length||!p.carCodes.every(code))
  return deny('F05_3C_V18_OFFLINE_INPUT');
  return run(auth,token,'offline',async(c,actor)=>{
+  // Serialize the entire event before checking receipt and per-car state.
+  await c.query('SELECT pg_advisory_xact_lock(20261011,hashtext($1))',['JYT-BATCH-EVENT:'+p.eventKey]);
   const prior=await eventSeen(c,p.eventKey,'offline',p);
-  if(prior)return prior.allowed?ok('F05_3B_OFFLINE_BATCH_IDEMPOTENT',{count:0}):prior;
+  if(prior){
+   if(!prior.allowed)return prior;
+   // Replays must return the original immutable PG16 receipt count.
+   const rows=(await c.query(
+    'SELECT count_rows FROM public.f05_3b_sync_receipts WHERE event_key=$1 FOR SHARE',
+    [p.eventKey])).rows;
+   if(rows.length!==1)throw Error('F05_3C_V18_IMMUTABLE_RECEIPT_MISSING');
+   return ok('F05_3B_OFFLINE_BATCH_IDEMPOTENT',{count:Number(rows[0].count_rows)});
+  }
   let count=0;
   for(const car of [...p.carCodes].sort()){
    await c.query('SELECT pg_advisory_xact_lock(20261011,hashtext($1))',['JYT:'+car]);
