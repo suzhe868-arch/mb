@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
-permissions: {contents: read}
+permissions: {contents: read, actions: read}
 jobs:
   match-source:
     name: F05-7 source true nonprivileged PostgreSQL16 v23 PDM12 deterministic matching source test
@@ -18,12 +18,14 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
     timeout-minutes: 40
-    permissions: {contents: read}
+    permissions: {contents: read, actions: read}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
       with: {node-version: '22.16.0'}
     - run: bash engineering/f05/deterministic-matching-readiness-four-tier/ci-job.sh source
+      env:
+        GH_ACTIONS_READ_TOKEN: ${{ github.token }}
     - uses: actions/upload-artifact@v4
       with:
         name: f05-7-source-native-evidence
@@ -41,7 +43,7 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
     timeout-minutes: 40
-    permissions: {contents: read}
+    permissions: {contents: read, actions: read}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
