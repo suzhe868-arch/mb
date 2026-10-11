@@ -1,28 +1,30 @@
-# F05-3C｜B 工程阻断交接（真实 CI 复验后更新）
+# F05-3C｜A首次定向整改的 B工程完整来源核账
 
-**状态：`B_BLOCKED_VERSION_CHAIN / NOT_READY_FOR_A_REVIEW`；不可提交A正式验收PASS，不可合并main。**
+> 当前：B已实施双阶段v17→v18真实源与兼容适配；**新最终42/42和同SHA仍须官方CI证实，不可提前报PASS**。全部仅用于独立非生产PG16。
 
-## 原生失败事实
+## 已执行的A技术裁决
 
-- GitHub Actions [#38097826807](https://github.com/suzhe868-arch/mb/actions/runs/38097826807) 已实际创建全部42个独立PG16作业；新增A转换作业 `114347324419` 失败于真正PG16转换测试步骤，原始日志显示 `F05_3B_FROZEN_000016_REQUIRED`，测试 `11/11` 因 `before` hook 未能创建来源而失败。这是**前置版本兼容失败**，不是11条业务规则各自失败。
-- `engineering/f05/jyt-wholesale-lineage-cycle/migration.mjs` 为既有A签封的迁移链：严格限制 public.f03_schema_migrations 的行数最多15并要求当前schema checksum匹配000017。F05-3C在新000018落库后产生16个版本和新增 public DDL；旧 `syncUpsert/syncCurrent/syncBatchOffline` 进入 `ready()` 即被旧 `verify()` 拒绝。
-- A施工单明确禁止B修改已签旧迁移/旧工程，也要求新000018单独增量与旧同步合同继续安全工作。这两个条件在现有固定版本守卫下**不能同时直接满足**。不得偷改旧000017校验、删除已签版本、伪造源Actor或用mock HTTP 200冒充可信来源。
+- 正式 A 整改单：`07_重建工作区/F05-3C_A主控首次独立验收跨版本兼容技术裁决与原PR34完整定向整改单_2026-10-11.md`；[A审核评论](https://github.com/suzhe868-arch/mb/pull/34#issuecomment-6104424172)。首轮失败[Actions #38097826807](https://github.com/suzhe868-arch/mb/actions/runs/38097826807)不能冒充成功。
+- ① `ci-prepare.mjs` 在新PG16严格走正式旧版本M94→000017，`ci-run.mjs` 在000018应用前用原F05-3B签收服务及F03真SystemAdmin Session签发独立同步Credential，并由原`syncUpsert`在同PG16创建真实合成JYT Vehicle/Cycle/INTEGRATION收据。此时旧v17链全通过。短期密钥只在同一测试Node进程与被控制子进程内传递，严禁进入文件、Workflow env与制品。
+- ② 同一个PG16实际新增000018（含注入事务回滚）、核精确16版schema SHA/版本；旧v17在v18拒绝被保留为正常fail-closed，不篡改000001～000017或冻结38/40旧测试。
+- ③ 本包全新`v18-sync.mjs`是**仅CI**的精确v18同步兼容适配，三接口每次实证原受信Credential SHA、撤销与每个API开关，使用同`car_code` advisory锁和原lineage/cycle；普通已受信批发车更新/下架/重上架/分页及转换后旧编号自动抑制做原生正反PG16测试；来源无可信车型映射的新车仍保留新车来源缺口，不冒称旧v17程序可直接在v18运行。
+- ④ `service.mjs`仍要求实际名邦Employee Session、vehicle.read/manage+team scope及当前Lock/活动Transaction责任对象；同Vehicle/Cycle、completed拒绝、不会因转换授予上游电话/价格敏感权限，原客户、价格、推荐和查价表按实际存在的物理关系做前后hash。`ci-router.mjs`为环回TLS单动作、CSRF与跨身份拒绝。
+- ⑤ 已使用GitHub逐块检查新Workflow的**旧40个Job正文原文完全一致**，清除A指出的唯一多余空行；只追加2个真正非特权PG16 Job。新测试必须产生两原生Artifacts与实际42/42。
 
-## 当前分支完成的可复用源码
+## 尚需保持的真实差异
 
-- CI-only 000018转换收据、不可变来源/Actor、单向反向守卫；真实Employee双能力/团队scope、业务Lock/Transaction对象关联的条件授权服务；环回TLS会话/CSRF门禁；PG16历史快照、55P03双backend竞态与保守来源缺口测试。
-- 42-job新工作流已收紧至约495KB，旧40个原文逐Job冻结，新增2个真正PG16 Job，GitHub正常创建。**新包测试还未通过**；不能把工作流创建成功或旧40 job结果当最终42/42。
-- 图片落地 `IMAGE_LOCALIZATION_SOURCE_GAP`、隐藏原因计算 `HIDE_REASON_RECALCULATION_SOURCE_GAP`、Favorite实体 `FAVORITE_PHYSICAL_CARRIER_SOURCE_GAP`、无当前业务对象的批发车 `CURRENT_WHOLESALE_OBJECT_SCOPE_SOURCE_GAP` 都仍真实存在。
+- `IMAGE_LOCALIZATION_SOURCE_GAP`：无真实对象存储字节和object_key双成功，不宣称资产化完成；转换与图片子任务按PDM08 Final解耦。
+- `HIDE_REASON_RECALCULATION_SOURCE_GAP`：隐藏原因缺真实物理多原因matcher；保守hidden，不假设人工hidden可解锁。
+- `FAVORITE_PHYSICAL_CARRIER_SOURCE_GAP`：M94无可核当前Favorite实体。
+- `CURRENT_WHOLESALE_OBJECT_SCOPE_SOURCE_GAP`：没有合法当前Lock/活动Transaction承责事实的普通批发车不能凭Team/publisher/car_code推断管理范围。
+- `SOURCE_GAP_BLOCKED_FOR_PRODUCTION`：JYT生产、对象存储/真实资金/电话/用户均未连通。v18尚未证明未知新来源车型映射的全量签发能力，仍是条件式CI正向。
 
-## 需 A 主控集中技术裁决
+## 正式交A门禁
 
-1. 允许新增受信F05-3C跨版本同步兼容适配层并明确该层对旧000017身份+鉴权严格性的等价证明方法，**同时保留原40 job原文与旧源码不变**；或
-2. A明确放行未来安全版本前向兼容的**单独小批**，对旧迁移校验的改动由A指定权限和重签范围后才能由B实施；或
-3. 仅允许隔离 source-gap 测试先交A审查，不宣告本包正向完整可用，并重新拆分可信对象Scope/资产化缺口。
-
-**继续保持：`NEXT_OWNER=A_TECHNICAL_ARBITRATION_FOR_BLOCKER`（仅本PR/B阻断交接，不得擅改 main 状态）；F05-3C正式状态仍以main为准。**
+最终分支HEAD=PR34 HEAD=GitHub Actions成功run.head_sha，官方42/42全部success、两份新增Artifacts未过期、schema-only/catalog/inventory/checksum+PG16/TLS原生日志与来源矩阵齐全、文件差异全部在许可目录后，才可声明`READY_FOR_A_REVIEW / NEXT_OWNER=A`。未满足不改main、不标PASS。
 
 ---
+
 # 名邦汽车 V1｜F05-3C B全包自验与A复验交接
 
 > 状态：B施工与隔离测试，最终须验证同SHA官方42/42+两份原生Artifacts，再转READY_FOR_A_REVIEW。此文档不是A签收或生产准入。
