@@ -1,0 +1,11 @@
+环节	受信证据	结论	业务边界
+JYT Credential签发	F05-3B真实SystemAdmin session + 独立存证Secret摘要	SIGNED_SOURCE	不以Employee/4S/JYT原Token冒充
+API操作动态开关	F05-3B原upsert/offline/current独立控制与签名Receipt	SIGNED_SOURCE	禁止修改管理权限
+可信版本签名	真实PG16 15/16/17迁移账静态选v17/v18/v19严格完整verify	SIGNED_SOURCE	v19每次检查完整先序账及当前catalog
+车辆跨下架/重新上架	原F05-3B API离线结束旧Cycle，重新active同Vehicle新Cycle	SIGNED_SOURCE	不创建新车、不改历史收藏
+Favorite Current与Events	已签v19 PG16真实Customer+Vehicle物理及append-only Event	SIGNED_SOURCE	历史SHA256不改动
+新周期查价权益	原customer_price_cycle_unlocks和unlock_events绑定listing_cycle_id	SIGNED_SOURCE	老周期权益绝不跨到新周期
+隐藏和优先级	原platform_visibility隐藏及原客户隔离	SIGNED_SOURCE	不得通过收藏或重上架自动变公开
+微信Customer本人的可信会话	缺服务端微信code交换和可撤销受信Session	SOURCE_GAP	CI synthetic Favorite不等于生产授权
+普通JYT无Lock/交易车经营Owner	不在本批签发管理授权	SOURCE_GAP	不得借Favorite提升员工权限
+隐藏原因细分及图片本地化	尚无双源证明	SOURCE_GAP	保留hidden与图片缺口
