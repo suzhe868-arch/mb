@@ -134,3 +134,59 @@ test('G-A08 signed JYT conversion identity, multiple listing cycles and hidden/o
  assert.equal(f.current_state,'active');
  assert.equal(Number(f.vehicle_id),converted);
 });
+
+test('G-A09 TRUE PG16 direct DML bypass cannot COMMIT current INSERT/UPDATE without matching event nor phantom event with mismatched current',async()=>{
+ const before=(await db.query("SELECT current_state,state_version FROM public.f05_3g_customer_favorites WHERE customer_id=$1 AND vehicle_id=$2",[customer,wholesale])).rows[0];
+ assert.equal(before.current_state,'active');
+ // Directly INSERT first active Current without the ADD ledger. The SQL row
+ // statement succeeds but the DEFERRABLE constraint must veto COMMIT.
+ await db.query('BEGIN');
+ try{
+  await db.query("INSERT INTO public.f05_3g_customer_favorites(customer_id,vehicle_id,current_state) VALUES($1,$2,'active')",[otherCustomer,cycled]);
+  await assert.rejects(()=>db.query('COMMIT'),/F05_3G_CAUSAL_CURRENT_EVENT_MISMATCH/);
+ }finally{await db.query('ROLLBACK').catch(()=>{})}
+ assert.equal((await db.query('SELECT COUNT(*)::int n FROM public.f05_3g_customer_favorites WHERE customer_id=$1 AND vehicle_id=$2',[otherCustomer,cycled])).rows[0].n,0);
+ // Explicit SQL direct UPDATE used in A-F05-3G-01: state/version/time
+ // satisfy the old trigger but must fail the NEW DB-level causality.
+ await db.query('BEGIN');
+ try{
+  await db.query("UPDATE public.f05_3g_customer_favorites SET current_state='removed',state_version=state_version+1,changed_at=clock_timestamp() WHERE customer_id=$1 AND vehicle_id=$2",[customer,wholesale]);
+  await assert.rejects(()=>db.query('COMMIT'),/F05_3G_CAUSAL_CURRENT_EVENT_MISMATCH/);
+ }finally{await db.query('ROLLBACK').catch(()=>{})}
+ assert.deepEqual((await db.query('SELECT current_state,state_version FROM public.f05_3g_customer_favorites WHERE customer_id=$1 AND vehicle_id=$2',[customer,wholesale])).rows[0],before);
+ // A forged standalone APPLIED event with current version unchanged
+ // cannot append phantom cancellation; COMMIT rolls back the fake event.
+ const current=(await db.query("SELECT favorite_id,state_version FROM public.f05_3g_customer_favorites WHERE customer_id=$1 AND vehicle_id=$2",[customer,wholesale])).rows[0];
+ await db.query('BEGIN');
+ try{
+  await db.query("INSERT INTO public.f05_3g_favorite_events(favorite_id,customer_id,vehicle_id,event_key,payload_sha256,event_version,action,outcome,before_state,after_state,actor_kind,actor_context,transaction_id) VALUES($1,$2,$3,$4,$5,$6,'REMOVE','APPLIED','active','removed',$7,'{}'::jsonb,txid_current())",
+   [current.favorite_id,customer,wholesale,k('forged-standalone-event'),createHash('sha256').update('tampered').digest('hex'),
+    Number(current.state_version)+1,ACTOR]);
+  await assert.rejects(()=>db.query('COMMIT'),/F05_3G_CAUSAL_CURRENT_EVENT_MISMATCH/);
+ }finally{await db.query('ROLLBACK').catch(()=>{})}
+ assert.equal((await db.query('SELECT COUNT(*)::int n FROM public.f05_3g_favorite_events WHERE event_key=$1',[k('forged-standalone-event')])).rows[0].n,0);
+ assert.equal((await verify(db)).verified,true,'denied direct bypass must not alter sealed schema');
+});
+test('G-A10 v19 verify rejects real old v18 checksum or old structure hash tampering and any prior ledger record drift',async()=>{
+ const before=await verify(db);
+ const id='000018_wholesale_mingbang_conversion_ci_only';
+ for(const [migration,col,value] of [
+  [id,'checksum','0'.repeat(64)],
+  [id,'structure_sha256','1'.repeat(64)],
+  ['000017_jyt_wholesale_source_ci_only','checksum','2'.repeat(64)]]){
+  await db.query('BEGIN');
+  try{
+   const update=await db.query('UPDATE public.f03_schema_migrations SET '+col+'=$1 WHERE migration_id=$2',[value,migration]);
+   assert.equal(update.rowCount,1);
+   await assert.rejects(()=>verify(db),/F05_3G_(PRIOR_V18_SIGNED_HISTORY_TAMPERED|FULL_PRIOR_MIGRATION_LEDGER_TAMPERED)/);
+  }finally{await db.query('ROLLBACK').catch(()=>{})}
+  assert.equal((await verify(db)).newSha,before.newSha);
+ }
+ await db.query('BEGIN');
+ try{
+  await db.query('DELETE FROM public.f03_schema_migrations WHERE migration_id=$1',[id]);
+  await assert.rejects(()=>verify(db),/F05_3G_(000018_PRIOR_REQUIRED|PRIOR_V18_SIGNED_HISTORY_TAMPERED|FULL_PRIOR_MIGRATION_LEDGER_TAMPERED)/);
+ }finally{await db.query('ROLLBACK').catch(()=>{})}
+ await assert.rejects(()=>db.query("UPDATE public.f05_3g_migration_attestation SET preceding_records_sha256=$1",['3'.repeat(64)]),/F05_3G_FAVORITE_EVENT_IMMUTABLE/);
+ assert.equal((await verify(db)).newSha,before.newSha);
+});

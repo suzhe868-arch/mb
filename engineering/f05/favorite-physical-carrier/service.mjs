@@ -59,9 +59,9 @@ export async function syntheticFavoriteChange(db,{customerId,vehicleId,action,ev
   if(checkpoint)await checkpoint('favorite_current_row_held',c);
   if(injectRollback)throw Error('F05_3G_INJECTED_BUSINESS_ROLLBACK');
   const audit=(await c.query(
-   "INSERT INTO public.f05_3g_favorite_events(favorite_id,customer_id,vehicle_id,event_key,payload_sha256,action,outcome,before_state,after_state,actor_kind,actor_context,transaction_id) "+
-   "VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb,txid_current()) RETURNING event_id",
-   [current.favorite_id,customerId,vehicleId,eventKey,digest,action,outcome,before,next,ACTOR,
+   "INSERT INTO public.f05_3g_favorite_events(favorite_id,customer_id,vehicle_id,event_key,payload_sha256,event_version,action,outcome,before_state,after_state,actor_kind,actor_context,transaction_id) "+
+   "VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::jsonb,txid_current()) RETURNING event_id",
+   [current.favorite_id,customerId,vehicleId,eventKey,digest,current.state_version,action,outcome,before,next,ACTOR,
     JSON.stringify({purpose:'isolated_pg16_business_semantics_only',source:'F05-3G_CI_SYNTHETIC_CUSTOMER'})])).rows[0];
   await c.query('COMMIT');
   return {allowed:true,code:outcome==='APPLIED'?'F05_3G_APPLIED':'F05_3G_NOOP',

@@ -19,6 +19,7 @@ CREATE TABLE public.f05_3g_favorite_events (
  vehicle_id BIGINT NOT NULL,
  event_key TEXT NOT NULL UNIQUE CHECK(length(event_key) BETWEEN 20 AND 160),
  payload_sha256 TEXT NOT NULL CHECK(payload_sha256 ~ '^[0-9a-f]{64}$'),
+ event_version BIGINT NOT NULL CHECK(event_version>0),
  action TEXT NOT NULL CHECK(action IN ('ADD','REMOVE')),
  outcome TEXT NOT NULL CHECK(outcome IN ('APPLIED','NOOP')),
  before_state TEXT NOT NULL CHECK(before_state IN ('absent','active','removed')),
@@ -55,3 +56,73 @@ END $$;
 CREATE TRIGGER f05_3g_current_guard BEFORE UPDATE OR DELETE
  ON public.f05_3g_customer_favorites FOR EACH ROW
  EXECUTE FUNCTION public.f05_3g_no_rekey_or_delete();
+
+-- v19 immutable attestation of ALL prior signed version records, not only the
+-- latest relation catalog. Populated after v18 verify in the same migration tx.
+CREATE TABLE public.f05_3g_migration_attestation (
+ seal_key TEXT PRIMARY KEY CHECK(seal_key='M94_TO_V18_FROZEN_LEDGER'),
+ preceding_records_sha256 TEXT NOT NULL CHECK(preceding_records_sha256 ~ '^[0-9a-f]{64}$'),
+ prior_migration_checksum TEXT NOT NULL CHECK(prior_migration_checksum ~ '^[0-9a-f]{64}$'),
+ prior_structure_sha256 TEXT NOT NULL CHECK(prior_structure_sha256 ~ '^[0-9a-f]{64}$'),
+ sealed_at TIMESTAMPTZ NOT NULL DEFAULT transaction_timestamp()
+);
+CREATE TRIGGER f05_3g_version_attestation_immutable BEFORE UPDATE OR DELETE
+ ON public.f05_3g_migration_attestation FOR EACH ROW
+ EXECUTE FUNCTION public.f05_3g_append_only();
+
+-- No accepted Favorite current insert/state transition without its complete
+-- ordered event history; no phantom event sequence without matching current.
+-- CONSTRAINT triggers fire at COMMIT, allowing the service to insert both
+-- relations in either order within its one atomic transaction.
+CREATE FUNCTION public.f05_3g_assert_current_event_causality() RETURNS trigger
+ LANGUAGE plpgsql AS $$
+DECLARE
+ target BIGINT;
+ actual RECORD;
+ item RECORD;
+ expected_state TEXT := 'absent';
+ expected_version BIGINT := 0;
+ seen_events BIGINT := 0;
+BEGIN
+ IF TG_OP='DELETE' THEN target := OLD.favorite_id;
+ ELSE target := NEW.favorite_id; END IF;
+ SELECT * INTO actual FROM public.f05_3g_customer_favorites WHERE favorite_id=target;
+ IF NOT FOUND THEN RAISE EXCEPTION 'F05_3G_CAUSAL_CURRENT_MISSING'; END IF;
+ FOR item IN
+  SELECT * FROM public.f05_3g_favorite_events WHERE favorite_id=target ORDER BY event_id
+ LOOP
+  seen_events := seen_events + 1;
+  IF item.before_state IS DISTINCT FROM expected_state
+    THEN RAISE EXCEPTION 'F05_3G_CAUSAL_EVENT_BEFORE_DRIFT'; END IF;
+  IF item.outcome='APPLIED' THEN
+   expected_version := expected_version + 1;
+   IF item.after_state=expected_state
+    THEN RAISE EXCEPTION 'F05_3G_CAUSAL_FALSE_APPLIED'; END IF;
+  ELSE
+   IF item.after_state<>expected_state
+    THEN RAISE EXCEPTION 'F05_3G_CAUSAL_FALSE_NOOP'; END IF;
+  END IF;
+  IF item.event_version<>expected_version
+    THEN RAISE EXCEPTION 'F05_3G_CAUSAL_VERSION_MISMATCH'; END IF;
+  expected_state:=item.after_state;
+ END LOOP;
+ IF seen_events=0 OR expected_state<>actual.current_state
+   OR expected_version<>actual.state_version THEN
+  RAISE EXCEPTION 'F05_3G_CAUSAL_CURRENT_EVENT_MISMATCH';
+ END IF;
+ RETURN NULL;
+END $$;
+CREATE CONSTRAINT TRIGGER f05_3g_current_requires_event
+ AFTER INSERT OR UPDATE ON public.f05_3g_customer_favorites
+ DEFERRABLE INITIALLY DEFERRED FOR EACH ROW
+ EXECUTE FUNCTION public.f05_3g_assert_current_event_causality();
+CREATE CONSTRAINT TRIGGER f05_3g_event_requires_current
+ AFTER INSERT ON public.f05_3g_favorite_events
+ DEFERRABLE INITIALLY DEFERRED FOR EACH ROW
+ EXECUTE FUNCTION public.f05_3g_assert_current_event_causality();
+-- The physical runtime is isolated; only the migration table owner may perform
+-- DML. Untrusted roles and PUBLIC receive no direct DML, no new production
+-- Customer credential or bypassing view is introduced in this package.
+REVOKE ALL ON public.f05_3g_customer_favorites FROM PUBLIC;
+REVOKE ALL ON public.f05_3g_favorite_events FROM PUBLIC;
+REVOKE ALL ON public.f05_3g_migration_attestation FROM PUBLIC;
