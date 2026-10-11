@@ -1,3 +1,28 @@
+# F05-3C｜B 工程阻断交接（真实 CI 复验后更新）
+
+**状态：`B_BLOCKED_VERSION_CHAIN / NOT_READY_FOR_A_REVIEW`；不可提交A正式验收PASS，不可合并main。**
+
+## 原生失败事实
+
+- GitHub Actions [#38097826807](https://github.com/suzhe868-arch/mb/actions/runs/38097826807) 已实际创建全部42个独立PG16作业；新增A转换作业 `114347324419` 失败于真正PG16转换测试步骤，原始日志显示 `F05_3B_FROZEN_000016_REQUIRED`，测试 `11/11` 因 `before` hook 未能创建来源而失败。这是**前置版本兼容失败**，不是11条业务规则各自失败。
+- `engineering/f05/jyt-wholesale-lineage-cycle/migration.mjs` 为既有A签封的迁移链：严格限制 public.f03_schema_migrations 的行数最多15并要求当前schema checksum匹配000017。F05-3C在新000018落库后产生16个版本和新增 public DDL；旧 `syncUpsert/syncCurrent/syncBatchOffline` 进入 `ready()` 即被旧 `verify()` 拒绝。
+- A施工单明确禁止B修改已签旧迁移/旧工程，也要求新000018单独增量与旧同步合同继续安全工作。这两个条件在现有固定版本守卫下**不能同时直接满足**。不得偷改旧000017校验、删除已签版本、伪造源Actor或用mock HTTP 200冒充可信来源。
+
+## 当前分支完成的可复用源码
+
+- CI-only 000018转换收据、不可变来源/Actor、单向反向守卫；真实Employee双能力/团队scope、业务Lock/Transaction对象关联的条件授权服务；环回TLS会话/CSRF门禁；PG16历史快照、55P03双backend竞态与保守来源缺口测试。
+- 42-job新工作流已收紧至约495KB，旧40个原文逐Job冻结，新增2个真正PG16 Job，GitHub正常创建。**新包测试还未通过**；不能把工作流创建成功或旧40 job结果当最终42/42。
+- 图片落地 `IMAGE_LOCALIZATION_SOURCE_GAP`、隐藏原因计算 `HIDE_REASON_RECALCULATION_SOURCE_GAP`、Favorite实体 `FAVORITE_PHYSICAL_CARRIER_SOURCE_GAP`、无当前业务对象的批发车 `CURRENT_WHOLESALE_OBJECT_SCOPE_SOURCE_GAP` 都仍真实存在。
+
+## 需 A 主控集中技术裁决
+
+1. 允许新增受信F05-3C跨版本同步兼容适配层并明确该层对旧000017身份+鉴权严格性的等价证明方法，**同时保留原40 job原文与旧源码不变**；或
+2. A明确放行未来安全版本前向兼容的**单独小批**，对旧迁移校验的改动由A指定权限和重签范围后才能由B实施；或
+3. 仅允许隔离 source-gap 测试先交A审查，不宣告本包正向完整可用，并重新拆分可信对象Scope/资产化缺口。
+
+**继续保持：`NEXT_OWNER=A_TECHNICAL_ARBITRATION_FOR_BLOCKER`（仅本PR/B阻断交接，不得擅改 main 状态）；F05-3C正式状态仍以main为准。**
+
+---
 # 名邦汽车 V1｜F05-3C B全包自验与A复验交接
 
 > 状态：B施工与隔离测试，最终须验证同SHA官方42/42+两份原生Artifacts，再转READY_FOR_A_REVIEW。此文档不是A签收或生产准入。
