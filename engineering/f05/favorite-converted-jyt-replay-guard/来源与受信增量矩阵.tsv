@@ -1,0 +1,10 @@
+类别	原有受信依据	F05-3K断言	处理结果
+JYT源身份	F05-3B SystemAdmin签发API Credential	原car_code转换后再active不能复活批发	真实隔离PG16抑制
+员工转换	F05-3C 当前Employee Session、Team、Lock	同Vehicle+Cycle且仅转换一次	真实原服务执行
+Customer收藏	F05-3G v19 Customer+Vehicle Favorite Current/Event	原收藏与不可变事件不变	前后SQL整行哈希
+安全权限	PDM-02/04/20/25	SystemAdmin不冒充Employee，JYT凭据不冒充Customer	403与业务拒绝
+并发锁	F05-3B/3C JYT carCode锁	两PG backend真55P03	原PG16实证
+显示与权益	PDM-04/20 Final	隐藏、锁车、价格权、图源不跨界	保留原行Hash
+微信个人会话	未签受信Issuer	不开放Customer Favorite 生产HTTP	CUSTOMER_WECHAT_SESSION_TO_FAVORITE_ACTOR_SOURCE_GAP
+一般批发经营Owner	无Lock/交易时未签来源	不扩大对象范围	GENERAL_WHOLESALE_VEHICLE_SCOPE_SOURCE_GAP_PENDING_PRODUCT_DECISION
+图源与隐藏原因	未签上游来源	不推断真实图片落地及解除隐藏	IMAGE_LOCALIZATION_SOURCE_GAP/HIDE_REASON_RECALCULATION_SOURCE_GAP
