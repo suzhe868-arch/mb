@@ -29,7 +29,8 @@ async function snapshot(v,cy){
  lineage:'SELECT row_to_json(x) v FROM public.f05_3b_sync_lineages x WHERE vehicle_id=$1 ORDER BY lineage_id'
  };
  const results={};
- for(const [k,sql] of Object.entries(tables)){const rows=(await db.query(sql,[v,cy,customer,unscopedCustomer])).rows.map(x=>x.v);results[k]={sha256:digest(rows),rowCount:rows.length};}
+ for(const [k,sql] of Object.entries(tables)){const count=sql.includes('$4')?4:sql.includes('$2')?2:1;
+  const rows=(await db.query(sql,[v,cy,customer,unscopedCustomer].slice(0,count))).rows.map(x=>x.v);results[k]={sha256:digest(rows),rowCount:rows.length};}
  return {results,sha256:digest(results)};
 }
 test.before(async()=>{
