@@ -169,3 +169,160 @@ test('5-A18 final signed true PG16 rows, immutable source event, SOURCE_GAP and 
    noPriceUnlockEventModified:true,noFundsChanged:true},null,2)+'\n');
  console.log('F05_5_CI_REAL_EMPLOYEE_SESSION_SYNTHETIC_SCOPE_OWNER_ATOMIC_FREE_ADDITION');
 });
+
+
+/*
+ * F05-5 A corrective owner/permission real transaction races.
+ * The only held barrier is the real addSyntheticDailyQuota checkpoint AFTER its
+ * auth, current owner, and row-share capability guard and BEFORE business COMMIT.
+ * Another independent client issues a conflicting SQL UPDATE and receives the
+ * actual PG16 SQLSTATE 55P03; no mocked locks or static-only deny substitutes.
+ */
+const realRaceEvidence=[];
+const utc=()=>new Date().toISOString();
+const backend=async c=>Number((await c.query('SELECT pg_backend_pid() AS pid')).rows[0].pid);
+const customerAudit=async id=>{
+ const s=await tally(id);
+ return {...s,
+  history:(await rows('SELECT adjustment_id,delta,changed_by,business_day_shanghai::text AS day FROM public.customer_quota_adjustments WHERE customer_id=$1 ORDER BY adjustment_id',[id])),
+  owner:(await rows('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=$1',[id]))[0]?.current_owner_employee_id,
+  account:(await rows('SELECT account_status FROM public.customers WHERE customer_id=$1',[id]))[0]?.account_status,
+  sha256:hash(s)};
+};
+async function raceAgainstCommittedAddition({customerId,requestKey,delta,updateSQL,updateArgs,afterUpdateReject,proofKey,restore}){
+ const pre=await customerAudit(customerId);
+ const competing=await connect();
+ let servicePid,writerPid,serviceResult,checkpointSeen=false;
+ let enteredResolve,releasedResolve;
+ const entered=new Promise(resolve=>{enteredResolve=resolve});
+ const released=new Promise(resolve=>{releasedResolve=resolve});
+ const events=[];
+ const write=async event=>{const r=(await competing.query('SELECT clock_timestamp()::text AS stamp')).rows[0];events.push({event,utc:utc(),postgresStamp:r.stamp})};
+ const uniqueRequest=mk(customerId,requestKey,delta);
+ let addition;
+ try{
+  writerPid=await backend(competing);
+  addition=add(auth,tokens.sales,uniqueRequest,{checkpoint:async(stage,c)=>{
+   assert.equal(stage,'after_current_customer_and_employee_scope_guard');
+   servicePid=await backend(c);
+   assert.notEqual(servicePid,writerPid,'MANDATORY TWO DIFFERENT POSTGRES BACKENDS');
+   checkpointSeen=true;
+   events.push({event:'service_has_locked_current_owner_and_permission_scope_before_commit',utc:utc(),servicePid});
+   enteredResolve();
+   await released;
+  }});
+  // Bounded wait to prevent an accidental deadlock from masquerading as a test.
+  let waitTimer;
+  try{
+   await Promise.race([entered,new Promise((_,reject)=>{waitTimer=setTimeout(()=>reject(new Error('F05_5_REAL_RACE_CHECKPOINT_NOT_REACHED')),18000)})]);
+  }finally{clearTimeout(waitTimer);}
+  await competing.query('BEGIN');
+  await competing.query("SET LOCAL lock_timeout='250ms'");
+  await write('writer_started_conflicting_update_before_business_commit');
+  let got55=false;
+  try{await competing.query(updateSQL,updateArgs);}
+  catch(e){if(e.code==='55P03'){got55=true;events.push({event:'writer_rejected_by_real_pg_row_lock',sqlstate:e.code,utc:utc(),writerPid});}else throw e;}
+  assert.equal(got55,true,'real SQLSTATE 55P03 against held add transaction MUST occur');
+  await competing.query('ROLLBACK');
+  events.push({event:'writer_rollback_after_real_lock_timeout',utc:utc()});
+  releasedResolve();
+  serviceResult=await addition;
+  assert.equal(serviceResult.code,'F05_5_CI_ADDED_FREE_DAILY_QUOTA',JSON.stringify(serviceResult));
+  events.push({event:'service_committed_before_permission_or_owner_mutation',utc:utc()});
+  const postCommit=await customerAudit(customerId);
+  assert.equal(postCommit.receipts.length,pre.receipts.length+1,'business success must add exactly one receipt');
+  assert.equal(postCommit.adjustments.length,pre.adjustments.length+1,'business success must add exactly one original adjustment');
+  assert.equal(postCommit.days.find(x=>x.business_date==='2026-10-12')?.temp_additions,
+    (pre.days.find(x=>x.business_date==='2026-10-12')?.temp_additions||0)+delta);
+  await competing.query('BEGIN');
+  const actual=await competing.query(updateSQL,updateArgs);
+  assert.equal(actual.rowCount,1,'the previously blocked mutation must now commit');
+  await competing.query('COMMIT');
+  events.push({event:'writer_committed_revocation_or_owner_change_after_service_commit',utc:utc()});
+  const changed=await customerAudit(customerId);
+  const deniedNew=await doAdd('sales',mk(customerId,requestKey+'-after-revoke',1));
+  const deniedReplay=await doAdd('sales',uniqueRequest);
+  assert.equal(deniedNew.allowed,false);
+  assert.equal(deniedReplay.allowed,false);
+  assert.equal(deniedNew.code,afterUpdateReject);
+  assert.equal(deniedReplay.code,afterUpdateReject);
+  const afterDenied=await customerAudit(customerId);
+  assert.deepEqual(afterDenied.receipts,changed.receipts,'revoked actor must not append audit receipt');
+  assert.deepEqual(afterDenied.adjustments,changed.adjustments,'revoked actor must not append adjustment');
+  assert.deepEqual(afterDenied.days,changed.days,'revoked actor must not modify quota ledger');
+  events.push({event:'revoked_old_actor_new_and_replay_requests_denied_with_zero_mutations',utc:utc(),code:deniedNew.code});
+  const artifact={scenario:proofKey,customerIdSyntheticOnly:customerId,writerPid,servicePid,
+   pidDistinct:writerPid!==servicePid,sqlstate:'55P03',checkpointSeen,
+   employeeAuth:'REAL_F03_SIGNED_EMPLOYEE_SESSION',
+   permissionOrigin:'CI_SYNTHETIC_ROLE_FIXTURE_NOT_PRODUCTION',
+   beforeCounts:{receipt:pre.receipts.length,adjustment:pre.adjustments.length},
+   afterServiceCounts:{receipt:postCommit.receipts.length,adjustment:postCommit.adjustments.length},
+   afterWriterCommitCounts:{receipt:changed.receipts.length,adjustment:changed.adjustments.length},
+   afterDeniedCounts:{receipt:afterDenied.receipts.length,adjustment:afterDenied.adjustments.length},
+   beforeLedgerHash:pre.sha256,afterServiceLedgerHash:postCommit.sha256,
+   afterWriterLedgerHash:changed.sha256,afterDeniedLedgerHash:afterDenied.sha256,
+   preOriginalAdjustmentRowHash:hash(pre.history),postOriginalAdjustmentRowHash:hash(postCommit.history),
+   beforeOwner:pre.owner,afterWriterOwner:changed.owner,events};
+  realRaceEvidence.push(artifact);
+  console.log('F05_5_A_CORRECTION_TRUE_TWO_PG_BACKEND_LOCK_55P03',JSON.stringify(artifact));
+  if(restore)await restore(competing);
+ }finally{
+  releasedResolve();
+  if(addition)await addition.catch(()=>{});
+  await competing.query('ROLLBACK').catch(()=>{});
+  await competing.end();
+ }
+}
+test('5-A19 A-F05-5-01 real in-flight add locks Customer current Owner, competing backend 55P03; reversal after owner commit denies replay and new event',async()=>{
+ await raceAgainstCommittedAddition({
+  customerId:899512,requestKey:'owner-race-live-service-commit-00001',delta:2,
+  updateSQL:'UPDATE public.customers SET current_owner_employee_id=$1 WHERE customer_id=$2',
+  updateArgs:[7,899512],afterUpdateReject:'F05_5_SALES_NOT_CURRENT_CUSTOMER_OWNER',
+  proofKey:'OWNER_GUARD_BEFORE_MUTATION_REAL_TWO_BACKENDS'
+ });
+ // Reverse order: Owner already COMMITTED -> old Employee must not append any fact.
+ const prior=await customerAudit(899512);
+ const denied=await doAdd('sales',mk(899512,'reverse-owner-first-then-add-00001',4));
+ assert.equal(denied.code,'F05_5_SALES_NOT_CURRENT_CUSTOMER_OWNER');
+ assert.deepEqual(await customerAudit(899512),prior);
+ console.log('F05_5_OWNER_REVERSE_COMMIT_ORDER_DENIED',JSON.stringify({beforeHash:prior.sha256,afterHash:(await customerAudit(899512)).sha256}));
+});
+test('5-A20 A-F05-5-02 actual personal deny UPDATE competes after scope guard, FOR SHARE blocks until transaction COMMIT; reverse deny-first rejects all',async()=>{
+ await raceAgainstCommittedAddition({
+  customerId:899511,requestKey:'capability-deny-race-live-000001',delta:2,
+  updateSQL:"UPDATE public.employee_permission_overrides SET decision='deny',changed_at=now() WHERE employee_id=$1 AND permission_id=$2",
+  updateArgs:[1,95],afterUpdateReject:SOURCE_GAP,
+  proofKey:'PERMISSION_DENY_GUARD_REAL_TWO_BACKENDS',
+  restore:async c=>{await c.query("UPDATE public.employee_permission_overrides SET decision='allow',changed_at=now() WHERE employee_id=1 AND permission_id=95");}
+ });
+});
+test('5-A21 A-F05-5-02 exact current capability scope revoke UPDATE also races true PG FOR SHARE; after commit cannot reuse previous scope',async()=>{
+ await raceAgainstCommittedAddition({
+  customerId:899511,requestKey:'capability-binding-race-live-001',delta:1,
+  updateSQL:"UPDATE public.employee_capability_scope_bindings SET ended_at=now() WHERE employee_id=$1 AND permission_id=$2 AND scope_id=$3",
+  updateArgs:[1,95,29001],afterUpdateReject:SOURCE_GAP,
+  proofKey:'SCOPE_BINDING_REVOCATION_REAL_TWO_BACKENDS'
+ });
+});
+test('5-A22 A correction native signed row count/hash, timestamps, PID and SQLSTATE archived, no live privilege inferred',async()=>{
+ assert.deepEqual(realRaceEvidence.map(x=>x.scenario),[
+  'OWNER_GUARD_BEFORE_MUTATION_REAL_TWO_BACKENDS',
+  'PERMISSION_DENY_GUARD_REAL_TWO_BACKENDS',
+  'SCOPE_BINDING_REVOCATION_REAL_TWO_BACKENDS'
+ ]);
+ for(const x of realRaceEvidence){
+  assert.notEqual(x.writerPid,x.servicePid);assert.equal(x.sqlstate,'55P03');assert.equal(x.checkpointSeen,true);
+  assert.equal(x.afterServiceCounts.receipt,x.beforeCounts.receipt+1);
+  assert.equal(x.afterWriterCommitCounts.receipt,x.afterServiceCounts.receipt);
+  assert.equal(x.afterDeniedCounts.receipt,x.afterWriterCommitCounts.receipt);
+  assert.equal(x.afterDeniedLedgerHash,x.afterWriterLedgerHash);
+  assert.equal(x.events.some(e=>e.event==='writer_rejected_by_real_pg_row_lock'&&e.sqlstate==='55P03'),true);
+ }
+ await mkdir(new URL('../artifacts/source/',import.meta.url),{recursive:true});
+ const signed=await verify(db);
+ await writeFile(new URL('../artifacts/source/owner-permission-scope-real-pg16-concurrency.json',import.meta.url),
+  JSON.stringify({signedSchema:signed,fixtureOnly:true,productionIssuerAuthorized:false,
+   originalSourceGap:SOURCE_GAP,realPgBackends:true,realDatabaseSQLSTATE:'55P03',
+   raceCases:realRaceEvidence},null,2)+'\n');
+ console.log('F05_5_A_CORRECTION_OWNER_PERMISSION_SCOPE_TRUE_CONCURRENT_PG16_PROVEN');
+});

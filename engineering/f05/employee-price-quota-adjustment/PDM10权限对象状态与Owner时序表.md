@@ -15,3 +15,8 @@
 - 无独立正式Permission Issuer：生产入口持续SOURCE_GAP。
 - Customer微信会话、真实数字价格和Recommendation免费权限均不由员工加次解决。
 - source测试只证明合成权限Fixture条件下的授权状态机与真实PG16事务，不证明线上员工可用。
+
+
+## A补充验收：跨Backend可证明线性化时序
+
+业务加次真实事务顺序：F03会话锁→Customer FOR UPDATE→当前独立`permission override`/`capability scope binding`/`team` FOR SHARE→在checkpoint暂停未提交→独立第二backend竞争UPDATE收到真实55P03→写连接ROLLBACK→业务COMMIT产生唯一不可变加次历史→写连接UPDATE并COMMIT→旧员工新请求及相同key重放均拒绝，且ledger+adjustments+receipt前后哈希一致。对旧Owner先变更、新动作后发也直接拒绝，无半条写入。权限deny-first和scope撤权-first也作双向验证。
