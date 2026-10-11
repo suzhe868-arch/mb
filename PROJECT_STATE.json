@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_3I_A_TECH_DECISION_SPLIT_CI_B_REMEDY_PENDING",
+  "substage": "F05_3J_A_RELEASED_FOR_B_B_NOT_STARTED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F05",
-  "current_domain_status": "F05_3H_A_ACCEPTED_MERGED_PR39_F05_3I_BUSINESS_POSITIVE_PG16_TWO_NEW_JOBS_PASS_BUT_OLD_52_SAME_SHA_PENDING_A_GATE_SPLIT_APPROVED_PR40_OPEN",
+  "current_domain_status": "F05_3I_A_FINAL_ACCEPTED_MERGED_PR40_CI_ONLY_F05_3J_A_RELEASED_FOR_B",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F05-3I PR40 B/PR/Actions38168629659 HEAD同SHA0cfd748。A独立源码审查最窄v18/v19受信校验入口通过，真PG16先v19有Favorite Current与不可变ADD Event再原F05-3C Employee+活动Lock转名邦，Row/历史等Snapshot哈希全一致、真实Source12/12+HTTPS7/7与2 Job success且新Artifacts有效。但原A施工单要求的旧52个独立PG16Job在此新SHA上尚未重跑，不能2/2冒充54/54。由于上批冻结旧workflow511990 UTF8字节接近实际解析上限，A已正式技术裁决只变更CI编排：新建第二本包workflow从已签F05-3H完整jobs原样复制52个旧Job，只改新文件header触发当前B分支；现有两Job workflow保留，同一最终新SHA产生旧52/52和新增2/2两个GitHub Actions runs，合计覆盖54/54。PR40未合并，NEXT_OWNER=B一次性补齐证据。",
-  "current_work_file": "07_重建工作区/F05-3I_A主控技术裁决单_同一提交双工作流52加2真实PG16门禁与B一次性CI补正_2026-10-12.md",
+  "current_task": "F05-3I最终B/PR40+Actions38169649160(旧52项)及38169649123(新增2项)同SHA4308a81。A独立核分页全部54/54真PG16 jobs成功、旧52个jobs正文510382字符严格逐字相同、新Source12/12+HTTPS7/7与新两Artifacts有效，原转换服务只有严密v18/v19版本选择入口新增，其余旧capability/objectScope/Employee/Lock/Transaction/JYT/CAS/审计正文原样。真实PG16 v19先Favorite Current/Event后批发一键转名邦，完整客户关系历史行哈希与同Vehicle/Cycle保持，权限拒绝及双backend并发55P03生效。A PR40评论6113097761正式PASS，GitHub标准合并merged=true，merge SHA1170b2d39b0ce101e4b5d627f41c250cd00400b1。下一F05-3J在真v19已有Favorite后核原F05-3B受信JYT offline/relist同Vehicle新ListingCycle保持收藏历史、旧周期价格权不自动继承，CI-only和所有真实微信/JYT外部边界不变。",
+  "current_work_file": "07_重建工作区/F05-3J_A主控v19既存收藏跨JYT真实下架重新上架同车不同周期保全完整施工单_2026-10-12.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F05_3I_A_TECH_DECISION_SPLIT_CI_B_REMEDY_PENDING",
+  "current_review_batch": "F05_3J_A_RELEASED_FOR_B_B_NOT_STARTED",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_COMPLETE_F05_3I_SPLIT_SAME_SHA_FROZEN_52_PLUS_NEW_2_GENUINE_PG16_CI",
+  "next_action": "B_IMPLEMENT_F05_3J_V19_PREEXISTING_FAVORITE_JYT_OFFLINE_RELIST_NEW_CYCLE_HISTORY_PRESERVATION",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B继续原feat/f05-3i-favorite-conversion-v19-compat/PR40，仅新增.github/workflows/f05-3i-frozen-52-revalidation.yml，jobs以下直接逐字复制main当前已签f05-3h-customer-wechat-actor-trust.yml原52完整Job正文，不改任何旧Job，文件头最短合法on.push触发当前B分支；保留新f05-3i-favorite-conversion-v19-compat.yml的i-source/i-https真PG16两Job。最终同一新B HEAD=PR40 HEAD=两个不同官方Actions run.head_sha，一次旧52/52 completed/success，一次新2/2 completed/success，合计真实54/54和新增两个同SHA官方原生Artifacts、旧52正文原文冻结证明、新Source12/12+TLS7/7回归及转换前后SHA/中文完整交接，交A独立复核。旧000001～000019/F03～F05-3H/旧Workflow/PDM Final/生产不改，原转换服务最窄静态v18/v19 verifier之外不得改业务。不可复用0cfd旧SHA的2/2或旧5dca SHA的52/52。不得自合并main/启动后续包；所有SOURCE_GAP持续与V1 NOT_READY。",
+  "next_action_detail": "B从最新main建立feat/f05-3j-favorite-jyt-relist-v19-compat，读取正式F05-3J完整施工单。只新engineering/f05/favorite-jyt-relist-v19-compat/**和三条本包CI workflows，可对既有engineering/f05/jyt-wholesale-lineage-cycle/contract.mjs ready()及ci-router.mjs启动验签入口作严格静态受信v17/v19双版最窄校验补丁，不得修改原JYT凭证/管理员3API治理、Model、同CarCode同Vehicle跨Cycle离线重上架、锁、幂等、业务日志、安全HTTP、旧迁移000001～000019及F05-3I转换服务。真PG16先收藏Current/Event后可信JYT offline结束旧Cycle，再relist开新Cycle同Vehicle和Favorite历史保全，旧cycle价权不成为新cycle授权，hidden/Priority不泄露；真双backend与TLS。CI沿A批准同SHA多workflow原则完全冻结旧52 Job和F05-3I 2 Job分别重新运行，新增本包2 Job，总56/56(52+2+2)同B/PR/三个Actions SHA success，新增2原生Artifacts+中文B交接交A，不自合并/启动后批。Customer微信会话、普通JYT无Lock经营Owner产品待决、隐藏/图片真实来源、生产外部源均SOURCE_GAP，V1 NOT_READY。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -6439,8 +6439,8 @@
     "merge_sha": "1368572b2a470adb0646970811fa99e9d4173327"
   },
   "f05_3i_gate": {
-    "status": "A_TECH_DECISION_SPLIT_CI_B_REMEDY_PENDING",
-    "execution": "B_BUSINESS_SCOPE_SELF_TESTED_A_CODE_AND_NEW_PG16_REVIEWED_OLD_52_SAME_SHA_MISSING",
+    "status": "A_FINAL_ACCEPTED_MERGED_PR40_CI_ONLY",
+    "execution": "A_INDEPENDENT_FINAL_REVIEW_SPLIT_SAME_SHA_54_OF_54_REAL_PG16_PASS_MERGED",
     "work_order": "07_重建工作区/F05-3I_A主控v19收藏现时关系与批发转名邦同车同周期兼容完整施工单_2026-10-12.md",
     "branch": "feat/f05-3i-favorite-conversion-v19-compat",
     "branch_created": true,
@@ -6454,10 +6454,10 @@
     "allowed_prior_code_patch": "engineering/f05/wholesale-to-mingbang-conversion/service.mjs_VERSION_VERIFY_ONLY",
     "source_gap_requires_block": true,
     "product_baseline": "NOT_READY",
-    "next_owner": "B",
+    "next_owner": "A_CLOSED",
     "pr": 40,
-    "pr_merged": false,
-    "reviewed_sha": "0cfd74821eb7909c099ea8afe977f671fea47723",
+    "pr_merged": true,
+    "reviewed_sha": "4308a81b23301e911eb02bcd495a7b63a123a0ff",
     "reviewed_run": 38168629659,
     "reviewed_ci_success_jobs": 2,
     "reviewed_source_tests": "12/12",
@@ -6473,6 +6473,58 @@
     "required_same_sha_new_pg16_jobs": 2,
     "required_final_ci_jobs_combined": 54,
     "requires_two_distinct_successful_workflow_runs": true,
-    "production_ready": false
+    "production_ready": false,
+    "final_b_sha": "4308a81b23301e911eb02bcd495a7b63a123a0ff",
+    "frozen_52_run_id": 38169649160,
+    "new_2_run_id": 38169649123,
+    "final_ci_runs": [
+      38169649160,
+      38169649123
+    ],
+    "official_attempts": [
+      1,
+      1
+    ],
+    "frozen_jobs_succeeded": 52,
+    "new_jobs_succeeded": 2,
+    "combined_real_pg16_jobs_succeeded": 54,
+    "old_52_exact_jobs_text": true,
+    "old_frozen_jobs_text_chars": 510382,
+    "source_tests": "12/12",
+    "https_tests": "7/7",
+    "source_job_id": 114559381685,
+    "https_job_id": 114559381882,
+    "source_artifact_id": 11713756564,
+    "https_artifact_id": 11713696913,
+    "a_final_review_comment_id": 6113097761,
+    "a_report": "07_重建工作区/F05-3I_A主控同SHA52加2共54项PG16独立验收PASS_PR40合并与F05-3J接力_2026-10-12.md",
+    "final_a_blockers": [],
+    "ci_gate_split_closed": true,
+    "merge_sha": "1170b2d39b0ce101e4b5d627f41c250cd00400b1"
+  },
+  "f05_3j_gate": {
+    "status": "A_RELEASED_FOR_B_B_NOT_STARTED",
+    "execution": "B_NOT_STARTED",
+    "work_order": "07_重建工作区/F05-3J_A主控v19既存收藏跨JYT真实下架重新上架同车不同周期保全完整施工单_2026-10-12.md",
+    "branch": "feat/f05-3j-favorite-jyt-relist-v19-compat",
+    "branch_created": false,
+    "scope": "V19_FAVORITE_EXISTING_BEFORE_TRUSTED_JYT_OFFLINE_AND_RELIST_SAME_VEHICLE_NEW_CYCLE_HISTORY_AND_PRICE_ENTITLEMENT_SAFE_CI_ONLY",
+    "ci_only": true,
+    "allow_production": false,
+    "prior_frozen_pg16_jobs": 54,
+    "split_workflow_old_52_jobs": 52,
+    "split_workflow_old_2_jobs": 2,
+    "new_pg16_jobs": 2,
+    "independent_pg16_ci_jobs_required": 56,
+    "requires_three_distinct_successful_workflow_runs_same_sha": true,
+    "allowed_prior_code_patches": [
+      "engineering/f05/jyt-wholesale-lineage-cycle/contract.mjs_TRUSTED_VERSION_GATE_ONLY",
+      "engineering/f05/jyt-wholesale-lineage-cycle/ci-router.mjs_STARTUP_VERSION_GATE_ONLY"
+    ],
+    "source_gap_requires_block": true,
+    "product_baseline": "NOT_READY",
+    "next_owner": "B",
+    "pr": null,
+    "pr_merged": false
   }
 }
