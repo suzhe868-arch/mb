@@ -36,6 +36,15 @@ test('F-A01 physical PG16 catalog shows no signed Favorite or bookmark/collectio
  assert.deepEqual(a.verifiedPreservedTables,[...preservedTables]);
 });
 test('F-A02 synthetic signed Customer+Lock/Recommendation/price unlock/images/price history are real PG16 rows before conversion',async()=>{
+ // C-A18 intentionally retained an active-status Lock whose deadline had
+ // already passed. Preserve that PG16 historical row but end its unique-active
+ // tenure before creating a distinct current Lock for a new Customer.
+ const expired=(await db.query(
+  "UPDATE public.locks SET lock_status='cancelled' WHERE vehicle_id=$1 AND listing_cycle_id=$2 "+
+  "AND lock_status='active' AND expires_at<clock_timestamp() RETURNING lock_id",
+  [vid,cycle])).rows;
+ assert.equal(expired.length,1,'signed C-A18 expired Lock must exist');
+ assert.equal(Number(expired[0].lock_id),895099);
  await db.query("INSERT INTO public.customers(customer_id,account_status,customer_level_id,owner_assignment_state,current_owner_employee_id) VALUES($1,'active',1,'assigned',1)",[customer]);
  await db.query("INSERT INTO public.locks(lock_id,customer_id,vehicle_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) VALUES($1,$2,$3,$4,'active',1,now()-interval '2 hours',now()+interval '2 hours')",
   [lock,customer,vid,cycle]);
