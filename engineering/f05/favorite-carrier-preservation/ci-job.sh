@@ -1,6 +1,19 @@
 #!/usr/bin/env bash
 # Only invoked by F05-3F isolated GitHub Actions; not a production runner.
 set -euo pipefail
+# Gate on GitHub's actual job context before generating disposable CI defaults.
+test "${GITHUB_ACTIONS:-}" = true
+test -n "${GITHUB_RUN_ID:-}"
+test "${GITHUB_REPOSITORY:-}" = suzhe868-arch/mb
+export CI=true APP_ENV=test NODE_ENV=test
+export F03_1_ISOLATION_CONFIRM=I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+export F03_1_DATABASE_URL=postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+export F05_2_ISOLATION_CONFIRM=I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+export F04_1_ISOLATION_CONFIRM=I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+export F04_2_ISOLATION_CONFIRM=I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+export F04_3_ISOLATION_CONFIRM=I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
+export F04_4_ISOLATION_CONFIRM=I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
+export F05_1_ISOLATION_CONFIRM=I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
 mode="${1:-}"
 case "$mode" in source|https) ;; *) exit 70 ;; esac
 test "${CI:-}" = true

@@ -1,4 +1,4 @@
-name: F05-3F 46 frozen PG16 jobs plus two real Favorite source audits
+name: F05-3F 46 frozen and two real Favorite audits
 on:
   push:
     branches: [feat/f05-3f-favorite-carrier-preservation]
@@ -7666,7 +7666,7 @@ jobs:
           if-no-files-found: error
 
   f05-3f-source-pg16:
-    name: F05-3F real PostgreSQL16 Favorite carrier source audit
+    name: F05-3F genuine PG16 Favorite source audit
     runs-on: ubuntu-latest
     timeout-minutes: 40
     permissions: {contents: read}
@@ -7676,37 +7676,18 @@ jobs:
         env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
         ports: [5432:5432]
         options: >-
-          --health-cmd "pg_isready -U postgres" --health-interval 5s
-          --health-timeout 5s --health-retries 20
-    defaults:
-      run: {working-directory: engineering}
-    env:
-      GITHUB_ACTIONS: 'true'
-      CI: 'true'
-      APP_ENV: test
-      NODE_ENV: test
-      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
-      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
-      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
-      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
-      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
-      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
-      F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
-      F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - run: bash f05/favorite-carrier-preservation/ci-job.sh source
+        working-directory: engineering
       - uses: actions/upload-artifact@v4
-        with:
-          name: f05-3f-source-independent-native-pg16-audit-evidence
-          path: engineering/f05/favorite-carrier-preservation/artifacts/source/
-          retention-days: 30
-          if-no-files-found: error
+        with: {name: f05-3f-source-independent-native-pg16-audit-evidence, path: engineering/f05/favorite-carrier-preservation/artifacts/source/, retention-days: 30, if-no-files-found: error}
 
   f05-3f-https-pg16:
-    name: F05-3F real PostgreSQL16 Favorite carrier https audit
+    name: F05-3F genuine PG16 Favorite https audit
     runs-on: ubuntu-latest
     timeout-minutes: 40
     permissions: {contents: read}
@@ -7716,31 +7697,12 @@ jobs:
         env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
         ports: [5432:5432]
         options: >-
-          --health-cmd "pg_isready -U postgres" --health-interval 5s
-          --health-timeout 5s --health-retries 20
-    defaults:
-      run: {working-directory: engineering}
-    env:
-      GITHUB_ACTIONS: 'true'
-      CI: 'true'
-      APP_ENV: test
-      NODE_ENV: test
-      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
-      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
-      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
-      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
-      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
-      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
-      F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
-      F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - run: bash f05/favorite-carrier-preservation/ci-job.sh https
+        working-directory: engineering
       - uses: actions/upload-artifact@v4
-        with:
-          name: f05-3f-https-independent-native-pg16-audit-evidence
-          path: engineering/f05/favorite-carrier-preservation/artifacts/https/
-          retention-days: 30
-          if-no-files-found: error
+        with: {name: f05-3f-https-independent-native-pg16-audit-evidence, path: engineering/f05/favorite-carrier-preservation/artifacts/https/, retention-days: 30, if-no-files-found: error}
