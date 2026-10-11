@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F05",
-  "current_domain_status": "F05_3D_A_SOURCE_AUDIT_ACCEPTED_MERGED_PR35_F05_3E_A_RELEASED_FOR_B",
+  "current_domain_status": "F05_3D_A_AUDIT_ACCEPTED_MERGED_PR35_F05_3E_A_RELEASED_FOR_B",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F05-3D A独立验收安全源审计完成，PR35已合并：最终B/PR/Actions38122141246三方同SHA3dab7ee，44/44真实PG16成功、旧42 job逐字冻结、新源8/8和TLS7/7；物理PG16证明普通JYT无现成Lock/Transaction的Employee当前经营权限来源不存在，GENERAL_WHOLESALE_VEHICLE_SCOPE_SOURCE_GAP保持开放而不伪造转换。A发布F05-3E自动/人工隐藏原因现时Carrier/source_scope及来源转换后重算安全勘验。",
-  "current_work_file": "07_重建工作区/F05-3E_A主控自动隐藏规则命中原因现时承载与来源转换重算可信隔离完整施工单_2026-10-11.md",
+  "current_task": "F05-3D A独立验收44/44真PG16 CI、旧42 jobs逐字冻结、新source8/8与TLS7/7及原生Artifact；PR35 GitHub已合并876904c8。只验收普通JYT批发车无现时对象授权时来源审计及HTTPS403 fail-closed，通用经营转换Owner仍GENERAL_WHOLESALE_VEHICLE_SCOPE_SOURCE_GAP。正式放行F05-3E自动隐藏/人工隐藏多原因当前可信物理来源审计与转换后保守重算。",
+  "current_work_file": "07_重建工作区/F05-3E_A主控自动隐藏与人工原因可信来源及转换重算隔离完整施工单_2026-10-11.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B从最新main新建feat/f05-3e-hide-reason-trust-recalculation，读取正式 07_重建工作区/F05-3E_A主控自动隐藏规则命中原因现时承载与来源转换重算可信隔离完整施工单_2026-10-11.md，仅新增本包工程目录和唯一新CI，独立勘验PDM04 Final自动隐藏rule source_scope、规则OR/字段AND/同字段多值OR与当前Vehicle受信事实、人工/自动/其他原因Carrier，验证批发→名邦后合法重新命中而人工hidden不自动解除，真实在售才能visible；缺可信来源/PC操作签发主体必须保留HIDE_REASON_RECALCULATION_SOURCE_GAP、保守hidden/安全拒绝，不假造规则或虚称生产可见。冻结旧44 PG16 Job逐Job全文，新增2个独立非特权真PG16 job，最终46/46同B/PR/Actions HEAD与2原生Artifacts/中文交接后交A。GENERAL_WHOLESALE_VEHICLE_SCOPE_SOURCE_GAP仍是重大权限受信签发人待决，禁止本批发明人工Owner、真实JYT/图片/资金/电话、改旧000001～000018、旧工程/Final/C或自行合并main。",
+  "next_action_detail": "B从最新main新建feat/f05-3e-hide-reason-trust-recalculation，按正式 07_重建工作区/F05-3E_A主控自动隐藏与人工原因可信来源及转换重算隔离完整施工单_2026-10-11.md 对PDM04自动/batch hidden适用source_scope多选、同字段多值OR、异字段AND、跨规则OR、人工/其他原因可信来源/规则停用与批发转名邦来源变化后的可见性重算进行真实PG16来源核证。无真实人工hidden/原因matcher的受信载体，不得解hidden或伪造visible，原已签F05-3C同车同Cycle/Lock/交易关系不可更改。冻结旧44独立PG16 Jobs全文，新增2真PG16 job，最后46/46同B/PR/Actions SHA success、两原生Artifacts+中文完整交接交A；不得改旧000001～000018/旧工程/生产/PDM/C/main或部署真实JYT/CDN/资金/电话。普通无本人Lock/活动Transaction批发车经营授权仍待用户产品决议、不在本包赋能。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -6225,8 +6225,8 @@
     "source_gap_for_production": true
   },
   "f05_3d_gate": {
-    "status": "A_TRUSTED_SCOPE_AUDIT_ACCEPTED_SOURCE_GAP_CONFIRMED_MERGED_PR35",
-    "execution": "A_INDEPENDENT_REVIEW_ACCEPTED_MERGED_CI_ONLY_AUDIT",
+    "status": "A_AUDIT_ACCEPTED_MERGED_PR35_SOURCE_GAP_RETAINED_CI_ONLY",
+    "execution": "A_INDEPENDENT_TRUST_SOURCE_AUDIT_ACCEPTED_MERGED",
     "work_order": "07_重建工作区/F05-3D_A主控普通批发车对象管理Scope可信来源与授权隔离完整施工单_2026-10-11.md",
     "branch": "feat/f05-3d-wholesale-object-scope-trust",
     "branch_created": false,
@@ -6254,31 +6254,44 @@
     "artifacts_count": 89,
     "source_artifact_id": 11695554078,
     "tls_artifact_id": 11695782435,
-    "a_review_comment_id": 6106867501,
+    "a_review_comment_id": 6106873556,
     "merge_sha": "876904c8bb1d7953d4e8fd08f22ee997f8d34f1b",
-    "a_report": "07_重建工作区/F05-3D_A主控独立验收PR35可信来源审计PASS正式合并与F05-3E接力_2026-10-11.md",
+    "a_report": "07_重建工作区/F05-3D_A主控独立来源审计PASS_PR35已合并与后续缺口规划_2026-10-11.md",
     "a_blockers": [],
     "a_source_gap_open": true,
     "positive_general_wholesale_converted": false,
-    "production_ready": false
+    "production_ready": false,
+    "pr_draft": false,
+    "physical_tests": "8/8",
+    "general_scope_gap": "GENERAL_WHOLESALE_VEHICLE_SCOPE_SOURCE_GAP",
+    "audit_only": true,
+    "positive_general_wholesale_conversion_authorized": false
   },
   "f05_3e_gate": {
     "status": "A_RELEASED_FOR_B_B_NOT_STARTED",
     "execution": "B_NOT_STARTED",
-    "work_order": "07_重建工作区/F05-3E_A主控自动隐藏规则命中原因现时承载与来源转换重算可信隔离完整施工单_2026-10-11.md",
+    "work_order": "07_重建工作区/F05-3E_A主控自动隐藏与人工原因可信来源及转换重算隔离完整施工单_2026-10-11.md",
     "branch": "feat/f05-3e-hide-reason-trust-recalculation",
     "branch_created": false,
-    "scope": "HIDE_REASON_TRUST_SOURCE_SCOPE_AND_SOURCE_CONVERSION_RECALCULATION_CI_ONLY",
+    "scope": "HIDE_REASON_PHYSICAL_TRUST_SOURCE_AND_ONE_WAY_CONVERSION_RECALCULATION_CI_ONLY",
     "prior_frozen_pg16_jobs": 44,
     "new_pg16_jobs": 2,
     "independent_pg16_ci_jobs_required": 46,
     "ci_only": true,
     "allow_production": false,
     "source_gap_requires_block": true,
-    "source_gap_kind": "HIDE_REASON_RECALCULATION_SOURCE_GAP",
+    "product_baseline": "NOT_READY",
     "next_owner": "B",
     "pr": null,
-    "pr_merged": false,
-    "product_baseline": "NOT_READY"
+    "pr_merged": false
+  },
+  "pending_product_decisions": {
+    "general_wholesale_vehicle_scope": {
+      "status": "PENDING_USER_DECISION_NOT_APPROVED",
+      "source_gap": "GENERAL_WHOLESALE_VEHICLE_SCOPE_SOURCE_GAP",
+      "issue": "No currently signed issuer or current Vehicle/Cycle employee business-object authorization for JYT wholesale Vehicle lacking current responsible Lock or active Transaction",
+      "candidate_only": "Authorized Mingbang manager/store head may possibly assign named employee to one wholesale Vehicle/current listing cycle under verified business event with revocable source and immutable audit",
+      "do_not_implement_without_approval": true
+    }
   }
 }
