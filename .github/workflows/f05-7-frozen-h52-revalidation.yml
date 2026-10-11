@@ -1,4 +1,4 @@
-on: {push:{branches: feat/f05-7-deterministic-matching-readiness-four-*}}
+on: {push: {branches: feat/f05-7-deterministic-matching-readiness-four-*}}
 jobs:
   f03-2m-transaction-responsible-handover-pg16:
     name: F03-2-2M isolated PG16 Transaction 93-to-94 one-table discovery
