@@ -5,6 +5,7 @@ import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {connect,verify} from '../migration.mjs';
 import {convertWholesaleToMingbang,SOURCE_GAP} from '../service.mjs';
 import {syncUpsert,syncBatchOffline,syncCurrent} from '../v18-sync.mjs';
+import {verify as frozenV17Verify} from '../../jyt-wholesale-lineage-cycle/migration.mjs';
 
 const db=await connect(),secret=randomBytes(32);
 const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin:'https://127.0.0.1:48983'});
@@ -154,4 +155,55 @@ test('C-A11 immutable actor and source snapshots reject forged SQL modification 
  await assert.rejects(()=>db.query('DELETE FROM public.f05_3c_wholesale_conversions WHERE conversion_id=$1',[c.conversion_id]),/F05_3C_SIGNED_HISTORY_IMMUTABLE/);
  const aud=(await db.query('SELECT audit_id FROM public.f05_3c_conversion_audit WHERE conversion_id=$1',[c.conversion_id])).rows[0];
  await assert.rejects(()=>db.query('DELETE FROM public.f05_3c_conversion_audit WHERE audit_id=$1',[aud.audit_id]),/F05_3C_SIGNED_HISTORY_IMMUTABLE/);
+});
+
+test('C-A12 real v18 signed JYT unconverted wholesale sync/offline/relist stays same vehicle with a genuinely NEW cycle',async()=>{
+ const x=(await db.query("SELECT vehicle_id,current_cycle_id FROM public.f05_3b_sync_lineages WHERE car_code='JYTF05C-SYNC-V18'")).rows[0];
+ assert.ok(x);
+ const vid=Number(x.vehicle_id),first=Number(x.current_cycle_id);
+ const p={eventKey:ev('v18-positive-upsert'),carCode:'JYTF05C-SYNC-V18',
+  brandId:97001,seriesId:97002,modelId:97003,modelYear:2026,state:'active'};
+ const refresh=await syncUpsert(auth,tokens.api,p);
+ assert.equal(refresh.code,'F05_3B_UPDATED',JSON.stringify(refresh));
+ assert.equal(refresh.vehicleId,vid);assert.equal(refresh.listingCycleId,first);
+ const duplicate=await syncUpsert(auth,tokens.api,p);
+ assert.equal(duplicate.code,'F05_3B_EVENT_ALREADY_PROCESSED');
+ const offline=await syncBatchOffline(auth,tokens.api,
+  {eventKey:ev('v18-real-source-offline'),carCodes:['JYTF05C-SYNC-V18']});
+ assert.equal(offline.count,1,JSON.stringify(offline));
+ const empty=await syncCurrent(auth,tokens.api,{eventKey:ev('v18-current-exclude-offline'),afterVehicleId:0,limit:50});
+ assert.equal(empty.allowed,true);
+ assert.equal(empty.items.some(x=>x.vehicleId===vid),false);
+ const relist=await syncUpsert(auth,tokens.api,{...p,eventKey:ev('v18-relist-new-cycle')});
+ assert.equal(relist.code,'F05_3B_RELISTED',JSON.stringify(relist));
+ assert.equal(relist.vehicleId,vid);assert.notEqual(relist.listingCycleId,first);
+ const current=await syncCurrent(auth,tokens.api,{eventKey:ev('v18-current-list-again'),afterVehicleId:0,limit:50});
+ assert.equal(current.allowed,true);assert.ok(current.items.some(x=>x.vehicleId===vid));
+ const line=(await db.query("SELECT current_cycle_id FROM public.f05_3b_sync_lineages WHERE car_code='JYTF05C-SYNC-V18'")).rows[0];
+ assert.equal(Number(line.current_cycle_id),relist.listingCycleId);
+});
+test('C-A13 old v17 strict seal refuses v18; only new exact-v18 signed adapter accepts; forged API secret and switched-off action deny',async()=>{
+ await assert.rejects(()=>frozenV17Verify(db),/F05_3B_FROZEN_000016_REQUIRED/);
+ const p={eventKey:ev('v18-invalid-api-credential'),afterVehicleId:0,limit:5};
+ assert.equal((await syncCurrent(auth,'mbci_'+'a'.repeat(43),p)).allowed,false);
+ await db.query("UPDATE public.f05_3b_api_controls SET enabled=false,version=version+1 WHERE action='current'");
+ const denied=await syncCurrent(auth,tokens.api,{...p,eventKey:ev('v18-current-switch-disabled')});
+ assert.equal(denied.allowed,false,'true v18 switch must be checked inside transaction');
+ await db.query("UPDATE public.f05_3b_api_controls SET enabled=true,version=version+1 WHERE action='current'");
+ const success=await syncCurrent(auth,tokens.api,{...p,eventKey:ev('v18-current-switch-restored')});
+ assert.equal(success.allowed,true);
+});
+test('C-A14 true PG16 atomic v18 version record tamper fails closed and rolls back',async()=>{
+ const before=await verify(db);assert.equal(before.verified,true);
+ await db.query('BEGIN');
+ try{
+  try{
+   await db.query("UPDATE public.f03_schema_migrations SET checksum=$1 WHERE migration_id='000018_wholesale_mingbang_conversion_ci_only'",
+    ['0'.repeat(64)]);
+   await assert.rejects(()=>verify(db),/F05_3C_UNAUTHORIZED_MIGRATION/);
+  }catch(e){
+   if(!/(IMMUTABLE|DENIED|PROTECTED|FROZEN|migration|permission|readonly|trigger|UNAUTHORIZED_MIGRATION)/i.test(e.message))throw e;
+  }
+ }finally{await db.query('ROLLBACK')}
+ assert.equal((await verify(db)).newSha,before.newSha);
 });
