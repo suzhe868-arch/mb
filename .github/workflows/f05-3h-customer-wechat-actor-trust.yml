@@ -1,10 +1,4 @@
-name: F05-3H
-on:
-  push:
-    branches: [feat/f05-3h-customer-wechat-actor-trust]
-  workflow_dispatch:
-permissions:
-  contents: read
+on: {push: {branches: [feat/f05-3h-customer-wechat-actor-trust]}}
 jobs:
   f03-2m-transaction-responsible-handover-pg16:
     name: F03-2-2M isolated PG16 Transaction 93-to-94 one-table discovery
@@ -7738,35 +7732,5 @@ jobs:
       working-directory: engineering
     - uses: actions/upload-artifact@v4
       with: {name: f05-3g-https-evidence, path: engineering/f05/favorite-physical-carrier/artifacts/https/}
-
-  h-source:
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
-        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
-        ports: [5432:5432]
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with: {node-version: '22.16.0'}
-    - run: bash f05/customer-wechat-actor-trust/ci-job.sh source
-      working-directory: engineering
-    - uses: actions/upload-artifact@v4
-      with: {name: f05-3h-source-evidence, path: engineering/f05/customer-wechat-actor-trust/artifacts/source/}
-
-  h-https:
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
-        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
-        ports: [5432:5432]
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with: {node-version: '22.16.0'}
-    - run: bash f05/customer-wechat-actor-trust/ci-job.sh https
-      working-directory: engineering
-    - uses: actions/upload-artifact@v4
-      with: {name: f05-3h-https-evidence, path: engineering/f05/customer-wechat-actor-trust/artifacts/https/}
+  h-source: {runs-on: ubuntu-latest, env: {MODE: source}, steps: &h [{uses: actions/checkout@v4}, {uses: actions/setup-node@v4, with: {node-version: '22.16.0'}}, {run: 'bash engineering/f05/customer-wechat-actor-trust/ci-job.sh $MODE'}, {uses: actions/upload-artifact@v4, with: {name: '${{env.MODE}}', path: engineering/f05/customer-wechat-actor-trust/artifacts}}]}
+  h-https: {runs-on: ubuntu-latest, env: {MODE: https}, steps: *h}
