@@ -1,4 +1,5 @@
 import {test} from 'node:test';
+import {writeFile} from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import {randomBytes} from 'node:crypto';
 import {readFileSync} from 'node:fs';
@@ -71,6 +72,7 @@ test('I-B04 exactly one authenticated current Employee scope conversion HTTPS200
  assert.equal(out.body.vehicleId,vid);assert.equal(out.body.listingCycleId,cycle);
  assert.equal(sha((await db.query('SELECT row_to_json(f) as row FROM public.f05_3g_customer_favorites f WHERE customer_id=896900 AND vehicle_id=$1',[vid])).rows[0].row),sha(pre));
  assert.equal(sha((await db.query('SELECT row_to_json(e) as row FROM public.f05_3g_favorite_events e WHERE customer_id=896900 AND vehicle_id=$1 ORDER BY event_id',[vid])).rows.map(x=>x.row)),sha(historical));
+ await writeFile(new URL('../artifacts/https/verified-pre-post-hashes.json',import.meta.url),JSON.stringify({favoriteCurrentBeforeSha256:sha(pre),favoriteHistoryBeforeSha256:sha(historical),sameAfterConversion:true,order:'v19_Favorite_ADD_then_HTTPS_F05-3C_conversion'},null,2)+'\n');
  assert.equal(out.body.assetState,'IMAGE_LOCALIZATION_SOURCE_GAP');
  assert.deepEqual(Object.keys(out.body).sort(),['assetState','code','conversionId','listingCycleId','vehicleId','visibilityState']);
  for(const forbiddenField of ['VIN','phone','publisher','wholesalePrice','JYT-','token','customerId'])
