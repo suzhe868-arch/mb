@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_3C_A_RELEASED_FOR_B_B_NOT_STARTED",
+  "substage": "F05_3C_A_VERSION_CHAIN_BLOCKED_B_TECHNICAL_FIX_RELEASED_PR34",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F05",
-  "current_domain_status": "F05_3B_A_ACCEPTED_MERGED_PR33_F05_3C_A_RELEASED_FOR_B",
+  "current_domain_status": "F05_3B_A_ACCEPTED_F05_3C_A_VERSION_CHAIN_BLOCKED_B_FIX_RELEASED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F05-3B A独立验收PASS（B/PR33/Actions38091991627同SHA6c5d1c9；真PG16 40/40，全38旧job逐字冻结，新物理17/17与TLS9/9），A标准合并PR33 f983f13b。正式放行F05-3C批发一键转名邦同Vehicle同ListingCycle保留JYT/客户历史与权益隔离工作单。",
-  "current_work_file": "07_重建工作区/F05-3C_A主控批发一键转名邦同车同周期经营来源单向转换与历史安全完整施工单_2026-10-11.md",
+  "current_task": "F05-3C PR34 A首次独立验收NOT_ACCEPTED：B最新SHA31edd5a，已有Actions38097826807为较旧7cc68ca且42中40 success/2 new job失败于F05_3B_FROZEN_000016_REQUIRED；旧40 jobs中一项末尾多空行；A已裁决000017先受信seed源、000018后严格新版本seal+新目录v18安全同步兼容层、按PDM08图片资产化解耦但SOURCE_GAP不伪造，原PR34退B一次性整改。",
+  "current_work_file": "07_重建工作区/F05-3C_A主控首次独立验收跨版本兼容技术裁决与原PR34完整定向整改单_2026-10-11.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F05_3C_A_RELEASED_FOR_B_B_NOT_STARTED",
+  "current_review_batch": "F05_3C_A_FIRST_INDEPENDENT_REVIEW_VERSION_SOURCE_GAP",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_IMPLEMENT_F05_3C_WHOLESALE_TO_MINGBANG_ONE_WAY_CONVERSION_CI_ONLY",
+  "next_action": "B_FIX_F05_3C_VERSION_CHAIN_SIGNED_SOURCE_CI_GATE_PR34",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B从最新main创建feat/f05-3c-convert-wholesale-to-mingbang，按 07_重建工作区/F05-3C_A主控批发一键转名邦同车同周期经营来源单向转换与历史安全完整施工单_2026-10-11.md 实施独立PG16/环回TLS真正员工受信当前权限和名邦归属单向转换，保持原Vehicle_id/ListingCycle/既有锁车、交易、收藏推荐查价及快照，不重建、不向JYT恢复批发，按名邦规则重算hidden且不解除人工hidden，审计来源和转换Actor，真实独立双PG16竞态；如员工合法经营scope、图片资产化和现有业务关系PG16证据欠缺须SOURCE_GAP不得伪造PASS。冻结旧40真PG16 job全文+新2独立PG16，合法正向时同SHA42/42成功和两原生Artifacts/B中文交A；不得合并main或接真实JYT/生产/电话/资金。",
+  "next_action_detail": "B在现有feat/f05-3c-convert-wholesale-to-mingbang/PR34按 07_重建工作区/F05-3C_A主控首次独立验收跨版本兼容技术裁决与原PR34完整定向整改单_2026-10-11.md 一次性修复：v17尚无000018前使用旧签F05-3B F03真实Admin/独立同步Credential构造真正PG16 JYT批发同carCode Vehicle/Cycle/原生审计，之后严格原子迁000018并用本包迁移器核逐行16版与schema seal；不得在000018后调用旧只准15版F05-3B ready/sync期望成功，不得改旧000017/旧代码或假造版本；如需新版继续同步，在新本包目录构建独立v18身份/开关/lineage/同carCode锁严守的安全兼容实证，否则明示SOURCE_GAP。修复新工作流旧40job中一项尾空行，逐块全文100%冻结，新增2真PG16 jobs最终42/42完整success+同B/PR/Actions SHA+新物理/TLS两原生Artifacts与中文交接。已有对象Lock/Transaction限制式Employee转换可核，图片资产化解耦/受控CDN、隐藏重算/Favorite缺carrier和无当前批发Owner只保留SOURCE_GAP，不造假200/不开放生产/不合并main/不进F05-3D。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -6163,11 +6163,11 @@
     "production_ready": false
   },
   "f05_3c_gate": {
-    "status": "A_RELEASED_FOR_B_B_NOT_STARTED",
-    "execution": "B_NOT_STARTED",
+    "status": "A_VERSION_CHAIN_BLOCKED_B_TECHNICAL_FIX_RELEASED",
+    "execution": "B_DRAFT_SOURCE_GAP_NOT_READY_FOR_A_ACCEPTANCE",
     "work_order": "07_重建工作区/F05-3C_A主控批发一键转名邦同车同周期经营来源单向转换与历史安全完整施工单_2026-10-11.md",
     "branch": "feat/f05-3c-convert-wholesale-to-mingbang",
-    "branch_created": false,
+    "branch_created": true,
     "scope": "WHOLESALE_TO_MINGBANG_SAME_VEHICLE_CYCLE_ONE_WAY_CI_ONLY",
     "prior_frozen_pg16_jobs": 40,
     "new_pg16_jobs": 2,
@@ -6179,7 +6179,26 @@
     "image_localization_source_gate": true,
     "product_baseline": "NOT_READY",
     "next_owner": "B",
-    "pr": null,
-    "pr_merged": false
+    "pr": 34,
+    "pr_merged": false,
+    "pr_draft": true,
+    "latest_b_head": "31edd5a0a83291f38bc1d9a4985ed76b89856bde",
+    "reviewed_ci_run": 38097826807,
+    "reviewed_ci_head": "7cc68ca7078944728c7985511fe69086dbec7e83",
+    "reviewed_ci_success_jobs": 40,
+    "reviewed_ci_failure_jobs": 2,
+    "old_frozen_job_exact": 39,
+    "old_frozen_jobs_total": 40,
+    "new_source_physical_job_id": 114347324419,
+    "new_https_job_id": 114347324421,
+    "a_review_comment_id": 6104424172,
+    "a_correction_order": "07_重建工作区/F05-3C_A主控首次独立验收跨版本兼容技术裁决与原PR34完整定向整改单_2026-10-11.md",
+    "a_blockers": [
+      "A-F05-3C-01_CROSS_VERSION_000017_000018_SIGNED_SOURCE",
+      "A-F05-3C-02_FINAL_CI_SHA_AND_OLD40_EXACT_FREEZE",
+      "A-F05-3C-03_SCOPED_CARRIER_IMAGE_HIDE_FAVORITE_EVIDENCE_GAPS"
+    ],
+    "a_technical_decision": "REAL_V17_SIGNED_SOURCE_BOOTSTRAP_BEFORE_000018_THEN_NEW_V18_EXACT_SEAL_AND_OPTIONAL_CI_ONLY_TRUSTED_VERSION_ADAPTER",
+    "production_ready": false
   }
 }
