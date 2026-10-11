@@ -1,5 +1,4 @@
-name: F05-6 H52 Complete Frozen PG16 Regression
-on: {push: {branches: [feat/f05-6-find-car-application-demand-eligibility]}}
+on: {push: {branches: feat/f05-6-find-car-application-demand-eligibility}}
 jobs:
   f03-2m-transaction-responsible-handover-pg16:
     name: F03-2-2M isolated PG16 Transaction 93-to-94 one-table discovery
