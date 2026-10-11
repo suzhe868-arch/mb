@@ -47,7 +47,8 @@ test.before(async()=>{
  }
  await db.query("INSERT INTO public.customers(customer_id,account_status,customer_level_id,owner_assignment_state,current_owner_employee_id) VALUES($1,'active',1,'assigned',1),($2,'active',1,'assigned',1)",[customer,unscopedCustomer]);
  // Current real Lock grants precisely this Employee/Vehicle/Cycle object scope, not Favorite.
- await db.query("INSERT INTO public.locks(lock_id,customer_id,vehicle_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) VALUES(899953,$1,$2,$3,'active',1,now()-interval '30 minutes',now()+interval '2 hours')",[customer,vehicle,cycle]);
+ const granted=await db.query("UPDATE public.locks SET expires_at=now()+interval '2 hours' WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND lock_status='active' AND responsible_employee_id=1 RETURNING lock_id",[vehicle,cycle]);
+ assert.equal(granted.rowCount,1,'restore real expired synthetic Lock into current owner scope');
  await db.query("INSERT INTO public.recommendations(recommendation_id,customer_id,vehicle_id,listing_cycle_id,recommender_employee_id,status) VALUES(899954,$1,$2,$3,1,'active')",[customer,vehicle,cycle]);
  await db.query("INSERT INTO public.customer_price_cycle_unlocks(unlock_id,customer_id,vehicle_id,listing_cycle_id,grant_origin) VALUES(899955,$1,$2,$3,'synthetic-f05-3i-current-cycle')",[customer,vehicle,cycle]);
 });
