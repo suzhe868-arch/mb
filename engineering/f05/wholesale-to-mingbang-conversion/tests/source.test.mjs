@@ -4,7 +4,7 @@ import {createHash,randomBytes} from 'node:crypto';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {connect,verify} from '../migration.mjs';
 import {convertWholesaleToMingbang,SOURCE_GAP} from '../service.mjs';
-import {issueCredential,setApiEnabled,syncUpsert,syncBatchOffline,syncCurrent} from '../../jyt-wholesale-lineage-cycle/contract.mjs';
+import {syncUpsert,syncBatchOffline,syncCurrent} from '../v18-sync.mjs';
 
 const db=await connect(),secret=randomBytes(32);
 const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin:'https://127.0.0.1:48983'});
@@ -13,7 +13,7 @@ const car=s=>'JYTF05C-'+s;
 const original=s=>({eventKey:ev('jyt-'+s),carCode:car(s),brandId:97001,seriesId:97002,
  modelId:97003,modelYear:2026,state:'active'});
 const identities=new Map(),tokens={};
-async function sync(s){const x=await syncUpsert(auth,tokens.api,original(s));assert.equal(x.allowed,true,JSON.stringify(x));identities.set(s,x);return x}
+async function sync(s){const row=(await db.query("SELECT l.vehicle_id,l.current_cycle_id FROM public.f05_3b_sync_lineages l WHERE l.source_platform='JYT' AND l.car_code=$1",[car(s)])).rows[0];assert.ok(row,'missing signed pre-000018 source '+s);const x={vehicleId:Number(row.vehicle_id),listingCycleId:Number(row.current_cycle_id)};identities.set(s,x);return x}
 const snapshot=async(vehicle,cycle)=>{
  const tables=['locks','transactions','recommendations','customer_price_cycle_unlocks',
   'customer_price_unlock_events','vehicle_images','vehicle_price_history','vehicle_visibility_grants'];
@@ -34,12 +34,8 @@ test.before(async()=>{
   const r=await auth.login({login:name,password,source:'f05-3c-real-scoped-conversion'});
   assert.equal(r.code,'AUTH_OK',name+':'+r.code);tokens[key]=r.token;
  }
- const g=await issueCredential(auth,tokens.admin,{eventKey:ev('admin-issues-independent-sync-credential')});
- assert.equal(g.allowed,true,JSON.stringify(g));tokens.api=g.token;
- for(const action of ['upsert','current','offline']){
-  const r=await setApiEnabled(auth,tokens.admin,{action,enabled:true,eventKey:ev('enable-'+action)});
-  assert.equal(r.allowed,true);
- }
+ tokens.api=process.env.F05_3C_CI_EPHEMERAL_SYNC_TOKEN;
+ assert.match(tokens.api||'',/^mbci_[a-zA-Z0-9_-]{43}$/);
  for(const s of ['LOCKED','UNSCOPED','TRADING','COMPLETED','CONCURRENT','REVOKED'])await sync(s);
  // Synthetic current business relationship: not a fake ownership flag or publisher,
  // actual nonprivileged PG16 FK-backed Customer and Lock with a current employee.
@@ -146,10 +142,10 @@ test('C-A09 actual 2 PG16 backends and same JYT advisory lock prove 55P03 collis
 });
 test('C-A10 capability revoke real PG16 governance blocks Employee despite Lock, restoration not falsely asserted',async()=>{
  const {vehicleId}=identities.get('REVOKED');
- await db.query("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=now() WHERE employee_id=1 AND permission_id=399");
+ await db.query("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=now() WHERE employee_id=1 AND permission_id=(SELECT permission_id FROM public.permissions WHERE permission_code='vehicle.manage')");
  const out=await convertWholesaleToMingbang(auth,tokens.employee,{vehicleId,teamId:901,eventKey:ev('revoke-governance-denies')});
  assert.equal(out.allowed,false);
- await db.query("UPDATE public.employee_permission_overrides SET decision='allow',changed_at=now() WHERE employee_id=1 AND permission_id=399");
+ await db.query("UPDATE public.employee_permission_overrides SET decision='allow',changed_at=now() WHERE employee_id=1 AND permission_id=(SELECT permission_id FROM public.permissions WHERE permission_code='vehicle.manage')");
 });
 test('C-A11 immutable actor and source snapshots reject forged SQL modification or deletion',async()=>{
  const {vehicleId}=identities.get('LOCKED');

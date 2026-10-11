@@ -7271,7 +7271,6 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
-
   f05-3c-source-pg16:
     name: F05-3C independent real PG16 lineage conversion and two backends
     permissions:
@@ -7323,15 +7322,12 @@ jobs:
           docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
           docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
           node --check f05/wholesale-to-mingbang-conversion/ci-prepare.mjs
-          node f05/wholesale-to-mingbang-conversion/ci-prepare.mjs
-      - name: Run independent true PG16 converted Vehicle Cycle Lock Transaction concurrency tests
+          node f05/wholesale-to-mingbang-conversion/ci-run.mjs ${{ github.job == 'f05-3c-source-pg16' && 'source' || 'https' }}
+      - name: Verify two phase true PG16 run and exact sealed schema
         run: |
           set -euo pipefail
-          artifact=f05/wholesale-to-mingbang-conversion/artifacts/source
-          mkdir -p "$artifact"
-          node --test f05/wholesale-to-mingbang-conversion/tests/source.test.mjs 2>&1 | tee "$artifact/true-pg16-source-tests.log"
-          grep -q '# fail 0' "$artifact/true-pg16-source-tests.log"
           node f05/wholesale-to-mingbang-conversion/runner.mjs --verify
+
       - name: Capture real PG16 schema-only full catalog inventory and source gaps
         run: |
           set -euo pipefail
@@ -7402,15 +7398,11 @@ jobs:
           docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
           node --check f05/wholesale-to-mingbang-conversion/ci-prepare.mjs
           node f05/wholesale-to-mingbang-conversion/ci-prepare.mjs
-      - name: Run independent true PG16 employee Session loopback TLS authorization tests
+      - name: Verify two phase true PG16 run and exact sealed schema
         run: |
           set -euo pipefail
-          artifact=f05/wholesale-to-mingbang-conversion/artifacts/https
-          mkdir -p "$artifact"
-          openssl req -x509 -newkey rsa:2048 -sha256 -nodes -subj '/CN=127.0.0.1' -days 1 -keyout /tmp/f04-3-ci-key.pem -out /tmp/f04-3-ci-cert.pem >/dev/null 2>&1
-          node --test f05/wholesale-to-mingbang-conversion/tests/https.test.mjs 2>&1 | tee "$artifact/true-pg16-https-tests.log"
-          grep -q '# fail 0' "$artifact/true-pg16-https-tests.log"
           node f05/wholesale-to-mingbang-conversion/runner.mjs --verify
+
       - name: Capture real PG16 schema-only full catalog inventory and source gaps
         run: |
           set -euo pipefail

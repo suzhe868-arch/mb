@@ -6,7 +6,7 @@ import {createServer,request} from 'node:https';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {connect,verify} from '../migration.mjs';
 import {createConversionCIHandler} from '../ci-router.mjs';
-import {issueCredential,setApiEnabled,syncUpsert} from '../../jyt-wholesale-lineage-cycle/contract.mjs';
+
 const origin='https://127.0.0.1:48987',secret=randomBytes(32),db=await connect();
 const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin});
 const ev=x=>'f05-3c-https-real-employee-current-'+x;
@@ -32,13 +32,10 @@ test.before(async()=>{
   const r=await auth.login({login,password,source:'f05-3c-loopback-real-https'});
   assert.equal(r.code,'AUTH_OK',login);if(kind==='admin')admin=r.token;else if(kind==='employee')employee=r.token;else four=r.token;
  }
- const cred=await issueCredential(auth,admin,{eventKey:ev('separate-authorized-jyt-sync-control')});
- assert.equal(cred.allowed,true);jyt=cred.token;
- const s=await setApiEnabled(auth,admin,{action:'upsert',enabled:true,eventKey:ev('authorize-jyt-upsert')});
- assert.equal(s.allowed,true);
- const car=await syncUpsert(auth,jyt,{eventKey:ev('sync-verified-model-car'),carCode:'JYT-F05C-LOOPBACK-015',
-  brandId:97001,seriesId:97002,modelId:97003,modelYear:2026,state:'active'});
- assert.equal(car.allowed,true,JSON.stringify(car));vid=car.vehicleId;cycle=car.listingCycleId;
+ jyt=process.env.F05_3C_CI_EPHEMERAL_SYNC_TOKEN;
+ assert.match(jyt||'',/^mbci_[a-zA-Z0-9_-]{43}$/);
+ const signed=(await db.query("SELECT l.vehicle_id,l.current_cycle_id FROM public.f05_3b_sync_lineages l WHERE l.source_platform='JYT' AND l.car_code=$1",['JYT-F05C-LOOPBACK-015'])).rows[0];
+ assert.ok(signed,'signed v17 source missing before v18');vid=Number(signed.vehicle_id);cycle=Number(signed.current_cycle_id);
  await db.query("INSERT INTO public.customers(customer_id,account_status,customer_level_id,owner_assignment_state,current_owner_employee_id) VALUES(896900,'active',1,'assigned',1)");
  await db.query("INSERT INTO public.locks(lock_id,customer_id,vehicle_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) VALUES(896901,896900,$1,$2,'active',1,now()-interval '2 hours',now()+interval '2 hours')",[vid,cycle]);
  server=createServer({key:readFileSync('/tmp/f04-3-ci-key.pem'),cert:readFileSync('/tmp/f04-3-ci-cert.pem')},await createConversionCIHandler(auth));
