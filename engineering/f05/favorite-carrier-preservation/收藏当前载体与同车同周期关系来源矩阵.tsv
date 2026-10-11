@@ -1,0 +1,12 @@
+来源对象	PG16现时物理Carrier	已确认可信条件	本批实测及保全断言	剩余真实缺口
+收藏Favorite	public pg_class/catalog/current schema + PG16 nonprivileged true v18 sealed structure	当前无可签Customer/Vehicle Favorite ledger/唯一FK/取消及重放事件	真catalog候选缺席,任何Favorite请求403与SOURCE_GAP	FAVORITE_PHYSICAL_CARRIER_SOURCE_GAP
+Customer	public.customers(customer_id)	合成Customer真实FK受M94约束,员工归属仅观察不变	F-A02/F-A04 hash of row_to_json before/after	非真实客户
+Lock	public.locks(customer_id,vehicle_id,listing_cycle_id,responsible_employee_id)	已有活动Lock为合法本车Employee条件Scope	F-A03 PG16双backend 55P03; F-A04原hash与FK不变	不改变锁车产品规则
+Recommendation	public.recommendations(customer_id,vehicle_id,listing_cycle_id)	真实当前被签推荐关系	F-A02/F-A04/F-A05精确FK及hash不变	不是Favorite
+Transaction	public.transactions(customer_id,vehicle_id,listing_cycle_id)	原签当前真实交易关系;此样车不虚构资金交易	F-A04零行及hash不变	不模拟已付费
+周期查价	public.customer_price_cycle_unlocks + customer_price_unlock_events	只沿用原Cycle绑定权益	F-A02/F-A04/F-A05转换后cycle id不变	不同Cycle另有语义,不可继承
+图片与价格	public.vehicle_images / vehicle_price_history	保留上游来源和真实本地历史快照	F-A02/F-A04行哈希不变	IMAGE_LOCALIZATION_SOURCE_GAP
+可见授权	public.vehicle_visibility_grants	只读已存在PG16 carrier	F-A04实际PG16空/非空原样hash保全	HIDE_REASON_RECALCULATION_SOURCE_GAP
+源身份与转换账	f05_3b_sync_lineages + f05_3c_wholesale_conversions	旧v17真Credential签源,现时员工合法Lock单车Scope	F-A03/F-A04原JYT lineage同Vehicle/Cycle,新唯一原生收据	无Lock批发Owner仍待产品决定
+并发原生互斥	PG16 locks FOR SHARE及不同pg_backend_pid	转换持活跃Lock行至COMMIT	F-A03另一backend真SQLSTATE55P03	不等同Favorite并发验收
+TLS消费端	新独立loopback TLS CI-only Handler	不存在Favorite当前签名实体时不能返回收藏态	F-B01～07各类无Cookie/SystemAdmin/4S/JYT/伪Owner拒绝,最小DTO	无Customer Favorite正式控制面
