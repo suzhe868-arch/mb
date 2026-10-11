@@ -1,3 +1,12 @@
+# 2026-10-11｜F05-3B A独立验收PASS、PR33已正式合并；F05-3C批发一键转名邦新施工单已放行（唯一最新）
+
+- **F05-3B由A独立核验并实际合并**：[PR #33](https://github.com/suzhe868-arch/mb/pull/33) 最终B/PR HEAD `6c5d1c9d7eeef4b503cc96152d9e06d9ddbd15a8` = [Actions #38091991627](https://github.com/suzhe868-arch/mb/actions/runs/38091991627) run.head_sha，官方**40/40独立非特权真实PG16 jobs全部success**；F05-3A冻结旧38 Job逐Job全部全文不变，新物理17/17、环回TLS9/9、85份原生Artifacts（本轮新源PG16证据`11685175262`、TLS证据`11684104098`均未过期）；相对main仅**12项全部新增白名单文件**，旧签工程、迁移000001～000016、PDM Final/IA/Low-Fi、正式生产server与C设计零更改。
+- **工程授权范围内PASS**：受信合成名邦同步API凭据与上游JYT Token、员工/4S登录独立；三固定API独立默认关闭/开关+审计；同car_code仅同Vehicle/同源identity，正常sync幂等、核心身份冲突拒绝并审计、转换后历史编号自动抑制；offline真正结束旧周期、真实relist新周期间保留同Vehicle；hidden不等于offline/同步不覆盖本地hidden；在售查询按真实源状态/当前Cycle安全DTO；凭据撤销不可逆、失败与合法HTTPS日志不可变脱敏、真独立PG16锁`55P03`通过。A正式签收[PR33评论](https://github.com/suzhe868-arch/mb/pull/33#issuecomment-6103550202)，A执行同HEAD防竞态标准合并，GitHub明确`merged=true`，merge SHA **`f983f13b6631d194c23c9b7ace77d6d691955c76`**。
+- **A验收报告**：`07_重建工作区/F05-3B_A主控独立验收PASS_PR33正式合并与F05-3C接力_2026-10-11.md`。**唯一最新正式施工单**：`07_重建工作区/F05-3C_A主控批发一键转名邦同车同周期经营来源单向转换与历史安全完整施工单_2026-10-11.md`（F05-3C批发→名邦同车同周期单向转换，保留旧JYT lineage/car_code/已成Lock/Waitlist/Transaction/收藏/推荐/查价和快照，真实员工scope与经理权限、完成交易不可转换、隐藏规则重算和图片资产源差异、CI-only并发/审计）。指定B新分支`feat/f05-3c-convert-wholesale-to-mingbang`，由B从最新main建立。**冻结旧40个PG16 jobs，新增2项独立PG16，合法正向可证明才允许最终42/42同SHA+两原生Artifacts交A独立验收**。源授权、图片落地或历史权益真实carrier缺口必须`SOURCE_GAP`，不得为跑绿灯造成功。
+- **当前`F05_3B_A_ACCEPTED_MERGED_PR33_CI_ONLY / F05_3C_A_RELEASED_FOR_B_B_NOT_STARTED / NEXT_OWNER=B`**。F05整体、F04真实生产、C/H01高保真与V1产品基线仍`NOT_READY`。未与真实JYT/Collector/真实资金/图片或生产凭据连通，不能宣告全域产品完成。
+
+---
+
 # 2026-10-11｜F05-3A 第三轮A独立验收正式PASS、PR32已合并；F05-3B JYT可信批发来源新包正式放行（唯一最新）
 
 - **F05-3A已经A正式签收合并**：[PR32](https://github.com/suzhe868-arch/mb/pull/32) 最终B/PR受审HEAD `285d0c7519ed28803eddbf160d37493aa16d5e87` 与 [Actions 38087341051](https://github.com/suzhe868-arch/mb/actions/runs/38087341051) run.head_sha严格一致，官方**38/38独立非特权真PG16 job全部success**，冻结旧36 job全文不变，新真实物理**16/16**及HTTPS**11/11**，71份原生Artifacts、新物理`11681669932`和新TLS`11681904341`有效；PR18个文件全是本包新增白名单，无旧迁移/旧签工程/Final/IA/生产/C修改。A正式验收评论[6102629625](https://github.com/suzhe868-arch/mb/pull/32#issuecomment-6102629625)，A亲自标准merge SHA **`73a369554d98b3afac58c414fda1815aef190e42`**。
