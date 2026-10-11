@@ -1,3 +1,13 @@
+# 2026-10-11｜F05-3D A审计/安全拒绝PASS、PR35已合并；普通批发Owner受信来源仍缺，F05-3E隐藏规则来源重算已放行（唯一最新）
+
+- A官方独立核查B`feat/f05-3d-wholesale-object-scope-trust` / [PR35](https://github.com/suzhe868-arch/mb/pull/35) / [Actions #38122141246](https://github.com/suzhe868-arch/mb/actions/runs/38122141246) 受检B/PR/run HEAD **`3dab7ee19b11a6f11d20d3e739ff202140b2f4f0`**，GitHub **44/44独立非特权真PG16 jobs success**，原42个Job定义由A逐块全文校验**42/42原文不变**，新物理source D-A01～08 **8/8 PASS** 和loopback TLS D-B01～07 **7/7 PASS**；官方89份Artifacts中新物理`11695554078`、新TLS`11695782435`非空有效。PR仅6个白名单新增文件，无旧签000001～000018/F05-3C/Final/生产/C修改。
+- 本包A正式判定**`F05_3D_TRUSTED_SCOPE_AUDIT_ACCEPTED_SOURCE_GAP_CONFIRMED_CI_ONLY`**：真实PG16 F05-2`vehicle_current_responsibilities`已签人工Owner `source_snapshot CHECK (mingbang/four_s)`，伪造JYT wholesale Owner被真正PG16 `23514`拒绝；原F05-3B JYT`lineage`仅证明批发Vehicle+Cycle和car_code来源，并非受信可撤销Employee单车经营负责人签发。真实名邦员工即使read/manage、Team和本人当前Scope，**普通没有当期本人Lock/活动Transaction的JYT批发车也无可信对象经营授权**，真实HTTPS仍403；SysAdmin/4S/JYT/伪Owner/Publisher/CSRF/敏感字段拒绝、双真实PG16 backend撤权/离线`55P03`证据均通过。已签F05-3C有当期Lock/Transaction条件正向保持不变，**GENERAL_WHOLESALE_VEHICLE_SCOPE_SOURCE_GAP不关闭**。A[PR35最终验收评论](https://github.com/suzhe868-arch/mb/pull/35#issuecomment-6106867501)后以`expected_head_sha`正式标准合并，GitHub `merged=true`，merge commit **`876904c8bb1d7953d4e8fd08f22ee997f8d34f1b`**。完整正式A验收报告`07_重建工作区/F05-3D_A主控独立验收PR35可信来源审计PASS正式合并与F05-3E接力_2026-10-11.md`。
+- A集中保留一个**重大业务权限来源待裁决点**：若要允许无Lock/活动Transaction的普通批发车合法一键转名邦，须先有PDM允许的实际受信单Vehicle+当前Cycle经营责任签发人、签发依据、撤销/历史因果；没有该来源不得由B编造owner，未来新增权限语义须A集中提用户。暂不发“通用批发车转换正向”假施工单。
+- **下一唯一正式工程放行F05-3E**：`07_重建工作区/F05-3E_A主控自动隐藏规则命中原因现时承载与来源转换重算可信隔离完整施工单_2026-10-11.md`，由B从最新main建`feat/f05-3e-hide-reason-trust-recalculation`，只勘验已签PDM04 Final的自动/人工/其他隐藏原因可信carrier、source_scope过滤、多规则OR/字段AND/同字段多值OR、批发→名邦来源变化后自动规则重算及人工hidden不释放；来源不充分则审计+拒绝/保守hidden不能伪造visible。旧**44**独立真PG16 Job全文冻结，增2个真PG16 Jobs，目标**46/46同B/PR/Actions SHA success+两个新原生Artifacts**。A复验前B不能自行合并。
+- `IMAGE_LOCALIZATION_SOURCE_GAP`、`HIDE_REASON_RECALCULATION_SOURCE_GAP`、`FAVORITE_PHYSICAL_CARRIER_SOURCE_GAP`、`CURRENT_WHOLESALE_OBJECT_SCOPE_SOURCE_GAP`、新v18陌生JYT车型、真实生产JYT/图片/资金/电话继续封印；**F05整体/F04生产/C-H01/V1产品基线`NOT_READY`**，没有生产授权。
+
+---
+
 # 2026-10-11｜F05-3C A二轮独立审查：CI42/42通过，Lock-only当前scope竞态与v18批量offline幂等数量2项定向整改（唯一最新）
 
 - B`feat/f05-3c-convert-wholesale-to-mingbang`／[PR34](https://github.com/suzhe868-arch/mb/pull/34) 最新受检HEAD `2bbae12fe648f96c02b4caf3afa51761d4761bd7` = [Actions 38104964738](https://github.com/suzhe868-arch/mb/actions/runs/38104964738) head_sha；**42/42独立非特权真PG16成功、旧40项Job正文逐项严格原文不变**，新物理C-A01～16/16、TLS C-B01～07/7，87原生Artifacts、新`11689216636`与`11689605814`有效；全部15个新文件仅本包允许白名单，无旧迁移、PDM Final、生产及C越界。上轮v17→v18阻断已通过先受信原v17 JYT源、迁000018精确v18、原有源v18安全适配的原生日志与源码复验关闭。
