@@ -27,6 +27,14 @@ const tally=async id=>({days:await rows('SELECT business_day_shanghai::text AS b
 test.before(async()=>{
  assert.equal((await verify(db)).verified,true);
  for(const name of Object.keys(user))tokens[name]=await login(name);
+ // Manager's signed F03 account is first-login restricted. Complete actual
+ // password-change protocol; never bypass normalOnly for a quota mutation.
+ const oldManager=tokens.manager;
+ const changed=await auth.change({token:oldManager,csrf:auth.csrfFor(oldManager),
+  oldPassword:user.manager[1],newPassword:'SyntheticF055QuotaManager_2026'});
+ assert.equal(changed.code,'PASSWORD_CHANGED_REAUTH_REQUIRED');
+ user.manager[1]='SyntheticF055QuotaManager_2026';
+ tokens.manager=await login('manager');
  // Tests require exact owner/team/role from the actually signed M94+F03 fixtures.
  for(const [id,role] of [[1,'sales'],[5,'manager'],[6,'store_head']]){
   const x=(await rows('SELECT r.role_code FROM public.employees e JOIN public.roles r ON r.role_id=e.main_role_id WHERE e.employee_id=$1',[id]))[0];assert.equal(x?.role_code,role);
@@ -51,7 +59,18 @@ test('5-A03 same key retry persists exactly one physical adjustment and immutabl
 });
 test('5-A04 truly independent concurrent PG16 auth sessions and same-key double-send only one debit-free addition',async()=>{
  const a=await login('sales'),b=await login('sales'),p=mk(899512,'two-real-backends-same-key-0000001',3);
- const ids=new Set();
+ const c1=await connect(),c2=await connect();
+ const id1=Number((await c1.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+ const id2=Number((await c2.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+ assert.notEqual(id1,id2,'must be two genuine independent PostgreSQL backends');
+ try{
+  await c1.query('BEGIN');
+  await c1.query('SELECT customer_id FROM public.customers WHERE customer_id=$1 FOR UPDATE',[899512]);
+  await c2.query('BEGIN');await c2.query("SET LOCAL lock_timeout='300ms'");
+  await assert.rejects(()=>c2.query('SELECT customer_id FROM public.customers WHERE customer_id=$1 FOR UPDATE',[899512]),e=>e.code==='55P03');
+  await c2.query('ROLLBACK');await c1.query('COMMIT');
+ }finally{await c1.end();await c2.end();}
+ const ids=new Set([id1,id2]);
  const checkpoint=async(_,client)=>ids.add(Number((await client.query('SELECT pg_backend_pid() pid')).rows[0].pid));
  const results=await Promise.all([add(auth,a,p,{checkpoint}),add(auth,b,p,{checkpoint})]);
  assert.deepEqual(results.map(x=>x.code).sort(),['F05_5_CI_ADDED_FREE_DAILY_QUOTA','F05_5_CI_SAME_REQUEST_ALREADY_ADDED'].sort());

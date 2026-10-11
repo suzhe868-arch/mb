@@ -57,7 +57,7 @@ export async function addSyntheticDailyQuota(auth,token,p,{checkpoint}={}){
     "AND ownerm.valid_from<=statement_timestamp() AND (ownerm.ended_at IS NULL OR ownerm.ended_at>statement_timestamp()) "+
     "AND sc.ended_at IS NULL AND b.granted_at<=statement_timestamp() AND (b.ended_at IS NULL OR b.ended_at>statement_timestamp()) "+
     "AND ((sc.scope_kind='team' AND sc.scope_reference_id=t.team_id) OR "+
-    "(sc.scope_kind='store' AND sc.scope_reference_id=st.store_id AND $5 IN ('manager','store_head')))) allowed";
+    "(sc.scope_kind='store' AND sc.scope_reference_id=st.store_id AND $5 IN ('manager','store_head'))) FOR SHARE OF ov,b,sc,member,ownerm,t,st,p) allowed";
    const scope=(await c.query(sql,[actor,p.teamId,owner,employee.store_id,employee.role_code])).rows[0];
    if(scope?.allowed!==true)return deny(GAP);
    // Recheck under same transaction before append: Customer lock serializes current
