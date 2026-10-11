@@ -61,6 +61,9 @@ node --test "f05/deterministic-matching-readiness-four-tier/tests/$mode.test.mjs
 grep -q '# fail 0' "$artifact/true-pg16-$mode-tests.log"
 node f05/deterministic-matching-readiness-four-tier/runner.mjs --verify
 node f05/deterministic-matching-readiness-four-tier/evidence.mjs "$mode"
+if [[ "$mode" = source ]]; then
+ node f05/deterministic-matching-readiness-four-tier/ci-verify-workflows.mjs
+fi
 cp f05/deterministic-matching-readiness-four-tier/F05-7_PDM12规则匹配受信物理来源矩阵.tsv "$artifact/source-gap-matrix.tsv"
 cp f05/deterministic-matching-readiness-four-tier/B全包自验与A复验交接.md "$artifact/B-technical-handoff.md"
 docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > "$artifact/schema-only.sql"
