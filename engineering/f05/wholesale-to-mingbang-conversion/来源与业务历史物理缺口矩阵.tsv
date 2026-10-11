@@ -1,0 +1,19 @@
+域	核验目标	真实carrier	结论	约束/缺口
+物理源	批发JYT身份	f05_3b_sync_lineages + 000017	已验证	真实car_code→唯一Vehicle，转换后永不回归上游
+物理源	Vehicle及ListingCycle	vehicles + vehicle_listing_cycles M94	已验证	source_type变，当前listing_cycle不变
+员工权限	Employee当前有效身份	F03 IsolatedAuth Session + pc_login_accounts	已验证	SystemAdmin与4S硬拒绝
+员工权限	manage/read+team scope	employees/teams/team_memberships/employee_data_scopes/employee_capability_scope_bindings	已验证	个人deny、角色模板、Scope当前有效
+对象范围	已有Lock本人与当前Cycle	locks.responsible_employee_id / vehicle_id / listing_cycle_id	条件可验证	真实PG16已成立业务主体才有对象关联，无此事实维持SOURCE_GAP
+对象范围	已有Transaction本人与当前Cycle	transactions.responsible_employee_id / vehicle_id / listing_cycle_id	条件可验证	不对无业务对象批发车虚构team管理owner
+交易门禁	completed完成交易不可转换	transactions.status / completed_at	已验证	活动trading允许，同车同周期不改交易
+历史保全	Lock和Transaction	locks / transactions	已验证	关系原始哈希转换前后相同
+历史保全	Recommendation	recommendations	已验证	引用同vehicle+cycle
+历史保全	当前周期查价权益	customer_price_cycle_unlocks / customer_price_unlock_events	已验证	引用同vehicle+cycle
+历史保全	车辆图片来源	vehicle_images	部分已验证	只能保留原始来源，不假装对象存储已本地化
+历史保全	价格原始事实	vehicle_price_history	已验证	金额事实只读
+历史保全	可见性授权	vehicle_visibility_grants	已验证	现有行只读保留
+历史保全	Favorite收藏独立当前物理	M94未发现真实favorites当前表	FAVORITE_PHYSICAL_CARRIER_SOURCE_GAP	不声称已全面保护未出现的表
+图片资产	真实对象存储写入/完成确认	本批无合法外部对象存储来源及可靠签发	IMAGE_LOCALIZATION_SOURCE_GAP	不写success、不拼虚假object_key；转换和资产化按PDM08解耦
+隐藏	人工hidden vs 自动规则命中来源	vehicle_hide_rules.source_scope_json/conditions_json但缺原因拆分及真实matcher	HIDE_REASON_RECALCULATION_SOURCE_GAP	转换时保守hidden，不自动清掉人工隐藏
+上游隔离	已转名邦历史car_code覆盖	旧000017 source+JYT upsert/offline	已验证	同身份和核心冲突均抑制，不重新批发
+真实第三方	JYT生产、CDN真实图片、真实员工客户	非特权一次性PG16/loopback TLS，不访问外部	SOURCE_GAP_BLOCKED_FOR_PRODUCTION	不声称已上线
