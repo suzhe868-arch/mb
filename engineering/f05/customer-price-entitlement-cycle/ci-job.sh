@@ -48,9 +48,9 @@ node --test "f05/customer-price-entitlement-cycle/tests/$mode.test.mjs" 2>&1 | t
 grep -q '# fail 0' "$artifact/true-pg16-$mode-tests.log"
 node f05/customer-price-entitlement-cycle/runner.mjs --verify
 node f05/customer-price-entitlement-cycle/evidence.mjs "$mode"
-cp f05/customer-price-entitlement-cycle/来源与受信增量矩阵.tsv "$artifact/source-gap-matrix.tsv"
+cp f05/customer-price-entitlement-cycle/PDM10价格权益物理来源矩阵.tsv "$artifact/source-gap-matrix.tsv"
 cp f05/customer-price-entitlement-cycle/B全包自验与A复验交接.md "$artifact/B-technical-handoff.md"
 docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > "$artifact/schema-only.sql"
 (cd "$artifact" && sha256sum * > sha256sums.txt)
 if grep -R -nE 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|BEGIN PRIVATE KEY|mbci_[A-Za-z0-9_-]{43}' "$artifact"; then exit 1; fi
-echo "F05_4_NATIVE_PG16_V19_${mode}_CI_COMPLETE"
+echo "F05_4_NATIVE_PG16_V20_${mode}_CI_COMPLETE"

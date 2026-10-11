@@ -16,8 +16,8 @@ const price=(ctx,v,n,at=iso)=>syntheticCustomerPrice(db,ctx,req(v,n,at));
 const limit=intent('DETAIL'),list=intent('LIST'),prefetch=intent('PREFETCH');
 let vehicles,main,second,third,sign,pre;
 const sums=async()=>{
- const x=await query("SELECT business_day_shanghai::text AS "day",base_quota,temp_additions,consumed_count FROM public.customer_day_quota_ledger WHERE customer_id=$1 ORDER BY business_day_shanghai",[cid]);
- const events=await query("SELECT vehicle_id,listing_cycle_id,business_day_shanghai::text AS "day",event_kind FROM public.customer_price_unlock_events WHERE customer_id=$1 ORDER BY unlock_event_id",[cid]);
+ const x=await query("SELECT business_day_shanghai::text AS business_date,base_quota,temp_additions,consumed_count FROM public.customer_day_quota_ledger WHERE customer_id=$1 ORDER BY business_day_shanghai",[cid]);
+ const events=await query("SELECT vehicle_id,listing_cycle_id,business_day_shanghai::text AS business_date,event_kind FROM public.customer_price_unlock_events WHERE customer_id=$1 ORDER BY unlock_event_id",[cid]);
  const rights=await query("SELECT vehicle_id,listing_cycle_id,grant_origin FROM public.customer_price_cycle_unlocks WHERE customer_id=$1 ORDER BY unlock_id",[cid]);
  return {ledger:x,events,rights,digest:sha([x,events,rights])};
 };
@@ -111,8 +111,8 @@ test('4-A11 UTC+8 midnight rollover starts independent quota day, never erases p
  assert.equal(a.code,'DIGITAL_PRICE');assert.equal(a.charged,true);
  const b=await price(intent('DETAIL',other),second,'other-after-midnight',afterMidnight);
  assert.equal(b.code,'DIGITAL_PRICE');assert.equal(b.charged,true);
- const days=await query("SELECT business_day_shanghai::text AS "day",consumed_count FROM public.customer_day_quota_ledger WHERE customer_id=$1 ORDER BY business_day_shanghai",[other]);
- assert.deepEqual(days.map(x=>x.day),['2026-10-12','2026-10-13']);
+ const days=await query("SELECT business_day_shanghai::text AS business_date,consumed_count FROM public.customer_day_quota_ledger WHERE customer_id=$1 ORDER BY business_day_shanghai",[other]);
+ assert.deepEqual(days.map(x=>x.business_date),['2026-10-12','2026-10-13']);
  assert.deepEqual(days.map(x=>x.consumed_count),[1,1]);
 });
 test('4-A12 explicit key collision across another Customer/Vehicle cannot grant entitlement',async()=>{
@@ -149,6 +149,6 @@ test('4-A16 archive signed PG16 evidence without any real personal data or produ
  assert.ok(x.events.length>=3);
  await mkdir(new URL('../artifacts/source/',import.meta.url),{recursive:true});
  await writeFile(new URL('../artifacts/source/real-daily-ledger-and-cycle-evidence.json',import.meta.url),
-  JSON.stringify({versionSeal:sign,current:await verify(db),syntheticOnly:true,productionCustomerSession:false,priceSourceSigned:false,employeeTemporaryAdditionSourceSigned:false,customerIdHashed:sha(cid),dailyLedger:x.ledger,cycleEvents:x.events.map(e=>({day:e.day,kind:e.event_kind})),ledgerSHA256:sha(x.ledger),rightsSHA256:sha(x.rights),rightsCount:x.rights.length},null,2)+'\n');
+  JSON.stringify({versionSeal:sign,current:await verify(db),syntheticOnly:true,productionCustomerSession:false,priceSourceSigned:false,employeeTemporaryAdditionSourceSigned:false,customerIdHashed:sha(cid),dailyLedger:x.ledger,cycleEvents:x.events.map(e=>({day:e.business_date,kind:e.event_kind})),ledgerSHA256:sha(x.ledger),rightsSHA256:sha(x.rights),rightsCount:x.rights.length},null,2)+'\n');
  console.log('F05_4_LIMITED_UNLIMITED_3A_UTC8_REAL_PG16_CI_ONLY');
 });
