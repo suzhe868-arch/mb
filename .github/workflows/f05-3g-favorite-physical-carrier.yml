@@ -1,4 +1,4 @@
-name: F05-3G 48 frozen PG16 plus two Favorite carrier jobs
+name: F05-3G
 on:
   push:
     branches: [feat/f05-3g-favorite-physical-carrier]
@@ -7707,44 +7707,34 @@ jobs:
       - uses: actions/upload-artifact@v4
         with: {name: f05-3f-https-independent-native-pg16-audit-evidence, path: engineering/f05/favorite-carrier-preservation/artifacts/https/, retention-days: 30, if-no-files-found: error}
 
-  f05-3g-source-pg16:
-    name: F05-3G genuine Favorite v19 source PG16
+  g-source:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
-    permissions: {contents: read}
     services:
       postgres:
         image: public.ecr.aws/docker/library/postgres:16-alpine
         env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
         ports: [5432:5432]
-        options: >-
-          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: {node-version: '22.16.0'}
-      - run: bash f05/favorite-physical-carrier/ci-job.sh source
-        working-directory: engineering
-      - uses: actions/upload-artifact@v4
-        with: {name: f05-3g-source-pg16-evidence, path: engineering/f05/favorite-physical-carrier/artifacts/source/, retention-days: 30, if-no-files-found: error}
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with: {node-version: '22.16.0'}
+    - run: bash f05/favorite-physical-carrier/ci-job.sh source
+      working-directory: engineering
+    - uses: actions/upload-artifact@v4
+      with: {name: f05-3g-source-evidence, path: engineering/f05/favorite-physical-carrier/artifacts/source/}
 
-  f05-3g-https-pg16:
-    name: F05-3G genuine Favorite v19 https PG16
+  g-https:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
-    permissions: {contents: read}
     services:
       postgres:
         image: public.ecr.aws/docker/library/postgres:16-alpine
         env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
         ports: [5432:5432]
-        options: >-
-          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: {node-version: '22.16.0'}
-      - run: bash f05/favorite-physical-carrier/ci-job.sh https
-        working-directory: engineering
-      - uses: actions/upload-artifact@v4
-        with: {name: f05-3g-https-pg16-evidence, path: engineering/f05/favorite-physical-carrier/artifacts/https/, retention-days: 30, if-no-files-found: error}
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with: {node-version: '22.16.0'}
+    - run: bash f05/favorite-physical-carrier/ci-job.sh https
+      working-directory: engineering
+    - uses: actions/upload-artifact@v4
+      with: {name: f05-3g-https-evidence, path: engineering/f05/favorite-physical-carrier/artifacts/https/}
