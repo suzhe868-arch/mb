@@ -93,10 +93,10 @@ export async function calculateCI(auth,token,{demandId,vehicleId,listingCycleId,
   if(checkpoint)await checkpoint('before_match_result_commit',c);
   const old=(await c.query("SELECT result_id,source_signature,tier,run_key FROM public.f05_7_result_versions_ci WHERE demand_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3 AND status='current' FOR UPDATE",
    [demandId,vehicleId,listingCycleId])).rows[0];
-  const repeated=(await c.query('SELECT result_id,demand_id,vehicle_id,listing_cycle_id,source_signature FROM public.f05_7_result_versions_ci WHERE run_key=$1',[runKey])).rows[0];
+  const repeated=(await c.query('SELECT result_id,demand_id,vehicle_id,listing_cycle_id,source_signature,status FROM public.f05_7_result_versions_ci WHERE run_key=$1',[runKey])).rows[0];
   if(repeated){
    if(Number(repeated.demand_id)!==demandId||Number(repeated.vehicle_id)!==vehicleId||Number(repeated.listing_cycle_id)!==listingCycleId||
-    repeated.source_signature!==signature)return deny('F05_7_RUN_KEY_REUSE_COLLISION');
+    repeated.source_signature!==signature||repeated.status!=='current')return deny('F05_7_STALE_OR_COLLIDING_RUN_KEY_REPLAY');
    return ok('F05_7_IDENTICAL_MATCH_ALREADY_RECORDED',{resultId:Number(repeated.result_id)});
   }
   if(old?.source_signature===signature)return ok('F05_7_CURRENT_SAME_FACTS',{resultId:Number(old.result_id),tier:old.tier});
