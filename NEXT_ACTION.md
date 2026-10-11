@@ -1,3 +1,12 @@
+# 2026-10-11｜F05-3C A二轮独立审查：CI42/42通过，Lock-only当前scope竞态与v18批量offline幂等数量2项定向整改（唯一最新）
+
+- B`feat/f05-3c-convert-wholesale-to-mingbang`／[PR34](https://github.com/suzhe868-arch/mb/pull/34) 最新受检HEAD `2bbae12fe648f96c02b4caf3afa51761d4761bd7` = [Actions 38104964738](https://github.com/suzhe868-arch/mb/actions/runs/38104964738) head_sha；**42/42独立非特权真PG16成功、旧40项Job正文逐项严格原文不变**，新物理C-A01～16/16、TLS C-B01～07/7，87原生Artifacts、新`11689216636`与`11689605814`有效；全部15个新文件仅本包允许白名单，无旧迁移、PDM Final、生产及C越界。上轮v17→v18阻断已通过先受信原v17 JYT源、迁000018精确v18、原有源v18安全适配的原生日志与源码复验关闭。
+- **A最新源码发现2项CI暂未覆盖、不得直接合并的真实行为边界**：`A-F05-3C-04` 转换`service.mjs/objectScope()`对作为授权凭据的当前Lock-only行仅`SELECT count`，但未对该Lock行持`FOR SHARE`到COMMIT，现有C-A15只锁Transaction，缺“持锁转换与合法Lock撤销/移交并发提交”PG16双后端时序；`A-F05-3C-05` 新`v18-sync.mjs/syncBatchOffline()`首调同事件下架实际1车、收据count_rows=1，同`eventKey`重放却固定回`count=0`，与已签F05-3B返回历史`count_rows=1`合同不一致。需新PG16实测、源码最小修复及再次全部42/42。
+- **A正式第二轮完整定向整改单**：`07_重建工作区/F05-3C_A主控二轮独立复验同SHA42项通过但对象责任并发与批量下架重放合同定向整改单_2026-10-11.md`；[PR34正式A复审评论](https://github.com/suzhe868-arch/mb/pull/34#issuecomment-6105828398)。现时状态 **`F05_3C_A_SECOND_REVIEW_CHANGES_REQUESTED / PR34_NOT_MERGED / NEXT_OWNER=B`**，B继续原分支/PR34，仅新包service/v18-sync及本包真实测试/证据最小修复，旧40作业逐块全文冻结，最终B/PR/新Actions同SHA官方**42/42 success+两份未过期新Artifacts/全中文B交接**后交A复验；不得自行合并、开始F05-3D或生产。
+- 本包暂只证明**条件式受信CI转换**，并非所有批发车/真实生产：`IMAGE_LOCALIZATION_SOURCE_GAP`、`HIDE_REASON_RECALCULATION_SOURCE_GAP`、`FAVORITE_PHYSICAL_CARRIER_SOURCE_GAP`、`CURRENT_WHOLESALE_OBJECT_SCOPE_SOURCE_GAP`、`F05_3C_V18_NEW_CAR_SOURCE_MAPPING_GAP`、`SOURCE_GAP_BLOCKED_FOR_PRODUCTION`仍存在；PDM08已确认转名邦与图片资产化解耦、3A临时受控CDN，不需用户重新决定产品规则。F05整体/F04生产/C-H01/V1产品基线继续`NOT_READY`。
+
+---
+
 # 2026-10-11｜F05-3C A二轮独立复验：42/42全绿、旧40冻结但v18批量offline幂等重放计数存在真实合同回归；原PR34一项定向整改（唯一最新）
 
 - A已独立核GitHub [PR34](https://github.com/suzhe868-arch/mb/pull/34) 当前B/PR HEAD **`2bbae12fe648f96c02b4caf3afa51761d4761bd7`** = [Actions 38104964738](https://github.com/suzhe868-arch/mb/actions/runs/38104964738) run.head_sha，`completed/success`官方**42/42独立非特权真PG16 jobs成功**、原F05-3B**40个旧Job逐块正文全部原样**、新增物理`C-A01～16` **16/16**与TLS`C-B01～07` **7/7**，87原生Artifacts/新物理`11689216636`、TLS`11689605814`均未过期；PR只新增15项在`engineering/f05/wholesale-to-mingbang-conversion/**`或专属Workflow，无旧签工程迁移/Final/生产server/C改动。GitHub job日志真证v17先签Admin与独立JYT同步受信来源Vehicle/Cycle，再原子迁000018，v18精确seal及独立CI适配；同Vehicle/Cycle当前受信Employee/Lock/Transaction条件正向、completed拒绝、历史保持、双PG16真实`55P03`均已验证。**先前v17→v18版本阻断及旧40全文冻结问题已经关闭。**
