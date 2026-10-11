@@ -26,7 +26,7 @@ const cmds=[
  ['f03/runtime-handover-reconciliation/fixtures.mjs'],
  ['f03/field-security-projection/fixtures.mjs'],
  ['f03/runtime-transaction-responsible-handover/evidence.mjs','--new'],
- ['f03/runtime-transaction-responsible-handover/evidence.mjs','--archive-check'],
+ // The prior M94 archive is verified by F05-2 migration; no re-archiving here.
  ...['vehicle-stewardship-physical-scope','four-s-member-trust-scope']
  .flatMap(x=>[['f05/'+x+'/runner.mjs','--inject-rollback'],['f05/'+x+'/runner.mjs','--apply'],
   ['f05/'+x+'/runner.mjs','--verify'],['f05/'+x+'/fixtures.mjs']]),
