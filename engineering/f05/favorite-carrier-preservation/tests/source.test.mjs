@@ -61,7 +61,13 @@ test('F-A03 real signed Employee converts one existing Vehicle/Cycle while two i
   backend=Number((await c.query('SELECT pg_backend_pid() pid')).rows[0].pid);
   signal();await held;
  }});
- await entered;
+ // Never hang indefinitely when a prerequisite failed and the conversion
+ // rejected before entering its physical transaction checkpoint.
+ await Promise.race([
+  entered,
+  converting.then(out=>{throw Error('F05_3F_CHECKPOINT_NOT_REACHED_'+JSON.stringify(out))}),
+  new Promise((_,reject)=>setTimeout(()=>reject(Error('F05_3F_CHECKPOINT_TIMEOUT_20_SECONDS')),20000))
+ ]);
  const contender=await connect();
  try{
   assert.notEqual(Number((await contender.query('SELECT pg_backend_pid() pid')).rows[0].pid),backend);
