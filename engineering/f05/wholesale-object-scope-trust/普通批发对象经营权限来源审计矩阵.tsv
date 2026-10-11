@@ -1,0 +1,11 @@
+核证对象	冻结PG16原始载体	核查结果	许可边界	复核用例
+名邦人工车责任	heading:vehicle_current_responsibilities / 000015 CHECK(source_snapshot IN mingbang,four_s)	只准人工来源的员工签名或正式交接，批发不可借用	不得人为回填JYT wholesale	D-A01,D-A03
+JYT批发来源身份	f05_3b_sync_lineages / 000017	仅含source_platform、car_code、vehicle_id、current_cycle_id及车型，未提供可信Employee经营Owner	upstream publisher/car_code/同步凭据不代表经营权	D-A02
+原F05-3C单车转换	f05_3c_wholesale_conversions / 000018	真实Employee、read/manage及本人当前Lock/活动Transaction才可转换；普通无已签责任链时SOURCE_GAP	旧合同保留不放宽	D-A08
+当前无Lock/Transaction的批发车	M94+000015～000018完整现时数据库结构	未核获由正式受信管理员签发且可撤销、当前Vehicle/Cycle绑定的通用批发车管理Carrier	GENERAL_WHOLESALE_VEHICLE_SCOPE_SOURCE_GAP	D-A02,D-B02
+当前员工/团队/角色	F03角色、个人allow/deny、team scope、current capability binding	可确认基础功能权限但不等价单辆JYT车管理权	无对象来源一律403	D-A05,D-B02
+撤权并发	F05-2 governance triggers + Actor advisory locks	两PG16 backend锁争用55P03，先撤权后动作拒绝；不能捏造正向Owner	仅审计/拒绝门禁	D-A06
+上游下架并发	JYT受信lineage与Vehicle FOR SHARE	两PG16 backend真实锁争用55P03，源状态不可在审计事务中改写	不授予JYT控制本地hidden/CRM权	D-A07
+敏感字段隔离	F05-3C原有loopback TLS Employee/CSRF合同	无Scope的合法Employee、系统管理员、4S、假publisher均拒绝，无VIN/电话/批发价泄漏	CI-only、绝非生产Route	D-B01～07
+图片与可见性	PDM-08 Final + F05-3C来源差异	IMAGE_LOCALIZATION_SOURCE_GAP，HIDE_REASON_RECALCULATION_SOURCE_GAP未关闭	不本批实现资产化和hidden重算	排除
+收藏/未知车型	M94与可信v18 mapping	FAVORITE_PHYSICAL_CARRIER_SOURCE_GAP，F05_3C_V18_NEW_CAR_SOURCE_MAPPING_GAP未关闭	不得伪造生产全链路	排除
