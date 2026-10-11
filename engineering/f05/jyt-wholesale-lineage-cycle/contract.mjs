@@ -3,12 +3,13 @@
 // distinct from employee/4S/Customer sessions, JYT login or upstream phone tokens.
 import {randomBytes,createHash} from 'node:crypto';
 import {requireDatabaseIdentity} from '../vehicle-stewardship-physical-scope/migration.mjs';
-import {verify,ID,checksum} from './migration.mjs';
+import {verify as verifyV17, ID as ID17} from './migration.mjs';
+import {verify as verifyV18, ID as ID18} from '../wholesale-to-mingbang-conversion/migration.mjs';
+import {verify as verifyV19, ID as ID19} from '../favorite-physical-carrier/migration.mjs';
 
 export const GAP='F05_3B_TRUSTED_SOURCE_GAP';
 const deny=(code=GAP)=>({allowed:false,code});
 const ok=(code,props={})=>({allowed:true,code,...props});
-const once=new WeakSet();
 const isInt=v=>Number.isSafeInteger(v)&&v>0&&v<=2147483647;
 const event=v=>typeof v==='string'&&/^[a-zA-Z0-9._:-]{20,160}$/.test(v);
 const car=v=>typeof v==='string'&&/^[a-zA-Z0-9_-]{4,96}$/.test(v);
@@ -24,14 +25,17 @@ async function ready(auth) {
  isolate();
  if(!auth?.pool||typeof auth.withSession!=='function')throw Error('F05_3B_REAL_SESSION_REQUIRED');
  await requireDatabaseIdentity(auth.pool);
- if(!once.has(auth)){
-  const v=await verify(auth.pool);
-  if(!v.verified)throw Error('F05_3B_SCHEMA_NOT_VERIFIED');
-  once.add(auth);
- }else{
-  const last=(await auth.pool.query('SELECT checksum FROM public.f03_schema_migrations WHERE migration_id=$1',[ID])).rows[0];
-  if(last?.checksum!==checksum)throw Error('F05_3B_MIGRATION_CHANGED');
- }
+ // Only frozen, signed physical chains may authorize source actions.
+ // Check the *current* real PG16 migration ledger on every invocation. v19
+ // must verify the complete v18 seal, predecessor ledger and live catalog.
+ const rows=(await auth.pool.query('SELECT migration_id FROM public.f03_schema_migrations ORDER BY migration_id')).rows;
+ const n=rows.length;
+ const verifier=n===15&&rows[14]?.migration_id===ID17?verifyV17:
+  n===16&&rows[14]?.migration_id===ID17&&rows[15]?.migration_id===ID18?verifyV18:
+  n===17&&rows[14]?.migration_id===ID17&&rows[15]?.migration_id===ID18&&rows[16]?.migration_id===ID19?verifyV19:null;
+ if(!verifier)throw Error('F05_3J_UNTRUSTED_VERSION_CHAIN');
+ const signed=await verifier(auth.pool);
+ if(signed.verified!==true)throw Error('F05_3J_SIGNED_SOURCE_REQUIRED');
 }
 async function admin(auth,token,fn){
  await ready(auth);
