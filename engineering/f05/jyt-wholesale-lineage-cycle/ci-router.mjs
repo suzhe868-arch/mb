@@ -1,6 +1,8 @@
 // F05-3B: THREE contract routes, loopback TLS only. Never import from production server.
 import {syncUpsert,syncBatchOffline,syncCurrent} from './contract.mjs';
-import {verify} from './migration.mjs';
+import {verify as verifyV17,ID as ID17} from './migration.mjs';
+import {verify as verifyV18,ID as ID18} from '../wholesale-to-mingbang-conversion/migration.mjs';
+import {verify as verifyV19,ID as ID19} from '../favorite-physical-carrier/migration.mjs';
 const ORIGIN='https://127.0.0.1:48985';
 const base='/__ci__/f05-3b/v1/vehicles/';
 const headers={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store, max-age=0',
@@ -29,7 +31,13 @@ export async function createJytSyncContractHandler(auth){
   if(process.env[k]!==v)throw Error('F05_3B_HTTP_CI_ONLY_'+k);
  if(!auth?.pool||!/^postgres:\/\/f03_ci:[^@]+@127\.0\.0\.1:5432\/f03_auth_test$/.test(process.env.F03_1_DATABASE_URL||''))
   throw Error('F05_3B_UNTRUSTED_DATABASE');
- await verify(auth.pool);
+ const rows=(await auth.pool.query('SELECT migration_id FROM public.f03_schema_migrations ORDER BY migration_id')).rows;
+ const n=rows.length;
+ const verifier=n===15&&rows[14]?.migration_id===ID17?verifyV17:
+  n===16&&rows[14]?.migration_id===ID17&&rows[15]?.migration_id===ID18?verifyV18:
+  n===17&&rows[14]?.migration_id===ID17&&rows[15]?.migration_id===ID18&&rows[16]?.migration_id===ID19?verifyV19:null;
+ if(!verifier)throw Error('F05_3J_UNTRUSTED_HTTP_VERSION_CHAIN');
+ if((await verifier(auth.pool)).verified!==true)throw Error('F05_3J_HTTP_SOURCE_NOT_SIGNED');
  let windowStart=Date.now(),windowCalls=0;
  return async(req,res)=>{
   let loggedAction='unknown',submittedCount=0;
