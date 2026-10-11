@@ -1,3 +1,13 @@
+# 2026-10-11｜F05-3C A首次独立复验：v17/000018跨版本真实阻断，PR34 Draft不合并，A完整技术裁决定向交B（唯一最新）
+
+- 最新[PR34](https://github.com/suzhe868-arch/mb/pull/34) B分支`feat/f05-3c-convert-wholesale-to-mingbang` HEAD **`31edd5a0a83291f38bc1d9a4985ed76b89856bde`**，`Draft/open/not merged`。B提供的[Actions 38097826807](https://github.com/suzhe868-arch/mb/actions/runs/38097826807)实际HEAD **`7cc68ca7078944728c7985511fe69086dbec7e83`**，既非最终同SHA也不是绿色CI：官方42 Jobs中**40成功、2个新增真PG16物理/TLS Job失败**，官方Job日志共同报旧F05-3B封印`F05_3B_FROZEN_000016_REQUIRED`；现有旧v17严格15版本校验器不可在已迁000018的16版数据库内再次受信调用。无需重审已签收F05-3B。
+- PR全部12文件只在允许新增`engineering/f05/wholesale-to-mingbang-conversion/**`和专属Workflow，旧签代码/迁移000001～000017/PDM/IA/C/正式生产Server零更改。**旧40 job实际39项正文完全相同，第40项`f05-3b-jyt-three-apis-https-pg16`仅多出末尾空行**；仍须恢复逐字冻结，B不得声称已完成40/40全文原样。
+- **A正式技术裁决及原PR一次性整改单**：`07_重建工作区/F05-3C_A主控首次独立验收跨版本兼容技术裁决与原PR34完整定向整改单_2026-10-11.md`，[PR34 A审核评论](https://github.com/suzhe868-arch/mb/pull/34#issuecomment-6104424172)。A选定：**同一个真实隔离非特权PG16库先于000018用旧签F05-3B真Admin+独立Sync Credential受信创建批发Vehicle/Cycle/INTEGRATION历史收据→严格追加000018并新目录核完整16版seal→转换者用真实Employee/当前permission/team和当期已签Lock/Transaction对象scope执行同Vehicle/同Cycle单向转换+审计**。旧v17程序在新v18未受检数据库中拒绝是正确fail-closed；需要v18后能继续用3个同步API则仅在本包新目录另建精确v18受信兼容适配、复验Credential与接口开关/lineage/同car_code锁并提供正式正反PG16/TLS证据，不准改旧代码或新造生产路由。不能实证时保留`F05_3B_V18_FORWARD_COMPAT_SOURCE_GAP`。
+- **原产品规则明确不需要新批准**：PDM-08 Final §12/13/13.1确认来源转换与图片资产化解耦，图片失败不能回滚合法转换，3A名邦受控CDN过渡直到资产双成功；无真实存储凭证仍`IMAGE_LOCALIZATION_SOURCE_GAP`，不假称success。缺真实隐藏多原因重新匹配→只保守hidden并标`HIDE_REASON_RECALCULATION_SOURCE_GAP`；缺M94 Favorite物理承载→`FAVORITE_PHYSICAL_CARRIER_SOURCE_GAP`，只对已有Lock/Transaction/推荐/周期查价等真实carrier做hash/FK不变实证；无真正Vehicle当前对象scope→`CURRENT_WHOLESALE_OBJECT_SCOPE_SOURCE_GAP`硬拒，不冒充所有批发车已授权。
+- **现时`F05_3C=A_REVIEW_BLOCKED_VERSION_CHAIN_AND_EVIDENCE / PR34_DRAFT_NOT_MERGED / A_TECHNICAL_ARBITRATION_RELEASED_FOR_B / NEXT_OWNER=B`**。B继续原分支/PR34按一份单完整整改，恢复旧40 jobs字节原文，新增2真实PG16 job最终**42/42同B/PR/Actions HEAD SHA成功+两原生Artifacts/全中文交接**后A再独立验收；无来源继续SOURCE_GAP不制造假200，不擅自合并、不启动F05-3D/生产。F05整体、F04生产、C/H01和V1基线继续`NOT_READY`。
+
+---
+
 # 2026-10-11｜F05-3B A独立验收PASS、PR33已正式合并；F05-3C批发一键转名邦新施工单已放行（唯一最新）
 
 - **F05-3B由A独立核验并实际合并**：[PR #33](https://github.com/suzhe868-arch/mb/pull/33) 最终B/PR HEAD `6c5d1c9d7eeef4b503cc96152d9e06d9ddbd15a8` = [Actions #38091991627](https://github.com/suzhe868-arch/mb/actions/runs/38091991627) run.head_sha，官方**40/40独立非特权真实PG16 jobs全部success**；F05-3A冻结旧38 Job逐Job全部全文不变，新物理17/17、环回TLS9/9、85份原生Artifacts（本轮新源PG16证据`11685175262`、TLS证据`11684104098`均未过期）；相对main仅**12项全部新增白名单文件**，旧签工程、迁移000001～000016、PDM Final/IA/Low-Fi、正式生产server与C设计零更改。
