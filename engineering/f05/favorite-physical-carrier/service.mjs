@@ -1,7 +1,7 @@
 // Internal synthetic Customer-origin only in disposable GitHub PostgreSQL16 CI.
 // Not an HTTP endpoint; never infer a real WeChat Customer from Employee or DTO.
 import {createHash} from 'node:crypto';
-import {verify} from './migration.mjs';
+import {connect as independentClient,verify} from './migration.mjs';
 export const ACTOR='SYNTHETIC_CUSTOMER_CONTEXT_CI_ONLY';
 const positive=n=>Number.isSafeInteger(n)&&n>0&&n<=2147483647;
 const key=x=>typeof x==='string'&&/^[A-Za-z0-9._:-]{20,160}$/.test(x);
@@ -22,7 +22,7 @@ export async function syntheticFavoriteChange(db,{customerId,vehicleId,action,ev
  // Verify outside transactional connection: the sealed v19 schema, never old v18
  // verifier after the additive migration.
  await verify(db);
- const c=await db.connect();
+ const c=await independentClient();
  try{
   await c.query('BEGIN');
   // Same Customer+Vehicle operations linearize; different actors cannot reuse an eventKey.
@@ -70,5 +70,5 @@ export async function syntheticFavoriteChange(db,{customerId,vehicleId,action,ev
   await c.query('ROLLBACK').catch(()=>{});
   if(e?.code==='23505')return denied('F05_3G_EVENT_KEY_COLLISION');
   throw e;
- }finally{c.release()}
+ }finally{await c.end()}
 }
