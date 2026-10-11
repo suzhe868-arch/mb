@@ -62,7 +62,8 @@ test('6-B06 no real /api paths, unsupported methods or path traversal can become
 test('6-B07 no Customer raw phone, VIN, wholesale price, demand or sensitive token leaks',async()=>{
  const x=await call(activate,'POST',{customerId:899611,phone:'faked',isManager:true});
  denied(x);
- for(const key of ['vin','customerid','phone','wholesale','displayprice','password','token','applicationid','demandid'])
+ assert.deepEqual(Object.keys(x.body),['code'],'denial exposes only a fixed error code, no phone fields or personal data');
+ for(const key of ['vin','customerid','wholesale','displayprice','password','token','applicationid','demandid'])
   assert.equal(JSON.stringify(x.body).toLowerCase().includes(key),false);
  const n=(await db.query('SELECT count(*)::int n FROM public.f05_6_activation_events_ci')).rows[0].n;assert.equal(n,0);
  await mkdir(new URL('../artifacts/https/',import.meta.url),{recursive:true});
