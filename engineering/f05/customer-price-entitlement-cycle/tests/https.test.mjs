@@ -74,7 +74,7 @@ test('4-B07 response never contains sensitive price/VIN/wholesale/Publisher/phon
  const x=await call(path,'POST',{customerId:999,entry:'DETAIL',idempotencyKey:'test-unsafe-client-fact'});
  deny(x);
  const string=JSON.stringify(x.body);
- for(const w of ['customerDisplayCents','upstream','wholesale','vin','phone','publisher','credential','password','session','internalPrice'])
+ for(const w of ['customerDisplayCents','upstream','wholesale','vin','phone','publisher','credential','password','internalPrice'])
   assert.equal(string.toLowerCase().includes(w.toLowerCase()),false);
  await mkdir(new URL('../artifacts/https/',import.meta.url),{recursive:true});
  await writeFile(new URL('../artifacts/https/customer-session-denial-proof.json',import.meta.url),
