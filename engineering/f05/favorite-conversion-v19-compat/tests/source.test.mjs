@@ -1,4 +1,5 @@
 import {test} from 'node:test';
+import {writeFile} from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import {createHash,randomBytes} from 'node:crypto';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
@@ -75,6 +76,7 @@ test('I-A03 actual F05-3C employee service converts v19 wholesale with existing 
  assert.equal(out.code,'F05_3C_CONVERTED_SAME_VEHICLE_CYCLE');
  assert.equal(out.vehicleId,vehicle);assert.equal(out.listingCycleId,cycle);
  const after=await snapshot(vehicle,cycle);assert.deepEqual(after,preConversion);
+ await writeFile(new URL('../artifacts/source/verified-pre-post-hashes.json',import.meta.url),JSON.stringify({before:preConversion,after,allEqual:true,order:'v19_Favorite_ADD_then_F05-3C_conversion'},null,2)+'\n');
  const obj=(await db.query('SELECT source_type,source_sale_status,platform_visibility FROM public.vehicles WHERE vehicle_id=$1',[vehicle])).rows[0];
  assert.deepEqual(obj,{source_type:'mingbang',source_sale_status:'available',platform_visibility:'hidden'});
  assert.equal((await db.query('SELECT count(*)::int n FROM public.vehicle_listing_cycles WHERE vehicle_id=$1',[vehicle])).rows[0].n,1);
