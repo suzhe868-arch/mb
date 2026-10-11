@@ -39,7 +39,7 @@ export async function createConversionCIHandler(auth) {
    req.headers.host!==new URL(ORIGIN).host||req.headers.authorization||
    Object.keys(req.headers).some(k=>/(forwarded|publisher|owner|role|merchant|customer|price|vin|wholesale|scope)/i.test(k)))
    return denied(res);
-  let token;try{token=readSessionCookie(req.headers.cookie)}catch{return denied(res)}
+  let token;try{token=readSessionCookie(req.headers.cookie)}catch(e){console.log('F05_3I_CI_EXCEPTION',e?.code||e?.message);return denied(res)}
   if(!token)return denied(res);
   const expected=auth.csrfFor(token),given=req.headers['x-csrf-token'];
   if(typeof given!=='string'||given.length!==expected.length||
@@ -48,7 +48,7 @@ export async function createConversionCIHandler(auth) {
   if(!Number.isSafeInteger(Number(match[1]))||Number(match[1])!==args.vehicleId)return denied(res,400);
   try{
    const out=await convertWholesaleToMingbang(auth,token,args);
-   if(!out.allowed)return denied(res);
+   if(!out.allowed){console.log('F05_3I_CI_SCOPE_DENIAL',out.code);return denied(res)}
    return send(res,200,{
     code:out.code,conversionId:out.conversionId,vehicleId:out.vehicleId,
     listingCycleId:out.listingCycleId,assetState:out.assetState,
