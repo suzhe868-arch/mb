@@ -1756,3 +1756,10 @@ G受检最终HEAD19af2955d81ac14d79e0c4e6adc661a3a1aabd8e同SHA CI38025357614 20
 - A按正式PDM Final选定**真实双阶段源引导**：先在未迁v18的v17隔离PG16由原签F03 Admin/独立Sync Credential真实入库JYT批发Vehicle/Cycle/INTEGRATION审计，再严格物理封印追加000018并在新目录当前版本校验，后执行现时Employee/已有受信业务对象scope的单向同Vehicle同Cycle转换。旧v17在v18上拒绝是已签防篡改要求，不改旧000017/旧migration/旧CI、不删除版本或假签。v18三源API如要求继续工作，仅本包新目录中建严格v18兼容适配真实核凭据/开关/来源/锁/审计，并做物理/TLS正反；实证不足保留`F05_3B_V18_FORWARD_COMPAT_SOURCE_GAP`。
 - PDM08 Final §12/13/13.1转换与图片资产化解耦/3A受控CDN过渡规则既签，不重新请用户选择；无外部对象存储证据明确`IMAGE_LOCALIZATION_SOURCE_GAP`，缺多原因隐藏matcher保守hidden并标`HIDE_REASON_RECALCULATION_SOURCE_GAP`，缺Favorite现时carrier与无当期受信Vehicle对象scope各自SOURCE_GAP，不能用模拟表或历史JYT car_code授名邦经营权。
 - 正式A原PR34定向整改单`07_重建工作区/F05-3C_A主控首次独立验收跨版本兼容技术裁决与原PR34完整定向整改单_2026-10-11.md`，A正式PR评论`6104424172`；**`NEXT_OWNER=B`**原分支`feat/f05-3c-convert-wholesale-to-mingbang`完成受信source修复、旧40全文冻结、新2真PG16最终同SHA42/42与新两原生Artifacts+中文自验后交A。现在`F05_3C=A_REVIEW_BLOCKED`，**PR34不合并、不启F05-3D/生产**，F05/H01/V1`NOT_READY`。
+
+## 2026-10-11｜F05-3C A二轮独立复验旧版本阻断关闭、新v18批量offline幂等计数真实回归一项整改
+
+- B/PR34 HEAD`2bbae12fe648f96c02b4caf3afa51761d4761bd7`与Actions`38104964738`同SHA、42/42独立非特权真PG16 Jobs成功，旧40全文逐job一致，新物理16/16、真实TLS7/7、87官方Artifacts、新源`11689216636`与TLS`11689605814`有效、PR全15个批准新文件。A原要求的v17先签源→000018真实受信版本→v18精确CI前向适配/转换、真双PG16 `55P03`及敏感出口403均有源码及官方原生日志证据；旧版本源缺口与旧40末尾空行已修复通过。
+- **A-F05-3C-04 新阻断**：新v18 `v18-sync.mjs`批量下架对任一重复已签事件总返回`count:0`，然而已正式签收的原F05-3B `contract.mjs`返回`count:existing.count_rows`。新源码可确定：首次count>0成功时同事件重试会误报0；C-A12现缺此原生回归。按原三固定接口一致性合同必须修复并补真实PG16 positive/noop/payload-collision/不可变一次回执。当前42/42虽全绿但不算F05-3C最终A PASS。
+- A完整正式定向整改单`07_重建工作区/F05-3C_A主控二轮独立复验v18批量下架重试回执计数定向整改单_2026-10-11.md`，PR34 A评论`6104730168`。**`F05_3C_A_SECOND_REVIEW_CHANGES_REQUESTED / PR34_NOT_MERGED / NEXT_OWNER=B`**；B在原分支原PR只修本批v18适配和独立测试/中文交接，不变旧40 jobs、旧迁移、PDM Final/生产；最后同B/PR/Actions SHA42/42全绿与两新未过期原生Artifact再次交A。不新增用户产品裁决、不进F05-3D。
+- PDM08图片转换与资产化解耦、`IMAGE_LOCALIZATION_SOURCE_GAP`；多原因hidden Matcher、Favorite物理、无现时Vehicle对象责任授权、真实生产JYT/新车型映射仍分别标`SOURCE_GAP`，F05整体/C-H01/V1`NOT_READY`。
