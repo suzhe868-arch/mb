@@ -83,7 +83,12 @@ test('10-S05 start processing and ordinary notes are not human response or deadl
  assert.equal((await q('SELECT first_response_at FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[cid]))[0].first_response_at,null);
  assert.equal((await q('SELECT first_response_deadline FROM public.consultations WHERE consultation_id=$1',[cid]))[0].first_response_deadline.getTime(),before.getTime());
 });
-test('10-S06 true human service auditable fact completes first-response idempotently',async()=>{
+test('10-S06 synthetic signed PG evidence, fake reference denied and first human response idempotent',async()=>{
+ const fake=await act(cid,'followup',{evidenceKind:'call',evidenceRef:'CI-FAKED-CALL-UNTRUSTED-00001'});
+ assert.equal(fake.allowed,false,'A form-valid string is not signed human service proof');
+ assert.equal((await q('SELECT first_response_at FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[cid]))[0].first_response_at,null);
+ await q("INSERT INTO public.f05_10_human_service_evidence_ci(evidence_ref,consultation_id,actor_id,evidence_kind) VALUES($1,$2,1,'call')",['CI-REAL-HUMAN-CALL-00001',cid]);
+ await q("INSERT INTO public.f05_10_human_service_evidence_ci(evidence_ref,consultation_id,actor_id,evidence_kind) VALUES($1,$2,1,'message')",['CI-REAL-HUMAN-MESSAGE-00002',cid]);
  const a=await act(cid,'followup',{evidenceKind:'call',evidenceRef:'CI-REAL-HUMAN-CALL-00001'});
  assert.equal(a.allowed,true,JSON.stringify(a));
  const meta=(await q('SELECT * FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[cid]))[0];
@@ -159,4 +164,79 @@ test('10-S12 source fail closed: hidden other Customer cannot inherit grant or p
  const q2=await q('SELECT count(*)::int n FROM public.f05_10_consultation_meta_ci');
  assert.ok(q2[0].n>=3);
  console.log('F05_10_DISPOSABLE_PDM15_NATIVE_PG16_SOURCE_COMPLETE',{cases:12,consultations:q2[0].n});
+});
+
+test('10-S13 NORMAL_CLOSED and invalid remain separate terminal statuses with no fifth status',async()=>{
+ const n=await create(customer,'search');assert.equal(n.created,true,JSON.stringify(n));
+ assert.equal((await act(n.consultationId,'close_normal')).allowed,true);
+ const normal=(await q('SELECT status,close_reason FROM public.consultations WHERE consultation_id=$1',[n.consultationId]))[0];
+ assert.equal(normal.status,'resolved');assert.equal(normal.close_reason,'NORMAL_CLOSED');
+ const v=await create(customer,'other');assert.equal(v.created,true,JSON.stringify(v));
+ assert.equal((await act(v.consultationId,'invalid')).allowed,true);
+ const invalid=(await q('SELECT status,close_reason FROM public.consultations WHERE consultation_id=$1',[v.consultationId]))[0];
+ assert.equal(invalid.status,'invalid');assert.equal(invalid.close_reason,'INVALID');
+ assert.equal((await act(v.consultationId,'start')).allowed,false);
+ const values=(await q('SELECT DISTINCT status FROM public.consultations WHERE consultation_id IN($1,$2)',[n.consultationId,v.consultationId])).map(z=>z.status);
+ assert.ok(values.every(x=>['pending','processing','resolved','invalid'].includes(x)));
+});
+test('10-S14 versioned SLA policy only affects new Consultation, real disabled Hold retains remaining milliseconds',async()=>{
+ const frozen=(await q('SELECT sla_seconds,original_deadline FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[cid]))[0];
+ await q("UPDATE public.f05_10_consultation_policy_ci SET version=2,seconds=120 WHERE policy_key='default'");
+ const n=await create(customer,'search');assert.equal(n.created,true,JSON.stringify(n));
+ assert.equal(n.slaSeconds,120);
+ const old=(await q('SELECT sla_seconds,original_deadline FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[cid]))[0];
+ assert.deepEqual(old,frozen);
+ const before=(await q('SELECT * FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[n.consultationId]))[0];
+ await q("UPDATE public.customers SET account_status='disabled' WHERE customer_id=$1",[customer]);
+ const held=(await q('SELECT * FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[n.consultationId]))[0];
+ assert.equal(held.customer_disabled_hold,true);
+ assert.ok(Number(held.remaining_ms)>=0&&Number(held.remaining_ms)<=120000);
+ assert.equal((await act(n.consultationId,'followup',{evidenceKind:'call',evidenceRef:'CI-NO-EVIDENCE-HOLD-00001'})).allowed,false);
+ await q("UPDATE public.customers SET account_status='active' WHERE customer_id=$1",[customer]);
+ const notAuto=(await q('SELECT customer_disabled_hold FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[n.consultationId]))[0];
+ assert.equal(notAuto.customer_disabled_hold,true);
+ const resumed=await act(n.consultationId,'resume');assert.equal(resumed.allowed,true,JSON.stringify(resumed));
+ const after=(await q('SELECT m.remaining_ms,m.original_deadline,c.first_response_deadline FROM public.f05_10_consultation_meta_ci m JOIN public.consultations c USING(consultation_id) WHERE m.consultation_id=$1',[n.consultationId]))[0];
+ assert.equal(Number(after.remaining_ms),Number(held.remaining_ms));
+ assert.equal(after.original_deadline.getTime(),before.original_deadline.getTime());
+ const delta=after.first_response_deadline.getTime()-Date.now();
+ assert.ok(delta>=Number(held.remaining_ms)-12000&&delta<=Number(held.remaining_ms)+12000,{delta,remaining:Number(held.remaining_ms)});
+});
+test('10-S15 expired first-response SLA is derived and must never auto-close or pause for quiet hours',async()=>{
+ const active=(await q("SELECT consultation_id FROM public.consultations WHERE customer_id=$1 AND status IN('pending','processing') ORDER BY consultation_id DESC LIMIT 1",[customer]))[0];
+ assert.ok(active);
+ assert.equal((await act(active.consultation_id,'close_normal')).allowed,true);
+ await q("UPDATE public.f05_10_consultation_policy_ci SET version=3,seconds=1 WHERE policy_key='default'");
+ const n=await create(customer,'search');assert.equal(n.created,true);assert.equal(n.slaSeconds,1);
+ await q('SELECT pg_sleep(1.2)');
+ const fact=(await q('SELECT co.status,co.close_reason,clock_timestamp()>co.first_response_deadline AS overdue FROM public.consultations co WHERE co.consultation_id=$1',[n.consultationId]))[0];
+ assert.equal(fact.overdue,true);
+ assert.equal(fact.status,'pending');assert.equal(fact.close_reason,null);
+});
+test('10-S16 two physical PG backends: employee status COMMIT automatically marks independent pending Guard',async()=>{
+ const target=(await q("SELECT co.consultation_id,co.assignee_employee_id FROM public.consultations co WHERE co.customer_id=$1 AND co.status IN('pending','processing') ORDER BY co.consultation_id DESC LIMIT 1",[customer]))[0];
+ assert.ok(target);assert.equal(Number(target.assignee_employee_id),1,'Synthetic owner/assignee must be employee 1');
+ const second=await connect();
+ try{
+  const aPid=(await q('SELECT pg_backend_pid() pid'))[0].pid;
+  const bPid=(await second.query('SELECT pg_backend_pid() pid')).rows[0].pid;
+  assert.notEqual(aPid,bPid);
+  await c.query('BEGIN');
+  await c.query('SELECT consultation_id FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1 FOR UPDATE',[target.consultation_id]);
+  await second.query('BEGIN');
+  await second.query("SET LOCAL lock_timeout='250ms'");
+  await assert.rejects(async()=>second.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=1"),e=>e.code==='55P03');
+  await second.query('ROLLBACK');await c.query('COMMIT');
+  await second.query('BEGIN');
+  await second.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=1");
+  await second.query('COMMIT');
+  const meta=(await q('SELECT assignee_handover_pending FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[target.consultation_id]))[0];
+  assert.equal(meta.assignee_handover_pending,true);
+  const denied=await act(target.consultation_id,'start');assert.equal(denied.allowed,false);
+  const auto=(await q("SELECT event_id FROM public.f05_10_consultation_events_ci WHERE consultation_id=$1 AND event_kind='assignee_invalid' AND actor_kind='system'",[target.consultation_id]));
+  assert.equal(auto.length,1,'Source COMMIT itself must create independent, immutable Guard event');
+  await second.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=1");
+  assert.equal((await q('SELECT assignee_handover_pending FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[target.consultation_id]))[0].assignee_handover_pending,true,'Restoring employment cannot silently clear pending without formal handover');
+  console.log('F05_10_R01_TWO_NATIVE_BACKENDS_SOURCE_COMMIT_PENDING',{aPid,bPid,consultationId:Number(target.consultation_id),lockConflict:'55P03',autoEventCount:auto.length});
+ }finally{await c.query('ROLLBACK').catch(()=>{});await second.end()}
 });
