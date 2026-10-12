@@ -969,8 +969,8 @@ test('8-R12 remote Manager and StoreHead require explicit live object Store/Team
   'remote Priority cannot be reused as a different-store object');
  await db.query('BEGIN');
  try{
-  await db.query('UPDATE public.customers SET current_owner_employee_id=1 WHERE customer_id=$1',[customerId]);
-  await db.query('UPDATE public.demands SET responsible_employee_id=1 WHERE customer_id=$1',[customerId]);
+  await db.query('UPDATE public.customers SET current_owner_employee_id=8997501 WHERE customer_id=$1',[customerId]);
+  await db.query('UPDATE public.demands SET responsible_employee_id=8997501 WHERE customer_id=$1',[customerId]);
   await db.query('UPDATE public.f05_7_vehicle_facts_ci SET fact_version=fact_version+1 WHERE vehicle_id=$1 AND listing_cycle_id=$2',[v.id,v.cycle]);
   await reSign(v,d.demand_id,'r12-home-store-fresh-current-source');
   await db.query('COMMIT');
@@ -980,6 +980,7 @@ test('8-R12 remote Manager and StoreHead require explicit live object Store/Team
  assert.notEqual(Number(home.priority_id),Number(p.priority_id),'an ended remote Priority ID is immutable');
  assert.equal(Number(home.origin_team_id),901);
  assert.equal(Number(home.origin_store_id),Number(mainStore.store_id));
+ assert.equal(Number(home.responsible_employee_id),8997501,'distinct signed owner remains in home team when StoreHead membership is revoked');
  await db.query("INSERT INTO public.employee_data_scopes(scope_id,employee_id,scope_kind,scope_reference_id) VALUES(29995,1,'store',$1)",[mainStore.store_id]);
  await db.query("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(1,1097,29995,now()-interval '1 day')");
  await db.query("UPDATE public.employee_team_memberships SET ended_at=now() WHERE employee_id=1 AND team_id=901 AND ended_at IS NULL");
