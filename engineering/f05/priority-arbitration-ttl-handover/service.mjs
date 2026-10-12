@@ -293,13 +293,21 @@ export async function initiateHandoverCI(auth,token,{teamId=901,priorityId,event
 export async function retryHandoverCI(auth,token,{teamId=901,handoverId,targetEmployeeId,injectFail=false,eventKey}={}){
  if(!id(handoverId)||!id(targetEmployeeId)||!key(eventKey))return fail('F05_8_INVALID_HANDOVER_RETRY');
  return session(auth,token,teamId,async(c,a)=>{
+  // R07 canonical lock order: Vehicle -> active Priority -> Handover.
+  // Source changes and expiry use the same vehicle-first order.
+  const locator=(await c.query("SELECT p.vehicle_id,p.priority_id FROM public.f05_8_handover_ci h "+
+   "JOIN public.f05_8_priority_ci p ON p.priority_id=h.priority_id WHERE h.handover_id=$1",[handoverId])).rows[0];
+  if(!locator)return fail('F05_8_HANDOVER_UNKNOWN');
+  await c.query('SELECT 1 FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[locator.vehicle_id]);
+  const p=(await c.query('SELECT * FROM public.f05_8_priority_ci WHERE priority_id=$1 FOR UPDATE',[locator.priority_id])).rows[0];
   const h=(await c.query('SELECT * FROM public.f05_8_handover_ci WHERE handover_id=$1 FOR UPDATE',[handoverId])).rows[0];
   if(!h||h.state==='completed')return ok('F05_8_HANDOVER_ALREADY_COMPLETED',{handled:false});
-  const p=(await c.query('SELECT * FROM public.f05_8_priority_ci WHERE priority_id=$1 FOR UPDATE',[h.priority_id])).rows[0];
   if(!p||p.status!=='active'||new Date(p.expires_at).getTime()<=Date.now())return fail('F05_8_HANDOVER_PRIORITY_ENDED_OR_EXPIRED');
-  const demand=(await c.query('SELECT responsible_employee_id FROM public.demands WHERE demand_id=$1 FOR SHARE',[p.trigger_demand_id])).rows[0];
   const to=(await c.query('SELECT employment_status FROM public.employees WHERE employee_id=$1 FOR SHARE',[targetEmployeeId])).rows[0];
-  const validTarget=!injectFail&&to?.employment_status==='active'&&Number(demand?.responsible_employee_id)===targetEmployeeId;
+  const approvedScope=(await c.query('SELECT public.f05_8_responsible_authorized_ci($1) allowed',[targetEmployeeId])).rows[0].allowed;
+  const validTarget=!injectFail&&to?.employment_status==='active'&&approvedScope===true&&
+   Number(p.responsible_employee_id)!==targetEmployeeId&&
+   (await c.query('SELECT public.f05_8_handover_source_valid_ci($1) valid',[p.priority_id])).rows[0].valid===true;
   const attempt=Number(h.attempt_count)+1;
   if(validTarget){
    await c.query("UPDATE public.f05_8_priority_ci SET responsible_employee_id=$2 WHERE priority_id=$1",[p.priority_id,targetEmployeeId]);

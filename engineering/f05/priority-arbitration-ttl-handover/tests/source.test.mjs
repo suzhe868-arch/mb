@@ -292,16 +292,136 @@ test('8-A20 true signed Transaction begins on formerly protected Vehicle and end
  assert.equal(after.created,false,'F05-7 invalidated Match from physical Lock change; stale source cannot create Priority');
 });
 
-test('8-R02 employee data-scope revocation settles active Priority in source COMMIT',async()=>{
+
+test('8-R05 non-trigger Demand affected scope auto-arbitrates when no active lease exists',async()=>{
  const v=vehicles[0],old=(await current(v))[0];assert.ok(old);
+ const nonTrigger=(await q("SELECT d.demand_id FROM public.f05_7_result_versions_ci r JOIN public.demands d ON d.demand_id=r.demand_id "+
+  "WHERE r.vehicle_id=$1 AND r.listing_cycle_id=$2 AND r.status='current' AND r.tier IN ('high','acceptable') "+
+  "AND d.demand_state='active' AND d.demand_id<>$3 ORDER BY d.demand_id LIMIT 1",
+  [v.id,v.cycle,old.trigger_demand_id]))[0];assert.ok(nonTrigger);
+ await db.query("UPDATE public.f05_8_priority_ci SET status='ended',ended_at=transaction_timestamp(),ended_reason='correction' WHERE priority_id=$1",[old.priority_id]);
+ assert.equal((await current(v)).length,0);
+ // F05-7 deliberately does NOT invalidate signed current Match on responsible_employee_id
+ // when the value has not changed. The R05 affected-scope trigger must nevertheless
+ // find this non-trigger Demand, even with zero active Priority rows.
+ await db.query("UPDATE public.demands SET responsible_employee_id=responsible_employee_id WHERE demand_id=$1",[nonTrigger.demand_id]);
+ const again=(await current(v))[0];assert.ok(again,'non-trigger Demand event must discover current signed Match without manual arb');
+ assert.notEqual(Number(again.priority_id),Number(old.priority_id));
+ assert.equal(new Date(again.expires_at).getTime()-new Date(again.created_at).getTime(),120000,
+  'new event creates a fresh configured TTL, not reviving old ended lease');
+});
+test('8-R05 Vehicle affected scope restores current legitimate Match without previous active Priority',async()=>{
+ const v=vehicles[0],old=(await current(v))[0];assert.ok(old);
+ await db.query("UPDATE public.f05_8_priority_ci SET status='ended',ended_at=transaction_timestamp(),ended_reason='correction' WHERE priority_id=$1",[old.priority_id]);
+ assert.equal((await current(v)).length,0);
+ // Non-mutating source event: signed v23 contract leaves current rows intact;
+ // R05 must inspect current result scopes instead of only the prior active lease.
+ await db.query("UPDATE public.vehicles SET source_sale_status=source_sale_status WHERE vehicle_id=$1",[v.id]);
+ const restored=(await current(v))[0];assert.ok(restored);
+ assert.notEqual(Number(restored.priority_id),Number(old.priority_id));
+ await db.query("UPDATE public.vehicles SET source_sale_status=source_sale_status WHERE vehicle_id=$1",[v.id]);
+ assert.equal(Number((await current(v))[0].priority_id),Number(restored.priority_id));
+});
+test('8-R05 real offline to active cannot reuse PDM12 stale Match without re-signing',async()=>{
+ const v=vehicles[1];
+ assert.equal((await current(v)).length,0,'old same-customer Lock converted this Priority to ended');
+ await db.query("UPDATE public.vehicles SET source_sale_status='offline' WHERE vehicle_id=$1",[v.id]);
+ await db.query("UPDATE public.vehicles SET source_sale_status='active' WHERE vehicle_id=$1",[v.id]);
+ assert.equal((await current(v)).length,0,'old signed F05-7 irrevocably stales Match on sale-state changes');
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_7_result_versions_ci WHERE vehicle_id=$1 AND status='current'",[v.id]))[0].n,0);
+});
+test('8-R06 Transaction occupancy exit creates a NEW lease from signed current Match without arb',async()=>{
+ const v=vehicles[3];
+ assert.equal((await current(v)).length,0);
+ // Prior cancelled synthetic Lock left old Match stale. Begin occupancy first,
+ // then issue a synthetic *new* physical CI result while transaction is active.
+ await db.query("UPDATE public.transactions SET status='in_progress' WHERE transaction_id=8997090");
+ const d=(await q("SELECT d.demand_id FROM public.demands d WHERE d.customer_id=899618 AND d.demand_state='active' LIMIT 1"))[0];
+ assert.ok(d);
+ const sales=(await q('SELECT condition_json FROM public.f05_7_sales_condition_ci WHERE demand_id=$1',[d.demand_id]))[0];
+ const facts=(await q('SELECT facts_json FROM public.f05_7_vehicle_facts_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2',[v.id,v.cycle]))[0];
+ const rank=originalSignedTierFor(sales.condition_json,facts.facts_json);
+ assert.ok(['high','acceptable'].includes(rank.tier));
+ const freshSignature=createHash('sha256').update(JSON.stringify({source:'CI_ONLY_R06_NEW_MATCH_WHILE_OCCUPIED',
+  demand:d.demand_id,vehicle:v.id,cycle:v.cycle,facts:facts.facts_json,conditions:sales.condition_json,rank:rank.tier})).digest('hex');
+ await db.query("INSERT INTO public.f05_7_result_versions_ci(demand_id,vehicle_id,listing_cycle_id,tier,status,source_signature,explanations,reason,run_key) "+
+  "VALUES($1,$2,$3,$4,'current',$5,$6::jsonb,$7,$8)",
+  [d.demand_id,v.id,v.cycle,rank.tier,freshSignature,JSON.stringify(rank.explanations),rank.reason,kval('r06-synthetic-match-while-trading')]);
+ assert.equal((await current(v)).length,0,'active Transaction prevents any Priority');
+ const prior=await q("SELECT priority_id FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='ended'",[v.id,v.cycle]);
+ await db.query("UPDATE public.transactions SET status='cancelled' WHERE transaction_id=8997090");
+ const created=(await current(v))[0];assert.ok(created,'Transaction cancellation must trigger current legal Match arbitration');
+ assert.equal(Number(created.customer_id),899618);
+ assert.ok(prior.every(x=>Number(x.priority_id)!==Number(created.priority_id)),'old ended rows must never revive');
+ await db.query("UPDATE public.transactions SET status='cancelled' WHERE transaction_id=8997090");
+ assert.equal(Number((await current(v))[0].priority_id),Number(created.priority_id));
+});
+test('8-R06 cancelled Lock with stale Match cannot fabricate a new Priority',async()=>{
+ const v=vehicles[1];
+ await db.query("UPDATE public.locks SET lock_status='active',expires_at=now()+interval '2 hours' WHERE lock_id=8997089");
+ await db.query("UPDATE public.locks SET lock_status='cancelled' WHERE lock_id=8997089");
+ assert.equal((await current(v)).length,0,'F05-7 signed Lock revocation prevents a stale-Match replay');
+});
+test('8-R07 Employee invalidation auto-creates protected Handover Batch, deny and valid retry same TTL',async()=>{
+ const v=vehicles[0],old=(await current(v))[0];assert.ok(old);
+ const target=8997501;
+ // Add a real *CI-only* Employee with actual scoped permission and membership,
+ // copying the signed responsible's team/store, never inventing a production credential.
+ await db.query("INSERT INTO public.employees(employee_id,store_id,employment_status,receiving_status,main_role_id) "+
+  "SELECT $1,store_id,'active',receiving_status,main_role_id FROM public.employees WHERE employee_id=1 ON CONFLICT(employee_id) DO NOTHING",[target]);
+ await db.query("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) "+
+  "VALUES($1,1097,'allow',now()) ON CONFLICT(employee_id,permission_id) DO UPDATE SET decision='allow',changed_at=now()",[target]);
+ await db.query("INSERT INTO public.employee_team_memberships(team_id,employee_id,valid_from,changed_by_system_admin_id) "+
+  "SELECT team_id,$1,now()-interval '1 day',changed_by_system_admin_id FROM public.employee_team_memberships "+
+  "WHERE employee_id=1 AND team_id=901 AND ended_at IS NULL LIMIT 1",[target]);
+ await db.query("INSERT INTO public.employee_data_scopes(scope_id,employee_id,scope_kind,scope_reference_id) "+
+  "SELECT 29991,$1,scope_kind,scope_reference_id FROM public.employee_data_scopes WHERE scope_id=29001",[target]);
+ await db.query("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) "+
+  "VALUES($1,1097,29991,now()-interval '1 day')",[target]);
+ assert.equal((await q("SELECT public.f05_8_responsible_authorized_ci($1) allowed",[target]))[0].allowed,true);
+ await db.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=1");
+ const pending=(await current(v))[0];assert.ok(pending,'current Customer must retain exclusive protection while only responsible invalid');
+ assert.equal(Number(pending.priority_id),Number(old.priority_id));
+ assert.equal(new Date(pending.expires_at).getTime(),new Date(old.expires_at).getTime());
+ const handover=(await q("SELECT handover_id,state,original_responsible_employee_id FROM public.f05_8_handover_ci WHERE priority_id=$1",[old.priority_id]))[0];
+ assert.equal(handover.state,'pending');
+ assert.equal(Number(handover.original_responsible_employee_id),1);
+ const denied=await arb(v,'r07-disabled-original-denied');
+ assert.equal(denied.allowed,false,'old Employee loses any Priority action immediately');
+ await db.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=1");
+ const failAttempt=await retryHandoverCI(auth,token,{handoverId:Number(handover.handover_id),targetEmployeeId:target,
+  injectFail:true,eventKey:kval('r07-fail-retry')});
+ assert.equal(failAttempt.allowed,true);assert.equal(failAttempt.completed,false);
+ const transferred=await retryHandoverCI(auth,token,{handoverId:Number(handover.handover_id),targetEmployeeId:target,
+  eventKey:kval('r07-success-retry')});
+ assert.equal(transferred.allowed,true,JSON.stringify(transferred));assert.equal(transferred.completed,true);
+ const now=(await current(v))[0];assert.equal(Number(now.priority_id),Number(old.priority_id));
+ assert.equal(Number(now.responsible_employee_id),target);
+ assert.equal(new Date(now.expires_at).getTime(),new Date(old.expires_at).getTime());
+ assert.equal((await q("SELECT state FROM public.f05_8_handover_ci WHERE handover_id=$1",[handover.handover_id]))[0].state,'completed');
+ const attempts=await q("SELECT outcome FROM public.f05_8_handover_attempts_ci WHERE handover_id=$1 ORDER BY attempt_no",[handover.handover_id]);
+ assert.deepEqual(attempts.map(x=>x.outcome),['failed','completed']);
+ await db.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=1");
+ assert.equal(Number((await current(v))[0].priority_id),Number(old.priority_id),
+  'original Employee invalidation cannot steal back or release a completed transferred Priority');
+ await db.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=1");
+ console.log('F05_8_R07_SIGNED_PG16_HANDOVER',JSON.stringify({priorityId:Number(old.priority_id),
+  old:1,new:target,handoverId:Number(handover.handover_id),attempts:attempts.length,ttlUnchanged:true}));
+});
+test('8-R02 employee data-scope revocation settles active Priority in source COMMIT',async()=>{
+ const v=vehicles[4]||vehicles[0],old=(await current(v))[0];assert.ok(old);
+ assert.equal(Number(old.responsible_employee_id),1,'original Employee must still hold this independent scope');
  const scope=(await q('SELECT scope_id,ended_at FROM public.employee_data_scopes WHERE scope_id=29001 AND employee_id=1'))[0];
  assert.ok(scope);assert.equal(scope.ended_at,null);
  await db.query('UPDATE public.employee_data_scopes SET ended_at=now() WHERE scope_id=29001 AND employee_id=1');
- const after=await current(v);assert.equal(after.length,0,'revoked Employee Scope cannot retain Priority after COMMIT');
- assert.equal((await q('SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1',[old.priority_id]))[0].status,'ended');
+ const after=await current(v);
+ assert.equal(after.length,1,'scope-only revocation must preserve the still-valid Customer Priority under Handover');
+ assert.equal(Number(after[0].priority_id),Number(old.priority_id),'same source lease and TTL while handover pending');
+ const h=(await q('SELECT handover_id,state FROM public.f05_8_handover_ci WHERE priority_id=$1',[old.priority_id]))[0];
+ assert.ok(h);assert.equal(h.state,'pending');
+ assert.equal((await arb(v,'r07-scope-no-longer-authorized')).allowed,false,'revoked actor cannot operate');
  await db.query('UPDATE public.employee_data_scopes SET ended_at=NULL WHERE scope_id=29001 AND employee_id=1');
- const rechecked=await current(v);assert.ok(rechecked.length<=1);
- if(rechecked.length)assert.notEqual(Number(rechecked[0].priority_id),Number(old.priority_id),'ended history must not revive');
+ assert.equal(Number((await current(v))[0].priority_id),Number(old.priority_id));
 });
 test('8-R02 Demand source state change commits without an invalid active Priority or manual arb',async()=>{
  const v=vehicles[0],old=(await current(v))[0];assert.ok(old);

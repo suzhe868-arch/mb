@@ -1,3 +1,21 @@
+# F05-8｜B 三轮 R05～R07 定向整改工程记录（2026-10-12）
+
+**Authority**：A最新main中《F05-8_A主控二轮独立验收68项真PG16通过但恢复仲裁与责任交接未闭环整改单_2026-10-12.md》，PDM-13 Final §§3/14/21～31，PR47 A正式意见6118562876。**范围**仅本F05-8新增v24 CI SQL、service、tests、中文交接；旧签F05-7 v23服务/SQL、64历史冻结CI、生产路径、main绝不修改。
+
+### 已实现的定向行为
+
+- **R05 可信affected-scope恢复**：Demand变化不再只查询当前触发Demand持有的active Priority，另外检索此Demand的当前 high/acceptable signed Match；Vehicle变化同样从该车辆已签current Result收集受影响cycle；Customer owner状态变化、非触发Demand变化可以无旧Priority触发同事务合法仲裁。保持状态变更后从旧F05-7原生触发器已经标为stale的结果**绝不再用于创建**。测试包括从无active的合法current Match恢复、非trigger Demand、车辆范围及真实offline→active旧结果已stale的拒绝；没有把旧v23不变性限制伪称新Issuer。
+- **R06 Lock/Transaction占用解除后自动重仲裁**：增强原生占用触发器，Lock取消/到期变化与Transaction退出时将本车辆/周期的scope串行化，检查真实占用及**此时current的合法Match**，有新机会创建**新Priority ID/新固定TTL**，没有则不创建。保持原有先锁车辆再锁Priority，重复退出幂等，已经结束Priority绝不复活。真实F05-7 Lock变更会令该车当时current Match变stale；因此Lock取消后无新签结果时真实拒绝重获，不会伪造正例。Transaction不触发F05-7该项签名撤销，有效签名在交易退出时可合法恢复。
+- **R07 非法responsible即时保护+正式Batch**：原生 source COMMIT在纯Employee/Permission/Scope失效但Customer/Demand/current Match/Cycle/Level仍具资格时，自动`INSERT ... ON CONFLICT DO NOTHING`真实Handover Batch，记录不可变Audit，并**保留同一Priority和完全不变的TTL**，无效员工由既有session/current Scope门禁立即拒绝；若其它Guard不合法或TTL到期，严格结束并允许合法继任。修复`retryHandoverCI`锁序为Vehicle→Priority→Handover，对接任者再次检查真实Active+Permission+Scope及基础来源合法，记录失败与完成两条独立immutable Attempt，成功只更换同一Priority责任人且不延期；今后当前source守卫变更或过期仍会结束，单纯原Employee恢复不可反向抢回已交接租期。
+
+### 安全及测试边界
+
+- R05 恢复 positive 只代表**原F05-7真正current Match未被撤销**的情形。签名F05-7在Demand state、Vehicle真实可售状态、Lock任何变化时会主动标stale（原M94-v23规则）；即使本批正确遍历affected scopes，也不得用那些旧stale数据新建Priority。禁止修改已签v23来“让A要求的恢复业务正例绿灯”，真实新匹配必须通过后续合法签发，再触发当前v24的Match Result源事件。
+- 所有新增Employee、Scope、Handover、Match/Transaction测试事实只在每次GitHub Actions全新**可抛弃非特权PG16**；不接微信、JYT、真实资金、客户、手机号、生产权限Issuer。失败注入、双真实Backend争锁和v24迁移/目录封印仍须复验。
+- **最终交审门禁**：当前尚无 R05～R07 代码最终SHA原生68/68与4附件。完成开发/测试后按GitHub八个指定Push workflow同最后SHA统计64旧冻结+4新=68/68，Priority Source旧27条与HTTPS10条不能删弱，旧F05-7 Source28/HTTPS7原样验证，取得4份新Artifact并在PR47最后中文评论写实际SHA、run IDs、digest、PID/SQLSTATE、整改覆盖、`READY_FOR_A_RE_RE_REVIEW / NEXT_OWNER=A`，才允许报告“B完成”。B永不自行合并main。
+
+---
+
 
 # F05-8｜2026-10-12 R01～R04 整改完整中文交接增补
 
