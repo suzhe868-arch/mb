@@ -73,9 +73,29 @@ REVOKE ALL ON public.f05_7_rule_dictionary_ci,public.f05_7_sales_condition_ci,pu
 
 -- Every change which could alter validity revokes current Matching immediately.
 -- This runs only inside the dedicated disposable CI PG16 schema.
-CREATE FUNCTION public.f05_7_revoke_current_on_source_change() RETURNS trigger LANGUAGE plpgsql AS $$
+-- CI-only deterministic affected subset and replay-safe failure reasons.
+CREATE TABLE public.f05_7_retry_scope_ci(
+ demand_id BIGINT NOT NULL REFERENCES public.demands(demand_id),
+ vehicle_id BIGINT NOT NULL REFERENCES public.vehicles(vehicle_id),
+ listing_cycle_id BIGINT NOT NULL REFERENCES public.vehicle_listing_cycles(listing_cycle_id),
+ retry_state TEXT NOT NULL CHECK(retry_state IN ('pending','failed','completed')),
+ error_reason TEXT,
+ attempt_count INTEGER NOT NULL DEFAULT 0 CHECK(attempt_count>=0),
+ completed_result_id BIGINT REFERENCES public.f05_7_result_versions_ci(result_id),
+ source_event TEXT NOT NULL CHECK(source_event='CI_SYNTHETIC_RULE_RECALC_NOT_PRODUCTION'),
+ changed_at TIMESTAMPTZ NOT NULL DEFAULT transaction_timestamp(),
+ PRIMARY KEY(demand_id,vehicle_id,listing_cycle_id),
+ CHECK(retry_state<>'failed' OR length(error_reason)>0)
+);
+REVOKE ALL ON public.f05_7_retry_scope_ci FROM PUBLIC;
+CREATE FUNCTION public.f05_7_revoke_current_on_source_change() RETURNS trigger LANGUAGE plpgsql AS $
 BEGIN
  IF TG_TABLE_NAME='f05_7_rule_dictionary_ci' THEN
+  INSERT INTO public.f05_7_retry_scope_ci(demand_id,vehicle_id,listing_cycle_id,retry_state,error_reason,completed_result_id,source_event)
+  SELECT demand_id,vehicle_id,listing_cycle_id,'pending',NULL,NULL,'CI_SYNTHETIC_RULE_RECALC_NOT_PRODUCTION'
+  FROM public.f05_7_result_versions_ci WHERE status='current'
+  ON CONFLICT(demand_id,vehicle_id,listing_cycle_id) DO UPDATE SET retry_state='pending',error_reason=NULL,
+   completed_result_id=NULL,changed_at=transaction_timestamp();
   UPDATE public.f05_7_result_versions_ci SET status='stale' WHERE status='current';
  ELSIF TG_TABLE_NAME='f05_7_sales_condition_ci' THEN
   UPDATE public.f05_7_result_versions_ci SET status='stale' WHERE status='current' AND demand_id=COALESCE(NEW.demand_id,OLD.demand_id);
@@ -104,6 +124,10 @@ BEGIN
   IF NEW.ended_at IS DISTINCT FROM OLD.ended_at THEN
    UPDATE public.f05_7_result_versions_ci SET status='stale' WHERE status='current' AND listing_cycle_id=NEW.listing_cycle_id;
   END IF;
+ ELSIF TG_TABLE_NAME='locks' THEN
+  UPDATE public.f05_7_result_versions_ci SET status='stale'
+  WHERE status='current' AND vehicle_id=COALESCE(NEW.vehicle_id,OLD.vehicle_id)
+    AND listing_cycle_id=COALESCE(NEW.listing_cycle_id,OLD.listing_cycle_id);
  END IF;
  RETURN COALESCE(NEW,OLD);
 END $$;
@@ -122,4 +146,7 @@ CREATE TRIGGER f05_7_policy_revoke AFTER UPDATE OF find_enabled ON public.f05_6_
 CREATE TRIGGER f05_7_vehicle_revoke AFTER UPDATE OF source_sale_status,archived_at ON public.vehicles
  FOR EACH ROW EXECUTE FUNCTION public.f05_7_revoke_current_on_source_change();
 CREATE TRIGGER f05_7_cycle_revoke AFTER UPDATE OF ended_at ON public.vehicle_listing_cycles
+ FOR EACH ROW EXECUTE FUNCTION public.f05_7_revoke_current_on_source_change();
+
+CREATE TRIGGER f05_7_lock_occupancy_revoke AFTER INSERT OR UPDATE OR DELETE ON public.locks
  FOR EACH ROW EXECUTE FUNCTION public.f05_7_revoke_current_on_source_change();
