@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_8_A_FOURTH_REVIEW_CHANGES_REQUESTED_B_REWORK",
+  "substage": "F05_8_A_FIFTH_REVIEW_CHANGES_REQUESTED_B_REWORK",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F05",
-  "current_domain_status": "F05_7_A_FINAL_ACCEPTED_MERGED_PR46_CI_ONLY_F05_8_A_FOURTH_REVIEW_NOT_ACCEPTED",
+  "current_domain_status": "F05_7_A_FINAL_ACCEPTED_MERGED_PR46_CI_ONLY_F05_8_A_FIFTH_REVIEW_NOT_ACCEPTED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A第四轮对PR47 B HEAD 2d2bb3beb5943319b73a08f1fb1efb10fecd4b73独立验收：8个官方Push同SHA68/68真PG16成功、4份Push有效原生Artifact；R08/R09已代码与真库补齐，反向源安全审查发现R10操作者未按Priority/Customer/Demand对象Scope授权、R11 pending在owner漂移时不检current合法Match直接保护旧active。PR47未A_ACCEPTED、不合并；A整改单已上main，B在原CI-only白名单一次性补R10/R11真PG16，重新全部Push同SHA68/68+4Artifact后交A；F05/C-H01/V1 NOT_READY。",
-  "current_work_file": "07_重建工作区/F05-8_A主控第四轮独立验收68项PG16通过但待交接合法匹配与操作者对象Scope未闭环整改单_2026-10-12.md",
+  "current_task": "A第五轮独立验收PR47 B HEAD f534b2ec60ddfedc36f154dcae4d41ff9f3227b2：官方8 Push run同SHA68/68真PG16 Success、4份Push原生Artifact有效；R10/R11源码/36条Priority Source PASS。但A反向审核发现R12跨Store/Team具合法Scope的Manager/StoreHead被旧主店和Team member强制等同拦截；R13旧Sales在Demand/Customer已正式切新负责人但Priority未完成交接期间凭旧Priority/Handover负责人仍可处理对象。A第五轮整改单已写main，PR47未验收/未合并；B整改R12/R13后重新交A，F05/C-H01/V1 NOT_READY。",
+  "current_work_file": "07_重建工作区/F05-8_A主控第五轮独立验收68项真PG16通过但跨店合法Scope与交接旧销售撤权未闭环整改单_2026-10-12.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F05_8_A_FOURTH_REVIEW_CHANGES_REQUESTED_B_REWORK",
+  "current_review_batch": "F05_8_A_FIFTH_REVIEW_CHANGES_REQUESTED_B_REWORK",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_REWORK_F05_8_PDM13_R10_ACTOR_OBJECT_SCOPE_R11_PENDING_MATCH_GUARD_68_PG16",
+  "next_action": "B_REWORK_F05_8_R12_LEGIT_CROSS_STORE_SCOPE_R13_OLD_SALES_PENDING_ACTOR_REVOKE_68_PG16",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B在原feat/f05-8-priority-arbitration-ttl-handover分支和新F05-8 CI-only白名单内：R10补Priority/Handover各员工业务动作actor与具体Customer/Demand/Vehicle/Team/Store实时数据scope绑定，跨Team无权发起/重试/投影且不产生pending/审计成功副作用；R11 pending handover仅在真实current合法high/acceptable Match或正式替代guard成立时保留，不准owner不一致掩盖stale/no_match，当源COMMIT后即时end/re-arbitrate；真实独立PG16正反例、双backend撤权竞争、历史TTL seal均验证。R01～R09和旧64冻结PG16、F05-7 28/7、Priority34/10不削弱；新最终SHA8原生Push workflow68/68成功及4份Push同SHA有效原生Artifact、中文最终交接后交A复验。PR47未获A_ACCEPTED不合并；F05-9/F06未放行。",
+  "next_action_detail": "B仍在feat/f05-8-priority-arbitration-ttl-handover中仅改本次F05-8新增CI-only白名单；R12消除对合法具明确Permission+DataScope的跨店/跨团队经理/店长的主店/Team Membership错误限制，保留无权跨店hard deny并补真实两Store两Team正反例和并发撤权；R13在Demand和Customer当前责任已变更且Pending Handover保留的条件下，原Sales即使旧Priority.responsible/ Handover.original等于本人且原Team与Permission有效也不能读/写/重试，补现时双责任/源Match/TTL和两PG并发证据。继续保留旧64PG16冻结、F05-7 28/7、Priority36/10及R01～R11。最后新B唯一SHA八官方Push 68/68 success＋四份同SHA非空有效Push Artifact、中文正式交审READY_FOR_A_SIXTH_INDEPENDENT_REVIEW，再由A独立复验。不合并PR47/不开始F05-9/F06/不做生产上线。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -6836,8 +6836,8 @@
   },
   "next_owner": "B",
   "f05_8_gate": {
-    "status": "A_FOURTH_REVIEW_NOT_ACCEPTED_CHANGES_REQUESTED_CI_68_PASS",
-    "execution": "B_REWORK_PDM13_R10_ACTOR_OBJECT_SCOPE_R11_PENDING_CURRENT_MATCH",
+    "status": "A_FIFTH_REVIEW_NOT_ACCEPTED_CHANGES_REQUESTED_CI_68_PASS",
+    "execution": "B_REWORK_R12_AUTHORIZED_CROSS_STORE_TEAM_SCOPE_R13_PENDING_OLD_SALES_NO_AUTH",
     "work_order": "07_重建工作区/F05-8_A主控PDM13_Priority资格仲裁TTL排他与责任交接CI隔离完整施工单_2026-10-12.md",
     "authority": [
       "PDM-13 Final",
@@ -6868,33 +6868,33 @@
     "source_gap_requires_block": true,
     "product_baseline": "NOT_READY",
     "next_owner": "B",
-    "reviewed_sha": "2d2bb3beb5943319b73a08f1fb1efb10fecd4b73",
+    "reviewed_sha": "f534b2ec60ddfedc36f154dcae4d41ff9f3227b2",
     "a_review_comment_id": 6117566975,
-    "a_correction_order": "07_重建工作区/F05-8_A主控第四轮独立验收68项PG16通过但待交接合法匹配与操作者对象Scope未闭环整改单_2026-10-12.md",
+    "a_correction_order": "07_重建工作区/F05-8_A主控第五轮独立验收68项真PG16通过但跨店合法Scope与交接旧销售撤权未闭环整改单_2026-10-12.md",
     "reviewed_ci_runs": [
-      38222101865,
-      38222102061,
-      38222101879,
-      38222102212,
-      38222101868,
-      38222101889,
-      38222101915,
-      38222102083
+      38231248375,
+      38231248464,
+      38231248352,
+      38231248565,
+      38231248542,
+      38231248575,
+      38231248421,
+      38231248611
     ],
     "reviewed_pg16_jobs_success": 68,
     "compat_f05_7_source_tests": "28/28",
     "compat_f05_7_https_tests": "7/7",
-    "priority_source_tests": "34/34",
+    "priority_source_tests": "36/36",
     "priority_https_tests": "10/10",
     "artifact_ids": [
-      11735530228,
-      11734941344,
-      11734881494,
-      11734204434
+      11739594838,
+      11739106790,
+      11738972335,
+      11738742541
     ],
     "a_blockers": [
-      "A-F05-8-R10_ACTOR_OBJECT_SCOPE_MISSING_ON_PRIORITY_HANDOVER_OPERATIONS",
-      "A-F05-8-R11_PENDING_OWNER_DRIFT_BYPASSES_CURRENT_MATCH_VALIDITY"
+      "A-F05-8-R12_AUTHORIZED_CROSS_STORE_TEAM_DATA_SCOPE_FALSE_DENIAL",
+      "A-F05-8-R13_ORIGINAL_SALES_ACTOR_MAY_OPERATE_PENDING_AFTER_DEMAND_OWNER_TRANSFER"
     ],
     "prior_first_review_blockers_closed_in_B_CODE_WITH_TESTS": [
       "R01_MULTI_DEMAND_SUPPRESSION",
@@ -6914,6 +6914,13 @@
       "R09_TARGET_OBJECT_TEAM_STORE_SCOPE"
     ],
     "a_fourth_review_result": "A_CHANGES_REQUESTED",
-    "b_handover_run_note": "B referenced pull_request run 38222105342; A verified required independent push run 38222102083 instead"
-  }
+    "b_handover_run_note": "B referenced pull_request run 38222105342; A verified required independent push run 38222102083 instead",
+    "prior_fourth_review_blockers_closed_in_B_CODE_WITH_TESTS": [
+      "R10_SAME_STORE_FOREIGN_TEAM_SCOPE_DENIAL",
+      "R11_PENDING_MATCH_STALE_ENDED"
+    ],
+    "a_fifth_review_result": "A_CHANGES_REQUESTED",
+    "next_review": "A_SIXTH_INDEPENDENT_REVIEW_AFTER_NEW_B_SHA"
+  },
+  "current_owner": "B"
 }
