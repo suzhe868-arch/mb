@@ -445,12 +445,17 @@ test('8-R07 Employee invalidation auto-creates protected Handover Batch, deny an
  await db.query("INSERT INTO public.employee_data_scopes(scope_id,employee_id,scope_kind,scope_reference_id) VALUES(29992,$1,'team',$2)",[foreign,foreignTeam.team_id]);
  await db.query("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES($1,1097,29992,now()-interval '1 day')",[foreign]);
  assert.equal((await q("SELECT public.f05_8_responsible_authorized_ci($1) allowed",[foreign]))[0].allowed,true);
+ // R11: signed source transfer and its new Match must share one transaction.
  const switchUpstream=async(who,tag)=>{
-  for(const cust of customers){
-   await db.query('UPDATE public.customers SET current_owner_employee_id=$2 WHERE customer_id=$1',[cust,who]);
-   await db.query('UPDATE public.demands SET responsible_employee_id=$2 WHERE customer_id=$1',[cust,who]);
-  }
-  for(let i=0;i<pair.length;i++)await reSign(pair[i].v,pair[i].p.trigger_demand_id,tag+'-'+i);
+  await db.query('BEGIN');
+  try{
+   for(const cust of customers){
+    await db.query('UPDATE public.customers SET current_owner_employee_id=$2 WHERE customer_id=$1',[cust,who]);
+    await db.query('UPDATE public.demands SET responsible_employee_id=$2 WHERE customer_id=$1',[cust,who]);
+   }
+   for(let i=0;i<pair.length;i++)await reSign(pair[i].v,pair[i].p.trigger_demand_id,tag+'-'+i);
+   await db.query('COMMIT');
+  }catch(e){await db.query('ROLLBACK');throw e}
  };
  await switchUpstream(foreign,'r09-cross-team-re-sign');
  assert.equal((await q("SELECT public.f05_8_responsible_object_scope_ci($1,$2) allowed",[old.priority_id,foreign]))[0].allowed,false);
