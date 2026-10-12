@@ -18,6 +18,9 @@ if [[ "$mode" = compat-* ]]; then
  exit 0
 fi
 export CI=true APP_ENV=test NODE_ENV=test
+# The signed F05-7 setup runs in a child shell; its F03 env exports cannot
+# leak into this caller. v24 Identity/Auth must explicitly preserve this gate.
+export F03_1_ISOLATION_CONFIRM=I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
 export F05_2_ISOLATION_CONFIRM=I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
 export F03_1_DATABASE_URL=postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
 cd engineering

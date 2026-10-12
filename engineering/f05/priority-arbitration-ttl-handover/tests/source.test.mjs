@@ -45,13 +45,13 @@ test('8-A02 non-qualified Customer has signed current Match yet no Priority; fai
  assert.equal((await arb(vehicles[0],'not-qualified')).code,'F05_8_NO_LEGAL_PRIORITY_CANDIDATE');
  assert.equal(productionDeny().allowed,false);
 });
-test('8-A03 qualification is independent of level, creates no Demand, Recommendation, Lock or Priority by itself',async()=>{
+test('8-A03 per-Customer qualification ON re-evaluates existing current PDM12 candidates without creating Demand or rights',async()=>{
  const before=(await q('SELECT customer_level_id,current_owner_employee_id FROM public.customers WHERE customer_id=899612'))[0];
  const demandCount=Number((await q('SELECT count(*)::int n FROM public.demands'))[0].n);
  for(const [id,enabled,label] of [[899612,true,'qualification-first'],[899620,true,'qualification-low'],[899613,true,'qualification-second'],[899618,true,'qualification-third'],[899619,true,'qualification-fourth']]){
   const x=await qualification(id,enabled,label);assert.equal(x.allowed,true,JSON.stringify(x));
  }
- assert.equal((await q('SELECT count(*)::int n FROM public.f05_8_priority_ci'))[0].n,0);
+ assert.equal((await q('SELECT count(*)::int n FROM public.f05_8_priority_ci'))[0].n,vehicles.length,'qualification ON must re-evaluate current matching candidates');
  assert.deepEqual((await q('SELECT customer_level_id,current_owner_employee_id FROM public.customers WHERE customer_id=899612'))[0],before);
  assert.equal(Number((await q('SELECT count(*)::int n FROM public.demands'))[0].n),demandCount);
  assert.equal((await qualification(899612,true,'qualification-first')).code,'F05_8_QUALIFICATION_EVENT_ALREADY_APPLIED');
