@@ -357,10 +357,10 @@ test('9-R04 two new lawful Vehicles, real unavailable failure, Lock and Transact
  await c.query("UPDATE public.vehicles SET source_sale_status='offline' WHERE vehicle_id=$1",[a.vehicleId]);
  const sold=await createRecommendationCI(auth,token,{customerId:899618,vehicleId:a.vehicleId,listingCycleId:a.listingCycleId,eventKey:key('r04-sold-deny')});
  assert.equal(sold.allowed,false);assert.equal(sold.code,'F05_9_NOT_CURRENT_SALEABLE_CYCLE');
- const noInherited=await customerProjectionCI(c,{customerId:899618,vehicleId:b.vehicleId,listingCycleId:b.listingCycleId,entry:'ordinary_share',syntheticCustomerIdentity:identity});
+ const noInherited=await customerProjectionCI(c,{customerId:899620,vehicleId:b.vehicleId,listingCycleId:b.listingCycleId,entry:'ordinary_share',syntheticCustomerIdentity:identity});
  assert.equal(noInherited.visible,false,'other Customer cannot inherit hidden Vehicle rights via ordinary Share');
  assert.equal(noInherited.currentCycleFreeWholesaleRight,false);
- assert.equal((await q("SELECT count(*)::int n FROM public.f05_9_price_right_ci WHERE customer_id=899618 AND vehicle_id=$1",[b.vehicleId]))[0].n,0);
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_9_price_right_ci WHERE customer_id=899620 AND vehicle_id=$1",[b.vehicleId]))[0].n,0);
  console.log('F05_9_R04_REAL_TWO_NEW_VEHICLES_PARTIAL_BATCH_LOCK_TRANSACTION_SOLD_HARD_DENY');
 });
 
