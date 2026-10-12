@@ -58,11 +58,22 @@ async function session(auth,token,teamId,fn,controlPlane=false){
 // R10: the signed F03 session is necessary but insufficient: every business
 // mutation/read must also bind the operator to the actual Priority/Demand.
 async function objectPriority(c,a,teamId,pid){
+ // Lock canonical Demand and Customer facts against concurrent signed owner
+ // transfers; the signed F03 actor() has already SHARE-locked permission/scope.
+ const source=(await c.query("SELECT d.demand_id FROM public.f05_8_priority_ci p "+
+  "JOIN public.demands d ON d.demand_id=p.trigger_demand_id AND d.customer_id=p.customer_id "+
+  "JOIN public.customers cs ON cs.customer_id=p.customer_id "+
+  "WHERE p.priority_id=$1 FOR SHARE OF d,cs",[pid])).rows[0];
+ if(!source)return fail('F05_8_ACTOR_OBJECT_SCOPE_DENIED');
  const p=(await c.query("SELECT public.f05_8_actor_priority_scope_ci($1,$2,$3,$4) allowed",
  [pid,a.employeeId,a.role,teamId])).rows[0];
  return p?.allowed?null:fail('F05_8_ACTOR_OBJECT_SCOPE_DENIED');
 }
 async function objectDemand(c,a,teamId,did){
+ const source=(await c.query("SELECT d.demand_id FROM public.demands d "+
+  "JOIN public.customers cs ON cs.customer_id=d.customer_id "+
+  "WHERE d.demand_id=$1 FOR SHARE OF d,cs",[did])).rows[0];
+ if(!source)return fail('F05_8_ACTOR_OBJECT_SCOPE_DENIED');
  const p=(await c.query("SELECT public.f05_8_actor_demand_scope_ci($1,$2,$3,$4) allowed",
  [did,a.employeeId,a.role,teamId])).rows[0];
  return p?.allowed?null:fail('F05_8_ACTOR_OBJECT_SCOPE_DENIED');
@@ -219,6 +230,9 @@ async function reArbitrate(c,vehicleId,listingCycleId,runKey,employeeId,checkpoi
 export async function arbitrateCI(auth,token,{teamId=901,vehicleId,listingCycleId,runKey,checkpoint}={}){
  if(!id(vehicleId)||!id(listingCycleId)||!key(runKey))return fail('F05_8_INVALID_ARBITRATION_ARGUMENTS');
  return session(auth,token,teamId,async(c,a)=>{
+  // R10: canonical Vehicle lock precedes the scope decision AND any Priority
+  // write, preventing signed source events racing past this authorization.
+  await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[vehicleId]);
   const denied=await objectVehicle(c,a,teamId,vehicleId,listingCycleId);if(denied)return denied;
   return reArbitrate(c,vehicleId,listingCycleId,runKey,a.employeeId,checkpoint);
  });
@@ -276,6 +290,7 @@ export async function releaseCI(auth,token,{teamId=901,priorityId,eventKey}={}){
  return session(auth,token,teamId,async(c,a)=>{
   const original=(await c.query('SELECT * FROM public.f05_8_priority_ci WHERE priority_id=$1',[priorityId])).rows[0];
   if(!original||original.status!=='active')return fail('F05_8_PRIORITY_NOT_CURRENT');
+  await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[original.vehicle_id]);
   const denied=await objectPriority(c,a,teamId,priorityId);if(denied)return denied;
   // Reconcile changed Demand/Match first. This locks Vehicle before Priority,
   // avoiding inverse-lock deadlocks and forbidding release from a stale trigger.
@@ -332,6 +347,9 @@ export async function priorityProjectionCI(auth,token,{teamId=901,vehicleId,list
 export async function initiateHandoverCI(auth,token,{teamId=901,priorityId,eventKey}={}){
  if(!id(priorityId)||!key(eventKey))return fail('F05_8_INVALID_HANDOVER');
  return session(auth,token,teamId,async(c,a)=>{
+  const locator=(await c.query("SELECT vehicle_id FROM public.f05_8_priority_ci WHERE priority_id=$1 AND status='active'",[priorityId])).rows[0];
+  if(!locator)return fail('F05_8_HANDOVER_NO_CURRENT_PRIORITY');
+  await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[locator.vehicle_id]);
   const p=(await c.query("SELECT * FROM public.f05_8_priority_ci WHERE priority_id=$1 AND status='active' FOR UPDATE",[priorityId])).rows[0];
   if(!p)return fail('F05_8_HANDOVER_NO_CURRENT_PRIORITY');
   const denied=await objectPriority(c,a,teamId,p.priority_id);if(denied)return denied;
@@ -413,6 +431,7 @@ export async function processDuePrioritiesCI(auth,token,{teamId=901,eventKey,asO
    "WHERE status='active' AND expires_at<=$1 ORDER BY vehicle_id,listing_cycle_id,priority_id",[at])).rows;
   const settled=[];
   for(const p of due){
+   await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[p.vehicle_id]);
    const denied=await objectPriority(c,a,teamId,p.priority_id);if(denied)return denied;
    const outcome=await reArbitrate(c,Number(p.vehicle_id),Number(p.listing_cycle_id),
     eventKey+':due:'+p.priority_id,a.employeeId,null,at);
