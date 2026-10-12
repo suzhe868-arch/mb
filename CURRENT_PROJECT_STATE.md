@@ -1,3 +1,11 @@
+# 2026-10-13｜F05-10 A首轮独立验收72/72真PG16通过但PDM15业务实证R01～R04未闭环，PR49退B（唯一最新）
+
+- **唯一正式状态**：`F05_10_A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK / PR49_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。A独立审最后B HEAD `a3bde06e7615a9fcab2d16ed6ac1ec8e23d3ce2b`，PR49 24新增CI-only白名单文件未碰旧签F03/F04/F05-1～9/迁移/生产。**十条真正GitHub Push同SHA、72/72独立非特权PG16 Success、0skip/fail；八份本SHA原生有效Artifact**，原Source12/12、HTTPS7/7、v26注错ROLLBACK/旧LedgerCatalog seal均Pass。这些工程证据保留，不等于全部PDM15业务矩阵已获真实验证。
+- **首轮独立阻断四组**：R01现有`assignee_handover_pending`只由经理手动`assignee_invalid`赋值，Employee inactive/deny/scope撤销尚无实时Guard自动形成/两个PG COMMIT真实并发；R02真实Recommendation direct source、Demand/Owner/接客池合法承责链、Customer Owner变更与Consultation assignee独立、owner pending公海、跨Store角色Scope和4S/System Admin真负例缺证；R03 SLA配置变更/过期派生/DND/Customer禁用Hold剩余时间恢复缺真时序，任意形状合法的`call/message`引用字符串可被计为首次真人响应，缺可信CI服务来源及伪证拒绝证明；R04 NORMAL_CLOSED与invalid、offline老咨单收口/hidden/4S源车、敏感全文权限和咨询不改变Recommendation/价权/Lock/Transaction的真实PG正反例不足。已签PDM15 Final及原F05-10完整工作单均要求这些来源，不以CI绿灯替代。
+- **B继续施工**：`feat/f05-10-consultation-assignee-sla`原分支，严格只改F05-10新CI-only白名单一次性补R01～R04实际物理正反例、真实两个PG Backend与合法权限修复，保留旧70和原12 Source/7 HTTPS以及签名旧v25/v26账；新最终HEAD须重新**10条同SHA官方Push、至少72/72 PG16 Job全部成功、≥8份同SHA真正Push有效Artifact**及中文完整`READY_FOR_A_SECOND_INDEPENDENT_REVIEW`再交A。**当前PR49不合并，F06/生产未放行、F05/C-H01/V1继续NOT_READY**，真微信/手机号/电话/JYT/资金均SOURCE_GAP。A完整可执行单：`07_重建工作区/F05-10_A主控首轮独立验收72项真PG16全绿但PDM15交接自动Guard与首响SLA证据未闭环整改单_2026-10-13.md`。
+
+---
+
 # 2026-10-13｜F05-9 A二轮独立终验PASS、PR48 GitHub正式合并；F05-10 PDM15 CI-only完整施工单已放行B（唯一最新）
 
 - **现行唯一状态**：`F05_9_A_FINAL_ACCEPTED_MERGED_PR48 / F05_10_A_RELEASED_FOR_B / NEXT_OWNER=B / V1_NOT_READY`。A正式审PR48最后B HEAD `d3cbaee088f6ba7d6b81fbd014813bedcf77671f`、PDM14 R01～R04、最终源码及实证，并在PR签署[A_ACCEPTED](https://github.com/suzhe868-arch/mb/pull/48#issuecomment-6128118804)。GitHub标准PR merge实际`merged=true`，**真实合并提交`eb33d4b5ad31d44a9e5fdc0eff98d83bdf3f0842`**。完整A终验报告：`07_重建工作区/F05-9_A主控二轮独立验收70项真PG16_PR48标准合并及F05-10接力_2026-10-13.md`。
