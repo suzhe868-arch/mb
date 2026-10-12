@@ -129,7 +129,7 @@ CREATE TRIGGER f05_10_customer_hold AFTER UPDATE OF account_status ON public.cus
 -- Compute effective current assignee access from actual signed employee/permission/scope facts.
 -- Trigger checks run in the same source transaction: after COMMIT the pending Guard is visible.
 CREATE FUNCTION public.f05_10_assignee_valid_ci(p_consultation_id BIGINT,p_employee_id BIGINT)
-RETURNS BOOLEAN LANGUAGE sql STABLE AS $
+RETURNS BOOLEAN LANGUAGE sql STABLE AS $$
  SELECT EXISTS(
   SELECT 1 FROM public.f05_10_consultation_meta_ci m
   JOIN public.employees e ON e.employee_id=p_employee_id AND e.employment_status='active'
@@ -154,9 +154,9 @@ RETURNS BOOLEAN LANGUAGE sql STABLE AS $
        AND (tm.ended_at IS NULL OR tm.ended_at>statement_timestamp())
      )))
  );
-$;
+$$;
 CREATE FUNCTION public.f05_10_reconcile_assignee_ci(p_employee_id BIGINT,p_origin TEXT)
-RETURNS INTEGER LANGUAGE plpgsql AS $
+RETURNS INTEGER LANGUAGE plpgsql AS $$
 DECLARE changed INTEGER;
 BEGIN
  WITH affected AS (
@@ -177,7 +177,7 @@ BEGIN
  SELECT count(*) INTO changed FROM events;
  RETURN changed;
 END $;
-CREATE FUNCTION public.f05_10_employee_source_revoke_ci() RETURNS trigger LANGUAGE plpgsql AS $
+CREATE FUNCTION public.f05_10_employee_source_revoke_ci() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
  IF TG_TABLE_NAME='employees' THEN
    IF (OLD.employment_status IS DISTINCT FROM NEW.employment_status) THEN
