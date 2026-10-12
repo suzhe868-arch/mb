@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_8_A_FINAL_ACCEPTED_MERGED_PR47_F05_9_A_RELEASED_FOR_B",
+  "substage": "F05_9_A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F05",
-  "current_domain_status": "F05_8_A_FINAL_ACCEPTED_MERGED_PR47_CI_ONLY_F05_9_A_RELEASED_FOR_B",
+  "current_domain_status": "F05_8_ACCEPTED_F05_9_CHANGES_REQUESTED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A主控第六轮完成F05-8/PDM13 CI-only正式独立验收，通过PR47最后B SHA 1dc08927b6b11e2327050d55e6f72f6f19984e8e 的八官方Push工作流68/68真PG16、4有效Push Artifact、R01–R13源码和真双PG安全边界；已经GitHub标准merge PR47为 d37b3fc9e44f4affd3b611c38c7c303bac93acb2，A验收归档main。后续F05-9 PDM14 Recommendation隐藏车单车visibility/批发免费价权/普通Share隔离已经A编制正式完整施工单，并无新增产品取舍；NEXT_OWNER=B按新分支CI-only v25工作包实现+70/70同SHA独立真PG16及证据后交A。F05整体/高保真/V1仍NOT_READY，真实Issuer/JYT/价格/资金未放行。",
-  "current_work_file": "07_重建工作区/F05-9_A主控PDM14正式推荐隐藏车单车可见性免费批发查价和普通分享隔离完整施工单_2026-10-12.md",
+  "current_task": "A核PR48最终B SHA 019ddc76e760b390265c017efed72a56aca65d8b：9 Push 70/70 PG16成功、6有效Artifact。PDM14 Priority排他、权益失效、免费价格转换和对象权限/Lock/批量正反例缺真PG，退B补证，不合并PR48；V1 NOT_READY。",
+  "current_work_file": "07_重建工作区/F05-9_A主控首次独立验收70项真PG16全绿但PDM14跨域权限与权益生命周期缺证整改单_2026-10-12.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F05_9_A_FORMAL_WORK_ORDER_RELEASED_FOR_B",
+  "current_review_batch": "F05_9_A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_EXECUTE_F05_9_PDM14_RECOMMENDATION_VISIBILITY_FREE_WHOLESALE_PRICE_RIGHT_SHARE_CI_ONLY_V25_70_PG16",
+  "next_action": "B_REWORK_F05_9_PDM14_R01_R02_R03_R04_REAL_PG16",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B以最新main和A正式F05-9 PDM14完整施工单为准新建feat/f05-9-recommendation-visibility-grants，不复用已合并F05-8分支；仅新增工程域engineering/f05/recommendation-visibility-grants/**及.github/workflows/f05-9-*.yml，在非超级用户可抛弃PG16中新v25 sidecar实现Recommendation正式身份/同cycle幂等/历史不可变/entitlement/owner/role个人deny跨TeamStore数据scope/hidden grant可见性/Priority suppression/普通分享不授权/批发当前cycle免费数字价事实与不可变价快照/Lock交易Consultation隔离，真PG16源/HTTPS、双PG并发和注错rollback、旧v24及签名M94账封印；不改已签旧源码/旧迁移旧Job正文/Final/生产。旧F05-8 68个真实PG16 Job完全冻结重验证+本批新2个，至少70/70真正官方Push工作流同最终SHA成功、预计9 Run至少6新有效Push同SHA Artifacts，完整中文证据与标准PR交A独立验收。F05-9不能自行merge，F06未放行，生产仍SOURCE_GAP，整体NOT_READY。",
+  "next_action_detail": "B按当前main正式F05-9 A首次整改单在原新CI-only分支补R01 Priority压制与恢复、R02 Level禁用及结束权限、R03批发免费价权及同车转换、R04合法scope/Lock/Transaction与多车批量真PG，旧68 Job保留，新SHA须9官方Push至少70/70成功和6份新同SHA原生Artifact，再正式交A二次验收。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -6926,7 +6926,7 @@
   },
   "current_owner": "B",
   "f05_9_gate": {
-    "status": "A_RELEASED_FOR_B",
+    "status": "A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK",
     "owner": "B",
     "branch": "feat/f05-9-recommendation-visibility-grants",
     "branch_creation": "B_FROM_CURRENT_MAIN",
@@ -6957,10 +6957,12 @@
     "required_native_artifacts_min": 6,
     "old_workflows_untouched": true,
     "old_migrations_untouched": true,
-    "pr": null,
+    "pr": 48,
     "b_pr_merged": false,
     "next_owner": "B",
     "product_baseline": "NOT_READY",
-    "source_gap_requires_block": true
+    "source_gap_requires_block": true,
+    "a_review_sha": "019ddc76e760b390265c017efed72a56aca65d8b",
+    "a_review_result": "A_CHANGES_REQUESTED"
   }
 }
