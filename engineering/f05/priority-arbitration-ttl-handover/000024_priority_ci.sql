@@ -24,6 +24,8 @@ CREATE TABLE public.f05_8_priority_ci(
  listing_cycle_id BIGINT NOT NULL,
  trigger_demand_id BIGINT NOT NULL REFERENCES public.demands(demand_id),
  responsible_employee_id BIGINT NOT NULL REFERENCES public.employees(employee_id),
+ origin_team_id BIGINT NOT NULL REFERENCES public.teams(team_id),
+ origin_store_id BIGINT NOT NULL REFERENCES public.stores(store_id),
  source_match_result_id BIGINT NOT NULL REFERENCES public.f05_7_result_versions_ci(result_id),
  source_signature TEXT NOT NULL CHECK(source_signature ~ '^[a-f0-9]{64}$'),
  status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active','ended')),
@@ -106,12 +108,30 @@ CREATE TRIGGER f05_8_attempts_immutable BEFORE UPDATE OR DELETE ON public.f05_8_
 CREATE TRIGGER f05_8_attestation_immutable BEFORE UPDATE OR DELETE ON public.f05_8_migration_attestation FOR EACH ROW EXECUTE FUNCTION public.f05_8_immutable();
 CREATE FUNCTION public.f05_8_priority_guard() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
+ IF TG_OP='INSERT' THEN
+  -- Freeze immutable signed Priority object Team/Store at creation, so later
+  -- retroactive team membership cannot confer rights over historical leases.
+  SELECT tm.team_id,e.store_id INTO NEW.origin_team_id,NEW.origin_store_id
+  FROM public.employees e
+  JOIN public.employee_team_memberships tm ON tm.employee_id=e.employee_id
+  JOIN public.teams t ON t.team_id=tm.team_id AND t.store_id=e.store_id AND t.team_status='active'
+  JOIN public.stores st ON st.store_id=t.store_id AND st.status='active'
+  WHERE e.employee_id=NEW.responsible_employee_id AND e.employment_status='active'
+   AND tm.valid_from<=statement_timestamp()
+   AND (tm.ended_at IS NULL OR tm.ended_at>statement_timestamp())
+  ORDER BY tm.valid_from,tm.team_id LIMIT 1;
+  IF NEW.origin_team_id IS NULL OR NEW.origin_store_id IS NULL
+   THEN RAISE EXCEPTION 'F05_8_ORIGINAL_BUSINESS_SCOPE_MISSING' USING ERRCODE='23514'; END IF;
+  RETURN NEW;
+ END IF;
  IF TG_OP='DELETE' THEN RAISE EXCEPTION 'F05_8_PRIORITY_HISTORY_DELETE_DENIED' USING ERRCODE='23514'; END IF;
  IF OLD.priority_id IS DISTINCT FROM NEW.priority_id OR
     OLD.customer_id IS DISTINCT FROM NEW.customer_id OR
     OLD.vehicle_id IS DISTINCT FROM NEW.vehicle_id OR
     OLD.listing_cycle_id IS DISTINCT FROM NEW.listing_cycle_id OR
     OLD.created_at IS DISTINCT FROM NEW.created_at OR
+    OLD.origin_team_id IS DISTINCT FROM NEW.origin_team_id OR
+    OLD.origin_store_id IS DISTINCT FROM NEW.origin_store_id OR
     OLD.expires_at IS DISTINCT FROM NEW.expires_at OR
     OLD.creation_key IS DISTINCT FROM NEW.creation_key OR
     OLD.source_marker IS DISTINCT FROM NEW.source_marker OR
@@ -123,7 +143,7 @@ BEGIN
   RAISE EXCEPTION 'F05_8_INVALID_ENDING' USING ERRCODE='23514'; END IF;
  RETURN NEW;
 END $$;
-CREATE TRIGGER f05_8_priority_append_history BEFORE UPDATE OR DELETE ON public.f05_8_priority_ci
+CREATE TRIGGER f05_8_priority_append_history BEFORE INSERT OR UPDATE OR DELETE ON public.f05_8_priority_ci
  FOR EACH ROW EXECUTE FUNCTION public.f05_8_priority_guard();
 -- The old Lock/Transaction source remains authoritative. New v24 can only
 -- close its own CI Priority row; never changes either signed business table.
@@ -335,12 +355,9 @@ RETURNS BOOLEAN LANGUAGE sql STABLE AS $$
  JOIN public.demands d ON d.demand_id=p.trigger_demand_id AND d.customer_id=p.customer_id
  JOIN public.customers cs ON cs.customer_id=p.customer_id
  LEFT JOIN public.f05_8_handover_ci h ON h.priority_id=p.priority_id
- JOIN public.employees owner ON owner.employee_id=COALESCE(h.original_responsible_employee_id,p.responsible_employee_id)
- JOIN public.employee_team_memberships om ON om.employee_id=owner.employee_id
-  AND om.valid_from<=p.created_at AND (om.ended_at IS NULL OR om.ended_at>p.created_at)
- JOIN public.teams t ON t.team_id=om.team_id AND t.team_id=requested_team
-  AND t.store_id=owner.store_id AND t.team_status='active'
- JOIN public.stores st ON st.store_id=t.store_id AND st.status='active'
+ JOIN public.teams t ON t.team_id=p.origin_team_id AND t.team_id=requested_team
+  AND t.store_id=p.origin_store_id AND t.team_status='active'
+ JOIN public.stores st ON st.store_id=p.origin_store_id AND st.status='active'
  JOIN public.employees e ON e.employee_id=eid AND e.employment_status='active' AND e.store_id=t.store_id
  JOIN public.employee_team_memberships m ON m.employee_id=eid AND m.team_id=t.team_id
   AND m.valid_from<=statement_timestamp() AND (m.ended_at IS NULL OR m.ended_at>statement_timestamp())
