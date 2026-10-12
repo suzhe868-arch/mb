@@ -285,25 +285,44 @@ test('9-R03 price consultation to numeric, immutable snapshot, current repricing
  console.log('F05_9_R03_NATIVE_PG16_CONSULTATION_LATE_PRICE_IMMUTABLE_SNAPSHOT_WHOLESALE_TO_MINGBANG');
 });
 
-test('9-R04a signed remote Manager/StoreHead scope, personal deny, 4S, stale recommender, two-PG scope and owner revocation',async()=>{
- const cars=await aux(),remoteStore=8997983,remoteTeam=8997984,remoteEmployee=8997601,remoteCustomer=899618,scopeId=299991;
- const mainStore=(await q('SELECT store_id,main_role_id FROM public.employees WHERE employee_id=1'))[0];
- const originalOwner=(await q('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=$1',[customerId]))[0].current_owner_employee_id;
- const pr=(await q("SELECT permission_id FROM public.permissions WHERE permission_code='matching.rule.manage.ci.synthetic'"))[0];
- const roleManager=(await q("SELECT role_id FROM public.roles WHERE role_code='manager'"))[0];
- const roleHead=(await q("SELECT role_id FROM public.roles WHERE role_code='store_head'"))[0];
- const role4s=(await q("SELECT role_id FROM public.roles WHERE role_code='four_s'"))[0];
- assert.ok(pr&&roleManager&&roleHead&&role4s);
- const clone=(base,id,value)=>{
-  const out={...base,[id]:value};
-  for(const k of Object.keys(out))if(typeof out[k]==='string'&&/name|code|title/i.test(k))
-   out[k]=out[k]+'-F05-9-R04-'+String(value);
-  return out;
- };
- const insertClone=async(table,values)=>{
-  const keys=Object.keys(values);
-  return c.query('INSERT INTO public.'+table+'('+keys.map(k=>'"'+k+'"').join(',')+') VALUES('+
-   keys.map((_,i)=>'
+test('9-R04a real remote Manager/StoreHead, personal deny, 4S and stale owner authorization',async()=>{
+ const cars=await aux(),remoteStore=8997983,remoteTeam=8997984,remoteEmployee=8997601,remoteCustomer=899618;
+ const main=(await q('SELECT store_id,main_role_id FROM public.employees WHERE employee_id=1'))[0];
+ const permission=(await q("SELECT permission_id FROM public.permissions WHERE permission_code='matching.rule.manage.ci.synthetic'"))[0].permission_id;
+ const role=async name=>Number((await q('SELECT role_id FROM public.roles WHERE role_code=$1',[name]))[0].role_id);
+ const clone=(obj,col,value)=>{const v={...obj,[col]:value};for(const k of Object.keys(v))if(typeof v[k]==='string'&&/name|code|title/i.test(k))v[k]+='-R04-'+value;return v};
+ const insert=async(table,obj)=>{const keys=Object.keys(obj);await c.query('INSERT INTO public.'+table+'('+keys.map(k=>'"'+k+'"').join(',')+') VALUES('+keys.map((_,i)=>'$'+(i+1)).join(',')+')',Object.values(obj));};
+ await insert('stores',clone((await q('SELECT * FROM public.stores WHERE store_id=$1',[main.store_id]))[0],'store_id',remoteStore));
+ await insert('teams',{...clone((await q('SELECT * FROM public.teams WHERE team_id=901'))[0],'team_id',remoteTeam),store_id:remoteStore});
+ await c.query("INSERT INTO public.employees(employee_id,store_id,employment_status,receiving_status,main_role_id) SELECT $1,$2,'active',receiving_status,main_role_id FROM public.employees WHERE employee_id=1",[remoteEmployee,remoteStore]);
+ await c.query("INSERT INTO public.employee_team_memberships(team_id,employee_id,valid_from,changed_by_system_admin_id) SELECT $1,$2,now()-interval '1 day',changed_by_system_admin_id FROM public.employee_team_memberships WHERE employee_id=1 AND team_id=901 LIMIT 1",[remoteTeam,remoteEmployee]);
+ await c.query('UPDATE public.customers SET current_owner_employee_id=$2 WHERE customer_id=$1',[remoteCustomer,remoteEmployee]);
+ const arg=(car,label)=>({teamId:remoteTeam,customerId:remoteCustomer,vehicleId:car.vehicleId,listingCycleId:car.listingCycleId,eventKey:key(label)});
+ await c.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[await role('manager')]);
+ assert.equal((await createRecommendationCI(auth,token,arg(cars[0],'r04-manager-no-scope'))).allowed,false);
+ await c.query("INSERT INTO public.employee_data_scopes(scope_id,employee_id,scope_kind,scope_reference_id) VALUES(299991,1,'team',$1)",[remoteTeam]);
+ await c.query("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(1,$1,299991,now()-interval '1 day')",[permission]);
+ assert.equal((await q('SELECT count(*)::int n FROM public.employee_team_memberships WHERE employee_id=1 AND team_id=$1',[remoteTeam]))[0].n,0);
+ const manager=await createRecommendationCI(auth,token,arg(cars[0],'r04-manager-with-remote-scope'));
+ assert.equal(manager.allowed,true,JSON.stringify(manager));
+ await c.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=1 AND permission_id=$1",[permission]);
+ assert.equal((await createRecommendationCI(auth,token,arg(cars[1],'r04-individual-deny'))).allowed,false);
+ await c.query("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=1 AND permission_id=$1",[permission]);
+ await c.query("UPDATE public.employee_data_scopes SET scope_kind='store',scope_reference_id=$1 WHERE scope_id=299991",[remoteStore]);
+ await c.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[await role('store_head')]);
+ const head=await createRecommendationCI(auth,token,arg(cars[1],'r04-storehead-remote-store'));
+ assert.equal(head.allowed,true,JSON.stringify(head));
+ await c.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[await role('four_s')]);
+ assert.equal((await createRecommendationCI(auth,token,arg(cars[2],'r04-four-s-hard-deny'))).allowed,false);
+ await c.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[main.main_role_id]);
+ assert.equal((await finishRecommendationCI(auth,token,{teamId:901,recommendationId:manager.recommendationId,kind:'end',eventKey:key('r04-historical-recommender-no-current-scope')})).allowed,false);
+ assert.equal((await createRecommendationCI(auth,token,arg(cars[2],'r04-sales-other-store-deny'))).allowed,false);
+ await c.query('UPDATE public.customers SET current_owner_employee_id=1 WHERE customer_id=$1',[remoteCustomer]);
+ const ended=await finishRecommendationCI(auth,token,{teamId:901,recommendationId:manager.recommendationId,kind:'end',eventKey:key('r04-new-owner-can-end')});
+ assert.equal(ended.allowed,true,JSON.stringify(ended));
+ console.log('F05_9_R04_TRUE_TWO_STORES_MANAGER_STOREHEAD_PERSONAL_DENY_FOUR_S_AND_OWNER_HANDOVER');
+});
+test('9-R04 two new lawful Vehicles, real unavailable failure, Lock and Transaction stay independently occupied',async()=>{
  const cars=await aux(),[a,b,lockCar,txnCar]=cars;
  const before=(await q('SELECT count(*)::int n FROM public.f05_9_recommendation_facts_ci'))[0].n;
  const batch=await batchRecommendCI(auth,token,{customerId,vehicleCycles:[a,{vehicleId:999999999,listingCycleId:a.listingCycleId},b],eventPrefix:key('r04-three-independent')});
