@@ -1,3 +1,35 @@
+# 名邦汽车 V1｜F05-8 第三轮 A 整改单 R08/R09：B 工程定向整改与真实PG16交接（2026-10-12）
+
+> **唯一正式来源**：main 的《F05-8_A主控三轮独立验收68项PG16通过但Priority交接源责任与对象Scope失配整改单_2026-10-12.md》、PDM-13 Final §§24/25/26/31、PR #47 A 复审意见。本文为 B 已完成的 R08/R09 整改**追溯报告**；最后交审的唯一HEAD及其八组官方 Push CI/四份Artifact，必须以 PR #47 最后正式 B 交审评论中的 GitHub 原生回执为准，不把本文生成前的临时SHA当成最终SHA。
+
+## 本轮权限和责任修复
+
+- **R08｜由真实 Demand 和 Customer 当前责任签发链决定接任**：`retryHandoverCI` 只消费已在隔离数据库中实际存在、Demand 当前 `responsible_employee_id` 与 Customer 当前 `current_owner_employee_id` 同为目标、且有新的 current F05-7 Match Result 的合法责任转移事实；严禁靠 target 参数直接更改 Priority 负责人。一次成功同时更新 Priority 的 `responsible_employee_id` / `source_match_result_id` / `source_signature` 与已有已签 Match 对齐，原始 `original_responsible_employee_id` 和固定 `expires_at` 不变，不写 Demand/Customer/旧签结果。只给客户保留 pending Batch 期间的原租期独占，暂不向任何目标员工授予处理权；完成后显式 `arb()` 和源变更仲裁均复核当前同源事实，避免错误回绑原员工。
+- **R09｜严格以此次业务对象范围而不是任意团队权限接任**：`f05_8_responsible_object_scope_ci` 结合 Priority 的 trigger Demand、关联 Customer、原负责人创建时 Team/Store、目标员工当前实际 Team/Store、个人 allow/deny、能力绑定、数据 Scope 有效期和员工在职状态，要求针对本对象存在合法同团队目标范围。仅在其他团队具有 `matching.rule.manage.ci.synthetic` 不足以接管，不得利用 4S 或别家门店权限越界。
+- **可见性与生命周期防回归**：员工 `employeeWorkVisible` 必须通过 source-valid、非 pending Batch 与 completed object-scope Guard；pending 只保留客户独占不扩大员工可见。已过期/交易或锁车占用不得完成交接；已结束历史不能复活；已签的R01～R07、旧64个独立Job和旧F05-7 28/7、Priority旧34/10测试保留原样。
+- **正式来源限制**：本轮有效“上游转移”和匹配重新签发的正例由真实隔离PG16中的 CI-synthetic source fixture 构造，并以冻结PDM12纯确定性算法生成真实物理当前结果；此处不代表系统已拥有生产级F03 Owner/Handover签发Issuer。没有可核验的实际生产Issuer时继续 `SOURCE_GAP` / fail-closed，**禁止以绿灯冒充生产资格**。
+
+## 新增与调整的真实PG16回归覆盖
+
+1. R07 已有同租期正式 Handover Batch：`injectFail` 的故障、合法 Scope 但 Demand/Customer 没有转移时再次请求，均只能写失败 Attempt，Priority 控制权不得转移。保留 immutable Attempt 历史、原 Batch 与原 TTL。
+2. 为另一个已占有本次业务对象的 target 建立真实不同 Team 的 active Employee、个人权限 allow、Team membership 和绑定 Scope，即使其“任意地方有权限”的旧布尔函数返回 true，也因目标 ObjectScope 拒绝；0个完成账，不更改 Priority 负责人。
+3. 同一 Customer 的签名 Demand current responsible 与 Customer current owner 合法切换到实际本 Team target 后，通过真实 PG16 重新生成有当期证据的 F05-7 Match；retry 才能完成，且 Priority、Demand、Customer、来源Match和对象Scope一致，原负责人历史保留，TTL毫秒值不变，后续显式仲裁不反向回绑。
+4. 真实两 PostgreSQL Backend 锁序/55P03 与 v24 注错回滚、Catalog seal、老账不可变、全部历史回归持续保留。若 Scope 在并发期间撤销，必须按现有同数据库行锁/事务Guard fail-closed，A 应独立反向验证。
+
+## 整改代码临时SHA的原生工程证据（非本文最终提交SHA）
+
+- **代码整改SHA**：`30b18b9935a88980fd0c2e1a2367aeba5a36bf71`，相对上一轮 B SHA `8b46d25be418160bee08dffa878c425485f88ffa` 仅修改原 F05-8 目录下 SQL、`service.mjs` 和 `tests/source.test.mjs` 三项；没有修改旧签生产F03/F04/F05-1～7、历史迁移、旧冻结工作流、PDM Final 或 main。
+- 八个 GitHub 原生 Push Run：旧 H52 `38220980541` 52/52，I2 `38220980450`、J2 `38220980545`、K2 `38220980457`、F05-4 `38220980453`、F05-5 `38220980525`、F05-6 `38220980462` 各2/2，新 F05-8 `38220984808` 4/4；合计 **68/68 真非超级用户PG16 success，0 skipped/failed**，官方审计 `F05_8_OFFICIAL_GITHUB_64_FROZEN_PLUS_2_COMPAT_PLUS_2_NEW` 核实全部 `head_sha` 相同，不能跨SHA拼旧运行。
+- 本批 Priority Source `34/34`、HTTPS `10/10`、旧 F05-7 Source `28/28` 与 HTTPS `7/7` 全部原生通过。SQL checksum `e4b0d03c8c5e23db2b52185d1a221c9b153d7669730cdb2bab699524fd40e609`、Catalog SHA `d60ef2d3f5e929c62d389ec7dd7bb1c44efdcd5a3a19e077d54963c4849c978c`、旧签 Ledger `c5625475ee0f4b6c3007c0e1d5070c465626e63bbd3733095f753452e1bbc84c`。
+- 原生双 Backend 竞争 PID 255/270，`SQLSTATE55P03`；交接锁独立 Backend PID 278、未延长TTL、同一Priority ID，原生审计日志已确认。
+- 四份与该**代码整改 SHA**一致的 GitHub 官方 Artifact 均非空且 `expired=false`：Priority Source `11734910184`（119606B）、Priority HTTPS `11734332476`（112846B）、兼容Source `11733654958`（109013B）、兼容HTTPS `11734247564`（99438B），均具官方 SHA256 digest。
+
+**交审严格门禁**：本中文交接文档提交将产生另一个 HEAD，需再次取得与**文档最终 HEAD**同 SHA 的八个官方 Push Run 合计68/68 success、四份同 SHA 原生 Artifact，最后在 PR #47 提交真实最终Run/Artifact ID 与 SHA、实际日志和 `READY_FOR_A_RE_RE_RE_REVIEW / NEXT_OWNER=A`。未经该验证仍由 B 负责，不得合并main或开展F05-9/F06。F05、C/H01、整车V1 `NOT_READY`。
+
+---
+
+# 以下为前轮历史记录，不代表最新工程提交状态
+
 # F05-8｜B 三轮 R05～R07 定向整改工程记录（2026-10-12）
 
 **Authority**：A最新main中《F05-8_A主控二轮独立验收68项真PG16通过但恢复仲裁与责任交接未闭环整改单_2026-10-12.md》，PDM-13 Final §§3/14/21～31，PR47 A正式意见6118562876。**范围**仅本F05-8新增v24 CI SQL、service、tests、中文交接；旧签F05-7 v23服务/SQL、64历史冻结CI、生产路径、main绝不修改。
