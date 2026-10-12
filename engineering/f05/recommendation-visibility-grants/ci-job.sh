@@ -27,6 +27,9 @@ node --test f05/recommendation-visibility-grants/tests/"$mode".test.mjs 2>&1 | t
 grep -q '# fail 0' "$dir/native-pg16-$mode.log"
 node f05/recommendation-visibility-grants/runner.mjs --verify
 node f05/recommendation-visibility-grants/evidence.mjs "$mode"
+if [[ "$mode" = source ]];then
+ node f05/recommendation-visibility-grants/ci-verify-70.mjs
+fi
 ids="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
 test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
 docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > "$dir/native-v25-schema-only.sql"
