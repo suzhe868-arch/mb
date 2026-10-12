@@ -69,3 +69,22 @@ B 以 GitHub `main` 原始 Workflow 与七份 F05-7 新冻结 Workflow 逐字比
 2. 由 GitHub 原生只读审计自动核七旧组 64/64、新 Source/HTTPS 2/2，且**同 B/PR 终 SHA**，两份本批 artifact 非空未过期；逐项核原生真正 PG16 与哈希/SQLSTATE。
 3. B 在 PR #46 的中文最终交接评论提供完整 SHA、八 RunID/计数、两个 Artifact ID/字节与 `B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A`，解除 Draft 后由 A 独立验收；未到门禁则维持 Draft 与 `B_IN_PROGRESS`。
 4. **B 不自行合并 `main`，不启动 F05-8/F06 或生产。**
+
+
+## 七、A 首次验收 R01–R04 业务边界定向整改（2026-10-12）
+
+A 正式整改单：`07_重建工作区/F05-7_A主控首次独立验收66项真PG16通过但PDM12业务边界未闭环整改单_2026-10-12.md`。本轮仍只修改 **F05-7 原白名单已有文件**，严禁碰 `main`、已签迁移、旧 Workflow 或正式 PDM。
+
+| 整改单 | 本批源码与原生 PostgreSQL16 可核断言 |
+|---|---|
+| R01 preferred 未知不能 high | `contract.mjs` 将明确填写却未证实的 preferred 同样降至 `acceptable`，不升级为 hard-unknown 的 `confirmation_needed`；`7-A25` 在真 PG16 删除该 Vehicle 的 interior_color，assert `acceptable`，并单独验证 hard failed `no_match` 与 hard unknown `confirmation_needed` 的优先级。 |
+| R02 active Lock 占用快照 | `service.mjs` 读原签 `public.locks` 当前有效 active 锁、取 `FOR SHARE`，将非个人信息的占用数量与状态写入 Match Result 解释链及来源签名；CI-only v23 原生 trigger 在锁状态变动时主动 stale；`7-A26` 在原始 PG16 真 INSERT active Lock、以另一个合法正式 Demand 匹配并返回占用，再取消锁触发失效/二次匹配显示未占用。不得凭 active Lock 自动 Priority / Lock / Visibility。 |
+| R03 Rule 部分重算失败集合及幂等补偿 | 本批可抛弃 v23 新建 `f05_7_retry_scope_ci`，含完整 Demand×Vehicle×Cycle 唯一键、pending/failed/completed、失败原因、尝试次数及已完成 Result 引用；合法 Rule 新版本触发器成功提交后把受影响旧结果 stale 并追加待补偿集合。`retryAffectedCI` 只取指定 Demand 当前待重试/失败集合，真正成功项不重算，失败理由留库。 `7-A27` 真 PG16 建立两项 current，Rule 改版后两项 pending、先一成功一合成失败（理由 `F05_7_CI_SYNTHETIC_RECOMPUTE_FAILURE`），只补偿失败一项，第三次空集合不重复，账本与原历史不变。 |
+| R04 车系年款范围及事实级来源 | `resolveRules` 精确识别受信格式 `seriesId:开始年款-结束年款`，在区间内高于普通 series，区间外退回 series，指定 model_year 仍最高；`normalizeFacts` 对同字段结构化>检测>详情描述>模糊词，保留全部 candidates/provenance，同级真实冲突局部 unknown；`7-A28` 在 PG16 插入四种 Rule scope 的真行、按区间内外解析，再从真实已签 `f05_3b_sync_lineages` 读取 JYT 原始 model_year，写入含冲突候选的 PG16 车辆事实，断言本地 mapping pending 不得覆盖已知 JYT，且同级事实冲突必须 `confirmation_needed`。 |
+
+### 复验特别说明
+
+1. **此前 66/66 通过不构成本整改通过证据。** 上述新增 `7-A25~A28` 必须从最终 SHA 原生 Source 测试日志看到独立 PASS，原有 `7-A01~A24` 不得减少，HTTPS 原有 7 项与七组冻结 64 Job 都要同最终 SHA 复验。
+2. 增加 CI-only v23 SQL 会改变本批迁移 checksum/catalog SHA，这是允许的新CI Schema复验，不会触碰 `main` 的 v22 及之前已签历史；必须保留完整 21 条迁移和注入回滚/新目录导出。
+3. 最终B分支 SHA、八官方同 SHA 运行号、源码最新原生记录 PID、两个新有效 Artifact ID/字节数需要由**最终 PR #46 中文交接评论**与官方 Actions 返回值精确确认；本文件内容提交本身会变化 HEAD，所以历史 SHA 不能作为最终证据。严禁提前写“整改已验收通过”。
+4. 微信、手机号、真实 Rule/显示数字价格/数据 Scope 等生产 Issuer 仍不存在；F05/C-H01/V1 `NOT_READY`。本批所有正向证明仍是 `CI_SYNTHETIC_*_NOT_PRODUCTION`。
