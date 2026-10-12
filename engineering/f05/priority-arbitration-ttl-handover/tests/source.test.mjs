@@ -813,3 +813,115 @@ test('8-R11 pending high Match revoked, and pending owner drift without re-sign,
  assert.equal((await q("SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1",[first.priority_id]))[0].status,'ended','old history not revived');
  console.log('F05_8_R11_PENDING_MATCH_STALE_DENIED',JSON.stringify({first:Number(first.priority_id),second:Number(second.priority_id)}));
 });
+
+
+test('8-R12 remote Manager and StoreHead require explicit live object Store/Team scope, never copied membership or main-Store change',async()=>{
+ const mainStore=(await q('SELECT store_id,main_role_id FROM public.employees WHERE employee_id=1'))[0];
+ assert.ok(mainStore);
+ const mainTeam=901,remoteStore=8997983,remoteTeam=8997984,remoteEmployee=8997601;
+ const templateStore=(await q('SELECT * FROM public.stores WHERE store_id=$1',[mainStore.store_id]))[0];
+ assert.ok(templateStore);
+ const makeClone=(base,identity,value)=>{
+  const clone={...base,[identity]:value};
+  for(const key of Object.keys(clone))if(typeof clone[key]==='string'&&/name|code|title/i.test(key))
+   clone[key]+='-f05-8-r12-remote-'+value;
+  return clone;
+ };
+ const store=makeClone(templateStore,'store_id',remoteStore);
+ const insertClone=async(table,clone)=>{
+  const keys=Object.keys(clone);
+  return db.query('INSERT INTO public.'+table+'('+keys.map(k=>'"'+k+'"').join(',')+') VALUES('+keys.map((_,i)=>'$'+(i+1)).join(',')+')',Object.values(clone));
+ };
+ await insertClone('stores',store);
+ const templateTeam=(await q('SELECT * FROM public.teams WHERE team_id=$1',[mainTeam]))[0];
+ assert.ok(templateTeam);
+ await insertClone('teams',{...makeClone(templateTeam,'team_id',remoteTeam),store_id:remoteStore});
+ await db.query("INSERT INTO public.employees(employee_id,store_id,employment_status,receiving_status,main_role_id) "+
+  "SELECT $1,$2,'active',receiving_status,main_role_id FROM public.employees WHERE employee_id=1",[remoteEmployee,remoteStore]);
+ await db.query("INSERT INTO public.employee_team_memberships(team_id,employee_id,valid_from,changed_by_system_admin_id) "+
+  "SELECT $1,$2,now()-interval '1 day',changed_by_system_admin_id FROM public.employee_team_memberships WHERE employee_id=1 AND team_id=901 LIMIT 1",[remoteTeam,remoteEmployee]);
+ await db.query("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES($1,1097,'allow',now())",[remoteEmployee]);
+ await db.query("INSERT INTO public.employee_data_scopes(scope_id,employee_id,scope_kind,scope_reference_id) VALUES(29998,$1,'team',$2)",[remoteEmployee,remoteTeam]);
+ await db.query("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES($1,1097,29998,now()-interval '1 day')",[remoteEmployee]);
+ // Real current source changes signed by CI-only upstream in one PostgreSQL
+ // transaction. The new Priority derives its immutable origin from Store B.
+ const v=vehicles[2],customerId=899613;
+ const d=(await q("SELECT d.demand_id FROM public.demands d JOIN public.f05_7_sales_condition_ci sc ON sc.demand_id=d.demand_id "+
+  "WHERE d.customer_id=$1 AND d.demand_state='active' ORDER BY d.demand_id LIMIT 1",[customerId]))[0];
+ assert.ok(d);
+ await db.query('BEGIN');
+ try{
+  await db.query('UPDATE public.customers SET current_owner_employee_id=$2 WHERE customer_id=$1',[customerId,remoteEmployee]);
+  await db.query('UPDATE public.demands SET responsible_employee_id=$2 WHERE customer_id=$1',[customerId,remoteEmployee]);
+  await db.query('UPDATE public.f05_7_vehicle_facts_ci SET fact_version=fact_version+1 WHERE vehicle_id=$1 AND listing_cycle_id=$2',[v.id,v.cycle]);
+  await reSign(v,d.demand_id,'r12-real-b-store-current-signed-result');
+  await db.query('COMMIT');
+ }catch(e){await db.query('ROLLBACK');throw e}
+ const p=(await current(v))[0];assert.ok(p,'Store B signed source must generate real own Priority');
+ assert.equal(Number(p.customer_id),customerId);
+ assert.equal(Number(p.origin_store_id),remoteStore);
+ assert.equal(Number(p.origin_team_id),remoteTeam);
+ assert.equal(Number((await q('SELECT store_id FROM public.employees WHERE employee_id=1'))[0].store_id),Number(mainStore.store_id));
+ const managerRole=(await q("SELECT role_id FROM public.roles WHERE role_code='manager'"))[0]?.role_id;
+ const headRole=(await q("SELECT role_id FROM public.roles WHERE role_code='store_head'"))[0]?.role_id;
+ assert.ok(managerRole&&headRole);
+ await db.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[managerRole]);
+ const args={teamId:remoteTeam,priorityId:Number(p.priority_id),eventKey:kval('r12-manager-no-remote-scope')};
+ const without=await initiateHandoverCI(auth,token,args);
+ assert.equal(without.allowed,false,'manager title and original home store permission never imply remote access');
+ await db.query("INSERT INTO public.employee_data_scopes(scope_id,employee_id,scope_kind,scope_reference_id) VALUES(29999,1,'team',$1)",[remoteTeam]);
+ await db.query("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(1,1097,29999,now()-interval '1 day')");
+ assert.equal((await q("SELECT count(*)::int n FROM public.employee_team_memberships WHERE employee_id=1 AND team_id=$1",[remoteTeam]))[0].n,0,
+  'legal cross-Store scoped manager has no forged Team B membership');
+ const allowed=await initiateHandoverCI(auth,token,{teamId:remoteTeam,priorityId:Number(p.priority_id),eventKey:kval('r12-legitimate-remote-manager')});
+ assert.equal(allowed.allowed,true,JSON.stringify(allowed));
+ assert.equal(allowed.code,'F05_8_HANDOVER_PENDING');
+ const allowedProjection=await priorityProjectionCI(auth,token,{teamId:remoteTeam,vehicleId:v.id,listingCycleId:v.cycle,customerId});
+ assert.equal(allowedProjection.allowed,true,JSON.stringify(allowedProjection));
+ // Other-Team/home-store-only binding and explicit personal deny are not
+ // sufficient. None of these denials may advance handover or audit history.
+ const snapshot=async()=>({
+  batch:(await q("SELECT state,attempt_count,updated_at FROM public.f05_8_handover_ci WHERE priority_id=$1",[p.priority_id]))[0],
+  events:(await q("SELECT count(*)::int n FROM public.f05_8_events_ci WHERE priority_id=$1",[p.priority_id]))[0].n
+ });
+ const before=await snapshot();
+ await db.query('UPDATE public.employee_data_scopes SET ended_at=now() WHERE scope_id=29999');
+ const revoked=await initiateHandoverCI(auth,token,{teamId:remoteTeam,priorityId:Number(p.priority_id),eventKey:kval('r12-remote-scope-revoked')});
+ assert.equal(revoked.allowed,false,JSON.stringify(revoked));
+ assert.deepEqual(await snapshot(),before);
+ await db.query('UPDATE public.employee_data_scopes SET ended_at=NULL WHERE scope_id=29999');
+ await db.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=1 AND permission_id=1097");
+ const personalDeny=await initiateHandoverCI(auth,token,{teamId:remoteTeam,priorityId:Number(p.priority_id),eventKey:kval('r12-explicit-individual-deny')});
+ assert.equal(personalDeny.allowed,false);
+ assert.deepEqual(await snapshot(),before);
+ await db.query("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=1 AND permission_id=1097");
+ // Cross-Store StoreHead with an explicitly bound remote *Store* scope.
+ await db.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[headRole]);
+ await db.query("UPDATE public.employee_data_scopes SET scope_kind='store',scope_reference_id=$1 WHERE scope_id=29999",[remoteStore]);
+ const head=await initiateHandoverCI(auth,token,{teamId:remoteTeam,priorityId:Number(p.priority_id),eventKey:kval('r12-remote-store-scoped-head')});
+ assert.equal(head.allowed,true,JSON.stringify(head));
+ // Revocation and request race through two genuinely distinct PG backends.
+ const writer=await connect();let attempt;
+ try{
+  await writer.query('BEGIN');
+  const writerPid=Number((await writer.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+  await writer.query("UPDATE public.employee_data_scopes SET ended_at=now() WHERE scope_id=29999");
+  let settled=false;
+  attempt=initiateHandoverCI(auth,token,{teamId:remoteTeam,priorityId:Number(p.priority_id),eventKey:kval('r12-two-pg-remote-scope-revoke')});
+  attempt.then(()=>{settled=true},()=>{settled=true});
+  await new Promise(resolve=>setTimeout(resolve,120));
+  assert.equal(settled,false,'remote Store scope SHARE lock serializes revocation');
+  await writer.query('COMMIT');
+  assert.equal((await attempt).allowed,false);
+  console.log('F05_8_R12_REAL_TWO_STORE_SCOPE_MANAGER_HEAD_AND_TWO_PG_REVOKE',JSON.stringify({
+   writerPid,employeeMainStore:Number(mainStore.store_id),objectStore:remoteStore,objectTeam:remoteTeam,
+   originalTeamMembership:0,priority:Number(p.priority_id)}));
+ }finally{
+  await writer.query('ROLLBACK').catch(()=>{});await writer.end();
+  if(attempt)await attempt.catch(()=>{});
+ }
+ await db.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[mainStore.main_role_id]);
+ const ordinary=await initiateHandoverCI(auth,token,{teamId:remoteTeam,priorityId:Number(p.priority_id),eventKey:kval('r12-no-remote-sales')});
+ assert.equal(ordinary.allowed,false,'Sales with main store A and no Team B membership must deny');
+ assert.equal(Number((await q("SELECT store_id FROM public.employees WHERE employee_id=1"))[0].store_id),Number(mainStore.store_id));
+});
