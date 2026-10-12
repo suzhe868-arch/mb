@@ -957,4 +957,38 @@ test('8-R12 remote Manager and StoreHead require explicit live object Store/Team
  const ordinary=await initiateHandoverCI(auth,token,{teamId:remoteTeam,priorityId:Number(p.priority_id),eventKey:kval('r12-no-remote-sales')});
  assert.equal(ordinary.allowed,false,'Sales with main store A and no Team B membership must deny');
  assert.equal(Number((await q("SELECT store_id FROM public.employees WHERE employee_id=1"))[0].store_id),Number(mainStore.store_id));
+ // R12 same-Store different-Team: a store-head explicitly granted Store A
+ // scope must access Team 901's physical object even without membership in
+ // Team 901. The employee's unrelated Team membership is not a grant.
+ const home=(await q("SELECT priority_id,vehicle_id,listing_cycle_id,customer_id FROM public.f05_8_priority_ci "+
+  "WHERE origin_team_id=901 AND origin_store_id=$1 AND status='active' ORDER BY priority_id DESC LIMIT 1",[mainStore.store_id]))[0];
+ assert.ok(home,'real original-store Priority from earlier independent Source');
+ await db.query("INSERT INTO public.employee_data_scopes(scope_id,employee_id,scope_kind,scope_reference_id) VALUES(29995,1,'store',$1)",[mainStore.store_id]);
+ await db.query("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(1,1097,29995,now()-interval '1 day')");
+ await db.query("UPDATE public.employee_team_memberships SET ended_at=now() WHERE employee_id=1 AND team_id=901 AND ended_at IS NULL");
+ await db.query("UPDATE public.employee_data_scopes SET ended_at=now() WHERE scope_id=29001 AND employee_id=1");
+ await db.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[headRole]);
+ assert.equal((await q("SELECT count(*)::int n FROM public.employee_team_memberships WHERE employee_id=1 AND team_id=901 AND ended_at IS NULL"))[0].n,0);
+ const legalSameStore=await priorityProjectionCI(auth,token,{teamId:901,vehicleId:Number(home.vehicle_id),
+  listingCycleId:Number(home.listing_cycle_id),customerId:Number(home.customer_id)});
+ assert.equal(legalSameStore.allowed,true,JSON.stringify(legalSameStore));
+ await db.query("UPDATE public.employee_data_scopes SET ended_at=now() WHERE scope_id=29995");
+ const revokedHomeStore=await priorityProjectionCI(auth,token,{teamId:901,vehicleId:Number(home.vehicle_id),
+  listingCycleId:Number(home.listing_cycle_id),customerId:Number(home.customer_id)});
+ assert.equal(revokedHomeStore.allowed,false,'store-head title alone does not grant even same-store unbound object');
+ await db.query('UPDATE public.employee_team_memberships SET ended_at=NULL WHERE employee_id=1 AND team_id=901');
+ await db.query("UPDATE public.employee_data_scopes SET ended_at=NULL WHERE scope_id=29001 AND employee_id=1");
+ // A 4S role must not impersonate a signed employee manager even if a
+ // formerly usable cross-Store data scope is left explicitly granted.
+ const fourS=(await q("SELECT role_id FROM public.roles WHERE role_code='four_s'"))[0]?.role_id;
+ assert.ok(fourS);
+ await db.query('UPDATE public.employee_data_scopes SET ended_at=NULL WHERE scope_id=29999');
+ await db.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[fourS]);
+ const nonMB=await initiateHandoverCI(auth,token,{teamId:remoteTeam,priorityId:Number(p.priority_id),
+  eventKey:kval('r12-4s-explicit-scope-hard-denied')});
+ assert.equal(nonMB.allowed,false,'4S cannot invoke MB employee Priority even with synthetic cross-store binding');
+ await db.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[mainStore.main_role_id]);
+ console.log('F05_8_R12_SAME_STORE_OTHER_TEAM_HEAD_AND_4S_DENIAL',JSON.stringify({
+  mainStore:Number(mainStore.store_id),homePriority:Number(home.priority_id),homeTeamMembership:0,
+  crossStorePriority:Number(p.priority_id),fourSDenied:true}));
 });
