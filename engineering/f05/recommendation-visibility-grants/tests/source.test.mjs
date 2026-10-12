@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {randomBytes} from 'node:crypto';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {connect,verify} from '../migration.mjs';
+import {releaseCI} from '../../priority-arbitration-ttl-handover/service.mjs';
 import {createRecommendationCI,finishRecommendationCI,batchRecommendCI,customerProjectionCI,productionDeny} from '../service.mjs';
 const c=await connect(),auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,
  secret:randomBytes(32),origin:'https://127.0.0.1:48989'});
@@ -155,6 +156,170 @@ test('9-S06c batch keeps legal existing Vehicle result when another Vehicle fail
  assert.equal(result.entries[1].allowed,false);
  assert.equal((await q('SELECT count(*)::int n FROM public.f05_9_recommendation_facts_ci'))[0].n,before);
 });
+
+const aux=async()=>{
+ const found=await q("SELECT vf.vehicle_id,vf.listing_cycle_id FROM public.f05_7_vehicle_facts_ci vf "+
+ "JOIN public.vehicles ve ON ve.vehicle_id=vf.vehicle_id "+
+ "JOIN public.vehicle_listing_cycles lc ON lc.listing_cycle_id=vf.listing_cycle_id "+
+ "WHERE ve.source_type='wholesale' AND ve.source_sale_status='active' AND ve.archived_at IS NULL "+
+ "AND lc.ended_at IS NULL AND vf.vehicle_id<>$1 ORDER BY vf.vehicle_id LIMIT 4",[v]);
+ assert.equal(found.length,4,'R01-R04 require four other real signed wholesale Vehicle/cycle sources');
+ return found.map(x=>({vehicleId:Number(x.vehicle_id),listingCycleId:Number(x.listing_cycle_id)}));
+};
+test('9-R01 real v24 qualified other-Customer Priority suppresses B detail/share/my-rec and restores only after signed release',async()=>{
+ const previous=(await q('SELECT * FROM public.f05_9_price_right_ci WHERE original_recommendation_id=$1',[recId]))[0];
+ const history=(await q('SELECT * FROM public.f05_9_recommendation_facts_ci WHERE recommendation_id=$1',[recId]))[0];
+ const oldGrant=(await q("SELECT grant_id FROM public.vehicle_visibility_grants WHERE source_recommendation_id=$1 AND revoked_at IS NULL",[recId]))[0];
+ assert.ok(previous&&oldGrant);
+ // Signed v23 Match result + genuine PDM11 find + explicit v24 Priority qualification.
+ await c.query("INSERT INTO public.f05_8_qualification_ci(customer_id,enabled,updated_by_employee_id) "+
+  "VALUES(899613,true,1) ON CONFLICT(customer_id) DO UPDATE SET enabled=EXCLUDED.enabled");
+ const candidate=(await q("SELECT * FROM public.f05_8_eligible_candidates_ci "+
+  "WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND customer_id=899613 "+
+  "ORDER BY created_at,demand_id LIMIT 1",[v,cy]))[0];
+ assert.ok(candidate&&['high','acceptable'].includes(candidate.tier),'real signed current acceptable/high Match required');
+ const store=(await q('SELECT store_id FROM public.employees WHERE employee_id=1'))[0].store_id;
+ const writer=await connect();let reading;
+ try{
+  await writer.query('BEGIN');
+  const writerPid=Number((await writer.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+  await writer.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[v]);
+  const p=(await writer.query("INSERT INTO public.f05_8_priority_ci(customer_id,vehicle_id,listing_cycle_id,trigger_demand_id,"+
+   "responsible_employee_id,origin_team_id,origin_store_id,source_match_result_id,source_signature,expires_at,creation_key) "+
+   "VALUES(899613,$1,$2,$3,1,901,$4,$5,$6,now()+interval '24 hours',$7) RETURNING priority_id,expires_at",
+   [v,cy,candidate.demand_id,store,candidate.result_id,candidate.source_signature,key('r01-real-priority')])).rows[0];
+  let done=false;
+  reading=proj(customerId,{entry:'ordinary_share'});
+  reading.then(()=>done=true,()=>done=true);
+  await new Promise(resolve=>setTimeout(resolve,120));
+  assert.equal(done,false,'Customer projection must wait on genuine Priority source Vehicle lock');
+  await writer.query('COMMIT');
+  const blocked=await reading;
+  for(const entry of ['detail','ordinary_share','my_recommendations']){
+   const result=entry==='ordinary_share'?blocked:await proj(customerId,{entry});
+   assert.equal(result.visible,false,JSON.stringify(result));
+   assert.equal(result.publicVisible,false);
+   assert.equal(result.hasCurrentRecommendation,false);
+   assert.equal(result.currentCycleFreeWholesaleRight,false);
+   assert.equal(result.customerDisplayCents,null);
+   assert.equal(result.priceStatus,'not_authorized');
+  }
+  const self=await proj(899613);
+  assert.equal(self.currentCycleFreeWholesaleRight,false,'Priority does not confer a Recommendation price right');
+  assert.equal(self.hasCurrentRecommendation,false,'Priority does not fabricate Recommendation');
+  assert.deepEqual((await q('SELECT * FROM public.f05_9_recommendation_facts_ci WHERE recommendation_id=$1',[recId]))[0],history);
+  assert.equal((await q('SELECT count(*)::int n FROM public.f05_9_price_right_ci WHERE original_recommendation_id=$1',[recId]))[0].n,1);
+  assert.equal((await q("SELECT count(*)::int n FROM public.vehicle_visibility_grants WHERE grant_id=$1 AND revoked_at IS NULL",[oldGrant.grant_id]))[0].n,1);
+  const released=await releaseCI(auth,token,{teamId:901,priorityId:Number(p.priority_id),eventKey:key('r01-release')});
+  assert.equal(released.allowed,true,JSON.stringify(released));
+  assert.equal((await q('SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1',[p.priority_id]))[0].status,'ended');
+  assert.equal((await proj(customerId)).visible,true,'release rechecks original active rec + same cycle + Customer entitlement');
+  assert.equal((await q('SELECT count(*)::int n FROM public.f05_9_price_right_ci WHERE original_recommendation_id=$1',[recId]))[0].n,1);
+  console.log('F05_9_R01_REAL_SIGNED_PRIORITY_B_HISTORIC_RETENTION_SUPPRESS_RELEASE',JSON.stringify({writerPid,priorityId:Number(p.priority_id),recId,originalExpires:p.expires_at}));
+ }finally{await writer.query('ROLLBACK').catch(()=>{});await writer.end();if(reading)await reading.catch(()=>{})}
+});
+test('9-R02 find Level off/on, disable, lawful historic end/void and never historic rights revival',async()=>{
+ const cars=await aux();const target=cars[2];
+ const off=(await q('SELECT level_id FROM public.f05_6_level_find_policy_ci WHERE find_enabled=false ORDER BY level_id LIMIT 1'))[0];
+ assert.ok(off,'PDM11 has signed no-find Level');
+ const level=(await q('SELECT customer_level_id FROM public.customers WHERE customer_id=$1',[customerId]))[0].customer_level_id;
+ const raw=(await createRecommendationCI(auth,token,{customerId,vehicleId:target.vehicleId,listingCycleId:target.listingCycleId,eventKey:key('r02-created')}));
+ assert.equal(raw.allowed,true,JSON.stringify(raw));assert.equal(raw.created,true);
+ await c.query('UPDATE public.customers SET customer_level_id=$2 WHERE customer_id=$1',[customerId,off.level_id]);
+ assert.equal((await proj(customerId)).visible,false,'no-find hidden original Recommendation must suspend');
+ assert.equal((await proj(customerId)).currentCycleFreeWholesaleRight,false,'no-find projection cannot offer Recommendation-only price');
+ const noFind=await createRecommendationCI(auth,token,{customerId,vehicleId:target.vehicleId,listingCycleId:target.listingCycleId,eventKey:key('r02-no-find-create')});
+ assert.equal(noFind.allowed,false);
+ const terminated=await finishRecommendationCI(auth,token,{recommendationId:raw.recommendationId,kind:'end',eventKey:key('r02-end-without-find')});
+ assert.equal(terminated.allowed,true,JSON.stringify(terminated));
+ assert.equal((await q('SELECT status FROM public.recommendations WHERE recommendation_id=$1',[raw.recommendationId]))[0].status,'ended');
+ await c.query('UPDATE public.customers SET customer_level_id=$2 WHERE customer_id=$1',[customerId,level]);
+ assert.equal((await proj(customerId)).visible,true,'original still-active Recommendation restored');
+ const reopened=await createRecommendationCI(auth,token,{customerId,vehicleId:target.vehicleId,listingCycleId:target.listingCycleId,eventKey:key('r02-distinct-recreation')});
+ assert.equal(reopened.allowed,true);assert.notEqual(reopened.recommendationId,raw.recommendationId);
+ await c.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=$1",[customerId]);
+ assert.equal((await proj(customerId)).visible,false);
+ const voided=await finishRecommendationCI(auth,token,{recommendationId:reopened.recommendationId,kind:'void',
+  reason:'CI signed historic correction after disable',eventKey:key('r02-void-disabled')});
+ assert.equal(voided.allowed,true,JSON.stringify(voided));
+ assert.equal((await q('SELECT status FROM public.recommendations WHERE recommendation_id=$1',[reopened.recommendationId]))[0].status,'void');
+ await c.query("UPDATE public.customers SET account_status='active' WHERE customer_id=$1",[customerId]);
+ assert.equal((await proj(customerId)).visible,true);
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_9_price_right_ci WHERE original_recommendation_id IN ($1,$2)",[raw.recommendationId,reopened.recommendationId]))[0].n,1,
+  'current-cycle price rights are per Customer/Vehicle/cycle, not regranted per new rec');
+ assert.equal((await q("SELECT count(*)::int n FROM public.recommendations WHERE recommendation_id IN ($1,$2) AND status='active'",[raw.recommendationId,reopened.recommendationId]))[0].n,0);
+ console.log('F05_9_R02_REAL_LEVEL_DISABLE_HISTORIC_GOVERNANCE_PRESERVED');
+});
+test('9-R03 price consultation to numeric, immutable snapshot, current repricing and same-Vehicle conversion',async()=>{
+ const cars=await aux(),target=cars[3],vid=target.vehicleId,cid=target.listingCycleId;
+ await c.query("INSERT INTO public.f05_4_current_price_ci(vehicle_id,listing_cycle_id,customer_display_cents) "+
+  "VALUES($1,$2,NULL) ON CONFLICT(vehicle_id,listing_cycle_id) DO UPDATE SET customer_display_cents=NULL",[vid,cid]);
+ const createdR=await createRecommendationCI(auth,token,{customerId,vehicleId:vid,listingCycleId:cid,eventKey:key('r03-consultation-first')});
+ assert.equal(createdR.allowed,true,JSON.stringify(createdR));
+ assert.equal(createdR.wholesaleFreePrice,true);
+ const original=(await q('SELECT original_price_snapshot FROM public.f05_9_recommendation_facts_ci WHERE recommendation_id=$1',[createdR.recommendationId]))[0].original_price_snapshot;
+ assert.equal(original.kind,'price_consultation');
+ assert.equal(original.customerDisplayCents,null);
+ assert.equal((await customerProjectionCI(c,{customerId,vehicleId:vid,listingCycleId:cid,syntheticCustomerIdentity:identity})).priceStatus,'price_consultation');
+ await c.query('UPDATE public.f05_4_current_price_ci SET customer_display_cents=5555000 WHERE vehicle_id=$1 AND listing_cycle_id=$2',[vid,cid]);
+ let display=await customerProjectionCI(c,{customerId,vehicleId:vid,listingCycleId:cid,syntheticCustomerIdentity:identity});
+ assert.equal(Number(display.customerDisplayCents),5555000);
+ await c.query('UPDATE public.f05_4_current_price_ci SET customer_display_cents=6789000 WHERE vehicle_id=$1 AND listing_cycle_id=$2',[vid,cid]);
+ display=await customerProjectionCI(c,{customerId,vehicleId:vid,listingCycleId:cid,syntheticCustomerIdentity:identity});
+ assert.equal(Number(display.customerDisplayCents),6789000);
+ assert.deepEqual((await q('SELECT original_price_snapshot FROM public.f05_9_recommendation_facts_ci WHERE recommendation_id=$1',[createdR.recommendationId]))[0].original_price_snapshot,original);
+ assert.equal((await q('SELECT count(*)::int n FROM public.customer_price_unlock_events WHERE customer_id=$1',[customerId]))[0].n,0);
+ // Signed F05-3C physical conversion changes source_type + availability but keeps same vehicle/cycle.
+ const before=(await q('SELECT original_price_snapshot,original_source_kind FROM public.f05_9_recommendation_facts_ci WHERE recommendation_id=$1',[recId]))[0];
+ await c.query("UPDATE public.vehicles SET source_type='mingbang',source_sale_status='available',platform_visibility='hidden' "+
+  "WHERE vehicle_id=$1 AND source_type='wholesale' AND source_sale_status='active'",[v]);
+ const base=(await q('SELECT source_type,source_sale_status FROM public.vehicles WHERE vehicle_id=$1',[v]))[0];
+ assert.deepEqual(base,{source_type:'mingbang',source_sale_status:'available'});
+ const rec=(await q('SELECT * FROM public.recommendations WHERE recommendation_id=$1',[recId]))[0];
+ assert.equal(rec.status,'active');assert.equal(Number(rec.listing_cycle_id),cy);
+ assert.deepEqual((await q('SELECT original_price_snapshot,original_source_kind FROM public.f05_9_recommendation_facts_ci WHERE recommendation_id=$1',[recId]))[0],before);
+ assert.equal((await proj(customerId)).currentCycleFreeWholesaleRight,true);
+ assert.equal((await q('SELECT count(*)::int n FROM public.f05_9_price_right_ci WHERE original_recommendation_id=$1',[recId]))[0].n,1);
+ assert.equal((await q('SELECT count(*)::int n FROM public.customer_price_unlock_events WHERE customer_id=$1',[customerId]))[0].n,0);
+ console.log('F05_9_R03_NATIVE_PG16_CONSULTATION_LATE_PRICE_IMMUTABLE_SNAPSHOT_WHOLESALE_TO_MINGBANG');
+});
+test('9-R04 two new lawful Vehicles, real unavailable failure, Lock and Transaction stay independently occupied',async()=>{
+ const cars=await aux(),[a,b,lockCar,txnCar]=cars;
+ const before=(await q('SELECT count(*)::int n FROM public.f05_9_recommendation_facts_ci'))[0].n;
+ const batch=await batchRecommendCI(auth,token,{customerId,vehicleCycles:[a,{vehicleId:999999999,listingCycleId:a.listingCycleId},b],eventPrefix:key('r04-three-independent')});
+ assert.equal(batch.allowed,true);assert.equal(batch.entries.length,3);
+ assert.equal(batch.entries[0].created,true,JSON.stringify(batch.entries));
+ assert.equal(batch.entries[1].allowed,false);
+ assert.equal(batch.entries[2].created,true,JSON.stringify(batch.entries));
+ assert.notEqual(batch.entries[0].recommendationId,batch.entries[2].recommendationId);
+ assert.equal((await q('SELECT count(*)::int n FROM public.f05_9_recommendation_facts_ci'))[0].n,before+2);
+ for(const each of [a,b]){
+  assert.equal((await q("SELECT count(*)::int n FROM public.f05_9_price_right_ci WHERE customer_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3",[customerId,each.vehicleId,each.listingCycleId]))[0].n,1);
+  await c.query("UPDATE public.vehicles SET platform_visibility='hidden' WHERE vehicle_id=$1",[each.vehicleId]);
+  assert.equal((await q("SELECT count(*)::int n FROM public.vehicle_visibility_grants WHERE vehicle_id=$1 AND customer_id=$2 AND revoked_at IS NULL",[each.vehicleId,customerId]))[0].n,1);
+ }
+ await c.query("INSERT INTO public.locks(lock_id,customer_id,vehicle_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) "+
+  "VALUES(8997951,899613,$1,$2,'active',1,now()-interval '1 minute',now()+interval '2 hours')",[lockCar.vehicleId,lockCar.listingCycleId]);
+ const onLock=await createRecommendationCI(auth,token,{customerId,vehicleId:lockCar.vehicleId,listingCycleId:lockCar.listingCycleId,eventKey:key('r04-active-lock-can-recommend')});
+ assert.equal(onLock.allowed,true,JSON.stringify(onLock));
+ assert.equal((await q('SELECT lock_status FROM public.locks WHERE lock_id=8997951'))[0].lock_status,'active');
+ await c.query("INSERT INTO public.locks(lock_id,customer_id,vehicle_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) "+
+  "VALUES(8997952,899613,$1,$2,'cancelled',1,now()-interval '1 minute',now()+interval '2 hours')",[txnCar.vehicleId,txnCar.listingCycleId]);
+ await c.query("INSERT INTO public.transactions(transaction_id,source_lock_id,customer_id,vehicle_id,listing_cycle_id,status,responsible_employee_id) "+
+  "VALUES(8997952,8997952,899613,$1,$2,'in_progress',1)",[txnCar.vehicleId,txnCar.listingCycleId]);
+ const whileTxn=await createRecommendationCI(auth,token,{customerId:899613,vehicleId:txnCar.vehicleId,listingCycleId:txnCar.listingCycleId,eventKey:key('r04-in-progress-can-recommend')});
+ assert.equal(whileTxn.allowed,true,JSON.stringify(whileTxn));
+ assert.equal((await q('SELECT status FROM public.transactions WHERE transaction_id=8997952'))[0].status,'in_progress');
+ await c.query("UPDATE public.vehicles SET source_sale_status='sold' WHERE vehicle_id=$1",[a.vehicleId]);
+ const sold=await createRecommendationCI(auth,token,{customerId:899618,vehicleId:a.vehicleId,listingCycleId:a.listingCycleId,eventKey:key('r04-sold-deny')});
+ assert.equal(sold.allowed,false);assert.equal(sold.code,'F05_9_NOT_CURRENT_SALEABLE_CYCLE');
+ const noInherited=await customerProjectionCI(c,{customerId:899618,vehicleId:b.vehicleId,listingCycleId:b.listingCycleId,entry:'ordinary_share',syntheticCustomerIdentity:identity});
+ assert.equal(noInherited.visible,false,'other Customer cannot inherit hidden Vehicle rights via ordinary Share');
+ assert.equal(noInherited.currentCycleFreeWholesaleRight,false);
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_9_price_right_ci WHERE customer_id=899618 AND vehicle_id=$1",[b.vehicleId]))[0].n,0);
+ console.log('F05_9_R04_REAL_TWO_NEW_VEHICLES_PARTIAL_BATCH_LOCK_TRANSACTION_SOLD_HARD_DENY');
+});
+
 test('9-S07 end and re-create are distinct historic recommendations; free right survives end',async()=>{
  const result=await finishRecommendationCI(auth,token,{recommendationId:recId,kind:'end',eventKey:key('end')});
  assert.equal(result.allowed,true,JSON.stringify(result));

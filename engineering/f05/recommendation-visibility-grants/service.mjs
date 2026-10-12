@@ -16,10 +16,10 @@ const sourceAuth=async(c,actor,teamId,customerId,demandId,{forTermination=false}
  const employee=(await c.query('SELECT employee_id,store_id,employment_status FROM public.employees WHERE employee_id=$1 FOR SHARE',[eid])).rows[0];
  if(!employee||employee.employment_status!=='active')return FAIL('F05_9_EMPLOYEE_INACTIVE');
  const customer=(await c.query('SELECT * FROM public.customers WHERE customer_id=$1 FOR SHARE',[customerId])).rows[0];
- if(!customer||customer.account_status!=='active'||customer.owner_assignment_state!=='assigned')
+ if(!customer||(!forTermination&&customer.account_status!=='active')||customer.owner_assignment_state!=='assigned')
   return FAIL('F05_9_CUSTOMER_NOT_ELIGIBLE');
  const entitlement=(await c.query('SELECT find_enabled FROM public.f05_6_level_find_policy_ci WHERE level_id=$1 FOR SHARE',[customer.customer_level_id])).rows[0];
- if(!entitlement?.find_enabled)return FAIL('F05_9_FIND_ENTITLEMENT_REQUIRED');
+ if(!forTermination&&!entitlement?.find_enabled)return FAIL('F05_9_FIND_ENTITLEMENT_REQUIRED');
  let responsible=Number(customer.current_owner_employee_id),demand=null;
  if(demandId!==null){
   demand=(await c.query('SELECT * FROM public.demands WHERE demand_id=$1 FOR SHARE',[demandId])).rows[0];
@@ -203,7 +203,7 @@ async function customerProjectionReadCI(c,{customerId,vehicleId,listingCycleId,e
     (['mingbang','four_s'].includes(veh.source_type)&&veh.source_sale_status==='available'));
  const entitled=!!cu&&cu.account_status==='active'&&(await c.query('SELECT find_enabled FROM public.f05_6_level_find_policy_ci WHERE level_id=$1 FOR SHARE',[cu.customer_level_id])).rows[0]?.find_enabled===true;
  const exclusive=(await c.query("SELECT customer_id FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 "+
- "AND status='active' AND expires_at>statement_timestamp() LIMIT 1",[vehicleId,listingCycleId])).rows[0];
+ "AND status='active' AND expires_at>statement_timestamp() ORDER BY priority_id LIMIT 1 FOR SHARE",[vehicleId,listingCycleId])).rows[0];
  const blocked=!!exclusive&&Number(exclusive.customer_id)!==Number(customerId);
  const rec=(await c.query("SELECT r.recommendation_id FROM public.recommendations r "+
   "JOIN public.f05_9_recommendation_facts_ci s ON s.recommendation_id=r.recommendation_id "+
@@ -223,7 +223,8 @@ async function customerProjectionReadCI(c,{customerId,vehicleId,listingCycleId,e
  return OK('F05_9_SAFE_CUSTOMER_PROJECTION',{vehicleId:Number(vehicleId),listingCycleId:Number(listingCycleId),
   currentSaleable:active,visible:authorized,publicVisible,
   recommendationOnlyVisible:authorized&&!publicVisible,
-  hasCurrentRecommendation:!!rec,currentCycleFreeWholesaleRight:active&&!!right,
+  hasCurrentRecommendation:active&&!blocked&&entitled&&!!rec,
+  currentCycleFreeWholesaleRight:active&&!blocked&&entitled&&!!right,
   priceStatus:authorized&&entitled&&right?(numeric?'synthetic_digital':'price_consultation'):'not_authorized',
   customerDisplayCents:numeric??null,entry,moreVehicles:true});
 }
