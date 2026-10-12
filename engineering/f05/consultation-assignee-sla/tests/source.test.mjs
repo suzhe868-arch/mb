@@ -378,6 +378,33 @@ test('10-R02 genuine two-Store current scope Manager/StoreHead, 4S and remote sa
  const receipt=(await q('SELECT old_assignee_id,new_assignee_id,actor_id FROM public.f05_10_consultation_handover_ci WHERE consultation_id=$1',[consultation.consultationId]))[0];
  assert.equal(Number(receipt.old_assignee_id),employeeB);assert.equal(Number(receipt.new_assignee_id),otherB);
  assert.equal(Number(receipt.actor_id),1);
+ // A real two-backend Customer disable COMMIT serializes Employee followup via signed Customer FOR SHARE.
+ const writer=await connect();let racing;
+ try{
+  const writerPid=Number((await writer.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+  const originalPid=Number((await q('SELECT pg_backend_pid() pid'))[0].pid);
+  assert.notEqual(writerPid,originalPid);
+  await writer.query('BEGIN');
+  await writer.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=$1",[who]);
+  let finished=false;
+  racing=act(consultation.consultationId,'followup',{evidenceKind:'crm_note',evidenceRef:'CI-CUSTOMER-DISABLE-RACE-001'});
+  racing.then(()=>{finished=true},()=>{finished=true});
+  await new Promise(done=>setTimeout(done,120));
+  assert.equal(finished,false,'Employee Followup waits on physical Customer disable writer COMMIT');
+  await writer.query('COMMIT');
+  const rejected=await racing;assert.equal(rejected.allowed,false,JSON.stringify(rejected));
+  const hold=(await q('SELECT customer_disabled_hold,remaining_ms FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[consultation.consultationId]))[0];
+  assert.equal(hold.customer_disabled_hold,true);assert.ok(Number(hold.remaining_ms)>=0);
+  await writer.query("UPDATE public.customers SET account_status='active' WHERE customer_id=$1",[who]);
+  assert.equal((await q('SELECT customer_disabled_hold FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[consultation.consultationId]))[0].customer_disabled_hold,true);
+  const resumed=await act(consultation.consultationId,'resume');assert.equal(resumed.allowed,true,JSON.stringify(resumed));
+  const resumedTime=(await q('SELECT c.first_response_deadline,m.remaining_ms,m.customer_disabled_hold FROM public.consultations c JOIN public.f05_10_consultation_meta_ci m USING(consultation_id) WHERE c.consultation_id=$1',[consultation.consultationId]))[0];
+  assert.equal(resumedTime.customer_disabled_hold,false);
+  assert.equal(Number(resumedTime.remaining_ms),Number(hold.remaining_ms));
+  const drift=resumedTime.first_response_deadline.getTime()-Date.now()-Number(hold.remaining_ms);
+  assert.ok(Math.abs(drift)<4000,'Resume restores remaining milliseconds, never a fresh 900s: '+drift);
+  console.log('F05_10_R03_TWO_REAL_BACKEND_CUSTOMER_HOLD_COMMIT',{writerPid,originalPid,consultationId:consultation.consultationId,remaining:Number(hold.remaining_ms)});
+ }finally{await writer.query('ROLLBACK').catch(()=>{});await writer.end();if(racing)await racing.catch(()=>{})}
  await q('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[storeHead]);
  assert.equal((await internalConsultationProjectionCI(auth,token,{consultationId:consultation.consultationId})).allowed,true);
  await q("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=1 AND permission_id=9106");

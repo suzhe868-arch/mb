@@ -8,6 +8,7 @@
 - 已追加工程源码：创建时固化 Consultation 对象 Team/Store origin，当前 Employee employment / personal permission deny / capability Scope / data Scope / membership 物理变化触发新 v26 CI 表的自动 pending Guard及不可变事件；每次合法 Employee 操作再次查询当前实际权限与 Guard。增加独立可核对的合成首次真人服务 evidence 源、actor/type/Consultation 外键及一次性消费约束，拒绝任意格式合法但不存在源事实的 call/message 引用。
 - 新增 PostgreSQL16 原生 Source 用例：伪证拒绝、close_normal/invalid 与客户withdraw独立；新版 SLA policy 对新工单生效、旧 source snapshot 不变；Hold 剩余时长及恢复；1秒 timeout 不自动关闭；至少两个 PG backend 对 Employee disabled 触发器提交与旧Mutation竞争；个人 deny /scope撤销与 receiving pool 回退；真实 v25 推荐 direct source、Owner 与 Assignee 不漂移、隐藏车分享不继承；真实 Recommendation、Priority、Grant、价格权、Lock、Transaction、Owner 物理行数/哈希不变；已开单在车辆下架后保持原状态。
 - 追加跨Store真实签名合成：独立 Store/Team、员工业务 Scope 与 Owner、真实远端Consultation/接客员工、经理/店长个人明确权限与远端 Store 范围、正式 handover receipt、个人 deny 和 4S 角色拒绝；并对独立员工来源 DELETE / role 变化做额外实时 Guard 保护。
+- 增补两个独立PG Backend的 Customer 停用COMMIT对 Employee followup 的真实锁等待/拒绝、账号恢复仍保留Hold、正式显式Resume使用冻结毫秒；scope revoked_at 使用数据库时钟避免语句内时钟偏差而漏判撤权。
 - 尚待官方 Actions 核实及可能修复：旧70 Job和新增2 Job 的唯一新HEAD全量成功；本批 Source 新用例无 skip/fail、八份有效同 SHA 原生 Artifact；A R02 的完整 Demand/跨Store Manager/StoreHead/4S/SystemAdmin 矩阵、A R03 双后端客户停用与 DND 正反例，以及 4S 合法车源等仍需逐项实测或列明确阻断。
 
 ## 必须保留的 SOURCE_GAP

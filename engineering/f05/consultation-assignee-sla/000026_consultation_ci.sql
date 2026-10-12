@@ -153,10 +153,10 @@ RETURNS BOOLEAN LANGUAGE sql VOLATILE AS $$
   JOIN public.employee_permission_overrides ov ON ov.employee_id=e.employee_id
    AND ov.permission_id=p.permission_id AND ov.decision='allow'
   JOIN public.employee_capability_scope_bindings b ON b.employee_id=e.employee_id
-   AND b.permission_id=p.permission_id AND b.granted_at<=statement_timestamp()
-   AND (b.ended_at IS NULL OR b.ended_at>statement_timestamp())
+   AND b.permission_id=p.permission_id AND b.granted_at<=clock_timestamp()
+   AND (b.ended_at IS NULL OR b.ended_at>clock_timestamp())
   JOIN public.employee_data_scopes sc ON sc.scope_id=b.scope_id AND sc.employee_id=e.employee_id
-   AND (sc.ended_at IS NULL OR sc.ended_at>statement_timestamp())
+   AND (sc.ended_at IS NULL OR sc.ended_at>clock_timestamp())
   WHERE m.consultation_id=p_consultation_id
    AND ((sc.scope_kind='team' AND sc.scope_reference_id=m.origin_team_id)
     OR (sc.scope_kind='store' AND sc.scope_reference_id=m.origin_store_id
@@ -165,8 +165,8 @@ RETURNS BOOLEAN LANGUAGE sql VOLATILE AS $$
      e.store_id=m.origin_store_id AND EXISTS (
        SELECT 1 FROM public.employee_team_memberships tm
        WHERE tm.employee_id=e.employee_id AND tm.team_id=m.origin_team_id
-       AND tm.valid_from<=statement_timestamp()
-       AND (tm.ended_at IS NULL OR tm.ended_at>statement_timestamp())
+       AND tm.valid_from<=clock_timestamp()
+       AND (tm.ended_at IS NULL OR tm.ended_at>clock_timestamp())
      )))
  );
 $$;
