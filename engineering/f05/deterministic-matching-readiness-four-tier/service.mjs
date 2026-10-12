@@ -87,9 +87,18 @@ export async function calculateCI(auth,token,{demandId,vehicleId,listingCycleId,
   const facts=(await c.query('SELECT facts_json,fact_version,available FROM public.f05_7_vehicle_facts_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 FOR SHARE',[vehicleId,listingCycleId])).rows[0];
   if(!cy||!eligibleVehicle({...v,...cy,available:facts?.available}))return deny('F05_7_VEHICLE_NOT_SALEABLE_ACTIVE_CYCLE');
   if(!facts)return deny('F05_7_CI_VEHICLE_FACT_SOURCE_GAP');
-  const evaluation=tierFor(sales.condition_json,facts.facts_json);
+  // Physical Lock exists independent of permission to grant new locks.
+  // Snapshot exposes occupation only; no customer/phone/financial data.
+  const lockRows=(await c.query("SELECT lock_id,expires_at FROM public.locks "+
+   "WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND lock_status='active' "+
+   "AND expires_at>statement_timestamp() ORDER BY lock_id FOR SHARE",[vehicleId,listingCycleId])).rows;
+  const occupation={occupied:lockRows.length>0,activeLockCount:lockRows.length,
+   factSource:'F05_7_ORIGINAL_PG16_ACTIVE_LOCK_CI_OBSERVATION'};
+  const lockSeal=lockRows.map(x=>[String(x.lock_id),x.expires_at]);
+  const evaluation=tierFor(sales.condition_json,facts.facts_json);  evaluation.explanations.push({field:'active_lock_occupancy',outcome:occupation.occupied?'occupied':'unoccupied',
+   ...occupation});
   if(!evaluation.tier)return deny('F05_7_NOT_MATCHING_READY');
-  const signature=sha([sales.description_version,currentSha,facts.fact_version,facts.facts_json,g.d.demand_state,g.customer.account_status,g.customer.customer_level_id,v.source_sale_status,cy.ended_at]);
+  const signature=sha([sales.description_version,currentSha,facts.fact_version,facts.facts_json,g.d.demand_state,g.customer.account_status,g.customer.customer_level_id,v.source_sale_status,cy.ended_at,lockSeal]);
   if(checkpoint)await checkpoint('before_match_result_commit',c);
   const old=(await c.query("SELECT result_id,source_signature,tier,run_key FROM public.f05_7_result_versions_ci WHERE demand_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3 AND status='current' FOR UPDATE",
    [demandId,vehicleId,listingCycleId])).rows[0];
@@ -97,13 +106,53 @@ export async function calculateCI(auth,token,{demandId,vehicleId,listingCycleId,
   if(repeated){
    if(Number(repeated.demand_id)!==demandId||Number(repeated.vehicle_id)!==vehicleId||Number(repeated.listing_cycle_id)!==listingCycleId||
     repeated.source_signature!==signature||repeated.status!=='current')return deny('F05_7_STALE_OR_COLLIDING_RUN_KEY_REPLAY');
-   return ok('F05_7_IDENTICAL_MATCH_ALREADY_RECORDED',{resultId:Number(repeated.result_id)});
+   return ok('F05_7_IDENTICAL_MATCH_ALREADY_RECORDED',{resultId:Number(repeated.result_id),occupancy:occupation});
   }
-  if(old?.source_signature===signature)return ok('F05_7_CURRENT_SAME_FACTS',{resultId:Number(old.result_id),tier:old.tier});
+  if(old?.source_signature===signature)return ok('F05_7_CURRENT_SAME_FACTS',{resultId:Number(old.result_id),tier:old.tier,occupancy:occupation});
   if(old)await c.query("UPDATE public.f05_7_result_versions_ci SET status='stale' WHERE result_id=$1 AND status='current'",[old.result_id]);
   const created=(await c.query("INSERT INTO public.f05_7_result_versions_ci(demand_id,vehicle_id,listing_cycle_id,tier,status,source_signature,explanations,reason,run_key) VALUES($1,$2,$3,$4,'current',$5,$6::jsonb,$7,$8) RETURNING result_id",
    [demandId,vehicleId,listingCycleId,evaluation.tier,signature,JSON.stringify(evaluation.explanations),evaluation.reason,runKey])).rows[0];
-  return ok('F05_7_CURRENT_MATCH_RESULT_CI',{resultId:Number(created.result_id),tier:evaluation.tier,reason:evaluation.reason});
+  return ok('F05_7_CURRENT_MATCH_RESULT_CI',{resultId:Number(created.result_id),tier:evaluation.tier,reason:evaluation.reason,occupancy:occupation});
  });
 }
+// CI-only bounded local re-evaluation. No production scanner, cron, or outbound jobs.
+export async function retryAffectedCI(auth,token,{demandId,teamId,batchKey,injectFailureVehicles=[]}={}){
+ if(!valid(demandId)||!valid(teamId)||!goodKey(batchKey)||!Array.isArray(injectFailureVehicles)||
+    injectFailureVehicles.some(x=>!valid(x)))return deny('F05_7_INVALID_RETRY_SCOPE');
+ const list=await withEmployee(auth,token,async(c,a)=>{
+  const g=await context(c,a,demandId,teamId);if(!g.allowed)return g;
+  const items=(await c.query("SELECT demand_id,vehicle_id,listing_cycle_id,retry_state,attempt_count FROM public.f05_7_retry_scope_ci "+
+   "WHERE demand_id=$1 AND retry_state IN ('pending','failed') ORDER BY vehicle_id,listing_cycle_id FOR SHARE",[demandId])).rows;
+  return ok('F05_7_RETRY_SCOPE_CURRENT',{items});
+ });
+ if(!list.allowed)return list;
+ const handled=[];
+ for(const x of list.items){
+  const vehicleId=Number(x.vehicle_id),listingCycleId=Number(x.listing_cycle_id);
+  const syntheticFailure=injectFailureVehicles.includes(vehicleId);
+  const attempt=Number(x.attempt_count)+1;
+  const runKey='f05-7-retry-'+sha([batchKey,demandId,vehicleId,listingCycleId,attempt]).slice(0,32);
+  const result=syntheticFailure?deny('F05_7_CI_SYNTHETIC_RECOMPUTE_FAILURE'):
+   await calculateCI(auth,token,{demandId,vehicleId,listingCycleId,teamId,runKey});
+  const committed=await withEmployee(auth,token,async(c,a)=>{
+   const g=await context(c,a,demandId,teamId);if(!g.allowed)return g;
+   const current=(await c.query("SELECT retry_state,attempt_count FROM public.f05_7_retry_scope_ci "+
+    "WHERE demand_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3 FOR UPDATE",[demandId,vehicleId,listingCycleId])).rows[0];
+   if(!current||current.retry_state==='completed'||Number(current.attempt_count)!==Number(x.attempt_count))
+    return deny('F05_7_RETRY_ALREADY_HANDLED_OR_SOURCE_CHANGED');
+   const okMatch=result.allowed&&valid(result.resultId);
+   const kind=okMatch?'completed':'failed';
+   // Successful return may carry an existing current result; never mint a second row.
+   await c.query("UPDATE public.f05_7_retry_scope_ci SET retry_state=$4,error_reason=$5,attempt_count=attempt_count+1,"+
+    "completed_result_id=$6,changed_at=transaction_timestamp() WHERE demand_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3",
+    [demandId,vehicleId,listingCycleId,kind,okMatch?null:result.code,okMatch?result.resultId:null]);
+   return ok('F05_7_RETRY_FACT_RECORDED',{retryState:kind,reason:okMatch?null:result.code});
+  });
+  handled.push({vehicleId,listingCycleId,resultCode:result.code,recordCode:committed.code,
+   state:committed.retryState??'not_changed'});
+ }
+ return ok('F05_7_AFFECTED_SUBSET_RETRIED_CI',{handled,successes:handled.filter(x=>x.state==='completed').length,
+  failures:handled.filter(x=>x.state==='failed').length});
+}
+
 export {failClosed};
