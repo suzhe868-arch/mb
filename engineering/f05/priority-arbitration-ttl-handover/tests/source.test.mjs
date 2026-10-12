@@ -291,6 +291,17 @@ test('8-A20 true signed Transaction begins on formerly protected Vehicle and end
  assert.equal(after.created,false,'F05-7 invalidated Match from physical Lock change; stale source cannot create Priority');
 });
 
+test('8-R02 employee data-scope revocation settles active Priority in source COMMIT',async()=>{
+ const v=vehicles[0],old=(await current(v))[0];assert.ok(old);
+ const scope=(await q('SELECT scope_id,ended_at FROM public.employee_data_scopes WHERE scope_id=29001 AND employee_id=1'))[0];
+ assert.ok(scope);assert.equal(scope.ended_at,null);
+ await db.query('UPDATE public.employee_data_scopes SET ended_at=now() WHERE scope_id=29001 AND employee_id=1');
+ const after=await current(v);assert.equal(after.length,0,'revoked Employee Scope cannot retain Priority after COMMIT');
+ assert.equal((await q('SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1',[old.priority_id]))[0].status,'ended');
+ await db.query('UPDATE public.employee_data_scopes SET ended_at=NULL WHERE scope_id=29001 AND employee_id=1');
+ const rechecked=await current(v);assert.ok(rechecked.length<=1);
+ if(rechecked.length)assert.notEqual(Number(rechecked[0].priority_id),Number(old.priority_id),'ended history must not revive');
+});
 test('8-R02 Demand source state change commits without an invalid active Priority or manual arb',async()=>{
  const v=vehicles[0],old=(await current(v))[0];assert.ok(old);
  await db.query("UPDATE public.demands SET demand_state='paused' WHERE demand_id=$1",[old.trigger_demand_id]);
@@ -305,6 +316,8 @@ test('8-R04 v24 due-event settles ttl_expired, all old facts and successor idemp
  const v=vehicles[0],old=(await current(v))[0];assert.ok(old);
  const cfg=await setTTLDefaultCI(auth,token,{seconds:172800,eventKey:kval('r04-future-successor-ttl')});
  assert.equal(cfg.allowed,true,JSON.stringify(cfg));
+ const h=await initiateHandoverCI(auth,token,{priorityId:Number(old.priority_id),eventKey:kval('r04-handover-in-progress')});
+ assert.equal(h.allowed,true,'handover may be pending while TTL continues');
  const asOf=new Date(new Date(old.expires_at).getTime()+2000).toISOString();
  const result=await processDuePrioritiesCI(auth,token,{eventKey:kval('r04-signed-ci-expiration-event'),asOf});
  assert.equal(result.allowed,true,JSON.stringify(result));
@@ -312,6 +325,10 @@ test('8-R04 v24 due-event settles ttl_expired, all old facts and successor idemp
  const oldRow=(await q("SELECT status,ended_reason,ended_at FROM public.f05_8_priority_ci WHERE priority_id=$1",[old.priority_id]))[0];
  assert.equal(oldRow.status,'ended');assert.equal(oldRow.ended_reason,'ttl_expired');
  assert.ok(new Date(oldRow.ended_at)>=new Date(old.expires_at));
+ const noRetry=await retryHandoverCI(auth,token,{handoverId:h.handoverId,targetEmployeeId:1,
+  eventKey:kval('r04-after-due-handover-retry')});
+ assert.equal(noRetry.allowed,false,'ended lease cannot be revived by pending handover retry');
+ assert.equal(noRetry.code,'F05_8_HANDOVER_PRIORITY_ENDED_OR_EXPIRED');
  const oldFacts=await q('SELECT source_signature FROM public.f05_8_suppressed_facts_ci WHERE original_priority_id=$1',[old.priority_id]);
  assert.ok(oldFacts.length>0);
  const successor=await current(v);

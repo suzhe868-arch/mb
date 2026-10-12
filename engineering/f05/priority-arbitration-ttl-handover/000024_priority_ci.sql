@@ -198,7 +198,19 @@ CREATE VIEW public.f05_8_eligible_candidates_ci AS
  JOIN public.permissions perm ON perm.permission_code='matching.rule.manage.ci.synthetic'
  JOIN public.employee_permission_overrides ov ON ov.employee_id=d.responsible_employee_id
   AND ov.permission_id=perm.permission_id AND ov.decision='allow'
- WHERE r.status='current' AND r.tier IN ('high','acceptable')
+ WHERE EXISTS(SELECT 1 FROM public.employee_capability_scope_bindings b
+  JOIN public.employee_data_scopes ds ON ds.scope_id=b.scope_id AND ds.employee_id=emp.employee_id
+  JOIN public.employee_team_memberships tm ON tm.employee_id=emp.employee_id
+  JOIN public.teams tt ON tt.team_id=tm.team_id
+  JOIN public.stores st ON st.store_id=tt.store_id AND st.store_id=emp.store_id
+  WHERE b.employee_id=emp.employee_id AND b.permission_id=perm.permission_id
+  AND tt.team_status='active' AND st.status='active'
+  AND b.granted_at<=statement_timestamp() AND (b.ended_at IS NULL OR b.ended_at>statement_timestamp())
+  AND ds.ended_at IS NULL AND tm.valid_from<=statement_timestamp()
+  AND (tm.ended_at IS NULL OR tm.ended_at>statement_timestamp())
+  AND ((ds.scope_kind='team' AND ds.scope_reference_id=tt.team_id) OR
+       (ds.scope_kind='store' AND ds.scope_reference_id=st.store_id)))
+ AND r.status='current' AND r.tier IN ('high','acceptable')
  AND NOT EXISTS(SELECT 1 FROM public.f05_8_suppressed_facts_ci sf
   WHERE sf.customer_id=d.customer_id AND sf.vehicle_id=r.vehicle_id
    AND sf.listing_cycle_id=r.listing_cycle_id AND sf.source_signature=r.source_signature)
@@ -337,14 +349,28 @@ BEGIN
     WHERE cs.customer_level_id=NEW.level_id AND p.status='active' LOOP
    PERFORM public.f05_8_reconcile_scope_ci(affected.vehicle_id,affected.listing_cycle_id);
   END LOOP;
- ELSIF TG_TABLE_NAME='employee_permission_overrides' THEN
+ ELSIF TG_TABLE_NAME IN ('employee_permission_overrides','employee_data_scopes',
+   'employee_capability_scope_bindings','employee_team_memberships') THEN
   FOR affected IN SELECT DISTINCT vehicle_id,listing_cycle_id FROM public.f05_8_priority_ci
     WHERE responsible_employee_id=NEW.employee_id LOOP
    PERFORM public.f05_8_reconcile_scope_ci(affected.vehicle_id,affected.listing_cycle_id);
   END LOOP;
+
+ ELSIF TG_TABLE_NAME='teams' THEN
+  FOR affected IN SELECT DISTINCT p.vehicle_id,p.listing_cycle_id FROM public.f05_8_priority_ci p
+    JOIN public.employee_team_memberships tm ON tm.employee_id=p.responsible_employee_id
+    WHERE tm.team_id=NEW.team_id LOOP
+   PERFORM public.f05_8_reconcile_scope_ci(affected.vehicle_id,affected.listing_cycle_id);
+  END LOOP;
+ ELSIF TG_TABLE_NAME='stores' THEN
+  FOR affected IN SELECT DISTINCT p.vehicle_id,p.listing_cycle_id FROM public.f05_8_priority_ci p
+    JOIN public.employees emp ON emp.employee_id=p.responsible_employee_id
+    WHERE emp.store_id=NEW.store_id LOOP
+   PERFORM public.f05_8_reconcile_scope_ci(affected.vehicle_id,affected.listing_cycle_id);
+  END LOOP;
  END IF;
  RETURN NEW;
-END $$;
+END $;
 CREATE TRIGGER f05_8_match_scope_ci AFTER INSERT OR UPDATE OF status ON public.f05_7_result_versions_ci
  FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
 CREATE TRIGGER f05_8_demand_scope_ci AFTER UPDATE OF demand_state,responsible_employee_id ON public.demands
@@ -355,9 +381,20 @@ CREATE TRIGGER f05_8_vehicle_scope_ci AFTER UPDATE OF source_sale_status,archive
  FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
 CREATE TRIGGER f05_8_cycle_scope_ci AFTER UPDATE OF ended_at ON public.vehicle_listing_cycles
  FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
-CREATE TRIGGER f05_8_employee_scope_ci AFTER UPDATE OF employment_status ON public.employees
+CREATE TRIGGER f05_8_employee_scope_ci AFTER UPDATE OF employment_status,store_id ON public.employees
  FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
 CREATE TRIGGER f05_8_find_scope_ci AFTER UPDATE OF find_enabled ON public.f05_6_level_find_policy_ci
  FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
 CREATE TRIGGER f05_8_permission_scope_ci AFTER UPDATE OF decision ON public.employee_permission_overrides
  FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
+
+CREATE TRIGGER f05_8_scope_binding_ci AFTER UPDATE OF ended_at
+ ON public.employee_capability_scope_bindings FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
+CREATE TRIGGER f05_8_scope_fact_ci AFTER UPDATE OF ended_at
+ ON public.employee_data_scopes FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
+CREATE TRIGGER f05_8_team_membership_ci AFTER UPDATE OF ended_at,team_id
+ ON public.employee_team_memberships FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
+CREATE TRIGGER f05_8_team_state_ci AFTER UPDATE OF team_status,store_id
+ ON public.teams FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
+CREATE TRIGGER f05_8_store_state_ci AFTER UPDATE OF status
+ ON public.stores FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();

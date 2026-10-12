@@ -82,6 +82,17 @@ async function candidates(c,vehicleId,listingCycleId){
   "WHERE r.vehicle_id=$1 AND r.listing_cycle_id=$2 AND r.status='current' AND r.tier IN ('high','acceptable') "+
   "AND e.employment_status='active' AND cs.owner_assignment_state='assigned' "+
   "AND d.responsible_employee_id=cs.current_owner_employee_id "+
+  "AND EXISTS(SELECT 1 FROM public.permissions pe "+
+  "JOIN public.employee_permission_overrides ov2 ON ov2.permission_id=pe.permission_id AND ov2.employee_id=e.employee_id AND ov2.decision='allow' "+
+  "JOIN public.employee_capability_scope_bindings b2 ON b2.permission_id=pe.permission_id AND b2.employee_id=e.employee_id "+
+  "JOIN public.employee_data_scopes ds ON ds.scope_id=b2.scope_id AND ds.employee_id=e.employee_id "+
+  "JOIN public.employee_team_memberships tm ON tm.employee_id=e.employee_id "+
+  "JOIN public.teams tt ON tt.team_id=tm.team_id "+
+  "JOIN public.stores ss ON ss.store_id=tt.store_id AND ss.store_id=e.store_id "+
+  "WHERE pe.permission_code='matching.rule.manage.ci.synthetic' AND tt.team_status='active' AND ss.status='active' "+
+  "AND b2.granted_at<=statement_timestamp() AND (b2.ended_at IS NULL OR b2.ended_at>statement_timestamp()) "+
+  "AND ds.ended_at IS NULL AND tm.valid_from<=statement_timestamp() AND (tm.ended_at IS NULL OR tm.ended_at>statement_timestamp()) "+
+  "AND ((ds.scope_kind='team' AND ds.scope_reference_id=tt.team_id) OR (ds.scope_kind='store' AND ds.scope_reference_id=ss.store_id))) "+
   "AND (su.customer_id IS NULL OR su.suppressed_source_signature<>r.source_signature) "+
   "AND NOT EXISTS(SELECT 1 FROM public.f05_8_suppressed_facts_ci f WHERE f.customer_id=cs.customer_id AND f.vehicle_id=r.vehicle_id "+
   "AND f.listing_cycle_id=r.listing_cycle_id AND f.source_signature=r.source_signature) "+
