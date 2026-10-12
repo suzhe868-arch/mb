@@ -153,6 +153,13 @@ CREATE TRIGGER f05_8_new_lock_closes_priority AFTER INSERT OR UPDATE OF lock_sta
  FOR EACH ROW EXECUTE FUNCTION public.f05_8_close_for_occupancy();
 CREATE TRIGGER f05_8_new_transaction_closes_priority AFTER INSERT OR UPDATE OF status ON public.transactions
  FOR EACH ROW EXECUTE FUNCTION public.f05_8_close_for_occupancy();
+-- Explicit separate CI-synthetic per-Customer qualification/config control-plane capability.
+-- This is NOT a global priority.view/manage role and never grants business release rights.
+INSERT INTO public.permissions(permission_id,permission_code) VALUES (1098,'priority.qualification.manage.ci.synthetic');
+INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at)
+ VALUES(1,1098,'allow',now());
+INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at)
+ VALUES(1,1098,29001,now()-interval '1 minute');
 REVOKE ALL ON public.f05_8_qualification_ci,public.f05_8_config_ci,public.f05_8_priority_ci,
  public.f05_8_suppression_ci,public.f05_8_events_ci,public.f05_8_handover_ci,
  public.f05_8_handover_attempts_ci,public.f05_8_migration_attestation FROM PUBLIC;
