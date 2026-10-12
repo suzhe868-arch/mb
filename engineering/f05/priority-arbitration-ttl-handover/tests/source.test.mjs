@@ -410,6 +410,31 @@ test('8-R10 actor from unrelated Team cannot mutate or inspect another business 
   const retry=await retryHandoverCI(auth,token,{teamId:badTeam,handoverId:Number(h.handover_id),targetEmployeeId:8997501,eventKey:kval('r10-cross-scope-retry')});
   assert.equal(retry.code,'F05_8_ACTOR_OBJECT_SCOPE_DENIED',JSON.stringify(retry));
  }
+ // R10 genuine two-backend test: an operator's own unrelated-team
+ // Scope is revoked in a second PostgreSQL transaction before his attempt
+ // can acquire SHARE on that Scope. No business action or success audit.
+ const writer=await connect();let raced;
+ try{
+  await writer.query('BEGIN');
+  const writerPid=Number((await writer.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+  await writer.query("UPDATE public.employee_data_scopes SET ended_at=now() WHERE scope_id=29997 AND employee_id=1");
+  let settled=false;
+  raced=initiateHandoverCI(auth,token,{teamId:badTeam,priorityId:Number(p.priority_id),
+   eventKey:kval('r10-two-pg-revoked-outside-init')});
+  raced.then(()=>{settled=true},()=>{settled=true});
+  await new Promise(resolve=>setTimeout(resolve,120));
+  assert.equal(settled,false,'revoked scope row is genuinely locked by another PostgreSQL backend');
+  await writer.query('COMMIT');
+  const denied=await raced;
+  assert.equal(denied.allowed,false,JSON.stringify(denied));
+  assert.ok(['F05_8_PERMISSION_OR_DATA_SCOPE_DENIED','F05_8_ACTOR_OBJECT_SCOPE_DENIED'].includes(denied.code));
+  console.log('F05_8_R10_REAL_TWO_PG_ACTOR_SCOPE_REVOKE_DENIED',JSON.stringify({writerPid,priority:Number(p.priority_id)}));
+ }finally{
+  await writer.query('ROLLBACK').catch(()=>{});
+  await writer.end();
+  if(raced)await raced.catch(()=>{});
+ }
+ await db.query('UPDATE public.employee_data_scopes SET ended_at=NULL WHERE scope_id=29997');
  assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_handover_ci WHERE priority_id=$1",[p.priority_id]))[0].n,handovers);
  assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_events_ci WHERE priority_id=$1",[p.priority_id]))[0].n,events);
  assert.equal((await q("SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1",[p.priority_id]))[0].status,'active');
