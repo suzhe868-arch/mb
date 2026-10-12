@@ -141,6 +141,10 @@ BEGIN
   occupied_vehicle:=NEW.vehicle_id;occupied_cycle:=NEW.listing_cycle_id;
   reason:='transaction_started';
  ELSE RETURN COALESCE(NEW,OLD); END IF;
+ -- Mandatory serialization with every new Priority arbitration, which locks
+ -- this same signed Vehicle first. The occupancy trigger must never miss a
+ -- concurrent uncommitted newly granted Priority lease.
+ PERFORM 1 FROM public.vehicles WHERE vehicle_id=occupied_vehicle FOR UPDATE;
  UPDATE public.f05_8_priority_ci SET status='ended',ended_at=transaction_timestamp(),
  ended_reason=reason WHERE vehicle_id=occupied_vehicle AND listing_cycle_id=occupied_cycle AND status='active';
  RETURN NEW;
