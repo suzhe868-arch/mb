@@ -20,14 +20,16 @@ const scopeSQL="SELECT EXISTS(SELECT 1 FROM public.permissions p "+
  "JOIN public.employee_capability_scope_bindings b ON b.employee_id=$1 AND b.permission_id=p.permission_id "+
  "JOIN public.employee_data_scopes sc ON sc.scope_id=b.scope_id AND sc.employee_id=$1 "+
  "JOIN public.teams t ON t.team_id=$2 JOIN public.stores st ON st.store_id=t.store_id "+
- "JOIN public.employee_team_memberships m ON m.team_id=t.team_id AND m.employee_id=$1 "+
- "WHERE p.permission_code=$5 AND ov.decision='allow' "+
- "AND t.team_status='active' AND st.status='active' AND st.store_id=$3 "+
+ "LEFT JOIN public.employee_team_memberships m ON m.team_id=t.team_id AND m.employee_id=$1 "+
  "AND m.valid_from<=statement_timestamp() AND (m.ended_at IS NULL OR m.ended_at>statement_timestamp()) "+
+ "WHERE p.permission_code=$5 AND ov.decision='allow' AND t.team_status='active' AND st.status='active' "+
  "AND sc.ended_at IS NULL AND b.granted_at<=statement_timestamp() AND (b.ended_at IS NULL OR b.ended_at>statement_timestamp()) "+
- "AND ((sc.scope_kind='team' AND sc.scope_reference_id=t.team_id) OR "+
- "(sc.scope_kind='store' AND sc.scope_reference_id=st.store_id AND $4 IN ('manager','store_head'))) "+
- "FOR SHARE OF p,ov,b,sc,t,st,m) allowed";
+ "AND (($4 IN ('manager','store_head') AND "+
+ "((sc.scope_kind='team' AND sc.scope_reference_id=t.team_id) OR "+
+ "(sc.scope_kind='store' AND sc.scope_reference_id=st.store_id))) OR "+
+ "($4='sales' AND st.store_id=$3 AND m.employee_id=$1 AND "+
+ "sc.scope_kind='team' AND sc.scope_reference_id=t.team_id)) "+
+ "FOR SHARE OF p,ov,b,sc,t,st) allowed";
 async function actor(c,a,teamId,controlPlane=false){
  if(a?.principal_kind!=='employee'||a.system_admin_id!==null||a.subject_status!=='active'||a.credential_state!=='enabled'||
    a.force_password_change||!id(Number(a.employee_id))||!['sales','store_head','manager'].includes(a.role_code))
@@ -35,6 +37,14 @@ async function actor(c,a,teamId,controlPlane=false){
  const who=Number(a.employee_id);
  const e=(await c.query('SELECT employee_id,store_id,employment_status FROM public.employees WHERE employee_id=$1 FOR SHARE',[who])).rows[0];
  if(!e||e.employment_status!=='active'||!e.store_id)return fail('F05_8_EMPLOYEE_NOT_ACTIVE');
+ // Sales must hold a current, locked home-Team membership. Managers may
+ // instead use explicit remote Team/Store capability/data scopes.
+ if(a.role_code==='sales'){
+  const membership=(await c.query("SELECT team_id FROM public.employee_team_memberships "+
+   "WHERE team_id=$1 AND employee_id=$2 AND valid_from<=statement_timestamp() "+
+   "AND (ended_at IS NULL OR ended_at>statement_timestamp()) FOR SHARE",[teamId,who])).rows[0];
+  if(!membership)return fail('F05_8_PERMISSION_OR_DATA_SCOPE_DENIED');
+ }
  const p=(await c.query(scopeSQL,[who,teamId,e.store_id,a.role_code,controlPlane?'priority.qualification.manage.ci.synthetic':'matching.rule.manage.ci.synthetic'])).rows[0];
  if(!p?.allowed)return fail('F05_8_PERMISSION_OR_DATA_SCOPE_DENIED');
  return ok('F05_8_EMPLOYEE_CURRENT_SCOPE',{employeeId:who,role:a.role_code});
