@@ -88,3 +88,10 @@ A 正式整改单：`07_重建工作区/F05-7_A主控首次独立验收66项真P
 2. 增加 CI-only v23 SQL 会改变本批迁移 checksum/catalog SHA，这是允许的新CI Schema复验，不会触碰 `main` 的 v22 及之前已签历史；必须保留完整 21 条迁移和注入回滚/新目录导出。
 3. 最终B分支 SHA、八官方同 SHA 运行号、源码最新原生记录 PID、两个新有效 Artifact ID/字节数需要由**最终 PR #46 中文交接评论**与官方 Actions 返回值精确确认；本文件内容提交本身会变化 HEAD，所以历史 SHA 不能作为最终证据。严禁提前写“整改已验收通过”。
 4. 微信、手机号、真实 Rule/显示数字价格/数据 Scope 等生产 Issuer 仍不存在；F05/C-H01/V1 `NOT_READY`。本批所有正向证明仍是 `CI_SYNTHETIC_*_NOT_PRODUCTION`。
+
+
+### R03 审计一致性增强
+
+- 原始排队表 `f05_7_retry_scope_ci` 中的 completed/failed/pending 只承载**当前**尝试状态，另增 `f05_7_retry_attempts_ci` **不可变历史**，分别记录尝试序号、失败原因、成功 result_id 和 PG 原生提交时间，任何 UPDATE/DELETE 均拒绝。
+- `calculateCI(...,{retryAttempt})` 在生成真实 current Result 的**同一个 F03 Employee Session/PG 事务**完成队列成功状态和不可变成功尝试行，队列发生版本变化则抛错回滚整个 Result，避免“结果已成功但队列仍称失败”。失败尝试则原生留存不可变失败行；后续成功不能抹掉旧失败原因。
+- Source `7-A27` 新增断言：一成功一失败→失败原生 audit 记录→只补偿失败一项→历史仍显示 `['completed','failed','completed']` 且删除事件遭 `F05_7_SIGNED_MATCH_HISTORY_IMMUTABLE` 阻断。原生 `evidence.mjs` 同步导出物理重试行及匹配中 active Lock 占用历史的 hash。
