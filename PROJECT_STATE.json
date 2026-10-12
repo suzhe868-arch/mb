@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_8_A_RELEASED_FOR_B_B_NOT_STARTED",
+  "substage": "F05_8_A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F05",
-  "current_domain_status": "F05_7_A_FINAL_ACCEPTED_MERGED_PR46_CI_ONLY_F05_8_A_RELEASED_FOR_B",
+  "current_domain_status": "F05_7_A_FINAL_ACCEPTED_MERGED_PR46_CI_ONLY_F05_8_A_FIRST_REVIEW_NOT_ACCEPTED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A二轮独立验收F05-7 PR46 B最终HEAD 99c38d013f67cc56975f1664120fb87c204afc3c 已完成：八官方同HEAD真正非superuser PG16工作流H52(52)+I/J/K/F05-4/5/6(12)+F05-7(2)=66/66成功，Source28/28 HTTPS7/7，A复核四项R01-R04原生PG16正反例全PASS，双原生backend SQLSTATE55P03，7份冻结旧Job逐字一致，两个官方有效Artifact 11721556439/11721595542。A验收评论6115975938；GitHub标准PR46合并实收merged=true，merge SHA a56cc04e5a1d79fd67ad5332992d33348d123557。F05-7仅CI-only通过。A正式放行下一唯一完整F05-8 PDM13 Priority单07_重建工作区/F05-8_A主控PDM13_Priority资格仲裁TTL排他与责任交接CI隔离完整施工单_2026-10-12.md；从实际main创建B分支feat/f05-8-priority-arbitration-ttl-handover，八工作流68/68真实独立PG16与4有效Artifact（冻结旧64 + F05-7等效原生compat2 + Priority新2），含专属GitHub只读审计技术裁决，不改旧源码或旧工作流。NEXT_OWNER=B。F05/C-H01/V1 NOT_READY，正式Issuer/微信/手机号/客户价/JYT/电话/资金SOURCE_GAP未解除。",
-  "current_work_file": "07_重建工作区/F05-8_A主控PDM13_Priority资格仲裁TTL排他与责任交接CI隔离完整施工单_2026-10-12.md",
+  "current_task": "A独立正式核验F05-8 PR47唯一B HEAD 8c296513c5f9f7b2a176560313c3e6db30a61abc（23新增文件全白名单），八同SHA官方push run 38200112071/38200112052/38200112045/38200111930/38200111921/38200111927/38200112289/38200112015：旧64+F05-7兼容2+Priority新2=68/68真实非超级用户PG16 success零skip；F05-7旧Source28 HTTPS7原生compat与本批Priority Source20 HTTPS10原生通过，真实PG16 PID263/264 SQLSTATE55P03、v24 ledger及rollback/新catalog证明，四份有效Artifact 11724649956/11725170394/11725116058/11725315587，工程证据全合格。但PDM13/14已批准产品硬边界仍有R01同Customer多Demand旧source signature绕过release/TTL suppression；R02 Demand/Match/Customer/Vehicle源变更未事件驱动即时结束或替换旧active Priority；R03 客户可见性投影未检current account/find权益/cycle；R04 TTL超时缺独立ended/re-arbitration和suppression导致expired仍status active。A PR47正式评论6117566975，main中文整改单已归档。PR47不合并，B原分支一次整改并新最终SHA重跑68/68+四附件+中文交审后A再验。生产SOURCE_GAP、F05/C-H01/V1 NOT_READY。",
+  "current_work_file": "07_重建工作区/F05-8_A主控首次独立验收68项真PG16通过但PDM13生命周期及可见性边界未闭环整改单_2026-10-12.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_IMPLEMENT_F05_8_PDM13_PRIORITY_ARBITRATION_TTL_HANDOVER_CI_ONLY_68_PG16",
+  "next_action": "B_REWORK_F05_8_PDM13_FOUR_PRIORITY_LIFECYCLE_VISIBILITY_GAPS_CI_68_PG16",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B按A已签F05-8完整施工单从最新main建指定独立分支，在新白名单完成PDM13所有已批准Priority隔离CI业务、全量真实PG16正反例及双后端竞争和A裁定的F05-7旧测试兼容重验；8 run 68/68同最终HEAD，4有效新Artifact，B中文完整交接READY_FOR_A_REVIEW再交A；B不得自行PR合并或进入F05-9/F06/生产。",
+  "next_action_detail": "B继续原feat/f05-8-priority-arbitration-ttl-handover分支，按A PR47评论6117566975和中文完整整改单整改R01–R04；不修改旧签业务、旧64工作流及前F05-7旧28/7用例；新增真实PG16反例并取得最新最终B/PR HEAD同SHA八个官方push workflow独立68/68 success四原生有效Artifact、中文交接，再交A复验，不得合并或启动F05-9/F06。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -6836,8 +6836,8 @@
   },
   "next_owner": "B",
   "f05_8_gate": {
-    "status": "A_RELEASED_FOR_B_B_NOT_STARTED",
-    "execution": "B_NEXT_SIGNED_COMPLETE_CONSTRUCTION_ORDER",
+    "status": "A_FIRST_REVIEW_NOT_ACCEPTED_CHANGES_REQUESTED_CI_68_PASS",
+    "execution": "B_REWORK_PDM13_PRIORITY_FOUR_UNCOVERED_LIFECYCLE_AND_VISIBILITY_GAPS",
     "work_order": "07_重建工作区/F05-8_A主控PDM13_Priority资格仲裁TTL排他与责任交接CI隔离完整施工单_2026-10-12.md",
     "authority": [
       "PDM-13 Final",
@@ -6849,8 +6849,8 @@
       "A/B/C现行协作与验收规范"
     ],
     "branch": "feat/f05-8-priority-arbitration-ttl-handover",
-    "branch_created": false,
-    "pr": null,
+    "branch_created": true,
+    "pr": 47,
     "pr_merged": false,
     "scope": "PRIORITY_QUALIFICATION_CANDIDATE_ARBITRATION_TTL_RELEASE_SUPPRESSION_VISIBILITY_LOCK_TRANSACTION_HANDOVER_CI_ONLY",
     "old_frozen_workflows": 7,
@@ -6867,6 +6867,36 @@
     "allow_production": false,
     "source_gap_requires_block": true,
     "product_baseline": "NOT_READY",
-    "next_owner": "B"
+    "next_owner": "B",
+    "reviewed_sha": "8c296513c5f9f7b2a176560313c3e6db30a61abc",
+    "a_review_comment_id": 6117566975,
+    "a_correction_order": "07_重建工作区/F05-8_A主控首次独立验收68项真PG16通过但PDM13生命周期及可见性边界未闭环整改单_2026-10-12.md",
+    "reviewed_ci_runs": [
+      38200112071,
+      38200112052,
+      38200112045,
+      38200111930,
+      38200111921,
+      38200111927,
+      38200112289,
+      38200112015
+    ],
+    "reviewed_pg16_jobs_success": 68,
+    "compat_f05_7_source_tests": "28/28",
+    "compat_f05_7_https_tests": "7/7",
+    "priority_source_tests": "20/20",
+    "priority_https_tests": "10/10",
+    "artifact_ids": [
+      11724649956,
+      11725170394,
+      11725116058,
+      11725315587
+    ],
+    "a_blockers": [
+      "A-F05-8-R01_MULTIDEMAND_SUPPRESSION_BYPASS",
+      "A-F05-8-R02_NON_LOCK_SOURCE_CHANGE_NO_IMMEDIATE_INVALIDATION",
+      "A-F05-8-R03_VISIBILITY_MISSING_CURRENT_CUSTOMER_ENTITLEMENT_CYCLE_GUARDS",
+      "A-F05-8-R04_TTL_DUE_NOT_ENDED_SUPPRESSED_AND_REARBITRATED"
+    ]
   }
 }
