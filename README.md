@@ -1,3 +1,12 @@
+# 2026-10-12｜F05-7 A二轮正式验收66/66真PG16 PASS、PR46成功标准合并；F05-8 PDM13 Priority全包68项独立PG16正式放行B（唯一最新）
+
+- **当前唯一真实指针**：`F05_7_A_FINAL_ACCEPTED_MERGED_PR46_CI_ONLY / F05_8_A_RELEASED_FOR_B_B_NOT_STARTED / NEXT_OWNER=B / V1_NOT_READY`。B最终HEAD `99c38d013f67cc56975f1664120fb87c204afc3c`，A独立二轮[PR46验收签批](https://github.com/suzhe868-arch/mb/pull/46#issuecomment-6115975938)，GitHub实际标准`merge_pull_request(expected_head_sha=99c38d013f67cc56975f1664120fb87c204afc3c,merge_method=merge)`回执`merged=true`，**正式merge SHA `a56cc04e5a1d79fd67ad5332992d33348d123557`**；PR46现已`closed/merged`。正式A二轮报告：`07_重建工作区/F05-7_A主控二轮独立验收66项真PG16_PR46标准合并与F05-8技术交接_2026-10-12.md`。下方“F05-7首次验收退B”只代表历史，不是现时阻断。
+- **A独立同SHA门禁**：八个GitHub原生push run H52`38189425576`**52/52**、I2`38189425640`、J2`38189425565`、K2`38189425539`、F05-4`38189425599`、F05-5`38189425553`、F05-6`38189425588`各**2/2**、本批F05-7`38189425635`**2/2**，合计**66/66真实隔离非超级用户PG16 Job成功、0skip/fail**，均最终B HEAD；七旧组冻结`jobs:\n`到EOF逐字相同；Source`7-A01～A28`**28/28**、HTTPS`7-B01～B07`**7/7**，原生双PG PID223/224、223/225均真实SQLSTATE55P03。上轮四项R01偏好未知、R02 active Lock占用、R03 Rule partial retry、R04年款范围与原始provenance均真实Source`7-A25～A28 PASS`。同SHA两新Artifact Source`11721556439`（101246B）、HTTPS`11721595542`（96332B），均有效非空。
+- **下一唯一B正式完整施工单**：`07_重建工作区/F05-8_A主控PDM13_Priority资格仲裁TTL排他与责任交接CI隔离完整施工单_2026-10-12.md`。从B实施时最新main新建`feat/f05-8-priority-arbitration-ttl-handover`，按用户已通过的PDM-13 Final，实施独立Priority资格/统一Match消费、high>acceptable>原始Demand创建时间>demand_id仲裁、TTL/提前release/suppression、active Lock/Transaction排他、权限/责任handover与公海/Customer可见性边界，仅**CI-only**。**正式门禁8份新workflow共68个真实独立PG16 Job（七组冻结旧64个原Job原文+两项F05-7等效兼容真PG16回归+两项全新Priority PG16），四份新有效原生Artifacts，同最后B/PR SHA。**F05-7 Source内硬编码旧自身workflow同HEAD audit，在新F05-8分支不可能原样复跑，A已在施工单裁定“不改已签旧代码、重验旧28/7真实用例，仅将旧分支专属审计改由本批全新的68项官方只读审计承担”。B不得自行合并main、不得开始F05-9/F06。
+- **严格未解生产门禁**：实际Customer微信、手机号、find/Rule/Priority资格控制Issuer、客户显示数字价、一般批发Scope/图片/JYT/电话/交易资金等继续`SOURCE_GAP`；本批全部只是可抛弃CI合同，F05/F04生产、C-H01、整车V1一律`NOT_READY`，不表示正式上线授权。
+
+---
+
 # 2026-10-12｜F05-7 A首次独立验收：66/66同SHA真PG16 CI通过，四项PDM12业务反例未闭环，PR46正式退B整改（唯一最新）
 
 - **正式唯一指针**：`F05_7_A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK / PR46_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。A实际独立核实最新交审PR46 B HEAD `855bb463096652ca70ef4327c86e10db4d092825`；八个GitHub原生同SHA Actions `38185881710 / 38185881669 / 38185881678 / 38185881716 / 38185881683 / 38185881661 / 38185881687 / 38185883832` **52+2+2+2+2+2+2+2 = 66/66真实非特权PG16 success零skip**，其中Source24/24、HTTPS7/7；七组冻结旧Job全文原样，25项新文件全部白名单；两个新官方同SHA非空有效Artifacts `11719249451`（94862B）/ `11719408424`（92141B）。
