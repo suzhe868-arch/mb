@@ -409,7 +409,9 @@ test('8-R07 Employee invalidation auto-creates protected Handover Batch, deny an
   old:1,new:target,handoverId:Number(handover.handover_id),attempts:attempts.length,ttlUnchanged:true}));
 });
 test('8-R02 employee data-scope revocation settles active Priority in source COMMIT',async()=>{
- const v=vehicles[4]||vehicles[0],old=(await current(v))[0];assert.ok(old);
+ // R07 transferred vehicles[0] to a NEW responsible; use the independent
+ // Transaction-released vehicle still owned by the ORIGINAL Employee.
+ const v=vehicles[3],old=(await current(v))[0];assert.ok(old);
  assert.equal(Number(old.responsible_employee_id),1,'original Employee must still hold this independent scope');
  const scope=(await q('SELECT scope_id,ended_at FROM public.employee_data_scopes WHERE scope_id=29001 AND employee_id=1'))[0];
  assert.ok(scope);assert.equal(scope.ended_at,null);
