@@ -21,6 +21,14 @@ node f05/priority-arbitration-ttl-handover/runner.mjs --verify
 node f05/recommendation-visibility-grants/runner.mjs --inject-rollback
 node f05/recommendation-visibility-grants/runner.mjs --apply
 node f05/recommendation-visibility-grants/runner.mjs --verify
+# Fresh loopback-only TLS identity for the HTTPS negative test job. The
+# source test does not need a cert. Private key never enters an artifact.
+if [[ "$mode" = https ]];then
+ openssl req -x509 -newkey rsa:2048 -sha256 -nodes -days 1 \
+  -keyout /tmp/f04-3-ci-key.pem -out /tmp/f04-3-ci-cert.pem \
+  -subj '/CN=localhost' >/dev/null 2>&1
+ chmod 600 /tmp/f04-3-ci-key.pem
+fi
 dir=f05/recommendation-visibility-grants/artifacts/"$mode"
 mkdir -p "$dir"
 node --test f05/recommendation-visibility-grants/tests/"$mode".test.mjs 2>&1 | tee "$dir/native-pg16-$mode.log"
