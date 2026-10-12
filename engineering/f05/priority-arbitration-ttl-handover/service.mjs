@@ -140,13 +140,18 @@ async function reArbitrate(c,vehicleId,listingCycleId,runKey,employeeId,checkpoi
    await endActive(c,existing,'ttl_expired',null,asOf);
    await suppressCustomerFacts(c,existing,'ttl_expired');
   }else{
-   // R07: a completed scoped Handover transfers responsibility without
+   const pending=(await c.query("SELECT EXISTS(SELECT 1 FROM public.f05_8_handover_ci h "+
+     "WHERE h.priority_id=$1 AND h.state IN ('pending','failed') AND public.f05_8_pending_source_ci($1)) protected",
+     [existing.priority_id])).rows[0].protected===true;
+    if(pending&&ss.available&&!ss.locked&&!ss.trading)return ok('F05_8_PENDING_HANDOVER_PROTECTED',
+     {priorityId:Number(existing.priority_id),customerId:Number(existing.customer_id),created:false,handoverProtected:true});
+    // R07: a completed scoped Handover transfers responsibility without
    // changing this original signed Match or the frozen TTL. A later explicit
    // arbitration must NOT silently return the lease to the old Employee.
    const transferred=(await c.query("SELECT EXISTS(SELECT 1 FROM public.f05_8_handover_ci h "+
     "WHERE h.priority_id=$1 AND h.state='completed' AND h.new_responsible_employee_id=$2 "+
     "AND public.f05_8_handover_source_valid_ci($1) "+
-    "AND public.f05_8_responsible_authorized_ci($2)) legal",
+    "AND public.f05_8_responsible_object_scope_ci($1,$2)) legal",
     [existing.priority_id,existing.responsible_employee_id])).rows[0].legal===true;
    if(transferred&&ss.available&&!ss.locked&&!ss.trading){
     return ok('F05_8_EXISTING_ACTIVE_PRIORITY',{priorityId:Number(existing.priority_id),
@@ -284,7 +289,11 @@ export async function priorityProjectionCI(auth,token,{teamId=901,vehicleId,list
  return ok('F05_8_PRIORITY_SAFE_PROJECTION',{
   publicVisible:!!available&&vehicle.platform_visibility==='visible'&&!active,
   customerVisible:!!legalGrant&&available&&entitled&&(!active||Number(active.customer_id)===customerId),
-  protectedByActivePriority:!!active,employeeWorkVisible:!!active&&Number(active.responsible_employee_id)===a.employeeId,
+  protectedByActivePriority:!!active,employeeWorkVisible:!!active&&Number(active.responsible_employee_id)===a.employeeId&&
+   (await c.query("SELECT public.f05_8_handover_source_valid_ci($1) valid",[active.priority_id])).rows[0].valid===true&&
+   (await c.query("SELECT NOT EXISTS(SELECT 1 FROM public.f05_8_handover_ci h WHERE h.priority_id=$1 AND h.state IN ('pending','failed')) "+
+    "AND (NOT EXISTS(SELECT 1 FROM public.f05_8_handover_ci h WHERE h.priority_id=$1 AND h.state='completed') "+
+    "OR public.f05_8_responsible_object_scope_ci($1,$2)) valid",[active.priority_id,a.employeeId])).rows[0].valid===true,
   poolProtected:!!active,existingGrantRetained:!!legalGrant,
   currentCustomerEligible:!!entitled,currentCycleAvailable:!!cycle&&!cycle.ended_at});
  });
@@ -317,13 +326,22 @@ export async function retryHandoverCI(auth,token,{teamId=901,handoverId,targetEm
   if(!h||h.state==='completed')return ok('F05_8_HANDOVER_ALREADY_COMPLETED',{handled:false});
   if(!p||p.status!=='active'||new Date(p.expires_at).getTime()<=Date.now())return fail('F05_8_HANDOVER_PRIORITY_ENDED_OR_EXPIRED');
   const to=(await c.query('SELECT employment_status FROM public.employees WHERE employee_id=$1 FOR SHARE',[targetEmployeeId])).rows[0];
-  const approvedScope=(await c.query('SELECT public.f05_8_responsible_authorized_ci($1) allowed',[targetEmployeeId])).rows[0].allowed;
-  const validTarget=!injectFail&&to?.employment_status==='active'&&approvedScope===true&&
-   Number(p.responsible_employee_id)!==targetEmployeeId&&
-   (await c.query('SELECT public.f05_8_handover_source_valid_ci($1) valid',[p.priority_id])).rows[0].valid===true;
+  // Consume current signed Demand/Customer and current Match, not a target request.
+  const approvedScope=(await c.query("SELECT public.f05_8_responsible_object_scope_ci($1,$2) allowed",
+   [p.priority_id,targetEmployeeId])).rows[0].allowed===true;
+  const match=(await c.query("SELECT result_id,source_signature FROM public.f05_8_eligible_candidates_ci "+
+   "WHERE demand_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3 AND customer_id=$4 AND responsible_employee_id=$5 "+
+   "ORDER BY result_id DESC LIMIT 1",
+   [p.trigger_demand_id,p.vehicle_id,p.listing_cycle_id,p.customer_id,targetEmployeeId])).rows[0];
+  const occ=(await c.query("SELECT EXISTS(SELECT 1 FROM public.locks WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND lock_status='active' AND expires_at>statement_timestamp()) locked, "+
+   "EXISTS(SELECT 1 FROM public.transactions WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status IN ('trading','in_progress','pending','active')) trading",
+   [p.vehicle_id,p.listing_cycle_id])).rows[0];
+  const validTarget=!injectFail&&to?.employment_status==='active'&&approvedScope&&!!match&&
+   !occ.locked&&!occ.trading&&Number(p.responsible_employee_id)!==targetEmployeeId&&
+   Number(h.original_responsible_employee_id)!==targetEmployeeId;
   const attempt=Number(h.attempt_count)+1;
   if(validTarget){
-   await c.query("UPDATE public.f05_8_priority_ci SET responsible_employee_id=$2 WHERE priority_id=$1",[p.priority_id,targetEmployeeId]);
+   await c.query("UPDATE public.f05_8_priority_ci SET responsible_employee_id=$2,source_match_result_id=$3,source_signature=$4 WHERE priority_id=$1",[p.priority_id,targetEmployeeId,match.result_id,match.source_signature]);
    await c.query("UPDATE public.f05_8_handover_ci SET state='completed',error_reason=NULL,new_responsible_employee_id=$2,attempt_count=$3,updated_at=transaction_timestamp() WHERE handover_id=$1",
     [handoverId,targetEmployeeId,attempt]);
    await c.query("INSERT INTO public.f05_8_handover_attempts_ci(handover_id,attempt_no,target_employee_id,outcome) VALUES($1,$2,$3,'completed')",

@@ -15,6 +15,26 @@ const kval=s=>'f05-8-official-'+s+'-signed';
 const arb=(v,label,opts={})=>arbitrateCI(auth,token,{teamId:901,vehicleId:v.id,listingCycleId:v.cycle,runKey:kval(label),...opts});
 const qualification=(id,enabled,label)=>setQualificationCI(auth,token,{customerId:id,enabled,eventKey:kval(label)});
 const current=v=>q("SELECT * FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active'",[v.id,v.cycle]);
+// CI-only upstream signed-Match fixture using the original PDM12 pure contract.
+async function reSign(v,demandId,label){
+ const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
+ const rules=await q("SELECT rule_id,rule_version,phrase,condition_json FROM public.f05_7_rule_dictionary_ci WHERE valid_from<=statement_timestamp() AND (valid_until IS NULL OR valid_until>statement_timestamp())");
+ const ruleHash=digest(rules.map(x=>[x.rule_id,x.rule_version,x.phrase,x.condition_json]).sort((a,b)=>a[0]-b[0]));
+ const sales=(await q("SELECT condition_json,description_version,rule_version_sha256 FROM public.f05_7_sales_condition_ci WHERE demand_id=$1",[demandId]))[0];assert.equal(sales.rule_version_sha256,ruleHash);
+ const facts=(await q("SELECT facts_json,fact_version FROM public.f05_7_vehicle_facts_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2",[v.id,v.cycle]))[0];
+ const demand=(await q("SELECT demand_state,customer_id FROM public.demands WHERE demand_id=$1",[demandId]))[0];
+ const c=(await q("SELECT account_status,customer_level_id FROM public.customers WHERE customer_id=$1",[demand.customer_id]))[0];
+ const vehicle=(await q("SELECT source_sale_status FROM public.vehicles WHERE vehicle_id=$1",[v.id]))[0];
+ const cycle=(await q("SELECT ended_at FROM public.vehicle_listing_cycles WHERE listing_cycle_id=$1",[v.cycle]))[0];
+ const locks=await q("SELECT lock_id,expires_at FROM public.locks WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND lock_status='active' AND expires_at>statement_timestamp() ORDER BY lock_id",[v.id,v.cycle]);
+ const rank=originalSignedTierFor(sales.condition_json,facts.facts_json);
+ assert.ok(['high','acceptable'].includes(rank.tier));
+ const signature=digest([sales.description_version,ruleHash,facts.fact_version,facts.facts_json,
+   demand.demand_state,c.account_status,c.customer_level_id,vehicle.source_sale_status,cycle.ended_at,
+   locks.map(x=>[String(x.lock_id),x.expires_at])]);
+ return (await q("INSERT INTO public.f05_7_result_versions_ci(demand_id,vehicle_id,listing_cycle_id,tier,status,source_signature,explanations,reason,run_key) VALUES($1,$2,$3,$4,'current',$5,$6::jsonb,$7,$8) RETURNING result_id",
+ [demandId,v.id,v.cycle,rank.tier,signature,JSON.stringify(rank.explanations),rank.reason,kval(label)]))[0];
+}
 test.before(async()=>{
  assert.equal((await verify(db)).verified,true);
  const s=await auth.login({login:'employee_test',password:'SyntheticF04_3_CurrentProof_2026',source:'f05-8-native-pg16-real-F03'});
@@ -392,6 +412,53 @@ test('8-R07 Employee invalidation auto-creates protected Handover Batch, deny an
  const failAttempt=await retryHandoverCI(auth,token,{handoverId:Number(handover.handover_id),targetEmployeeId:target,
   injectFail:true,eventKey:kval('r07-fail-retry')});
  assert.equal(failAttempt.allowed,true);assert.equal(failAttempt.completed,false);
+ // R08: a target who merely holds matching permission has NO authority.
+ const unsigned=await retryHandoverCI(auth,token,{handoverId:Number(handover.handover_id),targetEmployeeId:target,
+  eventKey:kval('r08-no-current-demand-source')});
+ assert.equal(unsigned.allowed,true);assert.equal(unsigned.completed,false);
+ assert.equal(Number((await current(v))[0].responsible_employee_id),1);
+ // Prepare a pending Batch for another vehicle before the same Customer's
+ // legitimate upstream owner change invalidates all old PDM12 Match Results.
+ const otherVehicle=vehicles[3],otherPriority=(await current(otherVehicle))[0];assert.ok(otherPriority);
+ await initiateHandoverCI(auth,token,{priorityId:Number(otherPriority.priority_id),
+  eventKey:kval('r08-second-original-customer-pending')});
+ const pair=[{p:old,v},{p:otherPriority,v:otherVehicle}];
+ const customers=[...new Set(pair.map(x=>Number(x.p.customer_id)))];
+ const otherTeam=(await q("SELECT team_id,store_id FROM public.teams WHERE team_id<>901 AND team_status='active' ORDER BY team_id LIMIT 1"))[0];
+ const foreign=8997502;
+ // When no other team is seeded, clone the signed team's same-store skeleton
+ // into the disposable PG database, never into the signed production schema.
+ let foreignTeam=otherTeam;
+ if(!foreignTeam){
+  const template=(await q("SELECT * FROM public.teams WHERE team_id=901"))[0];assert.ok(template);
+  const clone={...template,team_id:8997902};
+  for(const k of Object.keys(clone))if(typeof clone[k]==='string'&&/name|code|title/i.test(k))clone[k]+='-ci-only-unrelated';
+  const keys=Object.keys(clone);
+  await db.query("INSERT INTO public.teams("+keys.map(x=>'"'+x+'"').join(',')+") VALUES("+keys.map((_,i)=>'$'+(i+1)).join(',')+")",Object.values(clone));
+  foreignTeam={team_id:8997902,store_id:template.store_id};
+ }
+ await db.query("INSERT INTO public.employees(employee_id,store_id,employment_status,receiving_status,main_role_id) "+
+  "SELECT $1,$2,'active',receiving_status,main_role_id FROM public.employees WHERE employee_id=1",[foreign,foreignTeam.store_id]);
+ await db.query("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES($1,1097,'allow',now())",[foreign]);
+ await db.query("INSERT INTO public.employee_team_memberships(team_id,employee_id,valid_from,changed_by_system_admin_id) "+
+  "SELECT $2,$1,now()-interval '1 day',changed_by_system_admin_id FROM public.employee_team_memberships WHERE employee_id=1 AND team_id=901 AND ended_at IS NULL LIMIT 1",[foreign,foreignTeam.team_id]);
+ await db.query("INSERT INTO public.employee_data_scopes(scope_id,employee_id,scope_kind,scope_reference_id) VALUES(29992,$1,'team',$2)",[foreign,foreignTeam.team_id]);
+ await db.query("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES($1,1097,29992,now()-interval '1 day')",[foreign]);
+ assert.equal((await q("SELECT public.f05_8_responsible_authorized_ci($1) allowed",[foreign]))[0].allowed,true);
+ const switchUpstream=async(who,tag)=>{
+  for(const cust of customers){
+   await db.query('UPDATE public.customers SET current_owner_employee_id=$2 WHERE customer_id=$1',[cust,who]);
+   await db.query('UPDATE public.demands SET responsible_employee_id=$2 WHERE customer_id=$1',[cust,who]);
+  }
+  for(let i=0;i<pair.length;i++)await reSign(pair[i].v,pair[i].p.trigger_demand_id,tag+'-'+i);
+ };
+ await switchUpstream(foreign,'r09-cross-team-re-sign');
+ assert.equal((await q("SELECT public.f05_8_responsible_object_scope_ci($1,$2) allowed",[old.priority_id,foreign]))[0].allowed,false);
+ const cross=await retryHandoverCI(auth,token,{handoverId:Number(handover.handover_id),targetEmployeeId:foreign,
+  eventKey:kval('r09-cross-team-fail-closed')});
+ assert.equal(cross.completed,false);assert.equal(Number((await current(v))[0].responsible_employee_id),1);
+ await switchUpstream(target,'r08-canonical-owner-re-sign');
+ assert.equal((await q("SELECT public.f05_8_responsible_object_scope_ci($1,$2) allowed",[old.priority_id,target]))[0].allowed,true);
  const transferred=await retryHandoverCI(auth,token,{handoverId:Number(handover.handover_id),targetEmployeeId:target,
   eventKey:kval('r07-success-retry')});
  assert.equal(transferred.allowed,true,JSON.stringify(transferred));assert.equal(transferred.completed,true);
@@ -405,7 +472,7 @@ test('8-R07 Employee invalidation auto-creates protected Handover Batch, deny an
  assert.equal(Number((await current(v))[0].responsible_employee_id),target,
   'post-transfer explicit arbitration must never rebind the old Employee');
  const attempts=await q("SELECT outcome FROM public.f05_8_handover_attempts_ci WHERE handover_id=$1 ORDER BY attempt_no",[handover.handover_id]);
- assert.deepEqual(attempts.map(x=>x.outcome),['failed','completed']);
+ assert.deepEqual(attempts.map(x=>x.outcome),['failed','failed','failed','completed']);
  await db.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=1");
  assert.equal(Number((await current(v))[0].priority_id),Number(old.priority_id),
   'original Employee invalidation cannot steal back or release a completed transferred Priority');

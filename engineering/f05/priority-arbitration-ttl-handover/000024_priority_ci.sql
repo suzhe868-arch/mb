@@ -254,8 +254,8 @@ RETURNS BOOLEAN LANGUAGE sql STABLE AS $$
   AND v.source_sale_status='active' AND v.archived_at IS NULL
  JOIN public.vehicle_listing_cycles lc ON lc.listing_cycle_id=p.listing_cycle_id
   AND lc.vehicle_id=p.vehicle_id AND lc.ended_at IS NULL
- WHERE p.priority_id=pid AND p.status='active' AND
- NOT EXISTS(SELECT 1 FROM public.f05_8_suppressed_facts_ci sf
+ WHERE p.priority_id=pid AND p.status='active' AND p.responsible_employee_id=d.responsible_employee_id
+ AND NOT EXISTS(SELECT 1 FROM public.f05_8_suppressed_facts_ci sf
   WHERE sf.customer_id=p.customer_id AND sf.vehicle_id=p.vehicle_id
   AND sf.listing_cycle_id=p.listing_cycle_id AND sf.source_signature=p.source_signature)
  AND NOT EXISTS(SELECT 1 FROM public.f05_8_suppression_ci su
@@ -283,6 +283,36 @@ RETURNS BOOLEAN LANGUAGE sql STABLE AS $$
     OR (ds.scope_kind='store' AND ds.scope_reference_id=st.store_id))
  );
 $$;
+-- R08 Customer-only protection while upstream Demand owner and signed Match change.
+CREATE FUNCTION public.f05_8_pending_source_ci(pid BIGINT) RETURNS BOOLEAN LANGUAGE sql STABLE AS $$
+ SELECT EXISTS(SELECT 1 FROM public.f05_8_priority_ci p
+ JOIN public.demands d ON d.demand_id=p.trigger_demand_id AND d.customer_id=p.customer_id AND d.demand_state='active'
+ JOIN public.customers c ON c.customer_id=p.customer_id AND c.account_status='active' AND c.owner_assignment_state='assigned'
+ JOIN public.f05_8_qualification_ci q ON q.customer_id=c.customer_id AND q.enabled
+ JOIN public.f05_6_level_find_policy_ci f ON f.level_id=c.customer_level_id AND f.find_enabled
+ JOIN public.vehicles v ON v.vehicle_id=p.vehicle_id AND v.source_sale_status='active' AND v.archived_at IS NULL
+ JOIN public.vehicle_listing_cycles lc ON lc.listing_cycle_id=p.listing_cycle_id AND lc.vehicle_id=p.vehicle_id AND lc.ended_at IS NULL
+ WHERE p.priority_id=pid AND p.status='active' AND
+ (public.f05_8_handover_source_valid_ci(pid) OR d.responsible_employee_id<>p.responsible_employee_id OR c.current_owner_employee_id<>p.responsible_employee_id));
+$$;
+-- R09 target must belong to original object's Team AND Store with live permission.
+CREATE FUNCTION public.f05_8_responsible_object_scope_ci(pid BIGINT,eid BIGINT) RETURNS BOOLEAN LANGUAGE sql STABLE AS $$
+ SELECT EXISTS(SELECT 1 FROM public.f05_8_priority_ci p
+ JOIN public.f05_8_handover_ci h ON h.priority_id=p.priority_id
+ JOIN public.demands d ON d.demand_id=p.trigger_demand_id AND d.customer_id=p.customer_id AND d.demand_state='active' AND d.responsible_employee_id=eid
+ JOIN public.customers c ON c.customer_id=p.customer_id AND c.account_status='active' AND c.owner_assignment_state='assigned' AND c.current_owner_employee_id=eid
+ JOIN public.employees o ON o.employee_id=h.original_responsible_employee_id
+ JOIN public.employee_team_memberships om ON om.employee_id=o.employee_id AND om.valid_from<=p.created_at AND (om.ended_at IS NULL OR om.ended_at>p.created_at)
+ JOIN public.teams t ON t.team_id=om.team_id AND t.store_id=o.store_id AND t.team_status='active'
+ JOIN public.stores st ON st.store_id=t.store_id AND st.status='active'
+ JOIN public.employees e ON e.employee_id=eid AND e.employment_status='active' AND e.store_id=st.store_id
+ JOIN public.employee_team_memberships m ON m.employee_id=eid AND m.team_id=t.team_id AND m.valid_from<=statement_timestamp() AND (m.ended_at IS NULL OR m.ended_at>statement_timestamp())
+ JOIN public.permissions perm ON perm.permission_code='matching.rule.manage.ci.synthetic'
+ JOIN public.employee_permission_overrides ov ON ov.employee_id=eid AND ov.permission_id=perm.permission_id AND ov.decision='allow'
+ JOIN public.employee_capability_scope_bindings b ON b.employee_id=eid AND b.permission_id=perm.permission_id AND b.granted_at<=statement_timestamp() AND (b.ended_at IS NULL OR b.ended_at>statement_timestamp())
+ JOIN public.employee_data_scopes sc ON sc.scope_id=b.scope_id AND sc.employee_id=eid AND sc.ended_at IS NULL AND sc.scope_kind='team' AND sc.scope_reference_id=t.team_id
+ WHERE p.priority_id=pid AND p.status='active');
+$$;
 -- R02: signed-source mutation and Priority lifecycle reconcile atomically.
 -- The affected Vehicle row is acquired before Priority, same as JS arbitration.
 CREATE FUNCTION public.f05_8_reconcile_scope_ci(vid BIGINT,cid BIGINT)
@@ -299,7 +329,7 @@ BEGIN
   -- provenance, while the successor owns this SAME unextended lease.
   -- Do not silently switch it back to a formerly disabled Employee.
   IF NOT is_due AND public.f05_8_handover_source_valid_ci(held.priority_id)
-   AND public.f05_8_responsible_authorized_ci(held.responsible_employee_id)
+   AND public.f05_8_responsible_object_scope_ci(held.priority_id,held.responsible_employee_id)
    AND EXISTS(SELECT 1 FROM public.f05_8_handover_ci h
     WHERE h.priority_id=held.priority_id AND h.state='completed'
       AND h.new_responsible_employee_id=held.responsible_employee_id)
@@ -309,7 +339,11 @@ BEGIN
      AND t.status IN ('trading','in_progress','pending','active')) THEN
     RETURN;
   END IF;
-  SELECT * INTO candidate FROM public.f05_8_eligible_candidates_ci
+  IF NOT is_due AND public.f05_8_pending_source_ci(held.priority_id)
+    AND EXISTS(SELECT 1 FROM public.f05_8_handover_ci h WHERE h.priority_id=held.priority_id AND h.state IN ('pending','failed'))
+    AND NOT EXISTS(SELECT 1 FROM public.locks l WHERE l.vehicle_id=vid AND l.listing_cycle_id=cid AND l.lock_status='active' AND l.expires_at>statement_timestamp())
+    AND NOT EXISTS(SELECT 1 FROM public.transactions t WHERE t.vehicle_id=vid AND t.listing_cycle_id=cid AND t.status IN ('trading','in_progress','pending','active')) THEN RETURN; END IF;
+   SELECT * INTO candidate FROM public.f05_8_eligible_candidates_ci
    WHERE vehicle_id=vid AND listing_cycle_id=cid AND customer_id=held.customer_id
    ORDER BY CASE tier WHEN 'high' THEN 0 ELSE 1 END,created_at,demand_id,result_id LIMIT 1;
   candidate_found:=FOUND;
