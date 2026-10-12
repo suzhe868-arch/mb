@@ -1,3 +1,13 @@
+# 2026-10-12｜F05-8 A二轮独立验收：同SHA 68/68真实PG16全部PASS，但PDM13恢复仲裁/正式交接三项缺口，PR47继续退B（唯一最新）
+
+- **当前唯一指针**：`F05_8_A_SECOND_REVIEW_CHANGES_REQUESTED_B_REWORK / PR47_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。A独立核对[PR47](https://github.com/suzhe868-arch/mb/pull/47)最新B/PR HEAD `e873adeabc2e4a40149eb6b8c8a20a9189d69319`，23项全新增白名单；相对当前main为ahead42/behind6，后6项系A前轮主线验收和状态更新，并未授权强推/覆盖。
+- **认可且保留的真实工程门禁**：同最终SHA八官方Push run H52 `38208004686` **52/52**、I2 `38208004665`、J2 `38208004648`、K2 `38208004630`、F05-4 `38208004508`、F05-5 `38208004595`、F05-6 `38208004624`各**2/2**、F05-8 `38208004633` **4/4**，合计**68/68独立真PG16 Jobs全success、0skip/fail**。七组冻结旧64 Jobs之`jobs:\n`全文逐字不变，F05-7 Source 28/28、HTTPS 7/7与新Priority Source 27/27、HTTPS 10/10原生通过。真实双PG PID240/241及`55P03`、v24迁移注错回滚/SQL与catalog seal已直接查日志；四份最新同SHA有效Artifact：`11727729260 / 11727933765 / 11728063884 / 11728185904`。
+- **A第二轮未通过的已签PDM13边界**：B原R01～R04已有对应SQL/Service/测试，需**追加R05** Demand复活/Vehicle重新可售在无active Priority时没有affected-scope事件触发自动仲裁；**R06** Lock或Transaction结束/取消未触发恢复仲裁（旧ended绝不能复活）；**R07** Employee失活/Scope撤销的来源触发直接ended或重分配，未生成PDM13§25/26正式Handover Batch并保持合法待交接保护。见A完整第二轮整改单：`07_重建工作区/F05-8_A主控二轮独立验收68项真PG16通过但恢复仲裁与责任交接未闭环整改单_2026-10-12.md`，以及PR47最新A评论。**A未签A_ACCEPTED，不合并PR47**。
+- **下一唯一B**：继续原`feat/f05-8-priority-arbitration-ttl-handover`分支一次性完成R05～R07、全部真实PG16新增正反例/并发/审计，保持七组冻结64 Job和旧28/7、新27/10回归，新唯一最终HEAD再取得**8官方同SHA Push run 68/68**成功、四份新原生有效Artifact与完整中文交接`READY_FOR_A_RE_RE_REVIEW / NEXT_OWNER=A`，再由A独立复验。**F05-9/F06未放行**。
+- **生产限制不变**：真实微信身份/手机号、Priority正式Issuer、find权益、数字报价、JYT/电话/图片、资金/UAT仍`SOURCE_GAP`；F05、C-H01及V1整体`NOT_READY`。
+
+---
+
 # 2026-10-12｜F05-8 A首次独立验收：同SHA68/68真PG16 CI全部成功但PDM13四项规则边界未闭环，PR47正式退B整改（唯一最新）
 
 - **当前唯一指针**：`F05_8_A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK / PR47_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。本轮A审核了B [PR47](https://github.com/suzhe868-arch/mb/pull/47) 唯一受验HEAD `8c296513c5f9f7b2a176560313c3e6db30a61abc`，compare原main `ahead35/behind0`，23个文件全部新增且仅在F05-8白名单；B正式交审PR评论`6117312297`，A正式验收评论 [6117566975](https://github.com/suzhe868-arch/mb/pull/47#issuecomment-6117566975)。
