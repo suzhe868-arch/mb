@@ -370,7 +370,7 @@ BEGIN
   END LOOP;
  END IF;
  RETURN NEW;
-END $;
+END $$;
 CREATE TRIGGER f05_8_match_scope_ci AFTER INSERT OR UPDATE OF status ON public.f05_7_result_versions_ci
  FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
 CREATE TRIGGER f05_8_demand_scope_ci AFTER UPDATE OF demand_state,responsible_employee_id ON public.demands
