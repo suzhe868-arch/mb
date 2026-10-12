@@ -21,32 +21,32 @@ const scopeSQL="SELECT EXISTS(SELECT 1 FROM public.permissions p "+
  "JOIN public.employee_data_scopes sc ON sc.scope_id=b.scope_id AND sc.employee_id=$1 "+
  "JOIN public.teams t ON t.team_id=$2 JOIN public.stores st ON st.store_id=t.store_id "+
  "JOIN public.employee_team_memberships m ON m.team_id=t.team_id AND m.employee_id=$1 "+
- "WHERE p.permission_code='matching.rule.manage.ci.synthetic' AND ov.decision='allow' "+
+ "WHERE p.permission_code=$5 AND ov.decision='allow' "+
  "AND t.team_status='active' AND st.status='active' AND st.store_id=$3 "+
  "AND m.valid_from<=statement_timestamp() AND (m.ended_at IS NULL OR m.ended_at>statement_timestamp()) "+
  "AND sc.ended_at IS NULL AND b.granted_at<=statement_timestamp() AND (b.ended_at IS NULL OR b.ended_at>statement_timestamp()) "+
  "AND ((sc.scope_kind='team' AND sc.scope_reference_id=t.team_id) OR "+
  "(sc.scope_kind='store' AND sc.scope_reference_id=st.store_id AND $4 IN ('manager','store_head'))) "+
  "FOR SHARE OF p,ov,b,sc,t,st,m) allowed";
-async function actor(c,a,teamId){
+async function actor(c,a,teamId,controlPlane=false){
  if(a?.principal_kind!=='employee'||a.system_admin_id!==null||a.subject_status!=='active'||a.credential_state!=='enabled'||
    a.force_password_change||!id(Number(a.employee_id))||!['sales','store_head','manager'].includes(a.role_code))
   return fail('F05_8_CURRENT_EMPLOYEE_SESSION_REQUIRED');
  const who=Number(a.employee_id);
  const e=(await c.query('SELECT employee_id,store_id,employment_status FROM public.employees WHERE employee_id=$1 FOR SHARE',[who])).rows[0];
  if(!e||e.employment_status!=='active'||!e.store_id)return fail('F05_8_EMPLOYEE_NOT_ACTIVE');
- const p=(await c.query(scopeSQL,[who,teamId,e.store_id,a.role_code])).rows[0];
+ const p=(await c.query(scopeSQL,[who,teamId,e.store_id,a.role_code,controlPlane?'priority.qualification.manage.ci.synthetic':'matching.rule.manage.ci.synthetic'])).rows[0];
  if(!p?.allowed)return fail('F05_8_PERMISSION_OR_DATA_SCOPE_DENIED');
  return ok('F05_8_EMPLOYEE_CURRENT_SCOPE',{employeeId:who,role:a.role_code});
 }
-async function session(auth,token,teamId,fn){
+async function session(auth,token,teamId,fn,controlPlane=false){
  gate();
  if(!id(teamId)||!auth||typeof auth.withSession!=='function')return fail('F05_8_SIGNED_F03_SESSION_REQUIRED');
  try{
   return (await auth.withSession(token,async(c,a,s)=>{
    if(s.restricted)return fail('F05_8_RESTRICTED_SESSION');
    await verify(c);
-   const p=await actor(c,a,teamId);
+   const p=await actor(c,a,teamId,controlPlane);
    if(!p.allowed)return p;
    return fn(c,p);
   },{normalOnly:true}))??fail('F05_8_REVOKED_SESSION');
@@ -187,7 +187,7 @@ export async function setQualificationCI(auth,token,{teamId=901,customerId,enabl
    for(const v of released)await reArbitrate(c,v.vehicleId,v.cycleId,eventKey+':v'+v.vehicleId,a.employeeId);
   }
   return ok('F05_8_QUALIFICATION_CI_CHANGED',{enabled,released:released.length,rechecked});
- });
+ },true);
 }
 export async function setTTLDefaultCI(auth,token,{teamId=901,seconds,eventKey}={}){
  if(!Number.isSafeInteger(seconds)||seconds<60||seconds>2592000||!key(eventKey))return fail('F05_8_INVALID_TTL_CONFIG');
@@ -199,7 +199,7 @@ export async function setTTLDefaultCI(auth,token,{teamId=901,seconds,eventKey}={
   if(!cust)throw Error('F05_8_CONFIG_AUDIT_REQUIRES_CI_ACTOR');
   await event(c,{customerId:cust.customer_id,eventKind:'config_ttl_changed',actorId:a.employeeId,before:{seconds:old.ttl_seconds},after:{seconds},eventKey});
   return ok('F05_8_TTL_DEFAULT_CHANGED',{previous:Number(old.ttl_seconds),seconds});
- });
+ },true);
 }
 export async function releaseCI(auth,token,{teamId=901,priorityId,eventKey}={}){
  if(!id(priorityId)||!key(eventKey))return fail('F05_8_INVALID_RELEASE');
