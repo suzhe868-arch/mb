@@ -192,7 +192,7 @@ BEGIN
  SELECT count(*) INTO changed FROM events;
  RETURN changed;
 END $$;
-CREATE FUNCTION public.f05_10_employee_source_revoke_ci() RETURNS trigger LANGUAGE plpgsql AS $
+CREATE FUNCTION public.f05_10_employee_source_revoke_ci() RETURNS trigger LANGUAGE plpgsql AS $$
 DECLARE subject BIGINT;
 BEGIN
  subject=CASE WHEN TG_OP='DELETE' THEN OLD.employee_id ELSE NEW.employee_id END;
@@ -224,7 +224,7 @@ BEGIN
   END IF;
  END IF;
  RETURN NEW;
-END $;
+END $$;
 CREATE TRIGGER f05_10_employee_status_revoke AFTER UPDATE OF employment_status,main_role_id ON public.employees
  FOR EACH ROW EXECUTE FUNCTION public.f05_10_employee_source_revoke_ci();
 CREATE TRIGGER f05_10_permission_revoke AFTER UPDATE OR DELETE ON public.employee_permission_overrides
