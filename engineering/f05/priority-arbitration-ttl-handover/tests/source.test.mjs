@@ -430,6 +430,44 @@ test('8-R02 employee data-scope revocation settles active Priority in source COM
  await db.query('UPDATE public.employee_data_scopes SET ended_at=NULL WHERE scope_id=29001 AND employee_id=1');
  assert.equal(Number((await current(v))[0].priority_id),Number(old.priority_id));
 });
+
+test('8-R07 real two-backend handover serializes against Vehicle row lock without TTL extension',async()=>{
+ const v=vehicles[3],old=(await current(v))[0];assert.ok(old);
+ assert.equal(Number(old.responsible_employee_id),1);
+ const h=(await q("SELECT handover_id,state FROM public.f05_8_handover_ci WHERE priority_id=$1",[old.priority_id]))[0];
+ assert.ok(h);assert.equal(h.state,'pending','source event must have opened real Batch');
+ const target=8997501,other=await connect();
+ let pendingRetry;
+ try{
+  await other.query('BEGIN');
+  const backend=Number((await other.query('SELECT pg_backend_pid() n')).rows[0].n);
+  await other.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[v.id]);
+  let settled=false;
+  pendingRetry=retryHandoverCI(auth,token,{handoverId:Number(h.handover_id),
+   targetEmployeeId:target,eventKey:kval('r07-real-dual-pg-canonical-lock-order')});
+  pendingRetry.then(()=>{settled=true},()=>{settled=true});
+  await new Promise(resolve=>setTimeout(resolve,120));
+  assert.equal(settled,false,'separate backend with locked Vehicle must serialize transfer');
+  assert.equal((await q("SELECT state FROM public.f05_8_handover_ci WHERE handover_id=$1",[h.handover_id]))[0].state,'pending');
+  await other.query('COMMIT');
+  const result=await pendingRetry;
+  assert.equal(result.allowed,true,JSON.stringify(result));assert.equal(result.completed,true);
+  const now=(await current(v))[0];assert.equal(Number(now.priority_id),Number(old.priority_id));
+  assert.equal(Number(now.responsible_employee_id),target);
+  assert.equal(new Date(now.expires_at).getTime(),new Date(old.expires_at).getTime());
+  const repeat=await retryHandoverCI(auth,token,{handoverId:Number(h.handover_id),
+   targetEmployeeId:target,eventKey:kval('r07-idempotent-completed-handover')});
+  assert.equal(repeat.code,'F05_8_HANDOVER_ALREADY_COMPLETED');
+  assert.equal(Number((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active'",[v.id,v.cycle]))[0].n),1);
+  console.log('F05_8_R07_REAL_TWO_PG_HANDOVER_SERIALIZED',
+   JSON.stringify({holderPid:backend,priorityId:Number(old.priority_id),handoverId:Number(h.handover_id),
+    handoverPreserved:true,ttlUnchanged:true,uniqueActive:1}));
+ }finally{
+  await other.query('ROLLBACK').catch(()=>{});
+  await other.end();
+  if(pendingRetry)await pendingRetry.catch(()=>{});
+ }
+});
 test('8-R02 Demand source state change commits without an invalid active Priority or manual arb',async()=>{
  const v=vehicles[0],old=(await current(v))[0];assert.ok(old);
  await db.query("UPDATE public.demands SET demand_state='paused' WHERE demand_id=$1",[old.trigger_demand_id]);
