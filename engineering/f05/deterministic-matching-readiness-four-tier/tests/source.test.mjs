@@ -274,6 +274,14 @@ test('7-A27 R03 original PG Rule mutation commits, 2 targets only failed 1 gets 
  const second=await q('SELECT vehicle_id,retry_state,attempt_count FROM public.f05_7_retry_scope_ci WHERE demand_id=$1 ORDER BY vehicle_id',[d]);
  assert.deepEqual(second.map(x=>x.retry_state),['completed','completed']);
  assert.deepEqual(second.map(x=>Number(x.attempt_count)),[1,2]);
+ const immutable=await q("SELECT vehicle_id,attempt_no,result_state,error_reason,result_id FROM public.f05_7_retry_attempts_ci "+
+  "WHERE demand_id=$1 ORDER BY vehicle_id,attempt_no",[d]);
+ assert.deepEqual(immutable.map(x=>x.result_state),['completed','failed','completed']);
+ assert.equal(immutable[1].error_reason,'F05_7_CI_SYNTHETIC_RECOMPUTE_FAILURE');
+ assert.equal(immutable[2].error_reason,null);
+ assert.ok(immutable[0].result_id&&immutable[2].result_id);
+ await assert.rejects(()=>db.query("DELETE FROM public.f05_7_retry_attempts_ci WHERE demand_id=$1",[d]),/F05_7_SIGNED_MATCH_HISTORY_IMMUTABLE/);
+
  assert.equal((await history(d,v1)).length,successCount,'successful subset is not retried');
  const again=await retryAffectedCI(auth,token,{demandId:d,teamId:901,batchKey:key('r03-try-two')});
  assert.equal(again.handled.length,0,'idempotent retry never processes completed scope again');
