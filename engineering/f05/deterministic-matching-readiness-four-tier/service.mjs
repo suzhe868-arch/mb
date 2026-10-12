@@ -73,7 +73,17 @@ export async function saveSalesDescriptionCI(auth,token,{demandId,teamId,descrip
   return ok('F05_7_MATCHING_READY_CI',{conditions:parsed.conditions.length,unknownFields:parsed.conflicts});
  });
 }
-export async function calculateCI(auth,token,{demandId,vehicleId,listingCycleId,teamId,runKey}={},{checkpoint}={}){
+async function completePendingRetry(c,{demandId,vehicleId,listingCycleId,resultId,expectedAttempt}){
+ const row=(await c.query("UPDATE public.f05_7_retry_scope_ci SET retry_state='completed',error_reason=NULL,"+
+ "completed_result_id=$4,attempt_count=attempt_count+1,changed_at=transaction_timestamp() "+
+ "WHERE demand_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3 AND retry_state IN ('pending','failed') AND attempt_count=$5 "+
+ "RETURNING attempt_count",[demandId,vehicleId,listingCycleId,resultId,expectedAttempt])).rows[0];
+ if(!row)throw Error('F05_7_RETRY_SCOPE_CHANGED_ROLLBACK_MATCH_RESULT');
+ await c.query("INSERT INTO public.f05_7_retry_attempts_ci(demand_id,vehicle_id,listing_cycle_id,attempt_no,result_state,result_id) "+
+ "VALUES($1,$2,$3,$4,'completed',$5)",[demandId,vehicleId,listingCycleId,row.attempt_count,resultId]);
+}
+export async function calculateCI(auth,token,{demandId,vehicleId,listingCycleId,teamId,runKey}={},{checkpoint,retryAttempt=null}={}){
+
  if(![demandId,vehicleId,listingCycleId,teamId].every(valid)||!goodKey(runKey))return deny('F05_7_INVALID_RUN');
  return withEmployee(auth,token,async(c,a)=>{
   const g=await context(c,a,demandId,teamId);if(!g.allowed)return g;
@@ -106,12 +116,17 @@ export async function calculateCI(auth,token,{demandId,vehicleId,listingCycleId,
   if(repeated){
    if(Number(repeated.demand_id)!==demandId||Number(repeated.vehicle_id)!==vehicleId||Number(repeated.listing_cycle_id)!==listingCycleId||
     repeated.source_signature!==signature||repeated.status!=='current')return deny('F05_7_STALE_OR_COLLIDING_RUN_KEY_REPLAY');
+   if(Number.isInteger(retryAttempt))await completePendingRetry(c,{demandId,vehicleId,listingCycleId,resultId:Number(repeated.result_id),expectedAttempt:retryAttempt});
    return ok('F05_7_IDENTICAL_MATCH_ALREADY_RECORDED',{resultId:Number(repeated.result_id),occupancy:occupation});
   }
-  if(old?.source_signature===signature)return ok('F05_7_CURRENT_SAME_FACTS',{resultId:Number(old.result_id),tier:old.tier,occupancy:occupation});
+  if(old?.source_signature===signature){
+   if(Number.isInteger(retryAttempt))await completePendingRetry(c,{demandId,vehicleId,listingCycleId,resultId:Number(old.result_id),expectedAttempt:retryAttempt});
+   return ok('F05_7_CURRENT_SAME_FACTS',{resultId:Number(old.result_id),tier:old.tier,occupancy:occupation});
+  }
   if(old)await c.query("UPDATE public.f05_7_result_versions_ci SET status='stale' WHERE result_id=$1 AND status='current'",[old.result_id]);
   const created=(await c.query("INSERT INTO public.f05_7_result_versions_ci(demand_id,vehicle_id,listing_cycle_id,tier,status,source_signature,explanations,reason,run_key) VALUES($1,$2,$3,$4,'current',$5,$6::jsonb,$7,$8) RETURNING result_id",
    [demandId,vehicleId,listingCycleId,evaluation.tier,signature,JSON.stringify(evaluation.explanations),evaluation.reason,runKey])).rows[0];
+  if(Number.isInteger(retryAttempt))await completePendingRetry(c,{demandId,vehicleId,listingCycleId,resultId:Number(created.result_id),expectedAttempt:retryAttempt});
   return ok('F05_7_CURRENT_MATCH_RESULT_CI',{resultId:Number(created.result_id),tier:evaluation.tier,reason:evaluation.reason,occupancy:occupation});
  });
 }
@@ -133,20 +148,25 @@ export async function retryAffectedCI(auth,token,{demandId,teamId,batchKey,injec
   const attempt=Number(x.attempt_count)+1;
   const runKey='f05-7-retry-'+sha([batchKey,demandId,vehicleId,listingCycleId,attempt]).slice(0,32);
   const result=syntheticFailure?deny('F05_7_CI_SYNTHETIC_RECOMPUTE_FAILURE'):
-   await calculateCI(auth,token,{demandId,vehicleId,listingCycleId,teamId,runKey});
+   await calculateCI(auth,token,{demandId,vehicleId,listingCycleId,teamId,runKey},{retryAttempt:Number(x.attempt_count)});
+  if(result.allowed&&valid(result.resultId)){
+   handled.push({vehicleId,listingCycleId,resultCode:result.code,recordCode:'F05_7_ATOMIC_RESULT_AND_RETRY_COMPLETED',
+    state:'completed'});
+   continue;
+  }
   const committed=await withEmployee(auth,token,async(c,a)=>{
    const g=await context(c,a,demandId,teamId);if(!g.allowed)return g;
    const current=(await c.query("SELECT retry_state,attempt_count FROM public.f05_7_retry_scope_ci "+
     "WHERE demand_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3 FOR UPDATE",[demandId,vehicleId,listingCycleId])).rows[0];
    if(!current||current.retry_state==='completed'||Number(current.attempt_count)!==Number(x.attempt_count))
     return deny('F05_7_RETRY_ALREADY_HANDLED_OR_SOURCE_CHANGED');
-   const okMatch=result.allowed&&valid(result.resultId);
-   const kind=okMatch?'completed':'failed';
-   // Successful return may carry an existing current result; never mint a second row.
-   await c.query("UPDATE public.f05_7_retry_scope_ci SET retry_state=$4,error_reason=$5,attempt_count=attempt_count+1,"+
-    "completed_result_id=$6,changed_at=transaction_timestamp() WHERE demand_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3",
-    [demandId,vehicleId,listingCycleId,kind,okMatch?null:result.code,okMatch?result.resultId:null]);
-   return ok('F05_7_RETRY_FACT_RECORDED',{retryState:kind,reason:okMatch?null:result.code});
+   const event=(await c.query("UPDATE public.f05_7_retry_scope_ci SET retry_state='failed',error_reason=$4,"+
+    "attempt_count=attempt_count+1,completed_result_id=NULL,changed_at=transaction_timestamp() "+
+    "WHERE demand_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3 RETURNING attempt_count",
+    [demandId,vehicleId,listingCycleId,result.code])).rows[0];
+   await c.query("INSERT INTO public.f05_7_retry_attempts_ci(demand_id,vehicle_id,listing_cycle_id,attempt_no,result_state,error_reason) "+
+    "VALUES($1,$2,$3,$4,'failed',$5)",[demandId,vehicleId,listingCycleId,event.attempt_count,result.code]);
+   return ok('F05_7_RETRY_FAILURE_FACT_RECORDED',{retryState:'failed',reason:result.code});
   });
   handled.push({vehicleId,listingCycleId,resultCode:result.code,recordCode:committed.code,
    state:committed.retryState??'not_changed'});
