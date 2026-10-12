@@ -1907,3 +1907,13 @@ G受检最终HEAD19af2955d81ac14d79e0c4e6adc661a3a1aabd8e同SHA CI38025357614 20
 - **新的同SHA真实68作业技术裁决**：前七条新工作流严格原样冻结H52+I/J/K+F05-4/5/6旧64个PG16 Job，末第八份新工作流拥有4个独立真实非超级用户PG16 Job：两项**F05-7旧28/7业务测试兼容等效重验证**+两项新F05-8 Priority Source/HTTPS，总`52+2+2+2+2+2+2+4=68/68`，四份本批新有效Artifact。已签F05-7旧Source作业内`ci-verify-workflows.mjs`硬绑定F05-7旧分支触发路径，简单原样复制到F05-8将必然因旧分支无法同新SHA触发而失败；A在下一施工单明确允许只在**新目录**构建兼容运行器，真正继续运行未改`tests/source.test.mjs`28项、`tests/https.test.mjs`7项，F05-8自己的GitHub只读新审计替代旧分支专用结果汇总；绝不编辑旧签本体、跳过业务断言或假报job count。全部68项必须同**最终B/PR SHA**真实跑完。
 - Customer微信及手机号合法授权、正式Priority/Rule/CustomerLevel当前find-car Issuer、Customer数字显示价、一般批发管理Scope、图片/JYT/电话/资金等生产来源持续`SOURCE_GAP`，F05/C-H01/V1均为`NOT_READY`。**当前`F05_7_A_FINAL_ACCEPTED_MERGED_PR46_CI_ONLY / F05_8_A_RELEASED_FOR_B_B_NOT_STARTED / NEXT_OWNER=B`。**
 
+
+## 2026-10-12｜F05-8 A首次正式审查：68/68同SHA真实PG16成功，但Priority四类业务边界退B
+
+> 本节记录真实CI工程验收及技术整改结论，**不修改PDM-13/14 Final的任何已批准用户产品裁决**。下述旧CI成功与A新退回结论并存，均不得删除历史。
+
+- **F05-8 B正式交审**：PR [#47](https://github.com/suzhe868-arch/mb/pull/47)，唯一交审B HEAD `8c296513c5f9f7b2a176560313c3e6db30a61abc`、compare原main `ahead35/behind0`、23个全新增文件均本批白名单，不改生产、旧迁移或已签历史工作流。A直接读取GitHub官方八组Push run及`/jobs?per_page=100`：H52`38200112071`52/52 attempt2，I2`38200112052`、J2`38200112045`、K2`38200111930`、F05-4`38200111921`、F05-5`38200111927`、F05-6`38200112289`各2/2，F05-8`38200112015`4/4 attempt2，**68/68真实非超级用户PG16独立Job success零skip/fail**；F05-7原生Source28/28 HTTPS7/7等效兼容、Priority本批Source20/20 HTTPS10/10真库通过，真PG两个PID263/264争锁`SQLSTATE55P03`。同SHA四份官方有效Artifact `11724649956`(109027B)/`11725170394`(99427B)/`11725116058`(103037B)/`11725315587`(99013B)，v24新CI迁移/ledger/catalog及注入回滚已验证。
+- **A独立代码/产品复验暂不通过**：A正式[PR47独立验收评论6117566975](https://github.com/suzhe868-arch/mb/pull/47#issuecomment-6117566975)及`07_重建工作区/F05-8_A主控首次独立验收68项真PG16通过但PDM13生命周期及可见性边界未闭环整改单_2026-10-12.md`裁定四项必须实现并在真实PG16补未覆盖反例：**R01** 原Customer的另一活跃旧Demand凭不同Match签名可能突破已release/TTL的Customer×Vehicle×cycle suppression（PDM13§9/12/13）；**R02** Demand/Match/Customer/Vehicle/Employee等源状态实际提交后，缺失受影响范围事件驱动Priority自动失效或trigger替代，现仅锁/交易有DB触发，测试在改事实后手动arb才清旧事实（PDM13§14/30）；**R03** 客户可见性投影只用Recommendation/Grant与Priority，不读最新Customer active/find Level/cycle，因此合法旧授权可在当前已禁状态漏可见（PDM14§10/11/15及PDM13§15/18）；**R04** TTL过期仍保持`status=active`且受唯一索引占用，无独立自动due结束、同周期抑制及后继仲裁闭环（PDM13§10/13/26/28/30）。这四项均为当前已签PDM规定，非新增业务选择。
+- **正式状态**：`F05_8_A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK / PR47_OPEN_NOT_MERGED / NEXT_OWNER=B`。B原分支在本批新目录一次性补四项与真PG16正反例，完整历史旧64+兼容2+新2**重新以最后B/PR SHA同SHA 68/68成功**、四新非空有效Artifact及中文交审后交A复验；此前`8c296513...`的CI不能替代改后SHA。不得合并main，不放行F05-9/F06或生产。
+- Customer微信/手机号及正式Priority/Rule/find权益Issuer、数字客户价、JYT图片电话/资金、部署UAT均`SOURCE_GAP`；F05、C-H01、V1持续`NOT_READY`。
+
