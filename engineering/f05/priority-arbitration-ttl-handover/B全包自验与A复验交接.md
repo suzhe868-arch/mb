@@ -1,3 +1,46 @@
+
+# F05-8｜2026-10-12 R01～R04 整改完整中文交接增补
+
+> 当前为 A 首轮驳回后的 B 第二轮交付材料；截至增补前代码 HEAD 为 ca5d4b54e40aee65e6a20d6110cc611e45e431b2，8组官方 Push 工作流合计 68/68 成功。本文档与新增补强测试一并提交将产生新 SHA，新 SHA 必须单独重跑全套68项与四份原生附件后，才可在 PR #47 最后一条 B 交审评论宣告 READY_FOR_A_RE_REVIEW / NEXT_OWNER=A。旧成功与旧Artifact不能跨 SHA 拼算。产品 F05/C-H01/V1 继续 NOT_READY。所有以下工作仅限可抛弃的CI PostgreSQL16，不开放生产Issuer/API，不写真实用户与资金。
+
+## 一、依据、范围及 R01～R04 对应整改
+
+Authority：A 在 PR #47 2026-10-12 的四项工程整改单、冻结 PDM-13/14、F05-8 正式施工单。只修改本批新增 engineering/f05/priority-arbitration-ttl-handover/ 范围内的 v24 CI SQL、service、源测试及本交接；未更改旧签F03/F04/F05-1～7、旧迁移、旧冻结Job正文、PDM Final、main。
+
+- R01：新增 f05_8_suppressed_facts_ci，将同一Customer×Vehicle×listing cycle现有多个Demand来源签名全部固化为不可变抑制旧事实，不能释放一个Demand后靠另一个旧Demand直接重获；合法新来源签名和新周期没有被永久封堵。测试包括“8-R01 Customer two Demand suppression holds all old signed facts”，另增真实F05-7车辆事实版本改变后重新签发高可信Match并重获权益的正例。
+- R02：新增CI-only PG16本域 source-change 和 affected-scope 重评触发，覆盖签名Match状态、Demand、Customer、Vehicle、listing cycle、Employee、find entitlement、个人permission、有效数据scope、Team/Store相关状态。事务中 Vehicle→Priority 的受控锁序保持现有有效候选更换trigger而TTL不延期，或立即结束原active并择合法继任。新增Demand停用、Scope撤权及客户停用不调用人工arb直接查真实事务COMMIT后状态的测试。锁车原因准确区分本人 converted_to_lock、他人 lock_takeover；交易仍保留旧签名审计。
+- R03：在真实Recommendation与vehicle_visibility_grants未撤销事实存在时，客户是否现在有权看车取决于Customer当前active、当前Level找车权益、Vehicle真实可售/未归档、当前cycle、有效Lock/Transaction、其他Customer Priority的合法排他。实测Grant正例、Customer disabled/重新active、find OFF/ON、cycle结束为false，历史Grant/推荐不物理删除。
+- R04：新增仅CI的processDuePrioritiesCI到期事件工作入口，不依赖外部再发起arb；到期优先以ttl_expired结束、保留审计、对同cycle旧事实建抑制并重评继任；二次到期幂等，正在进行的交接不冻结TTL，已结束Priority不能因重试交接复活。不部署生产时钟任务。
+
+## 二、GitHub真实性与结构证据（增补前已成功代码提交）
+
+本轮新增代码完成时已正式验证 GitHub SHA ca5d4b54e40aee65e6a20d6110cc611e45e431b2 的八个原生 Push 工作流，全为completed/success、68/68 Jobs、0失败/跳过/待处理。原生运行：
+- 冻结H52 run 38205466938（52/52，attempt2）
+- 冻结I2 run 38205466866、J2 38205466890、K2 38205466796、F05-4 38205467050、F05-5 38205466837，各2/2（attempt1）
+- 冻结F05-6 run 38205466813（2/2，attempt2）
+- 本批F05-8 run 38205467120（4/4，attempt2）
+历史总计64、本批4，旧F05-7真实Source 28/28、HTTPS7/7，Priority Source 25/25原生成功、Priority HTTPS成功，全部使用实际PostgreSQL16而非mock。旧公共镜像仓库曾返回toomanyrequests导致首次失败，保持旧作业原文，用GitHub官方同SHA仅重跑失败Job解决。
+
+本批 v24真实注错回滚日志含 F05_8_V24_REAL_PG16_INJECTION_ROLLBACK_PASS，verified=true；v24 SQL checksum 0460ac0ea9e26cb70a54b80a32aec82e5b57882601e36eed2a8631b6742eda3a；旧ledger SHA c5625475ee0f4b6c3007c0e1d5070c465626e63bbd3733095f753452e1bbc84c；完整catalog SHA 3000b7221b5ace27aff2bde39c59310612c523ed0b591550acfa70d9258d3564。真实双PG backend PID 255/263，争抢结果SQLSTATE 55P03，有真实Source job原生日志支持。
+
+增补前唯一代码SHA的四份官方原生Artifact（均非空、expired=false、head_sha一致）：
+- f05-8-compat-source-native-evidence：11727136944，109021 字节
+- f05-8-compat-https-native-evidence：11727416597，99433 字节
+- f05-8-priority-source-native-evidence：11727202313，110067 字节
+- f05-8-priority-https-native-evidence：11727391137，104316 字节
+
+本次又补强真实新签名回获资格与客户即时停用用例；**上面的记录只能代表增补前代码版本，不冒充本次文档+测试提交后的最终 SHA**。最终8条Push运行号、四个最新有效Artifact/哈希、真实源测试新总数以及PR最终HEAD，应以最新GitHub运行及同HEAD最后B交审评论为准，不能在本tracked文件内自引用该文件自己的提交SHA反复改动。
+
+## 三、审查注意及责任转移门槛
+
+A须独立再核旧迁移与冻结CI严格只读、同SHA成功68/68+四原生附件、每项PDM边界、源变更同步失效、Grant可见性、TTL自动结束与真实锁并发证据；PR #47额外pull_request事件上的旧F05-7分支专属审计已由A判为非本批8条指定Push门禁，不能删除旧工作流掩盖；相关旧PR事件失败应在最终交接明示。
+
+当前main在本批B施工中已有其他正式状态提交；B不得擅自强推、合并或迁移旧冻结签名，由A在独立复验后处理合并兼容与正式状态。没有最后最终SHA门禁前状态为 B_IN_PROGRESS / NEXT_OWNER=B；门禁满足并提交最终PR交审报告之后才可标记 B_SELF_TESTED / READY_FOR_A_RE_REVIEW / NEXT_OWNER=A。
+
+---
+
+# 以下为首次交付历史交接原文，留档不代表当前提交最新状态
+
 # F05-8｜B全包自验与A独立复验交接（CI-only）
 
 > **性质：** B正式交接文档；仅限F05-8可抛弃非超级用户PostgreSQL16，不是生产资格、版本发布、真实Issuer或A验收结论。

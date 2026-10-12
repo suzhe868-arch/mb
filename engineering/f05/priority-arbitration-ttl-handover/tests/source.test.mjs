@@ -4,6 +4,7 @@ import {randomBytes,createHash} from 'node:crypto';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {connect,verify,ID,checksum} from '../migration.mjs';
+import {calculateCI as calculateSignedMatchCI} from '../../deterministic-matching-readiness-four-tier/service.mjs';
 import {arbitrateCI,setQualificationCI,setTTLDefaultCI,releaseCI,
  priorityProjectionCI,initiateHandoverCI,retryHandoverCI,processDuePrioritiesCI,productionDeny} from '../service.mjs';
 const db=await connect(),secret=randomBytes(32);
@@ -362,4 +363,33 @@ test('8-R03 signed Recommendation and active Grant cannot pierce Customer/Level/
  assert.equal(ended.currentCycleAvailable,false);assert.equal(ended.existingGrantRetained,true);
  assert.equal((await q('SELECT status FROM public.recommendations WHERE recommendation_id=8997221'))[0].status,'active');
  assert.equal((await q('SELECT revoked_at FROM public.vehicle_visibility_grants WHERE grant_id=8997221'))[0].revoked_at,null);
+});
+
+test('8-R01 signed factual novelty permits same-cycle recovery only for changed verified Match signature',async()=>{
+ const v=vehicles[0],customerId=899612;
+ const oldFacts=await q("SELECT source_signature FROM public.f05_8_suppressed_facts_ci WHERE customer_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3",
+  [customerId,v.id,v.cycle]);
+ assert.ok(oldFacts.length>0,'old signed fact suppression must exist');
+ const activeDemand=(await q("SELECT d.demand_id FROM public.demands d JOIN public.f05_7_sales_condition_ci sc ON sc.demand_id=d.demand_id "+
+  "WHERE d.customer_id=$1 AND d.demand_state='active' ORDER BY d.demand_id LIMIT 1",[customerId]))[0];
+ assert.ok(activeDemand,'fresh signed result requires current ready Demand');
+ await db.query("UPDATE public.f05_7_vehicle_facts_ci SET fact_version=fact_version+1 WHERE vehicle_id=$1 AND listing_cycle_id=$2",
+  [v.id,v.cycle]);
+ assert.equal((await current(v)).length,0,'changed source revokes prior active Priority before recalculation');
+ const recalculated=await calculateSignedMatchCI(auth,token,{
+  demandId:Number(activeDemand.demand_id),vehicleId:v.id,listingCycleId:v.cycle,
+  teamId:901,runKey:kval('r01-genuine-new-source-fact')});
+ assert.equal(recalculated.allowed,true,JSON.stringify(recalculated));
+ const now=(await current(v))[0];assert.ok(now,'a new trusted signature should re-enable legal Customer');
+ assert.equal(Number(now.customer_id),customerId);
+ assert.ok(!oldFacts.some(f=>f.source_signature===now.source_signature),'new source cannot equal suppressed old signature');
+});
+test('8-R02 Customer deactivation after fresh signed Match closes Priority before COMMIT returns',async()=>{
+ const v=vehicles[0],p=(await current(v))[0];assert.ok(p);
+ assert.equal(Number(p.customer_id),899612);
+ await db.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=$1",[p.customer_id]);
+ const state=(await q("SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1",[p.priority_id]))[0];
+ assert.equal(state.status,'ended');
+ const active=await current(v);
+ if(active.length)assert.notEqual(Number(active[0].customer_id),899612,'disabled Customer cannot retain Priority');
 });
