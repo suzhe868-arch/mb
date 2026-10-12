@@ -358,8 +358,8 @@ RETURNS BOOLEAN LANGUAGE sql STABLE AS $$
  JOIN public.teams t ON t.team_id=p.origin_team_id AND t.team_id=requested_team
   AND t.store_id=p.origin_store_id AND t.team_status='active'
  JOIN public.stores st ON st.store_id=p.origin_store_id AND st.status='active'
- JOIN public.employees e ON e.employee_id=eid AND e.employment_status='active' AND e.store_id=t.store_id
- JOIN public.employee_team_memberships m ON m.employee_id=eid AND m.team_id=t.team_id
+ JOIN public.employees e ON e.employee_id=eid AND e.employment_status='active'
+ LEFT JOIN public.employee_team_memberships m ON m.employee_id=eid AND m.team_id=t.team_id
   AND m.valid_from<=statement_timestamp() AND (m.ended_at IS NULL OR m.ended_at>statement_timestamp())
  JOIN public.permissions pe ON pe.permission_code='matching.rule.manage.ci.synthetic'
  JOIN public.employee_permission_overrides ov ON ov.employee_id=eid AND ov.permission_id=pe.permission_id AND ov.decision='allow'
@@ -367,10 +367,15 @@ RETURNS BOOLEAN LANGUAGE sql STABLE AS $$
   AND b.granted_at<=statement_timestamp() AND (b.ended_at IS NULL OR b.ended_at>statement_timestamp())
  JOIN public.employee_data_scopes sc ON sc.scope_id=b.scope_id AND sc.employee_id=eid AND sc.ended_at IS NULL
  WHERE p.priority_id=pid AND role IN ('sales','manager','store_head')
-  AND ((sc.scope_kind='team' AND sc.scope_reference_id=t.team_id)
-   OR (sc.scope_kind='store' AND sc.scope_reference_id=st.store_id AND role IN ('manager','store_head')))
-  AND (role IN ('manager','store_head') OR p.responsible_employee_id=eid
-   OR (h.original_responsible_employee_id=eid AND h.state IN ('pending','failed'))));
+  AND ((role IN ('manager','store_head') AND
+       ((sc.scope_kind='team' AND sc.scope_reference_id=t.team_id)
+        OR (sc.scope_kind='store' AND sc.scope_reference_id=st.store_id)))
+    OR (role='sales' AND e.store_id=t.store_id AND m.employee_id=eid
+      AND sc.scope_kind='team' AND sc.scope_reference_id=t.team_id))
+  -- R13: historic Priority or original Handover owner cannot regain rights.
+  AND (role IN ('manager','store_head') OR
+    (p.responsible_employee_id=eid AND d.responsible_employee_id=eid
+      AND cs.current_owner_employee_id=eid AND cs.owner_assignment_state='assigned')));
 $$;
 CREATE FUNCTION public.f05_8_actor_demand_scope_ci(did BIGINT,eid BIGINT,role TEXT,requested_team BIGINT)
 RETURNS BOOLEAN LANGUAGE sql STABLE AS $$
@@ -382,8 +387,8 @@ RETURNS BOOLEAN LANGUAGE sql STABLE AS $$
   AND (om.ended_at IS NULL OR om.ended_at>statement_timestamp())
  JOIN public.teams t ON t.team_id=om.team_id AND t.store_id=owner.store_id AND t.team_status='active'
  JOIN public.stores st ON st.store_id=t.store_id AND st.status='active'
- JOIN public.employees e ON e.employee_id=eid AND e.employment_status='active' AND e.store_id=t.store_id
- JOIN public.employee_team_memberships m ON m.employee_id=eid AND m.team_id=t.team_id
+ JOIN public.employees e ON e.employee_id=eid AND e.employment_status='active'
+ LEFT JOIN public.employee_team_memberships m ON m.employee_id=eid AND m.team_id=t.team_id
   AND m.valid_from<=statement_timestamp() AND (m.ended_at IS NULL OR m.ended_at>statement_timestamp())
  JOIN public.permissions pe ON pe.permission_code='matching.rule.manage.ci.synthetic'
  JOIN public.employee_permission_overrides ov ON ov.employee_id=eid AND ov.permission_id=pe.permission_id AND ov.decision='allow'
@@ -391,9 +396,14 @@ RETURNS BOOLEAN LANGUAGE sql STABLE AS $$
   AND b.granted_at<=statement_timestamp() AND (b.ended_at IS NULL OR b.ended_at>statement_timestamp())
  JOIN public.employee_data_scopes sc ON sc.scope_id=b.scope_id AND sc.employee_id=eid AND sc.ended_at IS NULL
  WHERE d.demand_id=did AND role IN ('sales','manager','store_head')
- AND ((sc.scope_kind='team' AND sc.scope_reference_id=t.team_id)
-  OR (sc.scope_kind='store' AND sc.scope_reference_id=st.store_id AND role IN ('manager','store_head')))
- AND (role IN ('manager','store_head') OR d.responsible_employee_id=eid));
+ AND ((role IN ('manager','store_head') AND
+      ((sc.scope_kind='team' AND sc.scope_reference_id=t.team_id)
+       OR (sc.scope_kind='store' AND sc.scope_reference_id=st.store_id)))
+   OR (role='sales' AND e.store_id=t.store_id AND m.employee_id=eid
+     AND sc.scope_kind='team' AND sc.scope_reference_id=t.team_id))
+ AND (role IN ('manager','store_head') OR
+   (d.responsible_employee_id=eid AND cs.current_owner_employee_id=eid
+     AND cs.owner_assignment_state='assigned')));
 $$;
 -- R02: signed-source mutation and Priority lifecycle reconcile atomically.
 -- The affected Vehicle row is acquired before Priority, same as JS arbitration.
