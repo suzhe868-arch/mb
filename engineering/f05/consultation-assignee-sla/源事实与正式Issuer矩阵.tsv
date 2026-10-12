@@ -1,0 +1,8 @@
+domain	physical_signed_source	v26_ci_sidecar	production_issuer	boundary
+Consultation	M94 public.consultations	f05_10_consultation_meta_ci	SOURCE_GAP	Customer真实手机号授权/微信入口未接
+Assignee	F03-2-2J consultations及handover_receipts	f05_10_consultation_handover_ci	SOURCE_GAP	CI synthetic Employee权限不能用于生产
+Recommendation	v25 recommendations/grants/priority	仅保存真实direct source relation	SIGNED_CI_ONLY	不授免费价权、不造隐车Grant
+SLA	M94 first_response_deadline	v26 policy/meta/events	SOURCE_GAP	合成followup不是真实通话证据
+Customer Hold	M94 Customer account_status	v26 disable trigger	CI_SYNTHETIC	Customer active恢复后不自动解除
+Safe Read	M94 Consultation	仅Customer安全字段	SOURCE_GAP	VIN/手机号/批发价/内部聊天全部排除
+HTTPS	无生产Consultation Issuer	隔离负例TLS路由	BLOCKED_PRODUCTION	所有试探均403
