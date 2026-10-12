@@ -301,3 +301,33 @@ test('10-S16 two physical PG backends: employee status COMMIT automatically mark
   console.log('F05_10_R01_TWO_NATIVE_BACKENDS_SOURCE_COMMIT_PENDING',{aPid,bPid,consultationId:Number(target.consultation_id),lockConflict:'55P03',autoEventCount:auto.length});
  }finally{await c.query('ROLLBACK').catch(()=>{});await second.end()}
 });
+
+test('10-R01 permission deny and binding revocation automatically set current PG Guard; receiving pool fallback',async()=>{
+ const candidates=await q("SELECT customer_id FROM public.customers WHERE account_status='active' AND owner_assignment_state='assigned' AND current_owner_employee_id=1 AND customer_id NOT IN($1,$2) ORDER BY customer_id LIMIT 3",[customer,other]);
+ assert.ok(candidates.length>=2,'Physical M94 must offer two independent customers with current owner 1');
+ const first=Number(candidates[0].customer_id),second=Number(candidates[1].customer_id);
+ const created=await create(first,'search');assert.equal(created.allowed,true,JSON.stringify(created));
+ assert.equal(Number(created.assignee),1);
+ await q("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=1 AND permission_id=9105");
+ const pending=(await q('SELECT assignee_handover_pending FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[created.consultationId]))[0];
+ assert.equal(pending.assignee_handover_pending,true,'Permission deny source must materialize pending at COMMIT');
+ const denied=await act(created.consultationId,'followup',{evidenceKind:'crm_note',evidenceRef:'CI-DENY-STALE-ASSIGNEE-001'});
+ assert.equal(denied.allowed,false);
+ const fallback=await create(second,'search');assert.equal(fallback.allowed,true,JSON.stringify(fallback));
+ assert.equal(Number(fallback.assignee),4,'Only signed active eligible receiving pool member can take over');
+ await q("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=1 AND permission_id=9105");
+ const orig=(await q('SELECT assignee_handover_pending FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[created.consultationId]))[0];
+ assert.equal(orig.assignee_handover_pending,true,'Re-enabling permission does not auto-remove signed pending');
+ const nextCustomer=Number(candidates[2]?.customer_id??first);
+ if(nextCustomer===first){
+  const closed=await act(created.consultationId,'close_normal');assert.equal(closed.allowed,true,JSON.stringify(closed));
+ }
+ const again=await create(nextCustomer,'search');assert.equal(again.allowed,true,JSON.stringify(again));
+ assert.equal(Number(again.assignee),1);
+ await q("UPDATE public.employee_capability_scope_bindings SET ended_at=clock_timestamp() WHERE employee_id=1 AND permission_id=9105 AND ended_at IS NULL");
+ assert.equal((await q('SELECT assignee_handover_pending FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[again.consultationId]))[0].assignee_handover_pending,true);
+ const status=await act(again.consultationId,'start');assert.equal(status.allowed,false,'Revoked scope means old sales can neither progress nor read');
+ const full=await internalConsultationProjectionCI(auth,token,{consultationId:again.consultationId});
+ assert.equal(full.allowed,false);
+ console.log('F05_10_R01_PERMISSION_AND_SCOPE_AUTO_GUARD',{first,second,consultationId:again.consultationId});
+});

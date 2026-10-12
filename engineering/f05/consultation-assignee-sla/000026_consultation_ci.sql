@@ -144,7 +144,7 @@ CREATE TRIGGER f05_10_customer_hold AFTER UPDATE OF account_status ON public.cus
 -- Compute effective current assignee access from actual signed employee/permission/scope facts.
 -- Trigger checks run in the same source transaction: after COMMIT the pending Guard is visible.
 CREATE FUNCTION public.f05_10_assignee_valid_ci(p_consultation_id BIGINT,p_employee_id BIGINT)
-RETURNS BOOLEAN LANGUAGE sql STABLE AS $$
+RETURNS BOOLEAN LANGUAGE sql VOLATILE AS $$
  SELECT EXISTS(
   SELECT 1 FROM public.f05_10_consultation_meta_ci m
   JOIN public.employees e ON e.employee_id=p_employee_id AND e.employment_status='active'
