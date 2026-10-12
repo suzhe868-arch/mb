@@ -331,3 +331,60 @@ test('10-R01 permission deny and binding revocation automatically set current PG
  assert.equal(full.allowed,false);
  console.log('F05_10_R01_PERMISSION_AND_SCOPE_AUTO_GUARD',{first,second,consultationId:again.consultationId});
 });
+
+test('10-R02 genuine two-Store current scope Manager/StoreHead, 4S and remote sales denial, signed handover',async()=>{
+ const chosen=(await q("SELECT customer_id FROM public.customers c WHERE account_status='active' AND owner_assignment_state='assigned' AND current_owner_employee_id=1 AND NOT EXISTS(SELECT 1 FROM public.consultations co WHERE co.customer_id=c.customer_id AND co.vehicle_id=$1 AND co.listing_cycle_id=$2 AND co.status IN('pending','processing') ) ORDER BY customer_id LIMIT 1",[vehicleId,cycleId]))[0];
+ assert.ok(chosen,'A real currently assigned M94 Customer is required for distinct remote Consultation');
+ const who=Number(chosen.customer_id),storeB=8997983,teamB=8997984,employeeB=8997601,otherB=8997602;
+ const main=(await q('SELECT store_id,main_role_id FROM public.employees WHERE employee_id=1'))[0];
+ const clone=(base,key,id)=>{
+  const out={...base,[key]:id};
+  for(const x of Object.keys(out))if(typeof out[x]==='string'&&/name|code|title/i.test(x))out[x]+='-f05-10-r02-'+id;
+  return out;
+ };
+ const insertClone=async(table,object)=>{
+  const keys=Object.keys(object);
+  return q('INSERT INTO public.'+table+'('+keys.map(x=>'"'+x+'"').join(',')+') VALUES('+keys.map((_,i)=>'$'+(i+1)).join(',')+')',Object.values(object));
+ };
+ await insertClone('stores',clone((await q('SELECT * FROM public.stores WHERE store_id=$1',[main.store_id]))[0],'store_id',storeB));
+ await insertClone('teams',{...clone((await q('SELECT * FROM public.teams WHERE team_id=901'))[0],'team_id',teamB),store_id:storeB});
+ for(const [idx,id] of [employeeB,otherB].entries()){
+  await q("INSERT INTO public.employees(employee_id,store_id,employment_status,receiving_status,main_role_id) SELECT $1,$2,'active','receiving',main_role_id FROM public.employees WHERE employee_id=1",[id,storeB]);
+  await q("INSERT INTO public.employee_team_memberships(team_id,employee_id,valid_from,changed_by_system_admin_id) SELECT $1,$2,now()-interval '1 day',changed_by_system_admin_id FROM public.employee_team_memberships WHERE employee_id=1 AND team_id=901 LIMIT 1",[teamB,id]);
+  await q("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES($1,9105,'allow',now())",[id]);
+  await q("INSERT INTO public.employee_data_scopes(scope_id,employee_id,scope_kind,scope_reference_id) VALUES($1,$2,'team',$3)",[29998+idx,id,teamB]);
+  await q("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES($1,9105,$2,now()-interval '1 day')",[id,29998+idx]);
+ }
+ await q('UPDATE public.customers SET current_owner_employee_id=$2 WHERE customer_id=$1',[who,employeeB]);
+ const consultation=await create(who,'search');assert.equal(consultation.allowed,true,JSON.stringify(consultation));
+ assert.equal(Number(consultation.assignee),employeeB);
+ const before=(await q('SELECT assignee_employee_id FROM public.consultations WHERE consultation_id=$1',[consultation.consultationId]))[0];
+ assert.equal(Number(before.assignee_employee_id),employeeB);
+ const noCross=await internalConsultationProjectionCI(auth,token,{consultationId:consultation.consultationId});
+ assert.equal(noCross.allowed,false,'Remote object not inherited from home Sales role');
+ const manager=(await q("SELECT role_id FROM public.roles WHERE role_code='manager'"))[0].role_id;
+ const storeHead=(await q("SELECT role_id FROM public.roles WHERE role_code='store_head'"))[0].role_id;
+ const fourS=(await q("SELECT role_id FROM public.roles WHERE role_code='four_s'"))[0].role_id;
+ await q('UPDATE public.employees SET main_role_id=$2 WHERE employee_id=1',[manager]);
+ const noPermission=await internalConsultationProjectionCI(auth,token,{consultationId:consultation.consultationId});
+ assert.equal(noPermission.allowed,false,'A manager title alone does not authorize other-store read');
+ await q("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(1,9106,'allow',now())");
+ await q("INSERT INTO public.employee_data_scopes(scope_id,employee_id,scope_kind,scope_reference_id) VALUES(29997,1,'store',$1)",[storeB]);
+ await q("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(1,9106,29997,now()-interval '1 day')");
+ const scoped=await internalConsultationProjectionCI(auth,token,{consultationId:consultation.consultationId});
+ assert.equal(scoped.allowed,true,JSON.stringify(scoped));
+ const transfer=await act(consultation.consultationId,'handover',{targetEmployeeId:otherB,reason:'CI signed scoped remote transfer'});
+ assert.equal(transfer.allowed,true,JSON.stringify(transfer));
+ const receipt=(await q('SELECT old_assignee_id,new_assignee_id,actor_id FROM public.f05_10_consultation_handover_ci WHERE consultation_id=$1',[consultation.consultationId]))[0];
+ assert.equal(Number(receipt.old_assignee_id),employeeB);assert.equal(Number(receipt.new_assignee_id),otherB);
+ assert.equal(Number(receipt.actor_id),1);
+ await q('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[storeHead]);
+ assert.equal((await internalConsultationProjectionCI(auth,token,{consultationId:consultation.consultationId})).allowed,true);
+ await q("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=1 AND permission_id=9106");
+ assert.equal((await internalConsultationProjectionCI(auth,token,{consultationId:consultation.consultationId})).allowed,false);
+ await q("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=1 AND permission_id=9106");
+ await q('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[fourS]);
+ assert.equal((await internalConsultationProjectionCI(auth,token,{consultationId:consultation.consultationId})).allowed,false,'4S role cannot view even explicitly scoped CI Consultation');
+ await q('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[main.main_role_id]);
+ console.log('F05_10_R02_CROSS_STORE_MANAGER_HEAD_FOUR_S_DENY',{storeB,teamB,employeeB,otherB,consultationId:consultation.consultationId});
+});
