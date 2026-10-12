@@ -330,7 +330,7 @@ $$;
 -- R10: signed operator must have live authority over the ACTUAL Priority
 -- business object, never merely the caller-supplied teamId.
 CREATE FUNCTION public.f05_8_actor_priority_scope_ci(pid BIGINT,eid BIGINT,role TEXT,requested_team BIGINT)
-RETURNS BOOLEAN LANGUAGE sql STABLE AS $
+RETURNS BOOLEAN LANGUAGE sql STABLE AS $$
  SELECT EXISTS(SELECT 1 FROM public.f05_8_priority_ci p
  JOIN public.demands d ON d.demand_id=p.trigger_demand_id AND d.customer_id=p.customer_id
  JOIN public.customers cs ON cs.customer_id=p.customer_id
@@ -354,9 +354,9 @@ RETURNS BOOLEAN LANGUAGE sql STABLE AS $
    OR (sc.scope_kind='store' AND sc.scope_reference_id=st.store_id AND role IN ('manager','store_head')))
   AND (role IN ('manager','store_head') OR p.responsible_employee_id=eid
    OR (h.original_responsible_employee_id=eid AND h.state IN ('pending','failed'))));
-$;
+$$;
 CREATE FUNCTION public.f05_8_actor_demand_scope_ci(did BIGINT,eid BIGINT,role TEXT,requested_team BIGINT)
-RETURNS BOOLEAN LANGUAGE sql STABLE AS $
+RETURNS BOOLEAN LANGUAGE sql STABLE AS $$
  SELECT EXISTS(SELECT 1 FROM public.demands d
  JOIN public.customers cs ON cs.customer_id=d.customer_id
  JOIN public.employees owner ON owner.employee_id=d.responsible_employee_id
@@ -377,7 +377,7 @@ RETURNS BOOLEAN LANGUAGE sql STABLE AS $
  AND ((sc.scope_kind='team' AND sc.scope_reference_id=t.team_id)
   OR (sc.scope_kind='store' AND sc.scope_reference_id=st.store_id AND role IN ('manager','store_head')))
  AND (role IN ('manager','store_head') OR d.responsible_employee_id=eid));
-$;
+$$;
 -- R02: signed-source mutation and Priority lifecycle reconcile atomically.
 -- The affected Vehicle row is acquired before Priority, same as JS arbitration.
 CREATE FUNCTION public.f05_8_reconcile_scope_ci(vid BIGINT,cid BIGINT)
