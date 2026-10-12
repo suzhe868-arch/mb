@@ -132,12 +132,25 @@ DECLARE occupied_vehicle BIGINT; occupied_cycle BIGINT; reason TEXT;
 BEGIN
  IF TG_TABLE_NAME='locks' THEN
   IF TG_OP='DELETE' THEN RETURN OLD; END IF;
-  IF NEW.lock_status<>'active' OR NEW.expires_at<=statement_timestamp() THEN RETURN NEW; END IF;
+  IF NEW.lock_status<>'active' OR NEW.expires_at<=statement_timestamp() THEN
+    -- R06: occupancy exit never resurrects ended rows; recompute only this
+    -- previously occupied Vehicle/cycle, reading freshly signed current Match.
+    IF TG_OP='UPDATE' AND
+       (OLD.lock_status IS DISTINCT FROM NEW.lock_status OR OLD.expires_at IS DISTINCT FROM NEW.expires_at) THEN
+      PERFORM public.f05_8_reconcile_scope_ci(NEW.vehicle_id,NEW.listing_cycle_id);
+    END IF;
+    RETURN NEW;
+   END IF;
   occupied_vehicle:=NEW.vehicle_id;occupied_cycle:=NEW.listing_cycle_id;
   reason:='lock_takeover';
  ELSIF TG_TABLE_NAME='transactions' THEN
   IF TG_OP='DELETE' THEN RETURN OLD; END IF;
-  IF NEW.status NOT IN ('trading','in_progress','pending','active') THEN RETURN NEW; END IF;
+  IF NEW.status NOT IN ('trading','in_progress','pending','active') THEN
+    IF TG_OP='UPDATE' AND OLD.status IS DISTINCT FROM NEW.status THEN
+      PERFORM public.f05_8_reconcile_scope_ci(NEW.vehicle_id,NEW.listing_cycle_id);
+    END IF;
+    RETURN NEW;
+   END IF;
   occupied_vehicle:=NEW.vehicle_id;occupied_cycle:=NEW.listing_cycle_id;
   reason:='transaction_started';
  ELSE RETURN COALESCE(NEW,OLD); END IF;
@@ -218,6 +231,58 @@ CREATE VIEW public.f05_8_eligible_candidates_ci AS
   WHERE su.customer_id=d.customer_id AND su.vehicle_id=r.vehicle_id
    AND su.listing_cycle_id=r.listing_cycle_id AND su.suppressed_source_signature=r.source_signature);
 
+-- R07: keep the customer's exclusive lease during a pure responsibility
+-- outage, but never bypass a revoked Customer, Demand, Match, cycle, sale,
+-- qualification or entitlement. The old signed source remains immutable.
+CREATE FUNCTION public.f05_8_handover_source_valid_ci(pid BIGINT)
+RETURNS BOOLEAN LANGUAGE sql STABLE AS $
+ SELECT EXISTS(
+ SELECT 1 FROM public.f05_8_priority_ci p
+ JOIN public.f05_7_result_versions_ci r ON r.result_id=p.source_match_result_id
+  AND r.demand_id=p.trigger_demand_id AND r.vehicle_id=p.vehicle_id
+  AND r.listing_cycle_id=p.listing_cycle_id AND r.status='current'
+  AND r.tier IN ('high','acceptable') AND r.source_signature=p.source_signature
+ JOIN public.demands d ON d.demand_id=p.trigger_demand_id
+  AND d.customer_id=p.customer_id AND d.demand_state='active'
+ JOIN public.customers c ON c.customer_id=p.customer_id
+  AND c.account_status='active' AND c.owner_assignment_state='assigned'
+  AND c.current_owner_employee_id=d.responsible_employee_id
+ JOIN public.f05_8_qualification_ci qu ON qu.customer_id=c.customer_id AND qu.enabled
+ JOIN public.f05_6_level_find_policy_ci fp ON fp.level_id=c.customer_level_id AND fp.find_enabled
+ JOIN public.f05_7_sales_condition_ci sc ON sc.demand_id=d.demand_id
+ JOIN public.vehicles v ON v.vehicle_id=p.vehicle_id
+  AND v.source_sale_status='active' AND v.archived_at IS NULL
+ JOIN public.vehicle_listing_cycles lc ON lc.listing_cycle_id=p.listing_cycle_id
+  AND lc.vehicle_id=p.vehicle_id AND lc.ended_at IS NULL
+ WHERE p.priority_id=pid AND p.status='active' AND
+ NOT EXISTS(SELECT 1 FROM public.f05_8_suppressed_facts_ci sf
+  WHERE sf.customer_id=p.customer_id AND sf.vehicle_id=p.vehicle_id
+  AND sf.listing_cycle_id=p.listing_cycle_id AND sf.source_signature=p.source_signature)
+ AND NOT EXISTS(SELECT 1 FROM public.f05_8_suppression_ci su
+  WHERE su.customer_id=p.customer_id AND su.vehicle_id=p.vehicle_id
+  AND su.listing_cycle_id=p.listing_cycle_id AND su.suppressed_source_signature=p.source_signature)
+ );
+$;
+CREATE FUNCTION public.f05_8_responsible_authorized_ci(eid BIGINT)
+RETURNS BOOLEAN LANGUAGE sql STABLE AS $
+ SELECT EXISTS(SELECT 1 FROM public.employees e
+ JOIN public.permissions pe ON pe.permission_code='matching.rule.manage.ci.synthetic'
+ JOIN public.employee_permission_overrides ov ON ov.employee_id=e.employee_id
+  AND ov.permission_id=pe.permission_id AND ov.decision='allow'
+ JOIN public.employee_capability_scope_bindings b ON b.employee_id=e.employee_id
+  AND b.permission_id=pe.permission_id
+ JOIN public.employee_data_scopes ds ON ds.scope_id=b.scope_id AND ds.employee_id=e.employee_id
+ JOIN public.employee_team_memberships tm ON tm.employee_id=e.employee_id
+ JOIN public.teams t ON t.team_id=tm.team_id AND t.team_status='active'
+ JOIN public.stores st ON st.store_id=t.store_id AND st.store_id=e.store_id AND st.status='active'
+ WHERE e.employee_id=eid AND e.employment_status='active'
+  AND b.granted_at<=statement_timestamp() AND (b.ended_at IS NULL OR b.ended_at>statement_timestamp())
+  AND ds.ended_at IS NULL
+  AND tm.valid_from<=statement_timestamp() AND (tm.ended_at IS NULL OR tm.ended_at>statement_timestamp())
+  AND ((ds.scope_kind='team' AND ds.scope_reference_id=t.team_id)
+    OR (ds.scope_kind='store' AND ds.scope_reference_id=st.store_id))
+ );
+$;
 -- R02: signed-source mutation and Priority lifecycle reconcile atomically.
 -- The affected Vehicle row is acquired before Priority, same as JS arbitration.
 CREATE FUNCTION public.f05_8_reconcile_scope_ci(vid BIGINT,cid BIGINT)
@@ -234,6 +299,26 @@ BEGIN
    WHERE vehicle_id=vid AND listing_cycle_id=cid AND customer_id=held.customer_id
    ORDER BY CASE tier WHEN 'high' THEN 0 ELSE 1 END,created_at,demand_id,result_id LIMIT 1;
   candidate_found:=FOUND;
+  -- A second pure Employee/Scope loss must create a formal Batch in the
+  -- very same source COMMIT. It may not release the still-entitled Customer
+  -- to another Customer merely because the old Employee lost authorization.
+  IF NOT is_due AND NOT public.f05_8_responsible_authorized_ci(held.responsible_employee_id)
+     AND public.f05_8_handover_source_valid_ci(held.priority_id)
+     AND NOT EXISTS(SELECT 1 FROM public.locks WHERE vehicle_id=vid AND listing_cycle_id=cid
+       AND lock_status='active' AND expires_at>statement_timestamp())
+     AND NOT EXISTS(SELECT 1 FROM public.transactions WHERE vehicle_id=vid AND listing_cycle_id=cid
+       AND status IN ('trading','in_progress','pending','active')) THEN
+    INSERT INTO public.f05_8_handover_ci(priority_id,original_responsible_employee_id)
+      VALUES(held.priority_id,held.responsible_employee_id)
+      ON CONFLICT(priority_id) DO NOTHING;
+    INSERT INTO public.f05_8_events_ci(priority_id,customer_id,vehicle_id,event_kind,before_json,after_json,event_key)
+      VALUES(held.priority_id,held.customer_id,vid,'handover_initiated',
+        jsonb_build_object('responsible',held.responsible_employee_id),
+        jsonb_build_object('sourceCOMMIT',true,'ttlUnchanged',true),
+        'source-handover:'||held.priority_id::text)
+      ON CONFLICT(event_key) DO NOTHING;
+    RETURN;
+  END IF;
   IF is_due OR NOT candidate_found
     OR EXISTS(SELECT 1 FROM public.locks WHERE vehicle_id=vid AND listing_cycle_id=cid
        AND lock_status='active' AND expires_at>statement_timestamp())
@@ -322,18 +407,40 @@ BEGIN
    PERFORM public.f05_8_reconcile_scope_ci(NEW.vehicle_id,NEW.listing_cycle_id);
   END IF;
  ELSIF TG_TABLE_NAME='demands' THEN
-  FOR affected IN SELECT DISTINCT vehicle_id,listing_cycle_id FROM public.f05_8_priority_ci
-    WHERE trigger_demand_id=NEW.demand_id AND status='active' LOOP
+  -- R05: not just a previously winning Demand; include still-current signed
+  -- Match scopes for a newly eligible (or non-trigger) Demand with no Priority.
+  FOR affected IN
+   SELECT DISTINCT vehicle_id,listing_cycle_id FROM (
+     SELECT p.vehicle_id,p.listing_cycle_id FROM public.f05_8_priority_ci p
+      WHERE p.trigger_demand_id=NEW.demand_id AND p.status='active'
+     UNION ALL
+     SELECT r.vehicle_id,r.listing_cycle_id FROM public.f05_7_result_versions_ci r
+      WHERE r.demand_id=NEW.demand_id AND r.status='current'
+       AND r.tier IN ('high','acceptable')
+   ) scopes ORDER BY vehicle_id,listing_cycle_id LOOP
    PERFORM public.f05_8_reconcile_scope_ci(affected.vehicle_id,affected.listing_cycle_id);
   END LOOP;
  ELSIF TG_TABLE_NAME='customers' THEN
-  FOR affected IN SELECT DISTINCT vehicle_id,listing_cycle_id FROM public.f05_8_priority_ci
-    WHERE customer_id=NEW.customer_id AND status='active' LOOP
+  FOR affected IN
+   SELECT DISTINCT vehicle_id,listing_cycle_id FROM (
+    SELECT p.vehicle_id,p.listing_cycle_id FROM public.f05_8_priority_ci p
+     WHERE p.customer_id=NEW.customer_id AND p.status='active'
+    UNION ALL
+    SELECT r.vehicle_id,r.listing_cycle_id FROM public.f05_7_result_versions_ci r
+     JOIN public.demands d ON d.demand_id=r.demand_id AND d.customer_id=NEW.customer_id
+     WHERE r.status='current' AND r.tier IN ('high','acceptable')
+   ) scopes ORDER BY vehicle_id,listing_cycle_id LOOP
    PERFORM public.f05_8_reconcile_scope_ci(affected.vehicle_id,affected.listing_cycle_id);
   END LOOP;
  ELSIF TG_TABLE_NAME='vehicles' THEN
-  FOR affected IN SELECT DISTINCT vehicle_id,listing_cycle_id FROM public.f05_8_priority_ci
-    WHERE vehicle_id=NEW.vehicle_id AND status='active' LOOP
+  FOR affected IN
+   SELECT DISTINCT vehicle_id,listing_cycle_id FROM (
+    SELECT p.vehicle_id,p.listing_cycle_id FROM public.f05_8_priority_ci p
+     WHERE p.vehicle_id=NEW.vehicle_id AND p.status='active'
+    UNION ALL
+    SELECT r.vehicle_id,r.listing_cycle_id FROM public.f05_7_result_versions_ci r
+     WHERE r.vehicle_id=NEW.vehicle_id AND r.status='current' AND r.tier IN ('high','acceptable')
+   ) scopes ORDER BY vehicle_id,listing_cycle_id LOOP
    PERFORM public.f05_8_reconcile_scope_ci(affected.vehicle_id,affected.listing_cycle_id);
   END LOOP;
  ELSIF TG_TABLE_NAME='vehicle_listing_cycles' THEN
@@ -375,7 +482,7 @@ CREATE TRIGGER f05_8_match_scope_ci AFTER INSERT OR UPDATE OF status ON public.f
  FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
 CREATE TRIGGER f05_8_demand_scope_ci AFTER UPDATE OF demand_state,responsible_employee_id ON public.demands
  FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
-CREATE TRIGGER f05_8_customer_scope_ci AFTER UPDATE OF account_status,customer_level_id,current_owner_employee_id ON public.customers
+CREATE TRIGGER f05_8_customer_scope_ci AFTER UPDATE OF account_status,customer_level_id,current_owner_employee_id,owner_assignment_state ON public.customers
  FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
 CREATE TRIGGER f05_8_vehicle_scope_ci AFTER UPDATE OF source_sale_status,archived_at ON public.vehicles
  FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
