@@ -298,19 +298,23 @@ test('7-A28 R04 series-year range and four provenances execute against real PG f
  const outRange=resolveRules('奥迪A6',rows,{series:'97002',model_year:'unknown',modelYear:2028});
  assert.equal(outRange.conditions.find(x=>x.field==='model_year').value,2021);
  const v=vehicles[4];
+ const signedJyt=(await q('SELECT model_year,model_id FROM public.f05_3b_sync_lineages WHERE vehicle_id=$1 AND current_cycle_id=$2',
+  [v.vehicleId,v.cycle]))[0];
+ assert.equal(Number(signedJyt.model_year),2026,'Original signed JYT model year is retained even if local mapping is pending');
  const facts={
   model_year:{candidates:[
    {value:2026,kind:'structured',source:'CI_ORIGINAL_JYT_STRUCTURED_MODEL_FACT'},
    {value:2021,kind:'inspection',source:'CI_INSPECTION'},
    {value:2020,kind:'description',source:'CI_DETAIL_DESCRIPTION'},
-   {value:2019,kind:'vague',source:'CI_VAGUE_LABEL'}]},
+   {value:2019,kind:'vague',source:'CI_VAGUE_LABEL'},
+   {value:null,kind:'structured',source:'CI_PENDING_LOCAL_MODEL_MAPPING_MUST_NOT_OVERWRITE_JYT'}]},
   exterior_color:{value:'black',kind:'structured',source:'CI_STRUCTURED'},
   mileage_km:{value:42000,kind:'structured',source:'CI_STRUCTURED'},
   interior_color:{value:'beige',kind:'inspection',source:'CI_INSPECTION'},
   budget_cents:{value:10000000,kind:'structured',source:'CI_CUSTOMER_DISPLAY_PRICE_SYNTHETIC'}
  };
  const clean=normalizeFacts(facts);
- assert.equal(clean.model_year.value,2026);assert.equal(clean.model_year.provenance.length,4);
+ assert.equal(clean.model_year.value,2026);assert.equal(clean.model_year.provenance.length,5);
  await db.query("UPDATE public.f05_7_vehicle_facts_ci SET facts_json=$1::jsonb,fact_version=fact_version+1 WHERE vehicle_id=$2 AND listing_cycle_id=$3",
   [JSON.stringify(facts),v.vehicleId,v.cycle]);
  assert.equal((await save(auth,token,{demandId:d,teamId:901,description:desc,scope:{series:'97002',model_year:'97003:2026',modelYear:2026}})).allowed,true);
@@ -318,7 +322,7 @@ test('7-A28 R04 series-year range and four provenances execute against real PG f
  assert.equal(r.allowed,true,JSON.stringify(r));assert.equal(r.tier,'high');
  const row=(await history(d,v)).at(-1),actual=row.explanations.find(x=>x.field==='model_year');
  assert.equal(actual.factSource,'CI_ORIGINAL_JYT_STRUCTURED_MODEL_FACT');
- assert.equal(actual.provenance.length,4);
+ assert.equal(actual.provenance.length,5);
  facts.model_year.candidates.push({value:2024,kind:'structured',source:'CI_STRUCTURED_CONFLICT'});
  await db.query("UPDATE public.f05_7_vehicle_facts_ci SET facts_json=$1::jsonb,fact_version=fact_version+1 WHERE vehicle_id=$2 AND listing_cycle_id=$3",
   [JSON.stringify(facts),v.vehicleId,v.cycle]);
