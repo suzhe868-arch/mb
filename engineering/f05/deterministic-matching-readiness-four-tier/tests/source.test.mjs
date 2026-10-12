@@ -4,8 +4,8 @@ import {randomBytes,createHash} from 'node:crypto';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {connect,verify,ID} from '../migration.mjs';
-import {resolveRules,tierFor,eligibleVehicle,failClosed,forbidden} from '../contract.mjs';
-import {saveSalesDescriptionCI as save,calculateCI as match} from '../service.mjs';
+import {resolveRules,tierFor,eligibleVehicle,failClosed,forbidden,normalizeFacts} from '../contract.mjs';
+import {saveSalesDescriptionCI as save,calculateCI as match,retryAffectedCI} from '../service.mjs';
 const db=await connect(),secret=randomBytes(32),auth=new IsolatedAuth({
  connectionString:process.env.F03_1_DATABASE_URL,secret,origin:'https://127.0.0.1:48988'
 });
@@ -206,4 +206,125 @@ test('7-A24 native real PG explanation / immutable hashes / scoped source gaps c
  const rows=await q('SELECT demand_id,vehicle_id,listing_cycle_id,tier,status,source_signature,explanations FROM public.f05_7_result_versions_ci ORDER BY result_id');
  await writeFile(new URL('genuine-source-tier-explanations.json',dir),JSON.stringify({rows,sha256:createHash('sha256').update(JSON.stringify(rows)).digest('hex'),ciSyntheticOnly:true},null,2)+'\n');
  assert.equal(races.length,2);
+});
+
+test('7-A25 R01 preferred fact missing is acceptable, not high or hard confirmation; true PG input and reason',async()=>{
+ const d=Number((await q("SELECT demand_id FROM public.demands WHERE customer_id=899618 AND demand_state='active'"))[0].demand_id);
+ assert.equal((await sales(d)).allowed,true);
+ const v=vehicles[3];
+ await db.query("UPDATE public.f05_7_vehicle_facts_ci SET facts_json=facts_json-'interior_color',fact_version=fact_version+1 WHERE vehicle_id=$1 AND listing_cycle_id=$2",[v.vehicleId,v.cycle]);
+ const result=await calc(d,v,'r01-preferred-null-from-real-pg');
+ assert.equal(result.tier,'acceptable',JSON.stringify(result));
+ const current=(await history(d,v)).at(-1);
+ const pref=current.explanations.find(e=>e.field==='interior_color');
+ assert.equal(pref.outcome,'unknown');assert.equal(pref.mode,'preferred');assert.equal(pref.factReason,'FACT_MISSING');
+ assert.equal(tierFor([{field:'model_year',mode:'hard',op:'min',value:2025},
+   {field:'interior_color',mode:'preferred',op:'eq',value:'beige'}],
+   {model_year:{value:2024}}).tier,'no_match');
+ assert.equal(tierFor([{field:'model_year',mode:'hard',op:'min',value:2025},
+   {field:'interior_color',mode:'preferred',op:'eq',value:'beige'}],
+   {model_year:{}}).tier,'confirmation_needed');
+ console.log('F05_7_A_R01_PREFERRED_MISSING_REAL_PG',JSON.stringify({demandId:d,vehicleId:v.vehicleId,tier:result.tier,pref}));
+});
+test('7-A26 R02 actual active Lock still matches with occupied snapshot and unlock event stales old result',async()=>{
+ const d=Number((await q("SELECT demand_id FROM public.demands WHERE customer_id=899619 AND demand_state='active'"))[0].demand_id);
+ assert.equal((await sales(d)).allowed,true);
+ const v=vehicles[2],before=Number((await q('SELECT count(*)::int n FROM public.locks'))[0].n);
+ await db.query("INSERT INTO public.locks(lock_id,customer_id,vehicle_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) "+
+  "VALUES(8997066,899619,$1,$2,'active',1,now()-interval '1 minute',now()+interval '2 hours')",[v.vehicleId,v.cycle]);
+ const r=await calc(d,v,'r02-occupied-while-matching');
+ assert.equal(r.allowed,true,JSON.stringify(r));assert.equal(r.occupancy.occupied,true);
+ const row=(await history(d,v)).at(-1);
+ const snap=row.explanations.find(e=>e.field==='active_lock_occupancy');
+ assert.equal(snap.occupied,true);assert.ok(snap.activeLockCount>=1);
+ assert.equal(Number((await q('SELECT count(*)::int n FROM public.locks'))[0].n),before+1,
+  'Matching does not create a second lock');
+ await db.query("UPDATE public.locks SET lock_status='cancelled' WHERE lock_id=8997066");
+ assert.equal((await history(d,v)).filter(x=>x.status==='current').length,0,'physical lock change invalidates current result');
+ const again=await calc(d,v,'r02-unoccupied-after-cancel');
+ assert.equal(again.allowed,true);assert.equal(again.occupancy.occupied,false);
+ const recovered=(await history(d,v)).at(-1).explanations.find(e=>e.field==='active_lock_occupancy');
+ assert.equal(recovered.occupied,false);
+ assert.equal(Number((await q('SELECT count(*)::int n FROM public.locks'))[0].n),before+1);
+ console.log('F05_7_A_R02_ACTIVE_LOCK_REAL_PG_OCCUPANCY',JSON.stringify({before,after:before+1,occupied:r.occupancy,afterCancel:again.occupancy}));
+});
+test('7-A27 R03 original PG Rule mutation commits, 2 targets only failed 1 gets idempotent retry',async()=>{
+ const d=Number((await q("SELECT demand_id FROM public.demands WHERE customer_id=899620 AND demand_state='active'"))[0].demand_id);
+ assert.equal((await sales(d)).allowed,true);
+ const [v1,v2]=vehicles.slice(0,2);
+ assert.equal((await calc(d,v1,'r03-before-rule-mutate-first')).allowed,true);
+ assert.equal((await calc(d,v2,'r03-before-rule-mutate-second')).allowed,true);
+ const rule=(await q("SELECT rule_id FROM public.f05_7_rule_dictionary_ci WHERE phrase='奥迪A6' ORDER BY rule_id LIMIT 1"))[0];
+ await db.query('UPDATE public.f05_7_rule_dictionary_ci SET rule_version=rule_version+1 WHERE rule_id=$1',[rule.rule_id]);
+ const original=await q('SELECT vehicle_id,retry_state,attempt_count FROM public.f05_7_retry_scope_ci WHERE demand_id=$1 ORDER BY vehicle_id',[d]);
+ assert.deepEqual(original.map(x=>x.retry_state),['pending','pending']);
+ for(const v of [v1,v2])assert.equal((await history(d,v)).filter(x=>x.status==='current').length,0);
+ assert.equal((await sales(d)).allowed,true,'reparse must sign new Rule version before re-evaluation');
+ const retry1=await retryAffectedCI(auth,token,{demandId:d,teamId:901,batchKey:key('r03-try-one'),
+  injectFailureVehicles:[v2.vehicleId]});
+ assert.equal(retry1.allowed,true,JSON.stringify(retry1));assert.equal(retry1.successes,1);assert.equal(retry1.failures,1);
+ const first=await q('SELECT vehicle_id,retry_state,error_reason,attempt_count FROM public.f05_7_retry_scope_ci WHERE demand_id=$1 ORDER BY vehicle_id',[d]);
+ assert.deepEqual(first.map(x=>x.retry_state),['completed','failed']);
+ assert.equal(first[1].error_reason,'F05_7_CI_SYNTHETIC_RECOMPUTE_FAILURE');
+ assert.equal((await history(d,v2)).filter(x=>x.status==='current').length,0);
+ const successCount=(await history(d,v1)).length;
+ const retry2=await retryAffectedCI(auth,token,{demandId:d,teamId:901,batchKey:key('r03-try-two')});
+ assert.equal(retry2.successes,1);assert.equal(retry2.failures,0);
+ assert.equal(retry2.handled.length,1);assert.equal(retry2.handled[0].vehicleId,v2.vehicleId);
+ const second=await q('SELECT vehicle_id,retry_state,attempt_count FROM public.f05_7_retry_scope_ci WHERE demand_id=$1 ORDER BY vehicle_id',[d]);
+ assert.deepEqual(second.map(x=>x.retry_state),['completed','completed']);
+ assert.deepEqual(second.map(x=>Number(x.attempt_count)),[1,2]);
+ assert.equal((await history(d,v1)).length,successCount,'successful subset is not retried');
+ const again=await retryAffectedCI(auth,token,{demandId:d,teamId:901,batchKey:key('r03-try-two')});
+ assert.equal(again.handled.length,0,'idempotent retry never processes completed scope again');
+ console.log('F05_7_A_R03_TRUE_PG16_PARTIAL_RETRY',JSON.stringify({demandId:d,first,second,completedUnaffected:true}));
+});
+test('7-A28 R04 series-year range and four provenances execute against real PG facts, local mapping gap cannot overwrite JYT',async()=>{
+ const d=Number((await q("SELECT demand_id FROM public.demands WHERE customer_id=899618 AND demand_state='active'"))[0].demand_id);
+ const scopeRules=[
+  {phrase:'奥迪A6',scope_kind:'global',condition:{field:'model_year',mode:'hard',op:'min',value:2010}},
+  {phrase:'奥迪A6',scope_kind:'series',scope_key:'97002',condition:{field:'model_year',mode:'hard',op:'min',value:2021}},
+  {phrase:'奥迪A6',scope_kind:'series_year',scope_key:'97002:2024-2027',condition:{field:'model_year',mode:'hard',op:'min',value:2025}},
+  {phrase:'奥迪A6',scope_kind:'model_year',scope_key:'97003:2026',condition:{field:'model_year',mode:'hard',op:'min',value:2026}}
+ ];
+ for(const r of scopeRules)await db.query(
+  'INSERT INTO public.f05_7_rule_dictionary_ci(phrase,scope_kind,scope_key,condition_json) VALUES($1,$2,$3,$4::jsonb)',
+  [r.phrase,r.scope_kind,r.scope_key??null,JSON.stringify(r.condition)]);
+ const rows=(await q("SELECT rule_id,phrase,scope_kind,scope_key,condition_json AS condition FROM public.f05_7_rule_dictionary_ci WHERE phrase='奥迪A6' ORDER BY rule_id")).filter(Boolean);
+ const ins=resolveRules('奥迪A6',rows,{series:'97002',model_year:'97003:2026',modelYear:2026});
+ assert.equal(ins.conditions.find(x=>x.field==='model_year').value,2026);
+ const inRange=resolveRules('奥迪A6',rows,{series:'97002',model_year:'unknown',modelYear:2025});
+ assert.equal(inRange.conditions.find(x=>x.field==='model_year').value,2025);
+ const outRange=resolveRules('奥迪A6',rows,{series:'97002',model_year:'unknown',modelYear:2028});
+ assert.equal(outRange.conditions.find(x=>x.field==='model_year').value,2021);
+ const v=vehicles[4];
+ const facts={
+  model_year:{candidates:[
+   {value:2026,kind:'structured',source:'CI_ORIGINAL_JYT_STRUCTURED_MODEL_FACT'},
+   {value:2021,kind:'inspection',source:'CI_INSPECTION'},
+   {value:2020,kind:'description',source:'CI_DETAIL_DESCRIPTION'},
+   {value:2019,kind:'vague',source:'CI_VAGUE_LABEL'}]},
+  exterior_color:{value:'black',kind:'structured',source:'CI_STRUCTURED'},
+  mileage_km:{value:42000,kind:'structured',source:'CI_STRUCTURED'},
+  interior_color:{value:'beige',kind:'inspection',source:'CI_INSPECTION'},
+  budget_cents:{value:10000000,kind:'structured',source:'CI_CUSTOMER_DISPLAY_PRICE_SYNTHETIC'}
+ };
+ const clean=normalizeFacts(facts);
+ assert.equal(clean.model_year.value,2026);assert.equal(clean.model_year.provenance.length,4);
+ await db.query("UPDATE public.f05_7_vehicle_facts_ci SET facts_json=$1::jsonb,fact_version=fact_version+1 WHERE vehicle_id=$2 AND listing_cycle_id=$3",
+  [JSON.stringify(facts),v.vehicleId,v.cycle]);
+ assert.equal((await sales(d)).allowed,true);
+ const r=await calc(d,v,'r04-provenance-original-jyt-vs-mapping');
+ assert.equal(r.allowed,true,JSON.stringify(r));assert.equal(r.tier,'high');
+ const row=(await history(d,v)).at(-1),actual=row.explanations.find(x=>x.field==='model_year');
+ assert.equal(actual.factSource,'CI_ORIGINAL_JYT_STRUCTURED_MODEL_FACT');
+ assert.equal(actual.provenance.length,4);
+ facts.model_year.candidates.push({value:2024,kind:'structured',source:'CI_STRUCTURED_CONFLICT'});
+ await db.query("UPDATE public.f05_7_vehicle_facts_ci SET facts_json=$1::jsonb,fact_version=fact_version+1 WHERE vehicle_id=$2 AND listing_cycle_id=$3",
+  [JSON.stringify(facts),v.vehicleId,v.cycle]);
+ const conflict=await calc(d,v,'r04-same-rank-model-conflict');
+ assert.equal(conflict.tier,'confirmation_needed');
+ assert.equal((await history(d,v)).at(-1).explanations.find(x=>x.field==='model_year').factReason,'SAME_PRIORITY_CONFLICT');
+ console.log('F05_7_A_R04_REAL_PG16_PRIORITY_AND_RANGE',JSON.stringify({source:actual.factSource,originalSources:actual.provenance.map(x=>x.source),
+  inRange:inRange.conditions[0]?.value,outRange:outRange.conditions[0]?.value,hardConflict:conflict.tier}));
 });
