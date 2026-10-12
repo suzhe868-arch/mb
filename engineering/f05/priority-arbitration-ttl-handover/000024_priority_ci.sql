@@ -292,8 +292,22 @@ CREATE FUNCTION public.f05_8_pending_source_ci(pid BIGINT) RETURNS BOOLEAN LANGU
  JOIN public.f05_6_level_find_policy_ci f ON f.level_id=c.customer_level_id AND f.find_enabled
  JOIN public.vehicles v ON v.vehicle_id=p.vehicle_id AND v.source_sale_status='active' AND v.archived_at IS NULL
  JOIN public.vehicle_listing_cycles lc ON lc.listing_cycle_id=p.listing_cycle_id AND lc.vehicle_id=p.vehicle_id AND lc.ended_at IS NULL
- WHERE p.priority_id=pid AND p.status='active' AND
- (public.f05_8_handover_source_valid_ci(pid) OR d.responsible_employee_id<>p.responsible_employee_id OR c.current_owner_employee_id<>p.responsible_employee_id));
+ WHERE p.priority_id=pid AND p.status='active'
+ -- R11: responsible drift is never a substitute for a current signed Match.
+ AND EXISTS(SELECT 1 FROM public.f05_7_result_versions_ci r
+   JOIN public.f05_7_sales_condition_ci sc ON sc.demand_id=r.demand_id
+   WHERE r.demand_id=p.trigger_demand_id AND r.vehicle_id=p.vehicle_id
+    AND r.listing_cycle_id=p.listing_cycle_id AND r.status='current'
+    AND r.tier IN ('high','acceptable')
+    AND NOT EXISTS(SELECT 1 FROM public.f05_8_suppressed_facts_ci sf
+      WHERE sf.customer_id=p.customer_id AND sf.vehicle_id=p.vehicle_id
+      AND sf.listing_cycle_id=p.listing_cycle_id AND sf.source_signature=r.source_signature)
+    AND NOT EXISTS(SELECT 1 FROM public.f05_8_suppression_ci su
+      WHERE su.customer_id=p.customer_id AND su.vehicle_id=p.vehicle_id
+      AND su.listing_cycle_id=p.listing_cycle_id AND su.suppressed_source_signature=r.source_signature))
+ AND (public.f05_8_handover_source_valid_ci(pid)
+   OR d.responsible_employee_id<>p.responsible_employee_id
+   OR c.current_owner_employee_id<>p.responsible_employee_id));
 $$;
 -- R09 target must belong to original object's Team AND Store with live permission.
 CREATE FUNCTION public.f05_8_responsible_object_scope_ci(pid BIGINT,eid BIGINT) RETURNS BOOLEAN LANGUAGE sql STABLE AS $$
@@ -313,6 +327,57 @@ CREATE FUNCTION public.f05_8_responsible_object_scope_ci(pid BIGINT,eid BIGINT) 
  JOIN public.employee_data_scopes sc ON sc.scope_id=b.scope_id AND sc.employee_id=eid AND sc.ended_at IS NULL AND sc.scope_kind='team' AND sc.scope_reference_id=t.team_id
  WHERE p.priority_id=pid AND p.status='active');
 $$;
+-- R10: signed operator must have live authority over the ACTUAL Priority
+-- business object, never merely the caller-supplied teamId.
+CREATE FUNCTION public.f05_8_actor_priority_scope_ci(pid BIGINT,eid BIGINT,role TEXT,requested_team BIGINT)
+RETURNS BOOLEAN LANGUAGE sql STABLE AS $
+ SELECT EXISTS(SELECT 1 FROM public.f05_8_priority_ci p
+ JOIN public.demands d ON d.demand_id=p.trigger_demand_id AND d.customer_id=p.customer_id
+ JOIN public.customers cs ON cs.customer_id=p.customer_id
+ LEFT JOIN public.f05_8_handover_ci h ON h.priority_id=p.priority_id
+ JOIN public.employees owner ON owner.employee_id=COALESCE(h.original_responsible_employee_id,p.responsible_employee_id)
+ JOIN public.employee_team_memberships om ON om.employee_id=owner.employee_id
+  AND om.valid_from<=p.created_at AND (om.ended_at IS NULL OR om.ended_at>p.created_at)
+ JOIN public.teams t ON t.team_id=om.team_id AND t.team_id=requested_team
+  AND t.store_id=owner.store_id AND t.team_status='active'
+ JOIN public.stores st ON st.store_id=t.store_id AND st.status='active'
+ JOIN public.employees e ON e.employee_id=eid AND e.employment_status='active' AND e.store_id=t.store_id
+ JOIN public.employee_team_memberships m ON m.employee_id=eid AND m.team_id=t.team_id
+  AND m.valid_from<=statement_timestamp() AND (m.ended_at IS NULL OR m.ended_at>statement_timestamp())
+ JOIN public.permissions pe ON pe.permission_code='matching.rule.manage.ci.synthetic'
+ JOIN public.employee_permission_overrides ov ON ov.employee_id=eid AND ov.permission_id=pe.permission_id AND ov.decision='allow'
+ JOIN public.employee_capability_scope_bindings b ON b.employee_id=eid AND b.permission_id=pe.permission_id
+  AND b.granted_at<=statement_timestamp() AND (b.ended_at IS NULL OR b.ended_at>statement_timestamp())
+ JOIN public.employee_data_scopes sc ON sc.scope_id=b.scope_id AND sc.employee_id=eid AND sc.ended_at IS NULL
+ WHERE p.priority_id=pid AND role IN ('sales','manager','store_head')
+  AND ((sc.scope_kind='team' AND sc.scope_reference_id=t.team_id)
+   OR (sc.scope_kind='store' AND sc.scope_reference_id=st.store_id AND role IN ('manager','store_head')))
+  AND (role IN ('manager','store_head') OR p.responsible_employee_id=eid
+   OR (h.original_responsible_employee_id=eid AND h.state IN ('pending','failed'))));
+$;
+CREATE FUNCTION public.f05_8_actor_demand_scope_ci(did BIGINT,eid BIGINT,role TEXT,requested_team BIGINT)
+RETURNS BOOLEAN LANGUAGE sql STABLE AS $
+ SELECT EXISTS(SELECT 1 FROM public.demands d
+ JOIN public.customers cs ON cs.customer_id=d.customer_id
+ JOIN public.employees owner ON owner.employee_id=d.responsible_employee_id
+ JOIN public.employee_team_memberships om ON om.employee_id=owner.employee_id
+  AND om.team_id=requested_team AND om.valid_from<=statement_timestamp()
+  AND (om.ended_at IS NULL OR om.ended_at>statement_timestamp())
+ JOIN public.teams t ON t.team_id=om.team_id AND t.store_id=owner.store_id AND t.team_status='active'
+ JOIN public.stores st ON st.store_id=t.store_id AND st.status='active'
+ JOIN public.employees e ON e.employee_id=eid AND e.employment_status='active' AND e.store_id=t.store_id
+ JOIN public.employee_team_memberships m ON m.employee_id=eid AND m.team_id=t.team_id
+  AND m.valid_from<=statement_timestamp() AND (m.ended_at IS NULL OR m.ended_at>statement_timestamp())
+ JOIN public.permissions pe ON pe.permission_code='matching.rule.manage.ci.synthetic'
+ JOIN public.employee_permission_overrides ov ON ov.employee_id=eid AND ov.permission_id=pe.permission_id AND ov.decision='allow'
+ JOIN public.employee_capability_scope_bindings b ON b.employee_id=eid AND b.permission_id=pe.permission_id
+  AND b.granted_at<=statement_timestamp() AND (b.ended_at IS NULL OR b.ended_at>statement_timestamp())
+ JOIN public.employee_data_scopes sc ON sc.scope_id=b.scope_id AND sc.employee_id=eid AND sc.ended_at IS NULL
+ WHERE d.demand_id=did AND role IN ('sales','manager','store_head')
+ AND ((sc.scope_kind='team' AND sc.scope_reference_id=t.team_id)
+  OR (sc.scope_kind='store' AND sc.scope_reference_id=st.store_id AND role IN ('manager','store_head')))
+ AND (role IN ('manager','store_head') OR d.responsible_employee_id=eid));
+$;
 -- R02: signed-source mutation and Priority lifecycle reconcile atomically.
 -- The affected Vehicle row is acquired before Priority, same as JS arbitration.
 CREATE FUNCTION public.f05_8_reconcile_scope_ci(vid BIGINT,cid BIGINT)
@@ -526,12 +591,12 @@ BEGIN
  END IF;
  RETURN NEW;
 END $$;
-CREATE TRIGGER f05_8_match_scope_ci AFTER INSERT OR UPDATE OF status ON public.f05_7_result_versions_ci
- FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
-CREATE TRIGGER f05_8_demand_scope_ci AFTER UPDATE OF demand_state,responsible_employee_id ON public.demands
- FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
-CREATE TRIGGER f05_8_customer_scope_ci AFTER UPDATE OF account_status,customer_level_id,current_owner_employee_id,owner_assignment_state ON public.customers
- FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
+CREATE CONSTRAINT TRIGGER f05_8_match_scope_ci AFTER INSERT OR UPDATE OF status ON public.f05_7_result_versions_ci
+ DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
+CREATE CONSTRAINT TRIGGER f05_8_demand_scope_ci AFTER UPDATE OF demand_state,responsible_employee_id ON public.demands
+ DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
+CREATE CONSTRAINT TRIGGER f05_8_customer_scope_ci AFTER UPDATE OF account_status,customer_level_id,current_owner_employee_id,owner_assignment_state ON public.customers
+ DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
 CREATE TRIGGER f05_8_vehicle_scope_ci AFTER UPDATE OF source_sale_status,archived_at ON public.vehicles
  FOR EACH ROW EXECUTE FUNCTION public.f05_8_source_change_ci();
 CREATE TRIGGER f05_8_cycle_scope_ci AFTER UPDATE OF ended_at ON public.vehicle_listing_cycles
