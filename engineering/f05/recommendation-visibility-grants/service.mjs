@@ -7,7 +7,7 @@ const OK=(code,more={})=>({allowed:true,code,...more});
 const positive=n=>Number.isSafeInteger(Number(n))&&Number(n)>0;
 const eventKey=s=>typeof s==='string'&&s.length>=16&&s.length<=160;
 const lockVehicle=(c,v)=>c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[v]);
-const sourceAuth=async(c,actor,teamId,customerId,demandId)=>{
+const sourceAuth=async(c,actor,teamId,customerId,demandId,{forTermination=false}={})=>{
  if(actor?.principal_kind!=='employee'||actor.system_admin_id!=null||
     actor.subject_status!=='active'||actor.credential_state!=='enabled'||
     actor.force_password_change||!['sales','manager','store_head'].includes(actor.role_code))
@@ -23,9 +23,14 @@ const sourceAuth=async(c,actor,teamId,customerId,demandId)=>{
  let responsible=Number(customer.current_owner_employee_id),demand=null;
  if(demandId!==null){
   demand=(await c.query('SELECT * FROM public.demands WHERE demand_id=$1 FOR SHARE',[demandId])).rows[0];
-  if(!demand||Number(demand.customer_id)!==Number(customerId)||demand.demand_state!=='active')
-   return FAIL('F05_9_SIGNED_SOURCE_DEMAND_NOT_ACTIVE');
-  responsible=Number(demand.responsible_employee_id);
+  if(!demand||Number(demand.customer_id)!==Number(customerId))
+   return FAIL('F05_9_SIGNED_SOURCE_DEMAND_NOT_CURRENT_CUSTOMER');
+  if(demand.demand_state==='active')responsible=Number(demand.responsible_employee_id);
+  else if(!forTermination)return FAIL('F05_9_SIGNED_SOURCE_DEMAND_NOT_ACTIVE');
+  // Historic source Demand may be completed/paused/cancelled when ending
+  // a recommendation. Only the CURRENT Customer owner or scoped manager
+  // may close its immutable history; never the historical recommender.
+
  }
  if(!positive(responsible))return FAIL('F05_9_NO_CURRENT_RESPONSIBLE');
  const owner=(await c.query('SELECT store_id,employment_status FROM public.employees WHERE employee_id=$1 FOR SHARE',[responsible])).rows[0];
@@ -145,21 +150,30 @@ export async function createRecommendationCI(auth,token,{teamId=901,customerId,v
 export async function finishRecommendationCI(auth,token,{teamId=901,recommendationId,kind='end',reason=null,eventKey:key}={}){
  if(!positive(recommendationId)||!eventKey(key)||!['end','void'].includes(kind)||
     (kind==='void'&&(!reason||!String(reason).trim())))return FAIL('F05_9_INVALID_FINISH');
- const loc=(await (await import('./migration.mjs')).connect());let base;
- try{base=(await loc.query('SELECT vehicle_id FROM public.recommendations WHERE recommendation_id=$1',[recommendationId])).rows[0]}
- finally{await loc.end()}
- if(!base)return FAIL('F05_9_UNKNOWN_RECOMMENDATION');
- return withEmployee(auth,token,base.vehicle_id,async(c,actor)=>{
+ if(!auth||typeof auth.withSession!=='function')return FAIL('F05_9_SIGNED_SESSION_REQUIRED');
+ // Object lookup happens INSIDE the authenticated F03 session to avoid
+ // unauthenticated Recommendation-ID existence disclosure.
+ return await auth.withSession(token,async(c,actor,session)=>{
+  if(session.restricted)return FAIL('F05_9_RESTRICTED_SESSION');
+  await verify(c);
+  const locator=(await c.query('SELECT vehicle_id FROM public.recommendations WHERE recommendation_id=$1',[recommendationId])).rows[0];
+  if(!locator)return FAIL('F05_9_NOT_ACTIVE_RECOMMENDATION');
+  await lockVehicle(c,locator.vehicle_id);
   const rec=(await c.query('SELECT * FROM public.recommendations WHERE recommendation_id=$1 FOR UPDATE',[recommendationId])).rows[0];
   if(!rec||rec.status!=='active')return FAIL('F05_9_NOT_ACTIVE_RECOMMENDATION');
-  const scope=await sourceAuth(c,actor,teamId,rec.customer_id,rec.source_demand_id);if(!scope.allowed)return scope;
-  const vg=await vehicleGuard(c,rec.vehicle_id,rec.listing_cycle_id,rec.customer_id);if(!vg.allowed)return vg;
-  await c.query('UPDATE public.recommendations SET status=$2 WHERE recommendation_id=$1',[recommendationId,kind==='void'?'void':'ended']);
+  const scope=await sourceAuth(c,actor,teamId,rec.customer_id,rec.source_demand_id,{forTermination:true});
+  if(!scope.allowed)return scope;
+  // Ending historic business history is lawful after a Vehicle is sold,
+  // cycle ends, or another Customer wins a Priority. The creation guards
+  // MUST NOT be reused as termination guards or old records become stuck.
+  await c.query('UPDATE public.recommendations SET status=$2 WHERE recommendation_id=$1',
+   [recommendationId,kind==='void'?'void':'ended']);
   await c.query("UPDATE public.vehicle_visibility_grants SET revoked_at=transaction_timestamp() "+
    "WHERE source_recommendation_id=$1 AND revoked_at IS NULL",[recommendationId]);
-  await emit(c,{rec:recommendationId,actor:scope.employeeId,event:kind==='void'?'voided':'ended',key,reason});
+  await emit(c,{rec:recommendationId,actor:scope.employeeId,
+   event:kind==='void'?'voided':'ended',key,reason});
   return OK('F05_9_RECOMMENDATION_'+kind.toUpperCase(),{recommendationId:Number(recommendationId)});
- });
+ },{normalOnly:true})??FAIL('F05_9_REVOKED_SESSION');
 }
 export async function batchRecommendCI(auth,token,{teamId=901,customerId,vehicleCycles=[],sourceDemandId=null,eventPrefix}={}){
  if(!eventKey(eventPrefix)||!Array.isArray(vehicleCycles)||vehicleCycles.length>100)return FAIL('F05_9_INVALID_BATCH');
