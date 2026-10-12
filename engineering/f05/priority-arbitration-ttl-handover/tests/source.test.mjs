@@ -629,6 +629,9 @@ test('8-R07 real two-backend handover serializes against Vehicle row lock withou
  assert.equal(Number(old.responsible_employee_id),1);
  const h=(await q("SELECT handover_id,state FROM public.f05_8_handover_ci WHERE priority_id=$1",[old.priority_id]))[0];
  assert.ok(h);assert.equal(h.state,'pending','source event must have opened real Batch');
+ const savedRoleR07=(await q('SELECT main_role_id FROM public.employees WHERE employee_id=1'))[0].main_role_id;
+ const managerRoleR07=(await q("SELECT role_id FROM public.roles WHERE role_code='manager'"))[0].role_id;
+ await db.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[managerRoleR07]);
  const target=8997501,other=await connect();
  let pendingRetry;
  try{
@@ -648,6 +651,7 @@ test('8-R07 real two-backend handover serializes against Vehicle row lock withou
   const now=(await current(v))[0];assert.equal(Number(now.priority_id),Number(old.priority_id));
   assert.equal(Number(now.responsible_employee_id),target);
   assert.equal(new Date(now.expires_at).getTime(),new Date(old.expires_at).getTime());
+  await db.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[savedRoleR07]);
   const repeat=await retryHandoverCI(auth,token,{handoverId:Number(h.handover_id),
    targetEmployeeId:target,eventKey:kval('r07-idempotent-completed-handover')});
   assert.equal(repeat.code,'F05_8_ACTOR_OBJECT_SCOPE_DENIED','former owner cannot probe completed transfer');
