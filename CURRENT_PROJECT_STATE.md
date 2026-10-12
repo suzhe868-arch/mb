@@ -1,3 +1,12 @@
+# 2026-10-12｜F05-8 A第五轮独立验收：68/68真PG16成功，但跨店合法Scope与原销售撤权两项未闭环，PR47退B（唯一最新）
+
+- **现行唯一指针**：`F05_8_A_FIFTH_REVIEW_CHANGES_REQUESTED_B_REWORK / PR47_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。A核B/PR47最后HEAD `f534b2ec60ddfedc36f154dcae4d41ff9f3227b2`，PR仍Open/未合并，23个变更文件均本批新增CI-only白名单，旧签F03/F04/F05-1～7/迁移和产品Authority不改。
+- **已经独立核实、必须保留**：八官方同HEAD **Push** Runs H52 `38231248375` 52/52、I2 `38231248464`、J2 `38231248352`、K2 `38231248565`、F05-4 `38231248542`、F05-5 `38231248575`、F05-6 `38231248421`六组各2/2、F05-8 `38231248611` 4/4，共**68/68真实独立PG16 Job成功、无skip/fail**。原生Priority Source36/36、HTTPS10/10，旧F05-7 Source28/HTTPS7，v24注错回滚/双PG撤权均PASS；四份同SHA有效Push Artifact `11739594838/11739106790/11738972335/11738742541`。R10无权同店不同Team DENY及R11 pending旧Match失效已获源码+真PG支持，原R01～R09成果不推倒。
+- **第五轮独立发现两项已签规则阻断**：**R12** `service.mjs scopeSQL`及v24`f05_8_actor_priority_scope_ci/actor_demand_scope_ci`硬要求员工主Store==对象Store且本人直接隶属对象Team；即使经理/店长具明确跨Store/Team Permission + DataScope亦不可能被允许，违背PDM-02 Final §2/4，B已自认未做真实跨Store/经理店长正反例。**R13** 普通Sales只需等于旧`Priority.responsible`或`Handover.original`便能通过actor对象Scope，未核Demand/Customer当前已变更责任，Pending时旧销售主账号/Scope仍有效即可发起/重试/影响别人的Handover，违反PDM-13§24/25/31。非新产品决策。完整可执行A整改单：`07_重建工作区/F05-8_A主控第五轮独立验收68项真PG16通过但跨店合法Scope与交接旧销售撤权未闭环整改单_2026-10-12.md`。
+- **唯一下一B**：继续原`feat/f05-8-priority-arbitration-ttl-handover`，在原CI-only新增白名单补R12真实跨门店跨团队合法授权正反例和R13待交接原销售失权后真实PG16操作拒绝/并发；旧64冻结、旧F05-7 28/7及本批Priority36/10测试不删弱。最后**新唯一B SHA八官方同SHA Push 68/68 success**＋四份新Push原生有效Artifact、源码/SQL seal/双PG与中文B正式交审`READY_FOR_A_SIXTH_INDEPENDENT_REVIEW`再交A。PR47不合并，不启动F05-9/F06，生产微信/JYT/数字报价/资金等继续SOURCE_GAP，F05/C-H01/V1 `NOT_READY`。
+
+---
+
 # 2026-10-12｜F05-8 A第四轮独立验收：同SHA真实PG16 68/68通过，但操作者对象Scope及Pending失效Match保护两项未闭环，PR47退B（唯一最新）
 
 - **正式唯一指针**：`F05_8_A_FOURTH_REVIEW_CHANGES_REQUESTED_B_REWORK / PR47_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。A独立核PR47最新B HEAD `2d2bb3beb5943319b73a08f1fb1efb10fecd4b73`、23项新增施工白名单、PDM-13 §§14/24/25/26/30/31及第四轮实际代码；本轮不签`A_ACCEPTED`、不合并PR47。
