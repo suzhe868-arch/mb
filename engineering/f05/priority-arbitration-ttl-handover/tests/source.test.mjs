@@ -459,6 +459,30 @@ test('8-R07 Employee invalidation auto-creates protected Handover Batch, deny an
  assert.equal(cross.completed,false);assert.equal(Number((await current(v))[0].responsible_employee_id),1);
  await switchUpstream(target,'r08-canonical-owner-re-sign');
  assert.equal((await q("SELECT public.f05_8_responsible_object_scope_ci($1,$2) allowed",[old.priority_id,target]))[0].allowed,true);
+ // R09 target scope revocation and retry in separate real PostgreSQL backends.
+ let writer, scopeRetry;
+ try{
+  writer=await connect();
+  await writer.query('BEGIN');
+  const writerPid=Number((await writer.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+  await writer.query('UPDATE public.employee_data_scopes SET ended_at=now() WHERE scope_id=29991');
+  let settled=false;
+  scopeRetry=retryHandoverCI(auth,token,{handoverId:Number(handover.handover_id),
+   targetEmployeeId:target,eventKey:kval('r09-real-concurrent-scope-revocation')});
+  scopeRetry.then(()=>{settled=true},()=>{settled=true});
+  await new Promise(resolve=>setTimeout(resolve,120));
+  assert.equal(settled,false,'target Scope SQL row lock must serialize revoke/retry');
+  assert.equal(Number((await q("SELECT count(*)::int n FROM public.f05_8_handover_attempts_ci WHERE handover_id=$1 AND outcome='completed'",[handover.handover_id]))[0].n),0);
+  await writer.query('COMMIT');
+  const refused=await scopeRetry;
+  assert.equal(refused.allowed,true,JSON.stringify(refused));assert.equal(refused.completed,false);
+  assert.equal(Number((await current(v))[0].responsible_employee_id),1);
+  console.log('F05_8_R09_REAL_TWO_PG_TARGET_SCOPE_REVOKE_DENIED',JSON.stringify({writerPid,priority:Number(old.priority_id),ttlUnchanged:true}));
+ }finally{
+  if(writer){await writer.query('ROLLBACK').catch(()=>{});await writer.end()}
+  if(scopeRetry)await scopeRetry.catch(()=>{});
+ }
+ await db.query('UPDATE public.employee_data_scopes SET ended_at=NULL WHERE scope_id=29991');
  const transferred=await retryHandoverCI(auth,token,{handoverId:Number(handover.handover_id),targetEmployeeId:target,
   eventKey:kval('r07-success-retry')});
  assert.equal(transferred.allowed,true,JSON.stringify(transferred));assert.equal(transferred.completed,true);
@@ -472,7 +496,7 @@ test('8-R07 Employee invalidation auto-creates protected Handover Batch, deny an
  assert.equal(Number((await current(v))[0].responsible_employee_id),target,
   'post-transfer explicit arbitration must never rebind the old Employee');
  const attempts=await q("SELECT outcome FROM public.f05_8_handover_attempts_ci WHERE handover_id=$1 ORDER BY attempt_no",[handover.handover_id]);
- assert.deepEqual(attempts.map(x=>x.outcome),['failed','failed','failed','completed']);
+ assert.deepEqual(attempts.map(x=>x.outcome),['failed','failed','failed','failed','completed']);
  await db.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=1");
  assert.equal(Number((await current(v))[0].priority_id),Number(old.priority_id),
   'original Employee invalidation cannot steal back or release a completed transferred Priority');

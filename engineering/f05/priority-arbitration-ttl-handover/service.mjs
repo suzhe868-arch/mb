@@ -326,6 +326,14 @@ export async function retryHandoverCI(auth,token,{teamId=901,handoverId,targetEm
   if(!h||h.state==='completed')return ok('F05_8_HANDOVER_ALREADY_COMPLETED',{handled:false});
   if(!p||p.status!=='active'||new Date(p.expires_at).getTime()<=Date.now())return fail('F05_8_HANDOVER_PRIORITY_ENDED_OR_EXPIRED');
   const to=(await c.query('SELECT employment_status FROM public.employees WHERE employee_id=$1 FOR SHARE',[targetEmployeeId])).rows[0];
+  // R09: serialize target permission/scope/Team changes in same DB transaction.
+  // Source/Demand/Customer state is locked before object scope is checked.
+  await c.query('SELECT demand_id FROM public.demands WHERE demand_id=$1 FOR SHARE',[p.trigger_demand_id]);
+  await c.query('SELECT customer_id FROM public.customers WHERE customer_id=$1 FOR SHARE',[p.customer_id]);
+  await c.query('SELECT employee_id,permission_id FROM public.employee_permission_overrides WHERE employee_id=$1 ORDER BY permission_id FOR SHARE',[targetEmployeeId]);
+  await c.query('SELECT scope_id FROM public.employee_data_scopes WHERE employee_id=$1 ORDER BY scope_id FOR SHARE',[targetEmployeeId]);
+  await c.query('SELECT employee_id,permission_id,scope_id FROM public.employee_capability_scope_bindings WHERE employee_id=$1 ORDER BY permission_id,scope_id FOR SHARE',[targetEmployeeId]);
+  await c.query('SELECT team_id,employee_id FROM public.employee_team_memberships WHERE employee_id=$1 ORDER BY team_id FOR SHARE',[targetEmployeeId]);
   // Consume current signed Demand/Customer and current Match, not a target request.
   const approvedScope=(await c.query("SELECT public.f05_8_responsible_object_scope_ci($1,$2) allowed",
    [p.priority_id,targetEmployeeId])).rows[0].allowed===true;
