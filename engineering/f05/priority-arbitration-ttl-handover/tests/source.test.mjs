@@ -16,23 +16,24 @@ const arb=(v,label,opts={})=>arbitrateCI(auth,token,{teamId:901,vehicleId:v.id,l
 const qualification=(id,enabled,label)=>setQualificationCI(auth,token,{customerId:id,enabled,eventKey:kval(label)});
 const current=v=>q("SELECT * FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active'",[v.id,v.cycle]);
 // CI-only upstream signed-Match fixture using the original PDM12 pure contract.
-async function reSign(v,demandId,label){
+async function reSign(v,demandId,label,conn=db){
+ const signedQuery=(sql,args=[])=>conn.query(sql,args).then(x=>x.rows);
  const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
- const rules=await q("SELECT rule_id,rule_version,phrase,condition_json FROM public.f05_7_rule_dictionary_ci WHERE valid_from<=statement_timestamp() AND (valid_until IS NULL OR valid_until>statement_timestamp())");
+ const rules=await signedQuery("SELECT rule_id,rule_version,phrase,condition_json FROM public.f05_7_rule_dictionary_ci WHERE valid_from<=statement_timestamp() AND (valid_until IS NULL OR valid_until>statement_timestamp())");
  const ruleHash=digest(rules.map(x=>[x.rule_id,x.rule_version,x.phrase,x.condition_json]).sort((a,b)=>a[0]-b[0]));
- const sales=(await q("SELECT condition_json,description_version,rule_version_sha256 FROM public.f05_7_sales_condition_ci WHERE demand_id=$1",[demandId]))[0];assert.equal(sales.rule_version_sha256,ruleHash);
- const facts=(await q("SELECT facts_json,fact_version FROM public.f05_7_vehicle_facts_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2",[v.id,v.cycle]))[0];
- const demand=(await q("SELECT demand_state,customer_id FROM public.demands WHERE demand_id=$1",[demandId]))[0];
- const c=(await q("SELECT account_status,customer_level_id FROM public.customers WHERE customer_id=$1",[demand.customer_id]))[0];
- const vehicle=(await q("SELECT source_sale_status FROM public.vehicles WHERE vehicle_id=$1",[v.id]))[0];
- const cycle=(await q("SELECT ended_at FROM public.vehicle_listing_cycles WHERE listing_cycle_id=$1",[v.cycle]))[0];
- const locks=await q("SELECT lock_id,expires_at FROM public.locks WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND lock_status='active' AND expires_at>statement_timestamp() ORDER BY lock_id",[v.id,v.cycle]);
+ const sales=(await signedQuery("SELECT condition_json,description_version,rule_version_sha256 FROM public.f05_7_sales_condition_ci WHERE demand_id=$1",[demandId]))[0];assert.equal(sales.rule_version_sha256,ruleHash);
+ const facts=(await signedQuery("SELECT facts_json,fact_version FROM public.f05_7_vehicle_facts_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2",[v.id,v.cycle]))[0];
+ const demand=(await signedQuery("SELECT demand_state,customer_id FROM public.demands WHERE demand_id=$1",[demandId]))[0];
+ const c=(await signedQuery("SELECT account_status,customer_level_id FROM public.customers WHERE customer_id=$1",[demand.customer_id]))[0];
+ const vehicle=(await signedQuery("SELECT source_sale_status FROM public.vehicles WHERE vehicle_id=$1",[v.id]))[0];
+ const cycle=(await signedQuery("SELECT ended_at FROM public.vehicle_listing_cycles WHERE listing_cycle_id=$1",[v.cycle]))[0];
+ const locks=await signedQuery("SELECT lock_id,expires_at FROM public.locks WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND lock_status='active' AND expires_at>statement_timestamp() ORDER BY lock_id",[v.id,v.cycle]);
  const rank=originalSignedTierFor(sales.condition_json,facts.facts_json);
  assert.ok(['high','acceptable'].includes(rank.tier));
  const signature=digest([sales.description_version,ruleHash,facts.fact_version,facts.facts_json,
    demand.demand_state,c.account_status,c.customer_level_id,vehicle.source_sale_status,cycle.ended_at,
    locks.map(x=>[String(x.lock_id),x.expires_at])]);
- return (await q("INSERT INTO public.f05_7_result_versions_ci(demand_id,vehicle_id,listing_cycle_id,tier,status,source_signature,explanations,reason,run_key) VALUES($1,$2,$3,$4,'current',$5,$6::jsonb,$7,$8) RETURNING result_id",
+ return (await signedQuery("INSERT INTO public.f05_7_result_versions_ci(demand_id,vehicle_id,listing_cycle_id,tier,status,source_signature,explanations,reason,run_key) VALUES($1,$2,$3,$4,'current',$5,$6::jsonb,$7,$8) RETURNING result_id",
  [demandId,v.id,v.cycle,rank.tier,signature,JSON.stringify(rank.explanations),rank.reason,kval(label)]))[0];
 }
 test.before(async()=>{
@@ -516,7 +517,39 @@ test('8-R07 Employee invalidation auto-creates protected Handover Batch, deny an
    await db.query('COMMIT');
   }catch(e){await db.query('ROLLBACK');throw e}
  };
- await switchUpstream(foreign,'r09-cross-team-re-sign');
+ // R13 real signed source move in a separate PostgreSQL backend.
+ // Lock actual Vehicle rows first (same canonical order as the JS writer),
+ // physically transfer current Demand/Customer ownership and resign each
+ // Match in this transaction. Concurrent old Sales request must wait for
+ // source COMMIT and cannot exploit its former Priority/Handover fields.
+ const ownerSourceWriter=await connect();let competingOldSales;
+ try{
+  await ownerSourceWriter.query('BEGIN');
+  const sourcePid=Number((await ownerSourceWriter.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+  for(const veh of [...pair.map(x=>x.v)].sort((a,b)=>a.id-b.id)){
+   await ownerSourceWriter.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[veh.id]);
+  }
+  for(const cust of customers){
+   await ownerSourceWriter.query('UPDATE public.customers SET current_owner_employee_id=$2 WHERE customer_id=$1',[cust,foreign]);
+   await ownerSourceWriter.query('UPDATE public.demands SET responsible_employee_id=$2 WHERE customer_id=$1',[cust,foreign]);
+  }
+  for(let i=0;i<pair.length;i++)await reSign(pair[i].v,pair[i].p.trigger_demand_id,'r13-source-commit-'+i,ownerSourceWriter);
+  let settled=false;
+  competingOldSales=initiateHandoverCI(auth,token,{priorityId:Number(old.priority_id),eventKey:kval('r13-actual-owner-move-during-old-sales-request')});
+  competingOldSales.then(()=>{settled=true},()=>{settled=true});
+  await new Promise(resolve=>setTimeout(resolve,120));
+  assert.equal(settled,false,'real owner-move transaction holds vehicle lock before old Sales can act');
+  await ownerSourceWriter.query('COMMIT');
+  const result=await competingOldSales;
+  assert.equal(result.code,'F05_8_ACTOR_OBJECT_SCOPE_DENIED',JSON.stringify(result));
+  assert.equal((await current(v))[0].priority_id,old.priority_id,'genuine pending lease survives legitimate newly signed current Match');
+  console.log('F05_8_R13_REAL_TWO_PG_OWNER_TRANSFER_COMMIT_DENIES_OLD_SALES',JSON.stringify({
+   sourcePid,priority:Number(old.priority_id),target:foreign,ttlUnchanged:true}));
+ }finally{
+  await ownerSourceWriter.query('ROLLBACK').catch(()=>{});
+  await ownerSourceWriter.end();
+  if(competingOldSales)await competingOldSales.catch(()=>{});
+ }
 
  // R13: historic Sales 1 is still active/scoped but signed owner moved.
  const beforeAttempts=(await q("SELECT count(*)::int n FROM public.f05_8_handover_attempts_ci WHERE handover_id=$1",[handover.handover_id]))[0].n;
