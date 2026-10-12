@@ -138,6 +138,16 @@ test('8-A12 true active Lock auto-ends priority, blocks re-create but does not r
  'PDM12 source invalidated on Lock change; does not fabricate no_match');
  await db.query("UPDATE public.locks SET lock_status='cancelled' WHERE lock_id=8997088");
  assert.equal((await q('SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1',[old.priority_id]))[0].status,'ended');
+ // Unlike another Customer's takeover, the currently entitled Customer's
+ // own successful Lock must carry the distinct PDM-13 converted_to_lock cause.
+ const same=vehicles[4],self=(await current(same))[0];
+ assert.ok(self);assert.equal(Number(self.customer_id),899612);
+ await db.query("INSERT INTO public.locks(lock_id,customer_id,vehicle_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) "+
+ "VALUES(8997089,899612,$1,$2,'active',1,now()-interval '1 minute',now()+interval '2 hours')",[same.id,same.cycle]);
+ assert.equal((await current(same)).length,0);
+ assert.equal((await q('SELECT ended_reason FROM public.f05_8_priority_ci WHERE priority_id=$1',[self.priority_id]))[0].ended_reason,'converted_to_lock');
+ await db.query("UPDATE public.locks SET lock_status='cancelled' WHERE lock_id=8997089");
+ assert.equal((await current(same)).length,0,'cancellation does not resurrect converted Priority');
 });
 test('8-A13 real PG16 two backend contention serializes the same vehicle, 55P03, one active',async()=>{
  const v=vehicles[3],p2=await connect();

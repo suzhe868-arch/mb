@@ -146,7 +146,9 @@ BEGIN
  -- concurrent uncommitted newly granted Priority lease.
  PERFORM 1 FROM public.vehicles WHERE vehicle_id=occupied_vehicle FOR UPDATE;
  UPDATE public.f05_8_priority_ci SET status='ended',ended_at=transaction_timestamp(),
- ended_reason=reason WHERE vehicle_id=occupied_vehicle AND listing_cycle_id=occupied_cycle AND status='active';
+ ended_reason=CASE WHEN reason='lock_takeover' AND customer_id=NEW.customer_id
+ THEN 'converted_to_lock' ELSE reason END
+ WHERE vehicle_id=occupied_vehicle AND listing_cycle_id=occupied_cycle AND status='active';
  RETURN NEW;
 END $$;
 CREATE TRIGGER f05_8_new_lock_closes_priority AFTER INSERT OR UPDATE OF lock_status,expires_at ON public.locks
