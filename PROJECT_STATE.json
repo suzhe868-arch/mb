@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_8_A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK",
+  "substage": "F05_8_A_SECOND_REVIEW_CHANGES_REQUESTED_B_REWORK",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F05",
-  "current_domain_status": "F05_7_A_FINAL_ACCEPTED_MERGED_PR46_CI_ONLY_F05_8_A_FIRST_REVIEW_NOT_ACCEPTED",
+  "current_domain_status": "F05_7_A_FINAL_ACCEPTED_MERGED_PR46_CI_ONLY_F05_8_A_SECOND_REVIEW_NOT_ACCEPTED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A独立正式核验F05-8 PR47唯一B HEAD 8c296513c5f9f7b2a176560313c3e6db30a61abc（23新增文件全白名单），八同SHA官方push run 38200112071/38200112052/38200112045/38200111930/38200111921/38200111927/38200112289/38200112015：旧64+F05-7兼容2+Priority新2=68/68真实非超级用户PG16 success零skip；F05-7旧Source28 HTTPS7原生compat与本批Priority Source20 HTTPS10原生通过，真实PG16 PID263/264 SQLSTATE55P03、v24 ledger及rollback/新catalog证明，四份有效Artifact 11724649956/11725170394/11725116058/11725315587，工程证据全合格。但PDM13/14已批准产品硬边界仍有R01同Customer多Demand旧source signature绕过release/TTL suppression；R02 Demand/Match/Customer/Vehicle源变更未事件驱动即时结束或替换旧active Priority；R03 客户可见性投影未检current account/find权益/cycle；R04 TTL超时缺独立ended/re-arbitration和suppression导致expired仍status active。A PR47正式评论6117566975，main中文整改单已归档。PR47不合并，B原分支一次整改并新最终SHA重跑68/68+四附件+中文交审后A再验。生产SOURCE_GAP、F05/C-H01/V1 NOT_READY。",
-  "current_work_file": "07_重建工作区/F05-8_A主控首次独立验收68项真PG16通过但PDM13生命周期及可见性边界未闭环整改单_2026-10-12.md",
+  "current_task": "A二轮独立核PR47最后B SHA e873adeabc2e4a40149eb6b8c8a20a9189d69319：八官方同SHA push run 68/68原生PG16全部success、旧64冻结全文未变、F05-7兼容28/7与Priority Source27/HTTPS10真库PASS、四份本SHA有效Artifact/真实PID240/241+55P03/v24迁移与回滚原生证明；二轮A按PDM13§22/25/26/29/30复核发现R05 Demand恢复/Vehicle重新可售无active时不自动affected-scope仲裁、R06 Lock/Transaction取消或恢复后不自动重仲裁、R07 员工失活/Scope撤权未创建正式Handover Batch却提前结束/让出合法Priority。已归档第二轮A整改单并评论PR47。A未验收、PR47不合并；B同原分支修复R05-R07，取得新HEAD八Push同SHA68/68、四新Artifact和正式中文交接后再交A验收。生产与F05/C-H01/V1 NOT_READY。",
+  "current_work_file": "07_重建工作区/F05-8_A主控二轮独立验收68项真PG16通过但恢复仲裁与责任交接未闭环整改单_2026-10-12.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_REWORK_F05_8_PDM13_FOUR_PRIORITY_LIFECYCLE_VISIBILITY_GAPS_CI_68_PG16",
+  "next_action": "B_REWORK_F05_8_PDM13_RECOVERY_ARBITRATION_AND_HANDOVER_R05_R07_68_PG16",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B继续原feat/f05-8-priority-arbitration-ttl-handover分支，按A PR47评论6117566975和中文完整整改单整改R01–R04；不修改旧签业务、旧64工作流及前F05-7旧28/7用例；新增真实PG16反例并取得最新最终B/PR HEAD同SHA八个官方push workflow独立68/68 success四原生有效Artifact、中文交接，再交A复验，不得合并或启动F05-9/F06。",
+  "next_action_detail": "B继续原feat/f05-8-priority-arbitration-ttl-handover分支，按A第二轮整改单R05～R07修复无active的Demand/Vehicle恢复仲裁、Lock/Transaction结束后合法current Match重评、Employee离岗Scope撤销正式Priority Handover Batch，补真实PG16正反例含源COMMIT后不手动arb、双PG并发与权限。保持旧64工作流原字节、旧F05-7 28/7和Priority既有27/10测试，最新最终B/PR HEAD重新取得八官方同SHA68/68 success四有效原生Artifacts并提供中文交接READY_FOR_A_RE_RE_REVIEW，A复验前不合并或放行F05-9/F06。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -6836,8 +6836,8 @@
   },
   "next_owner": "B",
   "f05_8_gate": {
-    "status": "A_FIRST_REVIEW_NOT_ACCEPTED_CHANGES_REQUESTED_CI_68_PASS",
-    "execution": "B_REWORK_PDM13_PRIORITY_FOUR_UNCOVERED_LIFECYCLE_AND_VISIBILITY_GAPS",
+    "status": "A_SECOND_REVIEW_NOT_ACCEPTED_CHANGES_REQUESTED_CI_68_PASS",
+    "execution": "B_REWORK_PDM13_R05_R06_R07_SOURCE_RECOVERY_AND_FORMAL_HANDOVER",
     "work_order": "07_重建工作区/F05-8_A主控PDM13_Priority资格仲裁TTL排他与责任交接CI隔离完整施工单_2026-10-12.md",
     "authority": [
       "PDM-13 Final",
@@ -6868,35 +6868,41 @@
     "source_gap_requires_block": true,
     "product_baseline": "NOT_READY",
     "next_owner": "B",
-    "reviewed_sha": "8c296513c5f9f7b2a176560313c3e6db30a61abc",
+    "reviewed_sha": "e873adeabc2e4a40149eb6b8c8a20a9189d69319",
     "a_review_comment_id": 6117566975,
-    "a_correction_order": "07_重建工作区/F05-8_A主控首次独立验收68项真PG16通过但PDM13生命周期及可见性边界未闭环整改单_2026-10-12.md",
+    "a_correction_order": "07_重建工作区/F05-8_A主控二轮独立验收68项真PG16通过但恢复仲裁与责任交接未闭环整改单_2026-10-12.md",
     "reviewed_ci_runs": [
-      38200112071,
-      38200112052,
-      38200112045,
-      38200111930,
-      38200111921,
-      38200111927,
-      38200112289,
-      38200112015
+      38208004686,
+      38208004665,
+      38208004648,
+      38208004630,
+      38208004508,
+      38208004595,
+      38208004624,
+      38208004633
     ],
     "reviewed_pg16_jobs_success": 68,
     "compat_f05_7_source_tests": "28/28",
     "compat_f05_7_https_tests": "7/7",
-    "priority_source_tests": "20/20",
+    "priority_source_tests": "27/27",
     "priority_https_tests": "10/10",
     "artifact_ids": [
-      11724649956,
-      11725170394,
-      11725116058,
-      11725315587
+      11727729260,
+      11727933765,
+      11728063884,
+      11728185904
     ],
     "a_blockers": [
-      "A-F05-8-R01_MULTIDEMAND_SUPPRESSION_BYPASS",
-      "A-F05-8-R02_NON_LOCK_SOURCE_CHANGE_NO_IMMEDIATE_INVALIDATION",
-      "A-F05-8-R03_VISIBILITY_MISSING_CURRENT_CUSTOMER_ENTITLEMENT_CYCLE_GUARDS",
-      "A-F05-8-R04_TTL_DUE_NOT_ENDED_SUPPRESSED_AND_REARBITRATED"
-    ]
+      "A-F05-8-R05_NO_ACTIVE_DEMAND_OR_VEHICLE_RESTORATION_AFFECTED_SCOPE_EVENT",
+      "A-F05-8-R06_LOCK_TRANSACTION_END_RECOVERY_MISSING_REARBITRATION",
+      "A-F05-8-R07_EMPLOYEE_REVOCATION_FORMAL_HANDOVER_BATCH_MISSING"
+    ],
+    "prior_first_review_blockers_closed_in_B_CODE_WITH_TESTS": [
+      "R01_MULTI_DEMAND_SUPPRESSION",
+      "R02_PARTIAL_SOURCE_EVENT_INVALIDATION",
+      "R03_GRANT_CURRENT_CUSTOMER_ENTITLEMENT_CYCLE",
+      "R04_TTL_DUE_WORKER"
+    ],
+    "a_second_review_result": "A_CHANGES_REQUESTED"
   }
 }
