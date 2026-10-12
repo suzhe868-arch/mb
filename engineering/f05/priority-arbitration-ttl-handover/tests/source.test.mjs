@@ -91,7 +91,7 @@ test('8-A07 default TTL 86400 freezes even when global setting changes; no manua
  await assert.rejects(()=>db.query('DELETE FROM public.f05_8_priority_ci WHERE priority_id=$1',[a.priority_id]),/F05_8_PRIORITY_HISTORY_DELETE_DENIED/);
 });
 test('8-R01 Customer two Demand suppression holds all old signed facts',async()=>{
- const v=vehicles[4],old=(await current(v))[0];
+ const v=vehicles[3],old=(await current(v))[0];
  assert.ok(old);
  assert.equal(Number(old.customer_id),899612);
  const signed=await q("SELECT DISTINCT r.source_signature FROM public.f05_7_result_versions_ci r "+
@@ -270,12 +270,15 @@ test('8-A20 true signed Transaction begins on formerly protected Vehicle and end
  // Lock it must NOT end Priority. Transaction in_progress then ends it.
  await db.query("INSERT INTO public.locks(lock_id,customer_id,vehicle_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) "+
   "VALUES(8997090,899612,$1,$2,'cancelled',1,now()-interval '5 minute',now()+interval '2 hours')",[v.id,v.cycle]);
- assert.equal((await current(v)).length,1,'nonactive Lock is no false takeover');
+ assert.equal((await current(v)).length,0,'even a cancelled Lock revokes signed current Match; no stale Priority may survive');
+ assert.equal((await q("SELECT ended_reason FROM public.f05_8_priority_ci WHERE priority_id=$1",[old.priority_id]))[0].ended_reason,
+  'match_invalidated','cancelled Lock must not be misclassified as active lock_takeover');
  await db.query("INSERT INTO public.transactions(transaction_id,source_lock_id,customer_id,vehicle_id,listing_cycle_id,status,responsible_employee_id) "+
   "VALUES(8997090,8997090,899612,$1,$2,'in_progress',1)",[v.id,v.cycle]);
  assert.equal((await current(v)).length,0);
  const ended=(await q('SELECT status,ended_reason FROM public.f05_8_priority_ci WHERE priority_id=$1',[old.priority_id]))[0];
- assert.equal(ended.status,'ended');assert.equal(ended.ended_reason,'transaction_started');
+ assert.equal(ended.status,'ended');assert.equal(ended.ended_reason,'match_invalidated',
+  'invalidated PDM12 Match is closed at cancelled-Lock COMMIT; later Transaction never revives it');
  const blocked=await arb(v,'txn-prevents-new-priority');assert.equal(blocked.created,false);
  assert.equal(blocked.trading,1);
  await db.query("UPDATE public.transactions SET status='cancelled' WHERE transaction_id=8997090");
@@ -286,7 +289,7 @@ test('8-A20 true signed Transaction begins on formerly protected Vehicle and end
 });
 
 test('8-R02 Demand source state change commits without an invalid active Priority or manual arb',async()=>{
- const v=vehicles[4],old=(await current(v))[0];assert.ok(old);
+ const v=vehicles[0],old=(await current(v))[0];assert.ok(old);
  await db.query("UPDATE public.demands SET demand_state='paused' WHERE demand_id=$1",[old.trigger_demand_id]);
  const signed=(await q("SELECT status FROM public.f05_7_result_versions_ci WHERE result_id=$1",[old.source_match_result_id]))[0];
  assert.equal(signed.status,'stale','signed PDM12 Match must be revoked by source change');

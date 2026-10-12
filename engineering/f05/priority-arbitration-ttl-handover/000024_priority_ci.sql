@@ -228,6 +228,13 @@ BEGIN
     OR EXISTS(SELECT 1 FROM public.transactions WHERE vehicle_id=vid AND listing_cycle_id=cid
        AND status IN ('trading','in_progress','pending','active')) THEN
    reason:=CASE WHEN is_due THEN 'ttl_expired'
+     WHEN EXISTS(SELECT 1 FROM public.locks lk WHERE lk.vehicle_id=vid AND lk.listing_cycle_id=cid
+       AND lk.lock_status='active' AND lk.expires_at>statement_timestamp() AND lk.customer_id=held.customer_id)
+       THEN 'converted_to_lock'
+     WHEN EXISTS(SELECT 1 FROM public.locks lk WHERE lk.vehicle_id=vid AND lk.listing_cycle_id=cid
+       AND lk.lock_status='active' AND lk.expires_at>statement_timestamp()) THEN 'lock_takeover'
+     WHEN EXISTS(SELECT 1 FROM public.transactions tr WHERE tr.vehicle_id=vid AND tr.listing_cycle_id=cid
+       AND tr.status IN ('trading','in_progress','pending','active')) THEN 'transaction_started'
      WHEN EXISTS(SELECT 1 FROM public.vehicles WHERE vehicle_id=vid AND
        (source_sale_status<>'active' OR archived_at IS NOT NULL))
        OR EXISTS(SELECT 1 FROM public.vehicle_listing_cycles WHERE listing_cycle_id=cid AND ended_at IS NOT NULL)
