@@ -1,0 +1,53 @@
+name: F05-8 frozen j2
+on:
+  push:
+    branches: [feat/f05-9-recommendation-visibility-grants]
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  j-source:
+    name: F05-3J source true nonprivileged PostgreSQL16 v19 Favorite offline relist new cycle test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    timeout-minutes: 40
+    permissions: {contents: read}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with: {node-version: '22.16.0'}
+    - run: bash engineering/f05/favorite-jyt-relist-v19-compat/ci-job.sh source
+    - uses: actions/upload-artifact@v4
+      with:
+        name: f05-3j-source-native-evidence
+        path: engineering/f05/favorite-jyt-relist-v19-compat/artifacts/source/
+        retention-days: 30
+        if-no-files-found: error
+  j-https:
+    name: F05-3J https true nonprivileged PostgreSQL16 v19 Favorite offline/relist test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    timeout-minutes: 40
+    permissions: {contents: read}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with: {node-version: '22.16.0'}
+    - run: bash engineering/f05/favorite-jyt-relist-v19-compat/ci-job.sh https
+    - uses: actions/upload-artifact@v4
+      with:
+        name: f05-3j-https-native-evidence
+        path: engineering/f05/favorite-jyt-relist-v19-compat/artifacts/https/
+        retention-days: 30
+        if-no-files-found: error
