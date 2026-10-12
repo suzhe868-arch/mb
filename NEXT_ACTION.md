@@ -1,3 +1,12 @@
+# 2026-10-12｜F05-7 A首次独立验收：66/66同SHA真PG16 CI通过，四项PDM12业务反例未闭环，PR46正式退B整改（唯一最新）
+
+- **正式唯一指针**：`F05_7_A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK / PR46_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。A实际独立核实最新交审PR46 B HEAD `855bb463096652ca70ef4327c86e10db4d092825`；八个GitHub原生同SHA Actions `38185881710 / 38185881669 / 38185881678 / 38185881716 / 38185881683 / 38185881661 / 38185881687 / 38185883832` **52+2+2+2+2+2+2+2 = 66/66真实非特权PG16 success零skip**，其中Source24/24、HTTPS7/7；七组冻结旧Job全文原样，25项新文件全部白名单；两个新官方同SHA非空有效Artifacts `11719249451`（94862B）/ `11719408424`（92141B）。
+- **虽然CI门禁全绿，本轮A未签A_ACCEPTED**：独立源审阅与正式PDM-12 Final §8/§16/§18/§22/§30对照发现四项尚无正确实现及正反例：**R01** 明确preferred事实缺失错误评high；**R02** active Lock已占用事实未随匹配结果携带；**R03** Rule部分重算失败集合、失败原因及仅失败项幂等retry缺失；**R04** series_year范围词典和结构化>检测>详细描述>模糊词事实证据优先级缺失。正式A验收评论：[PR46 #6115435460](https://github.com/suzhe868-arch/mb/pull/46#issuecomment-6115435460)。
+- **唯一下一责任窗口：B，继续原F05-7分支且不得自行合并main**。完整且可执行的A正式整改单：`07_重建工作区/F05-7_A主控首次独立验收66项真PG16通过但PDM12业务边界未闭环整改单_2026-10-12.md`。B一次补齐R01–R04和新原生PG16正反例，重新取得**最终新B/PR同SHA八条66/66真正PG16成功**、完整中文证据与两份新有效Artifacts，更新PR为`READY_FOR_A_RE_REVIEW`后再交A独立复验。**F05-8/F06未放行**。此处下方“F05-7 B_NOT_STARTED”是2026-10-12早一轮历史记录，不能用作现时工作指针。
+- **生产边界未解除**：真实Customer微信/手机号、find和Rule权限生产Issuer、Customer实际显示价、一般批发管理Scope/隐藏/图片、JYT/电话/资金等均`SOURCE_GAP`；F05/F04生产、C-H01及整体验收`NOT_READY`。
+
+---
+
 # 2026-10-12｜F05-6 A独立验收64/64真实PG16 PASS、PR45标准合并；F05-7 PDM12确定性匹配Readiness/四级结果66项正式放行B（最新）
 
 - **当前唯一正式状态**：`F05_6_A_FINAL_ACCEPTED_MERGED_PR45_CI_ONLY / F05_7_A_RELEASED_FOR_B_B_NOT_STARTED / NEXT_OWNER=B / V1_NOT_READY`。A真正独立完成[PR45验收意见](https://github.com/suzhe868-arch/mb/pull/45#issuecomment-6115027598)，GitHub原生标准`merge_pull_request(expected_head_sha=96f9d918e29c68803ff9ee167347fce2df5a7221, merge_method=merge)`实际回执`merged=true`，**PR45 merge SHA `ef66aeac1b782b201ccb1146bad4031f92d3955f`**。正式报告`07_重建工作区/F05-6_A主控独立验收64项PG16_PR45合并与F05-7接力_2026-10-12.md`。
