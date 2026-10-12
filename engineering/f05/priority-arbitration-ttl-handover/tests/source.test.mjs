@@ -133,8 +133,11 @@ test('8-A09 only current trigger responsible employee releases, suppresses old f
 });
 test('8-A10 qualification OFF closes only that Customer Priority; Demand stays active and triggers successor',async()=>{
  const v=vehicles[0],p=(await current(v))[0];assert.equal(Number(p.customer_id),899613);
+ const activeForCustomer=Number((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE customer_id=899613 AND status='active'"))[0].n);
+ assert.ok(activeForCustomer>=1);
  const x=await qualification(899613,false,'turn-off-after-active');
- assert.equal(x.allowed,true);assert.equal(x.released,1);
+ assert.equal(x.allowed,true);assert.equal(x.released,activeForCustomer,
+  'qualification OFF must release all active Priority scopes for this Customer');
  assert.equal((await q('SELECT status,ended_reason FROM public.f05_8_priority_ci WHERE priority_id=$1',[p.priority_id]))[0].ended_reason,'priority_customer_disabled');
  assert.equal(Number((await current(v))[0].customer_id),899618);
  assert.equal((await q('SELECT demand_state FROM public.demands WHERE customer_id=899613 LIMIT 1'))[0].demand_state,'active');
@@ -317,11 +320,29 @@ test('8-R04 v24 due-event settles ttl_expired, all old facts and successor idemp
  const repeated=await processDuePrioritiesCI(auth,token,{eventKey:kval('r04-due-event-idempotent-repeat'),asOf});
  assert.equal(repeated.allowed,true,JSON.stringify(repeated));assert.equal(repeated.dueCount,0);
 });
-test('8-R03 ended listing cycle blocks public and grant-backed Customer projection',async()=>{
+test('8-R03 signed Recommendation and active Grant cannot pierce Customer/Level/cycle guards',async()=>{
  const v=vehicles[2],customerId=899612;
+ // G0 signed Customer/Vehicle/Cycle/Recommendation/Grant composite FK contract.
+ await db.query("INSERT INTO public.recommendations(recommendation_id,vehicle_id,customer_id,listing_cycle_id,status,recommender_employee_id) "+
+  "VALUES(8997221,$1,$2,$3,'active',1)",[v.id,customerId,v.cycle]);
+ await db.query("INSERT INTO public.vehicle_visibility_grants(grant_id,vehicle_id,customer_id,source_recommendation_id) "+
+  "VALUES(8997221,$1,$2,8997221)",[v.id,customerId]);
+ const read=()=>priorityProjectionCI(auth,token,{vehicleId:v.id,listingCycleId:v.cycle,customerId});
+ const valid=await read();assert.equal(valid.existingGrantRetained,true);
+ assert.equal(valid.customerVisible,true,'genuine signed hidden Grant is initially usable');
+ await db.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=$1",[customerId]);
+ const disabled=await read();
+ assert.equal(disabled.customerVisible,false);assert.equal(disabled.existingGrantRetained,true);
+ await db.query("UPDATE public.customers SET account_status='active' WHERE customer_id=$1",[customerId]);
+ const restored=await read();assert.equal(restored.customerVisible,true);
+ const level=(await q('SELECT customer_level_id FROM public.customers WHERE customer_id=$1',[customerId]))[0].customer_level_id;
+ await db.query('UPDATE public.f05_6_level_find_policy_ci SET find_enabled=false WHERE level_id=$1',[level]);
+ const findOff=await read();assert.equal(findOff.customerVisible,false);assert.equal(findOff.existingGrantRetained,true);
+ await db.query('UPDATE public.f05_6_level_find_policy_ci SET find_enabled=true WHERE level_id=$1',[level]);
+ assert.equal((await read()).customerVisible,true,'legal entitlement restoration reopens only still-valid Grant');
  await db.query("UPDATE public.vehicle_listing_cycles SET ended_at=now() WHERE listing_cycle_id=$1",[v.cycle]);
- const x=await priorityProjectionCI(auth,token,{vehicleId:v.id,listingCycleId:v.cycle,customerId});
- assert.equal(x.allowed,true);
- assert.equal(x.publicVisible,false);assert.equal(x.customerVisible,false);
- assert.equal(x.currentCycleAvailable,false);
+ const ended=await read();assert.equal(ended.customerVisible,false);assert.equal(ended.publicVisible,false);
+ assert.equal(ended.currentCycleAvailable,false);assert.equal(ended.existingGrantRetained,true);
+ assert.equal((await q('SELECT status FROM public.recommendations WHERE recommendation_id=8997221'))[0].status,'active');
+ assert.equal((await q('SELECT revoked_at FROM public.vehicle_visibility_grants WHERE grant_id=8997221'))[0].revoked_at,null);
 });
