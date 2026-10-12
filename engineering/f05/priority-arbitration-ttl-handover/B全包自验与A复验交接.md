@@ -1,3 +1,35 @@
+# 名邦汽车 V1｜F05-8 A第四轮R10/R11整改与B工程回归交接（2026-10-12）
+
+> **执行状态（随最终GitHub证据动态判定）**：`F05_8_R10_R11_B_ENGINEERING_SUBMITTED_CI_VERIFYING / NEXT_OWNER=B / V1_NOT_READY`。本页只证明本批白名单代码和测试已提交，不代表通过最终CI或A验收；正式最终B交审须以PR #47最新同SHA原生Push八Run、四份Push Artifact与B最后正式评论为准。历史旧SHA的自验绿色绝不跨版本复用。
+
+## A第四轮唯一 Authority 与问题
+
+- 正式主线施工单：`07_重建工作区/F05-8_A主控第四轮独立验收68项PG16通过但待交接合法匹配与操作者对象Scope未闭环整改单_2026-10-12.md`。A要求解决R10操作者跨对象Team/Store操作与R11 Pending源Match已失效仍独占；原R01-R09及冻结F05-7/M94不能改弱。
+- 工作分支仍为`feat/f05-8-priority-arbitration-ttl-handover`，PR #47保持OPEN未合并；本批仅修改新CI-only `000024_priority_ci.sql`、`service.mjs`、`tests/source.test.mjs` 与本交接文档。既有旧签源码、v23迁移、七个冻结workflow、PDM/正式生产数据零修改。
+
+## R10｜操作者对象归属与真实并发门禁
+
+- 正式F03 Employee Session授权成功只是第一层。`f05_8_actor_priority_scope_ci`、`f05_8_actor_demand_scope_ci`进一步在**当下业务Priority/Demand/Customer对象**、请求Team、真实Employee Store、原对象Team、个人Permission=allow、Team Membership/Capability Binding/DataScope现时有效性与销售仅本人负责/具合法范围经理店长角色之间校验；无关Team、4S或系统管理员不得以自身通用权限接手他人Priority。
+- `f05_8_priority_ci.origin_team_id/origin_store_id`由新v24专属BEFORE INSERT触发器在Priority首次签署时冻结且UPDATE不可改。原创建源Team/Store不可被后来补充的、倒填valid_from的跨Team Membership改写，从而否定A第五轮可能的后补团队对象权限绕过。此来源仅是**隔离CI合成归属快照，不是生产F03对Demand店组的正式Issuer**。
+- `arbitrateCI / releaseCI / priorityProjectionCI / initiateHandoverCI / retryHandoverCI / processDuePrioritiesCI`均在业务操作前按对象检查；写路径按Vehicle先行锁，再通过真实Demand与Customer FOR SHARE串行化签名来源变化；`actor()`原有权限、Scope、Team行FOR SHARE和真实Signed Session保持不变。跨对象拒绝时不可写Handover、Attempt、成功Audit或改变Priority、TTL。
+- 新真PG16测试`8-R10`先为已存在Team-A真实Priority在之后补Team-B成员和有效团队Scope，并从Team-B参数尝试initiate/retry/arbitrate/projection/release，要求全部按实际对象拒绝；第二真实PostgreSQL Backend更新该操作者Team-B Scope并先占行锁，另Session操作必须等COMMIT后拒绝，输出`F05_8_R10_REAL_TWO_PG_ACTOR_SCOPE_REVOKE_DENIED`及`F05_8_R10_CROSS_OBJECT_DENIED`原生日志。
+
+## R11｜Pending只能保留当期合法签名Match
+
+- `f05_8_pending_source_ci`补物理源校验：同一trigger Demand、Vehicle、ListingCycle存在未被压制、`status=current`、`tier IN (high,acceptable)`的原F05-7签名Match，不能用Demand/Customer负责人漂移替代匹配资格。现时无合法Match或唯一结果变成stale/invalidated时，源COMMIT事件触发`f05_8_reconcile_scope_ci`即时终结旧Priority并重仲裁；不会刷新原TTL或复活ended历史。
+- 对**同事务确已完成合法Customer/Demand责任转移并重新签出current Match**的R08/R09正向合成来源，v24自己的Match/Demand/Customer事件触发器作为可延期的PostgreSQL Constraint Trigger在该COMMIT收敛检查，避免事务中短暂中间状态错误结束合法同TTL转交。未重新签Match的独立owner更新在本身COMMIT就使旧Pending失效。
+- 新真PG16测试`8-R11`两套独立物理source事实：Pending且无owner变更直接撤销唯一current Match；恢复全新签名合法Priority/Batch后，owner漂移且不重签Match，使原结果stale并在COMMIT后强制ended，重试不复活原ID；原`8-R07/R08/R09`合法交接、源Scope两PG撤权、老64回归保留。
+
+## 真实CI门禁与生产隔离
+
+- 必须在**最终PR HEAD唯一SHA**核实：七组冻结Push工作流H52 52/52、六组各2/2，F05-8专属Push 4/4，合计68/68真实非特权PG16独立Job success零skip/fail/pending；同此**Push**工作流四份有效非空未过期Artifact。不能把pull_request Run当成Push。
+- 须验证本次Priority Source原34条+R10/R11新增，HTTPS原10、F05-7兼容Source原28与HTTPS原7未删弱；v24异常注错回滚、Catalog/旧迁移账本Seal、双PG实锁竞争、审计全保留。若任何Job不满足，在B窗口整改至新同SHA重测，不提前填写`READY_FOR_A_RE_RE_RE_RE_REVIEW`。
+- 生产Customer微信身份、正式F03/Match/Priority责任/店组Issuers、真实员工数据权限、JYT图片电话、数字售价、资金等仍SOURCE_GAP；本批任何PASS都**不是生产上线资格**；F05、C/H01、V1继续NOT_READY。B未合并main，不启动F05-9/F06。
+
+---
+
+## 历史第三轮R08/R09交审归档（以下不再代表当前状态）
+
 # 名邦汽车 V1｜F05-8 第三轮 A 整改单 R08/R09：B 工程定向整改与真实PG16交接（2026-10-12）
 
 > **唯一正式来源**：main 的《F05-8_A主控三轮独立验收68项PG16通过但Priority交接源责任与对象Scope失配整改单_2026-10-12.md》、PDM-13 Final §§24/25/26/31、PR #47 A 复审意见。本文为 B 已完成的 R08/R09 整改**追溯报告**；最后交审的唯一HEAD及其八组官方 Push CI/四份Artifact，必须以 PR #47 最后正式 B 交审评论中的 GitHub 原生回执为准，不把本文生成前的临时SHA当成最终SHA。
