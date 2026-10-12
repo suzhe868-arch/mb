@@ -101,8 +101,9 @@ async function endActive(c,p,reason,employeeId=null){
   before:{status:'active',trigger:upd.trigger_demand_id},after:{reason},eventKey:'end:'+String(upd.priority_id)+':'+reason});
  return upd;
 }
-async function reArbitrate(c,vehicleId,listingCycleId,runKey,employeeId){
+async function reArbitrate(c,vehicleId,listingCycleId,runKey,employeeId,checkpoint){
  const ss=await snapshot(c,vehicleId,listingCycleId);
+ if(checkpoint)await checkpoint('after_vehicle_lock_before_priority_decision',c);
  const rows=await candidates(c,vehicleId,listingCycleId);
  const existing=(await c.query("SELECT * FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active' FOR UPDATE",
  [vehicleId,listingCycleId])).rows[0];
@@ -152,8 +153,7 @@ async function reArbitrate(c,vehicleId,listingCycleId,runKey,employeeId){
 export async function arbitrateCI(auth,token,{teamId=901,vehicleId,listingCycleId,runKey,checkpoint}={}){
  if(!id(vehicleId)||!id(listingCycleId)||!key(runKey))return fail('F05_8_INVALID_ARBITRATION_ARGUMENTS');
  return session(auth,token,teamId,async(c,a)=>{
-  if(checkpoint)await checkpoint('before_vehicle_lock',c);
-  return reArbitrate(c,vehicleId,listingCycleId,runKey,a.employeeId);
+  return reArbitrate(c,vehicleId,listingCycleId,runKey,a.employeeId,checkpoint);
  });
 }
 export async function setQualificationCI(auth,token,{teamId=901,customerId,enabled,eventKey}={}){
