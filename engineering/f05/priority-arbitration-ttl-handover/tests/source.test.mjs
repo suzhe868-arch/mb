@@ -5,7 +5,7 @@ import {mkdir,writeFile} from 'node:fs/promises';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {connect,verify,ID,checksum} from '../migration.mjs';
 import {arbitrateCI,setQualificationCI,setTTLDefaultCI,releaseCI,
- priorityProjectionCI,initiateHandoverCI,retryHandoverCI,productionDeny} from '../service.mjs';
+ priorityProjectionCI,initiateHandoverCI,retryHandoverCI,processDuePrioritiesCI,productionDeny} from '../service.mjs';
 const db=await connect(),secret=randomBytes(32);
 const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin:'https://127.0.0.1:48988'});
 let token,vehicles=[],demands=[],statsBefore={},race=[];
@@ -89,6 +89,22 @@ test('8-A07 default TTL 86400 freezes even when global setting changes; no manua
  assert.equal(update.allowed,true);assert.equal(update.previous,86400);
  const b=(await current(vehicles[0]))[0];assert.equal(new Date(b.expires_at).getTime(),new Date(a.expires_at).getTime());
  await assert.rejects(()=>db.query('DELETE FROM public.f05_8_priority_ci WHERE priority_id=$1',[a.priority_id]),/F05_8_PRIORITY_HISTORY_DELETE_DENIED/);
+});
+test('8-R01 Customer two Demand suppression holds all old signed facts',async()=>{
+ const v=vehicles[4],old=(await current(v))[0];
+ assert.ok(old);
+ assert.equal(Number(old.customer_id),899612);
+ const signed=await q("SELECT DISTINCT r.source_signature FROM public.f05_7_result_versions_ci r "+
+  "JOIN public.demands d ON d.demand_id=r.demand_id WHERE d.customer_id=$1 AND r.vehicle_id=$2 "+
+  "AND r.listing_cycle_id=$3 AND r.status='current'",[899612,v.id,v.cycle]);
+ assert.ok(signed.length>=2,'two independent live Demand source signatures required');
+ const x=await releaseCI(auth,token,{priorityId:Number(old.priority_id),eventKey:kval('r01-two-demand-release')});
+ assert.equal(x.allowed,true,JSON.stringify(x));
+ const next=await current(v);
+ assert.ok(next.length<=1);if(next.length)assert.notEqual(Number(next[0].customer_id),899612);
+ const facts=await q("SELECT source_signature FROM public.f05_8_suppressed_facts_ci WHERE customer_id=899612 AND vehicle_id=$1 AND listing_cycle_id=$2",[v.id,v.cycle]);
+ for(const f of signed)assert.ok(facts.some(x=>x.source_signature===f.source_signature),'old source fact missing from suppression');
+ assert.notEqual((await arb(v,'r01-old-signature-replay')).customerId,899612);
 });
 test('8-A08 trigger Demand switches to same Customer alternative on inactive first, without resetting TTL',async()=>{
  const v=vehicles[1],before=(await current(v))[0],first=Number(before.trigger_demand_id);
@@ -267,4 +283,42 @@ test('8-A20 true signed Transaction begins on formerly protected Vehicle and end
   'Transaction cancellation must never revive historical Priority');
  const after=await arb(v,'txn-correction-requires-new-signed-match');
  assert.equal(after.created,false,'F05-7 invalidated Match from physical Lock change; stale source cannot create Priority');
+});
+
+test('8-R02 Demand source state change commits without an invalid active Priority or manual arb',async()=>{
+ const v=vehicles[4],old=(await current(v))[0];assert.ok(old);
+ await db.query("UPDATE public.demands SET demand_state='paused' WHERE demand_id=$1",[old.trigger_demand_id]);
+ const signed=(await q("SELECT status FROM public.f05_7_result_versions_ci WHERE result_id=$1",[old.source_match_result_id]))[0];
+ assert.equal(signed.status,'stale','signed PDM12 Match must be revoked by source change');
+ const now=await current(v);
+ assert.ok(now.length<=1);
+ assert.ok(!now.length||Number(now[0].source_match_result_id)!==Number(old.source_match_result_id),
+  'source COMMIT must settle old Priority before any external arbitrate call');
+});
+test('8-R04 v24 due-event settles ttl_expired, all old facts and successor idempotently',async()=>{
+ const v=vehicles[0],old=(await current(v))[0];assert.ok(old);
+ const cfg=await setTTLDefaultCI(auth,token,{seconds:172800,eventKey:kval('r04-future-successor-ttl')});
+ assert.equal(cfg.allowed,true,JSON.stringify(cfg));
+ const asOf=new Date(new Date(old.expires_at).getTime()+2000).toISOString();
+ const result=await processDuePrioritiesCI(auth,token,{eventKey:kval('r04-signed-ci-expiration-event'),asOf});
+ assert.equal(result.allowed,true,JSON.stringify(result));
+ assert.ok(result.settled.some(x=>x.priorityId===Number(old.priority_id)));
+ const oldRow=(await q("SELECT status,ended_reason,ended_at FROM public.f05_8_priority_ci WHERE priority_id=$1",[old.priority_id]))[0];
+ assert.equal(oldRow.status,'ended');assert.equal(oldRow.ended_reason,'ttl_expired');
+ assert.ok(new Date(oldRow.ended_at)>=new Date(old.expires_at));
+ const oldFacts=await q('SELECT source_signature FROM public.f05_8_suppressed_facts_ci WHERE original_priority_id=$1',[old.priority_id]);
+ assert.ok(oldFacts.length>0);
+ const successor=await current(v);
+ assert.ok(successor.length<=1);
+ if(successor.length)assert.notEqual(Number(successor[0].customer_id),Number(old.customer_id));
+ const repeated=await processDuePrioritiesCI(auth,token,{eventKey:kval('r04-due-event-idempotent-repeat'),asOf});
+ assert.equal(repeated.allowed,true,JSON.stringify(repeated));assert.equal(repeated.dueCount,0);
+});
+test('8-R03 ended listing cycle blocks public and grant-backed Customer projection',async()=>{
+ const v=vehicles[2],customerId=899612;
+ await db.query("UPDATE public.vehicle_listing_cycles SET ended_at=now() WHERE listing_cycle_id=$1",[v.cycle]);
+ const x=await priorityProjectionCI(auth,token,{vehicleId:v.id,listingCycleId:v.cycle,customerId});
+ assert.equal(x.allowed,true);
+ assert.equal(x.publicVisible,false);assert.equal(x.customerVisible,false);
+ assert.equal(x.currentCycleAvailable,false);
 });

@@ -83,6 +83,8 @@ async function candidates(c,vehicleId,listingCycleId){
   "AND e.employment_status='active' AND cs.owner_assignment_state='assigned' "+
   "AND d.responsible_employee_id=cs.current_owner_employee_id "+
   "AND (su.customer_id IS NULL OR su.suppressed_source_signature<>r.source_signature) "+
+  "AND NOT EXISTS(SELECT 1 FROM public.f05_8_suppressed_facts_ci f WHERE f.customer_id=cs.customer_id AND f.vehicle_id=r.vehicle_id "+
+  "AND f.listing_cycle_id=r.listing_cycle_id AND f.source_signature=r.source_signature) "+
   "ORDER BY CASE WHEN r.tier='high' THEN 0 ELSE 1 END,d.created_at,d.demand_id,r.result_id "+
   "FOR SHARE OF r,d,cs,qu,fp,sc,e",[vehicleId,listingCycleId])).rows;
  const used=new Set();
@@ -93,44 +95,56 @@ const event=async(c,{priorityId=null,customerId,vehicleId=null,eventKind,actorId
  await c.query('INSERT INTO public.f05_8_events_ci(priority_id,customer_id,vehicle_id,event_kind,actor_employee_id,before_json,after_json,event_key) VALUES($1,$2,$3,$4,$5,$6::jsonb,$7::jsonb,$8)',
   [priorityId,customerId,vehicleId,eventKind,actorId,JSON.stringify(before),JSON.stringify(after),eventKey]);
 };
-async function endActive(c,p,reason,employeeId=null){
- const upd=(await c.query("UPDATE public.f05_8_priority_ci SET status='ended',ended_at=transaction_timestamp(),ended_reason=$2,ended_by_employee_id=$3 WHERE priority_id=$1 AND status='active' RETURNING *",
-  [p.priority_id,reason,employeeId])).rows[0];
+async function endActive(c,p,reason,employeeId=null,endedAt=null){
+ const upd=(await c.query("UPDATE public.f05_8_priority_ci SET status='ended',ended_at=COALESCE($4::timestamptz,transaction_timestamp()),ended_reason=$2,ended_by_employee_id=$3 WHERE priority_id=$1 AND status='active' RETURNING *",
+  [p.priority_id,reason,employeeId,endedAt])).rows[0];
  if(!upd)return null;
  await event(c,{priorityId:upd.priority_id,customerId:upd.customer_id,vehicleId:upd.vehicle_id,eventKind:'ended',actorId:employeeId,
   before:{status:'active',trigger:upd.trigger_demand_id},after:{reason},eventKey:'end:'+String(upd.priority_id)+':'+reason});
  return upd;
 }
-async function reArbitrate(c,vehicleId,listingCycleId,runKey,employeeId,checkpoint){
+
+async function suppressCustomerFacts(c,p,reason){
+ const args=[p.customer_id,p.vehicle_id,p.listing_cycle_id,p.source_signature,p.priority_id,reason];
+ await c.query("INSERT INTO public.f05_8_suppression_ci(customer_id,vehicle_id,listing_cycle_id,suppressed_source_signature,original_priority_id,reason) "+
+  "VALUES($1,$2,$3,$4,$5,$6) ON CONFLICT(customer_id,vehicle_id,listing_cycle_id) DO UPDATE "+
+  "SET suppressed_source_signature=excluded.suppressed_source_signature,original_priority_id=excluded.original_priority_id,reason=excluded.reason,recorded_at=transaction_timestamp()",args);
+ await c.query("INSERT INTO public.f05_8_suppressed_facts_ci(customer_id,vehicle_id,listing_cycle_id,source_signature,original_priority_id,reason) "+
+  "VALUES($1,$2,$3,$4,$5,$6) ON CONFLICT DO NOTHING",args);
+ await c.query("INSERT INTO public.f05_8_suppressed_facts_ci(customer_id,vehicle_id,listing_cycle_id,source_signature,original_priority_id,reason) "+
+  "SELECT $1,$2,$3,r.source_signature,$4,$5 FROM public.f05_7_result_versions_ci r JOIN public.demands d ON d.demand_id=r.demand_id "+
+  "WHERE d.customer_id=$1 AND r.vehicle_id=$2 AND r.listing_cycle_id=$3 ON CONFLICT DO NOTHING",
+  [p.customer_id,p.vehicle_id,p.listing_cycle_id,p.priority_id,reason]);
+}
+async function reArbitrate(c,vehicleId,listingCycleId,runKey,employeeId,checkpoint,asOf=new Date()){
  const ss=await snapshot(c,vehicleId,listingCycleId);
  if(checkpoint)await checkpoint('after_vehicle_lock_before_priority_decision',c);
  const rows=await candidates(c,vehicleId,listingCycleId);
  const existing=(await c.query("SELECT * FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active' FOR UPDATE",
  [vehicleId,listingCycleId])).rows[0];
  if(existing){
-  let winner=rows.find(x=>Number(x.customer_id)===Number(existing.customer_id));
-  if(!ss.available||ss.locked||ss.trading||!winner){
-   const why=!ss.available?'vehicle_unavailable':ss.locked?'lock_takeover':ss.trading?'transaction_started':'match_invalidated';
-   await endActive(c,existing,why,null);
+  // The due event must settle expiry before inspecting the current Match:
+  // a stale Demand is not allowed to change ttl_expired into match_invalidated.
+  if(new Date(existing.expires_at).getTime()<=new Date(asOf).getTime()){
+   await endActive(c,existing,'ttl_expired',null,asOf);
+   await suppressCustomerFacts(c,existing,'ttl_expired');
   }else{
-   const changed=Number(existing.trigger_demand_id)!==Number(winner.demand_id)||
-    Number(existing.responsible_employee_id)!==Number(winner.responsible_employee_id)||
-    Number(existing.source_match_result_id)!==Number(winner.result_id);
-   if(changed){
-    await c.query("UPDATE public.f05_8_priority_ci SET trigger_demand_id=$2,responsible_employee_id=$3,source_match_result_id=$4,source_signature=$5 WHERE priority_id=$1",
-     [existing.priority_id,winner.demand_id,winner.responsible_employee_id,winner.result_id,winner.source_signature]);
-    await event(c,{priorityId:existing.priority_id,customerId:existing.customer_id,vehicleId,eventKind:'trigger_demand_replaced',
-     actorId:employeeId,before:{demandId:existing.trigger_demand_id},after:{demandId:winner.demand_id,ttlUnchanged:true},
-     eventKey:runKey+':replace'});
+   const winner=rows.find(x=>Number(x.customer_id)===Number(existing.customer_id));
+   if(!ss.available||ss.locked||ss.trading||!winner){
+    await endActive(c,existing,!ss.available?'vehicle_unavailable':ss.locked?'lock_takeover':ss.trading?'transaction_started':'match_invalidated');
+   }else{
+    const changed=Number(existing.trigger_demand_id)!==Number(winner.demand_id)||
+     Number(existing.responsible_employee_id)!==Number(winner.responsible_employee_id)||
+     Number(existing.source_match_result_id)!==Number(winner.result_id);
+    if(changed){
+     await c.query("UPDATE public.f05_8_priority_ci SET trigger_demand_id=$2,responsible_employee_id=$3,source_match_result_id=$4,source_signature=$5 WHERE priority_id=$1",
+      [existing.priority_id,winner.demand_id,winner.responsible_employee_id,winner.result_id,winner.source_signature]);
+     await event(c,{priorityId:existing.priority_id,customerId:existing.customer_id,vehicleId,eventKind:'trigger_demand_replaced',
+      actorId:employeeId,before:{demandId:existing.trigger_demand_id},after:{demandId:winner.demand_id,ttlUnchanged:true},eventKey:runKey+':replace'});
+    }
+    return ok('F05_8_EXISTING_ACTIVE_PRIORITY',{priorityId:Number(existing.priority_id),customerId:Number(existing.customer_id),
+     triggerDemandId:Number(winner.demand_id),expiresAt:existing.expires_at,created:false});
    }
-   // Original TTL never resets; after expiry it must end, not remain current.
-   if(new Date(existing.expires_at).getTime()>Date.now())
-    return ok('F05_8_EXISTING_ACTIVE_PRIORITY',{priorityId:Number(existing.priority_id),customerId:Number(existing.customer_id),triggerDemandId:Number(winner.demand_id),expiresAt:existing.expires_at,created:false});
-   await endActive(c,existing,'ttl_expired',null);
-   await c.query("INSERT INTO public.f05_8_suppression_ci(customer_id,vehicle_id,listing_cycle_id,suppressed_source_signature,original_priority_id,reason) "+
-     "VALUES($1,$2,$3,$4,$5,'ttl_expired') ON CONFLICT(customer_id,vehicle_id,listing_cycle_id) DO UPDATE "+
-     "SET suppressed_source_signature=excluded.suppressed_source_signature,original_priority_id=excluded.original_priority_id,reason=excluded.reason,recorded_at=transaction_timestamp()",
-     [existing.customer_id,vehicleId,listingCycleId,existing.source_signature,existing.priority_id]);
   }
  }
  if(!ss.available||ss.locked||ss.trading)return ok('F05_8_VEHICLE_OCCUPIED_OR_NOT_SALEABLE',{created:false,locked:ss.locked,trading:ss.trading});
@@ -217,10 +231,8 @@ export async function releaseCI(auth,token,{teamId=901,priorityId,eventKey}={}){
    return fail('F05_8_ONLY_CURRENT_TRIGGER_RESPONSIBLE_MAY_RELEASE');
   if((await c.query('SELECT 1 FROM public.f05_8_events_ci WHERE event_key=$1',[eventKey])).rowCount)return fail('F05_8_RELEASE_EVENT_REPLAY');
   await endActive(c,p,'employee_released',a.employeeId);
-  await c.query("INSERT INTO public.f05_8_suppression_ci(customer_id,vehicle_id,listing_cycle_id,suppressed_source_signature,original_priority_id,reason) VALUES($1,$2,$3,$4,$5,'employee_released') "+
-  "ON CONFLICT(customer_id,vehicle_id,listing_cycle_id) DO UPDATE SET suppressed_source_signature=excluded.suppressed_source_signature,original_priority_id=excluded.original_priority_id,reason=excluded.reason,recorded_at=transaction_timestamp()",
-   [p.customer_id,p.vehicle_id,p.listing_cycle_id,p.source_signature,p.priority_id]);
-  await event(c,{priorityId,customerId:p.customer_id,vehicleId:p.vehicle_id,eventKind:'employee_released',actorId:a.employeeId,
+  await suppressCustomerFacts(c,p,'employee_released');
+ await event(c,{priorityId,customerId:p.customer_id,vehicleId:p.vehicle_id,eventKind:'employee_released',actorId:a.employeeId,
    after:{suppressed:true},eventKey});
   const next=await reArbitrate(c,Number(p.vehicle_id),Number(p.listing_cycle_id),eventKey+':rearb',a.employeeId);
   return ok('F05_8_RELEASED_AND_REARBITRATED',{next});
@@ -230,16 +242,27 @@ export async function priorityProjectionCI(auth,token,{teamId=901,vehicleId,list
  if(!id(vehicleId)||!id(listingCycleId)||!id(customerId))return fail('F05_8_INVALID_PROJECTION');
  return session(auth,token,teamId,async(c,a)=>{
   const vehicle=(await c.query('SELECT source_sale_status,platform_visibility,archived_at FROM public.vehicles WHERE vehicle_id=$1 FOR SHARE',[vehicleId])).rows[0];
-  const active=(await c.query("SELECT priority_id,customer_id,responsible_employee_id FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active' AND expires_at>statement_timestamp() FOR SHARE",[vehicleId,listingCycleId])).rows[0];
-  const legalGrant=(await c.query("SELECT EXISTS(SELECT 1 FROM public.vehicle_visibility_grants vg "+
-    "JOIN public.recommendations rec ON rec.recommendation_id=vg.source_recommendation_id "+
-    "WHERE vg.vehicle_id=$1 AND vg.customer_id=$2 AND vg.revoked_at IS NULL AND "+
-    "rec.listing_cycle_id=$3 AND rec.status='active') allowed",[vehicleId,customerId,listingCycleId])).rows[0]?.allowed??false;
-  const publicBase=vehicle?.source_sale_status==='active'&&!vehicle.archived_at&&vehicle.platform_visibility==='visible';
-  return ok('F05_8_PRIORITY_SAFE_PROJECTION',{publicVisible:!!publicBase&&!active,
-   customerVisible:!!legalGrant&&(!active||Number(active.customer_id)===customerId),
-   protectedByActivePriority:!!active,employeeWorkVisible:!!active&&Number(active.responsible_employee_id)===a.employeeId,
-   poolProtected:!!active,existingGrantRetained:!!legalGrant});
+ const cycle=(await c.query('SELECT ended_at FROM public.vehicle_listing_cycles WHERE listing_cycle_id=$1 AND vehicle_id=$2 FOR SHARE',[listingCycleId,vehicleId])).rows[0];
+ const customer=(await c.query("SELECT cs.account_status,fp.find_enabled FROM public.customers cs "+
+  "LEFT JOIN public.f05_6_level_find_policy_ci fp ON fp.level_id=cs.customer_level_id "+
+  "WHERE cs.customer_id=$1 FOR SHARE OF cs",[customerId])).rows[0];
+ const active=(await c.query("SELECT priority_id,customer_id,responsible_employee_id FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active' AND expires_at>statement_timestamp() FOR SHARE",[vehicleId,listingCycleId])).rows[0];
+ const legalGrant=(await c.query("SELECT EXISTS(SELECT 1 FROM public.vehicle_visibility_grants vg "+
+  "JOIN public.recommendations rec ON rec.recommendation_id=vg.source_recommendation_id "+
+  "WHERE vg.vehicle_id=$1 AND vg.customer_id=$2 AND vg.revoked_at IS NULL AND "+
+  "rec.listing_cycle_id=$3 AND rec.status='active') allowed",[vehicleId,customerId,listingCycleId])).rows[0]?.allowed??false;
+ const occupied=(await c.query("SELECT "+
+  "EXISTS(SELECT 1 FROM public.locks WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND lock_status='active' AND expires_at>statement_timestamp()) locked,"+
+  "EXISTS(SELECT 1 FROM public.transactions WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status IN ('trading','in_progress','pending','active')) trading",
+  [vehicleId,listingCycleId])).rows[0];
+ const available=!!vehicle&&vehicle.source_sale_status==='active'&&!vehicle.archived_at&&!!cycle&&!cycle.ended_at&&!occupied?.locked&&!occupied?.trading;
+ const entitled=customer?.account_status==='active'&&customer?.find_enabled===true;
+ return ok('F05_8_PRIORITY_SAFE_PROJECTION',{
+  publicVisible:!!available&&vehicle.platform_visibility==='visible'&&!active,
+  customerVisible:!!legalGrant&&available&&entitled&&(!active||Number(active.customer_id)===customerId),
+  protectedByActivePriority:!!active,employeeWorkVisible:!!active&&Number(active.responsible_employee_id)===a.employeeId,
+  poolProtected:!!active,existingGrantRetained:!!legalGrant,
+  currentCustomerEligible:!!entitled,currentCycleAvailable:!!cycle&&!cycle.ended_at});
  });
 }
 export async function initiateHandoverCI(auth,token,{teamId=901,priorityId,eventKey}={}){
@@ -281,5 +304,28 @@ export async function retryHandoverCI(auth,token,{teamId=901,handoverId,targetEm
   await event(c,{priorityId:p.priority_id,customerId:p.customer_id,vehicleId:p.vehicle_id,eventKind:validTarget?'handover_completed':'handover_failed',
    actorId:a.employeeId,before:{responsible:p.responsible_employee_id},after:{targetEmployeeId,attempt,validTarget},eventKey});
   return ok('F05_8_HANDOVER_ATTEMPT_RECORDED',{completed:validTarget,attempt});
+ });
+}
+
+/**
+ * CI-only due-event worker: a controlled clock can exercise the actual v24
+ * lifecycle without sleeping for the default 24-hour TTL. No production
+ * scheduler, HTTP Issuer, or external integration is registered.
+ */
+export async function processDuePrioritiesCI(auth,token,{teamId=901,eventKey,asOf}={}){
+ if(!key(eventKey)||eventKey.length>100)return fail('F05_8_DUE_EVENT_KEY_INVALID');
+ const at=asOf===undefined?new Date():new Date(asOf);
+ if(!Number.isFinite(at.getTime())||at.getTime()<Date.now()-3600000||at.getTime()>Date.now()+31*86400000)
+  return fail('F05_8_DUE_CI_CLOCK_INVALID');
+ return session(auth,token,teamId,async(c,a)=>{
+  const due=(await c.query("SELECT priority_id,vehicle_id,listing_cycle_id FROM public.f05_8_priority_ci "+
+   "WHERE status='active' AND expires_at<=$1 ORDER BY vehicle_id,listing_cycle_id,priority_id",[at])).rows;
+  const settled=[];
+  for(const p of due){
+   const outcome=await reArbitrate(c,Number(p.vehicle_id),Number(p.listing_cycle_id),
+    eventKey+':due:'+p.priority_id,a.employeeId,null,at);
+   settled.push({priorityId:Number(p.priority_id),vehicleId:Number(p.vehicle_id),outcome:outcome.code});
+  }
+  return ok('F05_8_DUE_SCOPES_SETTLED',{dueCount:due.length,settled});
  });
 }
