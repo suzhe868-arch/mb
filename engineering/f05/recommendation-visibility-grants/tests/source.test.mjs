@@ -283,6 +283,191 @@ test('9-R03 price consultation to numeric, immutable snapshot, current repricing
  assert.equal((await q('SELECT count(*)::int n FROM public.customer_price_unlock_events WHERE customer_id=$1',[customerId]))[0].n,0);
  console.log('F05_9_R03_NATIVE_PG16_CONSULTATION_LATE_PRICE_IMMUTABLE_SNAPSHOT_WHOLESALE_TO_MINGBANG');
 });
+
+test('9-R04a signed remote Manager/StoreHead scope, personal deny, 4S, stale recommender, two-PG scope and owner revocation',async()=>{
+ const cars=await aux(),remoteStore=8997983,remoteTeam=8997984,remoteEmployee=8997601,remoteCustomer=899618,scopeId=299991;
+ const mainStore=(await q('SELECT store_id,main_role_id FROM public.employees WHERE employee_id=1'))[0];
+ const originalOwner=(await q('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=$1',[customerId]))[0].current_owner_employee_id;
+ const pr=(await q("SELECT permission_id FROM public.permissions WHERE permission_code='matching.rule.manage.ci.synthetic'"))[0];
+ const roleManager=(await q("SELECT role_id FROM public.roles WHERE role_code='manager'"))[0];
+ const roleHead=(await q("SELECT role_id FROM public.roles WHERE role_code='store_head'"))[0];
+ const role4s=(await q("SELECT role_id FROM public.roles WHERE role_code='four_s'"))[0];
+ assert.ok(pr&&roleManager&&roleHead&&role4s);
+ const clone=(base,id,value)=>{
+  const out={...base,[id]:value};
+  for(const k of Object.keys(out))if(typeof out[k]==='string'&&/name|code|title/i.test(k))
+   out[k]=out[k]+'-F05-9-R04-'+String(value);
+  return out;
+ };
+ const insertClone=async(table,values)=>{
+  const keys=Object.keys(values);
+  return c.query('INSERT INTO public.'+table+'('+keys.map(k=>'"'+k+'"').join(',')+') VALUES('+
+   keys.map((_,i)=>'
+ const cars=await aux(),[a,b,lockCar,txnCar]=cars;
+ const before=(await q('SELECT count(*)::int n FROM public.f05_9_recommendation_facts_ci'))[0].n;
+ const batch=await batchRecommendCI(auth,token,{customerId,vehicleCycles:[a,{vehicleId:999999999,listingCycleId:a.listingCycleId},b],eventPrefix:key('r04-three-independent')});
+ assert.equal(batch.allowed,true);assert.equal(batch.entries.length,3);
+ assert.equal(batch.entries[0].created,true,JSON.stringify(batch.entries));
+ assert.equal(batch.entries[1].allowed,false);
+ assert.equal(batch.entries[2].created,true,JSON.stringify(batch.entries));
+ assert.notEqual(batch.entries[0].recommendationId,batch.entries[2].recommendationId);
+ assert.equal((await q('SELECT count(*)::int n FROM public.f05_9_recommendation_facts_ci'))[0].n,before+2);
+ for(const each of [a,b]){
+  assert.equal((await q("SELECT count(*)::int n FROM public.f05_9_price_right_ci WHERE customer_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3",[customerId,each.vehicleId,each.listingCycleId]))[0].n,1);
+  await c.query("UPDATE public.vehicles SET platform_visibility='hidden' WHERE vehicle_id=$1",[each.vehicleId]);
+  assert.equal((await q("SELECT count(*)::int n FROM public.vehicle_visibility_grants WHERE vehicle_id=$1 AND customer_id=$2 AND revoked_at IS NULL",[each.vehicleId,customerId]))[0].n,1);
+ }
+ await c.query("INSERT INTO public.locks(lock_id,customer_id,vehicle_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) "+
+  "VALUES(8997951,899613,$1,$2,'active',1,now()-interval '1 minute',now()+interval '2 hours')",[lockCar.vehicleId,lockCar.listingCycleId]);
+ const onLock=await createRecommendationCI(auth,token,{customerId,vehicleId:lockCar.vehicleId,listingCycleId:lockCar.listingCycleId,eventKey:key('r04-active-lock-can-recommend')});
+ assert.equal(onLock.allowed,true,JSON.stringify(onLock));
+ assert.equal((await q('SELECT lock_status FROM public.locks WHERE lock_id=8997951'))[0].lock_status,'active');
+ await c.query("INSERT INTO public.locks(lock_id,customer_id,vehicle_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) "+
+  "VALUES(8997952,899613,$1,$2,'cancelled',1,now()-interval '1 minute',now()+interval '2 hours')",[txnCar.vehicleId,txnCar.listingCycleId]);
+ await c.query("INSERT INTO public.transactions(transaction_id,source_lock_id,customer_id,vehicle_id,listing_cycle_id,status,responsible_employee_id) "+
+  "VALUES(8997952,8997952,899613,$1,$2,'in_progress',1)",[txnCar.vehicleId,txnCar.listingCycleId]);
+ const whileTxn=await createRecommendationCI(auth,token,{customerId:899613,vehicleId:txnCar.vehicleId,listingCycleId:txnCar.listingCycleId,eventKey:key('r04-in-progress-can-recommend')});
+ assert.equal(whileTxn.allowed,true,JSON.stringify(whileTxn));
+ assert.equal((await q('SELECT status FROM public.transactions WHERE transaction_id=8997952'))[0].status,'in_progress');
+ await c.query("UPDATE public.vehicles SET source_sale_status='sold' WHERE vehicle_id=$1",[a.vehicleId]);
+ const sold=await createRecommendationCI(auth,token,{customerId:899618,vehicleId:a.vehicleId,listingCycleId:a.listingCycleId,eventKey:key('r04-sold-deny')});
+ assert.equal(sold.allowed,false);assert.equal(sold.code,'F05_9_NOT_CURRENT_SALEABLE_CYCLE');
+ const noInherited=await customerProjectionCI(c,{customerId:899618,vehicleId:b.vehicleId,listingCycleId:b.listingCycleId,entry:'ordinary_share',syntheticCustomerIdentity:identity});
+ assert.equal(noInherited.visible,false,'other Customer cannot inherit hidden Vehicle rights via ordinary Share');
+ assert.equal(noInherited.currentCycleFreeWholesaleRight,false);
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_9_price_right_ci WHERE customer_id=899618 AND vehicle_id=$1",[b.vehicleId]))[0].n,0);
+ console.log('F05_9_R04_REAL_TWO_NEW_VEHICLES_PARTIAL_BATCH_LOCK_TRANSACTION_SOLD_HARD_DENY');
+});
+
+test('9-S07 end and re-create are distinct historic recommendations; free right survives end',async()=>{
+ const result=await finishRecommendationCI(auth,token,{recommendationId:recId,kind:'end',eventKey:key('end')});
+ assert.equal(result.allowed,true,JSON.stringify(result));
+ assert.equal((await q('SELECT status FROM public.recommendations WHERE recommendation_id=$1',[recId]))[0].status,'ended');
+ assert.equal((await q('SELECT count(*)::int n FROM public.f05_9_price_right_ci WHERE original_recommendation_id=$1',[recId]))[0].n,1);
+ assert.equal((await q("SELECT count(*)::int n FROM public.vehicle_visibility_grants WHERE source_recommendation_id=$1 AND revoked_at IS NULL",[recId]))[0].n,0);
+ const z=await createRecommendationCI(auth,token,{customerId,vehicleId:v,listingCycleId:cy,eventKey:key('recreate')});
+ assert.equal(z.allowed,true,JSON.stringify(z));assert.notEqual(z.recommendationId,recId);
+ await c.query("UPDATE public.vehicle_listing_cycles SET ended_at=now() WHERE listing_cycle_id=$1",[cy]);
+ assert.equal((await proj(customerId)).visible,false);
+ assert.equal((await proj(customerId)).currentCycleFreeWholesaleRight,false);
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_9_price_right_ci WHERE customer_id=$1 AND vehicle_id=$2",[customerId,v]))[0].n,1);
+ const wrong=await createRecommendationCI(auth,token,{customerId,vehicleId:v,listingCycleId:cy,eventKey:key('old-cycle-deny')});
+ assert.equal(wrong.allowed,false);
+});
+test('9-S08 batch uses per-Vehicle independent guard and never group Recommendation',async()=>{
+ const result=await batchRecommendCI(auth,token,{customerId,vehicleCycles:[{vehicleId:v,listingCycleId:cy},{vehicleId:999999999,listingCycleId:cy}],eventPrefix:key('batch')});
+ assert.equal(result.allowed,true);assert.equal(result.entries.length,2);
+ assert.equal(result.entries[0].allowed,false);
+ assert.equal(result.entries[1].allowed,false);
+});
+
+test('9-S09 signed current responsible can void active historic Recommendation after cycle end without reviving old price rights',async()=>{
+ const hist=(await q("SELECT recommendation_id FROM public.recommendations WHERE vehicle_id=$1 "+
+  "AND listing_cycle_id=$2 AND customer_id=$3 AND status='active' ORDER BY recommendation_id DESC LIMIT 1",[v,cy,customerId]))[0];
+ assert.ok(hist,'previous test preserved independent Recommendation history after old cycle closed');
+ const denied=await finishRecommendationCI(auth,'not-a-session',{recommendationId:Number(hist.recommendation_id),kind:'void',
+  reason:'synthetic creation correction',eventKey:key('invalid-actor-denied')});
+ assert.equal(denied.allowed,false,'unauthenticated object probing denied');
+ const finished=await finishRecommendationCI(auth,token,{recommendationId:Number(hist.recommendation_id),kind:'void',
+  reason:'CI synthetic signed creation correction',eventKey:key('void-ended-cycle')});
+ assert.equal(finished.allowed,true,JSON.stringify(finished));
+ assert.equal((await q('SELECT status FROM public.recommendations WHERE recommendation_id=$1',[hist.recommendation_id]))[0].status,'void');
+ const immutable=(await q('SELECT * FROM public.f05_9_recommendation_facts_ci WHERE recommendation_id=$1',[hist.recommendation_id]))[0];
+ assert.ok(immutable.original_price_snapshot);assert.equal(Number(immutable.customer_id),customerId);
+ assert.equal((await q('SELECT count(*)::int n FROM public.f05_9_price_right_ci WHERE customer_id=$1 AND vehicle_id=$2',[customerId,v]))[0].n,1);
+ assert.equal((await proj(customerId)).visible,false);
+ console.log('F05_9_END_VOID_OLD_CYCLE_APPEND_ONLY_PASS',JSON.stringify({id:Number(hist.recommendation_id),v,cy}));
+});
++(i+1)).join(',')+')',Object.values(values));
+ };
+ const st=(await q('SELECT * FROM public.stores WHERE store_id=$1',[mainStore.store_id]))[0];
+ const tt=(await q('SELECT * FROM public.teams WHERE team_id=901'))[0];
+ await insertClone('stores',clone(st,'store_id',remoteStore));
+ await insertClone('teams',{...clone(tt,'team_id',remoteTeam),store_id:remoteStore});
+ await c.query("INSERT INTO public.employees(employee_id,store_id,employment_status,receiving_status,main_role_id) "+
+  "SELECT $1,$2,'active',receiving_status,main_role_id FROM public.employees WHERE employee_id=1",[remoteEmployee,remoteStore]);
+ await c.query("INSERT INTO public.employee_team_memberships(team_id,employee_id,valid_from,changed_by_system_admin_id) "+
+  "SELECT $1,$2,now()-interval '1 day',changed_by_system_admin_id FROM public.employee_team_memberships "+
+  "WHERE employee_id=1 AND team_id=901 LIMIT 1",[remoteTeam,remoteEmployee]);
+ await c.query("UPDATE public.customers SET current_owner_employee_id=$2 WHERE customer_id=$1",[remoteCustomer,remoteEmployee]);
+ // Historic recommender with old owner assignment cannot void another person's current business.
+ await c.query("UPDATE public.customers SET current_owner_employee_id=$2 WHERE customer_id=$1",[customerId,remoteEmployee]);
+ const oldEvents=(await q("SELECT count(*)::int n FROM public.f05_9_recommendation_events_ci WHERE recommendation_id=$1",[recId]))[0].n;
+ const oldActor=await finishRecommendationCI(auth,token,{recommendationId:recId,teamId:901,kind:'void',
+  reason:'should not be allowed once responsible changes',eventKey:key('r04-old-sales-denied')});
+ assert.equal(oldActor.allowed,false,JSON.stringify(oldActor));
+ assert.equal((await q('SELECT count(*)::int n FROM public.f05_9_recommendation_events_ci WHERE recommendation_id=$1',[recId]))[0].n,oldEvents);
+ await c.query("UPDATE public.customers SET current_owner_employee_id=$2 WHERE customer_id=$1",[customerId,originalOwner]);
+ await c.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[roleManager.role_id]);
+ const remoteArg=(obj,label)=>({teamId:remoteTeam,customerId:remoteCustomer,vehicleId:obj.vehicleId,
+  listingCycleId:obj.listingCycleId,eventKey:key(label)});
+ const absent=await createRecommendationCI(auth,token,remoteArg(cars[0],'r04-remote-manager-no-scope'));
+ assert.equal(absent.allowed,false,'manager role without object Store/Team scope is forbidden');
+ await c.query("INSERT INTO public.employee_data_scopes(scope_id,employee_id,scope_kind,scope_reference_id) VALUES($1,1,'team',$2)",[scopeId,remoteTeam]);
+ await c.query("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) "+
+  "VALUES(1,$1,$2,now()-interval '1 day')",[pr.permission_id,scopeId]);
+ assert.equal((await q("SELECT count(*)::int n FROM public.employee_team_memberships WHERE employee_id=1 AND team_id=$1",[remoteTeam]))[0].n,0);
+ const m=await createRecommendationCI(auth,token,remoteArg(cars[0],'r04-remote-manager-authorized'));
+ assert.equal(m.allowed,true,JSON.stringify(m));assert.equal(m.created,true);
+ const e=(await q("SELECT count(*)::int n FROM public.f05_9_recommendation_events_ci WHERE actor_employee_id=1"))[0].n;
+ await c.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=1 AND permission_id=$1",[pr.permission_id]);
+ const denied=await createRecommendationCI(auth,token,remoteArg(cars[1],'r04-remote-manager-personal-deny'));
+ assert.equal(denied.allowed,false);
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_9_recommendation_events_ci WHERE actor_employee_id=1"))[0].n,e);
+ await c.query("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=1 AND permission_id=$1",[pr.permission_id]);
+ // Real PG writer revokes current remote team scope; actor reader must wait and then deny.
+ const writer=await connect();let pending;
+ try{
+  await writer.query('BEGIN');
+  const pid=Number((await writer.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+  await writer.query("UPDATE public.employee_data_scopes SET ended_at=now() WHERE scope_id=$1",[scopeId]);
+  let settled=false;
+  pending=createRecommendationCI(auth,token,remoteArg(cars[1],'r04-two-pg-scope-revoked'));
+  pending.then(()=>settled=true,()=>settled=true);
+  await new Promise(resolve=>setTimeout(resolve,120));
+  assert.equal(settled,false,'signed Capability+DataScope SHARE must serialize real COMMIT of scope revocation');
+  await writer.query('COMMIT');
+  const result=await pending;
+  assert.equal(result.allowed,false,JSON.stringify(result));
+  console.log('F05_9_R04_REAL_TWO_PG_OBJECT_SCOPE_REVOKED',JSON.stringify({pid,scopeId}));
+ }finally{await writer.query('ROLLBACK').catch(()=>{});await writer.end();if(pending)await pending.catch(()=>{})}
+ await c.query("UPDATE public.employee_data_scopes SET ended_at=NULL,scope_kind='store',scope_reference_id=$2 WHERE scope_id=$1",[scopeId,remoteStore]);
+ await c.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[roleHead.role_id]);
+ const h=await createRecommendationCI(auth,token,remoteArg(cars[1],'r04-remote-storehead-authorized'));
+ assert.equal(h.allowed,true,JSON.stringify(h));assert.equal(h.created,true);
+ await c.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[role4s.role_id]);
+ const no4s=await createRecommendationCI(auth,token,remoteArg(cars[2],'r04-four-s-hard-deny'));
+ assert.equal(no4s.allowed,false,'4S membership must never access Mingbang Recommendations');
+ await c.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[mainStore.main_role_id]);
+ const sales=await createRecommendationCI(auth,token,remoteArg(cars[2],'r04-nonowner-sales-deny'));
+ assert.equal(sales.allowed,false);
+ // Two backend owner move with active head session; unlike pre-request validity,
+ // COMMIT must invalidate original remote Store object and never create a Recommendation.
+ await c.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[roleHead.role_id]);
+ const moving=await connect();let competing;
+ try{
+  await moving.query('BEGIN');
+  const pid=Number((await moving.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+  await moving.query('UPDATE public.customers SET current_owner_employee_id=1 WHERE customer_id=$1',[remoteCustomer]);
+  let settled=false;
+  competing=createRecommendationCI(auth,token,remoteArg(cars[2],'r04-owner-commits-before-create'));
+  competing.then(()=>settled=true,()=>settled=true);
+  await new Promise(resolve=>setTimeout(resolve,120));
+  assert.equal(settled,false,'Customer row must wait for real owner handoff COMMIT');
+  await moving.query('COMMIT');
+  const result=await competing;
+  assert.equal(result.allowed,false,JSON.stringify(result));
+  assert.equal((await q("SELECT count(*)::int n FROM public.f05_9_recommendation_facts_ci WHERE customer_id=$1 AND vehicle_id=$2",[remoteCustomer,cars[2].vehicleId]))[0].n,0);
+  console.log('F05_9_R04_REAL_TWO_PG_OWNER_HANDOVER_FAIL_CLOSED',JSON.stringify({pid,remoteCustomer}));
+ }finally{await moving.query('ROLLBACK').catch(()=>{});await moving.end();if(competing)await competing.catch(()=>{})}
+ await c.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[mainStore.main_role_id]);
+ const ended=await finishRecommendationCI(auth,token,{teamId:901,recommendationId:m.recommendationId,kind:'end',
+  eventKey:key('r04-new-responsible-ends-historic')});
+ assert.equal(ended.allowed,true,JSON.stringify(ended));
+ assert.equal((await q('SELECT status FROM public.recommendations WHERE recommendation_id=$1',[m.recommendationId]))[0].status,'ended');
+ console.log('F05_9_R04_REMOTE_MANAGER_STOREHEAD_4S_DENY_CURRENT_OWNER_REVOKE_HISTORIC_END_PASS');
+});
+
 test('9-R04 two new lawful Vehicles, real unavailable failure, Lock and Transaction stay independently occupied',async()=>{
  const cars=await aux(),[a,b,lockCar,txnCar]=cars;
  const before=(await q('SELECT count(*)::int n FROM public.f05_9_recommendation_facts_ci'))[0].n;
