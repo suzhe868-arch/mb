@@ -180,19 +180,19 @@ END $;
 CREATE FUNCTION public.f05_10_employee_source_revoke_ci() RETURNS trigger LANGUAGE plpgsql AS $
 BEGIN
  IF TG_TABLE_NAME='employees' THEN
-   IF (OLD.employment_status IS DISTINCT FROM NEW.employment_status)
+   IF (OLD.employment_status IS DISTINCT FROM NEW.employment_status) THEN
      PERFORM public.f05_10_reconcile_assignee_ci(NEW.employee_id,'employee_status');
    END IF;
  ELSIF TG_TABLE_NAME='employee_permission_overrides' THEN
-   IF NEW.decision IS DISTINCT FROM OLD.decision
+   IF NEW.decision IS DISTINCT FROM OLD.decision THEN
      PERFORM public.f05_10_reconcile_assignee_ci(NEW.employee_id,'permission_override');
    END IF;
  ELSIF TG_TABLE_NAME='employee_team_memberships' THEN
-   IF OLD.ended_at IS DISTINCT FROM NEW.ended_at
+   IF OLD.ended_at IS DISTINCT FROM NEW.ended_at THEN
      PERFORM public.f05_10_reconcile_assignee_ci(NEW.employee_id,'team_membership');
    END IF;
  ELSE
-   IF OLD.ended_at IS DISTINCT FROM NEW.ended_at
+   IF OLD.ended_at IS DISTINCT FROM NEW.ended_at THEN
      PERFORM public.f05_10_reconcile_assignee_ci(NEW.employee_id,'capability_scope');
    END IF;
  END IF;
