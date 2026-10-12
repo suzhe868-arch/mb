@@ -1,3 +1,12 @@
+# 2026-10-12｜F05-8 A第四轮独立验收：同SHA真实PG16 68/68通过，但操作者对象Scope及Pending失效Match保护两项未闭环，PR47退B（唯一最新）
+
+- **正式唯一指针**：`F05_8_A_FOURTH_REVIEW_CHANGES_REQUESTED_B_REWORK / PR47_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。A独立核PR47最新B HEAD `2d2bb3beb5943319b73a08f1fb1efb10fecd4b73`、23项新增施工白名单、PDM-13 §§14/24/25/26/30/31及第四轮实际代码；本轮不签`A_ACCEPTED`、不合并PR47。
+- **已独立通过硬证据**：八份官方**Push**工作流 H52`38222101865`=52/52；I2`38222102061`、J2`38222101879`、K2`38222102212`、F05-4`38222101868`、F05-5`38222101889`、F05-6`38222101915`均2/2；F05-8**Push**`38222102083`=4/4，总**68/68同SHA真实PG16成功、0skip/fail**。原生日志Priority Source34/34、HTTPS10/10、兼容F05-7 Source28/28/HTTPS7/7、v24回滚、R09真实双PG撤权竞争均成功。四份Push同SHA有效Artifact `11735530228/11734941344/11734881494/11734204434`。B交接所列F05-8 run `38222105342`实际上是`pull_request`而非Push；A已另查到确实成功的正式Push运行与其四份Push原生证据。R08/R09修复已有实物/真实测试，不推倒重来。
+- **本轮新增业务安全阻断**：**R10** `initiateHandoverCI/retryHandoverCI`（及相关Priority业务操作）仅凭actor登录和请求传入teamId的通用权限，不核当前Priority/Customer/Demand对象Scope，可能由无关团队员工创建/推进别人的handover；**R11** `f05_8_pending_source_ci`以Demand/Customer负责人与旧Priority不一致作为保留条件，未核当前合法`high/acceptable` Match，`reconcile_scope_ci`和`reArbitrate`由此提前返回，可能让stale/no_match旧Priority继续排他。均违反已签PDM13而非新产品选择。完整可执行单：`07_重建工作区/F05-8_A主控第四轮独立验收68项PG16通过但待交接合法匹配与操作者对象Scope未闭环整改单_2026-10-12.md`。
+- **下一唯一责任B**：继续`feat/f05-8-priority-arbitration-ttl-handover`按F05-8新CI-only白名单一次性修复R10/R11，补跨Team/Store操作发起人DENY及Pending+过期Match源COMMIT后即时失效的真PG16正反例、合法源交接对照、双PG权限撤销竞争；冻结旧64PG16、原F05-7兼容28/7、Priority既有34/10全部保留。最终新HEAD**8官方Push run同SHA68/68**成功＋四份新有效**Push**原生Artifact＋最新中文自验和PR正式交A，A才能重新独立验收。不得启动F05-9/F06或上线。真实微信/手机号/Priority Issuer/数字价/JYT/资金等仍`SOURCE_GAP`，F05/C-H01/V1仍`NOT_READY`。
+
+---
+
 # 2026-10-12｜F05-8 A第三轮独立验收：同SHA68/68真PG16全成功，但Priority责任源/对象Scope两项未闭环，PR47正式退B（唯一最新）
 
 - **最新正式指针**：`F05_8_A_THIRD_REVIEW_CHANGES_REQUESTED_B_REWORK / PR47_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。A审查B/PR47本轮最新提交 `8b46d25be418160bee08dffa878c425485f88ffa`，对照完整施工单、PDM-13 Final §§24/25/26/31、二轮整改单R05～R07与独立源码；本批23项文件均全新、白名单内，没有修改旧签生产代码和历史迁移。
