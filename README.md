@@ -1,3 +1,12 @@
+# 2026-10-12｜F05-8 A第六轮独立终验PASS，PR47真实合并；F05-9 PDM14完整施工单已正式放行B（唯一最新）
+
+- **唯一当前状态**：`F05_8_A_FINAL_ACCEPTED_MERGED_PR47 / F05_9_A_RELEASED_FOR_B / NEXT_OWNER=B / V1_NOT_READY`。A已对最后B工程HEAD `1dc08927b6b11e2327050d55e6f72f6f19984e8e`独立复核R01～R13及PDM-02/03/13，并在PR47签署`A_ACCEPTED`（[正式评论](https://github.com/suzhe868-arch/mb/pull/47#issuecomment-6123630533)）；标准GitHub merge已实际返回`merged=true`，**merge SHA `d37b3fc9e44f4affd3b611c38c7c303bac93acb2`**。不是B_SELF_TESTED充当A验收，也不是只有评论未合并。验收/合并中文全记录：`07_重建工作区/F05-8_A主控第六轮独立验收68项PG16通过_PR47正式合并与F05-9技术接力_2026-10-12.md`。
+- **正式工程证据**：八个官方Push Runs与最后B SHA完全一致：H52 `38242775587` 52/52，I2 `38242775430`、J2 `38242775671`、K2 `38242775501`、F05-4 `38242775553`、F05-5 `38242775395`、F05-6 `38242775391`各2/2，F05-8 `38242775552` 4/4，合计**68/68真实非特权PG16成功、0skip/fail**；Priority Source37/37、HTTPS10/10、兼容F05-7 Source28/28、HTTPS7/7，v24迁移注错回滚/封印与真实双PG权限撤权、跨Store/Team Manager/StoreHead和原Sales撤责时序PASS。四份新真正Push同SHA官方有效Artifact：`11744252155/11744295810/11743416591/11744405973`。
+- **下一唯一任务已正式放行**：`F05-9｜PDM-14 正式 Recommendation / hidden Vehicle客户专属Visibility / current-cycle免费批发数字价权 / 普通分享不继承权限`，不是在旧F05-8分支续写。A已提交完整中文施工单：`07_重建工作区/F05-9_A主控PDM14正式推荐隐藏车单车可见性免费批发查价和普通分享隔离完整施工单_2026-10-12.md`。B从执行时**最新main**新建`feat/f05-9-recommendation-visibility-grants`，仅改`engineering/f05/recommendation-visibility-grants/**`和新增`.github/workflows/f05-9-*.yml`，CI-only v25且保护旧v24及之前账；不修改旧签名迁移、旧源码/工作流/PDM/真实生产。单包完整真实PG16 Source+HTTPS并发/数据scope/顾客价权/Share防越权、新老兼容至少**70/70独立PG16 Jobs**（旧68+新2）、预计9个真正同最终SHA Push工作流、至少6份新同SHA原生Artifact及完整中文交接，最终`READY_FOR_A_INDEPENDENT_REVIEW`才交A。
+- **明确仍未完成/禁做**：F05整体并**非**生产通过，Recommendation/微信Customer正式生产Issuer、手机号、JYT/图片/批发电话、数字价、资金/支付、真实UAT部署等`SOURCE_GAP`；C/H01高保真未验收，整个V1基线继续`NOT_READY`。F06不得自行提前开工。A本轮无需新用户技术审批；下一个窗口为B，完成新包后A独立验收才合并。
+
+---
+
 # 2026-10-12｜F05-8 A第五轮独立验收：68/68真PG16成功，但跨店合法Scope与原销售撤权两项未闭环，PR47退B（唯一最新）
 
 - **现行唯一指针**：`F05_8_A_FIFTH_REVIEW_CHANGES_REQUESTED_B_REWORK / PR47_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。A核B/PR47最后HEAD `f534b2ec60ddfedc36f154dcae4d41ff9f3227b2`，PR仍Open/未合并，23个变更文件均本批新增CI-only白名单，旧签F03/F04/F05-1～7/迁移和产品Authority不改。
