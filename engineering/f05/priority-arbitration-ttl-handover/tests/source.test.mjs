@@ -399,6 +399,11 @@ test('8-R07 Employee invalidation auto-creates protected Handover Batch, deny an
  assert.equal(Number(now.responsible_employee_id),target);
  assert.equal(new Date(now.expires_at).getTime(),new Date(old.expires_at).getTime());
  assert.equal((await q("SELECT state FROM public.f05_8_handover_ci WHERE handover_id=$1",[handover.handover_id]))[0].state,'completed');
+ const replay=await arb(v,'r07-completed-transfer-must-not-revert-original-employee');
+ assert.equal(replay.allowed,true,JSON.stringify(replay));
+ assert.equal(replay.handoverProtected,true);
+ assert.equal(Number((await current(v))[0].responsible_employee_id),target,
+  'post-transfer explicit arbitration must never rebind the old Employee');
  const attempts=await q("SELECT outcome FROM public.f05_8_handover_attempts_ci WHERE handover_id=$1 ORDER BY attempt_no",[handover.handover_id]);
  assert.deepEqual(attempts.map(x=>x.outcome),['failed','completed']);
  await db.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=1");

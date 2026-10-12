@@ -140,6 +140,19 @@ async function reArbitrate(c,vehicleId,listingCycleId,runKey,employeeId,checkpoi
    await endActive(c,existing,'ttl_expired',null,asOf);
    await suppressCustomerFacts(c,existing,'ttl_expired');
   }else{
+   // R07: a completed scoped Handover transfers responsibility without
+   // changing this original signed Match or the frozen TTL. A later explicit
+   // arbitration must NOT silently return the lease to the old Employee.
+   const transferred=(await c.query("SELECT EXISTS(SELECT 1 FROM public.f05_8_handover_ci h "+
+    "WHERE h.priority_id=$1 AND h.state='completed' AND h.new_responsible_employee_id=$2 "+
+    "AND public.f05_8_handover_source_valid_ci($1) "+
+    "AND public.f05_8_responsible_authorized_ci($2)) legal",
+    [existing.priority_id,existing.responsible_employee_id])).rows[0].legal===true;
+   if(transferred&&ss.available&&!ss.locked&&!ss.trading){
+    return ok('F05_8_EXISTING_ACTIVE_PRIORITY',{priorityId:Number(existing.priority_id),
+     customerId:Number(existing.customer_id),triggerDemandId:Number(existing.trigger_demand_id),
+     expiresAt:existing.expires_at,created:false,handoverProtected:true});
+   }
    const winner=rows.find(x=>Number(x.customer_id)===Number(existing.customer_id));
    if(!ss.available||ss.locked||ss.trading||!winner){
     await endActive(c,existing,!ss.available?'vehicle_unavailable':ss.locked?'lock_takeover':ss.trading?'transaction_started':'match_invalidated');
