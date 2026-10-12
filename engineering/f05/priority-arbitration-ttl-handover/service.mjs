@@ -166,13 +166,27 @@ export async function setQualificationCI(auth,token,{teamId=901,customerId,enabl
   await c.query('INSERT INTO public.f05_8_qualification_ci(customer_id,enabled,updated_by_employee_id) VALUES($1,$2,$3) ON CONFLICT(customer_id) DO UPDATE SET enabled=excluded.enabled,updated_by_employee_id=excluded.updated_by_employee_id,version=f05_8_qualification_ci.version+1,changed_at=transaction_timestamp()',[customerId,enabled,a.employeeId]);
   await event(c,{customerId,eventKind:enabled?'qualification_enabled':'qualification_disabled',actorId:a.employeeId,
    before:{enabled:old?.enabled??false},after:{enabled},eventKey});
-  const released=[];
+  const released=[],rechecked=[];
+  if(enabled){
+   // PDM-13 §3: switching on a per-Customer qualification must re-evaluate
+   // their *existing* current PDM-12 high/acceptable Matches immediately.
+   // No Application or Demand is created and existing Vehicle TTL is never extended.
+   const affected=(await c.query("SELECT DISTINCT r.vehicle_id,r.listing_cycle_id FROM public.f05_7_result_versions_ci r "+
+    "JOIN public.demands d ON d.demand_id=r.demand_id "+
+    "WHERE d.customer_id=$1 AND d.demand_state='active' AND r.status='current' "+
+    "AND r.tier IN ('high','acceptable') ORDER BY r.vehicle_id,r.listing_cycle_id",[customerId])).rows;
+   for(const v of affected){
+    const result=await reArbitrate(c,Number(v.vehicle_id),Number(v.listing_cycle_id),
+      eventKey+':affected:'+v.vehicle_id+':'+v.listing_cycle_id,a.employeeId);
+    rechecked.push({vehicleId:Number(v.vehicle_id),listingCycleId:Number(v.listing_cycle_id),decision:result.code});
+   }
+  }
   if(!enabled){
    const rows=(await c.query("SELECT * FROM public.f05_8_priority_ci WHERE customer_id=$1 AND status='active' ORDER BY priority_id FOR UPDATE",[customerId])).rows;
    for(const p of rows){await endActive(c,p,'priority_customer_disabled',a.employeeId);released.push({vehicleId:Number(p.vehicle_id),cycleId:Number(p.listing_cycle_id)});}
    for(const v of released)await reArbitrate(c,v.vehicleId,v.cycleId,eventKey+':v'+v.vehicleId,a.employeeId);
   }
-  return ok('F05_8_QUALIFICATION_CI_CHANGED',{enabled,released:released.length});
+  return ok('F05_8_QUALIFICATION_CI_CHANGED',{enabled,released:released.length,rechecked});
  });
 }
 export async function setTTLDefaultCI(auth,token,{teamId=901,seconds,eventKey}={}){
