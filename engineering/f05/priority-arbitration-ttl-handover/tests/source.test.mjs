@@ -4,7 +4,7 @@ import {randomBytes,createHash} from 'node:crypto';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {connect,verify,ID,checksum} from '../migration.mjs';
-import {calculateCI as calculateSignedMatchCI} from '../../deterministic-matching-readiness-four-tier/service.mjs';
+import {tierFor as originalSignedTierFor} from '../../deterministic-matching-readiness-four-tier/contract.mjs';
 import {arbitrateCI,setQualificationCI,setTTLDefaultCI,releaseCI,
  priorityProjectionCI,initiateHandoverCI,retryHandoverCI,processDuePrioritiesCI,productionDeny} from '../service.mjs';
 const db=await connect(),secret=randomBytes(32);
@@ -376,10 +376,36 @@ test('8-R01 signed factual novelty permits same-cycle recovery only for changed 
  await db.query("UPDATE public.f05_7_vehicle_facts_ci SET fact_version=fact_version+1 WHERE vehicle_id=$1 AND listing_cycle_id=$2",
   [v.id,v.cycle]);
  assert.equal((await current(v)).length,0,'changed source revokes prior active Priority before recalculation');
- const recalculated=await calculateSignedMatchCI(auth,token,{
-  demandId:Number(activeDemand.demand_id),vehicleId:v.id,listingCycleId:v.cycle,
-  teamId:901,runKey:kval('r01-genuine-new-source-fact')});
- assert.equal(recalculated.allowed,true,JSON.stringify(recalculated));
+
+ // F05-7 complete service intentionally seals v23; invoking it after v24
+ // must fail closed. Reuse its *unchanged pure signed tier algorithm* on
+ // real v24 PG rows, then insert a verified source-event fixture into the
+ // original immutable F05-7 result_versions table (CI-only, never production).
+ const rules=await q("SELECT rule_id,rule_version,phrase,condition_json FROM public.f05_7_rule_dictionary_ci "+
+  "WHERE valid_from<=statement_timestamp() AND (valid_until IS NULL OR valid_until>statement_timestamp())");
+ const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
+ const ruleSHA=digest(rules.map(r=>[r.rule_id,r.rule_version,r.phrase,r.condition_json]).sort((a,b)=>a[0]-b[0]));
+ const sales=(await q('SELECT condition_json,description_version,rule_version_sha256 FROM public.f05_7_sales_condition_ci WHERE demand_id=$1',
+  [activeDemand.demand_id]))[0];
+ assert.equal(sales.rule_version_sha256,ruleSHA,'reconstructed source uses the exact signed active dictionary');
+ const facts=(await q('SELECT facts_json,fact_version FROM public.f05_7_vehicle_facts_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2',
+  [v.id,v.cycle]))[0];
+ const d=(await q('SELECT demand_state FROM public.demands WHERE demand_id=$1',[activeDemand.demand_id]))[0];
+ const customer=(await q('SELECT account_status,customer_level_id FROM public.customers WHERE customer_id=$1',[customerId]))[0];
+ const vehicle=(await q('SELECT source_sale_status FROM public.vehicles WHERE vehicle_id=$1',[v.id]))[0];
+ const cycle=(await q('SELECT ended_at FROM public.vehicle_listing_cycles WHERE listing_cycle_id=$1',[v.cycle]))[0];
+ const locks=await q("SELECT lock_id,expires_at FROM public.locks WHERE vehicle_id=$1 AND listing_cycle_id=$2 "+
+  "AND lock_status='active' AND expires_at>statement_timestamp() ORDER BY lock_id",[v.id,v.cycle]);
+ const lockedSeal=locks.map(x=>[String(x.lock_id),x.expires_at]);
+ const tier=originalSignedTierFor(sales.condition_json,facts.facts_json);
+ assert.ok(['high','acceptable'].includes(tier.tier),'only signed eligible match ranks may regain Priority');
+ const signature=digest([sales.description_version,ruleSHA,facts.fact_version,facts.facts_json,
+  d.demand_state,customer.account_status,customer.customer_level_id,vehicle.source_sale_status,cycle.ended_at,lockedSeal]);
+ const signed=await q("INSERT INTO public.f05_7_result_versions_ci(demand_id,vehicle_id,listing_cycle_id,tier,status,source_signature,explanations,reason,run_key) "+
+  "VALUES($1,$2,$3,$4,'current',$5,$6::jsonb,$7,$8) RETURNING result_id,source_signature",
+  [activeDemand.demand_id,v.id,v.cycle,tier.tier,signature,JSON.stringify(tier.explanations),tier.reason,
+   kval('r01-verified-pg16-signature')]);
+ assert.equal(signed.length,1);
  const now=(await current(v))[0];assert.ok(now,'a new trusted signature should re-enable legal Customer');
  assert.equal(Number(now.customer_id),customerId);
  assert.ok(!oldFacts.some(f=>f.source_signature===now.source_signature),'new source cannot equal suppressed old signature');

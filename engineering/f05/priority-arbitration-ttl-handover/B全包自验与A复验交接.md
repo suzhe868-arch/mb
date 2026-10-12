@@ -7,7 +7,7 @@
 
 Authority：A 在 PR #47 2026-10-12 的四项工程整改单、冻结 PDM-13/14、F05-8 正式施工单。只修改本批新增 engineering/f05/priority-arbitration-ttl-handover/ 范围内的 v24 CI SQL、service、源测试及本交接；未更改旧签F03/F04/F05-1～7、旧迁移、旧冻结Job正文、PDM Final、main。
 
-- R01：新增 f05_8_suppressed_facts_ci，将同一Customer×Vehicle×listing cycle现有多个Demand来源签名全部固化为不可变抑制旧事实，不能释放一个Demand后靠另一个旧Demand直接重获；合法新来源签名和新周期没有被永久封堵。测试包括“8-R01 Customer two Demand suppression holds all old signed facts”，另增真实F05-7车辆事实版本改变后重新签发高可信Match并重获权益的正例。
+- R01：新增 f05_8_suppressed_facts_ci，将同一Customer×Vehicle×listing cycle现有多个Demand来源签名全部固化为不可变抑制旧事实，不能释放一个Demand后靠另一个旧Demand直接重获；合法新来源签名和新周期没有被永久封堵。测试包括“8-R01 Customer two Demand suppression holds all old signed facts”，另增真实PG16内车辆事实版本改变后，复用旧F05-7未修改的纯确定性规则分级/签名公式、据物理原始行生成新签名Match并恢复权益的CI正例。特别说明：已签F05-7完整服务故意对v24 Catalog拒绝（fail-closed），本例是隔离CI原物理表写入与签名重算，不是调用旧v23服务或证明生产新Match签发链。
 - R02：新增CI-only PG16本域 source-change 和 affected-scope 重评触发，覆盖签名Match状态、Demand、Customer、Vehicle、listing cycle、Employee、find entitlement、个人permission、有效数据scope、Team/Store相关状态。事务中 Vehicle→Priority 的受控锁序保持现有有效候选更换trigger而TTL不延期，或立即结束原active并择合法继任。新增Demand停用、Scope撤权及客户停用不调用人工arb直接查真实事务COMMIT后状态的测试。锁车原因准确区分本人 converted_to_lock、他人 lock_takeover；交易仍保留旧签名审计。
 - R03：在真实Recommendation与vehicle_visibility_grants未撤销事实存在时，客户是否现在有权看车取决于Customer当前active、当前Level找车权益、Vehicle真实可售/未归档、当前cycle、有效Lock/Transaction、其他Customer Priority的合法排他。实测Grant正例、Customer disabled/重新active、find OFF/ON、cycle结束为false，历史Grant/推荐不物理删除。
 - R04：新增仅CI的processDuePrioritiesCI到期事件工作入口，不依赖外部再发起arb；到期优先以ttl_expired结束、保留审计、对同cycle旧事实建抑制并重评继任；二次到期幂等，正在进行的交接不冻结TTL，已结束Priority不能因重试交接复活。不部署生产时钟任务。
