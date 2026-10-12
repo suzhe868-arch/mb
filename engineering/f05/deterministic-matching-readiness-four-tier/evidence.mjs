@@ -13,6 +13,9 @@ try{
   '(SELECT count(*)::int FROM public.f05_7_rule_dictionary_ci) rules,'+
   '(SELECT count(*)::int FROM public.f05_7_sales_condition_ci) conditions,'+
   '(SELECT count(*)::int FROM public.f05_7_vehicle_facts_ci) facts,'+
+  '(SELECT count(*)::int FROM public.f05_7_retry_scope_ci) retryScopes,'+
+  '(SELECT count(*)::int FROM public.f05_7_retry_attempts_ci) retryAttempts,'+
+  "(SELECT count(*)::int FROM public.f05_7_retry_attempts_ci WHERE result_state='failed') historicalFailures,"+
   '(SELECT count(*)::int FROM public.f05_7_result_versions_ci) history,'+
   "(SELECT count(*)::int FROM public.f05_7_result_versions_ci WHERE status='current') currentResults,"+
   '(SELECT count(*)::int FROM public.recommendations) recommendations,'+
@@ -27,6 +30,16 @@ try{
   finalHeadSha:process.env.GITHUB_SHA,runId:process.env.GITHUB_RUN_ID,
   productionMatchingIssuerExists:false,productionRuleIssuerExists:false,
   counts,countsHash:createHash('sha256').update(JSON.stringify(counts)).digest('hex')
+ });
+ const retryAudit=(await c.query(
+  'SELECT demand_id,vehicle_id,listing_cycle_id,attempt_no,result_state,error_reason,result_id,observed_at '+
+  'FROM public.f05_7_retry_attempts_ci ORDER BY attempt_id')).rows;
+ const occupied=(await c.query(
+  "SELECT result_id,tier,status,explanations FROM public.f05_7_result_versions_ci "+
+  "WHERE explanations @> '[{\"field\":\"active_lock_occupancy\",\"occupied\":true}]'::jsonb")).rows;
+ await save('physical-retry-and-active-lock-history.json',{
+  attempts:retryAudit,attemptsSha:createHash('sha256').update(JSON.stringify(retryAudit)).digest('hex'),
+  occupiedResultHistory:occupied,productionSource:false
  });
  await save('production-source-gap.json',{productionHttpMatchingAllowed:false,productionRuleManageAllowed:false,
   missing:['WECHAT_CUSTOMER_SESSION','PHONE_AUTHORIZATION','FIND_ENTITLEMENT_ISSUER','MATCHING_RULE_MANAGE_ISSUER','SALES_DESCRIPTION_ISSUER','CUSTOMER_DISPLAY_PRICE_ISSUER','GENERAL_WHOLESALE_VEHICLE_SCOPE'],
