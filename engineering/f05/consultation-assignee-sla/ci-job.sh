@@ -40,4 +40,4 @@ cp f05/consultation-assignee-sla/源事实与正式Issuer矩阵.tsv "$dir/source
 cp f05/consultation-assignee-sla/B自验与A交接.md "$dir/B-handoff.md"
 ( cd "$dir" && sha256sum * > sha256sums.txt )
 if grep -R -nE 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|BEGIN PRIVATE KEY|mbci_[A-Za-z0-9_-]{43}' "$dir";then exit 1;fi
-echo "F05_10_V26_NATIVE_PG16_$mode_COMPLETE"
+echo "F05_10_V26_NATIVE_PG16_${mode}_COMPLETE"
