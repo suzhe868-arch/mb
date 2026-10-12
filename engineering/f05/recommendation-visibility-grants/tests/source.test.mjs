@@ -124,3 +124,21 @@ test('9-S08 batch uses per-Vehicle independent guard and never group Recommendat
  assert.equal(result.entries[0].allowed,false);
  assert.equal(result.entries[1].allowed,false);
 });
+
+test('9-S09 signed current responsible can void active historic Recommendation after cycle end without reviving old price rights',async()=>{
+ const hist=(await q("SELECT recommendation_id FROM public.recommendations WHERE vehicle_id=$1 "+
+  "AND listing_cycle_id=$2 AND customer_id=$3 AND status='active' ORDER BY recommendation_id DESC LIMIT 1",[v,cy,customerId]))[0];
+ assert.ok(hist,'previous test preserved independent Recommendation history after old cycle closed');
+ const denied=await finishRecommendationCI(auth,'not-a-session',{recommendationId:Number(hist.recommendation_id),kind:'void',
+  reason:'synthetic creation correction',eventKey:key('invalid-actor-denied')});
+ assert.equal(denied.allowed,false,'unauthenticated object probing denied');
+ const finished=await finishRecommendationCI(auth,token,{recommendationId:Number(hist.recommendation_id),kind:'void',
+  reason:'CI synthetic signed creation correction',eventKey:key('void-ended-cycle')});
+ assert.equal(finished.allowed,true,JSON.stringify(finished));
+ assert.equal((await q('SELECT status FROM public.recommendations WHERE recommendation_id=$1',[hist.recommendation_id]))[0].status,'void');
+ const immutable=(await q('SELECT * FROM public.f05_9_recommendation_facts_ci WHERE recommendation_id=$1',[hist.recommendation_id]))[0];
+ assert.ok(immutable.original_price_snapshot);assert.equal(Number(immutable.customer_id),customerId);
+ assert.equal((await q('SELECT count(*)::int n FROM public.f05_9_price_right_ci WHERE customer_id=$1 AND vehicle_id=$2',[customerId,v]))[0].n,1);
+ assert.equal((await proj(customerId)).visible,false);
+ console.log('F05_9_END_VOID_OLD_CYCLE_APPEND_ONLY_PASS',JSON.stringify({id:Number(hist.recommendation_id),v,cy}));
+});
