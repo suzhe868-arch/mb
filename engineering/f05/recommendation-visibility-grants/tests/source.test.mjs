@@ -282,6 +282,11 @@ test('9-R03 price consultation to numeric, immutable snapshot, current repricing
  assert.equal((await proj(customerId)).currentCycleFreeWholesaleRight,true);
  assert.equal((await q('SELECT count(*)::int n FROM public.f05_9_price_right_ci WHERE original_recommendation_id=$1',[recId]))[0].n,1);
  assert.equal((await q('SELECT count(*)::int n FROM public.customer_price_unlock_events WHERE customer_id=$1',[customerId]))[0].n,0);
+ const nonWholesale=await createRecommendationCI(auth,token,{customerId:899613,vehicleId:v,listingCycleId:cy,eventKey:key('r03-mingbang-new-rec-no-wholesale-right')});
+ assert.equal(nonWholesale.allowed,true,JSON.stringify(nonWholesale));
+ assert.equal(nonWholesale.wholesaleFreePrice,false,'new Mingbang Recommendation cannot fabricate wholesale price right');
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_9_price_right_ci WHERE customer_id=899613 AND vehicle_id=$1 AND listing_cycle_id=$2",[v,cy]))[0].n,0);
+ assert.equal((await q('SELECT original_source_kind FROM public.f05_9_recommendation_facts_ci WHERE recommendation_id=$1',[nonWholesale.recommendationId]))[0].original_source_kind,'mingbang');
  console.log('F05_9_R03_NATIVE_PG16_CONSULTATION_LATE_PRICE_IMMUTABLE_SNAPSHOT_WHOLESALE_TO_MINGBANG');
 });
 

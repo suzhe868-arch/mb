@@ -1,5 +1,16 @@
 # F05-9｜PDM14 Recommendation/hidden/Share/批发免费价权｜B工程施工与A交接
 
+## A首轮验收整改｜R01～R04 第二轮施工记录
+
+A已在main `03b3823fd4fcaeb9a3e4ae1753ad2b2bc30bbf25`下达正式整改：`07_重建工作区/F05-9_A主控首次独立验收70项真PG16全绿但PDM14跨域权限与权益生命周期缺证整改单_2026-10-12.md`。**原70/70及六份Artifact仅为前B SHA `019ddc76…`的历史证据，不能替代本轮新SHA门禁。**
+
+- R01：真实v23 high/acceptable Match、v24 Customer A资格与Priority物理行，另一Customer B旧Recommendation/Grant/价权历史保留；真实另一PostgreSQL backend在Vehicle持锁写Priority期间，B普通分享SafeProjection必须串行等COMMIT，之后detail/ordinary_share/my_recommendations抑制；签名v24 reconcile终止Priority后动态恢复，不自动公开隐藏车。Customer A不因Priority凭空得到Recommendation或免费价权。
+- R02：Customer Level find off/on、停用/恢复、旧历史end/void/同cycle新Recommendation保护；对end/void合法治理与新create entitlement分离，仍检查当前owner、F03身份与权限scope，旧recommender不永久赋权；禁用或无find时客户端当前推荐专属权限暂停，历史审计与已成立价权不删除。
+- R03：真实v20当前数字报价初始NULL而free right已成立、后补及调价动态数字价、不可变当时快照、0 daily quota debit；合法CI同车批发→名邦source_type/cycle维持原推荐与已成立免费权，新名邦Recommendation不自动获批发免费权。
+- R04：两辆新合法Vehicle真实Recommendation分别成功与第三辆无效Vehicle逐车独立部分失败；真实Lock/Transaction占用而仍可售时推荐合法、offline拒绝；物理跨Store/Team经理和店长必须明确Scope、4S hard deny、个人permission deny及旧销售在Owner变更后失权。
+- 原冻结12项Source和7项HTTPS全部保留。新版Source以**17项物理用例**执行，非生产真Issuer仍`SOURCE_GAP`。新测试实际是否PASS以**最终同SHA真正Push原生Job**为准，当前不得预签`A_ACCEPTED`或`READY_FOR_A_SECOND_INDEPENDENT_REVIEW`。
+
+
 > 当前本文为 **施工阶段证明，而非验收通过声明**。正式状态：`F05_9_B_ENGINEERING_IN_PROGRESS / NEXT_OWNER=B / V1_NOT_READY`。B必须在最终单一SHA取得九条官方Push工作流、70/70独立PG16作业、6份有效Push证据后，才追加本GitHub PR上的最终正式交A评论；不得在等待时冒写成功数据。
 
 ## 正式施工授权与冻结边界
