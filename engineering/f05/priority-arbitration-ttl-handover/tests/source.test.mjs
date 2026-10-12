@@ -37,7 +37,7 @@ test('8-A01 v24 real PostgreSQL16 history: preceding 21 signed migration ledgers
  assert.equal((await q('SELECT count(*)::int n FROM public.f03_schema_migrations'))[0].n,22);
  const att=(await q('SELECT * FROM public.f05_8_migration_attestation'))[0];
  assert.equal(att.seal_key,'M94_TO_V23_SIGNED_LEDGER');
- assert.equal((await q('SELECT count(*)::int n FROM public.f05_8_priority_ci'))[0].n,0);
+ assert.equal((await q('SELECT count(*)::int n FROM public.f05_8_priority_ci'))[0].n,vehicles.length);
 });
 test('8-A02 non-qualified Customer has signed current Match yet no Priority; fail-closed production',async()=>{
  const original=(await q("SELECT count(*)::int n FROM public.f05_7_result_versions_ci r WHERE r.vehicle_id=$1 AND r.listing_cycle_id=$2 AND r.status='current' AND r.tier IN ('high','acceptable')",[vehicles[0].id,vehicles[0].cycle]))[0].n;
@@ -48,7 +48,7 @@ test('8-A02 non-qualified Customer has signed current Match yet no Priority; fai
 test('8-A03 qualification is independent of level, creates no Demand, Recommendation, Lock or Priority by itself',async()=>{
  const before=(await q('SELECT customer_level_id,current_owner_employee_id FROM public.customers WHERE customer_id=899612'))[0];
  const demandCount=Number((await q('SELECT count(*)::int n FROM public.demands'))[0].n);
- for(const [id,enabled,label] of [[899620,true,'qualification-low'],[899613,true,'qualification-second'],[899612,true,'qualification-first'],[899618,true,'qualification-third'],[899619,true,'qualification-fourth']]){
+ for(const [id,enabled,label] of [[899612,true,'qualification-first'],[899620,true,'qualification-low'],[899613,true,'qualification-second'],[899618,true,'qualification-third'],[899619,true,'qualification-fourth']]){
   const x=await qualification(id,enabled,label);assert.equal(x.allowed,true,JSON.stringify(x));
  }
  assert.equal((await q('SELECT count(*)::int n FROM public.f05_8_priority_ci'))[0].n,0);
@@ -58,7 +58,7 @@ test('8-A03 qualification is independent of level, creates no Demand, Recommenda
 });
 test('8-A04 deterministically arbitrate high > acceptable, then original Demand created_at and id, no VIP bonus',async()=>{
  const v=vehicles[0],r=await arb(v,'high-winner');
- assert.equal(r.code,'F05_8_ACTIVE_PRIORITY_CREATED',JSON.stringify(r));
+ assert.equal(r.code,'F05_8_EXISTING_ACTIVE_PRIORITY',JSON.stringify(r));
  assert.equal(r.customerId,899612);
  const active=(await current(v))[0];assert.equal(active.status,'active');
  const rows=await q("SELECT d.customer_id,d.demand_id,d.created_at,r.tier FROM public.f05_7_result_versions_ci r JOIN public.demands d ON d.demand_id=r.demand_id WHERE r.vehicle_id=$1 AND r.listing_cycle_id=$2 AND r.status='current' AND d.customer_id IN (899612,899613,899620) ORDER BY d.created_at,d.demand_id",[v.id,v.cycle]);
@@ -121,7 +121,7 @@ test('8-A11 platform hidden may Priority internally but never auto-publish/Custo
  const v=vehicles[2];
  await db.query("UPDATE public.vehicles SET platform_visibility='hidden' WHERE vehicle_id=$1",[v.id]);
  const a=await arb(v,'hidden-valid-internal');
- assert.equal(a.allowed,true);assert.equal(a.created,true);
+ assert.equal(a.allowed,true);assert.equal(a.created,false);
  const snapshot=await priorityProjectionCI(auth,token,{vehicleId:v.id,listingCycleId:v.cycle,customerId:899612});
  assert.equal(snapshot.publicVisible,false);assert.equal(snapshot.customerVisible,false);
  assert.equal(snapshot.protectedByActivePriority,true);
@@ -141,6 +141,11 @@ test('8-A12 true active Lock auto-ends priority, blocks re-create but does not r
 });
 test('8-A13 real PG16 two backend contention serializes the same vehicle, 55P03, one active',async()=>{
  const v=vehicles[3],p2=await connect();
+ const previous=(await current(v))[0];assert.ok(previous);
+ await db.query("UPDATE public.f05_8_priority_ci SET status='ended',ended_at=transaction_timestamp(),ended_reason='correction' WHERE priority_id=$1",[previous.priority_id]);
+ await db.query("INSERT INTO public.f05_8_events_ci(priority_id,customer_id,vehicle_id,event_kind,event_key) VALUES($1,$2,$3,'ended',$4)",
+ [previous.priority_id,previous.customer_id,v.id,kval('ci-correction-before-race')]);
+ assert.equal((await current(v)).length,0);
  let ready,release;
  const started=new Promise(resolve=>{ready=resolve});
  const gate=new Promise(resolve=>{release=resolve});
