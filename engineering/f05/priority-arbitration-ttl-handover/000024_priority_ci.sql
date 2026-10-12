@@ -119,7 +119,7 @@ BEGIN
   WHERE e.employee_id=NEW.responsible_employee_id AND e.employment_status='active'
    AND tm.valid_from<=statement_timestamp()
    AND (tm.ended_at IS NULL OR tm.ended_at>statement_timestamp())
-  ORDER BY tm.valid_from,tm.team_id LIMIT 1;
+  ORDER BY tm.team_id LIMIT 1;
   IF NEW.origin_team_id IS NULL OR NEW.origin_store_id IS NULL
    THEN RAISE EXCEPTION 'F05_8_ORIGINAL_BUSINESS_SCOPE_MISSING' USING ERRCODE='23514'; END IF;
   RETURN NEW;
