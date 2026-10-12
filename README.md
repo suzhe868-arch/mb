@@ -1,3 +1,12 @@
+# 2026-10-13｜F05-9 A二轮独立终验PASS、PR48 GitHub正式合并；F05-10 PDM15 CI-only完整施工单已放行B（唯一最新）
+
+- **现行唯一状态**：`F05_9_A_FINAL_ACCEPTED_MERGED_PR48 / F05_10_A_RELEASED_FOR_B / NEXT_OWNER=B / V1_NOT_READY`。A正式审PR48最后B HEAD `d3cbaee088f6ba7d6b81fbd014813bedcf77671f`、PDM14 R01～R04、最终源码及实证，并在PR签署[A_ACCEPTED](https://github.com/suzhe868-arch/mb/pull/48#issuecomment-6128118804)。GitHub标准PR merge实际`merged=true`，**真实合并提交`eb33d4b5ad31d44a9e5fdc0eff98d83bdf3f0842`**。完整A终验报告：`07_重建工作区/F05-9_A主控二轮独立验收70项真PG16_PR48标准合并及F05-10接力_2026-10-13.md`。
+- **已独立核验的工程门禁**：9条官方`event=push`且最后B SHA一致、全部`completed/success`，冻结H52 Run`38271143903` **52/52**；I2`38271144061`、J2`38271144056`、K2`38271143898`、F05-4`38271143793`、F05-5`38271143838`、F05-6`38271143966`六组各2/2；F05-8`38271143990` 4/4；F05-9`38271144191` 2/2；合计**70/70真正非特权独立PG16 Job成功/零skip/fail**。新Source **17/17**、HTTPS **7/7**、旧Priority Source **37/37**、HTTPS **10/10**、兼容F05-7 Source **28/28**、HTTPS **7/7**，v25注错Rollback/旧Ledger&Catalog seal、真实双PG R01排他/恢复及R02～R04授权、价权转换、真实Lock/Transaction/批量成功。六份同最后SHA新Push原生有效Artifact `11756614385/11757197692/11757263373/11757083818/11758705112/11757137942`。
+- **下一唯一已正式放行工程单**：`F05-10｜PDM-15 Consultation独立工单/真实direct source/assignee转派/停用Hold/15分钟首次真人响应SLA`，A已签**完整施工单** `07_重建工作区/F05-10_A主控PDM15咨询工单来源独立负责人转派人工首响SLA与客户停用Hold_CI隔离完整施工单_2026-10-13.md`。B从真正最新`main`新建独立`feat/f05-10-consultation-assignee-sla`，仅新建`engineering/f05/consultation-assignee-sla/**`和新增`.github/workflows/f05-10-*.yml`；v26只限可抛弃非超级用户PG16 CI sidecar，不修改旧M94/v25或旧签源码。完整保留已通过旧70独立PG16 Job + 新Source/HTTPS至少2个 → 最后新HEAD**≥72/72真PG16全绿、预计10条官方Push workflow同SHA、≥8份新Push原生有效Artifact**，并交正式中文`READY_FOR_A_INDEPENDENT_REVIEW`再由A独立验收；B不能自行合并。
+- **仍在的产品门禁**：F05整体、C/H01高保真及V1全部`NOT_READY`；正式微信/手机号、咨询Customer/Employee生产Issuer、PDM10数字报价、JYT图片电话、真实电话/通知、资金、F06/UAT生产部署仍`SOURCE_GAP`，不得用隔离CI绿灯宣称上线或启动F06。
+
+---
+
 # 2026-10-12｜F05-9 A首次独立审查：70/70真PG16通过但PDM14四项实证未闭环，PR48退B（现行）
 
 - **正式状态**：`F05_9_A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK / PR48_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。正式审查B HEAD `019ddc76e760b390265c017efed72a56aca65d8b`。A独立确认9条真正Push同SHA 70/70非特权PG16 Success、6份有效同SHA Push Artifact；Source12/12、HTTPS7/7、旧F05-8 Source37/HTTPS10、F05-7 Source28/HTTPS7，v25 rollback/seal均PASS。**这些成功证据保留**；但不能自动满足本批PDM14全合同审查。
