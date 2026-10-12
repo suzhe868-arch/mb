@@ -111,7 +111,7 @@ CREATE TRIGGER f05_7_retry_attempts_immutable BEFORE UPDATE OR DELETE ON public.
  FOR EACH ROW EXECUTE FUNCTION public.f05_7_history_guard();
 REVOKE ALL ON public.f05_7_retry_attempts_ci FROM PUBLIC;
 
-CREATE FUNCTION public.f05_7_revoke_current_on_source_change() RETURNS trigger LANGUAGE plpgsql AS $
+CREATE FUNCTION public.f05_7_revoke_current_on_source_change() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
  IF TG_TABLE_NAME='f05_7_rule_dictionary_ci' THEN
   INSERT INTO public.f05_7_retry_scope_ci(demand_id,vehicle_id,listing_cycle_id,retry_state,error_reason,completed_result_id,source_event)
