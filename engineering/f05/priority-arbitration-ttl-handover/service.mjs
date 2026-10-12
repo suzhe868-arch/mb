@@ -190,9 +190,15 @@ export async function setTTLDefaultCI(auth,token,{teamId=901,seconds,eventKey}={
 export async function releaseCI(auth,token,{teamId=901,priorityId,eventKey}={}){
  if(!id(priorityId)||!key(eventKey))return fail('F05_8_INVALID_RELEASE');
  return session(auth,token,teamId,async(c,a)=>{
+  const original=(await c.query('SELECT * FROM public.f05_8_priority_ci WHERE priority_id=$1',[priorityId])).rows[0];
+  if(!original||original.status!=='active')return fail('F05_8_PRIORITY_NOT_CURRENT');
+  // Reconcile changed Demand/Match first. This locks Vehicle before Priority,
+  // avoiding inverse-lock deadlocks and forbidding release from a stale trigger.
+  await reArbitrate(c,Number(original.vehicle_id),Number(original.listing_cycle_id),eventKey+':validate',a.employeeId);
   const p=(await c.query('SELECT * FROM public.f05_8_priority_ci WHERE priority_id=$1 FOR UPDATE',[priorityId])).rows[0];
-  if(!p||p.status!=='active')return fail('F05_8_PRIORITY_NOT_CURRENT');
-  const d=(await c.query('SELECT responsible_employee_id FROM public.demands WHERE demand_id=$1 FOR SHARE',[p.trigger_demand_id])).rows[0];
+  if(!p||p.status!=='active')return fail('F05_8_PRIORITY_INVALIDATED_BEFORE_RELEASE');
+  const d=(await c.query('SELECT responsible_employee_id,demand_state FROM public.demands WHERE demand_id=$1 FOR SHARE',[p.trigger_demand_id])).rows[0];
+  if(d?.demand_state!=='active')return fail('F05_8_TRIGGER_DEMAND_NOT_CURRENT');
   if(Number(d?.responsible_employee_id)!==a.employeeId||Number(p.responsible_employee_id)!==a.employeeId)
    return fail('F05_8_ONLY_CURRENT_TRIGGER_RESPONSIBLE_MAY_RELEASE');
   if((await c.query('SELECT 1 FROM public.f05_8_events_ci WHERE event_key=$1',[eventKey])).rowCount)return fail('F05_8_RELEASE_EVENT_REPLAY');
