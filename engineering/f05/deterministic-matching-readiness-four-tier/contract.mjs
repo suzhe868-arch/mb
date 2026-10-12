@@ -9,7 +9,13 @@ export function resolveRules(description,rules,scope={}){
  const normalized=description.normalize('NFKC').toLowerCase();
  const order={model_year:5,series_year:4,series:3,brand:2,global:1};
  const applicable=r=>{
-  if(!order[r.scope_kind]||r.scope_key&&r.scope_key!==String(scope[r.scope_kind]||''))return false;
+  if(!order[r.scope_kind])return false;
+  if(r.scope_kind==='series_year'){
+   // CI signed Rule scope "seriesId:yearStart-yearEnd"; never wildcard an invalid range.
+   const m=/^([0-9]+):([0-9]{4})-([0-9]{4})$/.exec(String(r.scope_key||''));
+   const yr=Number(scope.modelYear??scope.year),series=String(scope.series??scope.seriesId??'');
+   if(!m||!Number.isSafeInteger(yr)||+m[2]>+m[3]||series!==m[1]||yr<+m[2]||yr>+m[3])return false;
+  }else if(r.scope_key&&r.scope_key!==String(scope[r.scope_kind]??''))return false;
   return typeof r.phrase==='string'&&normalized.includes(r.phrase.normalize('NFKC').toLowerCase());
  };
  for(const r of rules.filter(applicable).sort((a,b)=>(order[b.scope_kind]-order[a.scope_kind])||String(a.rule_id).localeCompare(String(b.rule_id)))){
@@ -27,7 +33,28 @@ export function resolveRules(description,rules,scope={}){
  const conditions=[...selected.values()].map(x=>({...x.value,sourceRuleId:x.ruleId,provenance:SOURCE})).concat([...conflicts.values()]);
  return {ready:selected.size>0,reason:selected.size>0?'RULES_PARSED':'NO_EXECUTABLE_RULE',conditions,conflicts:[...conflicts.keys()].sort()};
 }
-const has=(obj,k)=>Object.prototype.hasOwnProperty.call(obj,k);
+// Preserve every original fact; at the same precedence level a genuine disagreement
+// is a local unknown, never a silent timestamp/source-name winner.
+const FACT_RANK={structured:4,inspection:3,description:2,vague:1};
+export function normalizeFacts(raw={}){
+ const out={};
+ for(const [field,original] of Object.entries(raw||{})){
+  if(original==null){out[field]={value:null,source:null,provenance:[],reason:'FACT_MISSING'};continue}
+  const candidates=Array.isArray(original.candidates)?original.candidates.map(x=>({...x})):
+    [{value:original.value,source:original.source||null,kind:original.kind||
+       (original.source?.includes('INSPECTION')?'inspection':'structured')}];
+  const viable=candidates.filter(x=>FACT_RANK[x.kind]>0&&x.value!==null&&x.value!==undefined);
+  const rank=Math.max(0,...viable.map(x=>FACT_RANK[x.kind]));
+  const winners=viable.filter(x=>FACT_RANK[x.kind]===rank);
+  const canon=x=>JSON.stringify(x);
+  const conflict=new Set(winners.map(x=>canon(x.value))).size>1;
+  out[field]={value:conflict||rank===0?null:winners[0].value,source:conflict?null:winners[0]?.source??null,
+    priority:rank,conflict,reason:conflict?'SAME_PRIORITY_CONFLICT':rank===0?'FACT_MISSING':'HIGHEST_PRIORITY_FACT',
+    provenance:candidates.map(x=>({kind:x.kind,source:x.source||null,value:x.value,priority:FACT_RANK[x.kind]||0}))};
+ }
+ return out;
+}
+
 function compare(condition,actual){
  if(condition.conflict===true)return null;
  if(actual===null||actual===undefined)return null;
@@ -48,14 +75,14 @@ export function tierFor(conditions,vehicleFacts){
  const explanations=[];
  for(const c of conditions){
   if(forbidden.has(c.field))continue;
-  const fact=vehicleFacts?.[c.field],value=fact?.conflict?null:fact?.value;
+  const fact=normalizeFacts(vehicleFacts)?.[c.field],value=fact?.conflict?null:fact?.value;
   const state=compare(c,value);
-  explanations.push({field:c.field,mode:c.mode,op:c.op,outcome:state??'unknown',factSource:fact?.source??null,ruleId:c.sourceRuleId??null});
+  explanations.push({field:c.field,mode:c.mode,op:c.op,outcome:state??'unknown',factSource:fact?.source??null,factReason:fact?.reason??'FACT_MISSING',provenance:fact?.provenance??[],ruleId:c.sourceRuleId??null});
   if(c.mode==='hard'){
    if(state==='no_match')failed=true;
    else if(state===null)uncertain=true;
    else if(state==='acceptable')soft=true;
-  }else if(state!=='high'&&state!==null)soft=true;
+  }else if(state!=='high')soft=true; // preferred missing is non-high, not hard unknown
  }
  return {tier:failed?'no_match':uncertain?'confirmation_needed':soft?'acceptable':'high',reason:failed?'HARD_FAILED':uncertain?'HARD_UNKNOWN':soft?'TOLERANCE_OR_PREFERRED':'ALL_DEFINED_CONDITIONS_MET',explanations};
 }
