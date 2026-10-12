@@ -155,10 +155,10 @@ export async function createConsultationCI(c,p={}){
    [customerId,vehicleId,listingCycleId,assignee,JSON.stringify(source),policy.seconds]);
   await c.query("INSERT INTO public.f05_10_consultation_meta_ci "+
    "(consultation_id,source_kind,source_recommendation_id,source_demand_id,customer_id,vehicle_id,listing_cycle_id, "+
-   "sla_policy_version,sla_seconds,original_deadline,remaining_ms) "+
-   "VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)",
+   "sla_policy_version,sla_seconds,original_deadline,remaining_ms,origin_team_id,origin_store_id) "+
+   "VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)",
    [co.consultation_id,directSource,rec?rec.recommendation_id:null,integer(sourceDemandId)?sourceDemandId:null,
-    customerId,vehicleId,listingCycleId,policy.version,policy.seconds,co.first_response_deadline,policy.seconds*1000]);
+    customerId,vehicleId,listingCycleId,policy.version,policy.seconds,co.first_response_deadline,policy.seconds*1000,origin.team_id,origin.store_id]);
   await emit(c,co.consultation_id,eventKey,'created','customer',customerId,{assignee,source});
   await c.query('COMMIT');
   return OK('F05_10_NEW_PENDING',{consultationId:Number(co.consultation_id),assignee,created:true,
@@ -183,8 +183,14 @@ async function withEmployee(auth,token,consultationId,fn){
   const meta=await row(c,'SELECT * FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1 FOR UPDATE',[consultationId]);
   if(!customer||!co||!meta||Number(co.customer_id)!==Number(locator.customer_id)||Number(co.vehicle_id)!==Number(locator.vehicle_id))
    return DENY('F05_10_SOURCE_NOT_CURRENT');
-  const origin=await teamOrigin(c,customer);
+  // Consultation scope is frozen at creation; later Customer Owner changes must not silently rewrite it.
+  const origin={team_id:meta.origin_team_id,store_id:meta.origin_store_id};
   const eid=Number(a.employee_id);
+  // Idempotent reconciliation is backed by source UPDATE triggers and also covers stale data.
+  await c.query("SELECT public.f05_10_reconcile_assignee_ci($1,'transaction_guard')",[co.assignee_employee_id]);
+  meta.assignee_handover_pending=(await row(c,
+   'SELECT assignee_handover_pending FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',
+   [consultationId])).assignee_handover_pending;
   const worker=await capability(c,eid,origin,'work');
   const manager=await capability(c,eid,origin,'manage');
   const isAssignee=eid===Number(co.assignee_employee_id);
@@ -211,13 +217,24 @@ export async function employeeConsultationActionCI(auth,token,{consultationId,ev
    if(co.status==='pending')await c.query("UPDATE public.consultations SET status='processing' WHERE consultation_id=$1",[consultationId]);
    await emit(c,consultationId,eventKey,'started','employee',eid);
   }else if(action==='followup'){
-   const human=['call','message','in_person'].includes(evidenceKind)&&
-    typeof evidenceRef==='string'&&/^[A-Za-z0-9._:-]{16,120}$/.test(evidenceRef);
-   if(!evidenceRef||typeof evidenceRef!=='string')return DENY('F05_10_FOLLOWUP_AUDIT_REQUIRED');
-   const logged=await emit(c,consultationId,eventKey,'followup','employee',eid,{evidenceRef},evidenceKind);
-   if(human&&!meta.first_response_at){
-    await c.query("UPDATE public.f05_10_consultation_meta_ci SET first_response_at=transaction_timestamp(), "+
-     "first_response_event_id=$2 WHERE consultation_id=$1",[consultationId,logged.event_id]);
+   const human=['call','message','in_person'].includes(evidenceKind);
+   if(typeof evidenceRef!=='string'||!/^[A-Za-z0-9._:-]{16,120}$/.test(evidenceRef))
+    return DENY('F05_10_FOLLOWUP_AUDIT_REQUIRED');
+   if(human){
+    const proven=await row(c,"SELECT evidence_ref FROM public.f05_10_human_service_evidence_ci "+
+     "WHERE evidence_ref=$1 AND consultation_id=$2 AND actor_id=$3 AND evidence_kind=$4 "+
+     "AND consumed_event_id IS NULL AND captured_at<=transaction_timestamp() FOR UPDATE",
+     [evidenceRef,consultationId,eid,evidenceKind]);
+    if(!proven)return DENY('F05_10_UNTRUSTED_HUMAN_SERVICE_EVIDENCE');
+   }
+   const logged=await emit(c,consultationId,eventKey,'followup','employee',eid,{evidenceRef,synthetic:human},evidenceKind);
+   if(human){
+    await c.query("UPDATE public.f05_10_human_service_evidence_ci SET consumed_event_id=$2 WHERE evidence_ref=$1",
+     [evidenceRef,logged.event_id]);
+    if(!meta.first_response_at){
+     await c.query("UPDATE public.f05_10_consultation_meta_ci SET first_response_at=transaction_timestamp(), "+
+      "first_response_event_id=$2 WHERE consultation_id=$1",[consultationId,logged.event_id]);
+    }
    }
   }else if(['close_resolved','close_normal','invalid'].includes(action)){
    const status=action==='invalid'?'invalid':'resolved';
