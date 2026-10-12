@@ -37,7 +37,8 @@ test('8-A01 v24 real PostgreSQL16 history: preceding 21 signed migration ledgers
  assert.equal((await q('SELECT count(*)::int n FROM public.f03_schema_migrations'))[0].n,22);
  const att=(await q('SELECT * FROM public.f05_8_migration_attestation'))[0];
  assert.equal(att.seal_key,'M94_TO_V23_SIGNED_LEDGER');
- assert.equal((await q('SELECT count(*)::int n FROM public.f05_8_priority_ci'))[0].n,vehicles.length);
+ assert.equal((await q('SELECT count(*)::int n FROM public.f05_8_priority_ci'))[0].n,0,'v24 migration must not grant Priority before per-Customer qualification');
+ assert.equal((await q('SELECT count(*)::int n FROM public.f05_8_qualification_ci WHERE enabled=true'))[0].n,0,'v24 migration must not silently enable qualification');
 });
 test('8-A02 non-qualified Customer has signed current Match yet no Priority; fail-closed production',async()=>{
  const original=(await q("SELECT count(*)::int n FROM public.f05_7_result_versions_ci r WHERE r.vehicle_id=$1 AND r.listing_cycle_id=$2 AND r.status='current' AND r.tier IN ('high','acceptable')",[vehicles[0].id,vehicles[0].cycle]))[0].n;
@@ -105,8 +106,13 @@ test('8-A09 only current trigger responsible employee releases, suppresses old f
  assert.equal(ret.allowed,true,JSON.stringify(ret));
  assert.equal(ret.next.customerId,899613);
  assert.equal((await q("SELECT status,ended_reason FROM public.f05_8_priority_ci WHERE priority_id=$1",[before.priority_id]))[0].ended_reason,'employee_released');
+ // releaseCI first reconciles the current Demand/Match; the pause in 8-A08
+ // can replace the trigger and signed source_signature. Suppression must pin
+ // the actually released source, not a stale pre-reconciliation snapshot.
+ const released=(await q('SELECT source_signature,trigger_demand_id FROM public.f05_8_priority_ci WHERE priority_id=$1',[before.priority_id]))[0];
  const s=(await q('SELECT suppressed_source_signature FROM public.f05_8_suppression_ci WHERE customer_id=899612 AND vehicle_id=$1',[v.id]))[0];
- assert.equal(s.suppressed_source_signature,before.source_signature);
+ assert.equal(s.suppressed_source_signature,released.source_signature,'suppress the exact reconciled signed Match source on release');
+ assert.ok(demands.some(d=>Number(d.demand_id)===Number(released.trigger_demand_id)&&Number(d.customer_id)===899612));
  assert.equal((await arb(v,'try-reclaim-same-facts')).customerId,899613);
 });
 test('8-A10 qualification OFF closes only that Customer Priority; Demand stays active and triggers successor',async()=>{
@@ -140,8 +146,12 @@ test('8-A12 true active Lock auto-ends priority, blocks re-create but does not r
  assert.equal((await q('SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1',[old.priority_id]))[0].status,'ended');
  // Unlike another Customer's takeover, the currently entitled Customer's
  // own successful Lock must carry the distinct PDM-13 converted_to_lock cause.
- const same=vehicles[4],self=(await current(same))[0];
- assert.ok(self);assert.equal(Number(self.customer_id),899612);
+ // The fixture has four unoccupied genuine vehicles; reuse the second one,
+ // which still holds this Customer's Priority after its Demand handoff (8-A08).
+ // The original third vehicle was just used for another Customer's takeover.
+ const same=vehicles[1],self=(await current(same))[0];
+ assert.ok(self,'signed second Vehicle must hold an active same-Customer Priority');
+ assert.equal(Number(self.customer_id),899612);
  await db.query("INSERT INTO public.locks(lock_id,customer_id,vehicle_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) "+
  "VALUES(8997089,899612,$1,$2,'active',1,now()-interval '1 minute',now()+interval '2 hours')",[same.id,same.cycle]);
  assert.equal((await current(same)).length,0);
