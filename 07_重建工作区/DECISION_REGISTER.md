@@ -1917,3 +1917,8 @@ G受检最终HEAD19af2955d81ac14d79e0c4e6adc661a3a1aabd8e同SHA CI38025357614 20
 - **正式状态**：`F05_8_A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK / PR47_OPEN_NOT_MERGED / NEXT_OWNER=B`。B原分支在本批新目录一次性补四项与真PG16正反例，完整历史旧64+兼容2+新2**重新以最后B/PR SHA同SHA 68/68成功**、四新非空有效Artifact及中文交审后交A复验；此前`8c296513...`的CI不能替代改后SHA。不得合并main，不放行F05-9/F06或生产。
 - Customer微信/手机号及正式Priority/Rule/find权益Issuer、数字客户价、JYT图片电话/资金、部署UAT均`SOURCE_GAP`；F05、C-H01、V1持续`NOT_READY`。
 
+## 2026-10-12｜A-F05-8二轮独立验收裁决：工程68/68 PASS，PDM13恢复仲裁与责任交接三项仍退B（唯一最新）
+
+- **工程事实**：PR47 B HEAD `e873adeabc2e4a40149eb6b8c8a20a9189d69319`；八官方同SHA Push run `38208004686/38208004665/38208004648/38208004630/38208004508/38208004595/38208004624/38208004633`，**68/68**真实PG16成功，冻结旧64 Jobs原字节不变；旧F05-7兼容28/7、本批Source27/HTTPS10、四有效Artifact `11727729260/11727933765/11728063884/11728185904`及v24校验和真实双PID/55P03。首次R01～R04有B对应修复及真实PG用例，但本次独立审查不放过新增遗漏。
+- **正式规则结论**：A二轮仍`CHANGES_REQUESTED`：R05 Demand从paused恢复、Vehicle重新可售等在不存在active Priority时不触发affected-scope自动仲裁；R06 Lock/Transaction结束或撤销不触发依据当前合法Match的恢复重仲裁；R07 Employee失效及个人Scope撤权的自动路径未建PDM13§25/26正式Handover Batch、可能提前将本可在剩余TTL内交接的保护让给他Customer。根据已签PDM13§22/25/26/29/30修复，不新建产品裁决。精确可执行A整改单：`07_重建工作区/F05-8_A主控二轮独立验收68项真PG16通过但恢复仲裁与责任交接未闭环整改单_2026-10-12.md`，对应[PR47](https://github.com/suzhe868-arch/mb/pull/47) A二轮正式审核评论。
+- **下一责任B**：`F05_8_A_SECOND_REVIEW_CHANGES_REQUESTED_B_REWORK / PR47_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。B现分支一次性按R05～R07整改新PG16真实反例，保持旧64冻结、F05-7旧28/7和既有Priority27/10；新HEAD八同SHA官方68/68和四新原生Artifact、中文交接后交A复验。A未签通过且**未合并PR47**；F05-9/F06未放行，真实生产Issuer/客户/JYT/资金等`SOURCE_GAP`，F05/C-H01/V1`NOT_READY`。
