@@ -1885,3 +1885,13 @@ G受检最终HEAD19af2955d81ac14d79e0c4e6adc661a3a1aabd8e同SHA CI38025357614 20
 - **下一唯一工程F05-7**：按已签`07_重建工作区/PDM-12_最终完整规则.md`及F05工程路线，A正式下发`07_重建工作区/F05-7_A主控PDM12确定性匹配Readiness四级结果与受信来源隔离完整施工单_2026-10-12.md`。B指定分支`feat/f05-7-deterministic-matching-readiness-four-tier`从执行时最新main建立；仅新增`engineering/f05/deterministic-matching-readiness-four-tier/**`与8份本批Workflow，旧H52+I2+J2+K2+F05-4+F05-5+F05-6共**64**Jobs全文`jobs:\n`保持原样，加新Source+HTTPS**2**，八官方Runs同唯一最终B/PR SHA **66/66真正非特权PG16** success且两个本批新Artifacts有效。PDM12正式guard：pending Application绝不Matching，active Demand尚未sales描述/合法确定性条件不得matching-ready，字段hard/preferred/tolerance/unknown及四级result可解释，预算只用合法Customer展示价，hidden与offline分层，Match Result不自动产生Recommendation/Priority/Customer visibility/Lock/价扣额；真实Issuer缺失生产fail-closed。B一次完成施工/CI/归档再交A，B不得合并main或提前进入F05-8。
 - Customer微信Session/手机号合法授权、CustomerLevel找车权益及Employee人工Demand激活/Rule正式Issuer、生产客户价与增额、Recommendation免费Issuer、普通批发Owner、hidden来源重算/图片本地化与真实JYT/电话/钱仍BLOCKED_SOURCE_GAP；F05/F04生产、C-H01高保真及整个名邦V1 **`NOT_READY`**。当前`F05_6_A_FINAL_ACCEPTED_MERGED_PR45_CI_ONLY / F05_7_A_RELEASED_FOR_B_B_NOT_STARTED / NEXT_OWNER=B`。
 
+
+## 2026-10-12｜F05-7 A首次独立验收66项PG16全绿但PDM12四项产品规则未闭环，PR46退B
+
+> **本节仅记录A工程技术验收裁决及接力，不新增、不修改任何PDM Final用户产品规则。** 产品Authority继续严格依据`PDM-12_最终完整规则.md`§8/§16/§18/§22/§30，最新指针以main顶部README/PROJECT_STATE/NEXT_ACTION为准。
+
+- A正式取得B/PR46 HEAD `855bb463096652ca70ef4327c86e10db4d092825` 的八原生官方Run：`38185881710` H52 52/52 attempt2，`38185881669` I2、`38185881678` J2、`38185881716` K2、`38185881683` F05-4、`38185881661` F05-5、`38185881687` F05-6 各2/2，`38185883832`本批Source/HTTPS2/2 attempt2，全部同SHA `completed/success`，**66/66真正非特权PG16 Job成功零skip**。Source原生24/24与HTTPS7/7通过，真实PG双Backend锁PID216/217及216/225、SQLSTATE55P03。A再独立比对七组冻结旧`jobs:\n`到EOF全文与现有main源相同；25文件只新增在授权白名单。Artifact Source`11719249451`(94862B)、HTTPS`11719408424`(92141B)同SHA有效。
+- **正式A独立评判不通过业务代码**：`contract.mjs` 当前在明确preferred fact缺失时仍可能评为high，违反PDM-12 §8；`service.mjs`未携带active Lock已占用事实，违反§18；`000023_matching_ci.sql`与本批服务尚无Rule部分重算失败集合与仅失败对象幂等retry，违反§30；`resolveRules`车系年款范围为简单等值，且多事实来源优先级无实现，未覆盖§22、§16。原24个Source绿灯用例没有运行以上产品边界正反例，**CI通过不等于A接受**。
+- PR46正式[首次A独立验收及一口气整改单](https://github.com/suzhe868-arch/mb/pull/46#issuecomment-6115435460)，仓库`07_重建工作区/F05-7_A主控首次独立验收66项真PG16通过但PDM12业务边界未闭环整改单_2026-10-12.md`。**`F05_7_A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK / PR46_OPEN_NOT_MERGED / NEXT_OWNER=B`**。B仅在原分支整改R01～R04补PG16真测试与R05完整同**最新SHA**66/66官方CI/Artifacts/中文交接；不得自行合并main，不得开始F05-8/F06。
+- 实际生产Customer微信/电话权限、find/Rule生产Issuer、客户数字价、一般批发Owner、图片、JYT、资金及C/H01均`SOURCE_GAP`，F05/C-H01/V1`NOT_READY`。上述R01～R04均已有最终PDM12权威，不需用户新增产品裁决；历史F05-7初放行与B首次66成功不构成A最终接受。
+
