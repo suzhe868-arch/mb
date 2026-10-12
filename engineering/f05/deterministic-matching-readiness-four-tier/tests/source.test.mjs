@@ -313,7 +313,7 @@ test('7-A28 R04 series-year range and four provenances execute against real PG f
  assert.equal(clean.model_year.value,2026);assert.equal(clean.model_year.provenance.length,4);
  await db.query("UPDATE public.f05_7_vehicle_facts_ci SET facts_json=$1::jsonb,fact_version=fact_version+1 WHERE vehicle_id=$2 AND listing_cycle_id=$3",
   [JSON.stringify(facts),v.vehicleId,v.cycle]);
- assert.equal((await sales(d)).allowed,true);
+ assert.equal((await save(auth,token,{demandId:d,teamId:901,description:desc,scope:{series:'97002',model_year:'97003:2026',modelYear:2026}})).allowed,true);
  const r=await calc(d,v,'r04-provenance-original-jyt-vs-mapping');
  assert.equal(r.allowed,true,JSON.stringify(r));assert.equal(r.tier,'high');
  const row=(await history(d,v)).at(-1),actual=row.explanations.find(x=>x.field==='model_year');
