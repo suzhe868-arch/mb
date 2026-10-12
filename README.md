@@ -1,3 +1,13 @@
+# 2026-10-12｜F05-8 A首次独立验收：同SHA68/68真PG16 CI全部成功但PDM13四项规则边界未闭环，PR47正式退B整改（唯一最新）
+
+- **当前唯一指针**：`F05_8_A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK / PR47_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。本轮A审核了B [PR47](https://github.com/suzhe868-arch/mb/pull/47) 唯一受验HEAD `8c296513c5f9f7b2a176560313c3e6db30a61abc`，compare原main `ahead35/behind0`，23个文件全部新增且仅在F05-8白名单；B正式交审PR评论`6117312297`，A正式验收评论 [6117566975](https://github.com/suzhe868-arch/mb/pull/47#issuecomment-6117566975)。
+- **已认可的真实CI门禁**：同SHA八条GitHub官方Push run H52`38200112071`**52/52**、I2`38200112052`、J2`38200112045`、K2`38200111930`、F05-4`38200111921`、F05-5`38200111927`、F05-6`38200112289`各**2/2**，本批`38200112015`四Job**4/4**，共**68/68独立PG16 Job completed/success、零skip/fail**。F05-7真实兼容Source28/28、HTTPS7/7及Priority Source20/20、HTTPS10/10均原生通过；原生PID263/264、SQLSTATE55P03、v24 checksum/catalog与真实迁移回滚已见；四份官方同SHA、非空未过期Artifact`11724649956`（109027B）/`11725170394`（99427B）/`11725116058`（103037B）/`11725315587`（99013B）。已签旧64 Job未被B修改。
+- **A独立产品代码复核未通过**：根据已批准`PDM-13 Final` §§9/12/13/14/26/30及`PDM-14 Final` §§10/11/15，仍缺 **R01**同Customer多Demand不同source signature可能绕过同cycle release/TTL suppression，**R02** Demand/Match/Customer/Vehicle等状态变更缺影响范围自动失效且只有手动arb才能清旧Priority，**R03** Recommendation+Grant客户可见性投影未再次校验Customer active/find entitlement/cycle validity，**R04** TTL到期无独立ended/suppression/后继重仲裁而保留原active唯一索引。现有20条Source测试未覆盖上述情形，68/68全绿不代表产品规则已闭环。正式可执行整改单：`07_重建工作区/F05-8_A主控首次独立验收68项真PG16通过但PDM13生命周期及可见性边界未闭环整改单_2026-10-12.md`，GitHub PR47验收评论`6117566975`。
+- **下一责任窗口B**：继续原`feat/f05-8-priority-arbitration-ttl-handover`分支，在原A施工单`07_重建工作区/F05-8_A主控PDM13_Priority资格仲裁TTL排他与责任交接CI隔离完整施工单_2026-10-12.md`白名单内一次性修复R01–R04并新增真实PG16正反例；保持旧64 Job冻结、F05-7 28/7兼容测试与F05-8原20/10；最后以新唯一B/PR SHA重新取得**8官方push run同SHA68/68**success及四份新原生有效Artifacts、完整中文交接`READY_FOR_A_RE_REVIEW / NEXT_OWNER=A`。**PR47未合并，F05-9/F06未放行**；下方早期“F05-8 B尚未开工”及原F05-7放行文字仅是历史记录。
+- **绝不扩大生产Authority**：Customer微信/手机号、Priority控制正式Issuer、Rule/find权益、客户真实数字价、JYT/电话/图片、交易资金及上线UAT仍`SOURCE_GAP`；F05、C-H01、高保真及V1总体继续`NOT_READY`。
+
+---
+
 # 2026-10-12｜F05-7 A二轮正式验收66/66真PG16 PASS、PR46成功标准合并；F05-8 PDM13 Priority全包68项独立PG16正式放行B（唯一最新）
 
 - **当前唯一真实指针**：`F05_7_A_FINAL_ACCEPTED_MERGED_PR46_CI_ONLY / F05_8_A_RELEASED_FOR_B_B_NOT_STARTED / NEXT_OWNER=B / V1_NOT_READY`。B最终HEAD `99c38d013f67cc56975f1664120fb87c204afc3c`，A独立二轮[PR46验收签批](https://github.com/suzhe868-arch/mb/pull/46#issuecomment-6115975938)，GitHub实际标准`merge_pull_request(expected_head_sha=99c38d013f67cc56975f1664120fb87c204afc3c,merge_method=merge)`回执`merged=true`，**正式merge SHA `a56cc04e5a1d79fd67ad5332992d33348d123557`**；PR46现已`closed/merged`。正式A二轮报告：`07_重建工作区/F05-7_A主控二轮独立验收66项真PG16_PR46标准合并与F05-8技术交接_2026-10-12.md`。下方“F05-7首次验收退B”只代表历史，不是现时阻断。
