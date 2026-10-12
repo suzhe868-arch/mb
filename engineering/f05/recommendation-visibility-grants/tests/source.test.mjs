@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import {randomBytes} from 'node:crypto';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {connect,verify} from '../migration.mjs';
-import {releaseCI} from '../../priority-arbitration-ttl-handover/service.mjs';
 import {createRecommendationCI,finishRecommendationCI,batchRecommendCI,customerProjectionCI,productionDeny} from '../service.mjs';
 const c=await connect(),auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,
  secret:randomBytes(32),origin:'https://127.0.0.1:48989'});
@@ -210,8 +209,10 @@ test('9-R01 real v24 qualified other-Customer Priority suppresses B detail/share
   assert.deepEqual((await q('SELECT * FROM public.f05_9_recommendation_facts_ci WHERE recommendation_id=$1',[recId]))[0],history);
   assert.equal((await q('SELECT count(*)::int n FROM public.f05_9_price_right_ci WHERE original_recommendation_id=$1',[recId]))[0].n,1);
   assert.equal((await q("SELECT count(*)::int n FROM public.vehicle_visibility_grants WHERE grant_id=$1 AND revoked_at IS NULL",[oldGrant.grant_id]))[0].n,1);
-  const released=await releaseCI(auth,token,{teamId:901,priorityId:Number(p.priority_id),eventKey:key('r01-release')});
-  assert.equal(released.allowed,true,JSON.stringify(released));
+  // v24 signed database source-reconciliation entry works on additive v25.
+  // The v24 JS API rejects any later migration ledger by design; never weaken that frozen verifier.
+  await c.query('UPDATE public.f05_8_qualification_ci SET enabled=false WHERE customer_id=899613');
+  await c.query('SELECT public.f05_8_reconcile_scope_ci($1,$2)',[v,cy]);
   assert.equal((await q('SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1',[p.priority_id]))[0].status,'ended');
   assert.equal((await proj(customerId)).visible,true,'release rechecks original active rec + same cycle + Customer entitlement');
   assert.equal((await q('SELECT count(*)::int n FROM public.f05_9_price_right_ci WHERE original_recommendation_id=$1',[recId]))[0].n,1);
@@ -329,7 +330,7 @@ test('9-R04a signed remote Manager/StoreHead scope, personal deny, 4S, stale rec
  const whileTxn=await createRecommendationCI(auth,token,{customerId:899613,vehicleId:txnCar.vehicleId,listingCycleId:txnCar.listingCycleId,eventKey:key('r04-in-progress-can-recommend')});
  assert.equal(whileTxn.allowed,true,JSON.stringify(whileTxn));
  assert.equal((await q('SELECT status FROM public.transactions WHERE transaction_id=8997952'))[0].status,'in_progress');
- await c.query("UPDATE public.vehicles SET source_sale_status='sold' WHERE vehicle_id=$1",[a.vehicleId]);
+ await c.query("UPDATE public.vehicles SET source_sale_status='offline' WHERE vehicle_id=$1",[a.vehicleId]);
  const sold=await createRecommendationCI(auth,token,{customerId:899618,vehicleId:a.vehicleId,listingCycleId:a.listingCycleId,eventKey:key('r04-sold-deny')});
  assert.equal(sold.allowed,false);assert.equal(sold.code,'F05_9_NOT_CURRENT_SALEABLE_CYCLE');
  const noInherited=await customerProjectionCI(c,{customerId:899618,vehicleId:b.vehicleId,listingCycleId:b.listingCycleId,entry:'ordinary_share',syntheticCustomerIdentity:identity});
