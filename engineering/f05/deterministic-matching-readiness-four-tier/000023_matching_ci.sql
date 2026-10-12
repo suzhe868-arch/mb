@@ -54,9 +54,10 @@ CREATE UNIQUE INDEX f05_7_one_current_result_ci ON public.f05_7_result_versions_
  WHERE status='current';
 CREATE FUNCTION public.f05_7_history_guard() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
- IF TG_TABLE_NAME='f05_7_result_versions_ci' AND TG_OP='UPDATE'
-    AND OLD.status='current' AND NEW.status='stale' AND
-    (to_jsonb(NEW)-'status')=(to_jsonb(OLD)-'status') THEN RETURN NEW; END IF;
+ IF TG_TABLE_NAME='f05_7_result_versions_ci' THEN
+  IF TG_OP='UPDATE' AND OLD.status='current' AND NEW.status='stale' AND
+     (to_jsonb(NEW)-'status')=(to_jsonb(OLD)-'status') THEN RETURN NEW; END IF;
+ END IF;
  RAISE EXCEPTION 'F05_7_SIGNED_MATCH_HISTORY_IMMUTABLE' USING ERRCODE='23514';
 END $$;
 CREATE TRIGGER f05_7_result_only_current_to_stale BEFORE UPDATE OR DELETE ON public.f05_7_result_versions_ci
