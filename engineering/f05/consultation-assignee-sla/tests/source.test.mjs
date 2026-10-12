@@ -166,6 +166,38 @@ test('10-S12 source fail closed: hidden other Customer cannot inherit grant or p
  console.log('F05_10_DISPOSABLE_PDM15_NATIVE_PG16_SOURCE_COMPLETE',{cases:12,consultations:q2[0].n});
 });
 
+test('10-R02 v25 physical recommendation direct source, owner and assignee independence, hidden share denied',async()=>{
+ const v=(await q('SELECT source_type FROM public.vehicles WHERE vehicle_id=$1',[vehicleId]))[0];
+ const rr=(await q("INSERT INTO public.recommendations(vehicle_id,customer_id,listing_cycle_id,source_demand_id,status,recommender_employee_id) VALUES($1,$2,$3,NULL,'active',1) RETURNING recommendation_id",[vehicleId,customer,cycleId]))[0];
+ const signedId=Number(rr.recommendation_id);
+ await q("INSERT INTO public.f05_9_recommendation_facts_ci(recommendation_id,customer_id,vehicle_id,listing_cycle_id,original_recommender_id,original_price_snapshot,original_source_kind,creation_key) VALUES($1,$2,$3,$4,1,$5::jsonb,$6,$7)",[signedId,customer,vehicleId,cycleId,JSON.stringify({kind:'price_consultation',issuer:'CI_SYNTHETIC_PDM10_NOT_PRODUCTION'}),v.source_type,k('r02-signed-physical-recommendation')]);
+ await q("INSERT INTO public.f05_9_recommendation_events_ci(recommendation_id,actor_employee_id,event_kind,event_key) VALUES($1,1,'created',$2)",[signedId,k('r02-signed-physical-created')]);
+ const a=await create(customer,'recommendation',{sourceRecommendationId:signedId});
+ assert.equal(a.allowed,true,JSON.stringify(a));assert.equal(a.created,true);
+ assert.equal(a.directSource,'recommendation');
+ const co=(await q('SELECT assignee_employee_id FROM public.consultations WHERE consultation_id=$1',[a.consultationId]))[0];
+ assert.equal(Number(co.assignee_employee_id),1);
+ const fixed=(await q('SELECT origin_team_id,origin_store_id,source_recommendation_id FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[a.consultationId]))[0];
+ assert.equal(Number(fixed.source_recommendation_id),signedId);
+ await q('UPDATE public.customers SET current_owner_employee_id=4 WHERE customer_id=$1',[customer]);
+ try{
+  assert.equal(Number((await q('SELECT assignee_employee_id FROM public.consultations WHERE consultation_id=$1',[a.consultationId]))[0].assignee_employee_id),1);
+  const now=(await q('SELECT origin_team_id,origin_store_id FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[a.consultationId]))[0];
+  assert.equal(Number(now.origin_team_id),Number(fixed.origin_team_id));
+  assert.equal(Number(now.origin_store_id),Number(fixed.origin_store_id));
+  const internal=await internalConsultationProjectionCI(auth,token,{consultationId:a.consultationId});
+  assert.equal(internal.allowed,true,JSON.stringify(internal));
+ }finally{await q('UPDATE public.customers SET current_owner_employee_id=1 WHERE customer_id=$1',[customer])}
+ await q("UPDATE public.vehicles SET platform_visibility='hidden' WHERE vehicle_id=$1",[vehicleId]);
+ try{
+  const count=(await q('SELECT count(*)::int n FROM public.vehicle_visibility_grants WHERE vehicle_id=$1 AND customer_id=$2 AND source_recommendation_id=$3 AND revoked_at IS NULL',[vehicleId,customer,signedId]))[0].n;
+  assert.equal(count,1);
+  const touched=await create(customer,'ordinary_share');assert.equal(touched.allowed,true);assert.equal(touched.created,false);
+  const denied=await create(other,'ordinary_share');assert.equal(denied.allowed,false);
+ }finally{await q("UPDATE public.vehicles SET platform_visibility='visible' WHERE vehicle_id=$1",[vehicleId])}
+ assert.equal((await act(a.consultationId,'close_normal')).allowed,true);
+ console.log('F05_10_R02_V25_SIGNED_DIRECT_SOURCE_SCOPE',{signedId,consultationId:a.consultationId});
+});
 test('10-S13 NORMAL_CLOSED and invalid remain separate terminal statuses with no fifth status',async()=>{
  const n=await create(customer,'search');assert.equal(n.created,true,JSON.stringify(n));
  assert.equal((await act(n.consultationId,'close_normal')).allowed,true);
@@ -201,6 +233,35 @@ test('10-S14 versioned SLA policy only affects new Consultation, real disabled H
  assert.equal(after.original_deadline.getTime(),before.original_deadline.getTime());
  const delta=after.first_response_deadline.getTime()-Date.now();
  assert.ok(delta>=Number(held.remaining_ms)-12000&&delta<=Number(held.remaining_ms)+12000,{delta,remaining:Number(held.remaining_ms)});
+});
+test('10-R04 Consultation CRM action preserves genuine cross-domain SQL row counts and hashes',async()=>{
+ const tables=['recommendations','vehicle_visibility_grants','f05_9_recommendation_facts_ci','f05_9_price_right_ci','f05_8_priority_ci','locks','transactions','demands','customers'];
+ const snapshot=async()=>{
+  const result={};
+  for(const t of tables){
+   const rows=await q("SELECT count(*)::int n,md5(COALESCE(string_agg(to_jsonb(x)::text,'' ORDER BY to_jsonb(x)::text),'')) sha FROM public."+t+" x");
+   result[t]=rows[0];
+  }
+  return result;
+ };
+ const open=(await q("SELECT consultation_id FROM public.consultations WHERE customer_id=$1 AND status IN('pending','processing') ORDER BY consultation_id DESC LIMIT 1",[customer]))[0];
+ assert.ok(open);
+ const before=await snapshot();
+ const note=await act(open.consultation_id,'followup',{evidenceKind:'crm_note',evidenceRef:'CI-CRM-NOTE-IS-NOT-HUMAN-004'});
+ assert.equal(note.allowed,true,JSON.stringify(note));
+ const mine=await safeCustomerProjectionCI(c,{consultationId:open.consultation_id,customerId:customer,syntheticPhoneConsent:proof});
+ assert.equal(mine.allowed,true);
+ assert.deepEqual(await snapshot(),before);
+});
+test('10-R04 signed Vehicle offline COMMIT must not terminate existing open Consultation',async()=>{
+ const before=(await q('SELECT source_sale_status FROM public.vehicles WHERE vehicle_id=$1',[vehicleId]))[0].source_sale_status;
+ const co=(await q("SELECT consultation_id,status FROM public.consultations WHERE customer_id=$1 AND status IN('pending','processing') ORDER BY consultation_id DESC LIMIT 1",[customer]))[0];
+ assert.ok(co);
+ await q("UPDATE public.vehicles SET source_sale_status='offline' WHERE vehicle_id=$1",[vehicleId]);
+ try{
+  assert.equal((await create(customer,'search')).allowed,false);
+  assert.equal((await q('SELECT status FROM public.consultations WHERE consultation_id=$1',[co.consultation_id]))[0].status,co.status);
+ }finally{await q('UPDATE public.vehicles SET source_sale_status=$2 WHERE vehicle_id=$1',[vehicleId,before])}
 });
 test('10-S15 expired first-response SLA is derived and must never auto-close or pause for quiet hours',async()=>{
  const active=(await q("SELECT consultation_id FROM public.consultations WHERE customer_id=$1 AND status IN('pending','processing') ORDER BY consultation_id DESC LIMIT 1",[customer]))[0];

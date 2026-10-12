@@ -77,6 +77,21 @@ CREATE TABLE public.f05_10_migration_attestation(
 CREATE FUNCTION public.f05_10_immutable_ci() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN RAISE EXCEPTION 'F05_10_IMMUTABLE_HISTORY' USING ERRCODE='23514'; END $$;
 CREATE TRIGGER f05_10_events_immutable BEFORE UPDATE OR DELETE ON public.f05_10_consultation_events_ci FOR EACH ROW EXECUTE FUNCTION public.f05_10_immutable_ci();
+CREATE FUNCTION public.f05_10_human_evidence_guard_ci() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF (OLD.evidence_ref,OLD.consultation_id,OLD.actor_id,OLD.evidence_kind,OLD.synthetic_issuer,OLD.captured_at)
+ IS DISTINCT FROM
+ (NEW.evidence_ref,NEW.consultation_id,NEW.actor_id,NEW.evidence_kind,NEW.synthetic_issuer,NEW.captured_at)
+ OR OLD.consumed_event_id IS NOT NULL OR NEW.consumed_event_id IS NULL
+ OR NOT EXISTS(SELECT 1 FROM public.f05_10_consultation_events_ci ev
+     WHERE ev.event_id=NEW.consumed_event_id AND ev.consultation_id=OLD.consultation_id
+      AND ev.actor_kind='employee' AND ev.actor_id=OLD.actor_id
+      AND ev.evidence_kind=OLD.evidence_kind AND ev.event_kind='followup')
+ THEN RAISE EXCEPTION 'F05_10_IMMUTABLE_HUMAN_EVIDENCE' USING ERRCODE='23514';END IF;
+ RETURN NEW;
+END $$;
+CREATE TRIGGER f05_10_human_evidence_link_only BEFORE UPDATE ON public.f05_10_human_service_evidence_ci
+ FOR EACH ROW EXECUTE FUNCTION public.f05_10_human_evidence_guard_ci();
 CREATE TRIGGER f05_10_human_evidence_no_delete BEFORE DELETE ON public.f05_10_human_service_evidence_ci FOR EACH ROW EXECUTE FUNCTION public.f05_10_immutable_ci();
 CREATE TRIGGER f05_10_handover_immutable BEFORE UPDATE OR DELETE ON public.f05_10_consultation_handover_ci FOR EACH ROW EXECUTE FUNCTION public.f05_10_immutable_ci();
 CREATE TRIGGER f05_10_attestation_immutable BEFORE UPDATE OR DELETE ON public.f05_10_migration_attestation FOR EACH ROW EXECUTE FUNCTION public.f05_10_immutable_ci();
