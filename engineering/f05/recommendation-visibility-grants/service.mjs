@@ -188,37 +188,37 @@ export async function batchRecommendCI(auth,token,{teamId=901,customerId,vehicle
 // Customer share link carries only vehicle navigation, not any Customer identity
 // from the sender. This read requires explicit synthetic CI claim, NEVER a
 // production WeChat login. Production Customer Issuer remains SOURCE_GAP.
-export async function customerProjectionCI(c,{customerId,vehicleId,listingCycleId,entry='detail',
+async function customerProjectionReadCI(c,{customerId,vehicleId,listingCycleId,entry='detail',
   syntheticCustomerIdentity}={}){
  if(syntheticCustomerIdentity!=='CI_SYNTHETIC_CUSTOMER_IDENTITY_NOT_PRODUCTION'||
     ![customerId,vehicleId,listingCycleId].every(positive)||
     !['detail','ordinary_share','my_recommendations'].includes(entry))
   return FAIL('F05_9_PRODUCTION_CUSTOMER_ISSUER_NOT_WIRED');
  await verify(c);
- const veh=(await c.query('SELECT vehicle_id,source_type,platform_visibility,source_sale_status,archived_at FROM public.vehicles WHERE vehicle_id=$1',[vehicleId])).rows[0];
- const cy=(await c.query('SELECT ended_at FROM public.vehicle_listing_cycles WHERE vehicle_id=$1 AND listing_cycle_id=$2',[vehicleId,listingCycleId])).rows[0];
- const cu=(await c.query('SELECT account_status,customer_level_id FROM public.customers WHERE customer_id=$1',[customerId])).rows[0];
+ const veh=(await c.query('SELECT vehicle_id,source_type,platform_visibility,source_sale_status,archived_at FROM public.vehicles WHERE vehicle_id=$1 FOR SHARE',[vehicleId])).rows[0];
+ const cy=(await c.query('SELECT ended_at FROM public.vehicle_listing_cycles WHERE vehicle_id=$1 AND listing_cycle_id=$2 FOR SHARE',[vehicleId,listingCycleId])).rows[0];
+ const cu=(await c.query('SELECT account_status,customer_level_id FROM public.customers WHERE customer_id=$1 FOR SHARE',[customerId])).rows[0];
  const active=!!veh&&!!cy&&!cy.ended_at&&!veh.archived_at&&
    ((veh.source_type==='wholesale'&&veh.source_sale_status==='active')||
     (['mingbang','four_s'].includes(veh.source_type)&&veh.source_sale_status==='available'));
- const entitled=!!cu&&cu.account_status==='active'&&(await c.query('SELECT find_enabled FROM public.f05_6_level_find_policy_ci WHERE level_id=$1',[cu.customer_level_id])).rows[0]?.find_enabled===true;
+ const entitled=!!cu&&cu.account_status==='active'&&(await c.query('SELECT find_enabled FROM public.f05_6_level_find_policy_ci WHERE level_id=$1 FOR SHARE',[cu.customer_level_id])).rows[0]?.find_enabled===true;
  const exclusive=(await c.query("SELECT customer_id FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 "+
  "AND status='active' AND expires_at>statement_timestamp() LIMIT 1",[vehicleId,listingCycleId])).rows[0];
  const blocked=!!exclusive&&Number(exclusive.customer_id)!==Number(customerId);
  const rec=(await c.query("SELECT r.recommendation_id FROM public.recommendations r "+
   "JOIN public.f05_9_recommendation_facts_ci s ON s.recommendation_id=r.recommendation_id "+
-  "WHERE r.vehicle_id=$1 AND r.customer_id=$2 AND r.listing_cycle_id=$3 AND r.status='active' LIMIT 1",
+  "WHERE r.vehicle_id=$1 AND r.customer_id=$2 AND r.listing_cycle_id=$3 AND r.status='active' LIMIT 1 FOR SHARE OF r,s",
   [vehicleId,customerId,listingCycleId])).rows[0];
  const grant=rec?(await c.query("SELECT grant_id FROM public.vehicle_visibility_grants "+
-  "WHERE source_recommendation_id=$1 AND vehicle_id=$2 AND customer_id=$3 AND revoked_at IS NULL LIMIT 1",
+  "WHERE source_recommendation_id=$1 AND vehicle_id=$2 AND customer_id=$3 AND revoked_at IS NULL LIMIT 1 FOR SHARE",
   [rec.recommendation_id,vehicleId,customerId])).rows[0]:null;
  const publicVisible=active&&veh.platform_visibility==='visible'&&!blocked;
  const authorized=active&&!blocked&&(publicVisible||(!!rec&&!!grant&&entitled));
  const right=(await c.query("SELECT original_recommendation_id FROM public.f05_9_price_right_ci "+
-  "WHERE customer_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3",
+  "WHERE customer_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3 FOR SHARE",
  [customerId,vehicleId,listingCycleId])).rows[0];
  const numeric=authorized&&entitled&&!!right?
-   (await c.query('SELECT customer_display_cents FROM public.f05_4_current_price_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2',[vehicleId,listingCycleId])).rows[0]?.customer_display_cents:null;
+   (await c.query('SELECT customer_display_cents FROM public.f05_4_current_price_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 FOR SHARE',[vehicleId,listingCycleId])).rows[0]?.customer_display_cents:null;
  // NO VIN, no internal prices, contact, Match/Priority details, documents.
  return OK('F05_9_SAFE_CUSTOMER_PROJECTION',{vehicleId:Number(vehicleId),listingCycleId:Number(listingCycleId),
   currentSaleable:active,visible:authorized,publicVisible,
@@ -226,5 +226,25 @@ export async function customerProjectionCI(c,{customerId,vehicleId,listingCycleI
   hasCurrentRecommendation:!!rec,currentCycleFreeWholesaleRight:active&&!!right,
   priceStatus:authorized&&entitled&&right?(numeric?'synthetic_digital':'price_consultation'):'not_authorized',
   customerDisplayCents:numeric??null,entry,moreVehicles:true});
+}
+// Read-only Customer projection is a single serialized CI transaction.
+// Vehicle FOR SHARE is held until COMMIT, serializing with the signed
+// F05-8 Vehicle-first Priority mutation/Vehicle visibility lifecycle.
+// The caller must supply an idle, dedicated PG Client (not a managed transaction).
+export async function customerProjectionCI(c,query={}){
+ const {customerId,vehicleId,listingCycleId,entry='detail',syntheticCustomerIdentity}=query;
+ if(syntheticCustomerIdentity!=='CI_SYNTHETIC_CUSTOMER_IDENTITY_NOT_PRODUCTION'||
+   ![customerId,vehicleId,listingCycleId].every(positive)||
+   !['detail','ordinary_share','my_recommendations'].includes(entry))
+  return FAIL('F05_9_PRODUCTION_CUSTOMER_ISSUER_NOT_WIRED');
+ await c.query('BEGIN ISOLATION LEVEL READ COMMITTED');
+ try{
+  const result=await customerProjectionReadCI(c,query);
+  await c.query('COMMIT');
+  return result;
+ }catch(error){
+  await c.query('ROLLBACK').catch(()=>{});
+  throw error;
+ }
 }
 export const productionDeny=()=>FAIL('F05_9_PRODUCTION_RECOMMENDATION_ISSUER_NOT_WIRED');

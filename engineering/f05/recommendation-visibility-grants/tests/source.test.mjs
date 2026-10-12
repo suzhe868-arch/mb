@@ -84,6 +84,8 @@ test('9-S05 current identity and current cycle/vehicle guard deny external forge
  assert.equal(denied.allowed,false);
  await c.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=$1",[customerId]);
  assert.equal((await proj(customerId)).visible,false);
+ const blockedCreate=await createRecommendationCI(auth,token,{customerId,vehicleId:v,listingCycleId:cy,eventKey:key('disabled-create-deny')});
+ assert.equal(blockedCreate.allowed,false,JSON.stringify(blockedCreate));
  await c.query("UPDATE public.customers SET account_status='active' WHERE customer_id=$1",[customerId]);
  assert.equal((await proj(customerId)).visible,true);
 });
@@ -102,6 +104,56 @@ test('9-S06 two PostgreSQL backends serialize duplicate recommendation, free rig
   assert.equal((await q("SELECT count(*)::int n FROM public.f05_9_price_right_ci WHERE customer_id=$1 AND vehicle_id=$2",[customerId,v]))[0].n,1);
   console.log('F05_9_GENUINE_TWO_BACKEND_DUPLICATE_RACE',JSON.stringify({pid,recId}));
  }finally{await other.query('ROLLBACK').catch(()=>{});await other.end();if(started)await started.catch(()=>{})}
+});
+test('9-S06a current scope, source Demand and Customer gates fail closed without partial rights',async()=>{
+ const before=(await q('SELECT count(*)::int n FROM public.f05_9_recommendation_facts_ci'))[0].n;
+ const cases=[
+  {teamId:987654,customerId,vehicleId:v,listingCycleId:cy,eventKey:key('invalid-team')},
+  {teamId:901,customerId,vehicleId:v,listingCycleId:cy,sourceDemandId:999999999,eventKey:key('invalid-demand')},
+  {teamId:901,customerId:999999999,vehicleId:v,listingCycleId:cy,eventKey:key('invalid-customer')}
+ ];
+ for(const data of cases){
+  const denied=await createRecommendationCI(auth,token,data);
+  assert.equal(denied.allowed,false,JSON.stringify(denied));
+ }
+ assert.equal((await q('SELECT count(*)::int n FROM public.f05_9_recommendation_facts_ci'))[0].n,before);
+ assert.equal((await q('SELECT count(*)::int n FROM public.f05_9_price_right_ci WHERE customer_id=$1 AND vehicle_id=$2',[customerId,v]))[0].n,1);
+});
+test('9-S06b customer detail reading waits for concurrent Vehicle visibility COMMIT',async()=>{
+ const other=await connect();let reading;
+ try{
+  await other.query('BEGIN');
+  const pid=Number((await other.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+  await other.query("UPDATE public.vehicles SET platform_visibility='visible' WHERE vehicle_id=$1",[v]);
+  let completed=false;
+  reading=proj(customerId);
+  reading.then(()=>completed=true,()=>completed=true);
+  await new Promise(resolve=>setTimeout(resolve,120));
+  assert.equal(completed,false,'Customer projection must block behind uncommitted Vehicle change');
+  await other.query('COMMIT');
+  const current=await reading;
+  assert.equal(current.allowed,true,JSON.stringify(current));
+  assert.equal(current.publicVisible,true,'projection must see post-COMMIT visibility');
+  console.log('F05_9_TWO_BACKEND_CUSTOMER_PROJECTION_SERIALIZED',JSON.stringify({pid,vehicleId:v}));
+ }finally{
+  await other.query('ROLLBACK').catch(()=>{});
+  await other.end();
+  if(reading)await reading.catch(()=>{});
+  await c.query("UPDATE public.vehicles SET platform_visibility='hidden' WHERE vehicle_id=$1",[v]);
+ }
+});
+test('9-S06c batch keeps legal existing Vehicle result when another Vehicle fails independently',async()=>{
+ const before=(await q('SELECT count(*)::int n FROM public.f05_9_recommendation_facts_ci'))[0].n;
+ const result=await batchRecommendCI(auth,token,{customerId,
+  vehicleCycles:[{vehicleId:v,listingCycleId:cy},{vehicleId:999999999,listingCycleId:cy}],
+  eventPrefix:key('partial-batch')});
+ assert.equal(result.allowed,true);
+ assert.equal(result.entries.length,2);
+ assert.equal(result.entries[0].allowed,true,JSON.stringify(result.entries));
+ assert.equal(result.entries[0].created,false);
+ assert.equal(result.entries[0].recommendationId,recId);
+ assert.equal(result.entries[1].allowed,false);
+ assert.equal((await q('SELECT count(*)::int n FROM public.f05_9_recommendation_facts_ci'))[0].n,before);
 });
 test('9-S07 end and re-create are distinct historic recommendations; free right survives end',async()=>{
  const result=await finishRecommendationCI(auth,token,{recommendationId:recId,kind:'end',eventKey:key('end')});
