@@ -517,6 +517,44 @@ test('8-R07 Employee invalidation auto-creates protected Handover Batch, deny an
   }catch(e){await db.query('ROLLBACK');throw e}
  };
  await switchUpstream(foreign,'r09-cross-team-re-sign');
+
+ // R13: historic Sales 1 is still active/scoped but signed owner moved.
+ const beforeAttempts=(await q("SELECT count(*)::int n FROM public.f05_8_handover_attempts_ci WHERE handover_id=$1",[handover.handover_id]))[0].n;
+ const beforeEvents=(await q("SELECT count(*)::int n FROM public.f05_8_events_ci WHERE priority_id=$1",[old.priority_id]))[0].n;
+ const beforeBatch=(await q("SELECT state,attempt_count,updated_at FROM public.f05_8_handover_ci WHERE handover_id=$1",[handover.handover_id]))[0];
+ const obsolete=[
+  await initiateHandoverCI(auth,token,{priorityId:Number(old.priority_id),eventKey:kval('r13-revoked-init')}),
+  await retryHandoverCI(auth,token,{handoverId:Number(handover.handover_id),targetEmployeeId:target,eventKey:kval('r13-revoked-retry')}),
+  await arb(v,'r13-revoked-arb'),
+  await priorityProjectionCI(auth,token,{vehicleId:v.id,listingCycleId:v.cycle,customerId:Number(old.customer_id)}),
+  await releaseCI(auth,token,{priorityId:Number(old.priority_id),eventKey:kval('r13-revoked-release')})
+ ];
+ for(const denied of obsolete)assert.equal(denied.code,'F05_8_ACTOR_OBJECT_SCOPE_DENIED',JSON.stringify(denied));
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_handover_attempts_ci WHERE handover_id=$1",[handover.handover_id]))[0].n,beforeAttempts);
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_events_ci WHERE priority_id=$1",[old.priority_id]))[0].n,beforeEvents);
+ assert.deepEqual((await q("SELECT state,attempt_count,updated_at FROM public.f05_8_handover_ci WHERE handover_id=$1",[handover.handover_id]))[0],beforeBatch);
+ const writerR13=await connect();let blockedOld;
+ try{
+  await writerR13.query('BEGIN');
+  const writerPid=Number((await writerR13.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+  await writerR13.query('SELECT demand_id FROM public.demands WHERE demand_id=$1 FOR UPDATE',[old.trigger_demand_id]);
+  let done=false;
+  blockedOld=initiateHandoverCI(auth,token,{priorityId:Number(old.priority_id),eventKey:kval('r13-locked-obsolete-sales')});
+  blockedOld.then(()=>{done=true},()=>{done=true});
+  await new Promise(resolve=>setTimeout(resolve,120));
+  assert.equal(done,false,'signed Demand locks serialize obsolete actor checks');
+  await writerR13.query('COMMIT');
+  assert.equal((await blockedOld).code,'F05_8_ACTOR_OBJECT_SCOPE_DENIED');
+  console.log('F05_8_R13_REAL_TWO_PG_HISTORIC_SALES_REVOKED',JSON.stringify({writerPid,priority:Number(old.priority_id)}));
+ }finally{
+  await writerR13.query('ROLLBACK').catch(()=>{});await writerR13.end();
+  if(blockedOld)await blockedOld.catch(()=>{});
+ }
+ // Only a genuinely signed manager role may continue the protected Batch.
+ const savedSalesRole=(await q('SELECT main_role_id FROM public.employees WHERE employee_id=1'))[0].main_role_id;
+ const managerRole=(await q("SELECT role_id FROM public.roles WHERE role_code='manager'"))[0]?.role_id;
+ assert.ok(managerRole);
+ await db.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[managerRole]);
  assert.equal((await q("SELECT public.f05_8_responsible_object_scope_ci($1,$2) allowed",[old.priority_id,foreign]))[0].allowed,false);
  const cross=await retryHandoverCI(auth,token,{handoverId:Number(handover.handover_id),targetEmployeeId:foreign,
   eventKey:kval('r09-cross-team-fail-closed')});
@@ -554,6 +592,7 @@ test('8-R07 Employee invalidation auto-creates protected Handover Batch, deny an
  assert.equal(Number(now.responsible_employee_id),target);
  assert.equal(new Date(now.expires_at).getTime(),new Date(old.expires_at).getTime());
  assert.equal((await q("SELECT state FROM public.f05_8_handover_ci WHERE handover_id=$1",[handover.handover_id]))[0].state,'completed');
+ await db.query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[savedSalesRole]);
  const replay=await arb(v,'r07-completed-transfer-must-not-revert-original-employee');
  assert.equal(replay.code,'F05_8_ACTOR_OBJECT_SCOPE_DENIED','former sales owner cannot operate new owner lease');
  assert.equal(Number((await current(v))[0].responsible_employee_id),target,
