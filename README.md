@@ -1,3 +1,12 @@
+# 2026-10-12｜F05-8 A第三轮独立验收：同SHA68/68真PG16全成功，但Priority责任源/对象Scope两项未闭环，PR47正式退B（唯一最新）
+
+- **最新正式指针**：`F05_8_A_THIRD_REVIEW_CHANGES_REQUESTED_B_REWORK / PR47_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。A审查B/PR47本轮最新提交 `8b46d25be418160bee08dffa878c425485f88ffa`，对照完整施工单、PDM-13 Final §§24/25/26/31、二轮整改单R05～R07与独立源码；本批23项文件均全新、白名单内，没有修改旧签生产代码和历史迁移。
+- **保留已验证工程事实**：八个官方Push工作流H52 `38212636374` **52/52**；I2 `38212636372`、J2 `38212636299`、K2 `38212636403`、F05-4 `38212636380`、F05-5 `38212636389`、F05-6 `38212636376`各**2/2**；新F05-8 `38212636369` **4/4**，共**68/68独立真实PG16 jobs success、零skip/fail**，全部最后同SHA。原生日志旧F05-7 Source28/28 HTTPS7/7、Priority Source34/34 HTTPS10/10；双PG PID263/271竞争`SQLSTATE55P03`、R07独立后端PID272锁等待与TTL不变、v24注错回滚和结构seal均已读。四份新同SHA有效Artifact `11730350811/11730225983/11729847696/11729553952`；不跨SHA拼旧成功。B实现R05～R07的事件/状态机制保留。
+- **A独立产品安全审核阻断R08/R09**：`R08` successful `retryHandoverCI`仅改Priority.responsible，不验证签名`trigger Demand.current responsible`是否已合法变更；已完成handover后的主动仲裁另开特例固化这个不一致，34/34用例真实成功但漏测权威双源。违反PDM-13 §24/25。 `R09` target仅使用`f05_8_responsible_authorized_ci(targetEmployeeId)`在**任意其它Team/Store**存在管理权即满足，缺针对该Priority/Demand/customer的实际object scope判断，违反PDM-13 §31。详见本轮A正式可执行整改单：`07_重建工作区/F05-8_A主控三轮独立验收68项PG16通过但Priority交接源责任与对象Scope失配整改单_2026-10-12.md`、PR47 A最新审核评论。**PR47未通过，不合并**。
+- **下一唯一责任B**：继续原`feat/f05-8-priority-arbitration-ttl-handover`分支，在原v24 CI-only白名单一次性闭合R08/R09及原生真实PG16跨scope/权威责任正反例，不更改已签旧64 Job、F05-7 28/7或Priority旧34/10用例；最终更新新B/PR SHA重得**8个官方Push run同SHA68/68**及4个新非空有效Artifact、完整中文交接`READY_FOR_A_RE_RE_RE_REVIEW / NEXT_OWNER=A`，再交A独立复验。F05-9/F06未放行；生产身份/数字报价/JYT/资金等仍`SOURCE_GAP`，F05/C-H01/V1`NOT_READY`。
+
+---
+
 # 2026-10-12｜F05-8 A二轮独立验收：同SHA 68/68真实PG16全部PASS，但PDM13恢复仲裁/正式交接三项缺口，PR47继续退B（唯一最新）
 
 - **当前唯一指针**：`F05_8_A_SECOND_REVIEW_CHANGES_REQUESTED_B_REWORK / PR47_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。A独立核对[PR47](https://github.com/suzhe868-arch/mb/pull/47)最新B/PR HEAD `e873adeabc2e4a40149eb6b8c8a20a9189d69319`，23项全新增白名单；相对当前main为ahead42/behind6，后6项系A前轮主线验收和状态更新，并未授权强推/覆盖。
