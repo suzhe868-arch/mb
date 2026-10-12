@@ -235,7 +235,7 @@ CREATE VIEW public.f05_8_eligible_candidates_ci AS
 -- outage, but never bypass a revoked Customer, Demand, Match, cycle, sale,
 -- qualification or entitlement. The old signed source remains immutable.
 CREATE FUNCTION public.f05_8_handover_source_valid_ci(pid BIGINT)
-RETURNS BOOLEAN LANGUAGE sql STABLE AS $
+RETURNS BOOLEAN LANGUAGE sql STABLE AS $$
  SELECT EXISTS(
  SELECT 1 FROM public.f05_8_priority_ci p
  JOIN public.f05_7_result_versions_ci r ON r.result_id=p.source_match_result_id
@@ -262,9 +262,9 @@ RETURNS BOOLEAN LANGUAGE sql STABLE AS $
   WHERE su.customer_id=p.customer_id AND su.vehicle_id=p.vehicle_id
   AND su.listing_cycle_id=p.listing_cycle_id AND su.suppressed_source_signature=p.source_signature)
  );
-$;
+$$;
 CREATE FUNCTION public.f05_8_responsible_authorized_ci(eid BIGINT)
-RETURNS BOOLEAN LANGUAGE sql STABLE AS $
+RETURNS BOOLEAN LANGUAGE sql STABLE AS $$
  SELECT EXISTS(SELECT 1 FROM public.employees e
  JOIN public.permissions pe ON pe.permission_code='matching.rule.manage.ci.synthetic'
  JOIN public.employee_permission_overrides ov ON ov.employee_id=e.employee_id
@@ -282,7 +282,7 @@ RETURNS BOOLEAN LANGUAGE sql STABLE AS $
   AND ((ds.scope_kind='team' AND ds.scope_reference_id=t.team_id)
     OR (ds.scope_kind='store' AND ds.scope_reference_id=st.store_id))
  );
-$;
+$$;
 -- R02: signed-source mutation and Priority lifecycle reconcile atomically.
 -- The affected Vehicle row is acquired before Priority, same as JS arbitration.
 CREATE FUNCTION public.f05_8_reconcile_scope_ci(vid BIGINT,cid BIGINT)
