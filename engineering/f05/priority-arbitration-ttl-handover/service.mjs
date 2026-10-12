@@ -55,6 +55,29 @@ async function session(auth,token,teamId,fn,controlPlane=false){
   throw e;
  }
 }
+// R10: the signed F03 session is necessary but insufficient: every business
+// mutation/read must also bind the operator to the actual Priority/Demand.
+async function objectPriority(c,a,teamId,pid){
+ const p=(await c.query("SELECT public.f05_8_actor_priority_scope_ci($1,$2,$3,$4) allowed",
+ [pid,a.employeeId,a.role,teamId])).rows[0];
+ return p?.allowed?null:fail('F05_8_ACTOR_OBJECT_SCOPE_DENIED');
+}
+async function objectDemand(c,a,teamId,did){
+ const p=(await c.query("SELECT public.f05_8_actor_demand_scope_ci($1,$2,$3,$4) allowed",
+ [did,a.employeeId,a.role,teamId])).rows[0];
+ return p?.allowed?null:fail('F05_8_ACTOR_OBJECT_SCOPE_DENIED');
+}
+async function objectVehicle(c,a,teamId,vid,cycle){
+ const active=(await c.query("SELECT priority_id FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active'",
+ [vid,cycle])).rows[0];
+ if(active)return objectPriority(c,a,teamId,active.priority_id);
+ // When no Priority exists, the actual current signed Match and Demand scope
+ // must be authoritative before this caller can choose a winner.
+ const current=(await c.query("SELECT DISTINCT demand_id FROM public.f05_8_eligible_candidates_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 ORDER BY demand_id",
+ [vid,cycle])).rows;
+ for(const d of current){const denied=await objectDemand(c,a,teamId,d.demand_id);if(denied)return denied}
+ return null;
+}
 const snapshot=async(c,v,cycle)=>{
  const [vehicle,lifecycle,locked,trading]=(await Promise.all([
   c.query('SELECT vehicle_id,source_sale_status,platform_visibility,archived_at FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[v]),
@@ -196,6 +219,7 @@ async function reArbitrate(c,vehicleId,listingCycleId,runKey,employeeId,checkpoi
 export async function arbitrateCI(auth,token,{teamId=901,vehicleId,listingCycleId,runKey,checkpoint}={}){
  if(!id(vehicleId)||!id(listingCycleId)||!key(runKey))return fail('F05_8_INVALID_ARBITRATION_ARGUMENTS');
  return session(auth,token,teamId,async(c,a)=>{
+  const denied=await objectVehicle(c,a,teamId,vehicleId,listingCycleId);if(denied)return denied;
   return reArbitrate(c,vehicleId,listingCycleId,runKey,a.employeeId,checkpoint);
  });
 }
@@ -204,6 +228,9 @@ export async function setQualificationCI(auth,token,{teamId=901,customerId,enabl
  return session(auth,token,teamId,async(c,a)=>{
   const customer=(await c.query('SELECT customer_id FROM public.customers WHERE customer_id=$1 FOR UPDATE',[customerId])).rows[0];
   if(!customer)return fail('F05_8_CUSTOMER_NOT_PRESENT');
+  const scopeDemand=(await c.query("SELECT demand_id FROM public.demands WHERE customer_id=$1 AND demand_state='active' ORDER BY demand_id LIMIT 1",[customerId])).rows[0];
+  if(!scopeDemand)return fail('F05_8_ACTOR_OBJECT_SCOPE_DENIED');
+  const denied=await objectDemand(c,a,teamId,scopeDemand.demand_id);if(denied)return denied;
   if((await c.query('SELECT 1 FROM public.f05_8_events_ci WHERE event_key=$1',[eventKey])).rowCount)return ok('F05_8_QUALIFICATION_EVENT_ALREADY_APPLIED');
   const old=(await c.query('SELECT enabled FROM public.f05_8_qualification_ci WHERE customer_id=$1 FOR UPDATE',[customerId])).rows[0];
   await c.query('INSERT INTO public.f05_8_qualification_ci(customer_id,enabled,updated_by_employee_id) VALUES($1,$2,$3) ON CONFLICT(customer_id) DO UPDATE SET enabled=excluded.enabled,updated_by_employee_id=excluded.updated_by_employee_id,version=f05_8_qualification_ci.version+1,changed_at=transaction_timestamp()',[customerId,enabled,a.employeeId]);
@@ -249,6 +276,7 @@ export async function releaseCI(auth,token,{teamId=901,priorityId,eventKey}={}){
  return session(auth,token,teamId,async(c,a)=>{
   const original=(await c.query('SELECT * FROM public.f05_8_priority_ci WHERE priority_id=$1',[priorityId])).rows[0];
   if(!original||original.status!=='active')return fail('F05_8_PRIORITY_NOT_CURRENT');
+  const denied=await objectPriority(c,a,teamId,priorityId);if(denied)return denied;
   // Reconcile changed Demand/Match first. This locks Vehicle before Priority,
   // avoiding inverse-lock deadlocks and forbidding release from a stale trigger.
   await reArbitrate(c,Number(original.vehicle_id),Number(original.listing_cycle_id),eventKey+':validate',a.employeeId);
@@ -276,6 +304,9 @@ export async function priorityProjectionCI(auth,token,{teamId=901,vehicleId,list
   "LEFT JOIN public.f05_6_level_find_policy_ci fp ON fp.level_id=cs.customer_level_id "+
   "WHERE cs.customer_id=$1 FOR SHARE OF cs",[customerId])).rows[0];
  const active=(await c.query("SELECT priority_id,customer_id,responsible_employee_id FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active' AND expires_at>statement_timestamp() FOR SHARE",[vehicleId,listingCycleId])).rows[0];
+ const objectGuard=await objectVehicle(c,a,teamId,vehicleId,listingCycleId);if(objectGuard)return objectGuard;
+ const customerDemand=(await c.query("SELECT demand_id FROM public.demands WHERE customer_id=$1 AND demand_state='active' ORDER BY demand_id LIMIT 1",[customerId])).rows[0];
+ if(customerDemand){const denied=await objectDemand(c,a,teamId,customerDemand.demand_id);if(denied)return denied}
  const legalGrant=(await c.query("SELECT EXISTS(SELECT 1 FROM public.vehicle_visibility_grants vg "+
   "JOIN public.recommendations rec ON rec.recommendation_id=vg.source_recommendation_id "+
   "WHERE vg.vehicle_id=$1 AND vg.customer_id=$2 AND vg.revoked_at IS NULL AND "+
@@ -303,6 +334,7 @@ export async function initiateHandoverCI(auth,token,{teamId=901,priorityId,event
  return session(auth,token,teamId,async(c,a)=>{
   const p=(await c.query("SELECT * FROM public.f05_8_priority_ci WHERE priority_id=$1 AND status='active' FOR UPDATE",[priorityId])).rows[0];
   if(!p)return fail('F05_8_HANDOVER_NO_CURRENT_PRIORITY');
+  const denied=await objectPriority(c,a,teamId,p.priority_id);if(denied)return denied;
   const original=Number(p.responsible_employee_id);
   const h=(await c.query("INSERT INTO public.f05_8_handover_ci(priority_id,original_responsible_employee_id) VALUES($1,$2) "+
   "ON CONFLICT(priority_id) DO UPDATE SET updated_at=transaction_timestamp() RETURNING handover_id,state",[priorityId,original])).rows[0];
@@ -323,6 +355,7 @@ export async function retryHandoverCI(auth,token,{teamId=901,handoverId,targetEm
   await c.query('SELECT 1 FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[locator.vehicle_id]);
   const p=(await c.query('SELECT * FROM public.f05_8_priority_ci WHERE priority_id=$1 FOR UPDATE',[locator.priority_id])).rows[0];
   const h=(await c.query('SELECT * FROM public.f05_8_handover_ci WHERE handover_id=$1 FOR UPDATE',[handoverId])).rows[0];
+  const denied=await objectPriority(c,a,teamId,locator.priority_id);if(denied)return denied;
   if(!h||h.state==='completed')return ok('F05_8_HANDOVER_ALREADY_COMPLETED',{handled:false});
   if(!p||p.status!=='active'||new Date(p.expires_at).getTime()<=Date.now())return fail('F05_8_HANDOVER_PRIORITY_ENDED_OR_EXPIRED');
   const to=(await c.query('SELECT employment_status FROM public.employees WHERE employee_id=$1 FOR SHARE',[targetEmployeeId])).rows[0];
@@ -380,6 +413,7 @@ export async function processDuePrioritiesCI(auth,token,{teamId=901,eventKey,asO
    "WHERE status='active' AND expires_at<=$1 ORDER BY vehicle_id,listing_cycle_id,priority_id",[at])).rows;
   const settled=[];
   for(const p of due){
+   const denied=await objectPriority(c,a,teamId,p.priority_id);if(denied)return denied;
    const outcome=await reArbitrate(c,Number(p.vehicle_id),Number(p.listing_cycle_id),
     eventKey+':due:'+p.priority_id,a.employeeId,null,at);
    settled.push({priorityId:Number(p.priority_id),vehicleId:Number(p.vehicle_id),outcome:outcome.code});
