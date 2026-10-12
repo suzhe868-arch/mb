@@ -680,3 +680,68 @@ test('8-R02 Customer deactivation after fresh signed Match closes Priority befor
  const active=await current(v);
  if(active.length)assert.notEqual(Number(active[0].customer_id),899612,'disabled Customer cannot retain Priority');
 });
+
+test('8-R10 actor from unrelated Team cannot mutate or inspect another business Priority',async()=>{
+ const p=(await q("SELECT * FROM public.f05_8_priority_ci WHERE status='active' ORDER BY priority_id DESC LIMIT 1"))[0];
+ assert.ok(p,'requires active signed Priority');
+ const events=(await q("SELECT count(*)::int n FROM public.f05_8_events_ci WHERE priority_id=$1",[p.priority_id]))[0].n;
+ const handovers=(await q("SELECT count(*)::int n FROM public.f05_8_handover_ci WHERE priority_id=$1",[p.priority_id]))[0].n;
+ const original=(await q("SELECT * FROM public.teams WHERE team_id=901"))[0];assert.ok(original);
+ const clone={...original,team_id:8997991};
+ for(const k of Object.keys(clone))if(typeof clone[k]==='string'&&/name|code|title/i.test(k))clone[k]+='-r10-unrelated';
+ const keys=Object.keys(clone);
+ await db.query("INSERT INTO public.teams("+keys.map(k=>'"'+k+'"').join(',')+") VALUES("+keys.map((_,i)=>'$'+(i+1)).join(',')+")",Object.values(clone));
+ await db.query("INSERT INTO public.employee_team_memberships(team_id,employee_id,valid_from,changed_by_system_admin_id) "+
+  "SELECT 8997991,1,now()-interval '1 day',changed_by_system_admin_id FROM public.employee_team_memberships WHERE employee_id=1 AND team_id=901 LIMIT 1");
+ await db.query("INSERT INTO public.employee_data_scopes(scope_id,employee_id,scope_kind,scope_reference_id) VALUES(29997,1,'team',8997991)");
+ await db.query("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(1,1097,29997,now()-interval '1 day')");
+ const badTeam=8997991;
+ const i=await initiateHandoverCI(auth,token,{teamId:badTeam,priorityId:Number(p.priority_id),eventKey:kval('r10-cross-scope-init')});
+ assert.equal(i.code,'F05_8_ACTOR_OBJECT_SCOPE_DENIED',JSON.stringify(i));
+ const ar=await arbitrateCI(auth,token,{teamId:badTeam,vehicleId:Number(p.vehicle_id),listingCycleId:Number(p.listing_cycle_id),runKey:kval('r10-cross-scope-arb')});
+ assert.equal(ar.code,'F05_8_ACTOR_OBJECT_SCOPE_DENIED',JSON.stringify(ar));
+ const proj=await priorityProjectionCI(auth,token,{teamId:badTeam,vehicleId:Number(p.vehicle_id),listingCycleId:Number(p.listing_cycle_id),customerId:Number(p.customer_id)});
+ assert.equal(proj.code,'F05_8_ACTOR_OBJECT_SCOPE_DENIED',JSON.stringify(proj));
+ const rel=await releaseCI(auth,token,{teamId:badTeam,priorityId:Number(p.priority_id),eventKey:kval('r10-cross-scope-release')});
+ assert.equal(rel.code,'F05_8_ACTOR_OBJECT_SCOPE_DENIED',JSON.stringify(rel));
+ const h=(await q("SELECT handover_id FROM public.f05_8_handover_ci WHERE priority_id=$1",[p.priority_id]))[0];
+ if(h){
+  const retry=await retryHandoverCI(auth,token,{teamId:badTeam,handoverId:Number(h.handover_id),targetEmployeeId:8997501,eventKey:kval('r10-cross-scope-retry')});
+  assert.equal(retry.code,'F05_8_ACTOR_OBJECT_SCOPE_DENIED',JSON.stringify(retry));
+ }
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_handover_ci WHERE priority_id=$1",[p.priority_id]))[0].n,handovers);
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_events_ci WHERE priority_id=$1",[p.priority_id]))[0].n,events);
+ assert.equal((await q("SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1",[p.priority_id]))[0].status,'active');
+ console.log('F05_8_R10_CROSS_OBJECT_DENIED',JSON.stringify({priority:Number(p.priority_id),team:badTeam}));
+});
+test('8-R11 pending high Match revoked, and pending owner drift without re-sign, both end without manual arb',async()=>{
+ const v=vehicles[2],customerId=899613;
+ await db.query("UPDATE public.vehicle_listing_cycles SET ended_at=NULL WHERE listing_cycle_id=$1",[v.cycle]);
+ const enabled=await qualification(customerId,true,'r11-re-enable-customer');
+ assert.equal(enabled.allowed,true,JSON.stringify(enabled));
+ const d=(await q("SELECT d.demand_id FROM public.demands d JOIN public.f05_7_sales_condition_ci sc ON sc.demand_id=d.demand_id WHERE d.customer_id=$1 AND d.demand_state='active' ORDER BY d.demand_id LIMIT 1",[customerId]))[0];
+ assert.ok(d,'signed Demand with sales condition');
+ const signed=await reSign(v,d.demand_id,'r11-first-signature');
+ let p=(await current(v))[0];assert.ok(p,'new true current Match reopens only fresh lease');
+ assert.equal(Number(p.customer_id),customerId);
+ const first=p;
+ const h=await initiateHandoverCI(auth,token,{priorityId:Number(p.priority_id),eventKey:kval('r11-stale-pending-init')});
+ assert.equal(h.allowed,true,JSON.stringify(h));
+ await db.query("UPDATE public.f05_7_result_versions_ci SET status='stale' WHERE result_id=$1",[signed.result_id]);
+ assert.equal((await q("SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1",[first.priority_id]))[0].status,'ended');
+ assert.equal((await current(v)).length,0);
+ await db.query("UPDATE public.f05_7_vehicle_facts_ci SET fact_version=fact_version+1 WHERE vehicle_id=$1 AND listing_cycle_id=$2",[v.id,v.cycle]);
+ await reSign(v,d.demand_id,'r11-second-signature');
+ p=(await current(v))[0];assert.ok(p,'fresh legitimate signed Match returns new Priority');
+ assert.notEqual(Number(p.priority_id),Number(first.priority_id));
+ const second=p;
+ const h2=await initiateHandoverCI(auth,token,{priorityId:Number(second.priority_id),eventKey:kval('r11-drift-pending-init')});
+ assert.equal(h2.allowed,true,JSON.stringify(h2));
+ await db.query("UPDATE public.customers SET current_owner_employee_id=8997501 WHERE customer_id=$1",[customerId]);
+ assert.equal((await q("SELECT status FROM public.f05_7_result_versions_ci WHERE result_id=$1",[second.source_match_result_id]))[0].status,'stale');
+ assert.equal((await q("SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1",[second.priority_id]))[0].status,'ended','owner drift without current Match must end pending at COMMIT');
+ const retry=await retryHandoverCI(auth,token,{handoverId:h2.handoverId,targetEmployeeId:8997501,eventKey:kval('r11-stale-retry-deny')});
+ assert.equal(retry.allowed,false);
+ assert.equal((await q("SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1",[first.priority_id]))[0].status,'ended','old history not revived');
+ console.log('F05_8_R11_PENDING_MATCH_STALE_DENIED',JSON.stringify({first:Number(first.priority_id),second:Number(second.priority_id)}));
+});
