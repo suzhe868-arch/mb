@@ -1,0 +1,53 @@
+name: F05-7 frozen frozen-i2
+on:
+  push:
+    branches: [feat/f05-7-deterministic-matching-readiness-four-tier]
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  i-source:
+    name: F05-3I source true nonprivileged PostgreSQL16 v19 Favorite preconversion test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    timeout-minutes: 40
+    permissions: {contents: read}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with: {node-version: '22.16.0'}
+    - run: bash engineering/f05/favorite-conversion-v19-compat/ci-job.sh source
+    - uses: actions/upload-artifact@v4
+      with:
+        name: f05-3i-source-native-evidence
+        path: engineering/f05/favorite-conversion-v19-compat/artifacts/source/
+        retention-days: 30
+        if-no-files-found: error
+  i-https:
+    name: F05-3I https true nonprivileged PostgreSQL16 v19 Favorite preconversion test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    timeout-minutes: 40
+    permissions: {contents: read}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with: {node-version: '22.16.0'}
+    - run: bash engineering/f05/favorite-conversion-v19-compat/ci-job.sh https
+    - uses: actions/upload-artifact@v4
+      with:
+        name: f05-3i-https-native-evidence
+        path: engineering/f05/favorite-conversion-v19-compat/artifacts/https/
+        retention-days: 30
+        if-no-files-found: error
