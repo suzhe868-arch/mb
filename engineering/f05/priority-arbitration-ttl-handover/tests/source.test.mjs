@@ -214,3 +214,37 @@ test('8-A18 audit is immutable and full real PG facts preserved in native source
   JSON.stringify({events:after,digest:createHash('sha256').update(JSON.stringify(after)).digest('hex'),
    pids:race,CIOnly:true},null,2)+'\n');
 });
+
+test('8-A19 separate synthetic qualification control-plane permission denial cannot grant Priority',async()=>{
+ const before=Number((await q('SELECT count(*)::int n FROM public.f05_8_events_ci'))[0].n);
+ await db.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=1 AND permission_id=1098");
+ try{
+  const denied=await qualification(899614,true,'untrusted-qualify-when-control-denied');
+  assert.equal(denied.allowed,false,JSON.stringify(denied));
+  assert.equal(denied.code,'F05_8_PERMISSION_OR_DATA_SCOPE_DENIED');
+  assert.equal((await q('SELECT count(*)::int n FROM public.f05_8_events_ci'))[0].n,before);
+  assert.equal((await q('SELECT count(*)::int n FROM public.f05_8_qualification_ci WHERE customer_id=899614'))[0].n,0);
+ }finally{
+  await db.query("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=1 AND permission_id=1098");
+ }
+});
+test('8-A20 true signed Transaction begins on formerly protected Vehicle and ends Priority, never revives old lease',async()=>{
+ const v=vehicles[3],old=(await current(v))[0];assert.ok(old);
+ // Synthetic cancelled source Lock has a real signed composite FK; unlike an active
+ // Lock it must NOT end Priority. Transaction in_progress then ends it.
+ await db.query("INSERT INTO public.locks(lock_id,customer_id,vehicle_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) "+
+  "VALUES(8997090,899612,$1,$2,'cancelled',1,now()-interval '5 minute',now()+interval '2 hours')",[v.id,v.cycle]);
+ assert.equal((await current(v)).length,1,'nonactive Lock is no false takeover');
+ await db.query("INSERT INTO public.transactions(transaction_id,source_lock_id,customer_id,vehicle_id,listing_cycle_id,status,responsible_employee_id) "+
+  "VALUES(8997090,8997090,899612,$1,$2,'in_progress',1)",[v.id,v.cycle]);
+ assert.equal((await current(v)).length,0);
+ const ended=(await q('SELECT status,ended_reason FROM public.f05_8_priority_ci WHERE priority_id=$1',[old.priority_id]))[0];
+ assert.equal(ended.status,'ended');assert.equal(ended.ended_reason,'transaction_started');
+ const blocked=await arb(v,'txn-prevents-new-priority');assert.equal(blocked.created,false);
+ assert.equal(blocked.trading,1);
+ await db.query("UPDATE public.transactions SET status='cancelled' WHERE transaction_id=8997090");
+ assert.equal((await q('SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1',[old.priority_id]))[0].status,'ended',
+  'Transaction cancellation must never revive historical Priority');
+ const after=await arb(v,'txn-correction-requires-new-signed-match');
+ assert.equal(after.created,false,'F05-7 invalidated Match from physical Lock change; stale source cannot create Priority');
+});
