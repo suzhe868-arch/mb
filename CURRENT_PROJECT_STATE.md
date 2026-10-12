@@ -1,3 +1,11 @@
+# 2026-10-12｜F05-9 A首次独立审查：70/70真PG16通过但PDM14四项实证未闭环，PR48退B（现行）
+
+- **正式状态**：`F05_9_A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK / PR48_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。正式审查B HEAD `019ddc76e760b390265c017efed72a56aca65d8b`。A独立确认9条真正Push同SHA 70/70非特权PG16 Success、6份有效同SHA Push Artifact；Source12/12、HTTPS7/7、旧F05-8 Source37/HTTPS10、F05-7 Source28/HTTPS7，v25 rollback/seal均PASS。**这些成功证据保留**；但不能自动满足本批PDM14全合同审查。
+- **四项独立产品审查阻断**：R01完全无其他Customer真正Priority占优后B旧Recommendation/Grant/价权历史保留、客户端/Share抑制与Priority结束恢复的真PG；R02无Level find off/on及多角色/跨Team Scope合法授权与撤权、Customer owner变更反例，现`sourceAuth(forTermination:true)`仍强制当前Customer active+find entitlement，存在禁用/降级后历史end/void闭锁风险；R03无价格咨询→后补数字价、调价快照不改、批发同车同cycle转名邦保权/新cycle不继承的真PG；R04无实际Lock/Transaction仍合法推荐、Manager/StoreHead/4S/个人deny正反例和双新车合法逐车批量/独立双PG跨域竞争的物理验证。这些是已正式放行的PDM14 Final及F05-9施工单必须项，不声称未测就必有代码bug。
+- **唯一B下一施工**：保持`feat/f05-9-recommendation-visibility-grants`，仅F05-9新CI-only白名单一次性补全R01～R04，保留既有12/7及旧68全部真PG16测试；新B最终SHA仍须重新9官方Push同SHA至少70/70 success、6份有效同SHA Push Artifact及全套真实新负例/SQL seal/中文交接，正式`READY_FOR_A_SECOND_INDEPENDENT_REVIEW`后再交A。不合并PR48、不启动F06、无生产Issuer/JYT/微信/价格/资金/UAT授权，F05/C-H01/V1继续`NOT_READY`。**完整中文整改单：`07_重建工作区/F05-9_A主控首次独立验收70项真PG16全绿但PDM14跨域权限与权益生命周期缺证整改单_2026-10-12.md`**。
+
+---
+
 # 2026-10-12｜F05-8 A第六轮独立终验PASS，PR47真实合并；F05-9 PDM14完整施工单已正式放行B（唯一最新）
 
 - **唯一当前状态**：`F05_8_A_FINAL_ACCEPTED_MERGED_PR47 / F05_9_A_RELEASED_FOR_B / NEXT_OWNER=B / V1_NOT_READY`。A已对最后B工程HEAD `1dc08927b6b11e2327050d55e6f72f6f19984e8e`独立复核R01～R13及PDM-02/03/13，并在PR47签署`A_ACCEPTED`（[正式评论](https://github.com/suzhe868-arch/mb/pull/47#issuecomment-6123630533)）；标准GitHub merge已实际返回`merged=true`，**merge SHA `d37b3fc9e44f4affd3b611c38c7c303bac93acb2`**。不是B_SELF_TESTED充当A验收，也不是只有评论未合并。验收/合并中文全记录：`07_重建工作区/F05-8_A主控第六轮独立验收68项PG16通过_PR47正式合并与F05-9技术接力_2026-10-12.md`。
