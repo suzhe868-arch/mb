@@ -960,9 +960,26 @@ test('8-R12 remote Manager and StoreHead require explicit live object Store/Team
  // R12 same-Store different-Team: a store-head explicitly granted Store A
  // scope must access Team 901's physical object even without membership in
  // Team 901. The employee's unrelated Team membership is not a grant.
- const home=(await q("SELECT priority_id,vehicle_id,listing_cycle_id,customer_id FROM public.f05_8_priority_ci "+
-  "WHERE origin_team_id=901 AND origin_store_id=$1 AND status='active' ORDER BY priority_id DESC LIMIT 1",[mainStore.store_id]))[0];
- assert.ok(home,'real original-store Priority from earlier independent Source');
+ // The earlier R02/R04/R11 tests intentionally ended every home Priority.
+ // Never rely on historic active rows: terminate this remote-only signed
+ // lease, then COMMIT a fresh CURRENT home owner and a newly signed result,
+ // producing an independent immutable home Store/Team Priority.
+ await db.query("UPDATE public.f05_7_result_versions_ci SET status='stale' WHERE result_id=$1",[p.source_match_result_id]);
+ assert.equal((await q("SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1",[p.priority_id]))[0].status,'ended',
+  'remote Priority cannot be reused as a different-store object');
+ await db.query('BEGIN');
+ try{
+  await db.query('UPDATE public.customers SET current_owner_employee_id=1 WHERE customer_id=$1',[customerId]);
+  await db.query('UPDATE public.demands SET responsible_employee_id=1 WHERE customer_id=$1',[customerId]);
+  await db.query('UPDATE public.f05_7_vehicle_facts_ci SET fact_version=fact_version+1 WHERE vehicle_id=$1 AND listing_cycle_id=$2',[v.id,v.cycle]);
+  await reSign(v,d.demand_id,'r12-home-store-fresh-current-source');
+  await db.query('COMMIT');
+ }catch(e){await db.query('ROLLBACK');throw e}
+ const home=(await current(v))[0];
+ assert.ok(home,'fresh signed home Store source must create its own new Priority');
+ assert.notEqual(Number(home.priority_id),Number(p.priority_id),'an ended remote Priority ID is immutable');
+ assert.equal(Number(home.origin_team_id),901);
+ assert.equal(Number(home.origin_store_id),Number(mainStore.store_id));
  await db.query("INSERT INTO public.employee_data_scopes(scope_id,employee_id,scope_kind,scope_reference_id) VALUES(29995,1,'store',$1)",[mainStore.store_id]);
  await db.query("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(1,1097,29995,now()-interval '1 day')");
  await db.query("UPDATE public.employee_team_memberships SET ended_at=now() WHERE employee_id=1 AND team_id=901 AND ended_at IS NULL");
