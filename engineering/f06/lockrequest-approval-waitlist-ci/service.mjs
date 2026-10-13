@@ -54,10 +54,31 @@ async function scope(c,actor,team){
  return !!result;
 }
 async function priority(c,customer,vehicle,cycle){
- const p=await one(c,"SELECT priority_id,customer_id FROM public.f05_8_priority_ci "+
- "WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active' "+
- "AND expires_at>clock_timestamp() LIMIT 1 FOR SHARE",[vehicle,cycle]);
- return {rival:p&&String(p.customer_id)!==String(customer),same:p&&String(p.customer_id)===String(customer)?p:null};
+ const p=await one(c,"SELECT priority_id,customer_id,vehicle_id,listing_cycle_id,trigger_demand_id,"+
+ "source_match_result_id,source_signature,expires_at FROM public.f05_8_priority_ci "+
+ "WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active' AND expires_at>clock_timestamp() "+
+ "LIMIT 1 FOR SHARE",[vehicle,cycle]);
+ return {rival:!!p&&String(p.customer_id)!==String(customer),same:p&&String(p.customer_id)===String(customer)?p:null};
+}
+// Signed v24 trigger performs the SAME-TX state change on public.locks INSERT.
+// Fail closed unless exact original Priority became ended/converted_to_lock;
+// record a signed immutable Priority event with the real approver and lock.
+async function closeSignedPriorityForLock(c,original,lockId,approver){
+ if(!original)return null;
+ const p=await one(c,"SELECT p.* FROM public.f05_8_priority_ci p "+
+ "JOIN public.f05_7_result_versions_ci r ON r.result_id=p.source_match_result_id "+
+ "AND r.demand_id=p.trigger_demand_id AND r.vehicle_id=p.vehicle_id "+
+ "AND r.listing_cycle_id=p.listing_cycle_id AND r.source_signature=p.source_signature "+
+ "WHERE p.priority_id=$1 FOR SHARE",[original.priority_id]);
+ if(!p||p.status!=='ended'||p.ended_reason!=='converted_to_lock'||!p.ended_at||
+  String(p.customer_id)!==String(original.customer_id))throw Error('F06_1_PRIORITY_NOT_ATOMICALLY_CONVERTED');
+ const eventKey='f06-1-priority-to-lock:'+p.priority_id+':'+lockId;
+ await c.query("INSERT INTO public.f05_8_events_ci(priority_id,customer_id,vehicle_id,event_kind,actor_employee_id,before_json,after_json,event_key) "+
+ "VALUES($1,$2,$3,'ended',$4,$5::jsonb,$6::jsonb,$7)",
+ [p.priority_id,p.customer_id,p.vehicle_id,approver,
+ JSON.stringify({status:'active',triggerDemandId:p.trigger_demand_id,matchResultId:p.source_match_result_id}),
+ JSON.stringify({status:'ended',reason:'converted_to_lock',lockId,endedAt:p.ended_at}),eventKey]);
+ return Number(p.priority_id);
 }
 async function access(c,customer,vehicle,cycle,{checkHidden=true}={}){
  // Caller holds Vehicle FOR UPDATE before all checks, even during two-backend competition.
@@ -96,6 +117,64 @@ async function finish(c,req,status,actorKind,actorId,suffix,wait=null){
  await c.query("UPDATE public.lock_requests SET status=$2,resulting_waitlist_id=$3,processed_by=$4 WHERE lock_request_id=$1 AND status='pending'",
  [req.lock_request_id,status,wait,actorKind==='employee'?actorId:null]);
  await event(c,req.lock_request_id,status,actorKind,actorId,suffix,req.status,status,null,wait);
+}
+// Synthetic Customer-only current PG16 projection; production issuer remains closed.
+export async function customerLockProjectionCI(c,p={}){
+ gate();
+ if(!id(p.customerId)||!id(p.vehicleId)||!id(p.listingCycleId)||p.syntheticCustomerProof!==PROOF)
+  return no('F06_1_CUSTOMER_PROJECTION_ISSUER_REQUIRED');
+ await verify(c);
+ await c.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
+ try{
+  const who=await one(c,'SELECT account_status FROM public.customers WHERE customer_id=$1',[p.customerId]);
+  if(!who||who.account_status!=='active'){
+   await c.query('COMMIT');return no('F06_1_CUSTOMER_PROJECTION_ACCOUNT_DENIED');
+  }
+  const v=await one(c,'SELECT * FROM public.vehicles WHERE vehicle_id=$1',[p.vehicleId]);
+  const cy=await one(c,'SELECT ended_at FROM public.vehicle_listing_cycles WHERE vehicle_id=$1 AND listing_cycle_id=$2',[p.vehicleId,p.listingCycleId]);
+  if(!v||!cy||cy.ended_at||!SALE(v)){
+   await c.query('COMMIT');return no('F06_1_CUSTOMER_PROJECTION_SOURCE_UNAVAILABLE');
+  }
+  const activePriority=await one(c,"SELECT customer_id FROM public.f05_8_priority_ci "+
+   "WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active' AND expires_at>clock_timestamp() LIMIT 1",
+   [p.vehicleId,p.listingCycleId]);
+  const lock=await one(c,"SELECT l.lock_id,l.customer_id,l.lock_status,s.priority_origin_id,"+
+   "s.priority_origin_customer_id FROM public.locks l "+
+   "LEFT JOIN f06_1_lock_ci.lock_snapshots s ON s.lock_id=l.lock_id "+
+   "WHERE l.vehicle_id=$1 AND l.lock_status='active' ORDER BY l.lock_id LIMIT 1",[p.vehicleId]);
+  if(lock?.priority_origin_id!==null&&lock?.priority_origin_id!==undefined){
+   const signed=await one(c,"SELECT p.priority_id FROM public.f05_8_priority_ci p "+
+    "JOIN public.f05_8_events_ci e ON e.priority_id=p.priority_id AND e.event_kind='ended' AND e.event_key=$2 "+
+    "WHERE p.priority_id=$1 AND p.status='ended' AND p.ended_reason='converted_to_lock' "+
+    "AND p.customer_id=$3 AND p.vehicle_id=$4 AND p.listing_cycle_id=$5",
+    [lock.priority_origin_id,'f06-1-priority-to-lock:'+lock.priority_origin_id+':'+lock.lock_id,
+     lock.customer_id,p.vehicleId,p.listingCycleId]);
+   if(!signed||String(lock.priority_origin_customer_id)!==String(lock.customer_id)){
+    await c.query('COMMIT');return no('F06_1_PRIORITY_LOCK_ORIGIN_UNVERIFIED');
+   }
+   if(String(lock.customer_id)!==String(p.customerId)){
+    await c.query('COMMIT');return no('F06_1_OTHER_CUSTOMER_PRIORITY_ORIGIN_LOCK_DENIED',{listVisible:false,detailVisible:false});
+   }
+  }else if(activePriority&&String(activePriority.customer_id)!==String(p.customerId)){
+   await c.query('COMMIT');return no('F06_1_OTHER_CUSTOMER_ACTIVE_PRIORITY_DENIED',{listVisible:false,detailVisible:false});
+  }
+  const ownPriority=lock?.priority_origin_id!==null&&lock?.priority_origin_id!==undefined&&
+   String(lock.customer_id)===String(p.customerId);
+  let visible=v.platform_visibility==='visible'||ownPriority||
+   !!(activePriority&&String(activePriority.customer_id)===String(p.customerId));
+  if(!visible){
+   const g=await one(c,"SELECT g.grant_id FROM public.vehicle_visibility_grants g "+
+    "JOIN public.recommendations r ON r.recommendation_id=g.source_recommendation_id "+
+    "WHERE g.customer_id=$1 AND g.vehicle_id=$2 AND r.listing_cycle_id=$3 "+
+    "AND g.revoked_at IS NULL AND r.status='active' LIMIT 1",
+    [p.customerId,p.vehicleId,p.listingCycleId]);
+   visible=!!g;
+  }
+  const response=visible?ok('F06_1_CUSTOMER_VEHICLE_SAFE_PROJECTION',
+   {listVisible:true,detailVisible:true,lockStatus:lock?'locked':'available',canCreateAnotherActiveLock:!lock}):
+   no('F06_1_CUSTOMER_UNDERLYING_VISIBILITY_DENIED',{listVisible:false,detailVisible:false});
+  await c.query('COMMIT');return response;
+ }catch(e){await c.query('ROLLBACK');throw e}
 }
 export function productionIssuerDeny(){return no('F06_1_PRODUCTION_LOCK_ISSUERS_NOT_WIRED')}
 export async function intakeCI(c,p={}){
@@ -241,13 +320,16 @@ export async function decisionCI(auth,token,p={}){
   const lock=await one(c,"INSERT INTO public.locks(lock_id,vehicle_id,customer_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at,source_lock_request_id) "+
    "VALUES($1,$2,$3,$4,'active',$5,$6,$6::timestamptz+make_interval(hours=>$7),$8) RETURNING lock_id,created_at,expires_at",
    [lockId,req.vehicle_id,req.customer_id,req.listing_cycle_id,Number(v.origin.employee_id),now.now,pol.lock_hours,req.lock_request_id]);
-  await c.query("INSERT INTO f06_1_lock_ci.lock_snapshots(lock_id,approver_employee_id,responsible_employee_id,customer_id,price_kind,price_cents,source_price_event_id,initial_hours,policy_version,priority_origin_customer_id) "+
-   "VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)",
+  const signedPriorityId=await closeSignedPriorityForLock(c,v.priority,lockId,a.employee_id);
+  await c.query("INSERT INTO f06_1_lock_ci.lock_snapshots(lock_id,approver_employee_id,responsible_employee_id,customer_id,price_kind,price_cents,source_price_event_id,initial_hours,policy_version,priority_origin_customer_id,priority_origin_id) "+
+   "VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)",
    [lockId,a.employee_id,v.origin.employee_id,req.customer_id,snapshotPrice,price?.amount_cents??null,
-    price?.price_event_id??null,pol.lock_hours,pol.policy_version,v.priority?req.customer_id:null]);
+    price?.price_event_id??null,pol.lock_hours,pol.policy_version,signedPriorityId?req.customer_id:null,signedPriorityId]);
   await c.query("UPDATE public.lock_requests SET status='approved',resulting_lock_id=$2,processed_by=$3 WHERE lock_request_id=$1 AND status='pending'",
    [req.lock_request_id,lockId,a.employee_id]);
   await event(c,req.lock_request_id,'approved','employee',a.employee_id,p.requestKey,req.status,'approved',lockId,null);
+  if(p.testCheckpoint==='AFTER_PRIORITY_END_EVENT_THROW'&&process.env.GITHUB_ACTIONS==='true')
+    throw Object.assign(new Error('F06_1_INJECTED_PRIORITY_ATOMIC_ROLLBACK'),{code:'F06_1_INJECTED_PRIORITY_ATOMIC_ROLLBACK'});
   if(p.testCheckpoint==='AFTER_LOCK_WRITE_THROW'&&process.env.GITHUB_ACTIONS==='true')
     throw Object.assign(new Error('F06_1_INJECTED_TX_ROLLBACK'),{code:'F06_1_INJECTED_TX_ROLLBACK'});
   const others=(await c.query("SELECT * FROM public.lock_requests WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='pending' ORDER BY created_at,lock_request_id FOR UPDATE",
@@ -257,7 +339,7 @@ export async function decisionCI(auth,token,p={}){
    outcome:await conflict(c,other,lockId,a.employee_id,p.requestKey)});
   return ok('F06_1_APPROVED_ATOMIC_LOCK',{requestId:Number(req.lock_request_id),lockId,approverEmployeeId:Number(a.employee_id),
    responsibleEmployeeId:Number(v.origin.employee_id),priceKind:snapshotPrice,initialHours:pol.lock_hours,
-   policyVersion:pol.policy_version,priorityOrigin:!!v.priority,expiresAt:lock.expires_at,backendPid:(await one(c,'SELECT pg_backend_pid() pid')).pid,
+   policyVersion:pol.policy_version,priorityOrigin:!!signedPriorityId,priorityOriginId:signedPriorityId,expiresAt:lock.expires_at,backendPid:(await one(c,'SELECT pg_backend_pid() pid')).pid,
    competing:outcomes});
  },{normalOnly:true});
  return result||no('F06_1_SIGNED_SESSION_DENIED');
