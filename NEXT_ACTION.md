@@ -1,3 +1,12 @@
+# 2026-10-13｜F05-10 A第二轮独立验收：72/72真PG16全部成功但R02/R03/R04部分原生合同缺证，PR49继续退B（唯一最新）
+
+- **唯一正式状态**：`F05_10_A_SECOND_REVIEW_CHANGES_REQUESTED_B_REWORK / PR49_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。A审B最后HEAD `609edea9dddbdbe814a108e6edeed58a540dac3e`，24项F05-10新CI-only白名单，PR49 open / merged=false。十条真正GitHub Push全部同最终SHA且completed/success，完整H52用官方per_page=100查出52/52，旧新合计**72/72独立非特权PG16 Job成功**；新Source**24/24**、HTTPS**7/7**、v26错误注入ROLLBACK/签名旧Ledger/Catalog Seal成功；**八份**同SHA非空未过期原生Artifact及官方SHA256 Digest均经GitHub核实。
+- **A正式承认的已闭环**：R01自动assignee Pending Guard（Employee inactive/个人deny/Scope撤销时源事务物化）、真双PG COMMIT/55P03、Manager合法接管与不可变交接收据；R02真实Recommendation与Demand/Owner、跨Store经理/店长正例、4S员工否例；R03可信合成真人证据反伪、配置快照、Hold剩余时间、双PG disable/followup；R04四态、正常/无效终结、offline旧咨询保留、4S车源、客户安全投影。这些已成功的业务与测试均保留。
+- **二轮仅剩三组已签施工单实证阻断**：R02缺**真实公海/pending经PDM03/17合法形成Owner后的正例**，缺CI有效System Admin及inactive/deny/越Scope目标handover完整负例；R03所谓“DND/quiet不暂停SLA”测试只用1秒普通超时，没有实际DND/quiet源事实，且disable COMMIT与resume/withdraw竞争、Hold治理终结/重复事件欠真实PG时序；R04跨域count/hash只夹**一次普通followup**，没有create→touch→handover→close/invalid全过程；缺真实其他Customer Priority压制/恢复咨询隔离的原生正反例。未测不等于已存在bug，但合同验收不得凭72绿灯替代。
+- **当前完整A正式整改单**：`07_重建工作区/F05-10_A主控二轮独立验收72项真PG16全绿但公海授权DND并发与跨域全生命周期缺证整改单_2026-10-13.md`，继续原`feat/f05-10-consultation-assignee-sla`，仅F05-10新增CI-only白名单一次性补余项；R01已通过，不允许删弱旧70、原24 Source/7 HTTPS与旧签名账。下一**新唯一B HEAD**须重新十条真Push同SHA **≥72/72 PG16全成功**、至少八份该SHA有效Push原生Artifact、新Source增加真正用例及双PG/Source/权限/数据不变性中文证据，正式`READY_FOR_A_THIRD_INDEPENDENT_REVIEW`交A。**本轮不A_ACCEPTED、不合并PR49、不启动F06/生产**；真微信/手机号/电话/JYT/资金等继续SOURCE_GAP，F05/C-H01/V1仍`NOT_READY`。
+
+---
+
 # 2026-10-13｜F05-10 A首轮独立验收72/72真PG16通过但PDM15业务实证R01～R04未闭环，PR49退B（唯一最新）
 
 - **唯一正式状态**：`F05_10_A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK / PR49_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。A独立审最后B HEAD `a3bde06e7615a9fcab2d16ed6ac1ec8e23d3ce2b`，PR49 24新增CI-only白名单文件未碰旧签F03/F04/F05-1～9/迁移/生产。**十条真正GitHub Push同SHA、72/72独立非特权PG16 Success、0skip/fail；八份本SHA原生有效Artifact**，原Source12/12、HTTPS7/7、v26注错ROLLBACK/旧LedgerCatalog seal均Pass。这些工程证据保留，不等于全部PDM15业务矩阵已获真实验证。
