@@ -1,3 +1,11 @@
+# 2026-10-13｜F05-10-D1 A首轮独立验收72/72真PG16全绿但四项保护合同未闭环，PR50退B（唯一最新）
+
+- **唯一正式状态**：`F05_10_D1_A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK / PR50_OPEN_NOT_MERGED / PR49_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。A独立审B PR50 HEAD `43e94834ba1e805b3222fad45d84b3169ab29b01`，24个文件全部新D1 CI-only白名单，全部十条真正GitHub Push事件同SHA且completed/success、H52官方52/52、合计72/72非超级用户PG16成功，D1 Source18/18、HTTPS7/7、真实双backend竞争、注错rollback/旧账/catalogseal、8份同SHA非空未过期官方SHA256原生Artifact均已核实；这些成果保留。
+- **A还不能签字的四项真实问题**：R01 D1 `protection()`只检查旧`priority_leases`且只检查`transactions.in_progress`，漏现行F05-8 v24 Priority `f05_8_priority_ci`与已签`trading/pending/active`在途范围；R02 `serviceAssignCI`从预筛接客池只尝试employeeId最小一人，其Store/Team/object业务资格若失效，就放弃合法下一个；R03虽然源码有`cooldown_seconds`，D1-S09仅测日额度，缺真PG16非零冷却/到期/配置变更实证；R04 `acquire()`在当前Permission/Scope再验证前返回旧requestKey内部`ownerId/receiptId`，当前失权人员仍可幂等读取。尚未构造可在正式产品发生的实际漏洞不等于安全合同已签PASS；B需按当前PDM17签版实测/修复。
+- **完整唯一正式A整改单**：`07_重建工作区/F05-10-D1_A主控首轮独立验收与四项整改_2026-10-13.md`。B继续原`feat/f05-10-d1-pdm17-public-pool-owner-claim`原CI-only新增白名单，一次性修R01–R04；保留原Source18/HTTPS7及旧70，最后新B HEAD重跑10真Push同SHA至少72/72独立PG16 success、8份新SHA有效原生Artifact，Source新增当前Priority/交易/候选回退/冷却/撤权幂等物理正反例与完整中文`READY_FOR_A_SECOND_INDEPENDENT_REVIEW`交A。**PR50不合并；原PR49继续阻断，不启动F06/生产，F05/C-H01/V1保持NOT_READY**。真微信/手机号/JYT/资金等继续SOURCE_GAP，无用户新产品裁决。
+
+---
+
 # 2026-10-13｜F05-10 A第三轮独立验收72/72真PG16通过，PDM17公海Owner首次合法认领来源缺口裁决；F05-10-D1独立前置正式放行B（唯一最新）
 
 - **唯一正式状态**：`F05_10_A_THIRD_REVIEW_SOURCE_GAP_PDM17 / F05_10_D1_A_RELEASED_FOR_B / PR49_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。A独立验收B PR49最终HEAD `d280a37ef6337156ecc2301bbea7f1383d7d82e5`：24个新增CI-only白名单文件，十条GitHub真正`event=push`同SHA `completed/success`，**72/72独立非特权PostgreSQL16 Job成功、零fail/skip**，H52真52/52，F05-10 Source**30/30**及HTTPS**7/7**，v26错误注入回滚/旧签名Ledger/Catalog seal通过；**8份**同SHA非空未过期带GitHub官方SHA256的Push原生Artifact。
