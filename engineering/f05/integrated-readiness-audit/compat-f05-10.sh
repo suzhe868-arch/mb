@@ -21,7 +21,7 @@ if [[ "$mode" = source ]];then
  grep -q '# tests 4' "$out/native-remediation-source.log"
  grep -q '# pass 4' "$out/native-remediation-source.log"
  grep -q '# fail 0' "$out/native-remediation-source.log"
- echo F05_11_REAL_SOURCE_TOTAL_28_AND_R01_R02_R03
+ echo F05_11_REAL_SOURCE_TOTAL_29_AND_R01_R02_R03
 fi
 if [[ "$mode" = https ]];then grep -q '# tests 8' "$out/native-readonly-https.log";fi
 node f05/integrated-readiness-audit/evidence.mjs "$mode"
@@ -34,7 +34,7 @@ echo F05_11_NATIVE_REAL_PG16_$mode
 EOT
 # v25 signed Grant Service runs before the immutable v26 application, in this disposable source job.
 if [[ "$mode" = source ]];then
- sed -i '/^node f05\\/consultation-assignee-sla\\/runner.mjs --apply$/i node f05/integrated-readiness-audit/pre-v26-grant.mjs' "$scratch"
+ sed -i '/^node .*consultation-assignee-sla.*runner.mjs --apply$/i node f05/integrated-readiness-audit/pre-v26-grant.mjs' "$scratch"
  grep -q 'pre-v26-grant.mjs' "$scratch"
 fi
 bash "$scratch" "$mode"
