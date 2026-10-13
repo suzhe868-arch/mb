@@ -626,3 +626,34 @@ test('10-R04 residual entire create-touch-followup-handover-close-invalid lifecy
  await q("UPDATE public.pc_login_accounts SET credential_state='disabled',force_password_change=true WHERE account_id=5");
  console.log('F05_10_R04_FULL_LIFECYCLE_CROSS_DOMAIN_COUNT_AND_HASH',{vehicleId:Number(car),customerId:Number(who),originalId:opened.consultationId,invalidId:reopened.consultationId,tables:Object.keys(before),signedHandoverReceipts:history.n});
 });
+
+
+test('10-R03 residual two PG resume request is fenced by concurrent Customer disable COMMIT and keeps remaining milliseconds',async()=>{
+ const fresh=await freshResidualConsultation();const id=fresh.consultationId,who=fresh.customerId;
+ await q("UPDATE public.customers SET account_status='disabled' WHERE customer_id=$1",[who]);
+ const frozen=(await q('SELECT remaining_ms,original_deadline,customer_disabled_hold FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[id]))[0];
+ assert.equal(frozen.customer_disabled_hold,true);assert.ok(Number(frozen.remaining_ms)>=0);
+ await q("UPDATE public.customers SET account_status='active' WHERE customer_id=$1",[who]);
+ const writer=await connect();let resuming;
+ try{
+  const aPid=Number((await q('SELECT pg_backend_pid() pid'))[0].pid),bPid=Number((await writer.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+  assert.notEqual(aPid,bPid);
+  await writer.query('BEGIN');
+  await writer.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=$1",[who]);
+  let finished=false;
+  resuming=act(id,'resume');resuming.then(()=>{finished=true},()=>{finished=true});
+  await new Promise(done=>setTimeout(done,120));
+  assert.equal(finished,false,'Resume must wait for disabled Customer source COMMIT instead of using stale pre-COMMIT active state');
+  await writer.query('COMMIT');
+  const raced=await resuming;assert.equal(raced.allowed,false,JSON.stringify(raced));
+  const after=(await q('SELECT remaining_ms,original_deadline,customer_disabled_hold FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[id]))[0];
+  assert.equal(after.customer_disabled_hold,true);assert.equal(Number(after.remaining_ms),Number(frozen.remaining_ms));
+  assert.equal(after.original_deadline.getTime(),frozen.original_deadline.getTime());
+  await q("UPDATE public.customers SET account_status='active' WHERE customer_id=$1",[who]);
+  assert.equal((await q('SELECT customer_disabled_hold FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[id]))[0].customer_disabled_hold,true);
+  const resumed=await act(id,'resume');assert.equal(resumed.allowed,true,JSON.stringify(resumed));
+  const done=(await q('SELECT customer_disabled_hold,remaining_ms FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[id]))[0];
+  assert.equal(done.customer_disabled_hold,false);assert.equal(Number(done.remaining_ms),Number(frozen.remaining_ms));
+  console.log('F05_10_R03_TWO_PHYSICAL_BACKEND_RESUME_RACE',{aPid,bPid,consultationId:id,denied:raced.code,remainingMs:Number(frozen.remaining_ms)});
+ }finally{await writer.query('ROLLBACK').catch(()=>{});await writer.end();if(resuming)await resuming.catch(()=>{})}
+});
