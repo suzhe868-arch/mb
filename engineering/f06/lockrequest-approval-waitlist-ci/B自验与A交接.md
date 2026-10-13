@@ -1,3 +1,33 @@
+# F06-1｜B二轮R01/R02工程整改与A复验交接增补（2026-10-13）
+
+> **当前门禁：`F06_1_B_R01_R02_REWORK_CI_PENDING / NEXT_OWNER=B`。** 以下是已提交的代码及须由官方GitHub原生CI确认的合同；不以先前旧HEAD的40 Source/76 PG Job成绩代替本次最后SHA结果。本次最终受审HEAD、Push工作流、Job与官方Artifact只按PR #52末次中文签署定位。B不能合并main、不能批准生产Issuer。
+
+## 一｜A首轮正式整改单与修复边界
+
+- A书面整改单：`07_重建工作区/F06-1_A主控首轮独立验收76项真PG16全绿但Priority转Lock未原子结束且独占可见无实证定向整改单_2026-10-13.md`。本次只解决既签PDM18 §27 的原Priority结束历史R01及§28客户列表/详情排他R02。
+- 授权路径只有本批 `engineering/f06/lockrequest-approval-waitlist-ci/**`。旧F05-8 v24原生触发器/原服务、F05-7 v23 Match、M94→v26正式Public签名、D1及全部历史迁移不改；F06-2正式释放/到期、F06-3资金、微信电话、实际PC Customer发行者无授权，始终 fail closed。
+
+## 二｜R01 同一真实PG16事务及签名历史
+
+- 新CI服务在锁车审批前读取`public.f05_8_priority_ci`原PriorityID、客户与车源周期，不把单独的来源文字当作身份。最先取得Vehicle互斥后，合法`public.locks`插入触发**已签F05-8原生锁车占用触发器**，在同一数据库事务自动将本人active Priority变为`ended / converted_to_lock`，不提前单独commit。
+- 本批新增`closeSignedPriorityForLock`必须重新读取这一原生状态，并验证真实`f05_7_result_versions_ci`受信Match结果ID/签名；若原触发器未原子结束或来源无法印证即抛异常让整单回滚。成功则在已有签名不可变`public.f05_8_events_ci`写入真正Priority ID、签名事件键、审批人、原Match与所获Lock ID；审批Request、价格/时长快照、其他竞争Waitlist依旧同事务提交。
+- 原始Priority正向测试在隔离场景库对当前v23真PG Match及v24物理约束构建原始事实，使用**本F06签名CI服务**发起申请/审批，而非虚构JS Origin；旧v24业务服务自身的原v23唯一迁移前态校验不得在v26上被绕过。按物理PG场景注错`AFTER_PRIORITY_END_EVENT_THROW`检验Lock、Request、Priority、Waitlist、Event一起回滚。
+
+## 三｜R02 当前客户读限制与普通Lock对照
+
+- `f06_1_lock_ci.lock_snapshots`新增明确的`priority_origin_id`外键与原Customer来源成对存在约束，不再只凭客户ID推断Priority-origin Lock；来源无凭据则硬拒。
+- 新`customerLockProjectionCI`只在合成Customer证明与隔离PG16环境可访问；通过真实Public Lock、精确签名Priority ended原因以及签名Priority结束事件三者交叉比对，Priority-origin期间对他客列表、详情hard deny，本人只得到裁剪后安全占用状态。普通非Priority Lock对其他原本可见客户只返回“已锁定”且不可建第二锁；hidden/Grant/当期Priority和Customer停用继续现时核验。
+- 内部员工、Matching与合法旧PENDING→自动Waitlist仍在签名Public业务来源下按各自角色读取；客户侧不会因出现候补而泄露原Priority车辆详情。正式客户微信/真实Issuer未接通，不能声称此CI投影已经在生产路由上生效。
+
+## 四｜本批原生复验条件
+
+- 旧`06-S01～S40`四十项Source不得删弱；新增`06-S41～S48`八项真PG16正反例涵盖来源、PG注错完整回滚、最终合法转换、当前他客投影、普通Lock、旧周期与业务候补。Source须**48/48**；原HTTPS继续**9/9**。
+- 旧冻结74个真非特权PG16 Job与新Source/HTTPS两Job全部需由**本最终唯一新SHA的12条真正Push Workflow**重新取得**至少76/76 Job成功（H52 52/52）**，不得复用前一SHA证据。
+- 最终须有至少12份属于末次SHA的GitHub官方非空、未过期、带SHA256摘要的Artifacts。合法COMMIT场景库物理销毁、重建独立OID审计库后，151张Public+D1表全行count/MD5及24行Ledger、D1、公有Catalog Seal均须完全一致。
+- **此文件是工程自验追踪，非单独CI通过证明。** 只有以上全套真实结果完成并在PR #52按末次唯一HEAD提供Run/Job/Artifact证据、标记`READY_FOR_A_SECOND_INDEPENDENT_REVIEW`，才可以交A二轮独立验收。
+
+---
+
 # 名邦汽车 V1｜F06-1 B 工程自验与 A 独立验收交接
 
 > 任务：PDM18 锁车申请、6 小时 PG 时钟、现行 F03 Employee 会话审批、唯一正式 Lock 与竞争申请自动 Waitlist，**仅 CI 隔离测试**。本文件记录业务交付与验证方法；最终 GitHub Push HEAD、工作流/Job/Artifact ID 及状态以 PR #52 **与 HEAD 完全一致**的中文最终签署为准。B 不合并 main。
