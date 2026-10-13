@@ -318,10 +318,28 @@ test('10-R01 permission deny and binding revocation automatically set current PG
  await q("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=1 AND permission_id=9105");
  const orig=(await q('SELECT assignee_handover_pending FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[created.consultationId]))[0];
  assert.equal(orig.assignee_handover_pending,true,'Re-enabling permission does not auto-remove signed pending');
- const nextCustomer=Number(candidates[2]?.customer_id??first);
- if(nextCustomer===first){
-  const closed=await act(created.consultationId,'close_normal');assert.equal(closed.allowed,true,JSON.stringify(closed));
+ const stale=await act(created.consultationId,'close_normal');
+ assert.equal(stale.allowed,false,'Restored ordinary Sales cannot terminate unresolved pending before scoped Manager governance');
+ const priorRole=(await q('SELECT main_role_id FROM public.employees WHERE employee_id=1'))[0].main_role_id;
+ const managerRole=(await q("SELECT role_id FROM public.roles WHERE role_code='manager'"))[0].role_id;
+ const mgrScope=(await q("SELECT sc.scope_id FROM public.employee_data_scopes sc JOIN public.f05_10_consultation_meta_ci m ON m.origin_team_id=sc.scope_reference_id WHERE m.consultation_id=$1 AND sc.employee_id=1 AND sc.scope_kind='team' AND sc.ended_at IS NULL ORDER BY sc.scope_id LIMIT 1",[created.consultationId]))[0];
+ assert.ok(mgrScope,'Current Manager requires a real eligible object Team Scope');
+ await q("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(1,9106,'allow',now())");
+ await q("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(1,9106,$1,now()-interval '1 day')",[mgrScope.scope_id]);
+ await q('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[managerRole]);
+ try{
+  const moved=await act(created.consultationId,'handover',{targetEmployeeId:4,reason:'Scoped manager repairs physical pending guard'});
+  assert.equal(moved.allowed,true,JSON.stringify(moved));
+  assert.equal((await q('SELECT assignee_handover_pending FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[created.consultationId]))[0].assignee_handover_pending,false);
+  const receipt=(await q('SELECT old_assignee_id,new_assignee_id,actor_id FROM public.f05_10_consultation_handover_ci WHERE consultation_id=$1',[created.consultationId]))[0];
+  assert.equal(Number(receipt.old_assignee_id),1);assert.equal(Number(receipt.new_assignee_id),4);assert.equal(Number(receipt.actor_id),1);
+ }finally{
+  await q('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[priorRole]);
+  await q('DELETE FROM public.employee_capability_scope_bindings WHERE employee_id=1 AND permission_id=9106');
+  await q('DELETE FROM public.employee_permission_overrides WHERE employee_id=1 AND permission_id=9106');
  }
+ assert.ok(candidates.length>=3,'Three independent eligible Customers required; do not close pending merely to free a customer');
+ const nextCustomer=Number(candidates[2].customer_id);
  const again=await create(nextCustomer,'search');assert.equal(again.allowed,true,JSON.stringify(again));
  assert.equal(Number(again.assignee),1);
  await q("UPDATE public.employee_capability_scope_bindings SET ended_at=clock_timestamp() WHERE employee_id=1 AND permission_id=9105 AND ended_at IS NULL");

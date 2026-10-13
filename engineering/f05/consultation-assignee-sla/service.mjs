@@ -211,6 +211,10 @@ export async function employeeConsultationActionCI(auth,token,{consultationId,ev
   if(meta.customer_disabled_hold&&!governance&&action!=='resume')return DENY('F05_10_CUSTOMER_DISABLED_HOLD');
   if(meta.assignee_handover_pending&&!['handover','assignee_invalid','invalid','close_resolved','close_normal'].includes(action))
    return DENY('F05_10_PENDING_HANDOVER_REQUIRES_REASSIGN');
+  // Revocation creates a pending governance fact that ordinary Sales may never
+  // dismiss by recovering permission. Only an explicitly scoped manager can close/handover.
+  if(meta.assignee_handover_pending&&!manager)
+   return DENY('F05_10_PENDING_REQUIRES_CURRENT_SCOPED_MANAGER');
   const old=await row(c,'SELECT event_id FROM public.f05_10_consultation_events_ci WHERE event_key=$1 FOR SHARE',[eventKey]);
   if(old)return OK('F05_10_IDEMPOTENT_NO_REPLAY',{consultationId:Number(consultationId)});
   if(action==='start'){

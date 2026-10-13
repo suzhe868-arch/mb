@@ -2,6 +2,14 @@
 
 > 状态：`F05_10_B_REWORK_IN_PROGRESS / NEXT_OWNER=B / CI_ONLY / V1_NOT_READY`。这是 B 分支工作记录，不构成已经通过的 A 交审。
 
+## 最新B二轮自审整改补充（仍为CI-only，尚未交审）
+
+- `10-R01` 补实码：突发撤权形成的`assignee_handover_pending`在原销售权限恢复后依然有效，普通销售不得凭曾经负责人身份进行特殊终结/转派。仅当前真正有Manager/StoreHead角色、个人`consultation.ci.manage`权限和冻结Consultation对象Team/Store Scope的管理者，才能合法handover/必要终结。新增**旧负责人关闭拒绝→经理签名Scope权限→正式交接历史收据→Pending原子清除**真PG16物理证据。
+- `10-R02` 追加独立真实源Demand/current responsible（4）优先、个人deny使Demand责任回退现时Owner（1）、Owner pending/公海不可凭空造单、跨Store合法管理正例以及旧负责人/4S拒绝。
+- `10-R04` 追加真实原M94来源的`four_s`车辆与listing cycle客户咨询正例，4S Employee角色不得获得Consultation内部全文和服务动作，即使合法4S车源；Customer安全投影仍独立。
+- 前一轮受验`d1990225...`的新Source业务21/21及HTTPS已真PG16成功，原H52因公共Postgres镜像限流失败的三项经官方失败项重试后已52/52；新Source工作流当时因全局72检查未齐最终失败，不冒充PASS。
+- 当前最新代码/测试正在以GitHub官方10 Push复核，**最终HEAD全72/72和八份同SHA非空Artifact仍未核签**，不能设置`READY_FOR_A_SECOND_INDEPENDENT_REVIEW`；正式手机号/微信/真人电话/消息及资金仍`SOURCE_GAP`。
+
 ## 授权与范围
 
 - 来源为最新 `main` 的 A 首轮 F05-10 整改单 R01～R04；仅使用 `feat/f05-10-consultation-assignee-sla`，只改 `engineering/f05/consultation-assignee-sla/**` 内新 CI 文件；PR49 保持开放。前批已签 F03/F04/F05-1～9、正式生产/迁移、PDM、`main` 均未更改。
