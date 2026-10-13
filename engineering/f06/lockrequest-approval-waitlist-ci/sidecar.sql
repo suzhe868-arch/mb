@@ -38,7 +38,9 @@ CREATE TABLE f06_1_lock_ci.lock_snapshots (
  initial_hours INTEGER NOT NULL CHECK(initial_hours>0),
  policy_version INTEGER NOT NULL CHECK(policy_version>0),
  priority_origin_customer_id BIGINT REFERENCES public.customers(customer_id),
+ priority_origin_id BIGINT REFERENCES public.f05_8_priority_ci(priority_id),
  signed_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
+ CHECK((priority_origin_customer_id IS NULL)=(priority_origin_id IS NULL)),
  CHECK((price_kind='numeric' AND price_cents IS NOT NULL AND source_price_event_id IS NOT NULL)
  OR (price_kind='consultation' AND price_cents IS NULL AND source_price_event_id IS NULL))
 );
