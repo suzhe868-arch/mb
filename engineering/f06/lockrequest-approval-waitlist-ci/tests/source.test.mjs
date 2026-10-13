@@ -136,7 +136,9 @@ test('06-S25 two native authenticated PG connections race on same Vehicle, one w
  ]);
  assert.ok(a.allowed&&b.allowed,JSON.stringify({a,b}));
  const wins=[a,b].filter(x=>x.code==='F06_1_APPROVED_ATOMIC_LOCK');
- assert.equal(wins.length,1,JSON.stringify({a,b}));winner=wins[0];
+ assert.equal(wins.length,1,JSON.stringify({a,b}));
+ assert.ok(a.backendPid>0&&b.backendPid>0&&a.backendPid!==b.backendPid,'must be two actually different PostgreSQL backend PIDs');
+ winner=wins[0];
  assert.equal((await q("SELECT count(*)::int n FROM public.locks WHERE vehicle_id=$1 AND lock_status='active'",[vehicle(1)]))[0].n,1);
  assert.equal((await q("SELECT count(*)::int n FROM public.lock_requests WHERE vehicle_id=$1 AND status='approved'",[vehicle(1)]))[0].n,1);
  console.log('F06_1_TRUE_TWO_PHYSICAL_BACKEND_ATOMIC_SINGLE_WINNER',JSON.stringify({raceA:a.code,raceB:b.code,lockId:winner.lockId,backendPid:winner.backendPid}));
@@ -214,4 +216,32 @@ test('06-S36 no Deposit/Refund/Transaction mutations are introduced by CI approv
 test('06-S37 final signed Public Catalog and old migration ledger still physically unchanged',async()=>{
  const v=await verify(db);assert.equal(v.verified,true);
  assert.equal((await q('SELECT count(*)::int n FROM public.f03_schema_migrations'))[0].n,24);
+});
+
+test('06-S38 disabled Customer cannot replay stale requestKey to read LockRequest state',async()=>{
+ const created=await begin(11,8,'disabled-key-replay');assert.equal(created.code,'F06_1_PENDING_CREATED');
+ await q("UPDATE public.customers SET account_status='disabled' WHERE customer_id=$1",[customer(11)]);
+ try{
+  const replay=await begin(11,8,'disabled-key-replay');
+  assert.equal(replay.code,'F06_1_CUSTOMER_OR_PHONE_REVOKED_REPLAY_DENIED');
+  assert.equal((await q("SELECT status FROM public.lock_requests WHERE lock_request_id=$1",[created.requestId]))[0].status,'pending');
+ }finally{await q("UPDATE public.customers SET account_status='active' WHERE customer_id=$1",[customer(11)])}
+});
+test('06-S39 sold or unavailable Vehicle after competing active Lock never mints an illegal Waitlist',async()=>{
+ const candidate=await begin(10,5,'source-becomes-unavailable');
+ assert.equal(candidate.code,'F06_1_PENDING_CREATED');
+ const winner=await decisionCI(auth,token,{requestId:candidate.requestId,requestKey:k('source-valid-lock'),action:'approve'});
+ assert.equal(winner.code,'F06_1_APPROVED_ATOMIC_LOCK',JSON.stringify(winner));
+ // Deliberately construct an inconsistent late-arrival PENDING as a negative corruption fixture.
+ // This is NOT a production Customer request source and is only used to prove fail-closed.
+ const lateId=Number((await q("SELECT nextval('f06_1_lock_ci.request_ids') id"))[0].id);
+ await q("INSERT INTO public.lock_requests(lock_request_id,customer_id,vehicle_id,listing_cycle_id,status,created_at,expires_at) VALUES($1,$2,$3,$4,'pending',clock_timestamp()-interval '2 minutes',clock_timestamp()+interval '6 hours')",
+ [lateId,customer(8),vehicle(5),cycle(5)]);
+ await q("INSERT INTO f06_1_lock_ci.request_keys(request_id,customer_id,request_key_sha256,phone_evidence) VALUES($1,$2,$3,'CI_SYNTHETIC_PHONE_CONSENT_NOT_PRODUCTION')",
+ [lateId,customer(8),k('late-synthetic-race').padEnd(64,'a').slice(0,64)]);
+ await q("UPDATE public.vehicles SET source_sale_status='unavailable' WHERE vehicle_id=$1",[vehicle(5)]);
+ const x=await decisionCI(auth,token,{requestId:lateId,requestKey:k('late-source-invalid-approve'),action:'approve'});
+ assert.equal(x.status,'closed_not_lockable',JSON.stringify(x));
+ assert.equal((await q("SELECT count(*)::int n FROM public.waitlists WHERE source_lock_request_id=$1",[lateId]))[0].n,0);
+ console.log('F06_1_SIGNED_SOURCE_UNAVAILABLE_LATE_PENDING_FAILS_CLOSED_NO_WAITLIST',{requestId:lateId,status:x.status});
 });

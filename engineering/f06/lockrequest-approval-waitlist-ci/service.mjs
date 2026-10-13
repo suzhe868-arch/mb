@@ -111,7 +111,13 @@ export async function intakeCI(c,p={}){
   if(!vehicle){await c.query('ROLLBACK');return no('F06_1_VEHICLE_MISSING')}
   const digest=sha('intake:'+p.customerId+':'+p.requestKey);
   const replay=await one(c,"SELECT r.* FROM f06_1_lock_ci.request_keys k JOIN public.lock_requests r ON r.lock_request_id=k.request_id WHERE k.request_key_sha256=$1",[digest]);
-  if(replay){await c.query('COMMIT');return ok('F06_1_REQUEST_KEY_REPLAY',{requestId:Number(replay.lock_request_id),status:replay.status})}
+  if(replay){
+   const actor=await one(c,'SELECT account_status FROM public.customers WHERE customer_id=$1 FOR SHARE',[p.customerId]);
+   if(actor?.account_status!=='active'||!await phone(c,p.customerId)){
+    await c.query('ROLLBACK');return no('F06_1_CUSTOMER_OR_PHONE_REVOKED_REPLAY_DENIED');
+   }
+   await c.query('COMMIT');return ok('F06_1_REQUEST_KEY_REPLAY',{requestId:Number(replay.lock_request_id),status:replay.status});
+  }
   const facts=await access(c,p.customerId,p.vehicleId,p.listingCycleId);
   if(!facts.allowed){await c.query('ROLLBACK');return facts}
   const older=(await c.query("SELECT * FROM public.lock_requests WHERE customer_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3 AND status='pending' ORDER BY created_at,lock_request_id FOR UPDATE",
@@ -136,6 +142,13 @@ export async function intakeCI(c,p={}){
  }catch(e){await c.query('ROLLBACK');if(['55P03','40P01','40001','23505'].includes(e.code))return no('F06_1_REQUEST_CONTENTION_RETRY');throw e}
 }
 async function conflict(c,req,lock,actorId,suffix){
+ const actual=await one(c,'SELECT * FROM public.vehicles WHERE vehicle_id=$1',[req.vehicle_id]);
+ const cycle=await one(c,'SELECT ended_at FROM public.vehicle_listing_cycles WHERE vehicle_id=$1 AND listing_cycle_id=$2 FOR SHARE',[req.vehicle_id,req.listing_cycle_id]);
+ const currentLock=await one(c,'SELECT customer_id FROM public.locks WHERE lock_id=$1 FOR SHARE',[lock]);
+ if(!SALE(actual)||!cycle||cycle.ended_at||String(currentLock?.customer_id)===String(req.customer_id)){
+  await finish(c,req,'closed_not_lockable','system',null,suffix);
+  return 'closed_not_lockable';
+ }
  const current=(await one(c,'SELECT account_status,current_owner_employee_id,owner_assignment_state FROM public.customers WHERE customer_id=$1 FOR SHARE',[req.customer_id]));
  const valid=current?.account_status==='active'&&current.owner_assignment_state==='assigned'&&id(current.current_owner_employee_id)&&
   await phone(c,req.customer_id)&&await origin(c,current.current_owner_employee_id);
@@ -182,7 +195,7 @@ export async function decisionCI(auth,token,p={}){
   const owner=await one(c,'SELECT current_owner_employee_id,owner_assignment_state,account_status FROM public.customers WHERE customer_id=$1 FOR SHARE',[req.customer_id]);
   const org=owner&&id(owner.current_owner_employee_id)?await origin(c,owner.current_owner_employee_id):null;
   if(!org||!await scope(c,a,org.team_id))return no('F06_1_EMPLOYEE_PERMISSION_SCOPE_DENIED');
-  if(req.status!=='pending')return ok('F06_1_TERMINAL_REPLAY',{requestId:Number(req.lock_request_id),status:req.status,
+  if(req.status!=='pending')return ok('F06_1_TERMINAL_REPLAY',{backendPid:(await one(c,'SELECT pg_backend_pid() pid')).pid,requestId:Number(req.lock_request_id),status:req.status,
    lockId:req.resulting_lock_id?Number(req.resulting_lock_id):null,
    waitlistId:req.resulting_waitlist_id?Number(req.resulting_waitlist_id):null});
   const past=(await one(c,'SELECT $1::timestamptz<=clock_timestamp() past',[req.expires_at])).past;
