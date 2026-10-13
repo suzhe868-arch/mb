@@ -52,7 +52,7 @@ CREATE TRIGGER d1_receipt_immutable BEFORE UPDATE OR DELETE ON d1_owner_ci.recei
 CREATE TRIGGER d1_attestation_immutable BEFORE UPDATE OR DELETE ON d1_owner_ci.attestation
  FOR EACH ROW EXECUTE FUNCTION d1_owner_ci.immutable_history();
 -- Formal pool-entry source fields may never be rewritten; state/hold governance is separate.
-CREATE FUNCTION d1_owner_ci.guard_pool_source() RETURNS trigger LANGUAGE plpgsql AS $
+CREATE FUNCTION d1_owner_ci.guard_pool_source() RETURNS trigger LANGUAGE plpgsql AS $d1guard$
 BEGIN
  IF TG_OP='DELETE' THEN
   RAISE EXCEPTION 'D1_POOL_ENTRY_SOURCE_IMMUTABLE' USING ERRCODE='23514';
@@ -66,7 +66,7 @@ BEGIN
   RAISE EXCEPTION 'D1_POOL_ENTRY_SOURCE_IMMUTABLE' USING ERRCODE='23514';
  END IF;
  RETURN NEW;
-END $;
+END $d1guard$;
 CREATE TRIGGER d1_pool_original_immutable BEFORE UPDATE OR DELETE ON d1_owner_ci.pool_cycles
  FOR EACH ROW EXECUTE FUNCTION d1_owner_ci.guard_pool_source();
 REVOKE ALL ON SCHEMA d1_owner_ci FROM PUBLIC;
