@@ -23,7 +23,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Native F05-9 signed-v25 Source and 70 job official proof
-        run: bash engineering/f05/consultation-assignee-sla/compat-f05-9-job.sh source
+        run: bash engineering/f05/pdm17-public-pool-owner-claim/compat-f05-9-job.sh source
         env:
           GH_ACTIONS_READ_TOKEN: ${{ github.token }}
       - uses: actions/upload-artifact@v4
@@ -48,7 +48,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Native F05-9 HTTPS customer/employee issuer fail closed
-        run: bash engineering/f05/consultation-assignee-sla/compat-f05-9-job.sh https
+        run: bash engineering/f05/pdm17-public-pool-owner-claim/compat-f05-9-job.sh https
       - uses: actions/upload-artifact@v4
         with:
           name: f05-9-https-native-pg16-evidence

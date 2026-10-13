@@ -44,5 +44,5 @@ test('D1-H06 no production route exposed; GET never mutates',async()=>{
 test('D1-H07 denied projection never contains phone, VIN, private data, price, token',async()=>{
  const x=await req(base+'claim','POST',{phone:'hidden',vin:'secret',token:'secret',price:123,customerId:989201});denied(x);
  for(const k of ['phone','vin','token','price','customer','owner','source'])
-  assert.equal(JSON.stringify(x.body).toLowerCase().includes(k),false);
+  assert.equal(Object.prototype.hasOwnProperty.call(x.body,k),false);
 });

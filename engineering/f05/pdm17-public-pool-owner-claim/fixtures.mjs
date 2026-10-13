@@ -17,13 +17,13 @@ try{
    " (1,true,1,clock_timestamp(),$1),(7,true,1,clock_timestamp(),$1)"+
    " ON CONFLICT(employee_id) DO UPDATE SET eligible=true,version=public.employee_receiving_eligibility.version+1,decided_at=clock_timestamp()",[ad.system_admin_id]);
   await c.query("INSERT INTO public.permissions(permission_id,permission_code) VALUES"+
-   "(1098,'public_pool.claim.ci.synthetic'),(1099,'public_pool.assign.ci.synthetic')");
+   "(9817011098,'public_pool.claim.ci.synthetic'),(9817011099,'public_pool.assign.ci.synthetic')");
   await c.query("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES"+
-   "(7,1098,'allow',now()),(1,1099,'allow',now()) ON CONFLICT(employee_id,permission_id) DO UPDATE SET decision='allow',changed_at=now()");
+   "(7,9817011098,'allow',now()),(1,9817011099,'allow',now()) ON CONFLICT(employee_id,permission_id) DO UPDATE SET decision='allow',changed_at=now()");
   await c.query("INSERT INTO public.employee_data_scopes(scope_id,employee_id,scope_kind,scope_reference_id) VALUES"+
    "(398101,7,'team',901),(398102,1,'team',901)");
   await c.query("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES"+
-   "(7,1098,398101,now()-interval '1 minute'),(1,1099,398102,now()-interval '1 minute')");
+   "(7,9817011098,398101,now()-interval '1 minute'),(1,9817011099,398102,now()-interval '1 minute')");
   const level=(await c.query('SELECT level_id FROM public.customer_levels ORDER BY level_id LIMIT 1')).rows[0];
   if(!level)throw Error('D1_SIGNED_CUSTOMER_LEVEL_MISSING');
   const customerIds=[989201,989202,989203,989204,989205,989206,989207,989208,989209,989210,989211,989212];
@@ -37,6 +37,6 @@ try{
   await c.query('INSERT INTO d1_owner_ci.config(scope_team_id,max_claims_per_day,cooldown_seconds,version) VALUES(901,99,0,1)');
   await c.query('COMMIT');
   console.log('D1_SYNTHETIC_PDM17_POOL_EXPLICIT_SOURCE',JSON.stringify({customerIds,teamId:901,storeId:Number(m.store_id),
-   claimPermissionId:1098,assignPermissionId:1099,source:'CI_SYNTHETIC_AUTHORITY_ONLY / PRODUCTION_ISSUER_GAP'}));
+   claimPermissionId:9817011098,assignPermissionId:9817011099,source:'CI_SYNTHETIC_AUTHORITY_ONLY / PRODUCTION_ISSUER_GAP'}));
  }catch(e){await c.query('ROLLBACK');throw e}
 }finally{await c.end()}

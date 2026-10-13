@@ -90,9 +90,9 @@ test('D1-S06 Scope deny before commit and protective source blocks even valid Ma
  assert.equal((await assign(989204)).allowed,false);
  assert.equal((await state(989204)).current_owner_employee_id,null);
  await c.query("UPDATE d1_owner_ci.pool_cycles SET protective_hold=false WHERE customer_id=989204");
- await c.query("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=clock_timestamp() WHERE employee_id=1 AND permission_id=1099");
+ await c.query("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=clock_timestamp() WHERE employee_id=1 AND permission_id=9817011099");
  assert.equal((await assign(989204)).allowed,false);
- await c.query("UPDATE public.employee_permission_overrides SET decision='allow',changed_at=clock_timestamp() WHERE employee_id=1 AND permission_id=1099");
+ await c.query("UPDATE public.employee_permission_overrides SET decision='allow',changed_at=clock_timestamp() WHERE employee_id=1 AND permission_id=9817011099");
  await refresh('manager');const ok=await assign(989204);assert.equal(ok.allowed,true,JSON.stringify(ok));
 });
 test('D1-S07 2 physical PG backends same Customer serializes Manager assign vs Sales claim, one winner',async()=>{
@@ -119,9 +119,9 @@ test('D1-S08 Employee inactive and individual deny physically fence pending clai
  await c.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=7");
  assert.equal((await claim(989206)).allowed,false);
  await c.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=7");
- await c.query("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=clock_timestamp() WHERE employee_id=7 AND permission_id=1098");
+ await c.query("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=clock_timestamp() WHERE employee_id=7 AND permission_id=9817011098");
  assert.equal((await claim(989206)).allowed,false);
- await c.query("UPDATE public.employee_permission_overrides SET decision='allow',changed_at=clock_timestamp() WHERE employee_id=7 AND permission_id=1098");
+ await c.query("UPDATE public.employee_permission_overrides SET decision='allow',changed_at=clock_timestamp() WHERE employee_id=7 AND permission_id=9817011098");
  await refresh('sales');const x=await claim(989206);assert.equal(x.allowed,true,JSON.stringify(x));
 });
 test('D1-S09 quota policy genuinely enforced per day, only success counted, separate assign still allowed',async()=>{
