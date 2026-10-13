@@ -39,11 +39,18 @@ try{
  assert.equal(managerResult.allowed,true,JSON.stringify(managerResult));
  const assigned=await serviceAssignCI(syntheticServiceRequest(989203),{requestKey:key('valid-service-receiver')});
  assert.equal(assigned.allowed,true,JSON.stringify(assigned));
+ // Save every inherited signed receiving state. A negative D1 scenario must
+ // not silently poison previously accepted F05-10 v26 regression fixtures.
+ const savedReceiving=await q("SELECT employee_id,receiving_status FROM public.employees WHERE employee_id IN(1,4,5,6,7)");
+ assert.equal(savedReceiving.length,5);
  await c.query("UPDATE public.employees SET receiving_status='paused' WHERE employee_id IN(1,4,5,6,7)");
  const pending=await serviceAssignCI(syntheticServiceRequest(989204),{requestKey:key('all-receivers-paused')});
  assert.equal(pending.allowed,false);assert.equal(pending.code,'D1_OWNER_ASSIGNMENT_PENDING_NO_ELIGIBLE_RECEIVER');
  assert.equal((await q('SELECT state FROM d1_owner_ci.pool_cycles WHERE customer_id=989204'))[0].state,'pending');
- await c.query("UPDATE public.employees SET receiving_status='receiving' WHERE employee_id IN(1,7)");
+ for(const e of savedReceiving)await c.query("UPDATE public.employees SET receiving_status=$2 WHERE employee_id=$1",[e.employee_id,e.receiving_status]);
+ assert.equal((await q("SELECT receiving_status FROM public.employees WHERE employee_id=4"))[0].receiving_status,
+  savedReceiving.find(z=>Number(z.employee_id)===4).receiving_status,'old signed Employee4 receiving facts restored');
+
  // The lock is held by a real second PG16 connection, not an artificial JS-only mock.
  const other=await connect();let one,two;
  try{
