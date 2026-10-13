@@ -141,6 +141,23 @@ export async function intakeCI(c,p={}){
   return ok('F06_1_PENDING_CREATED',{requestId:newId,status:'pending',createdAt:req.created_at,expiresAt:req.expires_at});
  }catch(e){await c.query('ROLLBACK');if(['55P03','40P01','40001','23505'].includes(e.code))return no('F06_1_REQUEST_CONTENTION_RETRY');throw e}
 }
+async function waitlistResponsible(c,req,who){
+ const recommendation=await one(c,"SELECT f.original_recommender_id employee_id FROM public.recommendations r "+
+ "JOIN public.f05_9_recommendation_facts_ci f ON f.recommendation_id=r.recommendation_id "+
+ "WHERE r.customer_id=$1 AND r.vehicle_id=$2 AND r.listing_cycle_id=$3 AND r.status='active' "+
+ "ORDER BY r.recommendation_id DESC LIMIT 1 FOR SHARE OF r,f",
+ [req.customer_id,req.vehicle_id,req.listing_cycle_id]);
+ const demand=await one(c,"SELECT responsible_employee_id employee_id FROM public.demands "+
+ "WHERE customer_id=$1 AND demand_state IN('active','paused') ORDER BY demand_id DESC LIMIT 1 FOR SHARE",[req.customer_id]);
+ const candidates=[['recommendation',recommendation?.employee_id],['demand',demand?.employee_id],
+  ['owner',who.current_owner_employee_id]];
+ for(const [source,idCandidate] of candidates){
+  if(!id(idCandidate))continue;
+  const org=await origin(c,idCandidate);
+  if(org)return {employeeId:Number(idCandidate),source};
+ }
+ return null;
+}
 async function conflict(c,req,lock,actorId,suffix){
  const actual=await one(c,'SELECT * FROM public.vehicles WHERE vehicle_id=$1',[req.vehicle_id]);
  const cycle=await one(c,'SELECT ended_at FROM public.vehicle_listing_cycles WHERE vehicle_id=$1 AND listing_cycle_id=$2 FOR SHARE',[req.vehicle_id,req.listing_cycle_id]);
@@ -155,6 +172,8 @@ async function conflict(c,req,lock,actorId,suffix){
  const expired=(await one(c,'SELECT $1::timestamptz<=clock_timestamp() past',[req.expires_at])).past;
  if(expired){await finish(c,req,'expired','system',null,suffix);return 'expired'}
  if(!valid){await finish(c,req,'closed_not_lockable','system',null,suffix);return 'closed_not_lockable'}
+ const responsible=await waitlistResponsible(c,req,current);
+ if(!responsible){await finish(c,req,'closed_not_lockable','system',null,suffix);return 'closed_not_lockable'}
  let wait=await one(c,"SELECT waitlist_id FROM public.waitlists WHERE customer_id=$1 AND vehicle_id=$2 AND ended_at IS NULL LIMIT 1 FOR UPDATE",
  [req.customer_id,req.vehicle_id]);
  if(wait){
@@ -166,9 +185,9 @@ async function conflict(c,req,lock,actorId,suffix){
   const waitId=Number((await one(c,"SELECT nextval('f06_1_lock_ci.waitlist_ids') id")).id);
   wait=await one(c,"INSERT INTO public.waitlists(waitlist_id,customer_id,vehicle_id,listing_cycle_id,source_lock_request_id,active_lock_id,responsible_employee_id,ended_at) "+
    "VALUES($1,$2,$3,$4,$5,$6,$7,NULL) RETURNING waitlist_id",
-   [waitId,req.customer_id,req.vehicle_id,req.listing_cycle_id,req.lock_request_id,lock,valid.employee_id||Number(current.current_owner_employee_id)]);
-  await c.query('INSERT INTO f06_1_lock_ci.waitlist_sources(waitlist_id,source_request_id,queue_created_at,queue_request_id,responsible_employee_id) VALUES($1,$2,$3,$4,$5)',
-   [waitId,req.lock_request_id,req.created_at,req.lock_request_id,Number(current.current_owner_employee_id)]);
+   [waitId,req.customer_id,req.vehicle_id,req.listing_cycle_id,req.lock_request_id,lock,responsible.employeeId]);
+  await c.query('INSERT INTO f06_1_lock_ci.waitlist_sources(waitlist_id,source_request_id,queue_created_at,queue_request_id,responsible_employee_id,responsible_origin) VALUES($1,$2,$3,$4,$5,$6)',
+   [waitId,req.lock_request_id,req.created_at,req.lock_request_id,responsible.employeeId,responsible.source]);
  }
  await finish(c,req,'lock_conflict','system',null,suffix,wait.waitlist_id);
  return 'lock_conflict';

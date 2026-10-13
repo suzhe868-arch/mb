@@ -25,7 +25,7 @@ if [[ "$mode" = source ]];then
  node f06/lockrequest-approval-waitlist-ci/fixtures.mjs
  node --test f06/lockrequest-approval-waitlist-ci/tests/source.test.mjs 2>&1 | tee "$out/native-source.log"
  grep -q '# fail 0' "$out/native-source.log"
- grep -q '# tests 39' "$out/native-source.log"
+ grep -q '# tests 40' "$out/native-source.log"
  node f06/lockrequest-approval-waitlist-ci/runner.mjs --verify
  bash f06/lockrequest-approval-waitlist-ci/disposable-db.sh restore
  node f06/lockrequest-approval-waitlist-ci/audit-seal.mjs after 2>&1 | tee "$out/audit-global-seal.log"

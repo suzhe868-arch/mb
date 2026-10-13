@@ -48,6 +48,7 @@ CREATE TABLE f06_1_lock_ci.waitlist_sources (
  queue_created_at TIMESTAMPTZ NOT NULL,
  queue_request_id BIGINT NOT NULL,
  responsible_employee_id BIGINT NOT NULL REFERENCES public.employees(employee_id),
+ responsible_origin TEXT NOT NULL CHECK(responsible_origin IN('recommendation','demand','owner')),
  created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()
 );
 CREATE TABLE f06_1_lock_ci.events (

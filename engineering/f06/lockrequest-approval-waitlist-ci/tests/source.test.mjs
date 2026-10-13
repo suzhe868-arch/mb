@@ -64,7 +64,9 @@ test('06-S12 different Customer may have simultaneous PENDING without lock prior
 });
 test('06-S13 third Customer creates real PENDING, still no active Lock',async()=>{
  const r=await begin(3,1,'C-create');assert.equal(r.code,'F06_1_PENDING_CREATED');reqC=r.requestId;
- assert.equal((await q("SELECT count(*)::int n FROM public.locks WHERE vehicle_id=$1 AND lock_status='active'",[vehicle(1)]))[0].n,0)
+ assert.equal((await q("SELECT count(*)::int n FROM public.locks WHERE vehicle_id=$1 AND lock_status='active'",[vehicle(1)]))[0].n,0);
+ await q("INSERT INTO public.demands(demand_id,customer_id,responsible_employee_id,demand_state,criteria_json,created_at) VALUES($1,$2,1,'paused','{}'::jsonb,clock_timestamp())",
+ [86183103,customer(3)]);
 });
 test('06-S14 hidden source without signed Grant or matching Priority cannot create request',async()=>{
  await q("UPDATE public.vehicles SET platform_visibility='hidden' WHERE vehicle_id=$1",[vehicle(6)]);
@@ -157,7 +159,12 @@ test('06-S27 losing PENDING become LOCK_CONFLICT with real Waitlist atomically',
  "WHERE lr.lock_request_id=ANY($1::bigint[]) ORDER BY lr.lock_request_id",[[reqA,reqB,reqC]]);
  assert.equal(qx.filter(x=>x.status==='approved').length,1);
  assert.equal(qx.filter(x=>x.status==='lock_conflict').length,2);
- assert.ok(qx.filter(x=>x.status==='lock_conflict').every(x=>x.waitlist_id!==null&&Number(x.responsible_employee_id)===4));
+ assert.ok(qx.filter(x=>x.status==='lock_conflict').every(x=>x.waitlist_id!==null));
+ const mapped=await q("SELECT w.customer_id,w.responsible_employee_id,s.responsible_origin FROM public.waitlists w "+
+ "JOIN f06_1_lock_ci.waitlist_sources s USING(waitlist_id) WHERE w.vehicle_id=$1 ORDER BY w.waitlist_id",[vehicle(1)]);
+ assert.equal(mapped.length,2);
+ assert.deepEqual(mapped.map(x=>({customer:Number(x.customer_id),employee:Number(x.responsible_employee_id),from:x.responsible_origin})).sort((a,b)=>a.customer-b.customer),
+ [{customer:customer(3),employee:1,from:'demand'},...mapped.filter(x=>Number(x.customer_id)!==customer(3)).map(x=>({customer:Number(x.customer_id),employee:4,from:'owner'}))].sort((a,b)=>a.customer-b.customer));
 });
 test('06-S28 Waitlist internal source ordering is request PG created_at then stable id',async()=>{
  const ls=await q("SELECT w.waitlist_id,x.queue_created_at,x.queue_request_id,lr.created_at FROM public.waitlists w "+
@@ -244,4 +251,15 @@ test('06-S39 sold or unavailable Vehicle after competing active Lock never mints
  assert.equal(x.status,'closed_not_lockable',JSON.stringify(x));
  assert.equal((await q("SELECT count(*)::int n FROM public.waitlists WHERE source_lock_request_id=$1",[lateId]))[0].n,0);
  console.log('F06_1_SIGNED_SOURCE_UNAVAILABLE_LATE_PENDING_FAILS_CLOSED_NO_WAITLIST',{requestId:lateId,status:x.status});
+});
+
+test('06-S40 Waitlist responsibility is derived from current paused Demand, never inherited from the approving actor by default',async()=>{
+ const a=(await q("SELECT w.waitlist_id,w.responsible_employee_id,s.responsible_origin,d.demand_state "+
+ "FROM public.waitlists w JOIN f06_1_lock_ci.waitlist_sources s USING(waitlist_id) "+
+ "JOIN public.demands d ON d.customer_id=w.customer_id AND d.responsible_employee_id=w.responsible_employee_id "+
+ "WHERE w.customer_id=$1 AND w.vehicle_id=$2 AND w.ended_at IS NULL",[customer(3),vehicle(1)]))[0];
+ assert.ok(a,'actual current Demand-driven waitlist is required');
+ assert.equal(Number(a.responsible_employee_id),1);assert.equal(a.responsible_origin,'demand');
+ assert.equal(a.demand_state,'paused');
+ console.log('F06_1_REAL_SIGNED_DEMAND_RESPONSIBLE_NOT_GENERIC_APPROVER',{waitlistId:a.waitlist_id,from:a.responsible_origin});
 });
