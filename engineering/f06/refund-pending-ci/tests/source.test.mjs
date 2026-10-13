@@ -13,6 +13,7 @@ import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 const db=await connect(),q=(s,a=[])=>db.query(s,a).then(x=>x.rows);
 const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret:Buffer.alloc(32,61),origin:'https://127.0.0.1:49026'});
 const second=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret:Buffer.alloc(32,61),origin:'https://127.0.0.1:49026'});
+const correctionAuth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret:Buffer.alloc(32,61),origin:'https://127.0.0.1:49026'});
 const k=s=>'f06-3c1-pg16-'+s+'-'+process.env.GITHUB_RUN_ID;
 const customer=86180101,vehicle=n=>86181100+n,cycle=n=>86182100+n;
 const old=fn=>withF063B(()=>withF063A(()=>withF062(()=>withParentBranch(fn))));
@@ -20,6 +21,19 @@ let token,locks={},r1,deposit1,beforeMoney,baselineRefundCases,baselineInProgres
 const request=(lockId,name,extra={})=>requestSyntheticRefundCI(auth,token,{subjectKind:'lock',lockId,amountCents:5000,reason:'合成测试客户申请退款原因',eventKey:k(name),...extra});
 const close=(refundId,name,extra={})=>closeSyntheticRefundCI(auth,token,{refundId,closeReason:'客户确认决定不进行退款',eventKey:k(name),...extra});
 const count=s=>q(s).then(x=>x[0].n);
+async function signedCorrection(delta,name){
+ const roles=await q("SELECT role_code,role_id FROM public.roles WHERE role_code IN ('sales','manager')");
+ const sales=roles.find(x=>x.role_code==='sales'),manager=roles.find(x=>x.role_code==='manager');
+ assert.ok(sales&&manager);
+ await q('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[manager.role_id]);
+ try{
+  const login=await correctionAuth.login({login:'employee_test',password:'SyntheticF04_3_CurrentProof_2026',source:'f06-3c1-correction-'+name});
+  assert.equal(login.code,'AUTH_OK',JSON.stringify(login));
+  return await withF063B(()=>withF063A(()=>correctSyntheticDepositCI(correctionAuth,login.token,{
+   lockId:locks[1],depositId:deposit1,action:'correction',deltaCents:delta,currency:'CNY',
+   reason:'合成退款测试签名账本修正 '+name,eventKey:k('signed-correction-'+name)})));
+ }finally{await q('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[sales.role_id]);}
+}
 test.before(async()=>{
  assert.equal((await verify(db)).verified,true);
  const sales=(await q("SELECT role_id FROM public.roles WHERE role_code='sales' LIMIT 1"))[0];
@@ -27,8 +41,8 @@ test.before(async()=>{
  await q('UPDATE public.customers SET current_owner_employee_id=1 WHERE customer_id=$1',[customer]);
  const team=(await q("SELECT team_id FROM public.employee_team_memberships WHERE employee_id=1 AND ended_at IS NULL LIMIT 1"))[0];
  const scope=(await q("SELECT scope_id FROM public.employee_data_scopes WHERE employee_id=1 AND scope_kind='team' AND scope_reference_id=$1 AND ended_at IS NULL LIMIT 1",[team.team_id]))[0];assert.ok(scope);
- await q("INSERT INTO public.permissions(permission_id,permission_code) VALUES(963101,'deposit.ci.record'),(963102,'refund.ci.request'),(963103,'transaction.ci.open')");
- for(const perm of [963101,963103]){
+ await q("INSERT INTO public.permissions(permission_id,permission_code) VALUES(963101,'deposit.ci.record'),(963102,'refund.ci.request'),(963103,'transaction.ci.open'),(963104,'deposit.ci.correct')");
+ for(const perm of [963101,963103,963104]){
   await q("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(1,$1,'allow',clock_timestamp())",[perm]);
   await q("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(1,$1,$2,clock_timestamp()-interval '2 minutes')",[perm,scope.scope_id]);
  }
@@ -56,7 +70,7 @@ test.before(async()=>{
  baselineInProgressTransactions=await count("SELECT count(*)::int n FROM public.transactions WHERE status='in_progress'");
  baselineTransactionOrigins=await count('SELECT count(*)::int n FROM f06_3b_ci.transaction_origins');
 });
-test.after(async()=>{await db.end();await auth.close();await second.close()});
+test.after(async()=>{await db.end();await auth.close();await second.close();await correctionAuth.close()});
 test('3C1-S01 3B签字与PG只读载体',async()=>assert.equal((await verify(db)).verified,true));
 test('3C1-S02 PostgreSQL16实际非超级账号',async()=>{
  const x=(await q("SELECT current_user u,current_database() db,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su,current_setting('server_version_num')::int v"))[0];
@@ -85,6 +99,9 @@ test('3C1-S13 独立显式scope+allow授予',async()=>{
 test('3C1-S14 双签Deposit来自原Lock且物理不可改',async()=>{
  assert.equal((await q('SELECT amount_cents FROM public.deposit_receipts WHERE deposit_id=$1',[deposit1]))[0].amount_cents,'8000');
  assert.equal((await q('SELECT count(*)::int n FROM f06_3a_ci.receipt_provenance WHERE lock_id=$1',[locks[1]]))[0].n,2);
+ const adj=await signedCorrection(-1000,'original-net');
+ assert.equal(adj.code,'F06_3A_APPEND_ONLY_CORRECTION',JSON.stringify(adj));
+ assert.equal(adj.netCents,7000);
 });
 test('3C1-S15 无Deposit的Lock拒绝',async()=>assert.equal((await request(locks[2],'no-deposit')).code,'F06_3C1_UNVERIFIED_OR_ABSENT_MONEY'));
 test('3C1-S16 上限超可退余额拒绝',async()=>assert.equal((await request(locks[1],'overbalance',{amountCents:10001})).code,'F06_3C1_OVER_REFUNDABLE_BALANCE'));
@@ -108,10 +125,10 @@ test('3C1-S20 注入审计后回滚',async()=>{
 });
 test('3C1-S21 回滚无新增public Refund且保全前批数据',async()=>{
  assert.equal(await count('SELECT count(*)::int n FROM public.refund_cases'),baselineRefundCases);
- assert.equal(await count('SELECT count(*)::int n FROM public.refund_cases WHERE lock_id='+Number(locks[1])),0);
+ assert.equal((await q('SELECT count(*)::int n FROM public.refund_cases WHERE lock_id=$1',[locks[1]]))[0].n,0);
 });
 test('3C1-S22 合法申请pending原子提交',async()=>{
- const a=await request(locks[1],'valid');assert.equal(a.code,'F06_3C1_PENDING_NO_PAYMENT',JSON.stringify(a));r1=a.refundId;
+ const a=await request(locks[1],'valid');assert.equal(a.code,'F06_3C1_PENDING_NO_PAYMENT',JSON.stringify(a));assert.equal(a.netCents,9000);r1=a.refundId;
 });
 test('3C1-S23 public仅pending无退款支付',async()=>{
  assert.equal((await q('SELECT status,expected_amount_cents,transaction_id FROM public.refund_cases WHERE refund_id=$1',[r1]))[0].status,'pending');
@@ -131,6 +148,11 @@ test('3C1-S29 pending不占车辆',async()=>assert.equal((await pendingVehicleOc
 test('3C1-S30 空close reason拒绝',async()=>assert.equal((await close(r1,'invalid',{closeReason:' '})).code,'F06_3C1_INVALID_CLOSE'));
 test('3C1-S31 关闭前注入回滚保持pending',async()=>{
  await assert.rejects(()=>close(r1,'failure',{testCheckpoint:'AFTER_CLOSE_THROW'}),/F06_3C1_INJECTED_CLOSE_ROLLBACK/);
+ const down=await signedCorrection(-6000,'while-pending-low');
+ assert.equal(down.code,'F06_3A_APPEND_ONLY_CORRECTION',JSON.stringify(down));
+ assert.equal((await close(r1,'balance-denied')).code,'F06_3C1_BALANCE_CHANGED_AFTER_PENDING');
+ const up=await signedCorrection(6000,'while-pending-restored');
+ assert.equal(up.code,'F06_3A_APPEND_ONLY_CORRECTION',JSON.stringify(up));
  assert.equal((await q('SELECT status FROM public.refund_cases WHERE refund_id=$1',[r1]))[0].status,'pending');
 });
 test('3C1-S32 close的已撤权员工旧token拒绝',async()=>{

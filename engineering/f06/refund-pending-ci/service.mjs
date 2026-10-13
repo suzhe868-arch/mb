@@ -50,7 +50,7 @@ async function signedLock(c,l){
  if(!cust||cust.account_status!=='active'||!cycle)return no('F06_3C1_CUSTOMER_OR_CYCLE_UNTRUSTED');
  return yes('F06_3C1_SIGNED_LOCK');
 }
-async function balance(c,l){
+async function balance(c,l,{ignoreRefundId=null}={}){
  // Explicitly exclude any unsigned public Deposit: missing provenance means money is unknown.
  const receipts=(await c.query('SELECT deposit_id,customer_id,amount_cents FROM public.deposit_receipts WHERE lock_id=$1 ORDER BY deposit_id FOR SHARE',[l.lock_id])).rows;
  const sourced=(await c.query('SELECT deposit_id,customer_id,vehicle_id,listing_cycle_id,original_amount_cents FROM f06_3a_ci.receipt_provenance WHERE lock_id=$1 ORDER BY deposit_id FOR SHARE',[l.lock_id])).rows;
@@ -81,8 +81,8 @@ async function balance(c,l){
  " WHERE (lk.vehicle_id=$1 AND lk.listing_cycle_id=$2) OR (tr.vehicle_id=$1 AND tr.listing_cycle_id=$2)) payments, "+
  "(SELECT count(*)::int FROM public.refund_cases rc "+
  " LEFT JOIN public.locks lk ON lk.lock_id=rc.lock_id LEFT JOIN public.transactions tr ON tr.transaction_id=rc.transaction_id "+
- " WHERE rc.status IN('pending','refunded') AND ((lk.vehicle_id=$1 AND lk.listing_cycle_id=$2) OR (tr.vehicle_id=$1 AND tr.listing_cycle_id=$2))) active",
- [l.vehicle_id,l.listing_cycle_id]);
+ " WHERE rc.status IN('pending','refunded') AND ($3::bigint IS NULL OR rc.refund_id<>$3::bigint) AND ((lk.vehicle_id=$1 AND lk.listing_cycle_id=$2) OR (tr.vehicle_id=$1 AND tr.listing_cycle_id=$2))) active",
+ [l.vehicle_id,l.listing_cycle_id,ignoreRefundId]);
  if(conflicts.payments>0)return no('F06_3C1_EXISTING_REFUND_PAYMENT_SOURCE_GAP');
  if(conflicts.active>0)return no('F06_3C1_EXISTING_PENDING_OR_REFUNDED_CONFLICT');
  // Other old closed refunds do not reduce money; they have no paid fact.
@@ -160,6 +160,10 @@ export async function closeSyntheticRefundCI(auth,token,p={}){
    return no('F06_3C1_ORIGIN_DRIFT');
   if(r.status!=='pending')return no('F06_3C1_NOT_PENDING');
   const signed=await signedLock(c,l);if(!signed.allowed)return signed;
+  // Recheck the *current* signed receipt, correction and peer-refund balance under the vehicle/Lock locks.
+  // Ignore only this pending Refund; all other active refunds and any payment remain hard conflicts.
+  const b=await balance(c,l,{ignoreRefundId:p.refundId});if(!b.allowed)return b;
+  if(Number(o.amount_cents)>b.netCents)return no('F06_3C1_BALANCE_CHANGED_AFTER_PENDING');
   const paid=await one(c,'SELECT count(*)::int n FROM public.refund_payments WHERE refund_id=$1',[p.refundId]);
   if(paid.n!==0)return no('F06_3C1_ALREADY_PAID_NEVER_CLOSE');
   // Confirm no owning Transaction appeared during the pending interval.
