@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F06_3B_A_ACCEPTED_MERGED_PR55_F06_3C1_CI_RELEASED_B",
+  "substage": "F06_3C1_A_ACCEPTED_MERGED_PR56_F06_4A_CI_RELEASED_B",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F06",
-  "current_domain_status": "F06_3B_A_ACCEPTED_CI_ONLY_F06_3C1_CI_RELEASED_F06_OVERALL_NOT_READY",
+  "current_domain_status": "F06_3C1_A_ACCEPTED_CI_ONLY_F06_4A_CI_RELEASED_F06_OVERALL_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F06-3B PR55 A独立验收PASS：最终B SHA 9880e8fcf1923802c1360e0c4783b4cfee4aaab2；15真Push、82/82真PG16 Job(H52完整52)、Source35/HTTPS9、127有效sha256 Artifact，PG双OID34957→39410及164张父源表全行COUNT/MD5 Seal通过。已标准merge a43d3a0537a9051929f87490f5c1c6641c5920b2。A仅放行F06-3C-1隔离CI合成Refund pending申请及closed原因关闭；不实现实际refunded/真实现金或生产Issuer，F05/F06全域、V1仍NOT_READY。",
-  "current_work_file": "07_重建工作区/F06-3C-1_A主控PDM19合成Refund申请与关闭_无实际退款_CI隔离完整施工单_2026-10-14.md",
+  "current_task": "F06-3C-1 PR56 A独立验收PASS并标准merge SHA 54d206d633d47a29f675b52bdf5465d1d5d6a8e6（B HEAD 177c810a1198bd8e97815748c05e4c07d0b0906b）。16/16真Push成功、Source43/HTTPS9、129官方sha256 Artifact，OID39410→43953/旧168表全行封印；H52 GitHub run成功52无条件Job定义，B52 Job列表，A Job-list接口ReadTimeout披露。A正式仅放行F06-4A可销毁PG16中签名Transaction in_progress→cancelled正常取消与责任释放，不涉及真实财务、实际退款或生产Issuer；F05/F06/V1整体NOT_READY。",
+  "current_work_file": "07_重建工作区/F06-4A_A主控PDM19合成Transaction正常取消与责任占用释放_CI隔离完整施工单_2026-10-14.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_EXECUTE_F06_3C1_REFUND_PENDING_CLOSE_CI_ONLY",
+  "next_action": "B_EXECUTE_F06_4A_SYNTHETIC_IN_PROGRESS_TRANSACTION_NORMAL_CANCEL_CI_ONLY",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F06_3A_A_ACCEPTED_MERGED_PR54_CI_ONLY_F06_3B_A_RELEASED_FOR_B_CI_ONLY",
+  "engineering_status": "F06_3C1_A_ACCEPTED_MERGED_PR56_CI_ONLY_F06_4A_A_RELEASED_FOR_B_CI_ONLY",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B从最新main独立建feat/f06-3c1-refund-pending-close-ci，仅新增engineering/f06/refund-pending-ci/**及.github/workflows/f06-3c1-*.yml；按PDM19 §§19-26只在真可销毁非特权PG16中验证合成Refund pending和带原因closed、Lock XOR Transaction资金余额/历史/权限/公海保护；严禁refunded真退款、refund_payments资金写入、生产Issuer；冻结82真PG16旧Job并新加Source/HTTPS两项，16条真Push、至少84/84真PG16 Job(H52真实52)、新Source≥32 HTTPS≥9、≥20官方有效最后SHA Artifact、至少168父表跨OID全行Seal。B完整中文交A独立验收，B不得合并。",
+  "next_action_detail": "B从执行时最新main建feat/f06-4a-transaction-cancel-ci并独立PR，只新增engineering/f06/transaction-cancel-ci/**及.github/workflows/f06-4a-*.yml。真实非特权可销毁PG16中合成在途Transaction合法普通cancel、当前responsible/Session/权限/Scope及事务重验、append-only历史、资金/Refund只读、旧Lock/Priority/Waitlist不复活；旧84+新2真PG16 Job，17同SHA Push，H52真正52、Source≥32 HTTPS≥9、>=22原生sha256 Artifact、双OID/至少172旧父表全行COUNT+MD5。B完整中文READY_FOR_A_INDEPENDENT_REVIEW交A，不得合并；真实退款/成交完成/生产Issuer仍不放行。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7269,7 +7269,7 @@
     "merge_sha": "e11e93bae1f6bc74757fea98b3c079d9ecf01e7a"
   },
   "f06_gate": {
-    "status": "F06_3B_A_ACCEPTED_MERGED_PR55_F06_3C1_A_RELEASED_CI_ONLY",
+    "status": "F06_3C1_A_ACCEPTED_MERGED_PR56_F06_4A_A_RELEASED_CI_ONLY",
     "release_authorized": false,
     "production": false,
     "financial_operations_authorized": false,
@@ -7277,6 +7277,7 @@
     "unreleased": [
       "F06_3C2_ACTUAL_REFUNDED_MONEY_FACT_NOT_RELEASED",
       "REAL_FUNDS_DEPOSIT_TRANSACTION_REFUND",
+      "PRODUCTION_TRANSACTION_CANCEL_COMPLETE_ISSUERS",
       "PRODUCTION_LOCK_TRANSACTION_REFUND_ISSUERS",
       "F06_OVERALL_READY"
     ]
@@ -7560,12 +7561,12 @@
     "a_blockers": []
   },
   "f06_3c1_gate": {
-    "status": "A_RELEASED_FOR_B_CI_ONLY",
-    "owner": "B",
+    "status": "A_ACCEPTED_MERGED_CI_ONLY",
+    "owner": "A",
     "next_owner": "B",
     "branch": "feat/f06-3c1-refund-pending-close-ci",
     "work_order": "07_重建工作区/F06-3C-1_A主控PDM19合成Refund申请与关闭_无实际退款_CI隔离完整施工单_2026-10-14.md",
-    "pr": null,
+    "pr": 56,
     "source_authority": [
       "PDM-19 Final §§19-26",
       "PDM-18 Final",
@@ -7591,6 +7592,59 @@
     "required_https_tests": 9,
     "requires_two_distinct_pg16_databases_and_old_168_table_full_row_seal": true,
     "requires_signed_public_refund_carrier_audit": true,
+    "after_b_selftest": "READY_FOR_A_INDEPENDENT_REVIEW",
+    "b_cannot_merge": true,
+    "global_not_ready": true,
+    "pr_merged": true,
+    "merge_sha": "54d206d633d47a29f675b52bdf5465d1d5d6a8e6",
+    "b_final_head_sha": "177c810a1198bd8e97815748c05e4c07d0b0906b",
+    "a_review_result": "A_ACCEPTED_CI_ONLY",
+    "a_review_comment": "https://github.com/suzhe868-arch/mb/pull/56#issuecomment-6155344148",
+    "a_review_report": "07_重建工作区/F06-3C-1_A主控独立验收16条Push与129份原生证据_PR56标准合并正式报告_2026-10-14.md",
+    "a_verified_push_workflows": 16,
+    "a_source_tests": 43,
+    "a_https_tests": 9,
+    "a_valid_same_sha_artifacts": 129,
+    "a_scenario_database_oid": 39410,
+    "a_audit_database_oid": 43953,
+    "a_full_row_seal_old_tables": 168,
+    "a_h52_run_success": true,
+    "a_h52_defined_unconditional_jobs": 52,
+    "a_h52_job_list_limitation": "GitHub Job-list ReadTimeout; 52条B签署实际ID无法逐项从A接口复取，A依据52无条件定义、官方成功Run和97官方Artifact交叉验证",
+    "production_refund_issuer_status": "SOURCE_GAP",
+    "a_blockers": []
+  },
+  "f06_4a_gate": {
+    "status": "A_RELEASED_FOR_B_CI_ONLY",
+    "owner": "B",
+    "next_owner": "B",
+    "branch": "feat/f06-4a-transaction-cancel-ci",
+    "work_order": "07_重建工作区/F06-4A_A主控PDM19合成Transaction正常取消与责任占用释放_CI隔离完整施工单_2026-10-14.md",
+    "source_authority": [
+      "PDM-19 Final §§6-11,15-18,21-26",
+      "PDM-02 Final",
+      "PDM-17 Final",
+      "PDM-18 Final",
+      "PDM-25 Final"
+    ],
+    "scope": "SYNTHETIC_IN_PROGRESS_TRANSACTION_NORMAL_CANCEL_AND_OCCUPANCY_RELEASE_CI_ONLY",
+    "production": false,
+    "real_money_authorized": false,
+    "real_transaction_cancel_authorized": false,
+    "actual_refund_authorized": false,
+    "production_issuer_authorized": false,
+    "allowed_new_paths": [
+      "engineering/f06/transaction-cancel-ci/**",
+      ".github/workflows/f06-4a-*.yml"
+    ],
+    "frozen_old_pg16_jobs": 84,
+    "required_real_push_workflows": 17,
+    "required_pg16_jobs": 86,
+    "required_h52_jobs": 52,
+    "required_artifacts": 22,
+    "required_source_tests": 32,
+    "required_https_tests": 9,
+    "required_two_distinct_pg16_databases_and_old_172_table_full_row_seal": true,
     "after_b_selftest": "READY_FOR_A_INDEPENDENT_REVIEW",
     "b_cannot_merge": true,
     "global_not_ready": true
