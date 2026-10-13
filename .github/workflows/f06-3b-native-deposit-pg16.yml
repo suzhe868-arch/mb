@@ -1,0 +1,54 @@
+name: F06-3A isolated native PG16 Deposit receipts and correction ledger Source28 and HTTPS9
+on:
+  push:
+    branches: [feat/f06-3b-lock-transaction-ci]
+permissions: {contents: read, actions: read}
+jobs:
+  f06-3a-source:
+    name: F06-3A Source real nonprivileged PG16 Deposit receipts and correction ledger immutable audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Old signed F06-1 48 plus new PG16 lifecycle 24 and dual physical OID seal
+        run: env GITHUB_REF=refs/heads/feat/f06-3a-deposit-ledger-ci GITHUB_REF_NAME=feat/f06-3a-deposit-ledger-ci bash engineering/f06/deposit-ledger-ci/ci-job.sh source
+        env:
+          GH_ACTIONS_READ_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-3a-source-native-pg16-evidence
+          path: engineering/f06/deposit-ledger-ci/artifacts/source/
+          retention-days: 30
+          if-no-files-found: error
+  f06-3a-https:
+    name: F06-3A HTTPS nonprivileged PostgreSQL16 production issuer hard deny
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Real TLS production customer employee issuer and money deny
+        run: env GITHUB_REF=refs/heads/feat/f06-3a-deposit-ledger-ci GITHUB_REF_NAME=feat/f06-3a-deposit-ledger-ci bash engineering/f06/deposit-ledger-ci/ci-job.sh https
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-3a-https-native-pg16-evidence
+          path: engineering/f06/deposit-ledger-ci/artifacts/https/
+          retention-days: 30
+          if-no-files-found: error
