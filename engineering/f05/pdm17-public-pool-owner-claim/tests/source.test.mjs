@@ -27,7 +27,7 @@ test.after(async()=>{await auth.close();await c.end()});
 const state=async id=>(await q('SELECT current_owner_employee_id,owner_assignment_state FROM public.customers WHERE customer_id=$1',[id]))[0];
 const snap=async()=>{
  let out={};
- for(const name of ['consultations','recommendations','vehicle_visibility_grants','priority_leases','locks','transactions','demands','customer_favorites']){
+ for(const name of ['consultations','recommendations','vehicle_visibility_grants','priority_leases','locks','transactions','demands','customer_price_cycle_unlocks','customer_price_unlock_events']){
   const z=(await q("SELECT count(*)::int n,md5(coalesce(string_agg(to_jsonb(t)::text,'|' ORDER BY to_jsonb(t)::text),'')) digest FROM public."+name+" t"))[0];
   out[name]=z;
  }
@@ -154,4 +154,70 @@ test('D1-S11 disabled Customer / scope revoked / assigned customer not reusable'
  await c.query('UPDATE public.employee_data_scopes SET ended_at=clock_timestamp() WHERE scope_id=398102');
  assert.equal((await assign(989209)).allowed,false);
  assert.equal((await state(989209)).current_owner_employee_id,null);
+});
+
+
+test('D1-S12 independent PG16 permission DENY commits before claim and rejects stale authorization',async()=>{
+ const other=await connect();let inFlight;
+ try{
+  await c.query('UPDATE public.employee_data_scopes SET ended_at=NULL WHERE scope_id=398102');
+  await other.query('BEGIN');
+  await other.query("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=clock_timestamp() WHERE employee_id=1 AND permission_id=9817011099");
+  const blocker=Number((await other.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+  let settled=false;inFlight=assign(989210);inFlight.then(()=>settled=true,()=>settled=true);
+  await new Promise(done=>setTimeout(done,120));assert.equal(settled,false);
+  await other.query('COMMIT');
+  const result=await inFlight;assert.equal(result.allowed,false,JSON.stringify(result));
+  assert.equal((await state(989210)).current_owner_employee_id,null);
+  console.log('D1_TWO_PG16_PERMISSION_DENY_COMMIT_BLOCKS_CLAIM',JSON.stringify({blocker,result}));
+ }finally{
+  await other.query('ROLLBACK').catch(()=>{});await other.end();if(inFlight)await inFlight.catch(()=>{});
+  await c.query("UPDATE public.employee_permission_overrides SET decision='allow',changed_at=clock_timestamp() WHERE employee_id=1 AND permission_id=9817011099");
+ }
+});
+test('D1-S13 independent PG16 scope revocation COMMIT blocks current manager assignment',async()=>{
+ const other=await connect();let inFlight;
+ try{
+  await other.query('BEGIN');
+  await other.query('UPDATE public.employee_data_scopes SET ended_at=clock_timestamp() WHERE scope_id=398102');
+  const blocker=Number((await other.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+  let settled=false;inFlight=assign(989211);inFlight.then(()=>settled=true,()=>settled=true);
+  await new Promise(done=>setTimeout(done,120));assert.equal(settled,false);
+  await other.query('COMMIT');
+  const result=await inFlight;assert.equal(result.allowed,false,JSON.stringify(result));
+  assert.equal((await state(989211)).current_owner_employee_id,null);
+  console.log('D1_TWO_PG16_SCOPE_REVOKE_COMMIT_BLOCKS_ASSIGN',JSON.stringify({blocker,result}));
+ }finally{
+  await other.query('ROLLBACK').catch(()=>{});await other.end();if(inFlight)await inFlight.catch(()=>{});
+  await c.query('UPDATE public.employee_data_scopes SET ended_at=NULL WHERE scope_id=398102');
+ }
+});
+test('D1-S14 independent PG16 Customer disabled COMMIT precedes claim and leaves zero receipts',async()=>{
+ const other=await connect();let inFlight;
+ try{
+  await other.query('BEGIN');
+  await other.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=989212");
+  const blocker=Number((await other.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+  let settled=false;inFlight=assign(989212);inFlight.then(()=>settled=true,()=>settled=true);
+  await new Promise(done=>setTimeout(done,120));assert.equal(settled,false);
+  await other.query('COMMIT');
+  const result=await inFlight;assert.equal(result.allowed,false,JSON.stringify(result));
+  assert.equal((await state(989212)).current_owner_employee_id,null);
+  assert.equal((await q('SELECT count(*)::int n FROM d1_owner_ci.receipts WHERE customer_id=989212'))[0].n,0);
+  console.log('D1_TWO_PG16_DISABLED_CUSTOMER_COMMIT_DENY',JSON.stringify({blocker,result}));
+ }finally{await other.query('ROLLBACK').catch(()=>{});await other.end();if(inFlight)await inFlight.catch(()=>{})}
+});
+test('D1-S15 protected pool state changed in competing PG backend cannot be claimed',async()=>{
+ const other=await connect();let inFlight;
+ try{
+  await other.query('BEGIN');
+  await other.query("UPDATE d1_owner_ci.pool_cycles SET protective_hold=true WHERE customer_id=989209 AND state='in_pool'");
+  const blocker=Number((await other.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+  let settled=false;inFlight=assign(989209);inFlight.then(()=>settled=true,()=>settled=true);
+  await new Promise(done=>setTimeout(done,120));assert.equal(settled,false);
+  await other.query('COMMIT');
+  const result=await inFlight;assert.equal(result.allowed,false,JSON.stringify(result));
+  assert.equal((await state(989209)).current_owner_employee_id,null);
+  console.log('D1_TWO_PG16_PROTECTION_COMMIT_DENY',JSON.stringify({blocker,result}));
+ }finally{await other.query('ROLLBACK').catch(()=>{});await other.end();if(inFlight)await inFlight.catch(()=>{})}
 });

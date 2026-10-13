@@ -42,4 +42,4 @@ cp f05/pdm17-public-pool-owner-claim/来源与权限矩阵.tsv "$path/source-aut
 cp f05/pdm17-public-pool-owner-claim/B自验与A交接.md "$path/B-handoff.md"
 ( cd "$path" && sha256sum * > sha256sums.txt )
 if grep -R -nE 'scrypt[$]v1[$]|__Host-mb_pc=[A-Za-z0-9_-]{43}|BEGIN PRIVATE KEY|mbci_[A-Za-z0-9_-]{43}' "$path";then exit 1;fi
-echo "D1_SIGNED_V25_SEPARATE_CI_PG16_$mode_COMPLETE"
+echo "D1_SIGNED_V25_SEPARATE_CI_PG16_${mode}_COMPLETE"
