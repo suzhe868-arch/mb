@@ -26,7 +26,7 @@ fi
 ( cd engineering && node f06/lock-transaction-ci/runner.mjs --inject-rollback && node f06/lock-transaction-ci/runner.mjs --apply && node f06/lock-transaction-ci/runner.mjs --verify )
 if [[ "$mode" = source ]]; then
  ( cd engineering && node --test f06/lock-transaction-ci/tests/source.test.mjs ) 2>&1 | tee "$base/artifacts/source/native-source.log"
- grep -q '# tests 32' "$base/artifacts/source/native-source.log"
+ grep -q '# tests 34' "$base/artifacts/source/native-source.log"
  grep -q '# fail 0' "$base/artifacts/source/native-source.log"
  ( cd engineering && node f06/lock-transaction-ci/runner.mjs --verify )
  bash "$base/disposable-db.sh" restore
