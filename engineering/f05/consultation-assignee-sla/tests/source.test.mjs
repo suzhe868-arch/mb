@@ -484,3 +484,74 @@ test('10-R04 genuine four_s Vehicle can be consulted but four_s employee role ca
  assert.equal(customerView.allowed,true,'Legitimate Customer keeps safe view even with role revocation');
  console.log('F05_10_R04_FOUR_S_VEHICLE_ALLOW_EMPLOYEE_DENY',{vehicleId:Number(car.vehicle_id),consultationId:createFourS.consultationId});
 });
+
+
+test('10-R02 residual signed System Admin, inactive, four_s, cross-store and personal-DENY handover targets fail closed',async()=>{
+ const sys=await auth.login({login:'admin_test',password:'SyntheticAdmin_1234567',source:'f05-10-signed-sys-admin'});
+ assert.equal(sys.code,'AUTH_OK','Actual existing F03 system_admin signature required');
+ const co=(await q("SELECT co.consultation_id FROM public.consultations co JOIN public.customers cu ON cu.customer_id=co.customer_id WHERE co.status IN('pending','processing') AND co.assignee_employee_id=1 AND cu.account_status='active' ORDER BY co.consultation_id DESC LIMIT 1"))[0];
+ assert.ok(co,'Currently open, scoped Consultation required');const id=Number(co.consultation_id);
+ const sysRead=await internalConsultationProjectionCI(auth,sys.token,{consultationId:id});
+ assert.equal(sysRead.allowed,false,'System Admin is not an eligible Employee business reader');
+ const sysHandover=await employeeConsultationActionCI(auth,sys.token,{consultationId:id,action:'handover',targetEmployeeId:4,reason:'Cannot self-authorize from system admin',eventKey:k('sys-admin-real')});
+ assert.equal(sysHandover.allowed,false,'System Admin never has business mutation privileges');
+ const frozen=(await q('SELECT assignee_employee_id,first_response_deadline FROM public.consultations WHERE consultation_id=$1',[id]))[0];
+ const count=(await q('SELECT count(*)::int n FROM public.f05_10_consultation_handover_ci WHERE consultation_id=$1',[id]))[0].n;
+ for(const targetEmployeeId of [3,2,8997601]){
+  const x=await act(id,'handover',{targetEmployeeId,reason:'Disallowed recipient current scope'});
+  assert.equal(x.allowed,false,JSON.stringify({targetEmployeeId,x}));
+ }
+ await q("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=4 AND permission_id=9105");
+ const rev=await act(id,'handover',{targetEmployeeId:4,reason:'Personal deny overrides target'});
+ assert.equal(rev.allowed,false);
+ await q("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=4 AND permission_id=9105");
+ assert.deepEqual((await q('SELECT assignee_employee_id,first_response_deadline FROM public.consultations WHERE consultation_id=$1',[id]))[0],frozen);
+ assert.equal((await q('SELECT count(*)::int n FROM public.f05_10_consultation_handover_ci WHERE consultation_id=$1',[id]))[0].n,count);
+ console.log('F05_10_R02_REAL_SIGNED_ADMIN_AND_TARGET_NEGATIVES',{consultationId:id,targets:[3,2,8997601,4],receiptsUnchanged:count});
+});
+
+test('10-R03 residual actual CI PDM23 quiet and DND source suppression cannot pause Consultation SLA',async()=>{
+ const x=(await q("SELECT co.consultation_id,co.customer_id FROM public.consultations co JOIN public.customers cu ON cu.customer_id=co.customer_id WHERE co.status IN('pending','processing') AND cu.account_status='active' AND co.first_response_deadline IS NOT NULL ORDER BY co.consultation_id DESC LIMIT 1"))[0];
+ assert.ok(x);const id=Number(x.consultation_id),who=Number(x.customer_id);
+ await q("INSERT INTO public.f05_10_notification_quiet_ci(customer_id,dnd_enabled,quiet_from,quiet_to) VALUES($1,true,clock_timestamp()-interval '1 hour',clock_timestamp()+interval '1 hour') ON CONFLICT(customer_id) DO UPDATE SET dnd_enabled=true,quiet_from=EXCLUDED.quiet_from,quiet_to=EXCLUDED.quiet_to",[who]);
+ const before=(await q("SELECT co.first_response_deadline,m.original_deadline,m.first_response_at,m.customer_disabled_hold FROM public.consultations co JOIN public.f05_10_consultation_meta_ci m USING(consultation_id) WHERE co.consultation_id=$1",[id]))[0];
+ await q("INSERT INTO public.f05_10_notification_attempts_ci(consultation_id,customer_id,event_stage,decision) SELECT $1,$2,'first_response_timeout',CASE WHEN n.dnd_enabled AND clock_timestamp() BETWEEN n.quiet_from AND n.quiet_to THEN 'SKIPPED_DND' ELSE 'ELIGIBLE_NOT_SENT' END FROM public.f05_10_notification_quiet_ci n WHERE n.customer_id=$2",[id,who]);
+ const attempt=(await q('SELECT decision,source_marker FROM public.f05_10_notification_attempts_ci WHERE consultation_id=$1',[id]))[0];
+ assert.equal(attempt.decision,'SKIPPED_DND');assert.equal(attempt.source_marker,'CI_PDM23_NO_EXTERNAL_SEND');
+ await q('UPDATE public.f05_10_notification_quiet_ci SET dnd_enabled=false WHERE customer_id=$1',[who]);
+ assert.deepEqual((await q("SELECT co.first_response_deadline,m.original_deadline,m.first_response_at,m.customer_disabled_hold FROM public.consultations co JOIN public.f05_10_consultation_meta_ci m USING(consultation_id) WHERE co.consultation_id=$1",[id]))[0],before);
+ // Only the isolated CI clock is moved here to inspect derived timeout; PDM23 writes must not change business clock.
+ await q("UPDATE public.consultations SET first_response_deadline=clock_timestamp()-interval '1 second' WHERE consultation_id=$1",[id]);
+ const overdue=(await q('SELECT status,close_reason,clock_timestamp()>first_response_deadline overdue FROM public.consultations WHERE consultation_id=$1',[id]))[0];
+ assert.equal(overdue.overdue,true);assert.equal(overdue.close_reason,null);assert.ok(['pending','processing'].includes(overdue.status));
+ console.log('F05_10_R03_DND_PDM23_REAL_CI_ROW_NO_SLA_PAUSE',{consultationId:id,source:'CI_SYNTHETIC_PDM23',notification:attempt.decision,overdue:overdue.overdue});
+});
+
+test('10-R03 residual two physical PG backends Customer disable COMMIT vs withdraw and repeated Hold governance',async()=>{
+ const co=(await q("SELECT co.consultation_id,co.customer_id FROM public.consultations co JOIN public.customers cu ON cu.customer_id=co.customer_id WHERE co.status IN('pending','processing') AND cu.account_status='active' AND co.assignee_employee_id=1 ORDER BY co.consultation_id DESC LIMIT 1"))[0];
+ assert.ok(co);const id=Number(co.consultation_id),who=Number(co.customer_id);
+ const writer=await connect();let pending;
+ try{
+  const aPid=Number((await q('SELECT pg_backend_pid() pid'))[0].pid),bPid=Number((await writer.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+  assert.notEqual(aPid,bPid);
+  await writer.query('BEGIN');
+  await writer.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=$1",[who]);
+  let finished=false;
+  pending=withdrawConsultationCI(c,{consultationId:id,customerId:who,eventKey:k('disabled-withdraw-physical-race'),syntheticPhoneConsent:proof});
+  pending.then(()=>{finished=true},()=>{finished=true});
+  await new Promise(done=>setTimeout(done,100));
+  assert.equal(finished,false,'Withdraw waits until writer commits disabled Customer source');
+  await writer.query('COMMIT');
+  assert.equal((await pending).allowed,false,'Disabled Customer cannot withdraw even if request began before COMMIT');
+  const held=(await q('SELECT customer_disabled_hold,remaining_ms FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[id]))[0];
+  assert.equal(held.customer_disabled_hold,true);assert.ok(Number(held.remaining_ms)>=0);
+  const events=(await q("SELECT count(*)::int n FROM public.f05_10_consultation_events_ci WHERE consultation_id=$1 AND event_kind='hold'",[id]))[0].n;
+  await q('UPDATE public.customers SET account_status=$2 WHERE customer_id=$1',[who,'active']);
+  await q('UPDATE public.customers SET account_status=$2 WHERE customer_id=$1',[who,'disabled']);
+  assert.equal((await q("SELECT count(*)::int n FROM public.f05_10_consultation_events_ci WHERE consultation_id=$1 AND event_kind='hold'",[id]))[0].n,events,'No second Hold event without new hold transition');
+  const governed=await act(id,'close_normal');assert.equal(governed.allowed,true,JSON.stringify(governed));
+  assert.equal((await q('SELECT close_reason FROM public.consultations WHERE consultation_id=$1',[id]))[0].close_reason,'NORMAL_CLOSED');
+  await q('UPDATE public.customers SET account_status=$2 WHERE customer_id=$1',[who,'active']);
+  console.log('F05_10_R03_TRUE_TWO_BACKEND_WITHDRAW_HOLD_GOVERNANCE',{aPid,bPid,consultationId:id,holdEvents:events,remainingMs:Number(held.remaining_ms)});
+ }finally{await writer.query('ROLLBACK').catch(()=>{});await writer.end();if(pending)await pending.catch(()=>{})}
+});
