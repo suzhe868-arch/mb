@@ -1,0 +1,219 @@
+{
+  "authority": "A正式F05-11放行-2026-10-13",
+  "snapshotMainSha": "310cb2f4b60c720c0febc0909d5d8e362f831e2a",
+  "legacyH52Jobs": 52,
+  "oldJobs": 72,
+  "newJobs": 2,
+  "modules": [
+    {
+      "module": "F05-1",
+      "directory": "vehicle-scope-safe-projection",
+      "pr": 30,
+      "status": "SIGNED_CI_VERIFIED",
+      "source": "engineering/f05/vehicle-scope-safe-projection/ci-job.sh",
+      "signedScope": "CI_ONLY",
+      "productionIssuer": "SOURCE_GAP",
+      "nextOwner": "A"
+    },
+    {
+      "module": "F05-2",
+      "directory": "vehicle-stewardship-physical-scope",
+      "pr": 31,
+      "status": "SIGNED_CI_VERIFIED",
+      "source": "engineering/f05/vehicle-stewardship-physical-scope/ci-job.sh",
+      "signedScope": "CI_ONLY",
+      "productionIssuer": "SOURCE_GAP",
+      "nextOwner": "A"
+    },
+    {
+      "module": "F05-3A",
+      "directory": "four-s-member-trust-scope",
+      "pr": 32,
+      "status": "SOURCE_GAP",
+      "source": "engineering/f05/four-s-member-trust-scope/ci-job.sh",
+      "signedScope": "CI_ONLY",
+      "productionIssuer": "SOURCE_GAP",
+      "nextOwner": "A"
+    },
+    {
+      "module": "F05-3B",
+      "directory": "jyt-wholesale-lineage-cycle",
+      "pr": 33,
+      "status": "CI_SYNTHETIC_ONLY",
+      "source": "engineering/f05/jyt-wholesale-lineage-cycle/ci-job.sh",
+      "signedScope": "CI_ONLY",
+      "productionIssuer": "SOURCE_GAP",
+      "nextOwner": "A"
+    },
+    {
+      "module": "F05-3C",
+      "directory": "wholesale-to-mingbang-conversion",
+      "pr": 34,
+      "status": "CI_SYNTHETIC_ONLY",
+      "source": "engineering/f05/wholesale-to-mingbang-conversion/ci-job.sh",
+      "signedScope": "CI_ONLY",
+      "productionIssuer": "SOURCE_GAP",
+      "nextOwner": "A"
+    },
+    {
+      "module": "F05-3D",
+      "directory": "wholesale-object-scope-trust",
+      "pr": 35,
+      "status": "SOURCE_GAP",
+      "source": "engineering/f05/wholesale-object-scope-trust/ci-job.sh",
+      "signedScope": "CI_ONLY",
+      "productionIssuer": "SOURCE_GAP",
+      "nextOwner": "A"
+    },
+    {
+      "module": "F05-3E",
+      "directory": "hide-reason-trust-recalculation",
+      "pr": 36,
+      "status": "CI_SYNTHETIC_ONLY",
+      "source": "engineering/f05/hide-reason-trust-recalculation/ci-job.sh",
+      "signedScope": "CI_ONLY",
+      "productionIssuer": "SOURCE_GAP",
+      "nextOwner": "A"
+    },
+    {
+      "module": "F05-3F",
+      "directory": "favorite-carrier-preservation",
+      "pr": 37,
+      "status": "SOURCE_GAP",
+      "source": "engineering/f05/favorite-carrier-preservation/ci-job.sh",
+      "signedScope": "CI_ONLY",
+      "productionIssuer": "SOURCE_GAP",
+      "nextOwner": "A"
+    },
+    {
+      "module": "F05-3G",
+      "directory": "favorite-physical-carrier",
+      "pr": 38,
+      "status": "SIGNED_CI_VERIFIED",
+      "source": "engineering/f05/favorite-physical-carrier/ci-job.sh",
+      "signedScope": "CI_ONLY",
+      "productionIssuer": "SOURCE_GAP",
+      "nextOwner": "A"
+    },
+    {
+      "module": "F05-3H",
+      "directory": "customer-wechat-actor-trust",
+      "pr": 39,
+      "status": "SOURCE_GAP",
+      "source": "engineering/f05/customer-wechat-actor-trust/ci-job.sh",
+      "signedScope": "CI_ONLY",
+      "productionIssuer": "SOURCE_GAP",
+      "nextOwner": "A"
+    },
+    {
+      "module": "F05-3I",
+      "directory": "favorite-conversion-v19-compat",
+      "pr": 40,
+      "status": "SIGNED_CI_VERIFIED",
+      "source": "engineering/f05/favorite-conversion-v19-compat/ci-job.sh",
+      "signedScope": "CI_ONLY",
+      "productionIssuer": "SOURCE_GAP",
+      "nextOwner": "A"
+    },
+    {
+      "module": "F05-3J",
+      "directory": "favorite-jyt-relist-v19-compat",
+      "pr": 41,
+      "status": "SIGNED_CI_VERIFIED",
+      "source": "engineering/f05/favorite-jyt-relist-v19-compat/ci-job.sh",
+      "signedScope": "CI_ONLY",
+      "productionIssuer": "SOURCE_GAP",
+      "nextOwner": "A"
+    },
+    {
+      "module": "F05-3K",
+      "directory": "favorite-converted-jyt-replay-guard",
+      "pr": 42,
+      "status": "SIGNED_CI_VERIFIED",
+      "source": "engineering/f05/favorite-converted-jyt-replay-guard/ci-job.sh",
+      "signedScope": "CI_ONLY",
+      "productionIssuer": "SOURCE_GAP",
+      "nextOwner": "A"
+    },
+    {
+      "module": "F05-4",
+      "directory": "customer-price-entitlement-cycle",
+      "pr": 43,
+      "status": "CI_SYNTHETIC_ONLY",
+      "source": "engineering/f05/customer-price-entitlement-cycle/ci-job.sh",
+      "signedScope": "CI_ONLY",
+      "productionIssuer": "SOURCE_GAP",
+      "nextOwner": "A"
+    },
+    {
+      "module": "F05-5",
+      "directory": "employee-price-quota-adjustment",
+      "pr": 44,
+      "status": "CI_SYNTHETIC_ONLY",
+      "source": "engineering/f05/employee-price-quota-adjustment/ci-job.sh",
+      "signedScope": "CI_ONLY",
+      "productionIssuer": "SOURCE_GAP",
+      "nextOwner": "A"
+    },
+    {
+      "module": "F05-6",
+      "directory": "find-car-application-demand-eligibility",
+      "pr": 45,
+      "status": "CI_SYNTHETIC_ONLY",
+      "source": "engineering/f05/find-car-application-demand-eligibility/ci-job.sh",
+      "signedScope": "CI_ONLY",
+      "productionIssuer": "SOURCE_GAP",
+      "nextOwner": "A"
+    },
+    {
+      "module": "F05-7",
+      "directory": "deterministic-matching-readiness-four-tier",
+      "pr": 46,
+      "status": "SIGNED_CI_VERIFIED",
+      "source": "engineering/f05/deterministic-matching-readiness-four-tier/ci-job.sh",
+      "signedScope": "CI_ONLY",
+      "productionIssuer": "SOURCE_GAP",
+      "nextOwner": "A"
+    },
+    {
+      "module": "F05-8",
+      "directory": "priority-arbitration-ttl-handover",
+      "pr": 47,
+      "status": "SIGNED_CI_VERIFIED",
+      "source": "engineering/f05/priority-arbitration-ttl-handover/ci-job.sh",
+      "signedScope": "CI_ONLY",
+      "productionIssuer": "SOURCE_GAP",
+      "nextOwner": "A"
+    },
+    {
+      "module": "F05-9",
+      "directory": "recommendation-visibility-grants",
+      "pr": 48,
+      "status": "SIGNED_CI_VERIFIED",
+      "source": "engineering/f05/recommendation-visibility-grants/ci-job.sh",
+      "signedScope": "CI_ONLY",
+      "productionIssuer": "SOURCE_GAP",
+      "nextOwner": "A"
+    },
+    {
+      "module": "F05-10",
+      "directory": "consultation-assignee-sla",
+      "pr": 49,
+      "status": "SIGNED_CI_VERIFIED",
+      "source": "engineering/f05/consultation-assignee-sla/ci-job.sh",
+      "signedScope": "CI_ONLY",
+      "productionIssuer": "SOURCE_GAP",
+      "nextOwner": "A"
+    },
+    {
+      "module": "F05-10-D1",
+      "directory": "pdm17-public-pool-owner-claim",
+      "pr": 50,
+      "status": "CI_SYNTHETIC_ONLY",
+      "source": "engineering/f05/pdm17-public-pool-owner-claim/ci-job.sh",
+      "signedScope": "CI_ONLY",
+      "productionIssuer": "SOURCE_GAP",
+      "nextOwner": "A"
+    }
+  ]
+}
