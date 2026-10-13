@@ -152,9 +152,10 @@ test('3B-S27 unavailable archived supply denies new transaction but does not end
  assert.equal((await q('SELECT status FROM f06_3b_ci.transaction_origins WHERE transaction_id=$1',[txId]))[0].status,'in_progress');
 });
 test('3B-S28 expired signed Lock cannot open Transaction',async()=>{
- await q("UPDATE public.locks SET expires_at=clock_timestamp()-interval '2 minutes' WHERE lock_id=$1",[locks[2]]);
+ const before=(await q('SELECT created_at,expires_at FROM public.locks WHERE lock_id=$1',[locks[2]]))[0];
+ await q("UPDATE public.locks SET created_at=clock_timestamp()-interval '100 hours',expires_at=clock_timestamp()-interval '2 minutes' WHERE lock_id=$1",[locks[2]]);
  try{assert.equal((await open(2,'expired-deny')).code,'F06_3B_NOT_ACTIVE_CURRENT_LOCK')}
- finally{await q("UPDATE public.locks SET expires_at=clock_timestamp()+interval '71 hours' WHERE lock_id=$1",[locks[2]])}
+ finally{await q('UPDATE public.locks SET created_at=$1,expires_at=$2 WHERE lock_id=$3',[before.created_at,before.expires_at,locks[2]])}
 });
 test('3B-S29 two native PG backends on same Lock never yield two winners',async()=>{
  const peer=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret:Buffer.alloc(32,61),origin:'https://127.0.0.1:49026'});
