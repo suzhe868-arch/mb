@@ -1,4 +1,4 @@
-import {connect,verify} from '../consultation-assignee-sla/migration.mjs';
+import {connect,verify} from '../../f05/consultation-assignee-sla/migration.mjs';
 import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
 import {createHash} from 'node:crypto';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';

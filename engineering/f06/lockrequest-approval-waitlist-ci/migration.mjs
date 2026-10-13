@@ -2,22 +2,22 @@
 import pg from 'pg';
 import {createHash} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
-import {verify as verifyV26} from '../consultation-assignee-sla/migration.mjs';
+import {verify as verifyV26} from '../../f05/consultation-assignee-sla/migration.mjs';
 import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
-const URL='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test';
+const DATABASE_URL='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test';
 const REQUIRED={CI:'true',GITHUB_ACTIONS:'true',APP_ENV:'test',NODE_ENV:'test',
  F03_1_ISOLATION_CONFIRM:'I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY',
  F05_2_ISOLATION_CONFIRM:'I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY',
  GITHUB_EVENT_NAME:'push',GITHUB_REF:'refs/heads/feat/f06-1-lockrequest-approval-waitlist-ci'};
 export function gate(){
  for(const [k,v] of Object.entries(REQUIRED))if(process.env[k]!==v)throw Error('F06_1_NOT_ISOLATED_'+k);
- if(process.env.F03_1_DATABASE_URL!==URL||process.env.GITHUB_REPOSITORY!=='suzhe868-arch/mb'||
+ if(process.env.F03_1_DATABASE_URL!==DATABASE_URL||process.env.GITHUB_REPOSITORY!=='suzhe868-arch/mb'||
  !/^[0-9]{6,20}$/.test(process.env.GITHUB_RUN_ID||''))throw Error('F06_1_PRODUCTION_OR_UNSIGNED_JOB_DENIED');
 }
 export const SQL=await readFile(new URL('./sidecar.sql',import.meta.url),'utf8');
 export const checksum=createHash('sha256').update(SQL).digest('hex');
 const hash=o=>createHash('sha256').update(JSON.stringify(o)).digest('hex');
-export async function connect(){gate();const c=new pg.Client({connectionString:URL,connectionTimeoutMillis:3000,query_timeout:90000});await c.connect();try{const x=(await c.query("SELECT current_database() db,current_user u,current_setting('server_version_num')::int ver,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su,(SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user) cdb")).rows[0];if(x.db!=='f03_auth_test'||x.u!=='f03_ci'||x.su||x.cdb||x.ver<160000||x.ver>=170000)throw Error('F06_1_NON_PRIVILEGED_PG16_REQUIRED');return c}catch(e){await c.end();throw e}}
+export async function connect(){gate();const c=new pg.Client({connectionString:DATABASE_URL,connectionTimeoutMillis:3000,query_timeout:90000});await c.connect();try{const x=(await c.query("SELECT current_database() db,current_user u,current_setting('server_version_num')::int ver,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su,(SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user) cdb")).rows[0];if(x.db!=='f03_auth_test'||x.u!=='f03_ci'||x.su||x.cdb||x.ver<160000||x.ver>=170000)throw Error('F06_1_NON_PRIVILEGED_PG16_REQUIRED');return c}catch(e){await c.end();throw e}}
 async function signed(c){
  gate();const v=await verifyV26(c);if(!v.verified)throw Error('F06_1_OLD_SIGNED_V26_REQUIRED');
  const ledger=(await c.query('SELECT migration_id,checksum,structure_sha256 FROM public.f03_schema_migrations ORDER BY migration_id')).rows;
