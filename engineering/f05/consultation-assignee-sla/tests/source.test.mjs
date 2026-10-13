@@ -456,11 +456,11 @@ test('10-R02 legal active source Demand priority and revoked Demand to current C
 });
 
 test('10-R02 owner pending/public pool cannot synthesize independent Consultation responsibility',async()=>{
- const pending=await q("SELECT customer_id FROM public.customers WHERE owner_assignment_state<>'assigned' OR current_owner_employee_id IS NULL ORDER BY customer_id LIMIT 1");
+ const pending=await q("SELECT customer_id FROM public.customers WHERE account_status='active' AND (owner_assignment_state<>'assigned' OR current_owner_employee_id IS NULL) ORDER BY customer_id LIMIT 1");
  assert.ok(pending.length,'M94 must contain an authentic unassigned/pending Customer');
  const denial=await create(Number(pending[0].customer_id),'search');
  assert.equal(denial.allowed,false,JSON.stringify(denial));
- assert.match(denial.code,/OWNER_ASSIGNMENT|CUSTOMER_VEHICLE/);
+ assert.equal(denial.code,'F05_10_OWNER_ASSIGNMENT_OR_PUBLIC_POOL_REQUIRED','A signed active Customer with pending Owner must fail on assignment guard, not inactive/customer validity');
  console.log('F05_10_R02_PENDING_OWNER_FAIL_CLOSED',{customerId:Number(pending[0].customer_id),code:denial.code});
 });
 
