@@ -98,3 +98,98 @@ test('62-S21 Customer disabled cannot trigger manual cancellation',async()=>{awa
 test('62-S22 archived supply does not auto-cancel and blocks extend',async()=>{await q('UPDATE public.vehicles SET archived_at=clock_timestamp() WHERE vehicle_id=$1',[vehicle(4)]);try{const r=await actor(locks[4],'extend','archive4',{extendHours:2});assert.equal(r.code,'F06_2_SOURCE_OR_CYCLE_NOT_CURRENT_EXTEND_DENIED',JSON.stringify(r));assert.equal((await q('SELECT lock_status FROM public.locks WHERE lock_id=$1',[locks[4]]))[0].lock_status,'active')}finally{await q('UPDATE public.vehicles SET archived_at=NULL WHERE vehicle_id=$1',[vehicle(4)])}});
 test('62-S23 fault injection rolls back Lock and append-only event',async()=>{const before=(await q('SELECT count(*)::int n FROM f06_2_ci.lifecycle_events WHERE lock_id=$1',[locks[3]]))[0].n;await assert.rejects(()=>actor(locks[3],'cancel','rollback3',{testCheckpoint:'AFTER_EVENT_THROW'}),/F06_2_INJECTED_ATOMIC_ROLLBACK/);assert.equal((await q('SELECT lock_status FROM public.locks WHERE lock_id=$1',[locks[3]]))[0].lock_status,'active');assert.equal((await q('SELECT count(*)::int n FROM f06_2_ci.lifecycle_events WHERE lock_id=$1',[locks[3]]))[0].n,before)});
 test('62-S24 cancellation keeps history immutable and recomputes ordinary visibility',async()=>{const r=await actor(locks[3],'cancel','cancel3');assert.equal(r.code,'F06_2_CANCEL_COMMITTED',JSON.stringify(r));const e=(await q('SELECT * FROM f06_2_ci.lifecycle_events WHERE lock_id=$1',[locks[3]]))[0];assert.equal(e.event_kind,'cancel');await assert.rejects(()=>q("UPDATE f06_2_ci.lifecycle_events SET reason='unauthorized' WHERE event_id=$1",[e.event_id]),/F06_2_LIFECYCLE_HISTORY_IMMUTABLE/);const v=await customerProjectionCI(db,{customerId:customer(2),vehicleId:vehicle(3),listingCycleId:cycle(3),syntheticCustomerProof:proof});assert.equal(v.allowed,true,JSON.stringify(v));assert.equal(v.lockStatus,'available')});
+
+
+test('62-S25 ordinary Lock does not hide Vehicle from another originally entitled Customer',async()=>{
+ const v=await customerProjectionCI(db,{customerId:customer(2),vehicleId:vehicle(4),listingCycleId:cycle(4),syntheticCustomerProof:proof});
+ assert.equal(v.allowed,true,JSON.stringify(v));assert.equal(v.lockStatus,'locked');assert.equal(v.canCreateAnotherActiveLock,false);
+});
+test('62-S26 separate physical PG backend COMMIT permission revoke rejects stale Employee token',async()=>{
+ const b=await connect(),aPid=(await q('SELECT pg_backend_pid() pid'))[0].pid;
+ const bPid=(await b.query('SELECT pg_backend_pid() pid')).rows[0].pid;
+ assert.notEqual(aPid,bPid);
+ try{
+  await b.query('BEGIN');
+  await b.query("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=clock_timestamp() WHERE employee_id=1 AND permission_id=961803");
+  await b.query('COMMIT');
+  const before=(await q('SELECT count(*)::int n FROM f06_2_ci.lifecycle_events WHERE lock_id=$1',[locks[4]]))[0].n;
+  const r=await actor(locks[4],'extend','revoke-commit',{extendHours:2});
+  assert.equal(r.code,'F06_2_EMPLOYEE_PERMISSION_SCOPE_DENIED',JSON.stringify(r));
+  assert.equal((await q('SELECT count(*)::int n FROM f06_2_ci.lifecycle_events WHERE lock_id=$1',[locks[4]]))[0].n,before);
+  console.log('F06_2_TWO_NATIVE_PG_BACKENDS_COMMITTED_REVOCATION',{aPid,bPid});
+ }finally{
+  await b.query("UPDATE public.employee_permission_overrides SET decision='allow',changed_at=clock_timestamp() WHERE employee_id=1 AND permission_id=961803");
+  await b.end();
+ }
+});
+test('62-S27 true signed physical Transaction denies mutation despite synthetic absence',async()=>{
+ await q("UPDATE f06_2_ci.finance_proofs SET proof_kind='synthetic_absence_confirmed' WHERE lock_id=$1",[locks[7]]);
+ const t=await q("INSERT INTO public.transactions(source_lock_id,customer_id,vehicle_id,listing_cycle_id,status,responsible_employee_id) VALUES($1,$2,$3,$4,'pending',4) RETURNING transaction_id",
+ [locks[7],customer(1),vehicle(7),cycle(7)]);
+ assert.equal(t.length,1);
+ const r=await actor(locks[7],'cancel','transaction-cancel-denied');
+ assert.equal(r.code,'F06_2_EXISTING_SIGNED_MONEY_OR_TRANSACTION_DENY',JSON.stringify(r));
+ assert.equal((await q('SELECT lock_status FROM public.locks WHERE lock_id=$1',[locks[7]]))[0].lock_status,'active');
+});
+test('62-S28 two true PG sessions contend on a Lock without partial event commit',async()=>{
+ const b=await connect(),lock=locks[4];
+ const before=(await q('SELECT count(*)::int n FROM f06_2_ci.lifecycle_events WHERE lock_id=$1',[lock]))[0].n;
+ try{
+  await b.query('BEGIN');await b.query('SELECT lock_id FROM public.locks WHERE lock_id=$1 FOR UPDATE',[lock]);
+  const result=await actor(lock,'release','contending-row-lock').then(v=>({v}),e=>({e}));
+  assert.ok(result.e || result.v?.allowed===false,JSON.stringify(result));
+  if(result.e)assert.ok(['55P03','40P01','40001'].includes(result.e.code),String(result.e));
+  await b.query('COMMIT');
+  assert.equal((await q('SELECT lock_status FROM public.locks WHERE lock_id=$1',[lock]))[0].lock_status,'active');
+  assert.equal((await q('SELECT count(*)::int n FROM f06_2_ci.lifecycle_events WHERE lock_id=$1',[lock]))[0].n,before);
+  console.log('F06_2_TWO_PG_BACKENDS_CONTENDED_LOCK_NO_PARTIAL_EVENTS');
+ }finally{await b.query('ROLLBACK');await b.end()}
+});
+test('62-S29 disabled Customer retains ordinary Lock until eligible PG-clock expiry, not automatic cancellation',async()=>{
+ await q("INSERT INTO f06_2_ci.finance_proofs(lock_id,proof_kind) VALUES($1,'synthetic_absence_confirmed')",[locks[8]]);
+ await q("UPDATE public.locks SET created_at=clock_timestamp()-interval '100 hours',expires_at=clock_timestamp()-interval '1 minute' WHERE lock_id=$1",[locks[8]]);
+ await q("UPDATE public.customers SET account_status='disabled' WHERE customer_id=$1",[customer(1)]);
+ try{
+  assert.equal((await q('SELECT lock_status FROM public.locks WHERE lock_id=$1',[locks[8]]))[0].lock_status,'active');
+  const r=await system(locks[8]);assert.equal(r.code,'F06_2_PG_CLOCK_EXPIRED',JSON.stringify(r));
+ }finally{await q("UPDATE public.customers SET account_status='active' WHERE customer_id=$1",[customer(1)])}
+});
+test('62-S30 real signed v23 Match to physical v24 Priority-origin Lock stays exclusive until released and old Priority never revives',async()=>{
+ const rows=await q("SELECT rv.result_id,rv.demand_id,rv.vehicle_id,rv.listing_cycle_id,rv.source_signature,d.customer_id,d.responsible_employee_id "+
+  "FROM public.f05_7_result_versions_ci rv JOIN public.demands d ON d.demand_id=rv.demand_id AND d.demand_state='active' "+
+  "JOIN public.customers cs ON cs.customer_id=d.customer_id AND cs.account_status='active' "+
+  "AND cs.owner_assignment_state='assigned' AND cs.current_owner_employee_id=d.responsible_employee_id "+
+  "JOIN public.f05_6_level_find_policy_ci lv ON lv.level_id=cs.customer_level_id AND lv.find_enabled=true "+
+  "JOIN public.vehicles v ON v.vehicle_id=rv.vehicle_id "+
+  "JOIN public.vehicle_listing_cycles cy ON cy.listing_cycle_id=rv.listing_cycle_id AND cy.vehicle_id=rv.vehicle_id "+
+  "WHERE rv.status='current' AND rv.tier IN('high','acceptable') AND v.platform_visibility='visible' "+
+  "AND v.source_sale_status='active' AND v.archived_at IS NULL AND cy.ended_at IS NULL "+
+  "AND NOT EXISTS(SELECT 1 FROM public.locks l WHERE l.vehicle_id=rv.vehicle_id AND l.lock_status='active') "+
+  "AND NOT EXISTS(SELECT 1 FROM public.f05_8_priority_ci p WHERE p.vehicle_id=rv.vehicle_id "+
+  "AND p.listing_cycle_id=rv.listing_cycle_id AND p.status='active') ORDER BY rv.result_id LIMIT 1");
+ assert.equal(rows.length,1,'genuine signed v23 Match required');const v=rows[0];
+ const pri=(await q("INSERT INTO public.f05_8_priority_ci "+
+  "(customer_id,vehicle_id,listing_cycle_id,trigger_demand_id,responsible_employee_id,origin_team_id,origin_store_id,source_match_result_id,source_signature,expires_at,creation_key) "+
+  "VALUES($1,$2,$3,$4,$5,901,1,$6,$7,clock_timestamp()+interval '10 minutes',$8) RETURNING priority_id",
+  [v.customer_id,v.vehicle_id,v.listing_cycle_id,v.demand_id,v.responsible_employee_id,v.result_id,v.source_signature,key('p18-original-priority')]))[0];
+ assert.ok(pri.priority_id);
+ const facts=await q("SELECT phone_fact_id FROM public.customer_phone_facts WHERE customer_id=$1 AND ended_at IS NULL",[v.customer_id]);
+ if(!facts.length)await q("INSERT INTO public.customer_phone_facts(customer_id,phone_ciphertext,valid_from) VALUES($1,decode(repeat('ab',16),'hex'),clock_timestamp()-interval '1 day')",[v.customer_id]);
+ const req=await withParentBranch(()=>intakeCI(db,{customerId:Number(v.customer_id),vehicleId:Number(v.vehicle_id),
+  listingCycleId:Number(v.listing_cycle_id),requestKey:key('priority-lockrequest'),syntheticPhoneConsent:proof}));
+ assert.equal(req.code,'F06_1_PENDING_CREATED',JSON.stringify(req));
+ const done=await withParentBranch(()=>decisionCI(auth,token,{requestId:req.requestId,requestKey:key('priority-approval'),action:'approve'}));
+ assert.equal(done.code,'F06_1_APPROVED_ATOMIC_LOCK',JSON.stringify(done));
+ assert.equal(Number(done.priorityOriginId),Number(pri.priority_id));
+ const guest=()=>customerProjectionCI(db,{customerId:customer(8),vehicleId:Number(v.vehicle_id),
+  listingCycleId:Number(v.listing_cycle_id),syntheticCustomerProof:proof});
+ assert.equal((await guest()).code,'F06_1_OTHER_CUSTOMER_PRIORITY_ORIGIN_LOCK_DENIED');
+ await q("INSERT INTO f06_2_ci.finance_proofs(lock_id,proof_kind) VALUES($1,'synthetic_absence_confirmed')",[done.lockId]);
+ assert.equal((await actor(done.lockId,'extend','priority-extension-deny',{extendHours:2})).code,'F06_2_PRIORITY_ORIGIN_ORDINARY_EXTENSION_DENIED');
+ const released=await actor(done.lockId,'release','priority-manual-release');
+ assert.equal(released.code,'F06_2_RELEASE_COMMITTED',JSON.stringify(released));
+ assert.equal((await q('SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1',[pri.priority_id]))[0].status,'ended');
+ assert.equal((await q("SELECT count(*)::int n FROM public.locks WHERE vehicle_id=$1 AND lock_status='active'",[v.vehicle_id]))[0].n,0);
+ const view=await guest();assert.ok(!view.allowed||view.lockStatus==='available',JSON.stringify(view));
+ console.log('F06_2_SIGNED_PRIORITY_ORIGIN_FINAL_RELEASE_RECALCULATED',{priorityId:pri.priority_id,lockId:done.lockId});
+});
