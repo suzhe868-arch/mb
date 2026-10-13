@@ -16,7 +16,7 @@ const second=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,s
 const k=s=>'f06-3c1-pg16-'+s+'-'+process.env.GITHUB_RUN_ID;
 const customer=86180101,vehicle=n=>86181100+n,cycle=n=>86182100+n;
 const old=fn=>withF063B(()=>withF063A(()=>withF062(()=>withParentBranch(fn))));
-let token,locks={},r1,deposit1,beforeMoney;
+let token,locks={},r1,deposit1,beforeMoney,baselineRefundCases,baselineInProgressTransactions,baselineTransactionOrigins;
 const request=(lockId,name,extra={})=>requestSyntheticRefundCI(auth,token,{subjectKind:'lock',lockId,amountCents:5000,reason:'合成测试客户申请退款原因',eventKey:k(name),...extra});
 const close=(refundId,name,extra={})=>closeSyntheticRefundCI(auth,token,{refundId,closeReason:'客户确认决定不进行退款',eventKey:k(name),...extra});
 const count=s=>q(s).then(x=>x[0].n);
@@ -51,6 +51,10 @@ test.before(async()=>{
   paymentMethod:'cash',receivedAt:new Date(Date.now()-3600000).toISOString(),eventKey:k('deposit-4')})));
  assert.equal(d4.allowed,true,JSON.stringify(d4));
  beforeMoney=await q('SELECT deposit_id,lock_id,amount_cents FROM public.deposit_receipts ORDER BY deposit_id');
+ // Signed inherited F06-3B scenarios leave synthetic rows. Prove deltas without asserting an empty parent database.
+ baselineRefundCases=await count('SELECT count(*)::int n FROM public.refund_cases');
+ baselineInProgressTransactions=await count("SELECT count(*)::int n FROM public.transactions WHERE status='in_progress'");
+ baselineTransactionOrigins=await count('SELECT count(*)::int n FROM f06_3b_ci.transaction_origins');
 });
 test.after(async()=>{await db.end();await auth.close();await second.close()});
 test('3C1-S01 3B签字与PG只读载体',async()=>assert.equal((await verify(db)).verified,true));
@@ -102,7 +106,10 @@ test('3C1-S20 注入审计后回滚',async()=>{
  await assert.rejects(()=>request(locks[1],'inject-audit',{testCheckpoint:'AFTER_AUDIT_THROW'}),/F06_3C1_INJECTED_AUDIT_ROLLBACK/);
  assert.equal(await count('SELECT count(*)::int n FROM f06_3c1_ci.request_keys'),0);
 });
-test('3C1-S21 回滚无遗留public Refund',async()=>assert.equal(await count('SELECT count(*)::int n FROM public.refund_cases'),0));
+test('3C1-S21 回滚无新增public Refund且保全前批数据',async()=>{
+ assert.equal(await count('SELECT count(*)::int n FROM public.refund_cases'),baselineRefundCases);
+ assert.equal(await count('SELECT count(*)::int n FROM public.refund_cases WHERE lock_id='+Number(locks[1])),0);
+});
 test('3C1-S22 合法申请pending原子提交',async()=>{
  const a=await request(locks[1],'valid');assert.equal(a.code,'F06_3C1_PENDING_NO_PAYMENT',JSON.stringify(a));r1=a.refundId;
 });
@@ -166,7 +173,7 @@ test('3C1-S42 同一车两个真实PG后端并发仅一个pending',async()=>{
  assert.equal((await q('SELECT count(*)::int n FROM public.refund_cases WHERE lock_id=$1 AND status=\'pending\'',[locks[4]]))[0].n,1);
 });
 test('3C1-S43 真实transaction、Lock与财务原事实均不因pending改变',async()=>{
- assert.equal((await q("SELECT count(*)::int n FROM public.transactions WHERE status='in_progress'"))[0].n,1);
- assert.equal((await q("SELECT count(*)::int n FROM f06_3b_ci.transaction_origins"))[0].n,1);
+ assert.equal((await q("SELECT count(*)::int n FROM public.transactions WHERE status='in_progress'"))[0].n,baselineInProgressTransactions+1);
+ assert.equal((await q("SELECT count(*)::int n FROM f06_3b_ci.transaction_origins"))[0].n,baselineTransactionOrigins+1);
  assert.equal(await count('SELECT count(*)::int n FROM public.refund_payments'),0);
 });
