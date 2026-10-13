@@ -89,3 +89,4 @@ test('62-S12 replay key cannot affect a second Lock',async()=>{const r=await act
 test('62-S13 missing reason rejected',async()=>{const x=await employeeLifecycleCI(auth,token,{lockId:locks[2],action:'release',eventKey:key('no-reason'),reason:'x'});assert.equal(x.code,'F06_2_BAD_EMPLOYEE_MUTATION')});
 test('62-S14 unsigned signed-session denial',async()=>{const r=await employeeLifecycleCI(auth,'untrusted-session',{lockId:locks[2],action:'release',eventKey:key('untrusted'),reason:'invalid actor source'});assert.equal(r.allowed,false)});
 test('62-S15 native PG clock refuses early automatic release',async()=>{const r=await system(locks[2]);assert.equal(r.code,'F06_2_PG_CLOCK_NOT_EXPIRED',JSON.stringify(r))});
+test('62-S16 source has one active Lock before expiry',async()=>{assert.equal((await q("SELECT count(*)::int n FROM public.locks WHERE vehicle_id=$1 AND lock_status='active'",[vehicle(2)]))[0].n,1)});
