@@ -1,0 +1,54 @@
+name: F06-1 real PG16 LockRequest atomic approval and TLS issuer fail-closed
+on:
+  push:
+    branches: [feat/f06-4a-transaction-cancel-ci]
+permissions: {contents: read, actions: read, pull-requests: read}
+jobs:
+  f06-1-source:
+    name: F06-1 Source real PG16 LockRequest six-hour approval race and Waitlist
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Real signed M94 to v26 and F06-1 CI-only PG16 Source
+        run: env GITHUB_REF=refs/heads/feat/f06-3a-deposit-ledger-ci GITHUB_REF_NAME=feat/f06-3a-deposit-ledger-ci bash engineering/f06/deposit-ledger-ci/compat-old.sh source
+        env:
+          GH_ACTIONS_READ_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-1-source-native-pg16-evidence
+          path: engineering/f06/lockrequest-approval-waitlist-ci/artifacts/source/
+          retention-days: 30
+          if-no-files-found: error
+  f06-1-https:
+    name: F06-1 HTTPS production Customer Employee and Money issuer deny
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Native HTTPS loopback role phone and finance denial
+        run: env GITHUB_REF=refs/heads/feat/f06-3a-deposit-ledger-ci GITHUB_REF_NAME=feat/f06-3a-deposit-ledger-ci bash engineering/f06/deposit-ledger-ci/compat-old.sh https
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-1-https-native-pg16-evidence
+          path: engineering/f06/lockrequest-approval-waitlist-ci/artifacts/https/
+          retention-days: 30
+          if-no-files-found: error
