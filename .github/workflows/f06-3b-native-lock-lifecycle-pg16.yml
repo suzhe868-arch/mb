@@ -2,7 +2,7 @@ name: F06-2 isolated native PG16 Lock lifecycle Source24 and HTTPS9
 on:
   push:
     branches: [feat/f06-3b-lock-transaction-ci]
-permissions: {contents: read, actions: read}
+permissions: {contents: read, actions: read, pull-requests: read}
 jobs:
   f06-2-source:
     name: F06-2 Source real nonprivileged PG16 Lock lifecycle immutable audit

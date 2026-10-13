@@ -2,7 +2,7 @@ name: F06-3A isolated native PG16 Deposit receipts and correction ledger Source2
 on:
   push:
     branches: [feat/f06-3b-lock-transaction-ci]
-permissions: {contents: read, actions: read}
+permissions: {contents: read, actions: read, pull-requests: read}
 jobs:
   f06-3a-source:
     name: F06-3A Source real nonprivileged PG16 Deposit receipts and correction ledger immutable audit

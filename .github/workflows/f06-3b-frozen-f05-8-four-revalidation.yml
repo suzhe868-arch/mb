@@ -2,7 +2,7 @@ name: F05-11 inherited frozen f05-8-four
 on:
   push:
     branches: [feat/f06-3b-lock-transaction-ci]
-permissions: {contents: read, actions: read}
+permissions: {contents: read, actions: read, pull-requests: read}
 jobs:
   compat-f05-7-source:
     name: F05-8 signed F05-7 Source 28 true PostgreSQL16 PG
@@ -63,7 +63,7 @@ jobs:
         ports: [5432:5432]
         options: >-
           --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
-    permissions: {contents: read, actions: read}
+    permissions: {contents: read, actions: read, pull-requests: read}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4

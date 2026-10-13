@@ -2,7 +2,7 @@ name: F06-3B isolated native PG16 Lock Transaction atomic origin Source35 and HT
 on:
   push:
     branches: [feat/f06-3b-lock-transaction-ci]
-permissions: {contents: read, actions: read}
+permissions: {contents: read, actions: read, pull-requests: read}
 jobs:
   f06-3b-source:
     name: F06-3B Source real nonprivileged PG16 Lock Transaction immutable origin atomic audit

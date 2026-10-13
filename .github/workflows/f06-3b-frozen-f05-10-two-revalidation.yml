@@ -2,7 +2,7 @@ name: F05-11 inherited F05-10 original signed PG16 source and HTTPS
 on:
   push:
     branches: [feat/f06-3b-lock-transaction-ci]
-permissions: {contents: read, actions: read}
+permissions: {contents: read, actions: read, pull-requests: read}
 jobs:
   consultation-source:
     name: F05-10 new Source v26 true PG16

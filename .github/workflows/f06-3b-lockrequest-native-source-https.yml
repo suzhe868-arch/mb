@@ -2,7 +2,7 @@ name: F06-1 real PG16 LockRequest atomic approval and TLS issuer fail-closed
 on:
   push:
     branches: [feat/f06-3b-lock-transaction-ci]
-permissions: {contents: read, actions: read}
+permissions: {contents: read, actions: read, pull-requests: read}
 jobs:
   f06-1-source:
     name: F06-1 Source real PG16 LockRequest six-hour approval race and Waitlist

@@ -16,8 +16,10 @@
 
 ## 3. B必须在最终HEAD核验的硬门禁
 - **15/15同末次HEAD真Push Workflow completed/success**，原14条旧工作流与82个独立真PG16 Jobs全部同SHA重新运行：**82/82 success**，其中H52必须真实52/52，而不是GitHub API首页30条。
-- 本域Source预计32个真实非特权PG16 Source正反测试；真实回环TLS HTTPS9/9；原F06-1/2/3A旧Source/HTTPS完整保留。
+- 本域Source共35个真实非特权PG16 Source正反测试；真实回环TLS HTTPS9/9；原F06-1/2/3A旧Source/HTTPS完整保留。
 - ≥18份同末次HEAD GitHub官方Artifact，非空未过期，原生`sha256:` digest且官方`workflow_run.head_sha`一致；日志必须包括原生OID、双Backend PID、迁移注错、旧表COUNT/MD5与Cross-PDM源签名。
 - CI环境镜像拉取限流仅允许官方同SHA重跑失败项，不能跨SHA拼结果，也不得用mock冒充PG。
 - 完成时B把最终唯一HEAD/14旧+1新工作流Run ID/82项Job ID/Artifact ID写入PR正式签署评论，`F06_3B_B_SELF_TESTED / READY_FOR_A_INDEPENDENT_REVIEW / NEXT_OWNER=A`；A再进行独立验收。**未完成门禁时不得签。**
 - 本批新增 S35 真实物理负例：即使`public.transactions`已有 `in_progress` 而新增CI侧表无记录，也必须阻止新Lock/Priority，不能因Sidecar未投影而误放行；保护适配器仍**未接入生产入口**。源测试增至35项。
+
+- B继承旧F05-11审计在较早SHA出现`F05_11_GITHUB_PR_FETCH_30_403`；错误日志不含响应正文，可能是令牌权限或外部限流。本批仅新工作流明确增加`pull-requests: read`，不扩大任何写权限、不改变旧服务。最终以新SHA真Push真实Job为准。
