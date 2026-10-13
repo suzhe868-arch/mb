@@ -1,7 +1,8 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {connect,verify,gate} from '../migration.mjs';
-import {intakeCI,decisionCI,productionIssuerDeny} from '../service.mjs';
+import {intakeCI,decisionCI,productionIssuerDeny,customerLockProjectionCI} from '../service.mjs';
+import {arbitrateCI,setQualificationCI} from '../../../f05/priority-arbitration-ttl-handover/service.mjs';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 const url=process.env.F03_1_DATABASE_URL,secret=Buffer.alloc(32,61);
 const db=await connect(),q=(sql,a=[])=>db.query(sql,a).then(r=>r.rows);
@@ -262,4 +263,145 @@ test('06-S40 Waitlist responsibility is derived from current paused Demand, neve
  assert.equal(Number(a.responsible_employee_id),1);assert.equal(a.responsible_origin,'demand');
  assert.equal(a.demand_state,'paused');
  console.log('F06_1_REAL_SIGNED_DEMAND_RESPONSIBLE_NOT_GENERIC_APPROVER',{waitlistId:a.waitlist_id,from:a.responsible_origin});
+});
+
+ 
+// A整改R01/R02。已签v23 Match + v24 Priority产生真实物理事实，
+// 仅在可销毁PG16场景库使用。严禁伪造前端Issuer或人工INSERT Origin字符串。
+let signedPriority,priorityRequest,priorityRivalRequest,priorityLock;
+const signedView=(customerId,source=signedPriority)=>customerLockProjectionCI(db,{
+ customerId,vehicleId:Number(source.vehicle_id),listingCycleId:Number(source.listing_cycle_id),
+ syntheticCustomerProof:proof
+});
+test('06-S41 genuine signed v23 Match produces a v24 Priority through ORIGINAL signed service',async()=>{
+ // Use F05-7 current real results and the original v24 qualification/arbitration,
+ // not an ad hoc Priority row or fabricated JavaScript origin marker.
+ const sources=await q("SELECT DISTINCT rv.vehicle_id,rv.listing_cycle_id,rv.result_id,d.customer_id "+
+  "FROM public.f05_7_result_versions_ci rv "+
+  "JOIN public.demands d ON d.demand_id=rv.demand_id AND d.demand_state='active' "+
+  "JOIN public.customers cs ON cs.customer_id=d.customer_id AND cs.account_status='active' "+
+  "JOIN public.vehicles v ON v.vehicle_id=rv.vehicle_id "+
+  "JOIN public.vehicle_listing_cycles lc ON lc.listing_cycle_id=rv.listing_cycle_id AND lc.vehicle_id=rv.vehicle_id "+
+  "WHERE rv.status='current' AND rv.tier IN('high','acceptable') AND v.platform_visibility='visible' "+
+  "AND v.archived_at IS NULL AND lc.ended_at IS NULL "+
+  "AND ((v.source_type='wholesale' AND v.source_sale_status='active') OR "+
+  "(v.source_type IN('mingbang','four_s') AND v.source_sale_status='available')) "+
+  "AND NOT EXISTS(SELECT 1 FROM public.locks l WHERE l.vehicle_id=rv.vehicle_id AND l.lock_status='active') "+
+  "AND NOT EXISTS(SELECT 1 FROM public.f05_8_priority_ci p WHERE p.vehicle_id=rv.vehicle_id AND p.listing_cycle_id=rv.listing_cycle_id AND p.status='active') "+
+  "ORDER BY rv.result_id LIMIT 10");
+ assert.ok(sources.length>0,'true v23 current signed Match must exist: no synthetic Priority insert fallback');
+ let claim=null;
+ for(const row of sources){
+  const step=await setQualificationCI(auth,token,{teamId:901,customerId:Number(row.customer_id),enabled:true,
+   eventKey:k('qualify-v23-v24-'+row.customer_id)});
+  assert.ok(step.allowed,JSON.stringify(step));
+  const result=await arbitrateCI(auth,token,{teamId:901,vehicleId:Number(row.vehicle_id),
+   listingCycleId:Number(row.listing_cycle_id),runKey:k('true-v24-arbitrate-'+row.vehicle_id)});
+  assert.ok(result.allowed,JSON.stringify(result));
+  const now=await q("SELECT p.* FROM public.f05_8_priority_ci p "+
+   "JOIN public.f05_7_result_versions_ci r ON r.result_id=p.source_match_result_id "+
+   "AND r.demand_id=p.trigger_demand_id AND r.vehicle_id=p.vehicle_id "+
+   "AND r.listing_cycle_id=p.listing_cycle_id AND r.source_signature=p.source_signature "+
+   "WHERE p.vehicle_id=$1 AND p.listing_cycle_id=$2 AND p.status='active' "+
+   "AND p.expires_at>clock_timestamp()",[row.vehicle_id,row.listing_cycle_id]);
+  if(now.length){claim=now[0];break}
+ }
+ assert.ok(claim,'original signed v24 arbitration must create a real active Priority from v23 Match');
+ signedPriority=claim;
+ const customerId=Number(claim.customer_id);
+ const status=(await q("SELECT account_status,current_owner_employee_id,owner_assignment_state FROM public.customers WHERE customer_id=$1",[customerId]))[0];
+ assert.equal(status.account_status,'active');assert.equal(status.owner_assignment_state,'assigned');
+ assert.ok(Number(status.current_owner_employee_id)>0);
+ // Only attach CI-labelled synthetic phone evidence, never a real Customer credential.
+ await q("INSERT INTO public.customer_phone_facts(customer_id,phone_ciphertext,valid_from) "+
+  "SELECT $1,decode(repeat('ab',16),'hex'),clock_timestamp()-interval '1 day' "+
+  "WHERE NOT EXISTS(SELECT 1 FROM public.customer_phone_facts WHERE customer_id=$1 AND ended_at IS NULL)",[customerId]);
+ console.log('F06_1_R01_REAL_V23_MATCH_SIGNED_V24_PRIORITY',{
+  priorityId:claim.priority_id,matchResultId:claim.source_match_result_id,customerId,
+  vehicleId:claim.vehicle_id,cycleId:claim.listing_cycle_id});
+});
+test('06-S42 live signed Priority excludes rival before approval; real synthetic Customer intake uses actual source',async()=>{
+ const owner=Number(signedPriority.customer_id),rival=customer(8);
+ assert.notEqual(owner,rival);
+ const direct=await signedView(owner);assert.equal(direct.allowed,true,JSON.stringify(direct));
+ const denied=await signedView(rival);
+ assert.equal(denied.code,'F06_1_OTHER_CUSTOMER_ACTIVE_PRIORITY_DENIED',JSON.stringify(denied));
+ const created=await intakeCI(db,{customerId:owner,vehicleId:Number(signedPriority.vehicle_id),
+  listingCycleId:Number(signedPriority.listing_cycle_id),requestKey:k('v24-priority-original-owner'),syntheticPhoneConsent:proof});
+ assert.equal(created.code,'F06_1_PENDING_CREATED',JSON.stringify(created));priorityRequest=created.requestId;
+ // This pending competitor is original genuine request-before-Priority race
+ // represented by existing independently signed F06 intake, not a fabricated Origin.
+ // Original priority denies rival NEW intake; Waitlist remains internal after winner.
+ const bad=await intakeCI(db,{customerId:rival,vehicleId:Number(signedPriority.vehicle_id),
+  listingCycleId:Number(signedPriority.listing_cycle_id),requestKey:k('rival-priority-new-intake'),syntheticPhoneConsent:proof});
+ assert.equal(bad.code,'F06_1_OTHER_CUSTOMER_PRIORITY_DENIED');
+ assert.equal((await q("SELECT count(*)::int n FROM public.locks WHERE vehicle_id=$1",[signedPriority.vehicle_id]))[0].n,0);
+});
+test('06-S43 same PG transaction injection restores Priority, Lock, Request and immutable event',async()=>{
+ const prior=await q("SELECT count(*)::int n FROM public.f05_8_events_ci WHERE priority_id=$1 AND event_kind='ended'",[signedPriority.priority_id]);
+ await assert.rejects(()=>decisionCI(auth,token,{requestId:priorityRequest,
+  requestKey:k('v24-atomic-fault'),action:'approve',testCheckpoint:'AFTER_PRIORITY_END_EVENT_THROW'}),/F06_1_INJECTED_PRIORITY_ATOMIC_ROLLBACK/);
+ const p=(await q("SELECT status,ended_at FROM public.f05_8_priority_ci WHERE priority_id=$1",[signedPriority.priority_id]))[0];
+ assert.equal(p.status,'active');assert.equal(p.ended_at,null);
+ assert.equal((await q("SELECT status FROM public.lock_requests WHERE lock_request_id=$1",[priorityRequest]))[0].status,'pending');
+ assert.equal((await q("SELECT count(*)::int n FROM public.locks WHERE vehicle_id=$1",[signedPriority.vehicle_id]))[0].n,0);
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_events_ci WHERE priority_id=$1 AND event_kind='ended'",[signedPriority.priority_id]))[0].n,prior[0].n);
+ console.log('F06_1_R01_SIGNED_PRIORITY_LOCK_EVENT_REQUEST_ATOMIC_ROLLBACK_PASS');
+});
+test('06-S44 original signed Priority Customer approval atomically ends Priority and preserves event',async()=>{
+ const res=await decisionCI(auth,token,{requestId:priorityRequest,
+  requestKey:k('v24-owner-final-approve'),action:'approve'});
+ assert.equal(res.code,'F06_1_APPROVED_ATOMIC_LOCK',JSON.stringify(res));
+ assert.equal(res.priorityOrigin,true);assert.equal(Number(res.priorityOriginId),Number(signedPriority.priority_id));
+ priorityLock=res.lockId;
+ const p=(await q("SELECT status,ended_reason,ended_at FROM public.f05_8_priority_ci WHERE priority_id=$1",[signedPriority.priority_id]))[0];
+ assert.equal(p.status,'ended');assert.equal(p.ended_reason,'converted_to_lock');assert.ok(p.ended_at);
+ const snapshot=(await q("SELECT priority_origin_id,priority_origin_customer_id FROM f06_1_lock_ci.lock_snapshots WHERE lock_id=$1",[priorityLock]))[0];
+ assert.equal(Number(snapshot.priority_origin_id),Number(signedPriority.priority_id));
+ assert.equal(Number(snapshot.priority_origin_customer_id),Number(signedPriority.customer_id));
+ const events=await q("SELECT event_kind,actor_employee_id,after_json FROM public.f05_8_events_ci "+
+  "WHERE priority_id=$1 AND event_key=$2",[signedPriority.priority_id,
+   'f06-1-priority-to-lock:'+signedPriority.priority_id+':'+priorityLock]);
+ assert.equal(events.length,1);assert.equal(events[0].event_kind,'ended');
+ assert.equal(Number(events[0].actor_employee_id),1);
+ assert.equal(events[0].after_json.reason,'converted_to_lock');
+ assert.equal(Number(events[0].after_json.lockId),priorityLock);
+ console.log('F06_1_R01_V23_V24_PRIORITY_SIGNED_ATOMIC_CONVERSION_AND_HISTORY_PASS',{
+  signedMatchId:signedPriority.source_match_result_id,priorityId:signedPriority.priority_id,lockId:priorityLock});
+});
+test('06-S45 v24 Priority ended but original Lock still enforces exclusive Customer list and detail',async()=>{
+ const own=await signedView(Number(signedPriority.customer_id));
+ assert.deepEqual({allowed:own.allowed,listVisible:own.listVisible,detailVisible:own.detailVisible,lockStatus:own.lockStatus},
+  {allowed:true,listVisible:true,detailVisible:true,lockStatus:'locked'});
+ for(const rival of [customer(8),customer(7)]){
+  const not=await signedView(rival);
+  assert.equal(not.code,'F06_1_OTHER_CUSTOMER_PRIORITY_ORIGIN_LOCK_DENIED',JSON.stringify(not));
+  assert.equal(not.listVisible,false);assert.equal(not.detailVisible,false);
+ }
+ const internal=(await q("SELECT l.lock_id,l.lock_status,p.ended_reason FROM public.locks l "+
+  "JOIN public.f05_8_priority_ci p ON p.priority_id=$2 WHERE l.lock_id=$1",
+  [priorityLock,signedPriority.priority_id]))[0];
+ assert.equal(internal.lock_status,'active');assert.equal(internal.ended_reason,'converted_to_lock');
+ console.log('F06_1_R02_SIGNED_LOCK_ORIGIN_EXCLUSIVE_PROJECTION_PASS',{
+  lockId:priorityLock,owner:signedPriority.customer_id,otherCustomer:'DENIED',employeeInternal:'VISIBLE'});
+});
+test('06-S46 ordinary Lock keeps originally visible Vehicle visible to other Customer as locked',async()=>{
+ const ordinary=await customerLockProjectionCI(db,{customerId:customer(8),vehicleId:vehicle(1),
+  listingCycleId:cycle(1),syntheticCustomerProof:proof});
+ assert.equal(ordinary.code,'F06_1_CUSTOMER_VEHICLE_SAFE_PROJECTION',JSON.stringify(ordinary));
+ assert.equal(ordinary.listVisible,true);assert.equal(ordinary.detailVisible,true);
+ assert.equal(ordinary.lockStatus,'locked');assert.equal(ordinary.canCreateAnotherActiveLock,false);
+ const notIssued=await customerLockProjectionCI(db,{customerId:customer(8),vehicleId:vehicle(1),listingCycleId:cycle(1)});
+ assert.equal(notIssued.code,'F06_1_CUSTOMER_PROJECTION_ISSUER_REQUIRED');
+});
+test('06-S47 signed Priority must never revive and Customer projection respects ended listing cycle',async()=>{
+ const old=(await q('SELECT status,ended_at FROM public.f05_8_priority_ci WHERE priority_id=$1',[signedPriority.priority_id]))[0];
+ assert.equal(old.status,'ended');assert.ok(old.ended_at);
+ const customerId=Number(signedPriority.customer_id);
+ await q("UPDATE public.vehicle_listing_cycles SET ended_at=clock_timestamp(),end_reason='CI_F06_1_END_CYCLE' WHERE listing_cycle_id=$1",
+  [signedPriority.listing_cycle_id]);
+ const got=await signedView(customerId);
+ assert.equal(got.code,'F06_1_CUSTOMER_PROJECTION_SOURCE_UNAVAILABLE');
+ assert.equal((await q("SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1",[signedPriority.priority_id]))[0].status,'ended');
+ console.log('F06_1_R01_R02_CYCLE_END_PROJECTION_FAIL_CLOSED_NO_OLD_PRIORITY_RESURRECTION');
 });
