@@ -1,0 +1,104 @@
+name: F05-11 inherited frozen f05-8-four
+on:
+  push:
+    branches: [feat/f06-3c1-refund-pending-close-ci]
+permissions: {contents: read, actions: read, pull-requests: read}
+jobs:
+  compat-f05-7-source:
+    name: F05-8 signed F05-7 Source 28 true PostgreSQL16 PG
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    permissions: {contents: read}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with: {node-version: '22.16.0'}
+    - name: True F05-8 nonprivileged PG16 compat-source
+      run: bash engineering/f05/recommendation-visibility-grants/compat-f05-8-job.sh compat-source
+    - uses: actions/upload-artifact@v4
+      with:
+        name: f05-8-compat-source-native-evidence
+        path: engineering/f05/priority-arbitration-ttl-handover/artifacts/compat-source/
+        retention-days: 30
+        if-no-files-found: error
+  compat-f05-7-https:
+    name: F05-8 signed F05-7 HTTPS 7 true PostgreSQL16 PG
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    permissions: {contents: read}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with: {node-version: '22.16.0'}
+    - name: True F05-8 nonprivileged PG16 compat-https
+      run: bash engineering/f05/recommendation-visibility-grants/compat-f05-8-job.sh compat-https
+    - uses: actions/upload-artifact@v4
+      with:
+        name: f05-8-compat-https-native-evidence
+        path: engineering/f05/priority-arbitration-ttl-handover/artifacts/compat-https/
+        retention-days: 30
+        if-no-files-found: error
+  priority-source:
+    name: F05-8 priority Source v24 true PostgreSQL16 PG
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    permissions: {contents: read, actions: read, pull-requests: read}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with: {node-version: '22.16.0'}
+    - name: True F05-8 nonprivileged PG16 priority-source
+      run: bash engineering/f05/recommendation-visibility-grants/compat-f05-8-job.sh priority-source
+      env:
+        GH_ACTIONS_READ_TOKEN: ${{ github.token }}
+    - uses: actions/upload-artifact@v4
+      with:
+        name: f05-8-priority-source-native-evidence
+        path: engineering/f05/priority-arbitration-ttl-handover/artifacts/priority-source/
+        retention-days: 30
+        if-no-files-found: error
+  priority-https:
+    name: F05-8 priority HTTPS v24 true PostgreSQL16 PG
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    permissions: {contents: read}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with: {node-version: '22.16.0'}
+    - name: True F05-8 nonprivileged PG16 priority-https
+      run: bash engineering/f05/recommendation-visibility-grants/compat-f05-8-job.sh priority-https
+    - uses: actions/upload-artifact@v4
+      with:
+        name: f05-8-priority-https-native-evidence
+        path: engineering/f05/priority-arbitration-ttl-handover/artifacts/priority-https/
+        retention-days: 30
+        if-no-files-found: error
