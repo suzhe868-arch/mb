@@ -1,0 +1,1218 @@
+{
+  "repository": "suzhe868-arch/mb",
+  "verified_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658",
+  "kind": "F06_3A_OFFICIAL_SHA256_ARTIFACTS_PRE_HANDOFF_COMMIT",
+  "total": 125,
+  "per_run": [
+    {
+      "run_id": 38435118988,
+      "artifact_count": 2,
+      "artifacts": [
+        {
+          "id": 11833150601,
+          "name": "f05-6-source-native-evidence",
+          "size_in_bytes": 88535,
+          "expired": false,
+          "expires_at": "2026-11-12T17:01:46Z",
+          "digest": "sha256:19357b3437fd83e27a0caea65f33d16603ef4ee85e874be11753ec501dff4470",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832387812,
+          "name": "f05-6-https-native-evidence",
+          "size_in_bytes": 85974,
+          "expired": false,
+          "expires_at": "2026-11-12T17:02:55Z",
+          "digest": "sha256:82ba35a964eb8f4a6f2fd2ea37345d72c5a44d2fc0ff0e81ae8853e85f77ffea",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        }
+      ]
+    },
+    {
+      "run_id": 38435119065,
+      "artifact_count": 2,
+      "artifacts": [
+        {
+          "id": 11833080945,
+          "name": "f05-3k-https-native-evidence",
+          "size_in_bytes": 79251,
+          "expired": false,
+          "expires_at": "2026-11-12T17:02:51Z",
+          "digest": "sha256:1581261e259c11eafe1d9b7e872f4f11682d9e5d93084de9d4fba9ae802818f8",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832482814,
+          "name": "f05-3k-source-native-evidence",
+          "size_in_bytes": 80034,
+          "expired": false,
+          "expires_at": "2026-11-12T17:04:47Z",
+          "digest": "sha256:4c2b5b7341ca5999227d64a1a1245941f29b1faef940c0dfc57b9c3ecc952978",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        }
+      ]
+    },
+    {
+      "run_id": 38435119202,
+      "artifact_count": 2,
+      "artifacts": [
+        {
+          "id": 11833760243,
+          "name": "f06-2-https-native-pg16-evidence",
+          "size_in_bytes": 4665,
+          "expired": false,
+          "expires_at": "2026-11-12T17:04:23Z",
+          "digest": "sha256:bdbb3edce4bc7f0d8abf76578ba371505cae614518737c260b953ea75a5d46e0",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832577445,
+          "name": "f06-2-source-native-pg16-evidence",
+          "size_in_bytes": 11075,
+          "expired": false,
+          "expires_at": "2026-11-12T17:04:50Z",
+          "digest": "sha256:0268f1e7d725c24fdcd82ab5c33e3f6ed7d762b76c26c45c177c4736a9c04aca",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        }
+      ]
+    },
+    {
+      "run_id": 38435118908,
+      "artifact_count": 2,
+      "artifacts": [
+        {
+          "id": 11833780066,
+          "name": "f05-9-source-native-pg16-evidence",
+          "size_in_bytes": 113823,
+          "expired": false,
+          "expires_at": "2026-11-12T17:03:35Z",
+          "digest": "sha256:550d7b6b35ea015874fb32b00244ed79012412aa93819622bbad8e8509ee2b4a",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832786563,
+          "name": "f05-9-https-native-pg16-evidence",
+          "size_in_bytes": 112583,
+          "expired": false,
+          "expires_at": "2026-11-12T17:02:54Z",
+          "digest": "sha256:a2281ee6a745942b485189d0ab97dd19ce42b831418d505202fc59a541e264e4",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        }
+      ]
+    },
+    {
+      "run_id": 38435118995,
+      "artifact_count": 97,
+      "artifacts": [
+        {
+          "id": 11834470275,
+          "name": "source",
+          "size_in_bytes": 78215,
+          "expired": false,
+          "expires_at": "2027-01-11T17:24:23Z",
+          "digest": "sha256:b0414bfbae80d44a73ae5cd0c97d546d8ccb8f1c074dd58550598d5776160980",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11834465314,
+          "name": "f03-v-evidence-original-p1-source",
+          "size_in_bytes": 52917,
+          "expired": false,
+          "expires_at": "2026-11-12T17:25:01Z",
+          "digest": "sha256:728319643b3c6d42b8a76f8c4e5da0c122a4e45c5565c226e33462723cd97e13",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11834291101,
+          "name": "f04-2-four-s-preflight-independent-real-PG16-M94-source",
+          "size_in_bytes": 53347,
+          "expired": false,
+          "expires_at": "2026-11-12T17:25:06Z",
+          "digest": "sha256:50498ea1fc2e0aaa4af2ee20c746cd7f1a0ce9589fc3000babe57c90c8bdd120",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11834046311,
+          "name": "f03-v-evidence-original-p1-source",
+          "size_in_bytes": 52914,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:13Z",
+          "digest": "sha256:46611b0fc2d56f4f1ecd79bbac6aed4730b6893fb2f3daf5c2e443191da4b5e3",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11834031405,
+          "name": "f05-2-vehicle-https-current-scope-independent-real-PG16-evidence",
+          "size_in_bytes": 60387,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:37Z",
+          "digest": "sha256:d78a944deaccf447fb6f1fdb2329a1201578c3d0708955f2fb6fcb56359bbe2b",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11834003018,
+          "name": "f03-v-evidence-original-p1-source",
+          "size_in_bytes": 52908,
+          "expired": false,
+          "expires_at": "2026-11-12T17:24:58Z",
+          "digest": "sha256:3672ec8db1a609a90fdec62397a1f54159f86cafad714e9efc0f360653919da3",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11834001204,
+          "name": "f03-package-g2-genuine-pg16-000014-governance-evidence",
+          "size_in_bytes": 53696,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:19Z",
+          "digest": "sha256:4ad1db05ea45805307e740b41eb6c17f4228bb89bd2903e48d1b97ba91878e8e",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833988145,
+          "name": "f05-3a-https-f03-v-evidence-original-p1-source",
+          "size_in_bytes": 52910,
+          "expired": false,
+          "expires_at": "2026-11-12T17:24:56Z",
+          "digest": "sha256:c1a78d5a748ca6fcc985e003fa790b4c1b25951c20fede47f0559a046c9b2071",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833981519,
+          "name": "f05-3e-source-independent-native-pg16-audit-evidence",
+          "size_in_bytes": 75634,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:40Z",
+          "digest": "sha256:72f7df2aed91f5f80b012fc29b2022c2bd6373baaa3b35aa6642e24e01035291",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833921653,
+          "name": "f05-3b-https-three-apis-independent-real-PG16-loopback-evidence",
+          "size_in_bytes": 70401,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:54Z",
+          "digest": "sha256:a6bba918fca7f64bba28e1bf33d4ce6d6e1784cb88c321a06b50e18325ec85fd",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833886627,
+          "name": "f03-v-evidence-original-p1-source",
+          "size_in_bytes": 52912,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:28Z",
+          "digest": "sha256:fc7ffe5ffedc0c5aa29dce815aac7fd78261263bef78945b9c18f90460fbc6b4",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833806430,
+          "name": "f03-2-2k-real-pg16-92-waitlist-responsible-immutable-sg06-evidence",
+          "size_in_bytes": 80638,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:03Z",
+          "digest": "sha256:9a0e9eec0decf29cd4965102e3ffa8285fe7dcd2e1b7c91fd57fc46143b844db",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833761797,
+          "name": "f03-v-evidence-original-p1-source",
+          "size_in_bytes": 52925,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:15Z",
+          "digest": "sha256:63532306be0cadddda9aff5804d25ad110d09be8efc97cac62aa4859f5861ada",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833716890,
+          "name": "f05-1-vehicle-https-identity-independent-real-PG16-M94-evidence",
+          "size_in_bytes": 63085,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:31Z",
+          "digest": "sha256:db7e0aece393af4801b3c749322283e4c7b9b1b88f1a9ea8741af0e57462ea74",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833716735,
+          "name": "f03-v-composition-original-g1-schema",
+          "size_in_bytes": 51342,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:24Z",
+          "digest": "sha256:7ae4355c712dd90b3f5f8ff7d4926e98489531cb45dcc36940f5a0d58057e0fc",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833666680,
+          "name": "f03-2-2m-real-pg16-94-transaction-responsible-immutable-sg06-evidence",
+          "size_in_bytes": 83133,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:00Z",
+          "digest": "sha256:f498493a26a12316d92e0608b3f4781bdb216e60e57e3ebcb8778c3a9a2c4e74",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833653568,
+          "name": "f05-3a-member-https-source-gap-independent-real-PG16-evidence",
+          "size_in_bytes": 59373,
+          "expired": false,
+          "expires_at": "2026-11-12T17:25:16Z",
+          "digest": "sha256:a7b8c64517ac412e32492400df6db00a7b12b32707d537e4f7ce14a570abd14f",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833626728,
+          "name": "f03-v-evidence-original-p1-source",
+          "size_in_bytes": 52915,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:20Z",
+          "digest": "sha256:45e34cdbaaf23b456e2f34d20b0285dee9fdbd7f88526de5acd5a792dbb57edf",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833603672,
+          "name": "f05-2-vehicle-responsibility-migration-independent-real-PG16-evidence",
+          "size_in_bytes": 66182,
+          "expired": false,
+          "expires_at": "2026-11-12T17:25:10Z",
+          "digest": "sha256:8595b5efb3c05686126e5565a67b679476d4a5d409f609e52903114038d2be24",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833581745,
+          "name": "f03-2-1a-f03-1-https-security-isolated-pg16",
+          "size_in_bytes": 702,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:16Z",
+          "digest": "sha256:a2269d30f8e8ac08defd7918244edb452bd9abcb8fdc8e8a8a0fe6477f684d85",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833558698,
+          "name": "f04-4-current-full-coverage-independent-real-PG16-M94-evidence",
+          "size_in_bytes": 157947,
+          "expired": false,
+          "expires_at": "2026-11-12T17:25:02Z",
+          "digest": "sha256:4856de5aa058bdf3213b1f79c155cbf861255969c2f94f998d522f99a9eb0246",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833556965,
+          "name": "f03-package-p1-genuine-pg16-projection-evidence",
+          "size_in_bytes": 52917,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:52Z",
+          "digest": "sha256:b4d17978767e7d1cddcbd392ca5e4f9cac3e2543be02deae5c62d89c7ca10197",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833553661,
+          "name": "f05-3a-https-admin-member-positive-independent-real-PG16-evidence",
+          "size_in_bytes": 65562,
+          "expired": false,
+          "expires_at": "2026-11-12T17:25:20Z",
+          "digest": "sha256:e09aeaec140661a9c3640f02171beecc4339ec5b647cd3db9c54b50b5ab6a07d",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833538652,
+          "name": "f05-3a-https-f05-1-vehicle-https-identity-independent-real-PG16-M94-evidence",
+          "size_in_bytes": 63077,
+          "expired": false,
+          "expires_at": "2026-11-12T17:25:09Z",
+          "digest": "sha256:9c1ac06745f0caa315dd066b3ca7489adac981f7344b2597a3307458e7279a94",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833526965,
+          "name": "f05-3g-source-evidence",
+          "size_in_bytes": 79781,
+          "expired": false,
+          "expires_at": "2027-01-11T17:00:18Z",
+          "digest": "sha256:a0c4d0a15a35019553e7006f0fc322c5d001a729e29ade03816079c65de89e73",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833523634,
+          "name": "f03-2-2l-real-pg16-93-lock-responsible-immutable-sg06-evidence",
+          "size_in_bytes": 81983,
+          "expired": false,
+          "expires_at": "2026-11-12T17:25:16Z",
+          "digest": "sha256:a3d8924c02893d080cee215b280f043e5bc1782ae6d991cc83638b89ab072828",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833521816,
+          "name": "f03-v-evidence-original-p1-source",
+          "size_in_bytes": 52918,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:21Z",
+          "digest": "sha256:b1a4b7b49f4288a56fa2f202b498a757742ba3aee2f0360a0fe0a94fe973bec2",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833516747,
+          "name": "f03-2-1a-f03-1-integration-security-isolated-pg16",
+          "size_in_bytes": 1309,
+          "expired": false,
+          "expires_at": "2026-11-12T17:12:55Z",
+          "digest": "sha256:01ee97b3225ba165ceea0641a79dccb95dd7c372340c2b415c924e6be0eb5fdd",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833511827,
+          "name": "f03-2-2f-real-pg16-88-no-ddl-manager-team-evidence",
+          "size_in_bytes": 73447,
+          "expired": false,
+          "expires_at": "2026-11-12T17:12:51Z",
+          "digest": "sha256:d4ce9d97538ee5ad0805a3f2bea1983d752ec24a552dc5a21a035ad79b9804d4",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833456858,
+          "name": "f03-v-evidence-original-p1-source",
+          "size_in_bytes": 52919,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:33Z",
+          "digest": "sha256:f66bc4ac6a1798e960cfe4cc3e7c050c49f1b0289f20687917214d5ca7153be8",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833436963,
+          "name": "f04-3-current-tls-route-independent-real-PG16-M94-evidence",
+          "size_in_bytes": 66421,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:40Z",
+          "digest": "sha256:4480635e48d9674f0b1cc1a76a5ec655692ec87f67fe4eb35329a3fb7f4211de",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833432082,
+          "name": "f05-3e-https-independent-native-pg16-audit-evidence",
+          "size_in_bytes": 75534,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:27Z",
+          "digest": "sha256:2ac6678f5c9c68bfb9e66b510a5391c17a3b13fb21def76752f7336be5cb56b5",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833426976,
+          "name": "f03-v-composition-true-pg16-raw-schema-catalog-inventory-and-regression",
+          "size_in_bytes": 53186,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:27Z",
+          "digest": "sha256:8fad09c189bbc62b3a52542e508ac057a764a7a3ed69cb1d978912ebb5a6db25",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833422088,
+          "name": "f05-3b-b-f05-3a-https-f05-2-vehicle-https-current-scope-independent-real-PG16-evidence",
+          "size_in_bytes": 60383,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:40Z",
+          "digest": "sha256:951330f6a797219174e61ec8e0371d9b6ccd920b9a61349d511e7efe2c427919",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833402004,
+          "name": "f05-3b-b-f05-3a-https-f04-4-current-consumer-tls-independent-real-PG16-M94-evidence",
+          "size_in_bytes": 59153,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:26Z",
+          "digest": "sha256:2a10a6591fe12d01acd2f131f01c53db4f64abe30233b0c5ab7d9b5513d2a78d",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833387162,
+          "name": "f05-3b-b-f05-3a-member-https-source-gap-independent-real-PG16-evidence",
+          "size_in_bytes": 59386,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:43Z",
+          "digest": "sha256:571bf9a20489479e4c1d3a5786a5ddf6069a20707efb2e18085d0671937c8f3b",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833382184,
+          "name": "f05-3d-https-independent-native-pg16-audit-evidence",
+          "size_in_bytes": 75657,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:57Z",
+          "digest": "sha256:189ffcfd2436f64a0b198a2a1068c3c38ae372944f5bd66945e1822d6fd813db",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833357081,
+          "name": "f03-2-2h-real-pg16-89-owner-domain-immutable-receipt-evidence",
+          "size_in_bytes": 76060,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:58Z",
+          "digest": "sha256:39f89e89d87e1f98dd9f456e18764b6a0c80e185fd230fea9df5339ca7ae50df",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833342200,
+          "name": "f05-3b-b-f05-3a-https-f05-1-vehicle-https-identity-independent-real-PG16-M94-evidence",
+          "size_in_bytes": 63085,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:33Z",
+          "digest": "sha256:09aad128a2d53ffc3a763b71dc5720f72a8aa960dba80365d162ae424ef958aa",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833328958,
+          "name": "f05-3a-https-f04-4-current-consumer-tls-independent-real-PG16-M94-evidence",
+          "size_in_bytes": 59150,
+          "expired": false,
+          "expires_at": "2026-11-12T17:25:04Z",
+          "digest": "sha256:4e9d86e7420307baf12dd25a2bb82762d7bc2c6c4f0d3b6f6ab1841f871bb6ae",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833298954,
+          "name": "f05-1-vehicle-physical-source-independent-real-PG16-M94-evidence",
+          "size_in_bytes": 63048,
+          "expired": false,
+          "expires_at": "2026-11-12T17:25:04Z",
+          "digest": "sha256:727660a9cb978133ad661011554e043b74cf783cdfed35e440298fec3ec99ddb",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833262247,
+          "name": "f05-3g-https-evidence",
+          "size_in_bytes": 79473,
+          "expired": false,
+          "expires_at": "2027-01-11T17:00:18Z",
+          "digest": "sha256:1bdbd1650cecc76989c92b0d01e156a278676e86ea22b9e30fbdb1dd4a33e984",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833253967,
+          "name": "f05-3a-https-f05-2-vehicle-https-current-scope-independent-real-PG16-evidence",
+          "size_in_bytes": 60388,
+          "expired": false,
+          "expires_at": "2026-11-12T17:25:13Z",
+          "digest": "sha256:120a598c9fcb67ba952f93d73ae68258b234136d695ece06d954b0889636e8b0",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833222400,
+          "name": "f04-2-authority-independent-real-PG16-M94-source",
+          "size_in_bytes": 53491,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:17Z",
+          "digest": "sha256:71878ae9599a5e8b3aeb77fbafee2ce3aae12d8eb076c0ba726055b407352a05",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833222246,
+          "name": "f03-package-g2-true-pg16-000014-physical-and-tests",
+          "size_in_bytes": 50825,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:27Z",
+          "digest": "sha256:d20cfe08252486fad0d8415346f964b1bc0159cbe5c3fcdfb22519f8ca617f32",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833217202,
+          "name": "f04-4-current-consumer-tls-independent-real-PG16-M94-evidence",
+          "size_in_bytes": 59149,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:31Z",
+          "digest": "sha256:77983e5c05d0342214f2267b1c3a7004808f24ae80cec3c4d3be27acc5ca1744",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833202513,
+          "name": "f04-4-current-consumer-tls-independent-real-PG16-M94-evidence",
+          "size_in_bytes": 59150,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:24Z",
+          "digest": "sha256:eddc846c862350ee52fd4f0659774d3f36a515f1f39de0879d881a092c8a4b59",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833182534,
+          "name": "f03-v-evidence-true-pg16-raw-schema-catalog-inventory-and-regression",
+          "size_in_bytes": 53268,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:32Z",
+          "digest": "sha256:c0c22f34a5a1b2deba947a63af460a26e688045954ea0a2cc0e603fea9483d74",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833174091,
+          "name": "f03-2-2e-real-pg16-88-handover-ledger-evidence",
+          "size_in_bytes": 72777,
+          "expired": false,
+          "expires_at": "2026-11-12T17:25:01Z",
+          "digest": "sha256:1bb266e288fa7896c9e66835b9b854b83fa524e5bf7b86182fd2a25c76f42148",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833142928,
+          "name": "f03-package-g1-genuine-pg16-000014-governance-evidence",
+          "size_in_bytes": 53711,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:53Z",
+          "digest": "sha256:55c79a9fde13bce5a72da3c5c1c495368edbdd13491dfe0ee8aec63cc16fa7b8",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833092897,
+          "name": "f05-3b-b-f05-3a-https-f03-v-evidence-original-p1-source",
+          "size_in_bytes": 52921,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:14Z",
+          "digest": "sha256:ea8ca014fac48ba96f1c9c2b5f11bf559af374719b7bcc49e3082fb86ac5f65c",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833089403,
+          "name": "f05-3c-source-independent-native-pg16-evidence",
+          "size_in_bytes": 73577,
+          "expired": false,
+          "expires_at": "2026-11-12T17:25:16Z",
+          "digest": "sha256:25708fabec073d44b2910d58121ce024ed45850b7c74c6fe084d0ad33980580b",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833032707,
+          "name": "f05-3a-member-physical-source-gap-independent-real-PG16-evidence",
+          "size_in_bytes": 62712,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:37Z",
+          "digest": "sha256:e1bb3fa2bbeb78c3da8c662e7fe37b51ca6dcda7716d0cb3c3ae0d4d8181a16b",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832957966,
+          "name": "f05-3b-a-f05-3a-physical-f05-1-vehicle-physical-source-independent-real-PG16-M94-evidence",
+          "size_in_bytes": 63046,
+          "expired": false,
+          "expires_at": "2026-11-12T17:15:08Z",
+          "digest": "sha256:33385a4d192211f118774d7c1e4645286e418777efccc25ed932b6583a976f01",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832948218,
+          "name": "f05-3b-b-f05-3a-https-admin-member-positive-independent-real-PG16-evidence",
+          "size_in_bytes": 65564,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:49Z",
+          "digest": "sha256:71f58999ebc2031a7c14a40eb90a6ea15820fc2b510b85c9984129a984376877",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832914862,
+          "name": "f03-2-2i-real-pg16-90-demand-domain-immutable-receipt-evidence",
+          "size_in_bytes": 77948,
+          "expired": false,
+          "expires_at": "2026-11-12T17:25:10Z",
+          "digest": "sha256:affd68240898689a80f6ec976d7317ff43bc517ac6a8a7d1c17c2e2648a598dd",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832913002,
+          "name": "f04-3-current-source-independent-real-PG16-M94-evidence",
+          "size_in_bytes": 66623,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:36Z",
+          "digest": "sha256:63e09e1eaff84c5a2eff9076c75b67a95bc00e4b0eae46e33a547abff2c6002d",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832903159,
+          "name": "f03-2-2g-real-pg16-88-no-ddl-preflight-evidence",
+          "size_in_bytes": 73981,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:40Z",
+          "digest": "sha256:7ba1b11dc8a04b78a1c30a5648e889dcd42e035ff0874871f458e815f04c3b18",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832883220,
+          "name": "f05-3b-a-f05-3a-physical-f04-4-current-full-coverage-independent-real-PG16-M94-evidence",
+          "size_in_bytes": 157948,
+          "expired": false,
+          "expires_at": "2026-11-12T17:15:05Z",
+          "digest": "sha256:ffef30361abaa48a33d06a3d301ab71977aae36be865288e5e68fadad0fa0fd9",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832883045,
+          "name": "f04-4-current-consumer-tls-independent-real-PG16-M94-evidence",
+          "size_in_bytes": 59144,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:59Z",
+          "digest": "sha256:fcece68ce29f2138eeaa654661f9f7d5d919ce50bafb9712cfc3a2c198e7c767",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832868195,
+          "name": "f03-package-p2-genuine-pg16-projection-evidence",
+          "size_in_bytes": 53012,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:04Z",
+          "digest": "sha256:2cd970c87d12d1eea7931c888d9c52833461a81ce7dda98c45d52940ca3a6224",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832858040,
+          "name": "f03-package-g3-genuine-pg16-000014-governance-evidence",
+          "size_in_bytes": 53710,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:39Z",
+          "digest": "sha256:4cb8822d24c33f71687d8a928f68cc0428c3e3a53e1efb2dcf3c0ec5ce838274",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832853488,
+          "name": "f03-package-g1-true-pg16-000014-physical-and-tests",
+          "size_in_bytes": 51339,
+          "expired": false,
+          "expires_at": "2026-11-12T17:15:00Z",
+          "digest": "sha256:f1708719556bc4615311e7d70e0bb50ff88af0a3c4e0bb56ef075269394a301b",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832843129,
+          "name": "f04-4-current-full-coverage-independent-real-PG16-M94-evidence",
+          "size_in_bytes": 157958,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:54Z",
+          "digest": "sha256:c9218c9bcc0e29ce94ad3db9c8e69717599ef93104d143f6d4fc1265261e4110",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832843103,
+          "name": "f03-2-2b-sg05-82-pg16-physical-and-negative-evidence",
+          "size_in_bytes": 66949,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:46Z",
+          "digest": "sha256:3497d3acc8cb77499ffd0b4934c1c3e803c9a275507bcd4df48e318d159f776f",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832843084,
+          "name": "f05-3f-https-independent-native-pg16-audit-evidence",
+          "size_in_bytes": 75258,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:37Z",
+          "digest": "sha256:094807f67d21a642917d9d2d93d9e93a34c2bd636a14d8c37931052d22f43fc7",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832823307,
+          "name": "https",
+          "size_in_bytes": 78182,
+          "expired": false,
+          "expires_at": "2027-01-11T17:00:18Z",
+          "digest": "sha256:ceea16b11821ba0188b512bfb2fbfc47451af2f7f7c4468592254e61c2a848ba",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832773443,
+          "name": "f05-1-vehicle-physical-source-independent-real-PG16-M94-evidence",
+          "size_in_bytes": 63048,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:56Z",
+          "digest": "sha256:c2c1c481a9941cf21382043372731e7ace707d0cade136509aed5970f4ca159f",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832768423,
+          "name": "f05-3b-a-f05-3a-member-physical-source-gap-independent-real-PG16-evidence",
+          "size_in_bytes": 62712,
+          "expired": false,
+          "expires_at": "2026-11-12T17:15:19Z",
+          "digest": "sha256:060e9eb37c74b5d7b583d4d7be4aa867761e21d2062804c0f075d02b100beac5",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832768197,
+          "name": "f03-v-evidence-original-p1-source",
+          "size_in_bytes": 52903,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:50Z",
+          "digest": "sha256:1ce87c2508fd0a9e3ae9767c82765ba93174a7100b1da1a30af4be99c0fe70b5",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832733542,
+          "name": "f05-3b-a-f05-3a-physical-f05-2-vehicle-responsibility-migration-independent-real-PG16-evidence",
+          "size_in_bytes": 66199,
+          "expired": false,
+          "expires_at": "2026-11-12T17:15:15Z",
+          "digest": "sha256:c5e24ab3d22de50a78cdce627640ec4897c9ac273cb8e1de96bba54aebec3618",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832718460,
+          "name": "f03-v-evidence-original-p1-source",
+          "size_in_bytes": 52911,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:34Z",
+          "digest": "sha256:b88251ae95d6ed2fa6c13121d6230fb3a23152dbcd50b7d9a93437cb6e85a84b",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832678566,
+          "name": "f05-3c-https-independent-native-pg16-evidence",
+          "size_in_bytes": 72891,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:42Z",
+          "digest": "sha256:3a2c09705e80a9586128ee12548b6070a77de3d92e263d60d334733f9a91c4c9",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832668682,
+          "name": "f05-3b-a-f05-3a-physical-admin-member-same-tx-independent-real-PG16-evidence",
+          "size_in_bytes": 69497,
+          "expired": false,
+          "expires_at": "2026-11-12T17:15:28Z",
+          "digest": "sha256:1203e6e4e3e023b6e5c9190696edbaa87cf77405d566d6b94234a29f2e5c10d8",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832663671,
+          "name": "f05-3a-physical-f04-4-current-full-coverage-independent-real-PG16-M94-evidence",
+          "size_in_bytes": 157953,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:26Z",
+          "digest": "sha256:7ef9eef1919a687a788c27ba97d642a439c5b8162737f1e09ec6566c8eb8cc64",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832633880,
+          "name": "f04-1-route-security-independent-PG16-M94-source",
+          "size_in_bytes": 53543,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:29Z",
+          "digest": "sha256:50166f7b2eaca83e674243de55f14427bad85d6cbab48027a5358e87e73c6002",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832608832,
+          "name": "f04-1-contracts-inventory-independent-PG16-M94-source",
+          "size_in_bytes": 53037,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:43Z",
+          "digest": "sha256:efe88fa409396932b0528fe2c134a7956ae5152de865a44ba13067119c493c65",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832603785,
+          "name": "f03-2-2d-real-pg16-86-team-scope-evidence",
+          "size_in_bytes": 69527,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:22Z",
+          "digest": "sha256:12766ee6e31d516391cc9d83cd7f4a7eb0656d1f9f6b4f35a73613e71c743bb8",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832593841,
+          "name": "f05-3a-physical-f05-2-vehicle-responsibility-migration-independent-real-PG16-evidence",
+          "size_in_bytes": 66183,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:34Z",
+          "digest": "sha256:9fe64302e3dd509bd489ccafb1a06e31008301f2ca74a342881469f3c040bc83",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832573888,
+          "name": "f03-v-composition-original-g1-source",
+          "size_in_bytes": 53720,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:17Z",
+          "digest": "sha256:72e1e8210694b3e2ff4a16ac5f8773ab3f3585fad38e9b56e9078a1bad73a048",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832573832,
+          "name": "f03-2-2n-genuine-pg16-94-seven-kind-readonly-reconciliation-evidence",
+          "size_in_bytes": 53698,
+          "expired": false,
+          "expires_at": "2026-11-12T17:12:56Z",
+          "digest": "sha256:9ba1254a57ff2cbbc7a45d2df27a38a6058ffedd4466d06dc5a77eeb14632307",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832569137,
+          "name": "f04-4-current-full-coverage-independent-real-PG16-M94-evidence",
+          "size_in_bytes": 157967,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:54Z",
+          "digest": "sha256:fec1f021c4c7777216e595e53f82ef125510219f3321175db5d90a6879002753",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832564137,
+          "name": "f05-3b-a-f05-3a-physical-f03-v-evidence-original-p1-source",
+          "size_in_bytes": 52904,
+          "expired": false,
+          "expires_at": "2026-11-12T17:15:00Z",
+          "digest": "sha256:6542cfa03b16a66c51d1d06db84b1560c4c6f9753643f552f4ac7527f3042819",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832514234,
+          "name": "f05-3a-physical-f05-1-vehicle-physical-source-independent-real-PG16-M94-evidence",
+          "size_in_bytes": 63047,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:28Z",
+          "digest": "sha256:ca2b68e86f5a93ac382fbc80077b6c8144b1f1d5d14c1072d003de4f8f4d85a9",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832499455,
+          "name": "f03-v-evidence-original-p1-source",
+          "size_in_bytes": 52909,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:51Z",
+          "digest": "sha256:1cf25b0c2a9a303c5542ef430185376be980a1c07f2cc23e544d488de4aa9cfc",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832489476,
+          "name": "f05-3b-source-000017-independent-real-PG16-JYT-lineage-cycle-evidence",
+          "size_in_bytes": 70887,
+          "expired": false,
+          "expires_at": "2026-11-12T17:15:35Z",
+          "digest": "sha256:eb19cc8a324b45fa10e5f2019811aab6c6cd4838d3654d8c04dd58254268d199",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832469419,
+          "name": "f05-1-vehicle-https-identity-independent-real-PG16-M94-evidence",
+          "size_in_bytes": 63075,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:04Z",
+          "digest": "sha256:909f07bf0d44f5c804c37a6c539cf9e6523de837777d7cb2fa526478d8a7cbb7",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832464523,
+          "name": "f05-3f-source-independent-native-pg16-audit-evidence",
+          "size_in_bytes": 75388,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:54Z",
+          "digest": "sha256:1d4f24e245a0a01476f7437e0d45e981bd2d0585fe843322c15dab46ccb8c8e2",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832454381,
+          "name": "f03-v-evidence-original-p1-source",
+          "size_in_bytes": 52907,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:41Z",
+          "digest": "sha256:6f7e6ce2f88ca0ae427a39df82c39950b567274f55a533114f775514992d6606",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832434317,
+          "name": "f03-2-2j-real-pg16-91-consultation-assignee-sla-and-immutable-evidence",
+          "size_in_bytes": 79159,
+          "expired": false,
+          "expires_at": "2026-11-12T17:12:57Z",
+          "digest": "sha256:4de7c4ca281f55aea35ca9fcf7f06907c0df1f5bccd863d44ffa133a81203ab1",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832399529,
+          "name": "f03-2-2c-real-pg16-84-table-structure-and-pool-evidence",
+          "size_in_bytes": 68131,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:05Z",
+          "digest": "sha256:48575b30877331a94e21ba49c3c3dbd6c331225a0f2fa3d05480ab82c57b6da8",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832389557,
+          "name": "f05-3a-physical-admin-member-same-tx-independent-real-PG16-evidence",
+          "size_in_bytes": 69494,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:44Z",
+          "digest": "sha256:29ac8f85521696e67226788de523778c697c88283ad41525592bad0f769d1dfb",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832374542,
+          "name": "f03-v-evidence-original-p1-source",
+          "size_in_bytes": 52907,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:51Z",
+          "digest": "sha256:e97f4ef3f3dd583eaeddab3635aea59f80c6f36d1d09b52fac466fd7364c1c81",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832374398,
+          "name": "f03-2-2a-isolated-pg16-template-governance-evidence",
+          "size_in_bytes": 59826,
+          "expired": false,
+          "expires_at": "2026-11-12T17:12:52Z",
+          "digest": "sha256:826790bc2773775837878813ebd2060289e480ea42c17f3c23dfa0b93f13fe8d",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832354575,
+          "name": "f05-3a-physical-f03-v-evidence-original-p1-source",
+          "size_in_bytes": 52911,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:23Z",
+          "digest": "sha256:a06116c78464f854eb8a36c7df1a585af680c1b97819ec55a72bb9668b539ce7",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832349815,
+          "name": "f05-3d-source-independent-native-pg16-audit-evidence",
+          "size_in_bytes": 75771,
+          "expired": false,
+          "expires_at": "2026-11-12T17:14:29Z",
+          "digest": "sha256:847a1631d3ca95cad5e817b85bc6ac7dda493e2f0a286dbdb83b4fb59090b937",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832349685,
+          "name": "f03-package-g3-true-pg16-000014-physical-and-tests",
+          "size_in_bytes": 50626,
+          "expired": false,
+          "expires_at": "2026-11-12T17:13:43Z",
+          "digest": "sha256:940c3006ab3dcfa5a1a0062f8adeb497073155a793cbcfb9d6195a6ede459c26",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        }
+      ]
+    },
+    {
+      "run_id": 38435119435,
+      "artifact_count": 4,
+      "artifacts": [
+        {
+          "id": 11834040621,
+          "name": "f05-8-compat-https-native-evidence",
+          "size_in_bytes": 99425,
+          "expired": false,
+          "expires_at": "2026-11-12T17:10:01Z",
+          "digest": "sha256:79533e4097160c27df8b30a89611555589b0b0804ce39a14583d8e29503c74a2",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832991248,
+          "name": "f05-8-priority-source-native-evidence",
+          "size_in_bytes": 126570,
+          "expired": false,
+          "expires_at": "2026-11-12T17:03:53Z",
+          "digest": "sha256:b3eff3cd1dd5316fefcf493503d6125d14e4a3cc55e89443e4940b952421718c",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832607218,
+          "name": "f05-8-compat-source-native-evidence",
+          "size_in_bytes": 109028,
+          "expired": false,
+          "expires_at": "2026-11-12T17:04:25Z",
+          "digest": "sha256:f56514b46f59f2638fe9d04727012d6f2abbbd23b4924bdc8cadab8b38ffe95b",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832134934,
+          "name": "f05-8-priority-https-native-evidence",
+          "size_in_bytes": 119260,
+          "expired": false,
+          "expires_at": "2026-11-12T17:03:39Z",
+          "digest": "sha256:2dee0c34b2fab202c4d4895d152834f18a8a76e7267bca0fbfd22579f6cdaa00",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        }
+      ]
+    },
+    {
+      "run_id": 38435118978,
+      "artifact_count": 2,
+      "artifacts": [
+        {
+          "id": 11833585275,
+          "name": "f05-3j-https-native-evidence",
+          "size_in_bytes": 78775,
+          "expired": false,
+          "expires_at": "2026-11-12T17:04:22Z",
+          "digest": "sha256:1a353ef819e712089815533c788bb917b15357eb227664106e34b9224f5c7a70",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832588178,
+          "name": "f05-3j-source-native-evidence",
+          "size_in_bytes": 79018,
+          "expired": false,
+          "expires_at": "2026-11-12T17:10:19Z",
+          "digest": "sha256:f5a70ca1dfb30cf23cf6e0864fa27918afef731fcb51a046f59de7dc3a73b3e5",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        }
+      ]
+    },
+    {
+      "run_id": 38435118946,
+      "artifact_count": 2,
+      "artifacts": [
+        {
+          "id": 11833525263,
+          "name": "f05-3i-https-native-evidence",
+          "size_in_bytes": 78678,
+          "expired": false,
+          "expires_at": "2026-11-12T17:03:32Z",
+          "digest": "sha256:33bbf59f21f9673bc397c66ff699f15201083faa6679c087be9e70b7a4732998",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833336564,
+          "name": "f05-3i-source-native-evidence",
+          "size_in_bytes": 79453,
+          "expired": false,
+          "expires_at": "2026-11-12T17:10:34Z",
+          "digest": "sha256:743ed96e386ba2114d2e430f20fbc8ea26ec0f75b2010f0d8a446595976a79ed",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        }
+      ]
+    },
+    {
+      "run_id": 38435118730,
+      "artifact_count": 2,
+      "artifacts": [
+        {
+          "id": 11833425289,
+          "name": "f05-5-source-native-evidence",
+          "size_in_bytes": 88062,
+          "expired": false,
+          "expires_at": "2026-11-12T17:03:09Z",
+          "digest": "sha256:9309a48f2d4578f5a08a5acfb99df57665fd952c746165dc9e86bac7961dbc13",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11831949970,
+          "name": "f05-5-https-native-evidence",
+          "size_in_bytes": 83260,
+          "expired": false,
+          "expires_at": "2026-11-12T17:02:02Z",
+          "digest": "sha256:8ecb3d7a374970a78d9b7cc1a502ea52d1f1bd77fb25c759bbd7b9fa51c69b31",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        }
+      ]
+    },
+    {
+      "run_id": 38435118628,
+      "artifact_count": 2,
+      "artifacts": [
+        {
+          "id": 11833505207,
+          "name": "f05-10-https-native-pg16-evidence",
+          "size_in_bytes": 117944,
+          "expired": false,
+          "expires_at": "2026-11-12T17:03:03Z",
+          "digest": "sha256:8e5b7842a28e73deb44cd9fb31e3801b9e3a87e0d5ddf1168f19886c4688473c",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11833340524,
+          "name": "f05-10-source-native-pg16-evidence",
+          "size_in_bytes": 122525,
+          "expired": false,
+          "expires_at": "2026-11-12T17:04:06Z",
+          "digest": "sha256:70b061b8e968c3c9e5be4bb590ea0f952388a7b26772fc940286f712bc66c6b1",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        }
+      ]
+    },
+    {
+      "run_id": 38435118851,
+      "artifact_count": 2,
+      "artifacts": [
+        {
+          "id": 11833026080,
+          "name": "f05-4-https-native-evidence",
+          "size_in_bytes": 80593,
+          "expired": false,
+          "expires_at": "2026-11-12T17:02:53Z",
+          "digest": "sha256:17686c586fb68f345104160a8ed3ebd72b1d63573dd1ca90636860ec6275bc29",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832497662,
+          "name": "f05-4-source-native-evidence",
+          "size_in_bytes": 81470,
+          "expired": false,
+          "expires_at": "2026-11-12T17:04:00Z",
+          "digest": "sha256:e3e3d5aa8b9e0dd9f4a7743c180d4989a9fa2030fc785b7504171d399b8f6396",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        }
+      ]
+    },
+    {
+      "run_id": 38435118729,
+      "artifact_count": 2,
+      "artifacts": [
+        {
+          "id": 11832412993,
+          "name": "f05-11-source-native-pg16-evidence",
+          "size_in_bytes": 20893,
+          "expired": false,
+          "expires_at": "2026-11-12T17:04:46Z",
+          "digest": "sha256:28544b3337689a7a68ca29d347b26ec633ce80d485045b582dbc81aee4fad2d8",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832309054,
+          "name": "f05-11-https-native-pg16-evidence",
+          "size_in_bytes": 7641,
+          "expired": false,
+          "expires_at": "2026-11-12T17:03:09Z",
+          "digest": "sha256:c8f85780c7f13c1a448d704674db905147cdbb94d5ed894433e93db7cb60c619",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        }
+      ]
+    },
+    {
+      "run_id": 38435118750,
+      "artifact_count": 2,
+      "artifacts": [
+        {
+          "id": 11833241807,
+          "name": "f06-3a-https-native-pg16-evidence",
+          "size_in_bytes": 2424,
+          "expired": false,
+          "expires_at": "2026-11-12T17:10:53Z",
+          "digest": "sha256:2c7bfd0cb841dbbf6aa43e4ed3c4ca231bc8158be8767a5645ead2031f7468dc",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832437924,
+          "name": "f06-3a-source-native-pg16-evidence",
+          "size_in_bytes": 8721,
+          "expired": false,
+          "expires_at": "2026-11-12T17:04:11Z",
+          "digest": "sha256:d29bb1f5442f32c1a8262ecabc226f1cb3aa163c7a2008b0770972176af25dac",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        }
+      ]
+    },
+    {
+      "run_id": 38435118896,
+      "artifact_count": 2,
+      "artifacts": [
+        {
+          "id": 11833056308,
+          "name": "f06-1-https-native-pg16-evidence",
+          "size_in_bytes": 7268,
+          "expired": false,
+          "expires_at": "2026-11-12T17:04:29Z",
+          "digest": "sha256:69b9f17ccb942f3e115e429c966b58321b787775667c929a2c15b7f92b284d1d",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        },
+        {
+          "id": 11832751763,
+          "name": "f06-1-source-native-pg16-evidence",
+          "size_in_bytes": 14959,
+          "expired": false,
+          "expires_at": "2026-11-12T17:04:13Z",
+          "digest": "sha256:da2b6b472e4d3bbece32551f59fb3298ea35d21ac1f84d52d91c89ec17621fb2",
+          "head_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658"
+        }
+      ]
+    }
+  ],
+  "readme": "Last HEAD must revalidate all official workflows after evidence-file commit; signed PR comment will reference final HEAD."
+}
