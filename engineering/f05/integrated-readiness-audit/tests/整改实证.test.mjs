@@ -122,35 +122,88 @@ test('11-R02 physical second PG16 backend COMMIT Permission revoke and Customer 
  }
 });
 
-test('11-R03 signed F06 dependency rows: Lock, Waitlist, Transaction and current F05 protection are queried under real PG READ ONLY',async()=>{
- const names=['locks','waitlists','transactions','customers','consultations','f05_8_priority_ci'];
+test('11-R03 signed Lock/Waitlist/Transaction physical state and F05 scope linkage remain READ ONLY',async()=>{
+ const names=['locks','waitlists','transactions','customers','consultations','f05_8_priority_ci',
+  'vehicle_visibility_grants','f05_9_price_right_ci'];
  const before={};for(const t of names)before[t]=await hash(t);
+ const domains=[
+  {table:'locks',id:'lock_id',state:'lock_status',
+   effective:"lock_status='active' AND expires_at>statement_timestamp()",
+   terminal:"lock_status<>'active' OR expires_at<=statement_timestamp()"},
+  {table:'waitlists',id:'waitlist_id',state:"CASE WHEN ended_at IS NULL THEN 'active' ELSE 'ended' END",
+   effective:'ended_at IS NULL',terminal:'ended_at IS NOT NULL'},
+  {table:'transactions',id:'transaction_id',state:'status',
+   effective:"status IN('trading','pending','active','in_progress')",
+   terminal:"status NOT IN('trading','pending','active','in_progress')"}
+ ];
  await db.query('BEGIN READ ONLY');
- let details=[];
+ const details=[];let openFacts=0,terminalFacts=0,ownerFacts=0,consultationFacts=0;
  try{
   assert.equal((await q('SHOW transaction_read_only'))[0].transaction_read_only,'on');
-  for(const t of ['locks','waitlists','transactions']){
-   const rows=await q("SELECT to_jsonb(t) j FROM public."+t+" t ORDER BY 1 LIMIT 30");
-   assert.ok(rows.length>0,'real physically signed '+t+' rows required; table existence is insufficient');
-   const ids=rows.map(r=>r.j);
-   assert.ok(ids.some(r=>r.customer_id!=null&&r.vehicle_id!=null),
-    t+' must provide actual Customer/Vehicle association');
-   const unique=[...new Set(ids.map(r=>r.customer_id))];
-   const actual=await q("SELECT customer_id,current_owner_employee_id,owner_assignment_state,account_status FROM public.customers WHERE customer_id=ANY($1::bigint[])",[unique]);
-   assert.ok(actual.length>0,t+' needs real current F05 Owner association');
-   const cross=await q("SELECT count(*)::int consultation_count FROM public.consultations WHERE customer_id=ANY($1::bigint[])",[unique]);
-   const priority=await q("SELECT count(*)::int priority_count FROM public.f05_8_priority_ci WHERE customer_id=ANY($1::bigint[])",[unique]);
-   const states=[...new Set(ids.map(r=>String(r.status??(r.ended_at===null?'active':'ended'))))];
-   assert.ok(states.length>0);
-   details.push({domain:t,rows:rows.length,customers:actual.length,states,
-    consultationCount:cross[0].consultation_count,priorityCount:priority[0].priority_count});
+  for(const d of domains){
+   // These are actual signed physical rows, not to_regclass() or an invented F06 issuer.
+   const sql="SELECT x."+d.id+" AS id,x.customer_id,x.vehicle_id,x.listing_cycle_id,"+
+    d.state+" AS real_state,c.current_owner_employee_id,c.owner_assignment_state,c.account_status,"+
+    "lc.ended_at AS cycle_ended,v.source_type,"+
+    "EXISTS(SELECT 1 FROM public.consultations co WHERE co.customer_id=x.customer_id "+
+    "AND co.vehicle_id=x.vehicle_id AND co.listing_cycle_id=x.listing_cycle_id "+
+    "AND co.status IN('pending','processing')) AS has_current_consultation,"+
+    "EXISTS(SELECT 1 FROM public.f05_8_priority_ci p WHERE p.vehicle_id=x.vehicle_id "+
+    "AND p.listing_cycle_id=x.listing_cycle_id AND p.status='active' "+
+    "AND p.expires_at>statement_timestamp()) AS has_current_priority "+
+    "FROM public."+d.table+" x "+
+    "JOIN public.customers c ON c.customer_id=x.customer_id "+
+    "JOIN public.vehicles v ON v.vehicle_id=x.vehicle_id "+
+    "JOIN public.vehicle_listing_cycles lc ON lc.listing_cycle_id=x.listing_cycle_id AND lc.vehicle_id=x.vehicle_id "+
+    "ORDER BY x."+d.id+" LIMIT 30";
+   const rows=await q(sql);
+   assert.ok(rows.length>0,'signed physical '+d.table+' must have actual Customer/Vehicle/Cycle rows');
+   for(const item of rows){
+    assert.ok(Number(item.id)>0&&Number(item.customer_id)>0&&Number(item.vehicle_id)>0&&
+      Number(item.listing_cycle_id)>0,'real '+d.table+' composite business identity');
+    assert.ok(typeof item.owner_assignment_state==='string'&&typeof item.account_status==='string');
+    assert.ok(typeof item.real_state==='string'&&item.real_state.length>0,
+      'signed '+d.table+' state must be taken from its REAL source column');
+    if(item.current_owner_employee_id!==null)ownerFacts++;
+    if(item.has_current_consultation)consultationFacts++;
+   }
+   const counts=(await q("SELECT count(*)::int total,"+
+    "count(*) FILTER (WHERE "+d.effective+")::int effective,"+
+    "count(*) FILTER (WHERE "+d.terminal+")::int terminal "+
+    "FROM public."+d.table))[0];
+   const joined=(await q("SELECT count(*)::int total,count(c.customer_id)::int customer_count,"+
+    "count(v.vehicle_id)::int vehicle_count,count(lc.listing_cycle_id)::int cycle_count "+
+    "FROM public."+d.table+" x "+
+    "LEFT JOIN public.customers c ON c.customer_id=x.customer_id "+
+    "LEFT JOIN public.vehicles v ON v.vehicle_id=x.vehicle_id "+
+    "LEFT JOIN public.vehicle_listing_cycles lc ON lc.listing_cycle_id=x.listing_cycle_id AND lc.vehicle_id=x.vehicle_id"))[0];
+   assert.equal(joined.total,counts.total);
+   assert.equal(joined.customer_count,counts.total,d.table+' must have signed Customer FK');
+   assert.equal(joined.vehicle_count,counts.total,d.table+' must have signed Vehicle FK');
+   assert.equal(joined.cycle_count,counts.total,d.table+' must have signed listing cycle FK');
+   assert.ok(counts.total>0);
+   assert.equal(counts.effective+counts.terminal,counts.total,
+    d.table+' active/protected and ended/terminal state partition must cover actual rows');
+   openFacts+=counts.effective;terminalFacts+=counts.terminal;
+   details.push({domain:d.table,actualRows:counts.total,
+    effective:counts.effective,terminal:counts.terminal,
+    sampled:rows.length,actualStates:[...new Set(rows.map(x=>x.real_state))],
+    withCurrentOwner:rows.filter(x=>x.current_owner_employee_id!==null).length,
+    withCurrentConsultation:rows.filter(x=>x.has_current_consultation).length,
+    withPriority:rows.filter(x=>x.has_current_priority).length});
   }
-  // No real transition or funds call: even SQL writes cannot execute under this PG transaction.
-  await assert.rejects(()=>q("UPDATE public.waitlists SET ended_at=clock_timestamp() WHERE false"),/read-only|read only|25006/i);
+  assert.ok(openFacts>0,'signed live Lock/Waitlist/Transaction protection must be physically read');
+  assert.ok(terminalFacts>0,'signed terminal/released state must be physically read');
+  assert.ok(ownerFacts>0,'cross-domain Customer Owner facts must be physically read');
+  assert.ok(consultationFacts>0,'cross-domain active Consultation facts must be physically read');
+  // Real PG16 READ ONLY transaction rejects even zero-row write attempts.
+  await assert.rejects(()=>q("UPDATE public.waitlists SET ended_at=clock_timestamp() WHERE false"),
+   /read-only|read only|25006/i);
   await db.query('ROLLBACK');
  }catch(e){await db.query('ROLLBACK').catch(()=>{});throw e}
- for(const t of names)assert.deepEqual(await hash(t),before[t],'read-only F06 audit cannot change signed '+t);
- console.log('F05_11_R03_SIGNED_ROW_STATE_CROSS_DOMAIN_READ_ONLY',JSON.stringify(details));
+ for(const t of names)assert.deepEqual(await hash(t),before[t],
+  'F06 read audit must not alter signed '+t);
+ console.log('F05_11_R03_SIGNED_PHYSICAL_ROWS_STATES_OWNER_SCOPE_READ_ONLY',JSON.stringify(details));
 });
 
 test('11-R01G signed current v25 physical Grant is blocked by real v26 Priority then restored',async()=>{
