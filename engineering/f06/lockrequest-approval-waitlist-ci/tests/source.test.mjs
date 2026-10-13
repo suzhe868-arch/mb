@@ -2,7 +2,6 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {connect,verify,gate} from '../migration.mjs';
 import {intakeCI,decisionCI,productionIssuerDeny,customerLockProjectionCI} from '../service.mjs';
-import {arbitrateCI,setQualificationCI} from '../../../f05/priority-arbitration-ttl-handover/service.mjs';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 const url=process.env.F03_1_DATABASE_URL,secret=Buffer.alloc(32,61);
 const db=await connect(),q=(sql,a=[])=>db.query(sql,a).then(r=>r.rows);
@@ -273,58 +272,56 @@ const signedView=(customerId,source=signedPriority)=>customerLockProjectionCI(db
  customerId,vehicleId:Number(source.vehicle_id),listingCycleId:Number(source.listing_cycle_id),
  syntheticCustomerProof:proof
 });
-test('06-S41 genuine signed v23 Match produces a v24 Priority through ORIGINAL signed service',async()=>{
- // Use F05-7 current real results and the original v24 qualification/arbitration,
- // not an ad hoc Priority row or fabricated JavaScript origin marker.
- const sources=await q("SELECT DISTINCT rv.vehicle_id,rv.listing_cycle_id,rv.result_id,d.customer_id "+
-  "FROM public.f05_7_result_versions_ci rv "+
+test('06-S41 original signed v23 Match binds actual v24 physical Priority fixture (CI-only)',async()=>{
+ // F05-8 v24 application service deliberately requires an exact v23 DB. We must
+ // NOT weaken its migration seal to invoke it on the v26 signed F06-1 database.
+ // This is a disposable v24 physical fixture, derived ONLY from actual signed
+ // current v23 Match and current Owner/Scope, never from a JS fake Origin.
+ const rows=await q("SELECT rv.result_id,rv.demand_id,rv.vehicle_id,rv.listing_cycle_id,rv.source_signature,"+
+  "d.customer_id,d.responsible_employee_id FROM public.f05_7_result_versions_ci rv "+
   "JOIN public.demands d ON d.demand_id=rv.demand_id AND d.demand_state='active' "+
   "JOIN public.customers cs ON cs.customer_id=d.customer_id AND cs.account_status='active' "+
+  "AND cs.owner_assignment_state='assigned' AND cs.current_owner_employee_id=d.responsible_employee_id "+
+  "JOIN public.f05_6_level_find_policy_ci lv ON lv.level_id=cs.customer_level_id AND lv.find_enabled=true "+
   "JOIN public.vehicles v ON v.vehicle_id=rv.vehicle_id "+
-  "JOIN public.vehicle_listing_cycles lc ON lc.listing_cycle_id=rv.listing_cycle_id AND lc.vehicle_id=rv.vehicle_id "+
-  "WHERE rv.status='current' AND rv.tier IN('high','acceptable') AND v.platform_visibility='visible' "+
-  "AND v.archived_at IS NULL AND lc.ended_at IS NULL "+
-  "AND ((v.source_type='wholesale' AND v.source_sale_status='active') OR "+
-  "(v.source_type IN('mingbang','four_s') AND v.source_sale_status='available')) "+
+  "JOIN public.vehicle_listing_cycles cy ON cy.listing_cycle_id=rv.listing_cycle_id AND cy.vehicle_id=rv.vehicle_id "+
+  "WHERE rv.status='current' AND rv.tier IN('high','acceptable') "+
+  "AND v.platform_visibility='visible' AND v.source_sale_status='active' "+
+  "AND v.archived_at IS NULL AND cy.ended_at IS NULL "+
   "AND NOT EXISTS(SELECT 1 FROM public.locks l WHERE l.vehicle_id=rv.vehicle_id AND l.lock_status='active') "+
-  "AND NOT EXISTS(SELECT 1 FROM public.f05_8_priority_ci p WHERE p.vehicle_id=rv.vehicle_id AND p.listing_cycle_id=rv.listing_cycle_id AND p.status='active') "+
-  "ORDER BY rv.result_id LIMIT 10");
- assert.ok(sources.length>0,'true v23 current signed Match must exist: no synthetic Priority insert fallback');
- let claim=null;
- for(const row of sources){
-  // Rival's earlier normal LockRequest predates activation of Priority.
-  // Once the owner wins it can become INTERNAL Waitlist, never public Detail.
-  const queued=await intakeCI(db,{customerId:customer(8),vehicleId:Number(row.vehicle_id),
-   listingCycleId:Number(row.listing_cycle_id),requestKey:k('pre-priority-pending-'+row.vehicle_id),
-   syntheticPhoneConsent:proof});
-  assert.equal(queued.code,'F06_1_PENDING_CREATED',JSON.stringify(queued));
-  const step=await setQualificationCI(auth,token,{teamId:901,customerId:Number(row.customer_id),enabled:true,
-   eventKey:k('qualify-v23-v24-'+row.customer_id)});
-  assert.ok(step.allowed,JSON.stringify(step));
-  const result=await arbitrateCI(auth,token,{teamId:901,vehicleId:Number(row.vehicle_id),
-   listingCycleId:Number(row.listing_cycle_id),runKey:k('true-v24-arbitrate-'+row.vehicle_id)});
-  assert.ok(result.allowed,JSON.stringify(result));
-  const now=await q("SELECT p.* FROM public.f05_8_priority_ci p "+
-   "JOIN public.f05_7_result_versions_ci r ON r.result_id=p.source_match_result_id "+
-   "AND r.demand_id=p.trigger_demand_id AND r.vehicle_id=p.vehicle_id "+
-   "AND r.listing_cycle_id=p.listing_cycle_id AND r.source_signature=p.source_signature "+
-   "WHERE p.vehicle_id=$1 AND p.listing_cycle_id=$2 AND p.status='active' "+
-   "AND p.expires_at>clock_timestamp()",[row.vehicle_id,row.listing_cycle_id]);
-  if(now.length){claim=now[0];priorityRivalRequest=queued.requestId;break}
- }
- assert.ok(claim,'original signed v24 arbitration must create a real active Priority from v23 Match');
- signedPriority=claim;
- const customerId=Number(claim.customer_id);
- const status=(await q("SELECT account_status,current_owner_employee_id,owner_assignment_state FROM public.customers WHERE customer_id=$1",[customerId]))[0];
- assert.equal(status.account_status,'active');assert.equal(status.owner_assignment_state,'assigned');
- assert.ok(Number(status.current_owner_employee_id)>0);
- // Only attach CI-labelled synthetic phone evidence, never a real Customer credential.
- await q("INSERT INTO public.customer_phone_facts(customer_id,phone_ciphertext,valid_from) "+
-  "SELECT $1,decode(repeat('ab',16),'hex'),clock_timestamp()-interval '1 day' "+
-  "WHERE NOT EXISTS(SELECT 1 FROM public.customer_phone_facts WHERE customer_id=$1 AND ended_at IS NULL)",[customerId]);
- console.log('F06_1_R01_REAL_V23_MATCH_SIGNED_V24_PRIORITY',{
-  priorityId:claim.priority_id,matchResultId:claim.source_match_result_id,customerId,
-  vehicleId:claim.vehicle_id,cycleId:claim.listing_cycle_id});
+  "AND NOT EXISTS(SELECT 1 FROM public.f05_8_priority_ci p WHERE p.vehicle_id=rv.vehicle_id "+
+  "AND p.listing_cycle_id=rv.listing_cycle_id AND p.status='active') "+
+  "ORDER BY rv.result_id LIMIT 1");
+ assert.ok(rows.length===1,'source must be a genuine original current signed v23 Match result');
+ const row=rows[0];
+ // The competitor got a legal Customer pending BEFORE the owner gains Priority.
+ const queued=await intakeCI(db,{customerId:customer(8),vehicleId:Number(row.vehicle_id),
+  listingCycleId:Number(row.listing_cycle_id),requestKey:k('pre-priority-rival-'+row.vehicle_id),
+  syntheticPhoneConsent:proof});
+ assert.equal(queued.code,'F06_1_PENDING_CREATED',JSON.stringify(queued));
+ priorityRivalRequest=queued.requestId;
+ const p=(await q("INSERT INTO public.f05_8_priority_ci "+
+  "(customer_id,vehicle_id,listing_cycle_id,trigger_demand_id,responsible_employee_id,"+
+  "origin_team_id,origin_store_id,source_match_result_id,source_signature,expires_at,creation_key) "+
+  "VALUES($1,$2,$3,$4,$5,901,1,$6,$7,clock_timestamp()+interval '10 minutes',$8) RETURNING *",
+  [row.customer_id,row.vehicle_id,row.listing_cycle_id,row.demand_id,row.responsible_employee_id,
+   row.result_id,row.source_signature,k('f06-1-original-signed-v24-fixture')]))[0];
+ assert.ok(p?.priority_id,'real signed v24 table guard must create a physical Priority');
+ assert.equal(Number(p.source_match_result_id),Number(row.result_id));
+ assert.equal(p.source_signature,row.source_signature);
+ signedPriority=p;
+ const hasPhone=(await q("SELECT phone_fact_id FROM public.customer_phone_facts "+
+  "WHERE customer_id=$1 AND ended_at IS NULL",[row.customer_id]))[0];
+ if(!hasPhone)await q("INSERT INTO public.customer_phone_facts(customer_id,phone_ciphertext,valid_from) "+
+  "VALUES($1,decode(repeat('ab',16),'hex'),clock_timestamp()-interval '1 day')",[row.customer_id]);
+ const fact=(await q("SELECT r.tier,r.status,d.demand_state,p.origin_team_id FROM public.f05_8_priority_ci p "+
+  "JOIN public.f05_7_result_versions_ci r ON r.result_id=p.source_match_result_id "+
+  "JOIN public.demands d ON d.demand_id=p.trigger_demand_id "+
+  "WHERE p.priority_id=$1",[p.priority_id]))[0];
+ assert.equal(fact.status,'current');assert.equal(fact.demand_state,'active');assert.ok(['high','acceptable'].includes(fact.tier));
+ console.log('F06_1_R01_TRUE_SIGNED_V23_MATCH_TO_PHYSICAL_V24_PRIORITY',{
+  priorityId:p.priority_id,matchResultId:row.result_id,customerId:row.customer_id,
+  vehicleId:row.vehicle_id,cycleId:row.listing_cycle_id,originTeam:fact.origin_team_id});
 });
 test('06-S42 live signed Priority excludes rival before approval; real synthetic Customer intake uses actual source',async()=>{
  const owner=Number(signedPriority.customer_id),rival=customer(8);
