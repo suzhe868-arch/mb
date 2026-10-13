@@ -1,0 +1,55 @@
+name: F05-11 new signed PG16 Source and HTTPS isolated audit
+on:
+  push:
+    branches: [feat/f05-11-cross-domain-readiness-audit]
+  workflow_dispatch:
+permissions: {contents: read, actions: read}
+jobs:
+  readiness-source:
+    name: F05-11 Source integrated-readiness audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Signed v26 and native true PG16 F05-11 Source
+        run: bash engineering/f05/integrated-readiness-audit/ci-job.sh source
+        env:
+          GH_ACTIONS_READ_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f05-11-source-native-pg16-evidence
+          path: engineering/f05/integrated-readiness-audit/artifacts/source/
+          retention-days: 30
+          if-no-files-found: error
+  readiness-https:
+    name: F05-11 HTTPS production issuer deny
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Signed v26 and native true PG16 F05-11 HTTPS
+        run: bash engineering/f05/integrated-readiness-audit/ci-job.sh https
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f05-11-https-native-pg16-evidence
+          path: engineering/f05/integrated-readiness-audit/artifacts/https/
+          retention-days: 30
+          if-no-files-found: error
