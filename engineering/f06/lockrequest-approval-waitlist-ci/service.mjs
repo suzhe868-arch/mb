@@ -41,7 +41,7 @@ async function scope(c,actor,team){
  "JOIN public.employee_permission_overrides ov ON ov.permission_id=p.permission_id AND ov.employee_id=e.employee_id "+
  "JOIN public.employee_capability_scope_bindings b ON b.permission_id=p.permission_id AND b.employee_id=e.employee_id "+
  "JOIN public.employee_data_scopes sc ON sc.scope_id=b.scope_id AND sc.employee_id=e.employee_id "+
- "LEFT JOIN public.employee_team_memberships m ON m.employee_id=e.employee_id AND m.team_id=$2 "+
+ "JOIN public.employee_team_memberships m ON m.employee_id=e.employee_id AND m.team_id=$2 "+
  "JOIN public.teams t ON t.team_id=$2 JOIN public.stores st ON st.store_id=t.store_id "+
  "WHERE e.employee_id=$1 AND e.employment_status='active' AND r.role_code IN('sales','manager','store_head') "+
  "AND ov.decision='allow' AND b.granted_at<=clock_timestamp() AND (b.ended_at IS NULL OR b.ended_at>clock_timestamp()) "+
