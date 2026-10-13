@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import {verify as parentVerify} from '../lockrequest-approval-waitlist-ci/migration.mjs';
 import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
-const URL='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test';
+const DATABASE_URL='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test';
 const EXACT={
  GITHUB_ACTIONS:'true',CI:'true',APP_ENV:'test',NODE_ENV:'test',
  F03_1_ISOLATION_CONFIRM:'I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY',
@@ -12,7 +12,7 @@ const EXACT={
  GITHUB_EVENT_NAME:'push',
  GITHUB_REF:'refs/heads/feat/f06-2-lock-lifecycle-ci',
  GITHUB_REPOSITORY:'suzhe868-arch/mb',
- F03_1_DATABASE_URL:URL
+ F03_1_DATABASE_URL:DATABASE_URL
 };
 export function gate(){
  for(const [k,v] of Object.entries(EXACT)) if(process.env[k]!==v) throw Error('F06_2_NOT_ISOLATED_'+k);
@@ -36,7 +36,7 @@ async function parent(c){gate();return withParentBranch(()=>parentVerify(c))}
 export const SQL=await readFile(new URL('./sidecar.sql',import.meta.url),'utf8');
 export const checksum=createHash('sha256').update(SQL).digest('hex');
 export async function connect(){
- gate();const c=new pg.Client({connectionString:URL,connectionTimeoutMillis:3000,query_timeout:90000});await c.connect();
+ gate();const c=new pg.Client({connectionString:DATABASE_URL,connectionTimeoutMillis:3000,query_timeout:90000});await c.connect();
  try{
   const r=(await c.query("SELECT current_database() db,current_user u,current_setting('server_version_num')::int v,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su,(SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user) cdb")).rows[0];
   if(r.db!=='f03_auth_test'||r.u!=='f03_ci'||r.su||r.cdb||r.v<160000||r.v>=170000) throw Error('F06_2_NATIVE_NONPRIVILEGED_PG16_REQUIRED');
