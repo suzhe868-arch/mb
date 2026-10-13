@@ -2,9 +2,6 @@ name: F05-11 inherited F05-10 original signed PG16 source and HTTPS
 on:
   push:
     branches: [feat/f05-11-cross-domain-readiness-audit]
-  pull_request:
-    branches: [main]
-  workflow_dispatch:
 permissions: {contents: read, actions: read}
 jobs:
   consultation-source:
