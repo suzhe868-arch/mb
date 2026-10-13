@@ -1,3 +1,13 @@
+# 2026-10-13｜F05-10-D1 A二轮验收通过并标准合并PR50；正式放行PR49跨域真实集成（唯一最新）
+
+- **唯一正式状态**：`F05_10_D1_A_ACCEPTED_MERGED_PR50 / F05_10_FINAL_INTEGRATION_A_RELEASED_FOR_B / PR49_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。PR50 B末次受验`3edf40b7cda1ddf8cb4ca340f0fb33dfc0b0d50a`已由A独立复核10条真正同SHA Push、72/72非特权PostgreSQL16 Job成功、完整H52 52/52、D1新Source23/23及HTTPS7/7、注错ROLLBACK/旧M94-v25 Ledger/catalogseal和八份同HEAD有效原生Artifact。R01签名v24 Priority/在途四阶段、R02合法接客池下一候选回退、R03 PG时钟真实冷却与policy version、R04当前权限Scope拦截失权旧key重放，全部源码+真实PG原生日志均A核PASS。
+- **A已执行标准PR50 Merge**：GitHub在`expected_head_sha=3edf40b7cda1ddf8cb4ca340f0fb33dfc0b0d50a`校验后返回`merged=true`，实际merge SHA `9c9e73d5eaa8ab9aa15a45ba1be38b39d1dc7403`；后续main的状态管理提交不改变该合法merge事实。PR50 closed/merged=true；PR49 `feat/f05-10-consultation-assignee-sla`仍open/unmerged，尚未接入D1后的真Owner→Consultation跨域证据，不能因旧HEAD 72绿灯直接合并。
+- **A已正式放行B下一完整工作单**：`07_重建工作区/F05-10_A主控D1合并后公海Owner到Consultation真PG16集成与PR49最终终验正式施工单_2026-10-13.md`；B以**最新main**+已合并D1非生产CI 来源回到**原PR49分支**，在唯一CI-only白名单增加真实`pool owner=null→D1合法claim/经理指定分配或无接客人pending→assigned后真实F05-10 Consultation create/reuse`的同库PG16正反例、双backend/权限、跨域count+hash。先按D1在签名v25及隔离Sidecar的技术约束，合理衔接PR49 v26，不改D1、旧签版、旧Migration或产品Final。保留原PR49 Source30/HTTPS7、旧70个PG16冻结Jobs，新Source>30；本次最后HEAD重新获得十真Push同SHA至少72/72全部success、≥8份新HEAD有效Push原生Artifact、全套中文交A终验，PR49仍由A最终独立验收后才可合并。
+- **A签署正式归档**：`07_重建工作区/F05-10-D1_A主控二轮独立验收23项Source72项PG16全绿并合并PR50正式报告_2026-10-13.md`；PR50 A接受评论：https://github.com/suzhe868-arch/mb/pull/50#issuecomment-6138873276。D1所有新增公海事件/Owner领取独立权限/配置当前均`CI_SYNTHETIC_AUTHORITY_ONLY`、真实`PRODUCTION_ISSUER_GAP`保留；F05整体、C/H01和V1仍`NOT_READY`，F06、真实微信/手机号/JYT电话/价格资金/飞书/部署UAT全部不放行。
+- **NEXT_OWNER=B / NEXT_TASK=F05_10_PR49_FINAL_INTEGRATION_AFTER_D1_MERGE**。无需用户重复批准本包范围内技术步骤；只有新的产品规则冲突或生产授权再集中报用户。
+
+---
+
 # 2026-10-13｜F05-10-D1 A首轮独立验收72/72真PG16全绿但四项保护合同未闭环，PR50退B（唯一最新）
 
 - **唯一正式状态**：`F05_10_D1_A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK / PR50_OPEN_NOT_MERGED / PR49_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。A独立审B PR50 HEAD `43e94834ba1e805b3222fad45d84b3169ab29b01`，24个文件全部新D1 CI-only白名单，全部十条真正GitHub Push事件同SHA且completed/success、H52官方52/52、合计72/72非超级用户PG16成功，D1 Source18/18、HTTPS7/7、真实双backend竞争、注错rollback/旧账/catalogseal、8份同SHA非空未过期官方SHA256原生Artifact均已核实；这些成果保留。
