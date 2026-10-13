@@ -415,3 +415,54 @@ test('10-R02 genuine two-Store current scope Manager/StoreHead, 4S and remote sa
  await q('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[main.main_role_id]);
  console.log('F05_10_R02_CROSS_STORE_MANAGER_HEAD_FOUR_S_DENY',{storeB,teamB,employeeB,otherB,consultationId:consultation.consultationId});
 });
+
+test('10-R02 legal active source Demand priority and revoked Demand to current Customer Owner fallback',async()=>{
+ // Re-enable only the signed disposable CI work scope for employee 1. Old pending Guards stay immutable.
+ await q("UPDATE public.employee_capability_scope_bindings SET ended_at=NULL WHERE employee_id=1 AND permission_id=9105 AND ended_at IS NOT NULL");
+ const chosen=await q("SELECT c.customer_id FROM public.customers c WHERE c.account_status='active' AND c.owner_assignment_state='assigned' AND c.current_owner_employee_id=1 AND NOT EXISTS(SELECT 1 FROM public.consultations co WHERE co.customer_id=c.customer_id AND co.vehicle_id=$1 AND co.listing_cycle_id=$2 AND co.status IN('pending','processing')) ORDER BY c.customer_id LIMIT 2",[vehicleId,cycleId]);
+ assert.equal(chosen.length,2,'Two real independently eligible M94 Customers required to test Demand fallback');
+ const first=Number(chosen[0].customer_id),second=Number(chosen[1].customer_id);
+ const d1=(await q("INSERT INTO public.demands(customer_id,responsible_employee_id,demand_state,criteria_json) VALUES($1,4,'active','{}'::jsonb) RETURNING demand_id",[first]))[0];
+ const a=await create(first,'search',{sourceDemandId:Number(d1.demand_id)});
+ assert.equal(a.allowed,true,JSON.stringify(a));assert.equal(Number(a.assignee),4,'Current active Demand responsible precedes Customer owner');
+ const frozen=(await q('SELECT source_demand_id FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[a.consultationId]))[0];
+ assert.equal(Number(frozen.source_demand_id),Number(d1.demand_id));
+ await q("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=4 AND permission_id=9105");
+ assert.equal((await q('SELECT assignee_handover_pending FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[a.consultationId]))[0].assignee_handover_pending,true);
+ const d2=(await q("INSERT INTO public.demands(customer_id,responsible_employee_id,demand_state,criteria_json) VALUES($1,4,'active','{}'::jsonb) RETURNING demand_id",[second]))[0];
+ const b=await create(second,'search',{sourceDemandId:Number(d2.demand_id)});
+ assert.equal(b.allowed,true,JSON.stringify(b));assert.equal(Number(b.assignee),1,'Revoked Demand responsible falls through to current eligible Customer Owner');
+ await q("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=4 AND permission_id=9105");
+ assert.equal(Number((await q('SELECT assignee_employee_id FROM public.consultations WHERE consultation_id=$1',[a.consultationId]))[0].assignee_employee_id),4,'Demand-assignee history never drifts on capability recovery');
+ console.log('F05_10_R02_SIGNED_DEMAND_OWNER_FALLBACK',{first,second,demandId1:d1.demand_id,demandId2:d2.demand_id,priorityAssignee:4,fallbackOwnerAssignee:1});
+});
+
+test('10-R02 owner pending/public pool cannot synthesize independent Consultation responsibility',async()=>{
+ const pending=await q("SELECT customer_id FROM public.customers WHERE owner_assignment_state<>'assigned' OR current_owner_employee_id IS NULL ORDER BY customer_id LIMIT 1");
+ assert.ok(pending.length,'M94 must contain an authentic unassigned/pending Customer');
+ const denial=await create(Number(pending[0].customer_id),'search');
+ assert.equal(denial.allowed,false,JSON.stringify(denial));
+ assert.match(denial.code,/OWNER_ASSIGNMENT|CUSTOMER_VEHICLE/);
+ console.log('F05_10_R02_PENDING_OWNER_FAIL_CLOSED',{customerId:Number(pending[0].customer_id),code:denial.code});
+});
+
+test('10-R04 genuine four_s Vehicle can be consulted but four_s employee role cannot mutate or read internal content',async()=>{
+ const v=await q("SELECT v.vehicle_id,lc.listing_cycle_id,v.source_type,v.source_sale_status FROM public.vehicles v JOIN public.vehicle_listing_cycles lc ON lc.vehicle_id=v.vehicle_id AND lc.ended_at IS NULL WHERE v.source_type='four_s' AND v.source_sale_status='available' AND v.platform_visibility='visible' AND v.archived_at IS NULL AND NOT EXISTS(SELECT 1 FROM public.f05_8_priority_ci p WHERE p.vehicle_id=v.vehicle_id AND p.status='active' AND p.expires_at>now() AND p.customer_id<>$1) ORDER BY v.vehicle_id LIMIT 1",[customer]);
+ assert.ok(v.length,'Physical eligible signed M94 4S Vehicle must exist, not fabricated 4S responsibility');
+ const car=v[0];
+ const createFourS=await createConsultationCI(c,{customerId:customer,vehicleId:Number(car.vehicle_id),listingCycleId:Number(car.listing_cycle_id),eventKey:k('4s-car-create-'+car.vehicle_id),intent:'consult',syntheticPhoneConsent:proof,directSource:'search'});
+ assert.equal(createFourS.allowed,true,JSON.stringify(createFourS));
+ assert.equal(createFourS.created,true,'Real 4S Vehicle creates independently scoped Consultation');
+ const main=(await q('SELECT main_role_id FROM public.employees WHERE employee_id=1'))[0].main_role_id;
+ const fourS=(await q("SELECT role_id FROM public.roles WHERE role_code='four_s'"))[0].role_id;
+ await q('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[fourS]);
+ try{
+  const detail=await internalConsultationProjectionCI(auth,token,{consultationId:createFourS.consultationId});
+  assert.equal(detail.allowed,false,'4S employee identity never implies full Consultation projection');
+  const attempted=await act(createFourS.consultationId,'followup',{evidenceKind:'crm_note',evidenceRef:'CI-FOUR-S-DENIED-NOTE-001'});
+  assert.equal(attempted.allowed,false,'4S employee cannot handle Consultation despite legitimate 4S source Vehicle');
+ }finally{await q('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[main])}
+ const customerView=await safeCustomerProjectionCI(c,{consultationId:createFourS.consultationId,customerId:customer,syntheticPhoneConsent:proof});
+ assert.equal(customerView.allowed,true,'Legitimate Customer keeps safe view even with role revocation');
+ console.log('F05_10_R04_FOUR_S_VEHICLE_ALLOW_EMPLOYEE_DENY',{vehicleId:Number(car.vehicle_id),consultationId:createFourS.consultationId});
+});
