@@ -14,6 +14,6 @@ try{
  if(!d1||d1.seal_name!=='D1_INDEPENDENT_FROM_SIGNED_V25'||d1.old_public_catalog_sha256!==ledger[22].structure_sha256)
   throw Error('F05_11_D1_NOT_SIGNED');
  await save(mode,{signed,catalogSha:catalog.sha256,ledgerCount:ledger.length,d1,producer:'true nonprivileged PostgreSQL16 CI',
-   readOnlyAudit:true,nonProduction:true,neverF06Ready:true,head:process.env.GITHUB_SHA,runId:process.env.GITHUB_RUN_ID});
+   f06DependencyReadOnly:true,syntheticV25GrantAndV26ServiceProof:true,nonProduction:true,neverF06Ready:true,head:process.env.GITHUB_SHA,runId:process.env.GITHUB_RUN_ID});
  console.log('F05_11_CROSS_DOMAIN_UNCHANGED__SIGNED_CATALOG',catalog.sha256);
 }finally{await c.end()}

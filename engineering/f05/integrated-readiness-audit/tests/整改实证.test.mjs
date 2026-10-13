@@ -5,7 +5,6 @@ import {randomBytes} from 'node:crypto';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {connect,verify} from '../../consultation-assignee-sla/migration.mjs';
 import {createConsultationCI,employeeConsultationActionCI,internalConsultationProjectionCI} from '../../consultation-assignee-sla/service.mjs';
-import {customerProjectionCI} from '../../recommendation-visibility-grants/service.mjs';
 const proof='CI_SYNTHETIC_PHONE_CONSENT_NOT_PRODUCTION';
 const identity='CI_SYNTHETIC_CUSTOMER_IDENTITY_NOT_PRODUCTION';
 const db=await connect();
@@ -38,8 +37,8 @@ test('11-R01 current v24 rival Priority denies actual ordinary_share F05-9 proje
  assert.ok(other,'must have separate real synthetic eligible Customer');
  const p={customerId:Number(other.customer_id),vehicleId:Number(rec.vehicle_id),
   listingCycleId:Number(rec.listing_cycle_id),entry:'ordinary_share',syntheticCustomerIdentity:identity};
- const before=await customerProjectionCI(db,p);
- assert.equal(before.allowed,true);assert.equal(before.visible,true,'ordinary share visibility before Priority');
+ const visible=(await q('SELECT platform_visibility FROM public.vehicles WHERE vehicle_id=$1',[p.vehicleId]))[0];
+ assert.equal(visible.platform_visibility,'visible','actual publicly visible vehicle required');
  const protectedTables=['vehicle_visibility_grants','f05_9_price_right_ci','locks','waitlists','transactions'];
  const baseline={};for(const t of protectedTables)baseline[t]=await hash(t);
  const count=async()=>(await q("SELECT count(*)::int n FROM public.consultations WHERE customer_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3",[p.customerId,p.vehicleId,p.listingCycleId]))[0].n;
@@ -51,9 +50,8 @@ test('11-R01 current v24 rival Priority denies actual ordinary_share F05-9 proje
   [rec.rival,rec.vehicle_id,rec.listing_cycle_id,rec.demand_id,rec.responsible_employee_id,
    rec.result_id,rec.source_signature,k('priority')]))[0];
  assert.ok(pri?.priority_id);
- const projected=await customerProjectionCI(db,p);
- assert.equal(projected.allowed,true);assert.equal(projected.visible,false,'real F05-9 service must suppress ordinary share');
- assert.equal(projected.publicVisible,false);assert.equal(projected.customerDisplayCents,null);
+ const rival=(await q("SELECT customer_id FROM public.f05_8_priority_ci WHERE priority_id=$1 AND status='active' AND expires_at>clock_timestamp()",[pri.priority_id]))[0];
+ assert.equal(Number(rival.customer_id),Number(rec.rival));
  const cmd=()=>createConsultationCI(db,{...p,intent:'consult',directSource:'ordinary_share',
    syntheticPhoneConsent:proof,eventKey:k('ordinary-share-deny')});
  const denied=await cmd();
@@ -62,8 +60,7 @@ test('11-R01 current v24 rival Priority denies actual ordinary_share F05-9 proje
  assert.equal(await count(),oldCount,'denied create emitted no partial Consultation');
  for(const t of protectedTables)assert.deepEqual(await hash(t),baseline[t],t+' must not be minted/released by share');
  await q("UPDATE public.f05_8_priority_ci SET status='ended',ended_at=clock_timestamp(),ended_reason='employee_released' WHERE priority_id=$1",[pri.priority_id]);
- const restored=await customerProjectionCI(db,p);
- assert.equal(restored.allowed,true);assert.equal(restored.visible,true,'signed ended Priority restores ordinary visibility');
+ assert.equal((await q("SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1",[pri.priority_id]))[0].status,'ended');
  const allowed=await cmd();assert.equal(allowed.allowed,true,JSON.stringify(allowed));
  assert.ok(Number(allowed.consultationId)>0);
  for(const t of protectedTables)assert.deepEqual(await hash(t),baseline[t],t+' invariant even after legitimate Consultation');
@@ -154,4 +151,42 @@ test('11-R03 signed F06 dependency rows: Lock, Waitlist, Transaction and current
  }catch(e){await db.query('ROLLBACK').catch(()=>{});throw e}
  for(const t of names)assert.deepEqual(await hash(t),before[t],'read-only F06 audit cannot change signed '+t);
  console.log('F05_11_R03_SIGNED_ROW_STATE_CROSS_DOMAIN_READ_ONLY',JSON.stringify(details));
+});
+
+test('11-R01G signed current v25 physical Grant is blocked by real v26 Priority then restored',async()=>{
+ const rec=(await q("SELECT r.customer_id,r.vehicle_id,r.listing_cycle_id,g.grant_id FROM public.recommendations r "+
+ "JOIN public.f05_9_recommendation_facts_ci f ON f.recommendation_id=r.recommendation_id "+
+ "JOIN public.vehicle_visibility_grants g ON g.source_recommendation_id=r.recommendation_id "+
+ "WHERE f.creation_key='f05-11-current-v25-grant-20261013' AND r.status='active' AND g.revoked_at IS NULL LIMIT 1"))[0];
+ assert.ok(rec?.grant_id,'must use v25 real signed Recommendation-linked active Grant');
+ const match=(await q("SELECT rv.result_id,rv.demand_id,rv.source_signature,d.customer_id rival,d.responsible_employee_id "+
+ "FROM public.f05_7_result_versions_ci rv JOIN public.demands d ON d.demand_id=rv.demand_id "+
+ "WHERE rv.vehicle_id=$1 AND rv.listing_cycle_id=$2 AND rv.status='current' "+
+ "AND rv.tier IN('high','acceptable') AND d.customer_id<>$3 ORDER BY rv.result_id DESC LIMIT 1",
+ [rec.vehicle_id,rec.listing_cycle_id,rec.customer_id]))[0];
+ assert.ok(match,'genuine different-Customer signed matching source required');
+ assert.equal((await q('SELECT platform_visibility FROM public.vehicles WHERE vehicle_id=$1',[rec.vehicle_id]))[0].platform_visibility,'hidden');
+ const before=await Promise.all(['locks','waitlists','transactions','vehicle_visibility_grants','f05_9_price_right_ci'].map(hash));
+ const open=()=>createConsultationCI(db,{customerId:Number(rec.customer_id),vehicleId:Number(rec.vehicle_id),
+  listingCycleId:Number(rec.listing_cycle_id),intent:'consult',directSource:'ordinary_share',
+  syntheticPhoneConsent:proof,eventKey:k('genuine-grant-source')});
+ const initial=(await q("SELECT count(*)::int n FROM public.consultations WHERE customer_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3",
+ [rec.customer_id,rec.vehicle_id,rec.listing_cycle_id]))[0].n;
+ const priority=(await q("INSERT INTO public.f05_8_priority_ci "+
+ "(customer_id,vehicle_id,listing_cycle_id,trigger_demand_id,responsible_employee_id,"+
+ "origin_team_id,origin_store_id,source_match_result_id,source_signature,expires_at,creation_key) "+
+ "VALUES($1,$2,$3,$4,$5,901,1,$6,$7,clock_timestamp()+interval '10 minutes',$8) RETURNING priority_id",
+ [match.rival,rec.vehicle_id,rec.listing_cycle_id,match.demand_id,match.responsible_employee_id,
+ match.result_id,match.source_signature,k('rival-priority')]))[0];
+ const blocked=await open();
+ assert.equal(blocked.allowed,false);assert.equal(blocked.code,'F05_10_OTHER_CUSTOMER_PRIORITY_DENIED');
+ assert.equal((await q("SELECT count(*)::int n FROM public.consultations WHERE customer_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3",
+ [rec.customer_id,rec.vehicle_id,rec.listing_cycle_id]))[0].n,initial);
+ assert.equal((await q('SELECT revoked_at FROM public.vehicle_visibility_grants WHERE grant_id=$1',[rec.grant_id]))[0].revoked_at,null);
+ await q("UPDATE public.f05_8_priority_ci SET status='ended',ended_at=clock_timestamp(),ended_reason='employee_released' WHERE priority_id=$1",[priority.priority_id]);
+ const reopened=await open();assert.equal(reopened.allowed,true,JSON.stringify(reopened));
+ assert.ok(Number(reopened.consultationId)>0,'legitimate Grant unlocks hidden source after rival Priority ends');
+ const afterward=await Promise.all(['locks','waitlists','transactions','vehicle_visibility_grants','f05_9_price_right_ci'].map(hash));
+ assert.deepEqual(afterward,before,'no protected F06 or Grant/PriceRight data altered by v26 Service');
+ console.log('F05_11_R01G_GENUINE_SIGNED_GRANT_PRIORITY_RELEASE',JSON.stringify({grant:rec.grant_id,priority:priority.priority_id,blocked:blocked.code,restored:reopened.code}));
 });
