@@ -1,5 +1,11 @@
 # Decision Register｜产品基线重建
 
+## 2026-10-14｜F06-4A PR57 A独立验收与F06-4B仅CI负责人移交放行（不构成PDM新裁决）
+- A唯一受验B HEAD `d6c8731c05d0a4e1156b9efe7723f79434068d8d`，PR57仅28个新增的CI白名单文件，17真Push/86真PG16 Jobs(H52真实52)/Source48/HTTPS9/131官方SHA256 Artifact通过；旧172表双物理OID43953→48618全行COUNT/MD5，24迁移Ledger、公签Catalog/D1/父Sidecar不变。正式A评论 https://github.com/suzhe868-arch/mb/pull/57#issuecomment-6156008159，GitHub标准merge成功SHA`b892d3b5ef1ff27dda0a6a145f8cb449807cea11`；完整报告`07_重建工作区/F06-4A_A主控独立验收17条Push86项真PG16与131份证据_PR57标准合并正式报告_2026-10-14.md`。只认可CI-only合成normal Transaction cancelled，不开放真实金融或生产Issuer。
+- A依正式已用户批准的PDM19§9、PDM02/03/17/18/25继续书面技术放行F06-4B`07_重建工作区/F06-4B_A主控PDM19合成Transaction负责人正式移交与跨批安全守卫_CI隔离完整施工单_2026-10-14.md`，只在可销毁PG16进行正式签名Transaction responsible移交与当前permission/Scope/历史守卫、父Cancel跨批兼容安全拒绝，严格禁止真实交易/资金/生产/UAT。18真Push、88真实PG16 Job(H52 52)、Source≥36 HTTPS≥9、≥24原生有效sha256 Artifact、旧≥176张父表双OID全行Seal，B最终交A不自merge。F05/F06域与V1仍NOT_READY，`NEXT_OWNER=B`。
+
+---
+
 ## 2026-10-14｜F06-3C-1 PR56独立验收与F06-4A纯CI技术放行（不构成产品新裁决）
 - A验收唯一B HEAD `177c810a1198bd8e97815748c05e4c07d0b0906b`、27个合法新增CI文件；16真Push本SHA全success，新Source43/HTTPS9成功；场景OID39410→独立OID43953及168旧实体COUNT+MD5全行Seal一致、旧24Ledger/Catalog/父Sidecar未漂移；129官方有效sha256 Artifact。H52 workflow源码52无条件Job、官方运行成功，B记录52个Job ID；A调用H52 job list因GitHub ReadTimeout未能逐项复取，记录透明边界。A签字 `https://github.com/suzhe868-arch/mb/pull/56#issuecomment-6155344148`，官方标准PR merge SHA `54d206d633d47a29f675b52bdf5465d1d5d6a8e6`；完整报告 `07_重建工作区/F06-3C-1_A主控独立验收16条Push与129份原生证据_PR56标准合并正式报告_2026-10-14.md`，只认CI-only合成pending/closed，无真实Refund支付与生产Issuer。
 - A依已签PDM19 Final§§6–11及15–26、PDM02/17/18/25，在无实际资金/个人数据/生产接入的前提下正式签发 `07_重建工作区/F06-4A_A主控PDM19合成Transaction正常取消与责任占用释放_CI隔离完整施工单_2026-10-14.md`，F06-4A B新分支 `feat/f06-4a-transaction-cancel-ci` 限CI-only原子普通Transaction取消。要求17同SHA Push、86真PG16 Job/H52 52、新Source≥32 HTTPS≥9、≥22官方SHA256 Artifact、双OID旧172实体全行封印；B不合并main，最终交A独立验收。F06-3C-2真实资金退款、正式生产cancel/completed、V1上线上游权限均未放行。`NEXT_OWNER=B`。
