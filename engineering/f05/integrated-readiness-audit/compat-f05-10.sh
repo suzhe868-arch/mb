@@ -34,7 +34,7 @@ echo F05_11_NATIVE_REAL_PG16_$mode
 EOT
 # v25 signed Grant Service runs before the immutable v26 application, in this disposable source job.
 if [[ "$mode" = source ]];then
- sed -i '/^node .*consultation-assignee-sla.*runner.mjs --apply$/i node f05/integrated-readiness-audit/pre-v26-grant.mjs' "$scratch"
+ sed -i '/^node .*pdm17-public-pool-owner-claim.*runner.mjs --inject-rollback$/i node f05/integrated-readiness-audit/pre-v26-grant.mjs' "$scratch"
  grep -q 'pre-v26-grant.mjs' "$scratch"
 fi
 bash "$scratch" "$mode"
