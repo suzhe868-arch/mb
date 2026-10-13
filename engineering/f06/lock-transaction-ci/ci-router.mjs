@@ -4,5 +4,5 @@ export function ciFailClosedRouter(){return(req,res)=>{
  res.setHeader('cache-control','no-store');res.setHeader('x-content-type-options','nosniff');
  res.statusCode=!inside?404:req.method==='POST'?403:405;
  res.end(JSON.stringify({code:!inside?'F06_3B_PRODUCTION_ROUTE_ABSENT':
-  req.method!=='POST'?'F06_3B_METHOD_DENIED':'F06_3B_PRODUCTION_FINANCIAL_ISSUER_NOT_WIRED'}));
+  req.method!=='POST'?'F06_3B_METHOD_DENIED':'F06_3B_PRODUCTION_TRANSACTION_ISSUER_NOT_WIRED'}));
 }};
