@@ -3,7 +3,7 @@ const mode=process.argv[2];if(!['--inject-rollback','--apply','--verify'].includ
 const c=await connect();try{
  if(mode==='--inject-rollback'){
   try{await apply(c,{inject:true});throw Error('F06_2_INJECTION_NOT_ROLLED_BACK')}catch(e){
-   if(e.message!=='F06_2_TEST_INJECTED_ROLLBACK')throw e;
+   if(e.message!=='F06_2_INJECTED_DDL_ROLLBACK')throw e;
   }
   const x=(await c.query("SELECT to_regnamespace('f06_2_ci')::text name")).rows[0];
   if(x.name!==null)throw Error('F06_2_SIDECAR_BAD_ROLLBACK');

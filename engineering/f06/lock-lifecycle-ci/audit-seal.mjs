@@ -7,9 +7,9 @@ import assert from 'node:assert/strict';
 import {resolve} from 'node:path';
 const mode=process.argv[2];
 if(!['before','after'].includes(mode)||process.env.GITHUB_ACTIONS!=='true'||process.env.CI!=='true'||
- process.env.GITHUB_REF!=='refs/heads/feat/f06-2-lockrequest-approval-waitlist-ci'||process.env.GITHUB_EVENT_NAME!=='push')
+ process.env.GITHUB_REF!=='refs/heads/feat/f06-2-lock-lifecycle-ci'||process.env.GITHUB_EVENT_NAME!=='push')
  throw Error('F06_2_AUDIT_NOT_REAL_PUSH');
-const c=await connect(),out=resolve('f06/lockrequest-approval-waitlist-ci/artifacts/source');
+const c=await connect(),out=resolve('f06/lock-lifecycle-ci/artifacts/source');
 await mkdir(out,{recursive:true});
 const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 async function snap(){
