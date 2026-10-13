@@ -555,3 +555,63 @@ test('10-R03 residual two physical PG backends Customer disable COMMIT vs withdr
   console.log('F05_10_R03_TRUE_TWO_BACKEND_WITHDRAW_HOLD_GOVERNANCE',{aPid,bPid,consultationId:id,holdEvents:events,remainingMs:Number(held.remaining_ms)});
  }finally{await writer.query('ROLLBACK').catch(()=>{});await writer.end();if(pending)await pending.catch(()=>{})}
 });
+
+
+test('10-R04 residual signed Priority from genuine matching excludes other Customer, release restores create',async()=>{
+ const rec=(await q("SELECT rv.result_id,rv.demand_id,rv.vehicle_id,rv.listing_cycle_id,rv.source_signature,d.customer_id rival,d.responsible_employee_id FROM public.f05_7_result_versions_ci rv JOIN public.demands d ON d.demand_id=rv.demand_id JOIN public.vehicles v ON v.vehicle_id=rv.vehicle_id JOIN public.vehicle_listing_cycles lc ON lc.listing_cycle_id=rv.listing_cycle_id AND lc.vehicle_id=rv.vehicle_id WHERE rv.status='current' AND rv.tier IN('high','acceptable') AND v.platform_visibility='visible' AND v.archived_at IS NULL AND ((v.source_type='wholesale' AND v.source_sale_status='active') OR (v.source_type IN('mingbang','four_s') AND v.source_sale_status='available')) AND lc.ended_at IS NULL AND NOT EXISTS(SELECT 1 FROM public.f05_8_priority_ci p WHERE p.vehicle_id=rv.vehicle_id AND p.listing_cycle_id=rv.listing_cycle_id AND p.status='active') ORDER BY rv.result_id LIMIT 1"))[0];
+ assert.ok(rec,'Genuine current v23 matching source and unoccupied saleable Vehicle required');
+ const free=(await q("SELECT c.customer_id FROM public.customers c WHERE c.account_status='active' AND c.owner_assignment_state='assigned' AND c.current_owner_employee_id=1 AND c.customer_id<>$1 AND NOT EXISTS(SELECT 1 FROM public.consultations co WHERE co.customer_id=c.customer_id AND co.vehicle_id=$2 AND co.listing_cycle_id=$3 AND co.status IN('pending','processing')) ORDER BY c.customer_id LIMIT 1",[rec.rival,rec.vehicle_id,rec.listing_cycle_id]))[0];
+ assert.ok(free,'Different active eligible Customer required for Priority isolation');
+ const subject=Number(free.customer_id);
+ const opening=()=>createConsultationCI(c,{customerId:subject,vehicleId:Number(rec.vehicle_id),listingCycleId:Number(rec.listing_cycle_id),intent:'consult',eventKey:k('r04-priority-current-'+Math.random()),syntheticPhoneConsent:proof,directSource:'search'});
+ const baseline=(await q('SELECT count(*)::int n FROM public.consultations WHERE customer_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3',[subject,rec.vehicle_id,rec.listing_cycle_id]))[0].n;
+ const pri=(await q("INSERT INTO public.f05_8_priority_ci(customer_id,vehicle_id,listing_cycle_id,trigger_demand_id,responsible_employee_id,origin_team_id,origin_store_id,source_match_result_id,source_signature,expires_at,creation_key) VALUES($1,$2,$3,$4,$5,901,1,$6,$7,clock_timestamp()+interval '10 minutes',$8) RETURNING priority_id",[rec.rival,rec.vehicle_id,rec.listing_cycle_id,rec.demand_id,rec.responsible_employee_id,rec.result_id,rec.source_signature,k('r04-real-priority-lease')]))[0];
+ const denied=await opening();assert.equal(denied.allowed,false,JSON.stringify(denied));
+ assert.equal(denied.code,'F05_10_OTHER_CUSTOMER_PRIORITY_DENIED');
+ assert.equal((await q('SELECT count(*)::int n FROM public.consultations WHERE customer_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3',[subject,rec.vehicle_id,rec.listing_cycle_id]))[0].n,baseline);
+ await q("UPDATE public.f05_8_priority_ci SET status='ended',ended_at=clock_timestamp(),ended_reason='employee_released' WHERE priority_id=$1",[pri.priority_id]);
+ const after=await opening();assert.equal(after.allowed,true,JSON.stringify(after));assert.equal(after.created,true);
+ const frozen=(await q('SELECT status,assignee_employee_id FROM public.consultations WHERE consultation_id=$1',[after.consultationId]))[0];
+ assert.equal(frozen.status,'pending');assert.ok(Number(frozen.assignee_employee_id)>0);
+ console.log('F05_10_R04_SIGNED_V23_V24_CURRENT_RIVAL_PRIORITY_RELEASE',{priorityId:pri.priority_id,matchingId:rec.result_id,rival:rec.rival,subject,blocked:denied.code,releasedConsultationId:after.consultationId});
+});
+
+test('10-R04 residual entire create-touch-followup-handover-close-invalid lifecycle does not rewrite signed independent domains',async()=>{
+ const target=(await q("SELECT c.customer_id,v.vehicle_id,lc.listing_cycle_id FROM public.customers c CROSS JOIN public.vehicles v JOIN public.vehicle_listing_cycles lc ON lc.vehicle_id=v.vehicle_id AND lc.ended_at IS NULL WHERE c.account_status='active' AND c.owner_assignment_state='assigned' AND c.current_owner_employee_id=1 AND v.platform_visibility='visible' AND v.archived_at IS NULL AND ((v.source_type='wholesale' AND v.source_sale_status='active') OR (v.source_type IN('mingbang','four_s') AND v.source_sale_status='available')) AND NOT EXISTS(SELECT 1 FROM public.f05_8_priority_ci p WHERE p.vehicle_id=v.vehicle_id AND p.listing_cycle_id=lc.listing_cycle_id AND p.status='active') AND NOT EXISTS(SELECT 1 FROM public.consultations co WHERE co.customer_id=c.customer_id AND co.vehicle_id=v.vehicle_id AND co.listing_cycle_id=lc.listing_cycle_id AND co.status IN('pending','processing')) ORDER BY c.customer_id,v.vehicle_id LIMIT 1"))[0];
+ assert.ok(target,'Genuine free Customer/Vehicle/ListingCycle required');
+ const {customer_id:who,vehicle_id:car,listing_cycle_id:cycle}=target;
+ const tables=['recommendations','f05_9_recommendation_facts_ci','vehicle_visibility_grants','f05_9_price_right_ci','f05_8_priority_ci','locks','transactions','demands','customers'];
+ const snap=async()=>{
+  const out={};
+  for(const t of tables){
+   out[t]=(await q("SELECT count(*)::int n,md5(COALESCE(string_agg(to_jsonb(x)::text,'' ORDER BY to_jsonb(x)::text),'')) hash FROM public."+t+" x"))[0];
+  }
+  return out;
+ };
+ // The test intentionally uses an existing disposable signed employee account, never production credentials.
+ await q("UPDATE public.pc_login_accounts SET credential_state='enabled',force_password_change=false WHERE account_id=5");
+ const fourth=await auth.login({login:'disabled_test',password:'SyntheticDisabled_123',source:'f05-10-r04-signed-target'});
+ assert.equal(fourth.code,'AUTH_OK','Actual F03 signed employee4 session required');
+ const input=source=>({customerId:Number(who),vehicleId:Number(car),listingCycleId:Number(cycle),intent:'consult',directSource:source,syntheticPhoneConsent:proof,eventKey:k('r04-lifecycle-'+Math.random())});
+ const before=await snap();
+ const opened=await createConsultationCI(c,input('search'));assert.equal(opened.allowed,true,JSON.stringify(opened));assert.equal(opened.created,true);
+ assert.equal(Number(opened.assignee),1);
+ assert.deepEqual(await snap(),before,'Create never creates or mutates any independent Recommendation/Priority/Lock/Transaction/Owner fact');
+ const existing=await createConsultationCI(c,input('favorite'));assert.equal(existing.allowed,true);assert.equal(existing.created,false);
+ assert.equal(existing.consultationId,opened.consultationId);assert.deepEqual(await snap(),before,'Touch cannot propagate rights');
+ const note=await act(opened.consultationId,'followup',{evidenceKind:'crm_note',evidenceRef:'CI-INDEPENDENT-DOMAIN-NOTE-004'});
+ assert.equal(note.allowed,true,JSON.stringify(note));assert.deepEqual(await snap(),before,'Followup must never change other domains');
+ const moved=await act(opened.consultationId,'handover',{targetEmployeeId:4,reason:'Real same Team second signed recipient'});
+ assert.equal(moved.allowed,true,JSON.stringify(moved));assert.deepEqual(await snap(),before,'Formal Consultation-only handover never mutates Customer Owner');
+ const closed=await employeeConsultationActionCI(auth,fourth.token,{consultationId:opened.consultationId,eventKey:k('r04-target-close'),action:'close_normal'});
+ assert.equal(closed.allowed,true,JSON.stringify(closed));assert.deepEqual(await snap(),before,'New responsible employee closes Consultation without independent business writes');
+ const reopened=await createConsultationCI(c,input('other'));assert.equal(reopened.allowed,true);assert.equal(reopened.created,true);
+ assert.deepEqual(await snap(),before,'New cycle of Consultation independently creates no other objects');
+ const invalid=await act(reopened.consultationId,'invalid');assert.equal(invalid.allowed,true,JSON.stringify(invalid));
+ assert.deepEqual(await snap(),before,'Invalid Consultation is not a transaction, priority or owner action');
+ const history=(await q('SELECT count(*)::int n FROM public.f05_10_consultation_handover_ci WHERE consultation_id=$1',[opened.consultationId]))[0];
+ assert.equal(history.n,1);
+ assert.equal((await q('SELECT source_kind FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1',[opened.consultationId]))[0].source_kind,'search');
+ await q("UPDATE public.pc_login_accounts SET credential_state='disabled',force_password_change=true WHERE account_id=5");
+ console.log('F05_10_R04_FULL_LIFECYCLE_CROSS_DOMAIN_COUNT_AND_HASH',{vehicleId:Number(car),customerId:Number(who),originalId:opened.consultationId,invalidId:reopened.consultationId,tables:Object.keys(before),signedHandoverReceipts:history.n});
+});
