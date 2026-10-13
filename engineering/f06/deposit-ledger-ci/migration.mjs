@@ -4,10 +4,10 @@ import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {verify as verifyF062} from '../lock-lifecycle-ci/migration.mjs';
 import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
-const URL='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test';
+const DATABASE_URL='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test';
 const BRANCH='refs/heads/feat/f06-3a-deposit-ledger-ci';
 const required={GITHUB_ACTIONS:'true',CI:'true',APP_ENV:'test',NODE_ENV:'test',GITHUB_EVENT_NAME:'push',
- GITHUB_REPOSITORY:'suzhe868-arch/mb',GITHUB_REF:BRANCH,F03_1_DATABASE_URL:URL,
+ GITHUB_REPOSITORY:'suzhe868-arch/mb',GITHUB_REF:BRANCH,F03_1_DATABASE_URL:DATABASE_URL,
  F03_1_ISOLATION_CONFIRM:'I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY',
  F05_2_ISOLATION_CONFIRM:'I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY'};
 export function gate(){for(const [k,v] of Object.entries(required))if(process.env[k]!==v)throw Error('F06_3A_NOT_ISOLATED_'+k);
@@ -25,7 +25,7 @@ export const SQL=await readFile(new URL('./sidecar.sql',import.meta.url),'utf8')
 export const checksum=createHash('sha256').update(SQL).digest('hex');
 const hash=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 export async function connect(){
- gate();const c=new pg.Client({connectionString:URL,connectionTimeoutMillis:3000,query_timeout:90000});
+ gate();const c=new pg.Client({connectionString:DATABASE_URL,connectionTimeoutMillis:3000,query_timeout:90000});
  await c.connect();
  try{
   const v=(await c.query("SELECT current_database() db,current_user u,current_setting('server_version_num')::int ver,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su,(SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user) cdb")).rows[0];
