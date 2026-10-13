@@ -2,6 +2,11 @@
 
 ## 工程治理接力记录（不构成PDM业务新裁决）
 
+- **2026-10-14 / F06-3B PR55 A工程治理（不构成PDM新产品裁决）**：A独立核实B最终HEAD `9880e8fcf1923802c1360e0c4783b4cfee4aaab2`，26/26项全added本批CI-only白名单、真正15/15同SHA Push、82/82非特权PG16 Jobs（H52真实52）、本批Source35/HTTPS9、127/127同SHA官方sha256 Artifact，实际业务库OID34957 DROP后另建审计库OID39410，164旧public/D1/F06-1/2/3A源表全行COUNT/MD5、24迁移Ledger/D1/Public Catalog及父Sidecar签名不变。正式A验收报告`07_重建工作区/F06-3B_A主控独立验收15条Push82项PG16与127证据_PR55标准合并正式报告_2026-10-14.md`，PR A签字评论`https://github.com/suzhe868-arch/mb/pull/55#issuecomment-6153930833`；GitHub原生标准合并成功、真实merge SHA `a43d3a0537a9051929f87490f5c1c6641c5920b2`。旧F05历史`pull_request`触发存在异名跨批次证明失败，非正式15条Push门禁，保留A报告观察而非宣称所有Actions事件全绿。仅接收合成Lock→Transaction CI证明，生产Issuer/资金未放行。
+- **2026-10-14 / F06-3C-1 A下一完整施工单（不构成新产品裁决）**：依用户已批准PDM19 Final §§19–26及PDM18/17/02/25，A正式放行`07_重建工作区/F06-3C-1_A主控PDM19合成Refund申请与关闭_无实际退款_CI隔离完整施工单_2026-10-14.md`，仅在合成可销毁非特权PG16测试`pending` Refund申请与带原因的`closed`，Lock XOR Transaction唯一subject、有效Deposit+correction余额、无冲突pending、权限Scope/历史及公海保护；严格禁止记录`refunded`、真实退款确认、`refund_payments`实际付款事实、现金/支付/生产Issuer。B从最新main新建`feat/f06-3c1-refund-pending-close-ci`，只新增`engineering/f06/refund-pending-ci/**`和`.github/workflows/f06-3c1-*.yml`，新末次SHA至少16条真Push、84/84真PG16 Job（H52完整52）、本域Source≥32/HTTPS≥9、≥20官方Artifact、跨双OID原168父表真实全行COUNT/MD5 Seal；B不合并并交`READY_FOR_A_INDEPENDENT_REVIEW`。F06-3C-2实际Refund、F05/F06/V1生产与真实资金继续NOT_READY。**NEXT_OWNER=B**。
+
+
+
 - **2026-10-14 / F06-3A PR54 A工程治理（不构成新产品裁决）**：A独立复查最后B SHA`ced0839defb013127ef57d5b9f6964d8aa901c72`，28/28 added合法CI白名单、14/14同SHA真Push、80/80非特权PG16独立Jobs/H52完整52、Source28/HTTPS9、125份有效GitHub sha256 Artifact、两物理OID30636→34961与旧160张public+D1+F06-1/2侧表全行COUNT/MD5、签名24 Ledger/D1/Catalog不变；B签字、A标正式可Review后以标准PR merge SHA`fd00d88ec5e0f555cf2c8a9643af9a0bd74a23e8`，正式报告`07_重建工作区/F06-3A_A主控独立验收14条Push80项真PG16与125份证据_PR54标准合并正式报告_2026-10-14.md`、PR A评论#6151714472。仅合成财务CI门禁PASS，不代表真实资金与生产Issuer。
 - **2026-10-14 / F06-3B A施工技术分包（不构成新产品裁决）**：依用户已签PDM19 §§6–11、15–18和PDM18，由A仅放行F06-3B合成Lock→Transaction同PG原子转换和一车唯一在途/资金历史保护CI-only，正式工单`07_重建工作区/F06-3B_A主控PDM19_Lock到Transaction原子转换责任占用_CI隔离正式完整施工单_2026-10-14.md`；独立B分支`feat/f06-3b-lock-transaction-ci`、15同SHA Push/82项真实PG16回归/≥18官方Artifact，生产Transaction/Refund/真实资金/成交/上线一律阻断。NEXT_OWNER=B。
 
