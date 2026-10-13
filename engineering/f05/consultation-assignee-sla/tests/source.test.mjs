@@ -486,11 +486,22 @@ test('10-R04 genuine four_s Vehicle can be consulted but four_s employee role ca
 });
 
 
+// Remaining-contract scenarios must open their OWN Consultation. Old automatic revocation
+// tests intentionally leave pending=true and must never be reused as valid assignee fixtures.
+async function freshResidualConsultation(){
+ const found=(await q("SELECT c.customer_id,v.vehicle_id,lc.listing_cycle_id FROM public.customers c CROSS JOIN public.vehicles v JOIN public.vehicle_listing_cycles lc ON lc.vehicle_id=v.vehicle_id AND lc.ended_at IS NULL WHERE c.account_status='active' AND c.owner_assignment_state='assigned' AND c.current_owner_employee_id=1 AND v.platform_visibility='visible' AND v.archived_at IS NULL AND ((v.source_type='wholesale' AND v.source_sale_status='active') OR (v.source_type IN('mingbang','four_s') AND v.source_sale_status='available')) AND NOT EXISTS(SELECT 1 FROM public.f05_8_priority_ci p WHERE p.vehicle_id=v.vehicle_id AND p.listing_cycle_id=lc.listing_cycle_id AND p.status='active') AND NOT EXISTS(SELECT 1 FROM public.consultations co WHERE co.customer_id=c.customer_id AND co.vehicle_id=v.vehicle_id AND co.listing_cycle_id=lc.listing_cycle_id AND co.status IN('pending','processing')) ORDER BY c.customer_id,v.vehicle_id LIMIT 1"))[0];
+ assert.ok(found,'Real eligible Customer/Vehicle/current cycle without existing open Consultation');
+ const opened=await createConsultationCI(c,{customerId:Number(found.customer_id),vehicleId:Number(found.vehicle_id),listingCycleId:Number(found.listing_cycle_id),intent:'consult',directSource:'search',eventKey:k('residual-real-new-'+Math.random()),syntheticPhoneConsent:proof});
+ assert.equal(opened.allowed,true,JSON.stringify(opened));assert.equal(opened.created,true);
+ assert.equal(Number(opened.assignee),1,'Current physical owner and active receiving employee1 needed');
+ return {consultationId:opened.consultationId,customerId:Number(found.customer_id)};
+}
+
 test('10-R02 residual signed System Admin, inactive, four_s, cross-store and personal-DENY handover targets fail closed',async()=>{
  const sys=await auth.login({login:'admin_test',password:'SyntheticAdmin_1234567',source:'f05-10-signed-sys-admin'});
  assert.equal(sys.code,'AUTH_OK','Actual existing F03 system_admin signature required');
- const co=(await q("SELECT co.consultation_id FROM public.consultations co JOIN public.customers cu ON cu.customer_id=co.customer_id WHERE co.status IN('pending','processing') AND co.assignee_employee_id=1 AND cu.account_status='active' ORDER BY co.consultation_id DESC LIMIT 1"))[0];
- assert.ok(co,'Currently open, scoped Consultation required');const id=Number(co.consultation_id);
+ const fresh=await freshResidualConsultation();const id=fresh.consultationId;
+ assert.equal((await q("SELECT assignee_handover_pending FROM public.f05_10_consultation_meta_ci WHERE consultation_id=$1",[id]))[0].assignee_handover_pending,false);
  const sysRead=await internalConsultationProjectionCI(auth,sys.token,{consultationId:id});
  assert.equal(sysRead.allowed,false,'System Admin is not an eligible Employee business reader');
  const sysHandover=await employeeConsultationActionCI(auth,sys.token,{consultationId:id,action:'handover',targetEmployeeId:4,reason:'Cannot self-authorize from system admin',eventKey:k('sys-admin-real')});
@@ -528,8 +539,8 @@ test('10-R03 residual actual CI PDM23 quiet and DND source suppression cannot pa
 });
 
 test('10-R03 residual two physical PG backends Customer disable COMMIT vs withdraw and repeated Hold governance',async()=>{
- const co=(await q("SELECT co.consultation_id,co.customer_id FROM public.consultations co JOIN public.customers cu ON cu.customer_id=co.customer_id WHERE co.status IN('pending','processing') AND cu.account_status='active' AND co.assignee_employee_id=1 ORDER BY co.consultation_id DESC LIMIT 1"))[0];
- assert.ok(co);const id=Number(co.consultation_id),who=Number(co.customer_id);
+ const fresh=await freshResidualConsultation();
+ const id=fresh.consultationId,who=fresh.customerId;
  const writer=await connect();let pending;
  try{
   const aPid=Number((await q('SELECT pg_backend_pid() pid'))[0].pid),bPid=Number((await writer.query('SELECT pg_backend_pid() pid')).rows[0].pid);
