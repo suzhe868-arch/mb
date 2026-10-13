@@ -1,6 +1,7 @@
 // F06-2: disposable signed PG16 ordinary Lock lifecycle ONLY.
 import {createHash} from 'node:crypto';
-import {gate,verify} from './migration.mjs';
+import {gate,verify,withParentBranch} from './migration.mjs';
+import {customerLockProjectionCI} from '../lockrequest-approval-waitlist-ci/service.mjs';
 const deny=(code,extra={})=>({allowed:false,code,...extra});
 const yes=(code,extra={})=>({allowed:true,code,...extra});
 const positive=x=>Number.isSafeInteger(Number(x))&&Number(x)>0;
@@ -12,6 +13,10 @@ const ROLES=['sales','manager','store_head'];
 const proof='CI_SYNTHETIC_LIFECYCLE_SYSTEM_NOT_PRODUCTION';
 export const CI_SYSTEM_PROOF=proof;
 export function productionIssuerDeny(){return deny('F06_2_PRODUCTION_LOCK_AND_MONEY_ISSUERS_NOT_WIRED')}
+export async function customerProjectionCI(c,p){
+ gate();
+ return withParentBranch(()=>customerLockProjectionCI(c,p));
+}
 async function scope(c,a,lock){
  if(a.principal_kind!=='employee'||a.system_admin_id!==null||!ROLES.includes(a.role_code)||
  a.force_password_change!==false||a.credential_state!=='enabled'||a.subject_status!=='active')return false;
@@ -25,7 +30,8 @@ async function scope(c,a,lock){
  "JOIN public.employee_team_memberships m ON m.employee_id=e.employee_id "+
  "JOIN public.teams t ON t.team_id=m.team_id "+
  "JOIN public.stores st ON st.store_id=t.store_id "+
- "JOIN public.employee_team_memberships rm ON rm.employee_id=$2 AND rm.team_id=t.team_id "+
+ "JOIN public.employee_team_memberships rm ON rm.employee_id=$2 AND rm.team_id=t.team_id
+ JOIN public.employees responsible ON responsible.employee_id=rm.employee_id AND responsible.employment_status='active' "+
  "WHERE e.employee_id=$1 AND e.employment_status='active' AND t.team_status='active' AND st.status='active' "+
  "AND m.valid_from<=clock_timestamp() AND (m.ended_at IS NULL OR m.ended_at>clock_timestamp()) "+
  "AND rm.valid_from<=clock_timestamp() AND (rm.ended_at IS NULL OR rm.ended_at>clock_timestamp()) "+
@@ -49,7 +55,7 @@ async function money(c,lock){
 async function original(c,lock){
  const s=await one(c,"SELECT s.lock_id,s.customer_id,s.responsible_employee_id,s.initial_hours,s.policy_version,s.price_kind,s.price_cents,s.source_price_event_id,s.priority_origin_id "+
  "FROM f06_1_lock_ci.lock_snapshots s WHERE s.lock_id=$1 FOR SHARE",[lock.lock_id]);
- if(!s||String(s.customer_id)!==String(lock.customer_id)||String(s.responsible_employee_id)!==String(lock.responsible_employee_id))
+ if(!s||String(s.customer_id)!==String(lock.customer_id))
  return deny('F06_2_SIGNED_F06_1_ORIGIN_MISSING');
  return yes('F06_2_SIGNED_SNAPSHOT',{snapshot:s});
 }
@@ -76,8 +82,17 @@ async function validate(c,l,mode){
  const cycle=await one(c,"SELECT ended_at FROM public.vehicle_listing_cycles WHERE listing_cycle_id=$1 AND vehicle_id=$2 FOR SHARE",[l.listing_cycle_id,l.vehicle_id]);
  if(!customer||!cycle)return deny('F06_2_UNVERIFIED_CUSTOMER_OR_CYCLE');
  if(mode==='employee'&&customer.account_status!=='active')return deny('F06_2_CUSTOMER_DISABLED_MANUAL_DENY');
- // Customer disable or archive is not a license to mutate funds or fabricate cancellation.
- return money(c,l);
+ // Archive/supply interruption never silently ends a Lock. Extension requires
+ // the current cycle and a saleable source, but explicit audited release may
+ // still follow an authorized responsible investigation.
+ const v=await one(c,'SELECT source_type,source_sale_status,archived_at FROM public.vehicles WHERE vehicle_id=$1 FOR SHARE',[l.vehicle_id]);
+ if(!v)return deny('F06_2_CURRENT_VEHICLE_NOT_FOUND');
+ if(mode==='extend' && (cycle.ended_at||v.archived_at||
+   !((v.source_type==='wholesale'&&v.source_sale_status==='active')||
+     (['mingbang','four_s'].includes(v.source_type)&&v.source_sale_status==='available'))))
+   return deny('F06_2_SOURCE_OR_CYCLE_NOT_CURRENT_EXTEND_DENIED');
+ const m=await money(c,l);
+ return m.allowed?yes(m.code,{snapshot:origin.snapshot}):m;
 }
 export async function employeeLifecycleCI(auth,token,p={}){
  gate();
@@ -89,10 +104,12 @@ export async function employeeLifecycleCI(auth,token,p={}){
   if(!l)return deny('F06_2_LOCK_NOT_FOUND');
   if(!await scope(c,a,l))return deny('F06_2_EMPLOYEE_PERMISSION_SCOPE_DENIED');
   const h=digest('employee:'+a.employee_id+':'+p.eventKey);
-  const repeat=await one(c,'SELECT event_kind,actor_employee_id FROM f06_2_ci.lifecycle_events WHERE event_key_sha256=$1',[h]);
-  if(repeat)return repeat.event_kind===p.action?yes('F06_2_IDEMPOTENT_REPLAY',{lockId:Number(l.lock_id),status:l.lock_status}):deny('F06_2_KEY_REUSED_FOR_DIFFERENT_ACTION');
+  const repeat=await one(c,'SELECT lock_id,event_kind,actor_employee_id FROM f06_2_ci.lifecycle_events WHERE event_key_sha256=$1',[h]);
+  if(repeat)return repeat.event_kind===p.action&&String(repeat.lock_id)===String(l.lock_id)&&String(repeat.actor_employee_id)===String(a.employee_id)?
+   yes('F06_2_IDEMPOTENT_REPLAY',{lockId:Number(l.lock_id),status:l.lock_status}):deny('F06_2_KEY_REUSED_FOR_DIFFERENT_ACTION_OR_LOCK');
   if(l.lock_status!=='active')return deny('F06_2_TERMINAL_LOCK_REJECTED');
-  const eligible=await validate(c,l,'employee');if(!eligible.allowed)return eligible;
+  const eligible=await validate(c,l,p.action==='extend'?'extend':'employee');if(!eligible.allowed)return eligible;
+  if(p.action==='extend'&&eligible.snapshot?.priority_origin_id) return deny('F06_2_PRIORITY_ORIGIN_ORDINARY_EXTENSION_DENIED');
   const past=await one(c,'SELECT $1::timestamptz<=clock_timestamp() past',[l.expires_at]);
   if(p.action==='extend'&&past.past)return deny('F06_2_ALREADY_EXPIRED_EXTENSION_DENIED');
   let next;
@@ -123,6 +140,7 @@ export async function expireOrdinaryCI(c,p={}){
   if(l.lock_status!=='active'){await c.query('COMMIT');return yes('F06_2_SYSTEM_TERMINAL_REPLAY',{status:l.lock_status})}
   const r=await validate(c,l,'system');
   if(!r.allowed){await c.query('ROLLBACK');return r}
+  if(r.snapshot?.priority_origin_id){await c.query('ROLLBACK');return deny('F06_2_PRIORITY_ORIGIN_NOT_ORDINARY_EXPIRY')}
   const passed=await one(c,'SELECT $1::timestamptz<=clock_timestamp() passed',[l.expires_at]);
   if(!passed.passed){await c.query('ROLLBACK');return deny('F06_2_PG_CLOCK_NOT_EXPIRED')}
   const h=digest('system:expire:'+l.lock_id);

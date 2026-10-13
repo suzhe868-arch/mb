@@ -37,3 +37,9 @@ CREATE TABLE f06_2_ci.lifecycle_events(
             AND new_expires_at=old_expires_at))
 );
 CREATE INDEX f06_2_lock_event_history ON f06_2_ci.lifecycle_events(lock_id,event_id);
+
+-- Completed history is append-only, even inside synthetic PG16.
+CREATE FUNCTION f06_2_ci.deny_event_mutation() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN RAISE EXCEPTION 'F06_2_LIFECYCLE_HISTORY_IMMUTABLE'; END $$;
+CREATE TRIGGER lifecycle_events_append_only BEFORE UPDATE OR DELETE
+ ON f06_2_ci.lifecycle_events FOR EACH ROW EXECUTE FUNCTION f06_2_ci.deny_event_mutation();

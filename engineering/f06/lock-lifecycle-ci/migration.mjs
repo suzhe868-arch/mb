@@ -18,15 +18,21 @@ export function gate(){
  for(const [k,v] of Object.entries(EXACT)) if(process.env[k]!==v) throw Error('F06_2_NOT_ISOLATED_'+k);
  if(!/^[0-9]{6,20}$/.test(process.env.GITHUB_RUN_ID||''))throw Error('F06_2_UNSIGNED_RUN_DENIED');
 }
-async function parent(c){
- gate();
- const old=process.env.GITHUB_REF;
- try{
-  // Explicitly bridge this previously sealed CI-only module; real branch was checked above.
-  process.env.GITHUB_REF='refs/heads/feat/f06-1-lockrequest-approval-waitlist-ci';
-  return await parentVerify(c);
- }finally{process.env.GITHUB_REF=old}
+let parentQueue=Promise.resolve();
+export function withParentBranch(fn){
+ // Serialize temporary compatibility ref overrides: concurrent PG16 backends
+ // must never race over process.env in the same Node test process.
+ const work=parentQueue.then(async()=>{
+  const previous=process.env.GITHUB_REF;
+  try{
+   process.env.GITHUB_REF='refs/heads/feat/f06-1-lockrequest-approval-waitlist-ci';
+   return await fn();
+  }finally{process.env.GITHUB_REF=previous}
+ });
+ parentQueue=work.catch(()=>{});
+ return work;
 }
+async function parent(c){gate();return withParentBranch(()=>parentVerify(c))}
 export const SQL=await readFile(new URL('./sidecar.sql',import.meta.url),'utf8');
 export const checksum=createHash('sha256').update(SQL).digest('hex');
 export async function connect(){
