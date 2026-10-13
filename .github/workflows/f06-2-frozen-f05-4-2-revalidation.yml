@@ -1,0 +1,53 @@
+name: F05-11 inherited frozen f05-4-2
+on:
+  push:
+    branches: [feat/f06-2-lock-lifecycle-ci]
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  price-source:
+    name: F05-4 source true nonprivileged PostgreSQL16 v19 PDM10 LIMITED UNLIMITED customer price rights test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    timeout-minutes: 40
+    permissions: {contents: read}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with: {node-version: '22.16.0'}
+    - run: bash engineering/f05/customer-price-entitlement-cycle/ci-job.sh source
+    - uses: actions/upload-artifact@v4
+      with:
+        name: f05-4-source-native-evidence
+        path: engineering/f05/customer-price-entitlement-cycle/artifacts/source/
+        retention-days: 30
+        if-no-files-found: error
+  price-https:
+    name: F05-4 https true nonprivileged PostgreSQL16 v19 PDM10 customer price HTTPS denial test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    timeout-minutes: 40
+    permissions: {contents: read}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with: {node-version: '22.16.0'}
+    - run: bash engineering/f05/customer-price-entitlement-cycle/ci-job.sh https
+    - uses: actions/upload-artifact@v4
+      with:
+        name: f05-4-https-native-evidence
+        path: engineering/f05/customer-price-entitlement-cycle/artifacts/https/
+        retention-days: 30
+        if-no-files-found: error
