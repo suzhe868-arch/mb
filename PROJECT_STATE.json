@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_11_A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK",
+  "substage": "F05_11_A_SECOND_REVIEW_R01_R03_PASS_R04_B_REWORK",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F05",
-  "current_domain_status": "F05_10_A_MERGED_F05_11_A_FIRST_REVIEW_NOT_ACCEPTED_F06_NOT_RELEASED",
+  "current_domain_status": "F05_10_A_MERGED_F05_11_A_SECOND_REVIEW_R04_INTEGRITY_BLOCK_F06_NOT_RELEASED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A独立验收PR51 B唯一HEAD 8aaf2fa4c7d52020903fa63d9ff2625a95a1f0d3：11真Push同SHA74/74非超级用户独立PG16 job全绿、H52完整52、Source25/HTTPS8、至少10有效同SHA SHA256 Artifact、21新增文件白名单+21模块/32动作/12真实Gap，旧业务不变。尚存三组原正式施工单证据缺失：R01 Priority下实际普通Share/Grant业务Service拒绝与结束释放，不可只COUNT或otherGrant>=0；R02 真实双PG permission/scope revoke或Customer disabled COMMIT后旧Actor服务/敏感读拒绝，不可只双方read-only；R03 F06 Lock/Waitlist/Transaction已签真实行/状态与F05优先级/Owner/Consultation保护的只读交叉核账，不可只to_regclass。PR51不A接受不合并，B依当前正式整改单继续整改，F05/V1 NOT_READY F06 NOT_RELEASED。",
-  "current_work_file": "07_重建工作区/F05-11_A主控首轮独立验收74项PG16全绿但三组跨域源事实与竞态缺证定向整改单_2026-10-13.md",
+  "current_task": "A独立二轮受验PR51 B HEAD a709023708314452fc9e8769f27b6bee3f723853，真正11 Push同SHA74/74非超级用户PG16 Jobs全部success H52=52，Source29/HTTPS8、10+本SHA SHA256原生Artifact。R01 v25真Grant Priority实际Service拒绝释放、R02双PG Permission deny与Customer disable COMMIT后旧Session拒绝、R03 F06 Lock/Waitlist/Transaction真物理行状态只读均PASS。新R04：既有S24全域hash核验发生在整改新增4个测试前，之后现有Priority/Consultation/Grant、Employee授权/Customer disabled Hold触发的数据提交未做最终public+D1全域before-after封印，违反F05-11只读审计不变性施工合同。已独立提交完整R04定向整改单；PR51不合并，F05/V1 NOT_READY F06未放行。",
+  "current_work_file": "07_重建工作区/F05-11_A主控二轮独立验收29项Source74项PG16全绿_R01至R03通过但审计后原生数据回滚不变性缺证整改单_2026-10-13.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F05_11_A_FIRST_REVIEW_THREE_SIGNED_GAPS_B_REWORK",
+  "current_review_batch": "F05_11_A_SECOND_REVIEW_R04_DATABASE_AUDIT_SEAL_REWORK",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_REWORK_F05_11_R01_PRIORITY_REAL_SERVICE_R02_TWO_PG_COMMITTED_REVOCATION_R03_SIGNED_F06_ROW_STATE_PROTECTION",
+  "next_action": "B_REWORK_F05_11_R04_POST_REMEDIATION_TRUE_GLOBAL_DATA_SEAL_AND_SEPARATE_DISPOSABLE_SCENARIO_DB",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B在原feat/f05-11-cross-domain-readiness-audit、原PR51，仅新增CI白名单内一次补07_重建工作区/F05-11_A主控首轮独立验收74项PG16全绿但三组跨域源事实与竞态缺证定向整改单_2026-10-13.md的R01～R03。保留旧72真正PG16、21模块/32动作/12真实Gap、原Source25 HTTPS8、禁止改旧F03/F04/F05/D1签版/生产/资金/F06，最后新SHA重新获取11真实event=push同SHA至少74/74 Job全success（H52 52/52）、至少10份此最终SHA有效GitHub原生Artifact及真实业务负例日志，中文READY_FOR_A_SECOND_INDEPENDENT_REVIEW交A；B不能自己merge。",
+  "next_action_detail": "B在原feat/f05-11-cross-domain-readiness-audit和原PR51，只改本批新增CI-only白名单，依据07_重建工作区/F05-11_A主控二轮独立验收29项Source74项PG16全绿_R01至R03通过但审计后原生数据回滚不变性缺证整改单_2026-10-13.md保留已PASS原R01-R03真Service/双PG/Lock行，整改所有有COMMIT副作用的业务场景与全域只读审计应隔离于两个不同可销毁非特权PG16测试数据库/或使用真正整体ROLLBACK；审计库最终真实对比Employee权限/Customer/Owner/Vehicle/Priority/Recommendation/Grant/Consultation/Events/Lock/Waitlist/Transaction/Audit及D1 Sidecar的before/after count+md5、v26 catalog/ledger及D1 seal后才生成真实F05_11_POST_REMEDIATION_TRUE_GLOBAL_READONLY_SEAL_PASS。新末次B SHA再跑11 Push >=74/74非特权PG16作业全success H52 52+至少10份同SHA有效官方Artifact，中文READY_FOR_A_THIRD_INDEPENDENT_REVIEW交A。禁止改签旧代码/生产/F06/资金；B不得merge。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7182,7 +7182,7 @@
     "a_report": "07_重建工作区/F05-10_A主控最终独立验收35项Source72项真PG16_PR49标准合并_2026-10-13.md"
   },
   "f05_11_gate": {
-    "status": "A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK",
+    "status": "A_SECOND_REVIEW_CHANGES_REQUESTED_R04_GLOBAL_DB_SEAL",
     "owner": "B",
     "next_owner": "B",
     "branch": "feat/f05-11-cross-domain-readiness-audit",
@@ -7216,42 +7216,40 @@
     "after_b_selftest": "READY_FOR_A_INDEPENDENT_REVIEW",
     "must_not_merge_by_b": true,
     "v1": "NOT_READY",
-    "a_review_sha": "8aaf2fa4c7d52020903fa63d9ff2625a95a1f0d3",
-    "a_review_result": "A_CHANGES_REQUESTED",
-    "a_review_document": "07_重建工作区/F05-11_A主控首轮独立验收74项PG16全绿但三组跨域源事实与竞态缺证定向整改单_2026-10-13.md",
-    "a_review_comment": "https://github.com/suzhe868-arch/mb/pull/51#issuecomment-6141273454",
+    "a_review_sha": "a709023708314452fc9e8769f27b6bee3f723853",
+    "a_review_result": "A_SECOND_REVIEW_R01_R02_R03_PASS_R04_REWORK",
+    "a_review_document": "07_重建工作区/F05-11_A主控二轮独立验收29项Source74项PG16全绿_R01至R03通过但审计后原生数据回滚不变性缺证整改单_2026-10-13.md",
+    "a_review_comment": "https://github.com/suzhe868-arch/mb/pull/51#issuecomment-6142625763",
     "a_blockers": [
-      "R01_ACTIVE_SIGNED_PRIORITY_REAL_OTHER_CUSTOMER_BUSINESS_SERVICE_DENY_AND_RELEASE_MISSING",
-      "R02_TWO_PHYSICAL_PG_BACKEND_REVOKE_OR_DISABLE_COMMIT_VERSUS_OLD_ACTOR_BUSINESS_DENY_MISSING",
-      "R03_F06_SIGNED_LOCK_WAITLIST_TRANSACTION_ACTUAL_ROW_STATE_AND_F05_PROTECTION_READ_MISSING"
+      "R04_POST_REMEDIATION_FULL_PUBLIC_AND_D1_SIDECAR_COUNT_MD5_SEAL_MISSING_BUSINESS_FIXTURE_WRITES_NOT_ROLLED_BACK_OR_SEPARATED_FROM_AUDIT_DB"
     ],
     "reviewed_ci_runs": [
-      38361780040,
-      38361780001,
-      38361780223,
-      38361779993,
-      38361780116,
-      38361780272,
-      38361780137,
-      38361780089,
-      38361780130,
-      38361780053,
-      38361780269
+      38372671576,
+      38372671640,
+      38372671569,
+      38372671769,
+      38372671667,
+      38372671708,
+      38372671612,
+      38372671566,
+      38372671588,
+      38372671593,
+      38372671635
     ],
     "reviewed_ci_success": 74,
-    "source_tests": "25/25",
+    "source_tests": "25/25 + remediation 4/4 = 29/29",
     "https_tests": "8/8",
     "reviewed_artifact_ids": [
-      11794883988,
-      11795043415,
-      11795855684,
-      11795575842,
-      11795326882,
-      11795291823,
-      11795111907,
-      11794709264,
-      11795281659,
-      11794454977
+      11800078750,
+      11800301760,
+      11800645016,
+      11799832733,
+      11800293697,
+      11800097365,
+      11799927864,
+      11799423499,
+      11799968294,
+      11799523861
     ],
     "pr": 51,
     "pr_merged": false,
@@ -7259,10 +7257,15 @@
     "required_next_true_push_runs": 11,
     "required_next_pg16_success": 74,
     "required_next_native_artifacts": 10,
-    "product_baseline": "NOT_READY"
+    "product_baseline": "NOT_READY",
+    "a_passed": [
+      "R01_SIGNED_V25_GRANT_V24_PRIORITY_REAL_SERVICE_BLOCK_AND_RELEASE",
+      "R02_TRUE_TWO_PG_COMMITTED_EMPLOYEE_PERMISSION_DENY_AND_CUSTOMER_DISABLED_OLD_TOKEN_DENIED",
+      "R03_SIGNED_LOCK_WAITLIST_TRANSACTION_READ_ONLY_ROWS_STATES_OWNER_SCOPE"
+    ]
   },
   "f06_gate": {
-    "status": "NOT_RELEASED_WAIT_F05_11_R01_R02_R03_A_REVIEW",
+    "status": "NOT_RELEASED_WAIT_F05_11_R04_A_INDEPENDENT_REVIEW",
     "release_authorized": false,
     "production": false,
     "financial_operations_authorized": false
