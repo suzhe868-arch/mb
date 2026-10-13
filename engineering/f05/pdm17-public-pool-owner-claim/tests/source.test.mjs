@@ -313,7 +313,7 @@ test('D1-R02 first receiver fails real store scope but second qualified sales wi
   assert.deepEqual(eligible,[1,7]);
   const ok=await serviceAssignCI(syntheticServiceRequest(989216),{requestKey:k('r02-skip-invalid-first')});
   assert.equal(ok.allowed,true,JSON.stringify(ok));assert.equal(ok.ownerId,7,'must skip invalid first Store 1');
-  assert.equal((await state(989216)).current_owner_employee_id,7);
+  assert.equal(Number((await state(989216)).current_owner_employee_id),7);
   await c.query("UPDATE public.employees SET receiving_status='paused' WHERE employee_id=7");
   const no=await serviceAssignCI(syntheticServiceRequest(989217),{requestKey:k('r02-all-illegal')});
   assert.equal(no.allowed,false);assert.equal(no.code,'D1_OWNER_ASSIGNMENT_PENDING_NO_ELIGIBLE_RECEIVER');
