@@ -1,0 +1,493 @@
+{
+  "repository": "suzhe868-arch/mb",
+  "verified_sha": "18d58c18f0c8443201fd05e8234365d5b06e5658",
+  "kind": "F06_3A_OFFICIAL_JOBS_PRE_HANDOFF_COMMIT",
+  "count": 80,
+  "runs": [
+    {
+      "run_id": 38435118988,
+      "job_count": 2,
+      "jobs": [
+        {
+          "id": 115426969993,
+          "name": "F05-6 source true nonprivileged PostgreSQL16 v22 PDM11 Application and manual Demand source test",
+          "conclusion": "success"
+        },
+        {
+          "id": 115426970631,
+          "name": "F05-6 https true nonprivileged PostgreSQL16 v22 PDM11 Customer and Employee HTTPS denial test",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "run_id": 38435119065,
+      "job_count": 2,
+      "jobs": [
+        {
+          "id": 115426970092,
+          "name": "F05-3K https true nonprivileged PostgreSQL16 v19 Favorite conversion replay guard test",
+          "conclusion": "success"
+        },
+        {
+          "id": 115426970367,
+          "name": "F05-3K source true nonprivileged PostgreSQL16 v19 Favorite converted JYT replay guard test",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "run_id": 38435119202,
+      "job_count": 2,
+      "jobs": [
+        {
+          "id": 115426971467,
+          "name": "F06-2 Source real nonprivileged PG16 Lock lifecycle immutable audit",
+          "conclusion": "success"
+        },
+        {
+          "id": 115426971820,
+          "name": "F06-2 HTTPS nonprivileged PostgreSQL16 production issuer hard deny",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "run_id": 38435118908,
+      "job_count": 2,
+      "jobs": [
+        {
+          "id": 115426970262,
+          "name": "F05-9 new HTTPS v25 true PG16",
+          "conclusion": "success"
+        },
+        {
+          "id": 115426970712,
+          "name": "F05-9 new Source v25 true PG16",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "run_id": 38435118995,
+      "job_count": 52,
+      "jobs": [
+        {
+          "id": 115438249182,
+          "name": "F03-2-2L isolated PG16 Lock 92-to-93 one-table discovery",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438250129,
+          "name": "F03-2-2E frozen 88-table SG06 ledger regression on own PG16",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438251037,
+          "name": "F03-2-2I FROZEN independent 90-table PG16 full 27 tests + archival source verification",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438251098,
+          "name": "F04-2 SystemAdmin four-S candidate HTTPS scope own PG16",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438251311,
+          "name": "F05-2 A real PG16 M94 to signed Vehicle responsibility physical migration",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438251353,
+          "name": "F03-2-2G frozen 88-table SG06 preflight regression independent genuine PG16",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438251481,
+          "name": "h-source",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438251712,
+          "name": "F05-3A B real PG16 HTTPS 4S member fail-closed isolation",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438251862,
+          "name": "F03 Package G3 independent new genuine 000014 PG16 governance",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252157,
+          "name": "F05-3C independent real PG16 lineage conversion and two backends",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252298,
+          "name": "F05-1 Vehicle physical source own PG16",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252306,
+          "name": "F04-1 route-security independent real M94 PG16 and TLS",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252388,
+          "name": "F04-3 Current TLS authenticated route own PG16",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252390,
+          "name": "F03-1 frozen real security integration - its OWN new PG16",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252400,
+          "name": "F04-1 218 legacy source contract independent real M94 PG16",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252410,
+          "name": "F05-3D independent real PG16 wholesale source-gate https audit",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252427,
+          "name": "F03 Package G2 independent new genuine 000014 PG16 governance",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252455,
+          "name": "F03-2-2F frozen 88-table Team capability governance regression own PG16",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252464,
+          "name": "F04-4 Current consumer TLS own PG16",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252512,
+          "name": "g-https",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252550,
+          "name": "F03-2-2D frozen 86-table Team Scope regression on own new PG16",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252555,
+          "name": "F03-2-2J 90-to-91 PG16 Consultation protected one-table discovery",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252618,
+          "name": "g-source",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252682,
+          "name": "F05-3E true PostgreSQL16 hide reason https audit",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252703,
+          "name": "F03-V evidence own fresh isolated PG16 cross-module contract",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252714,
+          "name": "F05-1 Vehicle HTTPS scope own PG16",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252735,
+          "name": "F03 package P2 independent real M94 safe field contract PG16",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252791,
+          "name": "F05-3A A real PG16 4S member physical SOURCE_GAP rather than fake owner",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252889,
+          "name": "F03-2-2C frozen 84-table authentic SG03 regression on own PG16",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252893,
+          "name": "F05-3F genuine PG16 Favorite source audit",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438252915,
+          "name": "F05-3B B real PG16 loopback TLS isolated 3 wholesale API contracts",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438253089,
+          "name": "F05-3C independent loopback TLS Employee identity",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438253257,
+          "name": "F05-3F genuine PG16 Favorite https audit",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438253315,
+          "name": "F05-3B A real PG16 JYT lineage version and concurrent physical evidence",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438253438,
+          "name": "F05-3D independent real PG16 wholesale source-gate source audit",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438253878,
+          "name": "h-https",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438253935,
+          "name": "F05-3E true PostgreSQL16 hide reason source audit",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438254195,
+          "name": "F05-2 B real PG16 TLS Session current Vehicle positive scope",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438292198,
+          "name": "F04-2 Authority current PDM IA LowFi full source own PG16",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438296290,
+          "name": "F03-2-2A sealed 81-table admin governance CI",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438296600,
+          "name": "F04-3 Current Source OpenAPI DTO own PG16",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438300324,
+          "name": "F03-2-2B empty 82-table first-admin atomic bootstrap race",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438302695,
+          "name": "F03 Package G1 independent new genuine 000014 PG16 governance",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438303218,
+          "name": "F03-V composition own fresh isolated PG16 cross-module contract",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438309746,
+          "name": "F03-2-2K isolated PG16 Waitlist 91-to-92 one-table discovery",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438311016,
+          "name": "F03-2-2H exact 89-table CI-only Customer Owner CAS/history/receipt on genuine PG16",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438312503,
+          "name": "F03-2-2B exact 82-table admin two-population / rollback / structure",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438313913,
+          "name": "F03-2-2N strictly read-only seven-kind six-receipt audit on genuine isolated PG16 M94",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438315981,
+          "name": "F03-2-2M isolated PG16 Transaction 93-to-94 one-table discovery",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438319020,
+          "name": "F03-1 frozen HTTPS security - its OWN new PG16",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438321130,
+          "name": "F04-4 Current full source coverage own PG16",
+          "conclusion": "success"
+        },
+        {
+          "id": 115438324613,
+          "name": "F03 package P1 independent real M94 safe field contract PG16",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "run_id": 38435119435,
+      "job_count": 4,
+      "jobs": [
+        {
+          "id": 115429350014,
+          "name": "F05-8 signed F05-7 HTTPS 7 true PostgreSQL16 PG",
+          "conclusion": "success"
+        },
+        {
+          "id": 115429353790,
+          "name": "F05-8 signed F05-7 Source 28 true PostgreSQL16 PG",
+          "conclusion": "success"
+        },
+        {
+          "id": 115429400326,
+          "name": "F05-8 priority HTTPS v24 true PostgreSQL16 PG",
+          "conclusion": "success"
+        },
+        {
+          "id": 115429424093,
+          "name": "F05-8 priority Source v24 true PostgreSQL16 PG",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "run_id": 38435118978,
+      "job_count": 2,
+      "jobs": [
+        {
+          "id": 115429373840,
+          "name": "F05-3J source true nonprivileged PostgreSQL16 v19 Favorite offline relist new cycle test",
+          "conclusion": "success"
+        },
+        {
+          "id": 115429376608,
+          "name": "F05-3J https true nonprivileged PostgreSQL16 v19 Favorite offline/relist test",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "run_id": 38435118946,
+      "job_count": 2,
+      "jobs": [
+        {
+          "id": 115429330850,
+          "name": "F05-3I source true nonprivileged PostgreSQL16 v19 Favorite preconversion test",
+          "conclusion": "success"
+        },
+        {
+          "id": 115429333805,
+          "name": "F05-3I https true nonprivileged PostgreSQL16 v19 Favorite preconversion test",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "run_id": 38435118730,
+      "job_count": 2,
+      "jobs": [
+        {
+          "id": 115426969565,
+          "name": "F05-5 source true nonprivileged PostgreSQL16 v21 PDM10 true Employee free quota addition source test",
+          "conclusion": "success"
+        },
+        {
+          "id": 115426969730,
+          "name": "F05-5 https true nonprivileged PostgreSQL16 v21 PDM10 Employee quota HTTPS denial test",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "run_id": 38435118628,
+      "job_count": 2,
+      "jobs": [
+        {
+          "id": 115426968690,
+          "name": "F05-10 new HTTPS v26 true PG16",
+          "conclusion": "success"
+        },
+        {
+          "id": 115426969442,
+          "name": "F05-10 new Source v26 true PG16",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "run_id": 38435118851,
+      "job_count": 2,
+      "jobs": [
+        {
+          "id": 115426969604,
+          "name": "F05-4 https true nonprivileged PostgreSQL16 v19 PDM10 customer price HTTPS denial test",
+          "conclusion": "success"
+        },
+        {
+          "id": 115426969981,
+          "name": "F05-4 source true nonprivileged PostgreSQL16 v19 PDM10 LIMITED UNLIMITED customer price rights test",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "run_id": 38435118729,
+      "job_count": 2,
+      "jobs": [
+        {
+          "id": 115426969103,
+          "name": "F05-11 Source integrated-readiness audit",
+          "conclusion": "success"
+        },
+        {
+          "id": 115426969417,
+          "name": "F05-11 HTTPS production issuer deny",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "run_id": 38435118750,
+      "job_count": 2,
+      "jobs": [
+        {
+          "id": 115429031047,
+          "name": "F06-3A HTTPS nonprivileged PostgreSQL16 production issuer hard deny",
+          "conclusion": "success"
+        },
+        {
+          "id": 115429032699,
+          "name": "F06-3A Source real nonprivileged PG16 Deposit receipts and correction ledger immutable audit",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "run_id": 38435118896,
+      "job_count": 2,
+      "jobs": [
+        {
+          "id": 115426969959,
+          "name": "F06-1 Source real PG16 LockRequest six-hour approval race and Waitlist",
+          "conclusion": "success"
+        },
+        {
+          "id": 115426970533,
+          "name": "F06-1 HTTPS production Customer Employee and Money issuer deny",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "readme": "Last HEAD must revalidate all official workflows after evidence-file commit; signed PR comment will reference final HEAD."
+}
