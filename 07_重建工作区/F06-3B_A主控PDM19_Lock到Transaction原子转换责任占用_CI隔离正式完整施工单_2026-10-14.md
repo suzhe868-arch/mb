@@ -1,0 +1,36 @@
+# 名邦汽车 V1｜F06-3B A主控正式完整施工单：Lock→Transaction原子转换与责任/占用（仅隔离CI）
+
+> **2026-10-14 正式放行：`F06_3B_A_RELEASED_FOR_B_CI_ONLY / NEXT_OWNER=B / NEXT_TASK=F06_3B_LOCK_TO_TRANSACTION_ATOMIC_CI_ONLY`**。单独工程包授权；不放行真实成交、真实资金/Refund/Transaction production issuer、实际付款、UAT、部署或任何生产/用户账号操作。B在本单范围内连续开发、代码审查、缺陷修复、全量旧新真PG16 CI并提供唯一最终SHA签名交A，不逐项请用户批准，**B禁止合并main**。
+
+## 一、唯一产品Authority、已签依赖及本批有限目标
+1. **PDM-19 Final§§2、5～11、15～18、24～28**及`PDM-18_最终完整规则.md` §§19～29为唯一产品 Authority：只有合法现时active Lock能创建Transaction；首次创建与Lock结束必须同一PG事务；`Customer/Vehicle/listing_cycle/source_lock`一致，旧Lock价格/72h、真实签名Deposit/Correction/Waitlist/Priority原历史不删除；同Vehicle最多一笔`in_progress`；责任默认继承旧Lock responsible；普通cancel不得恢复旧Lock、旧Priority、Waitlist；Transaction不能凭空起交易，成交完成仅经理/店长+独立权限；顾客停用、供应异常、Archive、Owner变化不擦改历史。仍需参考当前PDM-01/02/03/04/07/13/17/20/21/22/25 Final和正式A/B/C协作规范，不得重写规则。
+2. 冻结真实已签前置：PR52 F06-1（6h申请/唯一Lock/Waitlist/签名Priority投影）已合并；PR53 F06-2（延期/人工结束/PG时钟/资金只读保护）已合并；PR54 F06-3A（合成Deposit/append-only纠错/现金事实Lock保护）已经**A独立终验并标准合并**，B最终HEAD `ced0839defb013127ef57d5b9f6964d8aa901c72`、实际merge `fd00d88ec5e0f555cf2c8a9643af9a0bd74a23e8`；最后SHA **14/14真正Push、80/80真实非特权PG16 Job、H52完整52/52、Source28/HTTPS9、125原生sha256 Artifact与160张旧表跨OID全行count/MD5封印**。开工时仍须重新读取最新main/协作规范/F06-3A正式终验/真实M94签名物理状态。
+3. **本批仅做非生产合成CI**：A) 可信现时F03 Employee/Lock+Customer/Vehicle/listing_cycle在现有合成锁内发起创建首笔`in_progress` Transaction；B) 相同PG物理事务把旧active Lock转`converted_to_transaction`等已签实物允许的终态原因，创建不可变Lock→Transaction origin/occupancy/actor/time/责任链；C) 同车唯一在途Transaction及两独立Backend真实锁序原子赢家/撤权重验；D) 真实只读消费既有CI合成Deposit及其纠错/Lock价格与历史，**不改写、不转移、不删除、不能在本批伪造实际支付**；E) 原业务Waitlist/Priority/Recommendation/Consultation/Demand、公海保护、Customer disable/Owner更换和供应异常维持产品语义；F) 对生产Transaction/Deposit/Refund及已签F03/F06服务硬拒。
+4. **审慎状态载体**：产品合法Transaction状态名为`in_progress/completed/cancelled`。B必须先真实读取`public.transactions`及原M94→v26 24条迁移实际DDL、check/trigger/占用约束，不得凭预期或名称在旧公共schema里硬塞新状态；若原公共表`status='pending'`与PDM19的`in_progress`不一致，只可用本批签名**合成sidecar安全映射**并标记`PRODUCTION_TRANSACTION_SCHEMA_CARRIER_GAP`；不擅改旧签公共表、不开生产接口。首批只可推进`in_progress`状态与已有历史保全；不得实现complete及completed correction、真实deal_price、Refund或换车。
+
+## 二、工作分支/写入白名单/冻结边界
+1. B从**执行时最新main**新建唯一独立`feat/f06-3b-lock-transaction-ci`，独立PR。只新增`engineering/f06/lock-transaction-ci/**`与`.github/workflows/f06-3b-*.yml`。禁止改动已有PDM、IA/Low-Fi、设计、F01～F06-3A、原M94-v26及D1 SQL/F03/F05签名、原CI工作流、真实Issuer、生产路由、支付/银行/真实数据、旧F06-1/2/3A service。
+2. 只能在严格回环、非特权可销毁PG16 `postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test`测试；每个新测试入口必须验证`GITHUB_ACTIONS=true`、`GITHUB_EVENT_NAME=push`、`GITHUB_REPOSITORY=suzhe868-arch/mb`、`GITHUB_REF=refs/heads/feat/f06-3b-lock-transaction-ci`、`CI=true`、`APP_ENV=test`、`NODE_ENV=test`、`F03_1_ISOLATION_CONFIRM=I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY`、`F05_2_ISOLATION_CONFIRM=I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY`；确认`current_user=f03_ci`非超级用户/无CREATEDB且真正Postgres16。任何测试环境不符**立即硬拒，不能fallback到生产**。
+3. 仅新增`f06_3b_ci`侧表、安全受信权限审计与测试，不修改公签SQL字节/已有Constraint或覆盖24迁移Ledger；新合成业务可按现行原生DDL只在可销毁PG16物理`public.transactions`录入fixture/Transaction实验数据，资金`public.deposit_receipts`和F06-3A侧表只读，禁止任何真实资金写入或将Deposit“转车/结清”。旧公共物理carrier若不支持签产品模型则只对`f06_3b_ci`模拟可证明映射，标`PRODUCTION_PHYSICAL_CARRIER_GAP`，不假称线上可用。
+4. 主流程每次在最后COMMIT前从现时F03真实employee session独立重验`transaction.ci.open`权限+Capability+团队/门店/Object scope/employee是否有效、ControlPlane SystemAdmin否决、4S否决、Customer/owner/Lock/Vehicle/listing_cycle状态；不可只看Role。Lock负责员工才能直接发起，经理/店长若有管理权必须显式另权限和合格范围。禁止自动因Owner变动改写历史Transaction responsible；必要Handoff行为另受保护且**本包不自作发明**。
+5. 提交前强制验证真M94→v26 24行签名Ledger、Public Catalog SHA`5495c6d6ccecc628e1b27c5bfe4f3664a76b4c38a1fa732b6e2baa4ebb5e99f4`、D1、F06-1、F06-2、F06-3A各父Sidecar真实checksum以及所有现行源表数据完整封印；只允许新增本包侧表，所有注错回滚真实检查。
+
+## 三、业务正反合同、安全原子性
+1. **正常转换**：现时active Lock唯一、签名F06-1 origin+Customer+Vehicle+cycle对应、无既存在途Transaction、车辆/周期状态符合PDM19授权时，合成Transaction只有一个Winner；**同事务**保存Transaction+合法responsible原事实、Lock从`active`终止并填写已签真实可承载原因（不能凭空改旧check）、完整`source_lock_id`引用/历史事件与当前Occupancy。必须观察commit后**不再有active Lock、正好有一个in-progress Transaction**；错误注入前后二者状态与历史完全回滚。
+2. **不可变历史和已有资金**：历史Lock初始72h/价格/policy/原responsible不可覆写；F06-3A收款/Correction/反冲行与Payment事实独立，合成Transaction不能把旧资金复制、删除、重挂到新车、自动退款/“已结清”；Lock→Transaction时现有Deposit及历史必须仍可经旧Lock关联查询，新增Transaction只显式关联source lock。交易不得以空Deposit推断无需占用保护。
+3. **竞争与重复**：同一Vehicle两个不同Customer/不同Lock的争用、同一Lock双Backend并行或同一事务撞幂等Key，只允许合法原子赢家；显式系统PG row lock顺序、unique Constraint、`55P03/40P01/40001/23505`的失败路径不可留下半个Transaction/提前关闭Lock；旧已终止Lock重放不得复活；同Vehicle与不同cycle旧成交事实不可互相覆盖。
+4. **其他业务边界**：合成在途Transaction阻止新Priority/同车第二笔在途Transaction及同车真实新Lock，但**不得无权取消Recommendation/Consultation/Demand**；原Priority-origin Lock/客户独占在转换后按现时PDM13/19投影重计算，旧Priority已ended不能自动复活；原Waitlist和客户Owner历史留存，取消在途Transaction不自动复活旧Lock/Waitlist/Price权益。若本包不涉及cancel mutation，也必须用新投影/反向测试证明不能隐式恢复。
+5. **客户停用和供应异常**：客户停用只阻新mutation，不删Transaction/Deposit/Lock旧历史；Vehicle下架/失售、供应异常不等于自动cancel原在途Transaction；仅实体被证实真实不可售时禁止新合法转换，保留已有在途责任，顾问离职/变更不得静默改写旧responsible；跨团队/停用Employee/过期Token和SystemAdmin/4S必须Fail Closed。
+6. **HTTPS与数据安全**：所有真实Customer/Employee/Transaction/Deposit/Refund API/微信和Token不接入；只在真正loopback TLS+PG16进行负面验证，返回不泄真实手机号、VIN、资金详情、完整历史、身份Token。测试日志仅 synthetic ID，无真实凭据和真实个人数据。
+
+## 四、完整真实PG16回归与交接
+1. 新本域至少**28条真PG16 Source独立正反测试**：Signed v26 Lock/Transaction实际schema基线、现时员工Session、独立Permission+Capability/Object Scope、合法转交易单车唯一、双Backend并发、幂等跨Lock复用、原子Lock结束/Transaction生成、故障注错整组Rollback/DDL注错Rollback、旧Lock快照/Amount/Cash correction不变、Priority/Waitlist归属可见、Customer/Account disable和源状态下架、越权销售/manager Store/4S/SystemAdmin否决、同车当前与旧cycle冲突、其他在途Transaction/过期Lock拒绝、另一PG Backend撤权COMMIT旧token拒绝、费用资金未知强保守、交易取消不复活旧Lock，以及跨OID160张旧表全行Seal等。真实原生SQL/后台PID/状态断言必须保留，不接受仅mock。
+2. 至少**9项真TLS回环HTTPS+真非特权PG16拒绝测试**：生产Transaction/Deposit/Refund Issuer硬拒，伪造Token/Role/Customer/手机号/VIN、跨数据scope、4S/SystemAdmin/未授权端点硬拒、敏感内容无泄漏；正反路径均不发真实业务。
+3. 冻结F06-3A已签**14条最后SHA真Push、80个非特权PG16 Job**（H52真52）必须在本包**新最后HEAD全部重新跑**，再新增本域Source、HTTPS两个独立真PG16 Job。验收阈值严格**15/15条同一最新HEAD `event=push` Workflow都`completed/success`、至少82/82真PG16 Jobs success、H52`total_count=52`和完整52成功、≥18份本HEAD官方有效sha256 Artifact**，新Source≥28、HTTPS≥9，前F06-3A Source28/HTTPS9、F06-2 Source30/HTTPS9、F06-1 Source48/HTTPS9与所有冻结F05项实际全量同SHA回归；不许用上批SHA凑数，外部Docker限流只可以同SHA官方重跑失败作业并记录原因。
+4. 必须真实在PG16创建**两个不同OID独立物理数据库**：CI情境库先承载实际POSTGRES事务模拟，随后真DROP销毁；另一干净审计库独立重建，至少原160张public+D1+F06-1/2及F06-3A4张侧表的完整COUNT+MD5全行不变（具体表数以签名源真实结构为准、不得凭空报数），原24 Ledger、D1、公共Catalog和三个父Sidecar SHA全部相同。不是同一库UPDATE恢复、也不是仅schema checksum。A将逐页独立读取Jobs、Artifact、Source安全日志与OID。
+5. B提交`engineering/f06/lock-transaction-ci/B自验与A交接.md`（中文），保留PR最后B HEAD、commit、14条旧+新工作流Run ID、**82条独立PG16 Job ID/H52完整52**、≥18份Artifact官方ID/size/expiry/digest/headSHA、测试断言结果、两个真实backend PID、两物理库OID/真实DDL rollback/原160张表原签名、跨域全部正反例和不可实现`SOURCE_GAP`，在同最后HEAD CI全过后正式PR评论签`F06_3B_B_SELF_TESTED / READY_FOR_A_INDEPENDENT_REVIEW / NEXT_OWNER=A`。B不可合并PR。
+6. 缺实际签名物理Transaction安全Carrier、权限/生产Issuer真实性时，只可做授权范围内的可证明合成子功能，标`PRODUCTION_TRANSACTION_SCHEMA_CARRIER_GAP/SOURCE_GAP`，严禁改旧公共schema/强行称生产通过；若与PDM19产品权威实际冲突，B列单交A技术裁决，不逐项问用户。
+
+## 五、禁止事项与出站状态
+- F06-3C Refund、真实实际收款/退款/支付、Transaction首次完成/实际deal price/成交纠错、换车、供应异常全部业务闭环、真实生产Transaction和锁车接口、手机微信/PC/飞书/JYT、用户数据/非CI数据库、UAT/部署均**未授权**。F05/F06整体和V1仍`NOT_READY`。
+- **唯一下个责任窗口：B；唯一施工包：`F06_3B_LOCK_TO_TRANSACTION_ATOMIC_CI_ONLY`；分支`feat/f06-3b-lock-transaction-ci`。**

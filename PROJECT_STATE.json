@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F06_2_A_ACCEPTED_MERGED_PR53_F06_3A_CI_RELEASED_B",
+  "substage": "F06_3A_A_ACCEPTED_MERGED_PR54_F06_3B_CI_RELEASED_B",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F06",
-  "current_domain_status": "F06_2_A_ACCEPTED_PR53_CI_ONLY_F06_3A_A_RELEASED_FOR_B_CI_ONLY_F06_GLOBAL_NOT_READY",
+  "current_domain_status": "F06_3A_A_ACCEPTED_CI_ONLY_F06_3B_CI_RELEASED_F06_OVERALL_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F06-2 PR53由A独立终验接受并标准合并（merge SHA 67b673aff285e28519a1a1141a2e908edf2e44d5）：本SHA13真正Push、78/78非特权PG16、H52 52、Source30/HTTPS9及旧F06-1 48/9，123份Artifact与157表双PG库封印PASS。已正式另放行F06-3A仅CI隔离Deposit事实和append-only资金纠错模拟与Lock资金保护，绝不开展真实资金/生产Issuer/Transaction/Refund。B从实际最新main新建独立feat/f06-3a-deposit-ledger-ci，在白名单完成旧78加新2共80/80真PG16、14同SHA Push、16有效官方Artifact，再交A。",
-  "current_work_file": "07_重建工作区/F06-3A_A主控PDM19意向金事实追加资金纠错与Lock保全_CI隔离正式完整施工单_2026-10-14.md",
+  "current_task": "F06-3A合成Deposit事实与不可变纠错PR54 A独立终验PASS并实际标准merge：fd00d88ec5e0f555cf2c8a9643af9a0bd74a23e8；14真Push同SHA、80/80真PG16Job（H52 52）、新Source28/HTTPS9、125/125同SHA有效Artifact、160旧实体跨OID全行MD5 Seal、旧签Ledger/D1/PublicCatalog和F06-1/2全部完好。A仅正式放行F06-3B合成Lock→Transaction同PG原子转换与在途占用CI-only；真实资金/生产Issuer/成交/退款仍禁止。",
+  "current_work_file": "07_重建工作区/F06-3B_A主控PDM19_Lock到Transaction原子转换责任占用_CI隔离正式完整施工单_2026-10-14.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_EXECUTE_F06_3A_SYNTHETIC_DEPOSIT_FACT_CORRECTION_AND_LOCK_GUARDS_CI_ONLY",
+  "next_action": "B_EXECUTE_F06_3B_LOCK_TO_TRANSACTION_ATOMIC_CI_ONLY",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F06_2_A_ACCEPTED_MERGED_PR53_CI_ONLY_F06_3A_A_RELEASED_FOR_B_CI_ONLY",
+  "engineering_status": "F06_3A_A_ACCEPTED_MERGED_PR54_CI_ONLY_F06_3B_A_RELEASED_FOR_B_CI_ONLY",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B接管已签07_重建工作区/F06-3A_A主控PDM19意向金事实追加资金纠错与Lock保全_CI隔离正式完整施工单_2026-10-14.md，从最新main新建feat/f06-3a-deposit-ledger-ci、新PR，仅新增engineering/f06/deposit-ledger-ci/**和.github/workflows/f06-3a-*.yml；仅非特权可销毁PG16资金模拟，PDM19 Deposit完整不可变历史+经理/店长独立资金纠错能力、Current Lock资金占用保护，禁止真实收款、真实Employee/微信、Transaction/Refund和生产。最后SHA必须14真实Push、≥80/80真PG16 Job(H52 52)、≥16官方有效Artifacts、24新Source/9 TLS、两OID+≥157表原封不变。B一次性完成整改/自验交A，不得merge。",
+  "next_action_detail": "B按A独立正式工单07_重建工作区/F06-3B_A主控PDM19_Lock到Transaction原子转换责任占用_CI隔离正式完整施工单_2026-10-14.md从开工真正最新main建feat/f06-3b-lock-transaction-ci独立PR，仅新增engineering/f06/lock-transaction-ci/**及.github/workflows/f06-3b-*.yml；合成Lock→Transaction原子同事务、一车一在途、资金与历史只读、安全权限守护。最后15条同SHA真实Push、82/82真实非特权PG16 Job含H52完整52、Source≥28/HTTPS≥9、≥18官方本SHA有效sha256 Artifact、不同OID双PG库旧160全行Seal与三个父sidecar完整保持；中文签READY_FOR_A_INDEPENDENT_REVIEW交A；严禁生产真钱/Refund/实际成交/修改旧签SQL/自行merge。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -4800,16 +4800,16 @@
     "design_branch_modified": false,
     "implementation_status_unchanged": true,
     "active_tracks": [
-      "F06_3A_B_CI_ONLY_RELEASED",
+      "F06_3B_B_CI_ONLY_RELEASED",
       "H01_C_VISUAL_REWORK_PARALLEL"
     ],
     "execution_requires_separate_scope_approval": false,
     "global_state_owner": "A_MAIN",
     "engineering": {
       "owner": "B",
-      "branch": "feat/f06-3a-deposit-ledger-ci",
-      "active_work_order": "07_重建工作区/F06-3A_A主控PDM19意向金事实追加资金纠错与Lock保全_CI隔离正式完整施工单_2026-10-14.md",
-      "execution_status": "F06_3A_A_RELEASED_FOR_B_CI_ONLY_B_NOT_STARTED"
+      "branch": "feat/f06-3b-lock-transaction-ci",
+      "active_work_order": "07_重建工作区/F06-3B_A主控PDM19_Lock到Transaction原子转换责任占用_CI隔离正式完整施工单_2026-10-14.md",
+      "execution_status": "F06_3B_A_RELEASED_FOR_B_CI_ONLY_B_NOT_STARTED"
     },
     "design": {
       "owner": "C",
@@ -7269,16 +7269,15 @@
     "merge_sha": "e11e93bae1f6bc74757fea98b3c079d9ecf01e7a"
   },
   "f06_gate": {
-    "status": "F06_2_A_ACCEPTED_MERGED_PR53_F06_3A_A_RELEASED_CI_ONLY",
+    "status": "F06_3A_A_ACCEPTED_MERGED_PR54_F06_3B_A_RELEASED_CI_ONLY",
     "release_authorized": false,
     "production": false,
     "financial_operations_authorized": false,
     "ci_subpackage_release_authorized": true,
     "unreleased": [
-      "F06_3A_PRODUCTION_DEPOSIT_ISSUER",
-      "F06_3B_LOCK_TRANSACTION",
-      "F06_3C_REFUND",
-      "PRODUCTION_LOCK_AND_CUSTOMER_ISSUERS",
+      "F06_3C_REFUND_CI_ONLY_NOT_RELEASED",
+      "REAL_FUNDS_DEPOSIT_TRANSACTION_REFUND",
+      "PRODUCTION_LOCK_TRANSACTION_ISSUERS",
       "F06_OVERALL_READY"
     ]
   },
@@ -7451,12 +7450,12 @@
     "ci_only": true
   },
   "f06_3a_gate": {
-    "status": "A_RELEASED_FOR_B_CI_ONLY",
+    "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B",
-    "owner": "B",
+    "owner": "A",
     "branch": "feat/f06-3a-deposit-ledger-ci",
     "work_order": "07_重建工作区/F06-3A_A主控PDM19意向金事实追加资金纠错与Lock保全_CI隔离正式完整施工单_2026-10-14.md",
-    "pr": null,
+    "pr": 54,
     "source_authority": [
       "PDM-19 Final §§2-5",
       "PDM-18 Final §§16-28",
@@ -7484,6 +7483,57 @@
       "F06_3C_REFUND",
       "PRODUCTION_FINANCIAL_OPERATIONS",
       "PRODUCTION_CUSTOMER_EMPLOYEE_ISSUER"
+    ],
+    "after_b_selftest": "READY_FOR_A_INDEPENDENT_REVIEW",
+    "b_cannot_merge": true,
+    "global_not_ready": true,
+    "pr_merged": true,
+    "merge_sha": "fd00d88ec5e0f555cf2c8a9643af9a0bd74a23e8",
+    "b_final_head_sha": "ced0839defb013127ef57d5b9f6964d8aa901c72",
+    "a_review_result": "A_ACCEPTED_CI_ONLY",
+    "a_review_comment": "https://github.com/suzhe868-arch/mb/pull/54#issuecomment-6151714472",
+    "a_review_report": "07_重建工作区/F06-3A_A主控独立验收14条Push80项真PG16与125份证据_PR54标准合并正式报告_2026-10-14.md",
+    "a_verified_push_workflows": 14,
+    "a_verified_pg16_jobs": 80,
+    "a_h52_verified": 52,
+    "a_source_tests": 28,
+    "a_https_tests": 9,
+    "a_valid_same_sha_artifacts": 125,
+    "a_full_row_seal_old_tables": 160,
+    "a_scenario_database_oid": 30636,
+    "a_audit_database_oid": 34961
+  },
+  "f06_3b_gate": {
+    "status": "A_RELEASED_FOR_B_CI_ONLY",
+    "owner": "B",
+    "next_owner": "B",
+    "branch": "feat/f06-3b-lock-transaction-ci",
+    "work_order": "07_重建工作区/F06-3B_A主控PDM19_Lock到Transaction原子转换责任占用_CI隔离正式完整施工单_2026-10-14.md",
+    "pr": null,
+    "release_base_main": "fd00d88ec5e0f555cf2c8a9643af9a0bd74a23e8",
+    "scope": "SIGNED_LOCK_TO_TRANSACTION_ATOMIC_CONVERSION_AND_SINGLE_IN_PROGRESS_OCCUPANCY_CI_ONLY",
+    "production": false,
+    "allow_real_money": false,
+    "allow_production_transaction_issuer": false,
+    "allow_refund": false,
+    "allowed_new_paths": [
+      "engineering/f06/lock-transaction-ci/**",
+      ".github/workflows/f06-3b-*.yml"
+    ],
+    "frozen_old_pg16_jobs": 80,
+    "required_real_push_workflows": 15,
+    "required_pg16_jobs": 82,
+    "required_h52_jobs": 52,
+    "required_valid_same_sha_artifacts": 18,
+    "required_source_tests": 28,
+    "required_https_tests": 9,
+    "requires_two_distinct_pg16_databases_and_old_160_table_full_row_seal": true,
+    "read_signed_public_transaction_schema_first": true,
+    "source_gap": [
+      "PRODUCTION_TRANSACTION_SCHEMA_CARRIER",
+      "REAL_FUNDS_DEPOSIT_REFUND_TRANSACTION_ISSUERS",
+      "REAL_CUSTOMER_EMPLOYEE_OPERATION",
+      "COMPLETED_TRANSACTION_AND_REFUND"
     ],
     "after_b_selftest": "READY_FOR_A_INDEPENDENT_REVIEW",
     "b_cannot_merge": true,

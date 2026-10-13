@@ -1,3 +1,12 @@
+# 2026-10-14｜F06-3A 80/80真PG16 A独立终验并PR54标准合并；F06-3B Lock到Transaction仅CI隔离完整施工单正式放行（唯一最新）
+
+- **正式唯一指针**：`F06_3A_A_ACCEPTED_MERGED_PR54_CI_ONLY / F06_3B_A_RELEASED_FOR_B_CI_ONLY / NEXT_OWNER=B / NEXT_TASK=F06_3B_LOCK_TO_TRANSACTION_ATOMIC_CI_ONLY / F05_GLOBAL_NOT_READY / F06_GLOBAL_NOT_READY / V1_NOT_READY`。A实际验收PR [#54](https://github.com/suzhe868-arch/mb/pull/54)唯一B末次SHA`ced0839defb013127ef57d5b9f6964d8aa901c72`，GitHub compare ahead11/behind0，**28/28文件全部added CI-only白名单**；官方**14/14条同SHA`event=push`工作流completed/success、80/80真独立非特权PG16 Job success（H52官方完整52/52最新attempt2）、新Source28/28/HTTPS9/9、上批F06-2 Source30/HTTPS9及F06-1 Source48/HTTPS9、125/125份本SHA非空未过期官方sha256 Artifact**。两真PG backend COMMIT撤权/Lock行锁竞争/注错ROLLBACK、真实签约Lock物理Deposit阻止无资金误超时、权限分权及不可变收款/纠错均有真PG原生日志。旧业务PG库OID30636实际DROP→独立干净PG审计库OID34961，**160张旧public+D1+F06-1/2表全行COUNT+MD5、24行Ledger/D1/Catalog/父Sidecar签名保持完全一致**。
+- **A已经实际标准merge PR54**：前将Draft标记为Ready，发表[A独立验收正式评论](https://github.com/suzhe868-arch/mb/pull/54#issuecomment-6151714472)；GitHub标准Merge成功`merged=true`，真实merge SHA`fd00d88ec5e0f555cf2c8a9643af9a0bd74a23e8`。完整验收报告：`07_重建工作区/F06-3A_A主控独立验收14条Push80项真PG16与125份证据_PR54标准合并正式报告_2026-10-14.md`。仅`F06_3A_A_ACCEPTED_CI_ONLY`，不代表实际现金收据/资金纠错/生产交易账户可用。
+- **A已另外正式放行F06-3B，仅CI-only**：完整工单`07_重建工作区/F06-3B_A主控PDM19_Lock到Transaction原子转换责任占用_CI隔离正式完整施工单_2026-10-14.md`，唯一Authority PDM19 Final §§6–11、15–18、PDM18相关Lock/Priority规范。B从当前最新main独立开`feat/f06-3b-lock-transaction-ci`并新PR；**只新增`engineering/f06/lock-transaction-ci/**`和`.github/workflows/f06-3b-*.yml`**。目标仅合成合法Lock→Transaction同PG事务单车唯一在途、责任快照/Lock原子结束、原资金不可变、权限/其他领域失败硬拒；若旧实际PG`public.transactions`与PDM19状态载体不符必须只建隔离Sidecar安全投影并标`PRODUCTION_TRANSACTION_SCHEMA_CARRIER_GAP`，不改旧公共SQL和生产Issuer。旧80Job全部本SHA冻结回归再加2个，目标**15条同SHA真Push、82/82项真实PG16 Job(H52完整52)、新Source≥28/HTTPS≥9、≥18份末次SHA原生有效sha256 Artifact、两物理不同OID及旧160张表+父Sidecar全行Seal**，B中文`READY_FOR_A_INDEPENDENT_REVIEW`交A，B不合并。
+- **持续禁止**：F06-3C退款、真实收付款、交易完成/成交纠错、生产微信/员工/PC接口、UAT/上线/F07/F08均未放行；F05/F06全域、C/H01、V1仍NOT_READY。**NEXT_OWNER=B**。
+
+---
+
 # 2026-10-14｜F06-2 78/78真PG16独立验收通过、PR53标准合并；F06-3A PDM19 Deposit资金事实与纠错仅CI隔离施工单正式放行（唯一最新）
 
 - **唯一当前指针：`F06_2_A_ACCEPTED_MERGED_PR53_CI_ONLY / F06_3A_A_RELEASED_FOR_B_CI_ONLY / NEXT_OWNER=B / NEXT_TASK=F06_3A_SYNTHETIC_DEPOSIT_FACT_CORRECTION_AND_LOCK_GUARDS / F05_GLOBAL_NOT_READY / F06_GLOBAL_NOT_READY / V1_NOT_READY`。**

@@ -2,6 +2,10 @@
 
 ## 工程治理接力记录（不构成PDM业务新裁决）
 
+- **2026-10-14 / F06-3A PR54 A工程治理（不构成新产品裁决）**：A独立复查最后B SHA`ced0839defb013127ef57d5b9f6964d8aa901c72`，28/28 added合法CI白名单、14/14同SHA真Push、80/80非特权PG16独立Jobs/H52完整52、Source28/HTTPS9、125份有效GitHub sha256 Artifact、两物理OID30636→34961与旧160张public+D1+F06-1/2侧表全行COUNT/MD5、签名24 Ledger/D1/Catalog不变；B签字、A标正式可Review后以标准PR merge SHA`fd00d88ec5e0f555cf2c8a9643af9a0bd74a23e8`，正式报告`07_重建工作区/F06-3A_A主控独立验收14条Push80项真PG16与125份证据_PR54标准合并正式报告_2026-10-14.md`、PR A评论#6151714472。仅合成财务CI门禁PASS，不代表真实资金与生产Issuer。
+- **2026-10-14 / F06-3B A施工技术分包（不构成新产品裁决）**：依用户已签PDM19 §§6–11、15–18和PDM18，由A仅放行F06-3B合成Lock→Transaction同PG原子转换和一车唯一在途/资金历史保护CI-only，正式工单`07_重建工作区/F06-3B_A主控PDM19_Lock到Transaction原子转换责任占用_CI隔离正式完整施工单_2026-10-14.md`；独立B分支`feat/f06-3b-lock-transaction-ci`、15同SHA Push/82项真实PG16回归/≥18官方Artifact，生产Transaction/Refund/真实资金/成交/上线一律阻断。NEXT_OWNER=B。
+
+
 - **2026-10-14 / F06-2 PR53**：A独立验B最后HEAD`44067d132ab8c6924213ea2681ad6c5ecd4bec92`，13条真Push同SHA/78真PG16 Job(H52完整52)/Source30/HTTPS9/123官方原生sha256 Artifact成功；双真实PG可销毁物理库OID26507→30636、旧157实体全行COUNT/MD5及Ledger/D1/Catalog/F06-1侧表原封。实际GitHub标准merge`67b673aff285e28519a1a1141a2e908edf2e44d5`，正式A证据`07_重建工作区/F06-2_A主控78项真PG16二轮资金边界与生命周期独立验收_PR53标准合并正式报告_2026-10-14.md`，只接受`CI_ONLY`，非业务新裁决或生产放行。
 - **2026-10-14 / F06-3A**：A据已批准PDM19 Final §§2～5及PDM18 Final的资金/Lock隔离边界签署`07_重建工作区/F06-3A_A主控PDM19意向金事实追加资金纠错与Lock保全_CI隔离正式完整施工单_2026-10-14.md`，B仅可在可销毁PG16构造合成Deposit/append-only纠错与资金读守卫，生产资金Issuer未放行；下一`NEXT_OWNER=B`，F06-3B/3C仍NOT_RELEASED。
 
