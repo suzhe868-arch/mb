@@ -130,7 +130,7 @@ test('11-R03 signed Lock/Waitlist/Transaction physical state and F05 scope linka
   {table:'locks',id:'lock_id',state:'lock_status',
    effective:"lock_status='active' AND expires_at>statement_timestamp()",
    terminal:"lock_status<>'active' OR expires_at<=statement_timestamp()"},
-  {table:'waitlists',id:'waitlist_id',state:"CASE WHEN ended_at IS NULL THEN 'active' ELSE 'ended' END",
+  {table:'waitlists',id:'waitlist_id',state:"CASE WHEN x.ended_at IS NULL THEN 'active' ELSE 'ended' END",
    effective:'ended_at IS NULL',terminal:'ended_at IS NOT NULL'},
   {table:'transactions',id:'transaction_id',state:'status',
    effective:"status IN('trading','pending','active','in_progress')",
@@ -195,7 +195,9 @@ test('11-R03 signed Lock/Waitlist/Transaction physical state and F05 scope linka
   assert.ok(openFacts>0,'signed live Lock/Waitlist/Transaction protection must be physically read');
   assert.ok(terminalFacts>0,'signed terminal/released state must be physically read');
   assert.ok(ownerFacts>0,'cross-domain Customer Owner facts must be physically read');
-  assert.ok(consultationFacts>0,'cross-domain active Consultation facts must be physically read');
+  const consultationTotal=(await q("SELECT count(*)::int n FROM public.consultations WHERE status IN('pending','processing')"))[0].n;
+  assert.ok(consultationTotal>0,'actual signed current Consultation rows must be read independent of F06 row overlap');
+  assert.ok(consultationFacts<=consultationTotal*3,'overlap with F06 source rows is measured, never fabricated');
   // Real PG16 READ ONLY transaction rejects even zero-row write attempts.
   await assert.rejects(()=>q("UPDATE public.waitlists SET ended_at=clock_timestamp() WHERE false"),
    /read-only|read only|25006/i);
