@@ -125,7 +125,9 @@ export async function syntheticNewOccupancyGuardCI(c,vehicleId,kind){
  if(!id(vehicleId)||!['lock','priority'].includes(kind))return no('F06_3B_INVALID_ACQUISITION');
  const v=await one(c,'SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR SHARE',[vehicleId]);
  if(!v)return no('F06_3B_VEHICLE_NOT_FOUND');
- const occupied=await one(c,"SELECT s.transaction_id FROM f06_3b_ci.transaction_origins s JOIN public.transactions t ON t.transaction_id=s.transaction_id WHERE s.vehicle_id=$1 AND s.status='in_progress' AND t.status='in_progress' LIMIT 1 FOR SHARE OF s,t",[vehicleId]);
- if(occupied)return no('F06_3B_TRADING_OCCUPANCY_DENY',{kind,carrier:PRODUCTION_PHYSICAL_CARRIER_GAP});
+ // Fail closed for any signed public in_progress, including a transaction lacking this CI sidecar.
+ const occupied=await one(c,"SELECT transaction_id FROM public.transactions WHERE vehicle_id=$1 AND status IN ('in_progress','pending') LIMIT 1 FOR SHARE",[vehicleId]);
+ const signed=await one(c,"SELECT transaction_id FROM f06_3b_ci.transaction_origins WHERE vehicle_id=$1 AND status='in_progress' LIMIT 1 FOR SHARE",[vehicleId]);
+ if(occupied||signed)return no('F06_3B_TRADING_OCCUPANCY_DENY',{kind,carrier:PUBLIC_TRANSACTION_CARRIER});
  return yes('F06_3B_NO_SYNTHETIC_TRADING_OCCUPANCY',{kind});
 }

@@ -1,4 +1,4 @@
-name: F06-3B isolated native PG16 Lock Transaction atomic origin Source32 and HTTPS9
+name: F06-3B isolated native PG16 Lock Transaction atomic origin Source35 and HTTPS9
 on:
   push:
     branches: [feat/f06-3b-lock-transaction-ci]

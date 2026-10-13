@@ -200,3 +200,13 @@ test('3B-S34 signed in-progress transaction denies new Priority but leaves unrel
  const free=await syntheticNewOccupancyGuardCI(db,vehicle(4),'priority');
  assert.equal(free.code,'F06_3B_NO_SYNTHETIC_TRADING_OCCUPANCY');
 });
+
+test('3B-S35 raw signed public in_progress blocks new Lock without CI sidecar',async()=>{
+ const inserted=(await q("INSERT INTO public.transactions(source_lock_id,customer_id,vehicle_id,listing_cycle_id,status,responsible_employee_id) VALUES($1,$2,$3,$4,'in_progress',1) RETURNING transaction_id",[locks[4],customer,vehicle(4),cycle(4)]))[0];
+ try{
+  assert.equal((await q('SELECT count(*)::int n FROM f06_3b_ci.transaction_origins WHERE transaction_id=$1',[inserted.transaction_id]))[0].n,0);
+  assert.equal((await syntheticNewOccupancyGuardCI(db,vehicle(4),'lock')).code,'F06_3B_TRADING_OCCUPANCY_DENY');
+  assert.equal((await syntheticNewOccupancyGuardCI(db,vehicle(4),'priority')).code,'F06_3B_TRADING_OCCUPANCY_DENY');
+ }finally{await q('DELETE FROM public.transactions WHERE transaction_id=$1',[inserted.transaction_id])}
+ assert.equal((await syntheticNewOccupancyGuardCI(db,vehicle(4),'lock')).code,'F06_3B_NO_SYNTHETIC_TRADING_OCCUPANCY');
+});
