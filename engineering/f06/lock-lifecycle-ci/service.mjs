@@ -30,8 +30,8 @@ async function scope(c,a,lock){
  "JOIN public.employee_team_memberships m ON m.employee_id=e.employee_id "+
  "JOIN public.teams t ON t.team_id=m.team_id "+
  "JOIN public.stores st ON st.store_id=t.store_id "+
- "JOIN public.employee_team_memberships rm ON rm.employee_id=$2 AND rm.team_id=t.team_id
- JOIN public.employees responsible ON responsible.employee_id=rm.employee_id AND responsible.employment_status='active' "+
+ "JOIN public.employee_team_memberships rm ON rm.employee_id=$2 AND rm.team_id=t.team_id "+
+ "JOIN public.employees responsible ON responsible.employee_id=rm.employee_id AND responsible.employment_status='active' "+
  "WHERE e.employee_id=$1 AND e.employment_status='active' AND t.team_status='active' AND st.status='active' "+
  "AND m.valid_from<=clock_timestamp() AND (m.ended_at IS NULL OR m.ended_at>clock_timestamp()) "+
  "AND rm.valid_from<=clock_timestamp() AND (rm.ended_at IS NULL OR rm.ended_at>clock_timestamp()) "+
