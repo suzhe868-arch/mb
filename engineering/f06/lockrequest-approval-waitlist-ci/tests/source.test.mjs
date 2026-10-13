@@ -292,6 +292,12 @@ test('06-S41 genuine signed v23 Match produces a v24 Priority through ORIGINAL s
  assert.ok(sources.length>0,'true v23 current signed Match must exist: no synthetic Priority insert fallback');
  let claim=null;
  for(const row of sources){
+  // Rival's earlier normal LockRequest predates activation of Priority.
+  // Once the owner wins it can become INTERNAL Waitlist, never public Detail.
+  const queued=await intakeCI(db,{customerId:customer(8),vehicleId:Number(row.vehicle_id),
+   listingCycleId:Number(row.listing_cycle_id),requestKey:k('pre-priority-pending-'+row.vehicle_id),
+   syntheticPhoneConsent:proof});
+  assert.equal(queued.code,'F06_1_PENDING_CREATED',JSON.stringify(queued));
   const step=await setQualificationCI(auth,token,{teamId:901,customerId:Number(row.customer_id),enabled:true,
    eventKey:k('qualify-v23-v24-'+row.customer_id)});
   assert.ok(step.allowed,JSON.stringify(step));
@@ -304,7 +310,7 @@ test('06-S41 genuine signed v23 Match produces a v24 Priority through ORIGINAL s
    "AND r.listing_cycle_id=p.listing_cycle_id AND r.source_signature=p.source_signature "+
    "WHERE p.vehicle_id=$1 AND p.listing_cycle_id=$2 AND p.status='active' "+
    "AND p.expires_at>clock_timestamp()",[row.vehicle_id,row.listing_cycle_id]);
-  if(now.length){claim=now[0];break}
+  if(now.length){claim=now[0];priorityRivalRequest=queued.requestId;break}
  }
  assert.ok(claim,'original signed v24 arbitration must create a real active Priority from v23 Match');
  signedPriority=claim;
@@ -404,4 +410,18 @@ test('06-S47 signed Priority must never revive and Customer projection respects 
  assert.equal(got.code,'F06_1_CUSTOMER_PROJECTION_SOURCE_UNAVAILABLE');
  assert.equal((await q("SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1",[signedPriority.priority_id]))[0].status,'ended');
  console.log('F06_1_R01_R02_CYCLE_END_PROJECTION_FAIL_CLOSED_NO_OLD_PRIORITY_RESURRECTION');
+});
+
+test('06-S48 pre-existing competing application becomes internal Waitlist without exposing Priority-origin Lock',async()=>{
+ assert.ok(priorityRivalRequest,'a real F06 intake before v24 Priority must survive');
+ const req=(await q("SELECT status,resulting_waitlist_id FROM public.lock_requests WHERE lock_request_id=$1",[priorityRivalRequest]))[0];
+ assert.equal(req.status,'lock_conflict');
+ assert.ok(Number(req.resulting_waitlist_id)>0);
+ const w=(await q("SELECT waitlist_id,customer_id,vehicle_id,responsible_employee_id FROM public.waitlists "+
+  "WHERE waitlist_id=$1",[req.resulting_waitlist_id]))[0];
+ assert.equal(Number(w.customer_id),customer(8));
+ assert.equal(Number(w.vehicle_id),Number(signedPriority.vehicle_id));
+ assert.ok(Number(w.responsible_employee_id)>0);
+ assert.equal((await q("SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1",[signedPriority.priority_id]))[0].status,'ended');
+ console.log('F06_1_R02_PRIORITY_ORIGIN_LOCK_INTERNAL_WAITLIST_NO_PUBLIC_DETAIL_PASS',{waitlistId:w.waitlist_id,requestId:priorityRivalRequest});
 });
