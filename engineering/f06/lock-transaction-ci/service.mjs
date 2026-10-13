@@ -115,3 +115,16 @@ export async function openSyntheticTransactionCI(auth,token,p={}){
   throw e;
  }
 }
+
+// CI-side adapter guard for NEW Lock/Priority acquisition, not retroactive production wiring.
+// Caller must recheck under the same Vehicle mutex in its own physical PG transaction.
+// Existing F06-1 Priority/Lock issuer is frozen and NOT silently patched by this adapter.
+export async function syntheticNewOccupancyGuardCI(c,vehicleId,kind){
+ gate();await verify(c);
+ if(!id(vehicleId)||!['lock','priority'].includes(kind))return no('F06_3B_INVALID_ACQUISITION');
+ const v=await one(c,'SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR SHARE',[vehicleId]);
+ if(!v)return no('F06_3B_VEHICLE_NOT_FOUND');
+ const occupied=await one(c,"SELECT s.transaction_id FROM f06_3b_ci.transaction_origins s JOIN public.transactions t ON t.transaction_id=s.transaction_id WHERE s.vehicle_id=$1 AND s.status='in_progress' AND t.status='pending' LIMIT 1 FOR SHARE OF s,t",[vehicleId]);
+ if(occupied)return no('F06_3B_TRADING_OCCUPANCY_DENY',{kind,carrier:PRODUCTION_PHYSICAL_CARRIER_GAP});
+ return yes('F06_3B_NO_SYNTHETIC_TRADING_OCCUPANCY',{kind});
+}
