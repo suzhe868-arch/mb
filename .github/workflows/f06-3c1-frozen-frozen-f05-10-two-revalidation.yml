@@ -1,0 +1,54 @@
+name: F05-11 inherited F05-10 original signed PG16 source and HTTPS
+on:
+  push:
+    branches: [feat/f06-3c1-refund-pending-close-ci]
+permissions: {contents: read, actions: read, pull-requests: read}
+jobs:
+  consultation-source:
+    name: F05-10 new Source v26 true PG16
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Native F05-10 signed-v26 Source and 70 job official proof
+        run: env GITHUB_REF=refs/heads/feat/f06-3a-deposit-ledger-ci GITHUB_REF_NAME=feat/f06-3a-deposit-ledger-ci bash engineering/f06/deposit-ledger-ci/compat-old.sh source
+        env:
+          GH_ACTIONS_READ_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f05-10-source-native-pg16-evidence
+          path: engineering/f05/consultation-assignee-sla/artifacts/source/
+          retention-days: 30
+          if-no-files-found: error
+  consultation-https:
+    name: F05-10 new HTTPS v26 true PG16
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Native F05-10 HTTPS customer/employee issuer fail closed
+        run: env GITHUB_REF=refs/heads/feat/f06-3a-deposit-ledger-ci GITHUB_REF_NAME=feat/f06-3a-deposit-ledger-ci bash engineering/f06/deposit-ledger-ci/compat-old.sh https
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f05-10-https-native-pg16-evidence
+          path: engineering/f05/consultation-assignee-sla/artifacts/https/
+          retention-days: 30
+          if-no-files-found: error
