@@ -33,7 +33,7 @@ case "$mode" in
   # R01/R02/R01G signed service COMMITs and CustomerDisabledHold stay in this disposed DB.
   pg_as_admin psql -h127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -qc "DROP DATABASE f03_auth_test WITH (FORCE)"
   pg_as_admin psql -h127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -qc "CREATE DATABASE f03_auth_test OWNER f03_ci"
-  pg_as_ci pg_restore -h127.0.0.1 -U f03_ci -d f03_auth_test --no-owner --no-privileges --exit-on-error < "$dump"
+  docker exec -i -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_restore -h127.0.0.1 -U f03_ci -d f03_auth_test --no-owner --no-privileges --exit-on-error < "$dump"
   now="$(pg_as_ci psql -h127.0.0.1 -U f03_ci -d f03_auth_test -Atqc "SELECT oid FROM pg_database WHERE datname='f03_auth_test'")"
   [[ "$now" =~ ^[0-9]+$ && "$now" != "$original" ]]
   rm -f "$dump"
