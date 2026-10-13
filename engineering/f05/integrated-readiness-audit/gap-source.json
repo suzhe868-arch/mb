@@ -1,0 +1,79 @@
+{
+  "project": "名邦汽车 V1",
+  "status": "NOT_READY",
+  "f06": "F06_NOT_RELEASED",
+  "items": [
+    {
+      "gap": "微信客户身份与手机号真实受信Issuer",
+      "status": "SOURCE_GAP",
+      "owner": "A负责核实真实Issuer/依赖",
+      "noAutoPromotion": true
+    },
+    {
+      "gap": "JYT批发图片/电话与真实来源认证",
+      "status": "SOURCE_GAP",
+      "owner": "A负责核实真实Issuer/依赖",
+      "noAutoPromotion": true
+    },
+    {
+      "gap": "4S本人车辆经营关系可信来源",
+      "status": "SOURCE_GAP",
+      "owner": "A负责核实真实Issuer/依赖",
+      "noAutoPromotion": true
+    },
+    {
+      "gap": "批发通用管理和隐藏原因生产可信Issuer",
+      "status": "SOURCE_GAP",
+      "owner": "A负责核实真实Issuer/依赖",
+      "noAutoPromotion": true
+    },
+    {
+      "gap": "图片资产/CDN回源与多草稿按钮",
+      "status": "NOT_RUN",
+      "owner": "A负责核实真实Issuer/依赖",
+      "noAutoPromotion": true
+    },
+    {
+      "gap": "客户CRM当前投影与生产员工能力",
+      "status": "SOURCE_GAP",
+      "owner": "A负责核实真实Issuer/依赖",
+      "noAutoPromotion": true
+    },
+    {
+      "gap": "Consultation生产Customer/Employee Issuer与真人首响",
+      "status": "SOURCE_GAP",
+      "owner": "A负责核实真实Issuer/依赖",
+      "noAutoPromotion": true
+    },
+    {
+      "gap": "C/E/P真实入口与C/H01高保真",
+      "status": "NOT_RUN",
+      "owner": "C/H01及A",
+      "noAutoPromotion": true
+    },
+    {
+      "gap": "F06 LockRequest/Waitlist线上审批",
+      "status": "BLOCKED",
+      "owner": "A负责核实真实Issuer/依赖",
+      "noAutoPromotion": true
+    },
+    {
+      "gap": "Deposit/Refund及真实资金动作",
+      "status": "BLOCKED",
+      "owner": "A负责核实真实Issuer/依赖",
+      "noAutoPromotion": true
+    },
+    {
+      "gap": "微信与飞书通知真实出口",
+      "status": "SOURCE_GAP",
+      "owner": "A负责核实真实Issuer/依赖",
+      "noAutoPromotion": true
+    },
+    {
+      "gap": "F06生产部署与真实UAT",
+      "status": "NOT_RUN",
+      "owner": "A负责核实真实Issuer/依赖",
+      "noAutoPromotion": true
+    }
+  ]
+}
