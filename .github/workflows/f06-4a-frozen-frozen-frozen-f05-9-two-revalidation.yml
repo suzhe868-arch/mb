@@ -1,0 +1,54 @@
+name: F05-11 inherited frozen f05-9-two
+on:
+  push:
+    branches: [feat/f06-4a-transaction-cancel-ci]
+permissions: {contents: read, actions: read, pull-requests: read}
+jobs:
+  recommendation-source:
+    name: F05-9 new Source v25 true PG16
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Native F05-9 signed-v25 Source and 70 job official proof
+        run: bash engineering/f05/consultation-assignee-sla/compat-f05-9-job.sh source
+        env:
+          GH_ACTIONS_READ_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f05-9-source-native-pg16-evidence
+          path: engineering/f05/recommendation-visibility-grants/artifacts/source/
+          retention-days: 30
+          if-no-files-found: error
+  recommendation-https:
+    name: F05-9 new HTTPS v25 true PG16
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Native F05-9 HTTPS customer/employee issuer fail closed
+        run: bash engineering/f05/consultation-assignee-sla/compat-f05-9-job.sh https
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f05-9-https-native-pg16-evidence
+          path: engineering/f05/recommendation-visibility-grants/artifacts/https/
+          retention-days: 30
+          if-no-files-found: error
