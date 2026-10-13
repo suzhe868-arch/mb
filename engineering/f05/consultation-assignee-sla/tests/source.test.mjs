@@ -365,7 +365,7 @@ test('10-R02 genuine two-Store current scope Manager/StoreHead, 4S and remote sa
  const manager=(await q("SELECT role_id FROM public.roles WHERE role_code='manager'"))[0].role_id;
  const storeHead=(await q("SELECT role_id FROM public.roles WHERE role_code='store_head'"))[0].role_id;
  const fourS=(await q("SELECT role_id FROM public.roles WHERE role_code='four_s'"))[0].role_id;
- await q('UPDATE public.employees SET main_role_id=$2 WHERE employee_id=1',[manager]);
+ await q('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[manager]);
  const noPermission=await internalConsultationProjectionCI(auth,token,{consultationId:consultation.consultationId});
  assert.equal(noPermission.allowed,false,'A manager title alone does not authorize other-store read');
  await q("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(1,9106,'allow',now())");
