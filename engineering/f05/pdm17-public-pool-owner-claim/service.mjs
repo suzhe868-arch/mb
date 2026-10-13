@@ -52,8 +52,9 @@ async function protection(c,customerId,cycle){
  if(cycle.protective_hold)return 'D1_PROTECTED_SOURCE';
  // Conservative real signed blockers; an open obligation requires separate PDM17 governance.
  for(const [tab,field,cond] of [
+  ['transactions','customer_id',"status IN ('trading','in_progress','pending','active')"],
+  ['f05_8_priority_ci','customer_id',"status='active'"],
   ['locks','customer_id',"lock_status='active'"],
-  ['transactions','customer_id',"status='in_progress'"],
   ['consultations','customer_id',"status IN ('pending','processing')"],
   ['demands','customer_id',"demand_state IN ('active','paused')"],
   ['find_car_applications','customer_id',"status='pending'"],
@@ -71,8 +72,25 @@ async function acquire(c,{customerId,requestKey,mode,employeeId,actorEmployeeId=
  const pool=await row(c,'SELECT * FROM d1_owner_ci.pool_cycles WHERE customer_id=$1 ORDER BY cycle_id DESC LIMIT 1 FOR UPDATE',[customerId]);
  if(!pool)return deny('D1_NOT_FORMAL_POOL_SOURCE');
  const prior=await row(c,'SELECT * FROM d1_owner_ci.receipts WHERE request_key=$1 FOR SHARE',[requestKey]);
- if(prior)return Number(prior.customer_id)===Number(customerId)&&Number(prior.new_owner_id)===Number(employeeId)&&prior.mode===mode?
-  ok('D1_IDEMPOTENT',{ownerId:Number(prior.new_owner_id),receiptId:Number(prior.receipt_id),created:false}):deny('D1_IDEMPOTENCY_COLLISION');
+ if(prior){
+  if(Number(prior.customer_id)!==Number(customerId)||Number(prior.new_owner_id)!==Number(employeeId)||prior.mode!==mode)
+   return deny('D1_IDEMPOTENCY_COLLISION');
+  // Idempotency preserves exactly-once mutation, never a permanent read entitlement.
+  if(Number(cu.current_owner_employee_id)!==Number(prior.new_owner_id)||pool.state!=='assigned'||
+     Number(prior.cycle_id)!==Number(pool.cycle_id))return deny('D1_REPLAY_CURRENT_OWNER_INVALID');
+  const live=await row(c,"SELECT t.team_id,t.store_id FROM public.teams t JOIN public.stores s ON s.store_id=t.store_id "+
+   "WHERE t.team_id=$1 AND t.team_status='active' AND s.status='active' FOR SHARE OF t,s",[pool.team_id]);
+  if(!live)return deny('D1_REPLAY_AUTHORIZATION_DENIED');
+  const t=await row(c,'SELECT e.employee_id,e.store_id,e.employment_status,e.receiving_status,r.role_code role FROM public.employees e JOIN public.roles r ON r.role_id=e.main_role_id WHERE e.employee_id=$1 FOR SHARE OF e,r',[employeeId]);
+  if(!await target(c,t,live.team_id,live.store_id,{receiving}))return deny('D1_REPLAY_AUTHORIZATION_DENIED');
+  if(actorEmployeeId!==null){
+   const a=await row(c,'SELECT e.employee_id,e.store_id,e.employment_status,e.receiving_status,r.role_code role FROM public.employees e JOIN public.roles r ON r.role_id=e.main_role_id WHERE e.employee_id=$1 FOR SHARE OF e,r',[actorEmployeeId]);
+   if(!a||a.employment_status!=='active'||!await permit(c,a,permissionCode,live.team_id,live.store_id)||
+      (mode==='claim'&&Number(actorEmployeeId)!==Number(employeeId))||
+      (mode==='assign'&&!['manager','store_head'].includes(a.role)))return deny('D1_REPLAY_AUTHORIZATION_DENIED');
+  }
+  return ok('D1_IDEMPOTENT',{ownerId:Number(prior.new_owner_id),receiptId:Number(prior.receipt_id),created:false});
+ }
  if(pool.state!=='in_pool'||cu.current_owner_employee_id!==null||cu.owner_assignment_state==='assigned')
   return deny('D1_NOT_UNOWNED_ACTIVE_PUBLIC_POOL');
  const team=await row(c,"SELECT t.team_id,t.store_id FROM public.teams t JOIN public.stores s ON s.store_id=t.store_id "+
@@ -96,7 +114,7 @@ async function acquire(c,{customerId,requestKey,mode,employeeId,actorEmployeeId=
    "WHERE actor_employee_id=$1 AND mode='claim' AND committed_at>=date_trunc('day',clock_timestamp() AT TIME ZONE 'Asia/Shanghai') AT TIME ZONE 'Asia/Shanghai'",
   [actorEmployeeId]);
   if(daily.n>=policy.max_claims_per_day)return deny('D1_CLAIM_QUOTA_EXHAUSTED');
-  if(daily.last_at && Date.now()-new Date(daily.last_at).getTime()<policy.cooldown_seconds*1000)
+  if(daily.last_at && Number((await row(c,'SELECT EXTRACT(EPOCH FROM (clock_timestamp() - $1::timestamptz)) elapsed',[daily.last_at])).elapsed)<policy.cooldown_seconds)
    return deny('D1_CLAIM_COOLDOWN');
  }
  // Store-to-owner intent alone cannot mutate anyone's existing signed business objects.
@@ -145,26 +163,46 @@ export async function serviceAssignCI(actor,{requestKey}={}){
   await c.query('SELECT pg_advisory_xact_lock($1,$2)',[20261013,1702]);
   const pool=await row(c,'SELECT * FROM d1_owner_ci.pool_cycles WHERE customer_id=$1 AND state=$2 FOR UPDATE',[actor.customerId,'in_pool']);
   if(!pool){await c.query('ROLLBACK');return deny('D1_NO_VALID_POOL_SOURCE')}
-  const eligible=(await c.query("SELECT e.employee_id FROM public.employees e "+
-   "JOIN public.employee_receiving_eligibility v ON v.employee_id=e.employee_id AND v.eligible=true "+
-   "JOIN public.roles r ON r.role_id=e.main_role_id AND r.role_code IN('sales','manager','store_head') "+
+  const team=await row(c,"SELECT t.team_id,t.store_id FROM public.teams t "+
+   "JOIN public.stores s ON s.store_id=t.store_id WHERE t.team_id=$1 AND t.team_status='active' "+
+   "AND s.status='active' FOR SHARE OF t,s",[pool.team_id]);
+  if(!team){await c.query('ROLLBACK');return deny('D1_POOL_TEAM_INACTIVE')}
+  const eligible=(await c.query("SELECT e.employee_id,e.store_id,e.employment_status,e.receiving_status,r.role_code role "+
+   "FROM public.employees e JOIN public.employee_receiving_eligibility v "+
+   "ON v.employee_id=e.employee_id AND v.eligible=true JOIN public.roles r "+
+   "ON r.role_id=e.main_role_id AND r.role_code IN('sales','manager','store_head') "+
    "JOIN public.employee_team_memberships m ON m.employee_id=e.employee_id AND m.team_id=$1 "+
    "AND m.valid_from<=statement_timestamp() AND (m.ended_at IS NULL OR m.ended_at>statement_timestamp()) "+
    "WHERE e.employment_status='active' AND e.receiving_status='receiving' ORDER BY e.employee_id FOR SHARE OF e,v,r,m",[pool.team_id])).rows;
-  if(!eligible.length){
-   await c.query("UPDATE d1_owner_ci.pool_cycles SET state='pending' WHERE cycle_id=$1",[pool.cycle_id]);
-   await c.query('COMMIT');
-   return deny('D1_OWNER_ASSIGNMENT_PENDING_NO_ELIGIBLE_RECEIVER');
+  for(const e of eligible){
+   // A current Team/Store/target() failure does not prove the *entire* pool is empty.
+   if(!await target(c,e,team.team_id,team.store_id,{receiving:true}))continue;
+   const answer=await acquire(c,{customerId:actor.customerId,requestKey,mode:'service',
+    employeeId:Number(e.employee_id),receiving:true});
+   if(answer.allowed){await c.query('COMMIT');return answer}
+   if(answer.code==='D1_TARGET_NOT_CURRENT_ELIGIBLE')continue;
+   await c.query('ROLLBACK');return answer;
   }
-  const answer=await acquire(c,{customerId:actor.customerId,requestKey,mode:'service',
-   employeeId:Number(eligible[0].employee_id),receiving:true});
-  if(answer.allowed)await c.query('COMMIT');else await c.query('ROLLBACK');
-  return answer;
+  const cu=await row(c,"SELECT customer_id,current_owner_employee_id,account_status FROM public.customers WHERE customer_id=$1 FOR SHARE",[actor.customerId]);
+  if(!cu||cu.account_status!=='active'||cu.current_owner_employee_id!==null){
+   await c.query('ROLLBACK');return deny('D1_CUSTOMER_INACTIVE_OR_ALREADY_ASSIGNED');
+  }
+  const blocked=await protection(c,actor.customerId,pool);
+  if(blocked){await c.query('ROLLBACK');return deny(blocked)}
+  await c.query("UPDATE d1_owner_ci.pool_cycles SET state='pending' WHERE cycle_id=$1 AND state='in_pool'",[pool.cycle_id]);
+  await c.query('COMMIT');
+  return deny('D1_OWNER_ASSIGNMENT_PENDING_NO_ELIGIBLE_RECEIVER');
  }catch(e){await c.query('ROLLBACK');throw e}finally{await c.end()}
 }
 export async function preClaimSummaryCI(c,customerId){
  gate();if(!valid(customerId))return deny('D1_BAD_CUSTOMER');
  const x=await row(c,"SELECT state FROM d1_owner_ci.pool_cycles WHERE customer_id=$1 ORDER BY cycle_id DESC LIMIT 1",[customerId]);
  return x?.state==='in_pool'?ok('D1_MINIMUM_PUBLIC_SUMMARY',{claimablePossible:true}):deny('D1_NOT_PUBLIC_SUMMARY');
+}
+// Read-only PG16 protection inspection for independent signed-domain CI assertions only.
+export async function inspectProtectionCI(c,customerId){
+ gate();if(!valid(customerId))return 'D1_BAD_CUSTOMER';
+ await verify(c);
+ return protection(c,customerId,{protective_hold:false});
 }
 export const productionDeny=()=>deny('D1_PRODUCTION_OWNER_ISSUER_NOT_WIRED');

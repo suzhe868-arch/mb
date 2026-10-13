@@ -26,7 +26,7 @@ try{
    "(7,9817011098,398101,now()-interval '1 minute'),(1,9817011099,398102,now()-interval '1 minute')");
   const level=(await c.query('SELECT level_id FROM public.customer_levels ORDER BY level_id LIMIT 1')).rows[0];
   if(!level)throw Error('D1_SIGNED_CUSTOMER_LEVEL_MISSING');
-  const customerIds=[989201,989202,989203,989204,989205,989206,989207,989208,989209,989210,989211,989212];
+  const customerIds=Array.from({length:24},(_,i)=>989201+i);
   for(const id of customerIds){
    await c.query("INSERT INTO public.customers(customer_id,account_status,customer_level_id,owner_assignment_state) VALUES($1,'active',$2,'unassigned')",[id,level.level_id]);
    await c.query("INSERT INTO d1_owner_ci.pool_cycles(customer_id,team_id,state,synthetic_source,original_source_json,source_event_key) "+
