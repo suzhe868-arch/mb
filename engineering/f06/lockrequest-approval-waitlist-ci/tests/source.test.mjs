@@ -207,7 +207,7 @@ test('06-S35 source offline after request causes CLOSED_NOT_LOCKABLE not conflic
  assert.equal(z.status,'closed_not_lockable');
 });
 test('06-S36 no Deposit/Refund/Transaction mutations are introduced by CI approval',async()=>{
- const n=(await q("SELECT count(*)::int n FROM public.deposit_receipts WHERE vehicle_id=0")).at(0)?.n??0;
+ const n=(await q("SELECT count(*)::int n FROM public.deposit_receipts WHERE lock_id IN (SELECT lock_id FROM public.locks WHERE vehicle_id=0)")).at(0)?.n??0;
  assert.equal(n,0);
  assert.equal((await q("SELECT count(*)::int n FROM public.transactions WHERE source_lock_id=$1",[winner.lockId]))[0].n,0);
 });
