@@ -10,7 +10,7 @@
       "directory": "vehicle-scope-safe-projection",
       "pr": 30,
       "status": "SIGNED_CI_VERIFIED",
-      "source": "engineering/f05/vehicle-scope-safe-projection/ci-job.sh",
+      "source": "engineering/f05/vehicle-scope-safe-projection/source-verifier.mjs",
       "signedScope": "CI_ONLY",
       "productionIssuer": "SOURCE_GAP",
       "nextOwner": "A"
@@ -20,7 +20,7 @@
       "directory": "vehicle-stewardship-physical-scope",
       "pr": 31,
       "status": "SIGNED_CI_VERIFIED",
-      "source": "engineering/f05/vehicle-stewardship-physical-scope/ci-job.sh",
+      "source": "engineering/f05/vehicle-stewardship-physical-scope/runner.mjs",
       "signedScope": "CI_ONLY",
       "productionIssuer": "SOURCE_GAP",
       "nextOwner": "A"
@@ -30,7 +30,7 @@
       "directory": "four-s-member-trust-scope",
       "pr": 32,
       "status": "SOURCE_GAP",
-      "source": "engineering/f05/four-s-member-trust-scope/ci-job.sh",
+      "source": "engineering/f05/four-s-member-trust-scope/runner.mjs",
       "signedScope": "CI_ONLY",
       "productionIssuer": "SOURCE_GAP",
       "nextOwner": "A"
@@ -40,7 +40,7 @@
       "directory": "jyt-wholesale-lineage-cycle",
       "pr": 33,
       "status": "CI_SYNTHETIC_ONLY",
-      "source": "engineering/f05/jyt-wholesale-lineage-cycle/ci-job.sh",
+      "source": "engineering/f05/jyt-wholesale-lineage-cycle/runner.mjs",
       "signedScope": "CI_ONLY",
       "productionIssuer": "SOURCE_GAP",
       "nextOwner": "A"
@@ -50,7 +50,7 @@
       "directory": "wholesale-to-mingbang-conversion",
       "pr": 34,
       "status": "CI_SYNTHETIC_ONLY",
-      "source": "engineering/f05/wholesale-to-mingbang-conversion/ci-job.sh",
+      "source": "engineering/f05/wholesale-to-mingbang-conversion/runner.mjs",
       "signedScope": "CI_ONLY",
       "productionIssuer": "SOURCE_GAP",
       "nextOwner": "A"
@@ -60,7 +60,7 @@
       "directory": "wholesale-object-scope-trust",
       "pr": 35,
       "status": "SOURCE_GAP",
-      "source": "engineering/f05/wholesale-object-scope-trust/ci-job.sh",
+      "source": "engineering/f05/wholesale-object-scope-trust/audit.mjs",
       "signedScope": "CI_ONLY",
       "productionIssuer": "SOURCE_GAP",
       "nextOwner": "A"
