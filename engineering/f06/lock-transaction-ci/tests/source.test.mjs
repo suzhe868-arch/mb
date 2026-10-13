@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {connect,verify,withF063A} from '../migration.mjs';
-import {openSyntheticTransactionCI,currentSyntheticTransactionCI,productionIssuerDeny} from '../service.mjs';
+import {openSyntheticTransactionCI,currentSyntheticTransactionCI,syntheticNewOccupancyGuardCI,productionIssuerDeny} from '../service.mjs';
 import {recordSyntheticDepositCI} from '../../deposit-ledger-ci/service.mjs';
 import {withF062} from '../../deposit-ledger-ci/migration.mjs';
 import {withParentBranch} from '../../lock-lifecycle-ci/migration.mjs';
@@ -185,4 +185,15 @@ test('3B-S32 new immutable Transaction cannot silently restore old Lock, Priorit
  assert.equal((await q("SELECT count(*)::int n FROM public.locks WHERE lock_id=$1 AND lock_status='active'",[locks[1]]))[0].n,0);
  assert.equal((await q("SELECT count(*)::int n FROM f06_3b_ci.transaction_origins WHERE transaction_id=$1 AND status='in_progress'",[txId]))[0].n,1);
  assert.ok((await q('SELECT count(*)::int n FROM public.audit_events'))[0].n>eventsBefore);
+});
+
+test('3B-S33 signed in-progress transaction denies new Lock under isolated PG guard',async()=>{
+ const x=await syntheticNewOccupancyGuardCI(db,vehicle(1),'lock');
+ assert.equal(x.code,'F06_3B_TRADING_OCCUPANCY_DENY',JSON.stringify(x));
+});
+test('3B-S34 signed in-progress transaction denies new Priority but leaves unrelated Vehicle free',async()=>{
+ const x=await syntheticNewOccupancyGuardCI(db,vehicle(1),'priority');
+ assert.equal(x.code,'F06_3B_TRADING_OCCUPANCY_DENY');
+ const free=await syntheticNewOccupancyGuardCI(db,vehicle(4),'priority');
+ assert.equal(free.code,'F06_3B_NO_SYNTHETIC_TRADING_OCCUPANCY');
 });
