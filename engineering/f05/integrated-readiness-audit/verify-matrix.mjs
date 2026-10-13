@@ -5,6 +5,7 @@ const allowed=new Set(['SIGNED_CI_VERIFIED','CI_SYNTHETIC_ONLY','CONTRACT_ONLY',
 export async function validate(){
  const source=JSON.parse(await readFile(resolve(dir,'coverage-source.json'),'utf8'));
  const gaps=JSON.parse(await readFile(resolve(dir,'gap-source.json'),'utf8'));
+ const actions=JSON.parse(await readFile(resolve(dir,'action-coverage-source.json'),'utf8'));
  if(source.legacyH52Jobs!==52||source.oldJobs!==72||source.newJobs!==2||gaps.f06!=='F06_NOT_RELEASED'||gaps.status!=='NOT_READY')
   throw Error('F05_11_H52_OR_READINESS_FALSE');
  if(source.snapshotMainSha!=='310cb2f4b60c720c0febc0909d5d8e362f831e2a')
@@ -22,6 +23,11 @@ export async function validate(){
  if(source.modules.length!==21||required.some(x=>!ids.has(x))||
   gaps.items.length<10||gaps.items.some(x=>!allowed.has(x.status)||!x.noAutoPromotion))
   throw Error('F05_11_MISSING_MANDATORY_MATRIX');
+ const byAction=new Set(actions.records.map(a=>a.signedModule));
+ if(actions.records.length<30||actions.records.some(a=>!a.actionId||!a.pdmAuthority||!a.logicalCarrier||
+   !a.signedPgEvidence||a.productionReady!==false||!allowed.has(a.sourceStatus)||
+   a.authenticatedRuntimeRoute!=='NOT_VERIFIED_RUNTIME'||a.uiImplementation!=='NOT_RUN')||
+   source.modules.some(m=>!byAction.has(m.module)))throw Error('F05_11_ACTION_REVERSE_COVERAGE_OR_RUNTIME_FALSE');
  if(process.env.GH_ACTIONS_READ_TOKEN&&process.env.GITHUB_ACTIONS==='true'){
   for(const m of source.modules){
    const r=await fetch('https://api.github.com/repos/suzhe868-arch/mb/pulls/'+m.pr,
@@ -33,14 +39,15 @@ export async function validate(){
    m.signedHead=j.head.sha;m.mergedAt=j.merged_at;m.prUrl=j.html_url;
   }
  }
- return {source,gaps};
+ return {source,gaps,actions};
 }
 export async function save(mode,details){
- const {source,gaps}=await validate();
+ const {source,gaps,actions}=await validate();
  const out=resolve(dir,'artifacts',mode);
  await mkdir(out,{recursive:true});
  await writeFile(resolve(out,'f05-coverage-matrix.json'),JSON.stringify(source,null,2)+'\n');
+ await writeFile(resolve(out,'action-coverage-matrix.json'),JSON.stringify(actions,null,2)+'\n');
  await writeFile(resolve(out,'gap-ledger.json'),JSON.stringify(gaps,null,2)+'\n');
  await writeFile(resolve(out,'physical-audit.json'),JSON.stringify(details,null,2)+'\n');
- console.log('F05_11_F05_COVERAGE_MATRIX_VERIFIED',source.modules.length,gaps.items.length);
+ console.log('F05_11_F05_COVERAGE_MATRIX_VERIFIED',source.modules.length,gaps.items.length,actions.records.length);
 }
