@@ -1,3 +1,12 @@
+# 2026-10-13｜F05-11 A首轮独立验收：74/74真实PG16全绿但三组已签跨域保护实证不完整，PR51退B（唯一最新）
+
+- **唯一正式状态**：`F05_11_A_FIRST_REVIEW_CHANGES_REQUESTED / PR51_OPEN_NOT_MERGED / NEXT_OWNER=B / F05_GLOBAL_NOT_READY / F06_NOT_RELEASED / V1_NOT_READY`。A受验B唯一末次HEAD `8aaf2fa4c7d52020903fa63d9ff2625a95a1f0d3`，PR51 21项全部added且处于独立F05-11 CI-only白名单，没有动历史正式签名SQL/产品/生产路由。GitHub官方11真`event=push`工作流全部同SHA成功、完整H52真52/52、**74/74独立非特权PG16 Job成功**；新Source 25/25、HTTPS8/8、A亲核至少10份同最终SHA非空未过期官方SHA256 Artifact。现行v26签名结构账、跨域count/MD5保全，机器核账21 F05模块/32动作/12个真实来源或UI阻断均已取得。成果有效，不可删弱。
+- **A尚未签可接受的三组原有正式审计合同**：**R01** `tests/source.test.mjs` S16虽真实生成其他客户active Priority，但只查SQL count及永真`otherGrant>=0`，缺普通分享/现时Grant在Priority下实际调用业务Service拒绝及结束后恢复的真PG正反例；**R02** S21有双物理PG PID，但仅双方`BEGIN READ ONLY`看Owner数量，没有第二PG真实Permission/Scope revoke或Customer disable COMMIT后旧Actor服务操作/敏感读被拒，缺权限竞态；**R03** S20仅`to_regclass('locks/waitlists/transactions')`存在性，缺已签Lock/Waitlist/Transaction真实行/状态与F05现时Owner/Priority/Consultation保护的交叉只读核账。未完成合同不等于证实有生产漏洞；不能凭74/74通用Job绿灯越过已签场景门禁。
+- **A完整正式整改单已在main**：`07_重建工作区/F05-11_A主控首轮独立验收74项PG16全绿但三组跨域源事实与竞态缺证定向整改单_2026-10-13.md`；[PR51 A正式整改单评论](https://github.com/suzhe868-arch/mb/pull/51#issuecomment-6141273454)。B继续原`feat/f05-11-cross-domain-readiness-audit`/PR51且仅修改本批新增`engineering/f05/integrated-readiness-audit/**`、`.github/workflows/f05-11-*.yml`，一次性修复R01～R03。保留原21模块/32动作/12真实Gap、旧72、Source25/HTTPS8；下一**新唯一B HEAD**重新获得11条真正同SHA Push≥74/74非特权PG16 Jobs全success、H52 52、≥10份来自最后SHA有效官方Artifact、中文`READY_FOR_A_SECOND_INDEPENDENT_REVIEW`交A。B不合并。
+- **硬边界**：F05整体、C/H01和V1均`NOT_READY`，F06未放行；手机号/微信/4S/JYT电话图片/飞书/真实锁车资金Deposit Refund/UAT生产Issuer仍按各自`SOURCE_GAP/NOT_RUN/BLOCKED`，不触碰真实外部服务。**NEXT_OWNER=B / NEXT_TASK=F05_11_REWORK_R01_PRIORITY_REAL_SERVICE_R02_TWO_PG_REVOCATION_COMMIT_R03_F06_SIGNED_ROW_STATE_READ_AUDIT**。
+
+---
+
 # 2026-10-13｜F05-10 PR49 A最终独立终验与标准合并完成；正式放行F05-11跨模块覆盖核账和F06前置依赖隔离审计（唯一最新）
 
 - **唯一真实状态**：`F05_10_A_ACCEPTED_MERGED_PR49_CI_ONLY / F05_11_A_RELEASED_FOR_B / NEXT_OWNER=B / F05_GLOBAL_NOT_READY / V1_NOT_READY`。A亲查PR49最终B HEAD`d1f721bd1d332f14241960562b631145af250265`的26项全CI-only新增白名单与最新main一致，**10条真正GitHub event=push同SHA completed/success，72/72独立非超级用户PG16 Job全成功，H52真52/52，F05-10 Source30/30 + D1 Owner真集成5/5、HTTPS7/7，八份同SHA原生有效Artifact**；真实D1 v25 Owner服务/两PG竞争→同库v26 PDM15 Consultation create/reuse、D1 receipt及12域hash保全/受权反例，旧签迁移/错误注错rollback全部A复核通过。
