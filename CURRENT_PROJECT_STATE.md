@@ -1,3 +1,12 @@
+# 2026-10-13｜F05-10 PR49 A最终独立终验与标准合并完成；正式放行F05-11跨模块覆盖核账和F06前置依赖隔离审计（唯一最新）
+
+- **唯一真实状态**：`F05_10_A_ACCEPTED_MERGED_PR49_CI_ONLY / F05_11_A_RELEASED_FOR_B / NEXT_OWNER=B / F05_GLOBAL_NOT_READY / V1_NOT_READY`。A亲查PR49最终B HEAD`d1f721bd1d332f14241960562b631145af250265`的26项全CI-only新增白名单与最新main一致，**10条真正GitHub event=push同SHA completed/success，72/72独立非超级用户PG16 Job全成功，H52真52/52，F05-10 Source30/30 + D1 Owner真集成5/5、HTTPS7/7，八份同SHA原生有效Artifact**；真实D1 v25 Owner服务/两PG竞争→同库v26 PDM15 Consultation create/reuse、D1 receipt及12域hash保全/受权反例，旧签迁移/错误注错rollback全部A复核通过。
+- **已A正式签A_ACCEPTED并完成标准合并**：PR49评论 https://github.com/suzhe868-arch/mb/pull/49#issuecomment-6139577391，GitHub携`expected_head_sha=d1f721bd1d332f14241960562b631145af250265`标准merge返回`merged=true`，**真实merge SHA `ac1dbda3e6bbd079c3739b3705eb339b275d628c`**；PR49现在closed/merged，合并后A状态文档提交不改变该合并事实。正式归档`07_重建工作区/F05-10_A主控最终独立验收35项Source72项真PG16_PR49标准合并_2026-10-13.md`。
+- **A正式新建并放行B完整下一包F05-11**：`07_重建工作区/F05-11_A主控F05已签全域覆盖核账与F06前置依赖只读安全审计_CI隔离完整施工单_2026-10-13.md`；B从实际最新main新建**`feat/f05-11-cross-domain-readiness-audit`**，**只新增**`engineering/f05/integrated-readiness-audit/**`及`.github/workflows/f05-11-*.yml`，F05-1～10+D1真实签名业务跨模块覆盖、当前Owner/Scope/图片/草稿/CRM及Caller/Route/高保真欠账盘点、三组真PG反例、F06 Lock/Transaction只读保护依赖、来源状态矩阵与真实缺口，不更改旧签Schema/生产API、不建新迁移。B包末必须同最后SHA**11条真Push、至少74/74独立非特权PG16 Job成功（旧72+新2）、H52全52、至少10份该新SHA有效官方Artifact**，新Source至少20项真PG断言、HTTPS至少7项、不可改写旧业务历史；中文`READY_FOR_A_INDEPENDENT_REVIEW`交A。此任务不是F06正式开发许可。
+- **未放行**：F05整体、C/H01与V1继续`NOT_READY`；当前D1/Consultation Owner/手机/PDM17生产Issuer、微信/JYT图片电话、飞书、真实内部价格、资金/Deposit/Refund、LockRequest线上审批、生产部署UAT仍有`SOURCE_GAP`或`NOT_RUN`。**NEXT_OWNER=B / NEXT_TASK=F05_11_INTEGRATED_READINESS_AND_F06_DEPENDENCY_AUDIT**，后续F06要等F05-11经A独立审计签收与新的安全范围放行。
+
+---
+
 # 2026-10-13｜F05-10-D1 A二轮验收通过并标准合并PR50；正式放行PR49跨域真实集成（唯一最新）
 
 - **唯一正式状态**：`F05_10_D1_A_ACCEPTED_MERGED_PR50 / F05_10_FINAL_INTEGRATION_A_RELEASED_FOR_B / PR49_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。PR50 B末次受验`3edf40b7cda1ddf8cb4ca340f0fb33dfc0b0d50a`已由A独立复核10条真正同SHA Push、72/72非特权PostgreSQL16 Job成功、完整H52 52/52、D1新Source23/23及HTTPS7/7、注错ROLLBACK/旧M94-v25 Ledger/catalogseal和八份同HEAD有效原生Artifact。R01签名v24 Priority/在途四阶段、R02合法接客池下一候选回退、R03 PG时钟真实冷却与policy version、R04当前权限Scope拦截失权旧key重放，全部源码+真实PG原生日志均A核PASS。
