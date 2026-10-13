@@ -1,9 +1,27 @@
 // D1 sidecar: never inserts into signed migration ledger, never changes public catalog.
 import {createHash} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
-import {connect,verify as verifyV25} from '../recommendation-visibility-grants/migration.mjs';
+import {verify as verifyV25} from '../recommendation-visibility-grants/migration.mjs';
+import pg from 'pg';
 import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
-export {connect};
+// F03 signed connect strictly requires no non-public schemas. D1 only permits its own sidecar.
+export async function connect(){
+ gate();
+ if(!/^[0-9]{6,20}$/.test(process.env.GITHUB_RUN_ID||''))throw Error('D1_RUN_SEAL_REQUIRED');
+ const c=new pg.Client({connectionString:ENV.F03_1_DATABASE_URL,connectionTimeoutMillis:3000,query_timeout:90000,statement_timeout:90000});
+ await c.connect();
+ try{
+  const x=(await c.query("SELECT current_database() db,current_user usr,current_setting('server_version_num')::int ver,"+
+  "(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su,(SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user) cdb,"+
+  "(SELECT rolcreaterole FROM pg_roles WHERE rolname=current_user) cr")).rows[0];
+  if(x.db!=='f03_auth_test'||x.usr!=='f03_ci'||x.ver<160000||x.ver>=170000||x.su!==false||x.cdb!==false||x.cr!==false)
+   throw Error('D1_NONPRIVILEGED_PG16_REQUIRED');
+  const ns=(await c.query("SELECT nspname FROM pg_namespace WHERE nspname NOT IN ('pg_catalog','information_schema','public') "+
+   "AND nspname NOT LIKE 'pg_toast%' AND nspname NOT LIKE 'pg_temp%' ORDER BY nspname")).rows.map(r=>r.nspname);
+  if(ns.length>1||(ns.length===1&&ns[0]!=='d1_owner_ci'))throw Error('D1_UNAPPROVED_SCHEMA');
+  return c;
+ }catch(e){await c.end();throw e}
+}
 export const SQL=await readFile(new URL('./d1侧表.sql',import.meta.url),'utf8');
 export const checksum=createHash('sha256').update(SQL).digest('hex');
 export const sha=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
