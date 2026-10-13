@@ -1,48 +1,37 @@
-# F05-10｜B工程A首轮整改单整改与A复验交接（待CI验证）
+# F05-10｜B工程第三轮整改与A独立验收交接（CI-only）
 
-## A第二轮正式整改｜R02/R03/R04残余合同｜B工作记录（第三轮前，尚未完成）
+> **工作状态：`F05_10_B_SELF_TESTED_PREVIOUS_HEAD_CI_OK / THIRD_REVIEW_HANDOFF_WITH_PDM17_SOURCE_GAP / NEXT_OWNER=A_FOR_INDEPENDENT_REVIEW_AND_SOURCE_RULING / V1_NOT_READY`。** 本文档不是A_ACCEPTED、不是PR已合并或生产可用。本报告提交后最终HEAD会变化，必须对**该最终SHA**重新核验10个GitHub event=push工作流72/72真实PG16、至少8份有效同SHA原生Artifact，才可正式在PR49写`READY_FOR_A_THIRD_INDEPENDENT_REVIEW`。B不得自行合并main。
 
-**真实当前状态：`F05_10_B_THIRD_REWORK_IN_PROGRESS / NEXT_OWNER=B / CI_ONLY / V1_NOT_READY`。** A第二轮明确拒绝将旧HEAD的72/72绿灯等同全PDM15验收，A正式整改单见`07_重建工作区/F05-10_A主控二轮独立验收72项真PG16全绿但公海授权DND并发与跨域全生命周期缺证整改单_2026-10-13.md`。
+## 1. Authority / 范围 / 分支
 
-### 已写入同一F05-10白名单的剩余整改（新提交尚待CI真PG校验）
+- Repo：`suzhe868-arch/mb`；A最新main正式工作单：`07_重建工作区/F05-10_A主控二轮独立验收72项真PG16全绿但公海授权DND并发与跨域全生命周期缺证整改单_2026-10-13.md`；一轮R01～R04正式整改单、原F05-10施工单、PDM-02/03/13/14/15/17/23 Final有效。
+- B唯一工作分支`feat/f05-10-consultation-assignee-sla`；PR [#49](https://github.com/suzhe868-arch/mb/pull/49) open。仅改本次CI-only新文件`engineering/f05/consultation-assignee-sla/**`；不碰旧签F03/F04/F05-1～9、生产路由、main/历史迁移、PDM Final。v26新增两张CI-only DND/通知结果表，并在本批可抛弃PG16 v26内修正Customer Hold计时/重复事件，不是生产DDL授权。
+- A二轮已确认R01物化的自动Pending Guard、权限撤销后的双PG时序/真实Manager对象scope交接历史，保留不删弱。
 
-- **R02真实签名负例：** 使用F03-1现有`admin_test` System Admin账户登录后进行Consultation完整读/正式转派，要求双拒绝；员工目标为inactive=3、four_s=2、异店且无当前对象Scope=8997601及个人DENY后的Employee4，均必须拒绝，历史assignee/deadline/交接记录不变，不能用无效actor形成伪交接。剩余**公海合法归属正例源缺口**见下。
-- **R03 DND和计时：** v26新增`f05_10_notification_quiet_ci`和`f05_10_notification_attempts_ci`，均明确标记`CI_SYNTHETIC_PDM23_DND_NOT_PRODUCTION`、`CI_PDM23_NO_EXTERNAL_SEND`；真PG写入DND/quiet，推导`SKIPPED_DND`，比较同一Consultation原deadline/first response/Hold不变，再以CI过期钟验证仍保持四主状态。绝不发送真实飞书/微信通知。
-- **R03禁用并发与幂等：** 真两物理PG backend/PID，writer持Customer状态更新锁并COMMIT禁用，同时customer withdraw或员工resume竞争，在提交后均不可越过Hold；账号恢复后仅有权显式resume可以沿用冻结`remaining_ms`。修改v26 Customer Hold触发器从`transaction_timestamp()`改锁后`clock_timestamp()`，防长事务抢锁导致虚增余时；新Hold使用`WITH newly_held UPDATE...RETURNING`后仅对本次真实转为Hold的记录记一次事件，避免disable→active→disable且仍在Hold时重复伪造事件。Hold期间可按当前合格Scope合法终结。
-- **R04当前Priority隔离：** 查询v23真实`f05_7_result_versions_ci` current且high/acceptable匹配源，合法建立同车/同cycle v24其他Customer独占事实；受排斥Customer建单必须DENY且Consultation行数不变，Priority结束后才新建独立Consultation。不得把旧Share当独占授权。
-- **R04跨业务完整生命周期：** 使用独立当前合法Customer/Vehicle/ListingCycle和真实签名第二Employee会话，实际执行`create→touch→crm_note followup→handover→NORMAL_CLOSED→new create→invalid`，每个阶段校验Recommendation/F05-9 Grant及价权/Priority/Lock/Transaction/Demand/Customer Owner物理count和row hash完全未变，Consultation自己的事件/回执真实新增，客户侧安全投影隔离。
+## 2. R02–R04整改与原生正反例（必须阅读真实Source/HTTPS日志）
 
-### PDM17公海归属签名来源风险（不擅自发明）
+- **R02 — 真签名拒绝与数据范围：** `10-R02 residual signed System Admin...`使用已存在`admin_test` F03 System Admin合法签名会话，Consultation全文和业务交接均拒绝；inactive员工、4S员工、其他Store无当前object scope成员，以及个人显式deny的受让者均不能handover，原assignee/deadline/收据保持不变。此前`10-R02 genuine two-Store...`已有Manager/StoreHead合法显式scope+permission跨店正例、无权Sales/4S负例与immutable receipt；`10-R02 legal active source Demand priority...`已证明真实Demand active responsible优先，撤权后回退现行Customer Owner；`10-R02 owner pending/public pool...`保持fail closed。
+- **R03 — 合成签名PDM23 DND/quiet：** 新增`f05_10_notification_quiet_ci`（实际Customer主键、DND布尔与前后时间窗）和`f05_10_notification_attempts_ci`（`SKIPPED_DND`审计事实），完全位于可丢弃CI PG16；Source `10-R03 residual actual CI PDM23 quiet...`验证真实DND时间窗只跳过通知，不回写SLA deadline、original_deadline、first response、Hold，也不因为逾期自动关闭；不发送真实通知、不声称已接通PDM23正式生产服务。
+- **R03 — 两物理PG竞争/Clock/幂等：** `10-R03 residual two physical PG backends Customer disable COMMIT vs withdraw...`及`10-R03 residual two PG resume request...`分别在两个真实backend/PID中以未提交的Customer disable与签名withdraw/resume产生等待，再COMMIT确认拒绝越过禁用Hold。账号恢复不自动resume，显式有权限resume只用冻结`remaining_ms`。v26 Customer Hold源触发器在实际获得锁后以`clock_timestamp()`冻结，CTE `UPDATE ... RETURNING`只为真实新进入Hold写一次事件；重复disabled→active→disabled且仍Hold不重放事件；Hold期间合法具scope员工可治理收口。
+- **R04 — 真实活跃其他Customer Priority压制/恢复：** `10-R04 residual signed Priority from genuine matching...`直接用当前v23合法high/acceptable Match与v24原Priority域真PG表，创建其他Customer active排他；被排斥Customer不能新建Consultation且行数不变；正式结束Priority后才可以独立create。避免把Share当current-cycle优先权。
+- **R04 — Consultation完整生命周期跨域不写入：** `10-R04 residual entire create-touch-followup-handover-close-invalid...`在M94当前Customer/Vehicle/ListingCycle及签名第二Employee上实际执行`create→touch→crm_note followup→handover→NORMAL_CLOSED→new create→INVALID`，每个动作重新查询全部9个独立业务表（Recommendation、VisibilityGrant、F05-9 PriceRight、Priority、Lock、Transaction、Demand、Customer/Owner）`count+md5(row json)`，全程不改写；Consultation内部receipt真实存在且原source immutable。原生旧用例仍验证hidden/Share/4S车源、客户安全投影、失活旧咨询、首次真人Evidence拒伪、政策版本及v26结构/旧签名账。
 
-- 实查已签`engineering/f03/runtime-customer-owner-handover/service.mjs`：`prepareCustomerOwnerHandover`的Customer对象必须`owner_assignment_state='assigned'`且原`current_owner_employee_id`匹配合法原责任人；它是**已有Owner→另一个Owner的真实交接**，不是`owner=null`公海直接认领。
-- 实查`engineering/f03/runtime-receiving-pool/service.mjs`：SG03仅更新Employee接客资格；文档及返回值明确`ownerAssignmentPendingDomain='DEFER_F04_SG06'`，**不执行顾客Owner指定分配/公海claim**。
-- 已有真PG`owner pending/public pool` → Consultation拒绝用例，**缺PDM17正式进入公海后合法claim→Owner成功assigned→Consultation新建成功的已签物理动作来源**。本批不通过直接`UPDATE customers SET current_owner_employee_id`冒充已签认领，也不在F05-10重造PDM17公海状态机。若仓库另有A签过的Issuer，需要A按正式Authority提供准确路径；若确实不存在，状态为`BLOCKED_SOURCE_PDM17_PUBLIC_POOL_OWNER_CLAIM`，由A技术裁决。
-- 真实手机号、微信Customer Issuer、飞书电话、PDM23正式外发、JYT、支付及上线始终`SOURCE_GAP`；以上都只是非生产独立CI。
+## 3. 第三轮前一完整提交的已核实CI（不可当作本报告新提交的最后SHA）
 
-### 第三轮真实终验门禁
+- **已全绿可重现基线：`9c82ef1167d4eb4ba62422c551c48e1e14ddb14c`。** GitHub 10个真正`event=push`且同SHA，全部`completed/success`：F05-10新Source/HTTPS `38334683669` 2/2；旧H52 `38334683699` 52/52；旧F05-8 `38334683684` 4/4；F05-9 `38334683643` 2/2；F05-4 `38334683697`、F05-5 `38334683736`、F05-6 `38334683670`、I `38334683680`、J `38334683698`、K `38334683690`各2/2。总72/72独立非超级用户真实PG16作业，无fail/skip/pending；F05-10新Source原生**30/30**（原24+6），HTTPS **7/7**，旧结构/迁移注错rollback、历史Ledger与Catalog Seal均通过。最终文档提交引起Git HEAD变化时须重新完整运行。
+- **八份同旧SHA真正Push官方原生Artifact，非空、未过期、均有`digest=sha256:...`**：F05-8 Priority Source `11784552042`/HTTPS `11784472197`；F05-8旧兼容Source `11784986561`/HTTPS `11784626970`；F05-9 Source `11784706803`/HTTPS `11785290792`；F05-10 Source `11784798164`/HTTPS `11785271168`。八份头SHA均等于`9c82ef...`，不得充作下一HEAD证据。
+- 新Source logs包含`F05_10_R02_REAL_SIGNED_ADMIN_AND_TARGET_NEGATIVES`、`F05_10_R03_DND_PDM23_REAL_CI_ROW_NO_SLA_PAUSE`、`F05_10_R03_TRUE_TWO_BACKEND_WITHDRAW_HOLD_GOVERNANCE`、`F05_10_R03_TWO_PHYSICAL_BACKEND_RESUME_RACE`、`F05_10_R04_SIGNED_V23_V24_CURRENT_RIVAL_PRIORITY_RELEASE`、`F05_10_R04_FULL_LIFECYCLE_CROSS_DOMAIN_COUNT_AND_HASH`，以及同SHA官方70旧作业门禁通过记录。真源信息仅来自PG16/Actions日志而非模拟通过数字。
 
-不得复用旧受验HEAD `609edea9...`成功的10 Push/72 PG16/8 Artifact冒充本轮。仅最后唯一新B HEAD对应真正10条`event=push`、全新及历史合计72/72 PG16 Job成功、8份同SHA原生非空未过期SHA256 Artifact、新增Source正反例/双PG PID和提交时序、PDM17的真实签名来源裁决闭环，才能将PR49改为`READY_FOR_A_THIRD_INDEPENDENT_REVIEW / NEXT_OWNER=A`；否则仅如实交阻断，不得合并main。
+## 4. R02公海Owner合法形成正例的已签来源缺口（A须独立技术裁定）
 
+- A二轮要求“PDM-03/PDM-17真实公海`owner=NULL`、合法认领/指定分配Owner后再创建Consultation”的真PG正反例。B已保留真实`owner pending/public pool`安全拒绝，但不能以`UPDATE public.customers SET current_owner_employee_id=...`假装真实业务授权分配成功。
+- 已逐一读取现存冻结carrier：`engineering/f03/runtime-receiving-pool/service.mjs`明确仅管Employee接客资格/不分配Customer Owner，输出`ownerAssignmentPendingDomain: DEFER_F04_SG06`；`engineering/f03/runtime-customer-owner-handover/service.mjs`只接受`owner_assignment_state='assigned'`且原Owner为active或符合突然失活治理，实施**已分配Owner→另一个已授权Owner**，不支持`NULL→assigned`真正公海认领。F05-10 `service.mjs`当客户未 assigned 时仅能返回`F05_10_OWNER_ASSIGNMENT_OR_PUBLIC_POOL_REQUIRED`，严格禁止凭请求来源跳过治理。
+- 在已签仓库实际`engineering/**/service.mjs`不存在可调用的PDM-17“公海Customer合法认领/指定分配”独立Issuer。**结论：`SOURCE_GAP_PDM17_PUBLIC_POOL_OWNER_CLAIM`；不是可用普通直接SQL或新CI自行复制公海状态机的技术缺陷。**请A核对Authority是否有另外已签真实carrier；没有时依法记录`BLOCKED_SOURCE`、调整该项门禁的签字延期或先正式放行PDM17专项工程。B无权单方面解除该缺口。
+- 未覆盖真微信/手机号/Customer签名Issuer、实际电话/飞书/消息通知、JYT生产价/图、资金/交易外发、UAT部署继续`SOURCE_GAP`，不得由72绿灯宣称F05整体、C/H01/V1 READY。
 
-> 状态：`F05_10_B_REWORK_IN_PROGRESS / NEXT_OWNER=B / CI_ONLY / V1_NOT_READY`。这是 B 分支工作记录，不构成已经通过的 A 交审。
+## 5. A第三轮独立验收与签收门禁
 
-## 最新B二轮自审整改补充（仍为CI-only，尚未交审）
+1. GitHub最新`main`及PR49最终HEAD核对授权路径和签名源码；本批Source、HTTPS、v26 SQL、CI-only DND两表、历史R01均逐项自审；保留旧70作业。
+2. 本次报告提交到分支后，必须以**该最终HEAD**重新得到10组官方`push`、至少72/72完整非特权PG16 Job成功（H52官方`per_page=100`）、8份同SHA有效原生Artifact，最新Source≥30/30、HTTPS7/7、旧账/seal/注错rollback，方可在PR49确认`B_SELF_TESTED / READY_FOR_A_THIRD_INDEPENDENT_REVIEW`。
+3. A必须自行复验原生R02/R03/R04业务事实，**特别对上述PDM17物理来源缺口作独立技术裁决**。没有独立认可前`A_ACCEPTED=false`，PR49不能合并，F06/生产不得启动。A可根据门禁正式要求B继续整改，不是由B降低产品规则。
 
-- `10-R01` 补实码：突发撤权形成的`assignee_handover_pending`在原销售权限恢复后依然有效，普通销售不得凭曾经负责人身份进行特殊终结/转派。仅当前真正有Manager/StoreHead角色、个人`consultation.ci.manage`权限和冻结Consultation对象Team/Store Scope的管理者，才能合法handover/必要终结。新增**旧负责人关闭拒绝→经理签名Scope权限→正式交接历史收据→Pending原子清除**真PG16物理证据。
-- `10-R02` 追加独立真实源Demand/current responsible（4）优先、个人deny使Demand责任回退现时Owner（1）、Owner pending/公海不可凭空造单、跨Store合法管理正例以及旧负责人/4S拒绝。
-- `10-R04` 追加真实原M94来源的`four_s`车辆与listing cycle客户咨询正例，4S Employee角色不得获得Consultation内部全文和服务动作，即使合法4S车源；Customer安全投影仍独立。
-- 前一轮受验`d1990225...`的新Source业务21/21及HTTPS已真PG16成功，原H52因公共Postgres镜像限流失败的三项经官方失败项重试后已52/52；新Source工作流当时因全局72检查未齐最终失败，不冒充PASS。
-- 当前最新代码/测试正在以GitHub官方10 Push复核，**最终HEAD全72/72和八份同SHA非空Artifact仍未核签**，不能设置`READY_FOR_A_SECOND_INDEPENDENT_REVIEW`；正式手机号/微信/真人电话/消息及资金仍`SOURCE_GAP`。
-
-## 授权与范围
-
-- 来源为最新 `main` 的 A 首轮 F05-10 整改单 R01～R04；仅使用 `feat/f05-10-consultation-assignee-sla`，只改 `engineering/f05/consultation-assignee-sla/**` 内新 CI 文件；PR49 保持开放。前批已签 F03/F04/F05-1～9、正式生产/迁移、PDM、`main` 均未更改。
-- 已追加工程源码：创建时固化 Consultation 对象 Team/Store origin，当前 Employee employment / personal permission deny / capability Scope / data Scope / membership 物理变化触发新 v26 CI 表的自动 pending Guard及不可变事件；每次合法 Employee 操作再次查询当前实际权限与 Guard。增加独立可核对的合成首次真人服务 evidence 源、actor/type/Consultation 外键及一次性消费约束，拒绝任意格式合法但不存在源事实的 call/message 引用。
-- 新增 PostgreSQL16 原生 Source 用例：伪证拒绝、close_normal/invalid 与客户withdraw独立；新版 SLA policy 对新工单生效、旧 source snapshot 不变；Hold 剩余时长及恢复；1秒 timeout 不自动关闭；至少两个 PG backend 对 Employee disabled 触发器提交与旧Mutation竞争；个人 deny /scope撤销与 receiving pool 回退；真实 v25 推荐 direct source、Owner 与 Assignee 不漂移、隐藏车分享不继承；真实 Recommendation、Priority、Grant、价格权、Lock、Transaction、Owner 物理行数/哈希不变；已开单在车辆下架后保持原状态。
-- 追加跨Store真实签名合成：独立 Store/Team、员工业务 Scope 与 Owner、真实远端Consultation/接客员工、经理/店长个人明确权限与远端 Store 范围、正式 handover receipt、个人 deny 和 4S 角色拒绝；并对独立员工来源 DELETE / role 变化做额外实时 Guard 保护。
-- 增补两个独立PG Backend的 Customer 停用COMMIT对 Employee followup 的真实锁等待/拒绝、账号恢复仍保留Hold、正式显式Resume使用冻结毫秒；scope revoked_at 使用数据库时钟避免语句内时钟偏差而漏判撤权。
-- 尚待官方 Actions 核实及可能修复：旧70 Job和新增2 Job 的唯一新HEAD全量成功；本批 Source 新用例无 skip/fail、八份有效同 SHA 原生 Artifact；A R02 的完整 Demand/跨Store Manager/StoreHead/4S/SystemAdmin 矩阵、A R03 双后端客户停用与 DND 正反例，以及 4S 合法车源等仍需逐项实测或列明确阻断。
-
-## 必须保留的 SOURCE_GAP
-
-真实微信/手机号、Customer与Employee生产 Issuer、电话/消息/飞书、JYT 真实电话、生产价格来源与资金、UAT/线上迁移均不在本 CI-only 任务的授权范围内。不能把 CI合成授权、CI服务证据或成功 CI 当成已可上线。未完成全部 A 实证/同SHA CI 之前不得写 `READY_FOR_A_SECOND_INDEPENDENT_REVIEW`。
