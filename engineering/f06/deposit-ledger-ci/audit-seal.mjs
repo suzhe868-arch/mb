@@ -37,14 +37,14 @@ async function snap(){
 try{
  const value=await snap(),path=resolve(out,'audit-before.json');
  if(mode==='before'){
-  assert.equal((await c.query("SELECT to_regnamespace('f06_2_ci')::text name")).rows[0].name,null);
+  assert.equal((await c.query("SELECT to_regnamespace('f06_3a_ci')::text name")).rows[0].name,null);
   await writeFile(path,JSON.stringify(value,null,2)+'\n',{flag:'wx'});
   console.log('F06_3A_TRUE_SIGNED_DATABASE_BEFORE_SCENARIOS',JSON.stringify({oid:value.meta.oid,tables:value.tableCount,hash:value.tableDigest}));
  }else{
   const old=JSON.parse(await readFile(path,'utf8'));
   assert.equal(value.head,old.head);assert.equal(value.runId,old.runId);
   assert.notEqual(value.meta.oid,old.meta.oid,'scenario PG must be destroyed');
-  assert.equal((await c.query("SELECT to_regnamespace('f06_2_ci')::text name")).rows[0].name,null);
+  assert.equal((await c.query("SELECT to_regnamespace('f06_3a_ci')::text name")).rows[0].name,null);
   for(const key of ['tables','tableCount','tableDigest','ledgerDigest','d1Digest','catalogSha256','parentSealDigest','parent2SealDigest'])
    assert.deepEqual(value[key],old[key],'F06_3A_GLOBAL_IMMUTABILITY_FAILED_'+key);
   const receipt={status:'PASS',head:value.head,runId:value.runId,
