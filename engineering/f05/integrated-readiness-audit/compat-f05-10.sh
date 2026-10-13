@@ -15,7 +15,14 @@ out="f05/integrated-readiness-audit/artifacts/$mode"
 mkdir -p "$out"
 node --test "f05/integrated-readiness-audit/tests/$mode.test.mjs" 2>&1 | tee "$out/native-readonly-$mode.log"
 grep -q '# fail 0' "$out/native-readonly-$mode.log"
-if [[ "$mode" = source ]];then grep -q '# tests 25' "$out/native-readonly-source.log";fi
+if [[ "$mode" = source ]];then
+ grep -q '# tests 25' "$out/native-readonly-source.log"
+ node --test "f05/integrated-readiness-audit/tests/整改实证.test.mjs" 2>&1 | tee "$out/native-remediation-source.log"
+ grep -q '# tests 3' "$out/native-remediation-source.log"
+ grep -q '# pass 3' "$out/native-remediation-source.log"
+ grep -q '# fail 0' "$out/native-remediation-source.log"
+ echo F05_11_REAL_SOURCE_TOTAL_28_AND_R01_R02_R03
+fi
 if [[ "$mode" = https ]];then grep -q '# tests 8' "$out/native-readonly-https.log";fi
 node f05/integrated-readiness-audit/evidence.mjs "$mode"
 cp f05/integrated-readiness-audit/B自验与A交接.md "$out/B-handoff.md"
