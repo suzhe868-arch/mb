@@ -70,7 +70,8 @@ export async function openSyntheticTransactionCI(auth,token,p={}){
   if(old)return Number(old.source_lock_id)===p.lockId&&old.action==='open'?
    yes('F06_3B_IDEMPOTENT_CONVERSION',{transactionId:Number(old.resulting_transaction_id)}):
    no('F06_3B_IDEMPOTENCY_KEY_CONFLICT');
-  if(l.lock_status!=='active'||new Date(l.expires_at).getTime()<=Date.now())return no('F06_3B_NOT_ACTIVE_CURRENT_LOCK');
+  const expired=await one(c,'SELECT $1::timestamptz<=clock_timestamp() AS ended',[l.expires_at]);
+  if(l.lock_status!=='active'||expired.ended)return no('F06_3B_NOT_ACTIVE_CURRENT_LOCK');
   const signed=await one(c,"SELECT * FROM f06_1_lock_ci.lock_snapshots WHERE lock_id=$1 FOR SHARE",[l.lock_id]);
   if(!signed||Number(signed.customer_id)!==Number(l.customer_id)||
     Number(signed.responsible_employee_id)!==Number(l.responsible_employee_id)||
@@ -80,7 +81,7 @@ export async function openSyntheticTransactionCI(auth,token,p={}){
   const cyc=await one(c,"SELECT ended_at,vehicle_id FROM public.vehicle_listing_cycles WHERE listing_cycle_id=$1 AND vehicle_id=$2 FOR SHARE",[l.listing_cycle_id,l.vehicle_id]);
   const v=await one(c,'SELECT * FROM public.vehicles WHERE vehicle_id=$1',[l.vehicle_id]);
   if(!cyc||cyc.ended_at||!sale(v))return no('F06_3B_SOURCE_OR_CYCLE_UNAVAILABLE');
-  const occupied=await one(c,"SELECT transaction_id FROM public.transactions WHERE vehicle_id=$1 AND status IN ('pending','in_progress') LIMIT 1 FOR SHARE",[l.vehicle_id]);
+  const occupied=await one(c,"SELECT transaction_id FROM public.transactions WHERE vehicle_id=$1 AND status IN ('pending','in_progress','trading','active') LIMIT 1 FOR SHARE",[l.vehicle_id]);
   const oldTx=await one(c,"SELECT transaction_id FROM public.transactions WHERE source_lock_id=$1 LIMIT 1 FOR SHARE",[l.lock_id]);
   if(occupied||oldTx)return no('F06_3B_EXISTING_TRANSACTION_DENY');
   const extra=await one(c,"SELECT transaction_id FROM f06_3b_ci.transaction_origins WHERE vehicle_id=$1 LIMIT 1 FOR SHARE",[l.vehicle_id]);
