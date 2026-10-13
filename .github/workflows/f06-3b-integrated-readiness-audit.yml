@@ -21,7 +21,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Signed v26 and native true PG16 F05-11 Source
-        run: bash engineering/f06/deposit-ledger-ci/compat-old.sh source
+        run: env GITHUB_REF=refs/heads/feat/f06-3a-deposit-ledger-ci GITHUB_REF_NAME=feat/f06-3a-deposit-ledger-ci bash engineering/f06/deposit-ledger-ci/compat-old.sh source
         env:
           GH_ACTIONS_READ_TOKEN: ${{ github.token }}
       - uses: actions/upload-artifact@v4
@@ -46,7 +46,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Signed v26 and native true PG16 F05-11 HTTPS
-        run: bash engineering/f06/deposit-ledger-ci/compat-old.sh https
+        run: env GITHUB_REF=refs/heads/feat/f06-3a-deposit-ledger-ci GITHUB_REF_NAME=feat/f06-3a-deposit-ledger-ci bash engineering/f06/deposit-ledger-ci/compat-old.sh https
       - uses: actions/upload-artifact@v4
         with:
           name: f05-11-https-native-pg16-evidence
