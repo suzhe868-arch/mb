@@ -10,8 +10,8 @@ CREATE TABLE f06_3b_ci.attestation(
   f06_3a_sha256 text NOT NULL,
   signed_at timestamptz NOT NULL DEFAULT clock_timestamp()
 );
--- "pending" in frozen public.transactions is NOT the PDM19 in_progress status.
--- The strictly CI-only projection maps public pending to signed in_progress.
+-- Frozen public M94 transactions already supports true in_progress and vehicle uniqueness.
+-- Sidecar preserves immutable CI-only origins; it does not remap pending to a false state.
 CREATE TABLE f06_3b_ci.transaction_origins(
   transaction_id bigint PRIMARY KEY REFERENCES public.transactions(transaction_id),
   source_lock_id bigint NOT NULL UNIQUE REFERENCES public.locks(lock_id),
@@ -21,7 +21,7 @@ CREATE TABLE f06_3b_ci.transaction_origins(
   original_responsible_employee_id bigint NOT NULL REFERENCES public.employees(employee_id),
   opening_actor_employee_id bigint NOT NULL REFERENCES public.employees(employee_id),
   status text NOT NULL DEFAULT 'in_progress' CHECK(status='in_progress'),
-  public_carrier_status text NOT NULL CHECK(public_carrier_status='pending'),
+  public_carrier_status text NOT NULL CHECK(public_carrier_status='in_progress'),
   lock_end_reason text NOT NULL CHECK(lock_end_reason='converted_to_transaction'),
   lock_initial_hours integer NOT NULL CHECK(lock_initial_hours>0),
   lock_policy_version integer NOT NULL,

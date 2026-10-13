@@ -45,9 +45,12 @@ test('3B-S02 actual non-superuser native PostgreSQL 16',async()=>{
  const x=(await q("SELECT current_database() db,current_user u,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) super,current_setting('server_version_num')::int v"))[0];
  assert.equal(x.db,'f03_auth_test');assert.equal(x.u,'f03_ci');assert.equal(x.super,false);assert.ok(x.v>=160000&&x.v<170000);
 });
-test('3B-S03 physical legacy transaction carrier must never claim official in_progress',async()=>{
- const x=(await q("SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='transactions' AND column_name IN('status','source_lock_id','customer_id','vehicle_id','listing_cycle_id','responsible_employee_id')"))[0];
- assert.ok(x);assert.equal((await verify(db)).carrier,'PRODUCTION_TRANSACTION_SCHEMA_CARRIER_GAP');
+test('3B-S03 physical signed public transactions supports real in_progress with unique Vehicle',async()=>{
+ const cols=await q("SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='transactions' AND column_name IN('status','source_lock_id','customer_id','vehicle_id','listing_cycle_id','responsible_employee_id')");
+ assert.equal(cols.length,6);
+ const indexes=await q("SELECT indexdef FROM pg_indexes WHERE schemaname='public' AND tablename='transactions'");
+ assert.ok(indexes.some(x=>/UNIQUE INDEX/i.test(x.indexdef)&&/vehicle_id/.test(x.indexdef)&&/in_progress/.test(x.indexdef)));
+ assert.equal((await verify(db)).carrier,'SIGNED_PUBLIC_IN_PROGRESS_CI_ONLY');
 });
 test('3B-S04 no production Transaction issuer',()=>assert.equal(productionIssuerDeny().allowed,false));
 test('3B-S05 zero lock ID rejected',async()=>assert.equal((await openSyntheticTransactionCI(auth,token,{lockId:0,eventKey:k('zero')})).code,'F06_3B_INVALID_ARGUMENTS'));
@@ -87,7 +90,7 @@ test('3B-S15 failed requests did not leak partial origin or journal',async()=>{
 });
 test('3B-S16 signed Lock produces one physical Transaction and ends same Lock',async()=>{
  const x=await open(1,'valid-single');assert.equal(x.code,'F06_3B_ATOMIC_SYNTHETIC_IN_PROGRESS',JSON.stringify(x));txId=x.transactionId;
- assert.equal((await q("SELECT count(*)::int n FROM public.transactions WHERE transaction_id=$1 AND source_lock_id=$2 AND status='pending'",[txId,locks[1]]))[0].n,1);
+ assert.equal((await q("SELECT count(*)::int n FROM public.transactions WHERE transaction_id=$1 AND source_lock_id=$2 AND status='in_progress'",[txId,locks[1]]))[0].n,1);
  assert.equal((await q("SELECT lock_status FROM public.locks WHERE lock_id=$1",[locks[1]]))[0].lock_status,'released');
 });
 test('3B-S17 identical idempotent request yields original transaction',async()=>{
@@ -101,7 +104,7 @@ test('3B-S19 true public released reason and signed in_progress projection',asyn
  const l=(await q('SELECT lock_status,end_reason FROM public.locks WHERE lock_id=$1',[locks[1]]))[0];
  const t=(await q('SELECT status,public_carrier_status,lock_end_reason FROM f06_3b_ci.transaction_origins WHERE transaction_id=$1',[txId]))[0];
  assert.equal(l.lock_status,'released');assert.equal(l.end_reason,'converted_to_transaction');
- assert.equal(t.status,'in_progress');assert.equal(t.public_carrier_status,'pending');
+ assert.equal(t.status,'in_progress');assert.equal(t.public_carrier_status,'in_progress');
 });
 test('3B-S20 responsible does not drift from historical Lock',async()=>{
  const o=(await q('SELECT original_responsible_employee_id,opening_actor_employee_id,source_lock_id FROM f06_3b_ci.transaction_origins WHERE transaction_id=$1',[txId]))[0];

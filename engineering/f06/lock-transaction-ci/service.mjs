@@ -11,7 +11,7 @@ const sale=v=>!!v&&!v.archived_at&&
  ((v.source_type==='wholesale'&&v.source_sale_status==='active')||
  (['mingbang','four_s'].includes(v.source_type)&&v.source_sale_status==='available'));
 export const PRODUCTION_TRANSACTION_ISSUER='F06_3B_PRODUCTION_TRANSACTION_ISSUER_NOT_WIRED';
-export const PRODUCTION_PHYSICAL_CARRIER_GAP='PRODUCTION_TRANSACTION_SCHEMA_CARRIER_GAP';
+export const PUBLIC_TRANSACTION_CARRIER='SIGNED_PUBLIC_IN_PROGRESS_CI_ONLY';
 export function productionIssuerDeny(){return no(PRODUCTION_TRANSACTION_ISSUER)}
 async function employeePermission(c,a,l,permission){
  if(a?.principal_kind!=='employee'||a.system_admin_id!==null||
@@ -47,7 +47,7 @@ async function actorAllowed(c,a,l){
 }
 export async function currentSyntheticTransactionCI(c,vehicleId){
  gate();await verify(c);
- const rows=(await c.query("SELECT t.transaction_id,t.source_lock_id,t.original_responsible_employee_id,t.customer_id,t.listing_cycle_id,t.priority_origin_id,t.status FROM f06_3b_ci.transaction_origins t WHERE t.vehicle_id=$1 AND t.status='in_progress'",[vehicleId])).rows;
+ const rows=(await c.query("SELECT t.transaction_id,t.source_lock_id,t.original_responsible_employee_id,t.customer_id,t.listing_cycle_id,t.priority_origin_id,t.status FROM f06_3b_ci.transaction_origins t JOIN public.transactions p ON p.transaction_id=t.transaction_id AND p.source_lock_id=t.source_lock_id AND p.vehicle_id=t.vehicle_id AND p.customer_id=t.customer_id AND p.listing_cycle_id=t.listing_cycle_id AND p.status='in_progress' WHERE t.vehicle_id=$1 AND t.status='in_progress'",[vehicleId])).rows;
  if(rows.length>1)throw Error('F06_3B_DUPLICATE_OCCUPANCY');
  return rows[0]?yes('F06_3B_SIGNED_IN_PROGRESS_CI',{transactionId:Number(rows[0].transaction_id),sourceLockId:Number(rows[0].source_lock_id),responsibleId:Number(rows[0].original_responsible_employee_id),customerId:Number(rows[0].customer_id),priorityOriginId:rows[0].priority_origin_id}):no('F06_3B_NO_ACTIVE_TRANSACTION');
 }
@@ -89,26 +89,26 @@ export async function openSyntheticTransactionCI(auth,token,p={}){
   // Read-only provenance; never infer that a missing real issuer proves no funds.
   const finance=await one(c,"SELECT count(*)::int n FROM public.deposit_receipts WHERE lock_id=$1",[l.lock_id]);
   const before={lockStatus:l.lock_status,responsibleEmployeeId:l.responsible_employee_id,sourceLockId:l.lock_id};
-  // Public legacy carrier permits 'pending' but that DOES NOT mean PDM19 'in_progress'.
-  // The signed CI-sidecar owns that correspondence and the physical public gap stays reported.
-  const tx=await one(c,"INSERT INTO public.transactions(source_lock_id,customer_id,vehicle_id,listing_cycle_id,status,responsible_employee_id) VALUES($1,$2,$3,$4,'pending',$5) RETURNING transaction_id",
+  // The signed public M94 schema supports in_progress and its unique vehicle index.
+  // Preserve the true status in public, and add CI-only immutable origin/actor facts.
+  const tx=await one(c,"INSERT INTO public.transactions(source_lock_id,customer_id,vehicle_id,listing_cycle_id,status,responsible_employee_id) VALUES($1,$2,$3,$4,'in_progress',$5) RETURNING transaction_id",
    [l.lock_id,l.customer_id,l.vehicle_id,l.listing_cycle_id,l.responsible_employee_id]);
   if(p.testCheckpoint==='AFTER_TRANSACTION_THROW')throw Error('F06_3B_INJECTED_TRANSACTION_ROLLBACK');
   await c.query("UPDATE public.locks SET lock_status='released',end_reason='converted_to_transaction' WHERE lock_id=$1 AND lock_status='active'",[l.lock_id]);
   if(p.testCheckpoint==='AFTER_LOCK_THROW')throw Error('F06_3B_INJECTED_LOCK_ROLLBACK');
   await c.query("INSERT INTO f06_3b_ci.transaction_origins(transaction_id,source_lock_id,vehicle_id,listing_cycle_id,customer_id,original_responsible_employee_id,opening_actor_employee_id,status,public_carrier_status,lock_end_reason,lock_initial_hours,lock_policy_version,source_price_kind,source_price_cents,priority_origin_id,deposit_receipt_count) "+
-   "VALUES($1,$2,$3,$4,$5,$6,$7,'in_progress','pending','converted_to_transaction',$8,$9,$10,$11,$12,$13)",
+   "VALUES($1,$2,$3,$4,$5,$6,$7,'in_progress','in_progress','converted_to_transaction',$8,$9,$10,$11,$12,$13)",
    [tx.transaction_id,l.lock_id,l.vehicle_id,l.listing_cycle_id,l.customer_id,l.responsible_employee_id,a.employee_id,signed.initial_hours,signed.policy_version,signed.price_kind,signed.price_cents,signed.priority_origin_id,finance.n]);
   await c.query("INSERT INTO f06_3b_ci.request_keys(event_key_sha256,opening_actor_employee_id,source_lock_id,resulting_transaction_id,action) VALUES($1,$2,$3,$4,'open')",
    [keyHash,a.employee_id,l.lock_id,tx.transaction_id]);
   await c.query("INSERT INTO f06_3b_ci.origin_events(transaction_id,source_lock_id,previous_lock_status,final_lock_status,event_kind,actor_employee_id,event_key_sha256) VALUES($1,$2,'active','released','lock_converted_to_transaction',$3,$4)",
    [tx.transaction_id,l.lock_id,a.employee_id,keyHash]);
   await c.query("INSERT INTO public.audit_events(actor_kind,actor_id,object_kind,object_id,action,before_json,after_json,occurred_at) VALUES('employee',$1,'Transaction',$2,'f06_3b_ci_lock_converted_to_transaction',$3::jsonb,$4::jsonb,clock_timestamp())",
-   [String(a.employee_id),String(tx.transaction_id),JSON.stringify(before),JSON.stringify({transactionId:tx.transaction_id,status:'in_progress',physicalCarrier:'pending',lockStatus:'released'})]);
+   [String(a.employee_id),String(tx.transaction_id),JSON.stringify(before),JSON.stringify({transactionId:tx.transaction_id,status:'in_progress',physicalCarrier:'in_progress',lockStatus:'released'})]);
   if(p.testCheckpoint==='AFTER_AUDIT_THROW')throw Error('F06_3B_INJECTED_AUDIT_ROLLBACK');
   const last=await one(c,"SELECT lock_status,end_reason FROM public.locks WHERE lock_id=$1",[l.lock_id]);
   if(last.lock_status!=='released'||last.end_reason!=='converted_to_transaction')throw Error('F06_3B_NOT_ATOMICALLY_CONVERTED');
-  return yes('F06_3B_ATOMIC_SYNTHETIC_IN_PROGRESS',{transactionId:Number(tx.transaction_id),sourceLockId:p.lockId,backendPid:(await one(c,'SELECT pg_backend_pid() pid')).pid,carrier:PRODUCTION_PHYSICAL_CARRIER_GAP});
+  return yes('F06_3B_ATOMIC_SYNTHETIC_IN_PROGRESS',{transactionId:Number(tx.transaction_id),sourceLockId:p.lockId,backendPid:(await one(c,'SELECT pg_backend_pid() pid')).pid,carrier:PUBLIC_TRANSACTION_CARRIER});
  },{normalOnly:true});
  return result||no('F06_3B_SIGNED_SESSION_DENIED');
  }catch(e){
@@ -125,7 +125,7 @@ export async function syntheticNewOccupancyGuardCI(c,vehicleId,kind){
  if(!id(vehicleId)||!['lock','priority'].includes(kind))return no('F06_3B_INVALID_ACQUISITION');
  const v=await one(c,'SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR SHARE',[vehicleId]);
  if(!v)return no('F06_3B_VEHICLE_NOT_FOUND');
- const occupied=await one(c,"SELECT s.transaction_id FROM f06_3b_ci.transaction_origins s JOIN public.transactions t ON t.transaction_id=s.transaction_id WHERE s.vehicle_id=$1 AND s.status='in_progress' AND t.status='pending' LIMIT 1 FOR SHARE OF s,t",[vehicleId]);
+ const occupied=await one(c,"SELECT s.transaction_id FROM f06_3b_ci.transaction_origins s JOIN public.transactions t ON t.transaction_id=s.transaction_id WHERE s.vehicle_id=$1 AND s.status='in_progress' AND t.status='in_progress' LIMIT 1 FOR SHARE OF s,t",[vehicleId]);
  if(occupied)return no('F06_3B_TRADING_OCCUPANCY_DENY',{kind,carrier:PRODUCTION_PHYSICAL_CARRIER_GAP});
  return yes('F06_3B_NO_SYNTHETIC_TRADING_OCCUPANCY',{kind});
 }

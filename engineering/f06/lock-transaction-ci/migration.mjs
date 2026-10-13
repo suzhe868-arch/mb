@@ -57,7 +57,7 @@ export async function verify(c){
  a[0].f06_1_sha256!==p.f1||a[0].f06_2_sha256!==p.f2||a[0].f06_3a_sha256!==p.f3)
  throw Error('F06_3B_SIDECAR_DRIFT');
  if((await getPublicStructure(c)).sha256!==p.catalog)throw Error('F06_3B_PUBLIC_CATALOG_CHANGED');
- return {verified:true,nonProduction:true,carrier:'PRODUCTION_TRANSACTION_SCHEMA_CARRIER_GAP',sourceSHA:checksum,...p};
+ return {verified:true,nonProduction:true,carrier:'SIGNED_PUBLIC_IN_PROGRESS_CI_ONLY',productionIssuer:'SOURCE_GAP',sourceSHA:checksum,...p};
 }
 export async function apply(c,{inject=false}={}){
  const p=await signed(c);

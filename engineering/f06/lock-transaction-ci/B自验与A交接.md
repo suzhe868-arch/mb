@@ -5,7 +5,7 @@
 
 ## 1. 真实授权界限及生产缺口
 - 仅新增`engineering/f06/lock-transaction-ci/**`和`.github/workflows/f06-3b-*.yml`；不改变24行旧迁移Ledger、M94/v19-v26、F06-1/F06-2/F06-3A旧Service或生产路由。
-- 仅在可丢弃非特权PG16中创造**合成交易**，原公签`public.transactions.status='pending'`为旧兼容载体；PDM19正式`in_progress`独立映射到`f06_3b_ci.transaction_origins`不可变来源事实，标记`PRODUCTION_TRANSACTION_SCHEMA_CARRIER_GAP`。
+- 仅在可丢弃非特权PG16中创造**合成交易**，原公签`public.transactions`实际已支持PDM-19的`in_progress`及同车唯一索引。本批在旧公表直接录入**合成CI** `in_progress`，新增`f06_3b_ci.transaction_origins`仅封印来源Lock、责任及原子转换审计，不再把`pending`假映射为`in_progress`。生产Transaction Issuer未接入，继续标记`SOURCE_GAP/NOT_READY`。
 - 不做真实交易、完成、成交纠错、退款、换车、资金Issued事实或外部接口。现实Employee/微信/客户生产Issuer均`SOURCE_GAP`；全域F05/F06/V1仍`NOT_READY`。
 
 ## 2. 实现与安全正反约束
