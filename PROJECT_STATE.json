@@ -1,15 +1,15 @@
 {
   "project": "名邦汽车 V1",
-  "updated_at": "2026-10-13",
+  "updated_at": "2026-10-14",
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F06_1_ACCEPTED_PR52_MERGED_F06_2_CI_RELEASED_B",
+  "substage": "F06_2_A_ACCEPTED_MERGED_PR53_F06_3A_CI_RELEASED_B",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F06",
-  "current_domain_status": "F06_1_A_ACCEPTED_CI_ONLY_F06_2_A_RELEASED_FOR_B_CI_ONLY_F06_GLOBAL_NOT_READY",
+  "current_domain_status": "F06_2_A_ACCEPTED_PR53_CI_ONLY_F06_3A_A_RELEASED_FOR_B_CI_ONLY_F06_GLOBAL_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F06-1 PR52 A二轮独立终验通过且标准合并a87de230684914a1aafe7fb3b3e5081db63206ab。当前A已正式放行F06-2仅非生产CI普通Lock生命周期：普通延期、人工release/cancel、无资金且到期PG时间退出，有Deposit/未知资金fail closed只读保护，保留Priority-origin独占可见、Waitlist、Owner/历史，真实生产Issuer与资金全部阻断。B从新main开独立分支及PR，一口气完成旧76+新2共78/78真PG16 Job与13条同SHA Push、≥14新SHA官方Artifact，完成后交A独立验收。",
-  "current_work_file": "07_重建工作区/F06-2_A主控正式Lock延期到期与人工释放资金只读保护_CI隔离完整施工单_2026-10-13.md",
+  "current_task": "F06-2 PR53由A独立终验接受并标准合并（merge SHA 67b673aff285e28519a1a1141a2e908edf2e44d5）：本SHA13真正Push、78/78非特权PG16、H52 52、Source30/HTTPS9及旧F06-1 48/9，123份Artifact与157表双PG库封印PASS。已正式另放行F06-3A仅CI隔离Deposit事实和append-only资金纠错模拟与Lock资金保护，绝不开展真实资金/生产Issuer/Transaction/Refund。B从实际最新main新建独立feat/f06-3a-deposit-ledger-ci，在白名单完成旧78加新2共80/80真PG16、14同SHA Push、16有效官方Artifact，再交A。",
+  "current_work_file": "07_重建工作区/F06-3A_A主控PDM19意向金事实追加资金纠错与Lock保全_CI隔离正式完整施工单_2026-10-14.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_EXECUTE_F06_2_ORDINARY_LOCK_LIFECYCLE_CI_ONLY",
+  "next_action": "B_EXECUTE_F06_3A_SYNTHETIC_DEPOSIT_FACT_CORRECTION_AND_LOCK_GUARDS_CI_ONLY",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F06_1_A_ACCEPTED_MERGED_PR52_CI_ONLY_F06_2_A_RELEASED_FOR_B_CI_ONLY",
+  "engineering_status": "F06_2_A_ACCEPTED_MERGED_PR53_CI_ONLY_F06_3A_A_RELEASED_FOR_B_CI_ONLY",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B依07_重建工作区/F06-2_A主控正式Lock延期到期与人工释放资金只读保护_CI隔离完整施工单_2026-10-13.md在最新main新建feat/f06-2-lock-lifecycle-ci，独立PR，仅新建engineering/f06/lock-lifecycle-ci/**与.github/workflows/f06-2-*.yml。现行PDM18/19仅非生产PG16合成Lock生命周期，真Employee权限/双PG/错误注入、Priority/普通Lock可见性、Depot资金只读保护；禁止真实手机号/线上资金/生产/UAT。目标13同HEAD真Push、78/78非特权PG16 Job(H52完整52)、≥14有效SHA256 Artifact，中文READY_FOR_A_INDEPENDENT_REVIEW；B不合并。",
+  "next_action_detail": "B接管已签07_重建工作区/F06-3A_A主控PDM19意向金事实追加资金纠错与Lock保全_CI隔离正式完整施工单_2026-10-14.md，从最新main新建feat/f06-3a-deposit-ledger-ci、新PR，仅新增engineering/f06/deposit-ledger-ci/**和.github/workflows/f06-3a-*.yml；仅非特权可销毁PG16资金模拟，PDM19 Deposit完整不可变历史+经理/店长独立资金纠错能力、Current Lock资金占用保护，禁止真实收款、真实Employee/微信、Transaction/Refund和生产。最后SHA必须14真实Push、≥80/80真PG16 Job(H52 52)、≥16官方有效Artifacts、24新Source/9 TLS、两OID+≥157表原封不变。B一次性完成整改/自验交A，不得merge。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -4800,16 +4800,16 @@
     "design_branch_modified": false,
     "implementation_status_unchanged": true,
     "active_tracks": [
-      "F06_2_B_CI_ONLY_RELEASED",
+      "F06_3A_B_CI_ONLY_RELEASED",
       "H01_C_VISUAL_REWORK_PARALLEL"
     ],
     "execution_requires_separate_scope_approval": false,
     "global_state_owner": "A_MAIN",
     "engineering": {
       "owner": "B",
-      "branch": "feat/f06-2-lock-lifecycle-ci",
-      "active_work_order": "07_重建工作区/F06-2_A主控正式Lock延期到期与人工释放资金只读保护_CI隔离完整施工单_2026-10-13.md",
-      "execution_status": "F06_2_A_RELEASED_FOR_B_CI_ONLY_B_NOT_STARTED"
+      "branch": "feat/f06-3a-deposit-ledger-ci",
+      "active_work_order": "07_重建工作区/F06-3A_A主控PDM19意向金事实追加资金纠错与Lock保全_CI隔离正式完整施工单_2026-10-14.md",
+      "execution_status": "F06_3A_A_RELEASED_FOR_B_CI_ONLY_B_NOT_STARTED"
     },
     "design": {
       "owner": "C",
@@ -7269,14 +7269,15 @@
     "merge_sha": "e11e93bae1f6bc74757fea98b3c079d9ecf01e7a"
   },
   "f06_gate": {
-    "status": "F06_1_A_ACCEPTED_MERGED_PR52_F06_2_A_RELEASED_CI_ONLY",
+    "status": "F06_2_A_ACCEPTED_MERGED_PR53_F06_3A_A_RELEASED_CI_ONLY",
     "release_authorized": false,
     "production": false,
     "financial_operations_authorized": false,
     "ci_subpackage_release_authorized": true,
     "unreleased": [
-      "F06_2_PRODUCTION_LOCK_LIFECYCLE",
-      "F06_3_DEPOSIT_TRANSACTION_REFUND_REAL_FUNDS",
+      "F06_3A_PRODUCTION_DEPOSIT_ISSUER",
+      "F06_3B_LOCK_TRANSACTION",
+      "F06_3C_REFUND",
       "PRODUCTION_LOCK_AND_CUSTOMER_ISSUERS",
       "F06_OVERALL_READY"
     ]
@@ -7380,12 +7381,12 @@
     "valid_official_artifacts": 121
   },
   "f06_2_gate": {
-    "status": "A_RELEASED_FOR_B_CI_ONLY",
+    "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B",
-    "owner": "B",
+    "owner": "A",
     "branch": "feat/f06-2-lock-lifecycle-ci",
     "work_order": "07_重建工作区/F06-2_A主控正式Lock延期到期与人工释放资金只读保护_CI隔离完整施工单_2026-10-13.md",
-    "pr": null,
+    "pr": 53,
     "source_authority": [
       "PDM-18 Final §§19-29",
       "PDM-19 Final §5"
@@ -7404,9 +7405,86 @@
     "required_pg16_jobs": 78,
     "required_h52_jobs": 52,
     "required_valid_same_sha_artifacts": 14,
-    "required_source_tests": 24,
+    "required_source_tests": 30,
     "required_https_tests": 9,
     "requires_two_physical_pg16_databases_and_151_table_seal": true,
+    "after_b_selftest": "READY_FOR_A_INDEPENDENT_REVIEW",
+    "b_cannot_merge": true,
+    "global_not_ready": true,
+    "a_review_head_sha": "44067d132ab8c6924213ea2681ad6c5ecd4bec92",
+    "a_review_result": "A_ACCEPTED_CI_ONLY",
+    "a_review_document": "07_重建工作区/F06-2_A主控78项真PG16二轮资金边界与生命周期独立验收_PR53标准合并正式报告_2026-10-14.md",
+    "a_review_comment": "https://github.com/suzhe868-arch/mb/pull/53#issuecomment-6150007110",
+    "a_passed": [
+      "13_OF_13_REAL_PUSH_SAME_SHA",
+      "78_OF_78_REAL_PG16_JOBS_SUCCESS_H52_52_OF_52",
+      "SOURCE_30_OF_30_HTTPS_9_OF_9_F06_1_FROZEN_48_AND_9",
+      "123_LAST_SHA_VALID_NATIVE_SHA256_ARTIFACTS",
+      "FINANCE_UNKNOWN_AND_SIGNED_DEPOSIT_TRANSACTION_DENY",
+      "TWO_BACKEND_REVOKE_COMMIT_AND_LOCK_CONTENTION",
+      "157_TABLE_PHYSICAL_OID26507_TO30636_GLOBAL_SEAL"
+    ],
+    "a_blockers": [],
+    "reviewed_ci_runs": [
+      38427011977,
+      38427011003,
+      38427011072,
+      38427010998,
+      38427010713,
+      38427010582,
+      38427010623,
+      38427010760,
+      38427010578,
+      38427010585,
+      38427010756,
+      38427010388,
+      38427010887
+    ],
+    "reviewed_ci_success": 78,
+    "reviewed_source_tests": "30/30",
+    "reviewed_https_tests": "9/9",
+    "valid_official_artifacts": 123,
+    "pr_merged": true,
+    "merge_allowed": true,
+    "merge_sha": "67b673aff285e28519a1a1141a2e908edf2e44d5",
+    "b_final_head_sha": "44067d132ab8c6924213ea2681ad6c5ecd4bec92",
+    "ci_only": true
+  },
+  "f06_3a_gate": {
+    "status": "A_RELEASED_FOR_B_CI_ONLY",
+    "next_owner": "B",
+    "owner": "B",
+    "branch": "feat/f06-3a-deposit-ledger-ci",
+    "work_order": "07_重建工作区/F06-3A_A主控PDM19意向金事实追加资金纠错与Lock保全_CI隔离正式完整施工单_2026-10-14.md",
+    "pr": null,
+    "source_authority": [
+      "PDM-19 Final §§2-5",
+      "PDM-18 Final §§16-28",
+      "PDM-25 Final"
+    ],
+    "scope": "SYNTHETIC_DEPOSIT_FACT_APPEND_ONLY_CORRECTION_REVERSAL_AND_LOCK_GUARDS",
+    "production": false,
+    "financial_operations_authorized": false,
+    "real_funds_allowed": false,
+    "production_issuer_authorized": false,
+    "allowed_new_paths": [
+      "engineering/f06/deposit-ledger-ci/**",
+      ".github/workflows/f06-3a-*.yml"
+    ],
+    "frozen_old_pg16_job_count": 78,
+    "required_real_push_workflows": 14,
+    "required_pg16_jobs": 80,
+    "required_h52_jobs": 52,
+    "required_same_sha_valid_artifacts": 16,
+    "required_source_tests": 24,
+    "required_https_tests": 9,
+    "requires_two_distinct_pg16_databases_and_157_table_full_row_seal": true,
+    "not_released": [
+      "F06_3B_LOCK_TRANSACTION",
+      "F06_3C_REFUND",
+      "PRODUCTION_FINANCIAL_OPERATIONS",
+      "PRODUCTION_CUSTOMER_EMPLOYEE_ISSUER"
+    ],
     "after_b_selftest": "READY_FOR_A_INDEPENDENT_REVIEW",
     "b_cannot_merge": true,
     "global_not_ready": true

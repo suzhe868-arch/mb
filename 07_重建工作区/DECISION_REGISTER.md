@@ -2,6 +2,10 @@
 
 ## 工程治理接力记录（不构成PDM业务新裁决）
 
+- **2026-10-14 / F06-2 PR53**：A独立验B最后HEAD`44067d132ab8c6924213ea2681ad6c5ecd4bec92`，13条真Push同SHA/78真PG16 Job(H52完整52)/Source30/HTTPS9/123官方原生sha256 Artifact成功；双真实PG可销毁物理库OID26507→30636、旧157实体全行COUNT/MD5及Ledger/D1/Catalog/F06-1侧表原封。实际GitHub标准merge`67b673aff285e28519a1a1141a2e908edf2e44d5`，正式A证据`07_重建工作区/F06-2_A主控78项真PG16二轮资金边界与生命周期独立验收_PR53标准合并正式报告_2026-10-14.md`，只接受`CI_ONLY`，非业务新裁决或生产放行。
+- **2026-10-14 / F06-3A**：A据已批准PDM19 Final §§2～5及PDM18 Final的资金/Lock隔离边界签署`07_重建工作区/F06-3A_A主控PDM19意向金事实追加资金纠错与Lock保全_CI隔离正式完整施工单_2026-10-14.md`，B仅可在可销毁PG16构造合成Deposit/append-only纠错与资金读守卫，生产资金Issuer未放行；下一`NEXT_OWNER=B`，F06-3B/3C仍NOT_RELEASED。
+
+
 - **2026-10-13 / F06-1 PR52**：A独立复验B HEAD `2ef839b0a5e51a1bdd0b64a2bf322aa1ce3d2e6b`，12真Push同SHA、76/76真PG16 Job（H52 52/52）、Source48/HTTPS9、121官方有效sha256 Artifact；R01已签Priority与Lock原子事务、R02独占投影及151表/两OID签名保全均通过，GitHub标准合并 `a87de230684914a1aafe7fb3b3e5081db63206ab`。正式证据`07_重建工作区/F06-1_A主控二轮独立验收48项Source76项真PG16与121份证据_PR52标准合并正式报告_2026-10-13.md`。仅`A_ACCEPTED_CI_ONLY`，不是PDM新裁决或生产放行。
 - **2026-10-13 / F06-2**：A根据原已用户批准的PDM18 §§19～29/PDM19§5，另发`A_RELEASED_FOR_B_CI_ONLY`技术施工单`07_重建工作区/F06-2_A主控正式Lock延期到期与人工释放资金只读保护_CI隔离完整施工单_2026-10-13.md`；只允许合成PG16 Lock生命周期、安全资金只读守卫与旧域冻结回归；真实Issuer/资金/生产继续BLOCKED；下一责任B。
 
