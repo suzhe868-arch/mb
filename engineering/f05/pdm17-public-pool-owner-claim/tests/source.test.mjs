@@ -64,6 +64,7 @@ test('D1-S03 permitted Sales independently claims true pool, produces signed cur
  const audit=(await q('SELECT * FROM public.audit_events WHERE audit_id=$1',[rr.audit_id]))[0];
  assert.equal(audit.action,'pdm17.public_pool.owner.claim');
  await assert.rejects(()=>c.query('DELETE FROM d1_owner_ci.receipts WHERE receipt_id=$1',[rr.receipt_id]),/D1_OWNER_HISTORY_IMMUTABLE/);
+ await assert.rejects(()=>c.query("UPDATE d1_owner_ci.pool_cycles SET original_source_json='{}'::jsonb WHERE customer_id=989201"),/D1_POOL_ENTRY_SOURCE_IMMUTABLE/);
  const after=await snap();assert.deepEqual(after,before,'Consultation/Grant/Price/Lock/Transaction/Demand remain independent');
  console.log('D1_REAL_PG16_SIGNED_CLAIM_HISTORY_AUDIT',JSON.stringify({receiptId:rr.receipt_id,historyId:rr.owner_history_id,
   auditId:rr.audit_id,sourceCycleId:rr.cycle_id,otherDomainCountHash:before,backend:(await q('SELECT pg_backend_pid() pid'))[0].pid}));
@@ -220,4 +221,39 @@ test('D1-S15 protected pool state changed in competing PG backend cannot be clai
   assert.equal((await state(989209)).current_owner_employee_id,null);
   console.log('D1_TWO_PG16_PROTECTION_COMMIT_DENY',JSON.stringify({blocker,result}));
  }finally{await other.query('ROLLBACK').catch(()=>{});await other.end();if(inFlight)await inFlight.catch(()=>{})}
+});
+
+
+test('D1-S16 paused Demand is an actual signed PDM17 uncompleted responsibility, no Owner claim',async()=>{
+ const id=989211;
+ await c.query("INSERT INTO public.demands(demand_id,customer_id,responsible_employee_id,demand_state,criteria_json) "+
+   "SELECT COALESCE(MAX(demand_id),0)+1,$1,7,'paused','{}'::jsonb FROM public.demands",[id]);
+ const before=(await q('SELECT count(*)::int n FROM d1_owner_ci.receipts WHERE customer_id=$1',[id]))[0].n;
+ const denied=await assign(id,7,k('paused-demand-protected'));
+ assert.equal(denied.allowed,false,JSON.stringify(denied));
+ assert.equal(denied.code,'D1_UNRESOLVED_SIGNED_PROTECTION_demands');
+ assert.equal((await state(id)).current_owner_employee_id,null);
+ assert.equal((await q('SELECT count(*)::int n FROM d1_owner_ci.receipts WHERE customer_id=$1',[id]))[0].n,before);
+});
+test('D1-S17 real signed active Waitlist blocks unowned Customer claim',async()=>{
+ const id=989203;
+ const cys=await q('SELECT vehicle_id,listing_cycle_id FROM public.vehicle_listing_cycles ORDER BY listing_cycle_id LIMIT 1');
+ assert.ok(cys.length>0);
+ const source=cys[0];
+ await c.query("INSERT INTO public.waitlists(waitlist_id,customer_id,vehicle_id,listing_cycle_id,responsible_employee_id,ended_at) "+
+  "SELECT COALESCE(MAX(waitlist_id),0)+1,$1,$2,$3,7,NULL FROM public.waitlists",
+  [id,source.vehicle_id,source.listing_cycle_id]);
+ const denied=await assign(id,7,k('signed-active-waitlist-protected'));
+ assert.equal(denied.allowed,false,JSON.stringify(denied));
+ assert.equal(denied.code,'D1_UNRESOLVED_SIGNED_PROTECTION_waitlists');
+ assert.equal((await state(id)).current_owner_employee_id,null);
+});
+test('D1-S18 real signed future CRM task denies public claim until independent resolution',async()=>{
+ const id=989210;
+ await c.query("INSERT INTO public.crm_followup_tasks(task_id,customer_id,responsible_employee_id,planned_at,task_state) "+
+  "SELECT COALESCE(MAX(task_id),0)+1,$1,7,clock_timestamp()+interval '1 day','pending' FROM public.crm_followup_tasks",[id]);
+ const denied=await assign(id,7,k('signed-future-crm-protection'));
+ assert.equal(denied.allowed,false,JSON.stringify(denied));
+ assert.equal(denied.code,'D1_UNRESOLVED_SIGNED_PROTECTION_crm_followup_tasks');
+ assert.equal((await state(id)).current_owner_employee_id,null);
 });

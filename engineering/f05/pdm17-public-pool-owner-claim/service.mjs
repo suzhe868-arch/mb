@@ -55,8 +55,10 @@ async function protection(c,customerId,cycle){
   ['locks','customer_id',"lock_status='active'"],
   ['transactions','customer_id',"status='in_progress'"],
   ['consultations','customer_id',"status IN ('pending','processing')"],
-  ['demands','customer_id',"demand_state='active'"],
+  ['demands','customer_id',"demand_state IN ('active','paused')"],
   ['find_car_applications','customer_id',"status='pending'"],
+  ['waitlists','customer_id',"ended_at IS NULL"],
+  ['crm_followup_tasks','customer_id',"task_state NOT IN ('completed','cancelled','closed','done')"],
   ['priority_leases','customer_id',"status='active'"]]){
   const x=await row(c,'SELECT 1 FROM public.'+tab+' WHERE '+field+'=$1 AND '+cond+' LIMIT 1 FOR SHARE',[customerId]);
   if(x)return 'D1_UNRESOLVED_SIGNED_PROTECTION_'+tab;
