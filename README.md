@@ -1,3 +1,48 @@
+# 2026-10-13｜F05-10-D1 A二轮验收通过并标准合并PR50；正式放行PR49跨域真实集成（唯一最新）
+
+- **唯一正式状态**：`F05_10_D1_A_ACCEPTED_MERGED_PR50 / F05_10_FINAL_INTEGRATION_A_RELEASED_FOR_B / PR49_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。PR50 B末次受验`3edf40b7cda1ddf8cb4ca340f0fb33dfc0b0d50a`已由A独立复核10条真正同SHA Push、72/72非特权PostgreSQL16 Job成功、完整H52 52/52、D1新Source23/23及HTTPS7/7、注错ROLLBACK/旧M94-v25 Ledger/catalogseal和八份同HEAD有效原生Artifact。R01签名v24 Priority/在途四阶段、R02合法接客池下一候选回退、R03 PG时钟真实冷却与policy version、R04当前权限Scope拦截失权旧key重放，全部源码+真实PG原生日志均A核PASS。
+- **A已执行标准PR50 Merge**：GitHub在`expected_head_sha=3edf40b7cda1ddf8cb4ca340f0fb33dfc0b0d50a`校验后返回`merged=true`，实际merge SHA `9c9e73d5eaa8ab9aa15a45ba1be38b39d1dc7403`；后续main的状态管理提交不改变该合法merge事实。PR50 closed/merged=true；PR49 `feat/f05-10-consultation-assignee-sla`仍open/unmerged，尚未接入D1后的真Owner→Consultation跨域证据，不能因旧HEAD 72绿灯直接合并。
+- **A已正式放行B下一完整工作单**：`07_重建工作区/F05-10_A主控D1合并后公海Owner到Consultation真PG16集成与PR49最终终验正式施工单_2026-10-13.md`；B以**最新main**+已合并D1非生产CI 来源回到**原PR49分支**，在唯一CI-only白名单增加真实`pool owner=null→D1合法claim/经理指定分配或无接客人pending→assigned后真实F05-10 Consultation create/reuse`的同库PG16正反例、双backend/权限、跨域count+hash。先按D1在签名v25及隔离Sidecar的技术约束，合理衔接PR49 v26，不改D1、旧签版、旧Migration或产品Final。保留原PR49 Source30/HTTPS7、旧70个PG16冻结Jobs，新Source>30；本次最后HEAD重新获得十真Push同SHA至少72/72全部success、≥8份新HEAD有效Push原生Artifact、全套中文交A终验，PR49仍由A最终独立验收后才可合并。
+- **A签署正式归档**：`07_重建工作区/F05-10-D1_A主控二轮独立验收23项Source72项PG16全绿并合并PR50正式报告_2026-10-13.md`；PR50 A接受评论：https://github.com/suzhe868-arch/mb/pull/50#issuecomment-6138873276。D1所有新增公海事件/Owner领取独立权限/配置当前均`CI_SYNTHETIC_AUTHORITY_ONLY`、真实`PRODUCTION_ISSUER_GAP`保留；F05整体、C/H01和V1仍`NOT_READY`，F06、真实微信/手机号/JYT电话/价格资金/飞书/部署UAT全部不放行。
+- **NEXT_OWNER=B / NEXT_TASK=F05_10_PR49_FINAL_INTEGRATION_AFTER_D1_MERGE**。无需用户重复批准本包范围内技术步骤；只有新的产品规则冲突或生产授权再集中报用户。
+
+---
+
+# 2026-10-13｜F05-10-D1 A首轮独立验收72/72真PG16全绿但四项保护合同未闭环，PR50退B（唯一最新）
+
+- **唯一正式状态**：`F05_10_D1_A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK / PR50_OPEN_NOT_MERGED / PR49_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。A独立审B PR50 HEAD `43e94834ba1e805b3222fad45d84b3169ab29b01`，24个文件全部新D1 CI-only白名单，全部十条真正GitHub Push事件同SHA且completed/success、H52官方52/52、合计72/72非超级用户PG16成功，D1 Source18/18、HTTPS7/7、真实双backend竞争、注错rollback/旧账/catalogseal、8份同SHA非空未过期官方SHA256原生Artifact均已核实；这些成果保留。
+- **A还不能签字的四项真实问题**：R01 D1 `protection()`只检查旧`priority_leases`且只检查`transactions.in_progress`，漏现行F05-8 v24 Priority `f05_8_priority_ci`与已签`trading/pending/active`在途范围；R02 `serviceAssignCI`从预筛接客池只尝试employeeId最小一人，其Store/Team/object业务资格若失效，就放弃合法下一个；R03虽然源码有`cooldown_seconds`，D1-S09仅测日额度，缺真PG16非零冷却/到期/配置变更实证；R04 `acquire()`在当前Permission/Scope再验证前返回旧requestKey内部`ownerId/receiptId`，当前失权人员仍可幂等读取。尚未构造可在正式产品发生的实际漏洞不等于安全合同已签PASS；B需按当前PDM17签版实测/修复。
+- **完整唯一正式A整改单**：`07_重建工作区/F05-10-D1_A主控首轮独立验收与四项整改_2026-10-13.md`。B继续原`feat/f05-10-d1-pdm17-public-pool-owner-claim`原CI-only新增白名单，一次性修R01–R04；保留原Source18/HTTPS7及旧70，最后新B HEAD重跑10真Push同SHA至少72/72独立PG16 success、8份新SHA有效原生Artifact，Source新增当前Priority/交易/候选回退/冷却/撤权幂等物理正反例与完整中文`READY_FOR_A_SECOND_INDEPENDENT_REVIEW`交A。**PR50不合并；原PR49继续阻断，不启动F06/生产，F05/C-H01/V1保持NOT_READY**。真微信/手机号/JYT/资金等继续SOURCE_GAP，无用户新产品裁决。
+
+---
+
+# 2026-10-13｜F05-10 A第三轮独立验收72/72真PG16通过，PDM17公海Owner首次合法认领来源缺口裁决；F05-10-D1独立前置正式放行B（唯一最新）
+
+- **唯一正式状态**：`F05_10_A_THIRD_REVIEW_SOURCE_GAP_PDM17 / F05_10_D1_A_RELEASED_FOR_B / PR49_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。A独立验收B PR49最终HEAD `d280a37ef6337156ecc2301bbea7f1383d7d82e5`：24个新增CI-only白名单文件，十条GitHub真正`event=push`同SHA `completed/success`，**72/72独立非特权PostgreSQL16 Job成功、零fail/skip**，H52真52/52，F05-10 Source**30/30**及HTTPS**7/7**，v26错误注入回滚/旧签名Ledger/Catalog seal通过；**8份**同SHA非空未过期带GitHub官方SHA256的Push原生Artifact。
+- **第三轮A认可且不再重测缺证的业务**：R01源停权自动Pending及真双PG；R02签名System Admin/无权目标handover拒绝、合法Manager/StoreHead跨店、Recommendation/Demand合法责任；R03合成PDM23 DND/quiet不暂停SLA、真实双PG Customer disable vs withdraw/resume Hold时序与可信人工服务证据；R04真实其他Customer Priority独占/终止释放和Consultation create→touch→followup→handover→close/invalid全流程9业务域count/MD5不变。相关实码及原生Source日志已经A复核。**工程已验证部分PASS，但不等于F05-10全部PDM15合同验收通过**。
+- **唯一未闭的来源依赖**：PDM-15 §11/PDM-17 §§9～14规定公海/owner pending须先由PDM17合法形成Customer Owner，再创建Consultation。main真实`runtime-receiving-pool`只管理销售接客，`runtime-customer-owner-handover`只对已分配Owner间移交；不存在经A确认为可复用的首领`owner=null→assigned`签名CI业务Issuer。不可通过直接SQL伪认领、复制公海状态机或删改既有验收合同解决。状态`SOURCE_GAP_PDM17_PUBLIC_POOL_OWNER_CLAIM`；**PR49保持open/unmerged，未签A_ACCEPTED**。
+- **A独立裁决并正式放行前置完整包**：`F05-10-D1｜PDM17公海Owner合法主动领取/后台指定分配与咨询前置来源`，施工单`07_重建工作区/F05-10-D1_A主控PDM17公海Owner合法领取指定分配和咨询前置来源_CI隔离完整施工单_2026-10-13.md`。B从最新main新建`feat/f05-10-d1-pdm17-public-pool-owner-claim`，**只新增**`engineering/f05/pdm17-public-pool-owner-claim/**`与`.github/workflows/f05-10-d1-*.yml`，对非生产可丢弃PG16使用当前签名Owner/权限/保护事实和严格最小CI-only Sidecar，不抢F05-10既有v26账序、不改F03/F04/F05-1～9/PR49/PDM Final/真实生产。D1完整旧70+新≥2独立PG16 Job、官方最后同SHA十Push≥72/72全绿、至少八份同SHA有效原生Artifact、真实两个PG Backend并发、审计及中文交A。B不得自行merge；D1经A验收并标准合并后，再回PR49做真实`公海无owner→合法认领Owner→Consultation create`闭环并重跑原72/72、终审后合并。
+- **唯一下一责任**：`NEXT_OWNER=B / NEXT_TASK=F05_10_D1_PDM17_PUBLIC_POOL_OWNER_CLAIM`。A完整第三轮报告：`07_重建工作区/F05-10_A主控第三轮独立验收72项全绿_PDM17公海Owner合法认领来源缺口技术裁决_2026-10-13.md`。F05/C-H01/V1继续`NOT_READY`、F06不放行；真实微信手机号/电话/飞书/JYT/资金/部署UAT保持`SOURCE_GAP`。
+
+---
+
+# 2026-10-13｜F05-10 A第二轮独立验收：72/72真PG16全部成功但R02/R03/R04部分原生合同缺证，PR49继续退B（唯一最新）
+
+- **唯一正式状态**：`F05_10_A_SECOND_REVIEW_CHANGES_REQUESTED_B_REWORK / PR49_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。A审B最后HEAD `609edea9dddbdbe814a108e6edeed58a540dac3e`，24项F05-10新CI-only白名单，PR49 open / merged=false。十条真正GitHub Push全部同最终SHA且completed/success，完整H52用官方per_page=100查出52/52，旧新合计**72/72独立非特权PG16 Job成功**；新Source**24/24**、HTTPS**7/7**、v26错误注入ROLLBACK/签名旧Ledger/Catalog Seal成功；**八份**同SHA非空未过期原生Artifact及官方SHA256 Digest均经GitHub核实。
+- **A正式承认的已闭环**：R01自动assignee Pending Guard（Employee inactive/个人deny/Scope撤销时源事务物化）、真双PG COMMIT/55P03、Manager合法接管与不可变交接收据；R02真实Recommendation与Demand/Owner、跨Store经理/店长正例、4S员工否例；R03可信合成真人证据反伪、配置快照、Hold剩余时间、双PG disable/followup；R04四态、正常/无效终结、offline旧咨询保留、4S车源、客户安全投影。这些已成功的业务与测试均保留。
+- **二轮仅剩三组已签施工单实证阻断**：R02缺**真实公海/pending经PDM03/17合法形成Owner后的正例**，缺CI有效System Admin及inactive/deny/越Scope目标handover完整负例；R03所谓“DND/quiet不暂停SLA”测试只用1秒普通超时，没有实际DND/quiet源事实，且disable COMMIT与resume/withdraw竞争、Hold治理终结/重复事件欠真实PG时序；R04跨域count/hash只夹**一次普通followup**，没有create→touch→handover→close/invalid全过程；缺真实其他Customer Priority压制/恢复咨询隔离的原生正反例。未测不等于已存在bug，但合同验收不得凭72绿灯替代。
+- **当前完整A正式整改单**：`07_重建工作区/F05-10_A主控二轮独立验收72项真PG16全绿但公海授权DND并发与跨域全生命周期缺证整改单_2026-10-13.md`，继续原`feat/f05-10-consultation-assignee-sla`，仅F05-10新增CI-only白名单一次性补余项；R01已通过，不允许删弱旧70、原24 Source/7 HTTPS与旧签名账。下一**新唯一B HEAD**须重新十条真Push同SHA **≥72/72 PG16全成功**、至少八份该SHA有效Push原生Artifact、新Source增加真正用例及双PG/Source/权限/数据不变性中文证据，正式`READY_FOR_A_THIRD_INDEPENDENT_REVIEW`交A。**本轮不A_ACCEPTED、不合并PR49、不启动F06/生产**；真微信/手机号/电话/JYT/资金等继续SOURCE_GAP，F05/C-H01/V1仍`NOT_READY`。
+
+---
+
+# 2026-10-13｜F05-10 A首轮独立验收72/72真PG16通过但PDM15业务实证R01～R04未闭环，PR49退B（唯一最新）
+
+- **唯一正式状态**：`F05_10_A_FIRST_REVIEW_CHANGES_REQUESTED_B_REWORK / PR49_OPEN_NOT_MERGED / NEXT_OWNER=B / V1_NOT_READY`。A独立审最后B HEAD `a3bde06e7615a9fcab2d16ed6ac1ec8e23d3ce2b`，PR49 24新增CI-only白名单文件未碰旧签F03/F04/F05-1～9/迁移/生产。**十条真正GitHub Push同SHA、72/72独立非特权PG16 Success、0skip/fail；八份本SHA原生有效Artifact**，原Source12/12、HTTPS7/7、v26注错ROLLBACK/旧LedgerCatalog seal均Pass。这些工程证据保留，不等于全部PDM15业务矩阵已获真实验证。
+- **首轮独立阻断四组**：R01现有`assignee_handover_pending`只由经理手动`assignee_invalid`赋值，Employee inactive/deny/scope撤销尚无实时Guard自动形成/两个PG COMMIT真实并发；R02真实Recommendation direct source、Demand/Owner/接客池合法承责链、Customer Owner变更与Consultation assignee独立、owner pending公海、跨Store角色Scope和4S/System Admin真负例缺证；R03 SLA配置变更/过期派生/DND/Customer禁用Hold剩余时间恢复缺真时序，任意形状合法的`call/message`引用字符串可被计为首次真人响应，缺可信CI服务来源及伪证拒绝证明；R04 NORMAL_CLOSED与invalid、offline老咨单收口/hidden/4S源车、敏感全文权限和咨询不改变Recommendation/价权/Lock/Transaction的真实PG正反例不足。已签PDM15 Final及原F05-10完整工作单均要求这些来源，不以CI绿灯替代。
+- **B继续施工**：`feat/f05-10-consultation-assignee-sla`原分支，严格只改F05-10新CI-only白名单一次性补R01～R04实际物理正反例、真实两个PG Backend与合法权限修复，保留旧70和原12 Source/7 HTTPS以及签名旧v25/v26账；新最终HEAD须重新**10条同SHA官方Push、至少72/72 PG16 Job全部成功、≥8份同SHA真正Push有效Artifact**及中文完整`READY_FOR_A_SECOND_INDEPENDENT_REVIEW`再交A。**当前PR49不合并，F06/生产未放行、F05/C-H01/V1继续NOT_READY**，真微信/手机号/电话/JYT/资金均SOURCE_GAP。A完整可执行单：`07_重建工作区/F05-10_A主控首轮独立验收72项真PG16全绿但PDM15交接自动Guard与首响SLA证据未闭环整改单_2026-10-13.md`。
+
+---
+
 # 2026-10-13｜F05-9 A二轮独立终验PASS、PR48 GitHub正式合并；F05-10 PDM15 CI-only完整施工单已放行B（唯一最新）
 
 - **现行唯一状态**：`F05_9_A_FINAL_ACCEPTED_MERGED_PR48 / F05_10_A_RELEASED_FOR_B / NEXT_OWNER=B / V1_NOT_READY`。A正式审PR48最后B HEAD `d3cbaee088f6ba7d6b81fbd014813bedcf77671f`、PDM14 R01～R04、最终源码及实证，并在PR签署[A_ACCEPTED](https://github.com/suzhe868-arch/mb/pull/48#issuecomment-6128118804)。GitHub标准PR merge实际`merged=true`，**真实合并提交`eb33d4b5ad31d44a9e5fdc0eff98d83bdf3f0842`**。完整A终验报告：`07_重建工作区/F05-9_A主控二轮独立验收70项真PG16_PR48标准合并及F05-10接力_2026-10-13.md`。

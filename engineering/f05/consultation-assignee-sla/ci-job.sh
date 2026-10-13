@@ -18,6 +18,16 @@ node f05/priority-arbitration-ttl-handover/runner.mjs --verify
 node f05/recommendation-visibility-grants/runner.mjs --inject-rollback
 node f05/recommendation-visibility-grants/runner.mjs --apply
 node f05/recommendation-visibility-grants/runner.mjs --verify
+# The formally accepted D1 sidecar and genuine Owner service must run at signed v25,
+# BEFORE v26 is applied, in this same disposable nonprivileged PG16 database.
+node f05/pdm17-public-pool-owner-claim/runner.mjs --inject-rollback
+node f05/pdm17-public-pool-owner-claim/runner.mjs --apply
+node f05/pdm17-public-pool-owner-claim/runner.mjs --verify
+if [[ "$mode" = source ]];then
+ node f05/pdm17-public-pool-owner-claim/fixtures.mjs
+ mkdir -p f05/consultation-assignee-sla/artifacts/source
+ node f05/consultation-assignee-sla/integration-before-v26.mjs 2>&1 | tee f05/consultation-assignee-sla/artifacts/source/real-d1-before-v26.log
+fi
 node f05/consultation-assignee-sla/runner.mjs --inject-rollback
 node f05/consultation-assignee-sla/runner.mjs --apply
 node f05/consultation-assignee-sla/runner.mjs --verify
@@ -30,12 +40,16 @@ dir="f05/consultation-assignee-sla/artifacts/$mode"
 mkdir -p "$dir"
 node --test "f05/consultation-assignee-sla/tests/$mode.test.mjs" 2>&1 | tee "$dir/native-pg16-$mode.log"
 grep -q '# fail 0' "$dir/native-pg16-$mode.log"
+if [[ "$mode" = source ]];then
+ node --test "f05/consultation-assignee-sla/tests/d1-integration.test.mjs" 2>&1 | tee "$dir/native-pg16-d1-integration.log"
+ grep -q '# fail 0' "$dir/native-pg16-d1-integration.log"
+fi
 node f05/consultation-assignee-sla/runner.mjs --verify
 node f05/consultation-assignee-sla/evidence.mjs "$mode"
 if [[ "$mode" = source ]];then node f05/consultation-assignee-sla/ci-verify-72.mjs;fi
 ids="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
 test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
-docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public > "$dir/native-m94-v26-schema-only.sql"
+docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public --schema=d1_owner_ci > "$dir/native-m94-v26-schema-only.sql"
 cp f05/consultation-assignee-sla/源事实与正式Issuer矩阵.tsv "$dir/source-authority-matrix.tsv"
 cp f05/consultation-assignee-sla/B自验与A交接.md "$dir/B-handoff.md"
 ( cd "$dir" && sha256sum * > sha256sums.txt )

@@ -1,9 +1,10 @@
 // F05-10 signed v25 -> disposable v26, never production.
 import {createHash} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
-import {connect,verify as priorVerify,ID as priorId,checksum as priorChecksum} from '../recommendation-visibility-grants/migration.mjs';
+import {verify as priorVerify,ID as priorId,checksum as priorChecksum} from '../recommendation-visibility-grants/migration.mjs';
+import {connect} from '../pdm17-public-pool-owner-claim/migration.mjs';
 import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
-export {connect};
+export {connect}; // D1 schema-safe nonprivileged PG16, never bypass the signed v25/v26 ledger.
 export const ID='000026_consultation_ci_only';
 export const SQL=await readFile(new URL('./000026_consultation_ci.sql',import.meta.url),'utf8');
 export const checksum=createHash('sha256').update(SQL).digest('hex');

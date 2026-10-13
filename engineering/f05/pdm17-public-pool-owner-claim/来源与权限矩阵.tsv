@@ -1,0 +1,10 @@
+项目	事实来源	执行方式	生产状态
+Customer.current_owner_employee_id	M94已签Customer	真实PG16事务更新后生成审计	REAL_SIGNED
+Owner历史、Audit	M94归属历史/审计	追加不可变历史	REAL_SIGNED
+Team/Employee/Scope	F03当前表/登录签名	当前Employee与permission override、capability及scope交集	REAL_SIGNED
+公海进入合法来源	D1独立CI Sidecar	明确合成pool状态与不可变original source	CI_SYNTHETIC_AUTHORITY_ONLY
+领取/指定分配业务独立permission	D1可销毁权限记录	不同于接客开关，System Admin不自动享有	CI_SYNTHETIC_AUTHORITY_ONLY
+限额频控版本	D1配置	版本与真实写入计数限制	CI_SYNTHETIC_AUTHORITY_ONLY
+Customer主动服务入口	D1合成WeakSet	无真实Customer微信Issuer时fail closed	CI_SYNTHETIC_AUTHORITY_ONLY
+生产微信手机号PDM17 Issuer	无已签生产承载	不会建设生产接口	PRODUCTION_ISSUER_GAP
+Consultation集成	PR49未合并	A合并D1后回PR49做真实联动	DEPENDENCY_NEXT_STAGE
