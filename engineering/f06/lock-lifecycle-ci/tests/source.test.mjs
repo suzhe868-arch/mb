@@ -82,3 +82,4 @@ test('62-S08 physical signed Deposit receipt overrides synthetic no-funds',async
  assert.equal(r.code,'F06_2_EXISTING_SIGNED_MONEY_OR_TRANSACTION_DENY',JSON.stringify(r));
  assert.equal((await system(locks[6])).code,'F06_2_EXISTING_SIGNED_MONEY_OR_TRANSACTION_DENY')
 });
+test('62-S09 real PG lifecycle update',async()=>{const r=await actor(locks[1],'extend','extend1',{extendHours:6});assert.equal(r.code,'F06_2_EXTEND_COMMITTED',JSON.stringify(r));});
