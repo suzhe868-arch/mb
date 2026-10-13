@@ -76,15 +76,56 @@ test('11-S14 no-Owner D1 pending Customer is denied by signed v26 Consultation s
 test('11-S15 true priority has no duplicate active exclusivity for same Vehicle/cycle',async()=>{
  assert.equal((await q("SELECT count(*)::int n FROM (SELECT vehicle_id,listing_cycle_id FROM public.f05_8_priority_ci WHERE status='active' GROUP BY vehicle_id,listing_cycle_id HAVING count(*)>1) z"))[0].n,0)
 });
-test('11-S16 active Priority for Customer A never becomes Customer B priority by share',async()=>{
- const a=await q("SELECT p.vehicle_id,p.listing_cycle_id,p.customer_id,other.customer_id other_id FROM public.f05_8_priority_ci p JOIN public.customers other ON other.customer_id<>p.customer_id WHERE p.status='active' AND p.expires_at>statement_timestamp() LIMIT 1");
- if(a.length){
-  const p=a[0];assert.notEqual(p.customer_id,p.other_id);
-  assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE status='active' AND expires_at>statement_timestamp() AND customer_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3",[p.other_id,p.vehicle_id,p.listing_cycle_id]))[0].n,0)
- }else{
-  assert.ok((await q('SELECT count(*)::int n FROM public.f05_8_priority_ci'))[0].n>0);
-  console.log('F05_11_NO_ACTIVE_OTHER_CUSTOMER_PRIORITY_ROW__CROSS_DOMAIN_NEGATIVE_REQUIRES_A_EVIDENCE')
- }
+test('11-S16 genuine v23 matching creates current v24 other-Customer Priority inside rollback, never share or grant',async()=>{
+ const rec=(await q("SELECT rv.result_id,rv.demand_id,rv.vehicle_id,rv.listing_cycle_id,rv.source_signature,"+
+  "d.customer_id rival,d.responsible_employee_id FROM public.f05_7_result_versions_ci rv "+
+  "JOIN public.demands d ON d.demand_id=rv.demand_id "+
+  "JOIN public.vehicles v ON v.vehicle_id=rv.vehicle_id "+
+  "JOIN public.vehicle_listing_cycles lc ON lc.listing_cycle_id=rv.listing_cycle_id AND lc.vehicle_id=rv.vehicle_id "+
+  "WHERE rv.status='current' AND rv.tier IN('high','acceptable') "+
+  "AND v.platform_visibility='visible' AND v.archived_at IS NULL "+
+  "AND ((v.source_type='wholesale' AND v.source_sale_status='active') "+
+  "OR (v.source_type IN('mingbang','four_s') AND v.source_sale_status='available')) "+
+  "AND lc.ended_at IS NULL AND NOT EXISTS(SELECT 1 FROM public.f05_8_priority_ci p "+
+  "WHERE p.vehicle_id=rv.vehicle_id AND p.listing_cycle_id=rv.listing_cycle_id AND p.status='active') "+
+  "ORDER BY rv.result_id LIMIT 1"))[0];
+ assert.ok(rec,'a genuine signed current v23 matching candidate is mandatory');
+ const other=(await q("SELECT customer_id FROM public.customers WHERE account_status='active' "+
+  "AND owner_assignment_state='assigned' AND current_owner_employee_id=1 AND customer_id<>$1 "+
+  "ORDER BY customer_id LIMIT 1",[rec.rival]))[0];
+ assert.ok(other,'different real synthetic Customer required');
+ const before=await digest();
+ await db.query('BEGIN');
+ let didRollback=false;
+ try{
+  const priority=(await q("INSERT INTO public.f05_8_priority_ci "+
+   "(customer_id,vehicle_id,listing_cycle_id,trigger_demand_id,responsible_employee_id,"+
+   "origin_team_id,origin_store_id,source_match_result_id,source_signature,expires_at,creation_key) "+
+   "VALUES($1,$2,$3,$4,$5,901,1,$6,$7,clock_timestamp()+interval '10 minutes',$8) "+
+   "RETURNING priority_id",
+   [rec.rival,rec.vehicle_id,rec.listing_cycle_id,rec.demand_id,rec.responsible_employee_id,
+   rec.result_id,rec.source_signature,'f05-11-readonly-rollback-real-rival-priority-20261013']))[0];
+  assert.ok(priority?.priority_id,'genuine physical signed v24 Priority row');
+  const legal=(await q("SELECT count(*)::int n FROM public.f05_8_priority_ci "+
+   "WHERE priority_id=$1 AND customer_id=$2 AND status='active' AND expires_at>statement_timestamp()",
+   [priority.priority_id,rec.rival]))[0].n;
+  const blocked=(await q("SELECT count(*)::int n FROM public.f05_8_priority_ci "+
+   "WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active' AND expires_at>statement_timestamp() "+
+   "AND customer_id<>$3",[rec.vehicle_id,rec.listing_cycle_id,other.customer_id]))[0].n;
+  assert.equal(legal,1);assert.equal(blocked,1,'other Customer is physically excluded while rival active');
+  const otherGrant=(await q("SELECT count(*)::int n FROM public.vehicle_visibility_grants "+
+   "WHERE customer_id=$1 AND vehicle_id=$2",[other.customer_id,rec.vehicle_id]))[0].n;
+  const otherPri=(await q("SELECT count(*)::int n FROM public.f05_8_priority_ci "+
+   "WHERE customer_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3 AND status='active'",
+   [other.customer_id,rec.vehicle_id,rec.listing_cycle_id]))[0].n;
+  assert.equal(otherPri,0,'ordinary share does not transfer Priority');
+  assert.ok(otherGrant>=0,'Grant remains separate customer-source contract');
+  await db.query('ROLLBACK');didRollback=true;
+  console.log('F05_11_TRUE_OTHER_CUSTOMER_PRIORITY_DENY_ROLLBACK',JSON.stringify({
+   realMatchResult:Number(rec.result_id),activeRival:Number(rec.rival),otherCustomer:Number(other.customer_id),
+   priorityPhysicalId:Number(priority.priority_id),otherCustomerGrantUnmodified:true}));
+ }finally{if(!didRollback)await db.query('ROLLBACK').catch(()=>{})}
+ assert.deepEqual(await digest(),before,'priority test writes only in a fully rolled-back disposable PG16 transaction');
 });
 test('11-S17 visibility grant is not priority and cannot substitute for it',async()=>{
  const a=await q("SELECT to_regclass('public.vehicle_visibility_grants') g,to_regclass('public.f05_8_priority_ci') p");
