@@ -338,16 +338,19 @@ test('06-S42 live signed Priority excludes rival before approval; real synthetic
  const bad=await intakeCI(db,{customerId:rival,vehicleId:Number(signedPriority.vehicle_id),
   listingCycleId:Number(signedPriority.listing_cycle_id),requestKey:k('rival-priority-new-intake'),syntheticPhoneConsent:proof});
  assert.equal(bad.code,'F06_1_OTHER_CUSTOMER_PRIORITY_DENIED');
- assert.equal((await q("SELECT count(*)::int n FROM public.locks WHERE vehicle_id=$1",[signedPriority.vehicle_id]))[0].n,0);
+ assert.equal((await q("SELECT count(*)::int n FROM public.locks WHERE vehicle_id=$1 AND lock_status='active'",[signedPriority.vehicle_id]))[0].n,0);
 });
 test('06-S43 same PG transaction injection restores Priority, Lock, Request and immutable event',async()=>{
  const prior=await q("SELECT count(*)::int n FROM public.f05_8_events_ci WHERE priority_id=$1 AND event_kind='ended'",[signedPriority.priority_id]);
+ const priorLockCount=(await q("SELECT count(*)::int n FROM public.locks WHERE vehicle_id=$1",[signedPriority.vehicle_id]))[0].n;
  await assert.rejects(()=>decisionCI(auth,token,{requestId:priorityRequest,
   requestKey:k('v24-atomic-fault'),action:'approve',testCheckpoint:'AFTER_PRIORITY_END_EVENT_THROW'}),/F06_1_INJECTED_PRIORITY_ATOMIC_ROLLBACK/);
  const p=(await q("SELECT status,ended_at FROM public.f05_8_priority_ci WHERE priority_id=$1",[signedPriority.priority_id]))[0];
  assert.equal(p.status,'active');assert.equal(p.ended_at,null);
  assert.equal((await q("SELECT status FROM public.lock_requests WHERE lock_request_id=$1",[priorityRequest]))[0].status,'pending');
- assert.equal((await q("SELECT count(*)::int n FROM public.locks WHERE vehicle_id=$1",[signedPriority.vehicle_id]))[0].n,0);
+ assert.equal((await q("SELECT count(*)::int n FROM public.locks WHERE vehicle_id=$1",[signedPriority.vehicle_id]))[0].n,
+  priorLockCount,'rolled back approval must not add even a historical Lock');
+ assert.equal((await q("SELECT count(*)::int n FROM public.locks WHERE vehicle_id=$1 AND lock_status='active'",[signedPriority.vehicle_id]))[0].n,0);
  assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_events_ci WHERE priority_id=$1 AND event_kind='ended'",[signedPriority.priority_id]))[0].n,prior[0].n);
  console.log('F06_1_R01_SIGNED_PRIORITY_LOCK_EVENT_REQUEST_ATOMIC_ROLLBACK_PASS');
 });
