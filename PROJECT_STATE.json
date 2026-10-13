@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F06_1_A_FIRST_REVIEW_R01_R02_CHANGES_REQUESTED_B_REWORK",
+  "substage": "F06_1_ACCEPTED_PR52_MERGED_F06_2_CI_RELEASED_B",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F06",
-  "current_domain_status": "F06_1_A_FIRST_REVIEW_B_REWORK_PRIORITY_TO_LOCK_AND_CUSTOMER_VISIBILITY_F06_GLOBAL_NOT_READY",
+  "current_domain_status": "F06_1_A_ACCEPTED_CI_ONLY_F06_2_A_RELEASED_FOR_B_CI_ONLY_F06_GLOBAL_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A首轮验PR52唯一B HEAD 0d6a94dc6e81b5096ffa54e6d19fc0b43f8cd2d0：12真Push同SHA完成、76/76独立非特权PG16 Jobs成功(H52 52/52)、Source40/HTTPS9、12本SHA官方sha256 Artifacts、25个added合法CI白名单、双PG原子赢家+两他客Waitlist/撤权COMMIT、151真实public+D1表hash物理隔离OID21998→26495 PASS。然而PDM18已签§27需要当前v24真正active Priority在本人合法审批Lock成功同事务ended并记converted_to_lock等历史，当前F06新增service只写sidecar priority_origin_customer_id而没有UPDATE签名Priority；§28需Priority-origin Lock在旧Priority ended后期间客户独占可见及普通锁不隐藏他客真实CI投影与来源PG正反例，现40项Source未覆盖。A已签完整整改单和PR52评论，B仅在新F06-1 CI-only目录修R01/R02，PR52保持open/unmerged；F06总体/V1 NOT_READY。",
-  "current_work_file": "07_重建工作区/F06-1_A主控首轮独立验收76项真PG16全绿但Priority转Lock未原子结束且独占可见无实证定向整改单_2026-10-13.md",
+  "current_task": "F06-1 PR52 A二轮独立终验通过且标准合并a87de230684914a1aafe7fb3b3e5081db63206ab。当前A已正式放行F06-2仅非生产CI普通Lock生命周期：普通延期、人工release/cancel、无资金且到期PG时间退出，有Deposit/未知资金fail closed只读保护，保留Priority-origin独占可见、Waitlist、Owner/历史，真实生产Issuer与资金全部阻断。B从新main开独立分支及PR，一口气完成旧76+新2共78/78真PG16 Job与13条同SHA Push、≥14新SHA官方Artifact，完成后交A独立验收。",
+  "current_work_file": "07_重建工作区/F06-2_A主控正式Lock延期到期与人工释放资金只读保护_CI隔离完整施工单_2026-10-13.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_REWORK_F06_1_R01_SIGNED_PRIORITY_TO_LOCK_ATOMIC_END_R02_PRIORITY_ORIGIN_LOCK_CUSTOMER_VISIBILITY_PROJECTION",
+  "next_action": "B_EXECUTE_F06_2_ORDINARY_LOCK_LIFECYCLE_CI_ONLY",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F05_1_A_ACCEPTED_MERGED_PR30_F05_2_A_RELEASED_FOR_B",
+  "engineering_status": "F06_1_A_ACCEPTED_MERGED_PR52_CI_ONLY_F06_2_A_RELEASED_FOR_B_CI_ONLY",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B继续原feat/f06-1-lockrequest-approval-waitlist-ci及原PR52，依据07_重建工作区/F06-1_A主控首轮独立验收76项真PG16全绿但Priority转Lock未原子结束且独占可见无实证定向整改单_2026-10-13.md在本批新增CI-only白名单补真实签名F05-8 v24 Priority经当前v23 match启动本人合成6小时LockRequest，通过F03受信Employee approve事务创建Lock时原子结束Priority、事件历史、错误ROLLBACK；新增Priority-origin Lock在active期间只给本人Customer可见、他客隐藏但合法Waitlist内部留存、普通Lock其他原可见客户仍按原基础权限可见的PG16 Source正反例。不要修改old F02/F03/F04/F05/D1、PDM、生产、微信手机号/真实资金或F06-2/3，不降低原Source40/HTTPS9与74冻结Jobs和151表seal。B末次唯一新HEAD官方重跑12条同SHA真实Push≥76/76独立非特权PG16 Jobs（H52 52）、≥12份最后SHA官方有效Artifacts、中文READY_FOR_A_SECOND_INDEPENDENT_REVIEW交A；B不得merge。",
+  "next_action_detail": "B依07_重建工作区/F06-2_A主控正式Lock延期到期与人工释放资金只读保护_CI隔离完整施工单_2026-10-13.md在最新main新建feat/f06-2-lock-lifecycle-ci，独立PR，仅新建engineering/f06/lock-lifecycle-ci/**与.github/workflows/f06-2-*.yml。现行PDM18/19仅非生产PG16合成Lock生命周期，真Employee权限/双PG/错误注入、Priority/普通Lock可见性、Depot资金只读保护；禁止真实手机号/线上资金/生产/UAT。目标13同HEAD真Push、78/78非特权PG16 Job(H52完整52)、≥14有效SHA256 Artifact，中文READY_FOR_A_INDEPENDENT_REVIEW；B不合并。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -4800,16 +4800,16 @@
     "design_branch_modified": false,
     "implementation_status_unchanged": true,
     "active_tracks": [
-      "F04_3_B_READY_TO_EXECUTE",
+      "F06_2_B_CI_ONLY_RELEASED",
       "H01_C_VISUAL_REWORK_PARALLEL"
     ],
     "execution_requires_separate_scope_approval": false,
     "global_state_owner": "A_MAIN",
     "engineering": {
       "owner": "B",
-      "branch": "feat/f04-3-current-action-api-registry",
-      "active_work_order": "07_重建工作区/F04-3_A主控Current新接口注册表DTO与路由安全门禁完整施工单_2026-10-10.md",
-      "execution_status": "F04_3_A_RELEASED_FOR_B_B_NOT_STARTED"
+      "branch": "feat/f06-2-lock-lifecycle-ci",
+      "active_work_order": "07_重建工作区/F06-2_A主控正式Lock延期到期与人工释放资金只读保护_CI隔离完整施工单_2026-10-13.md",
+      "execution_status": "F06_2_A_RELEASED_FOR_B_CI_ONLY_B_NOT_STARTED"
     },
     "design": {
       "owner": "C",
@@ -7269,21 +7269,21 @@
     "merge_sha": "e11e93bae1f6bc74757fea98b3c079d9ecf01e7a"
   },
   "f06_gate": {
-    "status": "F06_1_CI_ONLY_A_FIRST_REVIEW_CHANGES_REQUESTED_R01_R02",
+    "status": "F06_1_A_ACCEPTED_MERGED_PR52_F06_2_A_RELEASED_CI_ONLY",
     "release_authorized": false,
     "production": false,
     "financial_operations_authorized": false,
     "ci_subpackage_release_authorized": true,
     "unreleased": [
-      "F06_2_LOCK_LIFECYCLE",
-      "F06_3_DEPOSIT_TRANSACTION_REFUND",
+      "F06_2_PRODUCTION_LOCK_LIFECYCLE",
+      "F06_3_DEPOSIT_TRANSACTION_REFUND_REAL_FUNDS",
       "PRODUCTION_LOCK_AND_CUSTOMER_ISSUERS",
       "F06_OVERALL_READY"
     ]
   },
   "f06_1_gate": {
-    "status": "A_FIRST_REVIEW_CHANGES_REQUESTED_R01_R02",
-    "owner": "B",
+    "status": "A_ACCEPTED_MERGED_CI_ONLY",
+    "owner": "A",
     "next_owner": "B",
     "branch": "feat/f06-1-lockrequest-approval-waitlist-ci",
     "work_order": "07_重建工作区/F06-1_A主控PDM18锁车申请6小时审批唯一Lock与竞争自动候补_CI隔离正式完整施工单_2026-10-13.md",
@@ -7309,46 +7309,43 @@
     "required_final_pg16_job_count": 76,
     "required_final_push_workflows": 12,
     "required_final_artifacts": 12,
-    "required_source_tests": 20,
-    "required_https_tests": 7,
+    "required_source_tests": 48,
+    "required_https_tests": 9,
     "required_real_two_pg_backends": true,
     "required_money_source_gap": true,
     "required_real_customer_issuer_source_gap": true,
     "after_b_selftest": "READY_FOR_A_INDEPENDENT_REVIEW",
     "b_cannot_merge": true,
-    "a_review_head_sha": "0d6a94dc6e81b5096ffa54e6d19fc0b43f8cd2d0",
-    "a_review_result": "A_CHANGES_REQUESTED",
-    "a_review_document": "07_重建工作区/F06-1_A主控首轮独立验收76项真PG16全绿但Priority转Lock未原子结束且独占可见无实证定向整改单_2026-10-13.md",
-    "a_review_comment": "https://github.com/suzhe868-arch/mb/pull/52#issuecomment-6145393454",
+    "a_review_head_sha": "2ef839b0a5e51a1bdd0b64a2bf322aa1ce3d2e6b",
+    "a_review_result": "A_ACCEPTED_CI_ONLY",
+    "a_review_document": "07_重建工作区/F06-1_A主控二轮独立验收48项Source76项真PG16与121份证据_PR52标准合并正式报告_2026-10-13.md",
+    "a_review_comment": "https://github.com/suzhe868-arch/mb/pull/52#issuecomment-6147244021",
     "a_passed": [
-      "12_OF_12_OFFICIAL_SAME_SHA_PUSH_SUCCESS",
-      "76_OF_76_INDEPENDENT_NON_SUPERUSER_PG16_JOB_SUCCESS_H52_52",
-      "SOURCE_40_OF_40_HTTPS_9_OF_9",
-      "12_VALID_LAST_SHA_NATIVE_ARTIFACTS",
-      "TWO_BACKEND_ATOMIC_WINNER_TWO_COMPETING_WAITLIST",
-      "TWO_BACKEND_PERMISSION_COMMIT_DENIES_OLD_EMPLOYEE_TOKEN",
-      "151_PUBLIC_D1_FULL_ROW_MD5_AND_CATALOG_LEDGER_SIGNED_SEAL_PASS"
+      "12_OF_12_REAL_PUSH_SAME_SHA",
+      "76_OF_76_REAL_PG16_JOBS_SUCCESS_H52_52_OF_52",
+      "SOURCE_48_OF_48_HTTPS_9_OF_9",
+      "121_LAST_SHA_VALID_NATIVE_SHA256_ARTIFACTS",
+      "R01_V23_MATCH_V24_PRIORITY_SAME_TX_ENDED_EVENT_ROLLBACK",
+      "R02_PRIORITY_ORIGIN_LOCK_CUSTOMER_EXCLUSIVE_SAFE_PROJECTION",
+      "151_TABLE_PUBLIC_D1_PHYSICAL_OID21998_TO26507_GLOBAL_SEAL"
     ],
-    "a_blockers": [
-      "R01_PDM18_27_ACTIVE_SIGNED_PRIORITY_NOT_ATOMICALLY_ENDED_ON_OWN_CUSTOMER_LOCK",
-      "R02_PDM18_28_PRIORITY_ORIGIN_LOCK_EXCLUSIVE_CUSTOMER_VISIBILITY_NOT_IMPLEMENTED_OR_REAL_SOURCE_TESTED"
-    ],
+    "a_blockers": [],
     "reviewed_ci_runs": [
-      38391979627,
-      38391979719,
-      38391979654,
-      38391979649,
-      38391979629,
-      38391979613,
-      38391979667,
-      38391979769,
-      38391979632,
-      38391979617,
-      38391979716,
-      38391979655
+      38404078889,
+      38404078736,
+      38404078775,
+      38404078731,
+      38404078726,
+      38404078834,
+      38404078733,
+      38404078729,
+      38404078774,
+      38404078829,
+      38404079218,
+      38404078839
     ],
     "reviewed_ci_success": 76,
-    "reviewed_source_tests": "40/40",
+    "reviewed_source_tests": "48/48",
     "reviewed_https_tests": "9/9",
     "reviewed_artifact_ids": [
       11811170059,
@@ -7365,8 +7362,53 @@
       11810350344
     ],
     "pr": 52,
-    "pr_merged": false,
-    "merge_allowed": false,
-    "required_final_pg16_jobs": 76
+    "pr_merged": true,
+    "merge_allowed": true,
+    "required_final_pg16_jobs": 76,
+    "a_first_review": {
+      "head_sha": "0d6a94dc6e81b5096ffa54e6d19fc0b43f8cd2d0",
+      "result": "A_CHANGES_REQUESTED",
+      "document": "07_重建工作区/F06-1_A主控首轮独立验收76项真PG16全绿但Priority转Lock未原子结束且独占可见无实证定向整改单_2026-10-13.md",
+      "comment": "https://github.com/suzhe868-arch/mb/pull/52#issuecomment-6145393454",
+      "blockers": [
+        "R01_PDM18_27_ACTIVE_SIGNED_PRIORITY_NOT_ATOMICALLY_ENDED_ON_OWN_CUSTOMER_LOCK",
+        "R02_PDM18_28_PRIORITY_ORIGIN_LOCK_EXCLUSIVE_CUSTOMER_VISIBILITY_NOT_IMPLEMENTED_OR_REAL_SOURCE_TESTED"
+      ]
+    },
+    "merge_sha": "a87de230684914a1aafe7fb3b3e5081db63206ab",
+    "b_final_head_sha": "2ef839b0a5e51a1bdd0b64a2bf322aa1ce3d2e6b",
+    "valid_official_artifacts": 121
+  },
+  "f06_2_gate": {
+    "status": "A_RELEASED_FOR_B_CI_ONLY",
+    "next_owner": "B",
+    "owner": "B",
+    "branch": "feat/f06-2-lock-lifecycle-ci",
+    "work_order": "07_重建工作区/F06-2_A主控正式Lock延期到期与人工释放资金只读保护_CI隔离完整施工单_2026-10-13.md",
+    "pr": null,
+    "source_authority": [
+      "PDM-18 Final §§19-29",
+      "PDM-19 Final §5"
+    ],
+    "scope": "ORDINARY_LOCK_LIFECYCLE_EXPIRY_EXTENSION_MANUAL_RELEASE_CI_ONLY",
+    "production": false,
+    "financial_operations_authorized": false,
+    "allow_real_money": false,
+    "allow_production_issuer": false,
+    "allowed_new_paths": [
+      "engineering/f06/lock-lifecycle-ci/**",
+      ".github/workflows/f06-2-*.yml"
+    ],
+    "frozen_old_true_pg16_job_count": 76,
+    "required_real_push_workflows": 13,
+    "required_pg16_jobs": 78,
+    "required_h52_jobs": 52,
+    "required_valid_same_sha_artifacts": 14,
+    "required_source_tests": 24,
+    "required_https_tests": 9,
+    "requires_two_physical_pg16_databases_and_151_table_seal": true,
+    "after_b_selftest": "READY_FOR_A_INDEPENDENT_REVIEW",
+    "b_cannot_merge": true,
+    "global_not_ready": true
   }
 }
