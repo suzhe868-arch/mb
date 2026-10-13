@@ -18,7 +18,7 @@ const requiredPublic=['customers','employee_permission_overrides','employee_capa
  'employee_data_scopes','employees','vehicles','vehicle_listing_cycles','consultations',
  'f05_10_consultation_meta_ci','f05_10_consultation_events_ci','customer_owner_history',
  'audit_events','f05_8_priority_ci','recommendations','vehicle_visibility_grants',
- 'f05_9_price_right_ci','demands','locks','waitlists','transactions','favorites',
+ 'f05_9_price_right_ci','demands','locks','waitlists','transactions',
  'f03_schema_migrations'];
 const requiredD1=['receipts','pool_cycles','attestation'];
 const client=await connect();
