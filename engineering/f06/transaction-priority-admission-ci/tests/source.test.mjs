@@ -13,6 +13,9 @@ import {requestSyntheticRefundCI} from '../../refund-pending-ci/service.mjs';
 import {withF063B} from '../../refund-pending-ci/migration.mjs';
 import {withF063C1} from '../../transaction-cancel-ci/migration.mjs';
 import {withF063A} from '../../lock-transaction-ci/migration.mjs';
+import {withF064A} from '../../transaction-handoff-ci/migration.mjs';
+import {cancelSyntheticTransactionCI} from '../../transaction-cancel-ci/service.mjs';
+
 import {withF062} from '../../deposit-ledger-ci/migration.mjs';
 import {withParentBranch} from '../../lock-lifecycle-ci/migration.mjs';
 import {setQualificationCI} from '../../../f05/priority-arbitration-ttl-handover/service.mjs';
@@ -288,4 +291,37 @@ test('5C-S56 真PG已过期Lock最后由原F06-2系统签发终结，原Priority
  assert.equal(ended.end_reason,'f06_2_ci_pg_clock_expiry');
  assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1",[positive.vehicleId]))[0].n,originalCount,'f06_2 expiry must not create or resurrect Priority history');
  assert.equal((await q('SELECT count(*)::int n FROM public.refund_payments'))[0].n,0);
+});
+
+test('5C-S57 真4A不可变取消签名释放5B占用且保留3B原始in_progress',async()=>{
+ const before=(await q('SELECT status FROM f06_3b_ci.transaction_origins WHERE transaction_id=$1',[realTxId]))[0];
+ assert.equal(before.status,'in_progress');
+ const cancel=await withF064A(()=>cancelSyntheticTransactionCI(auth,token,{
+  transactionId:realTxId,eventKey:mk('legitimate-4a-cancel'),reason:'合法取消后的原子资格重新仲裁证明'
+ }));
+ assert.equal(cancel.code,'F06_4A_CANCELLED_ATOMIC_NO_PAYMENT',JSON.stringify(cancel));
+ const tx=(await q('SELECT status FROM public.transactions WHERE transaction_id=$1',[realTxId]))[0];
+ assert.equal(tx.status,'cancelled');
+ assert.equal((await q('SELECT status FROM f06_3b_ci.transaction_origins WHERE transaction_id=$1',[realTxId]))[0].status,'in_progress');
+ const result=await attempt({eventKey:mk('postcancel-recheck')},auth,token);
+ assert.notEqual(result.code,'F06_5C_PUBLIC_PARENT_TRANSACTION_STATE_DRIFT',JSON.stringify(result));
+ assert.notEqual(result.code,'F06_5C_TERMINAL_CANCEL_SIGNATURE_MISSING_OR_CONFLICT',JSON.stringify(result));
+ assert.notEqual(result.code,'F06_5C_5B_GUARD_MISSING_OR_DRIFT',JSON.stringify(result));
+});
+test('5C-S58 无5B Guard的旧3B即使假取消也不得释放',async()=>{
+ const before=(await q('SELECT status FROM public.transactions WHERE transaction_id=$1',[legacyTxId]))[0];
+ assert.equal(before.status,'in_progress');
+ await q("UPDATE public.transactions SET status='cancelled' WHERE transaction_id=$1",[legacyTxId]);
+ try{
+  const r=await attempt({vehicleId:86181108,listingCycleId:86182108,eventKey:mk('unsigned-public-cancel')},auth,token);
+  assert.equal(r.allowed,false,JSON.stringify(r));
+  assert.ok(!['F06_5C_PARENT_SIGNED_PRIORITY_CREATED','F06_5C_PRECHECK_VALIDATED'].includes(r.code));
+ }finally{await q('UPDATE public.transactions SET status=$2 WHERE transaction_id=$1',[legacyTxId,before.status])}
+});
+test('5C-S59 取消后旧3B源与4A当前真实终态均保持独立不可变',async()=>{
+ const x=await q('SELECT t.status public_status,o.status origin_status,a.resulting_status signed_cancel '+
+  'FROM public.transactions t JOIN f06_3b_ci.transaction_origins o USING(transaction_id) '+
+  'JOIN f06_4a_ci.cancel_origins a USING(transaction_id) WHERE t.transaction_id=$1',[realTxId]);
+ assert.equal(x.length,1);assert.deepEqual([x[0].public_status,x[0].origin_status,x[0].signed_cancel],
+ ['cancelled','in_progress','cancelled']);
 });

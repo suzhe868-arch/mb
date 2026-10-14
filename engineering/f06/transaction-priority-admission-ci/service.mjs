@@ -2,6 +2,7 @@
 // 严禁先提交前置检查再另起事务，严禁直接INSERT原Priority表。
 import {gate,verify} from './migration.mjs';
 import {arbitrateCI} from '../../f05/priority-arbitration-ttl-handover/service.mjs';
+import {verifySignedTransactionVacancyCI} from './signed-transaction-state.mjs';
 const fail=(code,extra={})=>({allowed:false,code,CI_ONLY:true,...extra});
 const one=async(c,s,p=[])=> (await c.query(s,p)).rows[0];
 const id=x=>Number.isSafeInteger(x)&&x>0&&x<2147483647;
@@ -85,21 +86,9 @@ async function admissibility(c,a,p){
  if(!scoped)return fail('F06_5C_INDEPENDENT_PERMISSION_SCOPE_DENIED');
  const lock=await one(c,"SELECT lock_id FROM public.locks WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND lock_status='active' AND expires_at>clock_timestamp() LIMIT 1 FOR SHARE",[p.vehicleId,p.listingCycleId]);
  if(lock)return fail('F06_5C_ACTIVE_LOCK_PREVENTS_NEW_PRIORITY');
- // 双读 public 和父 3B 来源，任何已在途或来源不一致首先拒绝。
- const publicTransactions=(await c.query('SELECT transaction_id,source_lock_id,status,customer_id,listing_cycle_id FROM public.transactions WHERE vehicle_id=$1 ORDER BY transaction_id FOR SHARE',[p.vehicleId])).rows;
- const origins=(await c.query('SELECT transaction_id,source_lock_id,status,customer_id,listing_cycle_id FROM f06_3b_ci.transaction_origins WHERE vehicle_id=$1 ORDER BY transaction_id FOR SHARE',[p.vehicleId])).rows;
- for(const t of publicTransactions){
-  if(['in_progress','pending','trading','active'].includes(t.status))
-   return fail('F06_5C_SIGNED_TRANSACTION_OCCUPIED_DENY',{transactionId:Number(t.transaction_id)});
-  const signed=origins.find(x=>Number(x.transaction_id)===Number(t.transaction_id));
-  if(!signed||Number(signed.source_lock_id)!==Number(t.source_lock_id)||
-   Number(signed.customer_id)!==Number(t.customer_id)||Number(signed.listing_cycle_id)!==Number(t.listing_cycle_id))
-    return fail('F06_5C_UNKNOWN_TRANSACTION_ORIGIN_SOURCE_GAP');
-  if(signed.status==='in_progress'&&t.status!=='in_progress')
-    return fail('F06_5C_PUBLIC_PARENT_TRANSACTION_STATE_DRIFT');
- }
- if(origins.some(t=>!publicTransactions.some(x=>Number(x.transaction_id)===Number(t.transaction_id))))
-  return fail('F06_5C_ORPHAN_TRANSACTION_SOURCE_GAP');
+ // 父3B历史签发和4A/4C真实终态必须一起核验：只读，不回写冻结来源。
+ const vacancy=await verifySignedTransactionVacancyCI(c,p.vehicleId);
+ if(!vacancy.allowed)return vacancy;
  const active=await one(c,"SELECT priority_id FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active' LIMIT 1 FOR SHARE",[p.vehicleId,p.listingCycleId]);
  if(active)return fail('F06_5C_EXISTING_ACTIVE_PRIORITY');
  const ended=(await c.query("SELECT priority_id,ended_reason FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='ended' ORDER BY priority_id FOR SHARE",[p.vehicleId,p.listingCycleId])).rows;
