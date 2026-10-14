@@ -6,6 +6,7 @@ import {createHash} from 'node:crypto';
 import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
 import {verify as verifyParent} from '../lock-refund-conversion-guard-ci/migration.mjs';
 import {snapshotForAttestation,verify as verifyPatchCatalog} from './catalog-delta-verifier.mjs';
+import {runNativeTamperMatrix} from './原生篡改反例.mjs';
 
 const OUT=new URL('./artifacts/source/',import.meta.url);
 const digest=x=>createHash('sha256').update(typeof x==='string'?x:JSON.stringify(x)).digest('hex');
@@ -90,6 +91,8 @@ try{
    ...fresh,privateSourceSHA256:sourceHash};
  report.versionedVerifier=await verifyPatchCatalog(c);
  assert.equal(report.versionedVerifier.verified,true);
+ report.nativeTamperMatrix=await runNativeTamperMatrix(c);
+ assert.equal(report.nativeTamperMatrix.length,5);
  assert.notEqual(before.sha256,after.sha256,'PG1_PUBLIC_CATALOG_MUST_NOT_BE_MISREPORTED_IDENTICAL');
  try{
   const status=await verifyFrozenParent(c);
