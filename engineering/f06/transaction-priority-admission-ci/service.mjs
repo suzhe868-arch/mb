@@ -111,6 +111,7 @@ export async function requestSyntheticNewPriorityCI(auth,token,p={}){
  if(!id(p.vehicleId)||!id(p.listingCycleId)||!id(p.customerId)||!id(p.teamId)||!key(p.eventKey))
   return fail('F06_5C_INVALID_ARGUMENTS');
  if(!auth||typeof auth.withSession!=='function')return fail('F06_5C_SIGNED_SESSION_REQUIRED');
+ let observed=null; // 本次真实PG会话身份，包含受行锁超时拒绝的独立Backend
  try{
   // 严格转发原真实签名Session，整个回调受其同一BEGIN/COMMIT管控。
   // wrapper自身没有连接池，也没有BEGIN/COMMIT或第二个独立查询连接。
@@ -118,20 +119,23 @@ export async function requestSyntheticNewPriorityCI(auth,token,p={}){
    if(t!==token||options?.normalOnly!==true||typeof originalCallback!=='function')
     throw Error('F06_5C_PARENT_SESSION_CONTRACT_REQUIRED');
    return auth.withSession(t,async(c,a,s,now)=>{
+    const opened=await one(c,'SELECT pg_backend_pid()::int pid,txid_current()::text txid');
+    observed={pgBackendPid:opened.pid,pgTransactionId:opened.txid};
     await c.query("SET LOCAL lock_timeout='1500ms'");
     const locked=await one(c,'SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[p.vehicleId]);
-    if(!locked)return fail('F06_5C_VEHICLE_NOT_FOUND');
+    if(!locked)return fail('F06_5C_VEHICLE_NOT_FOUND',observed);
     const before=await one(c,'SELECT pg_backend_pid()::int pid,txid_current()::text txid');
+    if(before.pid!==opened.pid||before.txid!==opened.txid)throw Error('F06_5C_SESSION_IDENTITY_BEFORE_VERIFY_DRIFT');
     await verify(c);
-    if(s?.restricted)return fail('F06_5C_RESTRICTED_SESSION');
+    if(s?.restricted)return fail('F06_5C_RESTRICTED_SESSION',observed);
     const precheck=await admissibility(c,a,p);
-    if(!precheck.allowed)return precheck;
+    if(!precheck.allowed)return {...precheck,...observed};
     const result=await originalCallback(signedHistoryClient(c,22),a,s,now);
     const after=await one(c,'SELECT pg_backend_pid()::int pid,txid_current()::text txid');
     if(before.pid!==after.pid||before.txid!==after.txid)
      throw Error('F06_5C_PARENT_TRANSACTION_IDENTITY_DRIFT');
-    if(!result?.allowed)return result||fail(UPSTREAM_GAP);
-    if(!result.created)return fail('F06_5C_NO_NEW_SIGNED_PRIORITY',{parentCode:result.code});
+    if(!result?.allowed)return result?{...result,...observed}:fail(UPSTREAM_GAP,observed);
+    if(!result.created)return fail('F06_5C_NO_NEW_SIGNED_PRIORITY',{parentCode:result.code,...observed});
     if(!id(result.priorityId)||!id(result.customerId)||result.customerId!==p.customerId)
      rollbackMismatch();
     const signed=await one(c,"SELECT priority_id,customer_id,vehicle_id,listing_cycle_id,status,creation_key FROM public.f05_8_priority_ci WHERE priority_id=$1 FOR SHARE",[result.priorityId]);
@@ -149,9 +153,9 @@ export async function requestSyntheticNewPriorityCI(auth,token,p={}){
    listingCycleId:p.listingCycleId,runKey:p.eventKey})||fail('F06_5C_SIGNED_SESSION_DENIED');
  }catch(e){
   if(e.f06Rollback||e.message==='F06_5C_WINNER_MISMATCH_ROLLBACK')
-   return fail('F06_5C_WINNER_MISMATCH_ROLLED_BACK');
+   return fail('F06_5C_WINNER_MISMATCH_ROLLED_BACK',observed||{});
   if(['55P03','40P01','40001','23505'].includes(e.code))
-   return fail('F06_5C_PG_CONTENTION_ATOMIC_DENY',{sqlstate:e.code});
+   return fail('F06_5C_PG_CONTENTION_ATOMIC_DENY',{...observed,sqlstate:e.code});
   throw e;
  }
 }

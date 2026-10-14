@@ -410,6 +410,8 @@ test('5C-S63 4A取消后新F05-7原签名Match与原F05-8二Backend真正竞态�
   requestSyntheticNewPriorityCI(peer,token,{...candidate,eventKey:mk('signed-cancel-race-B')})
  ]);
  assert.equal(results.filter(x=>x.code==='F06_5C_PARENT_SIGNED_PRIORITY_CREATED').length,1,JSON.stringify(results));
+ assert.ok(results.every(x=>Number.isInteger(x.pgBackendPid)&&x.pgBackendPid>0&&/^[0-9]+$/.test(x.pgTransactionId)),JSON.stringify(results));
+ assert.notEqual(results[0].pgBackendPid,results[1].pgBackendPid,'真正两个物理PostgreSQL backend不得复用同一PID');
  const after=await q("SELECT p.priority_id,p.customer_id,e.event_key FROM public.f05_8_priority_ci p "+
   "JOIN public.f05_8_events_ci e ON e.priority_id=p.priority_id AND e.event_kind='created' "+
   "WHERE p.vehicle_id=$1 AND p.listing_cycle_id=$2 AND p.status='active'",[args.vehicleId,args.listingCycleId]);
