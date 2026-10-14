@@ -123,3 +123,29 @@ test('5B-S27 父3B转换历史唯一',async()=>{
 test('5B-S28 已签Deposit金额不漂移',async()=>{
  assert.equal(Number((await query('SELECT amount_cents FROM public.deposit_receipts WHERE lock_id=$1',[lockId]))[0].amount_cents),6600);
 });
+
+let secondLock;
+test('5B-S29 新Lock在另一Vehicle真实签名',async()=>{
+ const req=await old(()=>intakeCI(db,{customerId:86180101,vehicleId:86181105,listingCycleId:86182105,requestKey:k('second-intake'),syntheticPhoneConsent:'CI_SYNTHETIC_PHONE_CONSENT_NOT_PRODUCTION'}));
+ assert.equal(req.code,'F06_1_PENDING_CREATED',JSON.stringify(req));
+ const x=await old(()=>decisionCI(auth,token,{requestId:req.requestId,requestKey:k('second-approve'),action:'approve'}));
+ assert.equal(x.code,'F06_1_APPROVED_ATOMIC_LOCK',JSON.stringify(x));secondLock=x.lockId;
+});
+test('5B-S30 转换插入后异常，Transaction回滚',async()=>{
+ await assert.rejects(()=>open('injected-tx',{lockId:secondLock,testCheckpoint:'AFTER_TRANSACTION_THROW'}),/F06_5B_INJECTED_TRANSACTION_ROLLBACK/);
+ assert.equal((await query('SELECT count(*)::int n FROM public.transactions WHERE source_lock_id=$1',[secondLock]))[0].n,0);
+});
+test('5B-S31 Lock release后异常仍为active',async()=>{
+ await assert.rejects(()=>open('injected-lock',{lockId:secondLock,testCheckpoint:'AFTER_LOCK_THROW'}),/F06_5B_INJECTED_LOCK_ROLLBACK/);
+ assert.equal((await query('SELECT lock_status FROM public.locks WHERE lock_id=$1',[secondLock]))[0].lock_status,'active');
+});
+test('5B-S32 GuardEvent审计写入后异常全部回滚',async()=>{
+ await assert.rejects(()=>open('injected-audit',{lockId:secondLock,testCheckpoint:'AFTER_AUDIT_THROW'}),/F06_5B_INJECTED_AUDIT_ROLLBACK/);
+ assert.equal((await query('SELECT count(*)::int n FROM f06_5b_ci.guard_events WHERE source_lock_id=$1',[secondLock]))[0].n,0);
+});
+test('5B-S33 三轮注错未污染原3B来源',async()=>{
+ assert.equal((await query('SELECT count(*)::int n FROM f06_3b_ci.transaction_origins WHERE source_lock_id=$1',[secondLock]))[0].n,0);
+});
+test('5B-S34 三轮注错未污染原3B幂等Key',async()=>{
+ assert.equal((await query('SELECT count(*)::int n FROM f06_3b_ci.request_keys WHERE source_lock_id=$1',[secondLock]))[0].n,0);
+});
