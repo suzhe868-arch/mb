@@ -73,7 +73,7 @@ async function cancelledSource(c,t,l){
  if(!cyc||cyc.ended_at||!v||v.archived_at||!['available','active'].includes(v.source_sale_status))return no('F06_5A_LISTING_CYCLE_SOURCE_GAP');
  return yes('F06_5A_SIGNED_TERMINAL_SOURCE',{sourceKind:a?'F06_4A_CANCEL_SIGNED':'F06_4C_CANCEL_SIGNED'});
 }
-async function signedBalance(c,t,ignoreRefundId=null){
+export async function signedBalance(c,t,ignoreRefundId=null){
  // Balance is strictly signed deposits plus immutable 3A adjustment events, with zero unknown paid facts.
  const all=await row(c,"SELECT (SELECT count(*)::int FROM public.deposit_receipts WHERE lock_id=$1) raw,"+
  "(SELECT count(*)::int FROM f06_3a_ci.receipt_provenance WHERE lock_id=$1) signed,"+
