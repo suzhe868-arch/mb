@@ -86,6 +86,13 @@ async function admissibility(c,a,p){
  if(!scoped)return fail('F06_5C_INDEPENDENT_PERMISSION_SCOPE_DENIED');
  const lock=await one(c,"SELECT lock_id FROM public.locks WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND lock_status='active' AND expires_at>clock_timestamp() LIMIT 1 FOR SHARE",[p.vehicleId,p.listingCycleId]);
  if(lock)return fail('F06_5C_ACTIVE_LOCK_PREVENTS_NEW_PRIORITY');
+ // A正式整改单 B-01：Lock结束也不能让尚未终结的原始Waitlist候补权益
+ // 被新Priority插队。冻结F06-1在同Vehicle FOR UPDATE下签发Waitlist。
+ // 未知或仍未结束的来源保守拒绝，不擅自提升候补，也不修改父Waitlist。
+ const waitlist=await one(c,"SELECT waitlist_id FROM public.waitlists WHERE vehicle_id=$1 "+
+  "AND listing_cycle_id=$2 AND ended_at IS NULL ORDER BY waitlist_id LIMIT 1 FOR SHARE",
+  [p.vehicleId,p.listingCycleId]);
+ if(waitlist)return fail('F06_5C_ACTIVE_SIGNED_WAITLIST_PREVENTS_NEW_PRIORITY');
  // 父3B历史签发和4A/4C真实终态必须一起核验：只读，不回写冻结来源。
  const vacancy=await verifySignedTransactionVacancyCI(c,p.vehicleId);
  if(!vacancy.allowed)return vacancy;
