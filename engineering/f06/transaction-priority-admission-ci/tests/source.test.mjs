@@ -389,39 +389,55 @@ test('5C-S62 真实未签财务申请不可洗白已签4A合法取消',async()=>
  assert.equal(result.code,'F06_5C_PENDING_OR_UNKNOWN_FINANCE_DENIED',JSON.stringify(result));
  assert.equal((await q('SELECT count(*)::int n FROM public.refund_cases WHERE transaction_id=$1',[realTxId]))[0].n,0);
 });
-test('5C-S63 4A取消后新F05-7原签名Match与原F05-8二Backend真正竞态只签一个胜者',async()=>{
- const previous=(await q('SELECT facts_json FROM public.f05_7_vehicle_facts_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2',[positive.vehicleId,positive.listingCycleId]))[0];
- assert.ok(previous?.facts_json);
- await q("INSERT INTO public.f05_7_vehicle_facts_ci(vehicle_id,listing_cycle_id,facts_json) VALUES($1,$2,$3::jsonb) "+
- "ON CONFLICT(vehicle_id,listing_cycle_id) DO UPDATE SET facts_json=excluded.facts_json",
- [args.vehicleId,args.listingCycleId,JSON.stringify(previous.facts_json)]);
+test('5C-S63 合法4A取消不把名邦available伪装为F05-7批发active匹配',async()=>{
+ // 旧F06-1合成车辆是真名邦available；冻结F05-7仅接受active。
+ // 合法取消可以释放已签占用，但不豁免正式Match的车型/在售资格来源。
+ const v=(await q("SELECT source_type,source_sale_status FROM public.vehicles WHERE vehicle_id=$1",[args.vehicleId]))[0];
+ assert.deepEqual([v.source_type,v.source_sale_status],['mingbang','available']);
+ const tx=(await q("SELECT status FROM public.transactions WHERE transaction_id=$1",[realTxId]))[0];
+ assert.equal(tx.status,'cancelled');
+ const verified=await auth.withSession(token,async c=>{
+  await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[args.vehicleId]);
+  return verifySignedTransactionVacancyCI(c,args.vehicleId);
+ },{normalOnly:true});
+ assert.equal(verified.code,'F06_5C_ALL_SIGNED_TRANSACTIONS_TERMINAL',JSON.stringify(verified));
  const demand=(await q("SELECT demand_id FROM public.demands WHERE customer_id=$1 AND demand_state='active' ORDER BY demand_id LIMIT 1",[positive.customerId]))[0];
  assert.ok(demand);
- const match=await calculateCI(signedFrozenParentSessionAdapterCI(auth,21),token,{
+ const before=(await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1",[args.vehicleId]))[0].n;
+ const result=await calculateCI(signedFrozenParentSessionAdapterCI(auth,21),token,{
   demandId:Number(demand.demand_id),vehicleId:args.vehicleId,listingCycleId:args.listingCycleId,
-  teamId:args.teamId,runKey:mk('post-4a-real-match')
+  teamId:args.teamId,runKey:mk('cancelled-but-mingbang-not-f05-7-wholesale')
  });
- assert.equal(match.allowed,true,JSON.stringify(match));
- assert.ok(['high','acceptable'].includes(match.tier),JSON.stringify(match));
- const before=(await q('SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1',[args.vehicleId]))[0].n;
- const candidate={...args,customerId:positive.customerId};
- const results=await Promise.all([
-  requestSyntheticNewPriorityCI(auth,token,{...candidate,eventKey:mk('signed-cancel-race-A')}),
-  requestSyntheticNewPriorityCI(peer,token,{...candidate,eventKey:mk('signed-cancel-race-B')})
- ]);
- assert.equal(results.filter(x=>x.code==='F06_5C_PARENT_SIGNED_PRIORITY_CREATED').length,1,JSON.stringify(results));
- assert.ok(results.every(x=>Number.isInteger(x.pgBackendPid)&&x.pgBackendPid>0&&/^[0-9]+$/.test(x.pgTransactionId)),JSON.stringify(results));
- assert.notEqual(results[0].pgBackendPid,results[1].pgBackendPid,'真正两个物理PostgreSQL backend不得复用同一PID');
- const after=await q("SELECT p.priority_id,p.customer_id,e.event_key FROM public.f05_8_priority_ci p "+
-  "JOIN public.f05_8_events_ci e ON e.priority_id=p.priority_id AND e.event_kind='created' "+
-  "WHERE p.vehicle_id=$1 AND p.listing_cycle_id=$2 AND p.status='active'",[args.vehicleId,args.listingCycleId]);
- assert.equal(after.length,1);assert.equal(Number(after[0].customer_id),positive.customerId);
- assert.equal((await q('SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1',[args.vehicleId]))[0].n,before+1);
+ assert.equal(result.code,'F05_7_VEHICLE_NOT_SALEABLE_ACTIVE_CYCLE',JSON.stringify(result));
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1",[args.vehicleId]))[0].n,before);
 });
-
-test('5C-S64 原签Priority经F06-1合法变为Lock且已结束历史不可复活',async()=>{
- // 冻结F06-1必须核当前真实手机号事实，不可仅传consent字符串。
- // 沿用F06-1正向隔离测试既有的不可逆生产隔离合成证明格式。
+test('5C-S64 过期Lock关闭后，重新以真实Match和父Priority签发，再由F06-1原子变成Lock',async()=>{
+ // S56 的原Lock到期处理可经冻结F05-7/F05-8级联终结旧Priority；
+ // 不能使用原已终结priorityId冒充active。必须从原签名API重新仲裁。
+ const originalPriority=positive.priorityId;
+ const old=(await q("SELECT status,ended_reason FROM public.f05_8_priority_ci WHERE priority_id=$1",[originalPriority]))[0];
+ assert.ok(old);
+ let active=(await q("SELECT priority_id,customer_id,expires_at FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active' AND expires_at>clock_timestamp() ORDER BY priority_id DESC LIMIT 1",[positive.vehicleId,positive.listingCycleId]))[0];
+ if(!active){
+  const demand=(await q("SELECT demand_id FROM public.demands WHERE customer_id=$1 AND demand_state='active' ORDER BY demand_id LIMIT 1",[positive.customerId]))[0];
+  assert.ok(demand);
+  // 如果已由F05-7源变化触发器完成合法签发，优先采用其真实父签发ID；
+  // 否则仅通过5C原父arbitrateCI签发，绝不直接INSERT Priority。
+  const fresh=await calculateCI(signedFrozenParentSessionAdapterCI(auth,21),token,{
+   demandId:Number(demand.demand_id),vehicleId:positive.vehicleId,
+   listingCycleId:positive.listingCycleId,teamId:positive.teamId,runKey:mk('renew-after-expired-lock')
+  });
+  assert.equal(fresh.allowed,true,JSON.stringify(fresh));
+  active=(await q("SELECT priority_id,customer_id,expires_at FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active' AND expires_at>clock_timestamp() ORDER BY priority_id DESC LIMIT 1",[positive.vehicleId,positive.listingCycleId]))[0];
+  if(!active){
+   const issued=await requestSyntheticNewPriorityCI(auth,token,{...positive,eventKey:mk('renew-priority-after-lock-expiry')});
+   assert.equal(issued.code,'F06_5C_PARENT_SIGNED_PRIORITY_CREATED',JSON.stringify(issued));
+   active=(await q("SELECT priority_id,customer_id,expires_at FROM public.f05_8_priority_ci WHERE priority_id=$1 AND status='active'",[issued.priorityId]))[0];
+  }
+ }
+ assert.ok(active,'F06_5C_ORIGINAL_SIGNED_ACTIVE_PRIORITY_REQUIRED');
+ assert.equal(Number(active.customer_id),positive.customerId);
+ positive.priorityId=Number(active.priority_id);
  const phoneFact=(await q("SELECT phone_fact_id FROM public.customer_phone_facts WHERE customer_id=$1 AND ended_at IS NULL",[positive.customerId]))[0];
  if(!phoneFact)await q("INSERT INTO public.customer_phone_facts(customer_id,phone_ciphertext,valid_from) VALUES($1,decode(repeat('ab',16),'hex'),clock_timestamp()-interval '1 day')",[positive.customerId]);
  const request=await f06Signed(()=>intakeCI(db,{
@@ -434,29 +450,68 @@ test('5C-S64 原签Priority经F06-1合法变为Lock且已结束历史不可复�
   requestId:request.requestId,requestKey:mk('real-priority-to-lock-approve'),action:'approve'
  }));
  assert.equal(approved.code,'F06_1_APPROVED_ATOMIC_LOCK',JSON.stringify(approved));
- assert.equal(approved.priorityOrigin,true,JSON.stringify(approved));
+ assert.equal(approved.priorityOrigin,true,JSON.stringify({approved,active,old}));
  assert.equal(approved.priorityOriginId,positive.priorityId);
  const ended=(await q('SELECT status,ended_reason FROM public.f05_8_priority_ci WHERE priority_id=$1',[positive.priorityId]))[0];
- assert.equal(ended.status,'ended');assert.equal(ended.ended_reason,'converted_to_lock');
- const history=(await q("SELECT event_key FROM public.f05_8_events_ci WHERE priority_id=$1 AND event_kind='ended' AND event_key=$2",[
+ assert.deepEqual([ended.status,ended.ended_reason],['ended','converted_to_lock']);
+ const history=await q("SELECT event_key FROM public.f05_8_events_ci WHERE priority_id=$1 AND event_kind='ended' AND event_key=$2",[
   positive.priorityId,'f06-1-priority-to-lock:'+positive.priorityId+':'+approved.lockId
- ]));
+ ]);
  assert.equal(history.length,1);
  const lock=(await q('SELECT priority_origin_id,priority_origin_customer_id FROM f06_1_lock_ci.lock_snapshots WHERE lock_id=$1',[approved.lockId]))[0];
  assert.equal(Number(lock.priority_origin_id),positive.priorityId);
  assert.equal(Number(lock.priority_origin_customer_id),positive.customerId);
  positive.newSignedLockId=approved.lockId;
+ console.log('F06_5C_REAL_F05_8_TO_F06_1_LOCK',{
+  originalPriority,convertedPriority:positive.priorityId,lockId:approved.lockId,
+  source:'SIGNED_F05_7_F05_8_AND_F06_1_PARENT_SERVICES'});
 });
-test('5C-S65 已结束旧Priority经合法active Lock到5B原子Transaction，禁止新Priority及历史复活',async()=>{
+test('5C-S65 批发车原Priority到Lock到5B交易，4A取消后双Backend仅一新签发，旧Priority不复活',async()=>{
  assert.ok(positive.newSignedLockId);
  const converted=await withF065B(()=>openGuardedSyntheticTransactionCI(auth,token,{
   lockId:positive.newSignedLockId,eventKey:mk('valid-priority-lock-to-5b')
  }));
  assert.equal(converted.code,'F06_5B_ATOMIC_SYNTHETIC_IN_PROGRESS',JSON.stringify(converted));
- const guarded=(await q("SELECT g.transaction_id,g.source_lock_id,t.status FROM f06_5b_ci.guard_events g JOIN public.transactions t USING(transaction_id) WHERE g.transaction_id=$1",[converted.transactionId]))[0];
+ const txid=converted.transactionId;
+ const guarded=(await q("SELECT g.transaction_id,g.source_lock_id,t.status FROM f06_5b_ci.guard_events g JOIN public.transactions t USING(transaction_id) WHERE g.transaction_id=$1",[txid]))[0];
  assert.equal(Number(guarded.source_lock_id),positive.newSignedLockId);assert.equal(guarded.status,'in_progress');
- const response=await requestSyntheticNewPriorityCI(peer,token,{...positive,eventKey:mk('after-priority-5b-tx')});
- assert.equal(response.allowed,false,JSON.stringify(response));
+ const held=await requestSyntheticNewPriorityCI(peer,token,{...positive,eventKey:mk('new-priority-while-signed-5b-active')});
+ assert.equal(held.allowed,false,JSON.stringify(held));
  assert.equal((await q('SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1',[positive.priorityId]))[0].status,'ended');
+ // 在交易仍占用车时由原F05-7签新的当前Match；旧原生优先仲裁不得借此偷发。
+ // 冻结5B转换曾让Lock事件使Match变stale，必须完成合法复算，不能手工改Match status。
+ const demand=(await q("SELECT demand_id FROM public.demands WHERE customer_id=$1 AND demand_state='active' ORDER BY demand_id LIMIT 1",[positive.customerId]))[0];
+ assert.ok(demand);
+ const match=await calculateCI(signedFrozenParentSessionAdapterCI(auth,21),token,{
+  demandId:Number(demand.demand_id),vehicleId:positive.vehicleId,listingCycleId:positive.listingCycleId,
+  teamId:positive.teamId,runKey:mk('wholesale-signed-match-while-5b-occupied')
+ });
+ assert.equal(match.allowed,true,JSON.stringify(match));
+ assert.ok(['high','acceptable'].includes(match.tier));
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active'",[positive.vehicleId,positive.listingCycleId]))[0].n,0);
+ const cancel=await withF064A(()=>cancelSyntheticTransactionCI(auth,token,{
+  transactionId:txid,eventKey:mk('real-wholesale-transaction-cancel'),reason:'批发真实签名交易取消后新优先推荐竞争验证'
+ }));
+ assert.equal(cancel.code,'F06_4A_CANCELLED_ATOMIC_NO_PAYMENT',JSON.stringify(cancel));
+ const terminal=(await q("SELECT t.status current_status,o.status origin_status FROM public.transactions t JOIN f06_3b_ci.transaction_origins o USING(transaction_id) WHERE t.transaction_id=$1",[txid]))[0];
+ assert.deepEqual([terminal.current_status,terminal.origin_status],['cancelled','in_progress']);
+ const before=(await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1",[positive.vehicleId]))[0].n;
+ const attempts=await Promise.all([
+  requestSyntheticNewPriorityCI(auth,token,{...positive,eventKey:mk('wholesale-postcancel-race-A')}),
+  requestSyntheticNewPriorityCI(peer,token,{...positive,eventKey:mk('wholesale-postcancel-race-B')})
+ ]);
+ assert.equal(attempts.filter(x=>x.code==='F06_5C_PARENT_SIGNED_PRIORITY_CREATED').length,1,JSON.stringify(attempts));
+ assert.ok(attempts.every(x=>Number.isInteger(x.pgBackendPid)&&x.pgBackendPid>0&&/^[0-9]+$/.test(x.pgTransactionId)),JSON.stringify(attempts));
+ assert.notEqual(attempts[0].pgBackendPid,attempts[1].pgBackendPid,'F06_5C_TWO_DISTINCT_PHYSICAL_BACKENDS_REQUIRED');
+ const winner=attempts.find(x=>x.code==='F06_5C_PARENT_SIGNED_PRIORITY_CREATED');
+ assert.notEqual(winner.priorityId,positive.priorityId,'F06_5C_OLD_ENDED_PRIORITY_NEVER_REVIVES');
+ const current=await q("SELECT priority_id,customer_id FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active'",[positive.vehicleId,positive.listingCycleId]);
+ assert.equal(current.length,1);assert.equal(Number(current[0].priority_id),winner.priorityId);
+ assert.equal(Number(current[0].customer_id),positive.customerId);
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1",[positive.vehicleId]))[0].n,before+1);
  assert.equal((await q('SELECT count(*)::int n FROM public.refund_payments'))[0].n,0);
+ console.log('F06_5C_SIGNED_WHOLESALE_PRIORITY_LOCK_TRANSACTION_CANCEL_NEW_PRIORITY_RACE',{
+  transactionId:txid,oldPriorityId:positive.priorityId,newPriorityId:winner.priorityId,
+  backendPids:attempts.map(x=>x.pgBackendPid),txids:attempts.map(x=>x.pgTransactionId),
+  resultCodes:attempts.map(x=>x.code),zeroActualPayments:true});
 });
