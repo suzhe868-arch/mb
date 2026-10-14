@@ -85,3 +85,22 @@ test('5B-S15 幂等同key无重复账',async()=>{
 });
 test('5B-S16 另一key不可创建第二笔Transaction',async()=>assert.equal((await open('new-key-after')).code,'F06_5B_NOT_ACTIVE_CURRENT_LOCK'));
 test('5B-S17 未授权伪造Token拒绝',async()=>assert.equal((await openGuardedSyntheticTransactionCI(auth,'forged',{lockId,eventKey:k('forged')})).allowed,false));
+
+test('5B-S18 原Refund closed不冒充paid',async()=>{
+ const x=(await query('SELECT status,transaction_id FROM public.refund_cases WHERE refund_id=$1',[refundId]))[0];
+ assert.equal(x.status,'closed');assert.equal(x.transaction_id,null);
+});
+test('5B-S19 已转换Lock不得自动恢复',async()=>{
+ const x=(await query('SELECT lock_status,end_reason FROM public.locks WHERE lock_id=$1',[lockId]))[0];
+ assert.equal(x.lock_status,'released');assert.equal(x.end_reason,'converted_to_transaction');
+});
+test('5B-S20 原退款事件保留pending与closed两条',async()=>{
+ assert.equal((await query('SELECT count(*)::int n FROM f06_3c1_ci.status_events WHERE refund_id=$1',[refundId]))[0].n,2);
+});
+test('5B-S21 真实退款支付仍为零',async()=>{
+ assert.equal((await query('SELECT count(*)::int n FROM public.refund_payments'))[0].n,0);
+});
+test('5B-S22 公开Transaction状态仅in_progress',async()=>{
+ const x=(await query('SELECT status FROM public.transactions WHERE transaction_id=$1',[transactionId]))[0];
+ assert.equal(x.status,'in_progress');
+});
