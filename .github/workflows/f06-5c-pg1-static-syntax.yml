@@ -1,0 +1,37 @@
+name: F06-5C-PG1 仅授权目录与静态语法回归
+on:
+  push:
+    branches: [fix/f06-5c-pg1-parent-priority-guard-ci]
+permissions: {contents: read}
+jobs:
+  authorized-static:
+    name: PG1 白名单及ESM与Shell语法
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Authorized diff only
+        run: |
+          set -euo pipefail
+          git diff --name-only origin/main...HEAD | while IFS= read -r f; do
+            case "$f" in
+              engineering/f06/transaction-priority-parent-gate-ci/*|.github/workflows/f06-5c-pg1-*.yml) ;;
+              *) echo "PG1_UNAUTHORIZED_FILE_CHANGED: $f"; exit 1 ;;
+            esac
+          done
+      - name: ESM and Shell syntax gate
+        run: |
+          set -euo pipefail
+          for f in engineering/f06/transaction-priority-parent-gate-ci/*.mjs; do node --check "$f"; done
+          bash -n engineering/f06/transaction-priority-parent-gate-ci/ci-job.sh
+          test -s engineering/f06/transaction-priority-parent-gate-ci/sidecar.sql
+          grep -q 'CREATE CONSTRAINT TRIGGER pg1_deferred_signed_cancel' engineering/f06/transaction-priority-parent-gate-ci/sidecar.sql
+          grep -q 'CREATE TRIGGER pg1_signed_priority_insert' engineering/f06/transaction-priority-parent-gate-ci/sidecar.sql
+      - name: Static evidence manifest
+        run: |
+          set -euo pipefail
+          find engineering/f06/transaction-priority-parent-gate-ci -maxdepth 1 -type f \
+            \( -name '*.mjs' -o -name '*.sql' -o -name '*.sh' \) -print0 | sort -z | xargs -0 sha256sum
