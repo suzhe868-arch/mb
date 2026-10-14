@@ -149,3 +149,31 @@ test('5B-S33 三轮注错未污染原3B来源',async()=>{
 test('5B-S34 三轮注错未污染原3B幂等Key',async()=>{
  assert.equal((await query('SELECT count(*)::int n FROM f06_3b_ci.request_keys WHERE source_lock_id=$1',[secondLock]))[0].n,0);
 });
+
+test('5B-S35 两个真PG backend独立争用同一Lock仅一个成功',async()=>{
+ const r=await Promise.allSettled([
+  open('racing-backend-a',{lockId:secondLock}),
+  openGuardedSyntheticTransactionCI(peer,token,{lockId:secondLock,eventKey:k('racing-backend-b')})
+ ]);
+ const winners=r.filter(x=>x.status==='fulfilled'&&x.value.code==='F06_5B_ATOMIC_SYNTHETIC_IN_PROGRESS');
+ assert.equal(winners.length,1,JSON.stringify(r));
+});
+test('5B-S36 并发后公共交易仅一笔',async()=>{
+ assert.equal((await query('SELECT count(*)::int n FROM public.transactions WHERE source_lock_id=$1',[secondLock]))[0].n,1);
+});
+test('5B-S37 并发后新Sidecar只记一笔',async()=>{
+ assert.equal((await query('SELECT count(*)::int n FROM f06_5b_ci.guard_events WHERE source_lock_id=$1',[secondLock]))[0].n,1);
+});
+test('5B-S38 并发后原Lock ended且非active',async()=>{
+ const x=(await query('SELECT lock_status,end_reason FROM public.locks WHERE lock_id=$1',[secondLock]))[0];
+ assert.equal(x.lock_status,'released');assert.equal(x.end_reason,'converted_to_transaction');
+});
+test('5B-S39 双backend确实不同物理PG进程',async()=>{
+ const a=(await query('SELECT pg_backend_pid() pid'))[0].pid;
+ const b=(await peer.pool.query('SELECT pg_backend_pid() pid')).rows[0].pid;
+ assert.notEqual(a,b);
+});
+test('5B-S40 并发后保持旧24条migration且无付款',async()=>{
+ assert.equal((await query('SELECT count(*)::int n FROM public.f03_schema_migrations'))[0].n,24);
+ assert.equal((await query('SELECT count(*)::int n FROM public.refund_payments'))[0].n,0);
+});
