@@ -1,3 +1,12 @@
+# 2026-10-15｜A第四轮复验PR62：确认F05-8父自动Issuer真实跨域3项红证，放行独立F06-5C-PG1父层CI版本化补丁（唯一最新）
+
+- **当前唯一正式指针**：`A_REVIEW_CONFIRMED_F06_5C_PARENT_AUTO_ISSUER_SECURITY_RED / A_RELEASED_FOR_B_F06_5C_PG1_PARENT_AUTO_ISSUER_SIGNED_CI_GUARD / NEXT_OWNER=B / NEXT_TASK=F06_5C_PG1_NEW_BRANCH_NEW_PR_SIGNED_UPSTREAM_GATE_REPAIR / PR62_BLOCKED_UPSTREAM_NOT_MERGED / F05_F06_V1_NOT_READY`。A受验最新main `2c185a59eac7d06102329ec8c7afad30179b3889`；PR62报告HEAD `f3fe4bf39f2c28f62f598cfcd9f24f90fe3e2b61`，实际原生红证代码SHA `96ce3c725d6279a9a67b1fbdef46e1f113454cfa`；PR62 38/38变更仅现行授权独立CI目录，未动父/24签迁移，不合并。
+- **独立证实安全失败**：官方F06-5C真实非特权PG16 [Run38641938789](https://github.com/suzhe868-arch/mb/actions/runs/38641938789)，Source Job116119360131 `88项/85 pass/3 fail`、HTTPS Job116119359691成功。C01原真JYT high Match+签名有效Waitlist+5B交易→4A合法Cancel，冻结F05-8触发器却创建Priority12，突破候补；C02仅伪public取消、无4A/4C原签时同PG Savepoint生成Priority8；C03未知pending退款+伪public取消同Savepoint生成Priority9。C02/C03均回滚，不是已提交线上事件。**本轮必须保持RED，不能用旧HEAD 22/96全绿掩盖。**
+- **A技术裁决**：风险根源在旧`000024_priority_ci.sql`自动父源写入位置，5C下游无法阻止提前发生的父INSERT。**不改旧v24签名文件、不回写原24 Ledger**；在原PG原子发行边界，以新追加版本化**CI-only Sidecar/触发器+可信终态时序**补签名Waitlist/3B/5B/4A/4B/4C/退款全链Guard。尤其原4A/4C实际是先更新public status、再写合法cancel origins/events/request key，须正确处理事务内临时不完整、只在完整可信源后合法签发；不能错误拒绝4A合法取消。原R01无候补且全签合法自动唯一Priority裁决继续成立。原190父表与24 Ledger升级前原封印，升级后只准精确审计签名白名单对象增量与旧业务历史不变；不能冒充新版Catalog与旧版全字节相同。
+- **完整独立新工程单已正式签发**：`07_重建工作区/F06-5C-PG1_A主控冻结F05-8父自动签发跨域越权_版本化补丁与独立原生PG16修复正式施工单_2026-10-15.md`。B在**新分支**`fix/f06-5c-pg1-parent-priority-guard-ci`（从最新main）和**独立新PR**实施，只许新增`engineering/f06/transaction-priority-parent-gate-ci/**`与`.github/workflows/f06-5c-pg1-*.yml`，不得改原PR62/冻结父源码/旧迁移。先真实修好C01—C03且补合法取消/伪签/资金和双Backend原生回归、完整旧父与新对象签名后交A；A验收合并PG1后再放行原PR62对接/重新全量验收。**本轮不合并PR62；F05/F06/V1仍NOT_READY，资金生产/UAT/F07/F08均未授权。**
+
+---
+
 # 2026-10-15｜A第三轮独立复验F06-5C PR62：R01父签唯一签发技术裁决通过，候补/伪取消/资金组合风险补证后再合并（唯一最新）
 
 - **唯一正式指针**：`F06_5C_A_TECH_RULING_R01_SCOPED_ACCEPTED / F06_5C_A_CHANGES_REQUESTED_PARENT_AUTO_ISSUER_CROSS_DOMAIN_PROOF / PR62_NOT_MERGED / NEXT_OWNER=B / NEXT_TASK=F06_5C_PR62_PARENT_AUTO_ISSUER_SIGNED_WAITLIST_CANCEL_REFUND_REGRESSION_CI_ONLY / F05_F06_V1_NOT_READY`。A核验B最终HEAD `a54f4628e29354a207619f0d2a0cfe2896bb833a`、main审验点 `d0904e22e68484e92424e241e35b2b23445911f4`，compare ahead40/behind9；37/37均仅授权新增CI文件。
