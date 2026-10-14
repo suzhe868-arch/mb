@@ -275,12 +275,18 @@ test('5A-S70 R01独立旧Lock签名pending必须有真实Deposit和3C1双侧来�
  const signed=(await q('SELECT r.status,r.lock_id,r.transaction_id,o.lock_id original_lock FROM public.refund_cases r JOIN f06_3c1_ci.refund_origins o USING(refund_id) WHERE r.refund_id=$1',[signedLegacyRefund]))[0];
  assert.equal(signed.status,'pending');assert.equal(Number(signed.lock_id),locks[5]);assert.equal(signed.transaction_id,null);assert.equal(Number(signed.original_lock),locks[5]);
 });
-test('5A-S71 R01已签旧Lock pending阻止3B转换并保留公签原状',async()=>{
+test('5A-S71 R01旧3B父未拒签名Lock pending时4A拒绝取消并保护5A侧零写',async()=>{
  const before=await count('SELECT count(*)::int n FROM f06_5a_ci.refund_origins');
  const attempt=await with3b(()=>openSyntheticTransactionCI(auth,managerToken,{lockId:locks[5],eventKey:k('r01-tx-after-legacy')}));
- assert.equal(attempt.allowed,false,JSON.stringify(attempt));
- assert.equal(await count('SELECT count(*)::int n FROM public.transactions WHERE source_lock_id=$1'.replace('$1',String(locks[5]))),0);
+ // Parent 3B has no old-Refund gate. Preserve parent unchanged; never falsely assert it rejected.
+ assert.equal(attempt.code,'F06_3B_ATOMIC_SYNTHETIC_IN_PROGRESS',JSON.stringify(attempt));
+ const denied=await withF064A(()=>cancelSyntheticTransactionCI(auth,managerToken,{
+  transactionId:attempt.transactionId,reason:'旧Lock signed pending阻断合成Transaction取消',eventKey:k('r01-old-pending-cancel')}));
+ assert.equal(denied.code,'F06_4A_UNRESOLVED_REFUND_FACT',JSON.stringify(denied));
+ const refundDenied=await req(5,'r01-conflicted-terminal',{transactionId:attempt.transactionId,amountCents:1000});
+ assert.equal(refundDenied.code,'F06_5A_UNSIGNED_TRANSACTION_OR_LOCK',JSON.stringify(refundDenied));
  assert.equal((await q('SELECT status FROM public.refund_cases WHERE refund_id=$1',[signedLegacyRefund]))[0].status,'pending');
+ assert.equal((await q('SELECT status FROM public.transactions WHERE transaction_id=$1',[attempt.transactionId]))[0].status,'in_progress');
  assert.equal(await count('SELECT count(*)::int n FROM f06_5a_ci.refund_origins'),before);
 });
 test('5A-S72 R03已closed的申请旧requestKey不能返回假pending',async()=>{
