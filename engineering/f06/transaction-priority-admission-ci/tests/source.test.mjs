@@ -259,6 +259,32 @@ test('5C-S51 合法原F05-7签名当前Match和原F05-8资格可回读',async()=
   "AND r.status='current' AND r.tier IN('high','acceptable')",[positive.customerId,positive.vehicleId,positive.listingCycleId]);
  assert.ok(x.length>=1);
 });
+
+test('5C-S51A 真实个人权限deny不能对未占用车辆签发Priority',async()=>{
+ const permission=(await q("SELECT permission_id FROM public.permissions WHERE permission_code='matching.rule.manage.ci.synthetic'"))[0];assert.ok(permission);
+ const saved=(await q('SELECT decision FROM public.employee_permission_overrides WHERE employee_id=1 AND permission_id=$1',[permission.permission_id]))[0];assert.ok(saved);
+ await q("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=clock_timestamp() WHERE employee_id=1 AND permission_id=$1",[permission.permission_id]);
+ try{
+  const before=(await q('SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1',[positive.vehicleId]))[0].n;
+  const response=await requestSyntheticNewPriorityCI(auth,token,{...positive,eventKey:mk('real-deny-eligible')});
+  assert.equal(response.allowed,false,JSON.stringify(response));
+  assert.equal((await q('SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1',[positive.vehicleId]))[0].n,before);
+ }finally{await q('UPDATE public.employee_permission_overrides SET decision=$2,changed_at=clock_timestamp() WHERE employee_id=1 AND permission_id=$1',[permission.permission_id,saved.decision])}
+});
+test('5C-S51B 真实Scope binding撤销后优先推荐准入拒绝且恢复无半写',async()=>{
+ const permission=(await q("SELECT permission_id FROM public.permissions WHERE permission_code='matching.rule.manage.ci.synthetic'"))[0];assert.ok(permission);
+ const active=await q("SELECT scope_id,ended_at FROM public.employee_capability_scope_bindings WHERE employee_id=1 AND permission_id=$1 AND ended_at IS NULL",[permission.permission_id]);
+ assert.ok(active.length>0);
+ await q("UPDATE public.employee_capability_scope_bindings SET ended_at=clock_timestamp() WHERE employee_id=1 AND permission_id=$1 AND ended_at IS NULL",[permission.permission_id]);
+ try{
+  const before=(await q('SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1',[positive.vehicleId]))[0].n;
+  const response=await requestSyntheticNewPriorityCI(auth,token,{...positive,eventKey:mk('real-scope-revoked')});
+  assert.equal(response.allowed,false,JSON.stringify(response));
+  assert.equal((await q('SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1',[positive.vehicleId]))[0].n,before);
+ }finally{
+  for(const original of active)await q('UPDATE public.employee_capability_scope_bindings SET ended_at=NULL WHERE employee_id=1 AND permission_id=$1 AND scope_id=$2',[permission.permission_id,original.scope_id]);
+ }
+});
 test('5C-S52 真实原Priority仲裁在同一Session及Vehicle锁下正向发行',async()=>{
  const created=await requestSyntheticNewPriorityCI(auth,token,{...positive,eventKey:mk('positive-parent-arbitrate')});
  assert.equal(created.code,'F06_5C_PARENT_SIGNED_PRIORITY_CREATED',JSON.stringify(created));
@@ -388,4 +414,42 @@ test('5C-S63 4A取消后新F05-7原签名Match与原F05-8二Backend真正竞态�
   "WHERE p.vehicle_id=$1 AND p.listing_cycle_id=$2 AND p.status='active'",[args.vehicleId,args.listingCycleId]);
  assert.equal(after.length,1);assert.equal(Number(after[0].customer_id),positive.customerId);
  assert.equal((await q('SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1',[args.vehicleId]))[0].n,before+1);
+});
+
+test('5C-S64 原签Priority经F06-1合法变为Lock且已结束历史不可复活',async()=>{
+ const request=await f06Signed(()=>intakeCI(db,{
+  customerId:positive.customerId,vehicleId:positive.vehicleId,listingCycleId:positive.listingCycleId,
+  requestKey:mk('real-priority-to-lock-intake'),
+  syntheticPhoneConsent:'CI_SYNTHETIC_PHONE_CONSENT_NOT_PRODUCTION'
+ }));
+ assert.equal(request.code,'F06_1_PENDING_CREATED',JSON.stringify(request));
+ const approved=await f06Signed(()=>decisionCI(auth,token,{
+  requestId:request.requestId,requestKey:mk('real-priority-to-lock-approve'),action:'approve'
+ }));
+ assert.equal(approved.code,'F06_1_APPROVED_ATOMIC_LOCK',JSON.stringify(approved));
+ assert.equal(approved.priorityOrigin,true,JSON.stringify(approved));
+ assert.equal(approved.priorityOriginId,positive.priorityId);
+ const ended=(await q('SELECT status,ended_reason FROM public.f05_8_priority_ci WHERE priority_id=$1',[positive.priorityId]))[0];
+ assert.equal(ended.status,'ended');assert.equal(ended.ended_reason,'converted_to_lock');
+ const history=(await q("SELECT event_key FROM public.f05_8_events_ci WHERE priority_id=$1 AND event_kind='ended' AND event_key=$2",[
+  positive.priorityId,'f06-1-priority-to-lock:'+positive.priorityId+':'+approved.lockId
+ ]));
+ assert.equal(history.length,1);
+ const lock=(await q('SELECT priority_origin_id,priority_origin_customer_id FROM f06_1_lock_ci.lock_snapshots WHERE lock_id=$1',[approved.lockId]))[0];
+ assert.equal(Number(lock.priority_origin_id),positive.priorityId);
+ assert.equal(Number(lock.priority_origin_customer_id),positive.customerId);
+ positive.newSignedLockId=approved.lockId;
+});
+test('5C-S65 已结束旧Priority经合法active Lock到5B原子Transaction，禁止新Priority及历史复活',async()=>{
+ assert.ok(positive.newSignedLockId);
+ const converted=await withF065B(()=>openGuardedSyntheticTransactionCI(auth,token,{
+  lockId:positive.newSignedLockId,eventKey:mk('valid-priority-lock-to-5b')
+ }));
+ assert.equal(converted.code,'F06_5B_ATOMIC_SYNTHETIC_IN_PROGRESS',JSON.stringify(converted));
+ const guarded=(await q("SELECT g.transaction_id,g.source_lock_id,t.status FROM f06_5b_ci.guard_events g JOIN public.transactions t USING(transaction_id) WHERE g.transaction_id=$1",[converted.transactionId]))[0];
+ assert.equal(Number(guarded.source_lock_id),positive.newSignedLockId);assert.equal(guarded.status,'in_progress');
+ const response=await requestSyntheticNewPriorityCI(peer,token,{...positive,eventKey:mk('after-priority-5b-tx')});
+ assert.equal(response.allowed,false,JSON.stringify(response));
+ assert.equal((await q('SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1',[positive.priorityId]))[0].status,'ended');
+ assert.equal((await q('SELECT count(*)::int n FROM public.refund_payments'))[0].n,0);
 });
