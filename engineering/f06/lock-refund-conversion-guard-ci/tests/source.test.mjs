@@ -1,4 +1,5 @@
 import {test} from 'node:test';
+import {Worker} from 'node:worker_threads';
 import assert from 'node:assert/strict';
 import {connect,verify} from '../migration.mjs';
 import {openGuardedSyntheticTransactionCI,productionIssuerDeny} from '../service.mjs';
@@ -189,12 +190,14 @@ test('5B-S42 新的真实3A签名收款为正反向竞争提供来源',async()=>
  const x=await withF063A(()=>recordSyntheticDepositCI(auth,token,{lockId:thirdLock,amountCents:7900,currency:'CNY',paymentMethod:'cash',receivedAt:new Date(Date.now()-3600000).toISOString(),eventKey:k('third-deposit')}));
  assert.equal(x.code,'F06_3A_SYNTHETIC_RECEIPT_RECORDED',JSON.stringify(x));
 });
-test('5B-S43 两真实Backend旧3C1请求pending与新5B转换交错最多单胜',async()=>{
- const p=withF063C1(()=>requestSyntheticRefundCI(peer,token,{subjectKind:'lock',lockId:thirdLock,amountCents:1500,reason:'同一锁车退款与交易转换必须串行提交',eventKey:k('third-refund-race')}));
- const t=open('third-transaction-race',{lockId:thirdLock});
- const r=await Promise.allSettled([p,t]);raceOutcome=r;
- const ok=r.filter(v=>v.status==='fulfilled'&&v.value.allowed);
- assert.equal(ok.length,1,JSON.stringify(r));
+test('5B-S43 两个Worker独立环境和PG后端旧退款与新转换竞争',async()=>{
+ const call=role=>new Promise((resolve,reject)=>{
+  const w=new Worker(new URL('./race-worker.mjs',import.meta.url),{workerData:{role,lockId:thirdLock,token,eventKey:k('third-'+role)}});
+  w.once('message',resolve);w.once('error',reject);
+  w.once('exit',code=>{if(code!==0)reject(Error('F06_5B_RACE_WORKER_EXIT_'+code))});
+ });
+ const r=await Promise.allSettled([call('refund'),call('transaction')]);raceOutcome=r;
+ assert.equal(r.filter(x=>x.status==='fulfilled'&&x.value.allowed).length,1,JSON.stringify(r));
 });
 test('5B-S44 反向交错不能同时存在pending Refund与Transaction',async()=>{
  const pending=Number((await query("SELECT count(*)::int n FROM public.refund_cases WHERE lock_id=$1 AND status='pending'",[thirdLock]))[0].n);
