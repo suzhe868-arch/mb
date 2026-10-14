@@ -163,6 +163,68 @@ BEGIN
  RETURN true;
 END $$;
 
+-- 独立校验取消凭据；被候补/资金阻断时仍必须核对取消自身合法性。
+CREATE FUNCTION f06_5c_pg1_ci.valid_cancel_signature(tx_id bigint)
+RETURNS boolean LANGUAGE plpgsql VOLATILE AS $
+DECLARE t record;
+BEGIN
+ SELECT * INTO t FROM public.transactions WHERE transaction_id=tx_id;
+ IF NOT FOUND OR t.status <> 'cancelled' OR t.completed_at IS NOT NULL
+ THEN RETURN false; END IF;
+ IF NOT EXISTS(
+    SELECT 1 FROM f06_3b_ci.transaction_origins o
+      JOIN f06_5b_ci.guard_events g ON g.transaction_id=o.transaction_id
+      JOIN public.locks l ON l.lock_id=o.source_lock_id
+    WHERE o.transaction_id=tx_id AND o.source_lock_id=t.source_lock_id
+      AND o.vehicle_id=t.vehicle_id AND o.listing_cycle_id=t.listing_cycle_id
+      AND o.customer_id=t.customer_id AND o.public_carrier_status='in_progress'
+      AND o.lock_end_reason='converted_to_transaction'
+      AND g.source_lock_id=t.source_lock_id AND g.vehicle_id=t.vehicle_id
+      AND g.listing_cycle_id=t.listing_cycle_id AND g.production_issuer='UNWIRED'
+      AND l.lock_status='released' AND l.end_reason='converted_to_transaction'
+ ) THEN RETURN false; END IF;
+ IF EXISTS(SELECT 1 FROM f06_4a_ci.cancel_origins WHERE transaction_id=tx_id)
+    AND EXISTS(SELECT 1 FROM f06_4c_ci.cancel_origins WHERE transaction_id=tx_id)
+ THEN RETURN false; END IF;
+ IF EXISTS(
+   SELECT 1 FROM f06_4a_ci.cancel_origins o
+      JOIN f06_4a_ci.cancel_events e ON e.transaction_id=o.transaction_id
+      JOIN f06_4a_ci.request_keys k ON k.event_key_sha256=e.event_key_sha256
+    WHERE o.transaction_id=tx_id AND o.source_lock_id=t.source_lock_id
+      AND o.customer_id=t.customer_id AND o.vehicle_id=t.vehicle_id
+      AND o.listing_cycle_id=t.listing_cycle_id
+      AND o.original_responsible_employee_id=t.responsible_employee_id
+      AND o.actor_employee_id=e.actor_employee_id
+      AND e.actor_employee_id=k.actor_employee_id AND k.transaction_id=tx_id
+      AND e.event_kind='transaction_cancelled_without_payment'
+      AND o.previous_status='in_progress' AND o.resulting_status='cancelled'
+      AND e.previous_status='in_progress' AND e.resulting_status='cancelled'
+      AND o.reason=e.reason AND k.action='cancel'
+ ) THEN RETURN true; END IF;
+ RETURN EXISTS(
+   SELECT 1 FROM f06_4c_ci.cancel_origins o
+    JOIN f06_4c_ci.cancel_events e ON e.transaction_id=o.transaction_id
+    JOIN f06_4c_ci.request_keys k ON k.event_key_sha256=e.event_key_sha256
+    JOIN f06_4b_ci.responsible_projection p ON p.transaction_id=o.transaction_id
+    JOIN f06_4b_ci.handoff_events h ON h.event_id=p.last_event_id
+    JOIN f06_4b_ci.request_keys hk ON hk.result_event_id=h.event_id
+    WHERE o.transaction_id=tx_id AND o.source_lock_id=t.source_lock_id
+      AND o.customer_id=t.customer_id AND o.vehicle_id=t.vehicle_id
+      AND o.listing_cycle_id=t.listing_cycle_id
+      AND o.original_responsible_employee_id=p.original_responsible_employee_id
+      AND o.transferred_responsible_employee_id=t.responsible_employee_id
+      AND o.actor_employee_id=t.responsible_employee_id
+      AND o.parent_last_handoff_event_id=p.last_event_id
+      AND o.parent_handoff_event_count=p.event_count
+      AND e.parent_last_handoff_event_id=h.event_id
+      AND e.current_responsible_employee_id=t.responsible_employee_id
+      AND e.actor_employee_id=k.actor_employee_id
+      AND k.transaction_id=tx_id AND hk.transaction_id=tx_id
+      AND o.previous_status='in_progress' AND o.resulting_status='cancelled'
+      AND e.event_kind='post_handoff_transaction_cancelled_ci_only'
+ );
+END $;
+
 -- 名称按字母排在旧 f05_8_priority_append_history 之后；旧函数既有字节保持不变。
 -- 仅对旧源自动签发允许「静默跳过」，使合法 4A/4C 的临时半签时序不致整体回滚。
 -- 显式人工签发如不安全，必须报错让上游事务撤销，绝不能伪造成功。
@@ -190,11 +252,7 @@ BEGIN
  PERFORM 1 FROM public.vehicles WHERE vehicle_id=fresh.vehicle_id FOR UPDATE;
  IF NOT f06_5c_pg1_ci.safe_to_issue(fresh.vehicle_id,fresh.listing_cycle_id) THEN
   -- 待处理候补/资金时合法取消可提交，只有取消签名本身伪造才应回滚。
-  IF NOT EXISTS (
-     SELECT 1 FROM f06_4a_ci.cancel_origins WHERE transaction_id=fresh.transaction_id
-     UNION ALL
-     SELECT 1 FROM f06_4c_ci.cancel_origins WHERE transaction_id=fresh.transaction_id
-  ) THEN
+  IF NOT f06_5c_pg1_ci.valid_cancel_signature(fresh.transaction_id) THEN
     RAISE EXCEPTION 'F06_5C_PG1_UNSIGNED_CANCEL_ROLLBACK' USING ERRCODE='23514';
   END IF;
   RETURN NULL;
