@@ -57,3 +57,11 @@ UPSTREAM_PRIORITY_ADMISSION_ATOMIC_SOURCE_GAP，而不创造新Priority。
 且经B最终SHA自验后，才能签 B_SELF_TESTED / READY_FOR_A_INDEPENDENT_REVIEW。
 
 任何真实财务、completed/refunded、生产身份Issuer、部署/UAT或main合并，仍禁止。
+
+
+## 6. 2026-10-14 B依据A补充施工单整改（等待官方CI真值）
+
+- 按A正式勘误，将190张旧父真实全行COUNT+MD5作为精确断言，5C新增1张Sidecar仍单独签名，旧192硬门槛保留在历史记录不再执行。
+- 依A裁决引入受限auth.withSession包装，先锁Vehicle、同事务核实签名来源，再调用原F05-8 arbitrateCI；绝不自行INSERT父Priority；要求回读created事件、winner和同PG PID/txid。不匹配时抛错，强制原Session回滚。
+- Source增加12项真实登录、父5B原子Transaction、原3B漏洞、跨Backend争用和撤权相关测试，总48项定义；测试定义并非真实PASS。旧36项形式测试不得冒充完整36项真实业务矩阵。
+- 仍须官方Push96 Job、两OID、全190旧父Seal与>=32 SHA256证据全绿，且补足真实合法Priority正向/取消后新仲裁的充分业务测试，方可修改此记录为READY。

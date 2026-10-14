@@ -1,7 +1,7 @@
-// 仅 CI：Transaction/Priority 同 Vehicle 物理锁下的拒绝准入证明。
-// F05-8 arbitrateCI 把 withSession 与内部签发封装为独立事务，缺乏可插入
-// Vehicle 锁下原子重新验证交易来源的安全入口；禁止读完后另行调用。
+// 仅CI：通过原F05-8 arbitrateCI(auth.withSession包装)在同一物理事务先锁Vehicle及双源验签。
+// 严禁先提交前置检查再另起事务，严禁直接INSERT原Priority表。
 import {gate,verify} from './migration.mjs';
+import {arbitrateCI} from '../../f05/priority-arbitration-ttl-handover/service.mjs';
 const fail=(code,extra={})=>({allowed:false,code,CI_ONLY:true,...extra});
 const one=async(c,s,p=[])=> (await c.query(s,p)).rows[0];
 const id=x=>Number.isSafeInteger(x)&&x>0&&x<2147483647;
@@ -72,23 +72,56 @@ async function admissibility(c,a,p){
  }
  const match=await one(c,"SELECT r.result_id FROM public.f05_7_result_versions_ci r JOIN public.demands d ON d.demand_id=r.demand_id AND d.customer_id=$1 AND d.demand_state='active' JOIN public.f05_8_qualification_ci q ON q.customer_id=$1 AND q.enabled=true WHERE r.vehicle_id=$2 AND r.listing_cycle_id=$3 AND r.status='current' AND r.tier IN ('high','acceptable') LIMIT 1 FOR SHARE OF r,d,q",[p.customerId,p.vehicleId,p.listingCycleId]);
  if(!match)return fail('F06_5C_CURRENT_MATCH_AND_QUALIFICATION_REQUIRED');
- // F05-8 原始签发 API 不暴露同一 physical transaction+Vehicle mutex 内可安全调用的 signed issuer。
- // 即便此时没有 Transaction 也不得拆成 TOCTOU 的第二事务，绝不写 public.Priority。
- return fail(UPSTREAM_GAP);
+ // 这里只给内部父仲裁放行，不是Priority签发成功；最终只能由原arbitrateCI完成。
+ return {allowed:true,code:'F06_5C_PRECHECK_VALIDATED'};
 }
+// 只能抛错才能让F03 withSession回滚；返回拒绝对象会被原Session提交。
+// 父仲裁选择的Customer与请求目标不同，绝不允许落错胜者后再返回拒绝。
+const rollbackMismatch=()=>{const e=Error('F06_5C_WINNER_MISMATCH_ROLLBACK');e.f06Rollback=true;throw e};
 export async function requestSyntheticNewPriorityCI(auth,token,p={}){
  gate();
  if(!id(p.vehicleId)||!id(p.listingCycleId)||!id(p.customerId)||!id(p.teamId)||!key(p.eventKey))
   return fail('F06_5C_INVALID_ARGUMENTS');
  if(!auth||typeof auth.withSession!=='function')return fail('F06_5C_SIGNED_SESSION_REQUIRED');
  try{
-  return await auth.withSession(token,async(c,a,s)=>{
-   await verify(c);
-   await c.query("SET LOCAL lock_timeout='1500ms'");
-   if(s?.restricted)return fail('F06_5C_RESTRICTED_SESSION');
-   return admissibility(c,a,p);
-  },{normalOnly:true})||fail('F06_5C_SIGNED_SESSION_DENIED');
+  // 严格转发原真实签名Session，整个回调受其同一BEGIN/COMMIT管控。
+  // wrapper自身没有连接池，也没有BEGIN/COMMIT或第二个独立查询连接。
+  const scopedAuth={withSession:(t,originalCallback,options)=>{
+   if(t!==token||options?.normalOnly!==true||typeof originalCallback!=='function')
+    throw Error('F06_5C_PARENT_SESSION_CONTRACT_REQUIRED');
+   return auth.withSession(t,async(c,a,s,now)=>{
+    await c.query("SET LOCAL lock_timeout='1500ms'");
+    const locked=await one(c,'SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[p.vehicleId]);
+    if(!locked)return fail('F06_5C_VEHICLE_NOT_FOUND');
+    const before=await one(c,'SELECT pg_backend_pid()::int pid,txid_current()::text txid');
+    await verify(c);
+    if(s?.restricted)return fail('F06_5C_RESTRICTED_SESSION');
+    const precheck=await admissibility(c,a,p);
+    if(!precheck.allowed)return precheck;
+    const result=await originalCallback(c,a,s,now);
+    const after=await one(c,'SELECT pg_backend_pid()::int pid,txid_current()::text txid');
+    if(before.pid!==after.pid||before.txid!==after.txid)
+     throw Error('F06_5C_PARENT_TRANSACTION_IDENTITY_DRIFT');
+    if(!result?.allowed)return result||fail(UPSTREAM_GAP);
+    if(!result.created)return fail('F06_5C_NO_NEW_SIGNED_PRIORITY',{parentCode:result.code});
+    if(!id(result.priorityId)||!id(result.customerId)||result.customerId!==p.customerId)
+     rollbackMismatch();
+    const signed=await one(c,"SELECT priority_id,customer_id,vehicle_id,listing_cycle_id,status,creation_key FROM public.f05_8_priority_ci WHERE priority_id=$1 FOR SHARE",[result.priorityId]);
+    const created=await one(c,"SELECT event_key FROM public.f05_8_events_ci WHERE priority_id=$1 AND event_kind='created' AND event_key=$2 FOR SHARE",[result.priorityId,p.eventKey+':created']);
+    if(!signed||!created||signed.status!=='active'||
+     Number(signed.customer_id)!==p.customerId||Number(signed.vehicle_id)!==p.vehicleId||
+     Number(signed.listing_cycle_id)!==p.listingCycleId||signed.creation_key!==p.eventKey)
+     rollbackMismatch();
+    return {allowed:true,CI_ONLY:true,code:'F06_5C_PARENT_SIGNED_PRIORITY_CREATED',
+     priorityId:result.priorityId,customerId:result.customerId,pgBackendPid:after.pid,
+     pgTransactionId:after.txid,parentCode:result.code};
+   },options);
+  }};
+  return await arbitrateCI(scopedAuth,token,{teamId:p.teamId,vehicleId:p.vehicleId,
+   listingCycleId:p.listingCycleId,runKey:p.eventKey})||fail('F06_5C_SIGNED_SESSION_DENIED');
  }catch(e){
+  if(e.f06Rollback||e.message==='F06_5C_WINNER_MISMATCH_ROLLBACK')
+   return fail('F06_5C_WINNER_MISMATCH_ROLLED_BACK');
   if(['55P03','40P01','40001','23505'].includes(e.code))
    return fail('F06_5C_PG_CONTENTION_ATOMIC_DENY',{sqlstate:e.code});
   throw e;

@@ -40,8 +40,8 @@ try{
   assert.equal((await c.query("SELECT to_regnamespace('f06_5c_ci')::text n")).rows[0].n,null);
   await writeFile(path,JSON.stringify(now,null,2)+'\n',{flag:'wx'});
   console.log('F06_5C_REAL_OLD_TABLE_COUNT',JSON.stringify({oid:now.meta.oid,count:now.tableCount,digest:now.tableDigest}));
-  // A施工单写死192张，实际数字必须以物理PG catalog为准：不足则真实失败。
-  assert.ok(now.tableCount>=192,'F06_5C_A_RELEASED_192_PARENT_TABLES_NOT_PRESENT');
+  // A于2026-10-14正式勘误：5B前188+5B两表=190；5C新表不得计为旧父。
+  assert.equal(now.tableCount,190,'F06_5C_A_RULING_EXACT_190_PARENT_TABLES_REQUIRED');
  }else{
   const before=JSON.parse(await readFile(path,'utf8'));
   assert.notEqual(before.meta.oid,now.meta.oid);
@@ -49,12 +49,12 @@ try{
   assert.equal((await c.query("SELECT to_regnamespace('f06_5c_ci')::text n")).rows[0].n,null);
   for(const k of ['tables','tableCount','tableDigest','ledgerDigest','catalogSha256','d1Digest','parentSidecars'])
    assert.deepEqual(now[k],before[k],'F06_5C_PARENT_SEAL_DRIFT_'+k);
-  assert.ok(now.tableCount>=192);
+  assert.equal(now.tableCount,190,'F06_5C_PARENT_TABLE_COUNT_MUST_REMAIN_190');
   const proof={status:'PASS',sha:now.head,runId:now.runId,scenarioOid:before.meta.oid,auditOid:now.meta.oid,
    beforePid:before.meta.pid,afterPid:now.meta.pid,parentTableCount:now.tableCount,tableDigest:now.tableDigest,
    original24Ledger:now.ledgerDigest,catalog:now.catalogSha256,d1:now.d1Digest,parentSignatures:now.parentSidecars,
-   atomicPriorityIssuer:'UPSTREAM_PRIORITY_ADMISSION_ATOMIC_SOURCE_GAP',production:'NOT_AUTHORIZED'};
+   atomicPriorityIssuer:'SIGNED_PARENT_ARBITRATE_SAME_SESSION_CI_ONLY',production:'NOT_AUTHORIZED'};
   await writeFile(resolve(out,'audit-global-seal-pass.json'),JSON.stringify(proof,null,2)+'\n',{flag:'wx'});
-  console.log('F06_5C_TWO_PHYSICAL_PG_DATABASES_PARENT_192_TABLES_SEAL_PASS',JSON.stringify(proof));
+  console.log('F06_5C_TWO_PHYSICAL_PG_DATABASES_PARENT_190_TABLES_SEAL_PASS',JSON.stringify(proof));
  }
 }finally{await c.end()}
