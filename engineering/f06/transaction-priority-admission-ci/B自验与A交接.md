@@ -1,3 +1,15 @@
+# 2026-10-15｜B第三轮真正PG16红证结案：上游F05-8父自动Issuer签名越界，立即阻断（最高优先级）
+
+**结论**：`BLOCKED_UPSTREAM_F05_8_PARENT_AUTO_ISSUER_CROSS_DOMAIN / NOT_READY_FOR_A_REVIEW / PR62_NOT_MERGED`。唯一实际红证运行 SHA `96ce3c725d6279a9a67b1fbdef46e1f113454cfa`，官方 [Run38641938789](https://github.com/suzhe868-arch/mb/actions/runs/38641938789) Source Job `116119360131` 真非特权PG16 **88测试／85通过／3失败**，HTTPS Job `116119359691` **9/9通过**。三个失败全部是新 C01—C03 安全断言，而非旧85场景退化。
+
+- C01（S84）真实JYT当前Match、有签活动Waitlist `881800002` 与真实4A取消后，冻结父自动创建 active Priority `12`，错误码 `UPSTREAM_F05_8_PARENT_AUTO_ISSUER_BYPASSES_SIGNED_WAITLIST_C01`。
+- C02（S85）真5B签在途下临时伪造 public cancelled、没有原4A/4C取消签名，触发器在真实PG SAVEPOINT中创建 Priority `8`（之后回滚），错误码 `UPSTREAM_F05_8_PARENT_AUTO_ISSUER_UNSIGNED_PUBLIC_CANCEL_C02`。
+- C03（S86）未知合成 `refund_cases.pending` + 伪取消同事务中创建 Priority `9`（之后回滚），错误码 `UPSTREAM_F05_8_PARENT_AUTO_ISSUER_UNKNOWN_FINANCE_CANCEL_C03`。
+- **不可解除的授权边界**：A第三轮正式整改单明示若冻结父违反既有候补/资金/签名约束，B必须保留红证交A另签父修复，不得改 `engineering/f05/**`。故未修父、未删除安全测试、未合并main、未签 READY。C03不冒称真实付款或真实4A合法取消已验证；GitHub PR附加检查与新后继文档HEAD不能取代原红证运行头SHA。
+- 完整逐项证据归档：[《F06-5C第三轮跨域父自动签发真实PG16红证与A升级交接_2026-10-15.md》](./F06-5C第三轮跨域父自动签发真实PG16红证与A升级交接_2026-10-15.md)。**下一责任人：A（仅审红证与签父级技术修复新范围）；当前B包：BLOCKED_UPSTREAM；F05/F06/V1：NOT_READY。**
+
+---
+
 # 2026-10-15｜F06-5C B第三轮C01—C05补证实施记录（现行优先）
 
 > 权威依据：`07_重建工作区/F06-5C_A主控第三轮复验_R01父触发器技术裁决与候补资金签名补证施工单_2026-10-15.md`；原PR #62、原工作分支不变。状态：**B_C01_C03_PROBES_SUBMITTED / A_TECH_RULING_R01_SCOPED_ACCEPTED / A_CHANGES_REQUESTED_PARENT_AUTO_ISSUER_CROSS_DOMAIN_PROOF / NOT_READY_FOR_A_REVIEW**。以下是施工过程记录，不是最终同SHA独立证明；旧R01待A裁决表述已由A最新正式裁决取代。
