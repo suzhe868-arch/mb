@@ -68,8 +68,15 @@ try{
  const added=after.objects.filter(o=>!oldObjectKeys.has(o.kind+'|'+o.name));
  const changed=after.objects.filter(o=>oldObjectKeys.has(o.kind+'|'+o.name)&&oldObjectKeys.get(o.kind+'|'+o.name)!==o.definition);
  const actualNames=added.map(o=>o.name).sort();
- assert.deepEqual(actualNames,['f05_8_priority_ci.pg1_signed_priority_insert','transactions.pg1_deferred_signed_cancel'].sort(),
-  'PG1_ONLY_TWO_ADDED_PUBLIC_TRIGGERS');
+ // PostgreSQL 的 CONSTRAINT TRIGGER 同时出现在 pg_trigger 与 pg_constraint 两种编目视图。
+ // 不因同名项重复就错报越权；必须恰好两个触发器和一条受控约束记录。
+ assert.deepEqual(added.filter(o=>o.kind==='trigger').map(o=>o.name).sort(),
+   ['f05_8_priority_ci.pg1_signed_priority_insert','transactions.pg1_deferred_signed_cancel'].sort(),
+   'PG1_ONLY_TWO_ADDED_PUBLIC_TRIGGERS');
+ assert.deepEqual(added.filter(o=>o.kind==='constraint').map(o=>o.name),
+   ['transactions.pg1_deferred_signed_cancel'],
+   'PG1_ONLY_ONE_ADDED_CONSTRAINT_RECORD');
+ assert.equal(added.length,3,'PG1_UNAUTHORIZED_ADDITIONAL_CATALOG_OBJECT');
  assert.equal(changed.length,0,'PG1_EXISTING_PUBLIC_DEFINITION_CHANGED');
  report.after={catalog:after.sha256,addedPublicObjects:added,changedPublicObjects:changed.length,
    ...fresh,privateSourceSHA256:sourceHash};
