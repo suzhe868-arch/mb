@@ -7,6 +7,9 @@ import {setQualificationCI} from '../../f05/priority-arbitration-ttl-handover/se
 import {calculateCI,saveSalesDescriptionCI} from '../../f05/deterministic-matching-readiness-four-tier/service.mjs';
 import {cancelSyntheticTransactionV2CI} from './signed-cancel-v2.mjs';
 import {historicalSignedService} from './冻结父历史签名适配.mjs';
+import {withF063A} from '../refund-pending-ci/migration.mjs';
+import {withF062} from '../deposit-ledger-ci/migration.mjs';
+import {withParentBranch} from '../lock-lifecycle-ci/migration.mjs';
 import {oldRef} from './真实取消前后对照.mjs';
 const mk=x=>'pg1-c01-'+process.env.GITHUB_RUN_ID+'-'+x;
 const one=async(c,s,a=[])=> (await c.query(s,a)).rows[0];
@@ -20,7 +23,7 @@ export async function prepareRealJytWaitlist(c,{auth,token}){
   "AND NOT EXISTS(SELECT 1 FROM public.f05_8_priority_ci p WHERE p.vehicle_id=l.vehicle_id AND p.status='active') ORDER BY l.vehicle_id LIMIT 1");
  assert.ok(fresh,'PG1_C01_JYT_CURRENT_SYNC_LINEAGE_REQUIRED');
  const vehicleId=Number(fresh.vehicle_id),cycle=Number(fresh.current_cycle_id),customerId=899621;
- const signedF06=fn=>oldRef('feat/f06-1-lockrequest-approval-waitlist-ci',fn);
+ const signedF06=fn=>withF063A(()=>withF062(()=>withParentBranch(fn)));
  const f=await signedF06(()=>intakeCI(c,{customerId,vehicleId,listingCycleId:cycle,
   requestKey:mk('first'),syntheticPhoneConsent:'CI_SYNTHETIC_PHONE_CONSENT_NOT_PRODUCTION'}));
  const s=await signedF06(()=>intakeCI(c,{customerId:86180102,vehicleId,listingCycleId:cycle,
