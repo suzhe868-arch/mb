@@ -113,7 +113,7 @@ try{
   report.versionedNative4A=await proveVersionedNative4A(c,cancelFixture);
   report.versionedNative4B4C=await proveVersionedNative4C(c,cancelFixture,handoffFixture);
   report.realSignedC01JytWaitlist=await proveRealJytWaitlist(c,cancelFixture,jytFixture);
-  report.realSignedR01UniqueNewPriority=await proveRealJytR01LegalSuccessor(c,cancelFixture,freeJytFixture);
+  report.realSignedR01UniqueNewPriority=await proveRealJytR01LegalSuccessor(c,cancelFixture,freeJytFixture,jytFixture.vehicleId);
   const status=await verifyFrozenParent(c);
   report.parentAfter={verified:status.verified};
   report.status='F06_PG1_UNEXPECTED_PARENT_VERIFICATION_ACCEPTED';
