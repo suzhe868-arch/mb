@@ -111,7 +111,7 @@ export async function cancelSyntheticTransactionV2CI(auth,token,p={}){
   // Source carrier, lock and financial receipts remain frozen; only in-progress occupancy is released.
   const check=await row(c,'SELECT status,completed_at FROM public.transactions WHERE transaction_id=$1',[p.transactionId]);
   if(check.status!=='cancelled'||check.completed_at!==null)throw Error('F06_4A_TERMINAL_CHECK_FAILED');
-  return yes('F06_4A_CANCELLED_ATOMIC_NO_PAYMENT',{transactionId:p.transactionId,sourceLockId:Number(origin.origin.source_lock_id),backendPid:(await row(c,'SELECT pg_backend_pid() pid')).pid});
+  return yes('F06_4A_CANCELLED_ATOMIC_NO_PAYMENT',{transactionId:p.transactionId,sourceLockId:Number(origin.origin.source_lock_id),backendPid:(await row(c,'SELECT pg_backend_pid() pid')).pid,pgTransactionId:(await row(c,'SELECT txid_current()::text txid')).txid});
  },{normalOnly:true});
  return result||no('F06_4A_INVALID_SIGNED_SESSION');
  }catch(e){if(['55P03','40P01','40001','23505'].includes(e.code))return no('F06_4A_PG_ATOMIC_CONTENTION_DENY',{sqlstate:e.code});throw e}
