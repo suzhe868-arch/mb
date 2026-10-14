@@ -1,4 +1,4 @@
-name: F06-5C native PostgreSQL16 Transaction-Priority Source67 HTTPS9
+name: F06-5C native PostgreSQL16 Transaction-Priority Source68 HTTPS9
 on:
   push:
     branches: [feat/f06-5c-transaction-priority-admission-ci]
@@ -8,7 +8,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   f06-5c-source:
-    name: F06-5C actual nonprivileged PG16 Source67 and parent seal audit
+    name: F06-5C actual nonprivileged PG16 Source68 and parent seal audit
     runs-on: ubuntu-latest
     timeout-minutes: 60
     services:
