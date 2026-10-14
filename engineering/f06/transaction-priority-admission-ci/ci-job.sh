@@ -27,7 +27,7 @@ fi
 (cd engineering && node f06/transaction-priority-admission-ci/runner.mjs --inject-rollback && node f06/transaction-priority-admission-ci/runner.mjs --apply && node f06/transaction-priority-admission-ci/runner.mjs --verify)
 if [[ "$mode" = source ]];then
  (cd engineering && node --test f06/transaction-priority-admission-ci/tests/source.test.mjs) 2>&1 | tee "$base/artifacts/source/native-source.log"
- grep -Eq '# tests (4[8-9]|[5-9][0-9]|[1-9][0-9][0-9]+)
+ grep -q '# tests 48' "$base/artifacts/source/native-source.log"
  grep -q '# fail 0' "$base/artifacts/source/native-source.log"
  bash "$base/disposable-db.sh" restore
  (cd engineering && node f06/transaction-priority-admission-ci/audit-seal.mjs after) 2>&1 | tee "$base/artifacts/source/audit-global-seal.log"
@@ -42,18 +42,3 @@ fi
 cp "$base/B自验与A交接.md" "$base/artifacts/$mode/B-handoff.md"
 (cd "$base/artifacts/$mode" && sha256sum * > sha256sums.txt)
 echo F06_5C_NATIVE_PG16_A_TECH_RULING_REMEDIATION_TESTS_EXECUTED
- "$base/artifacts/source/native-source.log"
- grep -q '# fail 0' "$base/artifacts/source/native-source.log"
- bash "$base/disposable-db.sh" restore
- (cd engineering && node f06/transaction-priority-admission-ci/audit-seal.mjs after) 2>&1 | tee "$base/artifacts/source/audit-global-seal.log"
- grep -q F06_5C_TWO_PHYSICAL_PG_DATABASES_PARENT_192_TABLES_SEAL_PASS "$base/artifacts/source/audit-global-seal.log"
-else
- openssl req -x509 -newkey rsa:2048 -sha256 -nodes -days 1 -keyout /tmp/f06-5c-key.pem -out /tmp/f06-5c-cert.pem -subj '/CN=localhost' >/dev/null 2>&1
- chmod 600 /tmp/f06-5c-key.pem
- (cd engineering && node --test f06/transaction-priority-admission-ci/tests/https.test.mjs) 2>&1 | tee "$base/artifacts/https/native-https.log"
- grep -q '# tests 9' "$base/artifacts/https/native-https.log"
- grep -q '# fail 0' "$base/artifacts/https/native-https.log"
-fi
-cp "$base/B自验与A交接.md" "$base/artifacts/$mode/B-handoff.md"
-(cd "$base/artifacts/$mode" && sha256sum * > sha256sums.txt)
-echo F06_5C_NATIVE_PG16_SOURCE_GAP_FAIL_CLOSED_VERIFIED
