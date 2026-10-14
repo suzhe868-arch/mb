@@ -177,3 +177,27 @@ test('5B-S40 并发后保持旧24条migration且无付款',async()=>{
  assert.equal((await query('SELECT count(*)::int n FROM public.f03_schema_migrations'))[0].n,24);
  assert.equal((await query('SELECT count(*)::int n FROM public.refund_payments'))[0].n,0);
 });
+
+let thirdLock,raceOutcome;
+test('5B-S41 第三个Lock用于旧退款与新转换反向并发',async()=>{
+ const req=await old(()=>intakeCI(db,{customerId:86180101,vehicleId:86181106,listingCycleId:86182106,requestKey:k('third-intake'),syntheticPhoneConsent:'CI_SYNTHETIC_PHONE_CONSENT_NOT_PRODUCTION'}));
+ assert.equal(req.code,'F06_1_PENDING_CREATED',JSON.stringify(req));
+ const x=await old(()=>decisionCI(auth,token,{requestId:req.requestId,requestKey:k('third-approve'),action:'approve'}));
+ assert.equal(x.code,'F06_1_APPROVED_ATOMIC_LOCK',JSON.stringify(x));thirdLock=x.lockId;
+});
+test('5B-S42 新的真实3A签名收款为正反向竞争提供来源',async()=>{
+ const x=await withF063A(()=>recordSyntheticDepositCI(auth,token,{lockId:thirdLock,amountCents:7900,currency:'CNY',paymentMethod:'cash',receivedAt:new Date(Date.now()-3600000).toISOString(),eventKey:k('third-deposit')}));
+ assert.equal(x.code,'F06_3A_SYNTHETIC_RECEIPT_RECORDED',JSON.stringify(x));
+});
+test('5B-S43 两真实Backend旧3C1请求pending与新5B转换交错最多单胜',async()=>{
+ const p=withF063C1(()=>requestSyntheticRefundCI(peer,token,{subjectKind:'lock',lockId:thirdLock,amountCents:1500,reason:'同一锁车退款与交易转换必须串行提交',eventKey:k('third-refund-race')}));
+ const t=open('third-transaction-race',{lockId:thirdLock});
+ const r=await Promise.allSettled([p,t]);raceOutcome=r;
+ const ok=r.filter(v=>v.status==='fulfilled'&&v.value.allowed);
+ assert.equal(ok.length,1,JSON.stringify(r));
+});
+test('5B-S44 反向交错不能同时存在pending Refund与Transaction',async()=>{
+ const pending=Number((await query("SELECT count(*)::int n FROM public.refund_cases WHERE lock_id=$1 AND status='pending'",[thirdLock]))[0].n);
+ const transaction=Number((await query('SELECT count(*)::int n FROM public.transactions WHERE source_lock_id=$1',[thirdLock]))[0].n);
+ assert.equal(pending+transaction,1);assert.equal(pending*transaction,0);
+});
