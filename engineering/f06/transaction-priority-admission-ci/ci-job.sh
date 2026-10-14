@@ -27,7 +27,7 @@ fi
 (cd engineering && node f06/transaction-priority-admission-ci/runner.mjs --inject-rollback && node f06/transaction-priority-admission-ci/runner.mjs --apply && node f06/transaction-priority-admission-ci/runner.mjs --verify)
 if [[ "$mode" = source ]];then
  (cd engineering && node --test f06/transaction-priority-admission-ci/tests/source.test.mjs) 2>&1 | tee "$base/artifacts/source/native-source.log"
- grep -q '# tests 85' "$base/artifacts/source/native-source.log"
+ grep -q '# tests 88' "$base/artifacts/source/native-source.log"
  grep -q '# fail 0' "$base/artifacts/source/native-source.log"
  bash "$base/disposable-db.sh" restore
  (cd engineering && node f06/transaction-priority-admission-ci/audit-seal.mjs after) 2>&1 | tee "$base/artifacts/source/audit-global-seal.log"
