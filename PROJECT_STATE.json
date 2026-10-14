@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F06_5C_PG1_A_CONFIRMED_PARENT_AUTO_ISSUER_SECURITY_RED_NEW_PARENT_GATE_REPAIR_RELEASED",
+  "substage": "F06_5C_PG1_A_TECH_RULING_SIGNED_PARENT_CATALOG_COMPATIBILITY_B_CONTINUATION_RELEASED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F06",
-  "current_domain_status": "F06_5C_PG1_A_RELEASED_FOR_B_PARENT_AUTO_ISSUER_SIGNED_CI_GUARD_PRIOR_PR62_BLOCKED",
+  "current_domain_status": "F06_5C_PG1_PR63_BLOCKED_PARENT_CATALOG_DRIFT_A_RELEASED_B_VERSIONED_REPAIR_CI_ONLY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A对PR62第三轮补证的独立第四轮审验：PR62最新文档HEAD f3fe4bf39f2c28f62f598cfcd9f24f90fe3e2b61（38项均原5C白名单），真实PG16红证代码SHA 96ce3c725d6279a9a67b1fbdef46e1f113454cfa，Run38641938789 Source88/85pass/3fail（HTTPS9 pass）：C01有效候补+真Match+5B安全Transaction经4A签Cancel被旧父自动签Priority12；C02无原4A/4C签名的public伪cancel同PG Savepoint提前签Priority8但回滚；C03未知pending退款+伪public取消同PG Savepoint提前签Priority9但回滚。A确认旧F05-8自动Issuer缺少Waitlist及有签终态/资金跨域保护，5C自身Guard无法先于旧父Trigger。正式新工程包F06-5C-PG1放行独立新分支/新PR，只准新增CI-only Sidecar/新Workflows，先修复父原子签发门禁、保留旧000024 SQL和24 Ledger及旧190表；完成PG1 A验收合并后才能返回原PR62最终整改与A复审。PR62未合并仍RED；F05/F06/V1不就绪。",
-  "current_work_file": "07_重建工作区/F06-5C-PG1_A主控冻结F05-8父自动签发跨域越权_版本化补丁与独立原生PG16修复正式施工单_2026-10-15.md",
+  "current_task": "A独立核验PR63 HEAD f0e159bbdbffca516b6ddd7c14052f882e3df57e，官方Run38648121814 PG16真实旧5B回归/188父表及两OID通过，5B装入后190父表原有数据和24 Ledger/旧F05-8函数Trigger签名保持，PG1新增2 public触发器和1 constraint后冻结父验证报F05_10_CATALOG_DRIFT，确认旧固定Catalog对新版追加对象不兼容；PR63 B状态BLOCKED/NOT_READY，不可合并。A下发同PR包内版本化Catalog精确三项差分验签与安全等价4A/4C取消CI入口补充施工单；旧父服务/24 Ledger和PR62不得修改，旧冻结原入口保持FailClosed；须原生PG16完成C01-C03/R01/4C/双Backend/签名资金候补全量回归与同最终SHA PASS后才能B提交READY_FOR_A_REVIEW。PR62仍RED，F05/F06/V1 NOT_READY，生产资金UAT/F07/F08未授权。",
+  "current_work_file": "07_重建工作区/F06-5C-PG1_A主控PR63父签名兼容阻断_版本化目录验签与安全取消入口补充施工单_2026-10-15.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F06_5C_PG1_UPSTREAM_PARENT_AUTO_ISSUER_TECH_REPAIR_RELEASED",
+  "current_review_batch": "F06_5C_PG1_PR63_PARENT_CATALOG_VERSIONED_COMPATIBILITY_TECH_RULING_RELEASED",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -7883,7 +7883,7 @@
     "global_not_ready": true
   },
   "f06_5c_gate": {
-    "status": "A_CONFIRMED_PARENT_SOURCE_SECURITY_RED_UPSTREAM_PG1_FIX_RELEASED",
+    "status": "PR62_BLOCKED_UPSTREAM_PG1_CATALOG_COMPATIBILITY_REPAIR",
     "owner": "B",
     "next_owner": "B",
     "pr": 62,
@@ -7934,15 +7934,18 @@
       "C02_S85_UNSIGNED_PUBLIC_CANCEL_PRIORITY_CREATED_IN_ROLLED_BACK_SAVEPOINT_ID8",
       "C03_S86_UNKNOWN_REFUND_PLUS_UNSIGNED_PUBLIC_CANCEL_PRIORITY_CREATED_IN_ROLLED_BACK_SAVEPOINT_ID9"
     ],
-    "all_green": false
+    "all_green": false,
+    "pg1_pr": 63,
+    "pg1_state": "A_RELEASED_B_VERSIONED_CATALOG_COMPATIBILITY_REPAIR",
+    "pg1_work_order": "07_重建工作区/F06-5C-PG1_A主控PR63父签名兼容阻断_版本化目录验签与安全取消入口补充施工单_2026-10-15.md"
   },
-  "next_task": "F06_5C_PG1_NEW_BRANCH_NEW_PR_SIGNED_UPSTREAM_GATE_REPAIR",
+  "next_task": "F06_5C_PG1_PR63_VERSIONED_CATALOG_AND_CANCEL_EQUIVALENCE_REPAIR",
   "f06_5c_pg1_gate": {
-    "status": "A_RELEASED_FOR_B_CI_ONLY",
+    "status": "A_TECH_RULING_PR63_BLOCKED_PARENT_CATALOG_COMPATIBILITY_B_CONTINUATION_RELEASED",
     "next_owner": "B",
     "origin": "A_INDEPENDENT_REVIEW_OF_PR62_C01_C02_C03_PARENT_SOURCE_RED",
     "branch": "fix/f06-5c-pg1-parent-priority-guard-ci",
-    "work_order": "07_重建工作区/F06-5C-PG1_A主控冻结F05-8父自动签发跨域越权_版本化补丁与独立原生PG16修复正式施工单_2026-10-15.md",
+    "work_order": "07_重建工作区/F06-5C-PG1_A主控PR63父签名兼容阻断_版本化目录验签与安全取消入口补充施工单_2026-10-15.md",
     "new_pr_required": true,
     "allowed_new_paths": [
       "engineering/f06/transaction-priority-parent-gate-ci/**",
@@ -7953,6 +7956,21 @@
     "nonprivileged_pg16_required": true,
     "real_money_authorized": false,
     "production_issuer_authorized": false,
-    "merge_before_pr62_required": true
+    "merge_before_pr62_required": true,
+    "owner": "B",
+    "pr": 63,
+    "pr_merged": false,
+    "b_review_head_sha": "f0e159bbdbffca516b6ddd7c14052f882e3df57e",
+    "a_review_main_sha": "ca42b72f2b1308bdbef01a465ba35b54474534bd",
+    "official_red_run_id": 38648121814,
+    "official_red_job_id": 116139958565,
+    "catalog_drift_code": "F05_10_CATALOG_DRIFT",
+    "parent_190_tables_preserved": true,
+    "patch_added_catalog_objects": 3,
+    "pr63_ready_for_a_review": false,
+    "old_catalog_verifier_requires_fail_closed": true,
+    "versioned_delta_adapter_ci_only": true,
+    "original_pr62_blocked": true,
+    "versioned_cancel_adapter_must_prove_original_contract_parity": true
   }
 }
