@@ -25,10 +25,26 @@ export async function signedCancelUnderNativeVehicleRace(c,{occupiedVehicleId,in
   work=Promise.resolve().then(action);
   // 并发调用可在行锁释放前失败：立即注册拒绝观察者，避免异步未处理异常吞掉真实安全红证。
   work.catch(()=>{});
-  await c.query('SELECT pg_sleep(0.2)');
-  // 取消必须在本真实锁释放之后完成。SQL自身执行相同Vehicle锁序。
+  // 必须在PG原生等待图中观察到取消方确实被本次Vehicle行锁阻塞；
+  // 仅以多个PID、sleep或调用时序猜测竞争均不算真实并发证据。
+  let observed=null;
+  for(let attempt=0;attempt<100;attempt++){
+   const waiting=(await c.query(
+    "SELECT pid,wait_event_type,wait_event,pg_blocking_pids(pid) blockers "+
+    "FROM pg_stat_activity "+
+    "WHERE datname=current_database() AND pid<>$1 AND pid<>$2 "+
+    "AND $1=ANY(pg_blocking_pids(pid)) ORDER BY pid LIMIT 1",
+    [a.pid,b.pid])).rows[0];
+   if(waiting){observed=waiting;break;}
+   await c.query('SELECT pg_sleep(0.05)');
+  }
+  assert.ok(observed,'PG1_NATIVE_ROW_LOCK_BLOCKING_NOT_OBSERVED');
+  assert.equal(observed.wait_event_type,'Lock','PG1_NATIVE_POSTGRES_LOCK_WAIT_EVENT_REQUIRED');
+  assert.ok(observed.blockers.includes(a.pid),'PG1_NATIVE_BLOCKING_PID_IS_NOT_SOURCE_VEHICLE_BACKEND');
+  // 真实阻塞已经被PG锁管理器证实，释放同车锁后重新竞争提交。
   await blocker.query('COMMIT');holding=false;
   const out=await work;
+  assert.equal(out.backendPid,observed.pid,'PG1_NATIVE_OBSERVED_WAITER_IS_SIGNED_CANCEL_BACKEND');
   assert.equal(out.allowed,true,'PG1_REAL_NATIVE_RACE_CANCEL_NOT_SUCCESS '+JSON.stringify(out));
   assert.ok(Number.isInteger(out.backendPid)&&out.backendPid>0);
   assert.match(String(out.pgTransactionId),/^[0-9]+$/);
@@ -38,6 +54,9 @@ export async function signedCancelUnderNativeVehicleRace(c,{occupiedVehicleId,in
   return{result:out,proof:{blockerBackendPid:a.pid,blockerTxid:a.tid,
    otherVehicleBackendPid:b.pid,otherVehicleTxid:b.tid,
    cancelBackendPid:out.backendPid,cancelTxid:out.pgTransactionId,
+   observedLockWaitPid:observed.pid,observedWaitEvent:observed.wait_event,
+   observedBlockingPids:observed.blockers,
+   nativePgBlockingPidsObserved:true,
    sameVehicleLockReleasedBeforeCancel:true,otherVehicleIndependent:true}};
  }finally{
   if(otherHolding)await other.query('ROLLBACK').catch(()=>{});
