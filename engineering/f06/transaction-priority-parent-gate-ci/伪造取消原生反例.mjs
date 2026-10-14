@@ -13,7 +13,14 @@ async function fact(c,v,tx){
 export async function runNativeForgedCancelMatrix(c,transactionId){
  gate();
  assert.equal((await verify(c)).verified,true);
- const tx=await first(c,'SELECT vehicle_id,customer_id,status FROM public.transactions WHERE transaction_id=$1',[transactionId]);
+ const tx=await first(c,'SELECT vehicle_id,listing_cycle_id,customer_id,status FROM public.transactions WHERE transaction_id=$1',[transactionId]);
+ const trueMatch=await first(c,"SELECT count(*)::int n FROM public.f05_3b_sync_lineages l "+
+  "JOIN public.f05_7_result_versions_ci r ON r.vehicle_id=l.vehicle_id AND r.listing_cycle_id=l.current_cycle_id "+
+  "JOIN public.demands d ON d.demand_id=r.demand_id AND d.customer_id=$3 AND d.demand_state='active' "+
+  "JOIN public.f05_8_qualification_ci q ON q.customer_id=d.customer_id AND q.enabled=true "+
+  "WHERE l.vehicle_id=$1 AND l.current_cycle_id=$2 AND r.status='current' AND r.tier IN ('high','acceptable')",
+  [tx.vehicle_id,tx.listing_cycle_id,tx.customer_id]);
+ assert.ok(trueMatch.n>0,'PG1_C02_C03_REAL_CURRENT_JYT_MATCH_MANDATORY');
  assert.equal(tx.status,'in_progress');
  const pre=await fact(c,tx.vehicle_id,transactionId);
  assert.equal(pre.authenticCancelOrigins,0);
