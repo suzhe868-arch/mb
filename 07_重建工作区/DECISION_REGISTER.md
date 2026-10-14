@@ -1,3 +1,12 @@
+# 2026-10-14｜A主控F06-5A第三轮独立验收PR60标准合并与F06-5B原子守卫技术放行（不构成新用户产品裁决）
+
+- **最新技术验收记录**：F06-5A B唯一HEAD `6695c9328ea81dd984d6404d9d7393fe153d693d`、20/20真正Push、92/92真实PG16 Job(H52完整52/52)、Source82/82 HTTPS9/9、92/92官方原生有效sha256 Artifact、OID58366→63421旧184实体全行Seal，A第三轮独立验收PASS；[PR60正式A签署](https://github.com/suzhe868-arch/mb/pull/60#issuecomment-6164442173)，GitHub标准merge `merged=true`，实际SHA`5d45a6bdb1debc9db6a79a16e9c8b9b177fb5afb`。中文正式报告：`07_重建工作区/F06-5A_A主控第三轮独立验收82项Source92项PG16与92工件_PR60正式合并报告_2026-10-14.md`；仅`A_ACCEPTED_CI_ONLY`。
+- **A明确技术裁决**：根据已签PDM-19 Final §21（Lock XOR Transaction及冲突pending/COMMIT重验），F06-5A真实已签S70/S71显示冻结父F06-3B原`openSyntheticTransactionCI` **无法阻挡旧Lock已有签名pending Refund的Transaction转换**。登记已证上游技术安全缺口`UPSTREAM_F06_3B_LOCK_PENDING_TRANSACTION_CONVERSION_GAP`，旧入口不得称安全或生产可用；F06-4A/5A当前FailClosed不等于改好父3B。这是已签规则内工程纠偏，**不新增业务状态/产品裁决**，也不回写/替换旧PR55历史事实。
+- **A仅正式放行F06-5B CI-only独立技术整改包**：`07_重建工作区/F06-5B_A主控旧Lock待退款禁止Transaction转换原子前置守卫_CI隔离完整施工单_2026-10-14.md`；B以最新main在分支`feat/f06-5b-lock-refund-conversion-guard-ci`只新增独立`engineering/f06/lock-refund-conversion-guard-ci/**`、`.github/workflows/f06-5b-*.yml`，实现同PG原子守卫新版CI入口，禁止check-then-old-parent-call双事务冒充安全。目标21真正Push、94 PG16 Jobs、Source≥40/HTTPS≥9、≥30官方sha256 Artifact、不同真实物理OID与旧≥188实体全行Seal。B自验交A，B不得merge。
+- **保留高风险阻断**：生产Refund/Transaction Issuer、真实已退/refunded、真实钱款与支付流水、completed成交、真实账号客户和第三方、生产迁移/UAT/部署上线/F06-3C-2/F07/F08，F05/F06整域、C/H01和V1仍`NOT_READY`。**NEXT_OWNER=B**。
+
+---
+
 # Decision Register｜产品基线重建
 
 ## 2026-10-14｜F06-4C PR59独立验收与F06-5A仅合成Transaction侧Refund pending/closed放行（不更改PDM）
