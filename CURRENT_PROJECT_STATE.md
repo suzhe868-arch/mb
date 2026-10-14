@@ -1,3 +1,11 @@
+# 2026-10-15｜A独立核验PR63父级签名兼容阻断，放行同PR版本化增量验签与安全取消入口包内整改（唯一最新）
+
+- **唯一当前指针**：`A_TECH_RULING_PR63_SIGNED_CATALOG_COMPATIBILITY / A_RELEASED_FOR_B_PG1_VERSIONED_DELTA_AND_SAFE_CANCEL_ADAPTER / NEXT_OWNER=B / NEXT_TASK=F06_5C_PG1_PR63_VERSIONED_CATALOG_AND_CANCEL_EQUIVALENCE_REPAIR / PR63_PR62_NOT_MERGED / F05_F06_V1_NOT_READY`。A以main `ca42b72f2b1308bdbef01a465ba35b54474534bd`审查，PR63 B HEAD `f0e159bbdbffca516b6ddd7c14052f882e3df57e`；[官方PG16 Run38648121814](https://github.com/suzhe868-arch/mb/actions/runs/38648121814) Job116139958565 失败，原有5B父回归/188张安装前Seal正常，安装新PG1前最终基线为**190张旧父表**，PG1追加2个public Trigger与1个constraint后冻结`getPublicStructure`固定结构签名失配，旧`verify`报`F05_10_CATALOG_DRIFT`。这是**版本化兼容阻断**，**不是**C01—C03已修复。
+- **A正式技术裁决**：保留旧v24 SQL/24 Ledger、190父表、全部原F05/F06 Service/verify和旧Catalog SHA不变；允许在原PR63新增目录内实现真实全量Catalog差分（仅两个触发器+一个constraint编目）、各对象精确SHA与不可变版本签、**明确选用的新版本安全4A/4C等价取消入口**，旧冻结4A/4C在新增Catalog后仍须FailClosed，不得假报其原二进制入口可用。真实调用前后需证明权限/锁序/签名/原子性和业务等价，严禁伪造public状态或绕过旧服务鉴权；若等价安全入口无法在新增目录闭合须实证再报最小例外，不得修改旧父。
+- **正式包内补充施工单**：`07_重建工作区/F06-5C-PG1_A主控PR63父签名兼容阻断_版本化目录验签与安全取消入口补充施工单_2026-10-15.md`。B沿用`fix/f06-5c-pg1-parent-priority-guard-ci`及草稿[PR63](https://github.com/suzhe868-arch/mb/pull/63)，仅`engineering/f06/transaction-priority-parent-gate-ci/**`、`.github/workflows/f06-5c-pg1-*.yml`，一次性完成兼容性正反、C01—C03及R01/4B→4C正向、双Backend原生PG16、旧190封印、同最终SHA全绿和中文交接。未达`READY_FOR_A_REVIEW`之前**不合并PR63**；原[PR62](https://github.com/suzhe868-arch/mb/pull/62)继续红灯；F05/F06/V1、生产资金/UAT/F07/F08仍`NOT_READY`。**NEXT_OWNER=B**。
+
+---
+
 # 2026-10-15｜A第四轮复验PR62：确认F05-8父自动Issuer真实跨域3项红证，放行独立F06-5C-PG1父层CI版本化补丁（唯一最新）
 
 - **当前唯一正式指针**：`A_REVIEW_CONFIRMED_F06_5C_PARENT_AUTO_ISSUER_SECURITY_RED / A_RELEASED_FOR_B_F06_5C_PG1_PARENT_AUTO_ISSUER_SIGNED_CI_GUARD / NEXT_OWNER=B / NEXT_TASK=F06_5C_PG1_NEW_BRANCH_NEW_PR_SIGNED_UPSTREAM_GATE_REPAIR / PR62_BLOCKED_UPSTREAM_NOT_MERGED / F05_F06_V1_NOT_READY`。A受验最新main `2c185a59eac7d06102329ec8c7afad30179b3889`；PR62报告HEAD `f3fe4bf39f2c28f62f598cfcd9f24f90fe3e2b61`，实际原生红证代码SHA `96ce3c725d6279a9a67b1fbdef46e1f113454cfa`；PR62 38/38变更仅现行授权独立CI目录，未动父/24签迁移，不合并。
