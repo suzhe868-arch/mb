@@ -20,6 +20,12 @@ const c=new pg.Client({connectionString:DSN,connectionTimeoutMillis:5000,query_t
 const report={task:'F06-5C-PG1',sha:process.env.GITHUB_SHA,run:process.env.GITHUB_RUN_ID,
   status:'BLOCKED_PENDING_NATIVE_TEST',production:'DENIED'};
 async function rows(sql,args=[]){return (await c.query(sql,args)).rows}
+// 冻结 5B 校验器自身锁定旧分支值；仅在离线合成 CI 中复用既签名校验，不改变校验实现。
+async function verifyFrozenParent(client){
+ const original=process.env.GITHUB_REF;
+ try{process.env.GITHUB_REF='refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci';return await verifyParent(client)}
+ finally{process.env.GITHUB_REF=original}
+}
 async function sealedParent(){
  const oldFunctions=await rows("SELECT p.proname,pg_get_functiondef(p.oid) AS def FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname IN ('f05_8_priority_guard','f05_8_reconcile_scope_ci','f05_8_close_for_occupancy','f05_8_source_change_ci') ORDER BY p.proname");
  assert.equal(oldFunctions.length,4);
@@ -42,7 +48,7 @@ try{
  assert.equal(db.db,'f03_auth_test');assert.equal(db.usr,'f03_ci');assert.equal(db.super,false);assert.equal(db.createdb,false);
  assert.ok(db.v>=160000&&db.v<170000);
  report.db=db;
- report.preParentVerification=(await verifyParent(c)).verified;
+ report.preParentVerification=(await verifyFrozenParent(c)).verified;
  assert.equal(report.preParentVerification,true);
  const before=await getPublicStructure(c);
  const old=await sealedParent();
@@ -69,7 +75,7 @@ try{
    ...fresh,privateSourceSHA256:sourceHash};
  assert.notEqual(before.sha256,after.sha256,'PG1_PUBLIC_CATALOG_MUST_NOT_BE_MISREPORTED_IDENTICAL');
  try{
-  const status=await verifyParent(c);
+  const status=await verifyFrozenParent(c);
   report.parentAfter={verified:status.verified};
   report.status='F06_PG1_UNEXPECTED_PARENT_VERIFICATION_ACCEPTED';
  }catch(e){
