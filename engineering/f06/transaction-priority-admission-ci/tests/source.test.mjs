@@ -577,3 +577,46 @@ test('5C-S65 批发车原Priority到Lock到5B交易，4A取消后双Backend仅�
   backendPids:attempts.map(x=>x.pgBackendPid),txids:attempts.map(x=>x.pgTransactionId),
   resultCodes:attempts.map(x=>x.code),parentSourceCreation: auto[0].event_key,zeroActualPayments:true});
 });
+
+test('5C-S66 原F06-1真候补即使5B交易及4A取消后仍防止新Priority插队',async()=>{
+ // 在全新CI-only名邦Vehicle上以冻结F06-1两个真实Customer签Lock和候补。
+ const l=await makeSignedLock(7,'waitlist-5c-source');
+ const request=await f06Signed(()=>intakeCI(db,{
+  customerId:86180102,vehicleId:86181107,listingCycleId:86182107,
+  requestKey:mk('waitlist-rival-request'),
+  syntheticPhoneConsent:'CI_SYNTHETIC_PHONE_CONSENT_NOT_PRODUCTION'
+ }));
+ assert.equal(request.code,'F06_1_PENDING_CREATED',JSON.stringify(request));
+ const queued=await f06Signed(()=>decisionCI(auth,token,{
+  requestId:request.requestId,requestKey:mk('waitlist-rival-decision'),action:'approve'
+ }));
+ assert.equal(queued.code,'F06_1_ALREADY_LOCKED_LOCK_CONFLICT',JSON.stringify(queued));
+ const waitlist=await q('SELECT waitlist_id,active_lock_id FROM public.waitlists WHERE customer_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3 AND ended_at IS NULL',
+  [86180102,86181107,86182107]);
+ assert.equal(waitlist.length,1,'F06_5C_REAL_F06_1_SIGNED_WAITLIST_REQUIRED');
+ assert.equal(Number(waitlist[0].active_lock_id),l);
+ const source=await q('SELECT source_request_id FROM f06_1_lock_ci.waitlist_sources WHERE waitlist_id=$1',[waitlist[0].waitlist_id]);
+ assert.equal(source.length,1);assert.equal(Number(source[0].source_request_id),request.requestId);
+ const converted=await withF065B(()=>openGuardedSyntheticTransactionCI(auth,token,{
+  lockId:l,eventKey:mk('waitlist-5b-converted')
+ }));
+ assert.equal(converted.code,'F06_5B_ATOMIC_SYNTHETIC_IN_PROGRESS',JSON.stringify(converted));
+ const cancel=await withF064A(()=>cancelSyntheticTransactionCI(auth,token,{
+  transactionId:converted.transactionId,eventKey:mk('waitlist-4a-cancelled'),
+  reason:'合成真实候补保护在交易取消后仍不得抢先新Priority'
+ }));
+ assert.equal(cancel.code,'F06_4A_CANCELLED_ATOMIC_NO_PAYMENT',JSON.stringify(cancel));
+ const proof=await auth.withSession(token,async c=>{
+  await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=86181107 FOR UPDATE');
+  return verifySignedTransactionVacancyCI(c,86181107);
+ },{normalOnly:true});
+ assert.equal(proof.code,'F06_5C_ALL_SIGNED_TRANSACTIONS_TERMINAL',JSON.stringify(proof));
+ const before=(await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=86181107"))[0].n;
+ const r=await requestSyntheticNewPriorityCI(auth,token,{
+  vehicleId:86181107,listingCycleId:86182107,teamId:901,
+  customerId:positive.customerId,eventKey:mk('signed-waitlist-must-not-skip')
+ });
+ assert.equal(r.code,'F06_5C_ACTIVE_SIGNED_WAITLIST_PREVENTS_NEW_PRIORITY',JSON.stringify(r));
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=86181107"))[0].n,before);
+ assert.equal((await q('SELECT count(*)::int n FROM public.refund_payments'))[0].n,0);
+});
