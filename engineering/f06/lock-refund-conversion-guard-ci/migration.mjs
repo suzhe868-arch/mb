@@ -39,7 +39,7 @@ export async function verify(c){
 export async function apply(c,{inject=false}={}){
  const p=await signed(c);if((await c.query("SELECT to_regnamespace('f06_5b_ci')::text n")).rows[0].n)throw Error('F06_5B_ALREADY_APPLIED');
  await c.query('BEGIN');try{await c.query('SELECT pg_advisory_xact_lock(20261014,6502)');await c.query(SQL);
- await c.query("INSERT INTO f06_5b_ci.attestation(seal_name,source_sha256,public_catalog_sha256,old_ledger_sha256,parent_f06_4c_sha256) VALUES('F06_5B_CI_ONLY',$1,$2,$3,$4)",[checksum,p.catalog,p.ledger,p.parent]);
+ await c.query("INSERT INTO f06_5b_ci.attestation(seal_name,source_sha256,public_catalog_sha256,old_ledger_sha256,parent_f06_5a_sha256) VALUES('F06_5B_CI_ONLY',$1,$2,$3,$4)",[checksum,p.catalog,p.ledger,p.parent]);
  if(inject)throw Error('F06_5B_INJECTED_DDL_ROLLBACK');
  if((await getPublicStructure(c)).sha256!==p.catalog)throw Error('F06_5B_PUBLIC_SCHEMA_MUTATED');
  await c.query('COMMIT')}catch(e){await c.query('ROLLBACK');throw e}
