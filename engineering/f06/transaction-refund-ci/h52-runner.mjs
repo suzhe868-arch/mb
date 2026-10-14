@@ -24,8 +24,10 @@ function stepsFromJob(job){
  if(name==='h-source'||name==='h-https')return [{script:'bash engineering/f05/customer-wechat-actor-trust/ci-job.sh $MODE',cwd:workspace}];
  const lines=job.split('\n'),pos=lines.findIndex(l=>/^    steps:\s*$/.test(l));if(pos<0)throw Error('F06_5A_MISSING_PARENT_STEPS');
  let defaultCwd=workspace;
- const defaults=job.slice(0,job.indexOf('    steps:')).match(/defaults:\s*\n\s*run:\s*\n\s*working-directory:\s*([^\s\n]+)/);
- if(defaults)defaultCwd=resolve(workspace,defaults[1]);
+ const parentPreamble=job.slice(0,job.indexOf('    steps:'));
+ const defaults=parentPreamble.match(/defaults:\s*\n\s*run:\s*\n\s*working-directory:\s*([^\s\n}]+)/)
+  ||parentPreamble.match(/defaults:\s*\n\s*run:\s*\{\s*working-directory:\s*([^\s\n}]+)\s*\}/);
+ if(defaults)defaultCwd=resolve(workspace,parseShell(defaults[1]));
  const slice=lines.slice(pos+1).filter(l=>l.trim().length>0);
  const starts=slice.map((l,i)=>({l,i})).filter(x=>/^\s*-\s+(?:run|name|uses):/.test(x.l));
  const min=Math.min(...starts.map(x=>tabs(x.l)));
