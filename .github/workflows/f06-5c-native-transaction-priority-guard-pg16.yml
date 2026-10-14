@@ -27,6 +27,14 @@ jobs:
           docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
+      - name: Reserve signed loopback TLS ports from ephemeral TCP source-port allocation
+        run: |
+          set -euo pipefail
+          old="$(sysctl -n net.ipv4.ip_local_reserved_ports)"
+          if [[ -n "$old" ]]; then value="$old,49000-49100"; else value="49000-49100"; fi
+          sudo sysctl -w "net.ipv4.ip_local_reserved_ports=$value"
+          sysctl -n net.ipv4.ip_local_reserved_ports | grep -Fq 49000-49100
+          echo F06_5C_SIGNED_TLS_PORTS_RESERVED_FROM_EPHEMERAL_ALLOCATION
       - name: Real F06-5C PG16 Source and two physical database audit
         run: bash engineering/f06/transaction-priority-admission-ci/ci-job.sh source
         env:
@@ -58,6 +66,14 @@ jobs:
           docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
+      - name: Reserve signed loopback TLS ports from ephemeral TCP source-port allocation
+        run: |
+          set -euo pipefail
+          old="$(sysctl -n net.ipv4.ip_local_reserved_ports)"
+          if [[ -n "$old" ]]; then value="$old,49000-49100"; else value="49000-49100"; fi
+          sudo sysctl -w "net.ipv4.ip_local_reserved_ports=$value"
+          sysctl -n net.ipv4.ip_local_reserved_ports | grep -Fq 49000-49100
+          echo F06_5C_SIGNED_TLS_PORTS_RESERVED_FROM_EPHEMERAL_ALLOCATION
       - name: Real HTTPS hard-deny tests
         run: bash engineering/f06/transaction-priority-admission-ci/ci-job.sh https
       - uses: actions/upload-artifact@v4

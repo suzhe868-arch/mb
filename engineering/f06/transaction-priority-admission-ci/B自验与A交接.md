@@ -84,3 +84,10 @@ UPSTREAM_PRIORITY_ADMISSION_ATOMIC_SOURCE_GAP，而不创造新Priority。
 
 ### PG16 Check约束实测整改（2026-10-14）
 - Run38569979928 Source Job115872323495 `test.before` 真实失败：SQL `23514`, `locks` 表 `f02_ad7d93ac8f4fa2033f43` 锁有效时间约束；模拟过期不得仅设置到期时间早于当前新建时间。依冻结F06-2 Source 原合法到期例，将同一CI合成Lock的 `created_at` 调至100小时前、`expires_at` 调至1分钟前后，仍由原F06-2 `expireOrdinaryCI` 签发实际终结。未改约束或冻结父测试。
+
+
+### B追加隔离排障与修复（2026-10-14，最终CI待验证）
+- 正式分支f840b615同SHA 22项Push工作流：19 PASS、3 FAILURE。失败：F06-3B run38571347532、F06-5B run38571347567、F06-5C run38571347098。
+- 3B与5B Source均PASS，HTTPS测试因127.0.0.1:49028/49030/49042监听端口EADDRINUSE失败；本次仅于F06-5C命名工作流上以Linux ip_local_reserved_ports排除49000-49100出站临时端口分配，保留所有父原始TLS9断言与独立PG16 Job。此为待实证的端口争用修复，不能以配置成功代替TLS通过。
+- 5C Source测试初始化抛F06_2_NOT_ISOLATED_GITHUB_REF：旧F06-2 expireOrdinaryCI签名CI发行器须于F06-2 REF语境执行。本次使用现有withF062兼容封装真实原发行器，未修改旧服务或数据库签名。不得伪造GitHub真实Push SHA。
+- 本条属B实施中补充证据，仍BLOCKED，待全量Push Job、Source56、HTTPS9及父旧190表实证完全通过才能变更READY。
