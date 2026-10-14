@@ -96,6 +96,23 @@ export async function proveVersionedNative4C(c,base,fixture){
   transactionId:fixture.newTx,reason:'原负责人不能越权取消已移交交易',eventKey:mk('wrong-old-4c')
  });
  assert.equal(wrong.code,'F06_4C_OLD_RESPONSIBLE_DENIED',JSON.stringify(wrong));
+ // 4B已完成移交，4C真实收件人注错必须撤销状态和全部新三签，不撤销已提交4B。
+ for(const cp of ['AFTER_STATUS_THROW','AFTER_EVENT_THROW','AFTER_AUDIT_THROW','BEFORE_COMMIT_THROW']){
+  await assert.rejects(
+   ()=>cancelAfterHandoffV2CI(auth,fixture.receiverToken,{
+    transactionId:fixture.newTx,reason:'真实4C移交之后分阶段注错完整回滚',eventKey:mk('4c-rollback-'+cp),
+    testCheckpoint:cp
+   }),/F06_4C_INJECTED_/);
+  const state=await carrier(c,fixture.newTx);
+  assert.equal(state.status,'in_progress','PG1_V2_4C_INJECTION_STATUS_HALF_WRITE_'+cp);
+  assert.equal(state.signed_transaction_id,null,'PG1_V2_4C_INJECTION_KEY_HALF_WRITE_'+cp);
+  const facts=await one(c,"SELECT "+
+   "(SELECT count(*)::int FROM f06_4c_ci.cancel_origins WHERE transaction_id=$1) origins,"+
+   "(SELECT count(*)::int FROM f06_4c_ci.cancel_events WHERE transaction_id=$1) events",
+   [fixture.newTx]);
+  assert.equal(facts.origins,0);assert.equal(facts.events,0);
+  assert.equal((await verify(c)).verified,true);
+ }
  const cancel=await cancelAfterHandoffV2CI(auth,fixture.receiverToken,{
   transactionId:fixture.newTx,reason:'4C合成父版本真实签名移交取消结果',eventKey:mk('new-4c')
  });

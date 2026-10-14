@@ -93,6 +93,23 @@ export async function proveVersionedNative4A(c,fixture){
  gate();
  assert.equal((await verify(c)).verified,true);
  const {auth,token,newTx,oldCarrier}=fixture;
+ // 真实PG业务入口注错：状态写完、不可变事件写完、审计写完三个边界必须物理回滚。
+ for(const cp of ['AFTER_STATUS_THROW','AFTER_EVENT_THROW','AFTER_AUDIT_THROW']){
+  await assert.rejects(
+   ()=>cancelSyntheticTransactionV2CI(auth,token,{
+    transactionId:newTx,eventKey:mk('v2-4a-rollback-'+cp),
+    reason:'原生4A分阶段事务注错回滚安全验证',testCheckpoint:cp
+   }),/F06_4A_INJECTED_/);
+  const state=await orig(c,newTx);
+  assert.equal(state.status,'in_progress','PG1_V2_4A_INJECTION_PUBLIC_STATUS_HALF_WRITE_'+cp);
+  assert.equal(state.origin_id,null,'PG1_V2_4A_INJECTION_SIGNATURE_HALF_WRITE_'+cp);
+  const counts=await first(c,"SELECT "+
+   "(SELECT count(*)::int FROM f06_4a_ci.cancel_events WHERE transaction_id=$1) events,"+
+   "(SELECT count(*)::int FROM f06_4a_ci.request_keys WHERE transaction_id=$1) keys",
+   [newTx]);
+  assert.equal(counts.events,0);assert.equal(counts.keys,0);
+  assert.equal((await verify(c)).verified,true);
+ }
  const after=await cancelSyntheticTransactionV2CI(auth,token,{
   transactionId:newTx,eventKey:mk('v2-4a-cancel'),reason:'真实父版本正常签名4A取消结果对照'
  });
