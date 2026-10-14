@@ -88,6 +88,12 @@ async function signedBalance(c,t,ignoreRefundId=null){
  " AND r.status IN('pending','refunded') AND ($4::bigint IS NULL OR r.refund_id<>$4)) conflicts",
  [t.source_lock_id,t.vehicle_id,t.listing_cycle_id,ignoreRefundId]);
  if(all.raw===0||all.raw!==all.signed||all.paid)return no('F06_5A_DEPOSIT_OR_PAYMENT_SOURCE_GAP');
+ // Independently verify the signed legacy Lock-side pending carrier. Owning Transaction cannot coexist with it.
+ const legacy=await row(c,"SELECT count(*)::int n FROM f06_3c1_ci.refund_origins o "+
+ "JOIN public.refund_cases r ON r.refund_id=o.refund_id "+
+ "WHERE o.vehicle_id=$1 AND o.listing_cycle_id=$2 AND r.status='pending'",
+ [t.vehicle_id,t.listing_cycle_id]);
+ if(legacy.n)return no('F06_5A_SIGNED_LEGACY_LOCK_PENDING_CONFLICT');
  if(all.conflicts)return no('F06_5A_ACTIVE_REFUND_CONFLICT');
  const d=(await c.query("SELECT d.deposit_id,d.customer_id,d.lock_id,d.amount_cents,p.original_amount_cents,p.customer_id signed_customer,p.vehicle_id,p.listing_cycle_id "+
  "FROM public.deposit_receipts d JOIN f06_3a_ci.receipt_provenance p USING(deposit_id) WHERE d.lock_id=$1 FOR SHARE OF d,p",[t.source_lock_id])).rows;
@@ -98,10 +104,16 @@ async function signedBalance(c,t,ignoreRefundId=null){
    Number(r.lock_id)!==Number(t.source_lock_id)||Number(r.amount_cents)!==Number(r.original_amount_cents)||
    Number(r.vehicle_id)!==Number(t.vehicle_id)||Number(r.listing_cycle_id)!==Number(t.listing_cycle_id))
    return no('F06_5A_DEPOSIT_PROVENANCE_DRIFT');
-  const adjustments=(await c.query("SELECT a.delta_cents,a.lock_id,a.currency,k.resulting_adjustment_id FROM f06_3a_ci.adjustments a "+
-   "LEFT JOIN f06_3a_ci.request_keys k ON k.resulting_adjustment_id=a.adjustment_id "+
+  const adjustments=(await c.query("SELECT a.adjustment_id,a.delta_cents,a.lock_id,a.currency,a.actor_employee_id,a.event_kind,a.event_key_sha256,"+
+   "k.resulting_adjustment_id,k.action signed_action,k.lock_id signed_lock,k.deposit_id signed_deposit,k.actor_employee_id signed_actor,k.amount_cents signed_delta,k.key_sha256 signed_key "+
+   "FROM f06_3a_ci.adjustments a LEFT JOIN f06_3a_ci.request_keys k ON k.resulting_adjustment_id=a.adjustment_id "+
    "WHERE a.deposit_id=$1 FOR SHARE OF a",[r.deposit_id])).rows;
-  if(adjustments.some(x=>Number(x.lock_id)!==Number(t.source_lock_id)||x.currency!=='CNY'||x.resulting_adjustment_id===null))
+  if(adjustments.some(x=>Number(x.lock_id)!==Number(t.source_lock_id)||x.currency!=='CNY'||
+   x.resulting_adjustment_id===null||Number(x.resulting_adjustment_id)!==Number(x.adjustment_id)||
+   x.signed_action!==x.event_kind||!['correction','reversal'].includes(x.event_kind)||
+   Number(x.signed_lock)!==Number(x.lock_id)||Number(x.signed_deposit)!==Number(r.deposit_id)||
+   Number(x.signed_actor)!==Number(x.actor_employee_id)||Number(x.signed_delta)!==Number(x.delta_cents)||
+   x.signed_key!==x.event_key_sha256))
    return no('F06_5A_UNVERIFIED_FINANCIAL_CORRECTION');
   const amt=Number(r.amount_cents)+adjustments.reduce((s,x)=>s+Number(x.delta_cents),0);
   if(!Number.isSafeInteger(amt)||amt<0||amt>100000000000)return no('F06_5A_BAD_NET_BALANCE');
@@ -133,8 +145,18 @@ export async function requestSyntheticTransactionRefundCI(auth,token,p={}){
   const perm=await authorized(c,a,t);if(!perm.allowed)return perm;
   const h=keyed(a,p.eventKey),fingerprint=fp({action:'request',transactionId:p.transactionId,amount:p.amountCents,reason:p.reason.trim(),subject:'transaction'});
   const existing=await row(c,'SELECT * FROM f06_5a_ci.request_keys WHERE event_key_sha256=$1',[h]);
-  if(existing)return existing.action==='request'&&existing.payload_sha256===fingerprint?
-    yes('F06_5A_IDEMPOTENT_PENDING',{refundId:Number(existing.refund_id)}):no('F06_5A_IDEMPOTENCY_CONFLICT');
+  if(existing){
+   if(existing.action!=='request'||existing.payload_sha256!==fingerprint)return no('F06_5A_IDEMPOTENCY_CONFLICT');
+   const saved=await row(c,"SELECT r.status,r.transaction_id,r.lock_id,r.customer_id,r.expected_amount_cents,o.amount_cents "+
+    "FROM public.refund_cases r JOIN f06_5a_ci.refund_origins o USING(refund_id) WHERE r.refund_id=$1 FOR UPDATE OF r",
+    [existing.refund_id]);
+   if(!saved||Number(saved.transaction_id)!==Number(t.transaction_id)||saved.lock_id!==null||
+    Number(saved.customer_id)!==Number(t.customer_id)||Number(saved.expected_amount_cents)!==Number(saved.amount_cents))
+    return no('F06_5A_IDEMPOTENCY_STATUS_DRIFT');
+   if(saved.status==='closed')return no('F06_5A_ALREADY_CLOSED_REQUEST_KEY',{refundId:Number(existing.refund_id),status:'closed'});
+   if(saved.status!=='pending')return no('F06_5A_IDEMPOTENCY_STATUS_DRIFT');
+   return yes('F06_5A_IDEMPOTENT_PENDING',{refundId:Number(existing.refund_id),status:'pending'});
+  }
   const b=await signedBalance(c,t);if(!b.allowed)return b;
   if(p.amountCents>b.netCents)return no('F06_5A_AMOUNT_EXCEEDS_BALANCE',{netCents:b.netCents});
   if(p.testCheckpoint==='BEFORE_PENDING_THROW')throw Error('F06_5A_INJECTED_BEFORE_PENDING');
