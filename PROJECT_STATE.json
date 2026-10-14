@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F06_5C_A_THIRD_INDEPENDENT_REVIEW_PARENT_TRIGGER_R01_SCOPED_ACCEPTED_B_CROSS_DOMAIN_REMEDIATION",
+  "substage": "F06_5C_PG1_A_CONFIRMED_PARENT_AUTO_ISSUER_SECURITY_RED_NEW_PARENT_GATE_REPAIR_RELEASED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F06",
-  "current_domain_status": "F06_5C_A_CHANGES_REQUESTED_PARENT_AUTO_ISSUER_CROSS_DOMAIN_PROOF_CI_ONLY",
+  "current_domain_status": "F06_5C_PG1_A_RELEASED_FOR_B_PARENT_AUTO_ISSUER_SIGNED_CI_GUARD_PRIOR_PR62_BLOCKED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "第三轮独立审验PR62 HEAD a54f4628e29354a207619f0d2a0cfe2896bb833a（原main d0904e22e68484e92424e241e35b2b23445911f4）：37/37授权新增CI文件；同SHA 22/22真Push、96/96PG16 Jobs、H52 52/52、Source85/85 HTTPS9/9、96官方有效sha256工件元数据、190父表Scenario OID68456→Audit OID73479，24迁移/Catalog/D1父签名不漂移；R02签名Transaction拒绝/R03跨负责人4B→4C原生通过。A技术裁决R01接受冻结F05-8在4A真实Cancel COMMIT自动唯一签新Priority+5C重入拒绝的窄CI事实，不要求5C伪造第二次正向签发。新发现原冻结F05-8父自动触发器未显式检查有效Waitlist、退款/资金及5B/4A签名；尚缺真Match+Waitlist/未签public假取消/退款组合下父触发器不得抢发的原生证明。R04 37例独立性仍待A终验。额外PR旧CI本HEAD查询5成功/4失败/1运行中。A_CHANGES_REQUESTED，PR62保持open未合并，B按C01—C05同包补证；F05/F06/V1 NOT_READY。",
-  "current_work_file": "07_重建工作区/F06-5C_A主控第三轮复验_R01父触发器技术裁决与候补资金签名补证施工单_2026-10-15.md",
+  "current_task": "A对PR62第三轮补证的独立第四轮审验：PR62最新文档HEAD f3fe4bf39f2c28f62f598cfcd9f24f90fe3e2b61（38项均原5C白名单），真实PG16红证代码SHA 96ce3c725d6279a9a67b1fbdef46e1f113454cfa，Run38641938789 Source88/85pass/3fail（HTTPS9 pass）：C01有效候补+真Match+5B安全Transaction经4A签Cancel被旧父自动签Priority12；C02无原4A/4C签名的public伪cancel同PG Savepoint提前签Priority8但回滚；C03未知pending退款+伪public取消同PG Savepoint提前签Priority9但回滚。A确认旧F05-8自动Issuer缺少Waitlist及有签终态/资金跨域保护，5C自身Guard无法先于旧父Trigger。正式新工程包F06-5C-PG1放行独立新分支/新PR，只准新增CI-only Sidecar/新Workflows，先修复父原子签发门禁、保留旧000024 SQL和24 Ledger及旧190表；完成PG1 A验收合并后才能返回原PR62最终整改与A复审。PR62未合并仍RED；F05/F06/V1不就绪。",
+  "current_work_file": "07_重建工作区/F06-5C-PG1_A主控冻结F05-8父自动签发跨域越权_版本化补丁与独立原生PG16修复正式施工单_2026-10-15.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F06_5C_PR62_A_THIRD_REVIEW_TECH_RULING_R01_SCOPED_ACCEPTED",
+  "current_review_batch": "F06_5C_PG1_UPSTREAM_PARENT_AUTO_ISSUER_TECH_REPAIR_RELEASED",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -7883,15 +7883,15 @@
     "global_not_ready": true
   },
   "f06_5c_gate": {
-    "status": "A_THIRD_CHANGES_REQUESTED_PARENT_AUTO_ISSUER_CROSS_DOMAIN_PROOF_CI_ONLY",
+    "status": "A_CONFIRMED_PARENT_SOURCE_SECURITY_RED_UPSTREAM_PG1_FIX_RELEASED",
     "owner": "B",
     "next_owner": "B",
     "pr": 62,
     "pr_merged": false,
     "branch": "feat/f06-5c-transaction-priority-admission-ci",
-    "a_inspected_head_sha": "a54f4628e29354a207619f0d2a0cfe2896bb833a",
-    "review_main_sha": "d0904e22e68484e92424e241e35b2b23445911f4",
-    "work_order": "07_重建工作区/F06-5C_A主控第三轮复验_R01父触发器技术裁决与候补资金签名补证施工单_2026-10-15.md",
+    "a_inspected_head_sha": "f3fe4bf39f2c28f62f598cfcd9f24f90fe3e2b61",
+    "review_main_sha": "2c185a59eac7d06102329ec8c7afad30179b3889",
+    "work_order": "07_重建工作区/F06-5C-PG1_A主控冻结F05-8父自动签发跨域越权_版本化补丁与独立原生PG16修复正式施工单_2026-10-15.md",
     "scope": "CI_ONLY_TRANSACTION_PRIORITY_ATOMIC_ADMISSION_WITH_SIGNED_TERMINAL_AND_RACE_GUARDS",
     "a_verified_push_workflows": 22,
     "a_verified_h52_jobs": 52,
@@ -7904,11 +7904,10 @@
     "b_claimed_zip_sha256_artifacts": 32,
     "a_did_not_rehash_all_zip_artifacts": true,
     "blocked_by": [
-      "PARENT_F05_8_AUTOMATIC_PRIORITY_ISSUER_WITH_ACTIVE_SIGNED_WAITLIST_AND_CURRENT_MATCH_NOT_PROVEN",
-      "PARENT_F05_8_UNTRUSTED_PUBLIC_CANCEL_WITHOUT_SIGNED_4A_4C_MUST_NOT_AUTO_ISSUE_UNPROVEN",
-      "PARENT_F05_8_TRANSACTION_CANCEL_WITH_UNVERIFIED_REFUND_FINANCE_MUST_NOT_AUTO_ISSUE_UNPROVEN",
-      "MEANINGFUL_36_INDEPENDENT_BUSINESS_SCENARIOS_FINAL_REVIEW_PENDING",
-      "EXTRA_LEGACY_PR_CHECKS_4_FAILED_1_IN_PROGRESS_REQUIRED_DETAILS_API_403"
+      "UPSTREAM_F05_8_AUTO_PRIORITY_ISSUER_BYPASSES_WAITLIST",
+      "UPSTREAM_F05_8_AUTO_PRIORITY_ISSUER_ACCEPTS_UNSIGNED_PUBLIC_CANCEL",
+      "UPSTREAM_F05_8_AUTO_PRIORITY_ISSUER_ACCEPTS_UNKNOWN_FINANCE_IN_SAVEPOINT",
+      "NEEDS_INDEPENDENT_PG1_SIDECAR_REMEDIATION_PR_BEFORE_PR62_INTEGRATION"
     ],
     "allowed_new_paths": [
       "engineering/f06/transaction-priority-admission-ci/**",
@@ -7921,6 +7920,39 @@
     "a_verified_all_git_job_and_artifact_zip_bytes": false,
     "a_verified_total_jobs": 96,
     "a_verified_official_artifact_metadata": 96,
-    "r01_tech_ruling": "SCOPED_ACCEPTED_PARENT_F05_8_AUTO_SIGNED_UNIQUE_NEW_PRIORITY_AFTER_4A_COMMIT_5C_REENTRY_DENIED_NO_DUPLICATE_ISSUANCE"
+    "r01_tech_ruling": "SCOPED_ACCEPTED_PARENT_F05_8_AUTO_SIGNED_UNIQUE_NEW_PRIORITY_AFTER_4A_COMMIT_5C_REENTRY_DENIED_NO_DUPLICATE_ISSUANCE",
+    "tested_red_head_sha": "96ce3c725d6279a9a67b1fbdef46e1f113454cfa",
+    "source_tests": 88,
+    "source_pass": 85,
+    "source_fail": 3,
+    "source_job": 116119360131,
+    "source_run": 38641938789,
+    "https_job": 116119359691,
+    "https_pass": 9,
+    "red_scenarios": [
+      "C01_S84_SIGNED_WAITLIST_PRIORITY_AUTOCREATED_ID12",
+      "C02_S85_UNSIGNED_PUBLIC_CANCEL_PRIORITY_CREATED_IN_ROLLED_BACK_SAVEPOINT_ID8",
+      "C03_S86_UNKNOWN_REFUND_PLUS_UNSIGNED_PUBLIC_CANCEL_PRIORITY_CREATED_IN_ROLLED_BACK_SAVEPOINT_ID9"
+    ],
+    "all_green": false
+  },
+  "next_task": "F06_5C_PG1_NEW_BRANCH_NEW_PR_SIGNED_UPSTREAM_GATE_REPAIR",
+  "f06_5c_pg1_gate": {
+    "status": "A_RELEASED_FOR_B_CI_ONLY",
+    "next_owner": "B",
+    "origin": "A_INDEPENDENT_REVIEW_OF_PR62_C01_C02_C03_PARENT_SOURCE_RED",
+    "branch": "fix/f06-5c-pg1-parent-priority-guard-ci",
+    "work_order": "07_重建工作区/F06-5C-PG1_A主控冻结F05-8父自动签发跨域越权_版本化补丁与独立原生PG16修复正式施工单_2026-10-15.md",
+    "new_pr_required": true,
+    "allowed_new_paths": [
+      "engineering/f06/transaction-priority-parent-gate-ci/**",
+      ".github/workflows/f06-5c-pg1-*.yml"
+    ],
+    "forbid_original_parent_rewrite": true,
+    "forbid_original_24_ledger_rewrite": true,
+    "nonprivileged_pg16_required": true,
+    "real_money_authorized": false,
+    "production_issuer_authorized": false,
+    "merge_before_pr62_required": true
   }
 }
