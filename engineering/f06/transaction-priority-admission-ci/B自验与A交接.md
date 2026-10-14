@@ -65,3 +65,8 @@ UPSTREAM_PRIORITY_ADMISSION_ATOMIC_SOURCE_GAP，而不创造新Priority。
 - 依A裁决引入受限auth.withSession包装，先锁Vehicle、同事务核实签名来源，再调用原F05-8 arbitrateCI；绝不自行INSERT父Priority；要求回读created事件、winner和同PG PID/txid。不匹配时抛错，强制原Session回滚。
 - Source增加12项真实登录、父5B原子Transaction、原3B漏洞、跨Backend争用和撤权相关测试，总48项定义；测试定义并非真实PASS。旧36项形式测试不得冒充完整36项真实业务矩阵。
 - 仍须官方Push96 Job、两OID、全190旧父Seal与>=32 SHA256证据全绿，且补足真实合法Priority正向/取消后新仲裁的充分业务测试，方可修改此记录为READY。
+
+
+### 最新真实CI失败与B整改（2026-10-14）
+- 失败证据：GitHub F06-5C Source run 38564891599 / job 115855482387。HTTPS9已通过；Source56 首个真实错误来自test.before的冻结F05-8验证：24条现行签名账本与旧F05-8的22条历史视图不兼容（F05_8_SIGNED_V23_CHAIN_REQUIRED），其他用例均为hookFailed。
+- 本轮在5C白名单内新增只读真实账本历史前缀受限Client：先按5C全量验证物理24条账本与Catalog，再仅对旧父固定历史账本SELECT追加21/22条上限；旧父仍签验真正存在的历史记录，不修改数据库、不假签数据、不绕过原父业务SQL、无第二事务。等待下次完整CI真值，不得标记READY。

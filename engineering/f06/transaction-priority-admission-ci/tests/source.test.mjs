@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {connect,verify,checksum,gate} from '../migration.mjs';
-import {requestSyntheticNewPriorityCI,productionIssuerDeny,UPSTREAM_GAP} from '../service.mjs';
+import {requestSyntheticNewPriorityCI,productionIssuerDeny,UPSTREAM_GAP,signedFrozenParentSessionAdapterCI} from '../service.mjs';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {withF065B} from '../migration.mjs';
 import {intakeCI,decisionCI} from '../../lockrequest-approval-waitlist-ci/service.mjs';
@@ -92,12 +92,12 @@ test.before(async()=>{
  })]);
  const demand=(await q("SELECT demand_id FROM public.demands WHERE customer_id=$1 AND demand_state='active' ORDER BY demand_id LIMIT 1",[positive.customerId]))[0];
  assert.ok(demand);
- const qualify=await setQualificationCI(auth,token,{teamId:901,customerId:positive.customerId,enabled:true,eventKey:mk('signed-qualification')});
+ const qualify=await setQualificationCI(signedFrozenParentSessionAdapterCI(auth,22),token,{teamId:901,customerId:positive.customerId,enabled:true,eventKey:mk('signed-qualification')});
  assert.equal(qualify.allowed,true,JSON.stringify(qualify));
- const d=await saveSalesDescriptionCI(auth,token,{demandId:Number(demand.demand_id),teamId:901,
+ const d=await saveSalesDescriptionCI(signedFrozenParentSessionAdapterCI(auth,21),token,{demandId:Number(demand.demand_id),teamId:901,
   description:'奥迪A6 2026款 5万公里以内 黑色外观 米色内饰 预算10万'});
  assert.equal(d.allowed,true,JSON.stringify(d));
- const matching=await calculateCI(auth,token,{demandId:Number(demand.demand_id),vehicleId:positive.vehicleId,
+ const matching=await calculateCI(signedFrozenParentSessionAdapterCI(auth,21),token,{demandId:Number(demand.demand_id),vehicleId:positive.vehicleId,
   listingCycleId:positive.listingCycleId,teamId:901,runKey:mk('signed-match')});
  assert.equal(matching.allowed,true,JSON.stringify(matching));
  assert.ok(['high','acceptable'].includes(matching.tier),'F06_5C_SIGNED_F05_7_HIGH_OR_ACCEPTABLE_REQUIRED');

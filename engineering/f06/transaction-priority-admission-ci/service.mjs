@@ -6,6 +6,32 @@ const fail=(code,extra={})=>({allowed:false,code,CI_ONLY:true,...extra});
 const one=async(c,s,p=[])=> (await c.query(s,p)).rows[0];
 const id=x=>Number.isSafeInteger(x)&&x>0&&x<2147483647;
 const key=x=>typeof x==='string'&&/^[A-Za-z0-9._:-]{16,160}$/.test(x);
+// 原冻结F05-7(v23)/F05-8(v24)校验要求21/22条完整历史账本。
+// 5C先以物理24条链+当前Catalog完整验真，随后仅在受限事务客户端
+// 的旧父验证SELECT上读取真正存在的历史版本前缀；绝不修改或伪造账本。
+// 所有业务SQL透传同一个PostgreSQL Client，无第二连接或事务。
+const historicalLedgerSQL='SELECT migration_id,checksum,structure_sha256 FROM public.f03_schema_migrations ORDER BY migration_id';
+function signedHistoryClient(c,version){
+ if(version!==21&&version!==22)throw Error('F06_5C_HISTORICAL_LEDGER_VERSION_DENIED');
+ return {query:(sql,...params)=>{
+  if(typeof sql==='string'&&sql.trim()===historicalLedgerSQL)
+   return c.query(historicalLedgerSQL+' LIMIT '+version,...params);
+  return c.query(sql,...params);
+ }};
+}
+export function signedFrozenParentSessionAdapterCI(auth,version){
+ gate();
+ if((version!==21&&version!==22)||!auth||typeof auth.withSession!=='function')
+  throw Error('F06_5C_PARENT_SNAPSHOT_VERSION_OR_SESSION_DENIED');
+ return {withSession:(token,callback,options)=>{
+  if(typeof callback!=='function'||options?.normalOnly!==true)
+   throw Error('F06_5C_PARENT_SESSION_OPTIONS_REQUIRED');
+  return auth.withSession(token,async(c,a,s,now)=>{
+   await verify(c); // 真实24条完整验真，然后再给历史签发器原有版本的账本视图
+   return callback(signedHistoryClient(c,version),a,s,now);
+  },options);
+ }};
+}
 export const PRODUCTION_PRIORITY_ISSUER='F06_5C_PRODUCTION_PRIORITY_ISSUER_NOT_WIRED';
 export const UPSTREAM_GAP='UPSTREAM_PRIORITY_ADMISSION_ATOMIC_SOURCE_GAP';
 export function productionIssuerDeny(){return fail(PRODUCTION_PRIORITY_ISSUER)}
@@ -98,7 +124,7 @@ export async function requestSyntheticNewPriorityCI(auth,token,p={}){
     if(s?.restricted)return fail('F06_5C_RESTRICTED_SESSION');
     const precheck=await admissibility(c,a,p);
     if(!precheck.allowed)return precheck;
-    const result=await originalCallback(c,a,s,now);
+    const result=await originalCallback(signedHistoryClient(c,22),a,s,now);
     const after=await one(c,'SELECT pg_backend_pid()::int pid,txid_current()::text txid');
     if(before.pid!==after.pid||before.txid!==after.txid)
      throw Error('F06_5C_PARENT_TRANSACTION_IDENTITY_DRIFT');
