@@ -149,8 +149,6 @@ export async function requestSyntheticTransactionRefundCI(auth,token,p={}){
   if(p.testCheckpoint==='AFTER_AUDIT_THROW')throw Error('F06_5A_INJECTED_AFTER_AUDIT');
   const financialAtCommit=await signedBalance(c,t,Number(r.refund_id));
   if(!financialAtCommit.allowed||financialAtCommit.netCents<p.amountCents)throw Error('F06_5A_PRECOMMIT_FINANCIAL_SOURCE_CHANGED');
-  const financialAtCommit=await signedBalance(c,t,p.refundId);
-  if(!financialAtCommit.allowed||financialAtCommit.netCents<Number(o.amount_cents))throw Error('F06_5A_PRECOMMIT_FINANCIAL_SOURCE_CHANGED');
   if(!(await authorized(c,a,t)).allowed)throw Error('F06_5A_PRECOMMIT_PERMISSION_REVOKED');
   if(p.testCheckpoint==='BEFORE_COMMIT_THROW')throw Error('F06_5A_INJECTED_BEFORE_COMMIT');
   return yes('F06_5A_PENDING_WITHOUT_PAYMENT',{refundId:Number(r.refund_id),netCents:b.netCents,backendPid:(await row(c,'SELECT pg_backend_pid() pid')).pid});
@@ -188,6 +186,8 @@ export async function closeSyntheticTransactionRefundCI(auth,token,p={}){
   if(p.testCheckpoint==='AFTER_EVENT_THROW')throw Error('F06_5A_INJECTED_AFTER_CLOSE_EVENT');
   await audit(c,a.employee_id,p.refundId,'close',{status:'pending'},{status:'closed',closeReason:p.closeReason.trim(),paid:false});
   if(p.testCheckpoint==='AFTER_AUDIT_THROW')throw Error('F06_5A_INJECTED_AFTER_CLOSE_AUDIT');
+  const financialAtCommit=await signedBalance(c,t,p.refundId);
+  if(!financialAtCommit.allowed||financialAtCommit.netCents<Number(o.amount_cents))throw Error('F06_5A_PRECOMMIT_FINANCIAL_SOURCE_CHANGED');
   if(!(await authorized(c,a,t)).allowed)throw Error('F06_5A_PRECOMMIT_PERMISSION_REVOKED');
   if(p.testCheckpoint==='BEFORE_COMMIT_THROW')throw Error('F06_5A_INJECTED_BEFORE_COMMIT');
   return yes('F06_5A_CLOSED_WITHOUT_PAYMENT',{refundId:p.refundId,backendPid:(await row(c,'SELECT pg_backend_pid() pid')).pid});

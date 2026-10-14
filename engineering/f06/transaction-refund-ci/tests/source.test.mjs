@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import {connect,verify,withF064C} from '../migration.mjs';
 import {withF064B} from '../../post-handoff-cancel-ci/migration.mjs';
 import {withF064A} from '../../transaction-handoff-ci/migration.mjs';
-import {cancelAfterHandoffSyntheticCI,postHandoffOccupancyCI,publicPoolGuardCI,productionCancelDeny as deny4CProduction,realRefundDeny,completedDeny as deny4CCompleted} from '../service.mjs';
+import {cancelAfterHandoffSyntheticCI,postHandoffOccupancyCI,publicPoolGuardCI,productionCancelDeny as deny4CProduction,realRefundDeny,completedDeny as deny4CCompleted} from '../../post-handoff-cancel-ci/service.mjs';
 import {handoffSyntheticTransactionCI,currentSignedResponsibleCI,postHandoffCancelGuardCI,publicPoolHandoffGuardCI,productionHandoffDeny,productionCancelDeny,realMoneyDeny,completedDeny} from '../../transaction-handoff-ci/service.mjs';
 import {cancelSyntheticTransactionCI} from '../../transaction-cancel-ci/service.mjs';
 import {withF063C1} from '../../transaction-cancel-ci/migration.mjs';
