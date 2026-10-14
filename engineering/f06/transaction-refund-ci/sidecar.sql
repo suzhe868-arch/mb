@@ -24,7 +24,6 @@ CREATE TABLE f06_5a_ci.refund_origins(
  issuer text NOT NULL DEFAULT 'CI_SYNTHETIC_NO_PAYMENT' CHECK(issuer='CI_SYNTHETIC_NO_PAYMENT'),
  created_at timestamptz NOT NULL DEFAULT clock_timestamp()
 );
-CREATE UNIQUE INDEX f06_5a_ci_one_transaction_refund ON f06_5a_ci.refund_origins(transaction_id);
 CREATE TABLE f06_5a_ci.status_events(
  event_id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
  refund_id bigint NOT NULL REFERENCES f06_5a_ci.refund_origins(refund_id),
