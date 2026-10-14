@@ -142,7 +142,7 @@ export async function verify(c){
     !isSameManifest(manifest,a.delta_manifest))
   throw Error('F06_PG1_V2_PATCH_OBJECT_SIGNATURE_DRIFT');
  const old=await parentSeal(c);
- if(a.parent_ledger_sha256!==old.ledgerHash||a.parent_priority_sha256!==old.priorityHash)
+ if(a.parent_ledger_sha256!==old.ledgerHash||a.parent_priority_sha256!==old.priorityHash||a.sidecar_chain_sha256!==old.sidecarChainHash)
   throw Error('F06_PG1_V2_FROZEN_SIGNED_PARENT_DRIFT');
  // 此处只完成结构+父账验签；具体取消权限/客户/签名链由版本化安全服务另做，不得把本结果称为业务准入。
  return{verified:true,catalogVersion:'F06_5C_PG1_V2',...old,postCatalog:actual.sha256,deltaSHA256:a.delta_sha256};
