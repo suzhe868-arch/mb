@@ -19,3 +19,8 @@
 2026-10-15 R01 不可达性证据	冻结F05-8签发触发器与A二轮整改单	原4A提交时source-created先新签Priority8；5C独立Backend请求均EXISTING_ACTIVE_PRIORITY，Source Job116079505090	不得冒称5C正向签发，不得关闭原触发器	A技术裁决尚未签署；基线89ba785a7033a72356f8762b80d2b73c98954dc2
 2026-10-15 R04独立性复核	A二轮R04	43个原生通过业务候选中剔除S40/S51/S53/S60/S67/S77六个辅助签名或前置事实，B审核37个独立业务场景	不把环境/无效整数/伪Token/同一动作辅助核证凑数	有效业务用例矩阵.tsv；新文档SHA需再次全量验收
 2026-10-15 额外PR失败原生日志分类	A二轮R05	D1 Run38630189408：NOT_NEW_OFFICIAL_PUSH及ECR Data limit；F05-10 38630189296：NOT_NEW_OFFICIAL_PUSH；F05-7 38630189348：Actions API403；F05-9 38630189467：ECR Data limit、38630189377：NOT_IN_OFFICIAL_NEW_PUSH	不得改冻结父CI、不得报所有PR检查全绿	A审查required与技术边界；基线89ba785a7033a72356f8762b80d2b73c98954dc2
+
+2026-10-15 A第三轮C01真JYT Match+Waitlist+4A取消	PDM-13/18/19与A正式补证单	原F05-7/F05-8资格与有签原F06-1候补、5B交易、4A取消；source.test S84	冻结父在有效候补期间不得自动发行Priority	新增真PG16场景待最终Source日志；若违规则明确红证，不可修改冻结父SQL
+2026-10-15 A第三轮C02伪公开取消父自动触发器	PDM-19§15与A正式补证单	签名5B Transaction与current Match，真实物理PG SAVEPOINT只改public投影后ROLLBACK；S65观察/S85断言	未经4A/4C签名绝不自动发行新Priority	冻结F05-8_reconcile_scope_ci源码未显式检查cancel_origins；如产生source-created须A单独父修复授权
+2026-10-15 A第三轮C03未知资金与伪取消组合	PDM-19§21与A正式补证单	签名5B后同PG SAVEPOINT合成unknown pending refund_cases再伪取消；S65观察/S86断言	未签退款或支付状态下不得自动发行Priority	此负例不等于已完成真实4A/4C合法退款场景；SQLSTATE/未可构造情形须显式报告
+2026-10-15 A第三轮源码审计	冻结F05-8 v24 000024_priority_ci.sql	f05_8_reconcile_scope_ci的transactions.status UPDATE触发和eligible_candidates_ci/occupancy检查	不得绕过有签Waitlist、4A/4C、5B Guard、Refund/Payment	已确认父源码没有显式核验这些跨域签名；尚需最终真PG16证据判断具体可达性与阻断边界
