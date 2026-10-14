@@ -27,6 +27,23 @@ set -e
 cat "$base/artifacts/source/原生PG16诊断日志.txt"
 (cd "$base/artifacts/source" && sha256sum *.json *.txt > 证据SHA256.txt 2>/dev/null || true)
 test -s "$base/artifacts/source/真实PG16父签名兼容诊断.json"
-# 不得以预期红证退出 0，等 A 审核确切 SQL 事实及额外授权。
-echo "F06_5C_PG1_NATIVE_DIAG_EXIT=$rc; REMAINS_SECURITY_RED"
-exit 1
+# 绝不以手工“预期红证”或静态日志置绿；真实脚本退出0且完整JSON记录所有断言通过方可放行。
+test "$rc" -eq 0
+node --input-type=module -e '
+import fs from "node:fs";
+const report=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));
+if(report.status!=="ALL_NATIVE_ASSERTIONS_PASS"||
+   report.sha!==process.env.GITHUB_SHA||
+   report.nativeTamperMatrix?.length!==5||
+   report.nativeUnsignedCancelMatrix?.length!==2||
+   !report.realSignedC01JytWaitlist||
+   !report.realSignedR01UniqueNewPriority||
+   !report.versionedNative4A||
+   !report.versionedNative4B4C||
+   report.parentAfter?.verified!==false){
+ console.error("PG1_NATIVE_TRUE_ASSERTIONS_NOT_PROVEN",report.status);
+ process.exit(1);
+}
+console.log("PG1_NATIVE_ALL_ASSERTIONS_PASS",report.sha);
+' "$base/artifacts/source/真实PG16父签名兼容诊断.json"
+echo "F06_5C_PG1_NATIVE_DIAG_EXIT=$rc; ALL_TRUE_NATIVE_ASSERTIONS_PASS"

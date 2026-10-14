@@ -5,7 +5,7 @@ import {intakeCI,decisionCI} from '../lockrequest-approval-waitlist-ci/service.m
 import {openGuardedSyntheticTransactionCI} from '../lock-refund-conversion-guard-ci/service.mjs';
 import {cancelSyntheticTransactionCI} from '../transaction-cancel-ci/service.mjs';
 import {cancelSyntheticTransactionV2CI} from './signed-cancel-v2.mjs';
-import {withF063A} from '../refund-pending-ci/migration.mjs';
+import {withF063A} from '../lock-transaction-ci/migration.mjs';
 import {withF062} from '../deposit-ledger-ci/migration.mjs';
 import {withParentBranch} from '../lock-lifecycle-ci/migration.mjs';
 import {verify,gate} from './catalog-delta-verifier.mjs';

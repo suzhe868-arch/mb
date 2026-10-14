@@ -114,12 +114,25 @@ try{
   report.versionedNative4B4C=await proveVersionedNative4C(c,cancelFixture,handoffFixture);
   report.realSignedC01JytWaitlist=await proveRealJytWaitlist(c,cancelFixture,jytFixture);
   report.realSignedR01UniqueNewPriority=await proveRealJytR01LegalSuccessor(c,cancelFixture,freeJytFixture,jytFixture.vehicleId);
-  const status=await verifyFrozenParent(c);
-  report.parentAfter={verified:status.verified};
-  report.status='F06_PG1_UNEXPECTED_PARENT_VERIFICATION_ACCEPTED';
- }catch(e){
-  report.parentAfter={verified:false,code:e.code||null,message:e.message};
-  report.status=e.message?.includes('F05_10_CATALOG_DRIFT')?'PG1_V2_CATALOG_VERIFIED_OLD_FROZEN_EXPECTED_FAIL_CLOSED_SECURITY_UNTESTED':'BLOCKED_UNEXPECTED_PARENT_VERIFIER_FAILURE';
+  // 旧冻结服务必须明确拒绝新增三项Catalog；仅此一处允许捕获“预期失败”。
+  let frozenDenial=null;
+  try{
+   await verifyFrozenParent(c);
+  }catch(e){frozenDenial={code:e.code||null,message:e.message};}
+  assert.ok(frozenDenial?.message?.includes('F05_10_CATALOG_DRIFT'),
+   'PG1_FROZEN_PARENT_MUST_FAIL_CLOSED_ON_VERSIONED_CATALOG '+JSON.stringify(frozenDenial));
+  report.parentAfter={verified:false,...frozenDenial};
+  assert.equal((await verifyPatchCatalog(c)).verified,true,'PG1_SIGNED_V2_CATALOG_POST_REGRESSION');
+  const settled=await sealedParent();
+  assert.equal(settled.ledgerHash,old.ledgerHash,'PG1_24_FROZEN_LEDGER_CHANGED');
+  assert.equal(settled.functionHash,old.functionHash,'PG1_FROZEN_PRIORITY_FUNCTION_CHANGED');
+  assert.equal(settled.tableCount,190,'PG1_PARENT_TABLE_COUNT_CHANGED');
+  assert.ok(report.versionedNative4A?.sourceSigned4A);
+  assert.ok(report.versionedNative4B4C?.wrongActorDenied);
+  assert.equal(report.realSignedC01JytWaitlist?.activePriorityAfter,0);
+  assert.ok(report.realSignedR01UniqueNewPriority?.newPriorityId);
+  assert.equal(report.nativeUnsignedCancelMatrix.length,2);
+  report.status='ALL_NATIVE_ASSERTIONS_PASS';
  }
 } catch(e){
  report.status='BLOCKED_PG1_NATIVE_DIAGNOSTIC_FAILED';
@@ -128,5 +141,5 @@ try{
  try{await mkdir(OUT,{recursive:true});await writeFile(new URL('真实PG16父签名兼容诊断.json',OUT),JSON.stringify(report,null,2)+'\n')}finally{await cancelFixture?.auth.close().catch(()=>{});await c.end().catch(()=>{})}
  console.log('F06_5C_PG1_NATIVE_STATUS',JSON.stringify({status:report.status,parentAfter:report.parentAfter,problem:report.error}));
 }
-if(report.status!=='F06_PG1_UNEXPECTED_PARENT_VERIFICATION_ACCEPTED')process.exitCode=1;
-else process.exitCode=1; // 该工具只生成诊断；绝不据此标记整个 PG1 可交 A。
+// 非特权PG16验签、真实业务断言、伪造拒绝和旧冻结拒绝全完成，才允许原生门禁成功。
+process.exitCode=report.status==='ALL_NATIVE_ASSERTIONS_PASS'?0:1;

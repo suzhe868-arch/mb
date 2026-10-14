@@ -7,7 +7,7 @@ import {setQualificationCI} from '../../f05/priority-arbitration-ttl-handover/se
 import {calculateCI,saveSalesDescriptionCI} from '../../f05/deterministic-matching-readiness-four-tier/service.mjs';
 import {cancelSyntheticTransactionV2CI} from './signed-cancel-v2.mjs';
 import {historicalSignedService} from './冻结父历史签名适配.mjs';
-import {withF063A} from '../refund-pending-ci/migration.mjs';
+import {withF063A} from '../lock-transaction-ci/migration.mjs';
 import {withF062} from '../deposit-ledger-ci/migration.mjs';
 import {withParentBranch} from '../lock-lifecycle-ci/migration.mjs';
 import {oldRef} from './真实取消前后对照.mjs';
