@@ -1,3 +1,11 @@
+# 2026-10-15｜A独立复验F06-5C PR62：真Push与双OID已核，交易取消来源和真实原子并发验收未过（唯一最新）
+
+- **唯一当前正式指针**：`F06_5C_A_INDEPENDENT_REVIEW_CHANGES_REQUESTED_PR62 / PR62_NOT_MERGED / NEXT_OWNER=B / NEXT_TASK=F06_5C_PR62_CANCELLED_TRANSACTION_SIGNED_TERMINAL_AND_ATOMIC_RACE_REMEDIATION_CI_ONLY / F05_F06_V1_NOT_READY`。GitHub main 基点 `708697bd2cabd3dfbd14adb79e04ba0a2af3058e`，B正式交接最新 SHA `3b406c09f92c351d1f953521b538f66e8ff231b7`，A从 PR #62 独立复核 34/34 新增 CI 白名单、22/22 同SHA真正Push工作流成功、H52 52/52 官方原生作业、5C Source56/56 与 HTTPS9/9、190张旧父全量签与Scenario OID68461→Audit OID73484。B另报告96/96 Jobs及32份ZIP实物哈希，A未在本轮重新逐字节抽验32 ZIP。
+- **A独立拒收的实质性缺口**：5C适配器把冻结3B不可变 `in_progress` 来源与4A/4C合法更新为 `cancelled` 的public终态视作错误漂移，导致合法取消后始终拒绝新Priority；未完整验签5B Guard、4A/4C取消签名与资金Refund，现有S42双Backend只是两败负例，缺真正合法正向竞争与已取消后新签发矩阵。PR另有额外 pull_request 检查失败（含Docker镜像限流），需分类；PR正文/权限矩阵仍旧阻断口径。**不能凭22个Push成功替代业务验收**，PR62不合并。
+- **A已下达同包正式完整整改单**：`07_重建工作区/F06-5C_A主控PR62独立验收未通过_交易取消来源与原子并发整改施工单_2026-10-15.md`，B只在原分支/PR62与原两个新增CI目录整改、补真实业务/签名/并发/撤权、复核额外CI、最终SHA全量回归和证据归档；合格后重交A独立验收。资金、生产、完成成交、真实用户数据、UAT/F07/F08、F05/F06/V1仍 `NOT_READY`。**NEXT_OWNER=B**。
+
+---
+
 # 2026-10-14｜A主控PR62独立核验：F06-5C两项上游技术裁决与包内整改正式放行（唯一最新）
 
 - **当前唯一正式指针**：`F06_5C_A_CHANGES_REQUESTED_TECH_UNBLOCKED_CI_ONLY / PR62_DRAFT_NOT_MERGED / NEXT_OWNER=B / NEXT_TASK=F06_5C_PR62_A_TECH_RULING_REMEDIATION_CI_ONLY / F05_F06_V1_NOT_READY`。本次是A工程裁决，**非A验收通过**、非生产授权。

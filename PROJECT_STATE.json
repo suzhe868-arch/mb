@@ -1,15 +1,15 @@
 {
   "project": "名邦汽车 V1",
-  "updated_at": "2026-10-14",
+  "updated_at": "2026-10-15",
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F06_5C_A_CHANGES_REQUESTED_TECH_UNBLOCKED_PR62_B_REMEDIATION",
+  "substage": "F06_5C_A_INDEPENDENT_REVIEW_CHANGES_REQUESTED_PR62_B_REMEDIATION",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F06",
-  "current_domain_status": "F06_5C_A_TECH_RULING_REMEDIATION_CI_ONLY_F05_F06_OVERALL_NOT_READY",
+  "current_domain_status": "F06_5C_A_CHANGES_REQUESTED_CI_ONLY_F05_F06_OVERALL_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A实证核验PR62：34/34白名单；非特权PG16 OID68454仅190旧父表，A原192旧父门槛误计，已正式纠正为190旧父全量封印+5C自身一新表独立签；Priority原arbitrateCI可用单事务auth.withSession包装先Vehicle行锁及Transaction双签守卫，再由原F05-8安全签发。B在现有PR62包内整改真实正反并发测试、CI失败与证据，PR仍DRAFT不可合并，全部NOT_READY。",
-  "current_work_file": "07_重建工作区/F06-5C_A主控PR62上游接口与190旧父表原子签发技术裁决_包内整改补充施工单_2026-10-14.md",
+  "current_task": "A独立复验PR62末SHA 3b406c09f92c351d1f953521b538f66e8ff231b7：34/34仅新增CI白名单；22/22官方真Push success、H52官方52/52、Source56/56 HTTPS9/9，190旧父双OID实证；但合法4A/4C取消的3B不可变原始in_progress签名被误当漂移，5B Guard/资金/取消来源正反测试未闭环，真正正向双Backend原子争用缺失；额外PR旧CI失败待归因。A_CHANGES_REQUESTED，禁止合并。B原分支原PR整改，F05/F06/V1 NOT_READY。",
+  "current_work_file": "07_重建工作区/F06-5C_A主控PR62独立验收未通过_交易取消来源与原子并发整改施工单_2026-10-15.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F06_5C_PR62_BLOCKED_REMEDIATION_NOT_MERGED",
+  "engineering_status": "F06_5C_PR62_A_CHANGES_REQUESTED_CANCELLED_TERMINAL_RACE_NOT_MERGED",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "07_重建工作区/F06-5C_A主控PR62上游接口与190旧父表原子签发技术裁决_包内整改补充施工单_2026-10-14.md",
+  "next_action_detail": "07_重建工作区/F06-5C_A主控PR62独立验收未通过_交易取消来源与原子并发整改施工单_2026-10-15.md",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7881,5 +7881,41 @@
     "after_b_selftest": "READY_FOR_A_INDEPENDENT_REVIEW",
     "b_cannot_merge": true,
     "global_not_ready": true
+  },
+  "f06_5c_gate": {
+    "status": "A_CHANGES_REQUESTED_CI_ONLY",
+    "owner": "B",
+    "next_owner": "B",
+    "pr": 62,
+    "pr_merged": false,
+    "branch": "feat/f06-5c-transaction-priority-admission-ci",
+    "a_inspected_head_sha": "3b406c09f92c351d1f953521b538f66e8ff231b7",
+    "review_main_sha": "708697bd2cabd3dfbd14adb79e04ba0a2af3058e",
+    "work_order": "07_重建工作区/F06-5C_A主控PR62独立验收未通过_交易取消来源与原子并发整改施工单_2026-10-15.md",
+    "scope": "CI_ONLY_TRANSACTION_PRIORITY_ATOMIC_ADMISSION_WITH_SIGNED_TERMINAL_AND_RACE_GUARDS",
+    "a_verified_push_workflows": 22,
+    "a_verified_h52_jobs": 52,
+    "a_verified_source_tests": 56,
+    "a_verified_https_tests": 9,
+    "a_verified_old_parent_tables": 190,
+    "a_verified_scenario_oid": 68461,
+    "a_verified_audit_oid": 73484,
+    "b_claimed_total_pg16_jobs": 96,
+    "b_claimed_zip_sha256_artifacts": 32,
+    "a_did_not_rehash_all_zip_artifacts": true,
+    "blocked_by": [
+      "SIGNED_CANCELLED_TRANSACTION_PUBLIC_VS_IMMUTABLE_3B_ORIGIN_RECONCILIATION",
+      "F06_5B_AND_4A_4C_TERMINAL_REFUND_SIGNED_SOURCE_GAP",
+      "MISSING_POSITIVE_TWO_BACKEND_PRIORITY_VS_VALID_LOCK_TO_TRANSACTION_RACE",
+      "EXTRA_PULL_REQUEST_CI_FAILS_NEED_CLASSIFICATION"
+    ],
+    "allowed_new_paths": [
+      "engineering/f06/transaction-priority-admission-ci/**",
+      ".github/workflows/f06-5c-*.yml"
+    ],
+    "production_issuer_authorized": false,
+    "real_money_authorized": false,
+    "global_not_ready": true,
+    "after_b_selftest": "READY_FOR_A_INDEPENDENT_REVIEW"
   }
 }
