@@ -27,7 +27,7 @@ const with3b=fn=>withF064B(()=>withF064A(()=>withF063C1(()=>withF063B(fn))));
 const with3a=fn=>withF064B(()=>withF064A(()=>withF063C1(()=>withF063B(()=>withF063A(fn)))));
 const cancelledParent=(id,name)=>withF064A(()=>cancelSyntheticTransactionCI(auth,managerToken,{transactionId:id,reason:'移交前普通取消历史理由',eventKey:k(name)}));
 const transfer=(n,name,p={})=>withF064B(()=>handoffSyntheticTransactionCI(auth,managerToken,{transactionId:tx[n],newResponsibleId:4,reason:'合成正式移交给当前团队负责销售',eventKey:k(name),...p}));
-let salesToken,managerToken,locks={},tx={},baseDeposit,baseLock,baseCustomerOwner,managerRole,salesRole,teamId,scopeId;
+let salesToken,managerToken,locks={},tx={},baseDeposit,baseLock,baseCustomerOwner,managerRole,salesRole,teamId,scopeId,baselineCompletedTransactions;
 test.before(async()=>{
  assert.equal((await verify(db)).verified,true);
  const roles=await q("SELECT role_id,role_code FROM public.roles WHERE role_code IN('sales','manager')");
@@ -62,6 +62,9 @@ test.before(async()=>{
  baseDeposit=await q('SELECT deposit_id,lock_id,amount_cents FROM public.deposit_receipts ORDER BY deposit_id');
  baseLock=await q('SELECT lock_id,lock_status,end_reason FROM public.locks WHERE lock_id=$1',[locks[1]]);
  baseCustomerOwner=(await q('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=$1',[customer]))[0].current_owner_employee_id;
+ // Existing signed F06 parent fixtures intentionally contain completed historical deals.
+ // Record the genuine pre-scenario total; F06-5A must NEVER create or alter a completed deal.
+ baselineCompletedTransactions=await count("SELECT count(*)::int n FROM public.transactions WHERE status='completed'");
  await q('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[managerRole]);
  const mgr=await auth.login({login:'employee_test',password:'SyntheticF04_3_CurrentProof_2026',source:'f06-4b-current-signed-manager'});
  assert.equal(mgr.code,'AUTH_OK',JSON.stringify(mgr));managerToken=mgr.token;
@@ -163,7 +166,8 @@ test('5A-S48 新历史不允许UPDATE DELETE',async()=>{
 test('5A-S49 真实业务不可被合成Refund回写为refunded',async()=>assert.equal(await count("SELECT count(*)::int n FROM public.refund_cases WHERE status='refunded'"),0));
 test('5A-S50 生产Issuer/真实付款/Transaction completed始终不存在',async()=>{
  assert.equal(await count('SELECT count(*)::int n FROM public.refund_payments'),0);
- assert.equal(await count("SELECT count(*)::int n FROM public.transactions WHERE status='completed'"),0);
+ assert.equal(await count("SELECT count(*)::int n FROM public.transactions WHERE status='completed'"),baselineCompletedTransactions);
+ assert.equal((await q("SELECT count(*)::int n FROM public.transactions WHERE transaction_id=ANY($1::bigint[]) AND status='completed'",[Object.values(tx)]))[0].n,0);
 });
 test('5A-S51 授权撤销后旧Session不能申请',async()=>{
  await q("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=clock_timestamp() WHERE employee_id=1 AND permission_id=965005");
