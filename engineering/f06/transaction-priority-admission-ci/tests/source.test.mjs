@@ -1,4 +1,5 @@
 import {test} from 'node:test';
+import {spawn} from 'node:child_process';
 import assert from 'node:assert/strict';
 import {connect,verify,checksum,gate} from '../migration.mjs';
 import {requestSyntheticNewPriorityCI,productionIssuerDeny,UPSTREAM_GAP,signedFrozenParentSessionAdapterCI} from '../service.mjs';
@@ -468,15 +469,66 @@ test('5C-S64 过期Lock关闭后，重新以真实Match和父Priority签发，�
 });
 test('5C-S65 批发车原Priority到Lock到5B交易，4A取消后双Backend仅一新签发，旧Priority不复活',async()=>{
  assert.ok(positive.newSignedLockId);
- const converted=await withF065B(()=>openGuardedSyntheticTransactionCI(auth,token,{
-  lockId:positive.newSignedLockId,eventKey:mk('valid-priority-lock-to-5b')
- }));
+ // 真正两个独立PG16进程：旧5B在隔离子进程使用自身合法GITHUB_REF，
+ // 当前5C在本进程使用原F03签名会话；两个父门禁环境永不互相覆盖。
+ const worker=spawn(process.execPath,[
+  'f06/transaction-priority-admission-ci/tests/transaction-race-worker.mjs',
+  String(positive.newSignedLockId),mk('valid-priority-lock-to-5b')
+ ],{
+  cwd:process.cwd(),
+  env:{...process.env,
+   GITHUB_REF:'refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci',
+   GITHUB_REF_NAME:'feat/f06-5b-lock-refund-conversion-guard-ci',
+   F06_5C_SYNTHETIC_TEST_TOKEN:token},
+  stdio:['pipe','pipe','pipe']
+ });
+ let workerOut='',workerErr='',readySeen=false,resolveReady,rejectReady;
+ const ready=new Promise((resolve,reject)=>{resolveReady=resolve;rejectReady=reject});
+ const closed=new Promise((resolve,reject)=>{
+  worker.once('error',reject);
+  worker.once('close',code=>resolve(code));
+ });
+ worker.stdout.on('data',b=>{
+  workerOut+=b.toString();
+  if(!readySeen&&workerOut.includes('F06_5C_CHILD_READY')){readySeen=true;resolveReady();}
+ });
+ worker.stderr.on('data',b=>{workerErr+=b.toString()});
+ closed.then(code=>{if(!readySeen)rejectReady(Error('F06_5C_CHILD_NOT_READY_EXIT_'+code+' '+workerErr))}).catch(rejectReady);
+ await ready;
+ // 第三物理Backend短暂持有Vehicle行锁，确保两条互斥请求实际并发到达，
+ // 在5C 1500ms lock_timeout前释放；不使用Sleep来替代PG的真实锁及事务。
+ const blocker=await connect();
+ let held,converted;
+ try{
+  await blocker.query('BEGIN');
+  await blocker.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[positive.vehicleId]);
+  const competing=requestSyntheticNewPriorityCI(peer,token,{...positive,eventKey:mk('new-priority-while-signed-5b-active')});
+  worker.stdin.end('START\n');
+  await db.query('SELECT pg_sleep(0.2)');
+  await blocker.query('COMMIT');
+  const [candidate,exit]=await Promise.all([competing,closed]);
+  assert.equal(exit,0,'F06_5C_CHILD_PROCESS_OR_PARENT_SIGNED_TRANSACTION_FAILED '+workerErr+' '+workerOut);
+  const proof=workerOut.split('\n').find(z=>z.startsWith('F06_5C_CHILD_RESULT '));
+  assert.ok(proof,'F06_5C_CHILD_SIGNED_ORIGIN_REQUIRED '+workerErr+' '+workerOut);
+  converted=JSON.parse(proof.slice('F06_5C_CHILD_RESULT '.length));
+  held=candidate;
+ }finally{
+  await blocker.query('ROLLBACK').catch(()=>{});
+  await blocker.end();
+  if(worker.exitCode===null)worker.kill();
+ }
  assert.equal(converted.code,'F06_5B_ATOMIC_SYNTHETIC_IN_PROGRESS',JSON.stringify(converted));
+ assert.ok(Number.isInteger(converted.pgBackendPid)&&converted.pgBackendPid>0&&/^[0-9]+$/.test(converted.pgTransactionId),JSON.stringify(converted));
+ assert.equal(held.allowed,false,JSON.stringify(held));
+ assert.ok(Number.isInteger(held.pgBackendPid)&&held.pgBackendPid>0&&/^[0-9]+$/.test(held.pgTransactionId),JSON.stringify(held));
+ assert.notEqual(converted.pgBackendPid,held.pgBackendPid,'F06_5C_REAL_TRANSACTION_PRIORITY_DIFFERENT_PG_BACKENDS_REQUIRED');
+ console.log('F06_5C_REAL_TWO_BACKEND_LOCK_TO_TRANSACTION_VS_PRIORITY_RACE',{
+  winner:converted.code,loser:held.code,transactionBackendPid:converted.pgBackendPid,
+  transactionTxid:converted.pgTransactionId,priorityBackendPid:held.pgBackendPid,
+  priorityTxid:held.pgTransactionId});
  const txid=converted.transactionId;
  const guarded=(await q("SELECT g.transaction_id,g.source_lock_id,t.status FROM f06_5b_ci.guard_events g JOIN public.transactions t USING(transaction_id) WHERE g.transaction_id=$1",[txid]))[0];
  assert.equal(Number(guarded.source_lock_id),positive.newSignedLockId);assert.equal(guarded.status,'in_progress');
- const held=await requestSyntheticNewPriorityCI(peer,token,{...positive,eventKey:mk('new-priority-while-signed-5b-active')});
- assert.equal(held.allowed,false,JSON.stringify(held));
  assert.equal((await q('SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1',[positive.priorityId]))[0].status,'ended');
  // 在交易仍占用车时由原F05-7签新的当前Match；旧原生优先仲裁不得借此偷发。
  // 冻结5B转换曾让Lock事件使Match变stale，必须完成合法复算，不能手工改Match status。
