@@ -275,14 +275,15 @@ test('5C-S51B 真实Scope binding撤销后优先推荐准入拒绝且恢复无�
  const permission=(await q("SELECT permission_id FROM public.permissions WHERE permission_code='matching.rule.manage.ci.synthetic'"))[0];assert.ok(permission);
  const active=await q("SELECT scope_id,ended_at FROM public.employee_capability_scope_bindings WHERE employee_id=1 AND permission_id=$1 AND ended_at IS NULL",[permission.permission_id]);
  assert.ok(active.length>0);
- await q("UPDATE public.employee_capability_scope_bindings SET ended_at=clock_timestamp() WHERE employee_id=1 AND permission_id=$1 AND ended_at IS NULL",[permission.permission_id]);
+ const changed=await q("UPDATE public.employee_capability_scope_bindings SET ended_at=clock_timestamp() WHERE employee_id=1 AND permission_id=$1 AND ended_at IS NULL RETURNING ctid::text AS row_pointer",[permission.permission_id]);
+ assert.equal(changed.length,active.length);
  try{
   const before=(await q('SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1',[positive.vehicleId]))[0].n;
   const response=await requestSyntheticNewPriorityCI(auth,token,{...positive,eventKey:mk('real-scope-revoked')});
   assert.equal(response.allowed,false,JSON.stringify(response));
   assert.equal((await q('SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1',[positive.vehicleId]))[0].n,before);
  }finally{
-  for(const original of active)await q('UPDATE public.employee_capability_scope_bindings SET ended_at=NULL WHERE employee_id=1 AND permission_id=$1 AND scope_id=$2',[permission.permission_id,original.scope_id]);
+  for(const row of changed)await q('UPDATE public.employee_capability_scope_bindings SET ended_at=NULL WHERE ctid::text=$1',[row.row_pointer]);
  }
 });
 test('5C-S52 真实原Priority仲裁在同一Session及Vehicle锁下正向发行',async()=>{
