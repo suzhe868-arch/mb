@@ -43,3 +43,31 @@ A在旧SHA `7936b4f1dcce6897dc1317200653a4ed6ae1a877` 核验过22/22真正Push�
 ## 五、最终交接原则
 
 正式只有当新SHA同SHA全部真实成功、上述R01技术边界由A准许的路径可复现、R02/R03真实业务用例及矩阵经自审通过、全部原生Artifact封印可靠、PR失败按真实边界说明后，B才可评论 `B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A`。当前无任何生产Issuer、真正资金/退款、`refunded`、`completed`、UAT、F07/F08或main合并放行；F05/F06/V1继续`NOT_READY`。
+ 
+## 六、2026-10-15 GitHub 官方原生逐项核验增补（证据基线 89ba785a7033a72356f8762b80d2b73c98954dc2）
+
+**审计说明：** 以下实测均绑定真实 `head_sha=89ba785a7033a72356f8762b80d2b73c98954dc2`，是代码与本报告增补前的官方成功基线；提交本增补文档将产生新的 HEAD，**新 HEAD 的 Push/Jobs/工件必须再次独立核对**。不得拿此旧基线冒称新 HEAD 全绿。
+
+- 真 `event=push` 22/22 completed/success，Run IDs：38630180369、38630180352、38630180339、38630180362、38630180376、38630180287、38630180324、38630180392、38630180333、38630180319、38630180342、38630180353、38630180433、38630180304、38630180328、38630180281、38630180373、38630180393、38630180346、38630180422、38630180283、38630180365。
+- 使用官方 `/actions/runs/{run}/jobs?per_page=100` 对所有22条Run取得 **96/96 Job success**；H52 Run [38630180365](https://github.com/suzhe868-arch/mb/actions/runs/38630180365) 原生 **52/52 Job success**。
+- 官方 Artifact API逐条验证 **96/96** 个本 SHA Artifact，均 `size_in_bytes>0`、`expired=false`、`digest` 为 `sha256:`、关联 `workflow_run.head_sha=89ba785a7033a72356f8762b80d2b73c98954dc2`。此为官方摘要及元数据验证，**未**逐一下载 ZIP 复算字节哈希。
+- 本包 [Source/HTTPS Run 38630180339](https://github.com/suzhe868-arch/mb/actions/runs/38630180339)，真实 Source Job **116079505090**：`# tests 85 / # pass 85 / # fail 0`；HTTPS Job也为成功，原生 **9/9**。
+- 原生日志：`F06_5C_TWO_PHYSICAL_PG_DATABASES_PARENT_190_TABLES_SEAL_PASS`；Scenario PG真实OID **68461** 销毁重建，独立Audit OID **73484**，beforePID1423、afterPID1631；原 **190** 父表全行COUNT/MD5、24迁移Ledger/Catalog/D1/所有父签名不漂移；`tableDigest=9c5e69dd7d74c1c2ce2dec265971012f7b63eb4ee3cb1dec47c998f486458cb7`，`original24Ledger=b9beed2d9e5fda2511bef6cbcd6d050862971714b9464624dc6439888c118033`，`parentSignatures=d240ea48f1b889a86c96bc8bbd1d03b62be2f2885ea8870d7b697273a9477e63`。
+- R02两段**如实区分**：并发原Lock→5B赢/5C输（5B PID1563 txid17631；5C PID1562 txid17630）输方是 `F06_5C_ACTIVE_LOCK_PREVENTS_NEW_PRIORITY`，只证 Lock 门禁；**5B COMMIT之后**独立5C PID1524 txid17632 命中真正签名交易占用 `F06_5C_TRANSACTION_OCCUPIED_OR_UNSUPPORTED_STATUS`；不能混称。S83车A PID1593 txid17685持Vehicle锁时，车B PID1594 txid17686仍独立处理，不误报对方车冲突。
+- R03真实来源链：原4B `handoffEventId=1` 将负责者1移交给4，原4C `cancelEventId=1` 原子Cancel，5C读到 `F06_5C_ALL_SIGNED_TRANSACTIONS_TERMINAL`；S68—S82独立权限、Scope、个人deny、已签Cancel不可变、伪造public Cancel失败与重入阻断均原生通过。
+- R04审计：Source85总量不是85个有效业务。矩阵43个业务证明候选均有对应原生PASS；保守剔除签名证据/前置条件重叠的6项 **S40/S51/S53/S60/S67/S77**，剩余 **37个B自审独立业务正反场景**（非环境、无效整数、伪Token），仍以A独立复核为准。
+- **R01需要A技术裁定、B不得改冻结父触发器**：S52在无Transaction合法资格下5C能取得 `F06_5C_PARENT_SIGNED_PRIORITY_CREATED`；S65原Priority7→原Lock→5B真实交易4→4A合法取消COMMIT时**冻结F05-8源触发器先新签Priority8**，来源为 `source-created:a9a10ced-5e7b-44fa-97fc-b9642a0bfd7e`，然后两个独立5C请求 txid17635/17636均严格 `F06_5C_EXISTING_ACTIVE_PRIORITY`。不存在“5C在4A COMMIT后再次签第2笔”可达窗口；关闭源触发器/伪造入库均越权。**A应裁定以「父触发器原子先签+5C幂等拒绝」作为冻结实现边界，还是另行正式放行父设计调整**。此项不能由B擅自宣布通过。
+
+### PR额外冻结工作流逐Run真实失败分类（不同于22个Push）
+
+| PR Run | 冻结父工作流 | 原生日志明确原因 |
+| --- | --- | --- |
+| 38630189408 | F05-10-D1 | Source `D1_NOT_NEW_OFFICIAL_PUSH`；HTTPS 初始化拉取 `public.ecr.aws/.../postgres:16-alpine` 遇 `toomanyrequests: Data limit exceeded` |
+| 38630189296 | F05-10 | Source `F05_10_NOT_NEW_OFFICIAL_PUSH`，HTTPS success |
+| 38630189348 | F05-7 | Source `F05_7_GITHUB_ACTIONS_API_403_/actions/runs/38630189348/jobs?per_page=100`，HTTPS success |
+| 38630189467 | F05-9 | Source 初始化拉取同镜像 ECR `toomanyrequests`，HTTPS success |
+| 38630189377 | F05-9 | Source `F05_9_NOT_IN_OFFICIAL_NEW_PUSH`，HTTPS success |
+
+额外 `pull_request` 截至本轮核验 **4 success / 5 failure / 1 in_progress**（F05-8 Run38630189308）；不得称所有PR检查全绿。旧父工作流冻结且不在本包可修改白名单；是否required的连接器权限边界须由A判定。
+
+**增补之后状态：** `B_R01_PARENT_TRIGGER_TECH_RULING_REQUIRED / A_DECISION_PENDING / PR62_NOT_MERGED / PRODUCTION_NOT_AUTHORIZED`。当最终文档 SHA 官方Push全绿且A可接收R01技术边界时，再标记 `B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A`。

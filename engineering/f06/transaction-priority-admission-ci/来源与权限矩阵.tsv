@@ -1,8 +1,8 @@
 规则项	权威来源	隔离验证	拒绝条件	残余问题
-新Priority与在途Transaction排他	PDM-19 Final §15	Vehicle FOR UPDATE；public.transactions、f06_3b_ci双读	in_progress/pending/trading/active拒绝	原5C初次真签发S52与父取消后原F05-8自动签发须分清；当前Source85本HEAD待CI
+新Priority与在途Transaction排他	PDM-19 Final §15	Vehicle FOR UPDATE；public.transactions、f06_3b_ci双读	in_progress/pending/trading/active拒绝	原5C初次真签发S52与父取消后原F05-8自动签发须分清；已验代码基线89ba785a Source85/85；最新文档SHA需重跑
 旧Priority不能复活	PDM-19 §15、PDM-13	已结束Priority和F06-1事件只读验证	转换历史未签拒绝	禁止重用原ended Priority
 员工身份	PDM-02	F03 signed session及原PG行锁	非正常Employee拒绝	不生成生产许可
-独立权限与scope	PDM-02	Permission allow和team/store有效期查验	撤权、数据域越权拒绝	新增S68-S75原4B/4C独立Transfer/Cancel权限/Scope/个人deny覆盖待原生验证
+独立权限与scope	PDM-02	Permission allow和team/store有效期查验	撤权、数据域越权拒绝	新增S68-S75原4B/4C独立Transfer/Cancel权限/Scope/个人deny覆盖基线89ba785a原生实测通过，最新文档SHA待再验
 匹配资格	PDM-12/13	真实Match Results、Demand、资格	失活及匹配缺失拒绝	不能合成伪造Match
 现时车源和cycle	PDM-13/18	Vehicle锁、cycle当前性、上游在售状态	旧cycle、下架、其他Lock拒绝	未知来源保守拒绝
 旧退款历史保护	PDM-19 §21	父F06-5B签名迁移验真	未知资金绝不放行	旧3B漏洞保持SOURCE_GAP
@@ -11,7 +11,11 @@
 
 冻结3B历史与已签取消终态	PDM-19§15 / A 2026-10-15整改单	原3B历史in_progress保持不变、4A/4C原始签名链强校验	仅public假cancel、缺事件/幂等键均拒绝	仅CI，生产交易取消来源未接入
 5B安全转换与资金	PDM-19§21 / A 2026-10-15整改单	Guard事件、退款签名快照、3A签收和资金只读	Guard缺失、pending、refunded、真实支付、未知资金拒绝	旧3B漏洞保持FailClosed
-原F06-1真候补活动记录阻断新Priority	PDM-19 §15 / A 2026-10-15 B-01	两原生pending后F06-1 approve生成Waitlist、5B原子Transaction及4A取消后5C重验	同Vehicle/Cycle未结束Waitlist一律拒绝，即使交易已合法取消	不篡改候补顺位，S66历史通过，最终SHA新运行待验证
+原F06-1真候补活动记录阻断新Priority	PDM-19 §15 / A 2026-10-15 B-01	两原生pending后F06-1 approve生成Waitlist、5B原子Transaction及4A取消后5C重验	同Vehicle/Cycle未结束Waitlist一律拒绝，即使交易已合法取消	不篡改候补顺位，S66历史通过，基线89ba785a原生通过，文档最终SHA待再验
 额外旧PR校验与原生CI区别	A 2026-10-15 B-03	同SHA本包Push22/22与额外旧PR检查分开核验	不得以旧PR 403/事件门禁/镜像限流伪装本包绿灯	6个旧PR失败已技术分类，是否required由A确认；不擅改冻结工作流
 
-真实业务用例矩阵（R04）	A二轮R01—R05	本目录有效业务用例矩阵.tsv，候选43项且不计环境/参数测试	所有最终结果需本SHA原生PG16而不能沿用旧SHA	目前CI待全量复验；R01冻结F05-8取消时父触发器预先签发技术边界待A裁定
+真实业务用例矩阵（R04）	A二轮R01—R05	本目录有效业务用例矩阵.tsv，候选43项且不计环境/参数测试	所有最终结果需本SHA原生PG16而不能沿用旧SHA	基线89ba785a 22Push/96Jobs/96Artifacts/Source85/HTTPS9均已验；37个独立业务B自核+6辅助；新文档SHA仍需重跑，R01技术裁定待A
+
+2026-10-15 R01 不可达性证据	冻结F05-8签发触发器与A二轮整改单	原4A提交时source-created先新签Priority8；5C独立Backend请求均EXISTING_ACTIVE_PRIORITY，Source Job116079505090	不得冒称5C正向签发，不得关闭原触发器	A技术裁决尚未签署；基线89ba785a7033a72356f8762b80d2b73c98954dc2
+2026-10-15 R04独立性复核	A二轮R04	43个原生通过业务候选中剔除S40/S51/S53/S60/S67/S77六个辅助签名或前置事实，B审核37个独立业务场景	不把环境/无效整数/伪Token/同一动作辅助核证凑数	有效业务用例矩阵.tsv；新文档SHA需再次全量验收
+2026-10-15 额外PR失败原生日志分类	A二轮R05	D1 Run38630189408：NOT_NEW_OFFICIAL_PUSH及ECR Data limit；F05-10 38630189296：NOT_NEW_OFFICIAL_PUSH；F05-7 38630189348：Actions API403；F05-9 38630189467：ECR Data limit、38630189377：NOT_IN_OFFICIAL_NEW_PUSH	不得改冻结父CI、不得报所有PR检查全绿	A审查required与技术边界；基线89ba785a7033a72356f8762b80d2b73c98954dc2
