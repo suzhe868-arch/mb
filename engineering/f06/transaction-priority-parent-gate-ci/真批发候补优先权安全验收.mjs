@@ -106,3 +106,79 @@ export async function proveRealJytWaitlist(c,{auth,token},f){
   activePriorityAfter:after.n,waitlistEnded:false,signedTransactionCancelled:true};
 }
 
+
+export async function prepareRealJytUnoccupiedSignedMatch(c,{auth,token}){
+ const fresh=await one(c,"SELECT l.vehicle_id,l.current_cycle_id,l.model_year FROM public.f05_3b_sync_lineages l "+
+  "JOIN public.vehicles v ON v.vehicle_id=l.vehicle_id "+
+  "JOIN public.vehicle_listing_cycles cy ON cy.listing_cycle_id=l.current_cycle_id "+
+  "LEFT JOIN public.f05_7_vehicle_facts_ci f ON f.vehicle_id=l.vehicle_id AND f.listing_cycle_id=l.current_cycle_id "+
+  "WHERE v.source_type='wholesale' AND v.source_sale_status='active' AND cy.ended_at IS NULL AND f.vehicle_id IS NULL "+
+  "AND NOT EXISTS(SELECT 1 FROM public.locks k WHERE k.vehicle_id=l.vehicle_id AND k.lock_status='active') "+
+  "AND NOT EXISTS(SELECT 1 FROM public.f05_8_priority_ci p WHERE p.vehicle_id=l.vehicle_id AND p.status='active') ORDER BY l.vehicle_id LIMIT 1");
+ assert.ok(fresh,'PG1_C02_C03_R01_SECOND_SIGNED_JYT_REQUIRED');
+ const vehicleId=Number(fresh.vehicle_id),listingCycleId=Number(fresh.current_cycle_id),customerId=899621;
+ const signedF06=fn=>withF063A(()=>withF062(()=>withParentBranch(fn)));
+ const request=await signedF06(()=>intakeCI(c,{customerId,vehicleId,listingCycleId,
+  requestKey:mk('c02-intake'),syntheticPhoneConsent:'CI_SYNTHETIC_PHONE_CONSENT_NOT_PRODUCTION'}));
+ assert.equal(request.code,'F06_1_PENDING_CREATED',JSON.stringify(request));
+ const decision=await signedF06(()=>decisionCI(auth,token,{
+  requestId:request.requestId,requestKey:mk('c02-lock-approved'),action:'approve'
+ }));
+ assert.equal(decision.code,'F06_1_APPROVED_ATOMIC_LOCK',JSON.stringify(decision));
+ const year=Number(fresh.model_year);
+ await c.query("INSERT INTO public.f05_7_vehicle_facts_ci(vehicle_id,listing_cycle_id,facts_json) VALUES($1,$2,$3::jsonb)",
+ [vehicleId,listingCycleId,JSON.stringify({
+  model_year:{value:year,source:'CI_JYT_SIGNED_SOURCE_STRUCTURED_NOT_PRODUCTION'},
+  mileage_km:{value:42000,source:'CI_SYNTHETIC_STRUCTURED_NOT_PRODUCTION'},
+  exterior_color:{value:'black',source:'CI_SYNTHETIC_STRUCTURED_NOT_PRODUCTION'},
+  interior_color:{value:'beige',source:'CI_SYNTHETIC_INSPECTION_NOT_PRODUCTION'},
+  budget_cents:{value:10000000,source:'CI_SYNTHETIC_DISPLAY_ONLY_NOT_PRODUCTION'}
+ })]);
+ const demand=await one(c,"SELECT demand_id FROM public.demands WHERE customer_id=$1 AND demand_state='active' ORDER BY demand_id LIMIT 1",[customerId]);
+ assert.ok(demand);
+ const d=await saveSalesDescriptionCI(historicalSignedService(auth,21,{afterPatch:false}),token,{
+  demandId:Number(demand.demand_id),teamId:901,
+  description:'奥迪A6 2026款 5万公里以内 黑色外观 米色内饰 预算10万'
+ });
+ assert.equal(d.allowed,true,JSON.stringify(d));
+ const pre=await calculateCI(historicalSignedService(auth,21,{afterPatch:false}),token,{
+  demandId:Number(demand.demand_id),vehicleId,listingCycleId,
+  teamId:901,runKey:mk('c02-jyt-current-match')
+ });
+ assert.equal(pre.allowed,true,JSON.stringify(pre));
+ assert.ok(['high','acceptable'].includes(pre.tier));
+ assert.equal((await one(c,"SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND status='active'",[vehicleId])).n,0);
+ const tx=await oldRef('feat/f06-5b-lock-refund-conversion-guard-ci',()=>openGuardedSyntheticTransactionCI(auth,token,{
+  lockId:decision.lockId,eventKey:mk('c02-5b-open')
+ }));
+ assert.equal(tx.code,'F06_5B_ATOMIC_SYNTHETIC_IN_PROGRESS',JSON.stringify(tx));
+ const match=await calculateCI(historicalSignedService(auth,21,{afterPatch:false}),token,{
+  demandId:Number(demand.demand_id),vehicleId,listingCycleId,
+  teamId:901,runKey:mk('c02-jyt-tx-current-match')
+ });
+ assert.equal(match.allowed,true,JSON.stringify(match));
+ assert.ok(['high','acceptable'].includes(match.tier));
+ assert.equal((await one(c,"SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND status='active'",[vehicleId])).n,0);
+ assert.equal((await one(c,"SELECT count(*)::int n FROM public.waitlists WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND ended_at IS NULL",[vehicleId,listingCycleId])).n,0);
+ return {vehicleId,listingCycleId,customerId,transactionId:tx.transactionId,
+  lockId:decision.lockId,matchTier:match.tier,source:'REAL_JYT_F05_7_SIGNED_MATCH_F06_1_LOCK_5B_TRANSACTION_NO_WAITLIST'};
+}
+export async function proveRealJytR01LegalSuccessor(c,{auth,token},f){
+ const before=await one(c,"SELECT count(*)::int n FROM public.f05_8_events_ci WHERE vehicle_id=$1 AND event_kind='created'",[f.vehicleId]);
+ const out=await cancelSyntheticTransactionV2CI(auth,token,{
+  transactionId:f.transactionId,eventKey:mk('r01-v2-signed-cancel'),
+  reason:'R01真JYT有签终态不得复活旧优先权只可创建唯一新优先权'
+ });
+ assert.equal(out.code,'F06_4A_CANCELLED_ATOMIC_NO_PAYMENT',JSON.stringify(out));
+ const priorities=(await c.query("SELECT priority_id,customer_id,creation_key FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active'",[f.vehicleId,f.listingCycleId])).rows;
+ const events=await one(c,"SELECT count(*)::int n FROM public.f05_8_events_ci WHERE vehicle_id=$1 AND event_kind='created'",[f.vehicleId]);
+ assert.equal(priorities.length,1,'PG1_R01_LEGAL_CANCELLATION_REQUIRES_UNIQUE_NEW_PARENT_PRIORITY');
+ assert.equal(Number(priorities[0].customer_id),f.customerId);
+ assert.match(priorities[0].creation_key,/^source-create:/,'PG1_R01_ONLY_SIGNED_PARENT_SOURCE_ALLOWED');
+ assert.equal(events.n,before.n+1,'PG1_R01_EXACTLY_ONE_NEW_PARENT_CREATED_EVENT_REQUIRED');
+ const second=await c.query("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND status='active'",[f.vehicleId]);
+ assert.equal(second.rows[0].n,1);
+ return {...f,cancelCode:out.code,newPriorityId:Number(priorities[0].priority_id),
+  createdEventsBefore:before.n,createdEventsAfter:events.n,
+  sourceCreationKey:priorities[0].creation_key,source:'SIGNED_PARENT_RECONCILE_AFTER_VALID_V2_4A_CANCEL'};
+}
