@@ -547,23 +547,33 @@ test('5C-S65 批发车原Priority到Lock到5B交易，4A取消后双Backend仅�
  assert.equal(cancel.code,'F06_4A_CANCELLED_ATOMIC_NO_PAYMENT',JSON.stringify(cancel));
  const terminal=(await q("SELECT t.status current_status,o.status origin_status FROM public.transactions t JOIN f06_3b_ci.transaction_origins o USING(transaction_id) WHERE t.transaction_id=$1",[txid]))[0];
  assert.deepEqual([terminal.current_status,terminal.origin_status],['cancelled','in_progress']);
+ // 冻结F05-8的transaction状态触发器在4A真正COMMIT时可能直接依据已签
+ // current Match创建唯一新Priority。此时5C必须拒绝双Backend重入，而不能谎称由5C再签第二次。
+ const auto=await q("SELECT p.priority_id,p.customer_id,p.creation_key,e.event_key FROM public.f05_8_priority_ci p "+
+  "JOIN public.f05_8_events_ci e ON e.priority_id=p.priority_id AND e.event_kind='created' "+
+  "WHERE p.vehicle_id=$1 AND p.listing_cycle_id=$2 AND p.status='active'",[positive.vehicleId,positive.listingCycleId]);
+ assert.equal(auto.length,1,'F06_5C_SIGNED_F05_8_POSTCANCEL_SINGLE_SUCCESSOR_REQUIRED');
+ assert.equal(Number(auto[0].customer_id),positive.customerId);
+ assert.notEqual(Number(auto[0].priority_id),positive.priorityId,'F06_5C_OLD_TERMINATED_PRIORITY_MUST_NOT_REVIVE');
+ assert.match(auto[0].creation_key,/^source-create:/,'F06_5C_PARENT_PG_SOURCE_EVENT_REQUIRED');
+ assert.match(auto[0].event_key,/^source-created:/,'F06_5C_PARENT_SIGNED_CREATED_EVENT_REQUIRED');
  const before=(await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1",[positive.vehicleId]))[0].n;
  const attempts=await Promise.all([
   requestSyntheticNewPriorityCI(auth,token,{...positive,eventKey:mk('wholesale-postcancel-race-A')}),
   requestSyntheticNewPriorityCI(peer,token,{...positive,eventKey:mk('wholesale-postcancel-race-B')})
  ]);
- assert.equal(attempts.filter(x=>x.code==='F06_5C_PARENT_SIGNED_PRIORITY_CREATED').length,1,JSON.stringify(attempts));
+ assert.ok(attempts.every(x=>x.code==='F06_5C_EXISTING_ACTIVE_PRIORITY'),JSON.stringify(attempts));
  assert.ok(attempts.every(x=>Number.isInteger(x.pgBackendPid)&&x.pgBackendPid>0&&/^[0-9]+$/.test(x.pgTransactionId)),JSON.stringify(attempts));
  assert.notEqual(attempts[0].pgBackendPid,attempts[1].pgBackendPid,'F06_5C_TWO_DISTINCT_PHYSICAL_BACKENDS_REQUIRED');
- const winner=attempts.find(x=>x.code==='F06_5C_PARENT_SIGNED_PRIORITY_CREATED');
- assert.notEqual(winner.priorityId,positive.priorityId,'F06_5C_OLD_ENDED_PRIORITY_NEVER_REVIVES');
  const current=await q("SELECT priority_id,customer_id FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active'",[positive.vehicleId,positive.listingCycleId]);
- assert.equal(current.length,1);assert.equal(Number(current[0].priority_id),winner.priorityId);
+ assert.equal(current.length,1);assert.equal(Number(current[0].priority_id),Number(auto[0].priority_id));
  assert.equal(Number(current[0].customer_id),positive.customerId);
- assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1",[positive.vehicleId]))[0].n,before+1);
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1",[positive.vehicleId]))[0].n,before,'reentry must not add another Priority');
+ const winner={priorityId:Number(auto[0].priority_id),code:'F05_8_PARENT_SOURCE_TRIGGER_CREATED'};
+
  assert.equal((await q('SELECT count(*)::int n FROM public.refund_payments'))[0].n,0);
  console.log('F06_5C_SIGNED_WHOLESALE_PRIORITY_LOCK_TRANSACTION_CANCEL_NEW_PRIORITY_RACE',{
   transactionId:txid,oldPriorityId:positive.priorityId,newPriorityId:winner.priorityId,
   backendPids:attempts.map(x=>x.pgBackendPid),txids:attempts.map(x=>x.pgTransactionId),
-  resultCodes:attempts.map(x=>x.code),zeroActualPayments:true});
+  resultCodes:attempts.map(x=>x.code),parentSourceCreation: auto[0].event_key,zeroActualPayments:true});
 });
