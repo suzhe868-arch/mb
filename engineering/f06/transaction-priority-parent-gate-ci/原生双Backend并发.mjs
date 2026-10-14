@@ -23,6 +23,8 @@ export async function signedCancelUnderNativeVehicleRace(c,{occupiedVehicleId,in
   await other.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[independentVehicleId]);
   await other.query('COMMIT');otherHolding=false;
   work=Promise.resolve().then(action);
+  // 并发调用可在行锁释放前失败：立即注册拒绝观察者，避免异步未处理异常吞掉真实安全红证。
+  work.catch(()=>{});
   await c.query('SELECT pg_sleep(0.2)');
   // 取消必须在本真实锁释放之后完成。SQL自身执行相同Vehicle锁序。
   await blocker.query('COMMIT');holding=false;
