@@ -15,6 +15,7 @@ import {withF063C1} from '../../transaction-cancel-ci/migration.mjs';
 import {withF063A} from '../../lock-transaction-ci/migration.mjs';
 import {withF064A} from '../../transaction-handoff-ci/migration.mjs';
 import {cancelSyntheticTransactionCI} from '../../transaction-cancel-ci/service.mjs';
+import {verifySignedTransactionVacancyCI} from '../signed-transaction-state.mjs';
 
 import {withF062} from '../../deposit-ledger-ci/migration.mjs';
 import {withParentBranch} from '../../lock-lifecycle-ci/migration.mjs';
@@ -324,4 +325,67 @@ test('5C-S59 取消后旧3B源与4A当前真实终态均保持独立不可变',a
   'JOIN f06_4a_ci.cancel_origins a USING(transaction_id) WHERE t.transaction_id=$1',[realTxId]);
  assert.equal(x.length,1);assert.deepEqual([x[0].public_status,x[0].origin_status,x[0].signed_cancel],
  ['cancelled','in_progress','cancelled']);
+});
+
+test('5C-S60 取消后两真实父签名能通过单Vehicle锁的只读终态核验',async()=>{
+ const proof=await auth.withSession(token,async c=>{
+  await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[args.vehicleId]);
+  return verifySignedTransactionVacancyCI(c,args.vehicleId);
+ },{normalOnly:true});
+ assert.equal(proof.allowed,true,JSON.stringify(proof));
+ assert.equal(proof.code,'F06_5C_ALL_SIGNED_TRANSACTIONS_TERMINAL');
+});
+test('5C-S61 真5B交易仅伪造public取消无4A/4C签名严格拒绝并回滚',async()=>{
+ const lockId=await makeSignedLock(6,'unsigned-healthy');
+ const tx=await withF065B(()=>openGuardedSyntheticTransactionCI(auth,token,{lockId,eventKey:mk('unsigned-healthy-open')}));
+ assert.equal(tx.code,'F06_5B_ATOMIC_SYNTHETIC_IN_PROGRESS',JSON.stringify(tx));
+ const result=await auth.withSession(token,async c=>{
+  await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=86181106 FOR UPDATE');
+  await c.query('SAVEPOINT unsigned_public_status_probe');
+  try{
+   await c.query("UPDATE public.transactions SET status='cancelled' WHERE transaction_id=$1",[tx.transactionId]);
+   return await verifySignedTransactionVacancyCI(c,86181106);
+  }finally{await c.query('ROLLBACK TO SAVEPOINT unsigned_public_status_probe')}
+ },{normalOnly:true});
+ assert.equal(result.code,'F06_5C_TERMINAL_CANCEL_SIGNATURE_MISSING_OR_CONFLICT',JSON.stringify(result));
+ assert.equal((await q('SELECT status FROM public.transactions WHERE transaction_id=$1',[tx.transactionId]))[0].status,'in_progress');
+});
+test('5C-S62 真实未签财务申请不可洗白已签4A合法取消',async()=>{
+ const result=await auth.withSession(token,async c=>{
+  await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[args.vehicleId]);
+  await c.query('SAVEPOINT refund_not_authorized_probe');
+  try{
+   await c.query("INSERT INTO public.refund_cases(customer_id,lock_id,transaction_id,status,expected_amount_cents) VALUES($1,NULL,$2,'pending',100)",[args.customerId,realTxId]);
+   return await verifySignedTransactionVacancyCI(c,args.vehicleId);
+  }finally{await c.query('ROLLBACK TO SAVEPOINT refund_not_authorized_probe')}
+ },{normalOnly:true});
+ assert.equal(result.code,'F06_5C_PENDING_OR_UNKNOWN_FINANCE_DENIED',JSON.stringify(result));
+ assert.equal((await q('SELECT count(*)::int n FROM public.refund_cases WHERE transaction_id=$1',[realTxId]))[0].n,0);
+});
+test('5C-S63 4A取消后新F05-7原签名Match与原F05-8二Backend真正竞态只签一个胜者',async()=>{
+ const previous=(await q('SELECT facts_json FROM public.f05_7_vehicle_facts_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2',[positive.vehicleId,positive.listingCycleId]))[0];
+ assert.ok(previous?.facts_json);
+ await q("INSERT INTO public.f05_7_vehicle_facts_ci(vehicle_id,listing_cycle_id,facts_json) VALUES($1,$2,$3::jsonb) "+
+ "ON CONFLICT(vehicle_id,listing_cycle_id) DO UPDATE SET facts_json=excluded.facts_json",
+ [args.vehicleId,args.listingCycleId,JSON.stringify(previous.facts_json)]);
+ const demand=(await q("SELECT demand_id FROM public.demands WHERE customer_id=$1 AND demand_state='active' ORDER BY demand_id LIMIT 1",[positive.customerId]))[0];
+ assert.ok(demand);
+ const match=await calculateCI(signedFrozenParentSessionAdapterCI(auth,21),token,{
+  demandId:Number(demand.demand_id),vehicleId:args.vehicleId,listingCycleId:args.listingCycleId,
+  teamId:args.teamId,runKey:mk('post-4a-real-match')
+ });
+ assert.equal(match.allowed,true,JSON.stringify(match));
+ assert.ok(['high','acceptable'].includes(match.tier),JSON.stringify(match));
+ const before=(await q('SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1',[args.vehicleId]))[0].n;
+ const candidate={...args,customerId:positive.customerId};
+ const results=await Promise.all([
+  requestSyntheticNewPriorityCI(auth,token,{...candidate,eventKey:mk('signed-cancel-race-A')}),
+  requestSyntheticNewPriorityCI(peer,token,{...candidate,eventKey:mk('signed-cancel-race-B')})
+ ]);
+ assert.equal(results.filter(x=>x.code==='F06_5C_PARENT_SIGNED_PRIORITY_CREATED').length,1,JSON.stringify(results));
+ const after=await q("SELECT p.priority_id,p.customer_id,e.event_key FROM public.f05_8_priority_ci p "+
+  "JOIN public.f05_8_events_ci e ON e.priority_id=p.priority_id AND e.event_kind='created' "+
+  "WHERE p.vehicle_id=$1 AND p.listing_cycle_id=$2 AND p.status='active'",[args.vehicleId,args.listingCycleId]);
+ assert.equal(after.length,1);assert.equal(Number(after[0].customer_id),positive.customerId);
+ assert.equal((await q('SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1',[args.vehicleId]))[0].n,before+1);
 });

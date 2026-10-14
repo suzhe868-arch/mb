@@ -41,7 +41,7 @@ async function signedCancellation(c,t,o){
   let old=o.original_responsible_employee_id,previous=null;
   for(const e of history){
    if(!eq(e.old_responsible_employee_id,old)||
-      !eq(e.prior_event_id,previous)||
+      !((e.prior_event_id===null&&previous===null)||eq(e.prior_event_id,previous))||
       !eq(e.transaction_id,t.transaction_id)||
       e.synthetic_authority!=='CI_EXPLICIT_MANAGER_SCOPE_NOT_PRODUCTION')
     return deny('F06_5C_4C_HANDOFF_CHAIN_DRIFT');
