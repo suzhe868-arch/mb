@@ -165,7 +165,7 @@ END $$;
 
 -- 独立校验取消凭据；被候补/资金阻断时仍必须核对取消自身合法性。
 CREATE FUNCTION f06_5c_pg1_ci.valid_cancel_signature(tx_id bigint)
-RETURNS boolean LANGUAGE plpgsql VOLATILE AS $
+RETURNS boolean LANGUAGE plpgsql VOLATILE AS $$
 DECLARE t record;
 BEGIN
  SELECT * INTO t FROM public.transactions WHERE transaction_id=tx_id;
@@ -223,7 +223,7 @@ BEGIN
       AND o.previous_status='in_progress' AND o.resulting_status='cancelled'
       AND e.event_kind='post_handoff_transaction_cancelled_ci_only'
  );
-END $;
+END $$;
 
 -- 名称按字母排在旧 f05_8_priority_append_history 之后；旧函数既有字节保持不变。
 -- 仅对旧源自动签发允许「静默跳过」，使合法 4A/4C 的临时半签时序不致整体回滚。
