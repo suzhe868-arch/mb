@@ -40,8 +40,11 @@ async function permission(c,a,t){
 }
 async function signed(c,t){
  const cur=await withF064B(()=>currentSignedResponsibleCI(c,Number(t.transaction_id)));
- if(!cur.allowed||!cur.hasHandoff||Number(cur.currentResponsibleId)!==Number(t.responsible_employee_id))
+ if(!cur.allowed){
+  if(['F06_4B_FINANCE_OR_REFUND_SOURCE_GAP','F06_4B_DEPOSIT_PROVENANCE_DRIFT'].includes(cur.code))return no('F06_4C_FINANCIAL_OR_REFUND_UNKNOWN_DENY');
   return no('F06_4C_SIGNED_HANDOFF_SOURCE_GAP');
+ }
+ if(!cur.hasHandoff||Number(cur.currentResponsibleId)!==Number(t.responsible_employee_id))return no('F06_4C_SIGNED_HANDOFF_SOURCE_GAP');
  const origin=await one(c,"SELECT * FROM f06_3b_ci.transaction_origins WHERE transaction_id=$1 FOR SHARE",[t.transaction_id]);
  const proj=await one(c,"SELECT * FROM f06_4b_ci.responsible_projection WHERE transaction_id=$1 FOR UPDATE",[t.transaction_id]);
  if(!origin||!proj||Number(origin.original_responsible_employee_id)!==Number(cur.originalResponsibleId)||
@@ -84,6 +87,9 @@ export async function cancelAfterHandoffSyntheticCI(auth,token,p={}){
   const t=await one(c,'SELECT * FROM public.transactions WHERE transaction_id=$1 FOR UPDATE',[p.transactionId]);
   if(!t)return no('F06_4C_TRANSACTION_NOT_FOUND');
   if(!a||Number(a.employee_id)!==Number(t.responsible_employee_id))return no('F06_4C_OLD_RESPONSIBLE_DENIED');
+  // Signed lock order: Vehicle → Transaction → original Lock → F06-4B projection/events → current Employee/Scope.
+  const sourceLock=await one(c,'SELECT lock_id FROM public.locks WHERE lock_id=$1 FOR UPDATE',[t.source_lock_id]);
+  if(!sourceLock)return no('F06_4C_SIGNED_SOURCE_LOCK_MISSING');
   const current=await one(c,'SELECT original_responsible_employee_id FROM f06_4b_ci.responsible_projection WHERE transaction_id=$1 FOR UPDATE',[p.transactionId]);
   if(!current)return no('F06_4C_UNPROVEN_TRANSFER');
   const allowed=await permission(c,a,{...t,original_responsible_employee_id:current.original_responsible_employee_id});
