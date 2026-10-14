@@ -1,0 +1,72 @@
+name: F05-11 inherited frozen f05-9-two
+on:
+  push:
+    branches: [feat/f06-5a-transaction-refund-pending-ci]
+permissions: {contents: read, actions: read, pull-requests: read}
+# Retain all latest SHA jobs; supersede obsolete push workflow runs.
+concurrency:
+  group: f06-5a-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  recommendation-source:
+    name: F05-9 new Source v25 true PG16
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Native F05-9 signed-v25 Source and 70 job official proof
+        run: bash engineering/f05/consultation-assignee-sla/compat-f05-9-job.sh source
+        env:
+          GH_ACTIONS_READ_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f05-9-source-native-pg16-evidence
+          path: engineering/f05/recommendation-visibility-grants/artifacts/source/
+          retention-days: 30
+          if-no-files-found: error
+  recommendation-https:
+    name: F05-9 new HTTPS v25 true PG16
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Native F05-9 HTTPS customer/employee issuer fail closed
+        run: bash engineering/f05/consultation-assignee-sla/compat-f05-9-job.sh https
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f05-9-https-native-pg16-evidence
+          path: engineering/f05/recommendation-visibility-grants/artifacts/https/
+          retention-days: 30
+          if-no-files-found: error
