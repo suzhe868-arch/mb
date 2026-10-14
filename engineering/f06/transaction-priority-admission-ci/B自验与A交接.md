@@ -1,3 +1,22 @@
+# 2026-10-15｜F06-5C B第三轮C01—C05补证实施记录（现行优先）
+
+> 权威依据：`07_重建工作区/F06-5C_A主控第三轮复验_R01父触发器技术裁决与候补资金签名补证施工单_2026-10-15.md`；原PR #62、原工作分支不变。状态：**B_C01_C03_PROBES_SUBMITTED / A_TECH_RULING_R01_SCOPED_ACCEPTED / A_CHANGES_REQUESTED_PARENT_AUTO_ISSUER_CROSS_DOMAIN_PROOF / NOT_READY_FOR_A_REVIEW**。以下是施工过程记录，不是最终同SHA独立证明；旧R01待A裁决表述已由A最新正式裁决取代。
+
+## 当前真实改动
+
+- **C01**：Source 新增 S84，选取原F05-3B血缘的另一辆合成批发JYT车辆；两Customer先发原F06-1 pending，然后由原F05-7/8签current Match及Priority，再原F06-1正式Lock/Waitlist、原5B Guard交易和原4A合法Cancel。观察父自动 `source-created`、候补原签名和真实PG Backend/txid，断言有效候补期间绝不出现新active Priority；违反则红证。
+- **C02**：在S65既有已签5B交易和原F05-7批发current Match环境、真正合法4A Cancel之前，使用原F03签名Session和同物理PG `SAVEPOINT` 直接伪造 `public.transactions.status=cancelled`；立即采集冻结父触发器实际 Priority+created事件，必回滚，S85精确检验。保留数据库拒绝SQLSTATE，不把父自动签发冒称5C。
+- **C03**：S65同物理PG `SAVEPOINT` 增加合成未签 `refund_cases.pending` 后伪取消，观察父自动发行行为并回滚；S86验证。它是**未知财务+伪取消的组合负例**，不是“真实4A/4C合法取消时附带有签退款已测”；若该额外组合不可合法构造，记录真实PG错误并保留阻断。
+- **C04**：新增 S84—S86 至《有效业务用例矩阵.tsv》，保留原85项，不删除减弱；本批源码名义合计88个Source、9个HTTPS。此前37个独立业务项只是B自核，新增3项在真PG通过及去重前**不计为已验有效案例**。
+- **源码静态审计**：`engineering/f05/priority-arbitration-ttl-handover/000024_priority_ci.sql` 的原 `f05_8_reconcile_scope_ci` 只按当前Match资格、Lock/Transaction状态决定新发行，未显式查询 `waitlists`、`refund_cases`、`f06_5b_ci.guard_events`、`f06_4a_ci.cancel_origins` 或 `f06_4c_ci.cancel_origins`。确认的是**父源码跨域校验缺失**；真实危害、PG拒绝或事件抢发以最终日志为准。
+- **约束**：未修改F05冻结父SQL/原F06父Service、正式迁移、PDM、资金或生产代码。未合并main。父源码确有越界时只能出红证，须由A签独立父修复单。
+
+## 本轮尚待完成的严格门禁
+
+新末次SHA官方同头 `event=push` **22/22 success、96/96真PG16 Jobs（H52 52/52）、Source88/88、HTTPS9/9**、190旧父双真实物理OID全行COUNT+MD5、原24迁移/Catalog/D1/Sidecar，及≥32有效官方sha256 Artifact，均必须重新核实；任何未实际完成或失败不能套用旧 `a54f4628...` 证明。C01—C03如果任何测试报红，**不得填 `READY_FOR_A_REVIEW`**，应标 `BLOCKED_UPSTREAM_PARENT_AUTO_ISSUER` 并提供原生日志。额外旧PR工作流和required状态继续单列，不混称22 Push全部PR绿灯。
+
+---
+
 # 名邦汽车 V1｜F06-5C B 工程第二轮整改及正式A交接门禁报告
 
 > 日期：2026-10-15（新加坡时间）。唯一正式施工依据：`07_重建工作区/F06-5C_A主控PR62第二轮独立复验_真实签发竞态与跨负责人终态整改施工单_2026-10-15.md`（R01—R05）。
