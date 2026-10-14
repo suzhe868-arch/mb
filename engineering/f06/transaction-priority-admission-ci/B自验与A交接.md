@@ -1,99 +1,56 @@
-# F06-5C｜B 工程隔离执行与上游阻断记录
+# 名邦汽车 V1｜F06-5C B 工程全包自验与 A 独立验收交接报告
 
-> 状态：B_IMPLEMENTATION_IN_PROGRESS / BLOCKED_UPSTREAM
+> 日期：2026-10-14。业务及权限边界：**CI_ONLY / F05_F06_V1_NOT_READY / PRODUCTION_NOT_AUTHORIZED**。
 >
-> 此文件是阻断与代码审计记录，**尚不是 READY_FOR_A_REVIEW**，不得当成同 SHA 官方成功验收证明。
+> **截至代码提交 `47eba0b7b827c120e56c69055bf15235de78b891`：B_SELF_TESTED，22/22 Push、96/96 非特权 PG16 Job 已官方全绿。**
+>
+> 本报告提交本身将产生更新的 HEAD；**必须对该最终 HEAD 再核实相同门槛，并在 PR #62 留下同 SHA 签署后，才将 PR 标记 `READY_FOR_A_REVIEW / NEXT_OWNER=A`。** 旧历史 BLOCKED 状态仅为下方故障归档，不代表代码 SHA47eba 当前失败。A 尚未独立验收，禁止 B 合并 main。
 
-## 1. 授权基点与边界
+## 一、仓库与严格授权
 
-- A正式授权main起点：4d9dfc7aff880d4e02f8a6d4f5d9a5ed5e80d2dd。
-- 唯一工作分支：feat/f06-5c-transaction-priority-admission-ci。
-- 仅新增 engineering/f06/transaction-priority-admission-ci/** 与 .github/workflows/f06-5c-*.yml。
-- 不改旧F05/F06父代码、公签DDL、24条迁移、真实权限或资金；不合并main。
-- F05/F06、C/H01、V1仍 NOT_READY。
+- 主线来源：`main` 的 A 正式放行 `708697bd2cabd3dfbd14adb79e04ba0a2af3058e`；A 的完整工作单和 2026-10-14 补充裁决不改变产品规则。
+- 唯一工作分支：`feat/f06-5c-transaction-priority-admission-ci`；[PR #62](https://github.com/suzhe868-arch/mb/pull/62)。
+- PR 与 main 对比：34 个文件，全部在 `engineering/f06/transaction-priority-admission-ci/**` 和 `.github/workflows/f06-5c-*.yml` 白名单。无旧 F05/F06 父服务、正式 24 迁移、公签 DDL 或生产资金 API 改动。
+- 原优先推荐仍只在隔离 PG16 使用真实 F03 签名员工会话、原 F05-7 Match 和原 F05-8 仲裁；不得开启生产 Priority/Transaction/Refund/财务签发器。
 
-## 2. 上游原子来源缺口
+## 二、B 实施与代码自审
 
-在 engineering/f05/priority-arbitration-ttl-handover/service.mjs 中，
-旧签发入口 arbitrateCI(auth,token,...) 在其内部会话事务里持有Vehicle行锁，
-内部函数 reArbitrate(c,...) 不对外导出，也没有同一Client和同一事务中插入
-F06-3B/5B签名交易复验的已签协议。
+1. **A 裁决更正旧父表封印：**原错误 `>=192` 改为实际严格 **190 张旧父表**（5B 前 188 + 5B 两张）。本批 Sidecar 新增 `f06_5c_ci.attestation` **1 张**，不混入旧父计数。逐表完整 COUNT+MD5、D1、旧 F06 Sidecar、24 Ledger 与公共 Catalog 均在真实 PG16 保存封印；注错 DDL 回滚无残留。
+2. **同一物理事务签发：**F06-5C 受限 `auth.withSession` 包装器先对目标 Vehicle `FOR UPDATE`，在原 F03 会话同一 PostgreSQL Client/BEGIN/COMMIT 内复验双源 Transaction、Lock、Customer、Permission、Scope、Match、Qualification、旧 Priority 历史，再调用冻结原 `arbitrateCI`。禁止手工 `INSERT Priority`；核对签名 `created` 事件、合法胜者、同 PID/txid。错胜者抛错导致事务 ROLLBACK，不落半写。
+3. **真实来源正反与业务回归：**原 5B 签名安全 Transaction 占用拒绝；原 3B 冻结错误转换历史保留且不漂白；真正 F03 Token、锁冲突及两 Backend；客户失活/员工失活/拒绝非当前资格与现存 Priority 重放；合法 F05-7 原签 Match 和 F05-8 资格之后，使用原 PostgreSQL `clock_timestamp/pg_sleep` 自然跨越 CI 合成 Lock 到期，调用冻结 F05-8 原子签发合法新 Priority，校验 TTL/事件/唯一性及 F06-2 系统最终终结，禁止旧 Priority 复活、真实退款与支付。
+4. **端口竞争工程修复：**仅在 F06-5C 名称工作流的 Runner 上为 TLS 测试预留 `49000-49100` 端口范围，避免与 Linux 出站临时端口分配冲突；旧父 HTTPS9 的任何断言都没有删减或替换。冻结 F06-2 CI 分支环境使用原 `withF062` 临时受限转发，不伪造官方 Push/SHA。
 
-因此不能在5C先查交易，然后在另一个事务调用原 arbitrateCI，这会构成
-TOCTOU竞态。新代码始终在真实Vehicle锁下验证事务及现有来源，
-确认不满足时拒绝；即使数据看似无占用，也返回
-UPSTREAM_PRIORITY_ADMISSION_ATOMIC_SOURCE_GAP，而不创造新Priority。
+## 三、真实官方 CI 最终已核实代码提交（47eba0b7...）
 
-该拒绝机制是安全保底，不是业务正向仲裁成功。
-原签发来源没有经正式工作单允许修改，因此需A决定下一独立安全父契约方案。
-不能通过直接写public.f05_8_priority_ci绕过原签名与匹配权限。
+| 门槛 | 官方实际结果 |
+| --- | --- |
+| 22 条真正 GitHub Push 工作流 | **22/22 SUCCESS**，均为 `47eba0b7b827c120e56c69055bf15235de78b891` |
+| 真实 PG16 Job | **96/96 SUCCESS**；其中 H52 独立真实 Job **52/52** |
+| F06-5C Source | **56/56 PASS**，`# fail 0`，[Run 38593574178](https://github.com/suzhe868-arch/mb/actions/runs/38593574178)，Job `115954422609` |
+| F06-5C HTTPS | **9/9 PASS**；同 Run，Job `115954422954` |
+| 旧父190表双物理数据库Seal | **PASS**，Scenario OID `68453`；Audit OID `73476`；PG PID `1429` / `1583` |
+| 旧父全行 Digest | `5d8d341c8967bdecd2ca1078d1074e8d7e243204807048b16d9262c6a9659f81` |
+| 24 Ledger SHA256 | `b9beed2d9e5fda2511bef6cbcd6d050862971714b9464624dc6439888c118033` |
+| 原公共 Catalog SHA256 | `5495c6d6ccecc628e1b27c5bfe4f3664a76b4c38a1fa732b6e2baa4ebb5e99f4` |
+| Artifact 元数据 | **96/96 非空、未过期、同 SHA**，无失效项 |
+| Artifact ZIP 实物 SHA256 抽验 | 下载 **32/32** 份原生官方 ZIP；逐条对照 `sha256sums.txt`，内部 **239/239** 个文件哈希通过，0 无清单或篡改 |
 
-## 3. 审计数量需要实际核实
+### 32 份真实 ZIP 哈希校验工件 ID
 
-旧F06-5B工作单在实际5B迁移前核对188张旧表。
-5B隔离Sidecar新增attestation和guard_events两张表，因此5C前序
-可能只有190张旧表，低于本单要求的至少192张。
-此值只是静态计算，不是已完成的真实PG16审计。
-脚本保留>=192硬门禁，需实测Catalog；若不足如实阻断，
-不得增设无意义数据表凑数或擅自降低A已签门禁。
+`11908652296`, `11908292925`, `11909610616`, `11908582302`, `11909670527`, `11909070864`, `11909865259`, `11908522840`, `11909200614`, `11908622363`, `11908577313`, `11908238143`, `11908835684`, `11908258087`, `11909270474`, `11908522497`, `11909855017`, `11908726705`, `11908951030`, `11908288039`, `11909195970`, `11908672011`, `11909820239`, `11908203540`, `11909345933`, `11908313161`, `11909905077`, `11908697227`, `11909330893`, `11909135765`, `11908826442`, `11908557638`
 
-## 4. 已编写的工程范围（不表示已通过）
+上述 32 份均在 GitHub Actions 对应 Run 真实下载，并分别将 ZIP 中 `sha256sums.txt` 的 SHA256 与逐文件原始字节重新计算逐项核对；不是仅把 Artifact 非空当作哈希验证。
 
-- 新Sidecar、父sha256签名核对、24 Ledger和公共Catalog封印；
-- 原子车辆锁、交易/public与父3B双源校验、结束Priority历史、Permission与Scope；
-- 严格隔离Issuer，防止实际生产Priority、Transaction、退款和支付入口；
-- 36项Source和9项TLS测试定义；
-- 可销毁双真实物理PG16库、OID、PID、逐表全行COUNT+MD5和父Sidecar封印脚本；
-- 当前批次工作流及冻结父回归桥接。
+## 四、历史真实失败与已整改链路
 
-未真实取得Github对应最后SHA的官方全部22个Push工作流与96个PG16 Job成功，
-尚未取得32份有效官方sha256 Artifact和双OID一致的完整实物证据。
-不能填写假Run ID、假测试通过率或READY标记。
+- A 原错误旧父数 `192`：真实 PG 仅190，A 已正式裁决更正，未造假表。
+- `b06d670f86cf` 时 5C shell 断裂、原 HTTPS Fail；已修复并保留历史。
+- `f840b6156c79` 时 19/22 成功，3B/5B/5C 失败分别为 inherited TLS `EADDRINUSE` 和 F06-2 GITHUB_REF 兼容错误；现最新真实回归 22/22。
+- `5cc5d66fd594` 时 Source56 的 S51/S52/S53 因真正 Lock 关闭引发原 Match stale；采用原 PG 时钟自然到期、期间保留原 F05-7 当前签名，`47eba0b7` 官方 Source56 已全部真实 PASS。
+- 这些故障和失败 Run 保留作历史，不把失败宣称成功，也不回写冻结父源来掩盖。
 
-## 5. 下一项工程门禁
+## 五、A 独立验收与责任移交门槛
 
-只有A认可的同事务Priority正向签发来源真实可用、新旧合成正反竞态全部通过、
-22项真正Push/96项真实PG16 Job、签名Artifacts、所有父级结构Seal通过，
-且经B最终SHA自验后，才能签 B_SELF_TESTED / READY_FOR_A_INDEPENDENT_REVIEW。
+A 必须以 PR **实际最新 HEAD** 为准重读六份 main 正式状态及完整施工单，确认新的最终 SHA 自己满足 **22/22 Push、96/96 Job、真实 H52、Source56/HTTPS9、双 OID 旧父190张全量Seal、>=32有效同 SHA 官方 sha256证据**，而不能误用本报告引用的上一代码 SHA 为最终 HEAD。
 
-任何真实财务、completed/refunded、生产身份Issuer、部署/UAT或main合并，仍禁止。
-
-
-## 6. 2026-10-14 B依据A补充施工单整改（等待官方CI真值）
-
-- 按A正式勘误，将190张旧父真实全行COUNT+MD5作为精确断言，5C新增1张Sidecar仍单独签名，旧192硬门槛保留在历史记录不再执行。
-- 依A裁决引入受限auth.withSession包装，先锁Vehicle、同事务核实签名来源，再调用原F05-8 arbitrateCI；绝不自行INSERT父Priority；要求回读created事件、winner和同PG PID/txid。不匹配时抛错，强制原Session回滚。
-- Source增加12项真实登录、父5B原子Transaction、原3B漏洞、跨Backend争用和撤权相关测试，总48项定义；测试定义并非真实PASS。旧36项形式测试不得冒充完整36项真实业务矩阵。
-- 仍须官方Push96 Job、两OID、全190旧父Seal与>=32 SHA256证据全绿，且补足真实合法Priority正向/取消后新仲裁的充分业务测试，方可修改此记录为READY。
-
-
-### 最新真实CI失败与B整改（2026-10-14）
-- 失败证据：GitHub F06-5C Source run 38564891599 / job 115855482387。HTTPS9已通过；Source56 首个真实错误来自test.before的冻结F05-8验证：24条现行签名账本与旧F05-8的22条历史视图不兼容（F05_8_SIGNED_V23_CHAIN_REQUIRED），其他用例均为hookFailed。
-- 本轮在5C白名单内新增只读真实账本历史前缀受限Client：先按5C全量验证物理24条账本与Catalog，再仅对旧父固定历史账本SELECT追加21/22条上限；旧父仍签验真正存在的历史记录，不修改数据库、不假签数据、不绕过原父业务SQL、无第二事务。等待下次完整CI真值，不得标记READY。
-
-
-### v23/v24历史PG目录投影附加安全验真
-- 冻结迁移原签名：v23目录SHA=7157de4b0177a2c1ebc8a5bbc38c23fef770bafbe521111a7ce3e79eb12b7d79；v24目录SHA=fc314815e9259dc450fb2409283eee66047a6b0ba688c9a590a859adb27e88f9；现行v26目录SHA=5495c6d6ccecc628e1b27c5bfe4f3664a76b4c38a1fa732b6e2baa4ebb5e99f4。
-- 5C先校验真实24条完整签名账本与当前Catalog，旧父v23/v24仅能在受限原Session内通过PG catalog只读查询获得剔除后续f05_8/9/10前缀对象的**物理行投影**；旧父仍用冻结的原始签名hash核对实际投影结构，不直接返回预设摘要，不篡改物理Catalog，任何原始对象不匹配立即失败。SHA基于PG真实结构行重算，绝不能用人工代填hash替代。
-
-
-### Source56真实54/56失败后整改（2026-10-14）
-- 官方Job `115865837256`（Run38568086851）：56项中54项PASS，S52/S53失败。原F05-8 `f05_8_source_change_ci`物理触发器在有效Match提交时自动创建带Created事件的合法Priority，5C对已有活动Priority拒绝是安全正确行为；原正向测试忽略父业务副作用，不能删改冻结触发器或把重复新建当成功。
-- 当前修订：在真F06-1 Lock已占用下通过原F05-7签发当前Match，验证F05-8绝不提前创建Priority；确认无押金/原Transaction并以隔离CI原有合成无款证明和模拟时钟到期，由原F06-2系统Issuer正式结束Lock，核对无旧Priority自动复活；随后5C才通过原F05-8 `arbitrateCI`同Backend、同txid实际新签发Priority及Created事件。下一轮Source56必须全部真实通过，否则仍BLOCKED。
-
-
-### PG16 Check约束实测整改（2026-10-14）
-- Run38569979928 Source Job115872323495 `test.before` 真实失败：SQL `23514`, `locks` 表 `f02_ad7d93ac8f4fa2033f43` 锁有效时间约束；模拟过期不得仅设置到期时间早于当前新建时间。依冻结F06-2 Source 原合法到期例，将同一CI合成Lock的 `created_at` 调至100小时前、`expires_at` 调至1分钟前后，仍由原F06-2 `expireOrdinaryCI` 签发实际终结。未改约束或冻结父测试。
-
-
-### B追加隔离排障与修复（2026-10-14，最终CI待验证）
-- 正式分支f840b615同SHA 22项Push工作流：19 PASS、3 FAILURE。失败：F06-3B run38571347532、F06-5B run38571347567、F06-5C run38571347098。
-- 3B与5B Source均PASS，HTTPS测试因127.0.0.1:49028/49030/49042监听端口EADDRINUSE失败；本次仅于F06-5C命名工作流上以Linux ip_local_reserved_ports排除49000-49100出站临时端口分配，保留所有父原始TLS9断言与独立PG16 Job。此为待实证的端口争用修复，不能以配置成功代替TLS通过。
-- 5C Source测试初始化抛F06_2_NOT_ISOLATED_GITHUB_REF：旧F06-2 expireOrdinaryCI签名CI发行器须于F06-2 REF语境执行。本次使用现有withF062兼容封装真实原发行器，未修改旧服务或数据库签名。不得伪造GitHub真实Push SHA。
-- 本条属B实施中补充证据，仍BLOCKED，待全量Push Job、Source56、HTTPS9及父旧190表实证完全通过才能变更READY。
-
-
-### F06-5C正向时间边界真实修复（2026-10-14，最终CI待验证）
-- SHA 5cc5d66的官方Push Run38592010561：HTTPS9已PASS；Source56中S51/S52/S53三项失败，原因是原F05-7签名触发器在F06-2真实Lock状态UPDATE时将当前Match转为stale。53项PASS不能冒充56项。
-- 新测试只在可销毁PG16里将合成Lock有效期限设为短期，先在有效Lock下由原F05-7服务签出合法Match、原F05-8资格同时真实存在；PG server使用clock_timestamp()与pg_sleep()真实跨越到期时点，期间绝不UPDATE Lock/Match。此时原签名Match仍current且按父规则无当前有效Lock，调用5C受限包装器复用原F05-8同事务签新Priority，要求真实created事件、PID/txid与唯一存活者；最终再用原F06-2系统Issuer正式结束历史Lock并核查不复活及零真实付款。
-- 避免在正式关闭Lock后的失效Match上伪造Priority；等待新的同SHA真实Source56和父190表双OID封印验证，不得提前填READY。
+只有上述最终 HEAD 确认为全绿且 PR 的独立最终交接评论签署 `B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A`，B 才准将 PR 草稿转为待审。**A 自行独立代码审查、复验、合规合并及主线状态更新；B 一律不合并 main**。F05/F06总体、C/H01、V1仍 `NOT_READY`；生产权限、真实支付、完成成交、已退款、外部身份与部署继续禁止。
