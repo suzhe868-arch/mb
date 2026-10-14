@@ -11,6 +11,7 @@ import {withF063A} from '../refund-pending-ci/migration.mjs';
 import {withF062} from '../deposit-ledger-ci/migration.mjs';
 import {withParentBranch} from '../lock-lifecycle-ci/migration.mjs';
 import {oldRef} from './真实取消前后对照.mjs';
+import {signedCancelUnderNativeVehicleRace} from './原生双Backend并发.mjs';
 const mk=x=>'pg1-c01-'+process.env.GITHUB_RUN_ID+'-'+x;
 const one=async(c,s,a=[])=> (await c.query(s,a)).rows[0];
 export async function prepareRealJytWaitlist(c,{auth,token}){
@@ -163,12 +164,14 @@ export async function prepareRealJytUnoccupiedSignedMatch(c,{auth,token}){
  return {vehicleId,listingCycleId,customerId,transactionId:tx.transactionId,
   lockId:decision.lockId,matchTier:match.tier,source:'REAL_JYT_F05_7_SIGNED_MATCH_F06_1_LOCK_5B_TRANSACTION_NO_WAITLIST'};
 }
-export async function proveRealJytR01LegalSuccessor(c,{auth,token},f){
+export async function proveRealJytR01LegalSuccessor(c,{auth,token},f,independentVehicleId){
  const before=await one(c,"SELECT count(*)::int n FROM public.f05_8_events_ci WHERE vehicle_id=$1 AND event_kind='created'",[f.vehicleId]);
- const out=await cancelSyntheticTransactionV2CI(auth,token,{
-  transactionId:f.transactionId,eventKey:mk('r01-v2-signed-cancel'),
-  reason:'R01真JYT有签终态不得复活旧优先权只可创建唯一新优先权'
- });
+ const race=await signedCancelUnderNativeVehicleRace(c,{occupiedVehicleId:f.vehicleId,independentVehicleId},
+  ()=>cancelSyntheticTransactionV2CI(auth,token,{
+   transactionId:f.transactionId,eventKey:mk('r01-v2-signed-cancel'),
+   reason:'R01真JYT有签终态不得复活旧优先权只可创建唯一新优先权'
+  }));
+ const out=race.result;
  assert.equal(out.code,'F06_4A_CANCELLED_ATOMIC_NO_PAYMENT',JSON.stringify(out));
  const priorities=(await c.query("SELECT priority_id,customer_id,creation_key FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active'",[f.vehicleId,f.listingCycleId])).rows;
  const events=await one(c,"SELECT count(*)::int n FROM public.f05_8_events_ci WHERE vehicle_id=$1 AND event_kind='created'",[f.vehicleId]);
@@ -180,5 +183,6 @@ export async function proveRealJytR01LegalSuccessor(c,{auth,token},f){
  assert.equal(second.rows[0].n,1);
  return {...f,cancelCode:out.code,newPriorityId:Number(priorities[0].priority_id),
   createdEventsBefore:before.n,createdEventsAfter:events.n,
-  sourceCreationKey:priorities[0].creation_key,source:'SIGNED_PARENT_RECONCILE_AFTER_VALID_V2_4A_CANCEL'};
+  sourceCreationKey:priorities[0].creation_key,nativeConcurrency:race.proof,
+  source:'SIGNED_PARENT_RECONCILE_AFTER_VALID_V2_4A_CANCEL'};
 }
