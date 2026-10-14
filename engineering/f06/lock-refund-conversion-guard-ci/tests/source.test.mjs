@@ -192,7 +192,7 @@ test('5B-S42 新的真实3A签名收款为正反向竞争提供来源',async()=>
 });
 test('5B-S43 两个Worker独立环境和PG后端旧退款与新转换竞争',async()=>{
  const call=role=>new Promise((resolve,reject)=>{
-  const w=new Worker(new URL('./race-worker.mjs',import.meta.url),{workerData:{role,lockId:thirdLock,token,eventKey:k('third-'+role)}});
+  const w=new Worker(new URL('./race-worker.mjs',import.meta.url),{execArgv:[],workerData:{role,lockId:thirdLock,token,eventKey:k('third-'+role)}});
   w.once('message',resolve);w.once('error',reject);
   w.once('exit',code=>{if(code!==0)reject(Error('F06_5B_RACE_WORKER_EXIT_'+code))});
  });
