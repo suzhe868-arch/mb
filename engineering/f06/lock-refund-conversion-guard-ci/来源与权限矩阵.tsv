@@ -1,0 +1,10 @@
+用例	来源	期待	同事务检查
+旧Lock pending	3C1签名Refund	强制拒绝	Vehicle及Lock行锁之后
+旧Lock refunded	公共Refund状态	强制拒绝	Transaction写入前
+已付款	refund_payments	强制拒绝	Transaction写入前
+旧Lock closed	签名closed、close_reason、零实际支付	可继续合法金额复核	双时点退款复验
+已签Deposit	3A可信收款及调整请求来源	余额可信才允许	同物理PG事务
+合法销售	显式permission+Scope+活动会话	在无冲突时允许	父3B权限合同复用
+4S及SystemAdmin	不符合法人凭证类别	拒绝	父Session gate
+Customer disabled	账号失效	拒绝	父Customer行级重验
+生产Issuer	不存在	拒绝	HTTPS loopback
