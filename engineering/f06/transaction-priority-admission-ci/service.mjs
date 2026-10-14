@@ -13,10 +13,23 @@ const key=x=>typeof x==='string'&&/^[A-Za-z0-9._:-]{16,160}$/.test(x);
 const historicalLedgerSQL='SELECT migration_id,checksum,structure_sha256 FROM public.f03_schema_migrations ORDER BY migration_id';
 function signedHistoryClient(c,version){
  if(version!==21&&version!==22)throw Error('F06_5C_HISTORICAL_LEDGER_VERSION_DENIED');
- return {query:(sql,...params)=>{
+ // 真实v23/v24物理目录投影：v24新增f05_8、v25新增f05_9、v26新增f05_10。
+ // 这些变化只追加前缀化表/索引/触发器/函数，不改写更早对象；旧SHA必须自行匹配。
+ // 不返回人为预设hash，仅返回PG catalog真实结果中属于该历史版本的原始行。
+ const later=version===21?/(^|[.])f05_(8|9|10)_/:/(^|[.])f05_(9|10)_/;
+ const isOriginalCatalogQuery=sql=>typeof sql==='string'&&sql.includes(' AS name')&&
+  sql.includes(' AS definition')&&sql.includes('pg_namespace n')&&sql.includes("n.nspname='public'");
+ const isSequenceCatalogQuery=sql=>typeof sql==='string'&&sql.includes('pg_sequences s')&&
+  sql.includes("s.schemaname='public'")&&sql.includes(' AS definition');
+ return {query:async(sql,...params)=>{
   if(typeof sql==='string'&&sql.trim()===historicalLedgerSQL)
    return c.query(historicalLedgerSQL+' LIMIT '+version,...params);
-  return c.query(sql,...params);
+  const answer=await c.query(sql,...params);
+  if(isOriginalCatalogQuery(sql)||isSequenceCatalogQuery(sql)){
+   const rows=answer.rows.filter(r=>!later.test(String(r.name)));
+   return {...answer,rows,rowCount:rows.length};
+  }
+  return answer;
  }};
 }
 export function signedFrozenParentSessionAdapterCI(auth,version){

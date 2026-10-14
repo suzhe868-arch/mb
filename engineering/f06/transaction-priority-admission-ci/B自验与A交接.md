@@ -70,3 +70,8 @@ UPSTREAM_PRIORITY_ADMISSION_ATOMIC_SOURCE_GAP，而不创造新Priority。
 ### 最新真实CI失败与B整改（2026-10-14）
 - 失败证据：GitHub F06-5C Source run 38564891599 / job 115855482387。HTTPS9已通过；Source56 首个真实错误来自test.before的冻结F05-8验证：24条现行签名账本与旧F05-8的22条历史视图不兼容（F05_8_SIGNED_V23_CHAIN_REQUIRED），其他用例均为hookFailed。
 - 本轮在5C白名单内新增只读真实账本历史前缀受限Client：先按5C全量验证物理24条账本与Catalog，再仅对旧父固定历史账本SELECT追加21/22条上限；旧父仍签验真正存在的历史记录，不修改数据库、不假签数据、不绕过原父业务SQL、无第二事务。等待下次完整CI真值，不得标记READY。
+
+
+### v23/v24历史PG目录投影附加安全验真
+- 冻结迁移原签名：v23目录SHA=7157de4b0177a2c1ebc8a5bbc38c23fef770bafbe521111a7ce3e79eb12b7d79；v24目录SHA=fc314815e9259dc450fb2409283eee66047a6b0ba688c9a590a859adb27e88f9；现行v26目录SHA=5495c6d6ccecc628e1b27c5bfe4f3664a76b4c38a1fa732b6e2baa4ebb5e99f4。
+- 5C先校验真实24条完整签名账本与当前Catalog，旧父v23/v24仅能在受限原Session内通过PG catalog只读查询获得剔除后续f05_8/9/10前缀对象的**物理行投影**；旧父仍用冻结的原始签名hash核对实际投影结构，不直接返回预设摘要，不篡改物理Catalog，任何原始对象不匹配立即失败。SHA基于PG真实结构行重算，绝不能用人工代填hash替代。
