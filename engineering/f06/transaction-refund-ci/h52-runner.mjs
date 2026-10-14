@@ -60,10 +60,29 @@ const output=resolve(workspace,'engineering/f06/transaction-refund-ci/artifacts/
 mkdirSync(output,{recursive:true});
 const report={job:name,expectedOriginalSteps:steps.length,sha:process.env.GITHUB_SHA,runId:process.env.GITHUB_RUN_ID,passed:[]};
 const env={...process.env,GITHUB_REF:'refs/heads/feat/f06-4c-post-handoff-cancel-ci',GITHUB_REF_NAME:'feat/f06-4c-post-handoff-cancel-ci',CI:'true',APP_ENV:'test',NODE_ENV:'test'};
+// GitHub Actions reads $GITHUB_ENV after each native step. This compatibility runner executes
+// parent run-steps as child processes inside one native step, so propagate ONLY the three
+// parent-signed temporary TLS/HMAC variables between those child processes.
+const inheritedEnvironmentKeys=new Set(['F03_1_TLS_KEY_PATH','F03_1_TLS_CERT_PATH','F03_1_HMAC_KEY_BASE64']);
+let observedEnvironmentFile='';
+function applySignedStepEnvironment(){
+ if(!env.GITHUB_ENV)return;
+ let contents;try{contents=readFileSync(env.GITHUB_ENV,'utf8')}catch(e){if(e.code==='ENOENT')return;throw e}
+ if(!contents.startsWith(observedEnvironmentFile))throw Error('F06_5A_H52_GITHUB_ENV_TRUNCATED');
+ const newlyWritten=contents.slice(observedEnvironmentFile.length);
+ observedEnvironmentFile=contents;
+ for(const entry of newlyWritten.split(/\r?\n/)){
+  if(!entry)continue;
+  const i=entry.indexOf('='),varName=entry.slice(0,i);
+  if(i<1||!inheritedEnvironmentKeys.has(varName))throw Error('F06_5A_H52_UNAPPROVED_PARENT_ENV_WRITE');
+  env[varName]=entry.slice(i+1);
+ }
+}
 for(let i=0;i<steps.length;i++){
  const x=steps[i];if(!x.script.trim())throw Error('F06_5A_H52_EMPTY_STEP_'+i);
  const proc=spawnSync('bash',['-e','-o','pipefail','-c',x.script],{cwd:x.cwd,env,stdio:'inherit',timeout:45*60*1000});
  if(proc.error||proc.status!==0){report.failedIndex=i;report.exitCode=proc.status;writeFileSync(resolve(output,'result.json'),JSON.stringify(report,null,2));throw Error('F06_5A_FROZEN_H52_JOB_FAILED_'+name+'_STEP_'+i)}
+ applySignedStepEnvironment();
  report.passed.push(i);
 }
 writeFileSync(resolve(output,'result.json'),JSON.stringify(report,null,2)+'\n');
