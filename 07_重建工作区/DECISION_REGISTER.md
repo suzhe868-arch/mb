@@ -1,5 +1,11 @@
 # Decision Register｜产品基线重建
 
+## 2026-10-14｜F06-4C PR59独立验收与F06-5A仅合成Transaction侧Refund pending/closed放行（不更改PDM）
+- A直接核GitHub PR59 B末SHA`2258c9831e0b9059a8612c938c730fc6a538e072`，30/30新增CI白名单、19/19真Push、90/90真实非特权PG16 Job（H52实取52）、Source102、HTTPS9、135官方sha256 Artifact。OID53416→58367旧180父实体逐表完整COUNT+MD5/24 Ledger/Catalog/D1/七父Sidecar未漂移。A独立验收意见https://github.com/suzhe868-arch/mb/pull/59#issuecomment-6161319870，GitHub原生标准merge`252fd551713eb7bbb64fce956c17c362368d2116`，正式报告`07_重建工作区/F06-4C_A主控独立验收19条Push90项真PG16与135份证据_PR59标准合并正式报告_2026-10-14.md`。本批仅非生产合成取消技术证据，Production Cancel Carrier/Handoff Issuer/Cancel Permission Source Gap不解除。
+- A依已用户批准的PDM-19 §§19–26，正式仅隔离技术放行F06-5A`07_重建工作区/F06-5A_A主控PDM19已取消Transaction合成Refund申请pending与无付款closed_CI隔离完整施工单_2026-10-14.md`，锁定Refund subject仅已取消Transaction且与原Lock资金签名一致，申请pending/真正决定不退款closed+reason、公海保护与余额只读守卫。分支`feat/f06-5a-transaction-refund-pending-ci`，仅本域新增白名单，目标20同HEAD真Push/92真PG16 Job(H52 52)、Source≥44 HTTPS≥9、≥28原生Artifact、双真实OID旧≥184表封印；任何实际`refunded`/payment/真实资金、完成成交或生产Issuer/UAT仍禁止。**NEXT_OWNER=B**，F05/F06整域及V1`NOT_READY`。
+
+---
+
 ## 2026-10-14｜F06-4B PR58独立验收与F06-4C移交后当前负责人的合成安全取消放行（不构成PDM业务新裁决）
 - A核PR58 B唯一最终SHA`89bab5f2452438f5cdfd74f2d95ef7885652db87`，29/29新增仅CI白名单、18/18同SHA真Push、88/88真PG16 Job/H52官方52、Source48、HTTPS9、133有效GitHub sha256 Artifact；双物理OID48623→53414旧176父表逐表COUNT+MD5与Ledger24/Catalog/D1/父Sidecar签名不变。A正式评论https://github.com/suzhe868-arch/mb/pull/58#issuecomment-6160139339，GitHub标准merge SHA`498617353db8020c14ec919a1b0eefef66f2eec8`，正式报告`07_重建工作区/F06-4B_A主控独立验收18条Push88项真PG16与133份证据_PR58标准合并正式报告_2026-10-14.md`。仅合成Transaction负责者变更，生产Handoff Issuer缺失，父Cancel迁移后失源拒绝持续成立。
 - A据用户已签PDM-19§§9–10、PDM-02/03/17/18/25，另外书面技术放行`07_重建工作区/F06-4C_A主控PDM19移交后当前负责人合成Transaction安全取消_CI隔离完整施工单_2026-10-14.md`：仅合成安全Adapter验证当前正式签名4B负责人+独立Cancel权限与Scope的Transaction终止，仍无生产Issuer/真实资金/成交/退款；B从最新main按新`feat/f06-4c-post-handoff-cancel-ci`独立PR，仅新增新批白名单，两OID旧≥180表全行Seal、19真Push/90真PG16 Job/H52 52、Source≥40 HTTPS≥9、≥26官方sha256 Artifact，B完包交A不合并。**NEXT_OWNER=B**；F05/F06整体及V1`NOT_READY`。
