@@ -204,3 +204,81 @@ test('5B-S44 反向交错不能同时存在pending Refund与Transaction',async()
  const transaction=Number((await query('SELECT count(*)::int n FROM public.transactions WHERE source_lock_id=$1',[thirdLock]))[0].n);
  assert.equal(pending+transaction,1);assert.equal(pending*transaction,0);
 });
+
+import {withF063B} from '../../refund-pending-ci/migration.mjs';
+import {openSyntheticTransactionCI as legacyOpenSyntheticTransactionCI} from '../../lock-transaction-ci/service.mjs';
+
+let fourthLock,legacyLock,legacyRefund,legacyTx;
+test('5B-S45 新Lock作为撤权与角色隔离的独立真PG样本',async()=>{
+ const req=await old(()=>intakeCI(db,{customerId:86180101,vehicleId:86181107,listingCycleId:86182107,requestKey:k('fourth-intake'),syntheticPhoneConsent:'CI_SYNTHETIC_PHONE_CONSENT_NOT_PRODUCTION'}));
+ assert.equal(req.code,'F06_1_PENDING_CREATED',JSON.stringify(req));
+ const x=await old(()=>decisionCI(auth,token,{requestId:req.requestId,requestKey:k('fourth-approve'),action:'approve'}));
+ assert.equal(x.code,'F06_1_APPROVED_ATOMIC_LOCK',JSON.stringify(x));fourthLock=x.lockId;
+});
+test('5B-S46 已签权限由allow改deny立即禁止Transaction',async()=>{
+ await query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=1 AND permission_id=967001");
+ try{
+  const x=await open('permission-denied',{lockId:fourthLock});
+  assert.equal(x.code,'F06_5B_OPEN_PERMISSION_SCOPE_DENIED',JSON.stringify(x));
+  assert.equal((await query('SELECT count(*)::int n FROM public.transactions WHERE source_lock_id=$1',[fourthLock]))[0].n,0);
+ }finally{await query("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=1 AND permission_id=967001")}
+});
+test('5B-S47 Scope Binding过期即时拒绝且没有半写',async()=>{
+ await query("UPDATE public.employee_capability_scope_bindings SET ended_at=clock_timestamp()-interval '1 minute' WHERE employee_id=1 AND permission_id=967001");
+ try{
+  const x=await open('scope-revoked',{lockId:fourthLock});
+  assert.equal(x.code,'F06_5B_OPEN_PERMISSION_SCOPE_DENIED',JSON.stringify(x));
+  assert.equal((await query('SELECT count(*)::int n FROM public.transactions WHERE source_lock_id=$1',[fourthLock]))[0].n,0);
+ }finally{await query("UPDATE public.employee_capability_scope_bindings SET ended_at=NULL WHERE employee_id=1 AND permission_id=967001")}
+});
+test('5B-S48 Customer失活后安全拒绝Transaction且不污染Lock',async()=>{
+ await query("UPDATE public.customers SET account_status='inactive' WHERE customer_id=86180101");
+ try{
+  const x=await open('customer-disabled',{lockId:fourthLock});
+  assert.equal(x.code,'F06_5B_CUSTOMER_DISABLED',JSON.stringify(x));
+  assert.equal((await query('SELECT lock_status FROM public.locks WHERE lock_id=$1',[fourthLock]))[0].lock_status,'active');
+ }finally{await query("UPDATE public.customers SET account_status='active' WHERE customer_id=86180101")}
+});
+test('5B-S49 4S角色无法使用销售会话旧Token跨身份转换',async()=>{
+ const sale=(await query("SELECT role_id FROM public.roles WHERE role_code='sales'"))[0].role_id;
+ const fourS=(await query("SELECT role_id FROM public.roles WHERE role_code='four_s'"))[0].role_id;
+ await query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[fourS]);
+ try{
+  const x=await open('four-s-deny',{lockId:fourthLock});
+  assert.equal(x.allowed,false,JSON.stringify(x));
+  assert.equal((await query('SELECT count(*)::int n FROM public.transactions WHERE source_lock_id=$1',[fourthLock]))[0].n,0);
+ }finally{await query('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[sale])}
+});
+test('5B-S50 合法权限恢复后仍要求真实3A签名Deposit',async()=>{
+ const x=await withF063A(()=>recordSyntheticDepositCI(auth,token,{lockId:fourthLock,amountCents:3300,currency:'CNY',paymentMethod:'cash',receivedAt:new Date(Date.now()-3600000).toISOString(),eventKey:k('fourth-deposit')}));
+ assert.equal(x.code,'F06_3A_SYNTHETIC_RECEIPT_RECORDED',JSON.stringify(x));
+});
+test('5B-S51 权限与Source均恢复后新版原子转换成功',async()=>{
+ const x=await open('after-rights-restored',{lockId:fourthLock});
+ assert.equal(x.code,'F06_5B_ATOMIC_SYNTHETIC_IN_PROGRESS',JSON.stringify(x));
+});
+test('5B-S52 已有owning Transaction后反向申请旧Lock Refund必须拒绝',async()=>{
+ const x=await withF063C1(()=>requestSyntheticRefundCI(auth,token,{subjectKind:'lock',lockId:fourthLock,amountCents:1200,reason:'反向顺序：已有真实交易不许再申请旧Lock退款',eventKey:k('reverse-refund')}));
+ assert.equal(x.allowed,false,JSON.stringify(x));
+ assert.equal((await query('SELECT count(*)::int n FROM public.refund_cases WHERE lock_id=$1',[fourthLock]))[0].n,0);
+});
+test('5B-S53 冻结父3B危险转换反例的真实旧Lock、Deposit、pending来源',async()=>{
+ const req=await old(()=>intakeCI(db,{customerId:86180101,vehicleId:86181108,listingCycleId:86182108,requestKey:k('legacy-intake'),syntheticPhoneConsent:'CI_SYNTHETIC_PHONE_CONSENT_NOT_PRODUCTION'}));
+ assert.equal(req.code,'F06_1_PENDING_CREATED',JSON.stringify(req));
+ const x=await old(()=>decisionCI(auth,token,{requestId:req.requestId,requestKey:k('legacy-approve'),action:'approve'}));
+ assert.equal(x.code,'F06_1_APPROVED_ATOMIC_LOCK',JSON.stringify(x));legacyLock=x.lockId;
+ const d=await withF063A(()=>recordSyntheticDepositCI(auth,token,{lockId:legacyLock,amountCents:4800,currency:'CNY',paymentMethod:'cash',receivedAt:new Date(Date.now()-3600000).toISOString(),eventKey:k('legacy-deposit')}));
+ assert.equal(d.code,'F06_3A_SYNTHETIC_RECEIPT_RECORDED',JSON.stringify(d));
+ const r=await withF063C1(()=>requestSyntheticRefundCI(auth,token,{subjectKind:'lock',lockId:legacyLock,amountCents:1600,reason:'原父3B历史漏洞：真实旧Lock待退款不得转换交易',eventKey:k('legacy-pending')}));
+ assert.equal(r.code,'F06_3C1_PENDING_NO_PAYMENT',JSON.stringify(r));legacyRefund=r.refundId;
+});
+test('5B-S54 同源旧3B实际误放而新5B拒绝且不漂白旧交易签名',async()=>{
+ const legacyKey=k('legacy-unsafe-repro');
+ const oldX=await withF063B(()=>legacyOpenSyntheticTransactionCI(auth,token,{lockId:legacyLock,eventKey:legacyKey}));
+ assert.equal(oldX.allowed,true,'冻结父F06-3B必须保留真实已知漏洞反例 '+JSON.stringify(oldX));
+ legacyTx=oldX.transactionId;
+ const x=await openGuardedSyntheticTransactionCI(auth,token,{lockId:legacyLock,eventKey:legacyKey});
+ assert.equal(x.code,'F06_5B_LOCK_PENDING_REFUND_CONVERSION_DENY',JSON.stringify(x));
+ assert.equal((await query('SELECT count(*)::int n FROM f06_5b_ci.guard_events WHERE transaction_id=$1',[legacyTx]))[0].n,0);
+ assert.equal((await query('SELECT status FROM public.refund_cases WHERE refund_id=$1',[legacyRefund]))[0].status,'pending');
+});
