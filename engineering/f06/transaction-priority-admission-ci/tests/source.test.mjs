@@ -3,6 +3,19 @@ import assert from 'node:assert/strict';
 import {connect,verify,checksum,gate} from '../migration.mjs';
 import {requestSyntheticNewPriorityCI,productionIssuerDeny,UPSTREAM_GAP} from '../service.mjs';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
+import {withF065B} from '../migration.mjs';
+import {intakeCI,decisionCI} from '../../lockrequest-approval-waitlist-ci/service.mjs';
+import {openGuardedSyntheticTransactionCI} from '../../lock-refund-conversion-guard-ci/service.mjs';
+import {openSyntheticTransactionCI as legacyOpenSyntheticTransactionCI} from '../../lock-transaction-ci/service.mjs';
+import {recordSyntheticDepositCI} from '../../deposit-ledger-ci/service.mjs';
+import {requestSyntheticRefundCI} from '../../refund-pending-ci/service.mjs';
+import {withF063B} from '../../refund-pending-ci/migration.mjs';
+import {withF063C1} from '../../transaction-cancel-ci/migration.mjs';
+import {withF063A} from '../../lock-transaction-ci/migration.mjs';
+import {withF062} from '../../deposit-ledger-ci/migration.mjs';
+import {withParentBranch} from '../../lock-lifecycle-ci/migration.mjs';
+import {setQualificationCI} from '../../../f05/priority-arbitration-ttl-handover/service.mjs';
+import {saveSalesDescriptionCI,calculateCI} from '../../../f05/deterministic-matching-readiness-four-tier/service.mjs';
 const db=await connect(),q=(sql,args=[])=>db.query(sql,args).then(r=>r.rows);
 const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret:Buffer.alloc(32,61),origin:'https://127.0.0.1:49026'});
 const peer=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret:Buffer.alloc(32,61),origin:'https://127.0.0.1:49026'});
@@ -10,10 +23,84 @@ const mk=x=>'f06-5c-pg16-'+x+'-'+process.env.GITHUB_RUN_ID;
 let token;
 const args={vehicleId:86181104,listingCycleId:86182104,customerId:86180101,teamId:901,eventKey:mk('base')};
 const attempt=(v={},a=auth,t='forged')=>requestSyntheticNewPriorityCI(a,t,{...args,...v});
+let realTxId,legacyTxId,positive;
+const f06Signed=fn=>withF063A(()=>withF062(()=>withParentBranch(fn)));
+async function makeSignedLock(n,label){
+ const x=await f06Signed(()=>intakeCI(db,{customerId:86180101,vehicleId:86181100+n,
+  listingCycleId:86182100+n,requestKey:mk('intake-'+label),
+  syntheticPhoneConsent:'CI_SYNTHETIC_PHONE_CONSENT_NOT_PRODUCTION'}));
+ assert.equal(x.code,'F06_1_PENDING_CREATED',JSON.stringify(x));
+ const y=await f06Signed(()=>decisionCI(auth,token,{requestId:x.requestId,requestKey:mk('approve-'+label),action:'approve'}));
+ assert.equal(y.code,'F06_1_APPROVED_ATOMIC_LOCK',JSON.stringify(y));
+ return y.lockId;
+}
 test.before(async()=>{
  assert.equal((await verify(db)).verified,true);
+ const sale=(await q("SELECT role_id FROM public.roles WHERE role_code='sales'"))[0];
+ await q('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[sale.role_id]);
+ await q('UPDATE public.customers SET current_owner_employee_id=1 WHERE customer_id=86180101');
+ const member=(await q("SELECT team_id FROM public.employee_team_memberships WHERE employee_id=1 AND ended_at IS NULL LIMIT 1"))[0];
+ const scope=(await q("SELECT scope_id FROM public.employee_data_scopes WHERE employee_id=1 AND scope_kind='team' AND scope_reference_id=$1 AND ended_at IS NULL LIMIT 1",[member.team_id]))[0];
+ assert.ok(scope);
+ const perms=[['transaction.ci.open',969101],['deposit.ci.record',969102],['refund.ci.request',969103]];
+ for(const [name,defaultId] of perms){
+  const existing=(await q('SELECT permission_id FROM public.permissions WHERE permission_code=$1',[name]))[0];
+  const permission=existing?.permission_id??defaultId;
+  if(!existing)await q('INSERT INTO public.permissions(permission_id,permission_code) VALUES($1,$2)',[permission,name]);
+  await q("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(1,$1,'allow',clock_timestamp()) ON CONFLICT(employee_id,permission_id) DO UPDATE SET decision='allow'",[permission]);
+  const bound=(await q('SELECT 1 FROM public.employee_capability_scope_bindings WHERE employee_id=1 AND permission_id=$1 AND scope_id=$2 AND ended_at IS NULL',[permission,scope.scope_id]))[0];
+  if(!bound)await q("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(1,$1,$2,clock_timestamp()-interval '2 minutes')",[permission,scope.scope_id]);
+ }
  const login=await auth.login({login:'employee_test',password:'SyntheticF04_3_CurrentProof_2026',source:'f06-5c-signed-source'});
  assert.equal(login.code,'AUTH_OK',JSON.stringify(login));token=login.token;
+ const validLock=await makeSignedLock(4,'valid-tx');
+ const deposit=await withF063A(()=>recordSyntheticDepositCI(auth,token,{lockId:validLock,
+  amountCents:6600,currency:'CNY',paymentMethod:'cash',
+  receivedAt:new Date(Date.now()-3600000).toISOString(),eventKey:mk('valid-deposit')}));
+ assert.equal(deposit.code,'F06_3A_SYNTHETIC_RECEIPT_RECORDED',JSON.stringify(deposit));
+ const valid=await withF065B(()=>openGuardedSyntheticTransactionCI(auth,token,{lockId:validLock,eventKey:mk('valid-5b-tx')}));
+ assert.equal(valid.code,'F06_5B_ATOMIC_SYNTHETIC_IN_PROGRESS',JSON.stringify(valid));
+ realTxId=valid.transactionId;
+ const legacyLock=await makeSignedLock(8,'unsafe-legacy');
+ const legacyDeposit=await withF063A(()=>recordSyntheticDepositCI(auth,token,{lockId:legacyLock,
+  amountCents:4800,currency:'CNY',paymentMethod:'cash',
+  receivedAt:new Date(Date.now()-3600000).toISOString(),eventKey:mk('legacy-deposit')}));
+ assert.equal(legacyDeposit.code,'F06_3A_SYNTHETIC_RECEIPT_RECORDED',JSON.stringify(legacyDeposit));
+ const refund=await withF063C1(()=>requestSyntheticRefundCI(auth,token,{subjectKind:'lock',lockId:legacyLock,
+  amountCents:1600,reason:'真实旧Lock待退来源与旧交易转换漏洞样本',eventKey:mk('legacy-refund')}));
+ assert.equal(refund.code,'F06_3C1_PENDING_NO_PAYMENT',JSON.stringify(refund));
+ const legacy=await withF063B(()=>legacyOpenSyntheticTransactionCI(auth,token,{lockId:legacyLock,eventKey:mk('legacy-unsafe-tx')}));
+ assert.equal(legacy.allowed,true,JSON.stringify(legacy));legacyTxId=legacy.transactionId;
+ // 真实F05-7新Vehicle事实来自已签JYT同步血缘；签名Match由原F05-7 API发行。
+ // F05-8资格由原服务开启，而非直写Priority或Match结果。
+ const fresh=(await q("SELECT l.vehicle_id,l.current_cycle_id,l.model_year FROM public.f05_3b_sync_lineages l "+
+  "JOIN public.vehicles v ON v.vehicle_id=l.vehicle_id "+
+  "JOIN public.vehicle_listing_cycles cy ON cy.listing_cycle_id=l.current_cycle_id "+
+  "LEFT JOIN public.f05_7_vehicle_facts_ci f ON f.vehicle_id=l.vehicle_id AND f.listing_cycle_id=l.current_cycle_id "+
+  "WHERE v.source_type='wholesale' AND v.source_sale_status='active' AND cy.ended_at IS NULL "+
+  "AND f.vehicle_id IS NULL ORDER BY l.vehicle_id LIMIT 1"))[0];
+ assert.ok(fresh,'F06_5C_NEW_SIGNED_JYT_VEHICLE_FACT_SOURCE_REQUIRED');
+ positive={vehicleId:Number(fresh.vehicle_id),listingCycleId:Number(fresh.current_cycle_id),customerId:899621,teamId:901};
+ const modelYear=Number(fresh.model_year);
+ await q("INSERT INTO public.f05_7_vehicle_facts_ci(vehicle_id,listing_cycle_id,facts_json) VALUES($1,$2,$3::jsonb)",
+ [positive.vehicleId,positive.listingCycleId,JSON.stringify({
+  model_year:{value:modelYear,source:'CI_JYT_SIGNED_SOURCE_STRUCTURED_NOT_PRODUCTION'},
+  mileage_km:{value:42000,source:'CI_SYNTHETIC_STRUCTURED_NOT_PRODUCTION'},
+  exterior_color:{value:'black',source:'CI_SYNTHETIC_STRUCTURED_NOT_PRODUCTION'},
+  interior_color:{value:'beige',source:'CI_SYNTHETIC_INSPECTION_NOT_PRODUCTION'},
+  budget_cents:{value:10000000,source:'CI_SYNTHETIC_DISPLAY_ONLY_NOT_PRODUCTION'}
+ })]);
+ const demand=(await q("SELECT demand_id FROM public.demands WHERE customer_id=$1 AND demand_state='active' ORDER BY demand_id LIMIT 1",[positive.customerId]))[0];
+ assert.ok(demand);
+ const qualify=await setQualificationCI(auth,token,{teamId:901,customerId:positive.customerId,enabled:true,eventKey:mk('signed-qualification')});
+ assert.equal(qualify.allowed,true,JSON.stringify(qualify));
+ const d=await saveSalesDescriptionCI(auth,token,{demandId:Number(demand.demand_id),teamId:901,
+  description:'奥迪A6 2026款 5万公里以内 黑色外观 米色内饰 预算10万'});
+ assert.equal(d.allowed,true,JSON.stringify(d));
+ const matching=await calculateCI(auth,token,{demandId:Number(demand.demand_id),vehicleId:positive.vehicleId,
+  listingCycleId:positive.listingCycleId,teamId:901,runKey:mk('signed-match')});
+ assert.equal(matching.allowed,true,JSON.stringify(matching));
+ assert.ok(['high','acceptable'].includes(matching.tier),'F06_5C_SIGNED_F05_7_HIGH_OR_ACCEPTABLE_REQUIRED');
 });
 test.after(async()=>{await auth.close();await peer.close();await db.end()});
 test('5C-S01 新旧Sidecar父签认证',async()=>assert.equal((await verify(db)).verified,true));
@@ -113,3 +200,49 @@ test('5C-S47 真实旧3B不安全Transaction不能伪装为5B安全发行',async
  assert.equal(r.allowed,false,JSON.stringify(r));
 });
 test('5C-S48 并发失败未产生实际付款记录',async()=>assert.equal((await q('SELECT count(*)::int n FROM public.refund_payments'))[0].n,0));
+
+test('5C-S49 真F06-5B安全来源交易在本独立PG中发行',async()=>{
+ const x=(await q('SELECT status FROM public.transactions WHERE transaction_id=$1',[realTxId]))[0];
+ assert.equal(x.status,'in_progress');
+});
+test('5C-S50 旧3B不安全资金冲突来源与真实签名仍未漂白',async()=>{
+ assert.ok(legacyTxId);
+ const x=(await q('SELECT transaction_id FROM f06_5b_ci.guard_events WHERE transaction_id=$1',[legacyTxId]));
+ assert.equal(x.length,0);
+ const pending=(await q("SELECT count(*)::int n FROM public.refund_cases WHERE lock_id=(SELECT source_lock_id FROM public.transactions WHERE transaction_id=$1) AND status='pending'",[legacyTxId]))[0];
+ assert.equal(pending.n,1);
+});
+test('5C-S51 合法原F05-7签名当前Match和原F05-8资格可回读',async()=>{
+ const x=await q("SELECT r.result_id FROM public.f05_7_result_versions_ci r JOIN public.demands d USING(demand_id) "+
+  "JOIN public.f05_8_qualification_ci q ON q.customer_id=d.customer_id AND q.enabled=true "+
+  "WHERE d.customer_id=$1 AND r.vehicle_id=$2 AND r.listing_cycle_id=$3 "+
+  "AND r.status='current' AND r.tier IN('high','acceptable')",[positive.customerId,positive.vehicleId,positive.listingCycleId]);
+ assert.ok(x.length>=1);
+});
+test('5C-S52 真实原Priority仲裁在同一Session及Vehicle锁下正向发行',async()=>{
+ const created=await requestSyntheticNewPriorityCI(auth,token,{...positive,eventKey:mk('positive-parent-arbitrate')});
+ assert.equal(created.code,'F06_5C_PARENT_SIGNED_PRIORITY_CREATED',JSON.stringify(created));
+ assert.ok(created.pgBackendPid>0);assert.match(created.pgTransactionId,/^[0-9]+$/);
+ positive.priorityId=created.priorityId;
+});
+test('5C-S53 正向Priority只能有父签名Created事件与唯一存活者',async()=>{
+ const x=await q("SELECT p.priority_id,e.event_key FROM public.f05_8_priority_ci p "+
+ "JOIN public.f05_8_events_ci e ON e.priority_id=p.priority_id AND e.event_kind='created' "+
+ "WHERE p.vehicle_id=$1 AND p.listing_cycle_id=$2 AND p.status='active'",[positive.vehicleId,positive.listingCycleId]);
+ assert.equal(x.length,1);assert.equal(Number(x[0].priority_id),positive.priorityId);
+});
+test('5C-S54 已签活动Priority不允许改Key二次新建',async()=>{
+ const before=(await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1",[positive.vehicleId]))[0].n;
+ const r=await requestSyntheticNewPriorityCI(auth,token,{...positive,eventKey:mk('positive-duplicate')});
+ assert.equal(r.allowed,false,JSON.stringify(r));
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1",[positive.vehicleId]))[0].n,before);
+});
+test('5C-S55 当前无交易也不得把别的Customer强指定原Priority胜者',async()=>{
+ const oldCount=(await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1",[positive.vehicleId]))[0].n;
+ const r=await requestSyntheticNewPriorityCI(auth,token,{...positive,customerId:899622,eventKey:mk('wrong-customer')});
+ assert.equal(r.allowed,false,JSON.stringify(r));
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1",[positive.vehicleId]))[0].n,oldCount);
+});
+test('5C-S56 所有本次合成资产没有新增付款到账或实际Refund支付',async()=>{
+ assert.equal((await q('SELECT count(*)::int n FROM public.refund_payments'))[0].n,0);
+});
