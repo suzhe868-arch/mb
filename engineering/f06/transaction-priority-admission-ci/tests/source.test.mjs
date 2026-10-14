@@ -418,6 +418,10 @@ test('5C-S63 4A取消后新F05-7原签名Match与原F05-8二Backend真正竞态�
 });
 
 test('5C-S64 原签Priority经F06-1合法变为Lock且已结束历史不可复活',async()=>{
+ // 冻结F06-1必须核当前真实手机号事实，不可仅传consent字符串。
+ // 沿用F06-1正向隔离测试既有的不可逆生产隔离合成证明格式。
+ const phoneFact=(await q("SELECT phone_fact_id FROM public.customer_phone_facts WHERE customer_id=$1 AND ended_at IS NULL",[positive.customerId]))[0];
+ if(!phoneFact)await q("INSERT INTO public.customer_phone_facts(customer_id,phone_ciphertext,valid_from) VALUES($1,decode(repeat('ab',16),'hex'),clock_timestamp()-interval '1 day')",[positive.customerId]);
  const request=await f06Signed(()=>intakeCI(db,{
   customerId:positive.customerId,vehicleId:positive.vehicleId,listingCycleId:positive.listingCycleId,
   requestKey:mk('real-priority-to-lock-intake'),
