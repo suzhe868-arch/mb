@@ -94,7 +94,7 @@ test('4B-S13 非法交易id先拒绝',async()=>assert.equal((await transfer(1,'b
 test('4B-S14 非法recipient先拒绝',async()=>assert.equal((await transfer(1,'badto',{newResponsibleId:0})).code,'F06_4B_INVALID_REQUEST'));
 test('4B-S15 无reason拒绝',async()=>assert.equal((await transfer(1,'badreason',{reason:' '})).code,'F06_4B_INVALID_REQUEST'));
 test('4B-S16 不合法key拒绝',async()=>assert.equal((await transfer(1,'badkey',{eventKey:'abc'})).code,'F06_4B_INVALID_REQUEST'));
-test('4B-S17 伪造Token拒绝',async()=>assert.equal((await handoffSyntheticTransactionCI(auth,'invalid',{transactionId:tx[1],newResponsibleId:4,reason:'合成假的转移理由',eventKey:k('forged')})).allowed,false));
+test('4B-S17 伪造Token拒绝',async()=>assert.equal((await withF064B(()=>handoffSyntheticTransactionCI(auth,'invalid',{transactionId:tx[1],newResponsibleId:4,reason:'合成假的转移理由',eventKey:k('forged')}))).allowed,false));
 test('4B-S18 错误Object不存在拒绝',async()=>assert.equal((await transfer(1,'notfound',{transactionId:99999999})).code,'F06_4B_TRANSACTION_NOT_FOUND'));
 test('4B-S19 非合法receiver不能虚构',async()=>assert.equal((await transfer(1,'badreceiver',{newResponsibleId:9999999})).allowed,false));
 test('4B-S20 receiving employee停用后拒绝',async()=>{
@@ -156,7 +156,7 @@ test('4B-S36 原始签名Lock仍然released不复活',async()=>assert.deepEqual(
 test('4B-S37 旧资金Deposit不可改',async()=>assert.deepEqual(await q('SELECT deposit_id,lock_id,amount_cents FROM public.deposit_receipts ORDER BY deposit_id'),baseDeposit));
 test('4B-S38 Customer owner不变且公海仍阻断在途责任',async()=>{
  assert.equal((await q('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=$1',[customer]))[0].current_owner_employee_id,baseCustomerOwner);
- assert.equal((await publicPoolHandoffGuardCI(db,customer)).code,'F06_4B_ACTIVE_BUSINESS_PREVENTS_PUBLIC_POOL');
+ assert.equal((await withF064B(()=>publicPoolHandoffGuardCI(db,customer))).code,'F06_4B_ACTIVE_BUSINESS_PREVENTS_PUBLIC_POOL');
 });
 test('4B-S39 权限撤销后旧Session不允许第二笔移交',async()=>{
  const other=await connect();try{

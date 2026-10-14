@@ -26,13 +26,13 @@ async function signed(c){
  const led=(await c.query('SELECT migration_id,checksum,structure_sha256 FROM public.f03_schema_migrations ORDER BY migration_id')).rows;
  if(led.length!==24)throw Error('F06_4C_IMMUTABLE_24_LEDGER_REQUIRED');
  const catalog=await getPublicStructure(c);if(catalog.sha256!=='5495c6d6ccecc628e1b27c5bfe4f3664a76b4c38a1fa732b6e2baa4ebb5e99f4')throw Error('F06_4C_PUBLIC_SEAL_DRIFT');
- return {catalog:catalog.sha256,ledger:hash(led),parent:p.sourceSHA,parent4A:p.parentSha};
+ return {catalog:catalog.sha256,ledger:hash(led),parent:p.sourceSHA,parent4A:p.parentSha,f03MReceiptCarrier:p.f03MReceiptCarrier};
 }
 export async function verify(c){
  const p=await signed(c);
  const a=(await c.query('SELECT * FROM f06_4c_ci.attestation')).rows;
  if(a.length!==1||a[0].seal_name!=='F06_4C_CI_ONLY'||a[0].source_sha256!==checksum||a[0].public_catalog_sha256!==p.catalog||a[0].old_ledger_sha256!==p.ledger||a[0].parent_f06_4b_sha256!==p.parent||a[0].parent_f06_4a_sha256!==p.parent4A)throw Error('F06_4C_SIDECAR_ATTESTATION_DRIFT');
- return {verified:true,sourceSHA:checksum,parentSHA:p.parent,productionIssuer:'SOURCE_GAP',money:'NOT_AUTHORIZED'};
+ return {verified:true,sourceSHA:checksum,parentSHA:p.parent,f03MReceiptCarrier:p.f03MReceiptCarrier,productionIssuer:'SOURCE_GAP',money:'NOT_AUTHORIZED'};
 }
 export async function apply(c,{inject=false}={}){
  const p=await signed(c);
