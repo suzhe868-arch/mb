@@ -5,6 +5,7 @@ import {readFile,mkdir,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
 import {verify as verifyParent} from '../lock-refund-conversion-guard-ci/migration.mjs';
+import {snapshotForAttestation,verify as verifyPatchCatalog} from './catalog-delta-verifier.mjs';
 
 const OUT=new URL('./artifacts/source/',import.meta.url);
 const digest=x=>createHash('sha256').update(typeof x==='string'?x:JSON.stringify(x)).digest('hex');
@@ -59,7 +60,13 @@ try{
  try{
   await c.query('SELECT pg_advisory_xact_lock(20261015,6501)');
   await c.query(sql);
-  await c.query("INSERT INTO f06_5c_pg1_ci.attestation(name,source_sha256,parent_ledger_sha256,parent_priority_sha256) VALUES('F06_5C_PG1',$1,$2,$3)",[sourceHash,old.ledgerHash,old.functionHash]);
+  const signedDelta=await snapshotForAttestation(c,before);
+  assert.equal(signedDelta.ledgerHash,old.ledgerHash);
+  assert.equal(signedDelta.priorityHash,old.functionHash);
+  assert.equal(signedDelta.preCatalog,before.sha256);
+  report.signedCatalogDelta=signedDelta;
+  await c.query("INSERT INTO f06_5c_pg1_ci.attestation(name,source_sha256,parent_ledger_sha256,parent_priority_sha256,parent_catalog_sha256,post_catalog_sha256,delta_sha256,delta_manifest) VALUES('F06_5C_PG1',$1,$2,$3,$4,$5,$6,$7::jsonb)",
+   [sourceHash,old.ledgerHash,old.functionHash,signedDelta.preCatalog,signedDelta.postCatalog,signedDelta.deltaSHA256,JSON.stringify(signedDelta.deltaManifest)]);
   await c.query('COMMIT');
  }catch(e){await c.query('ROLLBACK');throw e}
  const after=await getPublicStructure(c),fresh=await sealedParent();
@@ -80,6 +87,8 @@ try{
  assert.equal(changed.length,0,'PG1_EXISTING_PUBLIC_DEFINITION_CHANGED');
  report.after={catalog:after.sha256,addedPublicObjects:added,changedPublicObjects:changed.length,
    ...fresh,privateSourceSHA256:sourceHash};
+ report.versionedVerifier=await verifyPatchCatalog(c);
+ assert.equal(report.versionedVerifier.verified,true);
  assert.notEqual(before.sha256,after.sha256,'PG1_PUBLIC_CATALOG_MUST_NOT_BE_MISREPORTED_IDENTICAL');
  try{
   const status=await verifyFrozenParent(c);
@@ -87,7 +96,7 @@ try{
   report.status='F06_PG1_UNEXPECTED_PARENT_VERIFICATION_ACCEPTED';
  }catch(e){
   report.parentAfter={verified:false,code:e.code||null,message:e.message};
-  report.status='BLOCKED_UPSTREAM_SIGNED_PARENT_CATALOG_COMPATIBILITY';
+  report.status=e.message?.includes('F05_10_CATALOG_DRIFT')?'PG1_V2_CATALOG_VERIFIED_OLD_FROZEN_EXPECTED_FAIL_CLOSED_SECURITY_UNTESTED':'BLOCKED_UNEXPECTED_PARENT_VERIFIER_FAILURE';
  }
 } catch(e){
  report.status='BLOCKED_PG1_NATIVE_DIAGNOSTIC_FAILED';
