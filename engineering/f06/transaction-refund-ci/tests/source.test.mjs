@@ -1,5 +1,5 @@
 import {test} from 'node:test';
-import {requestSyntheticTransactionRefundCI,closeSyntheticTransactionRefundCI,pendingPublicPoolGuardCI,pendingVehicleGuardCI,productionRefundIssuerDeny,actualRefundPaymentDeny,completedTransactionIssuerDeny} from '../service.mjs';
+import {requestSyntheticTransactionRefundCI,closeSyntheticTransactionRefundCI,signedBalance,pendingPublicPoolGuardCI,pendingVehicleGuardCI,productionRefundIssuerDeny,actualRefundPaymentDeny,completedTransactionIssuerDeny} from '../service.mjs';
 
 import assert from 'node:assert/strict';
 import {connect,verify,withF064C} from '../migration.mjs';
@@ -283,6 +283,9 @@ test('5A-S71 R01旧3B父未拒签名Lock pending时4A拒绝取消并保护5A侧�
  const denied=await withF064A(()=>cancelSyntheticTransactionCI(auth,managerToken,{
   transactionId:attempt.transactionId,reason:'旧Lock signed pending阻断合成Transaction取消',eventKey:k('r01-old-pending-cancel')}));
  assert.equal(denied.code,'F06_4A_UNRESOLVED_REFUND_FACT',JSON.stringify(denied));
+ const nativeTransaction=(await q('SELECT * FROM public.transactions WHERE transaction_id=$1',[attempt.transactionId]))[0];
+ const conflict=await signedBalance(db,nativeTransaction);
+ assert.equal(conflict.code,'F06_5A_SIGNED_LEGACY_LOCK_PENDING_CONFLICT',JSON.stringify(conflict));
  const refundDenied=await req(5,'r01-conflicted-terminal',{transactionId:attempt.transactionId,amountCents:1000});
  assert.equal(refundDenied.code,'F06_5A_UNSIGNED_TRANSACTION_OR_LOCK',JSON.stringify(refundDenied));
  assert.equal((await q('SELECT status FROM public.refund_cases WHERE refund_id=$1',[signedLegacyRefund]))[0].status,'pending');
@@ -367,5 +370,37 @@ test('5A-S79 R04资金调整TOCTOU令close拒绝，恢复真实签名账再可�
  assert.equal((await adjust(5000,'restore')).netCents,7600);
  const closed=await cls(correctedRefund,'r04-close-after-signed-restore');
  assert.equal(closed.code,'F06_5A_CLOSED_WITHOUT_PAYMENT',JSON.stringify(closed));
+ assert.equal(await count('SELECT count(*)::int n FROM public.refund_payments'),0);
+});
+
+let sameKeyRefund;
+test('5A-S80 R02新已签pending准备双Backend同key关闭竞争',async()=>{
+ const created=await r3('same-key-close-source',{amountCents:1100});
+ assert.equal(created.code,'F06_5A_PENDING_WITHOUT_PAYMENT',JSON.stringify(created));sameKeyRefund=created.refundId;
+});
+test('5A-S81 R02双PG backend同key并发close最多一次关闭事件',async()=>{
+ const p={refundId:sameKeyRefund,closeReason:'同一不可变关闭key并发不多次记账',eventKey:k('r02-close-same-key')};
+ const both=await Promise.allSettled([closeSyntheticTransactionRefundCI(auth,employee4Token,p),closeSyntheticTransactionRefundCI(peer,employee4Token,p)]);
+ const success=both.filter(x=>x.status==='fulfilled'&&x.value.code==='F06_5A_CLOSED_WITHOUT_PAYMENT');
+ assert.equal(success.length,1,JSON.stringify(both));
+ const other=both.find(x=>x.status==='fulfilled'&&x.value.code!=='F06_5A_CLOSED_WITHOUT_PAYMENT');
+ assert.ok(other,JSON.stringify(both));
+ assert.ok(['F06_5A_IDEMPOTENT_CLOSE','F06_5A_PG_ATOMIC_CONFLICT'].includes(other.value.code),JSON.stringify(other.value));
+ assert.equal((await q('SELECT status FROM public.refund_cases WHERE refund_id=$1',[sameKeyRefund]))[0].status,'closed');
+ assert.equal(await count("SELECT count(*)::int n FROM f06_5a_ci.status_events WHERE refund_id="+sameKeyRefund+" AND event_kind='closed_without_payment'"),1);
+ assert.equal(await count("SELECT count(*)::int n FROM public.audit_events WHERE object_kind='Refund' AND object_id='"+sameKeyRefund+"' AND action='f06_5a_ci_close'"),1);
+});
+test('5A-S82 R04真PG事务中模拟无Key签名调整必须硬拒并完整回滚',async()=>{
+ const d=baseDeposit.find(x=>Number(x.lock_id)===locks[1]);assert.ok(d);
+ const tx1=(await q('SELECT * FROM public.transactions WHERE transaction_id=$1',[tx[1]]))[0];
+ const before=await count('SELECT count(*)::int n FROM f06_3a_ci.adjustments WHERE deposit_id='+d.deposit_id);
+ await db.query('BEGIN');
+ try{
+  await db.query("INSERT INTO f06_3a_ci.adjustments(deposit_id,lock_id,event_kind,delta_cents,currency,actor_employee_id,reason,event_key_sha256) VALUES($1,$2,'correction',-1,'CNY',1,$3,$4)",
+   [d.deposit_id,locks[1],'CI故意注入未获签requestKey的伪调整','f'.repeat(64)]);
+  const fail=await signedBalance(db,tx1);
+  assert.equal(fail.code,'F06_5A_UNVERIFIED_FINANCIAL_CORRECTION',JSON.stringify(fail));
+ }finally{await db.query('ROLLBACK')}
+ assert.equal(await count('SELECT count(*)::int n FROM f06_3a_ci.adjustments WHERE deposit_id='+d.deposit_id),before);
  assert.equal(await count('SELECT count(*)::int n FROM public.refund_payments'),0);
 });
