@@ -3,7 +3,7 @@ set -euo pipefail
 case "$1" in snapshot|restore);; *) exit 64;; esac
 test "$GITHUB_ACTIONS" = true
 test "$GITHUB_EVENT_NAME" = push
-test "$GITHUB_REF" = refs/heads/feat/f06-5a-post-handoff-cancel-ci
+test "$GITHUB_REF" = refs/heads/feat/f06-5a-transaction-refund-pending-ci
 test "$F03_1_DATABASE_URL" = postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
 dump="/tmp/f06-5a-before-$GITHUB_RUN_ID.dump"
 oidPath="/tmp/f06-5a-scenario-oid-$GITHUB_RUN_ID"
