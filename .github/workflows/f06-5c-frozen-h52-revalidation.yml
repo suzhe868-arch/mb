@@ -49,7 +49,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2m-transaction-responsible-handover-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2m-transaction-responsible-handover-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-2m-transaction-responsible-handover-pg16
@@ -97,7 +97,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2l-lock-responsible-handover-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2l-lock-responsible-handover-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-2l-lock-responsible-handover-pg16
@@ -145,7 +145,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2k-waitlist-responsible-handover-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2k-waitlist-responsible-handover-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-2k-waitlist-responsible-handover-pg16
@@ -193,7 +193,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2h-customer-owner-handover-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2h-customer-owner-handover-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-2h-customer-owner-handover-pg16
@@ -241,7 +241,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2g-regression-88
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2g-regression-88
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-2g-regression-88
@@ -289,7 +289,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2f-regression-88
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2f-regression-88
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-2f-regression-88
@@ -337,7 +337,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2e-regression-88
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2e-regression-88
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-2e-regression-88
@@ -385,7 +385,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2d-regression-86
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2d-regression-86
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-2d-regression-86
@@ -433,7 +433,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2c-regression-84
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2c-regression-84
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-2c-regression-84
@@ -482,7 +482,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2b-population-82
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2b-population-82
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-2b-population-82
@@ -529,7 +529,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2b-bootstrap-empty
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2b-bootstrap-empty
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-2b-bootstrap-empty
@@ -577,7 +577,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2-2a-pg16-template
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2-2a-pg16-template
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-2-2a-pg16-template
@@ -625,7 +625,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-1-frozen-integration-2a
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-1-frozen-integration-2a
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-1-frozen-integration-2a
@@ -673,7 +673,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-1-frozen-https-2a
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-1-frozen-https-2a
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-1-frozen-https-2a
@@ -721,7 +721,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2i-demand-responsible-handover-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2i-demand-responsible-handover-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-2i-demand-responsible-handover-pg16
@@ -769,7 +769,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2j-consultation-assignee-handover-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2j-consultation-assignee-handover-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-2j-consultation-assignee-handover-pg16
@@ -817,7 +817,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2n-handover-reconciliation-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2n-handover-reconciliation-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-2n-handover-reconciliation-pg16
@@ -865,7 +865,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-package-g1-independent-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-package-g1-independent-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-package-g1-independent-pg16
@@ -913,7 +913,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-package-g2-independent-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-package-g2-independent-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-package-g2-independent-pg16
@@ -961,7 +961,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-package-g3-independent-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-package-g3-independent-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-package-g3-independent-pg16
@@ -1009,7 +1009,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-package-p1-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-package-p1-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-package-p1-pg16
@@ -1057,7 +1057,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-package-p2-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-package-p2-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-package-p2-pg16
@@ -1105,7 +1105,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-package-v-evidence-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-package-v-evidence-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-package-v-evidence-pg16
@@ -1153,7 +1153,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-package-v-composition-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-package-v-composition-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f03-package-v-composition-pg16
@@ -1202,7 +1202,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-1-route-security-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-1-route-security-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f04-1-route-security-pg16
@@ -1251,7 +1251,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-1-contracts-inventory-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-1-contracts-inventory-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f04-1-contracts-inventory-pg16
@@ -1301,7 +1301,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-2-current-authority-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-2-current-authority-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f04-2-current-authority-pg16
@@ -1351,7 +1351,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-2-four-s-preflight-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-2-four-s-preflight-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f04-2-four-s-preflight-pg16
@@ -1402,7 +1402,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-3-current-source-dto-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-3-current-source-dto-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f04-3-current-source-dto-pg16
@@ -1453,7 +1453,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-3-current-router-tls-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-3-current-router-tls-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f04-3-current-router-tls-pg16
@@ -1505,7 +1505,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-4-current-coverage-source-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-4-current-coverage-source-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f04-4-current-coverage-source-pg16
@@ -1557,7 +1557,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-4-current-consumer-tls-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-4-current-consumer-tls-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f04-4-current-consumer-tls-pg16
@@ -1610,7 +1610,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-1-vehicle-source-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-1-vehicle-source-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f05-1-vehicle-source-pg16
@@ -1663,7 +1663,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-1-vehicle-tls-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-1-vehicle-tls-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f05-1-vehicle-tls-pg16
@@ -1717,7 +1717,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-2-vehicle-migration-source-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-2-vehicle-migration-source-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f05-2-vehicle-migration-source-pg16
@@ -1771,7 +1771,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-2-vehicle-https-scope-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-2-vehicle-https-scope-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f05-2-vehicle-https-scope-pg16
@@ -1825,7 +1825,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3a-member-physical-source-gap-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3a-member-physical-source-gap-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f05-3a-member-physical-source-gap-pg16
@@ -1879,7 +1879,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3a-member-https-source-gap-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3a-member-https-source-gap-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f05-3a-member-https-source-gap-pg16
@@ -1933,7 +1933,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3b-jyt-source-physical-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3b-jyt-source-physical-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f05-3b-jyt-source-physical-pg16
@@ -1987,7 +1987,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3b-jyt-three-apis-https-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3b-jyt-three-apis-https-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f05-3b-jyt-three-apis-https-pg16
@@ -2041,7 +2041,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3c-source-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3c-source-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f05-3c-source-pg16
@@ -2095,7 +2095,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3c-https-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3c-https-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f05-3c-https-pg16
@@ -2149,7 +2149,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3d-source-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3d-source-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f05-3d-source-pg16
@@ -2203,7 +2203,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3d-https-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3d-https-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f05-3d-https-pg16
@@ -2250,7 +2250,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3e-source-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3e-source-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f05-3e-source-pg16
@@ -2297,7 +2297,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3e-https-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3e-https-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f05-3e-https-pg16
@@ -2328,7 +2328,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3f-source-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3f-source-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f05-3f-source-pg16
@@ -2359,7 +2359,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3f-https-pg16
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3f-https-pg16
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-f05-3f-https-pg16
@@ -2385,7 +2385,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" g-source
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" g-source
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-g-source
@@ -2411,7 +2411,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" g-https
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" g-https
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-g-https
@@ -2433,7 +2433,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" h-source
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" h-source
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-h-source
@@ -2455,7 +2455,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Execute every original frozen shell test step from the signed parent YAML
-        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" h-https
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5c-transaction-priority-admission-ci && test "$GITHUB_REF_NAME" = feat/f06-5c-transaction-priority-admission-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" h-https
       - uses: actions/upload-artifact@v4
         with:
           name: f06-5a-h52-h-https
