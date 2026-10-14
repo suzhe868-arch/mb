@@ -147,6 +147,10 @@ export async function requestSyntheticTransactionRefundCI(auth,token,p={}){
   await c.query("INSERT INTO f06_5a_ci.request_keys(event_key_sha256,actor_employee_id,action,refund_id,payload_sha256,event_id) VALUES($1,$2,'request',$3,$4,$5)",[h,a.employee_id,r.refund_id,fingerprint,e.event_id]);
   await audit(c,a.employee_id,r.refund_id,'pending',{}, {status:'pending',subject:'Transaction',issuer:'CI_SYNTHETIC_NO_PAYMENT'});
   if(p.testCheckpoint==='AFTER_AUDIT_THROW')throw Error('F06_5A_INJECTED_AFTER_AUDIT');
+  const financialAtCommit=await signedBalance(c,t,Number(r.refund_id));
+  if(!financialAtCommit.allowed||financialAtCommit.netCents<p.amountCents)throw Error('F06_5A_PRECOMMIT_FINANCIAL_SOURCE_CHANGED');
+  const financialAtCommit=await signedBalance(c,t,p.refundId);
+  if(!financialAtCommit.allowed||financialAtCommit.netCents<Number(o.amount_cents))throw Error('F06_5A_PRECOMMIT_FINANCIAL_SOURCE_CHANGED');
   if(!(await authorized(c,a,t)).allowed)throw Error('F06_5A_PRECOMMIT_PERMISSION_REVOKED');
   if(p.testCheckpoint==='BEFORE_COMMIT_THROW')throw Error('F06_5A_INJECTED_BEFORE_COMMIT');
   return yes('F06_5A_PENDING_WITHOUT_PAYMENT',{refundId:Number(r.refund_id),netCents:b.netCents,backendPid:(await row(c,'SELECT pg_backend_pid() pid')).pid});

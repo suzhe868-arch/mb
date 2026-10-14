@@ -183,3 +183,66 @@ test('5A-S54 两独立PG backend可追踪',async()=>{
  const b=await connect();try{assert.notEqual((await q('SELECT pg_backend_pid() pid'))[0].pid,(await b.query('SELECT pg_backend_pid() pid')).rows[0].pid)}
  finally{await b.end()}
 });
+
+let employee4Token,ref3,employee4Scope;
+const r3=(tag,p={},other=auth)=>requestSyntheticTransactionRefundCI(other,employee4Token,{subjectKind:'transaction',transactionId:tx[3],amountCents:3000,reason:'合成正式移交后合法负责销售退款申请',eventKey:k('5a-transferred-'+tag),...p});
+test('5A-S55 经理没有transfer独立许可不得自持移交',async()=>{
+ const x=await withF064B(()=>handoffSyntheticTransactionCI(auth,managerToken,{transactionId:tx[3],newResponsibleId:4,reason:'缺独立授权的转移必须拒绝',eventKey:k('5a-transfer-deny')}));
+ assert.equal(x.allowed,false);
+});
+test('5A-S56 专属transfer权限依附正式Team Scope',async()=>{
+ await q("INSERT INTO public.permissions(permission_id,permission_code) VALUES(965004,'transaction.responsible.transfer')");
+ await q("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(1,965004,'allow',clock_timestamp())");
+ await q("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(1,965004,$1,clock_timestamp()-interval '2 minutes')",[scopeId]);
+ assert.equal(await count("SELECT count(*)::int n FROM public.employee_permission_overrides WHERE employee_id=1 AND permission_id=965004"),1);
+});
+test('5A-S57 4B经理真实正式移交第三笔合成交易至员工4',async()=>{
+ const x=await withF064B(()=>handoffSyntheticTransactionCI(auth,managerToken,{transactionId:tx[3],newResponsibleId:4,reason:'合法经理正式变更第三笔当前负责销售',eventKey:k('5a-transfer-valid')}));
+ assert.equal(x.code,'F06_4B_ATOMIC_HANDOFF_CI',JSON.stringify(x));
+});
+test('5A-S58 接收新负责人必须启用独立登录凭据',async()=>{
+ await q("UPDATE public.pc_login_accounts SET credential_state='enabled',force_password_change=false WHERE account_id=5 AND employee_id=4");
+ const x=await auth.login({login:'disabled_test',password:'SyntheticDisabled_123',source:'f06-5a-4c-current-responsible-only'});
+ assert.equal(x.code,'AUTH_OK',JSON.stringify(x));employee4Token=x.token;
+});
+test('5A-S59 当前员工4获得独立Cancel permission与team scope',async()=>{
+ employee4Scope=(await q("SELECT scope_id FROM public.employee_data_scopes WHERE employee_id=4 AND scope_kind='team' AND scope_reference_id=$1 AND ended_at IS NULL LIMIT 1",[teamId]))[0];
+ if(!employee4Scope)employee4Scope=(await q("INSERT INTO public.employee_data_scopes(employee_id,scope_kind,scope_reference_id) VALUES(4,'team',$1) RETURNING scope_id",[teamId]))[0];
+ await q("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(4,965003,'allow',clock_timestamp())");
+ await q("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(4,965003,$1,clock_timestamp()-interval '2 minutes')",[employee4Scope.scope_id]);
+ assert.ok(employee4Scope.scope_id);
+});
+test('5A-S60 4C新Responsible原子取消后保留独立签名链',async()=>{
+ const x=await withF064C(()=>cancelAfterHandoffSyntheticCI(auth,employee4Token,{transactionId:tx[3],reason:'合成移交后当前新负责人合法取消交易',eventKey:k('5a-current-cancel')}));
+ assert.equal(x.code,'F06_4C_POST_HANDOFF_CANCELLED_ATOMIC_CI',JSON.stringify(x));
+});
+test('5A-S61 当前负责人4的refund能力不因cancel权自动获得',async()=>assert.equal((await r3('no-explicit')).code,'F06_5A_REFUND_PERMISSION_SCOPE_DENIED'));
+test('5A-S62 给员工4单独授予当前退款权限与scope',async()=>{
+ await q("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(4,965005,'allow',clock_timestamp())");
+ await q("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(4,965005,$1,clock_timestamp()-interval '2 minutes')",[employee4Scope.scope_id]);
+ assert.equal(await count("SELECT count(*)::int n FROM public.employee_permission_overrides WHERE employee_id=4 AND permission_id=965005"),1);
+});
+test('5A-S63 双真实Backend抢同Transaction退款至多一个pending胜出',async()=>{
+ const calls=await Promise.allSettled([r3('race-a'),r3('race-b',{},peer)]);
+ const success=calls.filter(x=>x.status==='fulfilled'&&x.value.code==='F06_5A_PENDING_WITHOUT_PAYMENT');
+ assert.equal(success.length,1,JSON.stringify(calls));ref3=success[0].value.refundId;assert.ok(ref3>0);
+});
+test('5A-S64 4C当前负责人与原始Lock/资金签名确实落交易侧Refund',async()=>{
+ const o=(await q('SELECT source_kind,balance_at_request_cents,responsible_employee_id FROM f06_5a_ci.refund_origins WHERE refund_id=$1',[ref3]))[0];
+ assert.equal(o.source_kind,'F06_4C_CANCEL_SIGNED');assert.equal(Number(o.balance_at_request_cents),7300);assert.equal(Number(o.responsible_employee_id),4);
+});
+test('5A-S65 原Responsible旧凭证不可越权关闭新负责人Refund',async()=>{
+ assert.equal((await cls(ref3,'old4c-owner')).code,'F06_5A_NOT_CURRENT_BUSINESS_RESPONSIBLE');
+});
+test('5A-S66 4C交易侧pending Refund不能占车辆',async()=>{
+ assert.equal((await pendingVehicleGuardCI(db,vehicle(3))).allowed,true);
+});
+test('5A-S67 正确当前销售仅无付款close签发',async()=>{
+ const x=await closeSyntheticTransactionRefundCI(auth,employee4Token,{refundId:ref3,closeReason:'客户最终明确不需要退回相关意向金',eventKey:k('5a-close-current')});
+ assert.equal(x.code,'F06_5A_CLOSED_WITHOUT_PAYMENT',JSON.stringify(x));
+});
+test('5A-S68 4A与4C两笔退款都无refunded且公海依旧多源防泄漏',async()=>{
+ assert.equal(await count("SELECT count(*)::int n FROM public.refund_cases WHERE status='refunded'"),0);
+ assert.equal(await count('SELECT count(*)::int n FROM public.refund_payments'),0);
+ assert.equal((await pendingPublicPoolGuardCI(db,customer)).allowed,false);
+});
