@@ -1,3 +1,11 @@
+# 2026-10-14｜A主控PR62独立核验：F06-5C两项上游技术裁决与包内整改正式放行（唯一最新）
+
+- **当前唯一正式指针**：`F06_5C_A_CHANGES_REQUESTED_TECH_UNBLOCKED_CI_ONLY / PR62_DRAFT_NOT_MERGED / NEXT_OWNER=B / NEXT_TASK=F06_5C_PR62_A_TECH_RULING_REMEDIATION_CI_ONLY / F05_F06_V1_NOT_READY`。本次是A工程裁决，**非A验收通过**、非生产授权。
+- **PR62**：基点main `4d9dfc7aff880d4e02f8a6d4f5d9a5ed5e80d2dd`，B复核HEAD `3ce3d2887fb72c1dc8c1b4d2a5579add3e70be7f`；ahead3/behind0，34/34全在授权新增目录；B仍标记草稿与BLOCKED_UPSTREAM、未READY。官方PG16 Source Run38558804382 Job115834619132 真实OID68454旧父表190（并非施工单误记192）。旧5B前188+5B两表=190；5C自身仅新加1表，因此A技术勘误：**封印前后必须190张原父表全量COUNT+MD5及所有签名；5C一表另验**，不得假增表。冻结F05-8 `arbitrateCI`可通过有边界的`auth.withSession`包装在原物理事务与Vehicle FOR UPDATE内先行双源核验，然后继续调用原签名仲裁，禁止两事务TOCTOU与直接INSERT假发行；不成功则FailClosed。现有36项Source多属假Token/配置测试须补真实业务正反和跨Backend。最新SHA Push尚未全绿且F06-4B HTTPS存在EADDRINUSE端口49028失败。
+- **A签正式完整补充整改施工单**：`07_重建工作区/F06-5C_A主控PR62上游接口与190旧父表原子签发技术裁决_包内整改补充施工单_2026-10-14.md`；在原分支/PR62且仅原白名单包内实现、真实两OID旧父封印、合法真Priority正向/并发、22真正Push/96真PG16 Job/H52 52/≥32官方SHA256 Artifact后再交A。PR62不合并；资金/生产/UAT/F07/F08及V1仍NOT_READY。**NEXT_OWNER=B**。
+
+---
+
 # 2026-10-14｜A主控F06-5B PR61独立验收标准合并与F06-5C新Priority原子准入技术放行（不更改PDM产品规则）
 
 - **A已验收并官方标准合并**：PR61最终B HEAD `c7ab2336a425075b4ac4cfaf7203e2987deab98a`，34/34仅新增CI白名单，21/21同SHA真Push、94/94真实非特权PG16 Job/H52 52、Source54 HTTPS9、94有效sha256 Artifact、OID63416→68456旧188父表全行Seal与24 Ledger/Catalog/D1/九父Sidecar不漂移。[A验收签字](https://github.com/suzhe868-arch/mb/pull/61#issuecomment-6166703241)，GitHub标准merge SHA`1a9b87a2e109190fff0380bbe85e7702a95dcd5e`。正式报告：`07_重建工作区/F06-5B_A主控独立验收21条Push94项PG16与94工件_PR61标准合并正式报告_2026-10-14.md`，仅`A_ACCEPTED_CI_ONLY`。
