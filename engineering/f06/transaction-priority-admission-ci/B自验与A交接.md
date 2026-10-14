@@ -75,3 +75,8 @@ UPSTREAM_PRIORITY_ADMISSION_ATOMIC_SOURCE_GAP，而不创造新Priority。
 ### v23/v24历史PG目录投影附加安全验真
 - 冻结迁移原签名：v23目录SHA=7157de4b0177a2c1ebc8a5bbc38c23fef770bafbe521111a7ce3e79eb12b7d79；v24目录SHA=fc314815e9259dc450fb2409283eee66047a6b0ba688c9a590a859adb27e88f9；现行v26目录SHA=5495c6d6ccecc628e1b27c5bfe4f3664a76b4c38a1fa732b6e2baa4ebb5e99f4。
 - 5C先校验真实24条完整签名账本与当前Catalog，旧父v23/v24仅能在受限原Session内通过PG catalog只读查询获得剔除后续f05_8/9/10前缀对象的**物理行投影**；旧父仍用冻结的原始签名hash核对实际投影结构，不直接返回预设摘要，不篡改物理Catalog，任何原始对象不匹配立即失败。SHA基于PG真实结构行重算，绝不能用人工代填hash替代。
+
+
+### Source56真实54/56失败后整改（2026-10-14）
+- 官方Job `115865837256`（Run38568086851）：56项中54项PASS，S52/S53失败。原F05-8 `f05_8_source_change_ci`物理触发器在有效Match提交时自动创建带Created事件的合法Priority，5C对已有活动Priority拒绝是安全正确行为；原正向测试忽略父业务副作用，不能删改冻结触发器或把重复新建当成功。
+- 当前修订：在真F06-1 Lock已占用下通过原F05-7签发当前Match，验证F05-8绝不提前创建Priority；确认无押金/原Transaction并以隔离CI原有合成无款证明和模拟时钟到期，由原F06-2系统Issuer正式结束Lock，核对无旧Priority自动复活；随后5C才通过原F05-8 `arbitrateCI`同Backend、同txid实际新签发Priority及Created事件。下一轮Source56必须全部真实通过，否则仍BLOCKED。

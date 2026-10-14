@@ -4,6 +4,7 @@ import {connect,verify,checksum,gate} from '../migration.mjs';
 import {requestSyntheticNewPriorityCI,productionIssuerDeny,UPSTREAM_GAP,signedFrozenParentSessionAdapterCI} from '../service.mjs';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {withF065B} from '../migration.mjs';
+import {expireOrdinaryCI,CI_SYSTEM_PROOF} from '../../lock-lifecycle-ci/service.mjs';
 import {intakeCI,decisionCI} from '../../lockrequest-approval-waitlist-ci/service.mjs';
 import {openGuardedSyntheticTransactionCI} from '../../lock-refund-conversion-guard-ci/service.mjs';
 import {openSyntheticTransactionCI as legacyOpenSyntheticTransactionCI} from '../../lock-transaction-ci/service.mjs';
@@ -78,9 +79,24 @@ test.before(async()=>{
   "JOIN public.vehicle_listing_cycles cy ON cy.listing_cycle_id=l.current_cycle_id "+
   "LEFT JOIN public.f05_7_vehicle_facts_ci f ON f.vehicle_id=l.vehicle_id AND f.listing_cycle_id=l.current_cycle_id "+
   "WHERE v.source_type='wholesale' AND v.source_sale_status='active' AND cy.ended_at IS NULL "+
-  "AND f.vehicle_id IS NULL ORDER BY l.vehicle_id LIMIT 1"))[0];
+  "AND f.vehicle_id IS NULL "+
+  "AND NOT EXISTS(SELECT 1 FROM public.locks k WHERE k.vehicle_id=l.vehicle_id AND k.lock_status='active') "+
+  "AND NOT EXISTS(SELECT 1 FROM public.f05_8_priority_ci p WHERE p.vehicle_id=l.vehicle_id AND p.status='active') "+
+  "ORDER BY l.vehicle_id LIMIT 1"))[0];
  assert.ok(fresh,'F06_5C_NEW_SIGNED_JYT_VEHICLE_FACT_SOURCE_REQUIRED');
  positive={vehicleId:Number(fresh.vehicle_id),listingCycleId:Number(fresh.current_cycle_id),customerId:899621,teamId:901};
+ // 真实有Lock的Vehicle仍允许内部合法F05-7匹配，但禁止当场新建Priority。
+ // 经原F06-2签名结束占用后，才允许5C在同一Vehicle事务里调用父5-8新签发。
+ const requested=await f06Signed(()=>intakeCI(db,{
+  customerId:86180101,vehicleId:positive.vehicleId,listingCycleId:positive.listingCycleId,
+  requestKey:mk('positive-lock-pending'),syntheticPhoneConsent:'CI_SYNTHETIC_PHONE_CONSENT_NOT_PRODUCTION'
+ }));
+ assert.equal(requested.code,'F06_1_PENDING_CREATED',JSON.stringify(requested));
+ const accepted=await f06Signed(()=>decisionCI(auth,token,{
+  requestId:requested.requestId,requestKey:mk('positive-lock-approve'),action:'approve'
+ }));
+ assert.equal(accepted.code,'F06_1_APPROVED_ATOMIC_LOCK',JSON.stringify(accepted));
+ const positiveLockId=accepted.lockId;
  const modelYear=Number(fresh.model_year);
  await q("INSERT INTO public.f05_7_vehicle_facts_ci(vehicle_id,listing_cycle_id,facts_json) VALUES($1,$2,$3::jsonb)",
  [positive.vehicleId,positive.listingCycleId,JSON.stringify({
@@ -101,6 +117,18 @@ test.before(async()=>{
   listingCycleId:positive.listingCycleId,teamId:901,runKey:mk('signed-match')});
  assert.equal(matching.allowed,true,JSON.stringify(matching));
  assert.ok(['high','acceptable'].includes(matching.tier),'F06_5C_SIGNED_F05_7_HIGH_OR_ACCEPTABLE_REQUIRED');
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND status='active'",[positive.vehicleId]))[0].n,0,
+  '原F05-8在真Lock占用时不得自动发行Priority');
+ // 仅限隔离CI：经确认无收款凭证且无原Transaction后，按原F06-2合法合成无款证明。
+ assert.equal((await q('SELECT count(*)::int n FROM public.deposit_receipts WHERE lock_id=$1',[positiveLockId]))[0].n,0);
+ assert.equal((await q('SELECT count(*)::int n FROM public.transactions WHERE source_lock_id=$1',[positiveLockId]))[0].n,0);
+ await q("INSERT INTO f06_2_ci.finance_proofs(lock_id,proof_kind) VALUES($1,'synthetic_absence_confirmed')",[positiveLockId]);
+ // 仅把测试到期场景时钟前推；实际状态转移必须交给原F06-2签名System Issuer完成。
+ await q("UPDATE public.locks SET expires_at=clock_timestamp()-interval '2 minutes' WHERE lock_id=$1 AND lock_status='active'",[positiveLockId]);
+ const expired=await expireOrdinaryCI(db,{lockId:positiveLockId,ciSystemProof:CI_SYSTEM_PROOF});
+ assert.equal(expired.code,'F06_2_PG_CLOCK_EXPIRED',JSON.stringify(expired));
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND status='active'",[positive.vehicleId]))[0].n,0,
+ '原F06-2到期不应伪造原Priority重生；后续5C必须调用冻结仲裁新建');
 });
 test.after(async()=>{await auth.close();await peer.close();await db.end()});
 test('5C-S01 新旧Sidecar父签认证',async()=>assert.equal((await verify(db)).verified,true));
