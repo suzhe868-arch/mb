@@ -3,6 +3,10 @@ on:
   push:
     branches: [feat/f06-5a-transaction-refund-pending-ci]
 permissions: {contents: read, actions: read, pull-requests: read}
+# Retain all latest SHA jobs; supersede obsolete push workflow runs.
+concurrency:
+  group: f06-5a-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   f06-4b-source:
     name: F06-4B Source real nonprivileged PG16 Transaction responsible handoff append-only journal audit
