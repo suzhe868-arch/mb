@@ -1,48 +1,46 @@
-# 名邦汽车 V1｜F06-5C B 工程包内整改、自审与 A 独立验收交接记录
+# 名邦汽车 V1｜F06-5C B 工程整改自验与 A 独立验收交接
 
-> 2026-10-15。**本文件当前状态：B_REMEDIATION_IN_PROGRESS / NOT_READY_FOR_A_REVIEW / PR62_NOT_MERGED / CI_ONLY。**  
-> 证据以 GitHub PR #62 实际最新 HEAD 对应的原生工作流为准，旧 HEAD 的绿灯不得冒作本次通过。本文严禁被解读为 F05/F06 整域或 V1 Ready。
->
-> A 唯一正式整改单：`07_重建工作区/F06-5C_A主控PR62独立验收未通过_交易取消来源与原子并发整改施工单_2026-10-15.md`（以 main 上版本为准）。
+> 2026-10-15。责任：B；原分支 `feat/f06-5c-transaction-priority-admission-ci`；[PR #62](https://github.com/suzhe868-arch/mb/pull/62)；范围仅 CI 隔离。A 原 [完整整改单](https://github.com/suzhe868-arch/mb/blob/main/07_重建工作区/F06-5C_A主控PR62独立验收未通过_交易取消来源与原子并发整改施工单_2026-10-15.md)。  
+> **已完成业务代码对应的验收基线** `f3bea8c9a4543f7175afa6e10bf86253473dba34` 已由 B 实际对 GitHub 原生日志复核；本中文交接文档一经提交会形成新的分支 HEAD，故**最终提交是否达到 READY_FOR_A_REVIEW 必须以新 HEAD 的 22 Push/96 Job/Source/HTTPS/H52/双 OID/工件复验和 PR 最终签名评论为准**，不能拿旧 SHA 绿灯冒充。  
+> F05/F06 整域、V1 和任何生产/真实资金操作始终 `NOT_READY`，禁止 B 合并 main。
 
-## 一、权限边界和责任分工
+## 一、A整改单 B-01/B-02/B-03 包内整改闭环
 
-- 仓库 `suzhe868-arch/mb`；原分支 `feat/f06-5c-transaction-priority-admission-ci`；原 [PR #62](https://github.com/suzhe868-arch/mb/pull/62)。B 只动 `engineering/f06/transaction-priority-admission-ci/**`，没有改父 F05/F06、正式 DDL/24 迁移、真实生产服务或 `main`。
-- A 2026-10-15 对原 B SHA `3b406c09f92c351d1f953521b538f66e8ff231b7` 拒收：22/22 真 Push、H52、原 Source56、HTTPS9、旧190父表双OID虽已有证据，仍缺业务取消终态签名、正向竞争、资金及权限实证；这些旧成功仅保留作历史，**不能算新整改通过**。
-- 不得触及真实交易完成、用户数据、真实银行微信收退、正式 Transaction/Refund/Priority Issuer、生产迁移、UAT/部署/F07/F08，F05/F06/V1 全域 `NOT_READY`。
+1. **交易签名终态和重仲裁**：只读原 F06-3B 不可变 `in_progress` 历史、F06-5B 原子 Guard、F06-4A/4C 取消来源与请求事件、F06-4B 负责人移交链；仅当原签取消完整、无 Lock/Waitlist/资金异常且匹配资格当前有效，才在同 Vehicle `FOR UPDATE` 事务调用冻结 F05-8 `arbitrateCI`。未签 public 假取消、旧不安全 3B、Guard 漂移和财务未知均 FailClosed。旧 ended Priority 不复活。
+2. **原服务、同 PG Client 和真实并发**：F03 有签 Employee Session、单一 PG backend PID/txid、原父签发器与事件；winner 不一致抛异常回滚，不直接插入 Priority。业务 S65 使用两个独立 PG 后端、子进程中原 5B 安全 Lock→Transaction 转换、原 4A 真 Cancel 后原 F05-8 来源触发的唯一新 Priority，二次重入零新增；业务 S66 用原 F06-1 双 pending→合法 approve→真实 Waitlist，再经 5B/4A 后仍严拒 Priority 插队。旧父实现、原 DDL、24 迁移一字未改。
+3. **权限/回滚安全**：覆盖真实员工身份与个人 deny、团队 Scope 失效、Customer 失活、Match/Qualification 校验、ListingCycle、active Lock/Waitlist、资金/Refund pending、重放、行锁争用/回滚及真实付款零写入；未恢复旧生产缺口。
+4. **额外检查分类**：本包 `push` 与 GitHub `pull_request` 上冻结旧工作流的失败不得混为一谈，须保留以下真实失败与说明：
+   - [PR F05-10-D1 Run 38613300839](https://github.com/suzhe868-arch/mb/actions/runs/38613300839)：原 Source 业务 PASS，但旧分支 Push 限定签发器 `D1_NOT_NEW_OFFICIAL_PUSH`；HTTPS PASS。
+   - [PR F05-10 Run 38613300343](https://github.com/suzhe868-arch/mb/actions/runs/38613300343)：原 Source 业务 PASS，但旧事件签门禁 `F05_10_NOT_NEW_OFFICIAL_PUSH`；HTTPS PASS。
+   - [PR F05-7 Run 38613301321](https://github.com/suzhe868-arch/mb/actions/runs/38613301321)：原 Source 业务测试 `# fail 0`，后续冻结工作流审计调用 GitHub Actions API 返回 403；HTTPS PASS。
+   - [PR F05-8 Run 38613300358](https://github.com/suzhe868-arch/mb/actions/runs/38613300358)：Source 业务 `# fail 0`，后续冻结 Actions API 403；其余 3 Job PASS。
+   - [PR F05-9 Runs 38613300674、38613300550](https://github.com/suzhe868-arch/mb/actions/runs/38613300674)：Docker `toomanyrequests: Data limit exceeded` 镜像拉取限流；另一合法 Job PASS，重跑仍限流。
+   - [本包 Push F05-8 Run 38613290450](https://github.com/suzhe868-arch/mb/actions/runs/38613290450)：首次两 HTTPS `127.0.0.1:48988 EADDRINUSE`，通过 GitHub 原生 `rerun-failed-jobs` 后 attempt2 整个 Run success。历史错误保留。
+   - GitHub 主线 `protected=false`、Rulesets 列表为空；需注意连接器无法读取细项 `required_status_checks`（403），这 6 条旧 PR 非成功检查**最终是否阻断合并由 A 独立裁定**，B 不更改冻结父工作流以伪装绿色。
 
-## 二、已落地工程整改及代码自审
+## 二、经核实的业务代码 SHA 原生证据
 
-1. **同一事务真实授权**：`service.mjs` 继续以 F03 真签名 Employee Session，在一个物理 PG Client 的同一 txid 中获取目标 Vehicle `FOR UPDATE`、查旧父签名和当前授权，最后调用原 F05-8 `arbitrateCI`；不增加单独 BEGIN、不直接 INSERT 原 Priority、不制造第二事务 TOCTOU。父签发错误的 winner 在事务里抛错回滚。
-2. **3B 历史 vs 4A/4C 终态**：新增 `signed-transaction-state.mjs`。冻结3B 的 `in_progress` 保留历史签发事实，公表 `cancelled` 必须伴随且仅伴随 F06-4A 普通取消或 F06-4C 移交后取消的原始来源、不可变事件、请求签名，检查责任人、周期、车辆、Lock 和 4B 完整移交链。不会 UPDATE 原 3B 历史；只读验证失败一律 FailClosed。
-3. **5B安全转换与资金**：逐交易验查 5B Guard 的 Lock/Vehicle/Cycle/Actor/退款快照摘要，3B 原事件与请求键、源 Lock 已完成转换以及 3A Deposit 真签来源和调整凭据；任意 pending/refunded/未明来源的 Refund、真实 Payment、未经验证的新财务记录不许新签 Priority。旧不安全 3B 转换只认作漏洞样本，不得洗白。
-4. **独立业务测试**：原 56 项不删，已扩为 68 项 Source 测试，包含 5B 正式交易→真4A取消→3B不可变状态保留、public伪取消拒绝、未签退款pending拒绝、合法取消后双Backend正向签发、有效员工个人deny与scope中断、有效Priority→原F06-1合法Lock→5B原子Transaction且原Priority不复活。独立 HTTPS9 个硬拒绝保持不变；GitHub 新 SHA 原生日志通过率尚须核验。
-5. **源数据边界**：所有正例均以原 F03 Token、F05-7 Match、F05-8 Qualification/Arbitration、F06-1 Lock、F06-5B 转换或原4A取消 API 触发；测试环境中局部构造异常 public 状态只允许在 SAVEPOINT 内回滚，禁止写生产。
-6. **元数据修复**：PR #62 标题与正文已纠正早期 `BLOCKED_UPSTREAM` 技术判断；《来源与权限矩阵.tsv》已更新 A 2026-10-14 同事务裁决和 2026-10-15 终态验签要求。历史失败证据仍保留。
+**验收基线（文档更新前）**：`f3bea8c9a4543f7175afa6e10bf86253473dba34`，严禁沿用到另一个新 HEAD。
 
+| 门禁 | 原生核验结果及证据 |
+| --- | --- |
+| 22 条 `event=push` | 22/22 `completed/success`，全部同本节 SHA |
+| 真 PostgreSQL16 作业 | 96/96 GitHub Jobs API 成功；其中 H52 官方 `per_page=100` 列全 52/52 PASS |
+| 本域 Source | [Run 38613290467](https://github.com/suzhe868-arch/mb/actions/runs/38613290467)，Job 116022000893，68/68 PASS，0 fail，S65/S66 实际通过 |
+| 本域 HTTPS | 同 Run Job 116022001063，9/9 原生成功、生产发行器未接 |
+| 原父表封印 | Scenario OID `68460` 真 DROP → Audit OID `73483`，旧190表逐表全行 COUNT/MD5；原24迁移、父签与 Catalog/D1 未漂移 |
+| 工件 | 22 条成功 Push 所有 Run 官方 96 份同 SHA、非空、未过期、`sha256:<64 hex>` 元数据有效；**不把元数据检查冒称96份ZIP逐字节复算** |
+| 回归范围 | F05 旧兼容、F06-1/2/3A/3B/3C1/4A/4B/4C/5A/5B 与 H52 原生同SHA工作流通过 |
 
-### 2026-10-15 B连续整改补证（全部仍以最新SHA原生CI为准）
+旧表摘要：`fd51c9708ff119af7f09d694d30c5f70119a51e248b55b3168fdb39426297acf`；迁移签名：`b9beed2d9e5fda2511bef6cbcd6d050862971714b9464624dc6439888c118033`。详细来源矩阵见同目录 `来源与权限矩阵.tsv`；GitHub 原生执行与失败分类见 [PR 审核说明 #6175521120](https://github.com/suzhe868-arch/mb/pull/62#issuecomment-6175521120)。
 
-- 上一次受测SHA `a4058bfe8539bab2184505459fa9bc8eb1915267` 在官方 [Run 38609205133](https://github.com/suzhe868-arch/mb/actions/runs/38609205133) 实际Source **66/67 PASS**、HTTPS9 PASS。S63/S64正例通过；S65真实两物理PG Backend的5B安全转换胜出，5C因真实active Lock拒绝，但4A取消后的冻结F05-8原生触发器**已经自动签发唯一新Priority**，原测试错误要求两次5C重入时再签新Priority。已改为按原父签名 `source-create:`/`source-created:` 及后续两Backend零重复验收；不更改父触发器或业务策略。
-- 在原独立白名单补同Vehicle/ListingCycle活动 F06-1 Waitlist 未终结保护。原父F06-1禁止在已锁车后才创建新LockRequest，因此补真实“两独立客户pending→其中一人批准→另一人原子入候补→5B安全Transaction→4A合法取消→仍不得让5C插队”的正反链路（新增 S66）。不直插业务Priority/Waitlist表或伪造父事件。
-- 补真实隔离子进程与两个实际 PG Backend 相争，独立 PID/txid、原签名 5B 结果、5C 原子拒绝，确保没有同进程修改全局CI环境冒充并发；原5B父文件保持完全冻结。
-- 本轮硬门禁按**Source68、HTTPS9、22条原生Push、96个PG16 Job/H52 52、真实双OID与190旧父表、≥32个同SHA非空SHA256 Artifact**逐项核验。上轮66/67 FAIL与先前67项说明保留为历史，不能认作本轮PASS。
-- **当前仍是** `B_REMEDIATION_IN_PROGRESS / NOT_READY_FOR_A_REVIEW / NEXT_OWNER=B / PR62_DRAFT_NOT_MERGED / CI_ONLY`，禁止提前交A或合并main。最终逐字节Artifact复核与正式数字必须在最后HEAD全部官方成功后再填。
+## 三、反向代码自审与保留缺口
 
-## 三、最新SHA验证硬门槛（**未通过前全部不得记完成**）
+- 本 PR 对 main 比较新增代码/CI 文件仅限 `engineering/f06/transaction-priority-admission-ci/**` 与 `.github/workflows/f06-5c-*.yml`；不改已冻结父 F05/F06、正式迁移、生产权限、个人真实资料或现金支付。
+- 一律禁止未签来源、伪造取消、资金 refunded/refund_payments、完成成交、生产 Issuer、真实外部第三方、生产迁移、UAT/F07/F08；旧 F06-3B pending Refund 不安全转换漏洞仍未从冻结父入口消失。
+- 源码静态自审仅能证明文件范围与调用结构；真实并发、回滚和 Seal 必须以最终 SHA 的 PG16 原生日志为准；附加 PR 旧检查争议属于 A 独立复验及正式合并决策。
+- **最新文档提交之后还要完整同 SHA 再测。** 在本文件对应新提交复验全部通过、PR 正文/末次签名评论写出最终 SHA 以前，不得宣称实际 `READY_FOR_A_REVIEW`。满足全部门禁后由 B 在 PR 正式签 `B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A`；A 独立验收并合规合并。
 
-请只以 PR #62 最后实际提交为唯一证据，依次验：
-- 22/22 同SHA `event=push` GitHub 工作流 **success**；
-- 96/96 非特权真 PostgreSQL16 Jobs success，H52 独立 Job 52/52；新 Source **68/68 PASS**，HTTPS **9/9 PASS**；
-- 当前 Scenario 实际物理数据库 OID、先销毁再建的独立 Audit OID、两者旧**190**父表逐表全行 COUNT/MD5 和旧24迁移/签名/公共Catalog完整保全；
-- 至少32份有效、同SHA、非空、可逐字节抽验的 GitHub 原生SHA256 Artifact；
-- 取消终态、安全 Guard、财务证据、真实双后台与合法Priority/Lock→Transaction并发、资格权限撤销/幂等/注错回滚达到 A 的 **≥36 项有意义的业务用例**要求；
-- 同 SHA 的 PR 额外 `pull_request` 检查分类：实际 required、历史冻结工作流、网络基础设施限流、真实代码失败均有可审计归因。
+## 四、A验收关注点
 
-截至本文写入：**新SHA的上述最终回归尚未完成确认**。排队、执行中、旧 SHA 成功不代表通过。发现失败必须继续原包整改并重跑；不得自行声称 `READY_FOR_A_REVIEW`。
-
-## 四、交 A 门槛与阻断
-
-**未满足**上述所有门槛前：`B_REMEDIATION_IN_PROGRESS / NEXT_OWNER=B / NOT_READY_FOR_A_REVIEW`，不得合并，PR 保持草稿。所有业务和资金状态继续 `CI_ONLY / F05_F06_V1_NOT_READY`。
-
-达到最终SHA所有硬门槛后：B 在 PR #62 追加带最终 SHA、22 Push+96 Job+Source/HTTPS/双OID+Artifact 明确数字与原生证据链接的中文签署评论，标记 `B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A`；仅由 A 完成真正独立验收和标准合并。
+请 A 独立核对最新 HEAD，特别是新提交后的 22/22 Push、96/96真PG16 Jobs、H52 52/52、Source68/HTTPS9、两OID旧190全量封印及≥32有效 GitHub Artifact、合法交易取消重仲裁/真实候补保留、额外 PR 6 个旧检查失败的性质与是否 required。B 不自行合并 main。
