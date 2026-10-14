@@ -32,6 +32,7 @@ let token;
 const args={vehicleId:86181104,listingCycleId:86182104,customerId:86180101,teamId:901,eventKey:mk('base')};
 const attempt=(v={},a=auth,t='forged')=>requestSyntheticNewPriorityCI(a,t,{...args,...v});
 let realTxId,legacyTxId,positive,positiveLockId;
+let parentCrossDomainProbes={}; // 真实PG同事务Savepoint负例观察，绝不修改冻结父或签发生产事实
 const f06Signed=fn=>withF063A(()=>withF062(()=>withParentBranch(fn)));
 async function makeSignedLock(n,label){
  const x=await f06Signed(()=>intakeCI(db,{customerId:86180101,vehicleId:86181100+n,
@@ -554,6 +555,41 @@ test('5C-S65 批发车原Priority到Lock到5B交易，4A取消后双Backend仅�
  assert.equal(match.allowed,true,JSON.stringify(match));
  assert.ok(['high','acceptable'].includes(match.tier));
  assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active'",[positive.vehicleId,positive.listingCycleId]))[0].n,0);
+ // C02/C03：真批发current Match + 原5B在途交易；观察比5C更早的冻结父触发器。
+ // 所有探测只存在F03真实隔离PG物理事务的SAVEPOINT内，最终必ROLLBACK；不能称为真实4A签发。
+ const unsignedParentProbe=async(withUnknownRefund)=>auth.withSession(token,async c=>{
+  const physical=(await c.query('SELECT pg_backend_pid()::int pid,txid_current()::text txid')).rows[0];
+  await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[positive.vehicleId]);
+  const baseline=(await c.query("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active'",
+   [positive.vehicleId,positive.listingCycleId])).rows[0].n;
+  assert.equal(baseline,0,'PROBE_REQUIRES_UNOCCUPIED_SIGNED_PRIORITY');
+  await c.query('SAVEPOINT f06_5c_unsigned_parent_probe');
+  let result={...physical,withUnknownRefund,baseline,pgBlocked:null,created:[]};
+  try{
+   if(withUnknownRefund){
+    // 只构造synthetic未知财务申请；不写refund_payments，不确认退款，不调用生产Issuer。
+    await c.query("INSERT INTO public.refund_cases(customer_id,lock_id,transaction_id,status,expected_amount_cents) VALUES($1,NULL,$2,'pending',100)",
+     [positive.customerId,txid]);
+   }
+   // 没有4A/4C cancel_origins/cancel_events，唯独public投影伪造取消。
+   await c.query("UPDATE public.transactions SET status='cancelled' WHERE transaction_id=$1",[txid]);
+   result.created=(await c.query("SELECT p.priority_id,p.customer_id,p.creation_key,e.event_key "+
+    "FROM public.f05_8_priority_ci p JOIN public.f05_8_events_ci e ON e.priority_id=p.priority_id AND e.event_kind='created' "+
+    "WHERE p.vehicle_id=$1 AND p.listing_cycle_id=$2 AND p.status='active'",
+    [positive.vehicleId,positive.listingCycleId])).rows;
+  }catch(e){
+   result.pgBlocked={sqlstate:e.code||null,message:String(e.message).slice(0,240)};
+  }finally{
+   await c.query('ROLLBACK TO SAVEPOINT f06_5c_unsigned_parent_probe');
+  }
+  return result;
+ },{normalOnly:true});
+ parentCrossDomainProbes.c02=await unsignedParentProbe(false);
+ parentCrossDomainProbes.c03=await unsignedParentProbe(true);
+ for(const [label,result] of Object.entries(parentCrossDomainProbes))
+  console.log('F06_5C_PARENT_CROSS_DOMAIN_PROBE_'+label.toUpperCase(),JSON.stringify(result));
+ assert.equal((await q('SELECT status FROM public.transactions WHERE transaction_id=$1',[txid]))[0].status,'in_progress');
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND status='active'",[positive.vehicleId]))[0].n,0);
  const cancel=await withF064A(()=>cancelSyntheticTransactionCI(auth,token,{
   transactionId:txid,eventKey:mk('real-wholesale-transaction-cancel'),reason:'批发真实签名交易取消后新优先推荐竞争验证'
  }));
@@ -878,4 +914,88 @@ test('5C-S83 不同Vehicle双真实PG Backend并行互不因对方持锁误阻',
    actualBusinessCode:out.code
   });
  }finally{await blocker.query('ROLLBACK');await blocker.end()}
+});
+
+
+test('5C-S84 C01 真JYT当前Match、原F06-1候补、5B交易和4A取消不得使父Priority插队',async()=>{
+ // 必须是独立的JYT同步血缘和原F05-7签名，不复用S66名邦无Match假负例。
+ const fresh=(await q("SELECT l.vehicle_id,l.current_cycle_id,l.model_year FROM public.f05_3b_sync_lineages l "+
+  "JOIN public.vehicles v ON v.vehicle_id=l.vehicle_id "+
+  "JOIN public.vehicle_listing_cycles cy ON cy.listing_cycle_id=l.current_cycle_id "+
+  "LEFT JOIN public.f05_7_vehicle_facts_ci f ON f.vehicle_id=l.vehicle_id AND f.listing_cycle_id=l.current_cycle_id "+
+  "WHERE v.source_type='wholesale' AND v.source_sale_status='active' AND cy.ended_at IS NULL AND f.vehicle_id IS NULL "+
+  "AND NOT EXISTS(SELECT 1 FROM public.locks k WHERE k.vehicle_id=l.vehicle_id AND k.lock_status='active') "+
+  "AND NOT EXISTS(SELECT 1 FROM public.f05_8_priority_ci p WHERE p.vehicle_id=l.vehicle_id AND p.status='active') "+
+  "ORDER BY l.vehicle_id LIMIT 1"))[0];
+ assert.ok(fresh,'C01_TRUE_SIGNED_JYT_FIXTURE_UNAVAILABLE_BLOCKED');
+ const vehicleId=Number(fresh.vehicle_id),listingCycleId=Number(fresh.current_cycle_id);
+ const first=await f06Signed(()=>intakeCI(db,{customerId:positive.customerId,vehicleId,listingCycleId,
+  requestKey:mk('c01-first-before-match'),syntheticPhoneConsent:'CI_SYNTHETIC_PHONE_CONSENT_NOT_PRODUCTION'}));
+ assert.equal(first.code,'F06_1_PENDING_CREATED',JSON.stringify(first));
+ const rival=await f06Signed(()=>intakeCI(db,{customerId:86180102,vehicleId,listingCycleId,
+  requestKey:mk('c01-rival-before-match'),syntheticPhoneConsent:'CI_SYNTHETIC_PHONE_CONSENT_NOT_PRODUCTION'}));
+ assert.equal(rival.code,'F06_1_PENDING_CREATED',JSON.stringify(rival));
+ const year=Number(fresh.model_year);
+ await q("INSERT INTO public.f05_7_vehicle_facts_ci(vehicle_id,listing_cycle_id,facts_json) VALUES($1,$2,$3::jsonb)",
+  [vehicleId,listingCycleId,JSON.stringify({
+   model_year:{value:year,source:'CI_JYT_SIGNED_SOURCE_STRUCTURED_NOT_PRODUCTION'},
+   mileage_km:{value:42000,source:'CI_SYNTHETIC_STRUCTURED_NOT_PRODUCTION'},
+   exterior_color:{value:'black',source:'CI_SYNTHETIC_STRUCTURED_NOT_PRODUCTION'},
+   interior_color:{value:'beige',source:'CI_SYNTHETIC_INSPECTION_NOT_PRODUCTION'},
+   budget_cents:{value:10000000,source:'CI_SYNTHETIC_DISPLAY_ONLY_NOT_PRODUCTION'}
+  })]);
+ const demand=(await q("SELECT demand_id FROM public.demands WHERE customer_id=$1 AND demand_state='active' ORDER BY demand_id LIMIT 1",
+  [positive.customerId]))[0];assert.ok(demand);
+ const match=await calculateCI(signedFrozenParentSessionAdapterCI(auth,21),r03.managerToken,{
+  demandId:Number(demand.demand_id),vehicleId,listingCycleId,teamId:901,runKey:mk('c01-truly-signed-match')});
+ assert.equal(match.allowed,true,JSON.stringify(match));
+ assert.ok(['high','acceptable'].includes(match.tier),'C01_REAL_QUALIFIED_MATCH_REQUIRED');
+ const firstPriority=await q("SELECT priority_id,customer_id FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND status='active'",[vehicleId]);
+ assert.equal(firstPriority.length,1,'C01_FROZEN_PARENT_SOURCE_PRIORITY_REQUIRED');
+ assert.equal(Number(firstPriority[0].customer_id),positive.customerId);
+ const awarded=await f06Signed(()=>decisionCI(auth,r03.managerToken,{
+  requestId:first.requestId,requestKey:mk('c01-approve-first'),action:'approve'}));
+ assert.equal(awarded.code,'F06_1_APPROVED_ATOMIC_LOCK',JSON.stringify(awarded));
+ const queued=(await q("SELECT status,resulting_waitlist_id FROM public.lock_requests WHERE lock_request_id=$1",[rival.requestId]))[0];
+ assert.equal(queued.status,'lock_conflict');
+ const waiting=await q("SELECT w.waitlist_id,s.source_request_id FROM public.waitlists w "+
+  "JOIN f06_1_lock_ci.waitlist_sources s ON s.waitlist_id=w.waitlist_id "+
+  "WHERE w.vehicle_id=$1 AND w.listing_cycle_id=$2 AND w.ended_at IS NULL",[vehicleId,listingCycleId]);
+ assert.equal(waiting.length,1,'C01_SIGNED_WAITLIST_MUST_REMAIN_ACTIVE');
+ assert.equal(Number(waiting[0].source_request_id),rival.requestId);
+ const tx=await withF065B(()=>openGuardedSyntheticTransactionCI(auth,r03.managerToken,{
+  lockId:awarded.lockId,eventKey:mk('c01-signed-5b-convert')}));
+ assert.equal(tx.code,'F06_5B_ATOMIC_SYNTHETIC_IN_PROGRESS',JSON.stringify(tx));
+ const refreshed=await calculateCI(signedFrozenParentSessionAdapterCI(auth,21),r03.managerToken,{
+  demandId:Number(demand.demand_id),vehicleId,listingCycleId,teamId:901,runKey:mk('c01-match-while-tx-active')});
+ assert.equal(refreshed.allowed,true,JSON.stringify(refreshed));
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND status='active'",[vehicleId]))[0].n,0);
+ const cancelled=await withF064A(()=>cancelSyntheticTransactionCI(auth,r03.managerToken,{
+  transactionId:tx.transactionId,eventKey:mk('c01-genuine-4a-cancel'),reason:'C01真实候补保护与父自动签发跨域验收'}));
+ assert.equal(cancelled.code,'F06_4A_CANCELLED_ATOMIC_NO_PAYMENT',JSON.stringify(cancelled));
+ const after=await q("SELECT p.priority_id,p.creation_key,e.event_key FROM public.f05_8_priority_ci p "+
+  "JOIN public.f05_8_events_ci e ON e.priority_id=p.priority_id AND e.event_kind='created' "+
+  "WHERE p.vehicle_id=$1 AND p.status='active'",[vehicleId]);
+ const backend=(await q('SELECT pg_backend_pid()::int pid,txid_current()::text txid'))[0];
+ console.log('F06_5C_C01_TRUE_SIGNED_WAITLIST_MATCH_CANCEL_PARENT_AUTO',JSON.stringify({
+  vehicleId,transactionId:tx.transactionId,waitlistId:waiting[0].waitlist_id,
+  actualOriginalMatchTier:refreshed.tier,backend,autoPriority:after}));
+ assert.equal((await q("SELECT count(*)::int n FROM public.waitlists WHERE vehicle_id=$1 AND ended_at IS NULL",[vehicleId]))[0].n,1);
+ assert.equal(after.length,0,'UPSTREAM_F05_8_PARENT_AUTO_ISSUER_BYPASSES_SIGNED_WAITLIST_C01');
+ assert.equal((await q('SELECT count(*)::int n FROM public.refund_payments'))[0].n,0);
+});
+test('5C-S85 C02 真Match+未签4A/4C伪public取消不得提前触发父Priority',()=>{
+ assert.ok(parentCrossDomainProbes.c02,'C02_NATIVE_PG_SIGNED_SOURCE_PROBE_MISSING');
+ const p=parentCrossDomainProbes.c02;
+ assert.equal(p.withUnknownRefund,false);
+ assert.equal(p.baseline,0);
+ assert.equal(p.created.length,0,'UPSTREAM_F05_8_PARENT_AUTO_ISSUER_UNSIGNED_PUBLIC_CANCEL_C02 '+JSON.stringify(p));
+});
+test('5C-S86 C03 5B之后未知pending退款与伪取消组合不得触发父签Priority',()=>{
+ assert.ok(parentCrossDomainProbes.c03,'C03_NATIVE_PG_UNKNOWN_FINANCE_PROBE_MISSING');
+ const p=parentCrossDomainProbes.c03;
+ assert.equal(p.withUnknownRefund,true);
+ assert.equal(p.baseline,0);
+ assert.equal(p.created.length,0,'UPSTREAM_F05_8_PARENT_AUTO_ISSUER_UNKNOWN_FINANCE_CANCEL_C03 '+JSON.stringify(p));
+ assert.equal((p.pgBlocked===null)||typeof p.pgBlocked.sqlstate==='string',true);
 });
