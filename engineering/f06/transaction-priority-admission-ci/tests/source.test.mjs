@@ -47,7 +47,7 @@ test.before(async()=>{
  const member=(await q("SELECT team_id FROM public.employee_team_memberships WHERE employee_id=1 AND ended_at IS NULL LIMIT 1"))[0];
  const scope=(await q("SELECT scope_id FROM public.employee_data_scopes WHERE employee_id=1 AND scope_kind='team' AND scope_reference_id=$1 AND ended_at IS NULL LIMIT 1",[member.team_id]))[0];
  assert.ok(scope);
- const perms=[['transaction.ci.open',969101],['deposit.ci.record',969102],['refund.ci.request',969103]];
+ const perms=[['transaction.ci.open',969101],['deposit.ci.record',969102],['refund.ci.request',969103],['transaction.ci.cancel',969104]];
  for(const [name,defaultId] of perms){
   const existing=(await q('SELECT permission_id FROM public.permissions WHERE permission_code=$1',[name]))[0];
   const permission=existing?.permission_id??defaultId;
