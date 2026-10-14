@@ -154,7 +154,7 @@ test('5A-S44 closed明确原因且没有付款',async()=>{
 });
 test('5A-S45 closed相同key只幂等不二次写入',async()=>assert.equal((await cls(refund,'valid-close')).code,'F06_5A_IDEMPOTENT_CLOSE'));
 test('5A-S46 closed新key不得复活',async()=>assert.equal((await cls(refund,'repeat-close')).code,'F06_5A_ONLY_PENDING_CAN_CLOSE'));
-test('5A-S47 closed不会自动把客户放公海',async()=>assert.equal((await pendingPublicPoolGuardCI(db,customer)).allowed,true));
+test('5A-S47 closed不会绕过其它在途Transaction的公海保护',async()=>assert.equal((await pendingPublicPoolGuardCI(db,customer)).allowed,false));
 test('5A-S48 新历史不允许UPDATE DELETE',async()=>{
  await assert.rejects(()=>q("DELETE FROM f06_5a_ci.status_events WHERE refund_id=$1",[refund]),/F06_5A_APPEND_ONLY_HISTORY/);
  await assert.rejects(()=>q("UPDATE f06_5a_ci.refund_origins SET amount_cents=1 WHERE refund_id=$1",[refund]),/F06_5A_APPEND_ONLY_HISTORY/);
