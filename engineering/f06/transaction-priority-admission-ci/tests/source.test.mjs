@@ -17,6 +17,8 @@ import {withF063A} from '../../lock-transaction-ci/migration.mjs';
 import {withF064A} from '../../transaction-handoff-ci/migration.mjs';
 import {cancelSyntheticTransactionCI} from '../../transaction-cancel-ci/service.mjs';
 import {verifySignedTransactionVacancyCI} from '../signed-transaction-state.mjs';
+import {handoffSyntheticTransactionCI} from '../../transaction-handoff-ci/service.mjs';
+import {cancelAfterHandoffSyntheticCI} from '../../post-handoff-cancel-ci/service.mjs';
 
 import {withF062} from '../../deposit-ledger-ci/migration.mjs';
 import {withParentBranch} from '../../lock-lifecycle-ci/migration.mjs';
@@ -642,4 +644,164 @@ test('5C-S66 原F06-1真候补即使5B交易及4A取消后仍防止新Priority�
  assert.equal(r.code,'F06_5C_ACTIVE_SIGNED_WAITLIST_PREVENTS_NEW_PRIORITY',JSON.stringify(r));
  assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=86181107"))[0].n,before);
  assert.equal((await q('SELECT count(*)::int n FROM public.refund_payments'))[0].n,0);
+});
+
+
+// R03: 使用原F06-4B/F06-4C原生Service，杜绝测试自身INSERT冒充父签名。
+// 此批仅在非特权、可销毁PG16运行；不会连接任何生产交易/资金Issuer。
+const withSignedParentRef=async(name,callback)=>{
+ const old=process.env.GITHUB_REF,oldName=process.env.GITHUB_REF_NAME;
+ try{
+  process.env.GITHUB_REF='refs/heads/'+name;
+  process.env.GITHUB_REF_NAME=name;
+  return await callback();
+ }finally{process.env.GITHUB_REF=old;process.env.GITHUB_REF_NAME=oldName}
+};
+let r03={};
+test('5C-S67 原F06-1签Lock经真实5B Guard转换为4B可移交的在途Transaction',async()=>{
+ const lockId=await makeSignedLock(3,'r03-handoff-positive');
+ const tx=await withF065B(()=>openGuardedSyntheticTransactionCI(auth,token,{
+  lockId,eventKey:mk('r03-real-5b-open')
+ }));
+ assert.equal(tx.code,'F06_5B_ATOMIC_SYNTHETIC_IN_PROGRESS',JSON.stringify(tx));
+ const original=(await q('SELECT status,responsible_employee_id FROM public.transactions WHERE transaction_id=$1',[tx.transactionId]))[0];
+ assert.equal(original.status,'in_progress');assert.equal(Number(original.responsible_employee_id),1);
+ r03={txId:tx.transactionId,lockId,vehicleId:86181103,listingCycleId:86182103,
+  customerId:86180101,originalOwner:(await q('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=86180101'))[0].current_owner_employee_id};
+ const managerRole=(await q("SELECT role_id FROM public.roles WHERE role_code='manager'"))[0];
+ assert.ok(managerRole);
+ await q('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[managerRole.role_id]);
+ const login=await auth.login({login:'employee_test',password:'SyntheticF04_3_CurrentProof_2026',source:'f06-5c-native-4b-manager'});
+ assert.equal(login.code,'AUTH_OK',JSON.stringify(login));r03.managerToken=login.token;
+});
+test('5C-S68 Manager身份本身不能越过原4B独立Transfer Permission',async()=>{
+ const out=await withSignedParentRef('feat/f06-4b-transaction-handoff-ci',()=>handoffSyntheticTransactionCI(auth,r03.managerToken,{
+  transactionId:r03.txId,newResponsibleId:4,reason:'无独立移交权限必拒',eventKey:mk('r03-transfer-no-permission')
+ }));
+ assert.equal(out.code,'F06_4B_EXPLICIT_PERMISSION_SCOPE_DENIED',JSON.stringify(out));
+ assert.equal((await q('SELECT responsible_employee_id FROM public.transactions WHERE transaction_id=$1',[r03.txId]))[0].responsible_employee_id,'1');
+});
+test('5C-S69 原4B真实经理有权限与Scope时签发不可变负责人移交',async()=>{
+ const p=(await q("SELECT permission_id FROM public.permissions WHERE permission_code='transaction.responsible.transfer'"))[0];
+ const permissionId=p?.permission_id??969105;
+ if(!p)await q("INSERT INTO public.permissions(permission_id,permission_code) VALUES($1,'transaction.responsible.transfer')",[permissionId]);
+ const scope=(await q("SELECT scope_id FROM public.employee_data_scopes WHERE employee_id=1 AND scope_kind='team' AND scope_reference_id=901 AND ended_at IS NULL LIMIT 1"))[0];
+ assert.ok(scope);
+ await q("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(1,$1,'allow',clock_timestamp()) ON CONFLICT(employee_id,permission_id) DO UPDATE SET decision='allow',changed_at=clock_timestamp()",[permissionId]);
+ const current=(await q("SELECT 1 FROM public.employee_capability_scope_bindings WHERE employee_id=1 AND permission_id=$1 AND scope_id=$2 AND ended_at IS NULL",[permissionId,scope.scope_id]))[0];
+ if(!current)await q("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(1,$1,$2,clock_timestamp()-interval '2 minutes')",[permissionId,scope.scope_id]);
+ const result=await withSignedParentRef('feat/f06-4b-transaction-handoff-ci',()=>handoffSyntheticTransactionCI(auth,r03.managerToken,{
+  transactionId:r03.txId,newResponsibleId:4,reason:'原生跨负责人签名移交',eventKey:mk('r03-signed-4b-handoff')
+ }));
+ assert.equal(result.code,'F06_4B_ATOMIC_HANDOFF_CI',JSON.stringify(result));
+ assert.equal(result.oldResponsibleId,1);assert.equal(result.newResponsibleId,4);
+ r03.handoffEventId=result.eventId;
+ assert.ok(r03.handoffEventId>0);
+ const event=(await q("SELECT old_responsible_employee_id old,new_responsible_employee_id next,actor_employee_id actor,reason FROM f06_4b_ci.handoff_events WHERE transaction_id=$1",[r03.txId]))[0];
+ assert.deepEqual([Number(event.old),Number(event.next),Number(event.actor)],[1,4,1]);
+ assert.ok(event.reason.length>=6);
+});
+test('5C-S70 已移交但未取消的交易仍凭签名真实占用，禁止新Priority',async()=>{
+ const before=(await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1",[r03.vehicleId]))[0].n;
+ const candidate=await requestSyntheticNewPriorityCI(auth,r03.managerToken,{
+  vehicleId:r03.vehicleId,listingCycleId:r03.listingCycleId,customerId:r03.customerId,teamId:901,eventKey:mk('r03-4b-occupancy')
+ });
+ assert.equal(candidate.code,'F06_5C_TRANSACTION_OCCUPIED_OR_UNSUPPORTED_STATUS',JSON.stringify(candidate));
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1",[r03.vehicleId]))[0].n,before);
+});
+test('5C-S71 原4C必须拒绝原负责人试图取消已移交Transaction',async()=>{
+ const denied=await withSignedParentRef('feat/f06-4c-post-handoff-cancel-ci',()=>cancelAfterHandoffSyntheticCI(auth,r03.managerToken,{
+  transactionId:r03.txId,reason:'旧Manager不能取代新负责人取消',eventKey:mk('r03-old-owner-cancel-denied')
+ }));
+ assert.equal(denied.code,'F06_4C_OLD_RESPONSIBLE_DENIED',JSON.stringify(denied));
+ assert.equal((await q("SELECT count(*)::int n FROM f06_4c_ci.cancel_origins WHERE transaction_id=$1",[r03.txId]))[0].n,0);
+});
+test('5C-S72 新负责人不因被移交而自动拥有独立4C取消Permission',async()=>{
+ await q("UPDATE public.pc_login_accounts SET credential_state='enabled',force_password_change=false WHERE account_id=5 AND employee_id=4");
+ const receiver=await auth.login({login:'disabled_test',password:'SyntheticDisabled_123',source:'f06-5c-native-4c-new-owner'});
+ assert.equal(receiver.code,'AUTH_OK',JSON.stringify(receiver));
+ r03.receiverToken=receiver.token;
+ const denied=await withSignedParentRef('feat/f06-4c-post-handoff-cancel-ci',()=>cancelAfterHandoffSyntheticCI(auth,r03.receiverToken,{
+  transactionId:r03.txId,reason:'没有独立取消权限',eventKey:mk('r03-receiver-no-permission')
+ }));
+ assert.equal(denied.code,'F06_4C_PERMISSION_SCOPE_DENIED',JSON.stringify(denied));
+});
+test('5C-S73 新负责人仅有4C权限但无Capability Scope仍必须拒绝',async()=>{
+ const perm=(await q("SELECT permission_id FROM public.permissions WHERE permission_code='transaction.ci.cancel'"))[0];
+ assert.ok(perm);
+ r03.cancelPermissionId=perm.permission_id;
+ await q("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(4,$1,'allow',clock_timestamp()) ON CONFLICT(employee_id,permission_id) DO UPDATE SET decision='allow',changed_at=clock_timestamp()",[perm.permission_id]);
+ const denied=await withSignedParentRef('feat/f06-4c-post-handoff-cancel-ci',()=>cancelAfterHandoffSyntheticCI(auth,r03.receiverToken,{
+  transactionId:r03.txId,reason:'新负责人未绑定Scope仍拒绝',eventKey:mk('r03-receiver-no-scope')
+ }));
+ assert.equal(denied.code,'F06_4C_PERMISSION_SCOPE_DENIED',JSON.stringify(denied));
+});
+test('5C-S74 新负责人独立Permission与真实team Scope生效后仍测试个人Deny立即拒绝',async()=>{
+ let scope=(await q("SELECT scope_id FROM public.employee_data_scopes WHERE employee_id=4 AND scope_kind='team' AND scope_reference_id=901 AND ended_at IS NULL LIMIT 1"))[0];
+ if(!scope)scope=(await q("INSERT INTO public.employee_data_scopes(employee_id,scope_kind,scope_reference_id) VALUES(4,'team',901) RETURNING scope_id"))[0];
+ const bound=(await q("SELECT 1 FROM public.employee_capability_scope_bindings WHERE employee_id=4 AND permission_id=$1 AND scope_id=$2 AND ended_at IS NULL",[r03.cancelPermissionId,scope.scope_id]))[0];
+ if(!bound)await q("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(4,$1,$2,clock_timestamp()-interval '2 minutes')",[r03.cancelPermissionId,scope.scope_id]);
+ await q("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=clock_timestamp() WHERE employee_id=4 AND permission_id=$1",[r03.cancelPermissionId]);
+ try{
+  const denied=await withSignedParentRef('feat/f06-4c-post-handoff-cancel-ci',()=>cancelAfterHandoffSyntheticCI(auth,r03.receiverToken,{
+   transactionId:r03.txId,reason:'个人拒绝高于角色默认允许',eventKey:mk('r03-receiver-personal-deny')
+  }));
+  assert.equal(denied.code,'F06_4C_PERMISSION_SCOPE_DENIED',JSON.stringify(denied));
+ }finally{
+  await q("UPDATE public.employee_permission_overrides SET decision='allow',changed_at=clock_timestamp() WHERE employee_id=4 AND permission_id=$1",[r03.cancelPermissionId]);
+ }
+});
+test('5C-S75 新负责人Scope撤销必须在原4C提交时实时拒绝',async()=>{
+ const updated=await q("UPDATE public.employee_capability_scope_bindings SET ended_at=clock_timestamp() WHERE employee_id=4 AND permission_id=$1 AND ended_at IS NULL RETURNING ctid::text pointer",[r03.cancelPermissionId]);
+ assert.ok(updated.length>0);
+ try{
+  const denied=await withSignedParentRef('feat/f06-4c-post-handoff-cancel-ci',()=>cancelAfterHandoffSyntheticCI(auth,r03.receiverToken,{
+   transactionId:r03.txId,reason:'Scope失效旧Session无资格取消',eventKey:mk('r03-receiver-revoked-scope')
+  }));
+  assert.equal(denied.code,'F06_4C_PERMISSION_SCOPE_DENIED',JSON.stringify(denied));
+ }finally{
+  for(const x of updated)await q("UPDATE public.employee_capability_scope_bindings SET ended_at=NULL WHERE ctid::text=$1",[x.pointer]);
+ }
+});
+test('5C-S76 原4C由新负责人真正原子签发取消并留下不可变请求链',async()=>{
+ const cancel=await withSignedParentRef('feat/f06-4c-post-handoff-cancel-ci',()=>cancelAfterHandoffSyntheticCI(auth,r03.receiverToken,{
+  transactionId:r03.txId,reason:'移交后当前真实合成负责人合法取消',eventKey:mk('r03-native-post-handoff-cancel')
+ }));
+ assert.equal(cancel.code,'F06_4C_POST_HANDOFF_CANCELLED_ATOMIC_CI',JSON.stringify(cancel));
+ r03.cancelEventId=cancel.eventId;
+ const proof=(await q("SELECT o.original_responsible_employee_id original,o.transferred_responsible_employee_id current,e.event_id,k.event_id signed_event FROM f06_4c_ci.cancel_origins o JOIN f06_4c_ci.cancel_events e USING(transaction_id) JOIN f06_4c_ci.request_keys k USING(transaction_id) WHERE o.transaction_id=$1",[r03.txId]))[0];
+ assert.ok(proof);
+ assert.equal(Number(proof.original),1);assert.equal(Number(proof.current),4);
+ assert.equal(Number(proof.event_id),Number(r03.cancelEventId));assert.equal(Number(proof.signed_event),Number(r03.cancelEventId));
+ assert.equal((await q('SELECT status FROM public.transactions WHERE transaction_id=$1',[r03.txId]))[0].status,'cancelled');
+ assert.equal((await q('SELECT status FROM f06_3b_ci.transaction_origins WHERE transaction_id=$1',[r03.txId]))[0].status,'in_progress');
+});
+test('5C-S77 5C在原4B/4C签发后真正验证旧3B原始来源、5B Guard与4C终态',async()=>{
+ const done=await auth.withSession(r03.managerToken,async c=>{
+  await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[r03.vehicleId]);
+  return verifySignedTransactionVacancyCI(c,r03.vehicleId);
+ },{normalOnly:true});
+ assert.equal(done.code,'F06_5C_ALL_SIGNED_TRANSACTIONS_TERMINAL',JSON.stringify(done));
+ assert.equal((await q('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=86180101'))[0].current_owner_employee_id,r03.originalOwner);
+ assert.equal((await q('SELECT count(*)::int n FROM public.refund_payments'))[0].n,0);
+ console.log('F06_5C_R03_NATIVE_PARENT_HANDOFF_CANCEL_TERMINAL',{
+  transactionId:r03.txId,originalResponsible:1,currentResponsible:4,
+  handoffEventId:r03.handoffEventId,cancelEventId:r03.cancelEventId,result:done.code
+ });
+});
+test('5C-S78 5C签终态不豁免真实Match：未匹配名邦车不得伪装正向发行',async()=>{
+ const before=(await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1",[r03.vehicleId]))[0].n;
+ const denied=await requestSyntheticNewPriorityCI(auth,r03.managerToken,{
+  vehicleId:r03.vehicleId,listingCycleId:r03.listingCycleId,customerId:r03.customerId,teamId:901,eventKey:mk('r03-no-true-match')
+ });
+ assert.equal(denied.code,'F06_5C_CURRENT_MATCH_AND_QUALIFICATION_REQUIRED',JSON.stringify(denied));
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1",[r03.vehicleId]))[0].n,before);
+});
+test('5C-S79 原生4C事件不可DELETE且5C终态继续有效',async()=>{
+ await assert.rejects(q('DELETE FROM f06_4c_ci.cancel_events WHERE transaction_id=$1',[r03.txId]),/F06_4C_APPEND_ONLY_IMMUTABLE/);
+ const done=await auth.withSession(r03.managerToken,async c=>{
+  await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[r03.vehicleId]);
+  return verifySignedTransactionVacancyCI(c,r03.vehicleId);
+ },{normalOnly:true});
+ assert.equal(done.code,'F06_5C_ALL_SIGNED_TRANSACTIONS_TERMINAL',JSON.stringify(done));
 });
