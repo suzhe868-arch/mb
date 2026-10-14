@@ -104,3 +104,22 @@ test('5B-S22 公开Transaction状态仅in_progress',async()=>{
  const x=(await query('SELECT status FROM public.transactions WHERE transaction_id=$1',[transactionId]))[0];
  assert.equal(x.status,'in_progress');
 });
+
+test('5B-S23 Sidecar审计事件不可UPDATE',async()=>{
+ await assert.rejects(()=>query('UPDATE f06_5b_ci.guard_events SET checked_refunds=0 WHERE transaction_id=$1',[transactionId]),/F06_5B_APPEND_ONLY_HISTORY/);
+});
+test('5B-S24 Sidecar审计事件不可DELETE',async()=>{
+ await assert.rejects(()=>query('DELETE FROM f06_5b_ci.guard_events WHERE transaction_id=$1',[transactionId]),/F06_5B_APPEND_ONLY_HISTORY/);
+});
+test('5B-S25 attestation封印不可UPDATE',async()=>{
+ await assert.rejects(()=>query("UPDATE f06_5b_ci.attestation SET seal_name='bad'"),/F06_5B_APPEND_ONLY_HISTORY/);
+});
+test('5B-S26 父3B来源唯一',async()=>{
+ assert.equal((await query('SELECT count(*)::int n FROM f06_3b_ci.transaction_origins WHERE source_lock_id=$1',[lockId]))[0].n,1);
+});
+test('5B-S27 父3B转换历史唯一',async()=>{
+ assert.equal((await query('SELECT count(*)::int n FROM f06_3b_ci.origin_events WHERE transaction_id=$1',[transactionId]))[0].n,1);
+});
+test('5B-S28 已签Deposit金额不漂移',async()=>{
+ assert.equal(Number((await query('SELECT amount_cents FROM public.deposit_receipts WHERE lock_id=$1',[lockId]))[0].amount_cents),6600);
+});
