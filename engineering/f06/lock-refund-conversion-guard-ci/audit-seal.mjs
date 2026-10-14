@@ -1,5 +1,5 @@
 import {connect,withF065A} from './migration.mjs';
-import {verify as parentVerify} from '../lock-refund-conversion-guard-ci/migration.mjs';
+import {verify as parentVerify} from '../transaction-refund-ci/migration.mjs';
 import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
 import {createHash} from 'node:crypto';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import {resolve} from 'node:path';
 const mode=process.argv[2];
 if(!['before','after'].includes(mode)||process.env.GITHUB_ACTIONS!=='true'||process.env.CI!=='true'||
- process.env.GITHUB_REF!=='refs/heads/feat/f06-5b-transaction-refund-pending-ci'||process.env.GITHUB_EVENT_NAME!=='push')
+ process.env.GITHUB_REF!=='refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci'||process.env.GITHUB_EVENT_NAME!=='push')
  throw Error('F06_5B_AUDIT_REQUIRES_SIGNED_PUSH');
 const c=await connect(),out=resolve('f06/lock-refund-conversion-guard-ci/artifacts/source');
 await mkdir(out,{recursive:true});
