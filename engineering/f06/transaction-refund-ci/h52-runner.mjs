@@ -3,6 +3,7 @@
 import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
 import {resolve} from 'node:path';
+import {createHash} from 'node:crypto';
 const workspace=process.env.GITHUB_WORKSPACE;
 if(!workspace||process.env.GITHUB_ACTIONS!=='true'||process.env.GITHUB_EVENT_NAME!=='push'||
  process.env.GITHUB_REPOSITORY!=='suzhe868-arch/mb'||
@@ -87,5 +88,7 @@ for(let i=0;i<steps.length;i++){
  applySignedStepEnvironment();
  report.passed.push(i);
 }
-writeFileSync(resolve(output,'result.json'),JSON.stringify(report,null,2)+'\n');
+const signedReport=JSON.stringify(report,null,2)+'\n';
+writeFileSync(resolve(output,'result.json'),signedReport);
+writeFileSync(resolve(output,'sha256sums.txt'),createHash('sha256').update(signedReport).digest('hex')+'  result.json\n');
 console.log('F06_5A_FROZEN_H52_FULL_NATIVE_REPLAY_PASS',JSON.stringify({name,sha:report.sha,steps:steps.length}));
