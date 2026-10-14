@@ -4,6 +4,10 @@ on:
     branches: [feat/f06-5a-transaction-refund-pending-ci]
   workflow_dispatch:
 permissions: {contents: read, actions: read, pull-requests: read}
+# Retain all latest SHA jobs; supersede obsolete push workflow runs.
+concurrency:
+  group: f06-5a-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   readiness-source:
     name: F05-11 Source integrated-readiness audit

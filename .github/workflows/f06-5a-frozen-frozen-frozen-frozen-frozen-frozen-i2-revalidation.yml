@@ -4,6 +4,10 @@ on:
     branches: [feat/f06-5a-transaction-refund-pending-ci]
   workflow_dispatch:
 permissions: {contents: read}
+# Retain all latest SHA jobs; supersede obsolete push workflow runs.
+concurrency:
+  group: f06-5a-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   i-source:
     name: F05-3I source true nonprivileged PostgreSQL16 v19 Favorite preconversion test
