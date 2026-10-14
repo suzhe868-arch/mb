@@ -75,7 +75,7 @@ export async function prepareOldNative4C(c,base){
  // 保留4A原Sales会话对照的合同：4C准备完成后恢复角色，不改旧4B/4C不可变事实。
  const sales=await one(c,"SELECT role_id FROM public.roles WHERE role_code='sales'");
  await c.query("UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1",[sales.role_id]);
- return {oldTx,newTx,old,oldCarrier,receiverToken:recv.token,
+ return {oldTx,newTx,old,oldCarrier,receiverToken:recv.token,managerToken,
   managerRoleId:manager.role_id,receiptPermissionId:cancelP.permission_id,
   baseline:{oldHandoffTransaction:oldTx,pendingHandoffTransaction:newTx,old4CCode:old.code,
    immutableHandoffEventId:handoff.eventId,source:'SIGNED_5B_4B_4C_PARENT_SERVICES'}};

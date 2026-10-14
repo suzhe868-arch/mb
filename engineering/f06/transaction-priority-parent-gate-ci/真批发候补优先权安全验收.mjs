@@ -14,7 +14,7 @@ import {oldRef} from './真实取消前后对照.mjs';
 import {signedCancelUnderNativeVehicleRace} from './原生双Backend并发.mjs';
 const mk=x=>'pg1-c01-'+process.env.GITHUB_RUN_ID+'-'+x;
 const one=async(c,s,a=[])=> (await c.query(s,a)).rows[0];
-export async function prepareRealJytWaitlist(c,{auth,token}){
+export async function prepareRealJytWaitlist(c,{auth,token,managerToken=token}){
  const fresh=await one(c,"SELECT l.vehicle_id,l.current_cycle_id,l.model_year FROM public.f05_3b_sync_lineages l "+
   "JOIN public.vehicles v ON v.vehicle_id=l.vehicle_id "+
   "JOIN public.vehicle_listing_cycles cy ON cy.listing_cycle_id=l.current_cycle_id "+
@@ -50,7 +50,7 @@ export async function prepareRealJytWaitlist(c,{auth,token}){
   description:'奥迪A6 2026款 5万公里以内 黑色外观 米色内饰 预算10万'
  });
  assert.equal(d.allowed,true,JSON.stringify(d));
- const match=await calculateCI(historicalSignedService(auth,21,{afterPatch:false}),token,{
+ const match=await calculateCI(historicalSignedService(auth,21,{afterPatch:false}),managerToken,{
   demandId:Number(demand.demand_id),vehicleId,listingCycleId:cycle,
   teamId:901,runKey:mk('current-jyt-match')
  });
@@ -59,7 +59,7 @@ export async function prepareRealJytWaitlist(c,{auth,token}){
  const active=await one(c,"SELECT priority_id,customer_id FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active'",[vehicleId,cycle]);
  assert.ok(active,'PG1_C01_PARENT_SOURCE_PRIORITY_REQUIRED');
  assert.equal(Number(active.customer_id),customerId);
- const accepted=await signedF06(()=>decisionCI(auth,token,{
+ const accepted=await signedF06(()=>decisionCI(auth,managerToken,{
   requestId:f.requestId,requestKey:mk('first-approved'),action:'approve'
  }));
  assert.equal(accepted.code,'F06_1_APPROVED_ATOMIC_LOCK',JSON.stringify(accepted));
@@ -71,11 +71,11 @@ export async function prepareRealJytWaitlist(c,{auth,token}){
   "WHERE w.vehicle_id=$1 AND w.listing_cycle_id=$2 AND w.ended_at IS NULL",[vehicleId,cycle]);
  assert.ok(waiting);
  assert.equal(Number(waiting.source_request_id),s.requestId);
- const t=await oldRef('feat/f06-5b-lock-refund-conversion-guard-ci',()=>openGuardedSyntheticTransactionCI(auth,token,{
+ const t=await oldRef('feat/f06-5b-lock-refund-conversion-guard-ci',()=>openGuardedSyntheticTransactionCI(auth,managerToken,{
   lockId:accepted.lockId,eventKey:mk('5b-transaction')
  }));
  assert.equal(t.code,'F06_5B_ATOMIC_SYNTHETIC_IN_PROGRESS',JSON.stringify(t));
- const refreshed=await calculateCI(historicalSignedService(auth,21,{afterPatch:false}),token,{
+ const refreshed=await calculateCI(historicalSignedService(auth,21,{afterPatch:false}),managerToken,{
   demandId:Number(demand.demand_id),vehicleId,listingCycleId:cycle,
   teamId:901,runKey:mk('refreshed-match-during-5b')
  });
@@ -118,7 +118,7 @@ export async function proveRealJytWaitlist(c,{auth,token},f){
 }
 
 
-export async function prepareRealJytUnoccupiedSignedMatch(c,{auth,token}){
+export async function prepareRealJytUnoccupiedSignedMatch(c,{auth,token,managerToken=token}){
  const fresh=await one(c,"SELECT l.vehicle_id,l.current_cycle_id,l.model_year FROM public.f05_3b_sync_lineages l "+
   "JOIN public.vehicles v ON v.vehicle_id=l.vehicle_id "+
   "JOIN public.vehicle_listing_cycles cy ON cy.listing_cycle_id=l.current_cycle_id "+
@@ -132,7 +132,7 @@ export async function prepareRealJytUnoccupiedSignedMatch(c,{auth,token}){
  const request=await signedF06(()=>intakeCI(c,{customerId,vehicleId,listingCycleId,
   requestKey:mk('c02-intake'),syntheticPhoneConsent:'CI_SYNTHETIC_PHONE_CONSENT_NOT_PRODUCTION'}));
  assert.equal(request.code,'F06_1_PENDING_CREATED',JSON.stringify(request));
- const decision=await signedF06(()=>decisionCI(auth,token,{
+ const decision=await signedF06(()=>decisionCI(auth,managerToken,{
   requestId:request.requestId,requestKey:mk('c02-lock-approved'),action:'approve'
  }));
  assert.equal(decision.code,'F06_1_APPROVED_ATOMIC_LOCK',JSON.stringify(decision));
@@ -148,18 +148,18 @@ export async function prepareRealJytUnoccupiedSignedMatch(c,{auth,token}){
  const demand=await one(c,"SELECT demand_id FROM public.demands WHERE customer_id=$1 AND demand_state='active' ORDER BY demand_id LIMIT 1",[customerId]);
  assert.ok(demand);
  // 同一个已签Demand沿用C01所用描述；不重复写描述使C01当前Match变stale。
- const pre=await calculateCI(historicalSignedService(auth,21,{afterPatch:false}),token,{
+ const pre=await calculateCI(historicalSignedService(auth,21,{afterPatch:false}),managerToken,{
   demandId:Number(demand.demand_id),vehicleId,listingCycleId,
   teamId:901,runKey:mk('c02-jyt-current-match')
  });
  assert.equal(pre.allowed,true,JSON.stringify(pre));
  assert.ok(['high','acceptable'].includes(pre.tier));
  assert.equal((await one(c,"SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND status='active'",[vehicleId])).n,0);
- const tx=await oldRef('feat/f06-5b-lock-refund-conversion-guard-ci',()=>openGuardedSyntheticTransactionCI(auth,token,{
+ const tx=await oldRef('feat/f06-5b-lock-refund-conversion-guard-ci',()=>openGuardedSyntheticTransactionCI(auth,managerToken,{
   lockId:decision.lockId,eventKey:mk('c02-5b-open')
  }));
  assert.equal(tx.code,'F06_5B_ATOMIC_SYNTHETIC_IN_PROGRESS',JSON.stringify(tx));
- const match=await calculateCI(historicalSignedService(auth,21,{afterPatch:false}),token,{
+ const match=await calculateCI(historicalSignedService(auth,21,{afterPatch:false}),managerToken,{
   demandId:Number(demand.demand_id),vehicleId,listingCycleId,
   teamId:901,runKey:mk('c02-jyt-tx-current-match')
  });

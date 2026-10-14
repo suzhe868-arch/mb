@@ -61,10 +61,20 @@ try{
  report.oldSigned4ABaseline=cancelFixture.baseline;
  handoffFixture=await prepareOldNative4C(c,cancelFixture);
  report.oldSigned4B4CBaseline=handoffFixture.baseline;
- jytFixture=await prepareRealJytWaitlist(c,cancelFixture);
- report.oldSignedJytMatchWaitlist5B=jytFixture;
- freeJytFixture=await prepareRealJytUnoccupiedSignedMatch(c,cancelFixture);
- report.oldSignedJytMatchWithoutWaitlist=freeJytFixture;
+ // C01 真JYT Match必须匹配原PR62经理授权域；资格/取消使用原负责Sales角色。
+ // 两种身份来自真实F03登录，绝不直接伪造actor对象。
+ await c.query("UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1",[handoffFixture.managerRoleId]);
+ try{
+  const signedActors={...cancelFixture,managerToken:handoffFixture.managerToken};
+  jytFixture=await prepareRealJytWaitlist(c,signedActors);
+  report.oldSignedJytMatchWaitlist5B=jytFixture;
+  freeJytFixture=await prepareRealJytUnoccupiedSignedMatch(c,signedActors);
+  report.oldSignedJytMatchWithoutWaitlist=freeJytFixture;
+ }finally{
+  const salesRole=await rows("SELECT role_id FROM public.roles WHERE role_code='sales'");
+  assert.equal(salesRole.length,1);
+  await c.query("UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1",[salesRole[0].role_id]);
+ }
  const before=await getPublicStructure(c);
  const old=await sealedParent();
  report.before={catalog:before.sha256,...old};
