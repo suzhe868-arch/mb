@@ -1,3 +1,11 @@
+# 2026-10-14｜A主控F06-5B PR61独立验收标准合并与F06-5C新Priority原子准入技术放行（不更改PDM产品规则）
+
+- **A已验收并官方标准合并**：PR61最终B HEAD `c7ab2336a425075b4ac4cfaf7203e2987deab98a`，34/34仅新增CI白名单，21/21同SHA真Push、94/94真实非特权PG16 Job/H52 52、Source54 HTTPS9、94有效sha256 Artifact、OID63416→68456旧188父表全行Seal与24 Ledger/Catalog/D1/九父Sidecar不漂移。[A验收签字](https://github.com/suzhe868-arch/mb/pull/61#issuecomment-6166703241)，GitHub标准merge SHA`1a9b87a2e109190fff0380bbe85e7702a95dcd5e`。正式报告：`07_重建工作区/F06-5B_A主控独立验收21条Push94项PG16与94工件_PR61标准合并正式报告_2026-10-14.md`，仅`A_ACCEPTED_CI_ONLY`。
+- **技术边界**：新增5B安全版本化原子转换CI入口不能替代旧3B已证待退款转换不安全入口；PDM19§21原权限/资金/退款Authority不改，生产Issuer与refunded/actual payment/完成成交/UAT/部署一律禁止。F05/F06及V1未READY。
+- **A下一独立技术放行**：已签PDM19§15、PDM13、PDM02/17/18/25下，F06-5C`07_重建工作区/F06-5C_A主控Transaction占用与Priority新建排他原子仲裁_CI隔离完整施工单_2026-10-14.md`，B分支`feat/f06-5c-transaction-priority-admission-ci`仅CI白名单新增，Transaction在途与新Priority的原子排他及旧Priority不复活，真实非特权PG16双Backend/回滚/旧192实体Seal，22真Push/96真PG16 Jobs/H52 52，新Source≥36 HTTPS≥9；无法复用合法签发来源则显式SOURCE_GAP。`NEXT_OWNER=B`，不批准真实资金/数据/上线。
+
+---
+
 # 2026-10-14｜A主控F06-5A第三轮独立验收PR60标准合并与F06-5B原子守卫技术放行（不构成新用户产品裁决）
 
 - **最新技术验收记录**：F06-5A B唯一HEAD `6695c9328ea81dd984d6404d9d7393fe153d693d`、20/20真正Push、92/92真实PG16 Job(H52完整52/52)、Source82/82 HTTPS9/9、92/92官方原生有效sha256 Artifact、OID58366→63421旧184实体全行Seal，A第三轮独立验收PASS；[PR60正式A签署](https://github.com/suzhe868-arch/mb/pull/60#issuecomment-6164442173)，GitHub标准merge `merged=true`，实际SHA`5d45a6bdb1debc9db6a79a16e9c8b9b177fb5afb`。中文正式报告：`07_重建工作区/F06-5A_A主控第三轮独立验收82项Source92项PG16与92工件_PR60正式合并报告_2026-10-14.md`；仅`A_ACCEPTED_CI_ONLY`。

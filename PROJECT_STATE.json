@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F06_5A_A_ACCEPTED_MERGED_PR60_F06_5B_CI_RELEASED_B",
+  "substage": "F06_5B_A_ACCEPTED_MERGED_PR61_F06_5C_CI_RELEASED_B",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F06",
-  "current_domain_status": "F06_5A_A_ACCEPTED_CI_ONLY_F06_5B_CI_RELEASED_F06_OVERALL_NOT_READY",
+  "current_domain_status": "F06_5B_A_ACCEPTED_CI_ONLY_F06_5C_CI_RELEASED_F06_OVERALL_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F06-5A A第三轮独立终验PR60 PASS，B HEAD 6695c9328ea81dd984d6404d9d7393fe153d693d：20/20真正Push、92/92非特权PG16 Job(H52官方52/52)、Source82/82 HTTPS9/9、92/92官方有效sha256 Artifact、OID58366→63421旧184实体全行Seal。官方GitHub标准merge 5d45a6bdb1debc9db6a79a16e9c8b9b177fb5afb。本CI仅隔离已取消Transaction侧Refund pending/无付款closed，实际refunded/付款/生产Issuer禁止。发现旧F06-3B在已签旧Lock pending Refund下可能仍转换Transaction，登记UPSTREAM_F06_3B_LOCK_PENDING_TRANSACTION_CONVERSION_GAP，A正式放行F06-5B原子前置FailClosed修复CI单独包；F05/F06/V1整域NOT_READY。",
-  "current_work_file": "07_重建工作区/F06-5B_A主控旧Lock待退款禁止Transaction转换原子前置守卫_CI隔离完整施工单_2026-10-14.md",
+  "current_task": "A独立核验F06-5B PR61，末次B HEAD c7ab2336a425075b4ac4cfaf7203e2987deab98a；21真正Push/94真PG16 Job(H52 52)/94原生sha256 Artifact、Source54/HTTPS9、OID63416→68456旧188实体全行Seal；标准GitHub merge 1a9b87a2e109190fff0380bbe85e7702a95dcd5e。仅新CI安全转换，旧F06-3B pending Refund漏洞入口仍不安全、生产Issuer与资金/上线继续禁止。A另行仅技术放行F06-5C新Priority准入与在途Transaction互斥独立CI工作单；F05/F06/V1整域NOT_READY。",
+  "current_work_file": "07_重建工作区/F06-5C_A主控Transaction占用与Priority新建排他原子仲裁_CI隔离完整施工单_2026-10-14.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F06_3C1_A_RELEASED_FOR_B_CI_ONLY",
+  "current_review_batch": "F06_5C_A_RELEASED_FOR_B_CI_ONLY",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_EXECUTE_F06_5B_PRETRANSACTION_LOCK_REFUND_PENDING_ATOMIC_GUARD_CI_ONLY",
+  "next_action": "B_EXECUTE_F06_5C_TRANSACTION_PRIORITY_ADMISSION_ATOMIC_GUARD_CI_ONLY",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F06_5A_A_ACCEPTED_MERGED_PR60_CI_ONLY_F06_5B_A_RELEASED_FOR_B_CI_ONLY",
+  "engineering_status": "F06_5B_A_ACCEPTED_MERGED_PR61_CI_ONLY_F06_5C_A_RELEASED_FOR_B_CI_ONLY",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B以执行时main新建feat/f06-5b-lock-refund-conversion-guard-ci独立分支/PR，仅新增engineering/f06/lock-refund-conversion-guard-ci/**与.github/workflows/f06-5b-*.yml；针对已签旧Lock Refund pending与F06-3B旧转换竞态，通过真正同PG原子写事务版本化CI安全转换Adapter，旧父直接调用仍标不安全，不改原签父文件、迁移或生产接口。目标21同HEAD真Push/94真实PG16 Jobs(H52完整52)、新Source>=40 HTTPS>=9、>=30官方sha256工件、双不同物理OID旧>=188表全行Seal及24 Ledger/D1/九父Sidecar保全。B包内完整整改自验并中文交A，不合并。真实退款/refunded、生产Transaction/Refund Issuer、completed资金/UAT/上线/F07/F08及V1仍NOT_READY。",
+  "next_action_detail": "F06-5B已A独立验收并合并PR61；B从开工时最新main新建feat/f06-5c-transaction-priority-admission-ci，严格只新增engineering/f06/transaction-priority-admission-ci/**与.github/workflows/f06-5c-*.yml，实现PDM19§15和PDM13下非生产合成Transaction在途与新Priority原子互斥入口，原Priority Issuer不修改、不宣称生产接通。22真Push/96真PG16 Job(H52 52)/新Source≥36 HTTPS≥9/≥32同HEAD有效官方sha256 Artifact/双物理OID旧≥192实体Seal；B全包独立测试自验交A，不合并。旧3B unsafe、F05/F06/V1继续NOT_READY。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",

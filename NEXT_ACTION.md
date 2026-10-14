@@ -1,3 +1,13 @@
+# 2026-10-14｜F06-5B A独立验收PR61标准合并；F06-5C Transaction占用与新Priority排他CI隔离工作单放行（唯一最新）
+
+- **唯一正式最新指针**：`F06_5B_A_ACCEPTED_MERGED_PR61_CI_ONLY / F06_5C_A_RELEASED_FOR_B_CI_ONLY / NEXT_OWNER=B / NEXT_TASK=F06_5C_TRANSACTION_PRIORITY_ADMISSION_ATOMIC_GUARD_CI_ONLY / F05_GLOBAL_NOT_READY / F06_GLOBAL_NOT_READY / V1_NOT_READY`。
+- **A已独立验收且实际GitHub标准合并PR #61**：B唯一受验HEAD `c7ab2336a425075b4ac4cfaf7203e2987deab98a`、基点 `5f4a7e02ae9a9362104cd1081840fe9a8a1b733f`，compare ahead30/behind0，34/34全部仅授权新增CI目录；官方21/21真正同HEAD Push、94/94真实非特权PG16 Job（H52官方52/52）、94/94有效同SHA官方sha256 Artifact、Source54/54、HTTPS9/9、旧188表COUNT+MD5及24迁移、D1、9父Sidecar不漂移，实物OID63416销毁→独立审计OID68456。A[独立验收签署](https://github.com/suzhe868-arch/mb/pull/61#issuecomment-6166703241)明确`F06_5B_A_ACCEPTED_CI_ONLY`；[PR61](https://github.com/suzhe868-arch/mb/pull/61) GitHub返回merged=true、实际标准合并SHA`1a9b87a2e109190fff0380bbe85e7702a95dcd5e`。完整报告：`07_重建工作区/F06-5B_A主控独立验收21条Push94项PG16与94工件_PR61标准合并正式报告_2026-10-14.md`。
+- **技术边界**：新增独立5B版本化安全转换入口在同一真PG事务排除旧Lock已pending Refund；S53–54仍现场证明旧冻结F06-3B入口不安全，旧缺口 `UPSTREAM_F06_3B_LOCK_PENDING_TRANSACTION_CONVERSION_GAP` **没有**因新增安全入口而被视为父源码修复，禁止在任何生产入口复用。5B仅`A_ACCEPTED_CI_ONLY`。
+- **A下一独立CI-only技术工作单已正式放行**：根据已签PDM-19§15、PDM-13 Priority与PDM-02/17/18/25，在不改变原Priority/Lock/Transaction父实现情况下，仅新增 `engineering/f06/transaction-priority-admission-ci/**`、`.github/workflows/f06-5c-*.yml`；在真PG同Vehicle锁下测试有效Transaction在途时新Priority准入拒绝、已由Lock结束的Priority不能复活、取消后不能复活、跨Backend竞争、权限/Scope与旧父签名；若父签接口无法安全调用必须FailClosed，禁止声称生产Priority入口已改。工作分支`feat/f06-5c-transaction-priority-admission-ci`，完整施工单`07_重建工作区/F06-5C_A主控Transaction占用与Priority新建排他原子仲裁_CI隔离完整施工单_2026-10-14.md`。B包内开发、自验、正式PR交A，禁止自行合并。
+- **保留禁令**：任何真实完成成交、refunded及refund_payments资金支付、银行微信收退、生产Transaction/Refund/Priority Issuer、真实个人数据、UAT/线上迁移/部署/F07/F08均未放行。F05/F06整域、C/H01、V1仍`NOT_READY`。**NEXT_OWNER=B**。
+
+---
+
 # 2026-10-14｜F06-5A A独立验收PR60标准合并；F06-5B旧Lock待退与Transaction转换前置排他CI隔离工作包放行（唯一最新）
 
 - **唯一正式最新指针**：`F06_5A_A_ACCEPTED_MERGED_PR60_CI_ONLY / F06_5B_A_RELEASED_FOR_B_CI_ONLY / NEXT_OWNER=B / NEXT_TASK=F06_5B_PRETRANSACTION_LOCK_REFUND_PENDING_ATOMIC_GUARD_CI_ONLY / F05_GLOBAL_NOT_READY / F06_GLOBAL_NOT_READY / V1_NOT_READY`。
