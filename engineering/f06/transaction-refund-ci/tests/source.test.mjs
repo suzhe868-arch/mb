@@ -14,7 +14,8 @@ import {withF063A} from '../../lock-transaction-ci/migration.mjs';
 import {withF062} from '../../deposit-ledger-ci/migration.mjs';
 import {withParentBranch} from '../../lock-lifecycle-ci/migration.mjs';
 import {intakeCI,decisionCI} from '../../lockrequest-approval-waitlist-ci/service.mjs';
-import {recordSyntheticDepositCI} from '../../deposit-ledger-ci/service.mjs';
+import {recordSyntheticDepositCI,correctSyntheticDepositCI} from '../../deposit-ledger-ci/service.mjs';
+import {requestSyntheticRefundCI as requestLegacyLockRefundCI} from '../../refund-pending-ci/service.mjs';
 import {openSyntheticTransactionCI} from '../../lock-transaction-ci/service.mjs';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 const db=await connect(),q=(s,a=[])=>db.query(s,a).then(x=>x.rows),count=s=>q(s).then(x=>x[0].n);
@@ -250,4 +251,115 @@ test('5A-S68 4A与4C两笔退款都无refunded且公海依旧多源防泄漏',as
  assert.equal(await count("SELECT count(*)::int n FROM public.refund_cases WHERE status='refunded'"),0);
  assert.equal(await count('SELECT count(*)::int n FROM public.refund_payments'),0);
  assert.equal((await pendingPublicPoolGuardCI(db,customer)).allowed,false);
+});
+
+
+// A主控2026-10-14完整整改单R01—R04：仅真正非特权PG16，真实父签来源，不伪造Refund Issuer。
+test('5A-S69 R01-owning Transaction后旧3C1 Lock申请硬拒且不写侧表',async()=>{
+ const before=await count('SELECT count(*)::int n FROM f06_3c1_ci.refund_origins');
+ const rejected=await withF063C1(()=>requestLegacyLockRefundCI(auth,managerToken,{
+  subjectKind:'lock',lockId:locks[1],amountCents:1000,reason:'拥有Transaction后禁止使用旧Lock申请退款',eventKey:k('r01-converted-deny')}));
+ assert.equal(rejected.code,'F06_3C1_OWNING_TRANSACTION_REQUIRES_SIGNED_TERMINAL',JSON.stringify(rejected));
+ assert.equal(await count('SELECT count(*)::int n FROM f06_3c1_ci.refund_origins'),before);
+ assert.equal((await q('SELECT count(*)::int n FROM public.refund_cases WHERE lock_id=$1 AND status=\'pending\'',[locks[1]]))[0].n,0);
+});
+let signedLegacyRefund;
+test('5A-S70 R01独立旧Lock签名pending必须有真实Deposit和3C1双侧来源',async()=>{
+ const dep=await with3a(()=>recordSyntheticDepositCI(auth,managerToken,{
+  lockId:locks[5],amountCents:5000,currency:'CNY',paymentMethod:'cash',
+  receivedAt:new Date(Date.now()-3600000).toISOString(),eventKey:k('r01-old-lock-deposit')}));
+ assert.equal(dep.code,'F06_3A_SYNTHETIC_RECEIPT_RECORDED',JSON.stringify(dep));
+ const legacy=await withF063C1(()=>requestLegacyLockRefundCI(auth,managerToken,{
+  subjectKind:'lock',lockId:locks[5],amountCents:2200,reason:'旧锁车签名意向金明确待退且未有Transaction',eventKey:k('r01-real-old-pending')}));
+ assert.equal(legacy.code,'F06_3C1_PENDING_NO_PAYMENT',JSON.stringify(legacy));signedLegacyRefund=legacy.refundId;
+ const signed=(await q('SELECT r.status,r.lock_id,r.transaction_id,o.lock_id original_lock FROM public.refund_cases r JOIN f06_3c1_ci.refund_origins o USING(refund_id) WHERE r.refund_id=$1',[signedLegacyRefund]))[0];
+ assert.equal(signed.status,'pending');assert.equal(Number(signed.lock_id),locks[5]);assert.equal(signed.transaction_id,null);assert.equal(Number(signed.original_lock),locks[5]);
+});
+test('5A-S71 R01已签旧Lock pending阻止3B转换并保留公签原状',async()=>{
+ const before=await count('SELECT count(*)::int n FROM f06_5a_ci.refund_origins');
+ const attempt=await with3b(()=>openSyntheticTransactionCI(auth,managerToken,{lockId:locks[5],eventKey:k('r01-tx-after-legacy')}));
+ assert.equal(attempt.allowed,false,JSON.stringify(attempt));
+ assert.equal(await count('SELECT count(*)::int n FROM public.transactions WHERE source_lock_id=$1'.replace('$1',String(locks[5]))),0);
+ assert.equal((await q('SELECT status FROM public.refund_cases WHERE refund_id=$1',[signedLegacyRefund]))[0].status,'pending');
+ assert.equal(await count('SELECT count(*)::int n FROM f06_5a_ci.refund_origins'),before);
+});
+test('5A-S72 R03已closed的申请旧requestKey不能返回假pending',async()=>{
+ const ev=await count('SELECT count(*)::int n FROM f06_5a_ci.status_events WHERE refund_id='+refund);
+ const paid=await count('SELECT count(*)::int n FROM public.refund_payments');
+ const x=await req(1,'valid-pending');
+ assert.equal(x.allowed,false,JSON.stringify(x));assert.equal(x.code,'F06_5A_ALREADY_CLOSED_REQUEST_KEY');assert.equal(x.status,'closed');
+ assert.equal((await q('SELECT status FROM public.refund_cases WHERE refund_id=$1',[refund]))[0].status,'closed');
+ assert.equal(await count('SELECT count(*)::int n FROM f06_5a_ci.status_events WHERE refund_id='+refund),ev);
+ assert.equal(await count('SELECT count(*)::int n FROM public.refund_payments'),paid);
+});
+let raceRefund;
+test('5A-S73 R02合法4C当前负责人再申请一笔pending供双Backend并发close',async()=>{
+ const x=await r3('close-race-source',{amountCents:2100});
+ assert.equal(x.code,'F06_5A_PENDING_WITHOUT_PAYMENT',JSON.stringify(x));raceRefund=x.refundId;
+});
+test('5A-S74 R02双真实PG backend不同key竞争close仅一次COMMIT',async()=>{
+ const a={refundId:raceRefund,closeReason:'并发关闭A仅生成一次实际无付款的结案',eventKey:k('r02-close-key-a')};
+ const b={refundId:raceRefund,closeReason:'并发关闭B不得形成第二笔关闭事件',eventKey:k('r02-close-key-b')};
+ const attempts=await Promise.allSettled([
+  closeSyntheticTransactionRefundCI(auth,employee4Token,a),
+  closeSyntheticTransactionRefundCI(peer,employee4Token,b)]);
+ const success=attempts.filter(x=>x.status==='fulfilled'&&x.value.code==='F06_5A_CLOSED_WITHOUT_PAYMENT');
+ assert.equal(success.length,1,JSON.stringify(attempts));
+ const lose=attempts.find(x=>x.status==='fulfilled'&&x.value.code!=='F06_5A_CLOSED_WITHOUT_PAYMENT');
+ assert.ok(lose&&!lose.value.allowed,JSON.stringify(attempts));
+ assert.ok(['F06_5A_ONLY_PENDING_CAN_CLOSE','F06_5A_PG_ATOMIC_CONFLICT'].includes(lose.value.code),JSON.stringify(lose.value));
+ assert.equal((await q('SELECT status FROM public.refund_cases WHERE refund_id=$1',[raceRefund]))[0].status,'closed');
+ assert.equal(await count('SELECT count(*)::int n FROM f06_5a_ci.status_events WHERE refund_id='+raceRefund+" AND event_kind='closed_without_payment'"),1);
+ assert.equal(await count("SELECT count(*)::int n FROM public.audit_events WHERE object_kind='Refund' AND object_id='"+raceRefund+"' AND action='f06_5a_ci_close'"),1);
+});
+test('5A-S75 R02已关闭同key重试只读幂等、绝不多写审计',async()=>{
+ const keys=(await q("SELECT event_key_sha256 FROM f06_5a_ci.request_keys WHERE refund_id=$1 AND action='close'",[raceRefund]));
+ assert.equal(keys.length,1);
+ const a=await closeSyntheticTransactionRefundCI(auth,employee4Token,{refundId:raceRefund,
+  closeReason:'并发关闭A仅生成一次实际无付款的结案',eventKey:k('r02-close-key-a')});
+ const b=await closeSyntheticTransactionRefundCI(auth,employee4Token,{refundId:raceRefund,
+  closeReason:'并发关闭B不得形成第二笔关闭事件',eventKey:k('r02-close-key-b')});
+ assert.equal([a,b].filter(x=>x.code==='F06_5A_IDEMPOTENT_CLOSE').length,1,JSON.stringify([a,b]));
+ assert.equal(await count('SELECT count(*)::int n FROM f06_5a_ci.status_events WHERE refund_id='+raceRefund+" AND event_kind='closed_without_payment'"),1);
+});
+let correctedRefund;
+test('5A-S76 R04经理签名3A纠错-1000且留不可变来源',async()=>{
+ await q("INSERT INTO public.permissions(permission_id,permission_code) VALUES(965006,'deposit.ci.correct')");
+ await q("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(1,965006,'allow',clock_timestamp())");
+ await q("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(1,965006,$1,clock_timestamp()-interval '2 minutes')",[scopeId]);
+ const dep=baseDeposit.find(x=>Number(x.lock_id)===locks[1]);assert.ok(dep);
+ const changed=await with3a(()=>correctSyntheticDepositCI(auth,managerToken,{
+  lockId:locks[1],depositId:Number(dep.deposit_id),action:'correction',deltaCents:-1000,currency:'CNY',
+  reason:'受签退款资产净余额独立纠错减少一千分',eventKey:k('r04-minus-1000')}));
+ assert.equal(changed.code,'F06_3A_APPEND_ONLY_CORRECTION',JSON.stringify(changed));assert.equal(changed.netCents,7600);
+ assert.equal(await count('SELECT count(*)::int n FROM f06_3a_ci.adjustments WHERE deposit_id='+dep.deposit_id),1);
+});
+test('5A-S77 R04精确净额7600超过1拒绝且不产生双账单',async()=>{
+ const before=await count('SELECT count(*)::int n FROM f06_5a_ci.refund_origins');
+ const x=await req(1,'r04-over-net',{amountCents:7601});
+ assert.equal(x.code,'F06_5A_AMOUNT_EXCEEDS_BALANCE',JSON.stringify(x));assert.equal(x.netCents,7600);
+ assert.equal(await count('SELECT count(*)::int n FROM f06_5a_ci.refund_origins'),before);
+});
+test('5A-S78 R04可信纠错净余额允许恰好7600 pending且原Deposit未更改',async()=>{
+ const x=await req(1,'r04-net-exact',{amountCents:7600});
+ assert.equal(x.code,'F06_5A_PENDING_WITHOUT_PAYMENT',JSON.stringify(x));assert.equal(x.netCents,7600);
+ correctedRefund=x.refundId;
+ assert.equal((await q('SELECT balance_at_request_cents FROM f06_5a_ci.refund_origins WHERE refund_id=$1',[correctedRefund]))[0].balance_at_request_cents,'7600');
+ assert.equal(Number((await q('SELECT amount_cents FROM public.deposit_receipts WHERE lock_id=$1',[locks[1]]))[0].amount_cents),8600);
+});
+test('5A-S79 R04资金调整TOCTOU令close拒绝，恢复真实签名账再可关闭',async()=>{
+ const dep=baseDeposit.find(x=>Number(x.lock_id)===locks[1]);
+ const adjust=(delta,tag)=>with3a(()=>correctSyntheticDepositCI(auth,managerToken,{
+  lockId:locks[1],depositId:Number(dep.deposit_id),action:'correction',deltaCents:delta,currency:'CNY',
+  reason:'真签名纠错保护与事务最后提交复查'+tag,eventKey:k('r04-correct-'+tag)}));
+ assert.equal((await adjust(-5000,'down')).netCents,2600);
+ const before=await count('SELECT count(*)::int n FROM f06_5a_ci.status_events WHERE refund_id='+correctedRefund);
+ const denied=await cls(correctedRefund,'r04-balance-deny');
+ assert.equal(denied.code,'F06_5A_BALANCE_DRIFT',JSON.stringify(denied));
+ assert.equal((await q('SELECT status FROM public.refund_cases WHERE refund_id=$1',[correctedRefund]))[0].status,'pending');
+ assert.equal(await count('SELECT count(*)::int n FROM f06_5a_ci.status_events WHERE refund_id='+correctedRefund),before);
+ assert.equal((await adjust(5000,'restore')).netCents,7600);
+ const closed=await cls(correctedRefund,'r04-close-after-signed-restore');
+ assert.equal(closed.code,'F06_5A_CLOSED_WITHOUT_PAYMENT',JSON.stringify(closed));
+ assert.equal(await count('SELECT count(*)::int n FROM public.refund_payments'),0);
 });
