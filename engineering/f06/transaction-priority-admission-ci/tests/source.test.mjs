@@ -190,7 +190,7 @@ test('5C-S39 真Session在已成交占用车不得创建新Priority',async()=>{
  const before=(await q('SELECT count(*)::int n FROM public.f05_8_priority_ci'))[0].n;
  const out=await attempt({eventKey:mk('real-transaction-deny')},auth,token);
  assert.equal(out.allowed,false,JSON.stringify(out));
- assert.notEqual(out.code,'F06_5C_SIGNED_SESSION_DENIED');
+ assert.equal(out.code,'F06_5C_TRANSACTION_OCCUPIED_OR_UNSUPPORTED_STATUS',JSON.stringify(out));
  assert.equal((await q('SELECT count(*)::int n FROM public.f05_8_priority_ci'))[0].n,before);
 });
 test('5C-S40 父5B真实交易与旧3B Source绑定',async()=>{
@@ -204,7 +204,7 @@ test('5C-S41 真员工Session不允许过期listing cycle重放',async()=>{
 test('5C-S42 同一签名员工跨独立Backend重复争用不得产生两个Priority',async()=>{
  const before=(await q('SELECT count(*)::int n FROM public.f05_8_priority_ci'))[0].n;
  const results=await Promise.all([attempt({eventKey:mk('real-race-1')},auth,token),attempt({eventKey:mk('real-race-2')},peer,token)]);
- assert.ok(results.every(x=>x.allowed===false),JSON.stringify(results));
+ assert.ok(results.every(x=>x.code==='F06_5C_TRANSACTION_OCCUPIED_OR_UNSUPPORTED_STATUS'),JSON.stringify(results));
  assert.equal((await q('SELECT count(*)::int n FROM public.f05_8_priority_ci'))[0].n,before);
 });
 test('5C-S43 真实会话源受到员工当前状态撤销约束',async()=>{
@@ -332,10 +332,10 @@ test('5C-S57 真4A不可变取消签名释放5B占用且保留3B原始in_progres
  const tx=(await q('SELECT status FROM public.transactions WHERE transaction_id=$1',[realTxId]))[0];
  assert.equal(tx.status,'cancelled');
  assert.equal((await q('SELECT status FROM f06_3b_ci.transaction_origins WHERE transaction_id=$1',[realTxId]))[0].status,'in_progress');
+ // 名邦available没有F05-7批发current Match；不得用排除错误码伪装为正向签发。
  const result=await attempt({eventKey:mk('postcancel-recheck')},auth,token);
- assert.notEqual(result.code,'F06_5C_PUBLIC_PARENT_TRANSACTION_STATE_DRIFT',JSON.stringify(result));
- assert.notEqual(result.code,'F06_5C_TERMINAL_CANCEL_SIGNATURE_MISSING_OR_CONFLICT',JSON.stringify(result));
- assert.notEqual(result.code,'F06_5C_5B_GUARD_MISSING_OR_DRIFT',JSON.stringify(result));
+ assert.equal(result.allowed,false,JSON.stringify(result));
+ assert.equal(result.code,'F06_5C_CURRENT_MATCH_AND_QUALIFICATION_REQUIRED',JSON.stringify(result));
 });
 test('5C-S58 无5B Guard的旧3B即使假取消也不得释放',async()=>{
  const before=(await q('SELECT status FROM public.transactions WHERE transaction_id=$1',[legacyTxId]))[0];
@@ -520,6 +520,8 @@ test('5C-S65 批发车原Priority到Lock到5B交易，4A取消后双Backend仅�
  assert.equal(converted.code,'F06_5B_ATOMIC_SYNTHETIC_IN_PROGRESS',JSON.stringify(converted));
  assert.ok(Number.isInteger(converted.pgBackendPid)&&converted.pgBackendPid>0&&/^[0-9]+$/.test(converted.pgTransactionId),JSON.stringify(converted));
  assert.equal(held.allowed,false,JSON.stringify(held));
+ assert.ok(['F06_5C_ACTIVE_LOCK_PREVENTS_NEW_PRIORITY','F06_5C_TRANSACTION_OCCUPIED_OR_UNSUPPORTED_STATUS'].includes(held.code),
+  '真实竞争必须保留实际失败原因，不得把ACTIVE_LOCK报告为Transaction守卫: '+JSON.stringify(held));
  assert.ok(Number.isInteger(held.pgBackendPid)&&held.pgBackendPid>0&&/^[0-9]+$/.test(held.pgTransactionId),JSON.stringify(held));
  assert.notEqual(converted.pgBackendPid,held.pgBackendPid,'F06_5C_REAL_TRANSACTION_PRIORITY_DIFFERENT_PG_BACKENDS_REQUIRED');
  console.log('F06_5C_REAL_TWO_BACKEND_LOCK_TO_TRANSACTION_VS_PRIORITY_RACE',{
@@ -529,6 +531,15 @@ test('5C-S65 批发车原Priority到Lock到5B交易，4A取消后双Backend仅�
  const txid=converted.transactionId;
  const guarded=(await q("SELECT g.transaction_id,g.source_lock_id,t.status FROM f06_5b_ci.guard_events g JOIN public.transactions t USING(transaction_id) WHERE g.transaction_id=$1",[txid]))[0];
  assert.equal(Number(guarded.source_lock_id),positive.newSignedLockId);assert.equal(guarded.status,'in_progress');
+ // 5B真实COMMIT后另起一轮5C，单独核验签名Transaction排他而非ACTIVE_LOCK。
+ const postCommit=await requestSyntheticNewPriorityCI(auth,token,{...positive,eventKey:mk('post-commit-5b-signed-deny')});
+ assert.equal(postCommit.code,'F06_5C_TRANSACTION_OCCUPIED_OR_UNSUPPORTED_STATUS',JSON.stringify(postCommit));
+ assert.notEqual(postCommit.pgBackendPid,converted.pgBackendPid);
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND status='active'",[positive.vehicleId]))[0].n,0);
+ console.log('F06_5C_POST_5B_COMMIT_SIGNED_TRANSACTION_DENY',{transactionId:txid,
+  transactionBackendPid:converted.pgBackendPid,priorityBackendPid:postCommit.pgBackendPid,
+  transactionTxid:converted.pgTransactionId,priorityTxid:postCommit.pgTransactionId,
+  actualDenyCode:postCommit.code});
  assert.equal((await q('SELECT status FROM public.f05_8_priority_ci WHERE priority_id=$1',[positive.priorityId]))[0].status,'ended');
  // 在交易仍占用车时由原F05-7签新的当前Match；旧原生优先仲裁不得借此偷发。
  // 冻结5B转换曾让Lock事件使Match变stale，必须完成合法复算，不能手工改Match status。

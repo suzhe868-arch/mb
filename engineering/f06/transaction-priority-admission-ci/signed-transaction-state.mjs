@@ -11,11 +11,10 @@ const fields=(a,b,names)=>names.every(k=>eq(a[k],b[k]));
 const identity=['transaction_id','source_lock_id','vehicle_id','listing_cycle_id','customer_id'];
 
 async function signedCancellation(c,t,o){
- const [a,x,p]=await Promise.all([
-  get(c,'SELECT * FROM f06_4a_ci.cancel_origins WHERE transaction_id=$1 FOR SHARE',[t.transaction_id]),
-  get(c,'SELECT * FROM f06_4c_ci.cancel_origins WHERE transaction_id=$1 FOR SHARE',[t.transaction_id]),
-  get(c,'SELECT * FROM f06_4b_ci.responsible_projection WHERE transaction_id=$1 FOR SHARE',[t.transaction_id])
- ]);
+ // 单PG Client、单事务依序读取锁定行；不使用Promise.all在同一连接发并发查询。
+ const a=await get(c,'SELECT * FROM f06_4a_ci.cancel_origins WHERE transaction_id=$1 FOR SHARE',[t.transaction_id]);
+ const x=await get(c,'SELECT * FROM f06_4c_ci.cancel_origins WHERE transaction_id=$1 FOR SHARE',[t.transaction_id]);
+ const p=await get(c,'SELECT * FROM f06_4b_ci.responsible_projection WHERE transaction_id=$1 FOR SHARE',[t.transaction_id]);
  if(Number(!!a)+Number(!!x)!==1)return deny('F06_5C_TERMINAL_CANCEL_SIGNATURE_MISSING_OR_CONFLICT');
  if(!fields(a||x,t,identity)||!eq((a||x).original_responsible_employee_id,o.original_responsible_employee_id)||
    (a||x).previous_status!=='in_progress'||(a||x).resulting_status!=='cancelled'||
