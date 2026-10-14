@@ -119,9 +119,13 @@ export async function openGuardedSyntheticTransactionCI(auth,token,p={}){
   if(!guarded.allowed)return guarded;
   const keyHash=sha('f06-3b:'+a.employee_id+':'+p.eventKey);
   const old=await one(c,'SELECT * FROM f06_3b_ci.request_keys WHERE event_key_sha256=$1',[keyHash]);
-  if(old)return Number(old.source_lock_id)===p.lockId&&old.action==='open'?
-   yes('F06_5B_IDEMPOTENT_CONVERSION',{transactionId:Number(old.resulting_transaction_id)}):
-   no('F06_5B_IDEMPOTENCY_KEY_CONFLICT');
+  if(old){
+   if(Number(old.source_lock_id)!==p.lockId||old.action!=='open')return no('F06_5B_IDEMPOTENCY_KEY_CONFLICT');
+   // Never launder an original unsafe F06-3B conversion into an F06-5B signed replay.
+   const origin=await one(c,'SELECT transaction_id FROM f06_5b_ci.guard_events WHERE source_lock_id=$1 AND transaction_id=$2 FOR SHARE',[p.lockId,old.resulting_transaction_id]);
+   return origin?yes('F06_5B_IDEMPOTENT_CONVERSION',{transactionId:Number(old.resulting_transaction_id)}):
+    no('F06_5B_UNSIGNED_LEGACY_TRANSACTION_REPLAY');
+  }
   const expired=await one(c,'SELECT $1::timestamptz<=clock_timestamp() AS ended',[l.expires_at]);
   if(l.lock_status!=='active'||expired.ended)return no('F06_5B_NOT_ACTIVE_CURRENT_LOCK');
   const signed=await one(c,"SELECT * FROM f06_1_lock_ci.lock_snapshots WHERE lock_id=$1 FOR SHARE",[l.lock_id]);
