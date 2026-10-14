@@ -191,7 +191,7 @@ test('5A-S55 经理没有transfer独立许可不得自持移交',async()=>{
  assert.equal(x.allowed,false);
 });
 test('5A-S56 专属transfer权限依附正式Team Scope',async()=>{
- await q("INSERT INTO public.permissions(permission_id,permission_code) VALUES(965004,'transaction.responsible.transfer')");
+ // Fixture already pins permission 965004; only an explicit override and capability binding can activate it.
  await q("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(1,965004,'allow',clock_timestamp())");
  await q("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(1,965004,$1,clock_timestamp()-interval '2 minutes')",[scopeId]);
  assert.equal(await count("SELECT count(*)::int n FROM public.employee_permission_overrides WHERE employee_id=1 AND permission_id=965004"),1);
