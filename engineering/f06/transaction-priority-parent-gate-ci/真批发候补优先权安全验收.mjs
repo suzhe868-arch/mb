@@ -137,11 +137,7 @@ export async function prepareRealJytUnoccupiedSignedMatch(c,{auth,token}){
  })]);
  const demand=await one(c,"SELECT demand_id FROM public.demands WHERE customer_id=$1 AND demand_state='active' ORDER BY demand_id LIMIT 1",[customerId]);
  assert.ok(demand);
- const d=await saveSalesDescriptionCI(historicalSignedService(auth,21,{afterPatch:false}),token,{
-  demandId:Number(demand.demand_id),teamId:901,
-  description:'奥迪A6 2026款 5万公里以内 黑色外观 米色内饰 预算10万'
- });
- assert.equal(d.allowed,true,JSON.stringify(d));
+ // 同一个已签Demand沿用C01所用描述；不重复写描述使C01当前Match变stale。
  const pre=await calculateCI(historicalSignedService(auth,21,{afterPatch:false}),token,{
   demandId:Number(demand.demand_id),vehicleId,listingCycleId,
   teamId:901,runKey:mk('c02-jyt-current-match')
