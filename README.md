@@ -1,3 +1,12 @@
+# 2026-10-15｜A第二轮独立复验PR62：68项PG16全绿但取消后正向签发与真实竞态缺证，不合并（唯一最新）
+
+- **正式唯一最新指针**：`F06_5C_A_SECOND_INDEPENDENT_REVIEW_CHANGES_REQUESTED_PR62 / PR62_NOT_MERGED / NEXT_OWNER=B / NEXT_TASK=F06_5C_PR62_SECOND_REVIEW_POSITIVE_CANCEL_RACE_HANDOFF_REMEDIATION_CI_ONLY / F05_F06_V1_NOT_READY`。A核验 `main` 审查基点 `7bf416c02f82ee779585a6131053101d2efb2457` 与 B最终HEAD `7936b4f1dcce6897dc1317200653a4ed6ae1a877`：compare ahead34/behind2；36/36均为授权 CI 白名单新增文件，PR62尚未合并。
+- **A独立核验的原生事实**：同HEAD真正Push工作流22/22成功；H52 Run 38617845356官方52/52真PG16 Jobs成功；F06-5C Run 38617845865 Source68/68、HTTPS9/9，真正PG Scenario OID68454销毁→独立Audit OID73477、190旧父表全行COUNT/MD5及24迁移/Catalog/D1/父签名保全。B报告全部96/96 Jobs、96官方工件与32 ZIP逐字节校验；A本轮没有逐一复算全部96 Job/工件和ZIP，不能冒称已独立复算。另有旧pull_request工作流4成功/6失败（冻结事件签名/镜像限流等），不能称所有PR检查全绿。
+- **第二轮实质阻断**：S57只排除部分旧错误码而未断言5C取消后的真正正向新签发；S65中合法4A取消后新Priority系原F05-8冻结源触发器自动创建，两个5C Backend请求均因已存在active Priority拒绝；另一段5B/5C真实竞态5C败因是`ACTIVE_LOCK`而非有签名的Transaction占用；4B/4C跨负责人原生取消链尚无同等级父API测试；68项含大量环境和参数断言，不能替代≥36个独立有效业务场景。首轮3B历史/4A签名/5B Guard及Waitlist的已修复事实保留，不倒退。
+- **A已签同包第二轮完整整改单**：`07_重建工作区/F06-5C_A主控PR62第二轮独立复验_真实签发竞态与跨负责人终态整改施工单_2026-10-15.md`，B仅可沿用PR62与原分支、原CI隔离白名单，按R01—R05整改、验证最终新SHA并重新交A独立复验。生产Issuer/资金/真实用户数据/UAT/F07/F08及F05/F06/V1仍`NOT_READY`。**NEXT_OWNER=B**。此为既有产品规则下技术验收裁定，**不构成新PDM产品裁决**。
+
+---
+
 # 2026-10-15｜A独立复验F06-5C PR62：真Push与双OID已核，交易取消来源和真实原子并发验收未过（唯一最新）
 
 - **唯一当前正式指针**：`F06_5C_A_INDEPENDENT_REVIEW_CHANGES_REQUESTED_PR62 / PR62_NOT_MERGED / NEXT_OWNER=B / NEXT_TASK=F06_5C_PR62_CANCELLED_TRANSACTION_SIGNED_TERMINAL_AND_ATOMIC_RACE_REMEDIATION_CI_ONLY / F05_F06_V1_NOT_READY`。GitHub main 基点 `708697bd2cabd3dfbd14adb79e04ba0a2af3058e`，B正式交接最新 SHA `3b406c09f92c351d1f953521b538f66e8ff231b7`，A从 PR #62 独立复核 34/34 新增 CI 白名单、22/22 同SHA真正Push工作流成功、H52 52/52 官方原生作业、5C Source56/56 与 HTTPS9/9、190张旧父全量签与Scenario OID68461→Audit OID73484。B另报告96/96 Jobs及32份ZIP实物哈希，A未在本轮重新逐字节抽验32 ZIP。
