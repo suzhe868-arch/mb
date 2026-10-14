@@ -28,6 +28,48 @@ async function native(c){
  if(q.db!=='f03_auth_test'||q.usr!=='f03_ci'||q.su||q.cd||q.ver<160000||q.ver>=170000)
   throw Error('F06_PG1_V2_NONPRIVILEGED_PG16_REQUIRED');
 }
+// 签名父链全量私有Sidecar源字节证明。只读当前DB与未修改的原SQL文件，不调用冻结旧版验证器伪装新Catalog。
+const SIGNED_PARENTS=[
+ ['f06_3b_ci','lock-transaction-ci','F06_3B_CI_ONLY_SIDECAR'],
+ ['f06_3c1_ci','refund-pending-ci','F06_3C1_CI_ONLY'],
+ ['f06_4a_ci','transaction-cancel-ci','F06_4A_CI_ONLY'],
+ ['f06_4b_ci','transaction-handoff-ci','F06_4B_CI_ONLY'],
+ ['f06_4c_ci','post-handoff-cancel-ci','F06_4C_CI_ONLY'],
+ ['f06_5a_ci','transaction-refund-ci','F06_5A_CI_ONLY'],
+ ['f06_5b_ci','lock-refund-conversion-guard-ci','F06_5B_CI_ONLY']
+];
+async function signedParentSidecars(c,ledgerHash){
+ const seals={};
+ for(const [schema,folder,name] of SIGNED_PARENTS){
+  const rows=(await c.query('SELECT * FROM '+schema+'.attestation')).rows;
+  if(rows.length!==1)throw Error('F06_PG1_V2_SIGNED_PARENT_ATTESTATION_COUNT_'+schema);
+  const a=rows[0],source=await readFile(new URL('../'+folder+'/sidecar.sql',import.meta.url),'utf8');
+  if(a.seal_name!==name||a.source_sha256!==sha256(source)||
+     a.public_catalog_sha256!==PARENT_CATALOG_SHA256)
+   throw Error('F06_PG1_V2_SIGNED_PARENT_SOURCE_MISMATCH_'+schema);
+  const ledgerField=schema==='f06_3b_ci'?'migration_ledger_sha256':'old_ledger_sha256';
+  if(a[ledgerField]!==ledgerHash)throw Error('F06_PG1_V2_SIGNED_PARENT_LEDGER_MISMATCH_'+schema);
+  seals[schema]=a.source_sha256;
+ }
+ const v=await c.query(`SELECT
+  (SELECT f06_3b_sha256 FROM f06_3c1_ci.attestation) a3c1,
+  (SELECT parent_f06_3c1_sha256 FROM f06_4a_ci.attestation) a4a,
+  (SELECT parent_f06_4a_sha256 FROM f06_4b_ci.attestation) a4b,
+  (SELECT parent_f06_3b_sha256 FROM f06_4b_ci.attestation) b4b,
+  (SELECT parent_f06_4b_sha256 FROM f06_4c_ci.attestation) a4c,
+  (SELECT parent_f06_4a_sha256 FROM f06_4c_ci.attestation) b4c,
+  (SELECT parent_f06_4c_sha256 FROM f06_5a_ci.attestation) a5a,
+  (SELECT parent_f06_5a_sha256 FROM f06_5b_ci.attestation) a5b`);
+ const x=v.rows[0];
+ const linkage=[
+  [x.a3c1,seals.f06_3b_ci],[x.a4a,seals.f06_3c1_ci],
+  [x.a4b,seals.f06_4a_ci],[x.b4b,seals.f06_3b_ci],
+  [x.a4c,seals.f06_4b_ci],[x.b4c,seals.f06_4a_ci],
+  [x.a5a,seals.f06_4c_ci],[x.a5b,seals.f06_5a_ci]
+ ];
+ if(linkage.some(([a,b])=>a!==b))throw Error('F06_PG1_V2_SIGNED_PARENT_CHAIN_LINK_DRIFT');
+ return sha256(seals);
+}
 async function parentSeal(c){
  const ledger=(await c.query('SELECT migration_id,checksum,structure_sha256 FROM public.f03_schema_migrations ORDER BY migration_id')).rows;
  if(ledger.length!==24)throw Error('F06_PG1_V2_LEDGER_COUNT_DRIFT');
@@ -36,7 +78,7 @@ async function parentSeal(c){
  const cnt=(await c.query("SELECT count(*)::int n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname=ANY($1::text[]) AND c.relkind IN ('r','p')",
  [['public','d1_owner_ci','f06_1_lock_ci','f06_2_ci','f06_3a_ci','f06_3b_ci','f06_3c1_ci','f06_4a_ci','f06_4b_ci','f06_4c_ci','f06_5a_ci','f06_5b_ci']])).rows[0].n;
  if(cnt!==190)throw Error('F06_PG1_V2_FROZEN_190_TABLE_REQUIRED');
- return{ledgerHash:sha256(ledger),priorityHash:sha256(defs),tableCount:cnt};
+ return{ledgerHash:sha256(ledger),priorityHash:sha256(defs),tableCount:cnt,sidecarChainHash:await signedParentSidecars(c,sha256(ledger))};
 }
 export function compareCatalog(pre,post){
  if(pre.sha256!==PARENT_CATALOG_SHA256)throw Error('F06_PG1_V2_UNSIGNED_PARENT_CATALOG');
