@@ -664,9 +664,14 @@ test('5C-S67 原F06-1签Lock经真实5B Guard转换为4B可移交的在途Transa
   lockId,eventKey:mk('r03-real-5b-open')
  }));
  assert.equal(tx.code,'F06_5B_ATOMIC_SYNTHETIC_IN_PROGRESS',JSON.stringify(tx));
+ const secondLock=await makeSignedLock(5,'r03-unsigned-post-handoff');
+ const secondTx=await withF065B(()=>openGuardedSyntheticTransactionCI(auth,token,{
+  lockId:secondLock,eventKey:mk('r03-second-5b-signed-origin')
+ }));
+ assert.equal(secondTx.code,'F06_5B_ATOMIC_SYNTHETIC_IN_PROGRESS',JSON.stringify(secondTx));
  const original=(await q('SELECT status,responsible_employee_id FROM public.transactions WHERE transaction_id=$1',[tx.transactionId]))[0];
  assert.equal(original.status,'in_progress');assert.equal(Number(original.responsible_employee_id),1);
- r03={txId:tx.transactionId,lockId,vehicleId:86181103,listingCycleId:86182103,
+ r03={txId:tx.transactionId,lockId,secondLockId:secondLock,secondTransactionId:secondTx.transactionId,vehicleId:86181103,listingCycleId:86182103,
   customerId:86180101,originalOwner:(await q('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=86180101'))[0].current_owner_employee_id};
  const managerRole=(await q("SELECT role_id FROM public.roles WHERE role_code='manager'"))[0];
  assert.ok(managerRole);
@@ -804,4 +809,73 @@ test('5C-S79 原生4C事件不可DELETE且5C终态继续有效',async()=>{
   return verifySignedTransactionVacancyCI(c,r03.vehicleId);
  },{normalOnly:true});
  assert.equal(done.code,'F06_5C_ALL_SIGNED_TRANSACTIONS_TERMINAL',JSON.stringify(done));
+});
+
+test('5C-S80 4C已签终态但4B负责人投影漂移必拒并在SAVEPOINT后完整复原',async()=>{
+ const result=await auth.withSession(r03.managerToken,async c=>{
+  await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[r03.vehicleId]);
+  await c.query('SAVEPOINT f06_5c_r03_projection_drift_probe');
+  try{
+   await c.query('UPDATE f06_4b_ci.responsible_projection SET current_responsible_employee_id=1 WHERE transaction_id=$1',[r03.txId]);
+   return await verifySignedTransactionVacancyCI(c,r03.vehicleId);
+  }finally{await c.query('ROLLBACK TO SAVEPOINT f06_5c_r03_projection_drift_probe')}
+ },{normalOnly:true});
+ assert.equal(result.code,'F06_5C_4C_HANDOFF_PROJECTION_UNSIGNED',JSON.stringify(result));
+ const restored=await auth.withSession(r03.managerToken,async c=>{
+  await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[r03.vehicleId]);
+  return verifySignedTransactionVacancyCI(c,r03.vehicleId);
+ },{normalOnly:true});
+ assert.equal(restored.code,'F06_5C_ALL_SIGNED_TRANSACTIONS_TERMINAL',JSON.stringify(restored));
+});
+test('5C-S81 原4B有效移交后仅伪造public取消而无4C原生事件必FailClosed并零半写',async()=>{
+ const handed=await withSignedParentRef('feat/f06-4b-transaction-handoff-ci',()=>handoffSyntheticTransactionCI(auth,r03.managerToken,{
+  transactionId:r03.secondTransactionId,newResponsibleId:4,reason:'第二车原生handoff后验证假取消',eventKey:mk('r03-second-real-handoff')
+ }));
+ assert.equal(handed.code,'F06_4B_ATOMIC_HANDOFF_CI',JSON.stringify(handed));
+ const probed=await auth.withSession(r03.managerToken,async c=>{
+  await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=86181105 FOR UPDATE');
+  await c.query('SAVEPOINT f06_5c_unsigned_4c_status_probe');
+  try{
+   await c.query("UPDATE public.transactions SET status='cancelled' WHERE transaction_id=$1",[r03.secondTransactionId]);
+   return verifySignedTransactionVacancyCI(c,86181105);
+  }finally{await c.query('ROLLBACK TO SAVEPOINT f06_5c_unsigned_4c_status_probe')}
+ },{normalOnly:true});
+ assert.equal(probed.code,'F06_5C_TERMINAL_CANCEL_SIGNATURE_MISSING_OR_CONFLICT',JSON.stringify(probed));
+ assert.equal((await q('SELECT status FROM public.transactions WHERE transaction_id=$1',[r03.secondTransactionId]))[0].status,'in_progress');
+ assert.equal((await q('SELECT count(*)::int n FROM f06_4c_ci.cancel_origins WHERE transaction_id=$1',[r03.secondTransactionId]))[0].n,0);
+});
+test('5C-S82 已签4C合法终态禁止第二次取消及不同Key再签事件',async()=>{
+ const before=(await q('SELECT count(*)::int n FROM f06_4c_ci.cancel_events WHERE transaction_id=$1',[r03.txId]))[0].n;
+ const second=await withSignedParentRef('feat/f06-4c-post-handoff-cancel-ci',()=>cancelAfterHandoffSyntheticCI(auth,r03.receiverToken,{
+  transactionId:r03.txId,reason:'不同Key不许二次签取消事件',eventKey:mk('r03-double-cancel-deny')
+ }));
+ assert.equal(second.code,'F06_4C_TERMINAL_TRANSACTION_DENY',JSON.stringify(second));
+ const oldParent=await withF064A(()=>cancelSyntheticTransactionCI(auth,r03.managerToken,{
+  transactionId:r03.txId,reason:'经理不得调用旧4A取消已移交终态',eventKey:mk('r03-old-parent-second-cancel')
+ }));
+ assert.equal(oldParent.allowed,false,JSON.stringify(oldParent));
+ assert.equal((await q('SELECT count(*)::int n FROM f06_4c_ci.cancel_events WHERE transaction_id=$1',[r03.txId]))[0].n,before);
+});
+test('5C-S83 不同Vehicle双真实PG Backend并行互不因对方持锁误阻',async()=>{
+ // 第一个真Backend保持车3的FOR UPDATE，第二个5C仍必须能独立读车positive并完成其本车精确业务拒绝。
+ const blocker=await connect();
+ try{
+  await blocker.query('BEGIN');
+  const left=(await blocker.query('SELECT pg_backend_pid()::int pid,txid_current()::text txid')).rows[0];
+  await blocker.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[r03.vehicleId]);
+  const before=(await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1",[positive.vehicleId]))[0].n;
+  const out=await requestSyntheticNewPriorityCI(peer,r03.managerToken,{
+   vehicleId:positive.vehicleId,listingCycleId:positive.listingCycleId,customerId:positive.customerId,
+   teamId:positive.teamId,eventKey:mk('r03-other-vehicle-unblocked')
+  });
+  assert.equal(out.code,'F06_5C_EXISTING_ACTIVE_PRIORITY',JSON.stringify(out));
+  assert.notEqual(out.pgBackendPid,left.pid,'必须是真正不同PG Backend');
+  assert.notEqual(out.pgTransactionId,left.txid,'必须是不同真实PG事务');
+  assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1",[positive.vehicleId]))[0].n,before);
+  console.log('F06_5C_NATIVE_DIFFERENT_VEHICLE_NO_FALSE_CONTENTION',{
+   blockerVehicle:r03.vehicleId,competingVehicle:positive.vehicleId,
+   blockerPid:left.pid,competingPid:out.pgBackendPid,blockerTxid:left.txid,competingTxid:out.pgTransactionId,
+   actualBusinessCode:out.code
+  });
+ }finally{await blocker.query('ROLLBACK');await blocker.end()}
 });
