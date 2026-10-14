@@ -20,3 +20,9 @@
 ## 四、B向A提交方式
 - 只在最终HEAD完整真Push和工件封印全部绿灯后，于PR #61提交中文最终自验评论 `F06_5B_B_SELF_TESTED / READY_FOR_A_INDEPENDENT_REVIEW / NEXT_OWNER=A`，附全部Run/Job/Artifact IDs、Digest、负例与双物理OID，并取消草稿交A；未经此终门禁保持 `B_CI_REVALIDATING / NEXT_OWNER=B`。
 - A独立重新获取官方GitHub Logs/Artifact和签名，不接受历史SHA合格结果。全局`F05_GLOBAL_NOT_READY / F06_GLOBAL_NOT_READY / V1_NOT_READY`，不得因本CI完成宣称产品上线。
+
+
+## 五、H52父冻结Runner与本批真实Push的安全兼容
+- 52个H52 Job原生调用现行父`engineering/f06/transaction-refund-ci/h52-runner.mjs`；父Runner真实检查`GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci`（是F06-5A原分支签名），**不是**当前F06-5B分支，若不适配必然入口拒绝。
+- 本批获准新增的`.github/workflows/f06-5b-frozen-h52-revalidation.yml`每个Job保留真实`on.push: feat/f06-5b-lock-refund-conversion-guard-ci`、原父Runner、全部52个Job名称、原测试命令和原官方Artifacts；执行处先独立校验真实`GITHUB_REF/GITHUB_REF_NAME`属于F06-5B，然后**仅对父Runner子进程**重绑旧F06-5A REF门禁。实际GitHub事件、`GITHUB_SHA`、`GITHUB_RUN_ID`、Runner机器、PG16非特权库及父原始工作流文件仍是真实本SHA来源；原父Runner还会在重放原父步骤前根据其原有逻辑回绑到F06-4C父引用。
+- 该适配是对冻结父Runner签名接口的显式版本桥接，不是影子测试；原父源码及所有父YAML无变更。若任一个旧Runner原生步骤失败仍为红，不允许删除、跳过或伪造。`H52 52/52`且全包`94/94`本SHA实际通过前一律不得交A。
