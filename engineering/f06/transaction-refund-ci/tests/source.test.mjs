@@ -65,18 +65,19 @@ test.before(async()=>{
  await q('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[managerRole]);
  const mgr=await auth.login({login:'employee_test',password:'SyntheticF04_3_CurrentProof_2026',source:'f06-4b-current-signed-manager'});
  assert.equal(mgr.code,'AUTH_OK',JSON.stringify(mgr));managerToken=mgr.token;
+ // Node.js top-level before hooks may overlap. Seed cancelled origins strictly after
+ // signed Lock/Deposit/Transaction and the current legal manager session are ready.
+ for(const n of [1,4]){
+  assert.ok(Number.isSafeInteger(tx[n])&&tx[n]>0,'F06_5A_SIGNED_TRANSACTION_FIXTURE_REQUIRED');
+  const cancelled=await cancelledParent(tx[n],'5a-init-cancel-'+n);
+  assert.equal(cancelled.allowed,true,JSON.stringify(cancelled));
+ }
 });
 test.after(async()=>{await auth.close();await peer.close();await db.end()});
 
 let refund,transferToken,managerTeamScope,refundScope;
 const req=(n,name,p={})=>requestSyntheticTransactionRefundCI(auth,managerToken,{subjectKind:'transaction',transactionId:tx[n],amountCents:4500,reason:'申请合成Transaction侧退款并保留不可变历史',eventKey:k('5a-'+name),...p});
 const cls=(refundId,name,p={})=>closeSyntheticTransactionRefundCI(auth,managerToken,{refundId,closeReason:'客户明确放弃退款请求且尚未支付',eventKey:k('5a-'+name),...p});
-test.before(async()=>{
- for(const n of [1,4]){
-  const result=await cancelledParent(tx[n],'5a-init-cancel-'+n);
-  assert.equal(result.allowed,true,JSON.stringify(result));
- }
-});
 test('5A-S01 主线已签4C以及本批Sidecar验真',async()=>assert.equal((await verify(db)).verified,true));
 test('5A-S02 不可接生产Refund issuer',()=>assert.equal(productionRefundIssuerDeny().allowed,false));
 test('5A-S03 禁止refunded及任何真钱支付',()=>assert.equal(actualRefundPaymentDeny().allowed,false));
