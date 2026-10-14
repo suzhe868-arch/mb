@@ -1,3 +1,13 @@
+# 2026-10-15｜A第三轮独立复验F06-5C PR62：R01父签唯一签发技术裁决通过，候补/伪取消/资金组合风险补证后再合并（唯一最新）
+
+- **唯一正式指针**：`F06_5C_A_TECH_RULING_R01_SCOPED_ACCEPTED / F06_5C_A_CHANGES_REQUESTED_PARENT_AUTO_ISSUER_CROSS_DOMAIN_PROOF / PR62_NOT_MERGED / NEXT_OWNER=B / NEXT_TASK=F06_5C_PR62_PARENT_AUTO_ISSUER_SIGNED_WAITLIST_CANCEL_REFUND_REGRESSION_CI_ONLY / F05_F06_V1_NOT_READY`。A核验B最终HEAD `a54f4628e29354a207619f0d2a0cfe2896bb833a`、main审验点 `d0904e22e68484e92424e241e35b2b23445911f4`，compare ahead40/behind9；37/37均仅授权新增CI文件。
+- **真实通过**：同SHA官方22/22真正Push工作流success，A逐Run读取96/96真PG16 Jobs success（H52 52/52）、96/96官方有效非空同SHA sha256 Artifact元数据（未逐ZIP字节复算）；F06-5C Run38633271578 Source85/85与HTTPS9/9真PG16，Scenario OID68456→Audit OID73479、190旧父表全量COUNT/MD5、24 Ledger/Catalog/D1和父签名PASS。R02真实5B COMMIT后签名交易排他与不同Backend、R03原4B→4C跨负责人移交取消/deny/scope/幂等原生通过；R04 43候选剔6辅助为B自核37业务独立用例，A未自动认可最终独立数。
+- **R01技术裁决（已完成）**：冻结F05-8在4A合法Cancel COMMIT按真实Match源触发器自动签唯一**新**Priority（`source-create:/source-created:`），旧ended Priority不复活；随后两个F06-5C真实Backend正确`F06_5C_EXISTING_ACTIVE_PRIORITY`，不能要求再次签发第二笔Priority；另S52已证5C在无占用时调用原父签发。A接受**这一窄范围CI事实**，不是冒称5C在取消后亲自发新Priority，更不授权生产。
+- **实质未闭合风险**：A复核冻结`engineering/f05/priority-arbitration-ttl-handover/000024_priority_ci.sql`自动签发源函数未显式检查Waitlist、Refund/Payment、5B Guard/4A Cancel签名；父触发器可能先于5C安全准入执行，现有S66缺真批发Match、S61仅Savepoint验5C只读函数，尚不足以证明候补与假取消/资金无法导致父自动抢发。**缺少跨域实测，不等于已发现真实资金或线上事件**。额外旧PR工作流本次查询5 success/4 failure/1运行中，不能称所有检查绿灯；细项保护接口403，不伪称已核清required。
+- **A已正式签同包技术补证施工单**：`07_重建工作区/F06-5C_A主控第三轮复验_R01父触发器技术裁决与候补资金签名补证施工单_2026-10-15.md`。B在原PR62/分支、原两个CI新增目录只补C01—C05组合实证/代码审计/矩阵与最终新SHA全量回归。若冻结父真违反已有候补/资金签名约束，B不得越界改父，应出红证交A另放行合法父修复。**PR62不合并；NEXT_OWNER=B；资金、生产、UAT/F07/F08及F05/F06/V1继续NOT_READY**。
+
+---
+
 # 2026-10-15｜A第二轮独立复验PR62：68项PG16全绿但取消后正向签发与真实竞态缺证，不合并（唯一最新）
 
 - **正式唯一最新指针**：`F06_5C_A_SECOND_INDEPENDENT_REVIEW_CHANGES_REQUESTED_PR62 / PR62_NOT_MERGED / NEXT_OWNER=B / NEXT_TASK=F06_5C_PR62_SECOND_REVIEW_POSITIVE_CANCEL_RACE_HANDOFF_REMEDIATION_CI_ONLY / F05_F06_V1_NOT_READY`。A核验 `main` 审查基点 `7bf416c02f82ee779585a6131053101d2efb2457` 与 B最终HEAD `7936b4f1dcce6897dc1317200653a4ed6ae1a877`：compare ahead34/behind2；36/36均为授权 CI 白名单新增文件，PR62尚未合并。
