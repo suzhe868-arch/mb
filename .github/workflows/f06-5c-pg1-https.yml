@@ -45,10 +45,10 @@ jobs:
           import assert from 'node:assert/strict';
           import {gate} from './f06/transaction-priority-parent-gate-ci/catalog-delta-verifier.mjs';
           import {productionIssuerDeny as d4a,completedIssuerDeny,paymentIssuerDeny} from './f06/transaction-priority-parent-gate-ci/signed-cancel-v2.mjs';
-          import {productionIssuerDeny as d4b} from './f06/transaction-priority-parent-gate-ci/signed-handoff-v2.mjs';
-          import {productionIssuerDeny as d4c} from './f06/transaction-priority-parent-gate-ci/signed-post-handoff-cancel-v2.mjs';
+          import {productionHandoffDeny as d4b,realMoneyDeny as m4b,completedDeny as c4b} from './f06/transaction-priority-parent-gate-ci/signed-handoff-v2.mjs';
+          import {productionCancelDeny as d4c,realRefundDeny as m4c,completedDeny as c4c} from './f06/transaction-priority-parent-gate-ci/signed-post-handoff-cancel-v2.mjs';
           gate();
-          for(const result of [d4a(),d4b(),d4c(),completedIssuerDeny(),paymentIssuerDeny()]){
+          for(const result of [d4a(),d4b(),d4c(),completedIssuerDeny(),paymentIssuerDeny(),m4b(),c4b(),m4c(),c4c()]){
            assert.equal(result.allowed,false);
            assert.match(result.code,/NOT_AUTHORIZED|NOT_WIRED|PRODUCTION/);
           }
