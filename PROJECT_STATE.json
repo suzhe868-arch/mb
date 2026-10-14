@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F06_4C_A_ACCEPTED_MERGED_PR59_F06_5A_CI_RELEASED_B",
+  "substage": "F06_5A_A_ACCEPTED_MERGED_PR60_F06_5B_CI_RELEASED_B",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F06",
-  "current_domain_status": "F06_4C_A_ACCEPTED_CI_ONLY_F06_5A_CI_RELEASED_F06_OVERALL_NOT_READY",
+  "current_domain_status": "F06_5A_A_ACCEPTED_CI_ONLY_F06_5B_CI_RELEASED_F06_OVERALL_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F06-4C A独立验收PR59 PASS，B HEAD 2258c9831e0b9059a8612c938c730fc6a538e072，19真Push/90真PG16 Job(H52真正52)/Source102 HTTPS9、135官方sha256 Artifact、OID53416→58367旧180实体全行Seal。GitHub标准merge 252fd551713eb7bbb64fce956c17c362368d2116。仅隔离CI已正式移交当前负责人合成cancel，生产Handoff/Cancel Issuer Source Gap不解除。A仅正式放行F06-5A已取消Transaction Refund pending/无付款closed合成安全测试；真实Refund refunded、生产付款完成成交及V1全域仍NOT_READY。",
-  "current_work_file": "07_重建工作区/F06-5A_A主控PDM19已取消Transaction合成Refund申请pending与无付款closed_CI隔离完整施工单_2026-10-14.md",
+  "current_task": "F06-5A A第三轮独立终验PR60 PASS，B HEAD 6695c9328ea81dd984d6404d9d7393fe153d693d：20/20真正Push、92/92非特权PG16 Job(H52官方52/52)、Source82/82 HTTPS9/9、92/92官方有效sha256 Artifact、OID58366→63421旧184实体全行Seal。官方GitHub标准merge 5d45a6bdb1debc9db6a79a16e9c8b9b177fb5afb。本CI仅隔离已取消Transaction侧Refund pending/无付款closed，实际refunded/付款/生产Issuer禁止。发现旧F06-3B在已签旧Lock pending Refund下可能仍转换Transaction，登记UPSTREAM_F06_3B_LOCK_PENDING_TRANSACTION_CONVERSION_GAP，A正式放行F06-5B原子前置FailClosed修复CI单独包；F05/F06/V1整域NOT_READY。",
+  "current_work_file": "07_重建工作区/F06-5B_A主控旧Lock待退款禁止Transaction转换原子前置守卫_CI隔离完整施工单_2026-10-14.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B_EXECUTE_F06_5A_CANCELLED_TRANSACTION_REFUND_PENDING_CLOSED_CI_ONLY",
+  "next_action": "B_EXECUTE_F06_5B_PRETRANSACTION_LOCK_REFUND_PENDING_ATOMIC_GUARD_CI_ONLY",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F06_4C_A_ACCEPTED_MERGED_PR59_CI_ONLY_F06_5A_A_RELEASED_FOR_B_CI_ONLY",
+  "engineering_status": "F06_5A_A_ACCEPTED_MERGED_PR60_CI_ONLY_F06_5B_A_RELEASED_FOR_B_CI_ONLY",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B从真正最新main建立feat/f06-5a-transaction-refund-pending-ci独立PR，仅新增engineering/f06/transaction-refund-ci/**和.github/workflows/f06-5a-*.yml；在真实非特权可丢PG16仅合成已取消Transaction且有效原签Deposit余额的Transaction-side Refund pending和无实际付款closed+close_reason，Lock XOR Transaction及旧Lock Refund冲突、现时合法业务Responsible permission/Scope、同PG幂等/双Backend并发/公海与财务只读。旧90真PG16 Job+新2，20真正Push/92独立PG16 Job(H52 52)、新Source≥44 HTTPS≥9、≥28同HEAD官方有效sha256 Artifact、双PG OID旧≥184父表逐表全行COUNT+MD5 Seal。B全部CI完备后交A，不合并；真实refunded/payment/生产Issuer/完成成交及V1仍禁。",
+  "next_action_detail": "B以执行时main新建feat/f06-5b-lock-refund-conversion-guard-ci独立分支/PR，仅新增engineering/f06/lock-refund-conversion-guard-ci/**与.github/workflows/f06-5b-*.yml；针对已签旧Lock Refund pending与F06-3B旧转换竞态，通过真正同PG原子写事务版本化CI安全转换Adapter，旧父直接调用仍标不安全，不改原签父文件、迁移或生产接口。目标21同HEAD真Push/94真实PG16 Jobs(H52完整52)、新Source>=40 HTTPS>=9、>=30官方sha256工件、双不同物理OID旧>=188表全行Seal及24 Ledger/D1/九父Sidecar保全。B包内完整整改自验并中文交A，不合并。真实退款/refunded、生产Transaction/Refund Issuer、completed资金/UAT/上线/F07/F08及V1仍NOT_READY。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -4800,16 +4800,16 @@
     "design_branch_modified": false,
     "implementation_status_unchanged": true,
     "active_tracks": [
-      "F06_3B_B_CI_ONLY_RELEASED",
+      "F06_5B_B_CI_ONLY_RELEASED",
       "H01_C_VISUAL_REWORK_PARALLEL"
     ],
     "execution_requires_separate_scope_approval": false,
     "global_state_owner": "A_MAIN",
     "engineering": {
       "owner": "B",
-      "branch": "feat/f06-3b-lock-transaction-ci",
-      "active_work_order": "07_重建工作区/F06-3B_A主控PDM19_Lock到Transaction原子转换责任占用_CI隔离正式完整施工单_2026-10-14.md",
-      "execution_status": "F06_3B_A_RELEASED_FOR_B_CI_ONLY_B_NOT_STARTED"
+      "branch": "feat/f06-5b-lock-refund-conversion-guard-ci",
+      "active_work_order": "07_重建工作区/F06-5B_A主控旧Lock待退款禁止Transaction转换原子前置守卫_CI隔离完整施工单_2026-10-14.md",
+      "execution_status": "F06_5B_A_RELEASED_FOR_B_CI_ONLY"
     },
     "design": {
       "owner": "C",
@@ -7269,7 +7269,7 @@
     "merge_sha": "e11e93bae1f6bc74757fea98b3c079d9ecf01e7a"
   },
   "f06_gate": {
-    "status": "F06_4C_A_ACCEPTED_MERGED_PR59_F06_5A_A_RELEASED_CI_ONLY",
+    "status": "F06_5A_A_ACCEPTED_MERGED_PR60_F06_5B_A_RELEASED_CI_ONLY",
     "release_authorized": false,
     "production": false,
     "financial_operations_authorized": false,
@@ -7280,7 +7280,9 @@
       "COMPLETED_TRANSACTION_REAL_MONEY",
       "PRODUCTION_FINANCIAL_OPERATIONS",
       "F06_OVERALL_READY"
-    ]
+    ],
+    "upstream_blocker": "UPSTREAM_F06_3B_LOCK_PENDING_TRANSACTION_CONVERSION_GAP",
+    "old_f06_3b_transaction_open_safe": false
   },
   "f06_1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
@@ -7557,8 +7559,10 @@
     "a_audit_database_oid": 39410,
     "public_in_progress_carrier_verified_in_ci": true,
     "production_issuer_status": "SOURCE_GAP",
-    "a_residual_observation": "Old historical F05 pull_request workflows may fail their old-named coverage proofs; all A-authorized new 15 push workflows successful; tracked in A report",
-    "a_blockers": []
+    "a_residual_observation": "Old historical F05 pull_request workflows may fail their old-named coverage proofs; all A-authorized new 15 push workflows successful; tracked in A report；2026-10-14 F06-5A signed PG16 S70/S71 proves F06-3B old openSyntheticTransactionCI can convert an existing Lock with signed F06-3C1 pending Refund. This historical CI approval does NOT mean that old entry is secure; its production use is blocked pending separate F06-5B CI-only atomic conversion gate.",
+    "a_blockers": [],
+    "legacy_lock_pending_conversion_gap": "UPSTREAM_F06_3B_LOCK_PENDING_TRANSACTION_CONVERSION_GAP",
+    "old_open_entry_safe": false
   },
   "f06_3c1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
@@ -7782,12 +7786,12 @@
     "a_blockers": []
   },
   "f06_5a_gate": {
-    "status": "A_RELEASED_FOR_B_CI_ONLY",
-    "owner": "B",
+    "status": "A_ACCEPTED_MERGED_CI_ONLY",
+    "owner": "A",
     "next_owner": "B",
     "branch": "feat/f06-5a-transaction-refund-pending-ci",
     "work_order": "07_重建工作区/F06-5A_A主控PDM19已取消Transaction合成Refund申请pending与无付款closed_CI隔离完整施工单_2026-10-14.md",
-    "pr": null,
+    "pr": 60,
     "source_authority": [
       "PDM-19 Final §§19-26",
       "PDM-19 Final §§6-10",
@@ -7817,6 +7821,63 @@
     "requires_two_distinct_pg16_databases_and_old_184_table_full_row_seal": true,
     "append_only_pending_closed_history": true,
     "lock_xor_transaction_required": true,
+    "after_b_selftest": "READY_FOR_A_INDEPENDENT_REVIEW",
+    "b_cannot_merge": true,
+    "global_not_ready": true,
+    "pr_merged": true,
+    "merge_allowed": true,
+    "merge_sha": "5d45a6bdb1debc9db6a79a16e9c8b9b177fb5afb",
+    "b_final_head_sha": "6695c9328ea81dd984d6404d9d7393fe153d693d",
+    "a_review_result": "A_ACCEPTED_CI_ONLY",
+    "a_review_comment": "https://github.com/suzhe868-arch/mb/pull/60#issuecomment-6164442173",
+    "a_review_report": "07_重建工作区/F06-5A_A主控第三轮独立验收82项Source92项PG16与92工件_PR60正式合并报告_2026-10-14.md",
+    "a_verified_push_workflows": 20,
+    "a_verified_pg16_jobs": 92,
+    "a_h52_verified_jobs": 52,
+    "a_source_tests": 82,
+    "a_https_tests": 9,
+    "a_valid_same_sha_artifacts": 92,
+    "a_scenario_database_oid": 58366,
+    "a_audit_database_oid": 63421,
+    "a_full_row_seal_old_tables": 184,
+    "observed_upstream_gap": "UPSTREAM_F06_3B_LOCK_PENDING_TRANSACTION_CONVERSION_GAP",
+    "production_refund_carrier_source_gap": true,
+    "production_refund_permission_source_gap": true
+  },
+  "f06_5b_gate": {
+    "status": "A_RELEASED_FOR_B_CI_ONLY",
+    "owner": "B",
+    "next_owner": "B",
+    "branch": "feat/f06-5b-lock-refund-conversion-guard-ci",
+    "work_order": "07_重建工作区/F06-5B_A主控旧Lock待退款禁止Transaction转换原子前置守卫_CI隔离完整施工单_2026-10-14.md",
+    "pr": null,
+    "source_authority": [
+      "PDM-19 Final §§19-26",
+      "PDM-18 Final",
+      "PDM-17 Final",
+      "PDM-02 Final",
+      "PDM-25 Final"
+    ],
+    "scope": "CI_ONLY_SAFE_ATOMIC_LOCK_REFUND_PENDING_BLOCK_BEFORE_TRANSACTION_CONVERSION",
+    "production": false,
+    "real_money_authorized": false,
+    "refunded_status_authorized": false,
+    "completed_transaction_authorized": false,
+    "production_issuer_authorized": false,
+    "old_f06_3b_direct_entry_trusted": false,
+    "allowed_new_paths": [
+      "engineering/f06/lock-refund-conversion-guard-ci/**",
+      ".github/workflows/f06-5b-*.yml"
+    ],
+    "frozen_old_pg16_jobs": 92,
+    "required_real_push_workflows": 21,
+    "required_pg16_jobs": 94,
+    "required_h52_jobs": 52,
+    "required_valid_sha256_artifacts": 30,
+    "required_source_tests": 40,
+    "required_https_tests": 9,
+    "requires_two_distinct_pg16_databases_and_old_188_table_full_row_seal": true,
+    "technical_upstream_gap": "UPSTREAM_F06_3B_LOCK_PENDING_TRANSACTION_CONVERSION_GAP",
     "after_b_selftest": "READY_FOR_A_INDEPENDENT_REVIEW",
     "b_cannot_merge": true,
     "global_not_ready": true
