@@ -91,3 +91,9 @@ UPSTREAM_PRIORITY_ADMISSION_ATOMIC_SOURCE_GAP，而不创造新Priority。
 - 3B与5B Source均PASS，HTTPS测试因127.0.0.1:49028/49030/49042监听端口EADDRINUSE失败；本次仅于F06-5C命名工作流上以Linux ip_local_reserved_ports排除49000-49100出站临时端口分配，保留所有父原始TLS9断言与独立PG16 Job。此为待实证的端口争用修复，不能以配置成功代替TLS通过。
 - 5C Source测试初始化抛F06_2_NOT_ISOLATED_GITHUB_REF：旧F06-2 expireOrdinaryCI签名CI发行器须于F06-2 REF语境执行。本次使用现有withF062兼容封装真实原发行器，未修改旧服务或数据库签名。不得伪造GitHub真实Push SHA。
 - 本条属B实施中补充证据，仍BLOCKED，待全量Push Job、Source56、HTTPS9及父旧190表实证完全通过才能变更READY。
+
+
+### F06-5C正向时间边界真实修复（2026-10-14，最终CI待验证）
+- SHA 5cc5d66的官方Push Run38592010561：HTTPS9已PASS；Source56中S51/S52/S53三项失败，原因是原F05-7签名触发器在F06-2真实Lock状态UPDATE时将当前Match转为stale。53项PASS不能冒充56项。
+- 新测试只在可销毁PG16里将合成Lock有效期限设为短期，先在有效Lock下由原F05-7服务签出合法Match、原F05-8资格同时真实存在；PG server使用clock_timestamp()与pg_sleep()真实跨越到期时点，期间绝不UPDATE Lock/Match。此时原签名Match仍current且按父规则无当前有效Lock，调用5C受限包装器复用原F05-8同事务签新Priority，要求真实created事件、PID/txid与唯一存活者；最终再用原F06-2系统Issuer正式结束历史Lock并核查不复活及零真实付款。
+- 避免在正式关闭Lock后的失效Match上伪造Priority；等待新的同SHA真实Source56和父190表双OID封印验证，不得提前填READY。

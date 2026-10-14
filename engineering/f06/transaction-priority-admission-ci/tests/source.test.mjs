@@ -24,7 +24,7 @@ const mk=x=>'f06-5c-pg16-'+x+'-'+process.env.GITHUB_RUN_ID;
 let token;
 const args={vehicleId:86181104,listingCycleId:86182104,customerId:86180101,teamId:901,eventKey:mk('base')};
 const attempt=(v={},a=auth,t='forged')=>requestSyntheticNewPriorityCI(a,t,{...args,...v});
-let realTxId,legacyTxId,positive;
+let realTxId,legacyTxId,positive,positiveLockId;
 const f06Signed=fn=>withF063A(()=>withF062(()=>withParentBranch(fn)));
 async function makeSignedLock(n,label){
  const x=await f06Signed(()=>intakeCI(db,{customerId:86180101,vehicleId:86181100+n,
@@ -96,7 +96,11 @@ test.before(async()=>{
   requestId:requested.requestId,requestKey:mk('positive-lock-approve'),action:'approve'
  }));
  assert.equal(accepted.code,'F06_1_APPROVED_ATOMIC_LOCK',JSON.stringify(accepted));
- const positiveLockId=accepted.lockId;
+ positiveLockId=accepted.lockId;
+ // 真PG锁状态变更会吊销旧Match；故先在有效Lock下生成F05-7签名来源，
+ // 然后只让PG实时时钟自然跨越expires_at，期间不触碰Lock与Match行。
+ // 时间模拟仅发生在隔离合成DB，真实签发仍保留原父签名服务。
+ await q("UPDATE public.locks SET created_at=clock_timestamp()-interval '100 hours',expires_at=clock_timestamp()+interval '45 seconds' WHERE lock_id=$1 AND lock_status='active'",[positiveLockId]);
  const modelYear=Number(fresh.model_year);
  await q("INSERT INTO public.f05_7_vehicle_facts_ci(vehicle_id,listing_cycle_id,facts_json) VALUES($1,$2,$3::jsonb)",
  [positive.vehicleId,positive.listingCycleId,JSON.stringify({
@@ -119,16 +123,20 @@ test.before(async()=>{
  assert.ok(['high','acceptable'].includes(matching.tier),'F06_5C_SIGNED_F05_7_HIGH_OR_ACCEPTABLE_REQUIRED');
  assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND status='active'",[positive.vehicleId]))[0].n,0,
   '原F05-8在真Lock占用时不得自动发行Priority');
- // 仅限隔离CI：经确认无收款凭证且无原Transaction后，按原F06-2合法合成无款证明。
+ // 原F05-7锁源签名在PG时钟自然到期前保持current；不得先调用F06-2
+ // 状态UPDATE使其失效，再企图用stale Match获得Priority。
  assert.equal((await q('SELECT count(*)::int n FROM public.deposit_receipts WHERE lock_id=$1',[positiveLockId]))[0].n,0);
  assert.equal((await q('SELECT count(*)::int n FROM public.transactions WHERE source_lock_id=$1',[positiveLockId]))[0].n,0);
  await q("INSERT INTO f06_2_ci.finance_proofs(lock_id,proof_kind) VALUES($1,'synthetic_absence_confirmed')",[positiveLockId]);
- // 仅把测试到期场景时钟前推；实际状态转移必须交给原F06-2签名System Issuer完成。
- await q("UPDATE public.locks SET created_at=clock_timestamp()-interval '100 hours',expires_at=clock_timestamp()-interval '1 minute' WHERE lock_id=$1 AND lock_status='active'",[positiveLockId]);
- const expired=await withF062(()=>expireOrdinaryCI(db,{lockId:positiveLockId,ciSystemProof:CI_SYSTEM_PROOF}));
- assert.equal(expired.code,'F06_2_PG_CLOCK_EXPIRED',JSON.stringify(expired));
+ const remaining=(await q("SELECT GREATEST(EXTRACT(EPOCH FROM expires_at-clock_timestamp()),0)::float8 wait_seconds FROM public.locks WHERE lock_id=$1",[positiveLockId]))[0];
+ assert.ok(remaining.wait_seconds>=0&&remaining.wait_seconds<=46,'F06_5C_PG_LOCK_DEADLINE_OUT_OF_BOUNDS');
+ // 实际PG16 server clock真实流逝，不SET会话clock，不修改旧Match或冻结触发器。
+ await db.query('SELECT pg_sleep($1::float8)',[remaining.wait_seconds+0.4]);
+ const natural=(await q("SELECT lock_status,expires_at<=clock_timestamp() pg_clock_expired FROM public.locks WHERE lock_id=$1",[positiveLockId]))[0];
+ assert.equal(natural.lock_status,'active');
+ assert.equal(natural.pg_clock_expired,true,'F06_5C_NATIVE_PG_CLOCK_MUST_HAVE_EXPIRED');
  assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND status='active'",[positive.vehicleId]))[0].n,0,
- '原F06-2到期不应伪造原Priority重生；后续5C必须调用冻结仲裁新建');
+  '没有任何状态UPDATE或父签名仲裁前不得凭超时自动创建Priority');
 });
 test.after(async()=>{await auth.close();await peer.close();await db.end()});
 test('5C-S01 新旧Sidecar父签认证',async()=>assert.equal((await verify(db)).verified,true));
@@ -271,6 +279,13 @@ test('5C-S55 当前无交易也不得把别的Customer强指定原Priority胜者
  assert.equal(r.allowed,false,JSON.stringify(r));
  assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1",[positive.vehicleId]))[0].n,oldCount);
 });
-test('5C-S56 所有本次合成资产没有新增付款到账或实际Refund支付',async()=>{
+test('5C-S56 真PG已过期Lock最后由原F06-2系统签发终结，原Priority无复活及真实付款',async()=>{
+ const originalCount=(await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1",[positive.vehicleId]))[0].n;
+ const expired=await withF062(()=>expireOrdinaryCI(db,{lockId:positiveLockId,ciSystemProof:CI_SYSTEM_PROOF}));
+ assert.equal(expired.code,'F06_2_PG_CLOCK_EXPIRED',JSON.stringify(expired));
+ const ended=(await q('SELECT lock_status,end_reason FROM public.locks WHERE lock_id=$1',[positiveLockId]))[0];
+ assert.equal(ended.lock_status,'expired');
+ assert.equal(ended.end_reason,'f06_2_ci_pg_clock_expiry');
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1",[positive.vehicleId]))[0].n,originalCount,'f06_2 expiry must not create or resurrect Priority history');
  assert.equal((await q('SELECT count(*)::int n FROM public.refund_payments'))[0].n,0);
 });
