@@ -88,7 +88,17 @@ export async function prepareRealJytWaitlist(c,{auth,token}){
   originalPriorityId:Number(active.priority_id),lockId:accepted.lockId,
   source:'REAL_F05_3B_JYT_F05_7_F05_8_F06_1_F06_5B_NATIVE'};
 }
+async function requireCurrentSignedJytMatch(c,{vehicleId,listingCycleId,customerId},label){
+ const x=await one(c,"SELECT count(*)::int n FROM public.f05_3b_sync_lineages l "+
+  "JOIN public.f05_7_result_versions_ci r ON r.vehicle_id=l.vehicle_id AND r.listing_cycle_id=l.current_cycle_id "+
+  "JOIN public.demands d ON d.demand_id=r.demand_id AND d.customer_id=$3 AND d.demand_state='active' "+
+  "JOIN public.f05_8_qualification_ci q ON q.customer_id=d.customer_id AND q.enabled=true "+
+  "WHERE l.vehicle_id=$1 AND l.current_cycle_id=$2 AND r.status='current' AND r.tier IN ('high','acceptable')",
+  [vehicleId,listingCycleId,customerId]);
+ assert.ok(x.n>0,'PG1_'+label+'_REAL_SIGNED_CURRENT_JYT_MATCH_REQUIRED');
+}
 export async function proveRealJytWaitlist(c,{auth,token},f){
+ await requireCurrentSignedJytMatch(c,f,'C01');
  const before=await one(c,"SELECT count(*)::int n FROM public.f05_8_events_ci WHERE vehicle_id=$1 AND event_kind='created'",[f.vehicleId]);
  const out=await cancelSyntheticTransactionV2CI(auth,token,{
   transactionId:f.transactionId,eventKey:mk('signed-v2-cancel'),
@@ -161,6 +171,7 @@ export async function prepareRealJytUnoccupiedSignedMatch(c,{auth,token}){
   lockId:decision.lockId,matchTier:match.tier,source:'REAL_JYT_F05_7_SIGNED_MATCH_F06_1_LOCK_5B_TRANSACTION_NO_WAITLIST'};
 }
 export async function proveRealJytR01LegalSuccessor(c,{auth,token},f,independentVehicleId){
+ await requireCurrentSignedJytMatch(c,f,'R01');
  const before=await one(c,"SELECT count(*)::int n FROM public.f05_8_events_ci WHERE vehicle_id=$1 AND event_kind='created'",[f.vehicleId]);
  const race=await signedCancelUnderNativeVehicleRace(c,{occupiedVehicleId:f.vehicleId,independentVehicleId},
   ()=>cancelSyntheticTransactionV2CI(auth,token,{
