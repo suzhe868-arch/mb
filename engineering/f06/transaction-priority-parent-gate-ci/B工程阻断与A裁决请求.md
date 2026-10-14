@@ -2,6 +2,8 @@
 
 > 状态：**B_IN_PROGRESS / NOT_READY_FOR_A_REVIEW / POSSIBLE_BLOCKED_UPSTREAM_SIGNED_CATALOG**。本文件是施工/阻断材料，**不是B验收通过报告**。
 
+> **2026-10-15已核销原裁决请求**：A已在`main`最新`NEXT_ACTION.md`/正式补充施工单放行PR63同白名单下的版本化三对象目录验证与安全4A/4C等价入口。本文件是**当时父Catalog冲突的历史红证及原裁决请求**，不代表当前仍待A签发授权。B正在真实PG16原生复验；**尚未通过全部门禁，状态B_IN_PROGRESS、NEXT_OWNER=B**。参见同目录`B工程阶段自验与未闭环证据_2026-10-15.md`最新续工节。
+
 ## 1. 主线与严格范围
 
 - A 权威基线：main `ca42b72f2b1308bdbef01a465ba35b54474534bd`，A 施工单 `07_重建工作区/F06-5C-PG1_A主控冻结F05-8父自动签发跨域越权_版本化补丁与独立原生PG16修复正式施工单_2026-10-15.md`。
