@@ -1,3 +1,12 @@
+## 2026-10-15｜A工程技术裁决：PR63 新增触发器与原固定Catalog签名不兼容，仅CI包内允许版本化验签及安全取消等价入口
+
+- **裁决号**：`F06-5C-PG1-A-TECH-CATALOG-01`；**性质**：既有PDM-13/18/19下的工程兼容技术裁决，**非新增业务规则、不更改产品Authority**。A独立审阅PR [#63](https://github.com/suzhe868-arch/mb/pull/63) HEAD `f0e159bbdbffca516b6ddd7c14052f882e3df57e`，真实官方[PG16 Run38648121814](https://github.com/suzhe868-arch/mb/actions/runs/38648121814) Job116139958565 `completed/failure`，旧5B物理188表及升级后的PG1前190旧表封印有效，但新增两个public Trigger/一个constraint使冻结父`getPublicStructure`与各级`verify`固定旧SHA不匹配，旧父报`F05_10_CATALOG_DRIFT`。真实兼容阻断确认，**不等于原PR62 C01—C03安全漏洞已修复**。
+- **裁决结果**：沿用原PR63/分支且维持draft/RED，B仅在原PG1新增白名单构建**有签版本化Catalog精确差分验证器**及**原4A/4C业务合同等价的新CI-only安全取消入口**；新增公共Catalog仅签名精确已知2 Trigger+1 Constraint，无旧对象篡改/删除；对旧基础结构进行逻辑投影比对，再逐个对新对象及旧Ledger/父业务签名验真；原冻结服务/迁移及旧哈希常量绝不改，未修改的旧4A/4C验签遇新增Catalog继续FailClosed，新版调用必须实测业务权限、原子签名、合法取消/Waitlist/Refund保障。不得混称旧原版在新Catalog后仍直接可用。
+- **包内授权单**：`07_重建工作区/F06-5C-PG1_A主控PR63父签名兼容阻断_版本化目录验签与安全取消入口补充施工单_2026-10-15.md`；B针对C01、C02、C03、合法R01及移交后4C、事务末触发器、两真实PG Backend并发、资金与权限负例、190父表双OID、同SHA完整CI自行一次性补证整改。无法用新目录忠实实现合法等价入口时，应提交真日志与精确最小例外供A另裁，**不授权B更改已冻结旧父文件**。通过所有门禁后才有资格`READY_FOR_A_REVIEW`，A独立验收后才能标准PR merge，随后才继续PR62；F05/F06/V1 `NOT_READY`、生产/资金/UAT/F07/F08仍禁止。
+- **执行指针**：`A_TECH_RULING_PR63_SIGNED_CATALOG_COMPATIBILITY / A_RELEASED_FOR_B_PG1_VERSIONED_DELTA_AND_SAFE_CANCEL_ADAPTER / NEXT_OWNER=B / NEXT_TASK=F06_5C_PG1_PR63_VERSIONED_CATALOG_AND_CANCEL_EQUIVALENCE_REPAIR / PR63_PR62_NOT_MERGED`。
+
+---
+
 # 2026-10-15｜A第四轮复验PR62：确认F05-8父自动Issuer真实跨域3项红证，放行独立F06-5C-PG1父层CI版本化补丁（唯一最新）
 
 - **当前唯一正式指针**：`A_REVIEW_CONFIRMED_F06_5C_PARENT_AUTO_ISSUER_SECURITY_RED / A_RELEASED_FOR_B_F06_5C_PG1_PARENT_AUTO_ISSUER_SIGNED_CI_GUARD / NEXT_OWNER=B / NEXT_TASK=F06_5C_PG1_NEW_BRANCH_NEW_PR_SIGNED_UPSTREAM_GATE_REPAIR / PR62_BLOCKED_UPSTREAM_NOT_MERGED / F05_F06_V1_NOT_READY`。A受验最新main `2c185a59eac7d06102329ec8c7afad30179b3889`；PR62报告HEAD `f3fe4bf39f2c28f62f598cfcd9f24f90fe3e2b61`，实际原生红证代码SHA `96ce3c725d6279a9a67b1fbdef46e1f113454cfa`；PR62 38/38变更仅现行授权独立CI目录，未动父/24签迁移，不合并。
