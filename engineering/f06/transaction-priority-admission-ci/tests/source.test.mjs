@@ -580,17 +580,29 @@ test('5C-S65 批发车原Priority到Lock到5B交易，4A取消后双Backend仅�
 
 test('5C-S66 原F06-1真候补即使5B交易及4A取消后仍防止新Priority插队',async()=>{
  // 在全新CI-only名邦Vehicle上以冻结F06-1两个真实Customer签Lock和候补。
- const l=await makeSignedLock(7,'waitlist-5c-source');
+ // 冻结F06-1规定：已有active Lock后 intake 必须拒绝，不允许后来插入申请。
+ // 两位合成客户先各自建立合法pending，第一位获批时第二位由原decisionCI
+ // 在同Vehicle事务内自动变Waitlist，保存真实源Request与候补签名。
+ const first=await f06Signed(()=>intakeCI(db,{
+  customerId:86180101,vehicleId:86181107,listingCycleId:86182107,
+  requestKey:mk('waitlist-first-pending'),
+  syntheticPhoneConsent:'CI_SYNTHETIC_PHONE_CONSENT_NOT_PRODUCTION'
+ }));
+ assert.equal(first.code,'F06_1_PENDING_CREATED',JSON.stringify(first));
  const request=await f06Signed(()=>intakeCI(db,{
   customerId:86180102,vehicleId:86181107,listingCycleId:86182107,
-  requestKey:mk('waitlist-rival-request'),
+  requestKey:mk('waitlist-rival-pending'),
   syntheticPhoneConsent:'CI_SYNTHETIC_PHONE_CONSENT_NOT_PRODUCTION'
  }));
  assert.equal(request.code,'F06_1_PENDING_CREATED',JSON.stringify(request));
- const queued=await f06Signed(()=>decisionCI(auth,token,{
-  requestId:request.requestId,requestKey:mk('waitlist-rival-decision'),action:'approve'
+ const awarded=await f06Signed(()=>decisionCI(auth,token,{
+  requestId:first.requestId,requestKey:mk('waitlist-first-approved'),action:'approve'
  }));
- assert.equal(queued.code,'F06_1_ALREADY_LOCKED_LOCK_CONFLICT',JSON.stringify(queued));
+ assert.equal(awarded.code,'F06_1_APPROVED_ATOMIC_LOCK',JSON.stringify(awarded));
+ const l=awarded.lockId;
+ const queued=(await q('SELECT status,resulting_waitlist_id FROM public.lock_requests WHERE lock_request_id=$1',[request.requestId]))[0];
+ assert.equal(queued.status,'lock_conflict',JSON.stringify(queued));
+ assert.ok(queued.resulting_waitlist_id,'F06_5C_F06_1_PARENT_WAITLIST_SIGNED_ORIGIN_REQUIRED');
  const waitlist=await q('SELECT waitlist_id,active_lock_id FROM public.waitlists WHERE customer_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3 AND ended_at IS NULL',
   [86180102,86181107,86182107]);
  assert.equal(waitlist.length,1,'F06_5C_REAL_F06_1_SIGNED_WAITLIST_REQUIRED');
