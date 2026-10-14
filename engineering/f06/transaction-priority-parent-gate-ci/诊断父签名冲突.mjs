@@ -64,9 +64,10 @@ try{
   assert.equal(signedDelta.ledgerHash,old.ledgerHash);
   assert.equal(signedDelta.priorityHash,old.functionHash);
   assert.equal(signedDelta.preCatalog,before.sha256);
+  assert.match(signedDelta.sidecarChainHash,/^[0-9a-f]{64}$/);
   report.signedCatalogDelta=signedDelta;
-  await c.query("INSERT INTO f06_5c_pg1_ci.attestation(name,source_sha256,parent_ledger_sha256,parent_priority_sha256,parent_catalog_sha256,post_catalog_sha256,delta_sha256,delta_manifest) VALUES('F06_5C_PG1',$1,$2,$3,$4,$5,$6,$7::jsonb)",
-   [sourceHash,old.ledgerHash,old.functionHash,signedDelta.preCatalog,signedDelta.postCatalog,signedDelta.deltaSHA256,JSON.stringify(signedDelta.deltaManifest)]);
+  await c.query("INSERT INTO f06_5c_pg1_ci.attestation(name,source_sha256,parent_ledger_sha256,parent_priority_sha256,sidecar_chain_sha256,parent_catalog_sha256,post_catalog_sha256,delta_sha256,delta_manifest) VALUES('F06_5C_PG1',$1,$2,$3,$4,$5,$6,$7,$8::jsonb)",
+   [sourceHash,old.ledgerHash,old.functionHash,signedDelta.sidecarChainHash,signedDelta.preCatalog,signedDelta.postCatalog,signedDelta.deltaSHA256,JSON.stringify(signedDelta.deltaManifest)]);
   await c.query('COMMIT');
  }catch(e){await c.query('ROLLBACK');throw e}
  const after=await getPublicStructure(c),fresh=await sealedParent();
