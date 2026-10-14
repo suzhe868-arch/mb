@@ -11,3 +11,4 @@
 
 冻结3B历史与已签取消终态	PDM-19§15 / A 2026-10-15整改单	原3B历史in_progress保持不变、4A/4C原始签名链强校验	仅public假cancel、缺事件/幂等键均拒绝	仅CI，生产交易取消来源未接入
 5B安全转换与资金	PDM-19§21 / A 2026-10-15整改单	Guard事件、退款签名快照、3A签收和资金只读	Guard缺失、pending、refunded、真实支付、未知资金拒绝	旧3B漏洞保持FailClosed
+原F06-1真候补活动记录阻断新Priority	PDM-19 §15 / A 2026-10-15 B-01	两原生pending后F06-1 approve生成Waitlist、5B原子Transaction及4A取消后5C重验	同Vehicle/Cycle未结束Waitlist一律拒绝，即使交易已合法取消	不篡改原候补顺位、不自动提升生产资格；待最终Source68证据
