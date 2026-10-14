@@ -80,3 +80,7 @@ UPSTREAM_PRIORITY_ADMISSION_ATOMIC_SOURCE_GAP，而不创造新Priority。
 ### Source56真实54/56失败后整改（2026-10-14）
 - 官方Job `115865837256`（Run38568086851）：56项中54项PASS，S52/S53失败。原F05-8 `f05_8_source_change_ci`物理触发器在有效Match提交时自动创建带Created事件的合法Priority，5C对已有活动Priority拒绝是安全正确行为；原正向测试忽略父业务副作用，不能删改冻结触发器或把重复新建当成功。
 - 当前修订：在真F06-1 Lock已占用下通过原F05-7签发当前Match，验证F05-8绝不提前创建Priority；确认无押金/原Transaction并以隔离CI原有合成无款证明和模拟时钟到期，由原F06-2系统Issuer正式结束Lock，核对无旧Priority自动复活；随后5C才通过原F05-8 `arbitrateCI`同Backend、同txid实际新签发Priority及Created事件。下一轮Source56必须全部真实通过，否则仍BLOCKED。
+
+
+### PG16 Check约束实测整改（2026-10-14）
+- Run38569979928 Source Job115872323495 `test.before` 真实失败：SQL `23514`, `locks` 表 `f02_ad7d93ac8f4fa2033f43` 锁有效时间约束；模拟过期不得仅设置到期时间早于当前新建时间。依冻结F06-2 Source 原合法到期例，将同一CI合成Lock的 `created_at` 调至100小时前、`expires_at` 调至1分钟前后，仍由原F06-2 `expireOrdinaryCI` 签发实际终结。未改约束或冻结父测试。

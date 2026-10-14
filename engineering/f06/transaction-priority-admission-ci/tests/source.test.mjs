@@ -124,7 +124,7 @@ test.before(async()=>{
  assert.equal((await q('SELECT count(*)::int n FROM public.transactions WHERE source_lock_id=$1',[positiveLockId]))[0].n,0);
  await q("INSERT INTO f06_2_ci.finance_proofs(lock_id,proof_kind) VALUES($1,'synthetic_absence_confirmed')",[positiveLockId]);
  // 仅把测试到期场景时钟前推；实际状态转移必须交给原F06-2签名System Issuer完成。
- await q("UPDATE public.locks SET expires_at=clock_timestamp()-interval '2 minutes' WHERE lock_id=$1 AND lock_status='active'",[positiveLockId]);
+ await q("UPDATE public.locks SET created_at=clock_timestamp()-interval '100 hours',expires_at=clock_timestamp()-interval '1 minute' WHERE lock_id=$1 AND lock_status='active'",[positiveLockId]);
  const expired=await expireOrdinaryCI(db,{lockId:positiveLockId,ciSystemProof:CI_SYSTEM_PROOF});
  assert.equal(expired.code,'F06_2_PG_CLOCK_EXPIRED',JSON.stringify(expired));
  assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND status='active'",[positive.vehicleId]))[0].n,0,
