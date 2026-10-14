@@ -10,7 +10,7 @@ import {runNativeTamperMatrix} from './原生篡改反例.mjs';
 import {prepareOldNative4A,proveVersionedNative4A} from './真实取消前后对照.mjs';
 import {prepareOldNative4C,proveVersionedNative4C} from './真实移交取消前后对照.mjs';
 import {runNativeForgedCancelMatrix} from './伪造取消原生反例.mjs';
-import {prepareRealJytWaitlist,proveRealJytWaitlist} from './真批发候补优先权安全验收.mjs';
+import {prepareRealJytWaitlist,proveRealJytWaitlist,prepareRealJytUnoccupiedSignedMatch,proveRealJytR01LegalSuccessor} from './真批发候补优先权安全验收.mjs';
 
 const OUT=new URL('./artifacts/source/',import.meta.url);
 const digest=x=>createHash('sha256').update(typeof x==='string'?x:JSON.stringify(x)).digest('hex');
@@ -23,7 +23,7 @@ const REQUIRED={GITHUB_ACTIONS:'true',GITHUB_EVENT_NAME:'push',GITHUB_REPOSITORY
 for(const [key,value] of Object.entries(REQUIRED))assert.equal(process.env[key],value,'F06_PG1_ISOLATION_DENY_'+key);
 assert.match(process.env.GITHUB_RUN_ID||'',/^[0-9]{6,20}$/);
 const c=new pg.Client({connectionString:DSN,connectionTimeoutMillis:5000,query_timeout:90000});
-let cancelFixture,handoffFixture,jytFixture;
+let cancelFixture,handoffFixture,jytFixture,freeJytFixture;
 const report={task:'F06-5C-PG1',sha:process.env.GITHUB_SHA,run:process.env.GITHUB_RUN_ID,
   status:'BLOCKED_PENDING_NATIVE_TEST',production:'DENIED'};
 async function rows(sql,args=[]){return (await c.query(sql,args)).rows}
@@ -63,6 +63,8 @@ try{
  report.oldSigned4B4CBaseline=handoffFixture.baseline;
  jytFixture=await prepareRealJytWaitlist(c,cancelFixture);
  report.oldSignedJytMatchWaitlist5B=jytFixture;
+ freeJytFixture=await prepareRealJytUnoccupiedSignedMatch(c,cancelFixture);
+ report.oldSignedJytMatchWithoutWaitlist=freeJytFixture;
  const before=await getPublicStructure(c);
  const old=await sealedParent();
  report.before={catalog:before.sha256,...old};
@@ -106,11 +108,12 @@ try{
  assert.equal(report.nativeTamperMatrix.length,5);
  assert.notEqual(before.sha256,after.sha256,'PG1_PUBLIC_CATALOG_MUST_NOT_BE_MISREPORTED_IDENTICAL');
  try{
-  report.nativeUnsignedCancelMatrix=await runNativeForgedCancelMatrix(c,cancelFixture.newTx);
+  report.nativeUnsignedCancelMatrix=await runNativeForgedCancelMatrix(c,freeJytFixture.transactionId);
   assert.equal(report.nativeUnsignedCancelMatrix.length,2);
   report.versionedNative4A=await proveVersionedNative4A(c,cancelFixture);
   report.versionedNative4B4C=await proveVersionedNative4C(c,cancelFixture,handoffFixture);
   report.realSignedC01JytWaitlist=await proveRealJytWaitlist(c,cancelFixture,jytFixture);
+  report.realSignedR01UniqueNewPriority=await proveRealJytR01LegalSuccessor(c,cancelFixture,freeJytFixture);
   const status=await verifyFrozenParent(c);
   report.parentAfter={verified:status.verified};
   report.status='F06_PG1_UNEXPECTED_PARENT_VERIFICATION_ACCEPTED';
