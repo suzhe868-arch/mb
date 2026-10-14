@@ -13,13 +13,13 @@ import {verify,gate} from './catalog-delta-verifier.mjs';
 const DSN='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test';
 const mk=x=>'pg1-signed-'+process.env.GITHUB_RUN_ID+'-'+x;
 const signedF06=fn=>withF063A(()=>withF062(()=>withParentBranch(fn)));
-async function oldRef(name,fn){
+export async function oldRef(name,fn){
  const a=process.env.GITHUB_REF,b=process.env.GITHUB_REF_NAME;
  try{process.env.GITHUB_REF='refs/heads/'+name;process.env.GITHUB_REF_NAME=name;return await fn()}
  finally{process.env.GITHUB_REF=a;process.env.GITHUB_REF_NAME=b}
 }
 const first=async(c,s,p=[])=> (await c.query(s,p)).rows[0];
-async function realLock(c,auth,token,offset,label){
+export async function realLock(c,auth,token,offset,label){
  const req=await signedF06(()=>intakeCI(c,{
   customerId:86180101,vehicleId:86181100+offset,listingCycleId:86182100+offset,
   requestKey:mk('intake-'+label),
