@@ -9,6 +9,7 @@ import {snapshotForAttestation,verify as verifyPatchCatalog} from './catalog-del
 import {runNativeTamperMatrix} from './原生篡改反例.mjs';
 import {prepareOldNative4A,proveVersionedNative4A} from './真实取消前后对照.mjs';
 import {prepareOldNative4C,proveVersionedNative4C} from './真实移交取消前后对照.mjs';
+import {runNativeForgedCancelMatrix} from './伪造取消原生反例.mjs';
 
 const OUT=new URL('./artifacts/source/',import.meta.url);
 const digest=x=>createHash('sha256').update(typeof x==='string'?x:JSON.stringify(x)).digest('hex');
@@ -102,6 +103,8 @@ try{
  assert.equal(report.nativeTamperMatrix.length,5);
  assert.notEqual(before.sha256,after.sha256,'PG1_PUBLIC_CATALOG_MUST_NOT_BE_MISREPORTED_IDENTICAL');
  try{
+  report.nativeUnsignedCancelMatrix=await runNativeForgedCancelMatrix(c,cancelFixture.newTx);
+  assert.equal(report.nativeUnsignedCancelMatrix.length,2);
   report.versionedNative4A=await proveVersionedNative4A(c,cancelFixture);
   report.versionedNative4B4C=await proveVersionedNative4C(c,cancelFixture,handoffFixture);
   const status=await verifyFrozenParent(c);
