@@ -1,0 +1,67 @@
+name: F06-5C-PG1 signed parent HTTPS and production-deny regression
+on:
+  push:
+    branches: [fix/f06-5c-pg1-parent-priority-guard-ci]
+permissions: {contents: read}
+jobs:
+  genuine-pg16-https:
+    name: PG1 same-SHA native PG16 inherited HTTPS and CI-only issuer deny
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Native PG16 frozen parent mirror alias
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Frozen F06-5B complete chained real HTTPS regression
+        run: |
+          set -euo pipefail
+          env GITHUB_REF=refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci \
+            GITHUB_REF_NAME=feat/f06-5b-lock-refund-conversion-guard-ci \
+            bash engineering/f06/lock-refund-conversion-guard-ci/ci-job.sh https
+          test -s engineering/f06/lock-refund-conversion-guard-ci/artifacts/https/native-https.log
+          grep -q '# tests 9' engineering/f06/lock-refund-conversion-guard-ci/artifacts/https/native-https.log
+          grep -q '# fail 0' engineering/f06/lock-refund-conversion-guard-ci/artifacts/https/native-https.log
+      - name: PG1 explicit production issuer and payment authority hard-deny
+        run: |
+          set -euo pipefail
+          export CI=true APP_ENV=test NODE_ENV=test
+          export F03_1_ISOLATION_CONFIRM=I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+          export F05_2_ISOLATION_CONFIRM=I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+          export F03_1_DATABASE_URL=postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+          (cd engineering && node --input-type=module - <<'NODE'
+          import assert from 'node:assert/strict';
+          import {gate} from './f06/transaction-priority-parent-gate-ci/catalog-delta-verifier.mjs';
+          import {productionIssuerDeny as d4a,completedIssuerDeny,paymentIssuerDeny} from './f06/transaction-priority-parent-gate-ci/signed-cancel-v2.mjs';
+          import {productionIssuerDeny as d4b} from './f06/transaction-priority-parent-gate-ci/signed-handoff-v2.mjs';
+          import {productionIssuerDeny as d4c} from './f06/transaction-priority-parent-gate-ci/signed-post-handoff-cancel-v2.mjs';
+          gate();
+          for(const result of [d4a(),d4b(),d4c(),completedIssuerDeny(),paymentIssuerDeny()]){
+           assert.equal(result.allowed,false);
+           assert.match(result.code,/NOT_AUTHORIZED|NOT_WIRED|PRODUCTION/);
+          }
+          console.log('F06_5C_PG1_SIGNED_HTTPS_AND_PRODUCTION_ISSUER_DENY_PASS');
+          NODE
+          )
+      - name: Upload same-SHA signed original HTTPS evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f06-5c-pg1-native-https
+          path: |
+            engineering/f06/lock-refund-conversion-guard-ci/artifacts/https/
+            engineering/f06/transaction-refund-ci/artifacts/https/
+          retention-days: 30
+          if-no-files-found: warn
