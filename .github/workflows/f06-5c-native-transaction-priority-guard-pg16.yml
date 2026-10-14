@@ -1,0 +1,69 @@
+name: F06-5C native PostgreSQL16 Transaction-Priority Source36 HTTPS9
+on:
+  push:
+    branches: [feat/f06-5c-transaction-priority-admission-ci]
+permissions: {contents: read, actions: read, pull-requests: read}
+concurrency:
+  group: f06-5c-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  f06-5c-source:
+    name: F06-5C actual nonprivileged PG16 Source36 and parent seal audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify native signed PostgreSQL16 container image
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Real F06-5C PG16 Source and two physical database audit
+        run: bash engineering/f06/transaction-priority-admission-ci/ci-job.sh source
+        env:
+          GH_ACTIONS_READ_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f06-5c-source-native-pg16-evidence
+          path: engineering/f06/transaction-priority-admission-ci/artifacts/source/
+          retention-days: 30
+          if-no-files-found: warn
+  f06-5c-https:
+    name: F06-5C actual loopback TLS no production Priority issuer
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify nonprivileged PostgreSQL16 image
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Real HTTPS hard-deny tests
+        run: bash engineering/f06/transaction-priority-admission-ci/ci-job.sh https
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f06-5c-https-native-pg16-evidence
+          path: engineering/f06/transaction-priority-admission-ci/artifacts/https/
+          retention-days: 30
+          if-no-files-found: warn
