@@ -1,0 +1,2464 @@
+name: F06-5A frozen original H52 independent 52 native PG16 jobs
+on:
+  push:
+    branches: [feat/f06-5b-lock-refund-conversion-guard-ci]
+permissions: {contents: read, actions: read, pull-requests: read}
+# Retain all latest SHA jobs; supersede obsolete push workflow runs.
+concurrency:
+  group: f06-5b-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  f03-2m-transaction-responsible-handover-pg16:
+    name: F03-2-2M isolated PG16 Transaction 93-to-94 one-table discovery
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2m-transaction-responsible-handover-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-2m-transaction-responsible-handover-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-2m-transaction-responsible-handover-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f03-2l-lock-responsible-handover-pg16:
+    name: F03-2-2L isolated PG16 Lock 92-to-93 one-table discovery
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2l-lock-responsible-handover-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-2l-lock-responsible-handover-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-2l-lock-responsible-handover-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f03-2k-waitlist-responsible-handover-pg16:
+    name: F03-2-2K isolated PG16 Waitlist 91-to-92 one-table discovery
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2k-waitlist-responsible-handover-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-2k-waitlist-responsible-handover-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-2k-waitlist-responsible-handover-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f03-2h-customer-owner-handover-pg16:
+    name: F03-2-2H exact 89-table CI-only Customer Owner CAS/history/receipt on genuine PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2h-customer-owner-handover-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-2h-customer-owner-handover-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-2h-customer-owner-handover-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f03-2g-regression-88:
+    name: F03-2-2G frozen 88-table SG06 preflight regression independent genuine PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2g-regression-88
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-2g-regression-88
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-2g-regression-88/
+          retention-days: 30
+          if-no-files-found: error
+  f03-2f-regression-88:
+    name: F03-2-2F frozen 88-table Team capability governance regression own PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2f-regression-88
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-2f-regression-88
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-2f-regression-88/
+          retention-days: 30
+          if-no-files-found: error
+  f03-2e-regression-88:
+    name: F03-2-2E frozen 88-table SG06 ledger regression on own PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2e-regression-88
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-2e-regression-88
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-2e-regression-88/
+          retention-days: 30
+          if-no-files-found: error
+  f03-2d-regression-86:
+    name: F03-2-2D frozen 86-table Team Scope regression on own new PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2d-regression-86
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-2d-regression-86
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-2d-regression-86/
+          retention-days: 30
+          if-no-files-found: error
+  f03-2c-regression-84:
+    name: F03-2-2C frozen 84-table authentic SG03 regression on own PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2c-regression-84
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-2c-regression-84
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-2c-regression-84/
+          retention-days: 30
+          if-no-files-found: error
+  f03-2b-population-82:
+    name: F03-2-2B exact 82-table admin two-population / rollback / structure
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_2B_INSTALLER_CONFIRM: I_AUTHORIZE_DISPOSABLE_PG16_FIRST_BOOTSTRAP_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2b-population-82
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-2b-population-82
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-2b-population-82/
+          retention-days: 30
+          if-no-files-found: error
+  f03-2b-bootstrap-empty:
+    name: F03-2-2B empty 82-table first-admin atomic bootstrap race
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_2B_INSTALLER_CONFIRM: I_AUTHORIZE_DISPOSABLE_PG16_FIRST_BOOTSTRAP_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2b-bootstrap-empty
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-2b-bootstrap-empty
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-2b-bootstrap-empty/
+          retention-days: 30
+          if-no-files-found: error
+  f03-2-2a-pg16-template:
+    name: F03-2-2A sealed 81-table admin governance CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2-2a-pg16-template
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-2-2a-pg16-template
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-2-2a-pg16-template/
+          retention-days: 30
+          if-no-files-found: error
+  f03-1-frozen-integration-2a:
+    name: F03-1 frozen real security integration - its OWN new PG16
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-1-frozen-integration-2a
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-1-frozen-integration-2a
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-1-frozen-integration-2a/
+          retention-days: 30
+          if-no-files-found: error
+  f03-1-frozen-https-2a:
+    name: F03-1 frozen HTTPS security - its OWN new PG16
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-1-frozen-https-2a
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-1-frozen-https-2a
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-1-frozen-https-2a/
+          retention-days: 30
+          if-no-files-found: error
+  f03-2i-demand-responsible-handover-pg16:
+    name: F03-2-2I FROZEN independent 90-table PG16 full 27 tests + archival source verification
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2i-demand-responsible-handover-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-2i-demand-responsible-handover-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-2i-demand-responsible-handover-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f03-2j-consultation-assignee-handover-pg16:
+    name: F03-2-2J 90-to-91 PG16 Consultation protected one-table discovery
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2j-consultation-assignee-handover-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-2j-consultation-assignee-handover-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-2j-consultation-assignee-handover-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f03-2n-handover-reconciliation-pg16:
+    name: F03-2-2N strictly read-only seven-kind six-receipt audit on genuine isolated PG16 M94
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-2n-handover-reconciliation-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-2n-handover-reconciliation-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-2n-handover-reconciliation-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f03-package-g1-independent-pg16:
+    name: F03 Package G1 independent new genuine 000014 PG16 governance
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-package-g1-independent-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-package-g1-independent-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-package-g1-independent-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f03-package-g2-independent-pg16:
+    name: F03 Package G2 independent new genuine 000014 PG16 governance
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-package-g2-independent-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-package-g2-independent-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-package-g2-independent-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f03-package-g3-independent-pg16:
+    name: F03 Package G3 independent new genuine 000014 PG16 governance
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-package-g3-independent-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-package-g3-independent-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-package-g3-independent-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f03-package-p1-pg16:
+    name: F03 package P1 independent real M94 safe field contract PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-package-p1-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-package-p1-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-package-p1-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f03-package-p2-pg16:
+    name: F03 package P2 independent real M94 safe field contract PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-package-p2-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-package-p2-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-package-p2-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f03-package-v-evidence-pg16:
+    name: F03-V evidence own fresh isolated PG16 cross-module contract
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-package-v-evidence-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-package-v-evidence-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-package-v-evidence-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f03-package-v-composition-pg16:
+    name: F03-V composition own fresh isolated PG16 cross-module contract
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f03-package-v-composition-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f03-package-v-composition-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f03-package-v-composition-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f04-1-route-security-pg16:
+    name: F04-1 route-security independent real M94 PG16 and TLS
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-1-route-security-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f04-1-route-security-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f04-1-route-security-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f04-1-contracts-inventory-pg16:
+    name: F04-1 218 legacy source contract independent real M94 PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-1-contracts-inventory-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f04-1-contracts-inventory-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f04-1-contracts-inventory-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f04-2-current-authority-pg16:
+    name: F04-2 Authority current PDM IA LowFi full source own PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-2-current-authority-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f04-2-current-authority-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f04-2-current-authority-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f04-2-four-s-preflight-pg16:
+    name: F04-2 SystemAdmin four-S candidate HTTPS scope own PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-2-four-s-preflight-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f04-2-four-s-preflight-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f04-2-four-s-preflight-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f04-3-current-source-dto-pg16:
+    name: F04-3 Current Source OpenAPI DTO own PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-3-current-source-dto-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f04-3-current-source-dto-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f04-3-current-source-dto-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f04-3-current-router-tls-pg16:
+    name: F04-3 Current TLS authenticated route own PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-3-current-router-tls-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f04-3-current-router-tls-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f04-3-current-router-tls-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f04-4-current-coverage-source-pg16:
+    name: F04-4 Current full source coverage own PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-4-current-coverage-source-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f04-4-current-coverage-source-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f04-4-current-coverage-source-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f04-4-current-consumer-tls-pg16:
+    name: F04-4 Current consumer TLS own PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f04-4-current-consumer-tls-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f04-4-current-consumer-tls-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f04-4-current-consumer-tls-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f05-1-vehicle-source-pg16:
+    name: F05-1 Vehicle physical source own PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
+      F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-1-vehicle-source-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f05-1-vehicle-source-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f05-1-vehicle-source-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f05-1-vehicle-tls-pg16:
+    name: F05-1 Vehicle HTTPS scope own PG16
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
+      F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-1-vehicle-tls-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f05-1-vehicle-tls-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f05-1-vehicle-tls-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f05-2-vehicle-migration-source-pg16:
+    name: F05-2 A real PG16 M94 to signed Vehicle responsibility physical migration
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
+      F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-2-vehicle-migration-source-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f05-2-vehicle-migration-source-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f05-2-vehicle-migration-source-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f05-2-vehicle-https-scope-pg16:
+    name: F05-2 B real PG16 TLS Session current Vehicle positive scope
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
+      F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-2-vehicle-https-scope-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f05-2-vehicle-https-scope-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f05-2-vehicle-https-scope-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f05-3a-member-physical-source-gap-pg16:
+    name: F05-3A A real PG16 4S member physical SOURCE_GAP rather than fake owner
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
+      F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3a-member-physical-source-gap-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f05-3a-member-physical-source-gap-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f05-3a-member-physical-source-gap-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f05-3a-member-https-source-gap-pg16:
+    name: F05-3A B real PG16 HTTPS 4S member fail-closed isolation
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
+      F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3a-member-https-source-gap-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f05-3a-member-https-source-gap-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f05-3a-member-https-source-gap-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f05-3b-jyt-source-physical-pg16:
+    name: F05-3B A real PG16 JYT lineage version and concurrent physical evidence
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
+      F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3b-jyt-source-physical-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f05-3b-jyt-source-physical-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f05-3b-jyt-source-physical-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f05-3b-jyt-three-apis-https-pg16:
+    name: F05-3B B real PG16 loopback TLS isolated 3 wholesale API contracts
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
+      F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3b-jyt-three-apis-https-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f05-3b-jyt-three-apis-https-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f05-3b-jyt-three-apis-https-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f05-3c-source-pg16:
+    name: F05-3C independent real PG16 lineage conversion and two backends
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
+      F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3c-source-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f05-3c-source-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f05-3c-source-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f05-3c-https-pg16:
+    name: F05-3C independent loopback TLS Employee identity
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
+      F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3c-https-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f05-3c-https-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f05-3c-https-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f05-3d-source-pg16:
+    name: F05-3D independent real PG16 wholesale source-gate source audit
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
+      F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3d-source-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f05-3d-source-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f05-3d-source-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f05-3d-https-pg16:
+    name: F05-3D independent real PG16 wholesale source-gate https audit
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
+      F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3d-https-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f05-3d-https-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f05-3d-https-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f05-3e-source-pg16:
+    name: F05-3E true PostgreSQL16 hide reason source audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions: {contents: read}
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+    defaults:
+      run: {working-directory: engineering}
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
+      F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3e-source-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f05-3e-source-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f05-3e-source-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f05-3e-https-pg16:
+    name: F05-3E true PostgreSQL16 hide reason https audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions: {contents: read}
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+    defaults:
+      run: {working-directory: engineering}
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
+      F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3e-https-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f05-3e-https-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f05-3e-https-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f05-3f-source-pg16:
+    name: F05-3F genuine PG16 Favorite source audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions: {contents: read}
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3f-source-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f05-3f-source-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f05-3f-source-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  f05-3f-https-pg16:
+    name: F05-3F genuine PG16 Favorite https audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions: {contents: read}
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" f05-3f-https-pg16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-f05-3f-https-pg16
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/f05-3f-https-pg16/
+          retention-days: 30
+          if-no-files-found: error
+  g-source:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" g-source
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-g-source
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/g-source/
+          retention-days: 30
+          if-no-files-found: error
+  g-https:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" g-https
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-g-https
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/g-https/
+          retention-days: 30
+          if-no-files-found: error
+  h-source:
+    runs-on: ubuntu-latest
+    env: {MODE: source}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" h-source
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-h-source
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/h-source/
+          retention-days: 30
+          if-no-files-found: error
+  h-https:
+    runs-on: ubuntu-latest
+    env: {MODE: https}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve official PG16 Docker Hub tag and alias original frozen ECR reference
+        run: |
+          set -euo pipefail
+          docker image inspect postgres:16-alpine >/dev/null 2>&1 || docker pull postgres:16-alpine
+          docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+          test "$(docker image inspect postgres:16-alpine --format '{{.Id}}')" = "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          echo F06_5A_OFFICIAL_PG16_IMAGE_ALIAS_VERIFIED
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Execute every original frozen shell test step from the signed parent YAML
+        run: test "$GITHUB_REF" = refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci && test "$GITHUB_REF_NAME" = feat/f06-5b-lock-refund-conversion-guard-ci && GITHUB_REF=refs/heads/feat/f06-5a-transaction-refund-pending-ci GITHUB_REF_NAME=feat/f06-5a-transaction-refund-pending-ci node "$GITHUB_WORKSPACE/engineering/f06/transaction-refund-ci/h52-runner.mjs" h-https
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f06-5a-h52-h-https
+          path: engineering/f06/transaction-refund-ci/artifacts/h52/h-https/
+          retention-days: 30
+          if-no-files-found: error

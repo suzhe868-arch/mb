@@ -1,0 +1,18 @@
+用例	来源	期待	同事务检查
+旧Lock pending	3C1签名Refund	强制拒绝	Vehicle及Lock行锁之后
+旧Lock refunded	公共Refund状态	强制拒绝	Transaction写入前
+已付款	refund_payments	强制拒绝	Transaction写入前
+旧Lock closed	签名closed、close_reason、零实际支付	可继续合法金额复核	双时点退款复验
+已签Deposit	3A可信收款及调整请求来源	余额可信才允许	同物理PG事务
+合法销售	显式permission+Scope+活动会话	在无冲突时允许	父3B权限合同复用
+4S及SystemAdmin	不符合法人凭证类别	拒绝	父Session gate
+Customer disabled	账号失效	拒绝	父Customer行级重验
+生产Issuer	不存在	拒绝	HTTPS loopback
+已授销售撤权	public.permission override allow→deny	硬拒不建Tx	当前Session同事务
+销售Scope过期	capability scope binding ended_at	硬拒不建Tx	当前Session同事务
+客户停用	public.customers account_status inactive	硬拒Lock仍active	当前Session同事务
+4S角色伪用旧Session	current employee role four_s	硬拒不建Tx	认证重新取实时身份
+恢复合法权限	新Lock签名3A Deposit	允许原子转换	同PG事务和旧3A签名余额
+先建Tx后再申请Lock退款	3C1真实旧Lock退款入口	必须拒绝	已存在owning Tx
+原3B危险反例	同一旧Lock 3A真收款及3C1 pending	冻结父仍误放（仅留证）	禁止默认为已修
+5B同样数据安全反证	真实3B不安全事件Key+旧退款pending	5B硬拒无5B签名漂白	Vehicle→Lock行锁内
