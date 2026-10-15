@@ -50,7 +50,7 @@ jobs:
           gate();
           for(const result of [d4a(),d4b(),d4c(),completedIssuerDeny(),paymentIssuerDeny(),m4b(),c4b(),m4c(),c4c()]){
            assert.equal(result.allowed,false);
-           assert.match(result.code,/NOT_AUTHORIZED|NOT_WIRED|PRODUCTION/);
+           assert.match(result.code,/NOT_AUTHORIZED|NEVER_AUTHORIZED|NOT_WIRED|PRODUCTION/);
           }
           console.log('F06_5C_PG1_SIGNED_HTTPS_AND_PRODUCTION_ISSUER_DENY_PASS');
           NODE
