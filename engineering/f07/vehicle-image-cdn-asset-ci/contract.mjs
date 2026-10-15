@@ -54,8 +54,8 @@ export async function seed(){
    ['h5','v1','maintenance_h5','JYT','report/maintenance.html',0,true],
    ['doc','v1','sensitive_document','MB','private/registration.jpg',0,false]];
   for(const [id,vehicle,kind,source,path,order,visible] of inserts)
-   await db.query("INSERT INTO f07_images.pictures(id,vehicle_id,resource_type,source_platform,upstream_image_id,relative_path,immutable_order,customer_visible) VALUES($1,$2,$3,$4,$5,$6,$7,$8)",
-    [id,vehicle,kind,source,'TEST_'+id,path,order,visible]);
+   await db.query("INSERT INTO f07_images.pictures(id,vehicle_id,resource_type,source_platform,upstream_image_id,relative_path,immutable_order,customer_visible,origin_source_type) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)",
+    [id,vehicle,kind,source,'TEST_'+id,path,order,visible,vehicle==='vm'?'mingbang':'wholesale']);
  });
 }
 export function safePath(input){
@@ -115,7 +115,7 @@ export async function freezeImages(vehicle,images){
   if(c.rows[0].n>0){await db.query('UPDATE f07_images.vehicles SET image_frozen=true WHERE id=$1',[vehicle]);return {frozen:true,inserted:0};}
   for(let i=0;i<images.length;i++){
    const x=images[i];safePath(x.path);requireId(x.id);
-   await db.query("INSERT INTO f07_images.pictures(id,vehicle_id,resource_type,source_platform,upstream_image_id,relative_path,immutable_order,customer_visible) VALUES($1,$2,'vehicle_photo',$3,$4,$5,$6,true)",[x.id,vehicle,'JYT',x.upstream_id??null,x.path,i]);
+   await db.query("INSERT INTO f07_images.pictures(id,vehicle_id,resource_type,source_platform,upstream_image_id,relative_path,immutable_order,customer_visible,origin_source_type) VALUES($1,$2,'vehicle_photo',$3,$4,$5,$6,true,'wholesale')",[x.id,vehicle,'JYT',x.upstream_id??null,x.path,i]);
   }
   await db.query('UPDATE f07_images.vehicles SET image_frozen=true WHERE id=$1',[vehicle]);
   return {frozen:true,inserted:images.length};
@@ -213,7 +213,7 @@ export async function selectCover(token,vehicle,store,cdn){
  const r=await guarded(db=>db.query("SELECT id FROM f07_images.pictures WHERE vehicle_id=$1 AND resource_type='vehicle_photo' ORDER BY immutable_order,id",[vehicle]));
  for(const p of r.rows){
   try{const x=await imageBytes(token,p.id,store,cdn);return {imageId:p.id,url:x.url,placeholder:false};}
-  catch(e){if(['CURRENT_VEHICLE_READ_DENY','CURRENT_REPORT_DENY'].includes(e.code))throw e;}
+  catch(e){if(!['MOCK_SINGLE_IMAGE_FAILURE','TEST_ORIGIN_UNAVAILABLE','ASSET_MISSING_SINGLE_IMAGE_RECOVERY_REQUIRED','UNAVAILABLE_ASSET'].includes(e.code))throw e;}
  }
  await vehicleRead(token,vehicle); // Recheck after asynchronous fallback in case permission revoked mid-selection.
  return {imageId:null,url:'TEST_PLACEHOLDER',placeholder:true};
@@ -228,7 +228,7 @@ export async function uploadManual(vehicle,{id,path,order=0},store,{failDb=false
    const v=await db.query("SELECT source_type FROM f07_images.vehicles WHERE id=$1 FOR UPDATE",[vehicle]);
    if(v.rowCount!==1||!['mingbang','four_s'].includes(v.rows[0].source_type))throw denied('MANUAL_NOT_ALLOWED');
    await store.put(key,await testOrigin(path));stored=true;
-   await db.query("INSERT INTO f07_images.pictures(id,vehicle_id,resource_type,source_platform,upstream_image_id,relative_path,immutable_order,object_key,asset_state,customer_visible) VALUES($1,$2,'vehicle_photo','MB',NULL,$3,$4,$5,'success',true)",[id,vehicle,path,order,failDb?null:key]);
+   await db.query("INSERT INTO f07_images.pictures(id,vehicle_id,resource_type,source_platform,upstream_image_id,relative_path,immutable_order,object_key,asset_state,customer_visible,origin_source_type) VALUES($1,$2,'vehicle_photo','MB',NULL,$3,$4,$5,'success',true,$6)",[id,vehicle,path,order,failDb?null:key,v.rows[0].source_type]);
    return {status:'success',key};
   });
  }catch(e){
