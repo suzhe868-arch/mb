@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F07_1_PR64_A_CHANGES_REQUESTED_SECRET_LOG_AND_SIGNED_SESSION_CI_GATE_REMEDIATION",
+  "substage": "F07_1_PR64_A_ACCEPTED_MERGED_CI_ONLY_F07_2_A_RELEASED_FOR_B",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F07",
-  "current_domain_status": "F07_1_PR64_A_CHANGES_REQUESTED_B_REMEDIATION_REQUIRED",
+  "current_domain_status": "F07_1_CI_ONLY_MERGED_F07_2_A_RELEASED_CI_ONLY_F07_GLOBAL_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A独立复验F07-1 PR64唯一B HEAD b3765e44741b22830213ea5e4363161ac46b8a03；本SHA真Push Run38702610526 Source PG16 40项+父1项全绿、HTTPS15项+父1项全绿、2工件官方有效摘要、13/13新增文件白名单均核实。但官方两Job日志明文泄漏本次合成HMAC密钥，bootstrap/reset等破坏性隔离数据库操作无GitHub CI/固定DB/非superuser运行时先验门禁；F03 policy纯规则而非签名会话已签PG来源（侧车模拟账号不够）。A据正式施工单提出A01/A02/A03定向整改，已向PR64签A_CHANGES_REQUESTED；禁止合并，F05/F06/F07整域与V1 NOT_READY；下一B原分支原PR整改后全量同SHA CI与审查。",
-  "current_work_file": "07_重建工作区/F07-1_A主控PR64首轮安全复验不通过_密钥日志隔离门禁与F03签名会话定向整改正式施工单_2026-10-15.md",
+  "current_task": "A已独立审查并标准合并PR64，实际merge SHA404c02c752e8bf6e4b27b8502ed4385027ff72e5；B末HEAD f68a102799802dc0d18be7d2039f00b65e8de527，13文件起扩充为16个文件全白名单新增。真正Push Run38707390432新2/2 PG16 Job success，独立业务79/79，官方同末SHA两Artifact有效元数据；A01签名测试密钥当前日志脱敏、A02固定CI+真实非特权PG16零写入Gate、A03真实F03 Session DENY证明PASS但电话敏感能力及Scope仍TECH_ALIAS_PENDING_A/SOURCE_GAP。额外10旧PR工作流3成功6失败1未完成，红证保留，按仅PR64 CI隔离限定裁决可标准合并。现A已正式放行F07-2合成图片来源/CDN/双成功资产化/报告权限隔离CI工作包，由B按最新main独立新分支新PR实施；真实生产CDN/对象存储/第三方/JYT及F05/F06/F07/V1整体均NOT_READY。",
+  "current_work_file": "07_重建工作区/F07-2_A主控车辆图片路径受控CDN双成功资产化与报告权限_CI隔离正式完整施工单_2026-10-15.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F07_1_PR64_A_REVIEW_CHANGES_REQUESTED_B_REMEDIATION",
+  "current_review_batch": "F07_2_A_FORMALLY_RELEASED_CI_ONLY",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F07_1_PR64_A_CHANGES_REQUESTED_NO_MERGE_NO_PRODUCTION",
+  "engineering_status": "F07_1_PR64_A_ACCEPTED_MERGED_CI_ONLY_F07_2_B_EXECUTION_AUTHORIZED_CI_ONLY",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "07_重建工作区/F07-1_A主控PR64首轮安全复验不通过_密钥日志隔离门禁与F03签名会话定向整改正式施工单_2026-10-15.md",
+  "next_action_detail": "07_重建工作区/F07-2_A主控车辆图片路径受控CDN双成功资产化与报告权限_CI隔离正式完整施工单_2026-10-15.md",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F07_1_PR64_SECURITY_REMEDIATION_A01_A02_A03_AND_FULL_NATIVE_RETEST",
+  "next_task": "F07_2_VEHICLE_IMAGE_CDN_ASSET_DUAL_SUCCESS_REPORT_AUTH_CI_ONLY",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -8032,7 +8032,7 @@
     "pr62_integration_merge_sha": "e54872b3f92cd66b3b51bd5465670e0d6e7de3c1"
   },
   "f07_gate": {
-    "status": "F07_1_PR64_A_CHANGES_REQUESTED_B_REMEDIATION",
+    "status": "F07_1_MERGED_CI_ONLY_F07_2_A_RELEASED_CI_ONLY_GLOBAL_NOT_READY",
     "owner": "B",
     "global_not_ready": true,
     "production": false,
@@ -8041,13 +8041,14 @@
     "real_collector_credentials_authorized": false,
     "work_order": "07_重建工作区/F07-1_A主控Collector发布人电话安全回传与缓存权限合同_CI隔离正式完整施工单_2026-10-15.md",
     "dependency_status": "F01_TO_F04_SIGNED_CI_ONLY_ACCEPTED_F05_F06_GLOBAL_NOT_READY",
-    "next_owner": "B_F07_1_REMEDIATION",
-    "latest_review_work_order": "07_重建工作区/F07-1_A主控PR64首轮安全复验不通过_密钥日志隔离门禁与F03签名会话定向整改正式施工单_2026-10-15.md"
+    "next_owner": "B",
+    "latest_review_work_order": "07_重建工作区/F07-1_A主控PR64首轮安全复验不通过_密钥日志隔离门禁与F03签名会话定向整改正式施工单_2026-10-15.md",
+    "next_work_order": "07_重建工作区/F07-2_A主控车辆图片路径受控CDN双成功资产化与报告权限_CI隔离正式完整施工单_2026-10-15.md"
   },
   "f07_1_gate": {
-    "status": "A_CHANGES_REQUESTED_PR64_CI_ONLY",
-    "owner": "B",
-    "next_owner": "B",
+    "status": "A_ACCEPTED_STANDARD_MERGED_PR64_CI_ONLY",
+    "owner": "A_ACCEPTED",
+    "next_owner": "B_F07_2",
     "branch": "feat/f07-1-collector-publisher-phone-callback-ci",
     "pr": 64,
     "work_order": "07_重建工作区/F07-1_A主控Collector发布人电话安全回传与缓存权限合同_CI隔离正式完整施工单_2026-10-15.md",
@@ -8066,27 +8067,70 @@
     "min_https_tests": 9,
     "after_b_selftest": "READY_FOR_A_REVIEW",
     "v1": "NOT_READY",
-    "pr_merged": false,
-    "a_review_head_sha": "b3765e44741b22830213ea5e4363161ac46b8a03",
+    "pr_merged": true,
+    "a_review_head_sha": "f68a102799802dc0d18be7d2039f00b65e8de527",
     "a_review_base_sha": "f8af03e45de11bf2ac3adda13027005c2939a5f0",
     "a_review_comment_id": 6187648993,
     "a_remediation_work_order": "07_重建工作区/F07-1_A主控PR64首轮安全复验不通过_密钥日志隔离门禁与F03签名会话定向整改正式施工单_2026-10-15.md",
-    "a_verified_scope_files": 13,
+    "a_verified_scope_files": 16,
     "a_verified_push_workflows_success": 1,
     "a_verified_pg16_jobs_success": 2,
     "a_verified_source_business_cases": 40,
     "a_verified_https_business_cases": 15,
     "a_verified_official_sha256_artifact_metadata": 2,
-    "a_discovered_blockers": [
-      "A01_GENERATED_HMAC_SECRET_LEAKS_PLAINTEXT_TO_OFFICIAL_GITHUB_JOB_LOGS",
-      "A02_RUNTIME_CI_ONLY_AND_PHYSICAL_PG16_DB_GATE_MISSING_BEFORE_SCHEMA_AND_TRUNCATE",
-      "A03_F03_POLICY_PURE_SNAPSHOT_WITH_SYNTHETIC_SESSION_NOT_TRUE_SIGNED_F03_SESSION_VERIFICATION"
-    ],
+    "a_discovered_blockers": [],
     "a_additional_pr_workflow_state": {
       "success": 3,
-      "failure": 5,
-      "in_progress": 2,
-      "provisional": true
-    }
+      "failure": 6,
+      "in_progress": 1,
+      "actual_job_failures": 9,
+      "notes": "6 Docker ECR toomanyrequests during container initialization; 3 historical F05 branch-specific proof; old red real"
+    },
+    "merged": true,
+    "merge_sha": "404c02c752e8bf6e4b27b8502ed4385027ff72e5",
+    "a_acceptance_comment_id": 6188760100,
+    "a_acceptance_report": "07_重建工作区/F07-1_A主控PR64三项安全整改79项真PG16独立验收标准合并及F07-2前置正式报告_2026-10-15.md",
+    "a_ci_applicability_ruling": "F07-1-PR64-A-CI-APPLICABILITY-01_SCOPED_TO_THIS_CI_ONLY_PR",
+    "a_verified_independent_business_tests": 79,
+    "a_verified_a02_ci_gate_tests": 17,
+    "a_verified_a03_signed_f03_negative_tests": 7,
+    "a_closed_corrections": [
+      "A01_TEST_HMAC_SECRET_MASKED_IN_FINAL_OFFICIAL_JOB_LOGS_OLD_EXPOSURE_REMAINS_HISTORIC",
+      "A02_EXPLICIT_CI_ENV_AND_REAL_PG16_PHYSICAL_DB_FAIL_CLOSED_GUARD_17_CASES",
+      "A03_SIGNED_F03_LOGIN_SESSION_NEGATIVE_PROOF_NOT_PHONE_ALLOW"
+    ],
+    "remaining_source_gaps": [
+      "TECH_ALIAS_PENDING_A",
+      "F07_REAL_F03_PHONE_PERMISSION_SCOPE_OBJECT_NOT_CONNECTED",
+      "REAL_COLLECTOR_JYT_INTEGRATION_NOT_CONNECTED",
+      "PRODUCTION_PUBLISHER_CACHE_SCHEMA_NOT_IMPLEMENTED"
+    ]
+  },
+  "last_a_acceptance_report": "07_重建工作区/F07-1_A主控PR64三项安全整改79项真PG16独立验收标准合并及F07-2前置正式报告_2026-10-15.md",
+  "f07_2_gate": {
+    "status": "A_RELEASED_FOR_B_CI_ONLY",
+    "owner": "B",
+    "next_owner": "B",
+    "work_order": "07_重建工作区/F07-2_A主控车辆图片路径受控CDN双成功资产化与报告权限_CI隔离正式完整施工单_2026-10-15.md",
+    "branch": "feat/f07-2-vehicle-image-cdn-asset-contract-ci",
+    "scope": "SYNTHETIC_VEHICLE_IMAGE_RELATIVE_PATH_CONTROLLED_CDN_ORIGIN_DUAL_SUCCESS_LOCAL_ASSETIZATION_PDM08_3A_REPORT_ACCESS_CI_ONLY",
+    "allowed_paths": [
+      "engineering/f07/vehicle-image-cdn-asset-ci/**",
+      ".github/workflows/f07-2-*.yml"
+    ],
+    "min_real_pg16_jobs": 2,
+    "min_source_cases": 35,
+    "min_https_cases": 12,
+    "requires_ci_and_pg_physical_gate": true,
+    "production": false,
+    "real_jyt": false,
+    "real_cdn": false,
+    "real_object_storage": false,
+    "real_customer_images": false,
+    "real_payment": false,
+    "public_db_migrations": false,
+    "review_after": "B_SELF_TESTED_READY_FOR_A_REVIEW_NEXT_OWNER_A",
+    "f07_global": "NOT_READY",
+    "v1": "NOT_READY"
   }
 }
