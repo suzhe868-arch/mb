@@ -1,3 +1,12 @@
+# 2026-10-15｜A核验PR63同SHA PG1真PG16三项绿证，裁定旧父跨分支Push证明不适用，放行B最终交接（唯一最新）
+
+- **唯一正式指针**：`A_TECH_RULING_SCOPED_CI_APPLICABILITY / A_RELEASED_FOR_B_FINAL_HANDOFF / NEXT_OWNER=B / NEXT_TASK=F06_5C_PG1_PR63_SCOPED_NATIVE_EVIDENCE_FINAL_HANDOFF_AND_REVIEW_REQUEST / PR63_DRAFT_NOT_MERGED / PR62_BLOCKED / F05_F06_V1_NOT_READY`。
+- **A直接核验**：main审查点 `a25fff7ccd0b79e87038330f6b783edd93071ab5`；[PR63](https://github.com/suzhe868-arch/mb/pull/63) HEAD `34e2b11212d59b06514917b54961b669411ef44f`，21/21文件仅授权新PG1目录，ahead95/behind6；同HEAD [真PG16 Source Run38673920782](https://github.com/suzhe868-arch/mb/actions/runs/38673920782)、[HTTPS Run38673920756](https://github.com/suzhe868-arch/mb/actions/runs/38673920756)、[静态Run38673920745](https://github.com/suzhe868-arch/mb/actions/runs/38673920745)均success。官方原生日志含C01—C03/R01等总门禁、独立OID 68445→73461、190旧父表与24 Ledger Seal；Source/HTTPS非空官方SHA256工件10368/6477 bytes，**A未逐字节复算工件、尚未终验源码**。
+- **真实红灯继续保留**：同HEAD旧父 F05-7、F05-8、F05-9、F05-10、D1 五个 Source Job 实际 `failure`，A直接核实其最终失败因旧版指定分支/Workflow的官方新Push聚合证明在PG1修复分支不可达；不得称“全部31检查全绿”或“F05域全绿”。A**限定技术裁决** `F06-5C-PG1-A-CI-APPLICABILITY-01`：仅将这五项旧聚合Push资格在 PR63 独立CI-only包标记 `LEGACY_CROSS_BRANCH_NOT_APPLICABLE_WITH_ACTUAL_RED_PRESERVED`，不改冻结源码、不伪造结果、不降低C01—C03/正向4A/4C/资金与物理证据。
+- **正式整改单已归档**：`07_重建工作区/F06-5C-PG1_A主控PR63旧父Push证明跨分支不适用_限定范围验收门禁技术裁决与B交接整改单_2026-10-15.md`。B在同PR63/同分支补逐场景日志/业务SQL行/角色/签名/两Backend/COMMIT/工件映射及最终完整中文自验交接；只有真实完备才能标 `B_SELF_TESTED / READY_FOR_A_REVIEW`，A届时独立源码/证据审查、核GitHub合并限制后才决定是否标准PR合并。本轮**不批准合并PR63/PR62**。F05/F06/V1仍 `NOT_READY`，生产、真实资金、UAT、F07/F08均未授权。**NEXT_OWNER=B**。
+
+---
+
 ## 2026-10-15｜A工程技术裁决：PR63 新增触发器与原固定Catalog签名不兼容，仅CI包内允许版本化验签及安全取消等价入口
 
 - **裁决号**：`F06-5C-PG1-A-TECH-CATALOG-01`；**性质**：既有PDM-13/18/19下的工程兼容技术裁决，**非新增业务规则、不更改产品Authority**。A独立审阅PR [#63](https://github.com/suzhe868-arch/mb/pull/63) HEAD `f0e159bbdbffca516b6ddd7c14052f882e3df57e`，真实官方[PG16 Run38648121814](https://github.com/suzhe868-arch/mb/actions/runs/38648121814) Job116139958565 `completed/failure`，旧5B物理188表及升级后的PG1前190旧表封印有效，但新增两个public Trigger/一个constraint使冻结父`getPublicStructure`与各级`verify`固定旧SHA不匹配，旧父报`F05_10_CATALOG_DRIFT`。真实兼容阻断确认，**不等于原PR62 C01—C03安全漏洞已修复**。
