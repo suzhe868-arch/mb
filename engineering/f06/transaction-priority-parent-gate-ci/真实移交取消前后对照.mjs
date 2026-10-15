@@ -147,6 +147,11 @@ export async function proveVersionedNative4C(c,base,fixture){
  const ev=await one(c,"SELECT count(*)::int n FROM f06_4c_ci.cancel_events WHERE transaction_id=$1",[fixture.newTx]);
  assert.equal(ev.n,1);
  assert.equal((await verify(c)).verified,true);
+ // 4B/4C合成经理权限只用于本用例；后续C01/R01均使用原F03签发的Sales令牌，
+ // 必须恢复对应实时Role，否则原4A权限函数会正确拒绝令牌与员工现角色不一致。
+ const sales=await one(c,"SELECT role_id FROM public.roles WHERE role_code='sales'");
+ assert.ok(sales,'PG1_RESTORE_ORIGINAL_SALES_ROLE_REQUIRED');
+ await c.query("UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1",[sales.role_id]);
  return {old4C:fixture.old.code,new4C:cancel.code,
   oldTx:fixture.oldTx,newTx:fixture.newTx,
   oldSignedEventId:fixture.baseline.immutableHandoffEventId,
