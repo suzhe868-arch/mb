@@ -1,3 +1,13 @@
+# 2026-10-15｜A独立验收PR63标准合并，正式放行PR62对接已签PG1与C01—C03原生复验（唯一最新）
+
+- **唯一主线指针**：`A_ACCEPTED_MERGED_PR63_CI_ONLY / A_RELEASED_FOR_B_PR62_PG1_INTEGRATION / NEXT_OWNER=B / NEXT_TASK=F06_5C_PR62_PG1_SIGNED_INTEGRATION_C01_C03_FULL_NATIVE_REGRESSION_AND_FINAL_HANDOFF / PR62_NOT_MERGED / F05_F06_V1_NOT_READY`。A受验B最新PG1 HEAD `82b30bde92291a444372f3c1627e41469fba4586`、主线审查点 `bcb5b4e8fe5442b255344840f2a6fe00ddfcd022`；实际按标准GitHub [PR63](https://github.com/suzhe868-arch/mb/pull/63)合并成功，GitHub返回 `merged=true`，**合并提交 `a8dfb9f1e78bbab4f194dbeed3076bd8c33eddad`**。A[独立验收评论](https://github.com/suzhe868-arch/mb/pull/63#issuecomment-6184723787)已归档，限 `A_ACCEPTED_CI_ONLY`，不代表F05/F06/V1整域READY。
+- **A直接证据**：PR63 22/22仅新增授权PG1白名单；真实同HEAD PG16 Source [38682645219](https://github.com/suzhe868-arch/mb/actions/runs/38682645219)与HTTPS [38682645123](https://github.com/suzhe868-arch/mb/actions/runs/38682645123)、静态 [38682645218](https://github.com/suzhe868-arch/mb/actions/runs/38682645218)均 `completed/success`。C01真候补取消零插队、C02/C03假取消COMMIT拒绝23514、R01合法唯一自动新Priority、4A/4B→4C权限与资金拒绝、两物理OID `68461→73477`、190父表全行COUNT/MD5、24 Ledger与精确两Trigger一Constraint追加签名真实核实；Source/HTTPS官方非空SHA256工件11,630/6,468字节。
+- **实有不绿继续保留**：旧F05跨分支指定Push证明按`F06-5C-PG1-A-CI-APPLICABILITY-01`仅对PR63独立包归类 `LEGACY_CROSS_BRANCH_NOT_APPLICABLE_WITH_ACTUAL_RED_PRESERVED`；另外3个旧重复Job真实因ECR Docker镜像 `toomanyrequests` 在初始化阶段失败，同SHA其它同类父回归成功；审查时另1旧Source还运行中。**绝不称“所有31 Checks全绿”**、也不将PR63本轮例外自动延伸至原PR62。
+- **新正式施工单已签**：`07_重建工作区/F06-5C_A主控PR63合并后PR62版本化对接与C01至C03全量原生复验正式施工单_2026-10-15.md`。原[PR62](https://github.com/suzhe868-arch/mb/pull/62)仍open/unmerged，分支 `feat/f06-5c-transaction-priority-admission-ci`，B须从最新main普通非破坏性合并已签PG1，改造仅原5C白名单内版本化Catalog与安全v2入口，保持旧父FailClosed；让PR62自身原S84—S86真JYT/候补/无签取消/未知退款完整安全负例真正转绿，R01/4C/权限/双Backend和22真正Push/96真实PG16 Job/H52、官方工件全部最终同SHA再交A。不得强推/改原PG1或冻结父、删弱失败断言。
+- **A完整验收记录**：`07_重建工作区/F06-5C-PG1_A主控PR63独立验收合并与PR62后续放行正式报告_2026-10-15.md`。PR62本轮尚未A接受、尚未合并；F05/F06整域与V1仍`NOT_READY`，生产资金、真实第三方/客户、UAT、F07/F08及上线未放行。**NEXT_OWNER=B**。
+
+---
+
 # 2026-10-15｜A核验PR63同SHA PG1真PG16三项绿证，裁定旧父跨分支Push证明不适用，放行B最终交接（唯一最新）
 
 - **唯一正式指针**：`A_TECH_RULING_SCOPED_CI_APPLICABILITY / A_RELEASED_FOR_B_FINAL_HANDOFF / NEXT_OWNER=B / NEXT_TASK=F06_5C_PG1_PR63_SCOPED_NATIVE_EVIDENCE_FINAL_HANDOFF_AND_REVIEW_REQUEST / PR63_DRAFT_NOT_MERGED / PR62_BLOCKED / F05_F06_V1_NOT_READY`。
