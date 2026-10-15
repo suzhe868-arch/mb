@@ -56,6 +56,7 @@ export async function seed(){
   for(const [id,vehicle,kind,source,path,order,visible] of inserts)
    await db.query("INSERT INTO f07_images.pictures(id,vehicle_id,resource_type,source_platform,upstream_image_id,relative_path,immutable_order,customer_visible,origin_source_type) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)",
     [id,vehicle,kind,source,'TEST_'+id,path,order,visible,vehicle==='vm'?'mingbang':'wholesale']);
+  await db.query("UPDATE f07_images.pictures SET report_source_url='https://reports.jyt.invalid/report/maintenance.html#page1' WHERE id='h5'");
  });
 }
 export function safePath(input){
