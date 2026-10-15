@@ -27,7 +27,7 @@ fi
 (cd engineering && node f06/transaction-priority-admission-ci/runner.mjs --inject-rollback && node f06/transaction-priority-admission-ci/runner.mjs --apply && node f06/transaction-priority-admission-ci/runner.mjs --verify)
 if [[ "$mode" = source ]];then
  (cd engineering && node --test f06/transaction-priority-admission-ci/tests/source.test.mjs) 2>&1 | tee "$base/artifacts/source/native-source.log"
- grep -q '# tests 92' "$base/artifacts/source/native-source.log"
+ grep -q '# tests 91' "$base/artifacts/source/native-source.log"
  grep -q '# fail 0' "$base/artifacts/source/native-source.log"
  (cd engineering && node f06/transaction-priority-admission-ci/pg1-scenario-physical-seal.mjs) 2>&1 | tee "$base/artifacts/source/pg1-scenario-native-seal.log"
  grep -q F06_5C_PG1_VERSIONED_SCENARIO_FULL_SEAL_PASS "$base/artifacts/source/pg1-scenario-native-seal.log"
@@ -35,13 +35,18 @@ if [[ "$mode" = source ]];then
  grep -q F06_5C_S85_S86_NATIVE_SIGNED_MATCH_COMMIT_REJECTIONS "$base/artifacts/source/native-source.log"
  grep -q 'ok 89 - 5C-S87' "$base/artifacts/source/native-source.log"
  grep -q 'ok 90 - 5C-S88' "$base/artifacts/source/native-source.log"
- grep -q 'ok 91 - 5C-S89' "$base/artifacts/source/native-source.log"
- grep -q 'ok 92 - 5C-S90' "$base/artifacts/source/native-source.log"
- grep -q F06_5C_PG1_R01_NATIVE_UNIQUE_PARENT_SUCCESSOR "$base/artifacts/source/native-source.log"
- grep -q F06_5C_PG1_R03_NATIVE_SIGNED_4B_4C_CANCEL "$base/artifacts/source/native-source.log"
+  grep -q 'ok 91 - 5C-S90' "$base/artifacts/source/native-source.log"
+  grep -q F06_5C_PG1_R03_NATIVE_SIGNED_4B_4C_CANCEL "$base/artifacts/source/native-source.log"
  bash "$base/disposable-db.sh" restore
  (cd engineering && node f06/transaction-priority-admission-ci/audit-seal.mjs after) 2>&1 | tee "$base/artifacts/source/audit-global-seal.log"
  grep -q F06_5C_TWO_PHYSICAL_PG_DATABASES_PARENT_190_TABLES_SEAL_PASS "$base/artifacts/source/audit-global-seal.log"
+ # R01须使用还原后另一真实物理PG16，不能在第一场景重开已有历史3B的JYT。
+ (cd engineering && node f06/transaction-priority-admission-ci/runner.mjs --apply && node f06/transaction-priority-admission-ci/runner.mjs --verify)
+ (cd engineering && node --test f06/transaction-priority-admission-ci/tests/r01-restored-native.test.mjs) 2>&1 | tee "$base/artifacts/source/r01-restored-native.log"
+ grep -q '# tests 1' "$base/artifacts/source/r01-restored-native.log"
+ grep -q '# fail 0' "$base/artifacts/source/r01-restored-native.log"
+ grep -q 'ok 1 - 5C-S89' "$base/artifacts/source/r01-restored-native.log"
+ grep -q F06_5C_PG1_R01_NATIVE_UNIQUE_PARENT_SUCCESSOR "$base/artifacts/source/r01-restored-native.log"
 else
  openssl req -x509 -newkey rsa:2048 -sha256 -nodes -days 1 -keyout /tmp/f06-5c-key.pem -out /tmp/f06-5c-cert.pem -subj '/CN=localhost' >/dev/null 2>&1
  chmod 600 /tmp/f06-5c-key.pem
