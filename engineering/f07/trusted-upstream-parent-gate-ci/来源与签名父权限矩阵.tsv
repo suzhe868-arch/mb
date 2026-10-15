@@ -1,0 +1,13 @@
+模块	控制项	Authority	已读取父接口/事实	证据分类	未闭环说明
+R01	Collector上游三固定API	PDM-04/PDM-09	inspectCollector()+inspectCollectorOnce()真PG16非正式nonce复合唯一键；mapSyntheticSyncApi()三固定API事件合同	CI_SYNTHETIC_ONLY	合成源API与电话credential严格分离，非真实JYT Issuer/生产API或生产nonce持久化；无外网请求
+R02	Employee Session	F03-1 IsolatedAuth.login / withSession	真实PG16 pc_login_accounts/pc_auth_sessions	SIGNED_PARENT_VERIFIED	真会话可识别，不授电话权限
+R02	当前电话Permission	F03-2 readCurrentFacts	真实public.permissions / employee_permission_overrides	SIGNED_PARENT_NEGATIVE_ONLY	publisher.phone.sensitive 技术别名TECH_ALIAS_PENDING_A
+R02	当前角色Scope/对象	F03-2 readCurrentFacts	真实现行员工及权限表	SOURCE_GAP	F03读事实后固定DEFER，没有电话最终业务allow
+R03	真实转换	F05-3C service.convertWholesaleToMingbang	真实已签000018迁移/verifier、转换/审计真实COUNT与Vehicle/Cycle关联；无签正向Issuer仅SOURCE_GAP	SOURCE_GAP_OR_SIGNED_NEGATIVE	正例计数0时明确F05_CONVERSION_POSITIVE_SOURCE_GAP，绝不把空数组当父转换成功
+R03	原Vehicle/ListingCycle	F05-3C migration.verify	public.vehicles, vehicle_listing_cycles，真实FK关系与COUNT/MD5	SIGNED_PARENT_VERIFIED	只读物理父车辆与原Cycle关系；不通过无Issuer转换来制造车辆
+R03	图片资产双成功	F07-2 contract.mjs	仅可销毁MockStorage/MockCDN侧车	CI_SYNTHETIC_ONLY	非真实OSS/CDN来源，资产化不改变父事务
+R04	报告可见性与原件	PDM-07/F03 readCurrentFacts	实际Session DENY；报告仅合成资源	SOURCE_GAP	缺报告正式资料物理关联、customer_visible和对象Scope
+R04	历史分享/H5/URL	F07-2合成端与新增TLS	原生PG16会话每次重新读，永不返回敏感url	SIGNED_PARENT_NEGATIVE_ONLY	私有图片网关/实际分享URL未接线
+R05	真实F03/F05独立物理数据库	同一Runner两次新建物理PG16 OID	原数据库归档，另新数据库应用父签迁移	SIGNED_PARENT_VERIFIED	两个不同OID；不能当成生产迁移
+R05	真实双Backend锁与回滚	PG16 SELECT FOR UPDATE/lock_timeout/ROLLBACK	真实Vehicle父行SELECT FOR UPDATE双Backend PID/SQLSTATE55P03及ROLLBACK后父关系COUNT/MD5	SIGNED_PARENT_VERIFIED	无合法Vehicle时必须声明SOURCE_GAP，不再用pc_login_accounts锁冒充车辆竞争
+R06	H03/H04/F08前端	冻结PDM/当前F07	本批无任何前端/生产路由	SOURCE_GAP	需A另行签出父Issuer/权限/报告与CDN接线

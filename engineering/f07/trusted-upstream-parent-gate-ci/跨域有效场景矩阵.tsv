@@ -1,0 +1,91 @@
+作业	编号	场景域	来源分类	执行测试文件	待验收证据要求
+Source	F03-01	真F03 Session/当前能力	SIGNED_PARENT_VERIFIED	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-02	真F03 Session/当前能力	SIGNED_PARENT_VERIFIED	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-03	真F03 Session/当前能力	SIGNED_PARENT_VERIFIED	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-04	真F03 Session/当前能力	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-05	真F03 Session/当前能力	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-06	真F03 Session/当前能力	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-07	真F03 Session/当前能力	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-08	真F03 Session/当前能力	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-09	真F03 Session/当前能力	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-10	真F03 Session/当前能力	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-11	签名绑定/来源抗伪造	CI_INPUT_VALIDATION_PRE_PARENT	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-12	签名绑定/来源抗伪造	CI_INPUT_VALIDATION_PRE_PARENT	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-13	签名绑定/来源抗伪造	CI_INPUT_VALIDATION_PRE_PARENT	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-14	签名绑定/来源抗伪造	CI_INPUT_VALIDATION_PRE_PARENT	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-15	签名绑定/来源抗伪造	CI_INPUT_VALIDATION_PRE_PARENT	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-16	签名绑定/来源抗伪造	CI_INPUT_VALIDATION_PRE_PARENT	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-17	签名绑定/来源抗伪造	CI_INPUT_VALIDATION_PRE_PARENT	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-18	签名绑定/来源抗伪造	CI_INPUT_VALIDATION_PRE_PARENT	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-19	合成Collector签名负例	CI_SYNTHETIC_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-20	合成Collector签名负例	CI_SYNTHETIC_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-21	合成Collector签名负例	CI_SYNTHETIC_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-22	合成Collector签名负例	CI_SYNTHETIC_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-23	合成Collector签名负例	CI_SYNTHETIC_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-24	合成Collector签名负例	CI_SYNTHETIC_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-25	真PG16行锁竞争	SIGNED_PARENT_PHYSICAL_ACCOUNT_LOCK_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-26	当前Permission DENY/epoch撤权	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-27	当前Permission DENY/epoch撤权	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-28	当前Permission DENY/epoch撤权	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-29	当前Permission DENY/epoch撤权	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-30	当前Permission DENY/epoch撤权	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-31	当前Permission DENY/epoch撤权	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-32	运行环境物理门禁	CI_ENV_PRE_DB_FAIL_CLOSED	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-33	运行环境物理门禁	CI_ENV_PRE_DB_FAIL_CLOSED	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-34	运行环境物理门禁	CI_ENV_PRE_DB_FAIL_CLOSED	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-35	4S未获PC个人准入硬拒	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-36	4S获PC准入但业务Publisher硬DENY	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-37	真SystemAdmin不能代员工读取Publisher	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-38	真inactive员工拒登录	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-39	真disabled登录凭据拒绝	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出以最终Run核验
+Source	F03-40	真PG16合成Job/nonce原子唯一索引与并发重放拒绝	CI_SYNTHETIC_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	非public一次性PG16 CI/纯合成，生产Issuer始终SOURCE_GAP，最终Run待核验
+Source	F03-41	真PG16合成Job/nonce原子唯一索引与并发重放拒绝	CI_SYNTHETIC_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	非public一次性PG16 CI/纯合成，生产Issuer始终SOURCE_GAP，最终Run待核验
+Source	F03-42	真PG16合成Job撤销拒绝	CI_SYNTHETIC_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	非public一次性PG16 CI/纯合成，生产Issuer始终SOURCE_GAP，最终Run待核验
+Source	F03-43	真PG16合成同car_code不同Publisher与Vehicle复合身份	CI_SYNTHETIC_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	非public一次性PG16 CI/纯合成，生产Issuer始终SOURCE_GAP，最终Run待核验
+Source	F03-44	PDM04三固定API纯合成来源映射，未授权真实网关	CI_SYNTHETIC_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	非public一次性PG16 CI/纯合成，生产Issuer始终SOURCE_GAP，最终Run待核验
+Source	F03-45	PDM04三固定API纯合成来源映射，未授权真实网关	CI_SYNTHETIC_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	非public一次性PG16 CI/纯合成，生产Issuer始终SOURCE_GAP，最终Run待核验
+Source	F03-46	PDM04三固定API纯合成来源映射，未授权真实网关	CI_SYNTHETIC_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	非public一次性PG16 CI/纯合成，生产Issuer始终SOURCE_GAP，最终Run待核验
+Source	F03-47	PDM04三固定API纯合成来源映射，未授权真实网关	CI_SYNTHETIC_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	非public一次性PG16 CI/纯合成，生产Issuer始终SOURCE_GAP，最终Run待核验
+Source	F05-01	父签结构只读	SIGNED_PARENT_VERIFIED	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F05-02	父签结构只读	SIGNED_PARENT_VERIFIED	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F05-03	父签结构只读	SOURCE_GAP_OR_SIGNED_NEGATIVE	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	正向转换零行时明确F05_CONVERSION_POSITIVE_SOURCE_GAP，禁止空数组冒充正例
+Source	F05-04	父签结构只读	SIGNED_PARENT_VERIFIED	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F05-05	父签结构只读	SOURCE_GAP_OR_SIGNED_NEGATIVE	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	正向转换零行时明确F05_CONVERSION_POSITIVE_SOURCE_GAP，禁止空数组冒充正例
+Source	F05-06	真Session与跨域拒绝	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F05-07	真Session与跨域拒绝	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F05-08	真Session与跨域拒绝	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F05-09	真Session与跨域拒绝	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F05-10	真Session与跨域拒绝	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F05-11	冻结转换服务负例	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F05-12	冻结转换服务负例	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F05-13	冻结转换服务负例	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F05-14	冻结转换服务负例	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F05-15	真PG16并发与零写入	SIGNED_PARENT_VERIFIED	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F05-16	真PG16并发与零写入	SIGNED_PARENT_VERIFIED	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	真Vehicle父行两个Backend锁55P03与ROLLBACK，原父表Count/MD5不变（须日志证明）
+Source	F05-17	真PG16并发与零写入	SIGNED_PARENT_VERIFIED	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F05-18	父资产化缺口/签名复验	SOURCE_GAP_OR_SIGNED_NEGATIVE	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F05-19	父资产化缺口/签名复验	SOURCE_GAP_OR_SIGNED_NEGATIVE	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F05-20	父资产化缺口/签名复验	SIGNED_PARENT_VERIFIED	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F05-21	父Vehicle/ListingCycle事实/拒绝后关系Count-MD5	SIGNED_PARENT_VERIFIED	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	真实PG16须核验父Count/哈希及SourceGap
+Source	F05-22	父Vehicle/ListingCycle事实/拒绝后关系Count-MD5	SOURCE_GAP_OR_SIGNED_NEGATIVE	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	正向转换零行时明确F05_CONVERSION_POSITIVE_SOURCE_GAP，禁止空数组冒充正例
+Source	F05-23	父Vehicle/ListingCycle事实/拒绝后关系Count-MD5	SIGNED_PARENT_VERIFIED	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	真PG16现存Lock/Transaction/推荐/收藏父关系Count/MD5不变
+Source	F05-24	父Vehicle/ListingCycle事实/拒绝后关系Count-MD5	SOURCE_GAP_OR_SIGNED_NEGATIVE	engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs	正向转换零行时明确F05_CONVERSION_POSITIVE_SOURCE_GAP，禁止空数组冒充正例
+HTTPS	H01	图片、电话、报告每次当前拒绝	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	HTTPS响应统一DENIED，内部审计父读取次数和拒绝码分离，末HEAD Run核实
+HTTPS	H02	图片、电话、报告每次当前拒绝	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	HTTPS响应统一DENIED，内部审计父读取次数和拒绝码分离，末HEAD Run核实
+HTTPS	H03	图片、电话、报告每次当前拒绝	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	HTTPS响应统一DENIED，内部审计父读取次数和拒绝码分离，末HEAD Run核实
+HTTPS	H04	图片、电话、报告每次当前拒绝	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	HTTPS响应统一DENIED，内部审计父读取次数和拒绝码分离，末HEAD Run核实
+HTTPS	H05	无效Session、来源绑定拒绝	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	HTTPS响应统一DENIED，内部审计父读取次数和拒绝码分离，末HEAD Run核实
+HTTPS	H06	无效Session、来源绑定拒绝	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	HTTPS响应统一DENIED，内部审计父读取次数和拒绝码分离，末HEAD Run核实
+HTTPS	H07	无效Session、来源绑定拒绝	CI_INPUT_VALIDATION_PRE_PARENT	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	HTTPS响应统一DENIED，内部审计父读取次数和拒绝码分离，末HEAD Run核实
+HTTPS	H08	无效Session、来源绑定拒绝	CI_INPUT_VALIDATION_PRE_PARENT	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	HTTPS响应统一DENIED，内部审计父读取次数和拒绝码分离，末HEAD Run核实
+HTTPS	H09	恶意/错误HTTPS请求拒绝	CI_TRANSPORT_PRE_PARENT_DENY	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	HTTPS响应统一DENIED，内部审计父读取次数和拒绝码分离，末HEAD Run核实
+HTTPS	H10	恶意/错误HTTPS请求拒绝	CI_TRANSPORT_PRE_PARENT_DENY	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	HTTPS响应统一DENIED，内部审计父读取次数和拒绝码分离，末HEAD Run核实
+HTTPS	H11	恶意/错误HTTPS请求拒绝	CI_TRANSPORT_PRE_PARENT_DENY	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	HTTPS响应统一DENIED，内部审计父读取次数和拒绝码分离，末HEAD Run核实
+HTTPS	H12	恶意/错误HTTPS请求拒绝	CI_TRANSPORT_PRE_PARENT_DENY	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	HTTPS响应统一DENIED，内部审计父读取次数和拒绝码分离，末HEAD Run核实
+HTTPS	H13	恶意/错误HTTPS请求拒绝	CI_TRANSPORT_PRE_PARENT_DENY	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	HTTPS响应统一DENIED，内部审计父读取次数和拒绝码分离，末HEAD Run核实
+HTTPS	H14	恶意/错误HTTPS请求拒绝	CI_TRANSPORT_PRE_PARENT_DENY	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	HTTPS响应统一DENIED，内部审计父读取次数和拒绝码分离，末HEAD Run核实
+HTTPS	H15	恶意/错误HTTPS请求拒绝	CI_TRANSPORT_PRE_PARENT_DENY	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	HTTPS响应统一DENIED，内部审计父读取次数和拒绝码分离，末HEAD Run核实
+HTTPS	H16	已签PG当前Session撤权COMMIT拒绝	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	HTTPS响应统一DENIED，内部审计父读取次数和拒绝码分离，末HEAD Run核实
+HTTPS	H17	已签PG当前Session撤权COMMIT拒绝	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	HTTPS响应统一DENIED，内部审计父读取次数和拒绝码分离，末HEAD Run核实
+HTTPS	H18	回环HTTPS真实父拒绝码内部审计	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	HTTPS响应统一DENIED，内部审计父读取次数和拒绝码分离，末HEAD Run核实
+HTTPS	H19	回环HTTPS真实父拒绝码内部审计	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	HTTPS响应统一DENIED，内部审计父读取次数和拒绝码分离，末HEAD Run核实
