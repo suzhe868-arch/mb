@@ -1,0 +1,142 @@
+name: F07-2 Synthetic Vehicle Image CDN Asset Contract PG16
+on:
+  push:
+    branches:
+      - feat/f07-2-vehicle-image-cdn-asset-contract-ci
+    paths:
+      - 'engineering/f07/vehicle-image-cdn-asset-ci/**'
+      - '.github/workflows/f07-2-vehicle-image-asset.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source_pg16:
+    name: F07-2 Source PG16 50 + Gate 9
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: f07_2_disposable_ci_admin_only
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://f07_image_ci:f07_image_ci_password@127.0.0.1:5432/f07_image_ci_db
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F07_DIR: engineering/f07/vehicle-image-cdn-asset-ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 创建隔离PG16非超级用户
+        shell: bash
+        run: |
+          set -euo pipefail
+          PGPASSWORD=f07_2_disposable_ci_admin_only psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f07_image_ci LOGIN PASSWORD 'f07_image_ci_password' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          PGPASSWORD=f07_2_disposable_ci_admin_only psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f07_image_ci_db OWNER f07_image_ci;"
+          psql "$DATABASE_URL" -Atc "SELECT current_database(),current_user,current_setting('server_version_num'),(SELECT rolsuper FROM pg_roles WHERE rolname=current_user),pg_backend_pid()" | tee f07-2-source-identity.log
+      - name: 安装依赖及JavaScript语法检查
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --prefix "$F07_DIR" install --ignore-scripts --no-audit --no-fund
+          for f in contract.mjs server.mjs tests/source.test.mjs tests/https.test.mjs tests/gate.test.mjs; do node --check "$F07_DIR/$f"; done
+      - name: Source独立PG16断言及行锁
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 "$F07_DIR/tests/source.test.mjs" 2>&1 | tee f07-2-source-native.log
+          grep -q F07_2_SOURCE_50_REAL_PG16_BUSINESS_CASES_PASS f07-2-source-native.log
+          grep -q F07_2_REAL_PG16_DISTINCT_BACKENDS f07-2-source-native.log
+          grep -q F07_2_REAL_PG16_FOR_UPDATE_LOCK_55P03 f07-2-source-native.log
+          grep -q '# fail 0' f07-2-source-native.log
+      - name: 错误环境与物理身份零写入
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 "$F07_DIR/tests/gate.test.mjs" 2>&1 | tee f07-2-gate-native.log
+          grep -q F07_2_PHYSICAL_REAL_PG16_NON_SUPERUSER_ZERO_WRITE_9_PASS f07-2-gate-native.log
+          grep -q '# fail 0' f07-2-gate-native.log
+      - name: GitHub官方Source工件
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f07-2-source-pg16
+          path: |
+            f07-2-source-identity.log
+            f07-2-source-native.log
+            f07-2-gate-native.log
+          if-no-files-found: error
+          retention-days: 14
+  https_pg16:
+    name: F07-2 HTTPS PG16 16
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: f07_2_disposable_ci_admin_only
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://f07_image_ci:f07_image_ci_password@127.0.0.1:5432/f07_image_ci_db
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F07_DIR: engineering/f07/vehicle-image-cdn-asset-ci
+      F07_TLS_KEY: /tmp/f07-2-localhost-key.pem
+      F07_TLS_CERT: /tmp/f07-2-localhost-cert.pem
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 创建独立隔离PG16非超级用户
+        shell: bash
+        run: |
+          set -euo pipefail
+          PGPASSWORD=f07_2_disposable_ci_admin_only psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f07_image_ci LOGIN PASSWORD 'f07_image_ci_password' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          PGPASSWORD=f07_2_disposable_ci_admin_only psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f07_image_ci_db OWNER f07_image_ci;"
+          psql "$DATABASE_URL" -Atc "SELECT current_database(),current_user,current_setting('server_version_num'),(SELECT rolsuper FROM pg_roles WHERE rolname=current_user),pg_backend_pid()" | tee f07-2-https-identity.log
+      - name: 安装依赖及生成本地临时TLS
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --prefix "$F07_DIR" install --ignore-scripts --no-audit --no-fund
+          openssl req -x509 -newkey rsa:2048 -sha256 -nodes -keyout "$F07_TLS_KEY" -out "$F07_TLS_CERT" -days 1 -subj "/CN=localhost" >/dev/null 2>&1
+      - name: 真实PG16 loopback HTTPS十六项安全黑箱
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 "$F07_DIR/tests/https.test.mjs" 2>&1 | tee f07-2-https-native.log
+          grep -q F07_2_HTTPS_16_LOOPBACK_TLS_REAL_PG16_PASS f07-2-https-native.log
+          grep -q '# fail 0' f07-2-https-native.log
+      - name: GitHub官方HTTPS工件
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f07-2-https-pg16
+          path: |
+            f07-2-https-identity.log
+            f07-2-https-native.log
+          if-no-files-found: error
+          retention-days: 14
