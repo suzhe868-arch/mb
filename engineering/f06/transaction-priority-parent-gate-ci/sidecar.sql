@@ -280,7 +280,7 @@ END $$;
 -- 名称按字母排在旧 f05_8_priority_append_history 之后；旧函数既有字节保持不变。
 -- 仅对旧源自动签发允许「静默跳过」，使合法 4A/4C 的临时半签时序不致整体回滚。
 -- 显式人工签发如不安全，必须报错让上游事务撤销，绝不能伪造成功。
-CREATE FUNCTION f06_5c_pg1_ci.guard_priority_insert() RETURNS trigger LANGUAGE plpgsql AS $
+CREATE FUNCTION f06_5c_pg1_ci.guard_priority_insert() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
  -- 自动父签发及显式插入都须绑定当前真实F05-7 Match、资格与员工授权范围。
  -- 旧父自动发行的候选正取自同一不可变F05-8视图，故合法场景保持等价。
@@ -294,6 +294,11 @@ BEGIN
  ) THEN
   IF NEW.creation_key LIKE 'source-create:%' THEN RETURN NULL; END IF;
   RAISE EXCEPTION 'F06_5C_PG1_UNSIGNED_MATCH_OR_QUALIFICATION' USING ERRCODE='23514';
+ END IF;
+ -- 已冻结F05-8的唯一合法自动Issuer使用source-create:键；其余手工/未知Issuer
+ -- 即使指向有效Match也不得绕过原父仲裁直接落表。
+ IF NEW.creation_key IS NULL OR NEW.creation_key NOT LIKE 'source-create:%' THEN
+  RAISE EXCEPTION 'F06_5C_PG1_NON_PARENT_PRIORITY_ISSUER' USING ERRCODE='23514';
  END IF;
  IF NOT f06_5c_pg1_ci.safe_to_issue(NEW.vehicle_id,NEW.listing_cycle_id) THEN
   IF NEW.creation_key LIKE 'source-create:%' THEN RETURN NULL; END IF;
