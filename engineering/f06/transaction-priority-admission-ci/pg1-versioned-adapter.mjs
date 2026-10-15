@@ -52,6 +52,7 @@ export async function installSignedPG1InExisting5CCI(c){
  const result=await verify5CVersioned(c);
  return {...result,prePatchCatalog:pre.sha256,sourcePatchSha256:sha(sql),previous5CSeal:baseline.sourceSHA};
 }
+export const withSignedPG1Ref=signedPG1;
 export async function verify5CVersioned(c){
  gate5C();
  const signed=await signedPG1(()=>verifyPG1(c));

@@ -19,6 +19,9 @@ import {cancelSyntheticTransactionCI} from '../../transaction-cancel-ci/service.
 import {verifySignedTransactionVacancyCI} from '../signed-transaction-state.mjs';
 import {handoffSyntheticTransactionCI} from '../../transaction-handoff-ci/service.mjs';
 import {cancelAfterHandoffSyntheticCI} from '../../post-handoff-cancel-ci/service.mjs';
+import {installSignedPG1InExisting5CCI,verify5CVersioned,withSignedPG1Ref} from '../pg1-versioned-adapter.mjs';
+import {cancelSyntheticTransactionV2CI} from '../../transaction-priority-parent-gate-ci/signed-cancel-v2.mjs';
+import {runNativeForgedCancelMatrix} from '../../transaction-priority-parent-gate-ci/伪造取消原生反例.mjs';
 
 import {withF062} from '../../deposit-ledger-ci/migration.mjs';
 import {withParentBranch} from '../../lock-lifecycle-ci/migration.mjs';
@@ -970,7 +973,28 @@ test('5C-S84 C01 真JYT当前Match、原F06-1候补、5B交易和4A取消不得�
   demandId:Number(demand.demand_id),vehicleId,listingCycleId,teamId:901,runKey:mk('c01-match-while-tx-active')});
  assert.equal(refreshed.allowed,true,JSON.stringify(refreshed));
  assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND status='active'",[vehicleId]))[0].n,0);
- const cancelled=await withF064A(()=>cancelSyntheticTransactionCI(auth,r03.managerToken,{
+ // S01—S83 保留旧父原生回归；只有在S84真JYT签名和5B事实形成后，
+ // 才在这一物理Scenario库追加安装经A独立验收的PG1。不得让旧版4A绕过新版目录。
+ const sealed=await installSignedPG1InExisting5CCI(db);
+ assert.equal(sealed.verified,true);
+ assert.equal(sealed.parent190Tables,190);
+ assert.notEqual(sealed.prePatchCatalog,sealed.newCatalog);
+ assert.equal((await verify5CVersioned(db)).verified,true);
+ await assert.rejects(()=>verify(db),/F05_10_CATALOG_DRIFT|F06_5C_PUBLIC_CATALOG_DRIFT/,
+  '旧固定F06-5C verifier必须在追加公共对象后FailClosed');
+ console.log('F06_5C_S84_SIGNED_PG1_INSTALLED',JSON.stringify(sealed));
+ // 原S85/S86不得删减：真JYT current Match+5B 在新版PG1安装后，
+ // 直接真实PG16事务COMMIT无4A/4C三签→23514回滚，未知pending退款同样回滚。
+ const forged=await withSignedPG1Ref(()=>runNativeForgedCancelMatrix(db,tx.transactionId));
+ assert.equal(forged.length,2);
+ parentCrossDomainProbes.c02={withUnknownRefund:false,baseline:0,created:[],
+  pgBlocked:{sqlstate:forged[0].rollbackSQLSTATE},native:forged[0]};
+ parentCrossDomainProbes.c03={withUnknownRefund:true,baseline:0,created:[],
+  pgBlocked:{sqlstate:forged[1].rollbackSQLSTATE},native:forged[1]};
+ assert.equal(forged[0].noCommittedPriority,true);
+ assert.equal(forged[1].noCommittedPriority,true);
+ console.log('F06_5C_S85_S86_NATIVE_SIGNED_MATCH_COMMIT_REJECTIONS',JSON.stringify(forged));
+ const cancelled=await withSignedPG1Ref(()=>cancelSyntheticTransactionV2CI(auth,r03.managerToken,{
   transactionId:tx.transactionId,eventKey:mk('c01-genuine-4a-cancel'),reason:'C01真实候补保护与父自动签发跨域验收'}));
  assert.equal(cancelled.code,'F06_4A_CANCELLED_ATOMIC_NO_PAYMENT',JSON.stringify(cancelled));
  const after=await q("SELECT p.priority_id,p.creation_key,e.event_key FROM public.f05_8_priority_ci p "+
@@ -990,6 +1014,9 @@ test('5C-S85 C02 真Match+未签4A/4C伪public取消不得提前触发父Priorit
  assert.equal(p.withUnknownRefund,false);
  assert.equal(p.baseline,0);
  assert.equal(p.created.length,0,'UPSTREAM_F05_8_PARENT_AUTO_ISSUER_UNSIGNED_PUBLIC_CANCEL_C02 '+JSON.stringify(p));
+ assert.equal(p.native.rollbackSQLSTATE,'23514');
+ assert.equal(p.native.noCommittedFakeCancel,true);
+ assert.equal(p.native.noCommittedPriority,true);
 });
 test('5C-S86 C03 5B之后未知pending退款与伪取消组合不得触发父签Priority',()=>{
  assert.ok(parentCrossDomainProbes.c03,'C03_NATIVE_PG_UNKNOWN_FINANCE_PROBE_MISSING');
@@ -997,5 +1024,18 @@ test('5C-S86 C03 5B之后未知pending退款与伪取消组合不得触发父签
  assert.equal(p.withUnknownRefund,true);
  assert.equal(p.baseline,0);
  assert.equal(p.created.length,0,'UPSTREAM_F05_8_PARENT_AUTO_ISSUER_UNKNOWN_FINANCE_CANCEL_C03 '+JSON.stringify(p));
+ assert.equal(p.native.rollbackSQLSTATE,'23514');
+ assert.equal(p.native.noCommittedFakeCancel,true);
+ assert.equal(p.native.noCommittedPriority,true);
  assert.equal((p.pgBlocked===null)||typeof p.pgBlocked.sqlstate==='string',true);
+});
+
+// 安装后的旧5C验证必须拒绝新Catalog；仅独立命名版本化验签器可接受精确PG1增量。
+test('5C-S87 PG1版本化目录旧父FailClosed与新5C同库签名通过',async()=>{
+ await assert.rejects(()=>verify(db),/F05_10_CATALOG_DRIFT|F06_5C_PUBLIC_CATALOG_DRIFT/);
+ const v=await verify5CVersioned(db);
+ assert.equal(v.verified,true);
+ assert.equal(v.parent190Tables,190);
+ assert.equal(v.productionIssuer,'DENIED');
+ assert.notEqual(v.oldCatalog,v.newCatalog);
 });
