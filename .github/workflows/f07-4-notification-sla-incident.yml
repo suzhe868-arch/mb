@@ -31,6 +31,8 @@ jobs:
       NODE_ENV: test
       APP_ENV: test
       F07_4_ONLY: I_AUTHORIZE_F07_4_LOCAL_MOCK_PG16
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
       DATABASE_URL: postgres://f07_4_ci:f07_4_ci_synthetic_only@127.0.0.1:5432/f07_4_test
     steps:
       - uses: actions/checkout@v4
@@ -45,7 +47,7 @@ jobs:
           test "$GITHUB_EVENT_NAME" = push
           test "$GITHUB_REF" = refs/heads/feat/f07-4-notification-sla-incident-gate-ci
           node --input-type=module -e "import('./engineering/f07/notification-sla-incident-gate-ci/gate.mjs').then(m=>m.assertCIEnv())"
-          for f in gate.mjs server.mjs tests/source.test.mjs tests/https.test.mjs; do
+          for f in gate.mjs server.mjs tests/source.test.mjs tests/https.test.mjs tests/parent.test.mjs; do
             node --check "engineering/f07/notification-sla-incident-gate-ci/$f"
           done
       - name: 建立唯一非超级用户16数据库
@@ -62,8 +64,23 @@ jobs:
           node --test --test-concurrency=1 engineering/f07/notification-sla-incident-gate-ci/tests/source.test.mjs 2>&1 | tee f07-4-source-native.log
           grep -q F07_4_SOURCE_NATIVE_PG16_55_PASS f07-4-source-native.log
           grep -q F07_4_NATIVE_DUAL_BACKEND_PIDS f07-4-source-native.log
+          grep -q F07_4_NATIVE_ROW_LOCK_55P03 f07-4-source-native.log
           grep -q '# fail 0' f07-4-source-native.log
           echo F07_4_SIGNED_PARENT_POSITIVE_SOURCE_GAP
+      - name: 冻结F03第二物理PG16父Session准备与原生负证
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f03_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f03_auth_test OWNER f03_ci;"
+          node engineering/f03-1/runner.mjs --bootstrap >f07-4-f03-parent-bootstrap.log
+          node engineering/f03-1/runner.mjs --apply >>f07-4-f03-parent-bootstrap.log
+          node engineering/f03-1/runner.mjs --verify >>f07-4-f03-parent-bootstrap.log
+          node engineering/f03-1/fixtures.mjs >>f07-4-f03-parent-bootstrap.log
+          node --test --test-concurrency=1 engineering/f07/notification-sla-incident-gate-ci/tests/parent.test.mjs 2>&1 | tee f07-4-f03-parent-native.log
+          grep -q F07_4_F03_SIGNED_PARENT_NEGATIVE_ONLY_10_PASS f07-4-f03-parent-native.log
+          grep -q '# fail 0' f07-4-f03-parent-native.log
+          echo SIGNED_PARENT_NEGATIVE_ONLY__POSITIVE_SOURCE_GAP
       - name: 同SHA官方原生日志工件Source
         if: always()
         uses: actions/upload-artifact@v4
@@ -72,6 +89,8 @@ jobs:
           path: |
             f07-4-source-pg16-identity.log
             f07-4-source-native.log
+            f07-4-f03-parent-native.log
+            f07-4-f03-parent-bootstrap.log
           if-no-files-found: error
           retention-days: 14
   https_pg16:
