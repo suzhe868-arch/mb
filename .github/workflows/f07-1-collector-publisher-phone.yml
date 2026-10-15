@@ -96,8 +96,8 @@ jobs:
     env:
       DATABASE_URL: postgres://f07_ci:f07_only_ci_app_pass@127.0.0.1:5432/f07_ci_db
       F07_DIR: engineering/f07/collector-publisher-phone-callback-ci
-      F07_TLS_KEY: ${{ runner.temp }}/f07-key.pem
-      F07_TLS_CERT: ${{ runner.temp }}/f07-cert.pem
+      F07_TLS_KEY: /tmp/f07-key.pem
+      F07_TLS_CERT: /tmp/f07-cert.pem
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
