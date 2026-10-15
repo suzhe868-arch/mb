@@ -130,4 +130,12 @@ test('S60 SLA告警无既存deadline源事实必须拒绝',async()=>{
  assert.equal((await run({channel:'group'},{kind:'consultation_sla_timeout',deadline:null})).code,'SLA_EVENT_SOURCE_GAP');
  assert.equal(await out(),0);
 });
-test('F07-4 Source 完整60业务子例通过',()=>{console.log('F07_4_SOURCE_NATIVE_PG16_60_PASS');});
+test('S61 Incident跨时间桶不能提前重发；经过真实cadence后才可重发',async()=>{
+ await seed(db,{kind:'incident_active',incidentActive:true,cadence:30});
+ assert.equal((await dispatch(db,{eventId:'event-ci-1',channel:'group',at:'2026-10-16T02:29:00Z'})).status,'SENT');
+ const early=await dispatch(db,{eventId:'event-ci-1',channel:'group',at:'2026-10-16T02:30:00Z'});
+ assert.equal(early.code,'INCIDENT_CADENCE_NOT_DUE');assert.equal(await out(),1);
+ assert.equal((await dispatch(db,{eventId:'event-ci-1',channel:'group',at:'2026-10-16T03:00:00Z'})).status,'SENT');
+ assert.equal(await out(),2);
+});
+test('F07-4 Source 完整61业务子例通过',()=>{console.log('F07_4_SOURCE_NATIVE_PG16_61_PASS');});
