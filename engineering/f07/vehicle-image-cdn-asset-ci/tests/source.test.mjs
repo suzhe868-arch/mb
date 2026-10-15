@@ -49,7 +49,7 @@ add('S37 维保非客户可见',async()=>{await assert.rejects(getReadable('s-us
 add('S38 敏感原件无可见权限',async()=>{await assert.rejects(getReadable('s-user','doc','sensitive_document'),{code:'CURRENT_REPORT_DENY'});});
 add('S39 相册不可枚举出险图片',async()=>{await assert.rejects(getReadable('s-user','r1','vehicle_photo'),{code:'CURRENT_VEHICLE_READ_DENY'});});
 add('S40 报告域与普通图片域严格区分',async()=>{const p=await photo('r1');assert.match(publicUrl(p.relative_path,'accident_report'),/^https:\/\/report.mingbang.invalid/);assert.match(publicUrl('photo\/1.jpg'),/^https:\/\/img.mingbang.invalid/);});
-add('S41 H5已签源域正确映射',async()=>{const u=reportH5('https://reports.jyt.invalid/maintenance/page.html#tab1');assert.equal(u,'https://report.mingbang.invalid/h5/maintenance/page.html#tab1');});
+add('S41 H5已签源域正确映射',async()=>{const u=reportH5('https://reports.jyt.invalid/maintenance/page.html#tab1');assert.equal(u,'https://report.mingbang.invalid/h5/maintenance/page.html#tab1');assert.throws(()=>reportH5('https://reports.jyt.invalid/a/../secrets'),{code:'UNSAFE_REPORT'});assert.throws(()=>reportH5('https://evil.test/maintenance/page.html'),{code:'UNSAFE_REPORT'});});
 add('S42 分享卡不固定价格VIN电话',async()=>{const x=shareCard('TEST_MODEL',publicUrl('photo/1.jpg'));assert.deepEqual(Object.keys(x).sort(),['cta','image','model']);});
 add('S43 第2至5与第3触发第6后预取',async()=>{const ids=['p1','p2','p3','p4','p5','p6'];assert.deepEqual(prefetch(ids,0).first,ids.slice(1,5));assert.deepEqual(prefetch(ids,2).tail,['p6']);});
 add('S44 无图可发布及占位封面',async()=>{const s=new MockStorage();assert.equal(await taskStatus('v2'),'success');assert.equal(s.writes,0);});
@@ -64,7 +64,7 @@ add('S52 首图恢复自动回原排序位',async()=>{const s=new MockStorage(),
 add('S53 零图占位但不影响车辆',async()=>{const x=await selectCover('s-v2','v2',new MockStorage(),new MockCDN());assert.equal(x.placeholder,true);assert.equal((await vehicle('v2')).source_type,'wholesale');});
 add('S54 全部图失败占位',async()=>{const c=new MockCDN();for(let i=1;i<=6;i++)c.failPaths.add(publicUrl('photo/'+i+'.jpg'));const x=await selectCover('s-user','v1',new MockStorage(),c);assert.equal(x.placeholder,true);});
 add('S55 无Vehicle权限连占位入口也拒绝',async()=>{await assert.rejects(selectCover('s-outsider','v1',new MockStorage(),new MockCDN()),{code:'CURRENT_VEHICLE_READ_DENY'});});
-add('S56 人工名邦图片直接双成功写自有对象',async()=>{const s=new MockStorage();const x=await uploadManual('vm',{id:'manual2',path:'own/manual2.jpg',order:1},s);assert(s.has(x.key));assert.equal((await photo('manual2')).asset_state,'success');});
+add('S56 人工名邦图片直接双成功写自有对象',async()=>{const s=new MockStorage();const x=await uploadManual('vm',{id:'manual2',path:'own/manual2.jpg',order:1},s);assert(s.has(x.key));assert.equal((await photo('manual2')).asset_state,'success');await q("INSERT INTO f07_images.vehicles(id,source_type,listing_cycle) VALUES('v4','four_s','cycle-four')");const y=await uploadManual('v4',{id:'four_pic',path:'own/four.jpg',order:0},s);assert(s.has(y.key));});
 add('S57 人工上传不可伪装批发来源',async()=>{await assert.rejects(uploadManual('v1',{id:'manual2',path:'own/manual2.jpg',order:1},new MockStorage()),{code:'MANUAL_NOT_ALLOWED'});});
 add('S58 人工对象成功DB失败真实补偿',async()=>{const s=new MockStorage();await assert.rejects(uploadManual('vm',{id:'manual2',path:'own/manual2.jpg',order:1},s,{failDb:true}),e=>e.code==='23514');assert.equal(s.items.size,0);assert.equal(s.deletes,1);});
 add('S59 人工图允许调整顺序',async()=>{await q("UPDATE f07_images.pictures SET immutable_order=10 WHERE id='pm'");assert.equal((await photo('pm')).immutable_order,10);});
