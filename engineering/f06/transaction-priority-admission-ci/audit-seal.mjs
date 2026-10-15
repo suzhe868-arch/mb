@@ -50,6 +50,16 @@ try{
   for(const k of ['tables','tableCount','tableDigest','ledgerDigest','catalogSha256','d1Digest','parentSidecars'])
    assert.deepEqual(now[k],before[k],'F06_5C_PARENT_SEAL_DRIFT_'+k);
   assert.equal(now.tableCount,190,'F06_5C_PARENT_TABLE_COUNT_MUST_REMAIN_190');
+  // 补丁业务运行在第一物理OID：先核验同提交真PG16 PG1追加目录的原生证据，
+  // 再将已被实际DROP/CREATE后的第二OID封印为独立审计库；不假称两个库均装过PG1。
+  const patch=JSON.parse(await readFile(resolve(out,'pg1-scenario-seal.json'),'utf8'));
+  assert.equal(patch.sha,now.head);assert.equal(patch.runId,now.runId);
+  assert.equal(patch.physicalScenarioOid,before.meta.oid);
+  assert.equal(patch.oldParentTables,190);
+  assert.equal(patch.frozen24LedgerSha,before.ledgerDigest);
+  assert.equal(patch.priorCatalogSha,before.catalogSha256);
+  assert.notEqual(patch.newCatalogSha,before.catalogSha256);
+  assert.equal(patch.manifest.length,3);
   const proof={status:'PASS',sha:now.head,runId:now.runId,scenarioOid:before.meta.oid,auditOid:now.meta.oid,
    beforePid:before.meta.pid,afterPid:now.meta.pid,parentTableCount:now.tableCount,tableDigest:now.tableDigest,
    original24Ledger:now.ledgerDigest,catalog:now.catalogSha256,d1:now.d1Digest,parentSignatures:now.parentSidecars,

@@ -29,6 +29,8 @@ if [[ "$mode" = source ]];then
  (cd engineering && node --test f06/transaction-priority-admission-ci/tests/source.test.mjs) 2>&1 | tee "$base/artifacts/source/native-source.log"
  grep -q '# tests 90' "$base/artifacts/source/native-source.log"
  grep -q '# fail 0' "$base/artifacts/source/native-source.log"
+ (cd engineering && node f06/transaction-priority-admission-ci/pg1-scenario-physical-seal.mjs) 2>&1 | tee "$base/artifacts/source/pg1-scenario-native-seal.log"
+ grep -q F06_5C_PG1_VERSIONED_SCENARIO_FULL_SEAL_PASS "$base/artifacts/source/pg1-scenario-native-seal.log"
  grep -q F06_5C_S84_SIGNED_PG1_INSTALLED "$base/artifacts/source/native-source.log"
  grep -q F06_5C_S85_S86_NATIVE_SIGNED_MATCH_COMMIT_REJECTIONS "$base/artifacts/source/native-source.log"
  grep -q 'ok 89 - 5C-S87'
