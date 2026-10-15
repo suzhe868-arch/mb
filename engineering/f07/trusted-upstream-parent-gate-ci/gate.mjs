@@ -33,7 +33,7 @@ const id=x=>typeof x==='string'&&/^[1-9][0-9]{0,17}$/.test(x);
 export const validPublisher=x=>x&&typeof x==='object'&&!Array.isArray(x)&&Object.keys(x).sort().join(',')==='source_platform,upstream_publisher_id,vehicle_id'&&
  x.source_platform==='JYT'&&id(x.upstream_publisher_id)&&id(x.vehicle_id);
 const paths=new Set(['vehicle_photo','report_visible','report_original','publisher_phone']);
-export async function signedRead(auth,token,ctx,kind='publisher_phone') {
+export async function signedRead(auth,token,ctx,kind='publisher_phone',trace=()=>{}) {
  assertCIEnv();
  await physicalGate(auth.pool);
  if(!paths.has(kind))return deny('UNKNOWN_RESOURCE');
@@ -41,11 +41,17 @@ export async function signedRead(auth,token,ctx,kind='publisher_phone') {
  // 经真实 F03 验签会话和当前权限目录，再执行任何资源取值。
  const op=kind==='publisher_phone'?'vehicle.publisher_phone.read':'vehicle.read';
  let p;
- try{p=await readCurrentFacts(auth,token,op)}
+ try{
+  trace({stage:'parent_called',kind});
+  p=await readCurrentFacts(auth,token,op);
+  trace({stage:'parent_result',kind,code:p.code,finalAllowed:p.finalAllowed===true});
+ }
  catch(e){
   // F03真实v2认证Seal不接受F05后续签名迁移版本；不伪造跨版本成功授权。
-  if(/^F03_AUTH_GUARD_(TABLES|VERSION_OR_SEAL|STRUCTURE)/.test(String(e?.message)))
+  if(/^F03_AUTH_GUARD_(TABLES|VERSION_OR_SEAL|STRUCTURE)/.test(String(e?.message))){
+   trace({stage:'parent_schema_gap',kind,code:'SIGNED_F03_F05_SCHEMA_VERSION_SOURCE_GAP'});
    return deny('SIGNED_F03_F05_SCHEMA_VERSION_SOURCE_GAP','SOURCE_GAP');
+  }
   throw e;
  }
  if(p.finalAllowed!==true) return deny(p.code);
