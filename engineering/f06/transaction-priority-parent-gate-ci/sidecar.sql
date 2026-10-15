@@ -93,24 +93,29 @@ BEGIN
      signed_ok := EXISTS(
       SELECT 1 FROM f06_4c_ci.cancel_origins o
        JOIN f06_4c_ci.cancel_events e ON e.transaction_id=o.transaction_id
-       JOIN f06_4c_ci.request_keys k ON k.event_key_sha256=e.event_key_sha256
+       JOIN f06_4c_ci.request_keys k ON k.event_key_sha256=e.event_key_sha256 AND k.event_id=e.event_id
        JOIN f06_4b_ci.responsible_projection p ON p.transaction_id=o.transaction_id
-       JOIN f06_4b_ci.handoff_events h ON h.event_id=p.last_event_id
+       JOIN f06_4b_ci.handoff_events h ON h.event_id=p.last_event_id AND h.transaction_id=t.transaction_id
        JOIN f06_4b_ci.request_keys hk ON hk.result_event_id=h.event_id
       WHERE o.transaction_id=t.transaction_id AND o.source_lock_id=t.source_lock_id
        AND o.customer_id=t.customer_id AND o.vehicle_id=v AND o.listing_cycle_id=cyc
        AND o.original_responsible_employee_id=p.original_responsible_employee_id
        AND o.transferred_responsible_employee_id=t.responsible_employee_id
+       AND p.current_responsible_employee_id=t.responsible_employee_id
+       AND h.new_responsible_employee_id=t.responsible_employee_id
        AND o.actor_employee_id=t.responsible_employee_id
        AND o.parent_last_handoff_event_id=p.last_event_id
        AND o.parent_handoff_event_count=p.event_count
        AND e.parent_last_handoff_event_id=h.event_id
        AND e.current_responsible_employee_id=t.responsible_employee_id
+       AND e.original_responsible_employee_id=o.original_responsible_employee_id
+       AND e.reason=o.reason
        AND e.actor_employee_id=k.actor_employee_id
        AND k.transaction_id=t.transaction_id
        AND e.event_kind='post_handoff_transaction_cancelled_ci_only'
        AND o.previous_status='in_progress' AND o.resulting_status='cancelled'
        AND hk.transaction_id=t.transaction_id
+       AND hk.actor_employee_id=h.actor_employee_id
      );
    END IF;
    -- 双签、伪签或半签全部拒绝。
@@ -209,22 +214,27 @@ BEGIN
  RETURN EXISTS(
    SELECT 1 FROM f06_4c_ci.cancel_origins o
     JOIN f06_4c_ci.cancel_events e ON e.transaction_id=o.transaction_id
-    JOIN f06_4c_ci.request_keys k ON k.event_key_sha256=e.event_key_sha256
+    JOIN f06_4c_ci.request_keys k ON k.event_key_sha256=e.event_key_sha256 AND k.event_id=e.event_id
     JOIN f06_4b_ci.responsible_projection p ON p.transaction_id=o.transaction_id
-    JOIN f06_4b_ci.handoff_events h ON h.event_id=p.last_event_id
+    JOIN f06_4b_ci.handoff_events h ON h.event_id=p.last_event_id AND h.transaction_id=t.transaction_id
     JOIN f06_4b_ci.request_keys hk ON hk.result_event_id=h.event_id
     WHERE o.transaction_id=tx_id AND o.source_lock_id=t.source_lock_id
       AND o.customer_id=t.customer_id AND o.vehicle_id=t.vehicle_id
       AND o.listing_cycle_id=t.listing_cycle_id
       AND o.original_responsible_employee_id=p.original_responsible_employee_id
       AND o.transferred_responsible_employee_id=t.responsible_employee_id
+       AND p.current_responsible_employee_id=t.responsible_employee_id
+       AND h.new_responsible_employee_id=t.responsible_employee_id
       AND o.actor_employee_id=t.responsible_employee_id
       AND o.parent_last_handoff_event_id=p.last_event_id
       AND o.parent_handoff_event_count=p.event_count
       AND e.parent_last_handoff_event_id=h.event_id
       AND e.current_responsible_employee_id=t.responsible_employee_id
+       AND e.original_responsible_employee_id=o.original_responsible_employee_id
+       AND e.reason=o.reason
       AND e.actor_employee_id=k.actor_employee_id
       AND k.transaction_id=tx_id AND hk.transaction_id=tx_id
+       AND hk.actor_employee_id=h.actor_employee_id
       AND o.previous_status='in_progress' AND o.resulting_status='cancelled'
       AND e.event_kind='post_handoff_transaction_cancelled_ci_only'
  );
