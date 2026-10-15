@@ -1,0 +1,25 @@
+事件类型	允许主动提醒	个人渠道	总群渠道	签名父正向源	默认免打扰	业务副作用	证据分级
+consultation_created	是	是	禁止	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+consultation_sla_timeout	是	是	仅合法总群路由	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+public_pool_first_followup	是	是	禁止	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+lock_request_result	是	是	禁止	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+waitlist_auto_result	是	是	禁止	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+waitlist_released	是	是	禁止	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+lock_expiring	是	是	禁止	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+supply_anomaly	是	是	仅合法总群路由	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+transaction_changed	是	是	禁止	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+refund_changed	是	是	禁止	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+incident_active	是	是	仅合法总群路由	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+incident_recovery	是	是	仅合法总群路由	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+page_view	否	禁止	禁止	NOT_ALLOWLISTED	无豁免	禁止	CI_SYNTHETIC_ONLY
+click	否	禁止	禁止	NOT_ALLOWLISTED	无豁免	禁止	CI_SYNTHETIC_ONLY
+matching	否	禁止	禁止	NOT_ALLOWLISTED	无豁免	禁止	CI_SYNTHETIC_ONLY
+opportunity	否	禁止	禁止	NOT_ALLOWLISTED	无豁免	禁止	CI_SYNTHETIC_ONLY
+source_radar	否	禁止	禁止	NOT_ALLOWLISTED	无豁免	禁止	CI_SYNTHETIC_ONLY
+recommendation_created	否	禁止	禁止	NOT_ALLOWLISTED	无豁免	禁止	CI_SYNTHETIC_ONLY
+recommendation_ended	否	禁止	禁止	NOT_ALLOWLISTED	无豁免	禁止	CI_SYNTHETIC_ONLY
+当前业务负责人	动态读取	需要current active/eligible/scope	SLA需当前员工群开关	SIGNED_PARENT_NEGATIVE_ONLY	失效后拒绝	不得另建owner	SOURCE_GAP
+公司总开关	最高优先级	关闭阻断	关闭阻断	PDM-23	无豁免	仅通知开关	CI_SYNTHETIC_ONLY
+Incident cadence	仅已配置	不默认重复	按配置重复	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	无豁免	不重建Incident	CI_SYNTHETIC_ONLY
+Notification Config写	需显式capability+scope+object	系统管理员不自带	不存在第二群总开关	SIGNED_PARENT_NEGATIVE_ONLY	不适用	父缺口时一律禁止	SOURCE_GAP
+deep-link	打开每次再验签	当前Session/Scope/Object	不构成first response	SIGNED_PARENT_NEGATIVE_ONLY	不适用	无业务变更	SOURCE_GAP
