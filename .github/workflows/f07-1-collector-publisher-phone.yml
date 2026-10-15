@@ -65,6 +65,30 @@ jobs:
           grep -q 'F07_SOURCE_36_BUSINESS_CASES_REAL_POSTGRES' f07-source-test.log
           grep -q 'F07_NATIVE_PG16_DISTINCT_BACKENDS' f07-source-test.log
           grep -q 'fail 0' f07-source-test.log
+      - name: 真PG16容器重启前持久证明
+        shell: bash
+        run: |
+          set -euo pipefail
+          node "$F07_DIR/tests/restart-proof.mjs" prepare | tee f07-restart-proof.log
+      - name: 重启真实PostgreSQL16容器并验证恢复
+        shell: bash
+        run: |
+          set -euo pipefail
+          cid="$(docker ps --filter ancestor=postgres:16 --format '{{.ID}}' | head -n1)"
+          test -n "$cid"
+          docker restart "$cid" > /dev/null
+          restored=false
+          for i in $(seq 1 40); do
+            if psql "$DATABASE_URL" -Atc 'SELECT 1' >/dev/null 2>&1; then restored=true; break; fi
+            sleep 1
+          done
+          test "$restored" = true
+      - name: 真PG16恢复后重放与乱序验证
+        shell: bash
+        run: |
+          set -euo pipefail
+          node "$F07_DIR/tests/restart-proof.mjs" verify | tee -a f07-restart-proof.log
+          grep -q 'F07_RESTART_REAL_PG16_PERSISTENCE_REPLAY_STALE_PASS' f07-restart-proof.log
       - name: 官方原生日志工件
         if: always()
         uses: actions/upload-artifact@v4
@@ -73,6 +97,7 @@ jobs:
           path: |
             f07-pg-role.log
             f07-source-test.log
+            f07-restart-proof.log
           if-no-files-found: error
           retention-days: 14
   https_pg16:
