@@ -95,6 +95,27 @@ export async function proveVersionedNative4C(c,base,fixture){
  gate();
  const {auth}=base;
  assert.equal((await verify(c)).verified,true);
+
+ // 原5B→4B真正完成的移交交易遇到未知pending退款，
+ // 有效接收人令牌调用新版4C依然必须按冻结4C资金政策拒绝。
+ const pendingDenied=await cancelAfterHandoffV2CI(auth,fixture.receiverToken,{
+  transactionId:fixture.pendingRefundHandoffTx,
+  reason:'有签4B移交后未结退款阻断新版4C合法取消',
+  eventKey:mk('pending-4c-deny')
+ });
+ assert.equal(pendingDenied.allowed,false,'PG1_4C_PENDING_REFUND_MUST_DENY');
+ assert.equal(pendingDenied.code,'F06_4C_FINANCIAL_OR_REFUND_UNKNOWN_DENY',
+  'PG1_4C_PENDING_REFUND_NATIVE_DENY_CODE '+JSON.stringify(pendingDenied));
+ const pendingState=await one(c,
+  "SELECT t.status,r.status AS refund_status,r.expected_amount_cents,"+
+  "(SELECT count(*)::int FROM f06_4c_ci.cancel_origins WHERE transaction_id=$1) signed_origins "+
+  "FROM public.transactions t JOIN public.refund_cases r ON r.transaction_id=t.transaction_id "+
+  "WHERE t.transaction_id=$1 AND r.refund_id=$2",
+  [fixture.pendingRefundHandoffTx,fixture.pendingRefundHandoffId]);
+ assert.equal(pendingState?.status,'in_progress','PG1_4C_PENDING_FINANCE_HALF_CANCEL');
+ assert.equal(pendingState?.refund_status,'pending','PG1_4C_PENDING_REFUND_TAMPER');
+ assert.equal(Number(pendingState?.expected_amount_cents),100,'PG1_4C_PENDING_REFUND_AMOUNT_TAMPER');
+ assert.equal(pendingState?.signed_origins,0,'PG1_4C_PENDING_FINANCE_SPURIOUS_ORIGIN');
  await c.query("UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1",[fixture.managerRoleId]);
  const manager=await auth.login({login:'employee_test',password:'SyntheticF04_3_CurrentProof_2026',source:'pg1-v2-handoff-manager'});
  assert.equal(manager.code,'AUTH_OK',JSON.stringify(manager));
@@ -168,5 +189,6 @@ export async function proveVersionedNative4C(c,base,fixture){
   oldSignedEventId:fixture.baseline.immutableHandoffEventId,
   newSignedEventId:signed.eventId,currentEmployeeId:4,
   wrongActorDenied:wrong.code,idempotent:idem.code,source:'PG16_AUTH_SIGNED_IMMUTABLE_4B_4C',
-  comparedBusinessColumns:9};
+  comparedBusinessColumns:9,pendingReal4BRefundDenied:true,
+  pendingFinanceOriginalCode:pendingDenied.code,pendingRefundFactUnchanged:true};
 }
