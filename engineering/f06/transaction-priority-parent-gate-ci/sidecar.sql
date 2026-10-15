@@ -33,6 +33,13 @@ BEGIN
     OR to_regclass('f06_5a_ci.refund_origins') IS NULL
  THEN RETURN false; END IF;
 
+ -- 原父正常仲裁自带Lock占用校验；PG1还必须独立拦截无权限显式INSERT，
+ -- 不能让活动锁车与Priority独占同时存在。
+ IF EXISTS(SELECT 1 FROM public.locks l
+    WHERE l.vehicle_id=v AND l.listing_cycle_id=cyc
+      AND l.lock_status='active' AND l.expires_at>statement_timestamp())
+ THEN RETURN false; END IF;
+
  -- 无论 public 候补是否已经被签名认可，都不能将尚未完结的候补忽略。
  -- 有签的候补同时核原 Request/queue，不使用 join 缺失把候补过滤掉。
  IF EXISTS(
@@ -251,8 +258,21 @@ END $$;
 -- 名称按字母排在旧 f05_8_priority_append_history 之后；旧函数既有字节保持不变。
 -- 仅对旧源自动签发允许「静默跳过」，使合法 4A/4C 的临时半签时序不致整体回滚。
 -- 显式人工签发如不安全，必须报错让上游事务撤销，绝不能伪造成功。
-CREATE FUNCTION f06_5c_pg1_ci.guard_priority_insert() RETURNS trigger LANGUAGE plpgsql AS $$
+CREATE FUNCTION f06_5c_pg1_ci.guard_priority_insert() RETURNS trigger LANGUAGE plpgsql AS $
 BEGIN
+ -- 自动父签发及显式插入都须绑定当前真实F05-7 Match、资格与员工授权范围。
+ -- 旧父自动发行的候选正取自同一不可变F05-8视图，故合法场景保持等价。
+ IF NOT EXISTS(
+  SELECT 1 FROM public.f05_8_eligible_candidates_ci e
+  WHERE e.vehicle_id=NEW.vehicle_id AND e.listing_cycle_id=NEW.listing_cycle_id
+   AND e.customer_id=NEW.customer_id AND e.demand_id=NEW.trigger_demand_id
+   AND e.result_id=NEW.source_match_result_id
+   AND e.source_signature=NEW.source_signature
+   AND e.responsible_employee_id=NEW.responsible_employee_id
+ ) THEN
+  IF NEW.creation_key LIKE 'source-create:%' THEN RETURN NULL; END IF;
+  RAISE EXCEPTION 'F06_5C_PG1_UNSIGNED_MATCH_OR_QUALIFICATION' USING ERRCODE='23514';
+ END IF;
  IF NOT f06_5c_pg1_ci.safe_to_issue(NEW.vehicle_id,NEW.listing_cycle_id) THEN
   IF NEW.creation_key LIKE 'source-create:%' THEN RETURN NULL; END IF;
   RAISE EXCEPTION 'F06_5C_PG1_UNTRUSTED_PRIORITY_ISSUER'
