@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {bootstrap,reset,seed,pool,physicalGate,freezeImages,convert,assetize,taskStatus,
- safePath,publicUrl,prefetch,MockCDN,MockStorage,getReadable,imageBytes,reportH5,shareCard,tx,denied} from '../contract.mjs';
+ safePath,publicUrl,prefetch,MockCDN,MockStorage,getReadable,imageBytes,reportH5,shareCard,tx,denied,selectCover,uploadManual} from '../contract.mjs';
 const q=(sql,params)=>pool.query(sql,params);
 const row=async(sql,params)=>(await q(sql,params)).rows[0];
 const photo=async(id='p1')=>row('SELECT * FROM f07_images.pictures WHERE id=$1',[id]);
@@ -59,12 +59,22 @@ add('S47 asset成功审计真实SQL持久',async()=>{const s=new MockStorage();a
 add('S48 转换不重置source path',async()=>{const prior=await photo();await convert('v1');const after=await photo();assert.equal(after.relative_path,prior.relative_path);assert.equal(after.source_platform,prior.source_platform);});
 add('S49 图片资产化并不创建新Vehicle',async()=>{const before=await count('vehicles'),s=new MockStorage();await convert('v1');await assetize('p1',s);assert.equal(await count('vehicles'),before);});
 add('S50 失败重试只处理失败项',async()=>{const s=new MockStorage();await convert('v1');await assetize('p1',s);s.failNext=true;await assert.rejects(assetize('p2',s));const writes=s.writes;await assetize('p2',s);await assetize('p1',s);assert.equal(s.writes,writes+1);});
-test('F07-2 真PG16业务合同 Source 50场景',async t=>{
+add('S51 首图失效原序下一张fallback',async()=>{const s=new MockStorage(),c=new MockCDN();c.failPaths.add(publicUrl('photo/1.jpg'));const x=await selectCover('s-user','v1',s,c);assert.equal(x.imageId,'p2');assert.equal((await photo('p1')).immutable_order,0);});
+add('S52 首图恢复自动回原排序位',async()=>{const s=new MockStorage(),c=new MockCDN(),url=publicUrl('photo/1.jpg');c.failPaths.add(url);assert.equal((await selectCover('s-user','v1',s,c)).imageId,'p2');c.failPaths.delete(url);assert.equal((await selectCover('s-user','v1',s,c)).imageId,'p1');});
+add('S53 零图占位但不影响车辆',async()=>{const x=await selectCover('s-v2','v2',new MockStorage(),new MockCDN());assert.equal(x.placeholder,true);assert.equal((await vehicle('v2')).source_type,'wholesale');});
+add('S54 全部图失败占位',async()=>{const c=new MockCDN();for(let i=1;i<=6;i++)c.failPaths.add(publicUrl('photo/'+i+'.jpg'));const x=await selectCover('s-user','v1',new MockStorage(),c);assert.equal(x.placeholder,true);});
+add('S55 无Vehicle权限连占位入口也拒绝',async()=>{await assert.rejects(selectCover('s-outsider','v1',new MockStorage(),new MockCDN()),{code:'CURRENT_VEHICLE_READ_DENY'});});
+add('S56 人工名邦图片直接双成功写自有对象',async()=>{const s=new MockStorage();const x=await uploadManual('vm',{id:'manual2',path:'own/manual2.jpg',order:1},s);assert(s.has(x.key));assert.equal((await photo('manual2')).asset_state,'success');});
+add('S57 人工上传不可伪装批发来源',async()=>{await assert.rejects(uploadManual('v1',{id:'manual2',path:'own/manual2.jpg',order:1},new MockStorage()),{code:'MANUAL_NOT_ALLOWED'});});
+add('S58 人工对象成功DB失败真实补偿',async()=>{const s=new MockStorage();await assert.rejects(uploadManual('vm',{id:'manual2',path:'own/manual2.jpg',order:1},s,{failDb:true}),e=>e.code==='23514');assert.equal(s.items.size,0);assert.equal(s.deletes,1);});
+add('S59 人工图允许调整顺序',async()=>{await q("UPDATE f07_images.pictures SET immutable_order=10 WHERE id='pm'");assert.equal((await photo('pm')).immutable_order,10);});
+add('S60 单图失败不触发整车图片重采',async()=>{const s=new MockStorage();await convert('v1');s.failNext=true;const n=await count('pictures');await assert.rejects(assetize('p1',s));assert.equal(await count('pictures'),n);assert.equal((await photo('p1')).relative_path,'photo/1.jpg');});
+test('F07-2 真PG16业务合同 Source 60场景',async t=>{
  await bootstrap();
  for(const [name,run] of allCases){
   await t.test(name,async()=>{await reset();await seed();await run();});
  }
- console.log('F07_2_SOURCE_50_REAL_PG16_BUSINESS_CASES_PASS');
+ console.log('F07_2_SOURCE_60_REAL_PG16_BUSINESS_CASES_PASS');
 });
 test('F07-2 路径与SSRF恶意输入防护 12项',async t=>{
  const attacks=['../etc/passwd','%2e%2e/secret','%252e%252e/secret','a/%2f/b','a\\b',
