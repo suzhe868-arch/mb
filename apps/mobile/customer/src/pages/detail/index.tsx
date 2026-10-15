@@ -33,7 +33,7 @@ export default function Detail(){
     {([['上牌年份',car.registrationYear+'年'],['表显里程',kmText(car.mileageKm)],['变速箱',car.transmission],['能源',car.energy],['车身颜色',car.color],['车辆位置',car.city]] as [string,string][]).map(([label,value])=><View key={label}><Text className='key'>{label}</Text><Text>{value}</Text></View>)}
    </View></View>
    <View className='section-box tip'>仅隔离模拟数据和示意照片；收藏、咨询、锁车、候补、交易功能均未接真实后端，不展示虚假完成状态。</View>
-   <View className='detail-bottom'><Text onClick={back}>返回列表</Text><Text className='disabled'>咨询 / 锁车 · 后续开发</Text></View>
+   <View className='detail-bottom'><Text onClick={back}>返回列表</Text><Button className='share-demo' openType='share' onClick={()=>{if(process.env.TARO_ENV==='h5')Taro.showToast({title:'仅微信小程序支持正式分享入口',icon:'none'})}}>分享车源</Button><Text className='disabled'>咨询 / 锁车未开放</Text></View>
   </>}
  </View>
 }
