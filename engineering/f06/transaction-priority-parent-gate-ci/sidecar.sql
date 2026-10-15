@@ -150,12 +150,12 @@ BEGIN
  -- 未知或未完成的资金绝对不能借签名取消释放 Priority。
  FOR r IN
    SELECT f.*,l.vehicle_id AS lock_vehicle,l.listing_cycle_id AS lock_cycle,
-     t.vehicle_id AS transaction_vehicle,t.listing_cycle_id AS transaction_cycle
+     tx.vehicle_id AS transaction_vehicle,tx.listing_cycle_id AS transaction_cycle
    FROM public.refund_cases f
    LEFT JOIN public.locks l ON l.lock_id=f.lock_id
-   LEFT JOIN public.transactions t ON t.transaction_id=f.transaction_id
+   LEFT JOIN public.transactions tx ON tx.transaction_id=f.transaction_id
    WHERE (l.vehicle_id=v AND l.listing_cycle_id=cyc)
-      OR (t.vehicle_id=v AND t.listing_cycle_id=cyc)
+      OR (tx.vehicle_id=v AND tx.listing_cycle_id=cyc)
  LOOP
   IF r.status <> 'closed' OR r.closed_at IS NULL OR r.close_reason IS NULL
      OR EXISTS(SELECT 1 FROM public.refund_payments p WHERE p.refund_id=r.refund_id)
@@ -186,11 +186,11 @@ BEGIN
    WHERE l.vehicle_id=v AND l.listing_cycle_id=cyc
  ) OR EXISTS(
    SELECT 1 FROM public.refund_payments p
-    JOIN public.refund_cases r ON r.refund_id=p.refund_id
-    LEFT JOIN public.locks l ON l.lock_id=r.lock_id
-    LEFT JOIN public.transactions t ON t.transaction_id=r.transaction_id
+    JOIN public.refund_cases rc ON rc.refund_id=p.refund_id
+    LEFT JOIN public.locks l ON l.lock_id=rc.lock_id
+    LEFT JOIN public.transactions tx ON tx.transaction_id=rc.transaction_id
    WHERE (l.vehicle_id=v AND l.listing_cycle_id=cyc)
-      OR (t.vehicle_id=v AND t.listing_cycle_id=cyc)
+      OR (tx.vehicle_id=v AND tx.listing_cycle_id=cyc)
  ) THEN RETURN false; END IF;
  RETURN true;
 END $$;
