@@ -1,3 +1,14 @@
+# 2026-10-15｜A独立验收PR66标准合并，F07-4通知隔离CI正式放行（唯一最新）
+
+- **正式唯一状态**：`F07_3_PR66_A_ACCEPTED_STANDARD_MERGED_CI_ONLY / F07_4_A_RELEASED_FOR_B_CI_ONLY / NEXT_OWNER=B / NEXT_TASK=F07_4_PDM23_NOTIFICATION_DND_INCIDENT_MOCK_FEISHU_PG16_CI_ONLY / F05_F06_F07_V1_NOT_READY / NO_PRODUCTION`。前次“F07-3 PR66待整改”现仅为历史；本段与同步后的JSON/正式施工单优先。
+- **A真正标准合并**：[PR66](https://github.com/suzhe868-arch/mb/pull/66)最后B HEAD `53c1d1827f0de9b7d183247bac258e5adc54c585`，main审查点 `b019713508ab23274b07d676c9b361c3f87424df`，compare ahead28/behind6，9/9仅新增两授权路径。A已签[独立验收及PR66限定CI红灯裁决](https://github.com/suzhe868-arch/mb/pull/66#issuecomment-6193402343)，GitHub标准merge实际`merged=true`，复查PR真实closed/merged且main HEAD为 **`d90fcaa8e4e636668d6b0c1d07b4f2609a0f6a6c`**。
+- **最终同SHA真PG16绿证**：[Push Run38738995738](https://github.com/suzhe868-arch/mb/actions/runs/38738995738)真非特权独立PG16 Source `116435526743` F03 47+F05 24、loopback TLS HTTPS `116435527495` 19，**90/90独立业务子场景且2/2 Job success**。F05父Vehicle/Cycle各100，父合法转换计数0并正式标 `F05_CONVERSION_POSITIVE_SOURCE_GAP`，真Vehicle两Backend PID 151/149行锁55P03、拒绝后父COUNT/MD5不变、合成nonce并发重放、HTTPS父权限拒绝码逐请求内审计均已核实。Source/HTTPS官方同HEAD非空未过期SHA256工件 `11974925747/11974921042` 仅元数据有效，未逐ZIP独立复算。
+- **旧红灯原貌**：本SHA另10条旧F05 PR工作流真实4 success/6 failure；其中3个Docker `toomanyrequests`、3个旧冻结F05分支专属真正新Push证明失败（旧业务测试先过）。A只对**PR66的9新增隔离CI文件**作 `F07-3-PR66-A-CI-APPLICABILITY-01` 限定裁决，**没有假称全部Check绿、没有更改旧CI或绕过标准合并保护**，不能推广到下批及F05整域。
+- **正式下一完整工作单已签**：`07_重建工作区/F07-4_A主控通知SLA免打扰Incident飞书路由审计_CI隔离正式完整施工单_2026-10-15.md`；B从实际最新main创建 `feat/f07-4-notification-sla-incident-gate-ci`、新PR，**只准新增** `engineering/f07/notification-sla-incident-gate-ci/**` 和 `.github/workflows/f07-4-*.yml`。依据PDM-23/25/15及原父签名边界，做通知事件allowlist、当前负责人/个人与公司飞书开关、23:00—08:30可配DND、事件重判去重/失败重试、Incident活跃/恢复、MockFeishu和安全日志/链接；至少40项Source真PG16与15项回环HTTPS，两个独立真PG16 Job、两同SHA官方工件。**禁止真实飞书/外网发送/客户/资金/生产迁移**；完成全包后B签`B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A`，A验收前不得合并。
+- **真实缺口不变**：正式电话alias `TECH_ALIAS_PENDING_A`、F03/F05 Scope/Issuer、JYT/Collector、CDN/OSS、报告、图片、Favorite独立父正例、真实Feishu、前端/UAT/生产均未授权。F05/F06/F07全域及V1仍`NOT_READY`；A正式报告 `07_重建工作区/F07-3_A主控PR66独立验收90项PG16标准合并与F07-4通知前置正式报告_2026-10-15.md`。**下一责任B**。
+
+---
+
 # 2026-10-15｜A独立复验F07-3 PR66未通过，交B原PR66定向整改（唯一最新）
 
 - **正式唯一状态**：`F07_3_PR66_A_CHANGES_REQUESTED / NO_MERGE / NEXT_OWNER=B / NEXT_TASK=F07_3_PR66_A01_A05_FULL_REMEDIATION_AND_NATIVE_RETEST / F05_F06_F07_V1_NOT_READY / NO_PRODUCTION`。原「F07-3已放行B开工」变为历史，当前是同原PR66的A整改；切勿直接合并或新建F07-4/F08分支。
