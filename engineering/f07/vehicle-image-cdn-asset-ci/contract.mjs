@@ -108,14 +108,16 @@ export async function freezeImages(vehicle,images){
  requireId(vehicle);
  if(!Array.isArray(images))throw denied('BAD_IMAGES');
  return tx(async db=>{
-  const v=await db.query('SELECT source_type FROM f07_images.vehicles WHERE id=$1 FOR UPDATE',[vehicle]);
+  const v=await db.query('SELECT source_type,image_frozen FROM f07_images.vehicles WHERE id=$1 FOR UPDATE',[vehicle]);
   if(v.rowCount!==1||v.rows[0].source_type!=='wholesale')throw denied('NOT_WHOLESALE');
+  if(v.rows[0].image_frozen)return {frozen:true,inserted:0};
   const c=await db.query("SELECT count(*)::int n FROM f07_images.pictures WHERE vehicle_id=$1 AND resource_type='vehicle_photo'",[vehicle]);
-  if(c.rows[0].n>0)return {frozen:true,inserted:0};
+  if(c.rows[0].n>0){await db.query('UPDATE f07_images.vehicles SET image_frozen=true WHERE id=$1',[vehicle]);return {frozen:true,inserted:0};}
   for(let i=0;i<images.length;i++){
    const x=images[i];safePath(x.path);requireId(x.id);
    await db.query("INSERT INTO f07_images.pictures(id,vehicle_id,resource_type,source_platform,upstream_image_id,relative_path,immutable_order,customer_visible) VALUES($1,$2,'vehicle_photo',$3,$4,$5,$6,true)",[x.id,vehicle,'JYT',x.upstream_id??null,x.path,i]);
   }
+  await db.query('UPDATE f07_images.vehicles SET image_frozen=true WHERE id=$1',[vehicle]);
   return {frozen:true,inserted:images.length};
  });
 }
@@ -170,7 +172,7 @@ export async function taskStatus(vehicle){
 export async function getReadable(token,id,kind='vehicle_photo'){
  requireId(token);requireId(id);
  return guarded(async db=>{
-  const q=await db.query("SELECT p.*,v.visible,v.priority_actor,v.assigned_sales,v.source_type,s.actor_id,s.actor_kind FROM f07_images.pictures p JOIN f07_images.vehicles v ON v.id=p.vehicle_id JOIN f07_images.sessions s ON s.scope_vehicle=v.id AND s.token=$1 AND s.active AND NOT s.denied WHERE p.id=$2 AND p.resource_type=$3 AND (v.visible OR s.actor_id=v.priority_actor OR (s.actor_kind='employee' AND s.actor_id=v.assigned_sales))",[token,id,kind]);
+  const q=await db.query("SELECT p.*,v.visible,v.priority_actor,v.assigned_sales,v.source_type,s.actor_id,s.actor_kind FROM f07_images.pictures p JOIN f07_images.vehicles v ON v.id=p.vehicle_id JOIN f07_images.sessions s ON s.scope_vehicle=v.id AND s.token=$1 AND s.active AND NOT s.denied WHERE p.id=$2 AND p.resource_type=$3 AND ((v.priority_actor IS NOT NULL AND (s.actor_id=v.priority_actor OR (s.actor_kind='employee' AND s.actor_id=v.assigned_sales))) OR (v.priority_actor IS NULL AND v.visible))",[token,id,kind]);
   if(q.rowCount!==1)throw denied('CURRENT_VEHICLE_READ_DENY');
   const p=q.rows[0];
   if(p.actor_kind==='customer'&&(p.resource_type==='sensitive_document'||(p.resource_type!=='vehicle_photo'&&!p.customer_visible)))throw denied('CURRENT_REPORT_DENY');
@@ -201,7 +203,7 @@ export function shareCard(model,imageUrl){
 export async function vehicleRead(token,vehicle){
  requireId(token);requireId(vehicle);
  return guarded(async db=>{
-  const r=await db.query("SELECT v.id FROM f07_images.vehicles v JOIN f07_images.sessions s ON s.token=$1 AND s.scope_vehicle=v.id AND s.active AND NOT s.denied WHERE v.id=$2 AND (v.visible OR s.actor_id=v.priority_actor OR (s.actor_kind='employee' AND s.actor_id=v.assigned_sales))",[token,vehicle]);
+  const r=await db.query("SELECT v.id FROM f07_images.vehicles v JOIN f07_images.sessions s ON s.token=$1 AND s.scope_vehicle=v.id AND s.active AND NOT s.denied WHERE v.id=$2 AND ((v.priority_actor IS NOT NULL AND (s.actor_id=v.priority_actor OR (s.actor_kind='employee' AND s.actor_id=v.assigned_sales))) OR (v.priority_actor IS NULL AND v.visible))",[token,vehicle]);
   if(r.rowCount!==1)throw denied('CURRENT_VEHICLE_READ_DENY');
   return true;
  });
