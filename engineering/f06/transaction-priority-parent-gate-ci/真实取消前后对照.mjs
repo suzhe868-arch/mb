@@ -65,6 +65,7 @@ export async function prepareOldNative4A(c){
   const token=logged.token;
   const oldLock=await realLock(c,auth,token,4,'old-baseline');
   const newLock=await realLock(c,auth,token,6,'new-version');
+  const pendingRefundLock=await realLock(c,auth,token,7,'pending-finance-real-5b');
   const open=async(lockId,label)=>{
    const tx=await oldRef('feat/f06-5b-lock-refund-conversion-guard-ci',()=>openGuardedSyntheticTransactionCI(auth,token,{
     lockId,eventKey:mk('5b-'+label)
@@ -74,6 +75,12 @@ export async function prepareOldNative4A(c){
   };
   const oldTx=await open(oldLock,'old4a');
   const newTx=await open(newLock,'v2-4a');
+  // 原F06-5B真实签发一笔独立CI交易，之后注入未知pending退款事实；
+  // 新版合法4A必须通过其原有金额/退款源检查拒绝，不能把伪取消C03充当本项证明。
+  const pendingRefundTx=await open(pendingRefundLock,'pending-finance-5b');
+  const refund=await first(c,"INSERT INTO public.refund_cases(customer_id,lock_id,transaction_id,status,expected_amount_cents) VALUES($1,NULL,$2,'pending',100) RETURNING refund_id",
+   [86180101,pendingRefundTx]);
+  assert.ok(refund?.refund_id,'PG1_NATIVE_PENDING_REFUND_CARRIER_REQUIRED');
   const oldCancel=await oldRef('feat/f06-4a-transaction-cancel-ci',()=>cancelSyntheticTransactionCI(auth,token,{
    transactionId:oldTx,eventKey:mk('old-4a-cancel'),reason:'真实父版本正常签名4A取消结果对照'
   }));
@@ -84,7 +91,7 @@ export async function prepareOldNative4A(c){
   const pending=await orig(c,newTx);
   assert.equal(pending.status,'in_progress');
   assert.equal(pending.origin_id,null);
-  return {auth,token,oldTx,newTx,oldCarrier,oldCancel,baseline:{
+  return {auth,token,oldTx,newTx,pendingRefundTx,pendingRefundId:refund.refund_id,oldCarrier,oldCancel,baseline:{
    oldLock,newLock,oldTransaction:oldTx,newTransaction:newTx,source:'F06_1_AND_5B_SIGNED_PARENT_APIS'
   }};
  }catch(e){await auth.close().catch(()=>{});throw e}
