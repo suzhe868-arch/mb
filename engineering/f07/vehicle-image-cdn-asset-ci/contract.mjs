@@ -86,7 +86,15 @@ export function prefetch(imageIds,currentIndex=0,concurrency=4){
  return {first,tail,concurrency};
 }
 export class MockStorage{
- constructor(){this.items=new Map();this.writes=0;this.deletes=0;this.failNext=false;}
+ constructor(){this.items=new Map();this.writes=0;this.deletes=0;this.failNext=false;this.keyLocks=new Map();}
+ async withKeyLock(key,fn){
+  const prior=this.keyLocks.get(key)??Promise.resolve();
+  let done;const mine=new Promise(resolve=>{done=resolve;});
+  this.keyLocks.set(key,mine);
+  await prior;
+  try{return await fn();}
+  finally{if(this.keyLocks.get(key)===mine)this.keyLocks.delete(key);done();}
+ }
  async put(key,bytes){if(this.failNext){this.failNext=false;throw denied('MOCK_OBJECT_WRITE_FAIL');}this.items.set(key,Buffer.from(bytes));this.writes++;}
  async del(key){this.items.delete(key);this.deletes++;}
  get(key){return this.items.get(key);}
@@ -131,7 +139,9 @@ export async function convert(vehicle){
 }
 export async function assetize(id,store,{failDb=false,interrupt=false}={}){
  requireId(id);
+ if(!(store instanceof MockStorage))throw denied('MOCK_STORAGE_ONLY');
  const key='TEST_ASSET/'+id;
+ return store.withKeyLock(key,async()=>{
  let created=false;
  try{
   return await tx(async db=>{
@@ -158,6 +168,7 @@ export async function assetize(id,store,{failDb=false,interrupt=false}={}){
   await tx(db=>db.query("INSERT INTO f07_images.audit(picture_id,action,detail) VALUES($1,'ASSET_FAILED',$2)",[id,e.code??e.message]));
   throw e;
  }
+ });
 }
 export async function taskStatus(vehicle){
  const q=await guarded(db=>db.query("SELECT asset_state, count(*)::int n FROM f07_images.pictures WHERE vehicle_id=$1 AND resource_type='vehicle_photo' GROUP BY asset_state",[vehicle]));
@@ -220,8 +231,10 @@ export async function selectCover(token,vehicle,store,cdn){
 }
 export async function uploadManual(vehicle,{id,path,order=0},store,{failDb=false}={}){
  requireId(vehicle);requireId(id);safePath(path);
+ if(!(store instanceof MockStorage))throw denied('MOCK_STORAGE_ONLY');
  if(!Number.isSafeInteger(order)||order<0)throw denied('INVALID_ORDER');
  const key='TEST_ASSET/MANUAL/'+id;
+ return store.withKeyLock(key,async()=>{
  let stored=false;
  try{
   return await tx(async db=>{
@@ -235,6 +248,7 @@ export async function uploadManual(vehicle,{id,path,order=0},store,{failDb=false
   if(stored)await store.del(key);
   throw e;
  }
+ });
 }
 
 
@@ -242,17 +256,19 @@ export async function uploadManual(vehicle,{id,path,order=0},store,{failDb=false
 // Only synthetic keys are enumerated; this has no access to production object storage.
 export async function reconcileOrphans(store){
  if(!(store instanceof MockStorage))throw denied('MOCK_STORAGE_ONLY');
- return guarded(async db=>{
-  const deleted=[];
-  for(const key of Array.from(store.items.keys())){
-   if(!key.startsWith('TEST_ASSET/'))continue;
-   const q=await db.query("SELECT id FROM f07_images.pictures WHERE object_key=$1 AND asset_state='success'",[key]);
-   if(q.rowCount>0)continue;
+ const deleted=[];
+ for(const key of Array.from(store.items.keys())){
+  if(!/^TEST_ASSET\/(?:MANUAL\/)?[A-Za-z0-9_-]{1,80}$/.test(key))continue;
+  const removed=await store.withKeyLock(key,async()=>tx(async db=>{
+   const q=await db.query("SELECT id FROM f07_images.pictures WHERE object_key=$1 AND asset_state='success' FOR UPDATE",[key]);
+   if(q.rowCount>0)return false;
+   if(!store.has(key))return false;
    await store.del(key);
    const id=key.slice(key.lastIndexOf('/')+1);
    await db.query("INSERT INTO f07_images.audit(picture_id,action,detail) VALUES($1,'ORPHAN_CLEANUP','TEST_CRASH_RECONCILE')",[id]);
-   deleted.push(key);
-  }
-  return deleted;
- });
+   return true;
+  }));
+  if(removed)deleted.push(key);
+ }
+ return deleted;
 }
