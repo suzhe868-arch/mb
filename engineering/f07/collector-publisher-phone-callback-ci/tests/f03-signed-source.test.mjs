@@ -25,13 +25,13 @@ test('A03 原签F03真实会话权限拒绝证据',async t=>{
   });
   await t.test('P04 即使临时合成模板具备能力，F03待签别名仍拒绝',async()=>{
    await auth.pool.query("INSERT INTO public.permissions(permission_id,permission_code) VALUES(91001,'publisher.phone.sensitive')");
-   await auth.pool.query("INSERT INTO public.role_permission_defaults(role_id,permission_id,enabled) VALUES(1,91001,true)");
+   await auth.pool.query("INSERT INTO public.role_permission_defaults(role_id,permission_id,enabled,changed_at) VALUES(1,91001,true,now())");
    const r=await readCurrentFacts(auth,login.token,'vehicle.publisher_phone.read');
    assert.equal(r.finalAllowed,false);
    assert.equal(r.code,'TECH_ALIAS_NOT_APPROVED');
   });
   await t.test('P05 真F03个人显式DENY覆盖模板允许',async()=>{
-   await auth.pool.query("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision) VALUES(6,91001,'deny')");
+   await auth.pool.query("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(6,91001,'deny',now())");
    const r=await readCurrentFacts(auth,login.token,'vehicle.publisher_phone.read');
    assert.equal(r.finalAllowed,false);
    assert.equal(r.code,'CURRENT_PERSONAL_DENY');
