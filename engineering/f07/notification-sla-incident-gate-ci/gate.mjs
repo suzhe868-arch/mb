@@ -116,6 +116,9 @@ export async function dispatch(db,{eventId,channel='personal',at='2026-10-16T02:
    if(event.kind==='incident_active') stage='incident-cadence-'+Math.floor(time.getTime()/(event.cadence_minutes*60000));
    const existing=(await client.query('SELECT * FROM f07_4_ci.claim WHERE event_id=$1 AND stage=$2 AND channel=$3 FOR UPDATE',[eventId,stage,channel])).rows[0];
    if(existing?.status==='SENT')result=reason('DEDUPED','STAGE_ALREADY_SENT');
+   else if(event.kind==='incident_active' &&
+    (await client.query("SELECT max(sent_at) last_sent FROM f07_4_ci.claim WHERE event_id=$1 AND channel=$2 AND status='SENT'",[eventId,channel])).rows[0].last_sent > new Date(time.getTime()-event.cadence_minutes*60000))
+    result=reason('SKIPPED','INCIDENT_CADENCE_NOT_DUE');
    else {
     if(existing)await client.query('UPDATE f07_4_ci.claim SET status=$4,attempt=attempt+1 WHERE event_id=$1 AND stage=$2 AND channel=$3',[eventId,stage,channel,'CLAIMED']);
     else await client.query("INSERT INTO f07_4_ci.claim(event_id,stage,channel,status) VALUES($1,$2,$3,'CLAIMED')",[eventId,stage,channel]);
