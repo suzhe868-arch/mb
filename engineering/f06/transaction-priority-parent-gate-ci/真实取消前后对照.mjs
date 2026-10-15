@@ -100,6 +100,25 @@ export async function proveVersionedNative4A(c,fixture){
  gate();
  assert.equal((await verify(c)).verified,true);
  const {auth,token,newTx,oldCarrier}=fixture;
+
+ // 有效F03 Sales会话+原5B真签名交易+未知pending退款，正版4A Cancel也必须拒绝。
+ const pendingFinanceDenied=await cancelSyntheticTransactionV2CI(auth,token,{
+  transactionId:fixture.pendingRefundTx,eventKey:mk('pending-finance-4a-deny'),
+  reason:'真实5B交易遇到未结退款必须拒绝合法销售取消'
+ });
+ assert.equal(pendingFinanceDenied.allowed,false,'PG1_4A_PENDING_REFUND_MUST_DENY');
+ assert.equal(pendingFinanceDenied.code,'F06_4A_UNRESOLVED_REFUND_FACT',
+  'PG1_4A_PENDING_REFUND_NATIVE_DENY_CODE '+JSON.stringify(pendingFinanceDenied));
+ const pstate=await first(c,
+  "SELECT t.status,r.status AS refund_status,r.expected_amount_cents,"+
+  "(SELECT count(*)::int FROM f06_4a_ci.cancel_origins WHERE transaction_id=$1) AS signed_cancel_count "+
+  "FROM public.transactions t JOIN public.refund_cases r ON r.transaction_id=t.transaction_id "+
+  "WHERE t.transaction_id=$1 AND r.refund_id=$2",
+  [fixture.pendingRefundTx,fixture.pendingRefundId]);
+ assert.equal(pstate?.status,'in_progress','PG1_4A_PENDING_FINANCE_UNAUTHORIZED_TERMINAL');
+ assert.equal(pstate?.refund_status,'pending','PG1_4A_PENDING_REFUND_SOURCE_MUTATED');
+ assert.equal(Number(pstate?.expected_amount_cents),100,'PG1_4A_PENDING_REFUND_AMOUNT_MUTATED');
+ assert.equal(pstate?.signed_cancel_count,0,'PG1_4A_PENDING_FINANCE_SPURIOUS_SIGNED_CANCEL');
  // 真实PG业务入口注错：状态写完、不可变事件写完、审计写完三个边界必须物理回滚。
  for(const cp of ['AFTER_STATUS_THROW','AFTER_EVENT_THROW','AFTER_AUDIT_THROW']){
   await assert.rejects(
@@ -144,5 +163,7 @@ export async function proveVersionedNative4A(c,fixture){
  return {oldTx:fixture.oldTx,newTx,
   baselineCode:fixture.oldCancel.code,versionedCode:after.code,idempotentCode:replay.code,
   invalidTokenDenied:!denied.allowed,
-  comparedBusinessColumns:8,realPG16:true,sourceSigned4A:true};
+  comparedBusinessColumns:8,realPG16:true,sourceSigned4A:true,
+  pendingReal5BRefundDenied:true,pendingFinanceOriginalCode:pendingFinanceDenied.code,
+  pendingRefundFactUnchanged:true};
 }
