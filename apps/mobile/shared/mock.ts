@@ -1,0 +1,43 @@
+import type {SafeVehicle,Source} from './domain'
+/** 车辆均为虚构样例；外部展示照片只用于开发示意，不是对应实车照片。 */
+const photos = [
+  'https://images.unsplash.com/photo-1572199109282-442d26b37fa6?w=960&q=75',
+  'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=960&q=75',
+  'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=960&q=75',
+  'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=960&q=75',
+  'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=960&q=75',
+  'https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=960&q=75'
+]
+const templates = [
+  { brand:'奥迪',series:'A6',modelYear:2026,model:'45 TFSI 豪华动感型',price:23.8 },
+  { brand:'宝马',series:'5系',modelYear:2025,model:'525Li M运动套装',price:28.6 },
+  { brand:'奔驰',series:'C级',modelYear:2024,model:'C 260 L 运动版',price:20.5 },
+  { brand:'特斯拉',series:'Model 3',modelYear:2025,model:'后轮驱动版',price:17.9 },
+  { brand:'丰田',series:'凯美瑞',modelYear:2024,model:'2.0G 尊贵版',price:12.4 },
+  { brand:'大众',series:'帕萨特',modelYear:2025,model:'380TSI 星空旗舰版',price:14.9 },
+  { brand:'比亚迪',series:'汉',modelYear:2025,model:'DM-i 尊荣型',price:13.8 },
+  { brand:'雷克萨斯',series:'ES',modelYear:2023,model:'200 豪华版',price:18.2 }
+]
+const sourceOrder:Source[]=['wholesale','wholesale','mingbang','dealer4s']
+export const ALL_SAFE_VEHICLES:SafeVehicle[] = Array.from({length:64},(_,i)=>{
+ const v=templates[i%templates.length]
+ const source=sourceOrder[i%4]
+ const delta=i%9
+ return {
+  id:'MOCK-'+String(i+1).padStart(3,'0'),source,brand:v.brand,series:v.series,modelYear:v.modelYear,
+  name:v.modelYear+'款 '+v.brand+v.series+' '+v.model+(i===43?' | 超长文案演示 · 原厂车况描述仅做排版测试，不代表真实在售车辆':''),
+  registrationYear:Math.max(2020,v.modelYear-delta%3),mileageKm:9800+i*1730,
+  city:['上海','杭州','苏州','北京','广州','成都'][i%6],
+  transmission:i%4===3?'单速变速箱':'自动',
+  energy:i%4===3?'纯电':'汽油',color:['曜石黑','珍珠白','银灰'][i%3],
+  listedAt:'2026-10-'+String(15-i%14).padStart(2,'0')+'T10:00:00+08:00',
+  customerPriceWan:i%11===9?null:Math.max(3.5,v.price+delta*.34),
+  photoUrl:photos[i%photos.length],visible:true,publicAvailable:true
+ }
+})
+/** 无权访问、已下架、受控车辆：即使在本地 fixture 中存在也不得暴露。 */
+export const DENIED_FIXTURES:SafeVehicle[]=[
+ {...ALL_SAFE_VEHICLES[0],id:'MOCK-HIDDEN',visible:false},
+ {...ALL_SAFE_VEHICLES[1],id:'MOCK-OFFLINE',publicAvailable:false},
+ {...ALL_SAFE_VEHICLES[2],id:'MOCK-REVOKED',visible:false,publicAvailable:false}
+]
