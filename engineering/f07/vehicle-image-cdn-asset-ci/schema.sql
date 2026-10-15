@@ -27,9 +27,9 @@ CREATE TABLE IF NOT EXISTS f07_images.audit (
 CREATE OR REPLACE FUNCTION f07_images.protect_origin() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
  IF OLD.source_platform='JYT' AND ROW(OLD.vehicle_id,OLD.resource_type,OLD.source_platform,OLD.origin_source_type,OLD.upstream_image_id,
-        OLD.relative_path,OLD.immutable_order) IS DISTINCT FROM
+        OLD.relative_path,OLD.immutable_order,OLD.report_source_url) IS DISTINCT FROM
     ROW(NEW.vehicle_id,NEW.resource_type,NEW.source_platform,NEW.origin_source_type,NEW.upstream_image_id,
-        NEW.relative_path,NEW.immutable_order)
+        NEW.relative_path,NEW.immutable_order,NEW.report_source_url)
  THEN RAISE EXCEPTION 'FROZEN_IMAGE_ORIGIN' USING ERRCODE='23514'; END IF;
  RETURN NEW;
 END $$;
