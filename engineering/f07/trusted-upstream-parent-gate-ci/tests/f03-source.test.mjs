@@ -70,6 +70,30 @@ test('F07-3 F03真实已签Session与Collector安全Source（独立PG16）',asyn
   await check('F03-32 错仓库在执行前拒绝',async()=>assert.throws(()=>assertCIEnv({...process.env,GITHUB_REPOSITORY:'other/repo'}),/F07_3_CI_ENV/));
   await check('F03-33 错Push ref执行前拒绝',async()=>assert.throws(()=>assertCIEnv({...process.env,GITHUB_REF:'refs/heads/main'}),/F07_3_CI_ENV/));
   await check('F03-34 错数据库执行前拒绝',async()=>assert.throws(()=>assertCIEnv({...process.env,DATABASE_URL:'postgres://somewhere.invalid/postgres'}),/F07_3_CI_DSN/));
+  await check('F03-35 无PC个人准入的4S身份登录硬拒绝',async()=>{
+   const x=await auth.login({login:'four_s_test',password:'SyntheticFourS_123456'});
+   assert.equal(x.code,'AUTH_FAILED');
+  });
+  await check('F03-36 即使4S获PC个人准入，电话业务仍硬DENY',async()=>{
+   await auth.pool.query("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(2,10,'allow',now())");
+   const x=await auth.login({login:'four_s_test',password:'SyntheticFourS_123456'});
+   assert.equal(x.code,'AUTH_OK');
+   assert.equal((await readCurrentFacts(auth,x.token,'vehicle.publisher_phone.read')).code,'HARD_DENY_FOUR_S');
+  });
+  await check('F03-37 真系统管理员不能代员工读取Publisher电话',async()=>{
+   const x=await auth.login({login:'admin_test',password:'SyntheticAdmin_1234567'});
+   assert.equal(x.code,'AUTH_OK');
+   assert.equal((await readCurrentFacts(auth,x.token,'vehicle.publisher_phone.read')).code,'SYSTEM_ADMIN_NO_BUSINESS_RIGHT');
+  });
+  await check('F03-38 真inactive账号登录硬拒绝',async()=>{
+   assert.equal((await auth.login({login:'inactive_test',password:'SyntheticInactive_123'})).code,'AUTH_FAILED');
+  });
+  await check('F03-39 真disabled凭据登录硬拒绝',async()=>{
+   assert.equal((await auth.login({login:'disabled_test',password:'SyntheticDisabled_123'})).code,'AUTH_FAILED');
+  });
+  await check('F03-40 重放有效合成签名仍不得生成真实JYT授权',async()=>{
+   assert.equal(inspectCollector(good,ts,goodSig,secret,C).code,'PRODUCTION_JYT_JOB_ISSUER_SOURCE_GAP');
+  });
   console.log('F07_3_F03_NATIVE_SIGNED_SOURCE_'+n+'_PASS physical_pid='+physical.pid+' phone='+SOURCE_GAP);
  }finally{await auth.close();await clientPool.end()}
 });
