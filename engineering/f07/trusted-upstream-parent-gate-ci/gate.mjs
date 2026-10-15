@@ -125,6 +125,22 @@ export async function inspectCollectorOnce(raw,issuedAt,signature,secret,expecte
  finally{c.release()}
 }
 
+// 仅对白名单现存父表作只读全行Count/MD5；不打印客户资料和敏感行。
+export async function snapshotSignedF05Parents(db) {
+ await physicalGate(db);
+ const candidates=['vehicles','vehicle_listing_cycles','f05_3b_sync_lineages','f05_3c_wholesale_conversions',
+  'f05_3c_conversion_audit','locks','transactions','favorites','recommendations'];
+ const known=(await db.query("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_name=ANY($1::text[])",[candidates]))
+  .rows.map(x=>x.table_name);
+ const fingerprint={};
+ for(const name of known){
+  // name只能来自本函数硬编码的public白名单及PG目录，非外部输入。
+  const row=(await db.query("SELECT count(*)::int n,md5(coalesce(string_agg(to_jsonb(t)::text,'|' ORDER BY to_jsonb(t)::text),'EMPTY')) digest FROM public."+name+" t")).rows[0];
+  fingerprint[name]=Object.freeze({count:row.n,digest:row.digest});
+ }
+ return Object.freeze(fingerprint);
+}
+
 export async function signedF05ReadOnly(auth) {
  assertCIEnv();const physical=await physicalGate(auth.pool);
  // 已签F05版本的迁移链和物理目录由F05父verifier验签；F03冻结80表v2 verifier只适用于独立F03库。
@@ -134,9 +150,14 @@ export async function signedF05ReadOnly(auth) {
  try{
   await c.query('BEGIN READ ONLY ISOLATION LEVEL REPEATABLE READ');
   const tables=(await c.query("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('vehicles','vehicle_listing_cycles','f05_3b_sync_lineages','f05_3c_wholesale_conversions','f05_3c_conversion_audit') ORDER BY table_name")).rows.map(x=>x.table_name);
-  const rows=(await c.query("SELECT c.vehicle_id,c.listing_cycle_id,c.source_platform,v.source_type FROM public.f05_3c_wholesale_conversions c JOIN public.vehicles v ON v.vehicle_id=c.vehicle_id ORDER BY c.conversion_id LIMIT 5")).rows;
+  const rows=(await c.query("SELECT c.vehicle_id,c.listing_cycle_id,c.source_platform,v.source_type FROM public.f05_3c_wholesale_conversions c JOIN public.vehicles v ON v.vehicle_id=c.vehicle_id JOIN public.vehicle_listing_cycles cy ON cy.listing_cycle_id=c.listing_cycle_id AND cy.vehicle_id=c.vehicle_id ORDER BY c.conversion_id LIMIT 5")).rows;
+  const conversionCount=Number((await c.query('SELECT count(*)::int n FROM public.f05_3c_wholesale_conversions')).rows[0].n);
+  const parentVehicleCycles=(await c.query('SELECT v.vehicle_id,cy.listing_cycle_id,v.source_type FROM public.vehicles v JOIN public.vehicle_listing_cycles cy ON cy.vehicle_id=v.vehicle_id ORDER BY v.vehicle_id,cy.listing_cycle_id LIMIT 5')).rows;
+  const parentVehicleCount=Number((await c.query('SELECT count(*)::int n FROM public.vehicles')).rows[0].n);
+  const parentCycleCount=Number((await c.query('SELECT count(*)::int n FROM public.vehicle_listing_cycles')).rows[0].n);
   await c.query('COMMIT');
-  return {physical,verified:true,tables,rows,code:'SIGNED_PARENT_READONLY_PROVEN_NO_ISSUER'};
+  return {physical,verified:true,tables,rows,conversionCount,parentVehicleCount,parentCycleCount,parentVehicleCycles,
+   code:conversionCount===0?'F05_CONVERSION_POSITIVE_SOURCE_GAP':'SIGNED_PARENT_CONVERSION_FK_PROVEN'};
  }catch(e){await c.query('ROLLBACK').catch(()=>{});throw e}
  finally{c.release()}
 }
