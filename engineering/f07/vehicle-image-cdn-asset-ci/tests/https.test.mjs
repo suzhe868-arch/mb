@@ -26,7 +26,7 @@ test('F07-2 loopback HTTPS + 独立真PG16 20项黑箱安全用例',async t=>{
    ['H08 出险走独立报告域',async()=>{await pool.query("UPDATE f07_images.sessions SET scope_vehicle='v1' WHERE token='s-user'");const x=await get('/media/accident_report/r1');assert.equal(x.status,200);assert.match(x.headers['x-controlled-url'],/^https:\/\/report.mingbang.invalid\//);}],
    ['H09 不能用普通相册枚举出险',async()=>{assert.equal((await get('/media/vehicle_photo/r1')).status,403);}],
    ['H10 customer_visible变化旧报告拒绝',async()=>{await pool.query("UPDATE f07_images.pictures SET customer_visible=false WHERE id='r1'");assert.equal((await get('/media/accident_report/r1')).status,403);}],
-   ['H11 维保H5使用名邦报告域',async()=>{const x=await get('/h5/h5');assert.equal(x.status,200);assert.match(x.body,/report\.mingbang\.invalid/);assert.doesNotMatch(x.body,/reports\.jyt\.invalid/);}],
+   ['H11 维保H5使用名邦报告域',async()=>{const x=await get('/h5/h5');assert.equal(x.status,200);assert.match(x.body,/report\.mingbang\.invalid/);assert.doesNotMatch(x.body,/reports\.jyt\.invalid/);assert.match(x.body,/#page1/);}],
    ['H12 敏感文件直接枚举拒绝',async()=>{assert.equal((await get('/media/sensitive_document/doc')).status,403);}],
    ['H13 编码穿越拒绝',async()=>{const x=await get('/media/vehicle_photo/%2e%2e%2fp1');assert.notEqual(x.status,200);}],
    ['H14 任意origin和Metadata SSRF无代理入口',async()=>{const x=await get('/proxy?origin=http://169.254.169.254/latest/meta-data');assert.notEqual(x.status,200);}],
