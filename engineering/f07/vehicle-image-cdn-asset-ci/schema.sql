@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS f07_images.pictures (
  id text PRIMARY KEY, vehicle_id text NOT NULL REFERENCES f07_images.vehicles(id),
  resource_type text NOT NULL CHECK(resource_type IN
  ('vehicle_photo','accident_report','maintenance_image','maintenance_h5','sensitive_document')),
- source_platform text NOT NULL, upstream_image_id text, relative_path text NOT NULL,
+ source_platform text NOT NULL, origin_source_type text NOT NULL CHECK(origin_source_type IN ('wholesale','mingbang','four_s')), upstream_image_id text, relative_path text NOT NULL,
  immutable_order integer NOT NULL, object_key text,
  asset_state text NOT NULL DEFAULT 'pending' CHECK(asset_state IN ('pending','processing','success','failed')),
  customer_visible boolean NOT NULL DEFAULT false, report_source_url text,
@@ -26,9 +26,9 @@ CREATE TABLE IF NOT EXISTS f07_images.audit (
 );
 CREATE OR REPLACE FUNCTION f07_images.protect_origin() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
- IF OLD.source_platform='JYT' AND ROW(OLD.vehicle_id,OLD.resource_type,OLD.source_platform,OLD.upstream_image_id,
+ IF OLD.source_platform='JYT' AND ROW(OLD.vehicle_id,OLD.resource_type,OLD.source_platform,OLD.origin_source_type,OLD.upstream_image_id,
         OLD.relative_path,OLD.immutable_order) IS DISTINCT FROM
-    ROW(NEW.vehicle_id,NEW.resource_type,NEW.source_platform,NEW.upstream_image_id,
+    ROW(NEW.vehicle_id,NEW.resource_type,NEW.source_platform,NEW.origin_source_type,NEW.upstream_image_id,
         NEW.relative_path,NEW.immutable_order)
  THEN RAISE EXCEPTION 'FROZEN_IMAGE_ORIGIN' USING ERRCODE='23514'; END IF;
  RETURN NEW;
