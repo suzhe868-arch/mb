@@ -82,10 +82,11 @@ P05	独立冻结F03 PG16父Session	已编目业务cap仍受Scope/Object约束	CU
 P06	独立冻结F03 PG16父Session	配置写不可借签名Token绕过	CURRENT_SCOPE_OR_CAPABILITY_DENY	SIGNED_PARENT_NEGATIVE_ONLY	tests/parent.test.mjs / 真Push Source PG16 Job	IN_FINAL_CI_EVIDENCE
 P07	独立冻结F03 PG16父Session	已签Session revoke	REVOKED_OR_NO_GRANT	SIGNED_PARENT_NEGATIVE_ONLY	tests/parent.test.mjs / 真Push Source PG16 Job	IN_FINAL_CI_EVIDENCE
 P08	独立冻结F03 PG16父Session	撤旧Token再读拒绝	REVOKED_OR_NO_GRANT	SIGNED_PARENT_NEGATIVE_ONLY	tests/parent.test.mjs / 真Push Source PG16 Job	IN_FINAL_CI_EVIDENCE
-P09	独立冻结F03 PG16父Session	System Admin非普通员工Session	REVOKED_OR_NO_GRANT	SIGNED_PARENT_NEGATIVE_ONLY	tests/parent.test.mjs / 真Push Source PG16 Job	IN_FINAL_CI_EVIDENCE
+P09	独立冻结F03 PG16父Session	System Admin可成功登录但不自动拥有通知配置能力	AUTH_OK_AND_CONFIG_DENY	SIGNED_PARENT_NEGATIVE_ONLY	tests/parent.test.mjs / 真Push Source PG16 Job	IN_FINAL_CI_EVIDENCE
 P10	独立冻结F03 PG16父Session	System Admin无通知配置cap	REVOKED_OR_NO_GRANT	SIGNED_PARENT_NEGATIVE_ONLY	tests/parent.test.mjs / 真Push Source PG16 Job	IN_FINAL_CI_EVIDENCE
 S56	真PG16 Source	当前负责人变更后仅新接收人投递	SENT新员工	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
 S57	真PG16 Source	个人开关关闭与SLA总群开关独立	仅总群SENT	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
 S58	真PG16 Source	Lock提醒无显式配置拒绝	LOCK_NOTICE_CONFIG_SOURCE_GAP	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
 S59	真PG16 Source	Lock提醒合法已启用及提前量	SENT	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
 S60	真PG16 Source	SLA超时缺原deadline拒绝	SLA_EVENT_SOURCE_GAP	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
+S61	真PG16 Source	Incident跨时间桶未满真实cadence不得再次发送，满间隔可重发	INCIDENT_CADENCE_NOT_DUE/之后SENT	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
