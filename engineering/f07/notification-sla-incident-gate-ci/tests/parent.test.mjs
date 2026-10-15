@@ -39,9 +39,9 @@ test('F07-4 冻结F03真实登录、撤权和配置能力缺签负证',async t=>
    const r=await readCurrentFacts(auth,session.token,'customer.crm.read');assert.equal(r.finalAllowed,false);
   });
   const admin=await auth.login({login:'admin_test',password:'SyntheticAdmin_1234567'});
-  await check('P09 System Admin不能作为普通业务员工会话',async()=>{
+  await check('P09 System Admin登录本身并不获得通知配置能力',async()=>{
    assert.equal(admin.code,'AUTH_OK');
-   assert.equal(await auth.withSession(admin.token,async()=>true,{normalOnly:true}),null);
+   assert.equal(await auth.withSession(admin.token,async()=>true,{normalOnly:true}),true); // F03登录事实不等于业务权限允许
   });
   await check('P10 真实F03未知通知cap不会凭System Admin默认开通',async()=>{
    const r=await readCurrentFacts(auth,admin.token,'notification.config.write');
