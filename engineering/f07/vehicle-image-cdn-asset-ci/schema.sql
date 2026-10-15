@@ -2,7 +2,7 @@
 CREATE SCHEMA IF NOT EXISTS f07_images;
 CREATE TABLE IF NOT EXISTS f07_images.vehicles (
  id text PRIMARY KEY, source_type text NOT NULL CHECK(source_type IN ('wholesale','mingbang','four_s')),
- listing_cycle text NOT NULL, visible boolean NOT NULL DEFAULT true,
+ listing_cycle text NOT NULL, image_frozen boolean NOT NULL DEFAULT false, visible boolean NOT NULL DEFAULT true,
  priority_actor text, assigned_sales text, business_marker text NOT NULL DEFAULT 'TEST_BUSINESS_UNCHANGED'
 );
 CREATE TABLE IF NOT EXISTS f07_images.sessions (
