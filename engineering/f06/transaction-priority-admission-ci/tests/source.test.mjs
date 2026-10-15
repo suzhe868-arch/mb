@@ -22,6 +22,8 @@ import {cancelAfterHandoffSyntheticCI} from '../../post-handoff-cancel-ci/servic
 import {installSignedPG1InExisting5CCI,verify5CVersioned,withSignedPG1Ref} from '../pg1-versioned-adapter.mjs';
 import {cancelSyntheticTransactionV2CI} from '../../transaction-priority-parent-gate-ci/signed-cancel-v2.mjs';
 import {runNativeForgedCancelMatrix} from '../../transaction-priority-parent-gate-ci/伪造取消原生反例.mjs';
+import {prepareRealJytUnoccupiedSignedMatch,proveRealJytR01LegalSuccessor} from '../../transaction-priority-parent-gate-ci/真批发候补优先权安全验收.mjs';
+import {cancelAfterHandoffV2CI} from '../../transaction-priority-parent-gate-ci/signed-post-handoff-cancel-v2.mjs';
 import {requestSyntheticNewPriorityV2CI} from '../service-v2.mjs';
 
 import {withF062} from '../../deposit-ledger-ci/migration.mjs';
@@ -37,6 +39,7 @@ const args={vehicleId:86181104,listingCycleId:86182104,customerId:86180101,teamI
 const attempt=(v={},a=auth,t='forged')=>requestSyntheticNewPriorityCI(a,t,{...args,...v});
 let realTxId,legacyTxId,positive,positiveLockId;
 let c01Pg1Vehicle=null;
+let r01Pg1Fixture=null;
 let parentCrossDomainProbes={}; // 真实PG同事务Savepoint负例观察，绝不修改冻结父或签发生产事实
 const f06Signed=fn=>withF063A(()=>withF062(()=>withParentBranch(fn)));
 async function makeSignedLock(n,label){
@@ -978,6 +981,14 @@ test('5C-S84 C01 真JYT当前Match、原F06-1候补、5B交易和4A取消不得�
  assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND status='active'",[vehicleId]))[0].n,0);
  // S01—S83 保留旧父原生回归；只有在S84真JYT签名和5B事实形成后，
  // 才在这一物理Scenario库追加安装经A独立验收的PG1。不得让旧版4A绕过新版目录。
+ // 独立R01批发车必须在PG1安装前由原F05-7/5B签出完整在途链，
+ // 之后才可以在同一次真实物理Scenario DB中用v2 4A合法取消并验唯一父新Priority。
+ r01Pg1Fixture=await withSignedPG1Ref(()=>prepareRealJytUnoccupiedSignedMatch(db,{
+  auth,token:r03.managerToken,managerToken:r03.managerToken
+ }));
+ assert.ok(r01Pg1Fixture.transactionId);
+ assert.notEqual(r01Pg1Fixture.vehicleId,vehicleId);
+ console.log('F06_5C_R01_NATIVE_PREPATCH_SIGNED_JYT_AND_5B',JSON.stringify(r01Pg1Fixture));
  const sealed=await installSignedPG1InExisting5CCI(db);
  assert.equal(sealed.verified,true);
  assert.equal(sealed.parent190Tables,190);
@@ -1062,4 +1073,52 @@ test('5C-S88 已签新版5C入口在真PG1 Catalog上仍执行同车候补安全
  console.log('F06_5C_SIGNED_PG1_V2_PRIORITY_API_WAITLIST_DENY',JSON.stringify({
   vehicleId:c01Pg1Vehicle.vehicleId,code:r.code,backendPid:r.pgBackendPid,txid:r.pgTransactionId,
   verifiedV2:true,activePriorityAfter:0}));
+});
+
+test('5C-S89 已签PG1装入后的真JYT R01无候补合法取消只产生唯一父新Priority和真实双Backend锁等待',async()=>{
+ assert.ok(r01Pg1Fixture&&c01Pg1Vehicle,'F06_5C_R01_SIGNED_PREPATCH_SOURCE_REQUIRED');
+ const result=await withSignedPG1Ref(()=>proveRealJytR01LegalSuccessor(db,{
+  auth,token:r03.managerToken
+ },r01Pg1Fixture,c01Pg1Vehicle.vehicleId));
+ assert.equal(result.cancelCode,'F06_4A_CANCELLED_ATOMIC_NO_PAYMENT',JSON.stringify(result));
+ assert.ok(result.newPriorityId>0&&result.nativeConcurrency.nativePgBlockingPidsObserved);
+ assert.equal(result.createdEventsAfter,result.createdEventsBefore+1);
+ const denied=await requestSyntheticNewPriorityV2CI(auth,r03.managerToken,{
+  vehicleId:r01Pg1Fixture.vehicleId,listingCycleId:r01Pg1Fixture.listingCycleId,
+  customerId:r01Pg1Fixture.customerId,teamId:901,eventKey:mk('r01-v2-parent-only-successor-no-second-issuer')
+ });
+ assert.equal(denied.code,'F06_5C_EXISTING_ACTIVE_PRIORITY',JSON.stringify(denied));
+ const p=(await q("SELECT priority_id FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND status='active'",[r01Pg1Fixture.vehicleId]));
+ assert.equal(p.length,1);
+ assert.equal(Number(p[0].priority_id),result.newPriorityId);
+ console.log('F06_5C_PG1_R01_NATIVE_UNIQUE_PARENT_SUCCESSOR',JSON.stringify({
+  vehicleId:result.vehicleId,oldTxId:result.transactionId,newPriorityId:result.newPriorityId,
+  oldNewCreated:[result.createdEventsBefore,result.createdEventsAfter],
+  realPGBlocking:result.nativeConcurrency.nativePgBlockingPidsObserved,
+  denySecondNewPriority:denied.code,concurrentPG:result.nativeConcurrency}));
+});
+test('5C-S90 PG1新版4C已移交签名Transaction旧负责人拒绝与现负责人实际合法取消+幂等',async()=>{
+ const txId=r03.secondTransactionId;
+ assert.ok(txId,'F06_5C_V2_REAL_4B_TRANSFERRED_TRANSACTION_REQUIRED');
+ const oldOwner=await withSignedPG1Ref(()=>cancelAfterHandoffV2CI(auth,r03.managerToken,{
+  transactionId:txId,reason:'R03 PG1旧负责人无权越级取消移交交易',eventKey:mk('r03-pg1-v2-old-owner-denied')
+ }));
+ assert.equal(oldOwner.code,'F06_4C_OLD_RESPONSIBLE_DENIED',JSON.stringify(oldOwner));
+ assert.equal((await q("SELECT status FROM public.transactions WHERE transaction_id=$1",[txId]))[0].status,'in_progress');
+ const input={transactionId:txId,reason:'R03 PG1现负责人依据签名移交权限合法取消',
+  eventKey:mk('r03-pg1-v2-receiver-signed')};
+ const succeeded=await withSignedPG1Ref(()=>cancelAfterHandoffV2CI(auth,r03.receiverToken,input));
+ assert.equal(succeeded.code,'F06_4C_POST_HANDOFF_CANCELLED_ATOMIC_CI',JSON.stringify(succeeded));
+ const proof=await auth.withSession(r03.managerToken,async c=>{
+  await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=86181105 FOR UPDATE');
+  return verifySignedTransactionVacancyCI(c,86181105);
+ },{normalOnly:true});
+ assert.equal(proof.code,'F06_5C_ALL_SIGNED_TRANSACTIONS_TERMINAL',JSON.stringify(proof));
+ const again=await withSignedPG1Ref(()=>cancelAfterHandoffV2CI(auth,r03.receiverToken,input));
+ assert.equal(again.code,'F06_4C_IDEMPOTENT_CANCEL',JSON.stringify(again));
+ assert.equal((await q("SELECT count(*)::int n FROM f06_4c_ci.cancel_events WHERE transaction_id=$1",[txId]))[0].n,1);
+ assert.equal((await q("SELECT count(*)::int n FROM public.refund_payments"))[0].n,0);
+ console.log('F06_5C_PG1_R03_NATIVE_SIGNED_4B_4C_CANCEL',JSON.stringify({
+  transactionId:txId,oldOwnerDenied:oldOwner.code,realCancel:succeeded.code,
+  idempotence:again.code,terminal:proof.code,rollbackNoMoney:true}));
 });

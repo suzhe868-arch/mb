@@ -27,14 +27,18 @@ fi
 (cd engineering && node f06/transaction-priority-admission-ci/runner.mjs --inject-rollback && node f06/transaction-priority-admission-ci/runner.mjs --apply && node f06/transaction-priority-admission-ci/runner.mjs --verify)
 if [[ "$mode" = source ]];then
  (cd engineering && node --test f06/transaction-priority-admission-ci/tests/source.test.mjs) 2>&1 | tee "$base/artifacts/source/native-source.log"
- grep -q '# tests 90' "$base/artifacts/source/native-source.log"
+ grep -q '# tests 92' "$base/artifacts/source/native-source.log"
  grep -q '# fail 0' "$base/artifacts/source/native-source.log"
  (cd engineering && node f06/transaction-priority-admission-ci/pg1-scenario-physical-seal.mjs) 2>&1 | tee "$base/artifacts/source/pg1-scenario-native-seal.log"
  grep -q F06_5C_PG1_VERSIONED_SCENARIO_FULL_SEAL_PASS "$base/artifacts/source/pg1-scenario-native-seal.log"
  grep -q F06_5C_S84_SIGNED_PG1_INSTALLED "$base/artifacts/source/native-source.log"
  grep -q F06_5C_S85_S86_NATIVE_SIGNED_MATCH_COMMIT_REJECTIONS "$base/artifacts/source/native-source.log"
- grep -q 'ok 89 - 5C-S87'
+ grep -q 'ok 89 - 5C-S87' "$base/artifacts/source/native-source.log"
  grep -q 'ok 90 - 5C-S88' "$base/artifacts/source/native-source.log"
+ grep -q 'ok 91 - 5C-S89' "$base/artifacts/source/native-source.log"
+ grep -q 'ok 92 - 5C-S90' "$base/artifacts/source/native-source.log"
+ grep -q F06_5C_PG1_R01_NATIVE_UNIQUE_PARENT_SUCCESSOR "$base/artifacts/source/native-source.log"
+ grep -q F06_5C_PG1_R03_NATIVE_SIGNED_4B_4C_CANCEL "$base/artifacts/source/native-source.log"
  bash "$base/disposable-db.sh" restore
  (cd engineering && node f06/transaction-priority-admission-ci/audit-seal.mjs after) 2>&1 | tee "$base/artifacts/source/audit-global-seal.log"
  grep -q F06_5C_TWO_PHYSICAL_PG_DATABASES_PARENT_190_TABLES_SEAL_PASS "$base/artifacts/source/audit-global-seal.log"
