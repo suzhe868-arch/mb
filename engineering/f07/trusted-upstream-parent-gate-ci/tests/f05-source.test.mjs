@@ -5,7 +5,7 @@ import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {readCurrentFacts} from '../../../f03/runtime-facts/current-facts.mjs';
 import {convertWholesaleToMingbang} from '../../../f05/wholesale-to-mingbang-conversion/service.mjs';
 import {verify as verifyConversion} from '../../../f05/wholesale-to-mingbang-conversion/migration.mjs';
-import {signedF05ReadOnly,signedRead,physicalGate,DATABASE_URL,pool} from '../gate.mjs';
+import {signedF05ReadOnly,signedRead,snapshotSignedF05Parents,physicalGate,DATABASE_URL,pool} from '../gate.mjs';
 
 const C={source_platform:'JYT',upstream_publisher_id:'123',vehicle_id:'456'};
 test('F07-3 F05-3C真实签名PG16读父转换与跨域拒绝',async t=>{
@@ -15,9 +15,21 @@ test('F07-3 F05-3C真实签名PG16读父转换与跨域拒绝',async t=>{
   const physical=await physicalGate(p),r=await signedF05ReadOnly(a);
   await run('F05-01 二期PG16物理DB与角色',async()=>assert.equal(physical.usr,'f03_ci'));
   await run('F05-02 冻结已签000018迁移真实验签',async()=>assert.equal((await verifyConversion(a.pool)).verified,true));
-  await run('F05-03 Readonly消费父转换事实',async()=>assert.equal(r.code,'SIGNED_PARENT_READONLY_PROVEN_NO_ISSUER'));
+  await run('F05-03 只读父转换正例必须非空否则真SOURCE_GAP',async()=>{
+   assert.equal(r.code,r.conversionCount>0?'SIGNED_PARENT_CONVERSION_FK_PROVEN':'F05_CONVERSION_POSITIVE_SOURCE_GAP');
+   console.log('F07_3_PARENT_CONVERSIONS_COUNT='+r.conversionCount+' STATUS='+r.code);
+  });
   await run('F05-04 五张父关系均真实存在',async()=>assert.equal(r.tables.length,5));
-  await run('F05-05 转换事实引用真实Vehicle FK',async()=>assert.ok(Array.isArray(r.rows)));
+  await run('F05-05 转换物理FK严禁零行蒙混通过',async()=>{
+   assert.ok(Array.isArray(r.rows));
+   if(r.conversionCount===0){
+    assert.equal(r.rows.length,0);assert.equal(r.code,'F05_CONVERSION_POSITIVE_SOURCE_GAP');
+   }else{
+    assert.ok(r.rows.length>0,'有正例计数必须取得Vehicle/Cycle三表真实关联');
+    for(const row of r.rows){assert.ok(Number(row.vehicle_id)>0);assert.ok(Number(row.listing_cycle_id)>0)}
+   }
+  });
+  const immutableBefore=await snapshotSignedF05Parents(p);
   const before=(await p.query('SELECT count(*)::int n FROM public.f05_3c_wholesale_conversions')).rows[0].n;
   const auditBefore=(await p.query('SELECT count(*)::int n FROM public.f05_3c_conversion_audit')).rows[0].n;
   const s=await a.login({login:'race_test',password:'SyntheticRace_1234567'});
@@ -40,14 +52,25 @@ test('F07-3 F05-3C真实签名PG16读父转换与跨域拒绝',async t=>{
    const c1=await p.connect(),c2=await p.connect();
    try{assert.notEqual(c1.processID,c2.processID)}finally{c1.release();c2.release()}
   });
-  await run('F05-16 锁冲突真实55P03 + ROLLBACK父事实不变',async()=>{
+  await run('F05-16 真车辆父行双Backend锁55P03+ROLLBACK及全关系哈希不变',async()=>{
+   const pick=(await p.query('SELECT vehicle_id FROM public.vehicles ORDER BY vehicle_id LIMIT 1')).rows[0];
+   if(!pick){
+    assert.equal(r.parentVehicleCount,0);
+    console.log('F07_3_A03_REAL_VEHICLE_ROW_SOURCE_GAP count=0');
+    return;
+   }
    const c1=await p.connect(),c2=await p.connect();
    try{
-    await c1.query('BEGIN');await c1.query('SELECT account_id FROM public.pc_login_accounts WHERE employee_id=6 FOR UPDATE');
+    assert.notEqual(c1.processID,c2.processID);
+    await c1.query('BEGIN');
+    const locked=await c1.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[pick.vehicle_id]);
+    assert.equal(locked.rowCount,1);
     await c2.query('BEGIN');await c2.query("SET LOCAL lock_timeout='120ms'");
-    await assert.rejects(c2.query('SELECT account_id FROM public.pc_login_accounts WHERE employee_id=6 FOR UPDATE'),e=>e.code==='55P03');
+    await assert.rejects(c2.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[pick.vehicle_id]),e=>e.code==='55P03');
     await c2.query('ROLLBACK');await c1.query('ROLLBACK');
+    console.log('F07_3_A03_REAL_VEHICLE_ROW_55P03 backend_1='+c1.processID+' backend_2='+c2.processID);
    }finally{c1.release();c2.release()}
+   assert.deepEqual(await snapshotSignedF05Parents(p),immutableBefore,'真实Vehicle行并发不得改变父车辆/周期及所有存在关系');
    assert.equal((await p.query('SELECT count(*)::int n FROM public.f05_3c_wholesale_conversions')).rows[0].n,before);
   });
   await run('F05-17 PG只读事务禁止伪业务写入',async()=>{
@@ -66,6 +89,26 @@ test('F07-3 F05-3C真实签名PG16读父转换与跨域拒绝',async t=>{
    assert.ok(q.rows.some(x=>String(x.v).includes('IMAGE_LOCALIZATION_SOURCE_GAP')));
   });
   await run('F05-20 二次父验签无业务偏移',async()=>assert.equal((await verifyConversion(a.pool)).verified,true));
+  await run('F05-21 父Vehicle/Cycle数量与真实FK投影逐项对照',async()=>{
+   const parent=(await p.query('SELECT count(*)::int n FROM public.vehicles')).rows[0].n;
+   const cycles=(await p.query('SELECT count(*)::int n FROM public.vehicle_listing_cycles')).rows[0].n;
+   assert.equal(r.parentVehicleCount,parent);assert.equal(r.parentCycleCount,cycles);
+   for(const x of r.parentVehicleCycles){assert.ok(Number(x.vehicle_id)>0);assert.ok(Number(x.listing_cycle_id)>0)}
+   console.log('F07_3_A02_PARENT_VEHICLES='+parent+' CYCLES='+cycles+' FK_SAMPLE='+r.parentVehicleCycles.length);
+  });
+  await run('F05-22 真实转换Issuer缺口与零行物理计数不可虚报正例',async()=>{
+   assert.equal((await p.query('SELECT count(*)::int n FROM public.f05_3c_wholesale_conversions')).rows[0].n,r.conversionCount);
+   if(r.conversionCount===0)assert.equal(r.code,'F05_CONVERSION_POSITIVE_SOURCE_GAP');
+  });
+  await run('F05-23 拒绝转换后Lock/Transaction/推荐/收藏实际存在关系Count及MD5不变',async()=>{
+   const after=await snapshotSignedF05Parents(p);
+   assert.deepEqual(after,immutableBefore);
+   console.log('F07_3_A02_REAL_PARENT_COUNTS_HASHES '+JSON.stringify(after));
+  });
+  await run('F05-24 图片失败不可虚构为已签父正向事务回滚',async()=>{
+   assert.equal(r.conversionCount,0,'本CI不可生成真实转换正例；若父fixtures升级需人工更新证据');
+   assert.equal((await snapshotSignedF05Parents(p)).f05_3c_wholesale_conversions.count,0);
+  });
   console.log('F07_3_F05_NATIVE_SIGNED_SOURCE_'+n+'_PASS pid='+physical.pid+' oid='+(await p.query('SELECT oid FROM pg_database WHERE datname=current_database()')).rows[0].oid);
  }finally{await a.close();await p.end()}
 });
