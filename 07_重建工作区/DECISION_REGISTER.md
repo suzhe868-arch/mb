@@ -1,3 +1,14 @@
+# 2026-10-15｜A独立验收PR64标准合并，F07-2仅隔离CI正式放行（唯一最新）
+
+- **正式唯一状态**：`F07_1_PR64_A_ACCEPTED_STANDARD_MERGED_CI_ONLY / F07_2_A_RELEASED_FOR_B_CI_ONLY / NEXT_OWNER=B / NEXT_TASK=F07_2_VEHICLE_IMAGE_CDN_ASSET_DUAL_SUCCESS_REPORT_AUTH_CI_ONLY / F05_F06_F07_V1_NOT_READY / PRODUCTION_NOT_AUTHORIZED`。上一段“PR64待B定向整改”现只为旧验收历史，**不再是当前待办**。
+- **A实际完成**：从当时main`f395d8e2417ed81b83d10aecbdbcaeb247e9f5bf`独立复验[PR64](https://github.com/suzhe868-arch/mb/pull/64) B最终唯一HEAD `f68a102799802dc0d18be7d2039f00b65e8de527`，16/16文件全部仅新增F07-1指定两白名单，GitHub标准merge已返回`merged=true`且PR真实closed/merged，合并SHA **`404c02c752e8bf6e4b27b8502ed4385027ff72e5`**。已签[A正式验收评论](https://github.com/suzhe868-arch/mb/pull/64#issuecomment-6188760100)。
+- **A亲自核GitHub最后同SHA**：[真正Push Run38707390432](https://github.com/suzhe868-arch/mb/actions/runs/38707390432) `completed/success`，非特权真实PG16 Source与loopback HTTPS **2/2独立Job success**；Source原40例+A02数据库门禁17例+A03真实签名F03 Session拒绝7例+HTTPS15例，合计**79/79独立子场景**（4个Node父套件另外计算）。双Backend PID/txid与真PG restart证据；Source/HTTPS官方**2/2非空未过期GitHub sha256摘要Artifact**，**未下载逐ZIP重算**。A01本次两原生Job完整日志随机HMAC密钥均`***`不再明文、历史旧Run真实泄露记录保留；A02新CI环境及固定真实PG16数据库非超级用户操作前FailClosed；A03真实F03 `IsolatedAuth.withSession`和权限Reader负证通过，**电话能力技术别名`TECH_ALIAS_PENDING_A`、真正Permission/Scope/Object与生产Collector接线仍`SOURCE_GAP`，不把侧车mock身份冒充真实电话allow**。
+- **额外GitHub旧红灯原样保留**：同HEAD旧F05的10个`pull_request`工作流3 success、6 failure、1 in_progress；对应9个失败Job中6个ECR Docker拉取`toomanyrequests`，另3个旧冻结Source真PG用例绿后被旧专属新Push证明拒绝。A签仅适用于本PR新增CI隔离包的`F07-1-PR64-A-CI-APPLICABILITY-01`，不宣称30/30全绿、不修改老Workflow、不泛化到下一PR；标准合并服务器实际成功。
+- **A已正式签发下一B工作单**：`07_重建工作区/F07-2_A主控车辆图片路径受控CDN双成功资产化与报告权限_CI隔离正式完整施工单_2026-10-15.md`。唯一新分支`feat/f07-2-vehicle-image-cdn-asset-contract-ci`，仅**新增**`engineering/f07/vehicle-image-cdn-asset-ci/**`和`.github/workflows/f07-2-*.yml`。依PDM-08最终完整规则，从**执行时最新main**构建可销毁PG16与本机Mock CDN/对象存储/HTTPS：相对图片path+名邦受控域、首次冻结原顺序/首图Fallback、CDN HIT/MISS、双成功资产化及失败补偿/重试、合法转换不回滚、3A未闭环临时过渡、报告相册隔离、旧URL每次当前权限重检；**至少35个真PG16 Source子场景、12个HTTPS黑箱子场景、2个独立真PG16 Job且全部最终HEAD官方工件**，完整开发/自验/整改/归档后`B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A`交A。
+- **明确不放行**：真实JYT/Collector、CDN或对象存储、真实车辆图片/客户信息、生产F03权限Alias/Scope、真实资金、正式数据库迁移或生产API、UI/微信端发布、UAT、F08、V1上线。**F05/F06/F07整域与V1仍`NOT_READY`**。本轮A报告：`07_重建工作区/F07-1_A主控PR64三项安全整改79项真PG16独立验收标准合并及F07-2前置正式报告_2026-10-15.md`。下方所有旧“当前/唯一最新”仅历史追溯，必须服从本页顶部、JSON和新施工单。
+
+---
+
 # 2026-10-15｜A独立复验F07-1 PR64未通过，正式交B定向整改（唯一最新）
 
 - **唯一现行状态**：`F07_1_PR64_A_CHANGES_REQUESTED / NO_MERGE / NEXT_OWNER=B / NEXT_TASK=F07_1_PR64_SECURITY_REMEDIATION_A01_A02_A03_AND_FULL_NATIVE_RETEST / F05_F06_F07_V1_NOT_READY / PRODUCTION_DENIED`。正式main继续保持PR64未合并。A审查B HEAD `b3765e44741b22830213ea5e4363161ac46b8a03`、[PR64](https://github.com/suzhe868-arch/mb/pull/64)、13/13授权白名单文件及现行F07-1完整施工单；不是根据B自验报告直接通过。
