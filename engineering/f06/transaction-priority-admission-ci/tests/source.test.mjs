@@ -22,7 +22,7 @@ import {cancelAfterHandoffSyntheticCI} from '../../post-handoff-cancel-ci/servic
 import {installSignedPG1InExisting5CCI,verify5CVersioned,withSignedPG1Ref} from '../pg1-versioned-adapter.mjs';
 import {cancelSyntheticTransactionV2CI} from '../../transaction-priority-parent-gate-ci/signed-cancel-v2.mjs';
 import {runNativeForgedCancelMatrix} from '../../transaction-priority-parent-gate-ci/伪造取消原生反例.mjs';
-import {prepareRealJytUnoccupiedSignedMatch,proveRealJytR01LegalSuccessor} from '../../transaction-priority-parent-gate-ci/真批发候补优先权安全验收.mjs';
+import {proveRealJytR01LegalSuccessor} from '../../transaction-priority-parent-gate-ci/真批发候补优先权安全验收.mjs';
 import {cancelAfterHandoffV2CI} from '../../transaction-priority-parent-gate-ci/signed-post-handoff-cancel-v2.mjs';
 import {requestSyntheticNewPriorityV2CI} from '../service-v2.mjs';
 
@@ -983,10 +983,48 @@ test('5C-S84 C01 真JYT当前Match、原F06-1候补、5B交易和4A取消不得�
  // 才在这一物理Scenario库追加安装经A独立验收的PG1。不得让旧版4A绕过新版目录。
  // 独立R01批发车必须在PG1安装前由原F05-7/5B签出完整在途链，
  // 之后才可以在同一次真实物理Scenario DB中用v2 4A合法取消并验唯一父新Priority。
- r01Pg1Fixture=await withSignedPG1Ref(()=>prepareRealJytUnoccupiedSignedMatch(db,{
-  auth,token:r03.managerToken,managerToken:r03.managerToken
+ // 本完整5C原生套件在S65已消费第一辆真JYT、S84消费第二辆，
+ // 冻结数据集中没有第三辆未建F05-7车况源，故不能复用PG1独立场景的
+ // fresh-fixture 生成器。由原S65合法取消后真正活跃的父Priority继续
+ // 通过冻结F06-1批准变Lock→5B签名转换再构造R01，无手写父Priority/伪签名。
+ const r01Source=await q("SELECT priority_id,customer_id FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active' AND expires_at>clock_timestamp()",[
+  positive.vehicleId,positive.listingCycleId
+ ]);
+ assert.equal(r01Source.length,1,'F06_5C_R01_ORIGINAL_PARENT_ACTIVE_PRIORITY_REQUIRED');
+ assert.equal(Number(r01Source[0].customer_id),positive.customerId);
+ const r01Request=await f06Signed(()=>intakeCI(db,{
+  customerId:positive.customerId,vehicleId:positive.vehicleId,listingCycleId:positive.listingCycleId,
+  requestKey:mk('r01-second-parent-priority-to-lock-intake'),
+  syntheticPhoneConsent:'CI_SYNTHETIC_PHONE_CONSENT_NOT_PRODUCTION'
  }));
- assert.ok(r01Pg1Fixture.transactionId);
+ assert.equal(r01Request.code,'F06_1_PENDING_CREATED',JSON.stringify(r01Request));
+ const r01Accepted=await f06Signed(()=>decisionCI(auth,r03.managerToken,{
+  requestId:r01Request.requestId,requestKey:mk('r01-second-parent-priority-to-lock-approve'),
+  action:'approve'
+ }));
+ assert.equal(r01Accepted.code,'F06_1_APPROVED_ATOMIC_LOCK',JSON.stringify(r01Accepted));
+ assert.equal(r01Accepted.priorityOrigin,true);
+ assert.equal(Number(r01Accepted.priorityOriginId),Number(r01Source[0].priority_id));
+ const r01Tx=await withF065B(()=>openGuardedSyntheticTransactionCI(auth,r03.managerToken,{
+  lockId:r01Accepted.lockId,eventKey:mk('r01-second-5b-real-signed-tx')
+ }));
+ assert.equal(r01Tx.code,'F06_5B_ATOMIC_SYNTHETIC_IN_PROGRESS',JSON.stringify(r01Tx));
+ const r01Demand=(await q("SELECT demand_id FROM public.demands WHERE customer_id=$1 AND demand_state='active' ORDER BY demand_id LIMIT 1",[
+  positive.customerId
+ ]))[0];
+ assert.ok(r01Demand);
+ const r01Match=await calculateCI(signedFrozenParentSessionAdapterCI(auth,21),r03.managerToken,{
+  demandId:Number(r01Demand.demand_id),vehicleId:positive.vehicleId,
+  listingCycleId:positive.listingCycleId,teamId:901,runKey:mk('r01-second-jyt-current-match-while-5b')
+ });
+ assert.equal(r01Match.allowed,true,JSON.stringify(r01Match));
+ assert.ok(['high','acceptable'].includes(r01Match.tier));
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND status='active'",[positive.vehicleId]))[0].n,0);
+ assert.equal((await q("SELECT count(*)::int n FROM public.waitlists WHERE vehicle_id=$1 AND ended_at IS NULL",[positive.vehicleId]))[0].n,0);
+ r01Pg1Fixture={vehicleId:positive.vehicleId,listingCycleId:positive.listingCycleId,
+  customerId:positive.customerId,transactionId:r01Tx.transactionId,
+  lockId:r01Accepted.lockId,matchTier:r01Match.tier,
+  source:'REAL_EXISTING_JYT_PARENT_PRIORITY_TO_SIGNED_F06_1_LOCK_F06_5B_TO_CURRENT_F05_7_MATCH'};
  assert.notEqual(r01Pg1Fixture.vehicleId,vehicleId);
  console.log('F06_5C_R01_NATIVE_PREPATCH_SIGNED_JYT_AND_5B',JSON.stringify(r01Pg1Fixture));
  const sealed=await installSignedPG1InExisting5CCI(db);
