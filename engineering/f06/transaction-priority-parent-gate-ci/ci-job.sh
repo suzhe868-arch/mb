@@ -43,6 +43,8 @@ if(report.status!=="ALL_NATIVE_ASSERTIONS_PASS"||
    report.realSignedC01JytWaitlist.explicitNonParentIssuerSQLSTATE!=='23514'||
    report.realSignedC01JytWaitlist.explicitForgedParentPrefixDenied!==true||
    report.realSignedC01JytWaitlist.explicitForgedParentPrefixSQLSTATE!=='23514'||
+   report.realSignedC01JytWaitlist.explicitForgedUnsignedParentPrefixDenied!==true||
+   report.realSignedC01JytWaitlist.explicitForgedUnsignedParentPrefixSQLSTATE!=='23514'||
    !report.realSignedR01UniqueNewPriority||
    !report.versionedNative4A||
    report.versionedNative4A.pendingReal5BRefundDenied!==true||
