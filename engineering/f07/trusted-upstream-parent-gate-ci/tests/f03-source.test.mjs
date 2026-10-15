@@ -140,7 +140,9 @@ test('F07-3 F03真实已签Session与Collector安全Source（独立PG16）',asyn
    assert.equal(x.code,'SYNC_API_CREDENTIAL_DOMAIN_DENIED');
    assert.equal(mapSyntheticSyncApi('UNKNOWN',{job_id:'job-444'}).code,'SYNC_API_UNKNOWN');
   });
-  assert.equal((await verifyAuthDatabase(clientPool)),true,'非public合成nonce不得改变冻结F03签名public目录');
+  // F03父验签明确要求无额外命名空间；合成schema必须先彻底销毁后重新原生验签。
+  await clientPool.query('DROP SCHEMA f07_3_ci CASCADE');
+  assert.equal(await verifyAuthDatabase(clientPool),true,'撤去一次性CI nonce结构后父F03全库身份/结构Seal恢复');
   console.log('F07_3_F03_NATIVE_SIGNED_SOURCE_'+n+'_PASS physical_pid='+physical.pid+' phone='+SOURCE_GAP);
  }finally{await auth.close();await clientPool.end()}
 });
