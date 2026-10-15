@@ -1,0 +1,74 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {bootstrap,reset,seed,pool,physicalGate,freezeImages,convert,assetize,taskStatus,
+ safePath,publicUrl,prefetch,MockCDN,MockStorage,getReadable,imageBytes,reportH5,shareCard,tx,denied} from '../contract.mjs';
+const q=(sql,params)=>pool.query(sql,params);
+const row=async(sql,params)=>(await q(sql,params)).rows[0];
+const photo=async(id='p1')=>row('SELECT * FROM f07_images.pictures WHERE id=$1',[id]);
+const vehicle=async(id='v1')=>row('SELECT * FROM f07_images.vehicles WHERE id=$1',[id]);
+const count=async(table)=>Number((await q('SELECT count(*) n FROM f07_images.'+table)).rows[0].n);
+const allCases=[];
+const add=(name,fn)=>allCases.push([name,fn]);
+add('S01 首次freeze来源新增两图',async()=>{const x=await freezeImages('v2',[{id:'new1',path:'new/1.jpg'},{id:'new2',path:'new/2.jpg'}]);assert.equal(x.inserted,2);assert.equal((await photo('new2')).immutable_order,1);});
+add('S02 上游再次同步不得追加',async()=>{await freezeImages('v2',[{id:'new1',path:'new/1.jpg'}]);const x=await freezeImages('v2',[{id:'new3',path:'new/3.jpg'}]);assert.equal(x.inserted,0);assert.equal((await q("SELECT count(*) n FROM f07_images.pictures WHERE vehicle_id='v2'")).rows[0].n,'1');});
+add('S03 上游更新不修改冻结path',async()=>{await assert.rejects(q("UPDATE f07_images.pictures SET relative_path='changed.jpg' WHERE id='p1'"),e=>e.code==='23514');assert.equal((await photo()).relative_path,'photo/1.jpg');});
+add('S04 上游更新不修改冻结顺序',async()=>{await assert.rejects(q("UPDATE f07_images.pictures SET immutable_order=99 WHERE id='p1'"),e=>e.code==='23514');assert.equal((await photo()).immutable_order,0);});
+add('S05 上游更新不修改来源平台',async()=>{await assert.rejects(q("UPDATE f07_images.pictures SET source_platform='OTHER' WHERE id='p1'"),e=>e.code==='23514');});
+add('S06 转换保持vehicle与周期',async()=>{const prior=await vehicle();await convert('v1');const after=await vehicle();assert.equal(after.id,prior.id);assert.equal(after.listing_cycle,prior.listing_cycle);assert.equal(after.source_type,'mingbang');});
+add('S07 不准重复转换',async()=>{await convert('v1');await assert.rejects(convert('v1'),{code:'INVALID_CONVERSION'});});
+add('S08 未转换不能资产化',async()=>{await assert.rejects(assetize('p1',new MockStorage()),{code:'NOT_CONVERTED_PHOTO'});assert.equal((await photo()).object_key,null);});
+add('S09 对象+DB双成功',async()=>{const s=new MockStorage();await convert('v1');const x=await assetize('p1',s);assert.equal(x.status,'success');assert.equal((await photo()).object_key,x.key);assert(s.has(x.key));});
+add('S10 成功免重复写入',async()=>{const s=new MockStorage();await convert('v1');await assetize('p1',s);const x=await assetize('p1',s);assert.equal(x.reused,true);assert.equal(s.writes,1);});
+add('S11 对象写失败绝不标成功',async()=>{const s=new MockStorage();s.failNext=true;await convert('v1');await assert.rejects(assetize('p1',s),{code:'MOCK_OBJECT_WRITE_FAIL'});assert.equal((await photo()).asset_state,'failed');assert.equal(s.items.size,0);});
+add('S12 DB约束注错真实ROLLBACK与孤儿清理',async()=>{const s=new MockStorage();await convert('v1');await assert.rejects(assetize('p1',s,{failDb:true}),e=>e.code==='23514');assert.equal(s.items.size,0);assert.equal(s.deletes,1);assert.equal((await photo()).object_key,null);});
+add('S13 进程中断补偿',async()=>{const s=new MockStorage();await convert('v1');await assert.rejects(assetize('p1',s,{interrupt:true}),{code:'MOCK_INTERRUPTED'});assert.equal(s.deletes,1);assert.equal(await taskStatus('v1'),'failed');});
+add('S14 失败单图重试成功',async()=>{const s=new MockStorage();await convert('v1');s.failNext=true;await assert.rejects(assetize('p1',s));assert.equal((await assetize('p1',s)).status,'success');assert.equal(s.writes,1);});
+add('S15 部分失败状态',async()=>{const s=new MockStorage();await convert('v1');await assetize('p1',s);s.failNext=true;await assert.rejects(assetize('p2',s));assert.equal(await taskStatus('v1'),'partial_failed');});
+add('S16 整体成功状态',async()=>{const s=new MockStorage();await convert('v1');for(const id of ['p1','p2','p3','p4','p5','p6'])await assetize(id,s);assert.equal(await taskStatus('v1'),'success');});
+add('S17 单图失败不回滚经营来源与业务标记',async()=>{const s=new MockStorage();await convert('v1');s.failNext=true;await assert.rejects(assetize('p1',s));const v=await vehicle();assert.equal(v.source_type,'mingbang');assert.equal(v.listing_cycle,'cycle-1');assert.equal(v.business_marker,'TEST_BUSINESS_UNCHANGED');});
+add('S18 DB不允许无对象key的成功',async()=>{await assert.rejects(q("UPDATE f07_images.pictures SET asset_state='success',object_key=NULL WHERE id='p1'"),e=>e.code==='23514');});
+add('S19 DB不允许未成功但有对象key',async()=>{await assert.rejects(q("UPDATE f07_images.pictures SET asset_state='failed',object_key='TEST_ASSET/p1' WHERE id='p1'"),e=>e.code==='23514');});
+add('S20 双后端并发相同图仅一次写入',async()=>{const s=new MockStorage();await convert('v1');const x=await Promise.all([assetize('p1',s),assetize('p1',s)]);assert.equal(s.writes,1);assert.equal(x.filter(t=>t.reused).length,1);});
+add('S21 物理PG16与两PID真实连接',async()=>{const a=await pool.connect(),b=await pool.connect();try{const x=await physicalGate(a),y=await physicalGate(b);assert.notEqual(x.pid,y.pid);console.log('F07_2_REAL_PG16_DISTINCT_BACKENDS',x.pid,y.pid);}finally{a.release();b.release();}});
+add('S22 真PG FOR UPDATE 行锁阻止插队',async()=>{const a=await pool.connect(),b=await pool.connect();try{await physicalGate(a);await physicalGate(b);await a.query('BEGIN');await a.query("SELECT * FROM f07_images.pictures WHERE id='p1' FOR UPDATE");await b.query('BEGIN');await b.query("SET LOCAL lock_timeout='100ms'");await assert.rejects(b.query("SELECT * FROM f07_images.pictures WHERE id='p1' FOR UPDATE"),e=>e.code==='55P03');await b.query('ROLLBACK');await a.query('COMMIT');console.log('F07_2_REAL_PG16_FOR_UPDATE_LOCK_55P03');}finally{a.release();b.release();}});
+add('S23 CDN MISS同次返回TEST_IMAGE',async()=>{const s=new MockStorage(),c=new MockCDN();const r=await imageBytes('s-user','p1',s,c);assert.match(r.bytes.toString(),/^TEST_IMAGE:/);assert.equal(c.misses,1);});
+add('S24 CDN HIT无重复回源',async()=>{const s=new MockStorage(),c=new MockCDN();await imageBytes('s-user','p1',s,c);await imageBytes('s-user','p1',s,c);assert.equal(c.hits,1);assert.equal(c.originRequests,1);});
+add('S25 CDN浏览不触发对象永久上传',async()=>{const s=new MockStorage(),c=new MockCDN();await imageBytes('s-user','p1',s,c);assert.equal(s.writes,0);assert.equal((await photo()).object_key,null);});
+add('S26 转名邦未资产化可控回源3A',async()=>{const s=new MockStorage(),c=new MockCDN();await convert('v1');const r=await imageBytes('s-user','p1',s,c);assert.equal(r.origin,'CONTROLLED_CDN');assert.match(r.url,/^https:\/\/img.mingbang.invalid\//);});
+add('S27 资产化下一次立即选自有对象',async()=>{const s=new MockStorage(),c=new MockCDN();await convert('v1');await imageBytes('s-user','p1',s,c);await assetize('p1',s);const n=c.originRequests;assert.equal((await imageBytes('s-user','p1',s,c)).origin,'OBJECT');assert.equal(c.originRequests,n);});
+add('S28 成功对象丢失不偷偷JYT常规回源',async()=>{const s=new MockStorage(),c=new MockCDN();await convert('v1');await assetize('p1',s);s.items.clear();await assert.rejects(imageBytes('s-user','p1',s,c),{code:'ASSET_MISSING_SINGLE_IMAGE_RECOVERY_REQUIRED'});assert.equal(c.originRequests,0);});
+add('S29 当前Session禁用旧URL即拒',async()=>{const s=new MockStorage(),c=new MockCDN();await imageBytes('s-user','p1',s,c);await q("UPDATE f07_images.sessions SET active=false WHERE token='s-user'");await assert.rejects(imageBytes('s-user','p1',s,c),{code:'CURRENT_VEHICLE_READ_DENY'});});
+add('S30 当前数据范围撤销旧URL即拒',async()=>{await q("UPDATE f07_images.sessions SET scope_vehicle='v2' WHERE token='s-user'");await assert.rejects(getReadable('s-user','p1'),{code:'CURRENT_VEHICLE_READ_DENY'});});
+add('S31 个人deny阻断',async()=>{await q("UPDATE f07_images.sessions SET denied=true WHERE token='s-user'");await assert.rejects(getReadable('s-user','p1'),{code:'CURRENT_VEHICLE_READ_DENY'});});
+add('S32 hidden只授权Priority本人及负责销售',async()=>{assert.equal((await getReadable('s-owner','ph')).id,'ph');assert.equal((await getReadable('s-sale','ph')).id,'ph');await assert.rejects(getReadable('s-outsider','ph'),{code:'CURRENT_VEHICLE_READ_DENY'});});
+add('S33 Priority即时撤销历史图访问',async()=>{await q("UPDATE f07_images.vehicles SET priority_actor=NULL WHERE id='vh'");await assert.rejects(getReadable('s-owner','ph'),{code:'CURRENT_VEHICLE_READ_DENY'});});
+add('S34 可见改隐藏立即撤销',async()=>{await q("UPDATE f07_images.vehicles SET visible=false WHERE id='v1'");await assert.rejects(getReadable('s-user','p1'),{code:'CURRENT_VEHICLE_READ_DENY'});});
+add('S35 报告当前customer_visible真可见',async()=>{assert.equal((await getReadable('s-user','r1','accident_report')).id,'r1');});
+add('S36 报告撤权历史URL拒绝',async()=>{await getReadable('s-user','r1','accident_report');await q("UPDATE f07_images.pictures SET customer_visible=false WHERE id='r1'");await assert.rejects(getReadable('s-user','r1','accident_report'),{code:'CURRENT_REPORT_DENY'});});
+add('S37 维保非客户可见',async()=>{await assert.rejects(getReadable('s-user','r2','maintenance_image'),{code:'CURRENT_REPORT_DENY'});});
+add('S38 敏感原件无可见权限',async()=>{await assert.rejects(getReadable('s-user','doc','sensitive_document'),{code:'CURRENT_REPORT_DENY'});});
+add('S39 相册不可枚举出险图片',async()=>{await assert.rejects(getReadable('s-user','r1','vehicle_photo'),{code:'CURRENT_VEHICLE_READ_DENY'});});
+add('S40 报告域与普通图片域严格区分',async()=>{const p=await photo('r1');assert.match(publicUrl(p.relative_path,'accident_report'),/^https:\/\/report.mingbang.invalid/);assert.match(publicUrl('photo\/1.jpg'),/^https:\/\/img.mingbang.invalid/);});
+add('S41 H5已签源域正确映射',async()=>{const u=reportH5('https://reports.jyt.invalid/maintenance/page.html#tab1');assert.equal(u,'https://report.mingbang.invalid/h5/maintenance/page.html#tab1');});
+add('S42 分享卡不固定价格VIN电话',async()=>{const x=shareCard('TEST_MODEL',publicUrl('photo/1.jpg'));assert.deepEqual(Object.keys(x).sort(),['cta','image','model']);});
+add('S43 第2至5与第3触发第6后预取',async()=>{const ids=['p1','p2','p3','p4','p5','p6'];assert.deepEqual(prefetch(ids,0).first,ids.slice(1,5));assert.deepEqual(prefetch(ids,2).tail,['p6']);});
+add('S44 无图可发布及占位封面',async()=>{const s=new MockStorage();assert.equal(await taskStatus('v2'),'success');assert.equal(s.writes,0);});
+add('S45 原首图恢复不改变冻结order',async()=>{const c=new MockCDN();await c.get('second',()=>Buffer.from('TEST_IMAGE:second'));assert.equal((await photo()).immutable_order,0);});
+add('S46 失败审计真实SQL持久',async()=>{const s=new MockStorage();await convert('v1');s.failNext=true;await assert.rejects(assetize('p1',s));assert.equal(await count('audit'),1);});
+add('S47 asset成功审计真实SQL持久',async()=>{const s=new MockStorage();await convert('v1');await assetize('p1',s);assert.equal((await row("SELECT action FROM f07_images.audit WHERE picture_id='p1'")).action,'ASSET_COMMIT');});
+add('S48 转换不重置source path',async()=>{const prior=await photo();await convert('v1');const after=await photo();assert.equal(after.relative_path,prior.relative_path);assert.equal(after.source_platform,prior.source_platform);});
+add('S49 图片资产化并不创建新Vehicle',async()=>{const before=await count('vehicles'),s=new MockStorage();await convert('v1');await assetize('p1',s);assert.equal(await count('vehicles'),before);});
+add('S50 失败重试只处理失败项',async()=>{const s=new MockStorage();await convert('v1');await assetize('p1',s);s.failNext=true;await assert.rejects(assetize('p2',s));const writes=s.writes;await assetize('p2',s);await assetize('p1',s);assert.equal(s.writes,writes+1);});
+test('F07-2 真PG16业务合同 Source 50场景',async t=>{
+ await bootstrap();
+ for(const [name,run] of allCases){
+  await t.test(name,async()=>{await reset();await seed();await run();});
+ }
+ console.log('F07_2_SOURCE_50_REAL_PG16_BUSINESS_CASES_PASS');
+});
+test('F07-2 路径与SSRF恶意输入防护 12项',async t=>{
+ const attacks=['../etc/passwd','%2e%2e/secret','%252e%252e/secret','a/%2f/b','a\\b',
+  'http://169.254.169.254/latest','//evil.test/path','x?token=1','x#hi','a@evil','a//b','Ａ/../b'];
+ for(const x of attacks)await t.test('恶意相对路径拒绝 '+x,()=>assert.throws(()=>safePath(x),{code:'UNSAFE_PATH'}));
+ console.log('F07_2_PATH_12_MALICIOUS_REJECTED');
+});
