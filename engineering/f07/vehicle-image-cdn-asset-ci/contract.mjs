@@ -2,7 +2,7 @@
 import {readFile} from 'node:fs/promises';
 import {Pool} from 'pg';
 const branch='refs/heads/feat/f07-2-vehicle-image-cdn-asset-contract-ci';
-export const DSN='postgres://f07_image_ci:f07_image_ci_password@127.0.0.1:5432/f07_image_ci_db';
+export const DSN='postgres://f07_image_ci@127.0.0.1:5432/f07_image_ci_db';
 export const pool=new Pool({connectionString:process.env.DATABASE_URL,max:8});
 export const denied=(code='DENIED')=>Object.assign(new Error(code),{code});
 const ID=/^[a-zA-Z0-9_-]{1,80}$/;
