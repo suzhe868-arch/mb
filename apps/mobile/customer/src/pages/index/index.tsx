@@ -25,7 +25,7 @@ function Car({car,tier,open}:{car:SafeVehicle;tier:Tier;open:(id:string)=>void})
   <Picture car={car}/>
   <View className='car-content'><Text className='car-name'>{car.name}</Text><Text className='car-spec'>{car.registrationYear}年上牌 · {kmText(car.mileageKm)}</Text>
    <View className='car-price-row'><Text>{car.city}</Text><Text className='price'>{priceText(car,tier)}</Text></View>
-   <View className='car-meta'><Text>{dateText(car)}</Text><Text>查看详情 ›</Text></View>
+   <View className='car-meta'><Text>{dateText(car)}</Text><Text className='favorite-demo' onClick={e=>{e.stopPropagation();Taro.showToast({title:'收藏尚未接入，未保存任何数据',icon:'none'})}}>♡ 收藏待接入</Text><Text>详情 ›</Text></View>
   </View>
  </View>
 }
@@ -54,15 +54,21 @@ export default function Home(){
  const [scenario,setScenario]=useState<Scenario>(remembered?.scenario||'normal')
  const [sheet,setSheet]=useState<'filter'|'sort'|null>(null)
  const [cities,setCities]=useState(false),[notice,setNotice]=useState('')
+ const openingRef=useRef(false)
 
  const feed=useMemo(()=>mockReadAdapter.list(q,page,scenario),[q,page,scenario])
  useEffect(()=>{remembered={q,page,tier,scenario}},[q,page,tier,scenario])
  function change(patch:Partial<QueryState>){setQ(old=>({...old,...patch}));setPage(1);rememberedScroll=0;Taro.pageScrollTo({scrollTop:0,duration:0}).catch(()=>{})}
- function open(id:string){remembered={q,page,tier,scenario};Taro.navigateTo({url:'/pages/detail/index?id='+encodeURIComponent(id)+'&scenario='+scenario})}
+ function open(id:string){
+  if(openingRef.current)return
+  openingRef.current=true
+  remembered={q,page,tier,scenario}
+  Taro.navigateTo({url:'/pages/detail/index?id='+encodeURIComponent(id)+'&scenario='+scenario}).catch(()=>{openingRef.current=false})
+ }
  usePullDownRefresh(()=>{setPage(1);Taro.stopPullDownRefresh();setNotice('已按当前条件刷新模拟车源')})
  useReachBottom(()=>{if(feed.hasMore&&scenario!=='loading'&&scenario!=='error')setPage(p=>p+1)})
  usePageScroll(e=>{rememberedScroll=e.scrollTop})
- useDidShow(()=>{if(rememberedScroll>0)Taro.pageScrollTo({scrollTop:rememberedScroll,duration:0}).catch(()=>{})})
+ useDidShow(()=>{openingRef.current=false;if(rememberedScroll>0)Taro.pageScrollTo({scrollTop:rememberedScroll,duration:0}).catch(()=>{})})
  const count=ALL_SAFE_VEHICLES.filter(v=>v.visible&&v.publicAvailable).length
  const today=ALL_SAFE_VEHICLES.filter(v=>v.visible&&v.publicAvailable&&v.listedAt.startsWith('2026-10-15')).length
  return <View className='home'>
