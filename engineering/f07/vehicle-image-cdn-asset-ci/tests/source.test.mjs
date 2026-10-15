@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {bootstrap,reset,seed,pool,physicalGate,freezeImages,convert,assetize,taskStatus,
- safePath,publicUrl,prefetch,MockCDN,MockStorage,getReadable,imageBytes,reportH5,shareCard,tx,denied,selectCover,uploadManual} from '../contract.mjs';
+ safePath,publicUrl,prefetch,MockCDN,MockStorage,getReadable,imageBytes,reportH5,shareCard,tx,denied,selectCover,uploadManual,reconcileOrphans} from '../contract.mjs';
 const q=(sql,params)=>pool.query(sql,params);
 const row=async(sql,params)=>(await q(sql,params)).rows[0];
 const photo=async(id='p1')=>row('SELECT * FROM f07_images.pictures WHERE id=$1',[id]);
@@ -69,12 +69,20 @@ add('S57 人工上传不可伪装批发来源',async()=>{await assert.rejects(up
 add('S58 人工对象成功DB失败真实补偿',async()=>{const s=new MockStorage();await assert.rejects(uploadManual('vm',{id:'manual2',path:'own/manual2.jpg',order:1},s,{failDb:true}),e=>e.code==='23514');assert.equal(s.items.size,0);assert.equal(s.deletes,1);});
 add('S59 人工图允许调整顺序',async()=>{await q("UPDATE f07_images.pictures SET immutable_order=10 WHERE id='pm'");assert.equal((await photo('pm')).immutable_order,10);});
 add('S60 单图失败不触发整车图片重采',async()=>{const s=new MockStorage();await convert('v1');s.failNext=true;const n=await count('pictures');await assert.rejects(assetize('p1',s));assert.equal(await count('pictures'),n);assert.equal((await photo('p1')).relative_path,'photo/1.jpg');});
-test('F07-2 真PG16业务合同 Source 60场景',async t=>{
+add('S61 Priority可见车仍对非持有人绝对独占',async()=>{await q("UPDATE f07_images.vehicles SET priority_actor='user' WHERE id='v1'");await q("UPDATE f07_images.sessions SET scope_vehicle='v1' WHERE token='s-outsider'");await assert.rejects(getReadable('s-outsider','p1'),{code:'CURRENT_VEHICLE_READ_DENY'});});
+add('S62 Priority可见车本人可看但员工需当前Scope',async()=>{await q("UPDATE f07_images.vehicles SET priority_actor='user' WHERE id='v1'");assert.equal((await getReadable('s-user','p1')).id,'p1');await assert.rejects(getReadable('s-sale','p1'),{code:'CURRENT_VEHICLE_READ_DENY'});await q("UPDATE f07_images.sessions SET scope_vehicle='v1' WHERE token='s-sale'");assert.equal((await getReadable('s-sale','p1')).id,'p1');});
+add('S63 Priority撤销后可见域即时释放',async()=>{await q("UPDATE f07_images.vehicles SET priority_actor='user' WHERE id='v1'");await q("UPDATE f07_images.sessions SET scope_vehicle='v1' WHERE token='s-outsider'");await assert.rejects(getReadable('s-outsider','p1'));await q("UPDATE f07_images.vehicles SET priority_actor=NULL WHERE id='v1'");assert.equal((await getReadable('s-outsider','p1')).id,'p1');});
+add('S64 首次冻结零图后后续同步不得补图',async()=>{assert.equal((await freezeImages('v2',[])).inserted,0);assert.equal((await vehicle('v2')).image_frozen,true);assert.equal((await freezeImages('v2',[{id:'n1',path:'late/1.jpg'}])).inserted,0);assert.equal((await count('pictures')),12);});
+add('S65 首次非空冻结也保留持久image_frozen',async()=>{assert.equal((await freezeImages('v2',[{id:'n1',path:'new/1.jpg'}])).inserted,1);assert.equal((await vehicle('v2')).image_frozen,true);assert.equal((await freezeImages('v2',[{id:'n2',path:'late/2.jpg'}])).inserted,0);});
+add('S66 模拟进程被杀留下孤儿并核对账实清理',async()=>{const s=new MockStorage();await s.put('TEST_ASSET/p1',Buffer.from('TEST_IMAGE:crash-before-db'));assert.equal((await reconcileOrphans(s)).length,1);assert.equal(s.items.size,0);assert.equal((await row("SELECT action FROM f07_images.audit WHERE picture_id='p1'")).action,'ORPHAN_CLEANUP');});
+add('S67 恢复对账不得误删已成功合法对象',async()=>{const s=new MockStorage();await convert('v1');const x=await assetize('p1',s);await s.put('TEST_ASSET/p2',Buffer.from('TEST_IMAGE:crash'));assert.deepEqual(await reconcileOrphans(s),['TEST_ASSET/p2']);assert(s.has(x.key));assert.equal((await photo('p1')).asset_state,'success');});
+add('S68 Priority占用后的零图占位也不能泄密',async()=>{await q("UPDATE f07_images.vehicles SET priority_actor='user' WHERE id='v2'");await q("UPDATE f07_images.sessions SET scope_vehicle='v2' WHERE token='s-outsider'");await assert.rejects(selectCover('s-outsider','v2',new MockStorage(),new MockCDN()),{code:'CURRENT_VEHICLE_READ_DENY'});});
+test('F07-2 真PG16业务合同 Source 68场景',async t=>{
  await bootstrap();
  for(const [name,run] of allCases){
   await t.test(name,async()=>{await reset();await seed();await run();});
  }
- console.log('F07_2_SOURCE_60_REAL_PG16_BUSINESS_CASES_PASS');
+ console.log('F07_2_SOURCE_68_REAL_PG16_BUSINESS_CASES_PASS');
 });
 test('F07-2 路径与SSRF恶意输入防护 12项',async t=>{
  const attacks=['../etc/passwd','%2e%2e/secret','%252e%252e/secret','a/%2f/b','a\\b',
