@@ -4,7 +4,7 @@ import {randomBytes,createHmac} from 'node:crypto';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {verifyAuthDatabase} from '../../../src/f03-auth-readiness.mjs';
 import {readCurrentFacts} from '../../../f03/runtime-facts/current-facts.mjs';
-import {assertCIEnv,physicalGate,signedRead,inspectCollector,pool,DATABASE_URL,SOURCE_GAP} from '../gate.mjs';
+import {assertCIEnv,physicalGate,signedRead,inspectCollector,inspectCollectorOnce,mapSyntheticSyncApi,pool,DATABASE_URL,SOURCE_GAP} from '../gate.mjs';
 
 const C={source_platform:'JYT',upstream_publisher_id:'123',vehicle_id:'456'};
 const login='race_test', password='SyntheticRace_1234567';
@@ -91,9 +91,56 @@ test('F07-3 F03真实已签Session与Collector安全Source（独立PG16）',asyn
   await check('F03-39 真disabled凭据登录硬拒绝',async()=>{
    assert.equal((await auth.login({login:'disabled_test',password:'SyntheticDisabled_123'})).code,'AUTH_FAILED');
   });
-  await check('F03-40 重放有效合成签名仍不得生成真实JYT授权',async()=>{
-   assert.equal(inspectCollector(good,ts,goodSig,secret,C).code,'PRODUCTION_JYT_JOB_ISSUER_SOURCE_GAP');
+  // 仅在隔离PG16非public CI schema登记合成nonce，绝不改冻结public Seal或正式迁移。
+  await clientPool.query('CREATE SCHEMA f07_3_ci');
+  await clientPool.query("CREATE TABLE f07_3_ci.used_nonces(source_platform text NOT NULL,upstream_publisher_id text NOT NULL,vehicle_id text NOT NULL,job_id text NOT NULL,nonce text NOT NULL,expires_at timestamptz NOT NULL,PRIMARY KEY(source_platform,upstream_publisher_id,vehicle_id,job_id,nonce))");
+  await clientPool.query('CREATE TABLE f07_3_ci.revoked_jobs(job_id text PRIMARY KEY)');
+  await check('F03-40 第一次合成nonce仍为生产Issuer缺失，第二次真PG16物理重放拒绝',async()=>{
+   const first=await inspectCollectorOnce(good,ts,goodSig,secret,C,clientPool);
+   assert.equal(first.code,'PRODUCTION_JYT_JOB_ISSUER_SOURCE_GAP');
+   const second=await inspectCollectorOnce(good,ts,goodSig,secret,C,clientPool);
+   assert.equal(second.code,'COLLECTOR_NONCE_REPLAY_DENIED');
+   const count=await clientPool.query('SELECT count(*)::int n FROM f07_3_ci.used_nonces');
+   assert.equal(count.rows[0].n,1);
   });
+  await check('F03-41 两独立PG Backend并行同nonce仅一次登记',async()=>{
+   const [raw,sig]=pack({...base,nonce:'b'.repeat(32)});
+   const both=await Promise.all([inspectCollectorOnce(raw,ts,sig,secret,C,clientPool),inspectCollectorOnce(raw,ts,sig,secret,C,clientPool)]);
+   assert.deepEqual(both.map(x=>x.code).sort(),['COLLECTOR_NONCE_REPLAY_DENIED','PRODUCTION_JYT_JOB_ISSUER_SOURCE_GAP'].sort());
+   assert.equal((await clientPool.query("SELECT count(*)::int n FROM f07_3_ci.used_nonces WHERE nonce=$1",['b'.repeat(32)])).rows[0].n,1);
+  });
+  await check('F03-42 撤销Job使正确HMAC亦不可再消费',async()=>{
+   await clientPool.query("INSERT INTO f07_3_ci.revoked_jobs(job_id) VALUES($1)",['job-123']);
+   const [raw,sig]=pack({...base,nonce:'c'.repeat(32)});
+   assert.equal((await inspectCollectorOnce(raw,ts,sig,secret,C,clientPool)).code,'COLLECTOR_JOB_REVOKED');
+  });
+  await check('F03-43 同car_code不同Publisher与Vehicle不能撞消费身份',async()=>{
+   const other={...C,upstream_publisher_id:'999',vehicle_id:'777'};
+   const [raw,sig]=pack({...base,...other,job_id:'job-999',nonce:'a'.repeat(32)});
+   assert.equal((await inspectCollectorOnce(raw,ts,sig,secret,other,clientPool)).code,'PRODUCTION_JYT_JOB_ISSUER_SOURCE_GAP');
+   assert.equal((await clientPool.query("SELECT count(*)::int n FROM f07_3_ci.used_nonces WHERE upstream_publisher_id='999' AND vehicle_id='777'")).rows[0].n,1);
+  });
+  await check('F03-44 PDM04新增更新API映射Publisher/Job/Vehicle且不出站',async()=>{
+   const x=mapSyntheticSyncApi('UPSERT_VEHICLE',{...C,car_code:'same-car',job_id:'job-111'});
+   assert.equal(x.event,'UPSERT');assert.equal(x.publisher_id,'123');
+   assert.equal(x.vehicle_id,'456');assert.equal(x.allowed,false);
+  });
+  await check('F03-45 PDM04批量确认下架映射复合身份',async()=>{
+   const x=mapSyntheticSyncApi('BATCH_CONFIRM_DELIST',{job_id:'job-222',identities:[C,{...C,upstream_publisher_id:'999'}]});
+   assert.equal(x.event,'DELIST');assert.equal(x.identities.length,2);
+   assert.notEqual(x.identities[0].upstream_publisher_id,x.identities[1].upstream_publisher_id);
+  });
+  await check('F03-46 PDM04获取仍在售批发API仅由服务端定范围',async()=>{
+   const x=mapSyntheticSyncApi('LIST_CURRENT_WHOLESALE',{job_id:'job-333',source_platform:'JYT'});
+   assert.equal(x.serverScoped,true);assert.deepEqual(x.vehicle_ids,[]);
+   assert.equal(x.code,'PRODUCTION_SYNC_API_ISSUER_SOURCE_GAP');
+  });
+  await check('F03-47 三API凭据域与电话Collector不得混用',async()=>{
+   const x=mapSyntheticSyncApi('UPSERT_VEHICLE',{...C,car_code:'same',job_id:'job-444'},'collector_phone_credential');
+   assert.equal(x.code,'SYNC_API_CREDENTIAL_DOMAIN_DENIED');
+   assert.equal(mapSyntheticSyncApi('UNKNOWN',{job_id:'job-444'}).code,'SYNC_API_UNKNOWN');
+  });
+  assert.equal((await verifyAuthDatabase(clientPool)),true,'非public合成nonce不得改变冻结F03签名public目录');
   console.log('F07_3_F03_NATIVE_SIGNED_SOURCE_'+n+'_PASS physical_pid='+physical.pid+' phone='+SOURCE_GAP);
  }finally{await auth.close();await clientPool.end()}
 });
