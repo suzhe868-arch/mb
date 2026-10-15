@@ -80,6 +80,8 @@ BEGIN
        AND o.source_lock_id=t.source_lock_id AND o.customer_id=t.customer_id
        AND o.vehicle_id=v AND o.listing_cycle_id=cyc
        AND o.original_responsible_employee_id=t.responsible_employee_id
+        AND o.original_responsible_employee_id=(SELECT birth.original_responsible_employee_id
+          FROM f06_3b_ci.transaction_origins birth WHERE birth.transaction_id=t.transaction_id)
        AND o.actor_employee_id=e.actor_employee_id
        AND e.actor_employee_id=k.actor_employee_id
        AND e.event_kind='transaction_cancelled_without_payment'
@@ -100,6 +102,8 @@ BEGIN
       WHERE o.transaction_id=t.transaction_id AND o.source_lock_id=t.source_lock_id
        AND o.customer_id=t.customer_id AND o.vehicle_id=v AND o.listing_cycle_id=cyc
        AND o.original_responsible_employee_id=p.original_responsible_employee_id
+        AND o.original_responsible_employee_id=(SELECT birth.original_responsible_employee_id
+          FROM f06_3b_ci.transaction_origins birth WHERE birth.transaction_id=t.transaction_id)
        AND o.transferred_responsible_employee_id=t.responsible_employee_id
        AND p.current_responsible_employee_id=t.responsible_employee_id
        AND h.new_responsible_employee_id=t.responsible_employee_id
@@ -204,6 +208,8 @@ BEGIN
       AND o.customer_id=t.customer_id AND o.vehicle_id=t.vehicle_id
       AND o.listing_cycle_id=t.listing_cycle_id
       AND o.original_responsible_employee_id=t.responsible_employee_id
+        AND o.original_responsible_employee_id=(SELECT birth.original_responsible_employee_id
+          FROM f06_3b_ci.transaction_origins birth WHERE birth.transaction_id=t.transaction_id)
       AND o.actor_employee_id=e.actor_employee_id
       AND e.actor_employee_id=k.actor_employee_id AND k.transaction_id=tx_id
       AND e.event_kind='transaction_cancelled_without_payment'
@@ -222,6 +228,8 @@ BEGIN
       AND o.customer_id=t.customer_id AND o.vehicle_id=t.vehicle_id
       AND o.listing_cycle_id=t.listing_cycle_id
       AND o.original_responsible_employee_id=p.original_responsible_employee_id
+        AND o.original_responsible_employee_id=(SELECT birth.original_responsible_employee_id
+          FROM f06_3b_ci.transaction_origins birth WHERE birth.transaction_id=t.transaction_id)
       AND o.transferred_responsible_employee_id=t.responsible_employee_id
        AND p.current_responsible_employee_id=t.responsible_employee_id
        AND h.new_responsible_employee_id=t.responsible_employee_id
