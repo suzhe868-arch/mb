@@ -1,0 +1,10 @@
+{
+  "name": "mingbang-f07-1-isolated-collector-phone-contract",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:source": "node --test --test-concurrency=1 tests/source.test.mjs",
+    "test:https": "node --test --test-concurrency=1 tests/https.test.mjs"
+  },
+  "dependencies": {"pg": "8.16.3"}
+}
