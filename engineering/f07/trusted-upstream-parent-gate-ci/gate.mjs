@@ -40,7 +40,14 @@ export async function signedRead(auth,token,ctx,kind='publisher_phone') {
  if(!validPublisher(ctx))return deny('PUBLISHER_VEHICLE_SOURCE_BINDING_DENIED');
  // 经真实 F03 验签会话和当前权限目录，再执行任何资源取值。
  const op=kind==='publisher_phone'?'vehicle.publisher_phone.read':'vehicle.read';
- const p=await readCurrentFacts(auth,token,op);
+ let p;
+ try{p=await readCurrentFacts(auth,token,op)}
+ catch(e){
+  // F03真实v2认证Seal不接受F05后续签名迁移版本；不伪造跨版本成功授权。
+  if(/^F03_AUTH_GUARD_(TABLES|VERSION_OR_SEAL|STRUCTURE)/.test(String(e?.message)))
+   return deny('SIGNED_F03_F05_SCHEMA_VERSION_SOURCE_GAP','SOURCE_GAP');
+  throw e;
+ }
  if(p.finalAllowed!==true) return deny(p.code);
  // 当前冻结父读取器不会授权最终 Scope/Object；即使未来读到允许，
  // 无已签 publisher/Vehicle 物理绑定和报告可见性都必须继续拒绝。
@@ -62,7 +69,7 @@ export function inspectCollector(raw,issuedAt,signature,secret,expected) {
 }
 export async function signedF05ReadOnly(auth) {
  assertCIEnv();const physical=await physicalGate(auth.pool);
- await verifyAuthDatabase(auth.pool);
+ // 已签F05版本的迁移链和物理目录由F05父verifier验签；F03冻结80表v2 verifier只适用于独立F03库。
  const verified=await verifyF05(auth.pool);
  if(verified.verified!==true)throw Error('F07_3_F05_PARENT_UNVERIFIED');
  const c=await auth.pool.connect();
