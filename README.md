@@ -1,3 +1,74 @@
+# 2026-10-15｜A独立验收PR63标准合并，正式放行PR62对接已签PG1与C01—C03原生复验（唯一最新）
+
+- **唯一主线指针**：`A_ACCEPTED_MERGED_PR63_CI_ONLY / A_RELEASED_FOR_B_PR62_PG1_INTEGRATION / NEXT_OWNER=B / NEXT_TASK=F06_5C_PR62_PG1_SIGNED_INTEGRATION_C01_C03_FULL_NATIVE_REGRESSION_AND_FINAL_HANDOFF / PR62_NOT_MERGED / F05_F06_V1_NOT_READY`。A受验B最新PG1 HEAD `82b30bde92291a444372f3c1627e41469fba4586`、主线审查点 `bcb5b4e8fe5442b255344840f2a6fe00ddfcd022`；实际按标准GitHub [PR63](https://github.com/suzhe868-arch/mb/pull/63)合并成功，GitHub返回 `merged=true`，**合并提交 `a8dfb9f1e78bbab4f194dbeed3076bd8c33eddad`**。A[独立验收评论](https://github.com/suzhe868-arch/mb/pull/63#issuecomment-6184723787)已归档，限 `A_ACCEPTED_CI_ONLY`，不代表F05/F06/V1整域READY。
+- **A直接证据**：PR63 22/22仅新增授权PG1白名单；真实同HEAD PG16 Source [38682645219](https://github.com/suzhe868-arch/mb/actions/runs/38682645219)与HTTPS [38682645123](https://github.com/suzhe868-arch/mb/actions/runs/38682645123)、静态 [38682645218](https://github.com/suzhe868-arch/mb/actions/runs/38682645218)均 `completed/success`。C01真候补取消零插队、C02/C03假取消COMMIT拒绝23514、R01合法唯一自动新Priority、4A/4B→4C权限与资金拒绝、两物理OID `68461→73477`、190父表全行COUNT/MD5、24 Ledger与精确两Trigger一Constraint追加签名真实核实；Source/HTTPS官方非空SHA256工件11,630/6,468字节。
+- **实有不绿继续保留**：旧F05跨分支指定Push证明按`F06-5C-PG1-A-CI-APPLICABILITY-01`仅对PR63独立包归类 `LEGACY_CROSS_BRANCH_NOT_APPLICABLE_WITH_ACTUAL_RED_PRESERVED`；另外3个旧重复Job真实因ECR Docker镜像 `toomanyrequests` 在初始化阶段失败，同SHA其它同类父回归成功；审查时另1旧Source还运行中。**绝不称“所有31 Checks全绿”**、也不将PR63本轮例外自动延伸至原PR62。
+- **新正式施工单已签**：`07_重建工作区/F06-5C_A主控PR63合并后PR62版本化对接与C01至C03全量原生复验正式施工单_2026-10-15.md`。原[PR62](https://github.com/suzhe868-arch/mb/pull/62)仍open/unmerged，分支 `feat/f06-5c-transaction-priority-admission-ci`，B须从最新main普通非破坏性合并已签PG1，改造仅原5C白名单内版本化Catalog与安全v2入口，保持旧父FailClosed；让PR62自身原S84—S86真JYT/候补/无签取消/未知退款完整安全负例真正转绿，R01/4C/权限/双Backend和22真正Push/96真实PG16 Job/H52、官方工件全部最终同SHA再交A。不得强推/改原PG1或冻结父、删弱失败断言。
+- **A完整验收记录**：`07_重建工作区/F06-5C-PG1_A主控PR63独立验收合并与PR62后续放行正式报告_2026-10-15.md`。PR62本轮尚未A接受、尚未合并；F05/F06整域与V1仍`NOT_READY`，生产资金、真实第三方/客户、UAT、F07/F08及上线未放行。**NEXT_OWNER=B**。
+
+---
+
+# 2026-10-15｜A核验PR63同SHA PG1真PG16三项绿证，裁定旧父跨分支Push证明不适用，放行B最终交接（唯一最新）
+
+- **唯一正式指针**：`A_TECH_RULING_SCOPED_CI_APPLICABILITY / A_RELEASED_FOR_B_FINAL_HANDOFF / NEXT_OWNER=B / NEXT_TASK=F06_5C_PG1_PR63_SCOPED_NATIVE_EVIDENCE_FINAL_HANDOFF_AND_REVIEW_REQUEST / PR63_DRAFT_NOT_MERGED / PR62_BLOCKED / F05_F06_V1_NOT_READY`。
+- **A直接核验**：main审查点 `a25fff7ccd0b79e87038330f6b783edd93071ab5`；[PR63](https://github.com/suzhe868-arch/mb/pull/63) HEAD `34e2b11212d59b06514917b54961b669411ef44f`，21/21文件仅授权新PG1目录，ahead95/behind6；同HEAD [真PG16 Source Run38673920782](https://github.com/suzhe868-arch/mb/actions/runs/38673920782)、[HTTPS Run38673920756](https://github.com/suzhe868-arch/mb/actions/runs/38673920756)、[静态Run38673920745](https://github.com/suzhe868-arch/mb/actions/runs/38673920745)均success。官方原生日志含C01—C03/R01等总门禁、独立OID 68445→73461、190旧父表与24 Ledger Seal；Source/HTTPS非空官方SHA256工件10368/6477 bytes，**A未逐字节复算工件、尚未终验源码**。
+- **真实红灯继续保留**：同HEAD旧父 F05-7、F05-8、F05-9、F05-10、D1 五个 Source Job 实际 `failure`，A直接核实其最终失败因旧版指定分支/Workflow的官方新Push聚合证明在PG1修复分支不可达；不得称“全部31检查全绿”或“F05域全绿”。A**限定技术裁决** `F06-5C-PG1-A-CI-APPLICABILITY-01`：仅将这五项旧聚合Push资格在 PR63 独立CI-only包标记 `LEGACY_CROSS_BRANCH_NOT_APPLICABLE_WITH_ACTUAL_RED_PRESERVED`，不改冻结源码、不伪造结果、不降低C01—C03/正向4A/4C/资金与物理证据。
+- **正式整改单已归档**：`07_重建工作区/F06-5C-PG1_A主控PR63旧父Push证明跨分支不适用_限定范围验收门禁技术裁决与B交接整改单_2026-10-15.md`。B在同PR63/同分支补逐场景日志/业务SQL行/角色/签名/两Backend/COMMIT/工件映射及最终完整中文自验交接；只有真实完备才能标 `B_SELF_TESTED / READY_FOR_A_REVIEW`，A届时独立源码/证据审查、核GitHub合并限制后才决定是否标准PR合并。本轮**不批准合并PR63/PR62**。F05/F06/V1仍 `NOT_READY`，生产、真实资金、UAT、F07/F08均未授权。**NEXT_OWNER=B**。
+
+---
+
+# 2026-10-15｜A独立核验PR63父级签名兼容阻断，放行同PR版本化增量验签与安全取消入口包内整改（唯一最新）
+
+- **唯一当前指针**：`A_TECH_RULING_PR63_SIGNED_CATALOG_COMPATIBILITY / A_RELEASED_FOR_B_PG1_VERSIONED_DELTA_AND_SAFE_CANCEL_ADAPTER / NEXT_OWNER=B / NEXT_TASK=F06_5C_PG1_PR63_VERSIONED_CATALOG_AND_CANCEL_EQUIVALENCE_REPAIR / PR63_PR62_NOT_MERGED / F05_F06_V1_NOT_READY`。A以main `ca42b72f2b1308bdbef01a465ba35b54474534bd`审查，PR63 B HEAD `f0e159bbdbffca516b6ddd7c14052f882e3df57e`；[官方PG16 Run38648121814](https://github.com/suzhe868-arch/mb/actions/runs/38648121814) Job116139958565 失败，原有5B父回归/188张安装前Seal正常，安装新PG1前最终基线为**190张旧父表**，PG1追加2个public Trigger与1个constraint后冻结`getPublicStructure`固定结构签名失配，旧`verify`报`F05_10_CATALOG_DRIFT`。这是**版本化兼容阻断**，**不是**C01—C03已修复。
+- **A正式技术裁决**：保留旧v24 SQL/24 Ledger、190父表、全部原F05/F06 Service/verify和旧Catalog SHA不变；允许在原PR63新增目录内实现真实全量Catalog差分（仅两个触发器+一个constraint编目）、各对象精确SHA与不可变版本签、**明确选用的新版本安全4A/4C等价取消入口**，旧冻结4A/4C在新增Catalog后仍须FailClosed，不得假报其原二进制入口可用。真实调用前后需证明权限/锁序/签名/原子性和业务等价，严禁伪造public状态或绕过旧服务鉴权；若等价安全入口无法在新增目录闭合须实证再报最小例外，不得修改旧父。
+- **正式包内补充施工单**：`07_重建工作区/F06-5C-PG1_A主控PR63父签名兼容阻断_版本化目录验签与安全取消入口补充施工单_2026-10-15.md`。B沿用`fix/f06-5c-pg1-parent-priority-guard-ci`及草稿[PR63](https://github.com/suzhe868-arch/mb/pull/63)，仅`engineering/f06/transaction-priority-parent-gate-ci/**`、`.github/workflows/f06-5c-pg1-*.yml`，一次性完成兼容性正反、C01—C03及R01/4B→4C正向、双Backend原生PG16、旧190封印、同最终SHA全绿和中文交接。未达`READY_FOR_A_REVIEW`之前**不合并PR63**；原[PR62](https://github.com/suzhe868-arch/mb/pull/62)继续红灯；F05/F06/V1、生产资金/UAT/F07/F08仍`NOT_READY`。**NEXT_OWNER=B**。
+
+---
+
+# 2026-10-15｜A第四轮复验PR62：确认F05-8父自动Issuer真实跨域3项红证，放行独立F06-5C-PG1父层CI版本化补丁（唯一最新）
+
+- **当前唯一正式指针**：`A_REVIEW_CONFIRMED_F06_5C_PARENT_AUTO_ISSUER_SECURITY_RED / A_RELEASED_FOR_B_F06_5C_PG1_PARENT_AUTO_ISSUER_SIGNED_CI_GUARD / NEXT_OWNER=B / NEXT_TASK=F06_5C_PG1_NEW_BRANCH_NEW_PR_SIGNED_UPSTREAM_GATE_REPAIR / PR62_BLOCKED_UPSTREAM_NOT_MERGED / F05_F06_V1_NOT_READY`。A受验最新main `2c185a59eac7d06102329ec8c7afad30179b3889`；PR62报告HEAD `f3fe4bf39f2c28f62f598cfcd9f24f90fe3e2b61`，实际原生红证代码SHA `96ce3c725d6279a9a67b1fbdef46e1f113454cfa`；PR62 38/38变更仅现行授权独立CI目录，未动父/24签迁移，不合并。
+- **独立证实安全失败**：官方F06-5C真实非特权PG16 [Run38641938789](https://github.com/suzhe868-arch/mb/actions/runs/38641938789)，Source Job116119360131 `88项/85 pass/3 fail`、HTTPS Job116119359691成功。C01原真JYT high Match+签名有效Waitlist+5B交易→4A合法Cancel，冻结F05-8触发器却创建Priority12，突破候补；C02仅伪public取消、无4A/4C原签时同PG Savepoint生成Priority8；C03未知pending退款+伪public取消同Savepoint生成Priority9。C02/C03均回滚，不是已提交线上事件。**本轮必须保持RED，不能用旧HEAD 22/96全绿掩盖。**
+- **A技术裁决**：风险根源在旧`000024_priority_ci.sql`自动父源写入位置，5C下游无法阻止提前发生的父INSERT。**不改旧v24签名文件、不回写原24 Ledger**；在原PG原子发行边界，以新追加版本化**CI-only Sidecar/触发器+可信终态时序**补签名Waitlist/3B/5B/4A/4B/4C/退款全链Guard。尤其原4A/4C实际是先更新public status、再写合法cancel origins/events/request key，须正确处理事务内临时不完整、只在完整可信源后合法签发；不能错误拒绝4A合法取消。原R01无候补且全签合法自动唯一Priority裁决继续成立。原190父表与24 Ledger升级前原封印，升级后只准精确审计签名白名单对象增量与旧业务历史不变；不能冒充新版Catalog与旧版全字节相同。
+- **完整独立新工程单已正式签发**：`07_重建工作区/F06-5C-PG1_A主控冻结F05-8父自动签发跨域越权_版本化补丁与独立原生PG16修复正式施工单_2026-10-15.md`。B在**新分支**`fix/f06-5c-pg1-parent-priority-guard-ci`（从最新main）和**独立新PR**实施，只许新增`engineering/f06/transaction-priority-parent-gate-ci/**`与`.github/workflows/f06-5c-pg1-*.yml`，不得改原PR62/冻结父源码/旧迁移。先真实修好C01—C03且补合法取消/伪签/资金和双Backend原生回归、完整旧父与新对象签名后交A；A验收合并PG1后再放行原PR62对接/重新全量验收。**本轮不合并PR62；F05/F06/V1仍NOT_READY，资金生产/UAT/F07/F08均未授权。**
+
+---
+
+# 2026-10-15｜A第三轮独立复验F06-5C PR62：R01父签唯一签发技术裁决通过，候补/伪取消/资金组合风险补证后再合并（唯一最新）
+
+- **唯一正式指针**：`F06_5C_A_TECH_RULING_R01_SCOPED_ACCEPTED / F06_5C_A_CHANGES_REQUESTED_PARENT_AUTO_ISSUER_CROSS_DOMAIN_PROOF / PR62_NOT_MERGED / NEXT_OWNER=B / NEXT_TASK=F06_5C_PR62_PARENT_AUTO_ISSUER_SIGNED_WAITLIST_CANCEL_REFUND_REGRESSION_CI_ONLY / F05_F06_V1_NOT_READY`。A核验B最终HEAD `a54f4628e29354a207619f0d2a0cfe2896bb833a`、main审验点 `d0904e22e68484e92424e241e35b2b23445911f4`，compare ahead40/behind9；37/37均仅授权新增CI文件。
+- **真实通过**：同SHA官方22/22真正Push工作流success，A逐Run读取96/96真PG16 Jobs success（H52 52/52）、96/96官方有效非空同SHA sha256 Artifact元数据（未逐ZIP字节复算）；F06-5C Run38633271578 Source85/85与HTTPS9/9真PG16，Scenario OID68456→Audit OID73479、190旧父表全量COUNT/MD5、24 Ledger/Catalog/D1和父签名PASS。R02真实5B COMMIT后签名交易排他与不同Backend、R03原4B→4C跨负责人移交取消/deny/scope/幂等原生通过；R04 43候选剔6辅助为B自核37业务独立用例，A未自动认可最终独立数。
+- **R01技术裁决（已完成）**：冻结F05-8在4A合法Cancel COMMIT按真实Match源触发器自动签唯一**新**Priority（`source-create:/source-created:`），旧ended Priority不复活；随后两个F06-5C真实Backend正确`F06_5C_EXISTING_ACTIVE_PRIORITY`，不能要求再次签发第二笔Priority；另S52已证5C在无占用时调用原父签发。A接受**这一窄范围CI事实**，不是冒称5C在取消后亲自发新Priority，更不授权生产。
+- **实质未闭合风险**：A复核冻结`engineering/f05/priority-arbitration-ttl-handover/000024_priority_ci.sql`自动签发源函数未显式检查Waitlist、Refund/Payment、5B Guard/4A Cancel签名；父触发器可能先于5C安全准入执行，现有S66缺真批发Match、S61仅Savepoint验5C只读函数，尚不足以证明候补与假取消/资金无法导致父自动抢发。**缺少跨域实测，不等于已发现真实资金或线上事件**。额外旧PR工作流本次查询5 success/4 failure/1运行中，不能称所有检查绿灯；细项保护接口403，不伪称已核清required。
+- **A已正式签同包技术补证施工单**：`07_重建工作区/F06-5C_A主控第三轮复验_R01父触发器技术裁决与候补资金签名补证施工单_2026-10-15.md`。B在原PR62/分支、原两个CI新增目录只补C01—C05组合实证/代码审计/矩阵与最终新SHA全量回归。若冻结父真违反已有候补/资金签名约束，B不得越界改父，应出红证交A另放行合法父修复。**PR62不合并；NEXT_OWNER=B；资金、生产、UAT/F07/F08及F05/F06/V1继续NOT_READY**。
+
+---
+
+# 2026-10-15｜A第二轮独立复验PR62：68项PG16全绿但取消后正向签发与真实竞态缺证，不合并（唯一最新）
+
+- **正式唯一最新指针**：`F06_5C_A_SECOND_INDEPENDENT_REVIEW_CHANGES_REQUESTED_PR62 / PR62_NOT_MERGED / NEXT_OWNER=B / NEXT_TASK=F06_5C_PR62_SECOND_REVIEW_POSITIVE_CANCEL_RACE_HANDOFF_REMEDIATION_CI_ONLY / F05_F06_V1_NOT_READY`。A核验 `main` 审查基点 `7bf416c02f82ee779585a6131053101d2efb2457` 与 B最终HEAD `7936b4f1dcce6897dc1317200653a4ed6ae1a877`：compare ahead34/behind2；36/36均为授权 CI 白名单新增文件，PR62尚未合并。
+- **A独立核验的原生事实**：同HEAD真正Push工作流22/22成功；H52 Run 38617845356官方52/52真PG16 Jobs成功；F06-5C Run 38617845865 Source68/68、HTTPS9/9，真正PG Scenario OID68454销毁→独立Audit OID73477、190旧父表全行COUNT/MD5及24迁移/Catalog/D1/父签名保全。B报告全部96/96 Jobs、96官方工件与32 ZIP逐字节校验；A本轮没有逐一复算全部96 Job/工件和ZIP，不能冒称已独立复算。另有旧pull_request工作流4成功/6失败（冻结事件签名/镜像限流等），不能称所有PR检查全绿。
+- **第二轮实质阻断**：S57只排除部分旧错误码而未断言5C取消后的真正正向新签发；S65中合法4A取消后新Priority系原F05-8冻结源触发器自动创建，两个5C Backend请求均因已存在active Priority拒绝；另一段5B/5C真实竞态5C败因是`ACTIVE_LOCK`而非有签名的Transaction占用；4B/4C跨负责人原生取消链尚无同等级父API测试；68项含大量环境和参数断言，不能替代≥36个独立有效业务场景。首轮3B历史/4A签名/5B Guard及Waitlist的已修复事实保留，不倒退。
+- **A已签同包第二轮完整整改单**：`07_重建工作区/F06-5C_A主控PR62第二轮独立复验_真实签发竞态与跨负责人终态整改施工单_2026-10-15.md`，B仅可沿用PR62与原分支、原CI隔离白名单，按R01—R05整改、验证最终新SHA并重新交A独立复验。生产Issuer/资金/真实用户数据/UAT/F07/F08及F05/F06/V1仍`NOT_READY`。**NEXT_OWNER=B**。此为既有产品规则下技术验收裁定，**不构成新PDM产品裁决**。
+
+---
+
+# 2026-10-15｜A独立复验F06-5C PR62：真Push与双OID已核，交易取消来源和真实原子并发验收未过（唯一最新）
+
+- **唯一当前正式指针**：`F06_5C_A_INDEPENDENT_REVIEW_CHANGES_REQUESTED_PR62 / PR62_NOT_MERGED / NEXT_OWNER=B / NEXT_TASK=F06_5C_PR62_CANCELLED_TRANSACTION_SIGNED_TERMINAL_AND_ATOMIC_RACE_REMEDIATION_CI_ONLY / F05_F06_V1_NOT_READY`。GitHub main 基点 `708697bd2cabd3dfbd14adb79e04ba0a2af3058e`，B正式交接最新 SHA `3b406c09f92c351d1f953521b538f66e8ff231b7`，A从 PR #62 独立复核 34/34 新增 CI 白名单、22/22 同SHA真正Push工作流成功、H52 52/52 官方原生作业、5C Source56/56 与 HTTPS9/9、190张旧父全量签与Scenario OID68461→Audit OID73484。B另报告96/96 Jobs及32份ZIP实物哈希，A未在本轮重新逐字节抽验32 ZIP。
+- **A独立拒收的实质性缺口**：5C适配器把冻结3B不可变 `in_progress` 来源与4A/4C合法更新为 `cancelled` 的public终态视作错误漂移，导致合法取消后始终拒绝新Priority；未完整验签5B Guard、4A/4C取消签名与资金Refund，现有S42双Backend只是两败负例，缺真正合法正向竞争与已取消后新签发矩阵。PR另有额外 pull_request 检查失败（含Docker镜像限流），需分类；PR正文/权限矩阵仍旧阻断口径。**不能凭22个Push成功替代业务验收**，PR62不合并。
+- **A已下达同包正式完整整改单**：`07_重建工作区/F06-5C_A主控PR62独立验收未通过_交易取消来源与原子并发整改施工单_2026-10-15.md`，B只在原分支/PR62与原两个新增CI目录整改、补真实业务/签名/并发/撤权、复核额外CI、最终SHA全量回归和证据归档；合格后重交A独立验收。资金、生产、完成成交、真实用户数据、UAT/F07/F08、F05/F06/V1仍 `NOT_READY`。**NEXT_OWNER=B**。
+
+---
+
+# 2026-10-14｜A主控PR62独立核验：F06-5C两项上游技术裁决与包内整改正式放行（唯一最新）
+
+- **当前唯一正式指针**：`F06_5C_A_CHANGES_REQUESTED_TECH_UNBLOCKED_CI_ONLY / PR62_DRAFT_NOT_MERGED / NEXT_OWNER=B / NEXT_TASK=F06_5C_PR62_A_TECH_RULING_REMEDIATION_CI_ONLY / F05_F06_V1_NOT_READY`。本次是A工程裁决，**非A验收通过**、非生产授权。
+- **PR62**：基点main `4d9dfc7aff880d4e02f8a6d4f5d9a5ed5e80d2dd`，B复核HEAD `3ce3d2887fb72c1dc8c1b4d2a5579add3e70be7f`；ahead3/behind0，34/34全在授权新增目录；B仍标记草稿与BLOCKED_UPSTREAM、未READY。官方PG16 Source Run38558804382 Job115834619132 真实OID68454旧父表190（并非施工单误记192）。旧5B前188+5B两表=190；5C自身仅新加1表，因此A技术勘误：**封印前后必须190张原父表全量COUNT+MD5及所有签名；5C一表另验**，不得假增表。冻结F05-8 `arbitrateCI`可通过有边界的`auth.withSession`包装在原物理事务与Vehicle FOR UPDATE内先行双源核验，然后继续调用原签名仲裁，禁止两事务TOCTOU与直接INSERT假发行；不成功则FailClosed。现有36项Source多属假Token/配置测试须补真实业务正反和跨Backend。最新SHA Push尚未全绿且F06-4B HTTPS存在EADDRINUSE端口49028失败。
+- **A签正式完整补充整改施工单**：`07_重建工作区/F06-5C_A主控PR62上游接口与190旧父表原子签发技术裁决_包内整改补充施工单_2026-10-14.md`；在原分支/PR62且仅原白名单包内实现、真实两OID旧父封印、合法真Priority正向/并发、22真正Push/96真PG16 Job/H52 52/≥32官方SHA256 Artifact后再交A。PR62不合并；资金/生产/UAT/F07/F08及V1仍NOT_READY。**NEXT_OWNER=B**。
+
+---
+
 # 2026-10-14｜F06-5B A独立验收PR61标准合并；F06-5C Transaction占用与新Priority排他CI隔离工作单放行（唯一最新）
 
 - **唯一正式最新指针**：`F06_5B_A_ACCEPTED_MERGED_PR61_CI_ONLY / F06_5C_A_RELEASED_FOR_B_CI_ONLY / NEXT_OWNER=B / NEXT_TASK=F06_5C_TRANSACTION_PRIORITY_ADMISSION_ATOMIC_GUARD_CI_ONLY / F05_GLOBAL_NOT_READY / F06_GLOBAL_NOT_READY / V1_NOT_READY`。
