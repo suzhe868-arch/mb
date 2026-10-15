@@ -47,3 +47,33 @@ if(report.status!=="ALL_NATIVE_ASSERTIONS_PASS"||
 console.log("PG1_NATIVE_ALL_ASSERTIONS_PASS",report.sha);
 ' "$base/artifacts/source/真实PG16父签名兼容诊断.json"
 echo "F06_5C_PG1_NATIVE_DIAG_EXIT=$rc; ALL_TRUE_NATIVE_ASSERTIONS_PASS"
+# PG1 真正双物理OID验收：诊断必须成功后，先留190张旧表/24 Ledger及新Catalog签名，
+# 再沿用已签F06-5B的可销毁PG16数据库快照/重建工具（仅重新绑定该旧工具的分支门禁），
+# 绝不调整原父的验签器/服务/业务签名。实际DROP/CREATE操作仅在一次性CI数据库内运行。
+{
+ (cd engineering && node f06/transaction-priority-parent-gate-ci/双OID物理业务审计.mjs --before)
+ env GITHUB_REF=refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci \
+     bash engineering/f06/lock-refund-conversion-guard-ci/disposable-db.sh snapshot
+ env GITHUB_REF=refs/heads/feat/f06-5b-lock-refund-conversion-guard-ci \
+     bash engineering/f06/lock-refund-conversion-guard-ci/disposable-db.sh restore
+ (cd engineering && node f06/transaction-priority-parent-gate-ci/双OID物理业务审计.mjs --after)
+} 2>&1 | tee "$base/artifacts/source/原生PG16双OID真实重建日志.txt"
+test -s "$base/artifacts/source/PG1第一OID原生签名快照.json"
+test -s "$base/artifacts/source/PG1双OID物理审计.json"
+grep -q PG1_TWO_REAL_PHYSICAL_PG16_DATABASE_OIDS_PARENT190_SEAL_PASS \
+ "$base/artifacts/source/原生PG16双OID真实重建日志.txt"
+node --input-type=module -e '
+import fs from "node:fs";
+const report=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));
+if(report.status!=="PG1_TWO_REAL_PHYSICAL_PG16_DATABASE_OIDS_PARENT190_SEAL_PASS"||
+   report.sourceSHA!==process.env.GITHUB_SHA||
+   report.run!==process.env.GITHUB_RUN_ID||
+   report.firstOid===report.secondOid||
+   report.old190TableCount!==190||
+   !report.PG16)process.exit(1);
+console.log("PG1_NATIVE_REAL_TWO_DATABASE_OIDS_PASS",report.firstOid,report.secondOid);
+' "$base/artifacts/source/PG1双OID物理审计.json"
+(cd "$base/artifacts/source" && find . -maxdepth 1 -type f ! -name '证据SHA256.txt' -print0 |
+ sort -z | xargs -0 sha256sum > 证据SHA256.txt)
+test -s "$base/artifacts/source/证据SHA256.txt"
+echo "F06_5C_PG1_NATIVE_DIAG_AND_REAL_TWO_OIDS_PASS_SHA=$GITHUB_SHA"
