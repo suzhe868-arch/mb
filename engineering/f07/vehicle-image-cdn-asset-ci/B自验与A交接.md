@@ -23,7 +23,7 @@
 - 首轮官方真正push Run 38715659074，SHA 40cf8516a21790ef9e1ab9061a8d03ccff912389，Source/HTTPS双真实PG16 Job 2/2 success；对应两个GitHub官方有效sha256 Artifact。其结果只证明首轮SHA，不替代后续提交。
 - 补强后官方真正push Run 38716038626，SHA 06871de63ffb2e7e38e3f416142ef2e1cdc3de55，Source(60场景及额外路径和9门禁)及loopback HTTPS16 2/2 success。该Run证明该时点源码及工作流通过，不替代本报告最终SHA。
 - 加固后实际代码唯一SHA 6a99a8dbbecd1aabd42c68695466e83cf6c64098，官方真正push Run 38716589550 completed/success，2个独立PG16 Job 2/2 success；官方工件Source ID 11962649154、3901字节、sha256:051cdbf4e11de457dd3554ba38c4994ec46969b699e6100bceb393060abb899d；HTTPS ID 11962308911、1271字节、sha256:8432e06a8eba5e7d3a376afa431a0822ffb756b29217fcb360369ae42a6233f0，均expired=false。此证据不取代报告提交后的最终HEAD证明。
-- 最终量化门禁：68条真实PG16业务场景、12个恶意path负例、9个隔离CI/DB环境负例另加1个真实PG16 SET ROLE提权拒绝、20项loopback TLS+独立PG16黑箱；包括两真PG Backend PID、行锁55P03、对象实际put/delete计数、SQL23514真实回滚与最新权限拒绝。总计110条独立子例（68+12+9+1+20），各项子例由Node test报告数，不把父suite作为业务用例。
+- 最终量化门禁：71条真实PG16业务场景、12个恶意path负例、9个隔离CI/DB环境负例另加1个真实PG16 SET ROLE提权拒绝、20项loopback TLS+独立PG16黑箱；包括两真PG Backend PID、行锁55P03、对象实际put/delete计数、SQL23514真实回滚与最新权限拒绝。总计113条独立子例（71+12+9+1+20），各项子例由Node test报告数，不把父suite作为业务用例。
 - 后续反向安全加固阶段：可见车Priority仍需独占本人/负责销售、零图片首次冻结永久阻止后续同步补图、对象写成功后模拟崩溃遗留孤儿对账、占位返回前权限复查、上传图片必须保留不可变origin_source_type，正式PG16分别有负例。加固前的真PG16 Run38717301357 SHA41eab1ea9b3a27c0bd8765677f2d3f0dcc89e6c5两个Job completed/success，Source与HTTPS官方sha256 Artifact分别为11963795393/11963955526，均非空且未过期；只证明该SHA，不替代加固后终验。旧Run38717223046与38717270058红灯均发生在日志标记仍检查60或16而测试已经扩大至68/20的历史中间SHA，事实保留，不得当作全绿。
 - 本报告提交会形成新HEAD并重新触发官方GitHub push；必须复核新HEAD独立Source及HTTPS两个Job均completed/success、对应真实非空未过期sha256官方Artifact，再向A宣布READY，不允许以过去SHA绿证冒充最终状态。
 
@@ -44,3 +44,8 @@ B在施工白名单内完成实现、真实PG16业务/攻击/错误环境测试�
 3. 正式图片读取失败的允许fallback仅为预期单图不可用，不能吞掉未知数据库或授权错误并伪装成占位。
 4. 进程直接终止后的孤儿清理只在同一进程MockStorage枚举模拟，真实分布式对象存储清理、事务外可靠队列与孤儿账本仍未接线，明确SOURCE_GAP。
 5. 最终PR #65为草稿期间绝对不得合入main；确认同最终HEAD双官方新PG16 Job、工件和A安全边界后B方可变更READY状态，A独立验收之前不把F07整域或V1称READY。
+
+## 7. 最后并发安全补丁
+
+- 反向安全审查额外发现：旧失败图片的对象删除和另一个请求刚完成的同键成功对象可能交错，形成DB引用成功但对象被迟到的补偿删除。采用仅限Mock的同键异步互斥封闭整个DB事务、对象PUT、补偿和恢复流程；S69/S70/S71在真PG16环境模拟故意延迟对象删除，断言最终合法object_key所引用的Mock资源仍真实存在。
+- 源码用例变为71个PG16业务+12个路径+9个错误环境+1个真实普通角色提权拒绝，HTTPS独立20项。所有数量必须以最终HEAD新工作流官方日志确认，本文不会把早期SHA成功推断为最后SHA成功。
