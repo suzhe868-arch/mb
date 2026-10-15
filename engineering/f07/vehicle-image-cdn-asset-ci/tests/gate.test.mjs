@@ -18,6 +18,11 @@ test('F07-2 八项环境/数据库零写入拒绝',async t=>{
   const after=(await pool.query("SELECT count(*) n FROM f07_images.vehicles")).rows[0].n;
   assert.equal(after,before);
  });
+ await t.test('真实PG16非特权角色不能SET ROLE postgres',async()=>{
+  await assert.rejects(pool.query('SET ROLE postgres'),e=>e.code==='42501');
+  assert.equal((await pool.query('SELECT current_user u')).rows[0].u,'f07_image_ci');
+  assert.equal((await pool.query('SELECT count(*) n FROM f07_images.vehicles')).rows[0].n,before);
+ });
  const client=await pool.connect();
  try{const x=await physicalGate(client);assert.equal(x.usr,'f07_image_ci');assert(x.ver>=160000&&x.ver<170000);assert.equal(x.su,false);console.log('F07_2_PHYSICAL_REAL_PG16_NON_SUPERUSER_ZERO_WRITE_9_PASS',x.pid);}
  finally{client.release();await pool.end();}
