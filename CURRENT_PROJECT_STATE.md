@@ -1,3 +1,15 @@
+# 2026-10-15｜A独立验收PR65标准合并，F07-3正式放行B执行（唯一最新）
+
+- **最新唯一状态**：`F07_2_PR65_A_ACCEPTED_STANDARD_MERGED_CI_ONLY / F07_3_A_RELEASED_FOR_B_CI_ONLY / NEXT_OWNER=B / NEXT_TASK=F07_3_TRUSTED_UPSTREAM_F03_F05_SIGNED_PARENT_PHONE_IMAGE_GATE_CI_ONLY / F05_F06_F07_V1_NOT_READY / NO_PRODUCTION`。上一段“F07-2施工已放行B”现为历史，真实PR65已验收合并，不应继续重复施工。
+- **A已完成标准merge**：从当时唯一main `0a976910bf5846d6266eb0b6c7943df8fe49eae9` 对[PR65](https://github.com/suzhe868-arch/mb/pull/65) B最终HEAD `6da3aef96bef06e0ae5b7e6cd3c546d92a84dcae`独立审查；`ahead46/behind0`、**12/12全部新增且全属于已签白名单**。GitHub `merge_pull_request`标准合并实际返回`merged=true`，独立复查PR`closed/merged`及main HEAD等于合并SHA **`8ff3c5b4623585a33bb8f0bc733f94939eef7493`**；[A正式验收签字](https://github.com/suzhe868-arch/mb/pull/65#issuecomment-6190886795)。
+- **最后同SHA原生绿证**：[官方真正Push Run38724240811](https://github.com/suzhe868-arch/mb/actions/runs/38724240811)`completed/success`，独立真非特权PG16 Source`116386045651`、HTTPS`116386045110` **2/2 Job success**；A实际查完整原生job日志，**71业务 + 12恶意路径 + 9错误CI环境 + 1真实PG角色升级拒绝 + 20 HTTPS = 113/113独立场景全过**，真PG16版本`160015`、角色`f07_image_ci`、两PID`85/86`、行锁`55P03`、SQL`23514`回滚及Mock对象清理。两同HEAD非空未过期GitHub SHA256摘要Artifact有效（仅官方元数据，并未逐ZIP独立重算）。原历史失败Run没有隐去。
+- **旧冻结红灯只作本PR限定判定**：另10条`pull_request`老F05工作流3成功/7失败，30个检查Job真实快照21 success/9 failure；9个失败为**5个ECR Docker初始化限流**与**4个旧F05自身新Push计数证明不成立**（旧源业务测试先过），不是把旧Job改绿。A仅对PR65本次12新增CI文件单独裁定`F07-2-PR65-A-CI-APPLICABILITY-01`；**不可外推至其他PR、生产、旧F05全域或bypass GitHub合并保护**，且GitHub服务端标准merge真实成功。
+- **本次CI包合格≠生产已接线**：F07-2只有MockCDN/MockStorage、合成PG16 Session/Priority、合成F05转换；没有真实F03签名Session/Scope/Object、F05正式convert Issuer、JYT Collector/合法回源、真实CDN/对象存储与私有图片网关、微信/三端前端、正式DB迁移；F07-1上游电话正式敏感能力`TECH_ALIAS_PENDING_A`仍无真实业务allow，真实资金、UAT/部署均未放行。F05/F06/F07整域与V1始终**`NOT_READY`**。
+- **下一正式已授权B全包**：`07_重建工作区/F07-3_A主控上游来源身份F03会话F05转换与电话图片权限集成边界_CI隔离正式完整施工单_2026-10-15.md`；B从**真实开工最新main**建新分支`feat/f07-3-trusted-upstream-and-parent-source-gate-ci`、新PR，**仅新增**`engineering/f07/trusted-upstream-parent-gate-ci/**`和`.github/workflows/f07-3-*.yml`；以PDM02/04/07/08/09 Final及真实冻结F03/F05父模块做来源/签名/当前Scope和电话图片跨域拒绝实证，最少**30真PG16 Source业务子例、12真PG16 TLS黑箱、两个独立真PG16 Job**与最后同SHA有效工件。正式未签权限Alias/Scope或父Issuer仍必须`SOURCE_GAP/DENY`，不得人造allow或真实JYT/OSS/支付。包内一次性开发、全回归、反向安全整改和中文证据归档，B签`B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A`再交A，B绝不自行合并main。A正式报告`07_重建工作区/F07-2_A主控PR65独立验收113项真PG16标准合并与F07-3前置审查正式报告_2026-10-15.md`。
+- **责任结论**：A验收合并、文档、下一施工单均已完成；下一责任**B**。历史所有旧“当前状态/旧待办”仅追溯，服从本段顶部、同步后的PROJECT_STATE.json和F07-3工作单。
+
+---
+
 # 2026-10-15｜A独立验收PR64标准合并，F07-2仅隔离CI正式放行（唯一最新）
 
 - **正式唯一状态**：`F07_1_PR64_A_ACCEPTED_STANDARD_MERGED_CI_ONLY / F07_2_A_RELEASED_FOR_B_CI_ONLY / NEXT_OWNER=B / NEXT_TASK=F07_2_VEHICLE_IMAGE_CDN_ASSET_DUAL_SUCCESS_REPORT_AUTH_CI_ONLY / F05_F06_F07_V1_NOT_READY / PRODUCTION_NOT_AUTHORIZED`。上一段“PR64待B定向整改”现只为旧验收历史，**不再是当前待办**。
