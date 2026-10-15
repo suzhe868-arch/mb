@@ -1,0 +1,75 @@
+编号	业务断言	权威PDM08条款	数据或资源事实	验证等级	接线状态
+S01	首次freeze来源新增两图	§1—2、§7	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S02	上游再次同步不得追加	§1—2、§7	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S03	上游更新不修改冻结path	§1—2、§7	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S04	上游更新不修改冻结顺序	§1—2、§7	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S05	上游更新不修改来源平台	§1—2、§7	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S06	转换保持vehicle与周期	§10—12	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S07	不准重复转换	§10—12	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S08	未转换不能资产化	§10—12	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S09	对象+DB双成功	§9—13	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S10	成功免重复写入	§9—13	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S11	对象写失败绝不标成功	§9—13	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S12	DB约束注错真实ROLLBACK与孤儿清理	§9—13	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S13	进程中断补偿	§9—13	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S14	失败单图重试成功	§9—13	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S15	部分失败状态	§9—13	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S16	整体成功状态	§9—13	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S17	单图失败不回滚经营来源与业务标记	§9—13	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S18	DB不允许无对象key的成功	§9—13	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S19	DB不允许未成功但有对象key	§9—13	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S20	双后端并发相同图仅一次写入	§9—13	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S21	物理PG16与两PID真实连接	§9—13	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S22	真PG FOR UPDATE 行锁阻止插队	§9—13	真PG16+Mock对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S23	CDN MISS同次返回TEST_IMAGE	§2—4、§13.1、§15	真PG16+权限/缓存	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S24	CDN HIT无重复回源	§2—4、§13.1、§15	真PG16+权限/缓存	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S25	CDN浏览不触发对象永久上传	§2—4、§13.1、§15	真PG16+权限/缓存	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S26	转名邦未资产化可控回源3A	§2—4、§13.1、§15	真PG16+权限/缓存	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S27	资产化下一次立即选自有对象	§2—4、§13.1、§15	真PG16+权限/缓存	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S28	成功对象丢失不偷偷JYT常规回源	§2—4、§13.1、§15	真PG16+权限/缓存	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S29	当前Session禁用旧URL即拒	§17—18、§23	真PG16+权限/缓存	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S30	当前数据范围撤销旧URL即拒	§17—18、§23	真PG16+权限/缓存	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S31	个人deny阻断	§17—18、§23	真PG16+权限/缓存	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S32	hidden只授权Priority本人及负责销售	§17—18、§23	真PG16+权限/缓存	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S33	Priority即时撤销历史图访问	§17—18、§23	真PG16+权限/缓存	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S34	可见改隐藏立即撤销	§17—18、§23	真PG16+权限/缓存	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S35	报告当前customer_visible真可见	§17—18、§23	真PG16+权限/缓存	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S36	报告撤权历史URL拒绝	§17—18、§23	真PG16+权限/缓存	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S37	维保非客户可见	§17—18、§23	真PG16+权限/缓存	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S38	敏感原件无可见权限	§17—18、§23	真PG16+权限/缓存	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S39	相册不可枚举出险图片	§17—18、§23	真PG16+权限/缓存	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S40	报告域与普通图片域严格区分	§5、§16—22	真PG16+资源类型/合成选择	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S41	H5已签源域正确映射	§5、§16—22	真PG16+资源类型/合成选择	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S42	分享卡不固定价格VIN电话	§5、§16—22	真PG16+资源类型/合成选择	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S43	第2至5与第3触发第6后预取	§5、§16—22	真PG16+资源类型/合成选择	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S44	无图可发布及占位封面	§5、§16—22	真PG16+资源类型/合成选择	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S45	原首图恢复不改变冻结order	§5、§16—22	真PG16+资源类型/合成选择	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S46	失败审计真实SQL持久	§9—14	真PG16+资源类型/合成选择	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S47	asset成功审计真实SQL持久	§9—14	真PG16+资源类型/合成选择	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S48	转换不重置source path	§9—14	真PG16+资源类型/合成选择	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S49	图片资产化并不创建新Vehicle	§9—14	真PG16+资源类型/合成选择	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S50	失败重试只处理失败项	§9—14	真PG16+资源类型/合成选择	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S51	首图失效原序下一张fallback	§1—3、§8—9	真PG16+首图/人工对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S52	首图恢复自动回原排序位	§1—3、§8—9	真PG16+首图/人工对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S53	零图占位但不影响车辆	§1—3、§8—9	真PG16+首图/人工对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S54	全部图失败占位	§1—3、§8—9	真PG16+首图/人工对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S55	无Vehicle权限连占位入口也拒绝	§1—3、§8—9	真PG16+首图/人工对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S56	人工名邦图片直接双成功写自有对象	§1—3、§8—9	真PG16+首图/人工对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S57	人工上传不可伪装批发来源	§1—3、§8—9	真PG16+首图/人工对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S58	人工对象成功DB失败真实补偿	§1—3、§8—9	真PG16+首图/人工对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S59	人工图允许调整顺序	§1—3、§8—9	真PG16+首图/人工对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S60	单图失败不触发整车图片重采	§1—3、§8—9	真PG16+首图/人工对象	实际SQL或受控Mock断言	CI_SYNTHETIC_ONLY；生产SOURCE_GAP
+S61	Priority visible独占其他人拒绝	§23	真PG16当前会话Scope	真PG16业务/权限断言	CI_SYNTHETIC_ONLY；生产F03 SOURCE_GAP
+S62	Priority本人可读销售还需Scope	§23	真PG16两个Actor会话	真PG16业务/权限断言	CI_SYNTHETIC_ONLY；生产F03 SOURCE_GAP
+S63	撤销Priority立即恢复可见域	§23	真PG16状态即时更新	真PG16业务/权限断言	CI_SYNTHETIC_ONLY
+S64	首次0图持久冻结禁止下一轮追加	§1、§7	真PG16 image_frozen	真PG16业务/权限断言	CI_SYNTHETIC_ONLY
+S65	首次非空冻结拒绝上游新增	§1、§7	真PG16 image_frozen	真PG16业务/权限断言	CI_SYNTHETIC_ONLY
+S66	对象PUT后断电孤儿清理和PG审计	§9、§13	真PG16审计+Mock对象	真PG16业务/权限断言	CI_SYNTHETIC_ONLY；生产对象SOURCE_GAP
+S67	恢复对账不得误删合法双成功对象	§9、§13	真PG16正式引用+Mock对象	真PG16业务/权限断言	CI_SYNTHETIC_ONLY；生产对象SOURCE_GAP
+S68	Priority下零图占位不泄存在	§3、§23	真PG16当前Vehicle Read	真PG16业务/权限断言	CI_SYNTHETIC_ONLY；生产F03 SOURCE_GAP
+S69	失败对象补偿与合法并发重试不能误删新成功资产	§9、§13	真PG16+同Mock对象键互斥	真PG16并发交错+对象存在断言	CI_SYNTHETIC_ONLY
+S70	人工上传失败补偿与同ID合法成功互斥	§8—9	真PG16+Mock对象PUT/DELETE延迟	真PG16并发交错+对象存在断言	CI_SYNTHETIC_ONLY
+S71	孤儿清理与同时资产化不得删除新成功引用	§9、§13	真PG16事务+Mock对象键锁	真PG16并发交错+对象存在断言	CI_SYNTHETIC_ONLY；正式OSS SOURCE_GAP
+PATH01—12	路径穿越/SSRF/编码拒绝	§2、§25	安全路径函数	Node 12安全子例	CI_SYNTHETIC_ONLY
+GATE01—10	错误仓库/事件/分支/DSN及物理身份零写入	§25	真PG16 current_user 与非特权证据	PG16 9环境拒绝+1真实角色提权拒绝	CI_SYNTHETIC_ONLY
+HTTPS01—20	旧URL撤权/报告隔离/TLS/分享安全	§17、§22—23	独立PG16+loopback TLS	20 HTTPS黑箱子例	CI_SYNTHETIC_ONLY

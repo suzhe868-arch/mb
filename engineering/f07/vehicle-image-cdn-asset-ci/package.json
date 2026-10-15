@@ -1,0 +1,11 @@
+{
+  "name": "mingbang-f07-2-isolated-image-contract",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:source": "node --test --test-concurrency=1 tests/source.test.mjs",
+    "test:https": "node --test --test-concurrency=1 tests/https.test.mjs",
+    "test:gate": "node --test --test-concurrency=1 tests/gate.test.mjs"
+  },
+  "dependencies": {"pg": "8.16.3"}
+}
