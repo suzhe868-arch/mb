@@ -283,19 +283,7 @@ END $$;
 CREATE FUNCTION f06_5c_pg1_ci.guard_priority_insert() RETURNS trigger LANGUAGE plpgsql AS $$
 DECLARE pg_callstack text;
 BEGIN
- -- 自动父签发及显式插入都须绑定当前真实F05-7 Match、资格与员工授权范围。
- -- 旧父自动发行的候选正取自同一不可变F05-8视图，故合法场景保持等价。
- IF NOT EXISTS(
-  SELECT 1 FROM public.f05_8_eligible_candidates_ci e
-  WHERE e.vehicle_id=NEW.vehicle_id AND e.listing_cycle_id=NEW.listing_cycle_id
-   AND e.customer_id=NEW.customer_id AND e.demand_id=NEW.trigger_demand_id
-   AND e.result_id=NEW.source_match_result_id
-   AND e.source_signature=NEW.source_signature
-   AND e.responsible_employee_id=NEW.responsible_employee_id
- ) THEN
-  IF NEW.creation_key LIKE 'source-create:%' THEN RETURN NULL; END IF;
-  RAISE EXCEPTION 'F06_5C_PG1_UNSIGNED_MATCH_OR_QUALIFICATION' USING ERRCODE='23514';
- END IF;
+ -- 校验真实旧父调用栈必须早于Match校验：不允许伪造source-create前缀通过无签Match走静默跳过分支。
  -- 已冻结F05-8的唯一合法自动Issuer使用source-create:键；其余手工/未知Issuer
  -- 即使指向有效Match也不得绕过原父仲裁直接落表。
  IF NEW.creation_key IS NULL OR NEW.creation_key NOT LIKE 'source-create:%' THEN
@@ -306,6 +294,18 @@ BEGIN
  GET DIAGNOSTICS pg_callstack = PG_CONTEXT;
  IF pg_callstack !~ 'PL/pgSQL function (public[.])?f05_8_reconcile_scope_ci[(]bigint,[[:space:]]*bigint[)]' THEN
   RAISE EXCEPTION 'F06_5C_PG1_NON_PARENT_PRIORITY_ISSUER' USING ERRCODE='23514';
+ END IF;
+ -- 真实父自动Issuer再核当前有签Match，资格失效才允许不签发而不中断父源同步。
+ IF NOT EXISTS(
+  SELECT 1 FROM public.f05_8_eligible_candidates_ci e
+  WHERE e.vehicle_id=NEW.vehicle_id AND e.listing_cycle_id=NEW.listing_cycle_id
+   AND e.customer_id=NEW.customer_id AND e.demand_id=NEW.trigger_demand_id
+   AND e.result_id=NEW.source_match_result_id
+   AND e.source_signature=NEW.source_signature
+   AND e.responsible_employee_id=NEW.responsible_employee_id
+ ) THEN
+  IF NEW.creation_key LIKE 'source-create:%' THEN RETURN NULL; END IF;
+  RAISE EXCEPTION 'F06_5C_PG1_UNSIGNED_MATCH_OR_QUALIFICATION' USING ERRCODE='23514';
  END IF;
  IF NOT f06_5c_pg1_ci.safe_to_issue(NEW.vehicle_id,NEW.listing_cycle_id) THEN
   IF NEW.creation_key LIKE 'source-create:%' THEN RETURN NULL; END IF;
