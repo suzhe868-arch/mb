@@ -10,7 +10,7 @@ permissions:
   contents: read
 jobs:
   source_pg16:
-    name: F07-4 Source 60 真PG16
+    name: F07-4 Source 61 真PG16
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     services:
@@ -57,12 +57,12 @@ jobs:
           psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f07_4_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
           psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f07_4_test OWNER f07_4_ci;"
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -Atc "SELECT current_database(),current_user,current_setting('server_version_num'),pg_backend_pid()" | tee f07-4-source-pg16-identity.log
-      - name: 真PG16 Source60正反例并发回滚与审计
+      - name: 真PG16 Source61正反例并发回滚与审计
         shell: bash
         run: |
           set -euo pipefail
           node --test --test-concurrency=1 engineering/f07/notification-sla-incident-gate-ci/tests/source.test.mjs 2>&1 | tee f07-4-source-native.log
-          grep -q F07_4_SOURCE_NATIVE_PG16_60_PASS f07-4-source-native.log
+          grep -q F07_4_SOURCE_NATIVE_PG16_61_PASS f07-4-source-native.log
           grep -q F07_4_NATIVE_DUAL_BACKEND_PIDS f07-4-source-native.log
           grep -q F07_4_NATIVE_ROW_LOCK_55P03 f07-4-source-native.log
           grep -q '# fail 0' f07-4-source-native.log
