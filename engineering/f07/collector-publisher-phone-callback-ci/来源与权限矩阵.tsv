@@ -1,0 +1,8 @@
+动作	正式规则	现有依据	当前身份/权限	Publisher缓存	处理器	真实测试	接线状态
+读取发布人电话	PDM-09 §1/2/4；PDM-02 §4	F03 policy.mjs vehicle.publisher_phone.read	active员工+有效会话+publisher.phone.sensitive+个人DENY优先+当前scope+wholesale	source_platform+upstream_publisher_id	contract.mjs employeePhone	S01-06,S21-29,H01,H07-10	CI_SYNTHETIC_ONLY
+获取最新电话	PDM-09 §6/8/12	F03 policy.mjs vehicle.publisher_phone.latest	重新鉴权，撤权立即生效	缓存保留+单pending	contract.mjs employeePhone	S03,S07-10,S30,H09,H11	CI_SYNTHETIC_ONLY
+拨号权限	PDM-09 §9	F03 policy.mjs vehicle.publisher_phone.dial	已有敏感能力，4S/admin不可绕过	必须先获得合法缓存	contract.mjs employeePhone	S23,S35	CONTRACT_ONLY（无真实拨号器）
+Collector入站回传	PDM-09 §3；PDM-25	F04 禁旧反向Phone API，PDM-09 Collector→Integration	隔离HMAC签名+时间+nonce+请求绑定	有效号才写，旧号不清空	server.mjs/collectorCallback	S04,S11-18,H02-06,H14	CI_SYNTHETIC_ONLY（非正式Integration API）
+跨publisher/平台	PDM-09 §1/13	F05 Vehicle/source生命周期	跨scope拒绝	复合主键和事务行锁	contract.mjs	S19-20,S36	CI_SYNTHETIC_ONLY
+源转换与撤权	PDM-09 §2(3A)；PDM-02 §4	F03 policy.mjs+F05 source_type合同	COMMIT后敏感操作拒绝	保留合法历史事实	contract.mjs	S27-30,S33,H08-09	CI_SYNTHETIC_ONLY
+生产正式接线	PDM-09 §3/14	F04正式路由registry未连接本隔离Handler	另需生产身份和来源鉴权审查	正式schema未知，不准迁移	未登记生产路由	无	SOURCE_GAP
