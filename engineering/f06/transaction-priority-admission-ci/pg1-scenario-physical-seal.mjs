@@ -32,7 +32,9 @@ try{
  assert.equal(catalog.sha256,verified.newCatalog);
  const att=(await c.query('SELECT * FROM f06_5c_pg1_ci.attestation')).rows;
  assert.equal(att.length,1);
- assert.equal(att[0].source_sha256,verified.sourcePatchSha256||att[0].source_sha256);
+ const signedSidecar=await readFile(new URL('../transaction-priority-parent-gate-ci/sidecar.sql',import.meta.url),'utf8');
+ const currentPatchSourceHash=createHash('sha256').update(signedSidecar).digest('hex');
+ assert.equal(att[0].source_sha256,currentPatchSourceHash,'PG1_PATCH_SOURCE_BYTES_NOT_SIGNED');
  assert.equal(att[0].delta_sha256,verified.deltaSHA256);
  assert.equal(att[0].parent_catalog_sha256,prior.catalogSha256);
  assert.equal(att[0].post_catalog_sha256,catalog.sha256);
