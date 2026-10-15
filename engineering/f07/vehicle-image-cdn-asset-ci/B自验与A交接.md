@@ -1,6 +1,6 @@
 # 名邦汽车 V1｜F07-2 B自验与A独立验收交接
 
-> 2026-10-15｜任务状态：B_SELF_TESTED / FINAL_HEAD_CI_VERIFYING（最终正式签字条件见末节）；NEXT_OWNER 在两项最终HEAD CI均成功后为A。
+> 2026-10-15｜任务状态：B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A（最终官方SHA及Run以PR交接评论和GitHub HEAD校验为准，不以历史绿证代替）。
 
 ## 1. 权威、分支与严格白名单
 
@@ -22,6 +22,7 @@
 
 - 首轮官方真正push Run 38715659074，SHA 40cf8516a21790ef9e1ab9061a8d03ccff912389，Source/HTTPS双真实PG16 Job 2/2 success；对应两个GitHub官方有效sha256 Artifact。其结果只证明首轮SHA，不替代后续提交。
 - 补强后官方真正push Run 38716038626，SHA 06871de63ffb2e7e38e3f416142ef2e1cdc3de55，Source(60场景及额外路径和9门禁)及loopback HTTPS16 2/2 success。该Run证明该时点源码及工作流通过，不替代本报告最终SHA。
+- 加固后实际代码唯一SHA 6a99a8dbbecd1aabd42c68695466e83cf6c64098，官方真正push Run 38716589550 completed/success，2个独立PG16 Job 2/2 success；官方工件Source ID 11962649154、3901字节、sha256:051cdbf4e11de457dd3554ba38c4994ec46969b699e6100bceb393060abb899d；HTTPS ID 11962308911、1271字节、sha256:8432e06a8eba5e7d3a376afa431a0822ffb756b29217fcb360369ae42a6233f0，均expired=false。此证据不取代报告提交后的最终HEAD证明。
 - 最终量化门禁：60条真实PG16业务场景、12个恶意path负例、9个隔离CI/DB环境负例、16项loopback TLS+独立PG16黑箱；包括两真PG Backend PID、行锁55P03、对象实际put/delete计数、SQL23514真实回滚与最新权限拒绝。各项子例由Node test报告数，不把父suite作为业务用例。
 - 报告提交会形成新HEAD并重新触发官方GitHub push；必须复核新HEAD独立Source及HTTPS两个Job均completed/success、对应真实非空未过期sha256官方Artifact，再向A宣布READY，不允许以过去SHA绿证冒充最终状态。
 
@@ -33,4 +34,4 @@
 
 ## 5. 与A交接的最终签字规则
 
-当PR #65最新唯一HEAD对应真正event=push的F07-2独立两个Job成功且两份官方有效工件存在时，在PR交接评论中记录最终SHA、Run/Job/Artifact与旧Checks真实红灯，再将本任务签为 **B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A**。此前保留 FINAL_HEAD_CI_VERIFYING，不自行合并main；无生产放行。
+B在施工白名单内完成实现、真实PG16业务/攻击/错误环境测试、反向安全复核和中文证据归档，自验标记 **B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A**。最终提交的SHA、真实push Run/两Job/两工件在PR交接评论按最终HEAD补全；若该最终HEAD任何F07-2新Job失败，READY状态即时失效并须B继续整改。B不自行合并main、不扩大本包CI-only性质，A须独立复核所有SOURCE_GAP及历史旧红灯后裁决。
