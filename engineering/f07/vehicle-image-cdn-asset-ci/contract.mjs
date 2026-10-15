@@ -54,9 +54,8 @@ export async function seed(){
    ['h5','v1','maintenance_h5','JYT','report/maintenance.html',0,true],
    ['doc','v1','sensitive_document','MB','private/registration.jpg',0,false]];
   for(const [id,vehicle,kind,source,path,order,visible] of inserts)
-   await db.query("INSERT INTO f07_images.pictures(id,vehicle_id,resource_type,source_platform,upstream_image_id,relative_path,immutable_order,customer_visible,origin_source_type) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)",
-    [id,vehicle,kind,source,'TEST_'+id,path,order,visible,vehicle==='vm'?'mingbang':'wholesale']);
-  await db.query("UPDATE f07_images.pictures SET report_source_url='https://reports.jyt.invalid/report/maintenance.html#page1' WHERE id='h5'");
+   await db.query("INSERT INTO f07_images.pictures(id,vehicle_id,resource_type,source_platform,upstream_image_id,relative_path,immutable_order,customer_visible,origin_source_type,report_source_url) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)",
+    [id,vehicle,kind,source,'TEST_'+id,path,order,visible,vehicle==='vm'?'mingbang':'wholesale',id==='h5'?'https://reports.jyt.invalid/report/maintenance.html#page1':null]);
  });
 }
 export function safePath(input){
