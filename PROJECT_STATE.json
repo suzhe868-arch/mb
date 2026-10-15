@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F06_5C_PG1_A_SCOPED_CI_APPLICABILITY_TECH_RULING_B_FINAL_HANDOFF_RELEASED",
+  "substage": "F06_5C_PG1_PR63_A_ACCEPTED_MERGED_CI_ONLY_PR62_VERSIONED_INTEGRATION_B_RELEASED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F06",
-  "current_domain_status": "F06_5C_PG1_PR63_NATIVE_THREE_WORKFLOWS_GREEN_LEGACY_5_RED_SCOPED_CROSS_BRANCH_B_FINAL_HANDOFF_PENDING",
+  "current_domain_status": "F06_5C_PG1_MERGED_CI_ONLY_PR62_PENDING_B_PG1_INTEGRATION_AND_C01_C03_TRUE_PG16_RETEST",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A独立核PR63最终受证HEAD 34e2b11212d59b06514917b54961b669411ef44f，本PG1原生Source/HTTPS/静态三Workflows真实completed/success，物理PG16独立OID 68445→73461，190旧父表/24 Ledger封印、补丁新增Catalog精确验签；旧父F05-7/8/9/10/D1五Source检查仍真failure，日志证明其旧分支指定Push聚合证明在本PG1修复分支不可达。A仅裁定旧Push资格在PR63 CI-only范围内不适用，实际红灯保留，不降本包安全/C01-C03/4A/4C/资金/原生证据；正式放行B完整最终自验报告/READY请求，不接受亦不合并PR63。PR62保持RED，F05/F06/V1 NOT_READY，生产资金UAT/F07/F08无授权。",
-  "current_work_file": "07_重建工作区/F06-5C-PG1_A主控PR63旧父Push证明跨分支不适用_限定范围验收门禁技术裁决与B交接整改单_2026-10-15.md",
+  "current_task": "A独立受验F06-5C-PG1 PR63 B HEAD 82b30bde92291a444372f3c1627e41469fba4586，仅22个PG1白名单文件；官方本包Source38682645219/HTTPS38682645123/静态38682645218同SHA success，真实C01候补零新Priority，C02/C03伪取消COMMIT SQLSTATE23514全回滚，R01有签父唯一签发，两物理PG16 OID68461→73477、旧190表与24 Ledger/增量Catalog签名封印；GitHub标准PR63合并成功，merge SHA a8dfb9f1e78bbab4f194dbeed3076bd8c33eddad。旧五个跨分支Push聚合源红灯与3个ECR Docker初始化限流失败保留，旧全域绝未声称全绿；A仅接受PG1独立CI-only。另签原PR62从最新main整合PG1、新版验签与4A/4C等价入口、自己S84-86真正转绿及22 Push/96真PG16/H52/两OID全封印的完整B工作单。PR62仍未合并，F05/F06/V1 NOT_READY，资金生产UAT/F07/F08禁止。",
+  "current_work_file": "07_重建工作区/F06-5C_A主控PR63合并后PR62版本化对接与C01至C03全量原生复验正式施工单_2026-10-15.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F06_5C_PG1_PR63_SCOPED_LEGACY_CI_APPLICABILITY_A_TECH_RULING_RELEASED",
+  "current_review_batch": "F06_5C_PR62_PG1_MAIN_MERGED_VERSIONED_INTEGRATION_B_RELEASED",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B沿用PR63及fix/f06-5c-pg1-parent-priority-guard-ci，将最终同SHA原生真PG16 C01-C03/R01、旧新版4A/4B/4C、资金/候补、双Backend/双OID与190旧父Seal按源代码/日志逐条闭环映射，保留旧父五项真实failure及限定跨分支不适用分类，提交B_SELF_TESTED/READY_FOR_A_REVIEW完整中文交接。A下一轮独立源码和原生证据复验后才考虑标准PR合并，不提前合并PR63或PR62。",
+  "next_action": "B继续原PR62 feat/f06-5c-transaction-priority-admission-ci，从执行时最新main非破坏性merge已A验收PG1，原5C独立白名单内完成版本化Catalog和签名等价4A/4B/4C安全对接；原S84-S86及R01/R03实测、非特权PG16双物理OID、旧190父全量Seal与24Ledger、22同SHA真实Push/96 Jobs含H52 52/52和有效sha256工件；所有本包安全适用门禁确实PASS并中文证据归档后READY_FOR_A_REVIEW。不能动已合并PG1/冻结父与原24 Ledger，不可自合并PR62。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "07_重建工作区/F06-5C-PG1_A主控PR63旧父Push证明跨分支不适用_限定范围验收门禁技术裁决与B交接整改单_2026-10-15.md",
+  "next_action_detail": "07_重建工作区/F06-5C_A主控PR63合并后PR62版本化对接与C01至C03全量原生复验正式施工单_2026-10-15.md",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7883,15 +7883,15 @@
     "global_not_ready": true
   },
   "f06_5c_gate": {
-    "status": "PR62_BLOCKED_UPSTREAM_PG1_CATALOG_COMPATIBILITY_REPAIR",
+    "status": "PR62_BLOCKED_PENDING_B_PG1_VERSIONED_ADAPTER_AND_NATIVE_REVALIDATION",
     "owner": "B",
     "next_owner": "B",
     "pr": 62,
     "pr_merged": false,
     "branch": "feat/f06-5c-transaction-priority-admission-ci",
     "a_inspected_head_sha": "f3fe4bf39f2c28f62f598cfcd9f24f90fe3e2b61",
-    "review_main_sha": "2c185a59eac7d06102329ec8c7afad30179b3889",
-    "work_order": "07_重建工作区/F06-5C-PG1_A主控冻结F05-8父自动签发跨域越权_版本化补丁与独立原生PG16修复正式施工单_2026-10-15.md",
+    "review_main_sha": "a8dfb9f1e78bbab4f194dbeed3076bd8c33eddad",
+    "work_order": "07_重建工作区/F06-5C_A主控PR63合并后PR62版本化对接与C01至C03全量原生复验正式施工单_2026-10-15.md",
     "scope": "CI_ONLY_TRANSACTION_PRIORITY_ATOMIC_ADMISSION_WITH_SIGNED_TERMINAL_AND_RACE_GUARDS",
     "a_verified_push_workflows": 22,
     "a_verified_h52_jobs": 52,
@@ -7904,10 +7904,9 @@
     "b_claimed_zip_sha256_artifacts": 32,
     "a_did_not_rehash_all_zip_artifacts": true,
     "blocked_by": [
-      "UPSTREAM_F05_8_AUTO_PRIORITY_ISSUER_BYPASSES_WAITLIST",
-      "UPSTREAM_F05_8_AUTO_PRIORITY_ISSUER_ACCEPTS_UNSIGNED_PUBLIC_CANCEL",
-      "UPSTREAM_F05_8_AUTO_PRIORITY_ISSUER_ACCEPTS_UNKNOWN_FINANCE_IN_SAVEPOINT",
-      "NEEDS_INDEPENDENT_PG1_SIDECAR_REMEDIATION_PR_BEFORE_PR62_INTEGRATION"
+      "PR62_S84_S86_NOT_RETESTED_WITH_MERGED_PG1_AT_NEW_HEAD",
+      "PR62_FROZEN_CATALOG_ADAPTER_NEEDS_VERSIONED_CI_ONLY_INTEGRATION",
+      "PR62_22_PUSH_96_PG16_JOB_FULL_REAL_SAME_SHA_NOT_YET_REVALIDATED"
     ],
     "allowed_new_paths": [
       "engineering/f06/transaction-priority-admission-ci/**",
@@ -7936,13 +7935,14 @@
     ],
     "all_green": false,
     "pg1_pr": 63,
-    "pg1_state": "A_RELEASED_B_SCOPED_NATIVE_FINAL_HANDOFF_NOT_A_ACCEPTED",
-    "pg1_work_order": "07_重建工作区/F06-5C-PG1_A主控PR63旧父Push证明跨分支不适用_限定范围验收门禁技术裁决与B交接整改单_2026-10-15.md"
+    "pg1_state": "A_ACCEPTED_MERGED_CI_ONLY",
+    "pg1_work_order": "07_重建工作区/F06-5C_A主控PR63合并后PR62版本化对接与C01至C03全量原生复验正式施工单_2026-10-15.md",
+    "pg1_merge_sha": "a8dfb9f1e78bbab4f194dbeed3076bd8c33eddad"
   },
-  "next_task": "F06_5C_PG1_PR63_SCOPED_NATIVE_EVIDENCE_FINAL_HANDOFF_AND_REVIEW_REQUEST",
+  "next_task": "F06_5C_PR62_PG1_SIGNED_INTEGRATION_C01_C03_FULL_NATIVE_REGRESSION_AND_FINAL_HANDOFF",
   "f06_5c_pg1_gate": {
-    "status": "A_SCOPED_LEGACY_OFFICIAL_PUSH_APPLICABILITY_RULED_B_FINAL_HANDOFF_RELEASED",
-    "next_owner": "B",
+    "status": "A_ACCEPTED_MERGED_CI_ONLY",
+    "next_owner": "B_FOR_PR62_INTEGRATION",
     "origin": "A_INDEPENDENT_REVIEW_OF_PR62_C01_C02_C03_PARENT_SOURCE_RED",
     "branch": "fix/f06-5c-pg1-parent-priority-guard-ci",
     "work_order": "07_重建工作区/F06-5C-PG1_A主控PR63旧父Push证明跨分支不适用_限定范围验收门禁技术裁决与B交接整改单_2026-10-15.md",
@@ -7957,11 +7957,11 @@
     "real_money_authorized": false,
     "production_issuer_authorized": false,
     "merge_before_pr62_required": true,
-    "owner": "B",
+    "owner": "A_ACCEPTED",
     "pr": 63,
-    "pr_merged": false,
-    "b_review_head_sha": "34e2b11212d59b06514917b54961b669411ef44f",
-    "a_review_main_sha": "a25fff7ccd0b79e87038330f6b783edd93071ab5",
+    "pr_merged": true,
+    "b_review_head_sha": "82b30bde92291a444372f3c1627e41469fba4586",
+    "a_review_main_sha": "bcb5b4e8fe5442b255344840f2a6fe00ddfcd022",
     "official_red_run_id": 38648121814,
     "official_red_job_id": 116139958565,
     "catalog_drift_code": "F05_10_CATALOG_DRIFT",
@@ -7973,27 +7973,27 @@
     "original_pr62_blocked": true,
     "versioned_cancel_adapter_must_prove_original_contract_parity": true,
     "a_scoped_ruling_id": "F06-5C-PG1-A-CI-APPLICABILITY-01",
-    "native_source_run": 38673920782,
-    "native_source_job": 116223102638,
-    "native_https_run": 38673920756,
-    "native_https_job": 116223103284,
-    "static_run": 38673920745,
-    "static_job": 116223102359,
+    "native_source_run": 38682645219,
+    "native_source_job": 116250644867,
+    "native_https_run": 38682645123,
+    "native_https_job": 116250409424,
+    "static_run": 38682645218,
+    "static_job": 116250410368,
     "pg1_native_workflows_success": 3,
     "pg1_native_two_real_oids": [
-      68445,
-      73461
+      68461,
+      73477
     ],
     "pg1_old_parent_table_count": 190,
     "pg1_source_artifact": {
-      "id": 11945274027,
-      "size_bytes": 10368,
-      "digest": "sha256:982493f5117d949c43bce95d6ecee523b7ab5aa74f62af9bf28c8fcbc215b972"
+      "id": 11948758077,
+      "size_bytes": 11630,
+      "digest": "sha256:1708633540c9deb4410b08fddbd699e63f09f91ee3f390ac3ef3927c81c1447b"
     },
     "pg1_https_artifact": {
-      "id": 11944958682,
-      "size_bytes": 6477,
-      "digest": "sha256:3b67d107d1fb618a6d3973706db797d0ae32bca50cdccf9723c28c60e42296bd"
+      "id": 11948717199,
+      "size_bytes": 6468,
+      "digest": "sha256:2d3c6496c05786d1c9e0c07ff0fa0c152d15c01a47a80f3a62d734753725d229"
     },
     "legacy_failed_source_runs": [
       38673922442,
@@ -8005,7 +8005,17 @@
     "legacy_cross_branch_failure_disposition": "LEGACY_CROSS_BRANCH_NOT_APPLICABLE_WITH_ACTUAL_RED_PRESERVED",
     "legacy_failed_checks_not_green": true,
     "a_independent_zip_bytes_rehashed": false,
-    "a_final_review_accepted": false,
-    "b_final_handoff_pending": true
+    "a_final_review_accepted": true,
+    "b_final_handoff_pending": false,
+    "actual_merge_sha": "a8dfb9f1e78bbab4f194dbeed3076bd8c33eddad",
+    "a_acceptance_comment_id": 6184723787,
+    "a_report": "07_重建工作区/F06-5C-PG1_A主控PR63独立验收合并与PR62后续放行正式报告_2026-10-15.md",
+    "latest_work_order": "07_重建工作区/F06-5C_A主控PR63合并后PR62版本化对接与C01至C03全量原生复验正式施工单_2026-10-15.md",
+    "legacy_additional_infra_fail_job_ids": [
+      116250425730,
+      116250425435,
+      116250425690
+    ],
+    "integrated_into_pr62": false
   }
 }
