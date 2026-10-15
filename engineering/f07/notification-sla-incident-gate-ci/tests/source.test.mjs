@@ -16,6 +16,7 @@ const change=async(sql)=>{await physicalGate(db);await Q(sql);};
 
 for(const [i,kind] of ALLOWLIST.entries()){
  test('S'+String(i+1).padStart(2,'0')+' 事件白名单 '+kind,async()=>{
+  if(kind==='lock_expiring')await change("UPDATE f07_4_ci.config SET lock_notice_on=true,lock_notice_lead_minutes=45");
   const result=await run({channel:['consultation_sla_timeout','supply_anomaly','incident_active','incident_recovery'].includes(kind)?'group':'personal'},
    {kind,incidentActive:kind==='incident_active',cadence:kind==='incident_active'?30:null});
   assert.equal(result.status,'SENT');assert.equal(await out(),1);assert.equal(await log(),1);
@@ -103,4 +104,30 @@ test('S52 mock群正文没有敏感资料',async()=>{await run({channel:'group'}
 test('S53 直接业务状态不被通知改写',async()=>{await seed(db,{kind:'transaction_changed',stage:'completed'});const before=checksum((await Q('SELECT * FROM f07_4_ci.event')).rows);await dispatch(db,{eventId:'event-ci-1',at:AT});const after=checksum((await Q('SELECT * FROM f07_4_ci.event')).rows);assert.equal(before,after);});
 test('S54 审计记录字段齐全且不可把通知变正式Issuer',async()=>{await run();const r=(await Q('SELECT * FROM f07_4_ci.notification_log')).rows[0];for(const f of ['event_id','kind','stage','employee_id','channel','scheduled_at','result','code','dnd','revalidated','sent_at','backend_pid'])assert.notEqual(r[f],undefined);assert.equal(r.result,'SENT');});
 test('S55 真父来源缺口显式标记，不宣称父positive',async()=>{assert.equal((await parentConfigMutation(db,{},{})).origin,'SIGNED_PARENT_NEGATIVE_ONLY');console.log('NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP SLA_EVENT_SOURCE_GAP SIGNED_PARENT_NEGATIVE_ONLY CI_SYNTHETIC_ONLY');});
-test('F07-4 Source 完整55业务子例通过',()=>{console.log('F07_4_SOURCE_NATIVE_PG16_55_PASS');});
+test('S56 当前assignee正式变更时只发新负责销售',async()=>{
+ await seed(db);
+ await change("INSERT INTO f07_4_ci.employee(employee_id,active,eligible,in_scope,feishu_id) VALUES('employee-ci-2',true,true,true,'ci-fs-2')");
+ await change("UPDATE f07_4_ci.employee SET active=false WHERE employee_id='employee-ci-1'");
+ await change("UPDATE f07_4_ci.event SET employee_id='employee-ci-2'");
+ assert.equal((await dispatch(db,{eventId:'event-ci-1',at:AT})).status,'SENT');
+ assert.equal((await Q('SELECT recipient FROM f07_4_ci.mock_outbox')).rows[0].recipient,'ci-fs-2');
+});
+test('S57 个人飞书关闭不影响SLA总群独立许可',async()=>{
+ await seed(db,{kind:'consultation_sla_timeout'});
+ await change("UPDATE f07_4_ci.employee SET personal_on=false");
+ assert.equal((await dispatch(db,{eventId:'event-ci-1',channel:'personal',at:AT})).code,'PERSONAL_ROUTE_DISABLED');
+ assert.equal((await dispatch(db,{eventId:'event-ci-1',channel:'group',at:AT})).status,'SENT');
+ assert.equal(await out(),1);
+});
+test('S58 锁到期提醒无已签启用及提前量配置不得发送',async()=>{
+ assert.equal((await run({},{kind:'lock_expiring'})).code,'LOCK_NOTICE_CONFIG_SOURCE_GAP');assert.equal(await out(),0);
+});
+test('S59 锁到期提醒显式启用并设提前量才可模拟发送',async()=>{
+ await change("UPDATE f07_4_ci.config SET lock_notice_on=true,lock_notice_lead_minutes=45");
+ assert.equal((await run({},{kind:'lock_expiring'})).status,'SENT');assert.equal(await out(),1);
+});
+test('S60 SLA告警无既存deadline源事实必须拒绝',async()=>{
+ assert.equal((await run({channel:'group'},{kind:'consultation_sla_timeout',deadline:null})).code,'SLA_EVENT_SOURCE_GAP');
+ assert.equal(await out(),0);
+});
+test('F07-4 Source 完整60业务子例通过',()=>{console.log('F07_4_SOURCE_NATIVE_PG16_60_PASS');});
