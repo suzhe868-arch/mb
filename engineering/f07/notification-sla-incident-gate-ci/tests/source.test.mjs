@@ -73,7 +73,28 @@ test('S43 Incident cadence满足后可重复且有物理不同stage',async()=>{a
 test('S44 Incident cleared后停止重复',async()=>{await run({channel:'group'},{kind:'incident_active',incidentActive:true,cadence:30});await change("UPDATE f07_4_ci.event SET incident_active=false");assert.equal((await dispatch(db,{eventId:'event-ci-1',channel:'group',at:'2026-10-16T03:00:00Z'})).code,'INCIDENT_NOT_ACTIVE');assert.equal(await out(),1);});
 test('S45 Recovery须真实inactive状态',async()=>{assert.equal((await run({channel:'group'},{kind:'incident_recovery',incidentActive:true})).code,'RECOVERY_NOT_CONFIRMED');assert.equal(await out(),0);});
 test('S46 同一事件双Backend原生并发单成功',async()=>{await seed(db);const [a,b]=await Promise.all([dispatch(db,{eventId:'event-ci-1',at:AT}),dispatch(db,{eventId:'event-ci-1',at:AT})]);assert.deepEqual([a.status,b.status].sort(),['DEDUPED','SENT']);assert.notEqual(a.backendPid,b.backendPid);assert.equal(await out(),1);assert.equal((await Q('SELECT count(*)::int n FROM f07_4_ci.claim')).rows[0].n,1);console.log('F07_4_NATIVE_DUAL_BACKEND_PIDS',a.backendPid,b.backendPid);});
-test('S47 事务回滚后可重新派发且不污染父表',async()=>{await seed(db);const parentBefore=(await Q("SELECT count(*)::int n FROM pg_class WHERE relnamespace='public'::regnamespace")).rows[0].n;await assert.rejects(Q("BEGIN; INSERT INTO f07_4_ci.mock_outbox(event_id,stage,channel,recipient,payload,created_at) VALUES('bad','x','personal','ci','{}',now()); SELECT 1/0; ROLLBACK"),/division by zero/).catch(async(e)=>{await Q('ROLLBACK');throw e});const parentAfter=(await Q("SELECT count(*)::int n FROM pg_class WHERE relnamespace='public'::regnamespace")).rows[0].n;assert.equal(parentBefore,parentAfter);assert.equal((await dispatch(db,{eventId:'event-ci-1',at:AT})).status,'SENT');});
+test('S47 两独立真实PG Backend行锁55P03、ROLLBACK与父目录MD5不变',async()=>{
+ await seed(db);
+ const parentSQL="SELECT count(*)::int n,md5(coalesce(string_agg(oid::text||relname||relkind,',' ORDER BY oid),'')) seal FROM pg_class WHERE relnamespace='public'::regnamespace";
+ const before=(await Q(parentSQL)).rows[0];
+ const a=await db.connect(),b=await db.connect();
+ try {
+  await a.query('BEGIN');await b.query('BEGIN');
+  const pida=(await a.query('SELECT pg_backend_pid() p')).rows[0].p;
+  const pidb=(await b.query('SELECT pg_backend_pid() p')).rows[0].p;
+  assert.notEqual(pida,pidb);
+  await a.query("SELECT 1 FROM f07_4_ci.event WHERE event_id='event-ci-1' FOR UPDATE");
+  await b.query("SET LOCAL lock_timeout='100ms'");
+  await assert.rejects(b.query("SELECT 1 FROM f07_4_ci.event WHERE event_id='event-ci-1' FOR UPDATE"),e=>e.code==='55P03');
+  await b.query('ROLLBACK');
+  await a.query("INSERT INTO f07_4_ci.mock_outbox(event_id,stage,channel,recipient,payload,created_at) VALUES('event-ci-1','rollback','personal','ci','{}',now())");
+  await a.query('ROLLBACK');
+  assert.equal(await out(),0);
+  assert.deepEqual((await Q(parentSQL)).rows[0],before);
+  assert.equal((await dispatch(db,{eventId:'event-ci-1',at:AT})).status,'SENT');
+  console.log('F07_4_NATIVE_ROW_LOCK_55P03',pida,pidb);
+ }finally{await a.query('ROLLBACK').catch(()=>{});await b.query('ROLLBACK').catch(()=>{});a.release();b.release();}
+});
 test('S48 配置写缺真实父签名拒绝，SystemAdmin不能绕过',async()=>{assert.equal((await parentConfigMutation(db,{company_on:false},{role:'system_admin'})).allowed,false);assert.equal((await parentConfigMutation(db,{company_on:false},{role:'employee'})).code,'NOTIFICATION_CONFIG_SIGNED_PARENT_SOURCE_GAP');assert.equal((await Q('SELECT company_on FROM f07_4_ci.config')).rows[0].company_on,true);});
 test('S49 旧链接和声称已鉴权仍无真实父权不得打开',()=>{assert.equal(deepLinkGuard('/E01/abc').code,'LINK_CURRENT_SESSION_SCOPE_OBJECT_SOURCE_GAP');assert.equal(deepLinkGuard('/E01/abc',{signedParentVerified:true}).status,'SKIPPED');});
 test('S50 异常主机、穿越和编码拒绝',()=>{for(const url of ['https://evil.test/E01/x','/E01/../PC/x','/E01/%2e%2e/PC/x','//evil.test/E01/x','/E01/x?secret=x'])assert.equal(deepLinkGuard(url).status,'SKIPPED');});
