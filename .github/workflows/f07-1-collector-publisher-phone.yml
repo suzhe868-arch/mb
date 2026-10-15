@@ -34,6 +34,8 @@ jobs:
       CI: 'true'
       APP_ENV: test
       NODE_ENV: test
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_only_ci_test_pass@127.0.0.1:5432/f03_auth_test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -73,6 +75,32 @@ jobs:
           grep -q 'F07_SOURCE_40_BUSINESS_CASES_REAL_POSTGRES' f07-source-test.log
           grep -q 'F07_NATIVE_PG16_DISTINCT_BACKENDS' f07-source-test.log
           grep -q 'fail 0' f07-source-test.log
+      - name: A02隔离环境错配和真实PG16身份拒绝
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 "$F07_DIR/tests/ci-gate.test.mjs" 2>&1 | tee f07-a02-gate.log
+          grep -q 'F07_A02_REAL_PG16_ZERO_WRITE_GATE_17_PASS' f07-a02-gate.log
+          grep -q '# fail 0' f07-a02-gate.log
+      - name: A03创建独立F03已签认证库（非生产，仅一次性PG16）
+        shell: bash
+        run: |
+          set -euo pipefail
+          PGPASSWORD=f07_only_ci_root_pass psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f03_ci LOGIN PASSWORD 'f03_only_ci_test_pass' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          PGPASSWORD=f07_only_ci_root_pass psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f03_auth_test OWNER f03_ci;"
+          npm --prefix engineering install --ignore-scripts --no-audit --no-fund
+          node engineering/f03-1/runner.mjs --bootstrap
+          node engineering/f03-1/runner.mjs --apply
+          node engineering/f03-1/runner.mjs --verify
+          node engineering/f03-1/fixtures.mjs
+      - name: A03实际调用冻结F03签名Session和当前权限读取
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test "$F07_DIR/tests/f03-signed-source.test.mjs" 2>&1 | tee f07-a03-signed-source.log
+          grep -q 'F07_A03_SIGNED_F03_REAL_SESSION_DENY_PROOF_7_PASS' f07-a03-signed-source.log
+          grep -q 'F07_A03_SOURCE_GAP_PHONE_ALIAS_AND_SCOPE_OBJECT_DEFER' f07-a03-signed-source.log
+          grep -q '# fail 0' f07-a03-signed-source.log
       - name: 真PG16容器重启前持久证明
         shell: bash
         run: |
@@ -105,6 +133,8 @@ jobs:
           path: |
             f07-pg-role.log
             f07-source-test.log
+            f07-a02-gate.log
+            f07-a03-signed-source.log
             f07-restart-proof.log
           if-no-files-found: error
           retention-days: 14
