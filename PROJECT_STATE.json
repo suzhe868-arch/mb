@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F07_2_PR65_A_ACCEPTED_STANDARD_MERGED_CI_ONLY_F07_3_A_RELEASED_FOR_B",
+  "substage": "F07_3_PR66_A_CHANGES_REQUESTED_NO_MERGE",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F07",
-  "current_domain_status": "F07_2_CI_ONLY_MERGED_F07_3_A_RELEASED_CI_ONLY_F07_GLOBAL_NOT_READY",
+  "current_domain_status": "F07_1_F07_2_CI_ONLY_MERGED_F07_3_PR66_A_CHANGES_REQUESTED_GLOBAL_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A独立核验F07-2 B PR65唯一HEAD 6da3aef96bef06e0ae5b7e6cd3c546d92a84dcae，main开工SHA 0a976910bf5846d6266eb0b6c7943df8fe49eae9。compare 46 ahead/0 behind，12新增文件全部严格白名单。最终真Push Run38724240811 两项独立非特权PG16 Jobs completed/success，S71+path12+CI环境9+真实PG提权拒1+TLS HTTPS20=113个独立安全子例PASS，官方2同SHA有效非空sha256摘要Artifacts；旧PR事件10条3成功7失败，共9旧Job失败=5镜像限流+4旧F05专属Push证明，A签PR65限定CI适用性裁决且标准合并实际SHA8ff3c5b4623585a33bb8f0bc733f94939eef7493、PR closed/merged。仅F07-2可销毁Mock CDI合格，F03真实Session/F05来源转换、真实Collector/JYT/CDN/OSS/客户权限、钱、UI/部署仍SOURCE_GAP或无授权，F05/F06/F07/V1全NOT_READY。现A已正式放行F07-3只有F03/F05已签父来源到F07图片电话权限的可销毁CI桥安全验真，未签电话alias必须failclosed，NEXT_OWNER=B。",
-  "current_work_file": "07_重建工作区/F07-3_A主控上游来源身份F03会话F05转换与电话图片权限集成边界_CI隔离正式完整施工单_2026-10-15.md",
+  "current_task": "A独立核验PR66 HEAD394cc5d76d3e264b193982cd958daf9917e6f9d0，main基线6fe05ba81d6f1eb1a6c6d0308a11ffc41c5ca85f，9/9新增白名单；真Push Run38731170875两独立非特权PG16 Jobs success，40+20+17共77业务子例全过，两SHA256官方Artifact未过期（未逐ZIP复算）。但发现A01 HTTPS恒403丢弃父拒绝码，A02 F05父转换空数组即可PASS，A03锁错在pc_login_accounts而非Vehicle/Publisher，A04 nonce重放无实际识别且PDM04三API来源函数映射缺证，A05矩阵级别不准/旧F05红灯仍在；故A_CHANGES_REQUESTED，PR66未合并。正式A工作单已签发，B仅原PR66原分支原两新增白名单包内整改，全量末HEAD真Push重新验证后交A；F05/F06/F07/V1全域NOT_READY，真实第三方/资金/生产/前端未获授权。",
+  "current_work_file": "07_重建工作区/F07-3_A主控PR66首轮独立验收不通过_HTTPS判定车辆并发与来源重放定向整改正式施工单_2026-10-15.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F07_3_A_FORMALLY_RELEASED_CI_ONLY",
+  "current_review_batch": "F07_3_PR66_A_CHANGES_REQUESTED",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B继续原PR62 feat/f06-5c-transaction-priority-admission-ci，从执行时最新main非破坏性merge已A验收PG1，原5C独立白名单内完成版本化Catalog和签名等价4A/4B/4C安全对接；原S84-S86及R01/R03实测、非特权PG16双物理OID、旧190父全量Seal与24Ledger、22同SHA真实Push/96 Jobs含H52 52/52和有效sha256工件；所有本包安全适用门禁确实PASS并中文证据归档后READY_FOR_A_REVIEW。不能动已合并PG1/冻结父与原24 Ledger，不可自合并PR62。",
+  "next_action": "B继续原PR66与原feat/f07-3-trusted-upstream-and-parent-source-gate-ci，按A整改工作单闭环A01-A05，不扩大F07-3新增白名单，补HTTPS父拒绝码可审计、F05真转换与cycle物理证据或准确SOURCE_GAP、Vehicle/Publisher真实双Backend锁、合成Collector重放/三API映射、矩阵分类与旧红灯审查；最后同SHA两真PG16 Push绿Job及官方工件、中文B交接READY_FOR_A_REVIEW后交A；A未授权合并/生产。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "07_重建工作区/F07-3_A主控上游来源身份F03会话F05转换与电话图片权限集成边界_CI隔离正式完整施工单_2026-10-15.md",
+  "next_action_detail": "07_重建工作区/F07-3_A主控PR66首轮独立验收不通过_HTTPS判定车辆并发与来源重放定向整改正式施工单_2026-10-15.md",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F07_3_TRUSTED_UPSTREAM_F03_F05_SIGNED_PARENT_PHONE_IMAGE_GATE_CI_ONLY",
+  "next_task": "F07_3_PR66_A01_A05_FULL_REMEDIATION_AND_NATIVE_RETEST",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -8032,18 +8032,18 @@
     "pr62_integration_merge_sha": "e54872b3f92cd66b3b51bd5465670e0d6e7de3c1"
   },
   "f07_gate": {
-    "status": "F07_2_MERGED_CI_ONLY_F07_3_A_RELEASED_CI_ONLY_GLOBAL_NOT_READY",
+    "status": "F07_1_F07_2_CI_ONLY_MERGED_F07_3_PR66_A_CHANGES_REQUESTED_GLOBAL_NOT_READY",
     "owner": "B",
     "global_not_ready": true,
     "production": false,
     "real_integrations_authorized": false,
     "real_jyt_authorized": false,
     "real_collector_credentials_authorized": false,
-    "work_order": "07_重建工作区/F07-1_A主控Collector发布人电话安全回传与缓存权限合同_CI隔离正式完整施工单_2026-10-15.md",
+    "work_order": "07_重建工作区/F07-3_A主控上游来源身份F03会话F05转换与电话图片权限集成边界_CI隔离正式完整施工单_2026-10-15.md",
     "dependency_status": "F01_TO_F04_SIGNED_CI_ONLY_ACCEPTED_F05_F06_GLOBAL_NOT_READY",
     "next_owner": "B",
-    "latest_review_work_order": "07_重建工作区/F07-1_A主控PR64首轮安全复验不通过_密钥日志隔离门禁与F03签名会话定向整改正式施工单_2026-10-15.md",
-    "next_work_order": "07_重建工作区/F07-3_A主控上游来源身份F03会话F05转换与电话图片权限集成边界_CI隔离正式完整施工单_2026-10-15.md"
+    "latest_review_work_order": "07_重建工作区/F07-3_A主控PR66首轮独立验收不通过_HTTPS判定车辆并发与来源重放定向整改正式施工单_2026-10-15.md",
+    "next_work_order": "07_重建工作区/F07-3_A主控PR66首轮独立验收不通过_HTTPS判定车辆并发与来源重放定向整改正式施工单_2026-10-15.md"
   },
   "f07_1_gate": {
     "status": "A_ACCEPTED_STANDARD_MERGED_PR64_CI_ONLY",
@@ -8165,7 +8165,7 @@
     ]
   },
   "f07_3_gate": {
-    "status": "A_RELEASED_FOR_B_CI_ONLY",
+    "status": "A_CHANGES_REQUESTED",
     "owner": "B",
     "next_owner": "B",
     "work_order": "07_重建工作区/F07-3_A主控上游来源身份F03会话F05转换与电话图片权限集成边界_CI隔离正式完整施工单_2026-10-15.md",
@@ -8190,6 +8190,46 @@
     "public_db_migrations": false,
     "f07_global": "NOT_READY",
     "v1": "NOT_READY",
-    "after_b_selftest": "B_SELF_TESTED_READY_FOR_A_REVIEW_NEXT_OWNER_A"
+    "after_b_selftest": "B_SELF_TESTED_READY_FOR_A_REVIEW_NEXT_OWNER_A",
+    "review_pr": 66,
+    "review_head_sha": "394cc5d76d3e264b193982cd958daf9917e6f9d0",
+    "a_review_base_sha": "6fe05ba81d6f1eb1a6c6d0308a11ffc41c5ca85f",
+    "a_review_comment_id": 6192079448,
+    "a_review_work_order": "07_重建工作区/F07-3_A主控PR66首轮独立验收不通过_HTTPS判定车辆并发与来源重放定向整改正式施工单_2026-10-15.md",
+    "pr_merged": false,
+    "merged": false,
+    "required_fixes": [
+      "A01_HTTPS_CONST_403_PARENT_DECISION_OBSERVABILITY",
+      "A02_F05_EMPTY_CONVERSION_AND_CYCLE_PARENT_FACT_GAP",
+      "A03_ACTUAL_VEHICLE_OR_PUBLISHER_ROW_CONTENTION",
+      "A04_NONCE_REPLAY_AND_3_JYT_API_SOURCE_MAPPING",
+      "A05_EVIDENCE_MATRIX_AND_LEGACY_RED"
+    ],
+    "a_verified": {
+      "scope_added_files": 9,
+      "original_main_sha": "6fe05ba81d6f1eb1a6c6d0308a11ffc41c5ca85f",
+      "original_b_head_sha": "394cc5d76d3e264b193982cd958daf9917e6f9d0",
+      "native_push_run_id": 38731170875,
+      "actual_pg16_jobs_success": 2,
+      "source_f03_cases": 40,
+      "source_f05_cases": 20,
+      "https_cases": 17,
+      "official_artifact_metadata_valid": 2,
+      "artifacts_byte_hash_independently_recalculated": false,
+      "old_pr_event_runs_snapshot": {
+        "success": 2,
+        "failure": 7,
+        "in_progress": 1,
+        "old_red_preserved": true
+      }
+    },
+    "source_gaps": [
+      "SIGNED_F03_PHONE_ALLOW_SOURCE_GAP",
+      "F05_CONVERSION_POSITIVE_SOURCE_GAP_UNVERIFIED",
+      "SIGNED_F03_F05_SCHEMA_VERSION_SOURCE_GAP",
+      "PRODUCTION_JYT_JOB_ISSUER_SOURCE_GAP",
+      "REAL_CDN_OSS_REPORT_GATEWAY_SOURCE_GAP",
+      "NO_PRODUCTION"
+    ]
   }
 }
