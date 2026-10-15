@@ -10,7 +10,7 @@ permissions:
   contents: read
 jobs:
   source_pg16:
-    name: F07-2 Source PG16 68 + Gate 9
+    name: F07-2 Source PG16 71 + Gate 9
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     services:
@@ -56,7 +56,7 @@ jobs:
         run: |
           set -euo pipefail
           node --test --test-concurrency=1 "$F07_DIR/tests/source.test.mjs" 2>&1 | tee f07-2-source-native.log
-          grep -q F07_2_SOURCE_68_REAL_PG16_BUSINESS_CASES_PASS f07-2-source-native.log
+          grep -q F07_2_SOURCE_71_REAL_PG16_BUSINESS_CASES_PASS f07-2-source-native.log
           grep -q F07_2_REAL_PG16_DISTINCT_BACKENDS f07-2-source-native.log
           grep -q F07_2_REAL_PG16_FOR_UPDATE_LOCK_55P03 f07-2-source-native.log
           grep -q '# fail 0' f07-2-source-native.log
