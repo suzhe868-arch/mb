@@ -1,3 +1,11 @@
+# 2026-10-15｜F06-5C PR62 本轮PG1对接最新B自验摘要（后续旧红证仅为历史）
+
+- 本轮新增原生隔离R01第二物理OID场景、修复S84历史3B重复取用，无修改冻结父或安全断言；代码基线 `111c4e306656d0bba8106c7891e80cef5ce436b0` 在官方Run [38692260350](https://github.com/suzhe868-arch/mb/actions/runs/38692260350) Source91/91＋R01 1/1、HTTPS9/9、22/22 Push、96/96 Jobs（H52 52/52）、96/96有效sha256 Artifact全部成功。
+- C01实际active Priority=0、created事件1→1；C02/C03新PG1真实COMMIT拒绝SQLSTATE23514；R01在不同物理OID真合法取消后唯一父Priority；R03移交4C真签和幂等成功；190父表、24Ledger、不同OID封印已通过。详见[《F06-5C PR62 B工程全量自验与A独立验收交接》](./F06-5C_PR62_B工程全量自验与A独立验收交接报告_2026-10-15.md)、[有效业务用例矩阵](./有效业务用例矩阵.tsv)。
+- **本段新增文档会改变Git HEAD；以上Run是已经验证的代码基线，最终归档提交还需重新核验同SHA CI。正式READY仅在PR正文完成最终核证后签署；仍有冻结旧PR事件8条失败，须由A核定适用性。** 下方旧轮次红证/阻断文字只证明对应历史SHA，不再代表本轮已修复PG1后的Source现状。
+
+---
+
 # 2026-10-15｜B第三轮真正PG16红证结案：上游F05-8父自动Issuer签名越界，立即阻断（最高优先级）
 
 **结论**：`BLOCKED_UPSTREAM_F05_8_PARENT_AUTO_ISSUER_CROSS_DOMAIN / NOT_READY_FOR_A_REVIEW / PR62_NOT_MERGED`。唯一实际红证运行 SHA `96ce3c725d6279a9a67b1fbdef46e1f113454cfa`，官方 [Run38641938789](https://github.com/suzhe868-arch/mb/actions/runs/38641938789) Source Job `116119360131` 真非特权PG16 **88测试／85通过／3失败**，HTTPS Job `116119359691` **9/9通过**。三个失败全部是新 C01—C03 安全断言，而非旧85场景退化。
