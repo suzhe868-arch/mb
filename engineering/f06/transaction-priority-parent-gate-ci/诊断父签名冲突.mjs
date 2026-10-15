@@ -147,6 +147,30 @@ try{
  report.error={message:e.message,code:e.code||null,stack:e.stack?.slice(0,1700)||null};
 } finally{
  try{await mkdir(OUT,{recursive:true});await writeFile(new URL('真实PG16父签名兼容诊断.json',OUT),JSON.stringify(report,null,2)+'\n')}finally{await cancelFixture?.auth.close().catch(()=>{});await c.end().catch(()=>{})}
+ // 分场景输出脱敏的事实值，供GitHub原生日志逐项定位；仅真实总断言通过后输出。
+ if(report.status==='ALL_NATIVE_ASSERTIONS_PASS'){
+  const c01=report.realSignedC01JytWaitlist,r01=report.realSignedR01UniqueNewPriority;
+  console.log('PG1_CASE_C01_SIGNED_JYT_WAITLIST',JSON.stringify({
+   vehicleId:c01.vehicleId,cycle:c01.listingCycleId,matchTier:c01.matchTier,
+   cancelCode:c01.cancelCode,waitlistId:c01.waitlistId,waitlistEnded:c01.waitlistEnded,
+   activePriorityAfter:c01.activePriorityAfter,createdBefore:c01.createdEventsBefore,
+   createdAfter:c01.createdEventsAfter,forgedParentPrefixDenied:c01.explicitForgedParentPrefixDenied,
+   forgedParentPrefixSQLSTATE:c01.explicitForgedParentPrefixSQLSTATE}));
+  for(const item of report.nativeUnsignedCancelMatrix)
+   console.log('PG1_CASE_'+(item.kind==='unsigned_public_cancel'?'C02':'C03')+'_SIGNED_JYT_COMMIT_ROLLBACK',JSON.stringify(item));
+  console.log('PG1_CASE_R01_SIGNED_UNIQUE_SUCCESSOR',JSON.stringify({
+   vehicleId:r01.vehicleId,cycle:r01.listingCycleId,matchTier:r01.matchTier,cancelCode:r01.cancelCode,
+   newPriorityId:r01.newPriorityId,creationKey:r01.sourceCreationKey,
+   createdBefore:r01.createdEventsBefore,createdAfter:r01.createdEventsAfter,
+   pgBackendRace:r01.nativeConcurrency}));
+  console.log('PG1_CASE_SIGNED_4A_VERSIONED_CANCEL',JSON.stringify(report.versionedNative4A));
+  console.log('PG1_CASE_SIGNED_4B_4C_HANDOFF_CANCEL',JSON.stringify(report.versionedNative4B4C));
+  console.log('PG1_CASE_CATALOG_AND_TAMPER',JSON.stringify({
+   oldCatalog:report.before.catalog,newCatalog:report.after.catalog,
+   addedPublicObjects:report.after.addedPublicObjects.map(x=>({kind:x.kind,name:x.name})),
+   immutableTamperRejections:report.nativeTamperMatrix.length,
+   frozenVerifierAfter:report.parentAfter?.message,verifiedV2:report.versionedVerifier?.verified}));
+ }
  console.log('F06_5C_PG1_NATIVE_STATUS',JSON.stringify({status:report.status,parentAfter:report.parentAfter,problem:report.error}));
 }
 // 非特权PG16验签、真实业务断言、伪造拒绝和旧冻结拒绝全完成，才允许原生门禁成功。

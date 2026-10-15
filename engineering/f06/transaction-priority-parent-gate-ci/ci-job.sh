@@ -50,6 +50,8 @@ if(report.status!=="ALL_NATIVE_ASSERTIONS_PASS"||
    report.versionedNative4A.pendingReal5BRefundDenied!==true||
    report.versionedNative4A.pendingFinanceOriginalCode!=="F06_4A_UNRESOLVED_REFUND_FACT"||
    report.versionedNative4A.pendingRefundFactUnchanged!==true||
+   report.versionedNative4A.revokedSalesPermissionDenied!==true||
+   report.versionedNative4A.revocationDenialCode!=="F06_4A_PERMISSION_SCOPE_DENIED"||
    !report.versionedNative4B4C||
    report.versionedNative4B4C.pendingReal4BRefundDenied!==true||
    report.versionedNative4B4C.pendingFinanceOriginalCode!=="F06_4C_FINANCIAL_OR_REFUND_UNKNOWN_DENY"||

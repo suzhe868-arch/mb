@@ -136,6 +136,29 @@ export async function proveVersionedNative4A(c,fixture){
  assert.equal(pstate?.refund_status,'pending','PG1_4A_PENDING_REFUND_SOURCE_MUTATED');
  assert.equal(Number(pstate?.expected_amount_cents),100,'PG1_4A_PENDING_REFUND_AMOUNT_MUTATED');
  assert.equal(pstate?.signed_cancel_count,0,'PG1_4A_PENDING_FINANCE_SPURIOUS_SIGNED_CANCEL');
+ // 使用真实登录Sales会话验证在同一PG16实时撤销明示权限后原子FailClosed。
+ const perm=await first(c,"SELECT permission_id FROM public.permissions WHERE permission_code='transaction.ci.cancel'");
+ assert.ok(perm?.permission_id,'PG1_NATIVE_CANCEL_PERMISSION_REQUIRED');
+ const previousOverride=await first(c,
+  "SELECT decision FROM public.employee_permission_overrides WHERE employee_id=1 AND permission_id=$1",
+  [perm.permission_id]);
+ assert.equal(previousOverride?.decision,'allow','PG1_NATIVE_SALES_EXPLICIT_ALLOW_REQUIRED');
+ await c.query("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=clock_timestamp() WHERE employee_id=1 AND permission_id=$1",[perm.permission_id]);
+ let revokedCode=null;
+ try{
+  const revoked=await cancelSyntheticTransactionV2CI(auth,token,{
+   transactionId:newTx,eventKey:mk('revoked-sales-v2-cancel'),
+   reason:'销售权限即时撤销后不得签发取消'
+  });
+  revokedCode=revoked.code;
+  assert.equal(revoked.allowed,false,'PG1_SALES_REVOKE_MUST_DENY');
+  assert.equal(revoked.code,'F06_4A_PERMISSION_SCOPE_DENIED','PG1_REVOKE_DENIAL_MUST_BE_PERMISSION_GUARD');
+  const actual=await orig(c,newTx);
+  assert.equal(actual.status,'in_progress','PG1_REVOKE_HALF_WRITE_PUBLIC_STATUS');
+  assert.equal(actual.origin_id,null,'PG1_REVOKE_HALF_WRITE_CANCEL_ORIGIN');
+ }finally{
+  await c.query("UPDATE public.employee_permission_overrides SET decision='allow',changed_at=clock_timestamp() WHERE employee_id=1 AND permission_id=$1",[perm.permission_id]);
+ }
  // 真实PG业务入口注错：状态写完、不可变事件写完、审计写完三个边界必须物理回滚。
  for(const cp of ['AFTER_STATUS_THROW','AFTER_EVENT_THROW','AFTER_AUDIT_THROW']){
   await assert.rejects(
@@ -182,5 +205,5 @@ export async function proveVersionedNative4A(c,fixture){
   invalidTokenDenied:!denied.allowed,
   comparedBusinessColumns:8,realPG16:true,sourceSigned4A:true,
   pendingReal5BRefundDenied:true,pendingFinanceOriginalCode:pendingFinanceDenied.code,
-  pendingRefundFactUnchanged:true};
+  pendingRefundFactUnchanged:true,revokedSalesPermissionDenied:true,revocationDenialCode:revokedCode};
 }
