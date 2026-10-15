@@ -1,0 +1,75 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {randomBytes,createHmac} from 'node:crypto';
+import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
+import {verifyAuthDatabase} from '../../../src/f03-auth-readiness.mjs';
+import {readCurrentFacts} from '../../../f03/runtime-facts/current-facts.mjs';
+import {assertCIEnv,physicalGate,signedRead,inspectCollector,pool,DATABASE_URL,SOURCE_GAP} from '../gate.mjs';
+
+const C={source_platform:'JYT',upstream_publisher_id:'123',vehicle_id:'456'};
+const login='race_test', password='SyntheticRace_1234567';
+test('F07-3 F03真实已签Session与Collector安全Source（独立PG16）',async t=>{
+ const clientPool=pool();const physical=await physicalGate(clientPool);
+ assert.equal(physical.usr,'f03_ci');assert.equal(await verifyAuthDatabase(clientPool),true);
+ const auth=new IsolatedAuth({connectionString:DATABASE_URL,secret:randomBytes(48),origin:'https://127.0.0.1:443'});
+ let n=0;const check=async(name,fn)=>{await t.test(name,async()=>{await fn();n++})};
+ try{
+  const session=await auth.login({login,password});
+  await check('F03-01 签名父身份物理PG16',async()=>assert.ok(physical.ver>=160000));
+  await check('F03-02 真IsolatedAuth登录',async()=>assert.equal(session.code,'AUTH_OK'));
+  await check('F03-03 真withSession员工身份',async()=>assert.equal(String(await auth.withSession(session.token,async(_,a)=>a.employee_id,{normalOnly:true})),'6'));
+  await check('F03-04 当前签名F03源电话能力缺编目',async()=>assert.equal((await readCurrentFacts(auth,session.token,'vehicle.publisher_phone.read')).code,'CAPABILITY_NOT_IN_CURRENT_CATALOG'));
+  await check('F03-05 F07真Session读取最终电话拒绝',async()=>assert.equal((await signedRead(auth,session.token,C)).allowed,false));
+  await check('F03-06 历史latest仍不可取得电话',async()=>assert.equal((await readCurrentFacts(auth,session.token,'vehicle.publisher_phone.latest')).finalAllowed,false));
+  await check('F03-07 拨号同样未签',async()=>assert.equal((await readCurrentFacts(auth,session.token,'vehicle.publisher_phone.dial')).finalAllowed,false));
+  await check('F03-08 未签报告原件拒绝',async()=>assert.equal((await signedRead(auth,session.token,C,'report_original')).allowed,false));
+  await check('F03-09 图片当前Scope未最终发权',async()=>assert.equal((await signedRead(auth,session.token,C,'vehicle_photo')).allowed,false));
+  await check('F03-10 可见报告仍不得借侧车布尔值授签',async()=>assert.equal((await signedRead(auth,session.token,C,'report_visible')).allowed,false));
+  const invalid=[
+   {source_platform:'MB',upstream_publisher_id:'123',vehicle_id:'456'},
+   {source_platform:'JYT',upstream_publisher_id:'',vehicle_id:'456'},
+   {source_platform:'JYT',upstream_publisher_id:'123',vehicle_id:'0'},
+   {source_platform:'JYT',upstream_publisher_id:'123',vehicle_id:'456',car_code:'same'},
+   {source_platform:'JYT',upstream_publisher_id:123,vehicle_id:'456'},
+   {source_platform:'JYT',upstream_publisher_id:'123',vehicle_id:'456%2f'},
+   {source_platform:'JYT',upstream_publisher_id:'123',vehicle_id:'456/../'},
+   {source_platform:'JYT',upstream_publisher_id:'0001',vehicle_id:'456'}
+  ];
+  for(let i=0;i<invalid.length;i++)await check('F03-'+String(11+i).padStart(2,'0')+' 绑定与上游伪造拒绝',async()=>{
+   assert.equal((await signedRead(auth,session.token,invalid[i])).code,'PUBLISHER_VEHICLE_SOURCE_BINDING_DENIED');
+  });
+  const secret=randomBytes(48),ts=String(Date.now()), base={...C,car_code:'same-car',job_id:'job-123',nonce:'a'.repeat(32)};
+  const pack=x=>{const raw=JSON.stringify(x);return [raw,createHmac('sha256',secret).update(ts+'.'+raw).digest('hex')]};
+  const [good,goodSig]=pack(base);
+  await check('F03-19 合成签名有效但正式JYT发行方缺签拒绝',async()=>assert.equal(inspectCollector(good,ts,goodSig,secret,C).code,'PRODUCTION_JYT_JOB_ISSUER_SOURCE_GAP'));
+  await check('F03-20 伪签被拒',async()=>assert.equal(inspectCollector(good,ts,'0'.repeat(64),secret,C).allowed,false));
+  await check('F03-21 过期回传被拒',async()=>assert.equal(inspectCollector(good,String(Date.now()-600000),goodSig,secret,C).code,'COLLECTOR_TIME_DENIED'));
+  await check('F03-22 复用同car_code跨Publisher不能验身份',async()=>{const [raw,sig]=pack({...base,upstream_publisher_id:'999'});assert.equal(inspectCollector(raw,ts,sig,secret,C).code,'COLLECTOR_BINDING_DENIED')});
+  await check('F03-23 合成跨Vehicle拒绝',async()=>{const [raw,sig]=pack({...base,vehicle_id:'777'});assert.equal(inspectCollector(raw,ts,sig,secret,C).code,'COLLECTOR_BINDING_DENIED')});
+  await check('F03-24 无job拒绝',async()=>{const [raw,sig]=pack({...base,job_id:null});assert.equal(inspectCollector(raw,ts,sig,secret,C).code,'COLLECTOR_BINDING_DENIED')});
+  await check('F03-25 SQL实际行锁和非超级用户并发拒绝',async()=>{
+   const a=await clientPool.connect(),b=await clientPool.connect();
+   try{
+    assert.notEqual(a.processID,b.processID);
+    await a.query('BEGIN');await a.query('SELECT account_id FROM public.pc_login_accounts WHERE employee_id=6 FOR UPDATE');
+    await b.query('BEGIN');await b.query("SET LOCAL lock_timeout='120ms'");
+    await assert.rejects(b.query('SELECT account_id FROM public.pc_login_accounts WHERE employee_id=6 FOR UPDATE'),e=>e.code==='55P03');
+    await b.query('ROLLBACK');await a.query('ROLLBACK');
+   }finally{a.release();b.release()}
+  });
+  await auth.pool.query("INSERT INTO public.permissions(permission_id,permission_code) VALUES (91001,'publisher.phone.sensitive')");
+  await auth.pool.query("INSERT INTO public.role_permission_defaults(role_id,permission_id,enabled,changed_at) VALUES (1,91001,true,now())");
+  await check('F03-26 即使模拟permission授予仍待A签别名',async()=>assert.equal((await readCurrentFacts(auth,session.token,'vehicle.publisher_phone.read')).code,'TECH_ALIAS_NOT_APPROVED'));
+  await auth.pool.query("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES (6,91001,'deny',now())");
+  await check('F03-27 当前个人DENY覆盖角色模板',async()=>assert.equal((await readCurrentFacts(auth,session.token,'vehicle.publisher_phone.read')).code,'CURRENT_PERSONAL_DENY'));
+  await check('F03-28 电话当前读同样个人DENY',async()=>assert.equal((await signedRead(auth,session.token,C)).code,'CURRENT_PERSONAL_DENY'));
+  await auth.pool.query('UPDATE public.pc_login_accounts SET credential_epoch=credential_epoch+1 WHERE employee_id=6');
+  await check('F03-29 COMMIT新epoch使原Token失效',async()=>assert.equal(await auth.withSession(session.token,async()=>true,{normalOnly:true}),null));
+  await check('F03-30 已撤旧Token读取拒绝',async()=>assert.equal((await signedRead(auth,session.token,C)).code,'SESSION_OR_ADMISSION_DENIED'));
+  await check('F03-31 原session图片回读也拒绝',async()=>assert.equal((await signedRead(auth,session.token,C,'vehicle_photo')).code,'SESSION_OR_ADMISSION_DENIED'));
+  await check('F03-32 错仓库在执行前拒绝',async()=>assert.throws(()=>assertCIEnv({...process.env,GITHUB_REPOSITORY:'other/repo'}),/F07_3_CI_ENV/));
+  await check('F03-33 错Push ref执行前拒绝',async()=>assert.throws(()=>assertCIEnv({...process.env,GITHUB_REF:'refs/heads/main'}),/F07_3_CI_ENV/));
+  await check('F03-34 错数据库执行前拒绝',async()=>assert.throws(()=>assertCIEnv({...process.env,DATABASE_URL:'postgres://somewhere.invalid/postgres'}),/F07_3_CI_DSN/));
+  console.log('F07_3_F03_NATIVE_SIGNED_SOURCE_'+n+'_PASS physical_pid='+physical.pid+' phone='+SOURCE_GAP);
+ }finally{await auth.close();await clientPool.end()}
+});
