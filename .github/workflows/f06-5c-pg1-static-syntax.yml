@@ -29,6 +29,11 @@ jobs:
           node engineering/f06/transaction-priority-parent-gate-ci/静态ESM导入契约验证.mjs
           bash -n engineering/f06/transaction-priority-parent-gate-ci/ci-job.sh
           test -s engineering/f06/transaction-priority-parent-gate-ci/sidecar.sql
+          # Prevent PG1 PL/pgSQL dollar-quote regression (AS $ would fail native DDL).
+          pg1sql=engineering/f06/transaction-priority-parent-gate-ci/sidecar.sql
+          test "$(grep -Fc 'AS $$' "$pg1sql")" -eq 5
+          test "$(grep -Fc 'END $$;' "$pg1sql")" -eq 5
+          ! grep -Eq 'AS \$([^$]|$)' "$pg1sql"
           grep -q 'CREATE CONSTRAINT TRIGGER pg1_deferred_signed_cancel' engineering/f06/transaction-priority-parent-gate-ci/sidecar.sql
           grep -q 'CREATE TRIGGER pg1_signed_priority_insert' engineering/f06/transaction-priority-parent-gate-ci/sidecar.sql
       - name: Static evidence manifest
