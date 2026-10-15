@@ -1,4 +1,5 @@
 name: F07-2 Synthetic Vehicle Image CDN Asset Contract PG16
+# 仅GitHub官方一次性CI runner和127.0.0.1 PG16侧车允许trust；无数据库口令或真实凭据进入日志/Artifact。
 on:
   push:
     branches:
@@ -18,7 +19,7 @@ jobs:
         image: postgres:16
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: f07_2_disposable_ci_admin_only
+          POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_DB: postgres
         ports:
           - 5432:5432
@@ -28,7 +29,7 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     env:
-      DATABASE_URL: postgres://f07_image_ci:f07_image_ci_password@127.0.0.1:5432/f07_image_ci_db
+      DATABASE_URL: postgres://f07_image_ci@127.0.0.1:5432/f07_image_ci_db
       CI: 'true'
       APP_ENV: test
       NODE_ENV: test
@@ -42,8 +43,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          PGPASSWORD=f07_2_disposable_ci_admin_only psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f07_image_ci LOGIN PASSWORD 'f07_image_ci_password' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
-          PGPASSWORD=f07_2_disposable_ci_admin_only psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f07_image_ci_db OWNER f07_image_ci;"
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f07_image_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f07_image_ci_db OWNER f07_image_ci;"
           psql "$DATABASE_URL" -Atc "SELECT current_database(),current_user,current_setting('server_version_num'),(SELECT rolsuper FROM pg_roles WHERE rolname=current_user),pg_backend_pid()" | tee f07-2-source-identity.log
       - name: 安装依赖及JavaScript语法检查
         shell: bash
@@ -87,7 +88,7 @@ jobs:
         image: postgres:16
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: f07_2_disposable_ci_admin_only
+          POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_DB: postgres
         ports:
           - 5432:5432
@@ -97,7 +98,7 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     env:
-      DATABASE_URL: postgres://f07_image_ci:f07_image_ci_password@127.0.0.1:5432/f07_image_ci_db
+      DATABASE_URL: postgres://f07_image_ci@127.0.0.1:5432/f07_image_ci_db
       CI: 'true'
       APP_ENV: test
       NODE_ENV: test
@@ -113,8 +114,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          PGPASSWORD=f07_2_disposable_ci_admin_only psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f07_image_ci LOGIN PASSWORD 'f07_image_ci_password' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
-          PGPASSWORD=f07_2_disposable_ci_admin_only psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f07_image_ci_db OWNER f07_image_ci;"
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f07_image_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f07_image_ci_db OWNER f07_image_ci;"
           psql "$DATABASE_URL" -Atc "SELECT current_database(),current_user,current_setting('server_version_num'),(SELECT rolsuper FROM pg_roles WHERE rolname=current_user),pg_backend_pid()" | tee f07-2-https-identity.log
       - name: 安装依赖及生成本地临时TLS
         shell: bash
@@ -122,7 +123,7 @@ jobs:
           set -euo pipefail
           npm --prefix "$F07_DIR" install --ignore-scripts --no-audit --no-fund
           openssl req -x509 -newkey rsa:2048 -sha256 -nodes -keyout "$F07_TLS_KEY" -out "$F07_TLS_CERT" -days 1 -subj "/CN=localhost" >/dev/null 2>&1
-      - name: 真实PG16 loopback HTTPS十六项安全黑箱
+      - name: 真实PG16 loopback HTTPS二十项安全黑箱
         shell: bash
         run: |
           set -euo pipefail
