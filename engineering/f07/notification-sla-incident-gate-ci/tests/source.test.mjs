@@ -75,7 +75,7 @@ test('S45 Recovery须真实inactive状态',async()=>{assert.equal((await run({ch
 test('S46 同一事件双Backend原生并发单成功',async()=>{await seed(db);const [a,b]=await Promise.all([dispatch(db,{eventId:'event-ci-1',at:AT}),dispatch(db,{eventId:'event-ci-1',at:AT})]);assert.deepEqual([a.status,b.status].sort(),['DEDUPED','SENT']);assert.notEqual(a.backendPid,b.backendPid);assert.equal(await out(),1);assert.equal((await Q('SELECT count(*)::int n FROM f07_4_ci.claim')).rows[0].n,1);console.log('F07_4_NATIVE_DUAL_BACKEND_PIDS',a.backendPid,b.backendPid);});
 test('S47 两独立真实PG Backend行锁55P03、ROLLBACK与父目录MD5不变',async()=>{
  await seed(db);
- const parentSQL="SELECT count(*)::int n,md5(coalesce(string_agg(oid::text||relname||relkind,',' ORDER BY oid),'')) seal FROM pg_class WHERE relnamespace='public'::regnamespace";
+ const parentSQL="SELECT count(*)::int n,md5(coalesce(string_agg(oid::text||relname||relkind::text,',' ORDER BY oid),'')) seal FROM pg_class WHERE relnamespace='public'::regnamespace";
  const before=(await Q(parentSQL)).rows[0];
  const a=await db.connect(),b=await db.connect();
  try {
