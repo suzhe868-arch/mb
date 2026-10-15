@@ -71,7 +71,7 @@ export function publicUrl(relative,kind='vehicle_photo'){
  return (kind==='vehicle_photo'?config.image+'/c/':config.report+'/r/')+path;
 }
 export function reportH5(source){
- if(typeof source!=='string'||source.length>1000||/[\\\u0000-\u001f]/.test(source))throw denied('UNSAFE_REPORT');
+ if(typeof source!=='string'||source.length>1000||/[\\\u0000-\u001f]/.test(source)||/(?:^|\/)\.\.?(?:\/|$)|%2e|%2f|%5c|%25/i.test(source))throw denied('UNSAFE_REPORT');
  let u;
  try{u=new URL(source);}catch{throw denied('UNSAFE_REPORT');}
  if(u.protocol!=='https:'||u.username||u.password||u.port||u.hostname!=='reports.jyt.invalid')throw denied('UNSAFE_REPORT');
@@ -186,7 +186,7 @@ export async function imageBytes(token,id,store,cdn,kind='vehicle_photo'){
   if(!data)throw denied('ASSET_MISSING_SINGLE_IMAGE_RECOVERY_REQUIRED');
   return {bytes:data,origin:'OBJECT',url:publicUrl(p.relative_path,kind)};
  }
- if(p.source_type==='mingbang'&&p.source_platform==='JYT'||p.source_type==='wholesale'){
+ if((p.source_type==='wholesale'||p.source_type==='mingbang')&&p.source_platform==='JYT'){
   const url=publicUrl(p.relative_path,kind);
   return {bytes:await cdn.get(url,()=>testOrigin(p.relative_path)),origin:'CONTROLLED_CDN',url};
  }
