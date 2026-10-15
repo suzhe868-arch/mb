@@ -11,9 +11,36 @@ const PHONE=/^TEST-[0-9]{6}$/;
 const ID=/^[a-zA-Z0-9_-]{1,80}$/;
 const exact = (o,keys) => o && typeof o==='object' && !Array.isArray(o) &&
   Object.keys(o).sort().join('|') === keys.slice().sort().join('|');
+// The CI sidecar must fail before any DDL, TRUNCATE, request or business write.
+const F07_DSN='postgres://f07_ci:f07_only_ci_app_pass@127.0.0.1:5432/f07_ci_db';
+export function assertCIEnv(env=process.env){
+ const rules={CI:'true',GITHUB_ACTIONS:'true',APP_ENV:'test',NODE_ENV:'test',
+  GITHUB_EVENT_NAME:'push',GITHUB_REPOSITORY:'suzhe868-arch/mb',
+  GITHUB_REF:'refs/heads/feat/f07-1-collector-publisher-phone-callback-ci',DATABASE_URL:F07_DSN};
+ for(const [name,value] of Object.entries(rules))if(env[name]!==value)throw Error('F07_CI_GUARD_ENV_'+name);
+ if(!/^[0-9]{6,20}$/.test(env.GITHUB_RUN_ID??''))throw Error('F07_CI_GUARD_RUN_ID');
+}
+export async function gateCI(db,env=process.env){
+ assertCIEnv(env);
+ const q=await db.query(`SELECT current_database() db,current_user usr,
+ current_setting('server_version_num')::int ver,
+ (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su,
+ (SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user) cdb,
+ (SELECT rolcreaterole FROM pg_roles WHERE rolname=current_user) cr`);
+ const x=q.rows[0];
+ if(!x||x.db!=='f07_ci_db'||x.usr!=='f07_ci'||x.ver<160000||x.ver>=170000
+   ||x.su!==false||x.cdb!==false||x.cr!==false)throw Error('F07_CI_GUARD_PHYSICAL_DB_IDENTITY');
+ return true;
+}
+const guarded=async fn=>{
+ assertCIEnv();
+ const db=await pool.connect();
+ try{await gateCI(db);return await fn(db)}finally{db.release()}
+};
 const transaction=async fn=>{
+  assertCIEnv();
   const db=await pool.connect();
-  try {await db.query('BEGIN');const out=await fn(db);await db.query('COMMIT');return out;}
+  try {await gateCI(db);await db.query('BEGIN');const out=await fn(db);await db.query('COMMIT');return out;}
   catch(e){await db.query('ROLLBACK');throw e;} finally{db.release();}
 };
 export function sign(body,ts) {return createHmac('sha256',SECRET).update(String(ts)+'.'+body).digest('hex');}
@@ -23,26 +50,29 @@ export function validateSignature(raw,ts,sig){
  if(!timingSafeEqual(Buffer.from(sig,'hex'),Buffer.from(sign(raw,ts),'hex')))throw deny('CALLBACK_SIGNATURE');
 }
 export async function bootstrap(){
- const {readFile}=await import('node:fs/promises');
- await pool.query(await readFile(new URL('./schema.sql',import.meta.url),'utf8'));
+ return guarded(async db=>{
+  const {readFile}=await import('node:fs/promises');
+  await db.query(await readFile(new URL('./schema.sql',import.meta.url),'utf8'));
+ });
 }
 export async function reset(){
- await pool.query('TRUNCATE f07_phone.receipts,f07_phone.audit,f07_phone.phone_history,f07_phone.jobs,f07_phone.cache,f07_phone.publishers,f07_phone.vehicle_scope,f07_phone.sessions,f07_phone.vehicles,f07_phone.employees RESTART IDENTITY CASCADE');
+ return guarded(async db=>{await db.query('TRUNCATE f07_phone.receipts,f07_phone.audit,f07_phone.phone_history,f07_phone.jobs,f07_phone.cache,f07_phone.publishers,f07_phone.vehicle_scope,f07_phone.sessions,f07_phone.vehicles,f07_phone.employees RESTART IDENTITY CASCADE');});
 }
 export async function seed(){
- await pool.query(`INSERT INTO f07_phone.employees VALUES
+ return guarded(async db=>{
+ await db.query(`INSERT INTO f07_phone.employees VALUES
  ('sale',true,'sales',1,true,false),
  ('denied',true,'sales',1,true,true),
  ('no_cap',true,'sales',1,false,false),
  ('four_s',true,'four_s',1,true,false),
  ('admin',true,'system_admin',1,true,false),
  ('inactive',false,'sales',1,true,false)`);
- await pool.query(`INSERT INTO f07_phone.sessions VALUES
+ await db.query(`INSERT INTO f07_phone.sessions VALUES
  ('s-sale','sale',1,true),('s-denied','denied',1,true),
  ('s-no_cap','no_cap',1,true),('s-four_s','four_s',1,true),
  ('s-admin','admin',1,true),('s-inactive','inactive',1,true),
  ('s-stale','sale',0,true)`);
- await pool.query(`INSERT INTO f07_phone.vehicles VALUES
+ await db.query(`INSERT INTO f07_phone.vehicles VALUES
  ('v1','JYT','pub1','wholesale','visible',true),
  ('v2','JYT','pub1','wholesale','visible',true),
  ('v3','JYT','pub2','wholesale','hidden',true),
@@ -51,12 +81,14 @@ export async function seed(){
  ('notlisted','JYT','pub1','wholesale','visible',false),
  ('nopublisher','JYT',NULL,'wholesale','visible',true),
  ('other','OTHER','pub1','wholesale','visible',true)`);
- await pool.query(`INSERT INTO f07_phone.vehicle_scope(employee_id,vehicle_id)
+ await db.query(`INSERT INTO f07_phone.vehicle_scope(employee_id,vehicle_id)
  SELECT 'sale',id FROM f07_phone.vehicles WHERE id != 'other'`);
- await pool.query(`INSERT INTO f07_phone.vehicle_scope(employee_id,vehicle_id)
+ await db.query(`INSERT INTO f07_phone.vehicle_scope(employee_id,vehicle_id)
  SELECT id,'v1' FROM f07_phone.employees WHERE id!='sale'`);
+ });
 }
 export async function employeePhone({session,vehicle,action}){
+ assertCIEnv();
  if(!['read','latest','dial'].includes(action)||!ID.test(session??'')||!ID.test(vehicle??''))throw deny();
  return transaction(async db=>{
   const g=await db.query(`SELECT e.id employee_id,e.role,e.phone_capability,e.personal_deny,v.id vehicle_id,v.state vehicle_state,v.source_type,v.source_platform,v.publisher_id
@@ -100,6 +132,7 @@ export async function employeePhone({session,vehicle,action}){
  });
 }
 export async function collectorCallback(raw,ts,sig){
+ assertCIEnv();
  validateSignature(raw,ts,sig);
  let p;try{p=JSON.parse(raw);}catch{throw deny('INVALID_JSON');}
  if(!exact(p,['source_platform','upstream_publisher_id','request_id','nonce','issued_at','status','phone'])

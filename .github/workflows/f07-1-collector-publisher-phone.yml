@@ -31,6 +31,9 @@ jobs:
     env:
       DATABASE_URL: postgres://f07_ci:f07_only_ci_app_pass@127.0.0.1:5432/f07_ci_db
       F07_DIR: engineering/f07/collector-publisher-phone-callback-ci
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -48,7 +51,12 @@ jobs:
         run: npm --prefix "$F07_DIR" install --ignore-scripts --no-audit --no-fund
       - name: 生成仅本Runner临时签名测试密钥
         shell: bash
-        run: echo "F07_COLLECTOR_TEST_SECRET=$(openssl rand -hex 48)" >> "$GITHUB_ENV"
+        run: |
+          set -euo pipefail
+          ephemeral="$(openssl rand -hex 48)"
+          echo "::add-mask::$ephemeral"
+          printf 'F07_COLLECTOR_TEST_SECRET=%s\n' "$ephemeral" >> "$GITHUB_ENV"
+          unset ephemeral
       - name: JS源语法与安全合同
         shell: bash
         run: |
@@ -121,6 +129,9 @@ jobs:
     env:
       DATABASE_URL: postgres://f07_ci:f07_only_ci_app_pass@127.0.0.1:5432/f07_ci_db
       F07_DIR: engineering/f07/collector-publisher-phone-callback-ci
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
       F07_TLS_KEY: /tmp/f07-key.pem
       F07_TLS_CERT: /tmp/f07-cert.pem
     steps:
@@ -141,7 +152,10 @@ jobs:
         run: |
           set -euo pipefail
           npm --prefix "$F07_DIR" install --ignore-scripts --no-audit --no-fund
-          echo "F07_COLLECTOR_TEST_SECRET=$(openssl rand -hex 48)" >> "$GITHUB_ENV"
+          ephemeral="$(openssl rand -hex 48)"
+          echo "::add-mask::$ephemeral"
+          printf 'F07_COLLECTOR_TEST_SECRET=%s\n' "$ephemeral" >> "$GITHUB_ENV"
+          unset ephemeral
           openssl req -x509 -newkey rsa:2048 -sha256 -nodes -keyout "$F07_TLS_KEY" -out "$F07_TLS_CERT" -days 1 -subj "/CN=localhost" >/dev/null 2>&1
       - name: 真PG16 loopback HTTPS回归
         shell: bash
