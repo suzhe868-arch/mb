@@ -99,6 +99,28 @@ async function requireCurrentSignedJytMatch(c,{vehicleId,listingCycleId,customer
 }
 export async function proveRealJytWaitlist(c,{auth,token},f){
  await requireCurrentSignedJytMatch(c,f,'C01');
+
+ // 真PG16负例：已签历史Priority作为父源，伪造不同F05-7 Match签名直接INSERT。
+ // 必须由新PG1门禁拒绝，不能依赖原Service内的资格判断或先改写历史事实。
+ const oldPriority=await one(c,'SELECT source_signature FROM public.f05_8_priority_ci WHERE priority_id=$1',[f.originalPriorityId]);
+ assert.ok(oldPriority,'PG1_C01_SIGNED_PRIORITY_HISTORY_MISSING');
+ const bogus='0'.repeat(64);
+ assert.notEqual(oldPriority.source_signature,bogus,'PG1_C01_FORGED_SIGNATURE_COLLISION');
+ await c.query('BEGIN');
+ try{
+  await assert.rejects(()=>c.query(
+   "INSERT INTO public.f05_8_priority_ci(customer_id,vehicle_id,listing_cycle_id,trigger_demand_id,responsible_employee_id,source_match_result_id,source_signature,expires_at,creation_key) "+
+   "SELECT customer_id,vehicle_id,listing_cycle_id,trigger_demand_id,responsible_employee_id,source_match_result_id,$2::text,transaction_timestamp()+interval '1 day','pg1-unsigned-manual-match-'||priority_id::text "+
+   "FROM public.f05_8_priority_ci WHERE priority_id=$1",
+   [f.originalPriorityId,bogus]
+  ),error=>{
+   assert.equal(error.code,'23514','PG1_C01_FORGED_MATCH_SQLSTATE');
+   assert.match(error.message,/F06_5C_PG1_UNSIGNED_MATCH_OR_QUALIFICATION/);
+   return true;
+  });
+ }finally{await c.query('ROLLBACK')}
+ assert.equal((await one(c,"SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active'",[f.vehicleId,f.listingCycleId])).n,0,
+  'PG1_C01_FORGED_MATCH_MUST_NOT_WRITE_ACTIVE_PRIORITY');
  const before=await one(c,"SELECT count(*)::int n FROM public.f05_8_events_ci WHERE vehicle_id=$1 AND event_kind='created'",[f.vehicleId]);
  const out=await cancelSyntheticTransactionV2CI(auth,token,{
   transactionId:f.transactionId,eventKey:mk('signed-v2-cancel'),
@@ -114,7 +136,8 @@ export async function proveRealJytWaitlist(c,{auth,token},f){
  assert.equal(events.n,before.n,'PG1_C01_ACTIVE_WAITLIST_MUST_EXCLUDE_CREATED_EVENTS');
  assert.equal(original.status,'ended');
  return {...f,cancelCode:out.code,createdEventsBefore:before.n,createdEventsAfter:events.n,
-  activePriorityAfter:after.n,waitlistEnded:false,signedTransactionCancelled:true};
+  activePriorityAfter:after.n,waitlistEnded:false,signedTransactionCancelled:true,
+   explicitUnsignedMatchDenied:true,explicitUnsignedMatchSQLSTATE:'23514'};
 }
 
 
