@@ -93,10 +93,11 @@ export class MockStorage{
  has(key){return this.items.has(key);}
 }
 export class MockCDN{
- constructor(){this.cache=new Map();this.hits=0;this.misses=0;this.originRequests=0;}
+ constructor(){this.cache=new Map();this.hits=0;this.misses=0;this.originRequests=0;this.failPaths=new Set();}
  async get(key,fetchLocal){
   if(this.cache.has(key)){this.hits++;return this.cache.get(key);}
   this.misses++;this.originRequests++;
+  if(this.failPaths.has(key))throw denied('MOCK_SINGLE_IMAGE_FAILURE');
   const b=await fetchLocal();
   if(!b||!Buffer.isBuffer(b)||!b.toString().startsWith('TEST_IMAGE:'))throw denied('TEST_ORIGIN_UNAVAILABLE');
   this.cache.set(key,b);return b;
@@ -193,4 +194,42 @@ export async function imageBytes(token,id,store,cdn,kind='vehicle_photo'){
 }
 export function shareCard(model,imageUrl){
  return {model:String(model).slice(0,100),image:imageUrl??'TEST_PLACEHOLDER',cta:'查看车辆'};
+}
+
+
+// Read-gate precedes cover fallback so a zero-image/failed-image placeholder cannot leak existence.
+export async function vehicleRead(token,vehicle){
+ requireId(token);requireId(vehicle);
+ return guarded(async db=>{
+  const r=await db.query("SELECT v.id FROM f07_images.vehicles v JOIN f07_images.sessions s ON s.token=$1 AND s.scope_vehicle=v.id AND s.active AND NOT s.denied WHERE v.id=$2 AND (v.visible OR s.actor_id=v.priority_actor OR (s.actor_kind='employee' AND s.actor_id=v.assigned_sales))",[token,vehicle]);
+  if(r.rowCount!==1)throw denied('CURRENT_VEHICLE_READ_DENY');
+  return true;
+ });
+}
+export async function selectCover(token,vehicle,store,cdn){
+ await vehicleRead(token,vehicle);
+ const r=await guarded(db=>db.query("SELECT id FROM f07_images.pictures WHERE vehicle_id=$1 AND resource_type='vehicle_photo' ORDER BY immutable_order,id",[vehicle]));
+ for(const p of r.rows){
+  try{const x=await imageBytes(token,p.id,store,cdn);return {imageId:p.id,url:x.url,placeholder:false};}
+  catch(e){if(['CURRENT_VEHICLE_READ_DENY','CURRENT_REPORT_DENY'].includes(e.code))throw e;}
+ }
+ return {imageId:null,url:'TEST_PLACEHOLDER',placeholder:true};
+}
+export async function uploadManual(vehicle,{id,path,order=0},store,{failDb=false}={}){
+ requireId(vehicle);requireId(id);safePath(path);
+ if(!Number.isSafeInteger(order)||order<0)throw denied('INVALID_ORDER');
+ const key='TEST_ASSET/MANUAL/'+id;
+ let stored=false;
+ try{
+  return await tx(async db=>{
+   const v=await db.query("SELECT source_type FROM f07_images.vehicles WHERE id=$1 FOR UPDATE",[vehicle]);
+   if(v.rowCount!==1||!['mingbang','four_s'].includes(v.rows[0].source_type))throw denied('MANUAL_NOT_ALLOWED');
+   await store.put(key,await testOrigin(path));stored=true;
+   await db.query("INSERT INTO f07_images.pictures(id,vehicle_id,resource_type,source_platform,upstream_image_id,relative_path,immutable_order,object_key,asset_state,customer_visible) VALUES($1,$2,'vehicle_photo','MB',NULL,$3,$4,$5,'success',true)",[id,vehicle,path,order,failDb?null:key]);
+   return {status:'success',key};
+  });
+ }catch(e){
+  if(stored)await store.del(key);
+  throw e;
+ }
 }
