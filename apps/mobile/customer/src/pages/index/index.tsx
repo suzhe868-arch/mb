@@ -1,9 +1,11 @@
 import {useMemo,useState,useRef,useEffect} from 'react'
 import {View,Text,Input,Image,Button,Picker,ScrollView} from '@tarojs/components'
-import Taro,{usePullDownRefresh,useReachBottom} from '@tarojs/taro'
+import Taro,{usePullDownRefresh,useReachBottom,useDidShow,usePageScroll} from '@tarojs/taro'
 import {DEFAULT_QUERY,EMPTY_FILTERS,SOURCES,SORTS,priceText,dateText,kmText,type QueryState,type Filters,type SafeVehicle,type Tier,type Scenario,type SortKey} from '../../../../shared/domain'
 import {ALL_SAFE_VEHICLES} from '../../../../shared/mock'
-import {queryFeed,validateFilters} from '../../../../shared/query'
+import {validateFilters} from '../../../../shared/query'
+import {mockReadAdapter} from '../../../../shared/adapter'
+import {setMockTier} from '../../../../shared/session'
 import './index.css'
 
 const CITIES=['全国','上海','杭州','苏州','北京','广州','成都']
@@ -11,6 +13,7 @@ const TESTS:Scenario[]=['normal','loading','empty','error','no_banner','no_image
 const TIERS:Tier[]=['limited','fan','vip']
 const BRAND=['','奥迪','宝马','奔驰','丰田','大众','特斯拉','比亚迪','雷克萨斯']
 let remembered:{q:QueryState;page:number;tier:Tier;scenario:Scenario}|null=null
+let rememberedScroll=0
 
 function Picture({car}:{car:SafeVehicle}){
  const [failed,setFailed]=useState(false)
@@ -51,13 +54,15 @@ export default function Home(){
  const [scenario,setScenario]=useState<Scenario>(remembered?.scenario||'normal')
  const [sheet,setSheet]=useState<'filter'|'sort'|null>(null)
  const [cities,setCities]=useState(false),[notice,setNotice]=useState('')
- const scrollRef=useRef(0)
- const feed=useMemo(()=>queryFeed(q,page,scenario),[q,page,scenario])
+
+ const feed=useMemo(()=>mockReadAdapter.list(q,page,scenario),[q,page,scenario])
  useEffect(()=>{remembered={q,page,tier,scenario}},[q,page,tier,scenario])
- function change(patch:Partial<QueryState>){setQ(old=>({...old,...patch}));setPage(1)}
- function open(id:string){remembered={q,page,tier,scenario};Taro.navigateTo({url:'/pages/detail/index?id='+encodeURIComponent(id)+'&tier='+tier+'&scenario='+scenario})}
+ function change(patch:Partial<QueryState>){setQ(old=>({...old,...patch}));setPage(1);rememberedScroll=0;Taro.pageScrollTo({scrollTop:0,duration:0}).catch(()=>{})}
+ function open(id:string){remembered={q,page,tier,scenario};Taro.navigateTo({url:'/pages/detail/index?id='+encodeURIComponent(id)+'&scenario='+scenario})}
  usePullDownRefresh(()=>{setPage(1);Taro.stopPullDownRefresh();setNotice('已按当前条件刷新模拟车源')})
  useReachBottom(()=>{if(feed.hasMore&&scenario!=='loading'&&scenario!=='error')setPage(p=>p+1)})
+ usePageScroll(e=>{rememberedScroll=e.scrollTop})
+ useDidShow(()=>{if(rememberedScroll>0)Taro.pageScrollTo({scrollTop:rememberedScroll,duration:0}).catch(()=>{})})
  const count=ALL_SAFE_VEHICLES.filter(v=>v.visible&&v.publicAvailable).length
  const today=ALL_SAFE_VEHICLES.filter(v=>v.visible&&v.publicAvailable&&v.listedAt.startsWith('2026-10-15')).length
  return <View className='home'>
@@ -67,7 +72,7 @@ export default function Home(){
   <View className='channels'>{SOURCES.map(s=><View key={s.key} className={'channel '+(q.source===s.key?'active':'')} onClick={()=>change({source:s.key})}>{s.label}</View>)}</View>
   <View className='demo'><Text>Mock 虚构车源 · 非真实在售</Text><Picker mode='selector' range={TESTS.map(t=>({normal:'正常',loading:'加载中',empty:'空',error:'错误',no_banner:'无Banner',no_image:'无图片',revoked:'权限撤销'}[t]))} onChange={e=>{setScenario(TESTS[Number(e.detail.value)]);setPage(1)}}><Text>场景：{scenario} ⌄</Text></Picker></View>
   {feed.banner&&scenario!=='loading'&&scenario!=='error'?<View className='hero'><Text className='hero-tag'>精选好车 · 清晰透明</Text><Text className='hero-head'>找到适合你的下一辆车</Text><Text className='hero-sub'>跨渠道筛选 · 车况以实车为准</Text><Text className='hero-mark'>MB</Text></View>:null}
-  <View className='stats'><View><Text className='stat-number'>{count}</Text><Text>在售车源</Text></View><View className='stat-divide'/><View><Text className='stat-number'>{today}</Text><Text>今日新增</Text></View><View className='grow'/><Picker mode='selector' range={['普通客户','粉丝','VIP']} onChange={e=>setTier(TIERS[Number(e.detail.value)])}><Text className='tier'>演示身份：{tier==='limited'?'普通':tier}⌄</Text></Picker></View>
+  <View className='stats'><View><Text className='stat-number'>{count}</Text><Text>在售车源</Text></View><View className='stat-divide'/><View><Text className='stat-number'>{today}</Text><Text>今日新增</Text></View><View className='grow'/><Picker mode='selector' range={['普通客户','粉丝','VIP']} onChange={e=>{const next=TIERS[Number(e.detail.value)];setTier(next);setMockTier(next)}}><Text className='tier'>演示身份：{tier==='limited'?'普通':tier}⌄</Text></Picker></View>
   <View className='tools'><View><Text className='strong'>{SOURCES.find(s=>s.key===q.source)?.label}</Text><Text className='total'> {feed.total} 台</Text></View><View className='tool-right'><Text onClick={()=>setSheet('filter')}>筛选 {Object.values(q.filters).some(Boolean)?'●':''} ⌄</Text><Text onClick={()=>setSheet('sort')}>{SORTS.find(s=>s.key===q.sort)?.label} ⌄</Text></View></View>
   {Object.values(q.filters).some(Boolean)?<View className='chips used'>{Object.entries(q.filters).filter(([,v])=>v).map(([key,val])=><Text className='chip picked' key={key} onClick={()=>change({filters:{...q.filters,[key]:''}})}>{val} ×</Text>)}<Text className='chip' onClick={()=>change({filters:{...EMPTY_FILTERS}})}>清空</Text></View>:null}
   {notice?<View className='notice' onClick={()=>setNotice('')}>{notice} · 点此收起</View>:null}
