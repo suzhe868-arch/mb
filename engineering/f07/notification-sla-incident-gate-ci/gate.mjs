@@ -93,8 +93,8 @@ export async function dispatch(db,{eventId,channel='personal',at='2026-10-16T02:
  try {
   await client.query('BEGIN');
   const event=(await client.query('SELECT * FROM f07_4_ci.event WHERE event_id=$1 FOR UPDATE',[eventId])).rows[0];
-  const cfg=(await client.query('SELECT * FROM f07_4_ci.config WHERE id=1')).rows[0];
-  const emp=event?(await client.query('SELECT * FROM f07_4_ci.employee WHERE employee_id=$1',[event.employee_id])).rows[0]:null;
+  const cfg=(await client.query('SELECT * FROM f07_4_ci.config WHERE id=1 FOR SHARE')).rows[0];
+  const emp=event?(await client.query('SELECT * FROM f07_4_ci.employee WHERE employee_id=$1 FOR SHARE',[event.employee_id])).rows[0]:null;
   let stage=event?.stage||'unknown';let result;
   const dnd=dndAt(time,cfg.dnd_start,cfg.dnd_end,cfg.timezone);
   if(!event)result=reason('SKIPPED','EVENT_MISSING');
