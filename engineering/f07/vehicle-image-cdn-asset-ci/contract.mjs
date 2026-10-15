@@ -215,6 +215,7 @@ export async function selectCover(token,vehicle,store,cdn){
   try{const x=await imageBytes(token,p.id,store,cdn);return {imageId:p.id,url:x.url,placeholder:false};}
   catch(e){if(['CURRENT_VEHICLE_READ_DENY','CURRENT_REPORT_DENY'].includes(e.code))throw e;}
  }
+ await vehicleRead(token,vehicle); // Recheck after asynchronous fallback in case permission revoked mid-selection.
  return {imageId:null,url:'TEST_PLACEHOLDER',placeholder:true};
 }
 export async function uploadManual(vehicle,{id,path,order=0},store,{failDb=false}={}){
@@ -234,4 +235,24 @@ export async function uploadManual(vehicle,{id,path,order=0},store,{failDb=false
   if(stored)await store.del(key);
   throw e;
  }
+}
+
+
+// Recovery for a mock process loss after object PUT but before durable DB reference.
+// Only synthetic keys are enumerated; this has no access to production object storage.
+export async function reconcileOrphans(store){
+ if(!(store instanceof MockStorage))throw denied('MOCK_STORAGE_ONLY');
+ return guarded(async db=>{
+  const deleted=[];
+  for(const key of Array.from(store.items.keys())){
+   if(!key.startsWith('TEST_ASSET/'))continue;
+   const q=await db.query("SELECT id FROM f07_images.pictures WHERE object_key=$1 AND asset_state='success'",[key]);
+   if(q.rowCount>0)continue;
+   await store.del(key);
+   const id=key.slice(key.lastIndexOf('/')+1);
+   await db.query("INSERT INTO f07_images.audit(picture_id,action,detail) VALUES($1,'ORPHAN_CLEANUP','TEST_CRASH_RECONCILE')",[id]);
+   deleted.push(key);
+  }
+  return deleted;
+ });
 }
