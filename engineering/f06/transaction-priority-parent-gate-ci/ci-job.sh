@@ -37,6 +37,8 @@ if(report.status!=="ALL_NATIVE_ASSERTIONS_PASS"||
    report.nativeTamperMatrix?.length!==5||
    report.nativeUnsignedCancelMatrix?.length!==2||
    !report.realSignedC01JytWaitlist||
+   report.realSignedC01JytWaitlist.explicitUnsignedMatchDenied!==true||
+   report.realSignedC01JytWaitlist.explicitUnsignedMatchSQLSTATE!=='23514'||
    !report.realSignedR01UniqueNewPriority||
    !report.versionedNative4A||
    !report.versionedNative4B4C||
