@@ -66,12 +66,23 @@ BEGIN
    IF NOT EXISTS(
      SELECT 1 FROM f06_3b_ci.transaction_origins o
        JOIN f06_5b_ci.guard_events g ON g.transaction_id=o.transaction_id
+       JOIN f06_3b_ci.origin_events oe ON oe.transaction_id=o.transaction_id
+       JOIN f06_3b_ci.request_keys rk ON rk.event_key_sha256=oe.event_key_sha256
        JOIN public.locks l ON l.lock_id=o.source_lock_id
      WHERE o.transaction_id=t.transaction_id AND o.source_lock_id=t.source_lock_id
        AND o.vehicle_id=t.vehicle_id AND o.listing_cycle_id=t.listing_cycle_id
        AND o.customer_id=t.customer_id AND o.status='in_progress'
        AND o.public_carrier_status='in_progress'
        AND o.lock_end_reason='converted_to_transaction'
+       AND oe.source_lock_id=o.source_lock_id
+       AND oe.actor_employee_id=o.opening_actor_employee_id
+       AND oe.event_kind='lock_converted_to_transaction'
+       AND oe.previous_lock_status='active' AND oe.final_lock_status='released'
+       AND rk.resulting_transaction_id=o.transaction_id
+       AND rk.source_lock_id=o.source_lock_id
+       AND rk.opening_actor_employee_id=o.opening_actor_employee_id
+       AND rk.action='open'
+       AND g.actor_employee_id=o.opening_actor_employee_id
        AND g.source_lock_id=o.source_lock_id AND g.vehicle_id=v
        AND g.listing_cycle_id=cyc AND g.production_issuer='UNWIRED'
        AND l.lock_status='released' AND l.end_reason='converted_to_transaction'
@@ -195,11 +206,22 @@ BEGIN
  IF NOT EXISTS(
     SELECT 1 FROM f06_3b_ci.transaction_origins o
       JOIN f06_5b_ci.guard_events g ON g.transaction_id=o.transaction_id
+       JOIN f06_3b_ci.origin_events oe ON oe.transaction_id=o.transaction_id
+       JOIN f06_3b_ci.request_keys rk ON rk.event_key_sha256=oe.event_key_sha256
       JOIN public.locks l ON l.lock_id=o.source_lock_id
     WHERE o.transaction_id=tx_id AND o.source_lock_id=t.source_lock_id
       AND o.vehicle_id=t.vehicle_id AND o.listing_cycle_id=t.listing_cycle_id
       AND o.customer_id=t.customer_id AND o.public_carrier_status='in_progress'
       AND o.lock_end_reason='converted_to_transaction'
+       AND oe.source_lock_id=o.source_lock_id
+       AND oe.actor_employee_id=o.opening_actor_employee_id
+       AND oe.event_kind='lock_converted_to_transaction'
+       AND oe.previous_lock_status='active' AND oe.final_lock_status='released'
+       AND rk.resulting_transaction_id=o.transaction_id
+       AND rk.source_lock_id=o.source_lock_id
+       AND rk.opening_actor_employee_id=o.opening_actor_employee_id
+       AND rk.action='open'
+       AND g.actor_employee_id=o.opening_actor_employee_id
       AND g.source_lock_id=t.source_lock_id AND g.vehicle_id=t.vehicle_id
       AND g.listing_cycle_id=t.listing_cycle_id AND g.production_issuer='UNWIRED'
       AND l.lock_status='released' AND l.end_reason='converted_to_transaction'
