@@ -45,6 +45,9 @@ if(report.status!=="ALL_NATIVE_ASSERTIONS_PASS"||
    report.versionedNative4A.pendingFinanceOriginalCode!=='F06_4A_UNRESOLVED_REFUND_FACT'||
    report.versionedNative4A.pendingRefundFactUnchanged!==true||
    !report.versionedNative4B4C||
+   report.versionedNative4B4C.pendingReal4BRefundDenied!==true||
+   report.versionedNative4B4C.pendingFinanceOriginalCode!=='F06_4C_FINANCIAL_OR_REFUND_UNKNOWN_DENY'||
+   report.versionedNative4B4C.pendingRefundFactUnchanged!==true||
    report.parentAfter?.verified!==false){
  console.error("PG1_NATIVE_TRUE_ASSERTIONS_NOT_PROVEN",report.status);
  process.exit(1);
