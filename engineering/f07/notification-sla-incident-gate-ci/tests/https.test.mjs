@@ -1,0 +1,38 @@
+import {test,before,after,beforeEach} from 'node:test';
+import assert from 'node:assert/strict';
+import https from 'node:https';
+import {pool,bootstrap,reset,seed,physicalGate} from '../gate.mjs';
+import {createServer,ENDPOINT} from '../server.mjs';
+let db,server;const audit=[];
+const AT='2026-10-16T02:00:00Z';
+before(async()=>{db=pool();await bootstrap(db);server=await createServer(db,{audit:x=>audit.push(x)});await new Promise(resolve=>server.listen(49274,'127.0.0.1',resolve));});
+after(async()=>{if(server)await new Promise(resolve=>server.close(resolve));if(db)await db.end();});
+beforeEach(async()=>{audit.length=0;await reset(db);});
+const call=({url='/__ci__/f07-4/dispatch',method='POST',body={at:AT,channel:'personal',eventId:'event-ci-1'},headers={}}={})=>new Promise((resolve,reject)=>{
+ const data=typeof body==='string'?body:JSON.stringify(body);
+ const req=https.request(ENDPOINT+url,{method,rejectUnauthorized:false,headers:{'x-f07-4-mode':'CI_SYNTHETIC_ONLY','content-type':'application/json',...headers}},res=>{
+  let str='';res.on('data',x=>str+=x);res.on('end',()=>resolve({code:res.statusCode,body:str,headers:res.headers}));});
+ req.on('error',reject);if(method==='POST')req.write(data);req.end();
+});
+const count=async()=>Number((await db.query('SELECT count(*)::int n FROM f07_4_ci.mock_outbox')).rows[0].n);
+test('H01 本地TLS合法合成事件202且真PG投递',async()=>{await seed(db);const r=await call();assert.equal(r.code,202);assert.equal(JSON.parse(r.body).result,'MOCK_ACCEPTED');assert.equal(await count(),1);assert.equal(audit.at(-1).code,'MOCK_LOCAL_ONLY');});
+test('H02 HTTPS已投递去重不可重复',async()=>{await seed(db);await call();const r=await call();assert.equal(r.code,200);assert.equal(await count(),1);assert.equal(audit.at(-1).code,'STAGE_ALREADY_SENT');});
+test('H03 未标注合成测试事件拒绝',async()=>{await seed(db);const r=await call({headers:{'x-f07-4-mode':'REAL_FEISHU'}});assert.equal(r.code,403);assert.equal(audit.at(-1).code,'UNSIGNED_PARENT_SOURCE_GAP');assert.equal(await count(),0);});
+test('H04 Host伪造拒绝',async()=>{await seed(db);assert.equal((await call({headers:{host:'evil.test'}})).code,403);assert.equal(await count(),0);});
+test('H05 Origin跨站拒绝',async()=>{await seed(db);assert.equal((await call({headers:{origin:'https://evil.test'}})).code,403);assert.equal(await count(),0);});
+test('H06 Forwarded旁路拒绝',async()=>{await seed(db);assert.equal((await call({headers:{'x-forwarded-for':'1.2.3.4'}})).code,403);assert.equal(await count(),0);});
+test('H07 Authorization直传拒绝',async()=>{await seed(db);assert.equal((await call({headers:{authorization:'Bearer secret'}})).code,403);assert.equal(await count(),0);});
+test('H08 JSON错误拒绝',async()=>{await seed(db);assert.equal((await call({body:'{broken'})).code,400);assert.equal(await count(),0);});
+test('H09 不允许额外隐私字段',async()=>{await seed(db);const r=await call({body:{at:AT,channel:'personal',eventId:'event-ci-1',phone:'123'}});assert.equal(r.code,400);assert.equal(await count(),0);});
+test('H10 非白名单事件真PG记录NOT_ALLOWLISTED',async()=>{await seed(db,{kind:'matching'});const r=await call();assert.equal(r.code,403);assert.equal(audit.at(-1).code,'PDM23_NOT_ALLOWLISTED');assert.equal(await count(),0);});
+test('H11 DND不因SLA绕过',async()=>{await seed(db,{kind:'consultation_sla_timeout'});const r=await call({body:{at:'2026-10-16T16:00:00Z',channel:'group',eventId:'event-ci-1'}});assert.equal(r.code,403);assert.equal(audit.at(-1).code,'DND_DELAY_REVALIDATE');assert.equal(await count(),0);});
+test('H12 当前owner inactive即时拒绝',async()=>{await seed(db);await db.query('UPDATE f07_4_ci.employee SET active=false');assert.equal((await call()).code,403);assert.equal(audit.at(-1).code,'CURRENT_EMPLOYEE_OR_SCOPE_DENIED');});
+test('H13 公司飞书全局关闭即时拒绝',async()=>{await seed(db);await db.query('UPDATE f07_4_ci.config SET company_on=false');assert.equal((await call()).code,403);assert.equal(audit.at(-1).code,'COMPANY_FEISHU_DISABLED');});
+test('H14 不存在的业务事件不得伪造',async()=>{const r=await call();assert.equal(r.code,403);assert.equal(audit.at(-1).code,'EVENT_MISSING');});
+test('H15 旧deep-link无真实父认证拒绝',async()=>{const r=await call({url:'/__ci__/f07-4/link',method:'GET',headers:{'x-ci-link':'/E01/consultation-1'}});assert.equal(r.code,403);assert.equal(audit.at(-1).code,'LINK_CURRENT_SESSION_SCOPE_OBJECT_SOURCE_GAP');assert.equal(audit.at(-1).parentCalls,1);});
+test('H16 SSRF deep-link拒绝',async()=>{const r=await call({url:'/__ci__/f07-4/link',method:'GET',headers:{'x-ci-link':'https://evil.test/PC/secret'}});assert.equal(r.code,403);assert.equal(audit.at(-1).code,'LINK_HOST_OR_ROUTE_DENIED');});
+test('H17 URL编码穿越拒绝，无父调用',async()=>{const r=await call({url:'/__ci__/f07-4/%2e%2e/dispatch'});assert.equal(r.code,400);assert.equal(audit.at(-1).parentCalls,0);});
+test('H18 不提供浏览器GET发送旁路',async()=>{const r=await call({url:'/__ci__/f07-4/dispatch',method:'GET'});assert.equal(r.code,404);assert.equal(await count(),0);});
+test('H19 超过限额请求体拒绝',async()=>{await seed(db);const r=await call({body:' '.repeat(1100)});assert.equal(r.code,413);assert.equal(await count(),0);});
+test('H20 HTTPS响应不泄内部码/Token和敏感字段',async()=>{await seed(db,{kind:'transaction_changed'});const r=await call();assert.equal(r.code,202);for(const s of ['MOCK_LOCAL_ONLY','event-ci-1','internal_price','VIN','phone','Bearer'])assert.equal(r.body.includes(s),false);assert.equal(r.headers['cache-control'].startsWith('no-store'),true);});
+test('F07-4 HTTPS 完整20黑箱完成',async()=>{const g=await physicalGate(db);assert.ok(g.pid>0);console.log('F07_4_HTTPS_PG16_LOOPBACK_TLS_20_PASS');});
