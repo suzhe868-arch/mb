@@ -26,6 +26,7 @@ jobs:
         run: |
           set -euo pipefail
           for f in engineering/f06/transaction-priority-parent-gate-ci/*.mjs; do node --check "$f"; done
+          node engineering/f06/transaction-priority-parent-gate-ci/静态ESM导入契约验证.mjs
           bash -n engineering/f06/transaction-priority-parent-gate-ci/ci-job.sh
           test -s engineering/f06/transaction-priority-parent-gate-ci/sidecar.sql
           grep -q 'CREATE CONSTRAINT TRIGGER pg1_deferred_signed_cancel' engineering/f06/transaction-priority-parent-gate-ci/sidecar.sql
