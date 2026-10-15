@@ -22,6 +22,7 @@ import {cancelAfterHandoffSyntheticCI} from '../../post-handoff-cancel-ci/servic
 import {installSignedPG1InExisting5CCI,verify5CVersioned,withSignedPG1Ref} from '../pg1-versioned-adapter.mjs';
 import {cancelSyntheticTransactionV2CI} from '../../transaction-priority-parent-gate-ci/signed-cancel-v2.mjs';
 import {runNativeForgedCancelMatrix} from '../../transaction-priority-parent-gate-ci/伪造取消原生反例.mjs';
+import {requestSyntheticNewPriorityV2CI} from '../service-v2.mjs';
 
 import {withF062} from '../../deposit-ledger-ci/migration.mjs';
 import {withParentBranch} from '../../lock-lifecycle-ci/migration.mjs';
@@ -35,6 +36,7 @@ let token;
 const args={vehicleId:86181104,listingCycleId:86182104,customerId:86180101,teamId:901,eventKey:mk('base')};
 const attempt=(v={},a=auth,t='forged')=>requestSyntheticNewPriorityCI(a,t,{...args,...v});
 let realTxId,legacyTxId,positive,positiveLockId;
+let c01Pg1Vehicle=null;
 let parentCrossDomainProbes={}; // 真实PG同事务Savepoint负例观察，绝不修改冻结父或签发生产事实
 const f06Signed=fn=>withF063A(()=>withF062(()=>withParentBranch(fn)));
 async function makeSignedLock(n,label){
@@ -932,6 +934,7 @@ test('5C-S84 C01 真JYT当前Match、原F06-1候补、5B交易和4A取消不得�
   "ORDER BY l.vehicle_id LIMIT 1"))[0];
  assert.ok(fresh,'C01_TRUE_SIGNED_JYT_FIXTURE_UNAVAILABLE_BLOCKED');
  const vehicleId=Number(fresh.vehicle_id),listingCycleId=Number(fresh.current_cycle_id);
+ c01Pg1Vehicle={vehicleId,listingCycleId};
  const first=await f06Signed(()=>intakeCI(db,{customerId:positive.customerId,vehicleId,listingCycleId,
   requestKey:mk('c01-first-before-match'),syntheticPhoneConsent:'CI_SYNTHETIC_PHONE_CONSENT_NOT_PRODUCTION'}));
  assert.equal(first.code,'F06_1_PENDING_CREATED',JSON.stringify(first));
@@ -1038,4 +1041,18 @@ test('5C-S87 PG1版本化目录旧父FailClosed与新5C同库签名通过',async
  assert.equal(v.parent190Tables,190);
  assert.equal(v.productionIssuer,'DENIED');
  assert.notEqual(v.oldCatalog,v.newCatalog);
+});
+
+test('5C-S88 已签新版5C入口在真PG1 Catalog上仍执行同车候补安全拒绝',async()=>{
+ assert.ok(c01Pg1Vehicle,'F06_5C_V2_REAL_C01_JYT_REQUIRED');
+ const r=await requestSyntheticNewPriorityV2CI(auth,r03.managerToken,{
+  ...c01Pg1Vehicle,customerId:positive.customerId,teamId:901,
+  eventKey:mk('v2-real-pg1-c01-waitlist-deny')
+ });
+ assert.equal(r.code,'F06_5C_ACTIVE_SIGNED_WAITLIST_PREVENTS_NEW_PRIORITY',JSON.stringify(r));
+ assert.equal(r.allowed,false);
+ assert.equal((await q("SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND status='active'",[c01Pg1Vehicle.vehicleId]))[0].n,0);
+ console.log('F06_5C_SIGNED_PG1_V2_PRIORITY_API_WAITLIST_DENY',JSON.stringify({
+  vehicleId:c01Pg1Vehicle.vehicleId,code:r.code,backendPid:r.pgBackendPid,txid:r.pgTransactionId,
+  verifiedV2:true,activePriorityAfter:0}));
 });
