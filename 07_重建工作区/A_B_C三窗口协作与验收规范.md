@@ -4,7 +4,7 @@
 
 首个放行包：[C-APP-01](https://github.com/suzhe868-arch/mb/blob/main/07_%E9%87%8D%E5%BB%BA%E5%B7%A5%E4%BD%9C%E5%8C%BA/C-APP-01_A%E4%B8%BB%E6%8E%A7%E6%89%8B%E6%9C%BA%E7%AB%AF%E4%BB%A3%E7%A0%81%E4%BC%98%E5%85%88%E5%B7%A5%E7%A8%8B%E9%AA%A8%E6%9E%B6%E4%B8%8EC01%E9%A6%96%E9%A1%B5%E7%9C%9F%E5%AE%9E%E8%BF%90%E8%A1%8C_%E9%A6%96%E6%89%B9%E6%AD%A3%E5%BC%8F%E5%AE%8C%E6%95%B4%E6%96%BD%E5%B7%A5%E5%8D%95_2026-10-15.md)；上位裁定：[代码优先全量追踪与验收](https://github.com/suzhe868-arch/mb/blob/main/07_%E9%87%8D%E5%BB%BA%E5%B7%A5%E4%BD%9C%E5%8C%BA/C%E6%89%8B%E6%9C%BA%E7%AB%AF%E4%BB%A3%E7%A0%81%E4%BC%98%E5%85%88_%E5%85%A8%E9%87%8F%E5%8A%9F%E8%83%BD%E7%8A%B6%E6%80%81%E4%B8%8E%E8%B7%A8%E7%AB%AF%E9%AA%8C%E6%94%B6_A%E4%B8%BB%E6%8E%A7%E6%AD%A3%E5%BC%8F%E6%8A%80%E6%9C%AF%E8%A3%81%E5%AE%9A_2026-10-15.md)。C基于**最新main新建隔离分支**，交代码/真小程序+H5构建/截图/状态、Mock标记/API缺口/CI/中文回报，只可 PR交A，不自行merge。用户的视觉参考与最终效果确认仍有效，但免掉单独制图闸门。A可在不改 PDM Final 情况下放行隔离代码/Mock；**真实业务API联调、资金/生产/微信发布仍各自独立门禁**。
 
-现行两轨：**B保持独占现有正式主 `NEXT_OWNER=B` F07-3 PR66 整改；C-APP-01是单列parallel track `A_RELEASED_FOR_C_MOCK_ONLY`**。A对C验收不覆盖B状态；GitHub为跨窗交接源，不声称已向其他聊天窗口自动发送。任何旧“C只设计不写前端/H03先等H02高保真”在本已授权的手机端C包内视为被明确取代；PDM Final→IA与安全门禁从未被取代。
+现行两轨：**B仍为正式主任务责任人 `NEXT_OWNER=B`，具体F域任务须读取最新 `PROJECT_STATE.json`（本次核验已到F07-4）；C-APP-01是单列parallel track `A_RELEASED_FOR_C_MOCK_ONLY`**。A对C验收不覆盖B状态；GitHub为跨窗交接源，不声称已向其他聊天窗口自动发送。任何旧“C只设计不写前端/H03先等H02高保真”在本已授权的手机端C包内视为被明确取代；PDM Final→IA与安全门禁从未被取代。
 
 ---
 
