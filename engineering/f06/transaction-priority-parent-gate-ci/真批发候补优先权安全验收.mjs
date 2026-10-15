@@ -14,6 +14,36 @@ import {oldRef} from './真实取消前后对照.mjs';
 import {signedCancelUnderNativeVehicleRace} from './原生双Backend并发.mjs';
 const mk=x=>'pg1-c01-'+process.env.GITHUB_RUN_ID+'-'+x;
 const one=async(c,s,a=[])=> (await c.query(s,a)).rows[0];
+
+/** 仅为本可销毁PG16测试构造原5B真实经理权限，不放宽冻结服务。 */
+async function authorizeManagerForSignedLockInNativeCI(c,lockId){
+ const l=await one(c,"SELECT responsible_employee_id FROM public.locks WHERE lock_id=$1 AND lock_status='active'",[lockId]);
+ assert.ok(l,'PG1_5B_SIGNED_LOCK_REQUIRED');
+ const m=await one(c,"SELECT r.role_code FROM public.employees e JOIN public.roles r ON r.role_id=e.main_role_id WHERE e.employee_id=1 AND e.employment_status='active'");
+ assert.equal(m?.role_code,'manager','PG1_5B_MANAGER_ROLE_REQUIRED');
+ const team=await one(c,"SELECT s.scope_id,t.team_id FROM public.employee_team_memberships a "+
+  "JOIN public.employee_team_memberships b ON b.team_id=a.team_id AND b.employee_id=$1 "+
+  "JOIN public.employee_data_scopes s ON s.employee_id=a.employee_id AND s.scope_kind='team' AND s.scope_reference_id=a.team_id "+
+  "JOIN public.teams t ON t.team_id=a.team_id AND t.team_status='active' "+
+  "JOIN public.stores st ON st.store_id=t.store_id AND st.status='active' "+
+  "WHERE a.employee_id=1 AND a.valid_from<=clock_timestamp() AND b.valid_from<=clock_timestamp() "+
+  "AND a.ended_at IS NULL AND b.ended_at IS NULL AND s.ended_at IS NULL LIMIT 1",
+  [l.responsible_employee_id]);
+ assert.ok(team,'PG1_5B_MANAGER_MUST_SHARE_REAL_TEAM_SCOPE');
+ const open=await one(c,"SELECT p.permission_id FROM public.permissions p "+
+  "JOIN public.employee_permission_overrides o ON o.permission_id=p.permission_id AND o.employee_id=1 AND o.decision='allow' "+
+  "JOIN public.employee_capability_scope_bindings b ON b.permission_id=p.permission_id AND b.employee_id=1 AND b.scope_id=$1 AND b.ended_at IS NULL "+
+  "WHERE p.permission_code='transaction.ci.open' LIMIT 1",[team.scope_id]);
+ assert.ok(open,'PG1_5B_SIGNED_OPEN_PERMISSION_SCOPE_REQUIRED');
+ let manage=await one(c,"SELECT permission_id FROM public.permissions WHERE permission_code='transaction.ci.manage'");
+ if(!manage)manage=await one(c,"INSERT INTO public.permissions(permission_id,permission_code) VALUES(969106,'transaction.ci.manage') RETURNING permission_id");
+ const prev=await one(c,"SELECT decision FROM public.employee_permission_overrides WHERE employee_id=1 AND permission_id=$1",[manage.permission_id]);
+ assert.ok(!prev||prev.decision==='allow','PG1_5B_PREEXISTING_DENY_MUST_NOT_BE_REPLACED');
+ if(!prev)await c.query("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(1,$1,'allow',clock_timestamp())",[manage.permission_id]);
+ const bound=await one(c,"SELECT 1 FROM public.employee_capability_scope_bindings WHERE employee_id=1 AND permission_id=$1 AND scope_id=$2 AND ended_at IS NULL",[manage.permission_id,team.scope_id]);
+ if(!bound)await c.query("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(1,$1,$2,clock_timestamp()-interval '2 minutes')",[manage.permission_id,team.scope_id]);
+ return{teamId:Number(team.team_id),responsibleId:Number(l.responsible_employee_id),managerGrantedWithinSignedTeam:true};
+}
 export async function prepareRealJytWaitlist(c,{auth,token,managerToken=token}){
  const fresh=await one(c,"SELECT l.vehicle_id,l.current_cycle_id,l.model_year FROM public.f05_3b_sync_lineages l "+
   "JOIN public.vehicles v ON v.vehicle_id=l.vehicle_id "+
@@ -63,6 +93,7 @@ export async function prepareRealJytWaitlist(c,{auth,token,managerToken=token}){
   requestId:f.requestId,requestKey:mk('first-approved'),action:'approve'
  }));
  assert.equal(accepted.code,'F06_1_APPROVED_ATOMIC_LOCK',JSON.stringify(accepted));
+ const managerScopeEvidence=await authorizeManagerForSignedLockInNativeCI(c,accepted.lockId);
  const queued=await one(c,"SELECT status,resulting_waitlist_id FROM public.lock_requests WHERE lock_request_id=$1",[s.requestId]);
  assert.equal(queued.status,'lock_conflict');
  assert.ok(queued.resulting_waitlist_id);
@@ -85,7 +116,7 @@ export async function prepareRealJytWaitlist(c,{auth,token,managerToken=token}){
  assert.equal(pre.n,0);
  return {vehicleId,listingCycleId:cycle,customerId,transactionId:t.transactionId,
   matchTier:refreshed.tier,waitlistId:Number(waiting.waitlist_id),
-  originalPriorityId:Number(active.priority_id),lockId:accepted.lockId,
+  originalPriorityId:Number(active.priority_id),lockId:accepted.lockId,managerScopeEvidence,
   source:'REAL_F05_3B_JYT_F05_7_F05_8_F06_1_F06_5B_NATIVE'};
 }
 async function requireCurrentSignedJytMatch(c,{vehicleId,listingCycleId,customerId},label){
