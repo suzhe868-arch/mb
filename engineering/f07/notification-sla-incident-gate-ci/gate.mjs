@@ -33,10 +33,10 @@ export async function bootstrap(db) {
  CREATE SCHEMA IF NOT EXISTS f07_4_ci;
  CREATE TABLE IF NOT EXISTS f07_4_ci.config (
   id int PRIMARY KEY CHECK(id=1), company_on boolean NOT NULL DEFAULT true,
-  group_route text, dnd_start text NOT NULL DEFAULT '23:00', dnd_end text NOT NULL DEFAULT '08:30',
+  group_route text, lock_notice_on boolean NOT NULL DEFAULT false,lock_notice_lead_minutes int, dnd_start text NOT NULL DEFAULT '23:00', dnd_end text NOT NULL DEFAULT '08:30',
   timezone text NOT NULL DEFAULT 'Asia/Shanghai', version int NOT NULL DEFAULT 1,
   CHECK(dnd_start ~ '^([01][0-9]|2[0-3]):[0-5][0-9]$'),CHECK(dnd_end ~ '^([01][0-9]|2[0-3]):[0-5][0-9]$'),
-  CHECK(timezone='Asia/Shanghai'));
+  CHECK(timezone='Asia/Shanghai'),CHECK(lock_notice_lead_minutes IS NULL OR lock_notice_lead_minutes>0));
  CREATE TABLE IF NOT EXISTS f07_4_ci.employee (
   employee_id text PRIMARY KEY,active boolean NOT NULL, eligible boolean NOT NULL, in_scope boolean NOT NULL,
   feishu_id text, personal_on boolean NOT NULL DEFAULT true,sla_group_on boolean NOT NULL DEFAULT true);
@@ -65,11 +65,12 @@ export async function bootstrap(db) {
 export async function reset(db) {
  await physicalGate(db);
  await db.query('TRUNCATE f07_4_ci.mock_outbox,f07_4_ci.claim,f07_4_ci.notification_log,f07_4_ci.event,f07_4_ci.employee RESTART IDENTITY');
- await db.query("UPDATE f07_4_ci.config SET company_on=true,group_route='ci-group-only',dnd_start='23:00',dnd_end='08:30',timezone='Asia/Shanghai',version=version+1 WHERE id=1");
+ await db.query("UPDATE f07_4_ci.config SET company_on=true,group_route='ci-group-only',lock_notice_on=false,lock_notice_lead_minutes=NULL,dnd_start='23:00',dnd_end='08:30',timezone='Asia/Shanghai',version=version+1 WHERE id=1");
  await db.query("INSERT INTO f07_4_ci.employee(employee_id,active,eligible,in_scope,feishu_id) VALUES ('employee-ci-1',true,true,true,'ci-fs-1')");
 }
-export async function seed(db,{id='event-ci-1',kind='consultation_created',stage='new',employee='employee-ci-1',valid=true,incidentActive=false,cadence=null,deadline=null}={}) {
+export async function seed(db,{id='event-ci-1',kind='consultation_created',stage='new',employee='employee-ci-1',valid=true,incidentActive=false,cadence=null,deadline=undefined}={}) {
  await physicalGate(db);
+ if(deadline===undefined&&kind==='consultation_sla_timeout')deadline='2026-10-15T00:00:00Z';
  await db.query('INSERT INTO f07_4_ci.event(event_id,kind,stage,employee_id,valid,incident_active,cadence_minutes,deadline) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',[id,kind,stage,employee,valid,incidentActive,cadence,deadline]);
 }
 export function dndAt(at,start='23:00',end='08:30',zone='Asia/Shanghai') {
@@ -103,6 +104,8 @@ export async function dispatch(db,{eventId,channel='personal',at='2026-10-16T02:
   else if(event.kind==='incident_active'&&!event.incident_active)result=reason('SKIPPED','INCIDENT_NOT_ACTIVE');
   else if(event.kind==='incident_recovery'&&event.incident_active)result=reason('SKIPPED','RECOVERY_NOT_CONFIRMED');
   else if(event.kind==='incident_active'&&!event.cadence_minutes)result=reason('SKIPPED','INCIDENT_CADENCE_UNCONFIGURED');
+  else if(event.kind==='consultation_sla_timeout'&&!event.deadline)result=reason('SKIPPED','SLA_EVENT_SOURCE_GAP');
+  else if(event.kind==='lock_expiring'&&(!cfg.lock_notice_on||!cfg.lock_notice_lead_minutes))result=reason('SKIPPED','LOCK_NOTICE_CONFIG_SOURCE_GAP');
   else if(channel==='group'&&!GROUP.has(event.kind))result=reason('SKIPPED','GROUP_EVENT_NOT_ALLOWED');
   else if(!cfg.company_on)result=reason('SKIPPED','COMPANY_FEISHU_DISABLED');
   else if(!emp||!emp.active||!emp.eligible||!emp.in_scope)result=reason('SKIPPED','CURRENT_EMPLOYEE_OR_SCOPE_DENIED');
