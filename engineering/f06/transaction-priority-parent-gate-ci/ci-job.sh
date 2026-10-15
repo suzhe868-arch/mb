@@ -41,6 +41,9 @@ if(report.status!=="ALL_NATIVE_ASSERTIONS_PASS"||
    report.realSignedC01JytWaitlist.explicitUnsignedMatchSQLSTATE!=='23514'||
    !report.realSignedR01UniqueNewPriority||
    !report.versionedNative4A||
+   report.versionedNative4A.pendingReal5BRefundDenied!==true||
+   report.versionedNative4A.pendingFinanceOriginalCode!=='F06_4A_UNRESOLVED_REFUND_FACT'||
+   report.versionedNative4A.pendingRefundFactUnchanged!==true||
    !report.versionedNative4B4C||
    report.parentAfter?.verified!==false){
  console.error("PG1_NATIVE_TRUE_ASSERTIONS_NOT_PROVEN",report.status);
