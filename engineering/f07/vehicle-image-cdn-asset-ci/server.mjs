@@ -21,7 +21,7 @@ export async function createServer(){
    }
    if(parts.length===3&&parts[1]==='h5'){
     const p=await getReadable(token,parts[2],'maintenance_h5');
-    return send(200,JSON.stringify({url:reportH5('https://reports.jyt.invalid/'+p.relative_path+'#page1')}),{'content-type':'application/json'});
+    return send(200,JSON.stringify({url:reportH5(p.report_source_url)}),{'content-type':'application/json'});
    }
    if(parts.length===3&&parts[1]==='share'){
     const id=parts[2];const p=await getReadable(token,id,'vehicle_photo');
