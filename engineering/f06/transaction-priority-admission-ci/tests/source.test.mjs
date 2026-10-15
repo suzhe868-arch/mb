@@ -997,6 +997,7 @@ test('5C-S84 C01 真JYT当前Match、原F06-1候补、5B交易和4A取消不得�
  assert.equal(forged[0].noCommittedPriority,true);
  assert.equal(forged[1].noCommittedPriority,true);
  console.log('F06_5C_S85_S86_NATIVE_SIGNED_MATCH_COMMIT_REJECTIONS',JSON.stringify(forged));
+ const createdBefore=(await q("SELECT count(*)::int n FROM public.f05_8_events_ci WHERE vehicle_id=$1 AND event_kind='created'",[vehicleId]))[0].n;
  const cancelled=await withSignedPG1Ref(()=>cancelSyntheticTransactionV2CI(auth,r03.managerToken,{
   transactionId:tx.transactionId,eventKey:mk('c01-genuine-4a-cancel'),reason:'C01真实候补保护与父自动签发跨域验收'}));
  assert.equal(cancelled.code,'F06_4A_CANCELLED_ATOMIC_NO_PAYMENT',JSON.stringify(cancelled));
@@ -1009,6 +1010,12 @@ test('5C-S84 C01 真JYT当前Match、原F06-1候补、5B交易和4A取消不得�
   actualOriginalMatchTier:refreshed.tier,backend,autoPriority:after}));
  assert.equal((await q("SELECT count(*)::int n FROM public.waitlists WHERE vehicle_id=$1 AND ended_at IS NULL",[vehicleId]))[0].n,1);
  assert.equal(after.length,0,'UPSTREAM_F05_8_PARENT_AUTO_ISSUER_BYPASSES_SIGNED_WAITLIST_C01');
+ const createdAfter=(await q("SELECT count(*)::int n FROM public.f05_8_events_ci WHERE vehicle_id=$1 AND event_kind='created'",[vehicleId]))[0].n;
+ assert.equal(createdAfter,createdBefore,'F06_5C_C01_ACTIVE_WAITLIST_MUST_BLOCK_NEW_PARENT_CREATED_EVENT');
+ assert.equal((await q("SELECT status FROM public.transactions WHERE transaction_id=$1",[tx.transactionId]))[0].status,'cancelled');
+ console.log('F06_5C_C01_PG1_SIGNED_CANCEL_ZERO_NEW_CREATED',JSON.stringify({
+  vehicleId,waitlistId:waiting[0].waitlist_id,createdBefore,createdAfter,activePriorityAfter:after.length,
+  cancelCode:cancelled.code}));
  assert.equal((await q('SELECT count(*)::int n FROM public.refund_payments'))[0].n,0);
 });
 test('5C-S85 C02 真Match+未签4A/4C伪public取消不得提前触发父Priority',()=>{
