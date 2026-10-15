@@ -158,6 +158,24 @@ export async function proveRealJytWaitlist(c,{auth,token},f){
  }finally{await c.query('ROLLBACK')}
  assert.equal((await one(c,"SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active'",[f.vehicleId,f.listingCycleId])).n,0,
   'PG1_C01_SPOOFED_PARENT_PREFIX_MUST_NOT_CREATE_PRIORITY');
+ // 组合负例：旧Priority真实体+错误Match签名+伪造source-create前缀，
+ // 既不能因为匹配无效被静默跳过，也不能直接触发父自动Issuer。
+ await c.query('BEGIN');
+ try{
+  await assert.rejects(()=>c.query(
+   "INSERT INTO public.f05_8_priority_ci(customer_id,vehicle_id,listing_cycle_id,trigger_demand_id,responsible_employee_id,source_match_result_id,source_signature,expires_at,creation_key) "+
+   "SELECT customer_id,vehicle_id,listing_cycle_id,trigger_demand_id,responsible_employee_id,source_match_result_id,$2::text,transaction_timestamp()+interval '1 day','source-create:pg1-unsigned-spoofed-'||priority_id::text "+
+   "FROM public.f05_8_priority_ci WHERE priority_id=$1",
+   [f.originalPriorityId,bogus]
+  ),error=>{
+   assert.equal(error.code,'23514','PG1_C01_UNSIGNED_SPOOFED_PARENT_SQLSTATE');
+   assert.match(error.message,/F06_5C_PG1_NON_PARENT_PRIORITY_ISSUER/);
+   return true;
+  });
+ }finally{await c.query('ROLLBACK')}
+ assert.equal((await one(c,"SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active'",[f.vehicleId,f.listingCycleId])).n,0,
+  'PG1_C01_UNSIGNED_SPOOFED_PARENT_MUST_NOT_CREATE_PRIORITY');
+
  const before=await one(c,"SELECT count(*)::int n FROM public.f05_8_events_ci WHERE vehicle_id=$1 AND event_kind='created'",[f.vehicleId]);
  const out=await cancelSyntheticTransactionV2CI(auth,token,{
   transactionId:f.transactionId,eventKey:mk('signed-v2-cancel'),
@@ -176,7 +194,8 @@ export async function proveRealJytWaitlist(c,{auth,token},f){
   activePriorityAfter:after.n,waitlistEnded:false,signedTransactionCancelled:true,
    explicitUnsignedMatchDenied:true,explicitUnsignedMatchSQLSTATE:'23514',
    explicitNonParentIssuerDenied:true,explicitNonParentIssuerSQLSTATE:'23514',
-   explicitForgedParentPrefixDenied:true,explicitForgedParentPrefixSQLSTATE:'23514'};
+   explicitForgedParentPrefixDenied:true,explicitForgedParentPrefixSQLSTATE:'23514',
+   explicitForgedUnsignedParentPrefixDenied:true,explicitForgedUnsignedParentPrefixSQLSTATE:'23514'};
 }
 
 
