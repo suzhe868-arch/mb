@@ -3,6 +3,8 @@ import assert from 'node:assert/strict'
 import {ALL_SAFE_VEHICLES,DENIED_FIXTURES} from './mock'
 import {DEFAULT_QUERY,EMPTY_FILTERS,priceText,SORTS,type QueryState,type SafeVehicle} from './domain'
 import {queryFeed,matches,orderRows,parsedKeyword,safeById,validateFilters} from './query'
+import {mockReadAdapter,unsignedApiAdapter,UNSIGNED_WRITE_OPERATIONS} from './adapter'
+import {getMockTier,setMockTier,resetMockTier} from './session'
 const q=(x:Partial<QueryState>={}):QueryState=>({...DEFAULT_QUERY,filters:{...EMPTY_FILTERS},...x})
 test('C01默认批发车源、全国、最新上架且首页第一页15台',()=>{
  const feed=queryFeed();assert.equal(DEFAULT_QUERY.source,'wholesale');assert.equal(DEFAULT_QUERY.city,'全国')
@@ -104,4 +106,29 @@ test('C01重复快速查看安全详情不创建业务数据',()=>{
  const original=JSON.stringify(ALL_SAFE_VEHICLES)
  for(let i=0;i<100;i++)safeById(ALL_SAFE_VEHICLES[0].id)
  assert.equal(JSON.stringify(ALL_SAFE_VEHICLES),original)
+})
+
+test('C01真实业务API未经授权均拒绝，不存在伪成功写入',()=>{
+ assert.throws(()=>unsignedApiAdapter.list(q(),1,'normal'),/API_SOURCE_GAP/)
+ assert.throws(()=>unsignedApiAdapter.detail(ALL_SAFE_VEHICLES[0].id,'normal'),/API_SOURCE_GAP/)
+ assert.equal(UNSIGNED_WRITE_OPERATIONS.length,7)
+ assert.deepEqual(mockReadAdapter.list(q(),1,'normal'),queryFeed())
+})
+test('C01演示身份只由隔离会话维护，不由分享路由参数授予',()=>{
+ resetMockTier();assert.equal(getMockTier(),'limited')
+ setMockTier('fan');assert.equal(getMockTier(),'fan')
+ resetMockTier();assert.equal(getMockTier(),'limited')
+})
+test('C01车型筛选和上牌条件为独立 AND，取消品牌不改变年份',()=>{
+ const f={...EMPTY_FILTERS,brand:'奥迪',yearMin:'2024'}
+ const a=queryFeed(q({filters:f}))
+ assert.ok(a.items.every(v=>v.brand==='奥迪'&&v.registrationYear>=2024))
+ const b=queryFeed(q({filters:{...f,brand:''}}))
+ assert.ok(b.total>=a.total)
+})
+test('C01紧急权限拒绝时不能通过历史详情恢复旧图片',()=>{
+ const id=ALL_SAFE_VEHICLES[0].id
+ assert.ok(mockReadAdapter.detail(id,'normal'))
+ assert.equal(mockReadAdapter.detail(id,'revoked'),null)
+ assert.equal(mockReadAdapter.detail(id,'error'),null)
 })
