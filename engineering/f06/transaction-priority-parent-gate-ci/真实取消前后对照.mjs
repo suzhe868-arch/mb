@@ -116,6 +116,10 @@ export async function proveVersionedNative4A(c,fixture){
  assert.equal(after.code,fixture.oldCancel.code,'PG1_V2_4A_ORIGINAL_BUSINESS_CODE_NOT_EQUIVALENT '+JSON.stringify(after));
  const now=await orig(c,newTx);
  assert.ok(now&&now.origin_id,'PG1_V2_4A_ORIGIN_MISSING');
+
+ const native3B5BCancel=await first(c,"SELECT f06_5c_pg1_ci.valid_cancel_signature($1) AS signed_ok",[newTx]);
+ assert.equal(native3B5BCancel?.signed_ok,true,
+  'PG1_V2_4A_REAL_3B_REQUEST_EVENT_5B_ACTOR_AND_CANCEL_TRIPLE_SIGNATURE_REQUIRED');
  for(const k of ['status','completed_at','responsible_employee_id','customer_id','event_kind','previous_status','resulting_status','signed_action'])
   assert.deepEqual(now[k],oldCarrier[k],'PG1_V2_4A_MISMATCH_'+k);
  assert.equal(now.status,'cancelled');
