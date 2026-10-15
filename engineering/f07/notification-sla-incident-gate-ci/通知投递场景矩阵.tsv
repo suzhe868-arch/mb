@@ -90,3 +90,5 @@ S58	真PG16 Source	Lock提醒无显式配置拒绝	LOCK_NOTICE_CONFIG_SOURCE_GAP
 S59	真PG16 Source	Lock提醒合法已启用及提前量	SENT	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
 S60	真PG16 Source	SLA超时缺原deadline拒绝	SLA_EVENT_SOURCE_GAP	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
 S61	真PG16 Source	Incident跨时间桶未满真实cadence不得再次发送，满间隔可重发	INCIDENT_CADENCE_NOT_DUE/之后SENT	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
+S62	真PG16 Source	公司总闸事务内并发修改后提交前重读拒绝	COMPANY_FEISHU_DISABLED，零投递	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
+S63	真PG16 Source	当前员工状态并发撤销后提交前重读拒绝	CURRENT_EMPLOYEE_OR_SCOPE_DENIED，零投递	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
