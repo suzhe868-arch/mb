@@ -121,6 +121,25 @@ export async function proveRealJytWaitlist(c,{auth,token},f){
  }finally{await c.query('ROLLBACK')}
  assert.equal((await one(c,"SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active'",[f.vehicleId,f.listingCycleId])).n,0,
   'PG1_C01_FORGED_MATCH_MUST_NOT_WRITE_ACTIVE_PRIORITY');
+
+ // 独立反例：即使客户+Demand+真实current Match/资格全部满足，
+ // 自定义CreationKey裸SQL仍不能伪装原F05-8父自动Issuer（旧父仅source-create:）。
+ await c.query('BEGIN');
+ try{
+  await assert.rejects(()=>c.query(
+   "INSERT INTO public.f05_8_priority_ci(customer_id,vehicle_id,listing_cycle_id,trigger_demand_id,responsible_employee_id,source_match_result_id,source_signature,expires_at,creation_key) "+
+   "SELECT e.customer_id,e.vehicle_id,e.listing_cycle_id,e.demand_id,e.responsible_employee_id,e.result_id,e.source_signature,transaction_timestamp()+interval '1 day','pg1-manual-valid-match-'+e.result_id::text "+
+   "FROM public.f05_8_eligible_candidates_ci e WHERE e.vehicle_id=$1 AND e.listing_cycle_id=$2 AND e.customer_id=$3 "+
+   "ORDER BY e.result_id LIMIT 1",
+   [f.vehicleId,f.listingCycleId,f.customerId]
+  ),error=>{
+   assert.equal(error.code,'23514','PG1_C01_NON_PARENT_PRIORITY_SQLSTATE');
+   assert.match(error.message,/F06_5C_PG1_NON_PARENT_PRIORITY_ISSUER/);
+   return true;
+  });
+ }finally{await c.query('ROLLBACK')}
+ assert.equal((await one(c,"SELECT count(*)::int n FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND status='active'",[f.vehicleId,f.listingCycleId])).n,0,
+  'PG1_C01_NON_PARENT_ISSUER_MUST_NOT_CREATE_PRIORITY');
  const before=await one(c,"SELECT count(*)::int n FROM public.f05_8_events_ci WHERE vehicle_id=$1 AND event_kind='created'",[f.vehicleId]);
  const out=await cancelSyntheticTransactionV2CI(auth,token,{
   transactionId:f.transactionId,eventKey:mk('signed-v2-cancel'),
@@ -137,7 +156,8 @@ export async function proveRealJytWaitlist(c,{auth,token},f){
  assert.equal(original.status,'ended');
  return {...f,cancelCode:out.code,createdEventsBefore:before.n,createdEventsAfter:events.n,
   activePriorityAfter:after.n,waitlistEnded:false,signedTransactionCancelled:true,
-   explicitUnsignedMatchDenied:true,explicitUnsignedMatchSQLSTATE:'23514'};
+   explicitUnsignedMatchDenied:true,explicitUnsignedMatchSQLSTATE:'23514',
+   explicitNonParentIssuerDenied:true,explicitNonParentIssuerSQLSTATE:'23514'};
 }
 
 
