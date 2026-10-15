@@ -1,0 +1,207 @@
+name: F07-1 Collector Publisher Phone CI Only
+on:
+  push:
+    branches:
+      - feat/f07-1-collector-publisher-phone-callback-ci
+    paths:
+      - 'engineering/f07/collector-publisher-phone-callback-ci/**'
+      - '.github/workflows/f07-1-collector-publisher-phone.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source_pg16:
+    name: F07-1 PG16 Source 40
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: f07_only_ci_root_pass
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://f07_ci:f07_only_ci_app_pass@127.0.0.1:5432/f07_ci_db
+      F07_DIR: engineering/f07/collector-publisher-phone-callback-ci
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_only_ci_test_pass@127.0.0.1:5432/f03_auth_test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: PG16建立非超级用户隔离库
+        shell: bash
+        run: |
+          set -euo pipefail
+          PGPASSWORD=f07_only_ci_root_pass psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f07_ci LOGIN PASSWORD 'f07_only_ci_app_pass' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          PGPASSWORD=f07_only_ci_root_pass psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f07_ci_db OWNER f07_ci;"
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -Atc "SELECT current_user,current_setting('server_version_num'),(SELECT rolsuper FROM pg_roles WHERE rolname=current_user),pg_backend_pid();" | tee f07-pg-role.log
+          test "$(psql "$DATABASE_URL" -Atc 'SELECT rolsuper FROM pg_roles WHERE rolname=current_user')" = f
+      - name: 安装锁定版PG客户端
+        run: npm --prefix "$F07_DIR" install --ignore-scripts --no-audit --no-fund
+      - name: 生成仅本Runner临时签名测试密钥
+        shell: bash
+        run: |
+          set -euo pipefail
+          ephemeral="$(openssl rand -hex 48)"
+          echo "::add-mask::$ephemeral"
+          printf 'F07_COLLECTOR_TEST_SECRET=%s\n' "$ephemeral" >> "$GITHUB_ENV"
+          unset ephemeral
+      - name: JS源语法与安全合同
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check "$F07_DIR/contract.mjs"
+          node --check "$F07_DIR/server.mjs"
+          node --check "$F07_DIR/tests/source.test.mjs"
+          if grep -R -E 'can_call_wholesale_phone|collector/connection:test' "$F07_DIR/" --include='*.mjs' --include='*.sql' ; then exit 1; fi
+      - name: 真PG16 Source完整回归
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 "$F07_DIR/tests/source.test.mjs" 2>&1 | tee f07-source-test.log
+          grep -q 'F07_SOURCE_40_BUSINESS_CASES_REAL_POSTGRES' f07-source-test.log
+          grep -q 'F07_NATIVE_PG16_DISTINCT_BACKENDS' f07-source-test.log
+          grep -q 'fail 0' f07-source-test.log
+      - name: A02隔离环境错配和真实PG16身份拒绝
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 "$F07_DIR/tests/ci-gate.test.mjs" 2>&1 | tee f07-a02-gate.log
+          grep -q 'F07_A02_REAL_PG16_ZERO_WRITE_GATE_17_PASS' f07-a02-gate.log
+          grep -q '# fail 0' f07-a02-gate.log
+      - name: A03创建独立F03已签认证库（非生产，仅一次性PG16）
+        shell: bash
+        run: |
+          set -euo pipefail
+          PGPASSWORD=f07_only_ci_root_pass psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f03_ci LOGIN PASSWORD 'f03_only_ci_test_pass' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          PGPASSWORD=f07_only_ci_root_pass psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f03_auth_test OWNER f03_ci;"
+          npm --prefix engineering install --ignore-scripts --no-audit --no-fund
+          node engineering/f03-1/runner.mjs --bootstrap
+          node engineering/f03-1/runner.mjs --apply
+          node engineering/f03-1/runner.mjs --verify
+          node engineering/f03-1/fixtures.mjs
+      - name: A03实际调用冻结F03签名Session和当前权限读取
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test "$F07_DIR/tests/f03-signed-source.test.mjs" 2>&1 | tee f07-a03-signed-source.log
+          grep -q 'F07_A03_SIGNED_F03_REAL_SESSION_DENY_PROOF_7_PASS' f07-a03-signed-source.log
+          grep -q 'F07_A03_SOURCE_GAP_PHONE_ALIAS_AND_SCOPE_OBJECT_DEFER' f07-a03-signed-source.log
+          grep -q '# fail 0' f07-a03-signed-source.log
+      - name: 真PG16容器重启前持久证明
+        shell: bash
+        run: |
+          set -euo pipefail
+          node "$F07_DIR/tests/restart-proof.mjs" prepare | tee f07-restart-proof.log
+      - name: 重启真实PostgreSQL16容器并验证恢复
+        shell: bash
+        run: |
+          set -euo pipefail
+          cid="$(docker ps --filter ancestor=postgres:16 --format '{{.ID}}' | head -n1)"
+          test -n "$cid"
+          docker restart "$cid" > /dev/null
+          restored=false
+          for i in $(seq 1 40); do
+            if psql "$DATABASE_URL" -Atc 'SELECT 1' >/dev/null 2>&1; then restored=true; break; fi
+            sleep 1
+          done
+          test "$restored" = true
+      - name: 真PG16恢复后重放与乱序验证
+        shell: bash
+        run: |
+          set -euo pipefail
+          node "$F07_DIR/tests/restart-proof.mjs" verify | tee -a f07-restart-proof.log
+          grep -q 'F07_RESTART_REAL_PG16_PERSISTENCE_REPLAY_STALE_PASS' f07-restart-proof.log
+      - name: 官方原生日志工件
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f07-1-source-pg16-${{ github.sha }}
+          path: |
+            f07-pg-role.log
+            f07-source-test.log
+            f07-a02-gate.log
+            f07-a03-signed-source.log
+            f07-restart-proof.log
+          if-no-files-found: error
+          retention-days: 14
+  https_pg16:
+    name: F07-1 PG16 HTTPS 15
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: f07_only_ci_root_pass
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://f07_ci:f07_only_ci_app_pass@127.0.0.1:5432/f07_ci_db
+      F07_DIR: engineering/f07/collector-publisher-phone-callback-ci
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F07_TLS_KEY: /tmp/f07-key.pem
+      F07_TLS_CERT: /tmp/f07-cert.pem
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: PG16建立非超级用户隔离库
+        shell: bash
+        run: |
+          set -euo pipefail
+          PGPASSWORD=f07_only_ci_root_pass psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f07_ci LOGIN PASSWORD 'f07_only_ci_app_pass' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          PGPASSWORD=f07_only_ci_root_pass psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f07_ci_db OWNER f07_ci;"
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -Atc "SELECT current_user,current_setting('server_version_num'),(SELECT rolsuper FROM pg_roles WHERE rolname=current_user),pg_backend_pid();" | tee f07-pg-role.log
+          test "$(psql "$DATABASE_URL" -Atc 'SELECT rolsuper FROM pg_roles WHERE rolname=current_user')" = f
+      - name: 安装锁定版PG客户端并生成合成TLS
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --prefix "$F07_DIR" install --ignore-scripts --no-audit --no-fund
+          ephemeral="$(openssl rand -hex 48)"
+          echo "::add-mask::$ephemeral"
+          printf 'F07_COLLECTOR_TEST_SECRET=%s\n' "$ephemeral" >> "$GITHUB_ENV"
+          unset ephemeral
+          openssl req -x509 -newkey rsa:2048 -sha256 -nodes -keyout "$F07_TLS_KEY" -out "$F07_TLS_CERT" -days 1 -subj "/CN=localhost" >/dev/null 2>&1
+      - name: 真PG16 loopback HTTPS回归
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check "$F07_DIR/tests/https.test.mjs"
+          node --test --test-concurrency=1 "$F07_DIR/tests/https.test.mjs" 2>&1 | tee f07-https-test.log
+          grep -q 'F07_HTTPS_15_SECURITY_CASES_REAL_TLS' f07-https-test.log
+          grep -q 'fail 0' f07-https-test.log
+      - name: 官方原生日志工件
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f07-1-https-pg16-${{ github.sha }}
+          path: |
+            f07-pg-role.log
+            f07-https-test.log
+          if-no-files-found: error
+          retention-days: 14

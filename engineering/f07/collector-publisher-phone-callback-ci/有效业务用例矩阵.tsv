@@ -1,0 +1,13 @@
+编号	安全域	操作与明确断言	类型
+S01-S06	缓存与singleflight	首次miss、重复合并、并发latest、合法回写、共享、多次读不重复取号	正向
+S07-S10	最新与失败保留	强制新取、历史保留、失败旧值、无号明确不可用	正反
+S11-S18	回传认证和顺序	幂等、异体冲突、nonce、伪签、过期、跨publisher、陌生任务、旧结果不得覆盖	安全负例
+S19-S20	复合publisher作用域	不同publisher、不同来源平台独立	正向
+S21-S30	当前权限和来源	敏感能力、DENY、4S、管理员、停用、旧会话、scope、转换、对象、撤权	安全负例
+S31-S33,S40	PG16真实并发/事务	双Backend PID/txid、SQL注错ROLLBACK全量md5、实际行锁/COMMIT竞态	事务证据
+S34-S36	隐私与一致性	审计无电话、系统拨号器标识、双publisher并发一致性	正反
+H01-H15	Loopback HTTPS	回调签名/时间/publisher/Token剔除/权限/转换/安全投影/失败保留/400/404/409	黑箱测试
+
+S37-S39	审计物理不可修改	真实PG16 UPDATE/DELETE SQLSTATE 23514拒绝，不删除回传凭据及历史	安全负例
+G01-G17	A02当前DB前置门禁	错误CI/env/repo/ref/event/Run/DSN、真实superuser与危险操作不变性；17项	真PG16正反
+P01-P07	A03已签F03实际认证负例	原80表封印、IsolatedAuth真实Session、父权限读取、TECH_ALIAS待签、个人DENY与epoch撤权；7项	真实父链安全拒绝
