@@ -1,3 +1,14 @@
+# 2026-10-15｜A完成F06-5C PR62标准合并；F07-1正式施工放行（当前唯一）
+
+**新唯一状态：** `A_ACCEPTED_MERGED_PR62_CI_ONLY / A_RELEASED_FOR_B_F07_1_CI_ONLY / NEXT_OWNER=B / NEXT_TASK=F07_1_COLLECTOR_TO_INTEGRATION_PUBLISHER_PHONE_CALLBACK_CACHE_SCOPE_CI_ONLY / F05_F06_F07_V1_NOT_READY / PRODUCTION_DENIED`。
+
+1. **A实质完成**：审查[PR62](https://github.com/suzhe868-arch/mb/pull/62)唯一B受验HEAD `e2c153996f73e46ee35e4cfe6dee21f4583b712b`、43个授权CI新增文件；逐Run核GitHub真正Push工作流**22/22 success**、真实PG16 **96/96 Jobs success**（H52 **52/52**）及官方**96/96有效SHA256元数据工件**。核心Source原生**92/92**、HTTPS**9/9**，S84/85/86和R01/R03验签、父190表和24Ledger、两PG OID`68461→73512`真实日志通过；只证隔离CI，不证真实资金和生产功能。A通过GitHub**标准merge**成功，PR62真实合并SHA **`e54872b3f92cd66b3b51bd5465670e0d6e7de3c1`**。A报告`07_重建工作区/F06-5C_A主控PR62独立验收96项真PG16标准合并与F07前置分阶段放行正式报告_2026-10-15.md`。
+2. **独立范围红灯裁决**：同SHA旧冻结`pull_request`有2项成功、7项失败、1项执行中；失败来自旧父指定Push证明和ECR Docker拉取限流，不声称全部Checks绿。A签`F06-5C-PR62-A-CI-APPLICABILITY-01`仅对该PR旧父重复事件不适用，保留红灯：[正式签字](https://github.com/suzhe868-arch/mb/pull/62#issuecomment-6186748123)。原PG1兼容`process.env.GITHUB_REF`桥只接受隔离测试用途，**生产不得使用全局REF替换作为权限或真实性证据**。F05/F06/F07/V1整域仍`NOT_READY`。
+3. **当前正式唯一待执行项——B**：`07_重建工作区/F07-1_A主控Collector发布人电话安全回传与缓存权限合同_CI隔离正式完整施工单_2026-10-15.md`。B从**最新main**建立`feat/f07-1-collector-publisher-phone-callback-ci`和PR；**仅新增**`engineering/f07/collector-publisher-phone-callback-ci/**`、`.github/workflows/f07-1-*.yml`；真实隔离PG16 Source ≥25安全/并发断言、HTTPS ≥9、至少2项新PG16真Job + 同SHA官方工件。依PDM-09：Collector→名邦Backend Integration回传、缓存身份`source_platform+upstream_publisher_id`、缓存命中/latest/invalid保留旧号、签名回传、重放和并发、当前Employee敏感能力/data scope/source_type权限。旧`car_code`电话键、独立`can_call_wholesale_phone`和名邦直接向Collector取JYT号码一律禁止。只能合成回传/loopback，不连接真实JYT/真实客户/生产凭据；旧资金和前端未授权。
+4. **退出**：B在这个包内部连续完成研发、静态/原生测试、安全复审、全部CI、证据归档与自验，最后`B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A`交回A。A独立验收前B不得合并；F07及V1不能判READY。下方旧“PR62待验/PR63后接入”仅历史。
+
+---
+
 # 2026-10-15｜A独立验收PR63标准合并，正式放行PR62对接已签PG1与C01—C03原生复验（唯一最新）
 
 - **唯一主线指针**：`A_ACCEPTED_MERGED_PR63_CI_ONLY / A_RELEASED_FOR_B_PR62_PG1_INTEGRATION / NEXT_OWNER=B / NEXT_TASK=F06_5C_PR62_PG1_SIGNED_INTEGRATION_C01_C03_FULL_NATIVE_REGRESSION_AND_FINAL_HANDOFF / PR62_NOT_MERGED / F05_F06_V1_NOT_READY`。A受验B最新PG1 HEAD `82b30bde92291a444372f3c1627e41469fba4586`、主线审查点 `bcb5b4e8fe5442b255344840f2a6fe00ddfcd022`；实际按标准GitHub [PR63](https://github.com/suzhe868-arch/mb/pull/63)合并成功，GitHub返回 `merged=true`，**合并提交 `a8dfb9f1e78bbab4f194dbeed3076bd8c33eddad`**。A[独立验收评论](https://github.com/suzhe868-arch/mb/pull/63#issuecomment-6184723787)已归档，限 `A_ACCEPTED_CI_ONLY`，不代表F05/F06/V1整域READY。
