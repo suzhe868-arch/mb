@@ -16,7 +16,7 @@ const probe=async(key,value,action=bootstrap)=>{
  assert.deepEqual(await inventory(),before);
 };
 test('A02 非超级用户PG16 FailClosed 17项',async t=>{
- await bootstrap();await reset();await seed();
+ await reset();await seed();
  const matrix=[
  ['G01 非Push事件',()=>probe('GITHUB_EVENT_NAME','pull_request')],
  ['G02 错仓库',()=>probe('GITHUB_REPOSITORY','some/other')],
