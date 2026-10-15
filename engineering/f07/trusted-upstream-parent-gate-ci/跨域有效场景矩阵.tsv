@@ -70,3 +70,9 @@ HTTPS	H14	恶意/错误HTTPS请求拒绝	SIGNED_PARENT_NEGATIVE_ONLY	engineering
 HTTPS	H15	恶意/错误HTTPS请求拒绝	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	loopback TLS真PG16/待官方Push验收
 HTTPS	H16	已签PG当前Session撤权COMMIT拒绝	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	loopback TLS真PG16/待官方Push验收
 HTTPS	H17	已签PG当前Session撤权COMMIT拒绝	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs	loopback TLS真PG16/待官方Push验收
+Source	F03-35	4S未获PC个人准入硬拒	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F03-36	4S获PC准入但业务Publisher硬DENY	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F03-37	真SystemAdmin不能代员工读取Publisher	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F03-38	真inactive员工拒登录	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F03-39	真disabled登录凭据拒绝	SIGNED_PARENT_NEGATIVE_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出待官方Push验收
+Source	F03-40	重放合成签名仍不得取得真实JYT Issuer	CI_SYNTHETIC_ONLY	engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs	真PG16/测试输出待官方Push验收
