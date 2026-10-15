@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS f07_images.audit (
 );
 CREATE OR REPLACE FUNCTION f07_images.protect_origin() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
- IF ROW(OLD.vehicle_id,OLD.resource_type,OLD.source_platform,OLD.upstream_image_id,
+ IF OLD.source_platform='JYT' AND ROW(OLD.vehicle_id,OLD.resource_type,OLD.source_platform,OLD.upstream_image_id,
         OLD.relative_path,OLD.immutable_order) IS DISTINCT FROM
     ROW(NEW.vehicle_id,NEW.resource_type,NEW.source_platform,NEW.upstream_image_id,
         NEW.relative_path,NEW.immutable_order)
