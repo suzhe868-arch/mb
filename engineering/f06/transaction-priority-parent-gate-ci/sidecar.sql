@@ -304,7 +304,7 @@ BEGIN
  -- source-create:只是可由SQL直接伪造的文本，不是父签发能力凭据。
  -- 仅当真实PG16调用栈包含冻结父仲裁函数时承认来源；直接INSERT(包括伪造前缀)一律拒绝。
  GET DIAGNOSTICS pg_callstack = PG_CONTEXT;
- IF pg_callstack !~ 'PL/pgSQL function (public\\.)?f05_8_reconcile_scope_ci\\(bigint,bigint\\)' THEN
+ IF pg_callstack !~ 'PL/pgSQL function (public[.])?f05_8_reconcile_scope_ci[(]bigint,[[:space:]]*bigint[)]' THEN
   RAISE EXCEPTION 'F06_5C_PG1_NON_PARENT_PRIORITY_ISSUER' USING ERRCODE='23514';
  END IF;
  IF NOT f06_5c_pg1_ci.safe_to_issue(NEW.vehicle_id,NEW.listing_cycle_id) THEN
