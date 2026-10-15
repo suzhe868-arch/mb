@@ -56,3 +56,17 @@
 A应独立对比main/PR64白名单、签名PDM09和F03的调用条件、真实PG16日志的Source40、HTTPS15、回滚/重启/两Backend、Artifacts最后同SHA及旧工作流实际红证，检查同请求异Payload、nonce、source转换/权限撤回后读拒绝；未通过时据实`A_CHANGES_REQUESTED`，B在同分支修复。
 
 **当本报告所在唯一末次SHA的两项新PG16 Job及同SHA官方Artifacts均通过时：`B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A`。不触发任何main合并、生产授权或V1完成状态。**
+
+---
+
+## A正式首轮整改｜B完整复验补证（2026-10-15）
+
+本节按main最新`F07_1_PR64_A_CHANGES_REQUESTED`和正式整改单补充，覆盖上文的旧工程自验推断。**原PR64未被A接受，B不能合并。**
+
+- **A01 P0修复**：两个GitHub原生Job在生成随机HMAC密钥时先`::add-mask::`再写`GITHUB_ENV`；实际Source和HTTPS新官方日志中`F07_COLLECTOR_TEST_SECRET: ***`，此前旧Run泄露历史保留、不掩盖。
+- **A02 P0修复**：所有Sidecar DDL/TRUNCATE/seed/employee敏感动作/Collector回传在首次写入前验证`CI/GITHUB_ACTIONS/APP_ENV/NODE_ENV/push/repo/ref/Run/精确回环DSN`及真实`f07_ci_db/f07_ci/PG16/非superuser`等物理身份。新增G01—G17真实PG16负例全部成功、错误情形零DDL/零写入。
+- **A03 P1真实负证**：独立真实`f03_auth_test`库以官方封印签名重建冻结F02/F03-1真实80表，调用原`IsolatedAuth.withSession`与`readCurrentFacts`；P01—P07测试真实Session/个人DENY/epoch撤权COMMIT后拒绝。`publisher.phone.sensitive`仍为`TECH_ALIAS_PENDING_A`：测试临时种入合成模板仍被父Reader`TECH_ALIAS_NOT_APPROVED`拒绝。不能将F07新增侧车自建Session等同已签父业务Auth；正式F03权限Alias/Scope/Object生产联调为`SOURCE_GAP`，只认定`SIGNED_F03_SESSION_NEGATIVE_PROOF`。
+- **原用例不删弱**：Source40+HTTPS15，加G17+P7，总计79项独立子例。本批功能修复绿证`01c77ef38b44b791defe3d97724b47c390d11d90`：[Run38706649359](https://github.com/suzhe868-arch/mb/actions/runs/38706649359)真正push，两项PG16 Job`success`，2份同SHA官方工件非空、未过期且具SHA256服务端元数据。**最终交接以本文件所在新末次SHA的新GitHub Push和工件完成成功为条件；最终SHA和工件ID在PR评论登记。**
+- **源缺口说明文档**：`A整改与真实F03源拒绝证明.md`及两份增补TSV已更新。F05/F06/F07/V1仍`NOT_READY`，任何真实JYT/Collector、生产电话/数据、F07-2/F08/UAT均未授权，B不自行merge main。
+
+`B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A`（最终HEAD官方证据实际绿灯后生效）。
