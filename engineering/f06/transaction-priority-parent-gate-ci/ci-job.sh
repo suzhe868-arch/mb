@@ -38,21 +38,21 @@ if(report.status!=="ALL_NATIVE_ASSERTIONS_PASS"||
    report.nativeUnsignedCancelMatrix?.length!==2||
    !report.realSignedC01JytWaitlist||
    report.realSignedC01JytWaitlist.explicitUnsignedMatchDenied!==true||
-   report.realSignedC01JytWaitlist.explicitUnsignedMatchSQLSTATE!=='23514'||
+   report.realSignedC01JytWaitlist.explicitUnsignedMatchSQLSTATE!=="23514"||
    report.realSignedC01JytWaitlist.explicitNonParentIssuerDenied!==true||
-   report.realSignedC01JytWaitlist.explicitNonParentIssuerSQLSTATE!=='23514'||
+   report.realSignedC01JytWaitlist.explicitNonParentIssuerSQLSTATE!=="23514"||
    report.realSignedC01JytWaitlist.explicitForgedParentPrefixDenied!==true||
-   report.realSignedC01JytWaitlist.explicitForgedParentPrefixSQLSTATE!=='23514'||
+   report.realSignedC01JytWaitlist.explicitForgedParentPrefixSQLSTATE!=="23514"||
    report.realSignedC01JytWaitlist.explicitForgedUnsignedParentPrefixDenied!==true||
-   report.realSignedC01JytWaitlist.explicitForgedUnsignedParentPrefixSQLSTATE!=='23514'||
+   report.realSignedC01JytWaitlist.explicitForgedUnsignedParentPrefixSQLSTATE!=="23514"||
    !report.realSignedR01UniqueNewPriority||
    !report.versionedNative4A||
    report.versionedNative4A.pendingReal5BRefundDenied!==true||
-   report.versionedNative4A.pendingFinanceOriginalCode!=='F06_4A_UNRESOLVED_REFUND_FACT'||
+   report.versionedNative4A.pendingFinanceOriginalCode!=="F06_4A_UNRESOLVED_REFUND_FACT"||
    report.versionedNative4A.pendingRefundFactUnchanged!==true||
    !report.versionedNative4B4C||
    report.versionedNative4B4C.pendingReal4BRefundDenied!==true||
-   report.versionedNative4B4C.pendingFinanceOriginalCode!=='F06_4C_FINANCIAL_OR_REFUND_UNKNOWN_DENY'||
+   report.versionedNative4B4C.pendingFinanceOriginalCode!=="F06_4C_FINANCIAL_OR_REFUND_UNKNOWN_DENY"||
    report.versionedNative4B4C.pendingRefundFactUnchanged!==true||
    report.parentAfter?.verified!==false){
  console.error("PG1_NATIVE_TRUE_ASSERTIONS_NOT_PROVEN",report.status);
