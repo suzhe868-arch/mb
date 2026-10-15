@@ -73,7 +73,7 @@ jobs:
           set -euo pipefail
           psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c 'ALTER DATABASE f03_auth_test RENAME TO f07_3_f03_archive;'
           psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c 'CREATE DATABASE f03_auth_test OWNER f03_ci;'
-          node engineering/f05/wholesale-to-mingbang-conversion/ci-prepare.mjs 2>&1 | tee f07-3-f05-parent-bootstrap.log
+          (cd engineering && node f05/wholesale-to-mingbang-conversion/ci-prepare.mjs) 2>&1 | tee f07-3-f05-parent-bootstrap.log
           node engineering/f05/wholesale-to-mingbang-conversion/runner.mjs --apply 2>&1 | tee f07-3-f05-migration.log
           node engineering/f05/wholesale-to-mingbang-conversion/runner.mjs --verify 2>&1 | tee -a f07-3-f05-migration.log
           psql "$DATABASE_URL" -Atc 'SELECT oid FROM pg_database WHERE datname=current_database()' | tee f07-3-f05-native-oid.log
