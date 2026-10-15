@@ -1,0 +1,79 @@
+name: C-APP-01 手机端真实构建与渲染
+on:
+  push:
+    branches: ['feat/c-app-01-*']
+    paths: ['apps/mobile/**', '.github/workflows/c-app-01-*.yml']
+  pull_request:
+    paths: ['apps/mobile/**', '.github/workflows/c-app-01-*.yml', '07_重建工作区/手机端前端全量追踪基线/C_APP_01_*']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build-and-render:
+    name: C01 两端构建 / 权限测试 / Chromium渲染
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: apps/mobile/customer
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: 生成并冻结本包依赖锁
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: 在 C 独立分支提交锁文件（若尚未存在）
+        if: github.event_name == 'push'
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [ -n "$(git status --porcelain -- package-lock.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add package-lock.json
+            git commit -m "build(c-app-01): 锁定npm依赖树"
+            git push origin "HEAD:refs/heads/$REF_NAME"
+          else
+            echo "锁文件无改动"
+          fi
+      - name: 安装冻结依赖
+        run: npm ci --no-audit --no-fund
+      - name: 客户端路径 / 敏感字段静态门禁
+        run: npm run test:static
+      - name: Mock query 与权限负例自动测试
+        run: npm test
+      - name: TypeScript 检查
+        run: npm run typecheck
+      - name: Taro H5 真构建
+        run: |
+          npm run build:h5
+          mv dist dist-h5
+      - name: Taro 微信小程序真构建
+        run: |
+          npm run build:weapp
+          mv dist dist-weapp
+          test -f dist-weapp/app.json
+      - name: 安装 Chromium 无头浏览器
+        run: npx playwright install --with-deps chromium
+      - name: H5 真浏览器320/375/390/430渲染与交互截图
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory dist-h5 >/tmp/c-app-01-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" || true' EXIT
+          sleep 3
+          npm run test:browser
+      - name: 上传本次完整构建及截图证据（非生产）
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: C-APP-01_独立构建与四屏宽渲染证据
+          path: |
+            apps/mobile/customer/package-lock.json
+            apps/mobile/customer/dist-h5/
+            apps/mobile/customer/dist-weapp/
+            apps/mobile/evidence/浏览器截图/
+          if-no-files-found: warn
+          retention-days: 30
