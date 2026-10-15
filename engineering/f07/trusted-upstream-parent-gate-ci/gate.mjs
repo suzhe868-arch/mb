@@ -73,6 +73,58 @@ export function inspectCollector(raw,issuedAt,signature,secret,expected) {
  // 无真实 Collector/JYT Job Issuer、nonce 持久回执；匹配仅代表合成签名有效。
  return deny('PRODUCTION_JYT_JOB_ISSUER_SOURCE_GAP','SOURCE_GAP');
 }
+
+// PDM-04 三固定API仅作为CI合成合同映射，不是外部路由或真实API Key鉴权。
+export const SYNTHETIC_SYNC_APIS=Object.freeze({
+ UPSERT_VEHICLE:'新增/更新车源',
+ BATCH_CONFIRM_DELIST:'批量确认下架',
+ LIST_CURRENT_WHOLESALE:'获取当前在售批发车源'
+});
+export function mapSyntheticSyncApi(api,request,credentialDomain='vehicle_sync_api') {
+ if(credentialDomain!=='vehicle_sync_api')return deny('SYNC_API_CREDENTIAL_DOMAIN_DENIED','CI_SYNTHETIC_ONLY');
+ if(!Object.hasOwn(SYNTHETIC_SYNC_APIS,api))return deny('SYNC_API_UNKNOWN','CI_SYNTHETIC_ONLY');
+ if(!request||typeof request!=='object'||Array.isArray(request)||
+    !/^job-[0-9]{1,8}$/.test(request.job_id||''))return deny('SYNC_API_JOB_DENIED','CI_SYNTHETIC_ONLY');
+ const base={api,job_id:request.job_id,origin:'CI_SYNTHETIC_ONLY',allowed:false,code:'PRODUCTION_SYNC_API_ISSUER_SOURCE_GAP'};
+ if(api==='LIST_CURRENT_WHOLESALE') {
+  if(Object.keys(request).sort().join(',')!=='job_id,source_platform'||request.source_platform!=='JYT')
+   return deny('SYNC_API_LIST_SCOPE_DENIED','CI_SYNTHETIC_ONLY');
+  return Object.freeze({...base,serverScoped:true,vehicle_ids:[],publisher_ids:[]});
+ }
+ if(api==='UPSERT_VEHICLE'){
+  if(Object.keys(request).sort().join(',')!=='car_code,job_id,source_platform,upstream_publisher_id,vehicle_id'||
+   typeof request.car_code!=='string'||request.car_code.length<1||request.car_code.length>128||
+   !validPublisher({source_platform:request.source_platform,upstream_publisher_id:request.upstream_publisher_id,vehicle_id:request.vehicle_id}))
+   return deny('SYNC_API_BINDING_DENIED','CI_SYNTHETIC_ONLY');
+  return Object.freeze({...base,event:'UPSERT',publisher_id:request.upstream_publisher_id,vehicle_id:request.vehicle_id,car_code:request.car_code});
+ }
+ if(Object.keys(request).sort().join(',')!=='identities,job_id'||!Array.isArray(request.identities)||
+    request.identities.length<1||request.identities.length>20||
+    !request.identities.every(validPublisher))
+  return deny('SYNC_API_BATCH_BINDING_DENIED','CI_SYNTHETIC_ONLY');
+ return Object.freeze({...base,event:'DELIST',identities:request.identities.map(x=>Object.freeze({...x}))});
+}
+// 以下nonce状态表由CI测试在非public schema一次性创建；绝无正式迁移、生产Issuer或电话放权。
+// 使用PG16原生复合唯一键保证两个物理Backend同时消费只成功登记一次。
+export async function inspectCollectorOnce(raw,issuedAt,signature,secret,expected,db) {
+ const x=inspectCollector(raw,issuedAt,signature,secret,expected);
+ if(x.code!=='PRODUCTION_JYT_JOB_ISSUER_SOURCE_GAP')return x;
+ await physicalGate(db);
+ const obj=JSON.parse(raw),c=await db.connect();
+ try{
+  await c.query('BEGIN');
+  const revoked=await c.query('SELECT 1 FROM f07_3_ci.revoked_jobs WHERE job_id=$1',[obj.job_id]);
+  if(revoked.rowCount) {await c.query('ROLLBACK');return deny('COLLECTOR_JOB_REVOKED','CI_SYNTHETIC_ONLY')}
+  const q=await c.query(
+   "INSERT INTO f07_3_ci.used_nonces(source_platform,upstream_publisher_id,vehicle_id,job_id,nonce,expires_at) VALUES($1,$2,$3,$4,$5,to_timestamp($6 / 1000.0)+interval '5 minutes') ON CONFLICT DO NOTHING RETURNING nonce",
+   [obj.source_platform,obj.upstream_publisher_id,obj.vehicle_id,obj.job_id,obj.nonce,Number(issuedAt)]);
+  await c.query('COMMIT');
+  return q.rowCount===1?deny('PRODUCTION_JYT_JOB_ISSUER_SOURCE_GAP','SOURCE_GAP'):
+   deny('COLLECTOR_NONCE_REPLAY_DENIED','CI_SYNTHETIC_ONLY');
+ }catch(e){await c.query('ROLLBACK').catch(()=>{});throw e}
+ finally{c.release()}
+}
+
 export async function signedF05ReadOnly(auth) {
  assertCIEnv();const physical=await physicalGate(auth.pool);
  // 已签F05版本的迁移链和物理目录由F05父verifier验签；F03冻结80表v2 verifier只适用于独立F03库。
