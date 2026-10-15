@@ -1,3 +1,14 @@
+# 2026-10-15｜A已独立验收PR62标准合并，并正式放行F07-1仅隔离CI（唯一最新）
+
+- **唯一正式主线**：`F06_5C_PR62_A_ACCEPTED_STANDARD_MERGED_CI_ONLY / F07_1_A_RELEASED_FOR_B_CI_ONLY / NEXT_OWNER=B / NEXT_TASK=F07_1_COLLECTOR_TO_INTEGRATION_PUBLISHER_PHONE_CALLBACK_CACHE_SCOPE_CI_ONLY / F05_F06_F07_V1_NOT_READY / PRODUCTION_NOT_AUTHORIZED`。A从最新main独立核验[PR62](https://github.com/suzhe868-arch/mb/pull/62) B唯一最终HEAD `e2c153996f73e46ee35e4cfe6dee21f4583b712b`，按GitHub标准merge成功，实际merge SHA **`e54872b3f92cd66b3b51bd5465670e0d6e7de3c1`**；已在main归档正式A报告与下一完整施工单。
+- **A直接检查的唯一受验SHA**：22/22真正`event=push`工作流success；96/96真实非特权PG16 Jobs completed/success，H52 52/52；官方96/96非空未过期有效SHA256摘要Artifacts（**不等于逐ZIP重算字节hash**）；[核心Run38694077838](https://github.com/suzhe868-arch/mb/actions/runs/38694077838) Source主91/91+独立恢复场景1/1＝**92/92**、HTTPS9/9。S84当前候补阻断父新Priority、S85/S86无签Transaction取消COMMIT真实SQLSTATE23514全回滚、R01父唯一新签及R03移交后真取消幂等均已在实际PG16日志核实；两物理OID`68461→73512`、190旧父表COUNT/MD5和24签迁移及PG1目录Seal通过。
+- **额外旧CI红证不删不冒绿**：同HEAD旧`pull_request`事件另10项——本次独立复核2 success、7 failure、1 in_progress；失败属旧父跨分支专有Push证明、部分ECR Docker初始化镜像限流；A在[PR62独立验收评论](https://github.com/suzhe868-arch/mb/pull/62#issuecomment-6186748123)对**仅本CI包**签署`F06-5C-PR62-A-CI-APPLICABILITY-01`，不推广到任何其它PR、不改旧工作流、不假报32/32绿；GitHub标准merge服务端实际许可合并。
+- **下一责任B正式工作单**：`07_重建工作区/F07-1_A主控Collector发布人电话安全回传与缓存权限合同_CI隔离正式完整施工单_2026-10-15.md`。唯一分支`feat/f07-1-collector-publisher-phone-callback-ci`，从B实际开工时最新main新建；只可新增`engineering/f07/collector-publisher-phone-callback-ci/**`与`.github/workflows/f07-1-*.yml`。先按PDM-09/PDM-02/F04已签真实权限验证合成Collector→名邦Backend Integration API发布人电话回传、当前Publisher缓存/历史、缓存命中与latest、撤权与source_type转换；至少25条真PG16 Source、9条loopback TLS HTTPS、2项新真PG16 Jobs，B包内完整开发/审查/整改/回归/中文证据归档，`B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A`后交A独立验收。
+- **严禁范围**：仅隔离CI，不接真实JYT或Collector凭据、外网生产、真电话号码/客户、真实支付/退款及`refund_payments`、生产Issuer、正式HTTP集成、UI端、UAT/部署或F08总验收；不得恢复`can_call_wholesale_phone`或按`car_code`缓存电话。F05/F06整域、F07整域、V1产品仍`NOT_READY`；原F06生产资金链仍是独立`SOURCE_GAP`，不得把PR62的CI验收扩大解释。
+- **A正式验收报告**：`07_重建工作区/F06-5C_A主控PR62独立验收96项真PG16标准合并与F07前置分阶段放行正式报告_2026-10-15.md`；后续以本页顶部、同步后的`PROJECT_STATE.json`和正式F07-1施工单为准，下面历史记录仅用于追溯，已不再是当前待办。
+
+---
+
 # 2026-10-15｜A独立验收PR63标准合并，正式放行PR62对接已签PG1与C01—C03原生复验（唯一最新）
 
 - **唯一主线指针**：`A_ACCEPTED_MERGED_PR63_CI_ONLY / A_RELEASED_FOR_B_PR62_PG1_INTEGRATION / NEXT_OWNER=B / NEXT_TASK=F06_5C_PR62_PG1_SIGNED_INTEGRATION_C01_C03_FULL_NATIVE_REGRESSION_AND_FINAL_HANDOFF / PR62_NOT_MERGED / F05_F06_V1_NOT_READY`。A受验B最新PG1 HEAD `82b30bde92291a444372f3c1627e41469fba4586`、主线审查点 `bcb5b4e8fe5442b255344840f2a6fe00ddfcd022`；实际按标准GitHub [PR63](https://github.com/suzhe868-arch/mb/pull/63)合并成功，GitHub返回 `merged=true`，**合并提交 `a8dfb9f1e78bbab4f194dbeed3076bd8c33eddad`**。A[独立验收评论](https://github.com/suzhe868-arch/mb/pull/63#issuecomment-6184723787)已归档，限 `A_ACCEPTED_CI_ONLY`，不代表F05/F06/V1整域READY。
