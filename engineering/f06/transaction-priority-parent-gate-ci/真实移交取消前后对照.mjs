@@ -119,6 +119,23 @@ export async function proveVersionedNative4C(c,base,fixture){
  assert.equal(cancel.code,fixture.old.code,'PG1_V2_SIGNED_4C_CANCEL_CODE_NOT_EQUIVALENT '+JSON.stringify(cancel));
  const now=await carrier(c,fixture.newTx);
  assert.ok(now&&now.signed_transaction_id,'PG1_V2_4C_CANCEL_SIGNED_ORIGIN_REQUIRED');
+
+ // 4C真实正向签发后逐字段核同一Event、原4B交接和取消原因；不只信成功响应。
+ const trusted=await one(c,"SELECT f06_5c_pg1_ci.valid_cancel_signature($1) signed_ok",[fixture.newTx]);
+ assert.equal(trusted?.signed_ok,true,'PG1_V2_4C_FULL_SIGNED_CANCEL_ORIGIN_REQUIRED');
+ const nativeChain=await one(c,"SELECT "+
+  "k.event_id=e.event_id AS same_cancel_event,"+
+  "h.transaction_id=o.transaction_id AS same_handoff_transaction,"+
+  "e.reason=o.reason AS same_cancel_reason,"+
+  "p.current_responsible_employee_id=o.transferred_responsible_employee_id AS same_responsible "+
+  "FROM f06_4c_ci.cancel_origins o "+
+  "JOIN f06_4c_ci.cancel_events e USING(transaction_id) "+
+  "JOIN f06_4c_ci.request_keys k ON k.transaction_id=o.transaction_id AND k.event_key_sha256=e.event_key_sha256 "+
+  "JOIN f06_4b_ci.responsible_projection p ON p.transaction_id=o.transaction_id "+
+  "JOIN f06_4b_ci.handoff_events h ON h.event_id=p.last_event_id "+
+  "WHERE o.transaction_id=$1",[fixture.newTx]);
+ for(const k of ['same_cancel_event','same_handoff_transaction','same_cancel_reason','same_responsible'])
+  assert.equal(nativeChain?.[k],true,'PG1_V2_4C_CROSS_EVENT_SIGNATURE_MISMATCH_'+k);
  for(const k of ['status','completed_at','responsible_employee_id','original_responsible_employee_id',
   'transferred_responsible_employee_id','parent_handoff_event_count','actor_employee_id',
   'event_kind','signed_actor'])
