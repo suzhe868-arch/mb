@@ -52,11 +52,15 @@ test('F07-1 真PG16 Source业务合同',async t=>{
  ['S33 真实行锁等待与source_type COMMIT后拒绝',async()=>{const c=await pool.connect();try{await c.query('BEGIN');await c.query("UPDATE f07_phone.vehicles SET source_type='mingbang' WHERE id='v1'");let settled=false;const pending=a().finally(()=>{settled=true});await new Promise(r=>setTimeout(r,200));assert.equal(settled,false);await c.query('COMMIT');await assert.rejects(pending,{code:'CURRENT_PERMISSION_DENIED'});}finally{await c.query('ROLLBACK').catch(()=>{});c.release();}}],
  ['S34 latest与缓存共享源确保安全审计无号码',async()=>{const r=await a('latest');await call(r.request_id);const audit=(await pool.query('SELECT row_to_json(a)::text v FROM f07_phone.audit a')).rows.map(x=>x.v).join('|');assert.equal(audit.includes('TEST-123456'),false);}],
  ['S35 安全拨号只返回系统拨号器标识',async()=>{await call((await a()).request_id);assert.equal((await a('dial')).dialer,'SYSTEM_ONLY');}],
- ['S36 多worker不同publisher真实并发不串号',async()=>{const [x,y]=await Promise.all([a('latest','v1'),a('latest','v3')]);await Promise.all([call(x.request_id),call(y.request_id,{upstream_publisher_id:'pub2',phone:'TEST-777777'})]);assert.equal(await count('cache'),2);}]
+ ['S36 多worker不同publisher真实并发不串号',async()=>{const [x,y]=await Promise.all([a('latest','v1'),a('latest','v3')]);await Promise.all([call(x.request_id),call(y.request_id,{upstream_publisher_id:'pub2',phone:'TEST-777777'})]);assert.equal(await count('cache'),2);}],
+ ['S37 审计只追加禁止UPDATE',async()=>{await call((await a()).request_id);await assert.rejects(pool.query("UPDATE f07_phone.audit SET outcome='tampered'"),{code:'23514'});assert.equal(await count('audit'),2);}],
+ ['S38 回传凭据禁止DELETE',async()=>{await call((await a()).request_id);await assert.rejects(pool.query("DELETE FROM f07_phone.receipts"),{code:'23514'});assert.equal(await count('receipts'),1);}],
+ ['S39 电话历史不可删除',async()=>{await call((await a()).request_id);await assert.rejects(pool.query("DELETE FROM f07_phone.phone_history"),{code:'23514'});assert.equal(await count('phone_history'),1);}],
+ ['S40 两Backend并发同回传结果幂等',async()=>{const job=await a();const raw=callbackBody(job.request_id),ts=String(Date.now()),signature=sign(raw,ts);const results=await Promise.all([collectorCallback(raw,ts,signature),collectorCallback(raw,ts,signature)]);assert.deepEqual(results.map(x=>x.status).sort(),['DUPLICATE','UPDATED']);assert.equal(await count('receipts'),1);assert.equal(await count('phone_history'),1);}]
  ];
  for(const [name,fn] of cases){
   await t.test(name,async()=>{await bootstrapCase();await fn();});
  }
- console.log('F07_SOURCE_36_BUSINESS_CASES_REAL_POSTGRES');
+ console.log('F07_SOURCE_40_BUSINESS_CASES_REAL_POSTGRES');
 });
 test.after(async()=>{await pool.end();});

@@ -117,6 +117,12 @@ export async function collectorCallback(raw,ts,sig){
   const nonce=await db.query('SELECT 1 FROM f07_phone.receipts WHERE nonce=$1',[p.nonce]);
   if(nonce.rowCount)throw deny('NONCE_REPLAY');
   const j=await db.query(`SELECT * FROM f07_phone.jobs WHERE request_id=$1 FOR UPDATE`,[p.request_id]);
+  // 两Backend同时同request_id回传：第二个等待行锁后必须重查已提交receipt。
+  if(j.rowCount===1&&j.rows[0].status==='done'){
+   const committed=await db.query('SELECT digest FROM f07_phone.receipts WHERE request_id=$1',[p.request_id]);
+   if(committed.rowCount&&committed.rows[0].digest===hash)return {status:'DUPLICATE'};
+   throw deny('IDEMPOTENCY_CONFLICT');
+  }
   if(j.rowCount!==1||j.rows[0].status!=='pending'
    ||j.rows[0].source_platform!==p.source_platform||j.rows[0].publisher_id!==p.upstream_publisher_id)
    throw deny('REQUEST_PUBLISHER_MISMATCH');

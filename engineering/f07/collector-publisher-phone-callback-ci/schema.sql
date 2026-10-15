@@ -53,3 +53,16 @@ CREATE TABLE f07_phone.audit (
  request_id text, outcome text NOT NULL, created_at timestamptz NOT NULL DEFAULT clock_timestamp()
 );
 REVOKE ALL ON SCHEMA f07_phone FROM PUBLIC;
+
+-- CI中历史/审计/回传收据仅能追加；DELETE/UPDATE须物理拒绝。可销毁侧车TRUNCATE仅用于重建测试。
+CREATE FUNCTION f07_phone.reject_mutation() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ RAISE EXCEPTION 'F07_APPEND_ONLY' USING ERRCODE='23514';
+END;
+$$;
+CREATE TRIGGER audit_append_only BEFORE UPDATE OR DELETE ON f07_phone.audit
+ FOR EACH ROW EXECUTE FUNCTION f07_phone.reject_mutation();
+CREATE TRIGGER receipts_append_only BEFORE UPDATE OR DELETE ON f07_phone.receipts
+ FOR EACH ROW EXECUTE FUNCTION f07_phone.reject_mutation();
+CREATE TRIGGER history_append_only BEFORE UPDATE OR DELETE ON f07_phone.phone_history
+ FOR EACH ROW EXECUTE FUNCTION f07_phone.reject_mutation();

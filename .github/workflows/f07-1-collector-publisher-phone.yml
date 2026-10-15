@@ -11,7 +11,7 @@ permissions:
   contents: read
 jobs:
   source_pg16:
-    name: F07-1 PG16 Source 36
+    name: F07-1 PG16 Source 40
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     services:
@@ -62,7 +62,7 @@ jobs:
         run: |
           set -euo pipefail
           node --test --test-concurrency=1 "$F07_DIR/tests/source.test.mjs" 2>&1 | tee f07-source-test.log
-          grep -q 'F07_SOURCE_36_BUSINESS_CASES_REAL_POSTGRES' f07-source-test.log
+          grep -q 'F07_SOURCE_40_BUSINESS_CASES_REAL_POSTGRES' f07-source-test.log
           grep -q 'F07_NATIVE_PG16_DISTINCT_BACKENDS' f07-source-test.log
           grep -q 'fail 0' f07-source-test.log
       - name: 真PG16容器重启前持久证明
