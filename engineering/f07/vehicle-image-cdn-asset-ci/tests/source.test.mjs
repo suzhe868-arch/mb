@@ -77,12 +77,15 @@ add('S65 首次非空冻结也保留持久image_frozen',async()=>{assert.equal((
 add('S66 模拟进程被杀留下孤儿并核对账实清理',async()=>{const s=new MockStorage();await s.put('TEST_ASSET/p1',Buffer.from('TEST_IMAGE:crash-before-db'));assert.equal((await reconcileOrphans(s)).length,1);assert.equal(s.items.size,0);assert.equal((await row("SELECT action FROM f07_images.audit WHERE picture_id='p1'")).action,'ORPHAN_CLEANUP');});
 add('S67 恢复对账不得误删已成功合法对象',async()=>{const s=new MockStorage();await convert('v1');const x=await assetize('p1',s);await s.put('TEST_ASSET/p2',Buffer.from('TEST_IMAGE:crash'));assert.deepEqual(await reconcileOrphans(s),['TEST_ASSET/p2']);assert(s.has(x.key));assert.equal((await photo('p1')).asset_state,'success');});
 add('S68 Priority占用后的零图占位也不能泄密',async()=>{await q("UPDATE f07_images.vehicles SET priority_actor='user' WHERE id='v2'");await q("UPDATE f07_images.sessions SET scope_vehicle='v2' WHERE token='s-outsider'");await assert.rejects(selectCover('s-outsider','v2',new MockStorage(),new MockCDN()),{code:'CURRENT_VEHICLE_READ_DENY'});});
-test('F07-2 真PG16业务合同 Source 68场景',async t=>{
+add('S69 失败补偿并发合法重试不得删最终成功对象',async()=>{const s=new MockStorage();const del=s.del.bind(s);s.del=async key=>{await new Promise(r=>setTimeout(r,65));return del(key);};await convert('v1');const results=await Promise.allSettled([assetize('p1',s,{failDb:true}),assetize('p1',s)]);assert.equal(results[0].status,'rejected');assert.equal(results[1].status,'fulfilled');assert(s.has((await photo('p1')).object_key));assert.equal(s.writes,2);assert.equal(s.deletes,1);});
+add('S70 人工上传失败补偿与同ID成功写入互斥',async()=>{const s=new MockStorage();const del=s.del.bind(s);s.del=async key=>{await new Promise(r=>setTimeout(r,65));return del(key);};const arg={id:'manual2',path:'own/manual2.jpg',order:1};const results=await Promise.allSettled([uploadManual('vm',arg,s,{failDb:true}),uploadManual('vm',arg,s)]);assert.equal(results[0].status,'rejected');assert.equal(results[1].status,'fulfilled');assert(s.has((await photo('manual2')).object_key));assert.equal(s.writes,2);assert.equal(s.deletes,1);});
+add('S71 崩溃孤儿清理与并发资产化互斥不得删新成功',async()=>{const s=new MockStorage();await convert('v1');await s.put('TEST_ASSET/p1',Buffer.from('TEST_IMAGE:ORPHAN'));const del=s.del.bind(s);s.del=async key=>{await new Promise(r=>setTimeout(r,65));return del(key);};const x=await Promise.all([reconcileOrphans(s),assetize('p1',s)]);assert.deepEqual(x[0],['TEST_ASSET/p1']);assert.equal(x[1].status,'success');assert(s.has((await photo('p1')).object_key));});
+test('F07-2 真PG16业务合同 Source 71场景',async t=>{
  await bootstrap();
  for(const [name,run] of allCases){
   await t.test(name,async()=>{await reset();await seed();await run();});
  }
- console.log('F07_2_SOURCE_68_REAL_PG16_BUSINESS_CASES_PASS');
+ console.log('F07_2_SOURCE_71_REAL_PG16_BUSINESS_CASES_PASS');
 });
 test('F07-2 路径与SSRF恶意输入防护 12项',async t=>{
  const attacks=['../etc/passwd','%2e%2e/secret','%252e%252e/secret','a/%2f/b','a\\b',
