@@ -159,7 +159,7 @@ export async function proveRealJytWaitlist(c,{auth,token},f){
  try{
   await assert.rejects(()=>c.query(
    "INSERT INTO public.f05_8_priority_ci(customer_id,vehicle_id,listing_cycle_id,trigger_demand_id,responsible_employee_id,source_match_result_id,source_signature,expires_at,creation_key) "+
-   "SELECT e.customer_id,e.vehicle_id,e.listing_cycle_id,e.demand_id,e.responsible_employee_id,e.result_id,e.source_signature,transaction_timestamp()+interval '1 day','pg1-manual-valid-match-'+e.result_id::text "+
+   "SELECT e.customer_id,e.vehicle_id,e.listing_cycle_id,e.demand_id,e.responsible_employee_id,e.result_id,e.source_signature,transaction_timestamp()+interval '1 day','pg1-manual-valid-match-'||e.result_id::text "+
    "FROM public.f05_8_eligible_candidates_ci e WHERE e.vehicle_id=$1 AND e.listing_cycle_id=$2 AND e.customer_id=$3 "+
    "ORDER BY e.result_id LIMIT 1",
    [f.vehicleId,f.listingCycleId,f.customerId]
