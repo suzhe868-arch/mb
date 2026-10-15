@@ -15,11 +15,11 @@
 
 ## 业务测试矩阵与预期
 
-- `tests/f03-source.test.mjs`：34条真实PG16+合成Collector来源安全场景。
+- `tests/f03-source.test.mjs`：40条真实PG16+合成Collector来源安全场景（新增4S、SystemAdmin、inactive/disabled、重放拒绝）。
 - `tests/f05-source.test.mjs`：20条真F05已签服务/迁移/只读表结构/并发及硬拒场景。
 - `tests/https.test.mjs`：17条真实PG16回环TLS黑箱场景。
 - `来源与签名父权限矩阵.tsv`：对父签可验证、只负证、合成、SOURCE_GAP逐项分级。
-- `跨域有效场景矩阵.tsv`：全部71条场景的精确测试文件索引，**仅为预期清单，不声称尚未执行的场景PASS**。
+- `跨域有效场景矩阵.tsv`：全部77条场景的精确测试文件索引，**仅为预期清单，不声称尚未执行的场景PASS**。
 
 ## 反向安全审查记录
 
