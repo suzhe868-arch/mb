@@ -1,0 +1,18 @@
+动作	PDM08 Final	PDM04/PDM07/F03/F05依据	PG来源	URL/对象/缓存	HTTP或函数	当前权限	接线
+批发来源首次冻结	§1—2、§7	PDM04同Vehicle/F05合同	PG pictures不可变触发器	相对path和原冻序	freezeImages	来源类型	CI_SYNTHETIC_ONLY；父签名未接
+受控URL路径	§2、§25	PDM22配置域	safePath	名邦img域；阻断SSRF	publicUrl	服务端配置	CI_SYNTHETIC_ONLY
+CDN HIT与MISS	§3—4	F07-1电话域互不相干	PG身份+MockCDN Map	MISS同次返回；HIT复用	GET media	每次PG Read	CI_SYNTHETIC_ONLY；CDN未接
+零图首图fallback	§3、§7	PDM20/21	PG frozen order	失败跳下一张/恢复原位	selectCover	先验Vehicle	CI_SYNTHETIC_ONLY
+详情预取	§5—6	PDM20	prefetch队列	2..5及第三图后6+	prefetch	读权限由调用端承担	CI_SYNTHETIC_ONLY；UI未接
+合法批发转名邦	§10—12	PDM04/F05-3C签名父	PG16独立同vehicle转换	资产子任务不回滚	convert	来源检查	CI_SYNTHETIC_ONLY；父SOURCE_GAP
+双成功对象资产	§9—13	PDM04同车及F05	PG FOR UPDATE + MockStorage	对象PUT+DB合法object_key	assetize	必须先转换	CI_SYNTHETIC_ONLY；真实对象未接
+SQL23514失败补偿	§9、§13	不得回滚Vehicle业务	PG CHECK+事务回滚+审计	孤儿对象实际DEL	assetize	隔离CI事务	CI_SYNTHETIC_ONLY
+并发重试与幂等	§6、§13	F05冻结未改	两PG Backend/行锁	成功项免重复写	assetize	PG串行同图	CI_SYNTHETIC_ONLY
+3A受控过渡	§13.1、§15	PDM04合法来源前置	PG asset_state	未成功名邦CDN→本地合成源，成功切Mock对象	imageBytes	每次当前权限	CI_SYNTHETIC_ONLY；真实JYT未接
+人工名邦/4S图	§8、§14	PDM06上传归属	PG16/MockStorage	对象与引用双成功	uploadManual	限名邦/4S来源	CI_SYNTHETIC_ONLY
+出险相册隔离	§16、§18	PDM07报告customer_visible	PG resource_type	report域不混入相册	GET accident_report	Vehicle+报告开关	CI_SYNTHETIC_ONLY
+维保图片隔离	§17—18	PDM07报告权限	PG maintenance_image	report域	GET maintenance_image	Vehicle+报告开关	CI_SYNTHETIC_ONLY
+维保H5受控映射	§17、§17.1	PDM07报告权限	PG maintenance_h5	名单源host映名邦报告域	GET h5	当前报告权限	CI_SYNTHETIC_ONLY；代理SOURCE_GAP
+敏感原件DENY	§18、§23	PDM02/PDM07	PG sensitive_document	不进入相册/不公开原始地址	GET sensitive_document	一律拒绝	CI_SYNTHETIC_ONLY
+历史URL当前权限重验	§17.1、§23	PDM02/F03 Session/Scope	PG synthetic sessions	缓存/旧分享不是grant	全部GET	Priority、hidden、session撤权	CI_SYNTHETIC_ONLY；F03源SOURCE_GAP
+分享卡安全	§21—23	PDM20分享字段	安全三字段	无价格/VIN/电话/内部状态	GET share	再次打开重验	CI_SYNTHETIC_ONLY；微信未接
