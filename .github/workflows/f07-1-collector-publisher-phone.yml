@@ -43,7 +43,7 @@ jobs:
           PGPASSWORD=f07_only_ci_root_pass psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f07_ci LOGIN PASSWORD 'f07_only_ci_app_pass' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
           PGPASSWORD=f07_only_ci_root_pass psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f07_ci_db OWNER f07_ci;"
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -Atc "SELECT current_user,current_setting('server_version_num'),(SELECT rolsuper FROM pg_roles WHERE rolname=current_user),pg_backend_pid();" | tee f07-pg-role.log
-          test "$(psql "$DATABASE_URL" -Atc 'SELECT rolsuper::text FROM pg_roles WHERE rolname=current_user')" = f
+          test "$(psql "$DATABASE_URL" -Atc 'SELECT rolsuper FROM pg_roles WHERE rolname=current_user')" = f
       - name: 安装锁定版PG客户端
         run: npm --prefix "$F07_DIR" install --ignore-scripts --no-audit --no-fund
       - name: 生成仅本Runner临时签名测试密钥
@@ -110,7 +110,7 @@ jobs:
           PGPASSWORD=f07_only_ci_root_pass psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f07_ci LOGIN PASSWORD 'f07_only_ci_app_pass' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
           PGPASSWORD=f07_only_ci_root_pass psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f07_ci_db OWNER f07_ci;"
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -Atc "SELECT current_user,current_setting('server_version_num'),(SELECT rolsuper FROM pg_roles WHERE rolname=current_user),pg_backend_pid();" | tee f07-pg-role.log
-          test "$(psql "$DATABASE_URL" -Atc 'SELECT rolsuper::text FROM pg_roles WHERE rolname=current_user')" = f
+          test "$(psql "$DATABASE_URL" -Atc 'SELECT rolsuper FROM pg_roles WHERE rolname=current_user')" = f
       - name: 安装锁定版PG客户端并生成合成TLS
         shell: bash
         run: |
