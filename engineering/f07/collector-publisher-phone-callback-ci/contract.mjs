@@ -1,6 +1,7 @@
 // F07-1 synthetic only: no real Collector/JYT connection; no production route registration.
 import {createHmac, createHash, timingSafeEqual, randomUUID} from 'node:crypto';
 import {Pool} from 'pg';
+import {authorize as signedF03Authorize} from '../../f03/policy.mjs';
 const SECRET = process.env.F07_COLLECTOR_TEST_SECRET;
 if (!SECRET || SECRET.length < 32) throw new Error('F07_TEST_SECRET_REQUIRED');
 export const pool = new Pool({connectionString: process.env.DATABASE_URL, max: 8});
@@ -58,7 +59,7 @@ export async function seed(){
 export async function employeePhone({session,vehicle,action}){
  if(!['read','latest','dial'].includes(action)||!ID.test(session??'')||!ID.test(vehicle??''))throw deny();
  return transaction(async db=>{
-  const g=await db.query(`SELECT e.id employee_id,v.source_platform,v.publisher_id
+  const g=await db.query(`SELECT e.id employee_id,e.role,e.phone_capability,e.personal_deny,v.id vehicle_id,v.state vehicle_state,v.source_type,v.source_platform,v.publisher_id
    FROM f07_phone.sessions s JOIN f07_phone.employees e ON e.id=s.employee_id
    JOIN f07_phone.vehicles v ON v.id=$2
    JOIN f07_phone.vehicle_scope q ON q.employee_id=e.id AND q.vehicle_id=v.id
@@ -69,7 +70,16 @@ export async function employeePhone({session,vehicle,action}){
    AND v.listing_active AND v.publisher_id IS NOT NULL
    FOR SHARE OF s,e,v,q`,[session,vehicle]);
   if(g.rowCount!==1)throw deny('CURRENT_PERMISSION_DENIED');
-  const {employee_id,source_platform,publisher_id}=g.rows[0];
+  const {employee_id,source_platform,publisher_id,role,phone_capability,personal_deny,vehicle_id,vehicle_state,source_type}=g.rows[0];
+  const signedDecision=signedF03Authorize('vehicle.publisher_phone.'+action,{
+    actor:{id:employee_id,kind:'employee',role,status:'active'},
+    facts:{roleDefaults:phone_capability?['publisher.phone.sensitive']:[],
+      personalDecisions:personal_deny?{'publisher.phone.sensitive':'deny'}:{},
+      hardDenies:[],scopeGrants:[{actorId:employee_id,resourceKind:'vehicle',resourceId:vehicle_id,
+      capability:'publisher.phone.sensitive',active:true,relation:'global'}]},
+    resource:{kind:'vehicle',id:vehicle_id,state:vehicle_state,sourceType:source_type,upstreamPublisherId:publisher_id}
+  });
+  if(!signedDecision.allowed)throw deny('SIGNED_F03_POLICY_DENIED');
   await db.query(`INSERT INTO f07_phone.publishers VALUES($1,$2) ON CONFLICT DO NOTHING`,[source_platform,publisher_id]);
   await db.query(`SELECT 1 FROM f07_phone.publishers WHERE source_platform=$1 AND publisher_id=$2 FOR UPDATE`,[source_platform,publisher_id]);
   const cached=await db.query(`SELECT phone,issued_at FROM f07_phone.cache WHERE source_platform=$1 AND publisher_id=$2`,[source_platform,publisher_id]);
