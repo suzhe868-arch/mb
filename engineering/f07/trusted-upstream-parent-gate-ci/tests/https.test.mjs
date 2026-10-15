@@ -16,11 +16,11 @@ const req=(opts={})=>new Promise((resolve,reject)=>{
 });
 test('F07-3 真签会话回环TLS拒绝黑箱',async t=>{
  const a=new IsolatedAuth({connectionString:DATABASE_URL,secret:randomBytes(48),origin:'https://127.0.0.1:443'});
- let server,n=0;
+ let server,n=0;const audit=[];
  try{
   const s=await a.login({login:'race_test',password:'SyntheticRace_1234567'});
   assert.equal(s.code,'AUTH_OK');
-  server=await createSecureGateServer(a);
+  server=await createSecureGateServer(a,{onAudit:e=>audit.push(e)});
   await new Promise(resolve=>server.listen(49273,'127.0.0.1',resolve));
   const cases=[
    ['H01 电话受控',{} ,403],
@@ -40,17 +40,53 @@ test('F07-3 真签会话回环TLS拒绝黑箱',async t=>{
    ['H15 分享路由不存在',{path:'/share/vehicle/456'},404]
   ];
   for(const [name,params,status] of cases)await t.test(name,async()=>{
+   const index=audit.length;
    const v=await req({session:s.token,...params});
    assert.equal(v.status,status);assert.equal(JSON.parse(v.body).code,'DENIED');
+   assert.equal(audit.length,index+1,'每请求必须仅产生一份内部判定证据');
+   const proof=audit[index];
+   if(name.startsWith('H0')&&Number(name.slice(1,3))<=6){
+    assert.equal(proof.category,'AUTHORIZATION',name);
+    assert.equal(proof.parentCalls,1,name+' 必须真正调用父readCurrentFacts');
+    assert.ok(proof.parentCode,'必须记录真实父拒绝码');
+    assert.notEqual(proof.code,'UNPROVEN_DENY');
+   }else if(/H07|H08/.test(name)){
+    assert.equal(proof.code,'PUBLISHER_VEHICLE_SOURCE_BINDING_DENIED');
+    assert.equal(proof.parentCalls,0,'非法绑定必须在父读取前拒绝');
+   }else{
+    assert.equal(proof.category,'TRANSPORT');
+    assert.equal(proof.parentCalls,0);
+   }
    assert.equal(v.headers['set-cookie'],undefined);assert.match(v.headers['cache-control'],/no-store/);
    n++;
+  });
+  await t.test('H18 4S已给PC个人准入仍父级拒电话',async()=>{
+   await a.pool.query("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(2,10,'allow',now())");
+   const x=await a.login({login:'four_s_test',password:'SyntheticFourS_123456'});
+   assert.equal(x.code,'AUTH_OK');const index=audit.length;
+   const v=await req({session:x.token});
+   assert.equal(v.status,403);assert.equal(JSON.parse(v.body).code,'DENIED');
+   assert.equal(audit.length,index+1);assert.equal(audit[index].parentCalls,1);
+   assert.equal(audit[index].parentCode,'HARD_DENY_FOUR_S');n++;
+  });
+  await t.test('H19 系统管理员非业务主体父级拒电话',async()=>{
+   const x=await a.login({login:'admin_test',password:'SyntheticAdmin_1234567'});
+   assert.equal(x.code,'AUTH_OK');const index=audit.length;
+   const v=await req({session:x.token});
+   assert.equal(v.status,403);assert.equal(JSON.parse(v.body).code,'DENIED');
+   assert.equal(audit.length,index+1);assert.equal(audit[index].parentCalls,1);
+   assert.equal(audit[index].parentCode,'SYSTEM_ADMIN_NO_BUSINESS_RIGHT');n++;
   });
   await a.pool.query('UPDATE public.pc_login_accounts SET credential_epoch=credential_epoch+1 WHERE employee_id=6');
   for(const path of ['/__ci__/f07-3/phone','/__ci__/f07-3/report'])
    await t.test('H16-17 撤权后当前拒绝 '+path,async()=>{
+    const index=audit.length;
     const v=await req({path,session:s.token});
-    assert.equal(v.status,403);n++;
+    assert.equal(v.status,403);
+    assert.equal(audit.length,index+1);assert.equal(audit[index].parentCalls,1);
+    assert.equal(audit[index].parentCode,'SESSION_OR_ADMISSION_DENIED');n++;
    });
+  assert.equal(n,19);
   console.log('F07_3_HTTPS_'+n+'_SIGNED_REAL_PG16_TLS_DENY_PASS');
  }finally{
   if(server)await new Promise(resolve=>server.close(resolve));
