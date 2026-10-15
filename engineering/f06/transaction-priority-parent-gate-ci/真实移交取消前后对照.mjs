@@ -27,6 +27,7 @@ export async function prepareOldNative4C(c,base){
  const {auth,token}=base;
  const oldLock=await realLock(c,auth,token,3,'4c-original');
  const newLock=await realLock(c,auth,token,5,'4c-versioned');
+ const pendingLock=await realLock(c,auth,token,8,'4c-pending-finance');
  const open=async(lockId,label)=>{
   const t=await oldRef('feat/f06-5b-lock-refund-conversion-guard-ci',()=>openGuardedSyntheticTransactionCI(auth,token,{
    lockId,eventKey:mk('5b-'+label)
@@ -36,6 +37,7 @@ export async function prepareOldNative4C(c,base){
  };
  const oldTx=await open(oldLock,'old');
  const newTx=await open(newLock,'new');
+ const pendingRefundHandoffTx=await open(pendingLock,'4c-pending-finance');
  const manager=await one(c,"SELECT role_id FROM public.roles WHERE role_code='manager'");
  assert.ok(manager);
  await c.query("UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1",[manager.role_id]);
@@ -55,6 +57,15 @@ export async function prepareOldNative4C(c,base){
   eventKey:mk('old-4b')
  }));
  assert.equal(handoff.code,'F06_4B_ATOMIC_HANDOFF_CI',JSON.stringify(handoff));
+ const pendingHandoff=await oldRef('feat/f06-4b-transaction-handoff-ci',()=>oldHandoffCI(auth,managerToken,{
+  transactionId:pendingRefundHandoffTx,newResponsibleId:4,reason:'4C有签负责人移交后遇未结退款必须拒绝取消',
+  eventKey:mk('pending-4b')
+ }));
+ assert.equal(pendingHandoff.code,'F06_4B_ATOMIC_HANDOFF_CI',JSON.stringify(pendingHandoff));
+ const pendingRefund=await one(c,
+  "INSERT INTO public.refund_cases(customer_id,lock_id,transaction_id,status,expected_amount_cents) VALUES($1,NULL,$2,'pending',100) RETURNING refund_id",
+  [86180101,pendingRefundHandoffTx]);
+ assert.ok(pendingRefund?.refund_id,'PG1_REAL_4C_PENDING_REFUND_CARRIER_REQUIRED');
  await c.query("UPDATE public.pc_login_accounts SET credential_state='enabled',force_password_change=false WHERE account_id=5 AND employee_id=4");
  const recv=await auth.login({login:'disabled_test',password:'SyntheticDisabled_123',source:'pg1-old4c-receiver'});
  assert.equal(recv.code,'AUTH_OK',JSON.stringify(recv));
@@ -75,7 +86,7 @@ export async function prepareOldNative4C(c,base){
  // 保留4A原Sales会话对照的合同：4C准备完成后恢复角色，不改旧4B/4C不可变事实。
  const sales=await one(c,"SELECT role_id FROM public.roles WHERE role_code='sales'");
  await c.query("UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1",[sales.role_id]);
- return {oldTx,newTx,old,oldCarrier,receiverToken:recv.token,managerToken,
+ return {oldTx,newTx,pendingRefundHandoffTx,pendingRefundHandoffId:pendingRefund.refund_id,old,oldCarrier,receiverToken:recv.token,managerToken,
   managerRoleId:manager.role_id,receiptPermissionId:cancelP.permission_id,
   baseline:{oldHandoffTransaction:oldTx,pendingHandoffTransaction:newTx,old4CCode:old.code,
    immutableHandoffEventId:handoff.eventId,source:'SIGNED_5B_4B_4C_PARENT_SERVICES'}};
