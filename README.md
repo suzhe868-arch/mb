@@ -1,3 +1,13 @@
+# 2026-10-15｜A独立复验F07-1 PR64未通过，正式交B定向整改（唯一最新）
+
+- **唯一现行状态**：`F07_1_PR64_A_CHANGES_REQUESTED / NO_MERGE / NEXT_OWNER=B / NEXT_TASK=F07_1_PR64_SECURITY_REMEDIATION_A01_A02_A03_AND_FULL_NATIVE_RETEST / F05_F06_F07_V1_NOT_READY / PRODUCTION_DENIED`。正式main继续保持PR64未合并。A审查B HEAD `b3765e44741b22830213ea5e4363161ac46b8a03`、[PR64](https://github.com/suzhe868-arch/mb/pull/64)、13/13授权白名单文件及现行F07-1完整施工单；不是根据B自验报告直接通过。
+- **已独立核实真实原生绿证但不能抵消安全硬阻断**：[GitHub Run38702610526](https://github.com/suzhe868-arch/mb/actions/runs/38702610526)为本SHA真正Push且成功，PG16 Source40/40业务子用例、HTTPS15/15业务子用例（Node父Suite另各1），两项PG16 Job均success；2份同SHA非空、未过期且有效GitHub官方SHA256摘要工件，未逐ZIP字节复算；真实非超级用户PG16、行锁/回滚及重启后的缓存保护均有日志。另10个旧`pull_request`事件审查时3成功/5失败/2仍执行中，保留红证、不当作当前本包2个Push的绿证。
+- **A三项定向阻断**：`A01 P0` 官方Source/HTTPS Job原始日志实际打印本Run新生成的`F07_COLLECTOR_TEST_SECRET`**明文鉴权密钥**，违背不记录签名凭据的硬规则；`A02 P0` 新`contract.mjs` 的`bootstrap/reset/seed`缺真实CI repo/ref/event/非特权固定PG16环境门禁，错误`DATABASE_URL`可使测试DDL/TRUNCATE在未验环境执行；`A03 P1` F03`policy.mjs`只是纯合成facts策略函数，新增`f07_phone.sessions/employees/scope`并非已签真实F03会话的原生PG认证证据。上述不可借全绿测试越过。
+- **A已签完整整改单**：`07_重建工作区/F07-1_A主控PR64首轮安全复验不通过_密钥日志隔离门禁与F03签名会话定向整改正式施工单_2026-10-15.md`，并在[PR64正式评审评论](https://github.com/suzhe868-arch/mb/pull/64#issuecomment-6187648993)记录逐项安全证据。B只沿用`feat/f07-1-collector-publisher-phone-callback-ci`及原PR64，**仅在原两条白名单内修复**，保留原40/15业务子用例，再补随机HMAC密钥GitHub日志mask、错误环境及PG16物理身份的零写入FailClosed负例、真正F03签名会话/Permission/Scope来源实证（无法合法连父接口则SOURCE_GAP连同真拒证据交A），完整重跑最终唯一SHA GitHub官方2项PG16 Job/2工件，更新中文B交接，签`B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A`。B仍不得自行合并、改父源或扩大DDL。
+- **上线与后续**：正式Collector/JYT/Integration接线、生产密钥/真实号码、实际资金、UI、F07-2图片、F08总验收及V1上线均**未放行**。旧PR62 CI-only验收结果不变，本次PR64**未合并**；下文旧F07-1“施工中”仅为历史。
+
+---
+
 # 2026-10-15｜A已独立验收PR62标准合并，并正式放行F07-1仅隔离CI（唯一最新）
 
 - **唯一正式主线**：`F06_5C_PR62_A_ACCEPTED_STANDARD_MERGED_CI_ONLY / F07_1_A_RELEASED_FOR_B_CI_ONLY / NEXT_OWNER=B / NEXT_TASK=F07_1_COLLECTOR_TO_INTEGRATION_PUBLISHER_PHONE_CALLBACK_CACHE_SCOPE_CI_ONLY / F05_F06_F07_V1_NOT_READY / PRODUCTION_NOT_AUTHORIZED`。A从最新main独立核验[PR62](https://github.com/suzhe868-arch/mb/pull/62) B唯一最终HEAD `e2c153996f73e46ee35e4cfe6dee21f4583b712b`，按GitHub标准merge成功，实际merge SHA **`e54872b3f92cd66b3b51bd5465670e0d6e7de3c1`**；已在main归档正式A报告与下一完整施工单。
