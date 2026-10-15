@@ -280,7 +280,7 @@ END $$;
 -- 名称按字母排在旧 f05_8_priority_append_history 之后；旧函数既有字节保持不变。
 -- 仅对旧源自动签发允许「静默跳过」，使合法 4A/4C 的临时半签时序不致整体回滚。
 -- 显式人工签发如不安全，必须报错让上游事务撤销，绝不能伪造成功。
-CREATE FUNCTION f06_5c_pg1_ci.guard_priority_insert() RETURNS trigger LANGUAGE plpgsql AS $
+CREATE FUNCTION f06_5c_pg1_ci.guard_priority_insert() RETURNS trigger LANGUAGE plpgsql AS $$
 DECLARE pg_callstack text;
 BEGIN
  -- 自动父签发及显式插入都须绑定当前真实F05-7 Match、资格与员工授权范围。
