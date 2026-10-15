@@ -10,7 +10,7 @@ permissions:
   contents: read
 jobs:
   source_pg16:
-    name: F07-3 Source F03-40 F05-20
+    name: F07-3 Source F03-47 F05-24
     runs-on: ubuntu-24.04
     timeout-minutes: 55
     services:
@@ -65,7 +65,7 @@ jobs:
         run: |
           set -euo pipefail
           node --test --test-concurrency=1 engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs 2>&1 | tee f07-3-f03-source.log
-          grep -q F07_3_F03_NATIVE_SIGNED_SOURCE_40_PASS f07-3-f03-source.log
+          grep -q F07_3_F03_NATIVE_SIGNED_SOURCE_47_PASS f07-3-f03-source.log
           grep -q '# fail 0' f07-3-f03-source.log
       - name: 第二独立物理OID及真实签名F05父链
         shell: bash
@@ -83,7 +83,10 @@ jobs:
         run: |
           set -euo pipefail
           node --test --test-concurrency=1 engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs 2>&1 | tee f07-3-f05-source.log
-          grep -q F07_3_F05_NATIVE_SIGNED_SOURCE_20_PASS f07-3-f05-source.log
+          grep -q F07_3_F05_NATIVE_SIGNED_SOURCE_24_PASS f07-3-f05-source.log
+          grep -q F07_3_A03_REAL_VEHICLE_ROW_55P03 f07-3-f05-source.log
+          grep -q F07_3_A02_PARENT_VEHICLES f07-3-f05-source.log
+          grep -q F05_CONVERSION_POSITIVE_SOURCE_GAP f07-3-f05-source.log
           grep -q '# fail 0' f07-3-f05-source.log
           echo F07_3_TWO_DISTINCT_PHYSICAL_OIDS_F03_F05_NATIVE_SOURCE_PASS
       - name: 官方独立原生日志工件
@@ -100,7 +103,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
   https_pg16:
-    name: F07-3 HTTPS 17
+    name: F07-3 HTTPS 19
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     services:
@@ -152,13 +155,13 @@ jobs:
           node engineering/f03-1/runner.mjs --verify
           node engineering/f03-1/fixtures.mjs
           psql "$DATABASE_URL" -Atc 'SELECT oid FROM pg_database WHERE datname=current_database()' | tee f07-3-f03-native-oid.log
-      - name: 回环TLS一次性证书与17项HTTPS黑箱
+      - name: 回环TLS一次性证书与19项HTTPS黑箱
         shell: bash
         run: |
           set -euo pipefail
           openssl req -x509 -newkey rsa:2048 -sha256 -nodes -keyout "$F07_3_TLS_KEY" -out "$F07_3_TLS_CERT" -days 1 -subj '/CN=localhost' -addext 'subjectAltName=DNS:localhost,IP:127.0.0.1' >/dev/null 2>&1
           node --test --test-concurrency=1 engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs 2>&1 | tee f07-3-https-native.log
-          grep -q F07_3_HTTPS_17_SIGNED_REAL_PG16_TLS_DENY_PASS f07-3-https-native.log
+          grep -q F07_3_HTTPS_19_SIGNED_REAL_PG16_TLS_DENY_PASS f07-3-https-native.log
           grep -q '# fail 0' f07-3-https-native.log
       - name: 官方独立原生日志工件
         if: always()
