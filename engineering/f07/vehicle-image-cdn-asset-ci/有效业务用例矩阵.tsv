@@ -67,6 +67,9 @@ S65	首次非空冻结拒绝上游新增	§1、§7	真PG16 image_frozen	真PG16�
 S66	对象PUT后断电孤儿清理和PG审计	§9、§13	真PG16审计+Mock对象	真PG16业务/权限断言	CI_SYNTHETIC_ONLY；生产对象SOURCE_GAP
 S67	恢复对账不得误删合法双成功对象	§9、§13	真PG16正式引用+Mock对象	真PG16业务/权限断言	CI_SYNTHETIC_ONLY；生产对象SOURCE_GAP
 S68	Priority下零图占位不泄存在	§3、§23	真PG16当前Vehicle Read	真PG16业务/权限断言	CI_SYNTHETIC_ONLY；生产F03 SOURCE_GAP
+S69	失败对象补偿与合法并发重试不能误删新成功资产	§9、§13	真PG16+同Mock对象键互斥	真PG16并发交错+对象存在断言	CI_SYNTHETIC_ONLY
+S70	人工上传失败补偿与同ID合法成功互斥	§8—9	真PG16+Mock对象PUT/DELETE延迟	真PG16并发交错+对象存在断言	CI_SYNTHETIC_ONLY
+S71	孤儿清理与同时资产化不得删除新成功引用	§9、§13	真PG16事务+Mock对象键锁	真PG16并发交错+对象存在断言	CI_SYNTHETIC_ONLY；正式OSS SOURCE_GAP
 PATH01—12	路径穿越/SSRF/编码拒绝	§2、§25	安全路径函数	Node 12安全子例	CI_SYNTHETIC_ONLY
 GATE01—10	错误仓库/事件/分支/DSN及物理身份零写入	§25	真PG16 current_user 与非特权证据	PG16 9环境拒绝+1真实角色提权拒绝	CI_SYNTHETIC_ONLY
 HTTPS01—20	旧URL撤权/报告隔离/TLS/分享安全	§17、§22—23	独立PG16+loopback TLS	20 HTTPS黑箱子例	CI_SYNTHETIC_ONLY
