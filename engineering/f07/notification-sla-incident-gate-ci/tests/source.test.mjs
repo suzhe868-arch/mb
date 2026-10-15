@@ -138,4 +138,28 @@ test('S61 Incident跨时间桶不能提前重发；经过真实cadence后才可�
  assert.equal((await dispatch(db,{eventId:'event-ci-1',channel:'group',at:'2026-10-16T03:00:00Z'})).status,'SENT');
  assert.equal(await out(),2);
 });
-test('F07-4 Source 完整61业务子例通过',()=>{console.log('F07_4_SOURCE_NATIVE_PG16_61_PASS');});
+test('S62 公司总闸并发修改必须等当前锁后重读再拒绝',async()=>{
+ await seed(db);
+ const writer=await db.connect();
+ try{
+  await writer.query('BEGIN');
+  await writer.query("UPDATE f07_4_ci.config SET company_on=false WHERE id=1");
+  const pending=dispatch(db,{eventId:'event-ci-1',at:AT});
+  await new Promise(resolve=>setTimeout(resolve,80));
+  await writer.query('COMMIT');
+  const r=await pending;assert.equal(r.code,'COMPANY_FEISHU_DISABLED');assert.equal(await out(),0);
+ }finally{await writer.query('ROLLBACK').catch(()=>{});writer.release();}
+});
+test('S63 员工当前状态并发改写后重新判定不得发送',async()=>{
+ await seed(db);
+ const writer=await db.connect();
+ try{
+  await writer.query('BEGIN');
+  await writer.query("UPDATE f07_4_ci.employee SET active=false WHERE employee_id='employee-ci-1'");
+  const pending=dispatch(db,{eventId:'event-ci-1',at:AT});
+  await new Promise(resolve=>setTimeout(resolve,80));
+  await writer.query('COMMIT');
+  const r=await pending;assert.equal(r.code,'CURRENT_EMPLOYEE_OR_SCOPE_DENIED');assert.equal(await out(),0);
+ }finally{await writer.query('ROLLBACK').catch(()=>{});writer.release();}
+});
+test('F07-4 Source 完整63业务子例通过',()=>{console.log('F07_4_SOURCE_NATIVE_PG16_63_PASS');});
