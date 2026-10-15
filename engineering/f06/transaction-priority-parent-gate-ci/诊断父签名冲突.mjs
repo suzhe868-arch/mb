@@ -117,7 +117,6 @@ try{
  report.nativeTamperMatrix=await runNativeTamperMatrix(c);
  assert.equal(report.nativeTamperMatrix.length,5);
  assert.notEqual(before.sha256,after.sha256,'PG1_PUBLIC_CATALOG_MUST_NOT_BE_MISREPORTED_IDENTICAL');
- try{
   report.nativeUnsignedCancelMatrix=await runNativeForgedCancelMatrix(c,freeJytFixture.transactionId);
   assert.equal(report.nativeUnsignedCancelMatrix.length,2);
   report.versionedNative4A=await proveVersionedNative4A(c,cancelFixture);
@@ -143,7 +142,6 @@ try{
   assert.ok(report.realSignedR01UniqueNewPriority?.newPriorityId);
   assert.equal(report.nativeUnsignedCancelMatrix.length,2);
   report.status='ALL_NATIVE_ASSERTIONS_PASS';
- }
 } catch(e){
  report.status='BLOCKED_PG1_NATIVE_DIAGNOSTIC_FAILED';
  report.error={message:e.message,code:e.code||null,stack:e.stack?.slice(0,1700)||null};
