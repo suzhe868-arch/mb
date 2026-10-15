@@ -1,0 +1,172 @@
+name: F07-3 Signed Parent Upstream Gate PG16
+on:
+  push:
+    branches:
+      - feat/f07-3-trusted-upstream-and-parent-source-gate-ci
+    paths:
+      - 'engineering/f07/trusted-upstream-parent-gate-ci/**'
+      - '.github/workflows/f07-3-trusted-parent-source.yml'
+permissions:
+  contents: read
+jobs:
+  source_pg16:
+    name: F07-3 Source F03-34 F05-20
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F07_3_ONLY: I_AUTHORIZE_F07_3_SYNTHETIC_PARENT_PROOF
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 严格开工门禁与依赖
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --prefix engineering install --ignore-scripts --no-audit --no-fund
+          node --input-type=module -e "import('./engineering/f07/trusted-upstream-parent-gate-ci/gate.mjs').then(m=>m.assertCIEnv())"
+          for f in gate.mjs server.mjs tests/f03-source.test.mjs tests/f05-source.test.mjs tests/https.test.mjs; do node --check "engineering/f07/trusted-upstream-parent-gate-ci/$f"; done
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REF" = refs/heads/feat/f07-3-trusted-upstream-and-parent-source-gate-ci
+      - name: 创建第一非超级用户真实PG16数据库
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f03_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f03_auth_test OWNER f03_ci;"
+          node engineering/f03-1/runner.mjs --bootstrap
+          node engineering/f03-1/runner.mjs --apply
+          node engineering/f03-1/runner.mjs --verify
+          node engineering/f03-1/fixtures.mjs
+          psql "$DATABASE_URL" -Atc 'SELECT oid FROM pg_database WHERE datname=current_database()' | tee f07-3-f03-native-oid.log
+      - name: 第一原生F03 Session和Collector安全Source
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs 2>&1 | tee f07-3-f03-source.log
+          grep -q F07_3_F03_NATIVE_SIGNED_SOURCE_34_PASS f07-3-f03-source.log
+          grep -q '# fail 0' f07-3-f03-source.log
+      - name: 第二独立物理OID及真实签名F05父链
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c 'ALTER DATABASE f03_auth_test RENAME TO f07_3_f03_archive;'
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c 'CREATE DATABASE f03_auth_test OWNER f03_ci;'
+          node engineering/f05/wholesale-to-mingbang-conversion/ci-prepare.mjs 2>&1 | tee f07-3-f05-parent-bootstrap.log
+          node engineering/f05/wholesale-to-mingbang-conversion/runner.mjs --apply 2>&1 | tee f07-3-f05-migration.log
+          node engineering/f05/wholesale-to-mingbang-conversion/runner.mjs --verify 2>&1 | tee -a f07-3-f05-migration.log
+          psql "$DATABASE_URL" -Atc 'SELECT oid FROM pg_database WHERE datname=current_database()' | tee f07-3-f05-native-oid.log
+          if cmp -s f07-3-f03-native-oid.log f07-3-f05-native-oid.log; then exit 1; fi
+      - name: 第二原生F05只读与跨域拒绝
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f07/trusted-upstream-parent-gate-ci/tests/f05-source.test.mjs 2>&1 | tee f07-3-f05-source.log
+          grep -q F07_3_F05_NATIVE_SIGNED_SOURCE_20_PASS f07-3-f05-source.log
+          grep -q '# fail 0' f07-3-f05-source.log
+          echo F07_3_TWO_DISTINCT_PHYSICAL_OIDS_F03_F05_NATIVE_SOURCE_PASS
+      - name: 官方独立原生日志工件
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f07-3-source-pg16-${{ github.sha }}
+          path: |
+            f07-3-f03-native-oid.log
+            f07-3-f05-native-oid.log
+            f07-3-f03-source.log
+            f07-3-f05-source.log
+            f07-3-f05-migration.log
+          if-no-files-found: error
+          retention-days: 14
+  https_pg16:
+    name: F07-3 HTTPS 17
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F07_3_ONLY: I_AUTHORIZE_F07_3_SYNTHETIC_PARENT_PROOF
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F07_3_TLS_KEY: /tmp/f07-3-onetime-key.pem
+      F07_3_TLS_CERT: /tmp/f07-3-onetime-cert.pem
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 严格开工门禁与依赖
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --prefix engineering install --ignore-scripts --no-audit --no-fund
+          node --input-type=module -e "import('./engineering/f07/trusted-upstream-parent-gate-ci/gate.mjs').then(m=>m.assertCIEnv())"
+          for f in gate.mjs server.mjs tests/f03-source.test.mjs tests/f05-source.test.mjs tests/https.test.mjs; do node --check "engineering/f07/trusted-upstream-parent-gate-ci/$f"; done
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REF" = refs/heads/feat/f07-3-trusted-upstream-and-parent-source-gate-ci
+      - name: 创建第一非超级用户真实PG16数据库
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f03_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f03_auth_test OWNER f03_ci;"
+          node engineering/f03-1/runner.mjs --bootstrap
+          node engineering/f03-1/runner.mjs --apply
+          node engineering/f03-1/runner.mjs --verify
+          node engineering/f03-1/fixtures.mjs
+          psql "$DATABASE_URL" -Atc 'SELECT oid FROM pg_database WHERE datname=current_database()' | tee f07-3-f03-native-oid.log
+      - name: 回环TLS一次性证书与17项HTTPS黑箱
+        shell: bash
+        run: |
+          set -euo pipefail
+          openssl req -x509 -newkey rsa:2048 -sha256 -nodes -keyout "$F07_3_TLS_KEY" -out "$F07_3_TLS_CERT" -days 1 -subj '/CN=localhost' -addext 'subjectAltName=DNS:localhost,IP:127.0.0.1' >/dev/null 2>&1
+          node --test --test-concurrency=1 engineering/f07/trusted-upstream-parent-gate-ci/tests/https.test.mjs 2>&1 | tee f07-3-https-native.log
+          grep -q F07_3_HTTPS_17_SIGNED_REAL_PG16_TLS_DENY_PASS f07-3-https-native.log
+          grep -q '# fail 0' f07-3-https-native.log
+      - name: 官方独立原生日志工件
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f07-3-https-pg16-${{ github.sha }}
+          path: |
+            f07-3-f03-native-oid.log
+            f07-3-https-native.log
+          if-no-files-found: error
+          retention-days: 14
