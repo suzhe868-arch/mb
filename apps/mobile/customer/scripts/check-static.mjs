@@ -7,7 +7,7 @@ for(const p of ['src/app.tsx','src/app.config.ts','src/pages/index/index.tsx','s
  assert.ok(existsSync(resolve(cwd,p)),'missing '+p)
 }
 const index=file('src/pages/index/index.tsx'),detail=file('src/pages/detail/index.tsx')
-assert.ok(index.includes('queryFeed'), '首页必须调用同一查询adapter')
+assert.ok(index.includes('mockReadAdapter.list'), '首页必须调用同一查询adapter')
 assert.ok(index.includes('filters'), '必须可筛选')
 assert.ok(index.includes('sort'), '必须可排序')
 assert.ok(index.includes('navigateTo'), '必须有详情导航')
