@@ -1,3 +1,14 @@
+# 2026-10-15｜A独立复验F07-3 PR66未通过，交B原PR66定向整改（唯一最新）
+
+- **正式唯一状态**：`F07_3_PR66_A_CHANGES_REQUESTED / NO_MERGE / NEXT_OWNER=B / NEXT_TASK=F07_3_PR66_A01_A05_FULL_REMEDIATION_AND_NATIVE_RETEST / F05_F06_F07_V1_NOT_READY / NO_PRODUCTION`。原「F07-3已放行B开工」变为历史，当前是同原PR66的A整改；切勿直接合并或新建F07-4/F08分支。
+- **A独立复验范围**：[PR66](https://github.com/suzhe868-arch/mb/pull/66)受验唯一HEAD `394cc5d76d3e264b193982cd958daf9917e6f9d0`，原main `6fe05ba81d6f1eb1a6c6d0308a11ffc41c5ca85f`，compare `ahead16/behind0`且**9/9仅新增授权两白名单**，冻结父源/Workflow/PDM/正式迁移均未修改；**本轮无GitHub合并**。
+- **确有CI绿证，但不能替代门禁完整性**：[真正Push Run38731170875](https://github.com/suzhe868-arch/mb/actions/runs/38731170875)两独立非超级用户真PG16 Jobs成功；F03 40+F05 20+TLS HTTPS 17=77/77子例成功（不含三个父suite）；真实F03/F05物理OID 20→17957及55P03/25006负例；官方两同SHA非空未过期SHA256元数据Artifact有效（**未逐ZIP独立复算**）。旧10条F05 PR工作流审核快照为2 success/7 failure/1 in_progress；有Docker`toomanyrequests`与旧源新Push资格拒绝，不作自动例外、不冒充全绿。
+- **A01—A05整改阻断**：A01 HTTPS回环Server总是403并丢弃`signedRead`结果，17 HTTPS测试不能证明逐请求真父授权拒绝原因；A02 F05父转换只断言`Array.isArray(rows)`，零行亦过，缺真实Vehicle/ListingCycle不变实证；A03两PG Backend锁登录账户而非要求的Vehicle/Publisher父行；A04合成Collector nonce重放始终相同SOURCE_GAP而非真实重复识别，三固定API函数合同缺证；A05矩阵父证据分级不准、旧红灯须本PR独立记录。**这是验收覆盖不足，不宣称已经存在生产信息泄漏**。
+- **已完成A职责**：A正式整改单 [`07_重建工作区/F07-3_A主控PR66首轮独立验收不通过_HTTPS判定车辆并发与来源重放定向整改正式施工单_2026-10-15.md`](https://github.com/suzhe868-arch/mb/blob/main/07_%E9%87%8D%E5%BB%BA%E5%B7%A5%E4%BD%9C%E5%8C%BA/F07-3_A%E4%B8%BB%E6%8E%A7PR66%E9%A6%96%E8%BD%AE%E7%8B%AC%E7%AB%8B%E9%AA%8C%E6%94%B6%E4%B8%8D%E9%80%9A%E8%BF%87_HTTPS%E5%88%A4%E5%AE%9A%E8%BD%A6%E8%BE%86%E5%B9%B6%E5%8F%91%E4%B8%8E%E6%9D%A5%E6%BA%90%E9%87%8D%E6%94%BE%E5%AE%9A%E5%90%91%E6%95%B4%E6%94%B9%E6%AD%A3%E5%BC%8F%E6%96%BD%E5%B7%A5%E5%8D%95_2026-10-15.md)、[PR66 A正式评论](https://github.com/suzhe868-arch/mb/pull/66#issuecomment-6192079448)已写入GitHub；B只沿用`feat/f07-3-trusted-upstream-and-parent-source-gate-ci`与原PR66、仅原两条新增白名单，包内完成A01-A05/最后同SHA真PG16全量复跑/官方工件/B中文交接，再交A独立复验；**B绝不可自行merge**。
+- **未解SOURCE_GAP和限制保持**：正式电话Alias`TECH_ALIAS_PENDING_A`、F03/F05跨版本与Issuer/Scope/当前对象、JYT Collector、真实CDN/OSS/报告H5、前端、UAT、资金、生产迁移及上线均未授权；F05/F06/F07与V1 **NOT_READY**，下一责任**B**。
+
+---
+
 # 2026-10-15｜A独立验收PR65标准合并，F07-3正式放行B执行（唯一最新）
 
 - **最新唯一状态**：`F07_2_PR65_A_ACCEPTED_STANDARD_MERGED_CI_ONLY / F07_3_A_RELEASED_FOR_B_CI_ONLY / NEXT_OWNER=B / NEXT_TASK=F07_3_TRUSTED_UPSTREAM_F03_F05_SIGNED_PARENT_PHONE_IMAGE_GATE_CI_ONLY / F05_F06_F07_V1_NOT_READY / NO_PRODUCTION`。上一段“F07-2施工已放行B”现为历史，真实PR65已验收合并，不应继续重复施工。
