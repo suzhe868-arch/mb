@@ -10,7 +10,7 @@ permissions:
   contents: read
 jobs:
   source_pg16:
-    name: F07-3 Source F03-34 F05-20
+    name: F07-3 Source F03-40 F05-20
     runs-on: ubuntu-24.04
     timeout-minutes: 55
     services:
@@ -65,7 +65,7 @@ jobs:
         run: |
           set -euo pipefail
           node --test --test-concurrency=1 engineering/f07/trusted-upstream-parent-gate-ci/tests/f03-source.test.mjs 2>&1 | tee f07-3-f03-source.log
-          grep -q F07_3_F03_NATIVE_SIGNED_SOURCE_34_PASS f07-3-f03-source.log
+          grep -q F07_3_F03_NATIVE_SIGNED_SOURCE_40_PASS f07-3-f03-source.log
           grep -q '# fail 0' f07-3-f03-source.log
       - name: 第二独立物理OID及真实签名F05父链
         shell: bash
