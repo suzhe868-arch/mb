@@ -60,6 +60,23 @@ export async function prepareOldNative4A(c){
   await c.query("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(1,$1,'allow',clock_timestamp()) ON CONFLICT(employee_id,permission_id) DO UPDATE SET decision='allow',changed_at=clock_timestamp()",[perm]);
   const bound=await first(c,"SELECT 1 FROM public.employee_capability_scope_bindings WHERE employee_id=1 AND permission_id=$1 AND scope_id=$2 AND ended_at IS NULL",[perm,scope.scope_id]);
   if(!bound)await c.query("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(1,$1,$2,clock_timestamp()-interval '2 minutes')",[perm,scope.scope_id]);
+  // 旧5B真实Lock→Transaction需独立transaction.ci.open，原本基线只配了4A取消权。
+  // 在同一真实员工团队Scope内签CI测试权限，不能因此绕过旧5B的鉴权。
+  const openOriginal=await first(c,"SELECT permission_id FROM public.permissions WHERE permission_code='transaction.ci.open'");
+  const openPermissionId=openOriginal?.permission_id??967001;
+  if(!openOriginal)await c.query("INSERT INTO public.permissions(permission_id,permission_code) VALUES($1,'transaction.ci.open')",[openPermissionId]);
+  const openOverride=await first(c,"SELECT decision FROM public.employee_permission_overrides WHERE employee_id=1 AND permission_id=$1",[openPermissionId]);
+  assert.ok(!openOverride||openOverride.decision==='allow','PG1_PARENT_5B_EXISTING_EXPLICIT_OPEN_DENY_MUST_REMAIN_DENIED');
+  if(!openOverride)await c.query("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(1,$1,'allow',clock_timestamp())",[openPermissionId]);
+  const openBound=await first(c,"SELECT 1 FROM public.employee_capability_scope_bindings WHERE employee_id=1 AND permission_id=$1 AND scope_id=$2 AND ended_at IS NULL",[openPermissionId,scope.scope_id]);
+  if(!openBound)await c.query("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(1,$1,$2,clock_timestamp()-interval '2 minutes')",[openPermissionId,scope.scope_id]);
+  const signedOpen=await first(c,"SELECT e.employee_id,r.role_code FROM public.employees e JOIN public.roles r ON r.role_id=e.main_role_id "+
+   "JOIN public.permissions p ON p.permission_code='transaction.ci.open' "+
+   "JOIN public.employee_permission_overrides o ON o.employee_id=e.employee_id AND o.permission_id=p.permission_id AND o.decision='allow' "+
+   "JOIN public.employee_capability_scope_bindings b ON b.employee_id=e.employee_id AND b.permission_id=p.permission_id AND b.scope_id=$1 AND b.ended_at IS NULL "+
+   "WHERE e.employee_id=1 AND e.employment_status='active' LIMIT 1",[scope.scope_id]);
+  assert.equal(signedOpen?.role_code,'sales','PG1_PARENT_5B_SIGNED_SALES_OPEN_SCOPE_REQUIRED');
+
   const logged=await auth.login({login:'employee_test',password:'SyntheticF04_3_CurrentProof_2026',source:'pg1-old-new-4a-native'});
   assert.equal(logged.code,'AUTH_OK',JSON.stringify(logged));
   const token=logged.token;
