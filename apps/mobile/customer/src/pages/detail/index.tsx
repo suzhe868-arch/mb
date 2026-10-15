@@ -2,15 +2,16 @@ import {useMemo,useState} from 'react'
 import {View,Text,Image,Button} from '@tarojs/components'
 import Taro,{useShareAppMessage} from '@tarojs/taro'
 import {priceText,kmText,type Tier,type Scenario} from '../../../../shared/domain'
-import {safeById} from '../../../../shared/query'
+import {mockReadAdapter} from '../../../../shared/adapter'
+import {getMockTier} from '../../../../shared/session'
 import './index.css'
 
 export default function Detail(){
  const params=Taro.getCurrentInstance().router?.params||{}
  const id=String(params.id||'')
- const tier:Tier=params.tier==='vip'?'vip':params.tier==='fan'?'fan':'limited'
+ const tier:Tier=getMockTier()
  const scenario:Scenario=params.scenario==='revoked'?'revoked':'normal'
- const car=useMemo(()=>safeById(id,scenario),[id,scenario])
+ const car=useMemo(()=>mockReadAdapter.detail(id,scenario),[id,scenario])
  const [broken,setBroken]=useState(false)
  // 分享链接只含车辆ID。真实打开时后端还须按当前Customer/cycle/visibility重新鉴权。
  useShareAppMessage(()=>({
