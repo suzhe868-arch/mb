@@ -91,7 +91,7 @@ jobs:
         run: |
           set -euo pipefail
           psql -XAt -c "SELECT current_user||'|'||current_database()||'|'||current_setting('server_version_num')||'|'||rolsuper FROM pg_roles WHERE rolname=current_user;" | tee f05-parent-proof-pg-identity.log
-          grep -Eq '^f05_parent_audit\|f05_parent_audit_ci\|16[0-9]{4}\|f$' f05-parent-proof-pg-identity.log
+          grep -Eq '^f05_parent_audit\|f05_parent_audit_ci\|16[0-9]{4}\|false$' f05-parent-proof-pg-identity.log
           node --test --test-concurrency=1 engineering/f05/parent-proof-readiness/tests/pg16.test.mjs 2>&1 | tee f05-parent-proof-pg16.log
           grep -q '# fail 0' f05-parent-proof-pg16.log
           echo F05_PARENT_PG16_NONPRODUCTION_ONLY_NO_PARENT_SIGNATURE
