@@ -1,3 +1,13 @@
+# 2026-10-16｜A主控独立验收并标准合并F05历史CI治理PR70；正式放行父来源缺口只读核证给B（当前最新）
+
+- **A真实最终结论**：`F05_LEGACY_CI_GOVERNANCE_01_A_ACCEPTED_STANDARD_MERGED_CI_INFRA_ONLY / NEXT_OWNER=B / NEXT_TASK=F05_PARENT_PROOF_READINESS_AUDIT_01 / F05_BUSINESS_F08_GLOBAL_V1_NOT_READY / NO_PRODUCTION`。C并行轨用户已明确否决C01首页及详情视觉，`C_NEXT_OWNER=C / C_NEXT_TASK=C_APP_01_R2_HOME_DETAIL_VISUAL_REBASE / PR68_NO_MERGE`，必须保留该用户裁决。
+- **正式GitHub合并事实**：[PR70](https://github.com/suzhe868-arch/mb/pull/70)受验HEAD `3ee47d9df08d9e73596be5db73ee623eb856e537`，标准merge返回`merged=true`、真实主线合并SHA `2b676929f36fcdf35cfca3e2956baaa0b439c245`。16个修改文件全部已授权；10份旧F05工作流28个PG16服务镜像改用官方DockerHub `postgres:16`，Runner仅本地别名兼容旧原生脚本，不改原分支Push、原生PG业务安全断言与Artifact强制上传。
+- **独立验收证据**：[真实最后HEAD Push Run38852686876](https://github.com/suzhe868-arch/mb/actions/runs/38852686876) Node 50项只读治理合同＋真非特权PG16 24项隔离断言，双Job均`completed/success`，两份同SHA有效官方SHA256元数据工件 `12025268349 / 12025903246`（未ZIP复算）。最后同SHA真实Checks **30=25成功/5失败/0待定**；旧F05 **28=23成功/5失败**；五个失败都由A逐个读原生Job日志证实为`66/68同SHA正式父源证据不足`或`NOT_NEW_OFFICIAL_PUSH`，不是ECR限流。**严禁把旧五个失败伪绿或宣称已签父业务证明。**
+- **保护与风险**：main branch-protection API仍403、Rulesets空，`required checks=UNKNOWN`；唯一确知本PR GitHub正常merge执行成功，不表示所有未来PR可豁免旧CI。Postgres镜像仍浮动tag未Digest固定；F05业务、F08全域、V1、生产、真实第三方、资金、正式父签仍`NOT_READY`。
+- **正式A归档与新施工授权**：[A最终完整验收报告](https://github.com/suzhe868-arch/mb/blob/main/07_重建工作区/F05_历史CI治理_PR70_A主控最终独立验收标准合并与后续来源缺口正式报告_2026-10-16.md)；[F05正式父来源核证与缺口恢复前置CI专项](https://github.com/suzhe868-arch/mb/blob/main/07_重建工作区/F05_正式父级来源核证与缺口恢复前置CI专项_A主控正式完整施工单_2026-10-16.md)。B从执行时最新main开`feat/f05-parent-proof-readiness-audit-01`，只新增隔离只读审计工具/CI，不修改历史业务或正式父签流程；交`READY_FOR_A_REVIEW`再由A验收。C PR68原分支视觉重构和用户复评独立继续。
+
+---
+
 # 2026-10-16｜用户明确否决C01首页/C01-01详情当前视觉方案；A签发PR68原分支首页详情视觉重构正式单
 
 - **用户原话**：“这页面设计的严重有问题吧详情页设计的也有问题这和我们最初规划的完全都不一致”。A已再次肉眼对照最后同HEAD真Chromium截图，裁决`C_APP_01_USER_VISUAL_REJECTED / A_R2_HOME_DETAIL_VISUAL_REBASE_RELEASED / PR68_NO_MERGE / C_NEXT_OWNER=C / C_NEXT_TASK=C_APP_01_R2_HOME_DETAIL_VISUAL_REBASE`，**取代之前的`USER_VISUAL_REVIEW_PENDING`，禁止将现行页面写成视觉已通过**。
