@@ -1,15 +1,15 @@
 {
   "project": "名邦汽车 V1",
-  "updated_at": "2026-10-16",
+  "updated_at": "2026-10-17",
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_7_PARENT_SOURCE_CONTROLLED_RECOVERY_01_A_RELEASED_PREFLIGHT_AFTER_F05_ROUTE_CI_ACCEPTANCE",
+  "substage": "F05_7_FROZEN_PG16_COMPAT_SAFETY_01_A_RELEASED_AFTER_PR82_PHASE1_ACCEPTED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F05_PARENT_SOURCE_RECOVERY",
-  "current_domain_status": "F05_7_READ_ONLY_PREFLIGHT_RELEASED_CI_F05_TRIGGER_ROUTING_A_ACCEPTED_C_REQUIRED_BUILD_NOT_VERIFIED",
+  "current_domain_status": "F05_7_PHASE1_READ_ONLY_A_ACCEPTED_PR82_MERGED_PHASE2_ORIGINAL_REF_PUSH_NOT_AUTHORIZED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A独立审阅B Stage2证据PR79 HEAD7b46ae3bf5724f95e11be933c5e24345ae95e821，GitHub独立再查六组PR精确SHA，52原生Run/144原生Check与B清单完全相符；5类F05旧十Workflow路由正反触发真实通过（C-only 0，F05/shared/self/mixed均10份触发），5正式Source失败原生日志保留无伪绿。A独立核验PR79仅七个非业务证据文件、官方末SHA审计36/36通过。由于main缺少C应用与独立CI（C PR68仍Draft未接受），C_REQUIRED_BUILD_NOT_VERIFIED必须保留，不能签CI全域FIXED或V1生产。A将F05路由治理局部正式验收、C build归C窗口独立解锁，解除B等待，重新放行已签F05-7只读安全预检；旧ref Push和66历史PG16 Job仍禁止。",
-  "current_work_file": "07_重建工作区/F05-7_首条正式来源链受控恢复实验_A主控完整施工单_2026-10-16.md",
+  "current_task": "A已独立验收B PR82最终HEAD03c36c2b73b3f431b74a81a03c5562e628db6f01：4份只读白名单、Push及PR原生Node各22/22、8历史原Push Workflow/66历史Job的仅旧SHA元数据，抽核H52 52/52及97旧工件；GitHub PR82标准合并成功65cd51d53fe58c844d2f6fab181d798702a054bc。旧F05-7原ref未动、66新父作业未运行，五Source缺口、C必要构建和V1/生产未PASS。A签下阶段单，仅允许七份F05-7冻结workflow最小PG16镜像兼容/本地旧名别名/H52六写权限有条件收窄及独立CI，明确禁止旧ref Push/66 Job直至另签阶段2。",
+  "current_work_file": "07_重建工作区/F05-7_冻结PG16镜像与权限最小兼容治理_A主控下一阶段正式施工单_2026-10-17.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F05_7_PARENT_SOURCE_CONTROLLED_RECOVERY_01",
+  "next_task": "F05_7_FROZEN_PG16_COMPAT_SAFETY_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9080,7 +9080,7 @@
   },
   "f05_7_parent_source_controlled_recovery_gate": {
     "task_id": "F05_7_PARENT_SOURCE_CONTROLLED_RECOVERY_01",
-    "status": "A_RELEASED_FOR_B_GATED_PREPARATION_AFTER_F05_CI_ROUTE_ACCEPTED",
+    "status": "A_ACCEPTED_PHASE1_READ_ONLY_PREFLIGHT_STANDARD_MERGED_PR82",
     "owner": "B",
     "review_owner": "A",
     "branch": "feat/f05-7-parent-source-controlled-recovery-01",
@@ -9102,9 +9102,37 @@
     "other_four_origin_branches_touched": false,
     "source_gap_open": true,
     "production": false,
-    "branch_started_as_of_last_check": false,
-    "current_b_priority": true,
+    "branch_started_as_of_last_check": true,
+    "current_b_priority": false,
     "dependent_ci_route_accepted": true,
-    "dependent_c_required_build_gate_remains_open": true
+    "dependent_c_required_build_gate_remains_open": true,
+    "pr": 82,
+    "accepted_head_sha": "03c36c2b73b3f431b74a81a03c5562e628db6f01",
+    "merge_sha": "65cd51d53fe58c844d2f6fab181d798702a054bc",
+    "phase1_push_run_id": 38953128936,
+    "phase1_pr_run_id": 38953137971,
+    "phase1_native_node_tests": "22/22_PUSH_AND_22/22_PR",
+    "historical_workflows_metadata": 8,
+    "historical_jobs_metadata": 66,
+    "original_ref_push_authorized": false,
+    "new_66_pg16_jobs_authorized": false,
+    "phase2_status": "NOT_AUTHORIZED_PENDING_RESOURCE_COMPAT_AND_A_FURTHER_REVIEW",
+    "next_owner": "B",
+    "next_task": "F05_7_FROZEN_PG16_COMPAT_SAFETY_01",
+    "followup_work_order": "07_重建工作区/F05-7_冻结PG16镜像与权限最小兼容治理_A主控下一阶段正式施工单_2026-10-17.md",
+    "phase1_a_acceptance_report": "07_重建工作区/F05-7_PR82_A主控阶段1只读预检独立验收及下阶段安全裁决_2026-10-17.md"
+  },
+  "f05_7_frozen_pg16_compat_safety_gate": {
+    "task_id": "F05_7_FROZEN_PG16_COMPAT_SAFETY_01",
+    "status": "A_RELEASED_FOR_B_SAFE_COMPAT_PR_ONLY",
+    "work_order": "07_重建工作区/F05-7_冻结PG16镜像与权限最小兼容治理_A主控下一阶段正式施工单_2026-10-17.md",
+    "branch": "fix/f05-7-frozen-pg16-safe-compat-01",
+    "base_main_sha": "65cd51d53fe58c844d2f6fab181d798702a054bc",
+    "phase2_old_ref_push_authorized": false,
+    "changes_allowed": "EXACT_7_FROZEN_F05_7_YML_IMAGE_LOCAL_ALIAS_AND_CONDITIONAL_WRITE_PERMISSION_REDUCTION_ONLY",
+    "old_source_gate": "F05_SOURCE_GAP_OPEN",
+    "next_owner": "B",
+    "acceptance": "READY_FOR_A_REVIEW_COMPAT_PATCH",
+    "current_b_priority": true
   }
 }
