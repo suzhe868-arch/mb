@@ -1,3 +1,15 @@
+# 2026-10-16｜A独立复验F07-4 PR67第二轮：Incident清除后的告警残留及旧CI排队，原B包定向整改（唯一最新B主线）
+
+- **B轨正式唯一指针**：`F07_4_PR67_A_R2_CHANGES_REQUESTED / NO_MERGE / NEXT_OWNER=B / NEXT_TASK=F07_4_PR67_R2_A07_A08_INCIDENT_CLEARED_GUARD_AND_CI_RECHECK / F05_F06_F07_V1_NOT_READY / NO_PRODUCTION`。先前F07-4首轮六项整改单现属前轮历史；首轮A01—A05的源码证据已核实，**本轮只补R2-A07/A08**，不放行F07-5或F08。
+- **最新A真实复验范围**：[PR67](https://github.com/suzhe868-arch/mb/pull/67)最后HEAD `4543169f1847aa5ea5ad80578294b303e9f3538d`，main当时`083e88bcab56902804a76831d08733a9f8457610`，GitHub compare ahead38/behind6且9/9文件只新增在原`engineering/f07/notification-sla-incident-gate-ci/**`和`.github/workflows/f07-4-*.yml`，未动父源或C代码。PR仍open、未合并。
+- **原生CI真实通过，不掩盖阻断**：[真Push Run38829122302](https://github.com/suzhe868-arch/mb/actions/runs/38829122302)两个真实隔离非特权PG16 Job完成success：Source`116743508589` 83业务+10签名F03负证、HTTPS`116743508266` 26真CA+SAN回环TLS，**119/119独立子例**；真双Backend+行锁55P03，最后同SHA两有效官方SHA256 metadata Artifact `12016441901/12016661437`，未下载ZIP逐字节复算。首轮A01父调用数、A02 SLA未来deadline、A03 Recovery前态、A04脱敏路由日志、A05 TLS证书验签均已有整改证据。
+- **R2-A07新增真实代码缺口**：`clearIncident`只把`incident_lifecycle.status`改成`cleared`，不修改旧`event.incident_active=true`。但`dispatch`中只有`incident_recovery`查锁当前lifecycle，旧`incident_active`仅看旧event flag，导致故障真正清除后仍可在新cadence时间桶再次发送模拟Active群告警，违反PDM23“故障恢复后停止重复”。必须让active告警同事务锁/查真实CI生命周期现态并增加cleared后、伪源、clear/send两Backend竞态与恢复时间倒序原生反例；仍不创造真实上游Issuer。
+- **R2-A08剩余旧CI队列**：A对本HEAD真实`check-runs`核30项 **2 success/28 queued**，另10条旧F05 PR工作流还未跑完，本次没有具体旧失败码可分类。修R2-A07后B按末HEAD完整登记最新结论；仍排队明记`A08_EXTERNAL_CHECK_PENDING`，交A下一轮判断，禁止旧PR例外复用/改旧工作流/虚报全绿。
+- **正式单及交接**：[R2完整补充整改单](https://github.com/suzhe868-arch/mb/blob/main/07_%E9%87%8D%E5%BB%BA%E5%B7%A5%E4%BD%9C%E5%8C%BA/F07-4_A%E4%B8%BB%E6%8E%A7PR67%E7%AC%AC%E4%BA%8C%E8%BD%AE%E7%8B%AC%E7%AB%8B%E9%AA%8C%E6%94%B6_Incident%E6%B8%85%E9%99%A4%E5%90%8E%E9%87%8D%E5%A4%8D%E5%91%8A%E8%AD%A6%E4%B8%8E%E6%97%A7CI%E9%98%9F%E5%88%97%E8%A1%A5%E5%85%85%E6%95%B4%E6%94%B9%E6%AD%A3%E5%BC%8F%E6%96%BD%E5%B7%A5%E5%8D%95_2026-10-16.md)、[PR67 A复验签字](https://github.com/suzhe868-arch/mb/pull/67#issuecomment-6205506370)。B继续原分支原PR #67，保持93 Source+26 HTTPS共119既有通过场景并增加负例，最终同SHA真实双PG16 Job/两工件/两个TSV和中文交接后签`B_SELF_TESTED/READY_FOR_A_REVIEW/NEXT_OWNER=A`。A未过验前不得合main。
+- **C并行轨独立不变**：C-APP-01/PR #68仍Draft、由C继续Mock-only手机端代码，不改变其授权和目录；不能通过B整改间接把C前端宣称已完成。真实Feishu/JYT/Collector、客户/资金/图片CDN、正式Issuer、UAT/生产未授权；F05/F06/F07全域及V1仍NOT_READY。
+
+---
+
 # 2026-10-16｜A独立验收F07-4 PR67不通过：六项安全证据整改，B原PR继续（唯一最新B主线）
 
 - **唯一正式B主线**：`F07_4_PR67_A_CHANGES_REQUESTED / NO_MERGE / NEXT_OWNER=B / NEXT_TASK=F07_4_PR67_A01_A06_REMEDIATION_AND_NATIVE_RETEST / F05_F06_F07_V1_NOT_READY / NO_PRODUCTION`。2026-10-15既有F07-4“已放行B施工”记录作为历史；本次为同原包A正式整改，不放行F07-5/F08。
