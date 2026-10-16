@@ -19,7 +19,7 @@ test('Q04 缺口台账具备责任及解锁条件',()=>assert.equal(validateGaps
 test('Q05 历史CI严格不是当前HEAD',()=>assert.equal(validateLegacy(legacy),true));
 test('Q06 真实源码扫描所有手工Source存在声明一致',()=>assert.ok(sourceInventory(coverage).every(x=>x.source_consistent)));
 test('Q07 C未合并PR在main必须保持Source Gap',()=>assert.equal(coverage.find(x=>x.id==='C_MOBILE_MAIN').level,'SOURCE_GAP'));
-test('Q08 历史F07-4模拟通知不能冒充真实签名正例',()=>assert.equal(requireEvidence(coverage.find(x=>x.id==='F07_NOTIF_MOCK'),{target:'SIGNED_PARENT_POSITIVE'}).eligible,false));
+test('Q08 历史F07-4模拟通知不能冒充真实签名正例',()=>assert.throws(()=>requireEvidence(coverage.find(x=>x.id==='F07_NOTIF_MOCK'),{target:'SIGNED_PARENT_POSITIVE'}),/PARENT_POSITIVE_NOT_VERIFIED/));
 test('Q09 父Session真实负证不允许注册为父正例',()=>assert.throws(()=>requireEvidence(coverage.find(x=>x.id==='F07_F03_NEGATIVE'),{target:'SIGNED_PARENT_POSITIVE'}),/PARENT_POSITIVE_NOT_VERIFIED/));
 test('Q10 真实生产就绪请求无条件拒绝',()=>assert.throws(()=>requireEvidence(coverage[0],{target:'PRODUCTION_READY'}),/NOT_AUTHORIZED/));
 test('Q11 未授权UAT结果不得登记',()=>assert.throws(()=>requireEvidence(coverage[0],{target:'UAT_ACCEPTED'}),/NOT_AUTHORIZED/));
