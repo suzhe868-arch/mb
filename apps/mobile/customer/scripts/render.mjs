@@ -6,8 +6,8 @@ mkdirSync(out,{recursive:true})
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']})
 const checks=[]
 try {
- for(const width of [320,375,390,430]){
-  const page=await browser.newPage({viewport:{width,height:844},deviceScaleFactor:1})
+ for(const [width,height] of [[320,568],[375,812],[390,844],[430,932]]){
+  const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1})
   const errors=[]
   page.on('pageerror',e=>errors.push(e.message))
   await page.goto(root,{waitUntil:'domcontentloaded',timeout:45000})
@@ -27,10 +27,11 @@ try {
   if(state.cards<1)throw Error('无真实 DOM 车辆卡片 '+JSON.stringify(state))
   if(state.scrollWidth>width+2)throw Error('存在水平溢出 '+JSON.stringify(state))
   if(state.imageRatios.some(r=>Math.abs(r-4/3)>0.055))throw Error('车辆4:3图片布局失真 '+JSON.stringify(state.imageRatios))
-  if(state.channelHeights.some(h=>h<40))throw Error('频道点击区高度不足 '+JSON.stringify(state.channelHeights))
+  if(state.channelHeights.some(h=>h<44))throw Error('频道点击区高度不足 '+JSON.stringify(state.channelHeights))
   if(errors.length)throw Error('页面JS错误 '+errors.join('; '))
-  await page.screenshot({path:out+'/'+width+'x844_首页.png',fullPage:true})
-  checks.push({width,...state,jsErrors:errors})
+  await page.screenshot({path:out+'/'+width+'x'+height+'_首屏.png'})
+  await page.screenshot({path:out+'/'+width+'x'+height+'_首页.png',fullPage:true})
+  checks.push({width,height,...state,jsErrors:errors})
   if(width===390){
    await page.locator('.channel').nth(1).click()
    if(!(await page.locator('.channel').nth(1).evaluate(n=>n.classList.contains('active'))))throw Error('名邦频道未切换')
