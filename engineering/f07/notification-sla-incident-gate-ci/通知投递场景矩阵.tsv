@@ -10,7 +10,7 @@ S08	真PG16 Source	允许的事件 supply_anomaly	SENT/Mock PG16一次	CI_SYNTHE
 S09	真PG16 Source	允许的事件 transaction_changed	SENT/Mock PG16一次	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
 S10	真PG16 Source	允许的事件 refund_changed	SENT/Mock PG16一次	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
 S11	真PG16 Source	允许的事件 incident_active	SENT/Mock PG16一次	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
-S12	真PG16 Source	允许的事件 incident_recovery	SENT/Mock PG16一次	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
+S12	真PG16 Source	已有active→cleared状态转移的 incident_recovery	SENT/Mock PG16一次	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
 S13	真PG16 Source	明确禁止 page_view	NOT_ALLOWLISTED	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
 S14	真PG16 Source	明确禁止 click	NOT_ALLOWLISTED	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
 S15	真PG16 Source	明确禁止 matching	NOT_ALLOWLISTED	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
@@ -68,8 +68,8 @@ H11	真PG16回环TLS	SLA夜间拒绝	错误码/拒绝原因精确断言	CI_SYNTH
 H12	真PG16回环TLS	负责员工失活	错误码/拒绝原因精确断言	CI_SYNTHETIC_ONLY	tests/https.test.mjs / 真Push HTTPS Job	IN_FINAL_CI_EVIDENCE
 H13	真PG16回环TLS	公司开关关闭	错误码/拒绝原因精确断言	CI_SYNTHETIC_ONLY	tests/https.test.mjs / 真Push HTTPS Job	IN_FINAL_CI_EVIDENCE
 H14	真PG16回环TLS	不存在事件	错误码/拒绝原因精确断言	CI_SYNTHETIC_ONLY	tests/https.test.mjs / 真Push HTTPS Job	IN_FINAL_CI_EVIDENCE
-H15	真PG16回环TLS	旧链接再次鉴权	错误码/拒绝原因精确断言	SIGNED_PARENT_NEGATIVE_ONLY	tests/https.test.mjs / 真Push HTTPS Job	IN_FINAL_CI_EVIDENCE
-H16	真PG16回环TLS	SSRF链接	错误码/拒绝原因精确断言	SIGNED_PARENT_NEGATIVE_ONLY	tests/https.test.mjs / 真Push HTTPS Job	IN_FINAL_CI_EVIDENCE
+H15	真PG16回环TLS	旧链接无真正父权限入口、signedParentCalls=0	LINK_CURRENT_SESSION_SCOPE_OBJECT_SOURCE_GAP	PRE_PARENT_VALIDATION	tests/https.test.mjs / 真Push HTTPS Job	IN_FINAL_CI_EVIDENCE
+H16	真PG16回环TLS	SSRF链接本地校验拒绝，不触父授权	DENIED	PRE_PARENT_VALIDATION	tests/https.test.mjs / 真Push HTTPS Job	IN_FINAL_CI_EVIDENCE
 H17	真PG16回环TLS	原始编码穿越	错误码/拒绝原因精确断言	SIGNED_PARENT_NEGATIVE_ONLY	tests/https.test.mjs / 真Push HTTPS Job	IN_FINAL_CI_EVIDENCE
 H18	真PG16回环TLS	GET请求旁路	错误码/拒绝原因精确断言	SIGNED_PARENT_NEGATIVE_ONLY	tests/https.test.mjs / 真Push HTTPS Job	IN_FINAL_CI_EVIDENCE
 H19	真PG16回环TLS	超大负载	错误码/拒绝原因精确断言	SIGNED_PARENT_NEGATIVE_ONLY	tests/https.test.mjs / 真Push HTTPS Job	IN_FINAL_CI_EVIDENCE
@@ -92,3 +92,29 @@ S60	真PG16 Source	SLA超时缺原deadline拒绝	SLA_EVENT_SOURCE_GAP	CI_SYNTHET
 S61	真PG16 Source	Incident跨时间桶未满真实cadence不得再次发送，满间隔可重发	INCIDENT_CADENCE_NOT_DUE/之后SENT	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
 S62	真PG16 Source	公司总闸事务内并发修改后提交前重读拒绝	COMPANY_FEISHU_DISABLED，零投递	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
 S63	真PG16 Source	当前员工状态并发撤销后提交前重读拒绝	CURRENT_EMPLOYEE_OR_SCOPE_DENIED，零投递	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 真Push Source Job	IN_FINAL_CI_EVIDENCE
+S64	真PG16 Source	SLA未来deadline拒绝	SLA_DEADLINE_NOT_REACHED	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 同HEAD最新Push Source Job	PENDING_NATIVE_FINAL
+S65	真PG16 Source	SLA恰到deadline合成条件	SENT/CI only	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 同HEAD最新Push Source Job	PENDING_NATIVE_FINAL
+S66	真PG16 Source	SLA截止前最后毫秒拒绝	SLA_DEADLINE_NOT_REACHED	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 同HEAD最新Push Source Job	PENDING_NATIVE_FINAL
+S67	真PG16 Source	SLA已完成首次响应拒绝	SLA_FIRST_RESPONSE_COMPLETED	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 同HEAD最新Push Source Job	PENDING_NATIVE_FINAL
+S68	真PG16 Source	SLA存在有效hold拒绝	SLA_VALID_HOLD_PRESENT	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 同HEAD最新Push Source Job	PENDING_NATIVE_FINAL
+S69	真PG16 Source	SLA事实未验证拒绝	SLA_FACT_NOT_ESTABLISHED	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 同HEAD最新Push Source Job	PENDING_NATIVE_FINAL
+S70	真PG16 Source	SLA拒绝时event与父public COUNT/MD5不变	COUNT/MD5不变	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 同HEAD最新Push Source Job	PENDING_NATIVE_FINAL
+S71	真PG16 Source	无active前态恢复拒绝	RECOVERY_PREVIOUS_ACTIVE_SOURCE_GAP	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 同HEAD最新Push Source Job	PENDING_NATIVE_FINAL
+S72	真PG16 Source	同一故障active→cleared恢复且去重	SENT/DEDUPED	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 同HEAD最新Push Source Job	PENDING_NATIVE_FINAL
+S73	真PG16 Source	跨事件同故障恢复并发去重	SENT/DEDUPED	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 同HEAD最新Push Source Job	PENDING_NATIVE_FINAL
+S74	真PG16 Source	跨Incident恢复串线拒绝	RECOVERY_PREVIOUS_ACTIVE_SOURCE_GAP	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 同HEAD最新Push Source Job	PENDING_NATIVE_FINAL
+S75	真PG16 Source	Incident恢复失败后可重试	FAILED/SENT	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 同HEAD最新Push Source Job	PENDING_NATIVE_FINAL
+S76	真PG16 Source	Incident恢复在DND期间不抢发、醒后重判	DND_DELAY_REVALIDATE/SENT	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 同HEAD最新Push Source Job	PENDING_NATIVE_FINAL
+S77	真PG16 Source	从未active不可直接clear	SKIPPED	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 同HEAD最新Push Source Job	PENDING_NATIVE_FINAL
+S78	真PG16 Source	个人/群路由脱敏哈希审计与版本	两独立route_ref	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 同HEAD最新Push Source Job	PENDING_NATIVE_FINAL
+S79	真PG16 Source	变更owner采用新接收人哈希而不记明文	新recipient_ref	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 同HEAD最新Push Source Job	PENDING_NATIVE_FINAL
+S80	真PG16 Source	失败/成功/重复日志与Outbox一致	FAILED/SENT/DEDUPED	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 同HEAD最新Push Source Job	PENDING_NATIVE_FINAL
+S81	真PG16 Source	公司开关关闭日志路由和版本	COMPANY_FEISHU_DISABLED	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 同HEAD最新Push Source Job	PENDING_NATIVE_FINAL
+S82	真PG16 Source	缺路由记录SOURCE_GAP且接收对象空	ROUTE_SOURCE_GAP	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 同HEAD最新Push Source Job	PENDING_NATIVE_FINAL
+S83	真PG16 Source	Recovery日志与MockOutbox的事件阶段一致	SENT且stage/channel一致	CI_SYNTHETIC_ONLY	tests/source.test.mjs / 同HEAD最新Push Source Job	PENDING_NATIVE_FINAL
+H21	真PG16回环TLS	正常旧链接请求不虚增F03父调用	signedParentCalls=0	PRE_PARENT_VALIDATION	tests/https.test.mjs / 同HEAD最新Push HTTPS Job	PENDING_NATIVE_FINAL
+H22	真PG16回环TLS	员工撤权后旧链接依然403	LINK_CURRENT_SESSION_SCOPE_OBJECT_SOURCE_GAP	PRE_PARENT_VALIDATION	tests/https.test.mjs / 同HEAD最新Push HTTPS Job	PENDING_NATIVE_FINAL
+H23	真PG16回环TLS	伪造signedParentVerified=true仍拒	signedParentCalls=0	PRE_PARENT_VALIDATION	tests/https.test.mjs / 同HEAD最新Push HTTPS Job	PENDING_NATIVE_FINAL
+H24	真PG16回环TLS	错误CA不通过TLS证书链	TLS_HANDSHAKE_DENIED	PRE_PARENT_VALIDATION	tests/https.test.mjs / 同HEAD最新Push HTTPS Job	PENDING_NATIVE_FINAL
+H25	真PG16回环TLS	证书SAN主机名伪装拒绝	TLS_HOSTNAME_DENIED	PRE_PARENT_VALIDATION	tests/https.test.mjs / 同HEAD最新Push HTTPS Job	PENDING_NATIVE_FINAL
+H26	真PG16回环TLS	未来SLA通过HTTPS接口仍拒绝	SLA_DEADLINE_NOT_REACHED	CI_SYNTHETIC_ONLY	tests/https.test.mjs / 同HEAD最新Push HTTPS Job	PENDING_NATIVE_FINAL
