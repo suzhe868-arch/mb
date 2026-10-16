@@ -8905,7 +8905,7 @@
     "formal_parent_verified": false
   },
   "c_app_01_r3_function_visual_gate": {
-    "status": "A_RELEASED_C_NOT_STARTED_NEW_R3_CODE",
+    "status": "C_R3_CODE_UPDATES_PRESENT_NOT_A_REVIEWED_OR_USER_ACCEPTED",
     "owner": "C",
     "review_owner": "A",
     "pr": 68,
@@ -8917,7 +8917,7 @@
     "requires_original_r1_11": true,
     "requires_original_r2_8": true,
     "head_at_a_r3": "7783c54bd78e1b5156976aab036151b0debe8618",
-    "r3_new_code_sha": null,
+    "r3_new_code_sha": "75c3c56a3997885c30fccaef58dd8bba3ba718b9",
     "final_user_acceptance": "REJECTED",
     "pr_merge_allowed": false,
     "real_business_writes": "NOT_AUTHORIZED",
@@ -8925,7 +8925,10 @@
     "next_task": "C_APP_01_R3_HOME_DETAIL_FULL_SPEC_REBASE",
     "standing_quality_standard": "07_重建工作区/C手机端全页面统一产品功能交互视觉质量门禁_A主控常设正式规范_2026-10-16.md",
     "standing_page_template": "07_重建工作区/手机端前端全量追踪基线/C_全部页面质量验收契约卡_统一填写模板_2026-10-16.tsv",
-    "requires_all_pages_quality_gate": true
+    "requires_all_pages_quality_gate": true,
+    "pr_merged": false,
+    "a_independent_review": "NOT_YET_APPROVED",
+    "c_current_branch_head_observed": "75c3c56a3997885c30fccaef58dd8bba3ba718b9"
   },
   "c_mobile_all_pages_quality_gate": {
     "status": "A_STANDING_QUALITY_GATE_RELEASED",
