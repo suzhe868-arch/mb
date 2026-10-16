@@ -8330,7 +8330,7 @@
     "merge_commit_sha": "5f1e60ddd87472c7b90e230a8363db7c89a35911"
   },
   "parallel_c_mobile_frontend": {
-    "status": "A_RELEASED_C_APP_01_ISOLATED_MOCK_ONLY",
+    "status": "C_APP_01_NPM_EDGESOUT_A_TECH_FIX_RELEASED_C_TO_REMEDIATE",
     "process_authority": "2026-10-15_USER_APPROVED_CODE_FIRST_NO_SEPARATE_LOFI_HIFI_FIGMA",
     "owner": "C",
     "a_review_owner": "A",
@@ -8373,7 +8373,38 @@
     "separate_hifi_required": false,
     "after_c_selftest": "C_CODE_IMPLEMENTED_C_MOCK_TESTED_READY_FOR_A_REVIEW_NEXT_OWNER_A_FOR_C_TRACK",
     "f07_global": "NOT_READY",
-    "v1": "NOT_READY"
+    "v1": "NOT_READY",
+    "next_owner": "C",
+    "next_task": "C_APP_01_PR68_NPM_11_6_0_LOCKFILE_NATIVE_H5_WEAPP_CHROMIUM_CI_REMEDIATION",
+    "a_blocker_work_order": "07_重建工作区/C_APP_01_A主控PR68_npm依赖解析与双端构建阻断定向整改施工单_2026-10-16.md",
+    "review_pr": 68,
+    "review_head_sha": "b0e538364d17111e1e596a3ff097bb66584f5019",
+    "last_a_review_main_sha": "7b7cd7384e01792c7561810c16020c4708b58f02",
+    "failed_native_push_run": 38833737548,
+    "failed_job_id": 116758065390,
+    "node_version": "20.20.2",
+    "npm_failed_version": "10.8.2",
+    "npm_target_version": "11.6.0",
+    "npm_fix_status": "HIGH_CONFIDENCE_ARBORIST_PEER_GRAPH_HYPOTHESIS_NOT_PROJECT_VERIFIED",
+    "npm_debug_stack_available": false,
+    "package_lock_committed": false,
+    "npm_ci": "NOT_RUN",
+    "native_typescript": "NOT_RUN",
+    "h5_build": "NOT_RUN",
+    "weapp_build": "NOT_RUN",
+    "chromium_render": "NOT_RUN",
+    "four_sizes_screenshots": "NOT_CREATED",
+    "last_offline_cases": 26,
+    "offline_cases_not_native": true,
+    "ci_backlog_snapshot": {
+      "queued": 17,
+      "in_progress": 15,
+      "scope": "REPOSITORY_ACTIONS_AT_REVIEW_TIME"
+    },
+    "draft": true,
+    "merged": false,
+    "user_visual_review": "NOT_READY",
+    "a_pr_comment_id": 6206309405
   },
   "f08_gate": {
     "status": "F08_1_A_RELEASED_FOR_B_CI_ONLY",
@@ -8422,5 +8453,24 @@
     "v1": "NOT_READY",
     "production": false,
     "after_b_selftest": "B_SELF_TESTED_READY_FOR_A_REVIEW_NEXT_OWNER_A"
+  },
+  "c_app_01_build_blocker": {
+    "status": "A_TRIAGED_C_REMEDIATION_RELEASED_NOT_READY_FOR_A_REVIEW",
+    "owner": "C",
+    "next_owner": "C",
+    "review_pr": 68,
+    "review_sha": "b0e538364d17111e1e596a3ff097bb66584f5019",
+    "work_order": "07_重建工作区/C_APP_01_A主控PR68_npm依赖解析与双端构建阻断定向整改施工单_2026-10-16.md",
+    "failed_run": 38833737548,
+    "failed_job": 116758065390,
+    "root_cause": "LIKELY_NPM_ARBORIST_PEER_DEPENDENCY_GRAPH_BUG_NOT_CONFIRMED_WITH_THIS_PROJECT_DEBUG_LOG",
+    "fix_test": "PIN_NPM_11_6_0_KEEP_NODE_20_20_2_AND_TARO_4_1_11_UNCHANGED_FIRST",
+    "requires_real_ci_same_final_sha": true,
+    "requires_h5_build": true,
+    "requires_weapp_build": true,
+    "requires_chromium_four_viewports": true,
+    "requires_user_visual_confirmation": true,
+    "ci_not_proven": true,
+    "main_merge_allowed": false
   }
 }
