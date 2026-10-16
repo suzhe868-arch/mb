@@ -12,7 +12,7 @@ export default defineConfig<'webpack5'>(async (merge) => {
     compiler: 'webpack5',
     plugins: ['@tarojs/plugin-framework-react', '@tarojs/plugin-platform-weapp', '@tarojs/plugin-platform-h5'],
     mini: { postcss: { pxtransform: { enable: true, config: {} } } },
-    h5: { publicPath: '/', staticDirectory: 'static', esnextModules: ['@tarojs/components'] },
+    h5: { publicPath: '/', staticDirectory: 'static', esnextModules: ['@tarojs/components'], postcss: { pxtransform: { enable: false } } },
   }
   return merge({}, base)
 })
