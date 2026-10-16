@@ -27,4 +27,5 @@ test('G21 真业务断言失败只能标失败待核',()=>assert.equal(classifyF
 test('G22 重复GitHub Check ID不得当不同Job',()=>{const c={id:1,name:'F05-x',head_sha:sha,status:'completed',conclusion:'success',details_url:'https://github.com/test'};assert.throws(()=>summarizeChecks({total_count:2,check_runs:[c,c]},sha),/DUPLICATE_CHECK_ID/);});
 test('G23 GitHub检查数量不完整必须拒绝',()=>assert.throws(()=>summarizeChecks({total_count:28,check_runs:[]},sha),/INCOMPLETE/));
 test('G24 即使GitHub状态success也不得签发正式父证据',()=>{const x=summarizeChecks({total_count:1,check_runs:[{id:3,name:'F05-x',head_sha:sha,status:'completed',conclusion:'success',details_url:'https://github.com/test'}]},sha);assert.equal(x.legacy[0].formal_parent_positive,false);assert.equal(x.not_a_success_certificate,true);});
-test('F05_CI_GOVERNANCE_24_NODE_ASSERTIONS_PASS',()=>console.log('F05_GOVERNANCE_NODE_24_ASSERTIONS_PASS'));
+test('G25 删除DockerHub本地镜像别名必须拒绝兼容性伪通过',()=>{const name=files[0];assert.throws(()=>examineWorkflow(source(name).replace('docker tag postgres:16 public.ecr.aws/docker/library/postgres:16-alpine','echo alias-skip'),name),/LOCAL_ALIAS_MISSING/);});
+test('F05_CI_GOVERNANCE_25_NODE_ASSERTIONS_PASS',()=>console.log('F05_GOVERNANCE_NODE_25_ASSERTIONS_PASS'));

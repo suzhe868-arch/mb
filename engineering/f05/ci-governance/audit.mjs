@@ -17,6 +17,8 @@ export function examineWorkflow(text,name){
  if(count(/image: postgres:16\s*$/gm)!==x.jobs)throw Error('F05_POSTGRES16_IMAGE_COUNT:'+name);
  if(count(/public\.ecr\.aws\/docker\/library\/postgres/g)!==0)throw Error('F05_ECR_LIMITED_IMAGE_REMAINS:'+name);
  if(count(/services:\s*\n\s*postgres:/g)!==x.jobs)throw Error('F05_PG_SERVICE_REMOVED:'+name);
+ if(count(/docker tag postgres:16 public\\.ecr\\.aws\\/docker\\/library\\/postgres:16-alpine/g)!==x.jobs)throw Error('F05_LEGACY_ANCESTOR_LOCAL_ALIAS_MISSING:'+name);
+ if(count(/F05_PG16_DOCKERHUB_LOCAL_TAG_ALIAS_CONFIRMED_NO_ECR_NETWORK_PULL/g)!==x.jobs)throw Error('F05_DOCKERHUB_ORIGIN_AUDIT_MISSING:'+name);
  if(count(/ci-job\.sh\s+(source|https|priority-source|priority-https|compat-source|compat-https)/g)!==x.jobs)throw Error('F05_TEST_ENTRY_REDUCED:'+name);
  if(count(/uses: actions\/upload-artifact@v4/g)!==x.jobs)throw Error('F05_ORIGINAL_ARTIFACT_REDUCED:'+name);
  if(count(/if-no-files-found: error/g)!==x.jobs)throw Error('F05_ARTIFACT_REQUIRED:'+name);

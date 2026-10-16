@@ -42,8 +42,8 @@ jobs:
         run: |
           set -euo pipefail
           node --test --test-concurrency=1 engineering/f05/ci-governance/tests/audit.test.mjs 2>&1 | tee f05-ci-governance-node.log
-          grep -q F05_GOVERNANCE_NODE_24_ASSERTIONS_PASS f05-ci-governance-node.log
-          grep -q '# tests 25' f05-ci-governance-node.log
+          grep -q F05_GOVERNANCE_NODE_25_ASSERTIONS_PASS f05-ci-governance-node.log
+          grep -q '# tests 26' f05-ci-governance-node.log
           grep -q '# fail 0' f05-ci-governance-node.log
       - if: always()
         uses: actions/upload-artifact@v4
