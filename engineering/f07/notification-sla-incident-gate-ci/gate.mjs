@@ -114,8 +114,9 @@ export async function dispatch(db,{eventId,channel='personal',at='2026-10-16T02:
   const event=(await client.query('SELECT * FROM f07_4_ci.event WHERE event_id=$1 FOR UPDATE',[eventId])).rows[0];
   const cfg=(await client.query('SELECT * FROM f07_4_ci.config WHERE id=1 FOR SHARE')).rows[0];
   const emp=event?(await client.query('SELECT * FROM f07_4_ci.employee WHERE employee_id=$1 FOR SHARE',[event.employee_id])).rows[0]:null;
-  // 只有CI持久状态先active后cleared才能构成Recovery；此锁也串行化跨事件重放。
-  const incident=event?.kind==='incident_recovery'?
+  // PDM23：Active 与 Recovery 均以同一生命周期行的当前事务事实为准。
+  // 和 clearIncident() 的 UPDATE 行锁串行化；event.incident_active 仅为旧事件快照，不是放行凭证。
+  const incident=event&&['incident_active','incident_recovery'].includes(event.kind)?
    (await client.query('SELECT * FROM f07_4_ci.incident_lifecycle WHERE incident_id=$1 FOR UPDATE',[event.incident_id])).rows[0]:null;
   let stage=event?.stage||'unknown';let result;
   const dnd=dndAt(time,cfg.dnd_start,cfg.dnd_end,cfg.timezone);
@@ -124,8 +125,12 @@ export async function dispatch(db,{eventId,channel='personal',at='2026-10-16T02:
   else if(event.origin!=='CI_SYNTHETIC_ONLY')result=reason('SKIPPED','NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP');
   else if(!event.valid)result=reason('SKIPPED','EVENT_INVALID');
   else if(event.kind==='incident_active'&&!event.incident_active)result=reason('SKIPPED','INCIDENT_NOT_ACTIVE');
+  else if(event.kind==='incident_active'&&(!incident||!incident.ever_active))result=reason('SKIPPED','INCIDENT_CURRENT_ACTIVE_SOURCE_GAP');
+  else if(event.kind==='incident_active'&&(incident.status!=='active'||incident.cleared_at!==null))result=reason('SKIPPED','INCIDENT_ALREADY_CLEARED');
+  else if(event.kind==='incident_active'&&time.getTime()<new Date(incident.activated_at).getTime())result=reason('SKIPPED','INCIDENT_ACTIVE_BEFORE_ACTIVATION');
   else if(event.kind==='incident_recovery'&&event.incident_active)result=reason('SKIPPED','RECOVERY_NOT_CONFIRMED');
   else if(event.kind==='incident_recovery'&&(!incident||!incident.ever_active||incident.status!=='cleared'||!incident.cleared_at))result=reason('SKIPPED','RECOVERY_PREVIOUS_ACTIVE_SOURCE_GAP');
+  else if(event.kind==='incident_recovery'&&time.getTime()<new Date(incident.cleared_at).getTime())result=reason('SKIPPED','RECOVERY_BEFORE_CLEARED_AT');
   else if(event.kind==='incident_recovery'&&incident.recovery_notified)result=reason('DEDUPED','INCIDENT_RECOVERY_ALREADY_SENT');
   else if(event.kind==='incident_active'&&!event.cadence_minutes)result=reason('SKIPPED','INCIDENT_CADENCE_UNCONFIGURED');
   else if(event.kind==='consultation_sla_timeout'&&!event.deadline)result=reason('SKIPPED','SLA_EVENT_SOURCE_GAP');
