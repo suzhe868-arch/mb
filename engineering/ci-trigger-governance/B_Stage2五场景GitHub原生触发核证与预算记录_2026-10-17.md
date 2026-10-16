@@ -121,3 +121,9 @@ B已直接从合并后的main逐份读取10份A批准F05工作流的现行Blob�
   - D1 [Run38930895364](https://github.com/suzhe868-arch/mb/actions/runs/38930895364) / Job117074295682：旧新Push资格Source failure；HTTPS success。
 - 其余5份F05冻结复验Run`38930895488,38930895394,38930895448,38930895362,38930895449`均completed/success，原生GitHub工件存在；治理审计[Run38930895523](https://github.com/suzhe868-arch/mb/actions/runs/38930895523) completed/success且有Artifact12058572673。
 - 此场景属于Stage1原PR自身工作流修改路径正例，A已签允许作为Stage2 `WORKFLOW_SELF` 真实阳性来源，但它**不能代表**另外4种独立Postmerge PR均通过。特别C-only主线无C必要CI、Shared还在跑、Mixed未创建，仍严格`NOT_READY_FOR_A_REVIEW_FINAL`。
+
+## 12. Shared-only最新原生Source终态：F05-7已fail-closed，F05-8仍运行
+
+- 从GitHub官方API取得[Shared PR80 F05-7 Run38937848488](https://github.com/suzhe868-arch/mb/actions/runs/38937848488)，`2026-10-16T17:23:33Z`完成，真实结论`failure`。Source Job`117097731722`日志精确异常`F05_7_CANNOT_PROVE_66_SAME_SHA_OFFICIAL_PG16_JOBS_IN_BOUNDED_CI_RUN`（source fail），HTTPS Job`117097731352`success，非空官方Artifact`12061063932`（96360字节）。证明Shared-only真实触发时旧同SHA来源门禁仍拒绝无66合法PG16父证据的PR，不得补签或假绿。
+- 按最新Run级真实终态：PR80 共10份F05工作流**5 success / 4 failure / 1 in_progress**；在途仅F05-8 [Run38937848516](https://github.com/suzhe868-arch/mb/actions/runs/38937848516)的Priority Source。最终第5个Source拒绝原因须等Job正式结束及日志，不得提前推测为和PR78同一异常。
+- **Remaining Stage2:** Shared剩F05-8终态，Mixed单域合并触发真实PR及完整Run/Job/Artifact核验，C自身必要构建尚因main缺C Workflow而无法于PR77证明。全部临时PR禁止合并main、严格遵守A串行预算。
