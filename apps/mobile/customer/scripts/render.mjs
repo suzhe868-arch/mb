@@ -19,11 +19,15 @@ try {
    return {cards:cards.length,scrollWidth:document.documentElement.scrollWidth,viewport,
     source:document.querySelector('.channel.active')?.textContent,
     banner:!!document.querySelector('.hero'),
-    demo:document.querySelector('.demo')?.textContent}
+    demo:document.querySelector('.demo')?.textContent,
+    imageRatios:[...document.querySelectorAll('.car-picture')].slice(0,5).map(el=>{const r=el.getBoundingClientRect();return r.height? r.width/r.height:0}),
+    channelHeights:[...document.querySelectorAll('.channel')].map(el=>el.getBoundingClientRect().height)}
   })
   if(state.source!=='批发车源')throw Error('默认来源错误 '+JSON.stringify(state))
   if(state.cards<1)throw Error('无真实 DOM 车辆卡片 '+JSON.stringify(state))
   if(state.scrollWidth>width+2)throw Error('存在水平溢出 '+JSON.stringify(state))
+  if(state.imageRatios.some(r=>Math.abs(r-4/3)>0.055))throw Error('车辆4:3图片布局失真 '+JSON.stringify(state.imageRatios))
+  if(state.channelHeights.some(h=>h<40))throw Error('频道点击区高度不足 '+JSON.stringify(state.channelHeights))
   if(errors.length)throw Error('页面JS错误 '+errors.join('; '))
   await page.screenshot({path:out+'/'+width+'x844_首页.png',fullPage:true})
   checks.push({width,...state,jsErrors:errors})
