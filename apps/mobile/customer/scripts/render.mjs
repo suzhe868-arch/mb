@@ -48,7 +48,7 @@ try {
    await page.screenshot({path:out+'/390x844_筛选弹层.png'})
    await page.getByText('关闭 ✕').click()
    await page.locator('.sort-trigger').click()
-   await page.locator('.sort-choice').waitFor()
+   await page.locator('.sort-choice').first().waitFor()
    if(await page.locator('.sort-choice').count()!==7)throw Error('排序不是七种')
    await page.locator('.sort-choice').nth(1).click()
    await page.locator('.car').first().click()
