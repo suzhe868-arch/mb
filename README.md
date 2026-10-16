@@ -1,3 +1,14 @@
+# 2026-10-16｜A独立验收F07-4 PR67不通过：六项安全证据整改，B原PR继续（唯一最新B主线）
+
+- **唯一正式B主线**：`F07_4_PR67_A_CHANGES_REQUESTED / NO_MERGE / NEXT_OWNER=B / NEXT_TASK=F07_4_PR67_A01_A06_REMEDIATION_AND_NATIVE_RETEST / F05_F06_F07_V1_NOT_READY / NO_PRODUCTION`。2026-10-15既有F07-4“已放行B施工”记录作为历史；本次为同原包A正式整改，不放行F07-5/F08。
+- **A验收事实**：[PR67](https://github.com/suzhe868-arch/mb/pull/67)原分支`feat/f07-4-notification-sla-incident-gate-ci`唯一受验HEAD `984f49ca6c2d6e535efc47867bc2057ac4639fc7`，main当时`1350024a0f45e71c45bb6d4512ff6b2251e3dcef`，GitHub compare `ahead28/behind0`，9/9全部为唯一两项授权路径新增文件；PR仍`open / merged=false`，**本轮未合并**。
+- **原生CI真实成功**：[Push Run38822445991](https://github.com/suzhe868-arch/mb/actions/runs/38822445991) `event=push`且最终SHA一致；两非特权PostgreSQL16独立Job `116721960097` Source63＋真F03父拒绝10，`116721960429` loopback HTTPS20，总计93/93独立子例通过；真双Backend及`55P03`已见原生Job日志。官方同HEAD Artifact `12013263644/12013829112` 非空且未过期/有SHA256元数据，**未独立ZIP复算**。旧F05其他30条Check动态快照 `9 success/11 failure/3 in_progress/7 queued`，不能冒称全绿或沿用旧PR限定例外。
+- **A独立发现六项需B原包闭环**：A01回环Server静态把本地deepLinkGuard计成1次真实父权限调用（事实0次）；A02 SLA超时仅判断deadline非空，未来deadline仍可Mock发送；A03 Incident恢复未验证既有active→cleared事实转移即可Mock发送；A04 `notification_log`缺接收人/路由维度，违反PDM23/原施工单；A05回环HTTPS测试禁用TLS证书验证；A06同末SHA旧工作流红灯/排队需最终逐项实核。**这代表验收证据不足，不宣称存在真实外泄或真实飞书投递**。
+- **正式A完整定向整改工作单**：[F07-4 PR67六项整改](https://github.com/suzhe868-arch/mb/blob/main/07_%E9%87%8D%E5%BB%BA%E5%B7%A5%E4%BD%9C%E5%8C%BA/F07-4_A%E4%B8%BB%E6%8E%A7PR67%E9%A6%96%E8%BD%AE%E7%8B%AC%E7%AB%8B%E9%AA%8C%E6%94%B6%E4%B8%8D%E9%80%9A%E8%BF%87_%E7%88%B6%E6%9D%83%E9%99%90%E8%AE%A1%E6%95%B0SLA%E8%B6%85%E6%97%B6Incident%E6%81%A2%E5%A4%8D%E4%B8%8E%E9%80%9A%E7%9F%A5%E8%B7%AF%E7%94%B1%E6%97%A5%E5%BF%97%E5%AE%9A%E5%90%91%E6%95%B4%E6%94%B9%E6%AD%A3%E5%BC%8F%E6%96%BD%E5%B7%A5%E5%8D%95_2026-10-16.md)；[PR67 A评论签字](https://github.com/suzhe868-arch/mb/pull/67#issuecomment-6204977355)。B仅继续原PR67/原分支、仅`engineering/f07/notification-sla-incident-gate-ci/**`与`.github/workflows/f07-4-*.yml`，全包修复、末HEAD同SHA双PG16 Push Job绿色/两真实工件、同步来源矩阵和中文交接，签`B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A`后再交A。A未验收前**B禁止合main**。
+- **C手机端并行轨道完全独立**：现有`C-APP-01`代码优先授权及PR #68维持其原状态，由C自行完成、交A单独审核；本次**不修改C工作单/白名单/原前端决策/任何手机端代码**，B不能占用C分支。正式NotificationConfig/事件签名父Issuer、合法Feishu凭据及真实发送、JYT/Collector/CDN/OSS、真实客户资金、UAT/生产均未获授权，F05/F06/F07及V1全域仍`NOT_READY`。
+
+---
+
 # 2026-10-15｜用户确认 C 手机端代码优先并行施工，A正式签发 C-APP-01（与 B 主线并行）
 
 - **并行 C 轨道现行 Authority**：用户确认取消单独低保真/高保真/Figma交付，改为真正可运行的前端代码、实际渲染、手机状态与自动化测试；**没有取消 PDM/IA 的正式业务规则**，也没有批准正式生产联调。
