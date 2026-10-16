@@ -5,7 +5,7 @@
 ## 运行入口
 
 - `node engineering/f08/quality-evidence-gate-ci/quality.mjs report`：以**实际当前 Git HEAD** 和 `git ls-files` 检查真实源码是否存在、校验覆盖/缺口/旧CI历史矩阵，生成仓库根目录临时文件 `f08-1-quality-evidence.json`。历史SHA只是来源标签，不能冒充本次HEAD业务验收结果。
-- `node --test engineering/f08/quality-evidence-gate-ci/tests/quality.test.mjs`：60个分离的Node安全正反例（另一个完成标记测试，不混算）。
+- `node --test engineering/f08/quality-evidence-gate-ci/tests/quality.test.mjs`：62个分离的Node安全正反例（另一个完成标记测试，不混算）。
 - 真PG16用例**只在本分支的真实隔离GitHub Actions**运行，脚本 `tests/pg.test.mjs` 对环境、分支、独立非特权PG16、库名和地址严格FailClosed。禁止把它指向生产库，禁止修改真实公共业务schema。
 - GitHub新建工作流 `.github/workflows/f08-1-cross-domain-quality.yml` 两Job独立：Node只读扫描 + Node质量断言，另一个只在 `f08_1_ci` 临时schema验证PG16数据约束、rollback和并发测试。通过后产出每Job一份同SHA官方工件。
 
