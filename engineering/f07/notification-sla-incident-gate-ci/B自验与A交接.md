@@ -1,3 +1,28 @@
+# 2026-10-16｜PR #67 A01—A06 定向整改交接补充（仅隔离CI）
+
+> **现状：整改代码与测试已提交，末次同SHA CI/旧Check/Artifact 以 PR #67 最新正式B评论为准。** 本文件本身不能代替GitHub原生Job；全部核实前不单独声称 `READY_FOR_A_REVIEW`。原施工包与原PR继续，`main`未修改、不合并。差异范围只限本包工程目录和 `.github/workflows/f07-4-*.yml`。
+
+## A01—A06 可复核整改索引
+
+| 编号 | 具体改动 | 证据/限制 |
+|---|---|---|
+| A01 | `server.mjs` 移除硬编码 `parentCalls=1`，每次请求分别审计 `signedParentCalls` 与 `syntheticPgReads`；当前没有已授权真实F03读取器，前者严格为0。伪造signedParentVerified及撤权均继续403。 | H15/H21/H22/H23；`PRE_PARENT_VALIDATION`，不是正式父正例。 |
+| A02 | `gate.mjs` 的SLA仅基于CI持久的事件只读字段判定：deadline已到、首次响应未完成、无有效hold、事实有效、事件仍有效；未来deadline严格拒绝，恰到截止才可合成放行。不重算PDM15正式SLA时钟。 | S60/S64—S70、H26；`SLA_EVENT_SOURCE_GAP/CI_SYNTHETIC_ONLY`，旧public父源COUNT/MD5不变。 |
+| A03 | CI临时PG16 `incident_lifecycle` 持久记录同故障active→cleared与recovery_notified；recovery需匹配同incident且确实存在前态，使用`FOR UPDATE`防跨事件并发复发，失败可重试，DND后重新读取。 | S12/S41—S45/S71—S77/S83；`INCIDENT_SIGNED_ISSUER_SOURCE_GAP`，不是上游真实Incident事件。 |
+| A04 | 临时`notification_log`增加`recipient_ref/route_ref/config_version/revalidation_basis`，接收人和route只保留不可逆SHA256截断引用，允许失败/跳过/去重/成功全量追索；无路由记`ROUTE_SOURCE_GAP`。 | S54/S78—S83；对照mock_outbox，不保存真实个人号码、Feishu凭据、VIN或实际群密钥。 |
+| A05 | HTTPS client启用本机一时性证书`ca`和`rejectUnauthorized:true`，验证127.0.0.1 SAN；错误CA和错误主机名在TLS握手层失败；H04专门以合法SAN完成握手再验证伪Host被应用拒绝。 | H01—H26；loopback-only，禁止出站。 |
+| A06 | **只有最后提交**对应的GitHub原生`push`两独立真PG16 Job、两官方工件、其它旧F05 Check逐项分类完毕后，才在PR最终评论签署B完成；旧错误不删、不豁免。 | `commits/<HEAD>/check-runs`、`actions/runs?head_sha=<HEAD>`、原生Job日志与两同SHA Artifact。 |
+
+## 施工边界与来源分级
+
+- 旧F03父Session拒绝Suite 10项不改弱；真F03签名正例仍不可构造。新增独立Source 20例后合计**83 Source＋10 真F03已签负证**，HTTPS由20增至**26**，计划复核**119个独立子场景**，Node父套件不重计。计数属于计划覆盖规模，**非成功证据**。
+- `PRE_PARENT_VALIDATION`：链接语法/HTTPS/本地guard在父授权之前的拒绝；`syntheticPgReads`：只读CI自建PG；`SIGNED_PARENT_NEGATIVE_ONLY`：仅旧F03已有签名父拒绝；`CI_SYNTHETIC_ONLY`：本包独立演示通知模型；`SOURCE_GAP`：正式NotificationConfig Issuer/Scope/Object、真实SLA与Incident事件签发、Feishu route与真实发送、客户数据、生产资格全部仍不存在。
+- 所有新DDL只在每次CI创建的`f07_4_ci`独立schema，**无正式迁移、无生产接线**；`F05/F06/F07_GLOBAL/V1=NOT_READY`、`NO_PRODUCTION`、`NO_MAIN_MERGE`。
+- 本轮新增详细用例及证据级别：`通知投递场景矩阵.tsv`；事件/渠道级来源矩阵：`PDM23事件与渠道权限矩阵.tsv`。
+- 版本分叉说明：本PR以A原审查时main `1350024a0f45e71c45bb6d4512ff6b2251e3dcef`为共同祖先；main后续若推进，复验时以GitHub现时compare和全部变更白名单为准，不自行修改main。
+
+---
+
 # F07-4｜B 工程自验与 A 独立验收交接
 
 > 项目：名邦汽车 V1。施工单：`07_重建工作区/F07-4_A主控通知SLA免打扰Incident飞书路由审计_CI隔离正式完整施工单_2026-10-15.md`。
