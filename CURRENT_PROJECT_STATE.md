@@ -1,3 +1,12 @@
+# 2026-10-17｜A独立验收PR79 Stage2：F05跨窗重复触发已按范围修复，C必需构建仍未验证；B恢复F05-7只读预检（当前最新）
+
+- **实际验收成绩**：A直接按六个不同原生GitHub HEAD再查[PR77/78/80/76/81](https://github.com/suzhe868-arch/mb/pull/79)的 **52条Workflow Run / 144条Job Check**，与B提交[PR79](https://github.com/suzhe868-arch/mb/pull/79)证据一致。旧十份F05无路径限制PR触发器经PR76安全合并后，**C-only新PR不再产生无关F05**，F05-only/shared/workflow-self/mixed正向分别产生该有的10份旧F05原生Run；五条Source仍各自真实`SOURCE_GAP`失败、无删改/伪绿。A读取五份混合PR81正式Source真日志，末证据PR79 Node**36/36通过**。 [A完整独立终验报告及安全裁决](https://github.com/suzhe868-arch/mb/blob/main/07_%E9%87%8D%E5%BB%BA%E5%B7%A5%E4%BD%9C%E5%8C%BA/CI%E8%A7%A6%E5%8F%91%E6%B2%BB%E7%90%86_Stage2_PR79_A%E4%B8%BB%E6%8E%A7%E4%BA%94%E5%9C%BA%E6%99%AF%E7%8B%AC%E7%AB%8B%E7%BB%88%E9%AA%8C_F05%E8%B7%AF%E7%94%B1%E9%AA%8C%E6%94%B6%E4%B8%8EC%E6%9E%84%E5%BB%BA%E9%9A%94%E7%A6%BB%E8%A3%81%E5%86%B3_2026-10-17.md)、[PR79 A审签评论](https://github.com/suzhe868-arch/mb/pull/79#issuecomment-6222433067)。
+- **严格分域**：`A_ACCEPTED_F05_TEN_WORKFLOW_ROUTING_5_SCENARIOS`，`f05_trigger_fixed=true`**只限旧十工作流跨轨PR路由**。但`C_REQUIRED_BUILD_NOT_VERIFIED`仍OPEN：正式main没有`.github/workflows/c-app-01-build-render.yml`及C客户端应用，它们仍在用户否决视觉/功能待R3验收的C PR68，C-only探针0 Run绝不能记为C端H5/微信真构建通过；因此**整体`CI_TRIGGER_SCOPE_GOVERNANCE_FIXED`、F05父链业务全域、V1/生产均未PASS**。C责任窗口待用户验收R3之后独立合入可审真实客户端工程与CI，再补测C-only/mixed真实双端CI，不在B处无限重跑10份PG16工作流。
+- **最新唯一B主任务已经正式解锁**：`NEXT_OWNER=B / NEXT_TASK=F05_7_PARENT_SOURCE_CONTROLLED_RECOVERY_01`，继续[A原签F05-7阶段1只读预检施工单](https://github.com/suzhe868-arch/mb/blob/main/07_重建工作区/F05-7_首条正式来源链受控恢复实验_A主控完整施工单_2026-10-16.md)，核证8份Workflow/66历史PG16 Job、镜像/合法快进/配额/旧Source。**绝不可直接改旧F05-7原分支、Push或触发66作业；阶段2必须A再次审签**。其他四源仍未验收；C PR68继续独立，不混轨。
+- PR77/78/80/81及仅证据PR79均为**不合并main**的非生产探针；A可在归档真SHA与官方Run后将它们关闭以消除临时PR噪声，不删源分支、不影响历史审计链接；不得把关闭PR视为业务验收。
+
+---
+
 # 2026-10-17｜A第三轮验收PR76：安全路径修改已Stage1标准合并，Stage2五场景真实验收交B（当前最新）
 
 - **正式GitHub结果**：[PR76](https://github.com/suzhe868-arch/mb/pull/76) 最终HEAD`1864447f84ad65dcc0396d907f255fd7ccdafde4`；10份获批旧F05工作流每份只加`on.pull_request.paths`正向依赖过滤、0删减原push/dispatch、PG16/Source/Artifact/权限，36/36 Node真Push及同SHA官方Artifact通过。A签[分阶段技术裁决](https://github.com/suzhe868-arch/mb/blob/main/07_重建工作区/CI触发治理_PR76_A主控第三轮独立验收_两阶段真实回归技术裁决_2026-10-17.md)，经GitHub标准PR merge成功，**main合并SHA `a4bcd2969fd1c01fed1711a35bade78f31d6db11`**；这仅是`A_STAGE1_STANDARD_MERGED`，**不是`CI_TRIGGER_SCOPE_GOVERNANCE_FIXED`**。
