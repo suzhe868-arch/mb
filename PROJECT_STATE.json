@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "CI_TRIGGER_SCOPE_GOVERNANCE_01_STAGE1_MERGED_STAGE2_REAL_AFTER_PENDING",
+  "substage": "F05_7_PARENT_SOURCE_CONTROLLED_RECOVERY_01_A_RELEASED_PREFLIGHT_AFTER_F05_ROUTE_CI_ACCEPTANCE",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "CI_TRIGGER_SCOPE_GOVERNANCE",
-  "current_domain_status": "PR76_A_STAGE1_STANDARD_MERGED_STAGE2_REAL_GITHUB_AFTER_NOT_FULLY_VERIFIED",
+  "current_domain": "F05_PARENT_SOURCE_RECOVERY",
+  "current_domain_status": "F05_7_READ_ONLY_PREFLIGHT_RELEASED_CI_F05_TRIGGER_ROUTING_A_ACCEPTED_C_REQUIRED_BUILD_NOT_VERIFIED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A第三轮独立审核PR76末HEAD1864447f84ad65dcc0396d907f255fd7ccdafde4：十份源旧F05 Workflow仅在on.pull_request加31正向paths过滤，各+32行0删；原Source/PG16/Artifact及安全负例没变，末SHA真实Push38930888210 Node36/36及有效官方Artifact12058507557。A书面调整GitHub真After五场景验收为两阶段，因PR本身改了十工作流无法合并前形成纯C-only PR。A已标准合并PR76到main SHA a4bcd2969fd1c01fed1711a35bade78f31d6db11，仅Stage1批准，绝不宣称最终已修好。创建临时Draft PR77纯C证据HEAD c90e5917aa81fcb69be0effcdd89d3fa27e8ab9e；初查0 Run/0 Check，但C专用Workflow在未合并的PR68而不在main，因此未充分证明C必要CI正常。B应独立真GitHub F05-only/shared/mixed/PR自路径正例加PR77负例，串行测避免CI洪流，交A最后验收。F05五项正式Source及F08/V1生产NOT_READY。",
-  "current_work_file": "07_重建工作区/CI触发治理_PR76_A主控第三轮Stage1标准合并与Stage2真场景交接报告_2026-10-17.md",
+  "current_task": "A独立审阅B Stage2证据PR79 HEAD7b46ae3bf5724f95e11be933c5e24345ae95e821，GitHub独立再查六组PR精确SHA，52原生Run/144原生Check与B清单完全相符；5类F05旧十Workflow路由正反触发真实通过（C-only 0，F05/shared/self/mixed均10份触发），5正式Source失败原生日志保留无伪绿。A独立核验PR79仅七个非业务证据文件、官方末SHA审计36/36通过。由于main缺少C应用与独立CI（C PR68仍Draft未接受），C_REQUIRED_BUILD_NOT_VERIFIED必须保留，不能签CI全域FIXED或V1生产。A将F05路由治理局部正式验收、C build归C窗口独立解锁，解除B等待，重新放行已签F05-7只读安全预检；旧ref Push和66历史PG16 Job仍禁止。",
+  "current_work_file": "07_重建工作区/F05-7_首条正式来源链受控恢复实验_A主控完整施工单_2026-10-16.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B负责CI治理Stage2真GitHub AFTER验收：以已合并PR76的main原生工作流触发为准，在非生产隔离测试PR分别验证C-only（可复用A草稿PR77）、F05-only、shared、workflow-self（已有PR76）和mixed的Run/Job/Check/Artifact及严格签据红灯，按预算串行触发避免数十Job同时排队；不修改F05业务Source、不推原分支、不合入临时探针PR。生成完整真实BEFORE/AFTER及中文交接后标READY_FOR_A_REVIEW_FINAL，A决定最终CI修复是否通过，未完成前不进入F05-7正式父链恢复。",
+  "next_action": "B从执行时最新main，按F05-7原正式安全预检施工单，在新分支feat/f05-7-parent-source-controlled-recovery-01完成8个Workflow与66原生PG16 Job的真实清册、合法非强制快进条件、ECR镜像/权限/Runner队列预算及SOURCE强门禁反例核证，提交中文审计+最小方案与READY_FOR_A_REVIEW_PREFLIGHT。严禁立即改旧F05-7原分支ref或Push，严禁启动66项原生PG16作业和其他四源并行恢复，需A另行签准。C必要构建缺口与PR68 R3用户视觉功能验收是独立C责任，不能为此重跑B十旧F05路由测试或伪造C绿灯。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B负责CI治理Stage2真GitHub AFTER验收：以已合并PR76的main原生工作流触发为准，在非生产隔离测试PR分别验证C-only（可复用A草稿PR77）、F05-only、shared、workflow-self（已有PR76）和mixed的Run/Job/Check/Artifact及严格签据红灯，按预算串行触发避免数十Job同时排队；不修改F05业务Source、不推原分支、不合入临时探针PR。生成完整真实BEFORE/AFTER及中文交接后标READY_FOR_A_REVIEW_FINAL，A决定最终CI修复是否通过，未完成前不进入F05-7正式父链恢复。",
+  "next_action_detail": "B从执行时最新main，按F05-7原正式安全预检施工单，在新分支feat/f05-7-parent-source-controlled-recovery-01完成8个Workflow与66原生PG16 Job的真实清册、合法非强制快进条件、ECR镜像/权限/Runner队列预算及SOURCE强门禁反例核证，提交中文审计+最小方案与READY_FOR_A_REVIEW_PREFLIGHT。严禁立即改旧F05-7原分支ref或Push，严禁启动66项原生PG16作业和其他四源并行恢复，需A另行签准。C必要构建缺口与PR68 R3用户视觉功能验收是独立C责任，不能为此重跑B十旧F05路由测试或伪造C绿灯。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "CI_TRIGGER_SCOPE_GOVERNANCE_01_STAGE2_NATIVE_AFTER",
+  "next_task": "F05_7_PARENT_SOURCE_CONTROLLED_RECOVERY_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -8988,7 +8988,7 @@
   },
   "ci_trigger_scope_governance_gate": {
     "task_id": "CI_TRIGGER_SCOPE_GOVERNANCE_01",
-    "status": "A_STAGE1_STANDARD_MERGED_STAGE2_NATIVE_AFTER_PENDING",
+    "status": "A_ACCEPTED_F05_TEN_WORKFLOW_ROUTING_5_SCENARIOS_C_REQUIRED_BUILD_SEPARATE_OPEN",
     "signed_date": "2026-10-16",
     "a_signed_order": "07_重建工作区/CI工作流重复触发与F05跨窗口污染_A主控根因核证及定向治理正式施工单_2026-10-16.md",
     "owner_after_current_task": "B",
@@ -9000,13 +9000,13 @@
     "observed_f05_run_b_pr75": "38910704810",
     "required_checks": "NONE_FOR_MAIN_BASED_ON_ADMIN_UI_AND_EMPTY_INCLUDING_PARENT_RULESETS_AS_OF_2026_10_16",
     "old_f05_source_gap": "OPEN_NOT_REMOVED",
-    "f05_trigger_fixed": false,
+    "f05_trigger_fixed": true,
     "ci_evidence_full_reverified": false,
-    "main_next_task_unchanged": "CI_TRIGGER_SCOPE_GOVERNANCE_01_STAGE2_NATIVE_AFTER",
+    "main_next_task_unchanged": "F05_7_PARENT_SOURCE_CONTROLLED_RECOVERY_01",
     "c_pr68_status": "DRAFT_NOT_USER_ACCEPTED",
     "after_task": "CI_SCOPE_A_REVIEW_THEN_F05_7_SOURCE_PREFLIGHT",
     "pr75_reviewed_and_merged": true,
-    "owner_now": "B",
+    "owner_now": "A_COMPLETED_ROUTE_ACCEPTANCE",
     "branch": "fix/ci-trigger-scope-governance-01",
     "priority_override": "07_重建工作区/CI重复触发治理优先级调整_A主控正式裁决_2026-10-16.md",
     "pr": 76,
@@ -9034,7 +9034,7 @@
     "old_workflow_scope": "ONLY_PULL_REQUEST_PATHS_IN_TEN_LISTED_FILES_WITH_SOURCE_AND_SHARED_DEPENDENCIES",
     "source_gap_open": true,
     "production": false,
-    "next_owner_after_stage2": "A_INDEPENDENT_FINAL_REVIEW",
+    "next_owner_after_stage2": "B_F05_7_PREFLIGHT_AND_C_PARALLEL_USER_ACCEPTANCE",
     "pr_merge_sha": "a4bcd2969fd1c01fed1711a35bade78f31d6db11",
     "stage1_allowed_files": 10,
     "stage1_check": "36_36_REAL_PUSH_SUCCESS",
@@ -9048,11 +9048,31 @@
     "stage2_probe_result": "PRELIMINARY_ZERO_RUN_NOT_SUFFICIENT_FINAL_PROOF",
     "c_build_workflow_present_on_main": false,
     "c_pr68_still_unmerged": true,
-    "f05_original_source_gap": "OPEN"
+    "f05_original_source_gap": "OPEN",
+    "stage2_pr": 79,
+    "stage2_pr_head": "7b46ae3bf5724f95e11be933c5e24345ae95e821",
+    "stage2_a_review_comment": "https://github.com/suzhe868-arch/mb/pull/79#issuecomment-6222433067",
+    "stage2_a_report": "07_重建工作区/CI触发治理_Stage2_PR79_A主控五场景独立终验_F05路由验收与C构建隔离裁决_2026-10-17.md",
+    "stage2_native_run_count": 52,
+    "stage2_native_check_count": 144,
+    "stage2_probe_scenarios": [
+      "C_ONLY_NEGATIVE_F05_ZERO_C_BUILD_UNVERIFIED",
+      "F05_ONLY_10_RUN_28_CHECK_5_SOURCE_FAILURE",
+      "SHARED_10_RUN_28_CHECK_5_SOURCE_FAILURE",
+      "WORKFLOW_SELF_10_F05_PLUS_1_AUDIT_30_CHECK_5_SOURCE_FAILURE",
+      "MIXED_10_RUN_28_CHECK_5_SOURCE_FAILURE_C_BUILD_UNVERIFIED"
+    ],
+    "stage2_route_accepted": true,
+    "f05_trigger_fixed_scope": "ONLY_10_OLD_F05_WORKFLOWS_PR_PATH_FANOUT_NOT_F05_BUSINESS_AND_NOT_FULL_CI",
+    "c_required_build_verified": false,
+    "c_required_build_gate": "C_REQUIRED_BUILD_NOT_VERIFIED_C_APP_WORKFLOW_AND_APP_ABSENT_FROM_MAIN_PR68_USER_NOT_ACCEPTED",
+    "c_required_build_owner": "C_WITH_A_AND_USER_R3_ACCEPTANCE_BEFORE_MERGE",
+    "full_ci_gate": "NOT_FULLY_CLOSED_PENDING_REAL_C_BUILD_AFTER_C_TRACK",
+    "original_source_gap_open": true
   },
   "f05_7_parent_source_controlled_recovery_gate": {
     "task_id": "F05_7_PARENT_SOURCE_CONTROLLED_RECOVERY_01",
-    "status": "A_SIGNED_QUEUED_AFTER_CI_STAGE2_FINAL_REVIEW",
+    "status": "A_RELEASED_FOR_B_GATED_PREPARATION_AFTER_F05_CI_ROUTE_ACCEPTED",
     "owner": "B",
     "review_owner": "A",
     "branch": "feat/f05-7-parent-source-controlled-recovery-01",
@@ -9075,6 +9095,8 @@
     "source_gap_open": true,
     "production": false,
     "branch_started_as_of_last_check": false,
-    "current_b_priority": false
+    "current_b_priority": true,
+    "dependent_ci_route_accepted": true,
+    "dependent_c_required_build_gate_remains_open": true
   }
 }
