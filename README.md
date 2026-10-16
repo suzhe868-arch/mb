@@ -1,3 +1,12 @@
+# 2026-10-16｜A正式纠正B工作顺序：CI重复触发治理优先于F05-7来源恢复（当前最新）
+
+- **用户真实目标**：F05出现在C前端检查列表的根因是部分旧CI将任何PR→main一并拉入F05重型检验。A先排F05-7 66项历史来源试验与此目标顺序相反。GitHub核实main原指针F05-7、独立B分支尚不存在，因此调整不会撤销已发生的施工。[完整最新A技术裁决](https://github.com/suzhe868-arch/mb/blob/main/07_%E9%87%8D%E5%BB%BA%E5%B7%A5%E4%BD%9C%E5%8C%BA/CI%E9%87%8D%E5%A4%8D%E8%A7%A6%E5%8F%91%E6%B2%BB%E7%90%86%E4%BC%98%E5%85%88%E7%BA%A7%E8%B0%83%E6%95%B4_A%E4%B8%BB%E6%8E%A7%E6%AD%A3%E5%BC%8F%E8%A3%81%E5%86%B3_2026-10-16.md)。
+- **唯一当前B任务已更正**：`NEXT_OWNER=B / NEXT_TASK=CI_TRIGGER_SCOPE_GOVERNANCE_01 / A_RELEASED_FOR_B_NOW`；正式[CI触发范围治理工作单](https://github.com/suzhe868-arch/mb/blob/main/07_重建工作区/CI工作流重复触发与F05跨窗口污染_A主控根因核证及定向治理正式施工单_2026-10-16.md)，从最新main开`fix/ci-trigger-scope-governance-01`。先做必要Check/冻结Source/路径矩阵清册及单独CI工具；旧Workflow须逐项A白名单后才最小修改，GitHub真实C-only/F05-only/shared/mixed验证通过才可称治理完成。
+- **F05-7没有退回开发**：先前已签`F05_7_PARENT_SOURCE_CONTROLLED_RECOVERY_01`仅改为`A_SIGNED_QUEUED_AFTER_CI_TRIGGER_GOVERNANCE`；原业务已开发的事实不撤销，旧五条正式Source仍`SOURCE_GAP`，后续由A安全放行恢复；**严禁当前抢先运行66个原生PG16 Job**，不因省时篡改历史安全校验。
+- **PR75事实保留**：A已标准合并[PR75](https://github.com/suzhe868-arch/mb/pull/75)（merge SHA `e1c29a4a994e70cc6c2022a22ff8bae3d153de01`），只是历史五来源核证成果。**此次更改的是正式指针和授权顺序，CI代码尚未整改完成。** C PR68继续用户否决后的R3返工不合并；F05/F08全域、V1与生产仍NOT_READY。
+
+---
+
 # 2026-10-16｜A正式独立验收并标准合并PR75；B下一主任务F05-7单源安全预检（当前最新）
 
 - **PR75真实合并**：[PR75](https://github.com/suzhe868-arch/mb/pull/75) 最终受验HEAD `9e974f5c89195130c4fe4d8dfe325c7d1ef99c70`；6/6仅新增授权只读核证文件，最终Push[Run38910555545](https://github.com/suzhe868-arch/mb/actions/runs/38910555545) Node **38/38**、官方同SHA有效工件**12049464448**（11156字节、未ZIP独立复算）；五历史原Source原生日志均为**各自旧SHA**的完整成功，45工作流/348旧PG16作业为元数据候选而非新父签。A[验收评论](https://github.com/suzhe868-arch/mb/pull/75#issuecomment-6218221568)后 GitHub**标准PR合并成功** `merged:true`、主线SHA **`e1c29a4a994e70cc6c2022a22ff8bae3d153de01`**。[A完整报告](https://github.com/suzhe868-arch/mb/blob/main/07_%E9%87%8D%E5%BB%BA%E5%B7%A5%E4%BD%9C%E5%8C%BA/F05_%E7%88%B6%E9%93%BE%E6%81%A2%E5%A4%8D%E5%8F%AF%E8%A1%8C%E6%80%A7_PR75_A%E4%B8%BB%E6%8E%A7%E7%8B%AC%E7%AB%8B%E9%AA%8C%E6%94%B6%E4%B8%8E%E5%90%88%E5%B9%B6_F05-7%E4%B8%8B%E4%B8%80%E9%98%B6%E6%AE%B5%E5%AE%89%E5%85%A8%E8%A3%81%E5%86%B3%E6%8A%A5%E5%91%8A_2026-10-16.md)。
