@@ -1,0 +1,41 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readTrigger,jobsAndCost,classifyWorkflow,changedDomains,policyStatus,cases,REPO} from '../trigger-scope-audit.mjs';
+const broad=['name: F05 legacy','on:','  push:','    branches: [feat/f05-old]','  pull_request:','    branches: [main]','  workflow_dispatch:','permissions: {contents: read, actions: read}','jobs:','  source:','    name: True Source','    runs-on: ubuntu-latest','    timeout-minutes: 50','    services:','      postgres:','        image: postgres:16','  https:','    runs-on: ubuntu-latest','    timeout-minutes: 10'].join('\n');
+const narrow=['name: Component scoped','on:','  push:','    branches: [main]','    paths: [engineering/f05/**]','  pull_request:','    branches: [main]','    paths:','      - engineering/f05/**','      - engineering/shared/**','jobs:','  guard:','    runs-on: ubuntu-latest'].join('\n');
+test('非过滤的原F05广谱PR必须识别',()=>{
+ const r=readTrigger(broad);assert.ok(r.events.includes('pull_request'));assert.ok(r.events.includes('push'));assert.ok(r.events.includes('workflow_dispatch'));assert.equal(r.broadPR,true);
+});
+test('路径过滤的PR被分类而不主动认定安全',()=>{const r=readTrigger(narrow);assert.equal(r.broadPR,false);assert.equal(r.hasPaths,true);});
+test('Push路径限定不能误当PR已限定',()=>{
+ const s=['on:','  push:','    branches: [main]','    paths: [engineering/f05/**]','  pull_request:','    branches: [main]','jobs:','  smoke:','    runs-on: ubuntu-latest'].join('\n');
+ assert.equal(readTrigger(s).broadPR,true);
+});
+test('inline map原生push不能凭猜测变成PR',()=>{const r=readTrigger('on: {push: {branches: feat/f05-7-*}}');assert.deepEqual(r.events,['push']);assert.equal(r.hasPR,false);});
+test('inline数组多事件读取准确',()=>{const r=readTrigger('on: [push, pull_request, workflow_dispatch]');assert.equal(r.broadPR,true);assert.equal(r.events.length,3);});
+test('标量pull_request是宽触发',()=>{const r=readTrigger('on: pull_request');assert.equal(r.broadPR,true);});
+test('没有触发器不猜',()=>{const r=readTrigger('name: No events');assert.equal(r.kind,'UNPARSEABLE');assert.equal(r.events.length,0);});
+test('不把workflow_call视为PR',()=>{const r=readTrigger('on:\n  workflow_call:\n');assert.equal(r.hasPR,false);});
+test('on的顶部字段不会误读jobs内部on',()=>{const r=readTrigger('name: Example\njobs:\n  example:\n    steps:\n      - run: echo on: pull_request');assert.equal(r.events.length,0);});
+test('read jobs count and nominal cost ceiling',()=>{const r=jobsAndCost(broad);assert.equal(r.jobCount,2);assert.equal(r.timeoutCeilingMinutes,60);assert.equal(r.hasPostgres,true);});
+test('F05冻结源永远列成敏感不可直接修改',()=>{const r=classifyWorkflow('.github/workflows/f05-10-frozen-f05-8-four-revalidation.yml',broad);assert.equal(r.domain,'F05');assert.equal(r.frozenOrLegacyParent,true);assert.equal(r.sourceRisk,'DO_NOT_MODIFY_WITHOUT_A_PER_FILE_AUTHORIZATION');});
+test('非冻结F05依然必须经A逐文件白名单',()=>{const r=classifyWorkflow('.github/workflows/f05-9-new.yml',broad);assert.equal(r.sourceRisk,'A_PER_FILE_REVIEW_REQUIRED');});
+test('PG16 job and actual native Source guard annotate separately',()=>{const r=classifyWorkflow('.github/workflows/f05-7-old.yml',broad+'\n# ci-job.sh source');assert.equal(r.officialSourceGuard,true);assert.equal(r.hasPG16,true);});
+test('工作流display name相同不能合并路径',()=>{
+ const r1=classifyWorkflow('.github/workflows/f05-7-one.yml',broad),r2=classifyWorkflow('.github/workflows/f05-8-two.yml',broad);
+ const x=policyStatus([r1,r2]);assert.equal(x.f05BroadPR,2);assert.equal(x.duplicateDisplayNames.length,1);assert.equal(x.duplicateDisplayNames[0].paths.length,2);
+});
+test('F05宽触发不代表历史父证明已成功',()=>{const r=policyStatus([classifyWorkflow('.github/workflows/f05-8-old.yml',broad)]);assert.equal(r.f05ParentProof,'SOURCE_GAP_FOR_CURRENT_MAIN');assert.equal(r.requiredChecks.includes('UNKNOWN'),true);});
+test('PATH C-only matrix',()=>{assert.deepEqual(changedDomains(['apps/mobile/src/a.ts']),['C']);});
+test('PATH F05-only matrix',()=>{assert.deepEqual(changedDomains(['engineering/f05/ci/source.sh']),['F05']);});
+test('PATH F08-only matrix',()=>{assert.deepEqual(changedDomains(['engineering/f08/ci/source.sh']),['F08']);});
+test('PATH shared library forces 3 domain union',()=>{assert.deepEqual(changedDomains(['engineering/shared/auth.ts']),['C','F05','F08']);});
+test('PATH lockfile forces 3 domain union',()=>{assert.deepEqual(changedDomains(['package-lock.json']),['C','F05','F08']);});
+test('PATH new workflow preserves F05 and CI',()=>{assert.deepEqual(changedDomains(['.github/workflows/f05-9-new.yml']),['CI','F05']);});
+test('PATH non-F05 workflow not invented to F05',()=>{assert.deepEqual(changedDomains(['.github/workflows/ci-audit.yml']),['CI']);});
+test('PATH mixed retains both C and F05',()=>{assert.deepEqual(changedDomains(['apps/mobile/a','engineering/f05/b']),['C','F05']);});
+test('PATH pure docs without artificial F05',()=>{assert.deepEqual(changedDomains(['07_重建工作区/a.md']),['DOC']);});
+test('UNKNOWN changed path never mistaken as docs-only',()=>{assert.deepEqual(changedDomains(['unmapped/code.rs']),['UNKNOWN']);});
+test('all 7 mixed scenarios have exact union',()=>{for(const q of cases){assert.deepEqual(changedDomains(q.changes),[...q.domains].sort(),q.id);}});
+test('zero-workflow collection is not declared repaired',()=>{const r=policyStatus([]);assert.equal(r.cOnlyTriggersIrrelevantF05,false);assert.equal(r.perFileAWhitelistRequired,true);});
+test('URL of repository is frozen and not interpolated',()=>{assert.equal(REPO,'suzhe868-arch/mb');});
