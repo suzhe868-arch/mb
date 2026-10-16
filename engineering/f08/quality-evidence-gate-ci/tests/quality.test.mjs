@@ -7,6 +7,7 @@ import {
  normalizeCheck,requireEvidence,validateCoverage,validateGaps,validateLegacy,
  sourceInventory,gitSha,gitFiles,runAudit
 } from '../quality.mjs';
+import {summarizeGithubCheckRuns} from '../audit-ci.mjs';
 
 const coverage=load('coverage'),gaps=load('gaps'),legacy=load('legacy');
 const HIST='692e4c755e3410c569940019d042680e91f8a3fa';
@@ -114,4 +115,21 @@ test('Q79 历史success即使伪称核验但SHA不同仍拒绝',()=>{
  assert.throws(()=>validateLegacy(x,{verifiedChecks:[{id:x[0].id,head_sha:sha,status:'completed',conclusion:'success',provenance:'GH_REST_CHECK_RUNS_READ_ONLY'}]}),/LEGACY_SUCCESS_INDEPENDENT_CHECK_MISSING/);
 });
 
-test('F08-1 Node独立质量断言79项完成（仅当前仓库源码+合成负例）',()=>console.log('F08_1_NODE_79_ASSERTIONS_PASS'));
+test('Q80 GitHub当前检查不能跨SHA混用',()=>{
+ assert.throws(()=>summarizeGithubCheckRuns({total_count:1,check_runs:[{id:1,name:'F05-old',head_sha:sha,status:'completed',conclusion:'success',details_url:'https://github.com/example'}]},'d'.repeat(40)),/CHECK_SHA_MISMATCH/);
+});
+test('Q81 同名CI不同Job只按真实ID和状态归类，失败不当全绿',()=>{
+ const rows=[{id:1,name:'F05-old',head_sha:sha,status:'completed',conclusion:'failure',details_url:'https://github.com/1'}, {id:2,name:'F05-old',head_sha:sha,status:'queued',details_url:'https://github.com/2'}];
+ const r=summarizeGithubCheckRuns({total_count:2,check_runs:rows},sha);
+ assert.equal(r.old_f05.count,2);assert.equal(r.old_f05.states.failure,1);assert.equal(r.old_f05.states.queued,1);assert.equal(r.old_f05.global_old_ci_green,false);
+});
+test('Q82 检查记录重复ID及分页结果不可信时拒绝',()=>{
+ const record={id:7,name:'F05-old',head_sha:sha,status:'completed',conclusion:'success',details_url:'https://github.com/x'};
+ assert.throws(()=>summarizeGithubCheckRuns({total_count:2,check_runs:[record,record]},sha),/DUPLICATE_OR_INVALID_JOB/);
+});
+test('Q83 无来源网址和状态信息不能成为官方检查事实',()=>{
+ const record={id:7,name:'F05-old',head_sha:sha,status:'completed',conclusion:'success'};
+ assert.throws(()=>summarizeGithubCheckRuns({total_count:1,check_runs:[record]},sha),/CI_AUDIT_ORIGIN_MISSING/);
+});
+
+test('F08-1 Node独立质量断言83项完成（仅当前仓库源码+合成负例）',()=>console.log('F08_1_NODE_83_ASSERTIONS_PASS'));

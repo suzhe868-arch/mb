@@ -5,7 +5,7 @@
 ## 运行入口
 
 - `node engineering/f08/quality-evidence-gate-ci/quality.mjs report`：以**实际当前 Git HEAD** 和 `git ls-files` 检查真实源码是否存在、校验覆盖/缺口/旧CI历史矩阵，生成仓库根目录临时文件 `f08-1-quality-evidence.json`。历史SHA只是来源标签，不能冒充本次HEAD业务验收结果。
-- `node --test engineering/f08/quality-evidence-gate-ci/tests/quality.test.mjs`：62个分离的Node安全正反例（另一个完成标记测试，不混算）。
+- `node --test engineering/f08/quality-evidence-gate-ci/tests/quality.test.mjs`：83个分离的Node安全正反例（另一个完成标记测试，不混算）。
 - 真PG16用例**只在本分支的真实隔离GitHub Actions**运行，脚本 `tests/pg.test.mjs` 对环境、分支、独立非特权PG16、库名和地址严格FailClosed。禁止把它指向生产库，禁止修改真实公共业务schema。
 - GitHub新建工作流 `.github/workflows/f08-1-cross-domain-quality.yml` 两Job独立：Node只读扫描 + Node质量断言，另一个只在 `f08_1_ci` 临时schema验证PG16数据约束、rollback和并发测试。通过后产出每Job一份同SHA官方工件。
 
@@ -25,3 +25,10 @@
 - 本质量工具一律 `NO_PRODUCTION / NO_UAT`；没有真实飞书、JYT、Collector、微信、客户、支付及正式迁移权限。
 
 工作单：`07_重建工作区/F08-1_A主控跨域工程质量证据门禁非生产正式施工单_2026-10-16.md`。
+
+## A首轮定向整改（2026-10-16）
+
+- A01：历史检查的失败、排队、进行中、跳过、取消、缺失六种非成功状态一律拒绝成功声明，历史成功仍须另行提供独立GitHub检查来源。
+- A02：五种非父签正例级别均拒绝父正例，合法正例也必须由只读独立同SHA完成成功Check核证。Q78仅测试结构，不构成真实父签正例。
+- A03：新增 PR69_A首轮旧CI真实检查历史快照_2026-10-16.tsv 固定A受验旧HEAD的30项官方检查结果；audit-ci.mjs 在最新真实Push读取GitHub Checks官方API并保存当时同SHA状态为运行期工件 f08-1-current-checks.json。运行中可能含排队/进行中，绝不是最终成功证明。最终成功与旧F05状态须对最终HEAD重新查询GitHub写于PR正式交接评论。旧PR67历史TSV不得冒充当前事实。分支保护仍标UNKNOWN。
+- 未更改冻结F05旧workflow、父业务、生产和C端；F08全域及V1仍NOT_READY。

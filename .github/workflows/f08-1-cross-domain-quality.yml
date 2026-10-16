@@ -8,9 +8,10 @@ on:
       - '.github/workflows/f08-1-*.yml'
 permissions:
   contents: read
+  checks: read
 jobs:
   quality_node:
-    name: F08-1 Node源码与证据来源62项
+    name: F08-1 Node源码与证据来源83项
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
@@ -30,6 +31,7 @@ jobs:
           test "$GITHUB_REF" = refs/heads/feat/f08-1-cross-domain-quality-evidence-gate-ci
           node --check engineering/f08/quality-evidence-gate-ci/quality.mjs
           node --check engineering/f08/quality-evidence-gate-ci/tests/quality.test.mjs
+          node --check engineering/f08/quality-evidence-gate-ci/audit-ci.mjs
           git rev-parse HEAD | tee f08-1-node-head.log
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
       - name: 当前仓库真文件资产追溯与来源台账
@@ -39,14 +41,22 @@ jobs:
           node engineering/f08/quality-evidence-gate-ci/quality.mjs report 2>&1 | tee f08-1-inventory-native.log
           grep -q F08_1_REPORT_GENERATED f08-1-inventory-native.log
           grep -q F08_1_GLOBAL_NOT_READY_SOURCE_GAP f08-1-inventory-native.log
-      - name: Node 62项独立质量正反例和拒绝测试
+      - name: Node 83项独立质量正反例和拒绝测试
         shell: bash
         run: |
           set -euo pipefail
           node --test --test-concurrency=1 engineering/f08/quality-evidence-gate-ci/tests/quality.test.mjs 2>&1 | tee f08-1-node-native.log
-          grep -q F08_1_NODE_62_ASSERTIONS_PASS f08-1-node-native.log
-          grep -q '# tests 63' f08-1-node-native.log
+          grep -q F08_1_NODE_83_ASSERTIONS_PASS f08-1-node-native.log
+          grep -q '# tests 84' f08-1-node-native.log
           grep -q '# fail 0' f08-1-node-native.log
+      - name: 当前HEAD实时GitHub旧CI只读审计（状态不是最终成功证明）
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f08/quality-evidence-gate-ci/audit-ci.mjs 2>&1 | tee f08-1-live-check-audit.log
+          grep -q F08_1_LIVE_CHECK_SNAPSHOT_CAPTURED f08-1-live-check-audit.log
       - name: 当前HEAD官方Node日志和扫描报告工件
         if: always()
         uses: actions/upload-artifact@v4
@@ -57,6 +67,8 @@ jobs:
             f08-1-inventory-native.log
             f08-1-node-native.log
             f08-1-quality-evidence.json
+            f08-1-live-check-audit.log
+            f08-1-current-checks.json
           if-no-files-found: error
           retention-days: 14
   native_pg16:
