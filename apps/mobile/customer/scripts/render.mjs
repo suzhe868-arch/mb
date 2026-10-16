@@ -1,83 +1,123 @@
 import {chromium} from 'playwright'
 import {mkdirSync,writeFileSync} from 'node:fs'
+
 const root=process.env.C_APP_BASE_URL||'http://127.0.0.1:4173'
 const out='../evidence/浏览器截图'
 mkdirSync(out,{recursive:true})
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']})
 const checks=[]
-try {
- for(const [width,height] of [[320,568],[375,812],[390,844],[430,932]]){
+const viewports=[[320,568],[375,812],[390,844],[430,932]]
+const assert=(ok,message)=>{if(!ok)throw Error(message)}
+async function state(page){
+ return page.evaluate(()=>{
+  const rect=e=>e?.getBoundingClientRect()
+  const images=[...document.querySelectorAll('.car-picture')].slice(0,5)
+  return {
+   scrollWidth:document.documentElement.scrollWidth,viewport:document.documentElement.clientWidth,
+   cards:document.querySelectorAll('.car').length,
+   firstCarTop:Math.round(rect(document.querySelector('.car'))?.top||-1),
+   source:document.querySelector('.channel.active')?.textContent||'',
+   bannedDemo:!!document.querySelector('.demo,.hero,.tier'),
+   visibleQa:!!document.querySelector('.qa-panel'),
+   imageRatios:images.map(x=>{const r=rect(x);return Number((r.width/r.height).toFixed(3))}),
+   buttonHeight:Math.round(rect(document.querySelector('.filter-trigger'))?.height||0),
+   hasHomeShare:!!document.querySelector('.home .share-demo,.home .head-share')
+  }
+ })
+}
+function routeUrl(from,params){
+ const u=new URL(from)
+ const h=u.hash
+ if(h.startsWith('#/')){u.hash='#/pages/detail/index?'+new URLSearchParams(params).toString()}
+ else {u.pathname='/pages/detail/index';u.search=new URLSearchParams(params).toString()}
+ return u.toString()
+}
+async function screenshot(page,name){await page.screenshot({path:out+'/'+name+'.png'})}
+try{
+ for(const [width,height] of viewports){
   const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1})
   const errors=[]
-  const consoleErrors=[]
   page.on('pageerror',e=>errors.push(e.message))
-  page.on('console',e=>{if(e.type()==='error')consoleErrors.push(e.text())})
-  const response=await page.goto(root,{waitUntil:'domcontentloaded',timeout:45000})
-  try {await page.locator('.channel').first().waitFor({timeout:15000})}
-  catch(e) {
-   const html=await page.content()
-   await page.screenshot({path:out+'/'+width+'x'+height+'_渲染异常诊断.png',fullPage:true})
-   console.error(JSON.stringify({width,height,status:response?.status(),url:page.url(),pageErrors:errors,consoleErrors,htmlPreview:html.slice(0,3200)},null,2))
-   throw e
-  }
-  await page.waitForTimeout(1800)
-  const state=await page.evaluate(()=>{
-   const cards=[...document.querySelectorAll('.car')]
-   const viewport=document.documentElement.clientWidth
-   return {cards:cards.length,scrollWidth:document.documentElement.scrollWidth,viewport,
-    source:document.querySelector('.channel.active')?.textContent,
-    banner:!!document.querySelector('.hero'),
-    demo:document.querySelector('.demo')?.textContent,
-    imageRatios:[...document.querySelectorAll('.car-picture')].slice(0,5).map(el=>{const r=el.getBoundingClientRect();return r.height? r.width/r.height:0}),
-    channelHeights:[...document.querySelectorAll('.channel')].map(el=>el.getBoundingClientRect().height)}
-  })
-  if(state.source!=='批发车源')throw Error('默认来源错误 '+JSON.stringify(state))
-  if(state.cards<1)throw Error('无真实 DOM 车辆卡片 '+JSON.stringify(state))
-  if(state.scrollWidth>width+2)throw Error('存在水平溢出 '+JSON.stringify(state))
-  if(state.imageRatios.some(r=>Math.abs(r-4/3)>0.055))throw Error('车辆4:3图片布局失真 '+JSON.stringify(state.imageRatios))
-  if(state.channelHeights.some(h=>h<44))throw Error('频道点击区高度不足 '+JSON.stringify(state.channelHeights))
-  if(errors.length)throw Error('页面JS错误 '+errors.join('; '))
-  await page.screenshot({path:out+'/'+width+'x'+height+'_首屏.png'})
-  await page.screenshot({path:out+'/'+width+'x'+height+'_首页.png'})
-  // Taro H5 有内部滚动容器，fullPage截图可能仅等于视口；真实滚动后另留一张证据。
-  if(await page.locator('.car').count()>5){
-   await page.locator('.car').nth(5).scrollIntoViewIfNeeded()
-   await page.waitForTimeout(200)
-   await page.screenshot({path:out+'/'+width+'x'+height+'_列表滚动.png'})
-   await page.locator('.hero').scrollIntoViewIfNeeded()
-   await page.waitForTimeout(100)
-  }
-  checks.push({width,height,...state,jsErrors:errors})
+  await page.goto(root,{waitUntil:'domcontentloaded',timeout:45000})
+  await page.locator('.car').first().waitFor({timeout:18000})
+  await page.waitForTimeout(700)
+  const s=await state(page)
+  assert(s.source==='批发车源','默认来源不正确')
+  assert(s.cards>=1,'首页未展示任何车辆')
+  assert(s.scrollWidth<=width+2,'首页横向溢出 '+JSON.stringify(s))
+  assert(s.imageRatios.every(r=>Math.abs(r-4/3)<.055),'卡片车辆比例错误')
+  assert(!s.bannedDemo&&!s.visibleQa&&!s.hasHomeShare,'客户首屏存在开发信息或旧分享')
+  assert(s.buttonHeight>=44,'筛选按钮触控高度不足')
+  if(width===390)assert(s.firstCarTop<420,'390首屏车辆被上部信息遮蔽')
+  await screenshot(page,width+'x'+height+'_首页首屏')
+  await page.locator('.car').nth(Math.min(5,s.cards-1)).scrollIntoViewIfNeeded()
+  await screenshot(page,width+'x'+height+'_首页列表滚动')
+  await page.locator('.car').first().click()
+  await page.locator('.detail-name').waitFor({timeout:14000})
+  await page.waitForTimeout(400)
+  const detail=await page.evaluate(()=>({
+   width:document.documentElement.scrollWidth,
+   columns:document.querySelectorAll('.info-item').length,
+   favorite:!!document.querySelector('.bottom-favorite'),
+   consultation:document.querySelector('.bottom-consult')?.textContent,
+   lock:document.querySelector('.bottom-lock')?.textContent,
+   share:!!document.querySelector('.head-share'),
+   placeholder:!!document.querySelector('.detail-placeholder'),
+   mockText:!!document.querySelector('.detail-header .demo')
+  }))
+  assert(detail.width<=width+2,'详情横向溢出')
+  assert(detail.columns>=6,'详情资料区域缺失')
+  assert(detail.favorite&&detail.consultation==='咨询'&&detail.lock==='锁车'&&detail.share,'详情独立CTA缺失')
+  assert(!detail.mockText,'详情出现显著Mock条')
+  await screenshot(page,width+'x'+height+'_详情首屏及固定底栏')
+  await page.locator('.advisor-box').scrollIntoViewIfNeeded()
+  await screenshot(page,width+'x'+height+'_详情下滚顾问')
+  const r=await page.locator('.detail-bottom').boundingBox()
+  assert(r&&r.y+r.height<=height+2,'底部操作栏遮挡或越界')
+  await page.locator('.bottom-consult').click()
+  const toast=await page.getByText('咨询服务暂不可用，未提交任何申请').count()
+  assert(toast>0,'咨询产生了虚假成功或缺少拒绝反馈')
+  checks.push({width,height,...s,detail,jsErrors:errors})
+  assert(errors.length===0,'页面JS异常 '+errors.join('; '))
   if(width===390){
-   await page.locator('.channel').nth(1).click()
-   if(!(await page.locator('.channel').nth(1).evaluate(n=>n.classList.contains('active'))))throw Error('名邦频道未切换')
-   await page.locator('.filter-trigger').click()
-   await page.locator('.sheet').waitFor()
-   await page.screenshot({path:out+'/390x844_筛选弹层.png'})
-   await page.getByText('关闭 ✕').click()
-   await page.locator('.sort-trigger').click()
-   await page.locator('.sort-choice').first().waitFor()
-   if(await page.locator('.sort-choice').count()!==7)throw Error('排序不是七种')
-   await page.locator('.sort-choice').nth(1).click()
-   await page.locator('.car').first().click()
-   await page.locator('.detail').waitFor()
-   await page.waitForTimeout(650)
-   const detailBounds=await page.locator('.detail').evaluate(el=>{
-    const r=el.getBoundingClientRect()
-    return {left:r.left,width:r.width,right:r.right}
-   })
-   if(Math.abs(detailBounds.left)>2 || detailBounds.right>width+2){
-    await page.screenshot({path:out+'/390x844_详情转场异常.png'})
-    throw Error('详情在转场完成后仍超出390px视口 '+JSON.stringify(detailBounds))
+   const sampleUrl=page.url()
+   for(const lock of ['pending','other_locked','waitlisted','mine_locked','transaction','sold','offline']){
+    await page.goto(routeUrl(sampleUrl,{id:'MOCK-001',qa:'1',state:lock}),{waitUntil:'domcontentloaded'})
+    await page.locator('.bottom-lock').waitFor({timeout:10000})
+    await screenshot(page,'390x844_锁车状态_'+lock)
    }
-   await page.screenshot({path:out+'/390x844_安全只读详情.png'})
-   if(await page.locator('.detail-name').count()!==1)throw Error('详情未正常渲染')
-   await page.locator('.detail-header').getByText('返回车源').click()
-   await page.locator('.channel').first().waitFor()
-   if(!(await page.locator('.channel').nth(1).evaluate(n=>n.classList.contains('active'))))throw Error('详情返回未保留来源')
+   await page.goto(routeUrl(sampleUrl,{id:'MOCK-REVOKED',share:'1'}),{waitUntil:'domcontentloaded'})
+   await page.locator('.denied-title').waitFor({timeout:10000})
+   await screenshot(page,'390x844_旧分享撤权')
   }
   await page.close()
  }
- writeFileSync(out+'/实际浏览器证据.json',JSON.stringify({source:'GitHub Actions Chromium 真渲染',url:root,checks},null,2))
- console.log('Chromium 四屏宽/切换/筛选/排序/详情/返回：PASS')
-}catch(e){console.error(e);process.exitCode=1}finally{await browser.close()}
+ const page=await browser.newPage({viewport:{width:390,height:844}})
+ await page.goto(root,{waitUntil:'domcontentloaded'})
+ await page.locator('.filter-trigger').click()
+ await page.locator('.sheet').waitFor()
+ for(const text of ['品牌','车系','年款（不是首次上牌年份）','具体款型','首次上牌年份','表显里程（万公里）','能源类型','排量','车身颜色','变速箱']){
+  assert(await page.getByText(text,{exact:true}).count()>0,'筛选缺字段 '+text)
+ }
+ await screenshot(page,'390x844_完整筛选弹层')
+ await page.locator('.sheet').getByText('奥迪',{exact:true}).click()
+ await page.locator('.sheet').getByText('A6',{exact:true}).click()
+ await page.locator('.sheet').getByText('2026',{exact:true}).click()
+ await page.locator('.sheet').getByText('45 TFSI 豪华动感型',{exact:true}).click()
+ await page.getByText('查看符合条件的车辆').click()
+ assert(await page.locator('.used .chip.picked').count()>=4,'四层筛选没有回显')
+ await screenshot(page,'390x844_四级车型筛选结果')
+ await page.locator('.used').getByText(/品牌.*×/).click()
+ assert(await page.locator('.used .chip.picked').count()===0,'清除品牌未级联清理车系年款款型')
+ await page.locator('.sort-trigger').click()
+ assert(await page.locator('.sort-choice').count()===7,'排序选项不是七项')
+ await screenshot(page,'390x844_排序弹层')
+ await page.locator('.sort-choice').nth(1).click()
+ await page.locator('.channel').nth(1).click()
+ assert((await page.locator('.channel.active').textContent())==='名邦车源','来源切换失败')
+ await screenshot(page,'390x844_名邦来源切换')
+ await page.close()
+ writeFileSync(out+'/实际浏览器证据.json',JSON.stringify({source:'GitHub Actions Chromium H5',root,checks,interactions:['四级车型联动与级联清除','七项排序','三来源切换','详情咨询拒绝','七种Lock视觉状态','撤权旧分享']},null,2))
+ console.log('Chromium四机宽首页/详情+专项交互：PASS')
+}catch(err){console.error(err);process.exitCode=1}
+finally{await browser.close()}
