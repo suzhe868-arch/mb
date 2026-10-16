@@ -42,9 +42,15 @@ export async function bootstrap(db) {
   feishu_id text, personal_on boolean NOT NULL DEFAULT true,sla_group_on boolean NOT NULL DEFAULT true);
  CREATE TABLE IF NOT EXISTS f07_4_ci.event (
   event_id text PRIMARY KEY,kind text NOT NULL,stage text NOT NULL,employee_id text NOT NULL,
-  valid boolean NOT NULL DEFAULT true,incident_active boolean NOT NULL DEFAULT false,
+  valid boolean NOT NULL DEFAULT true,incident_active boolean NOT NULL DEFAULT false,incident_id text,
+  sla_first_response_done boolean NOT NULL DEFAULT false,sla_hold_active boolean NOT NULL DEFAULT false,sla_fact_valid boolean NOT NULL DEFAULT true,
   cadence_minutes int,deadline timestamptz,origin text NOT NULL DEFAULT 'CI_SYNTHETIC_ONLY',
   CHECK(cadence_minutes IS NULL OR cadence_minutes>0),CHECK(origin='CI_SYNTHETIC_ONLY'));
+ CREATE TABLE IF NOT EXISTS f07_4_ci.incident_lifecycle (
+  incident_id text PRIMARY KEY,status text NOT NULL CHECK(status IN ('active','cleared')),
+  ever_active boolean NOT NULL,activated_at timestamptz NOT NULL,cleared_at timestamptz,
+  recovery_notified boolean NOT NULL DEFAULT false,
+  CHECK(status <> 'cleared' OR (ever_active AND cleared_at IS NOT NULL)));
  CREATE TABLE IF NOT EXISTS f07_4_ci.claim (
   event_id text NOT NULL,stage text NOT NULL,channel text NOT NULL,
   status text NOT NULL, attempt int NOT NULL DEFAULT 1,sent_at timestamptz,
@@ -55,7 +61,8 @@ export async function bootstrap(db) {
   PRIMARY KEY(event_id,stage,channel));
  CREATE TABLE IF NOT EXISTS f07_4_ci.notification_log (
   id bigserial PRIMARY KEY,event_id text,kind text,stage text,employee_id text,channel text,
-  scheduled_at timestamptz,result text NOT NULL,code text NOT NULL,dnd boolean NOT NULL,
+  scheduled_at timestamptz,recipient_ref text,route_ref text,config_version int,revalidation_basis text NOT NULL,
+  result text NOT NULL,code text NOT NULL,dnd boolean NOT NULL,
   revalidated boolean NOT NULL,sent_at timestamptz,backend_pid int NOT NULL,
   created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
   CHECK(result IN ('SENT','FAILED','SKIPPED','DEDUPED','NOT_ALLOWLISTED')));
@@ -64,14 +71,26 @@ export async function bootstrap(db) {
 }
 export async function reset(db) {
  await physicalGate(db);
- await db.query('TRUNCATE f07_4_ci.mock_outbox,f07_4_ci.claim,f07_4_ci.notification_log,f07_4_ci.event,f07_4_ci.employee RESTART IDENTITY');
+ await db.query('TRUNCATE f07_4_ci.mock_outbox,f07_4_ci.claim,f07_4_ci.notification_log,f07_4_ci.event,f07_4_ci.incident_lifecycle,f07_4_ci.employee RESTART IDENTITY');
  await db.query("UPDATE f07_4_ci.config SET company_on=true,group_route='ci-group-only',lock_notice_on=false,lock_notice_lead_minutes=NULL,dnd_start='23:00',dnd_end='08:30',timezone='Asia/Shanghai',version=version+1 WHERE id=1");
  await db.query("INSERT INTO f07_4_ci.employee(employee_id,active,eligible,in_scope,feishu_id) VALUES ('employee-ci-1',true,true,true,'ci-fs-1')");
 }
-export async function seed(db,{id='event-ci-1',kind='consultation_created',stage='new',employee='employee-ci-1',valid=true,incidentActive=false,cadence=null,deadline=undefined}={}) {
+export async function activateIncident(db,incidentId,at='2026-10-16T01:00:00Z') {
+ await physicalGate(db);
+ if(!/^[a-z0-9_-]{3,80}$/.test(incidentId||''))throw Error('INCIDENT_ID_INVALID');
+ const result=await db.query("INSERT INTO f07_4_ci.incident_lifecycle(incident_id,status,ever_active,activated_at) VALUES($1,'active',true,$2) ON CONFLICT (incident_id) DO UPDATE SET status='active',ever_active=true,activated_at=EXCLUDED.activated_at,cleared_at=NULL,recovery_notified=false WHERE f07_4_ci.incident_lifecycle.status='cleared' RETURNING incident_id",[incidentId,at]);
+ return result.rowCount===1;
+}
+export async function clearIncident(db,incidentId,at='2026-10-16T01:30:00Z') {
+ await physicalGate(db);
+ const result=await db.query("UPDATE f07_4_ci.incident_lifecycle SET status='cleared',cleared_at=$2 WHERE incident_id=$1 AND status='active' AND activated_at<=$2 RETURNING incident_id",[incidentId,at]);
+ return result.rowCount===1;
+}
+export async function seed(db,{id='event-ci-1',kind='consultation_created',stage='new',employee='employee-ci-1',valid=true,incidentActive=false,incidentId=id,cadence=null,deadline=undefined,firstResponseDone=false,holdActive=false,slaFactValid=true}={}) {
  await physicalGate(db);
  if(deadline===undefined&&kind==='consultation_sla_timeout')deadline='2026-10-15T00:00:00Z';
- await db.query('INSERT INTO f07_4_ci.event(event_id,kind,stage,employee_id,valid,incident_active,cadence_minutes,deadline) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',[id,kind,stage,employee,valid,incidentActive,cadence,deadline]);
+ if(kind==='incident_active'&&incidentActive)await activateIncident(db,incidentId);
+ await db.query('INSERT INTO f07_4_ci.event(event_id,kind,stage,employee_id,valid,incident_active,incident_id,cadence_minutes,deadline,sla_first_response_done,sla_hold_active,sla_fact_valid) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)',[id,kind,stage,employee,valid,incidentActive,incidentId,cadence,deadline,firstResponseDone,holdActive,slaFactValid]);
 }
 export function dndAt(at,start='23:00',end='08:30',zone='Asia/Shanghai') {
  if(zone!=='Asia/Shanghai'||!/^([01]\d|2[0-3]):[0-5]\d$/.test(start)||!/^([01]\d|2[0-3]):[0-5]\d$/.test(end))throw Error('DND_CONFIG_INVALID');
@@ -95,6 +114,9 @@ export async function dispatch(db,{eventId,channel='personal',at='2026-10-16T02:
   const event=(await client.query('SELECT * FROM f07_4_ci.event WHERE event_id=$1 FOR UPDATE',[eventId])).rows[0];
   const cfg=(await client.query('SELECT * FROM f07_4_ci.config WHERE id=1 FOR SHARE')).rows[0];
   const emp=event?(await client.query('SELECT * FROM f07_4_ci.employee WHERE employee_id=$1 FOR SHARE',[event.employee_id])).rows[0]:null;
+  // 只有CI持久状态先active后cleared才能构成Recovery；此锁也串行化跨事件重放。
+  const incident=event?.kind==='incident_recovery'?
+   (await client.query('SELECT * FROM f07_4_ci.incident_lifecycle WHERE incident_id=$1 FOR UPDATE',[event.incident_id])).rows[0]:null;
   let stage=event?.stage||'unknown';let result;
   const dnd=dndAt(time,cfg.dnd_start,cfg.dnd_end,cfg.timezone);
   if(!event)result=reason('SKIPPED','EVENT_MISSING');
@@ -103,8 +125,14 @@ export async function dispatch(db,{eventId,channel='personal',at='2026-10-16T02:
   else if(!event.valid)result=reason('SKIPPED','EVENT_INVALID');
   else if(event.kind==='incident_active'&&!event.incident_active)result=reason('SKIPPED','INCIDENT_NOT_ACTIVE');
   else if(event.kind==='incident_recovery'&&event.incident_active)result=reason('SKIPPED','RECOVERY_NOT_CONFIRMED');
+  else if(event.kind==='incident_recovery'&&(!incident||!incident.ever_active||incident.status!=='cleared'||!incident.cleared_at))result=reason('SKIPPED','RECOVERY_PREVIOUS_ACTIVE_SOURCE_GAP');
+  else if(event.kind==='incident_recovery'&&incident.recovery_notified)result=reason('DEDUPED','INCIDENT_RECOVERY_ALREADY_SENT');
   else if(event.kind==='incident_active'&&!event.cadence_minutes)result=reason('SKIPPED','INCIDENT_CADENCE_UNCONFIGURED');
   else if(event.kind==='consultation_sla_timeout'&&!event.deadline)result=reason('SKIPPED','SLA_EVENT_SOURCE_GAP');
+  else if(event.kind==='consultation_sla_timeout'&&!event.sla_fact_valid)result=reason('SKIPPED','SLA_FACT_NOT_ESTABLISHED');
+  else if(event.kind==='consultation_sla_timeout'&&event.sla_first_response_done)result=reason('SKIPPED','SLA_FIRST_RESPONSE_COMPLETED');
+  else if(event.kind==='consultation_sla_timeout'&&event.sla_hold_active)result=reason('SKIPPED','SLA_VALID_HOLD_PRESENT');
+  else if(event.kind==='consultation_sla_timeout'&&time.getTime()<new Date(event.deadline).getTime())result=reason('SKIPPED','SLA_DEADLINE_NOT_REACHED');
   else if(event.kind==='lock_expiring'&&(!cfg.lock_notice_on||!cfg.lock_notice_lead_minutes))result=reason('SKIPPED','LOCK_NOTICE_CONFIG_SOURCE_GAP');
   else if(channel==='group'&&!GROUP.has(event.kind))result=reason('SKIPPED','GROUP_EVENT_NOT_ALLOWED');
   else if(!cfg.company_on)result=reason('SKIPPED','COMPANY_FEISHU_DISABLED');
@@ -129,14 +157,20 @@ export async function dispatch(db,{eventId,channel='personal',at='2026-10-16T02:
      await client.query('INSERT INTO f07_4_ci.mock_outbox(event_id,stage,channel,recipient,payload,created_at) VALUES($1,$2,$3,$4,$5,$6) ON CONFLICT DO NOTHING',
       [eventId,stage,channel,channel==='group'?cfg.group_route:emp.feishu_id,sanitizedPayload(event,emp,time),time]);
      await client.query("UPDATE f07_4_ci.claim SET status='SENT',sent_at=$4 WHERE event_id=$1 AND stage=$2 AND channel=$3",[eventId,stage,channel,time]);
+     if(event.kind==='incident_recovery')await client.query("UPDATE f07_4_ci.incident_lifecycle SET recovery_notified=true WHERE incident_id=$1 AND status='cleared' AND recovery_notified=false",[event.incident_id]);
      result=reason('SENT','MOCK_LOCAL_ONLY');
     }
    }
   }
   if(!statuses.has(result.status))throw Error('F07_4_RESULT_INVALID');
   const pid=(await client.query('SELECT pg_backend_pid() pid')).rows[0].pid;
-  await client.query('INSERT INTO f07_4_ci.notification_log(event_id,kind,stage,employee_id,channel,scheduled_at,result,code,dnd,revalidated,sent_at,backend_pid) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)',
-   [eventId,event?.kind||'missing',stage,event?.employee_id||null,channel,time,result.status,result.code,dnd,true,result.status==='SENT'?time:null,pid]);
+  const routeValue=channel==='group'?cfg.group_route:emp?.feishu_id;
+  // 审计只保留带类型的不可逆路由引用，不保留私人飞书ID或群原始密钥。
+  const recipientRef=routeValue?createHash('sha256').update('recipient|'+routeValue).digest('hex').slice(0,20):null;
+  const routeRef=routeValue?createHash('sha256').update(channel+'|'+routeValue).digest('hex').slice(0,20):null;
+  const basis=routeValue?'CI_SYNTHETIC_CURRENT_CONFIG':'ROUTE_SOURCE_GAP';
+  await client.query('INSERT INTO f07_4_ci.notification_log(event_id,kind,stage,employee_id,channel,scheduled_at,recipient_ref,route_ref,config_version,revalidation_basis,result,code,dnd,revalidated,sent_at,backend_pid) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)',
+   [eventId,event?.kind||'missing',stage,event?.employee_id||null,channel,time,recipientRef,routeRef,cfg.version,basis,result.status,result.code,dnd,true,result.status==='SENT'?time:null,pid]);
   await client.query('COMMIT');
   return reason(result.status,result.code,{backendPid:pid,stage});
  } catch(e) {await client.query('ROLLBACK');throw e;} finally {client.release();}
