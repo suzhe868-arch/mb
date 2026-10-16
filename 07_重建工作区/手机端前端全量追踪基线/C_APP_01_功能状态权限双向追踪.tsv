@@ -45,3 +45,11 @@ C-APP-01-043	C-APP-01 §4	C01	全部	微信小程序真构建	apps/mobile/custom
 C-APP-01-044	C-APP-01 §4	C01	全部	H5构建与浏览器截图	apps/mobile/customer/scripts/render.mjs	Taro CLI/Chromium	build:h5及test:browser待CI执行	配置完成/未运行	NOT_RUN（GitHub Actions排队）	GitHub Actions待上传（当前无真实截图）	
 C-APP-01-045	C-APP-01 §5	C01	全部	Mock与真实API隔离	apps/mobile/shared/adapter.ts	unsignedApiAdapter显式拒绝	接口fail-closed静态检查	已编码	NOT_RUN（GitHub Actions排队）	GitHub Actions待上传（当前无真实截图）	
 C-APP-01-046	C-APP-01 §5	C01	全部	微信/生产/UAT/真机	apps/mobile/customer/project.config.json	touristappid非真实账号	未授权不运行	不在本批授权	NOT_RUN（GitHub Actions排队）	GitHub Actions待上传（当前无真实截图）	
+C-APP-01-047	PDM-20 §24	C01	普通客户	批发数字价从UI DTO剔除	apps/mobile/shared/query.ts	模拟等级安全投影	新增模拟投影负例	已整改	NOT_RUN（GitHub Actions排队）	截图NOT_GENERATED	待正式同SHA验收
+C-APP-01-048	PDM-20 §24	C01	三等级	切换身份重新读取投影	apps/mobile/customer/src/pages/index/index.tsx	tier依赖+Mock会话	身份切换回归	已整改	NOT_RUN（GitHub Actions排队）	截图NOT_GENERATED	待正式同SHA验收
+C-APP-01-049	PDM-20 §5	C01	全部	解析未识别词不放宽查询	apps/mobile/shared/query.ts	仅本地有限示例	未知词元负例	已整改	NOT_RUN（GitHub Actions排队）	截图NOT_GENERATED	待正式同SHA验收
+C-APP-01-050	PDM-20 §12/§13	C01	全部	今日新增独立于重上架时间	apps/mobile/shared/mock.ts	首次公开日期fixture	首次公开日单测	已整改	NOT_RUN（GitHub Actions排队）	截图NOT_GENERATED	待正式同SHA验收
+C-APP-01-051	C-APP-01 §3	C01	全部	无图覆盖正常卡+机会卡	apps/mobile/shared/query.ts	no_image场景	机会块无图单测	已整改	NOT_RUN（GitHub Actions排队）	截图NOT_GENERATED	待正式同SHA验收
+C-APP-01-052	C-APP-01 §4	C01	全部	真实DOM检查卡片4:3	apps/mobile/customer/scripts/render.mjs	Chromium盒子测量	四屏比例待CI	代码已写/未运行	NOT_RUN（GitHub Actions排队）	截图NOT_GENERATED	待正式同SHA验收
+C-APP-01-053	C-APP-01 §4	C01	全部	四宽屏及触摸区	apps/mobile/customer/src/pages/index/index.css	响应式样式/浏览器断言	四视口截图待CI	代码已写/未运行	NOT_RUN（GitHub Actions排队）	截图NOT_GENERATED	待正式同SHA验收
+C-APP-01-054	C-APP-01 §4	C01	全部	最后同SHA真实CI证据	.github/workflows/c-app-01-build-render.yml	Runner仍排队/无锁文件	Job zero steps	CI_QUEUED	NOT_RUN（GitHub Actions排队）	截图NOT_GENERATED	待正式同SHA验收
