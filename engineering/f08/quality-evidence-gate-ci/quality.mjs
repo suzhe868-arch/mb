@@ -42,6 +42,8 @@ export function requireEvidence(row,{target='NONPRODUCTION',observedCheck=null}=
  if(!EVIDENCE_LEVELS.includes(row.level))throw Error('EVIDENCE_LEVEL_UNKNOWN');
  if(target==='PRODUCTION_READY'||target==='UAT_ACCEPTED')throw Error('PRODUCTION_OR_UAT_NOT_AUTHORIZED');
  if(target==='SIGNED_PARENT_POSITIVE'&&row.level!=='SIGNED_PARENT_VERIFIED')throw Error('PARENT_POSITIVE_NOT_VERIFIED');
+ if(target==='SIGNED_PARENT_POSITIVE'&&(!isSha(row.evidence_sha)||!row.run_id))throw Error('PARENT_POSITIVE_EVIDENCE_MISSING');
+ if(target==='SIGNED_PARENT_POSITIVE'&&(!observedCheck||observedCheck.state!=='success'||observedCheck.sha!==row.evidence_sha))throw Error('PARENT_POSITIVE_CI_NOT_VERIFIED');
  if(target==='REAL_EXTERNAL'&&row.level!=='SIGNED_PARENT_VERIFIED')throw Error('REAL_EXTERNAL_SOURCE_GAP');
  if(row.level==='SOURCE_GAP'||row.level==='NOT_RUN')return {eligible:false,reason:row.level};
  if(observedCheck&&observedCheck.state!=='success')return {eligible:false,reason:'CI_'+observedCheck.state.toUpperCase()};
