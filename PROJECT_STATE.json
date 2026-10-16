@@ -9102,8 +9102,8 @@
     "other_four_origin_branches_touched": false,
     "source_gap_open": true,
     "production": false,
-    "branch_started_as_of_last_check": false,
-    "current_b_priority": true,
+    "branch_started_as_of_last_check": true,
+    "current_b_priority": false,
     "dependent_ci_route_accepted": true,
     "dependent_c_required_build_gate_remains_open": true,
     "pr": 82,
@@ -9119,7 +9119,8 @@
     "phase2_status": "NOT_AUTHORIZED_PENDING_RESOURCE_COMPAT_AND_A_FURTHER_REVIEW",
     "next_owner": "B",
     "next_task": "F05_7_FROZEN_PG16_COMPAT_SAFETY_01",
-    "followup_work_order": "07_重建工作区/F05-7_冻结PG16镜像与权限最小兼容治理_A主控下一阶段正式施工单_2026-10-17.md"
+    "followup_work_order": "07_重建工作区/F05-7_冻结PG16镜像与权限最小兼容治理_A主控下一阶段正式施工单_2026-10-17.md",
+    "phase1_a_acceptance_report": "07_重建工作区/F05-7_PR82_A主控阶段1只读预检独立验收及下阶段安全裁决_2026-10-17.md"
   },
   "f05_7_frozen_pg16_compat_safety_gate": {
     "task_id": "F05_7_FROZEN_PG16_COMPAT_SAFETY_01",
@@ -9131,6 +9132,7 @@
     "changes_allowed": "EXACT_7_FROZEN_F05_7_YML_IMAGE_LOCAL_ALIAS_AND_CONDITIONAL_WRITE_PERMISSION_REDUCTION_ONLY",
     "old_source_gate": "F05_SOURCE_GAP_OPEN",
     "next_owner": "B",
-    "acceptance": "READY_FOR_A_REVIEW_COMPAT_PATCH"
+    "acceptance": "READY_FOR_A_REVIEW_COMPAT_PATCH",
+    "current_b_priority": true
   }
 }
