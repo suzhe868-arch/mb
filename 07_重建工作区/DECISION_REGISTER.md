@@ -1,3 +1,12 @@
+# 2026-10-17｜A第三轮验收PR76：安全路径修改已Stage1标准合并，Stage2五场景真实验收交B（当前最新）
+
+- **正式GitHub结果**：[PR76](https://github.com/suzhe868-arch/mb/pull/76) 最终HEAD`1864447f84ad65dcc0396d907f255fd7ccdafde4`；10份获批旧F05工作流每份只加`on.pull_request.paths`正向依赖过滤、0删减原push/dispatch、PG16/Source/Artifact/权限，36/36 Node真Push及同SHA官方Artifact通过。A签[分阶段技术裁决](https://github.com/suzhe868-arch/mb/blob/main/07_重建工作区/CI触发治理_PR76_A主控第三轮独立验收_两阶段真实回归技术裁决_2026-10-17.md)，经GitHub标准PR merge成功，**main合并SHA `a4bcd2969fd1c01fed1711a35bade78f31d6db11`**；这仅是`A_STAGE1_STANDARD_MERGED`，**不是`CI_TRIGGER_SCOPE_GOVERNANCE_FIXED`**。
+- **实际After边界**：PR76自身diff必含十份F05 Workflow，无法在合并前形成真正C-only GitHub PR；A已从新main开临时草稿[PR77](https://github.com/suzhe868-arch/mb/pull/77)单个`apps/mobile/evidence/**`无业务探针，初查0 Run/0 Check（未见旧F05误触发），但C建设工作流仍在未合并的C PR68，**不能据此证明C必要CI已通过或五场景验收通过**。[完整A验收与Stage2交接报告](https://github.com/suzhe868-arch/mb/blob/main/07_%E9%87%8D%E5%BB%BA%E5%B7%A5%E4%BD%9C%E5%8C%BA/CI%E8%A7%A6%E5%8F%91%E6%B2%BB%E7%90%86_PR76_A%E4%B8%BB%E6%8E%A7%E7%AC%AC%E4%B8%89%E8%BD%AEStage1%E6%A0%87%E5%87%86%E5%90%88%E5%B9%B6%E4%B8%8EStage2%E7%9C%9F%E5%9C%BA%E6%99%AF%E4%BA%A4%E6%8E%A5%E6%8A%A5%E5%91%8A_2026-10-17.md)。
+- **最新唯一B主任务**：`NEXT_OWNER=B / NEXT_TASK=CI_TRIGGER_SCOPE_GOVERNANCE_01_STAGE2_NATIVE_AFTER`；B按预算串行完成独立真正 C-only、F05-only、shared、workflow-self、mixed 真实GitHub PR后的原生Run/Check/Job/Artifact比对，旧正式Source红灯不得伪绿；探针PR全部不得合main，B交`READY_FOR_A_REVIEW_FINAL`由A最终定夺。**F05-7历史父证据恢复仍在之后排队**，不能因为Stage1合并直接恢复老66 Job。
+- C PR68首页/详情仍用户视觉功能否决未合并；F05五Source缺口、F05/F08全域、V1及生产`NOT_READY`。整改真正通过应以前后真实Runner扇出和安全门禁全部核证为准，不看队列是否短暂清零。
+
+---
+
 # 2026-10-16｜PR76管理员配置证据已核销，A逐文件有条件批准十项F05触发整改，当前交B（最新）
 
 - **GitHub管理员真实截图已提供**：main首页`Your main branch isn't protected`；`Settings → Branches`显示`Classic branch protections have not been configured`；原先和本次GitHub`rulesets?includes_parents=true`均`[]`。因而A认定main当前无配置的必需Checks，之前GitHub App访问classic protection 403**只属于接口权限问题，阻断已解除**；不建议此时新建保护规则干扰本次真实CI对照。
