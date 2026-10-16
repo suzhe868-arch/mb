@@ -1,3 +1,12 @@
+# 2026-10-16｜用户明确否决C01首页/C01-01详情当前视觉方案；A签发PR68原分支首页详情视觉重构正式单
+
+- **用户原话**：“这页面设计的严重有问题吧详情页设计的也有问题这和我们最初规划的完全都不一致”。A已再次肉眼对照最后同HEAD真Chromium截图，裁决`C_APP_01_USER_VISUAL_REJECTED / A_R2_HOME_DETAIL_VISUAL_REBASE_RELEASED / PR68_NO_MERGE / C_NEXT_OWNER=C / C_NEXT_TASK=C_APP_01_R2_HOME_DETAIL_VISUAL_REBASE`，**取代之前的`USER_VISUAL_REVIEW_PENDING`，禁止将现行页面写成视觉已通过**。
+- **实际偏差**：390真实首页有大面积文字MB示意Banner/64-2大统计/显式Mock场景与演示身份/多层小栏目，车辆展示首屏弱；卡片字号过小且示意图片车型错配；详情仅基础参数+Mock只读，收藏咨询锁车合法状态未作目标版式、底部过度突出分享并仅以灰色文字表示咨询/锁车。不能把`npm ci`、26单测、H5+Weapp真CLI、四宽Chromium成功当成用户审美/需求一致性PASS。**技术基座仍可保留，视觉必须重构。**
+- [A正式视觉重构整改单](https://github.com/suzhe868-arch/mb/blob/main/07_重建工作区/C_APP_01_用户首轮视觉否决_A主控首页与详情重构正式整改单_2026-10-16.md)｜[PR68签发评论](https://github.com/suzhe868-arch/mb/pull/68#issuecomment-6208663733)。C在原PR68原分支保留安全Mock适配器/合法默认批发频道及全国/4:3卡/七排序/价格权限、重新规划首页与**详情可见视觉骨架（不拓展真实业务授权）**，将QA身份/场景控制移出客户主视觉，纠正图片/车型错配，底部按业务呈现合法的收藏/咨询/锁车与不可用状态，不冒充业务写入；保留原R1的11项专项状态补测、54行追踪、真实最终SHA证据索引，交A及用户复评。
+- **主B唯一任务不变**：`NEXT_OWNER=B / NEXT_TASK=F05_LEGACY_CI_GOVERNANCE_01_R2_FROZEN_16_SERVICE_IMAGES`，C为并行轨，PR68不合并，微信真机/真实后端/版权未签/正式支付、客户资金、生产不授权。F05业务、F08全域、V1仍NOT_READY。
+
+---
+
 # 2026-10-16｜A主控C并行轨PR68首轮核验：双端真构建与四屏真实截图已核证，11项专项覆盖及最终SHA索引需C定向整改
 
 - **C并行轨裁决**：`C_APP_01_A_R1_CHANGES_REQUESTED / A_BUILD_AND_CHROMIUM_VERIFIED / USER_VISUAL_REVIEW_PENDING / C_NEXT_OWNER=C / PR68_NO_MERGE / NO_PRODUCTION`。**现行B主线NEXT_OWNER/NEXT_TASK完全不变**，B继续F05历史CI技术治理；C在原PR68原分支补证，无权修改main或B/F/PDM。

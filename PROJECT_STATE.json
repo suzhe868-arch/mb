@@ -8330,7 +8330,7 @@
     "merge_commit_sha": "5f1e60ddd87472c7b90e230a8363db7c89a35911"
   },
   "parallel_c_mobile_frontend": {
-    "status": "C_APP_01_A_R1_CHANGES_REQUESTED_BUILD_VERIFIED_USER_VISUAL_PENDING_NO_MERGE",
+    "status": "C_APP_01_USER_VISUAL_REJECTED_R2_HOME_DETAIL_VISUAL_REBASE_RELEASED_PR68_NO_MERGE",
     "process_authority": "2026-10-15_USER_APPROVED_CODE_FIRST_NO_SEPARATE_LOFI_HIFI_FIGMA",
     "owner": "C",
     "a_review_owner": "A",
@@ -8406,8 +8406,8 @@
     "user_visual_review": "NOT_READY",
     "a_pr_comment_id": 6206309405,
     "next_c_owner": "C",
-    "next_c_task": "C_APP_01_PR68_R1_EVIDENCE_COVERAGE_AND_FINAL_SHA_TRACE",
-    "next_c_action": "原PR68补11项专项真实状态/安全Chrome负例，54行最终SHA与官方Artifact动态证据索引，最终H5+weapp真双CI+截图后交A；用户查看390真截图并集中确认视觉；不合并main",
+    "next_c_task": "C_APP_01_R2_HOME_DETAIL_VISUAL_REBASE",
+    "next_c_action": "保留Taro/Mock安全模块，在原PR68重构首页与详情真实客户视觉；保留现行产品规则与11专项负例/54行证据索引整改；同末SHA双端真CI四宽H5真实截图后交A和用户复评，不在用户明确批准前merge",
     "main_primary_owner_unmodified": "B",
     "main_primary_task_unmodified": "F05_LEGACY_CI_GOVERNANCE_01_R2_FROZEN_16_SERVICE_IMAGES",
     "latest_push_run": 38843332659,
@@ -8451,8 +8451,14 @@
     "branch_protection": "UNKNOWN_403",
     "merge_allowed": false,
     "a_review_report": "07_重建工作区/C_APP_01_A主控PR68首轮独立复验_双端构建已过_状态覆盖和最终证据索引整改正式报告_2026-10-16.md",
-    "user_visual_approval": "PENDING",
-    "weapp_device": "NOT_RUN"
+    "user_visual_approval": "REJECTED",
+    "weapp_device": "NOT_RUN",
+    "user_visual_feedback": "用户明确表示首页和详情与最初规划完全不一致；A已肉眼比对真H5截图，判整体主次/版式/操作区重构，不是小修",
+    "visual_a_review_report": "07_重建工作区/C_APP_01_用户首轮视觉否决_A主控首页与详情重构正式整改单_2026-10-16.md",
+    "old_user_visual_pending_superseded_by": "USER_VISUAL_REJECTED",
+    "can_merge_before_user_approval": false,
+    "engineering_build_test_baseline": "LAST_SHA_7783c54b_REAL_H5_WEAPP_BUILD_PASS",
+    "visual_ready": false
   },
   "f08_gate": {
     "status": "F08_1_PR69_A_ACCEPTED_STANDARD_MERGED_CI_ONLY",
@@ -8735,7 +8741,7 @@
     "report": "07_重建工作区/F05_历史CI治理_PR70_A首轮独立核验与冻结16镜像追加白名单正式裁决_2026-10-16.md"
   },
   "c_app_01_a_review": {
-    "status": "A_R1_CHANGES_REQUESTED",
+    "status": "A_R2_USER_VISUAL_REJECTED",
     "pr": 68,
     "head_sha": "7783c54bd78e1b5156976aab036151b0debe8618",
     "main_at_review": "309c0f8079de129ca3cf2ed06db3d2e8a4796fc5",
@@ -8759,9 +8765,45 @@
     ],
     "report": "07_重建工作区/C_APP_01_A主控PR68首轮独立复验_双端构建已过_状态覆盖和最终证据索引整改正式报告_2026-10-16.md",
     "next_c_owner": "C",
-    "next_c_task": "C_APP_01_PR68_R1_EVIDENCE_COVERAGE_AND_FINAL_SHA_TRACE",
+    "next_c_task": "C_APP_01_R2_HOME_DETAIL_VISUAL_REBASE",
     "merge_allowed": false,
-    "user_visual": "PENDING",
-    "v1": "NOT_READY"
+    "user_visual": "REJECTED",
+    "v1": "NOT_READY",
+    "visual_layout_approved": false,
+    "visual_rebuild_required": true,
+    "homepage_visual": "REJECTED",
+    "detail_visual": "REJECTED",
+    "new_visual_requirements": [
+      "R2-V01_HERO_AND_FIRST_SCREEN",
+      "R2-V02_TEST_PANEL_REMOVAL",
+      "R2-V03_CHANNEL_CARD_DENSITY",
+      "R2-V04_READABLE_CARD_PRICE_CITY",
+      "R2-V05_MOCK_PHOTO_MODEL_CONSISTENCY",
+      "R2-V06_DETAIL_INFO_HIERARCHY",
+      "R2-V07_DETAIL_CTA_VISUAL_STATES",
+      "R2-V08_CUSTOMER_NAV"
+    ],
+    "a_visual_report": "07_重建工作区/C_APP_01_用户首轮视觉否决_A主控首页与详情重构正式整改单_2026-10-16.md",
+    "prior_R1_11_partial_tests_still_required": true
+  },
+  "c_app_01_visual_rebase_gate": {
+    "status": "A_R2_RELEASED_USER_VISUAL_REJECTED",
+    "next_c_owner": "C",
+    "next_c_task": "C_APP_01_R2_HOME_DETAIL_VISUAL_REBASE",
+    "branch": "feat/c-app-01-mobile-foundation-c01-code-first",
+    "pr": 68,
+    "last_engineering_pass_sha": "7783c54bd78e1b5156976aab036151b0debe8618",
+    "report": "07_重建工作区/C_APP_01_用户首轮视觉否决_A主控首页与详情重构正式整改单_2026-10-16.md",
+    "affected_pages": [
+      "C01",
+      "C01-01"
+    ],
+    "user_approval": "REJECTED",
+    "allow_mock_visual_only_detail_states": true,
+    "allow_real_business_writes": false,
+    "maintain_existing_r1_tests": true,
+    "require_real_chromium_home_detail_pair": true,
+    "merge_allowed": false,
+    "production": false
   }
 }
