@@ -9,8 +9,8 @@ export interface CustomerVehicleReadAdapter {
  publicStats():{publicTotal:number;todayNew:number}
 }
 export const mockReadAdapter:CustomerVehicleReadAdapter=Object.freeze({
- list:(q,page,scenario)=>queryFeed(q,page,scenario,getMockTier()),
- detail:(id,scenario)=>safeById(id,scenario,getMockTier()),
+ list:(q:QueryState,page:number,scenario:Scenario):Feed=>queryFeed(q,page,scenario,getMockTier()),
+ detail:(id:string,scenario:Scenario):SafeVehicle|null=>safeById(id,scenario,getMockTier()),
  publicStats:()=>mockPublicStats()
 })
 /** 生产联调尚未经 A 签字，明确 fail-closed，杜绝自动降级到未签名 API。 */
