@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 55
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16
         env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
         ports: [5432:5432]
         options: >-
@@ -22,6 +22,22 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
+      - name: 验证旧脚本本地PG16镜像祖先兼容 不访问ECR
+        shell: bash
+        run: |
+          set -euo pipefail
+          # CI-only: 同一DockerHub官方postgres:16的本地旧名称别名，不使用ECR网络下载。
+          original_id="$(docker image inspect postgres:16 --format '{{.Id}}')"
+          docker tag postgres:16 public.ecr.aws/docker/library/postgres:16-alpine
+          alias_id="$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          test "$original_id" = "$alias_id"
+          original_container="$(docker ps --filter ancestor=postgres:16 --format '{{.ID}}')"
+          legacy_container="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
+          test -n "$original_container"
+          test "$original_container" = "$legacy_container"
+          test "$(printf '%s\n' "$legacy_container" | sed '/^$/d' | wc -l)" -eq 1
+          echo "F05_PG16_DOCKERHUB_LOCAL_TAG_ALIAS_CONFIRMED_NO_ECR_NETWORK_PULL $original_id"
+
       - name: Native F05-9 signed-v25 Source and 70 job official proof
         run: bash engineering/f05/consultation-assignee-sla/compat-f05-9-job.sh source
         env:
@@ -38,7 +54,7 @@ jobs:
     timeout-minutes: 55
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16
         env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
         ports: [5432:5432]
         options: >-
@@ -47,6 +63,22 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
+      - name: 验证旧脚本本地PG16镜像祖先兼容 不访问ECR
+        shell: bash
+        run: |
+          set -euo pipefail
+          # CI-only: 同一DockerHub官方postgres:16的本地旧名称别名，不使用ECR网络下载。
+          original_id="$(docker image inspect postgres:16 --format '{{.Id}}')"
+          docker tag postgres:16 public.ecr.aws/docker/library/postgres:16-alpine
+          alias_id="$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          test "$original_id" = "$alias_id"
+          original_container="$(docker ps --filter ancestor=postgres:16 --format '{{.ID}}')"
+          legacy_container="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
+          test -n "$original_container"
+          test "$original_container" = "$legacy_container"
+          test "$(printf '%s\n' "$legacy_container" | sed '/^$/d' | wc -l)" -eq 1
+          echo "F05_PG16_DOCKERHUB_LOCAL_TAG_ALIAS_CONFIRMED_NO_ECR_NETWORK_PULL $original_id"
+
       - name: Native F05-9 HTTPS customer/employee issuer fail closed
         run: bash engineering/f05/consultation-assignee-sla/compat-f05-9-job.sh https
       - uses: actions/upload-artifact@v4
