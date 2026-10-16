@@ -110,9 +110,10 @@ async function baselineChecks(sha){
 async function main(){
  authorizedRuntime();
  const now=new Date().toISOString(),sha=process.env.GITHUB_SHA;
- const report={schema:'F05_PARENT_PROOF_READINESS_READ_ONLY_V1',observed_at:now,repo:REPO,run_sha:sha,baseline_sha:BASELINE_SHA,source_type:'OFFICIAL_GITHUB_READ_ONLY_API',formal_parent_positive:false,production_ready:false,sources:[],baseline_checks:null,errors:[]};
+ const report={schema:'F05_PARENT_PROOF_READINESS_READ_ONLY_V1',observed_at:now,repo:REPO,run_sha:sha,baseline_sha:BASELINE_SHA,source_audit_target_sha:BASELINE_SHA,source_type:'OFFICIAL_GITHUB_READ_ONLY_API',formal_parent_positive:false,production_ready:false,sources:[],baseline_checks:null,errors:[]};
  for(const spec of SOURCES){
-  try{report.sources.push(assessSource(spec,await observationsFor(sha,spec),sha));}
+  // 历史父来源必须针对PR70原受验SHA审计，绝不能拿本B分支当前SHA凑数。
+  try{report.sources.push(assessSource(spec,await observationsFor(BASELINE_SHA,spec),BASELINE_SHA));}
   catch(e){report.sources.push({id:spec.id,...recordGap('OFFICIAL_API_UNAVAILABLE_OR_INCOMPLETE',{error:String(e.message)})});}
  }
  try{report.baseline_checks=await baselineChecks(BASELINE_SHA);}catch(e){report.errors.push('BASELINE_CHECKS_'+e.message);}
