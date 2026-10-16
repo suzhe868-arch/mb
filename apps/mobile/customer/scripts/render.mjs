@@ -68,7 +68,7 @@ try{
   }))
   assert(detail.width<=width+2,'详情横向溢出')
   assert(detail.columns>=6,'详情资料区域缺失')
-  assert(detail.favorite&&detail.consultation==='咨询'&&detail.lock==='锁车'&&detail.share,'详情独立CTA缺失')
+  assert(detail.favorite&&detail.consultation==='咨询'&&detail.lock==='锁车'&&detail.share,'详情独立CTA或微信官方分享入口缺失')
   assert(!detail.mockText,'详情出现显著Mock条')
   await screenshot(page,width+'x'+height+'_详情首屏及固定底栏')
   await page.locator('.advisor-box').scrollIntoViewIfNeeded()
