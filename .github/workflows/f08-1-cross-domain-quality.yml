@@ -1,0 +1,138 @@
+name: F08-1 跨域证据可信度与非生产质量门禁
+on:
+  push:
+    branches:
+      - feat/f08-1-cross-domain-quality-evidence-gate-ci
+    paths:
+      - 'engineering/f08/quality-evidence-gate-ci/**'
+      - '.github/workflows/f08-1-*.yml'
+permissions:
+  contents: read
+  checks: read
+jobs:
+  quality_node:
+    name: F08-1 Node源码与证据来源101项
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 确认真实Push分支及静态语法
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REF" = refs/heads/feat/f08-1-cross-domain-quality-evidence-gate-ci
+          node --check engineering/f08/quality-evidence-gate-ci/quality.mjs
+          node --check engineering/f08/quality-evidence-gate-ci/tests/quality.test.mjs
+          node --check engineering/f08/quality-evidence-gate-ci/audit-ci.mjs
+          node --check engineering/f08/quality-evidence-gate-ci/trusted-parent.mjs
+          git rev-parse HEAD | tee f08-1-node-head.log
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: 当前仓库真文件资产追溯与来源台账
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f08/quality-evidence-gate-ci/quality.mjs report 2>&1 | tee f08-1-inventory-native.log
+          grep -q F08_1_REPORT_GENERATED f08-1-inventory-native.log
+          grep -q F08_1_GLOBAL_NOT_READY_SOURCE_GAP f08-1-inventory-native.log
+      - name: Node 101项独立质量正反例和拒绝测试
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f08/quality-evidence-gate-ci/tests/quality.test.mjs 2>&1 | tee f08-1-node-native.log
+          grep -q F08_1_NODE_101_ASSERTIONS_PASS f08-1-node-native.log
+          grep -q '# tests 102' f08-1-node-native.log
+          grep -q '# fail 0' f08-1-node-native.log
+      - name: 当前HEAD实时GitHub旧CI只读审计（状态不是最终成功证明）
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f08/quality-evidence-gate-ci/audit-ci.mjs 2>&1 | tee f08-1-live-check-audit.log
+          grep -q F08_1_LIVE_CHECK_SNAPSHOT_CAPTURED f08-1-live-check-audit.log
+      - name: 当前HEAD官方Node日志和扫描报告工件
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f08-1-node-quality-${{ github.sha }}
+          path: |
+            f08-1-node-head.log
+            f08-1-inventory-native.log
+            f08-1-node-native.log
+            f08-1-quality-evidence.json
+            f08-1-live-check-audit.log
+            f08-1-current-checks.json
+          if-no-files-found: error
+          retention-days: 14
+  native_pg16:
+    name: F08-1 真PG16非特权24项
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      CI: 'true'
+      NODE_ENV: test
+      APP_ENV: test
+      F08_1_ONLY: I_AUTHORIZE_F08_1_ISOLATED_PG16_TEST
+      DATABASE_URL: postgres://f08_ci@127.0.0.1:5432/f08_1_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: PG16数据库安全门禁和独立原生依赖
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REF" = refs/heads/feat/f08-1-cross-domain-quality-evidence-gate-ci
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          npm --prefix engineering ci --ignore-scripts --no-audit --no-fund
+          node --check engineering/f08/quality-evidence-gate-ci/tests/pg.test.mjs
+      - name: 仅为本次隔离CI创建非特权角色和独立库
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c 'CREATE ROLE f08_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;'
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c 'CREATE DATABASE f08_1_test OWNER f08_ci;'
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -Atc "SELECT current_user,current_database(),current_setting('server_version_num'),pg_backend_pid()" | tee f08-1-pg16-identity.log
+      - name: 真实PG16来源约束、并发、回滚和失败负例
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f08/quality-evidence-gate-ci/tests/pg.test.mjs 2>&1 | tee f08-1-pg16-native.log
+          grep -q F08_1_NATIVE_PG16_NON_SUPERUSER f08-1-pg16-native.log
+          grep -q F08_1_PG16_24_CASES_PASS f08-1-pg16-native.log
+          grep -q '# tests 24' f08-1-pg16-native.log
+          grep -q '# fail 0' f08-1-pg16-native.log
+          echo F08_1_REAL_BUSINESS_PARENT_POSITIVE_SOURCE_GAP
+      - name: 当前HEAD官方PG16身份和断言原生工件
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f08-1-pg16-quality-${{ github.sha }}
+          path: |
+            f08-1-pg16-identity.log
+            f08-1-pg16-native.log
+          if-no-files-found: error
+          retention-days: 14

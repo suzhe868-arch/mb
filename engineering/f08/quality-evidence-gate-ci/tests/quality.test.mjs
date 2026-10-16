@@ -1,0 +1,166 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync,existsSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {
+ ROOT,EVIDENCE_LEVELS,CI_STATES,FILES,isSha,parseTsv,load,uniqueRows,
+ normalizeCheck,requireEvidence,validateCoverage,validateGaps,validateLegacy,
+ sourceInventory,gitSha,gitFiles,runAudit
+} from '../quality.mjs';
+import {summarizeGithubCheckRuns} from '../audit-ci.mjs';
+import {validateParentGithubBinding,obtainTrustedParentReceipt,assertTrustedParentReceipt,AUTHORIZED_PARENT_POSITIVE_ISSUER_COUNT} from '../trusted-parent.mjs';
+
+const coverage=load('coverage'),gaps=load('gaps'),legacy=load('legacy');
+const HIST='692e4c755e3410c569940019d042680e91f8a3fa';
+const sha='c'.repeat(40);
+const clone=x=>structuredClone(x);
+test('Q01 仓库当前HEAD必须是真实40字符SHA',()=>assert.ok(isSha(gitSha())));
+test('Q02 git ls-files必须从当前仓库提取文件而不是硬编码历史成果',()=>assert.ok(gitFiles().includes('README.md')));
+test('Q03 所有覆盖矩阵表头和列数通过',()=>assert.equal(validateCoverage(coverage),true));
+test('Q04 缺口台账具备责任及解锁条件',()=>assert.equal(validateGaps(gaps),true));
+test('Q05 历史CI严格不是当前HEAD',()=>assert.equal(validateLegacy(legacy),true));
+test('Q06 真实源码扫描所有手工Source存在声明一致',()=>assert.ok(sourceInventory(coverage).every(x=>x.source_consistent)));
+test('Q07 C未合并PR在main必须保持Source Gap',()=>assert.equal(coverage.find(x=>x.id==='C_MOBILE_MAIN').level,'SOURCE_GAP'));
+test('Q08 历史F07-4模拟通知不能冒充真实签名正例',()=>assert.throws(()=>requireEvidence(coverage.find(x=>x.id==='F07_NOTIF_MOCK'),{target:'SIGNED_PARENT_POSITIVE'}),/PARENT_POSITIVE_NOT_VERIFIED/));
+test('Q09 父Session真实负证不允许注册为父正例',()=>assert.throws(()=>requireEvidence(coverage.find(x=>x.id==='F07_F03_NEGATIVE'),{target:'SIGNED_PARENT_POSITIVE'}),/PARENT_POSITIVE_NOT_VERIFIED/));
+test('Q10 真实生产就绪请求无条件拒绝',()=>assert.throws(()=>requireEvidence(coverage[0],{target:'PRODUCTION_READY'}),/NOT_AUTHORIZED/));
+test('Q11 未授权UAT结果不得登记',()=>assert.throws(()=>requireEvidence(coverage[0],{target:'UAT_ACCEPTED'}),/NOT_AUTHORIZED/));
+test('Q12 不可信来源不能宣称真实第三方调用',()=>assert.throws(()=>requireEvidence(coverage[0],{target:'REAL_EXTERNAL'}),/SOURCE_GAP/));
+test('Q13 正例真实性必须包含实际SHA',()=>{const x=clone(coverage);x[0].level='SIGNED_PARENT_VERIFIED';assert.throws(()=>validateCoverage(x),/PARENT_SIGNED_PROOF_MISSING/);});
+test('Q14 手造success与SHA匹配绝不能冒充已核父正例',()=>assert.throws(()=>requireEvidence({level:'SIGNED_PARENT_VERIFIED',evidence_sha:sha,run_id:'proof-run'},{target:'SIGNED_PARENT_POSITIVE',observedCheck:{sha,state:'success'}}),/PARENT_POSITIVE_TRUSTED_PROOF_REQUIRED/));
+test('Q15 已排队不能当成功投递',()=>assert.equal(requireEvidence({level:'CI_SYNTHETIC_ONLY'},{observedCheck:{state:'queued'}}).eligible,false));
+test('Q16 明确失败检查不得作为成功',()=>assert.equal(requireEvidence({level:'CI_SYNTHETIC_ONLY'},{observedCheck:{state:'failure'}}).eligible,false));
+test('Q17 正在运行检查不得等同成功',()=>assert.equal(requireEvidence({level:'CI_SYNTHETIC_ONLY'},{observedCheck:{state:'in_progress'}}).eligible,false));
+test('Q18 未见检查不得登记成功',()=>assert.equal(requireEvidence({level:'STATIC_CONTRACT_ONLY'},{observedCheck:{state:'missing'}}).eligible,false));
+test('Q19 缺口不得登记已核验',()=>assert.equal(requireEvidence({level:'SOURCE_GAP'}).eligible,false));
+test('Q20 未运行不得算已实现成功',()=>assert.equal(requireEvidence({level:'NOT_RUN'}).eligible,false));
+test('Q21 重复行不能漏报',()=>assert.throws(()=>uniqueRows([{id:'x'},{id:'x'}],'id'),/DUPLICATE/));
+test('Q22 缺失id行必须拒绝',()=>assert.throws(()=>uniqueRows([{id:''}],'id'),/MISSING/));
+test('Q23 空TSV不能通过',()=>assert.throws(()=>parseTsv(''),/EMPTY/));
+test('Q24 TSV列错位必须拒绝',()=>assert.throws(()=>parseTsv('a\tb\nx'),/BAD_COLUMNS/));
+test('Q25 TSV重复表头必须拒绝',()=>assert.throws(()=>parseTsv('a\ta\nx\ty'),/BAD_HEADER/));
+test('Q26 未知证据级别必须阻断',()=>{const x=clone(coverage);x[0].level='REAL_FEISHU_YES';assert.throws(()=>validateCoverage(x),/INVALID/);});
+test('Q27 SOURCE_GAP伪装已签正例必须阻断',()=>{const x=clone(coverage);x.at(-1).level='SIGNED_PARENT_VERIFIED';assert.throws(()=>validateCoverage(x),/MISSING_SOURCE_CLAIMED/);});
+test('Q28 合成标注父正例YES必须阻断',()=>{const x=clone(coverage);x.find(i=>i.id==='F07_NOTIF_MOCK').positive_parent='YES';assert.throws(()=>validateCoverage(x),/FALSE_SYNTHETIC/);});
+test('Q29 签名负证不能标成签名正例',()=>{const x=clone(coverage);x.find(i=>i.id==='F07_F03_NEGATIVE').positive_parent='YES';assert.throws(()=>validateCoverage(x),/FALSE_PARENT/);});
+test('Q30 擅自宣布生产READY必须阻断',()=>{const x=clone(coverage);x[0].production_ready='YES';assert.throws(()=>validateCoverage(x),/PRODUCTION/);});
+test('Q31 缺口台账不能被改成已完成',()=>{const x=clone(gaps);x[0].claimed_done='YES';assert.throws(()=>validateGaps(x),/NOT_ACTIONABLE/);});
+test('Q32 缺口无责任方必须阻断',()=>{const x=clone(gaps);x[0].owner='';assert.throws(()=>validateGaps(x),/NOT_ACTIONABLE/);});
+test('Q33 未定义缺口状态必须阻断',()=>{const x=clone(gaps);x[0].state='PASS';assert.throws(()=>validateGaps(x),/MISCLASSIFIED/);});
+test('Q34 历史queued写成功必须阻断',()=>{const x=clone(legacy);x[0].success_claim='YES';assert.throws(()=>validateLegacy(x),/NON_SUCCESS_CANNOT_CLAIM_SUCCESS/);});
+test('Q35 历史快照冒充当前HEAD必须阻断',()=>{const x=clone(legacy);x[0].current_head_claim='YES';assert.throws(()=>validateLegacy(x),/NOT_LIVE/);});
+test('Q36 历史状态来源SHA不完整必须拒绝',()=>{const x=clone(legacy);x[0].observed_sha='short';assert.throws(()=>validateLegacy(x),/UNTRUSTED/);});
+test('Q37 历史状态记录不能变成实时查询',()=>{const x=clone(legacy);x[0].snapshot_kind='LIVE';assert.throws(()=>validateLegacy(x),/SNAPSHOT_KIND/);});
+test('Q38 旧F05排队总数保留28且不能冒充完成',()=>assert.equal(legacy.filter(x=>x.state==='queued').reduce((n,x)=>n+Number(x.job_count),0),28));
+test('Q39 没有check返回明确missing而不是pass',()=>assert.deepEqual(normalizeCheck(null,sha),{state:'missing',sha,meaning:'NO_CHECK_FOUND'}));
+test('Q40 非法check预期SHA拒绝',()=>assert.throws(()=>normalizeCheck(null,'broken'),/EXPECTED_SHA_INVALID/));
+test('Q41 不同SHA的成功Check不能挪用',()=>assert.throws(()=>normalizeCheck({head_sha:sha,status:'completed',conclusion:'success'},'a'.repeat(40)),/SHA_MISMATCH/));
+test('Q42 queued返回仍然挂起',()=>assert.equal(normalizeCheck({head_sha:sha,status:'queued'},sha).state,'queued'));
+test('Q43 in_progress返回仍然挂起',()=>assert.equal(normalizeCheck({head_sha:sha,status:'in_progress'},sha).state,'in_progress'));
+test('Q44 completed成功才可归入成功',()=>assert.equal(normalizeCheck({head_sha:sha,status:'completed',conclusion:'success'},sha).state,'success'));
+test('Q45 completed失败不得绿灯',()=>assert.equal(normalizeCheck({head_sha:sha,status:'completed',conclusion:'failure'},sha).state,'failure'));
+test('Q46 已跳过不可提升为成功',()=>assert.equal(normalizeCheck({head_sha:sha,status:'completed',conclusion:'skipped'},sha).state,'skipped'));
+test('Q47 取消不能提升为成功',()=>assert.equal(normalizeCheck({head_sha:sha,status:'completed',conclusion:'cancelled'},sha).state,'cancelled'));
+test('Q48 异常结束状态阻断',()=>assert.throws(()=>normalizeCheck({head_sha:sha,status:'completed',conclusion:null},sha),/CONCLUSION_INVALID/));
+test('Q49 未知Check状态阻断',()=>assert.throws(()=>normalizeCheck({head_sha:sha,status:'waiting'},sha),/STATUS_INVALID/));
+test('Q50 F01-F08及C九域都有记录',()=>assert.equal(new Set(coverage.map(x=>x.domain)).size,9));
+test('Q51 F08质量门禁自身也不能称生产完成',()=>assert.equal(coverage.find(x=>x.id==='F08_GATE').production_ready,'NO'));
+test('Q52 旧F05快照SHA确属已签PR67而不是F08当前HEAD',()=>assert.ok(legacy.every(x=>x.observed_sha===HIST)));
+test('Q53 Collector真实接入明确Source Gap',()=>assert.ok(gaps.some(x=>x.item.includes('Collector/JYT')&&x.state==='SOURCE_GAP')));
+test('Q54 真实资金始终Blocked',()=>assert.ok(gaps.some(x=>x.item.includes('资金')&&x.state==='BLOCKED')));
+test('Q55 C端真实构建仍NOT_RUN',()=>assert.ok(gaps.some(x=>x.item.includes('双端')&&x.state==='NOT_RUN')));
+test('Q56 除历史F07-4已签负证不得存在伪造父正例',()=>assert.equal(coverage.filter(x=>x.positive_parent==='YES').length,0));
+test('Q57 当前Git历史原始路径完整而非推断',()=>assert.ok(gitFiles().includes('engineering/f07/notification-sla-incident-gate-ci/gate.mjs')));
+test('Q58 F08新增Workflow必须只在授权路径',()=>assert.ok(FILES.coverage.startsWith('engineering/f08/quality-evidence-gate-ci/')));
+test('Q59 质量报告为当前实际git HEAD并保留false上线状态',()=>{const r=runAudit();assert.equal(r.head_sha,gitSha());assert.equal(r.production_ready,false);assert.equal(r.uat_accepted,false);assert.equal(r.real_third_party_invocations,0);});
+test('Q60 质量报告逐域来源资产匹配且日志真实落盘',()=>{const f=resolve(ROOT,'f08-1-quality-evidence.json');assert.ok(existsSync(f));const r=JSON.parse(readFileSync(f,'utf8'));assert.equal(r.coverage.length,coverage.length);assert.equal(r.gaps.length,gaps.length);assert.ok(r.previous_ci_snapshots_not_current);});
+test('Q61 只有等级没有可核SHA和Run不构成真实父正例',()=>assert.throws(()=>requireEvidence({level:'SIGNED_PARENT_VERIFIED'},{target:'SIGNED_PARENT_POSITIVE',observedCheck:{sha,state:'success'}}),/PARENT_POSITIVE_EVIDENCE_MISSING/));
+test('Q62 已签SHA但未拿到同SHA完成成功检查不得正例升级',()=>assert.throws(()=>requireEvidence({level:'SIGNED_PARENT_VERIFIED',evidence_sha:sha,run_id:'proof-run'},{target:'SIGNED_PARENT_POSITIVE',observedCheck:{sha,state:'queued'}}),/PARENT_POSITIVE_TRUSTED_PROOF_REQUIRED/));
+
+const historicalStates=['failure','queued','in_progress','skipped','cancelled','missing'];
+historicalStates.forEach((state,index)=>test('Q'+(63+index)+' 历史CI '+state+' 篡改YES必须拒绝',()=>{
+ const x=clone(legacy);x[0].state=state;x[0].success_claim='YES';
+ assert.throws(()=>validateLegacy(x),/NON_SUCCESS_CANNOT_CLAIM_SUCCESS/);
+}));
+const forbiddenParentLevels=['SIGNED_PARENT_NEGATIVE_ONLY','CI_SYNTHETIC_ONLY','STATIC_CONTRACT_ONLY','NOT_RUN','SOURCE_GAP'];
+forbiddenParentLevels.forEach((level,index)=>test('Q'+(69+index)+' '+level+' 冒充父正例必须拒绝',()=>{
+ const x=clone(coverage);x[0].level=level;x[0].positive_parent='YES';
+ if(level==='SOURCE_GAP')x[0].source_presence='SOURCE_GAP';
+ assert.throws(()=>validateCoverage(x),/FALSE_PARENT_POSITIVE|FALSE_SYNTHETIC_ESCALATION/);
+}));
+test('Q74 历史success没有独立核验信息不得声明已成功',()=>{
+ const x=clone(legacy);x[0].state='success';x[0].success_claim='YES';
+ assert.throws(()=>validateLegacy(x),/LEGACY_SUCCESS_INDEPENDENT_CHECK_MISSING/);
+});
+test('Q75 形式完整的父签正例仍需要外部只读检查结果',()=>{
+ const x=clone(coverage);x[0].level='SIGNED_PARENT_VERIFIED';x[0].positive_parent='YES';
+ x[0].evidence_sha=sha;x[0].run_id='99999999';
+ assert.throws(()=>validateCoverage(x),/PARENT_POSITIVE_INDEPENDENT_CHECK_MISSING/);
+});
+test('Q76 不可用未知字符串绕过父正例标记',()=>{
+ const x=clone(coverage);x[0].positive_parent='MAYBE';
+ assert.throws(()=>validateCoverage(x),/PARENT_POSITIVE_FLAG_INVALID/);
+});
+test('Q77 不可用未知字符串绕过历史CI声明',()=>{
+ const x=clone(legacy);x[0].success_claim='UNKNOWN';
+ assert.throws(()=>validateLegacy(x),/LEGACY_SUCCESS_FLAG_INVALID/);
+});
+// 以下构造仅模拟纯函数接口的结构校验，不代表已实际连接GitHub或签发真实父正例。
+test('Q78 伪造provenance字符串即使全字段匹配也不得作为父签回执',()=>{
+ const x=clone(coverage);x[0].level='SIGNED_PARENT_VERIFIED';x[0].positive_parent='YES';
+ x[0].evidence_sha=sha;x[0].run_id='99999999';
+ assert.throws(()=>validateCoverage(x,{verifiedProofs:[{id:x[0].id,head_sha:sha,run_id:'99999999',status:'completed',conclusion:'success',provenance:'GH_REST_CHECK_RUNS_READ_ONLY'}]}),/PARENT_POSITIVE_INDEPENDENT_CHECK_MISSING/);
+});
+test('Q79 历史success即使伪称核验但SHA不同仍拒绝',()=>{
+ const x=clone(legacy);x[0].state='success';x[0].success_claim='YES';
+ assert.throws(()=>validateLegacy(x,{verifiedChecks:[{id:x[0].id,head_sha:sha,status:'completed',conclusion:'success',provenance:'GH_REST_CHECK_RUNS_READ_ONLY'}]}),/LEGACY_SUCCESS_INDEPENDENT_CHECK_MISSING/);
+});
+
+test('Q80 GitHub当前检查不能跨SHA混用',()=>{
+ assert.throws(()=>summarizeGithubCheckRuns({total_count:1,check_runs:[{id:1,name:'F05-old',head_sha:sha,status:'completed',conclusion:'success',details_url:'https://github.com/example'}]},'d'.repeat(40)),/CHECK_SHA_MISMATCH/);
+});
+test('Q81 同名CI不同Job只按真实ID和状态归类，失败不当全绿',()=>{
+ const rows=[{id:1,name:'F05-old',head_sha:sha,status:'completed',conclusion:'failure',details_url:'https://github.com/1'}, {id:2,name:'F05-old',head_sha:sha,status:'queued',details_url:'https://github.com/2'}];
+ const r=summarizeGithubCheckRuns({total_count:2,check_runs:rows},sha);
+ assert.equal(r.old_f05.count,2);assert.equal(r.old_f05.states.failure,1);assert.equal(r.old_f05.states.queued,1);assert.equal(r.old_f05.global_old_ci_green,false);
+});
+test('Q82 检查记录重复ID及分页结果不可信时拒绝',()=>{
+ const record={id:7,name:'F05-old',head_sha:sha,status:'completed',conclusion:'success',details_url:'https://github.com/x'};
+ assert.throws(()=>summarizeGithubCheckRuns({total_count:2,check_runs:[record,record]},sha),/DUPLICATE_OR_INVALID_JOB/);
+});
+test('Q83 无来源网址和状态信息不能成为官方检查事实',()=>{
+ const record={id:7,name:'F05-old',head_sha:sha,status:'completed',conclusion:'success'};
+ assert.throws(()=>summarizeGithubCheckRuns({total_count:1,check_runs:[record]},sha),/CI_AUDIT_ORIGIN_MISSING/);
+});
+
+
+const positiveRow={id:'PARENT_TEST',level:'SIGNED_PARENT_VERIFIED',positive_parent:'YES',evidence_sha:sha,run_id:'1234',workflow_path:'.github/workflows/f03-proof.yml'};
+const parentIssuer={row_id:'PARENT_TEST',sha,run_id:'1234',workflow_path:positiveRow.workflow_path,check_name:'F03 parent issuer signed positive',branch:'main',parent_signed:true};
+const parentRun={id:1234,head_sha:sha,repository:{full_name:'suzhe868-arch/mb'},event:'push',head_branch:'main',path:'.github/workflows/f03-proof.yml@refs/heads/main',status:'completed',conclusion:'success'};
+const parentCheck={id:900,name:parentIssuer.check_name,head_sha:sha,status:'completed',conclusion:'success',completed_at:'2026-10-16T00:00:00Z',details_url:'https://github.com/suzhe868-arch/mb/actions/runs/1234/job/900'};
+const parentJob={id:900,run_id:1234,name:parentIssuer.check_name,status:'completed',conclusion:'success'};
+const parentMocks=()=>({run:clone(parentRun),checks:[clone(parentCheck)],jobs:[clone(parentJob)]});
+test('Q84 真实父正例Issuer未放行时静态白名单为空',()=>assert.equal(AUTHORIZED_PARENT_POSITIVE_ISSUER_COUNT,0));
+test('Q85 任何调用者不能用自造provenance获取私有回执',()=>assert.throws(()=>assertTrustedParentReceipt(positiveRow,{kind:'INTERNAL_GITHUB_RECEIPT',row_id:positiveRow.id,sha,run_id:'1234'}),/TRUSTED_PROOF_REQUIRED/));
+test('Q86 未签Issuer即使传入token也必须在外部读取前拒绝',async()=>await assert.rejects(obtainTrustedParentReceipt(positiveRow,{token:'mock-token'}),/ISSUER_NOT_RELEASED/));
+test('Q87 结构正确的合成GitHub响应也绝不签发真父证据',()=>{
+ const r=validateParentGithubBinding(positiveRow,parentIssuer,parentMocks());
+ assert.equal(r.eligible,false);assert.equal(r.kind,'CI_BINDING_STRUCTURE_ONLY');
+ assert.throws(()=>requireEvidence(positiveRow,{target:'SIGNED_PARENT_POSITIVE',verifiedProof:r}),/TRUSTED_PROOF_REQUIRED/);
+});
+test('Q88 检查指向另一Run不得绑定',()=>{const p=parentMocks();p.checks[0].details_url=p.checks[0].details_url.replace('/1234/','/1235/');assert.throws(()=>validateParentGithubBinding(positiveRow,parentIssuer,p),/CROSS_RUN/);});
+test('Q89 父业务Run ID串改不得通过',()=>{const p=parentMocks();p.run.id=1235;assert.throws(()=>validateParentGithubBinding(positiveRow,parentIssuer,p),/RUN_OR_SHA_MISMATCH/);});
+test('Q90 伪SHA即使Check成功也不可搬运',()=>{const p=parentMocks();p.run.head_sha='e'.repeat(40);assert.throws(()=>validateParentGithubBinding(positiveRow,parentIssuer,p),/RUN_OR_SHA_MISMATCH/);});
+test('Q91 仅GitHub检查成功但Run为进行中不得核证',()=>{const p=parentMocks();p.run.status='in_progress';p.run.conclusion=null;assert.throws(()=>validateParentGithubBinding(positiveRow,parentIssuer,p),/RUN_NOT_COMPLETED_SUCCESS/);});
+test('Q92 仅Run成功但Check排队不得核证',()=>{const p=parentMocks();p.checks[0].status='queued';p.checks[0].conclusion=null;assert.throws(()=>validateParentGithubBinding(positiveRow,parentIssuer,p),/CHECK_NOT_COMPLETED_SUCCESS/);});
+test('Q93 仅Run成功但Check失败不得核证',()=>{const p=parentMocks();p.checks[0].conclusion='failure';assert.throws(()=>validateParentGithubBinding(positiveRow,parentIssuer,p),/CHECK_NOT_COMPLETED_SUCCESS/);});
+test('Q94 Check成功但同Run内Job未通过不得核证',()=>{const p=parentMocks();p.jobs[0].conclusion='failure';assert.throws(()=>validateParentGithubBinding(positiveRow,parentIssuer,p),/JOB_NOT_COMPLETED_SUCCESS/);});
+test('Q95 Check成功但实际Job ID不匹配不得核证',()=>{const p=parentMocks();p.jobs[0].id=901;assert.throws(()=>validateParentGithubBinding(positiveRow,parentIssuer,p),/JOB_NOT_COMPLETED_SUCCESS/);});
+test('Q96 非官方仓库来源不得核证',()=>{const p=parentMocks();p.run.repository.full_name='fake/mb';assert.throws(()=>validateParentGithubBinding(positiveRow,parentIssuer,p),/RUN_ORIGIN_INVALID/);});
+test('Q97 未匹配父Issuer正式签发类型不得核证',()=>assert.throws(()=>validateParentGithubBinding(positiveRow,{...parentIssuer,parent_signed:false},parentMocks()),/ISSUER_NOT_SIGNED/));
+test('Q98 不匹配的workflow源码路径不能冒充父Issuer',()=>{const p=parentMocks();p.run.path='.github/workflows/other.yml@refs/heads/main';assert.throws(()=>validateParentGithubBinding(positiveRow,parentIssuer,p),/WORKFLOW_PATH_MISMATCH/);});
+test('Q99 重复同名成功Check不得任意择一核证',()=>{const p=parentMocks();p.checks.push({...p.checks[0],id:901});assert.throws(()=>validateParentGithubBinding(positiveRow,parentIssuer,p),/MISSING_OR_AMBIGUOUS/);});
+test('Q100 结构成功加任意verifiedProof对象也不能绕过来源验签',()=>assert.throws(()=>requireEvidence(positiveRow,{target:'SIGNED_PARENT_POSITIVE',verifiedProof:{...parentCheck,state:'success',sha}}),/TRUSTED_PROOF_REQUIRED/));
+test('Q101 看似已核验的元数据列表不能越过覆盖矩阵',()=>{const x=clone(coverage);x[0].level='SIGNED_PARENT_VERIFIED';x[0].positive_parent='YES';x[0].evidence_sha=sha;x[0].run_id='1234';assert.throws(()=>validateCoverage(x,{verifiedProofs:[{...parentCheck,provenance:'GH_REST_CHECK_RUNS_READ_ONLY'}]}),/PARENT_POSITIVE_INDEPENDENT_CHECK_MISSING/);});
+
+test('F08-1 Node独立质量断言101项完成（仅当前仓库源码+合成负例）',()=>console.log('F08_1_NODE_101_ASSERTIONS_PASS'));

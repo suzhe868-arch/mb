@@ -1,0 +1,15 @@
+id	item	state	owner	release_condition	claimed_done
+G01	Collector/JYT真实上游电话与回传	SOURCE_GAP	A/集成负责人	签发API权限与真实隔离联通验收	NO
+G02	图片CDN及OSS资产化回源	SOURCE_GAP	A/集成负责人	授权测试域/对象存储后真实下载及转存负例	NO
+G03	真实Feishu群个人通知投递	SOURCE_GAP	A/通知负责人	正式Sender和签发业务源及隐私授权	NO
+G04	PDM15 SLA真实签名Issuer	SOURCE_GAP	A/F05负责人	真实已签业务event和父级验证链	NO
+G05	Incident正式签发与Recovery身份	SOURCE_GAP	A/F07负责人	正式Issuer、清除事实、路由签名链	NO
+G06	真实客户/人员/身份安全投影联通	SOURCE_GAP	A/F03-F05负责人	独立授权的真实数据流合规验收	NO
+G07	资金/意向金/退款实际动作	BLOCKED	A/财务授权负责人	真实资金动作单独授权及对账	NO
+G08	C手机端Taro H5/微信双端构建	NOT_RUN	C工程负责人	PR68实际同SHA双端build证据	NO
+G09	C Chromium四视口真实渲染	NOT_RUN	C工程负责人	PR68真实截图与互动证据	NO
+G10	F01-F07全域正式正向E2E	SOURCE_GAP	A/全域工程负责人	冻结父业务源且正式E2E集成	NO
+G11	用户UAT签收	BLOCKED	用户/A	完整工程及视觉验收后用户单独签收	NO
+G12	生产部署与迁移	BLOCKED	用户/A	用户明确独立授权并通过生产门禁	NO
+G13	PR67历史28条旧F05 GitHub检查	EXTERNAL_CHECK_PENDING	A/CI维护者	核最后SHA真实队列与required checks，不使用旧快照	NO
+G14	GitHub分支保护与RuleSets完整读取	SOURCE_GAP	A/仓库维护者	必要权限取得并独立读取required checks	NO

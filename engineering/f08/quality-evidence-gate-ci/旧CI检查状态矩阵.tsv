@@ -1,0 +1,6 @@
+id	job_count	state	observed_sha	snapshot_kind	current_head_claim	success_claim	comment
+F05_8	16	queued	692e4c755e3410c569940019d042680e91f8a3fa	HISTORICAL_SNAPSHOT	NO	NO	PR67历史静态快照；本工具禁止冒充当前F08提交检查状态
+F05_9	6	queued	692e4c755e3410c569940019d042680e91f8a3fa	HISTORICAL_SNAPSHOT	NO	NO	PR67历史静态快照；本工具禁止冒充当前F08提交检查状态
+F05_7	2	queued	692e4c755e3410c569940019d042680e91f8a3fa	HISTORICAL_SNAPSHOT	NO	NO	PR67历史静态快照；本工具禁止冒充当前F08提交检查状态
+F05_10	2	queued	692e4c755e3410c569940019d042680e91f8a3fa	HISTORICAL_SNAPSHOT	NO	NO	PR67历史静态快照；本工具禁止冒充当前F08提交检查状态
+F05_10_D1	2	queued	692e4c755e3410c569940019d042680e91f8a3fa	HISTORICAL_SNAPSHOT	NO	NO	PR67历史静态快照；本工具禁止冒充当前F08提交检查状态
