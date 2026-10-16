@@ -54,9 +54,10 @@ export default function Home(){
  const [sheet,setSheet]=useState<'filter'|'sort'|null>(null)
  const [cities,setCities]=useState(false),[notice,setNotice]=useState('')
  const openingRef=useRef(false)
+ const pagingRef=useRef(false)
 
  const feed=useMemo(()=>mockReadAdapter.list(q,page,scenario),[q,page,scenario,tier])
- useEffect(()=>{remembered={q,page,tier,scenario}},[q,page,tier,scenario])
+ useEffect(()=>{remembered={q,page,tier,scenario};pagingRef.current=false},[q,page,tier,scenario])
  function change(patch:Partial<QueryState>){setQ(old=>({...old,...patch}));setPage(1);rememberedScroll=0;Taro.pageScrollTo({scrollTop:0,duration:0}).catch(()=>{})}
  function open(id:string){
   if(openingRef.current)return
@@ -65,7 +66,8 @@ export default function Home(){
   Taro.navigateTo({url:'/pages/detail/index?id='+encodeURIComponent(id)+'&scenario='+scenario}).catch(()=>{openingRef.current=false})
  }
  usePullDownRefresh(()=>{setPage(1);Taro.stopPullDownRefresh();setNotice('已按当前条件刷新模拟车源')})
- useReachBottom(()=>{if(feed.hasMore&&scenario!=='loading'&&scenario!=='error')setPage(p=>p+1)})
+ function loadMore(){if(pagingRef.current||!feed.hasMore||scenario==='loading'||scenario==='error')return;pagingRef.current=true;setPage(p=>p+1)}
+ useReachBottom(loadMore)
  usePageScroll(e=>{rememberedScroll=e.scrollTop})
  useDidShow(()=>{openingRef.current=false;if(rememberedScroll>0)Taro.pageScrollTo({scrollTop:rememberedScroll,duration:0}).catch(()=>{})})
  const {publicTotal:count,todayNew:today}=mockReadAdapter.publicStats()
@@ -85,7 +87,7 @@ export default function Home(){
    {q.source==='wholesale'&&feed.opportunityMingbang.length>0?<View><View className='section'><Text className='section-name'>名邦精选</Text><Text className='section-sub'>匹配当前筛选</Text></View>{feed.opportunityMingbang.map(c=><Car key={c.id} car={c} tier={tier} open={open}/>)}</View>:null}
    {q.source==='wholesale'&&feed.opportunity4s.length>0?<View><View className='section'><Text className='section-name'>4S 店精选</Text><Text className='section-sub'>匹配当前筛选</Text></View>{feed.opportunity4s.map(c=><Car key={c.id} car={c} tier={tier} open={open}/>)}</View>:null}
    {feed.items.length>0?<View>{feed.items.map(c=><Car key={c.id} car={c} tier={tier} open={open}/>)}
-    {feed.hasMore?<Button className='more' onClick={()=>setPage(p=>p+1)}>继续加载（每次15台）</Button>:<Text className='all-done'>已展示全部符合条件的车源</Text>}</View>:
+    {feed.hasMore?<Button className='more' onClick={loadMore}>继续加载（每次15台）</Button>:<Text className='all-done'>已展示全部符合条件的车源</Text>}</View>:
    <View className='status'><Text>暂无符合条件的车辆，系统不会自动扩大范围</Text><Button onClick={()=>setSheet('filter')}>调整筛选</Button></View>}
   </>}
   <View className='nav'><Text className='here'>⌂ 车源</Text><Text onClick={()=>setNotice('找车页面尚未获批，本次不制作空壳')}>找车 · 待开发</Text><Text onClick={()=>setNotice('我的页面尚未获批，本次不制作空壳')}>我的 · 待开发</Text></View>
