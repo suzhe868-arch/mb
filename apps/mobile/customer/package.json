@@ -21,18 +21,20 @@
     "react-dom": "18.3.1"
   },
   "devDependencies": {
+    "@babel/core": "7.28.5",
+    "@babel/preset-react": "7.28.5",
     "@tarojs/cli": "4.1.11",
     "@tarojs/helper": "4.1.11",
     "@tarojs/plugin-framework-react": "4.1.11",
     "@tarojs/plugin-platform-h5": "4.1.11",
     "@tarojs/plugin-platform-weapp": "4.1.11",
     "@tarojs/webpack5-runner": "4.1.11",
+    "@types/node": "20.19.15",
     "@types/react": "18.3.12",
     "@types/react-dom": "18.3.1",
     "babel-preset-taro": "4.1.11",
-    "typescript": "5.6.3",
-    "tsx": "4.20.6",
     "playwright": "1.56.1",
-    "@types/node": "20.19.15"
+    "tsx": "4.20.6",
+    "typescript": "5.6.3"
   }
 }
