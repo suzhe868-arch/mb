@@ -144,3 +144,9 @@ B已直接从合并后的main逐份读取10份A批准F05工作流的现行Blob�
 - 五份冻结重验全绿：Run`38943230786`（4 Job/4 Artifact）、`38943230783`（4/4）、`38943230820`（2/2）、`38943230802`（4/4）、`38943230829`（2/2）。均为冻结复验合法结果，**绝不能以冻结绿灯替换新Source正式签据**。
 - 两份Source仍等待原GitHub长时校验：F05-7 [Run38943230790](https://github.com/suzhe868-arch/mb/actions/runs/38943230790)，Job`117115815451`在途，HTTPS Job`117115815217` success，Artifact`12064425489`；F05-8 [Run38943230766](https://github.com/suzhe868-arch/mb/actions/runs/38943230766)，Job`117115816835`在途，其余三Job success，三份官方Artifact `12064660174,12063594129,12063004493`。不可预猜这两份的最终Source结论；它们可能因未满足同SHA历史父签而fail-closed，但必须读最终真实日志才能记录。
 - Mixed真正原生Workflow触发阳性已观察到10/10；C单独必要Workflow仍仅在C PR68而非main，**C端必要检查未被证明保留**。因此尽管F05触发过滤匹配契约，B仍不能把Stage2全五场景宣称成功，也不能签`READY_FOR_A_REVIEW_FINAL`，未交A独立最终验收。
+
+## 15. Mixed F05-7原生Source最终失败与C独立构建未验证裁决文件
+
+- Mixed [PR81](https://github.com/suzhe868-arch/mb/pull/81) 的F05-7 [Run38943230790](https://github.com/suzhe868-arch/mb/actions/runs/38943230790) 于2026-10-16T18:05:49Z进入`completed/failure`，Source Job`117115815451`原生日志明确`F05_7_CANNOT_PROVE_66_SAME_SHA_OFFICIAL_PG16_JOBS_IN_BOUNDED_CI_RUN`；HTTPS Job`117115815217`为success，非空官方Artifact`12064425489`（96339字节）。未伪造父签、未删原硬门禁。
+- 截至本次官方API快照，Mixed十Run为`5 success / 4 failure / 1 in_progress`，28 Check为`23 success / 4 failure / 1 in_progress`；**最后一项仅F05-8 Priority Source**，其最终结论未可得，严格不预判。
+- 与A签Stage2要求的C必要CI持续性存在独立边界：[B独立裁决证据文件](https://github.com/suzhe868-arch/mb/blob/audit/ci-trigger-stage2-evidence-20261017/engineering/ci-trigger-governance/B_Stage2_C必要构建缺口与A独立裁决边界_2026-10-17.md) 已归档。`main`读C工作流返回404，但C PR68分支可读到工作流（blob`ed75f4f3e91967b7b28c1396843c7ff191bf4364`）；PR77 C-only原生0 Run/0 Check不能证明必要C Build保留。必须由A区分“C轨尚未合并的前置缺口”与“PR76路径治理回归”，不可直接宣称CI_FIXED，也不得B擅合C PR68。
