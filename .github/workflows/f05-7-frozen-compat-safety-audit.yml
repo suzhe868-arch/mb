@@ -1,0 +1,87 @@
+name: F05-7 冻结PG16资源权限兼容独立审计
+on:
+  push:
+    paths:
+      - '.github/workflows/f05-7-frozen-*.yml'
+      - '.github/workflows/f05-7-frozen-compat-safety-audit.yml'
+      - 'engineering/f05/source-controlled-recovery-02/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/f05-7-frozen-*.yml'
+      - '.github/workflows/f05-7-frozen-compat-safety-audit.yml'
+      - 'engineering/f05/source-controlled-recovery-02/**'
+permissions: {contents: read}
+concurrency:
+  group: f05-7-frozen-compat-${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: false
+jobs:
+  frozen-static-diff-and-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: 兼容源码正负例、安全门禁、冻结Source未篡改
+        run: node --test engineering/f05/source-controlled-recovery-01/tests/*.test.mjs engineering/f05/source-controlled-recovery-02/tests/*.test.mjs
+      - name: 八份原生GitHub Workflow解析和Job真实结构
+        run: |
+          ruby -e 'require "yaml"; paths=Dir[".github/workflows/f05-7-frozen-*-revalidation.yml"] + [".github/workflows/f05-7-deterministic-matching-readiness-four-tier.yml"]; abort("expected 8 workflows, got #{paths.length}") unless paths.length==8; n=paths.sum{|f| y=YAML.load_file(f, aliases: true); abort("no jobs #{f}") unless y.is_a?(Hash)&&y["jobs"].is_a?(Hash); y["jobs"].size}; abort("expected 66 jobs, got #{n}") unless n==66; puts "F05_7_YAML_8_WORKFLOWS_66_JOBS_PARSED"'
+      - name: 以GitHub官方旧Blob逐字节比对七文件白名单补丁
+        env:
+          GH_READ_TOKEN: ${{ github.token }}
+        run: node engineering/f05/source-controlled-recovery-02/compat-audit.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f05-7-frozen-compat-static-diff-and-safety
+          path: engineering/f05/source-controlled-recovery-02/artifacts/compat-audit-result.json
+          retention-days: 30
+          if-no-files-found: error
+
+  isolated-postgres16-alpine-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions: {contents: read}
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: 验证DockerHub16-alpine单服务容器、本地旧祖先别名以及ECR零拉取
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - name: 非生产合成权限检查及非特权正反例
+        run: |
+          set -euo pipefail
+          image='public.ecr.aws/docker/library/postgres:16-alpine'
+          mapfile -t ids < <(docker ps --filter "ancestor=$image" --format '{{.ID}}')
+          test "${#ids[@]}" -eq 1
+          cid="${ids[0]}"
+          docker exec "$cid" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f05_compat_ci LOGIN PASSWORD 'ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
+          docker exec "$cid" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f05_compat_ci OWNER postgres"
+          docker exec "$cid" psql -X -v ON_ERROR_STOP=1 -U postgres -d f05_compat_ci -c 'CREATE SCHEMA f05_ci AUTHORIZATION f05_compat_ci'
+          role="$(docker exec -e PGPASSWORD=ci_synthetic_only "$cid" psql -X -At -h 127.0.0.1 -U f05_compat_ci -d f05_compat_ci -c 'SELECT current_user')"
+          test "$role" = f05_compat_ci
+          superuser="$(docker exec "$cid" psql -X -At -U postgres -d postgres -c "SELECT rolsuper FROM pg_roles WHERE rolname='f05_compat_ci'")"
+          test "$superuser" = f
+          docker exec -e PGPASSWORD=ci_synthetic_only "$cid" psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -U f05_compat_ci -d f05_compat_ci -c 'CREATE TABLE f05_ci.allowed (id integer PRIMARY KEY)'
+          set +e
+          denied="$(docker exec -e PGPASSWORD=ci_synthetic_only "$cid" psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -U f05_compat_ci -d f05_compat_ci -c 'CREATE TABLE public.denied (id integer)' 2>&1)"
+          rc=$?
+          set -e
+          test "$rc" -ne 0
+          echo "$denied" | grep -qi 'permission denied'
+          mkdir -p engineering/f05/source-controlled-recovery-02/artifacts
+          printf 'F05_7_PG16_ALPINE_ALIAS_NATIVE_PASS\nrole=%s\nsuperuser=%s\npublic_schema_write=DENIED\n' "$role" "$superuser" > engineering/f05/source-controlled-recovery-02/artifacts/pg16-native-smoke.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f05-7-frozen-compat-native-nonprivileged-pg16
+          path: engineering/f05/source-controlled-recovery-02/artifacts/pg16-native-smoke.txt
+          retention-days: 30
+          if-no-files-found: error
