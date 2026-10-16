@@ -1,3 +1,12 @@
+# 2026-10-16｜A正式独立验收并标准合并PR75；B下一主任务F05-7单源安全预检（当前最新）
+
+- **PR75真实合并**：[PR75](https://github.com/suzhe868-arch/mb/pull/75) 最终受验HEAD `9e974f5c89195130c4fe4d8dfe325c7d1ef99c70`；6/6仅新增授权只读核证文件，最终Push[Run38910555545](https://github.com/suzhe868-arch/mb/actions/runs/38910555545) Node **38/38**、官方同SHA有效工件**12049464448**（11156字节、未ZIP独立复算）；五历史原Source原生日志均为**各自旧SHA**的完整成功，45工作流/348旧PG16作业为元数据候选而非新父签。A[验收评论](https://github.com/suzhe868-arch/mb/pull/75#issuecomment-6218221568)后 GitHub**标准PR合并成功** `merged:true`、主线SHA **`e1c29a4a994e70cc6c2022a22ff8bae3d153de01`**。[A完整报告](https://github.com/suzhe868-arch/mb/blob/main/07_%E9%87%8D%E5%BB%BA%E5%B7%A5%E4%BD%9C%E5%8C%BA/F05_%E7%88%B6%E9%93%BE%E6%81%A2%E5%A4%8D%E5%8F%AF%E8%A1%8C%E6%80%A7_PR75_A%E4%B8%BB%E6%8E%A7%E7%8B%AC%E7%AB%8B%E9%AA%8C%E6%94%B6%E4%B8%8E%E5%90%88%E5%B9%B6_F05-7%E4%B8%8B%E4%B8%80%E9%98%B6%E6%AE%B5%E5%AE%89%E5%85%A8%E8%A3%81%E5%86%B3%E6%8A%A5%E5%91%8A_2026-10-16.md)。
+- **五项正式来源缺口保持**：PR75同SHA官方Check 30=25 success/5 Source failure。A新做GitHub祖先关系证明五旧原Branch均为当时main祖先（behind0）；但旧冻结F05-7部分PG16仍引用ECR镜像与长期宽触发风险，旧Run不可当新main同SHA签名。F05业务、F08全域、V1、客户/资金、生产均`NOT_READY`；不得伪绿。
+- **唯一B主下一任务已正式转移**：`NEXT_OWNER=B / NEXT_TASK=F05_7_PARENT_SOURCE_CONTROLLED_RECOVERY_01 / A_RELEASED_FOR_B_GATED_PREPARATION`。[F05-7单源受控恢复前置完整施工单](https://github.com/suzhe868-arch/mb/blob/main/07_%E9%87%8D%E5%BB%BA%E5%B7%A5%E4%BD%9C%E5%8C%BA/F05-7_%E9%A6%96%E6%9D%A1%E6%AD%A3%E5%BC%8F%E6%9D%A5%E6%BA%90%E9%93%BE%E5%8F%97%E6%8E%A7%E6%81%A2%E5%A4%8D%E5%AE%9E%E9%AA%8C_A%E4%B8%BB%E6%8E%A7%E5%AE%8C%E6%95%B4%E6%96%BD%E5%B7%A5%E5%8D%95_2026-10-16.md)。B从最新main新建`feat/f05-7-parent-source-controlled-recovery-01`，一次性核实合法fast-forward、8个Workflow/66原生PG16 Job、ECR镜像兼容、权限、队列预算与SOURCE反例，交`READY_FOR_A_REVIEW_PREFLIGHT`；**本阶段禁止直接改旧原分支ref、禁止直接启动66Job、禁止触碰其他四个源**，A独立审核后另签具体新Push操作。
+- **CI重复触发专项治理保留后继排队**：`CI_TRIGGER_SCOPE_GOVERNANCE_01`已签，等待F05-7前置评估审定后优先由A安排B专用批次；不得批量修改冻结F05工作流、随意改required checks或以队列=0冒称恢复。C[PR68](https://github.com/suzhe868-arch/mb/pull/68)仍Draft、用户功能视觉未接受，独立R3+G0~G5整改，禁止与B混轨。
+
+---
+
 # 2026-10-16｜A主控新增CI触发范围专项治理：已正式签发、尚未完成工作流修改（当前最新）
 
 - **用户问题已确认为真实CI配置问题**：main共320份工作流文件、其中95份F05前缀（文件数≠待运行数）。旧F05冻结重验证工作流使用针对main的无路径限制`pull_request`触发器；真实C PR68（如Run38909035844）与B PR75（Run38910704810）都重复触发F05，CI风暴与F05五个正式父链`SOURCE_GAP`是**不同问题**。
