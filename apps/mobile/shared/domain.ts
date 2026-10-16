@@ -2,23 +2,25 @@
 export type Source = 'wholesale' | 'mingbang' | 'dealer4s'
 export type Tier = 'limited' | 'fan' | 'vip'
 export type SortKey = 'newest'|'price_asc'|'price_desc'|'year_desc'|'year_asc'|'mileage_asc'|'mileage_desc'
+export type LockViewState = 'available'|'pending'|'other_locked'|'waitlisted'|'mine_locked'|'transaction'|'sold'|'offline'
 export type Scenario = 'normal'|'loading'|'empty'|'error'|'no_banner'|'no_image'|'revoked'
 export interface SafeVehicle {
   id: string; source: Source; brand: string; series: string; modelYear: number
   name: string; registrationYear: number; mileageKm: number; city: string
-  transmission: string; energy: string; color: string
+  transmission: string; energy: string; color: string; innerColor?: string; displacement?: string
+  modelName?: string; conditionTags?: string[]; publicReports?: {title:string;source:string}[]; advisorName?: string|null; galleryUrls?: string[]
   listedAt: string; customerPriceWan: number | null; priceProjection?: 'masked'|'numeric'|'consultation'
   photoUrl: string | null; visible: boolean; publicAvailable: boolean
 }
 export interface Filters {
-  brand: string; priceMin: string; priceMax: string; yearMin: string; yearMax: string
-  mileageMax: string; energy: string; transmission: string
+  brand: string; series: string; modelYear: string; modelName: string; priceMin: string; priceMax: string; yearMin: string; yearMax: string
+  mileageMin: string; mileageMax: string; energy: string; displacement: string; color: string; transmission: string
 }
 export interface QueryState {
   source: Source; city: string; keyword: string; sort: SortKey; filters: Filters
 }
 export const EMPTY_FILTERS: Filters = {
-  brand:'',priceMin:'',priceMax:'',yearMin:'',yearMax:'',mileageMax:'',energy:'',transmission:''
+  brand:'',series:'',modelYear:'',modelName:'',priceMin:'',priceMax:'',yearMin:'',yearMax:'',mileageMin:'',mileageMax:'',energy:'',displacement:'',color:'',transmission:''
 }
 export const DEFAULT_QUERY: QueryState = { source:'wholesale',city:'全国',keyword:'',sort:'newest',filters:{...EMPTY_FILTERS} }
 export const SOURCES: {key:Source;label:string}[] = [
