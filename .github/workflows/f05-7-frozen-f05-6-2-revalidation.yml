@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
         ports: [5432:5432]
         options: >-
@@ -19,6 +19,8 @@ jobs:
     permissions: {contents: read}
     steps:
     - uses: actions/checkout@v4
+    - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+      run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
     - uses: actions/setup-node@v4
       with: {node-version: '22.16.0'}
     - run: bash engineering/f05/find-car-application-demand-eligibility/ci-job.sh source
@@ -33,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
         ports: [5432:5432]
         options: >-
@@ -42,6 +44,8 @@ jobs:
     permissions: {contents: read}
     steps:
     - uses: actions/checkout@v4
+    - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+      run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
     - uses: actions/setup-node@v4
       with: {node-version: '22.16.0'}
     - run: bash engineering/f05/find-car-application-demand-eligibility/ci-job.sh https
