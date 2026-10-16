@@ -6,6 +6,9 @@ on:
   pull_request:
     paths: ['apps/mobile/**', '.github/workflows/c-app-01-*.yml', '07_重建工作区/手机端前端全量追踪基线/C_APP_01_*']
   workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: write
 jobs:
