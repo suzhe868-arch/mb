@@ -86,7 +86,7 @@ export default function Home(){
  const [q,setQ]=useState<QueryState>(()=>remembered?.q||{...DEFAULT_QUERY,filters:{...EMPTY_FILTERS}})
  const [page,setPage]=useState(remembered?.page||1)
  const [tier,setTier]=useState<Tier>(remembered?.tier||'limited')
- const [scenario,setScenario]=useState<Scenario>(remembered?.scenario||'normal')
+ const [scenario,setScenario]=useState<Scenario>(()=>qa&&TESTS.includes(String(routeParams.scenario) as Scenario)?String(routeParams.scenario) as Scenario:remembered?.scenario||'normal')
  const [sheet,setSheet]=useState<'filter'|'sort'|null>(null)
  const [cities,setCities]=useState(false)
  const openingRef=useRef(false),pagingRef=useRef(false)
