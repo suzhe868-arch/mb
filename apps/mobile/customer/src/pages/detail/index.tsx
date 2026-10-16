@@ -40,7 +40,7 @@ export default function Detail(){
  function changePhoto(delta:number){setBroken(false);setPhotoIndex(x=>(x+delta+photoUrls.length)%photoUrls.length)}
  return <View className='detail'>
   <View className='detail-safe'/>
-  <View className='detail-header'><Text className='back' onClick={share?toHome:back}>{share?'⌂':'‹'}</Text><Text className='detail-head-title'>车辆详情</Text><View className='detail-header-space'/></View>
+  <View className='detail-header'><Text className='back' onClick={share?toHome:back}>{share?'主页':'‹'}</Text><Text className='detail-head-title'>车辆详情</Text><View className='detail-header-space'/></View>
   {!car?<View className='denied'><Text className='denied-title'>当前车源不可查看</Text><Text>车辆可能已下架，或查看权限已发生变化。旧链接与转发链接不会授予额外查看权限。</Text><Button onClick={toHome}>查看更多车源</Button></View>:
   <>
    <View className='detail-image' onClick={preview}>
