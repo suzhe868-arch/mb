@@ -184,3 +184,46 @@ test('C01无图状态也涵盖匹配机会块图片，不能只遮蔽常规车�
  const feed=queryFeed(q(),1,'no_image')
  assert.ok([...feed.items,...feed.opportunityMingbang,...feed.opportunity4s].every(x=>x.photoUrl===null))
 })
+
+test('R3车型安全素材必须车型对应，缺少可核对授权图片一律占位',()=>{
+ assert.ok(ALL_SAFE_VEHICLES.every(v=>v.photoUrl===null&&(!v.galleryUrls||v.galleryUrls.length===0)))
+ assert.ok(ALL_SAFE_VEHICLES.every(v=>v.brand.length>0&&v.series.length>0))
+})
+test('R3完整四层级与上牌年份彼此独立',()=>{
+ const f={...EMPTY_FILTERS,brand:'奥迪',series:'A6',modelYear:'2026',modelName:'45 TFSI 豪华动感型',yearMin:'2024'}
+ const feed=queryFeed(q({source:'wholesale',filters:f}),1,'normal','vip')
+ assert.ok(feed.total>0)
+ assert.ok(feed.items.every(v=>v.brand==='奥迪'&&v.series==='A6'&&v.modelYear===2026&&v.modelName==='45 TFSI 豪华动感型'&&v.registrationYear>=2024))
+ assert.equal(queryFeed(q({filters:{...f,series:'C级'}}),1,'normal','vip').total,0)
+})
+test('R3里程上下界与颜色排量能源均为真实AND过滤',()=>{
+ const f={...EMPTY_FILTERS,mileageMin:'2',mileageMax:'9',color:'曜石黑',displacement:'2.0T',energy:'汽油'}
+ const feed=queryFeed(q({filters:f}),1,'normal','vip')
+ assert.ok(feed.total>0)
+ assert.ok(feed.items.every(v=>v.mileageKm>=20000&&v.mileageKm<=90000&&v.color==='曜石黑'&&v.displacement==='2.0T'&&v.energy==='汽油'))
+ assert.equal(validateFilters({...EMPTY_FILTERS,mileageMin:'9',mileageMax:'2'}),false)
+})
+test('R3普通批发数值筛选不得借查询结果反推无权价格',()=>{
+ const f={...EMPTY_FILTERS,priceMin:'15',priceMax:'30'}
+ const limited=queryFeed(q({filters:f}),1,'normal','limited')
+ assert.ok(limited.items.every(v=>v.source!=='wholesale'))
+ assert.equal(limited.total,0)
+ const vip=queryFeed(q({filters:f}),1,'normal','vip')
+ assert.ok(vip.total>0)
+ assert.ok(vip.items.every(v=>typeof v.customerPriceWan==='number'))
+})
+test('R3详情不自动分配顾问，虚构车况和报告不冒充真实数据',()=>{
+ const before=JSON.stringify(ALL_SAFE_VEHICLES)
+ const d=safeById(ALL_SAFE_VEHICLES[0].id)
+ assert.ok(d)
+ assert.equal(d?.advisorName,null)
+ assert.deepEqual(d?.conditionTags,[])
+ assert.deepEqual(d?.publicReports,[])
+ assert.equal(JSON.stringify(ALL_SAFE_VEHICLES),before)
+})
+test('R3分享旧链接未带客户等级，失效车型不能读取',()=>{
+ assert.equal(safeById('MOCK-REVOKED'),null)
+ assert.equal(safeById('MOCK-OFFLINE'),null)
+ assert.equal(safeById('MOCK-HIDDEN'),null)
+ assert.equal(safeById('MOCK-001','revoked'),null)
+})
