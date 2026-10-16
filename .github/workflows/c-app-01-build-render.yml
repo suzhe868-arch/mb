@@ -22,26 +22,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          # PR 默认 checkout 的是临时 merge ref；本包需要可追溯到 C 分支真实提交 SHA。
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
           persist-credentials: true
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
       - name: 生成并冻结本包依赖锁
         run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-      - name: 在 C 独立分支提交锁文件（若尚未存在）
-        if: github.event_name == 'push'
+      - name: 锁文件 SHA 门禁（只在 C 分支补锁，不拿旧 SHA 冒充绿色）
         env:
           REF_NAME: ${{ github.ref_name }}
         run: |
+          set -euo pipefail
           if [ -n "$(git status --porcelain -- package-lock.json)" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add package-lock.json
-            git commit -m "build(c-app-01): 锁定npm依赖树"
-            git push origin "HEAD:refs/heads/$REF_NAME"
-          else
-            echo "锁文件无改动"
+            if [ "$GITHUB_EVENT_NAME" = "push" ] && [[ "$REF_NAME" == feat/c-app-01-* ]]; then
+              git config user.name "github-actions[bot]"
+              git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+              git add package-lock.json
+              git commit -m "build(c-app-01): 锁定npm依赖树"
+              git push origin "HEAD:refs/heads/$REF_NAME"
+              echo "::error::锁文件已提交新 HEAD。本轮旧 SHA 必须失败；须对锁定后的真实 HEAD 重新触发 CI。"
+            else
+              echo "::error::PR/手动运行的源码 SHA 缺少已冻结的 package-lock.json，请先在 C 分支完成独立锁文件提交。"
+            fi
+            exit 1
           fi
+          echo "依赖锁与当前测试 SHA 一致"
+
       - name: 安装冻结依赖
         run: npm ci --no-audit --no-fund
       - name: 客户端路径 / 敏感字段静态门禁
