@@ -78,6 +78,9 @@ try{
   await page.locator('.bottom-consult').click()
   const toast=await page.getByText('咨询服务暂不可用，未提交任何申请').count()
   assert(toast>0,'咨询产生了虚假成功或缺少拒绝反馈')
+  await page.locator('.detail-header .back').click()
+  await page.locator('.car').first().waitFor({timeout:12000})
+  assert((await page.locator('.channel.active').textContent())==='批发车源','详情返回丢失来源频道')
   checks.push({width,height,...s,detail,jsErrors:errors})
   assert(errors.length===0,'页面JS异常 '+errors.join('; '))
   if(width===390){
@@ -89,7 +92,10 @@ try{
    }
    await page.goto(routeUrl(sampleUrl,{id:'MOCK-001',share:'1'}),{waitUntil:'domcontentloaded'})
    await page.locator('.bottom-more').waitFor({timeout:10000})
-   assert(await page.locator('.detail-bottom button').count()===3,'分享直达缺四操作：更多车源+收藏+咨询+锁车')
+   assert(await page.locator('.bottom-more').count()===1
+    &&await page.locator('.bottom-favorite').count()===1
+    &&await page.locator('.bottom-consult').count()===1
+    &&await page.locator('.bottom-lock').count()===1,'分享直达缺四操作：更多车源+收藏+咨询+锁车')
    await screenshot(page,'390x844_分享直达四操作')
    await page.goto(routeUrl(sampleUrl,{id:'MOCK-REVOKED',share:'1'}),{waitUntil:'domcontentloaded'})
    await page.locator('.denied-title').waitFor({timeout:10000})
