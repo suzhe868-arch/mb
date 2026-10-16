@@ -1,0 +1,4 @@
+类型	页面ID	事项ID	正式规则引用	当前批授权等级	具体用户角色或身份	数据字段/来源及隐私	页面区域与视觉层级	用户动作/状态/导航	代码或组件路径	正例测试及步骤	反例或边界测试	真实截图/视频/CI同SHA证据	C自评结果	A独立验收	阻断或下批责任
+填写说明	C01/C01-01/E01等	每项稳定ID	PDMxx Final/Current IA条款/冻结用户视觉裁决	REQUIRED_UI_NOW/DEFERRED_WITH_REASON/NOT_AUTHORIZED/NOT_APPLICABLE	客户等级/员工权限/对象状态的合法维度	安全投影字段或空态条件	从上到下顺序/主次CTA/组件token	触发→反馈→成功/失败/返回的合法语义	PR内真实文件相对路径	实跑用例、Run和步序	无权/撤权/缺图/网络/并发适用负例	最终HEAD和原始工件定位	PASS/PARTIAL/BLOCKED/NOT_RUN	A_ACCEPTED/A_CHANGES_REQUESTED/PENDING	不能做的来源或下批工作单
+示例_必须替换	C01	EXAMPLE-C01-PRICE	PDM20 §24-25	REQUIRED_UI_NOW_MOCK_ONLY	LIMITED额度用尽/UNLIMITED	合法展示价；绝不可泄露内部批发价	价格和城市同层，额度用尽主位--万	看详情→展示合法价格/额度用尽提示；真解锁延后	需C实际填写	合法数字与无数字价分支	无额度/未授权内部价不能进DOM	需真实文件路径与最后HEAD Run	PENDING	PENDING	真实价格额度API须后续A授权
+示例_必须替换	E02	EXAMPLE-E02-PRICE	PDM10/Current IA（开工前复核）	DEFERRED_WITH_REASON	授权员工/4S权限范围	内部价仅合法员工投影	员工内部模式，与客户模式分开	没有权限不得显示/提交	须后续独立施工单	未来覆盖	员工撤权/旧缓存负例	NOT_RUN	NOT_RUN	PENDING	该页尚未签发当前施工任务，禁止据模板开工
