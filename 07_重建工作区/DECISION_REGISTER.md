@@ -1,3 +1,13 @@
+# 2026-10-16｜C-APP-01 PR68 npm edgesOut安装阻断：A已定位高可信Arborist缺陷并正式放行C原分支整改（C平行轨）
+
+- **C独立并行轨现行裁决**：`C_APP_01_NPM_EDGESOUT_INSTALL_BLOCKED / A_TECH_FIX_RELEASED / C_NEXT_OWNER=C / C_PR68_DRAFT_NO_MERGE / C_H5_WEAPP_CHROMIUM_SCREENSHOTS_NOT_RUN / USER_VISUAL_REVIEW_NOT_READY`。这只更新C轨；**正式B主线保持`NEXT_OWNER=B / NEXT_TASK=F08_1_CROSS_DOMAIN_QUALITY_EVIDENCE_CI_ONLY`不变**，避免A工程交接被覆盖。
+- **GitHub证据**：[PR68](https://github.com/suzhe868-arch/mb/pull/68)保留Draft，原C分支最新受检HEAD `b0e538364d17111e1e596a3ff097bb66584f5019`、28/28授权白名单；[Run38833737548](https://github.com/suzhe868-arch/mb/actions/runs/38833737548)真Push失败Job`116758065390`：checkout、Node20.20.2/npm10.8.2成功，`npm install --package-lock-only`真实失败`Cannot read properties of null (reading 'edgesOut')`，后续npm ci/tsc/Taro H5/weapp/Chromium全部skipped，**锁文件及真实截图均未出现**。完整npm debug只在临时Runner上，尚无实际堆栈工件。旧离线26/26不能替代原生构建。
+- **A最小技术裁决**：公开`npm/cli#8261,#9787,fix#8448`给出Arborist peer节点被detach后`edgesOut`崩溃及npm`11.6.0`首次修复证据；C保持Node20.20.2/Taro4.1.11/React18.3.1/TS5.6.3不动，先捕获脱敏debug、单独固定npm11.6做真实对照，再生成/提交`apps/mobile/customer/package-lock.json`和同版`npm ci`。不能未经复现宣称本项目唯一根因已证实，不可用`--legacy-peer-deps`虚造完整锁。
+- **排队和防误触发**：A在本次核查时GitHub Actions `queued=17/in_progress=15`，含与C域无关旧F05工作流；C原CI Push/PR双事件需去重但不得取消/修改冻结旧F05 checks。`GITHUB_TOKEN` Bot补锁后的普通push可能不会自动触发新CI，须真实新head再次push或在对应ref上workflow_dispatch；最终只认最新单一C SHA的安装/原生测试/TS/H5/weapp/本地Chromium320/375/390/430真PNG和官方工件。
+- **正式A施工单**：[C-APP-01 npm与原生双端构建阻断完整定向整改](https://github.com/suzhe868-arch/mb/blob/main/07_%E9%87%8D%E5%BB%BA%E5%B7%A5%E4%BD%9C%E5%8C%BA/C_APP_01_A%E4%B8%BB%E6%8E%A7PR68_npm%E4%BE%9D%E8%B5%96%E8%A7%A3%E6%9E%90%E4%B8%8E%E5%8F%8C%E7%AB%AF%E6%9E%84%E5%BB%BA%E9%98%BB%E6%96%AD%E5%AE%9A%E5%90%91%E6%95%B4%E6%94%B9%E6%96%BD%E5%B7%A5%E5%8D%95_2026-10-16.md)；[PR68正式A交接](https://github.com/suzhe868-arch/mb/pull/68#issuecomment-6206309405)。C按原PR68原分支白名单修复全包、真跑构建/截图、自查并向A交`READY_FOR_A_ENGINEERING_REVIEW_AND_USER_VISUAL_REVIEW`；**用户先验第一版视觉功能再集中改首页**。A不合并C草稿、不改变PDM与B/F08主线。正式C外部真实微信、客户、资金、JYT、飞书、UAT/生产保持不授权。
+
+---
+
 # 2026-10-16｜A标准合并F07-4 PR67，签发F08-1非生产跨域质量门禁，B主线继续（唯一最新）
 
 - **正式唯一B工程主线**：`F07_4_PR67_A_ACCEPTED_STANDARD_MERGED_CI_ONLY / F08_1_A_RELEASED_FOR_B_CI_ONLY / NEXT_OWNER=B / NEXT_TASK=F08_1_CROSS_DOMAIN_QUALITY_EVIDENCE_CI_ONLY / F05_F06_F07_F08_GLOBAL_V1_NOT_READY / NO_PRODUCTION`。先前PR67 R2拒收单仅历史；A已结束该PR的审查与正常合并，当前主任务正式转F08-1的非生产质量先导，不表示F07全域Ready。
