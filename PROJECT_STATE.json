@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_PARENT_CHAIN_RESTORE_FEASIBILITY_01_A_RELEASED",
+  "substage": "F05_7_PARENT_SOURCE_CONTROLLED_RECOVERY_01_A_RELEASED_PREFLIGHT",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F05_PARENT_CHAIN_RESTORE_FEASIBILITY",
-  "current_domain_status": "F05_PR72_A_ACCEPTED_STANDARD_MERGED_SOURCE_GAP_OPEN_BUSINESS_NOT_READY",
+  "current_domain": "F05_PARENT_SOURCE_RECOVERY",
+  "current_domain_status": "F05_PARENT_FEASIBILITY_PR75_A_ACCEPTED_STANDARD_MERGED_FIVE_SOURCES_STILL_GAP",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A已独立审核PR72最终HEAD64152bdba1949fdeb5bcbbf0d54b1f4479d5a3ea：7/7新增白名单、Node35/35、隔离非特权PG16 16/16、真Push38900276212双Job与2同SHA有效Artifact；五个旧Source官方原生日志均真实SOURCE_GAP，不签业务正例。标准PR merge=true主线SHA bf0de40b6fda3285dc38cef17d47db7fa953ac10。A另签F05父链恢复可行性只读完整工作单给B；C PR68 R3仍用户功能视觉否决，独立交C。F05/F08/V1/生产NOT_READY。",
-  "current_work_file": "07_重建工作区/F05_五项正式父级来源链恢复可行性核证_A主控下一阶段完整施工单_2026-10-16.md",
+  "current_task": "A已完成PR75父来源恢复可行性独立验收：6/6授权新增文件、最后Push38910555545 Node38/38、五原分支45历史Workflow共348旧PG16 Job官方元数据核证，五Source原生历史成功仅旧SHA；标准PR合并SHA e1c29a4a994e70cc6c2022a22ff8bae3d153de01。A独立GitHub Compare确认五原分支各自为main祖先behind0，但旧冻结PG16 ECR镜像与长队列风险仍在；正式签F05-7单源安全预检阶段1给B，不允许未经A后续授权即原分支Push或运行66 Job。CI触发范围治理已签仍待实施，C PR68 R3未验收；F05五新SHA正式来源、F08全域、V1及生产NOT_READY。",
+  "current_work_file": "07_重建工作区/F05-7_首条正式来源链受控恢复实验_A主控完整施工单_2026-10-16.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B从最新main独立分支严格按五项正式父级来源链恢复可行性施工单进行只读逆向与GitHub原始Push/同SHA/66-72项父链恢复路径实证，不重跑旧Job/不动原分支及原签名、不伪绿。交原生证据矩阵和具体可执行恢复方案、独立测试/工件及READY_FOR_A_REVIEW；A再签是否实际恢复。C在PR68按R3和G0-G5并行整改、仍禁合并。",
+  "next_action": "B按A签F05-7单源受控恢复前置审计完整单，从最新main独立分支做旧原分支快进条件、66原生Job触发/PG16 ECR镜像/权限/预算、真实SOURCE防伪与最小资源补丁评估；此阶段严禁改旧原分支ref或立即重跑66Job，交READY_FOR_A_REVIEW_PREFLIGHT由A独立审核后有条件放行唯一原分支的合法新Push。CI_TRIGGER_SCOPE_GOVERNANCE_01已签并排队，待A下一轮正式安排；C PR68独立R3继续但未获用户接受。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B从最新main独立分支严格按五项正式父级来源链恢复可行性施工单进行只读逆向与GitHub原始Push/同SHA/66-72项父链恢复路径实证，不重跑旧Job/不动原分支及原签名、不伪绿。交原生证据矩阵和具体可执行恢复方案、独立测试/工件及READY_FOR_A_REVIEW；A再签是否实际恢复。C在PR68按R3和G0-G5并行整改、仍禁合并。",
+  "next_action_detail": "B按A签F05-7单源受控恢复前置审计完整单，从最新main独立分支做旧原分支快进条件、66原生Job触发/PG16 ECR镜像/权限/预算、真实SOURCE防伪与最小资源补丁评估；此阶段严禁改旧原分支ref或立即重跑66Job，交READY_FOR_A_REVIEW_PREFLIGHT由A独立审核后有条件放行唯一原分支的合法新Push。CI_TRIGGER_SCOPE_GOVERNANCE_01已签并排队，待A下一轮正式安排；C PR68独立R3继续但未获用户接受。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F05_PARENT_CHAIN_RESTORE_FEASIBILITY_01",
+  "next_task": "F05_7_PARENT_SOURCE_CONTROLLED_RECOVERY_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -8958,8 +8958,8 @@
     "main_next_task_preserved": "F05_PARENT_CHAIN_RESTORE_FEASIBILITY_01"
   },
   "f05_parent_chain_restore_feasibility_gate": {
-    "status": "A_RELEASED_FOR_B_READ_ONLY_FEASIBILITY",
-    "next_owner": "B",
+    "status": "A_ACCEPTED_STANDARD_MERGED_PR75_READ_ONLY_FEASIBILITY_ONLY",
+    "next_owner": "A_COMPLETED_THEN_B_F05_7",
     "next_task": "F05_PARENT_CHAIN_RESTORE_FEASIBILITY_01",
     "work_order": "07_重建工作区/F05_五项正式父级来源链恢复可行性核证_A主控下一阶段完整施工单_2026-10-16.md",
     "branch": "feat/f05-parent-chain-restore-feasibility-01",
@@ -8973,11 +8973,22 @@
     "may_sign_formal_parent": false,
     "requires_authoritative_run_job_artifact_matrix": true,
     "source_gap_open": true,
-    "production": false
+    "production": false,
+    "pr": 75,
+    "pr_accepted_head": "9e974f5c89195130c4fe4d8dfe325c7d1ef99c70",
+    "merge_sha": "e1c29a4a994e70cc6c2022a22ff8bae3d153de01",
+    "node_tests": "38/38",
+    "official_push_run": 38910555545,
+    "official_push_job": 117005008755,
+    "artifact_id": 12049464448,
+    "artifact_official_sha256": "sha256:61fa3f76ba5ddf65e7612458c53d1cae551ec043d083f901b59e9e79b34a939e",
+    "historical_old_jobs_metadata": 348,
+    "old_source_success_only_for_old_shas": true,
+    "a_acceptance_report": "07_重建工作区/F05_父链恢复可行性_PR75_A主控独立验收与合并_F05-7下一阶段安全裁决报告_2026-10-16.md"
   },
   "ci_trigger_scope_governance_gate": {
     "task_id": "CI_TRIGGER_SCOPE_GOVERNANCE_01",
-    "status": "A_RELEASED_AFTER_CURRENT_B_TASK_NOT_IMPLEMENTED",
+    "status": "A_SIGNED_QUEUED_AFTER_F05_7_GATED_PREFLIGHT_NOT_IMPLEMENTED",
     "signed_date": "2026-10-16",
     "a_signed_order": "07_重建工作区/CI工作流重复触发与F05跨窗口污染_A主控根因核证及定向治理正式施工单_2026-10-16.md",
     "owner_after_current_task": "B",
@@ -8991,7 +9002,34 @@
     "old_f05_source_gap": "OPEN_NOT_REMOVED",
     "f05_trigger_fixed": false,
     "ci_evidence_full_reverified": false,
-    "main_next_task_unchanged": "F05_PARENT_CHAIN_RESTORE_FEASIBILITY_01",
-    "c_pr68_status": "DRAFT_NOT_USER_ACCEPTED"
+    "main_next_task_unchanged": "F05_7_PARENT_SOURCE_CONTROLLED_RECOVERY_01",
+    "c_pr68_status": "DRAFT_NOT_USER_ACCEPTED",
+    "after_task": "F05_7_PARENT_SOURCE_CONTROLLED_RECOVERY_01_PREFLIGHT_A_REVIEW",
+    "pr75_reviewed_and_merged": true
+  },
+  "f05_7_parent_source_controlled_recovery_gate": {
+    "task_id": "F05_7_PARENT_SOURCE_CONTROLLED_RECOVERY_01",
+    "status": "A_RELEASED_FOR_B_GATED_PREPARATION",
+    "owner": "B",
+    "review_owner": "A",
+    "branch": "feat/f05-7-parent-source-controlled-recovery-01",
+    "work_order": "07_重建工作区/F05-7_首条正式来源链受控恢复实验_A主控完整施工单_2026-10-16.md",
+    "a_acceptance_report": "07_重建工作区/F05_父链恢复可行性_PR75_A主控独立验收与合并_F05-7下一阶段安全裁决报告_2026-10-16.md",
+    "origin_branch": "feat/f05-7-deterministic-matching-readiness-four-tier",
+    "origin_sha_at_a_read": "99c38d013f67cc56975f1664120fb87c204afc3c",
+    "git_compare_ancestor_at_merge": true,
+    "merge_sha_at_compare": "e1c29a4a994e70cc6c2022a22ff8bae3d153de01",
+    "ahead_by_at_merge": 1020,
+    "behind_by_at_merge": 0,
+    "nominal_pg16_jobs": 66,
+    "origin_branch_ref_update_authorized": false,
+    "old_source_workflow_change_authorized": false,
+    "new_origin_branch_push_authorized": false,
+    "may_rerun_old_jobs": false,
+    "preflight_required": true,
+    "ready_for_a_preflight_review_required": true,
+    "other_four_origin_branches_touched": false,
+    "source_gap_open": true,
+    "production": false
   }
 }
