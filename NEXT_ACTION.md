@@ -1,3 +1,11 @@
+# 2026-10-16｜A主控新增CI触发范围专项治理：已正式签发、尚未完成工作流修改（当前最新）
+
+- **用户问题已确认为真实CI配置问题**：main共320份工作流文件、其中95份F05前缀（文件数≠待运行数）。旧F05冻结重验证工作流使用针对main的无路径限制`pull_request`触发器；真实C PR68（如Run38909035844）与B PR75（Run38910704810）都重复触发F05，CI风暴与F05五个正式父链`SOURCE_GAP`是**不同问题**。
+- **A正式治理完整施工单**：[《CI工作流重复触发与F05跨窗口污染：根因核证及定向治理》](https://github.com/suzhe868-arch/mb/blob/main/07_%E9%87%8D%E5%BB%BA%E5%B7%A5%E4%BD%9C%E5%8C%BA/CI%E5%B7%A5%E4%BD%9C%E6%B5%81%E9%87%8D%E5%A4%8D%E8%A7%A6%E5%8F%91%E4%B8%8EF05%E8%B7%A8%E7%AA%97%E5%8F%A3%E6%B1%A1%E6%9F%93_A%E4%B8%BB%E6%8E%A7%E6%A0%B9%E5%9B%A0%E6%A0%B8%E8%AF%81%E5%8F%8A%E5%AE%9A%E5%90%91%E6%B2%BB%E7%90%86%E6%AD%A3%E5%BC%8F%E6%96%BD%E5%B7%A5%E5%8D%95_2026-10-16.md)；任务`CI_TRIGGER_SCOPE_GOVERNANCE_01`，状态`A_RELEASED_FOR_B_AFTER_CURRENT_F05_PARENT_CHAIN_RESTORE_FEASIBILITY_01 / NOT_IMPLEMENTED`。要求逐workflow真清册、PR68/PR75来源对照、变更路径×回归依赖矩阵、required checks核证、最小触发整改、取消过时CI、测试证据、A验收后标准PR合并。冻结业务来源与签名、旧父安全负例/工件不可伪绿或删改；required checks未知时严禁盲设paths导致永久Pending。
+- **任务次序不变**：当前B主线仍`NEXT_OWNER=B / NEXT_TASK=F05_PARENT_CHAIN_RESTORE_FEASIBILITY_01`，完成并交A后才由A接续放行治理工程分支`fix/ci-trigger-scope-governance-01`；C PR68仍为用户否决后R3返工Draft。**签发施工单不等于CI已修好**，GitHub队列清零不代表历史F05 Source门禁通过。F05/F08全域/V1/生产继续NOT_READY。
+
+---
+
 # 2026-10-16｜A主控已独立验收并标准合并F05父来源只读审计PR72；正式放行父链恢复可行性单（当前最新）
 
 - **GitHub真实事实**：PR [#72](https://github.com/suzhe868-arch/mb/pull/72) 受验HEAD `64152bdba1949fdeb5bcbbf0d54b1f4479d5a3ea`；7/7新增授权白名单文件；真实Push [Run38900276212](https://github.com/suzhe868-arch/mb/actions/runs/38900276212) Node 35/35＋真非特权隔离PG16 16/16双Job成功；两份最终同SHA非空未过期官方SHA256工件`12044759505/12045329248`，未独立ZIP复算。A独立读取源代码、最终Job及五份历史失败原生日志；[正式验收评论](https://github.com/suzhe868-arch/mb/pull/72#issuecomment-6216335471)。GitHub**标准合并成功**，`merged=true`，主线merge SHA **`bf0de40b6fda3285dc38cef17d47db7fa953ac10`**。完整[A验收报告](https://github.com/suzhe868-arch/mb/blob/main/07_重建工作区/F05_父来源只读审计_PR72_A主控独立验收标准合并报告_2026-10-16.md)。
