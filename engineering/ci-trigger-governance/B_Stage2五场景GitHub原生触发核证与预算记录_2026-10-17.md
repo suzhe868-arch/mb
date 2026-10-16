@@ -108,3 +108,16 @@ B已直接从合并后的main逐份读取10份A批准F05工作流的现行Blob�
 - 已逐Run读取GitHub官方 Artifact列表，**23份现存、非空、未过期Artifact**，均与真实GitHub Run关联（并非23份“全部通过”的正式来源凭据）；仅官方元数据，未下载ZIP独立重算。F05-7 HTTPS有Artifact `12061063932`，F05-8已有3份compat/HTTPS工件，priority-source仍可能后续失败。
 - 同步证据PR79本批记录提交 `54146493d70316f4cecd9302f5b9e6d6e47c9332` 的原生治理审计Run `38938056415` 已completed/success；此治理证据CI不能替代Shared十份F05真实终态。
 - **串行CI预算截止线**：Shared未全部terminal，**禁止此时创建Mixed临时PR**。Mixed探针分支已在本任务此前建好，确认无业务修改；待PR80全部真实Run最终状态、Job/Check/Artifact采集后才启动。所有临时PR均Draft、NO_MERGE，旧F05 Source和F08/V1/生产仍NOT_READY。
+
+## 11. Workflow-self场景真实GitHub独立终态补齐（PR76末SHA）
+
+- PR76原生PR SHA `1864447f84ad65dcc0396d907f255fd7ccdafde4`。A准许的10份旧F05工作流自身都被PR76修改，所以GitHub真实 `pull_request` 事件合法命中各自路径；从GitHub官方原生Actions重新查询，**11个Run（10份F05+1份治理审计），全部`completed`；6 success、5 failure、0 running、0 queued**。这里的6 success包括治理审计工作流，所以不得误写成F05六绿。
+- 逐项GET每个Run的官方Job与Artifact元数据：**29个Job，24 success、5 failure；24份非空Artifact**（含治理审计工件1份）；只确认官方元数据，不主张下载ZIP复算。F05-only旧十份正好**28个Job（23 success、5 failure）及23份Artifact**。
+- 五份保持fail-closed的正式Source工作流原生Run：
+  - F05-7 [Run38930895369](https://github.com/suzhe868-arch/mb/actions/runs/38930895369) / Job117074296025：failure；HTTPS success，Artifact12059190610。
+  - F05-8 [Run38930895365](https://github.com/suzhe868-arch/mb/actions/runs/38930895365) / Job117074296015：failure；其余三Job success、3份Artifact。
+  - F05-9 [Run38930895380](https://github.com/suzhe868-arch/mb/actions/runs/38930895380) / Job117074296153：旧新Push资格Source failure；HTTPS success。
+  - F05-10 [Run38930895374](https://github.com/suzhe868-arch/mb/actions/runs/38930895374) / Job117074296064：旧新Push资格Source failure；HTTPS success。
+  - D1 [Run38930895364](https://github.com/suzhe868-arch/mb/actions/runs/38930895364) / Job117074295682：旧新Push资格Source failure；HTTPS success。
+- 其余5份F05冻结复验Run`38930895488,38930895394,38930895448,38930895362,38930895449`均completed/success，原生GitHub工件存在；治理审计[Run38930895523](https://github.com/suzhe868-arch/mb/actions/runs/38930895523) completed/success且有Artifact12058572673。
+- 此场景属于Stage1原PR自身工作流修改路径正例，A已签允许作为Stage2 `WORKFLOW_SELF` 真实阳性来源，但它**不能代表**另外4种独立Postmerge PR均通过。特别C-only主线无C必要CI、Shared还在跑、Mixed未创建，仍严格`NOT_READY_FOR_A_REVIEW_FINAL`。
