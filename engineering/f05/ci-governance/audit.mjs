@@ -15,7 +15,7 @@ export function examineWorkflow(text,name){
  const x=EXPECTED[name];if(!x)throw Error('F05_UNAUTHORIZED_WORKFLOW');
  const count=(s)=>(text.match(s)||[]).length;
  if(count(/image: postgres:16\s*$/gm)!==x.jobs)throw Error('F05_POSTGRES16_IMAGE_COUNT:'+name);
- if(count(/public\.ecr\.aws\/docker\/library\/postgres/g)!==0)throw Error('F05_ECR_LIMITED_IMAGE_REMAINS:'+name);
+ if(count(/^\s*image:\s*public\.ecr\.aws\/docker\/library\/postgres:16-alpine\s*$/gm)!==0||text.includes('docker pull public.ecr.aws/docker/library/postgres:16-alpine'))throw Error('F05_ECR_LIMITED_IMAGE_REMAINS:'+name);
  if(count(/services:\s*\n\s*postgres:/g)!==x.jobs)throw Error('F05_PG_SERVICE_REMOVED:'+name);
  if((text.split('docker tag postgres:16 public.ecr.aws/docker/library/postgres:16-alpine').length-1)!==x.jobs)throw Error('F05_LEGACY_ANCESTOR_LOCAL_ALIAS_MISSING:'+name);
  if(count(/F05_PG16_DOCKERHUB_LOCAL_TAG_ALIAS_CONFIRMED_NO_ECR_NETWORK_PULL/g)!==x.jobs)throw Error('F05_DOCKERHUB_ORIGIN_AUDIT_MISSING:'+name);
