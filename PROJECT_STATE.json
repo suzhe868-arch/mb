@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F07_4_PR67_A_CHANGES_REQUESTED_NO_MERGE",
+  "substage": "F07_4_PR67_A_R2_CHANGES_REQUESTED_NO_MERGE",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F07",
-  "current_domain_status": "F07_1_F07_2_F07_3_CI_ONLY_MERGED_F07_4_PR67_A_CHANGES_REQUESTED_GLOBAL_NOT_READY",
+  "current_domain_status": "F07_1_F07_2_F07_3_CI_ONLY_MERGED_F07_4_PR67_A_R2_CHANGES_REQUESTED_GLOBAL_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A审PR67 B最后HEAD984f49ca6c2d6e535efc47867bc2057ac4639fc7，main审查起点1350024a0f45e71c45bb6d4512ff6b2251e3dcef，9/9新增白名单；同SHA真Push Run38822445991双真PG16 Job成功、Source63+签名F03负证10+TLS20=93/93，工件12013263644/12013829112有效且未ZIP独立重算。源码发现A01 HTTP父调用次数静态伪计数、A02未来deadline可误发SLA、A03恢复不验证active→cleared转移、A04 NotificationLog缺合法recipient/route、A05 TLS测试关闭证书验证、A06旧F05红灯和未完成Check要最终分项实核。A_CHANGES_REQUESTED，PR67 open未合main；A正式完整整改单及PR评论已落库。B只在原PR67原分支原两新增白名单内修A01—A06、最后同SHA原生回归工件齐全后交A。C-APP-01手机端并行轨道保持原授权及独立PR68。F05/F06/F07/V1 NOT_READY，无真实飞书/资金/生产授权。",
-  "current_work_file": "07_重建工作区/F07-4_A主控PR67首轮独立验收不通过_父权限计数SLA超时Incident恢复与通知路由日志定向整改正式施工单_2026-10-16.md",
+  "current_task": "A第二轮独立验PR67 B最新HEAD4543169f1847aa5ea5ad80578294b303e9f3538d，原main083e88bcab56902804a76831d08733a9f8457610，9/9新增授权路径；最终Push Run38829122302真PG16双Job success，83 Source+10签名F03负证+26证书SAN TLS=119项业务独立场景全过，两同SHA官方有效Artifact12016441901/12016661437仅meta核验未独立ZIP复算。首轮A01—A05已对照源码和日志复验；R2新发现clearIncident只更新incident_lifecycle为cleared而旧事件incident_active=true不变，dispatch incident_active未查现行lifecycle导致故障清除后仍可在新cadence继续发送，违反PDM23，R2-A07须在同事务锁/重判现状并增加并发/提前恢复反例。R2-A08本HEAD其它28旧F05 PR Check均queued，未具结论；不得宣称全绿或复用旧PR豁免。A正式整改单及PR评论已提交，不合并，B只在原PR67原分支两目录补正，末HEAD双真PG16+工件+客观旧CI+中文交接后再交A；C手机端PR68并行独立不受影响。F05/F06/F07/V1 NOT_READY，NO_PRODUCTION。",
+  "current_work_file": "07_重建工作区/F07-4_A主控PR67第二轮独立验收_Incident清除后重复告警与旧CI队列补充整改正式施工单_2026-10-16.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B继续原PR67原分支feat/f07-4-notification-sla-incident-gate-ci，按A已签定向施工单一次性修A01-A06并补父授权真正计数/SLA未来deadline负证/Incident恢复真实合成转移/recipient与route日志/TLS真CA验签/旧F05 Check真实分类，最后同HEAD两独立PG16原生Push success、两工件、中文交接READY_FOR_A_REVIEW后交A，B不得合main。C-APP-01并行不变。",
+  "next_action": "B按A第二轮PR67正式完整补充整改工作单，在原feat/f07-4-notification-sla-incident-gate-ci、原PR67白名单内修R2-A07：真实clearIncident后旧Active不再模拟发送、当前lifecycle同事务行锁、clear/send竞争、误造无lifecycle及提前Recovery负证；R2-A08记录最终HEAD全部旧F05 Check仍queue/真实失败结论，不擅自豁免。保留旧119测试并增正反例，最后同SHA两真PG16 Push Job绿证/两工件/中文交接后B_SELF_TESTED READY_FOR_A_REVIEW，交A审。C-APP-01 PR68并行独立，禁生产。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4652,7 +4652,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F07_3_PR66_A_ACCEPTED_STANDARD_MERGED_CI_ONLY_F07_4_PR67_A_CHANGES_REQUESTED_B_REMEDIATION",
+  "engineering_status": "F07_3_PR66_A_ACCEPTED_MERGED_CI_ONLY_F07_4_PR67_A_R2_CHANGES_REQUESTED_B_REMEDIATION",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "07_重建工作区/F07-4_A主控PR67首轮独立验收不通过_父权限计数SLA超时Incident恢复与通知路由日志定向整改正式施工单_2026-10-16.md",
+  "next_action_detail": "07_重建工作区/F07-4_A主控PR67第二轮独立验收_Incident清除后重复告警与旧CI队列补充整改正式施工单_2026-10-16.md",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F07_4_PR67_A01_A06_REMEDIATION_AND_NATIVE_RETEST",
+  "next_task": "F07_4_PR67_R2_A07_A08_INCIDENT_CLEARED_GUARD_AND_CI_RECHECK",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -8032,7 +8032,7 @@
     "pr62_integration_merge_sha": "e54872b3f92cd66b3b51bd5465670e0d6e7de3c1"
   },
   "f07_gate": {
-    "status": "F07_1_F07_2_F07_3_CI_ONLY_MERGED_F07_4_PR67_A_CHANGES_REQUESTED_GLOBAL_NOT_READY",
+    "status": "F07_1_F07_2_F07_3_CI_ONLY_MERGED_F07_4_PR67_A_R2_CHANGES_REQUESTED_GLOBAL_NOT_READY",
     "owner": "B",
     "global_not_ready": true,
     "production": false,
@@ -8042,8 +8042,8 @@
     "work_order": "07_重建工作区/F07-4_A主控通知SLA免打扰Incident飞书路由审计_CI隔离正式完整施工单_2026-10-15.md",
     "dependency_status": "F01_TO_F04_SIGNED_CI_ONLY_ACCEPTED_F05_F06_GLOBAL_NOT_READY",
     "next_owner": "B",
-    "latest_review_work_order": "07_重建工作区/F07-4_A主控PR67首轮独立验收不通过_父权限计数SLA超时Incident恢复与通知路由日志定向整改正式施工单_2026-10-16.md",
-    "next_work_order": "07_重建工作区/F07-4_A主控PR67首轮独立验收不通过_父权限计数SLA超时Incident恢复与通知路由日志定向整改正式施工单_2026-10-16.md",
+    "latest_review_work_order": "07_重建工作区/F07-4_A主控PR67第二轮独立验收_Incident清除后重复告警与旧CI队列补充整改正式施工单_2026-10-16.md",
+    "next_work_order": "07_重建工作区/F07-4_A主控PR67第二轮独立验收_Incident清除后重复告警与旧CI队列补充整改正式施工单_2026-10-16.md",
     "real_feishu_authorized": false
   },
   "f07_1_gate": {
@@ -8259,7 +8259,7 @@
     ]
   },
   "f07_4_gate": {
-    "status": "A_CHANGES_REQUESTED",
+    "status": "A_R2_CHANGES_REQUESTED",
     "owner": "B",
     "next_owner": "B",
     "work_order": "07_重建工作区/F07-4_A主控通知SLA免打扰Incident飞书路由审计_CI隔离正式完整施工单_2026-10-15.md",
@@ -8283,40 +8283,38 @@
     "v1": "NOT_READY",
     "after_b_selftest": "B_SELF_TESTED_READY_FOR_A_REVIEW_NEXT_OWNER_A",
     "review_pr": 67,
-    "review_head_sha": "984f49ca6c2d6e535efc47867bc2057ac4639fc7",
-    "a_review_base_sha": "1350024a0f45e71c45bb6d4512ff6b2251e3dcef",
-    "a_review_comment_id": 6204977355,
-    "a_review_work_order": "07_重建工作区/F07-4_A主控PR67首轮独立验收不通过_父权限计数SLA超时Incident恢复与通知路由日志定向整改正式施工单_2026-10-16.md",
+    "review_head_sha": "4543169f1847aa5ea5ad80578294b303e9f3538d",
+    "a_review_base_sha": "083e88bcab56902804a76831d08733a9f8457610",
+    "a_review_comment_id": 6205506370,
+    "a_review_work_order": "07_重建工作区/F07-4_A主控PR67第二轮独立验收_Incident清除后重复告警与旧CI队列补充整改正式施工单_2026-10-16.md",
     "pr_merged": false,
     "merged": false,
     "required_fixes": [
-      "A01_HTTPS_FAKE_PARENT_CALLS",
-      "A02_SLA_FUTURE_DEADLINE_AND_FIRST_RESPONSE_FACT",
-      "A03_INCIDENT_RECOVERY_PROVEN_ACTIVE_TO_CLEARED",
-      "A04_NOTIFICATION_LOG_RECIPIENT_ROUTE_TRACE",
-      "A05_HTTPS_TLS_CA_VERIFICATION",
-      "A06_LEGACY_CI_CHECKS_REVALIDATION"
+      "R2_A07_INCIDENT_CLEARED_STALE_ACTIVE_CADENCE_SEND",
+      "R2_A08_LEGACY_F05_28_CHECKS_QUEUED_FINAL_HEAD_RECHECK"
     ],
     "a_verified": {
       "scope_added_files": 9,
-      "b_head_sha": "984f49ca6c2d6e535efc47867bc2057ac4639fc7",
-      "main_review_sha": "1350024a0f45e71c45bb6d4512ff6b2251e3dcef",
-      "native_pg16_source_job": 116721960097,
-      "native_pg16_https_job": 116721960429,
+      "b_head_sha": "4543169f1847aa5ea5ad80578294b303e9f3538d",
+      "main_review_sha": "083e88bcab56902804a76831d08733a9f8457610",
+      "native_pg16_push_run": 38829122302,
+      "native_pg16_source_job": 116743508589,
+      "native_pg16_https_job": 116743508266,
       "native_pg16_jobs_success": 2,
-      "source_cases": 63,
+      "source_cases": 83,
       "f03_negative_cases": 10,
-      "https_cases": 20,
-      "independent_cases_total": 93,
+      "https_cases": 26,
+      "independent_cases_total": 119,
       "official_sha256_artifacts": 2,
       "artifact_zip_independently_rehashed": false,
       "old_ci_check_snapshot": {
-        "success": 9,
-        "failure": 11,
-        "in_progress": 3,
-        "queued": 7
+        "success": 2,
+        "queued": 28,
+        "failure": 0
       },
-      "conclusion": "CHANGES_REQUESTED_NO_MERGE"
+      "prior_a01_a05": "CODE_AND_NATIVE_CI_COVERAGE_PASS",
+      "r2_blocker": "incident_active_notification_does_not_read_lifecycle_after_clearIncident",
+      "conclusion": "R2_CHANGES_REQUESTED_NO_MERGE"
     },
     "global": "NOT_READY"
   },
