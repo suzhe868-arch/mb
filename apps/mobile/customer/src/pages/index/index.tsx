@@ -129,6 +129,7 @@ export default function Home(){
     {feed.hasMore?<Button className='more' onClick={loadMore}>查看更多车源</Button>:<Text className='all-done'>已展示全部符合条件的车辆</Text>}</View>:
    <View className='status'><Text>暂无符合条件的车辆</Text><Text className='sheet-hint'>可调整条件后重新筛选，系统不会自动扩大范围</Text><Button onClick={()=>setSheet('filter')}>调整筛选</Button></View>}
   </>}
+  <Text className='preview-disclaimer'>页面车辆资料仅用于界面预览，不代表真实在售车源</Text>
   <View className='nav'><View className='nav-item here'><Text className='nav-icon'>⌂</Text><Text>车源</Text></View><View className='nav-item' onClick={()=>notice('找车服务暂未开放')}><Text className='nav-icon'>⌕</Text><Text>找车</Text></View><View className='nav-item' onClick={()=>notice('个人中心暂未开放')}><Text className='nav-icon'>◯</Text><Text>我的</Text></View></View>
   {qa?<View className='qa-panel'><Text>隔离测试入口</Text><Picker mode='selector' range={TESTS} onChange={e=>{setScenario(TESTS[Number(e.detail.value)]);setPage(1)}}><Text>场景：{scenario}⌄</Text></Picker><Picker mode='selector' range={['普通客户','粉丝','VIP']} onChange={e=>{const next=TIERS[Number(e.detail.value)];setTier(next);setMockTier(next)}}><Text>角色：{tier}⌄</Text></Picker></View>:null}
   {sheet?<Sheet key={sheet} type={sheet} filters={q.filters} current={q.sort} close={()=>setSheet(null)} applySort={s=>{change({sort:s});setSheet(null)}} applyFilters={f=>{change({filters:f});setSheet(null)}}/>:null}
