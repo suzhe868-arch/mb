@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_LEGACY_CI_GOVERNANCE_01_A_SCOPE_EXPANSION_R2_RELEASED",
+  "substage": "F05_PARENT_PROOF_READINESS_AUDIT_01_A_RELEASED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F05_CI_GOVERNANCE",
-  "current_domain_status": "F05_CI_PR70_R2_FROZEN_16_SERVICES_SCOPE_RELEASED_F05_BUSINESS_NOT_READY",
+  "current_domain": "F05_PARENT_PROOF_READINESS",
+  "current_domain_status": "F05_CI_PR70_STANDARD_MERGED_SOURCE_GAP_OPEN_F05_BUSINESS_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A读取PR70 B HEAD 2ac1905cda63c3a4010de2321aef121b99a2a706 同main对比11项全部原授权文件；真实Push Run38850885960 Node25+非特权PG16 24独立CI治理断言和两同SHA有效SHA256工件。五份主F05 workflow 12项服务在Runner本机Alias保持原脚本，PG16可真实执行；Source旧严格原Push校验保留。A确认另五份冻结重验证workflow共16项ECR镜像仍因toomanyrequests失败且未获原授权。A签发精确五文件16镜像+仅本地tag兼容核验追加白名单，PR70保持Draft/NoMerge，B原分支继续直至同新SHA实跑双Job与旧28 Check分类。当前PR70 HEAD checks 30=21 success7failure2in_progress，旧28=19 success7failure2in_progress，仍非全绿。F05业务/F08全域/V1 NOT_READY，C独立。",
-  "current_work_file": "07_重建工作区/F05_历史CI专项_PR70冻结重验证5工作流16镜像_A主控追加技术授权施工补充单_2026-10-16.md",
+  "current_task": "A独立核证PR70末SHA3ee47d9df08d9e73596be5db73ee623eb856e537（16/16授权文件）；真Run38852686876 Node50+PG16 24，2同SHA有效工件；30官方Checks为25success/5failure，五项旧Source因66/68同SHA或正式Push不足正确拒绝。GitHub保护API403/required unknown，但PR70以标准merge成功，主线合并SHA2b676929f36fcdf35cfca3e2956baaa0b439c245。A只签F05非生产CI治理，不签F05业务/F08全域/V1。新放行F05_PARENT_PROOF_READINESS_AUDIT_01给B只读核证；C PR68用户视觉否决R2仍由C处理。",
+  "current_work_file": "07_重建工作区/F05_正式父级来源核证与缺口恢复前置CI专项_A主控正式完整施工单_2026-10-16.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F05_LEGACY_CI_GOVERNANCE_01_R2_FROZEN_16_SERVICE_IMAGES",
+  "next_task": "F05_PARENT_PROOF_READINESS_AUDIT_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -8107,7 +8107,7 @@
       "PRODUCTION_PUBLISHER_CACHE_SCHEMA_NOT_IMPLEMENTED"
     ]
   },
-  "last_a_acceptance_report": "07_重建工作区/F07-3_A主控PR66独立验收90项PG16标准合并与F07-4通知前置正式报告_2026-10-15.md",
+  "last_a_acceptance_report": "07_重建工作区/F05_历史CI治理_PR70_A主控最终独立验收标准合并与后续来源缺口正式报告_2026-10-16.md",
   "f07_2_gate": {
     "status": "A_ACCEPTED_STANDARD_MERGED_PR65_CI_ONLY",
     "owner": "A_ACCEPTED",
@@ -8336,7 +8336,7 @@
     "a_review_owner": "A",
     "is_parallel_to_primary_B": true,
     "primary_owner_unchanged": "B",
-    "primary_task_at_this_update": "F07_4_PDM23_NOTIFICATION_DND_INCIDENT_MOCK_FEISHU_PG16_CI_ONLY",
+    "primary_task_at_this_update": "F05_PARENT_PROOF_READINESS_AUDIT_01",
     "primary_task_dynamic_pointer": "NEXT_TASK_IN_PROJECT_STATE_JSON_IS_CANONICAL_AND_MAY_ADVANCE_INDEPENDENTLY",
     "a_tech_ruling": "07_重建工作区/C手机端代码优先_全量功能状态与跨端验收_A主控正式技术裁定_2026-10-15.md",
     "first_c_work_order": "07_重建工作区/C-APP-01_A主控手机端代码优先工程骨架与C01首页真实运行_首批正式完整施工单_2026-10-15.md",
@@ -8626,10 +8626,10 @@
     "v1": "NOT_READY"
   },
   "f05_legacy_ci_governance_gate": {
-    "status": "A_SCOPE_EXPANSION_R2_RELEASED_PR70_DRAFT_NO_MERGE",
-    "owner": "B",
+    "status": "A_ACCEPTED_STANDARD_MERGED_CI_INFRA_ONLY_SOURCE_GAP_OPEN",
+    "owner": "A_ACCEPTED",
     "next_owner": "B",
-    "next_task": "F05_LEGACY_CI_GOVERNANCE_01_R2_FROZEN_16_SERVICE_IMAGES",
+    "next_task": "F05_PARENT_PROOF_READINESS_AUDIT_01",
     "work_order": "07_重建工作区/F05_历史CI失败治理_A主控非生产专项完整施工单_2026-10-16.md",
     "branch": "fix/f05-legacy-ci-governance-01",
     "base": "LATEST_MAIN_AT_START",
@@ -8694,12 +8694,24 @@
       "old_f05_failure": 7,
       "old_f05_in_progress": 2
     },
-    "merged": false
+    "merged": false,
+    "pr": 70,
+    "pr_merged": true,
+    "head_sha": "3ee47d9df08d9e73596be5db73ee623eb856e537",
+    "merge_sha": "2b676929f36fcdf35cfca3e2956baaa0b439c245",
+    "legacy_jobs_total": 28,
+    "legacy_jobs_success": 23,
+    "legacy_jobs_failure": 5,
+    "legacy_jobs_pending": 0,
+    "required_checks": "UNKNOWN_403_STANDARD_MERGE_SUCCEEDED",
+    "ci_only": true,
+    "f05_business_ready": false,
+    "a_report": "07_重建工作区/F05_历史CI治理_PR70_A主控最终独立验收标准合并与后续来源缺口正式报告_2026-10-16.md"
   },
   "f05_legacy_ci_governance_a_review": {
-    "status": "A_FIRST_REVIEW_SCOPE_EXPANSION_RELEASED_NOT_ACCEPTED",
+    "status": "A_FINAL_ACCEPTED_STANDARD_MERGED_CI_INFRA_ONLY",
     "pr": 70,
-    "head_sha": "2ac1905cda63c3a4010de2321aef121b99a2a706",
+    "head_sha": "3ee47d9df08d9e73596be5db73ee623eb856e537",
     "source_main_sha": "e0f9a04ae0c25031ae47ed4af107890550f56b56",
     "additional_frozen_workflows": [
       [
@@ -8726,8 +8738,8 @@
     "old_workflows_modified": 5,
     "old_jobs_fixed": 12,
     "old_jobs_out_of_scope_await_b": 16,
-    "node_job": 116811612025,
-    "pg16_job": 116811612227,
+    "node_job": 116817190901,
+    "pg16_job": 116817191114,
     "run_id": 38850885960,
     "tools_assertions": 49,
     "artifacts": [
@@ -8738,7 +8750,27 @@
     "next_task": "F05_LEGACY_CI_GOVERNANCE_01_R2_FROZEN_16_SERVICE_IMAGES",
     "required_checks": "UNKNOWN_403",
     "merge_allowed": false,
-    "report": "07_重建工作区/F05_历史CI治理_PR70_A首轮独立核验与冻结16镜像追加白名单正式裁决_2026-10-16.md"
+    "report": "07_重建工作区/F05_历史CI治理_PR70_A主控最终独立验收标准合并与后续来源缺口正式报告_2026-10-16.md",
+    "merge_sha": "2b676929f36fcdf35cfca3e2956baaa0b439c245",
+    "push_run": 38852686876,
+    "node_assertions": 50,
+    "pg16_assertions": 24,
+    "node_artifact": 12025268349,
+    "pg16_artifact": 12025903246,
+    "official_checks_total": 30,
+    "official_checks_success": 25,
+    "official_checks_failure": 5,
+    "official_checks_pending": 0,
+    "legacy_source_failure_job_ids": [
+      116817199500,
+      116817200055,
+      116817199525,
+      116817199596,
+      116817199476
+    ],
+    "merged_via": "GITHUB_STANDARD_MERGE_EXPECTED_HEAD_SHA",
+    "remaining_source_gaps": true,
+    "production_ready": false
   },
   "c_app_01_a_review": {
     "status": "A_R2_USER_VISUAL_REJECTED",
@@ -8804,6 +8836,22 @@
     "maintain_existing_r1_tests": true,
     "require_real_chromium_home_detail_pair": true,
     "merge_allowed": false,
+    "production": false
+  },
+  "f05_parent_proof_readiness_audit_gate": {
+    "status": "A_RELEASED_FOR_B_NONPRODUCTION_READ_ONLY_AUDIT",
+    "next_owner": "B",
+    "next_task": "F05_PARENT_PROOF_READINESS_AUDIT_01",
+    "work_order": "07_重建工作区/F05_正式父级来源核证与缺口恢复前置CI专项_A主控正式完整施工单_2026-10-16.md",
+    "branch": "feat/f05-parent-proof-readiness-audit-01",
+    "allowed_paths": [
+      "engineering/f05/parent-proof-readiness/**",
+      ".github/workflows/f05-parent-proof-readiness-*.yml"
+    ],
+    "source_gap_open": true,
+    "may_sign_formal_parent": false,
+    "may_modify_frozen_workflows": false,
+    "ci_only": true,
     "production": false
   }
 }
