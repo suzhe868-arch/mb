@@ -1,0 +1,71 @@
+name: F05-7 phase2 precheck HTTPS collision and H52 read-only audit
+on:
+  push:
+    paths:
+      - 'engineering/f05/deterministic-matching-readiness-four-tier/tests/https.test.mjs'
+      - 'engineering/f05/source-controlled-recovery-03/**'
+      - '.github/workflows/f05-7-phase2-readiness-audit.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'engineering/f05/deterministic-matching-readiness-four-tier/tests/https.test.mjs'
+      - 'engineering/f05/source-controlled-recovery-03/**'
+      - '.github/workflows/f05-7-phase2-readiness-audit.yml'
+permissions: {contents: read, actions: read, checks: read}
+concurrency:
+  group: f05-7-phase2-precheck-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: false
+jobs:
+  h52-readonly-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions: {contents: read, actions: read, checks: read}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Static deny tests for HTTPS authority and H52 invariants
+        run: node --test engineering/f05/source-controlled-recovery-03/tests/*.test.mjs
+      - name: Parse all eight original workflows and 66 legacy jobs without executing them
+        run: |
+          ruby -e 'require "yaml"; paths=Dir[".github/workflows/f05-7-frozen-*-revalidation.yml"] + [".github/workflows/f05-7-deterministic-matching-readiness-four-tier.yml"]; abort("8 workflows required") unless paths.size==8; n=paths.sum{|f| y=YAML.load_file(f, aliases:true); abort("jobs missing #{f}") unless y.is_a?(Hash) && y["jobs"].is_a?(Hash); y["jobs"].size}; abort("66 jobs required #{n}") unless n==66; puts "F05_7_H52_READONLY_RUBY_8_66_PASS"'
+      - name: Official original blob and old failed 0-job run read-only audit
+        env:
+          GH_ACTIONS_READ_TOKEN: ${{ github.token }}
+        run: node engineering/f05/source-controlled-recovery-03/h52-readonly-audit.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f05-7-phase2-h52-readonly-and-https-contract
+          path: engineering/f05/source-controlled-recovery-03/artifacts/h52-readonly-audit.json
+          retention-days: 30
+          if-no-files-found: error
+  native-https-occupied-port-nonprivileged-pg16:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions: {contents: read, actions: read}
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: Old ECR PG16 image alias verified against running DockerHub service
+        run: bash engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh
+      - name: Hold old port 48988, reproduce EADDRINUSE, run full original genuine TLS HTTPS and all seven denials on random loopback transport
+        env:
+          GH_ACTIONS_READ_TOKEN: ${{ github.token }}
+        run: node engineering/f05/source-controlled-recovery-03/https-port-collision-probe.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f05-7-phase2-real-tls-pg16-port-isolation
+          path: |
+            engineering/f05/source-controlled-recovery-03/artifacts/https-port-collision-proof.json
+            engineering/f05/deterministic-matching-readiness-four-tier/artifacts/https/
+          retention-days: 30
+          if-no-files-found: error
