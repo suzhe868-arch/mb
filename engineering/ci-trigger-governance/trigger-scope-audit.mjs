@@ -29,10 +29,24 @@ export function readTrigger(yaml){
   events=block.split('\n').slice(1).filter(x=>/^ {2}[\w-]+:/.test(x)).map(x=>x.trim().split(':')[0]).filter(x=>eventSet.includes(x));
  }
  events=[...new Set(events)];
- const prBlock=block.split('\n').filter((x,i,a)=>i===0||(!/^(  (?! ).*:\s*(#.*)?$)/.test(x))).join('\n');
  const pr=events.includes('pull_request')||events.includes('pull_request_target');
- const paths=/\bpaths\s*:/.test(first)||(/(^|\n)\s{4,}paths\s*:/.test(block)&&pr);
- const ignored=/\bpaths-ignore\s*:/.test(first)||(/(^|\n)\s{4,}paths-ignore\s*:/.test(block)&&pr);
+ // 严格只看pull_request自身的路径选择器；push.paths不得为宽PR伪造过滤条件。
+ let prScope='';
+ if(first.startsWith('{')){
+  const match=first.match(/(?:^|[,{}])\s*pull_request(?:_target)?\s*:\s*\{([^{}]*)\}/);
+  prScope=match?.[1]??'';
+ }else if(!first){
+  const lines=block.split('\n');
+  let active=false;
+  for(const line of lines.slice(1)){
+   if(/^ {2}\S/.test(line)){
+    active=/^ {2}pull_request(?:_target)?:/.test(line);
+   }
+   if(active)prScope+='\n'+line;
+  }
+ }
+ const paths=pr&&/\bpaths\s*:/.test(prScope);
+ const ignored=pr&&/\bpaths-ignore\s*:/.test(prScope);
  const hasPR=pr;
  // 只把明确有路径选择器判为过滤；绝不把 paths-ignore 视为可替代安全门禁。
  const prRestricted=hasPR&&(paths||ignored);
