@@ -36,7 +36,7 @@ export function gitBlobSha(content) {
 export function jobsOf(content) {
   const start = content.indexOf('\njobs:\n');
   assert(start >= 0, 'missing jobs block');
-  const head = content.slice(0, start + 6), tail = content.slice(start + 6);
+  const head = content.slice(0, start + 7), tail = content.slice(start + 7);
   const matches = [...tail.matchAll(/^  ([a-z][a-z0-9-]*):(?=\s|$)/gm)];
   assert(matches.length > 0, 'missing real jobs');
   return {head, jobs:matches.map((m,i) => ({name:m[1],source:tail.slice(m.index, matches[i+1]?.index ?? tail.length)}))};
