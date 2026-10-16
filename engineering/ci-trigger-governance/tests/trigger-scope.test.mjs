@@ -39,3 +39,42 @@ test('UNKNOWN changed path never mistaken as docs-only',()=>{assert.deepEqual(ch
 test('all 7 mixed scenarios have exact union',()=>{for(const q of cases){assert.deepEqual(changedDomains(q.changes),[...q.domains].sort(),q.id);}});
 test('zero-workflow collection is not declared repaired',()=>{const r=policyStatus([]);assert.equal(r.cOnlyTriggersIrrelevantF05,false);assert.equal(r.perFileAWhitelistRequired,true);});
 test('URL of repository is frozen and not interpolated',()=>{assert.equal(REPO,'suzhe868-arch/mb');});
+
+import {readFileSync as signedReadFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+const aApprovedTen = [[".github/workflows/f05-7-deterministic-matching-readiness-four-tier.yml","cb56f8587807709ad598311e6964fa44a49d3020"],[".github/workflows/f05-8-priority-arbitration-ttl-handover.yml","9dcac53085220e21c3e98fefc41d8c54d11dc867"],[".github/workflows/f05-9-recommendation-visibility-grants.yml","05c7663b252bc61fe09c226a9e31ab32770fbd8f"],[".github/workflows/f05-10-consultation-assignee-sla.yml","6f8d814b370b7ba3aaea0e60c3f2b43e739a212f"],[".github/workflows/f05-10-d1-public-pool-owner-claim.yml","dcb6c5c6a56965419d1723153ceb6a0ddcc5649f"],[".github/workflows/f05-9-frozen-f05-8-four-revalidation.yml","867346565654667601988a3ed90f92f84ce92bbc"],[".github/workflows/f05-10-frozen-f05-8-four-revalidation.yml","5dba5c672be7f914a15dc89a57df0e78e7bf5baf"],[".github/workflows/f05-10-d1-frozen-f05-8-four-revalidation.yml","2e66de2af3022d870678f068fd9f636b586f4515"],[".github/workflows/f05-10-frozen-f05-9-two-revalidation.yml","def7c12248cb17d832a1d6a750e42ceb2601aeac"],[".github/workflows/f05-10-d1-frozen-f05-9-two-revalidation.yml","279734b953484e6648a7f8019b00672a170f2fc5"]];
+const aApprovedPaths = ["engineering/f01/**","engineering/f02/**","engineering/f03/**","engineering/f04/**","engineering/f05/**","engineering/shared/**","engineering/db/**","engineering/database/**","engineering/migrations/**","engineering/sql/**","engineering/scripts/**","engineering/ci/**","engineering/package.json","engineering/package-lock.json","engineering/npm-shrinkwrap.json","engineering/pnpm-lock.yaml","engineering/yarn.lock","engineering/.npmrc","package.json","package-lock.json","npm-shrinkwrap.json","pnpm-lock.yaml","yarn.lock",".npmrc","database/**","migrations/**","sql/**","scripts/**",".github/actions/**",".github/workflows/f05-*.yml",".github/workflows/f05-*.yaml"];
+const aOnlyBlock = '  pull_request:\n    branches: [main]\n';
+const aNewPaths = '    paths:\n' + aApprovedPaths.map(p=>"      - '"+p+"'").join('\n')+'\n';
+function aSignedBlobSha(text){const b=Buffer.from(text,'utf8');return createHash('sha1').update(Buffer.from('blob '+b.length+String.fromCharCode(0))).update(b).digest('hex');}
+function aGlobMatches(glob,path){
+  if(glob.endsWith('/**'))return path.startsWith(glob.slice(0,-2));
+  if(glob.includes('*')){const [before,after]=glob.split('*');return path.startsWith(before)&&path.endsWith(after)&&!path.slice(before.length,path.length-after.length).includes('/');}
+  return path===glob;
+}
+function aShouldRun(changedFiles){return changedFiles.some(path=>aApprovedPaths.some(glob=>aGlobMatches(glob,path)));}
+test('A授权十份Workflow保持签字原Blob且只添加pull_request.paths',()=>{
+ for(const [path,sha] of aApprovedTen){
+  const yaml=signedReadFileSync(path,'utf8');const inserted=aOnlyBlock+aNewPaths;
+  assert.equal(yaml.split(inserted).length,2,'trigger insertion count: '+path);
+  assert.equal(aSignedBlobSha(yaml.replace(inserted,aOnlyBlock)),sha,'原Git Blob不可发生其他变更: '+path);
+  const events=readTrigger(yaml);assert.equal(events.hasPaths,true,path);assert.equal(events.hasPathsIgnore,false,path);
+  assert.ok(events.events.includes('push'),path);assert.ok(events.events.includes('workflow_dispatch'),path);
+  assert.ok(events.events.includes('pull_request'),path);
+ }
+});
+test('C-only与C专用CI不触发十项F05',()=>assert.equal(aShouldRun(['apps/mobile/src/pages/c01/index.tsx','.github/workflows/c-app-01-build.yml']),false));
+test('F05-only必须触发',()=>assert.equal(aShouldRun(['engineering/f05/consultation-assignee-sla/runner.mjs']),true));
+test('共享模块和全套前置F01至F04、锁文件变更必须触发',()=>{
+ for(const p of ['engineering/f01/auth/index.mjs','engineering/f02/customer/runner.mjs','engineering/f03/session/runner.mjs','engineering/f04/callback/runner.mjs','engineering/shared/auth.mjs','engineering/migrations/001.sql','engineering/package-lock.json','package-lock.json','database/schema.sql','.github/actions/shared/action.yml'])assert.equal(aShouldRun([p]),true,p);
+});
+test('workflow-self两种YAML扩展名触发',()=>{
+ assert.equal(aShouldRun(['.github/workflows/f05-10-consultation-assignee-sla.yml']),true);
+ assert.equal(aShouldRun(['.github/workflows/f05-10-sample.yaml']),true);
+});
+test('混合C与F05必须触发',()=>assert.equal(aShouldRun(['apps/mobile/src/c01.tsx','engineering/f05/recommendation-visibility-grants/runner.mjs']),true));
+test('F08-only和DOC-only不误触发十项F05',()=>{assert.equal(aShouldRun(['engineering/f08/api.mjs']),false);assert.equal(aShouldRun(['07_重建工作区/决策记录.md']),false);});
+test('正向过滤不出现paths-ignore或C专用模式',()=>{
+ assert.equal(aApprovedPaths.length,31);
+ for(const pattern of aApprovedPaths){assert.ok(!pattern.startsWith('!'));assert.ok(!pattern.startsWith('apps/mobile/'));assert.ok(!pattern.startsWith('.github/workflows/c-app-'));}
+});
