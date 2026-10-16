@@ -1,3 +1,24 @@
+# 2026-10-16｜F07-4 PR67第二轮A验收R2-A07/A08定向整改补记
+
+> A第二轮整改单：`07_重建工作区/F07-4_A主控PR67第二轮独立验收_Incident清除后重复告警与旧CI队列补充整改正式施工单_2026-10-16.md`。本文件仅覆盖原PR#67/原分支白名单；最后同SHA GitHub Push Job、Artifact、其它旧Check须以PR本轮最终评论的原生实录为准。在未完成末次核验前，不应把此前的`READY_FOR_A_REVIEW`视为第二轮验收已交齐。
+
+## R2-A07｜同故障生命周期现态而非旧事件布尔值
+
+- `gate.mjs::dispatch` 的 `incident_active` 与 `incident_recovery` **都在发Mock消息的同一PG16事务**以 `incident_id` 读取 `incident_lifecycle ... FOR UPDATE`。与 `clearIncident` 的同生命周期行 `UPDATE` 串行化，旧 `event.incident_active=true` 已不具独立放行效力。
+- Active 需要 `ever_active=true/status=active/cleared_at=NULL`、`at>=activated_at`；当前cleared→`INCIDENT_ALREADY_CLEARED`、无生命周期或跨故障串线→`INCIDENT_CURRENT_ACTIVE_SOURCE_GAP`、时间早于启动→`INCIDENT_ACTIVE_BEFORE_ACTIVATION`。所有拒绝均无新 `mock_outbox`。
+- Recovery 增加 `at>=cleared_at` 验证，过早恢复→`RECOVERY_BEFORE_CLEARED_AT`，原有 `recovery_notified` 一次性同锁去重不变。
+- 新增原生S84—S92九项覆盖首次Active、清除后旧事件标记不变、伪源、不同故障、双Backend的`clearIncident`行锁竞争、提前Recovery/Active、无ever_active、失败重试后清除。原83 Source保留，现在预期**92 Source + 10真实F03父Session负证 + 26 CA+SAN回环HTTPS = 128独立子例**；该数目仅为代码覆盖目标，**不构成最终绿色证据**。真实原生任务保持独立两个PG16 Job及新`F07_4_R2_NATIVE_INCIDENT_CLEAR_DISPATCH_LOCK`输出断言。
+- 生命周期表属于短寿命`f07_4_ci`模拟库；正式Incident签发、当前PDM23真实事件及Feishu仍是`INCIDENT_SIGNED_ISSUER_SOURCE_GAP / CI_SYNTHETIC_ONLY`，没有触及原始F03/F05或正式数据库迁移。
+- 两张TSV `通知投递场景矩阵.tsv` 和 `PDM23事件与渠道权限矩阵.tsv` 均追加同Incident锁、状态、时钟、去重与来源分级证据，未降低旧测试。
+
+## R2-A08｜末SHA旧F05 CI留痕要求
+
+- **本轮实际最后SHA**需以GitHub主机实时Head确认，不沿用首轮SHA`4543169...`；分别查询`commits/<HEAD>/check-runs`与`actions/runs?head_sha=<HEAD>`，按旧F05-7/F05-8/F05-9/F05-10/F05-10-D1逐项列Job状态与失败分类。
+- 如外部旧工作流仍Queued，明确`A08_EXTERNAL_CHECK_PENDING`并交A判断；不得复用其它PR裁决，不修改冻结旧CI，不声称全部Check全绿或自行merge。
+- 限定事实：`B_SELF_TESTED`只限本包隔离CI；正式Issuer/Scope/Object、JYT/Collector/Feishu、真实资金、UAT/生产均未授权，F05/F06/F07全域与V1保持`NOT_READY`。
+
+---
+
 # 2026-10-16｜PR #67 A01—A06 定向整改交接补充（仅隔离CI）
 
 > **现状：整改代码与测试已提交，末次同SHA CI/旧Check/Artifact 以 PR #67 最新正式B评论为准。** 本文件本身不能代替GitHub原生Job；全部核实前不单独声称 `READY_FOR_A_REVIEW`。原施工包与原PR继续，`main`未修改、不合并。差异范围只限本包工程目录和 `.github/workflows/f07-4-*.yml`。
