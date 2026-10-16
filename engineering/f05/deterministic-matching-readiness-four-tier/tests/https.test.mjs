@@ -7,14 +7,18 @@ import {mkdir,writeFile} from 'node:fs/promises';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {connect,verify} from '../migration.mjs';
 import {createMatchingCIRejectRouter} from '../ci-router.mjs';
+// Logical origin/Host is intentionally fixed by the frozen CI reject-router security contract.
+// Only the loopback TCP transport port is dynamically assigned by the OS; do not weaken
+// the router origin, Host, TLS, Cookie, CSRF or denial assertions.
 const origin='https://127.0.0.1:48988',db=await connect(),secret=randomBytes(32);
 const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin});
-let server,tokens={};
+let server,transportPort,tokens={};
 async function call(path,method='POST',body={},headers={}){
  const b=body===null?null:Buffer.from(JSON.stringify(body));
  return new Promise((resolve,reject)=>{
-  const req=request({hostname:'127.0.0.1',port:48988,path,method,rejectUnauthorized:false,
-   headers:{origin,...(b?{'content-type':'application/json','content-length':b.length}:{}),...headers}},
+  assert.ok(Number.isInteger(transportPort)&&transportPort>0,'HTTPS ephemeral loopback listener not ready');
+  const req=request({hostname:'127.0.0.1',port:transportPort,path,method,rejectUnauthorized:false,
+   headers:{host:new URL(origin).host,origin,...(b?{'content-type':'application/json','content-length':b.length}:{}),...headers}},
    res=>{let s='';res.on('data',d=>s+=d);res.on('end',()=>{
     try{resolve({status:res.statusCode,body:JSON.parse(s),headers:res.headers})}catch(e){reject(e)}
    })});
@@ -32,7 +36,10 @@ test.before(async()=>{
   const x=await auth.login({login,password,source:'f05-7-real-https-ci-'+who});assert.equal(x.code,'AUTH_OK');tokens[who]=x.token;
  }
  server=createServer({key:readFileSync('/tmp/f04-3-ci-key.pem'),cert:readFileSync('/tmp/f04-3-ci-cert.pem')},await createMatchingCIRejectRouter());
- await new Promise((ok,bad)=>{server.once('error',bad);server.listen(48988,'127.0.0.1',ok)});
+ await new Promise((ok,bad)=>{server.once('error',bad);server.listen(0,'127.0.0.1',ok)});
+ const address=server.address();assert.equal(address.address,'127.0.0.1');
+ assert.ok(Number.isInteger(address.port)&&address.port>0);transportPort=address.port;
+ console.log('F05_7_HTTPS_EPHEMERAL_LOOPBACK_BIND',JSON.stringify({port:transportPort,logicalOrigin:origin,host:new URL(origin).host}));
 });
 test.after(async()=>{if(server)await new Promise(r=>server.close(r));await auth.close();await db.end();secret.fill(0)});
 test('7-B01 body fake matching-ready/high tier is denied',async()=>denied(await call(match,'POST',{matchingReady:true,tier:'high',customerId:899612})));
