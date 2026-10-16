@@ -71,7 +71,10 @@ export function patchExactly(original, name) {
       const checkout=/^(\s*)- uses: actions\/checkout@v4$/m.exec(source);
       assert(Boolean(checkout), 'missing checkout '+job);
       const indent=checkout[1];
-      const alias=checkout[0]+'\n'+indent+'- name: F05-7 冻结PG16旧祖先名仅Runner本地兼容\n'+indent+'  run: bash "'+ALIAS_SCRIPT+'"';
+      const mapped=expectedJobs===52
+        ? (tags===0 ? '&z name: F05-7 本地PG16镜像兼容\n'+indent+'  run: bash "'+ALIAS_SCRIPT+'"' : '*z')
+        : 'name: F05-7 冻结PG16旧祖先名仅Runner本地兼容\n'+indent+'  run: bash "'+ALIAS_SCRIPT+'"';
+      const alias=checkout[0]+'\n'+indent+'- '+mapped
       next=next.replace('image: '+IMAGE, 'image: '+DOCKER_IMAGE).replace(checkout[0],alias);
       tags++;
     }
@@ -94,7 +97,7 @@ export function validatePatch(original, revised, name) {
   const jobs=jobsOf(revised).jobs;
   assert(jobs.length===row[2], 'revised job count '+name);
   assert(count(revised,'image: '+DOCKER_IMAGE)===row[3], 'DockerHub service count '+name);
-  assert(count(revised,'pg16-local-alias.sh')===row[3], 'alias count '+name);
+  assert(count(revised,'pg16-local-alias.sh')+count(revised,'- *z')===row[3], 'alias count '+name);
   assert(count(revised,'contents: write')===0,'unexpected write token '+name);
   assert(count(revised,'git push origin HEAD:refs/heads/feat/f03-')===(row[2]===52 ? 30 : 0),'legacy guard/push byte count '+name);
   return {file:name, originalBlob:gitBlobSha(original), revisedBlob:gitBlobSha(revised), jobs:row[2],aliases:row[3],permissionDowngrades:row[2]===52?6:0};
