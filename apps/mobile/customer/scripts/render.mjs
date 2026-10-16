@@ -102,6 +102,17 @@ try{
    await screenshot(page,'390x844_旧分享撤权')
   }
   await page.close()
+  // 长车型名称必须在所有代表宽度内自动换行，不能顶破卡片边界。
+  const longPage=await browser.newPage({viewport:{width,height},deviceScaleFactor:1})
+  await longPage.goto(root,{waitUntil:'domcontentloaded'})
+  await longPage.locator('.channel').nth(2).click()
+  const longName=longPage.locator('.car-name').filter({hasText:'超长文案演示'})
+  await longName.first().waitFor({timeout:12000})
+  await longName.first().scrollIntoViewIfNeeded()
+  const over=await longPage.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)
+  assert(over<=2,'长车型内容导致横向溢出 '+width)
+  await screenshot(longPage,width+'x'+height+'_长车型换行')
+  await longPage.close()
  }
  const page=await browser.newPage({viewport:{width:390,height:844}})
  await page.goto(root,{waitUntil:'domcontentloaded'})
