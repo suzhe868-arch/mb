@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_7_PRE_PHASE2_BLOCKER_CLOSEOUT_01_A_RELEASED_HTTPS_H52_READONLY",
+  "substage": "F05_7_H52_SCHEDULER_ISOLATED_DIAGNOSTIC_01_A_RELEASED_NON_SOURCE_PROBES",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F05_PARENT_SOURCE_RECOVERY",
-  "current_domain_status": "PR84_PG16_COMPAT_A_SCOPED_ACCEPTED_MERGED_HTTPS_EADDRINUSE_H52_SCHEDULING_OPEN_PHASE2_REF_PUSH_BLOCKED",
+  "current_domain_status": "F05_7_HTTPS_PORT_TRUE_TLS_A_ACCEPTED_PR86_MERGED_H52_FULL_SCHEDULING_UNKNOWN_SOURCE_GAP_OPEN_PHASE2_REF_PUSH_BLOCKED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A独立验收B PR84 HEAD c66b39224ee75c8f0f4e335eca2c5e8843b7cb70，12份授权路径、62个PG16服务DockerHub本地别名及6处contents写权限最小化；Push38959514084和PR38959526269各2/2 job、45/45 Node、8/66 YAML、PG16真实隔离成功，标准合并4e465f4fffb4a91d2d3a069e3a6ea67475d18d5e。原旧ref未改、66Job未跑，四正式新Push缺口、F05-7 HTTPS EADDRINUSE端口冲突和H52曾0Job编排风险仍OPEN。A下一任务仅允许新分支定向改F05-7 HTTPS测试端口隔离与H52只读调度安全核证，严禁原ref Push/66Job直至阶段2另签。",
-  "current_work_file": "07_重建工作区/F05-7_阶段2前HTTPS端口冲突及H52无Job风险闭环_A主控正式施工单_2026-10-17.md",
+  "current_task": "A独立验收B PR86最终HEAD e57779bf21a95a69aedd1a874fdd8c5593610dab：6个授权文件，专用原生Push38964109049和PR38964114653各2/2成功、Node各12/12、原PG16 HTTPS真正TLS拒绝7/7成功并受控重现旧端口EADDRINUSE，4份非空官方原生Artifact；标准合并5eee392b0b833876831a0735d975b6e534f34b26。H52旧0Job Run38958160214确认、registry active、现H52 511380B与Ruby8Workflow/66Job静态通过，但完整新H52 GitHub调度仍未证明，旧五Source仍SOURCE_GAP；下一B只能用两份最多1job/份的隔离GitHub小/大锚点语义探针核证，禁止原ref Push/66Job，C及生产未就绪。",
+  "current_work_file": "07_重建工作区/F05-7_H52原生编排隔离无害探针_A主控下一阶段正式施工单_2026-10-17.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F05_7_PRE_PHASE2_BLOCKER_CLOSEOUT_01",
+  "next_task": "F05_7_H52_SCHEDULER_ISOLATED_DIAGNOSTIC_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9148,7 +9148,7 @@
   },
   "f05_7_pre_phase2_blocker_closeout_gate": {
     "task_id": "F05_7_PRE_PHASE2_BLOCKER_CLOSEOUT_01",
-    "status": "A_RELEASED_FOR_B_ISOLATED_BLOCKER_REPAIR_ONLY",
+    "status": "A_SCOPED_ACCEPTED_HTTPS_PORT_ISOLATION_AND_H52_READONLY_AUDIT_STANDARD_MERGED_PR86",
     "branch": "fix/f05-7-phase2-precheck-https-h52-01",
     "work_order": "07_重建工作区/F05-7_阶段2前HTTPS端口冲突及H52无Job风险闭环_A主控正式施工单_2026-10-17.md",
     "base_main_sha": "4e465f4fffb4a91d2d3a069e3a6ea67475d18d5e",
@@ -9158,6 +9158,34 @@
     "old_66_jobs_authorized": false,
     "source_gap_open": true,
     "required_review": "READY_FOR_A_REVIEW_PHASE2_PRECHECK",
+    "next_owner": "B",
+    "pr": 86,
+    "accepted_head_sha": "e57779bf21a95a69aedd1a874fdd8c5593610dab",
+    "merge_sha": "5eee392b0b833876831a0735d975b6e534f34b26",
+    "phase2_authorized": false,
+    "https_eaddrinuse": "A_ACCEPTED_REAL_NATIVE_HTTPS_7_OF_7_AND_OCCUPIED_PORT_REPRO",
+    "h52_full_scheduler": "NOT_PROVEN_OLD_0_JOB_CONFIRMED",
+    "new_task": "F05_7_H52_SCHEDULER_ISOLATED_DIAGNOSTIC_01",
+    "followup_work_order": "07_重建工作区/F05-7_H52原生编排隔离无害探针_A主控下一阶段正式施工单_2026-10-17.md"
+  },
+  "f05_7_h52_scheduler_isolated_diagnostic_gate": {
+    "task_id": "F05_7_H52_SCHEDULER_ISOLATED_DIAGNOSTIC_01",
+    "status": "A_RELEASED_FOR_B_NON_SOURCE_ISOLATED_GITHUB_PARSER_PROBES_ONLY",
+    "branch": "audit/f05-7-h52-parser-isolation-01",
+    "work_order": "07_重建工作区/F05-7_H52原生编排隔离无害探针_A主控下一阶段正式施工单_2026-10-17.md",
+    "base_main_sha": "5eee392b0b833876831a0735d975b6e534f34b26",
+    "github_probe_workflows": [
+      ".github/workflows/h52-scheduler-alias-control.yml",
+      ".github/workflows/h52-scheduler-size-probe.yml"
+    ],
+    "new_artifacts_dir": "audit/h52-scheduler-probe/**",
+    "old_f05_7_source_branch_push_authorized": false,
+    "old_66_pg16_jobs_authorized": false,
+    "h52_workflow_modification_authorized": false,
+    "phase2_status": "NOT_AUTHORIZED",
+    "h52_full_scheduler": "NOT_PROVEN",
+    "source_gap_open": true,
+    "required_b_completion": "READY_FOR_A_REVIEW_H52_PARSER_DIAGNOSTIC",
     "next_owner": "B"
   }
 }
