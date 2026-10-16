@@ -1,14 +1,13 @@
 on: {push: {branches: feat/f05-7-deterministic-matching-readiness-four-*}}
-jobs:
-  f03-2m-transaction-responsible-handover-pg16:
+jobs:  f03-2m-transaction-responsible-handover-pg16:
     name: F03-2-2M isolated PG16 Transaction 93-to-94 one-table discovery
     permissions:
-      contents: write
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -31,6 +30,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -155,12 +156,12 @@ jobs:
   f03-2l-lock-responsible-handover-pg16:
     name: F03-2-2L isolated PG16 Lock 92-to-93 one-table discovery
     permissions:
-      contents: write
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -183,6 +184,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -304,12 +307,12 @@ jobs:
   f03-2k-waitlist-responsible-handover-pg16:
     name: F03-2-2K isolated PG16 Waitlist 91-to-92 one-table discovery
     permissions:
-      contents: write
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -332,6 +335,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -450,12 +455,12 @@ jobs:
   f03-2h-customer-owner-handover-pg16:
     name: F03-2-2H exact 89-table CI-only Customer Owner CAS/history/receipt on genuine PG16
     permissions:
-      contents: write
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -478,6 +483,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -596,7 +603,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -619,6 +626,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -695,7 +704,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -718,6 +727,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -793,7 +804,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -816,6 +827,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -896,7 +909,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -919,6 +932,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -996,7 +1011,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -1019,6 +1034,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -1089,12 +1106,12 @@ jobs:
   f03-2b-population-82:
     name: F03-2-2B exact 82-table admin two-population / rollback / structure
     permissions:
-      contents: write
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -1118,6 +1135,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -1201,7 +1220,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -1225,6 +1244,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -1269,7 +1290,7 @@ jobs:
       contents: read
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -1292,6 +1313,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -1380,7 +1403,7 @@ jobs:
       contents: read
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -1403,6 +1426,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -1454,7 +1479,7 @@ jobs:
       contents: read
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -1477,6 +1502,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -1537,7 +1564,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -1560,6 +1587,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -1666,7 +1695,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -1689,6 +1718,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -1805,12 +1836,12 @@ jobs:
   f03-2n-handover-reconciliation-pg16:
     name: F03-2-2N strictly read-only seven-kind six-receipt audit on genuine isolated PG16 M94
     permissions:
-      contents: write
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -1833,6 +1864,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -1956,7 +1989,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -1979,6 +2012,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -2139,7 +2174,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -2162,6 +2197,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -2322,7 +2359,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -2345,6 +2382,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -2505,7 +2544,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -2528,6 +2567,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -2656,7 +2697,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -2679,6 +2720,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -2807,7 +2850,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -2830,6 +2873,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -2982,7 +3027,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -3005,6 +3050,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -3188,7 +3235,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -3212,6 +3259,8 @@ jobs:
       F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -3366,7 +3415,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -3390,6 +3439,8 @@ jobs:
       F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -3545,7 +3596,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -3570,6 +3621,8 @@ jobs:
       F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -3728,7 +3781,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -3753,6 +3806,8 @@ jobs:
       F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -3910,7 +3965,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -3936,6 +3991,8 @@ jobs:
       F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -4098,7 +4155,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -4124,6 +4181,8 @@ jobs:
       F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -4286,7 +4345,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -4313,6 +4372,8 @@ jobs:
       F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -4502,7 +4563,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -4529,6 +4590,8 @@ jobs:
       F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -4714,7 +4777,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -4742,6 +4805,8 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -4966,7 +5031,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -4994,6 +5059,8 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -5213,7 +5280,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -5242,6 +5309,8 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -5504,7 +5573,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -5533,6 +5602,8 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -5788,7 +5859,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -5817,6 +5888,8 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -6148,7 +6221,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -6177,6 +6250,8 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -6495,7 +6570,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -6524,6 +6599,8 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -6891,7 +6968,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -6920,6 +6997,8 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -7273,7 +7352,7 @@ jobs:
     timeout-minutes: 40
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -7302,6 +7381,8 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -7348,7 +7429,7 @@ jobs:
     timeout-minutes: 40
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -7377,6 +7458,8 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -7424,7 +7507,7 @@ jobs:
     timeout-minutes: 40
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -7453,6 +7536,8 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -7505,7 +7590,7 @@ jobs:
     timeout-minutes: 40
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -7534,6 +7619,8 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -7586,7 +7673,7 @@ jobs:
     permissions: {contents: read}
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
         ports: [5432:5432]
         options: >-
@@ -7609,6 +7696,8 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - run: bash f05/hide-reason-trust-recalculation/ci-job.sh source
@@ -7626,7 +7715,7 @@ jobs:
     permissions: {contents: read}
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
         ports: [5432:5432]
         options: >-
@@ -7649,6 +7738,8 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - run: bash f05/hide-reason-trust-recalculation/ci-job.sh https
@@ -7666,13 +7757,15 @@ jobs:
     permissions: {contents: read}
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
         ports: [5432:5432]
         options: >-
           --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - run: bash f05/favorite-carrier-preservation/ci-job.sh source
@@ -7687,13 +7780,15 @@ jobs:
     permissions: {contents: read}
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
         ports: [5432:5432]
         options: >-
           --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
       - uses: actions/checkout@v4
+      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - run: bash f05/favorite-carrier-preservation/ci-job.sh https
@@ -7705,11 +7800,13 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
         ports: [5432:5432]
     steps:
     - uses: actions/checkout@v4
+    - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+      run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
     - uses: actions/setup-node@v4
       with: {node-version: '22.16.0'}
     - run: bash f05/favorite-physical-carrier/ci-job.sh source
@@ -7721,11 +7818,13 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16-alpine
         env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
         ports: [5432:5432]
     steps:
     - uses: actions/checkout@v4
+    - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+      run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
     - uses: actions/setup-node@v4
       with: {node-version: '22.16.0'}
     - run: bash f05/favorite-physical-carrier/ci-job.sh https
