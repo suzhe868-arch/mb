@@ -83,3 +83,19 @@ B已直接从合并后的main逐份读取10份A批准F05工作流的现行Blob�
 - 待测单域Shared草稿分支 `audit/ci-trigger-shared-after-pr76-20261017`，只含`engineering/shared/ci-trigger-governance-probes/共享依赖路由探针_2026-10-17.md`，PR创建前对比main确认ahead1/behind0，无越界业务文件。
 - 待测Mixed草稿分支 `audit/ci-trigger-mixed-after-pr76-20261017`，只含`apps/mobile/evidence/混合路径C端探针_2026-10-17.md` 与 `engineering/f05/ci-trigger-governance-probes/混合路径F05探针_2026-10-17.md` 两份文件，PR创建前对比main ahead2/behind0，无业务程序改动。
 - **这些只是真实main Blob与预备分支路径静态先验；Shared/Mixed的原生GitHub Run/Job/Artifact仍未生成，绝不能把10/10路径审计当成真实after完成。** 仍须在F05-only最后真实Run终态后串行启动两个独立草稿PR。
+
+## 9. F05-only全部原生终态及Shared单域真正GitHub阳性（本轮续工）
+
+> 本节覆盖先前F05-8 `in_progress`的旧快照，所有此前未完成标识只代表当时情形，以下是后续真实事件；尚未涵盖Shared自身最终结果与Mixed。
+
+### F05-only：PR78真终态
+- [PR78](https://github.com/suzhe868-arch/mb/pull/78) 严格单一 `engineering/f05/ci-trigger-governance-probes/F05专域触发核证_2026-10-17.md`，HEAD `aaf724f7928a6cb18dba801f6184754d9ffe21c2`，10/10 A签旧F05 workflow真实触发，28 Check；**10 Run全部completed，5 success、5 failure**；28 Job中的23 success、5 failure。
+- 最后结束的F05-8官方[Run38933661528](https://github.com/suzhe868-arch/mb/actions/runs/38933661528)，最终 `completed/failure`（更新于 `2026-10-16T17:11:28Z`）；优先级Source Job `117083642179`真实最终失败，其余同Run三个Job全部成功且上传三个非空Artifact。该真实Source日志于第110次进度打印仍显示 `oldSuccess:0,requiredOld:64`，最后明确 `F05_8_OFFICIAL_68_JOB_GATE_UNPROVEN`；保持历史同SHA 64+4来源拒绝，不删除原门禁。
+- **五条真实Source拒绝完整保留**：F05-7 `F05_7_CANNOT_PROVE_66_SAME_SHA_OFFICIAL_PG16_JOBS_IN_BOUNDED_CI_RUN`；F05-8 `F05_8_OFFICIAL_68_JOB_GATE_UNPROVEN`；F05-9 `F05_9_NOT_IN_OFFICIAL_NEW_PUSH`；F05-10 `F05_10_NOT_NEW_OFFICIAL_PUSH`；D1 `D1_NOT_NEW_OFFICIAL_PUSH`。其余五份冻结复验全部成功，旧合法同SHA Source缺口仍非PASS。
+- 10份Run合计真实非空官方Artifact **23件**；只读取官方元数据，未对原ZIP独立下载重算，不能称独立复算通过。
+
+### Shared：PR80真实独立PR触发
+- 在PR78最终全部10 Run进入终态、仓库Running=0/Queued=0之后，才从原先仅含一份无业务Markdown的预备分支建立[PR80](https://github.com/suzhe868-arch/mb/pull/80)，HEAD `80445a0d44af1d6406eb1010e40dd078308298fb`，`audit/ci-trigger-shared-after-pr76-20261017`，相对main **ahead1/behind0，仅改** `engineering/shared/ci-trigger-governance-probes/共享依赖路由探针_2026-10-17.md`。
+- 真 GitHub `pull_request` 立即生成**10个获批F05 Workflow Run、28个原生Check**（全十项路径准确、非空），说明Shared-only属于F05十份原工作流必须触发的共享依赖正例；这不是静态猜测也不是给旧Source放行。
+- 官方Run IDs：`38937848470,38937848538,38937848436,38937848493,38937848521,38937848516,38937848463,38937848437,38937848500,38937848488`。创建后的首次GitHub快照为9 queued / 1 in_progress；**全部仍需最终Run/Job/Artifact采证**。
+- 当前Stage2尚缺Shared全部Job终态以及Mixed真正原生After；**严格串行，PR80仍活跃时不创建Mixed PR**。PR80为Draft/NO_MERGE。未触及main、原F05 Source、PG16、C PR68，未签 `READY_FOR_A_REVIEW_FINAL`。
