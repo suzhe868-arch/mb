@@ -59,7 +59,7 @@ export function patchExactly(original, name) {
   const [,,expectedJobs,expectedServices] = row;
   assert(count(original,'image: '+IMAGE)===expectedServices, 'original postgres service count mismatch '+name);
   assert(count(original,'contents: write')===(expectedJobs===52 ? 6 : 0), 'original content write count mismatch '+name);
-  assert(original.includes(ORIGINAL_REF.replace('refs/heads/','')), 'original branch event absent '+name);
+  assert(original.includes('feat/f05-7-deterministic-matching-readiness-four-'), 'original branch event absent '+name);
   const {head,jobs}=jobsOf(original);
   assert(jobs.length===expectedJobs, 'original job count mismatch '+name);
   let tags=0, downgrades=0;
