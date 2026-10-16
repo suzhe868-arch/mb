@@ -26,7 +26,7 @@ jobs:
         run: node --test engineering/f05/source-controlled-recovery-01/tests/*.test.mjs
       - name: GitHub原生旧SHA与队列动态核证（绝不修改旧来源）
         env:
-          GITHUB_TOKEN: \${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: node engineering/f05/source-controlled-recovery-01/只读预检.mjs audit
       - name: 上报同HEAD官方只读工件
         if: always()
