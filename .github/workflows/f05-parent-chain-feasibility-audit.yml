@@ -1,0 +1,54 @@
+name: F05父链恢复可行性官方只读核证
+on:
+  push:
+    branches: [feat/f05-parent-chain-restore-feasibility-01]
+    paths:
+      - 'engineering/f05/parent-chain-restore-feasibility/**'
+      - '.github/workflows/f05-parent-chain-feasibility-*.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'engineering/f05/parent-chain-restore-feasibility/**'
+      - '.github/workflows/f05-parent-chain-feasibility-*.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  official_origin_feasibility:
+    name: F05父链Node原始45工作流只读核证
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: 末提交校验与全负例
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          node --check engineering/f05/parent-chain-restore-feasibility/核证工具.mjs
+          node --check engineering/f05/parent-chain-restore-feasibility/tests/核证工具.test.mjs
+          node --test --test-concurrency=1 engineering/f05/parent-chain-restore-feasibility/tests/核证工具.test.mjs 2>&1 | tee f05-parent-feasibility-tests.log
+          grep -q '# fail 0' f05-parent-feasibility-tests.log
+      - name: 真GitHub API只读核证五旧原分支最新HEAD
+        if: github.event_name == 'push'
+        shell: bash
+        env:
+          GH_ACTIONS_READ_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          node engineering/f05/parent-chain-restore-feasibility/核证工具.mjs audit 2>&1 | tee f05-parent-feasibility-live.log
+          test -s f05-parent-chain-live.json
+          node -e "const x=require('./f05-parent-chain-live.json');if(x.historical_sources.length!==5||x.formal_parent_positive!==false||x.historical_sources.some(s=>!s.decision))process.exit(1)"
+      - name: 归档同HEAD只读动态工件
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f05-parent-chain-feasibility-${{ github.sha }}
+          path: |
+            f05-parent-feasibility-tests.log
+            f05-parent-feasibility-live.log
+            f05-parent-chain-live.json
+          if-no-files-found: error
+          retention-days: 14
