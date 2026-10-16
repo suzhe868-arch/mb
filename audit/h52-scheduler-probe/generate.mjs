@@ -29,6 +29,7 @@ export const makeWorkflow = function makeWorkflow(kind){
     "      - uses: actions/checkout@v4",
     "      - run: &z echo H52_SAFE_SCALAR_ALIAS_EXECUTED",
     "      - run: *z",
+    "      - run: node --test audit/h52-scheduler-probe/tests/probe.test.mjs",
     "      - run: node audit/h52-scheduler-probe/verify.mjs "+id,
     "      - uses: actions/upload-artifact@v4",
     "        with:",

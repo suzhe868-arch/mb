@@ -5,6 +5,8 @@ import {makeWorkflow} from './generate.mjs';
 const paths={small:'.github/workflows/h52-scheduler-alias-control.yml',large:'.github/workflows/h52-scheduler-size-probe.yml'};
 const sha=(content)=>{const bytes=Buffer.from(content,'utf8');return createHash('sha1').update('blob '+bytes.length+'\0').update(bytes).digest('hex')};
 export function check(kind){
+ const requestedKind=kind;
+ if(kind==='size')kind='large';
  assert.ok(kind==='small'||kind==='large','Only synthetic control and size probes are allowed');
  const p=paths[kind],actual=readFileSync(p,'utf8'),expected=makeWorkflow(kind);
  assert.equal(actual,expected,'Exact deterministic harmless YAML bytes');
@@ -21,9 +23,9 @@ export function check(kind){
  assert.equal((actual.match(/- uses: actions\/upload-artifact@v4/g)||[]).length,1);
  const frozen=readFileSync('.github/workflows/f05-7-frozen-h52-revalidation.yml','utf8');
  assert.equal(sha(frozen),'687a9f767b0d0b144372550735da6159066b4833','Frozen original H52 must remain byte-exact');
- const report={marker:'H52_SYNTHETIC_GITHUB_JOB_EXECUTED',probe:kind,status:'LOCAL_CONTENT_SECURITY_ASSERTIONS_PASS',syntheticJobCount:1,schemaOnly:true,postgresJobs:0,sourceAccess:false,permissions:'contents:read',contentBytes:Buffer.byteLength(actual,'utf8'),contentGitBlobSha:sha(actual),h52OriginalGitBlobSha:sha(frozen),h52Native52JobProven:false,githubEvent:process.env.GITHUB_EVENT_NAME||null,runnerSha:process.env.GITHUB_SHA||null};
+ const report={marker:'H52_SYNTHETIC_GITHUB_JOB_EXECUTED',probe:requestedKind,normalizedProbe:kind,status:'LOCAL_CONTENT_SECURITY_ASSERTIONS_PASS',syntheticJobCount:1,schemaOnly:true,postgresJobs:0,sourceAccess:false,permissions:'contents:read',contentBytes:Buffer.byteLength(actual,'utf8'),contentGitBlobSha:sha(actual),h52OriginalGitBlobSha:sha(frozen),h52Native52JobProven:false,githubEvent:process.env.GITHUB_EVENT_NAME||null,runnerSha:process.env.GITHUB_SHA||null};
  mkdirSync('audit/h52-scheduler-probe/artifacts',{recursive:true});
- writeFileSync('audit/h52-scheduler-probe/artifacts/'+kind+'-evidence.json',JSON.stringify(report,null,2)+'\n');
+ writeFileSync('audit/h52-scheduler-probe/artifacts/'+requestedKind+'-evidence.json',JSON.stringify(report,null,2)+'\n');
  console.log('H52_SYNTHETIC_GITHUB_JOB_EXECUTED',JSON.stringify({probe:kind,bytes:report.contentBytes}));
  return report;
 }

@@ -14,4 +14,5 @@ test('both probe events are restricted to safe own paths',()=>{for(const k of ['
 test('both GitHub jobs have one read-only job and strict timeout',()=>{for(const k of ['small','large']){const s=makeWorkflow(k);assert.equal((s.match(/^  synthetic-parser-check:$/gm)||[]).length,1);assert.match(s,/timeout-minutes: 8/);assert.equal((s.match(/contents: read/g)||[]).length,2)}});
 test('size padding is only bounded harmless comments',()=>{const s=makeWorkflow('large');const a=s.indexOf('# H52_SYNTHETIC_PADDING_ONLY_');assert.ok(a>0);assert.ok(s.slice(a).split('\n').every(x=>x===''||/^# ?(H52_SYNTHETIC_PADDING_ONLY_)?P*$/.test(x)), 'Comments only')});
 test('both probes pass frozen original read-only signature check',()=>{check('small');check('large')});
+test('workflow size alias is allowed while retaining large-file contract',()=>{const x=check('size');assert.equal(x.normalizedProbe,'large');assert.equal(x.contentBytes,511380)});
 test('bad kind rejected fail closed',()=>assert.throws(()=>makeWorkflow('full-h52'),/BAD_KIND/));
