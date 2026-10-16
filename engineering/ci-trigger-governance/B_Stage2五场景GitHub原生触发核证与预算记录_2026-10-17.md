@@ -43,3 +43,23 @@ A确认main不存在C构建Workflow `.github/workflows/c-app-01-build-render.yml
 - 最新轮询PR78仍有F05-8 [Run38933661528](https://github.com/suzhe868-arch/mb/actions/runs/38933661528)在`in_progress`，其中priority Source Job`117083642179`正在原`True F05-8 nonprivileged PG16 priority-source`步骤，其余三个Job已success。不能将该Run记为PASS、失败或超时；且进行中完整日志暂不能获取，不猜测其后续结果。
 - 预算纪律：其余[Shared分支](https://github.com/suzhe868-arch/mb/tree/audit/ci-trigger-shared-after-pr76-20261017)（HEAD`80445a0d44af1d6406eb1010e40dd078308298fb`，单`engineering/shared/**`探针）与[Mixed分支](https://github.com/suzhe868-arch/mb/tree/audit/ci-trigger-mixed-after-pr76-20261017)（HEAD`c649df048f0fba289d90ee9274d59f81fd19f517`，C+F05两文件）已有只读准备，**未创建真正SHARED/MIXED PR**，避免与旧PG16仍活跃的十项Run重叠。
 - 目前阶段：`F05_7_FAIL_CLOSED_CONFIRMED / F05_8_STILL_RUNNING / SHARED_NOT_VERIFIED / MIXED_NOT_VERIFIED / STOP_SHORT_OF_FINAL`。继续禁止自行调整旧工作流、改绿旧Source、合并main或声称`READY_FOR_A_REVIEW_FINAL`。
+
+## 5. 原生F05-only全十Workflow Job与Artifact快照核证（2026-10-17）
+**本快照未到最终10/10终态；所有统计均截至GitHub实际返回时间，需后续刷新。**
+
+| Workflow简写 / Run | Job结果 | 当前真实非空官方Artifact（个） |
+|---|---|---:|
+| F05-7 / [38933661611](https://github.com/suzhe868-arch/mb/actions/runs/38933661611) | Source **failure**（缺66项同SHA），HTTPS success | 1 |
+| F05-8 / [38933661528](https://github.com/suzhe868-arch/mb/actions/runs/38933661528) | 3 success，priority Source **in_progress** | 3 |
+| F05-9 / [38933661360](https://github.com/suzhe868-arch/mb/actions/runs/38933661360) | Source **failure**（新Push资格），HTTPS success | 1 |
+| F05-10 / [38933661553](https://github.com/suzhe868-arch/mb/actions/runs/38933661553) | Source **failure**（新Push资格），HTTPS success | 1 |
+| F05-10-D1 / [38933661293](https://github.com/suzhe868-arch/mb/actions/runs/38933661293) | Source **failure**（新Push资格），HTTPS success | 1 |
+| F05-9冻结F05-8 / [38933661332](https://github.com/suzhe868-arch/mb/actions/runs/38933661332) | 4 success | 4 |
+| F05-10冻结F05-8 / [38933661318](https://github.com/suzhe868-arch/mb/actions/runs/38933661318) | 4 success | 4 |
+| F05-10-D1冻结F05-8 / [38933661610](https://github.com/suzhe868-arch/mb/actions/runs/38933661610) | 4 success | 4 |
+| F05-10冻结F05-9 / [38933661403](https://github.com/suzhe868-arch/mb/actions/runs/38933661403) | 2 success | 2 |
+| F05-10-D1冻结F05-9 / [38933661533](https://github.com/suzhe868-arch/mb/actions/runs/38933661533) | 2 success | 2 |
+
+- 累计GitHub **28个真实Job：23个success、4个failure、1个in_progress**；Run级别**5个success、4个failure、1个in_progress**。GitHub Artifacts列表逐Run均取得，共**23个非空、未过期官方Artifact**，不是23个业务成功凭据；Source红灯未出现上传完成工件属硬失败原逻辑。
+- 失败不准中性化：F05-7 `F05_7_CANNOT_PROVE_66_SAME_SHA_OFFICIAL_PG16_JOBS_IN_BOUNDED_CI_RUN`；F05-9 `F05_9_NOT_IN_OFFICIAL_NEW_PUSH`；F05-10 `F05_10_NOT_NEW_OFFICIAL_PUSH`；D1 `D1_NOT_NEW_OFFICIAL_PUSH`。均有原生Job日志证据。
+- 当最后一个Source还在运行时不并行创建Shared或Mixed PR。官方2026-10-16T16:55:20Z快照还显示F05-8剩`117083642179`单Job运行。A要求的Stage2完整版真实After尚不能签字。
