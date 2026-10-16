@@ -9068,7 +9068,15 @@
     "c_required_build_gate": "C_REQUIRED_BUILD_NOT_VERIFIED_C_APP_WORKFLOW_AND_APP_ABSENT_FROM_MAIN_PR68_USER_NOT_ACCEPTED",
     "c_required_build_owner": "C_WITH_A_AND_USER_R3_ACCEPTANCE_BEFORE_MERGE",
     "full_ci_gate": "NOT_FULLY_CLOSED_PENDING_REAL_C_BUILD_AFTER_C_TRACK",
-    "original_source_gap_open": true
+    "original_source_gap_open": true,
+    "stage2_evidence_pr_status": "PR79_CLOSED_UNMERGED_EVIDENCE_RETAINED",
+    "stage2_temporary_test_prs_closed_unmerged": [
+      77,
+      78,
+      79,
+      80,
+      81
+    ]
   },
   "f05_7_parent_source_controlled_recovery_gate": {
     "task_id": "F05_7_PARENT_SOURCE_CONTROLLED_RECOVERY_01",
