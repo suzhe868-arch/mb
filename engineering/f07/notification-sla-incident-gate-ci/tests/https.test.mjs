@@ -19,7 +19,7 @@ const count=async()=>Number((await db.query('SELECT count(*)::int n FROM f07_4_c
 test('H01 本地TLS合法合成事件202且真PG投递',async()=>{await seed(db);const r=await call();assert.equal(r.code,202);assert.equal(JSON.parse(r.body).result,'MOCK_ACCEPTED');assert.equal(await count(),1);assert.equal(audit.at(-1).code,'MOCK_LOCAL_ONLY');assert.equal(audit.at(-1).signedParentCalls,0);assert.equal(audit.at(-1).syntheticPgReads,1);});
 test('H02 HTTPS已投递去重不可重复',async()=>{await seed(db);await call();const r=await call();assert.equal(r.code,200);assert.equal(await count(),1);assert.equal(audit.at(-1).code,'STAGE_ALREADY_SENT');});
 test('H03 未标注合成测试事件拒绝',async()=>{await seed(db);const r=await call({headers:{'x-f07-4-mode':'REAL_FEISHU'}});assert.equal(r.code,403);assert.equal(audit.at(-1).code,'UNSIGNED_PARENT_SOURCE_GAP');assert.equal(await count(),0);});
-test('H04 Host伪造拒绝',async()=>{await seed(db);assert.equal((await call({headers:{host:'evil.test'}})).code,403);assert.equal(await count(),0);});
+test('H04 Host伪造拒绝',async()=>{await seed(db);assert.equal((await call({headers:{host:'evil.test'},tls:{servername:'localhost'}})).code,403);assert.equal(await count(),0);});
 test('H05 Origin跨站拒绝',async()=>{await seed(db);assert.equal((await call({headers:{origin:'https://evil.test'}})).code,403);assert.equal(await count(),0);});
 test('H06 Forwarded旁路拒绝',async()=>{await seed(db);assert.equal((await call({headers:{'x-forwarded-for':'1.2.3.4'}})).code,403);assert.equal(await count(),0);});
 test('H07 Authorization直传拒绝',async()=>{await seed(db);assert.equal((await call({headers:{authorization:'Bearer secret'}})).code,403);assert.equal(await count(),0);});
