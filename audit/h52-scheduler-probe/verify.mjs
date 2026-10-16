@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {makeWorkflow} from './generate.mjs';
+const paths={small:'.github/workflows/h52-scheduler-alias-control.yml',large:'.github/workflows/h52-scheduler-size-probe.yml'};
+const sha=(content)=>{const bytes=Buffer.from(content,'utf8');return createHash('sha1').update('blob '+bytes.length+'\0').update(bytes).digest('hex')};
+export function check(kind){
+ assert.ok(kind==='small'||kind==='large','Only synthetic control and size probes are allowed');
+ const p=paths[kind],actual=readFileSync(p,'utf8'),expected=makeWorkflow(kind);
+ assert.equal(actual,expected,'Exact deterministic harmless YAML bytes');
+ assert.equal(Buffer.byteLength(actual,'utf8'),kind==='large'?511380:Buffer.byteLength(expected),'Exact size');
+ assert.ok(Buffer.byteLength(actual,'utf8')<512000,'Do not exceed 500KiB limit');
+ for(const q of ['services:', 'workflow_dispatch:', 'secrets.', 'git push', 'postgres', 'source-controlled-recovery', 'feat/f05-7', 'contents: write', 'actions: write', 'curl ', 'wget ', 'docker ', 'gh api', 'run: |', 'run: >']) assert.ok(!actual.includes(q),'Forbidden synthetic content '+q);
+ assert.equal((actual.match(/^  synthetic-parser-check:$/gm)||[]).length,1);
+ assert.equal((actual.match(/^- run:/gm)||[]).length,0);
+ assert.equal((actual.match(/^      - run: &z echo H52_SAFE_SCALAR_ALIAS_EXECUTED$/gm)||[]).length,1);
+ assert.equal((actual.match(/^      - run: \*z$/gm)||[]).length,1);
+ assert.equal((actual.match(/runs-on: ubuntu-latest/g)||[]).length,1);
+ assert.equal((actual.match(/timeout-minutes: 8/g)||[]).length,1);
+ assert.equal((actual.match(/contents: read/g)||[]).length,2);
+ assert.equal((actual.match(/- uses: actions\/upload-artifact@v4/g)||[]).length,1);
+ const frozen=readFileSync('.github/workflows/f05-7-frozen-h52-revalidation.yml','utf8');
+ assert.equal(sha(frozen),'687a9f767b0d0b144372550735da6159066b4833','Frozen original H52 must remain byte-exact');
+ const report={marker:'H52_SYNTHETIC_GITHUB_JOB_EXECUTED',probe:kind,status:'LOCAL_CONTENT_SECURITY_ASSERTIONS_PASS',syntheticJobCount:1,schemaOnly:true,postgresJobs:0,sourceAccess:false,permissions:'contents:read',contentBytes:Buffer.byteLength(actual,'utf8'),contentGitBlobSha:sha(actual),h52OriginalGitBlobSha:sha(frozen),h52Native52JobProven:false,githubEvent:process.env.GITHUB_EVENT_NAME||null,runnerSha:process.env.GITHUB_SHA||null};
+ mkdirSync('audit/h52-scheduler-probe/artifacts',{recursive:true});
+ writeFileSync('audit/h52-scheduler-probe/artifacts/'+kind+'-evidence.json',JSON.stringify(report,null,2)+'\n');
+ console.log('H52_SYNTHETIC_GITHUB_JOB_EXECUTED',JSON.stringify({probe:kind,bytes:report.contentBytes}));
+ return report;
+}
+if(process.argv[1]?.endsWith('verify.mjs'))check(process.argv[2]);

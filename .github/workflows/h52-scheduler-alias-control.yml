@@ -1,0 +1,30 @@
+name: H52 Synthetic Scalar Alias Control
+on:
+  push:
+    paths:
+      - '.github/workflows/h52-scheduler-alias-control.yml'
+      - 'audit/h52-scheduler-probe/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/h52-scheduler-alias-control.yml'
+      - 'audit/h52-scheduler-probe/**'
+permissions:
+  contents: read
+jobs:
+  synthetic-parser-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - run: &z echo H52_SAFE_SCALAR_ALIAS_EXECUTED
+      - run: *z
+      - run: node audit/h52-scheduler-probe/verify.mjs small
+      - uses: actions/upload-artifact@v4
+        with:
+          name: h52-synthetic-small-evidence
+          path: audit/h52-scheduler-probe/artifacts/small-evidence.json
+          retention-days: 30
+          if-no-files-found: error

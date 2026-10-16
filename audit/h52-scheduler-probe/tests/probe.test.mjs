@@ -1,0 +1,17 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {makeWorkflow} from '../generate.mjs';
+import {check} from '../verify.mjs';
+const path={small:'.github/workflows/h52-scheduler-alias-control.yml',large:'.github/workflows/h52-scheduler-size-probe.yml'};
+const banned=['services:', 'workflow_dispatch:', 'secrets.', 'git push', 'postgres', 'feat/f05-7', 'contents: write', 'actions: write'];
+test('exact deterministic generator is reproducible',()=>{for(const k of ['small','large'])assert.equal(readFileSync(path[k],'utf8'),makeWorkflow(k))});
+test('the large file matches original H52 size without reaching limit',()=>{assert.equal(makeWorkflow('large').length,511380);assert.ok(makeWorkflow('large').length<512000)});
+test('small control is genuinely small',()=>assert.ok(makeWorkflow('small').length<3000));
+test('both syntax controls contain one distinct real YAML scalar anchor and reference',()=>{for(const k of ['small','large']){const s=makeWorkflow(k);assert.equal((s.match(/run: &z/g)||[]).length,1);assert.equal((s.match(/run: \*z/g)||[]).length,1)}});
+test('all probe side effects are prohibited',()=>{for(const k of ['small','large'])for(const b of banned)assert.ok(!makeWorkflow(k).includes(b),k+':'+b)});
+test('both probe events are restricted to safe own paths',()=>{for(const k of ['small','large']){const s=makeWorkflow(k);assert.match(s,/audit\/h52-scheduler-probe\/\*\*/);assert.match(s,/branches: \[main\]/);assert.doesNotMatch(s,/workflow_dispatch/)}});
+test('both GitHub jobs have one read-only job and strict timeout',()=>{for(const k of ['small','large']){const s=makeWorkflow(k);assert.equal((s.match(/^  synthetic-parser-check:$/gm)||[]).length,1);assert.match(s,/timeout-minutes: 8/);assert.equal((s.match(/contents: read/g)||[]).length,2)}});
+test('size padding is only bounded harmless comments',()=>{const s=makeWorkflow('large');const a=s.indexOf('# H52_SYNTHETIC_PADDING_ONLY_');assert.ok(a>0);assert.ok(s.slice(a).split('\n').every(x=>x===''||/^# ?(H52_SYNTHETIC_PADDING_ONLY_)?P*$/.test(x)), 'Comments only')});
+test('both probes pass frozen original read-only signature check',()=>{check('small');check('large')});
+test('bad kind rejected fail closed',()=>assert.throws(()=>makeWorkflow('full-h52'),/BAD_KIND/));
