@@ -42,7 +42,7 @@ export async function audit(token=process.env.GH_ACTIONS_READ_TOKEN){
  const all=frozen.map(x=>readFileSync(F05ROOT+x,'utf8'));
  const foundH52=all[0];
  check(foundH52===h52,'H52 read-only invariant');
- const jobStarts=(s)=>[...s.matchAll(/^  ([a-z][a-z0-9_-]+):(?=\s|$)/gm)].map(m=>m[1]);
+ const jobStarts=(s)=>{const start=s.indexOf('\njobs:\n');check(start>=0,'jobs block missing');return [...s.slice(start+7).matchAll(/^  ([a-z][a-z0-9_-]+):(?=\s|$)/gm)].map(m=>m[1]);};
  const jobCounts=all.map(x=>jobStarts(x).length);
  check(jobCounts.join(',')==='52,2,2,2,2,2,2,2','8 workflows and 66 jobs invariant '+jobCounts.join(','));
  check(count(h52,'image: postgres:16-alpine')===50,'50 inherited PG16 jobs altered');
