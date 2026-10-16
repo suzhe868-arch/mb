@@ -127,3 +127,12 @@ B已直接从合并后的main逐份读取10份A批准F05工作流的现行Blob�
 - 从GitHub官方API取得[Shared PR80 F05-7 Run38937848488](https://github.com/suzhe868-arch/mb/actions/runs/38937848488)，`2026-10-16T17:23:33Z`完成，真实结论`failure`。Source Job`117097731722`日志精确异常`F05_7_CANNOT_PROVE_66_SAME_SHA_OFFICIAL_PG16_JOBS_IN_BOUNDED_CI_RUN`（source fail），HTTPS Job`117097731352`success，非空官方Artifact`12061063932`（96360字节）。证明Shared-only真实触发时旧同SHA来源门禁仍拒绝无66合法PG16父证据的PR，不得补签或假绿。
 - 按最新Run级真实终态：PR80 共10份F05工作流**5 success / 4 failure / 1 in_progress**；在途仅F05-8 [Run38937848516](https://github.com/suzhe868-arch/mb/actions/runs/38937848516)的Priority Source。最终第5个Source拒绝原因须等Job正式结束及日志，不得提前推测为和PR78同一异常。
 - **Remaining Stage2:** Shared剩F05-8终态，Mixed单域合并触发真实PR及完整Run/Job/Artifact核验，C自身必要构建尚因main缺C Workflow而无法于PR77证明。全部临时PR禁止合并main、严格遵守A串行预算。
+
+## 13. Shared完成及Mixed真正混合路径原生PR（最新快照）
+
+- Shared [PR80](https://github.com/suzhe868-arch/mb/pull/80)，HEAD `80445a0d44af1d6406eb1010e40dd078308298fb`，已经**十个原生F05 Workflow全部terminal：5 success/5 failure、28 Check=23 success/5 failure，23份非空Artifact**。最后一项F05-8 [Run38937848516](https://github.com/suzhe868-arch/mb/actions/runs/38937848516) 于2026-10-16T17:43:47Z以failure结束；Source Job`117097731675`官方日志明确`F05_8_OFFICIAL_68_JOB_GATE_UNPROVEN`，另三个Job均success且共3份非空官方工件。此前F05-7缺66同SHA、F05-9/10/D1缺正式Push来源证书，五项Source均fail-closed，**没有CI配置漏触发也没有旧Source伪绿**。
+- 只有在Shared十Run全部终态、仓库`running=0,queued=0`后，B才创建独立[PR81（MIXED）](https://github.com/suzhe868-arch/mb/pull/81) Draft，HEAD `c649df048f0fba289d90ee9274d59f81fd19f517`；对main精确差异两份**非业务Markdown**：`apps/mobile/evidence/混合路径C端探针_2026-10-17.md`、`engineering/f05/ci-trigger-governance-probes/混合路径F05探针_2026-10-17.md`，ahead2/behind0。
+- GitHub真实`pull_request`事件确实触发获A批准的**十份F05原生Workflow及28条Check**；此提交归档时MIXED Run状态：`{"in_progress":2,"failure":3,"success":5}`；Check状态：`{"success":23,"in_progress":2,"failure":3}`。这些仅为**中间快照**，需以最终官方Run/Job/Artifact及日志核查为准。
+- 已观察MIXED D1 [Run38943230823](https://github.com/suzhe868-arch/mb/actions/runs/38943230823) Source Job`117115816510`真实`failure`，日志`D1_NOT_NEW_OFFICIAL_PUSH`；HTTPS Job`117115817206` success，非空原生Artifact`12064092560`。冻结复验Run`38943230786,38943230783,38943230820`已completed/success，并有同Run非空工件。
+- **C构建限制不变**：旧C [PR68](https://github.com/suzhe868-arch/mb/pull/68)内的`.github/workflows/c-app-01-build-render.yml`尚未合并main；PR77 C-only及PR81 Mixed皆不能证明C必要构建未丢。本Stage2仅证明F05路径过滤触发路由；不得把C漏检风险登记为PASS，也不得替A判`CI_TRIGGER_SCOPE_GOVERNANCE_FIXED`。
+- 本轮B仅做隔离测试PR和证据，不修改旧Source、PG16、C PR68及main，不合并任何临时PR，`NOT_READY_FOR_A_REVIEW_FINAL`直至完成所有可验证真Job、独立CI限制判定并交A审查。
