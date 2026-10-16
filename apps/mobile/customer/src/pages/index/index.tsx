@@ -55,7 +55,7 @@ export default function Home(){
  const [cities,setCities]=useState(false),[notice,setNotice]=useState('')
  const openingRef=useRef(false)
 
- const feed=useMemo(()=>mockReadAdapter.list(q,page,scenario),[q,page,scenario])
+ const feed=useMemo(()=>mockReadAdapter.list(q,page,scenario),[q,page,scenario,tier])
  useEffect(()=>{remembered={q,page,tier,scenario}},[q,page,tier,scenario])
  function change(patch:Partial<QueryState>){setQ(old=>({...old,...patch}));setPage(1);rememberedScroll=0;Taro.pageScrollTo({scrollTop:0,duration:0}).catch(()=>{})}
  function open(id:string){

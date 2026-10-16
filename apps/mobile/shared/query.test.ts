@@ -164,3 +164,18 @@ test('C01加载和错误时提供层不投递旧车辆及机会块',()=>{
   assert.equal(r.opportunity4s.length,0);assert.equal(r.banner,false)
  }
 })
+
+test('C01 Mock适配器切换身份时需重新取得符合身份的价格投影',()=>{
+ resetMockTier()
+ const old=mockReadAdapter.list(q(),1,'normal')
+ assert.equal(old.items[0].priceProjection,'masked')
+ setMockTier('fan')
+ const next=mockReadAdapter.list(q(),1,'normal')
+ assert.equal(next.items[0].priceProjection,'numeric')
+ assert.notEqual(next.items[0].customerPriceWan,null)
+ resetMockTier()
+})
+test('C01无图状态也涵盖匹配机会块图片，不能只遮蔽常规车卡',()=>{
+ const feed=queryFeed(q(),1,'no_image')
+ assert.ok([...feed.items,...feed.opportunityMingbang,...feed.opportunity4s].every(x=>x.photoUrl===null))
+})

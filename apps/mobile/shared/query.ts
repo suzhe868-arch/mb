@@ -73,7 +73,7 @@ export function queryFeed(q:QueryState=DEFAULT_QUERY,page=1,scenario:Scenario='n
  const rows=empty?[]:channel
  const limit=Math.max(1,Math.floor(page))*15
  return {items:rows.slice(0,limit).map(v=>project(scenario==='no_image'?{...v,photoUrl:null}:v,tier)),
-   opportunityMingbang:empty?[]:other('mingbang').map(v=>project(v,tier)),opportunity4s:empty?[]:other('dealer4s').map(v=>project(v,tier)),
+   opportunityMingbang:empty?[]:other('mingbang').map(v=>project(scenario==='no_image'?{...v,photoUrl:null}:v,tier)),opportunity4s:empty?[]:other('dealer4s').map(v=>project(scenario==='no_image'?{...v,photoUrl:null}:v,tier)),
    total:rows.length,hasMore:rows.length>limit,banner:scenario!=='no_banner'&&scenario!=='empty'}
 }
 export function safeById(id:string,scenario:Scenario='normal',tier:'limited'|'fan'|'vip'='limited'):SafeVehicle|null {
