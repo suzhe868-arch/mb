@@ -4,4 +4,4 @@ C_ONLY_AFTER	77	c90e5917aa81fcb69be0effcdd89d3fa27e8ab9e	apps/mobile/evidence/**
 F05_ONLY_AFTER	78	aaf724f7928a6cb18dba801f6184754d9ffe21c2	engineering/f05/**	10	5	5	0	28	23	5	0	TRIGGER_VERIFIED_SOURCE_FAIL_CLOSED	F05-7/8/9/10/D1五条正式Source按原门禁失败，真实PG16及原生Artifact不豁免
 SHARED_AFTER	80	80445a0d44af1d6406eb1010e40dd078308298fb	engineering/shared/**	10	5	5	0	28	23	5	0	TRIGGER_VERIFIED_SOURCE_FAIL_CLOSED	十份F05工作流完整终态；五项Source均按历史签据门禁失败；23份非空官方Artifact
 WORKFLOW_SELF_AFTER	76	1864447f84ad65dcc0396d907f255fd7ccdafde4	.github/workflows/f05-*.yml	11	6	5	0	30	25	5	0	SELF_TRIGGER_VERIFIED	包含1个治理审计Run；10个F05里5成功5失败，原Source全fail-closed
-MIXED_AFTER	81	c649df048f0fba289d90ee9274d59f81fd19f517	apps/mobile/**+engineering/f05/**	10	5	4	1	28	23	4	1	F05_TRIGGER_VERIFIED_F05_8_SOURCE_RUNNING	4条Source正式硬门禁真实失败；F05-8仍在途；主干无C必要Build故全域Not Verified
+MIXED_AFTER	81	c649df048f0fba289d90ee9274d59f81fd19f517	apps/mobile/**+engineering/f05/**	10	5	5	0	28	23	5	0	F05_TRIGGER_VERIFIED_SOURCE_FAIL_CLOSED_C_REQUIRED_BUILD_NOT_VERIFIED	10份F05真PR Run与28 Check全部terminal；五Source原安全失败，C构建Workflow与源码未进入main，A需裁决

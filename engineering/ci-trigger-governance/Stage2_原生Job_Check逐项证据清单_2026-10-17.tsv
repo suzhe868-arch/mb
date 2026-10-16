@@ -118,7 +118,7 @@ WORKFLOW_SELF_AFTER	76	1864447f84ad65dcc0396d907f255fd7ccdafde4	117074295662	F05
 WORKFLOW_SELF_AFTER	76	1864447f84ad65dcc0396d907f255fd7ccdafde4	117074271472	CI触发全量清册Node只读审计	completed	success	https://github.com/suzhe868-arch/mb/actions/runs/38930888210/job/117074271472
 MIXED_AFTER	81	c649df048f0fba289d90ee9274d59f81fd19f517	117115817206	F05-10-D1 new HTTPS PG16	completed	success	https://github.com/suzhe868-arch/mb/actions/runs/38943230823/job/117115817206
 MIXED_AFTER	81	c649df048f0fba289d90ee9274d59f81fd19f517	117115816838	F05-8 signed F05-7 HTTPS 7 true PostgreSQL16 PG	completed	success	https://github.com/suzhe868-arch/mb/actions/runs/38943230786/job/117115816838
-MIXED_AFTER	81	c649df048f0fba289d90ee9274d59f81fd19f517	117115816835	F05-8 priority Source v24 true PostgreSQL16 PG	in_progress	PENDING	https://github.com/suzhe868-arch/mb/actions/runs/38943230766/job/117115816835
+MIXED_AFTER	81	c649df048f0fba289d90ee9274d59f81fd19f517	117115816835	F05-8 priority Source v24 true PostgreSQL16 PG	completed	failure	https://github.com/suzhe868-arch/mb/actions/runs/38943230766/job/117115816835
 MIXED_AFTER	81	c649df048f0fba289d90ee9274d59f81fd19f517	117115816699	F05-8 priority HTTPS v24 true PostgreSQL16 PG	completed	success	https://github.com/suzhe868-arch/mb/actions/runs/38943230766/job/117115816699
 MIXED_AFTER	81	c649df048f0fba289d90ee9274d59f81fd19f517	117115816535	F05-8 signed F05-7 HTTPS 7 true PostgreSQL16 PG	completed	success	https://github.com/suzhe868-arch/mb/actions/runs/38943230766/job/117115816535
 MIXED_AFTER	81	c649df048f0fba289d90ee9274d59f81fd19f517	117115816533	F05-9 new HTTPS v25 true PG16	completed	success	https://github.com/suzhe868-arch/mb/actions/runs/38943230829/job/117115816533
