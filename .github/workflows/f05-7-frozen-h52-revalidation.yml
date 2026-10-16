@@ -31,7 +31,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
+      - &z name: F05-7 本地PG16镜像兼容
         run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
       - uses: actions/setup-node@v4
         with:
@@ -185,8 +185,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -336,8 +335,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -484,8 +482,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -627,8 +624,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -728,8 +724,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -828,8 +823,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -933,8 +927,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -1035,8 +1028,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -1136,8 +1128,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -1245,8 +1236,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -1314,8 +1304,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -1427,8 +1416,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -1503,8 +1491,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -1588,8 +1575,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -1719,8 +1705,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -1865,8 +1850,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -2013,8 +1997,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -2198,8 +2181,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -2383,8 +2365,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -2568,8 +2549,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -2721,8 +2701,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -2874,8 +2853,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -3051,8 +3029,7 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -3260,8 +3237,7 @@ jobs:
       F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -3440,8 +3416,7 @@ jobs:
       F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -3622,8 +3597,7 @@ jobs:
       F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -3807,8 +3781,7 @@ jobs:
       F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -3992,8 +3965,7 @@ jobs:
       F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -4182,8 +4154,7 @@ jobs:
       F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -4373,8 +4344,7 @@ jobs:
       F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -4591,8 +4561,7 @@ jobs:
       F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -4806,8 +4775,7 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -5060,8 +5028,7 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -5310,8 +5277,7 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -5603,8 +5569,7 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -5889,8 +5854,7 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -6251,8 +6215,7 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -6600,8 +6563,7 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -6998,8 +6960,7 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -7382,8 +7343,7 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -7459,8 +7419,7 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -7537,8 +7496,7 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -7620,8 +7578,7 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -7697,8 +7654,7 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - run: bash f05/hide-reason-trust-recalculation/ci-job.sh source
@@ -7739,8 +7695,7 @@ jobs:
       F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - run: bash f05/hide-reason-trust-recalculation/ci-job.sh https
@@ -7765,8 +7720,7 @@ jobs:
           --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - run: bash f05/favorite-carrier-preservation/ci-job.sh source
@@ -7788,8 +7742,7 @@ jobs:
           --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
       - uses: actions/checkout@v4
-      - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-        run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+      - *z
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - run: bash f05/favorite-carrier-preservation/ci-job.sh https
@@ -7806,8 +7759,7 @@ jobs:
         ports: [5432:5432]
     steps:
     - uses: actions/checkout@v4
-    - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-      run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+    - *z
     - uses: actions/setup-node@v4
       with: {node-version: '22.16.0'}
     - run: bash f05/favorite-physical-carrier/ci-job.sh source
@@ -7824,8 +7776,7 @@ jobs:
         ports: [5432:5432]
     steps:
     - uses: actions/checkout@v4
-    - name: F05-7 冻结PG16旧祖先名仅Runner本地兼容
-      run: bash "$GITHUB_WORKSPACE/engineering/f05/source-controlled-recovery-02/pg16-local-alias.sh"
+    - *z
     - uses: actions/setup-node@v4
       with: {node-version: '22.16.0'}
     - run: bash f05/favorite-physical-carrier/ci-job.sh https
