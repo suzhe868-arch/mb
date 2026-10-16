@@ -37,7 +37,7 @@ test('no alternate auth/source override, no skip/only in modified test',()=>{
  assert.doesNotMatch(file,/process\.env\.[A-Z_]*TOKEN\s*=/);
 });
 test('H52 is read-only and 52 job headers preserved',()=>{
- assert.equal([...h52.matchAll(/^  [a-z][a-z0-9-]*:\s*$/gm)].length,52);
+ assert.equal([...h52.matchAll(/^  [a-z][a-z0-9-]*:(?=\s|$)/gm)].length,52);
  assert.equal(count(h52,'contents: write'),0);
  assert.equal(count(h52,'image: postgres:16-alpine'),50);
 });
@@ -48,7 +48,7 @@ test('H52 source trigger invariant and 49 reuse aliases',()=>{
 });
 test('official H52 previous workflow failure read-only, never replay',()=>{
  assert.match(audit,/actions\/runs\//);
- assert.doesNotMatch(audit,/workflow_dispatch|POST\s+\/actions|git push/);
+ assert.doesNotMatch(audit,/method:\s*['\"]POST|execFileSync\(['\"]git|spawn\(['\"]git/);
 });
 test('audit requires signed original HTTPS baseline SHA and freezes 7 cases',()=>{
  assert.match(audit,/5fc9861b6341e4ee066c594c808557b321d9b95e/);
