@@ -1,3 +1,12 @@
+# 2026-10-16｜A主控C并行轨PR68首轮核验：双端真构建与四屏真实截图已核证，11项专项覆盖及最终SHA索引需C定向整改
+
+- **C并行轨裁决**：`C_APP_01_A_R1_CHANGES_REQUESTED / A_BUILD_AND_CHROMIUM_VERIFIED / USER_VISUAL_REVIEW_PENDING / C_NEXT_OWNER=C / PR68_NO_MERGE / NO_PRODUCTION`。**现行B主线NEXT_OWNER/NEXT_TASK完全不变**，B继续F05历史CI技术治理；C在原PR68原分支补证，无权修改main或B/F/PDM。
+- **真源码/真CI/真图**：[PR #68](https://github.com/suzhe868-arch/mb/pull/68)唯一受验HEAD `7783c54bd78e1b5156976aab036151b0debe8618`；33个变更路径全部C-APP-01白名单，相对当前main ahead51/behind95。真正Push [Run38843332659](https://github.com/suzhe868-arch/mb/actions/runs/38843332659) 与PR [Run38843336347](https://github.com/suzhe868-arch/mb/actions/runs/38843336347) 都同SHA完成成功：npm ci、26/26 Node单测、TypeScript、Taro H5+微信CLI编译、Chromium 320/375/390/430真实截图与频道/筛选/排序/详情/返回互动均通过。A已实际下载和打开最后SHA的官方截图工件 ID12022072289（非空2384189B，官方SHA256`ac800d788d0a5422b5d8e679cfdb1cc1b2d8ca905a4eb63c4dc4c758115a522f`）；已肉眼审查390首页/列表/筛选/详情及四视口首屏；用户可开始第一轮视觉讨论。**这是Mock示意图，不代表真实JYT车源、正式商业图片、微信真机或业务API已签。**
+- **A发现明确待闭环**：正式54行TSV内14项Chromium/构建、26项相关单测、**11项专项行为仍PARTIAL**（ID `013,018,029,030,034,035,037,038,039,040,041`，需真实状态/安全浏览器负例），3项真实业务/微信平台未授权明确NOT_RUN；最后SHA代码虽真实绿，但`apps/mobile/evidence/证据索引.md`、C最终自验报告及54行TSV仍引用较早`4bdfa741...`/Run38842186138/Artifact12021319721，必须改成新最终SHA同版本索引再跑。最新HEAD官方30项检查20 success/10 failure（**10项旧F05真实失败不可冒充绿**），GitHub mergeable_state=unstable/required checks未知；PR68不合并。当前390页面展示文本MB Mock Banner、演示身份条、细辅助文案，**视觉效果待用户首轮确认，不能自行改版或自称已确认**。
+- **C完整R1定向整改与A技术验收**：[正式A报告](https://github.com/suzhe868-arch/mb/blob/main/07_重建工作区/C_APP_01_A主控PR68首轮独立复验_双端构建已过_状态覆盖和最终证据索引整改正式报告_2026-10-16.md)｜[PR68 R1执行评论](https://github.com/suzhe868-arch/mb/pull/68#issuecomment-6208408031)。C保留原有真实构建和屏宽证据，新增11专项Chrome/负例、同期54行追踪、最终真实Push+PR工作流和有效截图工件；微信开发者工具/真机、正式Price quota/咨询/锁车/分享归属、真实API、支付、客户/资金与生产继续NOT_RUN/NOT_AUTHORIZED。C返件后交A再验，B独立主线无变化。
+
+---
+
 # 2026-10-16｜A核验PR70已授权12项F05 PG16镜像恢复；追加冻结5份16镜像白名单给B，暂不合并
 
 - **正式最新裁决**：`F05_LEGACY_CI_GOVERNANCE_01_R2_A_SCOPE_EXPANSION_RELEASED / PR70_DRAFT_NO_MERGE / NEXT_OWNER=B / NEXT_TASK=F05_LEGACY_CI_GOVERNANCE_01_R2_FROZEN_16_SERVICE_IMAGES / F05_BUSINESS_F08_GLOBAL_V1_NOT_READY / NO_PRODUCTION`。原正式施工单继续有效，新追加施工单只允许修复5份冻结revalidation Workflow内16项镜像/本地兼容别名与可验证原生测试证据，不解除冻结业务与父签来源。
