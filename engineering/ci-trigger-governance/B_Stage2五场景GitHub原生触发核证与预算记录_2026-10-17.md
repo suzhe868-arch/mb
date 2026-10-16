@@ -136,3 +136,11 @@ B已直接从合并后的main逐份读取10份A批准F05工作流的现行Blob�
 - 已观察MIXED D1 [Run38943230823](https://github.com/suzhe868-arch/mb/actions/runs/38943230823) Source Job`117115816510`真实`failure`，日志`D1_NOT_NEW_OFFICIAL_PUSH`；HTTPS Job`117115817206` success，非空原生Artifact`12064092560`。冻结复验Run`38943230786,38943230783,38943230820`已completed/success，并有同Run非空工件。
 - **C构建限制不变**：旧C [PR68](https://github.com/suzhe868-arch/mb/pull/68)内的`.github/workflows/c-app-01-build-render.yml`尚未合并main；PR77 C-only及PR81 Mixed皆不能证明C必要构建未丢。本Stage2仅证明F05路径过滤触发路由；不得把C漏检风险登记为PASS，也不得替A判`CI_TRIGGER_SCOPE_GOVERNANCE_FIXED`。
 - 本轮B仅做隔离测试PR和证据，不修改旧Source、PG16、C PR68及main，不合并任何临时PR，`NOT_READY_FOR_A_REVIEW_FINAL`直至完成所有可验证真Job、独立CI限制判定并交A审查。
+
+## 14. Mixed前8份原生Run终态与28个Job当前账本（精确官方日志）
+
+- Mixed [PR81](https://github.com/suzhe868-arch/mb/pull/81)于原生GitHub回归观测时10份F05 Workflow全触发，**5 Run success、3 Run failure、2 Run in_progress**，实际28个Job中**23 success、3 failure、2 in_progress**。全部10份Run已由官方Artifacts API逐项读取，有**23份有效非空Artifact**（来源类型与阶段门禁对应，未下载ZIP复算）。
+- 三份新Source失败均为旧业务资格检查，逐Job日志确认：F05-9 [Run38943230803](https://github.com/suzhe868-arch/mb/actions/runs/38943230803) / Job`117115815592`：`F05_9_NOT_IN_OFFICIAL_NEW_PUSH`；F05-10 [Run38943230747](https://github.com/suzhe868-arch/mb/actions/runs/38943230747) / Job`117115816211`：`F05_10_NOT_NEW_OFFICIAL_PUSH`；D1 [Run38943230823](https://github.com/suzhe868-arch/mb/actions/runs/38943230823) / Job`117115816510`：`D1_NOT_NEW_OFFICIAL_PUSH`。HTTPS各成功，D1官方Artifact`12064092560`、F05-9 `12063893261`、F05-10 `12063714036`。
+- 五份冻结重验全绿：Run`38943230786`（4 Job/4 Artifact）、`38943230783`（4/4）、`38943230820`（2/2）、`38943230802`（4/4）、`38943230829`（2/2）。均为冻结复验合法结果，**绝不能以冻结绿灯替换新Source正式签据**。
+- 两份Source仍等待原GitHub长时校验：F05-7 [Run38943230790](https://github.com/suzhe868-arch/mb/actions/runs/38943230790)，Job`117115815451`在途，HTTPS Job`117115815217` success，Artifact`12064425489`；F05-8 [Run38943230766](https://github.com/suzhe868-arch/mb/actions/runs/38943230766)，Job`117115816835`在途，其余三Job success，三份官方Artifact `12064660174,12063594129,12063004493`。不可预猜这两份的最终Source结论；它们可能因未满足同SHA历史父签而fail-closed，但必须读最终真实日志才能记录。
+- Mixed真正原生Workflow触发阳性已观察到10/10；C单独必要Workflow仍仅在C PR68而非main，**C端必要检查未被证明保留**。因此尽管F05触发过滤匹配契约，B仍不能把Stage2全五场景宣称成功，也不能签`READY_FOR_A_REVIEW_FINAL`，未交A独立最终验收。
