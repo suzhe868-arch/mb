@@ -28,6 +28,11 @@ export function matches(v:SafeVehicle,q:QueryState):boolean {
  if(p.modelYear&&v.modelYear!==p.modelYear) return false
  if(p.plain&&!v.name.toLowerCase().includes(p.plain)) return false
  if(f.brand&&v.brand!==f.brand) return false
+ if(f.series&&v.series!==f.series) return false
+ if(f.modelYear&&String(v.modelYear)!==f.modelYear) return false
+ if(f.modelName&&v.modelName!==f.modelName) return false
+ if(f.displacement&&v.displacement!==f.displacement) return false
+ if(f.color&&v.color!==f.color) return false
  if(f.energy&&v.energy!==f.energy) return false
  if(f.transmission&&v.transmission!==f.transmission) return false
  const minPrice=numberOrNull(f.priceMin),maxPrice=numberOrNull(f.priceMax)
@@ -38,6 +43,8 @@ export function matches(v:SafeVehicle,q:QueryState):boolean {
  const minYear=numberOrNull(f.yearMin),maxYear=numberOrNull(f.yearMax)
  if(minYear!==null&&v.registrationYear<minYear)return false
  if(maxYear!==null&&v.registrationYear>maxYear)return false
+ const minKm=numberOrNull(f.mileageMin)
+ if(minKm!==null&&v.mileageKm<minKm*10000)return false
  const maxKm=numberOrNull(f.mileageMax)
  if(maxKm!==null&&v.mileageKm>maxKm*10000)return false
  return true
@@ -66,7 +73,9 @@ function project(v:SafeVehicle,tier:'limited'|'fan'|'vip'):SafeVehicle {
 export function queryFeed(q:QueryState=DEFAULT_QUERY,page=1,scenario:Scenario='normal',tier:'limited'|'fan'|'vip'='limited'):Feed {
  if(scenario==='loading'||scenario==='error')return {items:[],opportunityMingbang:[],opportunity4s:[],total:0,hasMore:false,banner:false}
  const candidate=ALL_SAFE_VEHICLES.concat(DENIED_FIXTURES)
- const eligible=candidate.filter(v=>matches(v,q))
+ const wantsPrice=!!(q.filters.priceMin||q.filters.priceMax)
+ // 客户不可见的数值价格不能通过价格区间结果反推；正式价格读取需 G2 授权。
+ const eligible=candidate.filter(v=>matches(v,q)&&!(tier==='limited'&&wantsPrice&&v.source==='wholesale'))
  const channel=orderRows(eligible.filter(v=>v.source===q.source),q.sort)
  const other=(src:SafeVehicle['source'])=> q.source==='wholesale'?orderRows(eligible.filter(v=>v.source===src),q.sort).slice(0,1):[]
  const empty=scenario==='empty'
@@ -82,8 +91,9 @@ export function safeById(id:string,scenario:Scenario='normal',tier:'limited'|'fa
  return v&&v.visible&&v.publicAvailable?project(v,tier):null
 }
 export function validateFilters(f:Filters):boolean {
- const nums=[f.priceMin,f.priceMax,f.yearMin,f.yearMax,f.mileageMax].filter(Boolean)
+ const nums=[f.priceMin,f.priceMax,f.yearMin,f.yearMax,f.mileageMin,f.mileageMax].filter(Boolean)
  if(nums.some(s=>!Number.isFinite(Number(s))||Number(s)<0))return false
  return !(f.priceMin&&f.priceMax&&Number(f.priceMin)>Number(f.priceMax)) &&
- !(f.yearMin&&f.yearMax&&Number(f.yearMin)>Number(f.yearMax))
+ !(f.yearMin&&f.yearMax&&Number(f.yearMin)>Number(f.yearMax)) &&
+ !(f.mileageMin&&f.mileageMax&&Number(f.mileageMin)>Number(f.mileageMax))
 }
