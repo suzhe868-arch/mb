@@ -134,8 +134,44 @@ async function fetchAllRuns(sha){
   if(!z.workflow_runs.length)throw Error('RUN_PAGINATION_STALLED');
   if(pg===5)throw Error('RUN_PAGINATION_NOT_COMPLETE');
  }
- const byPath={};for(const r of results){if(r.head_sha!==sha||r.event!=='pull_request')throw Error('RUN_SOURCE_MISMATCH');const k=r.path;const item=byPath[k]??{runs:0,jobCountObserved:0,ids:[],status:{}};item.runs++;item.ids.push(r.id);item.status[r.status==='completed'?String(r.conclusion):r.status]=(item.status[r.status==='completed'?String(r.conclusion):r.status]||0)+1;byPath[k]=item;}
- return {status:'OFFICIAL_PR_RUN_METADATA',sha,total:results.length,uniqueWorkflows:Object.keys(byPath).length,f05RunCount:results.filter(x=>x.path?.startsWith('.github/workflows/f05-')).length,byPath,runnerMinutes:'NOT_CALCULATED_FROM_JOB_LOGS'};
+ const byPath={},jobsByRun={};
+ for(const r of results){
+  if(r.head_sha!==sha||r.event!=='pull_request')throw Error('RUN_SOURCE_MISMATCH');
+  const k=r.path;const item=byPath[k]??{runs:0,jobCountObserved:0,jobElapsedMinutes:0,ids:[],status:{}};
+  item.runs++;item.ids.push(r.id);item.status[r.status==='completed'?String(r.conclusion):r.status]=(item.status[r.status==='completed'?String(r.conclusion):r.status]||0)+1;byPath[k]=item;
+ }
+ // Job分钟按官方开始/结束时刻计算，仅为运行占用代理指标，不冒充GitHub计费分钟。
+ for(let offset=0;offset<results.length;offset+=5){
+  const batch=await Promise.all(results.slice(offset,offset+5).map(async r=>{
+   const raw=await official('/actions/runs/'+r.id+'/jobs?filter=latest&per_page=100');
+   if(raw.__error)return {id:r.id,error:raw.__error};
+   if(!Number.isSafeInteger(raw.total_count)||!Array.isArray(raw.jobs)||raw.total_count!==raw.jobs.length)
+    return {id:r.id,error:'JOB_PAGINATION_UNVERIFIED'};
+   const elapsed=raw.jobs.reduce((n,j)=>{
+    const a=Date.parse(j.started_at),b=Date.parse(j.completed_at);
+    return n+(Number.isFinite(a)&&Number.isFinite(b)&&b>=a?(b-a)/60000:0);
+   },0);
+   return {id:r.id,count:raw.jobs.length,elapsedMinutes:Number(elapsed.toFixed(3)),
+    failed:raw.jobs.filter(j=>j.conclusion==='failure').length,
+    cancelled:raw.jobs.filter(j=>j.conclusion==='cancelled').length,
+    skipped:raw.jobs.filter(j=>j.conclusion==='skipped').length};
+  }));
+  for(const j of batch)jobsByRun[j.id]=j;
+ }
+ let totalJobs=0,totalElapsed=0,unavailable=0;
+ for(const r of results){
+  const record=jobsByRun[r.id];
+  const item=byPath[r.path];
+  if(record.error){unavailable++;item.jobQueryError=record.error;continue;}
+  totalJobs+=record.count;totalElapsed+=record.elapsedMinutes;
+  item.jobCountObserved+=record.count;item.jobElapsedMinutes+=record.elapsedMinutes;
+ }
+ for(const v of Object.values(byPath))v.jobElapsedMinutes=Number(v.jobElapsedMinutes.toFixed(3));
+ return {status:unavailable?'PARTIAL_OFFICIAL_PR_JOB_METADATA':'OFFICIAL_PR_RUN_AND_JOB_METADATA',sha,
+  total:results.length,uniqueWorkflows:Object.keys(byPath).length,
+  f05RunCount:results.filter(x=>x.path?.startsWith('.github/workflows/f05-')).length,
+  jobCountObserved:totalJobs,jobElapsedMinutes:Number(totalElapsed.toFixed(3)),jobsUnavailable:unavailable,
+  costMeaning:'Elapsed GitHub hosted job minutes proxy, not billing',byPath};
 }
 async function liveAudit(policy){
  if(process.env.GITHUB_ACTIONS!=='true'||process.env.GITHUB_EVENT_NAME!=='push'||process.env.GITHUB_REPOSITORY!==REPO||process.env.GITHUB_REF!=='refs/heads/fix/ci-trigger-scope-governance-01')throw Error('OFFICIAL_GOVERNANCE_PUSH_ONLY');
