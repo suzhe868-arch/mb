@@ -11,7 +11,7 @@ permissions:
   checks: read
 jobs:
   quality_node:
-    name: F08-1 Node源码与证据来源83项
+    name: F08-1 Node源码与证据来源101项
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
@@ -32,6 +32,7 @@ jobs:
           node --check engineering/f08/quality-evidence-gate-ci/quality.mjs
           node --check engineering/f08/quality-evidence-gate-ci/tests/quality.test.mjs
           node --check engineering/f08/quality-evidence-gate-ci/audit-ci.mjs
+          node --check engineering/f08/quality-evidence-gate-ci/trusted-parent.mjs
           git rev-parse HEAD | tee f08-1-node-head.log
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
       - name: 当前仓库真文件资产追溯与来源台账
@@ -41,13 +42,13 @@ jobs:
           node engineering/f08/quality-evidence-gate-ci/quality.mjs report 2>&1 | tee f08-1-inventory-native.log
           grep -q F08_1_REPORT_GENERATED f08-1-inventory-native.log
           grep -q F08_1_GLOBAL_NOT_READY_SOURCE_GAP f08-1-inventory-native.log
-      - name: Node 83项独立质量正反例和拒绝测试
+      - name: Node 101项独立质量正反例和拒绝测试
         shell: bash
         run: |
           set -euo pipefail
           node --test --test-concurrency=1 engineering/f08/quality-evidence-gate-ci/tests/quality.test.mjs 2>&1 | tee f08-1-node-native.log
-          grep -q F08_1_NODE_83_ASSERTIONS_PASS f08-1-node-native.log
-          grep -q '# tests 84' f08-1-node-native.log
+          grep -q F08_1_NODE_101_ASSERTIONS_PASS f08-1-node-native.log
+          grep -q '# tests 102' f08-1-node-native.log
           grep -q '# fail 0' f08-1-node-native.log
       - name: 当前HEAD实时GitHub旧CI只读审计（状态不是最终成功证明）
         env:

@@ -1,3 +1,4 @@
+import {assertTrustedParentReceipt} from './trusted-parent.mjs';
 // F08-1: 只读非生产跨域证据门禁。任何“目录存在”都不能推定运行成功。
 import {readFileSync,writeFileSync,existsSync,mkdirSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
@@ -38,19 +39,19 @@ export function normalizeCheck(check,requestedSha){
  if(!['success','failure','skipped','cancelled'].includes(conclusion))throw Error('CHECK_CONCLUSION_INVALID');
  return {state:conclusion,sha:observed,meaning:conclusion==='success'?'CHECK_FINISHED_SUCCESS':conclusion==='failure'?'CHECK_FAILED':'CHECK_NOT_SUCCESS'};
 }
-export function requireEvidence(row,{target='NONPRODUCTION',observedCheck=null}={}){
+export function requireEvidence(row,{target='NONPRODUCTION',observedCheck=null,verifiedProof=null}={}){
  if(!EVIDENCE_LEVELS.includes(row.level))throw Error('EVIDENCE_LEVEL_UNKNOWN');
  if(target==='PRODUCTION_READY'||target==='UAT_ACCEPTED')throw Error('PRODUCTION_OR_UAT_NOT_AUTHORIZED');
  if(target==='SIGNED_PARENT_POSITIVE'&&row.level!=='SIGNED_PARENT_VERIFIED')throw Error('PARENT_POSITIVE_NOT_VERIFIED');
  if(target==='SIGNED_PARENT_POSITIVE'&&(!isSha(row.evidence_sha)||!row.run_id))throw Error('PARENT_POSITIVE_EVIDENCE_MISSING');
- if(target==='SIGNED_PARENT_POSITIVE'&&(!observedCheck||observedCheck.state!=='success'||observedCheck.sha!==row.evidence_sha))throw Error('PARENT_POSITIVE_CI_NOT_VERIFIED');
+ if(target==='SIGNED_PARENT_POSITIVE')assertTrustedParentReceipt(row,verifiedProof);
  if(target==='REAL_EXTERNAL'&&row.level!=='SIGNED_PARENT_VERIFIED')throw Error('REAL_EXTERNAL_SOURCE_GAP');
  if(row.level==='SOURCE_GAP'||row.level==='NOT_RUN')return {eligible:false,reason:row.level};
  if(observedCheck&&observedCheck.state!=='success')return {eligible:false,reason:'CI_'+observedCheck.state.toUpperCase()};
  if(row.level==='SIGNED_PARENT_NEGATIVE_ONLY'&&target==='SIGNED_PARENT_POSITIVE')throw Error('NEGATIVE_IS_NOT_POSITIVE');
  return {eligible:row.level==='SIGNED_PARENT_VERIFIED'&&target==='SIGNED_PARENT_POSITIVE'||target==='NONPRODUCTION',reason:row.level};
 }
-export function validateCoverage(rows,{verifiedChecks=[]}={}){
+export function validateCoverage(rows,{verifiedProofs=[]}={}){
  uniqueRows(rows,'id');
  const domains=new Set(rows.map(x=>x.domain));
  for(const domain of ['F01','F02','F03','F04','F05','F06','F07','F08','C'])if(!domains.has(domain))throw Error('MISSING_DOMAIN_'+domain);
@@ -67,7 +68,7 @@ export function validateCoverage(rows,{verifiedChecks=[]}={}){
   if(row.level==='SIGNED_PARENT_VERIFIED'&&(!isSha(row.evidence_sha)||!row.run_id||row.run_id==='—'))throw Error('PARENT_SIGNED_PROOF_MISSING:'+row.id);
   // TSV声明只能表明待核验：正例必须另有从GitHub只读接口独立取得的同SHA成功Check。
   if(row.positive_parent==='YES'){
-   const proof=verifiedChecks.find(x=>x.id===row.id&&x.head_sha===row.evidence_sha&&String(x.run_id)===row.run_id&&x.status==='completed'&&x.conclusion==='success'&&x.provenance==='GH_REST_CHECK_RUNS_READ_ONLY');
+   const proof=verifiedProofs.find(x=>{try{return assertTrustedParentReceipt(row,x);}catch{return false;}});
    if(!proof)throw Error('PARENT_POSITIVE_INDEPENDENT_CHECK_MISSING:'+row.id);
   }
  }
@@ -79,7 +80,7 @@ export function validateGaps(rows){
   if(!row.owner||!row.release_condition||row.claimed_done!=='NO')throw Error('GAP_NOT_ACTIONABLE:'+row.id);
  }return true;
 }
-export function validateLegacy(rows,{verifiedChecks=[]}={}){
+export function validateLegacy(rows){
  uniqueRows(rows,'id');
  for(const row of rows){
   if(!isSha(row.observed_sha)||!CI_STATES.includes(row.state))throw Error('LEGACY_UNTRUSTED_STATE:'+row.id);
@@ -90,8 +91,8 @@ export function validateLegacy(rows,{verifiedChecks=[]}={}){
   if(row.state!=='success'&&row.success_claim!=='NO')throw Error('NON_SUCCESS_CANNOT_CLAIM_SUCCESS:'+row.state+':'+row.id);
   // 允许记录历史成功的前提是提供独立只读核验事实；默认不接受自述成功。
   if(row.state==='success'&&row.success_claim==='YES'){
-   const proof=verifiedChecks.find(x=>x.id===row.id&&x.head_sha===row.observed_sha&&x.status==='completed'&&x.conclusion==='success'&&x.provenance==='GH_REST_CHECK_RUNS_READ_ONLY');
-   if(!proof)throw Error('LEGACY_SUCCESS_INDEPENDENT_CHECK_MISSING:'+row.id);
+   // 历史TSV和字符串provenance都不是当前真实GitHub校验回执，不可从静态输入自行提权。
+   throw Error('LEGACY_SUCCESS_INDEPENDENT_CHECK_MISSING:'+row.id);
   }
  }return true;
 }
