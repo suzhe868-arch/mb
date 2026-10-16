@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F08_1_A_STANDARD_MERGED_F05_LEGACY_CI_GOVERNANCE_01_RELEASED",
+  "substage": "F05_LEGACY_CI_GOVERNANCE_01_A_SCOPE_EXPANSION_R2_RELEASED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F05_CI_GOVERNANCE",
-  "current_domain_status": "F05_LEGACY_CI_GOVERNANCE_01_A_RELEASED_F05_BUSINESS_NOT_READY",
+  "current_domain_status": "F05_CI_PR70_R2_FROZEN_16_SERVICES_SCOPE_RELEASED_F05_BUSINESS_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A已第三轮独立验收F08-1 PR69最终HEAD f368ed870a4d432f25eb2fb1fb3915f78a4fd720：12/12授权文件、GitHub真实Push Run38847514793 Node101+PG16非特权24独立安全工具测试及两官方同SHA有效工件，trusted-parent私有受信父来源回执、Q14/Q78反转、Q84-Q101安全负例全部完成；PR69 GitHub正常merge返回merged=true，实际merge SHA 3c32c845939ce7b51dd18814e212c4bf0942aecf。旧F05检查不全绿（30=21 success、7 failure、2 in_progress，7失败含6镜像ECR限流与1旧正式Push来源），未改旧检查，required checks未知。A已单独放行F05历史CI技术治理工作单交B，F05业务/F08全域/V1继续NOT_READY，C PR68独立等待A审查。",
-  "current_work_file": "07_重建工作区/F05_历史CI失败治理_A主控非生产专项完整施工单_2026-10-16.md",
+  "current_task": "A读取PR70 B HEAD 2ac1905cda63c3a4010de2321aef121b99a2a706 同main对比11项全部原授权文件；真实Push Run38850885960 Node25+非特权PG16 24独立CI治理断言和两同SHA有效SHA256工件。五份主F05 workflow 12项服务在Runner本机Alias保持原脚本，PG16可真实执行；Source旧严格原Push校验保留。A确认另五份冻结重验证workflow共16项ECR镜像仍因toomanyrequests失败且未获原授权。A签发精确五文件16镜像+仅本地tag兼容核验追加白名单，PR70保持Draft/NoMerge，B原分支继续直至同新SHA实跑双Job与旧28 Check分类。当前PR70 HEAD checks 30=21 success7failure2in_progress，旧28=19 success7failure2in_progress，仍非全绿。F05业务/F08全域/V1 NOT_READY，C独立。",
+  "current_work_file": "07_重建工作区/F05_历史CI专项_PR70冻结重验证5工作流16镜像_A主控追加技术授权施工补充单_2026-10-16.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F05_LEGACY_CI_GOVERNANCE_01_RELEASED",
+  "current_review_batch": "F05_PR70_A_SCOPE_EXPANSION_RELEASED",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B依据新正式F05历史CI治理工作单，从最新main独立建fix/f05-legacy-ci-governance-01分支，修复公共ECR镜像限流、明确严格来源正式Push和跨PR适用性，不降级真PG16及签名证据，完成同末SHA双Job+工件与完整旧CI分类后交A。",
+  "next_action": "B在PR70原分支按A追加施工单仅修复五份冻结revalidation工作流16处PG16服务镜像与本地别名，保留原业务脚本、正式Push签父、PR触发、Artifact与非特权真PG16，扩展28旧Job审计，用最终唯一新SHA完整Push双Job/两工件及28项旧Check分类交A复验；A本轮不合并。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B依据新正式F05历史CI治理工作单，从最新main独立建fix/f05-legacy-ci-governance-01分支，修复公共ECR镜像限流、明确严格来源正式Push和跨PR适用性，不降级真PG16及签名证据，完成同末SHA双Job+工件与完整旧CI分类后交A。",
+  "next_action_detail": "B在PR70原分支按A追加施工单仅修复五份冻结revalidation工作流16处PG16服务镜像与本地别名，保留原业务脚本、正式Push签父、PR触发、Artifact与非特权真PG16，扩展28旧Job审计，用最终唯一新SHA完整Push双Job/两工件及28项旧Check分类交A复验；A本轮不合并。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F05_LEGACY_CI_GOVERNANCE_01",
+  "next_task": "F05_LEGACY_CI_GOVERNANCE_01_R2_FROZEN_16_SERVICE_IMAGES",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -8572,10 +8572,10 @@
     "v1": "NOT_READY"
   },
   "f05_legacy_ci_governance_gate": {
-    "status": "A_RELEASED_FOR_B_CI_ONLY",
+    "status": "A_SCOPE_EXPANSION_R2_RELEASED_PR70_DRAFT_NO_MERGE",
     "owner": "B",
     "next_owner": "B",
-    "next_task": "F05_LEGACY_CI_GOVERNANCE_01",
+    "next_task": "F05_LEGACY_CI_GOVERNANCE_01_R2_FROZEN_16_SERVICE_IMAGES",
     "work_order": "07_重建工作区/F05_历史CI失败治理_A主控非生产专项完整施工单_2026-10-16.md",
     "branch": "fix/f05-legacy-ci-governance-01",
     "base": "LATEST_MAIN_AT_START",
@@ -8606,6 +8606,84 @@
     "f08_global": "NOT_READY",
     "v1": "NOT_READY",
     "production": false,
-    "merge_allowed": false
+    "merge_allowed": false,
+    "original_work_order": "07_重建工作区/F05_历史CI失败治理_A主控非生产专项完整施工单_2026-10-16.md",
+    "supplemental_work_order": "07_重建工作区/F05_历史CI专项_PR70冻结重验证5工作流16镜像_A主控追加技术授权施工补充单_2026-10-16.md",
+    "a_review_report": "07_重建工作区/F05_历史CI治理_PR70_A首轮独立核验与冻结16镜像追加白名单正式裁决_2026-10-16.md",
+    "review_pr": 70,
+    "review_head_sha": "2ac1905cda63c3a4010de2321aef121b99a2a706",
+    "allowed_additional_frozen_workflows": [
+      ".github/workflows/f05-10-d1-frozen-f05-8-four-revalidation.yml",
+      ".github/workflows/f05-10-d1-frozen-f05-9-two-revalidation.yml",
+      ".github/workflows/f05-9-frozen-f05-8-four-revalidation.yml",
+      ".github/workflows/f05-10-frozen-f05-9-two-revalidation.yml",
+      ".github/workflows/f05-10-frozen-f05-8-four-revalidation.yml"
+    ],
+    "allowed_frozen_image_replacements": 16,
+    "original_workflows_count": 5,
+    "original_workflow_pg16_jobs": 12,
+    "total_related_workflows": 10,
+    "total_related_old_pg16_jobs": 28,
+    "latest_native_run": 38850885960,
+    "independent_ci_assertions": 49,
+    "artifact_ids": [
+      12025336620,
+      12025296052
+    ],
+    "latest_same_sha_check": {
+      "total": 30,
+      "success": 21,
+      "failure": 7,
+      "in_progress": 2,
+      "old_f05_total": 28,
+      "old_f05_success": 19,
+      "old_f05_failure": 7,
+      "old_f05_in_progress": 2
+    },
+    "merged": false
+  },
+  "f05_legacy_ci_governance_a_review": {
+    "status": "A_FIRST_REVIEW_SCOPE_EXPANSION_RELEASED_NOT_ACCEPTED",
+    "pr": 70,
+    "head_sha": "2ac1905cda63c3a4010de2321aef121b99a2a706",
+    "source_main_sha": "e0f9a04ae0c25031ae47ed4af107890550f56b56",
+    "additional_frozen_workflows": [
+      [
+        ".github/workflows/f05-10-d1-frozen-f05-8-four-revalidation.yml",
+        4
+      ],
+      [
+        ".github/workflows/f05-10-d1-frozen-f05-9-two-revalidation.yml",
+        2
+      ],
+      [
+        ".github/workflows/f05-9-frozen-f05-8-four-revalidation.yml",
+        4
+      ],
+      [
+        ".github/workflows/f05-10-frozen-f05-9-two-revalidation.yml",
+        2
+      ],
+      [
+        ".github/workflows/f05-10-frozen-f05-8-four-revalidation.yml",
+        4
+      ]
+    ],
+    "old_workflows_modified": 5,
+    "old_jobs_fixed": 12,
+    "old_jobs_out_of_scope_await_b": 16,
+    "node_job": 116811612025,
+    "pg16_job": 116811612227,
+    "run_id": 38850885960,
+    "tools_assertions": 49,
+    "artifacts": [
+      12025336620,
+      12025296052
+    ],
+    "next_owner": "B",
+    "next_task": "F05_LEGACY_CI_GOVERNANCE_01_R2_FROZEN_16_SERVICE_IMAGES",
+    "required_checks": "UNKNOWN_403",
+    "merge_allowed": false,
+    "report": "07_重建工作区/F05_历史CI治理_PR70_A首轮独立核验与冻结16镜像追加白名单正式裁决_2026-10-16.md"
   }
 }

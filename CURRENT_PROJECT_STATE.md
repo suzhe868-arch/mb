@@ -1,3 +1,13 @@
+# 2026-10-16｜A核验PR70已授权12项F05 PG16镜像恢复；追加冻结5份16镜像白名单给B，暂不合并
+
+- **正式最新裁决**：`F05_LEGACY_CI_GOVERNANCE_01_R2_A_SCOPE_EXPANSION_RELEASED / PR70_DRAFT_NO_MERGE / NEXT_OWNER=B / NEXT_TASK=F05_LEGACY_CI_GOVERNANCE_01_R2_FROZEN_16_SERVICE_IMAGES / F05_BUSINESS_F08_GLOBAL_V1_NOT_READY / NO_PRODUCTION`。原正式施工单继续有效，新追加施工单只允许修复5份冻结revalidation Workflow内16项镜像/本地兼容别名与可验证原生测试证据，不解除冻结业务与父签来源。
+- **实际B交接**：[PR70](https://github.com/suzhe868-arch/mb/pull/70)仍Draft/Open/NOT_MERGED，B头 `2ac1905cda63c3a4010de2321aef121b99a2a706`，11项变更全部原授权白名单，5份主旧Workflow共12个PG16 Job改`postgres:16`并经同一Docker容器本地tag验证成功。真实Push [Run38850885960](https://github.com/suzhe868-arch/mb/actions/runs/38850885960) 双独立Job成功，Node25项独立断言+真非特权PG16 24项，共49项CI治理工具/隔离PG测试，2份同SHA非空官方SHA256工件，**未独立ZIP复算**。旧Source真实PG回归通过后仍按非原Push拒绝签父，是正确安全行为，不计PASS。
+- **真实补充范围**：A从当前main逐一核对另外5份冻结工作流的16处ECR限流镜像，旧Job仍发生`toomanyrequests: Data limit exceeded`；当前B HEAD真实30 checks=21 success/7 failure/2 in_progress，旧F05 28中19 success/7 failure/2 in_progress，禁止冒称全绿，GitHub required checks=UNKNOWN（保护查询403）。允许B原PR70原分支追加16处`postgres:16`镜像改动和纯本地Docker alias验证，完整保留16旧Job真实脚本、原签Push/PR触发、Artifact与安全门禁，CI治理工具可增28项全覆盖合同测试；**不得修改业务源码/PDM/DDL/C/生产**。
+- [A完整补充施工单](https://github.com/suzhe868-arch/mb/blob/main/07_重建工作区/F05_历史CI专项_PR70冻结重验证5工作流16镜像_A主控追加技术授权施工补充单_2026-10-16.md)｜[首轮核验技术裁决](https://github.com/suzhe868-arch/mb/blob/main/07_重建工作区/F05_历史CI治理_PR70_A首轮独立核验与冻结16镜像追加白名单正式裁决_2026-10-16.md)｜[PR70 A正式评论](https://github.com/suzhe868-arch/mb/pull/70#issuecomment-6208228556)。B最后唯一新SHA须真实双Job/两工件和旧28项逐Job来源分类，补齐完整中文交接后再交A最终独立验收；在此之前**A不合并**。
+- 另一并行C手机端PR68仍独立、未归入B治理；F05业务、F08全域、V1仍NOT_READY；真实客户、资金、外部服务、UAT与上线未授权。**下一责任窗口B。**
+
+---
+
 # 2026-10-16｜A三轮正式验收并标准合并F08-1 PR69；正式放行F05历史CI专项治理给B
 
 - **唯一现行B主任务**：`F08_1_PR69_A_ACCEPTED_STANDARD_MERGED_CI_ONLY / F05_LEGACY_CI_GOVERNANCE_01_A_RELEASED / NEXT_OWNER=B / NEXT_TASK=F05_LEGACY_CI_GOVERNANCE_01 / F08_GLOBAL_V1_NOT_READY / NO_PRODUCTION`。C-APP-01/PR68仍属独立并行轨（C已交A核审申请但本次未审/未合并），不被B主线覆盖。
