@@ -1,3 +1,12 @@
+# 2026-10-16｜A主控已独立验收并标准合并F05父来源只读审计PR72；正式放行父链恢复可行性单（当前最新）
+
+- **GitHub真实事实**：PR [#72](https://github.com/suzhe868-arch/mb/pull/72) 受验HEAD `64152bdba1949fdeb5bcbbf0d54b1f4479d5a3ea`；7/7新增授权白名单文件；真实Push [Run38900276212](https://github.com/suzhe868-arch/mb/actions/runs/38900276212) Node 35/35＋真非特权隔离PG16 16/16双Job成功；两份最终同SHA非空未过期官方SHA256工件`12044759505/12045329248`，未独立ZIP复算。A独立读取源代码、最终Job及五份历史失败原生日志；[正式验收评论](https://github.com/suzhe868-arch/mb/pull/72#issuecomment-6216335471)。GitHub**标准合并成功**，`merged=true`，主线merge SHA **`bf0de40b6fda3285dc38cef17d47db7fa953ac10`**。完整[A验收报告](https://github.com/suzhe868-arch/mb/blob/main/07_重建工作区/F05_父来源只读审计_PR72_A主控独立验收标准合并报告_2026-10-16.md)。
+- **边界未改变**：五个旧来源 `F05-7 / F05-8 / F05-9 / F05-10 / F05-10-D1` 仍是原生真实`SOURCE_GAP`（66/68同SHA官方父Job或原分支正式新Push缺失），不能把新审计和51个隔离断言的成功当成正式父签/旧全域绿灯。F05业务、F08全域、V1、真实第三方、客户资金、生产仍`NOT_READY / NO_PRODUCTION`，不得放宽旧SOURCE安全门禁。
+- **B主线唯一下一指针**：`NEXT_OWNER=B / NEXT_TASK=F05_PARENT_CHAIN_RESTORE_FEASIBILITY_01 / A_RELEASED_FOR_B_READ_ONLY_FEASIBILITY`。正式[A完整工作单](https://github.com/suzhe868-arch/mb/blob/main/07_重建工作区/F05_五项正式父级来源链恢复可行性核证_A主控下一阶段完整施工单_2026-10-16.md)：B从最新main新建`feat/f05-parent-chain-restore-feasibility-01`，独立PR，只读核实五个原分支的原始Push/同SHA父链/Job/Artifact可达性，提交可执行恢复方案与动态证据；**未授权重跑原生66/68/70/72批Job、修改旧SOURCE或原分支Push**，必须等A独立新裁决。
+- **C并行轨不变**：PR [#68](https://github.com/suzhe868-arch/mb/pull/68) 用户已否决C01首页与详情功能/视觉，仍`C_NEXT_OWNER=C / C_NEXT_TASK=C_APP_01_R3_HOME_DETAIL_FULL_SPEC_REBASE / PR68_NO_MERGE`；47项R3＋原R1/R2及常设G0～G5，未经验收不可合并。主B指针不被C覆盖。
+
+---
+
 # 2026-10-16｜A主控提高C窗口所有后续手机端页面质量门槛：正式常设门禁（当前最新）
 
 - **用户要求**：不仅修复C01首页和详情，还要防止以后C02/C03、E01～E08获批施工时再次出现功能遗漏和低质页面。A已正式制定[《C手机端全页面统一产品功能交互视觉质量门禁》](https://github.com/suzhe868-arch/mb/blob/main/07_重建工作区/C手机端全页面统一产品功能交互视觉质量门禁_A主控常设正式规范_2026-10-16.md)及[逐页验收契约卡TSV模板](https://github.com/suzhe868-arch/mb/blob/main/07_重建工作区/手机端前端全量追踪基线/C_全部页面质量验收契约卡_统一填写模板_2026-10-16.tsv)。适用**未来经A明确放行**的C客户和E员工手机端页面、弹层、公共组件；不等于自动授权所有尚未开工页面，PC后台不自动涵盖。
