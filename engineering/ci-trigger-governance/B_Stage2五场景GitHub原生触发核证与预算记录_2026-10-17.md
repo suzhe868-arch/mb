@@ -69,3 +69,9 @@ A确认main不存在C构建Workflow `.github/workflows/c-app-01-build-render.yml
 - **BEFORE（旧C PR68，2026-10-16T13:36Z、HEAD`a02ca27d2109e365c5830b641a18cfb059fe3684`）**：原生真实PR Run总计11，分别为旧十份F05+ C专用工作流`.github/workflows/c-app-01-build-render.yml`一份（对应Run`38909117378`，conclusion success）。这发生在PR76阶段1配置合并**之前**。
 - **AFTER（PR77，HEAD`c90e5917aa81fcb69be0effcdd89d3fa27e8ab9e`）**：变更只位于`apps/mobile/evidence/**`，原生PR Run=0、Check=0，旧F05没误触发。但PR77与PR68不是同一个SHA、并非相同diff；`main`尚无C独立Build Workflow，故**不能通过11→0计算生产Runner节省，也不能说C必要测试得到保持**。两个独立结果只证明原触发广泛与现路径负例的差异。
 - C的真实构建工作流仍留PR68未合并，现阶段不修改C分支以规避抢改C用户否决后R3施工；该未闭合部分需A对真实C检查持久性单独验收，不能靠测试探针绿灯掩盖。
+
+## 7. 真实Draft对照补证：Draft不是F05路由缺席的原因
+
+- **两条PR均为`open + draft + not merged`**：PR77 HEAD `c90e5917aa81fcb69be0effcdd89d3fa27e8ab9e` 与PR78 HEAD `aaf724f7928a6cb18dba801f6184754d9ffe21c2`。PR77相对最新main差异只有`apps/mobile/evidence/CI_TRIGGER_SCOPE_C_ONLY_PROBE_20261017.md`（ahead1/behind6），真正Actions PR Run **0**、Check **0**。PR78相对最新main差异只有`engineering/f05/ci-trigger-governance-probes/F05专域触发核证_2026-10-17.md`（ahead1/behind0），同为Draft却真实产生F05 **10** Run、**28** Check，证明Draft本身不阻止这些F05工作流PR触发。
+- 单论F05的路径路由：C-only不命中、F05-only命中符合A批准的过滤逻辑。这一对照**不能替代**共享/混合真实PR、也不能证明未合并C PR68的必要Build继续有效。
+- 截至追加时：PR78 Check 23 success、4 failure、1 in_progress；F05-8 `priority-source`原生Job `117083642179`未最终结束，报告仍记`NOT_VERIFIED`，保留串行预算门禁。后续必须从GitHub最终Run/Job API重新获取终态。
