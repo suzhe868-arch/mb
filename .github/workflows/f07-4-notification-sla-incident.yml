@@ -1,0 +1,159 @@
+name: F07-4 Notification SLA Incident MockFeishu PG16
+on:
+  push:
+    branches:
+      - feat/f07-4-notification-sla-incident-gate-ci
+    paths:
+      - 'engineering/f07/notification-sla-incident-gate-ci/**'
+      - '.github/workflows/f07-4-*.yml'
+permissions:
+  contents: read
+jobs:
+  source_pg16:
+    name: F07-4 Source 92 真PG16
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      CI: 'true'
+      NODE_ENV: test
+      APP_ENV: test
+      F07_4_ONLY: I_AUTHORIZE_F07_4_LOCAL_MOCK_PG16
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      DATABASE_URL: postgres://f07_4_ci:f07_4_ci_synthetic_only@127.0.0.1:5432/f07_4_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 前置环境门禁、原生依赖和静态语法
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --prefix engineering install --ignore-scripts --no-audit --no-fund
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REF" = refs/heads/feat/f07-4-notification-sla-incident-gate-ci
+          node --input-type=module -e "import('./engineering/f07/notification-sla-incident-gate-ci/gate.mjs').then(m=>m.assertCIEnv())"
+          for f in gate.mjs server.mjs tests/source.test.mjs tests/https.test.mjs tests/parent.test.mjs; do
+            node --check "engineering/f07/notification-sla-incident-gate-ci/$f"
+          done
+      - name: 建立唯一非超级用户16数据库
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f07_4_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f07_4_test OWNER f07_4_ci;"
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -Atc "SELECT current_database(),current_user,current_setting('server_version_num'),pg_backend_pid()" | tee f07-4-source-pg16-identity.log
+      - name: 真PG16 Source92正反例并发回滚与审计
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f07/notification-sla-incident-gate-ci/tests/source.test.mjs 2>&1 | tee f07-4-source-native.log
+          grep -q F07_4_SOURCE_NATIVE_PG16_92_PASS f07-4-source-native.log
+          grep -q F07_4_NATIVE_DUAL_BACKEND_PIDS f07-4-source-native.log
+          grep -q F07_4_NATIVE_ROW_LOCK_55P03 f07-4-source-native.log
+          grep -q F07_4_R2_NATIVE_INCIDENT_CLEAR_DISPATCH_LOCK f07-4-source-native.log
+          grep -q '# fail 0' f07-4-source-native.log
+          echo F07_4_SIGNED_PARENT_POSITIVE_SOURCE_GAP
+      - name: 冻结F03第二物理PG16父Session准备与原生负证
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f03_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f03_auth_test OWNER f03_ci;"
+          node engineering/f03-1/runner.mjs --bootstrap >f07-4-f03-parent-bootstrap.log
+          node engineering/f03-1/runner.mjs --apply >>f07-4-f03-parent-bootstrap.log
+          node engineering/f03-1/runner.mjs --verify >>f07-4-f03-parent-bootstrap.log
+          node engineering/f03-1/fixtures.mjs >>f07-4-f03-parent-bootstrap.log
+          node --test --test-concurrency=1 engineering/f07/notification-sla-incident-gate-ci/tests/parent.test.mjs 2>&1 | tee f07-4-f03-parent-native.log
+          grep -q F07_4_F03_SIGNED_PARENT_NEGATIVE_ONLY_10_PASS f07-4-f03-parent-native.log
+          grep -q '# fail 0' f07-4-f03-parent-native.log
+          echo SIGNED_PARENT_NEGATIVE_ONLY__POSITIVE_SOURCE_GAP
+      - name: 同SHA官方原生日志工件Source
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f07-4-source-pg16-${{ github.sha }}
+          path: |
+            f07-4-source-pg16-identity.log
+            f07-4-source-native.log
+            f07-4-f03-parent-native.log
+            f07-4-f03-parent-bootstrap.log
+          if-no-files-found: error
+          retention-days: 14
+  https_pg16:
+    name: F07-4 HTTPS 26 真PG16
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      CI: 'true'
+      NODE_ENV: test
+      APP_ENV: test
+      F07_4_ONLY: I_AUTHORIZE_F07_4_LOCAL_MOCK_PG16
+      DATABASE_URL: postgres://f07_4_ci:f07_4_ci_synthetic_only@127.0.0.1:5432/f07_4_test
+      F07_4_TLS_KEY: /tmp/f07-4-loopback-key.pem
+      F07_4_TLS_CERT: /tmp/f07-4-loopback-cert.pem
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 前置环境门禁和依赖
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --prefix engineering install --ignore-scripts --no-audit --no-fund
+          node --input-type=module -e "import('./engineering/f07/notification-sla-incident-gate-ci/gate.mjs').then(m=>m.assertCIEnv())"
+          node --check engineering/f07/notification-sla-incident-gate-ci/server.mjs
+      - name: 第二独立非超级用户PG16与回环TLS
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f07_4_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f07_4_test OWNER f07_4_ci;"
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -Atc "SELECT current_database(),current_user,current_setting('server_version_num'),pg_backend_pid()" | tee f07-4-https-pg16-identity.log
+          openssl req -x509 -newkey rsa:2048 -sha256 -nodes -keyout "$F07_4_TLS_KEY" -out "$F07_4_TLS_CERT" -days 1 -subj '/CN=localhost' -addext 'subjectAltName=DNS:localhost,IP:127.0.0.1' >/dev/null 2>&1
+      - name: 回环TLS20项逐请求PG结果与拒绝码内审
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f07/notification-sla-incident-gate-ci/tests/https.test.mjs 2>&1 | tee f07-4-https-native.log
+          grep -q F07_4_HTTPS_PG16_LOOPBACK_TLS_26_PASS f07-4-https-native.log
+          grep -q '# fail 0' f07-4-https-native.log
+          echo F07_4_FEISHU_REAL_EXTERNAL_DELIVERY_NOT_AUTHORIZED
+      - name: 同SHA官方原生日志工件HTTPS
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f07-4-https-pg16-${{ github.sha }}
+          path: |
+            f07-4-https-pg16-identity.log
+            f07-4-https-native.log
+          if-no-files-found: error
+          retention-days: 14

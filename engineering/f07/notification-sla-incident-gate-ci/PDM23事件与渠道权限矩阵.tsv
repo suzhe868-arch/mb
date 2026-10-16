@@ -1,0 +1,33 @@
+事件类型	允许主动提醒	个人渠道	总群渠道	签名父正向源	默认免打扰	业务副作用	证据分级
+consultation_created	是	是	禁止	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+consultation_sla_timeout	是	是	仅合法总群路由	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+public_pool_first_followup	是	是	禁止	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+lock_request_result	是	是	禁止	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+waitlist_auto_result	是	是	禁止	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+waitlist_released	是	是	禁止	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+lock_expiring	是	是	禁止	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+supply_anomaly	是	是	仅合法总群路由	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+transaction_changed	是	是	禁止	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+refund_changed	是	是	禁止	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+incident_active	是	是	仅合法总群路由	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+incident_recovery	是	是	仅合法总群路由	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	23:00—08:30 Asia/Shanghai	不得更改任何来源业务状态	CI_SYNTHETIC_ONLY
+page_view	否	禁止	禁止	NOT_ALLOWLISTED	无豁免	禁止	CI_SYNTHETIC_ONLY
+click	否	禁止	禁止	NOT_ALLOWLISTED	无豁免	禁止	CI_SYNTHETIC_ONLY
+matching	否	禁止	禁止	NOT_ALLOWLISTED	无豁免	禁止	CI_SYNTHETIC_ONLY
+opportunity	否	禁止	禁止	NOT_ALLOWLISTED	无豁免	禁止	CI_SYNTHETIC_ONLY
+source_radar	否	禁止	禁止	NOT_ALLOWLISTED	无豁免	禁止	CI_SYNTHETIC_ONLY
+recommendation_created	否	禁止	禁止	NOT_ALLOWLISTED	无豁免	禁止	CI_SYNTHETIC_ONLY
+recommendation_ended	否	禁止	禁止	NOT_ALLOWLISTED	无豁免	禁止	CI_SYNTHETIC_ONLY
+当前业务负责人	动态读取	需要current active/eligible/scope	SLA需当前员工群开关	SIGNED_PARENT_NEGATIVE_ONLY	失效后拒绝	不得另建owner	SOURCE_GAP
+公司总开关	最高优先级	关闭阻断	关闭阻断	PDM-23	无豁免	仅通知开关	CI_SYNTHETIC_ONLY
+Incident cadence	仅已配置	不默认重复	按配置重复	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	无豁免	不重建Incident	CI_SYNTHETIC_ONLY
+Notification Config写	需显式capability+scope+object	系统管理员不自带	不存在第二群总开关	SIGNED_PARENT_NEGATIVE_ONLY	不适用	父缺口时一律禁止	SOURCE_GAP
+deep-link	打开每次再验签	当前Session/Scope/Object	不构成first response	LINK_CURRENT_SESSION_SCOPE_OBJECT_SOURCE_GAP	不适用	无业务变更	SOURCE_GAP
+SLA有效超时	deadline已到且首次人工响应未完成	有效hold不可误报	群独立开关仍适用	SLA_EVENT_SOURCE_GAP	DND不得豁免	合成事实只读，父源COUNT/MD5不变	CI_SYNTHETIC_ONLY
+Incident Recovery	必须具备同Incident active→cleared原生前后态	一次成功后全事件级去重	DND重判与当前路由生效	INCIDENT_SIGNED_ISSUER_SOURCE_GAP	DND不得豁免	合成生命周期仅CI schema	CI_SYNTHETIC_ONLY
+NotificationLog	发送/失败/跳过/去重全留痕	recipient_ref为脱敏哈希	channel与route_ref逐条一致	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	保持DND标记	当前config.version与revalidation_basis	CI_SYNTHETIC_ONLY
+父权限调用计数	真实F03读取器入口trace才计数	当前signedParentCalls=0	合成PG独立syntheticPgReads	LINK_CURRENT_SESSION_SCOPE_OBJECT_SOURCE_GAP	不适用	本地deepLinkGuard非父认证	PRE_PARENT_VALIDATION
+TLS服务器身份	本机127.0.0.1 SAN验签	错误CA握手拒绝	假服务器名握手拒绝	CI_LOCAL_TLS_ONLY	不适用	不可关闭rejectUnauthorized	PRE_PARENT_VALIDATION
+Incident Active当前生命周期	旧事件incident_active只用于预校验	必须同incident_id行锁取当前status=active且ever_active=true	clear已提交或不存在生命周期即FailClosed	INCIDENT_SIGNED_ISSUER_SOURCE_GAP	DND继续生效	只在CI schema记录，不改变上游真实Incident	CI_SYNTHETIC_ONLY
+Incident状态转换并发	clearIncident与Active同生命周期行互斥	clear先COMMIT时Active无权重复投递	仅已clear才允许Recovery并须at>=cleared_at	INCIDENT_SIGNED_ISSUER_SOURCE_GAP	无DND豁免	旧事件布尔值不能覆盖当前生命周期	CI_SYNTHETIC_ONLY
+Incident时间序	Active须at>=activated_at	Recovery须at>=cleared_at	旧时钟或回放不能新建任何消息	INCIDENT_SIGNED_ISSUER_SOURCE_GAP	保持原DND	仅对可控合成事实读时刻，不替代正式Issuer	CI_SYNTHETIC_ONLY
