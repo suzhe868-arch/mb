@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 55
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16
         env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
         ports: [5432:5432]
         options: >-
@@ -38,7 +38,7 @@ jobs:
     timeout-minutes: 55
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16
         env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
         ports: [5432:5432]
         options: >-
