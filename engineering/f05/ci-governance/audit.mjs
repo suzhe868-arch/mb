@@ -9,6 +9,11 @@ export const EXPECTED=Object.freeze({
  'f05-9-recommendation-visibility-grants.yml':{jobs:2,branch:'feat/f05-9-recommendation-visibility-grants',runner:'engineering/f05/recommendation-visibility-grants/ci-job.sh'},
  'f05-10-consultation-assignee-sla.yml':{jobs:2,branch:'feat/f05-10-consultation-assignee-sla',runner:'engineering/f05/consultation-assignee-sla/ci-job.sh'},
  'f05-10-d1-public-pool-owner-claim.yml':{jobs:2,branch:'feat/f05-10-d1-pdm17-public-pool-owner-claim',runner:'engineering/f05/pdm17-public-pool-owner-claim/ci-job.sh'},
+ 'f05-10-d1-frozen-f05-8-four-revalidation.yml':{jobs:4,branch:'feat/f05-10-d1-pdm17-public-pool-owner-claim',runner:'engineering/f05/recommendation-visibility-grants/compat-f05-8-job.sh'},
+ 'f05-10-d1-frozen-f05-9-two-revalidation.yml':{jobs:2,branch:'feat/f05-10-d1-pdm17-public-pool-owner-claim',runner:'engineering/f05/pdm17-public-pool-owner-claim/compat-f05-9-job.sh'},
+ 'f05-9-frozen-f05-8-four-revalidation.yml':{jobs:4,branch:'feat/f05-9-recommendation-visibility-grants',runner:'engineering/f05/recommendation-visibility-grants/compat-f05-8-job.sh'},
+ 'f05-10-frozen-f05-9-two-revalidation.yml':{jobs:2,branch:'feat/f05-10-consultation-assignee-sla',runner:'engineering/f05/consultation-assignee-sla/compat-f05-9-job.sh'},
+ 'f05-10-frozen-f05-8-four-revalidation.yml':{jobs:4,branch:'feat/f05-10-consultation-assignee-sla',runner:'engineering/f05/recommendation-visibility-grants/compat-f05-8-job.sh'},
 });
 export const BASELINE_SHA='f368ed870a4d432f25eb2fb1fb3915f78a4fd720';
 export function examineWorkflow(text,name){
@@ -19,7 +24,7 @@ export function examineWorkflow(text,name){
  if(count(/services:\s*\n\s*postgres:/g)!==x.jobs)throw Error('F05_PG_SERVICE_REMOVED:'+name);
  if((text.split('docker tag postgres:16 public.ecr.aws/docker/library/postgres:16-alpine').length-1)!==x.jobs)throw Error('F05_LEGACY_ANCESTOR_LOCAL_ALIAS_MISSING:'+name);
  if(count(/F05_PG16_DOCKERHUB_LOCAL_TAG_ALIAS_CONFIRMED_NO_ECR_NETWORK_PULL/g)!==x.jobs)throw Error('F05_DOCKERHUB_ORIGIN_AUDIT_MISSING:'+name);
- if(count(/ci-job\.sh\s+(source|https|priority-source|priority-https|compat-source|compat-https)/g)!==x.jobs)throw Error('F05_TEST_ENTRY_REDUCED:'+name);
+ if(x.runner){const modes=x.jobs===4?['compat-source','compat-https','priority-source','priority-https']:['source','https'];if(modes.some(mode=>text.split('run: bash '+x.runner+' '+mode).length-1!==1))throw Error('F05_TEST_ENTRY_REDUCED:'+name);}
  if(count(/uses: actions\/upload-artifact@v4/g)!==x.jobs)throw Error('F05_ORIGINAL_ARTIFACT_REDUCED:'+name);
  if(count(/if-no-files-found: error/g)!==x.jobs)throw Error('F05_ARTIFACT_REQUIRED:'+name);
  if(!text.includes('push:')||!text.includes(x.branch)||!text.includes('pull_request:')||!text.includes('branches: [main]')||!text.includes('workflow_dispatch:'))throw Error('F05_ORIGINAL_TRIGGERS_MODIFIED:'+name);
@@ -29,7 +34,7 @@ export function examineWorkflow(text,name){
 }
 export function auditWorkflows(){
  const rows=Object.keys(EXPECTED).map(f=>examineWorkflow(readFileSync(resolve(ROOT,'.github/workflows',f),'utf8'),f));
- if(rows.reduce((n,x)=>n+x.legacy_jobs,0)!==12)throw Error('F05_EXPECTED_12_JOBS_MISSING');
+ if(rows.length!==10||rows.reduce((n,x)=>n+x.legacy_jobs,0)!==28)throw Error('F05_EXPECTED_28_JOBS_MISSING');
  return rows;
 }
 export function normalizeCheck(c,sha){
@@ -76,9 +81,9 @@ if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
   if(process.argv[2]!=='audit')throw Error('F05_ONLY_AUDIT_SUBCOMMAND');
   const workflows=auditWorkflows();const sha=process.env.GITHUB_SHA;
   if(!/^[a-f0-9]{40}$/.test(sha))throw Error('F05_OFFICIAL_SHA_REQUIRED');
-  const report={audit:'F05_CI_GOVERNANCE_01',head_sha:sha,workflows,expected_legacy_jobs:12,formal_parent_positive:false,production_ready:false,source_gaps:['66/68/70 SAME_SHA OFFICIAL JOBS','SIGNED_PARENT_OFFICIAL_PUSH'],required_checks:'UNKNOWN',generated_at:new Date().toISOString()};
+  const report={audit:'F05_CI_GOVERNANCE_01',head_sha:sha,workflows,expected_legacy_jobs:28,formal_parent_positive:false,production_ready:false,source_gaps:['66/68/70 SAME_SHA OFFICIAL JOBS','SIGNED_PARENT_OFFICIAL_PUSH'],required_checks:'UNKNOWN',generated_at:new Date().toISOString()};
   writeFileSync('f05-ci-governance-static.json',JSON.stringify(report,null,2)+'\n');
-  console.log('F05_GOVERNANCE_STATIC_12_JOBS_PRESERVED',sha);
+  console.log('F05_GOVERNANCE_STATIC_28_JOBS_PRESERVED',sha);
   if(process.env.GITHUB_TOKEN){
    const repo=process.env.GITHUB_REPOSITORY;if(repo!=='suzhe868-arch/mb')throw Error('F05_REPO_MISMATCH');
    const live=summarizeChecks(await pages(repo,sha,process.env.GITHUB_TOKEN),sha);

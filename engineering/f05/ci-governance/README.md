@@ -8,3 +8,7 @@
 ## 审核与剩余阻断
 - 本包解决ECR配额风险及增设兼容性证明；**不能合法把旧PR上无原Push资格的Source Job伪改成PASS**。GitHub branch protection未知由A管理员界面核查后再决定触发器/required checks方案；若仍需另修，必须由A签发补充裁决。
 - 禁止生产、真实客户、资金、正式PDM迁移、外部JYT/Collector/Feishu/CDN/OSS及UAT。不宣称F05/F08/V1业务全域Ready。
+
+## A主控2026-10-16冻结重验证扩展授权
+- 已从原PR70/原分支扩到总共10份旧F05工作流、28个独立真PG16服务，其中额外5份冻结revalidation工作流仅16项ECR服务镜像替换为DockerHub官方`postgres:16`并加Runner本地Tag验ID、同一单独容器；原测试、Source官方Push、`pull_request main`、正式工件全部保留。
+- Node审计合同扩到45条独立测试覆盖28项原生Job以及失败注入；原主5份与冻5份均保留身份与PG16数量。来源证据66/68/70阈值不降低、正式父业务Issuer缺口不修饰，镜像为可变Tag、不是digest固定。

@@ -5,3 +5,7 @@
 - 旧5份主工作流共12个service从ECR改官方`postgres:16`，不改原工作流其它内容。独立新Node+PG16仅给CI治理兼容证明，不代替旧正式Push。
 - branch protection API 403；required checks=UNKNOWN；此提交不改旧PR触发配置、不关闭任何检查。
 - 最终双Job、新SHA、两Artifact、28项旧Check和镜像恢复以新PR官方结果和随后B正式验收评论为准。**当前不宣称已修复全部旧CI或所有原父业务来源**。
+
+## R2已获A追加正式施工白名单（2026-10-16）
+- A已追加放行冻结5份revalidation Workflow中16项PG16服务镜像/本地镜像ID alias验证，维持原工作流版本、Job入口、Artifact及原签父Push证据门槛。
+- 交接以最终PR70新SHA真实Push CI、Node+PG16双Job及两官方同SHA工件为准；旧28项真实状态见PR中文正式评论，不得用ECR旧失败/新Success冒充父业务签证。
