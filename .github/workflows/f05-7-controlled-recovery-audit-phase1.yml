@@ -34,5 +34,5 @@ jobs:
         with:
           name: f05-7-controlled-recovery-phase1-read-only
           path: engineering/f05/source-controlled-recovery-01/artifacts/
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 30

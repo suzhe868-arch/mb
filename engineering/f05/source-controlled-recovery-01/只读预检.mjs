@@ -18,7 +18,7 @@ export const SPECS=[
 export const sha40=/^[a-f0-9]{40}$/;
 export function gap(reason){return {status:'SOURCE_GAP',reason,formal_parent_positive:false};}
 export function jobKeys(yaml){
- const matches=[...yaml.matchAll(/^  ([a-z][a-z0-9-]+):(?=\s|$)/gm)];
+ const matches=[...yaml.matchAll(/^  ([a-z][a-z0-9-]*):(?=\s|$)/gm)];
  return matches.map(m=>m[1]).filter(x=>!['push','pull_request','workflow_dispatch'].includes(x));
 }
 export function inspectStatic(files){
