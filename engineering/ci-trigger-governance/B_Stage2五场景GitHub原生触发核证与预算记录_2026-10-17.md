@@ -63,3 +63,9 @@ A确认main不存在C构建Workflow `.github/workflows/c-app-01-build-render.yml
 - 累计GitHub **28个真实Job：23个success、4个failure、1个in_progress**；Run级别**5个success、4个failure、1个in_progress**。GitHub Artifacts列表逐Run均取得，共**23个非空、未过期官方Artifact**，不是23个业务成功凭据；Source红灯未出现上传完成工件属硬失败原逻辑。
 - 失败不准中性化：F05-7 `F05_7_CANNOT_PROVE_66_SAME_SHA_OFFICIAL_PG16_JOBS_IN_BOUNDED_CI_RUN`；F05-9 `F05_9_NOT_IN_OFFICIAL_NEW_PUSH`；F05-10 `F05_10_NOT_NEW_OFFICIAL_PUSH`；D1 `D1_NOT_NEW_OFFICIAL_PUSH`。均有原生Job日志证据。
 - 当最后一个Source还在运行时不并行创建Shared或Mixed PR。官方2026-10-16T16:55:20Z快照还显示F05-8剩`117083642179`单Job运行。A要求的Stage2完整版真实After尚不能签字。
+
+## 6. C-only前后真实Github事件不可混同的核证
+
+- **BEFORE（旧C PR68，2026-10-16T13:36Z、HEAD`a02ca27d2109e365c5830b641a18cfb059fe3684`）**：原生真实PR Run总计11，分别为旧十份F05+ C专用工作流`.github/workflows/c-app-01-build-render.yml`一份（对应Run`38909117378`，conclusion success）。这发生在PR76阶段1配置合并**之前**。
+- **AFTER（PR77，HEAD`c90e5917aa81fcb69be0effcdd89d3fa27e8ab9e`）**：变更只位于`apps/mobile/evidence/**`，原生PR Run=0、Check=0，旧F05没误触发。但PR77与PR68不是同一个SHA、并非相同diff；`main`尚无C独立Build Workflow，故**不能通过11→0计算生产Runner节省，也不能说C必要测试得到保持**。两个独立结果只证明原触发广泛与现路径负例的差异。
+- C的真实构建工作流仍留PR68未合并，现阶段不修改C分支以规避抢改C用户否决后R3施工；该未闭合部分需A对真实C检查持久性单独验收，不能靠测试探针绿灯掩盖。
