@@ -1,3 +1,14 @@
+# 2026-10-16｜A二轮复验F08-1 PR69：A01/A03/A04有效，A02可信父正例接口未闭环，继续交B原PR整改
+
+- **唯一正式B下一任务**：`F08_1_PR69_A_R2_CHANGES_REQUESTED / NO_MERGE / NEXT_OWNER=B / NEXT_TASK=F08_1_PR69_R2_A02_TRUSTED_PARENT_PROOF / F08_GLOBAL_V1_NOT_READY / NO_PRODUCTION`。A的二轮复验仅涉及F08-1非生产质量工具；C-APP-01 PR68保持C独立轨，不因本裁决改变其权责。
+- **当前真实受验HEAD**：`c79c2932aa63f7c92ed9e10903a2f1323728a207`；PR [#69](https://github.com/suzhe868-arch/mb/pull/69)仍OPEN且未合并，11/11个新增文件仅在`engineering/f08/quality-evidence-gate-ci/**`和`.github/workflows/f08-1-*.yml`授权目录。真实同SHA [Push Run38843522723](https://github.com/suzhe868-arch/mb/actions/runs/38843522723)两Job success，Node83项独立工具测试、真非特权PG16 24项；官方同SHA两非空工件12022112170/12022481629有SHA256 metadata（**未ZIP独立复算**）。这些是107条质量工具/合成断言而非107条真实业务E2E。
+- **通过项**：A01六种旧CI非成功态一律拒绝伪绿；A02覆盖矩阵拒绝五种非父正例来源，A03旧PR67/PR69历史快照和末SHA GitHub Checks只读运行期工件分离；A04本分支双原生成功Job、证据工件、白名单实测均真实。
+- **R2-A02必须修复的剩余P0**：`quality.mjs:requireEvidence`仍能凭行内自称`SIGNED_PARENT_VERIFIED`、40位任意SHA、非空`run_id`及手造`observedCheck:{state:'success',sha:<匹配SHA>}`返回`eligible:true`；`tests/quality.test.mjs:Q14`目前甚至将该伪核验判定为正确。必须建立真实GitHub只读适配层/受信已完成检查绑定并禁止合成对象作为已签父业务正例；覆盖跨Run、跨SHA、非completed、伪provenance、未经真实外部核证的负例。**不能只靠Q78的纯函数自造结构证明真实来源**。详见[二轮正式报告](https://github.com/suzhe868-arch/mb/blob/main/07_重建工作区/F08-1_A主控PR69第二轮独立验收_可信父正例接口未闭环与旧F05十一项失败定向整改正式报告_2026-10-16.md)、[PR69正式R2整改单](https://github.com/suzhe868-arch/mb/pull/69#issuecomment-6207529903)。B仍在原分支、原PR、原白名单施工，最后新HEAD需完整真实双Job+两工件复验，B不得merge。
+- **旧F05真实阻断重新分类**：最后受验SHA官方Check共**30＝19 success+11 failure**，F08-1两项均success；旧F05 **17 success+11 failure**。逐Job核实7项镜像`toomanyrequests`、4项旧来源Push或66/68项同SHA真实性门禁不足。旧F05不能伪绿或擅改冻结workflows；其专项治理在F08-1闭环后由A另发单。GitHub branch-protection读取403、`required checks=UNKNOWN`，不推断可以绕过保护。
+- **安全与责任**：F08全域/V1依然`NOT_READY`；PDM、真实业务Issuer、Collector/JYT、Feishu、CDN/OSS、客户/资金、C手机端真实联调、UAT和生产均未因此解锁。**唯一下一责任窗口：B**，执行`F08_1_PR69_R2_A02_TRUSTED_PARENT_PROOF`；C并行窗口独立继续。
+
+---
+
 # 2026-10-16｜A独立验收F08-1 PR69未通过：证据冒充两处核心漏检，交B原PR整改（现行B主线）
 
 - **唯一正式B主线裁决**：`F08_1_PR69_A_CHANGES_REQUESTED / NO_MERGE / NEXT_OWNER=B / NEXT_TASK=F08_1_PR69_A01_A04_EVIDENCE_GATE_REMEDIATION / F08_GLOBAL_V1_NOT_READY / NO_PRODUCTION`。本次仅审查F08-1非生产质量先导；**C-APP-01/PR68保持C并行轨独立，C需继续既有npm双端构建整改**。
