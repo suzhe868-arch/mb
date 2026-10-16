@@ -6,3 +6,5 @@
 .detail-bottom .bottom-consult,.detail-bottom .bottom-lock,.detail-bottom .bottom-more{margin:0;border:0;border-radius:9px;font-size:15px;font-weight:750;min-height:49px;padding:10px 5px;display:flex;align-items:center;justify-content:center;box-sizing:border-box;white-space:nowrap}
 .detail-bottom.share-mode .bottom-consult,.detail-bottom.share-mode .bottom-lock,.detail-bottom.share-mode .bottom-more{font-size:13px;padding-left:3px;padding-right:3px}
 .detail-bottom .bottom-consult::after,.detail-bottom .bottom-lock::after,.detail-bottom .bottom-more::after,.share-inline::after{border:0}
+
+.detail-header .back-home{width:54px;min-width:54px;font-size:14px;font-weight:680;white-space:nowrap}.detail-bottom .bottom-lock[disabled]{opacity:.6;cursor:not-allowed}
