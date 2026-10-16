@@ -38,7 +38,7 @@ test('seven modified files each retains expected service and new per-job alias c
     const s=readFileSync('.github/workflows/'+name,'utf8');
     assert.equal(jobsOf(s).jobs.length,jobs,name);
     assert.equal(count(s,'image: '+DOCKER_IMAGE),services,name);
-    assert.equal(count(s,'pg16-local-alias.sh')+count(s,'- *z'),services,name);
+    assert.equal(count(s,'pg16-local-alias.sh')+count(s,'- run: *z'),services,name);
     assert.equal(count(s,'contents: write'),0,name);
     assert.equal(count(s,'image: '+IMAGE),0,name);
   });
