@@ -25,7 +25,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: 兼容源码正负例、安全门禁、冻结Source未篡改
-        run: node --test engineering/f05/source-controlled-recovery-02/tests/*.test.mjs
+        run: node --test engineering/f05/source-controlled-recovery-01/tests/*.test.mjs engineering/f05/source-controlled-recovery-02/tests/*.test.mjs
       - name: 八份原生GitHub Workflow解析和Job真实结构
         run: |
           ruby -e 'require "yaml"; paths=Dir[".github/workflows/f05-7-frozen-*-revalidation.yml"] + [".github/workflows/f05-7-deterministic-matching-readiness-four-tier.yml"]; abort("expected 8 workflows, got #{paths.length}") unless paths.length==8; n=paths.sum{|f| y=YAML.load_file(f, aliases: true); abort("no jobs #{f}") unless y.is_a?(Hash)&&y["jobs"].is_a?(Hash); y["jobs"].size}; abort("expected 66 jobs, got #{n}") unless n==66; puts "F05_7_YAML_8_WORKFLOWS_66_JOBS_PARSED"'
