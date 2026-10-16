@@ -12,7 +12,10 @@ assert.ok(index.includes('filters'), '必须可筛选')
 assert.ok(index.includes('sort'), '必须可排序')
 assert.ok(index.includes('navigateTo'), '必须有详情导航')
 assert.ok(index.includes('stopPullDownRefresh'),'刷新实现缺失')
-assert.ok(detail.includes('safeById'),'详情必须重新授权查询')
+assert.ok(detail.includes('mockReadAdapter.detail'),'详情必须重新调用客户安全只读适配器')
+const adapter=file('../shared/adapter.ts')
+assert.ok(adapter.includes('safeById(id,scenario,getMockTier())'),'只读适配器必须在每次详情读取时重新检查访问权限')
+assert.ok(!detail.includes('params.tier'),'不允许从详情分享URL直接赋予粉丝或VIP展示身份')
 assert.ok(!detail.includes('支付成功'),'不得伪造真实交易结果')
 for(const src of [index,detail]){
  for(const pattern of [/\bVIN\b/,/upstream_publisher_id/,/wholesale_price/,/customer_phone/,/金鱼塘/]){
