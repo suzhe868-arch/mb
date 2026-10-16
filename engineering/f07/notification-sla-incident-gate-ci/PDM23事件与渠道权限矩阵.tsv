@@ -22,4 +22,9 @@ recommendation_ended	否	禁止	禁止	NOT_ALLOWLISTED	无豁免	禁止	CI_SYNTH
 公司总开关	最高优先级	关闭阻断	关闭阻断	PDM-23	无豁免	仅通知开关	CI_SYNTHETIC_ONLY
 Incident cadence	仅已配置	不默认重复	按配置重复	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	无豁免	不重建Incident	CI_SYNTHETIC_ONLY
 Notification Config写	需显式capability+scope+object	系统管理员不自带	不存在第二群总开关	SIGNED_PARENT_NEGATIVE_ONLY	不适用	父缺口时一律禁止	SOURCE_GAP
-deep-link	打开每次再验签	当前Session/Scope/Object	不构成first response	SIGNED_PARENT_NEGATIVE_ONLY	不适用	无业务变更	SOURCE_GAP
+deep-link	打开每次再验签	当前Session/Scope/Object	不构成first response	LINK_CURRENT_SESSION_SCOPE_OBJECT_SOURCE_GAP	不适用	无业务变更	SOURCE_GAP
+SLA有效超时	deadline已到且首次人工响应未完成	有效hold不可误报	群独立开关仍适用	SLA_EVENT_SOURCE_GAP	DND不得豁免	合成事实只读，父源COUNT/MD5不变	CI_SYNTHETIC_ONLY
+Incident Recovery	必须具备同Incident active→cleared原生前后态	一次成功后全事件级去重	DND重判与当前路由生效	INCIDENT_SIGNED_ISSUER_SOURCE_GAP	DND不得豁免	合成生命周期仅CI schema	CI_SYNTHETIC_ONLY
+NotificationLog	发送/失败/跳过/去重全留痕	recipient_ref为脱敏哈希	channel与route_ref逐条一致	NOTIFICATION_SIGNED_ISSUER_SOURCE_GAP	保持DND标记	当前config.version与revalidation_basis	CI_SYNTHETIC_ONLY
+父权限调用计数	真实F03读取器入口trace才计数	当前signedParentCalls=0	合成PG独立syntheticPgReads	LINK_CURRENT_SESSION_SCOPE_OBJECT_SOURCE_GAP	不适用	本地deepLinkGuard非父认证	PRE_PARENT_VALIDATION
+TLS服务器身份	本机127.0.0.1 SAN验签	错误CA握手拒绝	假服务器名握手拒绝	CI_LOCAL_TLS_ONLY	不适用	不可关闭rejectUnauthorized	PRE_PARENT_VALIDATION
