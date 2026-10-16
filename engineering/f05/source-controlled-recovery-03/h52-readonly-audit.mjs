@@ -27,9 +27,10 @@ export async function audit(token=process.env.GH_ACTIONS_READ_TOKEN){
  const before=Buffer.from(orig.data.content.replace(/\s/g,''),'base64').toString('utf8');
  check(sha(before)===oldHttpsBlob,'Original HTTPS contents hash mismatch');
  // The A-authorized fix must preserve seven frozen B01-B07 denial tests byte for byte.
- const frozenStart="const match='/__ci__/f05-7/v1/match'";
+ const frozenStart="test('7-B01";
  check(src.includes(frozenStart)&&before.includes(frozenStart),'7 original B01-B07 missing');
  check(src.slice(src.indexOf(frozenStart))===before.slice(before.indexOf(frozenStart)),'7 denied assertion bodies mutated');
+ check(src.slice(src.indexOf('const match='),src.indexOf('test.before('))===before.slice(before.indexOf('const match='),before.indexOf('test.before(')),'7 deny helper and route constants changed');
  check(count(src,"test('7-B")===7,'7 original HTTPS cases changed');
  check(src.includes("const origin='https://127.0.0.1:48988'"),'origin security constant modified');
  check(src.includes("host:new URL(origin).host,origin"),'loopback request Host/Origin invariant removed');
