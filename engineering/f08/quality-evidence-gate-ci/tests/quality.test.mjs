@@ -25,7 +25,7 @@ test('Q10 真实生产就绪请求无条件拒绝',()=>assert.throws(()=>require
 test('Q11 未授权UAT结果不得登记',()=>assert.throws(()=>requireEvidence(coverage[0],{target:'UAT_ACCEPTED'}),/NOT_AUTHORIZED/));
 test('Q12 不可信来源不能宣称真实第三方调用',()=>assert.throws(()=>requireEvidence(coverage[0],{target:'REAL_EXTERNAL'}),/SOURCE_GAP/));
 test('Q13 正例真实性必须包含实际SHA',()=>{const x=clone(coverage);x[0].level='SIGNED_PARENT_VERIFIED';assert.throws(()=>validateCoverage(x),/PARENT_SIGNED_PROOF_MISSING/);});
-test('Q14 正例只有真实签发才许可',()=>assert.equal(requireEvidence({level:'SIGNED_PARENT_VERIFIED'},{target:'SIGNED_PARENT_POSITIVE'}).eligible,true));
+test('Q14 父签正向必须SHA与已完成成功Check一致才可计证据',()=>assert.equal(requireEvidence({level:'SIGNED_PARENT_VERIFIED',evidence_sha:sha,run_id:'proof-run'},{target:'SIGNED_PARENT_POSITIVE',observedCheck:{sha,state:'success'}}).eligible,true));
 test('Q15 已排队不能当成功投递',()=>assert.equal(requireEvidence({level:'CI_SYNTHETIC_ONLY'},{observedCheck:{state:'queued'}}).eligible,false));
 test('Q16 明确失败检查不得作为成功',()=>assert.equal(requireEvidence({level:'CI_SYNTHETIC_ONLY'},{observedCheck:{state:'failure'}}).eligible,false));
 test('Q17 正在运行检查不得等同成功',()=>assert.equal(requireEvidence({level:'CI_SYNTHETIC_ONLY'},{observedCheck:{state:'in_progress'}}).eligible,false));
@@ -72,4 +72,6 @@ test('Q57 当前Git历史原始路径完整而非推断',()=>assert.ok(gitFiles(
 test('Q58 F08新增Workflow必须只在授权路径',()=>assert.ok(FILES.coverage.startsWith('engineering/f08/quality-evidence-gate-ci/')));
 test('Q59 质量报告为当前实际git HEAD并保留false上线状态',()=>{const r=runAudit();assert.equal(r.head_sha,gitSha());assert.equal(r.production_ready,false);assert.equal(r.uat_accepted,false);assert.equal(r.real_third_party_invocations,0);});
 test('Q60 质量报告逐域来源资产匹配且日志真实落盘',()=>{const f=resolve(ROOT,'f08-1-quality-evidence.json');assert.ok(existsSync(f));const r=JSON.parse(readFileSync(f,'utf8'));assert.equal(r.coverage.length,coverage.length);assert.equal(r.gaps.length,gaps.length);assert.ok(r.previous_ci_snapshots_not_current);});
-test('F08-1 Node独立质量断言60项完成（仅当前仓库源码+合成负例）',()=>console.log('F08_1_NODE_60_ASSERTIONS_PASS'));
+test('Q61 只有等级没有可核SHA和Run不构成真实父正例',()=>assert.throws(()=>requireEvidence({level:'SIGNED_PARENT_VERIFIED'},{target:'SIGNED_PARENT_POSITIVE',observedCheck:{sha,state:'success'}}),/PARENT_POSITIVE_EVIDENCE_MISSING/));
+test('Q62 已签SHA但未拿到同SHA完成成功检查不得正例升级',()=>assert.throws(()=>requireEvidence({level:'SIGNED_PARENT_VERIFIED',evidence_sha:sha,run_id:'proof-run'},{target:'SIGNED_PARENT_POSITIVE',observedCheck:{sha,state:'queued'}}),/PARENT_POSITIVE_CI_NOT_VERIFIED/));
+test('F08-1 Node独立质量断言62项完成（仅当前仓库源码+合成负例）',()=>console.log('F08_1_NODE_62_ASSERTIONS_PASS'));
