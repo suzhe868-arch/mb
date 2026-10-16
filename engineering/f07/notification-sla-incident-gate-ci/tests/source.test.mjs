@@ -184,4 +184,89 @@ test('S80 FAILED、DEDUPED与Outbox投递结果逐行一致',async()=>{await see
 test('S81 当前关闭开关日志保留路由与拒绝原因',async()=>{await seed(db);await change('UPDATE f07_4_ci.config SET company_on=false,version=version+1');assert.equal((await dispatch(db,{eventId:'event-ci-1',at:AT})).code,'COMPANY_FEISHU_DISABLED');const row=(await Q('SELECT * FROM f07_4_ci.notification_log')).rows[0];assert.equal(row.result,'SKIPPED');assert.ok(row.recipient_ref&&row.route_ref);assert.equal(row.config_version,(await Q('SELECT version FROM f07_4_ci.config WHERE id=1')).rows[0].version);assert.equal(await out(),0);});
 test('S82 缺路由有安全缺口审计而不伪造接收对象',async()=>{await seed(db);await change('UPDATE f07_4_ci.employee SET feishu_id=NULL');const r=await dispatch(db,{eventId:'event-ci-1',at:AT});assert.equal(r.code,'PERSONAL_ROUTE_DISABLED');const x=(await Q('SELECT * FROM f07_4_ci.notification_log')).rows[0];assert.equal(x.route_ref,null);assert.equal(x.recipient_ref,null);assert.equal(x.revalidation_basis,'ROUTE_SOURCE_GAP');assert.equal(await out(),0);});
 test('S83 Recovery审计与实际MockOutbox为同一stage/channel',async()=>{await activateIncident(db,'inc-ci-a');await clearIncident(db,'inc-ci-a');await seed(db,{id:'recovery-a',incidentId:'inc-ci-a',kind:'incident_recovery'});await dispatch(db,{eventId:'recovery-a',channel:'group',at:AT});const x=(await Q('SELECT l.result,l.route_ref,l.channel,l.stage,o.channel out_channel,o.stage out_stage FROM f07_4_ci.notification_log l JOIN f07_4_ci.mock_outbox o USING(event_id,stage,channel)')).rows[0];assert.equal(x.result,'SENT');assert.equal(x.channel,x.out_channel);assert.equal(x.stage,x.out_stage);assert.ok(x.route_ref);});
-test('F07-4 Source 完整83业务子例通过',()=>{console.log('F07_4_SOURCE_NATIVE_PG16_83_PASS');});
+test('S84 active事件仍需同故障生命周期为active的首次合成正例',async()=>{
+ const r=await run({channel:'group'},{kind:'incident_active',incidentActive:true,cadence:30});
+ assert.equal(r.status,'SENT');assert.equal(await out(),1);
+ assert.equal((await Q('SELECT status FROM f07_4_ci.incident_lifecycle')).rows[0].status,'active');
+});
+test('S85 clearIncident提交后旧事件布尔值仍true而新cadence不得发Active',async()=>{
+ await seed(db,{kind:'incident_active',incidentActive:true,cadence:30});
+ assert.equal((await dispatch(db,{eventId:'event-ci-1',channel:'group',at:AT})).status,'SENT');
+ assert.equal(await clearIncident(db,'event-ci-1','2026-10-16T02:10:00Z'),true);
+ assert.equal((await Q('SELECT incident_active FROM f07_4_ci.event')).rows[0].incident_active,true);
+ const later=await dispatch(db,{eventId:'event-ci-1',channel:'group',at:'2026-10-16T02:31:00Z'});
+ assert.equal(later.code,'INCIDENT_ALREADY_CLEARED');assert.equal(await out(),1);
+ const a=(await Q("SELECT result,code FROM f07_4_ci.notification_log ORDER BY id")).rows;
+ assert.deepEqual(a.map(x=>x.result),['SENT','SKIPPED']);
+});
+test('S86 伪造incident_active=true而无生命周期不可产生Mock消息',async()=>{
+ await seed(db,{kind:'incident_active',incidentActive:false,cadence:30});
+ await change("UPDATE f07_4_ci.event SET incident_active=true");
+ const r=await dispatch(db,{eventId:'event-ci-1',channel:'group',at:AT});
+ assert.equal(r.code,'INCIDENT_CURRENT_ACTIVE_SOURCE_GAP');assert.equal(await out(),0);
+});
+test('S87 同样是active但事件incident_id串到另一故障不得发送',async()=>{
+ await seed(db,{kind:'incident_active',incidentActive:true,cadence:30,incidentId:'inc-ci-a'});
+ await change("UPDATE f07_4_ci.event SET incident_id='inc-ci-b'");
+ const r=await dispatch(db,{eventId:'event-ci-1',channel:'group',at:AT});
+ assert.equal(r.code,'INCIDENT_CURRENT_ACTIVE_SOURCE_GAP');assert.equal(await out(),0);
+});
+test('S88 两真实Backend清除排队在先，提交后被阻塞的Active不得出站',async()=>{
+ await seed(db,{kind:'incident_active',incidentActive:true,cadence:30});
+ const writer=await db.connect();let pendingClear,pendingDispatch;
+ try {
+  await writer.query('BEGIN');
+  const writerPid=(await writer.query('SELECT pg_backend_pid() pid')).rows[0].pid;
+  await writer.query("SELECT incident_id FROM f07_4_ci.incident_lifecycle WHERE incident_id='event-ci-1' FOR UPDATE");
+  pendingClear=clearIncident(db,'event-ci-1','2026-10-16T01:30:00Z');
+  let waiting=false;
+  for(let i=0;i<30;i++){
+   await new Promise(resolve=>setTimeout(resolve,30));
+   const r=await Q("SELECT count(*)::int n FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='transactionid' AND pid<>pg_backend_pid()");
+   if(r.rows[0].n>0){waiting=true;break;}
+  }
+  assert.equal(waiting,true,'clearIncident必须实际等待同生命周期行锁');
+  pendingDispatch=dispatch(db,{eventId:'event-ci-1',channel:'group',at:AT});
+  await new Promise(resolve=>setTimeout(resolve,80));
+  await writer.query('COMMIT');
+  assert.equal(await pendingClear,true);
+  const res=await pendingDispatch;
+  assert.notEqual(res.backendPid,writerPid);assert.equal(res.code,'INCIDENT_ALREADY_CLEARED');
+  assert.equal(await out(),0);
+  console.log('F07_4_R2_NATIVE_INCIDENT_CLEAR_DISPATCH_LOCK',writerPid,res.backendPid);
+ }finally{
+  await writer.query('ROLLBACK').catch(()=>{});
+  writer.release();
+  await Promise.allSettled([pendingClear,pendingDispatch].filter(Boolean));
+ }
+});
+test('S89 不得以早于cleared_at的旧事件时间提前发送Recovery',async()=>{
+ await activateIncident(db,'inc-ci-a');
+ assert.equal(await clearIncident(db,'inc-ci-a','2026-10-16T03:00:00Z'),true);
+ await seed(db,{id:'recovery-a',kind:'incident_recovery',incidentId:'inc-ci-a'});
+ const early=await dispatch(db,{eventId:'recovery-a',channel:'group',at:AT});
+ assert.equal(early.code,'RECOVERY_BEFORE_CLEARED_AT');assert.equal(await out(),0);
+ assert.equal((await dispatch(db,{eventId:'recovery-a',channel:'group',at:'2026-10-16T03:00:00Z'})).status,'SENT');
+ assert.equal(await out(),1);
+});
+test('S90 Active的事件时间早于实际activated_at必须拒绝',async()=>{
+ await seed(db,{kind:'incident_active',incidentActive:true,cadence:30});
+ await change("UPDATE f07_4_ci.incident_lifecycle SET activated_at='2026-10-16T03:00:00Z'");
+ assert.equal((await dispatch(db,{eventId:'event-ci-1',channel:'group',at:AT})).code,'INCIDENT_ACTIVE_BEFORE_ACTIVATION');
+ assert.equal(await out(),0);
+ assert.equal((await dispatch(db,{eventId:'event-ci-1',channel:'group',at:'2026-10-16T03:00:00Z'})).status,'SENT');
+});
+test('S91 生命周期不存在真实ever_active时旧标记不得绕过',async()=>{
+ await seed(db,{kind:'incident_active',incidentActive:true,cadence:30});
+ await change("UPDATE f07_4_ci.incident_lifecycle SET ever_active=false");
+ assert.equal((await dispatch(db,{eventId:'event-ci-1',channel:'group',at:AT})).code,'INCIDENT_CURRENT_ACTIVE_SOURCE_GAP');
+ assert.equal(await out(),0);
+});
+test('S92 Active失败待重试时故障已清除，任何新cadence不可补发',async()=>{
+ await seed(db,{kind:'incident_active',incidentActive:true,cadence:30});
+ assert.equal((await dispatch(db,{eventId:'event-ci-1',channel:'group',at:AT,simulate:'failure'})).status,'FAILED');
+ assert.equal(await clearIncident(db,'event-ci-1','2026-10-16T02:10:00Z'),true);
+ assert.equal((await dispatch(db,{eventId:'event-ci-1',channel:'group',at:'2026-10-16T02:31:00Z'})).code,'INCIDENT_ALREADY_CLEARED');
+ assert.equal(await out(),0);
+});
+test('F07-4 Source 完整92业务子例通过',()=>{console.log('F07_4_SOURCE_NATIVE_PG16_92_PASS');});
