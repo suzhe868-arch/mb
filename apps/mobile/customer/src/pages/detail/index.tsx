@@ -1,9 +1,9 @@
 import {useMemo,useState} from 'react'
 import {View,Text,Image,Button} from '@tarojs/components'
 import Taro,{useShareAppMessage} from '@tarojs/taro'
-import {priceText,kmText,type Tier,type Scenario} from '../../../../shared/domain'
-import {mockReadAdapter} from '../../../../shared/adapter'
-import {getMockTier} from '../../../../shared/session'
+import {priceText,kmText,type Tier,type Scenario} from '../../shared/domain'
+import {mockReadAdapter} from '../../shared/adapter'
+import {getMockTier} from '../../shared/session'
 import './index.css'
 
 export default function Detail(){

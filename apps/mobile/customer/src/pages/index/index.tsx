@@ -1,10 +1,10 @@
 import {useMemo,useState,useRef,useEffect} from 'react'
 import {View,Text,Input,Image,Button,Picker,ScrollView} from '@tarojs/components'
 import Taro,{usePullDownRefresh,useReachBottom,useDidShow,usePageScroll} from '@tarojs/taro'
-import {DEFAULT_QUERY,EMPTY_FILTERS,SOURCES,SORTS,priceText,dateText,kmText,type QueryState,type Filters,type SafeVehicle,type Tier,type Scenario,type SortKey} from '../../../../shared/domain'
-import {validateFilters} from '../../../../shared/query'
-import {mockReadAdapter} from '../../../../shared/adapter'
-import {setMockTier} from '../../../../shared/session'
+import {DEFAULT_QUERY,EMPTY_FILTERS,SOURCES,SORTS,priceText,dateText,kmText,type QueryState,type Filters,type SafeVehicle,type Tier,type Scenario,type SortKey} from '../../shared/domain'
+import {validateFilters} from '../../shared/query'
+import {mockReadAdapter} from '../../shared/adapter'
+import {setMockTier} from '../../shared/session'
 import './index.css'
 
 const CITIES=['全国','上海','杭州','苏州','北京','广州','成都']

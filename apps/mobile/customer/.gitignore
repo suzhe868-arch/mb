@@ -1,0 +1,7 @@
+# Taro 构建前自动生成的共享源码镜像；真实来源为 apps/mobile/shared
+src/shared/
+# 本地运行和构建产物
+dist/
+dist-h5/
+dist-weapp/
+node_modules/
