@@ -1,3 +1,12 @@
+# 2026-10-16｜PR76管理员配置证据已核销，A逐文件有条件批准十项F05触发整改，当前交B（最新）
+
+- **GitHub管理员真实截图已提供**：main首页`Your main branch isn't protected`；`Settings → Branches`显示`Classic branch protections have not been configured`；原先和本次GitHub`rulesets?includes_parents=true`均`[]`。因而A认定main当前无配置的必需Checks，之前GitHub App访问classic protection 403**只属于接口权限问题，阻断已解除**；不建议此时新建保护规则干扰本次真实CI对照。
+- **A逐文件审核放行**：PR [#76](https://github.com/suzhe868-arch/mb/pull/76) 中B清单列的10份旧F05 YAML，A已逐文件从main读取并校验Git Blob **10/10相同**。在原`fix/ci-trigger-scope-governance-01`分支仅书面有条件批准给这十份文件的`on.pull_request`增加经过真实依赖审计的**正向paths过滤**；**不授权**改原Source、原branch push、workflow_dispatch、PG16、Job、Source失败逻辑、Artifact、权限或历史证据，不授权现在合并。[A完整十文件白名单和回归合同](https://github.com/suzhe868-arch/mb/blob/main/07_%E9%87%8D%E5%BB%BA%E5%B7%A5%E4%BD%9C%E5%8C%BA/CI%E8%A7%A6%E5%8F%91%E6%B2%BB%E7%90%86_PR76_%E7%AE%A1%E7%90%86%E5%91%98%E5%88%86%E6%94%AF%E4%BF%9D%E6%8A%A4%E8%AF%81%E6%8D%AE%E6%A0%B8%E9%94%80%E4%B8%8E%E5%8D%81%E9%A1%B9%E6%97%A7Workflow%E9%80%90%E6%96%87%E4%BB%B6%E6%9C%89%E6%9D%A1%E4%BB%B6%E4%BF%AE%E6%94%B9%E6%94%BE%E8%A1%8C_2026-10-16.md)；[PR76 A第二轮裁决评论](https://github.com/suzhe868-arch/mb/pull/76#issuecomment-6219415444)。
+- **正式下一任务**：`NEXT_OWNER=B / NEXT_TASK=CI_TRIGGER_SCOPE_GOVERNANCE_01_IMPL_PR76`；B在**原PR76**只做获准安全触发修改、严格diff合同及真实 C-only/F05-only/shared/workflow-self/mixed 五类GitHub CI BEFORE/AFTER；应有测试必须保留、无关C代码不触发十份F05。交`READY_FOR_A_REVIEW_FINAL`后由A独立验收决定合并。**此时CI触发问题尚未修好**，PR76仍Open。
+- **业务门禁保持**：五个旧F05正式来源`SOURCE_GAP`及F05/F08/V1/生产`NOT_READY`未撤销；F05-7源恢复预检仍后继排队；C PR68视觉与功能R3由C独立处理，用户未通过不合并。不存在因减少PR无关触发就令历史父签自动恢复的结论。
+
+---
+
 # 2026-10-16｜A主控独立审核PR76：只读预检验收通过，CI实际整改因GitHub必需检查读取403受阻（当前最新）
 
 - **A已完成独立审核**：B PR [#76](https://github.com/suzhe868-arch/mb/pull/76) 受验最终HEAD `cfa4562a915ff29475fbd640dd9c25d847c13a55`；6/6新文件在A合法白名单、旧F05/Source/PG16/业务零修改。原生最终Push [Run38924212013](https://github.com/suzhe868-arch/mb/actions/runs/38924212013) 真实Job `117051501407` Node**28/28**、有效非空官方同SHA Artifact**12054624840**（15661B，官方SHA256元数据，未ZIP复算）。322实际Workflow文件、96 F05前缀、**10份**无PR路径限制的旧F05高风险工作流，C PR68提交此前真有10份无关F05 Run。A[正式审查评论](https://github.com/suzhe868-arch/mb/pull/76#issuecomment-6219012442)及[完整独立验收报告](https://github.com/suzhe868-arch/mb/blob/main/07_%E9%87%8D%E5%BB%BA%E5%B7%A5%E4%BD%9C%E5%8C%BA/CI%E8%A7%A6%E5%8F%91%E8%8C%83%E5%9B%B4%E6%B2%BB%E7%90%86_PR76_A%E4%B8%BB%E6%8E%A7%E7%AC%AC%E4%B8%80%E8%BD%AE%E7%8B%AC%E7%AB%8B%E9%AA%8C%E6%94%B6_%E5%BF%85%E9%9C%80%E6%A3%80%E6%9F%A5%E6%9D%83%E9%99%90%E9%98%BB%E6%96%AD%E4%B8%8E%E5%8D%81%E9%A1%B9%E5%BE%85%E6%89%B9%E8%A3%81%E5%86%B3_2026-10-16.md)均已归档。
