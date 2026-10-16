@@ -10,8 +10,9 @@ export async function createServer(db,{audit=()=>{}}={}) {
  const key=readFileSync(process.env.F07_4_TLS_KEY);
  const cert=readFileSync(process.env.F07_4_TLS_CERT);
  return https.createServer({key,cert},async(req,res)=>{
-  let auditCode='TRANSPORT_DENIED',parentCalls=0;
-  const record=(category,code)=>audit(Object.freeze({category,code,parentCalls}));
+  let auditCode='TRANSPORT_DENIED',signedParentCalls=0,syntheticPgReads=0;
+  // 真实F03父读取器尚未接线；绝不将本地Guard或合成PG读取伪算为父权限调用。
+  const record=(category,code)=>audit(Object.freeze({category,code,parentCalls:signedParentCalls,signedParentCalls,syntheticPgReads,origin:'CI_SYNTHETIC_ONLY'}));
   try {
    if(!req.socket.encrypted||!['127.0.0.1','::1','::ffff:127.0.0.1'].includes(req.socket.remoteAddress)||
     req.headers.host!=='127.0.0.1:49274'||(req.headers.origin&&req.headers.origin!==ORIGIN)||
@@ -23,8 +24,7 @@ export async function createServer(db,{audit=()=>{}}={}) {
     record('TRANSPORT','PATH_DENIED');return send(res,400,'DENIED');
    }
    if(req.url==='/__ci__/f07-4/link'&&req.method==='GET') {
-    parentCalls=1;
-    const result=deepLinkGuard(req.headers['x-ci-link']||'');
+    const result=deepLinkGuard(req.headers['x-ci-link']||'',{signedParentVerified:req.headers['x-ci-signed-parent-verified']==='true'});
     record('LINK',result.code);
     return send(res,403,'DENIED');
    }
@@ -40,7 +40,7 @@ export async function createServer(db,{audit=()=>{}}={}) {
    if(!body||Object.keys(body).sort().join(',')!=='at,channel,eventId'||typeof body.eventId!=='string'){
     record('INPUT','SHAPE_DENIED');return send(res,400,'DENIED');
    }
-   parentCalls=1; // 合成事件读当前PG物理事实，不等于正式签名父正例。
+   syntheticPgReads+=1; // 合成PG事实读取独立计数，绝不增加signedParentCalls。
    const result=await dispatch(db,{eventId:body.eventId,channel:body.channel,at:body.at});
    record('DISPATCH',result.code);
    // 黑箱只给通用结果，内部审计准确记录逐请求拒绝原因。
