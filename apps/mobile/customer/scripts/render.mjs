@@ -117,6 +117,31 @@ try{
  assert((await page.locator('.channel.active').textContent())==='名邦车源','来源切换失败')
  await screenshot(page,'390x844_名邦来源切换')
  await page.close()
+ // QA状态不进入普通客户界面；通过独立路由参数复现，不模拟真实授权。
+ for(const scenario of ['loading','empty','error','no_banner','no_image','revoked']){
+  const qaPage=await browser.newPage({viewport:{width:390,height:844}})
+  const u=new URL(root)
+  u.hash='#/pages/index/index?qa=1&scenario='+scenario
+  await qaPage.goto(u.toString(),{waitUntil:'domcontentloaded'})
+  await qaPage.locator('.qa-panel').waitFor({timeout:10000})
+  if(scenario==='loading')assert(await qaPage.getByText('车源加载中…').count()>0,'加载态缺失')
+  if(scenario==='error'){
+   assert(await qaPage.getByText('车源暂时无法加载').count()>0,'错误态缺失')
+   await screenshot(qaPage,'390x844_错误态')
+   await qaPage.getByText('重试',{exact:true}).click()
+   await qaPage.locator('.car').first().waitFor()
+   assert(await qaPage.locator('.car').count()>0,'错误重试不恢复')
+  }
+  if(scenario==='empty')assert(await qaPage.getByText('暂无符合条件的车辆').count()>0,'空态缺失')
+  if(scenario==='no_image')assert(await qaPage.locator('.vehicle-placeholder').count()>0,'无图回退缺失')
+  if(scenario==='no_banner')assert(await qaPage.locator('.hero').count()===0,'无Banner仍占位')
+  if(scenario==='revoked'){
+   await qaPage.locator('.car').first().click()
+   await qaPage.locator('.denied-title').waitFor()
+  }
+  await screenshot(qaPage,'390x844_QA状态_'+scenario)
+  await qaPage.close()
+ }
  writeFileSync(out+'/实际浏览器证据.json',JSON.stringify({source:'GitHub Actions Chromium H5',root,checks,interactions:['四级车型联动与级联清除','七项排序','三来源切换','详情咨询拒绝','七种Lock视觉状态','撤权旧分享']},null,2))
  console.log('Chromium四机宽首页/详情+专项交互：PASS')
 }catch(err){console.error(err);process.exitCode=1}
