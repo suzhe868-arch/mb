@@ -4,6 +4,38 @@ on:
     branches: [feat/f05-10-consultation-assignee-sla]
   pull_request:
     branches: [main]
+    paths:
+      - 'engineering/f01/**'
+      - 'engineering/f02/**'
+      - 'engineering/f03/**'
+      - 'engineering/f04/**'
+      - 'engineering/f05/**'
+      - 'engineering/shared/**'
+      - 'engineering/db/**'
+      - 'engineering/database/**'
+      - 'engineering/migrations/**'
+      - 'engineering/sql/**'
+      - 'engineering/scripts/**'
+      - 'engineering/ci/**'
+      - 'engineering/package.json'
+      - 'engineering/package-lock.json'
+      - 'engineering/npm-shrinkwrap.json'
+      - 'engineering/pnpm-lock.yaml'
+      - 'engineering/yarn.lock'
+      - 'engineering/.npmrc'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'npm-shrinkwrap.json'
+      - 'pnpm-lock.yaml'
+      - 'yarn.lock'
+      - '.npmrc'
+      - 'database/**'
+      - 'migrations/**'
+      - 'sql/**'
+      - 'scripts/**'
+      - '.github/actions/**'
+      - '.github/workflows/f05-*.yml'
+      - '.github/workflows/f05-*.yaml'
   workflow_dispatch:
 permissions: {contents: read, actions: read}
 jobs:

@@ -1,0 +1,58 @@
+name: CI治理只读全工作流审计
+on:
+  push:
+    branches: [fix/ci-trigger-scope-governance-01]
+    paths:
+      - 'engineering/ci-trigger-governance/**'
+      - '.github/workflows/ci-trigger-scope-governance-audit.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'engineering/ci-trigger-governance/**'
+      - '.github/workflows/ci-trigger-scope-governance-audit.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  read_only_inventory:
+    name: CI触发全量清册Node只读审计
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: 源码格式与触发器安全正反覆盖
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check engineering/ci-trigger-governance/trigger-scope-audit.mjs
+          node --check engineering/ci-trigger-governance/tests/trigger-scope.test.mjs
+          node --test engineering/ci-trigger-governance/tests/trigger-scope.test.mjs 2>&1 | tee ci-governance-tests.log
+          grep -q '# fail 0' ci-governance-tests.log
+          test -z "$(git diff --name-only HEAD -- .github/workflows)"
+      - name: 只读320+工作流全量盘点与GitHub PR真实来源
+        if: github.event_name == 'push'
+        env:
+          GH_ACTIONS_READ_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/ci-trigger-governance/trigger-scope-audit.mjs audit 2>&1 | tee ci-governance-live.log
+          test -s ci-trigger-workflow-inventory.tsv
+          test -s ci-trigger-policy.json
+          test -s ci-trigger-official-sample.json
+          node -e "const x=require('./ci-trigger-official-sample.json');if(!x.proposal_only||x.formal_source_restored!==false||x.changed_old_workflows!==false||x.samples.length!==2)process.exit(1)"
+      - name: 归档同SHA来源表及回归证据
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-trigger-scope-readonly-${{ github.sha }}
+          path: |
+            ci-governance-tests.log
+            ci-governance-live.log
+            ci-trigger-workflow-inventory.tsv
+            ci-trigger-policy.json
+            ci-trigger-official-sample.json
+          if-no-files-found: error
+          retention-days: 14
