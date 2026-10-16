@@ -50,7 +50,7 @@ export function requireEvidence(row,{target='NONPRODUCTION',observedCheck=null}=
  if(row.level==='SIGNED_PARENT_NEGATIVE_ONLY'&&target==='SIGNED_PARENT_POSITIVE')throw Error('NEGATIVE_IS_NOT_POSITIVE');
  return {eligible:row.level==='SIGNED_PARENT_VERIFIED'&&target==='SIGNED_PARENT_POSITIVE'||target==='NONPRODUCTION',reason:row.level};
 }
-export function validateCoverage(rows){
+export function validateCoverage(rows,{verifiedChecks=[]}={}){
  uniqueRows(rows,'id');
  const domains=new Set(rows.map(x=>x.domain));
  for(const domain of ['F01','F02','F03','F04','F05','F06','F07','F08','C'])if(!domains.has(domain))throw Error('MISSING_DOMAIN_'+domain);
@@ -59,9 +59,17 @@ export function validateCoverage(rows){
   if(!['SOURCE_PRESENT','SOURCE_GAP'].includes(row.source_presence))throw Error('PRESENCE_INVALID:'+row.id);
   if(row.source_presence==='SOURCE_GAP'&&row.level!=='SOURCE_GAP'&&row.level!=='NOT_RUN')throw Error('MISSING_SOURCE_CLAIMED:'+row.id);
   if(row.production_ready!=='NO')throw Error('FORBIDDEN_PRODUCTION_CLAIM:'+row.id);
-  if(row.level==='SIGNED_PARENT_NEGATIVE_ONLY'&&row.positive_parent==='YES')throw Error('FALSE_PARENT_POSITIVE:'+row.id);
-  if(row.level==='CI_SYNTHETIC_ONLY'&&row.positive_parent==='YES')throw Error('FALSE_SYNTHETIC_ESCALATION:'+row.id);
-  if(row.level==='SIGNED_PARENT_VERIFIED'&&(!isSha(row.evidence_sha)||!row.run_id))throw Error('PARENT_SIGNED_PROOF_MISSING:'+row.id);
+  if(!['YES','NO'].includes(row.positive_parent))throw Error('PARENT_POSITIVE_FLAG_INVALID:'+row.id);
+  if(row.positive_parent==='YES'&&row.level!=='SIGNED_PARENT_VERIFIED'){
+   if(row.level==='CI_SYNTHETIC_ONLY')throw Error('FALSE_SYNTHETIC_ESCALATION:'+row.id);
+   throw Error('FALSE_PARENT_POSITIVE:'+row.id);
+  }
+  if(row.level==='SIGNED_PARENT_VERIFIED'&&(!isSha(row.evidence_sha)||!row.run_id||row.run_id==='—'))throw Error('PARENT_SIGNED_PROOF_MISSING:'+row.id);
+  // TSV声明只能表明待核验：正例必须另有从GitHub只读接口独立取得的同SHA成功Check。
+  if(row.positive_parent==='YES'){
+   const proof=verifiedChecks.find(x=>x.id===row.id&&x.head_sha===row.evidence_sha&&String(x.run_id)===row.run_id&&x.status==='completed'&&x.conclusion==='success'&&x.provenance==='GH_REST_CHECK_RUNS_READ_ONLY');
+   if(!proof)throw Error('PARENT_POSITIVE_INDEPENDENT_CHECK_MISSING:'+row.id);
+  }
  }
  return true;
 }
@@ -71,15 +79,20 @@ export function validateGaps(rows){
   if(!row.owner||!row.release_condition||row.claimed_done!=='NO')throw Error('GAP_NOT_ACTIONABLE:'+row.id);
  }return true;
 }
-export function validateLegacy(rows){
+export function validateLegacy(rows,{verifiedChecks=[]}={}){
  uniqueRows(rows,'id');
  for(const row of rows){
   if(!isSha(row.observed_sha)||!CI_STATES.includes(row.state))throw Error('LEGACY_UNTRUSTED_STATE:'+row.id);
   if(row.snapshot_kind!=='HISTORICAL_SNAPSHOT')throw Error('LEGACY_SNAPSHOT_KIND_REQUIRED:'+row.id);
   if(row.current_head_claim!=='NO')throw Error('LEGACY_IS_NOT_LIVE:'+row.id);
-  if(row.state==='queued'&&row.success_claim!=='NO')throw Error('QUEUED_AS_SUCCESS:'+row.id);
-  if(row.state==='failure'&&row.success_claim!=='NO')throw Error('FAILED_AS_SUCCESS:'+row.id);
-  if(row.state==='missing'&&row.success_claim!=='NO')throw Error('MISSING_AS_SUCCESS:'+row.id);
+  if(!['YES','NO'].includes(row.success_claim))throw Error('LEGACY_SUCCESS_FLAG_INVALID:'+row.id);
+  // 失败、排队、进行中、跳过、取消、缺失：六态均不能宣称成功。
+  if(row.state!=='success'&&row.success_claim!=='NO')throw Error('NON_SUCCESS_CANNOT_CLAIM_SUCCESS:'+row.state+':'+row.id);
+  // 允许记录历史成功的前提是提供独立只读核验事实；默认不接受自述成功。
+  if(row.state==='success'&&row.success_claim==='YES'){
+   const proof=verifiedChecks.find(x=>x.id===row.id&&x.head_sha===row.observed_sha&&x.status==='completed'&&x.conclusion==='success'&&x.provenance==='GH_REST_CHECK_RUNS_READ_ONLY');
+   if(!proof)throw Error('LEGACY_SUCCESS_INDEPENDENT_CHECK_MISSING:'+row.id);
+  }
  }return true;
 }
 export function gitFiles(){
