@@ -1,3 +1,12 @@
+# 2026-10-16｜A主控正式签发C01首页＋详情功能/视觉双重缺口R3整包整改（本轨优先于C原R2；B主线不变）
+
+- **新用户裁决与根因**：用户重申A2中否决的不只是配色而是首页/详情**功能、排布、交互、素材和业务状态全面不符合原计划**。A核实原C-APP-01只放行首页+最小Mock只读详情，CI和26测试只能证明当轮既有断言通过，未建立产品规则→完整可见界面→独立用户验收的严格正反双向覆盖；A对施工粒度及前置视觉契约不足负责，C对自测与实施负责。原R1/R2继续生效。
+- **正式全面整改单与47项可查清单**：[A根因复盘+R3整包施工单](https://github.com/suzhe868-arch/mb/blob/main/07_重建工作区/C_APP_01_首页详情功能视觉双重失配根因复盘与R3整包整改正式施工单_2026-10-16.md)｜[47项首页/详情/跨页面功能视觉硬门禁 TSV](https://github.com/suzhe868-arch/mb/blob/main/07_重建工作区/手机端前端全量追踪基线/C_APP_01_首页详情功能视觉全量差距与验收硬门禁_R3_2026-10-16.tsv)。C必须将本47条与旧54追踪、R1的11项缺口、R2的8项视觉条目逐项核对；当前正式PDM20默认**批发频道+全国**、首页无独立分享快捷按钮，只在详情微信分享，不能误恢复早期旧规划；筛选完整车型四层UI及详情顾问/档案/价格/锁车候补状态样板均在R3强制范围，**真实业务写入与G2不在本包**。
+- **C并行轨接力**：`C_APP_01_R3_A_RELEASED / C_NEXT_OWNER=C / C_NEXT_TASK=C_APP_01_R3_HOME_DETAIL_FULL_SPEC_REBASE / PR68_OPEN_NO_MERGE / USER_FUNCTION_AND_VISUAL_REJECTED`。C原分支`feat/c-app-01-mobile-foundation-c01-code-first`/PR #68返工；需四屏真实H5首页详情、多身份与关键状态截图、H5＋Weapp CLI/新增测试及最终同SHA真工件，交A及用户对照验收。此为**A签发，C代码尚未整改**。
+- **B任务不变**：`NEXT_OWNER=B / NEXT_TASK=F05_PARENT_PROOF_READINESS_AUDIT_01`；不得把C并行R3抢写为主B指针。F05业务、F08全域、V1、生产均未放行。
+
+---
+
 # 2026-10-16｜A主控独立验收并标准合并F05历史CI治理PR70；正式放行父来源缺口只读核证给B（当前最新）
 
 - **A真实最终结论**：`F05_LEGACY_CI_GOVERNANCE_01_A_ACCEPTED_STANDARD_MERGED_CI_INFRA_ONLY / NEXT_OWNER=B / NEXT_TASK=F05_PARENT_PROOF_READINESS_AUDIT_01 / F05_BUSINESS_F08_GLOBAL_V1_NOT_READY / NO_PRODUCTION`。C并行轨用户已明确否决C01首页及详情视觉，`C_NEXT_OWNER=C / C_NEXT_TASK=C_APP_01_R2_HOME_DETAIL_VISUAL_REBASE / PR68_NO_MERGE`，必须保留该用户裁决。
