@@ -99,3 +99,12 @@ B已直接从合并后的main逐份读取10份A批准F05工作流的现行Blob�
 - 真 GitHub `pull_request` 立即生成**10个获批F05 Workflow Run、28个原生Check**（全十项路径准确、非空），说明Shared-only属于F05十份原工作流必须触发的共享依赖正例；这不是静态猜测也不是给旧Source放行。
 - 官方Run IDs：`38937848470,38937848538,38937848436,38937848493,38937848521,38937848516,38937848463,38937848437,38937848500,38937848488`。创建后的首次GitHub快照为9 queued / 1 in_progress；**全部仍需最终Run/Job/Artifact采证**。
 - 当前Stage2尚缺Shared全部Job终态以及Mixed真正原生After；**严格串行，PR80仍活跃时不创建Mixed PR**。PR80为Draft/NO_MERGE。未触及main、原F05 Source、PG16、C PR68，未签 `READY_FOR_A_REVIEW_FINAL`。
+
+## 10. Shared-only PR80原生Run部分终态、Source失败日志和工件核证
+
+- 原生[PR80](https://github.com/suzhe868-arch/mb/pull/80) HEAD `80445a0d44af1d6406eb1010e40dd078308298fb`，差异只有一份 `engineering/shared/**` Markdown，成功真实触发全部十份A签F05工作流与28条Check。此次Shared测试不是静态模拟也不是F05-only伪装。
+- GitHub官方Run查询的本节快照：十份Run中**五份success、三份failure、两份in_progress**（F05-7 `38937848488`、F05-8 `38937848516`）；目前不能签总PASS，不能提前为这两个在途的历史来源给出失败类型。
+- 三项已结束的Source原生失败由实际Job日志核实：F05-9 Run `38937848437` / Job `117097731449`：`F05_9_NOT_IN_OFFICIAL_NEW_PUSH`；F05-10-D1 Run `38937848436` / Job `117097732116`：`D1_NOT_NEW_OFFICIAL_PUSH`；F05-10 Run `38937848538` / Job `117097732222`：`F05_10_NOT_NEW_OFFICIAL_PUSH`。对应HTTPS均success。保留原硬门禁，不试图补造正式Push或伪绿。
+- 已逐Run读取GitHub官方 Artifact列表，**23份现存、非空、未过期Artifact**，均与真实GitHub Run关联（并非23份“全部通过”的正式来源凭据）；仅官方元数据，未下载ZIP独立重算。F05-7 HTTPS有Artifact `12061063932`，F05-8已有3份compat/HTTPS工件，priority-source仍可能后续失败。
+- 同步证据PR79本批记录提交 `54146493d70316f4cecd9302f5b9e6d6e47c9332` 的原生治理审计Run `38938056415` 已completed/success；此治理证据CI不能替代Shared十份F05真实终态。
+- **串行CI预算截止线**：Shared未全部terminal，**禁止此时创建Mixed临时PR**。Mixed探针分支已在本任务此前建好，确认无业务修改；待PR80全部真实Run最终状态、Job/Check/Artifact采集后才启动。所有临时PR均Draft、NO_MERGE，旧F05 Source和F08/V1/生产仍NOT_READY。
