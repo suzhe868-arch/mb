@@ -28,12 +28,12 @@ export default function Detail(){
   <>
    <View className='detail-image' onClick={viewPhoto}>{car.photoUrl&&!broken?<Image src={car.photoUrl} mode='aspectFill' className='detail-photo' onError={()=>setBroken(true)}/>:<View className='fallback'>暂无车辆图片</View>}<Text className='image-count'>1 / 1 · 点击查看大图</Text></View>
    <View className='section-box'><Text className='detail-name'>{car.name}</Text><View className='price-line'><Text>{priceText(car,tier)}</Text><Text>{car.city}</Text></View>
-   {tier==='limited'&&car.source==='wholesale'&&car.customerPriceWan!==null?<Text className='price-note'>普通客户真实详情自动解锁及额度判断尚未接入。此处不创建查价记录，也不透露精确报价。</Text>:null}</View>
+   {tier==='limited'&&car.priceProjection==='masked'?<Text className='price-note'>普通客户真实详情自动解锁及额度判断尚未接入。此处不创建查价记录，也不透露精确报价。</Text>:null}</View>
    <View className='section-box'><Text className='section-title'>车辆信息</Text><View className='info-grid'>
     {([['上牌年份',car.registrationYear+'年'],['表显里程',kmText(car.mileageKm)],['变速箱',car.transmission],['能源',car.energy],['车身颜色',car.color],['车辆位置',car.city]] as [string,string][]).map(([label,value])=><View key={label}><Text className='key'>{label}</Text><Text>{value}</Text></View>)}
    </View></View>
    <View className='section-box tip'>仅隔离模拟数据和示意照片；收藏、咨询、锁车、候补、交易功能均未接真实后端，不展示虚假完成状态。</View>
-   <View className='detail-bottom'><Text onClick={back}>返回列表</Text><Button className='share-demo' openType='share' onClick={()=>{if(process.env.TARO_ENV==='h5')Taro.showToast({title:'仅微信小程序支持正式分享入口',icon:'none'})}}>分享车源</Button><Text className='disabled'>咨询 / 锁车未开放</Text></View>
+   <View className='detail-bottom'><Text onClick={back}>返回列表</Text><Button className='share-demo' openType='share' onClick={()=>{if(Taro.getEnv()===Taro.ENV_TYPE.WEB)Taro.showToast({title:'仅微信小程序支持正式分享入口',icon:'none'})}}>分享车源</Button><Text className='disabled'>咨询 / 锁车未开放</Text></View>
   </>}
  </View>
 }

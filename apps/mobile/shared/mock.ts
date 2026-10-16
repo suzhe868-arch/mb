@@ -30,7 +30,7 @@ export const ALL_SAFE_VEHICLES:SafeVehicle[] = Array.from({length:64},(_,i)=>{
   city:['上海','杭州','苏州','北京','广州','成都'][i%6],
   transmission:i%4===3?'单速变速箱':'自动',
   energy:i%4===3?'纯电':'汽油',color:['曜石黑','珍珠白','银灰'][i%3],
-  listedAt:'2026-10-'+String(15-i%14).padStart(2,'0')+'T10:00:00+08:00',
+  listedAt:'2026-10-'+String(16-i%14).padStart(2,'0')+'T10:00:00+08:00',
   customerPriceWan:i%11===9?null:Math.max(3.5,v.price+delta*.34),
   photoUrl:photos[i%photos.length],visible:true,publicAvailable:true
  }
@@ -41,3 +41,12 @@ export const DENIED_FIXTURES:SafeVehicle[]=[
  {...ALL_SAFE_VEHICLES[1],id:'MOCK-OFFLINE',publicAvailable:false},
  {...ALL_SAFE_VEHICLES[2],id:'MOCK-REVOKED',visible:false,publicAvailable:false}
 ]
+
+/** 示例「今日新增」按首次公开日期统计，与重复上架日期不同；固定演示业务日2026-10-16。 */
+const FIRST_PUBLIC_DATE:Record<string,string>=Object.fromEntries(
+ ALL_SAFE_VEHICLES.map((v,i)=>[v.id,i%8===0?v.listedAt.slice(0,10):'2026-09-01'])
+)
+export function mockPublicStats(today='2026-10-16'){
+ const publicRows=ALL_SAFE_VEHICLES.filter(v=>v.visible&&v.publicAvailable)
+ return {publicTotal:publicRows.length,todayNew:publicRows.filter(v=>FIRST_PUBLIC_DATE[v.id]===today).length}
+}

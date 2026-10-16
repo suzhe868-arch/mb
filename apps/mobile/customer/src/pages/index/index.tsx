@@ -2,7 +2,6 @@ import {useMemo,useState,useRef,useEffect} from 'react'
 import {View,Text,Input,Image,Button,Picker,ScrollView} from '@tarojs/components'
 import Taro,{usePullDownRefresh,useReachBottom,useDidShow,usePageScroll} from '@tarojs/taro'
 import {DEFAULT_QUERY,EMPTY_FILTERS,SOURCES,SORTS,priceText,dateText,kmText,type QueryState,type Filters,type SafeVehicle,type Tier,type Scenario,type SortKey} from '../../../../shared/domain'
-import {ALL_SAFE_VEHICLES} from '../../../../shared/mock'
 import {validateFilters} from '../../../../shared/query'
 import {mockReadAdapter} from '../../../../shared/adapter'
 import {setMockTier} from '../../../../shared/session'
@@ -69,8 +68,7 @@ export default function Home(){
  useReachBottom(()=>{if(feed.hasMore&&scenario!=='loading'&&scenario!=='error')setPage(p=>p+1)})
  usePageScroll(e=>{rememberedScroll=e.scrollTop})
  useDidShow(()=>{openingRef.current=false;if(rememberedScroll>0)Taro.pageScrollTo({scrollTop:rememberedScroll,duration:0}).catch(()=>{})})
- const count=ALL_SAFE_VEHICLES.filter(v=>v.visible&&v.publicAvailable).length
- const today=ALL_SAFE_VEHICLES.filter(v=>v.visible&&v.publicAvailable&&v.listedAt.startsWith('2026-10-15')).length
+ const {publicTotal:count,todayNew:today}=mockReadAdapter.publicStats()
  return <View className='home'>
   <View className='safe-top'/><View className='accent'/>
   <View className='search-row'><Text className='city' onClick={()=>setCities(!cities)}>{q.city}⌄</Text><View className='search-box'><Text>⌕</Text><Input confirmType='search' value={q.keyword} placeholder='搜品牌、车型、年款' onInput={e=>change({keyword:e.detail.value})}/></View></View>

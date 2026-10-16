@@ -7,7 +7,7 @@ export interface SafeVehicle {
   id: string; source: Source; brand: string; series: string; modelYear: number
   name: string; registrationYear: number; mileageKm: number; city: string
   transmission: string; energy: string; color: string
-  listedAt: string; customerPriceWan: number | null
+  listedAt: string; customerPriceWan: number | null; priceProjection?: 'masked'|'numeric'|'consultation'
   photoUrl: string | null; visible: boolean; publicAvailable: boolean
 }
 export interface Filters {
@@ -33,8 +33,8 @@ export const SORTS: {key:SortKey; label:string}[] = [
 export type Feed = { items: SafeVehicle[]; opportunityMingbang: SafeVehicle[]; opportunity4s: SafeVehicle[]; total:number; hasMore:boolean; banner:boolean }
 export type Result<T> = {ok:true;value:T}|{ok:false;code:'NETWORK_ERROR'|'NO_PERMISSION'|'NOT_FOUND'}
 export function priceText(v:SafeVehicle,tier:Tier):string {
-  if(v.customerPriceWan === null) return '价格咨询'
-  if(tier === 'limited' && v.source === 'wholesale') return '--万'
+  if(v.priceProjection === 'masked' || (tier === 'limited' && v.source === 'wholesale' && v.customerPriceWan !== null))return '--万'
+  if(v.customerPriceWan === null)return '价格咨询'
   return Number(v.customerPriceWan.toFixed(2)).toString() + '万'
 }
 export function dateText(v:SafeVehicle) { return v.listedAt.slice(0,10) }

@@ -8,7 +8,15 @@ export function parsedKeyword(keyword:string):{brand?:string;series?:string;mode
  const modelYear=year ? 2000+Number(year[1]):undefined
  const brand=['奥迪','宝马','奔驰','丰田','大众','特斯拉','比亚迪','雷克萨斯'].find(b=>raw.includes(b))
  const series=['Model 3','A6','5系','C级','凯美瑞','帕萨特','汉','ES'].find(s=>raw.includes(s))
- if(brand||series||modelYear) return {brand,series,modelYear}
+ if(brand||series||modelYear) {
+  // 只消耗已解析的明确词元，余下未知词元必须继续严格过滤，不能无声丢弃。
+  let rest=raw
+  if(year)rest=rest.replace(year[0],' ')
+  if(brand)rest=rest.replace(brand,' ')
+  if(series)rest=rest.replace(series,' ')
+  rest=rest.trim().toLowerCase()
+  return {...(brand?{brand}:{}),...(series?{series}:{}),...(modelYear?{modelYear}:{}),...(rest?{plain:rest}:{})}
+ }
  return {plain:raw.toLowerCase()}
 }
 export function matches(v:SafeVehicle,q:QueryState):boolean {
@@ -49,7 +57,14 @@ export function orderRows(rows:SafeVehicle[],sort:SortKey) {
   return b.mileageKm-a.mileageKm||newest
  })
 }
-export function queryFeed(q:QueryState=DEFAULT_QUERY,page=1,scenario:Scenario='normal'):Feed {
+/** 模拟提供端先完成内部价格排序，再投递角色安全字段；不能在UI端利用隐藏原价。 */
+function project(v:SafeVehicle,tier:'limited'|'fan'|'vip'):SafeVehicle {
+ if(tier==='limited'&&v.source==='wholesale'&&v.customerPriceWan!==null)
+  return {...v,customerPriceWan:null,priceProjection:'masked'}
+ return {...v,priceProjection:v.customerPriceWan===null?'consultation':'numeric'}
+}
+export function queryFeed(q:QueryState=DEFAULT_QUERY,page=1,scenario:Scenario='normal',tier:'limited'|'fan'|'vip'='limited'):Feed {
+ if(scenario==='loading'||scenario==='error')return {items:[],opportunityMingbang:[],opportunity4s:[],total:0,hasMore:false,banner:false}
  const candidate=ALL_SAFE_VEHICLES.concat(DENIED_FIXTURES)
  const eligible=candidate.filter(v=>matches(v,q))
  const channel=orderRows(eligible.filter(v=>v.source===q.source),q.sort)
@@ -57,14 +72,14 @@ export function queryFeed(q:QueryState=DEFAULT_QUERY,page=1,scenario:Scenario='n
  const empty=scenario==='empty'
  const rows=empty?[]:channel
  const limit=Math.max(1,Math.floor(page))*15
- return {items:scenario==='no_image'?rows.slice(0,limit).map(v=>({...v,photoUrl:null})):rows.slice(0,limit),
-   opportunityMingbang:empty?[]:other('mingbang'),opportunity4s:empty?[]:other('dealer4s'),
+ return {items:rows.slice(0,limit).map(v=>project(scenario==='no_image'?{...v,photoUrl:null}:v,tier)),
+   opportunityMingbang:empty?[]:other('mingbang').map(v=>project(v,tier)),opportunity4s:empty?[]:other('dealer4s').map(v=>project(v,tier)),
    total:rows.length,hasMore:rows.length>limit,banner:scenario!=='no_banner'&&scenario!=='empty'}
 }
-export function safeById(id:string,scenario:Scenario='normal'):SafeVehicle|null {
+export function safeById(id:string,scenario:Scenario='normal',tier:'limited'|'fan'|'vip'='limited'):SafeVehicle|null {
  if(scenario==='revoked'||scenario==='error')return null
  const v=ALL_SAFE_VEHICLES.find(v=>v.id===id)
- return v&&v.visible&&v.publicAvailable?v:null
+ return v&&v.visible&&v.publicAvailable?project(v,tier):null
 }
 export function validateFilters(f:Filters):boolean {
  const nums=[f.priceMin,f.priceMax,f.yearMin,f.yearMax,f.mileageMax].filter(Boolean)

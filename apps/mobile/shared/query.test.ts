@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {ALL_SAFE_VEHICLES,DENIED_FIXTURES} from './mock'
+import {ALL_SAFE_VEHICLES,DENIED_FIXTURES,mockPublicStats} from './mock'
 import {DEFAULT_QUERY,EMPTY_FILTERS,priceText,SORTS,type QueryState,type SafeVehicle} from './domain'
 import {queryFeed,matches,orderRows,parsedKeyword,safeById,validateFilters} from './query'
 import {mockReadAdapter,unsignedApiAdapter,UNSIGNED_WRITE_OPERATIONS} from './adapter'
@@ -43,7 +43,7 @@ test('C01解析26款 奥迪A6为车型事实，不混淆上牌年',()=>{
  assert.ok(f.items.every(v=>v.brand==='奥迪'&&v.series==='A6'&&v.modelYear===2026))
 })
 test('C01价区间必须剔除价格咨询',()=>{
- const out=queryFeed(q({filters:{...EMPTY_FILTERS,priceMin:'10',priceMax:'20'}}))
+ const out=queryFeed(q({filters:{...EMPTY_FILTERS,priceMin:'10',priceMax:'20'}}),1,'normal','vip')
  assert.ok(out.items.every(v=>v.customerPriceWan!==null&&(v.customerPriceWan>=10&&v.customerPriceWan<=20)))
 })
 test('C01年份是首次上牌、里程独立筛选',()=>{
@@ -131,4 +131,36 @@ test('C01紧急权限拒绝时不能通过历史详情恢复旧图片',()=>{
  assert.ok(mockReadAdapter.detail(id,'normal'))
  assert.equal(mockReadAdapter.detail(id,'revoked'),null)
  assert.equal(mockReadAdapter.detail(id,'error'),null)
+})
+
+test('C01普通客户投递投影不携带模拟精确批发价，但仍可先按原始数值排序',()=>{
+ resetMockTier()
+ const f=mockReadAdapter.list(q(),1,'normal')
+ assert.ok(f.items.some(v=>v.priceProjection==='masked'))
+ assert.ok(f.items.filter(v=>v.priceProjection==='masked').every(v=>v.customerPriceWan===null&&priceText(v,'limited')==='--万'))
+ const detail=mockReadAdapter.detail(f.items[0].id,'normal')!
+ assert.equal(detail.customerPriceWan,null)
+ assert.equal(detail.priceProjection,'masked')
+ setMockTier('fan')
+ const fans=mockReadAdapter.list(q(),1,'normal')
+ assert.ok(fans.items.some(v=>typeof v.customerPriceWan==='number'))
+ resetMockTier()
+})
+test('C01可识别品牌混合未知词元不能偷偷放宽关键词查询',()=>{
+ assert.equal(queryFeed(q({keyword:'奥迪 不存在车型'})).total,0)
+ assert.equal(queryFeed(q({keyword:'2026款 宝马 并不存在的款式'})).total,0)
+})
+test('C01今日新增独立于重上架时间、统计不受来源和筛选影响',()=>{
+ const stats=mockPublicStats()
+ assert.equal(stats.publicTotal,ALL_SAFE_VEHICLES.length)
+ assert.ok(stats.todayNew>0)
+ assert.ok(stats.todayNew<stats.publicTotal)
+ assert.deepEqual(stats,mockPublicStats('2026-10-16'))
+})
+test('C01加载和错误时提供层不投递旧车辆及机会块',()=>{
+ for(const s of ['loading','error'] as const){
+  const r=queryFeed(q(),1,s)
+  assert.equal(r.items.length,0);assert.equal(r.opportunityMingbang.length,0)
+  assert.equal(r.opportunity4s.length,0);assert.equal(r.banner,false)
+ }
 })
