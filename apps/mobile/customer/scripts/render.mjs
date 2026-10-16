@@ -38,7 +38,15 @@ try {
   if(state.channelHeights.some(h=>h<44))throw Error('频道点击区高度不足 '+JSON.stringify(state.channelHeights))
   if(errors.length)throw Error('页面JS错误 '+errors.join('; '))
   await page.screenshot({path:out+'/'+width+'x'+height+'_首屏.png'})
-  await page.screenshot({path:out+'/'+width+'x'+height+'_首页.png',fullPage:true})
+  await page.screenshot({path:out+'/'+width+'x'+height+'_首页.png'})
+  // Taro H5 有内部滚动容器，fullPage截图可能仅等于视口；真实滚动后另留一张证据。
+  if(await page.locator('.car').count()>5){
+   await page.locator('.car').nth(5).scrollIntoViewIfNeeded()
+   await page.waitForTimeout(200)
+   await page.screenshot({path:out+'/'+width+'x'+height+'_列表滚动.png'})
+   await page.locator('.hero').scrollIntoViewIfNeeded()
+   await page.waitForTimeout(100)
+  }
   checks.push({width,height,...state,jsErrors:errors})
   if(width===390){
    await page.locator('.channel').nth(1).click()
@@ -53,7 +61,16 @@ try {
    await page.locator('.sort-choice').nth(1).click()
    await page.locator('.car').first().click()
    await page.locator('.detail').waitFor()
-   await page.screenshot({path:out+'/390x844_安全只读详情.png',fullPage:true})
+   await page.waitForTimeout(650)
+   const detailBounds=await page.locator('.detail').evaluate(el=>{
+    const r=el.getBoundingClientRect()
+    return {left:r.left,width:r.width,right:r.right}
+   })
+   if(Math.abs(detailBounds.left)>2 || detailBounds.right>width+2){
+    await page.screenshot({path:out+'/390x844_详情转场异常.png'})
+    throw Error('详情在转场完成后仍超出390px视口 '+JSON.stringify(detailBounds))
+   }
+   await page.screenshot({path:out+'/390x844_安全只读详情.png'})
    if(await page.locator('.detail-name').count()!==1)throw Error('详情未正常渲染')
    await page.locator('.detail-header').getByText('返回车源').click()
    await page.locator('.channel').first().waitFor()
