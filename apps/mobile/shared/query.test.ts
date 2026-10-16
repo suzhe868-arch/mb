@@ -61,7 +61,12 @@ test('C01排序固定七项且数字价优先于咨询价',()=>{
  assert.equal(SORTS.length,7)
  const base=[...ALL_SAFE_VEHICLES.slice(0,10),{...ALL_SAFE_VEHICLES[0],id:'ask',customerPriceWan:null}]
  for(const key of ['price_asc','price_desc'] as const){
-  const a=orderRows(base,key);assert.equal(a[a.length-1].id,'ask')
+  const a=orderRows(base,key)
+  const firstConsult=a.findIndex(v=>v.customerPriceWan===null)
+  assert.ok(firstConsult>0)
+  assert.ok(a.slice(firstConsult).every(v=>v.customerPriceWan===null))
+  assert.equal(a.slice(firstConsult).some(v=>v.id==='ask'),true)
+  assert.ok(a.slice(firstConsult).every((v,i,rows)=>i===0||rows[i-1].listedAt>=v.listedAt))
  }
  assert.ok(orderRows(base,'mileage_asc').slice(1).every((v,i)=>v.mileageKm>=orderRows(base,'mileage_asc')[i].mileageKm))
 })
