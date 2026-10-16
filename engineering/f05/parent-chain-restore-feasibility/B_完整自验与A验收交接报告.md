@@ -59,4 +59,4 @@
 - 本次不新增隔离PG16实际执行包，故本轮只有只读Node CI；旧分支真实PG16由**既存官方原生日志、Run及Artifact**核证，不虚构本批启动过原生数据库。
 - 未经A独立复验和GitHub标准合并，不得声明PR完成或正式恢复；未来更改原旧SOURCE或运行原始Job均需要新工作单。
 
-**交接条件**：最终HEAD真Push Node PASS，官方Artifact非空未过期及SHA256元数据、动态45Workflow证据、7?条授权新增文件差集、五源真实结论完整归档时，登记 `B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A / NO_PRODUCTION`。如最后CI不满足则`B_IN_PROGRESS / BLOCKED`，不可提前交付。
+**交接条件**：最终HEAD真Push Node PASS，官方Artifact非空未过期及SHA256元数据、动态45Workflow证据、6条授权新增文件差集、五源真实结论完整归档时，登记 `B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A / NO_PRODUCTION`。如最后CI不满足则`B_IN_PROGRESS / BLOCKED`，不可提前交付。
