@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_7_PARENT_SOURCE_CONTROLLED_RECOVERY_01_A_RELEASED_PREFLIGHT",
+  "substage": "CI_TRIGGER_SCOPE_GOVERNANCE_01_A_RELEASED_FOR_B_NOW",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F05_PARENT_SOURCE_RECOVERY",
-  "current_domain_status": "F05_PARENT_FEASIBILITY_PR75_A_ACCEPTED_STANDARD_MERGED_FIVE_SOURCES_STILL_GAP",
+  "current_domain": "CI_TRIGGER_SCOPE_GOVERNANCE",
+  "current_domain_status": "CI_TRIGGER_SCOPE_GOVERNANCE_A_RELEASED_PENDING_B_IMPLEMENTATION_F05_SOURCE_GAP_OPEN",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A已完成PR75父来源恢复可行性独立验收：6/6授权新增文件、最后Push38910555545 Node38/38、五原分支45历史Workflow共348旧PG16 Job官方元数据核证，五Source原生历史成功仅旧SHA；标准PR合并SHA e1c29a4a994e70cc6c2022a22ff8bae3d153de01。A独立GitHub Compare确认五原分支各自为main祖先behind0，但旧冻结PG16 ECR镜像与长队列风险仍在；正式签F05-7单源安全预检阶段1给B，不允许未经A后续授权即原分支Push或运行66 Job。CI触发范围治理已签仍待实施，C PR68 R3未验收；F05五新SHA正式来源、F08全域、V1及生产NOT_READY。",
-  "current_work_file": "07_重建工作区/F05-7_首条正式来源链受控恢复实验_A主控完整施工单_2026-10-16.md",
+  "current_task": "A于2026-10-16根据用户持续指出GitHub C提交反复触发F05而调整优先级：PR75历史五源恢复可行性核证已独立验收合并，旧五条SOURCE_GAP没有改变；F05-7受控恢复前置虽已签但未开始B工程分支，暂排队。立即优先B专项CI_TRIGGER_SCOPE_GOVERNANCE_01治理320工作流中F05前缀95文件部分无路径限定PR触发，先核查required checks和原SOURCE签名不变量，单独PR修复实际无关重型任务扇出，真末SHA C-only/F05-only/mixed回归后A验收。不可将排队清零等同验收。C PR68用户未通过；F05/F08全域/V1/生产NOT_READY。",
+  "current_work_file": "07_重建工作区/CI工作流重复触发与F05跨窗口污染_A主控根因核证及定向治理正式施工单_2026-10-16.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B按A签F05-7单源受控恢复前置审计完整单，从最新main独立分支做旧原分支快进条件、66原生Job触发/PG16 ECR镜像/权限/预算、真实SOURCE防伪与最小资源补丁评估；此阶段严禁改旧原分支ref或立即重跑66Job，交READY_FOR_A_REVIEW_PREFLIGHT由A独立审核后有条件放行唯一原分支的合法新Push。CI_TRIGGER_SCOPE_GOVERNANCE_01已签并排队，待A下一轮正式安排；C PR68独立R3继续但未获用户接受。",
+  "next_action": "B从执行时最新main建立独立分支fix/ci-trigger-scope-governance-01，按A最新CI重复触发治理完整施工单执行：核证所有工作流真实pull_request路径和必需checks、C-only/F05-only/mixed触发扇出、旧Source安全门禁与冻结范围，新增只读清册/测试及最小合规修复方案，安全可核后A放行各旧Workflow最小白名单，完整同SHA官方CI回归再交A验收；严禁盲改95个F05文件或以skipped冒充通过。F05-7安全恢复预检已签但暂排队在CI治理之后，勿开其旧源分支或引发66Job；C PR68独立返工。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B按A签F05-7单源受控恢复前置审计完整单，从最新main独立分支做旧原分支快进条件、66原生Job触发/PG16 ECR镜像/权限/预算、真实SOURCE防伪与最小资源补丁评估；此阶段严禁改旧原分支ref或立即重跑66Job，交READY_FOR_A_REVIEW_PREFLIGHT由A独立审核后有条件放行唯一原分支的合法新Push。CI_TRIGGER_SCOPE_GOVERNANCE_01已签并排队，待A下一轮正式安排；C PR68独立R3继续但未获用户接受。",
+  "next_action_detail": "B从执行时最新main建立独立分支fix/ci-trigger-scope-governance-01，按A最新CI重复触发治理完整施工单执行：核证所有工作流真实pull_request路径和必需checks、C-only/F05-only/mixed触发扇出、旧Source安全门禁与冻结范围，新增只读清册/测试及最小合规修复方案，安全可核后A放行各旧Workflow最小白名单，完整同SHA官方CI回归再交A验收；严禁盲改95个F05文件或以skipped冒充通过。F05-7安全恢复预检已签但暂排队在CI治理之后，勿开其旧源分支或引发66Job；C PR68独立返工。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F05_7_PARENT_SOURCE_CONTROLLED_RECOVERY_01",
+  "next_task": "CI_TRIGGER_SCOPE_GOVERNANCE_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -8988,7 +8988,7 @@
   },
   "ci_trigger_scope_governance_gate": {
     "task_id": "CI_TRIGGER_SCOPE_GOVERNANCE_01",
-    "status": "A_SIGNED_QUEUED_AFTER_F05_7_GATED_PREFLIGHT_NOT_IMPLEMENTED",
+    "status": "A_RELEASED_FOR_B_NOW_B_IMPLEMENTATION_NOT_STARTED",
     "signed_date": "2026-10-16",
     "a_signed_order": "07_重建工作区/CI工作流重复触发与F05跨窗口污染_A主控根因核证及定向治理正式施工单_2026-10-16.md",
     "owner_after_current_task": "B",
@@ -9002,14 +9002,17 @@
     "old_f05_source_gap": "OPEN_NOT_REMOVED",
     "f05_trigger_fixed": false,
     "ci_evidence_full_reverified": false,
-    "main_next_task_unchanged": "F05_7_PARENT_SOURCE_CONTROLLED_RECOVERY_01",
+    "main_next_task_unchanged": "CI_TRIGGER_SCOPE_GOVERNANCE_01",
     "c_pr68_status": "DRAFT_NOT_USER_ACCEPTED",
-    "after_task": "F05_7_PARENT_SOURCE_CONTROLLED_RECOVERY_01_PREFLIGHT_A_REVIEW",
-    "pr75_reviewed_and_merged": true
+    "after_task": "CI_SCOPE_A_REVIEW_THEN_F05_7_SOURCE_PREFLIGHT",
+    "pr75_reviewed_and_merged": true,
+    "owner_now": "B",
+    "branch": "fix/ci-trigger-scope-governance-01",
+    "priority_override": "07_重建工作区/CI重复触发治理优先级调整_A主控正式裁决_2026-10-16.md"
   },
   "f05_7_parent_source_controlled_recovery_gate": {
     "task_id": "F05_7_PARENT_SOURCE_CONTROLLED_RECOVERY_01",
-    "status": "A_RELEASED_FOR_B_GATED_PREPARATION",
+    "status": "A_SIGNED_QUEUED_AFTER_CI_TRIGGER_GOVERNANCE",
     "owner": "B",
     "review_owner": "A",
     "branch": "feat/f05-7-parent-source-controlled-recovery-01",
@@ -9030,6 +9033,8 @@
     "ready_for_a_preflight_review_required": true,
     "other_four_origin_branches_touched": false,
     "source_gap_open": true,
-    "production": false
+    "production": false,
+    "branch_started_as_of_last_check": false,
+    "current_b_priority": false
   }
 }
