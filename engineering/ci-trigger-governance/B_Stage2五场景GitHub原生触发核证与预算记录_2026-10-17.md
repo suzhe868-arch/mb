@@ -35,3 +35,11 @@ A确认main不存在C构建Workflow `.github/workflows/c-app-01-build-render.yml
 - 本阶段所需五场景真实GitHub Check/Run/Job/Artifact矩阵必须实际独立回归；旧五项Source仍`SOURCE_GAP`，F05/F08/V1/生产`NOT_READY`。
 - **下一执行顺序**：F05-only 10/10 Workflows真正进入terminal并核对Job/Artifact→只打开Shared测试Draft PR→该批结束再开Mixed Draft PR→从最新真实SHA采集所有官方结果→更新本报告与实际证据→B全量自审并交A。
 - 未验证项不可视为问题已解决，所有临时PR保持Draft/open或在证据归档后关闭，**禁止合并main**。若旧Source变绿而缺合法原分支新Push，或F05/shared/mixed不启动该启动的工作流，应停止并提交A。
+
+## 4. B续工追加独立核证｜F05-7原生结论及剩余执行
+
+- 复核本阶段权威 `PROJECT_STATE.json`：`NEXT_OWNER=B`、`NEXT_TASK=CI_TRIGGER_SCOPE_GOVERNANCE_01_STAGE2_NATIVE_AFTER`，main为`b1800acf333c0cb9a5bbeea016f69b02840695d5`。PR77、PR78、PR79都保持`Draft/Open/NotMerged`。
+- PR78十份F05原生工作流此前全部成功触发，真实28项Check；较上次新增F05-7原生[Run38933661611](https://github.com/suzhe868-arch/mb/actions/runs/38933661611)已完成`failure`，其中Source Job`117083641859`最终日志明确`F05_7_CANNOT_PROVE_66_SAME_SHA_OFFICIAL_PG16_JOBS_IN_BOUNDED_CI_RUN`，同Run HTTPS Job`117083642199`为success，非空官方Artifact`12059768186`，96362字节。此系旧正式父签硬门禁**没有合法66项同SHA证据**，不是路径过滤代码验证失败，更不是可以跳过的CI检查。
+- 最新轮询PR78仍有F05-8 [Run38933661528](https://github.com/suzhe868-arch/mb/actions/runs/38933661528)在`in_progress`，其中priority Source Job`117083642179`正在原`True F05-8 nonprivileged PG16 priority-source`步骤，其余三个Job已success。不能将该Run记为PASS、失败或超时；且进行中完整日志暂不能获取，不猜测其后续结果。
+- 预算纪律：其余[Shared分支](https://github.com/suzhe868-arch/mb/tree/audit/ci-trigger-shared-after-pr76-20261017)（HEAD`80445a0d44af1d6406eb1010e40dd078308298fb`，单`engineering/shared/**`探针）与[Mixed分支](https://github.com/suzhe868-arch/mb/tree/audit/ci-trigger-mixed-after-pr76-20261017)（HEAD`c649df048f0fba289d90ee9274d59f81fd19f517`，C+F05两文件）已有只读准备，**未创建真正SHARED/MIXED PR**，避免与旧PG16仍活跃的十项Run重叠。
+- 目前阶段：`F05_7_FAIL_CLOSED_CONFIRMED / F05_8_STILL_RUNNING / SHARED_NOT_VERIFIED / MIXED_NOT_VERIFIED / STOP_SHORT_OF_FINAL`。继续禁止自行调整旧工作流、改绿旧Source、合并main或声称`READY_FOR_A_REVIEW_FINAL`。
