@@ -191,7 +191,7 @@ async function liveAudit(policy){
    policy,samples,required_checks:status,rulesets:rulesets.__error?'UNKNOWN_'+rulesets.__error:rulesets,
    formal_source_restored:false,changed_old_workflows:false,proposal_only:true};
  writeFileSync('ci-trigger-official-sample.json',JSON.stringify(data,null,2)+'\n');
- console.log('CI_GOVERNANCE_OFFICIAL_SAMPLE',JSON.stringify({sha:data.audit_sha,requiredChecks:status,prs:samples.map(x=>({id:x.label,sha:x.sha,total:x.runSample?.total,f05:x.runSample?.f05RunCount,status:x.runSample?.status}))}));
+ console.log('CI_GOVERNANCE_OFFICIAL_SAMPLE',JSON.stringify({sha:data.audit_sha,requiredChecks:status,prs:samples.map(x=>({id:x.label,sha:x.sha,total:x.runSample?.total,f05:x.runSample?.f05RunCount,jobs:x.runSample?.jobCountObserved,jobElapsedMinutes:x.runSample?.jobElapsedMinutes,unavailable:x.runSample?.jobsUnavailable,status:x.runSample?.status}))}));
 }
 const command=process.argv[2],isDirect=process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url);
 if(isDirect){
