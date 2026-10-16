@@ -75,3 +75,11 @@ A确认main不存在C构建Workflow `.github/workflows/c-app-01-build-render.yml
 - **两条PR均为`open + draft + not merged`**：PR77 HEAD `c90e5917aa81fcb69be0effcdd89d3fa27e8ab9e` 与PR78 HEAD `aaf724f7928a6cb18dba801f6184754d9ffe21c2`。PR77相对最新main差异只有`apps/mobile/evidence/CI_TRIGGER_SCOPE_C_ONLY_PROBE_20261017.md`（ahead1/behind6），真正Actions PR Run **0**、Check **0**。PR78相对最新main差异只有`engineering/f05/ci-trigger-governance-probes/F05专域触发核证_2026-10-17.md`（ahead1/behind0），同为Draft却真实产生F05 **10** Run、**28** Check，证明Draft本身不阻止这些F05工作流PR触发。
 - 单论F05的路径路由：C-only不命中、F05-only命中符合A批准的过滤逻辑。这一对照**不能替代**共享/混合真实PR、也不能证明未合并C PR68的必要Build继续有效。
 - 截至追加时：PR78 Check 23 success、4 failure、1 in_progress；F05-8 `priority-source`原生Job `117083642179`未最终结束，报告仍记`NOT_VERIFIED`，保留串行预算门禁。后续必须从GitHub最终Run/Job API重新获取终态。
+
+## 8. Stage2待执行Shared与Mixed的逐工作流预运行核对
+
+B已直接从合并后的main逐份读取10份A批准F05工作流的现行Blob（均与PR76阶段1末SHA修改后的Blob一致），验证每份`on.pull_request.paths`同时保有：
+`engineering/f05/**`、`engineering/shared/**`、`.github/workflows/f05-*.yml`、`.github/workflows/f05-*.yaml`，且**均不包含`apps/mobile/**`**。10/10配置一致，零例外。
+- 待测单域Shared草稿分支 `audit/ci-trigger-shared-after-pr76-20261017`，只含`engineering/shared/ci-trigger-governance-probes/共享依赖路由探针_2026-10-17.md`，PR创建前对比main确认ahead1/behind0，无越界业务文件。
+- 待测Mixed草稿分支 `audit/ci-trigger-mixed-after-pr76-20261017`，只含`apps/mobile/evidence/混合路径C端探针_2026-10-17.md` 与 `engineering/f05/ci-trigger-governance-probes/混合路径F05探针_2026-10-17.md` 两份文件，PR创建前对比main ahead2/behind0，无业务程序改动。
+- **这些只是真实main Blob与预备分支路径静态先验；Shared/Mixed的原生GitHub Run/Job/Artifact仍未生成，绝不能把10/10路径审计当成真实after完成。** 仍须在F05-only最后真实Run终态后串行启动两个独立草稿PR。
