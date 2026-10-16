@@ -1,0 +1,7 @@
+场景	PR	来源SHA	文件范围	原生PR_Run	Run成功	Run失败	Run进行中	原生Check	Check成功	Check失败	Check进行中	正式验收分类	限制及安全门禁
+C旧BEFORE	68	a02ca27d2109e365c5830b641a18cfb059fe3684	C工作流及手机端文件（旧PR具体变更不等同新探针）	11	6	5	0	30	25	5	0	BEFORE_HISTORY_ONLY	10个旧F05误触发且C自建CI成功；在PR76 Stage1合并之前
+C_ONLY_AFTER	77	c90e5917aa81fcb69be0effcdd89d3fa27e8ab9e	apps/mobile/evidence/**	0	0	0	0	0	0	0	0	F05_NEGATIVE_OBSERVED_ONLY	main没有C构建工作流；不能宣称C必需CI通过；Draft本身不是0Run原因
+F05_ONLY_AFTER	78	aaf724f7928a6cb18dba801f6184754d9ffe21c2	engineering/f05/**	10	5	5	0	28	23	5	0	TRIGGER_VERIFIED_SOURCE_FAIL_CLOSED	F05-7/8/9/10/D1五条正式Source按原门禁失败，真实PG16及原生Artifact不豁免
+SHARED_AFTER	80	80445a0d44af1d6406eb1010e40dd078308298fb	engineering/shared/**	10	5	4	1	28	23	4	1	TRIGGER_VERIFIED_FINAL_PENDING	历史Source已有四条真实失败；F05-8仍在运行，不能最终定论
+WORKFLOW_SELF_AFTER	76	1864447f84ad65dcc0396d907f255fd7ccdafde4	.github/workflows/f05-*.yml	11	6	5	0	30	25	5	0	SELF_TRIGGER_VERIFIED	包含1个治理审计Run；10个F05里5成功5失败，原Source全fail-closed
+MIXED_AFTER	未开PR	c649df048f0fba289d90ee9274d59f81fd19f517	apps/mobile/**+engineering/f05/**	未测	未测	未测	未测	未测	未测	未测	未测	BRANCH_PREPARED_NOT_VERIFIED	待Shared原生Run全部terminal后才开Draft PR；当前main没有C独立工作流
