@@ -8479,7 +8479,12 @@
       "USER_APPROVAL_FOR_FINAL_VISUAL_BEFORE_MERGE"
     ],
     "user_function_review": "REJECTED",
-    "c_code_reworked_to_r3": false
+    "c_code_reworked_to_r3": false,
+    "standing_quality_standard": "07_重建工作区/C手机端全页面统一产品功能交互视觉质量门禁_A主控常设正式规范_2026-10-16.md",
+    "standing_page_template": "07_重建工作区/手机端前端全量追踪基线/C_全部页面质量验收契约卡_统一填写模板_2026-10-16.tsv",
+    "all_future_a_authorized_mobile_pages_must_comply": true,
+    "visual_design_can_be_deemed_template_only_after_a_user_acceptance": true,
+    "frontend_process": "CODE_FIRST_RUNNABLE_UI_WITH_PRECODE_PAGE_CONTRACT_AND_REAL_VISUAL_GATES"
   },
   "f08_gate": {
     "status": "F08_1_PR69_A_ACCEPTED_STANDARD_MERGED_CI_ONLY",
@@ -8902,6 +8907,36 @@
     "pr_merge_allowed": false,
     "real_business_writes": "NOT_AUTHORIZED",
     "next_owner": "C",
-    "next_task": "C_APP_01_R3_HOME_DETAIL_FULL_SPEC_REBASE"
+    "next_task": "C_APP_01_R3_HOME_DETAIL_FULL_SPEC_REBASE",
+    "standing_quality_standard": "07_重建工作区/C手机端全页面统一产品功能交互视觉质量门禁_A主控常设正式规范_2026-10-16.md",
+    "standing_page_template": "07_重建工作区/手机端前端全量追踪基线/C_全部页面质量验收契约卡_统一填写模板_2026-10-16.tsv",
+    "requires_all_pages_quality_gate": true
+  },
+  "c_mobile_all_pages_quality_gate": {
+    "status": "A_STANDING_QUALITY_GATE_RELEASED",
+    "owner": "A_POLICY_C_EXECUTION",
+    "applicability": "ONLY_A_AUTHORIZED_CUSTOMER_AND_EMPLOYEE_MINIPROGRAM_PAGE_OVERLAY_AND_COMPONENT_WORK",
+    "applies_to_current_pr": 68,
+    "applies_to_new_unreleased_pages_as_permission": false,
+    "standard_file": "07_重建工作区/C手机端全页面统一产品功能交互视觉质量门禁_A主控常设正式规范_2026-10-16.md",
+    "per_page_template": "07_重建工作区/手机端前端全量追踪基线/C_全部页面质量验收契约卡_统一填写模板_2026-10-16.tsv",
+    "mandatory_gates": [
+      "G0_FINAL_IA_SOURCE_AND_DEPRECATION",
+      "G1_A_SIGNED_PAGE_CONTRACT_C_REVERSE_DIFF",
+      "G2_REAL_RUNNING_DESIGN_SYSTEM_REUSE",
+      "G3_FUNCTION_STATE_PERMISSION_NEGATIVE_TESTS",
+      "G4_FINAL_HEAD_REAL_H5_WEAPP_BROWSER_4_WIDTH_EVIDENCE",
+      "G5_A_INDEPENDENT_SEPARATE_FUNCTION_AND_VISUAL_ACCEPTANCE"
+    ],
+    "does_not_require_separate_figma": true,
+    "does_not_authorize_real_business_writes": true,
+    "does_not_override_product_authority": true,
+    "requires_user_visual_approval_for_key_rejected_screens": true,
+    "c01_task": "C_APP_01_R3_HOME_DETAIL_FULL_SPEC_REBASE",
+    "c01_user_function_and_visual": "REJECTED",
+    "c01_pr_merged": false,
+    "next_owner": "C",
+    "main_next_owner_preserved": "B",
+    "main_next_task_preserved": "F05_PARENT_PROOF_READINESS_AUDIT_01"
   }
 }
