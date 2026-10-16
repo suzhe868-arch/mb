@@ -8,7 +8,7 @@ const source=name=>readFileSync(resolve(ROOT,'.github/workflows',name),'utf8');
 const clone=structuredClone;
 const sha='a'.repeat(40);
 test('G01 十份授权工作流且包含旧源提交标记',()=>{assert.equal(files.length,10);assert.match(BASELINE_SHA,/^[a-f0-9]{40}$/);});
-files.forEach((name,i)=>test('G0'+(i+2)+' '+name+' 保留源码Job、PG服务、签源条件与工件',()=>assert.equal(examineWorkflow(source(name),name).legacy_jobs,EXPECTED[name].jobs)));
+files.forEach((name,i)=>test('W'+String(i+1).padStart(2,'0')+' 原Workflow校验 '+name+' 保留源码Job、PG服务、签源条件与工件',()=>assert.equal(examineWorkflow(source(name),name).legacy_jobs,EXPECTED[name].jobs)));
 test('G07 共28项旧原生真实PG16工作，不缩减',()=>assert.equal(auditWorkflows().reduce((s,x)=>s+x.legacy_jobs,0),28));
 test('G08 外部限流镜像再次引入必须阻断',()=>assert.throws(()=>examineWorkflow(source(files[0]).replace('image: postgres:16','image: public.ecr.aws/docker/library/postgres:16-alpine'),files[0]),/IMAGE_COUNT|LIMITED_IMAGE/));
 test('G09 不允许删原生源码入口',()=>assert.throws(()=>examineWorkflow(source(files[2]).replace('ci-job.sh source','ci-job.sh skipped'),files[2]),/TEST_ENTRY_REDUCED/));
@@ -49,5 +49,5 @@ test('G42 冻结虚假零错误降级语义必须拒绝',()=>{const n='f05-10-fr
 test('G43 冻结工作流只允许隔离PG主版本16',()=>{const n='f05-10-frozen-f05-8-four-revalidation.yml';assert.throws(()=>examineWorkflow(source(n).replace('image: postgres:16','image: postgres:15'),n),/POSTGRES16_IMAGE_COUNT/);});
 test('G44 冻结禁止ECR网络拉取即使添加本地别名',()=>{const n='f05-10-d1-frozen-f05-9-two-revalidation.yml';assert.throws(()=>examineWorkflow(source(n)+'\nrun: docker pull public.ecr.aws/docker/library/postgres:16-alpine\n',n),/LIMITED_IMAGE_REMAINS/);});
 test('G45 冻结历史真父正例来源仍不可由CI检查自签',()=>{const c=summarizeChecks({total_count:1,check_runs:[{id:45,name:'F05-frozen',head_sha:sha,status:'completed',conclusion:'success',details_url:'https://github.com/test'}]},sha);assert.equal(c.legacy[0].formal_parent_positive,false);assert.equal(c.historical_parent_proof_source_gap,true);});
-test('F05_CI_GOVERNANCE_45_NODE_ASSERTIONS_PASS',()=>console.log('F05_GOVERNANCE_NODE_45_ASSERTIONS_PASS'));
+test('F05_CI_GOVERNANCE_50_NODE_ASSERTIONS_PASS',()=>console.log('F05_GOVERNANCE_NODE_45_ASSERTIONS_PASS'));
 
