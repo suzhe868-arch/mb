@@ -1,0 +1,18 @@
+id	domain	source_path	source_presence	level	positive_parent	evidence_sha	run_id	test_command	workflow_path	pr	production_ready	note
+F01_HEALTH	F01	engineering/src/app.mjs	SOURCE_PRESENT	STATIC_CONTRACT_ONLY	NO	—	—	npm --prefix engineering test	.github/workflows/f01-foundation.yml	—	NO	源码在main不等于health本轮执行通过
+F01_TESTS	F01	engineering/tests/	SOURCE_PRESENT	STATIC_CONTRACT_ONLY	NO	—	—	npm --prefix engineering test	.github/workflows/f01-foundation.yml	—	NO	只登记测试入口不复用旧结果
+F02_MIGRATION	F02	engineering/f02-1/migrations/	SOURCE_PRESENT	STATIC_CONTRACT_ONLY	NO	—	—	node engineering/f02-1/runner.mjs	.github/workflows/f02-1-isolated-pg16.yml	—	NO	不得对正式库迁移
+F02_G0	F02	engineering/f02-g0/	SOURCE_PRESENT	STATIC_CONTRACT_ONLY	NO	—	—	node engineering/f02-g0/preflight.mjs	.github/workflows/f02-g0-gate.yml	—	NO	结构合同不等于真实全域迁移
+F03_IDENTITY	F03	engineering/f03/policy.mjs	SOURCE_PRESENT	STATIC_CONTRACT_ONLY	NO	—	—	node --test engineering/f03/tests/*.test.mjs	.github/workflows/f03-g0-static-policy.yml	—	NO	权限源静态入口
+F03_AUTH	F03	engineering/f03-1/	SOURCE_PRESENT	STATIC_CONTRACT_ONLY	NO	—	—	node engineering/f03-1/runner.mjs --verify	.github/workflows/f03-1-auth-isolated.yml	—	NO	禁止推定所有F03实时业务身份已经就绪
+F04_CONTRACT	F04	engineering/f04/	SOURCE_PRESENT	STATIC_CONTRACT_ONLY	NO	—	—	未逐项执行	.github/workflows/f04-4-current-action-coverage-gate.yml	—	NO	API合同资产存在≠正式路由联通
+F05_PRIORITY	F05	engineering/f05/priority-arbitration-ttl-handover/	SOURCE_PRESENT	STATIC_CONTRACT_ONLY	NO	—	—	未在F08-1重新运行	.github/workflows/f05-8-priority-arbitration-ttl.yml	—	NO	旧F05 28个排队不能作为PASS
+F05_CRM	F05	engineering/f05/consultation-assignee-sla/	SOURCE_PRESENT	STATIC_CONTRACT_ONLY	NO	—	—	未在F08-1重新运行	.github/workflows/f05-10-consultation-assignee-sla.yml	—	NO	不能推定正式SLA及真实通知已签发
+F06_LOCK	F06	engineering/f06/lockrequest-approval-waitlist-ci/	SOURCE_PRESENT	STATIC_CONTRACT_ONLY	NO	—	—	未在F08-1重新运行	—	—	NO	仅隔离合同存在
+F06_REFUND	F06	engineering/f06/transaction-refund-ci/	SOURCE_PRESENT	STATIC_CONTRACT_ONLY	NO	—	—	未在F08-1重新运行	—	—	NO	真实资金一律不授权
+F07_PHONE	F07	engineering/f07/collector-publisher-phone-callback-ci/	SOURCE_PRESENT	STATIC_CONTRACT_ONLY	NO	—	—	未在F08-1重新运行	—	—	NO	真实Collector JYT来源缺口
+F07_CDN	F07	engineering/f07/vehicle-image-cdn-asset-ci/	SOURCE_PRESENT	STATIC_CONTRACT_ONLY	NO	—	—	未在F08-1重新运行	—	—	NO	正式OSS/CDN对象存储未验证
+F07_NOTIF_MOCK	F07	engineering/f07/notification-sla-incident-gate-ci/gate.mjs	SOURCE_PRESENT	CI_SYNTHETIC_ONLY	NO	692e4c755e3410c569940019d042680e91f8a3fa	38833280610	node --test engineering/f07/notification-sla-incident-gate-ci/tests/source.test.mjs	.github/workflows/f07-4-notification-sla-incident.yml	#67	NO	历史受验SHA 128非生产用例，仅Mock通知合同
+F07_F03_NEGATIVE	F07	engineering/f07/notification-sla-incident-gate-ci/tests/parent.test.mjs	SOURCE_PRESENT	SIGNED_PARENT_NEGATIVE_ONLY	NO	692e4c755e3410c569940019d042680e91f8a3fa	38833280610	node --test engineering/f07/notification-sla-incident-gate-ci/tests/parent.test.mjs	.github/workflows/f07-4-notification-sla-incident.yml	#67	NO	仅真正F03签名父Session负证10项而非业务签发正例
+F08_GATE	F08	engineering/f08/quality-evidence-gate-ci/	SOURCE_PRESENT	CI_SYNTHETIC_ONLY	NO	—	—	node --test engineering/f08/quality-evidence-gate-ci/tests/*.test.mjs	.github/workflows/f08-1-cross-domain-quality.yml	F08-1待验PR	NO	本批新工具仅防伪和仓库资产扫描
+C_MOBILE_MAIN	C	—	SOURCE_GAP	SOURCE_GAP	NO	—	—	未运行；main无apps/mobile	—	#68 Draft	NO	C代码只在独立未合并PR，不得称为main双端实跑
