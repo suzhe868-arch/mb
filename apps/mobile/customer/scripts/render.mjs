@@ -62,7 +62,7 @@ try{
    favorite:!!document.querySelector('.bottom-favorite'),
    consultation:document.querySelector('.bottom-consult')?.textContent,
    lock:document.querySelector('.bottom-lock')?.textContent,
-   share:!!document.querySelector('.head-share'),
+   share:!!document.querySelector('.share-inline'),
    placeholder:!!document.querySelector('.detail-placeholder'),
    mockText:!!document.querySelector('.detail-header .demo')
   }))
@@ -87,6 +87,10 @@ try{
     await page.locator('.bottom-lock').waitFor({timeout:10000})
     await screenshot(page,'390x844_锁车状态_'+lock)
    }
+   await page.goto(routeUrl(sampleUrl,{id:'MOCK-001',share:'1'}),{waitUntil:'domcontentloaded'})
+   await page.locator('.bottom-more').waitFor({timeout:10000})
+   assert(await page.locator('.detail-bottom button').count()===3,'分享直达缺四操作：更多车源+收藏+咨询+锁车')
+   await screenshot(page,'390x844_分享直达四操作')
    await page.goto(routeUrl(sampleUrl,{id:'MOCK-REVOKED',share:'1'}),{waitUntil:'domcontentloaded'})
    await page.locator('.denied-title').waitFor({timeout:10000})
    await screenshot(page,'390x844_旧分享撤权')
