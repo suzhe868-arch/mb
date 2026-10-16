@@ -10,7 +10,7 @@ permissions:
   contents: read
 jobs:
   quality_node:
-    name: F08-1 Node源码与证据来源60项
+    name: F08-1 Node源码与证据来源62项
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
@@ -39,13 +39,13 @@ jobs:
           node engineering/f08/quality-evidence-gate-ci/quality.mjs report 2>&1 | tee f08-1-inventory-native.log
           grep -q F08_1_REPORT_GENERATED f08-1-inventory-native.log
           grep -q F08_1_GLOBAL_NOT_READY_SOURCE_GAP f08-1-inventory-native.log
-      - name: Node 60项独立质量正反例和拒绝测试
+      - name: Node 62项独立质量正反例和拒绝测试
         shell: bash
         run: |
           set -euo pipefail
           node --test --test-concurrency=1 engineering/f08/quality-evidence-gate-ci/tests/quality.test.mjs 2>&1 | tee f08-1-node-native.log
-          grep -q F08_1_NODE_60_ASSERTIONS_PASS f08-1-node-native.log
-          grep -q '# tests 61' f08-1-node-native.log
+          grep -q F08_1_NODE_62_ASSERTIONS_PASS f08-1-node-native.log
+          grep -q '# tests 63' f08-1-node-native.log
           grep -q '# fail 0' f08-1-node-native.log
       - name: 当前HEAD官方Node日志和扫描报告工件
         if: always()
