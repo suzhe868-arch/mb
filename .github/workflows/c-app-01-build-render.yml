@@ -70,6 +70,7 @@ jobs:
       - name: Taro H5 真构建
         run: |
           npm run build:h5
+          test -f dist/index.html || { echo 'H5入口index.html缺失；禁止将JS/CSS包当作可渲染H5'; exit 1; }
           mv dist dist-h5
       - name: Taro 微信小程序真构建
         run: |

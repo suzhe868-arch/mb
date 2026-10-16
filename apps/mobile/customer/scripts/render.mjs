@@ -9,9 +9,17 @@ try {
  for(const [width,height] of [[320,568],[375,812],[390,844],[430,932]]){
   const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1})
   const errors=[]
+  const consoleErrors=[]
   page.on('pageerror',e=>errors.push(e.message))
-  await page.goto(root,{waitUntil:'domcontentloaded',timeout:45000})
-  await page.locator('.channel').first().waitFor({timeout:30000})
+  page.on('console',e=>{if(e.type()==='error')consoleErrors.push(e.text())})
+  const response=await page.goto(root,{waitUntil:'domcontentloaded',timeout:45000})
+  try {await page.locator('.channel').first().waitFor({timeout:15000})}
+  catch(e) {
+   const html=await page.content()
+   await page.screenshot({path:out+'/'+width+'x'+height+'_渲染异常诊断.png',fullPage:true})
+   console.error(JSON.stringify({width,height,status:response?.status(),url:page.url(),pageErrors:errors,consoleErrors,htmlPreview:html.slice(0,3200)},null,2))
+   throw e
+  }
   await page.waitForTimeout(1800)
   const state=await page.evaluate(()=>{
    const cards=[...document.querySelectorAll('.car')]
