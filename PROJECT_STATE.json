@@ -8330,7 +8330,7 @@
     "merge_commit_sha": "5f1e60ddd87472c7b90e230a8363db7c89a35911"
   },
   "parallel_c_mobile_frontend": {
-    "status": "C_APP_01_USER_VISUAL_REJECTED_R2_HOME_DETAIL_VISUAL_REBASE_RELEASED_PR68_NO_MERGE",
+    "status": "C_APP_01_R3_A_RELEASED_USER_FUNCTION_AND_VISUAL_REJECTED_PR68_NO_MERGE",
     "process_authority": "2026-10-15_USER_APPROVED_CODE_FIRST_NO_SEPARATE_LOFI_HIFI_FIGMA",
     "owner": "C",
     "a_review_owner": "A",
@@ -8375,7 +8375,7 @@
     "f07_global": "NOT_READY",
     "v1": "NOT_READY",
     "next_owner": "C",
-    "next_task": "C_APP_01_PR68_NPM_11_6_0_LOCKFILE_NATIVE_H5_WEAPP_CHROMIUM_CI_REMEDIATION",
+    "next_task": "C_APP_01_R3_HOME_DETAIL_FULL_SPEC_REBASE",
     "a_blocker_work_order": "07_重建工作区/C_APP_01_A主控PR68_npm依赖解析与双端构建阻断定向整改施工单_2026-10-16.md",
     "review_pr": 68,
     "review_head_sha": "7783c54bd78e1b5156976aab036151b0debe8618",
@@ -8403,7 +8403,7 @@
     },
     "draft": true,
     "merged": false,
-    "user_visual_review": "NOT_READY",
+    "user_visual_review": "REJECTED",
     "a_pr_comment_id": 6206309405,
     "next_c_owner": "C",
     "next_c_task": "C_APP_01_R2_HOME_DETAIL_VISUAL_REBASE",
@@ -8458,7 +8458,28 @@
     "old_user_visual_pending_superseded_by": "USER_VISUAL_REJECTED",
     "can_merge_before_user_approval": false,
     "engineering_build_test_baseline": "LAST_SHA_7783c54b_REAL_H5_WEAPP_BUILD_PASS",
-    "visual_ready": false
+    "visual_ready": false,
+    "r3_work_order": "07_重建工作区/C_APP_01_首页详情功能视觉双重失配根因复盘与R3整包整改正式施工单_2026-10-16.md",
+    "r3_coverage_matrix": "07_重建工作区/手机端前端全量追踪基线/C_APP_01_首页详情功能视觉全量差距与验收硬门禁_R3_2026-10-16.tsv",
+    "r3_row_count": 47,
+    "r3_root_causes": [
+      "G1_MINIMAL_DETAIL_MISTAKEN_FOR_FINAL_SCREEN",
+      "CODE_FIRST_WITHOUT_PAGE_SKELETON_CONTRACT",
+      "ENGINEERING_CI_MISTAKEN_FOR_PRODUCT_ACCEPTANCE",
+      "54_TRACE_HAS_11_PARTIAL_AND_3_UNAUTHORIZED",
+      "A_UPFRONT_SPECS_AND_REVIEW_LATE"
+    ],
+    "r3_requires": [
+      "R1_ALL_11_PARTIAL_CLOSED",
+      "R2_ALL_8_VISUAL_GAPS_CLOSED",
+      "R3_47_ROW_BIDIRECTIONAL_MATRIX",
+      "CUSTOMER_SAFE_COMPLETE_HOME_DETAIL_MOCK_UI",
+      "FINAL_SHA_MULTIVIEW_REAL_BROWSER",
+      "A_INDEPENDENT_PRODUCT_AND_VISUAL_ACCEPTANCE",
+      "USER_APPROVAL_FOR_FINAL_VISUAL_BEFORE_MERGE"
+    ],
+    "user_function_review": "REJECTED",
+    "c_code_reworked_to_r3": false
   },
   "f08_gate": {
     "status": "F08_1_PR69_A_ACCEPTED_STANDARD_MERGED_CI_ONLY",
@@ -8773,7 +8794,7 @@
     "production_ready": false
   },
   "c_app_01_a_review": {
-    "status": "A_R2_USER_VISUAL_REJECTED",
+    "status": "A_R3_CHANGES_REQUESTED_USER_FUNCTION_AND_VISUAL_REJECTED",
     "pr": 68,
     "head_sha": "7783c54bd78e1b5156976aab036151b0debe8618",
     "main_at_review": "309c0f8079de129ca3cf2ed06db3d2e8a4796fc5",
@@ -8797,7 +8818,7 @@
     ],
     "report": "07_重建工作区/C_APP_01_A主控PR68首轮独立复验_双端构建已过_状态覆盖和最终证据索引整改正式报告_2026-10-16.md",
     "next_c_owner": "C",
-    "next_c_task": "C_APP_01_R2_HOME_DETAIL_VISUAL_REBASE",
+    "next_c_task": "C_APP_01_R3_HOME_DETAIL_FULL_SPEC_REBASE",
     "merge_allowed": false,
     "user_visual": "REJECTED",
     "v1": "NOT_READY",
@@ -8816,16 +8837,20 @@
       "R2-V08_CUSTOMER_NAV"
     ],
     "a_visual_report": "07_重建工作区/C_APP_01_用户首轮视觉否决_A主控首页与详情重构正式整改单_2026-10-16.md",
-    "prior_R1_11_partial_tests_still_required": true
+    "prior_R1_11_partial_tests_still_required": true,
+    "r3_work_order": "07_重建工作区/C_APP_01_首页详情功能视觉双重失配根因复盘与R3整包整改正式施工单_2026-10-16.md",
+    "r3_matrix": "07_重建工作区/手机端前端全量追踪基线/C_APP_01_首页详情功能视觉全量差距与验收硬门禁_R3_2026-10-16.tsv",
+    "r3_rows": 47,
+    "feature_layout_approved": false
   },
   "c_app_01_visual_rebase_gate": {
-    "status": "A_R2_RELEASED_USER_VISUAL_REJECTED",
+    "status": "A_R3_RELEASED_USER_FUNCTION_AND_VISUAL_REJECTED",
     "next_c_owner": "C",
-    "next_c_task": "C_APP_01_R2_HOME_DETAIL_VISUAL_REBASE",
+    "next_c_task": "C_APP_01_R3_HOME_DETAIL_FULL_SPEC_REBASE",
     "branch": "feat/c-app-01-mobile-foundation-c01-code-first",
     "pr": 68,
     "last_engineering_pass_sha": "7783c54bd78e1b5156976aab036151b0debe8618",
-    "report": "07_重建工作区/C_APP_01_用户首轮视觉否决_A主控首页与详情重构正式整改单_2026-10-16.md",
+    "report": "07_重建工作区/C_APP_01_首页详情功能视觉双重失配根因复盘与R3整包整改正式施工单_2026-10-16.md",
     "affected_pages": [
       "C01",
       "C01-01"
@@ -8836,7 +8861,12 @@
     "maintain_existing_r1_tests": true,
     "require_real_chromium_home_detail_pair": true,
     "merge_allowed": false,
-    "production": false
+    "production": false,
+    "coverage_matrix": "07_重建工作区/手机端前端全量追踪基线/C_APP_01_首页详情功能视觉全量差距与验收硬门禁_R3_2026-10-16.tsv",
+    "coverage_rows": 47,
+    "functional_ui_user_review": "REJECTED",
+    "release_scope": "MOCK_VISUAL_UI_ONLY_REAL_BUSINESS_WRITES_NOT_AUTHORIZED",
+    "prior_r1_r2_required": true
   },
   "f05_parent_proof_readiness_audit_gate": {
     "status": "A_RELEASED_FOR_B_NONPRODUCTION_READ_ONLY_AUDIT",
@@ -8853,5 +8883,25 @@
     "may_modify_frozen_workflows": false,
     "ci_only": true,
     "production": false
+  },
+  "c_app_01_r3_function_visual_gate": {
+    "status": "A_RELEASED_C_NOT_STARTED_NEW_R3_CODE",
+    "owner": "C",
+    "review_owner": "A",
+    "pr": 68,
+    "branch": "feat/c-app-01-mobile-foundation-c01-code-first",
+    "r3_work_order": "07_重建工作区/C_APP_01_首页详情功能视觉双重失配根因复盘与R3整包整改正式施工单_2026-10-16.md",
+    "r3_matrix": "07_重建工作区/手机端前端全量追踪基线/C_APP_01_首页详情功能视觉全量差距与验收硬门禁_R3_2026-10-16.tsv",
+    "rows": 47,
+    "requires_original_54_rows": true,
+    "requires_original_r1_11": true,
+    "requires_original_r2_8": true,
+    "head_at_a_r3": "7783c54bd78e1b5156976aab036151b0debe8618",
+    "r3_new_code_sha": null,
+    "final_user_acceptance": "REJECTED",
+    "pr_merge_allowed": false,
+    "real_business_writes": "NOT_AUTHORIZED",
+    "next_owner": "C",
+    "next_task": "C_APP_01_R3_HOME_DETAIL_FULL_SPEC_REBASE"
   }
 }
