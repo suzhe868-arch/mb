@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F08_1_PR69_A_R2_CHANGES_REQUESTED_NOT_MERGED_B_R2_REMEDIATION",
+  "substage": "F08_1_A_STANDARD_MERGED_F05_LEGACY_CI_GOVERNANCE_01_RELEASED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F08",
-  "current_domain_status": "F08_1_PR69_R2_A02_TRUSTED_PARENT_PROOF_BLOCKED_GLOBAL_NOT_READY",
+  "current_domain": "F05_CI_GOVERNANCE",
+  "current_domain_status": "F05_LEGACY_CI_GOVERNANCE_01_A_RELEASED_F05_BUSINESS_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A二轮独立复验PR69末SHA c79c2932aa63f7c92ed9e10903a2f1323728a207 ：11个授权新增路径；同SHA真Push Run38843522723 Node83+PG16非特权24测试及两官方SHA256工件有效；A01六CI非成功态、A02非父源矩阵拒绝、A03真实API旧CI快照隔离、A04双Job均通过。但requireEvidence仍将手造state success+SHA视为父签业务正例（Q14当前错误主张合法），未真实验证GitHub completed成功/Run及业务Issuer来源，违反A首轮A02。旧F05最新同SHA 30 Check=19 success/11 failure，其中7镜像限流、4历史正式Push/同SHA证明条件未满足。A二轮拒收NO_MERGE，原PR69原分支交B执行R2_A02_TRUSTED_PARENT_PROOF；F08全域/V1 NOT_READY，未授权生产，C并行轨不变。",
-  "current_work_file": "07_重建工作区/F08-1_A主控PR69第二轮独立验收_可信父正例接口未闭环与旧F05十一项失败定向整改正式报告_2026-10-16.md",
+  "current_task": "A已第三轮独立验收F08-1 PR69最终HEAD f368ed870a4d432f25eb2fb1fb3915f78a4fd720：12/12授权文件、GitHub真实Push Run38847514793 Node101+PG16非特权24独立安全工具测试及两官方同SHA有效工件，trusted-parent私有受信父来源回执、Q14/Q78反转、Q84-Q101安全负例全部完成；PR69 GitHub正常merge返回merged=true，实际merge SHA 3c32c845939ce7b51dd18814e212c4bf0942aecf。旧F05检查不全绿（30=21 success、7 failure、2 in_progress，7失败含6镜像ECR限流与1旧正式Push来源），未改旧检查，required checks未知。A已单独放行F05历史CI技术治理工作单交B，F05业务/F08全域/V1继续NOT_READY，C PR68独立等待A审查。",
+  "current_work_file": "07_重建工作区/F05_历史CI失败治理_A主控非生产专项完整施工单_2026-10-16.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F08_1_PR69_A_R2_CHANGES_REQUESTED",
+  "current_review_batch": "F05_LEGACY_CI_GOVERNANCE_01_RELEASED",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B在原PR69原分支完成R2-A02可信父签正例实际核验接口修复和新增负例，重跑末SHA两Job与工件，保留旧F05失败真实分类，交A三轮独立复验。",
+  "next_action": "B依据新正式F05历史CI治理工作单，从最新main独立建fix/f05-legacy-ci-governance-01分支，修复公共ECR镜像限流、明确严格来源正式Push和跨PR适用性，不降级真PG16及签名证据，完成同末SHA双Job+工件与完整旧CI分类后交A。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B在原PR69原分支完成R2-A02可信父签正例实际核验接口修复和新增负例，重跑末SHA两Job与工件，保留旧F05失败真实分类，交A三轮独立复验。",
+  "next_action_detail": "B依据新正式F05历史CI治理工作单，从最新main独立建fix/f05-legacy-ci-governance-01分支，修复公共ECR镜像限流、明确严格来源正式Push和跨PR适用性，不降级真PG16及签名证据，完成同末SHA双Job+工件与完整旧CI分类后交A。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F08_1_PR69_R2_A02_TRUSTED_PARENT_PROOF",
+  "next_task": "F05_LEGACY_CI_GOVERNANCE_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -8407,10 +8407,10 @@
     "a_pr_comment_id": 6206309405
   },
   "f08_gate": {
-    "status": "F08_1_PR69_A_R2_CHANGES_REQUESTED_NO_MERGE",
-    "owner": "B",
+    "status": "F08_1_PR69_A_ACCEPTED_STANDARD_MERGED_CI_ONLY",
+    "owner": "A_ACCEPTED",
     "next_owner": "B",
-    "next_task": "F08_1_PR69_R2_A02_TRUSTED_PARENT_PROOF",
+    "next_task": "F05_LEGACY_CI_GOVERNANCE_01",
     "work_order": "07_重建工作区/F08-1_A主控跨域工程质量证据门禁非生产正式施工单_2026-10-16.md",
     "scope": "NONPRODUCTION_QUALITY_COVERAGE_EVIDENCE_CI_ONLY",
     "branch": "feat/f08-1-cross-domain-quality-evidence-gate-ci",
@@ -8429,33 +8429,48 @@
     "v1": "NOT_READY",
     "production": false,
     "after_b_selftest": "B_SELF_TESTED_READY_FOR_A_REVIEW_NEXT_OWNER_A",
-    "a_review_report": "07_重建工作区/F08-1_A主控PR69第二轮独立验收_可信父正例接口未闭环与旧F05十一项失败定向整改正式报告_2026-10-16.md",
+    "a_review_report": "07_重建工作区/F08-1_A主控PR69第三轮独立验收与标准合并_F05历史CI专项放行正式报告_2026-10-16.md",
     "review_pr": 69,
-    "review_head_sha": "c79c2932aa63f7c92ed9e10903a2f1323728a207",
+    "review_head_sha": "f368ed870a4d432f25eb2fb1fb3915f78a4fd720",
     "fixes": [
       "A01_NON_SUCCESS_CI_FAKE_SUCCESS",
       "A02_NON_PARENT_SOURCE_FAKE_PARENT_POSITIVE",
       "A03_LIVE_HEAD_LEGACY_CI_AUDIT",
       "A04_SAME_SHA_NATIVE_RETEST_AND_EVIDENCE"
     ],
-    "latest_native_run": 38843522723,
-    "last_native_independent_tests": 107,
-    "all_check_success": 19,
-    "all_check_failure": 11,
-    "merge_allowed": false,
+    "latest_native_run": 38847514793,
+    "last_native_independent_tests": 125,
+    "all_check_success": 21,
+    "all_check_failure": 7,
+    "merge_allowed": true,
     "legacy_f05_checks": 28,
-    "legacy_f05_failure": 11,
-    "legacy_f05_docker_rate_limited": 7,
-    "legacy_f05_parent_gate_unproven": 4,
-    "remaining_fixes": [
-      "R2_A02_REQUIRE_EVIDENCE_TRUSTED_PARENT_PROOF_AND_NEGATIVE_TESTS"
+    "legacy_f05_failure": 7,
+    "legacy_f05_docker_rate_limited": 6,
+    "legacy_f05_parent_gate_unproven": 1,
+    "remaining_fixes": [],
+    "merge_commit_sha": "3c32c845939ce7b51dd18814e212c4bf0942aecf",
+    "node_assertions": 101,
+    "pg16_assertions": 24,
+    "official_artifact_ids": [
+      12023637105,
+      12023443830
+    ],
+    "all_check_in_progress": 2,
+    "legacy_f05_in_progress": 2,
+    "merged": true,
+    "fixes_completed": [
+      "A01",
+      "A02",
+      "A03",
+      "A04",
+      "R2_A02_TRUSTED_PARENT_RECEIPT"
     ]
   },
   "f08_1_gate": {
-    "status": "F08_1_PR69_A_R2_CHANGES_REQUESTED_NO_MERGE",
-    "owner": "B",
+    "status": "F08_1_PR69_A_ACCEPTED_STANDARD_MERGED_CI_ONLY",
+    "owner": "A_ACCEPTED",
     "next_owner": "B",
-    "next_task": "F08_1_PR69_R2_A02_TRUSTED_PARENT_PROOF",
+    "next_task": "F05_LEGACY_CI_GOVERNANCE_01",
     "work_order": "07_重建工作区/F08-1_A主控跨域工程质量证据门禁非生产正式施工单_2026-10-16.md",
     "scope": "NONPRODUCTION_QUALITY_COVERAGE_EVIDENCE_CI_ONLY",
     "branch": "feat/f08-1-cross-domain-quality-evidence-gate-ci",
@@ -8474,26 +8489,41 @@
     "v1": "NOT_READY",
     "production": false,
     "after_b_selftest": "B_SELF_TESTED_READY_FOR_A_REVIEW_NEXT_OWNER_A",
-    "a_review_report": "07_重建工作区/F08-1_A主控PR69第二轮独立验收_可信父正例接口未闭环与旧F05十一项失败定向整改正式报告_2026-10-16.md",
+    "a_review_report": "07_重建工作区/F08-1_A主控PR69第三轮独立验收与标准合并_F05历史CI专项放行正式报告_2026-10-16.md",
     "review_pr": 69,
-    "review_head_sha": "c79c2932aa63f7c92ed9e10903a2f1323728a207",
+    "review_head_sha": "f368ed870a4d432f25eb2fb1fb3915f78a4fd720",
     "fixes": [
       "A01_NON_SUCCESS_CI_FAKE_SUCCESS",
       "A02_NON_PARENT_SOURCE_FAKE_PARENT_POSITIVE",
       "A03_LIVE_HEAD_LEGACY_CI_AUDIT",
       "A04_SAME_SHA_NATIVE_RETEST_AND_EVIDENCE"
     ],
-    "latest_native_run": 38843522723,
-    "last_native_independent_tests": 107,
-    "all_check_success": 19,
-    "all_check_failure": 11,
-    "merge_allowed": false,
+    "latest_native_run": 38847514793,
+    "last_native_independent_tests": 125,
+    "all_check_success": 21,
+    "all_check_failure": 7,
+    "merge_allowed": true,
     "legacy_f05_checks": 28,
-    "legacy_f05_failure": 11,
-    "legacy_f05_docker_rate_limited": 7,
-    "legacy_f05_parent_gate_unproven": 4,
-    "remaining_fixes": [
-      "R2_A02_REQUIRE_EVIDENCE_TRUSTED_PARENT_PROOF_AND_NEGATIVE_TESTS"
+    "legacy_f05_failure": 7,
+    "legacy_f05_docker_rate_limited": 6,
+    "legacy_f05_parent_gate_unproven": 1,
+    "remaining_fixes": [],
+    "merge_commit_sha": "3c32c845939ce7b51dd18814e212c4bf0942aecf",
+    "node_assertions": 101,
+    "pg16_assertions": 24,
+    "official_artifact_ids": [
+      12023637105,
+      12023443830
+    ],
+    "all_check_in_progress": 2,
+    "legacy_f05_in_progress": 2,
+    "merged": true,
+    "fixes_completed": [
+      "A01",
+      "A02",
+      "A03",
+      "A04",
+      "R2_A02_TRUSTED_PARENT_RECEIPT"
     ]
   },
   "c_app_01_build_blocker": {
@@ -8516,40 +8546,66 @@
     "main_merge_allowed": false
   },
   "f08_1_a_review": {
-    "status": "A_R2_CHANGES_REQUESTED",
+    "status": "A_R3_ACCEPTED_STANDARD_MERGED_CI_ONLY",
     "pr": 69,
-    "head_sha": "c79c2932aa63f7c92ed9e10903a2f1323728a207",
-    "main_base_sha": "d1c85733d5ea5ec08c01cd9f8a7b7c70565670af",
-    "work_order": "07_重建工作区/F08-1_A主控PR69第二轮独立验收_可信父正例接口未闭环与旧F05十一项失败定向整改正式报告_2026-10-16.md",
-    "passed": [
-      "A01_6_NON_SUCCESS_STATES",
-      "A02_COVERAGE_LEVELS_5",
-      "A03_HISTORICAL_AND_LIVE_SNAPSHOT_SEPARATED",
-      "A04_SAME_HEAD_NODE83_NATIVE_PG16_24_TWO_ARTIFACTS"
-    ],
-    "blocked": [
-      "R2_A02_REQUIRE_EVIDENCE_HANDCRAFTED_SUCCESS_PARENT_POSITIVE"
-    ],
-    "next_owner": "B",
-    "next_task": "F08_1_PR69_R2_A02_TRUSTED_PARENT_PROOF",
-    "native_run": 38843522723,
-    "node_job": 116788750562,
-    "pg16_job": 116788750713,
+    "head_sha": "f368ed870a4d432f25eb2fb1fb3915f78a4fd720",
+    "merge_sha": "3c32c845939ce7b51dd18814e212c4bf0942aecf",
+    "work_order": "07_重建工作区/F08-1_A主控PR69第三轮独立验收与标准合并_F05历史CI专项放行正式报告_2026-10-16.md",
+    "node_job": 116801290275,
+    "pg16_job": 116801289996,
+    "run_id": 38847514793,
+    "tool_assertions": 125,
     "official_artifacts": [
-      12022112170,
-      12022481629
+      12023637105,
+      12023443830
     ],
-    "same_head_checks": {
+    "legacy_f05_checks": {
       "success": 19,
-      "failure": 11,
-      "legacy_f05_success": 17,
-      "legacy_f05_failure": 11,
-      "docker_limit": 7,
-      "legacy_provenance_gate": 4
+      "failure": 7,
+      "in_progress": 2
     },
     "branch_protection": "UNKNOWN_403",
-    "merge_allowed": false,
+    "merge_method": "GITHUB_STANDARD_PR_MERGE",
+    "a_accepted": true,
+    "merged": true,
     "f08_global": "NOT_READY",
     "v1": "NOT_READY"
+  },
+  "f05_legacy_ci_governance_gate": {
+    "status": "A_RELEASED_FOR_B_CI_ONLY",
+    "owner": "B",
+    "next_owner": "B",
+    "next_task": "F05_LEGACY_CI_GOVERNANCE_01",
+    "work_order": "07_重建工作区/F05_历史CI失败治理_A主控非生产专项完整施工单_2026-10-16.md",
+    "branch": "fix/f05-legacy-ci-governance-01",
+    "base": "LATEST_MAIN_AT_START",
+    "scope": "NONPRODUCTION_CI_RELIABILITY_PROVENANCE_NO_BUSINESS_CHANGE",
+    "initial_authorized_workflows": [
+      ".github/workflows/f05-7-deterministic-matching-readiness-four-tier.yml",
+      ".github/workflows/f05-8-priority-arbitration-ttl-handover.yml",
+      ".github/workflows/f05-9-recommendation-visibility-grants.yml",
+      ".github/workflows/f05-10-consultation-assignee-sla.yml",
+      ".github/workflows/f05-10-d1-public-pool-owner-claim.yml"
+    ],
+    "additional_allowed_paths": [
+      ".github/workflows/f05-ci-governance-*.yml",
+      "engineering/f05/ci-governance/**"
+    ],
+    "initial_check_sha": "f368ed870a4d432f25eb2fb1fb3915f78a4fd720",
+    "initial_checks": {
+      "total": 30,
+      "f08_success": 2,
+      "f05_success": 19,
+      "f05_failure": 7,
+      "f05_in_progress": 2,
+      "external_docker_quota": 6,
+      "source_push_not_eligible": 1
+    },
+    "branch_protection": "UNKNOWN_403",
+    "f05_business": "NOT_READY",
+    "f08_global": "NOT_READY",
+    "v1": "NOT_READY",
+    "production": false,
+    "merge_allowed": false
   }
 }

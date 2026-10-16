@@ -1,3 +1,13 @@
+# 2026-10-16｜A三轮正式验收并标准合并F08-1 PR69；正式放行F05历史CI专项治理给B
+
+- **唯一现行B主任务**：`F08_1_PR69_A_ACCEPTED_STANDARD_MERGED_CI_ONLY / F05_LEGACY_CI_GOVERNANCE_01_A_RELEASED / NEXT_OWNER=B / NEXT_TASK=F05_LEGACY_CI_GOVERNANCE_01 / F08_GLOBAL_V1_NOT_READY / NO_PRODUCTION`。C-APP-01/PR68仍属独立并行轨（C已交A核审申请但本次未审/未合并），不被B主线覆盖。
+- **A实际合并**：[PR69](https://github.com/suzhe868-arch/mb/pull/69) 末HEAD `f368ed870a4d432f25eb2fb1fb3915f78a4fd720`，标准GitHub PR `merge`返回`merged=true`、真实merge SHA **`3c32c845939ce7b51dd18814e212c4bf0942aecf`**。12/12仅新增F08隔离质量工具白名单文件，无改旧F05、业务/PDM/C/生产。真Push [Run38847514793](https://github.com/suzhe868-arch/mb/actions/runs/38847514793)同SHA双独立Job success，Node101真实工具断言＋PG16非特权24真实安全测试，共125项**隔离非生产测试**；2份非空有效官方SHA256工件，**未ZIP独立复算**。可信父回执默认ISSUER_REGISTRY为空，不虚报正式父签正例。三轮A安全问题A01—A04/R2-A02均已源代码核证闭环。
+- **旧F05独立现实失败**：PR69同SHA全Check最后实时30＝21 success、7 failure、2 in_progress；其中F08专项2项成功，旧F05 28项中19 success、**7 failure/2进行中**。A逐Job确认6项ECR `toomanyrequests`，1项旧来源资格`F05_9_NOT_IN_OFFICIAL_NEW_PUSH`；旧失败不能当PASS。GitHub branch-protection读取403、required checks未知；仅经本PR新的变更隔离判断并由GitHub正常merge实际通过，**没有强推/移除或覆盖要求，不是下一PR默认可豁免旧CI**。
+- **正式新施工单**：[F05历史CI治理](https://github.com/suzhe868-arch/mb/blob/main/07_重建工作区/F05_历史CI失败治理_A主控非生产专项完整施工单_2026-10-16.md)：B从最新main在 `fix/f05-legacy-ci-governance-01`独立PR执行；允许安全、有限调整5份指定旧主F05工作流CI资源/触发器或新建CI审计代码；禁止改旧业务实现/DDL/冻结原生安全断言、将not applicable冒充真父证据、擅改分支保护；真实同SHA Node+PG16两Job和两工件、旧28条分类、保留原真父源限定后交A独立审核。
+- **完整A报告**：[F08-1三轮验收合并与F05放行](https://github.com/suzhe868-arch/mb/blob/main/07_重建工作区/F08-1_A主控PR69第三轮独立验收与标准合并_F05历史CI专项放行正式报告_2026-10-16.md)；[PR69三轮A验收评论](https://github.com/suzhe868-arch/mb/pull/69#issuecomment-6207774541)。项目F08全域、F05业务全域、V1依旧`NOT_READY`；真实第三方、客户、资金、UAT、生产无授权。**下一窗口：B。**
+
+---
+
 # 2026-10-16｜A二轮复验F08-1 PR69：A01/A03/A04有效，A02可信父正例接口未闭环，继续交B原PR整改
 
 - **唯一正式B下一任务**：`F08_1_PR69_A_R2_CHANGES_REQUESTED / NO_MERGE / NEXT_OWNER=B / NEXT_TASK=F08_1_PR69_R2_A02_TRUSTED_PARENT_PROOF / F08_GLOBAL_V1_NOT_READY / NO_PRODUCTION`。A的二轮复验仅涉及F08-1非生产质量工具；C-APP-01 PR68保持C独立轨，不因本裁决改变其权责。
