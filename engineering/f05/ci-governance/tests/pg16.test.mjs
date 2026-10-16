@@ -27,7 +27,12 @@ test('P17 FK拒绝缺失父行',()=>{sql('CREATE TABLE IF NOT EXISTS f05_governa
 test('P18 FK合法引用可实际插入',()=>{sql('INSERT INTO f05_governance_ci.child VALUES(2,1) ON CONFLICT DO NOTHING');assert.equal(sql('SELECT ref FROM f05_governance_ci.child WHERE id=2'),'1');});
 test('P19 FK禁止删除被引用的父记录',()=>assert.throws(()=>sql('DELETE FROM f05_governance_ci.assertions WHERE id=1'),/foreign key constraint/));
 test('P20 PG advisory lock真实排他并发',async()=>{
- const child=spawn('psql',args("BEGIN; SELECT pg_advisory_xact_lock(50916); SELECT 'LOCK_HELD'; SELECT pg_sleep(2); COMMIT"),{env:process.env,stdio:['ignore','pipe','pipe']});
+ // 逐条-c确保psql将LOCK_HELD信号在会话继续持锁时实际刷新，而不是整个SQL批量返回后才可见。
+ const child=spawn('psql',[
+   '-X','-A','-t','-v','ON_ERROR_STOP=1','-h','127.0.0.1','-p','5432','-U',user,'-d',db,
+   '-c','BEGIN','-c','SELECT pg_advisory_xact_lock(50916)',
+   '-c',"SELECT 'LOCK_HELD'",'-c','SELECT pg_sleep(3)','-c','COMMIT'
+ ],{env:process.env,stdio:['ignore','pipe','pipe']});
  let stdout='',stderr='';child.stdout.on('data',c=>stdout+=c.toString());child.stderr.on('data',c=>stderr+=c.toString());
  let ready=false;for(let n=0;n<40;n++){if(stdout.includes('LOCK_HELD')){ready=true;break;}await new Promise(r=>setTimeout(r,100));}
  if(!ready){child.kill();throw Error('PG_LOCK_NOT_ACQUIRED:'+stderr);}
