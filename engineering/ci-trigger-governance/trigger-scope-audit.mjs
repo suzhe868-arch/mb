@@ -62,7 +62,8 @@ export function classifyWorkflow(path,yaml){
  const event=readTrigger(yaml);
  const job=jobsAndCost(yaml);
  const n=(yaml.match(nameRx)?.[1]??'').trim().replace(/^['"]|['"]$/g,'');
- const frozen=/\/f05-(?:7|8|9|10)(?:-d1)?-frozen-|\/f05-(?:7|8|9|10)(?:-d1)?-[^.]*\.yml$/.test(path);
+ const frozen=/\/f05-(?:7|8|9|10)(?:-d1)?-frozen-/.test(path)||
+  /\/f05-(?:7-deterministic-matching-readiness-four-tier|8-priority-arbitration-ttl-handover|9-recommendation-visibility-grants|10-consultation-assignee-sla|10-d1-public-pool-owner-claim)\.yml$/.test(path);
  const isF05=path.startsWith('.github/workflows/f05-');
  const guard=/GH_ACTIONS_READ_TOKEN|ci-verify-(?:66|68|70|72)|ci-job\.sh source/.test(yaml);
  const affected=isF05?'F05':path.includes('/c-app-')?'C':'OTHER';
