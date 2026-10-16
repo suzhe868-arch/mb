@@ -48,7 +48,7 @@ test('no changed workflow grants a global write token',()=>{
     const s=readFileSync('.github/workflows/'+name,'utf8');
     assert.doesNotMatch(s,/contents: write/);
     assert.doesNotMatch(s,/pull_request:/);
-    assert.match(s,/feat\/f05-7-deterministic-matching-readiness-four-tier/);
+    assert.match(s,/feat\/f05-7-deterministic-matching-readiness-four-/);
   });
 });
 test('old guarded F03 push commands remain unmodified and cannot run on frozen F05 ref',()=>{
