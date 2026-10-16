@@ -1,3 +1,4 @@
+// R3最终验证：此脚本由专属GitHub Actions在当前HEAD实际运行，截图仅作为安全Mock/UI证明。
 import {chromium} from 'playwright'
 import {mkdirSync,writeFileSync} from 'node:fs'
 
