@@ -1,0 +1,107 @@
+name: F05正式父来源只读核证与隔离PG16
+on:
+  push:
+    branches: [feat/f05-parent-proof-readiness-audit-01]
+    paths:
+      - 'engineering/f05/parent-proof-readiness/**'
+      - '.github/workflows/f05-parent-proof-readiness-*.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'engineering/f05/parent-proof-readiness/**'
+      - '.github/workflows/f05-parent-proof-readiness-*.yml'
+permissions:
+  contents: read
+  actions: read
+  checks: read
+jobs:
+  source_readonly:
+    name: F05父来源Node官方只读核证
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: 运行安全反例与静态语法验证
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          node --check engineering/f05/parent-proof-readiness/audit.mjs
+          node --check engineering/f05/parent-proof-readiness/tests/audit.test.mjs
+          node --test --test-concurrency=1 engineering/f05/parent-proof-readiness/tests/audit.test.mjs 2>&1 | tee f05-parent-proof-node.log
+          grep -q '# fail 0' f05-parent-proof-node.log
+      - name: 真实GitHub官方只读来源审计，不向父签证发证
+        if: github.event_name == 'push'
+        shell: bash
+        env:
+          GH_ACTIONS_READ_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          node engineering/f05/parent-proof-readiness/audit.mjs audit 2>&1 | tee f05-parent-proof-live.log
+          grep -q 'F05_PARENT_PROOF_AUDIT_SOURCE_GAP' f05-parent-proof-live.log
+          test -s f05-parent-proof-live.json
+          node -e "const x=require('./f05-parent-proof-live.json');if(x.formal_parent_positive!==false||x.all_sources!=='SOURCE_GAP'||x.sources.length!==5)process.exit(1)"
+      - name: 归档Node及来源核证证据
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f05-parent-proof-node-${{ github.sha }}
+          path: |
+            f05-parent-proof-node.log
+            f05-parent-proof-live.log
+            f05-parent-proof-live.json
+          if-no-files-found: error
+          retention-days: 14
+  isolated_pg16:
+    name: F05父来源真非特权PG16隔离测试
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16
+        env: {POSTGRES_USER: postgres, POSTGRES_PASSWORD: disposable_bootstrap_only, POSTGRES_DB: postgres}
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 25
+    env:
+      F05_PARENT_PG16_ISOLATED: I_AUTHORIZE_F05_PARENT_AUDIT_DISPOSABLE_PG16_ONLY
+      PGHOST: '127.0.0.1'
+      PGPORT: '5432'
+      PGUSER: f05_parent_audit
+      PGDATABASE: f05_parent_audit_ci
+      PGPASSWORD: disposable_audit_ci_only
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: 严格创建临时库与非超级角色
+        shell: bash
+        env:
+          PGPASSWORD: disposable_bootstrap_only
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d postgres -c "CREATE ROLE f05_parent_audit LOGIN PASSWORD 'disposable_audit_ci_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d postgres -c "CREATE DATABASE f05_parent_audit_ci OWNER f05_parent_audit;"
+      - name: 真实PG16安全身份、拒绝提权与回滚测试
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -XAt -c "SELECT current_user||'|'||current_database()||'|'||current_setting('server_version_num')||'|'||rolsuper FROM pg_roles WHERE rolname=current_user;" | tee f05-parent-proof-pg-identity.log
+          grep -Eq '^f05_parent_audit\|f05_parent_audit_ci\|16[0-9]{4}\|false$' f05-parent-proof-pg-identity.log
+          node --test --test-concurrency=1 engineering/f05/parent-proof-readiness/tests/pg16.test.mjs 2>&1 | tee f05-parent-proof-pg16.log
+          grep -q '# fail 0' f05-parent-proof-pg16.log
+          echo F05_PARENT_PG16_NONPRODUCTION_ONLY_NO_PARENT_SIGNATURE
+      - name: 归档真实PG16与身份核验证据
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f05-parent-proof-pg16-${{ github.sha }}
+          path: |
+            f05-parent-proof-pg16.log
+            f05-parent-proof-pg-identity.log
+          if-no-files-found: error
+          retention-days: 14
