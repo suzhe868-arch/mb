@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F07_4_PR67_A_ACCEPTED_STANDARD_MERGED_CI_ONLY_F08_1_A_RELEASED_FOR_B_CI_ONLY",
+  "substage": "F08_1_PR69_A_CHANGES_REQUESTED_NOT_MERGED_B_REMEDIATION",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F08",
-  "current_domain_status": "F08_1_A_RELEASED_FOR_B_NONPRODUCTION_QUALITY_BASELINE_ONLY_F08_GLOBAL_NOT_READY",
+  "current_domain_status": "F08_1_PR69_A_CHANGES_REQUESTED_CI_ONLY_F08_GLOBAL_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A已独立验F07-4 PR67最终HEAD692e4c755e3410c569940019d042680e91f8a3fa，9/9新增隔离白名单、真正Push Run38833280610双非特权PG16 Jobs 92+10+26=128独立场景全过、两同SHA官方SHA256工件有效；清除故障后旧active告警重发已在真双Backend竞态中修复。旧28项F05 PR Check queued仍未完成，A签仅限PR67两新Push CI适用性技术裁决，不把旧队列算成功，GitHub标准PR merge返回merged=true SHA5f1e60ddd87472c7b90e230a8363db7c89a35911，PR closed/merged且main已独立证实。A正式报告落库。按F08路线图签发F08-1非生产跨域证据覆盖与质量自动化先导施工单，只新增独立f08目录及对应新CI，1真PG16+1独立Node Job、至少40独立断言及同SHA两个工件；F08最终综合签收、F05/F06/F07真实业务整域、C手机端双端构建/真实H5/微信发布、第三方/客户/资金/UAT生产均NOT_READY或未获许可。主线下一责任B；C-APP-01并行轨完全独立。",
-  "current_work_file": "07_重建工作区/F08-1_A主控跨域工程质量证据门禁非生产正式施工单_2026-10-16.md",
+  "current_task": "A在F08-1 PR69最后受验HEAD 28c17745e93018d03b6df2ef45be4c965f2d95a2独立核对9个授权新增、真Push Run38836345416、Node62独立断言+PG16非特权24独立断言、同SHA两工件官方摘要元数据；全HEAD30 checks=20 success+10 failure，其中旧F05 7镜像toomanyrequests、3旧新Push源限制。A源码发现validateLegacy遗漏in_progress/skipped/cancelled非法成功声明，validateCoverage遗漏STATIC_CONTRACT_ONLY/NOT_RUN/SOURCE_GAP非法父正例声明；另实时旧CI证据须与本PR当前HEAD和历史PR67 queued分开。A正式PR69首轮验收不通过，未合并main，交B原分支A01-A04定向整改并完成新head双Job真CI+证据后再复验。C-APP-01 PR68并行轨独立由C继续原阻断整改，F08/V1 NOT_READY，生产/资金/真实外部服务未授权。",
+  "current_work_file": "07_重建工作区/F08-1_A主控PR69首轮独立验收_历史CI与父正例防冒充定向整改正式报告_2026-10-16.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -429,7 +429,7 @@
   ],
   "decision_register_status": "HAS_CONFIRMED_DECISIONS",
   "batch_1_status": "COMPLETE_USER_CONFIRMED",
-  "current_review_batch": "F07_3_PR66_A_CHANGES_REQUESTED",
+  "current_review_batch": "F08_1_PR69_A_CHANGES_REQUESTED",
   "batch_2_status": "COMPLETE_USER_CONFIRMED",
   "batch_2_confirmed_count": 5,
   "confirmed_deprecated_superseded_atoms": [
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B从执行时最新main创建feat/f08-1-cross-domain-quality-evidence-gate-ci并开独立PR，只新增engineering/f08/quality-evidence-gate-ci/**和.github/workflows/f08-1-*.yml，一次性建设F01-F07及并行C的真实证据索引/覆盖矩阵/CI原貌与SOURCE_GAP安全拒绝、至少40真实断言、两个独立原生Actions Job（其中真非特权PG16至少1个）及同SHA两官方有效工件和完整中文交接，READY_FOR_A_REVIEW交A。不得触生产或跨改C/F父源码，不宣称F08最终验收。",
+  "next_action": "B在原PR69原分支仅新增/修改engineering/f08/quality-evidence-gate-ci/**及.github/workflows/f08-1-*.yml，完整修复A01历史CI在in_progress/skipped/cancelled等非成功态伪标成功、A02静态/未运行/缺源伪装父业务正例、A03同HEAD实时旧CI 30项与10项旧失败分类、A04保持62+24原生成功并追加漏检负例，最新单SHA真Push双Job success/两官方同SHA有效工件、中文交接READY_FOR_A_REVIEW后再交A独立验收；未验不得合并、不改冻结旧CI/生产/C。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "07_重建工作区/F08-1_A主控跨域工程质量证据门禁非生产正式施工单_2026-10-16.md",
+  "next_action_detail": "07_重建工作区/F08-1_A主控PR69首轮独立验收_历史CI与父正例防冒充定向整改正式报告_2026-10-16.md",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F08_1_CROSS_DOMAIN_QUALITY_EVIDENCE_CI_ONLY",
+  "next_task": "F08_1_PR69_A01_A04_EVIDENCE_GATE_REMEDIATION",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -8407,10 +8407,10 @@
     "a_pr_comment_id": 6206309405
   },
   "f08_gate": {
-    "status": "F08_1_A_RELEASED_FOR_B_CI_ONLY",
+    "status": "F08_1_PR69_A_CHANGES_REQUESTED_NO_MERGE",
     "owner": "B",
     "next_owner": "B",
-    "next_task": "F08_1_CROSS_DOMAIN_QUALITY_EVIDENCE_CI_ONLY",
+    "next_task": "F08_1_PR69_A01_A04_EVIDENCE_GATE_REMEDIATION",
     "work_order": "07_重建工作区/F08-1_A主控跨域工程质量证据门禁非生产正式施工单_2026-10-16.md",
     "scope": "NONPRODUCTION_QUALITY_COVERAGE_EVIDENCE_CI_ONLY",
     "branch": "feat/f08-1-cross-domain-quality-evidence-gate-ci",
@@ -8428,13 +8428,27 @@
     "full_f08": "NOT_READY",
     "v1": "NOT_READY",
     "production": false,
-    "after_b_selftest": "B_SELF_TESTED_READY_FOR_A_REVIEW_NEXT_OWNER_A"
+    "after_b_selftest": "B_SELF_TESTED_READY_FOR_A_REVIEW_NEXT_OWNER_A",
+    "a_review_report": "07_重建工作区/F08-1_A主控PR69首轮独立验收_历史CI与父正例防冒充定向整改正式报告_2026-10-16.md",
+    "review_pr": 69,
+    "review_head_sha": "28c17745e93018d03b6df2ef45be4c965f2d95a2",
+    "fixes": [
+      "A01_NON_SUCCESS_CI_FAKE_SUCCESS",
+      "A02_NON_PARENT_SOURCE_FAKE_PARENT_POSITIVE",
+      "A03_LIVE_HEAD_LEGACY_CI_AUDIT",
+      "A04_SAME_SHA_NATIVE_RETEST_AND_EVIDENCE"
+    ],
+    "latest_native_run": 38836345416,
+    "last_native_independent_tests": 86,
+    "all_check_success": 20,
+    "all_check_failure": 10,
+    "merge_allowed": false
   },
   "f08_1_gate": {
-    "status": "F08_1_A_RELEASED_FOR_B_CI_ONLY",
+    "status": "F08_1_PR69_A_CHANGES_REQUESTED_NO_MERGE",
     "owner": "B",
     "next_owner": "B",
-    "next_task": "F08_1_CROSS_DOMAIN_QUALITY_EVIDENCE_CI_ONLY",
+    "next_task": "F08_1_PR69_A01_A04_EVIDENCE_GATE_REMEDIATION",
     "work_order": "07_重建工作区/F08-1_A主控跨域工程质量证据门禁非生产正式施工单_2026-10-16.md",
     "scope": "NONPRODUCTION_QUALITY_COVERAGE_EVIDENCE_CI_ONLY",
     "branch": "feat/f08-1-cross-domain-quality-evidence-gate-ci",
@@ -8452,7 +8466,21 @@
     "full_f08": "NOT_READY",
     "v1": "NOT_READY",
     "production": false,
-    "after_b_selftest": "B_SELF_TESTED_READY_FOR_A_REVIEW_NEXT_OWNER_A"
+    "after_b_selftest": "B_SELF_TESTED_READY_FOR_A_REVIEW_NEXT_OWNER_A",
+    "a_review_report": "07_重建工作区/F08-1_A主控PR69首轮独立验收_历史CI与父正例防冒充定向整改正式报告_2026-10-16.md",
+    "review_pr": 69,
+    "review_head_sha": "28c17745e93018d03b6df2ef45be4c965f2d95a2",
+    "fixes": [
+      "A01_NON_SUCCESS_CI_FAKE_SUCCESS",
+      "A02_NON_PARENT_SOURCE_FAKE_PARENT_POSITIVE",
+      "A03_LIVE_HEAD_LEGACY_CI_AUDIT",
+      "A04_SAME_SHA_NATIVE_RETEST_AND_EVIDENCE"
+    ],
+    "latest_native_run": 38836345416,
+    "last_native_independent_tests": 86,
+    "all_check_success": 20,
+    "all_check_failure": 10,
+    "merge_allowed": false
   },
   "c_app_01_build_blocker": {
     "status": "A_TRIAGED_C_REMEDIATION_RELEASED_NOT_READY_FOR_A_REVIEW",
@@ -8472,5 +8500,28 @@
     "requires_user_visual_confirmation": true,
     "ci_not_proven": true,
     "main_merge_allowed": false
+  },
+  "f08_1_a_review": {
+    "date": "2026-10-16",
+    "status": "A_CHANGES_REQUESTED_NO_MERGE",
+    "pr": 69,
+    "review_sha": "28c17745e93018d03b6df2ef45be4c965f2d95a2",
+    "report_path": "07_重建工作区/F08-1_A主控PR69首轮独立验收_历史CI与父正例防冒充定向整改正式报告_2026-10-16.md",
+    "comment_url": "https://github.com/suzhe868-arch/mb/pull/69#issuecomment-6206802517",
+    "same_sha_run": 38836345416,
+    "native_node_job": 116766246855,
+    "native_pg16_job": 116766247095,
+    "independent_test_count": 86,
+    "artifacts": [
+      12019577689,
+      12019507922
+    ],
+    "checks": {
+      "success": 20,
+      "failure": 10
+    },
+    "next_owner": "B",
+    "no_production": true,
+    "c_track_unchanged": true
   }
 }

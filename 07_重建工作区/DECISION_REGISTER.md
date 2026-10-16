@@ -1,3 +1,13 @@
+# 2026-10-16｜A独立验收F08-1 PR69未通过：证据冒充两处核心漏检，交B原PR整改（现行B主线）
+
+- **唯一正式B主线裁决**：`F08_1_PR69_A_CHANGES_REQUESTED / NO_MERGE / NEXT_OWNER=B / NEXT_TASK=F08_1_PR69_A01_A04_EVIDENCE_GATE_REMEDIATION / F08_GLOBAL_V1_NOT_READY / NO_PRODUCTION`。本次仅审查F08-1非生产质量先导；**C-APP-01/PR68保持C并行轨独立，C需继续既有npm双端构建整改**。
+- **实际审查**：[PR69](https://github.com/suzhe868-arch/mb/pull/69)最后受验HEAD `28c17745e93018d03b6df2ef45be4c965f2d95a2`、compare（当时main `c82bd5ff74def4456537e8130939d5ace56d5139`）ahead15/behind6、9/9授权白名单全新增。真正Push [Run38836345416](https://github.com/suzhe868-arch/mb/actions/runs/38836345416) Node Job116766246855真实62项独立防冒充断言+1标记、真非特权PG16 Job116766247095独立24项，共86项隔离质量工具测试全过；同SHA官方工件12019577689/12019507922非空未过期有SHA256元数据，**未ZIP独立复算**。本SHA全Check实际20 success/10 failure（旧F05：7 Docker ECR限流、3旧Push/父证据门禁），**不能当30/30绿**。
+- **独立发现确定性逻辑缺口**：`quality.mjs:validateLegacy`只拒绝`queued/failure/missing`伪`success_claim=YES`，遗漏`in_progress/skipped/cancelled`；`validateCoverage`只拒绝`SIGNED_PARENT_NEGATIVE_ONLY`和`CI_SYNTHETIC_ONLY`的`positive_parent=YES`，遗漏`STATIC_CONTRACT_ONLY/NOT_RUN/SOURCE_GAP`，从而可伪造父业务正例。专项绿灯不能替代对此核心漏洞的修复。
+- **完整整改**：[正式A报告](https://github.com/suzhe868-arch/mb/blob/main/07_%E9%87%8D%E5%BB%BA%E5%B7%A5%E4%BD%9C%E5%8C%BA/F08-1_A%E4%B8%BB%E6%8E%A7PR69%E9%A6%96%E8%BD%AE%E7%8B%AC%E7%AB%8B%E9%AA%8C%E6%94%B6_%E5%8E%86%E5%8F%B2CI%E4%B8%8E%E7%88%B6%E6%AD%A3%E4%BE%8B%E9%98%B2%E5%86%92%E5%85%85%E5%AE%9A%E5%90%91%E6%95%B4%E6%94%B9%E6%AD%A3%E5%BC%8F%E6%8A%A5%E5%91%8A_2026-10-16.md)、[PR69正式整改单评论](https://github.com/suzhe868-arch/mb/pull/69#issuecomment-6206802517)。B在原分支 `feat/f08-1-cross-domain-quality-evidence-gate-ci` 原PR69只改既定两个目录：A01六种非成功态禁止伪绿、A02五种非父正例来源禁止伪父正例、A03以最新受验SHA建立实时旧CI审计证据且将历史快照明确隔离、A04同末SHA双独立CI重跑/两工件/中文交接。**A未验收前不得merge**。
+- **安全边界**：旧F05冻结工作流不可改、旧10失败不可撤销/伪绿或套用PR67旧豁免；生产、资金、第三方外部写入、真实客户、UAT仍未授权；C PR68 Draft不能当已验证双端页面。F08全域和V1继续`NOT_READY`。
+
+---
+
 # 2026-10-16｜C-APP-01 PR68 npm edgesOut安装阻断：A已定位高可信Arborist缺陷并正式放行C原分支整改（C平行轨）
 
 - **C独立并行轨现行裁决**：`C_APP_01_NPM_EDGESOUT_INSTALL_BLOCKED / A_TECH_FIX_RELEASED / C_NEXT_OWNER=C / C_PR68_DRAFT_NO_MERGE / C_H5_WEAPP_CHROMIUM_SCREENSHOTS_NOT_RUN / USER_VISUAL_REVIEW_NOT_READY`。这只更新C轨；**正式B主线保持`NEXT_OWNER=B / NEXT_TASK=F08_1_CROSS_DOMAIN_QUALITY_EVIDENCE_CI_ONLY`不变**，避免A工程交接被覆盖。
