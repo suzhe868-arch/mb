@@ -40,7 +40,7 @@ export default function Detail(){
  function changePhoto(delta:number){setBroken(false);setPhotoIndex(x=>(x+delta+photoUrls.length)%photoUrls.length)}
  return <View className='detail'>
   <View className='detail-safe'/>
-  <View className='detail-header'><Text className='back' onClick={share?toHome:back}>{share?'主页':'‹'}</Text><Text className='detail-head-title'>车辆详情</Text><View className='detail-header-space'/></View>
+  <View className='detail-header'><Text className={'back '+(share?'back-home':'')} onClick={share?toHome:back}>{share?'主页':'‹'}</Text><Text className='detail-head-title'>车辆详情</Text><View className='detail-header-space'/></View>
   {!car?<View className='denied'><Text className='denied-title'>当前车源不可查看</Text><Text>车辆可能已下架，或查看权限已发生变化。旧链接与转发链接不会授予额外查看权限。</Text><Button onClick={toHome}>查看更多车源</Button></View>:
   <>
    <View className='detail-image' onClick={preview}>
@@ -72,7 +72,7 @@ export default function Detail(){
     {share?<Button className='bottom-more' onClick={toHome}>更多车源</Button>:null}
     <View className='bottom-favorite' onClick={()=>blocked('收藏')}><Text className='favorite-icon'>♡</Text><Text>收藏</Text></View>
     <Button className='bottom-consult' onClick={()=>blocked('咨询')}>咨询</Button>
-    <Button className={'bottom-lock '+(state==='available'||state==='other_locked'?'primary':'passive')} onClick={()=>blocked(state==='other_locked'?'候补':state==='available'?'锁车':'状态查看')}>{STATE_LABELS[state]}</Button>
+    <Button disabled={state==='sold'||state==='offline'} className={'bottom-lock '+(state==='available'||state==='other_locked'?'primary':'passive')} onClick={()=>blocked(state==='other_locked'?'候补':state==='available'?'锁车':'状态查看')}>{STATE_LABELS[state]}</Button>
    </View>
   </>}
  </View>
