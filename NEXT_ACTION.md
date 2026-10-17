@@ -1,3 +1,12 @@
+# 2026-10-17｜A正式独立验收PR97：B只读取证封口合格并合并；H52旧ref恢复继续NO-GO（当前最新）
+
+- **当前正式main**：[B PR97](https://github.com/suzhe868-arch/mb/pull/97)按最终B HEAD `ea04e6f53f486aaa5f80ead753dee53e09a235c7`受限验收，仅3份新增`audit/f05-7-post-pr94-native-closeout/**`取证文件，**未碰旧H52/8Workflow/Source/业务/DDL/C/正式状态**。A[独立审签](https://github.com/suzhe868-arch/mb/pull/97#issuecomment-6229412780)，GitHub**标准合并**`55a1ef0710f28af39adb14c6661725abea1e9aed`。详细[本次A验收及裁决](07_重建工作区/F05-7_PR97_A主控官方0Job取证封口独立验收与阶段2持续NO_GO裁决_2026-10-17.md)；**PR97代码或安全门禁“成功验收”不等于旧编排或全部CI成功**（B受验HEAD GitHub Checks=0，静态3文件PR本就未增加Runner）。
+- **A自行复核官方事实**：历史[Run38958160214](https://github.com/suzhe868-arch/mb/actions/runs/38958160214) `completed/failure`、`attempt=1`、0Job；旧失败SHA `bf9c698fabff721a52154fba662dc9b230d9a319`所关联目标Check Suite `105583123217` `completed/failure`、**0 Check Run**；该commit可读13套suites/32条**其他**checks。精确GitHub自身解析错误annotation仍`BLOCKED_OFFICIAL_ROOT_CAUSE_UNKNOWN`；已验收PR94 Actionlint历史H52第34行两项schema错误**仅第三方静态证据**，当前复杂原H52新SHA实际**52Job编排仍NOT_PROVEN**。
+- **保护与费用闸门**：原旧来源ref `99c38d013f67cc56975f1664120fb87c204afc3c`未改；原ref与main可见`protected=false`、可见rulesets 0，**无已核服务器端防误推机制**。8 Workflow/66Job/64 PG16服务/110 Artifact上传/3520分钟静态超时和只是风险求和，不是许可/真实账单。实际Runner并发、实际Artifact GiB和保费额/中止能力未签。五Source`SOURCE_GAP_OPEN / FAIL_CLOSED`。
+- **本轮B任务已封口，不再下达重复Actionlint/合成CI探针**；A正式判定旧来源ref阶段2 `A_NO_GO_HELD_AFTER_PR97`、`PHASE2_ORIGINAL_REF_PUSH_AUTHORIZED=false`，不许快进/Force/Push旧ref或运行旧66Job。**下一主线责任A**：`NEXT_OWNER=A / NEXT_TASK=F05_7_PHASE2_A_RESOURCE_AND_ORIGINAL_SCHEDULER_GATE_HOLD`，由A履行资源与机器保护门禁技术裁决；未证明安全条件前不自动授权B冒险执行。**不是转交C**。并行C [PR68](https://github.com/suzhe868-arch/mb/pull/68)仍Draft/视觉与真实功能未被用户确认，未合并，V1/生产`NOT_READY`。
+
+---
+
 # 2026-10-17｜A主控更正PR95接力错误：B仍是F05-7工程主线，C只作为并行前端轨道（当前最新）
 
 - **更正范围**：[PR94](https://github.com/suzhe868-arch/mb/pull/94)对B的独立验收、同SHA静态证据、[PR95](https://github.com/suzhe868-arch/mb/pull/95)中的安全结论以及标准合并事实**全部保留**；错误仅在PR95后将主线`NEXT_OWNER`改为C、错误把C01 R3当下一主任务。用户要求本轮仍检查B，A确认C不是B的替代交接，现正式更正`NEXT_OWNER=B / NEXT_TASK=F05_7_POST_PR94_NATIVE_DIAGNOSTIC_CLOSEOUT_01`。
