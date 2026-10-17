@@ -1,3 +1,13 @@
+# 2026-10-17｜A已受限验收合并B PR107：新Run原业务63/64成功、证据脱敏验真；旧Source签约未就绪，正式放行独立V2来源协议候选工程（当前最新）
+
+- **A已对B [PR107](https://github.com/suzhe868-arch/mb/pull/107)独立验收并正常合并**：B验收HEAD `5923cddecf660f97d07231ea375f89b255c809bc`，从本轮旧正式main比较ahead5/behind0，12项仅新V2隔离执行器/CI/安全负例/来源候选文档；merge main `b8adeeed6d575d5bd549a5640f68eebf9ce2399b`。[A独立审签](https://github.com/suzhe868-arch/mb/pull/107#issuecomment-6233942303)和[完整验收报告](07_重建工作区/PR107_A主控63项真业务与证据脱敏受限验收及V2来源替代裁决_2026-10-17.md)仅批准**受限工程入库**，不批准原66同SHA Source、正式Issuer、V1/生产。
+- **官方真[Run39031350514](https://github.com/suzhe868-arch/mb/actions/runs/39031350514)**：`push/attempt1/completed/failure`，4个ubuntu24分片3成功1失败，每片Node`76/76`成功，原Job逐项真实结果**61PG16+2原非PG16=63/64 PASS，原match-source旧验签1项BLOCKED_EQUIVALENCE**，不是全部正式同SHA66。四份官方Artifact #12100013558/#12100194677/#12100831373/#12100103579，A已**实际下载外层/内层ZIP并独立hash对齐913/913份正文**、64项原证据；新脱敏未查到未遮蔽`::add-mask::`、私钥或测试HMAC完整赋值。旧一日Artifact安全风险另行跟踪。该SHA全仓Check快照32＝26成功、5失败、1运行中；不得宣称全绿。
+- **A裁决旧结构性问题**：原`match-source`第二Shell的`ci-verify-workflows.mjs`仍要求七份旧Workflow原64Job同SHA官方push成功＋本原source/https两Job，旧ref与8冻结整体66禁Push，故无法简单给Token修复；严禁改原验证器、伪造Token/API/工件、跨SHA拼PR104历史2项或叫64/64已验。现合并的`v2-source-contract.mjs`只是**非生产协议候选雏形，尚未严格绑定真实66清册/官方实时证明，绝不是正式Issuer**。
+- **唯一新B主线已正式放行**：`NEXT_OWNER=B / NEXT_TASK=F05_7_V2_VERSIONED_SOURCE_66_SAME_SHA_ISSUER_CANDIDATE_01`，从执行时最新main在独立新分支`feat/f05-7-v2-versioned-source-66-candidate-01`，严格按[完整版A施工单](07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md)编写版本化新V2来源签发证据合同、真正可运行的同SHA隔离PG16/NonPG回归与双历史任务同HEAD重验、冻结Job/Blob强绑定及恶意替换负例，最多4标准Runner，每Job≤40分钟，工件每片≤5MiB/留1日，单次末Push、存储/旧CI扇出不能证明则停。**原match-source旧Shell未成功只能明记被候选新协议替代、待A正式单独审签**，B不得自己签Issuer或修改生产。
+- **全局源门禁不变**：旧原ref `99c38d013f67cc56975f1664120fb87c204afc3c`不准Push、旧8Workflow整体66禁恢复，`PHASE2_ORIGINAL_REF_PUSH_AUTHORIZED=false`，五正式Source仍`SOURCE_GAP_OPEN / FAIL_CLOSED`，F05全域/V1/生产`NOT_READY`。Issue [#106](https://github.com/suzhe868-arch/mb/issues/106)保持Open直至来源合规闭环。C PR68 Draft独立并行，不被B新施工覆盖。
+
+---
+
 # 2026-10-17｜A独立实核PR107四官方ZIP：62/64真业务通过，另2未闭；旧Source同SHA签约结构性不等价，发现合成HMAC日志脱敏缺口（最新）
 
 - **B [PR107](https://github.com/suzhe868-arch/mb/pull/107)本轮不可完整验收、不可合并**。候选唯一HEAD`c28af176bdec6f18c897ebd3d167db21fb18a716`，从最新main比较ahead4/behind8；9项仅新隔离CI/执行器/Node及Ruby测试/说明，原8冻结Workflow/五正式Source/业务/DDL/PDM/C/生产和旧ref未改；待B修复后需同步main形成新SHA和相应真CI，禁止冒用先前SHA证据。A[PR107正式审签](https://github.com/suzhe868-arch/mb/pull/107#issuecomment-6233462972)及[详细报告](07_重建工作区/PR107_A主控62项真业务受限取证与旧Source父签不可等价及日志脱敏终审_2026-10-17.md)。
