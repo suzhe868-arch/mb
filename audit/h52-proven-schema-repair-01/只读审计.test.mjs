@@ -1,0 +1,13 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {blobs,refs,structural,assertMainInvariants,isConcreteSchemaProblem} from './三版原H52审计.mjs';
+test('原3版SHA为固定40位十六进制',()=>{for(const s of Object.values(blobs))assert.match(s,/^[0-9a-f]{40}$/)});
+test('三版含真实历史零Job SHA',()=>assert.equal(refs.failure,'bf9c698fabff721a52154fba662dc9b230d9a319'));
+test('当前版本静态52 Job',()=>{const s='jobs:\n'+Array.from({length:52},(_,i)=>'  safe'+i+':\n    runs-on: ubuntu-latest\n').join('');assert.equal(structural(s).jobs,52)});
+test('重复Job不许算唯一',()=>{const s='jobs:\n  x:\n  x:\n';assert.equal(structural(s).unique_jobs,1)});
+test('缺少任一原H52服务必须失败',()=>assert.throws(()=>assertMainInvariants('jobs:\n  x:\n')));
+test('出错但无lint诊断不得认定schema错误',()=>assert.equal(isConcreteSchemaProblem({code:1,issues:[]}),false));
+test('诊断是shell规则不能断言GitHub调度根因',()=>assert.equal(isConcreteSchemaProblem({code:1,issues:[{kind:'shellcheck'}]}),false));
+test('明确workflow schema诊断只构成可核验发现',()=>assert.equal(isConcreteSchemaProblem({code:1,issues:[{kind:'workflow'}]}),true));
+test('退出码0不得称有schema问题',()=>assert.equal(isConcreteSchemaProblem({code:0,issues:[{kind:'workflow'}]}),false));
+test('明确第34行静态语法报错可复现',()=>assert.equal(isConcreteSchemaProblem({code:1,issues:[{kind:'syntax-check',line:34}]}),true));

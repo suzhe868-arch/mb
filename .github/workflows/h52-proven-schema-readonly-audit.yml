@@ -1,0 +1,45 @@
+name: H52原文件固定版Actionlint只读核验
+
+on:
+  push:
+    branches:
+      - fix/f05-7-h52-proven-schema-minimal-01
+    paths:
+      - .github/workflows/h52-proven-schema-readonly-audit.yml
+      - .github/workflows/f05-7-frozen-h52-revalidation.yml
+      - audit/h52-proven-schema-repair-01/**
+
+permissions:
+  contents: read
+
+jobs:
+  static-h52-audit:
+    name: 固定版本Actionlint与三版H52只读对比
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout全历史仅供git show不修改ref
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: 安全正反例测试
+        run: node --test audit/h52-proven-schema-repair-01/只读审计.test.mjs
+      - name: 固定Actionlint v1.7.12并核对官方SHA256
+        run: |
+          set -euo pipefail
+          url='https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz'
+          curl --fail --location --silent --show-error --retry 2 --max-time 80 "$url" -o /tmp/actionlint_1.7.12_linux_amd64.tar.gz
+          printf '%s  %s\n' '8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8' '/tmp/actionlint_1.7.12_linux_amd64.tar.gz' | sha256sum --check --status
+          mkdir -p /tmp/actionlint-pinned
+          tar -xzf /tmp/actionlint_1.7.12_linux_amd64.tar.gz -C /tmp/actionlint-pinned actionlint
+          /tmp/actionlint-pinned/actionlint -version
+      - name: 完整原H52三版Schema离线审计并保留退出码
+        run: node audit/h52-proven-schema-repair-01/三版原H52审计.mjs --execute
+      - name: 上传同SHA非空原生证据
+        uses: actions/upload-artifact@v4
+        with:
+          name: h52-proven-schema-original-static-evidence
+          path: audit/h52-proven-schema-repair-01/ci-evidence/
+          if-no-files-found: error
+          retention-days: 7
