@@ -1,3 +1,13 @@
+# 2026-10-17｜A独立实核PR107四官方ZIP：62/64真业务通过，另2未闭；旧Source同SHA签约结构性不等价，发现合成HMAC日志脱敏缺口（最新）
+
+- **B [PR107](https://github.com/suzhe868-arch/mb/pull/107)本轮不可完整验收、不可合并**。候选唯一HEAD`c28af176bdec6f18c897ebd3d167db21fb18a716`，从最新main比较ahead4/behind8；9项仅新隔离CI/执行器/Node及Ruby测试/说明，原8冻结Workflow/五正式Source/业务/DDL/PDM/C/生产和旧ref未改；待B修复后需同步main形成新SHA和相应真CI，禁止冒用先前SHA证据。A[PR107正式审签](https://github.com/suzhe868-arch/mb/pull/107#issuecomment-6233462972)及[详细报告](07_重建工作区/PR107_A主控62项真业务受限取证与旧Source父签不可等价及日志脱敏终审_2026-10-17.md)。
+- **GitHub真[Run39027727248](https://github.com/suzhe868-arch/mb/actions/runs/39027727248)** completed/failure，4个ubuntu24原生分片2成功2失败，每片Node56/56；原64项同SHA真实结果**60原PG16 + 2原非PG16 = 62通过**、1`match-source`来源语义阻断、1`f03-1-frozen-https-2a`环境失败。A已真正下载四份官方Artifact `12098603894/12099312017/12099621026/12099695908`，独立对GitHub摘要、双层ZIP和每个正文文件摘要逐一验证，四片原Job各16/16归档；官方同HEAD全仓Checks快照32＝25成功、6失败、1进行中；不能以62业务通过代替完整正式父签。
+- **A更深层因果核定**：原`match-source`第二原Shell强制调用`ci-verify-workflows.mjs`验证7份旧冻结Workflow的64Job**全部同SHA新push成功**，旧来源ref和原8工作流整体启动仍NO-GO，故此原步骤不能通过额外只读Token在隔离V2上等价完成；B不得假API、修改原脚本或虚报。原F03-1 HTTPS失败是新执行器遗漏原GitHub `GITHUB_ENV`在原step间传播；B可仅白名单恢复测试内三个F03_1临时变量并真测。
+- **证据脱敏需先修**：A在真实官方分片1内层日志找到一次性合成HMAC的`::add-mask::`明文44字符输出，被原样打包、未获GitHub原生mask处理；未见生产凭据，但属于V2证据采集安全缺口。B修复掩码处理、拒绝日志/PEM泄露的负例并在必要时删除或等待旧1日工件过期；禁止上传不安全全量原始日志。
+- **同一B原工作包继续**：下一`NEXT_OWNER=B / NEXT_TASK=F05_7_V2_REMAINING_64_REAL_EXECUTION_AND_ISSUER_PROOF_01`、原PR107/原分支；[原施工单A最新补充](07_重建工作区/F05-7_V2余64项原业务隔离实跑与安全等价来源证据_A主控B正式施工单_2026-10-17.md)和[完整终审裁决](07_重建工作区/PR107_A主控62项真业务受限取证与旧Source父签不可等价及日志脱敏终审_2026-10-17.md)已签；A加签最多**1次**安全有界Push（4标准Ubuntu Runner、每Job40分钟、工件≤5MiB/片、保留1日），先本地代码/负例与容量预检。新的V2来源签约逻辑仅允许**候选方案设计**，不得绕过旧正式Source/Issuer或称64/64；五正式Source仍`SOURCE_GAP_OPEN/FAIL_CLOSED`，旧ref`PHASE2_ORIGINAL_REF_PUSH_AUTHORIZED=false`，V1/生产`NOT_READY`；C PR68 Draft独立并行。
+
+---
+
 # 2026-10-17｜A对B PR107四分片原业务受控首跑独立验收：1/64真通过、63阻断；精确裁决62PG16＋2非PG并放行有限整改（当前最新）
 
 - **受验B [PR107](https://github.com/suzhe868-arch/mb/pull/107) 暂不合并**，唯一受验HEAD `88afd5d2f3389a844d0da2903b59e903e1949f5a`，对main `8e97dd45bcb9aadbd24fdfd8114a32563627d9c6` 为ahead2/behind0，仅7项本包允许的新增路径，无业务/DDL/旧Source/原8Workflow/生产/C变更。A[正式审签](https://github.com/suzhe868-arch/mb/pull/107#issuecomment-6232764185) 和[完整裁决](07_重建工作区/PR107_A主控原64项权限及PG16语义等价裁决与有限续跑令_2026-10-17.md)，Issue [#106](https://github.com/suzhe868-arch/mb/issues/106)继续Open。
