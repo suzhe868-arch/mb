@@ -1,3 +1,9 @@
+# 2026-10-18｜B开始实际代码：PostgreSQL16车辆列表和详情安全只读HTTP接口
+
+**`NEXT_OWNER=B / NEXT_TASK=B_APP_01_REAL_PG16_CATALOG_LIST_DETAIL_READONLY_01`**。从最新main读取六权威、[B_APP_01完整施工单](07_重建工作区/B_APP_01_车辆列表详情真实只读接口与C01联调契约_A主控正式施工单_2026-10-18.md)、PDM-20 Final及F01-F05现有安全路由与真实PG16模型。优先完成可运行的`GET /api/v1/catalog/vehicles`和`GET /api/v1/catalog/vehicles/:vehicleId`：真实测试PG16读取、服务端合法公开域过滤、15台分页、客户安全价格和字段白名单、真实HTTP/PG16正反例、可供C01对接的DTO和交接报告。**禁止用Mock替代真实PG16正例，禁止泄露内部价、VIN、内部电话或用户信息，不接生产/第三方/资金。** 用户要求停止非必要F05签名归档循环；历史65/66+1旧Oracle问题如实保留为独立未满足的正式来源安全门禁，不再阻碍本非生产代码开发。成本$0预算不变、禁止重复66Job或自动引发CI风暴。C PR68按已签R3同步继续首页/详情整改，等双方准备好后A再放行G2真实前后端联调。
+
+---
+
 # 2026-10-18｜A下一任务：保留原账号的离线受控签署与私有不可变原证据配置核验
 
 **`NEXT_OWNER=A` / `NEXT_TASK=F05_7_V2_A_SINGLE_ACCOUNT_OFFLINE_SIGNER_AND_PRIVATE_ARCHIVE_GATES_01`**。用户已同意现有GitHub单账号继续开发；采用**账号外受口令保护的独立Ed25519离线私钥+仓库外固定指纹/撤销及耐久nonce**作为签署控制域候选，需单独证明密钥真实存在且不被B/GitHub Actions控制。原四官方ZIP必须有非公开、不可变且读回可恢复的长期存储；聊天文件库或普通U盘仅作备份、不是WORM。单账户方案不是独立第二个人审签，原政策如要求不同自然人须用户明确批准风险等价例外后才可能正式签Source。[完整A技术裁决](07_重建工作区/F05-7_V2单GitHub账号离线双域签署及证据保全_A主控技术裁决_2026-10-18.md)。当前`FORMAL_ISSUER_NOT_SIGNED / SOURCE_GAP_OPEN / FAIL_CLOSED / V1_NOT_READY`；A继续确认用户本地可用离线签署/保管资源，未配置前**不再让B反复写模拟签署门禁**、不增加费、不重跑旧66、不Push旧ref、不迁五正式消费者。C PR68独立。
