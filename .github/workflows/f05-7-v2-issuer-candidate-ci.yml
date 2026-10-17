@@ -1,0 +1,229 @@
+name: F05-7 V2 versioned 66 Source Candidate - NOT AN ISSUER
+on:
+  push:
+    branches: [feat/f05-7-v2-versioned-source-66-candidate-01]
+    paths:
+      - '.github/workflows/f05-7-v2-issuer-candidate-*.yml'
+      - 'engineering/f05/v2-issuer-candidate/**'
+permissions:
+  contents: read
+concurrency:
+  group: f05-v2-issuer-candidate-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  candidate_shard_0:
+    name: F05-7 V2 同SHA来源候选 分片0
+    if: ${{ github.repository == 'suzhe868-arch/mb' && github.event_name == 'push' && github.ref == 'refs/heads/feat/f05-7-v2-versioned-source-66-candidate-01' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      V2_RESOURCE_GATE_PASS: A_ISSUE_106_STANDARD_4X40_STORAGE_5MIB_1DAY
+      V2_CANDIDATE_GATE: A_RELEASED_NONPROD_SOURCE_66_4X40_5MIB_1DAY
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Immutable source and adversarial preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = suzhe868-arch/mb
+          test "$GITHUB_REF" = refs/heads/feat/f05-7-v2-versioned-source-66-candidate-01
+          test "$GITHUB_EVENT_NAME" = push
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          ruby engineering/f05/native-66-closure/catalog.rb --catalog
+          ruby -c engineering/f05/v2-issuer-candidate/run-candidate-shard.rb
+          ruby -c engineering/f05/v2-issuer-candidate/freeze-rules.rb
+          node --check engineering/f05/v2-issuer-candidate/proof-contract.mjs
+          node --check engineering/f05/v2-issuer-candidate/verify-official.mjs
+          ruby engineering/f05/v2-issuer-candidate/freeze-rules.rb
+          node engineering/f05/v2-issuer-candidate/plan66.mjs
+          node --test engineering/f05/v2-issuer-candidate/proof-contract.test.mjs engineering/f05/v2-issuer-candidate/pack-evidence.test.mjs
+          ruby engineering/f05/v2-original-64/run-shard.test.rb
+          ruby engineering/f05/v2-issuer-candidate/run-candidate-shard.rb --plan
+      - name: All original jobs for shard 0 (17,17,16,16) isolated new HEAD
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruby engineering/f05/v2-issuer-candidate/run-candidate-shard.rb --shard 0
+      - name: Fail-closed evidence scan and <=5MiB lossless ZIP
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f05/v2-issuer-candidate/pack-evidence.mjs 0
+      - name: Official artifact - candidate only, never Source signed
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f05-v2-candidate-66-shard-0
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
+          path: engineering/f05/v2-issuer-candidate/evidence/upload-safe-0/
+  candidate_shard_1:
+    name: F05-7 V2 同SHA来源候选 分片1
+    if: ${{ github.repository == 'suzhe868-arch/mb' && github.event_name == 'push' && github.ref == 'refs/heads/feat/f05-7-v2-versioned-source-66-candidate-01' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      V2_RESOURCE_GATE_PASS: A_ISSUE_106_STANDARD_4X40_STORAGE_5MIB_1DAY
+      V2_CANDIDATE_GATE: A_RELEASED_NONPROD_SOURCE_66_4X40_5MIB_1DAY
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Immutable source and adversarial preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = suzhe868-arch/mb
+          test "$GITHUB_REF" = refs/heads/feat/f05-7-v2-versioned-source-66-candidate-01
+          test "$GITHUB_EVENT_NAME" = push
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          ruby engineering/f05/native-66-closure/catalog.rb --catalog
+          ruby -c engineering/f05/v2-issuer-candidate/run-candidate-shard.rb
+          ruby -c engineering/f05/v2-issuer-candidate/freeze-rules.rb
+          node --check engineering/f05/v2-issuer-candidate/proof-contract.mjs
+          node --check engineering/f05/v2-issuer-candidate/verify-official.mjs
+          ruby engineering/f05/v2-issuer-candidate/freeze-rules.rb
+          node engineering/f05/v2-issuer-candidate/plan66.mjs
+          node --test engineering/f05/v2-issuer-candidate/proof-contract.test.mjs engineering/f05/v2-issuer-candidate/pack-evidence.test.mjs
+          ruby engineering/f05/v2-original-64/run-shard.test.rb
+          ruby engineering/f05/v2-issuer-candidate/run-candidate-shard.rb --plan
+      - name: All original jobs for shard 1 (17,17,16,16) isolated new HEAD
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruby engineering/f05/v2-issuer-candidate/run-candidate-shard.rb --shard 1
+      - name: Fail-closed evidence scan and <=5MiB lossless ZIP
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f05/v2-issuer-candidate/pack-evidence.mjs 1
+      - name: Official artifact - candidate only, never Source signed
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f05-v2-candidate-66-shard-1
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
+          path: engineering/f05/v2-issuer-candidate/evidence/upload-safe-1/
+  candidate_shard_2:
+    name: F05-7 V2 同SHA来源候选 分片2
+    if: ${{ github.repository == 'suzhe868-arch/mb' && github.event_name == 'push' && github.ref == 'refs/heads/feat/f05-7-v2-versioned-source-66-candidate-01' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      V2_RESOURCE_GATE_PASS: A_ISSUE_106_STANDARD_4X40_STORAGE_5MIB_1DAY
+      V2_CANDIDATE_GATE: A_RELEASED_NONPROD_SOURCE_66_4X40_5MIB_1DAY
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Immutable source and adversarial preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = suzhe868-arch/mb
+          test "$GITHUB_REF" = refs/heads/feat/f05-7-v2-versioned-source-66-candidate-01
+          test "$GITHUB_EVENT_NAME" = push
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          ruby engineering/f05/native-66-closure/catalog.rb --catalog
+          ruby -c engineering/f05/v2-issuer-candidate/run-candidate-shard.rb
+          ruby -c engineering/f05/v2-issuer-candidate/freeze-rules.rb
+          node --check engineering/f05/v2-issuer-candidate/proof-contract.mjs
+          node --check engineering/f05/v2-issuer-candidate/verify-official.mjs
+          ruby engineering/f05/v2-issuer-candidate/freeze-rules.rb
+          node engineering/f05/v2-issuer-candidate/plan66.mjs
+          node --test engineering/f05/v2-issuer-candidate/proof-contract.test.mjs engineering/f05/v2-issuer-candidate/pack-evidence.test.mjs
+          ruby engineering/f05/v2-original-64/run-shard.test.rb
+          ruby engineering/f05/v2-issuer-candidate/run-candidate-shard.rb --plan
+      - name: All original jobs for shard 2 (17,17,16,16) isolated new HEAD
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruby engineering/f05/v2-issuer-candidate/run-candidate-shard.rb --shard 2
+      - name: Fail-closed evidence scan and <=5MiB lossless ZIP
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f05/v2-issuer-candidate/pack-evidence.mjs 2
+      - name: Official artifact - candidate only, never Source signed
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f05-v2-candidate-66-shard-2
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
+          path: engineering/f05/v2-issuer-candidate/evidence/upload-safe-2/
+  candidate_shard_3:
+    name: F05-7 V2 同SHA来源候选 分片3
+    if: ${{ github.repository == 'suzhe868-arch/mb' && github.event_name == 'push' && github.ref == 'refs/heads/feat/f05-7-v2-versioned-source-66-candidate-01' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      V2_RESOURCE_GATE_PASS: A_ISSUE_106_STANDARD_4X40_STORAGE_5MIB_1DAY
+      V2_CANDIDATE_GATE: A_RELEASED_NONPROD_SOURCE_66_4X40_5MIB_1DAY
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Immutable source and adversarial preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = suzhe868-arch/mb
+          test "$GITHUB_REF" = refs/heads/feat/f05-7-v2-versioned-source-66-candidate-01
+          test "$GITHUB_EVENT_NAME" = push
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          ruby engineering/f05/native-66-closure/catalog.rb --catalog
+          ruby -c engineering/f05/v2-issuer-candidate/run-candidate-shard.rb
+          ruby -c engineering/f05/v2-issuer-candidate/freeze-rules.rb
+          node --check engineering/f05/v2-issuer-candidate/proof-contract.mjs
+          node --check engineering/f05/v2-issuer-candidate/verify-official.mjs
+          ruby engineering/f05/v2-issuer-candidate/freeze-rules.rb
+          node engineering/f05/v2-issuer-candidate/plan66.mjs
+          node --test engineering/f05/v2-issuer-candidate/proof-contract.test.mjs engineering/f05/v2-issuer-candidate/pack-evidence.test.mjs
+          ruby engineering/f05/v2-original-64/run-shard.test.rb
+          ruby engineering/f05/v2-issuer-candidate/run-candidate-shard.rb --plan
+      - name: All original jobs for shard 3 (17,17,16,16) isolated new HEAD
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruby engineering/f05/v2-issuer-candidate/run-candidate-shard.rb --shard 3
+      - name: Fail-closed evidence scan and <=5MiB lossless ZIP
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f05/v2-issuer-candidate/pack-evidence.mjs 3
+      - name: Official artifact - candidate only, never Source signed
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f05-v2-candidate-66-shard-3
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
+          path: engineering/f05/v2-issuer-candidate/evidence/upload-safe-3/
