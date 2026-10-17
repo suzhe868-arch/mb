@@ -6,7 +6,7 @@ const BRANCH='feat/f05-f08-bounded-real-engineering-01';
 const head=()=>cp.execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
 function snapshot(){
  if(process.env.GITHUB_EVENT_NAME!=='push'||process.env.GITHUB_REF_NAME!==BRANCH||process.env.GITHUB_REPOSITORY!==REPO||process.env.GITHUB_SHA!==head())throw Error('BOUND_CI_SNAPSHOT_REF_MISMATCH');
- const h=head(),changed=cp.execFileSync('git',['diff','--name-only',BASE+'...HEAD'],{encoding:'utf8'}).trim().split('\n').filter(Boolean);
+ const h=head(),changed=cp.execFileSync('git',['-c','core.quotePath=false','diff','--name-only',BASE+'...HEAD'],{encoding:'utf8'}).trim().split('\n').filter(Boolean);
  const impact=analyzeImpact({baseSha:BASE,candidateSha:h,changedPaths:changed});
  const out={repo:REPO,branch:BRANCH,base_sha:BASE,candidate_sha:h,github_run_id:process.env.GITHUB_RUN_ID,event:'push',candidate_level:LEVEL.retry,
  current_candidate_attestation:'PENDING_FINAL_GITHUB_RUN_CHECK_JOB_ARTIFACT',prior_ci_snapshots:[
