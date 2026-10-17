@@ -1,0 +1,136 @@
+name: F05-F08 有界真实CI证据与非特权PG16跨域测试
+on:
+  push:
+    branches:
+      - feat/f05-f08-bounded-real-engineering-01
+    paths:
+      - 'engineering/f05/bounded-ci-engineering/**'
+      - 'engineering/f08/incremental-integration/**'
+      - '.github/workflows/f05-f08-bounded-*.yml'
+permissions:
+  contents: read
+jobs:
+  proof_node:
+    name: F05-F08 版本化可信来源Node正反例
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 仅受控分支的真实Push与SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = suzhe868-arch/mb
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REF" = refs/heads/feat/f05-f08-bounded-real-engineering-01
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: 固定版本Actionlint校验新工作流
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --silent --show-error --max-time 90 --retry 2 \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz \
+            -o /tmp/f05-f08-actionlint.tgz
+          printf '%s  %s\n' '8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8' '/tmp/f05-f08-actionlint.tgz' | sha256sum -c -
+          mkdir -p /tmp/f05-f08-actionlint
+          tar -xzf /tmp/f05-f08-actionlint.tgz -C /tmp/f05-f08-actionlint actionlint
+          /tmp/f05-f08-actionlint/actionlint -shellcheck= -pyflakes= .github/workflows/f05-f08-bounded-real-engineering.yml
+      - name: 当前HEAD影响分析与原生Node正反例
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p engineering/f05/bounded-ci-engineering/evidence
+          node engineering/f05/bounded-ci-engineering/snapshot.mjs --snapshot \
+            | tee engineering/f05/bounded-ci-engineering/evidence/snapshot.log
+          node --test engineering/f05/bounded-ci-engineering/proof.test.mjs 2>&1 \
+            | tee engineering/f05/bounded-ci-engineering/evidence/node-native.log
+          grep -q '# fail 0' engineering/f05/bounded-ci-engineering/evidence/node-native.log
+          grep -q SOURCE_GAP_FAIL_CLOSED engineering/f05/bounded-ci-engineering/evidence/snapshot.log
+          cp engineering/f05/bounded-ci-engineering/current-evidence.json engineering/f05/bounded-ci-engineering/evidence/current-evidence.json
+          printf '%s\n' "$GITHUB_SHA" > engineering/f05/bounded-ci-engineering/evidence/git-sha.txt
+      - name: 同HEAD Node原生日志工件
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f05-f08-node-bounded-evidence
+          path: engineering/f05/bounded-ci-engineering/evidence/
+          if-no-files-found: error
+          retention-days: 7
+  cross_domain_pg16:
+    name: F05-F06-F07 真PG16非特权跨域约束
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci_local_bootstrap_only
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 18
+    env:
+      CI: 'true'
+      GITHUB_ACTIONS: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F05_F08_BOUNDED_ONLY: I_AUTHORIZE_ISOLATED_NONPRIVILEGED_PG16_ONLY
+      DATABASE_URL: postgres://bounded_ci:bounded_ci_test_only@127.0.0.1:5432/f08_bounded_test
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 检查单独分支及安装现存依赖
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = suzhe868-arch/mb
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REF" = refs/heads/feat/f05-f08-bounded-real-engineering-01
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          npm --prefix engineering ci --ignore-scripts --no-audit --no-fund
+          mkdir -p engineering/f08/incremental-integration/evidence
+      - name: 创建独立PG16非超级用户及空数据库
+        shell: bash
+        env:
+          PGPASSWORD: ci_local_bootstrap_only
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 \
+            -c "CREATE ROLE bounded_ci LOGIN PASSWORD 'bounded_ci_test_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 \
+            -c "CREATE DATABASE f08_bounded_test OWNER bounded_ci;"
+          PGPASSWORD=bounded_ci_test_only psql -h 127.0.0.1 -U bounded_ci -d f08_bounded_test \
+            -v ON_ERROR_STOP=1 -Atc "SELECT current_user,current_database(),current_setting('server_version_num')" \
+            | tee engineering/f08/incremental-integration/evidence/pg16-identity.log
+      - name: F05/F06/F07真PG16物理权限、幂等、状态回归
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f08/incremental-integration/pg.test.mjs 2>&1 \
+            | tee engineering/f08/incremental-integration/evidence/pg16-native.log
+          grep -q '# fail 0' engineering/f08/incremental-integration/evidence/pg16-native.log
+          grep -q F05_F08_NATIVE_PG16_CROSS_DOMAIN_ASSERTIONS_COMPLETE engineering/f08/incremental-integration/evidence/pg16-native.log
+          printf '%s\n' "$GITHUB_SHA" > engineering/f08/incremental-integration/evidence/git-sha.txt
+      - name: 同HEAD真PG16原生日志工件
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f05-f08-pg16-bounded-evidence
+          path: engineering/f08/incremental-integration/evidence/
+          if-no-files-found: error
+          retention-days: 7
