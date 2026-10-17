@@ -1,0 +1,114 @@
+name: F05-7 原66冻结来源V2双真PG16验收候选
+on:
+  push:
+    branches: [feat/f05-7-66-real-source-closure-01]
+    paths:
+      - '.github/workflows/f05-7-native-66-closure-*.yml'
+      - 'engineering/f05/native-66-closure/**'
+permissions:
+  contents: read
+concurrency:
+  group: f05-7-native-66-candidate
+  cancel-in-progress: true
+jobs:
+  original_h52_pg16:
+    name: 冻结H52原F05-3F HTTPS完整业务PG16
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: 校验本轮唯一HEAD/授权路径与66项完整旧Blob映射
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_ACTIONS" = true
+          test "$GITHUB_REPOSITORY" = suzhe868-arch/mb
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REF" = refs/heads/feat/f05-7-66-real-source-closure-01
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          BASE="$(git merge-base origin/main HEAD)"
+          while IFS= read -r path; do
+            case "$path" in
+              .github/workflows/f05-7-native-66-closure-*.yml|engineering/f05/native-66-closure/*) ;;
+              *) echo "NATIVE66_CHANGE_DENIED $path"; exit 98 ;;
+            esac
+          done < <(git -c core.quotePath=false diff --name-only "$BASE" HEAD)
+          mkdir -p engineering/f05/native-66-closure/evidence/h52
+          ruby engineering/f05/native-66-closure/catalog.rb --catalog
+          node --test engineering/f05/native-66-closure/proof.test.mjs \
+            2>&1 | tee engineering/f05/native-66-closure/evidence/h52/防重放原生Node.log
+          grep -q '# fail 0' engineering/f05/native-66-closure/evidence/h52/防重放原生Node.log
+      - name: 从冻结H52直接读取并执行旧F05-3F HTTPS全部原Shell步骤
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruby engineering/f05/native-66-closure/catalog.rb --execute h52 \
+            2>&1 | tee engineering/f05/native-66-closure/evidence/h52/原H52业务stdout.log
+          grep -q NATIVE66_REAL_ORIGINAL_JOB_SUCCESS engineering/f05/native-66-closure/evidence/h52/原H52业务stdout.log
+          printf '%s\n' "$GITHUB_SHA" > engineering/f05/native-66-closure/evidence/h52/head.txt
+      - name: 真H52业务完整日志及66项映射证据
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f05-native-66-real-h52-evidence
+          path: |
+            engineering/f05/native-66-closure/evidence/
+            engineering/f05/favorite-carrier-preservation/artifacts/
+          retention-days: 7
+          if-no-files-found: error
+  other_original_pg16:
+    name: 冻结K2原F05-3K HTTPS完整业务PG16
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - name: 从另一冻结工作流直接执行旧K2 HTTPS全部原Shell步骤
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p engineering/f05/native-66-closure/evidence/other
+          ruby engineering/f05/native-66-closure/catalog.rb --execute other \
+            2>&1 | tee engineering/f05/native-66-closure/evidence/other/原K2业务stdout.log
+          grep -q NATIVE66_REAL_ORIGINAL_JOB_SUCCESS engineering/f05/native-66-closure/evidence/other/原K2业务stdout.log
+          printf '%s\n' "$GITHUB_SHA" > engineering/f05/native-66-closure/evidence/other/head.txt
+      - name: 真K2原业务日志和PG16证据
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f05-native-66-real-k2-evidence
+          path: |
+            engineering/f05/native-66-closure/evidence/other/
+            engineering/f05/favorite-converted-jyt-replay-guard/artifacts/
+          retention-days: 7
+          if-no-files-found: error
