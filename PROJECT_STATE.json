@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_7_H52_SCHEDULER_ISOLATED_DIAGNOSTIC_01_A_RELEASED_NON_SOURCE_PROBES",
+  "substage": "F05_7_H52_SYNTHETIC_52_GRAPH_SCHEDULER_DIAGNOSTIC_01_A_RELEASED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F05_PARENT_SOURCE_RECOVERY",
-  "current_domain_status": "F05_7_HTTPS_PORT_TRUE_TLS_A_ACCEPTED_PR86_MERGED_H52_FULL_SCHEDULING_UNKNOWN_SOURCE_GAP_OPEN_PHASE2_REF_PUSH_BLOCKED",
+  "current_domain_status": "PR88_H52_SAFE_SINGLE_JOB_ALIAS_AND_511380_BYTES_NATIVE_PASS_H52_ORIGINAL_52_JOB_GRAPH_NOT_PROVEN_PHASE2_BLOCKED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A独立验收B PR86最终HEAD e57779bf21a95a69aedd1a874fdd8c5593610dab：6个授权文件，专用原生Push38964109049和PR38964114653各2/2成功、Node各12/12、原PG16 HTTPS真正TLS拒绝7/7成功并受控重现旧端口EADDRINUSE，4份非空官方原生Artifact；标准合并5eee392b0b833876831a0735d975b6e534f34b26。H52旧0Job Run38958160214确认、registry active、现H52 511380B与Ruby8Workflow/66Job静态通过，但完整新H52 GitHub调度仍未证明，旧五Source仍SOURCE_GAP；下一B只能用两份最多1job/份的隔离GitHub小/大锚点语义探针核证，禁止原ref Push/66Job，C及生产未就绪。",
-  "current_work_file": "07_重建工作区/F05-7_H52原生编排隔离无害探针_A主控下一阶段正式施工单_2026-10-17.md",
+  "current_task": "A独立验收PR88 B末HEAD 27af908c1be212a09d886b831f1a8afbc2290779，6个只读白名单合成文件，小锚点及511380B大文件各Push+PR真实单Job 1/1成功，共4原生run/4非空Artifact且Node每组11/11通过；标准合并60310c2bcc33d0f471c96c8991e822899528f3dd。仅证明单Job YAML标量及文件体积编排，原H52复杂52Job及旧8Workflow/66Job仍未在原源ref下证明，五SOURCE_GAP/C端/V1仍NOT_READY。下一B仅能在非F05来源分支建52安全合成节点（51 job级跳过 + 至多1真实只读Runner）的单workflow原生Push调度诊断，严格禁止旧ref和历史66PG16作业。",
+  "current_work_file": "07_重建工作区/F05-7_H52合成52节点仅1Runner原生编排核证_A主控下一正式施工单_2026-10-17.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F05_7_H52_SCHEDULER_ISOLATED_DIAGNOSTIC_01",
+  "next_task": "F05_7_H52_SYNTHETIC_52_GRAPH_SCHEDULER_DIAGNOSTIC_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9170,7 +9170,7 @@
   },
   "f05_7_h52_scheduler_isolated_diagnostic_gate": {
     "task_id": "F05_7_H52_SCHEDULER_ISOLATED_DIAGNOSTIC_01",
-    "status": "A_RELEASED_FOR_B_NON_SOURCE_ISOLATED_GITHUB_PARSER_PROBES_ONLY",
+    "status": "A_SCOPED_ACCEPTED_H52_SAFE_ALIAS_SIZE_1JOB_PROBES_PR88_STANDARD_MERGED",
     "branch": "audit/f05-7-h52-parser-isolation-01",
     "work_order": "07_重建工作区/F05-7_H52原生编排隔离无害探针_A主控下一阶段正式施工单_2026-10-17.md",
     "base_main_sha": "5eee392b0b833876831a0735d975b6e534f34b26",
@@ -9186,6 +9186,31 @@
     "h52_full_scheduler": "NOT_PROVEN",
     "source_gap_open": true,
     "required_b_completion": "READY_FOR_A_REVIEW_H52_PARSER_DIAGNOSTIC",
+    "next_owner": "B",
+    "pr": 88,
+    "accepted_head_sha": "27af908c1be212a09d886b831f1a8afbc2290779",
+    "merge_sha": "60310c2bcc33d0f471c96c8991e822899528f3dd",
+    "github_safe_small_control_pass": true,
+    "github_safe_511380b_1job_pass": true,
+    "next_task": "F05_7_H52_SYNTHETIC_52_GRAPH_SCHEDULER_DIAGNOSTIC_01"
+  },
+  "f05_7_h52_synthetic_52_graph_scheduler_gate": {
+    "task_id": "F05_7_H52_SYNTHETIC_52_GRAPH_SCHEDULER_DIAGNOSTIC_01",
+    "status": "A_RELEASED_FOR_B_SAFE_SYNTHETIC_52_GRAPH_ONE_RUNNER_ONLY",
+    "branch": "audit/f05-7-h52-synthetic-graph-52-01",
+    "base_main_sha": "60310c2bcc33d0f471c96c8991e822899528f3dd",
+    "work_order": "07_重建工作区/F05-7_H52合成52节点仅1Runner原生编排核证_A主控下一正式施工单_2026-10-17.md",
+    "permitted_workflow": ".github/workflows/h52-scheduler-synthetic-52-node-graph.yml",
+    "permitted_artifacts_dir": "audit/h52-synthetic-graph/**",
+    "synthetic_job_count": 52,
+    "job_level_disabled_count": 51,
+    "max_actual_runner_jobs": 1,
+    "original_8_workflows_modified": false,
+    "original_ref_push_authorized": false,
+    "old_66_pg16_jobs_authorized": false,
+    "phase2_source_push_authorized": false,
+    "source_gap_open": true,
+    "required_review": "READY_FOR_A_REVIEW_H52_52_GRAPH_DIAGNOSTIC",
     "next_owner": "B"
   }
 }
