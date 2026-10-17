@@ -1,0 +1,100 @@
+name: F05-7 原业务 HTTPS 非特权 PG16 单作业远程实测
+on:
+  push:
+    branches: [feat/f05-7-native-real-remote-onejob-01]
+    paths:
+      - '.github/workflows/f05-7-native-real-onejob-*.yml'
+      - 'engineering/f05/native-real-onejob/**'
+      - 'engineering/f05/bounded-ci-engineering/snapshot.mjs'
+      - 'engineering/f05/bounded-ci-engineering/proof.mjs'
+      - 'engineering/f05/bounded-ci-engineering/proof.test.mjs'
+permissions:
+  contents: read
+concurrency:
+  group: f05-7-onejob-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  original_https:
+    name: F05-7 原 ci-job.sh https 真业务 PG16
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: 受控分支与全部修改路径白名单（禁止触碰旧Source和业务）
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = "suzhe868-arch/mb"
+          test "$GITHUB_EVENT_NAME" = "push"
+          test "$GITHUB_REF" = "refs/heads/feat/f05-7-native-real-remote-onejob-01"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          BASE="$(git merge-base origin/main HEAD)"
+          while IFS= read -r file; do
+            case "$file" in
+              .github/workflows/f05-7-native-real-onejob-*.yml|engineering/f05/native-real-onejob/*|engineering/f05/bounded-ci-engineering/snapshot.mjs|engineering/f05/bounded-ci-engineering/proof.mjs|engineering/f05/bounded-ci-engineering/proof.test.mjs) ;;
+              *) echo "FORBIDDEN_CHANGED_PATH $file"; exit 91 ;;
+            esac
+          done < <(git -c core.quotePath=false diff --name-only "$BASE" HEAD)
+          echo "F05_7_ONEJOB_EXACT_BRANCH_AND_CHANGE_WHITELIST_OK"
+      - name: 原版 CI 脚本与 Node 证据安全负例
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code "$(git merge-base origin/main HEAD)" HEAD -- engineering/f05/deterministic-matching-readiness-four-tier/ci-job.sh
+          node --check engineering/f05/bounded-ci-engineering/snapshot.mjs
+          node --check engineering/f05/bounded-ci-engineering/proof.mjs
+          node --check engineering/f05/bounded-ci-engineering/proof.test.mjs
+          mkdir -p engineering/f05/native-real-onejob/artifacts
+          node --test engineering/f05/bounded-ci-engineering/proof.test.mjs 2>&1 | tee engineering/f05/native-real-onejob/artifacts/node-evidence-test.log
+          grep -q '# fail 0' engineering/f05/native-real-onejob/artifacts/node-evidence-test.log
+      - name: 使用 DockerHub 官方 PG16 既有镜像本地打别名 不拉取旧 ECR
+        shell: bash
+        run: |
+          set -euo pipefail
+          original_id="$(docker image inspect postgres:16 --format '{{.Id}}')"
+          docker tag postgres:16 public.ecr.aws/docker/library/postgres:16-alpine
+          alias_id="$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')"
+          test "$original_id" = "$alias_id"
+          original_container="$(docker ps --filter ancestor=postgres:16 --format '{{.ID}}')"
+          legacy_container="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
+          test -n "$original_container"
+          test "$original_container" = "$legacy_container"
+          test "$(printf '%s\n' "$legacy_container" | sed '/^$/d' | wc -l)" -eq 1
+          echo "F05_7_ONEJOB_POSTGRES16_LOCAL_ALIAS_NO_ECR_PULL_OK"
+      - name: 不删减执行旧 F05-7 ci-job.sh https 完整业务路径
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p engineering/f05/native-real-onejob/artifacts
+          bash engineering/f05/deterministic-matching-readiness-four-tier/ci-job.sh https 2>&1 | tee engineering/f05/native-real-onejob/artifacts/original-https-real-pg16.log
+          grep -q "F05_7_NATIVE_PG16_V23_https_CI_COMPLETE" engineering/f05/native-real-onejob/artifacts/original-https-real-pg16.log
+          echo "$GITHUB_SHA" > engineering/f05/native-real-onejob/artifacts/head-sha.txt
+          echo "$GITHUB_RUN_ID" > engineering/f05/native-real-onejob/artifacts/run-id.txt
+      - name: 同 SHA 的真实原业务日志与 PG16 产物（失败也保留日志）
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f05-7-native-real-https-${{ github.run_id }}
+          path: |
+            engineering/f05/native-real-onejob/artifacts/
+            engineering/f05/deterministic-matching-readiness-four-tier/artifacts/https/
+          retention-days: 7
+          if-no-files-found: warn

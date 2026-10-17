@@ -34,11 +34,12 @@ export function validateNativeProof(c,api){
  if(jobs.size!==checks.size)fail('CHECK_JOB_COUNT_MISMATCH');
  for(const a of api.artifacts){
   if(!id(a.id)||artifacts.has(a.id)||a.expired!==false||!Number.isSafeInteger(a.size_in_bytes)||a.size_in_bytes<=0||!a.name||a.workflow_run?.id!==c.runId||a.workflow_run?.head_sha!==c.observedSha)fail('ARTIFACT_INVALID');
+  if(typeof a.digest!=='string'||!/^sha256:[a-f0-9]{64}$/i.test(a.digest))fail('ARTIFACT_DIGEST_INVALID');
   artifacts.add(a.id);
  }
  return Object.freeze({level:c.observedSha===c.candidateSha?LEVEL.exact:LEVEL.old,
   observed_sha:c.observedSha,candidate_sha:c.candidateSha,run_id:c.runId,run_attempt:c.attempt,
-  jobs_confirmed:jobs.size,artifacts_confirmed:artifacts.size,origin:'GITHUB_NATIVE_STRUCTURAL_EVIDENCE_ONLY',
+  jobs_confirmed:jobs.size,artifacts_confirmed:artifacts.size,origin:'UNVERIFIED_GITHUB_API_SHAPED_STRUCTURE_ONLY',official_api_verified:false,
   formal_source_issuer_signed:false,source_gate:'SOURCE_GAP',production_ready:false});
 }
 export function classifyCandidate(c,api){
