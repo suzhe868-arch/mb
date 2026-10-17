@@ -1,0 +1,52 @@
+{
+  "protocol": "V2_SOURCE_CANDIDATE_66_NEW_HEAD_V1",
+  "run_id": 39035485532,
+  "head_sha": "bdffc492df7dc09d9192d3ac485d598df7a8c040",
+  "proof_type": "OFFLINE_OFFICIAL_ARTIFACT_BYTES_MATCH_PINNED_API_DIGEST_NOT_AN_ISSUER",
+  "artifacts": [
+    {
+      "artifact_id": 12101319115,
+      "shard": 0,
+      "files": 220,
+      "jobs": 17,
+      "bytes": 2035009
+    },
+    {
+      "artifact_id": 12102520536,
+      "shard": 1,
+      "files": 220,
+      "jobs": 17,
+      "bytes": 1958399
+    },
+    {
+      "artifact_id": 12101854148,
+      "shard": 2,
+      "files": 252,
+      "jobs": 16,
+      "bytes": 2403938
+    },
+    {
+      "artifact_id": 12102560092,
+      "shard": 3,
+      "files": 239,
+      "jobs": 16,
+      "bytes": 2181108
+    }
+  ],
+  "total_original_files": 931,
+  "frozen_eight_blob_roots_sha256": "319d4bc6264f597d354ff3b6eec98c182c170e5dd9983632185243a40241ef44",
+  "original_66_matrix_sha256": "b24ab94147d6586b327318794158eed8cd6c5d71567165b8bc469da5dfbd56b0",
+  "original_body_merkle_root_sha256": "f28eb01052054bb1427d8aad0bb678e82288d6b9be7e43a4e78a6ebbc9f2eed2",
+  "job_status": {
+    "REAL_PG16_PASS": 63,
+    "REAL_ORIGINAL_NONPG_PASS": 2,
+    "BLOCKED_EQUIVALENCE": 1
+  },
+  "legacy_oracle": "BLOCKED_EQUIVALENCE",
+  "eight_main_source_git_blobs": "MATCH_OFFICIAL_GITHUB_MAIN_E3AD49B_METADATA",
+  "original_step_catalog_redrive": "REQUIRES_A_VERIFICATION",
+  "formal_issuer_signed": false,
+  "five_sources": "SOURCE_GAP_OPEN_FAIL_CLOSED",
+  "signer_trust": "BLOCKED_SIGNER_TRUST",
+  "production_ready": false
+}
