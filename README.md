@@ -1,3 +1,12 @@
+# 2026-10-18｜PR116 B独立签署影子门禁已由A真实离线验收并受限合并，下一责任A
+
+- [B PR116](https://github.com/suzhe868-arch/mb/pull/116)仅7份`audit/f05-v2-source-shadow-trust/**`隔离非生产影子候选，B唯一HEAD`08b1d6b1a980eb5191b9061960274069693e1dbd`，A正式受限合并`main@d8b4d97487a5b656ae2f67e880f665096ada6d11`；没有改旧八Workflow、五正式Source、原业务、数据库或生产。[A独立审签](https://github.com/suzhe868-arch/mb/pull/116#issuecomment-6239025577)。
+- A独立从7份Git Blob与B原交接ZIP逐字节核对**7/7**，用真四官方旧ZIP**Python5/5、Node52/52均通过，0跳过**；五消费者影子全部拒绝。335工作流GitHub官方索引与B静态机器清册**335/335 SHA一致**，7精确路径0静态触发、真实HEAD 0远程Runs/Checks；**无新远程CI不能称官方CI全绿**。去敏manifest根`034418349b767fd966371f7f9c0c0cb4a18385d51f32ecc6c41483656fded438`经A真ZIP独立重算一致。
+- 历史PR113官方28 Check终态**23成功5旧Source失败**，原真业务仍**65/66成功+1旧Oracle BLOCKED_EQUIVALENCE**。无真实A独立审核人/受保护签署环境、私有WORM四ZIP归档、持久撤销nonce账本、独立官方REST全链路审计，故五正式Source`SOURCE_GAP_OPEN/FAIL_CLOSED`、V1`NOT_READY`、预算`$0`不变。
+- **新责任`NEXT_OWNER=A / NEXT_TASK=F05_7_V2_A_INDEPENDENT_REVIEWER_PRIVATE_ARCHIVE_GO_NO_GO_01`**：A先做真实账户级签署身份与非公开不可变原始证据仓`GO/NO-GO`。没有独立真人身份或零付费安全保全渠道就保留阻断，不能再命令B假签发；仅条件具备后授权B新的正式Source迁移。 [A中文报告](07_重建工作区/PR116_A主控五来源影子安全门禁受限验收与可信身份归档下一门禁_2026-10-18.md)。C PR68继续独立。
+
+---
+
 # 2026-10-18｜A可信来源零费用技术裁决完成，B新离线影子工程正式放行
 
 - 最新正式旧PR113独立CI **28项终态＝23成功/5失败**；旧来源签约5项真实Fail Closed，旧PR111历史65/66+1旧Oracle BLOCKED不变。PR113/PR114此前已受限工程归档，五正式Source和生产仍关闭。
