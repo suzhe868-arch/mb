@@ -1,3 +1,9 @@
+# 2026-10-18｜NEXT_ACTION：A独立受信审核者＋四ZIP非公开不可变归档账户实证门禁
+
+**NEXT_OWNER=A / NEXT_TASK=F05_7_V2_A_INDEPENDENT_REVIEWER_PRIVATE_ARCHIVE_GO_NO_GO_01**。B本期7份离线影子代码经[A PR116](https://github.com/suzhe868-arch/mb/pull/116)受限验收并正常合并`main@d8b4d97487a5b656ae2f67e880f665096ada6d11`；A真ZIP Python5/5、Node52/52通过、Git Blob7/7、官方清册335/335 SHA，**本包无远程CI**。下一A任务只评估实际可验证的：独立于B的受保护Reviewer/Workflow签署身份、四原始ZIP非公开WORM零付费存储及恢复、原Run官方REST只读凭据和持久撤销/nonce账本。未得到真实账户/归档资料时继续`BLOCKED_SIGNER_TRUST/BLOCKED_IMMUTABLE_ARCHIVE`，不以模拟值解锁五正式Source。用户GitHub`$0`额度不变，原旧66不重跑，旧ref不Push，五正式Source`SOURCE_GAP_OPEN/FAIL_CLOSED`，V1/生产`NOT_READY`。参考 [A完整报告](07_重建工作区/PR116_A主控五来源影子安全门禁受限验收与可信身份归档下一门禁_2026-10-18.md)。
+
+---
+
 # 2026-10-18｜下一责任B：V2独立签署影子门禁与五来源攻击负例（离线、零付费）
 
 **NEXT_OWNER=B / NEXT_TASK=F05_7_V2_INDEPENDENT_SIGNER_SHADOW_AND_FIVE_CONSUMER_NEGATIVES_01**。从最新main读取权威六文件、[A可信签署架构裁决](07_重建工作区/F05-7_V2_A零付费独立签署与私有证据归档技术裁决_2026-10-18.md)和[正式完整施工单](07_重建工作区/F05-7_V2独立签署影子验证与五来源负例_A主控B正式施工单_2026-10-18.md)，在`audit/f05-v2-source-shadow-trust/**`实现纯离线去敏摘要/外部可信身份影子接口/五来源拒绝和恶意样例，运行真Python/Node测试，中文归档并向A完整交验。**不批准**真实签署、五正式Source修改、远程旧66业务重跑、旧ref写入、任何付费或原ZIP公开上传。远程分支及PR必须先证明最新main所有Workflow对本包精确路径零触发，不能证明即`BLOCKED_REMOTE_CI_BUDGET`。原PR113 28真实Check最后为23成功5旧签约失败，正式Source依旧`SOURCE_GAP_OPEN/FAIL_CLOSED`、V1`NOT_READY`。
