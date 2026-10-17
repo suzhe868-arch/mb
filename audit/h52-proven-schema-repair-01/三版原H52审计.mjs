@@ -92,10 +92,16 @@ export function execute(){
     phase2_push_authorized:false,
     reports
   };
+  const historicSyntax=reports.failure.issues.filter(x=>x.kind==='syntax-check'&&x.line===34);
+  if(reports.failure.code!==1||historicSyntax.length!==2)throw Error('历史失败版第34行预期两项schema错误未复现，必须停止并人工复核');
+  if(reports.source.code!==0||reports.main.code!==0)throw Error('来源或main仍有Actionlint错误，禁止冒充已消除');
+  summary.historical_schema_error_reproduced=true;
+  summary.main_actionlint_clean=true;
+  summary.source_actionlint_clean=true;
   summary.schema_findings_current=isConcreteSchemaProblem(reports.main);
   summary.repair_authorized_automatically=false;
   summary.h52_modified=false;
-  summary.decision=summary.schema_findings_current?'CONCRETE_ACTIONLINT_ERROR_NEEDS_PROVEN_EQUIVALENT_HUNK':'BLOCKED_OFFICIAL_ROOT_CAUSE_UNKNOWN_NO_H52_PATCH';
+  summary.decision='HISTORICAL_SCHEMA_ERROR_PROVEN_CURRENT_MAIN_CLEAN_NO_H52_PATCH';
   fs.writeFileSync(path.join(evidence,'三版实证结果.json'),JSON.stringify(summary,null,2)+'\n');
   console.log('H52_THREE_VERSION_AUDIT_COMPLETED',JSON.stringify({head:summary.github_sha,main:reports.main.issue_count,failure:reports.failure.issue_count,source:reports.source.issue_count,decision:summary.decision}));
 }

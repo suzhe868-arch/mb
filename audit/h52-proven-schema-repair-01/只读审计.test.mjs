@@ -10,3 +10,4 @@ test('出错但无lint诊断不得认定schema错误',()=>assert.equal(isConcret
 test('诊断是shell规则不能断言GitHub调度根因',()=>assert.equal(isConcreteSchemaProblem({code:1,issues:[{kind:'shellcheck'}]}),false));
 test('明确workflow schema诊断只构成可核验发现',()=>assert.equal(isConcreteSchemaProblem({code:1,issues:[{kind:'workflow'}]}),true));
 test('退出码0不得称有schema问题',()=>assert.equal(isConcreteSchemaProblem({code:0,issues:[{kind:'workflow'}]}),false));
+test('明确第34行静态语法报错可复现',()=>assert.equal(isConcreteSchemaProblem({code:1,issues:[{kind:'syntax-check',line:34}]}),true));
