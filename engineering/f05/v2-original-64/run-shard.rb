@@ -2,12 +2,13 @@
 # frozen_string_literal: true
 # Each source Job gets its own clean Git worktree and fresh PG16 Docker service.
 # Not a replacement for GitHub's signed Source issuers; handles only disposable synthetic CI.
-require 'json';require 'digest';require 'open3';require 'fileutils';require 'tmpdir';require 'timeout';require 'shellwords'
+require 'json';require 'digest';require 'open3';require 'fileutils';require 'tmpdir';require 'timeout';require 'shellwords';require 'psych'
 module V2Shard
  ROOT=File.expand_path('../../../', __dir__)
  OUT=File.join(__dir__,'evidence')
  BRANCH='feat/f05-7-v2-remaining-64-real-pg16-01'
  MAX_SHARD_SEC=34*60
+ MAX_CAPTURE_RAW_BYTES=4*1024*1024 # Issue 106 storage gate, 5MiB/shard including logs
  MAX_SINGLE_STEP_SEC=16*60
  OLD_TAG='public.ecr.aws/docker/library/postgres:16-alpine'
  def self.deny(code);raise "V2_FAIL_CLOSED_#{code}";end
@@ -22,7 +23,8 @@ module V2Shard
     ENV['GITHUB_RUN_ID'].to_s.match?(/\A[1-9][0-9]*\z/) &&
     ENV['GITHUB_RUN_ATTEMPT'].to_s.match?(/\A[1-9][0-9]*\z/) &&
     ENV['GITHUB_SHA'].to_s.match?(/\A[a-f0-9]{40}\z/) && exec!('git','rev-parse','HEAD')==ENV['GITHUB_SHA']
-  deny('BUDGET_NOT_SIGNED') unless ENV['V2_RESOURCE_GATE_PASS']=='A_SIGNED_MAX4_RUNNERS_40MIN_SYNTHETIC'
+  deny('BUDGET_NOT_SIGNED') unless ENV['V2_RESOURCE_GATE_PASS']=='A_ISSUE_106_STANDARD_4X40_STORAGE_5MIB_1DAY'
+  deny('NOT_STANDARD_RUNNER') unless ENV['RUNNER_OS']=='Linux' && ENV['ImageOS']=='ubuntu24'
   deny('PRODUCTION_SECRETS_PRESENT') if ENV.keys.any?{|k|k.match?(/\A(AWS_ACCESS_KEY|PROD_|JYT_|WECHAT_SECRET|FEISHU_SECRET)/)}
  end
  def self.original_jobs
@@ -115,7 +117,9 @@ module V2Shard
      all.each do |entry|
       deny('ARTIFACT_SYMLINK') if File.symlink?(entry)
       next unless File.file?(entry)
-      bytes+=File.size(entry);deny('ARTIFACT_LIMIT_16MB_PER_JOB') if bytes>16*1024*1024
+      bytes+=File.size(entry)
+      existing=Dir.glob(File.join(OUT,'shard*','**','artifact-files','**','*'),File::FNM_DOTMATCH).select{|x|File.file?(x)}.sum{|x|File.size(x)}
+      deny('BLOCKED_STORAGE_BUDGET') if bytes>MAX_CAPTURE_RAW_BYTES || (existing+File.size(entry)>MAX_CAPTURE_RAW_BYTES)
       rel=entry.delete_prefix(work+'/')
       destination=File.join(dir,'artifact-files',"#{index}_#{name}",rel)
       FileUtils.mkdir_p(File.dirname(destination));FileUtils.cp(entry,destination)
@@ -147,6 +151,12 @@ module V2Shard
    deny('NOT_IN_SHARD_BUDGET') if limit<=0
    deny('UNSAFE_SOURCE_FILE') unless job['file'].match?(/\Af05-7-[a-zA-Z0-9_.-]+\.yml\z/)
    image=job['pg16'];deny('SOURCE_JOB_NO_INDEPENDENT_PG16_SERVICE') if image.nil?
+   frozen=File.join(ROOT,'.github','workflows',job['file'])
+   original=Psych.safe_load_file(frozen,aliases:true).fetch('jobs').fetch(id)
+   deny('ORIGINAL_JOB_LEVEL_CONDITION') if original.key?('if')
+   deny('ORIGINAL_JOB_UNSUPPORTED_SERVICE') unless original.fetch('services',{}).keys==['postgres']
+   deny('ORIGINAL_JOB_COMPLEX_PERMISSIONS_OR_STRATEGY') if %w[permissions strategy container needs].any?{|k|original.key?(k)}
+   deny('ORIGINAL_JOB_MISMATCH') unless original.fetch('steps').size==job['steps'].size
    deny('JOB_LEVEL_CONDITIONS_NOT_SUPPORTED') if job['conditions'] && !job['steps'].all?{|s| !s.key?('if')||s['if']=='always()'}
    work=Dir.mktmpdir("v2-#{shard}-",ENV['RUNNER_TEMP']||'/tmp')
    exec!('git','worktree','add','--detach',work,ENV.fetch('GITHUB_SHA'),timeout:120)
@@ -179,7 +189,7 @@ module V2Shard
    info[:artifacts]=capture_artifacts(job,work,dir)
    info[:status]='REAL_PG16_PASS'
   rescue StandardError=>e
-   info[:status]=e.message.match?(/BUDGET|STEP_TIMEOUT|ARTIFACT|CONDITION|UNSUPPORTED|PG16_SERVICE|UNKNOWN/) ? 'BLOCKED_EQUIVALENCE' : 'FAIL'
+   info[:status]=e.message.match?(/BUDGET|STEP_TIMEOUT|ARTIFACT|CONDITION|UNSUPPORTED|PG16_SERVICE|UNKNOWN|ENV_WITH_EXPRESSION|UNRESOLVED_EXPRESSION/) ? 'BLOCKED_EQUIVALENCE' : 'FAIL'
    info[:blocker]=e.message[0,400]
   ensure
    info[:duration_seconds]=(Process.clock_gettime(Process::CLOCK_MONOTONIC)-started).round(2)
@@ -218,6 +228,18 @@ module V2Shard
                {candidate_sha:ENV['GITHUB_SHA'],run_id:ENV['GITHUB_RUN_ID'],shard:shard,items:results,
                 total:16,passed:results.count{|r|r[:status]=='REAL_PG16_PASS'},
                 source_issuer_signed:false})
+  matrix_path=File.join(OUT,'66格真实测试矩阵.json')
+  matrix=JSON.parse(File.read(matrix_path))
+  index=results.to_h{|x|[[x[:original_file],x[:original_job_id]],x]}
+  matrix['jobs'].each do |cell|
+   r=index[[cell['source_workflow'],cell['original_job_id']]]
+   next unless r
+   cell['status']=r[:status];cell['current_head_real_pg16_pass']=r[:status]=='REAL_PG16_PASS'
+   cell['actual_candidate_sha']=ENV['GITHUB_SHA'];cell['actual_run_id']=ENV['GITHUB_RUN_ID'];cell['actual_shard']=shard
+   cell['original_command_count_executed']=r[:executed_commands]||0;cell['original_log_sha256']=r[:log_sha256]||nil
+   cell['blocker']=r[:blocker] if r[:blocker]
+  end
+  atomic_write(File.join(OUT,"shard#{shard}",'66格本分片真实执行矩阵.json'),matrix)
   count=results.count{|r|r[:status]=='REAL_PG16_PASS'}
   puts "V2_SHARD_DONE #{shard} total=#{results.size} pass=#{count}"
   deny("SHARD_INCOMPLETE_#{shard}_#{count}_OF_16") if count<16

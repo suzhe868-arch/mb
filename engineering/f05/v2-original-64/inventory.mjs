@@ -26,7 +26,7 @@ export function buildInventory(catalog){
   assert(Array.isArray(j.steps)&&j.steps.length>0&&Array.isArray(j.commands),'STEPS');
   let historical=ORIGINAL_HISTORICAL.find(x=>x.file===j.file&&x.id===j.id);
   out.push({key,source_workflow:j.file,source_blob:j.blob,original_source_sha:ORIGINAL_SHA,
-   original_job_id:j.id,original_job_name:j.name,pg16_image:j.pg16||null,
+   original_job_id:j.id,original_job_name:j.name,original_job_env:j.job_env||{},pg16_image:j.pg16||null,
    original_step_count:j.steps.length,original_run_commands:j.commands.length,
    step_sha256:j.steps.map(s=>sha256(JSON.stringify(s))),
    command_sha256:j.commands.map(s=>sha256(s)),

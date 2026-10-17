@@ -24,14 +24,15 @@ export function checkJobRecord(source,record,logText,files,candidate){
  if(!Array.isArray(record.command_sha256)||record.command_sha256.length!==source.original_run_commands||
     record.command_sha256.some((h,i)=>h!==source.command_sha256[i])||
     record.executed_commands!==source.original_run_commands)deny('ORIGINAL_COMMANDS');
- if(record.log_sha256!==digest(logText)||!logText.includes('SOURCE_STEP_PASS'))deny('FAKE_LOG');
+ if(record.log_sha256!==digest(logText)||!logText.includes('SOURCE_STEP_PASS')||(logText.match(/SOURCE_STEP_PASS [0-9]+/g)||[]).length!==source.original_run_commands)deny('FAKE_LOG');
+ if(record.step_count!==undefined&&record.step_count!==source.original_step_count)deny('ORIGINAL_STEP_COUNT');
  if(!Array.isArray(record.artifacts)||record.artifacts.length!==source.expected_artifacts.length)deny('ARTIFACT_COUNT');
  for(let i=0;i<record.artifacts.length;i++){
   const got=record.artifacts[i],expect=source.expected_artifacts[i];
   if(!expect.name||!expect.path||got.original_path!==expect.path||
      typeof got.name!=='string'||!got.name||!Array.isArray(got.files)||!got.files.length)deny('ARTIFACT_EXPECTATION');
   // Direct name match or explicit, signed env.MODE substitution (h-source / h-https).
-  if(expect.name!==got.name&& !/^\$\{\{\s*env\.MODE\s*\}\}$/.test(expect.name))deny('ARTIFACT_NAME_SUBSTITUTION');
+  if(expect.name!==got.name && got.name!==String(source.original_job_env?.MODE??''))deny('ARTIFACT_NAME_SUBSTITUTION');
   let bytes=0;
   for(const f of got.files){
    if(typeof f.path!=='string'||f.path.includes('..')||!positive(f.bytes)||!files.has(f.path))deny('ARTIFACT_FILE');
@@ -101,6 +102,25 @@ export async function collectOfficial(context,token,fetcher=fetch){
  return {candidate:verifyOfficialIndex(context,{run:runs[0],jobs,checks,artifacts,
   jobsTotal:jobs.length,checksTotal:checks.length,artifactsTotal:artifacts.length}),artifacts,
   warning:'OFFICIAL_API_METADATA_ONLY_ARCHIVE_BYTES_NOT_YET_ATTESTED'};
+}
+
+// V2 official artifact-content verifier: never promotes locally supplied data to official status.
+// The content root must be fetched independently from the GitHub Artifact API at a matching Run.
+export function checkOfficialShardPayload(context,artifact,sourceMatrix,records){
+ if(!artifact||!context||artifact.workflow_run?.id!==context.runId||
+    artifact.workflow_run?.head_sha!==context.sha||artifact.expired!==false||
+    typeof artifact.name!=='string'||!ARTIFACT_NAMES.includes(artifact.name))deny('OFFICIAL_SHARD_METADATA');
+ const shard=ARTIFACT_NAMES.indexOf(artifact.name);
+ const expected=sourceMatrix.jobs.filter(j=>!j.history&&j.shard===shard);
+ if(expected.length!==16||!Array.isArray(records)||records.length!==16)deny('SHARD_16_REQUIRED');
+ const keys=new Set();
+ for(const entry of records){
+  const match=expected.find(j=>j.key===entry?.key);
+  if(!match||keys.has(entry.key)||!(entry.files instanceof Map)||typeof entry.log!=='string')deny('SHARD_RECORD_REPLAY');
+  keys.add(entry.key);
+  checkJobRecord(match,entry.record,entry.log,entry.files,context);
+ }
+ return {level:'V2_OFFICIAL_ARTIFACT_BODY_CANDIDATE',shard,records_checked:keys.size,issuer_signed:false};
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
  const command=process.argv[2];

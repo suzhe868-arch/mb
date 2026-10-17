@@ -10,12 +10,12 @@ const rec=()=>({original_file:'f05-7-frozen-k2-revalidation.yml',source_blob:'d'
  original_job_id:'x',original_job_name:'Known PG16',status:'REAL_PG16_PASS',pg16:true,
  clean_git_worktree:true,run_id:'100',attempt:'1',event:'push',formal_issuer_signed:false,
  candidate_head:S,candidate_branch:BRANCH,executed_commands:1,command_sha256:[digest('bash safe-test')],
- log_sha256:digest('SOURCE_STEP_PASS'),artifacts:[{name:'original-artifact',original_path:'engineering/evidence/',
+ log_sha256:digest('SOURCE_STEP_PASS 0'),artifacts:[{name:'original-artifact',original_path:'engineering/evidence/',
  files:[{path:'engineering/evidence/a.log',bytes:4,sha256:digest('real')}],bytes:4}]});
 const ctx=()=>({sha:S,runId:100,attempt:1});
 const file=()=>new Map([['engineering/evidence/a.log',Buffer.from('real')]]);
 test('单项日志、业务命令和原Artifact真实正文内容hash均成立',()=>{
- const x=checkJobRecord(source(),rec(),'SOURCE_STEP_PASS',file(),ctx());
+ const x=checkJobRecord(source(),rec(),'SOURCE_STEP_PASS 0',file(),ctx());
  assert.equal(x.issuer_signed,false);assert.equal(x.legacy_66_proven,false);
 });
 const localBad=[
