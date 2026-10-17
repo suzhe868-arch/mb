@@ -1,3 +1,12 @@
+# 2026-10-17｜A独立验收B PR100完成：真实Node34/34＋隔离非特权PG16 23/23，下一步B直接远程实跑原F05-7真正业务测试（本轮最新）
+
+- **B PR100真实代码范围A受限验收已标准合并**：[PR #100](https://github.com/suzhe868-arch/mb/pull/100)，受验唯一HEAD`5cc78c586a680b20c6a20c65ace9974776c34755`、main merge `75be5d183f6cdd7d1f2ec3a6bd631ff4f9bc0009`；7/7仅新增A授权白名单文件，旧8冻结工作流/五正式Source/DDL/生产/C零改。A独立审签[PR100审查评论](https://github.com/suzhe868-arch/mb/pull/100#issuecomment-6230032492)；原生[Run39004908729](https://github.com/suzhe868-arch/mb/actions/runs/39004908729)为最终HEAD的Push成功：Node34/34与真实非特权PG16 23/23、两项有效非空官方sha256 Artifact；这是有明确合成边界的**真实新代码和CI工程**，不是旧F05全域通过。
+- **纠正B证据过度简化**：A在当时官方最终HEAD读取30 Check Runs＝25 success、3旧Source failure、2仍in_progress（快照，非永续计数）；不是B自述“同HEAD仅2条全部成功”。3旧来源红灯因当前提交不满足原签分支Push而fail-closed；两新任务Job均成功。B新snapshot把第五来源`F05-10-D1`误记为`F05-11`，且proof的用户传入模拟API JSON不应作为真正官方可信证明，这两个限定问题已列为**下一B任务强制整改**，**不向五正式Source Issuer签发新许可**。
+- **真正推进原F05-7而非调查H52**：A签[下一B完整施工单](07_重建工作区/F05-7_真正原业务PG16远程单Job实跑与本地故障兜底_A主控B完整施工单_2026-10-17.md)，`NEXT_OWNER=B / NEXT_TASK=F05_7_NATIVE_REAL_REMOTE_SINGLE_JOB_01`，由B在最新main独立分支`feat/f05-7-native-real-remote-onejob-01` **实际原样运行旧F05-7 `ci-job.sh https` 的完整真实PG16业务测试一次**（GitHub本次新增最多单Job、40分钟timeout，原业务脚本零改），失败则读真实日志后Linux Docker本地复现，再由A按真实问题裁定。现有旧全仓CI自动扇出需实际记账/限次止损，不能把“只新增一个Job”说成全仓只启动一个Runner。
+- **旧正式来源仍不得越权**：F05-7原ref `99c38d013f67cc56975f1664120fb87c204afc3c`未改，旧8Workflow/66PG16不可因新单触发，五正式Source仍`SOURCE_GAP_OPEN/FAIL_CLOSED`，`PHASE2_ORIGINAL_REF_PUSH_AUTHORIZED=false`，F05最终/V1/生产`NOT_READY`。本轮是对既有原业务HTTPS一个Job远程实测，不是66全量原生父签。C [PR68](https://github.com/suzhe868-arch/mb/pull/68)仍Draft独立并行。
+
+---
+
 # 2026-10-17｜A终止F05-7 H52重复调查，恢复B真实CI编码＋跨域PG16工程主线（本轮最新）
 
 - **最新正式放行**：[B真实工程施工单](07_重建工作区/F05_F08_停止H52循环与恢复B真实工程施工_A主控正式施工单_2026-10-17.md)：B在最新main建立`feat/f05-f08-bounded-real-engineering-01`，完成**可运行版本化可信来源/变更影响校验工具＋F05/F06/F07真实隔离非特权PG16跨域集成CI**，至少20项Node正反例、8项真PG16断言，新增最多2项Runner（Node 10分钟+PG16 20分钟显式timeout），末SHA日志/工件归档，交A独立验收。**不再重复H52旧失败接口/合成52Job/Actionlint历史调查。**

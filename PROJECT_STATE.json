@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_F08_B_REAL_ENGINEERING_RELEASED_OLD_SOURCE_PHASE2_NO_GO",
+  "substage": "F05_7_REAL_LEGACY_PG16_REMOTE_FIRST_ONE_JOB_RELEASED_AFTER_PR100",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F05_SOURCE_PROOF_ENGINEERING_AND_F08_INCREMENTAL_INTEGRATION",
-  "current_domain_status": "A_RELEASED_B_REAL_CODE_NODE_PG16_WITH_OLD_F05_SOURCE_FAIL_CLOSED",
+  "current_domain": "F05_7_REAL_NATIVE_REMOTE_PG16_RECOVERY",
+  "current_domain_status": "A_RELEASED_B_GENUINE_LEGACY_HTTPS_CI_ONE_JOB_OLD_SOURCE_PHASE2_NO_GO",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A终止PR88/90/92/94/97旧H52调查循环，独立放行B新增真实CI工程代码及F05/F06/F07跨域非特权PG16集成；旧8Workflow/66Job不可运行，五正式Source仍GAP。F06 PR63/F07 PR67/F08-1 PR69历史CI合并不重做。",
-  "current_work_file": "07_重建工作区/F05_F08_停止H52循环与恢复B真实工程施工_A主控正式施工单_2026-10-17.md",
+  "current_task": "A独立验收B PR100实质代码：Node34/34和真实CI非特权PG16 23/23，受限范围标准合并。B接着直接执行现存原F05-7 ci-job.sh https真实业务GitHub原生PG16单Job；远程若失败读取原生日志并本地Docker复现；严格禁止历史H52调查循环、旧refPush或66Job批量。",
+  "current_work_file": "07_重建工作区/F05-7_真正原业务PG16远程单Job实跑与本地故障兜底_A主控B完整施工单_2026-10-17.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B从执行时最新main按F05_F08真实工程施工单创建feat/f05-f08-bounded-real-engineering-01，实际编写版本化来源证据与差异影响模块+F05/F06/F07非特权隔离PG16跨域集成CI，在授权新增目录和两项受限Runner内完成编码、正反例、实际CI同SHA及工件、自审、缺陷整改并提交READY_FOR_A_REVIEW给A。不得再递交重复H52调查，不得改/Push五旧来源分支和原8Workflow，不得借新CI把五Source状态标绿。",
+  "next_action": "B从最新main新建feat/f05-7-native-real-remote-onejob-01，按07_重建工作区/F05-7_真正原业务PG16远程单Job实跑与本地故障兜底_A主控B完整施工单_2026-10-17.md仅新增受控一个PG16真实原业务CI Job完整执行原样ci-job.sh https，补正PR100 snapshot第五Source名称F05-10-D1和proof伪造模拟GitHub元数据不可误升可信原生证明/digest缺口；原生日志、工件、最终HEAD及额外旧CI扇出真实数量归档，失败转本地Docker具体复现后交A。旧66Job/原source ref持续NO_GO，C Draft并行。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B从执行时最新main按F05_F08真实工程施工单创建feat/f05-f08-bounded-real-engineering-01，实际编写版本化来源证据与差异影响模块+F05/F06/F07非特权隔离PG16跨域集成CI，在授权新增目录和两项受限Runner内完成编码、正反例、实际CI同SHA及工件、自审、缺陷整改并提交READY_FOR_A_REVIEW给A。不得再递交重复H52调查，不得改/Push五旧来源分支和原8Workflow，不得借新CI把五Source状态标绿。",
+  "next_action_detail": "B从最新main新建feat/f05-7-native-real-remote-onejob-01，按07_重建工作区/F05-7_真正原业务PG16远程单Job实跑与本地故障兜底_A主控B完整施工单_2026-10-17.md仅新增受控一个PG16真实原业务CI Job完整执行原样ci-job.sh https，补正PR100 snapshot第五Source名称F05-10-D1和proof伪造模拟GitHub元数据不可误升可信原生证明/digest缺口；原生日志、工件、最终HEAD及额外旧CI扇出真实数量归档，失败转本地Docker具体复现后交A。旧66Job/原source ref持续NO_GO，C Draft并行。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F05_F08_BOUNDED_REAL_ENGINEERING_01",
+  "next_task": "F05_7_NATIVE_REAL_REMOTE_SINGLE_JOB_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9351,7 +9351,7 @@
   },
   "f05_f08_bounded_real_engineering_gate": {
     "task_id": "F05_F08_BOUNDED_REAL_ENGINEERING_01",
-    "status": "A_RELEASED_FOR_B_ACTUAL_CODE_AND_PG16_ONLY",
+    "status": "A_SCOPED_ACCEPTED_STANDARD_MERGED_PR100_REAL_NODE34_PG16_23_ONLY",
     "owner": "B",
     "review_owner": "A",
     "branch": "feat/f05-f08-bounded-real-engineering-01",
@@ -9375,6 +9375,53 @@
     "allow_old_66_job_run": false,
     "c_parallel_pr": 68,
     "c_parallel_status": "DRAFT_NOT_USER_ACCEPTED",
-    "next_owner": "B"
+    "next_owner": "B",
+    "pr": 100,
+    "accepted_head": "5cc78c586a680b20c6a20c65ace9974776c34755",
+    "merge_sha": "75be5d183f6cdd7d1f2ec3a6bd631ff4f9bc0009",
+    "github_run": 39004908729,
+    "official_two_job_success": true,
+    "other_checks_snapshot": {
+      "success": 25,
+      "failure": 3,
+      "in_progress": 2,
+      "checked_on": "2026-10-17"
+    },
+    "code_correction_required": [
+      "snapshot.mjs 五项来源第五项应F05-10-D1不是F05-11",
+      "proof --verify 用户模拟API不能冒充GitHub官方独立验证；artifact digest来源完整性缺口"
+    ],
+    "formal_source_issuer_signed": false,
+    "next_task": "F05_7_NATIVE_REAL_REMOTE_SINGLE_JOB_01"
+  },
+  "f05_7_native_real_remote_single_job_gate": {
+    "task_id": "F05_7_NATIVE_REAL_REMOTE_SINGLE_JOB_01",
+    "status": "A_RELEASED_FOR_B_REAL_LEGACY_BUSINESS_PG16_SINGLE_JOB_ONLY",
+    "work_order": "07_重建工作区/F05-7_真正原业务PG16远程单Job实跑与本地故障兜底_A主控B完整施工单_2026-10-17.md",
+    "review_report": "07_重建工作区/PR100_A独立验收真实Node与PG16受限通过及F05-7远程原业务执行接力报告_2026-10-17.md",
+    "owner": "B",
+    "review_owner": "A",
+    "branch": "feat/f05-7-native-real-remote-onejob-01",
+    "base_at_a_release": "75be5d183f6cdd7d1f2ec3a6bd631ff4f9bc0009",
+    "existing_script_must_be_unmodified": "engineering/f05/deterministic-matching-readiness-four-tier/ci-job.sh",
+    "script_mode": "https",
+    "new_job_max": 1,
+    "new_job_timeout_minutes_max": 40,
+    "allowed_new_paths": [
+      ".github/workflows/f05-7-native-real-onejob-*.yml",
+      "engineering/f05/native-real-onejob/**"
+    ],
+    "allowed_existing_edits": [
+      "engineering/f05/bounded-ci-engineering/snapshot.mjs",
+      "engineering/f05/bounded-ci-engineering/proof.mjs",
+      "engineering/f05/bounded-ci-engineering/proof.test.mjs"
+    ],
+    "original_old_source_ref_sha": "99c38d013f67cc56975f1664120fb87c204afc3c",
+    "old_66_job_run_authorized": false,
+    "old_ref_push_authorized": false,
+    "five_formal_sources_fail_closed": true,
+    "node_pg16_from_pr100_is_incremental_not_formal_source": true,
+    "next_owner": "B",
+    "next_task": "F05_7_NATIVE_REAL_REMOTE_SINGLE_JOB_01"
   }
 }
