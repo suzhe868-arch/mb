@@ -1,0 +1,115 @@
+name: C-APP-01 手机端真实构建与渲染
+on:
+  push:
+    branches: ['feat/c-app-01-*']
+    paths: ['apps/mobile/**', '.github/workflows/c-app-01-*.yml']
+  pull_request:
+    paths: ['apps/mobile/**', '.github/workflows/c-app-01-*.yml', '07_重建工作区/手机端前端全量追踪基线/C_APP_01_*']
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: write
+  actions: write
+jobs:
+  build-and-render:
+    name: C01 两端构建 / 权限测试 / Chromium渲染
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: apps/mobile/customer
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # PR 默认 checkout 的是临时 merge ref；本包需要可追溯到 C 分支真实提交 SHA。
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 固定npm依赖解析器（规避10.8.2 Arborist edgesOut故障）
+        run: |
+          npm install -g npm@11.19.1 --no-audit --no-fund
+          node --version
+          npm --version
+      - name: 生成并冻结本包依赖锁
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund --loglevel=warn
+      - name: 锁文件 SHA 门禁（只在 C 分支补锁，不拿旧 SHA 冒充绿色）
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -n "$(git status --porcelain -- package-lock.json)" ]; then
+            if [ "$GITHUB_EVENT_NAME" = "push" ] && [[ "$REF_NAME" == feat/c-app-01-* ]]; then
+              git config user.name "github-actions[bot]"
+              git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+              git add package-lock.json
+              git commit -m "build(c-app-01): 锁定npm依赖树"
+              git push origin "HEAD:refs/heads/$REF_NAME"
+              # 由GITHUB_TOKEN推送不会自动触发push工作流，显式按锁定后的最新SHA再启动一次。
+              gh api -X POST "repos/$GITHUB_REPOSITORY/actions/workflows/c-app-01-build-render.yml/dispatches" -f ref="$REF_NAME"
+              echo "::error::锁文件已提交新的HEAD，并请求新HEAD独立构建。本轮旧SHA必须失败。"
+            else
+              echo "::error::PR/手动运行的源码 SHA 缺少已冻结的 package-lock.json，请先在 C 分支完成独立锁文件提交。"
+            fi
+            exit 1
+          fi
+          echo "依赖锁与当前测试 SHA 一致"
+
+      - name: 安装冻结依赖
+        run: npm ci --no-audit --no-fund
+      - name: 客户端路径 / 敏感字段静态门禁
+        run: npm run test:static
+      - name: Mock query 与权限负例自动测试
+        run: npm test
+      - name: TypeScript 检查
+        run: npm run typecheck
+      - name: Taro H5 真构建
+        run: |
+          npm run build:h5
+          test -f dist/index.html || { echo 'H5入口index.html缺失；禁止将JS/CSS包当作可渲染H5'; exit 1; }
+          mv dist dist-h5
+      - name: Taro 微信小程序真构建
+        run: |
+          npm run build:weapp
+          mv dist dist-weapp
+          test -f dist-weapp/app.json
+      - name: 安装 Chromium 无头浏览器
+        run: npx playwright install --with-deps chromium
+      - name: H5 真浏览器320/375/390/430渲染与交互截图
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory dist-h5 >/tmp/c-app-01-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" || true' EXIT
+          sleep 3
+          npm run test:browser
+      - name: 收集失败时npm原生调试日志
+        if: failure()
+        run: |
+          mkdir -p "$RUNNER_TEMP/c-app-01-npm-debug"
+          cp -f "$HOME"/.npm/_logs/*.log "$RUNNER_TEMP/c-app-01-npm-debug/" 2>/dev/null || true
+          node --version > "$RUNNER_TEMP/c-app-01-npm-debug/node-version.txt"
+          npm --version > "$RUNNER_TEMP/c-app-01-npm-debug/npm-version.txt"
+      - name: 上传npm失败诊断证据
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: C-APP-01_npm失败诊断
+          path: ${{ runner.temp }}/c-app-01-npm-debug/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: 上传本次完整构建及截图证据（非生产）
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: C-APP-01_独立构建与四屏宽渲染证据
+          path: |
+            apps/mobile/customer/package-lock.json
+            apps/mobile/customer/dist-h5/
+            apps/mobile/customer/dist-weapp/
+            apps/mobile/evidence/浏览器截图/
+          if-no-files-found: warn
+          retention-days: 30
