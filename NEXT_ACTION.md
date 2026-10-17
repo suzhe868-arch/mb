@@ -1,3 +1,11 @@
+# 2026-10-18｜正式NEXT_ACTION：PR113受限归档后由A处理独立可信签名与证据长期存档，不再退B旧调查
+
+**当前唯一责任：A；任务`F05_7_V2_A_INDEPENDENT_SIGNER_ARCHIVE_AND_SOURCE_MIGRATION_DECISION_01`。** B已完成隔离新候选并经[PR113](https://github.com/suzhe868-arch/mb/pull/113)标准合并`main@652316eaad06d5adea961f19036e8f69d4107a89`。本次受限工程并不表示原正式Source签署已完成。下一步首先核查当前公开仓库+$0预算下经A受保护身份的GitHub官方Artifact Attestations/Sigstore方案，核对四原ZIP非公开长期不可变保全与A受信REST验真、持久撤销/防重放身份，再形成一次性授权或精准权限阻断结论；尚无条件时继续`SOURCE_GAP_OPEN / FAIL_CLOSED / PRODUCTION_NOT_READY`。不得改旧8冻结Workflow、旧Source验证器、五正式Issuer、旧ref或重复运行65已通过原业务。B等待A确证新工作单；C PR68独立。
+
+**合并时官方28 Check快照23绿4红1运行中，不能宣称全绿**。原历史PR111官方真实65/66、旧Oracle1项BLOCKED。A独立旧官方ZIP核验931/931、13 Python/25 Node本地测试通过；新分支17 Python仅B自验。完整边界与下一阶段准入见 [A报告](07_重建工作区/PR113_A主控V2官方只读候选受限合并与后续可信签署治理裁决_2026-10-18.md)。
+
+---
+
 # 2026-10-17｜A对B PR111独立受限验收：65/66同SHA真原业务＋新版V2来源候选合入main，旧Source签发仍关闭；正式放行官方只读取证与可信签署治理B单（最新）
 
 - **B [PR111](https://github.com/suzhe868-arch/mb/pull/111) 已独立审查并按限域正常合并**：原唯一受验HEAD`bdffc492df7dc09d9192d3ac485d598df7a8c040`，对上一main ahead1/behind0，10项严格新`engineering/f05/v2-issuer-candidate/**`及新独立CI，无冻结8旧workflow/旧Source/Issuer、业务/DDL/PDM/C/生产修改。merge `main@996d032252535cda8487b4c25e62ae3c72f39a3a`，按[A独立PR审签](https://github.com/suzhe868-arch/mb/pull/111#issuecomment-6234593834)只批准`A_ACCEPTED_ENGINEERING_CANDIDATE_ONLY`，不是正式来源签发。
