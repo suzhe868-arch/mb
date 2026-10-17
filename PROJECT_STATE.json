@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_7_V2_PR113_NONPRODUCTION_ATTESTATION_ENGINEERING_ACCEPTED_SIGNER_ARCHIVE_GATE_OPEN",
+  "substage": "F05_7_V2_A_TRUST_ARCHITECTURE_DECIDED_B_SHADOW_GATE_RELEASED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F05_7_V2_A_INDEPENDENT_SOURCE_TRUST_SIGNER_ARCHIVE_AND_CONSUMER_GOVERNANCE",
-  "current_domain_status": "A_PR113_ISOLATED_CODE_MERGED_OLD_ORACLE_BLOCKED_FIVE_SOURCE_GAP_FAIL_CLOSED",
+  "current_domain": "F05_7_V2_INDEPENDENT_SIGNER_SHADOW_AND_PROVENANCE_SECURITY_CANDIDATE",
+  "current_domain_status": "A_TECH_ARCHITECTURE_DECIDED_B_OFFLINE_SHADOW_ONLY_FIVE_SOURCE_FAIL_CLOSED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A已独立审查B PR113唯一HEAD 6ad823936592835c4ce8b34f06ed88aa5942e777，并仅按非生产候选受限正常合并main@652316eaad06d5adea961f19036e8f69d4107a89。10文件严格独立隔离；本HEAD28官方CI合并前快照23成功4旧Source失败1进行中，不能宣称全绿。历史官方Run39035485532原业务65/66真实成功+1旧Oracle结构性阻断；五正式Source继续FAIL_CLOSED。下一责任A核独立可信签署身份、官方只读证据和长期不可变归档、五方安全迁移权限，不重跑旧66。",
-  "current_work_file": "07_重建工作区/PR113_A主控V2官方只读候选受限合并与后续可信签署治理裁决_2026-10-18.md",
+  "current_task": "A核实PR113最后28项CI 23成功5个旧Source硬拒绝，完成公开仓库Sigstore与独立人审/私有不可变归档的零付费架构裁决。现在放行B仅离线影子验证与五来源负例候选，绝不签发/改正式五Source或触发付费。",
+  "current_work_file": "07_重建工作区/F05-7_V2独立签署影子验证与五来源负例_A主控B正式施工单_2026-10-18.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "A在保持GitHub公开仓库与Actions $0费用硬门禁下，独立核查受保护签署主体、公钥信任锚/持久撤销防重放、官方Artifact Attestations/Sigstore、四官方ZIP长期非公开且不可变保全以及真正独立REST官方分页验证的合法可行性。若权限/容量不足则如实Fail Closed并集中提出唯一用户决策；只有A正式签署迁移白名单后才放行B针对五Source消费者做新版本签约与回滚。不得重跑已有65项业务、伪造旧Oracle、恢复旧ref或启用生产。",
+  "next_action": "B按A正式单仅在audit/f05-v2-source-shadow-trust/**编写去敏摘要/独立签署影子验证/五消费者拒绝和恶意攻击测试，本地一次性自验；除非最新main全量精确路径触发扫描证实零远程工作流，否则禁止远程Push/PR及任何CI或Artifact花费。五正式Source继续Fail Closed。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "A在保持GitHub公开仓库与Actions $0费用硬门禁下，独立核查受保护签署主体、公钥信任锚/持久撤销防重放、官方Artifact Attestations/Sigstore、四官方ZIP长期非公开且不可变保全以及真正独立REST官方分页验证的合法可行性。若权限/容量不足则如实Fail Closed并集中提出唯一用户决策；只有A正式签署迁移白名单后才放行B针对五Source消费者做新版本签约与回滚。不得重跑已有65项业务、伪造旧Oracle、恢复旧ref或启用生产。",
+  "next_action_detail": "B按A正式单仅在audit/f05-v2-source-shadow-trust/**编写去敏摘要/独立签署影子验证/五消费者拒绝和恶意攻击测试，本地一次性自验；除非最新main全量精确路径触发扫描证实零远程工作流，否则禁止远程Push/PR及任何CI或Artifact花费。五正式Source继续Fail Closed。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -5828,7 +5828,7 @@
   },
   "a_batch_approval_mode": "STANDING_USER_DIRECTED_CONTINUOUS_TECHNICAL_WORKFLOW_IN_FROZEN_SCOPE; A_SCOPES_AND_RELEASES_B_C; EACH_WINDOW_COMPLETES_END_TO_END; A_INDEPENDENT_ACCEPTANCE_AND_CLEAN_PR_MERGE_WITHOUT_REPEAT_APPROVAL; NEW_PRODUCT_CHOICE_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_EXTERNAL_WRITES_REQUIRE_USER",
   "current_pending_user_decisions": [],
-  "next_action_owner": "A",
+  "next_action_owner": "B",
   "abc_continuous_execution_rule": {
     "status": "USER_DIRECTIVE_APPLIED",
     "confirmed_at": "2026-10-09",
@@ -6834,7 +6834,7 @@
     "merge_method": "merge",
     "a_review_report": "07_重建工作区/F05-7_A主控二轮独立验收66项真PG16_PR46标准合并与F05-8技术交接_2026-10-12.md"
   },
-  "next_owner": "A",
+  "next_owner": "B",
   "f05_8_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR47_CI_ONLY",
     "execution": "COMPLETED_A_ACCEPTED_PR47_STANDARD_MERGE",
@@ -6924,7 +6924,7 @@
     "r12_r13_closed": true,
     "a_sixth_review_result": "A_ACCEPTED"
   },
-  "current_owner": "A",
+  "current_owner": "B",
   "f05_9_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR48_CI_ONLY",
     "owner": "B",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F05_7_V2_A_INDEPENDENT_SIGNER_ARCHIVE_AND_SOURCE_MIGRATION_DECISION_01",
+  "next_task": "F05_7_V2_INDEPENDENT_SIGNER_SHADOW_AND_FIVE_CONSUMER_NEGATIVES_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -8107,7 +8107,7 @@
       "PRODUCTION_PUBLISHER_CACHE_SCHEMA_NOT_IMPLEMENTED"
     ]
   },
-  "last_a_acceptance_report": "07_重建工作区/PR113_A主控V2官方只读候选受限合并与后续可信签署治理裁决_2026-10-18.md",
+  "last_a_acceptance_report": "07_重建工作区/F05-7_V2_A零付费独立签署与私有证据归档技术裁决_2026-10-18.md",
   "f07_2_gate": {
     "status": "A_ACCEPTED_STANDARD_MERGED_PR65_CI_ONLY",
     "owner": "A_ACCEPTED",
@@ -9626,7 +9626,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/PR113_A主控V2官方只读候选受限合并与后续可信签署治理裁决_2026-10-18.md",
+  "next_work_file": "07_重建工作区/F05-7_V2独立签署影子验证与五来源负例_A主控B正式施工单_2026-10-18.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -9705,7 +9705,7 @@
     "old_synthetic_hmac_artifact_id_for_expiration_followup": 12099312017,
     "source_gap": "OPEN",
     "production_ready": false,
-    "next_owner": "A",
+    "next_owner": "B",
     "b_pr": 113,
     "b_head": "6ad823936592835c4ce8b34f06ed88aa5942e777",
     "b_branch": "feat/f05-7-v2-trusted-attestation-issuer-gate-01",
@@ -9718,8 +9718,8 @@
     "a_review_head_check_snapshot": {
       "total": 28,
       "success": 23,
-      "failure": 4,
-      "in_progress": 1
+      "failure": 5,
+      "in_progress": 0
     },
     "a_offline_previous_package_python_tests": "13/13_PASS_NOT_NEW_HEAD_17",
     "a_offline_node_tests": "25/25_PASS",
@@ -9730,6 +9730,27 @@
     "old_native_oracle_satisfied": false,
     "five_formal_source_status": "SOURCE_GAP_OPEN_FAIL_CLOSED",
     "original_ref_push_authorized": false,
-    "current_next_task": "F05_7_V2_A_INDEPENDENT_SIGNER_ARCHIVE_AND_SOURCE_MIGRATION_DECISION_01"
+    "current_next_task": "F05_7_V2_INDEPENDENT_SIGNER_SHADOW_AND_FIVE_CONSUMER_NEGATIVES_01",
+    "a_verified_final_old_ci_five_fail": true,
+    "architecture_report": "07_重建工作区/F05-7_V2_A零付费独立签署与私有证据归档技术裁决_2026-10-18.md",
+    "shadow_work_order": "07_重建工作区/F05-7_V2独立签署影子验证与五来源负例_A主控B正式施工单_2026-10-18.md",
+    "independent_reviewer": "UNVERIFIED",
+    "private_immutable_archive": "UNVERIFIED",
+    "protected_attestation_workflow": "NOT_DEPLOYED"
+  },
+  "f05_7_v2_shadow_gate": {
+    "task_id": "F05_7_V2_INDEPENDENT_SIGNER_SHADOW_AND_FIVE_CONSUMER_NEGATIVES_01",
+    "status": "A_RELEASED_OFFLINE_NONPRODUCTION_ONLY",
+    "branch": "feat/f05-7-v2-source-shadow-trust-gate-01",
+    "allowed_path": "audit/f05-v2-source-shadow-trust/**",
+    "formal_source_status": "SOURCE_GAP_OPEN_FAIL_CLOSED",
+    "work_order": "07_重建工作区/F05-7_V2独立签署影子验证与五来源负例_A主控B正式施工单_2026-10-18.md",
+    "architecture_report": "07_重建工作区/F05-7_V2_A零付费独立签署与私有证据归档技术裁决_2026-10-18.md",
+    "real_signing_authorized": false,
+    "remote_runner_authorized": false,
+    "remote_artifact_authorized": false,
+    "push_requires_zero_trigger_full_readonly_audit": true,
+    "owner": "B",
+    "reviewer": "A"
   }
 }

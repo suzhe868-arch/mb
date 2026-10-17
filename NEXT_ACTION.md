@@ -1,3 +1,9 @@
+# 2026-10-18｜下一责任B：V2独立签署影子门禁与五来源攻击负例（离线、零付费）
+
+**NEXT_OWNER=B / NEXT_TASK=F05_7_V2_INDEPENDENT_SIGNER_SHADOW_AND_FIVE_CONSUMER_NEGATIVES_01**。从最新main读取权威六文件、[A可信签署架构裁决](07_重建工作区/F05-7_V2_A零付费独立签署与私有证据归档技术裁决_2026-10-18.md)和[正式完整施工单](07_重建工作区/F05-7_V2独立签署影子验证与五来源负例_A主控B正式施工单_2026-10-18.md)，在`audit/f05-v2-source-shadow-trust/**`实现纯离线去敏摘要/外部可信身份影子接口/五来源拒绝和恶意样例，运行真Python/Node测试，中文归档并向A完整交验。**不批准**真实签署、五正式Source修改、远程旧66业务重跑、旧ref写入、任何付费或原ZIP公开上传。远程分支及PR必须先证明最新main所有Workflow对本包精确路径零触发，不能证明即`BLOCKED_REMOTE_CI_BUDGET`。原PR113 28真实Check最后为23成功5旧签约失败，正式Source依旧`SOURCE_GAP_OPEN/FAIL_CLOSED`、V1`NOT_READY`。
+
+---
+
 # 2026-10-18｜正式NEXT_ACTION：PR113受限归档后由A处理独立可信签名与证据长期存档，不再退B旧调查
 
 **当前唯一责任：A；任务`F05_7_V2_A_INDEPENDENT_SIGNER_ARCHIVE_AND_SOURCE_MIGRATION_DECISION_01`。** B已完成隔离新候选并经[PR113](https://github.com/suzhe868-arch/mb/pull/113)标准合并`main@652316eaad06d5adea961f19036e8f69d4107a89`。本次受限工程并不表示原正式Source签署已完成。下一步首先核查当前公开仓库+$0预算下经A受保护身份的GitHub官方Artifact Attestations/Sigstore方案，核对四原ZIP非公开长期不可变保全与A受信REST验真、持久撤销/防重放身份，再形成一次性授权或精准权限阻断结论；尚无条件时继续`SOURCE_GAP_OPEN / FAIL_CLOSED / PRODUCTION_NOT_READY`。不得改旧8冻结Workflow、旧Source验证器、五正式Issuer、旧ref或重复运行65已通过原业务。B等待A确证新工作单；C PR68独立。
