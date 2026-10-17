@@ -1,0 +1,31 @@
+name: H52旧来源阶段2只读静态预审
+
+on:
+  push:
+    branches:
+      - audit/f05-7-original-h52-phase2-go-no-go-01
+    paths:
+      - .github/workflows/h52-original-phase2-readonly-preflight.yml
+      - audit/h52-original-source-go-no-go/**
+
+permissions:
+  contents: read
+
+jobs:
+  readonly-evidence:
+    name: 只读审计不执行旧来源
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Node原生只读正反例
+        run: node --test audit/h52-original-source-go-no-go/原H52静态审计.test.mjs
+      - name: Git Blob完整性与Ruby YAML静态解析取证
+        run: node audit/h52-original-source-go-no-go/原H52静态审计.mjs --evidence
+      - name: 仅上传本SHA静态审计
+        uses: actions/upload-artifact@v4
+        with:
+          name: h52-original-readonly-phase2-go-no-go
+          path: audit/h52-original-source-go-no-go/GitHub只读诊断结果.json
+          if-no-files-found: error
+          retention-days: 7

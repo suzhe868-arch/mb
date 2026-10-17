@@ -1,0 +1,77 @@
+{
+  "task": "F05_7_ORIGINAL_H52_PHASE2_GO_NO_GO_READONLY_01",
+  "authority": "A_RELEASED_FOR_B_READONLY_ORIGINAL_H52_PHASE2_DECISION_EVIDENCE_ONLY",
+  "baseline_main_sha": "bfb0dfd461fbec42f5350fcbda8b553645f61461",
+  "original_source_ref": "feat/f05-7-deterministic-matching-readiness-four-tier",
+  "expected_old_sha": "99c38d013f67cc56975f1664120fb87c204afc3c",
+  "source_ref_diff_to_main": {
+    "ahead": 1134,
+    "behind": 0,
+    "merge_base": "99c38d013f67cc56975f1664120fb87c204afc3c"
+  },
+  "historical_zero_job": {
+    "run_id": 38958160214,
+    "commit": "bf9c698fabff721a52154fba662dc9b230d9a319",
+    "blob": "3a13bab79b4e45fb4e037a1d6fd4431593506148",
+    "event": "push",
+    "status": "completed",
+    "conclusion": "failure",
+    "jobs": 0,
+    "check_suite_id": 105583123217
+  },
+  "historical_52_success_comparator": {
+    "run_id": 38694077890,
+    "workflow": "f06-5c-frozen-h52-revalidation.yml",
+    "commit": "e2c153996f73e46ee35e4cfe6dee21f4583b712b",
+    "job_count": 52,
+    "success_count": 52,
+    "not_original_f05_7_ref": true
+  },
+  "original_source_h52_blob": "eda68ce30bbccfa802f459e009ef0a6889918648",
+  "current_main_h52_blob": "687a9f767b0d0b144372550735da6159066b4833",
+  "source_gap": "OPEN",
+  "official_scheduler_error": "OFFICIAL_SCHEDULER_ERROR_UNAVAILABLE",
+  "true_original_h52_scheduler": "NOT_PROVEN",
+  "file_hashes": [
+    [
+      "f05-7-deterministic-matching-readiness-four-tier.yml",
+      "3f563fcc3137197f37c986963a3e48259d1f4626",
+      2
+    ],
+    [
+      "f05-7-frozen-f05-4-2-revalidation.yml",
+      "ed32a3bfe870be32dba116490b5a99d4f83bb85a",
+      2
+    ],
+    [
+      "f05-7-frozen-f05-5-2-revalidation.yml",
+      "0687174fbf9b841cdc510b5caf93550f3bbd15be",
+      2
+    ],
+    [
+      "f05-7-frozen-f05-6-2-revalidation.yml",
+      "a90f9526802c8a1e505e3e6e984215b030af22c1",
+      2
+    ],
+    [
+      "f05-7-frozen-h52-revalidation.yml",
+      "687a9f767b0d0b144372550735da6159066b4833",
+      52
+    ],
+    [
+      "f05-7-frozen-i2-revalidation.yml",
+      "cf4befa47755824466c8b4e16de049c1916fd3dd",
+      2
+    ],
+    [
+      "f05-7-frozen-j2-revalidation.yml",
+      "642c706348884d754c73ce49e624f78915a91218",
+      2
+    ],
+    [
+      "f05-7-frozen-k2-revalidation.yml",
+      "d756184fc5c7cbbf15b21d8715b195d3df4a4419",
+      2
+    ]
+  ]
+}
