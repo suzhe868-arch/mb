@@ -1,3 +1,12 @@
+# 2026-10-18｜用户最新调整：F05须完成真实业务交付与有效验收，暂缓F06
+
+- **正式顺序变更：F05优先，F06/F07/F08主线暂停。** 原[A PR120](https://github.com/suzhe868-arch/mb/pull/120)仅完成历史F05非生产CI证据附例外收口，并非F05全部功能完成。原[A PR121](https://github.com/suzhe868-arch/mb/pull/121)的F06施工单保留为历史放行、**现已暂停执行，不能据此启动F06主线**。
+- A已按最新main核对`PROJECT_STATE.json`，F05-1～11当前正式受限成果以CI-only/审计候选为主；真实Node HTTP + PG16完整交付尚未被独立验证。**新唯一任务：`NEXT_OWNER=B / NEXT_TASK=F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01`**，工作分支`feat/f05-real-delivery-acceptance-closeout-01`，完整[中文施工单](07_重建工作区/F05真实业务交付与有效验收彻底整改_A主控B正式施工单_2026-10-18.md)。B必须补齐F05实际服务、真实PG16/HTTP正反例、安全字段/身份/权限和可核验有效测试，交A独立验收，不要再做无效旧签署循环。
+- 历史事实保持：旧66项65真通过＋1项旧Oracle `BLOCKED_EQUIVALENCE`；PR113 28项23成功＋5旧来源失败，旧红灯不能冒称变绿。5个正式Source仍`SOURCE_GAP_OPEN/FAIL_CLOSED`，生产仍`NOT_READY`。非生产真实功能验收和生产签署分别出结论，**不得用PR120旧例外冒充本次F05彻底交付**。
+- 用户新指定暂停F06，前次B_APP_01目录真实只读API可按F05范围复用但禁止重复抢任务；C PR68视觉返工仍独立Draft，费用新增授权`$0`。
+
+---
+
 # 2026-10-18｜F06开始真正锁车业务接口纵切施工（不是CI来源签名工程）
 
 - F05历史两组旧来源校验红灯已由[A PR120](https://github.com/suzhe868-arch/mb/pull/120)判为同一旧Push来源条件不适用于新PR，**仅F05非生产CI功能范围按65真通过＋1旧Oracle例外受限收口**；旧66/66和PR113 28/28绝不虚报。V1生产及五Source未签，真实权限安全继续必须通过。

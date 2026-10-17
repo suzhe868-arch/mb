@@ -1,3 +1,12 @@
+# 2026-10-18｜A主控纠正F05验收口径：真实功能整改优先，F06转暂缓
+
+- 用户已明确同意“先修正F05，完成真实功能与有效验证后再继续F06”。截至最新`main`，F05-1～11各`f05_*_gate`多数是隔离CI候选，A此前的PR120只是旧65/66加1例外的非生产CI阶段退出，不是生产/真实HTTP功能完整验收。
+- **正式任务**：`NEXT_OWNER=B`，`NEXT_TASK=F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01`，工作分支`feat/f05-real-delivery-acceptance-closeout-01`；A[完整B施工单](07_重建工作区/F05真实业务交付与有效验收彻底整改_A主控B正式施工单_2026-10-18.md)已放行。B须核对PDM及已合并代码，一次性补全F05 Vehicle/来源/收藏/价格/找车/匹配/Priority/推荐/咨询关联的真实Node HTTP＋隔离PG16可运行纵切和权限负例，提交可复核的HEAD/PR/测试报告。
+- [PR121](https://github.com/suzhe868-arch/mb/pull/121)原F06业务施工授权**保持历史不撤销，但当前主线暂停、未验收不计完成**；排队B_APP_01可复用到F05真实车辆列表/详情，F07/F08后移。F05旧66为65真实Pass+1旧Oracle BLOCKED，PR113 23成功5旧Source失败；原记录不变，不能用旧例外冒充新业务验收。5正式Source继续拒绝，生产`NOT_READY`，Actions付费`$0`。
+- 当前仅A签施工与改状态：**B尚未完成本新任务，A尚未对其真实接口验收**。C PR68继续独立Draft，无客户视觉最终通过。
+
+---
+
 # 2026-10-18｜F06开始真正锁车业务接口纵切施工（不是CI来源签名工程）
 
 - F05历史两组旧来源校验红灯已由[A PR120](https://github.com/suzhe868-arch/mb/pull/120)判为同一旧Push来源条件不适用于新PR，**仅F05非生产CI功能范围按65真通过＋1旧Oracle例外受限收口**；旧66/66和PR113 28/28绝不虚报。V1生产及五Source未签，真实权限安全继续必须通过。

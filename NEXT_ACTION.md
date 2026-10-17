@@ -1,3 +1,12 @@
+# 2026-10-18｜最新NEXT_ACTION：B先全面修好F05真实业务，F06暂停
+
+**NEXT_OWNER=B / NEXT_TASK=F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01 / BRANCH=feat/f05-real-delivery-acceptance-closeout-01。** B从最新`main`读取六权威、F05-1～11既有代码与PDM Final，执行[A最新正式施工单](07_重建工作区/F05真实业务交付与有效验收彻底整改_A主控B正式施工单_2026-10-18.md)：按F05全模块真实入口/数据/权限核对矩阵补齐隔离Node HTTP+PostgreSQL16实际功能、真实正反例、有效新版验收。必须交完整代码、真实测试输出、最终HEAD/PR与未解阻断，A独立验收后才可判断F05真实交付完成。
+**F06/F07/F08暂缓主线**：前次PR121锁车HTTP施工单是已放行的历史文件，目前暂停执行；B_APP_01真实车辆目录内容允许纳入F05必要纵切复用，避免重复开发。C PR68继续单独Draft。
+**不能再误报F05彻底结束**：旧66项65真实成功+1旧`match-source` Oracle阻断、PR113 23成功+5失败，历史原值不变；A PR120仅非生产CI例外而非完整交付。五正式Source尚未签发，生产`NOT_READY`；新真实业务验收和生产门禁分开出结论，GitHub新增付费仍为$0，不做无关签名模拟。
+**状态**：`A_RELEASED_FOR_B / B_NOT_YET_COMPLETED / F06_PAUSED_BY_USER`。A不冒充B已经施工或A已经复验。
+
+---
+
 # 2026-10-18｜NEXT_ACTION：B马上执行F06锁车申请/审批/单车唯一Lock/自动候补真实业务API
 
 **NEXT_OWNER=B / NEXT_TASK=F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16_01 / BRANCH=feat/f06-real-lockrequest-http-pg16-01**。以最新main为准，立即按[A正式F06业务施工单](07_重建工作区/F06_真实锁车申请审批唯一Lock与自动候补_首条业务API纵切_A主控B正式施工单_2026-10-18.md)一次性实现并真正测试`POST /api/v1/lock-requests`和`POST /api/v1/lock-requests/:id/decision`：Node HTTP、隔离PostgreSQL16事务、PDM18合法身份与当前权限、6h PENDING/单车唯一Lock/72h占用、冲突申请合法自动Waitlist、重复/竞态/断链/回滚、客户安全信息。现有F06-1～5C只有CI候选，须交真实可运行接口与测试而非报告。未获真实微信Customer身份与生产许可时，仅允许明确隔离测试的真实PG16正例；生产一律硬拒，不做资金/退款或第三方写入。
