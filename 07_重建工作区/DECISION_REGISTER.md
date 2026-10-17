@@ -1,3 +1,12 @@
+# 2026-10-17｜A验收B PR102原F05-7真HTTPS业务远程PG16成功并合并；转入66项来源最终闭环工程包（本轮最新）
+
+- **B PR102已A独立验收并标准合并**：[PR102](https://github.com/suzhe868-arch/mb/pull/102)，唯一验收B HEAD`2933d32cf375f11328251854874c7b5a5f835c4a`，合并SHA`1e454e7fcc086cec537aae9de93713fbdb4d410d`。5/5白名单仅新增单Job工作流和说明，修正已有来源证据代码，不动原`ci-job.sh`、原H52/其它7份旧Workflow、五Source/DDL/PDM/生产/C。真正GitHub[Run39006396267](https://github.com/suzhe868-arch/mb/actions/runs/39006396267) completed/success；原生Job117319652675日志证实Node **38/38**、原PG16前置 **18/18**、旧F05-7 `https.test.mjs` **7/7** 和完成标记`F05_7_NATIVE_PG16_V23_https_CI_COMPLETE`；106849B官方有效同SHA Artifact12090408632，官方SHA256摘要可核。此次是**真正原业务远程通过**，但只一条HTTPS子路径，不是66项已验收。
+- **A实核同HEAD全仓CI而非只数1个Job**：当时GitHub官方29 Check Runs=24 success、3旧Source failure、2 in_progress（快照，不是永久结果）。其中旧正式Source因不符合原分支合法新Push而拒绝；不能把原Source红灯从成功中抹除，也不能让它阻止当前受限独立工程包的合规合并。旧来源分支`99c38d013f67cc56975f1664120fb87c204afc3c`仍未变化，服务器端机器保护无法核实、可见rulesets=0，因此**原8Workflow/66Job未授权执行**。
+- **下一主任务正式签发给B**：[F05-7真实66项来源最终闭环施工单](07_重建工作区/F05-7_66项真实来源最终闭环与受限执行或安全等价V2_A主控B完整施工单_2026-10-17.md)，`NEXT_OWNER=B / NEXT_TASK=F05_7_66_REAL_SOURCE_FINAL_CLOSURE_01`，B只能在新分支`feat/f05-7-66-real-source-closure-01`新增真实可执行来源/资源保护和实际旧H52冻结PG16业务测试复用代码、受控低并发CI证据，接着给A**一次性的66Job原生可行性最终Go或安全等价V2方案**。任何完整旧66实际跑之前仍由A核准写入精确Source ref、资源用量/服务器保护；无法保障安全则B实装V2版本验收候选但不得自签。**不再重开历史H52 0Job诊断或模拟52 Job调查**。
+- **长期安全界线不变**：五正式Source `SOURCE_GAP_OPEN/FAIL_CLOSED`，`PHASE2_ORIGINAL_REF_PUSH_AUTHORIZED=false`；F05全域/V1/生产`NOT_READY`。F06/F07/F08-1前期受限验收记录不返工，C [PR68](https://github.com/suzhe868-arch/mb/pull/68)继续Draft并行。详细A审核与裁决见[正式报告](07_重建工作区/PR102_A主控原F05-7真业务PG16远程实测受限验收及66项最终闭环接力_2026-10-17.md)。
+
+---
+
 # 2026-10-17｜A独立验收B PR100完成：真实Node34/34＋隔离非特权PG16 23/23，下一步B直接远程实跑原F05-7真正业务测试（本轮最新）
 
 - **B PR100真实代码范围A受限验收已标准合并**：[PR #100](https://github.com/suzhe868-arch/mb/pull/100)，受验唯一HEAD`5cc78c586a680b20c6a20c65ace9974776c34755`、main merge `75be5d183f6cdd7d1f2ec3a6bd631ff4f9bc0009`；7/7仅新增A授权白名单文件，旧8冻结工作流/五正式Source/DDL/生产/C零改。A独立审签[PR100审查评论](https://github.com/suzhe868-arch/mb/pull/100#issuecomment-6230032492)；原生[Run39004908729](https://github.com/suzhe868-arch/mb/actions/runs/39004908729)为最终HEAD的Push成功：Node34/34与真实非特权PG16 23/23、两项有效非空官方sha256 Artifact；这是有明确合成边界的**真实新代码和CI工程**，不是旧F05全域通过。
