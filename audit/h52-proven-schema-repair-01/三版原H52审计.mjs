@@ -20,7 +20,9 @@ const run=(bin,args,opts={})=>{
 };
 export function structural(yaml){
   const lines=yaml.split('\n');
-  const jobs=lines.filter(x=>/^  [a-zA-Z_][a-zA-Z0-9_-]*:\s*(?:#.*)?$/.test(x)).map(x=>x.trim().split(':')[0]);
+  const start=yaml.search(/^jobs:\s*$/m);
+  if(start<0)throw Error('缺少顶层jobs，禁止把无效YAML记为有效');
+  const jobs=[...yaml.slice(start).matchAll(/^  ([a-zA-Z_][a-zA-Z0-9_-]*):[^\n]*$/gm)].map(x=>x[1]);
   const anchor=(yaml.match(/- run:\s*&z\b/g)||[]).length;
   const alias=(yaml.match(/- run:\s*\*z\b/g)||[]).length;
   const services=(yaml.match(/^    services:\s*$/gm)||[]).length;
