@@ -1,3 +1,9 @@
+# 2026-10-18｜A下一任务：保留原账号的离线受控签署与私有不可变原证据配置核验
+
+**`NEXT_OWNER=A` / `NEXT_TASK=F05_7_V2_A_SINGLE_ACCOUNT_OFFLINE_SIGNER_AND_PRIVATE_ARCHIVE_GATES_01`**。用户已同意现有GitHub单账号继续开发；采用**账号外受口令保护的独立Ed25519离线私钥+仓库外固定指纹/撤销及耐久nonce**作为签署控制域候选，需单独证明密钥真实存在且不被B/GitHub Actions控制。原四官方ZIP必须有非公开、不可变且读回可恢复的长期存储；聊天文件库或普通U盘仅作备份、不是WORM。单账户方案不是独立第二个人审签，原政策如要求不同自然人须用户明确批准风险等价例外后才可能正式签Source。[完整A技术裁决](07_重建工作区/F05-7_V2单GitHub账号离线双域签署及证据保全_A主控技术裁决_2026-10-18.md)。当前`FORMAL_ISSUER_NOT_SIGNED / SOURCE_GAP_OPEN / FAIL_CLOSED / V1_NOT_READY`；A继续确认用户本地可用离线签署/保管资源，未配置前**不再让B反复写模拟签署门禁**、不增加费、不重跑旧66、不Push旧ref、不迁五正式消费者。C PR68独立。
+
+---
+
 # 2026-10-18｜NEXT_ACTION：A独立受信审核者＋四ZIP非公开不可变归档账户实证门禁
 
 **NEXT_OWNER=A / NEXT_TASK=F05_7_V2_A_INDEPENDENT_REVIEWER_PRIVATE_ARCHIVE_GO_NO_GO_01**。B本期7份离线影子代码经[A PR116](https://github.com/suzhe868-arch/mb/pull/116)受限验收并正常合并`main@d8b4d97487a5b656ae2f67e880f665096ada6d11`；A真ZIP Python5/5、Node52/52通过、Git Blob7/7、官方清册335/335 SHA，**本包无远程CI**。下一A任务只评估实际可验证的：独立于B的受保护Reviewer/Workflow签署身份、四原始ZIP非公开WORM零付费存储及恢复、原Run官方REST只读凭据和持久撤销/nonce账本。未得到真实账户/归档资料时继续`BLOCKED_SIGNER_TRUST/BLOCKED_IMMUTABLE_ARCHIVE`，不以模拟值解锁五正式Source。用户GitHub`$0`额度不变，原旧66不重跑，旧ref不Push，五正式Source`SOURCE_GAP_OPEN/FAIL_CLOSED`，V1/生产`NOT_READY`。参考 [A完整报告](07_重建工作区/PR116_A主控五来源影子安全门禁受限验收与可信身份归档下一门禁_2026-10-18.md)。

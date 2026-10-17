@@ -1,3 +1,12 @@
+# 2026-10-18｜A主控单GitHub账号独立离线签署方案已裁定（不更换账号/仓库，不开正式Source）
+
+- 用户已同意继续用`suzhe868-arch/mb`及现有单GitHub账号，**不需第二GitHub账号、不开付费**。A裁定**工程域=现有GitHub**、**签署域=用户掌控的仓库外Ed25519私钥与受信离线校验器**。独立技术控制域不等于双人审核，不能用`Prevent self-review`假设同一执行者能批准自己的作业；更不能关闭该规则后谎称两人审签已满足。 [单账号正式裁决](07_重建工作区/F05-7_V2单GitHub账号离线双域签署及证据保全_A主控技术裁决_2026-10-18.md)。
+- 正式`main`前基线`26d519e56f0d5cced7cf47365152d960eeaaf46d`；B [PR116](https://github.com/suzhe868-arch/mb/pull/116)离线影子工程、A [PR117](https://github.com/suzhe868-arch/mb/pull/117)均已受限合并。PR113的旧正式Source检查23/28通过、5真实失败；旧Run39035485532真实65/66业务通过+1旧Oracle`BLOCKED_EQUIVALENCE`。五正式Source始终`SOURCE_GAP_OPEN/FAIL_CLOSED`，V1/生产`NOT_READY`。
+- **真实设备/账号实证仍未完成**：用户受控私钥及仓库外指纹`NOT_PROVISIONED`、四原ZIP非公开不可变/可恢复WORM`NOT_VERIFIED`、A外部耐久撤销/nonce和独立REST真核`NOT_VERIFIED`、单人替代双人审批的正式安全等价裁决`NOT_DECIDED`。普通U盘或临时ZIP副本不能冒充WORM；公开GitHub Release不得上传日志原件。
+- **`NEXT_OWNER=A / NEXT_TASK=F05_7_V2_A_SINGLE_ACCOUNT_OFFLINE_SIGNER_AND_PRIVATE_ARCHIVE_GATES_01`**。先把单账号离线签署与真实私有归档步骤在A闭环到可核证条件，再考虑放行B正式签名接入/五消费者迁移；目前不重复旧66、不修改旧8冻结Workflow或原Source，不另创建付费CI。C PR68独立。
+
+---
+
 # 2026-10-18｜PR116 B独立签署影子门禁已由A真实离线验收并受限合并，下一责任A
 
 - [B PR116](https://github.com/suzhe868-arch/mb/pull/116)仅7份`audit/f05-v2-source-shadow-trust/**`隔离非生产影子候选，B唯一HEAD`08b1d6b1a980eb5191b9061960274069693e1dbd`，A正式受限合并`main@d8b4d97487a5b656ae2f67e880f665096ada6d11`；没有改旧八Workflow、五正式Source、原业务、数据库或生产。[A独立审签](https://github.com/suzhe868-arch/mb/pull/116#issuecomment-6239025577)。

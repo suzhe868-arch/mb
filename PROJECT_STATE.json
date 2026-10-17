@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_7_V2_PR116_A_ACCEPTED_OFFLINE_SHADOW_MERGED_TRUST_ACCOUNT_GATE_OPEN",
+  "substage": "F05_7_V2_A_SINGLE_ACCOUNT_OFFLINE_SIGNER_DESIGN_ADJUDICATED_REAL_TRUST_ARCHIVE_GATE_OPEN",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F05_7_V2_A_ACCOUNT_INDEPENDENT_SIGNER_AND_PRIVATE_ARCHIVE_GO_NO_GO",
-  "current_domain_status": "A_PR116_SHADOW_ENGINEERING_ACCEPTED_MERGED_FIVE_SOURCE_GAP_FAIL_CLOSED",
+  "current_domain": "F05_7_V2_A_SINGLE_ACCOUNT_OFFLINE_SIGNING_DOMAIN_AND_PRIVATE_WORM_REVIEW",
+  "current_domain_status": "A_SINGLE_GITHUB_ACCOUNT_ARCHITECTURE_DESIGN_ACCEPTED_REAL_SIGNER_AND_ARCHIVE_UNVERIFIED_FIVE_SOURCE_FAIL_CLOSED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A亲自核对B PR116 7/7 Git Blob与18KB原工程包一致、真四官方ZIP Python5/5 + Node52/52无跳过、335官方YAML Git Blob清册335/335一致及本HEAD 0远程Actions/Check；仅非生产影子工程按正常PR合并main@d8b4d97487a5b656ae2f67e880f665096ada6d11。五正式Source仍未签署，下一A负责独立Reviewer与私有不可变归档实际账户门禁。",
-  "current_work_file": "07_重建工作区/PR116_A主控五来源影子安全门禁受限验收与可信身份归档下一门禁_2026-10-18.md",
+  "current_task": "A确认现有suzhe868-arch/mb单账号可继续开发与PR；GitHub禁止本人审批不适合无第二独立操作者时充当正式双人签发。裁定仓库外离线Ed25519 A私钥及外部固化指纹的第二技术控制域候选；实际密钥、私有不可变四官方ZIP保管及恢复、独立REST、持久撤销nonce和单人等价审签尚未满足，Source仍Fail Closed。",
+  "current_work_file": "07_重建工作区/F05-7_V2单GitHub账号离线双域签署及证据保全_A主控技术裁决_2026-10-18.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "A独立确认GitHub受保护Environment审核主体是否与B分离、受保护Workflow及真实A账户审查权限，四原ZIP可长期非公开不可变保全/可恢复、永久撤销nonce账本及独立官方REST授权；全部具有真正可验证的最低零费用能力时才考虑签发下一B受限正式签署与五消费者迁移工单。任何缺失保持签发NO_GO，不让B重复旧66/335、用模拟替代正式A身份、购买服务或暴露原ZIP。",
+  "next_action": "A先在保留用户原GitHub单账号和$0费用边界下，出具离线独立Ed25519签名身份、仓库外公钥指纹核对、私有WORM原件归档与恢复、A独立API核查和持久撤销nonce的可执行账户设备核验清单；明确单人签署不能冒充双人安全审查。密钥/归档等真条件及风险认可未具备前五正式Source继续Fail Closed；B无需重做影子代码或旧66，禁止任何收费、旧ref Push或生产。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "A独立确认GitHub受保护Environment审核主体是否与B分离、受保护Workflow及真实A账户审查权限，四原ZIP可长期非公开不可变保全/可恢复、永久撤销nonce账本及独立官方REST授权；全部具有真正可验证的最低零费用能力时才考虑签发下一B受限正式签署与五消费者迁移工单。任何缺失保持签发NO_GO，不让B重复旧66/335、用模拟替代正式A身份、购买服务或暴露原ZIP。",
+  "next_action_detail": "A先在保留用户原GitHub单账号和$0费用边界下，出具离线独立Ed25519签名身份、仓库外公钥指纹核对、私有WORM原件归档与恢复、A独立API核查和持久撤销nonce的可执行账户设备核验清单；明确单人签署不能冒充双人安全审查。密钥/归档等真条件及风险认可未具备前五正式Source继续Fail Closed；B无需重做影子代码或旧66，禁止任何收费、旧ref Push或生产。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F05_7_V2_A_INDEPENDENT_REVIEWER_PRIVATE_ARCHIVE_GO_NO_GO_01",
+  "next_task": "F05_7_V2_A_SINGLE_ACCOUNT_OFFLINE_SIGNER_AND_PRIVATE_ARCHIVE_GATES_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -8107,7 +8107,7 @@
       "PRODUCTION_PUBLISHER_CACHE_SCHEMA_NOT_IMPLEMENTED"
     ]
   },
-  "last_a_acceptance_report": "07_重建工作区/PR116_A主控五来源影子安全门禁受限验收与可信身份归档下一门禁_2026-10-18.md",
+  "last_a_acceptance_report": "07_重建工作区/F05-7_V2单GitHub账号离线双域签署及证据保全_A主控技术裁决_2026-10-18.md",
   "f07_2_gate": {
     "status": "A_ACCEPTED_STANDARD_MERGED_PR65_CI_ONLY",
     "owner": "A_ACCEPTED",
@@ -9626,7 +9626,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/PR116_A主控五来源影子安全门禁受限验收与可信身份归档下一门禁_2026-10-18.md",
+  "next_work_file": "07_重建工作区/F05-7_V2单GitHub账号离线双域签署及证据保全_A主控技术裁决_2026-10-18.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -9730,14 +9730,15 @@
     "old_native_oracle_satisfied": false,
     "five_formal_source_status": "SOURCE_GAP_OPEN_FAIL_CLOSED",
     "original_ref_push_authorized": false,
-    "current_next_task": "F05_7_V2_A_INDEPENDENT_REVIEWER_PRIVATE_ARCHIVE_GO_NO_GO_01",
+    "current_next_task": "F05_7_V2_A_SINGLE_ACCOUNT_OFFLINE_SIGNER_AND_PRIVATE_ARCHIVE_GATES_01",
     "a_verified_final_old_ci_five_fail": true,
     "architecture_report": "07_重建工作区/F05-7_V2_A零付费独立签署与私有证据归档技术裁决_2026-10-18.md",
     "shadow_work_order": "07_重建工作区/F05-7_V2独立签署影子验证与五来源负例_A主控B正式施工单_2026-10-18.md",
     "independent_reviewer": "UNVERIFIED",
     "private_immutable_archive": "UNVERIFIED",
     "protected_attestation_workflow": "NOT_DEPLOYED",
-    "a_latest_review": "07_重建工作区/PR116_A主控五来源影子安全门禁受限验收与可信身份归档下一门禁_2026-10-18.md"
+    "a_latest_review": "07_重建工作区/PR116_A主控五来源影子安全门禁受限验收与可信身份归档下一门禁_2026-10-18.md",
+    "a_latest_account_trust_decision": "07_重建工作区/F05-7_V2单GitHub账号离线双域签署及证据保全_A主控技术裁决_2026-10-18.md"
   },
   "f05_7_v2_shadow_gate": {
     "task_id": "F05_7_V2_INDEPENDENT_SIGNER_SHADOW_AND_FIVE_CONSUMER_NEGATIVES_01",
@@ -9767,5 +9768,26 @@
     "a_review_comment": 6239025577,
     "a_report": "07_重建工作区/PR116_A主控五来源影子安全门禁受限验收与可信身份归档下一门禁_2026-10-18.md",
     "next_owner": "A"
+  },
+  "f05_7_v2_single_account_trust": {
+    "status": "A_DESIGN_ADJUDICATED_ONLY_FORMAL_SIGNING_BLOCKED",
+    "same_github_account_allowed": true,
+    "existing_repository_required": true,
+    "signing_domain": "A_OFFLINE_ED25519_KEY_OUTSIDE_GITHUB_AND_B_CONTROL",
+    "offline_key_provisioned": false,
+    "out_of_band_public_key_fingerprint_verified": false,
+    "private_worm_four_official_artifacts_verified": false,
+    "real_a_independent_full_rest_attestation_verified": false,
+    "persistent_replay_revocation_ledger_verified": false,
+    "two_human_reviewer_requirement_satisfied": false,
+    "single_person_security_exception_approved": false,
+    "b_signature_candidate_can_authorize": false,
+    "old_oracle_satisfied": false,
+    "five_source_status": "SOURCE_GAP_OPEN_FAIL_CLOSED",
+    "production_ready": false,
+    "work_order": "07_重建工作区/F05-7_V2单GitHub账号离线双域签署及证据保全_A主控技术裁决_2026-10-18.md",
+    "next_owner": "A",
+    "next_task": "F05_7_V2_A_SINGLE_ACCOUNT_OFFLINE_SIGNER_AND_PRIVATE_ARCHIVE_GATES_01",
+    "remote_runner_or_paid_storage_authorized": false
   }
 }
