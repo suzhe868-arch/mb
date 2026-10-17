@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_7_66_REAL_NATIVE_FINAL_CLOSURE_RELEASED_AFTER_PR102",
+  "substage": "F05_7_PR104_SCOPE_ACCEPTED_V2_REMAINING_64_REAL_EXECUTION_RELEASED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F05_7_66_NATIVE_FINAL_CLOSURE_ENGINEERING",
-  "current_domain_status": "B_REAL_H52_NATIVE_EXECUTION_AND_SOURCE_V2_CANDIDATE_RELEASED_OLD_ORIGINAL_REF_PUSH_NO_GO",
+  "current_domain": "F05_7_V2_REMAINING_64_TRUE_PG16_ENGINEERING",
+  "current_domain_status": "A_SCOPE_ACCEPTED_PR104_B_V2_REMAINING_64_RELEASED_OLD_ORIGINAL_66_NO_GO",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A已验收合并PR102原业务ci-job.sh https远程真实PG16成功，转B F05-7 66项原生父证/安全等价V2的最终闭环工程；必须交真实运行代码/旧H52真正PG16 job验证，不得再做历史0Job调查。原66旧ref实际Push需A另签精确版本/额度/安全门禁。",
-  "current_work_file": "07_重建工作区/F05-7_66项真实来源最终闭环与受限执行或安全等价V2_A主控B完整施工单_2026-10-17.md",
+  "current_task": "A独立验收合并PR104：原66清册映射66/66、H52与K2真PG16原业务2/66通过；余64未真实执行。A否决旧来源ref整体66 Push，正式放行B在隔离V2方案中完成余64项真实隔离PG16及Job/工件/日志证据绑定，不更改原8Workflow/五正式Source/Issuer/业务/DDL/PDM/C/生产。",
+  "current_work_file": "07_重建工作区/F05-7_V2余64项原业务隔离实跑与安全等价来源证据_A主控B正式施工单_2026-10-17.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B从最新main建feat/f05-7-66-real-source-closure-01，按07_重建工作区/F05-7_66项真实来源最终闭环与受限执行或安全等价V2_A主控B完整施工单_2026-10-17.md只新增engineering/f05/native-66-closure/**和.github/workflows/f05-7-native-66-closure-*.yml，真正执行原H52冻结PG16脚本和另一旧Job的低资源远程测试，完成原66完整语义可执行核证与双出口：合法限额单次原66 Go或不降低安全验收的V2真实代码实现。旧原来源ref禁止Push、旧8Workflow/66Job未放行。B交READY_FOR_A_REVIEW给A；A下轮必须做一次性Go/No-Go或V2最终验收裁决，不得再开旧0Job调查。",
+  "next_action": "B从执行时最新main在feat/f05-7-v2-remaining-64-real-pg16-01独立施工，按07_重建工作区/F05-7_V2余64项原业务隔离实跑与安全等价来源证据_A主控B正式施工单_2026-10-17.md完成余64个冻结原Job真实PG16实跑、V2可验证证据/恶意替换负例、官方Run/Job/Check/Artifact强绑定，最多4新增Runner、各40分钟，一次最终Push并计入旧CI扇出；原旧ref整体66和Issuer签发仍NO-GO。完成交READY_FOR_A_REVIEW，A独立终验。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B从最新main建feat/f05-7-66-real-source-closure-01，按07_重建工作区/F05-7_66项真实来源最终闭环与受限执行或安全等价V2_A主控B完整施工单_2026-10-17.md只新增engineering/f05/native-66-closure/**和.github/workflows/f05-7-native-66-closure-*.yml，真正执行原H52冻结PG16脚本和另一旧Job的低资源远程测试，完成原66完整语义可执行核证与双出口：合法限额单次原66 Go或不降低安全验收的V2真实代码实现。旧原来源ref禁止Push、旧8Workflow/66Job未放行。B交READY_FOR_A_REVIEW给A；A下轮必须做一次性Go/No-Go或V2最终验收裁决，不得再开旧0Job调查。",
+  "next_action_detail": "B从执行时最新main在feat/f05-7-v2-remaining-64-real-pg16-01独立施工，按07_重建工作区/F05-7_V2余64项原业务隔离实跑与安全等价来源证据_A主控B正式施工单_2026-10-17.md完成余64个冻结原Job真实PG16实跑、V2可验证证据/恶意替换负例、官方Run/Job/Check/Artifact强绑定，最多4新增Runner、各40分钟，一次最终Push并计入旧CI扇出；原旧ref整体66和Issuer签发仍NO-GO。完成交READY_FOR_A_REVIEW，A独立终验。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F05_7_66_REAL_SOURCE_FINAL_CLOSURE_01",
+  "next_task": "F05_7_V2_REMAINING_64_REAL_EXECUTION_AND_ISSUER_PROOF_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -8107,7 +8107,7 @@
       "PRODUCTION_PUBLISHER_CACHE_SCHEMA_NOT_IMPLEMENTED"
     ]
   },
-  "last_a_acceptance_report": "07_重建工作区/F05_历史CI治理_PR70_A主控最终独立验收标准合并与后续来源缺口正式报告_2026-10-16.md",
+  "last_a_acceptance_report": "07_重建工作区/PR104_A主控66项来源与双真实PG16受限验收及V2裁决_2026-10-17.md",
   "f07_2_gate": {
     "status": "A_ACCEPTED_STANDARD_MERGED_PR65_CI_ONLY",
     "owner": "A_ACCEPTED",
@@ -9443,7 +9443,7 @@
   },
   "f05_7_66_real_source_final_closure_gate": {
     "task_id": "F05_7_66_REAL_SOURCE_FINAL_CLOSURE_01",
-    "status": "A_RELEASED_FOR_B_FINAL_CLOSURE_ENGINEERING_NO_ORIGINAL_REF_PUSH",
+    "status": "A_ACCEPTED_SCOPE_ONLY_STANDARD_MERGED_PR104_2_OF_66_TRUE_PG16_V2_NOT_ISSUER",
     "work_order": "07_重建工作区/F05-7_66项真实来源最终闭环与受限执行或安全等价V2_A主控B完整施工单_2026-10-17.md",
     "review_report": "07_重建工作区/PR102_A主控原F05-7真业务PG16远程实测受限验收及66项最终闭环接力_2026-10-17.md",
     "owner": "B",
@@ -9468,6 +9468,62 @@
     "v2_is_not_formal_issuer": true,
     "formal_source_gap_open": true,
     "next_owner": "B",
-    "next_task": "F05_7_66_REAL_SOURCE_FINAL_CLOSURE_01"
+    "next_task": "F05_7_V2_REMAINING_64_REAL_EXECUTION_AND_ISSUER_PROOF_01",
+    "pr": 104,
+    "b_accepted_head": "346fb11133f0883014b7911effb58052bd17b2c1",
+    "a_merged_sha": "62dcafba00dff97d107d62c376e9ff45d3e7afbc",
+    "a_report": "07_重建工作区/PR104_A主控66项来源与双真实PG16受限验收及V2裁决_2026-10-17.md",
+    "native_run": 39008798385,
+    "native_h52_job": 117326661519,
+    "native_other_k2_job": 117326661370,
+    "source_catalog_total": 66,
+    "original_job_real_passed_this_pr": 2,
+    "original_job_not_executed_this_pr": 64,
+    "anti_replay_node_tests_passed": 37,
+    "h52_artifact_id": 12091638973,
+    "k2_artifact_id": 12091504805,
+    "full_66_source_certification": false,
+    "same_head_all_checks_snapshot": {
+      "success": 25,
+      "failure": 4,
+      "in_progress": 1,
+      "total": 30,
+      "at_review": true
+    }
+  },
+  "f05_7_v2_remaining_64_real_execution_gate": {
+    "task_id": "F05_7_V2_REMAINING_64_REAL_EXECUTION_AND_ISSUER_PROOF_01",
+    "status": "A_RELEASED_FOR_B_ISOLATED_V2_FULL_ORIGINAL_BUSINESS_TESTING_ONLY",
+    "owner": "B",
+    "review_owner": "A",
+    "branch": "feat/f05-7-v2-remaining-64-real-pg16-01",
+    "work_order": "07_重建工作区/F05-7_V2余64项原业务隔离实跑与安全等价来源证据_A主控B正式施工单_2026-10-17.md",
+    "authority_a_report": "07_重建工作区/PR104_A主控66项来源与双真实PG16受限验收及V2裁决_2026-10-17.md",
+    "source_pr": 104,
+    "source_merge_sha": "62dcafba00dff97d107d62c376e9ff45d3e7afbc",
+    "original_total_jobs": 66,
+    "proven_real_jobs_on_pr104": 2,
+    "pending_real_jobs": 64,
+    "allowed_new_paths": [
+      "engineering/f05/v2-original-64/**",
+      ".github/workflows/f05-7-v2-original-64-*.yml"
+    ],
+    "allowed_existing_edits": [
+      "engineering/f05/native-66-closure/proof.mjs",
+      "engineering/f05/native-66-closure/proof.test.mjs"
+    ],
+    "max_new_runner_jobs": 4,
+    "max_job_timeout_minutes": 40,
+    "no_old_source_ref_push": true,
+    "no_old_66_workflow_trigger": true,
+    "original_source_ref_sha": "99c38d013f67cc56975f1664120fb87c204afc3c",
+    "formal_source_gap_open": true,
+    "formal_source_issuer_migration_authorized": false,
+    "phase2_original_ref_push_authorized": false,
+    "official_evidence_name_and_log_binding_required": true,
+    "all_64_true_pg16_required": true,
+    "budget_fail_closed": true,
+    "next_owner": "B",
+    "next_task": "F05_7_V2_REMAINING_64_REAL_EXECUTION_AND_ISSUER_PROOF_01"
   }
 }
