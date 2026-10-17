@@ -8,7 +8,7 @@ module V2Shard
  OUT=File.join(__dir__,'evidence')
  BRANCH='feat/f05-7-v2-remaining-64-real-pg16-01'
  MAX_SHARD_SEC=34*60
- MAX_CAPTURE_RAW_BYTES=4*1024*1024 # Issue 106 storage gate, 5MiB/shard including logs
+ MAX_CAPTURE_RAW_BYTES=64*1024*1024 # raw lossless staging; hard upload stop is compressed 5MiB
  MAX_SINGLE_STEP_SEC=16*60
  OLD_TAG='public.ecr.aws/docker/library/postgres:16-alpine'
  def self.deny(code);raise "V2_FAIL_CLOSED_#{code}";end
@@ -175,6 +175,7 @@ module V2Shard
     formal_issuer_signed:false,original_66_completed:false,status:'NOT_RUN'}
   atomic_write(File.join(dir,'真实单Job证据.json'),info)
   work=nil;container="v2#{shard}#{safe}";started=Process.clock_gettime(Process::CLOCK_MONOTONIC)
+  before_docker=exec!('docker','ps','-aq',timeout:10).split
   logfile=File.join(dir,'真实Shell及PG16命令.log')
   begin
    deny('NOT_IN_SHARD_BUDGET') if limit<=0
@@ -232,6 +233,14 @@ module V2Shard
    info[:duration_seconds]=(Process.clock_gettime(Process::CLOCK_MONOTONIC)-started).round(2)
    info[:log_sha256]=File.file?(logfile) ? Digest::SHA256.file(logfile).hexdigest : nil
    atomic_write(File.join(dir,'真实单Job证据.json'),info)
+   # Original scripts may create disposable containers that must not leak host port 5432.
+   # Only remove containers started during THIS original Job on this isolated runner.
+   begin
+    after_docker=exec!('docker','ps','-aq',timeout:10).split
+    (after_docker-before_docker).each{|extra|system('docker','rm','-f',extra,out:File::NULL,err:File::NULL)}
+   rescue StandardError=>e
+    warn "V2_DISPOSABLE_RUNNER_CONTAINER_CLEANUP_FAILED #{e.message[0,120]}"
+   end
    system('docker','rm','-f',container,out:File::NULL,err:File::NULL)
    system('git','worktree','remove','--force',work,out:File::NULL,err:File::NULL) if work
    system('docker','image','rm',OLD_TAG,out:File::NULL,err:File::NULL)

@@ -1,9 +1,10 @@
 // Authentic V2 candidate evidence: GitHub official metadata AND unmodified original business records.
 import {createHash} from 'node:crypto';
-import {readFileSync} from 'node:fs';
-import {resolve} from 'node:path';
+import {readFileSync,writeFileSync,mkdirSync,mkdtempSync,rmSync,readdirSync,statSync} from 'node:fs';
+import {resolve,join,relative} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {execFileSync} from 'node:child_process';
+import {tmpdir} from 'node:os';
 export const REPO='suzhe868-arch/mb';
 export const BRANCH='feat/f05-7-v2-remaining-64-real-pg16-01';
 export const WORKFLOW='.github/workflows/f05-7-v2-original-64-ci.yml';
@@ -128,6 +129,79 @@ export function checkOfficialShardPayload(context,artifact,sourceMatrix,records)
  }
  return {level:'V2_OFFICIAL_ARTIFACT_BODY_CANDIDATE',shard,records_checked:keys.size,issuer_signed:false};
 }
+
+// Complete official Archive ZIP->lossless nested ZIP->original source-job report/body verifier.
+// It accepts GitHub's actual downloaded artifact bytes, never a user-supplied JSON shortcut.
+// A still must independently accept source-expression/permissions and formal Issuer equivalence.
+const UNPACK_SAFE_PY=String.raw`import sys,zipfile,pathlib
+src=sys.argv[1];dest=pathlib.Path(sys.argv[2]);max_total=int(sys.argv[3]);z=zipfile.ZipFile(src)
+entries=z.infolist();assert len(entries)<=20000
+size=0;seen=set()
+for item in entries:
+ p=pathlib.PurePosixPath(item.filename);name=item.filename
+ assert not name.startswith('/') and '..' not in p.parts and name not in seen
+ assert not (((item.external_attr>>16)&0o170000)==0o120000)
+ assert (dest/name).resolve().is_relative_to(dest.resolve())
+ size+=item.file_size;assert size<=max_total;seen.add(name)
+z.extractall(dest)`;
+export function auditOfficialLosslessShard(archiveBytes,artifact,context,sourceMatrix){
+ if(!Buffer.isBuffer(archiveBytes)||archiveBytes.length>5*1024*1024||
+    !artifact||artifact.expired!==false||artifact.workflow_run?.id!==context.runId||
+    artifact.workflow_run?.head_sha!==context.sha||artifact.digest!=='sha256:'+digest(archiveBytes))deny('OFFICIAL_ZIP_SHA');
+ const shard=ARTIFACT_NAMES.indexOf(artifact.name);
+ if(shard<0)deny('SHARD_NAME');
+ const tmp=mkdtempSync(join(tmpdir(),'v2-original-official-'));
+ try{
+  const outer=join(tmp,'official.zip'),out=join(tmp,'outer');
+  writeFileSync(outer,archiveBytes);mkdirSync(out);
+  execFileSync('python3',['-c',UNPACK_SAFE_PY,outer,out,String(5*1024*1024)],{timeout:30000});
+  const meta=JSON.parse(readFileSync(join(out,'artifact-integrity-manifest.json'),'utf8'));
+  if(meta.issue!==106||meta.shard!==shard||meta.complete_evidence!==true||
+     meta.expected_run_sha!==context.sha||String(meta.expected_run_id)!==String(context.runId)||
+     meta.max_upload_bytes!==5*1024*1024||meta.max_uncompressed_bytes!==64*1024*1024||
+     !Array.isArray(meta.items)||meta.items.length<16)deny('LOSSLESS_MANIFEST');
+  const inner=join(out,'original-evidence.zip'),bytes=readFileSync(inner);
+  if(bytes.length!==meta.packed_bytes||digest(bytes)!==meta.packed_sha256||
+     bytes.length>5*1024*1024-128*1024)deny('INNER_PACK_SHA');
+  const payload=join(tmp,'payload');mkdirSync(payload);
+  execFileSync('python3',['-c',UNPACK_SAFE_PY,inner,payload,String(64*1024*1024)],{timeout:45000});
+  const names=new Set();let total=0;
+  for(const f of meta.items){
+   if(typeof f.path!=='string'||names.has(f.path)||f.path.includes('..')||f.path.startsWith('/'))deny('BODY_PATH');
+   names.add(f.path);const abs=resolve(payload,f.path);
+   if(!abs.startsWith(payload+'/')||!Number.isSafeInteger(f.bytes)||f.bytes<0||
+      statSync(abs).size!==f.bytes||digest(readFileSync(abs))!==f.sha256)deny('BODY_SHA');
+   total+=f.bytes;
+  }
+  if(total!==meta.raw_bytes)deny('BODY_TOTAL');
+  const sources=sourceMatrix.jobs.filter(j=>!j.history&&j.shard===shard);
+  if(sources.length!==16)deny('SIXTEEN_SOURCES');
+  let passes=0;const statuses=[];
+  for(const source of sources){
+   const key=digest(source.key).slice(0,16),root=join(payload,key);
+   const record=JSON.parse(readFileSync(join(root,'真实单Job证据.json'),'utf8'));
+   if(record.original_file!==source.source_workflow||record.original_job_id!==source.original_job_id||
+      record.source_blob!==source.source_blob||record.candidate_head!==context.sha||
+      String(record.run_id)!==String(context.runId)||record.formal_issuer_signed!==false)deny('REPLAYED_ORIGINAL_RECORD');
+   if(['REAL_PG16_PASS','REAL_ORIGINAL_NONPG_PASS'].includes(record.status)){
+    const log=readFileSync(join(root,'真实Shell及PG16命令.log'),'utf8'),fileMap=new Map();
+    for(let i=0;i<record.artifacts.length;i++)for(const f of record.artifacts[i].files)
+     fileMap.set(f.path,readFileSync(join(root,'artifact-files',i+'_'+record.artifacts[i].name,f.path)));
+    checkJobRecord(source,record,log,fileMap,context);passes++;
+   }else{
+    if(!['BLOCKED_EQUIVALENCE','FAIL','NOT_RUN'].includes(record.status))deny('UNSUPPORTED_STATUS');
+    const logPath=join(root,'真实Shell及PG16命令.log');
+    if(meta.items.some(f=>f.path===key+'/真实Shell及PG16命令.log')){
+     const log=readFileSync(logPath);if(digest(log)!==record.log_sha256)deny('FAILED_LOG_TAMPER');
+    }
+   }
+   statuses.push({key:source.key,status:record.status,blocker:record.blocker||null});
+  }
+  return {shard,original_records:16,verified_real_business_pass:passes,per_source:statuses,
+    level:'V2_OFFICIAL_LOSSLESS_ZIP_BODY_CANDIDATE_NOT_FORMAL_ISSUER',issuer_signed:false};
+ }finally{rmSync(tmp,{recursive:true,force:true});}
+}
+
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
  const command=process.argv[2];
  if(command==='--official'){
