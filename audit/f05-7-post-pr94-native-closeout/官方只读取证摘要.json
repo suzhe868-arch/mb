@@ -1,0 +1,150 @@
+{
+  "project": "名邦汽车 V1",
+  "task_id": "F05_7_POST_PR94_NATIVE_DIAGNOSTIC_CLOSEOUT_01",
+  "authority": "A_RELEASED_FOR_B_READONLY_OFFICIAL_DIAGNOSTIC_CLOSEOUT_ONLY",
+  "evidence_date": "2026-10-17",
+  "repository": "suzhe868-arch/mb",
+  "main_sha_at_read": "477692347f27aa00545f1ec1cddc5e24e532f8a3",
+  "isolated_branch": "audit/f05-7-post-pr94-native-diagnostic-01",
+  "scope": "READ_ONLY_GITHUB_API_AND_NEW_AUDIT_DOCS_ONLY",
+  "historic_failed_run": {
+    "id": 38958160214,
+    "html_url": "https://github.com/suzhe868-arch/mb/actions/runs/38958160214",
+    "workflow_path": ".github/workflows/f05-7-frozen-h52-revalidation.yml",
+    "head_sha": "bf9c698fabff721a52154fba662dc9b230d9a319",
+    "run_attempt": 1,
+    "workflow_id": 381637182,
+    "check_suite_id": 105583123217,
+    "event": "push",
+    "status": "completed",
+    "conclusion": "failure",
+    "latest_attempt_jobs_count": 0,
+    "attempt_1_jobs_count": 0
+  },
+  "official_commit_checks": {
+    "commit_sha": "bf9c698fabff721a52154fba662dc9b230d9a319",
+    "check_suites_total": 13,
+    "check_runs_total": 32,
+    "failed_h52_check_suite": {
+      "id": 105583123217,
+      "status": "completed",
+      "conclusion": "failure",
+      "latest_check_runs_count": 0,
+      "app_slug": "github-actions"
+    },
+    "official_check_suite_diagnostic": "NOT_AVAILABLE",
+    "official_error_annotation": "NOT_AVAILABLE"
+  },
+  "api_availability": [
+    {
+      "method": "GET",
+      "path": "/actions/runs/38958160214",
+      "result": "READABLE_200"
+    },
+    {
+      "method": "GET",
+      "path": "/actions/runs/38958160214/jobs?per_page=100",
+      "result": "READABLE_200_TOTAL_COUNT_0"
+    },
+    {
+      "method": "GET",
+      "path": "/actions/runs/38958160214/attempts/1/jobs?per_page=100",
+      "result": "READABLE_200_TOTAL_COUNT_0"
+    },
+    {
+      "method": "GET",
+      "path": "/commits/bf9c698fabff721a52154fba662dc9b230d9a319/check-suites?per_page=100",
+      "result": "READABLE_200_13_SUITES_NO_H52_CHILD_CHECK_RUNS"
+    },
+    {
+      "method": "GET",
+      "path": "/commits/bf9c698fabff721a52154fba662dc9b230d9a319/check-runs?per_page=100",
+      "result": "READABLE_200_32_OTHER_CHECK_RUNS"
+    },
+    {
+      "method": "GET",
+      "path": "/check-suites/105583123217",
+      "result": "CONNECTOR_DISALLOWED_PATH_HTTP400_VALIDATION_NOT_GITHUB_HTTP_STATUS"
+    },
+    {
+      "method": "GET",
+      "path": "/check-suites/105583123217/check-runs?per_page=100",
+      "result": "CONNECTOR_DISALLOWED_PATH_HTTP400_VALIDATION_NOT_GITHUB_HTTP_STATUS"
+    },
+    {
+      "method": "GET",
+      "path": "/check-runs/117166464653",
+      "result": "CONNECTOR_DISALLOWED_PATH_HTTP400_VALIDATION_NOT_GITHUB_HTTP_STATUS"
+    },
+    {
+      "method": "GET",
+      "path": "/check-runs/117166464653/annotations?per_page=100",
+      "result": "CONNECTOR_DISALLOWED_PATH_HTTP400_VALIDATION_NOT_GITHUB_HTTP_STATUS"
+    },
+    {
+      "method": "GET",
+      "path": "/actions/runs/38958160214/annotations",
+      "result": "GITHUB_404_NOT_FOUND_UNSUPPORTED_ENDPOINT"
+    },
+    {
+      "method": "GET",
+      "path": "/actions/runs/38958160214/logs",
+      "result": "GITHUB_404_NOT_FOUND_NO_RETRIEVABLE_LOGS"
+    },
+    {
+      "method": "GET",
+      "path": "/actions/workflows/381637182",
+      "result": "CONNECTOR_DISALLOWED_PATH_HTTP400_VALIDATION_NOT_GITHUB_HTTP_STATUS"
+    }
+  ],
+  "historical_static_evidence_accepted_pr94": {
+    "actionlint_version": "v1.7.12",
+    "old_blob": "3a13bab79b4e45fb4e037a1d6fd4431593506148",
+    "old_schema_errors": 2,
+    "old_error_line": 34,
+    "old_error_column": 9,
+    "current_main_blob": "687a9f767b0d0b144372550735da6159066b4833",
+    "main_actionlint_errors": 0,
+    "independent_static_lint_not_official_github_scheduler_diagnostic": true
+  },
+  "old_source_branch": {
+    "name": "feat/f05-7-deterministic-matching-readiness-four-tier",
+    "head_sha": "99c38d013f67cc56975f1664120fb87c204afc3c",
+    "protected": false,
+    "compare_to_main": {
+      "ahead": 1147,
+      "behind": 0,
+      "merge_base": "99c38d013f67cc56975f1664120fb87c204afc3c"
+    },
+    "actual_push_authorized": false
+  },
+  "main_branch": {
+    "head_sha": "477692347f27aa00545f1ec1cddc5e24e532f8a3",
+    "protected": false
+  },
+  "repository_rulesets": {
+    "query": "GET /rulesets?includes_parents=true",
+    "visible_count": 0,
+    "scope_limitation": "当前GitHub连接可见结果，不能据此保证其他账户级外部控制不存在"
+  },
+  "resource_static_ceiling_from_A_accepted_pr92": {
+    "source_workflows": 8,
+    "jobs": 66,
+    "pg16_service_declarations": 64,
+    "artifact_upload_calls": 110,
+    "explicit_job_timeouts": 62,
+    "default_360_minute_jobs": 4,
+    "total_timeout_runner_minutes": 3520,
+    "runner_hours_approx": 58.67,
+    "actual_billed_minutes": "UNKNOWN",
+    "artifact_total_bytes": "UNKNOWN",
+    "hard_concurrency_limit": "NOT_APPROVED"
+  },
+  "decision": "BLOCKED_OFFICIAL_ROOT_CAUSE_UNKNOWN",
+  "original_h52_native_52_jobs": "NOT_PROVEN",
+  "source_gap": "OPEN_FAIL_CLOSED",
+  "phase2_original_ref_push_authorized": false,
+  "c_track": "PARALLEL_PR68_DRAFT_UNACCEPTED",
+  "v1_and_production": "NOT_READY",
+  "no_ci_or_runner_run_or_original_source_push_in_this_task": true
+}
