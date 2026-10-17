@@ -1,3 +1,11 @@
+# 2026-10-18｜F05两类旧Source检查同根因裁决：非生产CI业务阶段按真实65项与1项历史例外收口，顺序转F06
+
+- [A正式裁决](07_重建工作区/F05最后两组旧来源红灯_业务验收边界与F06顺序_A最终技术裁决_2026-10-18.md)：旧66项中**65项真实完成、1项原Source Oracle BLOCKED_EQUIVALENCE**；PR113原28 Check **23成功、5项旧同SHA push证明失败**。这是旧`push`签署条件不适用于新`pull_request`分支的同一根因，不是六个新业务缺陷。失败记录及SHA原封保留，**绝不能宣称66/66全绿或五正式Source获签**。
+- **本阶段仅`F05_CI_ONLY_FUNCTIONAL_SCOPE_ACCEPTED_WITH_LEGACY_SOURCE_EXCEPTION`**；不再要求B反复做DVD/WORM、Sigstore、密钥、旧66重跑。用户Actions$0预算、原仓库不变；真实角色权限、价格隐私、安全及生产/支付/外部接口门禁全部保留，V1`NOT_READY`。
+- **按用户最新顺序NEXT_OWNER=A，NEXT_TASK=`F06_A_REVIEW_EXISTING_LOCK_WAITLIST_CI_AND_REAL_DELIVERY_GAPS_01`**：先审F06已有隔离CI与真实LockRequest申请/审批/Lock/Waitlist接口缺口，再正式派B开发；F07、F08随后。前次`B_APP_01`任务**暂缓排队而非删除**，不允许抢跑当前F06前置；C PR68维持Draft和用户原视觉否决。
+
+---
+
 # 2026-10-18｜用户要求停止无业务价值的签署/归档循环，A正式恢复真实车辆业务接口开发
 
 - **正式业务优先**：B下一个任务`B_APP_01_REAL_PG16_CATALOG_LIST_DETAIL_READONLY_01`，按[真实PG16车辆列表/详情只读施工单](07_重建工作区/B_APP_01_车辆列表详情真实只读接口与C01联调契约_A主控正式施工单_2026-10-18.md)完成运行于隔离Node HTTP＋PG16的客户安全车辆列表与详情DTO，输出可供C01联调的真实服务，不接受仅Mock、工作流审计报告或签名样板。
