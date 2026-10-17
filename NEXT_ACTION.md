@@ -1,3 +1,11 @@
+# 2026-10-18｜NEXT_ACTION：B马上执行F06锁车申请/审批/单车唯一Lock/自动候补真实业务API
+
+**NEXT_OWNER=B / NEXT_TASK=F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16_01 / BRANCH=feat/f06-real-lockrequest-http-pg16-01**。以最新main为准，立即按[A正式F06业务施工单](07_重建工作区/F06_真实锁车申请审批唯一Lock与自动候补_首条业务API纵切_A主控B正式施工单_2026-10-18.md)一次性实现并真正测试`POST /api/v1/lock-requests`和`POST /api/v1/lock-requests/:id/decision`：Node HTTP、隔离PostgreSQL16事务、PDM18合法身份与当前权限、6h PENDING/单车唯一Lock/72h占用、冲突申请合法自动Waitlist、重复/竞态/断链/回滚、客户安全信息。现有F06-1～5C只有CI候选，须交真实可运行接口与测试而非报告。未获真实微信Customer身份与生产许可时，仅允许明确隔离测试的真实PG16正例；生产一律硬拒，不做资金/退款或第三方写入。
+
+F05旧真65/66+1Oracle BLOCKED与PR113 23/28+5旧Source红灯永久真实记录，已经A PR120对非生产阶段适用范围完成裁决，**绝不伪称旧验签通过**；不再做Sigstore/DVD/WORM/第二账号/重跑旧66。用户Actions$0不变，不盲目触发旧CI。B_APP_01暂排队，先F06，再F07/F08；C PR68单独Draft。
+
+---
+
 # 2026-10-18｜NEXT_ACTION：F05非生产业务阶段按真实证据附旧Source例外收口；先审F06，再F07/F08
 
 **NEXT_OWNER=A / NEXT_TASK=F06_A_REVIEW_EXISTING_LOCK_WAITLIST_CI_AND_REAL_DELIVERY_GAPS_01。** 用户明确“先解决F05的两组遗留问题，再依序F06、F07、F08”。[A最终裁决](07_重建工作区/F05最后两组旧来源红灯_业务验收边界与F06顺序_A最终技术裁决_2026-10-18.md)：原66项真实65通过＋1旧Oracle`BLOCKED_EQUIVALENCE`，PR113的28项23成功＋5旧Source签约失败，根因同属旧原SHA的push证明条件不适用于新PR。**非生产F05 CI-only功能验收接受附例外收口；旧GitHub红灯不变、五正式Source不签发、生产不放行。** 停止DVD/WORM/Sigstore/第二账号/旧66重跑。
