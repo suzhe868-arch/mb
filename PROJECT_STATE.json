@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "V1_A_RESTART_BUSINESS_BACKEND_CATALOG_READONLY_WITH_C_R3_PARALLEL",
+  "substage": "F05_CI_ONLY_FUNCTIONAL_ACCEPTED_LEGACY_SOURCE_EXCEPTION_F06_NEXT",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "B_APP_01_REAL_PG16_CATALOG_LIST_DETAIL_READONLY_AND_C01_FRONTEND_INTEGRATION_PREP",
-  "current_domain_status": "A_RELEASED_B_BUSINESS_CODE_IN_ISOLATED_PG16_C_R3_PARALLEL_FORMAL_SOURCE_GAP_RECORDED",
+  "current_domain": "F06_REAL_FUNCTIONAL_LOCK_WAITLIST_READINESS_REVIEW",
+  "current_domain_status": "F05_CI_ONLY_SCOPE_CLOSED_WITH_RECORDED_65_OF_66_OLD_SOURCE_FAILURE",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "用户要求停止非必要F05签名/归档/第二账号/D​​VD研究，恢复真实业务开发。A已从main核实F01健康/隔离身份服务尚未具备C01车辆列表/详情读接口，F06/07/08主要CI-only，C PR68 R3仍Mock且用户尚未通过。现正式放行B在隔离PG16用真正Vehicle数据完成两个安全只读HTTP接口和可供C的DTO；C原R3并行继续。",
-  "current_work_file": "07_重建工作区/B_APP_01_车辆列表详情真实只读接口与C01联调契约_A主控正式施工单_2026-10-18.md",
+  "current_task": "A查明F05两类旧CI失败均源于旧同SHA push验证不适用于新PR事件：旧66中65原业务任务真PASS＋1旧来源Oracle BLOCKED，PR113的28 Check23真成功5旧来源红。F05仅非生产业务CI候选按历史真实证据附旧来源例外验收收口，旧红仍红、五Source仍Fail Closed、V1生产不准。用户指定顺序下一步F06，再F07 F08。",
+  "current_work_file": "07_重建工作区/F05最后两组旧来源红灯_业务验收边界与F06顺序_A最终技术裁决_2026-10-18.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B直接按新正式施工单一次性写真实PG16 Vehicle客户安全列表/详情HTTP接口，测权限/隐藏/Priority/价格/VIN和状态，提供给C R3未来联调DTO，交A独立验收；不重跑旧66、不研发Sigstore/WORM或离线签名，继续零新增付费；C PR68照旧独立整改。",
+  "next_action": "A先核对已A验收合并的F06-1～F06-5C隔离CI资产、PDM18/19业务规则和现有Node+PG16实际HTTP能力，明确首条LockRequest发起→员工审批→Lock/自动候补的真实可运行纵切、鉴权/竞争/资金边界与必要前置接口，然后签下一B真实施工单；F07/F08依次推进。B_APP_01车辆目录单暂缓排队以满足用户F05→F06→F07→F08次序。禁止继续旧66来源证明循环，生产及权限保密门禁不变。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B直接按新正式施工单一次性写真实PG16 Vehicle客户安全列表/详情HTTP接口，测权限/隐藏/Priority/价格/VIN和状态，提供给C R3未来联调DTO，交A独立验收；不重跑旧66、不研发Sigstore/WORM或离线签名，继续零新增付费；C PR68照旧独立整改。",
+  "next_action_detail": "A先核对已A验收合并的F06-1～F06-5C隔离CI资产、PDM18/19业务规则和现有Node+PG16实际HTTP能力，明确首条LockRequest发起→员工审批→Lock/自动候补的真实可运行纵切、鉴权/竞争/资金边界与必要前置接口，然后签下一B真实施工单；F07/F08依次推进。B_APP_01车辆目录单暂缓排队以满足用户F05→F06→F07→F08次序。禁止继续旧66来源证明循环，生产及权限保密门禁不变。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -5828,7 +5828,7 @@
   },
   "a_batch_approval_mode": "STANDING_USER_DIRECTED_CONTINUOUS_TECHNICAL_WORKFLOW_IN_FROZEN_SCOPE; A_SCOPES_AND_RELEASES_B_C; EACH_WINDOW_COMPLETES_END_TO_END; A_INDEPENDENT_ACCEPTANCE_AND_CLEAN_PR_MERGE_WITHOUT_REPEAT_APPROVAL; NEW_PRODUCT_CHOICE_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_EXTERNAL_WRITES_REQUIRE_USER",
   "current_pending_user_decisions": [],
-  "next_action_owner": "B",
+  "next_action_owner": "A",
   "abc_continuous_execution_rule": {
     "status": "USER_DIRECTIVE_APPLIED",
     "confirmed_at": "2026-10-09",
@@ -6834,7 +6834,7 @@
     "merge_method": "merge",
     "a_review_report": "07_重建工作区/F05-7_A主控二轮独立验收66项真PG16_PR46标准合并与F05-8技术交接_2026-10-12.md"
   },
-  "next_owner": "B",
+  "next_owner": "A",
   "f05_8_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR47_CI_ONLY",
     "execution": "COMPLETED_A_ACCEPTED_PR47_STANDARD_MERGE",
@@ -6924,7 +6924,7 @@
     "r12_r13_closed": true,
     "a_sixth_review_result": "A_ACCEPTED"
   },
-  "current_owner": "B",
+  "current_owner": "A",
   "f05_9_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR48_CI_ONLY",
     "owner": "B",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "B_APP_01_REAL_PG16_CATALOG_LIST_DETAIL_READONLY_01",
+  "next_task": "F06_A_REVIEW_EXISTING_LOCK_WAITLIST_CI_AND_REAL_DELIVERY_GAPS_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -8107,7 +8107,7 @@
       "PRODUCTION_PUBLISHER_CACHE_SCHEMA_NOT_IMPLEMENTED"
     ]
   },
-  "last_a_acceptance_report": "07_重建工作区/F05-7_V2单GitHub账号离线双域签署及证据保全_A主控技术裁决_2026-10-18.md",
+  "last_a_acceptance_report": "07_重建工作区/F05最后两组旧来源红灯_业务验收边界与F06顺序_A最终技术裁决_2026-10-18.md",
   "f07_2_gate": {
     "status": "A_ACCEPTED_STANDARD_MERGED_PR65_CI_ONLY",
     "owner": "A_ACCEPTED",
@@ -9626,7 +9626,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/B_APP_01_车辆列表详情真实只读接口与C01联调契约_A主控正式施工单_2026-10-18.md",
+  "next_work_file": "07_重建工作区/F05最后两组旧来源红灯_业务验收边界与F06顺序_A最终技术裁决_2026-10-18.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -9792,7 +9792,7 @@
   },
   "b_app_01_catalog_readonly": {
     "task_id": "B_APP_01_REAL_PG16_CATALOG_LIST_DETAIL_READONLY_01",
-    "status": "A_RELEASED_REAL_TEST_PG16_BACKEND_CODE_ONLY",
+    "status": "A_QUEUED_DEFERRED_PENDING_F06_ACTUAL_DEPENDENCY_ORDER",
     "branch": "feat/b-app-01-catalog-readonly-pg16",
     "work_order": "07_重建工作区/B_APP_01_车辆列表详情真实只读接口与C01联调契约_A主控正式施工单_2026-10-18.md",
     "owner": "B",
@@ -9806,14 +9806,31 @@
     "zero_paid_runner_budget": true,
     "c_parallel_pr": 68,
     "c_parallel_status": "C_R3_USER_VISUAL_AND_FUNCTION_REJECTED_NO_MERGE",
-    "formal_f05_source_oracle_blocker_recorded_not_business_dev_stop": true
+    "formal_f05_source_oracle_blocker_recorded_not_business_dev_stop": true,
+    "previous_release_status": "A_RELEASED_REAL_TEST_PG16_BACKEND_CODE_ONLY",
+    "priority_override_reason": "USER_F05_THEN_F06_F07_F08"
   },
-  "f05_attestation_scope_reprioritization": {
-    "status": "DEFERRED_FOR_V1_NONPRODUCTION_BUSINESS_DEVELOPMENT_NOT_WAIVED_FOR_RELEASE",
-    "historical_pg16_oracle": "65_OF_66_BUSINESS_PASS_ONE_OLD_SOURCE_ORACLE_BLOCKED",
-    "independent_signer_worm_second_account_dvd_not_mandatory_for_b_app_01": true,
-    "old_source_issuer_signed": false,
-    "production_release_authorized": false,
-    "reason": "USER_EXPLICITLY_STOP_NONESSENTIAL_COMPLEXITY_RETURN_TO_BUSINESS_FEATURES"
+  "f05_attestation_scope_reprioritization": "LEGACY_SAME_SHA_PROVENANCE_NOT_REQUIRED_FOR_V1_CI_ONLY_STAGE_ACCEPTANCE_FORMAL_SOURCE_STILL_FAIL_CLOSED",
+  "f05_ci_only_functional_closeout": {
+    "status": "A_ACCEPTED_NONPRODUCTION_FUNCTIONAL_CI_EVIDENCE_WITH_LEGACY_SOURCE_EXCEPTION",
+    "old_run_id": 39035485532,
+    "original_66_total": 66,
+    "actual_original_job_pass": 65,
+    "blocked_old_oracle": 1,
+    "original_66_native_all_green": false,
+    "pr113_checks_total": 28,
+    "pr113_checks_success": 23,
+    "pr113_checks_failure": 5,
+    "pr113_all_green": false,
+    "root_cause": "LEGACY_SAME_SHA_OLD_PUSH_ORACLE_UNSATISFIABLE_ON_NEW_PR_EVENT",
+    "resolution": "LEGACY_ORACLE_RETIRED_ONLY_FROM_NONPRODUCTION_BUSINESS_STAGE_EXIT_CRITERIA_NOT_TREATED_AS_PASS",
+    "old_issuer_signed": false,
+    "source_gap": "OPEN_FAIL_CLOSED",
+    "functional_stage_scope": "CI_ONLY_HISTORICAL_BUSINESS_EVIDENCE",
+    "production_ready": false,
+    "additional_signature_archive_work_required": false,
+    "report": "07_重建工作区/F05最后两组旧来源红灯_业务验收边界与F06顺序_A最终技术裁决_2026-10-18.md",
+    "next_owner": "A",
+    "next_task": "F06_A_REVIEW_EXISTING_LOCK_WAITLIST_CI_AND_REAL_DELIVERY_GAPS_01"
   }
 }
