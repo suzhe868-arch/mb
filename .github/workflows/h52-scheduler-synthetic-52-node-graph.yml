@@ -1,0 +1,295 @@
+name: H52 合成52节点安全探针
+
+on:
+  push:
+    branches:
+      - audit/f05-7-h52-synthetic-graph-52-01
+    paths:
+      - .github/workflows/h52-scheduler-synthetic-52-node-graph.yml
+      - audit/h52-synthetic-graph/**
+
+permissions:
+  contents: read
+
+jobs:
+  safe-01:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-02:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-03:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-04:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-05:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-06:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-07:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-08:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-09:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-10:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-11:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-12:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-13:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-14:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-15:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-16:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-17:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-18:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-19:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-20:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-21:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-22:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-23:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-24:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-25:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-26:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-27:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-28:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-29:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-30:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-31:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-32:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-33:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-34:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-35:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-36:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-37:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-38:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-39:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-40:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-41:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-42:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-43:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-44:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-45:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-46:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-47:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-48:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-49:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-50:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-51:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo H52_SYNTHETIC_NEVER_EXECUTED
+  safe-52:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Synthetic static and negative tests
+        run: |
+          node audit/h52-synthetic-graph/生成工作流.mjs --check
+          node --test audit/h52-synthetic-graph/安全校验.test.mjs
+          node audit/h52-synthetic-graph/安全校验.mjs --evidence
+      - name: YAML alias anchor
+        env:
+          SYNTHETIC_CANARY: &z H52_SYNTHETIC_READ_ONLY_CANARY
+        run: echo "$SYNTHETIC_CANARY"
+      - name: YAML alias reference
+        env:
+          SYNTHETIC_CANARY: *z
+        run: echo "$SYNTHETIC_CANARY"
+      - name: Upload nonempty evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: h52-synthetic-52-graph-safe-evidence
+          path: audit/h52-synthetic-graph/原生证据.json
+          if-no-files-found: error
+          retention-days: 7
