@@ -1,3 +1,11 @@
+# 2026-10-18｜NEXT_ACTION：F05非生产业务阶段按真实证据附旧Source例外收口；先审F06，再F07/F08
+
+**NEXT_OWNER=A / NEXT_TASK=F06_A_REVIEW_EXISTING_LOCK_WAITLIST_CI_AND_REAL_DELIVERY_GAPS_01。** 用户明确“先解决F05的两组遗留问题，再依序F06、F07、F08”。[A最终裁决](07_重建工作区/F05最后两组旧来源红灯_业务验收边界与F06顺序_A最终技术裁决_2026-10-18.md)：原66项真实65通过＋1旧Oracle`BLOCKED_EQUIVALENCE`，PR113的28项23成功＋5旧Source签约失败，根因同属旧原SHA的push证明条件不适用于新PR。**非生产F05 CI-only功能验收接受附例外收口；旧GitHub红灯不变、五正式Source不签发、生产不放行。** 停止DVD/WORM/Sigstore/第二账号/旧66重跑。
+
+A现在只核实已合并F06-1～5C隔离CI成果和PDM18/19需求，规划可实际运行的LockRequest申请→员工审批→Lock/自动候补真实PG16+HTTP纵切及权限、状态、并发、无真钱边界，之后向B签最小真实施工单；F07/F08顺序后移。此前B_APP_01车辆目录只读HTTP工单暂缓排队，纳入F06实际前置协调，不删除；C PR68维持Draft及视觉否决。用户现有GitHub、$0费用硬限制、隐私权限安全与真实端到端验收保持不变。
+
+---
+
 # 2026-10-18｜B开始实际代码：PostgreSQL16车辆列表和详情安全只读HTTP接口
 
 **`NEXT_OWNER=B / NEXT_TASK=B_APP_01_REAL_PG16_CATALOG_LIST_DETAIL_READONLY_01`**。从最新main读取六权威、[B_APP_01完整施工单](07_重建工作区/B_APP_01_车辆列表详情真实只读接口与C01联调契约_A主控正式施工单_2026-10-18.md)、PDM-20 Final及F01-F05现有安全路由与真实PG16模型。优先完成可运行的`GET /api/v1/catalog/vehicles`和`GET /api/v1/catalog/vehicles/:vehicleId`：真实测试PG16读取、服务端合法公开域过滤、15台分页、客户安全价格和字段白名单、真实HTTP/PG16正反例、可供C01对接的DTO和交接报告。**禁止用Mock替代真实PG16正例，禁止泄露内部价、VIN、内部电话或用户信息，不接生产/第三方/资金。** 用户要求停止非必要F05签名归档循环；历史65/66+1旧Oracle问题如实保留为独立未满足的正式来源安全门禁，不再阻碍本非生产代码开发。成本$0预算不变、禁止重复66Job或自动引发CI风暴。C PR68按已签R3同步继续首页/详情整改，等双方准备好后A再放行G2真实前后端联调。
