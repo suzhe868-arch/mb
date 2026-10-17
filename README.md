@@ -1,3 +1,13 @@
+# 2026-10-17｜A对B PR107四分片原业务受控首跑独立验收：1/64真通过、63阻断；精确裁决62PG16＋2非PG并放行有限整改（当前最新）
+
+- **受验B [PR107](https://github.com/suzhe868-arch/mb/pull/107) 暂不合并**，唯一受验HEAD `88afd5d2f3389a844d0da2903b59e903e1949f5a`，对main `8e97dd45bcb9aadbd24fdfd8114a32563627d9c6` 为ahead2/behind0，仅7项本包允许的新增路径，无业务/DDL/旧Source/原8Workflow/生产/C变更。A[正式审签](https://github.com/suzhe868-arch/mb/pull/107#issuecomment-6232764185) 和[完整裁决](07_重建工作区/PR107_A主控原64项权限及PG16语义等价裁决与有限续跑令_2026-10-17.md)，Issue [#106](https://github.com/suzhe868-arch/mb/issues/106)继续Open。
+- **真实GitHub [Run39023409526](https://github.com/suzhe868-arch/mb/actions/runs/39023409526)**：本HEAD `push/attempt1/completed/failure`，4个隔离标准Ubuntu Job都真实执行但**4个最终failure**；每Job官方Node51/51，原64项只`g-https` **1/64真PG16业务成功**，59项被新增执行器过严permissions拦截、2项原PG16初始化失败、2项原始H52`h-source/h-https`本来无PG16服务。官方4份同SHA有效Artifact 12097786258/12097468274/12097885208/12097294015；A未下载ZIP亲自重算。全仓Check官方当时32=23成功、8失败、1运行中，不可宣称全绿；失败的4旧Source/父签亦不得冒充恢复。
+- **A纠正原施工单不可实现的“余64项全PG16”口径**：原冻结66项实际为64 PG16＋2原非PG16，前批PR104已有2项历史PG16，所以**本包待验64＝62真PG16＋2按原样非PG16作业**。A授权仅解决只读permissions安全等价、PG稳定就绪竞态和h-source/h-https无PG执行，保留原测试断言/Artifact，不许为数字补假PG16；详细技术正反例和限额见[正式补充令](07_重建工作区/PR107_A主控原64项权限及PG16语义等价裁决与有限续跑令_2026-10-17.md)。
+- **同一B工作包内一次性整改**：仍`NEXT_OWNER=B / NEXT_TASK=F05_7_V2_REMAINING_64_REAL_EXECUTION_AND_ISSUER_PROOF_01`、同分支`feat/f05-7-v2-remaining-64-real-pg16-01`和同PR107；允许额外最多**2次**受控Push，每轮≤4个标准ubuntu24 Runner、每Job≤40min、每片≤5MiB留存1天，异常预算/队列Fail Closed；需明确分开历史2PG与同HEAD62PG+2非PG，出具真实同SHA完整来源证据，不能简单把4个新Job绿色当64个原业务通过。仍不得强推旧源分支或启动旧8Workflow/66Job、签正式Issuer、生产/V1 `NOT_READY`，C PR68 Draft独立并行。
+- **本轮A独立审查结论 `A_CHANGES_REQUESTED / PR107_NO_MERGE`**，非一次已通过验收。A的原正式施工单[更正后文本](07_重建工作区/F05-7_V2余64项原业务隔离实跑与安全等价来源证据_A主控B正式施工单_2026-10-17.md)和[本次技术裁决](07_重建工作区/PR107_A主控原64项权限及PG16语义等价裁决与有限续跑令_2026-10-17.md)均已放行；B无需重新开任务或等待用户逐项批准，先自行解决可修的59＋2，再依法完成剩余原Job的真实回归与证据归档。 
+
+---
+
 # 2026-10-17｜A独立受限验收B PR104：66项来源清册全量映射、2项真实PG16通过；旧66 NO-GO，正式放行V2剩余64项实跑（最新）
   
 - **A已审核标准合并B [PR104](https://github.com/suzhe868-arch/mb/pull/104)**：B唯一HEAD `346fb11133f0883014b7911effb58052bd17b2c1`，合并main SHA `62dcafba00dff97d107d62c376e9ff45d3e7afbc`；5/5仅新增隔离限域CI/执行器/证据校验/37测试/中文说明，旧8Workflow、五正式Source/Issuer、业务/DDL/PDM/生产/C与旧原ref一律未改。A[独立审签](https://github.com/suzhe868-arch/mb/pull/104#issuecomment-6230657420)，[详细报告](07_重建工作区/PR104_A主控66项来源与双真实PG16受限验收及V2裁决_2026-10-17.md)。
