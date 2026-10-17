@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F06_REAL_HTTP_PG16_LOCK_REQUEST_APPROVAL_WAITLIST_B_RELEASED",
+  "substage": "F05_REAL_DELIVERY_AND_VALID_ACCEPTANCE_B_RELEASED_F06_PAUSED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F06_REAL_LOCKREQUEST_APPLICATION_BUSINESS_IMPLEMENTATION",
-  "current_domain_status": "F06_B_ACTUAL_HTTP_PG16_WORKORDER_RELEASED_NOT_YET_IMPLEMENTED",
+  "current_domain": "F05_REAL_NONPRODUCTION_BUSINESS_DELIVERY_AND_ACCEPTANCE",
+  "current_domain_status": "A_RELEASED_B_IMPLEMENTATION_PENDING_F06_PAUSED_BY_USER",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A已收口F05 CI-only历史两组旧来源红灯适用范围，保留真实65/66+1Oracle BLOCKED、PR113 23/28+5旧Source失败。现读取PDM18/19及F06-1真实CI源码，确认现有服务锁定原CI来源，客户端LockRequest/员工审批真HTTP未形成，已正式放行B实现隔离PG16和Node HTTP真实申请审批唯一Lock及自动候补最小业务纵切，真实Customer认证与生产仍禁止冒充。",
-  "current_work_file": "07_重建工作区/F06_真实锁车申请审批唯一Lock与自动候补_首条业务API纵切_A主控B正式施工单_2026-10-18.md",
+  "current_task": "用户最新决定先完成F05真实业务接口、PG16/HTTP测试和有效验收，原PR120仅历史CI例外受限通过；F06 PR121施工优先级暂缓。A已签F05全覆盖实际功能和来源验证修正施工单，B尚未开始/完成本新任务。",
+  "current_work_file": "07_重建工作区/F05真实业务交付与有效验收彻底整改_A主控B正式施工单_2026-10-18.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B从最新main按F06业务施工单在feat/f06-real-lockrequest-http-pg16-01新增真实Node HTTP＋隔离PG16业务适配，完成6h LockRequest、员工审批/拒绝、唯一72h Lock、竞争自动候补及全部权限/并发/幂等/事务回滚/客户安全负例，交真实测试输出/代码/PR给A独立验收。不可将F06原CI-only服务虚称生产，不接真钱/微信/生产，旧F05来源证明不再重跑。B_APP01暂排队，F07/F08其后。",
+  "next_action": "B先按A新F05正式施工单核对F05-1～11真入口与PDM，补隔离Node HTTP+PG16的真实功能、权限与安全投影、有效新HEAD测试，交PR给A独立验收；F06/F07/F08暂停，旧Oracle历史红灯保留、五正式Source Fail Closed、生产Not Ready、费用$0。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B从最新main按F06业务施工单在feat/f06-real-lockrequest-http-pg16-01新增真实Node HTTP＋隔离PG16业务适配，完成6h LockRequest、员工审批/拒绝、唯一72h Lock、竞争自动候补及全部权限/并发/幂等/事务回滚/客户安全负例，交真实测试输出/代码/PR给A独立验收。不可将F06原CI-only服务虚称生产，不接真钱/微信/生产，旧F05来源证明不再重跑。B_APP01暂排队，F07/F08其后。",
+  "next_action_detail": "B在feat/f05-real-delivery-acceptance-closeout-01落实真实服务/真PG16/真HTTP及多角色安全正反例，以现有F05 CI候选为基线补全、修复和复测，提交交接；现阶段不启动F06 PR121锁车API业务施工。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16_01",
+  "next_task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9626,7 +9626,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F06_真实锁车申请审批唯一Lock与自动候补_首条业务API纵切_A主控B正式施工单_2026-10-18.md",
+  "next_work_file": "07_重建工作区/F05真实业务交付与有效验收彻底整改_A主控B正式施工单_2026-10-18.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -9835,7 +9835,7 @@
   },
   "f06_real_lock_http_first_slice": {
     "task_id": "F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16_01",
-    "status": "A_RELEASED_FOR_B_REAL_NONPRODUCTION_HTTP_PG16_ENGINEERING",
+    "status": "A_PRIOR_RELEASE_PR121_PAUSED_BY_USER_F05_PRIORITY",
     "owner": "B",
     "review_owner": "A",
     "branch": "feat/f06-real-lockrequest-http-pg16-01",
@@ -9846,8 +9846,30 @@
     "customer_identity_issuer_connected": false,
     "isolated_pg16_required": true,
     "real_http_tests_required": true,
-    "next_owner": "B",
+    "next_owner": "B_AFTER_F05_ACCEPTANCE_OR_NEW_USER_PRIORITY",
     "source_provenance_extra_work_required": false,
-    "remote_ci_spend_authorized": false
+    "remote_ci_spend_authorized": false,
+    "paused_by_user_for_f05": true
+  },
+  "f05_real_delivery_closeout_priority": {
+    "task_id": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
+    "status": "A_RELEASED_FOR_B_REAL_DELIVERY_NOT_IMPLEMENTED_NOT_A_ACCEPTED",
+    "priority": "USER_CONFIRMED_BEFORE_F06_F07_F08",
+    "owner": "B",
+    "review_owner": "A",
+    "branch": "feat/f05-real-delivery-acceptance-closeout-01",
+    "work_order": "07_重建工作区/F05真实业务交付与有效验收彻底整改_A主控B正式施工单_2026-10-18.md",
+    "scope": "F05_1_TO_11_REAL_HTTP_PG16_AND_FUNCTIONAL_VALIDATION_FIVE_SOURCE_PRODUCTION_SEPARATE",
+    "previous_f05_ci_only_acceptance": "65_REAL_PASS_1_LEGACY_ORACLE_BLOCKED",
+    "pr113_checks": "23_SUCCESS_5_LEGACY_SOURCE_FAILURE",
+    "original_legacy_redlights_preserved": true,
+    "formal_five_source_status": "SOURCE_GAP_OPEN_FAIL_CLOSED",
+    "real_nonproduction_api_acceptance": "NOT_YET_ACCEPTED",
+    "production_readiness": "NOT_READY",
+    "f06_execution_priority": "PAUSED_BY_USER_UNTIL_F05_REVIEW",
+    "f06_previous_pr": 121,
+    "allow_real_production_or_money": false,
+    "github_additional_paid_budget_usd": 0,
+    "c_parallel_pr": 68
   }
 }
