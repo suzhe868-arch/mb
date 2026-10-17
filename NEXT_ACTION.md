@@ -1,3 +1,23 @@
+# 2026-10-17｜A独立实核PR107四官方ZIP：62/64真业务通过，另2未闭；旧Source同SHA签约结构性不等价，发现合成HMAC日志脱敏缺口（最新）
+
+- **B [PR107](https://github.com/suzhe868-arch/mb/pull/107)本轮不可完整验收、不可合并**。候选唯一HEAD`c28af176bdec6f18c897ebd3d167db21fb18a716`，从最新main比较ahead4/behind8；9项仅新隔离CI/执行器/Node及Ruby测试/说明，原8冻结Workflow/五正式Source/业务/DDL/PDM/C/生产和旧ref未改；待B修复后需同步main形成新SHA和相应真CI，禁止冒用先前SHA证据。A[PR107正式审签](https://github.com/suzhe868-arch/mb/pull/107#issuecomment-6233462972)及[详细报告](07_重建工作区/PR107_A主控62项真业务受限取证与旧Source父签不可等价及日志脱敏终审_2026-10-17.md)。
+- **GitHub真[Run39027727248](https://github.com/suzhe868-arch/mb/actions/runs/39027727248)** completed/failure，4个ubuntu24原生分片2成功2失败，每片Node56/56；原64项同SHA真实结果**60原PG16 + 2原非PG16 = 62通过**、1`match-source`来源语义阻断、1`f03-1-frozen-https-2a`环境失败。A已真正下载四份官方Artifact `12098603894/12099312017/12099621026/12099695908`，独立对GitHub摘要、双层ZIP和每个正文文件摘要逐一验证，四片原Job各16/16归档；官方同HEAD全仓Checks快照32＝25成功、6失败、1进行中；不能以62业务通过代替完整正式父签。
+- **A更深层因果核定**：原`match-source`第二原Shell强制调用`ci-verify-workflows.mjs`验证7份旧冻结Workflow的64Job**全部同SHA新push成功**，旧来源ref和原8工作流整体启动仍NO-GO，故此原步骤不能通过额外只读Token在隔离V2上等价完成；B不得假API、修改原脚本或虚报。原F03-1 HTTPS失败是新执行器遗漏原GitHub `GITHUB_ENV`在原step间传播；B可仅白名单恢复测试内三个F03_1临时变量并真测。
+- **证据脱敏需先修**：A在真实官方分片1内层日志找到一次性合成HMAC的`::add-mask::`明文44字符输出，被原样打包、未获GitHub原生mask处理；未见生产凭据，但属于V2证据采集安全缺口。B修复掩码处理、拒绝日志/PEM泄露的负例并在必要时删除或等待旧1日工件过期；禁止上传不安全全量原始日志。
+- **同一B原工作包继续**：下一`NEXT_OWNER=B / NEXT_TASK=F05_7_V2_REMAINING_64_REAL_EXECUTION_AND_ISSUER_PROOF_01`、原PR107/原分支；[原施工单A最新补充](07_重建工作区/F05-7_V2余64项原业务隔离实跑与安全等价来源证据_A主控B正式施工单_2026-10-17.md)和[完整终审裁决](07_重建工作区/PR107_A主控62项真业务受限取证与旧Source父签不可等价及日志脱敏终审_2026-10-17.md)已签；A加签最多**1次**安全有界Push（4标准Ubuntu Runner、每Job40分钟、工件≤5MiB/片、保留1日），先本地代码/负例与容量预检。新的V2来源签约逻辑仅允许**候选方案设计**，不得绕过旧正式Source/Issuer或称64/64；五正式Source仍`SOURCE_GAP_OPEN/FAIL_CLOSED`，旧ref`PHASE2_ORIGINAL_REF_PUSH_AUTHORIZED=false`，V1/生产`NOT_READY`；C PR68 Draft独立并行。
+
+---
+
+# 2026-10-17｜A对B PR107四分片原业务受控首跑独立验收：1/64真通过、63阻断；精确裁决62PG16＋2非PG并放行有限整改（当前最新）
+
+- **受验B [PR107](https://github.com/suzhe868-arch/mb/pull/107) 暂不合并**，唯一受验HEAD `88afd5d2f3389a844d0da2903b59e903e1949f5a`，对main `8e97dd45bcb9aadbd24fdfd8114a32563627d9c6` 为ahead2/behind0，仅7项本包允许的新增路径，无业务/DDL/旧Source/原8Workflow/生产/C变更。A[正式审签](https://github.com/suzhe868-arch/mb/pull/107#issuecomment-6232764185) 和[完整裁决](07_重建工作区/PR107_A主控原64项权限及PG16语义等价裁决与有限续跑令_2026-10-17.md)，Issue [#106](https://github.com/suzhe868-arch/mb/issues/106)继续Open。
+- **真实GitHub [Run39023409526](https://github.com/suzhe868-arch/mb/actions/runs/39023409526)**：本HEAD `push/attempt1/completed/failure`，4个隔离标准Ubuntu Job都真实执行但**4个最终failure**；每Job官方Node51/51，原64项只`g-https` **1/64真PG16业务成功**，59项被新增执行器过严permissions拦截、2项原PG16初始化失败、2项原始H52`h-source/h-https`本来无PG16服务。官方4份同SHA有效Artifact 12097786258/12097468274/12097885208/12097294015；A未下载ZIP亲自重算。全仓Check官方当时32=23成功、8失败、1运行中，不可宣称全绿；失败的4旧Source/父签亦不得冒充恢复。
+- **A纠正原施工单不可实现的“余64项全PG16”口径**：原冻结66项实际为64 PG16＋2原非PG16，前批PR104已有2项历史PG16，所以**本包待验64＝62真PG16＋2按原样非PG16作业**。A授权仅解决只读permissions安全等价、PG稳定就绪竞态和h-source/h-https无PG执行，保留原测试断言/Artifact，不许为数字补假PG16；详细技术正反例和限额见[正式补充令](07_重建工作区/PR107_A主控原64项权限及PG16语义等价裁决与有限续跑令_2026-10-17.md)。
+- **同一B工作包内一次性整改**：仍`NEXT_OWNER=B / NEXT_TASK=F05_7_V2_REMAINING_64_REAL_EXECUTION_AND_ISSUER_PROOF_01`、同分支`feat/f05-7-v2-remaining-64-real-pg16-01`和同PR107；允许额外最多**2次**受控Push，每轮≤4个标准ubuntu24 Runner、每Job≤40min、每片≤5MiB留存1天，异常预算/队列Fail Closed；需明确分开历史2PG与同HEAD62PG+2非PG，出具真实同SHA完整来源证据，不能简单把4个新Job绿色当64个原业务通过。仍不得强推旧源分支或启动旧8Workflow/66Job、签正式Issuer、生产/V1 `NOT_READY`，C PR68 Draft独立并行。
+- **本轮A独立审查结论 `A_CHANGES_REQUESTED / PR107_NO_MERGE`**，非一次已通过验收。A的原正式施工单[更正后文本](07_重建工作区/F05-7_V2余64项原业务隔离实跑与安全等价来源证据_A主控B正式施工单_2026-10-17.md)和[本次技术裁决](07_重建工作区/PR107_A主控原64项权限及PG16语义等价裁决与有限续跑令_2026-10-17.md)均已放行；B无需重新开任务或等待用户逐项批准，先自行解决可修的59＋2，再依法完成剩余原Job的真实回归与证据归档。 
+
+---
+
 # 2026-10-17｜A独立受限验收B PR104：66项来源清册全量映射、2项真实PG16通过；旧66 NO-GO，正式放行V2剩余64项实跑（最新）
   
 - **A已审核标准合并B [PR104](https://github.com/suzhe868-arch/mb/pull/104)**：B唯一HEAD `346fb11133f0883014b7911effb58052bd17b2c1`，合并main SHA `62dcafba00dff97d107d62c376e9ff45d3e7afbc`；5/5仅新增隔离限域CI/执行器/证据校验/37测试/中文说明，旧8Workflow、五正式Source/Issuer、业务/DDL/PDM/生产/C与旧原ref一律未改。A[独立审签](https://github.com/suzhe868-arch/mb/pull/104#issuecomment-6230657420)，[详细报告](07_重建工作区/PR104_A主控66项来源与双真实PG16受限验收及V2裁决_2026-10-17.md)。

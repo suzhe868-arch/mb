@@ -38,7 +38,7 @@ jobs:
           test "$V2_RESOURCE_GATE_PASS" = A_ISSUE_106_STANDARD_4X40_STORAGE_5MIB_1DAY
           ruby engineering/f05/native-66-closure/catalog.rb --catalog
           node engineering/f05/v2-original-64/inventory.mjs
-          node --test engineering/f05/v2-original-64/evidence-proof.test.mjs engineering/f05/v2-original-64/package-evidence.test.mjs
+          node --test engineering/f05/v2-original-64/evidence-proof.test.mjs engineering/f05/v2-original-64/package-evidence.test.mjs engineering/f05/v2-original-64/v2-source-contract.test.mjs
           ruby engineering/f05/v2-original-64/run-shard.test.rb
       - name: Original jobs shard 0 - independent PG16 and full source commands
         shell: bash
@@ -87,7 +87,7 @@ jobs:
           test "$V2_RESOURCE_GATE_PASS" = A_ISSUE_106_STANDARD_4X40_STORAGE_5MIB_1DAY
           ruby engineering/f05/native-66-closure/catalog.rb --catalog
           node engineering/f05/v2-original-64/inventory.mjs
-          node --test engineering/f05/v2-original-64/evidence-proof.test.mjs engineering/f05/v2-original-64/package-evidence.test.mjs
+          node --test engineering/f05/v2-original-64/evidence-proof.test.mjs engineering/f05/v2-original-64/package-evidence.test.mjs engineering/f05/v2-original-64/v2-source-contract.test.mjs
           ruby engineering/f05/v2-original-64/run-shard.test.rb
       - name: Original jobs shard 1 - independent PG16 and full source commands
         shell: bash
@@ -136,7 +136,7 @@ jobs:
           test "$V2_RESOURCE_GATE_PASS" = A_ISSUE_106_STANDARD_4X40_STORAGE_5MIB_1DAY
           ruby engineering/f05/native-66-closure/catalog.rb --catalog
           node engineering/f05/v2-original-64/inventory.mjs
-          node --test engineering/f05/v2-original-64/evidence-proof.test.mjs engineering/f05/v2-original-64/package-evidence.test.mjs
+          node --test engineering/f05/v2-original-64/evidence-proof.test.mjs engineering/f05/v2-original-64/package-evidence.test.mjs engineering/f05/v2-original-64/v2-source-contract.test.mjs
           ruby engineering/f05/v2-original-64/run-shard.test.rb
       - name: Original jobs shard 2 - independent PG16 and full source commands
         shell: bash
@@ -185,7 +185,7 @@ jobs:
           test "$V2_RESOURCE_GATE_PASS" = A_ISSUE_106_STANDARD_4X40_STORAGE_5MIB_1DAY
           ruby engineering/f05/native-66-closure/catalog.rb --catalog
           node engineering/f05/v2-original-64/inventory.mjs
-          node --test engineering/f05/v2-original-64/evidence-proof.test.mjs engineering/f05/v2-original-64/package-evidence.test.mjs
+          node --test engineering/f05/v2-original-64/evidence-proof.test.mjs engineering/f05/v2-original-64/package-evidence.test.mjs engineering/f05/v2-original-64/v2-source-contract.test.mjs
           ruby engineering/f05/v2-original-64/run-shard.test.rb
       - name: Original jobs shard 3 - independent PG16 and full source commands
         shell: bash

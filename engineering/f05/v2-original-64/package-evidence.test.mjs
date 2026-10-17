@@ -37,3 +37,22 @@ test('符号链接证据必须拒绝',()=>{
   assert.throws(()=>run(base));
  }finally{rmSync(base,{recursive:true,force:true})}
 });
+
+test('日志控制指令携带明文必须拒绝打包',()=>{
+ const {base,src}=setup();try{
+  writeFileSync(join(src,'unsafe.log'),'::add-mask::'+'x'.repeat(44)+'\n');
+  assert.throws(()=>run(base));
+ }finally{rmSync(base,{recursive:true,force:true})}
+});
+test('隐含PEM私钥必须拒绝打包',()=>{
+ const {base,src}=setup();try{
+  writeFileSync(join(src,'unsafe.log'),'-----BEGIN PRIVATE KEY-----\nMII...\n');
+  assert.throws(()=>run(base));
+ }finally{rmSync(base,{recursive:true,force:true})}
+});
+test('HMAC完整明文环境赋值必须拒绝打包',()=>{
+ const {base,src}=setup();try{
+  writeFileSync(join(src,'unsafe.log'),'F03_1_HMAC_KEY_BASE64='+'a'.repeat(43)+'=\n');
+  assert.throws(()=>run(base));
+ }finally{rmSync(base,{recursive:true,force:true})}
+});

@@ -19,6 +19,15 @@ for(const file of files){const rel=relative(source,file);if(rel.startsWith('..')
  const size=statSync(file).size;count++;bytes+=size;
  manifest.push({path:rel,bytes:size,sha256:createHash('sha256').update(readFileSync(file)).digest('hex')});
 }
+// A-PR107: every uploaded source file is scanned BEFORE compression, not only ZIP metadata.
+function assertUploadSafe(file){
+ const raw=readFileSync(file);
+ if(/::add-mask::(?!\[REDACTED\])/.test(raw.toString('latin1')))throw Error('V2_EVIDENCE_RAW_GITHUB_MASK_DENIED');
+ if(/-----BEGIN (?:[A-Z ]* )?PRIVATE KEY-----/.test(raw.toString('latin1')))throw Error('V2_EVIDENCE_PRIVATE_KEY_DENIED');
+ if(/F03_1_HMAC_KEY_BASE64=[A-Za-z0-9+/]{43}=/.test(raw.toString('latin1')))throw Error('V2_EVIDENCE_HMAC_ASSIGNMENT_DENIED');
+ if(/gh[pousr]_[A-Za-z0-9_]{28,}/.test(raw.toString('latin1')))throw Error('V2_EVIDENCE_TOKEN_DENIED');
+}
+for(const file of files)assertUploadSafe(file);
 const safeRaw=bytes<=MAX_RAW;
 const packed=join(dest,'original-evidence.zip');
 let packedBytes=0,packedDigest=null;
@@ -39,7 +48,7 @@ const report={schema:'V2_ORIGINAL_SHARD_LOSSLESS_PACK_V2',issue:106,shard,
  source_file_count:count,raw_bytes:bytes,max_uncompressed_bytes:MAX_RAW,
  packed_bytes:packedBytes,packed_sha256:packedDigest,max_upload_bytes:MAX_ZIP,
  expected_run_sha:process.env.GITHUB_SHA||null,expected_run_id:process.env.GITHUB_RUN_ID||null,
- complete_evidence:complete,formal_source_signed:false,
+ complete_evidence:complete,security_scan:'A107_ALL_SOURCE_FILES_SCAN_BEFORE_ZIP_V1',formal_source_signed:false,
  items:complete?manifest:[],blocker:complete?null:'BLOCKED_STORAGE_BUDGET_LOSSLESS_ARCHIVE_NOT_UPLOADED'};
 writeFileSync(join(dest,'artifact-integrity-manifest.json'),JSON.stringify(report,null,2)+'\n');
 if(!complete){if(existsSync(packed))unlinkSync(packed);

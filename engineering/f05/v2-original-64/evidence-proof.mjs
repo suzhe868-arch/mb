@@ -31,6 +31,9 @@ export function checkJobRecord(source,record,logText,files,candidate){
  if(!Array.isArray(record.command_sha256)||record.command_sha256.length!==source.original_run_commands||
     record.command_sha256.some((h,i)=>h!==source.command_sha256[i])||
     record.executed_commands!==source.original_run_commands)deny('ORIGINAL_COMMANDS');
+ if(record.log_redaction!=='SECURE_MASKED_CAPTURE_V1'||/::add-mask::(?!\[REDACTED\])/.test(logText)||
+    /-----BEGIN (?:[A-Z ]* )?PRIVATE KEY-----/.test(logText)||
+    /F03_1_HMAC_KEY_BASE64=[A-Za-z0-9+/]{43}=/.test(logText))deny('EVIDENCE_LEAK_OR_UNSCANNED');
  if(record.log_sha256!==digest(logText)||!logText.includes('SOURCE_STEP_PASS')||(logText.match(/SOURCE_STEP_PASS [0-9]+/g)||[]).length!==source.original_run_commands)deny('FAKE_LOG');
  if(record.step_count!==undefined&&record.step_count!==source.original_step_count)deny('ORIGINAL_STEP_COUNT');
  if(!Array.isArray(record.artifacts)||record.artifacts.length!==source.expected_artifacts.length)deny('ARTIFACT_COUNT');
@@ -157,6 +160,7 @@ export function auditOfficialLosslessShard(archiveBytes,artifact,context,sourceM
   execFileSync('python3',['-c',UNPACK_SAFE_PY,outer,out,String(5*1024*1024)],{timeout:30000});
   const meta=JSON.parse(readFileSync(join(out,'artifact-integrity-manifest.json'),'utf8'));
   if(meta.issue!==106||meta.shard!==shard||meta.complete_evidence!==true||
+     meta.security_scan!=='A107_ALL_SOURCE_FILES_SCAN_BEFORE_ZIP_V1'||
      meta.expected_run_sha!==context.sha||String(meta.expected_run_id)!==String(context.runId)||
      meta.max_upload_bytes!==5*1024*1024||meta.max_uncompressed_bytes!==64*1024*1024||
      !Array.isArray(meta.items)||meta.items.length<16)deny('LOSSLESS_MANIFEST');

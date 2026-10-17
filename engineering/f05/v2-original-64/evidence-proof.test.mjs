@@ -8,6 +8,7 @@ const source=()=>({source_workflow:'f05-7-frozen-k2-revalidation.yml',source_blo
  command_sha256:[digest('bash safe-test')],expected_artifacts:[{name:'original-artifact',path:'engineering/evidence/'}],key:'file#x'});
 const rec=()=>({original_file:'f05-7-frozen-k2-revalidation.yml',source_blob:'d'.repeat(40),
  original_job_id:'x',original_job_name:'Known PG16',status:'REAL_PG16_PASS',pg16:true,
+ log_redaction:'SECURE_MASKED_CAPTURE_V1',
  clean_git_worktree:true,run_id:'100',attempt:'1',event:'push',formal_issuer_signed:false,
  candidate_head:S,candidate_branch:BRANCH,executed_commands:1,command_sha256:[digest('bash safe-test')],
  log_sha256:digest('SOURCE_STEP_PASS 0'),artifacts:[{name:'original-artifact',original_path:'engineering/evidence/',
@@ -115,4 +116,15 @@ test('66格必须2份历史独立来源与64项当前真实待跑',()=>{
  assert.equal(matrix.jobs.filter(x=>!x.history).length,64);
  assert.deepEqual([0,1,2,3].map(sh=>matrix.jobs.filter(x=>x.shard===sh).length),[16,16,16,16]);
  assert.equal(matrix.formal_source_issuer_signed,false);
+});
+
+test('未声明源日志安全脱敏拒绝成为成功业务证据',()=>{
+ const r=rec();delete r.log_redaction;
+ assert.throws(()=>checkJobRecord(source(),r,'SOURCE_STEP_PASS 0',file(),ctx()),/V2_EVIDENCE_FAIL_CLOSED_/);
+});
+test('日志伪造掩码原值或PEM拒绝',()=>{
+ for(const raw of ['::add-mask::'+'s'.repeat(44)+'\nSOURCE_STEP_PASS 0','-----BEGIN PRIVATE KEY-----\nSOURCE_STEP_PASS 0']){
+  const r=rec();r.log_sha256=digest(raw);
+  assert.throws(()=>checkJobRecord(source(),r,raw,file(),ctx()),/V2_EVIDENCE_FAIL_CLOSED_/);
+ }
 });
