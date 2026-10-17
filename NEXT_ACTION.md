@@ -1,3 +1,14 @@
+# 2026-10-17｜A对B PR111独立受限验收：65/66同SHA真原业务＋新版V2来源候选合入main，旧Source签发仍关闭；正式放行官方只读取证与可信签署治理B单（最新）
+
+- **B [PR111](https://github.com/suzhe868-arch/mb/pull/111) 已独立审查并按限域正常合并**：原唯一受验HEAD`bdffc492df7dc09d9192d3ac485d598df7a8c040`，对上一main ahead1/behind0，10项严格新`engineering/f05/v2-issuer-candidate/**`及新独立CI，无冻结8旧workflow/旧Source/Issuer、业务/DDL/PDM/C/生产修改。merge `main@996d032252535cda8487b4c25e62ae3c72f39a3a`，按[A独立PR审签](https://github.com/suzhe868-arch/mb/pull/111#issuecomment-6234593834)只批准`A_ACCEPTED_ENGINEERING_CANDIDATE_ONLY`，不是正式来源签发。
+- **真实GitHub [Run39035485532](https://github.com/suzhe868-arch/mb/actions/runs/39035485532)**：本HEAD`push/attempt1/completed/failure`，四个标准Ubuntu分片**3成功/1失败**，原66 job中**63个PG16+2个原NonPG＝65项实际完整原业务成功**、旧`match-source`原2条Shell只跑成第一条，旧7Workflow64 Job同SHA Oracle无等价实现所以Fail Closed。原PR104历史2 job确在本新HEAD重新完整实跑，不能用过去SHA伪造。
+- **A实际独立下载四官方ZIP并对外/内SHA及manifest 931/931原文件逐个复算**：#12101319115/#12102520536/#12101854148/#12102560092，66个原Job唯一记录与65条PASS Shell计数一致，PG16实际版本16.x、两原NONPG区分准确，归档未见未脱敏`::add-mask::`、PEM私钥或原测试HMAC完整赋值。该HEAD全仓Checks快照32=26成功、5失败、1运行中；绝非全绿。详见[正式报告](07_重建工作区/PR111_A主控65项同SHA真实业务及V2来源候选受限验收报告_2026-10-17.md)。
+- **工程与来源签约严格分开**：当前`V2_SOURCE_CANDIDATE_66_NEW_HEAD_V1`的线上官方只读自动验证器尚未有可信独立端到端运行结果，且B可写的候选branch/聚合Runner/1日工件不能直接替代旧原生七Workflow同SHA官方身份及A签名；不得改原旧验证器、伪造最后1项PASS、恢复原ref`99c38d013f67cc56975f1664120fb87c204afc3c`或五正式Issuer。**五Source继续`SOURCE_GAP_OPEN/FAIL_CLOSED`，F05/V1/生产`NOT_READY`**。
+- **唯一下一B主线正式放行** `NEXT_OWNER=B / NEXT_TASK=F05_7_V2_TRUSTED_READONLY_ATTESTATION_AND_ISSUER_GOVERNANCE_01`。B直接按[新施工单](07_重建工作区/F05-7_V2来源候选官方只读取证与可信签名门禁_A主控B正式施工单_2026-10-17.md)从最新main创建隔离分支，优先对**本Run/四ZIP**执行真实官方REST只读端到端验证并硬化冻结身份、逐步证明/防伪和A控制可信签署/消费者迁移回退；**默认不再次触发66项真实CI，不花未授权费用**。官方Artifact1日过期和先前#12099312017合成HMAC安全风险需独立记录；若过期/缺账户签署权限必须Fail Closed，不能假造成已签。
+- 责任A已完成本轮PR审查、受限合并、五权威状态归档及新B任务放行；Issue[#106](https://github.com/suzhe868-arch/mb/issues/106)继续Open，C PR68仍独立。
+
+---
+
 # 2026-10-17｜A已受限验收合并B PR107：新Run原业务63/64成功、证据脱敏验真；旧Source签约未就绪，正式放行独立V2来源协议候选工程（当前最新）
 
 - **A已对B [PR107](https://github.com/suzhe868-arch/mb/pull/107)独立验收并正常合并**：B验收HEAD `5923cddecf660f97d07231ea375f89b255c809bc`，从本轮旧正式main比较ahead5/behind0，12项仅新V2隔离执行器/CI/安全负例/来源候选文档；merge main `b8adeeed6d575d5bd549a5640f68eebf9ce2399b`。[A独立审签](https://github.com/suzhe868-arch/mb/pull/107#issuecomment-6233942303)和[完整验收报告](07_重建工作区/PR107_A主控63项真业务与证据脱敏受限验收及V2来源替代裁决_2026-10-17.md)仅批准**受限工程入库**，不批准原66同SHA Source、正式Issuer、V1/生产。

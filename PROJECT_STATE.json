@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_7_V2_PR107_63_OF_64_ENGINEERING_ACCEPTED_VERSIONED_SOURCE_CANDIDATE_B_RELEASED",
+  "substage": "F05_7_V2_PR111_65_OF_66_SAME_SHA_ENGINEERING_ACCEPTED_TRUSTED_ATTESTATION_B_RELEASED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F05_7_V2_NEW_VERSIONED_SOURCE_PROOF_AND_LEGACY_ORACLE_MIGRATION_CANDIDATE",
-  "current_domain_status": "A_ACCEPTED_PR107_ISOLATED_REAL_63_OF_64_ONLY_SOURCE_ORACLE_FAIL_CLOSED_B_V2_ISSUER_CANDIDATE_RELEASED",
+  "current_domain": "F05_7_V2_OFFICIAL_READONLY_ATTESTATION_AND_INDEPENDENT_ISSUER_TRUST_CANDIDATE",
+  "current_domain_status": "A_PR111_SOURCE_CANDIDATE_ENGINEERING_ACCEPTED_LEGACY_ORACLE_BLOCKED_FIVE_FORMAL_SOURCE_FAIL_CLOSED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A已独立验收并标准合并B PR107隔离真执行工具：旧PR107末HEAD5923cddecf660f97d07231ea375f89b255c809bc 63/64原业务同SHA真实通过（61PG16+2NonPG），match-source旧Oracle仍BLOCKED；4官方ZIP 913/913原文件校验，合成HMAC泄漏的本轮整改符合受限证据安全检查。旧五正式Source不签发，下一B工程实现可执行的新V2独立同SHA来源证明候选及旧Source迁移协议。",
-  "current_work_file": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
+  "current_task": "A对B PR111唯一HEAD bdffc492df7dc09d9192d3ac485d598df7a8c040独立验收受限工程并标准合并main@996d032252535cda8487b4c25e62ae3c72f39a3a。Github真实Run39035485532四片3成功1失败：63 PG16+2 NonPG 65/66原业务完整Shell同SHA真通过，match-source旧Oracle第二原Shell不能等价执行；A独立下载4官方ZIP校验931原文件与66原Job，协议仍非正式Issuer。下一B主任务是可信只读官方端到端证据与独立A信任签署/迁移门禁。",
+  "current_work_file": "07_重建工作区/F05-7_V2来源候选官方只读取证与可信签名门禁_A主控B正式施工单_2026-10-17.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B从执行时最新main在feat/f05-7-v2-versioned-source-66-candidate-01独立施工，按07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md完成V2候选来源合同、冻结8原Blob/66Job与官方Run/Job/Artifact完整同SHA绑定、原PR104历史两PG16在本SHA实跑、不伪造match-source旧Source父签、真实PG16/NonPG回归和安全攻击负例及资源有界单次CI Push。原8Workflow/66原位Push、五Source迁移/正式Issuer/生产始终NO-GO；完整结果交A审。",
+  "next_action": "B从最新main在feat/f05-7-v2-trusted-attestation-issuer-gate-01定向施工，按照07_重建工作区/F05-7_V2来源候选官方只读取证与可信签名门禁_A主控B正式施工单_2026-10-17.md对现有PR111同SHA Run39035485532/四官方Artifact完成真实只读官方API端到端校验、冻结66身份/每Job执行/Runner身份/安全脱敏/工件摘要强绑定，以及独立A可信身份签署与五Source消费迁移/回退机制候选。默认不重跑旧66、不发新Runner/不新增费用。未得受权A签名/Artifact过期则Fail Closed，交A复验，不触碰旧ref/旧Source/生产。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B从执行时最新main在feat/f05-7-v2-versioned-source-66-candidate-01独立施工，按07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md完成V2候选来源合同、冻结8原Blob/66Job与官方Run/Job/Artifact完整同SHA绑定、原PR104历史两PG16在本SHA实跑、不伪造match-source旧Source父签、真实PG16/NonPG回归和安全攻击负例及资源有界单次CI Push。原8Workflow/66原位Push、五Source迁移/正式Issuer/生产始终NO-GO；完整结果交A审。",
+  "next_action_detail": "B从最新main在feat/f05-7-v2-trusted-attestation-issuer-gate-01定向施工，按照07_重建工作区/F05-7_V2来源候选官方只读取证与可信签名门禁_A主控B正式施工单_2026-10-17.md对现有PR111同SHA Run39035485532/四官方Artifact完成真实只读官方API端到端校验、冻结66身份/每Job执行/Runner身份/安全脱敏/工件摘要强绑定，以及独立A可信身份签署与五Source消费迁移/回退机制候选。默认不重跑旧66、不发新Runner/不新增费用。未得受权A签名/Artifact过期则Fail Closed，交A复验，不触碰旧ref/旧Source/生产。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F05_7_V2_VERSIONED_SOURCE_66_SAME_SHA_ISSUER_CANDIDATE_01",
+  "next_task": "F05_7_V2_TRUSTED_READONLY_ATTESTATION_AND_ISSUER_GOVERNANCE_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9626,9 +9626,9 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
+  "next_work_file": "07_重建工作区/F05-7_V2来源候选官方只读取证与可信签名门禁_A主控B正式施工单_2026-10-17.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
-    "status": "A_RELEASED_FOR_B_ISOLATED_NONPRODUCTION_VERSIONED_SOURCE_CONTRACT_AND_REAL_SAME_SHA_TESTING_ONLY",
+    "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
     "a_acceptance_report": "07_重建工作区/PR107_A主控63项真业务与证据脱敏受限验收及V2来源替代裁决_2026-10-17.md",
     "previous_pr107_merged_main_sha": "b8adeeed6d575d5bd549a5640f68eebf9ce2399b",
@@ -9645,6 +9645,66 @@
     "original_ref_push_authorized": false,
     "five_formal_sources_signed": false,
     "production_ready": false,
-    "owner": "B"
+    "owner": "B",
+    "b_pr": 111,
+    "b_head": "bdffc492df7dc09d9192d3ac485d598df7a8c040",
+    "merge_main_sha": "996d032252535cda8487b4c25e62ae3c72f39a3a",
+    "official_run_id": 39035485532,
+    "run_attempt": 1,
+    "run_status": "completed/failure",
+    "official_shard_success": 3,
+    "official_shard_failure": 1,
+    "original_current_head_pg16_pass": 63,
+    "original_current_head_nonpg_pass": 2,
+    "original_current_head_business_pass": 65,
+    "original_current_head_total": 66,
+    "original_current_head_blocked": 1,
+    "original_legacy_oracle_blocked": true,
+    "old_native_all_66_issuer_completed": false,
+    "previous_pr104_historical_two_real_jobs_rerun_in_this_head": true,
+    "verified_artifacts": [
+      12101319115,
+      12102520536,
+      12101854148,
+      12102560092
+    ],
+    "a_independent_four_zip_and_931_body_hash_recalculated": true,
+    "all_head_check_snapshot": {
+      "total": 32,
+      "success": 26,
+      "failure": 5,
+      "in_progress": 1
+    },
+    "a_scope_acceptance_report": "07_重建工作区/PR111_A主控65项同SHA真实业务及V2来源候选受限验收报告_2026-10-17.md",
+    "issuer_signed": false,
+    "five_formal_sources_status": "SOURCE_GAP_OPEN_FAIL_CLOSED",
+    "phase2_original_ref_push_authorized": false,
+    "pr_merge_authorized_for_isolated_engineering_only": true
+  },
+  "f05_7_v2_trusted_official_attestation_gate": {
+    "status": "A_RELEASED_FOR_B_READONLY_OFFICIAL_EVIDENCE_AND_INDEPENDENT_ISSUER_TRUST_CANDIDATE_ONLY",
+    "work_order": "07_重建工作区/F05-7_V2来源候选官方只读取证与可信签名门禁_A主控B正式施工单_2026-10-17.md",
+    "branch": "feat/f05-7-v2-trusted-attestation-issuer-gate-01",
+    "required_run_id": 39035485532,
+    "required_b_head": "bdffc492df7dc09d9192d3ac485d598df7a8c040",
+    "reused_artifacts": [
+      12101319115,
+      12102520536,
+      12101854148,
+      12102560092
+    ],
+    "default_new_real_pg16_rerun_authorized": false,
+    "default_new_runner_authorized": false,
+    "legacy_source_oracle_satisfied": false,
+    "formal_issuer_signature_authorized": false,
+    "formal_issuer_migration_authorized": false,
+    "external_storage_spend_authorized": false,
+    "must_verify_official_api_and_artifact_body": true,
+    "must_identify_A_controlled_signer_trust": true,
+    "artifact_retention_days": 1,
+    "old_synthetic_hmac_artifact_id_for_expiration_followup": 12099312017,
+    "source_gap": "OPEN",
+    "production_ready": false,
+    "next_owner": "B"
   }
 }
