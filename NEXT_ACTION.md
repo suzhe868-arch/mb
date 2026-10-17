@@ -1,3 +1,12 @@
+# 2026-10-17｜A终止F05-7 H52重复调查，恢复B真实CI编码＋跨域PG16工程主线（本轮最新）
+
+- **最新正式放行**：[B真实工程施工单](07_重建工作区/F05_F08_停止H52循环与恢复B真实工程施工_A主控正式施工单_2026-10-17.md)：B在最新main建立`feat/f05-f08-bounded-real-engineering-01`，完成**可运行版本化可信来源/变更影响校验工具＋F05/F06/F07真实隔离非特权PG16跨域集成CI**，至少20项Node正反例、8项真PG16断言，新增最多2项Runner（Node 10分钟+PG16 20分钟显式timeout），末SHA日志/工件归档，交A独立验收。**不再重复H52旧失败接口/合成52Job/Actionlint历史调查。**
+- **正式接力**：`NEXT_OWNER=B / NEXT_TASK=F05_F08_BOUNDED_REAL_ENGINEERING_01`；F06(PR63)、F07(PR67)、F08-1(PR69)此前受限CI合并记录保留，不重做；B可以合法施工**不依赖旧正式Source**的真实工程，不因为旧源证据红灯全部停工。A会在包尾再签旧正式Source恢复或v2新合同迁移的单独工程包。
+- **旧Source安全约束仍在**：历史五Source均曾在各自原SHA真实成功，但**不同SHA不能冒充当前main父签**。旧F05-7原ref `99c38d013f67cc56975f1664120fb87c204afc3c`不准Push/快进/强推，原8Workflow/66Job/64PG16不准执行；`PHASE2_ORIGINAL_REF_PUSH_AUTHORIZED=false`、`SOURCE_GAP_OPEN / FAIL_CLOSED`、F05最终/V1/生产`NOT_READY`，不因为此新包的有限CI成功篡改历史Issuer。
+- **独立并行**：C [PR68](https://github.com/suzhe868-arch/mb/pull/68)仍Draft/未获最终功能视觉认可，不能混入B分支，也不是本轮主线。
+
+---
+
 # 2026-10-17｜A正式独立验收PR97：B只读取证封口合格并合并；H52旧ref恢复继续NO-GO（当前最新）
 
 - **当前正式main**：[B PR97](https://github.com/suzhe868-arch/mb/pull/97)按最终B HEAD `ea04e6f53f486aaa5f80ead753dee53e09a235c7`受限验收，仅3份新增`audit/f05-7-post-pr94-native-closeout/**`取证文件，**未碰旧H52/8Workflow/Source/业务/DDL/C/正式状态**。A[独立审签](https://github.com/suzhe868-arch/mb/pull/97#issuecomment-6229412780)，GitHub**标准合并**`55a1ef0710f28af39adb14c6661725abea1e9aed`。详细[本次A验收及裁决](07_重建工作区/F05-7_PR97_A主控官方0Job取证封口独立验收与阶段2持续NO_GO裁决_2026-10-17.md)；**PR97代码或安全门禁“成功验收”不等于旧编排或全部CI成功**（B受验HEAD GitHub Checks=0，静态3文件PR本就未增加Runner）。

@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_7_PR97_ACCEPTED_READONLY_EVIDENCE_CLOSED_PHASE2_A_NO_GO_RESOURCE_PROTECTION_HOLD",
+  "substage": "F05_F08_B_REAL_ENGINEERING_RELEASED_OLD_SOURCE_PHASE2_NO_GO",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F05_PARENT_SOURCE_RECOVERY",
-  "current_domain_status": "B_PR97_READONLY_CLOSED_H52_ORIGINAL_NATIVE_SCHEDULER_NOT_PROVEN_A_NO_GO_RESOURCES_AND_PROTECTION",
+  "current_domain": "F05_SOURCE_PROOF_ENGINEERING_AND_F08_INCREMENTAL_INTEGRATION",
+  "current_domain_status": "A_RELEASED_B_REAL_CODE_NODE_PG16_WITH_OLD_F05_SOURCE_FAIL_CLOSED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A独立验收B提交PR97：仅3份合法新增GitHub原生0Job接口封口与阶段2预算止损证据文件，标准合并main 55a1ef0710f28af39adb14c6661725abea1e9aed。官方历史0Job Suite失败无子Check Run已实证，但GitHub自身解析原文仍未知；原52Job在旧ref新SHA原生调度未证。旧ref不动，五Source fail-closed，旧66 PG16及旧ref Phase2禁止执行。A下一步负责评估机器强制防误推、实际Runner/Artifact预算与是否存在安全授权路径；不能反复派B做同类合成探针，也不能把B主线切C。",
-  "current_work_file": "07_重建工作区/F05-7_PR97_A主控官方0Job取证封口独立验收与阶段2持续NO_GO裁决_2026-10-17.md",
+  "current_task": "A终止PR88/90/92/94/97旧H52调查循环，独立放行B新增真实CI工程代码及F05/F06/F07跨域非特权PG16集成；旧8Workflow/66Job不可运行，五正式Source仍GAP。F06 PR63/F07 PR67/F08-1 PR69历史CI合并不重做。",
+  "current_work_file": "07_重建工作区/F05_F08_停止H52循环与恢复B真实工程施工_A主控正式施工单_2026-10-17.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "A主控已受限验收并合并B PR97。B本包完成、阶段2持续NO-GO；下一由A独立裁决旧来源ref的服务器端写保护、GitHub账户真实并发/Runner分钟/Artifact容量与费用硬上限、异常停止和官方52Job原生调度的未证风险。以上门禁未逐项核证并在另份正式施工单逐SHA签署前不授权旧来源ref Push/66旧Job/恢复五Source。不得重做Actionlint/无害52图/同一原生接口循环；C PR68仍Draft独立并行但不是B主线的后继。",
+  "next_action": "B从执行时最新main按F05_F08真实工程施工单创建feat/f05-f08-bounded-real-engineering-01，实际编写版本化来源证据与差异影响模块+F05/F06/F07非特权隔离PG16跨域集成CI，在授权新增目录和两项受限Runner内完成编码、正反例、实际CI同SHA及工件、自审、缺陷整改并提交READY_FOR_A_REVIEW给A。不得再递交重复H52调查，不得改/Push五旧来源分支和原8Workflow，不得借新CI把五Source状态标绿。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "A主控已受限验收并合并B PR97。B本包完成、阶段2持续NO-GO；下一由A独立裁决旧来源ref的服务器端写保护、GitHub账户真实并发/Runner分钟/Artifact容量与费用硬上限、异常停止和官方52Job原生调度的未证风险。以上门禁未逐项核证并在另份正式施工单逐SHA签署前不授权旧来源ref Push/66旧Job/恢复五Source。不得重做Actionlint/无害52图/同一原生接口循环；C PR68仍Draft独立并行但不是B主线的后继。",
+  "next_action_detail": "B从执行时最新main按F05_F08真实工程施工单创建feat/f05-f08-bounded-real-engineering-01，实际编写版本化来源证据与差异影响模块+F05/F06/F07非特权隔离PG16跨域集成CI，在授权新增目录和两项受限Runner内完成编码、正反例、实际CI同SHA及工件、自审、缺陷整改并提交READY_FOR_A_REVIEW给A。不得再递交重复H52调查，不得改/Push五旧来源分支和原8Workflow，不得借新CI把五Source状态标绿。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -5828,7 +5828,7 @@
   },
   "a_batch_approval_mode": "STANDING_USER_DIRECTED_CONTINUOUS_TECHNICAL_WORKFLOW_IN_FROZEN_SCOPE; A_SCOPES_AND_RELEASES_B_C; EACH_WINDOW_COMPLETES_END_TO_END; A_INDEPENDENT_ACCEPTANCE_AND_CLEAN_PR_MERGE_WITHOUT_REPEAT_APPROVAL; NEW_PRODUCT_CHOICE_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_EXTERNAL_WRITES_REQUIRE_USER",
   "current_pending_user_decisions": [],
-  "next_action_owner": "A",
+  "next_action_owner": "B",
   "abc_continuous_execution_rule": {
     "status": "USER_DIRECTIVE_APPLIED",
     "confirmed_at": "2026-10-09",
@@ -6834,7 +6834,7 @@
     "merge_method": "merge",
     "a_review_report": "07_重建工作区/F05-7_A主控二轮独立验收66项真PG16_PR46标准合并与F05-8技术交接_2026-10-12.md"
   },
-  "next_owner": "A",
+  "next_owner": "B",
   "f05_8_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR47_CI_ONLY",
     "execution": "COMPLETED_A_ACCEPTED_PR47_STANDARD_MERGE",
@@ -6924,7 +6924,7 @@
     "r12_r13_closed": true,
     "a_sixth_review_result": "A_ACCEPTED"
   },
-  "current_owner": "A",
+  "current_owner": "B",
   "f05_9_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR48_CI_ONLY",
     "owner": "B",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F05_7_PHASE2_A_RESOURCE_AND_ORIGINAL_SCHEDULER_GATE_HOLD",
+  "next_task": "F05_F08_BOUNDED_REAL_ENGINEERING_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9326,7 +9326,7 @@
     "next_task": "F05_7_PHASE2_A_RESOURCE_AND_ORIGINAL_SCHEDULER_GATE_HOLD"
   },
   "f05_7_pr97_a_resource_gate": {
-    "status": "A_HOLD_UNTIL_VERIFIABLE_BUDGET_AND_SERVER_SIDE_BRANCH_PROTECTION",
+    "status": "A_HOLD_OLD_REF_ONLY_B_INDEPENDENT_ENGINEERING_RELEASED",
     "owner": "A",
     "task_id": "F05_7_PHASE2_A_RESOURCE_AND_ORIGINAL_SCHEDULER_GATE_HOLD",
     "accepted_evidence_pr": 97,
@@ -9346,6 +9346,35 @@
     ],
     "next_owner": "A",
     "phase2": "NO_GO",
-    "c_pr68": "PARALLEL_DRAFT_NO_MERGE"
+    "c_pr68": "PARALLEL_DRAFT_NO_MERGE",
+    "independent_b_task": "F05_F08_BOUNDED_REAL_ENGINEERING_01"
+  },
+  "f05_f08_bounded_real_engineering_gate": {
+    "task_id": "F05_F08_BOUNDED_REAL_ENGINEERING_01",
+    "status": "A_RELEASED_FOR_B_ACTUAL_CODE_AND_PG16_ONLY",
+    "owner": "B",
+    "review_owner": "A",
+    "branch": "feat/f05-f08-bounded-real-engineering-01",
+    "base": "LATEST_MAIN_AT_B_START",
+    "work_order": "07_重建工作区/F05_F08_停止H52循环与恢复B真实工程施工_A主控正式施工单_2026-10-17.md",
+    "allowed_new_paths": [
+      "engineering/f05/bounded-ci-engineering/**",
+      "engineering/f08/incremental-integration/**",
+      ".github/workflows/f05-f08-bounded-*.yml"
+    ],
+    "existing_paths_modification_authorized": false,
+    "requires_actual_code": true,
+    "requires_node_assertions_at_least": 20,
+    "requires_real_non_superuser_pg16_assertions_at_least": 8,
+    "max_new_runner_jobs": 2,
+    "node_job_timeout_minutes": 10,
+    "pg16_job_timeout_minutes": 20,
+    "original_source_branch_sha_unchanged": "99c38d013f67cc56975f1664120fb87c204afc3c",
+    "source_gap_open": true,
+    "phase2_original_ref_push_authorized": false,
+    "allow_old_66_job_run": false,
+    "c_parallel_pr": 68,
+    "c_parallel_status": "DRAFT_NOT_USER_ACCEPTED",
+    "next_owner": "B"
   }
 }
