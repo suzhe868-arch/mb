@@ -1,0 +1,99 @@
+name: F05 isolated real PostgreSQL16 HTTP one-job
+on:
+  push:
+    branches: [feat/f05-real-delivery-acceptance-closeout-01]
+    paths:
+      - '.github/workflows/f05-real-delivery-pg16-onejob.yml'
+      - 'engineering/catalog/**'
+      - 'engineering/src/catalog-*.mjs'
+      - 'engineering/src/app.mjs'
+      - 'engineering/src/server.mjs'
+      - 'engineering/integration/catalog.pg16.test.mjs'
+      - 'engineering/tests/catalog*.test.mjs'
+permissions:
+  contents: read
+concurrency:
+  group: f05-real-pg16-onejob
+  cancel-in-progress: true
+jobs:
+  isolated_real_pg16:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd 'pg_isready -U postgres -d postgres'
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      APP_ENV: test
+      NODE_ENV: test
+      API_HOST: 127.0.0.1
+      F05_CATALOG_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F05_CATALOG_PG16_ONLY
+      F05_CATALOG_DATABASE_URL: postgres://f05_catalog_ci:disposable_f05_ci_only@127.0.0.1:5432/f05_catalog_test
+      F05_CATALOG_TEST_VEHICLE_ID: '59001'
+      F05_CATALOG_TEST_CYCLE_ID: '59001'
+    defaults:
+      run:
+        working-directory: engineering
+        shell: bash
+    steps:
+      - name: Exact commit checkout, no retained credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Standard Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Branch, event and SHA guard
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = suzhe868-arch/mb
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REF" = refs/heads/feat/f05-real-delivery-acceptance-closeout-01
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Frozen dependency installation
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Actual HTTP and safety assertions
+        run: node --test tests/catalog.test.mjs tests/catalog-regression.test.mjs
+      - name: Bootstrap truly disposable PG16 non-superuser schema
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'JS'
+          import pg from 'pg';
+          import {readFile} from 'node:fs/promises';
+          if(process.env.APP_ENV!=='test'||process.env.NODE_ENV!=='test'||
+             process.env.GITHUB_ACTIONS!=='true'||process.env.GITHUB_REF!=='refs/heads/feat/f05-real-delivery-acceptance-closeout-01') throw Error('NOT_ISOLATED');
+          const admin=new pg.Client({connectionString:'postgres://postgres:disposable_bootstrap_only@127.0.0.1:5432/postgres'});
+          let client;
+          try{
+            await admin.connect();
+            let z=(await admin.query("SELECT current_database() db,current_user usr,current_setting('server_version_num')::int ver,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su")).rows[0];
+            if(z.db!=='postgres'||z.usr!=='postgres'||!z.su||z.ver<160000||z.ver>=170000)throw Error('BOOTSTRAP_PG16_IDENTITY');
+            if((await admin.query("SELECT 1 FROM pg_database WHERE datname='f05_catalog_test'")).rowCount!==0)throw Error('PREEXISTING_TARGET');
+            await admin.query("CREATE ROLE f05_catalog_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION PASSWORD 'disposable_f05_ci_only'");
+            await admin.query("CREATE DATABASE f05_catalog_test OWNER f05_catalog_ci");
+            client=new pg.Client({connectionString:process.env.F05_CATALOG_DATABASE_URL});
+            await client.connect();
+            await client.query('BEGIN');
+            await client.query("CREATE TABLE public.vehicles(vehicle_id bigint PRIMARY KEY,source_type text NOT NULL,source_sale_status text NOT NULL,platform_visibility text NOT NULL,archived_at timestamptz,model_id bigint); CREATE TABLE public.vehicle_listing_cycles(listing_cycle_id bigint PRIMARY KEY,vehicle_id bigint NOT NULL REFERENCES public.vehicles(vehicle_id),started_at timestamptz NOT NULL,ended_at timestamptz,UNIQUE(listing_cycle_id,vehicle_id));");
+            await client.query(await readFile('catalog/000027_catalog_disposable_test_only.sql','utf8'));
+            await client.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility) VALUES(59001,'wholesale','active','visible'),(59002,'wholesale','active','hidden')");
+            await client.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES(59001,59001,statement_timestamp()),(59002,59002,statement_timestamp())");
+            await client.query('COMMIT');
+            z=(await client.query("SELECT current_user usr,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su")).rows[0];
+            if(z.usr!=='f05_catalog_ci'||z.su!==false)throw Error('NON_SUPERUSER_CHECK_FAILED');
+            console.log('F05_DISPOSABLE_REAL_PG16_16_NONPRIVILEGED_READY; M94_FULL_SCHEMA=NO; PRODUCTION=NO');
+          }catch(e){if(client)try{await client.query('ROLLBACK')}catch{}throw e}
+          finally{await client?.end();await admin.end()}
+          JS
+      - name: Two-connection physical PG16 and HTTP tests
+        run: node --test integration/catalog.pg16.test.mjs
+      - name: No paid artifact, production action or downstream CI
+        run: echo 'F05_REAL_PG16_TEST_ONLY_NO_ARTIFACT_NO_PRODUCTION'

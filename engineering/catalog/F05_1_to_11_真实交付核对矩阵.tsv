@@ -1,0 +1,18 @@
+F05子项	现有正式工程证据	真实应用入口状态	本轮动作	真正PG16集成测试	阻断与责任
+F05-1	engineering/f05/vehicle-scope-safe-projection	现有Vehicle Scope全拒绝	安全catalog需新增当前可见证明	未运行	受信Vehicle归属缺口；A裁决
+F05-2	engineering/f05/vehicle-stewardship-physical-scope	仅隔离CI服务	保留人工发布/交接原签发门禁	未运行	未证明现实受信签发人；A/外部
+F05-3A	engineering/f05/four-s-member-trust-scope	仅隔离CI服务	禁止4S伪装名邦身份	未运行	4S实际Issuer缺失
+F05-3B	engineering/f05/jyt-wholesale-lineage-cycle	仅隔离CI服务	不接JYT真实API	未运行	JYT凭据和真实事件未授权
+F05-3C	engineering/f05/wholesale-to-mingbang-conversion	仅隔离CI服务	保留相同vehicle_id与图片落地检查	未运行	CDN/上游签发未实证
+F05-3D	engineering/f05/wholesale-object-scope-trust	仅隔离CI服务	仅匿名严格投影防泄漏	未运行	批发可信对象电话Issuer缺失
+F05-3E	engineering/f05/hide-reason-trust-recalculation	仅隔离CI服务	本轮catalog显式拒绝受保护Vehicle	未运行	隐藏规则现时受信聚合未完成
+F05-3F/3G/3H/3I/3J/3K	engineering/f05/favorite-physical-carrier	仅隔离CI关系与事件	不开放无客户身份的收藏写HTTP	未运行	微信Customer签发不可用
+F05-4	engineering/f05/customer-price-entitlement-cycle	仅隔离合成价格来源	真实catalog只给price=null占位	未运行	受信价格与日限额来源未签
+F05-5	engineering/f05/employee-price-quota-adjustment	仅隔离CI	不开放未经员工Scope认证的加次	未运行	员工正式授权消费未证明
+F05-6	engineering/f05/find-car-application-demand-eligibility	仅隔离CI	不开放无受信Customer的正式找车	未运行	客户等级正式Issuer缺口
+F05-7	engineering/f05/deterministic-matching-readiness-four-tier	65/66历史与1旧Oracle差异	不把旧66业务测试当当前代码真实验收	未运行	旧Oracle历史BLOCKED_EQUIVALENCE
+F05-8	engineering/f05/priority-arbitration-ttl-handover	仅隔离CI仲裁	catalog中test protection物理阻断	未运行	正式Priority签发未联动
+F05-9	engineering/f05/recommendation-visibility-grants	仅隔离CI赠权	不从客户端grant自报恢复隐藏车	未运行	受信Recommendation issuer缺失
+F05-10	engineering/f05/consultation-assignee-sla	仅隔离CI工单	不开放无受信身份的咨询写入	未运行	真实销售/Customer与首响应凭据缺失
+F05-10-D1	engineering/f05/pdm17-public-pool-owner-claim	仅隔离CI侧表	不提供未经主管签约的公海认领	未运行	合法Owner及数据Scope缺口
+F05-11	engineering/f05/integrated-readiness-audit	旧非生产CI阶段受限结论	当前仅建立catalog Node HTTP候选	未运行	整域真实PG16功能验收尚未具备

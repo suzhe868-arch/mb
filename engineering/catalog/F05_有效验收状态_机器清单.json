@@ -1,0 +1,182 @@
+{
+  "project": "名邦汽车 V1",
+  "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
+  "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
+  "status": "B_IN_PROGRESS_PG16_NOT_RUN_NOT_A_ACCEPTED",
+  "nonproduction_acceptance": false,
+  "production_ready": false,
+  "formal_source_signed": false,
+  "github_commit": "UNREFERENCED_PREVIOUS_10e65c1_NOT_CURRENT_CODE",
+  "node_http_stub_tests": {
+    "passed": 54,
+    "failed": 0,
+    "skipped": 0
+  },
+  "real_postgresql16": {
+    "executed": false,
+    "reason": "No PG16 server/pg Node module in this session. Two independent-backend integration tests written but not executed. apt repositories unreachable."
+  },
+  "endpoints": {
+    "implemented_test_only": [
+      "GET /api/v1/catalog/vehicles",
+      "GET /api/v1/catalog/vehicles/:vehicleId"
+    ],
+    "real_pg16_verified": [],
+    "customer_write_implemented": [],
+    "employee_write_implemented": []
+  },
+  "module_matrix": [
+    {
+      "F05子项": "F05-1",
+      "现有正式工程证据": "engineering/f05/vehicle-scope-safe-projection",
+      "真实应用入口状态": "现有Vehicle Scope全拒绝",
+      "本轮动作": "安全catalog需新增当前可见证明",
+      "真正PG16集成测试": "未运行",
+      "阻断与责任": "受信Vehicle归属缺口；A裁决"
+    },
+    {
+      "F05子项": "F05-2",
+      "现有正式工程证据": "engineering/f05/vehicle-stewardship-physical-scope",
+      "真实应用入口状态": "仅隔离CI服务",
+      "本轮动作": "保留人工发布/交接原签发门禁",
+      "真正PG16集成测试": "未运行",
+      "阻断与责任": "未证明现实受信签发人；A/外部"
+    },
+    {
+      "F05子项": "F05-3A",
+      "现有正式工程证据": "engineering/f05/four-s-member-trust-scope",
+      "真实应用入口状态": "仅隔离CI服务",
+      "本轮动作": "禁止4S伪装名邦身份",
+      "真正PG16集成测试": "未运行",
+      "阻断与责任": "4S实际Issuer缺失"
+    },
+    {
+      "F05子项": "F05-3B",
+      "现有正式工程证据": "engineering/f05/jyt-wholesale-lineage-cycle",
+      "真实应用入口状态": "仅隔离CI服务",
+      "本轮动作": "不接JYT真实API",
+      "真正PG16集成测试": "未运行",
+      "阻断与责任": "JYT凭据和真实事件未授权"
+    },
+    {
+      "F05子项": "F05-3C",
+      "现有正式工程证据": "engineering/f05/wholesale-to-mingbang-conversion",
+      "真实应用入口状态": "仅隔离CI服务",
+      "本轮动作": "保留相同vehicle_id与图片落地检查",
+      "真正PG16集成测试": "未运行",
+      "阻断与责任": "CDN/上游签发未实证"
+    },
+    {
+      "F05子项": "F05-3D",
+      "现有正式工程证据": "engineering/f05/wholesale-object-scope-trust",
+      "真实应用入口状态": "仅隔离CI服务",
+      "本轮动作": "仅匿名严格投影防泄漏",
+      "真正PG16集成测试": "未运行",
+      "阻断与责任": "批发可信对象电话Issuer缺失"
+    },
+    {
+      "F05子项": "F05-3E",
+      "现有正式工程证据": "engineering/f05/hide-reason-trust-recalculation",
+      "真实应用入口状态": "仅隔离CI服务",
+      "本轮动作": "本轮catalog显式拒绝受保护Vehicle",
+      "真正PG16集成测试": "未运行",
+      "阻断与责任": "隐藏规则现时受信聚合未完成"
+    },
+    {
+      "F05子项": "F05-3F/3G/3H/3I/3J/3K",
+      "现有正式工程证据": "engineering/f05/favorite-physical-carrier",
+      "真实应用入口状态": "仅隔离CI关系与事件",
+      "本轮动作": "不开放无客户身份的收藏写HTTP",
+      "真正PG16集成测试": "未运行",
+      "阻断与责任": "微信Customer签发不可用"
+    },
+    {
+      "F05子项": "F05-4",
+      "现有正式工程证据": "engineering/f05/customer-price-entitlement-cycle",
+      "真实应用入口状态": "仅隔离合成价格来源",
+      "本轮动作": "真实catalog只给price=null占位",
+      "真正PG16集成测试": "未运行",
+      "阻断与责任": "受信价格与日限额来源未签"
+    },
+    {
+      "F05子项": "F05-5",
+      "现有正式工程证据": "engineering/f05/employee-price-quota-adjustment",
+      "真实应用入口状态": "仅隔离CI",
+      "本轮动作": "不开放未经员工Scope认证的加次",
+      "真正PG16集成测试": "未运行",
+      "阻断与责任": "员工正式授权消费未证明"
+    },
+    {
+      "F05子项": "F05-6",
+      "现有正式工程证据": "engineering/f05/find-car-application-demand-eligibility",
+      "真实应用入口状态": "仅隔离CI",
+      "本轮动作": "不开放无受信Customer的正式找车",
+      "真正PG16集成测试": "未运行",
+      "阻断与责任": "客户等级正式Issuer缺口"
+    },
+    {
+      "F05子项": "F05-7",
+      "现有正式工程证据": "engineering/f05/deterministic-matching-readiness-four-tier",
+      "真实应用入口状态": "65/66历史与1旧Oracle差异",
+      "本轮动作": "不把旧66业务测试当当前代码真实验收",
+      "真正PG16集成测试": "未运行",
+      "阻断与责任": "旧Oracle历史BLOCKED_EQUIVALENCE"
+    },
+    {
+      "F05子项": "F05-8",
+      "现有正式工程证据": "engineering/f05/priority-arbitration-ttl-handover",
+      "真实应用入口状态": "仅隔离CI仲裁",
+      "本轮动作": "catalog中test protection物理阻断",
+      "真正PG16集成测试": "未运行",
+      "阻断与责任": "正式Priority签发未联动"
+    },
+    {
+      "F05子项": "F05-9",
+      "现有正式工程证据": "engineering/f05/recommendation-visibility-grants",
+      "真实应用入口状态": "仅隔离CI赠权",
+      "本轮动作": "不从客户端grant自报恢复隐藏车",
+      "真正PG16集成测试": "未运行",
+      "阻断与责任": "受信Recommendation issuer缺失"
+    },
+    {
+      "F05子项": "F05-10",
+      "现有正式工程证据": "engineering/f05/consultation-assignee-sla",
+      "真实应用入口状态": "仅隔离CI工单",
+      "本轮动作": "不开放无受信身份的咨询写入",
+      "真正PG16集成测试": "未运行",
+      "阻断与责任": "真实销售/Customer与首响应凭据缺失"
+    },
+    {
+      "F05子项": "F05-10-D1",
+      "现有正式工程证据": "engineering/f05/pdm17-public-pool-owner-claim",
+      "真实应用入口状态": "仅隔离CI侧表",
+      "本轮动作": "不提供未经主管签约的公海认领",
+      "真正PG16集成测试": "未运行",
+      "阻断与责任": "合法Owner及数据Scope缺口"
+    },
+    {
+      "F05子项": "F05-11",
+      "现有正式工程证据": "engineering/f05/integrated-readiness-audit",
+      "真实应用入口状态": "旧非生产CI阶段受限结论",
+      "本轮动作": "当前仅建立catalog Node HTTP候选",
+      "真正PG16集成测试": "未运行",
+      "阻断与责任": "整域真实PG16功能验收尚未具备"
+    }
+  ],
+  "stoppers": [
+    "missing isolated PG16 server and pg Node dependency",
+    "no trusted customer issuer in runtime",
+    "not all F05-1..11 HTTP/PG16 slices implemented",
+    "source and production gates remain fail-closed",
+    "remote CI has no cost-safe preflight clearance for this new list of changed files"
+  ],
+  "next_owner": "B",
+  "next_milestone": "Obtain isolated PG16 with approved zero-cost execution environment, run real schema and HTTP tests; implement missing domain APIs; then audit changed-path CI and present a real PR to A",
+  "verification_scope": "REAL_NODE_HTTP_WITH_INJECTED_DATABASE_ONLY",
+  "security_hardening": [
+    "pg_catalog actual column type and FK shape check",
+    "test-only database URL strict port 5432 and prohibit host/hostaddr query overrides",
+    "separate writer Client and HTTP reader Pool integration requires real PG16",
+    "transaction before/after visibility and robust cleanup in PG16 test"
+  ]
+}
