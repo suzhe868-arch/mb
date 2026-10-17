@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_7_PR94_HISTORICAL_SCHEMA_ACCEPTED_PHASE2_NO_GO_C_R3_PRIORITY",
+  "substage": "F05_7_PR94_ACCEPTED_NEXT_B_NATIVE_DIAGNOSTIC_CLOSEOUT_PHASE2_NO_GO",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F05_PARENT_SOURCE_RECOVERY",
-  "current_domain_status": "A_ACCEPTED_MERGED_PR94_HISTORICAL_SCHEMA_REPRODUCED_CURRENT_H52_LINT_CLEAN_PHASE2_NO_GO_FIVE_SOURCE_GAP_OPEN",
+  "current_domain_status": "PR94_H52_HISTORICAL_SCHEMA_ACCEPTED_MAIN_LINT_CLEAN_OFFICIAL_SCHEDULER_UNKNOWN_PHASE2_NO_GO_B_NEXT_READONLY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A独立验收PR94 HEAD cb960eeb0b09dabacf43c096152a88057ae1fac9，同HEAD原生Run38998693209/Job117296816085成功、Node10/10、Actionlint v1.7.12固定SHA、历史34:9两条schema错误/原Source与现main零错；PR94标准合并f08b59ff0d0875613e2679539ba2039dec867ec8。阶段2来源旧ref原66Job继续NO-GO，五SOURCE GAP未消；停止纯合成探针重复投入，当前优先转C原PR68 R3功能+视觉完整整改，保持Draft不得合并直到A和用户验收。",
-  "current_work_file": "07_重建工作区/C_APP_01_首页详情功能视觉双重失配根因复盘与R3整包整改正式施工单_2026-10-16.md",
+  "current_task": "A已独立验收并标准合并B的PR94；PR95误将独立并行C01 R3提升为唯一主线，现由A更正：B仍负责F05-7唯一工程主线。B下一合法任务只读核证历史0Job的GitHub原生Check Suite诊断是否可得、封口未签66Job成本和止损预算，不再重复Actionlint或合成探针、不运行任何新旧原作业。C PR68 R3继续并行Draft且未获用户视觉验收。原F05-7旧ref与阶段2继续NO-GO，五Source仍Gap。",
+  "current_work_file": "07_重建工作区/F05-7_PR94后GitHub原生故障证据封口及恢复预算只读核证_A主控正式施工单_2026-10-17.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "C在原PR68/feat/c-app-01-mobile-foundation-c01-code-first继续已签R3整包整改，逐条关闭R1(11)+R2(8)+R3(47)功能/状态/视觉门禁，补末SHA真实H5微信CLI双端构建、四屏Chromium截图和角色/权限/动作负例，自审后交A。用户尚否决现首页详情，不得先合并。B的F05-7来源旧ref阶段2继续NO-GO：不得Push原ref、不得启动66Job、不得自签来源恢复或生产。",
+  "next_action": "B从执行时最新main按F05-7 PR94后GitHub原生故障证据封口及恢复预算只读施工单，在隔离分支只读取GitHub官方Run38958160214与Check Suite/annotations（可读则提供原生证据，不可读则明确BLOCKED），引用已完成PR92/94而非重跑重复测试，形成1份可执行预算及停止条件检查表和中文交接PR，标READY_FOR_A_REVIEW；不改H52/其它Workflow/Source/C、不开新CI/Runner、绝不快进或Push旧ref、绝不运行66Job。C原PR68 R3保持并行Draft/NO_MERGE，不是唯一主线。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "C在原PR68/feat/c-app-01-mobile-foundation-c01-code-first继续已签R3整包整改，逐条关闭R1(11)+R2(8)+R3(47)功能/状态/视觉门禁，补末SHA真实H5微信CLI双端构建、四屏Chromium截图和角色/权限/动作负例，自审后交A。用户尚否决现首页详情，不得先合并。B的F05-7来源旧ref阶段2继续NO-GO：不得Push原ref、不得启动66Job、不得自签来源恢复或生产。",
+  "next_action_detail": "B从执行时最新main按F05-7 PR94后GitHub原生故障证据封口及恢复预算只读施工单，在隔离分支只读取GitHub官方Run38958160214与Check Suite/annotations（可读则提供原生证据，不可读则明确BLOCKED），引用已完成PR92/94而非重跑重复测试，形成1份可执行预算及停止条件检查表和中文交接PR，标READY_FOR_A_REVIEW；不改H52/其它Workflow/Source/C、不开新CI/Runner、绝不快进或Push旧ref、绝不运行66Job。C原PR68 R3保持并行Draft/NO_MERGE，不是唯一主线。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -5828,7 +5828,7 @@
   },
   "a_batch_approval_mode": "STANDING_USER_DIRECTED_CONTINUOUS_TECHNICAL_WORKFLOW_IN_FROZEN_SCOPE; A_SCOPES_AND_RELEASES_B_C; EACH_WINDOW_COMPLETES_END_TO_END; A_INDEPENDENT_ACCEPTANCE_AND_CLEAN_PR_MERGE_WITHOUT_REPEAT_APPROVAL; NEW_PRODUCT_CHOICE_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_EXTERNAL_WRITES_REQUIRE_USER",
   "current_pending_user_decisions": [],
-  "next_action_owner": "C",
+  "next_action_owner": "B",
   "abc_continuous_execution_rule": {
     "status": "USER_DIRECTIVE_APPLIED",
     "confirmed_at": "2026-10-09",
@@ -6834,7 +6834,7 @@
     "merge_method": "merge",
     "a_review_report": "07_重建工作区/F05-7_A主控二轮独立验收66项真PG16_PR46标准合并与F05-8技术交接_2026-10-12.md"
   },
-  "next_owner": "C",
+  "next_owner": "B",
   "f05_8_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR47_CI_ONLY",
     "execution": "COMPLETED_A_ACCEPTED_PR47_STANDARD_MERGE",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "C_APP_01_R3_HOME_DETAIL_FULL_SPEC_REBASE",
+  "next_task": "F05_7_POST_PR94_NATIVE_DIAGNOSTIC_CLOSEOUT_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9285,5 +9285,29 @@
     "phase2_original_ref_push_authorized": false,
     "five_source_gap_open": true,
     "a_review_file": "07_重建工作区/F05-7_PR94_A主控历史Schema错误核验与阶段2继续NO_GO裁决_2026-10-17.md"
+  },
+  "f05_7_post_pr94_native_diagnostic_closeout_gate": {
+    "task_id": "F05_7_POST_PR94_NATIVE_DIAGNOSTIC_CLOSEOUT_01",
+    "status": "A_RELEASED_FOR_B_READONLY_OFFICIAL_DIAGNOSTIC_CLOSEOUT_ONLY",
+    "owner": "B",
+    "review_owner": "A",
+    "branch": "audit/f05-7-post-pr94-native-diagnostic-01",
+    "base": "LATEST_MAIN_AT_B_START",
+    "work_order": "07_重建工作区/F05-7_PR94后GitHub原生故障证据封口及恢复预算只读核证_A主控正式施工单_2026-10-17.md",
+    "allowed_new_paths": [
+      "audit/f05-7-post-pr94-native-closeout/**"
+    ],
+    "allow_new_workflow": false,
+    "allow_runner_jobs": false,
+    "phase2_original_ref_push_authorized": false,
+    "source_gap_open": true,
+    "pr94_accepted_head": "cb960eeb0b09dabacf43c096152a88057ae1fac9",
+    "pr94_merged_sha": "f08b59ff0d0875613e2679539ba2039dec867ec8",
+    "historical_0job_run": 38958160214,
+    "old_source_ref": "99c38d013f67cc56975f1664120fb87c204afc3c",
+    "next_owner": "B",
+    "acceptance": "GITHUB_OFFICIAL_DIAGNOSTIC_AVAILABLE_OR_EXPLICITLY_UNAVAILABLE_WITH_BUDGET_GATES",
+    "c_parallel_pr": 68,
+    "c_parallel_status": "C_APP_01_R3_ACTIVE_DRAFT_NO_MERGE"
   }
 }

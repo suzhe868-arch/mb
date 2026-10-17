@@ -1,3 +1,12 @@
+# 2026-10-17｜A主控更正PR95接力错误：B仍是F05-7工程主线，C只作为并行前端轨道（当前最新）
+
+- **更正范围**：[PR94](https://github.com/suzhe868-arch/mb/pull/94)对B的独立验收、同SHA静态证据、[PR95](https://github.com/suzhe868-arch/mb/pull/95)中的安全结论以及标准合并事实**全部保留**；错误仅在PR95后将主线`NEXT_OWNER`改为C、错误把C01 R3当下一主任务。用户要求本轮仍检查B，A确认C不是B的替代交接，现正式更正`NEXT_OWNER=B / NEXT_TASK=F05_7_POST_PR94_NATIVE_DIAGNOSTIC_CLOSEOUT_01`。
+- **A新正式B工作单**：[PR94后GitHub原生故障证据封口及恢复预算只读核证](07_重建工作区/F05-7_PR94后GitHub原生故障证据封口及恢复预算只读核证_A主控正式施工单_2026-10-17.md)；从执行时最新main新建**隔离B分支**`audit/f05-7-post-pr94-native-diagnostic-01`，限只读GitHub官方接口和新增`audit/f05-7-post-pr94-native-closeout/**`中文证据，**不新增CI/不运行Runner/不变更任何旧Workflow/原旧Source分支/生产**。针对历史0Job的**官方Check Suite诊断是否可得**给一次性可复现结论和严格恢复前预算/失败停止条件，查不到即明示`BLOCKED_OFFICIAL_ROOT_CAUSE_UNKNOWN`；不复演已完成Actionlint和合成探针。达到取证/封口标准后交A再次裁决。
+- **原阶段2继续正式NO-GO**：`PHASE2_ORIGINAL_REF_PUSH_AUTHORIZED=false`；原F05-7来源ref `99c38d013f67cc56975f1664120fb87c204afc3c`不得修改、快进/Push/重试，旧8 Workflow/66 Job/64PG16仍不许运行，五Source仍FAIL-CLOSED，V1及生产NOT_READY。只有未来A独立明确签署旧ref的expected SHA、target SHA、Runner/Artifact预算及停止界限才有单独放行可能。
+- **C并行状态绝不撤销**：[PR68](https://github.com/suzhe868-arch/mb/pull/68)仍Draft及`C_APP_01_R3_HOME_DETAIL_FULL_SPEC_REBASE`原正式R3施工单有效，用户旧首页/详情否决未解除；C可在独立窗口按原签发范围继续，但**C不是本轮主线`NEXT_OWNER`**。详细[接力错误更正记录](07_重建工作区/PR95主线接力误切C的A主控更正记录_2026-10-17.md)。
+
+---
+
 # 2026-10-17｜A独立验收并标准合并PR94：历史H52第34行Schema错误复现；当前H52零静态错，阶段2继续NO-GO（本轮最新）
 
 - **A独立验收与合并**：[PR94](https://github.com/suzhe868-arch/mb/pull/94)受验唯一B HEAD `cb960eeb0b09dabacf43c096152a88057ae1fac9`；相对原main `2d53c138afc12d2d7593c30368f21acd28ee0f51` ahead3/behind0，严格新增4份A授权只读审计/固定Actionlint脚本与报告文件（1份8分钟1Job只读CI、3份中文审计测试），原H52/其它7冻结工作流/Source/业务/DDL/C文件全部**零修改**。A审签[PR94评论](https://github.com/suzhe868-arch/mb/pull/94#issuecomment-6229073466)，标准GitHub合并main `f08b59ff0d0875613e2679539ba2039dec867ec8`；[A独立验收与安全裁决](07_重建工作区/F05-7_PR94_A主控历史Schema错误核验与阶段2继续NO_GO裁决_2026-10-17.md)。
