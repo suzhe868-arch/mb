@@ -1,0 +1,209 @@
+name: F05-7 V2 remaining 64 original PG16 jobs - Issue 106
+on:
+  push:
+    branches: [feat/f05-7-v2-remaining-64-real-pg16-01]
+    paths:
+      - '.github/workflows/f05-7-v2-original-64-*.yml'
+      - 'engineering/f05/v2-original-64/**'
+permissions:
+  contents: read
+concurrency:
+  group: f05-v2-64-issue106-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  shard_0:
+    name: F05-7 V2 原64混合业务 分片0
+    if: ${{ github.repository == 'suzhe868-arch/mb' && github.ref == 'refs/heads/feat/f05-7-v2-remaining-64-real-pg16-01' && github.event_name == 'push' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      V2_RESOURCE_GATE_PASS: A_ISSUE_106_STANDARD_4X40_STORAGE_5MIB_1DAY
+      V2_ISSUE_106_SHARD: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Source identity, preflight and negative controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REPOSITORY" = suzhe868-arch/mb
+          test "$GITHUB_REF" = refs/heads/feat/f05-7-v2-remaining-64-real-pg16-01
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$V2_RESOURCE_GATE_PASS" = A_ISSUE_106_STANDARD_4X40_STORAGE_5MIB_1DAY
+          ruby engineering/f05/native-66-closure/catalog.rb --catalog
+          node engineering/f05/v2-original-64/inventory.mjs
+          node --test engineering/f05/v2-original-64/evidence-proof.test.mjs engineering/f05/v2-original-64/package-evidence.test.mjs engineering/f05/v2-original-64/v2-source-contract.test.mjs
+          ruby engineering/f05/v2-original-64/run-shard.test.rb
+      - name: Original jobs shard 0 - independent PG16 and full source commands
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruby engineering/f05/v2-original-64/run-shard.rb --shard 0
+      - name: Machine hard stop of upload at 5 MiB (cannot truncate a success)
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f05/v2-original-64/package-evidence.mjs 0
+      - name: Upload bounded official original test records
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f05-v2-original-64-shard-0
+          retention-days: 1
+          if-no-files-found: error
+          compression-level: 0
+          path: engineering/f05/v2-original-64/evidence/upload-safe-0/
+  shard_1:
+    name: F05-7 V2 原64混合业务 分片1
+    if: ${{ github.repository == 'suzhe868-arch/mb' && github.ref == 'refs/heads/feat/f05-7-v2-remaining-64-real-pg16-01' && github.event_name == 'push' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      V2_RESOURCE_GATE_PASS: A_ISSUE_106_STANDARD_4X40_STORAGE_5MIB_1DAY
+      V2_ISSUE_106_SHARD: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Source identity, preflight and negative controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REPOSITORY" = suzhe868-arch/mb
+          test "$GITHUB_REF" = refs/heads/feat/f05-7-v2-remaining-64-real-pg16-01
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$V2_RESOURCE_GATE_PASS" = A_ISSUE_106_STANDARD_4X40_STORAGE_5MIB_1DAY
+          ruby engineering/f05/native-66-closure/catalog.rb --catalog
+          node engineering/f05/v2-original-64/inventory.mjs
+          node --test engineering/f05/v2-original-64/evidence-proof.test.mjs engineering/f05/v2-original-64/package-evidence.test.mjs engineering/f05/v2-original-64/v2-source-contract.test.mjs
+          ruby engineering/f05/v2-original-64/run-shard.test.rb
+      - name: Original jobs shard 1 - independent PG16 and full source commands
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruby engineering/f05/v2-original-64/run-shard.rb --shard 1
+      - name: Machine hard stop of upload at 5 MiB (cannot truncate a success)
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f05/v2-original-64/package-evidence.mjs 1
+      - name: Upload bounded official original test records
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f05-v2-original-64-shard-1
+          retention-days: 1
+          if-no-files-found: error
+          compression-level: 0
+          path: engineering/f05/v2-original-64/evidence/upload-safe-1/
+  shard_2:
+    name: F05-7 V2 原64混合业务 分片2
+    if: ${{ github.repository == 'suzhe868-arch/mb' && github.ref == 'refs/heads/feat/f05-7-v2-remaining-64-real-pg16-01' && github.event_name == 'push' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      V2_RESOURCE_GATE_PASS: A_ISSUE_106_STANDARD_4X40_STORAGE_5MIB_1DAY
+      V2_ISSUE_106_SHARD: '2'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Source identity, preflight and negative controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REPOSITORY" = suzhe868-arch/mb
+          test "$GITHUB_REF" = refs/heads/feat/f05-7-v2-remaining-64-real-pg16-01
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$V2_RESOURCE_GATE_PASS" = A_ISSUE_106_STANDARD_4X40_STORAGE_5MIB_1DAY
+          ruby engineering/f05/native-66-closure/catalog.rb --catalog
+          node engineering/f05/v2-original-64/inventory.mjs
+          node --test engineering/f05/v2-original-64/evidence-proof.test.mjs engineering/f05/v2-original-64/package-evidence.test.mjs engineering/f05/v2-original-64/v2-source-contract.test.mjs
+          ruby engineering/f05/v2-original-64/run-shard.test.rb
+      - name: Original jobs shard 2 - independent PG16 and full source commands
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruby engineering/f05/v2-original-64/run-shard.rb --shard 2
+      - name: Machine hard stop of upload at 5 MiB (cannot truncate a success)
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f05/v2-original-64/package-evidence.mjs 2
+      - name: Upload bounded official original test records
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f05-v2-original-64-shard-2
+          retention-days: 1
+          if-no-files-found: error
+          compression-level: 0
+          path: engineering/f05/v2-original-64/evidence/upload-safe-2/
+  shard_3:
+    name: F05-7 V2 原64混合业务 分片3
+    if: ${{ github.repository == 'suzhe868-arch/mb' && github.ref == 'refs/heads/feat/f05-7-v2-remaining-64-real-pg16-01' && github.event_name == 'push' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      V2_RESOURCE_GATE_PASS: A_ISSUE_106_STANDARD_4X40_STORAGE_5MIB_1DAY
+      V2_ISSUE_106_SHARD: '3'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Source identity, preflight and negative controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REPOSITORY" = suzhe868-arch/mb
+          test "$GITHUB_REF" = refs/heads/feat/f05-7-v2-remaining-64-real-pg16-01
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$V2_RESOURCE_GATE_PASS" = A_ISSUE_106_STANDARD_4X40_STORAGE_5MIB_1DAY
+          ruby engineering/f05/native-66-closure/catalog.rb --catalog
+          node engineering/f05/v2-original-64/inventory.mjs
+          node --test engineering/f05/v2-original-64/evidence-proof.test.mjs engineering/f05/v2-original-64/package-evidence.test.mjs engineering/f05/v2-original-64/v2-source-contract.test.mjs
+          ruby engineering/f05/v2-original-64/run-shard.test.rb
+      - name: Original jobs shard 3 - independent PG16 and full source commands
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruby engineering/f05/v2-original-64/run-shard.rb --shard 3
+      - name: Machine hard stop of upload at 5 MiB (cannot truncate a success)
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f05/v2-original-64/package-evidence.mjs 3
+      - name: Upload bounded official original test records
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f05-v2-original-64-shard-3
+          retention-days: 1
+          if-no-files-found: error
+          compression-level: 0
+          path: engineering/f05/v2-original-64/evidence/upload-safe-3/
