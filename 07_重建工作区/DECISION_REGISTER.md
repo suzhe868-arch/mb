@@ -1,3 +1,13 @@
+# 2026-10-17｜A独立受限验收B PR104：66项来源清册全量映射、2项真实PG16通过；旧66 NO-GO，正式放行V2剩余64项实跑（最新）
+  
+- **A已审核标准合并B [PR104](https://github.com/suzhe868-arch/mb/pull/104)**：B唯一HEAD `346fb11133f0883014b7911effb58052bd17b2c1`，合并main SHA `62dcafba00dff97d107d62c376e9ff45d3e7afbc`；5/5仅新增隔离限域CI/执行器/证据校验/37测试/中文说明，旧8Workflow、五正式Source/Issuer、业务/DDL/PDM/生产/C与旧原ref一律未改。A[独立审签](https://github.com/suzhe868-arch/mb/pull/104#issuecomment-6230657420)，[详细报告](07_重建工作区/PR104_A主控66项来源与双真实PG16受限验收及V2裁决_2026-10-17.md)。
+- **真正GitHub[Run39008798385](https://github.com/suzhe868-arch/mb/actions/runs/39008798385)**：同HEAD push/attempt1 completed/success；H52原Job117326661519、K2原Job117326661370均实际Ubuntu+PG16成功，原业务H52 7/7＋7/7、K2前序18/18＋HTTPS 7/7，安全Node 37/37；官方同SHA有效Artifact 12091638973（129853B）和12091504805（94178B），有官方摘要、未独立下载ZIP重算。**原66份Job源映射全部生成，但本批实际只跑2/66，剩余64项未实跑**，不得宣称66正式验收。
+- **A核官方本HEAD全仓Checks快照**：30条=25 success、4 failure、1 in_progress；3旧正式Source因为不满足本ref官方新Push而Fail Closed，原F05-7父源因无法证明全66项同SHA而Fail Closed；不能说全仓全绿。旧来源分支SHA `99c38d013f67cc56975f1664120fb87c204afc3c`未改，**`PHASE2_ORIGINAL_REF_PUSH_AUTHORIZED=false`，旧8Workflow/66 Job不许整体触发**。
+- **A明确技术裁决**：原旧ref保护、Runner/Artifact容量和预算未核准，**原生旧66批量恢复继续NO-GO，选择安全等价V2的真业务实证路线**；PR104只是V2候选（尚缺Job/Artifact/真实日志强绑定及64项实测），不签Issuer，五正式Source仍`SOURCE_GAP_OPEN/FAIL_CLOSED`，F05全域/V1/生产`NOT_READY`。
+- **下一唯一主线责任B**：`NEXT_OWNER=B / NEXT_TASK=F05_7_V2_REMAINING_64_REAL_EXECUTION_AND_ISSUER_PROOF_01`；严格按[完整正式施工单](07_重建工作区/F05-7_V2余64项原业务隔离实跑与安全等价来源证据_A主控B正式施工单_2026-10-17.md)，从最新main隔离分支`feat/f05-7-v2-remaining-64-real-pg16-01`做剩余64项原业务真PG16隔离运行、V2工件签名/Job名称/日志绑定与攻击负例，至多4新增Runner、各<=40分钟、一次最终Push及官方证据；预算/并发无法硬界定则止损Fail Closed。不许重新做旧H52 0Job诊断、旧ref Push、生产动作。C [PR68](https://github.com/suzhe868-arch/mb/pull/68)继续Draft独立并行，不替代B主线。
+
+---
+
 # 2026-10-17｜A验收B PR102原F05-7真HTTPS业务远程PG16成功并合并；转入66项来源最终闭环工程包（本轮最新）
 
 - **B PR102已A独立验收并标准合并**：[PR102](https://github.com/suzhe868-arch/mb/pull/102)，唯一验收B HEAD`2933d32cf375f11328251854874c7b5a5f835c4a`，合并SHA`1e454e7fcc086cec537aae9de93713fbdb4d410d`。5/5白名单仅新增单Job工作流和说明，修正已有来源证据代码，不动原`ci-job.sh`、原H52/其它7份旧Workflow、五Source/DDL/PDM/生产/C。真正GitHub[Run39006396267](https://github.com/suzhe868-arch/mb/actions/runs/39006396267) completed/success；原生Job117319652675日志证实Node **38/38**、原PG16前置 **18/18**、旧F05-7 `https.test.mjs` **7/7** 和完成标记`F05_7_NATIVE_PG16_V23_https_CI_COMPLETE`；106849B官方有效同SHA Artifact12090408632，官方SHA256摘要可核。此次是**真正原业务远程通过**，但只一条HTTPS子路径，不是66项已验收。
