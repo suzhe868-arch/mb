@@ -1,12 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {mkdtempSync,readFileSync,writeFileSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {execFileSync} from 'node:child_process';
 import {validateNativeProof,classifyCandidate,analyzeImpact,LEVEL} from './proof.mjs';
 const S='a'.repeat(40),T='b'.repeat(40),REPO='suzhe868-arch/mb',branch='feat/f05-f08-bounded-real-engineering-01',workflow='.github/workflows/f05-f08-bounded-ci.yml';
 const ctx=()=>({repo:REPO,candidateSha:S,observedSha:S,branch,workflow,event:'push',attempt:1,runId:123});
 const api=()=>({run:{id:123,run_attempt:1,head_sha:S,head_branch:branch,event:'push',path:workflow,repository:{full_name:REPO},status:'completed',conclusion:'success'},
  checks:[{id:501,name:'safe',head_sha:S,status:'completed',conclusion:'success',completed_at:'2026-10-17',details_url:'https://github.com/'+REPO+'/actions/runs/123/job/501'}],
  jobs:[{id:501,run_id:123,name:'safe',status:'completed',conclusion:'success'}],
- artifacts:[{id:800,name:'evidence',expired:false,size_in_bytes:111,workflow_run:{id:123,head_sha:S}}],
+ artifacts:[{id:800,name:'evidence',expired:false,size_in_bytes:111,digest:'sha256:'+('c'.repeat(64)),workflow_run:{id:123,head_sha:S}}],
  checks_total:1,jobs_total:1,artifacts_total:1});
 test('N01 准确同SHA原生绑定只证明结构，不签Source',()=>{const r=validateNativeProof(ctx(),api());assert.equal(r.level,LEVEL.exact);assert.equal(r.formal_source_issuer_signed,false)});
 test('N02 历史不同SHA只能标历史',()=>{const c=ctx(),x=api();c.observedSha=T;x.run.head_sha=T;x.checks[0].head_sha=T;x.artifacts[0].workflow_run.head_sha=T;assert.equal(validateNativeProof(c,x).level,LEVEL.old)});
@@ -29,3 +34,22 @@ test('N31 公共依赖标记共享且必须复验',()=>{const r=analyzeImpact({b
 test('N32 恶意路径与零变更拒绝',()=>{assert.throws(()=>analyzeImpact({baseSha:T,candidateSha:S,changedPaths:['../test']}));assert.throws(()=>analyzeImpact({baseSha:S,candidateSha:S,changedPaths:['engineering/f05/x']}))});
 test('N33 错误API输入不可能生成正签发',()=>{const r=classifyCandidate(ctx(),{error:'timeout'});assert.equal(r.level,LEVEL.gap);assert.equal(r.formal_source_issuer_signed,false)});
 test('N34 旧CI看似成功的其它SHA绝不会提升成当前证明',()=>{const c=ctx(),a=api();c.observedSha=T;a.run.head_sha=T;a.checks[0].head_sha=T;a.artifacts[0].workflow_run.head_sha=T;assert.equal(classifyCandidate(c,a).level,LEVEL.old)});
+
+test('N35 工件缺失官方sha256摘要必须拒绝',()=>{const a=api();delete a.artifacts[0].digest;assert.throws(()=>validateNativeProof(ctx(),a),/ARTIFACT_DIGEST_INVALID/)});
+test('N36 工件摘要伪格式必须拒绝',()=>{const a=api();a.artifacts[0].digest='sha256:bad';assert.throws(()=>validateNativeProof(ctx(),a),/ARTIFACT_DIGEST_INVALID/)});
+test('N37 本地JSON --verify不能提升为官方PROVEN_EXACT_SHA',()=>{
+ const dir=mkdtempSync(path.join(tmpdir(),'mb-f05-native-proof-'));
+ try{
+  const input=path.join(dir,'input.json'),output=path.join(dir,'output.json');
+  writeFileSync(input,JSON.stringify({context:ctx(),github:api()}));
+  execFileSync(process.execPath,[fileURLToPath(new URL('./snapshot.mjs',import.meta.url)),'--verify',input,output],{encoding:'utf8',cwd:dir});
+  const obj=JSON.parse(readFileSync(output,'utf8'));
+  assert.equal(obj.level,LEVEL.retry);assert.equal(obj.official_api_verified,false);
+  assert.equal(obj.origin,'UNVERIFIED_USER_SUPPLIED_JSON');assert.equal(obj.formal_source_issuer_signed,false);
+ }finally{rmSync(dir,{recursive:true,force:true})}
+});
+test('N38 原五正式Source清单第五项固定为F05-10-D1',()=>{
+ const src=readFileSync(fileURLToPath(new URL('./snapshot.mjs',import.meta.url)),'utf8');
+ assert.match(src,/five_formal_sources:\['F05-7','F05-8','F05-9','F05-10','F05-10-D1'\]/);
+ assert.doesNotMatch(src,/F05-11/);
+});
