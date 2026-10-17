@@ -1,3 +1,13 @@
+# 2026-10-18｜A受限验收PR113已正常合并：V2独立验真候选代码入main，旧来源仍Fail Closed；下一责任A
+
+- **B [PR113](https://github.com/suzhe868-arch/mb/pull/113) 已由A仅按非生产工程受限验收并标准合并**：候选唯一HEAD `6ad823936592835c4ce8b34f06ed88aa5942e777`，合并`main@652316eaad06d5adea961f19036e8f69d4107a89`；只新增10份`engineering/f05/v2-attestation-gate/**`独立验真/加密门禁候选与测试、中文报告，原8冻结Workflow、旧父签、五正式Source、业务/DDL/生产/C前端未改。[A受限审签](https://github.com/suzhe868-arch/mb/pull/113#issuecomment-6237802666)。
+- **本PR真实官方CI不是全绿**：唯一末SHA自动触发10份原PR Workflow、28项Check；合并前A真实快照**23成功、4失败、1进行中**，红灯均由旧Source对同SHA冻结`push`身份的硬验证要求拒绝，不能用候选PR冒充正式来源。F05-8剩余结果需另行查终态，不能预写通过。A离线真实四ZIP重算原正文**931/931**、Python先前包**13/13**、Node**25/25**；B自验的新版本Python**17/17**不等于A已在新SHA独立实跑17条。旧Run真实原业务**65/66通过＋旧Oracle1项BLOCKED**，不能写成66/66正式签约。
+- **正式签署仍绝对关闭**：`FORMAL_ISSUER_NOT_SIGNED / SOURCE_GAP_OPEN / FAIL_CLOSED`；缺受控A签名者、受保护独立REST验证身份、四真实官方ZIP长期不可变归档、五消费者受控迁移及旧Oracle安全等价裁决。原旧来源ref禁止Push，V1/生产`NOT_READY`。现公开仓库可真实启动标准Runner，但用户Actions费用限制维持**$0、不授权新增付费**。
+- **新的当前责任和任务**：`NEXT_OWNER=A / NEXT_TASK=F05_7_V2_A_INDEPENDENT_SIGNER_ARCHIVE_AND_SOURCE_MIGRATION_DECISION_01`，先解决A身份、免费可信归档、Sigstore/Artifact Attestations可行性及五消费者准入，再决定是否向B签下一阶段施工单；**不得让B重跑既有65项业务或重复335项工作流扫描**。C [PR68](https://github.com/suzhe868-arch/mb/pull/68)继续独立Draft，不因本次工程归档放行视觉/功能。
+- [本轮正式A报告](07_重建工作区/PR113_A主控V2官方只读候选受限合并与后续可信签署治理裁决_2026-10-18.md)；[Issue106最新A连续裁决](https://github.com/suzhe868-arch/mb/issues/106#issuecomment-6236810312)。
+
+---
+
 # 2026-10-17｜A对B PR111独立受限验收：65/66同SHA真原业务＋新版V2来源候选合入main，旧Source签发仍关闭；正式放行官方只读取证与可信签署治理B单（最新）
 
 - **B [PR111](https://github.com/suzhe868-arch/mb/pull/111) 已独立审查并按限域正常合并**：原唯一受验HEAD`bdffc492df7dc09d9192d3ac485d598df7a8c040`，对上一main ahead1/behind0，10项严格新`engineering/f05/v2-issuer-candidate/**`及新独立CI，无冻结8旧workflow/旧Source/Issuer、业务/DDL/PDM/C/生产修改。merge `main@996d032252535cda8487b4c25e62ae3c72f39a3a`，按[A独立PR审签](https://github.com/suzhe868-arch/mb/pull/111#issuecomment-6234593834)只批准`A_ACCEPTED_ENGINEERING_CANDIDATE_ONLY`，不是正式来源签发。
