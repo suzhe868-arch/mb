@@ -1,3 +1,12 @@
+# 2026-10-18｜A可信来源零费用技术裁决完成，B新离线影子工程正式放行
+
+- 最新正式旧PR113独立CI **28项终态＝23成功/5失败**；旧来源签约5项真实Fail Closed，旧PR111历史65/66+1旧Oracle BLOCKED不变。PR113/PR114此前已受限工程归档，五正式Source和生产仍关闭。
+- A独立核实公开GitHub Free可使用官方Sigstore Artifact Attestations和受保护Environment Required Reviewers/Prevent self-review，但当前**无实际证据证明独立审阅身份、受保护Workflow及非公开不可变四ZIP保管已配置**；Sigstore签的只是新审核来源，不能倒签历史成功，也不能把原始日志发布到公开Release。[A正式架构裁决](07_重建工作区/F05-7_V2_A零付费独立签署与私有证据归档技术裁决_2026-10-18.md)。
+- **当前`NEXT_OWNER=B`，任务`F05_7_V2_INDEPENDENT_SIGNER_SHADOW_AND_FIVE_CONSUMER_NEGATIVES_01`，完整[施工单](07_重建工作区/F05-7_V2独立签署影子验证与五来源负例_A主控B正式施工单_2026-10-18.md)**：只在隔离目录开展离线的V2可信签署影子Gate、五正式Source的模拟拒绝和攻击负例，默认**不批准任何远程CI/工件/真正签署/生产**。B仅在最新main全量工作流逐原Blob验证精确路径0触发时才允许一次受控分支/PR，否则交A阻断，不触碰用户$0预算。A账户的真实独立签署、私有WORM保管审批职责仍独立。
+- 旧ref严禁Push、旧66不重跑、Source`SOURCE_GAP_OPEN/FAIL_CLOSED`、V1`NOT_READY`，C PR68独立Draft。
+
+---
+
 # 2026-10-18｜A受限验收PR113已正常合并：V2独立验真候选代码入main，旧来源仍Fail Closed；下一责任A
 
 - **B [PR113](https://github.com/suzhe868-arch/mb/pull/113) 已由A仅按非生产工程受限验收并标准合并**：候选唯一HEAD `6ad823936592835c4ce8b34f06ed88aa5942e777`，合并`main@652316eaad06d5adea961f19036e8f69d4107a89`；只新增10份`engineering/f05/v2-attestation-gate/**`独立验真/加密门禁候选与测试、中文报告，原8冻结Workflow、旧父签、五正式Source、业务/DDL/生产/C前端未改。[A受限审签](https://github.com/suzhe868-arch/mb/pull/113#issuecomment-6237802666)。
