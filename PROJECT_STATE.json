@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_7_V2_PR107_REAL_RUN_1_OF_64_B_FIXES_REQUESTED",
+  "substage": "F05_7_V2_PR107_REAL_62_OF_64_SOURCE_ORACLE_AND_HMAC_REDACTION_BLOCKED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F05_7_V2_REMAINING_64_TRUE_BUSINESS_JOB_EXECUTION",
-  "current_domain_status": "A_PR107_CHANGES_REQUESTED_62_PG16_PLUS_2_NONPG_REAL_JOB_REMEDIATION_WITH_BOUNDED_RESUME",
+  "current_domain_status": "A_PR107_REAL_BUSINESS_62_OF_64_EVIDENCE_ACCEPTED_SCOPE_ONLY_SOURCE_ORACLE_BLOCKED_REDACTION_FIX_NEEDED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "PR107 B首轮四分片原生Run39023409526已实跑但四Job均失败，新业务仅g-https一项真PG16通过，剩余63阻断。A从原H52核定余64应为62真PG16+2原非PG；同一B施工单定向修59项只读permissions误拦、2项容器初始化故障、2项h-source/h-https按原非PG执行，限额额外2次受控Push并提供同SHA完整证据，旧原ref/Issuer/生产禁止。",
+  "current_task": "PR107 HEAD c28af176真实Run39027727248四分片2成功2失败，62/64（60PG16+2NONPG）真实通过；剩余match-source原ci-verify-workflows旧64同SHA官方Source父签要求结构性不能在隔离V2完成，另F03-1 HTTPS缺GITHUB_ENV原step传播；A独立下载4份工件确认测试HMAC掩码控制指令明文入档，修复后才可受限合并。",
   "current_work_file": "07_重建工作区/F05-7_V2余64项原业务隔离实跑与安全等价来源证据_A主控B正式施工单_2026-10-17.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B在原PR107/feat/f05-7-v2-remaining-64-real-pg16-01按07_重建工作区/PR107_A主控原64项权限及PG16语义等价裁决与有限续跑令_2026-10-17.md进行原工作包一轮完整整改；在已签安全范围额外最多2次受控Push（每轮4标准Ubuntu Runner、40分钟/Job、5MiB/分片、保留1日），62项PG16、2项原非PG按冻结来源原样做真业务测试及同SHA官方证据。未通过项Fail Closed，A复验前不合并，不签五正式Source，不改原来源ref；B交READY_FOR_A_REVIEW或明确BLOCKED。",
+  "next_action": "B原PR107同步最新main，修复V2合成HMAC掩码与Artifact安全、原F03-1 HTTPS三个临时变量GITHUB_ENV步骤间传递并真实测试；保持match-source原旧Source强制同SHA父签BLOCKED，提交独立版本新V2 Source Issuer协议候选及负例，不修改原旧Source验证器。A额外仅授权最多1次安全有界Push（每轮4标准Ubuntu Job各40min，上传≤5MiB/分片、保留1天、预算/泄露即停），真证据交A，不自动发布Issuer/V1/生产。详见07_重建工作区/PR107_A主控62项真业务受限取证与旧Source父签不可等价及日志脱敏终审_2026-10-17.md",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B在原PR107/feat/f05-7-v2-remaining-64-real-pg16-01按07_重建工作区/PR107_A主控原64项权限及PG16语义等价裁决与有限续跑令_2026-10-17.md进行原工作包一轮完整整改；在已签安全范围额外最多2次受控Push（每轮4标准Ubuntu Runner、40分钟/Job、5MiB/分片、保留1日），62项PG16、2项原非PG按冻结来源原样做真业务测试及同SHA官方证据。未通过项Fail Closed，A复验前不合并，不签五正式Source，不改原来源ref；B交READY_FOR_A_REVIEW或明确BLOCKED。",
+  "next_action_detail": "B原PR107同步最新main，修复V2合成HMAC掩码与Artifact安全、原F03-1 HTTPS三个临时变量GITHUB_ENV步骤间传递并真实测试；保持match-source原旧Source强制同SHA父签BLOCKED，提交独立版本新V2 Source Issuer协议候选及负例，不修改原旧Source验证器。A额外仅授权最多1次安全有界Push（每轮4标准Ubuntu Job各40min，上传≤5MiB/分片、保留1天、预算/泄露即停），真证据交A，不自动发布Issuer/V1/生产。详见07_重建工作区/PR107_A主控62项真业务受限取证与旧Source父签不可等价及日志脱敏终审_2026-10-17.md",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -9493,7 +9493,7 @@
   },
   "f05_7_v2_remaining_64_real_execution_gate": {
     "task_id": "F05_7_V2_REMAINING_64_REAL_EXECUTION_AND_ISSUER_PROOF_01",
-    "status": "A_CHANGES_REQUESTED_AFTER_PR107_NATIVE_FAIL_CLOSED_REVIEW",
+    "status": "A_ACCEPTED_RUN_EVIDENCE_ONLY_B_REQUIRED_SOURCE_EQUIVALENCE_AND_LOG_REDACTION_FIX",
     "owner": "B",
     "review_owner": "A",
     "branch": "feat/f05-7-v2-remaining-64-real-pg16-01",
@@ -9534,7 +9534,7 @@
     "pending_original_total": 64,
     "pr": 107,
     "reviewed_b_head": "88afd5d2f3389a844d0da2903b59e903e1949f5a",
-    "native_run": 39023409526,
+    "native_run": 39027727248,
     "native_run_status": "completed/failure",
     "native_shard_jobs_failed": 4,
     "native_shard_jobs_success": 0,
@@ -9545,10 +9545,10 @@
     "blocked_pg16_startup": 2,
     "non_pg16_original_jobs_needing_equivalence": 2,
     "artifact_ids": [
-      12097786258,
-      12097468274,
-      12097885208,
-      12097294015
+      12098603894,
+      12099312017,
+      12099621026,
+      12099695908
     ],
     "all_head_checks_snapshot": {
       "success": 23,
@@ -9558,7 +9558,7 @@
     },
     "a_ruling": "07_重建工作区/PR107_A主控原64项权限及PG16语义等价裁决与有限续跑令_2026-10-17.md",
     "issue": 106,
-    "review_comment": "https://github.com/suzhe868-arch/mb/pull/107#issuecomment-6232764185",
+    "review_comment": "https://github.com/suzhe868-arch/mb/pull/107#issuecomment-6233462972",
     "original_work_order_amended_for_two_non_pg16": true,
     "allowed_additional_bounded_pushes": 2,
     "max_new_runner_jobs_per_push": 4,
@@ -9567,6 +9567,40 @@
     "outer_permissions_may_include_actions_read": true,
     "original_source_ref_push_authorized": false,
     "pr_merge_authorized": false,
-    "production_ready": false
-  }
+    "production_ready": false,
+    "b_pr": 107,
+    "b_reviewed_head": "c28af176bdec6f18c897ebd3d167db21fb18a716",
+    "native_run_event": "push",
+    "native_run_attempt": 1,
+    "standard_shard_job_success": 2,
+    "standard_shard_job_failure": 2,
+    "node_tests_passed_per_shard": 56,
+    "current_sha_original_pg16_passed": 60,
+    "current_sha_original_nonpg_passed": 2,
+    "current_sha_original_business_passed_total": 62,
+    "current_sha_original_blocked": 1,
+    "current_sha_original_failed": 1,
+    "current_sha_original_pending_total": 2,
+    "blocked_source_job": "f05-7-deterministic-matching-readiness-four-tier.yml#match-source",
+    "blocked_source_reason": "LEGACY_OFFICIAL_7_WORKFLOWS_64_JOBS_PLUS_2_SAME_HEAD_PUSH_ORACLE_CANNOT_RUN_ON_V2_WITH_OLD_REF_PUSH_FORBIDDEN",
+    "failed_https_job": "f05-7-frozen-h52-revalidation.yml#f03-1-frozen-https-2a",
+    "failed_https_reason": "V2_GITHUB_ENV_STEP_PROPAGATION_NOT_IMPLEMENTED",
+    "artifact_outer_and_inner_and_manifest_digest_independently_verified_by_A": true,
+    "material_evidence_redaction_issue": true,
+    "synthetic_hmac_add_mask_plaintext_in_shard1_archive": true,
+    "material_evidence_redaction_issue_artifact_id": 12099312017,
+    "synthetic_not_production_secret_verified": false,
+    "additional_bounded_pushes_allowed": 1,
+    "max_runner_timeout_minutes": 40,
+    "max_uploaded_artifact_per_shard_mib": 5,
+    "reviewed_all_head_check_snapshot": {
+      "success": 25,
+      "failure": 6,
+      "in_progress": 1,
+      "total": 32
+    },
+    "a_ruling_document": "07_重建工作区/PR107_A主控62项真业务受限取证与旧Source父签不可等价及日志脱敏终审_2026-10-17.md",
+    "source_gap": "OPEN"
+  },
+  "next_work_file": "07_重建工作区/PR107_A主控62项真业务受限取证与旧Source父签不可等价及日志脱敏终审_2026-10-17.md"
 }
