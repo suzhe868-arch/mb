@@ -27,6 +27,7 @@ export function buildInventory(catalog){
   let historical=ORIGINAL_HISTORICAL.find(x=>x.file===j.file&&x.id===j.id);
   out.push({key,source_workflow:j.file,source_blob:j.blob,original_source_sha:ORIGINAL_SHA,
    original_job_id:j.id,original_job_name:j.name,original_job_env:j.job_env||{},pg16_image:j.pg16||null,
+   original_job_kind:j.pg16?'PG16':'NONPG',
    original_step_count:j.steps.length,original_run_commands:j.commands.length,
    step_sha256:j.steps.map(s=>sha256(JSON.stringify(s))),
    command_sha256:j.commands.map(s=>sha256(s)),
@@ -34,9 +35,11 @@ export function buildInventory(catalog){
    original_conditional:Boolean(j.conditions),
    history:historical?{...historical,kind:'HISTORICAL_DIFFERENT_SHA',current_head_accepted:false}:null,
    status:historical?'HISTORICAL_PREVIOUS_SHA_ONLY':'NOT_RUN',
-   current_head_real_pg16_pass:false,formal_source_signed:false});
+   current_head_real_pg16_pass:false,current_head_real_original_nonpg_pass:false,formal_source_signed:false});
  }
  assert(out.filter(x=>x.history).length===2&&out.filter(x=>!x.history).length===64,'64_REMAINING');
+ const nonpg=out.filter(x=>x.original_job_kind==='NONPG');
+ assert(nonpg.length===2&&nonpg.every(x=>x.source_workflow==='f05-7-frozen-h52-revalidation.yml'&&['h-source','h-https'].includes(x.original_job_id)),'ONLY_TWO_ORIGINAL_NONPG');
  const target=out.filter(x=>!x.history);
  for(let i=0;i<target.length;i++)target[i].shard=i%4;
  return {schema:'F05_7_V2_64_MATRIX_V1',source_ref_sha:ORIGINAL_SHA,total_original:66,

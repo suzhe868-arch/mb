@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {buildInventory,sha256,ORIGINAL_SHA,ORIGINAL_HISTORICAL} from './inventory.mjs';
-import {verifyOfficialIndex,checkJobRecord,digest,REPO,BRANCH,WORKFLOW,JOB_NAMES,ARTIFACT_NAMES} from './evidence-proof.mjs';
+import {verifyOfficialIndex,checkJobRecord,expectedOriginalStatus,digest,REPO,BRANCH,WORKFLOW,JOB_NAMES,ARTIFACT_NAMES} from './evidence-proof.mjs';
 const S='b'.repeat(40),OTHER='c'.repeat(40);
 const source=()=>({source_workflow:'f05-7-frozen-k2-revalidation.yml',source_blob:'d'.repeat(40),
- original_job_id:'x',original_job_name:'Known PG16',original_run_commands:1,
+ original_job_id:'x',original_job_name:'Known PG16',pg16_image:'postgres:16-alpine',original_run_commands:1,
  command_sha256:[digest('bash safe-test')],expected_artifacts:[{name:'original-artifact',path:'engineering/evidence/'}],key:'file#x'});
 const rec=()=>({original_file:'f05-7-frozen-k2-revalidation.yml',source_blob:'d'.repeat(40),
  original_job_id:'x',original_job_name:'Known PG16',status:'REAL_PG16_PASS',pg16:true,
@@ -14,6 +14,20 @@ const rec=()=>({original_file:'f05-7-frozen-k2-revalidation.yml',source_blob:'d'
  files:[{path:'engineering/evidence/a.log',bytes:4,sha256:digest('real')}],bytes:4}]});
 const ctx=()=>({sha:S,runId:100,attempt:1});
 const file=()=>new Map([['engineering/evidence/a.log',Buffer.from('real')]]);
+test('原非PG真实测试与原PG16严格区分',()=>{
+ const nonpg=source();nonpg.source_workflow='f05-7-frozen-h52-revalidation.yml';
+ nonpg.original_job_id='h-https';nonpg.pg16_image=null;
+ const entry=rec();entry.original_file=nonpg.source_workflow;entry.original_job_id=nonpg.original_job_id;
+ entry.status='REAL_ORIGINAL_NONPG_PASS';entry.pg16=false;
+ assert.equal(expectedOriginalStatus(nonpg),'REAL_ORIGINAL_NONPG_PASS');
+ assert.equal(checkJobRecord(nonpg,entry,'SOURCE_STEP_PASS 0',file(),ctx()).issuer_signed,false);
+ entry.status='REAL_PG16_PASS';entry.pg16=true;
+ assert.throws(()=>checkJobRecord(nonpg,entry,'SOURCE_STEP_PASS 0',file(),ctx()),/V2_EVIDENCE_FAIL_CLOSED_/);
+});
+test('伪造未知原非PG类型拒绝',()=>{
+ const fake=source();fake.pg16_image=null;
+ assert.throws(()=>expectedOriginalStatus(fake),/V2_EVIDENCE_FAIL_CLOSED_/);
+});
 test('单项日志、业务命令和原Artifact真实正文内容hash均成立',()=>{
  const x=checkJobRecord(source(),rec(),'SOURCE_STEP_PASS 0',file(),ctx());
  assert.equal(x.issuer_signed,false);assert.equal(x.legacy_66_proven,false);
@@ -95,6 +109,7 @@ test('66格必须2份历史独立来源与64项当前真实待跑',()=>{
  id:'j'+i,name:'job'+i,pg16:'postgres:16-alpine',steps:[{run:'true'}],commands:['true'],artifacts:[]}));
  jobs[0].file=ORIGINAL_HISTORICAL[0].file;jobs[0].blob=sourceMap.get(jobs[0].file).blob;jobs[0].id=ORIGINAL_HISTORICAL[0].id;
  jobs[1].file=ORIGINAL_HISTORICAL[1].file;jobs[1].blob=sourceMap.get(jobs[1].file).blob;jobs[1].id=ORIGINAL_HISTORICAL[1].id;
+ for(const [ix,id] of [[2,'h-source'],[3,'h-https']]){jobs[ix].file=ORIGINAL_HISTORICAL[0].file;jobs[ix].blob=sourceMap.get(jobs[ix].file).blob;jobs[ix].id=id;jobs[ix].pg16=null;}
  const matrix=buildInventory({total:66,ref_sha:ORIGINAL_SHA,sources,jobs});
  assert.equal(matrix.jobs.length,66);assert.equal(matrix.jobs.filter(x=>x.history).length,2);
  assert.equal(matrix.jobs.filter(x=>!x.history).length,64);

@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
-# Each source Job gets its own clean Git worktree and fresh PG16 Docker service.
+# Each source Job gets an independent worktree; exactly 62 remaining original PG16 + 2 original non-PG jobs.
 # Not a replacement for GitHub's signed Source issuers; handles only disposable synthetic CI.
 require 'json';require 'digest';require 'open3';require 'fileutils';require 'tmpdir';require 'timeout';require 'shellwords';require 'psych'
 module V2Shard
@@ -56,23 +56,52 @@ module V2Shard
    deny('STEP_TIMEOUT')
   end
  end
+ def self.readonly_permissions!(permission)
+  return if permission.nil?
+  deny('ORIGINAL_PERMISSIONS_NOT_READONLY_MAPPING') unless permission.is_a?(Hash)
+  permission.each do |key,value|
+   deny('ORIGINAL_PERMISSION_SCOPE_DENIED') unless %w[contents actions].include?(key.to_s)
+   deny('ORIGINAL_PERMISSION_WRITE_OR_UNKNOWN_DENIED') unless %w[read none].include?(value.to_s)
+  end
+  true
+ end
+ def self.original_nonpg?(job)
+  job['file']=='f05-7-frozen-h52-revalidation.yml' && %w[h-source h-https].include?(job['id'])
+ end
+ def self.pg16_version_strict!(value)
+  deny('PG16_INVALID_SQL_VERSION') unless value.to_s.match?(/\A16[0-9]{4}\z/) && value.to_i.between?(160000,169999)
+  value.to_s
+ end
+ def self.wait_final_postgres!(container,attempts:50,interval:1)
+  consistent=0;last='no successful TCP SQL probe'
+  attempts.times do |index|
+   begin
+    version=exec!('docker','exec',container,'psql','-X','-At','-h','127.0.0.1',
+      '-U','postgres','-d','postgres','-c','SHOW server_version_num',timeout:8)
+    pg16_version_strict!(version)
+    consistent+=1
+    if consistent>=2
+     puts "V2_PG16_FINAL_TCP_SQL_READY container=#{container} version=#{version} probes=#{index+1}"
+     return version
+    end
+   rescue StandardError=>e
+    last=e.message[0,180];consistent=0
+   end
+   sleep interval
+  end
+  begin
+   warn "V2_PG16_INIT_CONTAINER_LOG #{exec!('docker','logs','--tail','35',container,timeout:5)[0,1800]}"
+  rescue StandardError=>e
+   warn "V2_PG16_LOG_UNAVAILABLE #{e.message[0,120]}"
+  end
+  deny("PG16_FINAL_TCP_SQL_NOT_READY_#{last}")
+ end
  def self.new_database(image,container)
   deny('INVALID_POSTGRES_IMAGE') unless ['postgres:16','postgres:16-alpine'].include?(image)
   exec!('docker','run','-d','--rm','--name',container,
     '-e','POSTGRES_USER=postgres','-e','POSTGRES_PASSWORD=disposable_bootstrap_only',
     '-e','POSTGRES_DB=postgres','-p','127.0.0.1:5432:5432',image,timeout:90)
-  ready=false
-  50.times do
-   begin
-    txt=exec!('docker','exec',container,'pg_isready','-U','postgres','-d','postgres',timeout:5)
-    ready=txt.include?('accepting connections')
-    break if ready
-   rescue StandardError; end
-   sleep 1
-  end
-  deny('PG16_SERVICE_NOT_READY') unless ready
-  actual=exec!('docker','exec',container,'psql','-X','-At','-U','postgres','-d','postgres','-c','SHOW server_version_num')
-  deny('NOT_PG16') unless actual.to_i.between?(160000,169999)
+  actual=wait_final_postgres!(container)
   exec!('docker','tag',image,OLD_TAG)
   actual
  end
@@ -150,18 +179,26 @@ module V2Shard
   begin
    deny('NOT_IN_SHARD_BUDGET') if limit<=0
    deny('UNSAFE_SOURCE_FILE') unless job['file'].match?(/\Af05-7-[a-zA-Z0-9_.-]+\.yml\z/)
-   image=job['pg16'];deny('SOURCE_JOB_NO_INDEPENDENT_PG16_SERVICE') if image.nil?
+   image=job['pg16'];nonpg=original_nonpg?(job)
+   deny('ORIGINAL_NONPG_SERVICE_CHANGED') if nonpg && image
+   deny('SOURCE_JOB_NO_INDEPENDENT_PG16_SERVICE') if !nonpg && image.nil?
    frozen=File.join(ROOT,'.github','workflows',job['file'])
    original=Psych.safe_load_file(frozen,aliases:true).fetch('jobs').fetch(id)
    deny('ORIGINAL_JOB_LEVEL_CONDITION') if original.key?('if')
-   deny('ORIGINAL_JOB_UNSUPPORTED_SERVICE') unless original.fetch('services',{}).keys==['postgres']
-   deny('ORIGINAL_JOB_COMPLEX_PERMISSIONS_OR_STRATEGY') if %w[permissions strategy container needs].any?{|k|original.key?(k)}
+   deny('ORIGINAL_JOB_UNSUPPORTED_SERVICE') unless original.fetch('services',{}).keys==(nonpg ? [] : ['postgres'])
+   deny('ORIGINAL_JOB_COMPLEX_STRATEGY_OR_CONTAINER') if %w[strategy container needs].any?{|k|original.key?(k)}
+   readonly_permissions!(original['permissions'])
    deny('ORIGINAL_JOB_MISMATCH') unless original.fetch('steps').size==job['steps'].size
    deny('JOB_LEVEL_CONDITIONS_NOT_SUPPORTED') if job['conditions'] && !job['steps'].all?{|s| !s.key?('if')||s['if']=='always()'}
    work=Dir.mktmpdir("v2-#{shard}-",ENV['RUNNER_TEMP']||'/tmp')
    exec!('git','worktree','add','--detach',work,ENV.fetch('GITHUB_SHA'),timeout:120)
    info[:clean_git_worktree]=true
-   info[:postgres_version_num]=new_database(image,container);info[:pg16]=true
+   if nonpg
+    info[:original_job_kind]='NONPG';info[:pg16]=false
+    puts "V2_ORIGINAL_NONPG_MODE #{id} MODE=#{job.fetch('job_env',{}).fetch('MODE')}"
+   else
+    info[:original_job_kind]='PG16';info[:postgres_version_num]=new_database(image,container);info[:pg16]=true
+   end
    info[:status]='RUNNING';atomic_write(File.join(dir,'真实单Job证据.json'),info)
    File.open(logfile,'w') do |log|
     job['steps'].each_with_index do |step,index|
@@ -187,7 +224,7 @@ module V2Shard
    end
    deny('SOURCE_SHELL_INCOMPLETE') unless info[:executed_commands]==job['commands'].length
    info[:artifacts]=capture_artifacts(job,work,dir)
-   info[:status]='REAL_PG16_PASS'
+   info[:status]=nonpg ? 'REAL_ORIGINAL_NONPG_PASS' : 'REAL_PG16_PASS'
   rescue StandardError=>e
    info[:status]=e.message.match?(/BUDGET|STEP_TIMEOUT|ARTIFACT|CONDITION|UNSUPPORTED|PG16_SERVICE|UNKNOWN|ENV_WITH_EXPRESSION|UNRESOLVED_EXPRESSION/) ? 'BLOCKED_EQUIVALENCE' : 'FAIL'
    info[:blocker]=e.message[0,400]
@@ -226,7 +263,9 @@ module V2Shard
   end
   atomic_write(File.join(OUT,"shard#{shard}",'本分片16项实际执行汇总.json'),
                {candidate_sha:ENV['GITHUB_SHA'],run_id:ENV['GITHUB_RUN_ID'],shard:shard,items:results,
-                total:16,passed:results.count{|r|r[:status]=='REAL_PG16_PASS'},
+                total:16,passed:results.count{|r|%w[REAL_PG16_PASS REAL_ORIGINAL_NONPG_PASS].include?(r[:status])},
+                original_pg16_pass:results.count{|r|r[:status]=='REAL_PG16_PASS'},
+                original_nonpg_pass:results.count{|r|r[:status]=='REAL_ORIGINAL_NONPG_PASS'},
                 source_issuer_signed:false})
   matrix_path=File.join(OUT,'66格真实测试矩阵.json')
   matrix=JSON.parse(File.read(matrix_path))
@@ -235,14 +274,17 @@ module V2Shard
    r=index[[cell['source_workflow'],cell['original_job_id']]]
    next unless r
    cell['status']=r[:status];cell['current_head_real_pg16_pass']=r[:status]=='REAL_PG16_PASS'
+   cell['current_head_real_original_nonpg_pass']=r[:status]=='REAL_ORIGINAL_NONPG_PASS'
    cell['actual_candidate_sha']=ENV['GITHUB_SHA'];cell['actual_run_id']=ENV['GITHUB_RUN_ID'];cell['actual_shard']=shard
    cell['original_command_count_executed']=r[:executed_commands]||0;cell['original_log_sha256']=r[:log_sha256]||nil
    cell['blocker']=r[:blocker] if r[:blocker]
   end
   atomic_write(File.join(OUT,"shard#{shard}",'66格本分片真实执行矩阵.json'),matrix)
-  count=results.count{|r|r[:status]=='REAL_PG16_PASS'}
+  count=results.count{|r|%w[REAL_PG16_PASS REAL_ORIGINAL_NONPG_PASS].include?(r[:status])}
   puts "V2_SHARD_DONE #{shard} total=#{results.size} pass=#{count}"
   deny("SHARD_INCOMPLETE_#{shard}_#{count}_OF_16") if count<16
  end
 end
-begin;V2Shard.main;rescue StandardError=>e;warn e.message;exit 1;end
+if $PROGRAM_NAME==__FILE__
+ begin;V2Shard.main;rescue StandardError=>e;warn e.message;exit 1;end
+end

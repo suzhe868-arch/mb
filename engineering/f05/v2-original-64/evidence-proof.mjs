@@ -7,8 +7,14 @@ import {execFileSync} from 'node:child_process';
 export const REPO='suzhe868-arch/mb';
 export const BRANCH='feat/f05-7-v2-remaining-64-real-pg16-01';
 export const WORKFLOW='.github/workflows/f05-7-v2-original-64-ci.yml';
-export const JOB_NAMES=Object.freeze(Array.from({length:4},(_,s)=>`F05-7 V2 原64真PG16 分片${s}`));
+export const JOB_NAMES=Object.freeze(Array.from({length:4},(_,s)=>`F05-7 V2 原64混合业务 分片${s}`));
 export const ARTIFACT_NAMES=Object.freeze(Array.from({length:4},(_,s)=>`f05-v2-original-64-shard-${s}`));
+export function expectedOriginalStatus(source){
+ const nonpg=source?.source_workflow==='f05-7-frozen-h52-revalidation.yml'&&['h-source','h-https'].includes(source?.original_job_id);
+ if(nonpg){if(source.pg16_image!==null)deny('NONPG_SERVICE_MISMATCH');return 'REAL_ORIGINAL_NONPG_PASS'}
+ if(!['postgres:16','postgres:16-alpine'].includes(source?.pg16_image))deny('PG16_SERVICE_MISMATCH');
+ return 'REAL_PG16_PASS'
+}
 const sha=x=>typeof x==='string'&&/^[0-9a-f]{40}$/.test(x);
 const positive=x=>Number.isSafeInteger(x)&&x>0;
 const success=x=>x?.conclusion==='success'&&x?.status==='completed';
@@ -19,8 +25,8 @@ export function checkJobRecord(source,record,logText,files,candidate){
  if(source.source_workflow!==record.original_file||source.original_job_id!==record.original_job_id||
     source.source_blob!==record.source_blob||source.original_job_name!==record.original_job_name)deny('JOB_ID_OR_NAME_SUBSTITUTION');
  if(record.candidate_head!==candidate.sha||record.candidate_branch!==BRANCH||record.run_id!==String(candidate.runId)||
-    Number(record.attempt)!==candidate.attempt||record.event!=='push'||record.status!=='REAL_PG16_PASS'||
-    record.formal_issuer_signed!==false||!record.pg16||!record.clean_git_worktree)deny('REAL_PG16_STATUS');
+    Number(record.attempt)!==candidate.attempt||record.event!=='push'||record.status!==expectedOriginalStatus(source)||
+    record.formal_issuer_signed!==false||record.pg16!==(record.status==='REAL_PG16_PASS')||!record.clean_git_worktree)deny('REAL_PG16_STATUS');
  if(!Array.isArray(record.command_sha256)||record.command_sha256.length!==source.original_run_commands||
     record.command_sha256.some((h,i)=>h!==source.command_sha256[i])||
     record.executed_commands!==source.original_run_commands)deny('ORIGINAL_COMMANDS');
