@@ -252,3 +252,43 @@ CREATE TRIGGER f05_frozen_quota_adjustments_immutable_test BEFORE UPDATE OR DELE
  EXECUTE FUNCTION public.f05_quota_additions_append_only_test();
 CREATE SEQUENCE public.f05_catalog_quota_adjustment_id_seq AS bigint START WITH 59000001;
 REVOKE ALL ON public.f05_catalog_quota_staff_scope_test,public.f05_catalog_quota_addition_events_test FROM PUBLIC;
+
+-- PDM-11: only DISPOSABLE_TEST_ONLY phone-service consent and level entitlement
+-- proofs. Real F02 find_car_applications is the sole business Application object.
+CREATE TABLE public.f05_find_car_phone_proof_test (
+ customer_id bigint PRIMARY KEY REFERENCES public.customers(customer_id) ON DELETE RESTRICT,
+ phone_service_authorized boolean NOT NULL CHECK(phone_service_authorized=true),
+ issuer text NOT NULL DEFAULT 'DISPOSABLE_TEST_ONLY' CHECK(issuer='DISPOSABLE_TEST_ONLY'),
+ expires_at timestamptz NOT NULL,
+ revoked_at timestamptz
+);
+CREATE TABLE public.f05_find_car_level_entitlement_test (
+ level_id bigint PRIMARY KEY REFERENCES public.customer_levels(level_id) ON DELETE RESTRICT,
+ can_activate_demand boolean NOT NULL,
+ issuer text NOT NULL DEFAULT 'DISPOSABLE_TEST_ONLY' CHECK(issuer='DISPOSABLE_TEST_ONLY'),
+ expires_at timestamptz NOT NULL
+);
+CREATE TABLE public.f05_find_car_application_detail_test (
+ application_id bigint PRIMARY KEY REFERENCES public.find_car_applications(application_id) ON DELETE RESTRICT,
+ customer_original_text text NOT NULL CHECK(length(customer_original_text) BETWEEN 1 AND 1000),
+ budget_max_cents bigint CHECK(budget_max_cents IS NULL OR (budget_max_cents>0 AND budget_max_cents<100000000000000)),
+ revision bigint NOT NULL DEFAULT 1 CHECK(revision>0),
+ updated_at timestamptz NOT NULL DEFAULT statement_timestamp()
+);
+CREATE TABLE public.f05_find_car_application_events_test (
+ event_key text PRIMARY KEY CHECK(event_key ~ '^[A-Za-z0-9_-]{24,64}$'),
+ payload_sha256 text NOT NULL CHECK(payload_sha256 ~ '^[0-9a-f]{64}$'),
+ customer_id bigint NOT NULL REFERENCES public.customers(customer_id) ON DELETE RESTRICT,
+ application_id bigint NOT NULL REFERENCES public.find_car_applications(application_id) ON DELETE RESTRICT,
+ action text NOT NULL CHECK(action IN ('CREATE','EDIT','WITHDRAW')),
+ result_status text NOT NULL CHECK(result_status IN ('pending','closed')),
+ after_revision bigint NOT NULL CHECK(after_revision>0),
+ occurred_at timestamptz NOT NULL DEFAULT statement_timestamp()
+);
+CREATE FUNCTION public.f05_find_car_events_immutable_test() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN RAISE EXCEPTION 'F05_FIND_CAR_EVENTS_APPEND_ONLY' USING ERRCODE='23514'; END $$;
+CREATE TRIGGER f05_find_car_events_no_mutation BEFORE UPDATE OR DELETE
+ ON public.f05_find_car_application_events_test FOR EACH ROW
+ EXECUTE FUNCTION public.f05_find_car_events_immutable_test();
+REVOKE ALL ON public.f05_find_car_phone_proof_test,public.f05_find_car_level_entitlement_test,
+ public.f05_find_car_application_detail_test,public.f05_find_car_application_events_test FROM PUBLIC;
