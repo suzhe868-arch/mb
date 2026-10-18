@@ -123,6 +123,10 @@ const REQUIRED_CATALOG_COLUMNS=Object.freeze([
  ['public.f05_matching_vehicle_facts_test','source_brand_id','bigint'],
  ['public.f05_matching_vehicle_facts_test','mileage_km','integer'],
  ['public.f05_matching_recompute_events_test','event_key','text'],
+ ['public.f05_matching_affected_queue_test','demand_id','bigint'],
+ ['public.f05_matching_affected_queue_test','vehicle_id','bigint'],
+ ['public.f05_matching_affected_queue_test','generation','bigint'],
+ ['public.f05_matching_affected_queue_test','state','text'],
 ]);
 const EXPECTED_COLUMNS_VALUES=REQUIRED_CATALOG_COLUMNS.map(x=>`('${x[0]}','${x[1]}','${x[2]}')`).join(',');
 export const SQL_CATALOG_SCHEMA=`SELECT
@@ -154,13 +158,16 @@ export const SQL_CATALOG_SCHEMA=`SELECT
  to_regclass('public.f05_matching_sales_description_test') IS NOT NULL AS md,
  to_regclass('public.f05_matching_vehicle_facts_test') IS NOT NULL AS mv,
  to_regclass('public.f05_matching_recompute_events_test') IS NOT NULL AS mx,
- (SELECT count(*)=13 FROM pg_catalog.pg_trigger t WHERE NOT t.tgisinternal AND t.tgname IN
+ to_regclass('public.f05_matching_affected_queue_test') IS NOT NULL AS aq,
+ to_regclass('public.f05_matching_safe_current_test') IS NOT NULL AS sv,
+ (SELECT count(*)=14 FROM pg_catalog.pg_trigger t WHERE NOT t.tgisinternal AND t.tgname IN
  ('f05_match_customer_guard_test','f05_match_demand_lifecycle_test',
   'f05_match_vehicle_saleability_test','f05_match_listing_cycle_test',
   'f05_match_level_entitlement_test','f05_matching_change_events_append_only_test',
   'f05_match_price_fact_test','f05_match_vehicle_fact_test','f05_match_sales_description_test',
   'f05_match_vehicle_model_assignment_test','f05_match_master_model_fact_test',
-  'f05_price_before_vehicle_lock_test','f05_facts_before_vehicle_lock_test')) AS iv,
+  'f05_price_before_vehicle_lock_test','f05_facts_before_vehicle_lock_test',
+  'f05_match_queue_affected_test')) AS iv,
  NOT EXISTS (
   SELECT 1 FROM (VALUES ${EXPECTED_COLUMNS_VALUES}) AS expected(relation,column_name,physical_type)
   LEFT JOIN pg_catalog.pg_attribute attr
@@ -168,7 +175,7 @@ export const SQL_CATALOG_SCHEMA=`SELECT
    AND attr.attname=expected.column_name AND attr.attnum>0 AND NOT attr.attisdropped
   WHERE attr.attname IS NULL OR pg_catalog.format_type(attr.atttypid,attr.atttypmod)<>expected.physical_type
  ) AS shape,
- (SELECT count(*)=102 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
+ (SELECT count(*)=103 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
  (SELECT count(*)=2 FROM pg_catalog.pg_constraint fk
   WHERE fk.contype='f'
    AND fk.conrelid IN (to_regclass('public.f05_real_catalog_visibility_test'),to_regclass('public.f05_real_catalog_protections_test'))
@@ -183,7 +190,7 @@ export async function probeIsolatedCatalog(pool){
   const identity=(await pool.query(SQL_CATALOG_IDENTITY)).rows[0];
   if(!identity || Math.floor(Number(identity.v)/10000)!==16 || identity.db!=='f05_catalog_test' || identity.role!=='f05_catalog_ci')return false;
   const schema=(await pool.query(SQL_CATALOG_SCHEMA)).rows[0];
-  return !!schema && Object.keys(schema).sort().join(',')==='c,ca,cp,ec,es,fac,fca,fcd,fce,fcp,fe,fk,fs,ft,full,he,iv,md,me,mv,mx,p,pe,pf,po,pp,qa,qs,sh,shape,ss,v,x' && Object.values(schema).every(v=>v===true);
+  return !!schema && Object.keys(schema).sort().join(',')==='aq,c,ca,cp,ec,es,fac,fca,fcd,fce,fcp,fe,fk,fs,ft,full,he,iv,md,me,mv,mx,p,pe,pf,po,pp,qa,qs,sh,shape,ss,sv,v,x' && Object.values(schema).every(v=>v===true);
  }catch{return false}
 }
 export async function createIsolatedCatalogRuntime(env=process.env){

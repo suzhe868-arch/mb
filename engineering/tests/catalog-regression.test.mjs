@@ -311,7 +311,7 @@ test('readiness uses physical database identity and all four required relations'
  assert.match(SQL_CATALOG_SCHEMA,/to_regclass\('public\.vehicles'\)/);
  assert.match(SQL_CATALOG_SCHEMA,/pg_catalog\.pg_attribute/);
  assert.match(SQL_CATALOG_SCHEMA,/pg_catalog\.pg_constraint/);
- assert.match(SQL_CATALOG_SCHEMA,/count\(\*\)=102/);
+ assert.match(SQL_CATALOG_SCHEMA,/count\(\*\)=103/);
 });
 test('readiness fails if a physical table disappears after startup',async()=>{
  const pool={query:async(s)=>s===SQL_CATALOG_IDENTITY?{rows:[{v:160009,db:'f05_catalog_test',role:'f05_catalog_ci'}]}:{rows:[{v:true,c:true,p:false,x:true,po:true,pf:true,fs:true,ft:true,fe:true,cp:true,ca:true,es:true,ec:true,ss:true,sh:true,he:true,pe:true,pp:true,qa:true,qs:true,fca:true,fcd:true,fce:true,fcp:true,fac:true,md:true,me:true,mv:true,mx:true,iv:true,shape:true,fk:true,full:true}]}};
