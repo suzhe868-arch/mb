@@ -187,6 +187,66 @@ try{
   assert.equal((await check("SELECT state FROM public.f05_matching_affected_queue_test "+
    "WHERE demand_id=60100 AND vehicle_id=60111"))[0].state,'done');
  });
+ await test('PG16 orphaned done lease recovers only after expiry and invalid safe source; repair completes same event',async()=>{
+  assert.equal((await db.query("UPDATE public.demand_match_results SET current_state='stale', "+
+   "invalidated_at=statement_timestamp() WHERE demand_id=60100 AND vehicle_id=60110 "+
+   "AND current_state='current'")).rowCount,1);
+  const pending=(await check("SELECT generation,state FROM public.f05_matching_affected_queue_test "+
+   "WHERE demand_id=60100 AND vehicle_id=60110"))[0];
+  assert.equal(pending.state,'pending');
+  const generation=String(pending.generation);
+  // Simulate the real queue CLAIM (the SQL/physical state), followed by the
+  // genuinely successful frozen matching transaction, but no final Worker ack.
+  await db.query("UPDATE public.f05_matching_affected_queue_test SET state='processing', "+
+   "lease_until=statement_timestamp()+interval '60 seconds' "+
+   "WHERE demand_id=60100 AND vehicle_id=60110");
+  const eventKey=createHash('sha256').update(
+   ['F05_AFFECTED_TEST_V1','60100','60110',generation].join(':')).digest('base64url');
+  const actual=await matching.recompute({credential,demandId:'60100',vehicleId:'60110',eventKey});
+  assert.equal(actual.status,200,JSON.stringify(actual));
+  assert.equal(actual.body.code,'MATCH_RESULT_RECOMPUTED');
+  const done=(await check("SELECT state,lease_until FROM public.f05_matching_affected_queue_test "+
+   "WHERE demand_id=60100 AND vehicle_id=60110"))[0];
+  assert.equal(done.state,'done');assert.ok(done.lease_until,'service preserves a live claim');
+  assert.equal((await retry.runOnce({credential,limit:1})).claimed,0,
+   'valid done lease never retries before expiry');
+  // A source naturally expires without a Match Result invalidation event; now
+  // the test advances the orphaned lease clock physically.
+  await db.query("UPDATE public.f05_real_catalog_visibility_test SET "+
+   "expires_at=statement_timestamp()-interval '1 second' WHERE vehicle_id=60110");
+  await db.query("UPDATE public.f05_matching_affected_queue_test SET "+
+   "lease_until=statement_timestamp()-interval '1 second' "+
+   "WHERE demand_id=60100 AND vehicle_id=60110");
+  const invalid=(await check("SELECT count(*)::int n FROM public.f05_matching_safe_current_test "+
+   "WHERE demand_id=60100 AND vehicle_id=60110"))[0];
+  assert.equal(invalid.n,0);
+  const reclaimed=await retry.runOnce({credential,limit:1});
+  assert.equal(reclaimed.claimed,1,JSON.stringify(reclaimed));
+  assert.equal(reclaimed.outcomes[0].outcome,'retry_pending_or_failed');
+  const retryQueued=(await check("SELECT generation,state,attempts,last_error FROM "+
+   "public.f05_matching_affected_queue_test WHERE demand_id=60100 AND vehicle_id=60110"))[0];
+  assert.equal(String(retryQueued.generation),generation);
+  assert.equal(retryQueued.state,'pending');
+  assert.equal(retryQueued.attempts,1);
+  assert.equal(retryQueued.last_error,'MATCH_RETRY_EVIDENCE_NOT_CURRENT');
+  // The fixture itself restores a verifiable source proof; that does not create
+  // a new Match Result or change the generation. A replay is still checked.
+  await db.query("UPDATE public.f05_real_catalog_visibility_test SET "+
+   "expires_at=statement_timestamp()+interval '20 minutes' WHERE vehicle_id=60110");
+  await db.query("UPDATE public.f05_matching_affected_queue_test SET "+
+   "next_attempt_at=statement_timestamp()-interval '1 second' "+
+   "WHERE demand_id=60100 AND vehicle_id=60110");
+  const recovered=await retry.runOnce({credential,limit:1});
+  assert.equal(recovered.claimed,1);assert.equal(recovered.outcomes[0].outcome,'done');
+  const after=(await check("SELECT generation,state,lease_until FROM "+
+   "public.f05_matching_affected_queue_test WHERE demand_id=60100 AND vehicle_id=60110"))[0];
+  assert.equal(String(after.generation),generation);assert.equal(after.state,'done');
+  assert.equal(after.lease_until,null);
+  assert.equal((await check("SELECT count(*)::int n FROM public.f05_matching_safe_current_test "+
+   "WHERE demand_id=60100 AND vehicle_id=60110"))[0].n,1);
+  assert.equal((await check("SELECT state FROM public.f05_matching_affected_queue_test "+
+   "WHERE demand_id=60100 AND vehicle_id=60111"))[0].state,'done');
+ });
  await test('PG16 invalid batch limits fail and do not mutate source facts',async()=>{
   await assert.rejects(db.query('SELECT public.f05_match_sweep_unusable_test(0)'),/F05_TTL_BATCH_LIMIT_INVALID/);
   await assert.rejects(db.query('SELECT public.f05_match_sweep_unusable_test(201)'),/F05_TTL_BATCH_LIMIT_INVALID/);

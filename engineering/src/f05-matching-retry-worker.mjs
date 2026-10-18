@@ -11,6 +11,10 @@ export function createIsolatedMatchingRetryWorker({pool,matching,env=process.env
    throw Error('MATCH_RETRY_EMPLOYEE_CREDENTIAL_REQUIRED');
   if(!Number.isInteger(limit)||limit<1||limit>50)throw Error('MATCH_RETRY_BATCH_LIMIT_INVALID');
   // Single statement lease, SKIP LOCKED: two workers cannot claim the same generation.
+  // A service may commit the physical Match and mark the queue 'done' BEFORE
+  // its Worker verifies safe-current. If that Worker dies with an outstanding
+  // lease, only reclaim an expired 'done' lease whose read-time Match is invalid.
+  // Valid done tasks and ordinary done records with no orphaned lease stay done.
   const jobs=(await pool.query(`
    WITH selected AS (
     SELECT q.demand_id,q.vehicle_id
@@ -29,7 +33,11 @@ export function createIsolatedMatchingRetryWorker({pool,matching,env=process.env
      AND scope.customer_id=c.customer_id AND scope.can_recompute=true
      AND scope.issuer='DISPOSABLE_TEST_ONLY' AND scope.expires_at>statement_timestamp()
     WHERE ((q.state='pending' AND q.next_attempt_at<=statement_timestamp())
-       OR (q.state='processing' AND q.lease_until<statement_timestamp()))
+       OR (q.state='processing' AND q.lease_until<statement_timestamp())
+       OR (q.state='done' AND q.lease_until<statement_timestamp()
+           AND NOT EXISTS (
+            SELECT 1 FROM public.f05_matching_safe_current_test valid
+            WHERE valid.demand_id=q.demand_id AND valid.vehicle_id=q.vehicle_id)))
     ORDER BY q.next_attempt_at,q.demand_id,q.vehicle_id
     LIMIT $1 FOR UPDATE OF q SKIP LOCKED
    )
