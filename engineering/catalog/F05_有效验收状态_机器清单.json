@@ -2,22 +2,22 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F05_7_TEST_ONLY_PAGED_DISCOVERY_200_PG16_PASS_EXTERNAL_ISSUER_OPEN",
+  "status": "B_IN_PROGRESS_F05_7_RULE_CHANGE_FIRST_DISCOVERY_OPTIONAL_PRICE_PG16_208_PASS_SOURCE_GAPS_OPEN",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "1a734407f68148348b2465e8f614a82d6924ad3c",
+  "github_commit": "956919d7111ed95387fae0eec0d5117f346af50e",
   "node_http_stub_tests": {
-    "passed": 140,
+    "passed": 141,
     "failed": 0,
     "skipped": 0
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39131581645,
-    "head_sha": "1a734407f68148348b2465e8f614a82d6924ad3c",
-    "node_http_tests_passed": 140,
-    "real_pg16_integration_tests_passed": 200,
+    "run_id": 39134423743,
+    "head_sha": "956919d7111ed95387fae0eec0d5117f346af50e",
+    "node_http_tests_passed": 141,
+    "real_pg16_integration_tests_passed": 208,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -84,12 +84,17 @@
     "matching_discovery_only_test_issuer": true,
     "matching_discovery_batch_limit": 50,
     "matching_discovery_partial_continuation_implemented": true,
-    "matching_hard_condition_fields_pg16_cases_passed": 6,
+    "matching_hard_condition_fields_pg16_cases_passed": 9,
     "source_fact_structured_hard_fields_persisted": true,
     "source_fact_provenance_formal": false,
     "matching_discovery_continuation_request_automatic": false,
     "matching_discovery_idempotent_page_has_more_audit_verified": true,
-    "matching_discovery_new_vehicle_52_demand_pg16_verified": true
+    "matching_discovery_new_vehicle_52_demand_pg16_verified": true,
+    "matching_rule_change_discovery_pg16_cases_passed": 5,
+    "matching_dictionary_db_extended_field_test_cases_passed": 1,
+    "optional_customer_price_safe_current_pg16_verified": true,
+    "matching_rule_change_first_pair_scope_test_verified": true,
+    "matching_dictionary_physical_mapped_fields_test_verified": true
   },
   "endpoints": {
     "implemented_test_only": [
@@ -300,8 +305,8 @@
     "Full F05-1..11 actual authenticated HTTP/PG16 business still missing"
   ],
   "next_owner": "B",
-  "next_milestone": "F05 B主线：审查并复用已有正式员工权限接口（不重新启动F03）、补真实可信来源事件签发／消费、规则变更新候选发现、自动分页续跑与失败恢复、F05各业务完整矩阵；F06-F08继续暂停。",
-  "verification_scope": "F02_1_CURRENT_INITIAL_76_TABLES_PLUS_31_DISPOSABLE_SIDECARS_000035_PAGED_DISCOVERY_TEST_ONLY_NODE140_PG16_200",
+  "next_milestone": "B继续F05其它子包真实入口，尤其Priority/Recommendation/客户归属信任与下游安全消费；正式Source无Issuer仍保持blocked，F06～F08暂缓，不能对已存在F03重做。",
+  "verification_scope": "F02_1_CURRENT_INITIAL_76_TABLES_PLUS_31_DISPOSABLE_SIDECARS_000036_37_38_NODE141_PG16_208_NO_PRICE_BUDGET_UNKNOWN",
   "security_hardening": [
     "pg_catalog actual column type and FK shape check",
     "test-only database URL strict port 5432 and prohibit host/hostaddr query overrides",
@@ -313,8 +318,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "TEN_LEGACY_BROAD_MAIN_TARGET_PR_WORKFLOWS_UNAUTHORIZED_TO_CHANGE_AND_USER_FORBIDS_OLD_RETRIGGER",
-  "tested_commit": "1a734407f68148348b2465e8f614a82d6924ad3c",
-  "tested_run": 39131581645,
+  "tested_commit": "956919d7111ed95387fae0eec0d5117f346af50e",
+  "tested_run": 39134423743,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -553,9 +558,9 @@
     "production_ready": false
   },
   "matching_real_business": {
-    "status": "F05_7_TEST_ONLY_PAGED_NEW_DEMAND_NEW_VEHICLE_50_BATCH_PG16_PASS",
-    "run_id": 39131581645,
-    "execution_sha": "1a734407f68148348b2465e8f614a82d6924ad3c",
+    "status": "F05_7_TEST_ONLY_RULE_CHANGE_FIRST_DISCOVERY_OPTIONAL_PRICE_SAFE_VIEW_PG16_PASS",
+    "run_id": 39134423743,
+    "execution_sha": "956919d7111ed95387fae0eec0d5117f346af50e",
     "actual_f02_frozen_business_tables": [
       "public.demands",
       "public.demand_match_results"
@@ -635,7 +640,14 @@
       "PG16_SAME_EVENT_KEY_PARALLEL_REPLAY_DOES_NOT_DUPLICATE_PAIR_QUEUE",
       "PG16_PAGE_TWO_AUDIT_INSERT_FAIL_FIRST_COMMITTED_PAGE_RETAINED_RETRY",
       "PG16_EACH_PAGE_RECHECKS_CURRENT_SCOPE_AND_SESSION",
-      "PG16_DISCOVERY_HAS_MORE_APPEND_ONLY_AUDIT_PERSISTS"
+      "PG16_DISCOVERY_HAS_MORE_APPEND_ONLY_AUDIT_PERSISTS",
+      "PG16_RULE_CHANGE_FIRST_UNMATCHED_PAIR_DISCOVERY_EXACT_TOKEN_AND_SCOPE",
+      "PG16_RULE_EDIT_STALES_CURRENT_AND_FIRST_NEW_PAIR_JOINS_RETRY_WORKER",
+      "PG16_RULE_DISABLED_DENIES_NEW_DISCOVERY",
+      "PG16_DICT_ALL_ADVERTISED_NEW_FIELDS_PHYSICAL_CHECK_ACCEPTED",
+      "PG16_BUDGET_UNKNOWN_PRICE_CONFIRMED_MATCH_CURRENT_VISIBLE",
+      "PG16_NO_BUDGET_NO_PRICE_PROOF_DOES_NOT_FALSE_HIDE",
+      "PG16_BUDGET_KNOWN_PRICE_EXPIRED_NEVER_RETURNS_STALE_HIGH_RESULT"
     ],
     "missing": [
       "FORMAL_RULE_DICTIONARY_AND_SCOPE_ISSUER",
@@ -662,10 +674,8 @@
       "FORMAL_DOWNSTREAM_MATCH_CURRENT_CONSUMERS_USE_TTL_SAFE_READ_PROJECTION",
       "OPERATIONAL_WORKER_SCHEDULER_AND_SAFELY_SIGNED_ISSUER",
       "LIVE_DEMAND_MATCHING_AND_CUSTOMER_SEARCH_SHARED_DICTIONARY_PARSER_INTEGRATION",
-      "REAL_RULE_SCOPE_CHANGE_AFFECTED_PAIR_DISCOVERY_AND_WORKER",
       "PDM12_FULL_HARD_PREFERRED_TOLERANCE_FIELDS",
       "FORMAL_F03_MATCHING_RULE_MANAGE_CAPABILITY_AND_TRUSTED_ISSUER",
-      "FIRST_MATCH_NEW_VEHICLE_NEW_DEMAND_AND_RULE_SCOPE_DISCOVERY_NOT_IMPLEMENTED",
       "F05_FULL_PDM12_RULE_FIELDS_PROVENANCE_AND_F03_FORMAL_MANAGE",
       "SHARED_CUSTOMER_SEARCH_DICTIONARY_PARSER_AND_C_FRONTEND_E2E",
       "FORMAL_ISSUERS_AND_M94_FULL_MIGRATION_CHAIN",
@@ -678,7 +688,10 @@
       "F03_TRUSTED_ROLE_PERMISSION_AND_THIRD_PARTY_ISSUERS_NOT_SATISFIED",
       "AUTOMATIC_TRUSTED_EVENT_DISPATCH_AND_PAGE_DRAIN_NOT_IMPLEMENTED",
       "PAGED_DISCOVERY_SINGLE_EVENT_IMMUTABLE_SNAPSHOT_AND_CURSOR_NOT_IMPLEMENTED",
-      "FORMAL_F03_PERMISSION_ISSUER_JYT_4S_WECHAT_M94_AND_CLIENT_E2E_GATES_STILL_OPEN"
+      "FORMAL_F03_PERMISSION_ISSUER_JYT_4S_WECHAT_M94_AND_CLIENT_E2E_GATES_STILL_OPEN",
+      "FORMAL_AUTO_RULE_CHANGE_EVENT_TO_EMPLOYEE_SCOPE_SCHEDULER_MISSING",
+      "FORMAL_RULE_SCOPE_CHANGE_FULL_ESTATE_GENERATION_OUTSIDE_DISPOSABLE_TEST_MISSING",
+      "REAL_PDM12_FULL_SOURCE_PROVENANCE_AND_CUSTOMER_SEARCH_SHARED_PARSER_NOT_ACCEPTED"
     ],
     "production_ready": false,
     "invalidation_pg16_cases_passed": 10,
@@ -697,6 +710,10 @@
     "displacement_range_and_exclusion_pg16_verified": true,
     "bounded_first_candidate_discovery_50_page_manual_continue_verified": true,
     "verified_pg16_new_vehicle_52_demand_paging": true,
-    "automated_discovery_dispatch_verified": false
+    "automated_discovery_dispatch_verified": false,
+    "rule_change_first_pair_discovery_test_only": true,
+    "pg16_dictionary_hard_fields_mapped_check_verified": true,
+    "price_optional_safe_current_with_budget_unknown_test_only": true,
+    "formal_auto_rule_change_dispatch": false
   }
 }
