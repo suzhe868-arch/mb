@@ -2,11 +2,11 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F05_7_TEST_ONLY_DICTIONARY_HTTP_SCOPE_AUDIT_VALIDATED_FORMAL_GATES_OPEN",
+  "status": "B_IN_PROGRESS_F05_7_DICTIONARY_TEST_ALIAS_MATCH_AND_SCOPED_INVALIDATION_PG16_PASS",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "03d25f9d8d0da511a83e483e71f128a7e57cf944",
+  "github_commit": "bb4b8d2d26c90d12a1feebc5308f7f679342b9d4",
   "node_http_stub_tests": {
     "passed": 132,
     "failed": 0,
@@ -14,10 +14,10 @@
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39127353540,
-    "head_sha": "03d25f9d8d0da511a83e483e71f128a7e57cf944",
+    "run_id": 39128357235,
+    "head_sha": "bb4b8d2d26c90d12a1feebc5308f7f679342b9d4",
     "node_http_tests_passed": 132,
-    "real_pg16_integration_tests_passed": 182,
+    "real_pg16_integration_tests_passed": 185,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -78,7 +78,8 @@
     "formal_source_write_serialization_verified": false,
     "formal_ttl_expiration_guard_verified": false,
     "ttl_scoped_retry_pg16_tests_passed": 5,
-    "matching_dictionary_pg16_tests_passed": 7
+    "matching_dictionary_pg16_tests_passed": 7,
+    "matching_dictionary_activation_pg16_cases_passed": 3
   },
   "endpoints": {
     "implemented_test_only": [
@@ -289,8 +290,8 @@
     "Full F05-1..11 actual authenticated HTTP/PG16 business still missing"
   ],
   "next_owner": "B",
-  "next_milestone": "B继续PDM12完整规则解析与实际Demand Matching接入及rule-change affected-scope; F03/微信/JYT/4S/名邦Issuer/M94仍缺；旧PR工作流审查无新A放行，F06～F08暂停",
-  "verification_scope": "F02_1_CURRENT_INITIAL_76_TABLES_PLUS_30_TEST_SIDECARS_NODE_132_PG16_182_ISOLATED_RULE_DICTIONARY_PROTOTYPE_NOT_PRODUCTION",
+  "next_milestone": "继续完整PDM12字段+客户端共享词典解析、新Demand/新Vehicle增量匹配发现、合法F03及上游签发人/真实M94+最终安全PR裁决。F06～F08冻结。",
+  "verification_scope": "F02_1_CURRENT_INITIAL_76_TABLES_PLUS_30_TEST_SIDECARS_NODE_132_PG16_185_DICTIONARY_ALIAS_TO_REAL_MATCH_TEST_ONLY",
   "security_hardening": [
     "pg_catalog actual column type and FK shape check",
     "test-only database URL strict port 5432 and prohibit host/hostaddr query overrides",
@@ -302,8 +303,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "TEN_LEGACY_BROAD_MAIN_TARGET_PR_WORKFLOWS_UNAUTHORIZED_TO_CHANGE_AND_USER_FORBIDS_OLD_RETRIGGER",
-  "tested_commit": "03d25f9d8d0da511a83e483e71f128a7e57cf944",
-  "tested_run": 39127353540,
+  "tested_commit": "bb4b8d2d26c90d12a1feebc5308f7f679342b9d4",
+  "tested_run": 39128357235,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -542,9 +543,9 @@
     "production_ready": false
   },
   "matching_real_business": {
-    "status": "F05_7_TEST_ONLY_DICTIONARY_GOVERNANCE_HTTP_PG16_PARTIAL",
-    "run_id": 39127353540,
-    "execution_sha": "03d25f9d8d0da511a83e483e71f128a7e57cf944",
+    "status": "F05_7_TEST_ONLY_RULE_DICTIONARY_ACTUAL_DEMAND_ALIAS_MATCH_AND_SCOPED_STALE_RETRY",
+    "run_id": 39128357235,
+    "execution_sha": "bb4b8d2d26c90d12a1feebc5308f7f679342b9d4",
     "actual_f02_frozen_business_tables": [
       "public.demands",
       "public.demand_match_results"
@@ -603,7 +604,11 @@
       "FIVE_SCOPE_SPECIFICITY_AND_SAME_LEVEL_CONFLICT_FAIL_CLOSED",
       "EXPLICIT_MATCHING_RULE_MANAGE_TEST_SCOPE_FOUR_S_DENIED",
       "RULE_VERSION_CAS_IDEMPOTENCY_AND_APPEND_ONLY_BEFORE_AFTER_HISTORY",
-      "RULE_AUDIT_FAILURE_ROLLBACK_AND_SAME_EVENT_RETRY_REAL_PG16"
+      "RULE_AUDIT_FAILURE_ROLLBACK_AND_SAME_EVENT_RETRY_REAL_PG16",
+      "PG16_ACTUAL_DEMAND_MATCH_ALIASES_FROM_ISOLATED_RULE_DICTIONARY_WITH_ID_VERSION_PROVENANCE",
+      "PG16_RULE_MUTATION_LOCKED_TOKENS_ATOMICALLY_STALES_MATCHED_PAIRS",
+      "PG16_RULE_CHANGE_QUEUES_ONLY_EXISTING_AFFECTED_MATCHES_AND_RECOMPUTES_NEW_TIER",
+      "PG16_RULE_DISABLE_BLOCKS_MATCH_AND_LEAVES_NO_CURRENT_AFTER_INVALIDATION"
     ],
     "missing": [
       "FORMAL_RULE_DICTIONARY_AND_SCOPE_ISSUER",
@@ -632,7 +637,11 @@
       "LIVE_DEMAND_MATCHING_AND_CUSTOMER_SEARCH_SHARED_DICTIONARY_PARSER_INTEGRATION",
       "REAL_RULE_SCOPE_CHANGE_AFFECTED_PAIR_DISCOVERY_AND_WORKER",
       "PDM12_FULL_HARD_PREFERRED_TOLERANCE_FIELDS",
-      "FORMAL_F03_MATCHING_RULE_MANAGE_CAPABILITY_AND_TRUSTED_ISSUER"
+      "FORMAL_F03_MATCHING_RULE_MANAGE_CAPABILITY_AND_TRUSTED_ISSUER",
+      "FIRST_MATCH_NEW_VEHICLE_NEW_DEMAND_AND_RULE_SCOPE_DISCOVERY_NOT_IMPLEMENTED",
+      "F05_FULL_PDM12_RULE_FIELDS_PROVENANCE_AND_F03_FORMAL_MANAGE",
+      "SHARED_CUSTOMER_SEARCH_DICTIONARY_PARSER_AND_C_FRONTEND_E2E",
+      "FORMAL_ISSUERS_AND_M94_FULL_MIGRATION_CHAIN"
     ],
     "production_ready": false,
     "invalidation_pg16_cases_passed": 10,
