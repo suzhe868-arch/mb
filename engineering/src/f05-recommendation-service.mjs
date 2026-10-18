@@ -71,8 +71,8 @@ export function createIsolatedRecommendationService({pool,env=process.env}={}){
       "AND expires_at>statement_timestamp() FOR SHARE",
       [vehicleId,listingCycleId,vehicle.source_type])).rows[0];
      if(!source){await db.query('ROLLBACK');return resp(409,'REC_SOURCE_PROOF_REQUIRED')}
-     const rival=(await db.query("SELECT 1 FROM public.priority_leases WHERE vehicle_id=$1 AND listing_cycle_id=$2 "+
-      "AND status='active' AND expires_at>statement_timestamp() AND customer_id<>$3 FOR SHARE",
+     const rival=(await db.query("SELECT 1 FROM public.f05_priority_safe_active_test WHERE vehicle_id=$1 AND listing_cycle_id=$2 "+
+      "AND customer_id<>$3",
       [vehicleId,listingCycleId,customerId])).rows[0];
      if(rival){await db.query('ROLLBACK');return resp(409,'REC_OTHER_PRIORITY_EXCLUSIVE')}
      if(sourceDemandId!==null){

@@ -9,6 +9,7 @@ import {createFoundationHandler} from '../src/app.mjs';
 import {createIsolatedMatchingService} from '../src/f05-matching-service.mjs';
 import {createIsolatedPriorityService} from '../src/f05-priority-service.mjs';
 import {createIsolatedPriorityHandler} from '../src/f05-priority-http.mjs';
+import {SQL_CATALOG_DETAIL,SQL_CATALOG_LIST,SQL_CATALOG_STATS} from '../src/catalog-service.mjs';
 const env=validateCatalogEnv(),pool=new pg.Pool({connectionString:env.connectionString,max:7});
 const db=new pg.Client({connectionString:env.connectionString});
 const A=randomBytes(32).toString('base64url'),B=randomBytes(32).toString('base64url'),fourS=randomBytes(32).toString('base64url');
@@ -81,6 +82,10 @@ try{
   assert.ok(new Date(p.expires_at)>new Date());
   assert.ok(new Date(p.expires_at).getTime()-Date.now()<=86400000);
   assert.equal(await count("SELECT count(*) n FROM public.f05_priority_safe_active_test WHERE vehicle_id=62510"),1);
+  await db.query("UPDATE public.vehicles SET platform_visibility='visible' WHERE vehicle_id=62510");
+  assert.match(SQL_CATALOG_LIST,/f05_priority_safe_active_test/);
+  assert.match(SQL_CATALOG_STATS,/f05_priority_safe_active_test/);
+  assert.equal((await db.query(SQL_CATALOG_DETAIL,['62510'])).rows.length,0);
   for(const name of ['recommendations','vehicle_visibility_grants','customer_price_cycle_unlocks'])
    assert.equal(await count('SELECT count(*) n FROM public.'+name+' WHERE vehicle_id=62510'),0,name);
   assert.equal((await post({token:fourS})).status,403);
@@ -102,6 +107,7 @@ try{
   const gone=await post({action:'RELEASE',token:B});
   assert.equal(gone.status,200,JSON.stringify(gone));assert.equal(gone.body.outcome,'ENDED');
   assert.equal(await count("SELECT count(*) n FROM public.priority_leases WHERE vehicle_id=62510 AND status='active'"),0);
+  assert.equal((await db.query(SQL_CATALOG_DETAIL,['62510'])).rows.length,1);
   const suppressed=await post();
   assert.equal(suppressed.status,200,JSON.stringify(suppressed));
   assert.equal(suppressed.body.outcome,'NO_CANDIDATE'); // A's old Match cannot renew protection.

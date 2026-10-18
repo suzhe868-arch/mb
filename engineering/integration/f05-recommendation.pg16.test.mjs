@@ -8,6 +8,7 @@ import {validateCatalogEnv,probeIsolatedCatalog} from '../src/catalog-readiness.
 import {createFoundationHandler} from '../src/app.mjs';
 import {createIsolatedRecommendationService} from '../src/f05-recommendation-service.mjs';
 import {createIsolatedRecommendationHandler} from '../src/f05-recommendation-http.mjs';
+import {createIsolatedMatchingService} from '../src/f05-matching-service.mjs';
 const env=validateCatalogEnv(),pool=new pg.Pool({connectionString:env.connectionString,max:6});
 const db=new pg.Client({connectionString:env.connectionString});
 const staff=randomBytes(32).toString('base64url'),member4s=randomBytes(32).toString('base64url');
@@ -35,9 +36,14 @@ try{
   await db.query("INSERT INTO public.f05_recommendation_manage_scope_test(employee_id,customer_id,can_manage,expires_at) VALUES(62001,62000,true,statement_timestamp()+interval '20 minutes')");
   await db.query("INSERT INTO public.demands(demand_id,customer_id,responsible_employee_id,demand_state,criteria_json) VALUES(62000,62000,62000,'active','{}')");
   await vehicle(62010,true);await vehicle(62011,false);
+  await db.query("INSERT INTO public.f05_matching_employee_scope_test(employee_id,customer_id,can_recompute,expires_at) VALUES(62000,62000,true,statement_timestamp()+interval '20 minutes')");
+  await db.query("INSERT INTO public.f05_matching_sales_description_test(demand_id,written_by_employee_id,sales_description,expires_at) VALUES(62000,62000,'brandId=59001',statement_timestamp()+interval '20 minutes')");
+  await db.query("INSERT INTO public.f05_matching_vehicle_facts_test(vehicle_id,listing_cycle_id,source_brand_id,source_model_year,mileage_km,expires_at) VALUES(62011,62011,59001,2026,20000,statement_timestamp()+interval '20 minutes')");
+  await db.query("INSERT INTO public.f05_priority_qualification_test(customer_id,enabled,expires_at) VALUES(62000,true,statement_timestamp()+interval '20 minutes')");
   await db.query('COMMIT');
  }catch(e){await db.query('ROLLBACK');throw e}
  const svc=createIsolatedRecommendationService({pool,env:process.env});
+ const matching=createIsolatedMatchingService({pool,env:process.env});
  server=createServer(createFoundationHandler({recommendationHandler:createIsolatedRecommendationHandler(svc,process.env)}));
  await new Promise(ok=>server.listen(0,'127.0.0.1',ok));
  const endpoint='http://127.0.0.1:'+server.address().port+'/api/v1/catalog/recommendations';
@@ -112,13 +118,21 @@ try{
   const other=await post({customerId:'62002',vehicleId:'62011'});
   assert.equal(other.status,200,JSON.stringify(other));
   assert.equal(await number("SELECT count(*) n FROM public.f05_recommendation_safe_customer_test WHERE vehicle_id=62011 AND customer_id=62002"),1);
-  const match=(await db.query("INSERT INTO public.demand_match_results(demand_id,vehicle_id,listing_cycle_id,match_tier,match_explanation,current_state,calculated_at) "+
-   "VALUES(62000,62011,62011,'high','{}','current',statement_timestamp()) RETURNING result_id")).rows[0];
+  const matched=await matching.recompute({credential:staff,demandId:'62000',
+   vehicleId:'62011',eventKey:key()});
+  assert.equal(matched.status,200,JSON.stringify(matched));
+  assert.equal(matched.body.matchTier,'high');
+  const match={result_id:matched.body.resultId};
   const lease=(await db.query("INSERT INTO public.priority_leases(vehicle_id,customer_id,trigger_demand_id,status,expires_at,listing_cycle_id,source_match_result_id) "+
    "VALUES(62011,62000,62000,'active',statement_timestamp()+interval '1 hour',62011,$1) RETURNING priority_id",[match.result_id])).rows[0];
   assert.equal(await number("SELECT count(*) n FROM public.f05_recommendation_safe_customer_test WHERE vehicle_id=62011 AND customer_id=62002"),0);
   assert.equal(await number("SELECT count(*) n FROM public.f05_recommendation_safe_customer_test WHERE vehicle_id=62011 AND customer_id=62000"),1);
   assert.equal((await post({customerId:'62002',vehicleId:'62011'})).status,409);
+  // Raw active Priority is not sufficient once the underlying PDM12 Match is stale:
+  // Recommendation B restores at read time, without deleting any Recommendation.
+  await db.query("UPDATE public.f05_matching_vehicle_facts_test SET mileage_km=30001 WHERE vehicle_id=62011");
+  assert.equal(await number("SELECT count(*) n FROM public.f05_priority_safe_active_test WHERE vehicle_id=62011"),0);
+  assert.equal(await number("SELECT count(*) n FROM public.f05_recommendation_safe_customer_test WHERE vehicle_id=62011 AND customer_id=62002"),1);
   await db.query("UPDATE public.priority_leases SET status='ended',ended_at=statement_timestamp() WHERE priority_id=$1",[lease.priority_id]);
   assert.equal(await number("SELECT count(*) n FROM public.f05_recommendation_safe_customer_test WHERE vehicle_id=62011 AND customer_id=62002"),1);
  });
