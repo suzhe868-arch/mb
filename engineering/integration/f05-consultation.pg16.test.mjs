@@ -1,0 +1,100 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {randomBytes,createHash} from 'node:crypto';
+import {createServer} from 'node:http';
+import pg from 'pg';
+import {createFoundationHandler} from '../src/app.mjs';
+import {createIsolatedConsultationService} from '../src/f05-consultation-service.mjs';
+import {createIsolatedConsultationHandler} from '../src/f05-consultation-http.mjs';
+import {validateCatalogEnv,probeIsolatedCatalog} from '../src/catalog-readiness.mjs';
+const db=validateCatalogEnv(),pool=new pg.Pool({connectionString:db.connectionString,max:3,connectionTimeoutMillis:1100});
+const writer=new pg.Client({connectionString:db.connectionString,connectionTimeoutMillis:1100});
+const token=randomBytes(32).toString('base64url'),digest=v=>createHash('sha256').update(v).digest('hex');
+const key=()=>randomBytes(32).toString('base64url');
+let server,connected=false,fail=null;
+try{
+ await writer.connect();connected=true;assert.equal(await probeIsolatedCatalog(pool),true);
+ await writer.query('BEGIN');
+ try{
+  await writer.query("INSERT INTO public.roles(role_id,role_code) VALUES(59001,'sales'),(59002,'four_s')");
+  await writer.query("INSERT INTO public.employees(employee_id,main_role_id,employment_status,receiving_status) VALUES(59001,59001,'active','receiving'),(59002,59002,'active','receiving')");
+  await writer.query("UPDATE public.customers SET current_owner_employee_id=59001,owner_assignment_state='assigned' WHERE customer_id=59001");
+  await writer.query("INSERT INTO public.customer_phone_facts(customer_id,phone_ciphertext,valid_from) VALUES(59001,decode('abcd1234','hex'),statement_timestamp())");
+  await writer.query("INSERT INTO public.f05_catalog_consultation_actor_proof_test(customer_id,assignee_employee_id,phone_consent_test,worker_scope_test,expires_at) VALUES(59001,59001,true,true,statement_timestamp()+interval '20 minutes')");
+  await writer.query("INSERT INTO public.f05_catalog_customer_sessions_test(token_sha256,customer_id,expires_at) VALUES($1,59001,statement_timestamp()+interval '20 minutes')",[digest(token)]);
+  await writer.query('COMMIT');
+ }catch(e){await writer.query('ROLLBACK');throw e}
+ const service=createIsolatedConsultationService({pool,env:process.env});
+ server=createServer(createFoundationHandler({consultationHandler:createIsolatedConsultationHandler(service,process.env)}));
+ await new Promise((ok,bad)=>{server.once('error',bad);server.listen(0,'127.0.0.1',ok)});
+ const call=async(eventKey=key(),authToken=token,vehicle='59001',h={})=>{
+  const headers={authorization:'Bearer '+authToken,'x-idempotency-key':eventKey,...h};
+  const r=await fetch('http://127.0.0.1:'+server.address().port+'/api/v1/catalog/vehicles/'+vehicle+'/consultations',{method:'POST',headers});
+  return {status:r.status,body:await r.json()};
+ };
+ await test('PG16 no authentic customer bearer and disabled Customer always refused',async()=>{
+  assert.equal((await call(key(),randomBytes(32).toString('base64url'))).status,401);
+  assert.equal((await call(key(),token,'59001',{'x-customer-id':'59002'})).status,403);
+  await writer.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=59001");
+  try{assert.equal((await call()).status,401)}finally{await writer.query("UPDATE public.customers SET account_status='active' WHERE customer_id=59001")}
+ });
+ await test('PG16 consultation requires test phone scope and valid current owner',async()=>{
+  await writer.query('DELETE FROM public.f05_catalog_consultation_actor_proof_test WHERE customer_id=59001');
+  try{assert.equal((await call()).status,403)}
+  finally{await writer.query("INSERT INTO public.f05_catalog_consultation_actor_proof_test(customer_id,assignee_employee_id,phone_consent_test,worker_scope_test,expires_at) VALUES(59001,59001,true,true,statement_timestamp()+interval '20 minutes')")}
+  await writer.query("UPDATE public.customers SET current_owner_employee_id=NULL,owner_assignment_state='owner_assignment_pending' WHERE customer_id=59001");
+  try{assert.equal((await call()).status,409)}
+  finally{await writer.query("UPDATE public.customers SET current_owner_employee_id=59001,owner_assignment_state='assigned' WHERE customer_id=59001")}
+ });
+ const k=key();let cId=null;
+ await test('actual POST creates frozen Consultation with 15min SLA and immutable direct source',async()=>{
+  const r=await call(k);
+  assert.equal(r.status,200);assert.equal(r.body.code,'CONSULTATION_CREATED');assert.equal(r.body.created,true);cId=r.body.consultationId;
+  const c=(await writer.query('SELECT * FROM public.consultations WHERE consultation_id=$1',[cId])).rows[0];
+  assert.equal(c.status,'pending');assert.equal(String(c.customer_id),'59001');assert.equal(String(c.vehicle_id),'59001');
+  assert.equal(String(c.listing_cycle_id),'59001');assert.equal(String(c.assignee_employee_id),'59001');
+  assert.equal(c.source_relation.kind,'other');assert.equal(c.source_relation.entry,'vehicle_detail');
+  assert.equal(c.first_response_deadline instanceof Date,true);
+  const remaining=c.first_response_deadline.getTime()-Date.now();
+  assert.ok(remaining>12*60*1000&&remaining<=16*60*1000);
+ });
+ await test('same event key exact replay and second key reuses same pending Consultation and adds touch',async()=>{
+  const again=await call(k);assert.equal(again.status,200);assert.equal(again.body.code,'CONSULTATION_IDEMPOTENT_REPLAY');assert.equal(again.body.consultationId,cId);
+  const other=await call();assert.equal(other.status,200);assert.equal(other.body.code,'CONSULTATION_REUSED');assert.equal(other.body.consultationId,cId);
+  assert.equal((await writer.query("SELECT count(*)::int n FROM public.consultations WHERE customer_id=59001 AND vehicle_id=59001 AND status IN ('pending','processing')")).rows[0].n,1);
+  assert.equal((await writer.query('SELECT count(*)::int n FROM public.f05_catalog_consultation_actions_test WHERE consultation_id=$1',[cId])).rows[0].n,2);
+ });
+ await test('bad owner role/employee inactive and hidden/offline/sold/protected source fail closed',async()=>{
+  await writer.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=59001");
+  try{assert.equal((await call()).status,403)}
+  finally{await writer.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=59001")}
+  await writer.query("UPDATE public.vehicles SET platform_visibility='hidden' WHERE vehicle_id=59001");
+  try{assert.equal((await call()).status,404)}
+  finally{await writer.query("UPDATE public.vehicles SET platform_visibility='visible' WHERE vehicle_id=59001")}
+  await writer.query("UPDATE public.vehicles SET source_sale_status='offline' WHERE vehicle_id=59001");
+  try{assert.equal((await call()).status,404)}
+  finally{await writer.query("UPDATE public.vehicles SET source_sale_status='active' WHERE vehicle_id=59001")}
+ });
+ await test('immutable history cannot update or delete consultation action',async()=>{
+  await assert.rejects(writer.query("UPDATE public.f05_catalog_consultation_actions_test SET action='TOUCHED' WHERE consultation_id=$1",[cId]),e=>e.code==='23514');
+  await assert.rejects(writer.query("DELETE FROM public.f05_catalog_consultation_actions_test WHERE consultation_id=$1",[cId]),e=>e.code==='23514');
+ });
+ await test('PG16 event-insert exception rolls back Consultation or touch without orphaned operation',async()=>{
+  await writer.query("CREATE FUNCTION public.f05_consult_inject_fail_test() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'INJECTED_CONSULT_EVENT_FAIL'; END $$");
+  await writer.query("CREATE TRIGGER f05_consult_event_inject BEFORE INSERT ON public.f05_catalog_consultation_actions_test FOR EACH ROW EXECUTE FUNCTION public.f05_consult_inject_fail_test()");
+  const before=(await writer.query('SELECT count(*)::int n FROM public.f05_catalog_consultation_actions_test')).rows[0].n;
+  const id=key();
+  try{const r=await call(id);assert.equal(r.status,503);assert.equal((await writer.query('SELECT count(*)::int n FROM public.f05_catalog_consultation_actions_test')).rows[0].n,before)}
+  finally{await writer.query('DROP TRIGGER f05_consult_event_inject ON public.f05_catalog_consultation_actions_test');await writer.query('DROP FUNCTION public.f05_consult_inject_fail_test()')}
+  assert.equal((await call(id)).status,200);
+ });
+ await test('Customer bearer revoked immediately denies new consultation action',async()=>{
+  await writer.query('UPDATE public.f05_catalog_customer_sessions_test SET revoked_at=statement_timestamp() WHERE token_sha256=$1',[digest(token)]);
+  assert.equal((await call()).status,401);
+ });
+}catch(e){fail=e}finally{
+ if(server)await new Promise((ok,bad)=>server.close(e=>e?bad(e):ok()));
+ if(connected)await writer.end();
+ await pool.end();
+}
+if(fail)throw fail;
