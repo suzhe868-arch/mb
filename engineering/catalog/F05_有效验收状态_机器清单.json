@@ -2,11 +2,11 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F05_7_PG16_EVENT_DRIVEN_AFFECTED_SCOPE_INVALIDATION_TEST_ONLY",
+  "status": "B_IN_PROGRESS_F05_7_EVIDENCE_CHANGE_AUTO_STALE_REAL_PG16_TEST_ONLY",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "9e487740c2649d79cf15c1532b81bc2e549d83ec",
+  "github_commit": "e984eaf108866fd582b4d504057c90042e2f7acf",
   "node_http_stub_tests": {
     "passed": 128,
     "failed": 0,
@@ -14,10 +14,10 @@
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39119870084,
-    "head_sha": "9e487740c2649d79cf15c1532b81bc2e549d83ec",
+    "run_id": 39121192335,
+    "head_sha": "e984eaf108866fd582b4d504057c90042e2f7acf",
     "node_http_tests_passed": 128,
-    "real_pg16_integration_tests_passed": 155,
+    "real_pg16_integration_tests_passed": 165,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -66,7 +66,11 @@
     "formal_matching_event_driven_recalculation_verified": false,
     "real_pg16_matching_invalidation_tests_passed": 10,
     "pg16_matching_event_invalidation_verified": true,
-    "formal_matching_change_event_issuer_verified": false
+    "formal_matching_change_event_issuer_verified": false,
+    "real_pg16_matching_evidence_stale_tests_passed": 10,
+    "physical_match_evidence_stale_triggers_verified": true,
+    "formal_customer_display_price_issuer_verified": false,
+    "formal_matching_dictionary_issuer_signed": false
   },
   "endpoints": {
     "implemented_test_only": [
@@ -117,7 +121,8 @@
       "PDM11 F05-6 actual frozen find_car_applications pending/edit/closed and demands active only on explicitly Employee-scoped manual activation; phone/owner/level guards; immutable audit, optimistic revision, unique demand link, concurrency no duplicate, atomic audit rollback; matching intentionally NOT ready",
       "PDM11 F05-6 real PG16 frozen find_car_applications create/edit/withdraw separated from frozen demands manually activated by current assigned scoped Employee; ordinary and entitled level submit pending only; phone/owner guard, optimistic revision, actor immutable history, one Demand per Application, serial request key, rollback, no Matching, no Priority, no Recommendation",
       "PDM12 F05-7 test-only canonical staff sales description strict parser (brandId,minModelYear,maxMileageKm,budgetCents,preferred interiorColor) PG16 physically computes one matching-ready active Demand x sellable Vehicle, four tiers exact 5% budget, hidden internally matching, source facts when local model missing, true current/stale and immutable audit, concurrency/idempotency/rollback; no Recommendation, Priority or visibility grant",
-      "PDM12 F05-7 physical PG16 triggers auto-invalidate affected current Match Results and write frozen matching_change_events for Customer account/level, Demand lifecycle, Vehicle saleability, listing cycle, temporary Level entitlement; hidden remains matchable, no Recommendation/Priority, append-only history, transactional rollback on injected audit failure"
+      "PDM12 F05-7 physical PG16 triggers auto-invalidate affected current Match Results and write frozen matching_change_events for Customer account/level, Demand lifecycle, Vehicle saleability, listing cycle, temporary Level entitlement; hidden remains matchable, no Recommendation/Priority, append-only history, transactional rollback on injected audit failure",
+      "PDM12 isolated PG16 source customer display price, Vehicle facts, salesperson description, local model map, master model year/brand changes atomically mark only affected current Demand Match Result stale, append frozen matching_change_events cause snapshots, preserve history, rerun four tiers, prove injected audit failure rollbacks; no automatic Recommendation/Priority/grant"
     ],
     "customer_write_implemented": [
       "NONPRODUCTION_ACTUAL_PG16_POST_FAVORITE_TEST_ONLY",
@@ -275,8 +280,8 @@
     "Full F05-1..11 actual authenticated HTTP/PG16 business still missing"
   ],
   "next_owner": "B",
-  "next_milestone": "F05-7 display price/fact/sales description affected result stale + Rule Dictionary formal governance, real deterministic parser and affected-scope worker retry; F03 and JYT issuer; historical M94 and A-safe PR",
-  "verification_scope": "NONPRODUCTION_F02_1_76_FROZEN_TABLES_PLUS_26_DISPOSABLE_TEST_SIDECARS_NODE_128_PG16_155_WITH_AFFECTED_SCOPE_MATCH_INVALIDATION",
+  "next_milestone": "F05-7 real Rule Dictionary governance and valid Customer/Employee/JYT price/vehicle fact issuers; TTL expiry + concurrent stale/recompute race; scoped event worker retry; M94 full migration and A-governed PR CI",
+  "verification_scope": "NONPRODUCTION_F02_1_76_FROZEN_TABLES_PLUS_26_DISPOSABLE_TEST_SIDECARS_NODE_128_PG16_165_WITH_PRICE_FACT_SALES_DESCRIPTION_MODEL_STALE",
   "security_hardening": [
     "pg_catalog actual column type and FK shape check",
     "test-only database URL strict port 5432 and prohibit host/hostaddr query overrides",
@@ -288,8 +293,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "TEN_LEGACY_BROAD_MAIN_TARGET_PR_WORKFLOWS_UNAUTHORIZED_TO_CHANGE_AND_USER_FORBIDS_OLD_RETRIGGER",
-  "tested_commit": "9e487740c2649d79cf15c1532b81bc2e549d83ec",
-  "tested_run": 39119870084,
+  "tested_commit": "e984eaf108866fd582b4d504057c90042e2f7acf",
+  "tested_run": 39121192335,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -528,9 +533,9 @@
     "production_ready": false
   },
   "matching_real_business": {
-    "status": "F05_7_PARTIAL_EVENT_INVALIDATION_TEST_ONLY",
-    "run_id": 39119870084,
-    "execution_sha": "9e487740c2649d79cf15c1532b81bc2e549d83ec",
+    "status": "F05_7_PARTIAL_EVIDENCE_AUTO_STALE_TEST_ONLY",
+    "run_id": 39121192335,
+    "execution_sha": "e984eaf108866fd582b4d504057c90042e2f7acf",
     "actual_f02_frozen_business_tables": [
       "public.demands",
       "public.demand_match_results"
@@ -566,7 +571,16 @@
       "HIDDEN_ALONE_RETAINS_INTERNAL_MATCH",
       "FROZEN_MATCHING_CHANGE_EVENTS_BEFORE_AFTER_APPEND_ONLY",
       "AUDIT_FAILURE_ROLLS_BACK_SOURCE_STATE_AND_MATCH_INVALIDATION",
-      "RESTORE_DOES_NOT_AUTO_REACTIVATE_OLD_RESULT"
+      "RESTORE_DOES_NOT_AUTO_REACTIVATE_OLD_RESULT",
+      "PRICE_CHANGE_STALES_AFFECTED_CURRENT",
+      "VEHICLE_SOURCE_FACT_CHANGE_STALES_AFFECTED_CURRENT",
+      "SALES_DESCRIPTION_CHANGE_STALES_ONLY_ITS_DEMAND",
+      "LOCAL_MODEL_MAPPING_CHANGE_STALES_ASSOCIATED_VEHICLE",
+      "MASTER_MODEL_YEAR_OR_BRAND_CHANGE_STALES_RELATED_VEHICLES",
+      "UNCHANGED_PRICE_DOES_NOT_STALE",
+      "DELETED_HARD_FACT_RECOMPUTES_AS_CONFIRMATION_NEEDED",
+      "FROZEN_MATCHING_CHANGE_EVENTS_APPEND_ONLY_AND_STALE_CAUSE",
+      "FAILED_CHANGE_AUDIT_ROLLS_BACK_PRICE_AND_MATCH_STALE"
     ],
     "missing": [
       "FORMAL_RULE_DICTIONARY_AND_SCOPE_ISSUER",
@@ -580,9 +594,16 @@
       "M94_HISTORICAL_MIGRATION_AND_A_REVIEW",
       "FORMAL_MATCHING_EXTERNAL_EVENT_ISSUER",
       "CUSTOMER_DISPLAY_PRICE_AND_VEHICLE_FACT_AUTOMATIC_STALE_TRIGGER",
-      "MATCHING_EVENT_AFFECTED_SCOPE_RECOMPUTATION_AND_RETRY"
+      "MATCHING_EVENT_AFFECTED_SCOPE_RECOMPUTATION_AND_RETRY",
+      "FORMAL_JYT_MINGBANG_4S_PRICE_AND_FACT_EVENT_ISSUER",
+      "SIGNED_RULE_DICTIONARY_AND_HARD_PREFERRED_FULL_FIELD_SCOPE",
+      "EVIDENCE_TTL_EXPIRY_AUTOMATIC_FAIL_CLOSED",
+      "PRODUCTION_CONCURRENT_WRITE_RACE_AUDIT",
+      "WORKER_AFFECTED_SCOPE_RECOMPUTE_AND_RETRY"
     ],
     "production_ready": false,
-    "invalidation_pg16_cases_passed": 10
+    "invalidation_pg16_cases_passed": 10,
+    "evidence_stale_pg16_cases_passed": 10,
+    "matching_total_new_pg16_cases_including_invalidation": 34
   }
 }
