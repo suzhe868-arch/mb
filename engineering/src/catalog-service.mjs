@@ -42,12 +42,16 @@ export function decodeCursor(value,key,source,sort,modelId=null,brandId=null,ser
 const SQL_UTC_MICROSECONDS="to_char(cy.started_at AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"')";
 const BASE_SELECT=`SELECT v.vehicle_id AS "vehicleId",cy.listing_cycle_id AS "listingCycleId",v.source_type AS "source",${SQL_UTC_MICROSECONDS} AS "listingStartedAt",v.model_id AS "modelId",COALESCE(vm.brand_id,vs.brand_id) AS "brandId",vm.series_id AS "seriesId",vb.brand_name AS "brandName",vs.series_name AS "seriesName",vm.model_name AS "modelName",vm.model_year AS "modelYear",cover.relative_path AS "coverImagePath" FROM public.vehicles v LEFT JOIN public.vehicle_models vm ON vm.model_id=v.model_id LEFT JOIN public.vehicle_series vs ON vs.series_id=vm.series_id LEFT JOIN public.vehicle_brands vb ON vb.brand_id=COALESCE(vm.brand_id,vs.brand_id) JOIN public.vehicle_listing_cycles cy ON cy.vehicle_id=v.vehicle_id JOIN public.f05_real_catalog_visibility_test p ON p.vehicle_id=v.vehicle_id AND p.listing_cycle_id=cy.listing_cycle_id AND p.source_type=v.source_type LEFT JOIN LATERAL (
  SELECT vi.relative_path FROM public.vehicle_images vi
+ JOIN public.f05_real_catalog_photo_order_test po
+  ON po.image_id=vi.image_id AND po.vehicle_id=vi.vehicle_id
+  AND po.source_type=v.source_type
+  AND po.verified_isolation='DISPOSABLE_TEST_PROOF_NOT_SIGNED'
  WHERE vi.vehicle_id=v.vehicle_id
   AND vi.relative_path IS NOT NULL
   AND length(vi.relative_path) BETWEEN 1 AND 400
   AND vi.relative_path ~ '^[A-Za-z0-9_.~-]+(/[A-Za-z0-9_.~-]+)*$'
   AND vi.relative_path !~ '(^|/)[.][.]?(/|$)'
- ORDER BY vi.sort_index ASC NULLS LAST,vi.image_id ASC LIMIT 1
+ ORDER BY po.original_sort_index ASC,vi.image_id ASC LIMIT 1
 ) cover ON TRUE WHERE (vm.brand_id IS NULL OR vs.series_id IS NULL OR vm.brand_id=vs.brand_id) AND cy.ended_at IS NULL AND NOT EXISTS(SELECT 1 FROM public.vehicle_listing_cycles other WHERE other.vehicle_id=v.vehicle_id AND other.listing_cycle_id<>cy.listing_cycle_id AND other.ended_at IS NULL) AND v.archived_at IS NULL AND v.platform_visibility='visible' AND ((v.source_type='wholesale' AND v.source_sale_status='active') OR (v.source_type IN('mingbang','four_s') AND v.source_sale_status='available')) AND p.allow_anonymous=true AND p.verified_isolation='DISPOSABLE_TEST_PROOF_NOT_SIGNED' AND p.expires_at>statement_timestamp() AND NOT EXISTS(SELECT 1 FROM public.f05_real_catalog_protections_test pr WHERE pr.vehicle_id=v.vehicle_id AND pr.listing_cycle_id=cy.listing_cycle_id AND pr.ended_at IS NULL)`;
 export const SQL_CATALOG_LIST=BASE_SELECT+` AND v.source_type=$1 AND ($4::bigint IS NULL OR v.model_id=$4::bigint) AND ($5::bigint IS NULL OR COALESCE(vm.brand_id,vs.brand_id)=$5::bigint) AND ($6::bigint IS NULL OR vm.series_id=$6::bigint) AND ($7::integer IS NULL OR vm.model_year=$7::integer) AND ($2::timestamptz IS NULL OR (cy.started_at,cy.listing_cycle_id) < ($2::timestamptz,$3::bigint)) ORDER BY cy.started_at DESC,cy.listing_cycle_id DESC LIMIT 16`;
 export const SQL_CATALOG_DETAIL=BASE_SELECT+` AND v.vehicle_id=$1 LIMIT 2`;

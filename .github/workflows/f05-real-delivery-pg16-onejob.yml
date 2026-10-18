@@ -99,7 +99,8 @@ jobs:
             await client.query("INSERT INTO public.vehicle_models(model_id,brand_id,series_id,model_name,model_year,profile_status) VALUES(59001,59001,59001,'隔离测试车型',2026,'incomplete')");
             await client.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,model_id,created_at) VALUES(59001,'wholesale','active','visible',59001,statement_timestamp()),(59002,'wholesale','active','hidden',NULL,statement_timestamp())");
             await client.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES(59001,59001,statement_timestamp()),(59002,59002,statement_timestamp())");
-            await client.query("INSERT INTO public.vehicle_images(image_id,vehicle_id,relative_path,source_url_fact,sort_index,asset_storage_status) VALUES(59001,59001,'https://jyt.internal/PRIVATE',NULL,-1,'processing'),(59002,59001,'C7/side.webp',NULL,2,'processing'),(59003,59001,'C7/front.webp','https://jyt.internal/PRIVATE',1,'processing')");
+            await client.query("INSERT INTO public.vehicle_images(image_id,vehicle_id,relative_path,source_url_fact,asset_storage_status) VALUES(59001,59001,'https://jyt.internal/PRIVATE',NULL,'processing'),(59002,59001,'C7/side.webp',NULL,'processing'),(59003,59001,'C7/front.webp','https://jyt.internal/PRIVATE','processing')");
+            await client.query("INSERT INTO public.f05_real_catalog_photo_order_test(image_id,vehicle_id,source_type,original_sort_index) VALUES(59001,59001,'wholesale',0),(59002,59001,'wholesale',2),(59003,59001,'wholesale',1)");
             await client.query('COMMIT');
             z=(await client.query("SELECT current_user usr,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su")).rows[0];
             if(z.usr!=='f05_catalog_ci'||z.su!==false)throw Error('NON_SUPERUSER_CHECK_FAILED');

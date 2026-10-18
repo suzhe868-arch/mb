@@ -36,6 +36,11 @@ const REQUIRED_CATALOG_COLUMNS=Object.freeze([
  ['public.f05_real_catalog_protections_test','vehicle_id','bigint'],
  ['public.f05_real_catalog_protections_test','listing_cycle_id','bigint'],
  ['public.f05_real_catalog_protections_test','ended_at','timestamp with time zone'],
+ ['public.f05_real_catalog_photo_order_test','image_id','bigint'],
+ ['public.f05_real_catalog_photo_order_test','vehicle_id','bigint'],
+ ['public.f05_real_catalog_photo_order_test','source_type','text'],
+ ['public.f05_real_catalog_photo_order_test','original_sort_index','integer'],
+ ['public.f05_real_catalog_photo_order_test','verified_isolation','text'],
 ]);
 const EXPECTED_COLUMNS_VALUES=REQUIRED_CATALOG_COLUMNS.map(x=>`('${x[0]}','${x[1]}','${x[2]}')`).join(',');
 export const SQL_CATALOG_SCHEMA=`SELECT
@@ -43,6 +48,7 @@ export const SQL_CATALOG_SCHEMA=`SELECT
  to_regclass('public.vehicle_listing_cycles') IS NOT NULL AS c,
  to_regclass('public.f05_real_catalog_visibility_test') IS NOT NULL AS p,
  to_regclass('public.f05_real_catalog_protections_test') IS NOT NULL AS x,
+ to_regclass('public.f05_real_catalog_photo_order_test') IS NOT NULL AS po,
  NOT EXISTS (
   SELECT 1 FROM (VALUES ${EXPECTED_COLUMNS_VALUES}) AS expected(relation,column_name,physical_type)
   LEFT JOIN pg_catalog.pg_attribute attr
@@ -50,18 +56,22 @@ export const SQL_CATALOG_SCHEMA=`SELECT
    AND attr.attname=expected.column_name AND attr.attnum>0 AND NOT attr.attisdropped
   WHERE attr.attname IS NULL OR pg_catalog.format_type(attr.atttypid,attr.atttypmod)<>expected.physical_type
  ) AS shape,
- (SELECT count(*)=78 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
+ (SELECT count(*)=79 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
  (SELECT count(*)=2 FROM pg_catalog.pg_constraint fk
   WHERE fk.contype='f'
    AND fk.conrelid IN (to_regclass('public.f05_real_catalog_visibility_test'),to_regclass('public.f05_real_catalog_protections_test'))
    AND fk.confrelid=to_regclass('public.vehicle_listing_cycles')
-   AND array_length(fk.conkey,1)=2 AND array_length(fk.confkey,1)=2) AS fk`;
+   AND array_length(fk.conkey,1)=2 AND array_length(fk.confkey,1)=2) AS fk,
+ (SELECT count(*)=1 FROM pg_catalog.pg_constraint fk
+  WHERE fk.contype='f'
+   AND fk.conrelid=to_regclass('public.f05_real_catalog_photo_order_test')
+   AND fk.confrelid=to_regclass('public.vehicle_images')) AS pf`;
 export async function probeIsolatedCatalog(pool){
  try{
   const identity=(await pool.query(SQL_CATALOG_IDENTITY)).rows[0];
   if(!identity || Math.floor(Number(identity.v)/10000)!==16 || identity.db!=='f05_catalog_test' || identity.role!=='f05_catalog_ci')return false;
   const schema=(await pool.query(SQL_CATALOG_SCHEMA)).rows[0];
-  return !!schema && Object.keys(schema).sort().join(',')==='c,fk,full,p,shape,v,x' && Object.values(schema).every(v=>v===true);
+  return !!schema && Object.keys(schema).sort().join(',')==='c,fk,full,p,pf,po,shape,v,x' && Object.values(schema).every(v=>v===true);
  }catch{return false}
 }
 export async function createIsolatedCatalogRuntime(env=process.env){

@@ -104,6 +104,17 @@ try{
   const vehicle=listing.body.items.find(x=>x.vehicleId===cfg.vehicle);
   assert.equal(vehicle.coverImagePath,'C7/front.webp');
  });
+
+ await test('PG16 without photo order proof falls back to next trusted image, then restores',async()=>{
+  await writer.query('DELETE FROM public.f05_real_catalog_photo_order_test WHERE image_id=59003');
+  try{
+   const r=await get('/api/v1/catalog/vehicles/'+cfg.vehicle);
+   assert.equal(r.status,200);assert.equal(r.body.vehicle.coverImagePath,'C7/side.webp');
+  }finally{
+   await writer.query("INSERT INTO public.f05_real_catalog_photo_order_test(image_id,vehicle_id,source_type,original_sort_index) VALUES(59003,$1,'wholesale',1)",[cfg.vehicle]);
+  }
+  assert.equal((await get('/api/v1/catalog/vehicles/'+cfg.vehicle)).body.vehicle.coverImagePath,'C7/front.webp');
+ });
  await test('uncommitted PRIORITY does not incorrectly hide from independent reader',async()=>{
   await writer.query('BEGIN');transaction=true;
   await writer.query("INSERT INTO public.f05_real_catalog_protections_test(vehicle_id,listing_cycle_id,protection_kind) VALUES($1,$2,'PRIORITY')",[cfg.vehicle,cfg.cycle]);
