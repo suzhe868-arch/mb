@@ -309,3 +309,35 @@ CREATE TABLE public.f05_find_car_activation_scope_test (
 CREATE UNIQUE INDEX f05_find_car_activated_demand_unique_test ON public.find_car_applications(activated_demand_id)
  WHERE activated_demand_id IS NOT NULL;
 REVOKE ALL ON public.f05_find_car_activation_scope_test FROM PUBLIC;
+
+-- PDM12 F05-7: DISPOSABLE_TEST_ONLY matching provenance.
+-- Strict explicit sales conditions are not the live Rule Dictionary issuer.
+CREATE TABLE public.f05_matching_employee_scope_test (
+ employee_id bigint NOT NULL REFERENCES public.employees(employee_id) ON DELETE RESTRICT,
+ customer_id bigint NOT NULL REFERENCES public.customers(customer_id) ON DELETE RESTRICT,
+ can_recompute boolean NOT NULL CHECK(can_recompute=true),
+ issuer text NOT NULL DEFAULT 'DISPOSABLE_TEST_ONLY' CHECK(issuer='DISPOSABLE_TEST_ONLY'),
+ expires_at timestamptz NOT NULL,
+ PRIMARY KEY(employee_id,customer_id)
+);
+CREATE TABLE public.f05_matching_sales_description_test (
+ demand_id bigint PRIMARY KEY REFERENCES public.demands(demand_id) ON DELETE RESTRICT,
+ written_by_employee_id bigint NOT NULL REFERENCES public.employees(employee_id) ON DELETE RESTRICT,
+ sales_description text NOT NULL CHECK(length(sales_description) BETWEEN 1 AND 500),
+ issuer text NOT NULL DEFAULT 'DISPOSABLE_TEST_ONLY' CHECK(issuer='DISPOSABLE_TEST_ONLY'),
+ expires_at timestamptz NOT NULL
+);
+CREATE TABLE public.f05_matching_vehicle_facts_test (
+ vehicle_id bigint NOT NULL,
+ listing_cycle_id bigint NOT NULL,
+ source_brand_id bigint REFERENCES public.vehicle_brands(brand_id) ON DELETE RESTRICT,
+ source_model_year integer CHECK(source_model_year IS NULL OR source_model_year BETWEEN 1886 AND 2200),
+ mileage_km integer CHECK(mileage_km IS NULL OR mileage_km BETWEEN 0 AND 2000000),
+ interior_color text CHECK(interior_color IS NULL OR interior_color IN ('black','beige','brown','white','grey')),
+ issuer text NOT NULL DEFAULT 'DISPOSABLE_TEST_ONLY' CHECK(issuer='DISPOSABLE_TEST_ONLY'),
+ expires_at timestamptz NOT NULL,
+ PRIMARY KEY(vehicle_id,listing_cycle_id),
+ FOREIGN KEY(listing_cycle_id,vehicle_id) REFERENCES public.vehicle_listing_cycles(listing_cycle_id,vehicle_id)
+);
+REVOKE ALL ON public.f05_matching_employee_scope_test,
+ public.f05_matching_sales_description_test, public.f05_matching_vehicle_facts_test FROM PUBLIC;
