@@ -115,6 +115,15 @@ try{
   }
   assert.equal((await get('/api/v1/catalog/vehicles/'+cfg.vehicle)).body.vehicle.coverImagePath,'C7/front.webp');
  });
+
+ await test('PG16 public totals reflect actual visible scoped vehicles and exclude hidden fixtures',async()=>{
+  const r=await get('/api/v1/catalog/stats');
+  assert.equal(r.status,200);
+  assert.equal(r.body.total,1);
+  assert.deepEqual(r.body.bySource,{wholesale:1,mingbang:0,four_s:0});
+  assert.equal(r.body.todayNewCount,null);
+  assert.equal((await get('/api/v1/catalog/stats?price=1')).status,400);
+ });
  await test('uncommitted PRIORITY does not incorrectly hide from independent reader',async()=>{
   await writer.query('BEGIN');transaction=true;
   await writer.query("INSERT INTO public.f05_real_catalog_protections_test(vehicle_id,listing_cycle_id,protection_kind) VALUES($1,$2,'PRIORITY')",[cfg.vehicle,cfg.cycle]);

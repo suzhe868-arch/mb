@@ -6,7 +6,7 @@ import {randomBytes} from 'node:crypto';
 import {createServer} from 'node:http';
 import {
  createCatalogService, encodeCursor, decodeCursor,
- SQL_CATALOG_LIST, SQL_CATALOG_DETAIL,
+ SQL_CATALOG_LIST, SQL_CATALOG_DETAIL, SQL_CATALOG_STATS,
 } from '../src/catalog-service.mjs';
 import {createCatalogHandler} from '../src/catalog-http.mjs';
 import {createFoundationHandler} from '../src/app.mjs';
@@ -151,6 +151,31 @@ test('image SQL selects in frozen sort order, never returns upstream URL or docu
   assert.match(sql,/vi\.vehicle_id=v\.vehicle_id/);
   assert.match(sql,/po\.original_sort_index ASC,vi\.image_id ASC LIMIT 1/);
   assert.doesNotMatch(sql,/source_url_fact|vehicle_documents|origin_ref/);
+ }
+});
+
+test('real HTTP public statistics use only physically scoped records',async()=>{
+ const r=await request(byRows(sql=>{
+  assert.equal(sql,SQL_CATALOG_STATS);
+  return [{source:'wholesale',vehicleCount:'4'},{source:'mingbang',vehicleCount:'2'}];
+ }),'/api/v1/catalog/stats');
+ assert.equal(r.status,200);
+ assert.deepEqual(r.body.bySource,{wholesale:4,mingbang:2,four_s:0});
+ assert.equal(r.body.total,6);
+ assert.equal(r.body.todayNewCount,null);
+ assert.equal(r.body.todayNewState,'FIRST_SEEN_DEPENDENCY_BLOCKED');
+ assert.equal(r.body.productionReady,false);
+ assert.match(SQL_CATALOG_STATS,/f05_real_catalog_visibility_test/);
+ assert.match(SQL_CATALOG_STATS,/f05_real_catalog_protections_test/);
+});
+test('statistics forbid query manipulation, duplicate counts and injection into projections',async()=>{
+ assert.equal((await request(byRows(),'/api/v1/catalog/stats?source=wholesale')).status,400);
+ assert.equal((await request(byRows(),'/api/v1/catalog/stats','POST')).status,405);
+ for(const rows of [[{source:'employee',vehicleCount:'1'}],[{source:'wholesale',vehicleCount:'0 OR 1=1'}],
+ [{source:'wholesale',vehicleCount:'9223372036854775807'}],
+ [{source:'wholesale',vehicleCount:'1'},{source:'wholesale',vehicleCount:'1'}]]){
+  const r=await request(byRows(()=>rows),'/api/v1/catalog/stats');
+  assert.equal(r.status,503);assert.deepEqual(r.body,{code:'CATALOG_DEPENDENCY_NOT_READY'});
  }
 });
 test('PDM-20 seven sorts: six unverified business projections fail closed; oldest is prohibited',async()=>{

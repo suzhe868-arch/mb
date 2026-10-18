@@ -55,6 +55,7 @@ const BASE_SELECT=`SELECT v.vehicle_id AS "vehicleId",cy.listing_cycle_id AS "li
 ) cover ON TRUE WHERE (vm.brand_id IS NULL OR vs.series_id IS NULL OR vm.brand_id=vs.brand_id) AND cy.ended_at IS NULL AND NOT EXISTS(SELECT 1 FROM public.vehicle_listing_cycles other WHERE other.vehicle_id=v.vehicle_id AND other.listing_cycle_id<>cy.listing_cycle_id AND other.ended_at IS NULL) AND v.archived_at IS NULL AND v.platform_visibility='visible' AND ((v.source_type='wholesale' AND v.source_sale_status='active') OR (v.source_type IN('mingbang','four_s') AND v.source_sale_status='available')) AND p.allow_anonymous=true AND p.verified_isolation='DISPOSABLE_TEST_PROOF_NOT_SIGNED' AND p.expires_at>statement_timestamp() AND NOT EXISTS(SELECT 1 FROM public.f05_real_catalog_protections_test pr WHERE pr.vehicle_id=v.vehicle_id AND pr.listing_cycle_id=cy.listing_cycle_id AND pr.ended_at IS NULL)`;
 export const SQL_CATALOG_LIST=BASE_SELECT+` AND v.source_type=$1 AND ($4::bigint IS NULL OR v.model_id=$4::bigint) AND ($5::bigint IS NULL OR COALESCE(vm.brand_id,vs.brand_id)=$5::bigint) AND ($6::bigint IS NULL OR vm.series_id=$6::bigint) AND ($7::integer IS NULL OR vm.model_year=$7::integer) AND ($2::timestamptz IS NULL OR (cy.started_at,cy.listing_cycle_id) < ($2::timestamptz,$3::bigint)) ORDER BY cy.started_at DESC,cy.listing_cycle_id DESC LIMIT 16`;
 export const SQL_CATALOG_DETAIL=BASE_SELECT+` AND v.vehicle_id=$1 LIMIT 2`;
+export const SQL_CATALOG_STATS=`SELECT source AS "source",COUNT(DISTINCT "vehicleId")::text AS "vehicleCount" FROM (${BASE_SELECT}) AS eligible GROUP BY source ORDER BY source`;
 function safeItem(r){
  // Explicit property whitelist: SQL rows cannot put VIN / phone / internal prices into responses.
  const id=String(r?.vehicleId??''),cycle=String(r?.listingCycleId??'');
@@ -75,6 +76,20 @@ function safeItem(r){
 export function createCatalogService({pool,cursorKey}={}){
  if(!pool||typeof pool.query!=='function'||!Buffer.isBuffer(cursorKey)||cursorKey.length<32)throw Error('CATALOG_DEPENDENCIES_REQUIRED');
  return {
+  async stats(){
+   const rows=(await pool.query(SQL_CATALOG_STATS,[])).rows;
+   if(!Array.isArray(rows)||rows.length>3)throw Error('CATALOG_COUNT_PROJECTION_INVALID');
+   const bySource={wholesale:0,mingbang:0,four_s:0};
+   const seen=new Set();
+   for(const row of rows){
+    const source=row?.source,value=row?.vehicleCount;
+    if(!ALLOWED_SOURCES.has(source)||seen.has(source)||typeof value!=='string'||!/^(0|[1-9][0-9]*)$/.test(value)||BigInt(value)>BigInt(Number.MAX_SAFE_INTEGER))throw Error('CATALOG_COUNT_PROJECTION_INVALID');
+    seen.add(source);bySource[source]=Number(value);
+   }
+   const total=Object.values(bySource).reduce((a,b)=>a+b,0);
+   if(!Number.isSafeInteger(total))throw Error('CATALOG_COUNT_PROJECTION_INVALID');
+   return {status:200,body:{region:'national',total,bySource,todayNewCount:null,todayNewState:'FIRST_SEEN_DEPENDENCY_BLOCKED',productionReady:false}};
+  },
   async list(params){
    if(!params||typeof params!=='object')return reject('INVALID_QUERY');
    const keys=Object.keys(params),allowed=['source','sort','cursor','pageSize','region','modelId','brandId','seriesId','modelYear'];

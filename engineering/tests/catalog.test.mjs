@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomBytes} from 'node:crypto';
 import {createServer} from 'node:http';
-import {createCatalogService,encodeCursor,decodeCursor,SQL_CATALOG_LIST,SQL_CATALOG_DETAIL} from '../src/catalog-service.mjs';
+import {createCatalogService,encodeCursor,decodeCursor,SQL_CATALOG_LIST,SQL_CATALOG_DETAIL,SQL_CATALOG_STATS} from '../src/catalog-service.mjs';
 import {createCatalogHandler} from '../src/catalog-http.mjs';
 import {createFoundationHandler} from '../src/app.mjs';
 import {validateCatalogEnv} from '../src/catalog-readiness.mjs';
