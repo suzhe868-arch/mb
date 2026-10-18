@@ -341,3 +341,20 @@ CREATE TABLE public.f05_matching_vehicle_facts_test (
 );
 REVOKE ALL ON public.f05_matching_employee_scope_test,
  public.f05_matching_sales_description_test, public.f05_matching_vehicle_facts_test FROM PUBLIC;
+
+CREATE TABLE public.f05_matching_recompute_events_test (
+ event_key text PRIMARY KEY CHECK(event_key ~ '^[A-Za-z0-9_-]{24,64}$'),
+ actor_employee_id bigint NOT NULL REFERENCES public.employees(employee_id) ON DELETE RESTRICT,
+ demand_id bigint NOT NULL REFERENCES public.demands(demand_id) ON DELETE RESTRICT,
+ vehicle_id bigint NOT NULL REFERENCES public.vehicles(vehicle_id) ON DELETE RESTRICT,
+ result_id bigint NOT NULL UNIQUE REFERENCES public.demand_match_results(result_id) ON DELETE RESTRICT,
+ result_tier text NOT NULL CHECK(result_tier IN ('high','acceptable','confirmation_needed','no_match')),
+ payload_sha256 text NOT NULL CHECK(payload_sha256 ~ '^[0-9a-f]{64}$'),
+ occurred_at timestamptz NOT NULL DEFAULT statement_timestamp()
+);
+CREATE FUNCTION public.f05_match_recompute_append_only_test() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN RAISE EXCEPTION 'F05_MATCH_EVENTS_APPEND_ONLY' USING ERRCODE='23514'; END $$;
+CREATE TRIGGER f05_match_recompute_events_immutable_test BEFORE UPDATE OR DELETE
+ ON public.f05_matching_recompute_events_test FOR EACH ROW
+ EXECUTE FUNCTION public.f05_match_recompute_append_only_test();
+REVOKE ALL ON public.f05_matching_recompute_events_test FROM PUBLIC;
