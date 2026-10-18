@@ -2,22 +2,22 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F05_7_TEST_ONLY_FIRST_CANDIDATE_DISCOVERY_PG16_192_PASS_SOURCE_GAPS_OPEN",
+  "status": "B_IN_PROGRESS_F05_7_TEST_ONLY_HARD_CONDITION_FIELDS_PG16_198_PASS_FORMAL_GAPS_OPEN",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "2df9e86e7b8a6145939c092b368f7cc460c9ce23",
+  "github_commit": "a9922cd9233551c7d8d153c4575cd8980a62887d",
   "node_http_stub_tests": {
-    "passed": 135,
+    "passed": 140,
     "failed": 0,
     "skipped": 0
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39129476767,
-    "head_sha": "2df9e86e7b8a6145939c092b368f7cc460c9ce23",
-    "node_http_tests_passed": 135,
-    "real_pg16_integration_tests_passed": 192,
+    "run_id": 39130275529,
+    "head_sha": "a9922cd9233551c7d8d153c4575cd8980a62887d",
+    "node_http_tests_passed": 140,
+    "real_pg16_integration_tests_passed": 198,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -83,7 +83,10 @@
     "matching_discovery_pg16_cases_passed": 7,
     "matching_discovery_only_test_issuer": true,
     "matching_discovery_batch_limit": 50,
-    "matching_discovery_partial_continuation_implemented": false
+    "matching_discovery_partial_continuation_implemented": false,
+    "matching_hard_condition_fields_pg16_cases_passed": 6,
+    "source_fact_structured_hard_fields_persisted": true,
+    "source_fact_provenance_formal": false
   },
   "endpoints": {
     "implemented_test_only": [
@@ -294,8 +297,8 @@
     "Full F05-1..11 actual authenticated HTTP/PG16 business still missing"
   ],
   "next_owner": "B",
-  "next_milestone": "继续明确可信新车新需求事件对接与>50部分失败续跑/全PDM12字段及scope精度/正式F03与M94来源；无外部Issuer生产硬拒；F06~F08暂停。",
-  "verification_scope": "F02_1_CURRENT_INITIAL_76_TABLES_PLUS_31_TEST_SIDECARS_NODE_135_PG16_192_FIRST_CANDIDATE_DISCOVERY_MANUAL_TEST_ISSUER_ONLY",
+  "next_milestone": "B继续正式来源分级车况证据+完整车型款型及合法搜索共享确定性解析、发现批次持续恢复、F03权限与真实Issuer/M94；F06-F08继续暂停。",
+  "verification_scope": "F02_1_CURRENT_INITIAL_76_TABLES_PLUS_31_TEST_SIDECARS_ADD_000034_FIELDS_NODE_140_PG16_198_STILL_ISOLATED",
   "security_hardening": [
     "pg_catalog actual column type and FK shape check",
     "test-only database URL strict port 5432 and prohibit host/hostaddr query overrides",
@@ -307,8 +310,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "TEN_LEGACY_BROAD_MAIN_TARGET_PR_WORKFLOWS_UNAUTHORIZED_TO_CHANGE_AND_USER_FORBIDS_OLD_RETRIGGER",
-  "tested_commit": "2df9e86e7b8a6145939c092b368f7cc460c9ce23",
-  "tested_run": 39129476767,
+  "tested_commit": "a9922cd9233551c7d8d153c4575cd8980a62887d",
+  "tested_run": 39130275529,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -547,9 +550,9 @@
     "production_ready": false
   },
   "matching_real_business": {
-    "status": "F05_7_TEST_ONLY_BOUNDED_NEW_DEMAND_NEW_VEHICLE_FIRST_MATCH_DISCOVERY_PG16_PASS",
-    "run_id": 39129476767,
-    "execution_sha": "2df9e86e7b8a6145939c092b368f7cc460c9ce23",
+    "status": "F05_7_TEST_ONLY_EXTERIOR_POWER_DISPLACEMENT_EXCLUSION_FIELD_PG16_PASS",
+    "run_id": 39130275529,
+    "execution_sha": "a9922cd9233551c7d8d153c4575cd8980a62887d",
     "actual_f02_frozen_business_tables": [
       "public.demands",
       "public.demand_match_results"
@@ -617,7 +620,13 @@
       "PG16_50_MAX_NO_SILENT_PARTIAL_BATCH_ACCEPT",
       "PG16_DISCOVERY_EVENT_IDEMPOTENCY_APPEND_ONLY_AUDIT_AND_ROLLBACK",
       "PG16_DISCOVERY_HIDDEN_BUT_SELLABLE_AND_EXPIRED_SCOPE_ENFORCEMENT",
-      "PG16_SCOPED_RETRY_ACTUAL_MATCH_FOR_NEW_CANDIDATES"
+      "PG16_SCOPED_RETRY_ACTUAL_MATCH_FOR_NEW_CANDIDATES",
+      "PG16_PDM12_EXTERIOR_MULTI_VALUE_OR_HARD_CONDITION",
+      "PG16_PDM12_POWER_TYPE_MULTI_VALUE_OR_HARD_CONDITION",
+      "PG16_PDM12_DISPLACEMENT_MIN_MAX_HARD_BOUND",
+      "PG16_PDM12_CONDITION_EXCLUSION_KNOWN_NONE_VS_UNKNOWN_EVIDENCE",
+      "PG16_MATCHING_FACT_HARD_FIELD_MUTATION_STALE_AND_RECOMPUTE",
+      "NODE_DICT_PREFERRED_ONLY_RULE_ALLOWED_BUT_DEMAND_STILL_NOT_READY"
     ],
     "missing": [
       "FORMAL_RULE_DICTIONARY_AND_SCOPE_ISSUER",
@@ -654,7 +663,11 @@
       "NEW_DEMAND_NEW_VEHICLE_TRUSTED_SOURCE_EVENT_AUTO_DISPATCH_MISSING",
       "BOUNDED_DISCOVERY_OVER50_CURSOR_OR_PARTIAL_CONTINUATION_MISSING",
       "FORMAL_F03_MATCHING_SOURCE_AND_SCOPE_SIGNATURES_MISSING",
-      "PDM12_FULL_MATCHING_CONDITION_DICTIONARY_ISSUER_NOT_SIGNED"
+      "PDM12_FULL_MATCHING_CONDITION_DICTIONARY_ISSUER_NOT_SIGNED",
+      "FORMAL_CONDITION_FACT_LEVELLED_PROVENANCE_PRIORITY_AND_CONFLICT_RESOLUTION",
+      "FORMAL_MODEL_BRAND_SERIES_YEAR_VARIANT_MISSING_SOURCE_IS_NOT_UNKNOWN",
+      "REAL_PDM12_FULL_CONDITION_VOCABULARY_AND_CUSTOMER_SEARCH_SHARED_PARSER",
+      "F03_TRUSTED_ROLE_PERMISSION_AND_THIRD_PARTY_ISSUERS_NOT_SATISFIED"
     ],
     "production_ready": false,
     "invalidation_pg16_cases_passed": 10,
@@ -668,6 +681,8 @@
     "formal_dictionary_issuer_signed": false,
     "bounded_new_demand_new_vehicle_discovery_verified": true,
     "formal_upstream_event_provenance_verified": false,
-    "fully_automated_discovery_verified": false
+    "fully_automated_discovery_verified": false,
+    "exterior_and_power_multivalue_hard_verified": true,
+    "displacement_range_and_exclusion_pg16_verified": true
   }
 }
