@@ -129,6 +129,8 @@ try{
   assert.equal((await call({id:'59102',bearer:targetToken,target:'59103',eventKey:faultKey})).status,200);
  });
  await test('competing PG16 transfers on one Consultation commit exactly one original-assignee history',async()=>{
+  await db.query("UPDATE public.consultations SET status='resolved',close_reason='RESOLVED',completed_at=statement_timestamp() WHERE consultation_id=59101");
+  await db.query("UPDATE public.f05_catalog_employee_consultation_scope_test SET can_receive=true WHERE employee_id=59100 AND customer_id=59100");
   await db.query("INSERT INTO public.consultations(consultation_id,customer_id,vehicle_id,listing_cycle_id,assignee_employee_id,status,source_relation,first_response_deadline) "+
     "VALUES(59103,59100,59002,59002,59101,'pending','{\"kind\":\"other\"}'::jsonb,statement_timestamp()+interval '15 minutes')");
   const [a,b]=await Promise.all([call({id:'59103',bearer:targetToken,target:'59100'}),call({id:'59103',bearer:targetToken,target:'59103'})]);
