@@ -107,6 +107,27 @@ export function createIsolatedConsultationService({pool,env=process.env}={}){
     await c.query('SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))',['F05_CONSULTATION_EVENT',eventKey]);
     await c.query('SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))',[customerId,vehicleId]);
     if(a.owner_assignment_state!=='assigned'||!validId(String(a.current_owner_employee_id))){await c.query('ROLLBACK');return answer(409,'CONSULTATION_OWNER_NOT_READY')}
+    // Validate the vehicle and listing visibility BEFORE considering the
+    // independent Employee/phone/assignee scope. An inaccessible hidden or
+    // non-saleable vehicle must not yield a different response just because
+    // the Customer currently lacks a receiving Employee proof.
+    const cycle=(await c.query("SELECT cy.listing_cycle_id FROM public.vehicles v "+
+      "JOIN public.vehicle_listing_cycles cy ON cy.vehicle_id=v.vehicle_id AND cy.ended_at IS NULL "+
+      "JOIN public.f05_real_catalog_visibility_test vis ON vis.vehicle_id=v.vehicle_id AND vis.listing_cycle_id=cy.listing_cycle_id AND vis.source_type=v.source_type "+
+      "WHERE v.vehicle_id=$1 AND v.archived_at IS NULL "+
+      "AND ((v.platform_visibility='visible' AND vis.allow_anonymous=true) "+
+      "OR ($2::boolean AND v.platform_visibility='hidden')) "+
+      "AND vis.verified_isolation='DISPOSABLE_TEST_PROOF_NOT_SIGNED' "+
+      "AND vis.expires_at>statement_timestamp() "+
+      "AND ((v.source_type='wholesale' AND v.source_sale_status='active') OR "+
+      "(v.source_type IN ('mingbang','four_s') AND v.source_sale_status='available')) "+
+      "AND NOT EXISTS(SELECT 1 FROM public.f05_real_catalog_protections_test pr "+
+      "WHERE pr.vehicle_id=v.vehicle_id AND pr.listing_cycle_id=cy.listing_cycle_id AND pr.ended_at IS NULL) "+
+      "AND ($3::bigint IS NULL OR cy.listing_cycle_id=$3) "+
+      "LIMIT 1 FOR SHARE OF v,cy,vis",
+      [vehicleId,recSource!==null,recSource?String(recSource.listing_cycle_id):null])).rows[0];
+    if(!cycle){await c.query('ROLLBACK');return answer(404,'CONSULTATION_VEHICLE_NOT_VISIBLE')}
+    const cycleId=String(cycle.listing_cycle_id);
     // PDM-15 §10: explicit Recommendation recommender if CURRENT legitimate,
     // else currently linked Demand responsible, else current Customer Owner.
     // A historical recommender never becomes a permanent assignee.
@@ -142,23 +163,7 @@ export function createIsolatedConsultationService({pool,env=process.env}={}){
     if(assigneeId===null){
      await c.query('ROLLBACK');return answer(403,'CONSULTATION_PHONE_OR_ASSIGNEE_NOT_VERIFIED');
     }
-    const cycle=(await c.query("SELECT cy.listing_cycle_id FROM public.vehicles v "+
-      "JOIN public.vehicle_listing_cycles cy ON cy.vehicle_id=v.vehicle_id AND cy.ended_at IS NULL "+
-      "JOIN public.f05_real_catalog_visibility_test vis ON vis.vehicle_id=v.vehicle_id AND vis.listing_cycle_id=cy.listing_cycle_id AND vis.source_type=v.source_type "+
-      "WHERE v.vehicle_id=$1 AND v.archived_at IS NULL "+
-      "AND ((v.platform_visibility='visible' AND vis.allow_anonymous=true) "+
-      "OR ($2::boolean AND v.platform_visibility='hidden')) "+
-      "AND vis.verified_isolation='DISPOSABLE_TEST_PROOF_NOT_SIGNED' "+
-      "AND vis.expires_at>statement_timestamp() "+
-      "AND ((v.source_type='wholesale' AND v.source_sale_status='active') OR "+
-      "(v.source_type IN ('mingbang','four_s') AND v.source_sale_status='available')) "+
-      "AND NOT EXISTS(SELECT 1 FROM public.f05_real_catalog_protections_test pr "+
-      "WHERE pr.vehicle_id=v.vehicle_id AND pr.listing_cycle_id=cy.listing_cycle_id AND pr.ended_at IS NULL) "+
-      "AND ($3::bigint IS NULL OR cy.listing_cycle_id=$3) "+
-      "LIMIT 1 FOR SHARE OF v,cy,vis",
-      [vehicleId,recSource!==null,recSource?String(recSource.listing_cycle_id):null])).rows[0];
-    if(!cycle){await c.query('ROLLBACK');return answer(404,'CONSULTATION_VEHICLE_NOT_VISIBLE')}
-    const cycleId=String(cycle.listing_cycle_id);
+
     // An old-cycle request key must never return or mutate a Consultation in a new cycle.
     const sourceTag=recSource?['RECOMMENDATION',String(recSource.recommendation_id)]:
      ['DIRECT_VEHICLE_DETAIL'];

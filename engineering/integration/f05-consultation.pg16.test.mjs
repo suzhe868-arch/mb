@@ -66,6 +66,25 @@ try{
   try{assert.equal((await call()).status,409)}
   finally{await writer.query("UPDATE public.customers SET current_owner_employee_id=59001,owner_assignment_state='assigned' WHERE customer_id=59001")}
  });
+ await test('PG16 hidden saleability denies before assignee proof and does not leak vehicle access state',async()=>{
+  // The real test proof is keyed by customer; remove it to prove that hidden,
+  // missing and unavailable vehicles all fail at the source boundary first.
+  await writer.query("DELETE FROM public.f05_catalog_consultation_actor_proof_test WHERE customer_id=59001");
+  try{
+   const hidden=await call(key(),token,'59020');
+   assert.equal(hidden.status,404,JSON.stringify(hidden));
+   assert.equal(hidden.body.code,'CONSULTATION_VEHICLE_NOT_VISIBLE');
+   const unknown=await call(key(),token,'599999');
+   assert.equal(unknown.status,404,JSON.stringify(unknown));
+   assert.equal(unknown.body.code,'CONSULTATION_VEHICLE_NOT_VISIBLE');
+   const visible=await call(key(),token,'59001');
+   assert.equal(visible.status,403,JSON.stringify(visible));
+   assert.equal(visible.body.code,'CONSULTATION_PHONE_OR_ASSIGNEE_NOT_VERIFIED');
+   assert.equal((await writer.query("SELECT count(*)::int n FROM public.consultations WHERE customer_id=59001")).rows[0].n,0);
+  }finally{
+   await writer.query("INSERT INTO public.f05_catalog_consultation_actor_proof_test(customer_id,assignee_employee_id,phone_consent_test,worker_scope_test,expires_at) VALUES(59001,59001,true,true,statement_timestamp()+interval '20 minutes')");
+  }
+ });
  await test('PG16 real F05-9 Recommendation -> hidden PDM15 Consultation preserves direct source and selects current Demand assignee',async()=>{
   try{
   // The Find-Car level proof is owned by this one cross-domain test. It must
