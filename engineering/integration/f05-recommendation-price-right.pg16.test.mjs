@@ -165,6 +165,28 @@ try{
   assert.equal(await count("SELECT consumed_count n FROM public.customer_day_quota_ledger WHERE customer_id=62800"),detailRes.body.charged?1:0);
   assert.equal((await detail('62815')).body.code,'PRICE_ALREADY_UNLOCKED');
  });
+ await test('Customer disabled pauses both hidden Recommendation and previously granted price without erasing history',async()=>{
+  const before=await count("SELECT count(*) n FROM public.customer_price_cycle_unlocks WHERE customer_id=62800 AND vehicle_id=62812");
+  assert.equal(before,1);
+  await db.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=62800");
+  try{
+   const blocked=await detail('62812');
+   assert.equal(blocked.status,401,JSON.stringify(blocked));
+   assert.equal(await count("SELECT count(*) n FROM public.f05_recommendation_safe_customer_test WHERE customer_id=62800 AND vehicle_id=62812"),0);
+   assert.equal(await count("SELECT count(*) n FROM public.customer_price_cycle_unlocks WHERE customer_id=62800 AND vehicle_id=62812"),before);
+  }finally{await db.query("UPDATE public.customers SET account_status='active' WHERE customer_id=62800")}
+  const restored=await detail('62812');assert.equal(restored.status,200,JSON.stringify(restored));
+  assert.equal(restored.body.code,'PRICE_ALREADY_UNLOCKED');assert.equal(restored.body.charged,false);
+ });
+ await test('Free right never substitutes for expired source price evidence, proof restoration uses current price',async()=>{
+  await db.query("UPDATE public.f05_catalog_price_display_proof_test SET expires_at=statement_timestamp()-interval '1 second' WHERE vehicle_id=62812");
+  const denied=await detail('62812');assert.equal(denied.status,404,JSON.stringify(denied));
+  assert.equal(await count("SELECT count(*) n FROM public.customer_price_cycle_unlocks WHERE customer_id=62800 AND vehicle_id=62812"),1);
+  await db.query("UPDATE public.f05_catalog_price_display_proof_test SET expires_at=statement_timestamp()+interval '20 minutes',customer_display_cents=25000000 WHERE vehicle_id=62812");
+  const fresh=await detail('62812');
+  assert.equal(fresh.status,200);assert.equal(fresh.body.code,'PRICE_ALREADY_UNLOCKED');
+  assert.equal(fresh.body.priceCents,'25000000');assert.equal(fresh.body.charged,false);
+ });
  await test('immutable free grant events cannot be changed after Recommendation ended',async()=>{
   await assert.rejects(db.query("DELETE FROM public.f05_recommendation_price_grant_events_test WHERE customer_id=62800"),e=>e.code==='23514');
  });
