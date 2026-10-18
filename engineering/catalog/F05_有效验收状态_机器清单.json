@@ -2,22 +2,22 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_PDM15_EMPLOYEE_TERMINAL_REAL_PG16_TEST_ONLY_SCOPE_UNSIGNED",
+  "status": "B_IN_PROGRESS_PDM15_HANDOVER_REAL_PG16_TEST_ONLY_FORMAL_ISSUER_UNVERIFIED",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "83b19cf31c30f8b70fa3c041756118c7c1886b75",
+  "github_commit": "8c987d09f91a22d2dd947b120ac3a76c78695d1e",
   "node_http_stub_tests": {
-    "passed": 88,
+    "passed": 94,
     "failed": 0,
     "skipped": 0
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39109322804,
-    "head_sha": "83b19cf31c30f8b70fa3c041756118c7c1886b75",
-    "node_http_tests_passed": 88,
-    "real_pg16_integration_tests_passed": 63,
+    "run_id": 39110338145,
+    "head_sha": "8c987d09f91a22d2dd947b120ac3a76c78695d1e",
+    "node_http_tests_passed": 94,
+    "real_pg16_integration_tests_passed": 72,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -40,7 +40,8 @@
     "formal_customer_phone_consent_issuer_verified": false,
     "formal_employee_permission_scope_verified": false,
     "real_pg16_employee_processing_integration_tests_passed": 15,
-    "formal_employee_issuer_verified": false
+    "formal_employee_issuer_verified": false,
+    "real_pg16_consultation_handover_tests_passed": 9
   },
   "endpoints": {
     "implemented_test_only": [
@@ -55,7 +56,8 @@
       "POST /api/v1/catalog/consultations/:consultationId/start-processing (test-only Employee bearer, pending=>processing; no actual human response)",
       ".../consultations/:consultationId/resolve (test-only Employee bearer + separate can_finalize)",
       ".../consultations/:consultationId/close (test-only Employee bearer + separate can_finalize)",
-      ".../consultations/:consultationId/invalidate (test-only Employee bearer + separate can_finalize)"
+      ".../consultations/:consultationId/invalidate (test-only Employee bearer + separate can_finalize)",
+      "POST /api/v1/catalog/consultations/:consultationId/reassign (test-only Employee bearer, target and reason JSON, physical PG16 assignee handover)"
     ],
     "real_pg16_verified": [
       "Catalog list/detail physical F02 initial PG16 with disposable proof",
@@ -70,7 +72,8 @@
       "PDM15 physical consultations create/reuse/touch, 15m frozen deadline, Customer owner/phone actor guards, true PG16 transaction rollback and relist cycle-bound idempotency",
       "PDM15 Customer withdrawn terminal PG16 resolved/CUSTOMER_WITHDRAWN, immutable event, bypass obsolete owner/phone/saleability for existing history only, disable/revoke/other Customer deny, atomic rollback + concurrent competing keys",
       "PDM15 live PG16 current Employee assignee pending=>processing with disposable employee session/scope and append-only STARTED_PROCESSING actor history; no SLA first response, atomic rollback",
-      "PDM15 three terminal physical PG16 transitions RESOLVED / NORMAL_CLOSED / INVALID, separate employee can_finalize scope, disabled-Customer necessary close, immutable audit, rollback and parallel conflicting commands"
+      "PDM15 three terminal physical PG16 transitions RESOLVED / NORMAL_CLOSED / INVALID, separate employee can_finalize scope, disabled-Customer necessary close, immutable audit, rollback and parallel conflicting commands",
+      "PDM15 physical PG16 Consultation assignee handover preserving Customer owner, initial direct source, original first_response_deadline, original status; audit old/new/actor/reason/server time, actor can_reassign/target can_receive test scope, 4S denial, disabled Customer legal handover, transaction rollback, parallel competition"
     ],
     "customer_write_implemented": [
       "NONPRODUCTION_ACTUAL_PG16_POST_FAVORITE_TEST_ONLY",
@@ -228,8 +231,8 @@
     "Full F05-1..11 actual authenticated HTTP/PG16 business still missing"
   ],
   "next_owner": "B",
-  "next_milestone": "Formal Employee+Customer source issuer and permission/data scope, genuine first human response with communication evidence, legal reassignment, disable SLA hold/resume, other F05 domains and M94 history, PR trigger governance",
-  "verification_scope": "NONPRODUCTION_F02_1_76_FROZEN_TABLES_PLUS_10_DISPOSABLE_SIDECARS_NODE_88_PG16_63",
+  "next_milestone": "F03-signed Employee capability/data scope and WeChat Customer issuer; auditable first human response evidence; manager-authorized reassignment and disabled Customer hold/resume; full F05 with M94 historical proof; A-approved PR trigger control",
+  "verification_scope": "NONPRODUCTION_F02_1_76_FROZEN_TABLES_PLUS_10_DISPOSABLE_SIDECARS_NODE_94_PG16_72",
   "security_hardening": [
     "pg_catalog actual column type and FK shape check",
     "test-only database URL strict port 5432 and prohibit host/hostaddr query overrides",
@@ -241,8 +244,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "TEN_LEGACY_BROAD_MAIN_TARGET_PR_WORKFLOWS_UNAUTHORIZED_TO_CHANGE_AND_USER_FORBIDS_OLD_RETRIGGER",
-  "tested_commit": "83b19cf31c30f8b70fa3c041756118c7c1886b75",
-  "tested_run": 39109322804,
+  "tested_commit": "8c987d09f91a22d2dd947b120ac3a76c78695d1e",
+  "tested_run": 39110338145,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -313,14 +316,15 @@
       "EMPLOYEE_START_PROCESSING_TEST_ONLY",
       "EMPLOYEE_RESOLVE_TEST_ONLY",
       "EMPLOYEE_NORMAL_CLOSE_TEST_ONLY",
-      "EMPLOYEE_INVALIDATE_TEST_ONLY"
+      "EMPLOYEE_INVALIDATE_TEST_ONLY",
+      "CURRENT_ASSIGNEE_HANDOVER_TEST_ONLY"
     ],
     "unsupported_actions": [
       "EMPLOYEE_FIRST_RESPONSE",
-      "REASSIGN",
+      "MANAGER_AUTHORIZED_CROSS_SCOPE_REASSIGN",
       "SLA_DISABLE_HOLD"
     ],
-    "run_id": 39109322804,
+    "run_id": 39110338145,
     "pg16_tests": 16,
     "production_ready": false,
     "withdraw_test_pg16_verified": true,
@@ -335,6 +339,12 @@
       "INVALID"
     ],
     "employee_finalize_authority": "DISPOSABLE_TEST_ONLY_EXPLICIT_CAN_FINALIZE_SCOPE",
-    "employee_processing_pg16_tests": 15
+    "employee_processing_pg16_tests": 15,
+    "handover_pg16_verified": true,
+    "handover_pg16_tests": 9,
+    "handover_url": "POST /api/v1/catalog/consultations/:consultationId/reassign",
+    "handover_source_authority": "DISPOSABLE_TEST_ONLY_CAN_REASSIGN_CURRENT_ASSIGNEE",
+    "handover_target_authority": "DISPOSABLE_TEST_ONLY_CAN_RECEIVE",
+    "manager_management_override_verified": false
   }
 }
