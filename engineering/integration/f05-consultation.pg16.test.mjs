@@ -7,6 +7,8 @@ import {createFoundationHandler} from '../src/app.mjs';
 import {createIsolatedConsultationService} from '../src/f05-consultation-service.mjs';
 import {createIsolatedConsultationHandler} from '../src/f05-consultation-http.mjs';
 import {createIsolatedRecommendationService} from '../src/f05-recommendation-service.mjs';
+import {createIsolatedFavoriteService} from '../src/f05-favorite-service.mjs';
+import {createIsolatedFavoriteHandler} from '../src/f05-favorite-http.mjs';
 import {validateCatalogEnv,probeIsolatedCatalog} from '../src/catalog-readiness.mjs';
 const db=validateCatalogEnv(),pool=new pg.Pool({connectionString:db.connectionString,max:3,connectionTimeoutMillis:1100});
 const writer=new pg.Client({connectionString:db.connectionString,connectionTimeoutMillis:1100});
@@ -40,12 +42,21 @@ try{
   await writer.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES(59020,59020,statement_timestamp())");
   await writer.query("INSERT INTO public.f05_real_catalog_visibility_test(vehicle_id,listing_cycle_id,source_type,allow_anonymous,expires_at) VALUES(59020,59020,'wholesale',false,statement_timestamp()+interval '20 minutes')");
   await writer.query("INSERT INTO public.f05_catalog_price_display_proof_test(vehicle_id,listing_cycle_id,source_type,customer_display_cents,expires_at) VALUES(59020,59020,'wholesale',12000000,statement_timestamp()+interval '20 minutes')");
+  // Dedicated cross-domain Favorite source. This is a genuinely visible car,
+  // not an invented Favorite privilege or a hidden Recommendation grant.
+  await writer.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,created_at) VALUES(62841,'wholesale','active','visible',statement_timestamp())");
+  await writer.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES(62841,62841,statement_timestamp())");
+  await writer.query("INSERT INTO public.f05_real_catalog_visibility_test(vehicle_id,listing_cycle_id,source_type,allow_anonymous,expires_at) VALUES(62841,62841,'wholesale',true,statement_timestamp()+interval '20 minutes')");
 
   await writer.query('COMMIT');
  }catch(e){await writer.query('ROLLBACK');throw e}
  const service=createIsolatedConsultationService({pool,env:process.env});
  const recommendation=createIsolatedRecommendationService({pool,env:process.env});
- server=createServer(createFoundationHandler({consultationHandler:createIsolatedConsultationHandler(service,process.env)}));
+ const favorite=createIsolatedFavoriteService({pool,env:process.env});
+ server=createServer(createFoundationHandler({
+  consultationHandler:createIsolatedConsultationHandler(service,process.env),
+  favoriteHandler:createIsolatedFavoriteHandler(favorite,process.env)
+ }));
  await new Promise((ok,bad)=>{server.once('error',bad);server.listen(0,'127.0.0.1',ok)});
  const call=async(eventKey=key(),authToken=token,vehicle='59001',h={})=>{
   const headers={authorization:'Bearer '+authToken,'x-idempotency-key':eventKey,...h};
@@ -84,6 +95,60 @@ try{
   }finally{
    await writer.query("INSERT INTO public.f05_catalog_consultation_actor_proof_test(customer_id,assignee_employee_id,phone_consent_test,worker_scope_test,expires_at) VALUES(59001,59001,true,true,statement_timestamp()+interval '20 minutes')");
   }
+ });
+ await test('PG16 F05 active Favorite -> actual Consultation freezes clicked direct source and denies removed Favorites',async()=>{
+  const callFav=async(method,ek)=>{
+   const x=await fetch('http://127.0.0.1:'+server.address().port+
+    '/api/v1/catalog/vehicles/62841/favorite',{method,
+    headers:{authorization:'Bearer '+token,...(ek?{'x-idempotency-key':ek}:{})}});
+   return {status:x.status,body:await x.json()};
+  };
+  const consultFav=async(ek=key())=>{
+   const x=await fetch('http://127.0.0.1:'+server.address().port+
+    '/api/v1/catalog/vehicles/62841/favorite/consultations',{method:'POST',
+    headers:{authorization:'Bearer '+token,'x-idempotency-key':ek}});
+   return {status:x.status,body:await x.json()};
+  };
+  const baseline=(await writer.query("SELECT count(*)::int n FROM public.consultations "+
+   "WHERE customer_id=59001 AND vehicle_id=62841")).rows[0].n;
+  assert.equal(baseline,0);
+  const notFav=await consultFav();
+  assert.equal(notFav.status,404,JSON.stringify(notFav));
+  assert.equal(notFav.body.code,'CONSULTATION_FAVORITE_NOT_ACTIVE');
+  assert.equal((await writer.query("SELECT count(*)::int n FROM public.consultations "+
+   "WHERE customer_id=59001 AND vehicle_id=62841")).rows[0].n,0);
+  const liked=await callFav('POST',key());
+  assert.equal(liked.status,200,JSON.stringify(liked));
+  assert.equal(liked.body.code,'FAVORITE_APPLIED');
+  const ck=key(),created=await consultFav(ck);
+  assert.equal(created.status,200,JSON.stringify(created));
+  assert.equal(created.body.code,'CONSULTATION_CREATED');
+  const first=(await writer.query("SELECT source_relation,assignee_employee_id,first_response_deadline "+
+   "FROM public.consultations WHERE consultation_id=$1",[created.body.consultationId])).rows[0];
+  assert.deepEqual(first.source_relation,{
+   kind:'other',entry:'favorite',favoriteStateVersion:'1',issuer:'DISPOSABLE_TEST_ONLY'});
+  assert.equal(String(first.assignee_employee_id),'59001');
+  const replay=await consultFav(ck);
+  assert.equal(replay.status,200);assert.equal(replay.body.code,'CONSULTATION_IDEMPOTENT_REPLAY');
+  const unliked=await callFav('DELETE',key());
+  assert.equal(unliked.status,200);
+  assert.equal(unliked.body.active,false);
+  const removed=await consultFav();
+  assert.equal(removed.status,404,JSON.stringify(removed));
+  assert.equal(removed.body.code,'CONSULTATION_FAVORITE_NOT_ACTIVE');
+  const after=(await writer.query("SELECT source_relation,assignee_employee_id,first_response_deadline "+
+   "FROM public.consultations WHERE consultation_id=$1",[created.body.consultationId])).rows[0];
+  assert.deepEqual(after.source_relation,first.source_relation);
+  assert.equal(String(after.assignee_employee_id),'59001');
+  assert.equal(after.first_response_deadline.getTime(),first.first_response_deadline.getTime());
+  const otherSource=await call(key(),token,'62841');
+  assert.equal(otherSource.status,200,JSON.stringify(otherSource));
+  assert.equal(otherSource.body.code,'CONSULTATION_REUSED');
+  assert.deepEqual((await writer.query("SELECT source_relation FROM public.consultations "+
+   "WHERE consultation_id=$1",[created.body.consultationId])).rows[0].source_relation,
+   first.source_relation,'subsequent direct-vehicle clicks must not overwrite the frozen Favorite source');
+  assert.equal((await writer.query("SELECT count(*)::int n FROM public.consultations "+
+   "WHERE customer_id=59001 AND vehicle_id=62841")).rows[0].n,1);
  });
  await test('PG16 real F05-9 Recommendation -> hidden PDM15 Consultation preserves direct source and selects current Demand assignee',async()=>{
   try{

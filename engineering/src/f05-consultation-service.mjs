@@ -52,10 +52,10 @@ export function createIsolatedConsultationService({pool,env=process.env}={}){
     return answer(200,'CONSULTATION_WITHDRAWN',{consultationId,status:'resolved',closeReason:'CUSTOMER_WITHDRAWN',productionReady:false});
    }catch(e){await c.query('ROLLBACK').catch(()=>{});throw e}
   }finally{c.release()}
- },async create({token,vehicleId=null,sourceRecommendationId=null,eventKey}){
-  if(!validEvent(eventKey)||
+ },async create({token,vehicleId=null,sourceRecommendationId=null,sourceFavorite=false,eventKey}){
+  if(!validEvent(eventKey)||typeof sourceFavorite!=='boolean'||
    (sourceRecommendationId===null&&!validId(vehicleId))||
-   (sourceRecommendationId!==null&&(!validId(sourceRecommendationId)||vehicleId!==null)))
+   (sourceRecommendationId!==null&&(!validId(sourceRecommendationId)||vehicleId!==null||sourceFavorite)))
    return answer(400,'CONSULTATION_INVALID_REQUEST');
   if(!validToken(token))return answer(401,'CONSULTATION_IDENTITY_REQUIRED');
   const c=await pool.connect();
@@ -128,6 +128,20 @@ export function createIsolatedConsultationService({pool,env=process.env}={}){
       [vehicleId,recSource!==null,recSource?String(recSource.listing_cycle_id):null])).rows[0];
     if(!cycle){await c.query('ROLLBACK');return answer(404,'CONSULTATION_VEHICLE_NOT_VISIBLE')}
     const cycleId=String(cycle.listing_cycle_id);
+    let favoriteSource=null;
+    if(sourceFavorite){
+     // A client URL cannot prove a Favorite: re-read THIS customer's current
+     // physical state under the same Customer+Vehicle transaction lock as
+     // F05's favorite ADD/REMOVE path. The frozen first-touch version is
+     // provenance, never a visibility or identity grant.
+     favoriteSource=(await c.query(
+      "SELECT state_version FROM public.f05_catalog_favorite_states_test f "+
+      "WHERE f.customer_id=$1 AND f.vehicle_id=$2 AND f.current_state='active' "+
+      "FOR SHARE OF f",[customerId,vehicleId])).rows[0];
+     if(!favoriteSource){
+      await c.query('ROLLBACK');return answer(404,'CONSULTATION_FAVORITE_NOT_ACTIVE');
+     }
+    }
     // PDM-15 §10: explicit Recommendation recommender if CURRENT legitimate,
     // else currently linked Demand responsible, else current Customer Owner.
     // A historical recommender never becomes a permanent assignee.
@@ -166,6 +180,7 @@ export function createIsolatedConsultationService({pool,env=process.env}={}){
 
     // An old-cycle request key must never return or mutate a Consultation in a new cycle.
     const sourceTag=recSource?['RECOMMENDATION',String(recSource.recommendation_id)]:
+     favoriteSource?['FAVORITE',String(favoriteSource.state_version)]:
      ['DIRECT_VEHICLE_DETAIL'];
     const payload=digest(JSON.stringify([customerId,vehicleId,cycleId,...sourceTag]));
     const prior=(await c.query('SELECT * FROM public.f05_catalog_consultation_actions_test WHERE event_key=$1',[eventKey])).rows[0];
@@ -189,6 +204,8 @@ export function createIsolatedConsultationService({pool,env=process.env}={}){
       JSON.stringify(recSource?{
        kind:'recommendation',recommendationId:String(recSource.recommendation_id),
        sourceDemandId:recSource.source_demand_id===null?null:String(recSource.source_demand_id),
+       issuer:'DISPOSABLE_TEST_ONLY'}:favoriteSource?{
+       kind:'other',entry:'favorite',favoriteStateVersion:String(favoriteSource.state_version),
        issuer:'DISPOSABLE_TEST_ONLY'}:{
        kind:'other',entry:'vehicle_detail',issuer:'DISPOSABLE_TEST_ONLY'})])).rows[0];
     }
