@@ -1,3 +1,17 @@
+# 2026-10-18｜F05本轮真实业务续作最终汇总（最优先读本节）
+
+- **本轮实际代码**：从两张简化表迁移到F02-1正式冻结编译器生成的**76张初始真实业务物理表**，保持PostgreSQL16、专用非超级用户和可销毁环境；官方同SHA运行 [Run39100830009](https://github.com/suzhe868-arch/mb/actions/runs/39100830009) 的Node HTTP **59/59**、物理PG16 **15/15**，均0失败、0跳过。
+- **真实接口功能**：`GET /api/v1/catalog/vehicles`、`GET /api/v1/catalog/vehicles/:vehicleId`；当前合法`wholesale/mingbang/four_s`，全国，15台一页，最新上架真实上架周期排序，PDM05车型`modelId`／品牌`brandId`／车系`seriesId`的PG16实际精确查询与组合过滤；游标V3 HMAC绑定所有已生效条件，跨品牌/车型/频道复用拒绝。
+- **安全**：真实PG约束禁止双活跃上架周期；隐藏、失效、变更来源后旧可见凭证、Priority测试保护、事务回滚、游标篡改、非法BIGINT及VIN/内部价/电话泄漏均有正反例。
+- **PDM20七类排序仍未全部实现**：仅`sort=newest`具备真实字段且成功。合法其余六种暂返回HTTP 503 `CATALOG_SORT_DEPENDENCY_BLOCKED`，非法旧`oldest`返回400；不以假排序冒充完成。
+- **边界**：已验证的76表是`F02-1 Current Initial`，**历史M94全版本迁移链、真实Customer/Employee/4S/JYT签发未证实**；所有来源可见凭证是测试侧表，服务只在`APP_ENV=test`＋环回网络运行，未授权生产、真实身份、客户权益价、收藏/找车/匹配/Priority正式授予/推荐/咨询/公海Owner写入，仍`F05_PARTIAL_REAL_HTTP_PG16`。
+- **PR未创建**：当前main仍存在10个对任何main目标PR无paths的旧F05工作流，直接开PR会批量触发冻结来源检查且与用户禁重跑冲突；无逐文件合法裁决前不绕过。已有正常工程分支和同SHA真实官方Run，不伪称可交A全量验收。
+- 历史旧66项仍**65成功＋1旧Oracle阻断**；PR113 **23成功、5旧Source失败**；本次59/15不能与原65/66合并或覆盖。五正式Source`FAIL_CLOSED`、F06/F07/F08暂停、生产`NOT_READY`、GitHub不增加付费。
+
+具体HTTP接口与C端消费契约见 [F05车辆目录真实查询与接口联调契约_2026-10-18.md](./F05车辆目录真实查询与接口联调契约_2026-10-18.md)。
+
+---
+
 # 2026-10-18｜PDM-20七排序接口整改（继续按A工作单）
 
 - 禁止旧候选`sort=oldest`冒充PDM-20正式排序；PDM-20只允许最新上架与价格双向、首次上牌年份双向、里程双向七类。服务端仅对已有真实时间来源的`sort=newest`返回成功。
