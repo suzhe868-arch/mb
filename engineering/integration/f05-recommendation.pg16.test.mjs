@@ -77,6 +77,11 @@ try{
   assert.equal(await number("SELECT count(*) n FROM public.f05_recommendation_safe_customer_test WHERE customer_id=62002 AND vehicle_id=62010"),0);
   const snap=(await db.query('SELECT * FROM public.f05_recommendation_snapshot_test WHERE recommendation_id=$1',[firstId])).rows[0];
   assert.equal(String(snap.customer_price_cents),'12000000');assert.equal(String(snap.original_source_demand),'62000');
+  // Recommendation conveys a PDM10 F02 physical free *cycle* unlock, not just a
+  // historical snapshot and not a customer-wide price permission.
+  assert.equal(await number("SELECT count(*) n FROM public.customer_price_cycle_unlocks WHERE customer_id=62000 AND vehicle_id=62010 AND listing_cycle_id=62010 AND grant_origin='recommendation_free' AND source_recommendation_id=$1",[firstId]),1);
+  assert.equal(await number("SELECT count(*) n FROM public.f05_recommendation_price_grant_events_test WHERE recommendation_id=$1 AND outcome='RECOMMENDATION_FREE_GRANTED'",[firstId]),1);
+  assert.equal(await number("SELECT count(*) n FROM public.customer_day_quota_ledger WHERE customer_id=62000"),0);
   await db.query("UPDATE public.f05_catalog_price_display_proof_test SET customer_display_cents=13000000 WHERE vehicle_id=62010");
   const frozen=(await db.query("SELECT customer_price_cents FROM public.f05_recommendation_snapshot_test WHERE recommendation_id=$1",[firstId])).rows[0];
   assert.equal(String(frozen.customer_price_cents),'12000000');
@@ -87,6 +92,7 @@ try{
   assert.equal(await number("SELECT count(*) n FROM public.vehicle_visibility_grants WHERE source_recommendation_id=$1 AND revoked_at IS NULL",[firstId]),0);
   assert.equal(await number("SELECT count(*) n FROM public.f05_recommendation_safe_customer_test WHERE vehicle_id=62010 AND customer_id=62000"),0);
   assert.equal(await number("SELECT count(*) n FROM public.f05_recommendation_snapshot_test WHERE recommendation_id=$1",[firstId]),1);
+  assert.equal(await number("SELECT count(*) n FROM public.customer_price_cycle_unlocks WHERE customer_id=62000 AND vehicle_id=62010 AND listing_cycle_id=62010 AND grant_origin='recommendation_free' AND source_recommendation_id=$1",[firstId]),1);
   assert.equal((await post({action:'END'})).status,404);
   const recreated=await post();
   assert.equal(recreated.status,200,JSON.stringify(recreated));secondId=recreated.body.recommendationId;

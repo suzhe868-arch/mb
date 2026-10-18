@@ -30,6 +30,11 @@ export function createIsolatedRecommendationService({pool,env=process.env}={}){
      "FOR SHARE OF session,emp,role,scope",[sha(credential),customerId])).rows[0];
     if(!actor){await db.query('ROLLBACK');return resp(403,'REC_EMPLOYEE_SCOPE_REQUIRED')}
     const employeeId=String(actor.employee_id);
+    // Match PDM10's customer-level quota/unlock serialisation before obtaining
+    // Vehicle FOR UPDATE, preventing rec-vs-price-open lock-order inversion.
+    if(action==='CREATE')await db.query(
+      "SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))",
+      ['F05_PRICE_CUSTOMER',customerId]);
     // Same vehicle row lock prevents concurrent revoke/new create/visible->hidden races.
     const vehicle=(await db.query("SELECT v.vehicle_id,v.source_type,v.source_sale_status,v.archived_at,v.platform_visibility "+
      "FROM public.vehicles v WHERE v.vehicle_id=$1 FOR UPDATE",[vehicleId])).rows[0];
@@ -100,6 +105,30 @@ export function createIsolatedRecommendationService({pool,env=process.env}={}){
       "original_recommender,original_source_demand) VALUES($1,$2,$3,$4,$5,$6,$7,$8)",
       [recId,customerId,vehicleId,listingCycleId,price?.customer_display_cents??null,
        vehicle.source_type,employeeId,sourceDemandId]);
+     if(vehicle.source_type==='wholesale'){
+      // PDM10 §10: entitlement is created even without a numeric price.
+      // If an earlier limited unlock exists, preserve its original provenance
+      // and already-charged quota; recommendation never refunds or recharges it.
+      const right=(await db.query(
+       "SELECT unlock_id,grant_origin FROM public.customer_price_cycle_unlocks "+
+       "WHERE customer_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3 FOR SHARE",
+       [customerId,vehicleId,listingCycleId])).rows[0];
+      if(!right){
+       const granted=(await db.query("INSERT INTO public.customer_price_cycle_unlocks "+
+        "(unlock_id,customer_id,vehicle_id,listing_cycle_id,grant_origin,source_recommendation_id,granted_at) "+
+        "VALUES(nextval('public.f05_catalog_price_unlock_id_seq'),$1,$2,$3,'recommendation_free',$4,statement_timestamp()) "+
+        "RETURNING unlock_id",[customerId,vehicleId,listingCycleId,recId])).rows[0];
+       await db.query("INSERT INTO public.f05_recommendation_price_grant_events_test "+
+        "(recommendation_id,customer_id,vehicle_id,listing_cycle_id,unlock_id,outcome) "+
+        "VALUES($1,$2,$3,$4,$5,'RECOMMENDATION_FREE_GRANTED')",
+        [recId,customerId,vehicleId,listingCycleId,String(granted.unlock_id)]);
+      }else{
+       await db.query("INSERT INTO public.f05_recommendation_price_grant_events_test "+
+        "(recommendation_id,customer_id,vehicle_id,listing_cycle_id,unlock_id,outcome) "+
+        "VALUES($1,$2,$3,$4,$5,'PRIOR_UNLOCK_RETAINED')",
+        [recId,customerId,vehicleId,listingCycleId,String(right.unlock_id)]);
+      }
+     }
      if(vehicle.platform_visibility==='hidden')await db.query(
       "INSERT INTO public.vehicle_visibility_grants(vehicle_id,customer_id,source_recommendation_id) "+
       "VALUES($1,$2,$3)",[vehicleId,customerId,recId]);

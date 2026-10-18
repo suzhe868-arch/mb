@@ -149,6 +149,7 @@ const REQUIRED_CATALOG_COLUMNS=Object.freeze([
  ['public.f05_recommendation_manage_scope_test','employee_id','bigint'],
  ['public.f05_recommendation_snapshot_test','recommendation_id','bigint'],
  ['public.f05_recommendation_events_test','event_key','text'],
+ ['public.f05_recommendation_price_grant_events_test','unlock_id','bigint'],
  ['public.f05_priority_qualification_test','enabled','boolean'],
  ['public.f05_priority_employee_scope_test','employee_id','bigint'],
  ['public.f05_priority_config_test','ttl_seconds','integer'],
@@ -194,6 +195,7 @@ export const SQL_CATALOG_SCHEMA=`SELECT
  to_regclass('public.f05_recommendation_manage_scope_test') IS NOT NULL AS rs,
  to_regclass('public.f05_recommendation_snapshot_test') IS NOT NULL AS rn,
  to_regclass('public.f05_recommendation_events_test') IS NOT NULL AS re,
+ to_regclass('public.f05_recommendation_price_grant_events_test') IS NOT NULL AS fr,
  to_regclass('public.f05_recommendation_safe_customer_test') IS NOT NULL AS rv,
  to_regclass('public.f05_priority_qualification_test') IS NOT NULL AS p8q,
  to_regclass('public.f05_priority_employee_scope_test') IS NOT NULL AS p8s,
@@ -201,7 +203,7 @@ export const SQL_CATALOG_SCHEMA=`SELECT
  to_regclass('public.f05_priority_suppression_test') IS NOT NULL AS p8u,
  to_regclass('public.f05_priority_events_test') IS NOT NULL AS p8e,
  to_regclass('public.f05_priority_safe_active_test') IS NOT NULL AS p8v,
- (SELECT count(*)=22 FROM pg_catalog.pg_trigger t WHERE NOT t.tgisinternal AND t.tgname IN
+ (SELECT count(*)=23 FROM pg_catalog.pg_trigger t WHERE NOT t.tgisinternal AND t.tgname IN
  ('f05_match_customer_guard_test','f05_match_demand_lifecycle_test',
   'f05_match_vehicle_saleability_test','f05_match_listing_cycle_test',
   'f05_match_level_entitlement_test','f05_matching_change_events_append_only_test',
@@ -210,7 +212,8 @@ export const SQL_CATALOG_SCHEMA=`SELECT
   'f05_price_before_vehicle_lock_test','f05_facts_before_vehicle_lock_test',
   'f05_match_queue_affected_test','f05_matching_dictionary_history_immutable_test','f05_discovery_immutable_test',
   'f05_rec_snapshot_immutable_test','f05_rec_events_immutable_test','f05_rec_visible_hidden_test',
-  'f05_priority_events_immutable_test','f05_priority_suppression_immutable_test','f05_priority_core_guard_test')) AS iv,
+  'f05_priority_events_immutable_test','f05_priority_suppression_immutable_test','f05_priority_core_guard_test',
+  'f05_recommendation_free_grant_immutable_test')) AS iv,
  NOT EXISTS (
   SELECT 1 FROM (VALUES ${EXPECTED_COLUMNS_VALUES}) AS expected(relation,column_name,physical_type)
   LEFT JOIN pg_catalog.pg_attribute attr
@@ -218,7 +221,7 @@ export const SQL_CATALOG_SCHEMA=`SELECT
    AND attr.attname=expected.column_name AND attr.attnum>0 AND NOT attr.attisdropped
   WHERE attr.attname IS NULL OR pg_catalog.format_type(attr.atttypid,attr.atttypmod)<>expected.physical_type
  ) AS shape,
- (SELECT count(*)=115 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
+ (SELECT count(*)=116 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
  (SELECT count(*)=2 FROM pg_catalog.pg_constraint fk
   WHERE fk.contype='f'
    AND fk.conrelid IN (to_regclass('public.f05_real_catalog_visibility_test'),to_regclass('public.f05_real_catalog_protections_test'))
@@ -233,7 +236,7 @@ export async function probeIsolatedCatalog(pool){
   const identity=(await pool.query(SQL_CATALOG_IDENTITY)).rows[0];
   if(!identity || Math.floor(Number(identity.v)/10000)!==16 || identity.db!=='f05_catalog_test' || identity.role!=='f05_catalog_ci')return false;
   const schema=(await pool.query(SQL_CATALOG_SCHEMA)).rows[0];
-  return !!schema && Object.keys(schema).sort().join(',')==='aq,c,ca,cp,di,ec,es,fac,fca,fcd,fce,fcp,fe,fk,fs,ft,full,he,iv,md,me,mv,mx,p,p8c,p8e,p8q,p8s,p8u,p8v,pe,pf,po,pp,qa,qs,ra,re,rn,rp,rs,ru,rv,sh,shape,ss,sv,v,x' && Object.values(schema).every(v=>v===true);
+  return !!schema && Object.keys(schema).sort().join(',')==='aq,c,ca,cp,di,ec,es,fac,fca,fcd,fce,fcp,fe,fk,fr,fs,ft,full,he,iv,md,me,mv,mx,p,p8c,p8e,p8q,p8s,p8u,p8v,pe,pf,po,pp,qa,qs,ra,re,rn,rp,rs,ru,rv,sh,shape,ss,sv,v,x' && Object.values(schema).every(v=>v===true);
  }catch{return false}
 }
 export async function createIsolatedCatalogRuntime(env=process.env){

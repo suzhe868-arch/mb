@@ -38,12 +38,18 @@ export function createIsolatedPriceUnlockService({pool,env=process.env}={}){
       "JOIN public.f05_catalog_price_display_proof_test pr ON pr.vehicle_id=v.vehicle_id "+
       "AND pr.listing_cycle_id=cy.listing_cycle_id AND pr.source_type=v.source_type "+
       "AND pr.issuer='DISPOSABLE_TEST_ONLY' AND pr.expires_at>statement_timestamp() "+
-      "WHERE v.vehicle_id=$1 AND v.archived_at IS NULL AND v.platform_visibility='visible' "+
+      "WHERE v.vehicle_id=$1 AND v.archived_at IS NULL "+
       "AND ((v.source_type='wholesale' AND v.source_sale_status='active') OR "+
       "(v.source_type IN ('mingbang','four_s') AND v.source_sale_status='available')) "+
+      "AND ((v.platform_visibility='visible' AND NOT EXISTS "+
+      "(SELECT 1 FROM public.f05_priority_safe_active_test priority "+
+      "WHERE priority.vehicle_id=v.vehicle_id AND priority.listing_cycle_id=cy.listing_cycle_id) "+
       "AND NOT EXISTS (SELECT 1 FROM public.f05_real_catalog_protections_test p "+
-      "WHERE p.vehicle_id=v.vehicle_id AND p.listing_cycle_id=cy.listing_cycle_id AND p.ended_at IS NULL) "+
-      "LIMIT 1 FOR SHARE OF v,cy,vis,pe",[vehicleId,String(actor.customer_level_id)])).rows[0];
+      "WHERE p.vehicle_id=v.vehicle_id AND p.listing_cycle_id=cy.listing_cycle_id AND p.ended_at IS NULL)) "+
+      "OR EXISTS (SELECT 1 FROM public.f05_recommendation_safe_customer_test recommendation "+
+      "WHERE recommendation.customer_id=$3 AND recommendation.vehicle_id=v.vehicle_id "+
+      "AND recommendation.listing_cycle_id=cy.listing_cycle_id)) "+
+      "LIMIT 1 FOR SHARE OF v,cy,vis,pe",[vehicleId,String(actor.customer_level_id),customerId])).rows[0];
     if(!scope){await c.query('ROLLBACK');return result(404,'CUSTOMER_VEHICLE_OR_PRICE_ENTITLEMENT_NOT_READY')}
     const cycleId=String(scope.listing_cycle_id);
     const prior=(await c.query("SELECT customer_id,vehicle_id,listing_cycle_id,event_kind "+

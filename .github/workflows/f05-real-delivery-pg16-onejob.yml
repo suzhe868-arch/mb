@@ -40,6 +40,7 @@ on:
       - 'engineering/integration/f05-matching-discovery.pg16.test.mjs'
       - 'engineering/integration/f05-matching-conditions.pg16.test.mjs'
       - 'engineering/integration/f05-recommendation.pg16.test.mjs'
+      - 'engineering/integration/f05-recommendation-price-right.pg16.test.mjs'
       - 'engineering/integration/f05-priority.pg16.test.mjs'
       - 'engineering/tests/catalog*.test.mjs'
       - 'engineering/tests/f05-favorite.test.mjs'
@@ -155,6 +156,7 @@ jobs:
             await client.query(await readFile('catalog/000039_recommendation_lifecycle_disposable_test_only.sql','utf8'));
             await client.query(await readFile('catalog/000040_priority_arbitration_disposable_test_only.sql','utf8'));
             await client.query(await readFile('catalog/000041_priority_safe_consumer_disposable_test_only.sql','utf8'));
+            await client.query(await readFile('catalog/000042_recommendation_free_price_disposable_test_only.sql','utf8'));
             await client.query("INSERT INTO public.vehicle_brands(brand_id,brand_name) VALUES(59001,'隔离测试品牌')");
             await client.query("INSERT INTO public.vehicle_series(series_id,brand_id,series_name) VALUES(59001,59001,'隔离测试车系')");
             await client.query("INSERT INTO public.vehicle_models(model_id,brand_id,series_id,model_name,model_year,profile_status) VALUES(59001,59001,59001,'隔离测试车型',2026,'incomplete')");
@@ -195,6 +197,7 @@ jobs:
           node --test integration/f05-matching-discovery.pg16.test.mjs
           node --test integration/f05-matching-conditions.pg16.test.mjs
           node --test integration/f05-recommendation.pg16.test.mjs
+          node --test integration/f05-recommendation-price-right.pg16.test.mjs
           node --test integration/f05-priority.pg16.test.mjs
       - name: No paid artifact, production action or downstream CI
         run: echo 'F05_REAL_PG16_TEST_ONLY_NO_ARTIFACT_NO_PRODUCTION'
