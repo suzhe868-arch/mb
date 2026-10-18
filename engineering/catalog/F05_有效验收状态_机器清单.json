@@ -2,22 +2,22 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F05_4_REAL_PRICE_DAY_LEDGER_TEST_ONLY_FORMAL_PRICE_ISSUER_BLOCKED",
+  "status": "B_IN_PROGRESS_F05_5_EMPLOYEE_FREE_DAILY_QUOTA_PG16_TEST_ONLY_FORMAL_F03_ISSUER_BLOCKED",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "1ac9b9514d57646e6476726128a210b7cff8fee9",
+  "github_commit": "c0169da5db767c5ae39a7ea3c86287c56e82f00d",
   "node_http_stub_tests": {
-    "passed": 105,
+    "passed": 110,
     "failed": 0,
     "skipped": 0
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39113953179,
-    "head_sha": "1ac9b9514d57646e6476726128a210b7cff8fee9",
-    "node_http_tests_passed": 105,
-    "real_pg16_integration_tests_passed": 96,
+    "run_id": 39115120963,
+    "head_sha": "c0169da5db767c5ae39a7ea3c86287c56e82f00d",
+    "node_http_tests_passed": 110,
+    "real_pg16_integration_tests_passed": 108,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -33,8 +33,8 @@
     "disposable_photo_order_proof": true,
     "real_pg16_catalog_integration_tests_passed": 19,
     "real_pg16_favorite_integration_tests_passed": 13,
-    "disposable_sidecar_tables": 15,
-    "total_disposable_physical_tables": 91,
+    "disposable_sidecar_tables": 17,
+    "total_disposable_physical_tables": 93,
     "formal_wechat_customer_issuer_verified": false,
     "real_pg16_consultation_integration_tests_passed": 16,
     "formal_customer_phone_consent_issuer_verified": false,
@@ -48,7 +48,10 @@
     "real_pg16_price_unlock_tests_passed": 12,
     "formal_level_price_entitlement_signed": false,
     "formal_customer_price_source_signed": false,
-    "formal_client_detail_navigational_proof_verified": false
+    "formal_client_detail_navigational_proof_verified": false,
+    "real_pg16_employee_quota_additions_tests_passed": 12,
+    "formal_employee_quota_permission_signed": false,
+    "formal_customer_level_entitlement_signed": false
   },
   "endpoints": {
     "implemented_test_only": [
@@ -66,7 +69,8 @@
       ".../consultations/:consultationId/invalidate (test-only Employee bearer + separate can_finalize)",
       "POST /api/v1/catalog/consultations/:consultationId/reassign (test-only Employee bearer, target and reason JSON, physical PG16 assignee handover)",
       "POST /api/v1/catalog/consultations/:consultationId/resume-from-hold (test-only scoped Employee bearer; physical PG16 hold release and effective first-response remaining)",
-      "POST /api/v1/catalog/vehicles/:vehicleId/customer-detail-entry (DISPOSABLE_TEST_ONLY auto LIMITED/UNLIMITED detail, PG16 quota/cycle/event atomic unlock)"
+      "POST /api/v1/catalog/vehicles/:vehicleId/customer-detail-entry (DISPOSABLE_TEST_ONLY auto LIMITED/UNLIMITED detail, PG16 quota/cycle/event atomic unlock)",
+      "POST /api/v1/catalog/customers/:customerId/price-quota/additions (DISPOSABLE_TEST_ONLY Employee scoped daily FREE additions, real F02 frozen ledger + adjustment history)"
     ],
     "real_pg16_verified": [
       "Catalog list/detail physical F02 initial PG16 with disposable proof",
@@ -84,7 +88,8 @@
       "PDM15 three terminal physical PG16 transitions RESOLVED / NORMAL_CLOSED / INVALID, separate employee can_finalize scope, disabled-Customer necessary close, immutable audit, rollback and parallel conflicting commands",
       "PDM15 physical PG16 Consultation assignee handover preserving Customer owner, initial direct source, original first_response_deadline, original status; audit old/new/actor/reason/server time, actor can_reassign/target can_receive test scope, 4S denial, disabled Customer legal handover, transaction rollback, parallel competition",
       "PDM15 Customer disabled physical PG16 transition trigger => open Consultation customer_disabled_hold; account active does not auto-release; authorized explicit Employee PG16 resume; genuine verified remaining_ms test fact only, repeated holds versioned, immutable audit, atomic failure rollback, Customer touch/withdraw blocked while hold",
-      "F05-4 PDM10 frozen customer_day_quota_ledger/customer_price_cycle_unlocks/customer_price_unlock_events actual PG16 limited successful digital detail atomic charge; no-price/unlimited/repeat/current cycle/no source deny, Shanghai day rollover, new listing cycle, concurrent same Customer no double charge, rollback"
+      "F05-4 PDM10 frozen customer_day_quota_ledger/customer_price_cycle_unlocks/customer_price_unlock_events actual PG16 limited successful digital detail atomic charge; no-price/unlimited/repeat/current cycle/no source deny, Shanghai day rollover, new listing cycle, concurrent same Customer no double charge, rollback",
+      "F05-5 isolated employee quota adjustment real F02 frozen customer_quota_adjustments + customer_day_quota_ledger, separate scoped sales owner and manager/store head capability, explicit 4S denial, UNLIMITED no addition, LIMITED-UNLIMITED-LIMITED retains daily additions, real F05-4 price unlock consumption, UTC+8 rollover, idempotent replay, concurrent no lost update, immutable audit and atomic rollback"
     ],
     "customer_write_implemented": [
       "NONPRODUCTION_ACTUAL_PG16_POST_FAVORITE_TEST_ONLY",
@@ -242,8 +247,8 @@
     "Full F05-1..11 actual authenticated HTTP/PG16 business still missing"
   ],
   "next_owner": "B",
-  "next_milestone": "F05-4 formal price/level issuers, price calculation and frontend real detail intent; F05-5 employee quota grant true scope; F05-6 demand/priority/recommendation, genuine first human response, complete M94 and A-safe PR gate",
-  "verification_scope": "NONPRODUCTION_F02_1_76_FROZEN_TABLES_PLUS_15_DISPOSABLE_TEST_SIDECARS_NODE_105_PG16_96",
+  "next_milestone": "F05-6 find-car eligibility/demand real HTTP+PG16, F05-4 formal price configuration, F03 customer/employee issuer and full F05 source business; M94 full history, A-safe PR trigger governance",
+  "verification_scope": "NONPRODUCTION_F02_1_76_FROZEN_TABLES_PLUS_17_DISPOSABLE_TEST_SIDECARS_NODE_110_PG16_108",
   "security_hardening": [
     "pg_catalog actual column type and FK shape check",
     "test-only database URL strict port 5432 and prohibit host/hostaddr query overrides",
@@ -255,8 +260,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "TEN_LEGACY_BROAD_MAIN_TARGET_PR_WORKFLOWS_UNAUTHORIZED_TO_CHANGE_AND_USER_FORBIDS_OLD_RETRIGGER",
-  "tested_commit": "1ac9b9514d57646e6476726128a210b7cff8fee9",
-  "tested_run": 39113953179,
+  "tested_commit": "c0169da5db767c5ae39a7ea3c86287c56e82f00d",
+  "tested_run": 39115120963,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -406,6 +411,47 @@
       "CUSTOMER_NAVIGATION_INTENT_VERIFIED",
       "FRONTEND_INTEGRATION",
       "M94_HISTORICAL_MIGRATION"
+    ],
+    "production_ready": false
+  },
+  "quota_staff_real_business": {
+    "status": "F05_5_PARTIAL_TEST_ONLY",
+    "actual_f02_frozen_business_tables": [
+      "public.customer_quota_adjustments",
+      "public.customer_day_quota_ledger"
+    ],
+    "test_proof_tables": [
+      "public.f05_catalog_quota_staff_scope_test",
+      "public.f05_catalog_quota_addition_events_test",
+      "public.f05_catalog_employee_sessions_test",
+      "public.f05_catalog_price_entitlement_test"
+    ],
+    "actual_http": "POST /api/v1/catalog/customers/:customerId/price-quota/additions",
+    "tested_cases": {
+      "node": 5,
+      "pg16": 12,
+      "run_id": 39115120963
+    },
+    "proven": [
+      "SALES_MUST_BE_CURRENT_CUSTOMER_OWNER",
+      "MANAGER_STORE_HEAD_REQUIRE_INDEPENDENT_PERMISSION_SCOPE",
+      "4S_HARD_DENY",
+      "CUSTOMER_DISABLED_DENY",
+      "UNLIMITED_ADD_DENY",
+      "FREE_ONLY",
+      "UTC8_DAY_ADDITIONS_RESET",
+      "UNLIMITED_TRANSITION_PRESERVES_EXISTING_ADD",
+      "SAME_KEY_EXACT_REPLAY_NO_DUPLICATE",
+      "CROSS_ACTOR_CUSTOMER_DELTA_COLLISION",
+      "DIFFERENT_PARALLEL_KEYS_NO_LOST_UPDATE",
+      "FROZEN_ADJUSTMENT_AND_LEDGER_ATOMIC_ROLLBACK",
+      "IMMEDIATE_F05_4_CUSTOMER_PRICE_UNLOCK"
+    ],
+    "missing": [
+      "FORMAL_F03_EMPLOYEE_SESSION_PERMISSION_SCOPE_ISSUER",
+      "FORMAL_CUSTOMER_LEVEL_PRICE_MODE_ISSUER",
+      "PRODUCTION_PDM25_AUDIT_ISSUER",
+      "M94_COMPLETE_MIGRATION_CHAIN"
     ],
     "production_ready": false
   }
