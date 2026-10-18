@@ -2,22 +2,22 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F05_FAVORITE_REAL_PG16_WRITE_TEST_ONLY_SOURCE_GAP_OPEN",
+  "status": "B_IN_PROGRESS_F05_CONSULTATION_TRUE_PG16_WRITE_TEST_ONLY_ISSUER_GAP",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "4010608e3bcb5d9902ca8db9cf19eaa9af3350fa",
+  "github_commit": "07a95f772f88e59e379e6b73aeff2192a8e233ac",
   "node_http_stub_tests": {
-    "passed": 73,
+    "passed": 79,
     "failed": 0,
     "skipped": 0
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39104836133,
-    "head_sha": "4010608e3bcb5d9902ca8db9cf19eaa9af3350fa",
-    "node_http_tests_passed": 73,
-    "real_pg16_integration_tests_passed": 32,
+    "run_id": 39106903367,
+    "head_sha": "07a95f772f88e59e379e6b73aeff2192a8e233ac",
+    "node_http_tests_passed": 79,
+    "real_pg16_integration_tests_passed": 42,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -33,9 +33,12 @@
     "disposable_photo_order_proof": true,
     "real_pg16_catalog_integration_tests_passed": 19,
     "real_pg16_favorite_integration_tests_passed": 13,
-    "disposable_sidecar_tables": 6,
-    "total_disposable_physical_tables": 82,
-    "formal_wechat_customer_issuer_verified": false
+    "disposable_sidecar_tables": 8,
+    "total_disposable_physical_tables": 84,
+    "formal_wechat_customer_issuer_verified": false,
+    "real_pg16_consultation_integration_tests_passed": 10,
+    "formal_customer_phone_consent_issuer_verified": false,
+    "formal_employee_permission_scope_verified": false
   },
   "endpoints": {
     "implemented_test_only": [
@@ -44,7 +47,8 @@
       "GET /api/v1/catalog/stats",
       "GET /api/v1/catalog/vehicles/:vehicleId/favorite (disposable Customer bearer only)",
       "POST /api/v1/catalog/vehicles/:vehicleId/favorite (test-only Customer bearer/idempotency)",
-      "DELETE /api/v1/catalog/vehicles/:vehicleId/favorite (test-only Customer bearer/idempotency)"
+      "DELETE /api/v1/catalog/vehicles/:vehicleId/favorite (test-only Customer bearer/idempotency)",
+      "POST /api/v1/catalog/vehicles/:vehicleId/consultations (disposable phone + employee scope proof; real public.consultations PG16)"
     ],
     "real_pg16_verified": [
       "Catalog list/detail physical F02 initial PG16 with disposable proof",
@@ -55,11 +59,13 @@
       "modelYear PG16 exact SQL filter, V4 HMAC cursor binding to all filters",
       "Real PG16 public count from identical visible safe scope excluding hidden and Priority; three source buckets",
       "PG16 test-only frozen-order photo proof, safe first cover relative path; excludes source_url_fact and document attachments",
-      "F05-3G test-only DB-backed customer bearer, account disable/revoke gate, ADD/REMOVE/READ live HTTP PG16, audit + idempotency + rollback + cross-Customer concurrency"
+      "F05-3G test-only DB-backed customer bearer, account disable/revoke gate, ADD/REMOVE/READ live HTTP PG16, audit + idempotency + rollback + cross-Customer concurrency",
+      "PDM15 physical consultations create/reuse/touch, 15m frozen deadline, Customer owner/phone actor guards, true PG16 transaction rollback and relist cycle-bound idempotency"
     ],
     "customer_write_implemented": [
       "NONPRODUCTION_ACTUAL_PG16_POST_FAVORITE_TEST_ONLY",
-      "NONPRODUCTION_ACTUAL_PG16_DELETE_FAVORITE_TEST_ONLY"
+      "NONPRODUCTION_ACTUAL_PG16_DELETE_FAVORITE_TEST_ONLY",
+      "NONPRODUCTION_ACTUAL_PG16_CONSULTATION_CREATE_AND_TOUCH_TEST_ONLY"
     ],
     "employee_write_implemented": []
   },
@@ -211,8 +217,8 @@
     "Full F05-1..11 actual authenticated HTTP/PG16 business still missing"
   ],
   "next_owner": "B",
-  "next_milestone": "Trusted Customer WeChat issuer/production access gate, other F05 write domains, complete M94 migration and A-approved safe PR trigger isolation",
-  "verification_scope": "NONPRODUCTION_F02_1_76_FROZEN_TABLES_PLUS_6_DISPOSABLE_TEST_TABLES_HTTP_73_CATALOG_PG16_19_FAVORITE_PG16_13",
+  "next_milestone": "Real trusted WeChat customer/phone issuer and scoped employee credential, PDM15 lifecycle + other F05 domains, verified M94 chain, old PR trigger safe A decision",
+  "verification_scope": "NONPRODUCTION_F02_1_76_INITIAL_TABLES_PLUS_8_DISPOSABLE_SIDECARS_NODE_79_PG16_42",
   "security_hardening": [
     "pg_catalog actual column type and FK shape check",
     "test-only database URL strict port 5432 and prohibit host/hostaddr query overrides",
@@ -224,8 +230,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "TEN_LEGACY_BROAD_MAIN_TARGET_PR_WORKFLOWS_UNAUTHORIZED_TO_CHANGE_AND_USER_FORBIDS_OLD_RETRIGGER",
-  "tested_commit": "4010608e3bcb5d9902ca8db9cf19eaa9af3350fa",
-  "tested_run": 39104836133,
+  "tested_commit": "07a95f772f88e59e379e6b73aeff2192a8e233ac",
+  "tested_run": 39106903367,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -279,6 +285,31 @@
     "logical_key": "customer_id+vehicle_id",
     "one_key_cross_customer_concurrency": "PG_ADVISORY_TRANSACTION_LOCK",
     "formal_identity_ready": false,
+    "production_ready": false
+  },
+  "consultation_real_business": {
+    "test_pg16_verified": true,
+    "formal_issuer_verified": false,
+    "formal_permission_scope_verified": false,
+    "physical_table": "public.consultations",
+    "test_proof": "public.f05_catalog_consultation_actor_proof_test",
+    "audit": "public.f05_catalog_consultation_actions_test",
+    "idempotency_bound_to": "customer_id+vehicle_id+listing_cycle_id",
+    "supported_actions": [
+      "CREATE",
+      "REUSE_TOUCH"
+    ],
+    "unsupported_actions": [
+      "EMPLOYEE_START_PROCESSING",
+      "EMPLOYEE_FIRST_RESPONSE",
+      "REASSIGN",
+      "CUSTOMER_WITHDRAW",
+      "RESOLVE",
+      "INVALID",
+      "SLA_DISABLE_HOLD"
+    ],
+    "run_id": 39106903367,
+    "pg16_tests": 10,
     "production_ready": false
   }
 }

@@ -1,3 +1,13 @@
+# 2026-10-18｜B工程窗口F05咨询实际HTTP+PG16新建复用与跨周期防重放｜最新进度
+
+- **唯一受测代码提交** `07a95f772f88e59e379e6b73aeff2192a8e233ac`；官方[Run39106903367](https://github.com/suzhe868-arch/mb/actions/runs/39106903367)在隔离PG16作业中实测 **Node HTTP安全79/79、目录PG16 19/19、收藏PG16 13/13、咨询PG16 10/10**。合计真库**42/42**，所有计数同一SHA、0失败、0跳过，非超管`f05_catalog_ci`，正式F02-1冻结76物理表外加8个TEST侧表（测试库84张关系表，**不是84张正式Schema实体**）。
+- **本轮实际应用写入**：`POST /api/v1/catalog/vehicles/:vehicleId/consultations`仅在loopback、`APP_ENV=test`、隔离确认与随机Bearer测试Customer会话下可调用。实际向冻结`public.consultations`写入，创建`pending`，首次人工响应期限为PDM-15默认**15分钟**，保存不可改写的初始direct source，以及独立不可变追加操作记录。对`customer_id + vehicle_id + listing_cycle_id`未终结工单严格复用并追加`TOUCHED`历史；终结后再咨询和新listing_cycle不跨周期复用。请求键SHA256绑定真实三元组；源周期的旧幂等键在重上架后**409拒绝**。
+- **必要的硬拒绝与正反例**：没有会话/停用客户、未具测试手机号同意证明和当前电话关联、owner_assignment_pending、公海无Owner、员工inactive/非合法角色、隐藏/下架或已过期可见性证明均拒绝。非法路径/多余参数、伪造Customer/owner/phone/forwarded头拒绝；模拟操作审计写入错误造成完整事务回滚。工单不改变Customer owner、Vehicle、Recommendation或锁车对象，不自动授价格权益。
+- **关键安全边界**：客户Bearer及手机号同意、员工工作权限来自`f05_catalog_customer_sessions_test`和`f05_catalog_consultation_actor_proof_test`，为**DISPOSABLE_TEST_ONLY**。缺少真实微信身份验证/手机号授权验签、真实员工permission+scope及配置化SLA，**正式Consultation创建仍处于EXTERNAL_GATE_BLOCKED**，本轮测试不是生产交付或F05全部验收。未实现正式reassign、首次人工响应触达事实、Customer withdraw、resolved/invalid及SLA暂停恢复，不能声称PDM-15整个生命周期完成。
+- 原F05-10 CI-only服务和历史66项测试不篡改、不重新运行。旧10条面向main目标PR的广泛触发器仍未获可合法隔离裁决，故**没有开PR/合并main**。F06/F07/F08继续暂停；五正式Source仍`SOURCE_GAP_OPEN/FAIL_CLOSED`、生产`NOT_READY`、B状态`B_IN_PROGRESS/NOT_READY_FOR_A_REVIEW`。使用标准单GitHub Actions作业，未启用付费服务；不把CI成功写成财务已核账。
+
+---
+
 # 2026-10-18｜B窗口F05实业务收藏HTTP首个PG16写入纵切｜最新进度
 
 - **最新真实已通过代码HEAD：** `4010608e3bcb5d9902ca8db9cf19eaa9af3350fa`。GitHub官方[Run39104836133](https://github.com/suzhe868-arch/mb/actions/runs/39104836133) `isolated_real_pg16`在同一SHA执行Node **73/73**、目录PG16 **19/19**、收藏PG16 **13/13**（**总真库32/32**），全部0失败、0跳过。目录与收藏夹具改为**同一Job顺序运行**，避免独立测试互相污染。
