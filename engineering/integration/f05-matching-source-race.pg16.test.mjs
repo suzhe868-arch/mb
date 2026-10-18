@@ -72,6 +72,49 @@ try {
   assert.equal((await db.query('SELECT count(*)::int n FROM public.recommendations WHERE customer_id=60000')).rows[0].n,0);
   assert.equal((await db.query('SELECT count(*)::int n FROM public.priority_leases WHERE customer_id=60000')).rows[0].n,0);
  });
+ await test('PG16 MATCH FIRST physically blocks concurrent price write; writer then immediately stales newly published Match',async()=>{
+  // PostgreSQL BEFORE INSERT pause holds the service advisory vehicle lock.
+  await db.query("CREATE FUNCTION public.f05_race_hold_insert() RETURNS trigger LANGUAGE plpgsql AS $ "+
+    "BEGIN PERFORM pg_sleep(0.45); RETURN NEW; END $");
+  await db.query("CREATE TRIGGER f05_race_hold_insert BEFORE INSERT ON public.demand_match_results "+
+    "FOR EACH ROW EXECUTE FUNCTION public.f05_race_hold_insert()");
+  let write=null;
+  try{
+   const inProgress=match();
+   let found=false;
+   for(let i=0;i<65;i++){
+    const r=await db.query("SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_locks "+
+     "WHERE locktype='advisory' AND granted "+
+     "AND classid=hashtext('F05_MATCH_VEHICLE')::oid "+
+     "AND objid=hashtext('60010')::oid AND pid<>pg_backend_pid()) yes");
+    if(r.rows[0].yes){found=true;break}
+    await pause(12);
+   }
+   assert.equal(found,true,'match must hold physical vehicle transaction advisory lock');
+   let changed=false;
+   write=(async()=>{
+    const conn=await pool.connect();
+    try{await conn.query("UPDATE public.f05_catalog_price_display_proof_test "+
+     "SET customer_display_cents=12600001 WHERE vehicle_id=60010");changed=true}
+    finally{conn.release()}
+   })();
+   await pause(70);
+   assert.equal(changed,false,'source BEFORE trigger must wait on match-held vehicle lock');
+   const m=await inProgress;
+   assert.equal(m.status,200,JSON.stringify(m.body));
+   assert.equal(m.body.matchTier,'high');
+   await write;
+   const rows=await results();
+   assert.equal(rows.at(-1).current_state,'stale',
+     'source write after Match must invalidate the freshly committed current result');
+   assert.equal(rows.filter(x=>x.current_state==='current').length,0);
+   assert.equal((await results('60011'))[0].current_state,'current');
+  } finally{
+   if(write)await write.catch(()=>{});
+   await db.query('DROP TRIGGER f05_race_hold_insert ON public.demand_match_results');
+   await db.query('DROP FUNCTION public.f05_race_hold_insert()');
+  }
+ });
 } catch(e){failure=e}finally{
  if(server)await new Promise(resolve=>server.close(resolve));
  if(connected)await db.end();
