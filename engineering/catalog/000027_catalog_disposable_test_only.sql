@@ -91,13 +91,13 @@ CREATE TABLE public.f05_catalog_consultation_actions_test (
  vehicle_id bigint NOT NULL REFERENCES public.vehicles(vehicle_id) ON DELETE RESTRICT,
  listing_cycle_id bigint NOT NULL,
  consultation_id bigint NOT NULL REFERENCES public.consultations(consultation_id) ON DELETE RESTRICT,
- action text NOT NULL CHECK(action IN ('CREATED','TOUCHED','WITHDRAWN','STARTED_PROCESSING','FINALIZED_RESOLVED','FINALIZED_NORMAL_CLOSED','FINALIZED_INVALID','REASSIGNED')),
+ action text NOT NULL CHECK(action IN ('CREATED','TOUCHED','WITHDRAWN','STARTED_PROCESSING','FINALIZED_RESOLVED','FINALIZED_NORMAL_CLOSED','FINALIZED_INVALID','REASSIGNED','HOLD_RESUMED')),
  actor_employee_id bigint REFERENCES public.employees(employee_id) ON DELETE RESTRICT,
  old_assignee_employee_id bigint REFERENCES public.employees(employee_id) ON DELETE RESTRICT,
  new_assignee_employee_id bigint REFERENCES public.employees(employee_id) ON DELETE RESTRICT,
  handover_reason text,
  CHECK (action<>'REASSIGNED' OR (actor_employee_id IS NOT NULL AND old_assignee_employee_id IS NOT NULL AND new_assignee_employee_id IS NOT NULL AND old_assignee_employee_id<>new_assignee_employee_id AND length(handover_reason) BETWEEN 6 AND 200)),
- CHECK (action NOT IN ('STARTED_PROCESSING','FINALIZED_RESOLVED','FINALIZED_NORMAL_CLOSED','FINALIZED_INVALID') OR actor_employee_id IS NOT NULL),
+ CHECK (action NOT IN ('STARTED_PROCESSING','FINALIZED_RESOLVED','FINALIZED_NORMAL_CLOSED','FINALIZED_INVALID','HOLD_RESUMED') OR actor_employee_id IS NOT NULL),
  occurred_at timestamptz NOT NULL DEFAULT statement_timestamp(),
  FOREIGN KEY(listing_cycle_id,vehicle_id) REFERENCES public.vehicle_listing_cycles(listing_cycle_id,vehicle_id)
 );
