@@ -114,6 +114,9 @@ jobs:
           finally{await client?.end();await admin.end()}
           JS
       - name: Two-connection physical PG16 and HTTP tests
-        run: node --test integration/catalog.pg16.test.mjs integration/f05-favorite.pg16.test.mjs
+        run: |
+          set -euo pipefail
+          node --test integration/catalog.pg16.test.mjs
+          node --test integration/f05-favorite.pg16.test.mjs
       - name: No paid artifact, production action or downstream CI
         run: echo 'F05_REAL_PG16_TEST_ONLY_NO_ARTIFACT_NO_PRODUCTION'
