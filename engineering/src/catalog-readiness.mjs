@@ -8,6 +8,8 @@ import {createIsolatedConsultationService} from './f05-consultation-service.mjs'
 import {createIsolatedConsultationHandler} from './f05-consultation-http.mjs';
 import {createIsolatedEmployeeStartService} from './f05-employee-start-service.mjs';
 import {createIsolatedEmployeeStartHandler} from './f05-employee-start-http.mjs';
+import {createIsolatedHandoverService} from './f05-handover-service.mjs';
+import {createIsolatedHandoverHandler} from './f05-handover-http.mjs';
 export function validateCatalogEnv(env=process.env){
  if(env.APP_ENV!=='test'||env.NODE_ENV!=='test'||env.F05_CATALOG_TEST_CONSENT!=='I_AUTHORIZE_DISPOSABLE_F05_CATALOG_PG16_ONLY')throw Error('CATALOG_TEST_ONLY');
  if(env.API_HOST && !['127.0.0.1','localhost','::1'].includes(env.API_HOST))throw Error('CATALOG_LOOPBACK_REQUIRED');
@@ -59,11 +61,16 @@ const REQUIRED_CATALOG_COLUMNS=Object.freeze([
  ['public.f05_catalog_consultation_actions_test','event_key','text'],
  ['public.f05_catalog_consultation_actions_test','consultation_id','bigint'],
  ['public.f05_catalog_consultation_actions_test','actor_employee_id','bigint'],
+ ['public.f05_catalog_consultation_actions_test','old_assignee_employee_id','bigint'],
+ ['public.f05_catalog_consultation_actions_test','new_assignee_employee_id','bigint'],
+ ['public.f05_catalog_consultation_actions_test','handover_reason','text'],
  ['public.f05_catalog_employee_sessions_test','token_sha256','text'],
  ['public.f05_catalog_employee_sessions_test','employee_id','bigint'],
  ['public.f05_catalog_employee_consultation_scope_test','employee_id','bigint'],
  ['public.f05_catalog_employee_consultation_scope_test','customer_id','bigint'],
  ['public.f05_catalog_employee_consultation_scope_test','can_finalize','boolean'],
+ ['public.f05_catalog_employee_consultation_scope_test','can_reassign','boolean'],
+ ['public.f05_catalog_employee_consultation_scope_test','can_receive','boolean'],
 ]);
 const EXPECTED_COLUMNS_VALUES=REQUIRED_CATALOG_COLUMNS.map(x=>`('${x[0]}','${x[1]}','${x[2]}')`).join(',');
 export const SQL_CATALOG_SCHEMA=`SELECT
@@ -114,6 +121,7 @@ export async function createIsolatedCatalogRuntime(env=process.env){
   const favorite=createIsolatedFavoriteService({pool,env});
   const consultation=createIsolatedConsultationService({pool,env});
   const employeeStart=createIsolatedEmployeeStartService({pool,env});
-  return {pool,handler:createCatalogHandler(service),favoriteHandler:createIsolatedFavoriteHandler(favorite,env),consultationHandler:createIsolatedConsultationHandler(consultation,env),employeeStartHandler:createIsolatedEmployeeStartHandler(employeeStart,env),ready:()=>probeIsolatedCatalog(pool),close:()=>pool.end()};
+  const handover=createIsolatedHandoverService({pool,env});
+  return {pool,handler:createCatalogHandler(service),favoriteHandler:createIsolatedFavoriteHandler(favorite,env),consultationHandler:createIsolatedConsultationHandler(consultation,env),employeeStartHandler:createIsolatedEmployeeStartHandler(employeeStart,env),handoverHandler:createIsolatedHandoverHandler(handover,env),ready:()=>probeIsolatedCatalog(pool),close:()=>pool.end()};
  }catch(e){await pool.end();throw e}
 }
