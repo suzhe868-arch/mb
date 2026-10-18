@@ -7,7 +7,7 @@ const validBearer=s=>typeof s==='string'&&/^[A-Za-z0-9_-]{43}$/.test(s);
 const validKey=s=>typeof s==='string'&&/^[A-Za-z0-9_-]{24,64}$/.test(s);
 const response=(status,code,more={})=>({status,body:{code,...more,productionReady:false}});
 const lockText="SELECT pg_advisory_xact_lock(hashtext('F05_PRIORITY_VEHICLE'),hashtext($1))";
-const candidatesSQL=`
+export const candidatesSQL=`
  SELECT ranked.result_id,ranked.demand_id,ranked.customer_id,ranked.responsible_employee_id,
  ranked.match_tier,ranked.created_at
  FROM (
@@ -18,6 +18,13 @@ const candidatesSQL=`
       d.created_at,d.demand_id) AS customer_rank
   FROM public.f05_matching_safe_current_test match
   JOIN public.demands d ON d.demand_id=match.demand_id
+  JOIN public.customers cust ON cust.customer_id=d.customer_id
+   AND cust.account_status='active'
+   AND cust.current_owner_employee_id=d.responsible_employee_id
+  JOIN public.employees employee ON employee.employee_id=d.responsible_employee_id
+   AND employee.employment_status='active'
+  JOIN public.roles employee_role ON employee_role.role_id=employee.main_role_id
+   AND employee_role.role_code IN('sales','manager','store_head')
   JOIN public.f05_priority_qualification_test qualified ON qualified.customer_id=d.customer_id
    AND qualified.enabled=true AND qualified.issuer='DISPOSABLE_TEST_ONLY'
    AND qualified.expires_at>statement_timestamp()
