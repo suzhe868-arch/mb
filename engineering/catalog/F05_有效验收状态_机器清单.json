@@ -2,11 +2,11 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F05_7_EMPLOYEE_ROLE_REVOKED_MATCH_INVALIDATED_PG16_258_PASS_TEST_ONLY",
+  "status": "B_IN_PROGRESS_F05_9_OWNER_PENDING_RECOMMENDATION_DENY_PG16_259_PASS_TEST_ONLY",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "2cb4b8f9caad448efc5b99195549ce3d2c7032c1",
+  "github_commit": "ba5664733dc392c95e3acb46d1bfdf62e54bc62c",
   "node_http_stub_tests": {
     "passed": 150,
     "failed": 0,
@@ -14,10 +14,10 @@
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39148522630,
-    "head_sha": "2cb4b8f9caad448efc5b99195549ce3d2c7032c1",
+    "run_id": 39149306103,
+    "head_sha": "ba5664733dc392c95e3acb46d1bfdf62e54bc62c",
     "node_http_tests_passed": 150,
-    "real_pg16_integration_tests_passed": 258,
+    "real_pg16_integration_tests_passed": 259,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -96,7 +96,7 @@
     "matching_rule_change_first_pair_scope_test_verified": true,
     "matching_dictionary_physical_mapped_fields_test_verified": true,
     "physical_triggers_f05_isolated_count": 25,
-    "recommendation_f05_9_pg16_cases_passed": 7,
+    "recommendation_f05_9_pg16_cases_passed": 8,
     "formal_recommendation_source_permission_signed": false,
     "formal_recommendation_free_wholesale_price_right_verified": false,
     "f05_priority_pg16_test_count": 9,
@@ -119,7 +119,8 @@
     "owner_handover_match_invalidation_pg16_cases": 1,
     "matching_retry_lease_fencing_pg16_cases": 1,
     "matching_retry_orphan_done_lease_recovery_cases": 1,
-    "matching_employee_role_revocation_pg16_cases": 1
+    "matching_employee_role_revocation_pg16_cases": 1,
+    "recommendation_owner_pending_permission_pg16_cases": 1
   },
   "endpoints": {
     "implemented_test_only": [
@@ -343,8 +344,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "TEN_LEGACY_BROAD_MAIN_TARGET_PR_WORKFLOWS_UNAUTHORIZED_TO_CHANGE_AND_USER_FORBIDS_OLD_RETRIGGER",
-  "tested_commit": "2cb4b8f9caad448efc5b99195549ce3d2c7032c1",
-  "tested_run": 39148522630,
+  "tested_commit": "ba5664733dc392c95e3acb46d1bfdf62e54bc62c",
+  "tested_run": 39149306103,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -762,9 +763,9 @@
     "employee_role_revocation_disposable_pg16_verified": true
   },
   "recommendation_real_business": {
-    "status": "F05_9_DISPOSABLE_TEST_ONLY_RECOMMENDATION_WHOLESALE_FREE_CYCLE_RIGHT_PG16_PASS",
-    "run_id": 39139286175,
-    "head_sha": "c1d1a6f2faf83d2cc6bdb6e0c5cb1b2091382adf",
+    "status": "F05_9_OWNER_ASSIGNED_SCOPE_PG16_NONPRODUCTION_PASS",
+    "run_id": 39149306103,
+    "head_sha": "ba5664733dc392c95e3acb46d1bfdf62e54bc62c",
     "verified": [
       "CURRENT_EMPLOYEE_OWNER_AND_EXPLICIT_CUSTOMER_SCOPE",
       "F02_ORIGINAL_RECOMMENDATION_ACTIVE_UNIQUE_CREATE_AND_TOUCH",
@@ -785,7 +786,8 @@
       "PDM10_CUSTOMER_PRICE_UNLOCK_PARALLEL_RECOMMENDATION_NO_DUPLICATE_RIGHT",
       "PDM10_AUDIT_FAILED_RECOMMENDATION_PRICE_RIGHT_ROLLS_BACK_ALL",
       "PDM10_PRICE_PROOF_LOSS_AND_CUSTOMER_DISABLE_PAUSE_PRICE_READ",
-      "PDM10_NON_WHOLESALE_RECOMMENDATION_DOES_NOT_CREATE_WHOLESALE_CYCLE_RIGHT"
+      "PDM10_NON_WHOLESALE_RECOMMENDATION_DOES_NOT_CREATE_WHOLESALE_CYCLE_RIGHT",
+      "PG16_CUSTOMER_PENDING_OWNER_DENIES_RECOMMENDATION_GRANT_AND_PRICE_RIGHT"
     ],
     "missing": [
       "PRODUCTION_F03_RECOMMENDATION_PERMISSION_SOURCE_ISSUER",
