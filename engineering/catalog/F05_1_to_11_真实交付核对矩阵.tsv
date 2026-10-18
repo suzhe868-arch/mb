@@ -6,7 +6,7 @@ F05-3B	engineering/f05/jyt-wholesale-lineage-cycle	仅隔离CI服务	不接JYT�
 F05-3C	engineering/f05/wholesale-to-mingbang-conversion	仅隔离CI服务	保留相同vehicle_id与图片落地检查	未运行	CDN/上游签发未实证
 F05-3D	engineering/f05/wholesale-object-scope-trust	仅隔离CI服务	仅匿名严格投影防泄漏	未运行	批发可信对象电话Issuer缺失
 F05-3E	engineering/f05/hide-reason-trust-recalculation	仅隔离CI服务	本轮catalog显式拒绝受保护Vehicle	未运行	隐藏规则现时受信聚合未完成
-F05-3F/3G/3H/3I/3J/3K	engineering/f05/favorite-physical-carrier	仅隔离CI关系与事件	不开放无客户身份的收藏写HTTP	未运行	微信Customer签发不可用
+F05-3F/3G/3H/3I/3J/3K	engineering/f05/favorite-physical-carrier；engineering/src/f05-favorite-{service,http}.mjs；engineering/catalog/000027_catalog_disposable_test_only.sql	隔离Node HTTP真正收藏增删查+事务状态与不可篡改事件；测试Customer PG会话非正式Issuer	仅test/loopback可实际HTTP；正式微信身份继续Fail Closed；整组其余语义未验收	Run39104836133，PG16收藏13/13+目录19/19；Node73/73，同SHA，0失败0跳过	正式微信Customer签发/完整M94历史链/生产认证未具备；责任B、外部Issuer与A
 F05-4	engineering/f05/customer-price-entitlement-cycle	仅隔离合成价格来源	真实catalog只给price=null占位	未运行	受信价格与日限额来源未签
 F05-5	engineering/f05/employee-price-quota-adjustment	仅隔离CI	不开放未经员工Scope认证的加次	未运行	员工正式授权消费未证明
 F05-6	engineering/f05/find-car-application-demand-eligibility	仅隔离CI	不开放无受信Customer的正式找车	未运行	客户等级正式Issuer缺口

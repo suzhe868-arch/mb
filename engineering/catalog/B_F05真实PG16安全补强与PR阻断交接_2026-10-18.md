@@ -1,3 +1,14 @@
+# 2026-10-18｜B窗口F05实业务收藏HTTP首个PG16写入纵切｜最新进度
+
+- **最新真实已通过代码HEAD：** `4010608e3bcb5d9902ca8db9cf19eaa9af3350fa`。GitHub官方[Run39104836133](https://github.com/suzhe868-arch/mb/actions/runs/39104836133) `isolated_real_pg16`在同一SHA执行Node **73/73**、目录PG16 **19/19**、收藏PG16 **13/13**（**总真库32/32**），全部0失败、0跳过。目录与收藏夹具改为**同一Job顺序运行**，避免独立测试互相污染。
+- **真实HTTP业务写入与查询：** `GET /api/v1/catalog/vehicles/:vehicleId/favorite`、`POST .../favorite`、`DELETE .../favorite`。非生产当前可运行 Node Foundation 服务，经数据库`f05_catalog_customer_sessions_test`中受约束的**随机不可猜测试会话**映射到实际`public.customers`表，有效状态才能读写；请求中的customerId/role/owner/header/forwarded/cookie一律不能伪造身份。正式微信Customer Issuer缺失时，正式请求**绝不被标为已授权**。
+- **PG16真写入：** 在F02冻结76张物理实体之外加入**3张收藏测试专用会话/当前关系/追加审计侧表**，加前期目录3张临时侧表，合计物理82张（76+6；临时不是正式Schema）。收藏键为`customer_id+vehicle_id`，不绑`listing_cycle_id`；收藏ADD、REMOVE、状态READ和多次重试均实际事务提交。取消后历史事件不可篡改、不物理删除历史；来源转换维持收藏关系；Customer disabled/会话撤销/隐藏新增收藏拒绝。外键、幂等键唯一约束、跨Customer幂等复用与同时并发、事务触发失败后的真正回滚均在非超管PG16真库HTTP测试验证。
+- **身份与正式门禁（不可混淆）：** 此会话属于`DISPOSABLE_TEST_ONLY`，需`APP_ENV=test/NODE_ENV=test`＋环回绑定＋精确隔离确认＋独立`f05_catalog_test`库才能使用。**没有正式微信/员工/4S/JYT签发、五Source签署或生产部署授权**；隔离测试的正例不代表真实客户已可使用，`F05_PARTIAL_TEST_ONLY`。旧F05-3G服务和旧66项未重跑或改写。
+- **A施工单剩余缺口：** 完整F05各业务域写入、正式Customer/Employee受信Issuer、价格额度、找车Demand、Priority/推荐grant、咨询/Owner、公海等真实生产凭据与完整M94版本迁移链仍未实现。原10项对main PR广谱触发仍未获独立裁决，因此**尚未开PR，也未宣称READY_FOR_A_REVIEW**；F06/F07/F08暂停，`main`未改。
+- **费用：** 只使用标准GitHub Actions单作业，未购买额外Runner、存储或付费套餐；无法从CI记录直接证明用户账单绝对为零，仍按$0新增预算管理。
+
+---
+
 # 2026-10-18｜F05本轮增量：图片首图安全路径＋真实公开数量统计
 
 - **受测代码SHA：** `194bec857c26e758c0102c1115a5b0b1dc99a77d`；官方[Run39103198886](https://github.com/suzhe868-arch/mb/actions/runs/39103198886)已在隔离PostgreSQL16完成：**Node HTTP／安全测试67/67、真实PG16集成19/19，0失败、0跳过**。采用GitHub标准运行器，原F02-1冻结76实体+3个隔离测试侧表；未改动生产库、旧66项来源检查或F06/F07/F08。
