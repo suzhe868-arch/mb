@@ -1,3 +1,14 @@
+# 2026-10-18｜B窗口F05 PDM15客户撤回咨询真实Node HTTP＋PG16闭环（非生产）
+
+- **同SHA实跑证据**：代码`d5f483e27ce5b17271d8f65b316239fcab040a3d`，官方[GitHub Run39107758542](https://github.com/suzhe868-arch/mb/actions/runs/39107758542)，Node HTTP／安全**80/80**，PG16实际物理库目录**19/19**＋收藏**13/13**＋咨询**16/16**＝真库**48/48**，0失败、0跳过；F02-1正式冻结76实体，测试专用8侧表、非超管PG16，历史M94迁移链**未验证**。
+- **新实际业务动作**：`POST /api/v1/catalog/consultations/:consultationId/withdraw`，仅允许当前通过数据库校验的**本人活动Customer**在未终结`pending/processing`工单上撤回，真实数据库事务将`public.consultations.status`更新为`resolved`、`close_reason`更新为`CUSTOMER_WITHDRAWN`、`completed_at`使用数据库当前时间。初始direct source、原assignee和原first-response deadline及历史均保留；**不增加第五种主状态、不改变Customer owner、Vehicle或Recommendation**。
+- **安全负例**：无会话/停用Customer/会话撤销返回401；非本人即使知道工单ID也返回404；非法或越权自报Customer/Owner/转发头拒绝；重复同键安全重放，同工单用不同新键终结后409；一个创建键不能当成撤回键使用；可售状态变化、旧负责人离职、当前Owner丢失或测试手机号/服务权限证明不再存在时，原Customer仍可撤回其合法已建立的历史咨询，而不能凭空创建新咨询。
+- **真实PG16竞态/回滚**：两个不同撤回键并发，仅一个提交`resolved + CUSTOMER_WITHDRAWN`及1条不可变`WITHDRAWN`审计，另一个409；故意触发审计写入失败时咨询状态也完全回滚，纠正故障后原键可合法重试。测试和追加状态审计皆执行于实际非超级用户PG16。
+- **未交付与正式门禁**：微信Customer身份、手机号授权凭证/Employee权限Issuer仍是`DISPOSABLE_TEST_ONLY`而非正式Issuer，且历史M94链/源签发/生产部署未完成。员工start-processing、人工首次响应事实、转派、店长越权核验、SLA暂停恢复、其他F05完整业务域仍未完结。**本次只是F05-10隔离PG16客户撤回子功能**，不可标记F05-10全域或F05全包`READY_FOR_A_REVIEW`。
+- GitHub旧10项面向main的PR宽触发器仍未通过A逐文件裁决；本轮**未创建PR/未修改main/未重跑冻结旧66项**；F06/F07/F08暂停。仅使用标准GitHub Actions单作业，未购买额外服务；不以CI成功声明账单结算为零。**下一责任仍为B**，生产`NOT_READY`，正式五来源`SOURCE_GAP_OPEN/FAIL_CLOSED`。
+
+---
+
 # 2026-10-18｜B工程窗口F05咨询实际HTTP+PG16新建复用与跨周期防重放｜最新进度
 
 - **唯一受测代码提交** `07a95f772f88e59e379e6b73aeff2192a8e233ac`；官方[Run39106903367](https://github.com/suzhe868-arch/mb/actions/runs/39106903367)在隔离PG16作业中实测 **Node HTTP安全79/79、目录PG16 19/19、收藏PG16 13/13、咨询PG16 10/10**。合计真库**42/42**，所有计数同一SHA、0失败、0跳过，非超管`f05_catalog_ci`，正式F02-1冻结76物理表外加8个TEST侧表（测试库84张关系表，**不是84张正式Schema实体**）。
