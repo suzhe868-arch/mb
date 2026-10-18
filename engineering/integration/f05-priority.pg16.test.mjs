@@ -143,6 +143,30 @@ try{
   assert.equal(await count("SELECT count(*) n FROM public.f05_priority_suppression_test WHERE vehicle_id=62511 AND customer_id=62500"),1);
   assert.equal(await count("SELECT count(*) n FROM public.priority_leases WHERE vehicle_id=62511 AND status='ended'"),1);
  });
+ await test('active Lock blocks Priority and read-side protection; releasing occupancy requires new lease',async()=>{
+  await db.query("INSERT INTO public.locks(lock_id,vehicle_id,customer_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) "+
+    "VALUES(62520,62511,62500,62511,'active',62500,statement_timestamp(),statement_timestamp()+interval '72 hours')");
+  assert.equal(await count("SELECT count(*) n FROM public.f05_priority_safe_active_test WHERE vehicle_id=62511"),0);
+  const close=await post({vehicleId:'62511',token:B});
+  assert.equal(close.status,200,JSON.stringify(close));assert.equal(close.body.outcome,'ENDED');
+  assert.equal(await count("SELECT count(*) n FROM public.priority_leases WHERE vehicle_id=62511 AND status='active'"),0);
+  await db.query("UPDATE public.locks SET lock_status='cancelled',end_reason='test_customer_cancelled' WHERE lock_id=62520");
+  const restored=await post({vehicleId:'62511',token:B});
+  assert.equal(restored.status,200,JSON.stringify(restored));assert.equal(restored.body.outcome,'NEW');
+  assert.equal(await count("SELECT count(*) n FROM public.priority_leases WHERE vehicle_id=62511 AND status='active'"),1);
+  assert.equal(await count("SELECT count(*) n FROM public.priority_leases WHERE vehicle_id=62511 AND status='ended'"),2);
+ });
+ await test('qualification disabled makes active Priority read-time invalid and closes without regrant',async()=>{
+  await db.query("UPDATE public.f05_priority_qualification_test SET enabled=false WHERE customer_id=62501");
+  assert.equal(await count("SELECT count(*) n FROM public.f05_priority_safe_active_test WHERE vehicle_id=62511"),0);
+  const ended=await post({vehicleId:'62511',token:B});
+  assert.equal(ended.status,200,JSON.stringify(ended));assert.equal(ended.body.outcome,'ENDED');
+  assert.equal(await count("SELECT count(*) n FROM public.priority_leases WHERE vehicle_id=62511 AND status='active'"),0);
+  await db.query("UPDATE public.f05_priority_qualification_test SET enabled=true WHERE customer_id=62501");
+  const newSource=await post({vehicleId:'62511',token:B});
+  assert.equal(newSource.status,200,JSON.stringify(newSource));assert.equal(newSource.body.outcome,'NEW');
+  assert.equal(await count("SELECT count(*) n FROM public.priority_leases WHERE vehicle_id=62511 AND status='active'"),1);
+ });
  await test('append-only audit cannot be erased; Priority release cannot create Recommendation or grant',async()=>{
   await assert.rejects(db.query("DELETE FROM public.f05_priority_events_test WHERE vehicle_id=62510"),e=>e.code==='23514');
   await assert.rejects(db.query("UPDATE public.f05_priority_suppression_test SET reason='ttl_expired' WHERE vehicle_id=62510"),e=>e.code==='23514');
