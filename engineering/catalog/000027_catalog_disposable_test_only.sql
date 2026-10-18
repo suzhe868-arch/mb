@@ -91,9 +91,9 @@ CREATE TABLE public.f05_catalog_consultation_actions_test (
  vehicle_id bigint NOT NULL REFERENCES public.vehicles(vehicle_id) ON DELETE RESTRICT,
  listing_cycle_id bigint NOT NULL,
  consultation_id bigint NOT NULL REFERENCES public.consultations(consultation_id) ON DELETE RESTRICT,
- action text NOT NULL CHECK(action IN ('CREATED','TOUCHED','WITHDRAWN','STARTED_PROCESSING')),
+ action text NOT NULL CHECK(action IN ('CREATED','TOUCHED','WITHDRAWN','STARTED_PROCESSING','FINALIZED_RESOLVED','FINALIZED_NORMAL_CLOSED','FINALIZED_INVALID')),
  actor_employee_id bigint REFERENCES public.employees(employee_id) ON DELETE RESTRICT,
- CHECK (action<>'STARTED_PROCESSING' OR actor_employee_id IS NOT NULL),
+ CHECK (action NOT IN ('STARTED_PROCESSING','FINALIZED_RESOLVED','FINALIZED_NORMAL_CLOSED','FINALIZED_INVALID') OR actor_employee_id IS NOT NULL),
  occurred_at timestamptz NOT NULL DEFAULT statement_timestamp(),
  FOREIGN KEY(listing_cycle_id,vehicle_id) REFERENCES public.vehicle_listing_cycles(listing_cycle_id,vehicle_id)
 );
@@ -116,6 +116,7 @@ CREATE TABLE public.f05_catalog_employee_consultation_scope_test (
  employee_id bigint NOT NULL REFERENCES public.employees(employee_id) ON DELETE RESTRICT,
  customer_id bigint NOT NULL REFERENCES public.customers(customer_id) ON DELETE RESTRICT,
  can_start_processing boolean NOT NULL CHECK(can_start_processing=true),
+ can_finalize boolean NOT NULL DEFAULT false,
  issuer text NOT NULL DEFAULT 'DISPOSABLE_TEST_ONLY' CHECK(issuer='DISPOSABLE_TEST_ONLY'),
  expires_at timestamptz NOT NULL,
  PRIMARY KEY(employee_id,customer_id)

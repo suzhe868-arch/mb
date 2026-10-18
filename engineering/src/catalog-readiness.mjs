@@ -63,6 +63,7 @@ const REQUIRED_CATALOG_COLUMNS=Object.freeze([
  ['public.f05_catalog_employee_sessions_test','employee_id','bigint'],
  ['public.f05_catalog_employee_consultation_scope_test','employee_id','bigint'],
  ['public.f05_catalog_employee_consultation_scope_test','customer_id','bigint'],
+ ['public.f05_catalog_employee_consultation_scope_test','can_finalize','boolean'],
 ]);
 const EXPECTED_COLUMNS_VALUES=REQUIRED_CATALOG_COLUMNS.map(x=>`('${x[0]}','${x[1]}','${x[2]}')`).join(',');
 export const SQL_CATALOG_SCHEMA=`SELECT
