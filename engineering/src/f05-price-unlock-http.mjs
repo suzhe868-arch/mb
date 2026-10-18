@@ -14,7 +14,7 @@ export function createIsolatedPriceUnlockHandler(service,env=process.env){
   if(!local(req.socket?.remoteAddress)||req.headers.host!=='127.0.0.1:'+req.socket?.localPort||
    req.headers.cookie||req.headers['transfer-encoding']||
    (req.headers['content-length']&&req.headers['content-length']!=='0')||
-   Object.keys(req.headers).some(h=>/(customer|employee|owner|role|scope|phone|wechat|forwarded|^x-forwarded-)/.test(h))){
+   Object.keys(req.headers).some(h=>/(customer|employee|owner|role|scope|phone|wechat|price|quota|entitlement|level|forwarded|^x-forwarded-)/.test(h))){
    send(res,403,{code:'PRICE_UNTRUSTED_REQUEST'});return true;
   }
   const auth=req.headers.authorization,k=req.headers['x-idempotency-key'];
