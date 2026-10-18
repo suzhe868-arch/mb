@@ -3,6 +3,7 @@
 CREATE TABLE public.f05_real_catalog_visibility_test (
  vehicle_id bigint NOT NULL,
  listing_cycle_id bigint NOT NULL,
+ source_type text NOT NULL CHECK (source_type IN ('wholesale','mingbang','four_s')),
  allow_anonymous boolean NOT NULL DEFAULT false,
  verified_isolation text NOT NULL DEFAULT 'DISPOSABLE_TEST_PROOF_NOT_SIGNED'
  CHECK (verified_isolation='DISPOSABLE_TEST_PROOF_NOT_SIGNED'),

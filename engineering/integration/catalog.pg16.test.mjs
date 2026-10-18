@@ -40,7 +40,7 @@ try{
  assert.equal(Number(preexisting.protections),0,'Refuse to erase existing protections');
 
  await writer.query('BEGIN');transaction=true;
- await writer.query("INSERT INTO public.f05_real_catalog_visibility_test(vehicle_id,listing_cycle_id,allow_anonymous,expires_at) VALUES($1,$2,true,statement_timestamp()+interval '10 minutes')",[cfg.vehicle,cfg.cycle]);
+ await writer.query("INSERT INTO public.f05_real_catalog_visibility_test(vehicle_id,listing_cycle_id,source_type,allow_anonymous,expires_at) VALUES($1,$2,$3,true,statement_timestamp()+interval '10 minutes')",[cfg.vehicle,cfg.cycle,baseline.source_type]);
  // This assertion would fail if the HTTP reader accidentally reused writer's transaction.
  const beforeCommit=(await reader.query('SELECT count(*)::integer AS n FROM public.f05_real_catalog_visibility_test WHERE vehicle_id=$1 AND listing_cycle_id=$2',[cfg.vehicle,cfg.cycle])).rows[0].n;
  assert.equal(beforeCommit,0,'Independent pool cannot see uncommitted proof');
@@ -107,6 +107,19 @@ try{
    assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,404);
    assert.equal((await get(`/api/v1/catalog/vehicles?source=${baseline.source_type}`)).body.items.some(v=>v.vehicleId===cfg.vehicle),false);
   }finally{await writer.query('DELETE FROM public.vehicle_listing_cycles WHERE listing_cycle_id=$1',[competing])}
+  assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,200);
+ });
+ await test('PG16 source transition must not reuse visibility proof for old source',async()=>{
+  const newSource=baseline.source_type==='mingbang'?'four_s':'mingbang';
+  await writer.query("UPDATE public.vehicles SET source_type=$2,source_sale_status='available' WHERE vehicle_id=$1",[cfg.vehicle,newSource]);
+  try{
+   assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,404,'Old source proof cannot authorize another supply category');
+   const list=await get(`/api/v1/catalog/vehicles?source=${newSource}`);
+   assert.equal(list.status,200);
+   assert.equal(list.body.items.some(v=>v.vehicleId===cfg.vehicle),false);
+  }finally{
+   await writer.query('UPDATE public.vehicles SET source_type=$2,source_sale_status=$3 WHERE vehicle_id=$1',[cfg.vehicle,baseline.source_type,baseline.source_sale_status]);
+  }
   assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,200);
  });
  await test('expires_at is a physical fail-closed expiry, not cached HTTP privilege',async()=>{

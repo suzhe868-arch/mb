@@ -29,6 +29,7 @@ const REQUIRED_CATALOG_COLUMNS=Object.freeze([
  ['public.vehicle_listing_cycles','ended_at','timestamp with time zone'],
  ['public.f05_real_catalog_visibility_test','vehicle_id','bigint'],
  ['public.f05_real_catalog_visibility_test','listing_cycle_id','bigint'],
+ ['public.f05_real_catalog_visibility_test','source_type','text'],
  ['public.f05_real_catalog_visibility_test','allow_anonymous','boolean'],
  ['public.f05_real_catalog_visibility_test','verified_isolation','text'],
  ['public.f05_real_catalog_visibility_test','expires_at','timestamp with time zone'],

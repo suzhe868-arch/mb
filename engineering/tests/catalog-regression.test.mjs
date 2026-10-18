@@ -121,7 +121,7 @@ test('detail never returns caller-controlled query-context price or priority gra
 test('SQL physically protects hidden, terminated cycles, and test-only proof TTL',()=>{
  for(const sql of [SQL_CATALOG_LIST,SQL_CATALOG_LIST_OLD,SQL_CATALOG_DETAIL]){
   for(const expected of ['v.platform_visibility=\'visible\'','cy.ended_at IS NULL','v.archived_at IS NULL',
-   'p.allow_anonymous=true',"p.verified_isolation='DISPOSABLE_TEST_PROOF_NOT_SIGNED'",
+   'p.allow_anonymous=true','p.source_type=v.source_type',"p.verified_isolation='DISPOSABLE_TEST_PROOF_NOT_SIGNED'",
    'p.expires_at>statement_timestamp()','NOT EXISTS(SELECT 1 FROM public.f05_real_catalog_protections_test'])assert.ok(sql.includes(expected),expected);
   for(const unsafe of ['customer_price_unlock_events','wholesale_phone','VIN_NEVER_EXPOSE'])assert.equal(sql.includes(unsafe),false);
  }
