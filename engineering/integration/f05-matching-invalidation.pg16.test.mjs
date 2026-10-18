@@ -48,8 +48,8 @@ try{
    "(59812,59812,'wholesale',true,statement_timestamp()+interval '20 minutes')");
   await db.query("INSERT INTO public.f05_matching_vehicle_facts_test(vehicle_id,listing_cycle_id,source_brand_id,source_model_year,mileage_km,expires_at) VALUES "+
    "(59810,59810,59001,2026,12000,statement_timestamp()+interval '20 minutes'),"+
-   "(59811,59811,59001,2025,22000,statement_timestamp()+interval '20 minutes'),"+
-   "(59812,59812,59001,2027,9000,statement_timestamp()+interval '20 minutes')");
+   "(59811,59811,59001,2026,22000,statement_timestamp()+interval '20 minutes'),"+
+   "(59812,59812,59001,2026,9000,statement_timestamp()+interval '20 minutes')");
   await db.query("INSERT INTO public.f05_catalog_price_display_proof_test(vehicle_id,listing_cycle_id,source_type,customer_display_cents,expires_at) VALUES "+
    "(59810,59810,'wholesale',11000000,statement_timestamp()+interval '20 minutes'),"+
    "(59811,59811,'wholesale',11500000,statement_timestamp()+interval '20 minutes'),"+
