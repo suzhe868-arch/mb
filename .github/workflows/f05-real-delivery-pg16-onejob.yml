@@ -6,10 +6,13 @@ on:
       - '.github/workflows/f05-real-delivery-pg16-onejob.yml'
       - 'engineering/catalog/**'
       - 'engineering/src/catalog-*.mjs'
+      - 'engineering/src/f05-favorite-*.mjs'
       - 'engineering/src/app.mjs'
       - 'engineering/src/server.mjs'
       - 'engineering/integration/catalog.pg16.test.mjs'
+      - 'engineering/integration/f05-favorite.pg16.test.mjs'
       - 'engineering/tests/catalog*.test.mjs'
+      - 'engineering/tests/f05-favorite.test.mjs'
 permissions:
   contents: read
 concurrency:
@@ -61,7 +64,7 @@ jobs:
       - name: Frozen dependency installation
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Actual HTTP and safety assertions
-        run: node --test tests/catalog.test.mjs tests/catalog-regression.test.mjs
+        run: node --test tests/catalog.test.mjs tests/catalog-regression.test.mjs tests/f05-favorite.test.mjs
       - name: Bootstrap truly disposable PG16 non-superuser schema
         run: |
           set -euo pipefail
@@ -101,6 +104,8 @@ jobs:
             await client.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES(59001,59001,statement_timestamp()),(59002,59002,statement_timestamp())");
             await client.query("INSERT INTO public.vehicle_images(image_id,vehicle_id,relative_path,source_url_fact,asset_storage_status) VALUES(59001,59001,'https://jyt.internal/PRIVATE',NULL,'processing'),(59002,59001,'C7/side.webp',NULL,'processing'),(59003,59001,'C7/front.webp','https://jyt.internal/PRIVATE','processing')");
             await client.query("INSERT INTO public.f05_real_catalog_photo_order_test(image_id,vehicle_id,source_type,original_sort_index) VALUES(59001,59001,'wholesale',0),(59002,59001,'wholesale',2),(59003,59001,'wholesale',1)");
+            await client.query("INSERT INTO public.customer_levels(level_id,level_code) VALUES(59001,'normal')");
+            await client.query("INSERT INTO public.customers(customer_id,account_status,customer_level_id,owner_assignment_state) VALUES(59001,'active',59001,'owner_assignment_pending'),(59002,'disabled',59001,'owner_assignment_pending')");
             await client.query('COMMIT');
             z=(await client.query("SELECT current_user usr,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su")).rows[0];
             if(z.usr!=='f05_catalog_ci'||z.su!==false)throw Error('NON_SUPERUSER_CHECK_FAILED');
@@ -109,6 +114,6 @@ jobs:
           finally{await client?.end();await admin.end()}
           JS
       - name: Two-connection physical PG16 and HTTP tests
-        run: node --test integration/catalog.pg16.test.mjs
+        run: node --test integration/catalog.pg16.test.mjs integration/f05-favorite.pg16.test.mjs
       - name: No paid artifact, production action or downstream CI
         run: echo 'F05_REAL_PG16_TEST_ONLY_NO_ARTIFACT_NO_PRODUCTION'

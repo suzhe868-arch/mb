@@ -2,6 +2,8 @@
 import {randomBytes} from 'node:crypto';
 import {createCatalogService} from './catalog-service.mjs';
 import {createCatalogHandler} from './catalog-http.mjs';
+import {createIsolatedFavoriteService} from './f05-favorite-service.mjs';
+import {createIsolatedFavoriteHandler} from './f05-favorite-http.mjs';
 export function validateCatalogEnv(env=process.env){
  if(env.APP_ENV!=='test'||env.NODE_ENV!=='test'||env.F05_CATALOG_TEST_CONSENT!=='I_AUTHORIZE_DISPOSABLE_F05_CATALOG_PG16_ONLY')throw Error('CATALOG_TEST_ONLY');
  if(env.API_HOST && !['127.0.0.1','localhost','::1'].includes(env.API_HOST))throw Error('CATALOG_LOOPBACK_REQUIRED');
@@ -41,6 +43,13 @@ const REQUIRED_CATALOG_COLUMNS=Object.freeze([
  ['public.f05_real_catalog_photo_order_test','source_type','text'],
  ['public.f05_real_catalog_photo_order_test','original_sort_index','integer'],
  ['public.f05_real_catalog_photo_order_test','verified_isolation','text'],
+ ['public.f05_catalog_customer_sessions_test','token_sha256','text'],
+ ['public.f05_catalog_customer_sessions_test','customer_id','bigint'],
+ ['public.f05_catalog_favorite_states_test','customer_id','bigint'],
+ ['public.f05_catalog_favorite_states_test','vehicle_id','bigint'],
+ ['public.f05_catalog_favorite_states_test','current_state','text'],
+ ['public.f05_catalog_favorite_events_test','event_key','text'],
+ ['public.f05_catalog_favorite_events_test','payload_sha256','text'],
 ]);
 const EXPECTED_COLUMNS_VALUES=REQUIRED_CATALOG_COLUMNS.map(x=>`('${x[0]}','${x[1]}','${x[2]}')`).join(',');
 export const SQL_CATALOG_SCHEMA=`SELECT
@@ -49,6 +58,9 @@ export const SQL_CATALOG_SCHEMA=`SELECT
  to_regclass('public.f05_real_catalog_visibility_test') IS NOT NULL AS p,
  to_regclass('public.f05_real_catalog_protections_test') IS NOT NULL AS x,
  to_regclass('public.f05_real_catalog_photo_order_test') IS NOT NULL AS po,
+ to_regclass('public.f05_catalog_customer_sessions_test') IS NOT NULL AS fs,
+ to_regclass('public.f05_catalog_favorite_states_test') IS NOT NULL AS ft,
+ to_regclass('public.f05_catalog_favorite_events_test') IS NOT NULL AS fe,
  NOT EXISTS (
   SELECT 1 FROM (VALUES ${EXPECTED_COLUMNS_VALUES}) AS expected(relation,column_name,physical_type)
   LEFT JOIN pg_catalog.pg_attribute attr
@@ -56,7 +68,7 @@ export const SQL_CATALOG_SCHEMA=`SELECT
    AND attr.attname=expected.column_name AND attr.attnum>0 AND NOT attr.attisdropped
   WHERE attr.attname IS NULL OR pg_catalog.format_type(attr.atttypid,attr.atttypmod)<>expected.physical_type
  ) AS shape,
- (SELECT count(*)=79 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
+ (SELECT count(*)=82 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
  (SELECT count(*)=2 FROM pg_catalog.pg_constraint fk
   WHERE fk.contype='f'
    AND fk.conrelid IN (to_regclass('public.f05_real_catalog_visibility_test'),to_regclass('public.f05_real_catalog_protections_test'))
@@ -71,7 +83,7 @@ export async function probeIsolatedCatalog(pool){
   const identity=(await pool.query(SQL_CATALOG_IDENTITY)).rows[0];
   if(!identity || Math.floor(Number(identity.v)/10000)!==16 || identity.db!=='f05_catalog_test' || identity.role!=='f05_catalog_ci')return false;
   const schema=(await pool.query(SQL_CATALOG_SCHEMA)).rows[0];
-  return !!schema && Object.keys(schema).sort().join(',')==='c,fk,full,p,pf,po,shape,v,x' && Object.values(schema).every(v=>v===true);
+  return !!schema && Object.keys(schema).sort().join(',')==='c,fe,fk,fs,ft,full,p,pf,po,shape,v,x' && Object.values(schema).every(v=>v===true);
  }catch{return false}
 }
 export async function createIsolatedCatalogRuntime(env=process.env){
@@ -81,6 +93,7 @@ export async function createIsolatedCatalogRuntime(env=process.env){
  try{
   if(!await probeIsolatedCatalog(pool))throw Error('CATALOG_PG16_IDENTITY_OR_SCHEMA_DENIED');
   const service=createCatalogService({pool,cursorKey:randomBytes(32)});
-  return {pool,handler:createCatalogHandler(service),ready:()=>probeIsolatedCatalog(pool),close:()=>pool.end()};
+  const favorite=createIsolatedFavoriteService({pool,env});
+  return {pool,handler:createCatalogHandler(service),favoriteHandler:createIsolatedFavoriteHandler(favorite,env),ready:()=>probeIsolatedCatalog(pool),close:()=>pool.end()};
  }catch(e){await pool.end();throw e}
 }
