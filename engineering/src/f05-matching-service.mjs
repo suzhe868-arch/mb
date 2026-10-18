@@ -160,8 +160,11 @@ export function createIsolatedMatchingService({pool,env=process.env}={}){
      "(event_key,actor_employee_id,demand_id,vehicle_id,result_id,result_tier,payload_sha256) "+
      "VALUES($1,$2,$3,$4,$5,$6,$7)",
      [eventKey,employeeId,demandId,vehicleId,String(created.result_id),matched.tier,payload]);
-    // Resolving the current pair supersedes only its own bounded retry job.
-    await db.query("UPDATE public.f05_matching_affected_queue_test SET state='done',lease_until=NULL, "+
+    // Resolving this pair publishes done, but MUST preserve an in-flight
+    // worker's lease_until fencing stamp until that worker verifies the safe
+    // current view. Clearing it here loses the claimant's identity, and lets
+    // a stale expired worker overwrite a later claimant's outcome.
+    await db.query("UPDATE public.f05_matching_affected_queue_test SET state='done', "+
       "last_error=NULL,modified_at=statement_timestamp() WHERE demand_id=$1 AND vehicle_id=$2",
       [demandId,vehicleId]);
     await db.query('COMMIT');

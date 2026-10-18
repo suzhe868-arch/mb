@@ -37,12 +37,14 @@ export function createIsolatedMatchingRetryWorker({pool,matching,env=process.env
     SET state='processing',lease_until=statement_timestamp()+interval '60 seconds',
         modified_at=statement_timestamp()
     FROM selected s WHERE q.demand_id=s.demand_id AND q.vehicle_id=s.vehicle_id
-   RETURNING q.demand_id,q.vehicle_id,q.generation,q.attempts`,[limit,createHash('sha256').update(credential).digest('hex')])).rows;
+   RETURNING q.demand_id,q.vehicle_id,q.generation,q.attempts,
+     q.lease_until::text AS claim_stamp`,[limit,createHash('sha256').update(credential).digest('hex')])).rows;
   const outcomes=[];
   for(const job of jobs){
    const demandId=String(job.demand_id),vehicleId=String(job.vehicle_id);
    if(!ID.test(demandId)||!ID.test(vehicleId))throw Error('MATCH_RETRY_DB_ID_CORRUPT');
-   const generation=String(job.generation);
+   const generation=String(job.generation),claimStamp=job.claim_stamp;
+   if(typeof claimStamp!=='string'||!claimStamp)throw Error('MATCH_RETRY_MISSING_LEASE_STAMP');
    // A pair+generation has one stable key across failed retries; no random false success.
    const eventKey=createHash('sha256').update(['F05_AFFECTED_TEST_V1',demandId,vehicleId,generation].join(':')).digest('base64url');
    let result;
@@ -60,7 +62,8 @@ export function createIsolatedMatchingRetryWorker({pool,matching,env=process.env
      UPDATE public.f05_matching_affected_queue_test SET state='done',lease_until=NULL,
       last_error=NULL,modified_at=statement_timestamp()
      WHERE demand_id=$1 AND vehicle_id=$2 AND generation=$3 AND state IN ('processing','done')
-     RETURNING generation`,[demandId,vehicleId,generation]);
+       AND lease_until::text=$4
+     RETURNING generation`,[demandId,vehicleId,generation,claimStamp]);
    }else{
     // Matching.recompute commits its own transaction and sets queue state='done'
     // BEFORE this worker verifies read-time evidence. A newly expired scope or
@@ -76,7 +79,8 @@ export function createIsolatedMatchingRetryWorker({pool,matching,env=process.env
           next_attempt_at=statement_timestamp()+make_interval(secs=>LEAST(300,2^(attempts+1))::integer),
           lease_until=NULL,last_error=$4,modified_at=statement_timestamp()
      WHERE demand_id=$1 AND vehicle_id=$2 AND generation=$3 AND state IN ('processing','done')
-     RETURNING generation`,[demandId,vehicleId,generation,error]);
+       AND lease_until::text=$5
+     RETURNING generation`,[demandId,vehicleId,generation,error,claimStamp]);
    }
    outcomes.push({demandId,vehicleId,
       outcome:changed.rowCount===0?'superseded':valid?'done':'retry_pending_or_failed'});

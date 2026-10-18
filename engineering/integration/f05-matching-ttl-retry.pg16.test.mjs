@@ -128,6 +128,65 @@ try{
   assert.equal((await check("SELECT state FROM public.f05_matching_affected_queue_test "+
    "WHERE demand_id=60100 AND vehicle_id=60111"))[0].state,'done');
  });
+ await test('PG16 stale worker cannot finalize a reclaimed same-generation lease; current claimant alone closes it',async()=>{
+  // One real F02 matching row becomes stale and is queued by the real trigger.
+  assert.equal((await db.query("UPDATE public.demand_match_results SET current_state='stale', "+
+   "invalidated_at=statement_timestamp() WHERE demand_id=60100 AND vehicle_id=60110 "+
+   "AND current_state='current'")).rowCount,1);
+  const before=(await check("SELECT generation,state FROM public.f05_matching_affected_queue_test "+
+   "WHERE demand_id=60100 AND vehicle_id=60110"))[0];
+  assert.equal(before.state,'pending');
+
+  let releaseOld,releaseNew,oldClaimed,newClaimed;
+  const oldGate=new Promise(resolve=>{releaseOld=resolve});
+  const newGate=new Promise(resolve=>{releaseNew=resolve});
+  const oldReady=new Promise(resolve=>{oldClaimed=resolve});
+  const newReady=new Promise(resolve=>{newClaimed=resolve});
+  const oldMatching={async recompute(request){oldClaimed();await oldGate;return matching.recompute(request)}};
+  const newMatching={async recompute(request){newClaimed();await newGate;return matching.recompute(request)}};
+  const oldWorker=createIsolatedMatchingRetryWorker({pool,matching:oldMatching,env:process.env});
+  const newWorker=createIsolatedMatchingRetryWorker({pool,matching:newMatching,env:process.env});
+  // Call genuine worker SQL and pause only BEFORE the genuine PG16 matching
+  // service. This is controlled scheduling, not a mocked business result.
+  const first=oldWorker.runOnce({credential,limit:1});
+  await oldReady;
+  const oldLease=(await check("SELECT lease_until::text AS stamp FROM "+
+   "public.f05_matching_affected_queue_test WHERE demand_id=60100 AND vehicle_id=60110"))[0].stamp;
+  assert.ok(oldLease);
+  // Expire the lease physically to simulate an overdue worker; the task is
+  // reclaimed with the same generation by a second legitimate worker.
+  await db.query("UPDATE public.f05_matching_affected_queue_test SET "+
+   "lease_until=statement_timestamp()-interval '1 second' "+
+   "WHERE demand_id=60100 AND vehicle_id=60110");
+  const second=newWorker.runOnce({credential,limit:1});
+  await newReady;
+  const claimed=(await check("SELECT generation,state,lease_until::text AS stamp FROM "+
+   "public.f05_matching_affected_queue_test WHERE demand_id=60100 AND vehicle_id=60110"))[0];
+  assert.equal(String(claimed.generation),String(before.generation));
+  assert.equal(claimed.state,'processing');assert.notEqual(claimed.stamp,oldLease);
+  // The old worker still executes the genuine matching transaction, which
+  // publishes 'done'. It MUST NOT finalize the new claimant's lease.
+  releaseOld();
+  const oldResult=await first;
+  assert.equal(oldResult.claimed,1);
+  assert.equal(oldResult.outcomes[0].outcome,'superseded',JSON.stringify(oldResult));
+  const afterOld=(await check("SELECT state,lease_until::text AS stamp FROM "+
+   "public.f05_matching_affected_queue_test WHERE demand_id=60100 AND vehicle_id=60110"))[0];
+  assert.equal(afterOld.state,'done');assert.equal(afterOld.stamp,claimed.stamp,
+   'the old worker cannot clear the new worker lease');
+  releaseNew();
+  const newResult=await second;
+  assert.equal(newResult.claimed,1);
+  assert.equal(newResult.outcomes[0].outcome,'done',JSON.stringify(newResult));
+  const final=(await check("SELECT generation,state,lease_until FROM "+
+   "public.f05_matching_affected_queue_test WHERE demand_id=60100 AND vehicle_id=60110"))[0];
+  assert.equal(String(final.generation),String(before.generation));
+  assert.equal(final.state,'done');assert.equal(final.lease_until,null);
+  assert.equal((await check("SELECT count(*)::int n FROM public.f05_matching_safe_current_test "+
+   "WHERE demand_id=60100 AND vehicle_id=60110"))[0].n,1);
+  assert.equal((await check("SELECT state FROM public.f05_matching_affected_queue_test "+
+   "WHERE demand_id=60100 AND vehicle_id=60111"))[0].state,'done');
+ });
  await test('PG16 invalid batch limits fail and do not mutate source facts',async()=>{
   await assert.rejects(db.query('SELECT public.f05_match_sweep_unusable_test(0)'),/F05_TTL_BATCH_LIMIT_INVALID/);
   await assert.rejects(db.query('SELECT public.f05_match_sweep_unusable_test(201)'),/F05_TTL_BATCH_LIMIT_INVALID/);
