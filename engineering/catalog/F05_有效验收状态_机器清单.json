@@ -2,22 +2,22 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F05_8_TTL_SWEEP_TEST_ONLY_PG16_243_PASS_NO_AUTOMATIC_SCHEDULER",
+  "status": "B_IN_PROGRESS_F05_8_TEST_ONLY_SINGLE_CUSTOMER_PRIORITY_QUALIFICATION_PG16_251_PASS",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "390120045e366613ed1a2daf1c6ef347497dca9c",
+  "github_commit": "4957093eb59dc0e92adffb1b258998e80becf8c9",
   "node_http_stub_tests": {
-    "passed": 147,
+    "passed": 150,
     "failed": 0,
     "skipped": 0
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39140309523,
-    "head_sha": "390120045e366613ed1a2daf1c6ef347497dca9c",
-    "node_http_tests_passed": 147,
-    "real_pg16_integration_tests_passed": 243,
+    "run_id": 39141688413,
+    "head_sha": "4957093eb59dc0e92adffb1b258998e80becf8c9",
+    "node_http_tests_passed": 150,
+    "real_pg16_integration_tests_passed": 251,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -33,8 +33,8 @@
     "disposable_photo_order_proof": true,
     "real_pg16_catalog_integration_tests_passed": 19,
     "real_pg16_favorite_integration_tests_passed": 13,
-    "disposable_sidecar_tables": 41,
-    "total_disposable_physical_tables": 117,
+    "disposable_sidecar_tables": 43,
+    "total_disposable_physical_tables": 119,
     "formal_wechat_customer_issuer_verified": false,
     "real_pg16_consultation_integration_tests_passed": 16,
     "formal_customer_phone_consent_issuer_verified": false,
@@ -95,7 +95,7 @@
     "optional_customer_price_safe_current_pg16_verified": true,
     "matching_rule_change_first_pair_scope_test_verified": true,
     "matching_dictionary_physical_mapped_fields_test_verified": true,
-    "physical_triggers_f05_isolated_count": 24,
+    "physical_triggers_f05_isolated_count": 25,
     "recommendation_f05_9_pg16_cases_passed": 7,
     "formal_recommendation_source_permission_signed": false,
     "formal_recommendation_free_wholesale_price_right_verified": false,
@@ -107,7 +107,11 @@
     "recommendation_price_right_pg16_test_only_verified": true,
     "f05_priority_ttl_sweep_pg16_tests_passed": 7,
     "f05_priority_ttl_sweep_worker_kernel_test_only_verified": true,
-    "formal_priority_ttl_scheduler_deployed": false
+    "formal_priority_ttl_scheduler_deployed": false,
+    "f05_priority_qualification_pg16_test_cases_passed": 8,
+    "f05_priority_qualification_single_customer_manager_scope_test_only_verified": true,
+    "f05_priority_qualification_disable_atomic_rearbitration_test_only_verified": true,
+    "formal_priority_qualification_issuer_verified": false
   },
   "endpoints": {
     "implemented_test_only": [
@@ -318,8 +322,8 @@
     "Full F05-1..11 actual authenticated HTTP/PG16 business still missing"
   ],
   "next_owner": "B",
-  "next_milestone": "B继续F05正式可靠Issuer/事件调度签发与F05全业务真实C/E端和M94历史；Priority批量runOnce内核通过但生产调度未完成；不重做F03，F06-F08暂停。",
-  "verification_scope": "F02_1_CURRENT_INITIAL_76_TABLES_PLUS_41_DISPOSABLE_SIDECARS_117_TOTAL_24_ISOLATED_TRIGGERS_PRIORITY_TTL_RUNONCE_NODE147_PG16_243",
+  "next_milestone": "B继续F05正式三类来源/Employee与WeChat信任链、受影响增量调度/管理权限Issuer、动态员工交接与M94历史及跨端E2E；严禁将测试开关当正式生产后台。F06～F08仍暂停。",
+  "verification_scope": "F02_1_CURRENT_INITIAL_76_TABLES_PLUS_43_DISPOSABLE_TEST_SIDECARS_119_TOTAL_25_ISOLATED_TRIGGERS_NODE150_REAL_PG16_251",
   "security_hardening": [
     "pg_catalog actual column type and FK shape check",
     "test-only database URL strict port 5432 and prohibit host/hostaddr query overrides",
@@ -331,8 +335,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "TEN_LEGACY_BROAD_MAIN_TARGET_PR_WORKFLOWS_UNAUTHORIZED_TO_CHANGE_AND_USER_FORBIDS_OLD_RETRIGGER",
-  "tested_commit": "390120045e366613ed1a2daf1c6ef347497dca9c",
-  "tested_run": 39140309523,
+  "tested_commit": "4957093eb59dc0e92adffb1b258998e80becf8c9",
+  "tested_run": 39141688413,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -774,9 +778,9 @@
     "production_ready": false
   },
   "priority_real_business": {
-    "status": "F05_8_ISOLATED_PG16_TTL_BATCH_RECONCILE_KERNEL_PARTIAL_PASS",
-    "run_id": 39140309523,
-    "execution_sha": "390120045e366613ed1a2daf1c6ef347497dca9c",
+    "status": "F05_8_ISOLATED_PG16_QUALIFICATION_CONTROL_AND_TTL_BATCH_PARTIAL_PASS",
+    "run_id": 39141688413,
+    "execution_sha": "4957093eb59dc0e92adffb1b258998e80becf8c9",
     "production_ready": false,
     "verified": [
       "ONE_VEHICLE_ONE_ACTIVE_PRIORITY_GENUINE_F02_PHYSICAL_ROW",
@@ -798,10 +802,16 @@
       "PG16_TTL_AUDIT_FAILURE_ROLLS_BACK_SUPPRESSION_CLOSE_AND_NEW_PRIORITY",
       "PG16_TTL_RECIPIENT_REQUIRES_CURRENT_OWNER_EMPLOYEE_ROLE_AND_SCOPE",
       "PG16_TTL_DISQUALIFICATION_CANNOT_GRANT_NEXT_PRIORITY",
-      "PG16_TTL_SWEEP_NO_RECOMMENDATION_VISIBILITY_GRANT_PRICE_RIGHT_LOCK"
+      "PG16_TTL_SWEEP_NO_RECOMMENDATION_VISIBILITY_GRANT_PRICE_RIGHT_LOCK",
+      "PG16_SINGLE_CUSTOMER_PRIORITY_QUAL_MANAGER_STOREHEAD_EXPLICIT_SCOPE_ONLY",
+      "PG16_QUAL_DISABLE_CLOSES_ALL_TWO_EXISTING_ACTIVE_PRIORITIES_AND_REARBITRATES_NEXT",
+      "PG16_QUAL_ENABLE_DOES_NOT_AUTOCREATE_DEMAND_APPLICATION_OR_RESURRECT_PRIORITY",
+      "PG16_QUAL_EVENT_KEY_CONCURRENT_REPLAY_AND_REVISION_COMPARE_AND_SWAP",
+      "PG16_QUAL_AUDIT_FAILURE_ROLLS_BACK_QUAL_CHANGE_LEASE_CLOSURE_AND_NEW_REARBITRATION",
+      "PG16_QUAL_DEMAND_CUSTOMER_LEVEL_ORIGINAL_RECORDS_UNCHANGED",
+      "PG16_QUAL_ADMIN_AUDIT_IMMUTABLE_AND_FOUR_S_SALES_PERMISSION_DENIED"
     ],
     "missing": [
-      "FORMAL_PDM13_ADMIN_CUSTOMER_QUALIFICATION_SINGLE_TOGGLE_AND_AUDIT_ISSUER",
       "FORMAL_F03_PRIORITY_EMPLOYEE_PERMISSION_DATA_SCOPE_AND_HANDOVER_BATCH",
       "REAL_TRANSACTION_OCCUPANCY_PLUS_LOCK_TRANSITION_HANDED_OFF_FROM_F06",
       "PDM13_ALL_ENDED_REASONS_AND_RELEASE_FACT_SOURCE_SIGNATURE",
@@ -809,7 +819,10 @@
       "C_END_ALL_SHARE_SEARCH_DETAIL_PRIORITY_EXCLUSIVE_E2E",
       "TTL_RUNONCE_KERNEL_READY_BUT_FORMAL_PRODUCTION_SCHEDULER_NOT_INSTALLED",
       "FORMAL_MATCH_CHANGE_EVENT_AUTOMATIC_RECONCILE_NOT_IMPLEMENTED",
-      "TRUE_PDM13_BACKOFFICE_ISSUER_AND_CROSS_EMPLOYEE_HANDOVER_NOT_SIGNED"
+      "TRUE_PDM13_BACKOFFICE_ISSUER_AND_CROSS_EMPLOYEE_HANDOVER_NOT_SIGNED",
+      "FORMAL_PDM13_ADMIN_QUALIFICATION_ISSUER_NOT_SIGNED_TEST_ONLY_HTTP_IMPLEMENTED",
+      "FORMAL_UNBOUNDED_MULTI_VEHICLE_QUALIFICATION_DISABLE_PAGED_TRANSACTION_WORKFLOW_MISSING",
+      "FORMAL_ENABLE_EVENT_DRIVEN_MATCH_REEVALUATION_QUEUED_DELIVERY_MISSING"
     ]
   }
 }
