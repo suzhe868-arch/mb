@@ -51,7 +51,7 @@ export function createIsolatedMatchingService({pool,env=process.env}={}){
       String(earlier.vehicle_id)!==vehicleId||earlier.payload_sha256!==payload)
       return reply(409,'MATCH_IDEMPOTENCY_COLLISION');
      return reply(200,'MATCH_RECOMPUTE_REPLAY',{demandId,vehicleId,resultId:String(earlier.result_id),
-      matchTier:earlier.result_tier,matchingReady:true,historicalSnapshot:true});
+      matchTier:earlier.result_tier,matchingReady:false,historicalSnapshot:true});
     }
     const entitled=(await db.query("SELECT can_activate_demand FROM public.f05_find_car_level_entitlement_test "+
      "WHERE level_id=$1 AND issuer='DISPOSABLE_TEST_ONLY' AND expires_at>statement_timestamp() FOR SHARE",
@@ -67,7 +67,7 @@ export function createIsolatedMatchingService({pool,env=process.env}={}){
     }
     const parsed=parseExplicitSalesDescription(description.sales_description);
     if(!parsed.ready){await db.query('ROLLBACK');return reply(409,'MATCH_NOT_READY',{reason:parsed.reason})}
-    const row=(await db.query("SELECT v.vehicle_id,v.source_type,v.source_sale_status,v.archived_at,"+
+    const row=(await db.query("SELECT v.vehicle_id,v.source_type,v.source_sale_status,v.platform_visibility,v.archived_at,"+
      "cy.listing_cycle_id,cy.ended_at,vm.brand_id,vm.model_year,"+
      "facts.source_brand_id,facts.source_model_year,facts.mileage_km,facts.interior_color,"+
      "price.customer_display_cents "+
@@ -104,7 +104,7 @@ export function createIsolatedMatchingService({pool,env=process.env}={}){
     });
     const cycleId=String(row.listing_cycle_id);
     matched.explanation.sourceFacts={
-     vehicleId,listingCycleId:cycleId,hiddenButEligible:true,
+     vehicleId,listingCycleId:cycleId,hiddenButEligible:row.platform_visibility==='hidden',
      brandId:field(row.brand_id,row.source_brand_id),
      modelYear:field(row.model_year,row.source_model_year),
      mileageKm:row.mileage_km??null,
