@@ -210,11 +210,22 @@ try{
    const unauthorized=await call({vehicle:'59710'});
    assert.equal(unauthorized.status,403,JSON.stringify(unauthorized));
    assert.equal(unauthorized.body.code,'MATCH_CURRENT_CUSTOMER_OWNER_REQUIRED');
-   assert.equal((await results('59710')).length,before.length,
-    'stale Owner cannot create Match Result even with old signed Scope');
+   const latest=await results('59710');
+   assert.equal(latest.length,before.length,
+    'stale Owner cannot create Match Result even with old test Scope');
+   assert.equal(latest.at(-1).current_state,'invalidated',
+    'historical Match must be physically invalidated on custody change');
+   assert.equal((await writer.query("SELECT count(*)::int n FROM public.matching_change_events "+
+    "WHERE trigger_kind='CUSTOMER_OWNER_CHANGED' AND result_id=$1",
+    [latest.at(-1).result_id])).rows[0].n,1);
   }finally{
    await writer.query("UPDATE public.customers SET current_owner_employee_id=59700 WHERE customer_id=59700");
   }
+  assert.equal((await writer.query(
+   "SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE demand_id=59700 AND vehicle_id=59710")).rows[0].n,0,
+   'restoring the Owner does not resurrect an invalidated historical Match');
+  const recovered=await call({vehicle:'59710'});
+  assert.equal(recovered.status,200,JSON.stringify(recovered));
   assert.equal((await writer.query(
    "SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE demand_id=59700 AND vehicle_id=59710")).rows[0].n,1);
  });

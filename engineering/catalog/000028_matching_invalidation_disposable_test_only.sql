@@ -7,7 +7,8 @@ CREATE FUNCTION public.f05_match_invalidate_affected_test(
 DECLARE hit record; total integer:=0;
 BEGIN
  IF p_cause NOT IN ('CUSTOMER_ACCOUNT_OR_LEVEL','DEMAND_STATE',
-                    'VEHICLE_SALEABILITY','LISTING_CYCLE','LEVEL_ENTITLEMENT')
+                    'VEHICLE_SALEABILITY','LISTING_CYCLE','LEVEL_ENTITLEMENT',
+                    'CUSTOMER_OWNER_CHANGED')
     OR (p_customer IS NULL AND p_demand IS NULL AND p_vehicle IS NULL AND p_cycle IS NULL)
  THEN RAISE EXCEPTION 'F05_INVALIDATION_SCOPE_NOT_AUTHORIZED'; END IF;
  FOR hit IN
@@ -47,11 +48,21 @@ CREATE FUNCTION public.f05_match_on_customer_guard_test() RETURNS trigger LANGUA
 BEGIN
  IF NEW.account_status IS DISTINCT FROM OLD.account_status
     OR NEW.customer_level_id IS DISTINCT FROM OLD.customer_level_id
- THEN PERFORM public.f05_match_invalidate_affected_test(
-    'CUSTOMER_ACCOUNT_OR_LEVEL',NEW.customer_id,NULL,NULL,NULL); END IF;
+ THEN
+  PERFORM public.f05_match_invalidate_affected_test(
+   'CUSTOMER_ACCOUNT_OR_LEVEL',NEW.customer_id,NULL,NULL,NULL);
+ ELSIF NEW.current_owner_employee_id IS DISTINCT FROM OLD.current_owner_employee_id
+    OR NEW.owner_assignment_state IS DISTINCT FROM OLD.owner_assignment_state
+ THEN
+  -- Ownership is authority, not merely a read-time cosmetic property.
+  -- Make old frozen Match Results stale for good; restoring the old Owner
+  -- cannot resurrect matches created before a custody transition.
+  PERFORM public.f05_match_invalidate_affected_test(
+   'CUSTOMER_OWNER_CHANGED',NEW.customer_id,NULL,NULL,NULL);
+ END IF;
  RETURN NEW;
 END $$;
-CREATE TRIGGER f05_match_customer_guard_test AFTER UPDATE OF account_status,customer_level_id
+CREATE TRIGGER f05_match_customer_guard_test AFTER UPDATE OF account_status,customer_level_id,current_owner_employee_id,owner_assignment_state
  ON public.customers FOR EACH ROW EXECUTE FUNCTION public.f05_match_on_customer_guard_test();
 
 CREATE FUNCTION public.f05_match_on_demand_lifecycle_test() RETURNS trigger LANGUAGE plpgsql AS $$
