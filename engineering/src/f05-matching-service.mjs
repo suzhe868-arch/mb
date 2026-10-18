@@ -2,6 +2,7 @@
 // Not a full Rule Dictionary and never a Recommendation, grant, Priority or Lock.
 import {createHash} from 'node:crypto';
 import {parseExplicitSalesDescription,evaluateExplicitMatch} from './f05-matching-evaluator.mjs';
+import {parseDictionaryTokens} from './f05-matching-dictionary-parser.mjs';
 const sha=s=>createHash('sha256').update(s).digest('hex');
 const id=s=>typeof s==='string'&&/^[1-9][0-9]{0,18}$/.test(s)&&BigInt(s)<=9223372036854775807n;
 const validBearer=s=>typeof s==='string'&&/^[A-Za-z0-9_-]{43}$/.test(s);
@@ -68,10 +69,8 @@ export function createIsolatedMatchingService({pool,env=process.env}={}){
     if(!description||String(description.written_by_employee_id)!==employeeId){
      await db.query('ROLLBACK');return reply(409,'MATCH_SALES_DESCRIPTION_REQUIRED');
     }
-    const parsed=parseExplicitSalesDescription(description.sales_description);
-    if(!parsed.ready){await db.query('ROLLBACK');return reply(409,'MATCH_NOT_READY',{reason:parsed.reason})}
     const row=(await db.query("SELECT v.vehicle_id,v.source_type,v.source_sale_status,v.platform_visibility,v.archived_at,"+
-     "cy.listing_cycle_id,cy.ended_at,vm.brand_id,vm.model_year,"+
+     "cy.listing_cycle_id,cy.ended_at,v.model_id,vm.series_id,vm.brand_id,vm.model_year,"+
      "facts.source_brand_id,facts.source_model_year,facts.mileage_km,facts.interior_color,"+
      "price.customer_display_cents "+
      "FROM public.vehicles v "+
@@ -98,6 +97,27 @@ export function createIsolatedMatchingService({pool,env=process.env}={}){
      if(local!==null&&local!==undefined&&source!==null&&source!==undefined&&String(local)!==String(source))return null;
      return local??source??null;
     };
+    let parsed;
+    if(description.sales_description.includes('=')){
+     parsed=parseExplicitSalesDescription(description.sales_description);
+    }else{
+     // Same per-token transaction lock as dictionary mutation: rule edits cannot
+     // commit while a matching transaction is still evaluating that alias.
+     const tokens=description.sales_description.split(';');
+     for(const token of [...new Set(tokens)].sort()){
+      await db.query("SELECT pg_advisory_xact_lock(hashtext('F05_DICT_TOKEN'),hashtext($1))",[token]);
+     }
+     const rules=(await db.query("SELECT rule_id,token,mapped_key,mapped_value,scope_kind,brand_id,series_id,model_id,year_from,year_to,version,status "+
+      "FROM public.f05_matching_dictionary_rules_test WHERE status='enabled' AND token=ANY($1::text[])",
+      [tokens])).rows;
+     parsed=parseDictionaryTokens(description.sales_description,rules,{
+      brandId:field(row.brand_id,row.source_brand_id),
+      seriesId:row.series_id===null?null:String(row.series_id),
+      modelId:row.model_id===null?null:String(row.model_id),
+      modelYear:field(row.model_year,row.source_model_year)
+     });
+    }
+    if(!parsed.ready){await db.query('ROLLBACK');return reply(409,'MATCH_NOT_READY',{reason:parsed.reason})}
     const matched=evaluateExplicitMatch(parsed,{
      brandId:field(row.brand_id,row.source_brand_id),
      minModelYear:field(row.model_year,row.source_model_year),

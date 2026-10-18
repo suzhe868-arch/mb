@@ -49,6 +49,14 @@ export function createIsolatedDictionaryService({pool,env=process.env}={}){
        return result(409,'RULE_IDEMPOTENCY_COLLISION');
       return result(200,'RULE_MUTATION_REPLAY',{ruleId:String(past.rule_id),snapshot:past.after_json,simulationOnly:true});
      }
+     // Acquire deterministic token locks BEFORE any rule row mutation, synchronized
+     // with matching resolution. Old-token read is revalidated under row lock.
+     const prior=action==='CREATE'?null:(await db.query(
+      "SELECT token FROM public.f05_matching_dictionary_rules_test WHERE rule_id=$1",[ruleId])).rows[0];
+     if(action!=='CREATE'&&!prior){await db.query('ROLLBACK');return result(404,'RULE_NOT_FOUND')}
+     const tokens=[...new Set([prior?.token,data?.token].filter(Boolean))].sort();
+     for(const token of tokens)
+      await db.query("SELECT pg_advisory_xact_lock(hashtext('F05_DICT_TOKEN'),hashtext($1))",[token]);
      let before=null,row;
      if(action==='CREATE'){
       row=(await db.query(`INSERT INTO public.f05_matching_dictionary_rules_test
@@ -59,6 +67,7 @@ export function createIsolatedDictionaryService({pool,env=process.env}={}){
      }else{
       before=(await db.query("SELECT * FROM public.f05_matching_dictionary_rules_test WHERE rule_id=$1 FOR UPDATE",[ruleId])).rows[0];
       if(!before){await db.query('ROLLBACK');return result(404,'RULE_NOT_FOUND')}
+      if(before.token!==prior.token){await db.query('ROLLBACK');return result(409,'RULE_TOKEN_CHANGED_RETRY')}
       if(String(before.version)!==String(expectedVersion)){await db.query('ROLLBACK');return result(409,'RULE_VERSION_CONFLICT')}
       if(before.status==='deprecated'){await db.query('ROLLBACK');return result(409,'RULE_DEPRECATED_IMMUTABLE')}
       if(action==='EDIT'){
@@ -78,10 +87,23 @@ export function createIsolatedDictionaryService({pool,env=process.env}={}){
      }
      await db.query("INSERT INTO public.f05_matching_dictionary_history_test (event_key,payload_sha256,actor_employee_id,rule_id,action,before_json,after_json) VALUES($1,$2,$3,$4,$5,$6::jsonb,$7::jsonb)",
       [eventKey,fingerprint,employeeId,String(row.rule_id),action,before?JSON.stringify(before):null,JSON.stringify(row)]);
+     // Affect only already-current pairs whose saved canonical Sales description
+     // explicitly contains the changed token; no Vehicle × Demand Cartesian scan.
+     // New candidates without a prior Match remain a separately recorded gap.
+     const changed=(await db.query(
+      "SELECT r.demand_id,r.vehicle_id,r.listing_cycle_id FROM public.demand_match_results r "+
+      "JOIN public.f05_matching_sales_description_test sd ON sd.demand_id=r.demand_id "+
+      "WHERE r.current_state='current' AND "+
+      "($1=ANY(string_to_array(sd.sales_description,';')) OR $2=ANY(string_to_array(sd.sales_description,';'))) "+
+      "ORDER BY r.result_id FOR UPDATE OF r",
+      [row.token,before?.token??row.token])).rows;
+     for(const affected of changed)
+      await db.query("SELECT public.f05_match_mark_stale_affected_test('RULE_DICTIONARY_CHANGE',$1,$2,$3)",
+       [String(affected.demand_id),String(affected.vehicle_id),String(affected.listing_cycle_id)]);
      await db.query('COMMIT');
      return result(200,action==='CREATE'?'RULE_CREATED':'RULE_CHANGED',{
       ruleId:String(row.rule_id),version:String(row.version),status:row.status,
-      simulationOnly:true,affectedProductionMatchesRecalculated:false});
+      simulationOnly:true,affectedCurrentPairsStaled:changed.length,affectedProductionMatchesRecalculated:false});
     }catch(e){await db.query('ROLLBACK').catch(()=>{});throw e}
    }finally{db.release()}
   },
