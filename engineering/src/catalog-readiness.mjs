@@ -50,6 +50,7 @@ export const SQL_CATALOG_SCHEMA=`SELECT
    AND attr.attname=expected.column_name AND attr.attnum>0 AND NOT attr.attisdropped
   WHERE attr.attname IS NULL OR pg_catalog.format_type(attr.atttypid,attr.atttypmod)<>expected.physical_type
  ) AS shape,
+ (SELECT count(*)=78 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
  (SELECT count(*)=2 FROM pg_catalog.pg_constraint fk
   WHERE fk.contype='f'
    AND fk.conrelid IN (to_regclass('public.f05_real_catalog_visibility_test'),to_regclass('public.f05_real_catalog_protections_test'))
@@ -60,7 +61,7 @@ export async function probeIsolatedCatalog(pool){
   const identity=(await pool.query(SQL_CATALOG_IDENTITY)).rows[0];
   if(!identity || Math.floor(Number(identity.v)/10000)!==16 || identity.db!=='f05_catalog_test' || identity.role!=='f05_catalog_ci')return false;
   const schema=(await pool.query(SQL_CATALOG_SCHEMA)).rows[0];
-  return !!schema && Object.keys(schema).sort().join(',')==='c,fk,p,shape,v,x' && Object.values(schema).every(v=>v===true);
+  return !!schema && Object.keys(schema).sort().join(',')==='c,fk,full,p,shape,v,x' && Object.values(schema).every(v=>v===true);
  }catch{return false}
 }
 export async function createIsolatedCatalogRuntime(env=process.env){

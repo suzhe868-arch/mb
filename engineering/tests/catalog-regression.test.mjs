@@ -167,14 +167,15 @@ test('SQL explicitly excludes a vehicle with two simultaneous current cycles',()
 });
 
 test('readiness uses physical database identity and all four required relations',async()=>{
- const pool={query:async(s)=>s===SQL_CATALOG_IDENTITY?{rows:[{v:160009,db:'f05_catalog_test',role:'f05_catalog_ci'}]}:{rows:[{v:true,c:true,p:true,x:true,shape:true,fk:true}]}};
+ const pool={query:async(s)=>s===SQL_CATALOG_IDENTITY?{rows:[{v:160009,db:'f05_catalog_test',role:'f05_catalog_ci'}]}:{rows:[{v:true,c:true,p:true,x:true,shape:true,fk:true,full:true}]}};
  assert.equal(await probeIsolatedCatalog(pool),true);
  assert.match(SQL_CATALOG_SCHEMA,/to_regclass\('public\.vehicles'\)/);
  assert.match(SQL_CATALOG_SCHEMA,/pg_catalog\.pg_attribute/);
  assert.match(SQL_CATALOG_SCHEMA,/pg_catalog\.pg_constraint/);
+ assert.match(SQL_CATALOG_SCHEMA,/count\(\*\)=78/);
 });
 test('readiness fails if a physical table disappears after startup',async()=>{
- const pool={query:async(s)=>s===SQL_CATALOG_IDENTITY?{rows:[{v:160009,db:'f05_catalog_test',role:'f05_catalog_ci'}]}:{rows:[{v:true,c:true,p:false,x:true,shape:true,fk:true}]}};
+ const pool={query:async(s)=>s===SQL_CATALOG_IDENTITY?{rows:[{v:160009,db:'f05_catalog_test',role:'f05_catalog_ci'}]}:{rows:[{v:true,c:true,p:false,x:true,shape:true,fk:true,full:true}]}};
  assert.equal(await probeIsolatedCatalog(pool),false);
 });
 test('readiness never confuses PG17 or other database role with isolated PG16',async()=>{
@@ -191,8 +192,8 @@ test('readiness physical connection errors produce denial without logs or creden
 });
 
 test('schema preflight rejects superficially named but physically wrong PG16 tables',async()=>{
- for(const missing of ['shape','fk','v','c','p','x']){
-  const physical={v:true,c:true,p:true,x:true,shape:true,fk:true};physical[missing]=false;
+ for(const missing of ['shape','fk','full','v','c','p','x']){
+  const physical={v:true,c:true,p:true,x:true,shape:true,fk:true,full:true};physical[missing]=false;
   const pool={query:async(s)=>s===SQL_CATALOG_IDENTITY?{rows:[{v:160002,db:'f05_catalog_test',role:'f05_catalog_ci'}]}:{rows:[physical]}};
   assert.equal(await probeIsolatedCatalog(pool),false,missing);
  }
@@ -200,7 +201,7 @@ test('schema preflight rejects superficially named but physically wrong PG16 tab
 test('schema preflight rejects omitted properties and anonymous extra trust flags',async()=>{
  for(const shape of [
   {v:true,c:true,p:true,x:true,shape:true},
-  {v:true,c:true,p:true,x:true,shape:true,fk:true,unverified:true},
+  {v:true,c:true,p:true,x:true,shape:true,fk:true,full:true,unverified:true},
  ]){
   const pool={query:async(s)=>s===SQL_CATALOG_IDENTITY?{rows:[{v:160002,db:'f05_catalog_test',role:'f05_catalog_ci'}]}:{rows:[shape]}};
   assert.equal(await probeIsolatedCatalog(pool),false);

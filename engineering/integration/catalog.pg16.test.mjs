@@ -88,8 +88,9 @@ try{
   }finally{await writer.query('UPDATE public.vehicles SET platform_visibility=$2 WHERE vehicle_id=$1',[cfg.vehicle,baseline.platform_visibility])}
   assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,200);
  });
- await test('PG16 sold state immediately denied without changing signed proof',async()=>{
-  await writer.query("UPDATE public.vehicles SET source_sale_status='sold' WHERE vehicle_id=$1",[cfg.vehicle]);
+ await test('PG16 actual source-status constraint enforces non-sale, HTTP denies without changing proof',async()=>{
+  const nonSale=baseline.source_type==='wholesale'?'offline':'sold_external';
+  await writer.query('UPDATE public.vehicles SET source_sale_status=$2 WHERE vehicle_id=$1',[cfg.vehicle,nonSale]);
   try{assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,404)}
   finally{await writer.query('UPDATE public.vehicles SET source_sale_status=$2 WHERE vehicle_id=$1',[cfg.vehicle,baseline.source_sale_status])}
   assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,200);
@@ -100,14 +101,12 @@ try{
   finally{await writer.query('UPDATE public.vehicle_listing_cycles SET ended_at=NULL WHERE listing_cycle_id=$1',[cfg.cycle])}
   assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,200);
  });
- await test('PG16 ambiguous concurrent active cycles fail closed on list and detail',async()=>{
+ await test('PG16 frozen unique partial index rejects a second active listing cycle',async()=>{
   const competing=(BigInt(cfg.cycle)+1000000000000n).toString();
-  await writer.query('INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES($1,$2,statement_timestamp())',[competing,cfg.vehicle]);
-  try{
-   assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,404);
-   assert.equal((await get(`/api/v1/catalog/vehicles?source=${baseline.source_type}`)).body.items.some(v=>v.vehicleId===cfg.vehicle),false);
-  }finally{await writer.query('DELETE FROM public.vehicle_listing_cycles WHERE listing_cycle_id=$1',[competing])}
+  await assert.rejects(writer.query('INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES($1,$2,statement_timestamp())',[competing,cfg.vehicle]),e=>e.code==='23505');
   assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,200);
+  const cycles=(await writer.query('SELECT count(*)::integer AS n FROM public.vehicle_listing_cycles WHERE vehicle_id=$1 AND ended_at IS NULL',[cfg.vehicle])).rows[0].n;
+  assert.equal(cycles,1);
  });
  await test('PG16 source transition must not reuse visibility proof for old source',async()=>{
   const newSource=baseline.source_type==='mingbang'?'four_s':'mingbang';
