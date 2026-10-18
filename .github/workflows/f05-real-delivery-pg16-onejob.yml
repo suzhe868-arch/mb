@@ -94,7 +94,8 @@ jobs:
             console.log('F02_1_FULL_CURRENT_SCHEMA_APPLIED tables='+physical+' checksum='+candidate.checksum);
 
             await client.query(await readFile('catalog/000027_catalog_disposable_test_only.sql','utf8'));
-            await client.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,created_at) VALUES(59001,'wholesale','active','visible',statement_timestamp()),(59002,'wholesale','active','hidden',statement_timestamp())");
+            await client.query("INSERT INTO public.vehicle_models(model_id,profile_status) VALUES(59001,'incomplete')");
+            await client.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,model_id,created_at) VALUES(59001,'wholesale','active','visible',59001,statement_timestamp()),(59002,'wholesale','active','hidden',NULL,statement_timestamp())");
             await client.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES(59001,59001,statement_timestamp()),(59002,59002,statement_timestamp())");
             await client.query('COMMIT');
             z=(await client.query("SELECT current_user usr,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su")).rows[0];

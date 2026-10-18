@@ -43,8 +43,34 @@ test('PostgreSQL temporal ordering retains six fractional digits end-to-end',asy
  assert.equal(decodeCursor(cursor,secret,'wholesale','newest').at,at);
  const next=await request(pool,'/api/v1/catalog/vehicles?cursor='+encodeURIComponent(cursor));
  assert.equal(next.status,200);assert.equal(next.body.items[0].vehicleId,'17');
- assert.equal(captured[1].params[1],at);assert.equal(captured[1].params[2],'1015');
+ assert.equal(captured[1].params[1],at);assert.equal(captured[1].params[2],'1015');assert.equal(captured[1].params[3],null);
  assert.equal(next.body.nextCursor,null);
+});
+test('PDM05 exact modelId is parameterized in PG query before keyset pagination',async()=>{
+ let captured;
+ const modelId='123456789012345678';
+ const result=await request(byRows((sql,params)=>{captured={sql,params};return [row(5)]}),`/api/v1/catalog/vehicles?modelId=${modelId}`);
+ assert.equal(result.status,200);
+ assert.equal(result.body.modelId,modelId);
+ assert.deepEqual(captured.params,['wholesale',null,null,modelId]);
+ assert.match(captured.sql,/v\.model_id=\$4::bigint/);
+});
+test('PDM05 modelId query cannot be SQL-injected, widened or coerced',async()=>{
+ for(const bad of ['0','0001','-1','9223372036854775808','1%20OR%201%3D1','foo']){
+  const res=await request(byRows(),'/api/v1/catalog/vehicles?modelId='+bad);
+  assert.equal(res.status,400,bad);
+  assert.equal(res.body.code,'INVALID_MODEL_ID');
+ }
+});
+test('model-specific signed cursor is rejected in another model or an unfiltered feed',async()=>{
+ const modelId='123456789012345678';
+ const first=await request(byRows(()=>Array.from({length:16},(_,k)=>row(k+1))),`/api/v1/catalog/vehicles?modelId=${modelId}`);
+ assert.equal(first.status,200);assert.ok(first.body.nextCursor);
+ const cursor=encodeURIComponent(first.body.nextCursor);
+ const wrong=await request(byRows(),'/api/v1/catalog/vehicles?modelId=20&cursor='+cursor);
+ assert.equal(wrong.status,400);assert.equal(wrong.body.code,'INVALID_CURSOR');
+ const bare=await request(byRows(),'/api/v1/catalog/vehicles?cursor='+cursor);
+ assert.equal(bare.status,400);assert.equal(bare.body.code,'INVALID_CURSOR');
 });
 test('PDM-20 seven sorts: six unverified business projections fail closed; oldest is prohibited',async()=>{
  const legal=['price_asc','price_desc','registration_year_desc','registration_year_asc','mileage_asc','mileage_desc'];

@@ -11,24 +11,24 @@ const reject=(code,status=400)=>Object.freeze({status,body:{code}});
 const isValidTime=t=>typeof t==='string'&&DATE.test(t)&&Number.isFinite(Date.parse(t));
 const safetoken=o=>Buffer.from(JSON.stringify(o)).toString('base64url');
 function mac(text,key){return createHmac('sha256',key).update(text).digest('base64url')}
-export function encodeCursor({at,id,source,sort},key){
- if(!isValidTime(at)||!validPgId(String(id))||!ALLOWED_SOURCES.has(source)||!ALLOWED_SORTS.has(sort)||!Buffer.isBuffer(key)||key.length<32)throw Error('CATALOG_CURSOR_INPUT');
- const content=safetoken({v:1,at,id:String(id),source,sort});return `${content}.${mac(content,key)}`;
+export function encodeCursor({at,id,source,sort,modelId=null},key){
+ if(!isValidTime(at)||!validPgId(String(id))||!ALLOWED_SOURCES.has(source)||!ALLOWED_SORTS.has(sort)||(modelId!==null&&!validPgId(modelId))||!Buffer.isBuffer(key)||key.length<32)throw Error('CATALOG_CURSOR_INPUT');
+ const content=safetoken({v:2,at,id:String(id),source,sort,modelId});return `${content}.${mac(content,key)}`;
 }
-export function decodeCursor(value,key,source,sort){
+export function decodeCursor(value,key,source,sort,modelId=null){
  if(typeof value!=='string'||value.length>320||!/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(value))throw Error('BAD_CURSOR');
  const [str,signature]=value.split('.'),expected=mac(str,key);
  const a=Buffer.from(expected),b=Buffer.from(signature);
  if(a.length!==b.length||!timingSafeEqual(a,b))throw Error('BAD_CURSOR');
  let p;try{p=JSON.parse(Buffer.from(str,'base64url').toString('utf8'))}catch{throw Error('BAD_CURSOR')}
- if(!p||Object.keys(p).sort().join(',')!=='at,id,sort,source,v'||p.v!==1||p.source!==source||p.sort!==sort||!validPgId(p.id)||!isValidTime(p.at))throw Error('BAD_CURSOR');
+ if(!p||Object.keys(p).sort().join(',')!=='at,id,modelId,sort,source,v'||p.v!==2||p.source!==source||p.sort!==sort||p.modelId!==modelId||!validPgId(p.id)||!isValidTime(p.at))throw Error('BAD_CURSOR');
  return p;
 }
 // Preserve PostgreSQL microseconds in the signed keyset: JS Date rounds to milliseconds.
 // The lexicographic cursor must carry the same precision as the SQL ORDER BY tuple.
 const SQL_UTC_MICROSECONDS="to_char(cy.started_at AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"')";
 const BASE_SELECT=`SELECT v.vehicle_id AS "vehicleId",cy.listing_cycle_id AS "listingCycleId",v.source_type AS "source",${SQL_UTC_MICROSECONDS} AS "listingStartedAt",v.model_id AS "modelId" FROM public.vehicles v JOIN public.vehicle_listing_cycles cy ON cy.vehicle_id=v.vehicle_id JOIN public.f05_real_catalog_visibility_test p ON p.vehicle_id=v.vehicle_id AND p.listing_cycle_id=cy.listing_cycle_id AND p.source_type=v.source_type WHERE cy.ended_at IS NULL AND NOT EXISTS(SELECT 1 FROM public.vehicle_listing_cycles other WHERE other.vehicle_id=v.vehicle_id AND other.listing_cycle_id<>cy.listing_cycle_id AND other.ended_at IS NULL) AND v.archived_at IS NULL AND v.platform_visibility='visible' AND ((v.source_type='wholesale' AND v.source_sale_status='active') OR (v.source_type IN('mingbang','four_s') AND v.source_sale_status='available')) AND p.allow_anonymous=true AND p.verified_isolation='DISPOSABLE_TEST_PROOF_NOT_SIGNED' AND p.expires_at>statement_timestamp() AND NOT EXISTS(SELECT 1 FROM public.f05_real_catalog_protections_test pr WHERE pr.vehicle_id=v.vehicle_id AND pr.listing_cycle_id=cy.listing_cycle_id AND pr.ended_at IS NULL)`;
-export const SQL_CATALOG_LIST=BASE_SELECT+` AND v.source_type=$1 AND ($2::timestamptz IS NULL OR (cy.started_at,cy.listing_cycle_id) < ($2::timestamptz,$3::bigint)) ORDER BY cy.started_at DESC,cy.listing_cycle_id DESC LIMIT 16`;
+export const SQL_CATALOG_LIST=BASE_SELECT+` AND v.source_type=$1 AND ($4::bigint IS NULL OR v.model_id=$4::bigint) AND ($2::timestamptz IS NULL OR (cy.started_at,cy.listing_cycle_id) < ($2::timestamptz,$3::bigint)) ORDER BY cy.started_at DESC,cy.listing_cycle_id DESC LIMIT 16`;
 export const SQL_CATALOG_DETAIL=BASE_SELECT+` AND v.vehicle_id=$1 LIMIT 2`;
 function safeItem(r){
  // Explicit property whitelist: SQL rows cannot put VIN / phone / internal prices into responses.
@@ -45,23 +45,25 @@ export function createCatalogService({pool,cursorKey}={}){
  return {
   async list(params){
    if(!params||typeof params!=='object')return reject('INVALID_QUERY');
-   const keys=Object.keys(params),allowed=['source','sort','cursor','pageSize','region'];
+   const keys=Object.keys(params),allowed=['source','sort','cursor','pageSize','region','modelId'];
    if(keys.some(k=>!allowed.includes(k)))return reject('UNSUPPORTED_FILTER');
    if(params.region!==undefined&&params.region!=='national')return reject('UNSUPPORTED_REGION');
    if(params.pageSize!==undefined&&params.pageSize!=='15')return reject('INVALID_PAGE_SIZE');
    const source=params.source??'wholesale',sort=params.sort??'newest';
    if(!ALLOWED_SOURCES.has(source)||!ALLOWED_SORTS.has(sort))return reject('INVALID_CATALOG_FILTER');
+   const modelId=params.modelId??null;
+   if(modelId!==null&&!validPgId(modelId))return reject('INVALID_MODEL_ID');
    // Six PDM-20 sorts require verified per-customer retail price, registration year or mileage.
    // Returning another ordering as successful would violate the product contract.
    if(sort!=='newest')return reject('CATALOG_SORT_DEPENDENCY_BLOCKED',503);
-   let cur;try{cur=params.cursor?decodeCursor(params.cursor,cursorKey,source,sort):null}catch{return reject('INVALID_CURSOR')}
+   let cur;try{cur=params.cursor?decodeCursor(params.cursor,cursorKey,source,sort,modelId):null}catch{return reject('INVALID_CURSOR')}
    const sql=SQL_CATALOG_LIST;
-   const rows=(await pool.query(sql,[source,cur?.at??null,cur?.id??null])).rows;
+   const rows=(await pool.query(sql,[source,cur?.at??null,cur?.id??null,modelId])).rows;
    if(!Array.isArray(rows))throw Error('CATALOG_DB_ROWS_INVALID');
    const page=rows.slice(0,15).map(safeItem);
    let nextCursor=null;
-   if(rows.length>15&&page.length){let last=rows[14],at=last.listingStartedAt instanceof Date?last.listingStartedAt.toISOString():last.listingStartedAt;nextCursor=encodeCursor({at,id:last.listingCycleId,source,sort},cursorKey)}
-   return {status:200,body:{items:page,nextCursor,pageSize:15,source,sort,region:'national',productionReady:false}};
+   if(rows.length>15&&page.length){let last=rows[14],at=last.listingStartedAt instanceof Date?last.listingStartedAt.toISOString():last.listingStartedAt;nextCursor=encodeCursor({at,id:last.listingCycleId,source,sort,modelId},cursorKey)}
+   return {status:200,body:{items:page,nextCursor,pageSize:15,source,sort,region:'national',modelId,productionReady:false}};
   },
   async detail(id){
    if(!validPgId(String(id)))return reject('INVALID_VEHICLE_ID');
