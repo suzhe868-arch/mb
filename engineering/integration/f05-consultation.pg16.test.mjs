@@ -20,6 +20,8 @@ try{
   await writer.query("INSERT INTO public.employees(employee_id,main_role_id,employment_status,receiving_status) VALUES(59001,59001,'active','receiving'),(59002,59002,'active','receiving')");
   await writer.query("UPDATE public.customers SET current_owner_employee_id=59001,owner_assignment_state='assigned' WHERE customer_id=59001");
   await writer.query("INSERT INTO public.customer_phone_facts(customer_id,phone_ciphertext,valid_from) VALUES(59001,decode('abcd1234','hex'),statement_timestamp())");
+  // The catalog suite legitimately deletes its visibility evidence; Consultation must seed its OWN test issuer proof.
+  await writer.query("INSERT INTO public.f05_real_catalog_visibility_test(vehicle_id,listing_cycle_id,source_type,allow_anonymous,expires_at) VALUES(59001,59001,'wholesale',true,statement_timestamp()+interval '20 minutes')");
   await writer.query("INSERT INTO public.f05_catalog_consultation_actor_proof_test(customer_id,assignee_employee_id,phone_consent_test,worker_scope_test,expires_at) VALUES(59001,59001,true,true,statement_timestamp()+interval '20 minutes')");
   await writer.query("INSERT INTO public.f05_catalog_customer_sessions_test(token_sha256,customer_id,expires_at) VALUES($1,59001,statement_timestamp()+interval '20 minutes')",[digest(token)]);
   await writer.query('COMMIT');
@@ -45,6 +47,15 @@ try{
   await writer.query("UPDATE public.customers SET current_owner_employee_id=NULL,owner_assignment_state='owner_assignment_pending' WHERE customer_id=59001");
   try{assert.equal((await call()).status,409)}
   finally{await writer.query("UPDATE public.customers SET current_owner_employee_id=59001,owner_assignment_state='assigned' WHERE customer_id=59001")}
+ });
+ await test('missing independent vehicle visibility proof blocks Consultation creation',async()=>{
+  await writer.query('DELETE FROM public.f05_real_catalog_visibility_test WHERE vehicle_id=59001 AND listing_cycle_id=59001');
+  try{
+   const denied=await call();assert.equal(denied.status,404);
+   assert.equal(denied.body.code,'CONSULTATION_VEHICLE_NOT_VISIBLE');
+  }finally{
+   await writer.query("INSERT INTO public.f05_real_catalog_visibility_test(vehicle_id,listing_cycle_id,source_type,allow_anonymous,expires_at) VALUES(59001,59001,'wholesale',true,statement_timestamp()+interval '20 minutes')");
+  }
  });
  const k=key();let cId=null;
  await test('actual POST creates frozen Consultation with 15min SLA and immutable direct source',async()=>{
