@@ -67,7 +67,6 @@ try{
   finally{await writer.query("UPDATE public.customers SET current_owner_employee_id=59001,owner_assignment_state='assigned' WHERE customer_id=59001")}
  });
  await test('PG16 real F05-9 Recommendation -> hidden PDM15 Consultation preserves direct source and selects current Demand assignee',async()=>{
-  await writer.query("UPDATE public.f05_catalog_consultation_actor_proof_test SET assignee_employee_id=59003 WHERE customer_id=59001");
   try{
   // This Recommendation is created by the *real* PG16 Recommendation service,
   // using its actual independent Employee proof and legitimate source Demand.
@@ -84,6 +83,9 @@ try{
   };
   assert.equal((await call(key(),token,'59020')).status,404,
    'public direct-detail path must not reveal hidden Recommendation vehicle');
+  // The isolated proof is one row per Customer: switch from Owner to the
+  // independent Demand responsible only after testing the public entry.
+  await writer.query("UPDATE public.f05_catalog_consultation_actor_proof_test SET assignee_employee_id=59003 WHERE customer_id=59001");
   const eventKey=key();
   const created=await postRec(eventKey);
   assert.equal(created.status,200,JSON.stringify(created));
