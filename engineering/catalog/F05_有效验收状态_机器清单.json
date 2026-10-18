@@ -2,22 +2,22 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F05_7_DICTIONARY_TEST_ALIAS_MATCH_AND_SCOPED_INVALIDATION_PG16_PASS",
+  "status": "B_IN_PROGRESS_F05_7_TEST_ONLY_FIRST_CANDIDATE_DISCOVERY_PG16_192_PASS_SOURCE_GAPS_OPEN",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "bb4b8d2d26c90d12a1feebc5308f7f679342b9d4",
+  "github_commit": "2df9e86e7b8a6145939c092b368f7cc460c9ce23",
   "node_http_stub_tests": {
-    "passed": 132,
+    "passed": 135,
     "failed": 0,
     "skipped": 0
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39128357235,
-    "head_sha": "bb4b8d2d26c90d12a1feebc5308f7f679342b9d4",
-    "node_http_tests_passed": 132,
-    "real_pg16_integration_tests_passed": 185,
+    "run_id": 39129476767,
+    "head_sha": "2df9e86e7b8a6145939c092b368f7cc460c9ce23",
+    "node_http_tests_passed": 135,
+    "real_pg16_integration_tests_passed": 192,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -33,8 +33,8 @@
     "disposable_photo_order_proof": true,
     "real_pg16_catalog_integration_tests_passed": 19,
     "real_pg16_favorite_integration_tests_passed": 13,
-    "disposable_sidecar_tables": 30,
-    "total_disposable_physical_tables": 106,
+    "disposable_sidecar_tables": 31,
+    "total_disposable_physical_tables": 107,
     "formal_wechat_customer_issuer_verified": false,
     "real_pg16_consultation_integration_tests_passed": 16,
     "formal_customer_phone_consent_issuer_verified": false,
@@ -79,7 +79,11 @@
     "formal_ttl_expiration_guard_verified": false,
     "ttl_scoped_retry_pg16_tests_passed": 5,
     "matching_dictionary_pg16_tests_passed": 7,
-    "matching_dictionary_activation_pg16_cases_passed": 3
+    "matching_dictionary_activation_pg16_cases_passed": 3,
+    "matching_discovery_pg16_cases_passed": 7,
+    "matching_discovery_only_test_issuer": true,
+    "matching_discovery_batch_limit": 50,
+    "matching_discovery_partial_continuation_implemented": false
   },
   "endpoints": {
     "implemented_test_only": [
@@ -290,8 +294,8 @@
     "Full F05-1..11 actual authenticated HTTP/PG16 business still missing"
   ],
   "next_owner": "B",
-  "next_milestone": "继续完整PDM12字段+客户端共享词典解析、新Demand/新Vehicle增量匹配发现、合法F03及上游签发人/真实M94+最终安全PR裁决。F06～F08冻结。",
-  "verification_scope": "F02_1_CURRENT_INITIAL_76_TABLES_PLUS_30_TEST_SIDECARS_NODE_132_PG16_185_DICTIONARY_ALIAS_TO_REAL_MATCH_TEST_ONLY",
+  "next_milestone": "继续明确可信新车新需求事件对接与>50部分失败续跑/全PDM12字段及scope精度/正式F03与M94来源；无外部Issuer生产硬拒；F06~F08暂停。",
+  "verification_scope": "F02_1_CURRENT_INITIAL_76_TABLES_PLUS_31_TEST_SIDECARS_NODE_135_PG16_192_FIRST_CANDIDATE_DISCOVERY_MANUAL_TEST_ISSUER_ONLY",
   "security_hardening": [
     "pg_catalog actual column type and FK shape check",
     "test-only database URL strict port 5432 and prohibit host/hostaddr query overrides",
@@ -303,8 +307,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "TEN_LEGACY_BROAD_MAIN_TARGET_PR_WORKFLOWS_UNAUTHORIZED_TO_CHANGE_AND_USER_FORBIDS_OLD_RETRIGGER",
-  "tested_commit": "bb4b8d2d26c90d12a1feebc5308f7f679342b9d4",
-  "tested_run": 39128357235,
+  "tested_commit": "2df9e86e7b8a6145939c092b368f7cc460c9ce23",
+  "tested_run": 39129476767,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -543,9 +547,9 @@
     "production_ready": false
   },
   "matching_real_business": {
-    "status": "F05_7_TEST_ONLY_RULE_DICTIONARY_ACTUAL_DEMAND_ALIAS_MATCH_AND_SCOPED_STALE_RETRY",
-    "run_id": 39128357235,
-    "execution_sha": "bb4b8d2d26c90d12a1feebc5308f7f679342b9d4",
+    "status": "F05_7_TEST_ONLY_BOUNDED_NEW_DEMAND_NEW_VEHICLE_FIRST_MATCH_DISCOVERY_PG16_PASS",
+    "run_id": 39129476767,
+    "execution_sha": "2df9e86e7b8a6145939c092b368f7cc460c9ce23",
     "actual_f02_frozen_business_tables": [
       "public.demands",
       "public.demand_match_results"
@@ -608,7 +612,12 @@
       "PG16_ACTUAL_DEMAND_MATCH_ALIASES_FROM_ISOLATED_RULE_DICTIONARY_WITH_ID_VERSION_PROVENANCE",
       "PG16_RULE_MUTATION_LOCKED_TOKENS_ATOMICALLY_STALES_MATCHED_PAIRS",
       "PG16_RULE_CHANGE_QUEUES_ONLY_EXISTING_AFFECTED_MATCHES_AND_RECOMPUTES_NEW_TIER",
-      "PG16_RULE_DISABLE_BLOCKS_MATCH_AND_LEAVES_NO_CURRENT_AFTER_INVALIDATION"
+      "PG16_RULE_DISABLE_BLOCKS_MATCH_AND_LEAVES_NO_CURRENT_AFTER_INVALIDATION",
+      "REAL_PG16_NEW_DEMAND_NEW_VEHICLE_FIRST_CANDIDATE_DISCOVERY_ONLY_SCOPED_EMPLOYEE",
+      "PG16_50_MAX_NO_SILENT_PARTIAL_BATCH_ACCEPT",
+      "PG16_DISCOVERY_EVENT_IDEMPOTENCY_APPEND_ONLY_AUDIT_AND_ROLLBACK",
+      "PG16_DISCOVERY_HIDDEN_BUT_SELLABLE_AND_EXPIRED_SCOPE_ENFORCEMENT",
+      "PG16_SCOPED_RETRY_ACTUAL_MATCH_FOR_NEW_CANDIDATES"
     ],
     "missing": [
       "FORMAL_RULE_DICTIONARY_AND_SCOPE_ISSUER",
@@ -641,7 +650,11 @@
       "FIRST_MATCH_NEW_VEHICLE_NEW_DEMAND_AND_RULE_SCOPE_DISCOVERY_NOT_IMPLEMENTED",
       "F05_FULL_PDM12_RULE_FIELDS_PROVENANCE_AND_F03_FORMAL_MANAGE",
       "SHARED_CUSTOMER_SEARCH_DICTIONARY_PARSER_AND_C_FRONTEND_E2E",
-      "FORMAL_ISSUERS_AND_M94_FULL_MIGRATION_CHAIN"
+      "FORMAL_ISSUERS_AND_M94_FULL_MIGRATION_CHAIN",
+      "NEW_DEMAND_NEW_VEHICLE_TRUSTED_SOURCE_EVENT_AUTO_DISPATCH_MISSING",
+      "BOUNDED_DISCOVERY_OVER50_CURSOR_OR_PARTIAL_CONTINUATION_MISSING",
+      "FORMAL_F03_MATCHING_SOURCE_AND_SCOPE_SIGNATURES_MISSING",
+      "PDM12_FULL_MATCHING_CONDITION_DICTIONARY_ISSUER_NOT_SIGNED"
     ],
     "production_ready": false,
     "invalidation_pg16_cases_passed": 10,
@@ -652,6 +665,9 @@
     "dictionary_management_http": "POST /api/v1/catalog/matching/rules and /rules/:id; POST /rules/test-parse (simulation)",
     "dictionary_test_only_rules": true,
     "dictionary_test_only_pg16_cases_passed": 7,
-    "formal_dictionary_issuer_signed": false
+    "formal_dictionary_issuer_signed": false,
+    "bounded_new_demand_new_vehicle_discovery_verified": true,
+    "formal_upstream_event_provenance_verified": false,
+    "fully_automated_discovery_verified": false
   }
 }
