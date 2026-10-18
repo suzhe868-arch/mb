@@ -1,3 +1,13 @@
+# 2026-10-18｜B最新同SHA官方真实验收与PR阻断（优先读此节）
+
+- 受测代码HEAD：`64dc9c4b28c4f379562366d8b2f32411749e4fab`；GitHub官方 [Run39099173163](https://github.com/suzhe868-arch/mb/actions/runs/39099173163)，`push/completed/success`，唯一`isolated_real_pg16` job。**Node真实HTTP＋注入式数据库单测54/54，物理PostgreSQL16双连接／事务／回滚／安全查询集成12/12，全部0失败0跳过。** 两组不是旧Source66项，不应合并口径。
+- 实际修复：车辆`source_type`与可销毁测试可见凭证做物理SQL关联；跨批发／名邦／4S类型变更后必须重新取得该来源合法凭据。迁移侧表、物理schema启动校验和真实PG16的来源切换负例同步更新。
+- 实际PG16采用可销毁`postgres:16-alpine`、`f05_catalog_test`非超级用户，**M94_FULL_SCHEMA=NO、来源证明DISPOSABLE_TEST_PROOF_NOT_SIGNED**；只算目录隔离增量，不代表F05-1～11全真实业务交付、正式Issuer或生产可用。
+- PR前置触发风险：main已存在10份无paths的`pull_request.branches:[main]`旧F05工作流，原A逐文件修改授权仍`NOT_AUTHORIZED`；创建指向main的PR将引起与用户“不重跑旧来源”相冲突的批量触发，故**本轮没有创建PR**。没有修改这10份旧工作流，也没有重跑历史65+1来源校验。
+- 详细中文交接：[B_F05真实PG16安全补强与PR阻断交接_2026-10-18.md](B_F05真实PG16安全补强与PR阻断交接_2026-10-18.md)。正式状态：`B_IN_PROGRESS / BLOCKED_PR_TRIGGER_AND_FULL_F05_SCOPE / NOT_READY_FOR_A_REVIEW`，F06～F08继续暂停；GitHub付费工件0新增。
+
+---
+
 # 已实证的新证据（B阶段增量，非全F05验收）
 
 - GitHub标准运行器成功完成一次**真实PG16服务容器**：Run [39074540750](https://github.com/suzhe868-arch/mb/actions/runs/39074540750)，原提交 `e09439eb75e327138353290df8061d5779d838f7`。

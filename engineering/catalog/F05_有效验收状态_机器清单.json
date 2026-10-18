@@ -2,11 +2,11 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_SELECTED_REAL_PG16_PASSED_NOT_FULL_F05_ACCEPTANCE",
+  "status": "B_IN_PROGRESS_REAL_PG16_CATALOG_VERIFIED_PR_BLOCKED_LEGACY_TRIGGER",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "e09439eb75e327138353290df8061d5779d838f7",
+  "github_commit": "64dc9c4b28c4f379562366d8b2f32411749e4fab",
   "node_http_stub_tests": {
     "passed": 54,
     "failed": 0,
@@ -14,10 +14,10 @@
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39074540750,
-    "head_sha": "e09439eb75e327138353290df8061d5779d838f7",
+    "run_id": 39099173163,
+    "head_sha": "64dc9c4b28c4f379562366d8b2f32411749e4fab",
     "node_http_tests_passed": 54,
-    "real_pg16_integration_tests_passed": 6,
+    "real_pg16_integration_tests_passed": 12,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -25,7 +25,7 @@
     "role": "f05_catalog_ci (non-superuser)",
     "m94_full_schema": false,
     "source_issuer": "DISPOSABLE_TEST_PROOF_NOT_SIGNED",
-    "next_expanded_tests": "PENDING_NEW_SHA_REAL_RUN",
+    "next_expanded_tests": "SOURCE_TRANSITION_PHYSICAL_PG16_PASS_12_OF_12",
     "production_ready": false
   },
   "endpoints": {
@@ -183,16 +183,23 @@
     "no trusted customer issuer in runtime",
     "not all F05-1..11 HTTP/PG16 slices implemented",
     "source and production gates remain fail-closed",
-    "PR change paths require explicit review of 335 existing workflow pull_request triggers before PR; push scope proven only one job on two branch commits"
+    "PR change paths require explicit review of 335 existing workflow pull_request triggers before PR; push scope proven only one job on two branch commits",
+    "main PR triggers ten unscoped legacy F05 workflows, A per-file authorization not granted, no safe main-targeted PR",
+    "Full F05-1..11 actual authenticated HTTP/PG16 business still missing"
   ],
   "next_owner": "B",
-  "next_milestone": "Obtain isolated PG16 with approved zero-cost execution environment, run real schema and HTTP tests; implement missing domain APIs; then audit changed-path CI and present a real PR to A",
-  "verification_scope": "REAL_POSTGRESQL16_TWO_CONNECTION_DISPOSABLE_CATALOG_ONLY",
+  "next_milestone": "Safe PR trigger governance first; then full M94 schema and F05-1..11 HTTP+PG16 with independent A acceptance",
+  "verification_scope": "REAL_PG16_DISPOSABLE_CATALOG_ONLY_NOT_FULL_M94_NOT_COMPLETE_F05",
   "security_hardening": [
     "pg_catalog actual column type and FK shape check",
     "test-only database URL strict port 5432 and prohibit host/hostaddr query overrides",
     "separate writer Client and HTTP reader Pool integration requires real PG16",
     "transaction before/after visibility and robust cleanup in PG16 test",
-    "Official run 39074540750: 54 Node HTTP + 6 physical PostgreSQL16 integration, verified GitHub log"
-  ]
+    "Official run 39074540750: 54 Node HTTP + 6 physical PostgreSQL16 integration, verified GitHub log",
+    "Same-source physical proof binding; source conversion revokes old test visibility; official PG16 12/12 passed"
+  ],
+  "pr": null,
+  "pr_blocked_reason": "TEN_LEGACY_BROAD_PR_WORKFLOWS_UNAUTHORIZED_TO_CHANGE_AND_FORBIDDEN_TO_RETRIGGER",
+  "tested_commit": "64dc9c4b28c4f379562366d8b2f32411749e4fab",
+  "tested_run": 39099173163
 }
