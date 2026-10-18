@@ -96,6 +96,22 @@ try{
    await writer.query("INSERT INTO public.f05_catalog_consultation_actor_proof_test(customer_id,assignee_employee_id,phone_consent_test,worker_scope_test,expires_at) VALUES(59001,59001,true,true,statement_timestamp()+interval '20 minutes')");
   }
  });
+ await test('PG16 paused receiving status denies new Consultation even with valid historic worker proof',async()=>{
+  // Receiving is a current operational fact, not an Employee role or stale
+  // scoped phone proof. Preserve both Customer Owner and old proof unmodified.
+  await writer.query("UPDATE public.employees SET receiving_status='paused' WHERE employee_id=59001");
+  try{
+   const denied=await call(key(),token,'59001');
+   assert.equal(denied.status,403,JSON.stringify(denied));
+   assert.equal(denied.body.code,'CONSULTATION_PHONE_OR_ASSIGNEE_NOT_VERIFIED');
+   assert.equal((await writer.query("SELECT count(*)::int n FROM public.consultations "+
+    "WHERE customer_id=59001 AND vehicle_id=59001")).rows[0].n,0);
+   assert.equal((await writer.query("SELECT count(*)::int n FROM public.f05_catalog_consultation_actions_test "+
+    "WHERE customer_id=59001 AND vehicle_id=59001")).rows[0].n,0);
+  }finally{
+   await writer.query("UPDATE public.employees SET receiving_status='receiving' WHERE employee_id=59001");
+  }
+ });
  await test('PG16 F05 active Favorite -> actual Consultation freezes clicked direct source and denies removed Favorites',async()=>{
   const callFav=async(method,ek)=>{
    const x=await fetch('http://127.0.0.1:'+server.address().port+

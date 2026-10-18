@@ -170,6 +170,7 @@ export function createIsolatedConsultationService({pool,env=process.env}={}){
       "WHERE p.customer_id=$1 AND p.assignee_employee_id=$2 "+
       "AND p.issuer='DISPOSABLE_TEST_ONLY' AND p.phone_consent_test=true AND p.worker_scope_test=true "+
       "AND p.expires_at>statement_timestamp() AND e.employment_status='active' "+
+      "AND e.receiving_status='receiving' "+
       "AND r.role_code IN ('sales','manager','store_head') LIMIT 1 FOR SHARE OF p,e,r,ph",
       [customerId,candidate])).rows[0];
      if(verified){assigneeId=String(verified.assignee_employee_id);break}
