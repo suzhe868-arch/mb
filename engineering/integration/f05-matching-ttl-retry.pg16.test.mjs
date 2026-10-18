@@ -57,15 +57,18 @@ try{
   assert.equal((await check("SELECT count(*)::int n FROM public.f05_matching_affected_queue_test WHERE demand_id=60100 AND state='pending'"))[0].n,2);
  });
  await test('PG16 invalid expiry cannot be used as a synthetic fresh employee credential',async()=>{
+  await db.query("UPDATE public.f05_matching_employee_scope_test SET expires_at=statement_timestamp()+interval '20 minutes' WHERE employee_id=60100");
+  // Source visibility TTL naturally expires without triggering any source UPDATE on Match Results.
+  await db.query("UPDATE public.f05_real_catalog_visibility_test SET expires_at=statement_timestamp()-interval '1 second' WHERE vehicle_id=60110");
   const invalid=await retry.runOnce({credential,limit:1});
   assert.equal(invalid.claimed,1);
   assert.equal(invalid.outcomes[0].outcome,'retry_pending_or_failed');
   const q=(await check("SELECT attempts,last_error FROM public.f05_matching_affected_queue_test WHERE demand_id=60100 ORDER BY attempts DESC"))[0];
-  assert.equal(q.attempts,1,JSON.stringify({invalid,q,queue:await check("SELECT demand_id,vehicle_id,generation,state,attempts,last_error FROM public.f05_matching_affected_queue_test WHERE demand_id=60100")}));assert.equal(q.last_error,'MATCH_EXPLICIT_SCOPE_REQUIRED');
+  assert.equal(q.attempts,1,JSON.stringify({invalid,q,queue:await check("SELECT demand_id,vehicle_id,generation,state,attempts,last_error FROM public.f05_matching_affected_queue_test WHERE demand_id=60100")}));assert.equal(q.last_error,'MATCH_VEHICLE_FACT_SOURCE_NOT_READY');
   assert.equal((await check('SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE demand_id=60100'))[0].n,0);
  });
  await test('PG16 only failed affected pair retry; no full Vehicle x Demand scan',async()=>{
-  await db.query("UPDATE public.f05_matching_employee_scope_test SET expires_at=statement_timestamp()+interval '20 minutes' WHERE employee_id=60100");
+  await db.query("UPDATE public.f05_real_catalog_visibility_test SET expires_at=statement_timestamp()+interval '20 minutes' WHERE vehicle_id=60110");
   await db.query("UPDATE public.f05_matching_affected_queue_test SET next_attempt_at=statement_timestamp()-interval '1 second' WHERE demand_id=60100");
   const run=await retry.runOnce({credential,limit:2});
   assert.equal(run.claimed,2);

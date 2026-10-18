@@ -13,17 +13,29 @@ export function createIsolatedMatchingRetryWorker({pool,matching,env=process.env
   // Single statement lease, SKIP LOCKED: two workers cannot claim the same generation.
   const jobs=(await pool.query(`
    WITH selected AS (
-    SELECT demand_id,vehicle_id FROM public.f05_matching_affected_queue_test
-    WHERE (state='pending' AND next_attempt_at<=statement_timestamp())
-       OR (state='processing' AND lease_until<statement_timestamp())
-    ORDER BY next_attempt_at,demand_id,vehicle_id
-    FOR UPDATE SKIP LOCKED LIMIT $1
+    SELECT q.demand_id,q.vehicle_id
+    FROM public.f05_matching_affected_queue_test q
+    JOIN public.demands d ON d.demand_id=q.demand_id AND d.demand_state='active'
+    JOIN public.customers c ON c.customer_id=d.customer_id AND c.account_status='active'
+    JOIN public.f05_catalog_employee_sessions_test s ON s.employee_id=d.responsible_employee_id
+     AND s.token_sha256=$2 AND s.issuer='DISPOSABLE_TEST_ONLY'
+     AND s.revoked_at IS NULL AND s.expires_at>statement_timestamp()
+    JOIN public.employees e ON e.employee_id=s.employee_id AND e.employment_status='active'
+    JOIN public.roles role ON role.role_id=e.main_role_id
+     AND role.role_code IN ('sales','manager','store_head')
+    JOIN public.f05_matching_employee_scope_test scope ON scope.employee_id=e.employee_id
+     AND scope.customer_id=c.customer_id AND scope.can_recompute=true
+     AND scope.issuer='DISPOSABLE_TEST_ONLY' AND scope.expires_at>statement_timestamp()
+    WHERE ((q.state='pending' AND q.next_attempt_at<=statement_timestamp())
+       OR (q.state='processing' AND q.lease_until<statement_timestamp()))
+    ORDER BY q.next_attempt_at,q.demand_id,q.vehicle_id
+    LIMIT $1 FOR UPDATE OF q SKIP LOCKED
    )
    UPDATE public.f05_matching_affected_queue_test q
     SET state='processing',lease_until=statement_timestamp()+interval '60 seconds',
         modified_at=statement_timestamp()
     FROM selected s WHERE q.demand_id=s.demand_id AND q.vehicle_id=s.vehicle_id
-   RETURNING q.demand_id,q.vehicle_id,q.generation,q.attempts`,[limit])).rows;
+   RETURNING q.demand_id,q.vehicle_id,q.generation,q.attempts`,[limit,createHash('sha256').update(credential).digest('hex')])).rows;
   const outcomes=[];
   for(const job of jobs){
    const demandId=String(job.demand_id),vehicleId=String(job.vehicle_id);
