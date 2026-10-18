@@ -81,7 +81,10 @@ export function createIsolatedPriorityService({pool,env=process.env}={}){
     if(!v){await db.query('ROLLBACK');return response(404,'PRIORITY_VEHICLE_NOT_FOUND')}
     const cycle=(await db.query("SELECT listing_cycle_id FROM public.vehicle_listing_cycles "+
      "WHERE vehicle_id=$1 AND ended_at IS NULL FOR SHARE",[vehicleId])).rows[0];
+    // Use the PG16 statement clock, also used by the read-side and TTL
+    // sweeper. Server clock skew cannot prolong or prematurely end Priority.
     const active=(await db.query("SELECT p.priority_id,p.customer_id,p.trigger_demand_id,p.source_match_result_id,p.listing_cycle_id,p.expires_at,"+
+     "p.expires_at<=statement_timestamp() AS expired_in_db,"+
      "d.responsible_employee_id FROM public.priority_leases p "+
      "LEFT JOIN public.demands d ON d.demand_id=p.trigger_demand_id "+
      "WHERE p.vehicle_id=$1 AND p.status='active' FOR UPDATE OF p",[vehicleId])).rows[0];
@@ -132,7 +135,7 @@ export function createIsolatedPriorityService({pool,env=process.env}={}){
     const activeSame=active&&String(active.listing_cycle_id)===cyid;
     const forExisting=legalCandidates.filter(c=>String(c.customer_id)===String(active?.customer_id));
     const bestSame=forExisting[0]??null;
-    const expired=active&&new Date(active.expires_at).getTime()<=Date.now();
+    const expired=active?.expired_in_db===true;
     let after=null,outcome='NO_CANDIDATE',changed=false;
     const close=async(reason)=>{
      await db.query("UPDATE public.priority_leases SET status='ended',ended_at=statement_timestamp() "+

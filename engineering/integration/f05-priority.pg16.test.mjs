@@ -143,6 +143,43 @@ try{
   assert.equal(await count("SELECT count(*) n FROM public.f05_priority_suppression_test WHERE vehicle_id=62511 AND customer_id=62500"),1);
   assert.equal(await count("SELECT count(*) n FROM public.priority_leases WHERE vehicle_id=62511 AND status='ended'"),1);
  });
+ await test('PG16 Priority expiry uses database time under skewed Node clock in both directions',async()=>{
+  await addVehicle(62513);
+  for(const [d,token] of [[62503,A],[62501,B]]){
+   const v=await match(d,62513,token);assert.equal(v.status,200,JSON.stringify(v));
+  }
+  const source=(await db.query("SELECT result_id FROM public.demand_match_results "+
+   "WHERE demand_id=62503 AND vehicle_id=62513 AND current_state='current'")).rows[0];
+  assert.ok(source?.result_id);
+  const old=(await db.query("INSERT INTO public.priority_leases "+
+   "(vehicle_id,customer_id,trigger_demand_id,status,expires_at,listing_cycle_id,source_match_result_id) "+
+   "VALUES(62513,62500,62503,'active',statement_timestamp()-interval '1 second',62513,$1) RETURNING priority_id",
+   [source.result_id])).rows[0];
+  const nativeDateNow=Date.now;
+  try{
+   // Behind database: the truly expired lease must be closed and suppressed.
+   Date.now=()=>0;
+   const reclaimed=await post({vehicleId:'62513',token:A});
+   assert.equal(reclaimed.status,200,JSON.stringify(reclaimed));
+   assert.equal(reclaimed.body.outcome,'REARBITRATED',JSON.stringify(reclaimed));
+   const active=(await db.query("SELECT priority_id,customer_id FROM public.priority_leases "+
+    "WHERE vehicle_id=62513 AND status='active'")).rows[0];
+   assert.ok(active);
+   assert.equal(String(active.customer_id),'62501');
+   assert.notEqual(String(active.priority_id),String(old.priority_id));
+   // Ahead of database: a still-valid newly issued lease is not expired.
+   Date.now=()=>Date.UTC(2099,0,1);
+   const stable=await post({vehicleId:'62513',token:B});
+   assert.equal(stable.status,200,JSON.stringify(stable));
+   assert.equal(stable.body.outcome,'UNCHANGED',JSON.stringify(stable));
+   assert.equal(await count("SELECT count(*) n FROM public.priority_leases "+
+    "WHERE vehicle_id=62513 AND status='active' AND priority_id=$1",[active.priority_id]),1);
+   assert.equal(await count("SELECT count(*) n FROM public.priority_leases "+
+    "WHERE vehicle_id=62513 AND status='ended'"),1);
+  }finally{
+   Date.now=nativeDateNow;
+  }
+ });
  await test('active Lock blocks Priority and read-side protection; releasing occupancy requires new lease',async()=>{
   await db.query("INSERT INTO public.locks(lock_id,vehicle_id,customer_id,listing_cycle_id,lock_status,responsible_employee_id,created_at,expires_at) "+
     "VALUES(62520,62511,62500,62511,'active',62500,statement_timestamp(),statement_timestamp()+interval '72 hours')");
