@@ -33,13 +33,18 @@ export function createIsolatedMatchingService({pool,env=process.env}={}){
     // Acquire before ANY source SELECT, so READ COMMITTED sees the committed winner.
     await db.query("SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))",['F05_MATCH_VEHICLE',vehicleId]);
     const demand=(await db.query("SELECT d.demand_id,d.customer_id,d.responsible_employee_id,d.demand_state,"+
-     "c.account_status,c.customer_level_id "+
+     "c.account_status,c.customer_level_id,c.current_owner_employee_id,c.owner_assignment_state "+
      "FROM public.demands d JOIN public.customers c ON c.customer_id=d.customer_id "+
-     "WHERE d.demand_id=$1 FOR UPDATE OF d",[demandId])).rows[0];
+     "WHERE d.demand_id=$1 FOR UPDATE OF d FOR SHARE OF c",[demandId])).rows[0];
     if(!demand){await db.query('ROLLBACK');return reply(404,'DEMAND_NOT_FOUND')}
     const customerId=String(demand.customer_id);
     if(String(demand.responsible_employee_id)!==employeeId){
      await db.query('ROLLBACK');return reply(403,'MATCH_RESPONSIBLE_EMPLOYEE_REQUIRED');
+    }
+    // A historical Demand owner is not necessarily the Customer's current
+    // Owner after reassignment. Hold Customer SHARE lock through COMMIT.
+    if(demand.owner_assignment_state!=='assigned'||String(demand.current_owner_employee_id)!==employeeId){
+     await db.query('ROLLBACK');return reply(403,'MATCH_CURRENT_CUSTOMER_OWNER_REQUIRED');
     }
     const permission=(await db.query("SELECT 1 FROM public.f05_matching_employee_scope_test p "+
      "WHERE p.employee_id=$1 AND p.customer_id=$2 AND p.can_recompute=true "+

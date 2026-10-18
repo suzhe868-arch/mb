@@ -31,7 +31,8 @@ export function createIsolatedMatchingDiscoveryService({pool,env=process.env}={}
       "AND p.employee_id=d.responsible_employee_id AND p.can_recompute=true "+
       "AND p.issuer='DISPOSABLE_TEST_ONLY' AND p.expires_at>statement_timestamp() "+
       "WHERE d.demand_id=$1 AND d.responsible_employee_id=$2 AND d.demand_state='active' "+
-      "AND c.account_status='active' FOR SHARE OF d,c,p",[subjectId,employeeId])).rows[0];
+      "AND c.account_status='active' AND c.owner_assignment_state='assigned' "+
+      "AND c.current_owner_employee_id=$2 FOR SHARE OF d,c,p",[subjectId,employeeId])).rows[0];
      if(!authorized){await db.query('ROLLBACK');return out(403,'DISCOVERY_OBJECT_SCOPE_REQUIRED')}
     }
     // RULE_CHANGE is a request to discover this employee's *own* missing pairs.
@@ -72,6 +73,8 @@ export function createIsolatedMatchingDiscoveryService({pool,env=process.env}={}
     SELECT d.demand_id,v.vehicle_id,cy.listing_cycle_id
     FROM public.demands d
     JOIN public.customers c ON c.customer_id=d.customer_id AND c.account_status='active'
+      AND c.owner_assignment_state='assigned'
+      AND c.current_owner_employee_id=d.responsible_employee_id
     JOIN public.f05_find_car_level_entitlement_test level ON level.level_id=c.customer_level_id
      AND level.can_activate_demand=true AND level.issuer='DISPOSABLE_TEST_ONLY'
      AND level.expires_at>statement_timestamp()

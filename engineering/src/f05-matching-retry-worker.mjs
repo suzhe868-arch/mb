@@ -17,6 +17,8 @@ export function createIsolatedMatchingRetryWorker({pool,matching,env=process.env
     FROM public.f05_matching_affected_queue_test q
     JOIN public.demands d ON d.demand_id=q.demand_id AND d.demand_state='active'
     JOIN public.customers c ON c.customer_id=d.customer_id AND c.account_status='active'
+     AND c.owner_assignment_state='assigned'
+     AND c.current_owner_employee_id=d.responsible_employee_id
     JOIN public.f05_catalog_employee_sessions_test s ON s.employee_id=d.responsible_employee_id
      AND s.token_sha256=$2 AND s.issuer='DISPOSABLE_TEST_ONLY'
      AND s.revoked_at IS NULL AND s.expires_at>statement_timestamp()

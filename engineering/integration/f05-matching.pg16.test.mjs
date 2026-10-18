@@ -195,6 +195,29 @@ try{
   }
   const good=await call({vehicle:'59710',eventKey:key});assert.equal(good.status,200);
  });
+ await test('PG16 current Owner reassignment revokes old sales matching authority and safe visibility immediately',async()=>{
+  const previous=(await writer.query(
+   "SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE demand_id=59700 AND vehicle_id=59710")).rows[0].n;
+  assert.equal(previous,1);
+  const before=await results('59710');
+  // A committed owner transfer with an unchanged old Demand and Scope must not
+  // leave former owner able to read/create matching authority.
+  await writer.query("UPDATE public.customers SET current_owner_employee_id=59702 WHERE customer_id=59700");
+  try{
+   const now=(await writer.query(
+    "SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE demand_id=59700 AND vehicle_id=59710")).rows[0].n;
+   assert.equal(now,0,'old matching current must disappear at READ time');
+   const unauthorized=await call({vehicle:'59710'});
+   assert.equal(unauthorized.status,403,JSON.stringify(unauthorized));
+   assert.equal(unauthorized.body.code,'MATCH_CURRENT_CUSTOMER_OWNER_REQUIRED');
+   assert.equal((await results('59710')).length,before.length,
+    'stale Owner cannot create Match Result even with old signed Scope');
+  }finally{
+   await writer.query("UPDATE public.customers SET current_owner_employee_id=59700 WHERE customer_id=59700");
+  }
+  assert.equal((await writer.query(
+   "SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE demand_id=59700 AND vehicle_id=59710")).rows[0].n,1);
+ });
  await test('PG16 append-only matching event rejects UPDATE/DELETE and Employee session revocation fails closed',async()=>{
   await assert.rejects(writer.query('DELETE FROM public.f05_matching_recompute_events_test WHERE demand_id=59700'),e=>e.code==='23514');
   await assert.rejects(writer.query("UPDATE public.f05_matching_recompute_events_test SET result_tier='high' WHERE demand_id=59700"),e=>e.code==='23514');
