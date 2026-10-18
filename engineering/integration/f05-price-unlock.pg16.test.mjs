@@ -34,7 +34,8 @@ try{
    "(59001,59001,'wholesale',true,statement_timestamp()+interval '20 minutes'),"+
    "(59301,59301,'wholesale',true,statement_timestamp()+interval '20 minutes'),"+
    "(59302,59302,'wholesale',true,statement_timestamp()+interval '20 minutes'),"+
-   "(59303,59303,'wholesale',true,statement_timestamp()+interval '20 minutes')");
+   "(59303,59303,'wholesale',true,statement_timestamp()+interval '20 minutes') "+
+   "ON CONFLICT(vehicle_id,listing_cycle_id) DO UPDATE SET allow_anonymous=true,expires_at=excluded.expires_at");
   await writer.query("INSERT INTO public.f05_catalog_price_display_proof_test(vehicle_id,listing_cycle_id,source_type,customer_display_cents,expires_at) VALUES"+
    "(59001,59001,'wholesale',12600000,statement_timestamp()+interval '20 minutes'),"+
    "(59301,59301,'wholesale',13100000,statement_timestamp()+interval '20 minutes'),"+
