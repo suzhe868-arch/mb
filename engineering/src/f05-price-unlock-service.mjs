@@ -35,7 +35,7 @@ export function createIsolatedPriceUnlockService({pool,env=process.env}={}){
       "AND vis.source_type=v.source_type AND vis.allow_anonymous=true "+
       "AND vis.verified_isolation='DISPOSABLE_TEST_PROOF_NOT_SIGNED' AND vis.expires_at>statement_timestamp() "+
       "JOIN public.f05_catalog_price_entitlement_test pe ON pe.level_id=$2 AND pe.issuer='DISPOSABLE_TEST_ONLY' AND pe.expires_at>statement_timestamp() "+
-      "LEFT JOIN public.f05_catalog_price_display_proof_test pr ON pr.vehicle_id=v.vehicle_id "+
+      "JOIN public.f05_catalog_price_display_proof_test pr ON pr.vehicle_id=v.vehicle_id "+
       "AND pr.listing_cycle_id=cy.listing_cycle_id AND pr.source_type=v.source_type "+
       "AND pr.issuer='DISPOSABLE_TEST_ONLY' AND pr.expires_at>statement_timestamp() "+
       "WHERE v.vehicle_id=$1 AND v.archived_at IS NULL AND v.platform_visibility='visible' "+
