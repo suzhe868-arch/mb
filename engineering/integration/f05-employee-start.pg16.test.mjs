@@ -53,9 +53,6 @@ try{
   await writer.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=59020");
   try{assert.equal((await call()).status,401)}
   finally{await writer.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=59020")}
-  await writer.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=59020");
-  try{assert.equal((await call()).status,403)}
-  finally{await writer.query("UPDATE public.customers SET account_status='active' WHERE customer_id=59020")}
  });
  const startKey=key();
  await test('real PG16 pending to processing never changes assignee, source, first-response deadline or owner',async()=>{
@@ -190,6 +187,17 @@ try{
   assert.ok(q.status==='invalid'||(q.status==='resolved'&&q.close_reason==='RESOLVED'));
   const n=(await writer.query("SELECT count(*)::int n FROM public.f05_catalog_consultation_actions_test WHERE consultation_id=59034 AND action LIKE 'FINALIZED_%'")).rows[0].n;
   assert.equal(n,1);
+ });
+ await test('real Customer disable now leaves persistent Hold after account restore, pending may not start',async()=>{
+  await writer.query("INSERT INTO public.consultations(consultation_id,customer_id,vehicle_id,listing_cycle_id,assignee_employee_id,status,source_relation,first_response_deadline) "+
+    "VALUES(59023,59020,59001,59001,59020,'pending','{\"kind\":\"other\",\"entry\":\"vehicle_detail\"}'::jsonb,statement_timestamp()+interval '15 minutes')");
+  await writer.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=59020");
+  try{
+   assert.equal((await call('59023')).status,403);
+   assert.equal((await writer.query('SELECT active FROM public.f05_catalog_consultation_hold_test WHERE consultation_id=59023')).rows[0].active,true);
+  }finally{await writer.query("UPDATE public.customers SET account_status='active' WHERE customer_id=59020")}
+  const pending=await call('59023');
+  assert.equal(pending.status,409);assert.equal(pending.body.code,'CONSULTATION_CUSTOMER_DISABLED_HOLD');
  });
  await test('PG16 revoked Employee credential immediately fails closed',async()=>{
   await writer.query("UPDATE public.f05_catalog_employee_sessions_test SET revoked_at=statement_timestamp() WHERE token_sha256=$1",[hash(token)]);
