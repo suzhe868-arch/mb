@@ -91,7 +91,7 @@ CREATE TABLE public.f05_catalog_consultation_actions_test (
  vehicle_id bigint NOT NULL REFERENCES public.vehicles(vehicle_id) ON DELETE RESTRICT,
  listing_cycle_id bigint NOT NULL,
  consultation_id bigint NOT NULL REFERENCES public.consultations(consultation_id) ON DELETE RESTRICT,
- action text NOT NULL CHECK(action IN ('CREATED','TOUCHED')),
+ action text NOT NULL CHECK(action IN ('CREATED','TOUCHED','WITHDRAWN')),
  occurred_at timestamptz NOT NULL DEFAULT statement_timestamp(),
  FOREIGN KEY(listing_cycle_id,vehicle_id) REFERENCES public.vehicle_listing_cycles(listing_cycle_id,vehicle_id)
 );

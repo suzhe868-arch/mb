@@ -7,7 +7,50 @@ const validEvent=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{24,64}$/.test(x);
 const answer=(status,code,extra={})=>({status,body:{code,...extra}});
 export function createIsolatedConsultationService({pool,env=process.env}={}){
  if(!pool||typeof pool.connect!=='function'||env.APP_ENV!=='test'||env.NODE_ENV!=='test'||env.API_HOST!=='127.0.0.1'||env.F05_CATALOG_TEST_CONSENT!=='I_AUTHORIZE_DISPOSABLE_F05_CATALOG_PG16_ONLY')throw Error('CONSULTATION_REAL_ISSUER_UNAVAILABLE');
- return Object.freeze({async create({token,vehicleId,eventKey}){
+ return Object.freeze({async withdraw({token,consultationId,eventKey}){
+  if(!validId(consultationId)||!validEvent(eventKey))return answer(400,'CONSULTATION_INVALID_REQUEST');
+  if(!validToken(token))return answer(401,'CONSULTATION_IDENTITY_REQUIRED');
+  const c=await pool.connect();
+  try{
+   await c.query('BEGIN');
+   try{
+    const customer=(await c.query("SELECT s.customer_id FROM public.f05_catalog_customer_sessions_test s "+
+      "JOIN public.customers c ON c.customer_id=s.customer_id "+
+      "WHERE s.token_sha256=$1 AND s.issuer='DISPOSABLE_TEST_ONLY' "+
+      "AND s.expires_at>statement_timestamp() AND s.revoked_at IS NULL AND c.account_status='active' "+
+      "FOR SHARE OF s,c",[digest(token)])).rows[0];
+    if(!customer){await c.query('ROLLBACK');return answer(401,'CONSULTATION_IDENTITY_REQUIRED')}
+    const customerId=String(customer.customer_id);
+    await c.query('SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))',['F05_CONSULTATION_EVENT',eventKey]);
+    const source=(await c.query('SELECT vehicle_id,customer_id FROM public.consultations WHERE consultation_id=$1',[consultationId])).rows[0];
+    if(!source||String(source.customer_id)!==customerId){await c.query('ROLLBACK');return answer(404,'CONSULTATION_NOT_FOUND')}
+    const vehicleId=String(source.vehicle_id);
+    await c.query('SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))',[customerId,vehicleId]);
+    const row=(await c.query("SELECT consultation_id,customer_id,vehicle_id,listing_cycle_id,status "+
+      "FROM public.consultations WHERE consultation_id=$1 FOR UPDATE",[consultationId])).rows[0];
+    if(!row||String(row.customer_id)!==customerId||String(row.vehicle_id)!==vehicleId){await c.query('ROLLBACK');return answer(404,'CONSULTATION_NOT_FOUND')}
+    const payload=digest(JSON.stringify([customerId,consultationId,'CUSTOMER_WITHDRAWN']));
+    const old=(await c.query('SELECT * FROM public.f05_catalog_consultation_actions_test WHERE event_key=$1',[eventKey])).rows[0];
+    if(old){
+     await c.query('ROLLBACK');
+     if(old.action!=='WITHDRAWN'||old.payload_sha256!==payload||String(old.customer_id)!==customerId||
+       String(old.consultation_id)!==consultationId)return answer(409,'CONSULTATION_IDEMPOTENCY_COLLISION');
+     return answer(200,'CONSULTATION_WITHDRAWAL_REPLAY',{consultationId,status:'resolved',closeReason:'CUSTOMER_WITHDRAWN',productionReady:false});
+    }
+    if(!['pending','processing'].includes(row.status)){await c.query('ROLLBACK');return answer(409,'CONSULTATION_NOT_OPEN')}
+    const updated=(await c.query("UPDATE public.consultations SET status='resolved',close_reason='CUSTOMER_WITHDRAWN',"+
+      "completed_at=statement_timestamp() WHERE consultation_id=$1 AND customer_id=$2 "+
+      "AND status IN ('pending','processing') RETURNING consultation_id",[consultationId,customerId])).rows[0];
+    if(!updated){await c.query('ROLLBACK');return answer(409,'CONSULTATION_NOT_OPEN')}
+    await c.query("INSERT INTO public.f05_catalog_consultation_actions_test "+
+      "(event_key,payload_sha256,customer_id,vehicle_id,listing_cycle_id,consultation_id,action) "+
+      "VALUES($1,$2,$3,$4,$5,$6,'WITHDRAWN')",
+      [eventKey,payload,customerId,vehicleId,String(row.listing_cycle_id),consultationId]);
+    await c.query('COMMIT');
+    return answer(200,'CONSULTATION_WITHDRAWN',{consultationId,status:'resolved',closeReason:'CUSTOMER_WITHDRAWN',productionReady:false});
+   }catch(e){await c.query('ROLLBACK').catch(()=>{});throw e}
+  }finally{c.release()}
+ },async create({token,vehicleId,eventKey}){
   if(!validId(vehicleId)||!validEvent(eventKey))return answer(400,'CONSULTATION_INVALID_REQUEST');
   if(!validToken(token))return answer(401,'CONSULTATION_IDENTITY_REQUIRED');
   const c=await pool.connect();
