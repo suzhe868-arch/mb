@@ -72,6 +72,43 @@ try{
   await writer.query("DELETE FROM public.f05_real_catalog_protections_test WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND protection_kind='PRIORITY'",[cfg.vehicle,cfg.cycle]);
   assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,200);
  });
+ await test('PG16 rolled back protection never affects an independent HTTP reader',async()=>{
+  await writer.query('BEGIN');transaction=true;
+  try{
+   await writer.query("INSERT INTO public.f05_real_catalog_protections_test(vehicle_id,listing_cycle_id,protection_kind) VALUES($1,$2,'OWNER_UNPROVEN')",[cfg.vehicle,cfg.cycle]);
+   assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,200);
+  }finally{await writer.query('ROLLBACK');transaction=false}
+  assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,200);
+ });
+ await test('PG16 hidden vehicle immediately denied by real HTTP',async()=>{
+  await writer.query("UPDATE public.vehicles SET platform_visibility='hidden' WHERE vehicle_id=$1",[cfg.vehicle]);
+  try{
+   assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,404);
+   assert.equal((await get(`/api/v1/catalog/vehicles?source=${baseline.source_type}`)).body.items.some(v=>v.vehicleId===cfg.vehicle),false);
+  }finally{await writer.query('UPDATE public.vehicles SET platform_visibility=$2 WHERE vehicle_id=$1',[cfg.vehicle,baseline.platform_visibility])}
+  assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,200);
+ });
+ await test('PG16 sold state immediately denied without changing signed proof',async()=>{
+  await writer.query("UPDATE public.vehicles SET source_sale_status='sold' WHERE vehicle_id=$1",[cfg.vehicle]);
+  try{assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,404)}
+  finally{await writer.query('UPDATE public.vehicles SET source_sale_status=$2 WHERE vehicle_id=$1',[cfg.vehicle,baseline.source_sale_status])}
+  assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,200);
+ });
+ await test('PG16 ended listing cycle immediately denied by real HTTP',async()=>{
+  await writer.query('UPDATE public.vehicle_listing_cycles SET ended_at=statement_timestamp() WHERE listing_cycle_id=$1',[cfg.cycle]);
+  try{assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,404)}
+  finally{await writer.query('UPDATE public.vehicle_listing_cycles SET ended_at=NULL WHERE listing_cycle_id=$1',[cfg.cycle])}
+  assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,200);
+ });
+ await test('PG16 ambiguous concurrent active cycles fail closed on list and detail',async()=>{
+  const competing=(BigInt(cfg.cycle)+1000000000000n).toString();
+  await writer.query('INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES($1,$2,statement_timestamp())',[competing,cfg.vehicle]);
+  try{
+   assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,404);
+   assert.equal((await get(`/api/v1/catalog/vehicles?source=${baseline.source_type}`)).body.items.some(v=>v.vehicleId===cfg.vehicle),false);
+  }finally{await writer.query('DELETE FROM public.vehicle_listing_cycles WHERE listing_cycle_id=$1',[competing])}
+  assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,200);
+ });
  await test('expires_at is a physical fail-closed expiry, not cached HTTP privilege',async()=>{
   await writer.query("UPDATE public.f05_real_catalog_visibility_test SET expires_at=statement_timestamp()-interval '1 minute' WHERE vehicle_id=$1 AND listing_cycle_id=$2",[cfg.vehicle,cfg.cycle]);
   assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,404);

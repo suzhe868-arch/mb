@@ -1,6 +1,14 @@
+# 已实证的新证据（B阶段增量，非全F05验收）
+
+- GitHub标准运行器成功完成一次**真实PG16服务容器**：Run [39074540750](https://github.com/suzhe868-arch/mb/actions/runs/39074540750)，原提交 `e09439eb75e327138353290df8061d5779d838f7`。
+- 原HEAD **54/54 Node HTTP/安全测试 + 6/6 PG16两连接真实HTTP集成测试**、0 fail、0 skip；一项早期Run39074466516因容器Health引号失败，已修复，不能隐去历史。
+- **此PG16为真实服务但使用极简Vehicle/Cycle可销毁测试结构，M94全量物理迁移=NO**；也不是真实Customer/Owner/JYT受信签发，未对F05全部入口做实际验收。
+- 本次加入PG16隐藏/售出/结束周期/多活跃周期/事务回滚负例；新扩展用例是否成功以最新GitHub run和同SHA日志为准，禁止仅凭代码预报成功。
+- PR暂不创建：含`engineering/src/**`变更可能触发旧PR工作流；尚未完成全量PR事件路径预检，零新增付费和不重跑旧工作流要求优先。
+
 # F05真实业务整改：首条车辆目录非生产纵切（B阶段部分交付）
 
-**状态：B_IN_PROGRESS / PG16_NOT_TESTED / NO_PR / NOT_READY_FOR_A_REVIEW（2026-10-18 本轮续作审计）。** 此包没有满足F05全部真实业务验收，禁止以已通过的Node HTTP测试替代原PG16测试。
+**状态：B_IN_PROGRESS / SELECTED_PG16_REAL_RUN_PASSED / NO_PR / NOT_READY_FOR_A_REVIEW（2026-10-18 复核）。** 此包没有满足F05全部真实业务验收，禁止以已通过的Node HTTP测试替代原PG16测试。
 
 ## 代码范围
 

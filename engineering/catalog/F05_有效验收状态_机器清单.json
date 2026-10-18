@@ -2,26 +2,41 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_PG16_NOT_RUN_NOT_A_ACCEPTED",
+  "status": "B_IN_PROGRESS_SELECTED_REAL_PG16_PASSED_NOT_FULL_F05_ACCEPTANCE",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "UNREFERENCED_PREVIOUS_10e65c1_NOT_CURRENT_CODE",
+  "github_commit": "e09439eb75e327138353290df8061d5779d838f7",
   "node_http_stub_tests": {
     "passed": 54,
     "failed": 0,
     "skipped": 0
   },
   "real_postgresql16": {
-    "executed": false,
-    "reason": "No PG16 server/pg Node module in this session. Two independent-backend integration tests written but not executed. apt repositories unreachable."
+    "executed": true,
+    "run_id": 39074540750,
+    "head_sha": "e09439eb75e327138353290df8061d5779d838f7",
+    "node_http_tests_passed": 54,
+    "real_pg16_integration_tests_passed": 6,
+    "failed": 0,
+    "skipped": 0,
+    "db_server": "postgres:16-alpine GitHub Actions standard runner",
+    "database": "f05_catalog_test",
+    "role": "f05_catalog_ci (non-superuser)",
+    "m94_full_schema": false,
+    "source_issuer": "DISPOSABLE_TEST_PROOF_NOT_SIGNED",
+    "next_expanded_tests": "PENDING_NEW_SHA_REAL_RUN",
+    "production_ready": false
   },
   "endpoints": {
     "implemented_test_only": [
       "GET /api/v1/catalog/vehicles",
       "GET /api/v1/catalog/vehicles/:vehicleId"
     ],
-    "real_pg16_verified": [],
+    "real_pg16_verified": [
+      "GET /api/v1/catalog/vehicles (only disposable isolated test evidence)",
+      "GET /api/v1/catalog/vehicles/:vehicleId (only disposable isolated test evidence)"
+    ],
     "customer_write_implemented": [],
     "employee_write_implemented": []
   },
@@ -164,19 +179,20 @@
     }
   ],
   "stoppers": [
-    "missing isolated PG16 server and pg Node dependency",
+    "Full sealed M94 migration + authentic Customer/Vehicle Source still missing; selected disposable PG16 service already proven",
     "no trusted customer issuer in runtime",
     "not all F05-1..11 HTTP/PG16 slices implemented",
     "source and production gates remain fail-closed",
-    "remote CI has no cost-safe preflight clearance for this new list of changed files"
+    "PR change paths require explicit review of 335 existing workflow pull_request triggers before PR; push scope proven only one job on two branch commits"
   ],
   "next_owner": "B",
   "next_milestone": "Obtain isolated PG16 with approved zero-cost execution environment, run real schema and HTTP tests; implement missing domain APIs; then audit changed-path CI and present a real PR to A",
-  "verification_scope": "REAL_NODE_HTTP_WITH_INJECTED_DATABASE_ONLY",
+  "verification_scope": "REAL_POSTGRESQL16_TWO_CONNECTION_DISPOSABLE_CATALOG_ONLY",
   "security_hardening": [
     "pg_catalog actual column type and FK shape check",
     "test-only database URL strict port 5432 and prohibit host/hostaddr query overrides",
     "separate writer Client and HTTP reader Pool integration requires real PG16",
-    "transaction before/after visibility and robust cleanup in PG16 test"
+    "transaction before/after visibility and robust cleanup in PG16 test",
+    "Official run 39074540750: 54 Node HTTP + 6 physical PostgreSQL16 integration, verified GitHub log"
   ]
 }
