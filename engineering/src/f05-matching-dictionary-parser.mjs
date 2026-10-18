@@ -8,7 +8,7 @@ export function normalizeDictionaryDefinition(v){
     Object.keys(v).some(k=>!['token','mappedKey','mappedValue','scopeKind','brandId','seriesId','modelId','yearFrom','yearTo','notes'].includes(k)))
     throw Error('RULE_INVALID_DEFINITION');
  if(typeof v.token!=='string'||!/^[\p{L}\p{N}_]{2,60}$/u.test(v.token)||
-  !Object.hasOwn(RANK,v.scopeKind)||typeof v.mappedValue!=='string'||
+  !Object.hasOwn(RANK,v.scopeKind)||typeof v.mappedValue!=='string'||v.mappedValue.length>50||
   !['brandId','minModelYear','maxMileageKm','budgetCents','interiorColor','exteriorColor','powerType','displacementMinCc','displacementMaxCc','displacementCc','excludeCondition'].includes(v.mappedKey)||
   !parseExplicitSalesDescription(v.mappedKey+'='+v.mappedValue,{allowPreferredOnly:true}).ready)
     throw Error('RULE_INVALID_MAPPING');

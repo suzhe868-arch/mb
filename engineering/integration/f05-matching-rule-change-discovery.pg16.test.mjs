@@ -102,6 +102,19 @@ try{
   for(const t of ['recommendations','priority_leases','vehicle_visibility_grants'])
    assert.equal((await db.query('SELECT count(*)::int n FROM public.'+t+' WHERE customer_id=61300')).rows[0].n,0,t);
  });
+ await test('PG16 dictionary physical schema accepts every newly supported multi-value hard field',async()=>{
+  for(const [i,mappedKey,mappedValue] of [
+   [1,'exteriorColor','red|blue'],[2,'powerType','gasoline|hybrid'],
+   [3,'displacementMinCc','1400'],[4,'displacementMaxCc','2500'],
+   [5,'displacementCc','1400|1600'],[6,'excludeCondition','flood|fire'],
+   [7,'interiorColor','beige']]){
+   const created=await dictionary.mutate({credential,action:'CREATE',eventKey:key(),
+    definition:{token:'new_field_'+i+'_613',mappedKey,mappedValue,scopeKind:'global'}});
+   assert.equal(created.status,200,JSON.stringify({mappedKey,created}));
+   const saved=(await db.query('SELECT mapped_key,mapped_value FROM public.f05_matching_dictionary_rules_test WHERE rule_id=$1',[created.body.ruleId])).rows[0];
+   assert.equal(saved.mapped_key,mappedKey);assert.equal(saved.mapped_value,mappedValue);
+  }
+ });
 }catch(e){error=e}finally{
  if(server)await new Promise(ok=>server.close(ok));
  if(connected)await db.end();await pool.end();

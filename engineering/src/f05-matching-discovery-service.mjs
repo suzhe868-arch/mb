@@ -93,7 +93,7 @@ export function createIsolatedMatchingDiscoveryService({pool,env=process.env}={}
     JOIN public.f05_matching_vehicle_facts_test facts ON facts.vehicle_id=v.vehicle_id
      AND facts.listing_cycle_id=cy.listing_cycle_id AND facts.issuer='DISPOSABLE_TEST_ONLY'
      AND facts.expires_at>statement_timestamp()
-    JOIN public.f05_catalog_price_display_proof_test price ON price.vehicle_id=v.vehicle_id
+    LEFT JOIN public.f05_catalog_price_display_proof_test price ON price.vehicle_id=v.vehicle_id
      AND price.listing_cycle_id=cy.listing_cycle_id AND price.source_type=v.source_type
      AND price.issuer='DISPOSABLE_TEST_ONLY' AND price.expires_at>statement_timestamp()
     WHERE d.responsible_employee_id=$1 AND d.demand_state='active'

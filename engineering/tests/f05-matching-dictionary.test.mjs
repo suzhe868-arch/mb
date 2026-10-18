@@ -10,6 +10,9 @@ const row=(id,scope,field,value,more={})=>({
  rule_id:String(id),token:'audi_a6',mapped_key:field,mapped_value:value,
  scope_kind:scope,version:'1',status:'enabled',...more
 });
+test('dictionary rejects values above physical 50-character limit before PostgreSQL',()=>{
+ assert.throws(()=>normalizeDictionaryDefinition({token:'too_long_map',mappedKey:'exteriorColor',mappedValue:'red|'.repeat(17),scopeKind:'global'}));
+});
 test('PDM12 dictionary validates full scope binding and mapped field syntax',()=>{
  assert.equal(normalizeDictionaryDefinition(globalRule).scopeKind,'global');
  for(const rule of [

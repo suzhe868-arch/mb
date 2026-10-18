@@ -76,5 +76,29 @@ try{
   await assert.rejects(db.query("UPDATE public.f05_matching_vehicle_facts_test SET displacement_cc=99999 WHERE vehicle_id=60810"),e=>e.code==='23514');
   assert.equal((await db.query("SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE demand_id=60800")).rows[0].n,1);
  });
+ await test('PG16 no budget requires no price: current soft tier remains safe without price proof',async()=>{
+  await db.query("DELETE FROM public.f05_catalog_price_display_proof_test WHERE vehicle_id=60810");
+  const recomputed=await calc();
+  assert.equal(recomputed.status,200,JSON.stringify(recomputed));
+  assert.equal(recomputed.body.matchTier,'acceptable');
+  assert.equal(recomputed.body.explanation.sourceFacts.customerDisplayCents,null);
+  assert.equal((await db.query("SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE demand_id=60800")).rows[0].n,1);
+ });
+ await test('PG16 budget with missing price must be current confirmation_needed, not false no_match',async()=>{
+  await db.query("UPDATE public.f05_matching_sales_description_test SET sales_description=sales_description||';budgetCents=11000000' WHERE demand_id=60800");
+  const result=await calc();
+  assert.equal(result.status,200,JSON.stringify(result));
+  assert.equal(result.body.matchTier,'confirmation_needed');
+  assert.equal((await db.query("SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE demand_id=60800")).rows[0].n,1);
+  assert.equal(result.body.explanation.components.find(x=>x.key==='budgetCents').outcome,'unknown');
+ });
+ await test('PG16 numeric price restores budget comparison; expiry never leaves an old confident current',async()=>{
+  await db.query("INSERT INTO public.f05_catalog_price_display_proof_test(vehicle_id,listing_cycle_id,source_type,customer_display_cents,expires_at) VALUES(60810,60810,'wholesale',10500000,statement_timestamp()+interval '20 minutes')");
+  const result=await calc();
+  assert.equal(result.status,200,JSON.stringify(result));assert.equal(result.body.matchTier,'acceptable');
+  assert.equal((await db.query("SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE demand_id=60800")).rows[0].n,1);
+  await db.query("UPDATE public.f05_catalog_price_display_proof_test SET expires_at=statement_timestamp()-interval '1 second' WHERE vehicle_id=60810");
+  assert.equal((await db.query("SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE demand_id=60800")).rows[0].n,0);
+ });
 }catch(e){failure=e}finally{if(connected)await db.end();await pool.end()}
 if(failure)throw failure;
