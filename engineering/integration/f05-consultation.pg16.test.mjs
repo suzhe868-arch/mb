@@ -181,6 +181,17 @@ try{
   }
   assert.equal((await withdraw(open,injectKey)).body.code,'CONSULTATION_WITHDRAWN');
  });
+ await test('two concurrent withdrawal keys commit exactly one terminal transition and one immutable audit',async()=>{
+  const fresh=(await call()).body.consultationId;
+  const [a,b]=await Promise.all([withdraw(fresh,key()),withdraw(fresh,key())]);
+  assert.deepEqual([a.status,b.status].sort((x,y)=>x-y),[200,409]);
+  assert.equal([a,b].filter(x=>x.body.code==='CONSULTATION_WITHDRAWN').length,1);
+  assert.equal([a,b].filter(x=>x.body.code==='CONSULTATION_NOT_OPEN').length,1);
+  const c=(await writer.query('SELECT status,close_reason FROM public.consultations WHERE consultation_id=$1',[fresh])).rows[0];
+  assert.equal(c.status,'resolved');assert.equal(c.close_reason,'CUSTOMER_WITHDRAWN');
+  const n=(await writer.query("SELECT count(*)::int n FROM public.f05_catalog_consultation_actions_test WHERE consultation_id=$1 AND action='WITHDRAWN'",[fresh])).rows[0].n;
+  assert.equal(n,1);
+ });
  await test('disabled Customer and revoked test session both fail closed for withdrawal',async()=>{
   const active=(await call()).body.consultationId;
   await writer.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=59001");
