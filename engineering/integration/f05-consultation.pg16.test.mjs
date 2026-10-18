@@ -99,6 +99,25 @@ try{
   finally{await writer.query('DROP TRIGGER f05_consult_event_inject ON public.f05_catalog_consultation_actions_test');await writer.query('DROP FUNCTION public.f05_consult_inject_fail_test()')}
   assert.equal((await call(id)).status,200);
  });
+ await test('PG16 relist creates new Consultation; old-cycle event key never replays across ListingCycle',async()=>{
+  const newCycle='59009',newEvent=key();
+  await writer.query("UPDATE public.vehicle_listing_cycles SET ended_at=statement_timestamp() WHERE listing_cycle_id=59001");
+  await writer.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES($1,59001,statement_timestamp())",[newCycle]);
+  await writer.query("INSERT INTO public.f05_real_catalog_visibility_test(vehicle_id,listing_cycle_id,source_type,allow_anonymous,expires_at) VALUES(59001,$1,'wholesale',true,statement_timestamp()+interval '20 minutes')",[newCycle]);
+  try{
+   const old=await call(k);assert.equal(old.status,409);
+   assert.equal(old.body.code,'CONSULTATION_IDEMPOTENCY_COLLISION');
+   const now=await call(newEvent);
+   assert.equal(now.status,200);assert.equal(now.body.created,true);
+   assert.notEqual(now.body.consultationId,cId);
+   const row=(await writer.query('SELECT listing_cycle_id FROM public.consultations WHERE consultation_id=$1',[now.body.consultationId])).rows[0];
+   assert.equal(String(row.listing_cycle_id),newCycle);
+   assert.equal((await writer.query("SELECT count(*)::int n FROM public.consultations WHERE customer_id=59001 AND vehicle_id=59001 AND status='pending'")).rows[0].n,2);
+  }finally{
+   await writer.query('UPDATE public.vehicle_listing_cycles SET ended_at=statement_timestamp() WHERE listing_cycle_id=$1',[newCycle]);
+   await writer.query('UPDATE public.vehicle_listing_cycles SET ended_at=NULL WHERE listing_cycle_id=59001');
+  }
+ });
  await test('Customer bearer revoked immediately denies new consultation action',async()=>{
   await writer.query('UPDATE public.f05_catalog_customer_sessions_test SET revoked_at=statement_timestamp() WHERE token_sha256=$1',[digest(token)]);
   assert.equal((await call()).status,401);

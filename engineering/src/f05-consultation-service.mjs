@@ -23,14 +23,6 @@ export function createIsolatedConsultationService({pool,env=process.env}={}){
     // Same Customer+Vehicle serializes and the source idempotency key is global across Customers.
     await c.query('SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))',['F05_CONSULTATION_EVENT',eventKey]);
     await c.query('SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))',[customerId,vehicleId]);
-    const payload=digest(JSON.stringify([customerId,vehicleId,'DIRECT_VEHICLE_DETAIL']));
-    const prior=(await c.query('SELECT * FROM public.f05_catalog_consultation_actions_test WHERE event_key=$1',[eventKey])).rows[0];
-    if(prior){
-     await c.query('ROLLBACK');
-     if(prior.payload_sha256!==payload||String(prior.customer_id)!==customerId||String(prior.vehicle_id)!==vehicleId)
-      return answer(409,'CONSULTATION_IDEMPOTENCY_COLLISION');
-     return answer(200,'CONSULTATION_IDEMPOTENT_REPLAY',{consultationId:String(prior.consultation_id),created:prior.action==='CREATED',productionReady:false});
-    }
     if(a.owner_assignment_state!=='assigned'||!validId(String(a.current_owner_employee_id))){await c.query('ROLLBACK');return answer(409,'CONSULTATION_OWNER_NOT_READY')}
     const scope=(await c.query("SELECT p.assignee_employee_id FROM public.f05_catalog_consultation_actor_proof_test p "+
       "JOIN public.employees e ON e.employee_id=p.assignee_employee_id "+
@@ -55,6 +47,16 @@ export function createIsolatedConsultationService({pool,env=process.env}={}){
       "LIMIT 1 FOR SHARE OF v,cy,vis",[vehicleId])).rows[0];
     if(!cycle){await c.query('ROLLBACK');return answer(404,'CONSULTATION_VEHICLE_NOT_VISIBLE')}
     const cycleId=String(cycle.listing_cycle_id);
+    // An old-cycle request key must never return or mutate a Consultation in a new cycle.
+    const payload=digest(JSON.stringify([customerId,vehicleId,cycleId,'DIRECT_VEHICLE_DETAIL']));
+    const prior=(await c.query('SELECT * FROM public.f05_catalog_consultation_actions_test WHERE event_key=$1',[eventKey])).rows[0];
+    if(prior){
+     await c.query('ROLLBACK');
+     if(prior.payload_sha256!==payload||String(prior.customer_id)!==customerId||
+       String(prior.vehicle_id)!==vehicleId||String(prior.listing_cycle_id)!==cycleId)
+       return answer(409,'CONSULTATION_IDEMPOTENCY_COLLISION');
+     return answer(200,'CONSULTATION_IDEMPOTENT_REPLAY',{consultationId:String(prior.consultation_id),created:prior.action==='CREATED',productionReady:false});
+    }
     let current=(await c.query("SELECT consultation_id FROM public.consultations "+
       "WHERE customer_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3 "+
       "AND status IN ('pending','processing') FOR UPDATE",[customerId,vehicleId,cycleId])).rows[0];
