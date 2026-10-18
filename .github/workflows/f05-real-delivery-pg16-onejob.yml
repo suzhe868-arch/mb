@@ -96,7 +96,7 @@ jobs:
             await client.query(await readFile('catalog/000027_catalog_disposable_test_only.sql','utf8'));
             await client.query("INSERT INTO public.vehicle_brands(brand_id,brand_name) VALUES(59001,'隔离测试品牌')");
             await client.query("INSERT INTO public.vehicle_series(series_id,brand_id,series_name) VALUES(59001,59001,'隔离测试车系')");
-            await client.query("INSERT INTO public.vehicle_models(model_id,brand_id,series_id,profile_status) VALUES(59001,59001,59001,'incomplete')");
+            await client.query("INSERT INTO public.vehicle_models(model_id,brand_id,series_id,model_name,model_year,profile_status) VALUES(59001,59001,59001,'隔离测试车型',2026,'incomplete')");
             await client.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,model_id,created_at) VALUES(59001,'wholesale','active','visible',59001,statement_timestamp()),(59002,'wholesale','active','hidden',NULL,statement_timestamp())");
             await client.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES(59001,59001,statement_timestamp()),(59002,59002,statement_timestamp())");
             await client.query('COMMIT');

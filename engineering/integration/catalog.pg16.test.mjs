@@ -78,6 +78,21 @@ try{
    assert.equal(no.body.items.some(x=>x.vehicleId===cfg.vehicle),false,q);
   }
  });
+
+ await test('PG16 joined master data are visible safely in list and detail, model year physically filters',async()=>{
+  const detail=await get('/api/v1/catalog/vehicles/'+cfg.vehicle);
+  assert.equal(detail.status,200);
+  assert.equal(detail.body.vehicle.brandName,'隔离测试品牌');
+  assert.equal(detail.body.vehicle.seriesName,'隔离测试车系');
+  assert.equal(detail.body.vehicle.modelName,'隔离测试车型');
+  assert.equal(detail.body.vehicle.modelYear,2026);
+  const list=await get('/api/v1/catalog/vehicles?modelYear=2026&brandId=59001');
+  assert.equal(list.status,200);
+  assert.equal(list.body.items.some(x=>x.vehicleId===cfg.vehicle&&x.modelYear===2026),true);
+  const excluded=await get('/api/v1/catalog/vehicles?modelYear=2025');
+  assert.equal(excluded.status,200);
+  assert.equal(excluded.body.items.some(x=>x.vehicleId===cfg.vehicle),false);
+ });
  await test('uncommitted PRIORITY does not incorrectly hide from independent reader',async()=>{
   await writer.query('BEGIN');transaction=true;
   await writer.query("INSERT INTO public.f05_real_catalog_protections_test(vehicle_id,listing_cycle_id,protection_kind) VALUES($1,$2,'PRIORITY')",[cfg.vehicle,cfg.cycle]);

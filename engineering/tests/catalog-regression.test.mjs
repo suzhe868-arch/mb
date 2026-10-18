@@ -43,7 +43,7 @@ test('PostgreSQL temporal ordering retains six fractional digits end-to-end',asy
  assert.equal(decodeCursor(cursor,secret,'wholesale','newest').at,at);
  const next=await request(pool,'/api/v1/catalog/vehicles?cursor='+encodeURIComponent(cursor));
  assert.equal(next.status,200);assert.equal(next.body.items[0].vehicleId,'17');
- assert.equal(captured[1].params[1],at);assert.equal(captured[1].params[2],'1015');assert.deepEqual(captured[1].params.slice(3),[null,null,null]);
+ assert.equal(captured[1].params[1],at);assert.equal(captured[1].params[2],'1015');assert.deepEqual(captured[1].params.slice(3),[null,null,null,null]);
  assert.equal(next.body.nextCursor,null);
 });
 test('PDM05 exact modelId is parameterized in PG query before keyset pagination',async()=>{
@@ -52,7 +52,7 @@ test('PDM05 exact modelId is parameterized in PG query before keyset pagination'
  const result=await request(byRows((sql,params)=>{captured={sql,params};return [row(5)]}),`/api/v1/catalog/vehicles?modelId=${modelId}`);
  assert.equal(result.status,200);
  assert.equal(result.body.modelId,modelId);
- assert.deepEqual(captured.params,['wholesale',null,null,modelId,null,null]);
+ assert.deepEqual(captured.params,['wholesale',null,null,modelId,null,null,null]);
  assert.match(captured.sql,/v\.model_id=\$4::bigint/);
 });
 test('PDM05 modelId query cannot be SQL-injected, widened or coerced',async()=>{
@@ -76,7 +76,7 @@ test('PDM05 brand and series are typed and filter through physical model master 
  let sql,params;
  const r=await request(byRows((s,p)=>{sql=s;params=p;return [row(2)]}),'/api/v1/catalog/vehicles?brandId=123&seriesId=456');
  assert.equal(r.status,200);assert.equal(r.body.brandId,'123');assert.equal(r.body.seriesId,'456');
- assert.deepEqual(params,['wholesale',null,null,null,'123','456']);
+ assert.deepEqual(params,['wholesale',null,null,null,'123','456',null]);
  assert.match(sql,/COALESCE\(vm\.brand_id,vs\.brand_id\)=\$5::bigint/);
  assert.match(sql,/vm\.series_id=\$6::bigint/);
  assert.match(sql,/vm\.brand_id=vs\.brand_id/);
@@ -94,6 +94,45 @@ test('brand-series cursor is bound to identical hierarchy, no cross-filter reuse
   assert.equal(x.status,400,q);assert.equal(x.body.code,'INVALID_CURSOR');
  }
 });
+
+test('actual vehicle master names and year returned without sensitive database fields',async()=>{
+ const data={...row(11),brandId:'55',seriesId:'66',brandName:'奥迪',seriesName:'A6',modelName:'45TFSI',modelYear:2026};
+ const output=await request(byRows(()=>[data]),'/api/v1/catalog/vehicles/11');
+ assert.equal(output.status,200);
+ assert.equal(output.body.vehicle.brandName,'奥迪');
+ assert.equal(output.body.vehicle.seriesName,'A6');
+ assert.equal(output.body.vehicle.modelName,'45TFSI');
+ assert.equal(output.body.vehicle.modelYear,2026);
+ assert.equal(output.body.vehicle.price,null);
+ for(const field of ['vin','wholesaleCost','customerEmail','upstreamPublisherPhone'])assert.equal(field in output.body.vehicle,false);
+ const partial=await request(byRows(()=>[row(12)]),'/api/v1/catalog/vehicles/12');
+ assert.equal(partial.status,200);assert.equal(partial.body.vehicle.modelName,null);
+});
+test('invalid or contradictory master data cannot leak through HTTP',async()=>{
+ for(const change of [{brandId:'bad'},{seriesId:'9223372036854775808'},{modelYear:'2026'},{modelYear:2201},{brandName:' '},{modelName:'x'.repeat(161)},{modelId:null,modelName:'fake'}]){
+  const result=await request(byRows(()=>[{...row(9),...change}]),'/api/v1/catalog/vehicles/9');
+  assert.equal(result.status,503,JSON.stringify(change));
+  assert.deepEqual(result.body,{code:'CATALOG_DEPENDENCY_NOT_READY'});
+ }
+});
+test('model year exact PG16 predicate must not become first registration year',async()=>{
+ let seen;
+ const response=await request(byRows((sql,params)=>{seen={sql,params};return [row(1)]}),'/api/v1/catalog/vehicles?modelYear=2026');
+ assert.equal(response.status,200);assert.equal(response.body.modelYear,2026);
+ assert.match(seen.sql,/vm\.model_year=\$7::integer/);
+ assert.equal(seen.params[6],2026);
+ for(const value of ['26','0026','0','2201','2026%20OR%201%3D1']){
+  const bad=await request(byRows(),'/api/v1/catalog/vehicles?modelYear='+value);
+  assert.equal(bad.status,400,value);assert.equal(bad.body.code,'INVALID_MODEL_YEAR');
+ }
+});
+test('model year changes must invalidate HMAC signed pagination cursor',async()=>{
+ const first=await request(byRows(()=>Array.from({length:16},(_,k)=>row(k+1))),'/api/v1/catalog/vehicles?modelYear=2026');
+ assert.equal(first.status,200);assert.ok(first.body.nextCursor);
+ const second=await request(byRows(),'/api/v1/catalog/vehicles?modelYear=2025&cursor='+encodeURIComponent(first.body.nextCursor));
+ assert.equal(second.status,400);assert.equal(second.body.code,'INVALID_CURSOR');
+});
+
 test('PDM-20 seven sorts: six unverified business projections fail closed; oldest is prohibited',async()=>{
  const legal=['price_asc','price_desc','registration_year_desc','registration_year_asc','mileage_asc','mileage_desc'];
  for(const sort of legal){
@@ -163,7 +202,7 @@ test('HTTP only exposes declared DTO whitelist for 3 physical source kinds',asyn
   const id=source==='four_s'?8:source==='mingbang'?7:6;
   const r=await request(byRows(()=>[row(id,'2026-10-15T09:00:00.123456Z',source)]),`/api/v1/catalog/vehicles/${id}`);
   assert.equal(r.status,200);
-  assert.deepEqual(Object.keys(r.body.vehicle).sort(),['catalogState','listingCycleId','listingStartedAt','modelId','price','priceState','source','vehicleId'].sort());
+  assert.deepEqual(Object.keys(r.body.vehicle).sort(),['catalogState','listingCycleId','listingStartedAt','modelId','brandId','seriesId','brandName','seriesName','modelName','modelYear','price','priceState','source','vehicleId'].sort());
   assert.equal(r.body.vehicle.price,null);
   const json=JSON.stringify(r.body);
   for(const leak of ['VIN_NEVER_EXPOSE','PRIVATE_CALLER','private@private.example','wholesaleCost','transactionCustomerId'])assert.equal(json.includes(leak),false);
