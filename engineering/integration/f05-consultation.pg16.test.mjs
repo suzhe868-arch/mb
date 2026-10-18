@@ -40,7 +40,7 @@ try{
   await writer.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES(59020,59020,statement_timestamp())");
   await writer.query("INSERT INTO public.f05_real_catalog_visibility_test(vehicle_id,listing_cycle_id,source_type,allow_anonymous,expires_at) VALUES(59020,59020,'wholesale',false,statement_timestamp()+interval '20 minutes')");
   await writer.query("INSERT INTO public.f05_catalog_price_display_proof_test(vehicle_id,listing_cycle_id,source_type,customer_display_cents,expires_at) VALUES(59020,59020,'wholesale',12000000,statement_timestamp()+interval '20 minutes')");
-  await writer.query("INSERT INTO public.f05_find_car_level_entitlement_test(level_id,can_activate_demand,expires_at) VALUES(59001,true,statement_timestamp()+interval '20 minutes') ON CONFLICT(level_id) DO UPDATE SET can_activate_demand=true,expires_at=excluded.expires_at");
+
   await writer.query('COMMIT');
  }catch(e){await writer.query('ROLLBACK');throw e}
  const service=createIsolatedConsultationService({pool,env:process.env});
@@ -68,6 +68,9 @@ try{
  });
  await test('PG16 real F05-9 Recommendation -> hidden PDM15 Consultation preserves direct source and selects current Demand assignee',async()=>{
   try{
+  // The Find-Car level proof is owned by this one cross-domain test. It must
+  // not leak into the later independent F05-6 integration fixture.
+  await writer.query("INSERT INTO public.f05_find_car_level_entitlement_test(level_id,can_activate_demand,expires_at) VALUES(59001,true,statement_timestamp()+interval '20 minutes')");
   // This Recommendation is created by the *real* PG16 Recommendation service,
   // using its actual independent Employee proof and legitimate source Demand.
   const grant=await recommendation.mutate({credential:employeeForRecommendation,action:'CREATE',
@@ -115,6 +118,7 @@ try{
    "WHERE consultation_id=$1",[created.body.consultationId])).rows[0].n,1);
   }finally{
    await writer.query("UPDATE public.f05_catalog_consultation_actor_proof_test SET assignee_employee_id=59001 WHERE customer_id=59001");
+   await writer.query("DELETE FROM public.f05_find_car_level_entitlement_test WHERE level_id=59001");
   }
  });
  await test('missing independent vehicle visibility proof blocks Consultation creation',async()=>{
