@@ -7,11 +7,11 @@ import {createIsolatedEmployeeStartService} from '../src/f05-employee-start-serv
 const env={APP_ENV:'test',NODE_ENV:'test',API_HOST:'127.0.0.1',F05_CATALOG_TEST_CONSENT:'I_AUTHORIZE_DISPOSABLE_F05_CATALOG_PG16_ONLY'};
 const token='A'.repeat(43),key='I'.repeat(32),path='/api/v1/catalog/consultations/59020/start-processing';
 const svc={start:async()=>({status:200,body:{code:'CONSULTATION_PROCESSING_STARTED',status:'processing',firstHumanResponse:false,productionReady:false}})};
-async function request(method='POST',headers={},url=path,service=svc){
+async function request(method='POST',headers={},url=path,service=svc,body=undefined){
  const server=createServer(createFoundationHandler({employeeStartHandler:createIsolatedEmployeeStartHandler(service,env)}));
  await new Promise(ok=>server.listen(0,'127.0.0.1',ok));
  try{
-  const resp=await fetch('http://127.0.0.1:'+server.address().port+url,{method,headers});
+  const resp=await fetch('http://127.0.0.1:'+server.address().port+url,{method,headers,body});
   return {status:resp.status,body:await resp.json()};
  }finally{await new Promise(ok=>server.close(ok))}
 }
@@ -47,7 +47,7 @@ test('HTTP denies GET, path injection, query and unsolicited body',async()=>{
  assert.equal((await request('GET',h)).status,405);
  assert.equal((await request('POST',h,path+'?employeeId=1')).status,400);
  assert.equal((await request('POST',h,'/api/v1/catalog/consultations/0/start-processing')).status,400);
- assert.equal((await request('POST',{...h,'content-length':'5'})).status,403);
+ assert.equal((await request('POST',h,path,svc,'unsafe_request_body')).status,403);
 });
 test('DB error response never reveals internal employee secrets',async()=>{
  const fail={start:async()=>{throw Error('private_employee_bearer')}};
