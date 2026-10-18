@@ -2,22 +2,22 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F05_5_EMPLOYEE_FREE_DAILY_QUOTA_PG16_TEST_ONLY_FORMAL_F03_ISSUER_BLOCKED",
+  "status": "B_IN_PROGRESS_F05_6_APPLICATION_AND_MANUAL_DEMAND_PG16_TEST_ONLY_FORMAL_ISSUERS_MISSING",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "c0169da5db767c5ae39a7ea3c86287c56e82f00d",
+  "github_commit": "d7d1419720c2371f31e703f435587bdf4d37f8e7",
   "node_http_stub_tests": {
-    "passed": 110,
+    "passed": 120,
     "failed": 0,
     "skipped": 0
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39115120963,
-    "head_sha": "c0169da5db767c5ae39a7ea3c86287c56e82f00d",
-    "node_http_tests_passed": 110,
-    "real_pg16_integration_tests_passed": 108,
+    "run_id": 39117221147,
+    "head_sha": "d7d1419720c2371f31e703f435587bdf4d37f8e7",
+    "node_http_tests_passed": 120,
+    "real_pg16_integration_tests_passed": 131,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -33,8 +33,8 @@
     "disposable_photo_order_proof": true,
     "real_pg16_catalog_integration_tests_passed": 19,
     "real_pg16_favorite_integration_tests_passed": 13,
-    "disposable_sidecar_tables": 17,
-    "total_disposable_physical_tables": 93,
+    "disposable_sidecar_tables": 22,
+    "total_disposable_physical_tables": 98,
     "formal_wechat_customer_issuer_verified": false,
     "real_pg16_consultation_integration_tests_passed": 16,
     "formal_customer_phone_consent_issuer_verified": false,
@@ -51,7 +51,14 @@
     "formal_client_detail_navigational_proof_verified": false,
     "real_pg16_employee_quota_additions_tests_passed": 12,
     "formal_employee_quota_permission_signed": false,
-    "formal_customer_level_entitlement_signed": false
+    "formal_customer_level_entitlement_signed": false,
+    "real_pg16_find_car_application_tests_passed": 12,
+    "real_pg16_find_car_manual_activation_tests_passed": 11,
+    "formal_find_car_level_entitlement_signed": false,
+    "formal_employee_activation_scope_verified": false,
+    "real_customer_pool_assignment_verified": false,
+    "real_employee_workbench_sync_verified": false,
+    "formal_demand_matching_readiness_verified": false
   },
   "endpoints": {
     "implemented_test_only": [
@@ -70,7 +77,11 @@
       "POST /api/v1/catalog/consultations/:consultationId/reassign (test-only Employee bearer, target and reason JSON, physical PG16 assignee handover)",
       "POST /api/v1/catalog/consultations/:consultationId/resume-from-hold (test-only scoped Employee bearer; physical PG16 hold release and effective first-response remaining)",
       "POST /api/v1/catalog/vehicles/:vehicleId/customer-detail-entry (DISPOSABLE_TEST_ONLY auto LIMITED/UNLIMITED detail, PG16 quota/cycle/event atomic unlock)",
-      "POST /api/v1/catalog/customers/:customerId/price-quota/additions (DISPOSABLE_TEST_ONLY Employee scoped daily FREE additions, real F02 frozen ledger + adjustment history)"
+      "POST /api/v1/catalog/customers/:customerId/price-quota/additions (DISPOSABLE_TEST_ONLY Employee scoped daily FREE additions, real F02 frozen ledger + adjustment history)",
+      "POST /api/v1/catalog/find-car/applications (test-only Customer bearer, valid phone+owner -> F02 pending Application)",
+      "PATCH /api/v1/catalog/find-car/applications/:id (test-only Customer owner of Application, optimistic revision edit)",
+      "POST /api/v1/catalog/find-car/applications/:id/withdraw (test-only Customer retract pending -> closed)",
+      "POST /api/v1/catalog/find-car/applications/:id/activate (test-only Employee CURRENT ASSIGNEE + scoped entitlement manual F02 active Demand)"
     ],
     "real_pg16_verified": [
       "Catalog list/detail physical F02 initial PG16 with disposable proof",
@@ -89,7 +100,8 @@
       "PDM15 physical PG16 Consultation assignee handover preserving Customer owner, initial direct source, original first_response_deadline, original status; audit old/new/actor/reason/server time, actor can_reassign/target can_receive test scope, 4S denial, disabled Customer legal handover, transaction rollback, parallel competition",
       "PDM15 Customer disabled physical PG16 transition trigger => open Consultation customer_disabled_hold; account active does not auto-release; authorized explicit Employee PG16 resume; genuine verified remaining_ms test fact only, repeated holds versioned, immutable audit, atomic failure rollback, Customer touch/withdraw blocked while hold",
       "F05-4 PDM10 frozen customer_day_quota_ledger/customer_price_cycle_unlocks/customer_price_unlock_events actual PG16 limited successful digital detail atomic charge; no-price/unlimited/repeat/current cycle/no source deny, Shanghai day rollover, new listing cycle, concurrent same Customer no double charge, rollback",
-      "F05-5 isolated employee quota adjustment real F02 frozen customer_quota_adjustments + customer_day_quota_ledger, separate scoped sales owner and manager/store head capability, explicit 4S denial, UNLIMITED no addition, LIMITED-UNLIMITED-LIMITED retains daily additions, real F05-4 price unlock consumption, UTC+8 rollover, idempotent replay, concurrent no lost update, immutable audit and atomic rollback"
+      "F05-5 isolated employee quota adjustment real F02 frozen customer_quota_adjustments + customer_day_quota_ledger, separate scoped sales owner and manager/store head capability, explicit 4S denial, UNLIMITED no addition, LIMITED-UNLIMITED-LIMITED retains daily additions, real F05-4 price unlock consumption, UTC+8 rollover, idempotent replay, concurrent no lost update, immutable audit and atomic rollback",
+      "PDM11 F05-6 actual frozen find_car_applications pending/edit/closed and demands active only on explicitly Employee-scoped manual activation; phone/owner/level guards; immutable audit, optimistic revision, unique demand link, concurrency no duplicate, atomic audit rollback; matching intentionally NOT ready"
     ],
     "customer_write_implemented": [
       "NONPRODUCTION_ACTUAL_PG16_POST_FAVORITE_TEST_ONLY",
@@ -247,8 +259,8 @@
     "Full F05-1..11 actual authenticated HTTP/PG16 business still missing"
   ],
   "next_owner": "B",
-  "next_milestone": "F05-6 find-car eligibility/demand real HTTP+PG16, F05-4 formal price configuration, F03 customer/employee issuer and full F05 source business; M94 full history, A-safe PR trigger governance",
-  "verification_scope": "NONPRODUCTION_F02_1_76_FROZEN_TABLES_PLUS_17_DISPOSABLE_TEST_SIDECARS_NODE_110_PG16_108",
+  "next_milestone": "F05-6 PDM11 Demand customer pause/finish requests and disabled/entitlement guards, employee workbench/owner transfer and formal issuers; F05-7 deterministic dictionary matching; M94 historical chain and controlled A review PR",
+  "verification_scope": "NONPRODUCTION_F02_1_76_FROZEN_BUSINESS_TABLES_PLUS_22_DISPOSABLE_TEST_SIDECARS_NODE_120_PG16_131",
   "security_hardening": [
     "pg_catalog actual column type and FK shape check",
     "test-only database URL strict port 5432 and prohibit host/hostaddr query overrides",
@@ -260,8 +272,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "TEN_LEGACY_BROAD_MAIN_TARGET_PR_WORKFLOWS_UNAUTHORIZED_TO_CHANGE_AND_USER_FORBIDS_OLD_RETRIGGER",
-  "tested_commit": "c0169da5db767c5ae39a7ea3c86287c56e82f00d",
-  "tested_run": 39115120963,
+  "tested_commit": "d7d1419720c2371f31e703f435587bdf4d37f8e7",
+  "tested_run": 39117221147,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -453,6 +465,56 @@
       "PRODUCTION_PDM25_AUDIT_ISSUER",
       "M94_COMPLETE_MIGRATION_CHAIN"
     ],
+    "production_ready": false
+  },
+  "find_car_real_business": {
+    "status": "F05_6_PARTIAL_ISOLATED_PG16_TEST_ONLY",
+    "source_rules": [
+      "PDM-11",
+      "PDM-12"
+    ],
+    "actual_f02_frozen_tables": [
+      "public.find_car_applications",
+      "public.demands"
+    ],
+    "test_only_tables": [
+      "public.f05_find_car_phone_proof_test",
+      "public.f05_find_car_level_entitlement_test",
+      "public.f05_find_car_application_detail_test",
+      "public.f05_find_car_application_events_test",
+      "public.f05_find_car_activation_scope_test"
+    ],
+    "verified": [
+      "ORDINARY_MAY_SUBMIT_PENDING_BUT_NO_AUTOMATIC_DEMAND",
+      "ACTIVE_ENTITLED_CUSTOMER_STILL_ONLY_PENDING_UNTIL_EMPLOYEE",
+      "PHONE_SERVICE_FACT_REQUIRED_FOR_SUBMIT_AND_ACTIVATE",
+      "LEGAL_NON_NULL_OWNER_REQUIRED_AT_SUBMIT",
+      "EMPLOYEE_CURRENT_ASSIGNEE_AND_CUSTOMER_SCOPE_REQUIRED_FOR_ACTIVATION",
+      "ACTIVE_CUSTOMER_AND_CURRENT_LEVEL_FIND_CAR_ENTITLEMENT_AT_ACTIVATION",
+      "CUSTOMER_EDIT_REVISION_AND_WITHDRAW_IMMUTABLE_HISTORY",
+      "ACTIVATE_AT_MOST_ONE_DEMAND_PER_APPLICATION",
+      "PG16_TRANSACTION_ROLLBACK_WITH_AUDIT_FAILURE",
+      "DUPLICATE_AND_PARALLEL_SUBMIT_OR_ACTIVATE_IDEMPOTENCY",
+      "MATCHING_NOT_READY_AND_NO_MATCH_RESULT"
+    ],
+    "not_verified": [
+      "FORMAL_PHONE_WECHAT_ISSUER",
+      "FORMAL_F03_EMPLOYEE_PERMISSION_DATA_SCOPE",
+      "ACTUAL_OWNER_POOL_ASSIGNMENT_ON_MISSING_OWNER",
+      "EMPLOYEE_WORKBENCH_TASK_PROJECTION",
+      "APPLICATION_HANDOVER_TO_NEW_OWNER",
+      "CUSTOMER_DEMAND_PAUSE_END_OR_RESUME",
+      "DOWNGRADE_DISABLE_AUTO_PAUSE_DEMAND",
+      "MATCHING_DICTIONARY_DETERMINISTIC_PARSER_AND_FOUR_TIER",
+      "HISTORICAL_M94_MIGRATION"
+    ],
+    "tests": {
+      "node": 10,
+      "pg16": 23,
+      "run_id": 39117221147
+    },
+    "demand_automatic_activation": false,
+    "matching_ready": false,
     "production_ready": false
   }
 }
