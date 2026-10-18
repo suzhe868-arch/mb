@@ -2,22 +2,22 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F05_PDM15_CUSTOMER_WITHDRAW_REAL_PG16_TEST_ONLY_FORMAL_ISSUER_GAP",
+  "status": "B_IN_PROGRESS_PDM15_EMPLOYEE_START_PG16_TEST_ONLY_FORMAL_ISSUER_BLOCKED",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "d5f483e27ce5b17271d8f65b316239fcab040a3d",
+  "github_commit": "44209ea2d5bbc6e13d387d2416e4b8787f76b5a1",
   "node_http_stub_tests": {
-    "passed": 80,
+    "passed": 86,
     "failed": 0,
     "skipped": 0
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39107758542,
-    "head_sha": "d5f483e27ce5b17271d8f65b316239fcab040a3d",
-    "node_http_tests_passed": 80,
-    "real_pg16_integration_tests_passed": 48,
+    "run_id": 39108558658,
+    "head_sha": "44209ea2d5bbc6e13d387d2416e4b8787f76b5a1",
+    "node_http_tests_passed": 86,
+    "real_pg16_integration_tests_passed": 55,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -33,12 +33,14 @@
     "disposable_photo_order_proof": true,
     "real_pg16_catalog_integration_tests_passed": 19,
     "real_pg16_favorite_integration_tests_passed": 13,
-    "disposable_sidecar_tables": 8,
-    "total_disposable_physical_tables": 84,
+    "disposable_sidecar_tables": 10,
+    "total_disposable_physical_tables": 86,
     "formal_wechat_customer_issuer_verified": false,
     "real_pg16_consultation_integration_tests_passed": 16,
     "formal_customer_phone_consent_issuer_verified": false,
-    "formal_employee_permission_scope_verified": false
+    "formal_employee_permission_scope_verified": false,
+    "real_pg16_employee_processing_integration_tests_passed": 7,
+    "formal_employee_issuer_verified": false
   },
   "endpoints": {
     "implemented_test_only": [
@@ -49,7 +51,8 @@
       "POST /api/v1/catalog/vehicles/:vehicleId/favorite (test-only Customer bearer/idempotency)",
       "DELETE /api/v1/catalog/vehicles/:vehicleId/favorite (test-only Customer bearer/idempotency)",
       "POST /api/v1/catalog/vehicles/:vehicleId/consultations (disposable phone + employee scope proof; real public.consultations PG16)",
-      "POST /api/v1/catalog/consultations/:consultationId/withdraw (test-only Customer bearer, physical consultation resolved CUSTOMER_WITHDRAWN)"
+      "POST /api/v1/catalog/consultations/:consultationId/withdraw (test-only Customer bearer, physical consultation resolved CUSTOMER_WITHDRAWN)",
+      "POST /api/v1/catalog/consultations/:consultationId/start-processing (test-only Employee bearer, pending=>processing; no actual human response)"
     ],
     "real_pg16_verified": [
       "Catalog list/detail physical F02 initial PG16 with disposable proof",
@@ -62,7 +65,8 @@
       "PG16 test-only frozen-order photo proof, safe first cover relative path; excludes source_url_fact and document attachments",
       "F05-3G test-only DB-backed customer bearer, account disable/revoke gate, ADD/REMOVE/READ live HTTP PG16, audit + idempotency + rollback + cross-Customer concurrency",
       "PDM15 physical consultations create/reuse/touch, 15m frozen deadline, Customer owner/phone actor guards, true PG16 transaction rollback and relist cycle-bound idempotency",
-      "PDM15 Customer withdrawn terminal PG16 resolved/CUSTOMER_WITHDRAWN, immutable event, bypass obsolete owner/phone/saleability for existing history only, disable/revoke/other Customer deny, atomic rollback + concurrent competing keys"
+      "PDM15 Customer withdrawn terminal PG16 resolved/CUSTOMER_WITHDRAWN, immutable event, bypass obsolete owner/phone/saleability for existing history only, disable/revoke/other Customer deny, atomic rollback + concurrent competing keys",
+      "PDM15 live PG16 current Employee assignee pending=>processing with disposable employee session/scope and append-only STARTED_PROCESSING actor history; no SLA first response, atomic rollback"
     ],
     "customer_write_implemented": [
       "NONPRODUCTION_ACTUAL_PG16_POST_FAVORITE_TEST_ONLY",
@@ -220,8 +224,8 @@
     "Full F05-1..11 actual authenticated HTTP/PG16 business still missing"
   ],
   "next_owner": "B",
-  "next_milestone": "Finish real trusted Customer and employee issuers, remaining PDM15 employee lifecycle, F05 price/find/recommendation, controlled M94 and safe PR trigger governance",
-  "verification_scope": "NONPRODUCTION_F02_1_76_INITIAL_TABLES_PLUS_8_DISPOSABLE_SIDECARS_HTTP_80_PG16_48",
+  "next_milestone": "Formal F03 Employee issuer, signed capability and scoped Customer access; real human communication evidence; PDM15 handover/terminal/SLA; full F05 business and M94 history; safe PR governance",
+  "verification_scope": "NONPRODUCTION_F02_1_76_INITIAL_TABLES_PLUS_10_DISPOSABLE_TEST_SIDECARS_NODE_86_PG16_55",
   "security_hardening": [
     "pg_catalog actual column type and FK shape check",
     "test-only database URL strict port 5432 and prohibit host/hostaddr query overrides",
@@ -233,8 +237,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "TEN_LEGACY_BROAD_MAIN_TARGET_PR_WORKFLOWS_UNAUTHORIZED_TO_CHANGE_AND_USER_FORBIDS_OLD_RETRIGGER",
-  "tested_commit": "d5f483e27ce5b17271d8f65b316239fcab040a3d",
-  "tested_run": 39107758542,
+  "tested_commit": "44209ea2d5bbc6e13d387d2416e4b8787f76b5a1",
+  "tested_run": 39108558658,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -301,20 +305,23 @@
     "supported_actions": [
       "CREATE",
       "REUSE_TOUCH",
-      "CUSTOMER_WITHDRAW"
+      "CUSTOMER_WITHDRAW",
+      "EMPLOYEE_START_PROCESSING_TEST_ONLY"
     ],
     "unsupported_actions": [
-      "EMPLOYEE_START_PROCESSING",
       "EMPLOYEE_FIRST_RESPONSE",
       "REASSIGN",
       "EMPLOYEE_RESOLVE",
       "INVALID",
       "SLA_DISABLE_HOLD"
     ],
-    "run_id": 39107758542,
+    "run_id": 39108558658,
     "pg16_tests": 16,
     "production_ready": false,
     "withdraw_test_pg16_verified": true,
-    "withdraw_url": "POST /api/v1/catalog/consultations/:consultationId/withdraw"
+    "withdraw_url": "POST /api/v1/catalog/consultations/:consultationId/withdraw",
+    "employee_start_processing_pg16_verified": true,
+    "employee_start_processing_tests": 7,
+    "first_human_response_verified": false
   }
 }
