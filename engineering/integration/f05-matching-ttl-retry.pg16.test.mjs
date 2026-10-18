@@ -61,7 +61,7 @@ try{
   assert.equal(invalid.claimed,1);
   assert.equal(invalid.outcomes[0].outcome,'retry_pending_or_failed');
   const q=(await check("SELECT attempts,last_error FROM public.f05_matching_affected_queue_test WHERE demand_id=60100 ORDER BY attempts DESC"))[0];
-  assert.equal(q.attempts,1);assert.equal(q.last_error,'MATCH_EXPLICIT_SCOPE_REQUIRED');
+  assert.equal(q.attempts,1,JSON.stringify({invalid,q,queue:await check("SELECT demand_id,vehicle_id,generation,state,attempts,last_error FROM public.f05_matching_affected_queue_test WHERE demand_id=60100")}));assert.equal(q.last_error,'MATCH_EXPLICIT_SCOPE_REQUIRED');
   assert.equal((await check('SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE demand_id=60100'))[0].n,0);
  });
  await test('PG16 only failed affected pair retry; no full Vehicle x Demand scan',async()=>{
@@ -69,7 +69,7 @@ try{
   await db.query("UPDATE public.f05_matching_affected_queue_test SET next_attempt_at=statement_timestamp()-interval '1 second' WHERE demand_id=60100");
   const run=await retry.runOnce({credential,limit:2});
   assert.equal(run.claimed,2);
-  assert.equal(run.outcomes.filter(x=>x.outcome==='done').length,2);
+  assert.equal(run.outcomes.filter(x=>x.outcome==='done').length,2,JSON.stringify({run,queue:await check("SELECT demand_id,vehicle_id,generation,state,attempts,last_error FROM public.f05_matching_affected_queue_test WHERE demand_id=60100")}));
   assert.equal((await check("SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE demand_id=60100"))[0].n,2);
   assert.equal((await check("SELECT count(*)::int n FROM public.f05_matching_affected_queue_test WHERE demand_id=60100 AND state='done'"))[0].n,2);
   assert.equal((await retry.runOnce({credential,limit:2})).claimed,0);
