@@ -126,7 +126,7 @@ try{
   assert.equal(replay.body.queued,50);assert.equal(replay.body.hasMore,true);
   assert.equal((await db.query("SELECT count(*)::int n FROM public.f05_matching_affected_queue_test WHERE demand_id=60500 AND vehicle_id BETWEEN 60600 AND 60650 AND state='pending'")).rows[0].n,50);
   // Page-two audit failure must not roll back committed page one.
-  await db.query("CREATE FUNCTION public.f05_discovery_page_fault() RETURNS trigger LANGUAGE plpgsql AS $ BEGIN RAISE EXCEPTION 'PAGE_TWO_AUDIT_FAILURE'; END $");
+  await db.query("CREATE FUNCTION public.f05_discovery_page_fault() RETURNS trigger LANGUAGE plpgsql AS 'BEGIN RAISE EXCEPTION ''PAGE_TWO_AUDIT_FAILURE''; END'");
   await db.query("CREATE TRIGGER f05_discovery_page_fault BEFORE INSERT ON public.f05_matching_discovery_events_test FOR EACH ROW EXECUTE FUNCTION public.f05_discovery_page_fault()");
   const nextKey=key();
   try{
@@ -154,11 +154,11 @@ try{
  });
  await test('paged discovery must revalidate revoked scope rather than trust earlier page or event key',async()=>{
   // Before this step new Vehicle has no matching Demand except the current scope owner.
-  await db.query("UPDATE public.f05_matching_employee_scope_test SET can_recompute=false WHERE employee_id=60500 AND customer_id=60500");
+  await db.query("UPDATE public.f05_matching_employee_scope_test SET expires_at=statement_timestamp()-interval '1 second' WHERE employee_id=60500 AND customer_id=60500");
   const denied=await post('NEW_DEMAND','60500');
   assert.equal(denied.status,403,JSON.stringify(denied));
   assert.equal(denied.body.code,'DISCOVERY_OBJECT_SCOPE_REQUIRED');
-  await db.query("UPDATE public.f05_matching_employee_scope_test SET can_recompute=true WHERE employee_id=60500 AND customer_id=60500");
+  await db.query("UPDATE public.f05_matching_employee_scope_test SET expires_at=statement_timestamp()+interval '20 minutes' WHERE employee_id=60500 AND customer_id=60500");
   const ok=await post('NEW_DEMAND','60500');
   assert.equal(ok.status,200);assert.equal(ok.body.queued,0);
  });
