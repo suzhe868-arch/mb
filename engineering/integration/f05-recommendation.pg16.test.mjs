@@ -62,6 +62,24 @@ try{
   assert.equal((await post({sourceDemandId:'999999'})).status,403);
   assert.equal(await number('SELECT count(*) n FROM public.recommendations WHERE vehicle_id=62010'),0);
  });
+ await test('PG16 pending Owner state with residual employee ID cannot sign Recommendation or hidden grant',async()=>{
+  const beforeRec=await number("SELECT count(*) n FROM public.recommendations WHERE customer_id=62000 AND vehicle_id=62010");
+  const beforeEvents=await number("SELECT count(*) n FROM public.f05_recommendation_events_test WHERE actor_employee_id=62000");
+  // This is physically persisted Customer state, not a forged HTTP role claim.
+  // A stale foreign-key owner ID is NOT authority while custody is pending.
+  await db.query("UPDATE public.customers SET owner_assignment_state='owner_assignment_pending' WHERE customer_id=62000");
+  try{
+   const denied=await post({sourceDemandId:'62000'});
+   assert.equal(denied.status,403,JSON.stringify(denied));
+   assert.equal(denied.body.code,'REC_CURRENT_OWNER_REQUIRED');
+   assert.equal(await number("SELECT count(*) n FROM public.recommendations WHERE customer_id=62000 AND vehicle_id=62010"),beforeRec);
+   assert.equal(await number("SELECT count(*) n FROM public.f05_recommendation_events_test WHERE actor_employee_id=62000"),beforeEvents);
+   assert.equal(await number("SELECT count(*) n FROM public.vehicle_visibility_grants WHERE customer_id=62000 AND vehicle_id=62010"),0);
+   assert.equal(await number("SELECT count(*) n FROM public.customer_price_cycle_unlocks WHERE customer_id=62000 AND vehicle_id=62010"),0);
+  }finally{
+   await db.query("UPDATE public.customers SET owner_assignment_state='assigned' WHERE customer_id=62000");
+  }
+ });
  await test('real hidden wholesale Recommendation creates exactly one grant and immutable price snapshot',async()=>{
   const eventKey=key();
   const created=await post({sourceDemandId:'62000',eventKey});

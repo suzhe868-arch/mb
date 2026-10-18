@@ -39,11 +39,15 @@ export function createIsolatedRecommendationService({pool,env=process.env}={}){
     const vehicle=(await db.query("SELECT v.vehicle_id,v.source_type,v.source_sale_status,v.archived_at,v.platform_visibility "+
      "FROM public.vehicles v WHERE v.vehicle_id=$1 FOR UPDATE",[vehicleId])).rows[0];
     if(!vehicle){await db.query('ROLLBACK');return resp(404,'REC_VEHICLE_NOT_FOUND')}
-    const customer=(await db.query("SELECT customer_id,account_status,current_owner_employee_id,customer_level_id "+
+    const customer=(await db.query("SELECT customer_id,account_status,current_owner_employee_id,owner_assignment_state,customer_level_id "+
      "FROM public.customers WHERE customer_id=$1 FOR SHARE",[customerId])).rows[0];
-    if(!customer||String(customer.current_owner_employee_id)!==employeeId){
+    if(!customer||customer.owner_assignment_state!=='assigned'||
+     String(customer.current_owner_employee_id)!==employeeId){
      await db.query('ROLLBACK');return resp(403,'REC_CURRENT_OWNER_REQUIRED');
     }
+    // A residual owner_id alone is NOT an active delegation when the customer
+    // has re-entered owner-assignment pending/public-pool state. Hold customer
+    // SHARE through COMMIT and reject even historical idempotency replays.
     // Replay is evaluated after current identity/scope, never a bypass via old token.
     await db.query("SELECT pg_advisory_xact_lock(hashtext('F05_REC_EVENT'),hashtext($1))",[eventKey]);
     const replay=(await db.query("SELECT fingerprint,actor_employee_id,recommendation_id,action "+
