@@ -154,10 +154,12 @@ export const SQL_CATALOG_SCHEMA=`SELECT
  to_regclass('public.f05_matching_sales_description_test') IS NOT NULL AS md,
  to_regclass('public.f05_matching_vehicle_facts_test') IS NOT NULL AS mv,
  to_regclass('public.f05_matching_recompute_events_test') IS NOT NULL AS mx,
- (SELECT count(*)=6 FROM pg_catalog.pg_trigger t WHERE NOT t.tgisinternal AND t.tgname IN
+ (SELECT count(*)=11 FROM pg_catalog.pg_trigger t WHERE NOT t.tgisinternal AND t.tgname IN
  ('f05_match_customer_guard_test','f05_match_demand_lifecycle_test',
   'f05_match_vehicle_saleability_test','f05_match_listing_cycle_test',
-  'f05_match_level_entitlement_test','f05_matching_change_events_append_only_test')) AS iv,
+  'f05_match_level_entitlement_test','f05_matching_change_events_append_only_test',
+  'f05_match_price_fact_test','f05_match_vehicle_fact_test','f05_match_sales_description_test',
+  'f05_match_vehicle_model_assignment_test','f05_match_master_model_fact_test')) AS iv,
  NOT EXISTS (
   SELECT 1 FROM (VALUES ${EXPECTED_COLUMNS_VALUES}) AS expected(relation,column_name,physical_type)
   LEFT JOIN pg_catalog.pg_attribute attr
