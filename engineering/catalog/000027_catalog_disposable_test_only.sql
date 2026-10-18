@@ -218,3 +218,37 @@ CREATE TABLE public.f05_catalog_price_display_proof_test (
 CREATE SEQUENCE public.f05_catalog_price_unlock_id_seq AS bigint START WITH 59000001;
 CREATE SEQUENCE public.f05_catalog_price_event_id_seq AS bigint START WITH 59000001;
 REVOKE ALL ON public.f05_catalog_price_entitlement_test,public.f05_catalog_price_display_proof_test FROM PUBLIC;
+
+-- F05-5 Employee daily Customer price-quota additions. Test permission is NOT a
+-- production F03 capability; permanent adjustment and daily ledger are F02 frozen tables.
+CREATE TABLE public.f05_catalog_quota_staff_scope_test (
+ employee_id bigint NOT NULL REFERENCES public.employees(employee_id) ON DELETE RESTRICT,
+ customer_id bigint NOT NULL REFERENCES public.customers(customer_id) ON DELETE RESTRICT,
+ can_add_price_quota boolean NOT NULL CHECK(can_add_price_quota=true),
+ issuer text NOT NULL DEFAULT 'DISPOSABLE_TEST_ONLY' CHECK(issuer='DISPOSABLE_TEST_ONLY'),
+ expires_at timestamptz NOT NULL,
+ PRIMARY KEY(employee_id,customer_id)
+);
+CREATE TABLE public.f05_catalog_quota_addition_events_test (
+ idempotency_key text PRIMARY KEY CHECK(idempotency_key ~ '^[A-Za-z0-9_-]{24,64}$'),
+ actor_employee_id bigint NOT NULL REFERENCES public.employees(employee_id) ON DELETE RESTRICT,
+ customer_id bigint NOT NULL REFERENCES public.customers(customer_id) ON DELETE RESTRICT,
+ business_day_shanghai date NOT NULL,
+ delta integer NOT NULL CHECK(delta>0 AND delta<=10000),
+ payload_sha256 text NOT NULL CHECK(payload_sha256 ~ '^[0-9a-f]{64}$'),
+ adjustment_id bigint NOT NULL UNIQUE REFERENCES public.customer_quota_adjustments(adjustment_id) ON DELETE RESTRICT,
+ before_remaining integer NOT NULL CHECK(before_remaining>=0),
+ after_remaining integer NOT NULL CHECK(after_remaining>=0),
+ total_temp_additions integer NOT NULL CHECK(total_temp_additions>=0),
+ occurred_at timestamptz NOT NULL DEFAULT statement_timestamp()
+);
+CREATE FUNCTION public.f05_quota_additions_append_only_test() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN RAISE EXCEPTION 'F05_QUOTA_ADDITION_IMMUTABLE' USING ERRCODE='23514'; END $$;
+CREATE TRIGGER f05_quota_addition_events_immutable_test BEFORE UPDATE OR DELETE
+ ON public.f05_catalog_quota_addition_events_test FOR EACH ROW
+ EXECUTE FUNCTION public.f05_quota_additions_append_only_test();
+CREATE TRIGGER f05_frozen_quota_adjustments_immutable_test BEFORE UPDATE OR DELETE
+ ON public.customer_quota_adjustments FOR EACH ROW
+ EXECUTE FUNCTION public.f05_quota_additions_append_only_test();
+CREATE SEQUENCE public.f05_catalog_quota_adjustment_id_seq AS bigint START WITH 59000001;
+REVOKE ALL ON public.f05_catalog_quota_staff_scope_test,public.f05_catalog_quota_addition_events_test FROM PUBLIC;
