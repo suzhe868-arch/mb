@@ -44,6 +44,9 @@ export function createIsolatedFavoriteService({pool,env=process.env}={}){
      return response(200,'FAVORITE_STATE',{active:current?.current_state==='active',version:current?String(current.state_version):null,productionReady:false});
     }
     const payloadHash=hash(JSON.stringify([customerId,vehicleId,action]));
+    // Cross-Customer same-key operations must serialize as well as same Favorite operations.
+    // This lock is test-only and never substitutes for a signed Customer issuer.
+    await c.query('SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))',['F05_FAVORITE_EVENT_KEY',eventKey]);
     const previous=(await c.query('SELECT * FROM public.f05_catalog_favorite_events_test WHERE event_key=$1',[eventKey])).rows[0];
     if(previous){
      await c.query('ROLLBACK');

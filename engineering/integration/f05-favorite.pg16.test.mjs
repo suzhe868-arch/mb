@@ -122,6 +122,17 @@ try{
   await assert.rejects(writer.query('UPDATE public.f05_catalog_favorite_events_test SET event_key=$2 WHERE event_key=$1',[k,event()]),e=>e.code==='23514');
   await assert.rejects(writer.query('DELETE FROM public.f05_catalog_favorite_events_test WHERE event_key=$1',[k]),e=>e.code==='23514');
  });
+
+ await test('simultaneous different-Customer reuse of the same event key commits exactly once',async()=>{
+  const k=event();
+  const results=await Promise.all([call('POST',activeToken,k),call('POST',otherToken,k)]);
+  assert.equal(results.filter(x=>x.status===200&&x.body.code==='FAVORITE_APPLIED').length,1);
+  assert.equal(results.filter(x=>x.status===409&&x.body.code==='FAVORITE_IDEMPOTENCY_COLLISION').length,1);
+  const n=(await writer.query('SELECT count(*)::int n FROM public.f05_catalog_favorite_events_test WHERE event_key=$1',[k])).rows[0].n;
+  assert.equal(n,1);
+  const states=(await writer.query("SELECT count(*)::int n FROM public.f05_catalog_favorite_states_test WHERE vehicle_id=59003 AND current_state='active'")).rows[0].n;
+  assert.equal(states,2,'Existing active Customer and one concurrent actor: no extra customer state');
+ });
  await test('Customer session revocation immediately fails closed',async()=>{
   await writer.query('UPDATE public.f05_catalog_customer_sessions_test SET revoked_at=statement_timestamp() WHERE token_sha256=$1',[sha(activeToken)]);
   assert.equal((await call('GET',activeToken)).status,401);
