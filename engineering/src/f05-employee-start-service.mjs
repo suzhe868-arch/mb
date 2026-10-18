@@ -117,6 +117,8 @@ export function createIsolatedEmployeeStartService({pool,env=process.env}={}){
      return response(200,'CONSULTATION_PROCESSING_REPLAY',{consultationId,status:'processing',firstHumanResponse:false,productionReady:false});
     }
     if(consultation.status!=='pending'){await c.query('ROLLBACK');return response(409,'CONSULTATION_NOT_PENDING')}
+    const hold=(await c.query("SELECT 1 FROM public.f05_catalog_consultation_hold_test WHERE consultation_id=$1 AND active=true",[consultationId])).rows[0];
+    if(hold){await c.query('ROLLBACK');return response(409,'CONSULTATION_CUSTOMER_DISABLED_HOLD')}
     await c.query("UPDATE public.consultations SET status='processing' "+
       "WHERE consultation_id=$1 AND assignee_employee_id=$2 AND status='pending'",
       [consultationId,employeeId]);
