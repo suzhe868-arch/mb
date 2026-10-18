@@ -7,7 +7,7 @@ FROM public.demand_match_results r
 JOIN public.demands d ON d.demand_id=r.demand_id AND d.demand_state='active'
 JOIN public.customers c ON c.customer_id=d.customer_id AND c.account_status='active'
  AND c.owner_assignment_state='assigned'
- AND c.current_owner_employee_id=d.responsible_employee_id
+ AND c.current_owner_employee_id IS NOT NULL
 JOIN public.f05_find_car_level_entitlement_test ent ON ent.level_id=c.customer_level_id
  AND ent.issuer='DISPOSABLE_TEST_ONLY' AND ent.can_activate_demand=true
  AND ent.expires_at>statement_timestamp()

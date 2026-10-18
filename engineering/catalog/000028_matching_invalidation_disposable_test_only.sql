@@ -8,7 +8,7 @@ DECLARE hit record; total integer:=0;
 BEGIN
  IF p_cause NOT IN ('CUSTOMER_ACCOUNT_OR_LEVEL','DEMAND_STATE',
                     'VEHICLE_SALEABILITY','LISTING_CYCLE','LEVEL_ENTITLEMENT',
-                    'CUSTOMER_OWNER_CHANGED','EMPLOYEE_MATCH_AUTHORITY_CHANGED')
+                    'DEMAND_RESPONSIBLE_CHANGED','EMPLOYEE_MATCH_AUTHORITY_CHANGED')
     OR (p_customer IS NULL AND p_demand IS NULL AND p_vehicle IS NULL AND p_cycle IS NULL)
  THEN RAISE EXCEPTION 'F05_INVALIDATION_SCOPE_NOT_AUTHORIZED'; END IF;
  FOR hit IN
@@ -51,28 +51,28 @@ BEGIN
  THEN
   PERFORM public.f05_match_invalidate_affected_test(
    'CUSTOMER_ACCOUNT_OR_LEVEL',NEW.customer_id,NULL,NULL,NULL);
- ELSIF NEW.current_owner_employee_id IS DISTINCT FROM OLD.current_owner_employee_id
-    OR NEW.owner_assignment_state IS DISTINCT FROM OLD.owner_assignment_state
- THEN
-  -- Ownership is authority, not merely a read-time cosmetic property.
-  -- Make old frozen Match Results stale for good; restoring the old Owner
-  -- cannot resurrect matches created before a custody transition.
-  PERFORM public.f05_match_invalidate_affected_test(
-   'CUSTOMER_OWNER_CHANGED',NEW.customer_id,NULL,NULL,NULL);
  END IF;
  RETURN NEW;
 END $$;
-CREATE TRIGGER f05_match_customer_guard_test AFTER UPDATE OF account_status,customer_level_id,current_owner_employee_id,owner_assignment_state
+CREATE TRIGGER f05_match_customer_guard_test AFTER UPDATE OF account_status,customer_level_id
  ON public.customers FOR EACH ROW EXECUTE FUNCTION public.f05_match_on_customer_guard_test();
 
 CREATE FUNCTION public.f05_match_on_demand_lifecycle_test() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
  IF NEW.demand_state IS DISTINCT FROM OLD.demand_state
- THEN PERFORM public.f05_match_invalidate_affected_test(
-    'DEMAND_STATE',NULL,NEW.demand_id,NULL,NULL); END IF;
+ THEN
+  PERFORM public.f05_match_invalidate_affected_test(
+   'DEMAND_STATE',NULL,NEW.demand_id,NULL,NULL);
+ ELSIF NEW.responsible_employee_id IS DISTINCT FROM OLD.responsible_employee_id
+ THEN
+  -- A formal PDM-11 Demand reassignment, not an unrelated Customer Owner
+  -- handover, invalidates previously signed/current matching authority.
+  PERFORM public.f05_match_invalidate_affected_test(
+   'DEMAND_RESPONSIBLE_CHANGED',NULL,NEW.demand_id,NULL,NULL);
+ END IF;
  RETURN NEW;
 END $$;
-CREATE TRIGGER f05_match_demand_lifecycle_test AFTER UPDATE OF demand_state
+CREATE TRIGGER f05_match_demand_lifecycle_test AFTER UPDATE OF demand_state,responsible_employee_id
  ON public.demands FOR EACH ROW EXECUTE FUNCTION public.f05_match_on_demand_lifecycle_test();
 
 CREATE FUNCTION public.f05_match_on_vehicle_saleability_test() RETURNS trigger LANGUAGE plpgsql AS $$

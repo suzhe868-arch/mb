@@ -195,39 +195,52 @@ try{
   }
   const good=await call({vehicle:'59710',eventKey:key});assert.equal(good.status,200);
  });
- await test('PG16 current Owner reassignment revokes old sales matching authority and safe visibility immediately',async()=>{
-  const previous=(await writer.query(
-   "SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE demand_id=59700 AND vehicle_id=59710")).rows[0].n;
-  assert.equal(previous,1);
-  const before=await results('59710');
-  // A committed owner transfer with an unchanged old Demand and Scope must not
-  // leave former owner able to read/create matching authority.
+ await test('PG16 Customer Owner change preserves independent active Demand matching; Demand reassignment invalidates frozen current',async()=>{
+  const safe=async()=>Number((await writer.query(
+   "SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE demand_id=59700 AND vehicle_id=59710")).rows[0].n);
+  assert.equal(await safe(),1);
+  const before=(await results('59710')).at(-1);
+  const countBefore=(await results('59710')).length;
+  // PDM-11: Customer owner changes do not silently rewrite the Demand owner.
+  // The Customer remains assigned to a legitimate different sales Employee.
   await writer.query("UPDATE public.customers SET current_owner_employee_id=59702 WHERE customer_id=59700");
   try{
-   const now=(await writer.query(
-    "SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE demand_id=59700 AND vehicle_id=59710")).rows[0].n;
-   assert.equal(now,0,'old matching current must disappear at READ time');
-   const unauthorized=await call({vehicle:'59710'});
-   assert.equal(unauthorized.status,403,JSON.stringify(unauthorized));
-   assert.equal(unauthorized.body.code,'MATCH_CURRENT_CUSTOMER_OWNER_REQUIRED');
-   const latest=await results('59710');
-   assert.equal(latest.length,before.length,
-    'stale Owner cannot create Match Result even with old test Scope');
-   assert.equal(latest.at(-1).current_state,'invalidated',
-    'historical Match must be physically invalidated on custody change');
+   assert.equal(await safe(),1,
+    'unchanged active Demand with valid responsible/scope retains safe current Match');
+   const newOwnerAttempt=await call({credential:otherToken});
+   assert.equal(newOwnerAttempt.status,403,JSON.stringify(newOwnerAttempt));
+   assert.equal(newOwnerAttempt.body.code,'MATCH_RESPONSIBLE_EMPLOYEE_REQUIRED');
+   assert.equal((await results('59710')).length,countBefore);
    assert.equal((await writer.query("SELECT count(*)::int n FROM public.matching_change_events "+
-    "WHERE trigger_kind='CUSTOMER_OWNER_CHANGED' AND result_id=$1",
-    [latest.at(-1).result_id])).rows[0].n,1);
+    "WHERE trigger_kind='CUSTOMER_OWNER_CHANGED' AND result_id=$1",[before.result_id])).rows[0].n,0);
+   const recompute=await call({vehicle:'59710'});
+   assert.equal(recompute.status,200,JSON.stringify(recompute));
+   assert.equal(await safe(),1,'legitimate original Demand responsible may recalculate');
+   assert.equal((await writer.query("SELECT current_owner_employee_id FROM public.customers WHERE customer_id=59700")).rows[0].current_owner_employee_id.toString(),'59702',
+    'recompute cannot change Customer owner');
+   // The authority changes ONLY when Demand responsible is formally
+   // reassigned; DB must invalidate the frozen Match, preserving an audit.
+   const current=(await results('59710')).at(-1);
+   await writer.query("UPDATE public.demands SET responsible_employee_id=59702 WHERE demand_id=59700");
+   assert.equal(await safe(),0,'old Demand result invalid on responsible handover');
+   assert.equal((await results('59710')).at(-1).current_state,'invalidated');
+   assert.equal((await writer.query("SELECT count(*)::int n FROM public.matching_change_events "+
+    "WHERE trigger_kind='DEMAND_RESPONSIBLE_CHANGED' AND result_id=$1",[current.result_id])).rows[0].n,1);
+   const former=await call({vehicle:'59710'});
+   assert.equal(former.status,403,JSON.stringify(former));
+   assert.equal(former.body.code,'MATCH_RESPONSIBLE_EMPLOYEE_REQUIRED');
   }finally{
+   await writer.query("UPDATE public.demands SET responsible_employee_id=59700 WHERE demand_id=59700");
    await writer.query("UPDATE public.customers SET current_owner_employee_id=59700 WHERE customer_id=59700");
   }
-  assert.equal((await writer.query(
-   "SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE demand_id=59700 AND vehicle_id=59710")).rows[0].n,0,
-   'restoring the Owner does not resurrect an invalidated historical Match');
-  const recovered=await call({vehicle:'59710'});
-  assert.equal(recovered.status,200,JSON.stringify(recovered));
-  assert.equal((await writer.query(
-   "SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE demand_id=59700 AND vehicle_id=59710")).rows[0].n,1);
+  assert.equal(await safe(),0,'changing Owner back cannot resurrect actually invalidated Demand result');
+  const restored=await call({vehicle:'59710'});
+  assert.equal(restored.status,200,JSON.stringify(restored));
+  assert.equal(await safe(),1);
+  for(const table of ['recommendations','priority_leases','vehicle_visibility_grants'])
+   assert.equal((await writer.query("SELECT count(*)::int n FROM public."+table+
+    " WHERE customer_id=59700")).rows[0].n,0,
+    'Matching never automatically grants downstream '+table);
  });
  await test('PG16 Employee role demotion destroys current Match eligibility, immutable history survives restoring role',async()=>{
   const safe=async()=>Number((await writer.query(

@@ -41,9 +41,11 @@ export function createIsolatedMatchingService({pool,env=process.env}={}){
     if(String(demand.responsible_employee_id)!==employeeId){
      await db.query('ROLLBACK');return reply(403,'MATCH_RESPONSIBLE_EMPLOYEE_REQUIRED');
     }
-    // A historical Demand owner is not necessarily the Customer's current
-    // Owner after reassignment. Hold Customer SHARE lock through COMMIT.
-    if(demand.owner_assignment_state!=='assigned'||String(demand.current_owner_employee_id)!==employeeId){
+    // PDM-11 §10: Demand responsible is independent from Customer Owner.
+    // A legitimate Demand-specific employee retains its explicit scoped work
+    // through a Customer Owner transfer; public-pool/pending remains denied.
+    // Demand FOR UPDATE and Customer FOR SHARE freeze both facts until COMMIT.
+    if(demand.owner_assignment_state!=='assigned'||demand.current_owner_employee_id===null){
      await db.query('ROLLBACK');return reply(403,'MATCH_CURRENT_CUSTOMER_OWNER_REQUIRED');
     }
     const permission=(await db.query("SELECT 1 FROM public.f05_matching_employee_scope_test p "+
