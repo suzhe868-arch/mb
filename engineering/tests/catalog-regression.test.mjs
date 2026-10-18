@@ -62,7 +62,7 @@ test('PDM-20 seven sorts: six unverified business projections fail closed; oldes
 test('large signed PostgreSQL bigint safely roundtrips without numeric coercion',async()=>{
  const id='9223372036854775807',ts='2026-10-15T09:00:00.123456Z';
  const tok=encodeCursor({at:ts,id,source:'mingbang',sort:'newest'},secret);
- assert.equal(decodeCursor(tok,secret,'mingbang','oldest').id,id);
+ assert.equal(decodeCursor(tok,secret,'mingbang','newest').id,id);
  const r=await request(byRows((s,p)=>[{
   ...row(8,ts,'mingbang'),vehicleId:id,listingCycleId:id,modelId:id,
  }]),'/api/v1/catalog/vehicles/'+id);
@@ -84,7 +84,7 @@ for(const bad of [
  '/api/v1/catalog/vehicles?region=other',
  '/api/v1/catalog/vehicles?source=FOUR_S',
  '/api/v1/catalog/vehicles?pageSize=-1',
- '/api/v1/catalog/vehicles?sort=price_asc',
+ '/api/v1/catalog/vehicles?sort=unverified_extra_sort',
 ])test(`bad HTTP query denied: ${bad.slice(0,55)}`,async()=>{
  const r=await request(byRows(),bad);assert.equal(r.status,400);
  assert.ok(r.body.code);assert.equal(JSON.stringify(r.body).includes('private@private.example'),false);
