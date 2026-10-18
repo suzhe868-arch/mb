@@ -43,7 +43,7 @@ test('PostgreSQL temporal ordering retains six fractional digits end-to-end',asy
  assert.equal(decodeCursor(cursor,secret,'wholesale','newest').at,at);
  const next=await request(pool,'/api/v1/catalog/vehicles?cursor='+encodeURIComponent(cursor));
  assert.equal(next.status,200);assert.equal(next.body.items[0].vehicleId,'17');
- assert.equal(captured[1].params[1],at);assert.equal(captured[1].params[2],'1015');assert.equal(captured[1].params[3],null);
+ assert.equal(captured[1].params[1],at);assert.equal(captured[1].params[2],'1015');assert.deepEqual(captured[1].params.slice(3),[null,null,null]);
  assert.equal(next.body.nextCursor,null);
 });
 test('PDM05 exact modelId is parameterized in PG query before keyset pagination',async()=>{
@@ -52,7 +52,7 @@ test('PDM05 exact modelId is parameterized in PG query before keyset pagination'
  const result=await request(byRows((sql,params)=>{captured={sql,params};return [row(5)]}),`/api/v1/catalog/vehicles?modelId=${modelId}`);
  assert.equal(result.status,200);
  assert.equal(result.body.modelId,modelId);
- assert.deepEqual(captured.params,['wholesale',null,null,modelId]);
+ assert.deepEqual(captured.params,['wholesale',null,null,modelId,null,null]);
  assert.match(captured.sql,/v\.model_id=\$4::bigint/);
 });
 test('PDM05 modelId query cannot be SQL-injected, widened or coerced',async()=>{
@@ -71,6 +71,28 @@ test('model-specific signed cursor is rejected in another model or an unfiltered
  assert.equal(wrong.status,400);assert.equal(wrong.body.code,'INVALID_CURSOR');
  const bare=await request(byRows(),'/api/v1/catalog/vehicles?cursor='+cursor);
  assert.equal(bare.status,400);assert.equal(bare.body.code,'INVALID_CURSOR');
+});
+test('PDM05 brand and series are typed and filter through physical model master data',async()=>{
+ let sql,params;
+ const r=await request(byRows((s,p)=>{sql=s;params=p;return [row(2)]}),'/api/v1/catalog/vehicles?brandId=123&seriesId=456');
+ assert.equal(r.status,200);assert.equal(r.body.brandId,'123');assert.equal(r.body.seriesId,'456');
+ assert.deepEqual(params,['wholesale',null,null,null,'123','456']);
+ assert.match(sql,/COALESCE\(vm\.brand_id,vs\.brand_id\)=\$5::bigint/);
+ assert.match(sql,/vm\.series_id=\$6::bigint/);
+ assert.match(sql,/vm\.brand_id=vs\.brand_id/);
+ for(const field of ['brandId','seriesId'])for(const bad of ['0','-1','9223372036854775808','1%20OR%201%3D1']){
+  const x=await request(byRows(),`/api/v1/catalog/vehicles?${field}=${bad}`);
+  assert.equal(x.status,400,field+'='+bad);
+ }
+});
+test('brand-series cursor is bound to identical hierarchy, no cross-filter reuse',async()=>{
+ const first=await request(byRows(()=>Array.from({length:16},(_,k)=>row(k+1))),'/api/v1/catalog/vehicles?brandId=123&seriesId=456');
+ assert.equal(first.status,200);assert.ok(first.body.nextCursor);
+ const cursor=encodeURIComponent(first.body.nextCursor);
+ for(const q of ['brandId=124&seriesId=456','brandId=123&seriesId=457','brandId=123','seriesId=456']){
+  const x=await request(byRows(),`/api/v1/catalog/vehicles?${q}&cursor=${cursor}`);
+  assert.equal(x.status,400,q);assert.equal(x.body.code,'INVALID_CURSOR');
+ }
 });
 test('PDM-20 seven sorts: six unverified business projections fail closed; oldest is prohibited',async()=>{
  const legal=['price_asc','price_desc','registration_year_desc','registration_year_asc','mileage_asc','mileage_desc'];

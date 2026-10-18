@@ -68,6 +68,16 @@ try{
   assert.equal(no.status,200);assert.equal(no.body.items.some(x=>x.vehicleId===cfg.vehicle),false);
   assert.equal((await get('/api/v1/catalog/vehicles?modelId=0')).status,400);
  });
+ await test('PG16 physically filters exact brand-series-model hierarchy',async()=>{
+  const yes=await get(`/api/v1/catalog/vehicles?brandId=59001&seriesId=59001&modelId=${cfg.vehicle}`);
+  assert.equal(yes.status,200);
+  assert.equal(yes.body.items.some(x=>x.vehicleId===cfg.vehicle),true);
+  for(const q of ['brandId=59002','seriesId=59002','brandId=59001&seriesId=59002']){
+   const no=await get('/api/v1/catalog/vehicles?'+q);
+   assert.equal(no.status,200);
+   assert.equal(no.body.items.some(x=>x.vehicleId===cfg.vehicle),false,q);
+  }
+ });
  await test('uncommitted PRIORITY does not incorrectly hide from independent reader',async()=>{
   await writer.query('BEGIN');transaction=true;
   await writer.query("INSERT INTO public.f05_real_catalog_protections_test(vehicle_id,listing_cycle_id,protection_kind) VALUES($1,$2,'PRIORITY')",[cfg.vehicle,cfg.cycle]);
