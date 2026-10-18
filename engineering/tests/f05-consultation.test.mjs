@@ -6,7 +6,7 @@ import {createIsolatedConsultationHandler} from '../src/f05-consultation-http.mj
 import {createIsolatedConsultationService} from '../src/f05-consultation-service.mjs';
 const env={APP_ENV:'test',NODE_ENV:'test',API_HOST:'127.0.0.1',F05_CATALOG_TEST_CONSENT:'I_AUTHORIZE_DISPOSABLE_F05_CATALOG_PG16_ONLY'};
 const token='A'.repeat(43),key='Z'.repeat(32);
-const mock={create:async()=>({status:200,body:{code:'CONSULTATION_CREATED',consultationId:'12',created:true,productionReady:false}})};
+const mock={create:async()=>({status:200,body:{code:'CONSULTATION_CREATED',consultationId:'12',created:true,productionReady:false}}),withdraw:async()=>({status:200,body:{code:'CONSULTATION_WITHDRAWN',consultationId:'12',status:'resolved',closeReason:'CUSTOMER_WITHDRAWN',productionReady:false}})};
 async function req(method='POST',headers={},url='/api/v1/catalog/vehicles/59001/consultations'){
  const server=createServer(createFoundationHandler({consultationHandler:createIsolatedConsultationHandler(mock,env)}));
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
@@ -43,8 +43,19 @@ test('consultation method, route, query and idempotency strictly checked',async(
  assert.equal((await req('POST',{authorization:'Bearer '+token})).status,400);
  assert.equal((await req('POST',h,'/api/v1/catalog/vehicles/0/consultations')).status,400);
 });
+test('consultation withdrawal HTTP requires verified test Customer, event key, and refuses forged identity',async()=>{
+ const target='/api/v1/catalog/consultations/12/withdraw',header={authorization:'Bearer '+token,'x-idempotency-key':key};
+ const ok=await req('POST',header,target);assert.equal(ok.status,200);
+ assert.equal(ok.body.code,'CONSULTATION_WITHDRAWN');assert.equal(ok.body.closeReason,'CUSTOMER_WITHDRAWN');
+ assert.equal((await req('POST',{'x-idempotency-key':key},target)).status,401);
+ assert.equal((await req('POST',{authorization:'Bearer '+token},target)).status,400);
+ assert.equal((await req('GET',header,target)).status,405);
+ assert.equal((await req('POST',{...header,'x-customer-id':'59001'},target)).status,403);
+ assert.equal((await req('POST',header,target+'?customerId=59001')).status,400);
+ assert.equal((await req('POST',header,'/api/v1/catalog/consultations/0/withdraw')).status,400);
+});
 test('database errors return generic fail-closed 503 without leaking sensitive details',async()=>{
- const failing={create:async()=>{throw Error('private_key_secret')}};
+ const failing={...mock,create:async()=>{throw Error('private_key_secret')}};
  const server=createServer(createFoundationHandler({consultationHandler:createIsolatedConsultationHandler(failing,env)}));
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
  try{

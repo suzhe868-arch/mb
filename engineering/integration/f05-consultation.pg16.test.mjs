@@ -118,6 +118,77 @@ try{
    await writer.query('UPDATE public.vehicle_listing_cycles SET ended_at=NULL WHERE listing_cycle_id=59001');
   }
  });
+
+ const otherToken=randomBytes(32).toString('base64url');
+ await writer.query("INSERT INTO public.customers(customer_id,account_status,customer_level_id,owner_assignment_state) VALUES(59011,'active',59001,'owner_assignment_pending')");
+ await writer.query("INSERT INTO public.f05_catalog_customer_sessions_test(token_sha256,customer_id,expires_at) VALUES($1,59011,statement_timestamp()+interval '20 minutes')",[digest(otherToken)]);
+ const withdraw=async(id,eventKey=key(),authToken=token,more={})=>{
+  const headers={authorization:'Bearer '+authToken,'x-idempotency-key':eventKey,...more};
+  const r=await fetch('http://127.0.0.1:'+server.address().port+'/api/v1/catalog/consultations/'+id+'/withdraw',{method:'POST',headers});
+  return {status:r.status,body:await r.json()};
+ };
+ await test('PG16 other Customer cannot withdraw someone else active Consultation',async()=>{
+  const result=await withdraw(cId,key(),otherToken);
+  assert.equal(result.status,404);assert.equal(result.body.code,'CONSULTATION_NOT_FOUND');
+  assert.equal((await writer.query('SELECT status FROM public.consultations WHERE consultation_id=$1',[cId])).rows[0].status,'pending');
+ });
+ await test('PG16 Customer withdrawal succeeds on offline vehicle with disabled employee/no Owner, preserves original owner history and SLA',async()=>{
+  const before=(await writer.query('SELECT source_relation,assignee_employee_id,first_response_deadline FROM public.consultations WHERE consultation_id=$1',[cId])).rows[0];
+  await writer.query("UPDATE public.vehicles SET source_sale_status='offline' WHERE vehicle_id=59001");
+  await writer.query("UPDATE public.customers SET current_owner_employee_id=NULL,owner_assignment_state='owner_assignment_pending' WHERE customer_id=59001");
+  await writer.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=59001");
+  await writer.query("DELETE FROM public.f05_catalog_consultation_actor_proof_test WHERE customer_id=59001");
+  const withdrawKey=key();
+  try{
+   const done=await withdraw(cId,withdrawKey);
+   assert.equal(done.status,200);assert.equal(done.body.code,'CONSULTATION_WITHDRAWN');
+   const row=(await writer.query('SELECT status,close_reason,completed_at,source_relation,assignee_employee_id,first_response_deadline FROM public.consultations WHERE consultation_id=$1',[cId])).rows[0];
+   assert.equal(row.status,'resolved');assert.equal(row.close_reason,'CUSTOMER_WITHDRAWN');
+   assert.ok(row.completed_at instanceof Date);
+   assert.deepEqual(row.source_relation,before.source_relation);
+   assert.equal(String(row.assignee_employee_id),String(before.assignee_employee_id));
+   assert.equal(row.first_response_deadline.getTime(),before.first_response_deadline.getTime());
+   const replay=await withdraw(cId,withdrawKey);
+   assert.equal(replay.status,200);assert.equal(replay.body.code,'CONSULTATION_WITHDRAWAL_REPLAY');
+   const again=await withdraw(cId);assert.equal(again.status,409);assert.equal(again.body.code,'CONSULTATION_NOT_OPEN');
+   const n=(await writer.query("SELECT count(*)::int n FROM public.f05_catalog_consultation_actions_test WHERE consultation_id=$1 AND action='WITHDRAWN'",[cId])).rows[0].n;
+   assert.equal(n,1);
+  }finally{
+   await writer.query("UPDATE public.vehicles SET source_sale_status='active' WHERE vehicle_id=59001");
+   await writer.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=59001");
+   await writer.query("UPDATE public.customers SET current_owner_employee_id=59001,owner_assignment_state='assigned' WHERE customer_id=59001");
+   await writer.query("INSERT INTO public.f05_catalog_consultation_actor_proof_test(customer_id,assignee_employee_id,phone_consent_test,worker_scope_test,expires_at) VALUES(59001,59001,true,true,statement_timestamp()+interval '20 minutes')");
+  }
+ });
+ await test('PG16 withdrawal event cannot use a prior create key',async()=>{
+  const clash=await withdraw(cId,k);
+  assert.equal(clash.status,409);assert.equal(clash.body.code,'CONSULTATION_IDEMPOTENCY_COLLISION');
+ });
+ await test('PG16 withdrawal and immutable audit are one atomic transaction under forced audit error',async()=>{
+  const open=(await call()).body.consultationId;
+  assert.notEqual(open,cId);
+  const injectKey=key();
+  await writer.query("CREATE FUNCTION public.f05_withdraw_inject_fail_test() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'INJECTED_WITHDRAW_ROLLBACK'; END $$");
+  await writer.query("CREATE TRIGGER f05_withdraw_inject_fail BEFORE INSERT ON public.f05_catalog_consultation_actions_test FOR EACH ROW EXECUTE FUNCTION public.f05_withdraw_inject_fail_test()");
+  try{
+   const failed=await withdraw(open,injectKey);
+   assert.equal(failed.status,503);
+   assert.equal((await writer.query('SELECT status FROM public.consultations WHERE consultation_id=$1',[open])).rows[0].status,'pending');
+   assert.equal((await writer.query('SELECT count(*)::int n FROM public.f05_catalog_consultation_actions_test WHERE event_key=$1',[injectKey])).rows[0].n,0);
+  }finally{
+   await writer.query('DROP TRIGGER f05_withdraw_inject_fail ON public.f05_catalog_consultation_actions_test');
+   await writer.query('DROP FUNCTION public.f05_withdraw_inject_fail_test()');
+  }
+  assert.equal((await withdraw(open,injectKey)).body.code,'CONSULTATION_WITHDRAWN');
+ });
+ await test('disabled Customer and revoked test session both fail closed for withdrawal',async()=>{
+  const active=(await call()).body.consultationId;
+  await writer.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=59001");
+  try{assert.equal((await withdraw(active)).status,401)}
+  finally{await writer.query("UPDATE public.customers SET account_status='active' WHERE customer_id=59001")}
+  await writer.query('UPDATE public.f05_catalog_customer_sessions_test SET revoked_at=statement_timestamp() WHERE token_sha256=$1',[digest(token)]);
+  assert.equal((await withdraw(active)).status,401);
+ });
  await test('Customer bearer revoked immediately denies new consultation action',async()=>{
   await writer.query('UPDATE public.f05_catalog_customer_sessions_test SET revoked_at=statement_timestamp() WHERE token_sha256=$1',[digest(token)]);
   assert.equal((await call()).status,401);
