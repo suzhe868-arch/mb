@@ -28,6 +28,9 @@ export function createIsolatedMatchingService({pool,env=process.env}={}){
     const employeeId=String(actor.employee_id);
     await db.query("SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))",['F05_MATCH_EVENT',eventKey]);
     await db.query("SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))",['F05_MATCH_PAIR',demandId+':'+vehicleId]);
+    // Same transaction-scoped lock as the BEFORE source price/fact write triggers.
+    // Acquire before ANY source SELECT, so READ COMMITTED sees the committed winner.
+    await db.query("SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))",['F05_MATCH_VEHICLE',vehicleId]);
     const demand=(await db.query("SELECT d.demand_id,d.customer_id,d.responsible_employee_id,d.demand_state,"+
      "c.account_status,c.customer_level_id "+
      "FROM public.demands d JOIN public.customers c ON c.customer_id=d.customer_id "+
