@@ -43,7 +43,7 @@ try{
    "(59711,'wholesale','active','hidden',59001,statement_timestamp()),"+
    "(59712,'wholesale','active','visible',NULL,statement_timestamp()),"+
    "(59713,'wholesale','active','visible',59001,statement_timestamp()),"+
-   "(59714,'wholesale','sold','visible',59001,statement_timestamp()),"+
+   "(59714,'wholesale','offline','visible',59001,statement_timestamp()),"+
    "(59715,'wholesale','active','visible',NULL,statement_timestamp())");
   await writer.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES"+
    "(59710,59710,statement_timestamp()),(59711,59711,statement_timestamp()),"+
