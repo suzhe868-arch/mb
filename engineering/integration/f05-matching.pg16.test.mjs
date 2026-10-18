@@ -105,6 +105,7 @@ try{
  await test('PG16 current tier HIGH is frozen F02 physical Match Result with explanation but no recommendation',async()=>{
   const r=await call({eventKey:firstKey});assert.equal(r.status,200,JSON.stringify(r.body));
   assert.equal(r.body.matchTier,'high');assert.equal(r.body.noRecommendation,true);assert.equal(r.body.matchingReady,true);
+  assert.equal(r.body.explanation.sourceFacts.hiddenButEligible,false);
   const saved=await results('59710');assert.equal(saved.length,1);
   assert.equal(saved[0].current_state,'current');assert.equal(saved[0].match_tier,'high');
   assert.equal(saved[0].match_explanation.components.filter(x=>x.category==='hard').length,4);
@@ -118,6 +119,7 @@ try{
  await test('PG16 physically hidden but sellable vehicle matches ACCEPTABLE at exact 5% budget tolerance',async()=>{
   const r=await call({vehicle:'59711'});
   assert.equal(r.status,200,JSON.stringify(r.body));assert.equal(r.body.matchTier,'acceptable');
+  assert.equal(r.body.explanation.sourceFacts.hiddenButEligible,true);
   assert.equal((await results('59711'))[0].match_tier,'acceptable');
   assert.equal((await writer.query('SELECT platform_visibility FROM public.vehicles WHERE vehicle_id=59711')).rows[0].platform_visibility,'hidden');
   assert.equal((await writer.query('SELECT count(*)::int n FROM public.vehicle_visibility_grants WHERE vehicle_id=59711')).rows[0].n,0);
@@ -154,7 +156,7 @@ try{
  });
  await test('PG16 event key replay no second result, different vehicle same key returns strict collision',async()=>{
   const r=await call({eventKey:firstKey});assert.equal(r.status,200);
-  assert.equal(r.body.code,'MATCH_RECOMPUTE_REPLAY');
+  assert.equal(r.body.code,'MATCH_RECOMPUTE_REPLAY');assert.equal(r.body.matchingReady,false);
   assert.equal((await results('59710')).length,1);
   assert.equal((await call({vehicle:'59711',eventKey:firstKey})).status,409);
  });
