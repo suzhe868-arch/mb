@@ -2,11 +2,11 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F05_8_TEST_ONLY_SINGLE_CUSTOMER_PRIORITY_QUALIFICATION_PG16_251_PASS",
+  "status": "B_IN_PROGRESS_F05_8_PRIORITY_QUAL_DISABLE_UNBOUNDED_ATOMIC_PG16_252_PASS_TEST_ONLY",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "4957093eb59dc0e92adffb1b258998e80becf8c9",
+  "github_commit": "c5325dba00fb1ffaba0d927ff9e68dc29f240282",
   "node_http_stub_tests": {
     "passed": 150,
     "failed": 0,
@@ -14,10 +14,10 @@
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39141688413,
-    "head_sha": "4957093eb59dc0e92adffb1b258998e80becf8c9",
+    "run_id": 39142599371,
+    "head_sha": "c5325dba00fb1ffaba0d927ff9e68dc29f240282",
     "node_http_tests_passed": 150,
-    "real_pg16_integration_tests_passed": 251,
+    "real_pg16_integration_tests_passed": 252,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -108,10 +108,13 @@
     "f05_priority_ttl_sweep_pg16_tests_passed": 7,
     "f05_priority_ttl_sweep_worker_kernel_test_only_verified": true,
     "formal_priority_ttl_scheduler_deployed": false,
-    "f05_priority_qualification_pg16_test_cases_passed": 8,
+    "f05_priority_qualification_pg16_test_cases_passed": 9,
     "f05_priority_qualification_single_customer_manager_scope_test_only_verified": true,
     "f05_priority_qualification_disable_atomic_rearbitration_test_only_verified": true,
-    "formal_priority_qualification_issuer_verified": false
+    "formal_priority_qualification_issuer_verified": false,
+    "f05_priority_qualification_28_real_vehicle_atomic_disable_test_only_verified": true,
+    "f05_priority_qualification_no_25_active_lease_limit_test_only_verified": true,
+    "formal_priority_qualification_massive_scale_benchmark_verified": false
   },
   "endpoints": {
     "implemented_test_only": [
@@ -322,8 +325,8 @@
     "Full F05-1..11 actual authenticated HTTP/PG16 business still missing"
   ],
   "next_owner": "B",
-  "next_milestone": "B继续F05正式三类来源/Employee与WeChat信任链、受影响增量调度/管理权限Issuer、动态员工交接与M94历史及跨端E2E；严禁将测试开关当正式生产后台。F06～F08仍暂停。",
-  "verification_scope": "F02_1_CURRENT_INITIAL_76_TABLES_PLUS_43_DISPOSABLE_TEST_SIDECARS_119_TOTAL_25_ISOLATED_TRIGGERS_NODE150_REAL_PG16_251",
+  "next_milestone": "B继续F05正式Employee/Customer/Sources签发和可靠事件调度、跨端联调、F03现有权限复用与M94生产历史；28辆禁资格整包PG16已过但生产大量负载尚需可靠限时重试验证，F06~F08不启动。",
+  "verification_scope": "F02_1_CURRENT_INITIAL_76_TABLES_PLUS_43_DISPOSABLE_TEST_SIDECARS_119_TOTAL_25_ISOLATED_TRIGGERS_NODE150_REAL_PG16_252_28_PRIORITY_MASS_ATOMIC",
   "security_hardening": [
     "pg_catalog actual column type and FK shape check",
     "test-only database URL strict port 5432 and prohibit host/hostaddr query overrides",
@@ -335,8 +338,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "TEN_LEGACY_BROAD_MAIN_TARGET_PR_WORKFLOWS_UNAUTHORIZED_TO_CHANGE_AND_USER_FORBIDS_OLD_RETRIGGER",
-  "tested_commit": "4957093eb59dc0e92adffb1b258998e80becf8c9",
-  "tested_run": 39141688413,
+  "tested_commit": "c5325dba00fb1ffaba0d927ff9e68dc29f240282",
+  "tested_run": 39142599371,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -778,9 +781,9 @@
     "production_ready": false
   },
   "priority_real_business": {
-    "status": "F05_8_ISOLATED_PG16_QUALIFICATION_CONTROL_AND_TTL_BATCH_PARTIAL_PASS",
-    "run_id": 39141688413,
-    "execution_sha": "4957093eb59dc0e92adffb1b258998e80becf8c9",
+    "status": "F05_8_ISOLATED_PG16_PRIORITY_QUALIFICATION_ATOMIC_MULTI_VEHICLE_28_AND_TTL_PARTIAL_PASS",
+    "run_id": 39142599371,
+    "execution_sha": "c5325dba00fb1ffaba0d927ff9e68dc29f240282",
     "production_ready": false,
     "verified": [
       "ONE_VEHICLE_ONE_ACTIVE_PRIORITY_GENUINE_F02_PHYSICAL_ROW",
@@ -809,7 +812,13 @@
       "PG16_QUAL_EVENT_KEY_CONCURRENT_REPLAY_AND_REVISION_COMPARE_AND_SWAP",
       "PG16_QUAL_AUDIT_FAILURE_ROLLS_BACK_QUAL_CHANGE_LEASE_CLOSURE_AND_NEW_REARBITRATION",
       "PG16_QUAL_DEMAND_CUSTOMER_LEVEL_ORIGINAL_RECORDS_UNCHANGED",
-      "PG16_QUAL_ADMIN_AUDIT_IMMUTABLE_AND_FOUR_S_SALES_PERMISSION_DENIED"
+      "PG16_QUAL_ADMIN_AUDIT_IMMUTABLE_AND_FOUR_S_SALES_PERMISSION_DENIED",
+      "PG16_QUAL_DISABLE_NO_HARDCODED_25_VEHICLE_LIMIT",
+      "PG16_QUAL_DISABLE_REAL_28_MATCHED_F02_ACTIVE_PRIORITIES_ONE_TRANSACTION",
+      "PG16_QUAL_DISABLE_28_VEHICLE_AUDIT_FAILURE_ROLLS_BACK_ALL_PRIORITIES_AND_QUALIFICATION",
+      "PG16_QUAL_DISABLE_REAL_28_VEHICLE_END_AND_3_OTHER_CUSTOMER_REARBITRATION",
+      "PG16_QUAL_DISABLE_CONCURRENT_SAME_EVENT_KEY_ONE_EFFECT_ONE_REPLAY",
+      "PG16_QUAL_DISABLE_VEHICLE_LOCK_TIMEOUT_FULL_ROLLBACK_RETRY_NOT_PARTIAL"
     ],
     "missing": [
       "FORMAL_F03_PRIORITY_EMPLOYEE_PERMISSION_DATA_SCOPE_AND_HANDOVER_BATCH",
@@ -821,8 +830,8 @@
       "FORMAL_MATCH_CHANGE_EVENT_AUTOMATIC_RECONCILE_NOT_IMPLEMENTED",
       "TRUE_PDM13_BACKOFFICE_ISSUER_AND_CROSS_EMPLOYEE_HANDOVER_NOT_SIGNED",
       "FORMAL_PDM13_ADMIN_QUALIFICATION_ISSUER_NOT_SIGNED_TEST_ONLY_HTTP_IMPLEMENTED",
-      "FORMAL_UNBOUNDED_MULTI_VEHICLE_QUALIFICATION_DISABLE_PAGED_TRANSACTION_WORKFLOW_MISSING",
-      "FORMAL_ENABLE_EVENT_DRIVEN_MATCH_REEVALUATION_QUEUED_DELIVERY_MISSING"
+      "FORMAL_ENABLE_EVENT_DRIVEN_MATCH_REEVALUATION_QUEUED_DELIVERY_MISSING",
+      "FORMAL_PRODUCTION_SCALE_LOAD_BENCHMARK_LOCK_TIMEOUT_AND_RETRY_GOVERNANCE_MISSING"
     ]
   }
 }
