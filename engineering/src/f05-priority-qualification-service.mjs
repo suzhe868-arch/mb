@@ -49,17 +49,20 @@ export function createIsolatedPriorityQualificationService({pool,env=process.env
       revision:oldEvent.after_json.revision,enabled:oldEvent.after_json.enabled,
       endedCount:oldEvent.ended_count,rearbitratedCount:oldEvent.rearbitrated_count});
     }
-    // Bounded all-or-nothing disable; never accept a partial switch leaving
-    // some old Priority leases active under the same Customer qualification.
+    // PDM13 imposes no per-Customer vehicle limit. Do NOT partially disable a
+    // qualification after processing an arbitrary 25 leases. All active leases
+    // must end in ONE transaction, or qualification must remain unchanged.
+    // Avoid a long unbounded wait on externally held vehicle locks: a timeout
+    // rolls the full transaction back and the same request can be retried.
+    await db.query("SET LOCAL lock_timeout = '5s'");
     const currentLeases=action==='DISABLE'?(await db.query(
      "SELECT priority_id,vehicle_id FROM public.priority_leases "+
-     "WHERE customer_id=$1 AND status='active' ORDER BY vehicle_id,priority_id LIMIT 26",
+     "WHERE customer_id=$1 AND status='active' ORDER BY vehicle_id,priority_id",
      [customerId])).rows:[];
-    if(currentLeases.length>25){
-     await db.query('ROLLBACK');return reply(409,'PRIORITY_QUAL_TOO_MANY_ACTIVE_LEASES',{limit:25});
-    }
     // Match the existing Priority writer's vehicle lock order before taking
     // the qualification row FOR UPDATE, to bound deadlocks on shared facts.
+    // Other active Priority creation on a newly involved vehicle triggers
+    // the checked-set mismatch below, rolling EVERYTHING back (retry needed).
     for(const v of currentLeases){
      await db.query("SELECT pg_advisory_xact_lock(hashtext('F05_PRIORITY_VEHICLE'),hashtext($1))",[String(v.vehicle_id)]);
      await db.query("SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE",[String(v.vehicle_id)]);

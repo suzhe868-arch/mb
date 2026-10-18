@@ -140,6 +140,68 @@ try{
   assert.equal(await count("SELECT count(*) n FROM public.demands WHERE customer_id=64512"),0);
   assert.equal(await count("SELECT count(*) n FROM public.find_car_applications WHERE customer_id=64512"),0);
  });
+ await test('PDM13 has NO arbitrary 25-vehicle limit: 28 genuine Priority leases remain atomic on audit failure and all close on success',async()=>{
+  const vehicles=Array.from({length:28},(_,i)=>64600+i);
+  // Real physical F02 Vehicle + source evidence + PDM12 Matching,
+  // not synthetic rows inserted directly into demand_match_results.
+  for(const id of vehicles){
+   await vehicle(id);
+   const a=await matching.recompute({credential:tokens[1],demandId:'64510',
+    vehicleId:String(id),eventKey:key()});
+   assert.equal(a.status,200,JSON.stringify(a));
+   if(id<64603){
+    const b=await matching.recompute({credential:tokens[2],demandId:'64511',
+     vehicleId:String(id),eventKey:key()});
+    assert.equal(b.status,200,JSON.stringify(b));
+   }
+   const p=await priority.act({credential:tokens[1],action:'RECONCILE',
+    vehicleId:String(id),eventKey:key()});
+   assert.equal(p.status,200,JSON.stringify(p));
+   assert.equal(p.body.outcome,'NEW');
+  }
+  assert.equal(await count("SELECT count(*) n FROM public.priority_leases "+
+   "WHERE customer_id=64510 AND status='active' AND vehicle_id BETWEEN 64600 AND 64627"),28);
+  assert.equal(await count("SELECT count(*) n FROM public.f05_priority_safe_active_test "+
+   "WHERE customer_id=64510 AND vehicle_id BETWEEN 64600 AND 64627"),28);
+  await db.query("CREATE FUNCTION public.f05_qual_bulk_fault() RETURNS trigger LANGUAGE plpgsql AS "+
+   "'BEGIN RAISE EXCEPTION ''QUAL_BULK_AUDIT_FAIL''; END'");
+  await db.query("CREATE TRIGGER f05_qual_bulk_fault BEFORE INSERT ON "+
+   "public.f05_priority_qualification_events_test FOR EACH ROW "+
+   "EXECUTE FUNCTION public.f05_qual_bulk_fault()");
+  try{
+   const failure=await post({action:'DISABLE',expectedRevision:3});
+   assert.equal(failure.status,503,JSON.stringify(failure));
+   assert.equal(await count("SELECT count(*) n FROM public.priority_leases "+
+    "WHERE customer_id=64510 AND status='active' AND vehicle_id BETWEEN 64600 AND 64627"),28);
+   assert.equal(await count("SELECT count(*) n FROM public.priority_leases "+
+    "WHERE customer_id=64511 AND status='active' AND vehicle_id BETWEEN 64600 AND 64627"),0);
+   assert.equal((await db.query("SELECT enabled,revision FROM public.f05_priority_qualification_test "+
+    "WHERE customer_id=64510")).rows[0].revision,'3');
+  }finally{
+   await db.query("DROP TRIGGER f05_qual_bulk_fault ON public.f05_priority_qualification_events_test");
+   await db.query("DROP FUNCTION public.f05_qual_bulk_fault()");
+  }
+  const eventKey=key();
+  const both=await Promise.all([
+   post({action:'DISABLE',expectedRevision:3,eventKey}),
+   post({action:'DISABLE',expectedRevision:3,eventKey})
+  ]);
+  assert.deepEqual(both.map(x=>x.status),[200,200],JSON.stringify(both));
+  assert.deepEqual(both.map(x=>x.body.code).sort(),['PRIORITY_QUAL_CHANGED','PRIORITY_QUAL_REPLAY']);
+  assert.deepEqual(both.map(x=>x.body.endedCount),[28,28]);
+  assert.deepEqual(both.map(x=>x.body.rearbitratedCount),[3,3]);
+  assert.equal(await count("SELECT count(*) n FROM public.priority_leases "+
+   "WHERE customer_id=64510 AND status='active' AND vehicle_id BETWEEN 64600 AND 64627"),0);
+  assert.equal(await count("SELECT count(*) n FROM public.priority_leases "+
+   "WHERE customer_id=64510 AND status='ended' AND vehicle_id BETWEEN 64600 AND 64627"),28);
+  assert.equal(await count("SELECT count(*) n FROM public.priority_leases "+
+   "WHERE customer_id=64511 AND status='active' AND vehicle_id BETWEEN 64600 AND 64627"),3);
+  assert.equal(await count("SELECT count(*) n FROM public.demands WHERE demand_id=64510 AND demand_state='active'"),1);
+  assert.equal(await count("SELECT count(*) n FROM public.f05_priority_qualification_events_test WHERE event_key=$1",[eventKey]),1);
+  assert.equal((await post({action:'ENABLE',expectedRevision:4})).body.code,'PRIORITY_QUAL_CHANGED');
+  assert.equal(await count("SELECT count(*) n FROM public.priority_leases "+
+   "WHERE customer_id=64510 AND status='active' AND vehicle_id BETWEEN 64600 AND 64627"),0);
+ });
  await test('qualification audit is append-only and no Recommendation/Grant/Price right generated',async()=>{
   await assert.rejects(db.query("DELETE FROM public.f05_priority_qualification_events_test WHERE customer_id=64510"),e=>e.code==='23514');
   await assert.rejects(db.query("UPDATE public.f05_priority_qualification_events_test SET ended_count=0 WHERE customer_id=64510"),e=>e.code==='23514');
