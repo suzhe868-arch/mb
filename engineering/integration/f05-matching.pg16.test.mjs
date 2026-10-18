@@ -186,7 +186,8 @@ try{
    const bad=await call({vehicle:'59710',eventKey:key});assert.equal(bad.status,503);
    assert.deepEqual((await writer.query('SELECT criteria_json FROM public.demands WHERE demand_id=59700')).rows[0].criteria_json,old);
    assert.equal((await results('59710')).length,before);
-   assert.equal((await results('59710')).at(-1).current_state,'current');
+   assert.equal((await results('59710')).at(-1).current_state,'stale',
+    'changed sales description already stales the old result before the failed retry');
    assert.equal((await writer.query('SELECT count(*)::int n FROM public.f05_matching_recompute_events_test WHERE event_key=$1',[key])).rows[0].n,0);
   }finally{
    await writer.query('DROP TRIGGER f05_match_audit_fault ON public.f05_matching_recompute_events_test');
