@@ -124,7 +124,8 @@ try{
   const done=(await check("SELECT generation,state,attempts FROM public.f05_matching_affected_queue_test "+
    "WHERE demand_id=60100 AND vehicle_id=60110"))[0];
   assert.equal(String(done.generation),String(queued.generation));
-  assert.equal(done.state,'done');
+  assert.equal(done.state,'done');assert.equal(done.attempts,1,
+   'internal result replacement must not reset the real retry budget');
   const secondAttempt=(await check("SELECT result_id FROM public.demand_match_results "+
    "WHERE demand_id=60100 AND vehicle_id=60110 AND current_state='current'"))[0];
   assert.ok(secondAttempt?.result_id,'a second attempt commits a current result');

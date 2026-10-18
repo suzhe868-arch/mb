@@ -151,6 +151,15 @@ export function createIsolatedMatchingService({pool,env=process.env}={}){
     // staff description into synthetic rules. No customer raw text is parsed.
     await db.query("UPDATE public.demands SET criteria_json=$2::jsonb WHERE demand_id=$1",
      [demandId,JSON.stringify(parsed.criteria)]);
+    // Serialize with source invalidation writers before replacing a current
+    // Match. The AFTER UPDATE stale-row trigger also enqueues an invalidation.
+    // Our own replacement is NOT a new source change: restore this queue
+    // generation, retry budget and exact microsecond lease fencing stamp.
+    // Without this, a successful retry creates a new generation, resets its
+    // retry budget and loses the current worker's CAS lease.
+    const queueBefore=(await db.query("SELECT generation,attempts,lease_until::text AS lease_stamp "+
+     "FROM public.f05_matching_affected_queue_test WHERE demand_id=$1 AND vehicle_id=$2 FOR UPDATE",
+     [demandId,vehicleId])).rows[0]??null;
     // One current row per Demand x Vehicle x cycle; older rows become stale history.
     await db.query("UPDATE public.demand_match_results SET current_state='stale',invalidated_at=statement_timestamp() "+
      "WHERE demand_id=$1 AND vehicle_id=$2 AND current_state='current'",[demandId,vehicleId]);
@@ -162,13 +171,22 @@ export function createIsolatedMatchingService({pool,env=process.env}={}){
      "(event_key,actor_employee_id,demand_id,vehicle_id,result_id,result_tier,payload_sha256) "+
      "VALUES($1,$2,$3,$4,$5,$6,$7)",
      [eventKey,employeeId,demandId,vehicleId,String(created.result_id),matched.tier,payload]);
-    // Resolving this pair publishes done, but MUST preserve an in-flight
-    // worker's lease_until fencing stamp until that worker verifies the safe
-    // current view. Clearing it here loses the claimant's identity, and lets
-    // a stale expired worker overwrite a later claimant's outcome.
-    await db.query("UPDATE public.f05_matching_affected_queue_test SET state='done', "+
-      "last_error=NULL,modified_at=statement_timestamp() WHERE demand_id=$1 AND vehicle_id=$2",
-      [demandId,vehicleId]);
+    // One atomic transaction replaces Match history and acknowledges the
+    // existing generation. Restoring the *captured* lease stamp protects a
+    // concurrent worker whose lease was not the result of this recompute.
+    // External invalidators enqueue only after our row lock is released.
+    if(queueBefore){
+     await db.query("UPDATE public.f05_matching_affected_queue_test SET "+
+      "generation=$3,attempts=$4,lease_until=$5::timestamptz,state='done',"+
+      "last_error=NULL,modified_at=statement_timestamp() "+
+      "WHERE demand_id=$1 AND vehicle_id=$2",
+      [demandId,vehicleId,String(queueBefore.generation),queueBefore.attempts,
+       queueBefore.lease_stamp]);
+    }else{
+     await db.query("UPDATE public.f05_matching_affected_queue_test SET "+
+      "state='done',last_error=NULL,modified_at=statement_timestamp() "+
+      "WHERE demand_id=$1 AND vehicle_id=$2",[demandId,vehicleId]);
+    }
     await db.query('COMMIT');
     return reply(200,'MATCH_RESULT_RECOMPUTED',{demandId,vehicleId,listingCycleId:cycleId,
      resultId:String(created.result_id),matchTier:matched.tier,matchingReady:true,
