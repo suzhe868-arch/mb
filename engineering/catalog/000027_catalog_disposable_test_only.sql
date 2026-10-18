@@ -280,9 +280,12 @@ CREATE TABLE public.f05_find_car_application_events_test (
  payload_sha256 text NOT NULL CHECK(payload_sha256 ~ '^[0-9a-f]{64}$'),
  customer_id bigint NOT NULL REFERENCES public.customers(customer_id) ON DELETE RESTRICT,
  application_id bigint NOT NULL REFERENCES public.find_car_applications(application_id) ON DELETE RESTRICT,
- action text NOT NULL CHECK(action IN ('CREATE','EDIT','WITHDRAW')),
- result_status text NOT NULL CHECK(result_status IN ('pending','closed')),
+ action text NOT NULL CHECK(action IN ('CREATE','EDIT','WITHDRAW','ACTIVATE')),
+ result_status text NOT NULL CHECK(result_status IN ('pending','closed','activated')),
  after_revision bigint NOT NULL CHECK(after_revision>0),
+ actor_employee_id bigint REFERENCES public.employees(employee_id) ON DELETE RESTRICT,
+ result_demand_id bigint REFERENCES public.demands(demand_id) ON DELETE RESTRICT,
+ CHECK(action<>'ACTIVATE' OR (actor_employee_id IS NOT NULL AND result_demand_id IS NOT NULL)),
  occurred_at timestamptz NOT NULL DEFAULT statement_timestamp()
 );
 CREATE FUNCTION public.f05_find_car_events_immutable_test() RETURNS trigger LANGUAGE plpgsql AS $$
@@ -292,3 +295,17 @@ CREATE TRIGGER f05_find_car_events_no_mutation BEFORE UPDATE OR DELETE
  EXECUTE FUNCTION public.f05_find_car_events_immutable_test();
 REVOKE ALL ON public.f05_find_car_phone_proof_test,public.f05_find_car_level_entitlement_test,
  public.f05_find_car_application_detail_test,public.f05_find_car_application_events_test FROM PUBLIC;
+
+-- Human activation requires an independent Employee capability scoped to Customer.
+CREATE TABLE public.f05_find_car_activation_scope_test (
+ employee_id bigint NOT NULL REFERENCES public.employees(employee_id) ON DELETE RESTRICT,
+ customer_id bigint NOT NULL REFERENCES public.customers(customer_id) ON DELETE RESTRICT,
+ can_activate_demand boolean NOT NULL CHECK(can_activate_demand=true),
+ issuer text NOT NULL DEFAULT 'DISPOSABLE_TEST_ONLY' CHECK(issuer='DISPOSABLE_TEST_ONLY'),
+ expires_at timestamptz NOT NULL,
+ PRIMARY KEY(employee_id,customer_id)
+);
+-- Freeze one-demand-to-one-application in disposable integration only.
+CREATE UNIQUE INDEX f05_find_car_activated_demand_unique_test ON public.find_car_applications(activated_demand_id)
+ WHERE activated_demand_id IS NOT NULL;
+REVOKE ALL ON public.f05_find_car_activation_scope_test FROM PUBLIC;

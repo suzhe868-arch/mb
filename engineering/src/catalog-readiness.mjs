@@ -18,6 +18,8 @@ import {createIsolatedQuotaAdditionService} from './f05-quota-addition-service.m
 import {createIsolatedQuotaAdditionHandler} from './f05-quota-addition-http.mjs';
 import {createIsolatedFindCarService} from './f05-find-car-service.mjs';
 import {createIsolatedFindCarHandler} from './f05-find-car-http.mjs';
+import {createIsolatedFindCarActivationService} from './f05-find-car-activation-service.mjs';
+import {createIsolatedFindCarActivationHandler} from './f05-find-car-activation-http.mjs';
 export function validateCatalogEnv(env=process.env){
  if(env.APP_ENV!=='test'||env.NODE_ENV!=='test'||env.F05_CATALOG_TEST_CONSENT!=='I_AUTHORIZE_DISPOSABLE_F05_CATALOG_PG16_ONLY')throw Error('CATALOG_TEST_ONLY');
  if(env.API_HOST && !['127.0.0.1','localhost','::1'].includes(env.API_HOST))throw Error('CATALOG_LOOPBACK_REQUIRED');
@@ -107,6 +109,10 @@ const REQUIRED_CATALOG_COLUMNS=Object.freeze([
  ['public.f05_find_car_level_entitlement_test','can_activate_demand','boolean'],
  ['public.f05_find_car_application_detail_test','revision','bigint'],
  ['public.f05_find_car_application_events_test','event_key','text'],
+ ['public.f05_find_car_application_events_test','actor_employee_id','bigint'],
+ ['public.f05_find_car_application_events_test','result_demand_id','bigint'],
+ ['public.f05_find_car_activation_scope_test','employee_id','bigint'],
+ ['public.f05_find_car_activation_scope_test','customer_id','bigint'],
 ]);
 const EXPECTED_COLUMNS_VALUES=REQUIRED_CATALOG_COLUMNS.map(x=>`('${x[0]}','${x[1]}','${x[2]}')`).join(',');
 export const SQL_CATALOG_SCHEMA=`SELECT
@@ -133,6 +139,7 @@ export const SQL_CATALOG_SCHEMA=`SELECT
  to_regclass('public.f05_find_car_level_entitlement_test') IS NOT NULL AS fce,
  to_regclass('public.f05_find_car_application_detail_test') IS NOT NULL AS fcd,
  to_regclass('public.f05_find_car_application_events_test') IS NOT NULL AS fca,
+ to_regclass('public.f05_find_car_activation_scope_test') IS NOT NULL AS fac,
  NOT EXISTS (
   SELECT 1 FROM (VALUES ${EXPECTED_COLUMNS_VALUES}) AS expected(relation,column_name,physical_type)
   LEFT JOIN pg_catalog.pg_attribute attr
@@ -140,7 +147,7 @@ export const SQL_CATALOG_SCHEMA=`SELECT
    AND attr.attname=expected.column_name AND attr.attnum>0 AND NOT attr.attisdropped
   WHERE attr.attname IS NULL OR pg_catalog.format_type(attr.atttypid,attr.atttypmod)<>expected.physical_type
  ) AS shape,
- (SELECT count(*)=97 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
+ (SELECT count(*)=98 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
  (SELECT count(*)=2 FROM pg_catalog.pg_constraint fk
   WHERE fk.contype='f'
    AND fk.conrelid IN (to_regclass('public.f05_real_catalog_visibility_test'),to_regclass('public.f05_real_catalog_protections_test'))
@@ -155,7 +162,7 @@ export async function probeIsolatedCatalog(pool){
   const identity=(await pool.query(SQL_CATALOG_IDENTITY)).rows[0];
   if(!identity || Math.floor(Number(identity.v)/10000)!==16 || identity.db!=='f05_catalog_test' || identity.role!=='f05_catalog_ci')return false;
   const schema=(await pool.query(SQL_CATALOG_SCHEMA)).rows[0];
-  return !!schema && Object.keys(schema).sort().join(',')==='c,ca,cp,ec,es,fca,fcd,fce,fcp,fe,fk,fs,ft,full,he,p,pe,pf,po,pp,qa,qs,sh,shape,ss,v,x' && Object.values(schema).every(v=>v===true);
+  return !!schema && Object.keys(schema).sort().join(',')==='c,ca,cp,ec,es,fac,fca,fcd,fce,fcp,fe,fk,fs,ft,full,he,p,pe,pf,po,pp,qa,qs,sh,shape,ss,v,x' && Object.values(schema).every(v=>v===true);
  }catch{return false}
 }
 export async function createIsolatedCatalogRuntime(env=process.env){
@@ -173,6 +180,7 @@ export async function createIsolatedCatalogRuntime(env=process.env){
   const priceUnlock=createIsolatedPriceUnlockService({pool,env});
   const quotaAddition=createIsolatedQuotaAdditionService({pool,env});
   const findCar=createIsolatedFindCarService({pool,env});
-  return {pool,handler:createCatalogHandler(service),favoriteHandler:createIsolatedFavoriteHandler(favorite,env),consultationHandler:createIsolatedConsultationHandler(consultation,env),employeeStartHandler:createIsolatedEmployeeStartHandler(employeeStart,env),handoverHandler:createIsolatedHandoverHandler(handover,env),slaHoldHandler:createIsolatedSlaHoldHandler(slaHold,env),priceUnlockHandler:createIsolatedPriceUnlockHandler(priceUnlock,env),quotaAdditionHandler:createIsolatedQuotaAdditionHandler(quotaAddition,env),findCarHandler:createIsolatedFindCarHandler(findCar,env),ready:()=>probeIsolatedCatalog(pool),close:()=>pool.end()};
+  const activation=createIsolatedFindCarActivationService({pool,env});
+  return {pool,handler:createCatalogHandler(service),favoriteHandler:createIsolatedFavoriteHandler(favorite,env),consultationHandler:createIsolatedConsultationHandler(consultation,env),employeeStartHandler:createIsolatedEmployeeStartHandler(employeeStart,env),handoverHandler:createIsolatedHandoverHandler(handover,env),slaHoldHandler:createIsolatedSlaHoldHandler(slaHold,env),priceUnlockHandler:createIsolatedPriceUnlockHandler(priceUnlock,env),quotaAdditionHandler:createIsolatedQuotaAdditionHandler(quotaAddition,env),findCarHandler:createIsolatedFindCarHandler(findCar,env),findCarActivationHandler:createIsolatedFindCarActivationHandler(activation,env),ready:()=>probeIsolatedCatalog(pool),close:()=>pool.end()};
  }catch(e){await pool.end();throw e}
 }

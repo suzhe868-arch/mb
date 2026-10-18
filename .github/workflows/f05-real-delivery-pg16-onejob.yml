@@ -25,6 +25,7 @@ on:
       - 'engineering/integration/f05-price-unlock.pg16.test.mjs'
       - 'engineering/integration/f05-quota-addition.pg16.test.mjs'
       - 'engineering/integration/f05-find-car.pg16.test.mjs'
+      - 'engineering/integration/f05-find-car-activation.pg16.test.mjs'
       - 'engineering/tests/catalog*.test.mjs'
       - 'engineering/tests/f05-favorite.test.mjs'
       - 'engineering/tests/f05-consultation.test.mjs'
@@ -34,6 +35,7 @@ on:
       - 'engineering/tests/f05-price-unlock.test.mjs'
       - 'engineering/tests/f05-quota-addition.test.mjs'
       - 'engineering/tests/f05-find-car.test.mjs'
+      - 'engineering/tests/f05-find-car-activation.test.mjs'
 permissions:
   contents: read
 concurrency:
@@ -85,7 +87,7 @@ jobs:
       - name: Frozen dependency installation
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Actual HTTP and safety assertions
-        run: node --test tests/catalog.test.mjs tests/catalog-regression.test.mjs tests/f05-favorite.test.mjs tests/f05-consultation.test.mjs tests/f05-employee-start.test.mjs tests/f05-handover.test.mjs tests/f05-sla-hold.test.mjs tests/f05-price-unlock.test.mjs tests/f05-quota-addition.test.mjs tests/f05-find-car.test.mjs
+        run: node --test tests/catalog.test.mjs tests/catalog-regression.test.mjs tests/f05-favorite.test.mjs tests/f05-consultation.test.mjs tests/f05-employee-start.test.mjs tests/f05-handover.test.mjs tests/f05-sla-hold.test.mjs tests/f05-price-unlock.test.mjs tests/f05-quota-addition.test.mjs tests/f05-find-car.test.mjs tests/f05-find-car-activation.test.mjs
       - name: Bootstrap truly disposable PG16 non-superuser schema
         run: |
           set -euo pipefail
@@ -146,5 +148,6 @@ jobs:
           node --test integration/f05-price-unlock.pg16.test.mjs
           node --test integration/f05-quota-addition.pg16.test.mjs
           node --test integration/f05-find-car.pg16.test.mjs
+          node --test integration/f05-find-car-activation.pg16.test.mjs
       - name: No paid artifact, production action or downstream CI
         run: echo 'F05_REAL_PG16_TEST_ONLY_NO_ARTIFACT_NO_PRODUCTION'
