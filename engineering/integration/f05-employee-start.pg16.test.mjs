@@ -103,6 +103,94 @@ try{
   assert.equal((await call('59020',token)).status,409);
   assert.equal((await call('59020',token,startKey)).status,409);
  });
+
+ const finalize=async(id='59030',action='resolve',bearer=token,eventKey=key())=>{
+  const r=await fetch('http://127.0.0.1:'+server.address().port+'/api/v1/catalog/consultations/'+id+'/'+action,
+    {method:'POST',headers:{authorization:'Bearer '+bearer,'x-idempotency-key':eventKey}});
+  return {status:r.status,body:await r.json()};
+ };
+ const add=async(id,status='pending')=>{
+  await writer.query("INSERT INTO public.consultations(consultation_id,customer_id,vehicle_id,listing_cycle_id,assignee_employee_id,status,source_relation,first_response_deadline) "+
+    "VALUES($1,59020,59001,59001,59020,$2,'{\"kind\":\"other\",\"entry\":\"vehicle_detail\",\"issuer\":\"DISPOSABLE_TEST_ONLY\"}'::jsonb,statement_timestamp()+interval '15 minutes')",[id,status]);
+ };
+ await test('PG16 start-processing capability cannot implicitly terminate a Consultation',async()=>{
+  await add('59030');
+  assert.equal((await finalize('59030')).status,403);
+  assert.equal((await writer.query('SELECT status FROM public.consultations WHERE consultation_id=59030')).rows[0].status,'pending');
+  await writer.query("UPDATE public.f05_catalog_employee_consultation_scope_test SET can_finalize=true WHERE employee_id=59020 AND customer_id=59020");
+ });
+ await test('PG16 terminal Employee action refuses different assignee, 4S role, revoked scope and revoked session',async()=>{
+  assert.equal((await finalize('59030','resolve',otherToken)).status,403);
+  assert.equal((await finalize('59030','resolve',wrongRoleToken)).status,401);
+  await writer.query("UPDATE public.f05_catalog_employee_consultation_scope_test SET can_finalize=false WHERE employee_id=59020 AND customer_id=59020");
+  try{assert.equal((await finalize('59030')).status,403)}
+  finally{await writer.query("UPDATE public.f05_catalog_employee_consultation_scope_test SET can_finalize=true WHERE employee_id=59020 AND customer_id=59020")}
+  await writer.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=59020");
+  try{assert.equal((await finalize('59030')).status,401)}
+  finally{await writer.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=59020")}
+ });
+ const reasonKey=key();
+ await test('PG16 RESOLVED terminal persists reason, source, original SLA, assignee and owner',async()=>{
+  const before=(await writer.query('SELECT source_relation,first_response_deadline,assignee_employee_id FROM public.consultations WHERE consultation_id=59030')).rows[0];
+  const r=await finalize('59030','resolve',token,reasonKey);
+  assert.equal(r.status,200);assert.equal(r.body.status,'resolved');assert.equal(r.body.closeReason,'RESOLVED');
+  assert.equal(r.body.firstHumanResponse,false);
+  const after=(await writer.query('SELECT status,close_reason,completed_at,source_relation,first_response_deadline,assignee_employee_id FROM public.consultations WHERE consultation_id=59030')).rows[0];
+  assert.equal(after.status,'resolved');assert.equal(after.close_reason,'RESOLVED');assert.ok(after.completed_at instanceof Date);
+  assert.deepEqual(after.source_relation,before.source_relation);assert.equal(after.first_response_deadline.getTime(),before.first_response_deadline.getTime());
+  assert.equal(String(after.assignee_employee_id),String(before.assignee_employee_id));
+  assert.equal(String((await writer.query('SELECT current_owner_employee_id FROM public.customers WHERE customer_id=59020')).rows[0].current_owner_employee_id),'59020');
+  const e=(await writer.query('SELECT action,actor_employee_id FROM public.f05_catalog_consultation_actions_test WHERE event_key=$1',[reasonKey])).rows[0];
+  assert.equal(e.action,'FINALIZED_RESOLVED');assert.equal(String(e.actor_employee_id),'59020');
+ });
+ await test('PG16 matching idempotency replays; different action/key cannot replace terminal reason',async()=>{
+  const replay=await finalize('59030','resolve',token,reasonKey);
+  assert.equal(replay.status,200);assert.equal(replay.body.code,'CONSULTATION_FINALIZE_REPLAY');
+  assert.equal((await finalize('59030','close',token,reasonKey)).body.code,'CONSULTATION_IDEMPOTENCY_COLLISION');
+  assert.equal((await finalize('59030','invalidate')).status,409);
+  assert.equal((await call('59030')).status,409);
+ });
+ await test('PG16 disabled Customer exception permits legitimate NORMAL_CLOSED without treating it as first response',async()=>{
+  await add('59031','processing');
+  await writer.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=59020");
+  try{
+   const r=await finalize('59031','close');
+   assert.equal(r.status,200);assert.equal(r.body.status,'resolved');assert.equal(r.body.closeReason,'NORMAL_CLOSED');
+   assert.equal((await writer.query('SELECT close_reason FROM public.consultations WHERE consultation_id=59031')).rows[0].close_reason,'NORMAL_CLOSED');
+   assert.equal((await call('59021')).status,403);
+  }finally{await writer.query("UPDATE public.customers SET account_status='active' WHERE customer_id=59020")}
+ });
+ await test('PG16 invalid is terminal invalid, never creates a cancelled fifth state',async()=>{
+  await add('59032');
+  const r=await finalize('59032','invalidate');
+  assert.equal(r.status,200);assert.equal(r.body.status,'invalid');assert.equal(r.body.closeReason,null);
+  const q=(await writer.query('SELECT status,close_reason,completed_at FROM public.consultations WHERE consultation_id=59032')).rows[0];
+  assert.equal(q.status,'invalid');assert.equal(q.close_reason,null);assert.ok(q.completed_at instanceof Date);
+ });
+ await test('PG16 forced audit exception rolls back entire terminal transition and event key',async()=>{
+  await add('59033');
+  const k=key();
+  await writer.query("CREATE FUNCTION public.f05_final_inject_fail_test() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'INJECTED_FINAL_ROLLBACK'; END $$");
+  await writer.query("CREATE TRIGGER f05_final_inject_fail BEFORE INSERT ON public.f05_catalog_consultation_actions_test FOR EACH ROW EXECUTE FUNCTION public.f05_final_inject_fail_test()");
+  try{
+   const bad=await finalize('59033','resolve',token,k);assert.equal(bad.status,503);
+   assert.equal((await writer.query('SELECT status FROM public.consultations WHERE consultation_id=59033')).rows[0].status,'pending');
+   assert.equal((await writer.query('SELECT count(*)::int n FROM public.f05_catalog_consultation_actions_test WHERE event_key=$1',[k])).rows[0].n,0);
+  }finally{
+   await writer.query('DROP TRIGGER f05_final_inject_fail ON public.f05_catalog_consultation_actions_test');
+   await writer.query('DROP FUNCTION public.f05_final_inject_fail_test()');
+  }
+  assert.equal((await finalize('59033','resolve',token,k)).status,200);
+ });
+ await test('PG16 concurrent conflicting terminal commands commit at most one status and audit event',async()=>{
+  await add('59034');
+  const [a,b]=await Promise.all([finalize('59034','resolve'),finalize('59034','invalidate')]);
+  assert.deepEqual([a.status,b.status].sort((x,y)=>x-y),[200,409]);
+  const q=(await writer.query('SELECT status,close_reason FROM public.consultations WHERE consultation_id=59034')).rows[0];
+  assert.ok(q.status==='invalid'||(q.status==='resolved'&&q.close_reason==='RESOLVED'));
+  const n=(await writer.query("SELECT count(*)::int n FROM public.f05_catalog_consultation_actions_test WHERE consultation_id=59034 AND action LIKE 'FINALIZED_%'")).rows[0].n;
+  assert.equal(n,1);
+ });
  await test('PG16 revoked Employee credential immediately fails closed',async()=>{
   await writer.query("UPDATE public.f05_catalog_employee_sessions_test SET revoked_at=statement_timestamp() WHERE token_sha256=$1",[hash(token)]);
   assert.equal((await call('59021',token)).status,401);

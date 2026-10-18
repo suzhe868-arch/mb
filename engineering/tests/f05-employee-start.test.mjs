@@ -6,7 +6,7 @@ import {createIsolatedEmployeeStartHandler} from '../src/f05-employee-start-http
 import {createIsolatedEmployeeStartService} from '../src/f05-employee-start-service.mjs';
 const env={APP_ENV:'test',NODE_ENV:'test',API_HOST:'127.0.0.1',F05_CATALOG_TEST_CONSENT:'I_AUTHORIZE_DISPOSABLE_F05_CATALOG_PG16_ONLY'};
 const token='A'.repeat(43),key='I'.repeat(32),path='/api/v1/catalog/consultations/59020/start-processing';
-const svc={start:async()=>({status:200,body:{code:'CONSULTATION_PROCESSING_STARTED',status:'processing',firstHumanResponse:false,productionReady:false}})};
+const svc={start:async()=>({status:200,body:{code:'CONSULTATION_PROCESSING_STARTED',status:'processing',firstHumanResponse:false,productionReady:false}}),finalize:async({action})=>({status:200,body:{code:'CONSULTATION_FINALIZED',status:action==='invalidate'?'invalid':'resolved',closeReason:action==='resolve'?'RESOLVED':action==='close'?'NORMAL_CLOSED':null,firstHumanResponse:false,productionReady:false}})};
 async function request(method='POST',headers={},url=path,service=svc,body=undefined){
  const server=createServer(createFoundationHandler({employeeStartHandler:createIsolatedEmployeeStartHandler(service,env)}));
  await new Promise(ok=>server.listen(0,'127.0.0.1',ok));
@@ -49,8 +49,27 @@ test('HTTP denies GET, path injection, query and unsolicited body',async()=>{
  assert.equal((await request('POST',h,'/api/v1/catalog/consultations/0/start-processing')).status,400);
  assert.equal((await request('POST',h,path,svc,'unsafe_request_body')).status,403);
 });
+test('all three distinct Employee terminal routes map to correct response without forged human response',async()=>{
+ const auth={authorization:'Bearer '+token,'x-idempotency-key':key};
+ for(const [name,status,reason] of [['resolve','resolved','RESOLVED'],['close','resolved','NORMAL_CLOSED'],['invalidate','invalid',null]]){
+  const r=await request('POST',auth,'/api/v1/catalog/consultations/59020/'+name);
+  assert.equal(r.status,200);
+  assert.equal(r.body.status,status);assert.equal(r.body.closeReason,reason);
+  assert.equal(r.body.firstHumanResponse,false);assert.equal(r.body.productionReady,false);
+ }
+});
+test('Employee terminal routes refuse untrusted Customer/Owner claims, missing token or event key',async()=>{
+ const url='/api/v1/catalog/consultations/59020/resolve';
+ const h={authorization:'Bearer '+token,'x-idempotency-key':key};
+ assert.equal((await request('POST',{'x-idempotency-key':key},url)).status,401);
+ assert.equal((await request('POST',{authorization:h.authorization},url)).status,400);
+ assert.equal((await request('GET',h,url)).status,405);
+ assert.equal((await request('POST',h,url+'?role=manager')).status,400);
+ assert.equal((await request('POST',{...h,'x-owner-id':'59020'},url)).status,403);
+ assert.equal((await request('POST',h,'/api/v1/catalog/consultations/0/invalidate')).status,400);
+});
 test('DB error response never reveals internal employee secrets',async()=>{
- const fail={start:async()=>{throw Error('private_employee_bearer')}};
+ const fail={...svc,start:async()=>{throw Error('private_employee_bearer')}};
  const r=await request('POST',{authorization:'Bearer '+token,'x-idempotency-key':key},path,fail);
  assert.equal(r.status,503);assert.equal(JSON.stringify(r.body).includes('private_employee_bearer'),false);
 });
