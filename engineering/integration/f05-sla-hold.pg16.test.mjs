@@ -10,12 +10,14 @@ import {createIsolatedSlaHoldService} from '../src/f05-sla-hold-service.mjs';
 import {createIsolatedSlaHoldHandler} from '../src/f05-sla-hold-http.mjs';
 import {createIsolatedEmployeeStartService} from '../src/f05-employee-start-service.mjs';
 import {createIsolatedEmployeeStartHandler} from '../src/f05-employee-start-http.mjs';
+import {createIsolatedConsultationService} from '../src/f05-consultation-service.mjs';
+import {createIsolatedConsultationHandler} from '../src/f05-consultation-http.mjs';
 const cfg=validateCatalogEnv();
 const pool=new pg.Pool({connectionString:cfg.connectionString,max:4,connectionTimeoutMillis:1200});
 const db=new pg.Client({connectionString:cfg.connectionString,connectionTimeoutMillis:1200});
 const digest=x=>createHash('sha256').update(x).digest('hex');
 const token=()=>randomBytes(32).toString('base64url'),key=()=>randomBytes(32).toString('base64url');
-const bearer=token(),otherBearer=token();
+const bearer=token(),otherBearer=token(),customerBearer=token();
 let srv,connected=false,failure;
 try{
  await db.connect();connected=true;
@@ -32,6 +34,7 @@ try{
   await db.query("INSERT INTO public.f05_catalog_consultation_sla_test(consultation_id,effective_deadline,first_human_response_at) VALUES "+
    "(59200,statement_timestamp()+interval '15 minutes',NULL),"+
    "(59201,statement_timestamp()+interval '15 minutes',statement_timestamp())");
+  await db.query("INSERT INTO public.f05_catalog_customer_sessions_test(token_sha256,customer_id,expires_at) VALUES($1,59200,statement_timestamp()+interval '20 minutes')",[digest(customerBearer)]);
   for(const [credential,id] of [[bearer,'59200'],[otherBearer,'59201']])
    await db.query("INSERT INTO public.f05_catalog_employee_sessions_test(token_sha256,employee_id,expires_at) VALUES($1,$2,statement_timestamp()+interval '20 minutes')",[digest(credential),id]);
   await db.query("INSERT INTO public.f05_catalog_employee_consultation_scope_test(employee_id,customer_id,can_start_processing,can_resume_hold,expires_at) VALUES "+
@@ -42,11 +45,17 @@ try{
  }catch(e){await db.query('ROLLBACK');throw e}
  const service=createIsolatedSlaHoldService({pool,env:process.env});
  const start=createIsolatedEmployeeStartService({pool,env:process.env});
- srv=createServer(createFoundationHandler({slaHoldHandler:createIsolatedSlaHoldHandler(service,process.env),employeeStartHandler:createIsolatedEmployeeStartHandler(start,process.env)}));
+ const consultation=createIsolatedConsultationService({pool,env:process.env});
+ srv=createServer(createFoundationHandler({slaHoldHandler:createIsolatedSlaHoldHandler(service,process.env),employeeStartHandler:createIsolatedEmployeeStartHandler(start,process.env),consultationHandler:createIsolatedConsultationHandler(consultation,process.env)}));
  await new Promise((ok,bad)=>{srv.once('error',bad);srv.listen(0,'127.0.0.1',ok)});
  const post=async(id='59200',credential=bearer,eventKey=key(),action='resume-from-hold')=>{
   const r=await fetch('http://127.0.0.1:'+srv.address().port+'/api/v1/catalog/consultations/'+id+'/'+action,
   {method:'POST',headers:{authorization:'Bearer '+credential,'x-idempotency-key':eventKey}});
+  return {status:r.status,body:await r.json()};
+ };
+ const customerCall=async(path)=>{
+  const r=await fetch('http://127.0.0.1:'+srv.address().port+path,{
+   method:'POST',headers:{authorization:'Bearer '+customerBearer,'x-idempotency-key':key()}});
   return {status:r.status,body:await r.json()};
  };
  await test('PG16 cannot resume absent Customer-disabled hold or use forged Employee',async()=>{
@@ -74,6 +83,10 @@ try{
   assert.equal((await db.query('SELECT active FROM public.f05_catalog_consultation_hold_test WHERE consultation_id=59200')).rows[0].active,true);
   const start=await post('59200',bearer,key(),'start-processing');
   assert.equal(start.status,409);assert.equal(start.body.code,'CONSULTATION_CUSTOMER_DISABLED_HOLD');
+  const newConsult=await customerCall('/api/v1/catalog/vehicles/59001/consultations');
+  assert.equal(newConsult.status,409);assert.equal(newConsult.body.code,'CONSULTATION_CUSTOMER_DISABLED_HOLD');
+  const withdrawal=await customerCall('/api/v1/catalog/consultations/59200/withdraw');
+  assert.equal(withdrawal.status,409);assert.equal(withdrawal.body.code,'CONSULTATION_CUSTOMER_DISABLED_HOLD');
  });
  const resumeKey=key();
  await test('explicit scoped Employee resume preserves original deadline but restarts effective SLA from frozen remainder',async()=>{
@@ -99,6 +112,11 @@ try{
   const after=(await db.query('SELECT effective_deadline,first_human_response_at FROM public.f05_catalog_consultation_sla_test WHERE consultation_id=59201')).rows[0];
   assert.deepEqual(after,prev);
  });
+ await test('after explicit resume, authenticated Customer may terminate own preexisting Consultation',async()=>{
+  const r=await customerCall('/api/v1/catalog/consultations/59201/withdraw');
+  assert.equal(r.status,200);assert.equal(r.body.code,'CONSULTATION_WITHDRAWN');
+  assert.equal((await db.query('SELECT close_reason FROM public.consultations WHERE consultation_id=59201')).rows[0].close_reason,'CUSTOMER_WITHDRAWN');
+ });
  await test('no authoritative first-response facts still holds open Consultation without manufacturing SLA remaining',async()=>{
   await db.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=59201");
   const g=(await db.query('SELECT active,remaining_ms FROM public.f05_catalog_consultation_hold_test WHERE consultation_id=59202')).rows[0];
@@ -122,7 +140,7 @@ try{
  });
  await test('second disable freezes current remaining instead of giving a fresh 15 minutes, and old key cannot replay',async()=>{
   await db.query("UPDATE public.f05_catalog_consultation_sla_test SET effective_deadline=statement_timestamp()+interval '4 minutes' WHERE consultation_id=59200");
-  await db.query("UPDATE public.consultations SET status='resolved',close_reason='NORMAL_CLOSED',completed_at=statement_timestamp() WHERE consultation_id=59201");
+  assert.equal((await db.query('SELECT status FROM public.consultations WHERE consultation_id=59201')).rows[0].status,'resolved');
   await db.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=59200");
   const g=(await db.query('SELECT active,version,remaining_ms FROM public.f05_catalog_consultation_hold_test WHERE consultation_id=59200')).rows[0];
   assert.equal(g.active,true);assert.equal(String(g.version),'2');
