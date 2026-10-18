@@ -2,11 +2,11 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F05_7_TEST_ONLY_PRICE_FACT_MATCH_CONCURRENCY_PG16_UNVERIFIED_TTL_AND_ISSUERS",
+  "status": "B_IN_PROGRESS_F05_7_TTL_READ_GUARD_AND_SCOPED_RETRY_TEST_ONLY_RULE_DICTIONARY_UNDELIVERED",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "29a9859d7397d8b3a449da0f4fad97952e0185c9",
+  "github_commit": "9af98db1948e6c3069518849c1c10d84974a22d1",
   "node_http_stub_tests": {
     "passed": 128,
     "failed": 0,
@@ -14,10 +14,10 @@
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39122502023,
-    "head_sha": "29a9859d7397d8b3a449da0f4fad97952e0185c9",
+    "run_id": 39125962399,
+    "head_sha": "9af98db1948e6c3069518849c1c10d84974a22d1",
     "node_http_tests_passed": 128,
-    "real_pg16_integration_tests_passed": 170,
+    "real_pg16_integration_tests_passed": 175,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -33,8 +33,8 @@
     "disposable_photo_order_proof": true,
     "real_pg16_catalog_integration_tests_passed": 19,
     "real_pg16_favorite_integration_tests_passed": 13,
-    "disposable_sidecar_tables": 26,
-    "total_disposable_physical_tables": 102,
+    "disposable_sidecar_tables": 27,
+    "total_disposable_physical_tables": 103,
     "formal_wechat_customer_issuer_verified": false,
     "real_pg16_consultation_integration_tests_passed": 16,
     "formal_customer_phone_consent_issuer_verified": false,
@@ -76,7 +76,8 @@
     "real_pg16_price_or_facts_first_race_verified": true,
     "real_pg16_match_first_price_after_race_verified": true,
     "formal_source_write_serialization_verified": false,
-    "formal_ttl_expiration_guard_verified": false
+    "formal_ttl_expiration_guard_verified": false,
+    "ttl_scoped_retry_pg16_tests_passed": 5
   },
   "endpoints": {
     "implemented_test_only": [
@@ -287,8 +288,8 @@
     "Full F05-1..11 actual authenticated HTTP/PG16 business still missing"
   ],
   "next_owner": "B",
-  "next_milestone": "F05-7 TTL expired proof read-side Fail Closed and audited bounded sweep, Rule Dictionary governance, formal F03/customer/JYT/mingbang/4S issuers and M94 migration, A-safe PR",
-  "verification_scope": "NONPRODUCTION_F02_1_76_FROZEN_TABLES_PLUS_26_DISPOSABLE_TEST_SIDECARS_NODE_128_PG16_170_WITH_TWO_WAY_SOURCE_MATCH_TRANSACTION_ORDER",
+  "next_milestone": "F05-7正式Rule Dictionary全字段/治理+合法重算影响索引、只读消费者TTL Guard、正式F03/微信/JYT/4S/名邦签发和完整M94；10旧PR事件触发器仍待A独立裁决；F06-F08不启动",
+  "verification_scope": "NONPRODUCTION_F02_1_76_FROZEN_TABLES_PLUS_27_DISPOSABLE_SIDECARS_NODE_128_PG16_175_TTL_SAFE_READ_SCOPED_QUEUE",
   "security_hardening": [
     "pg_catalog actual column type and FK shape check",
     "test-only database URL strict port 5432 and prohibit host/hostaddr query overrides",
@@ -300,8 +301,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "TEN_LEGACY_BROAD_MAIN_TARGET_PR_WORKFLOWS_UNAUTHORIZED_TO_CHANGE_AND_USER_FORBIDS_OLD_RETRIGGER",
-  "tested_commit": "29a9859d7397d8b3a449da0f4fad97952e0185c9",
-  "tested_run": 39122502023,
+  "tested_commit": "9af98db1948e6c3069518849c1c10d84974a22d1",
+  "tested_run": 39125962399,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -540,9 +541,9 @@
     "production_ready": false
   },
   "matching_real_business": {
-    "status": "F05_7_PARTIAL_PG16_TWO_WAY_CONCURRENCY_TEST_ONLY",
-    "run_id": 39122502023,
-    "execution_sha": "29a9859d7397d8b3a449da0f4fad97952e0185c9",
+    "status": "F05_7_PARTIAL_TEST_ONLY_TTL_SAFE_CURRENT_BOUNDED_SWEEP_SCOPED_AFFECTED_RETRY",
+    "run_id": 39125962399,
+    "execution_sha": "9af98db1948e6c3069518849c1c10d84974a22d1",
     "actual_f02_frozen_business_tables": [
       "public.demands",
       "public.demand_match_results"
@@ -591,7 +592,12 @@
       "PG16_SOURCE_PRICE_BEFORE_MATCH_BLOCK_AND_RECOMPUTE_NEW_VALUE",
       "PG16_SOURCE_MILEAGE_BEFORE_MATCH_BLOCK_AND_RECOMPUTE_NEW_VALUE",
       "PG16_MATCH_BEFORE_PRICE_SOURCE_BLOCK_AND_IMMEDIATE_STALE",
-      "DISPOSABLE_BEFORE_WRITE_SOURCE_LOCKS_FAIL_CLOSED_READINESS"
+      "DISPOSABLE_BEFORE_WRITE_SOURCE_LOCKS_FAIL_CLOSED_READINESS",
+      "TEST_ONLY_READ_TIME_TTL_FAIL_CLOSED_WHILE_RAW_CURRENT_UNCHANGED",
+      "BOUNDED_TTL_STALE_SWEEP_AND_IMMUTABLE_CHANGE_FACT",
+      "PAIR_SCOPED_AFFECTED_RETRY_QUEUE_WITH_GENERATION_AND_BACKOFF",
+      "RETRY_EMPLOYEE_SESSION_RESPONSIBLE_SCOPE_AND_CROSS_CUSTOMER_ISOLATION_PG16",
+      "RETRY_EXPIRED_SOURCE_REJECT_AND_RECOVERY_WITH_ZERO_AUTO_GRANTS"
     ],
     "missing": [
       "FORMAL_RULE_DICTIONARY_AND_SCOPE_ISSUER",
@@ -613,12 +619,16 @@
       "WORKER_AFFECTED_SCOPE_RECOMPUTE_AND_RETRY",
       "FORMAL_SOURCE_WRITE_TRANSACTION_PROTOCOL_ALL_ISSUERS",
       "EXPIRED_EVIDENCE_TTL_READ_SIDE_GUARD_AND_EXPIRY_WORKER",
-      "FULL_PRODUCTION_CONCURRENCY_ACROSS_EXTERNAL_PUBLISHERS"
+      "FULL_PRODUCTION_CONCURRENCY_ACROSS_EXTERNAL_PUBLISHERS",
+      "FORMAL_RULE_DICTIONARY_PDM12_PDM22_CRUD_SCOPE_HISTORY_AND_MANAGE_CAPABILITY",
+      "FORMAL_DOWNSTREAM_MATCH_CURRENT_CONSUMERS_USE_TTL_SAFE_READ_PROJECTION",
+      "OPERATIONAL_WORKER_SCHEDULER_AND_SAFELY_SIGNED_ISSUER"
     ],
     "production_ready": false,
     "invalidation_pg16_cases_passed": 10,
     "evidence_stale_pg16_cases_passed": 10,
-    "matching_total_new_pg16_cases_including_invalidation": 34,
-    "source_race_pg16_cases_passed": 5
+    "matching_total_new_pg16_cases_including_invalidation": 44,
+    "source_race_pg16_cases_passed": 5,
+    "ttl_scoped_retry_pg16_cases_passed": 5
   }
 }
