@@ -2,22 +2,22 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F02_76_TABLE_PG16_16_PASS_MODEL_NAMES_AND_YEAR_PARTIAL",
+  "status": "B_IN_PROGRESS_CATALOG_IMAGES_AND_STATS_REAL_PG16_19_PASS_PARTIAL",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "54e18058be857773c7645c93d0999893610b2810",
+  "github_commit": "194bec857c26e758c0102c1115a5b0b1dc99a77d",
   "node_http_stub_tests": {
-    "passed": 63,
+    "passed": 67,
     "failed": 0,
     "skipped": 0
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39101785459,
-    "head_sha": "54e18058be857773c7645c93d0999893610b2810",
-    "node_http_tests_passed": 63,
-    "real_pg16_integration_tests_passed": 16,
+    "run_id": 39103198886,
+    "head_sha": "194bec857c26e758c0102c1115a5b0b1dc99a77d",
+    "node_http_tests_passed": 67,
+    "real_pg16_integration_tests_passed": 19,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -29,12 +29,14 @@
     "production_ready": false,
     "f02_1_current_initial_76_entities": true,
     "compiled_schema_sha256": "df078212b95701af12144a43ef85a70fc491e5dca9948644df415bd888c5b4e4",
-    "historical_m94_migration_chain_verified": false
+    "historical_m94_migration_chain_verified": false,
+    "disposable_photo_order_proof": true
   },
   "endpoints": {
     "implemented_test_only": [
       "GET /api/v1/catalog/vehicles?source=&modelId=&brandId=&seriesId=&modelYear=&sort=newest&cursor=",
-      "GET /api/v1/catalog/vehicles/:vehicleId"
+      "GET /api/v1/catalog/vehicles/:vehicleId",
+      "GET /api/v1/catalog/stats"
     ],
     "real_pg16_verified": [
       "Catalog list/detail physical F02 initial PG16 with disposable proof",
@@ -42,7 +44,9 @@
       "HMAC V3 cursor binding to source/sort/modelId/brandId/seriesId",
       "Safety: source transition, priority physical protection, unique active listing cycle, rollback, hidden/offline",
       "PDM05 physical brand/series/model name + modelYear safe DTO on actual PG16",
-      "modelYear PG16 exact SQL filter, V4 HMAC cursor binding to all filters"
+      "modelYear PG16 exact SQL filter, V4 HMAC cursor binding to all filters",
+      "Real PG16 public count from identical visible safe scope excluding hidden and Priority; three source buckets",
+      "PG16 test-only frozen-order photo proof, safe first cover relative path; excludes source_url_fact and document attachments"
     ],
     "customer_write_implemented": [],
     "employee_write_implemented": []
@@ -195,8 +199,8 @@
     "Full F05-1..11 actual authenticated HTTP/PG16 business still missing"
   ],
   "next_owner": "B",
-  "next_milestone": "Finish trusted image path/CDN configuration, price/customer issuer, F05 write HTTP and PG16, safely isolate 10 legacy PR triggers before A acceptance",
-  "verification_scope": "NONPRODUCTION_F02_1_76_PHYSICAL_TABLES_REAL_PG16_16_ASSERTIONS_AND_NODE_HTTP_63",
+  "next_milestone": "Complete F05 trusted identity and source issuer, physical image provenance order and CDN asset delivery, retail price rights and write workflows, safely isolate old PR trigger fan-out",
+  "verification_scope": "NONPRODUCTION_F02_1_76_FROZEN_TABLES_PLUS_3_DISPOSABLE_TEST_SIDECARS_HTTP_67_PG16_19",
   "security_hardening": [
     "pg_catalog actual column type and FK shape check",
     "test-only database URL strict port 5432 and prohibit host/hostaddr query overrides",
@@ -208,8 +212,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "TEN_LEGACY_BROAD_MAIN_TARGET_PR_WORKFLOWS_UNAUTHORIZED_TO_CHANGE_AND_USER_FORBIDS_OLD_RETRIGGER",
-  "tested_commit": "54e18058be857773c7645c93d0999893610b2810",
-  "tested_run": 39101785459,
+  "tested_commit": "194bec857c26e758c0102c1115a5b0b1dc99a77d",
+  "tested_run": 39103198886,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -233,8 +237,20 @@
     "registration_year_not_implemented": true
   },
   "public_photo_feature": {
-    "verified": false,
-    "reason": "CDN_SOURCE_ASSET_TRUST_NOT_READY",
+    "verified": "ISOLATED_PG16_SAFE_RELATIVE_PATH_ONLY",
+    "production_ready": false,
+    "cdm_domain_verified": false,
+    "source_order_proof": "DISPOSABLE_TEST_PROOF_NOT_SIGNED",
+    "missing_frozen_column": "public.vehicle_images.sort_index",
+    "asset_delivery_verified": false,
     "raw_upstream_url_not_exposed": true
+  },
+  "public_stats_feature": {
+    "test_pg16_verified": true,
+    "endpoint": "GET /api/v1/catalog/stats",
+    "totals": "PUBLIC_VISIBLE_SCOPE_ONLY",
+    "today_new_count": null,
+    "today_new_reason": "FIRST_SEEN_DEPENDENCY_BLOCKED",
+    "production_ready": false
   }
 }

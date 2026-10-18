@@ -1,3 +1,14 @@
+# 2026-10-18｜F05本轮增量：图片首图安全路径＋真实公开数量统计
+
+- **受测代码SHA：** `194bec857c26e758c0102c1115a5b0b1dc99a77d`；官方[Run39103198886](https://github.com/suzhe868-arch/mb/actions/runs/39103198886)已在隔离PostgreSQL16完成：**Node HTTP／安全测试67/67、真实PG16集成19/19，0失败、0跳过**。采用GitHub标准运行器，原F02-1冻结76实体+3个隔离测试侧表；未改动生产库、旧66项来源检查或F06/F07/F08。
+- **业务接口新增：** `GET /api/v1/catalog/stats`返回全国当前公开可见车辆总数及`wholesale/mingbang/four_s`分类。统计与列表/详情复用同一受限SQL可见性：Priority保护、hidden、offline、sold、过期目录证明都不可计入。`todayNewCount=null`+`FIRST_SEEN_DEPENDENCY_BLOCKED`是未掌握可信首次入库事实的正确拒绝，不是“今日新增=0”。
+- **车辆主图：** 列表和详情安全DTO新增`coverImagePath`，只输出普通车辆图片合法**相对路径**；非法协议URL、回退路径、双斜杠、编码绕过均过滤，原始`source_url_fact`永不出现在SQL投影/JSON；无合法顺序证明时返回`null`。不得把该相对路径解释为已验证的CDN真实可访问URL。
+- **真实物理缺口：** F02-1冻结`vehicle_images`没有`sort_index`，只在候选字段矩阵出现过。不能擅自修改正式Schema，也不能把image_id伪当冻结原图顺序。当前为测试专用`f05_real_catalog_photo_order_test`提供原始顺序与来源隔离证明；已在PG16验证不可信图跳过、原序回退和重验证。正式来源证据及CDN绑定仍**待完成**。
+- **范围未结束：** F05-1～11的完整可信Customer/Employee/JYT/4S来源、收藏、价格权益、找车、Priority正式授予、推荐、咨询等应用HTTP＋完整PG16尚未交付。所有当前正例的来源证明仍是`DISPOSABLE_TEST_PROOF_NOT_SIGNED`；`F05_PARTIAL_TEST_ONLY / NOT_READY_FOR_A_REVIEW`。
+- **PR阻断未绕过：** `main`的旧10项无paths的F05 PR触发器仍有旧66来源测试误触发风险，本轮未创建PR、未改这些Workflow；不宣称生产、可信签发、完整F05验收或额外付费账户实际结算核查已完成。
+
+---
+
 # 2026-10-18｜F05车型展示与年款真实HTTP＋PG16交付进展
 
 - 官方[Run39101785459](https://github.com/suzhe868-arch/mb/actions/runs/39101785459)在**代码HEAD `54e18058be857773c7645c93d0999893610b2810`**的标准免费运行器通过：**63/63 Node真实HTTP及安全单测，16/16 物理PostgreSQL16双连接集成，0失败、0跳过**。采用F02-1冻结初始76实体、非超级用户、可销毁测试库。
