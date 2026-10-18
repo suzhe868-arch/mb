@@ -34,6 +34,7 @@ on:
       - 'engineering/integration/f05-matching-ttl-retry.pg16.test.mjs'
       - 'engineering/integration/f05-matching-dictionary.pg16.test.mjs'
       - 'engineering/integration/f05-matching-dictionary-activation.pg16.test.mjs'
+      - 'engineering/integration/f05-matching-rule-change-discovery.pg16.test.mjs'
       - 'engineering/integration/f05-matching-discovery.pg16.test.mjs'
       - 'engineering/integration/f05-matching-conditions.pg16.test.mjs'
       - 'engineering/tests/catalog*.test.mjs'
@@ -142,6 +143,7 @@ jobs:
             await client.query(await readFile('catalog/000033_matching_candidate_discovery_disposable_test_only.sql','utf8'));
             await client.query(await readFile('catalog/000034_matching_hard_fields_disposable_test_only.sql','utf8'));
             await client.query(await readFile('catalog/000035_matching_discovery_paged_audit_disposable_test_only.sql','utf8'));
+            await client.query(await readFile('catalog/000036_matching_rule_change_discovery_disposable_test_only.sql','utf8'));
             await client.query("INSERT INTO public.vehicle_brands(brand_id,brand_name) VALUES(59001,'隔离测试品牌')");
             await client.query("INSERT INTO public.vehicle_series(series_id,brand_id,series_name) VALUES(59001,59001,'隔离测试车系')");
             await client.query("INSERT INTO public.vehicle_models(model_id,brand_id,series_id,model_name,model_year,profile_status) VALUES(59001,59001,59001,'隔离测试车型',2026,'incomplete')");
@@ -178,6 +180,7 @@ jobs:
           node --test integration/f05-matching-ttl-retry.pg16.test.mjs
           node --test integration/f05-matching-dictionary.pg16.test.mjs
           node --test integration/f05-matching-dictionary-activation.pg16.test.mjs
+          node --test integration/f05-matching-rule-change-discovery.pg16.test.mjs
           node --test integration/f05-matching-discovery.pg16.test.mjs
           node --test integration/f05-matching-conditions.pg16.test.mjs
       - name: No paid artifact, production action or downstream CI
