@@ -32,7 +32,9 @@ try{
   await writer.query("INSERT INTO public.employees(employee_id,main_role_id,employment_status,receiving_status) VALUES(59003,59001,'active','receiving')");
   await writer.query("INSERT INTO public.f05_catalog_employee_sessions_test(token_sha256,employee_id,expires_at) VALUES($1,59003,statement_timestamp()+interval '20 minutes')",[digest(employeeForRecommendation)]);
   await writer.query("INSERT INTO public.f05_recommendation_manage_scope_test(employee_id,customer_id,can_manage,expires_at) VALUES(59003,59001,true,statement_timestamp()+interval '20 minutes')");
-  await writer.query("INSERT INTO public.f05_catalog_consultation_actor_proof_test(customer_id,assignee_employee_id,phone_consent_test,worker_scope_test,expires_at) VALUES(59001,59003,true,true,statement_timestamp()+interval '20 minutes')");
+  // One current receiving proof per Customer is enforced by this sidecar.
+  // The cross-domain test temporarily changes current receiving authorization;
+  // it never inserts an extra proof beside the Customer Owner's proof.
   await writer.query("INSERT INTO public.demands(demand_id,customer_id,responsible_employee_id,demand_state,criteria_json) VALUES(59020,59001,59003,'active','{}'::jsonb)");
   await writer.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,model_id,created_at) VALUES(59020,'wholesale','active','hidden',59001,statement_timestamp())");
   await writer.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES(59020,59020,statement_timestamp())");
@@ -65,6 +67,8 @@ try{
   finally{await writer.query("UPDATE public.customers SET current_owner_employee_id=59001,owner_assignment_state='assigned' WHERE customer_id=59001")}
  });
  await test('PG16 real F05-9 Recommendation -> hidden PDM15 Consultation preserves direct source and selects current Demand assignee',async()=>{
+  await writer.query("UPDATE public.f05_catalog_consultation_actor_proof_test SET assignee_employee_id=59003 WHERE customer_id=59001");
+  try{
   // This Recommendation is created by the *real* PG16 Recommendation service,
   // using its actual independent Employee proof and legitimate source Demand.
   const grant=await recommendation.mutate({credential:employeeForRecommendation,action:'CREATE',
@@ -107,6 +111,9 @@ try{
   assert.equal(after.first_response_deadline.getTime(),row.first_response_deadline.getTime());
   assert.equal((await writer.query("SELECT count(*)::int n FROM public.f05_catalog_consultation_actions_test "+
    "WHERE consultation_id=$1",[created.body.consultationId])).rows[0].n,1);
+  }finally{
+   await writer.query("UPDATE public.f05_catalog_consultation_actor_proof_test SET assignee_employee_id=59001 WHERE customer_id=59001");
+  }
  });
  await test('missing independent vehicle visibility proof blocks Consultation creation',async()=>{
   await writer.query('DELETE FROM public.f05_real_catalog_visibility_test WHERE vehicle_id=59001 AND listing_cycle_id=59001');
