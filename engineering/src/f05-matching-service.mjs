@@ -72,6 +72,7 @@ export function createIsolatedMatchingService({pool,env=process.env}={}){
     const row=(await db.query("SELECT v.vehicle_id,v.source_type,v.source_sale_status,v.platform_visibility,v.archived_at,"+
      "cy.listing_cycle_id,cy.ended_at,v.model_id,vm.series_id,vm.brand_id,vm.model_year,"+
      "facts.source_brand_id,facts.source_model_year,facts.mileage_km,facts.interior_color,"+
+     "facts.exterior_color,facts.power_type,facts.displacement_cc,facts.condition_flags,"+
      "price.customer_display_cents "+
      "FROM public.vehicles v "+
      "JOIN public.vehicle_listing_cycles cy ON cy.vehicle_id=v.vehicle_id AND cy.ended_at IS NULL "+
@@ -123,6 +124,8 @@ export function createIsolatedMatchingService({pool,env=process.env}={}){
      minModelYear:field(row.model_year,row.source_model_year),
      maxMileageKm:row.mileage_km,
      interiorColor:row.interior_color,
+     exteriorColor:row.exterior_color,powerType:row.power_type,
+     displacementCc:row.displacement_cc,conditionFlags:row.condition_flags,
      customerDisplayCents:row.customer_display_cents
     });
     const cycleId=String(row.listing_cycle_id);
@@ -132,6 +135,8 @@ export function createIsolatedMatchingService({pool,env=process.env}={}){
      modelYear:field(row.model_year,row.source_model_year),
      mileageKm:row.mileage_km??null,
      interiorColor:row.interior_color??null,
+     exteriorColor:row.exterior_color??null,powerType:row.power_type??null,
+     displacementCc:row.displacement_cc??null,conditionFlags:row.condition_flags??null,
      customerDisplayCents:row.customer_display_cents===null?null:String(row.customer_display_cents),
      issuer:'DISPOSABLE_TEST_ONLY',provenance:'STANDALONE_EXPLICIT_FIXTURE'
     };

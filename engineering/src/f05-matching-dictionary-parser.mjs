@@ -9,8 +9,8 @@ export function normalizeDictionaryDefinition(v){
     throw Error('RULE_INVALID_DEFINITION');
  if(typeof v.token!=='string'||!/^[\p{L}\p{N}_]{2,60}$/u.test(v.token)||
   !Object.hasOwn(RANK,v.scopeKind)||typeof v.mappedValue!=='string'||
-  !['brandId','minModelYear','maxMileageKm','budgetCents','interiorColor'].includes(v.mappedKey)||
-  !parseExplicitSalesDescription(v.mappedKey+'='+v.mappedValue).ready)
+  !['brandId','minModelYear','maxMileageKm','budgetCents','interiorColor','exteriorColor','powerType','displacementMinCc','displacementMaxCc','displacementCc','excludeCondition'].includes(v.mappedKey)||
+  !parseExplicitSalesDescription(v.mappedKey+'='+v.mappedValue,{allowPreferredOnly:true}).ready)
     throw Error('RULE_INVALID_MAPPING');
  const b=v.brandId??null,s=v.seriesId??null,m=v.modelId??null;
  if([b,s,m].some(x=>x!==null&&!id(x)))throw Error('RULE_INVALID_SCOPE');
