@@ -80,6 +80,54 @@ try{
   assert.equal((await check('SELECT count(*)::int n FROM public.priority_leases WHERE customer_id=60100'))[0].n,0);
   assert.equal((await check('SELECT count(*)::int n FROM public.vehicle_visibility_grants WHERE customer_id=60100'))[0].n,0);
  });
+ await test('PG16 committed recompute with expired scope must reopen SAME queue generation, never drop as done',async()=>{
+  // Force a real affected pair from a previously safe Match Result.
+  // The genuine matching service writes a new frozen result and marks the job
+  // done; expire an employee scope AFTER that commit but BEFORE worker validation.
+  const stale=await db.query("UPDATE public.demand_match_results SET current_state='stale', "+
+   "invalidated_at=statement_timestamp() WHERE demand_id=60100 AND vehicle_id=60110 "+
+   "AND current_state='current'");
+  assert.equal(stale.rowCount,1);
+  const queued=(await check("SELECT generation,state FROM public.f05_matching_affected_queue_test "+
+   "WHERE demand_id=60100 AND vehicle_id=60110"))[0];
+  assert.equal(queued.state,'pending');
+  const controlledRealMatching={async recompute(request){
+   const res=await matching.recompute(request);
+   assert.equal(res.status,200,JSON.stringify(res));
+   // Physical database expiry, NOT a Mock matching success. No queue trigger
+   // exists for this natural TTL boundary: read-time safety must catch it.
+   await db.query("UPDATE public.f05_matching_employee_scope_test SET "+
+    "expires_at=statement_timestamp()-interval '1 second' WHERE employee_id=60100");
+   return res;
+  }};
+  const raceWorker=createIsolatedMatchingRetryWorker({pool,matching:controlledRealMatching,env:process.env});
+  const raced=await raceWorker.runOnce({credential,limit:1});
+  assert.equal(raced.claimed,1,JSON.stringify(raced));
+  assert.equal(raced.outcomes[0].outcome,'retry_pending_or_failed');
+  const saved=(await check("SELECT generation,state,attempts,last_error FROM "+
+   "public.f05_matching_affected_queue_test WHERE demand_id=60100 AND vehicle_id=60110"))[0];
+  assert.equal(String(saved.generation),String(queued.generation));
+  assert.equal(saved.state,'pending');assert.equal(saved.attempts,1);
+  assert.equal(saved.last_error,'MATCH_RETRY_UNKNOWN'); // 200 but read-time evidence invalid.
+  assert.equal((await check("SELECT count(*)::int n FROM public.f05_matching_safe_current_test "+
+   "WHERE demand_id=60100 AND vehicle_id=60110"))[0].n,0);
+  await db.query("UPDATE public.f05_matching_employee_scope_test SET "+
+   "expires_at=statement_timestamp()+interval '20 minutes' WHERE employee_id=60100");
+  await db.query("UPDATE public.f05_matching_affected_queue_test SET "+
+   "next_attempt_at=statement_timestamp()-interval '1 second' WHERE demand_id=60100 AND vehicle_id=60110");
+  const retried=await retry.runOnce({credential,limit:1});
+  assert.equal(retried.claimed,1);
+  assert.equal(retried.outcomes[0].outcome,'done',JSON.stringify(retried));
+  const done=(await check("SELECT generation,state,attempts FROM public.f05_matching_affected_queue_test "+
+   "WHERE demand_id=60100 AND vehicle_id=60110"))[0];
+  assert.equal(String(done.generation),String(queued.generation));
+  assert.equal(done.state,'done');
+  assert.equal((await check("SELECT count(*)::int n FROM public.f05_matching_safe_current_test "+
+   "WHERE demand_id=60100 AND vehicle_id=60110"))[0].n,1);
+  // The second affected pair stays in its original done state.
+  assert.equal((await check("SELECT state FROM public.f05_matching_affected_queue_test "+
+   "WHERE demand_id=60100 AND vehicle_id=60111"))[0].state,'done');
+ });
  await test('PG16 invalid batch limits fail and do not mutate source facts',async()=>{
   await assert.rejects(db.query('SELECT public.f05_match_sweep_unusable_test(0)'),/F05_TTL_BATCH_LIMIT_INVALID/);
   await assert.rejects(db.query('SELECT public.f05_match_sweep_unusable_test(201)'),/F05_TTL_BATCH_LIMIT_INVALID/);

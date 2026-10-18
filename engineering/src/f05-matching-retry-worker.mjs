@@ -60,6 +60,11 @@ export function createIsolatedMatchingRetryWorker({pool,matching,env=process.env
      WHERE demand_id=$1 AND vehicle_id=$2 AND generation=$3 AND state IN ('processing','done')
      RETURNING generation`,[demandId,vehicleId,generation]);
    }else{
+    // Matching.recompute commits its own transaction and sets queue state='done'
+    // BEFORE this worker verifies read-time evidence. A newly expired scope or
+    // source can invalidate the result without writing a matching row/queue
+    // trigger. Reopen that SAME generation instead of silently losing the job.
+    // Never revive an unrelated/newer generation: generation is still CAS.
     const error=String(result?.body?.code??'MATCH_RETRY_UNKNOWN').slice(0,120);
     changed=await pool.query(`
      UPDATE public.f05_matching_affected_queue_test
@@ -67,7 +72,7 @@ export function createIsolatedMatchingRetryWorker({pool,matching,env=process.env
           state=CASE WHEN attempts+1>=5 THEN 'failed' ELSE 'pending' END,
           next_attempt_at=statement_timestamp()+make_interval(secs=>LEAST(300,2^(attempts+1))::integer),
           lease_until=NULL,last_error=$4,modified_at=statement_timestamp()
-     WHERE demand_id=$1 AND vehicle_id=$2 AND generation=$3 AND state='processing'
+     WHERE demand_id=$1 AND vehicle_id=$2 AND generation=$3 AND state IN ('processing','done')
      RETURNING generation`,[demandId,vehicleId,generation,error]);
    }
    outcomes.push({demandId,vehicleId,
