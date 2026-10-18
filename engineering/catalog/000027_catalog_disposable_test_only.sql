@@ -91,7 +91,9 @@ CREATE TABLE public.f05_catalog_consultation_actions_test (
  vehicle_id bigint NOT NULL REFERENCES public.vehicles(vehicle_id) ON DELETE RESTRICT,
  listing_cycle_id bigint NOT NULL,
  consultation_id bigint NOT NULL REFERENCES public.consultations(consultation_id) ON DELETE RESTRICT,
- action text NOT NULL CHECK(action IN ('CREATED','TOUCHED','WITHDRAWN')),
+ action text NOT NULL CHECK(action IN ('CREATED','TOUCHED','WITHDRAWN','STARTED_PROCESSING')),
+ actor_employee_id bigint REFERENCES public.employees(employee_id) ON DELETE RESTRICT,
+ CHECK (action<>'STARTED_PROCESSING' OR actor_employee_id IS NOT NULL),
  occurred_at timestamptz NOT NULL DEFAULT statement_timestamp(),
  FOREIGN KEY(listing_cycle_id,vehicle_id) REFERENCES public.vehicle_listing_cycles(listing_cycle_id,vehicle_id)
 );
@@ -101,3 +103,21 @@ CREATE TRIGGER f05_consult_actions_no_mutation BEFORE UPDATE OR DELETE
  ON public.f05_catalog_consultation_actions_test FOR EACH ROW
  EXECUTE FUNCTION public.f05_consult_actions_immutable_test();
 REVOKE ALL ON public.f05_catalog_consultation_actor_proof_test,public.f05_catalog_consultation_actions_test FROM PUBLIC;
+
+-- No production trust: isolated employee bearer and per-customer Consultation mutation scope.
+CREATE TABLE public.f05_catalog_employee_sessions_test (
+ token_sha256 text PRIMARY KEY CHECK(token_sha256 ~ '^[0-9a-f]{64}$'),
+ employee_id bigint NOT NULL REFERENCES public.employees(employee_id) ON DELETE RESTRICT,
+ issuer text NOT NULL DEFAULT 'DISPOSABLE_TEST_ONLY' CHECK(issuer='DISPOSABLE_TEST_ONLY'),
+ expires_at timestamptz NOT NULL,
+ revoked_at timestamptz
+);
+CREATE TABLE public.f05_catalog_employee_consultation_scope_test (
+ employee_id bigint NOT NULL REFERENCES public.employees(employee_id) ON DELETE RESTRICT,
+ customer_id bigint NOT NULL REFERENCES public.customers(customer_id) ON DELETE RESTRICT,
+ can_start_processing boolean NOT NULL CHECK(can_start_processing=true),
+ issuer text NOT NULL DEFAULT 'DISPOSABLE_TEST_ONLY' CHECK(issuer='DISPOSABLE_TEST_ONLY'),
+ expires_at timestamptz NOT NULL,
+ PRIMARY KEY(employee_id,customer_id)
+);
+REVOKE ALL ON public.f05_catalog_employee_sessions_test,public.f05_catalog_employee_consultation_scope_test FROM PUBLIC;

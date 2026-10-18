@@ -6,6 +6,8 @@ import {createIsolatedFavoriteService} from './f05-favorite-service.mjs';
 import {createIsolatedFavoriteHandler} from './f05-favorite-http.mjs';
 import {createIsolatedConsultationService} from './f05-consultation-service.mjs';
 import {createIsolatedConsultationHandler} from './f05-consultation-http.mjs';
+import {createIsolatedEmployeeStartService} from './f05-employee-start-service.mjs';
+import {createIsolatedEmployeeStartHandler} from './f05-employee-start-http.mjs';
 export function validateCatalogEnv(env=process.env){
  if(env.APP_ENV!=='test'||env.NODE_ENV!=='test'||env.F05_CATALOG_TEST_CONSENT!=='I_AUTHORIZE_DISPOSABLE_F05_CATALOG_PG16_ONLY')throw Error('CATALOG_TEST_ONLY');
  if(env.API_HOST && !['127.0.0.1','localhost','::1'].includes(env.API_HOST))throw Error('CATALOG_LOOPBACK_REQUIRED');
@@ -56,6 +58,11 @@ const REQUIRED_CATALOG_COLUMNS=Object.freeze([
  ['public.f05_catalog_consultation_actor_proof_test','assignee_employee_id','bigint'],
  ['public.f05_catalog_consultation_actions_test','event_key','text'],
  ['public.f05_catalog_consultation_actions_test','consultation_id','bigint'],
+ ['public.f05_catalog_consultation_actions_test','actor_employee_id','bigint'],
+ ['public.f05_catalog_employee_sessions_test','token_sha256','text'],
+ ['public.f05_catalog_employee_sessions_test','employee_id','bigint'],
+ ['public.f05_catalog_employee_consultation_scope_test','employee_id','bigint'],
+ ['public.f05_catalog_employee_consultation_scope_test','customer_id','bigint'],
 ]);
 const EXPECTED_COLUMNS_VALUES=REQUIRED_CATALOG_COLUMNS.map(x=>`('${x[0]}','${x[1]}','${x[2]}')`).join(',');
 export const SQL_CATALOG_SCHEMA=`SELECT
@@ -69,6 +76,8 @@ export const SQL_CATALOG_SCHEMA=`SELECT
  to_regclass('public.f05_catalog_favorite_events_test') IS NOT NULL AS fe,
  to_regclass('public.f05_catalog_consultation_actor_proof_test') IS NOT NULL AS cp,
  to_regclass('public.f05_catalog_consultation_actions_test') IS NOT NULL AS ca,
+ to_regclass('public.f05_catalog_employee_sessions_test') IS NOT NULL AS es,
+ to_regclass('public.f05_catalog_employee_consultation_scope_test') IS NOT NULL AS ec,
  NOT EXISTS (
   SELECT 1 FROM (VALUES ${EXPECTED_COLUMNS_VALUES}) AS expected(relation,column_name,physical_type)
   LEFT JOIN pg_catalog.pg_attribute attr
@@ -76,7 +85,7 @@ export const SQL_CATALOG_SCHEMA=`SELECT
    AND attr.attname=expected.column_name AND attr.attnum>0 AND NOT attr.attisdropped
   WHERE attr.attname IS NULL OR pg_catalog.format_type(attr.atttypid,attr.atttypmod)<>expected.physical_type
  ) AS shape,
- (SELECT count(*)=84 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
+ (SELECT count(*)=86 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
  (SELECT count(*)=2 FROM pg_catalog.pg_constraint fk
   WHERE fk.contype='f'
    AND fk.conrelid IN (to_regclass('public.f05_real_catalog_visibility_test'),to_regclass('public.f05_real_catalog_protections_test'))
@@ -91,7 +100,7 @@ export async function probeIsolatedCatalog(pool){
   const identity=(await pool.query(SQL_CATALOG_IDENTITY)).rows[0];
   if(!identity || Math.floor(Number(identity.v)/10000)!==16 || identity.db!=='f05_catalog_test' || identity.role!=='f05_catalog_ci')return false;
   const schema=(await pool.query(SQL_CATALOG_SCHEMA)).rows[0];
-  return !!schema && Object.keys(schema).sort().join(',')==='c,ca,cp,fe,fk,fs,ft,full,p,pf,po,shape,v,x' && Object.values(schema).every(v=>v===true);
+  return !!schema && Object.keys(schema).sort().join(',')==='c,ca,cp,ec,es,fe,fk,fs,ft,full,p,pf,po,shape,v,x' && Object.values(schema).every(v=>v===true);
  }catch{return false}
 }
 export async function createIsolatedCatalogRuntime(env=process.env){
@@ -103,6 +112,7 @@ export async function createIsolatedCatalogRuntime(env=process.env){
   const service=createCatalogService({pool,cursorKey:randomBytes(32)});
   const favorite=createIsolatedFavoriteService({pool,env});
   const consultation=createIsolatedConsultationService({pool,env});
-  return {pool,handler:createCatalogHandler(service),favoriteHandler:createIsolatedFavoriteHandler(favorite,env),consultationHandler:createIsolatedConsultationHandler(consultation,env),ready:()=>probeIsolatedCatalog(pool),close:()=>pool.end()};
+  const employeeStart=createIsolatedEmployeeStartService({pool,env});
+  return {pool,handler:createCatalogHandler(service),favoriteHandler:createIsolatedFavoriteHandler(favorite,env),consultationHandler:createIsolatedConsultationHandler(consultation,env),employeeStartHandler:createIsolatedEmployeeStartHandler(employeeStart,env),ready:()=>probeIsolatedCatalog(pool),close:()=>pool.end()};
  }catch(e){await pool.end();throw e}
 }
