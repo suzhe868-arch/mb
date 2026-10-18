@@ -7,7 +7,7 @@ import {createCatalogHandler} from '../src/catalog-http.mjs';
 import {createFoundationHandler} from '../src/app.mjs';
 import {validateCatalogEnv} from '../src/catalog-readiness.mjs';
 const key=randomBytes(32);
-const row={vehicleId:'12',listingCycleId:'33',source:'wholesale',listingStartedAt:'2026-10-15T09:00:00.000Z',modelId:'44',brandId:'55',seriesId:'66',brandName:'测试品牌',seriesName:'测试车系',modelName:'测试车型',modelYear:2026,vin:'SENSITIVE123',wholesaleCost:100,phone:'12345678',customerId:123};
+const row={vehicleId:'12',listingCycleId:'33',source:'wholesale',listingStartedAt:'2026-10-15T09:00:00.000Z',modelId:'44',brandId:'55',seriesId:'66',brandName:'测试品牌',seriesName:'测试车系',modelName:'测试车型',modelYear:2026,coverImagePath:'C7/front.webp',source_url_fact:'https://upstream.invalid/PRIVATE',vin:'SENSITIVE123',wholesaleCost:100,phone:'12345678',customerId:123};
 const pool={query:async(sql,parameters)=>({rows:sql===SQL_CATALOG_DETAIL?[row]:[row]})};
 const service=createCatalogService({pool,cursorKey:key});
 const invoke=async(path,method='GET')=>{
@@ -19,8 +19,8 @@ const invoke=async(path,method='GET')=>{
 test('real Node HTTP list safely whitelists row',async()=>{
  const [status,text,headers]=await invoke('/api/v1/catalog/vehicles');
  assert.equal(status,200);assert.equal(headers.get('cache-control'),'no-store');
- assert.deepEqual(JSON.parse(text).items[0],{vehicleId:'12',listingCycleId:'33',source:'wholesale',listingStartedAt:'2026-10-15',modelId:'44',brandId:'55',seriesId:'66',brandName:'测试品牌',seriesName:'测试车系',modelName:'测试车型',modelYear:2026,price:null,priceState:'PRICE_ENTITLEMENT_DEPENDENCY_BLOCKED',catalogState:'ISOLATED_TEST_PROJECTION_NOT_PRODUCTION'});
- for(const banned of ['vin','wholesaleCost','phone','customerId','SENSITIVE'])assert.equal(text.includes(banned),false);
+ assert.deepEqual(JSON.parse(text).items[0],{vehicleId:'12',listingCycleId:'33',source:'wholesale',listingStartedAt:'2026-10-15',modelId:'44',brandId:'55',seriesId:'66',brandName:'测试品牌',seriesName:'测试车系',modelName:'测试车型',modelYear:2026,coverImagePath:'C7/front.webp',price:null,priceState:'PRICE_ENTITLEMENT_DEPENDENCY_BLOCKED',catalogState:'ISOLATED_TEST_PROJECTION_NOT_PRODUCTION'});
+ for(const banned of ['vin','wholesaleCost','phone','customerId','SENSITIVE','upstream.invalid','source_url_fact'])assert.equal(text.includes(banned),false);
 });
 test('detail returns same safe DTO',async()=>{const [code,b]=await invoke('/api/v1/catalog/vehicles/12');assert.equal(code,200);assert.equal(JSON.parse(b).vehicle.source,'wholesale')});
 test('unknown methods prohibited',async()=>assert.equal((await invoke('/api/v1/catalog/vehicles','POST'))[0],405));

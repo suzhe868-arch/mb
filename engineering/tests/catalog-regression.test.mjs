@@ -133,6 +133,26 @@ test('model year changes must invalidate HMAC signed pagination cursor',async()=
  assert.equal(second.status,400);assert.equal(second.body.code,'INVALID_CURSOR');
 });
 
+
+test('public image projection accepts only relative ordinary vehicle path',async()=>{
+ const valid=await request(byRows(()=>[{...row(8),coverImagePath:'C7/2026/front.webp',source_url_fact:'https://jyt.invalid/PRIVATE'}]),'/api/v1/catalog/vehicles/8');
+ assert.equal(valid.status,200);
+ assert.equal(valid.body.vehicle.coverImagePath,'C7/2026/front.webp');
+ assert.equal(JSON.stringify(valid.body).includes('jyt.invalid'),false);
+ for(const bad of ['https://evil.invalid/photo.jpg','../secret','C7/../../secret','/root/file','C7/%2e%2e/file','C7//file','C7\\file','C7/file?secret=1','C7/file#token']){
+  const x=await request(byRows(()=>[{...row(8),coverImagePath:bad}]),'/api/v1/catalog/vehicles/8');
+  assert.equal(x.status,200,bad);
+  assert.equal(x.body.vehicle.coverImagePath,null,bad);
+ }
+});
+test('image SQL selects in frozen sort order, never returns upstream URL or documents',()=>{
+ for(const sql of [SQL_CATALOG_LIST,SQL_CATALOG_DETAIL]){
+  assert.match(sql,/FROM public\.vehicle_images vi/);
+  assert.match(sql,/vi\.vehicle_id=v\.vehicle_id/);
+  assert.match(sql,/vi\.sort_index ASC NULLS LAST,vi\.image_id ASC LIMIT 1/);
+  assert.doesNotMatch(sql,/source_url_fact|vehicle_documents|origin_ref/);
+ }
+});
 test('PDM-20 seven sorts: six unverified business projections fail closed; oldest is prohibited',async()=>{
  const legal=['price_asc','price_desc','registration_year_desc','registration_year_asc','mileage_asc','mileage_desc'];
  for(const sort of legal){
@@ -202,7 +222,7 @@ test('HTTP only exposes declared DTO whitelist for 3 physical source kinds',asyn
   const id=source==='four_s'?8:source==='mingbang'?7:6;
   const r=await request(byRows(()=>[row(id,'2026-10-15T09:00:00.123456Z',source)]),`/api/v1/catalog/vehicles/${id}`);
   assert.equal(r.status,200);
-  assert.deepEqual(Object.keys(r.body.vehicle).sort(),['catalogState','listingCycleId','listingStartedAt','modelId','brandId','seriesId','brandName','seriesName','modelName','modelYear','price','priceState','source','vehicleId'].sort());
+  assert.deepEqual(Object.keys(r.body.vehicle).sort(),['catalogState','listingCycleId','listingStartedAt','modelId','brandId','seriesId','brandName','seriesName','modelName','modelYear','coverImagePath','price','priceState','source','vehicleId'].sort());
   assert.equal(r.body.vehicle.price,null);
   const json=JSON.stringify(r.body);
   for(const leak of ['VIN_NEVER_EXPOSE','PRIVATE_CALLER','private@private.example','wholesaleCost','transactionCustomerId'])assert.equal(json.includes(leak),false);

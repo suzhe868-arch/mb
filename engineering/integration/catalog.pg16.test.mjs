@@ -93,6 +93,17 @@ try{
   assert.equal(excluded.status,200);
   assert.equal(excluded.body.items.some(x=>x.vehicleId===cfg.vehicle),false);
  });
+
+ await test('PG16 selects first valid frozen-order cover path and omits sensitive source URL',async()=>{
+  const detail=await get('/api/v1/catalog/vehicles/'+cfg.vehicle);
+  assert.equal(detail.status,200);
+  assert.equal(detail.body.vehicle.coverImagePath,'C7/front.webp');
+  assert.equal(JSON.stringify(detail.body).includes('jyt.internal'),false);
+  const listing=await get('/api/v1/catalog/vehicles');
+  assert.equal(listing.status,200);
+  const vehicle=listing.body.items.find(x=>x.vehicleId===cfg.vehicle);
+  assert.equal(vehicle.coverImagePath,'C7/front.webp');
+ });
  await test('uncommitted PRIORITY does not incorrectly hide from independent reader',async()=>{
   await writer.query('BEGIN');transaction=true;
   await writer.query("INSERT INTO public.f05_real_catalog_protections_test(vehicle_id,listing_cycle_id,protection_kind) VALUES($1,$2,'PRIORITY')",[cfg.vehicle,cfg.cycle]);
