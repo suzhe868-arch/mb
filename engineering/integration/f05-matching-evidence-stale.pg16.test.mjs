@@ -125,6 +125,9 @@ try{
   await reseed();
  });
  await test('PG16 sales description change affects its Demand across vehicles, not other Customer Demand',async()=>{
+  // Previous Vehicle fact changes legitimately staled both Customers sharing the Vehicle.
+  // Give the independent Demand a new verified current result for exact scope comparison.
+  await reseed('59902','59910',tokenB);
   const prev=await latest(),other=await latest('59902','59910'),v2=await latest('59900','59911');
   await db.query("UPDATE public.f05_matching_sales_description_test SET sales_description='brandId=59001;budgetCents=10000000' WHERE demand_id=59900");
   assert.equal((await latest()).current_state,'stale');
@@ -162,6 +165,9 @@ try{
   await reseed();await reseed('59900','59911');await reseed('59902','59910',tokenB);
  });
  await test('PG16 forced matching change audit failure rolls back source price and Match stale transaction together',async()=>{
+  // Every producer mutation before this test may have correctly staled old current rows.
+  // Establish a fresh current result so the injected append-only audit fault must fire.
+  await reseed();
   const before=await latest(),price=(await db.query("SELECT customer_display_cents FROM public.f05_catalog_price_display_proof_test WHERE vehicle_id=59910")).rows[0].customer_display_cents;
   await db.query("CREATE FUNCTION public.f05_stale_injected_failure() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'INJECTED_STALE_AUDIT_FAILURE'; END $$");
   await db.query("CREATE TRIGGER f05_stale_injected_failure_trg BEFORE INSERT ON public.matching_change_events "+
