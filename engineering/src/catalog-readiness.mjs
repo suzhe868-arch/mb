@@ -22,6 +22,8 @@ import {createIsolatedFindCarActivationService} from './f05-find-car-activation-
 import {createIsolatedFindCarActivationHandler} from './f05-find-car-activation-http.mjs';
 import {createIsolatedMatchingService} from './f05-matching-service.mjs';
 import {createIsolatedMatchingHandler} from './f05-matching-http.mjs';
+import {createIsolatedDictionaryService} from './f05-matching-dictionary-service.mjs';
+import {createIsolatedDictionaryHandler} from './f05-matching-dictionary-http.mjs';
 export function validateCatalogEnv(env=process.env){
  if(env.APP_ENV!=='test'||env.NODE_ENV!=='test'||env.F05_CATALOG_TEST_CONSENT!=='I_AUTHORIZE_DISPOSABLE_F05_CATALOG_PG16_ONLY')throw Error('CATALOG_TEST_ONLY');
  if(env.API_HOST && !['127.0.0.1','localhost','::1'].includes(env.API_HOST))throw Error('CATALOG_LOOPBACK_REQUIRED');
@@ -127,6 +129,10 @@ const REQUIRED_CATALOG_COLUMNS=Object.freeze([
  ['public.f05_matching_affected_queue_test','vehicle_id','bigint'],
  ['public.f05_matching_affected_queue_test','generation','bigint'],
  ['public.f05_matching_affected_queue_test','state','text'],
+ ['public.f05_matching_rule_manage_scope_test','employee_id','bigint'],
+ ['public.f05_matching_dictionary_rules_test','rule_id','bigint'],
+ ['public.f05_matching_dictionary_rules_test','version','bigint'],
+ ['public.f05_matching_dictionary_history_test','event_key','text'],
 ]);
 const EXPECTED_COLUMNS_VALUES=REQUIRED_CATALOG_COLUMNS.map(x=>`('${x[0]}','${x[1]}','${x[2]}')`).join(',');
 export const SQL_CATALOG_SCHEMA=`SELECT
@@ -160,14 +166,17 @@ export const SQL_CATALOG_SCHEMA=`SELECT
  to_regclass('public.f05_matching_recompute_events_test') IS NOT NULL AS mx,
  to_regclass('public.f05_matching_affected_queue_test') IS NOT NULL AS aq,
  to_regclass('public.f05_matching_safe_current_test') IS NOT NULL AS sv,
- (SELECT count(*)=14 FROM pg_catalog.pg_trigger t WHERE NOT t.tgisinternal AND t.tgname IN
+ to_regclass('public.f05_matching_rule_manage_scope_test') IS NOT NULL AS rp,
+ to_regclass('public.f05_matching_dictionary_rules_test') IS NOT NULL AS ru,
+ to_regclass('public.f05_matching_dictionary_history_test') IS NOT NULL AS ra,
+ (SELECT count(*)=15 FROM pg_catalog.pg_trigger t WHERE NOT t.tgisinternal AND t.tgname IN
  ('f05_match_customer_guard_test','f05_match_demand_lifecycle_test',
   'f05_match_vehicle_saleability_test','f05_match_listing_cycle_test',
   'f05_match_level_entitlement_test','f05_matching_change_events_append_only_test',
   'f05_match_price_fact_test','f05_match_vehicle_fact_test','f05_match_sales_description_test',
   'f05_match_vehicle_model_assignment_test','f05_match_master_model_fact_test',
   'f05_price_before_vehicle_lock_test','f05_facts_before_vehicle_lock_test',
-  'f05_match_queue_affected_test')) AS iv,
+  'f05_match_queue_affected_test','f05_matching_dictionary_history_immutable_test')) AS iv,
  NOT EXISTS (
   SELECT 1 FROM (VALUES ${EXPECTED_COLUMNS_VALUES}) AS expected(relation,column_name,physical_type)
   LEFT JOIN pg_catalog.pg_attribute attr
@@ -175,7 +184,7 @@ export const SQL_CATALOG_SCHEMA=`SELECT
    AND attr.attname=expected.column_name AND attr.attnum>0 AND NOT attr.attisdropped
   WHERE attr.attname IS NULL OR pg_catalog.format_type(attr.atttypid,attr.atttypmod)<>expected.physical_type
  ) AS shape,
- (SELECT count(*)=103 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
+ (SELECT count(*)=106 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
  (SELECT count(*)=2 FROM pg_catalog.pg_constraint fk
   WHERE fk.contype='f'
    AND fk.conrelid IN (to_regclass('public.f05_real_catalog_visibility_test'),to_regclass('public.f05_real_catalog_protections_test'))
@@ -190,7 +199,7 @@ export async function probeIsolatedCatalog(pool){
   const identity=(await pool.query(SQL_CATALOG_IDENTITY)).rows[0];
   if(!identity || Math.floor(Number(identity.v)/10000)!==16 || identity.db!=='f05_catalog_test' || identity.role!=='f05_catalog_ci')return false;
   const schema=(await pool.query(SQL_CATALOG_SCHEMA)).rows[0];
-  return !!schema && Object.keys(schema).sort().join(',')==='aq,c,ca,cp,ec,es,fac,fca,fcd,fce,fcp,fe,fk,fs,ft,full,he,iv,md,me,mv,mx,p,pe,pf,po,pp,qa,qs,sh,shape,ss,sv,v,x' && Object.values(schema).every(v=>v===true);
+  return !!schema && Object.keys(schema).sort().join(',')==='aq,c,ca,cp,ec,es,fac,fca,fcd,fce,fcp,fe,fk,fs,ft,full,he,iv,md,me,mv,mx,p,pe,pf,po,pp,qa,qs,ra,rp,ru,sh,shape,ss,sv,v,x' && Object.values(schema).every(v=>v===true);
  }catch{return false}
 }
 export async function createIsolatedCatalogRuntime(env=process.env){
@@ -210,6 +219,7 @@ export async function createIsolatedCatalogRuntime(env=process.env){
   const findCar=createIsolatedFindCarService({pool,env});
   const activation=createIsolatedFindCarActivationService({pool,env});
   const matching=createIsolatedMatchingService({pool,env});
-  return {pool,handler:createCatalogHandler(service),favoriteHandler:createIsolatedFavoriteHandler(favorite,env),consultationHandler:createIsolatedConsultationHandler(consultation,env),employeeStartHandler:createIsolatedEmployeeStartHandler(employeeStart,env),handoverHandler:createIsolatedHandoverHandler(handover,env),slaHoldHandler:createIsolatedSlaHoldHandler(slaHold,env),priceUnlockHandler:createIsolatedPriceUnlockHandler(priceUnlock,env),quotaAdditionHandler:createIsolatedQuotaAdditionHandler(quotaAddition,env),findCarHandler:createIsolatedFindCarHandler(findCar,env),findCarActivationHandler:createIsolatedFindCarActivationHandler(activation,env),matchingHandler:createIsolatedMatchingHandler(matching,env),ready:()=>probeIsolatedCatalog(pool),close:()=>pool.end()};
+  const dictionary=createIsolatedDictionaryService({pool,env});
+  return {pool,handler:createCatalogHandler(service),favoriteHandler:createIsolatedFavoriteHandler(favorite,env),consultationHandler:createIsolatedConsultationHandler(consultation,env),employeeStartHandler:createIsolatedEmployeeStartHandler(employeeStart,env),handoverHandler:createIsolatedHandoverHandler(handover,env),slaHoldHandler:createIsolatedSlaHoldHandler(slaHold,env),priceUnlockHandler:createIsolatedPriceUnlockHandler(priceUnlock,env),quotaAdditionHandler:createIsolatedQuotaAdditionHandler(quotaAddition,env),findCarHandler:createIsolatedFindCarHandler(findCar,env),findCarActivationHandler:createIsolatedFindCarActivationHandler(activation,env),matchingHandler:createIsolatedMatchingHandler(matching,env),dictionaryHandler:createIsolatedDictionaryHandler(dictionary,env),ready:()=>probeIsolatedCatalog(pool),close:()=>pool.end()};
  }catch(e){await pool.end();throw e}
 }
