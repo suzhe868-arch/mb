@@ -2,11 +2,11 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F05_8_PRIORITY_QUAL_DISABLE_UNBOUNDED_ATOMIC_PG16_252_PASS_TEST_ONLY",
+  "status": "B_IN_PROGRESS_F05_7_MATCH_RETRY_CURRENT_EVIDENCE_CAS_PG16_254_PASS_TEST_ONLY",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "c5325dba00fb1ffaba0d927ff9e68dc29f240282",
+  "github_commit": "9a7ae2dee86b2e0d47eec307885a19daf5e49071",
   "node_http_stub_tests": {
     "passed": 150,
     "failed": 0,
@@ -14,10 +14,10 @@
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39142599371,
-    "head_sha": "c5325dba00fb1ffaba0d927ff9e68dc29f240282",
+    "run_id": 39145462687,
+    "head_sha": "9a7ae2dee86b2e0d47eec307885a19daf5e49071",
     "node_http_tests_passed": 150,
-    "real_pg16_integration_tests_passed": 252,
+    "real_pg16_integration_tests_passed": 254,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -114,7 +114,8 @@
     "formal_priority_qualification_issuer_verified": false,
     "f05_priority_qualification_28_real_vehicle_atomic_disable_test_only_verified": true,
     "f05_priority_qualification_no_25_active_lease_limit_test_only_verified": true,
-    "formal_priority_qualification_massive_scale_benchmark_verified": false
+    "formal_priority_qualification_massive_scale_benchmark_verified": false,
+    "matching_ttl_retry_queue_cases": 6
   },
   "endpoints": {
     "implemented_test_only": [
@@ -338,8 +339,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "TEN_LEGACY_BROAD_MAIN_TARGET_PR_WORKFLOWS_UNAUTHORIZED_TO_CHANGE_AND_USER_FORBIDS_OLD_RETRIGGER",
-  "tested_commit": "c5325dba00fb1ffaba0d927ff9e68dc29f240282",
-  "tested_run": 39142599371,
+  "tested_commit": "9a7ae2dee86b2e0d47eec307885a19daf5e49071",
+  "tested_run": 39145462687,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -674,7 +675,8 @@
       "PG16_DICT_ALL_ADVERTISED_NEW_FIELDS_PHYSICAL_CHECK_ACCEPTED",
       "PG16_BUDGET_UNKNOWN_PRICE_CONFIRMED_MATCH_CURRENT_VISIBLE",
       "PG16_NO_BUDGET_NO_PRICE_PROOF_DOES_NOT_FALSE_HIDE",
-      "PG16_BUDGET_KNOWN_PRICE_EXPIRED_NEVER_RETURNS_STALE_HIGH_RESULT"
+      "PG16_BUDGET_KNOWN_PRICE_EXPIRED_NEVER_RETURNS_STALE_HIGH_RESULT",
+      "PG16_MATCHING_COMMITTED_BUT_CREDENTIAL_EXPIRED_QUEUE_REOPEN_SAME_GENERATION_AND_RETRY"
     ],
     "missing": [
       "FORMAL_RULE_DICTIONARY_AND_SCOPE_ISSUER",
@@ -725,7 +727,7 @@
     "evidence_stale_pg16_cases_passed": 10,
     "matching_total_new_pg16_cases_including_invalidation": 44,
     "source_race_pg16_cases_passed": 5,
-    "ttl_scoped_retry_pg16_cases_passed": 5,
+    "ttl_scoped_retry_pg16_cases_passed": 6,
     "dictionary_management_http": "POST /api/v1/catalog/matching/rules and /rules/:id; POST /rules/test-parse (simulation)",
     "dictionary_test_only_rules": true,
     "dictionary_test_only_pg16_cases_passed": 7,
@@ -741,7 +743,10 @@
     "rule_change_first_pair_discovery_test_only": true,
     "pg16_dictionary_hard_fields_mapped_check_verified": true,
     "price_optional_safe_current_with_budget_unknown_test_only": true,
-    "formal_auto_rule_change_dispatch": false
+    "formal_auto_rule_change_dispatch": false,
+    "retry_result_error_code": "MATCH_RETRY_EVIDENCE_NOT_CURRENT",
+    "verified_test_sha": "9a7ae2dee86b2e0d47eec307885a19daf5e49071",
+    "verified_test_run": 39145462687
   },
   "recommendation_real_business": {
     "status": "F05_9_DISPOSABLE_TEST_ONLY_RECOMMENDATION_WHOLESALE_FREE_CYCLE_RIGHT_PG16_PASS",
