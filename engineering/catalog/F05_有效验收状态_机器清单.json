@@ -2,7 +2,7 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F05_6_APPLICATION_AND_MANUAL_DEMAND_PG16_TEST_ONLY_FORMAL_ISSUERS_MISSING",
+  "status": "B_IN_PROGRESS_F05_6_APPLICATION_MANUAL_DEMAND_REAL_PG16_TEST_ONLY_FORMAL_ISSUER_BLOCKED",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
@@ -58,7 +58,8 @@
     "formal_employee_activation_scope_verified": false,
     "real_customer_pool_assignment_verified": false,
     "real_employee_workbench_sync_verified": false,
-    "formal_demand_matching_readiness_verified": false
+    "formal_demand_matching_readiness_verified": false,
+    "real_pg16_find_car_activation_tests_passed": 11
   },
   "endpoints": {
     "implemented_test_only": [
@@ -81,7 +82,11 @@
       "POST /api/v1/catalog/find-car/applications (test-only Customer bearer, valid phone+owner -> F02 pending Application)",
       "PATCH /api/v1/catalog/find-car/applications/:id (test-only Customer owner of Application, optimistic revision edit)",
       "POST /api/v1/catalog/find-car/applications/:id/withdraw (test-only Customer retract pending -> closed)",
-      "POST /api/v1/catalog/find-car/applications/:id/activate (test-only Employee CURRENT ASSIGNEE + scoped entitlement manual F02 active Demand)"
+      "POST /api/v1/catalog/find-car/applications/:id/activate (test-only Employee CURRENT ASSIGNEE + scoped entitlement manual F02 active Demand)",
+      "POST /api/v1/catalog/find-car/applications (test-only Customer signed bearer, active phone proof, real F02 pending Application)",
+      "PATCH /api/v1/catalog/find-car/applications/:applicationId (test-only Customer pending Application optimistic revision edit)",
+      "POST /api/v1/catalog/find-car/applications/:applicationId/withdraw (test-only Customer pending Application closed with append-only audit)",
+      "POST /api/v1/catalog/find-car/applications/:applicationId/activate (test-only scoped Employee manual active Demand; no automatic matching)"
     ],
     "real_pg16_verified": [
       "Catalog list/detail physical F02 initial PG16 with disposable proof",
@@ -101,7 +106,8 @@
       "PDM15 Customer disabled physical PG16 transition trigger => open Consultation customer_disabled_hold; account active does not auto-release; authorized explicit Employee PG16 resume; genuine verified remaining_ms test fact only, repeated holds versioned, immutable audit, atomic failure rollback, Customer touch/withdraw blocked while hold",
       "F05-4 PDM10 frozen customer_day_quota_ledger/customer_price_cycle_unlocks/customer_price_unlock_events actual PG16 limited successful digital detail atomic charge; no-price/unlimited/repeat/current cycle/no source deny, Shanghai day rollover, new listing cycle, concurrent same Customer no double charge, rollback",
       "F05-5 isolated employee quota adjustment real F02 frozen customer_quota_adjustments + customer_day_quota_ledger, separate scoped sales owner and manager/store head capability, explicit 4S denial, UNLIMITED no addition, LIMITED-UNLIMITED-LIMITED retains daily additions, real F05-4 price unlock consumption, UTC+8 rollover, idempotent replay, concurrent no lost update, immutable audit and atomic rollback",
-      "PDM11 F05-6 actual frozen find_car_applications pending/edit/closed and demands active only on explicitly Employee-scoped manual activation; phone/owner/level guards; immutable audit, optimistic revision, unique demand link, concurrency no duplicate, atomic audit rollback; matching intentionally NOT ready"
+      "PDM11 F05-6 actual frozen find_car_applications pending/edit/closed and demands active only on explicitly Employee-scoped manual activation; phone/owner/level guards; immutable audit, optimistic revision, unique demand link, concurrency no duplicate, atomic audit rollback; matching intentionally NOT ready",
+      "PDM11 F05-6 real PG16 frozen find_car_applications create/edit/withdraw separated from frozen demands manually activated by current assigned scoped Employee; ordinary and entitled level submit pending only; phone/owner guard, optimistic revision, actor immutable history, one Demand per Application, serial request key, rollback, no Matching, no Priority, no Recommendation"
     ],
     "customer_write_implemented": [
       "NONPRODUCTION_ACTUAL_PG16_POST_FAVORITE_TEST_ONLY",
@@ -259,7 +265,7 @@
     "Full F05-1..11 actual authenticated HTTP/PG16 business still missing"
   ],
   "next_owner": "B",
-  "next_milestone": "F05-6 PDM11 Demand customer pause/finish requests and disabled/entitlement guards, employee workbench/owner transfer and formal issuers; F05-7 deterministic dictionary matching; M94 historical chain and controlled A review PR",
+  "next_milestone": "PDM12 F05-7 deterministic parser, Matching readiness and four-tier result from actual frozen PG16; then formal issuer/permissions and remaining F05, M94 migrations, A-safe PR governance",
   "verification_scope": "NONPRODUCTION_F02_1_76_FROZEN_BUSINESS_TABLES_PLUS_22_DISPOSABLE_TEST_SIDECARS_NODE_120_PG16_131",
   "security_hardening": [
     "pg_catalog actual column type and FK shape check",
@@ -468,11 +474,9 @@
     "production_ready": false
   },
   "find_car_real_business": {
-    "status": "F05_6_PARTIAL_ISOLATED_PG16_TEST_ONLY",
-    "source_rules": [
-      "PDM-11",
-      "PDM-12"
-    ],
+    "status": "F05_6_PARTIAL_NONPRODUCTION_PG16",
+    "run_id": 39117221147,
+    "execution_sha": "d7d1419720c2371f31e703f435587bdf4d37f8e7",
     "actual_f02_frozen_tables": [
       "public.find_car_applications",
       "public.demands"
@@ -484,37 +488,33 @@
       "public.f05_find_car_application_events_test",
       "public.f05_find_car_activation_scope_test"
     ],
+    "pg16_application_tests_passed": 12,
+    "pg16_manual_activation_tests_passed": 11,
     "verified": [
-      "ORDINARY_MAY_SUBMIT_PENDING_BUT_NO_AUTOMATIC_DEMAND",
-      "ACTIVE_ENTITLED_CUSTOMER_STILL_ONLY_PENDING_UNTIL_EMPLOYEE",
-      "PHONE_SERVICE_FACT_REQUIRED_FOR_SUBMIT_AND_ACTIVATE",
-      "LEGAL_NON_NULL_OWNER_REQUIRED_AT_SUBMIT",
-      "EMPLOYEE_CURRENT_ASSIGNEE_AND_CUSTOMER_SCOPE_REQUIRED_FOR_ACTIVATION",
-      "ACTIVE_CUSTOMER_AND_CURRENT_LEVEL_FIND_CAR_ENTITLEMENT_AT_ACTIVATION",
-      "CUSTOMER_EDIT_REVISION_AND_WITHDRAW_IMMUTABLE_HISTORY",
-      "ACTIVATE_AT_MOST_ONE_DEMAND_PER_APPLICATION",
-      "PG16_TRANSACTION_ROLLBACK_WITH_AUDIT_FAILURE",
-      "DUPLICATE_AND_PARALLEL_SUBMIT_OR_ACTIVATE_IDEMPOTENCY",
-      "MATCHING_NOT_READY_AND_NO_MATCH_RESULT"
+      "NORMAL_LEVEL_PENDING_APPLICATION_PERMITTED_WITHOUT_DEMAND",
+      "ENTITLED_LEVEL_PENDING_APPLICATION_NOT_AUTO_ACTIVE",
+      "CURRENT_OWNER_NONNULL_ELIGIBLE_REQUIRED",
+      "AUTHORIZED_PHONE_SERVICE_REQUIRED",
+      "CUSTOMER_PENDING_EDIT_WITH_REVISION",
+      "CUSTOMER_WITHDRAW_TO_CLOSED",
+      "EMPLOYEE_SCOPED_ACTIVATION_ONLY",
+      "UNIQUE_APPLICATION_TO_DEMAND",
+      "DEMAND_FROZEN_CREATED_AT",
+      "NO_AUTOMATIC_MATCHING",
+      "NO_PRIORITY_RECOMMENDATION_OR_LOCK",
+      "IDEMPOTENCY_AND_CONCURRENCY",
+      "PG16_AUDIT_FAILURE_ATOMIC_ROLLBACK"
     ],
-    "not_verified": [
-      "FORMAL_PHONE_WECHAT_ISSUER",
+    "missing": [
+      "FORMAL_WECHAT_CUSTOMER_ISSUER",
+      "FORMAL_PHONE_SERVICE_CONSENT_ISSUER",
+      "FORMAL_BACKOFFICE_FIND_CAR_LEVEL_ENTITLEMENT",
       "FORMAL_F03_EMPLOYEE_PERMISSION_DATA_SCOPE",
-      "ACTUAL_OWNER_POOL_ASSIGNMENT_ON_MISSING_OWNER",
-      "EMPLOYEE_WORKBENCH_TASK_PROJECTION",
-      "APPLICATION_HANDOVER_TO_NEW_OWNER",
-      "CUSTOMER_DEMAND_PAUSE_END_OR_RESUME",
-      "DOWNGRADE_DISABLE_AUTO_PAUSE_DEMAND",
-      "MATCHING_DICTIONARY_DETERMINISTIC_PARSER_AND_FOUR_TIER",
-      "HISTORICAL_M94_MIGRATION"
+      "DEMAND_LIFECYCLE_PAUSE_RESUME_END",
+      "PDM12_REAL_DICTIONARY_AND_FOUR_TIER_MATCHING",
+      "CLIENT_REAL_NAVIGATION_END_TO_END",
+      "M94_HISTORICAL_CHAIN"
     ],
-    "tests": {
-      "node": 10,
-      "pg16": 23,
-      "run_id": 39117221147
-    },
-    "demand_automatic_activation": false,
-    "matching_ready": false,
     "production_ready": false
   }
 }
