@@ -41,6 +41,21 @@ export const candidatesSQL=`
  ORDER BY CASE ranked.match_tier WHEN 'high' THEN 0 ELSE 1 END,
  ranked.created_at,ranked.demand_id LIMIT 100
 `;
+// Serialize issuance with an administrator's qualification DISABLE transaction.
+ // Candidate discovery alone is a READ COMMITTED snapshot; without the final row
+ // lock a new Lease could commit from a stale enabled qualification.
+export async function firstStillQualifiedCandidate(db,candidates){
+ for(const candidate of candidates){
+  const current=(await db.query(
+   "SELECT 1 FROM public.f05_priority_qualification_test q "+
+   "WHERE q.customer_id=$1 AND q.enabled=true AND q.issuer='DISPOSABLE_TEST_ONLY' "+
+   "AND q.expires_at>statement_timestamp() FOR SHARE OF q",
+   [String(candidate.customer_id)])).rows[0];
+  if(current)return candidate;
+ }
+ return null;
+}
+
 export function createIsolatedPriorityService({pool,env=process.env}={}){
  if(!pool||typeof pool.connect!=='function'||env.APP_ENV!=='test'||env.NODE_ENV!=='test'||
   env.API_HOST!=='127.0.0.1'||env.F05_CATALOG_TEST_CONSENT!=='I_AUTHORIZE_DISPOSABLE_F05_CATALOG_PG16_ONLY')
@@ -159,7 +174,7 @@ export function createIsolatedPriorityService({pool,env=process.env}={}){
      // Suppression is written by RELEASE/TTL in this transaction: rescan AFTER
      // closure so the same old Match cannot regain the lease immediately.
      const winners=active?(await db.query(candidatesSQL,[vehicleId,cyid])).rows:legalCandidates;
-     let first=winners[0]??null;
+     let first=await firstStillQualifiedCandidate(db,winners);
      // If same Customer had multiple candidate Results, suppression applies to
      // exact released Result only. Do not reinstate same old Match in this cycle.
      if(first){

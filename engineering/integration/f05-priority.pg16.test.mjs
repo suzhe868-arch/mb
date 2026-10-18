@@ -167,6 +167,29 @@ try{
   assert.equal(newSource.status,200,JSON.stringify(newSource));assert.equal(newSource.body.outcome,'NEW');
   assert.equal(await count("SELECT count(*) n FROM public.priority_leases WHERE vehicle_id=62511 AND status='active'"),1);
  });
+ await test('concurrent qualification revocation cannot issue a Priority from a stale enabled snapshot',async()=>{
+  await addVehicle(62512);
+  const source=await match(62503,62512,A);
+  assert.equal(source.status,200,JSON.stringify(source));
+  const revoker=await pool.connect();
+  let committed=false;
+  try{
+   await revoker.query('BEGIN');
+   await revoker.query("UPDATE public.f05_priority_qualification_test SET enabled=false WHERE customer_id=62500");
+   // The Priority read may see the previously committed enabled=true value.
+   // Its FINAL FOR SHARE must wait for this writer, then recheck false.
+   const pending=post({vehicleId:'62512',token:A});
+   await new Promise(resolve=>setTimeout(resolve,75));
+   await revoker.query('COMMIT');committed=true;
+   const result=await pending;
+   assert.equal(result.status,200,JSON.stringify(result));
+   assert.equal(result.body.outcome,'NO_CANDIDATE',JSON.stringify(result));
+   assert.equal(await count("SELECT count(*) n FROM public.priority_leases WHERE vehicle_id=62512 AND status='active'"),0);
+  }finally{
+   if(!committed)await revoker.query('ROLLBACK').catch(()=>{});
+   revoker.release();
+  }
+ });
  await test('append-only audit cannot be erased; Priority release cannot create Recommendation or grant',async()=>{
   await assert.rejects(db.query("DELETE FROM public.f05_priority_events_test WHERE vehicle_id=62510"),e=>e.code==='23514');
   await assert.rejects(db.query("UPDATE public.f05_priority_suppression_test SET reason='ttl_expired' WHERE vehicle_id=62510"),e=>e.code==='23514');

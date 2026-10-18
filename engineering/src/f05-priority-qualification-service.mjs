@@ -1,6 +1,6 @@
 // PDM-13 single-customer qualification control, test-only PG16, never a formal F03 issuer.
 import {createHash} from 'node:crypto';
-import {candidatesSQL} from './f05-priority-service.mjs';
+import {candidatesSQL,firstStillQualifiedCandidate} from './f05-priority-service.mjs';
 const digest=x=>createHash('sha256').update(x).digest('hex');
 const pgId=x=>typeof x==='string'&&/^[1-9][0-9]{0,18}$/.test(x)&&BigInt(x)<=9223372036854775807n;
 const token=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{43}$/.test(x);
@@ -116,7 +116,7 @@ export function createIsolatedPriorityQualificationService({pool,env=process.env
         (['mingbang','four_s'].includes(v.source_type)&&v.source_sale_status==='available'));
       if(!saleable||!cycle||activeLock.locked||activeLock.transacting)continue;
       const cyid=String(cycle.listing_cycle_id);
-      const candidate=(await db.query(candidatesSQL,[vehicleId,cyid])).rows[0];
+      const candidate=await firstStillQualifiedCandidate(db,(await db.query(candidatesSQL,[vehicleId,cyid])).rows);
       if(!candidate)continue;
       const config=(await db.query("SELECT ttl_seconds FROM public.f05_priority_config_test "+
        "WHERE singleton=true FOR SHARE")).rows[0];

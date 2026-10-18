@@ -1,6 +1,6 @@
 // F05-8 bounded physical PG16 expiry reconciliation. It is a callable test-only
 // runOnce worker, not a deployed scheduler nor an independent Priority issuer.
-import {candidatesSQL} from './f05-priority-service.mjs';
+import {candidatesSQL,firstStillQualifiedCandidate} from './f05-priority-service.mjs';
 
 export function createIsolatedPriorityTtlSweepWorker({pool,env=process.env}={}){
  if(!pool||typeof pool.connect!=='function' || env.APP_ENV!=='test'||
@@ -51,7 +51,7 @@ export function createIsolatedPriorityTtlSweepWorker({pool,env=process.env}={}){
       "EXISTS(SELECT 1 FROM public.transactions WHERE vehicle_id=$1 AND status='in_progress') AS transacting",
       [vehicleId])).rows[0];
      if(!occupied.locked&&!occupied.transacting){
-      const best=(await db.query(candidatesSQL,[vehicleId,cyid])).rows[0];
+      const best=await firstStillQualifiedCandidate(db,(await db.query(candidatesSQL,[vehicleId,cyid])).rows);
       if(best){
        const conf=(await db.query("SELECT ttl_seconds FROM public.f05_priority_config_test "+
         "WHERE singleton=true FOR SHARE")).rows[0];
