@@ -65,7 +65,8 @@ export function createIsolatedMatchingRetryWorker({pool,matching,env=process.env
     // source can invalidate the result without writing a matching row/queue
     // trigger. Reopen that SAME generation instead of silently losing the job.
     // Never revive an unrelated/newer generation: generation is still CAS.
-    const error=String(result?.body?.code??'MATCH_RETRY_UNKNOWN').slice(0,120);
+    const error=success&&!valid?'MATCH_RETRY_EVIDENCE_NOT_CURRENT':
+     String(result?.body?.code??'MATCH_RETRY_UNKNOWN').slice(0,120);
     changed=await pool.query(`
      UPDATE public.f05_matching_affected_queue_test
       SET attempts=LEAST(5,attempts+1),

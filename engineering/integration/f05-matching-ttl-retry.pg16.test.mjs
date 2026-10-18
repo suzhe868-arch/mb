@@ -108,7 +108,7 @@ try{
    "public.f05_matching_affected_queue_test WHERE demand_id=60100 AND vehicle_id=60110"))[0];
   assert.equal(String(saved.generation),String(queued.generation));
   assert.equal(saved.state,'pending');assert.equal(saved.attempts,1);
-  assert.equal(saved.last_error,'MATCH_RETRY_UNKNOWN'); // 200 but read-time evidence invalid.
+  assert.equal(saved.last_error,'MATCH_RETRY_EVIDENCE_NOT_CURRENT'); // 200 but read-time evidence invalid.
   assert.equal((await check("SELECT count(*)::int n FROM public.f05_matching_safe_current_test "+
    "WHERE demand_id=60100 AND vehicle_id=60110"))[0].n,0);
   await db.query("UPDATE public.f05_matching_employee_scope_test SET "+
