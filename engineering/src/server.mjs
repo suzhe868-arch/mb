@@ -5,6 +5,7 @@ import {IsolatedAuth} from './f03-auth-service.mjs';
 import {createAuthHandler} from './f03-auth-http.mjs';
 import {verifyAuthDatabase} from './f03-auth-readiness.mjs';
 import {createIsolatedCatalogRuntime} from './catalog-readiness.mjs';
+import {createIsolatedCatalogServerOptions} from './catalog-wiring.mjs';
 import {createServer as createHttpsServer} from 'node:https';
 import {readFile} from 'node:fs/promises';
 const {host,port}=loadConfig();
@@ -13,7 +14,7 @@ if(process.env.F05_REAL_CATALOG_ENABLE==='I_ENABLE_F05_TEST_ONLY_CATALOG'){
  if(process.env.F03_1_ENABLE_ISOLATED_AUTH)throw Error('CATALOG_AUTH_COMBINATION_NOT_YET_AUTHORIZED');
  if(host!=='127.0.0.1')throw Error('CATALOG_LOOPBACK_REQUIRED');
  catalog=await createIsolatedCatalogRuntime(process.env);
- server=createFoundationServer({catalogHandler:catalog.handler,favoriteHandler:catalog.favoriteHandler,consultationHandler:catalog.consultationHandler,employeeStartHandler:catalog.employeeStartHandler,handoverHandler:catalog.handoverHandler,slaHoldHandler:catalog.slaHoldHandler,priceUnlockHandler:catalog.priceUnlockHandler,quotaAdditionHandler:catalog.quotaAdditionHandler,findCarHandler:catalog.findCarHandler,findCarActivationHandler:catalog.findCarActivationHandler,matchingHandler:catalog.matchingHandler,dictionaryHandler:catalog.dictionaryHandler,discoveryHandler:catalog.discoveryHandler,readinessProbe:catalog.ready,readinessTimeoutMs:3000});
+ server=createFoundationServer(createIsolatedCatalogServerOptions(catalog));
 }else if(process.env.F03_1_ENABLE_ISOLATED_AUTH==='I_AUTHORIZE_F03_1_AUTH_IN_NEW_TEST_PG16'){
  if(host!=='127.0.0.1')throw Error('F03_AUTH_LOOPBACK_REQUIRED');
  const raw=process.env.F03_1_HMAC_KEY_BASE64||'';
