@@ -2,11 +2,11 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F05_7_PDM11_DEMAND_RESPONSIBLE_INDEPENDENT_OWNER_PG16_260_PASS_TEST_ONLY",
+  "status": "B_IN_PROGRESS_F05_10_RECOMMENDATION_TO_CONSULTATION_SOURCE_AND_ASSIGNEE_PG16_261_PASS_TEST_ONLY",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "7a753e225bf2c20dfa1dcc261a723e968082373c",
+  "github_commit": "9189e1ecb239074919386c83009077c38988e823",
   "node_http_stub_tests": {
     "passed": 150,
     "failed": 0,
@@ -14,10 +14,10 @@
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39151470755,
-    "head_sha": "7a753e225bf2c20dfa1dcc261a723e968082373c",
+    "run_id": 39153146588,
+    "head_sha": "9189e1ecb239074919386c83009077c38988e823",
     "node_http_tests_passed": 150,
-    "real_pg16_integration_tests_passed": 260,
+    "real_pg16_integration_tests_passed": 261,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -36,7 +36,7 @@
     "disposable_sidecar_tables": 43,
     "total_disposable_physical_tables": 119,
     "formal_wechat_customer_issuer_verified": false,
-    "real_pg16_consultation_integration_tests_passed": 16,
+    "real_pg16_consultation_integration_tests_passed": 17,
     "formal_customer_phone_consent_issuer_verified": false,
     "formal_employee_permission_scope_verified": false,
     "real_pg16_employee_processing_integration_tests_passed": 16,
@@ -122,7 +122,8 @@
     "matching_employee_role_revocation_pg16_cases": 1,
     "recommendation_owner_pending_permission_pg16_cases": 1,
     "recommendation_cross_owner_demand_responsible_cases": 1,
-    "demand_responsible_handover_pg16_cases": 1
+    "demand_responsible_handover_pg16_cases": 1,
+    "real_pg16_recommendation_to_consultation_pg16_cases": 1
   },
   "endpoints": {
     "implemented_test_only": [
@@ -150,7 +151,8 @@
       "PATCH /api/v1/catalog/find-car/applications/:applicationId (test-only Customer pending Application optimistic revision edit)",
       "POST /api/v1/catalog/find-car/applications/:applicationId/withdraw (test-only Customer pending Application closed with append-only audit)",
       "POST /api/v1/catalog/find-car/applications/:applicationId/activate (test-only scoped Employee manual active Demand; no automatic matching)",
-      "POST /api/v1/catalog/demands/:demandId/vehicles/:vehicleId/recompute-match (test-only Employee scoped, explicit deterministic subset, actual frozen four-tier Match Result + stale history)"
+      "POST /api/v1/catalog/demands/:demandId/vehicles/:vehicleId/recompute-match (test-only Employee scoped, explicit deterministic subset, actual frozen four-tier Match Result + stale history)",
+      "POST /api/v1/catalog/recommendations/:recommendationId/consultations (current customer safe Recommendation, immutable direct source, bounded PDM15 assignee)"
     ],
     "real_pg16_verified": [
       "Catalog list/detail physical F02 initial PG16 with disposable proof",
@@ -175,7 +177,8 @@
       "PDM12 F05-7 test-only canonical staff sales description strict parser (brandId,minModelYear,maxMileageKm,budgetCents,preferred interiorColor) PG16 physically computes one matching-ready active Demand x sellable Vehicle, four tiers exact 5% budget, hidden internally matching, source facts when local model missing, true current/stale and immutable audit, concurrency/idempotency/rollback; no Recommendation, Priority or visibility grant",
       "PDM12 F05-7 physical PG16 triggers auto-invalidate affected current Match Results and write frozen matching_change_events for Customer account/level, Demand lifecycle, Vehicle saleability, listing cycle, temporary Level entitlement; hidden remains matchable, no Recommendation/Priority, append-only history, transactional rollback on injected audit failure",
       "PDM12 isolated PG16 source customer display price, Vehicle facts, salesperson description, local model map, master model year/brand changes atomically mark only affected current Demand Match Result stale, append frozen matching_change_events cause snapshots, preserve history, rerun four tiers, prove injected audit failure rollbacks; no automatic Recommendation/Priority/grant",
-      "F05-7 protected DISPOSABLE_TEST_ONLY source-price and vehicle-fact BEFORE write transactional vehicle locks serialize with scoped Match recompute, PG16 real two-connection price/facts FIRST and Match FIRST reverse race, resulting new current marked stale after committed source change; 5 actual PG16 race tests"
+      "F05-7 protected DISPOSABLE_TEST_ONLY source-price and vehicle-fact BEFORE write transactional vehicle locks serialize with scoped Match recompute, PG16 real two-connection price/facts FIRST and Match FIRST reverse race, resulting new current marked stale after committed source change; 5 actual PG16 race tests",
+      "F05-10 PDM15 real F05-9 Recommendation CREATE in frozen PG16 grants Customer hidden visibility and price right; Customer enters consultation through explicit Recommendation ID; original direct source and lawful current Demand assignee are frozen; separate public entry fails hidden, END/entry competing transactions serialize at Vehicle, original Consultation retains source."
     ],
     "customer_write_implemented": [
       "NONPRODUCTION_ACTUAL_PG16_POST_FAVORITE_TEST_ONLY",
@@ -346,8 +349,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "TEN_LEGACY_BROAD_MAIN_TARGET_PR_WORKFLOWS_UNAUTHORIZED_TO_CHANGE_AND_USER_FORBIDS_OLD_RETRIGGER",
-  "tested_commit": "7a753e225bf2c20dfa1dcc261a723e968082373c",
-  "tested_run": 39151470755,
+  "tested_commit": "9189e1ecb239074919386c83009077c38988e823",
+  "tested_run": 39153146588,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -421,7 +424,8 @@
       "EMPLOYEE_INVALIDATE_TEST_ONLY",
       "CURRENT_ASSIGNEE_HANDOVER_TEST_ONLY",
       "CUSTOMER_DISABLED_HOLD_TEST_ONLY",
-      "EMPLOYEE_EXPLICIT_SLA_RESUME_TEST_ONLY"
+      "EMPLOYEE_EXPLICIT_SLA_RESUME_TEST_ONLY",
+      "CREATE_FROM_VERIFIED_RECOMMENDATION_TEST_ONLY"
     ],
     "unsupported_actions": [
       "EMPLOYEE_VERIFIABLE_FIRST_RESPONSE",
@@ -429,8 +433,8 @@
       "FORMAL_F03_EMPLOYEE_ISSUER",
       "PRODUCTION_SLA_CONFIG_SNAPSHOT"
     ],
-    "run_id": 39111857511,
-    "pg16_tests": 16,
+    "run_id": 39153146588,
+    "pg16_tests": 17,
     "production_ready": false,
     "withdraw_test_pg16_verified": true,
     "withdraw_url": "POST /api/v1/catalog/consultations/:consultationId/withdraw",
@@ -459,7 +463,10 @@
     "first_human_response_issuer_verified": false,
     "original_first_response_deadline_unmodified": true,
     "unknown_sla_remaining_fails_closed": true,
-    "sla_hold_pg16_tests": 11
+    "sla_hold_pg16_tests": 11,
+    "recommendation_direct_source_real_pg16_verified": true,
+    "recommendation_handoff_race_no_deadlock_pg16_verified": true,
+    "recommendation_entry_url": "POST /api/v1/catalog/recommendations/:recommendationId/consultations"
   },
   "price_real_business": {
     "status": "F05_4_TEST_ONLY_PDM10_RECOMMENDATION_FREE_RIGHT_CONNECTED",
