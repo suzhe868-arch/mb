@@ -2,11 +2,11 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F05_8_PRIORITY_MATCH_ARBITRATION_TTL_READSAFE_PG16_224_PASS_NO_FORMAL_ISSUER",
+  "status": "B_IN_PROGRESS_F05_9_FREE_WHOLESALE_PRICE_CYCLE_RIGHT_PG16_236_PASS_FORMAL_ISSUER_OPEN",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "59b733dbb12cad50a7b96964958f483d743350a0",
+  "github_commit": "c1d1a6f2faf83d2cc6bdb6e0c5cb1b2091382adf",
   "node_http_stub_tests": {
     "passed": 147,
     "failed": 0,
@@ -14,10 +14,10 @@
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39138007650,
-    "head_sha": "59b733dbb12cad50a7b96964958f483d743350a0",
+    "run_id": 39139286175,
+    "head_sha": "c1d1a6f2faf83d2cc6bdb6e0c5cb1b2091382adf",
     "node_http_tests_passed": 147,
-    "real_pg16_integration_tests_passed": 224,
+    "real_pg16_integration_tests_passed": 236,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -33,8 +33,8 @@
     "disposable_photo_order_proof": true,
     "real_pg16_catalog_integration_tests_passed": 19,
     "real_pg16_favorite_integration_tests_passed": 13,
-    "disposable_sidecar_tables": 39,
-    "total_disposable_physical_tables": 115,
+    "disposable_sidecar_tables": 40,
+    "total_disposable_physical_tables": 116,
     "formal_wechat_customer_issuer_verified": false,
     "real_pg16_consultation_integration_tests_passed": 16,
     "formal_customer_phone_consent_issuer_verified": false,
@@ -95,14 +95,16 @@
     "optional_customer_price_safe_current_pg16_verified": true,
     "matching_rule_change_first_pair_scope_test_verified": true,
     "matching_dictionary_physical_mapped_fields_test_verified": true,
-    "physical_triggers_f05_isolated_count": 22,
+    "physical_triggers_f05_isolated_count": 23,
     "recommendation_f05_9_pg16_cases_passed": 7,
     "formal_recommendation_source_permission_signed": false,
     "formal_recommendation_free_wholesale_price_right_verified": false,
     "f05_priority_pg16_test_count": 9,
     "f05_priority_readside_catalog_list_stats_detail_verified": true,
     "formal_priority_issuer_verified": false,
-    "formal_priority_ttl_worker_verified": false
+    "formal_priority_ttl_worker_verified": false,
+    "recommendation_price_right_cross_domain_pg16_tests_passed": 12,
+    "recommendation_price_right_pg16_test_only_verified": true
   },
   "endpoints": {
     "implemented_test_only": [
@@ -313,8 +315,8 @@
     "Full F05-1..11 actual authenticated HTTP/PG16 business still missing"
   ],
   "next_owner": "B",
-  "next_milestone": "B继续F05-8正式资格开关权限交接/事件式TTL到期与匹配变动，F05-9批发推荐免费数字查价权，C/PC端三来源Issuer来源签发，完整F05-1～11合规PR/A独立验收；F06~F08仍暂停",
-  "verification_scope": "F02_1_CURRENT_INITIAL_76_TABLES_PLUS_39_DISPOSABLE_TEST_SIDECARS_115_TOTAL_PRIORITY_NONPRODUCTION_NODE147_PG16_224",
+  "next_milestone": "B继续F05-8 Priority事件式安全清算/调度及F05生产Issuer和客户搜索详情C端、F05-1~11真实完整模块边界；不重做F03，不推进F06-F08。",
+  "verification_scope": "F02_1_CURRENT_INITIAL_76_TABLES_PLUS_40_DISPOSABLE_SIDECARS_000042_FREE_PRICE_RIGHT_NODE147_PG16_236_NOT_PRODUCTION",
   "security_hardening": [
     "pg_catalog actual column type and FK shape check",
     "test-only database URL strict port 5432 and prohibit host/hostaddr query overrides",
@@ -326,8 +328,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "TEN_LEGACY_BROAD_MAIN_TARGET_PR_WORKFLOWS_UNAUTHORIZED_TO_CHANGE_AND_USER_FORBIDS_OLD_RETRIGGER",
-  "tested_commit": "59b733dbb12cad50a7b96964958f483d743350a0",
-  "tested_run": 39138007650,
+  "tested_commit": "c1d1a6f2faf83d2cc6bdb6e0c5cb1b2091382adf",
+  "tested_run": 39139286175,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -442,7 +444,7 @@
     "sla_hold_pg16_tests": 11
   },
   "price_real_business": {
-    "status": "F05_4_PARTIAL_TEST_ONLY",
+    "status": "F05_4_TEST_ONLY_PDM10_RECOMMENDATION_FREE_RIGHT_CONNECTED",
     "actual_f02_frozen_business_tables": [
       "public.customer_day_quota_ledger",
       "public.customer_price_cycle_unlocks",
@@ -467,7 +469,12 @@
       "UTC8_DAY_BOUNDARY",
       "NEW_LISTING_CYCLE_NOT_INHERIT",
       "SAME_CUSTOMER_PARALLEL_NO_DUPLICATE",
-      "WRITE_EVENT_FAILURE_ROLLBACK"
+      "WRITE_EVENT_FAILURE_ROLLBACK",
+      "PDM10_REAL_F02_CUSTOMER_CYCLE_RECOMMENDATION_FREE_PRICE_RIGHT_PG16_TEST",
+      "PRICE_DETAIL_HIDDEN_RECOMMENDED_CUSTOMER_SCOPE_ONLY",
+      "RECOMMENDATION_END_RETAINS_OLD_CYCLE_PRICE_RIGHT_WITHOUT_GRANT_BYPASS",
+      "OLD_QUOTA_UNLOCK_PROVENANCE_UNCHANGED_NO_REFUND_OR_RECHARGE",
+      "CUSTOMER_DISABLE_AND_PRICE_EVIDENCE_EXPIRED_HARD_READ_GUARD"
     ],
     "missing": [
       "FORMAL_WECHAT_CUSTOMER_ISSUER",
@@ -476,7 +483,9 @@
       "PRICE_RULES_MARKUP_OVERRIDE_LINEAGE",
       "CUSTOMER_NAVIGATION_INTENT_VERIFIED",
       "FRONTEND_INTEGRATION",
-      "M94_HISTORICAL_MIGRATION"
+      "M94_HISTORICAL_MIGRATION",
+      "FORMAL_RECOMMENDATION_PRICE_RIGHT_ISSUER_NOT_SIGNED",
+      "REAL_CLIENT_PRICE_ENTRY_AND_CUSTOMER_INTENT_NOT_VERIFIED"
     ],
     "production_ready": false
   },
@@ -725,9 +734,9 @@
     "formal_auto_rule_change_dispatch": false
   },
   "recommendation_real_business": {
-    "status": "F05_9_DISPOSABLE_TEST_ONLY_REAL_HTTP_F02_TABLES_PG16_PASS",
-    "run_id": 39138007650,
-    "head_sha": "59b733dbb12cad50a7b96964958f483d743350a0",
+    "status": "F05_9_DISPOSABLE_TEST_ONLY_RECOMMENDATION_WHOLESALE_FREE_CYCLE_RIGHT_PG16_PASS",
+    "run_id": 39139286175,
+    "head_sha": "c1d1a6f2faf83d2cc6bdb6e0c5cb1b2091382adf",
     "verified": [
       "CURRENT_EMPLOYEE_OWNER_AND_EXPLICIT_CUSTOMER_SCOPE",
       "F02_ORIGINAL_RECOMMENDATION_ACTIVE_UNIQUE_CREATE_AND_TOUCH",
@@ -739,15 +748,25 @@
       "PG16_PRICE_SNAPSHOT_IMMUTABLE_AT_CREATE",
       "PG16_FOUR_S_ROLE_HARD_DENY_AND_HTTP_IMPERSONATION_REJECTED",
       "F05_9_PG16_RECOMMENDATION_READ_USES_PDM13_SOURCE_VALID_PRIORITY_NOT_RAW_STATUS",
-      "F05_9_PG16_UNDERLYING_MATCH_STALE_OTHER_RECOMMENDATION_RESTORES"
+      "F05_9_PG16_UNDERLYING_MATCH_STALE_OTHER_RECOMMENDATION_RESTORES",
+      "PDM10_RECOMMENDATION_CREATE_GRANTS_FROZEN_F02_WHOLESALE_PRICE_CYCLE_RIGHT_ATOMIC",
+      "PDM10_PRICE_CONSULTATION_CREATES_FREE_CYCLE_RIGHT_BEFORE_NUMERIC_PRICE",
+      "PDM10_RECOMMENDATION_END_VOID_DO_NOT_REVOKE_EXISTING_CYCLE_RIGHT",
+      "PDM10_NEW_LISTING_CYCLE_DOES_NOT_INHERIT_OLD_FREE_RIGHT",
+      "PDM10_EXISTING_LIMITED_PAID_UNLOCK_NOT_REFUNDED_OR_RECHARGED",
+      "PDM10_CUSTOMER_PRICE_UNLOCK_PARALLEL_RECOMMENDATION_NO_DUPLICATE_RIGHT",
+      "PDM10_AUDIT_FAILED_RECOMMENDATION_PRICE_RIGHT_ROLLS_BACK_ALL",
+      "PDM10_PRICE_PROOF_LOSS_AND_CUSTOMER_DISABLE_PAUSE_PRICE_READ",
+      "PDM10_NON_WHOLESALE_RECOMMENDATION_DOES_NOT_CREATE_WHOLESALE_CYCLE_RIGHT"
     ],
     "missing": [
       "PRODUCTION_F03_RECOMMENDATION_PERMISSION_SOURCE_ISSUER",
       "FORMAL_JYT_MINGBANG_4S_PRICE_AND_VEHICLE_EVIDENCE_SIGNER",
-      "REAL_WHOLESALE_RECOMMENDATION_FREE_PRICE_RIGHT_AUTHORITY_PDM10",
       "FULL_PRIORITY_CURRENT_MATCH_SOURCE_REEVALUATION",
       "REAL_C_WECHAT_END_TO_END_AND_M94_FULL_HISTORY",
-      "RECOMMENDATION_HIGH_SCOPE_CROSS_STORE_MANAGER_POLICY"
+      "RECOMMENDATION_HIGH_SCOPE_CROSS_STORE_MANAGER_POLICY",
+      "FORMAL_PRODUCTION_RECOMMENDATION_FREE_PRICE_RIGHT_SIGNER",
+      "EXISTING_HISTORICAL_RECOMMENDATION_RECONCILIATION_AND_M94_MIGRATION_MISSING"
     ],
     "production_ready": false
   },
