@@ -109,6 +109,9 @@ try{
   assert.equal(String(saved.generation),String(queued.generation));
   assert.equal(saved.state,'pending');assert.equal(saved.attempts,1);
   assert.equal(saved.last_error,'MATCH_RETRY_EVIDENCE_NOT_CURRENT'); // 200 but read-time evidence invalid.
+  const firstAttempt=(await check("SELECT result_id FROM public.demand_match_results "+
+   "WHERE demand_id=60100 AND vehicle_id=60110 AND current_state='current'"))[0];
+  assert.ok(firstAttempt?.result_id,'the unsafe first attempt genuinely committed a frozen result');
   assert.equal((await check("SELECT count(*)::int n FROM public.f05_matching_safe_current_test "+
    "WHERE demand_id=60100 AND vehicle_id=60110"))[0].n,0);
   await db.query("UPDATE public.f05_matching_employee_scope_test SET "+
@@ -122,6 +125,11 @@ try{
    "WHERE demand_id=60100 AND vehicle_id=60110"))[0];
   assert.equal(String(done.generation),String(queued.generation));
   assert.equal(done.state,'done');
+  const secondAttempt=(await check("SELECT result_id FROM public.demand_match_results "+
+   "WHERE demand_id=60100 AND vehicle_id=60110 AND current_state='current'"))[0];
+  assert.ok(secondAttempt?.result_id,'a second attempt commits a current result');
+  assert.notEqual(String(secondAttempt.result_id),String(firstAttempt.result_id),
+   'retry after committed-but-unsafe result must recompute instead of replay');
   assert.equal((await check("SELECT count(*)::int n FROM public.f05_matching_safe_current_test "+
    "WHERE demand_id=60100 AND vehicle_id=60110"))[0].n,1);
   // The second affected pair stays in its original done state.
@@ -229,8 +237,8 @@ try{
   assert.equal(retryQueued.state,'pending');
   assert.equal(retryQueued.attempts,1);
   assert.equal(retryQueued.last_error,'MATCH_RETRY_EVIDENCE_NOT_CURRENT');
-  // The fixture itself restores a verifiable source proof; that does not create
-  // a new Match Result or change the generation. A replay is still checked.
+  // Restoring proof alone does not create a new Match Result or generation.
+  // Retry attempt 1 must recompute rather than replay attempt 0.
   await db.query("UPDATE public.f05_real_catalog_visibility_test SET "+
    "expires_at=statement_timestamp()+interval '20 minutes' WHERE vehicle_id=60110");
   await db.query("UPDATE public.f05_matching_affected_queue_test SET "+
@@ -242,6 +250,10 @@ try{
    "public.f05_matching_affected_queue_test WHERE demand_id=60100 AND vehicle_id=60110"))[0];
   assert.equal(String(after.generation),generation);assert.equal(after.state,'done');
   assert.equal(after.lease_until,null);
+  const repaired=(await check("SELECT result_id FROM public.demand_match_results "+
+   "WHERE demand_id=60100 AND vehicle_id=60110 AND current_state='current'"))[0];
+  assert.notEqual(String(repaired.result_id),String(actual.body.resultId),
+   'orphan lease retry must create a new result after its proof was invalid');
   assert.equal((await check("SELECT count(*)::int n FROM public.f05_matching_safe_current_test "+
    "WHERE demand_id=60100 AND vehicle_id=60110"))[0].n,1);
   assert.equal((await check("SELECT state FROM public.f05_matching_affected_queue_test "+

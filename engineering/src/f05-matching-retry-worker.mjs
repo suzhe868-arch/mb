@@ -53,8 +53,16 @@ export function createIsolatedMatchingRetryWorker({pool,matching,env=process.env
    if(!ID.test(demandId)||!ID.test(vehicleId))throw Error('MATCH_RETRY_DB_ID_CORRUPT');
    const generation=String(job.generation),claimStamp=job.claim_stamp;
    if(typeof claimStamp!=='string'||!claimStamp)throw Error('MATCH_RETRY_MISSING_LEASE_STAMP');
-   // A pair+generation has one stable key across failed retries; no random false success.
-   const eventKey=createHash('sha256').update(['F05_AFFECTED_TEST_V1',demandId,vehicleId,generation].join(':')).digest('base64url');
+   // Keep one stable idempotency key for a single attempt, including lease
+   // reclaim after a crash. But when a completed result lost its read-time
+   // validity (TTL/scope/source), retrying must execute a new computation:
+   // replaying the old event would falsely acknowledge stale evidence.
+   const attempt=Number(job.attempts);
+   if(!Number.isSafeInteger(attempt)||attempt<0||attempt>5)
+    throw Error('MATCH_RETRY_DB_ATTEMPT_CORRUPT');
+   const identity=['F05_AFFECTED_TEST_V1',demandId,vehicleId,generation];
+   if(attempt>0)identity.push('retry',String(attempt));
+   const eventKey=createHash('sha256').update(identity.join(':')).digest('base64url');
    let result;
    try{result=await matching.recompute({credential,demandId,vehicleId,eventKey})}
    catch{result={status:503,body:{code:'MATCH_RETRY_DEPENDENCY_FAILED'}}}
