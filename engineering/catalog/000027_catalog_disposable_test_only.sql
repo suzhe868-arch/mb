@@ -195,3 +195,26 @@ CREATE TRIGGER f05_customer_disable_hold_test AFTER UPDATE OF account_status ON 
 ALTER TABLE public.f05_catalog_employee_consultation_scope_test ADD COLUMN can_resume_hold boolean NOT NULL DEFAULT false;
 REVOKE ALL ON public.f05_catalog_consultation_sla_test,public.f05_catalog_consultation_hold_test,
  public.f05_catalog_consultation_hold_events_test FROM PUBLIC;
+
+-- F05-4 price entitlement and current customer price are DISPOSABLE_TEST_ONLY proofs,
+-- NEVER formal F03 entitlement configuration or a JYT/4S/mingbang signed price issuer.
+CREATE TABLE public.f05_catalog_price_entitlement_test (
+ level_id bigint PRIMARY KEY REFERENCES public.customer_levels(level_id) ON DELETE RESTRICT,
+ price_access_mode text NOT NULL CHECK(price_access_mode IN ('LIMITED','UNLIMITED')),
+ daily_base_quota integer NOT NULL CHECK(daily_base_quota>=0 AND daily_base_quota<=10000),
+ issuer text NOT NULL DEFAULT 'DISPOSABLE_TEST_ONLY' CHECK(issuer='DISPOSABLE_TEST_ONLY'),
+ expires_at timestamptz NOT NULL
+);
+CREATE TABLE public.f05_catalog_price_display_proof_test (
+ vehicle_id bigint NOT NULL REFERENCES public.vehicles(vehicle_id) ON DELETE RESTRICT,
+ listing_cycle_id bigint NOT NULL,
+ source_type text NOT NULL CHECK(source_type IN ('wholesale','mingbang','four_s')),
+ customer_display_cents bigint CHECK(customer_display_cents IS NULL OR (customer_display_cents>0 AND customer_display_cents<100000000000000)),
+ issuer text NOT NULL DEFAULT 'DISPOSABLE_TEST_ONLY' CHECK(issuer='DISPOSABLE_TEST_ONLY'),
+ expires_at timestamptz NOT NULL,
+ PRIMARY KEY(vehicle_id,listing_cycle_id),
+ FOREIGN KEY(listing_cycle_id,vehicle_id) REFERENCES public.vehicle_listing_cycles(listing_cycle_id,vehicle_id)
+);
+CREATE SEQUENCE public.f05_catalog_price_unlock_id_seq AS bigint START WITH 59000001;
+CREATE SEQUENCE public.f05_catalog_price_event_id_seq AS bigint START WITH 59000001;
+REVOKE ALL ON public.f05_catalog_price_entitlement_test,public.f05_catalog_price_display_proof_test FROM PUBLIC;

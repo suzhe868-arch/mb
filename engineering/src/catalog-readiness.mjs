@@ -12,6 +12,8 @@ import {createIsolatedHandoverService} from './f05-handover-service.mjs';
 import {createIsolatedHandoverHandler} from './f05-handover-http.mjs';
 import {createIsolatedSlaHoldService} from './f05-sla-hold-service.mjs';
 import {createIsolatedSlaHoldHandler} from './f05-sla-hold-http.mjs';
+import {createIsolatedPriceUnlockService} from './f05-price-unlock-service.mjs';
+import {createIsolatedPriceUnlockHandler} from './f05-price-unlock-http.mjs';
 export function validateCatalogEnv(env=process.env){
  if(env.APP_ENV!=='test'||env.NODE_ENV!=='test'||env.F05_CATALOG_TEST_CONSENT!=='I_AUTHORIZE_DISPOSABLE_F05_CATALOG_PG16_ONLY')throw Error('CATALOG_TEST_ONLY');
  if(env.API_HOST && !['127.0.0.1','localhost','::1'].includes(env.API_HOST))throw Error('CATALOG_LOOPBACK_REQUIRED');
@@ -82,6 +84,13 @@ const REQUIRED_CATALOG_COLUMNS=Object.freeze([
  ['public.f05_catalog_consultation_hold_test','remaining_ms','bigint'],
  ['public.f05_catalog_consultation_hold_events_test','consultation_id','bigint'],
  ['public.f05_catalog_consultation_hold_events_test','action','text'],
+ ['public.customer_day_quota_ledger','business_day_shanghai','date'],
+ ['public.customer_price_cycle_unlocks','listing_cycle_id','bigint'],
+ ['public.customer_price_unlock_events','idempotency_key','text'],
+ ['public.f05_catalog_price_entitlement_test','level_id','bigint'],
+ ['public.f05_catalog_price_entitlement_test','price_access_mode','text'],
+ ['public.f05_catalog_price_display_proof_test','vehicle_id','bigint'],
+ ['public.f05_catalog_price_display_proof_test','customer_display_cents','bigint'],
 ]);
 const EXPECTED_COLUMNS_VALUES=REQUIRED_CATALOG_COLUMNS.map(x=>`('${x[0]}','${x[1]}','${x[2]}')`).join(',');
 export const SQL_CATALOG_SCHEMA=`SELECT
@@ -100,6 +109,8 @@ export const SQL_CATALOG_SCHEMA=`SELECT
  to_regclass('public.f05_catalog_consultation_sla_test') IS NOT NULL AS ss,
  to_regclass('public.f05_catalog_consultation_hold_test') IS NOT NULL AS sh,
  to_regclass('public.f05_catalog_consultation_hold_events_test') IS NOT NULL AS he,
+ to_regclass('public.f05_catalog_price_entitlement_test') IS NOT NULL AS pe,
+ to_regclass('public.f05_catalog_price_display_proof_test') IS NOT NULL AS pp,
  NOT EXISTS (
   SELECT 1 FROM (VALUES ${EXPECTED_COLUMNS_VALUES}) AS expected(relation,column_name,physical_type)
   LEFT JOIN pg_catalog.pg_attribute attr
@@ -107,7 +118,7 @@ export const SQL_CATALOG_SCHEMA=`SELECT
    AND attr.attname=expected.column_name AND attr.attnum>0 AND NOT attr.attisdropped
   WHERE attr.attname IS NULL OR pg_catalog.format_type(attr.atttypid,attr.atttypmod)<>expected.physical_type
  ) AS shape,
- (SELECT count(*)=89 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
+ (SELECT count(*)=91 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
  (SELECT count(*)=2 FROM pg_catalog.pg_constraint fk
   WHERE fk.contype='f'
    AND fk.conrelid IN (to_regclass('public.f05_real_catalog_visibility_test'),to_regclass('public.f05_real_catalog_protections_test'))
@@ -122,7 +133,7 @@ export async function probeIsolatedCatalog(pool){
   const identity=(await pool.query(SQL_CATALOG_IDENTITY)).rows[0];
   if(!identity || Math.floor(Number(identity.v)/10000)!==16 || identity.db!=='f05_catalog_test' || identity.role!=='f05_catalog_ci')return false;
   const schema=(await pool.query(SQL_CATALOG_SCHEMA)).rows[0];
-  return !!schema && Object.keys(schema).sort().join(',')==='c,ca,cp,ec,es,fe,fk,fs,ft,full,he,p,pf,po,sh,shape,ss,v,x' && Object.values(schema).every(v=>v===true);
+  return !!schema && Object.keys(schema).sort().join(',')==='c,ca,cp,ec,es,fe,fk,fs,ft,full,he,p,pe,pf,po,pp,sh,shape,ss,v,x' && Object.values(schema).every(v=>v===true);
  }catch{return false}
 }
 export async function createIsolatedCatalogRuntime(env=process.env){
@@ -137,6 +148,7 @@ export async function createIsolatedCatalogRuntime(env=process.env){
   const employeeStart=createIsolatedEmployeeStartService({pool,env});
   const handover=createIsolatedHandoverService({pool,env});
   const slaHold=createIsolatedSlaHoldService({pool,env});
-  return {pool,handler:createCatalogHandler(service),favoriteHandler:createIsolatedFavoriteHandler(favorite,env),consultationHandler:createIsolatedConsultationHandler(consultation,env),employeeStartHandler:createIsolatedEmployeeStartHandler(employeeStart,env),handoverHandler:createIsolatedHandoverHandler(handover,env),slaHoldHandler:createIsolatedSlaHoldHandler(slaHold,env),ready:()=>probeIsolatedCatalog(pool),close:()=>pool.end()};
+  const priceUnlock=createIsolatedPriceUnlockService({pool,env});
+  return {pool,handler:createCatalogHandler(service),favoriteHandler:createIsolatedFavoriteHandler(favorite,env),consultationHandler:createIsolatedConsultationHandler(consultation,env),employeeStartHandler:createIsolatedEmployeeStartHandler(employeeStart,env),handoverHandler:createIsolatedHandoverHandler(handover,env),slaHoldHandler:createIsolatedSlaHoldHandler(slaHold,env),priceUnlockHandler:createIsolatedPriceUnlockHandler(priceUnlock,env),ready:()=>probeIsolatedCatalog(pool),close:()=>pool.end()};
  }catch(e){await pool.end();throw e}
 }
