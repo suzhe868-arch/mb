@@ -41,13 +41,38 @@ export function createIsolatedRecommendationService({pool,env=process.env}={}){
     if(!vehicle){await db.query('ROLLBACK');return resp(404,'REC_VEHICLE_NOT_FOUND')}
     const customer=(await db.query("SELECT customer_id,account_status,current_owner_employee_id,owner_assignment_state,customer_level_id "+
      "FROM public.customers WHERE customer_id=$1 FOR SHARE",[customerId])).rows[0];
+    // PDM-14 §7 distinguishes Customer Owner from current Demand responsible.
+    // A historical recommender/owner is never sufficient on its own, and
+    // pending/public-pool Customer has no valid assigned responsibility.
     if(!customer||customer.owner_assignment_state!=='assigned'||
-     String(customer.current_owner_employee_id)!==employeeId){
+       customer.current_owner_employee_id===null){
      await db.query('ROLLBACK');return resp(403,'REC_CURRENT_OWNER_REQUIRED');
     }
-    // A residual owner_id alone is NOT an active delegation when the customer
-    // has re-entered owner-assignment pending/public-pool state. Hold customer
-    // SHARE through COMMIT and reject even historical idempotency replays.
+    const isCurrentOwner=String(customer.current_owner_employee_id)===employeeId;
+    let isCurrentDemandResponsible=false;
+    if(action==='CREATE'&&sourceDemandId!==null){
+     const source=(await db.query("SELECT 1 FROM public.demands d "+
+      "WHERE d.demand_id=$1 AND d.customer_id=$2 "+
+      "AND d.responsible_employee_id=$3 AND d.demand_state='active' FOR SHARE OF d",
+      [sourceDemandId,customerId,employeeId])).rows[0];
+     isCurrentDemandResponsible=!!source;
+    }else if(action!=='CREATE'){
+     // END/VOID may be executed by the CURRENT responsible Employee of the
+     // existing Recommendation's immutable source Demand. Do not restore the
+     // privilege merely because this actor was its original recommender.
+     const source=(await db.query("SELECT 1 FROM public.recommendations r "+
+      "JOIN public.demands d ON d.demand_id=r.source_demand_id "+
+      "WHERE r.customer_id=$1 AND r.vehicle_id=$2 AND r.listing_cycle_id=$3 "+
+      "AND r.status='active' AND d.customer_id=$1 "+
+      "AND d.responsible_employee_id=$4 AND d.demand_state='active' "+
+      "FOR SHARE OF r,d",
+      [customerId,vehicleId,listingCycleId,employeeId])).rows[0];
+     isCurrentDemandResponsible=!!source;
+    }
+    if(!isCurrentOwner&&!isCurrentDemandResponsible){
+     await db.query('ROLLBACK');return resp(403,'REC_CURRENT_OWNER_REQUIRED');
+    }
+    // Customer and source Demand SHARE locks hold authorization through COMMIT.
     // Replay is evaluated after current identity/scope, never a bypass via old token.
     await db.query("SELECT pg_advisory_xact_lock(hashtext('F05_REC_EVENT'),hashtext($1))",[eventKey]);
     const replay=(await db.query("SELECT fingerprint,actor_employee_id,recommendation_id,action "+

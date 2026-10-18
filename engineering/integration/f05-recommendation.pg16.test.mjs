@@ -11,7 +11,8 @@ import {createIsolatedRecommendationHandler} from '../src/f05-recommendation-htt
 import {createIsolatedMatchingService} from '../src/f05-matching-service.mjs';
 const env=validateCatalogEnv(),pool=new pg.Pool({connectionString:env.connectionString,max:6});
 const db=new pg.Client({connectionString:env.connectionString});
-const staff=randomBytes(32).toString('base64url'),member4s=randomBytes(32).toString('base64url');
+const staff=randomBytes(32).toString('base64url'),member4s=randomBytes(32).toString('base64url'),
+ currentOwnerOther=randomBytes(32).toString('base64url');
 const hash=s=>createHash('sha256').update(s).digest('hex');
 const key=()=>randomBytes(24).toString('base64url');
 let connected=false,server,error,firstId,secondId;
@@ -25,15 +26,15 @@ try{
  await db.connect();connected=true;assert.equal(await probeIsolatedCatalog(pool),true);
  await db.query('BEGIN');
  try{
-  await db.query("INSERT INTO public.employees(employee_id,main_role_id,employment_status,receiving_status) VALUES(62000,59001,'active','receiving'),(62001,59002,'active','receiving')");
-  await db.query("INSERT INTO public.f05_catalog_employee_sessions_test(token_sha256,employee_id,expires_at) VALUES($1,62000,statement_timestamp()+interval '20 minutes'),($2,62001,statement_timestamp()+interval '20 minutes')",[hash(staff),hash(member4s)]);
+  await db.query("INSERT INTO public.employees(employee_id,main_role_id,employment_status,receiving_status) VALUES(62000,59001,'active','receiving'),(62001,59002,'active','receiving'),(62003,59001,'active','receiving')");
+  await db.query("INSERT INTO public.f05_catalog_employee_sessions_test(token_sha256,employee_id,expires_at) VALUES($1,62000,statement_timestamp()+interval '20 minutes'),($2,62001,statement_timestamp()+interval '20 minutes'),($3,62003,statement_timestamp()+interval '20 minutes')",[hash(staff),hash(member4s),hash(currentOwnerOther)]);
   await db.query("INSERT INTO public.customer_levels(level_id,level_code) VALUES(62000,'recommendation_fan')");
   await db.query("INSERT INTO public.f05_find_car_level_entitlement_test(level_id,can_activate_demand,expires_at) VALUES(62000,true,statement_timestamp()+interval '20 minutes')");
   for(const n of [62000,62002]){
    await db.query("INSERT INTO public.customers(customer_id,account_status,customer_level_id,current_owner_employee_id,owner_assignment_state) VALUES($1,'active',62000,62000,'assigned')",[n]);
    await db.query("INSERT INTO public.f05_recommendation_manage_scope_test(employee_id,customer_id,can_manage,expires_at) VALUES(62000,$1,true,statement_timestamp()+interval '20 minutes')",[n]);
   }
-  await db.query("INSERT INTO public.f05_recommendation_manage_scope_test(employee_id,customer_id,can_manage,expires_at) VALUES(62001,62000,true,statement_timestamp()+interval '20 minutes')");
+  await db.query("INSERT INTO public.f05_recommendation_manage_scope_test(employee_id,customer_id,can_manage,expires_at) VALUES(62001,62000,true,statement_timestamp()+interval '20 minutes'),(62003,62000,true,statement_timestamp()+interval '20 minutes')");
   await db.query("INSERT INTO public.demands(demand_id,customer_id,responsible_employee_id,demand_state,criteria_json) VALUES(62000,62000,62000,'active','{}')");
   await vehicle(62010,true);await vehicle(62011,false);
   await db.query("INSERT INTO public.f05_matching_employee_scope_test(employee_id,customer_id,can_recompute,expires_at) VALUES(62000,62000,true,statement_timestamp()+interval '20 minutes')");
@@ -78,6 +79,46 @@ try{
    assert.equal(await number("SELECT count(*) n FROM public.customer_price_cycle_unlocks WHERE customer_id=62000 AND vehicle_id=62010"),0);
   }finally{
    await db.query("UPDATE public.customers SET owner_assignment_state='assigned' WHERE customer_id=62000");
+  }
+ });
+ await test('PG16 PDM14 delegated Demand responsible may create/end Recommendation after Customer Owner changes; history never retains mutation authority',async()=>{
+  await vehicle(62012,false);
+  // Customer Owner and Demand responsible are explicitly independent PDM-14
+  // authorities. Their rows are both actual frozen F02 PG16 facts.
+  await db.query("UPDATE public.customers SET current_owner_employee_id=62003 WHERE customer_id=62000");
+  try{
+   const detached=await post({vehicleId:'62012'});
+   assert.equal(detached.status,403,'former Owner without a linked Demand is not authorized');
+   const created=await post({vehicleId:'62012',sourceDemandId:'62000'});
+   assert.equal(created.status,200,JSON.stringify(created));
+   assert.equal(created.body.code,'REC_CREATED');
+   const recId=created.body.recommendationId;
+   const rec=(await db.query("SELECT recommender_employee_id,source_demand_id,status FROM public.recommendations WHERE recommendation_id=$1",[recId])).rows[0];
+   assert.equal(String(rec.recommender_employee_id),'62000');
+   assert.equal(String(rec.source_demand_id),'62000');
+   assert.equal((await db.query("SELECT current_owner_employee_id FROM public.customers WHERE customer_id=62000")).rows[0].current_owner_employee_id.toString(),'62003',
+     'Recommendation must not mutate Customer current Owner');
+   const ended=await post({vehicleId:'62012',action:'END'});
+   assert.equal(ended.status,200,JSON.stringify(ended));
+   assert.equal(ended.body.code,'REC_ENDED');
+   const another=await post({vehicleId:'62012',sourceDemandId:'62000'});
+   assert.equal(another.status,200,JSON.stringify(another));
+   assert.equal(another.body.code,'REC_CREATED');
+   // Reassignment of the source Demand independently revokes the former
+   // responsible employee. Historical recommender 62000 may not END.
+   await db.query("UPDATE public.demands SET responsible_employee_id=62003 WHERE demand_id=62000");
+   const old=await post({vehicleId:'62012',action:'END'});
+   assert.equal(old.status,403,JSON.stringify(old));
+   assert.equal(old.body.code,'REC_CURRENT_OWNER_REQUIRED');
+   const current=await post({vehicleId:'62012',action:'END',credential:currentOwnerOther});
+   assert.equal(current.status,200,JSON.stringify(current));
+   assert.equal(current.body.code,'REC_ENDED');
+   assert.equal(await number("SELECT count(*) n FROM public.recommendations WHERE vehicle_id=62012 AND status='active'"),0);
+   assert.equal(await number("SELECT count(*) n FROM public.recommendations WHERE vehicle_id=62012"),2);
+   assert.equal(await number("SELECT count(*) n FROM public.vehicle_visibility_grants WHERE vehicle_id=62012"),0);
+  }finally{
+   await db.query("UPDATE public.demands SET responsible_employee_id=62000 WHERE demand_id=62000");
+   await db.query("UPDATE public.customers SET current_owner_employee_id=62000 WHERE customer_id=62000");
   }
  });
  await test('real hidden wholesale Recommendation creates exactly one grant and immutable price snapshot',async()=>{
