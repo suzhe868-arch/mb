@@ -141,6 +141,7 @@ const REQUIRED_CATALOG_COLUMNS=Object.freeze([
  ['public.f05_matching_dictionary_history_test','event_key','text'],
  ['public.f05_matching_discovery_events_test','event_key','text'],
  ['public.f05_matching_discovery_events_test','queued_count','integer'],
+ ['public.f05_matching_discovery_events_test','has_more','boolean'],
 ]);
 const EXPECTED_COLUMNS_VALUES=REQUIRED_CATALOG_COLUMNS.map(x=>`('${x[0]}','${x[1]}','${x[2]}')`).join(',');
 export const SQL_CATALOG_SCHEMA=`SELECT

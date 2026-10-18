@@ -41,7 +41,7 @@ export function createIsolatedMatchingDiscoveryService({pool,env=process.env}={}
      await db.query('ROLLBACK');
      if(replay.payload_sha256!==payload||String(replay.actor_employee_id)!==employeeId)
       return out(409,'DISCOVERY_IDEMPOTENCY_COLLISION');
-     return out(200,'DISCOVERY_REPLAY',{queued:replay.queued_count,discoveryOnly:true});
+     return out(200,'DISCOVERY_REPLAY',{queued:replay.queued_count,hasMore:replay.has_more,discoveryOnly:true});
     }
     // Query exactly one demand or exactly one vehicle. No unrestricted cartesian backfill.
     const pairs=(await db.query(`
@@ -80,9 +80,14 @@ export function createIsolatedMatchingDiscoveryService({pool,env=process.env}={}
       WHERE q.demand_id=d.demand_id AND q.vehicle_id=v.vehicle_id
        AND q.state IN ('pending','processing','failed'))
     ORDER BY d.demand_id,v.vehicle_id LIMIT 51`,[employeeId,kind,subjectId])).rows;
-    if(pairs.length>50){await db.query('ROLLBACK');return out(409,'DISCOVERY_BATCH_LIMIT_EXCEEDED',{limit:50})}
+    // Each transaction atomically queues at most 50 pairs. The 51st is a
+    // look-ahead only; it never consumes a lease or writes a Match Result.
+    // Next invocation must use a NEW eventKey and repeats current scope checks.
+    // Previously enqueued pending/processing/failed generations are excluded,
+    // so a new invocation advances even before the retry worker runs.
+    const hasMore=pairs.length>50;
     let queued=0;
-    for(const p of pairs){
+    for(const p of pairs.slice(0,50)){
      const demandId=String(p.demand_id),vehicleId=String(p.vehicle_id);
      await db.query("SELECT pg_advisory_xact_lock(hashtext('F05_MATCH_PAIR'),hashtext($1))",[demandId+':'+vehicleId]);
      // Concurrent recompute may have completed between selecting and this pair lock.
@@ -101,10 +106,10 @@ export function createIsolatedMatchingDiscoveryService({pool,env=process.env}={}
      if(pushed.rowCount)queued++;
     }
     await db.query("INSERT INTO public.f05_matching_discovery_events_test "+
-     "(event_key,actor_employee_id,trigger_kind,subject_id,payload_sha256,queued_count) "+
-     "VALUES($1,$2,$3,$4,$5,$6)",[eventKey,employeeId,kind,subjectId,payload,queued]);
+     "(event_key,actor_employee_id,trigger_kind,subject_id,payload_sha256,queued_count,has_more) "+
+     "VALUES($1,$2,$3,$4,$5,$6,$7)",[eventKey,employeeId,kind,subjectId,payload,queued,hasMore]);
     await db.query('COMMIT');
-    return out(200,'DISCOVERY_QUEUED',{queued,discoveryOnly:true,noRecommendation:true,
+    return out(200,'DISCOVERY_QUEUED',{queued,hasMore,limit:50,discoveryOnly:true,noRecommendation:true,
       noPriority:true,noVisibilityGrant:true});
    }catch(e){await db.query('ROLLBACK').catch(()=>{});throw e}
   }finally{db.release()}

@@ -62,7 +62,9 @@ try{
   assert.equal(out.status,200,JSON.stringify(out));
   assert.ok(out.body.queued>=2&&out.body.queued<=50,JSON.stringify(out));
   assert.equal((await db.query('SELECT count(*)::int n FROM public.f05_matching_affected_queue_test WHERE demand_id=60500 AND vehicle_id IN (60510,60511)')).rows[0].n,2);
-  assert.equal((await post('NEW_DEMAND','60500',sales,k)).body.code,'DISCOVERY_REPLAY');
+  const replay=await post('NEW_DEMAND','60500',sales,k);
+  assert.equal(replay.body.code,'DISCOVERY_REPLAY');
+  assert.equal(replay.body.hasMore,out.body.hasMore);
   assert.equal((await post('NEW_VEHICLE','60510',sales,k)).status,409);
   assert.equal((await post('NEW_DEMAND','60500')).body.queued,0);
   const run=await retry.runOnce({credential:sales,limit:50});
@@ -104,16 +106,61 @@ try{
   const found=await post('NEW_VEHICLE','60513');
   assert.equal(found.status,200);assert.equal(found.body.queued,1);
   assert.equal((await db.query("SELECT count(*)::int n FROM public.f05_matching_affected_queue_test WHERE vehicle_id=60513 AND demand_id=60501")).rows[0].n,0);
+  // Finish this test's single pending item before the 50-item page boundary test.
+  const drained=await retry.runOnce({credential:sales,limit:10});
+  assert.equal(drained.claimed,1,JSON.stringify(drained));
+  assert.equal(drained.outcomes[0].outcome,'done');
  });
- await test('more than 50 newly discovered candidates is explicit error, never silent partial success',async()=>{
+ await test('over 50 candidates advances as two committed pages: 50 then remainder with replay-safe hasMore',async()=>{
   await db.query('BEGIN');
   try{
    for(let i=60600;i<=60650;i++)await addVehicle(i);
    await db.query('COMMIT');
   }catch(e){await db.query('ROLLBACK');throw e}
-  const over=await post('NEW_DEMAND','60500');
-  assert.equal(over.status,409,JSON.stringify(over));assert.equal(over.body.code,'DISCOVERY_BATCH_LIMIT_EXCEEDED');
-  assert.equal((await db.query("SELECT count(*)::int n FROM public.f05_matching_affected_queue_test WHERE vehicle_id BETWEEN 60600 AND 60650")).rows[0].n,0);
+  const idOne=key(),first=await post('NEW_DEMAND','60500',sales,idOne);
+  assert.equal(first.status,200,JSON.stringify(first));
+  assert.equal(first.body.queued,50);assert.equal(first.body.hasMore,true);
+  assert.equal(first.body.limit,50);
+  const replay=await post('NEW_DEMAND','60500',sales,idOne);
+  assert.equal(replay.status,200);assert.equal(replay.body.code,'DISCOVERY_REPLAY');
+  assert.equal(replay.body.queued,50);assert.equal(replay.body.hasMore,true);
+  assert.equal((await db.query("SELECT count(*)::int n FROM public.f05_matching_affected_queue_test WHERE demand_id=60500 AND vehicle_id BETWEEN 60600 AND 60650 AND state='pending'")).rows[0].n,50);
+  // Page-two audit failure must not roll back committed page one.
+  await db.query("CREATE FUNCTION public.f05_discovery_page_fault() RETURNS trigger LANGUAGE plpgsql AS $ BEGIN RAISE EXCEPTION 'PAGE_TWO_AUDIT_FAILURE'; END $");
+  await db.query("CREATE TRIGGER f05_discovery_page_fault BEFORE INSERT ON public.f05_matching_discovery_events_test FOR EACH ROW EXECUTE FUNCTION public.f05_discovery_page_fault()");
+  const nextKey=key();
+  try{
+   const rejected=await post('NEW_DEMAND','60500',sales,nextKey);
+   assert.equal(rejected.status,503,JSON.stringify(rejected));
+   assert.equal((await db.query("SELECT count(*)::int n FROM public.f05_matching_affected_queue_test WHERE demand_id=60500 AND vehicle_id BETWEEN 60600 AND 60650")).rows[0].n,50);
+  }finally{
+   await db.query('DROP TRIGGER f05_discovery_page_fault ON public.f05_matching_discovery_events_test');
+   await db.query('DROP FUNCTION public.f05_discovery_page_fault()');
+  }
+  const second=await post('NEW_DEMAND','60500',sales,nextKey);
+  assert.equal(second.status,200,JSON.stringify(second));
+  assert.equal(second.body.queued,1);assert.equal(second.body.hasMore,false);
+  assert.equal((await post('NEW_DEMAND','60500')).body.queued,0);
+  assert.equal((await db.query("SELECT count(*)::int n FROM public.f05_matching_affected_queue_test WHERE demand_id=60500 AND vehicle_id BETWEEN 60600 AND 60650")).rows[0].n,51);
+  // First page is allowed to commit without a retry worker; no head-of-line scan blockage.
+  const part1=await retry.runOnce({credential:sales,limit:50});
+  assert.equal(part1.claimed,50,JSON.stringify(part1));
+  assert.ok(part1.outcomes.every(x=>x.outcome==='done'),JSON.stringify(part1));
+  const part2=await retry.runOnce({credential:sales,limit:50});
+  assert.equal(part2.claimed,1,JSON.stringify(part2));
+  assert.ok(part2.outcomes.every(x=>x.outcome==='done'),JSON.stringify(part2));
+  assert.equal((await db.query("SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE demand_id=60500 AND vehicle_id BETWEEN 60600 AND 60650")).rows[0].n,51);
+  assert.equal((await db.query("SELECT count(*)::int n FROM public.f05_matching_discovery_events_test WHERE trigger_kind='NEW_DEMAND' AND subject_id=60500 AND queued_count=50 AND has_more=true")).rows[0].n,1);
+ });
+ await test('paged discovery must revalidate revoked scope rather than trust earlier page or event key',async()=>{
+  // Before this step new Vehicle has no matching Demand except the current scope owner.
+  await db.query("UPDATE public.f05_matching_employee_scope_test SET can_recompute=false WHERE employee_id=60500 AND customer_id=60500");
+  const denied=await post('NEW_DEMAND','60500');
+  assert.equal(denied.status,403,JSON.stringify(denied));
+  assert.equal(denied.body.code,'DISCOVERY_OBJECT_SCOPE_REQUIRED');
+  await db.query("UPDATE public.f05_matching_employee_scope_test SET can_recompute=true WHERE employee_id=60500 AND customer_id=60500");
+  const ok=await post('NEW_DEMAND','60500');
+  assert.equal(ok.status,200);assert.equal(ok.body.queued,0);
  });
  await test('discovery audit append-only and one-event-per-idempotency without plaintext credential',async()=>{
   const all=(await db.query("SELECT queued_count,payload_sha256,event_key FROM public.f05_matching_discovery_events_test WHERE actor_employee_id=60500")).rows;
