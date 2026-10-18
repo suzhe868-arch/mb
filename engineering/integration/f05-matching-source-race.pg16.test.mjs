@@ -74,8 +74,8 @@ try {
  });
  await test('PG16 MATCH FIRST physically blocks concurrent price write; writer then immediately stales newly published Match',async()=>{
   // PostgreSQL BEFORE INSERT pause holds the service advisory vehicle lock.
-  await db.query("CREATE FUNCTION public.f05_race_hold_insert() RETURNS trigger LANGUAGE plpgsql AS $ "+
-    "BEGIN PERFORM pg_sleep(0.45); RETURN NEW; END $");
+  await db.query("CREATE FUNCTION public.f05_race_hold_insert() RETURNS trigger LANGUAGE plpgsql AS $f05hold$ "+
+    "BEGIN PERFORM pg_sleep(0.45); RETURN NEW; END $f05hold$");
   await db.query("CREATE TRIGGER f05_race_hold_insert BEFORE INSERT ON public.demand_match_results "+
     "FOR EACH ROW EXECUTE FUNCTION public.f05_race_hold_insert()");
   let write=null;
