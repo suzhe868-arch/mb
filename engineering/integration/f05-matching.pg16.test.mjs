@@ -229,6 +229,35 @@ try{
   assert.equal((await writer.query(
    "SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE demand_id=59700 AND vehicle_id=59710")).rows[0].n,1);
  });
+ await test('PG16 Employee role demotion destroys current Match eligibility, immutable history survives restoring role',async()=>{
+  const safe=async()=>Number((await writer.query(
+   "SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE demand_id=59700 AND vehicle_id=59710")).rows[0].n);
+  assert.equal(await safe(),1);
+  const before=await results('59710');
+  const cur=before.at(-1);assert.equal(cur.current_state,'current');
+  // Main Role is authoritative NOW, never a cached issuer claim. Role 59002
+  // is the signed four_s role in the isolated F02 PG16 fixture.
+  await writer.query("UPDATE public.employees SET main_role_id=59002 WHERE employee_id=59700");
+  try{
+   assert.equal(await safe(),0,'four_s may not consume an old sales Match');
+   const last=(await results('59710')).at(-1);
+   assert.equal(last.current_state,'invalidated');
+   assert.equal((await writer.query("SELECT count(*)::int n FROM public.matching_change_events "+
+    "WHERE trigger_kind='EMPLOYEE_MATCH_AUTHORITY_CHANGED' AND result_id=$1",[cur.result_id])).rows[0].n,1);
+   const denied=await call({vehicle:'59710'});
+   assert.equal(denied.status,401,JSON.stringify(denied));
+   assert.equal((await results('59710')).length,before.length);
+  }finally{
+   await writer.query("UPDATE public.employees SET main_role_id=59001 WHERE employee_id=59700");
+  }
+  assert.equal(await safe(),0,'role restoration never resurrects invalidated history');
+  const recalculated=await call({vehicle:'59710'});
+  assert.equal(recalculated.status,200,JSON.stringify(recalculated));
+  assert.equal(await safe(),1);
+  for(const table of ['recommendations','priority_leases','vehicle_visibility_grants'])
+   assert.equal((await writer.query('SELECT count(*)::int n FROM public.'+table+
+    ' WHERE customer_id=59700')).rows[0].n,0,table);
+ });
  await test('PG16 append-only matching event rejects UPDATE/DELETE and Employee session revocation fails closed',async()=>{
   await assert.rejects(writer.query('DELETE FROM public.f05_matching_recompute_events_test WHERE demand_id=59700'),e=>e.code==='23514');
   await assert.rejects(writer.query("UPDATE public.f05_matching_recompute_events_test SET result_tier='high' WHERE demand_id=59700"),e=>e.code==='23514');

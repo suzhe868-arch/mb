@@ -8,7 +8,7 @@ DECLARE hit record; total integer:=0;
 BEGIN
  IF p_cause NOT IN ('CUSTOMER_ACCOUNT_OR_LEVEL','DEMAND_STATE',
                     'VEHICLE_SALEABILITY','LISTING_CYCLE','LEVEL_ENTITLEMENT',
-                    'CUSTOMER_OWNER_CHANGED')
+                    'CUSTOMER_OWNER_CHANGED','EMPLOYEE_MATCH_AUTHORITY_CHANGED')
     OR (p_customer IS NULL AND p_demand IS NULL AND p_vehicle IS NULL AND p_cycle IS NULL)
  THEN RAISE EXCEPTION 'F05_INVALIDATION_SCOPE_NOT_AUTHORIZED'; END IF;
  FOR hit IN
@@ -116,6 +116,32 @@ END $$;
 CREATE TRIGGER f05_match_level_entitlement_test AFTER UPDATE OF can_activate_demand
  ON public.f05_find_car_level_entitlement_test FOR EACH ROW
  EXECUTE FUNCTION public.f05_match_on_level_entitlement_test();
+
+-- Employee demotion or deactivation invalidates every frozen current Match
+-- whose responsible employee is affected. This is a TEST-ONLY carrier and
+-- never elevates a role/permission from a synthetic fixture to formal F03.
+CREATE FUNCTION public.f05_match_on_employee_authority_test() RETURNS trigger LANGUAGE plpgsql AS $f05employee$
+DECLARE affected record;
+BEGIN
+ IF NEW.main_role_id IS DISTINCT FROM OLD.main_role_id
+   OR NEW.employment_status IS DISTINCT FROM OLD.employment_status
+ THEN
+  FOR affected IN
+   SELECT d.demand_id FROM public.demands d
+   WHERE d.responsible_employee_id=NEW.employee_id
+    AND EXISTS(SELECT 1 FROM public.demand_match_results r
+      WHERE r.demand_id=d.demand_id AND r.current_state='current')
+   ORDER BY d.demand_id
+  LOOP
+   PERFORM public.f05_match_invalidate_affected_test(
+    'EMPLOYEE_MATCH_AUTHORITY_CHANGED',NULL,affected.demand_id,NULL,NULL);
+  END LOOP;
+ END IF;
+ RETURN NEW;
+END $f05employee$;
+CREATE TRIGGER f05_match_employee_authority_test
+ AFTER UPDATE OF main_role_id,employment_status ON public.employees
+ FOR EACH ROW EXECUTE FUNCTION public.f05_match_on_employee_authority_test();
 
 -- Test-only append-only audit for frozen PDM-12 matching_change_events. Fail closed.
 CREATE FUNCTION public.f05_matching_change_audit_immutable_test() RETURNS trigger LANGUAGE plpgsql AS $$

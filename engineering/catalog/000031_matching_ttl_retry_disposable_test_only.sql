@@ -18,6 +18,8 @@ JOIN public.f05_matching_employee_scope_test scope ON scope.employee_id=d.respon
  AND scope.customer_id=c.customer_id AND scope.can_recompute=true
  AND scope.issuer='DISPOSABLE_TEST_ONLY' AND scope.expires_at>statement_timestamp()
 JOIN public.employees e ON e.employee_id=d.responsible_employee_id AND e.employment_status='active'
+JOIN public.roles role ON role.role_id=e.main_role_id
+ AND role.role_code IN ('sales','manager','store_head')
 JOIN public.vehicles v ON v.vehicle_id=r.vehicle_id AND v.archived_at IS NULL
  AND ((v.source_type='wholesale' AND v.source_sale_status='active')
    OR (v.source_type IN ('mingbang','four_s') AND v.source_sale_status='available'))

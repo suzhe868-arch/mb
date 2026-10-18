@@ -212,8 +212,8 @@ export const SQL_CATALOG_SCHEMA=`SELECT
  to_regclass('public.f05_priority_qualification_manage_scope_test') IS NOT NULL AS p8m,
  to_regclass('public.f05_priority_qualification_events_test') IS NOT NULL AS p8a,
  to_regclass('public.f05_priority_safe_active_test') IS NOT NULL AS p8v,
- (SELECT count(*)=25 FROM pg_catalog.pg_trigger t WHERE NOT t.tgisinternal AND t.tgname IN
- ('f05_match_customer_guard_test','f05_match_demand_lifecycle_test',
+ (SELECT count(*)=26 FROM pg_catalog.pg_trigger t WHERE NOT t.tgisinternal AND t.tgname IN
+ ('f05_match_customer_guard_test','f05_match_employee_authority_test','f05_match_demand_lifecycle_test',
   'f05_match_vehicle_saleability_test','f05_match_listing_cycle_test',
   'f05_match_level_entitlement_test','f05_matching_change_events_append_only_test',
   'f05_match_price_fact_test','f05_match_vehicle_fact_test','f05_match_sales_description_test',
