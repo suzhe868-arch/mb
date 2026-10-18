@@ -162,6 +162,42 @@ try{
   const ok=await post('NEW_DEMAND','60500');
   assert.equal(ok.status,200);assert.equal(ok.body.queued,0);
  });
+ await test('NEW_VEHICLE with 52 permitted active Demands pages 50+2 and concurrent replay never duplicates',async()=>{
+  // All fixtures have the same explicit responsible employee and entitlement.
+  await db.query('BEGIN');
+  try{
+   for(let i=60900;i<=60950;i++){
+    await db.query("INSERT INTO public.customers(customer_id,account_status,customer_level_id,current_owner_employee_id,owner_assignment_state) VALUES($1,'active',60500,60500,'assigned')",[i]);
+    await db.query("INSERT INTO public.demands(demand_id,customer_id,responsible_employee_id,demand_state,criteria_json) VALUES($1,$1,60500,'active','{}')",[i]);
+    await db.query("INSERT INTO public.f05_matching_employee_scope_test(employee_id,customer_id,can_recompute,expires_at) VALUES(60500,$1,true,statement_timestamp()+interval '20 minutes')",[i]);
+    await db.query("INSERT INTO public.f05_matching_sales_description_test(demand_id,written_by_employee_id,sales_description,expires_at) VALUES($1,60500,'brandId=59001',statement_timestamp()+interval '20 minutes')",[i]);
+   }
+   await addVehicle(60700);
+   await db.query('COMMIT');
+  }catch(e){await db.query('ROLLBACK');throw e}
+  const parallelKey=key();
+  const two=await Promise.all([
+   post('NEW_VEHICLE','60700',sales,parallelKey),
+   post('NEW_VEHICLE','60700',sales,parallelKey)
+  ]);
+  assert.deepEqual(two.map(x=>x.status),[200,200],JSON.stringify(two));
+  assert.deepEqual(two.map(x=>x.body.code).sort(),['DISCOVERY_QUEUED','DISCOVERY_REPLAY']);
+  assert.deepEqual(two.map(x=>x.body.queued),[50,50]);
+  assert.equal(two[0].body.hasMore,true);assert.equal(two[1].body.hasMore,true);
+  const rest=await post('NEW_VEHICLE','60700');
+  assert.equal(rest.status,200,JSON.stringify(rest));
+  assert.equal(rest.body.queued,2);assert.equal(rest.body.hasMore,false);
+  assert.equal((await post('NEW_VEHICLE','60700')).body.queued,0);
+  assert.equal((await db.query("SELECT count(*)::int n FROM public.f05_matching_affected_queue_test WHERE vehicle_id=60700 AND state='pending'")).rows[0].n,52);
+  const first=await retry.runOnce({credential:sales,limit:50});
+  const last=await retry.runOnce({credential:sales,limit:50});
+  assert.equal(first.claimed,50,JSON.stringify(first));
+  assert.equal(last.claimed,2,JSON.stringify(last));
+  assert.ok(first.outcomes.every(x=>x.outcome==='done'),JSON.stringify(first));
+  assert.ok(last.outcomes.every(x=>x.outcome==='done'),JSON.stringify(last));
+  assert.equal((await db.query("SELECT count(*)::int n FROM public.f05_matching_safe_current_test WHERE vehicle_id=60700")).rows[0].n,52);
+  assert.equal((await db.query("SELECT count(*)::int n FROM public.f05_matching_discovery_events_test WHERE trigger_kind='NEW_VEHICLE' AND subject_id=60700 AND has_more=true")).rows[0].n,1);
+ });
  await test('discovery audit append-only and one-event-per-idempotency without plaintext credential',async()=>{
   const all=(await db.query("SELECT queued_count,payload_sha256,event_key FROM public.f05_matching_discovery_events_test WHERE actor_employee_id=60500")).rows;
   assert.equal(all.every(x=>/^[0-9a-f]{64}$/.test(x.payload_sha256)),true);
