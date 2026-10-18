@@ -29,6 +29,8 @@ export function createIsolatedConsultationService({pool,env=process.env}={}){
     const row=(await c.query("SELECT consultation_id,customer_id,vehicle_id,listing_cycle_id,status "+
       "FROM public.consultations WHERE consultation_id=$1 FOR UPDATE",[consultationId])).rows[0];
     if(!row||String(row.customer_id)!==customerId||String(row.vehicle_id)!==vehicleId){await c.query('ROLLBACK');return answer(404,'CONSULTATION_NOT_FOUND')}
+    const hold=(await c.query("SELECT 1 FROM public.f05_catalog_consultation_hold_test WHERE consultation_id=$1 AND active=true",[consultationId])).rows[0];
+    if(hold){await c.query('ROLLBACK');return answer(409,'CONSULTATION_CUSTOMER_DISABLED_HOLD')}
     const payload=digest(JSON.stringify([customerId,consultationId,'CUSTOMER_WITHDRAWN']));
     const old=(await c.query('SELECT * FROM public.f05_catalog_consultation_actions_test WHERE event_key=$1',[eventKey])).rows[0];
     if(old){
@@ -63,6 +65,15 @@ export function createIsolatedConsultationService({pool,env=process.env}={}){
       "AND s.expires_at>statement_timestamp() AND s.revoked_at IS NULL FOR SHARE OF s,c",[digest(token)])).rows[0];
     if(!a||a.account_status!=='active'){await c.query('ROLLBACK');return answer(401,'CONSULTATION_IDENTITY_REQUIRED')}
     const customerId=String(a.customer_id);
+    // Customer account restoration does not automatically release a held Consultation.
+    // An active listing cycle with an open held Consultation cannot be touched/replayed.
+    const held=(await c.query("SELECT 1 FROM public.consultations co "+
+      "JOIN public.f05_catalog_consultation_hold_test h ON h.consultation_id=co.consultation_id AND h.active=true "+
+      "JOIN public.vehicle_listing_cycles cy ON cy.listing_cycle_id=co.listing_cycle_id "+
+      "AND cy.vehicle_id=co.vehicle_id AND cy.ended_at IS NULL "+
+      "WHERE co.customer_id=$1 AND co.vehicle_id=$2 AND co.status IN ('pending','processing') LIMIT 1",
+      [customerId,vehicleId])).rows[0];
+    if(held){await c.query('ROLLBACK');return answer(409,'CONSULTATION_CUSTOMER_DISABLED_HOLD')}
     // Same Customer+Vehicle serializes and the source idempotency key is global across Customers.
     await c.query('SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))',['F05_CONSULTATION_EVENT',eventKey]);
     await c.query('SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))',[customerId,vehicleId]);
