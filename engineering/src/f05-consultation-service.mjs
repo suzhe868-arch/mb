@@ -52,8 +52,11 @@ export function createIsolatedConsultationService({pool,env=process.env}={}){
     return answer(200,'CONSULTATION_WITHDRAWN',{consultationId,status:'resolved',closeReason:'CUSTOMER_WITHDRAWN',productionReady:false});
    }catch(e){await c.query('ROLLBACK').catch(()=>{});throw e}
   }finally{c.release()}
- },async create({token,vehicleId,eventKey}){
-  if(!validId(vehicleId)||!validEvent(eventKey))return answer(400,'CONSULTATION_INVALID_REQUEST');
+ },async create({token,vehicleId=null,sourceRecommendationId=null,eventKey}){
+  if(!validEvent(eventKey)||
+   (sourceRecommendationId===null&&!validId(vehicleId))||
+   (sourceRecommendationId!==null&&(!validId(sourceRecommendationId)||vehicleId!==null)))
+   return answer(400,'CONSULTATION_INVALID_REQUEST');
   if(!validToken(token))return answer(401,'CONSULTATION_IDENTITY_REQUIRED');
   const c=await pool.connect();
   try{
@@ -65,6 +68,19 @@ export function createIsolatedConsultationService({pool,env=process.env}={}){
       "AND s.expires_at>statement_timestamp() AND s.revoked_at IS NULL FOR SHARE OF s,c",[digest(token)])).rows[0];
     if(!a||a.account_status!=='active'){await c.query('ROLLBACK');return answer(401,'CONSULTATION_IDENTITY_REQUIRED')}
     const customerId=String(a.customer_id);
+    let recSource=null;
+    if(sourceRecommendationId!==null){
+     // PDM-15: the *explicit* source must be CURRENT and customer-visible.
+     // It is never selected by "latest rec" nor from client-claimed identity.
+     recSource=(await c.query("SELECT r.recommendation_id,r.vehicle_id,r.listing_cycle_id,"+
+      "r.recommender_employee_id,r.source_demand_id FROM public.recommendations r "+
+      "JOIN public.f05_recommendation_safe_customer_test safe "+
+      "ON safe.recommendation_id=r.recommendation_id AND safe.customer_id=$2 "+
+      "WHERE r.recommendation_id=$1 AND r.customer_id=$2 AND r.status='active' "+
+      "FOR SHARE OF r",[sourceRecommendationId,customerId])).rows[0];
+     if(!recSource){await c.query('ROLLBACK');return answer(404,'CONSULTATION_RECOMMENDATION_NOT_AVAILABLE')}
+     vehicleId=String(recSource.vehicle_id);
+    }
     // Customer account restoration does not automatically release a held Consultation.
     // An active listing cycle with an open held Consultation cannot be touched/replayed.
     const held=(await c.query("SELECT 1 FROM public.consultations co "+
@@ -78,7 +94,28 @@ export function createIsolatedConsultationService({pool,env=process.env}={}){
     await c.query('SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))',['F05_CONSULTATION_EVENT',eventKey]);
     await c.query('SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))',[customerId,vehicleId]);
     if(a.owner_assignment_state!=='assigned'||!validId(String(a.current_owner_employee_id))){await c.query('ROLLBACK');return answer(409,'CONSULTATION_OWNER_NOT_READY')}
-    const scope=(await c.query("SELECT p.assignee_employee_id FROM public.f05_catalog_consultation_actor_proof_test p "+
+    // PDM-15 §10: explicit Recommendation recommender if CURRENT legitimate,
+    // else currently linked Demand responsible, else current Customer Owner.
+    // A historical recommender never becomes a permanent assignee.
+    let currentDemand=null;
+    if(recSource?.source_demand_id!=null){
+     currentDemand=(await c.query("SELECT responsible_employee_id FROM public.demands "+
+      "WHERE demand_id=$1 AND customer_id=$2 AND demand_state='active' FOR SHARE",
+      [String(recSource.source_demand_id),customerId])).rows[0]??null;
+    }
+    const ownerId=String(a.current_owner_employee_id);
+    const recommenderId=recSource?String(recSource.recommender_employee_id):null;
+    const demandEmployee=currentDemand?String(currentDemand.responsible_employee_id):null;
+    const historicalRecommenderIsCurrent=recommenderId!==null&&
+      (recommenderId===ownerId||recommenderId===demandEmployee);
+    const choices=[];
+    if(historicalRecommenderIsCurrent)choices.push(recommenderId);
+    if(demandEmployee&&!choices.includes(demandEmployee))choices.push(demandEmployee);
+    if(!choices.includes(ownerId))choices.push(ownerId);
+    let assigneeId=null;
+    for(const candidate of choices){
+     const verified=(await c.query("SELECT p.assignee_employee_id "+
+      "FROM public.f05_catalog_consultation_actor_proof_test p "+
       "JOIN public.employees e ON e.employee_id=p.assignee_employee_id "+
       "JOIN public.roles r ON r.role_id=e.main_role_id "+
       "JOIN public.customer_phone_facts ph ON ph.customer_id=p.customer_id AND ph.ended_at IS NULL "+
@@ -86,23 +123,33 @@ export function createIsolatedConsultationService({pool,env=process.env}={}){
       "AND p.issuer='DISPOSABLE_TEST_ONLY' AND p.phone_consent_test=true AND p.worker_scope_test=true "+
       "AND p.expires_at>statement_timestamp() AND e.employment_status='active' "+
       "AND r.role_code IN ('sales','manager','store_head') LIMIT 1 FOR SHARE OF p,e,r,ph",
-      [customerId,String(a.current_owner_employee_id)])).rows[0];
-    if(!scope){await c.query('ROLLBACK');return answer(403,'CONSULTATION_PHONE_OR_ASSIGNEE_NOT_VERIFIED')}
+      [customerId,candidate])).rows[0];
+     if(verified){assigneeId=String(verified.assignee_employee_id);break}
+    }
+    if(assigneeId===null){
+     await c.query('ROLLBACK');return answer(403,'CONSULTATION_PHONE_OR_ASSIGNEE_NOT_VERIFIED');
+    }
     const cycle=(await c.query("SELECT cy.listing_cycle_id FROM public.vehicles v "+
       "JOIN public.vehicle_listing_cycles cy ON cy.vehicle_id=v.vehicle_id AND cy.ended_at IS NULL "+
       "JOIN public.f05_real_catalog_visibility_test vis ON vis.vehicle_id=v.vehicle_id AND vis.listing_cycle_id=cy.listing_cycle_id AND vis.source_type=v.source_type "+
-      "WHERE v.vehicle_id=$1 AND v.archived_at IS NULL AND v.platform_visibility='visible' "+
-      "AND vis.allow_anonymous=true AND vis.verified_isolation='DISPOSABLE_TEST_PROOF_NOT_SIGNED' "+
+      "WHERE v.vehicle_id=$1 AND v.archived_at IS NULL "+
+      "AND ((v.platform_visibility='visible' AND vis.allow_anonymous=true) "+
+      "OR ($2::boolean AND v.platform_visibility='hidden')) "+
+      "AND vis.verified_isolation='DISPOSABLE_TEST_PROOF_NOT_SIGNED' "+
       "AND vis.expires_at>statement_timestamp() "+
       "AND ((v.source_type='wholesale' AND v.source_sale_status='active') OR "+
       "(v.source_type IN ('mingbang','four_s') AND v.source_sale_status='available')) "+
       "AND NOT EXISTS(SELECT 1 FROM public.f05_real_catalog_protections_test pr "+
       "WHERE pr.vehicle_id=v.vehicle_id AND pr.listing_cycle_id=cy.listing_cycle_id AND pr.ended_at IS NULL) "+
-      "LIMIT 1 FOR SHARE OF v,cy,vis",[vehicleId])).rows[0];
+      "AND ($3::bigint IS NULL OR cy.listing_cycle_id=$3) "+
+      "LIMIT 1 FOR SHARE OF v,cy,vis",
+      [vehicleId,recSource!==null,recSource?String(recSource.listing_cycle_id):null])).rows[0];
     if(!cycle){await c.query('ROLLBACK');return answer(404,'CONSULTATION_VEHICLE_NOT_VISIBLE')}
     const cycleId=String(cycle.listing_cycle_id);
     // An old-cycle request key must never return or mutate a Consultation in a new cycle.
-    const payload=digest(JSON.stringify([customerId,vehicleId,cycleId,'DIRECT_VEHICLE_DETAIL']));
+    const sourceTag=recSource?['RECOMMENDATION',String(recSource.recommendation_id)]:
+     ['DIRECT_VEHICLE_DETAIL'];
+    const payload=digest(JSON.stringify([customerId,vehicleId,cycleId,...sourceTag]));
     const prior=(await c.query('SELECT * FROM public.f05_catalog_consultation_actions_test WHERE event_key=$1',[eventKey])).rows[0];
     if(prior){
      await c.query('ROLLBACK');
@@ -120,8 +167,12 @@ export function createIsolatedConsultationService({pool,env=process.env}={}){
      current=(await c.query("INSERT INTO public.consultations "+
       "(customer_id,vehicle_id,listing_cycle_id,assignee_employee_id,status,source_relation,first_response_deadline) "+
       "VALUES($1,$2,$3,$4,'pending',$5::jsonb,statement_timestamp()+interval '15 minutes') "+
-      "RETURNING consultation_id",[customerId,vehicleId,cycleId,String(a.current_owner_employee_id),
-      JSON.stringify({kind:'other',entry:'vehicle_detail',issuer:'DISPOSABLE_TEST_ONLY'})])).rows[0];
+      "RETURNING consultation_id",[customerId,vehicleId,cycleId,assigneeId,
+      JSON.stringify(recSource?{
+       kind:'recommendation',recommendationId:String(recSource.recommendation_id),
+       sourceDemandId:recSource.source_demand_id===null?null:String(recSource.source_demand_id),
+       issuer:'DISPOSABLE_TEST_ONLY'}:{
+       kind:'other',entry:'vehicle_detail',issuer:'DISPOSABLE_TEST_ONLY'})])).rows[0];
     }
     const id=String(current.consultation_id);
     await c.query("INSERT INTO public.f05_catalog_consultation_actions_test "+
