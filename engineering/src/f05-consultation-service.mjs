@@ -72,14 +72,27 @@ export function createIsolatedConsultationService({pool,env=process.env}={}){
     if(sourceRecommendationId!==null){
      // PDM-15: the *explicit* source must be CURRENT and customer-visible.
      // It is never selected by "latest rec" nor from client-claimed identity.
+     // PDM-14 END/VOID locks Vehicle FOR UPDATE *before* the Recommendation.
+     // Resolve only the vehicle locator without a Recommendation row lock,
+     // then lock Vehicle FOR SHARE before taking Recommendation FOR SHARE.
+     // This prevents rec-END vs consult-entry lock-order deadlocks.
+     const locator=(await c.query("SELECT vehicle_id FROM public.recommendations "+
+      "WHERE recommendation_id=$1 AND customer_id=$2",
+      [sourceRecommendationId,customerId])).rows[0];
+     if(!locator){await c.query('ROLLBACK');return answer(404,'CONSULTATION_RECOMMENDATION_NOT_AVAILABLE')}
+     vehicleId=String(locator.vehicle_id);
+     await c.query("SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR SHARE",[vehicleId]);
+     // Recheck under the Vehicle lock: a parallel END may have completed
+     // before we obtained it; never consume a stale Recommendation snapshot.
      recSource=(await c.query("SELECT r.recommendation_id,r.vehicle_id,r.listing_cycle_id,"+
       "r.recommender_employee_id,r.source_demand_id FROM public.recommendations r "+
       "JOIN public.f05_recommendation_safe_customer_test safe "+
       "ON safe.recommendation_id=r.recommendation_id AND safe.customer_id=$2 "+
       "WHERE r.recommendation_id=$1 AND r.customer_id=$2 AND r.status='active' "+
       "FOR SHARE OF r",[sourceRecommendationId,customerId])).rows[0];
-     if(!recSource){await c.query('ROLLBACK');return answer(404,'CONSULTATION_RECOMMENDATION_NOT_AVAILABLE')}
-     vehicleId=String(recSource.vehicle_id);
+     if(!recSource||String(recSource.vehicle_id)!==vehicleId){
+      await c.query('ROLLBACK');return answer(404,'CONSULTATION_RECOMMENDATION_NOT_AVAILABLE');
+     }
     }
     // Customer account restoration does not automatically release a held Consultation.
     // An active listing cycle with an open held Consultation cannot be touched/replayed.

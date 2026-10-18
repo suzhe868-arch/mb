@@ -103,10 +103,16 @@ try{
   const replay=await postRec(eventKey);
   assert.equal(replay.status,200);assert.equal(replay.body.code,'CONSULTATION_IDEMPOTENT_REPLAY');
   assert.equal(replay.body.consultationId,created.body.consultationId);
-  // Recommendation END never rewrites original Consultation history.
-  const ended=await recommendation.mutate({credential:employeeForRecommendation,action:'END',
-   customerId:'59001',vehicleId:'59020',listingCycleId:'59020',eventKey:key()});
+  // Competing END and a second Customer click must serialize on the physical
+  // Vehicle and Recommendation, never deadlock. Depending on who commits
+  // first, the click is either a valid touch or denied at source recheck.
+  const [ended,racingClick]=await Promise.all([
+   recommendation.mutate({credential:employeeForRecommendation,action:'END',
+    customerId:'59001',vehicleId:'59020',listingCycleId:'59020',eventKey:key()}),
+   postRec()
+  ]);
   assert.equal(ended.status,200,JSON.stringify(ended));
+  assert.ok([200,404].includes(racingClick.status),JSON.stringify(racingClick));
   assert.equal((await postRec()).status,404,
    'historical ended Recommendation cannot authorize a new entry');
   const after=(await writer.query("SELECT assignee_employee_id,source_relation,first_response_deadline "+
@@ -114,8 +120,9 @@ try{
   assert.equal(String(after.assignee_employee_id),'59003');
   assert.deepEqual(after.source_relation,row.source_relation);
   assert.equal(after.first_response_deadline.getTime(),row.first_response_deadline.getTime());
-  assert.equal((await writer.query("SELECT count(*)::int n FROM public.f05_catalog_consultation_actions_test "+
-   "WHERE consultation_id=$1",[created.body.consultationId])).rows[0].n,1);
+  const actionCount=(await writer.query("SELECT count(*)::int n FROM public.f05_catalog_consultation_actions_test "+
+   "WHERE consultation_id=$1",[created.body.consultationId])).rows[0].n;
+  assert.ok([1,2].includes(actionCount),'only the successful click can append a TOUCHED event');
   }finally{
    await writer.query("UPDATE public.f05_catalog_consultation_actor_proof_test SET assignee_employee_id=59001 WHERE customer_id=59001");
    await writer.query("DELETE FROM public.f05_find_car_level_entitlement_test WHERE level_id=59001");
