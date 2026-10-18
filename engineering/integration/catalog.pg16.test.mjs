@@ -125,6 +125,14 @@ try{
   await writer.query("UPDATE public.f05_real_catalog_visibility_test SET expires_at=statement_timestamp()-interval '1 minute' WHERE vehicle_id=$1 AND listing_cycle_id=$2",[cfg.vehicle,cfg.cycle]);
   assert.equal((await get(`/api/v1/catalog/vehicles/${cfg.vehicle}`)).status,404);
  });
+ await test('PG16 PDM20 unsupported sorts cannot silently claim sorted results',async()=>{
+  for(const sort of ['price_asc','price_desc','registration_year_desc','registration_year_asc','mileage_asc','mileage_desc']){
+   const r=await get(`/api/v1/catalog/vehicles?sort=${sort}`);
+   assert.equal(r.status,503,sort);
+   assert.equal(r.body.code,'CATALOG_SORT_DEPENDENCY_BLOCKED');
+  }
+  assert.equal((await get('/api/v1/catalog/vehicles?sort=oldest')).status,400);
+ });
  await test('malformed query cannot leak SQL information',async()=>{
   const {status,body}=await get('/api/v1/catalog/vehicles?source=wholesale%27%20OR%201%3D1');
   assert.equal(status,400);assert.equal(JSON.stringify(body).includes('database'),false);

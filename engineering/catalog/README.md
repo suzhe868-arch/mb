@@ -1,3 +1,11 @@
+# 2026-10-18｜PDM-20七排序接口整改（继续按A工作单）
+
+- 禁止旧候选`sort=oldest`冒充PDM-20正式排序；PDM-20只允许最新上架与价格双向、首次上牌年份双向、里程双向七类。服务端仅对已有真实时间来源的`sort=newest`返回成功。
+- 其他六项合法排序，在未具备真实客户展示价／首次上牌年份／里程物理事实前，**严格HTTP 503 CATALOG_SORT_DEPENDENCY_BLOCKED**，而非假排序或泄露价；单测和物理PG16都覆盖负例。
+- 这不是六类排序功能已交付，仍计F05业务缺口。真库证据以新SHA官方Run为准。
+
+---
+
 # 2026-10-18｜B最新同SHA官方真实验收与PR阻断（优先读此节）
 
 - 受测代码HEAD：`64dc9c4b28c4f379562366d8b2f32411749e4fab`；GitHub官方 [Run39099173163](https://github.com/suzhe868-arch/mb/actions/runs/39099173163)，`push/completed/success`，唯一`isolated_real_pg16` job。**Node真实HTTP＋注入式数据库单测54/54，物理PostgreSQL16双连接／事务／回滚／安全查询集成12/12，全部0失败0跳过。** 两组不是旧Source66项，不应合并口径。

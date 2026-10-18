@@ -6,7 +6,7 @@ import {randomBytes} from 'node:crypto';
 import {createServer} from 'node:http';
 import {
  createCatalogService, encodeCursor, decodeCursor,
- SQL_CATALOG_LIST, SQL_CATALOG_LIST_OLD, SQL_CATALOG_DETAIL,
+ SQL_CATALOG_LIST, SQL_CATALOG_DETAIL,
 } from '../src/catalog-service.mjs';
 import {createCatalogHandler} from '../src/catalog-http.mjs';
 import {createFoundationHandler} from '../src/app.mjs';
@@ -35,7 +35,6 @@ test('PostgreSQL temporal ordering retains six fractional digits end-to-end',asy
  assert.match(SQL_CATALOG_LIST,/to_char\(cy\.started_at AT TIME ZONE 'UTC'/);
  assert.match(SQL_CATALOG_LIST,/HH24:MI:SS\.US/);
  assert.match(SQL_CATALOG_LIST,/< \(\$2::timestamptz,\$3::bigint\)/);
- assert.match(SQL_CATALOG_LIST_OLD,/> \(\$2::timestamptz,\$3::bigint\)/);
  const captured=[];
  const pool=byRows((s,p)=>{captured.push({sql:s,params:p});return captured.length===1?Array.from({length:16},(_,k)=>row(k+1,at)):[row(17,at)]});
  const first=await request(pool,'/api/v1/catalog/vehicles');
@@ -47,15 +46,22 @@ test('PostgreSQL temporal ordering retains six fractional digits end-to-end',asy
  assert.equal(captured[1].params[1],at);assert.equal(captured[1].params[2],'1015');
  assert.equal(next.body.nextCursor,null);
 });
-test('real HTTP oldest SQL switches comparison and preserves exact source',async()=>{
- let queried;
- const r=await request(byRows((s,p)=>{queried=[s,p];return [row(7,'2026-10-15T09:00:00.123456Z','four_s')]}),'/api/v1/catalog/vehicles?source=four_s&sort=oldest');
- assert.equal(r.status,200);assert.equal(r.body.source,'four_s');assert.equal(r.body.sort,'oldest');
- assert.equal(queried[0],SQL_CATALOG_LIST_OLD);assert.equal(queried[1][0],'four_s');
+test('PDM-20 seven sorts: six unverified business projections fail closed; oldest is prohibited',async()=>{
+ const legal=['price_asc','price_desc','registration_year_desc','registration_year_asc','mileage_asc','mileage_desc'];
+ for(const sort of legal){
+  const r=await request(byRows(),`/api/v1/catalog/vehicles?sort=${sort}`);
+  assert.equal(r.status,503,sort);
+  assert.equal(r.body.code,'CATALOG_SORT_DEPENDENCY_BLOCKED');
+ }
+ const bad=await request(byRows(),'/api/v1/catalog/vehicles?sort=oldest');
+ assert.equal(bad.status,400);
+ assert.equal(bad.body.code,'INVALID_CATALOG_FILTER');
+ const newest=await request(byRows(),'/api/v1/catalog/vehicles?source=four_s&sort=newest');
+ assert.equal(newest.status,200);
 });
 test('large signed PostgreSQL bigint safely roundtrips without numeric coercion',async()=>{
  const id='9223372036854775807',ts='2026-10-15T09:00:00.123456Z';
- const tok=encodeCursor({at:ts,id,source:'mingbang',sort:'oldest'},secret);
+ const tok=encodeCursor({at:ts,id,source:'mingbang',sort:'newest'},secret);
  assert.equal(decodeCursor(tok,secret,'mingbang','oldest').id,id);
  const r=await request(byRows((s,p)=>[{
   ...row(8,ts,'mingbang'),vehicleId:id,listingCycleId:id,modelId:id,
@@ -88,9 +94,10 @@ for(const wrong of ['four_s','mingbang'])test(`cursor cross-channel ${wrong} den
  const r=await request(byRows(),`/api/v1/catalog/vehicles?source=${wrong}&cursor=${encodeURIComponent(cursor)}`);
  assert.equal(r.status,400);assert.equal(r.body.code,'INVALID_CURSOR');
 });
-test('cursor cross-order denied',async()=>{
+test('cursor cannot open unsupported sort with the newest cursor',async()=>{
  const cursor=encodeCursor({at:'2026-10-15T09:00:00.123456Z',id:'1001',source:'wholesale',sort:'newest'},secret);
- assert.equal((await request(byRows(),'/api/v1/catalog/vehicles?sort=oldest&cursor='+encodeURIComponent(cursor))).status,400);
+ const r=await request(byRows(),'/api/v1/catalog/vehicles?sort=price_desc&cursor='+encodeURIComponent(cursor));
+ assert.equal(r.status,503);assert.equal(r.body.code,'CATALOG_SORT_DEPENDENCY_BLOCKED');
 });
 test('cursor from different signing secret rejected',async()=>{
  const cursor=encodeCursor({at:'2026-10-15T09:00:00.123456Z',id:'1001',source:'wholesale',sort:'newest'},randomBytes(32));
@@ -119,7 +126,7 @@ test('detail never returns caller-controlled query-context price or priority gra
  assert.equal(bad.status,400);
 });
 test('SQL physically protects hidden, terminated cycles, and test-only proof TTL',()=>{
- for(const sql of [SQL_CATALOG_LIST,SQL_CATALOG_LIST_OLD,SQL_CATALOG_DETAIL]){
+ for(const sql of [SQL_CATALOG_LIST,SQL_CATALOG_DETAIL]){
   for(const expected of ['v.platform_visibility=\'visible\'','cy.ended_at IS NULL','v.archived_at IS NULL',
    'p.allow_anonymous=true','p.source_type=v.source_type',"p.verified_isolation='DISPOSABLE_TEST_PROOF_NOT_SIGNED'",
    'p.expires_at>statement_timestamp()','NOT EXISTS(SELECT 1 FROM public.f05_real_catalog_protections_test'])assert.ok(sql.includes(expected),expected);
@@ -160,7 +167,7 @@ test('multiple visible rows for same detail return 503, not arbitrary current cy
  assert.equal(r.status,503);assert.equal(r.body.code,'CATALOG_DEPENDENCY_NOT_READY');
 });
 test('SQL explicitly excludes a vehicle with two simultaneous current cycles',()=>{
- for(const sql of [SQL_CATALOG_LIST,SQL_CATALOG_LIST_OLD,SQL_CATALOG_DETAIL]){
+ for(const sql of [SQL_CATALOG_LIST,SQL_CATALOG_DETAIL]){
   assert.match(sql,/NOT EXISTS\(SELECT 1 FROM public\.vehicle_listing_cycles other/);
   assert.match(sql,/other\.ended_at IS NULL/);
  }

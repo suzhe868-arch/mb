@@ -2,7 +2,7 @@
 // Vehicle/Cycle AND a separate disposable test visibility proof. NOT production.
 import {createHmac, timingSafeEqual} from 'node:crypto';
 const ALLOWED_SOURCES=new Set(['wholesale','mingbang','four_s']);
-const ALLOWED_SORTS=new Set(['newest','oldest']);
+const ALLOWED_SORTS=new Set(['newest','price_asc','price_desc','registration_year_desc','registration_year_asc','mileage_asc','mileage_desc']);
 const DATE=/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,6})?(?:Z|[+-]\d\d:\d\d)$/;
 const POS=/^[1-9]\d{0,18}$/;
 const PG_BIGINT_MAX=9223372036854775807n;
@@ -29,7 +29,6 @@ export function decodeCursor(value,key,source,sort){
 const SQL_UTC_MICROSECONDS="to_char(cy.started_at AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"')";
 const BASE_SELECT=`SELECT v.vehicle_id AS "vehicleId",cy.listing_cycle_id AS "listingCycleId",v.source_type AS "source",${SQL_UTC_MICROSECONDS} AS "listingStartedAt",v.model_id AS "modelId" FROM public.vehicles v JOIN public.vehicle_listing_cycles cy ON cy.vehicle_id=v.vehicle_id JOIN public.f05_real_catalog_visibility_test p ON p.vehicle_id=v.vehicle_id AND p.listing_cycle_id=cy.listing_cycle_id AND p.source_type=v.source_type WHERE cy.ended_at IS NULL AND NOT EXISTS(SELECT 1 FROM public.vehicle_listing_cycles other WHERE other.vehicle_id=v.vehicle_id AND other.listing_cycle_id<>cy.listing_cycle_id AND other.ended_at IS NULL) AND v.archived_at IS NULL AND v.platform_visibility='visible' AND ((v.source_type='wholesale' AND v.source_sale_status='active') OR (v.source_type IN('mingbang','four_s') AND v.source_sale_status='available')) AND p.allow_anonymous=true AND p.verified_isolation='DISPOSABLE_TEST_PROOF_NOT_SIGNED' AND p.expires_at>statement_timestamp() AND NOT EXISTS(SELECT 1 FROM public.f05_real_catalog_protections_test pr WHERE pr.vehicle_id=v.vehicle_id AND pr.listing_cycle_id=cy.listing_cycle_id AND pr.ended_at IS NULL)`;
 export const SQL_CATALOG_LIST=BASE_SELECT+` AND v.source_type=$1 AND ($2::timestamptz IS NULL OR (cy.started_at,cy.listing_cycle_id) < ($2::timestamptz,$3::bigint)) ORDER BY cy.started_at DESC,cy.listing_cycle_id DESC LIMIT 16`;
-export const SQL_CATALOG_LIST_OLD=BASE_SELECT+` AND v.source_type=$1 AND ($2::timestamptz IS NULL OR (cy.started_at,cy.listing_cycle_id) > ($2::timestamptz,$3::bigint)) ORDER BY cy.started_at ASC,cy.listing_cycle_id ASC LIMIT 16`;
 export const SQL_CATALOG_DETAIL=BASE_SELECT+` AND v.vehicle_id=$1 LIMIT 2`;
 function safeItem(r){
  // Explicit property whitelist: SQL rows cannot put VIN / phone / internal prices into responses.
@@ -52,8 +51,11 @@ export function createCatalogService({pool,cursorKey}={}){
    if(params.pageSize!==undefined&&params.pageSize!=='15')return reject('INVALID_PAGE_SIZE');
    const source=params.source??'wholesale',sort=params.sort??'newest';
    if(!ALLOWED_SOURCES.has(source)||!ALLOWED_SORTS.has(sort))return reject('INVALID_CATALOG_FILTER');
+   // Six PDM-20 sorts require verified per-customer retail price, registration year or mileage.
+   // Returning another ordering as successful would violate the product contract.
+   if(sort!=='newest')return reject('CATALOG_SORT_DEPENDENCY_BLOCKED',503);
    let cur;try{cur=params.cursor?decodeCursor(params.cursor,cursorKey,source,sort):null}catch{return reject('INVALID_CURSOR')}
-   const sql=sort==='newest'?SQL_CATALOG_LIST:SQL_CATALOG_LIST_OLD;
+   const sql=SQL_CATALOG_LIST;
    const rows=(await pool.query(sql,[source,cur?.at??null,cur?.id??null])).rows;
    if(!Array.isArray(rows))throw Error('CATALOG_DB_ROWS_INVALID');
    const page=rows.slice(0,15).map(safeItem);
