@@ -28,7 +28,7 @@ test('PG16 full F05 test-only runtime assembles all required live handlers and s
   const body=await response.json();
   assert.equal(response.status,401);
   assert.equal(body.code,'DEMAND_IDENTITY_REQUIRED');
-  assert.equal(body.productionReady,undefined);
+  assert.equal(body.productionReady,false,'test-only service must never claim production readiness');
  }finally{
   if(server)await new Promise(resolve=>server.close(resolve));
   await runtime.close();
