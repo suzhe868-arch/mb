@@ -71,6 +71,8 @@ CREATE TABLE IF NOT EXISTS f06_real_lock_test.waitlist_sources (
  source_request_id BIGINT NOT NULL UNIQUE REFERENCES public.lock_requests(lock_request_id),
  responsible_employee_id BIGINT NOT NULL REFERENCES public.employees(employee_id),
  responsible_source TEXT NOT NULL CHECK(responsible_source IN ('recommendation','demand','owner')),
+ queue_created_at TIMESTAMPTZ NOT NULL,
+ queue_request_id BIGINT NOT NULL REFERENCES public.lock_requests(lock_request_id),
  created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()
 );
 CREATE TABLE IF NOT EXISTS f06_real_lock_test.events (
