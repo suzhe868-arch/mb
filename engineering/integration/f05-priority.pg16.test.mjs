@@ -7,7 +7,7 @@ import pg from 'pg';
 import {validateCatalogEnv,probeIsolatedCatalog} from '../src/catalog-readiness.mjs';
 import {createFoundationHandler} from '../src/app.mjs';
 import {createIsolatedMatchingService} from '../src/f05-matching-service.mjs';
-import {createIsolatedPriorityService} from '../src/f05-priority-service.mjs';
+import {createIsolatedPriorityService,candidatesSQL,firstStillQualifiedCandidate} from '../src/f05-priority-service.mjs';
 import {createIsolatedPriorityHandler} from '../src/f05-priority-http.mjs';
 import {SQL_CATALOG_DETAIL,SQL_CATALOG_LIST,SQL_CATALOG_STATS} from '../src/catalog-service.mjs';
 const env=validateCatalogEnv(),pool=new pg.Pool({connectionString:env.connectionString,max:7});
@@ -260,6 +260,35 @@ try{
   await db.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=62500");
   assert.equal(await count("SELECT count(*) n FROM public.f05_priority_safe_active_test "+
    "WHERE vehicle_id=62514"),0);
+ });
+ await test('PG16 stale Priority candidate is rejected after scope proof expires between discovery and final arbitration',async()=>{
+  await addVehicle(62516);
+  const calculated=await match(62501,62516,B);
+  assert.equal(calculated.status,200,JSON.stringify(calculated));
+  const frozen=(await db.query(candidatesSQL,['62516','62516'])).rows;
+  assert.ok(frozen.some(v=>String(v.customer_id)==='62501'),
+   'the source candidate was safe before its scope proof expired');
+  await db.query("UPDATE public.f05_priority_employee_scope_test "+
+   "SET expires_at=statement_timestamp()-interval '1 second' "+
+   "WHERE employee_id=62501 AND customer_id=62501");
+  const after=await firstStillQualifiedCandidate(db,frozen);
+  assert.equal(after,null,
+   'a frozen candidate must be revalidated after final qualification/proof checks');
+  assert.equal(await count("SELECT count(*) n FROM public.priority_leases "+
+   "WHERE vehicle_id=62516 AND status='active'"),0);
+  // The first proof is restored so the stronger second guard can be exercised:
+  // source Match evidence itself must still be current.
+  await db.query("UPDATE public.f05_priority_employee_scope_test "+
+   "SET expires_at=statement_timestamp()+interval '20 minutes' "+
+   "WHERE employee_id=62501 AND customer_id=62501");
+  await db.query("UPDATE public.f05_matching_employee_scope_test "+
+   "SET expires_at=statement_timestamp()-interval '1 second' "+
+   "WHERE employee_id=62501 AND customer_id=62501");
+  assert.equal(await count("SELECT count(*) n FROM public.f05_matching_safe_current_test "+
+   "WHERE vehicle_id=62516"),0);
+  const afterSourceLoss=await firstStillQualifiedCandidate(db,frozen);
+  assert.equal(afterSourceLoss,null,
+   'a new Priority cannot consume an old Match result with expired Employee source scope');
  });
  await test('append-only audit cannot be erased; Priority release cannot create Recommendation or grant',async()=>{
   await assert.rejects(db.query("DELETE FROM public.f05_priority_events_test WHERE vehicle_id=62510"),e=>e.code==='23514');

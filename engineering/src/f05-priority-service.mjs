@@ -52,7 +52,17 @@ export async function firstStillQualifiedCandidate(db,candidates){
    "WHERE q.customer_id=$1 AND q.enabled=true AND q.issuer='DISPOSABLE_TEST_ONLY' "+
    "AND q.expires_at>statement_timestamp() FOR SHARE OF q",
    [String(candidate.customer_id)])).rows[0];
-  if(current)return candidate;
+  if(!current)continue;
+  // Candidate lists are a READ COMMITTED snapshot. The Customer, Demand,
+  // Employee scope or source evidence may have become stale while waiting
+  // for a qualification lock. Never issue a new exclusive Priority from
+  // that old snapshot; recheck the exact frozen Match result in PG16.
+  const stillSafe=(await db.query(
+   "SELECT 1 FROM public.f05_matching_safe_current_test m "+
+   "WHERE m.result_id=$1 AND m.demand_id=$2 "+
+   "AND m.match_tier IN ('high','acceptable')",
+   [String(candidate.result_id),String(candidate.demand_id)])).rows[0];
+  if(stillSafe)return candidate;
  }
  return null;
 }
