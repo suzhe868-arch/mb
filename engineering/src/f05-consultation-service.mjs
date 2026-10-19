@@ -107,6 +107,15 @@ export function createIsolatedConsultationService({pool,env=process.env}={}){
     await c.query('SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))',['F05_CONSULTATION_EVENT',eventKey]);
     await c.query('SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))',[customerId,vehicleId]);
     if(a.owner_assignment_state!=='assigned'||!validId(String(a.current_owner_employee_id))){await c.query('ROLLBACK');return answer(409,'CONSULTATION_OWNER_NOT_READY')}
+    // PDM15 §11: the existence of a legitimate Demand responsible cannot
+    // bypass an invalid current Customer Owner. PDM17 must first establish a
+    // legally assigned Owner before new Consultation can be created/touched.
+    const ownerLive=(await c.query("SELECT 1 FROM public.employees e "+
+     "JOIN public.roles role ON role.role_id=e.main_role_id "+
+     "WHERE e.employee_id=$1 AND e.employment_status='active' "+
+     "AND role.role_code IN ('sales','manager','store_head') FOR SHARE OF e,role",
+     [String(a.current_owner_employee_id)])).rows[0];
+    if(!ownerLive){await c.query('ROLLBACK');return answer(403,'CONSULTATION_PHONE_OR_ASSIGNEE_NOT_VERIFIED')}
     // Validate the vehicle and listing visibility BEFORE considering the
     // independent Employee/phone/assignee scope. An inaccessible hidden or
     // non-saleable vehicle must not yield a different response just because
@@ -181,12 +190,7 @@ export function createIsolatedConsultationService({pool,env=process.env}={}){
      // as Owner. Use only a separately proven accepting employee for fallback.
      // A historical or inactive Owner is NOT proof of a legitimate owner
      // assignment; PDM17 must repair that first.
-     const legitimateOwner=(await c.query(
-      "SELECT 1 FROM public.employees e JOIN public.roles r ON r.role_id=e.main_role_id "+
-      "WHERE e.employee_id=$1 AND e.employment_status='active' "+
-      "AND r.role_code IN ('sales','manager','store_head') FOR SHARE OF e,r",
-      [ownerId])).rows[0];
-     if(legitimateOwner){
+     {
       const receiving=(await c.query(
        "SELECT p.assignee_employee_id FROM public.f05_catalog_consultation_actor_proof_test p "+
        "JOIN public.employees e ON e.employee_id=p.assignee_employee_id "+

@@ -224,6 +224,24 @@ try{
   // The isolated proof is one row per Customer: switch from Owner to the
   // independent Demand responsible only after testing the public entry.
   await writer.query("UPDATE public.f05_catalog_consultation_actor_proof_test SET assignee_employee_id=59003 WHERE customer_id=59001");
+  // The recommendation's active Demand responsible is authorized, but
+  // must not launder a Customer whose separate Owner is 4S/inactive.
+  await writer.query("UPDATE public.customers SET current_owner_employee_id=59002 WHERE customer_id=59001");
+  try{
+   const illegalFourS=await postRec(key());
+   assert.equal(illegalFourS.status,403,JSON.stringify(illegalFourS));
+   assert.equal((await writer.query("SELECT count(*)::int n FROM public.consultations WHERE vehicle_id=59020")).rows[0].n,0);
+  }finally{
+   await writer.query("UPDATE public.customers SET current_owner_employee_id=59001 WHERE customer_id=59001");
+  }
+  await writer.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=59001");
+  try{
+   const inactiveOwner=await postRec(key());
+   assert.equal(inactiveOwner.status,403,JSON.stringify(inactiveOwner));
+   assert.equal((await writer.query("SELECT count(*)::int n FROM public.consultations WHERE vehicle_id=59020")).rows[0].n,0);
+  }finally{
+   await writer.query("UPDATE public.employees SET employment_status='active' WHERE employee_id=59001");
+  }
   const eventKey=key();
   const created=await postRec(eventKey);
   assert.equal(created.status,200,JSON.stringify(created));
