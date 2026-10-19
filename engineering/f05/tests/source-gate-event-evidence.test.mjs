@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {validatePullRequestEvidence} from '../source-gate-event-evidence.mjs';
+import {validatePullRequestEvidence,validateOfficialMainPushContext} from '../source-gate-event-evidence.mjs';
 
 const env={
  GITHUB_REPOSITORY:'suzhe868-arch/mb',GITHUB_EVENT_NAME:'pull_request',
@@ -45,3 +45,24 @@ reject('reject failed HTTPS peer',{jobs:[jobs[0],{...jobs[1],conclusion:'failure
 reject('reject skipped HTTPS peer',{jobs:[jobs[0],{...jobs[1],conclusion:'skipped'}]},'PEER_JOB_NOT_SUCCESS');
 reject('reject source job already completed',{jobs:[{...jobs[0],status:'completed',conclusion:'success'},jobs[1]]},'SOURCE_JOB_NOT_CURRENTLY_RUNNING');
 reject('reject duplicate job names',{jobs:[jobs[0],{...jobs[1],name:jobs[0].name}]},'JOB_NAMES_INVALID');
+
+const pushEnv={GITHUB_REPOSITORY:'suzhe868-arch/mb',GITHUB_EVENT_NAME:'push',
+ GITHUB_REF:'refs/heads/main',GITHUB_SHA:'d'.repeat(40),GITHUB_RUN_ID:'9876',GITHUB_RUN_ATTEMPT:'2'};
+const pushEvent={repository:{full_name:'suzhe868-arch/mb'},ref:'refs/heads/main'};
+const pushRun={id:9876,run_attempt:2,event:'push',head_sha:pushEnv.GITHUB_SHA,
+ path:'.github/workflows/f05-9-recommendation-visibility-grants.yml',status:'in_progress'};
+test('main push mode accepts only exact official main push context',()=>{
+ const result=validateOfficialMainPushContext({event:pushEvent,env:pushEnv,run:pushRun,workflowPath:pushRun.path});
+ assert.equal(result.verification_mode,'official_main_push');
+ assert.equal(result.ref,'refs/heads/main');
+ assert.equal(result.formal_source_signed,false);
+ assert.equal(result.production_ready,false);
+});
+test('main push mode rejects pull_request evidence',()=>assert.throws(()=>
+ validateOfficialMainPushContext({event,env,run,jobs,workflowPath:run.path}),/NOT_OFFICIAL_MAIN_PUSH/));
+test('main push mode rejects wrong branch',()=>assert.throws(()=>
+ validateOfficialMainPushContext({event:{...pushEvent,ref:'refs/heads/feature'},env:{...pushEnv,GITHUB_REF:'refs/heads/feature'},run:pushRun,workflowPath:pushRun.path}),/NOT_OFFICIAL_MAIN_PUSH/));
+test('main push mode rejects SHA mismatch',()=>assert.throws(()=>
+ validateOfficialMainPushContext({event:pushEvent,env:pushEnv,run:{...pushRun,head_sha:'e'.repeat(40)},workflowPath:pushRun.path}),/RUN_SHA_MISMATCH/));
+test('main push mode rejects workflow path mismatch',()=>assert.throws(()=>
+ validateOfficialMainPushContext({event:pushEvent,env:pushEnv,run:pushRun,workflowPath:'.github/workflows/wrong.yml'}),/RUN_CONTEXT_MISMATCH/));
