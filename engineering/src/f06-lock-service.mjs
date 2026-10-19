@@ -186,8 +186,8 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     VALUES($1,$2,$3,$4,$5,$6,$7,NULL) RETURNING waitlist_id`,
     [id,req.customer_id,req.vehicle_id,req.listing_cycle_id,req.lock_request_id,activeLockId,responsible.employeeId]);
    await db.query(`INSERT INTO ${LOCK_SCHEMA}.waitlist_sources
-    (waitlist_id,source_request_id,responsible_employee_id,responsible_source)
-    VALUES($1,$2,$3,$4)`,[wait.waitlist_id,req.lock_request_id,responsible.employeeId,responsible.source]);
+    (waitlist_id,source_request_id,responsible_employee_id,responsible_source,queue_created_at,queue_request_id)
+    VALUES($1,$2,$3,$4,$5,$6)`,[wait.waitlist_id,req.lock_request_id,responsible.employeeId,responsible.source,req.created_at,req.lock_request_id]);
   }
   await finish(db,req,'lock_conflict',{waitId:wait.waitlist_id});
   return {requestId:String(req.lock_request_id),status:'lock_conflict',waitlistId:String(wait.waitlist_id)};
@@ -216,6 +216,12 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
         !await currentOwner(db,who.current_owner_employee_id))return denied('LOCK_REPLAY_IDENTITY_REVOKED');
      return response(200,'LOCK_REQUEST_REPLAY',{requestId:String(old.request_id),state:old.status});
     }
+    // A Priority-origin Lock is exclusively visible to its owner; deny before the occupied status leaks.
+    const hiddenLock=await first(db,`SELECT 1 FROM public.locks l
+     JOIN ${LOCK_SCHEMA}.lock_snapshots s ON s.lock_id=l.lock_id
+     WHERE l.vehicle_id=$1 AND l.lock_status='active'
+       AND s.priority_origin_id IS NOT NULL AND l.customer_id<>$2 LIMIT 1`,[vehicleId,who.customer_id]);
+    if(hiddenLock)return response(404,'LOCK_REQUEST_NOT_VISIBLE');
     const f=await facts(db,who.customer_id,vehicleId,listingCycleId,{lockedVehicle:vehicle});
     if(f.error)return denied(f.error);
     const pending=(await db.query(`SELECT * FROM public.lock_requests
@@ -267,7 +273,8 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
       WHERE key_sha256=$1 FOR SHARE`,[key]);
     if(prior){
      if(prior.payload_sha256!==payload)return response(409,'LOCK_DECISION_IDEMPOTENCY_COLLISION');
-     return response(200,'LOCK_DECISION_REPLAY',{result:prior.result_json});
+     // An exact replay preserves the original public JSON result, rather than nesting it.
+     return {status:200,body:prior.result_json};
     }
     let result;
     if(req.status!=='pending')result=response(200,'LOCK_REQUEST_TERMINAL',{requestId,state:req.status});
@@ -353,7 +360,7 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
       FROM public.locks l LEFT JOIN ${LOCK_SCHEMA}.lock_snapshots s ON s.lock_id=l.lock_id
       WHERE l.vehicle_id=$1 AND l.lock_status='active' ORDER BY l.lock_id LIMIT 1 FOR SHARE OF l`,[req.vehicle_id]);
     if(p.other||(lock?.priority_origin_id&&String(lock.customer_id)!==String(who.customer_id)))
-     return denied('OTHER_CUSTOMER_PRIORITY_LOCK_HIDDEN');
+     return response(404,'LOCK_REQUEST_NOT_VISIBLE');
     return response(200,'LOCK_CUSTOMER_SAFE_STATUS',{requestId,status:req.status,
      vehicleId:String(req.vehicle_id),lockStatus:lock?'locked':'available',
      ownLock:!!lock&&String(lock.customer_id)===String(who.customer_id)});
