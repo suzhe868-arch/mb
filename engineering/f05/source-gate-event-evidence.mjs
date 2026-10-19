@@ -5,6 +5,18 @@ import {resolve} from 'node:path';
 
 const SHA=/^[a-f0-9]{40}$/;
 const own=(v)=>v&&typeof v==='object'&&!Array.isArray(v);
+export function validateOfficialMainPushContext({event,env,run,workflowPath}){
+ const fail=(code)=>{throw Error('SOURCE_GATE_PUSH_EVIDENCE_'+code)};
+ if(env.GITHUB_REPOSITORY!=='suzhe868-arch/mb'||event?.repository?.full_name!=='suzhe868-arch/mb')fail('REPOSITORY_MISMATCH');
+ if(env.GITHUB_EVENT_NAME!=='push'||run?.event!=='push'||event?.ref!=='refs/heads/main'||env.GITHUB_REF!=='refs/heads/main')fail('NOT_OFFICIAL_MAIN_PUSH');
+ if(!/^[a-f0-9]{40}$/.test(env.GITHUB_SHA||'')||run.head_sha!==env.GITHUB_SHA)fail('RUN_SHA_MISMATCH');
+ if(!Number.isSafeInteger(Number(env.GITHUB_RUN_ID))||Number(env.GITHUB_RUN_ID)!==run.id)fail('RUN_ID_MISMATCH');
+ if(!Number.isSafeInteger(Number(env.GITHUB_RUN_ATTEMPT))||Number(env.GITHUB_RUN_ATTEMPT)!==run.run_attempt)fail('RUN_ATTEMPT_MISMATCH');
+ if(run.path!==workflowPath||run.status!=='in_progress')fail('RUN_CONTEXT_MISMATCH');
+ return {verification_mode:'official_main_push',repository:env.GITHUB_REPOSITORY,event_name:'push',
+  ref:event.ref,head_sha:env.GITHUB_SHA,run_id:run.id,run_attempt:run.run_attempt,
+  workflow_path:run.path,formal_source_signed:false,production_ready:false};
+}
 export function validatePullRequestEvidence({event,env,run,jobs,workflowPath,sourceJobName,expectedJobs}){
  const fail=(code)=>{throw Error('SOURCE_GATE_PR_EVIDENCE_'+code)};
  if(env.GITHUB_REPOSITORY!=='suzhe868-arch/mb'||event?.repository?.full_name!=='suzhe868-arch/mb')fail('REPOSITORY_MISMATCH');
