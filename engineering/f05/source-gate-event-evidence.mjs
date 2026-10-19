@@ -17,7 +17,7 @@ export function validateOfficialMainPushContext({event,env,run,workflowPath}){
   ref:event.ref,head_sha:env.GITHUB_SHA,run_id:run.id,run_attempt:run.run_attempt,
   workflow_path:run.path,formal_source_signed:false,production_ready:false};
 }
-export function validatePullRequestEvidence({event,env,run,jobs,workflowPath,sourceJobName,expectedJobs}){
+export function validatePullRequestEvidence({event,env,run,jobs,workflowPath,sourceJobName,expectedJobs,artifactNames=[],artifacts=[]}){
  const fail=(code)=>{throw Error('SOURCE_GATE_PR_EVIDENCE_'+code)};
  if(env.GITHUB_REPOSITORY!=='suzhe868-arch/mb'||event?.repository?.full_name!=='suzhe868-arch/mb')fail('REPOSITORY_MISMATCH');
  if(env.GITHUB_EVENT_NAME!=='pull_request'||run?.event!=='pull_request')fail('EVENT_TYPE_MISMATCH');
@@ -34,6 +34,15 @@ export function validatePullRequestEvidence({event,env,run,jobs,workflowPath,sou
  if(named.length!==expectedJobs||new Set(named.map(j=>j.name)).size!==expectedJobs)fail('JOB_NAMES_INVALID');
  const ownJobs=named.filter(j=>j.name===sourceJobName);
  if(ownJobs.length!==1||ownJobs[0].status!=='in_progress'||ownJobs[0].conclusion!=null)fail('SOURCE_JOB_NOT_CURRENTLY_RUNNING');
+ const byName=new Map(artifacts.map(a=>[a.name,a]));
+ if(new Set(artifacts.map(a=>a.name)).size!==artifacts.length)fail('DUPLICATE_ARTIFACT_NAMES');
+ const verifiedArtifacts=[];
+ for(const name of artifactNames){
+  const artifact=byName.get(name);
+  if(!artifact||artifact.expired===true||!Number.isSafeInteger(artifact.size_in_bytes)||artifact.size_in_bytes<1)fail('PEER_ARTIFACT_MISSING_'+name.replace(/[^A-Za-z0-9_-]/g,'_'));
+  if(!/^sha256:[a-f0-9]{64}$/.test(artifact.digest||''))fail('PEER_ARTIFACT_DIGEST_INVALID_'+name.replace(/[^A-Za-z0-9_-]/g,'_'));
+  verifiedArtifacts.push({name:artifact.name,digest:artifact.digest,size_in_bytes:artifact.size_in_bytes,expired:artifact.expired});
+ }
  const others=named.filter(j=>j.name!==sourceJobName);
  if(others.length!==expectedJobs-1)fail('EXPECTED_JOB_SET_MISMATCH');
  for(const job of others){
@@ -56,6 +65,7 @@ export function validatePullRequestEvidence({event,env,run,jobs,workflowPath,sou
   source_job_name:sourceJobName,
   source_job_state:'in_progress_until_evidence_upload_and_job_exit',
   peer_jobs:named.filter(j=>j.name!==sourceJobName).map(j=>({name:j.name,status:j.status,conclusion:j.conclusion})),
+  verified_peer_artifacts:verifiedArtifacts,
   failed_jobs:0,
   skipped_jobs:0,
   old_push_evidence_applicability:'not_applicable_to_pull_request_event; no claim that old push jobs passed',
@@ -85,7 +95,7 @@ export async function verifyCurrentOfficialMainPush({workflowPath,artifactDirect
  console.log('SOURCE_GATE_OFFICIAL_MAIN_PUSH_CONTEXT',JSON.stringify(evidence));
  return evidence;
 }
-export async function verifyCurrentPullRequestRun({workflowPath,sourceJobName,expectedJobs,artifactDirectory}){
+export async function verifyCurrentPullRequestRun({workflowPath,sourceJobName,expectedJobs,artifactNames,artifactDirectory}){
  const env=process.env;
  if(env.GITHUB_EVENT_NAME!=='pull_request')throw Error('SOURCE_GATE_PR_EVIDENCE_WRONG_DISPATCH');
  if(env.CI!=='true'||env.GITHUB_ACTIONS!=='true'||env.GITHUB_REPOSITORY!=='suzhe868-arch/mb')
@@ -94,8 +104,13 @@ export async function verifyCurrentPullRequestRun({workflowPath,sourceJobName,ex
  const event=JSON.parse(await (await import('node:fs/promises')).readFile(env.GITHUB_EVENT_PATH,'utf8'));
  const repo=env.GITHUB_REPOSITORY;
  const run=await api(repo,'/actions/runs/'+env.GITHUB_RUN_ID,env.GH_ACTIONS_READ_TOKEN);
+ const pull=await api(repo,'/pulls/'+event.pull_request?.number,env.GH_ACTIONS_READ_TOKEN);
+ if(pull.state!=='open'||pull.base?.ref!=='main'||pull.head?.sha!==event.pull_request?.head?.sha||
+   pull.head?.repo?.full_name!=='suzhe868-arch/mb')throw Error('SOURCE_GATE_PR_EVIDENCE_LIVE_PR_CONTEXT_MISMATCH');
  const jobData=await api(repo,'/actions/runs/'+env.GITHUB_RUN_ID+'/jobs?per_page=100',env.GH_ACTIONS_READ_TOKEN);
- const evidence=validatePullRequestEvidence({event,env,run,jobs:jobData.jobs||[],workflowPath,sourceJobName,expectedJobs});
+ const artifactData=await api(repo,'/actions/runs/'+env.GITHUB_RUN_ID+'/artifacts?per_page=100',env.GH_ACTIONS_READ_TOKEN);
+ const evidence=validatePullRequestEvidence({event,env,run,jobs:jobData.jobs||[],workflowPath,sourceJobName,expectedJobs,
+  artifactNames:artifactNames||[],artifacts:artifactData.artifacts||[]});
  if(jobData.total_count!==expectedJobs)throw Error('SOURCE_GATE_PR_EVIDENCE_API_JOB_TOTAL_MISMATCH');
  const dir=resolve(process.cwd(),artifactDirectory);
  await mkdir(dir,{recursive:true});
