@@ -99,7 +99,7 @@ export function createIsolatedF06LockLifecycleService({pool,env=process.env,afte
    if(customer.account_status!=='active')return {deny:response(409,'CUSTOMER_INACTIVE_MANUAL_MUTATION_DENIED')};
    if(customer.owner_assignment_state!=='assigned'||!await currentOwner(db,customer.current_owner_employee_id))return {deny:response(409,'CUSTOMER_OWNER_UNVERIFIED')};
   }
-  if(action==='extend'&&(cycle.ended_at||vehicle.archived_at||!saleable(vehicle)))return {deny:response(409,'LOCK_SOURCE_OR_CYCLE_NOT_CURRENT')};
+  if((action==='extend'||action==='expire')&&(cycle.ended_at||vehicle.archived_at||!saleable(vehicle)))return {deny:response(409,'LOCK_SOURCE_OR_CYCLE_NOT_CURRENT')};
   return {snapshot:snap,customer,cycle,vehicle};
  }
  async function financeGuard(db,lock){
@@ -113,7 +113,8 @@ export function createIsolatedF06LockLifecycleService({pool,env=process.env,afte
   const p=await first(db,`SELECT proof_kind,issuer,synthetic_only,evidence_sha256 FROM ${LOCK_SCHEMA}.lock_lifecycle_finance_proofs WHERE lock_id=$1 FOR SHARE`,[lock.lock_id]);
   if(!p||p.issuer!=='DISPOSABLE_TEST_ONLY'||p.synthetic_only!==true||p.proof_kind==='unknown')return {ok:false,result:response(409,'LOCK_FINANCIAL_SOURCE_UNKNOWN_DENY')};
   if(p.proof_kind==='present')return {ok:false,result:response(409,'LOCK_FINANCIAL_FACT_PRESENT_DENY')};
-  if(p.proof_kind!=='synthetic_absence_confirmed'||!/^[a-f0-9]{64}$/.test(p.evidence_sha256||''))return {ok:false,result:response(409,'LOCK_FINANCIAL_SOURCE_UNKNOWN_DENY')};
+  const expectedAbsenceEvidence=sha(JSON.stringify({issuer:'DISPOSABLE_TEST_ONLY',lockId:String(lock.lock_id),kind:'absent',observedReceipt:false,observedTransaction:false,source:'isolated-pg16-fixture'}));
+  if(p.proof_kind!=='synthetic_absence_confirmed'||p.evidence_sha256!==expectedAbsenceEvidence)return {ok:false,result:response(409,'LOCK_FINANCIAL_SOURCE_UNKNOWN_DENY')};
   return {ok:true};
  }
  async function activeLockIsUnique(db,lock){
