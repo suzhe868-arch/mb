@@ -1,4 +1,38 @@
-# 2026-10-20｜A主控第二轮独立复验：R2通过，R1仍有handoff链尾快路径绕过，继续退回B
+# 2026-10-20｜当前下一动作：B实施F06真实Deposit台账HTTP与PG16非生产纵切
+
+- **唯一正式状态来源：** 最新main `3f8a92d59a658fd486c43c31cebd4c01a03b4421`
+- **当前任务：** `F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01`
+- **下一责任：** `B`
+- **工作分支：** `feat/f06-real-deposit-ledger-http-pg16-01`
+- **Issue：** [#132](https://github.com/suzhe868-arch/mb/issues/132)
+- **正式施工单：** `07_重建工作区/F06真实Deposit台账HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md`
+
+## 已完成的上一任务
+
+F06普通Lock生命周期R1/R2已由A独立验收并通过标准PR #131合并。B最终HEAD `ee3dd1c08b32ea55971a56732098c52cdff1ade1` 同SHA官方Run #39306159971 / Job #118243671999成功；PR自然触发10个工作流、28/28 Jobs成功；Issue #130已关闭。合法handoff正向PG16 fixture缺失的限制继续保留，不得宣称真实正向端到端已验证。
+
+F06-5B PR #61已由A接受并合并；旧F06-3B直接入口仍不可信，不能将5B CI-only守卫误称为旧入口已修复。
+
+## B本轮必须完成
+
+1. 从执行时最新main建立指定分支，只新增施工单允许的两个路径。
+2. 首次Push前核验全部现有Workflow触发路径，确保不触发F05旧工作流扇出；不能证明时先报告A，不得盲目Push。
+3. 完成真实HTTP+非特权PG16非生产合成Deposit记录、Correction/Reversal、幂等、权限Scope、并发、回滚与Lock资金保护。
+4. 同一最终HEAD通过施工单列出的Node、PG16、HTTP/TLS与父表Seal门槛；失败/跳过/取消均为0。
+5. 不上传Artifact、不用付费Runner/缓存；新增付费预算`$0`。
+6. 提交完整中文B交接报告，标记`READY_FOR_A_REVIEW / NEXT_OWNER=A`。B不得创建PR或合并main；由A独立验收并决定PR出口。
+
+## 不得越界
+
+不接真实支付/收款/退款，不写真实资金；不做真实Transaction或`refunded`；不修改旧F06-3A/3B/3C/5B/5C、公共DDL/M94、既有Workflow、PDM Final、`engineering/src/**`、`engineering/scripts/**`、`engineering/sql/**`、C端或生产路由。F06/F07/F08与V1整体仍`NOT_READY`。
+
+---
+
+> 以下为历史行动记录；原始记录保留，但已由当前动作取代。
+
+---
+
+# 历史行动记录｜2026-10-20 A主控第二轮独立复验（任务已完成，见当前行动）
 
 - **当前正式状态：** `A_CHANGES_REQUESTED_R1_CHAIN_TAIL_FAST_PATH / B_NOT_READY_FOR_ACCEPTANCE / NO_PR_YET / NEXT_OWNER=B`。
 - **B分支与最终报告HEAD：** `feat/f06-real-lock-lifecycle-http-pg16-02`；`95cdca9fe37e53702e9e5758252a33c052422d1b`。B已普通合并A上一轮main治理提交，无强推/重置；本轮审查时ahead 13 / behind 0。

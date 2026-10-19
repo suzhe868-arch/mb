@@ -7269,7 +7269,7 @@
     "merge_sha": "e11e93bae1f6bc74757fea98b3c079d9ecf01e7a"
   },
   "f06_gate": {
-    "status": "F06_5C_A_ACCEPTED_PR62_MERGED_CI_ONLY_F06_GLOBAL_NOT_READY",
+    "status": "F06_REAL_LOCKREQUEST_PR129_AND_LOCK_LIFECYCLE_PR131_MERGED_NONPRODUCTION_F06_GLOBAL_NOT_READY",
     "release_authorized": false,
     "production": false,
     "financial_operations_authorized": false,
@@ -7284,7 +7284,12 @@
     "upstream_blocker": "UPSTREAM_F06_3B_LOCK_PENDING_TRANSACTION_CONVERSION_GAP",
     "old_f06_3b_transaction_open_safe": false,
     "global_not_ready": true,
-    "latest_ci_subpackage": "F06_5C_PR62"
+    "latest_ci_subpackage": "F06_5C_PR62",
+    "latest_nonproduction_business_slice": "F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02",
+    "latest_nonproduction_business_pr": 131,
+    "latest_nonproduction_business_merge_sha": "3f8a92d59a658fd486c43c31cebd4c01a03b4421",
+    "next_owner": "B",
+    "next_task": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01"
   },
   "f06_1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
@@ -7847,12 +7852,12 @@
     "production_refund_permission_source_gap": true
   },
   "f06_5b_gate": {
-    "status": "A_RELEASED_FOR_B_CI_ONLY",
-    "owner": "B",
+    "status": "A_ACCEPTED_CI_ONLY_STANDARD_MERGED_PR61",
+    "owner": "A_ACCEPTED_CI_ONLY",
     "next_owner": "B",
     "branch": "feat/f06-5b-lock-refund-conversion-guard-ci",
     "work_order": "07_重建工作区/F06-5B_A主控旧Lock待退款禁止Transaction转换原子前置守卫_CI隔离完整施工单_2026-10-14.md",
-    "pr": null,
+    "pr": 61,
     "source_authority": [
       "PDM-19 Final §§19-26",
       "PDM-18 Final",
@@ -7882,7 +7887,20 @@
     "technical_upstream_gap": "UPSTREAM_F06_3B_LOCK_PENDING_TRANSACTION_CONVERSION_GAP",
     "after_b_selftest": "READY_FOR_A_INDEPENDENT_REVIEW",
     "b_cannot_merge": true,
-    "global_not_ready": true
+    "global_not_ready": true,
+    "pr_merged": true,
+    "merge_sha": "1a9b87a2e109190fff0380bbe85e7702a95dcd5e",
+    "b_final_head_sha": "c7ab2336a425075b4ac4cfaf7203e2987deab98a",
+    "a_review_result": "A_ACCEPTED_CI_ONLY",
+    "a_review_comment": "https://github.com/suzhe868-arch/mb/pull/61#issuecomment-6166703241",
+    "a_review_report": "07_重建工作区/F06-5B_A主控独立验收21条Push94项PG16与94工件_PR61标准合并正式报告_2026-10-14.md",
+    "a_verified_push_workflows": 21,
+    "a_verified_pg16_jobs": 94,
+    "a_verified_h52_jobs": 52,
+    "a_verified_source_tests": 54,
+    "a_verified_https_tests": 9,
+    "a_valid_same_sha_artifacts": 94,
+    "a_verified_old_parent_tables": 188
   },
   "f06_5c_gate": {
     "status": "A_ACCEPTED_STANDARD_MERGED_PR62_CI_ONLY",
@@ -7951,7 +7969,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02_R1_CHAIN_TAIL_REMEDIATION",
+  "next_task": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9626,7 +9644,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F06普通Lock延期释放到期与资金未知硬拒_真实业务HTTP和PG16_A主控B正式施工单_2026-10-19.md",
+  "next_work_file": "07_重建工作区/F06真实Deposit台账HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -9835,7 +9853,7 @@
   },
   "f06_real_lock_http_first_slice": {
     "task_id": "F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16_01",
-    "status": "A_REACTIVATED_AFTER_F05_NONPRODUCTION_ACCEPTANCE",
+    "status": "A_ACCEPTED_NONPRODUCTION_HTTP_PG16_PR129_STANDARD_MERGED_ISSUE128_CLOSED",
     "owner": "B",
     "review_owner": "A",
     "branch": "feat/f06-real-lockrequest-http-pg16-01",
@@ -9853,7 +9871,10 @@
     "a_review_after_f05": "PASS_TO_REACTIVATE_EXISTING_SCOPE",
     "existing_ci_only_service_confirmed": true,
     "existing_fixed_push_branch_guard_confirmed": true,
-    "production_route_missing_confirmed": true
+    "production_route_missing_confirmed": true,
+    "pr": 129,
+    "pr_merged": true,
+    "merge_sha": "c3fa09646e10c9f0392c62ee1f35f56668b25494"
   },
   "f05_real_delivery_closeout_priority": {
     "task_id": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
@@ -9919,8 +9940,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": "feat/f06-real-lock-lifecycle-http-pg16-02",
-  "next_issue": 130,
+  "next_branch": "feat/f06-real-deposit-ledger-http-pg16-01",
+  "next_issue": 132,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -10023,20 +10044,52 @@
     "scope": "非生产工程门禁事件感知整改；正式Source签发与生产就绪仍为false"
   },
   "f06_lifecycle_next": {
-    "status": "A_CHANGES_REQUESTED_R1_CHAIN_TAIL_FAST_PATH_R2_ACCEPTED",
+    "status": "A_ACCEPTED_NONPRODUCTION_HTTP_PG16_PR131_STANDARD_MERGED",
     "task": "F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02",
     "branch": "feat/f06-real-lock-lifecycle-http-pg16-02",
     "issue": 130,
     "work_order": "07_重建工作区/F06普通Lock延期释放到期与资金未知硬拒_真实业务HTTP和PG16_A主控B正式施工单_2026-10-19.md",
-    "official_report_head": "95cdca9fe37e53702e9e5758252a33c052422d1b",
-    "official_run": 39302755405,
-    "official_job": 118231919969,
+    "official_report_head": "ee3dd1c08b32ea55971a56732098c52cdff1ade1",
+    "official_run": 39306159971,
+    "official_job": 118243671999,
     "accepted_r2": true,
     "pending_r1": "CHAIN_TAIL_FAST_PATH",
     "minimum_lifecycle_pg16_tests": 36,
     "accepted_budget_additional_usd": 0,
     "source_issuer_signed": false,
-    "production_ready": false
+    "production_ready": false,
+    "issue_closed": true,
+    "official_run_completed_success": true,
+    "accepted_r1": true,
+    "node_baseline_tests": 54,
+    "node_baseline_pass": 54,
+    "lifecycle_node_tests": 37,
+    "lifecycle_node_pass": 37,
+    "f06_original_pg16_http_tests": 21,
+    "f06_original_pg16_http_pass": 21,
+    "lifecycle_pg16_http_pass": 36,
+    "f05_initialization_tests": 18,
+    "f05_initialization_pass": 18,
+    "ledger_rows": 24,
+    "ledger_source_target_digest_equal": true,
+    "pr": 131,
+    "pr_merged": true,
+    "merge_sha": "3f8a92d59a658fd486c43c31cebd4c01a03b4421",
+    "pr_natural_workflows": 10,
+    "pr_natural_jobs": 28,
+    "pr_natural_jobs_success": 28,
+    "pr_natural_jobs_failure": 0,
+    "pr_natural_jobs_skipped": 0,
+    "pr_natural_jobs_cancelled": 0,
+    "pr_artifact_count": 28,
+    "pr_artifact_total_mib": 2.91,
+    "pr_artifact_retention_days": 30,
+    "a_review_result": "A_ACCEPTED_NONPRODUCTION_HTTP_PG16",
+    "a_review_report": "07_重建工作区/F06普通Lock生命周期_A主控第三轮独立验收与PR131标准合并报告_2026-10-20.md",
+    "a_review_comment": "https://github.com/suzhe868-arch/mb/issues/130#issuecomment-6275368044",
+    "handoff_positive_pg16_fixture": "NOT_AVAILABLE_IN_CURRENT_ISOLATED_BASELINE",
+    "limitation": "No valid handoff receipt fixture in isolated PG16; pure validator tests chain-tail mismatch and real PG16 proves fail-closed/zero writes when no trusted chain. Do not claim valid handoff positive end-to-end.",
+    "production": false
   },
   "a_review_changes_requested": {
     "date": "2026-10-20",
@@ -10100,5 +10153,61 @@
     "merged": false,
     "next_owner": "B",
     "budget_additional_usd": 0
+  },
+  "next_base_main": "3f8a92d59a658fd486c43c31cebd4c01a03b4421",
+  "current_engineering_focus": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01_NONPRODUCTION",
+  "f06_real_deposit_http_next": {
+    "status": "A_RELEASED_FOR_B_NONPRODUCTION_HTTP_PG16",
+    "task_id": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01",
+    "issue": 132,
+    "owner": "B",
+    "review_owner": "A",
+    "branch": "feat/f06-real-deposit-ledger-http-pg16-01",
+    "base_main_sha": "3f8a92d59a658fd486c43c31cebd4c01a03b4421",
+    "work_order": "07_重建工作区/F06真实Deposit台账HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md",
+    "scope": "NONPRODUCTION_SYNTHETIC_DEPOSIT_RECORD_CORRECTION_REVERSAL_REAL_HTTP_PG16_LOCK_FINANCE_GUARD",
+    "allowed_new_paths": [
+      "engineering/f06/deposit-ledger-http-pg16/**",
+      ".github/workflows/f06-real-deposit-ledger-pg16-onejob.yml"
+    ],
+    "source_authority": [
+      "PDM-19 Final §§2-5",
+      "PDM-18 Final §§16-28",
+      "PDM-02 Final",
+      "PDM-20 Final",
+      "PDM-21 Final",
+      "PDM-25 Final"
+    ],
+    "max_new_paid_budget_usd": 0,
+    "standard_runner_only": true,
+    "postgres_version": 16,
+    "single_job_workflow": true,
+    "workflow_trigger": "push_only_exact_branch_and_paths",
+    "workflow_fanout_preflight_required": true,
+    "artifacts_upload_allowed": false,
+    "public_migrations_allowed": false,
+    "existing_f06_files_modification_allowed": false,
+    "real_funds_allowed": false,
+    "real_refund_allowed": false,
+    "real_transaction_allowed": false,
+    "production_issuer_authorized": false,
+    "production_routes_allowed": false,
+    "production_ready": false,
+    "source_issuer_signed": false,
+    "requires_two_distinct_pg16_databases_and_190_table_full_row_seal": true,
+    "required_migration_ledger_rows": 24,
+    "required_same_sha_tests": {
+      "node_baseline": "54/54",
+      "lockrequest_pg16_http": "21/21",
+      "lifecycle_node": "37/37",
+      "lifecycle_pg16_http": "36/36",
+      "f05_initialization": "18/18",
+      "existing_f06_3a_source": "28/28",
+      "existing_f06_3a_https": "9/9",
+      "new_deposit_http_pg16_minimum": 24,
+      "new_tls_loopback_and_production_deny_minimum": 9,
+      "all_failures_skips_cancellations": 0
+    },
+    "handoff_status_required": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01_B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A"
   }
 }

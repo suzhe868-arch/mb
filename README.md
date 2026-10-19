@@ -1,4 +1,22 @@
-# 2026-10-20｜A主控第二轮独立复验：R2通过，R1仍有handoff链尾快路径绕过，继续退回B
+# 2026-10-20｜A主控第三轮验收完成：F06普通Lock生命周期PR131已合并，下一任务正式放行Deposit HTTP/PG16
+
+- **当前main：** `3f8a92d59a658fd486c43c31cebd4c01a03b4421`；F06 LockRequest PR #129与普通Lock生命周期PR #131均已标准合并。
+- **当前状态：** `F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02_A_ACCEPTED / PR131_MERGED / NEXT_OWNER=B`。
+- **R1/R2：** 最终B HEAD `ee3dd1c08b32ea55971a56732098c52cdff1ade1` 对应官方[Run #39306159971](https://github.com/suzhe868-arch/mb/actions/runs/39306159971)/[Job #118243671999](https://github.com/suzhe868-arch/mb/actions/runs/39306159971/job/118243671999)。原Node54/54、生命周期Node37/37、原F06 PG16/HTTP21/21、生命周期PG16/HTTP36/36、F05初始化18/18通过；24条原F03/F05迁移账本摘要一致，失败/跳过/取消均0。
+- **PR #131：** [标准合并](https://github.com/suzhe868-arch/mb/pull/131)，merge SHA `3f8a92d59a658fd486c43c31cebd4c01a03b4421`；PR自然触发10个工作流、28/28 Jobs成功。28个工件约2.91 MiB、30天保留期，已记录。
+- **Issue #130：** 已追加最终裁决并关闭。合法handoff正向PG16 fixture缺失仍是明确限制，未虚报真实正向端到端验证。
+- **状态纠正：** F06-5B PR #61实际已由A验收并合并（merge SHA `1a9b87a2e109190fff0380bbe85e7702a95dcd5e`）；旧PROJECT_STATE字段滞后，本次已同步。旧F06-3B直接入口仍不可信，相关阻断保留。
+- **下一唯一任务：** `NEXT_OWNER=B / NEXT_TASK=F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01 / NEXT_BRANCH=feat/f06-real-deposit-ledger-http-pg16-01 / ISSUE=#132`。正式施工单：`07_重建工作区/F06真实Deposit台账HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md`。
+- **执行边界：** 仅合成Deposit事实与Correction/Reversal的非生产HTTP+非特权PG16验证；不接真实收款/支付/退款，不改旧F06模块、公共DDL、PDM Final或生产路由；一个免费Runner+一个PG16服务、精确push/paths、无Artifact上传，新增付费预算`$0`。
+- **总体状态不变：** F06/F07/F08与V1仍`NOT_READY`；正式Source未签署，真实资金/退款、生产Issuer、UAT及部署均未授权。
+
+---
+
+> 以下为历史状态记录；保留原始裁决事实，但不代表当前NEXT_ACTION。
+
+---
+
+# 历史裁决｜2026-10-20 A主控第二轮独立复验（已被PR #131最终验收取代）
 
 - **当前正式状态：** `A_CHANGES_REQUESTED_R1_CHAIN_TAIL_FAST_PATH / B_NOT_READY_FOR_ACCEPTANCE / NO_PR_YET / NEXT_OWNER=B`。
 - **B分支与最终报告HEAD：** `feat/f06-real-lock-lifecycle-http-pg16-02`；`95cdca9fe37e53702e9e5758252a33c052422d1b`。B已普通合并A上一轮main治理提交，无强推/重置；本轮审查时ahead 13 / behind 0。
