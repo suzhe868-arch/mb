@@ -104,6 +104,35 @@ try{
   assert.equal((await act('COMPLETE',employeeToken,'59681',secret(),'找车服务目标已真实完成')).status,200);
   assert.equal((await db.query("SELECT demand_state FROM public.demands WHERE demand_id=59681")).rows[0].demand_state,'completed');
  });
+ await test('PG16 PDM11 auto-pauses active Demand on customer disable, downgrade or revoked level; never auto-resumes',async()=>{
+  const demandId=String((await db.query("INSERT INTO public.demands(customer_id,responsible_employee_id,demand_state,criteria_json) "+
+   "VALUES(59680,59680,'active','{}'::jsonb) RETURNING demand_id")).rows[0].demand_id);
+  const state=async()=>(await db.query('SELECT demand_state FROM public.demands WHERE demand_id=$1',[demandId])).rows[0].demand_state;
+  await db.query("UPDATE public.customers SET customer_level_id=59001 WHERE customer_id=59680");
+  assert.equal(await state(),'paused');
+  assert.equal((await db.query("SELECT result_code FROM public.f05_demand_lifecycle_events_test "+
+   "WHERE demand_id=$1 AND action='AUTO_PAUSE'",[demandId])).rows[0].result_code,
+   'DEMAND_AUTO_PAUSED_ENTITLEMENT_DOWNGRADED');
+  await db.query("UPDATE public.customers SET customer_level_id=59680 WHERE customer_id=59680");
+  assert.equal(await state(),'paused');
+  assert.equal((await act('RESUME',customerToken,demandId)).status,200);
+  await db.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=59680");
+  assert.equal(await state(),'paused');
+  await db.query("UPDATE public.customers SET account_status='active' WHERE customer_id=59680");
+  assert.equal(await state(),'paused');
+  assert.equal((await act('RESUME',employeeToken,demandId)).status,200);
+  await db.query("UPDATE public.f05_find_car_level_entitlement_test "+
+   "SET can_activate_demand=false WHERE level_id=59680");
+  assert.equal(await state(),'paused');
+  await db.query("UPDATE public.f05_find_car_level_entitlement_test "+
+   "SET can_activate_demand=true WHERE level_id=59680");
+  assert.equal(await state(),'paused');
+  const hist=(await db.query("SELECT result_code FROM public.f05_demand_lifecycle_events_test "+
+   "WHERE demand_id=$1 AND action='AUTO_PAUSE' ORDER BY occurred_at",[demandId])).rows;
+  assert.equal(hist.length,3);
+  assert.ok(hist.some(x=>x.result_code==='DEMAND_AUTO_PAUSED_ACCOUNT_DISABLED'));
+  assert.equal((await act('RESUME',employeeToken,demandId)).status,200);
+ });
  await test('PG16 concurrent end requests yield single pending record, immutable events and transaction integrity',async()=>{
   const newDemand=(await db.query("INSERT INTO public.demands(customer_id,responsible_employee_id,demand_state,criteria_json) "+
     "VALUES(59680,59680,'active','{}'::jsonb) RETURNING demand_id")).rows[0].demand_id;

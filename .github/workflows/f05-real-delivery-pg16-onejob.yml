@@ -14,6 +14,7 @@ on:
       - 'engineering/src/f05-price-unlock-*.mjs'
       - 'engineering/src/f05-quota-addition-*.mjs'
       - 'engineering/src/f05-find-car-*.mjs'
+      - 'engineering/src/f05-demand-lifecycle-*.mjs'
       - 'engineering/src/f05-matching-*.mjs'
       - 'engineering/src/f05-recommendation-*.mjs'
       - 'engineering/src/f05-priority-*.mjs'

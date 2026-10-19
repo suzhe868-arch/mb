@@ -214,6 +214,9 @@ export const SQL_CATALOG_SCHEMA=`SELECT
  to_regclass('public.f05_priority_qualification_manage_scope_test') IS NOT NULL AS p8m,
  to_regclass('public.f05_priority_qualification_events_test') IS NOT NULL AS p8a,
  to_regclass('public.f05_priority_safe_active_test') IS NOT NULL AS p8v,
+ (SELECT count(*)=2 FROM pg_catalog.pg_trigger WHERE NOT tgisinternal
+  AND tgname IN ('f05_demand_customer_safety_pause_test',
+   'f05_demand_entitlement_safety_pause_test')) AS da,
  (to_regclass('public.f05_demand_lifecycle_scope_test') IS NOT NULL
   AND to_regclass('public.f05_demand_end_requests_test') IS NOT NULL
   AND to_regclass('public.f05_demand_lifecycle_events_test') IS NOT NULL
@@ -253,7 +256,7 @@ export async function probeIsolatedCatalog(pool){
   const identity=(await pool.query(SQL_CATALOG_IDENTITY)).rows[0];
   if(!identity || Math.floor(Number(identity.v)/10000)!==16 || identity.db!=='f05_catalog_test' || identity.role!=='f05_catalog_ci')return false;
   const schema=(await pool.query(SQL_CATALOG_SCHEMA)).rows[0];
-  return !!schema && Object.keys(schema).sort().join(',')==='aq,c,ca,cp,di,dl,ec,es,fac,fca,fcd,fce,fcp,fe,fk,fr,fs,ft,full,he,iv,md,me,mv,mx,p,p8a,p8c,p8e,p8m,p8q,p8s,p8u,p8v,p8w,pe,pf,po,pp,qa,qs,ra,re,rn,rp,rs,ru,rv,sh,shape,ss,sv,v,x' && Object.values(schema).every(v=>v===true);
+  return !!schema && Object.keys(schema).sort().join(',')==='aq,c,ca,cp,da,di,dl,ec,es,fac,fca,fcd,fce,fcp,fe,fk,fr,fs,ft,full,he,iv,md,me,mv,mx,p,p8a,p8c,p8e,p8m,p8q,p8s,p8u,p8v,p8w,pe,pf,po,pp,qa,qs,ra,re,rn,rp,rs,ru,rv,sh,shape,ss,sv,v,x' && Object.values(schema).every(v=>v===true);
  }catch{return false}
 }
 export async function createIsolatedCatalogRuntime(env=process.env){
