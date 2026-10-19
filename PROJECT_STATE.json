@@ -1,15 +1,15 @@
 {
   "project": "名邦汽车 V1",
-  "updated_at": "2026-10-18",
+  "updated_at": "2026-10-19",
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_REAL_DELIVERY_AND_VALID_ACCEPTANCE_B_RELEASED_F06_PAUSED",
+  "substage": "F05_REAL_NONPRODUCTION_ACCEPTED_WITH_LEGACY_SOURCE_ORACLE_EXCEPTION_F06_HTTP_PG16_SLICE_RELEASED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F05_REAL_NONPRODUCTION_BUSINESS_DELIVERY_AND_ACCEPTANCE",
-  "current_domain_status": "A_RELEASED_B_IMPLEMENTATION_PENDING_F06_PAUSED_BY_USER",
+  "current_domain": "F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16",
+  "current_domain_status": "A_REACTIVATED_F06_AFTER_F05_NONPRODUCTION_ACCEPTANCE",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "用户最新决定先完成F05真实业务接口、PG16/HTTP测试和有效验收，原PR120仅历史CI例外受限通过；F06 PR121施工优先级暂缓。A已签F05全覆盖实际功能和来源验证修正施工单，B尚未开始/完成本新任务。",
-  "current_work_file": "07_重建工作区/F05真实业务交付与有效验收彻底整改_A主控B正式施工单_2026-10-18.md",
+  "current_task": "F05非生产真实业务交付已由A独立验收并合并PR125；当前进入F06真实LockRequest/员工审批/唯一Lock/自动Waitlist的Node HTTP＋隔离PG16首条业务纵切。正式来源Issuer、完整M94迁移及生产部署仍未完成。",
+  "current_work_file": "07_重建工作区/F06_真实锁车申请审批唯一Lock与自动候补_首条业务API纵切_A主控B正式施工单_2026-10-18.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B在feat/f05-real-delivery-acceptance-closeout-01落实真实服务/真PG16/真HTTP及多角色安全正反例，以现有F05 CI候选为基线补全、修复和复测，提交交接；现阶段不启动F06 PR121锁车API业务施工。",
+  "next_action_detail": "B在feat/f06-real-lockrequest-http-pg16-01按已合并F06施工单完成真实Node应用路由、隔离PG16迁移/状态机、真实HTTP正反例、并发/幂等/回滚测试及中文证据交接。不得修改旧冻结F06-1/F05工作流或正式Source；远程CI预算保持$0，若PR/Push会命中F05旧28 Job fan-out则不得触发远程CI。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
+  "next_task": "F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -8107,7 +8107,7 @@
       "PRODUCTION_PUBLISHER_CACHE_SCHEMA_NOT_IMPLEMENTED"
     ]
   },
-  "last_a_acceptance_report": "07_重建工作区/F05最后两组旧来源红灯_业务验收边界与F06顺序_A最终技术裁决_2026-10-18.md",
+  "last_a_acceptance_report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md",
   "f07_2_gate": {
     "status": "A_ACCEPTED_STANDARD_MERGED_PR65_CI_ONLY",
     "owner": "A_ACCEPTED",
@@ -9626,7 +9626,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F05真实业务交付与有效验收彻底整改_A主控B正式施工单_2026-10-18.md",
+  "next_work_file": "07_重建工作区/F06_真实锁车申请审批唯一Lock与自动候补_首条业务API纵切_A主控B正式施工单_2026-10-18.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -9835,7 +9835,7 @@
   },
   "f06_real_lock_http_first_slice": {
     "task_id": "F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16_01",
-    "status": "A_PRIOR_RELEASE_PR121_PAUSED_BY_USER_F05_PRIORITY",
+    "status": "A_REACTIVATED_AFTER_F05_NONPRODUCTION_ACCEPTANCE",
     "owner": "B",
     "review_owner": "A",
     "branch": "feat/f06-real-lockrequest-http-pg16-01",
@@ -9846,16 +9846,20 @@
     "customer_identity_issuer_connected": false,
     "isolated_pg16_required": true,
     "real_http_tests_required": true,
-    "next_owner": "B_AFTER_F05_ACCEPTANCE_OR_NEW_USER_PRIORITY",
+    "next_owner": "B",
     "source_provenance_extra_work_required": false,
     "remote_ci_spend_authorized": false,
-    "paused_by_user_for_f05": true
+    "paused_by_user_for_f05": false,
+    "a_review_after_f05": "PASS_TO_REACTIVATE_EXISTING_SCOPE",
+    "existing_ci_only_service_confirmed": true,
+    "existing_fixed_push_branch_guard_confirmed": true,
+    "production_route_missing_confirmed": true
   },
   "f05_real_delivery_closeout_priority": {
     "task_id": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
-    "status": "A_RELEASED_FOR_B_REAL_DELIVERY_NOT_IMPLEMENTED_NOT_A_ACCEPTED",
+    "status": "A_ACCEPTED_NONPRODUCTION_WITH_LEGACY_SOURCE_ORACLE_EXCEPTION",
     "priority": "USER_CONFIRMED_BEFORE_F06_F07_F08",
-    "owner": "B",
+    "owner": "A_ACCEPTED",
     "review_owner": "A",
     "branch": "feat/f05-real-delivery-acceptance-closeout-01",
     "work_order": "07_重建工作区/F05真实业务交付与有效验收彻底整改_A主控B正式施工单_2026-10-18.md",
@@ -9864,12 +9868,55 @@
     "pr113_checks": "23_SUCCESS_5_LEGACY_SOURCE_FAILURE",
     "original_legacy_redlights_preserved": true,
     "formal_five_source_status": "SOURCE_GAP_OPEN_FAIL_CLOSED",
-    "real_nonproduction_api_acceptance": "NOT_YET_ACCEPTED",
+    "real_nonproduction_api_acceptance": "A_ACCEPTED_NONPRODUCTION",
     "production_readiness": "NOT_READY",
-    "f06_execution_priority": "PAUSED_BY_USER_UNTIL_F05_REVIEW",
+    "f06_execution_priority": "REACTIVATED_AFTER_F05_NONPRODUCTION_ACCEPTANCE",
     "f06_previous_pr": 121,
     "allow_real_production_or_money": false,
     "github_additional_paid_budget_usd": 0,
-    "c_parallel_pr": 68
+    "c_parallel_pr": 68,
+    "business_sha": "f7503843a60bef3f94b818d80a37ec166a157775",
+    "evidence_head_sha": "d5690899ff37d3b7ddc46b1640dd113309addecf",
+    "business_run_id": 39214339966,
+    "evidence_run_id": 39214628791,
+    "pr": 125,
+    "merged_main_commit": "25034a7cd9e3d977e18ffb7f5dc0ba8db1008064",
+    "legacy_source_oracle_exception": "PR125 old Source gates are blocked under pull_request; do not count as PASS",
+    "next_owner": "B",
+    "next_task": "F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16_01",
+    "next_work_file": "07_重建工作区/F06_真实锁车申请审批唯一Lock与自动候补_首条业务API纵切_A主控B正式施工单_2026-10-18.md"
+  },
+  "f05_real_delivery_a_review": {
+    "status": "A_ACCEPTED_NONPRODUCTION_WITH_LEGACY_SOURCE_ORACLE_EXCEPTION",
+    "pr": 125,
+    "merge_commit": "25034a7cd9e3d977e18ffb7f5dc0ba8db1008064",
+    "reviewed_business_sha": "f7503843a60bef3f94b818d80a37ec166a157775",
+    "business_run_id": 39214339966,
+    "reviewed_evidence_head": "d5690899ff37d3b7ddc46b1640dd113309addecf",
+    "evidence_run_id": 39214628791,
+    "tests": {
+      "main": 458,
+      "source_lanes": 52,
+      "d1": 50,
+      "total": 560,
+      "failed": 0,
+      "skipped": 0
+    },
+    "production_ready": false,
+    "formal_source_signed": false,
+    "pr_ci_at_merge": {
+      "workflows_total": 10,
+      "completed": 9,
+      "success": 5,
+      "failure": 4,
+      "pending": 1,
+      "jobs_total": 28,
+      "jobs_completed": 27,
+      "jobs_success": 23,
+      "jobs_failure": 4,
+      "jobs_pending": 1,
+      "pending_run_id": 39216589244
+    },
+    "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   }
 }
