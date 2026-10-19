@@ -2,10 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomBytes} from 'node:crypto';
 import {readFileSync} from 'node:fs';
-import {createServer,request} from 'node:https';
+import {request} from 'node:https';
 import {connect,verify} from '../migration.mjs';
-import {createD1BusinessCIHandler} from '../ci-business-router.mjs';
-import {createFoundationHandler} from '../../../src/app.mjs';
+import {createD1BusinessTestServer} from '../ci-business-router.mjs';
 
 const origin='https://127.0.0.1:49222';
 const issuer=randomBytes(32).toString('base64url');
@@ -44,8 +43,7 @@ test.before(async()=>{
  assert.ok(vehicle);
  await db.query("INSERT INTO public.customer_phone_facts(phone_fact_id,customer_id,phone_ciphertext,valid_from) "+
   "SELECT COALESCE(MAX(phone_fact_id),0)+1,989220,decode('11223344','hex'),clock_timestamp() FROM public.customer_phone_facts");
- server=createServer({key:readFileSync('/tmp/f04-3-ci-key.pem'),cert:readFileSync('/tmp/f04-3-ci-cert.pem')},
-  createFoundationHandler({publicPoolConsultationHandler:createD1BusinessCIHandler({issuerToken:issuer})}));
+ server=createD1BusinessTestServer({issuerToken:issuer,key:readFileSync('/tmp/f04-3-ci-key.pem'),cert:readFileSync('/tmp/f04-3-ci-cert.pem')});
  await new Promise((ok,bad)=>{server.once('error',bad);server.listen(49222,'127.0.0.1',ok)});
 });
 test.after(async()=>{
@@ -105,6 +103,6 @@ test('D1-HTTP05 production-looking route, GET, extra fields and malformed identi
 test('D1 synthetic issuer handler refuses production mode',()=>{
  const old=process.env.NODE_ENV;
  process.env.NODE_ENV='production';
- try{assert.throws(()=>createD1BusinessCIHandler({issuerToken:issuer}),/D1_BUSINESS_HTTP_TEST_ONLY_NODE_ENV/)}
+ try{assert.throws(()=>createD1BusinessTestServer({issuerToken:issuer,key:readFileSync('/tmp/f04-3-ci-key.pem'),cert:readFileSync('/tmp/f04-3-ci-cert.pem')}),/D1_BUSINESS_HTTP_TEST_ONLY_NODE_ENV/)}
  finally{if(old===undefined)delete process.env.NODE_ENV;else process.env.NODE_ENV=old}
 });
