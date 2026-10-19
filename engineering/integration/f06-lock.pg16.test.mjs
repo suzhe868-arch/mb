@@ -119,7 +119,7 @@ if(!setupError){
   assert.equal(r1.status,201);assert.equal(r1.body.state,'pending');idA=r1.body.requestId;
   const physical=await scalar('SELECT status,created_at,expires_at FROM public.lock_requests WHERE lock_request_id=$1',[idA]);
   assert.equal(physical.status,'pending');
-  assert.ok(new Date(physical.expires_at)-new Date(physical.created_at)<=6*3600*1000+2000);
+  assert.equal(new Date(physical.expires_at)-new Date(physical.created_at),6*3600*1000,'single PG time source requires exact 6h');
   assert.equal((await scalar("SELECT count(*)::int n FROM public.locks WHERE vehicle_id=$1 AND lock_status='active'",[cars[0]])).n,0);
   assert.equal((await scalar('SELECT count(*)::int n FROM f06_real_lock_test.lock_snapshots')).n,0);
   const repeated=await intake(0,0,idempotencyKey);
@@ -161,6 +161,16 @@ if(!setupError){
   await db.query("UPDATE public.lock_requests SET expires_at=clock_timestamp()-interval '1 second' WHERE lock_request_id=$1",[draft.body.requestId]);
   const expired=await decide(draft.body.requestId);assert.equal(expired.body.state,'expired');
   assert.equal((await scalar('SELECT status FROM public.lock_requests WHERE lock_request_id=$1',[draft.body.requestId])).status,'expired');
+ });
+ await test('申请原始创建时刻超过6小时后，延长 expires_at 也不可通过同 key 重放',async()=>{
+  const exactKey=key();
+  const pending=await intake(0,1,exactKey);assert.equal(pending.status,201);
+  await db.query("UPDATE public.lock_requests SET created_at=clock_timestamp()-interval '7 hours', "+
+   "expires_at=clock_timestamp()+interval '1 hour' WHERE lock_request_id=$1",[pending.body.requestId]);
+  const replay=await intake(0,1,exactKey);
+  assert.equal(replay.status,200);assert.equal(replay.body.state,'expired');
+  const row=await scalar("SELECT status FROM public.lock_requests WHERE lock_request_id=$1",[pending.body.requestId]);
+  assert.equal(row.status,'expired');
  });
  await test('断点注入后真实 PostgreSQL 事务必须完整回滚',async()=>{
   const draft=await intake(0,2);assert.equal(draft.status,201);
