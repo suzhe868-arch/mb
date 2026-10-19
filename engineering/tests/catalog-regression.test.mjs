@@ -306,15 +306,15 @@ test('SQL explicitly excludes a vehicle with two simultaneous current cycles',()
 });
 
 test('readiness uses physical database identity and all four required relations',async()=>{
- const pool={query:async(s)=>s===SQL_CATALOG_IDENTITY?{rows:[{v:160009,db:'f05_catalog_test',role:'f05_catalog_ci'}]}:{rows:[{v:true,c:true,p:true,x:true,po:true,pf:true,fs:true,ft:true,fe:true,cp:true,ca:true,es:true,ec:true,ss:true,sh:true,he:true,pe:true,pp:true,qa:true,qs:true,fca:true,fcd:true,fce:true,fcp:true,fac:true,md:true,me:true,mv:true,mx:true,aq:true,sv:true,ra:true,rp:true,ru:true,di:true,rs:true,rn:true,re:true,rv:true,p8c:true,p8e:true,p8q:true,p8s:true,p8u:true,p8v:true,p8w:true,p8m:true,p8a:true,fr:true,da:true,dl:true,iv:true,shape:true,fk:true,full:true}]}};
+ const pool={query:async(s)=>s===SQL_CATALOG_IDENTITY?{rows:[{v:160009,db:'f05_catalog_test',role:'f05_catalog_ci'}]}:{rows:[{v:true,c:true,p:true,x:true,po:true,pf:true,fs:true,ft:true,fe:true,cp:true,ca:true,es:true,ec:true,ss:true,sh:true,he:true,pe:true,pp:true,qa:true,qs:true,fca:true,fcd:true,fce:true,fcp:true,fac:true,md:true,me:true,mv:true,mx:true,aq:true,sv:true,ra:true,rp:true,ru:true,di:true,rs:true,rn:true,re:true,rv:true,p8c:true,p8e:true,p8q:true,p8s:true,p8u:true,p8v:true,p8w:true,p8m:true,p8a:true,fr:true,da:true,dl:true,vr:true,iv:true,shape:true,fk:true,full:true}]}};
  assert.equal(await probeIsolatedCatalog(pool),true);
  assert.match(SQL_CATALOG_SCHEMA,/to_regclass\('public\.vehicles'\)/);
  assert.match(SQL_CATALOG_SCHEMA,/pg_catalog\.pg_attribute/);
  assert.match(SQL_CATALOG_SCHEMA,/pg_catalog\.pg_constraint/);
- assert.match(SQL_CATALOG_SCHEMA,/count\(\*\)=122/);
+ assert.match(SQL_CATALOG_SCHEMA,/count\(\*\)=123/);
 });
 test('readiness fails if a physical table disappears after startup',async()=>{
- const pool={query:async(s)=>s===SQL_CATALOG_IDENTITY?{rows:[{v:160009,db:'f05_catalog_test',role:'f05_catalog_ci'}]}:{rows:[{v:true,c:true,p:false,x:true,po:true,pf:true,fs:true,ft:true,fe:true,cp:true,ca:true,es:true,ec:true,ss:true,sh:true,he:true,pe:true,pp:true,qa:true,qs:true,fca:true,fcd:true,fce:true,fcp:true,fac:true,md:true,me:true,mv:true,mx:true,aq:true,sv:true,ra:true,rp:true,ru:true,di:true,rs:true,rn:true,re:true,rv:true,p8c:true,p8e:true,p8q:true,p8s:true,p8u:true,p8v:true,p8w:true,p8m:true,p8a:true,fr:true,da:true,dl:true,iv:true,shape:true,fk:true,full:true}]}};
+ const pool={query:async(s)=>s===SQL_CATALOG_IDENTITY?{rows:[{v:160009,db:'f05_catalog_test',role:'f05_catalog_ci'}]}:{rows:[{v:true,c:true,p:false,x:true,po:true,pf:true,fs:true,ft:true,fe:true,cp:true,ca:true,es:true,ec:true,ss:true,sh:true,he:true,pe:true,pp:true,qa:true,qs:true,fca:true,fcd:true,fce:true,fcp:true,fac:true,md:true,me:true,mv:true,mx:true,aq:true,sv:true,ra:true,rp:true,ru:true,di:true,rs:true,rn:true,re:true,rv:true,p8c:true,p8e:true,p8q:true,p8s:true,p8u:true,p8v:true,p8w:true,p8m:true,p8a:true,fr:true,da:true,dl:true,vr:true,iv:true,shape:true,fk:true,full:true}]}};
  assert.equal(await probeIsolatedCatalog(pool),false);
 });
 test('readiness never confuses PG17 or other database role with isolated PG16',async()=>{
@@ -331,16 +331,16 @@ test('readiness physical connection errors produce denial without logs or creden
 });
 
 test('schema preflight rejects superficially named but physically wrong PG16 tables',async()=>{
- for(const missing of ['shape','fk','pf','full','v','c','p','x','po','fs','ft','fe','cp','ca','es','ec','ss','sh','he','pe','pp','qa','qs','fca','fcd','fce','fcp','fac','md','me','mv','mx','aq','sv','ra','rp','ru','di','rs','rn','re','rv','p8c','p8e','p8q','p8s','p8u','p8v','p8w','p8m','p8a','fr','dl','da']){
-  const physical={v:true,c:true,p:true,x:true,po:true,pf:true,fs:true,ft:true,fe:true,cp:true,ca:true,es:true,ec:true,ss:true,sh:true,he:true,pe:true,pp:true,qa:true,qs:true,fca:true,fcd:true,fce:true,fcp:true,fac:true,md:true,me:true,mv:true,mx:true,aq:true,sv:true,ra:true,rp:true,ru:true,di:true,rs:true,rn:true,re:true,rv:true,p8c:true,p8e:true,p8q:true,p8s:true,p8u:true,p8v:true,p8w:true,p8m:true,p8a:true,fr:true,da:true,dl:true,iv:true,shape:true,fk:true,full:true};physical[missing]=false;
+ for(const missing of ['shape','fk','pf','full','v','c','p','x','po','fs','ft','fe','cp','ca','es','ec','ss','sh','he','pe','pp','qa','qs','fca','fcd','fce','fcp','fac','md','me','mv','mx','aq','sv','ra','rp','ru','di','rs','rn','re','rv','p8c','p8e','p8q','p8s','p8u','p8v','p8w','p8m','p8a','fr','dl','da','vr']){
+  const physical={v:true,c:true,p:true,x:true,po:true,pf:true,fs:true,ft:true,fe:true,cp:true,ca:true,es:true,ec:true,ss:true,sh:true,he:true,pe:true,pp:true,qa:true,qs:true,fca:true,fcd:true,fce:true,fcp:true,fac:true,md:true,me:true,mv:true,mx:true,aq:true,sv:true,ra:true,rp:true,ru:true,di:true,rs:true,rn:true,re:true,rv:true,p8c:true,p8e:true,p8q:true,p8s:true,p8u:true,p8v:true,p8w:true,p8m:true,p8a:true,fr:true,da:true,dl:true,vr:true,iv:true,shape:true,fk:true,full:true};physical[missing]=false;
   const pool={query:async(s)=>s===SQL_CATALOG_IDENTITY?{rows:[{v:160002,db:'f05_catalog_test',role:'f05_catalog_ci'}]}:{rows:[physical]}};
   assert.equal(await probeIsolatedCatalog(pool),false,missing);
  }
 });
 test('schema preflight rejects omitted properties and anonymous extra trust flags',async()=>{
  for(const shape of [
-  {v:true,c:true,p:true,x:true,po:true,pf:true,fs:true,ft:true,fe:true,cp:true,ca:true,es:true,ec:true,ss:true,sh:true,he:true,pe:true,pp:true,qa:true,qs:true,fca:true,fcd:true,fce:true,fcp:true,fac:true,md:true,me:true,mv:true,mx:true,aq:true,sv:true,ra:true,rp:true,ru:true,di:true,rs:true,rn:true,re:true,rv:true,p8c:true,p8e:true,p8q:true,p8s:true,p8u:true,p8v:true,p8w:true,p8m:true,p8a:true,fr:true,da:true,dl:true,iv:true,shape:true},
-  {v:true,c:true,p:true,x:true,po:true,pf:true,fs:true,ft:true,fe:true,cp:true,ca:true,es:true,ec:true,ss:true,sh:true,he:true,pe:true,pp:true,qa:true,qs:true,fca:true,fcd:true,fce:true,fcp:true,fac:true,md:true,me:true,mv:true,mx:true,aq:true,sv:true,ra:true,rp:true,ru:true,di:true,rs:true,rn:true,re:true,rv:true,p8c:true,p8e:true,p8q:true,p8s:true,p8u:true,p8v:true,p8w:true,p8m:true,p8a:true,fr:true,da:true,dl:true,iv:true,shape:true,fk:true,full:true,unverified:true},
+  {v:true,c:true,p:true,x:true,po:true,pf:true,fs:true,ft:true,fe:true,cp:true,ca:true,es:true,ec:true,ss:true,sh:true,he:true,pe:true,pp:true,qa:true,qs:true,fca:true,fcd:true,fce:true,fcp:true,fac:true,md:true,me:true,mv:true,mx:true,aq:true,sv:true,ra:true,rp:true,ru:true,di:true,rs:true,rn:true,re:true,rv:true,p8c:true,p8e:true,p8q:true,p8s:true,p8u:true,p8v:true,p8w:true,p8m:true,p8a:true,fr:true,da:true,dl:true,vr:true,iv:true,shape:true},
+  {v:true,c:true,p:true,x:true,po:true,pf:true,fs:true,ft:true,fe:true,cp:true,ca:true,es:true,ec:true,ss:true,sh:true,he:true,pe:true,pp:true,qa:true,qs:true,fca:true,fcd:true,fce:true,fcp:true,fac:true,md:true,me:true,mv:true,mx:true,aq:true,sv:true,ra:true,rp:true,ru:true,di:true,rs:true,rn:true,re:true,rv:true,p8c:true,p8e:true,p8q:true,p8s:true,p8u:true,p8v:true,p8w:true,p8m:true,p8a:true,fr:true,da:true,dl:true,vr:true,iv:true,shape:true,fk:true,full:true,unverified:true},
  ]){
   const pool={query:async(s)=>s===SQL_CATALOG_IDENTITY?{rows:[{v:160002,db:'f05_catalog_test',role:'f05_catalog_ci'}]}:{rows:[shape]}};
   assert.equal(await probeIsolatedCatalog(pool),false);
