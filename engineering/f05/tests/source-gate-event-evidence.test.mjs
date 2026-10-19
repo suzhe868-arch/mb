@@ -4,7 +4,7 @@ import {validatePullRequestEvidence,validateOfficialMainPushContext} from '../so
 
 const env={
  GITHUB_REPOSITORY:'suzhe868-arch/mb',GITHUB_EVENT_NAME:'pull_request',
- GITHUB_SHA:'b'.repeat(40),GITHUB_RUN_ID:'1234',GITHUB_RUN_ATTEMPT:'1'
+ GITHUB_SHA:'b'.repeat(40),GITHUB_RUN_ID:'1234',GITHUB_RUN_ATTEMPT:'1',GITHUB_REF:'refs/pull/126/merge'
 };
 const event={
  repository:{full_name:'suzhe868-arch/mb'},
@@ -73,3 +73,5 @@ test('main push mode rejects workflow path mismatch',()=>assert.throws(()=>
 reject('reject missing HTTPS artifact',{artifacts:[]},'PEER_ARTIFACT_MISSING');
 reject('reject artifact with invalid digest',{artifacts:[{...peerArtifacts[0],digest:'sha256:bad'}]},'PEER_ARTIFACT_DIGEST_INVALID');
 reject('reject expired HTTPS artifact',{artifacts:[{...peerArtifacts[0],expired:true}]},'PEER_ARTIFACT_MISSING');
+
+reject('reject PR ref mismatch',{env:{...env,GITHUB_REF:'refs/pull/127/merge'}},'PR_REF_MISMATCH');
