@@ -6,16 +6,24 @@ import {createAuthHandler} from './f03-auth-http.mjs';
 import {verifyAuthDatabase} from './f03-auth-readiness.mjs';
 import {createIsolatedCatalogRuntime} from './catalog-readiness.mjs';
 import {createIsolatedCatalogServerOptions} from './catalog-wiring.mjs';
+import {createIsolatedF06LockRuntime} from './f06-lock-runtime.mjs';
 import {createServer as createHttpsServer} from 'node:https';
 import {readFile} from 'node:fs/promises';
 const {host,port}=loadConfig();
-let server,service,catalog;
+let server,service,catalog,f06;
+if(process.env.F06_LOCK_TEST_CONSENT&&
+ (process.env.F05_D1_BUSINESS_TEST_RUNTIME||process.env.F05_REAL_CATALOG_ENABLE||process.env.F03_1_ENABLE_ISOLATED_AUTH))
+ throw Error('F06_LOCK_RUNTIME_COMBINATION_FORBIDDEN');
 if(process.env.F05_D1_BUSINESS_TEST_RUNTIME==='I_ENABLE_F05_D1_DISPOSABLE_PG16_ONLY'){
  if(host!=='127.0.0.1')throw Error('D1_BUSINESS_TEST_LOOPBACK_REQUIRED');
  if(!process.env.F05_D1_TLS_KEY_PATH||!process.env.F05_D1_TLS_CERT_PATH)throw Error('D1_BUSINESS_TEST_TLS_REQUIRED');
  const {createD1BusinessTestServer}=await import('../f05/pdm17-public-pool-owner-claim/ci-business-router.mjs');
  server=createD1BusinessTestServer({issuerToken:process.env.F05_D1_CI_ISSUER_TOKEN,
   key:await readFile(process.env.F05_D1_TLS_KEY_PATH),cert:await readFile(process.env.F05_D1_TLS_CERT_PATH)});
+}else if(process.env.F06_LOCK_TEST_CONSENT==='I_AUTHORIZE_DISPOSABLE_F06_LOCK_PG16_ONLY'){
+ if(host!=='127.0.0.1')throw Error('F06_LOCK_LOOPBACK_REQUIRED');
+ f06=await createIsolatedF06LockRuntime(process.env);
+ server=createFoundationServer({lockHandler:f06.handler,readinessProbe:f06.ready,readinessTimeoutMs:3000});
 }else if(process.env.F05_REAL_CATALOG_ENABLE==='I_ENABLE_F05_TEST_ONLY_CATALOG'){
  if(process.env.F03_1_ENABLE_ISOLATED_AUTH)throw Error('CATALOG_AUTH_COMBINATION_NOT_YET_AUTHORIZED');
  if(host!=='127.0.0.1')throw Error('CATALOG_LOOPBACK_REQUIRED');
@@ -35,6 +43,6 @@ if(process.env.F05_D1_BUSINESS_TEST_RUNTIME==='I_ENABLE_F05_D1_DISPOSABLE_PG16_O
 }else{
  server=createFoundationServer({readinessProbe:createPgReadinessProbe(process.env),readinessTimeoutMs:3000});
 }
-server.listen(port,host,()=>console.info('F01 single server ready',{host,port,isolatedAuth:!!service,isolatedCatalog:!!catalog}));
-const shutdown=()=>server.close(async()=>{await Promise.all([service?.close(),catalog?.close()]);process.exit(0)});
+server.listen(port,host,()=>console.info('F01 single server ready',{host,port,isolatedAuth:!!service,isolatedCatalog:!!catalog,isolatedF06Lock:!!f06}));
+const shutdown=()=>server.close(async()=>{await Promise.all([service?.close(),catalog?.close(),f06?.close()]);process.exit(0)});
 process.once('SIGINT',shutdown);process.once('SIGTERM',shutdown);

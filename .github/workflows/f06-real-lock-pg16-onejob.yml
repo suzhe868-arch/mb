@@ -1,0 +1,57 @@
+name: F06 bounded nonproduction LockRequest HTTP PostgreSQL16 one job
+on:
+  push:
+    branches: [feat/f06-real-lockrequest-http-pg16-01]
+    paths:
+      - '.github/workflows/f06-real-lock-pg16-onejob.yml'
+      - 'engineering/src/f06-lock-*.mjs'
+      - 'engineering/src/app.mjs'
+      - 'engineering/src/server.mjs'
+      - 'engineering/tests/f06-lock-*.test.mjs'
+      - 'engineering/integration/f06-lock.pg16.test.mjs'
+      - 'engineering/sql/f06-lock-disposable-only.sql'
+      - 'engineering/scripts/f06-lock-*.mjs'
+      - 'engineering/scripts/f06-lock-native-ci.sh'
+permissions:
+  contents: read
+concurrency:
+  group: f06-real-lockrequest-isolated-single-job
+  cancel-in-progress: true
+jobs:
+  f06_lock_http_pg16:
+    name: F06 single authentic M94 F05 chain and nonproduction PG16 HTTP
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      APP_ENV: test
+      NODE_ENV: test
+      API_HOST: 127.0.0.1
+      F06_LOCK_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_LOCK_PG16_ONLY
+      F06_LOCK_DATABASE_URL: postgres://f06_lock_ci:f06_ci_synthetic_only@127.0.0.1:5432/f06_lock_test
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+    steps:
+      - name: Exact source checkout (credentials not retained)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Node 22.16.0 (no cache)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Genuine signed M94 to F05 and native F06 PG16 HTTP
+        shell: bash
+        run: bash engineering/scripts/f06-lock-native-ci.sh
