@@ -143,8 +143,8 @@ try{
    "VALUES(59690,59680,59680,'active','{}'::jsonb)");
   const before=(await db.query("SELECT demand_state FROM public.demands WHERE demand_id=59690")).rows[0].demand_state;
   assert.equal(before,'active');
-  await db.query("CREATE FUNCTION public.f05_auto_pause_audit_fault_test() RETURNS trigger LANGUAGE plpgsql AS $ "+
-   "BEGIN IF NEW.action='AUTO_PAUSE' THEN RAISE EXCEPTION 'INJECTED_F05_AUTO_PAUSE_AUDIT_FAIL'; END IF; RETURN NEW; END $");
+  await db.query("CREATE FUNCTION public.f05_auto_pause_audit_fault_test() RETURNS trigger LANGUAGE plpgsql AS $f05fault$ "+
+   "BEGIN IF NEW.action='AUTO_PAUSE' THEN RAISE EXCEPTION 'INJECTED_F05_AUTO_PAUSE_AUDIT_FAIL'; END IF; RETURN NEW; END $f05fault$");
   await db.query("CREATE TRIGGER f05_auto_pause_audit_fault BEFORE INSERT ON public.f05_demand_lifecycle_events_test "+
    "FOR EACH ROW EXECUTE FUNCTION public.f05_auto_pause_audit_fault_test()");
   try{
@@ -166,8 +166,8 @@ try{
    "VALUES(59691,59680,59680,'active','{}'::jsonb)");
   const old=(await db.query("SELECT demand_state FROM public.demands WHERE demand_id=59691")).rows[0].demand_state;
   assert.equal(old,'active');
-  await db.query("CREATE FUNCTION public.f05_auto_entitlement_fault_test() RETURNS trigger LANGUAGE plpgsql AS $ "+
-   "BEGIN IF NEW.action='AUTO_PAUSE' THEN RAISE EXCEPTION 'INJECTED_F05_ENTITLEMENT_PAUSE_FAIL'; END IF; RETURN NEW; END $");
+  await db.query("CREATE FUNCTION public.f05_auto_entitlement_fault_test() RETURNS trigger LANGUAGE plpgsql AS $f05fault$ "+
+   "BEGIN IF NEW.action='AUTO_PAUSE' THEN RAISE EXCEPTION 'INJECTED_F05_ENTITLEMENT_PAUSE_FAIL'; END IF; RETURN NEW; END $f05fault$");
   await db.query("CREATE TRIGGER f05_auto_entitlement_fault BEFORE INSERT ON public.f05_demand_lifecycle_events_test "+
    "FOR EACH ROW EXECUTE FUNCTION public.f05_auto_entitlement_fault_test()");
   try{
