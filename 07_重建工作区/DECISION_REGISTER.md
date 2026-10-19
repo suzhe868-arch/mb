@@ -1,14 +1,16 @@
-# 2026-10-19｜A主控PR129 F06真实锁车业务独立验收/合并与F06普通Lock生命周期开发正式放行
+# 2026-10-20｜A主控正式裁决：F06普通Lock生命周期A_CHANGES_REQUESTED，B闭合R1/R2后重交
 
-**决议状态：`A_ACCEPTED_NONPRODUCTION_F06_REAL_LOCK_HTTP_PG16 / PR129_MERGED / NEXT_OWNER=B`。**
+**状态：`A_CHANGES_REQUESTED / B_NOT_READY_FOR_ACCEPTANCE / NO_PR_YET / NEXT_OWNER=B`。**
 
-1. **上一阶段验收有真证据**：B工程分支`feat/f06-real-lockrequest-http-pg16-01`，业务受测SHA `ab6b28c7da68be7e7bd08154bc306b1ea369e982`，最终文档HEAD `28653741e613ea53ba7ec403403165ae9ba831a7`。A直接读取官方[Run #39273318026](https://github.com/suzhe868-arch/mb/actions/runs/39273318026)/Job `118131039069`：Node 54/54、PG16.15真正HTTP/事务21/21通过，0失败0跳过；原F03/F05迁移账本24条源库与非超管F06目标库摘要一致，原F05受控Priority生成及转换真实过。
-2. **当前PR实证全部检查成功**：A自己创建[PR #129](https://github.com/suzhe868-arch/mb/pull/129)进行标准集成验收，对该PR最后HEAD GitHub实际有10个工作流**28/28 Job completed/success，0失败0跳过**；改动22个文件在获批F06范围，不改旧冻结workflow/公共M94/PDM Final、C客户端。GitHub mergeable真，A在[审阅评论](https://github.com/suzhe868-arch/mb/pull/129#issuecomment-6270566925)正式签非生产工程验收，没有伪造单账号的独立GitHub APPROVE。
-3. **正常合并main成功且复核**：merge SHA **`c3fa09646e10c9f0392c62ee1f35f56668b25494`**；原本F06真实PG16 0/20环境问题已经通过实际21项PG真库回归解决，B [Issue #128](https://github.com/suzhe868-arch/mb/issues/128)正式closed/completed。旧过程4失败+2成功的原始运行不篡改，最终A只按同SHA最新真实绿灯验收。
-4. **新增真实业务正式放行**：遵循PDM-18 Final §§16～25/PDM-19只读资金守卫/PDM-20客户安全投影；上一阶段交付仅解决锁车申请/审批/唯一Lock/竞争候补，普通Lock延期/人工释放和超时真实Node+PG16尚未交付。明确指定下一任务`F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02`、负责人B、**新隔离分支**`feat/f06-real-lock-lifecycle-http-pg16-02`，完整[中文A正式施工单](F06普通Lock延期释放到期与资金未知硬拒_真实业务HTTP和PG16_A主控B正式施工单_2026-10-19.md)。旧F06-2仅CI-only，不能冒称真实API。B在新分支从最新main连续实施真HTTP、真PG16、正反例、资金未知DENY，最终交A统一验收，不逐项询问用户。B不得自行开PR/合并main。
-5. **生产/资金不能外溢**：旧Source正式Issuer仍`formal_source_signed=false`、`production_ready=false`；真微信/员工身份、任何真钱Deposit/Transaction/Refund、线上发布与完整正式外部签署另批。新F06-2仅允许受控空PG16、合成可追溯资金absence/present/unknown测试真库事实，不得仅凭空表证明没有真实款项，不改公共M94、冻结旧CI、PDM Final。费用新增授权`$0`，单Job标准免费runner仅在精确安全触发评估通过后可用。
-6. **项目顺序不跳域**：F05两轮先已受限真业务合并，F06真实业务纵切按依赖连续；F07/F08当前不插队开发，历史CI-only完成项不能冒充生产API；C PR68仍是已被用户否决的独立Draft，不受本次B后端合并影响。
-7. 详细独立审签：[PR129中文真实业务与PG16独立验收合并报告](PR129_A主控F06真实锁车申请审批候补HTTP与PG16独立验收合并报告_2026-10-19.md)。本决议自动成为B下一窗口启动时最新main唯一施工指针，历史下方保留。
+1. B指定分支 `feat/f06-real-lock-lifecycle-http-pg16-02` 当前HEAD `210432c389ae993ca0eb1a40396b1f2fbc7c28e9`。A直接核验官方[Run #39295483906](https://github.com/suzhe868-arch/mb/actions/runs/39295483906)/Job `118206742333`原始日志，Run同SHA `completed/success`：原Node54/54、生命周期Node32/32、原F06真PG16+HTTP21/21、新生命周期PG16+HTTP32/32、F05初始化18/18，全部0失败/跳过/取消，24条F03/F05原迁移账本摘要一致。历史失败Run保留，不改写。
+2. **不得把CI全绿当成A业务验收通过。** A发现R1：生命周期服务信任`public.locks.responsible_employee_id`当前行而未核验正式责任handoff receipt chain，违背PDM-18 §15的责任交接约束。必须校验仓库既有`engineering/f03/runtime-lock-responsible-handover/service.mjs`所要求的receipt/batch/item/audit链；无可信carrier时对与快照不一致的responsible Fail Closed，不造假receipt、不改冻结M94。
+3. **R2：** `financeGuard()`及`createDisposableF06FinanceProofAdapter.issue()`只读检查Deposit/Transaction，未检查`public.refund_cases`。根据PDM-19，资金事实缺失/不一致不能被签成“可信无款”；要求校验Refund carrier与当前Lock Refund事实，absent证据hash绑定`observedRefund=false`，新增真实PG16负例。
+4. 详细正式整改单：[Issue #130](https://github.com/suzhe868-arch/mb/issues/130)；中文审查报告：[F06普通Lock生命周期A主控独立验收整改报告](F06普通Lock生命周期_A主控独立验收整改报告_2026-10-20.md)。目前**未创建PR、未合并main**，避免未闭合代码安全审查就触发旧F05 PR检查。
+5. **下一责任B，任务继续为** `F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02`。B原分支连续整改，不强推/重置、不自行创建PR或合并main；完成R1/R2测试后，最新代码SHA和报告最终HEAD均需有官方同SHA成功Run，再交A独立复验。
+6. 生产Source、真实微信身份、生产部署、真钱Deposit/Transaction/Refund仍未放行；预算新增授权`$0`。F07/F08及C PR68不因本轮改动而自动启动或合并。
+
+---
+
 
 ---
 
