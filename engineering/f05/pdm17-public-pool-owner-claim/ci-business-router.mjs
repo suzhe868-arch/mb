@@ -37,13 +37,23 @@ export function createD1BusinessCIHandler({issuerToken}={}){
       !validKey(body.ownerRequestKey)||!validKey(body.consultationRequestKey)){
     send(res,400,{code:'D1_BUSINESS_INVALID_REQUEST'});return true;
    }
+   const intent=syntheticConsultationRequest(Number(body.customerId),Number(body.vehicleId),Number(body.listingCycleId));
+   // Replay/current-owner path first: do not re-enter PDM17 after its pool cycle has
+   // already moved from in_pool to assigned.
+   let consultation=await createConsultationAfterOwnerCI(intent,{requestKey:body.consultationRequestKey});
+   if(consultation.allowed){
+    send(res,200,{code:consultation.code,consultationId:consultation.consultationId,
+     ownerId:consultation.ownerId,assigneeEmployeeId:consultation.assigneeEmployeeId,
+     created:consultation.created,productionReady:false});return true;
+   }
+   if(!['D1_CONSULTATION_OWNER_NOT_FORMED','D1_CONSULTATION_OWNER_NOT_D1_CURRENT'].includes(consultation.code)){
+    send(res,409,{code:consultation.code,ownerFormed:true,productionReady:false});return true;
+   }
    const owner=await serviceAssignCI(syntheticServiceRequest(Number(body.customerId)),{requestKey:body.ownerRequestKey});
    if(!owner.allowed){
     send(res,409,{code:owner.code,productionReady:false});return true;
    }
-   const consultation=await createConsultationAfterOwnerCI(
-    syntheticConsultationRequest(Number(body.customerId),Number(body.vehicleId),Number(body.listingCycleId)),
-    {requestKey:body.consultationRequestKey});
+   consultation=await createConsultationAfterOwnerCI(intent,{requestKey:body.consultationRequestKey});
    if(!consultation.allowed){
     send(res,409,{code:consultation.code,ownerFormed:true,ownerId:owner.ownerId,productionReady:false});return true;
    }
