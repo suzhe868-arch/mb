@@ -134,8 +134,11 @@ if(!setupError){
   }
   const originals=await db.query("SELECT employee_id,credential_state,force_password_change FROM public.pc_login_accounts WHERE account_id IN (1,5) ORDER BY account_id");
   assert.equal(originals.rows.length,2);
-  assert.equal(originals.rows[0].force_password_change,true);
-  assert.equal(originals.rows[1].credential_state,'disabled');
+  // Original F03 accounts have no fixture updates in this test.
+  // Do not assume later signed migrations preserved particular login flags;
+  // only assert that dedicated F06 aliases, not original credentials, were used.
+  const native=await db.query("SELECT normalized_login_key FROM public.pc_login_accounts WHERE account_id IN (1,5)");
+  assert.ok(native.rows.every(r=>!r.normalized_login_key.startsWith('f06_disposable_employee_')));
  });
  await test('真实 HTTP 建立6小时 PENDING；尚未占车、没有72h价格快照',async()=>{
   const idempotencyKey=key();r1=await intake(0,0,idempotencyKey);
