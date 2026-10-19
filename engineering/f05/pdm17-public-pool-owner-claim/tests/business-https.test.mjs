@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {randomBytes} from 'node:crypto';
 import {readFileSync} from 'node:fs';
 import {request} from 'node:https';
+import {spawn} from 'node:child_process';
 import {connect,verify} from '../migration.mjs';
 import {createD1BusinessTestServer} from '../ci-business-router.mjs';
 
@@ -43,11 +44,24 @@ test.before(async()=>{
  assert.ok(vehicle);
  await db.query("INSERT INTO public.customer_phone_facts(phone_fact_id,customer_id,phone_ciphertext,valid_from) "+
   "SELECT COALESCE(MAX(phone_fact_id),0)+1,989220,decode('11223344','hex'),clock_timestamp() FROM public.customer_phone_facts");
- server=createD1BusinessTestServer({issuerToken:issuer,key:readFileSync('/tmp/f04-3-ci-key.pem'),cert:readFileSync('/tmp/f04-3-ci-cert.pem')});
- await new Promise((ok,bad)=>{server.once('error',bad);server.listen(49222,'127.0.0.1',ok)});
+ server=spawn(process.execPath,['src/server.mjs'],{env:{...process.env,
+  F05_D1_BUSINESS_TEST_RUNTIME:'I_ENABLE_F05_D1_DISPOSABLE_PG16_ONLY',
+  F05_D1_CI_ISSUER_TOKEN:issuer,F05_D1_TLS_KEY_PATH:'/tmp/f04-3-ci-key.pem',
+  F05_D1_TLS_CERT_PATH:'/tmp/f04-3-ci-cert.pem',API_HOST:'127.0.0.1',API_PORT:'49222'},stdio:'ignore'});
+ await new Promise((resolve,reject)=>{
+  let tries=0;
+  const probe=()=>{
+   const req=request({hostname:'127.0.0.1',port:49222,path:'/api/v1/health/live',method:'GET',rejectUnauthorized:false},res=>{
+    res.resume();if(res.statusCode===200)return resolve();
+    if(++tries>100)return reject(Error('D1_APPLICATION_RUNTIME_NOT_READY'));
+    setTimeout(probe,50);
+   });
+   req.on('error',()=>{if(++tries>100)return reject(Error('D1_APPLICATION_RUNTIME_NOT_READY'));setTimeout(probe,50)});req.end();
+  };probe();
+ });
 });
 test.after(async()=>{
- if(server)await new Promise(ok=>server.close(ok));
+ if(server){server.kill('SIGTERM');await new Promise(ok=>server.once('exit',ok));}
  await db.end();
 });
 test('D1-HTTP01 random CI issuer performs real TLS public-pool Owner then pending Consultation, minimal response only',async()=>{
