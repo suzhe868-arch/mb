@@ -1,12 +1,13 @@
-# 2026-10-19｜主线最新状态：F05五项旧Source门禁专项整改，F06暂停
+# 2026-10-19｜主线最新状态：PR #127 已合并，F05五项旧Source门禁事件感知整改完成；F06待A复核后恢复
 
-- **F05非生产业务交付已验收并合并**：PR #125，merge SHA `25034a7cd9e3d977e18ffb7f5dc0ba8db1008064`。业务SHA `f7503843a60bef3f94b818d80a37ec166a157775` 与证据HEAD `d5690899ff37d3b7ddc46b1640dd113309addecf` 的官方回归均为560/560通过、失败0、跳过0。
-- **用户已同意修复PR #125的5项旧Source门禁失败**。A已正式创建 [Issue #126](https://github.com/suzhe868-arch/mb/issues/126) 并放行专项整改；PR #125历史CI结果仍为5成功、5失败，5项失败保持原始事实，不能改写为通过。
-- 五项根因基线：F05-7 `F05_7_CANNOT_PROVE_66_SAME_SHA_OFFICIAL_PG16_JOBS_IN_BOUNDED_CI_RUN`；F05-8 `F05_8_OFFICIAL_68_JOB_GATE_UNPROVEN`；F05-9 `F05_9_NOT_IN_OFFICIAL_NEW_PUSH`；F05-10 `F05_10_NOT_NEW_OFFICIAL_PUSH`；D1 `D1_NOT_NEW_OFFICIAL_PUSH`。共性是校验器把当前 `pull_request` 事件误要求为同SHA旧 `push` 运行证据。
-- **当前责任：B**。任务 `F05_SOURCE_GATE_EVENT_AWARE_EVIDENCE_REPAIR_01`，建议分支 `feat/f05-source-gates-event-aware-evidence-01`，正式施工单：`07_重建工作区/F05五项旧Source门禁事件感知与证据校验整改_A主控B正式施工单_2026-10-19.md`。必须按事件类型分流：PR只验证当前PR真实业务/HTTPS证据；main官方push仍严格验证同SHA来源链。任何缺失、失败、跳过、SHA/摘要不一致仍Fail Closed。
-- **执行约束**：不修改冻结的 `.github/workflows/*.yml`；不重跑旧66项；不把PR证据冒充正式Push或Source Issuer签发；新增付费预算$0。相关F05 PR路径仅允许一个正式整改PR及其一次自然CI，避免重复扇出。
-- **F06/F07/F08暂停**，直到B完成本专项、A独立验收并合规合并。随后再恢复F06真实锁车申请/审批/唯一Lock/自动候补纵切。
-- 正式微信/F03/JYT/4S/名邦Source Issuer、完整M94迁移链、生产调度/观测/容量与C/E生产联调仍未完成：`formal_source_signed=false`、`production_ready=false`。
+- **F05非生产业务交付**：PR #125 已合并，merge SHA `25034a7cd9e3d977e18ffb7f5dc0ba8db1008064`。业务 SHA `f7503843a60bef3f94b818d80a37ec166a157775` 与证据 HEAD `d5690899ff37d3b7ddc46b1640dd113309addecf` 的官方回归均为 560/560 通过、失败 0、跳过 0。
+- **五项旧Source门禁专项整改已完成并合并**：PR [#127](https://github.com/suzhe868-arch/mb/pull/127)，最终 B HEAD `6890bd9cc80d4fc556cbe0b4e94a240b1eb6c25b`，merge SHA `fcbcef31d037530f78f4c15f94d20acdc7292c2c`。10 个关联 PR 工作流共 28/28 Jobs 成功；五个目标 Source Job 的事件契约测试各 25/25 通过、失败 0、跳过 0。A 已独立核验代码、原生日志与 HTTPS 工件摘要。
+- **验收边界**：本次只解决 PR 与 Push 事件证据校验的语义混用。PR #125 历史 5 成功、5 失败保持原始事实；旧 66 项仍为 65 项真实通过 + 1 项旧 Oracle `BLOCKED_EQUIVALENCE`，不能改写为 66/66。
+- **下一责任：A 主控**。先完成主线状态归档，再复核并正式恢复 F06 真实锁车申请/审批/唯一 Lock/自动候补纵切；F07/F08 继续后移。
+- **预算及冻结边界**：未修改冻结的 `.github/workflows/*.yml`，未重跑旧 66 项，新增付费预算 $0。
+- **生产状态未变**：`formal_source_signed=false`、`production_ready=false`。正式微信/F03/JYT/4S/名邦 Source Issuer、完整 M94 迁移链、生产调度/观测/容量及 C/E 生产联调仍未完成。C PR #68 仍为独立 Draft。
+
+正式 A 验收报告：[PR127_A主控F05五项Source事件感知整改独立验收与合并报告_2026-10-19.md](07_重建工作区/PR127_A主控F05五项Source事件感知整改独立验收与合并报告_2026-10-19.md)
 
 ---
 
