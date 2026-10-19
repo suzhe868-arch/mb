@@ -43,10 +43,28 @@ export function createIsolatedDemandLifecycleService({pool,env=process.env}={}){
      if(!employee){await c.query('ROLLBACK');return reply(401,'DEMAND_IDENTITY_REQUIRED')}
      kind='employee';actorId=String(employee.employee_id);
     }
+    // Canonical physical lock order: Customer -> entitlement -> Demand.
+    // The disabled-account trigger locks Customer then pauses Demand. Reading
+    // Demand FOR UPDATE first would deadlock with concurrent Customer disable.
+    const locator=(await c.query("SELECT customer_id FROM public.demands "+
+       "WHERE demand_id=$1",[demandId])).rows[0];
+    if(!locator){await c.query('ROLLBACK');return reply(404,'DEMAND_NOT_FOUND')}
+    const customerId=String(locator.customer_id);
+    const customerCurrent=(await c.query("SELECT account_status,customer_level_id "+
+     "FROM public.customers WHERE customer_id=$1 FOR SHARE",[customerId])).rows[0];
+    if(!customerCurrent){await c.query('ROLLBACK');return reply(403,'DEMAND_CUSTOMER_UNAVAILABLE')}
+    // Freeze the disposable Level entitlement row before touching Demand. A
+    // Level downgrade trigger holds that row before it auto-pauses Demands.
+    const entitlement=(await c.query("SELECT can_activate_demand "+
+     "FROM public.f05_find_car_level_entitlement_test "+
+     "WHERE level_id=$1 AND issuer='DISPOSABLE_TEST_ONLY' "+
+     "AND expires_at>statement_timestamp() FOR SHARE",
+     [String(customerCurrent.customer_level_id)])).rows[0];
     const demand=(await c.query("SELECT demand_id,customer_id,responsible_employee_id,demand_state "+
        "FROM public.demands WHERE demand_id=$1 FOR UPDATE",[demandId])).rows[0];
-    if(!demand){await c.query('ROLLBACK');return reply(404,'DEMAND_NOT_FOUND')}
-    const customerId=String(demand.customer_id);
+    if(!demand||String(demand.customer_id)!==customerId){
+     await c.query('ROLLBACK');return reply(404,'DEMAND_NOT_FOUND');
+    }
     if(kind==='customer'&&customerId!==actorId){
      await c.query('ROLLBACK');return reply(404,'DEMAND_NOT_FOUND');
     }
@@ -80,13 +98,7 @@ export function createIsolatedDemandLifecycleService({pool,env=process.env}={}){
     }
     const state=demand.demand_state;
     if(final.has(state)){await c.query('ROLLBACK');return reply(409,'DEMAND_TERMINAL_READ_ONLY')}
-    const customerCurrent=(await c.query("SELECT c.account_status,e.can_activate_demand "+
-     "FROM public.customers c LEFT JOIN public.f05_find_car_level_entitlement_test e "+
-     "ON e.level_id=c.customer_level_id AND e.issuer='DISPOSABLE_TEST_ONLY' "+
-     "AND e.expires_at>statement_timestamp() WHERE c.customer_id=$1 FOR SHARE OF c",
-     [customerId])).rows[0];
-    if(!customerCurrent){await c.query('ROLLBACK');return reply(403,'DEMAND_CUSTOMER_UNAVAILABLE')}
-    if(action==='RESUME'&&(customerCurrent.account_status!=='active'||customerCurrent.can_activate_demand!==true)){
+    if(action==='RESUME'&&(customerCurrent.account_status!=='active'||entitlement?.can_activate_demand!==true)){
      await c.query('ROLLBACK');return reply(403,'DEMAND_RESUME_ENTITLEMENT_REQUIRED');
     }
     if(action==='END_REQUEST'&&kind==='customer'){
