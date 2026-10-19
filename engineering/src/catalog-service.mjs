@@ -93,6 +93,7 @@ LEFT JOIN LATERAL (
  WHERE active_priority.vehicle_id=v.vehicle_id
   AND active_priority.listing_cycle_id=cy.listing_cycle_id)`;
 const CATALOG_FILTERS=' AND v.source_type=$1 AND ($4::bigint IS NULL OR v.model_id=$4::bigint) AND ($5::bigint IS NULL OR COALESCE(vm.brand_id,vs.brand_id)=$5::bigint) AND ($6::bigint IS NULL OR vm.series_id=$6::bigint) AND ($7::integer IS NULL OR vm.model_year=$7::integer)';
+const SORTED_FILTERS=' AND v.source_type=$1 AND ($2::bigint IS NULL OR v.model_id=$2::bigint) AND ($3::bigint IS NULL OR COALESCE(vm.brand_id,vs.brand_id)=$3::bigint) AND ($4::bigint IS NULL OR vm.series_id=$4::bigint) AND ($5::integer IS NULL OR vm.model_year=$5::integer)';
 export const SQL_CATALOG_LIST=BASE_SELECT+CATALOG_FILTERS+' AND ($2::timestamptz IS NULL OR (cy.started_at,cy.listing_cycle_id) < ($2::timestamptz,$3::bigint)) ORDER BY cy.started_at DESC,cy.listing_cycle_id DESC LIMIT 16';
 const SORT_CONFIG=Object.freeze({
  price_asc:{column:'price.customer_display_cents',direction:'ASC',field:'sortPriceCents'},
@@ -105,10 +106,10 @@ const SORT_CONFIG=Object.freeze({
 function buildSortedSql(cfg){
  const column=cfg.column,direction=cfg.direction,cmp=direction==='ASC'?'>':'<';
  const rank='CASE WHEN '+column+' IS NULL THEN 1 ELSE 0 END';
- return BASE_SELECT+CATALOG_FILTERS+
-  ' AND ($8::integer IS NULL OR '+rank+'>$8::integer OR ('+rank+'=$8::integer AND ('+
-  '($8::integer=0 AND (('+column+')::bigint '+cmp+' $9::bigint OR (('+column+')::bigint=$9::bigint AND (cy.started_at,cy.listing_cycle_id)<($10::timestamptz,$11::bigint)))) OR '+
-  '($8::integer=1 AND (cy.started_at,cy.listing_cycle_id)<($10::timestamptz,$11::bigint))))) '+
+ return BASE_SELECT+SORTED_FILTERS+
+  ' AND ($6::integer IS NULL OR '+rank+'>$6::integer OR ('+rank+'=$6::integer AND ('+
+  '($6::integer=0 AND (('+column+')::bigint '+cmp+' $7::bigint OR (('+column+')::bigint=$7::bigint AND (cy.started_at,cy.listing_cycle_id)<($8::timestamptz,$9::bigint)))) OR '+
+  '($6::integer=1 AND (cy.started_at,cy.listing_cycle_id)<($8::timestamptz,$9::bigint))))) '+
   'ORDER BY '+rank+' ASC,'+column+' '+direction+' NULLS LAST,cy.started_at DESC,cy.listing_cycle_id DESC LIMIT 16';
 }
 export const SQL_CATALOG_SORTS=Object.freeze(Object.fromEntries(Object.entries(SORT_CONFIG).map(([name,cfg])=>[name,buildSortedSql(cfg)])));
@@ -167,7 +168,7 @@ export function createCatalogService({pool,cursorKey}={}){
    const sql=sort==='newest'?SQL_CATALOG_LIST:SQL_CATALOG_SORTS[sort];
    const queryParams=sort==='newest'
     ?[source,cur?.at??null,cur?.id??null,modelId,brandId,seriesId,modelYear]
-    :[source,null,null,modelId,brandId,seriesId,modelYear,cur?.n??null,cur?.k??null,cur?.at??null,cur?.id??null];
+    :[source,modelId,brandId,seriesId,modelYear,cur?.n??null,cur?.k??null,cur?.at??null,cur?.id??null];
    const rows=(await pool.query(sql,queryParams)).rows;
    if(!Array.isArray(rows))throw Error('CATALOG_DB_ROWS_INVALID');
    const page=rows.slice(0,15).map(safeItem);
