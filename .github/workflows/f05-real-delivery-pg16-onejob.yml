@@ -21,6 +21,7 @@ on:
       - 'engineering/src/app.mjs'
       - 'engineering/src/server.mjs'
       - 'engineering/integration/catalog.pg16.test.mjs'
+      - 'engineering/integration/f05-full-runtime-wiring.pg16.test.mjs'
       - 'engineering/integration/f05-favorite.pg16.test.mjs'
       - 'engineering/integration/f05-consultation.pg16.test.mjs'
       - 'engineering/integration/f05-employee-start.pg16.test.mjs'
@@ -186,6 +187,7 @@ jobs:
         run: |
           set -euo pipefail
           node --test integration/catalog.pg16.test.mjs
+          node --test integration/f05-full-runtime-wiring.pg16.test.mjs
           node --test integration/f05-favorite.pg16.test.mjs
           node --test integration/f05-consultation.pg16.test.mjs
           node --test integration/f05-employee-start.pg16.test.mjs

@@ -276,6 +276,7 @@ export async function createIsolatedCatalogRuntime(env=process.env){
   const quotaAddition=createIsolatedQuotaAdditionService({pool,env});
   const findCar=createIsolatedFindCarService({pool,env});
   const activation=createIsolatedFindCarActivationService({pool,env});
+  const lifecycle=createIsolatedDemandLifecycleService({pool,env});
   const matching=createIsolatedMatchingService({pool,env});
   const dictionary=createIsolatedDictionaryService({pool,env});
   const discovery=createIsolatedMatchingDiscoveryService({pool,env});
