@@ -195,7 +195,7 @@ if(!setupError){
  });
  await test('过期超过6小时申请不得再审批',async()=>{
   const draft=await intake(0,1);assert.equal(draft.status,201);
-  await db.query("UPDATE public.lock_requests SET expires_at=clock_timestamp()-interval '1 second' WHERE lock_request_id=$1",[draft.body.requestId]);
+  await db.query("UPDATE public.lock_requests SET created_at=clock_timestamp()-interval '7 hours',expires_at=clock_timestamp()-interval '1 hour' WHERE lock_request_id=$1",[draft.body.requestId]);
   const expired=await decide(draft.body.requestId);assert.equal(expired.body.state,'expired');
   assert.equal((await scalar('SELECT status FROM public.lock_requests WHERE lock_request_id=$1',[draft.body.requestId])).status,'expired');
  });
