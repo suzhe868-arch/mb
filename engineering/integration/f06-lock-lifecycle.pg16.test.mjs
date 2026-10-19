@@ -82,6 +82,12 @@ test('L32 已结束上架周期不得触发普通系统到期',async()=>{const l
 test('L33 未验证责任handoff链时延期/release/expire均拒绝且零写入',async()=>{
  for(const action of ['extend','release','expire']){
   const l=await activeLock();
+  if(action==='extend'){
+   const carrier=await scalar("SELECT to_regclass('public.lock_responsible_handover_receipts') IS NOT NULL AS available");
+   const receiptCount=carrier.available?Number((await scalar('SELECT count(*)::int n FROM public.lock_responsible_handover_receipts WHERE lock_id=$1',[l.lockId])).n):null;
+   console.info('F06_RESPONSIBLE_HANDOFF_CARRIER',JSON.stringify({available:carrier.available,receiptCountForFreshLock:receiptCount,validSyntheticChainAvailable:false}));
+   if(carrier.available)assert.equal(receiptCount,0,'新建测试Lock不应伪造或复用历史责任交接凭据');
+  }
   const snap=await scalar('SELECT responsible_employee_id FROM f06_real_lock_test.lock_snapshots WHERE lock_id=$1',[l.lockId]);
   assert.ok(snap?.responsible_employee_id,'必须有创建时责任员工快照');
   const alternate=String(snap.responsible_employee_id)==='6'?'7':'6';
