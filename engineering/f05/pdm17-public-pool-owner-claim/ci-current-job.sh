@@ -52,4 +52,11 @@ node --test f05/pdm17-public-pool-owner-claim/tests/source.test.mjs 2>&1 | tee /
 grep -q '# fail 0' /tmp/f05-d1-current-source.log
 node f05/pdm17-public-pool-owner-claim/runner.mjs --verify
 
+openssl req -x509 -newkey rsa:2048 -sha256 -nodes -days 1 \
+ -keyout /tmp/f04-3-ci-key.pem -out /tmp/f04-3-ci-cert.pem -subj '/CN=127.0.0.1' >/dev/null 2>&1
+chmod 600 /tmp/f04-3-ci-key.pem
+node --test f05/pdm17-public-pool-owner-claim/tests/business-https.test.mjs 2>&1 | tee /tmp/f05-d1-current-https.log
+grep -q '# fail 0' /tmp/f05-d1-current-https.log
+node f05/pdm17-public-pool-owner-claim/runner.mjs --verify
+
 echo F05_D1_CURRENT_PG16_OWNER_CONSULTATION_PASS
