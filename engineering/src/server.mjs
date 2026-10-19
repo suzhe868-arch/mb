@@ -6,7 +6,6 @@ import {createAuthHandler} from './f03-auth-http.mjs';
 import {verifyAuthDatabase} from './f03-auth-readiness.mjs';
 import {createIsolatedCatalogRuntime} from './catalog-readiness.mjs';
 import {createIsolatedCatalogServerOptions} from './catalog-wiring.mjs';
-import {createD1BusinessTestServer} from '../f05/pdm17-public-pool-owner-claim/ci-business-router.mjs';
 import {createServer as createHttpsServer} from 'node:https';
 import {readFile} from 'node:fs/promises';
 const {host,port}=loadConfig();
@@ -14,6 +13,7 @@ let server,service,catalog;
 if(process.env.F05_D1_BUSINESS_TEST_RUNTIME==='I_ENABLE_F05_D1_DISPOSABLE_PG16_ONLY'){
  if(host!=='127.0.0.1')throw Error('D1_BUSINESS_TEST_LOOPBACK_REQUIRED');
  if(!process.env.F05_D1_TLS_KEY_PATH||!process.env.F05_D1_TLS_CERT_PATH)throw Error('D1_BUSINESS_TEST_TLS_REQUIRED');
+ const {createD1BusinessTestServer}=await import('../f05/pdm17-public-pool-owner-claim/ci-business-router.mjs');
  server=createD1BusinessTestServer({issuerToken:process.env.F05_D1_CI_ISSUER_TOKEN,
   key:await readFile(process.env.F05_D1_TLS_KEY_PATH),cert:await readFile(process.env.F05_D1_TLS_CERT_PATH)});
 }else if(process.env.F05_REAL_CATALOG_ENABLE==='I_ENABLE_F05_TEST_ONLY_CATALOG'){
