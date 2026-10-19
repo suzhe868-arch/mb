@@ -6,7 +6,7 @@
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "2a99ca162a134fa3c60e07c6d2e17879b4be00af",
+  "github_commit": "45f875177161024a2d2034c53bb76586cbcdff75",
   "node_http_stub_tests": {
     "passed": 153,
     "failed": 0,
@@ -14,8 +14,8 @@
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39194742354,
-    "head_sha": "2a99ca162a134fa3c60e07c6d2e17879b4be00af",
+    "run_id": 39195174159,
+    "head_sha": "45f875177161024a2d2034c53bb76586cbcdff75",
     "node_http_tests_passed": 153,
     "real_pg16_integration_tests_passed": 280,
     "failed": 0,
@@ -355,8 +355,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "MAIN_PR_WORKFLOW_TRIGGER_GOVERNANCE_NOT_RELEASED_5_VERIFIED_F05_PATH_MATCHES_OTHER_WORKFLOWS_NOT_EXHAUSTIVELY_AUDITED",
-  "tested_commit": "2a99ca162a134fa3c60e07c6d2e17879b4be00af",
-  "tested_run": 39194742354,
+  "tested_commit": "45f875177161024a2d2034c53bb76586cbcdff75",
+  "tested_run": 39195174159,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -916,16 +916,18 @@
     "disallowed_production_identity_issuer": true,
     "true_pg16_tests": 10,
     "first_human_response_verified": false,
-    "audited_sha": "2a99ca162a134fa3c60e07c6d2e17879b4be00af",
-    "audited_run": 39194742354,
-    "fail_closed_without_formal_signers": true
+    "audited_sha": "45f875177161024a2d2034c53bb76586cbcdff75",
+    "audited_run": 39195174159,
+    "fail_closed_without_formal_signers": true,
+    "employee_closure_reason_immutable_event_column": "f05_demand_lifecycle_events_test.reason_text",
+    "employee_closure_reason_physically_verified": true
   },
   "pr_trigger_audit": {
     "main_sha": "9181a997edae1ad46fcda1b5a4777826512be955",
-    "comparison_head": "2a99ca162a134fa3c60e07c6d2e17879b4be00af",
-    "ahead_commits": 236,
+    "comparison_head": "45f875177161024a2d2034c53bb76586cbcdff75",
+    "ahead_commits": 238,
     "behind_commits": 0,
-    "changed_files": 148,
+    "changed_files": 149,
     "changed_workflow_files": [
       ".github/workflows/f05-real-delivery-pg16-onejob.yml"
     ],
