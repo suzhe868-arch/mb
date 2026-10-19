@@ -200,7 +200,7 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
   return null;
  }
  async function conflict(db,req,activeLockId){
-  const expires=await first(db,'SELECT $1::timestamptz<=clock_timestamp() past',[req.expires_at]);
+  const expires=await first(db,"SELECT $1::timestamptz<=clock_timestamp() OR $2::timestamptz+interval '6 hours'<=clock_timestamp() past",[req.expires_at,req.created_at]);
   if(expires?.past){await finish(db,req,'expired');return {requestId:String(req.lock_request_id),status:'expired'};}
   const current=await facts(db,req.customer_id,req.vehicle_id,req.listing_cycle_id);
   if(current.error){await finish(db,req,'closed_not_lockable');return {requestId:String(req.lock_request_id),status:'closed_not_lockable'};}
@@ -266,7 +266,7 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
      WHERE customer_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3 AND status='pending'
      ORDER BY created_at,lock_request_id FOR UPDATE`,[who.customer_id,vehicleId,listingCycleId])).rows;
     for(const req of pending){
-     const expired=(await first(db,'SELECT $1::timestamptz<=clock_timestamp() AS past',[req.expires_at])).past;
+     const expired=(await first(db,"SELECT $1::timestamptz<=clock_timestamp() OR $2::timestamptz+interval '6 hours'<=clock_timestamp() AS past",[req.expires_at,req.created_at])).past;
      if(expired)await finish(db,req,'expired');
      else return response(200,'CURRENT_PENDING_REUSED',{requestId:String(req.lock_request_id),state:'pending'});
     }
@@ -274,10 +274,11 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
       AND lock_status='active' LIMIT 1`,[vehicleId]);
     if(lock)return response(409,'VEHICLE_ALREADY_LOCKED_USE_WAITLIST');
     const requestId=(await first(db,`SELECT nextval('${LOCK_SCHEMA}.request_ids')::bigint AS id`)).id;
+    const createdAt=(await first(db,'SELECT clock_timestamp() AS now')).now;
     const created=await first(db,`INSERT INTO public.lock_requests
       (lock_request_id,customer_id,vehicle_id,listing_cycle_id,status,created_at,expires_at)
-      VALUES($1,$2,$3,$4,'pending',clock_timestamp(),clock_timestamp()+interval '6 hours')
-      RETURNING lock_request_id,expires_at`,[requestId,who.customer_id,vehicleId,listingCycleId]);
+      VALUES($1,$2,$3,$4,'pending',$5,$5::timestamptz+interval '6 hours')
+      RETURNING lock_request_id,expires_at`,[requestId,who.customer_id,vehicleId,listingCycleId,createdAt]);
     await db.query(`INSERT INTO ${LOCK_SCHEMA}.request_keys
      (request_id,customer_id,key_sha256,payload_sha256,issuer)
      VALUES($1,$2,$3,$4,'DISPOSABLE_TEST_ONLY')`,[requestId,who.customer_id,digest,payload]);
@@ -316,7 +317,7 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     }
     let result;
     if(req.status!=='pending')result=response(200,'LOCK_REQUEST_TERMINAL',{requestId,state:req.status});
-    else if((await first(db,'SELECT $1::timestamptz<=clock_timestamp() AS past',[req.expires_at])).past){
+    else if((await first(db,"SELECT $1::timestamptz<=clock_timestamp() OR $2::timestamptz+interval '6 hours'<=clock_timestamp() AS past",[req.expires_at,req.created_at])).past){
      await finish(db,req,'expired',{employeeId:actor.employee_id});
      result=response(200,'LOCK_REQUEST_EXPIRED',{requestId,state:'expired'});
     }else if(decision==='reject'){
