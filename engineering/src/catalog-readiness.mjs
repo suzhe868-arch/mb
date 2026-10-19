@@ -284,6 +284,7 @@ export async function createIsolatedCatalogRuntime(env=process.env){
   const service=createCatalogService({pool,cursorKey:randomBytes(32)});
   const favorite=createIsolatedFavoriteService({pool,env});
   const consultation=createIsolatedConsultationService({pool,env});
+  const consultationResponse=createIsolatedConsultationResponseService({pool,env});
   const employeeStart=createIsolatedEmployeeStartService({pool,env});
   const handover=createIsolatedHandoverService({pool,env});
   const slaHold=createIsolatedSlaHoldService({pool,env});
