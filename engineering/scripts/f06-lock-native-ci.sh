@@ -40,16 +40,17 @@ docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres \
 node f05/wholesale-to-mingbang-conversion/ci-run.mjs source
 node f05/wholesale-to-mingbang-conversion/runner.mjs --verify
 node f05/customer-price-entitlement-cycle/ci-seed-jyt.mjs
-for stage in \
- f05/favorite-physical-carrier \
- f05/customer-price-entitlement-cycle \
- f05/employee-price-quota-adjustment \
- f05/find-car-application-demand-eligibility
+# Each fixture verifies its *own* signed version and must precede next migration.
+for stage in f05/favorite-physical-carrier f05/customer-price-entitlement-cycle
 do
  node "$stage/runner.mjs" --apply
  node "$stage/runner.mjs" --verify
 done
+node f05/employee-price-quota-adjustment/runner.mjs --apply
+node f05/employee-price-quota-adjustment/runner.mjs --verify
 node f05/employee-price-quota-adjustment/fixtures.mjs
+node f05/find-car-application-demand-eligibility/runner.mjs --apply
+node f05/find-car-application-demand-eligibility/runner.mjs --verify
 node f05/find-car-application-demand-eligibility/fixtures.mjs
 node f05/deterministic-matching-readiness-four-tier/preseed.mjs
 node f05/deterministic-matching-readiness-four-tier/runner.mjs --apply
