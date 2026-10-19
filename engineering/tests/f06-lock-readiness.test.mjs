@@ -17,3 +17,11 @@ test('隔离真实形状经 PG16 元数据检验通过',async()=>assert.equal(aw
 test('PostgreSQL 17 不得冒充 PG16',async()=>await assert.rejects(()=>verifyF06TestDatabase({query:async()=>({rows:[{...ready,version:170000}]})}),/SHAPE/));
 test('伪造 schema 列表不能启动',async()=>await assert.rejects(()=>verifyF06TestDatabase({query:async()=>({rows:[{...ready,locks:false}]})}),/SHAPE/));
 test('其他数据库角色不能启动',async()=>await assert.rejects(()=>verifyF06TestDatabase({query:async()=>({rows:[{...ready,role:'postgres'}]})}),/SHAPE/));
+test('未装载完整签署F03迁移台账，必须拒绝启动',async()=>{
+ await assert.rejects(()=>verifyF06TestDatabase({query:async()=>({rows:[{...ready,signed_ledger:false}]})}),/F06_LOCK_PG16_SHAPE_NOT_VERIFIED/);
+});
+test('Priority来源或事件表缺失时，不得启动F06正式锁车事务',async()=>{
+ for(const field of ['priority_source','priority_events','match_source','recommendation_source']){
+  await assert.rejects(()=>verifyF06TestDatabase({query:async()=>({rows:[{...ready,[field]:false}]})}),/F06_LOCK_PG16_SHAPE_NOT_VERIFIED/);
+ }
+});
