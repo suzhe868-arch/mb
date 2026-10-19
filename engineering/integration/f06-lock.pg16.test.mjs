@@ -94,15 +94,22 @@ async function fixture(){
     (token_sha256,customer_id,issuer,expires_at)
     VALUES($1,$2,'DISPOSABLE_TEST_ONLY',clock_timestamp()+interval '10 minutes')`,[sha(custTokens[i]),customers[i]]);
   }
+  // The signed F03 synthetic accounts may legitimately require password changes
+  // or be disabled. Never flip their signed credential_state/force_password_change.
+  // Instead create isolated, explicitly non-loginable F06 test-only PC references.
   for(const [tokenValue,id] of [[employeeToken,1],[nonprivilegedToken,4]]){
-   const pc=await scalar(`SELECT account_id,credential_epoch FROM public.pc_login_accounts
-    WHERE employee_id=$1 AND principal_kind='employee' AND system_admin_id IS NULL
-     AND credential_state='enabled' AND force_password_change=false ORDER BY account_id LIMIT 1`,[id]);
-   assert.ok(pc,'F06 requires existing F03 signed enabled unrestricted Employee credential');
+   const pc=await scalar(`INSERT INTO public.pc_login_accounts
+     (account_id,normalized_login_key,principal_kind,employee_id,system_admin_id,
+      password_hash,credential_state,force_password_change)
+     VALUES($1,$2,'employee',$3,NULL,'F06_TEST_ONLY_INVALID_PASSWORD_HASH_NOT_A_LOGIN',
+      'enabled',false)
+     RETURNING account_id,credential_epoch`,[
+       id===1?'96189001':'96189004','f06_disposable_employee_'+id,id]);
+   assert.ok(pc,'F06 disposable employee account must exist in physical PG16 fixture');
    await db.query(`INSERT INTO f06_real_lock_test.employee_sessions
-    (token_sha256,employee_id,account_id,credential_epoch,issuer,expires_at)
-    VALUES($1,$2,$3,$4,'DISPOSABLE_TEST_ONLY',clock_timestamp()+interval '10 minutes')`,
-    [sha(tokenValue),id,pc.account_id,pc.credential_epoch]);
+     (token_sha256,employee_id,account_id,credential_epoch,issuer,expires_at)
+     VALUES($1,$2,$3,$4,'DISPOSABLE_TEST_ONLY',clock_timestamp()+interval '10 minutes')`,
+     [sha(tokenValue),id,pc.account_id,pc.credential_epoch]);
   }
   await db.query('COMMIT');seedDone=true;
  }catch(error){await db.query('ROLLBACK');throw error}
@@ -114,6 +121,22 @@ try{await fixture()}catch(e){setupError=e}
 test('必须连接隔离真 PG16 并准备物理 fixture，无测试跳过',()=>{if(setupError)throw setupError;assert.equal(seedDone,true)});
 if(!setupError){
  let r1,r2,idA,idB,approverResult;
+ await test('独立 F06 员工令牌只引用不可登录的测试账号且不修改原有 F03 账号',async()=>{
+  const accounts=await db.query(`SELECT a.employee_id,a.password_hash,a.force_password_change,s.issuer
+   FROM f06_real_lock_test.employee_sessions s
+   JOIN public.pc_login_accounts a ON a.account_id=s.account_id
+   WHERE a.employee_id IN (1,4) ORDER BY a.employee_id`);
+  assert.equal(accounts.rows.length,2);
+  for(const row of accounts.rows){
+   assert.equal(row.password_hash,'F06_TEST_ONLY_INVALID_PASSWORD_HASH_NOT_A_LOGIN');
+   assert.equal(row.force_password_change,false);
+   assert.equal(row.issuer,'DISPOSABLE_TEST_ONLY');
+  }
+  const originals=await db.query("SELECT employee_id,credential_state,force_password_change FROM public.pc_login_accounts WHERE account_id IN (1,5) ORDER BY account_id");
+  assert.equal(originals.rows.length,2);
+  assert.equal(originals.rows[0].force_password_change,true);
+  assert.equal(originals.rows[1].credential_state,'disabled');
+ });
  await test('真实 HTTP 建立6小时 PENDING；尚未占车、没有72h价格快照',async()=>{
   const idempotencyKey=key();r1=await intake(0,0,idempotencyKey);
   assert.equal(r1.status,201);assert.equal(r1.body.state,'pending');idA=r1.body.requestId;
