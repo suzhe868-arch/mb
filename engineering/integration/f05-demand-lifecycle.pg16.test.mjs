@@ -93,6 +93,9 @@ try{
  });
  await test('PG16 forced audit failure rolls back actual Demand state; same key succeeds after recovery',async()=>{
   const key=secret();
+  // Earlier Customer account disable paused every active Demand, including 59681.
+  // Recovery is a separate authorized action before exercising an active->paused fault.
+  assert.equal((await act('RESUME',employeeToken,'59681')).status,200);
   await db.query("CREATE FUNCTION public.f05_demand_audit_fault_test() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'INJECTED_DEMAND_AUDIT_FAILURE'; END $$");
   await db.query("CREATE TRIGGER f05_demand_audit_fault BEFORE INSERT ON public.f05_demand_lifecycle_events_test FOR EACH ROW EXECUTE FUNCTION public.f05_demand_audit_fault_test()");
   try{
