@@ -214,6 +214,11 @@ export const SQL_CATALOG_SCHEMA=`SELECT
  to_regclass('public.f05_priority_qualification_manage_scope_test') IS NOT NULL AS p8m,
  to_regclass('public.f05_priority_qualification_events_test') IS NOT NULL AS p8a,
  to_regclass('public.f05_priority_safe_active_test') IS NOT NULL AS p8v,
+ (to_regclass('public.f05_demand_lifecycle_scope_test') IS NOT NULL
+  AND to_regclass('public.f05_demand_end_requests_test') IS NOT NULL
+  AND to_regclass('public.f05_demand_lifecycle_events_test') IS NOT NULL
+  AND EXISTS(SELECT 1 FROM pg_catalog.pg_trigger
+    WHERE tgname='f05_demand_lifecycle_events_no_mutation_test' AND NOT tgisinternal)) AS dl,
  (SELECT count(*)=26 FROM pg_catalog.pg_trigger t WHERE NOT t.tgisinternal AND t.tgname IN
  ('f05_match_customer_guard_test','f05_match_employee_authority_test','f05_match_demand_lifecycle_test',
   'f05_match_vehicle_saleability_test','f05_match_listing_cycle_test',
@@ -233,7 +238,7 @@ export const SQL_CATALOG_SCHEMA=`SELECT
    AND attr.attname=expected.column_name AND attr.attnum>0 AND NOT attr.attisdropped
   WHERE attr.attname IS NULL OR pg_catalog.format_type(attr.atttypid,attr.atttypmod)<>expected.physical_type
  ) AS shape,
- (SELECT count(*)=119 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
+ (SELECT count(*)=122 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
  (SELECT count(*)=2 FROM pg_catalog.pg_constraint fk
   WHERE fk.contype='f'
    AND fk.conrelid IN (to_regclass('public.f05_real_catalog_visibility_test'),to_regclass('public.f05_real_catalog_protections_test'))
@@ -248,7 +253,7 @@ export async function probeIsolatedCatalog(pool){
   const identity=(await pool.query(SQL_CATALOG_IDENTITY)).rows[0];
   if(!identity || Math.floor(Number(identity.v)/10000)!==16 || identity.db!=='f05_catalog_test' || identity.role!=='f05_catalog_ci')return false;
   const schema=(await pool.query(SQL_CATALOG_SCHEMA)).rows[0];
-  return !!schema && Object.keys(schema).sort().join(',')==='aq,c,ca,cp,di,ec,es,fac,fca,fcd,fce,fcp,fe,fk,fr,fs,ft,full,he,iv,md,me,mv,mx,p,p8a,p8c,p8e,p8m,p8q,p8s,p8u,p8v,p8w,pe,pf,po,pp,qa,qs,ra,re,rn,rp,rs,ru,rv,sh,shape,ss,sv,v,x' && Object.values(schema).every(v=>v===true);
+  return !!schema && Object.keys(schema).sort().join(',')==='aq,c,ca,cp,di,dl,ec,es,fac,fca,fcd,fce,fcp,fe,fk,fr,fs,ft,full,he,iv,md,me,mv,mx,p,p8a,p8c,p8e,p8m,p8q,p8s,p8u,p8v,p8w,pe,pf,po,pp,qa,qs,ra,re,rn,rp,rs,ru,rv,sh,shape,ss,sv,v,x' && Object.values(schema).every(v=>v===true);
  }catch{return false}
 }
 export async function createIsolatedCatalogRuntime(env=process.env){
