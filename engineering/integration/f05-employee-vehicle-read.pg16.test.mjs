@@ -18,32 +18,32 @@ try{
  await db.query('BEGIN');
  try{
   await db.query("INSERT INTO public.employees(employee_id,main_role_id,employment_status,receiving_status) VALUES"+
-   "(60100,59001,'active','receiving'),(60101,59002,'active','receiving'),(60102,59001,'active','receiving')");
-  for(const [bearer,id] of [[seller,60100],[fourS,60101],[other,60102]])
+   "(69910,59001,'active','receiving'),(69911,59002,'active','receiving'),(69912,59001,'active','receiving')");
+  for(const [bearer,id] of [[seller,69910],[fourS,69911],[other,69912]])
    await db.query("INSERT INTO public.f05_catalog_employee_sessions_test(token_sha256,employee_id,expires_at) VALUES($1,$2,statement_timestamp()+interval '15 minutes')",[hash(bearer),id]);
   await db.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,created_at) VALUES"+
-   "(60100,'mingbang','available','visible',statement_timestamp()),"+
-   "(60101,'four_s','available','hidden',statement_timestamp()),"+
-   "(60102,'wholesale','active','visible',statement_timestamp())");
+   "(69910,'mingbang','available','visible',statement_timestamp()),"+
+   "(69911,'four_s','available','hidden',statement_timestamp()),"+
+   "(69912,'wholesale','active','visible',statement_timestamp())");
   await db.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES"+
-   "(60100,60100,statement_timestamp()),(60101,60101,statement_timestamp()),(60102,60102,statement_timestamp())");
+   "(69910,69910,statement_timestamp()),(69911,69911,statement_timestamp()),(69912,69912,statement_timestamp())");
   await db.query("INSERT INTO public.f05_vehicle_read_scope_test(employee_id,vehicle_id,listing_cycle_id,source_type,can_read,expires_at) VALUES"+
-   "(60100,60100,60100,'mingbang',true,statement_timestamp()+interval '15 minutes'),"+
-   "(60100,60102,60102,'wholesale',true,statement_timestamp()+interval '15 minutes'),"+
-   "(60101,60101,60101,'four_s',true,statement_timestamp()+interval '15 minutes'),"+
-   "(60101,60102,60102,'wholesale',true,statement_timestamp()+interval '15 minutes')");
+   "(69910,69910,69910,'mingbang',true,statement_timestamp()+interval '15 minutes'),"+
+   "(69910,69912,69912,'wholesale',true,statement_timestamp()+interval '15 minutes'),"+
+   "(69911,69911,69911,'four_s',true,statement_timestamp()+interval '15 minutes'),"+
+   "(69911,69912,69912,'wholesale',true,statement_timestamp()+interval '15 minutes')");
   await db.query('COMMIT');
  }catch(e){await db.query('ROLLBACK');throw e}
  const service=createIsolatedEmployeeVehicleReadService({pool,env:process.env});
  server=createServer(createFoundationHandler({employeeVehicleReadHandler:createIsolatedEmployeeVehicleReadHandler(service,process.env)}));
  await new Promise((ok,bad)=>{server.once('error',bad);server.listen(0,'127.0.0.1',ok)});
- const call=async(vehicleId='60100',bearer=seller,headers={})=>{
+ const call=async(vehicleId='69910',bearer=seller,headers={})=>{
   const res=await fetch('http://127.0.0.1:'+server.address().port+'/api/v1/catalog/internal/vehicles/'+vehicleId,
    {headers:{authorization:'Bearer '+bearer,...headers}});
   return {status:res.status,body:await res.json()};
  };
  await test('PG16 employee read of explicit current Mingbang and wholesale scope omits VIN, phone and price',async()=>{
-  for(const id of ['60100','60102']){
+  for(const id of ['69910','69912']){
    const x=await call(id);assert.equal(x.status,200,JSON.stringify(x));
    assert.equal(x.body.vehicle.vehicleId,id);
    assert.equal(x.body.price,null);assert.equal(x.body.phone,null);assert.equal(x.body.vin,null);
@@ -53,21 +53,21 @@ try{
   }
  });
  await test('PG16 actual 4S member only sees explicitly scoped 4S source; no cross-source Employee privilege',async()=>{
-  const allowed=await call('60101',fourS);assert.equal(allowed.status,200);
+  const allowed=await call('69911',fourS);assert.equal(allowed.status,200);
   assert.equal(allowed.body.vehicle.sourceType,'four_s');
-  assert.equal((await call('60102',fourS)).status,404);
-  assert.equal((await call('60100',other)).status,404);
-  assert.equal((await call('60101',seller)).status,404);
-  assert.equal((await call('60100',secret())).status,404);
+  assert.equal((await call('69912',fourS)).status,404);
+  assert.equal((await call('69910',other)).status,404);
+  assert.equal((await call('69911',seller)).status,404);
+  assert.equal((await call('69910',secret())).status,404);
  });
  await test('PG16 stopped listing cycle, expired Employee scope and revocation immediately deny',async()=>{
-  await db.query("UPDATE public.f05_vehicle_read_scope_test SET expires_at=statement_timestamp()-interval '1 second' WHERE employee_id=60100 AND vehicle_id=60102");
-  assert.equal((await call('60102')).status,404);
-  await db.query("UPDATE public.vehicle_listing_cycles SET ended_at=statement_timestamp() WHERE listing_cycle_id=60100");
-  assert.equal((await call('60100')).status,404);
+  await db.query("UPDATE public.f05_vehicle_read_scope_test SET expires_at=statement_timestamp()-interval '1 second' WHERE employee_id=69910 AND vehicle_id=69912");
+  assert.equal((await call('69912')).status,404);
+  await db.query("UPDATE public.vehicle_listing_cycles SET ended_at=statement_timestamp() WHERE listing_cycle_id=69910");
+  assert.equal((await call('69910')).status,404);
   await db.query("UPDATE public.f05_catalog_employee_sessions_test SET revoked_at=statement_timestamp() WHERE token_sha256=$1",[hash(fourS)]);
-  assert.equal((await call('60101',fourS)).status,404);
-  assert.equal((await call('60100',seller,{'x-employee-id':'60100'})).status,403);
+  assert.equal((await call('69911',fourS)).status,404);
+  assert.equal((await call('69910',seller,{'x-employee-id':'69910'})).status,403);
  });
 }catch(e){error=e}finally{
  if(server)await new Promise(ok=>server.close(ok));
