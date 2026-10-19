@@ -70,6 +70,21 @@ async function api(repo,path,token){
  if(!response.ok)throw Error('SOURCE_GATE_PR_EVIDENCE_GITHUB_API_'+response.status+'_'+path.slice(0,80));
  return response.json();
 }
+export async function verifyCurrentOfficialMainPush({workflowPath,artifactDirectory}){
+ const env=process.env;
+ if(env.GITHUB_EVENT_NAME!=='push'||env.GITHUB_REF!=='refs/heads/main')throw Error('SOURCE_GATE_PUSH_EVIDENCE_NOT_OFFICIAL_MAIN_PUSH');
+ if(env.CI!=='true'||env.GITHUB_ACTIONS!=='true'||env.GITHUB_REPOSITORY!=='suzhe868-arch/mb'||!env.GH_ACTIONS_READ_TOKEN||!env.GITHUB_EVENT_PATH)
+  throw Error('SOURCE_GATE_PUSH_EVIDENCE_CI_CONTEXT_REQUIRED');
+ const event=JSON.parse(await (await import('node:fs/promises')).readFile(env.GITHUB_EVENT_PATH,'utf8'));
+ const repo=env.GITHUB_REPOSITORY;
+ const run=await api(repo,'/actions/runs/'+env.GITHUB_RUN_ID,env.GH_ACTIONS_READ_TOKEN);
+ const evidence=validateOfficialMainPushContext({event,env,run,workflowPath});
+ const dir=resolve(process.cwd(),artifactDirectory);
+ await mkdir(dir,{recursive:true});
+ await writeFile(resolve(dir,'official-main-push-context.json'),JSON.stringify(evidence,null,2));
+ console.log('SOURCE_GATE_OFFICIAL_MAIN_PUSH_CONTEXT',JSON.stringify(evidence));
+ return evidence;
+}
 export async function verifyCurrentPullRequestRun({workflowPath,sourceJobName,expectedJobs,artifactDirectory}){
  const env=process.env;
  if(env.GITHUB_EVENT_NAME!=='pull_request')throw Error('SOURCE_GATE_PR_EVIDENCE_WRONG_DISPATCH');
