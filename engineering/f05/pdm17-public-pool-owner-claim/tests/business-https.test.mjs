@@ -5,13 +5,14 @@ import {readFileSync} from 'node:fs';
 import {createServer,request} from 'node:https';
 import {connect,verify} from '../migration.mjs';
 import {createD1BusinessCIHandler} from '../ci-business-router.mjs';
+import {createFoundationHandler} from '../../../src/app.mjs';
 
 const origin='https://127.0.0.1:49222';
 const issuer=randomBytes(32).toString('base64url');
 const db=await connect();
 let server,vehicle;
 const k=x=>'d1-current-business-https-'+x+'-20261019';
-async function call(body,token=issuer,extra={},path='/__ci__/f05-10-d1-business/v1/consultations',method='POST'){
+async function call(body,token=issuer,extra={},path='/api/v1/public-pool/consultations',method='POST'){
  const bytes=body===null?null:Buffer.from(JSON.stringify(body));
  return new Promise((resolve,reject)=>{
   const req=request({hostname:'127.0.0.1',port:49222,path,method,rejectUnauthorized:false,
@@ -44,7 +45,7 @@ test.before(async()=>{
  await db.query("INSERT INTO public.customer_phone_facts(phone_fact_id,customer_id,phone_ciphertext,valid_from) "+
   "SELECT COALESCE(MAX(phone_fact_id),0)+1,989220,decode('11223344','hex'),clock_timestamp() FROM public.customer_phone_facts");
  server=createServer({key:readFileSync('/tmp/f04-3-ci-key.pem'),cert:readFileSync('/tmp/f04-3-ci-cert.pem')},
-  createD1BusinessCIHandler({issuerToken:issuer}));
+  createFoundationHandler({publicPoolConsultationHandler:createD1BusinessCIHandler({issuerToken:issuer})}));
  await new Promise((ok,bad)=>{server.once('error',bad);server.listen(49222,'127.0.0.1',ok)});
 });
 test.after(async()=>{
@@ -94,7 +95,7 @@ test('D1-HTTP04 owner forms first but missing phone fact blocks later Consultati
  assert.equal((await db.query('SELECT count(*)::int n FROM public.consultations WHERE customer_id=989221')).rows[0].n,0);
 });
 test('D1-HTTP05 production-looking route, GET, extra fields and malformed identity remain closed',async()=>{
- assert.equal((await call(payload(989222),issuer,{},'/api/v1/public-pool/consultations')).status,404);
+ assert.equal((await call(payload(989222),issuer,{},'/api/v1/public-pool/consultations/')).status,404);
  assert.equal((await call(null,issuer,{},'/__ci__/f05-10-d1-business/v1/consultations','GET')).status,405);
  assert.equal((await call({...payload(989222),ownerId:7})).status,400);
  assert.equal((await call({...payload(989222),customerId:'0989222'})).status,400);
