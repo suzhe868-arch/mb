@@ -24,6 +24,7 @@ export function validatePullRequestEvidence({event,env,run,jobs,workflowPath,sou
  const pr=event.pull_request;
  if(!own(pr)||pr.base?.ref!=='main'||pr.base?.repo?.full_name!=='suzhe868-arch/mb')fail('TARGET_BRANCH_MISMATCH');
  if(!SHA.test(pr.head?.sha||''))fail('INVALID_PR_HEAD_SHA');
+ if(!Number.isSafeInteger(pr.number)||env.GITHUB_REF!=='refs/pull/'+pr.number+'/merge')fail('PR_REF_MISMATCH');
  if(!SHA.test(env.GITHUB_SHA||'')||run.head_sha!==env.GITHUB_SHA)fail('RUN_SHA_MISMATCH');
  if(!Number.isSafeInteger(Number(env.GITHUB_RUN_ID))||Number(env.GITHUB_RUN_ID)!==run.id)fail('RUN_ID_MISMATCH');
  if(!Number.isSafeInteger(Number(env.GITHUB_RUN_ATTEMPT))||Number(env.GITHUB_RUN_ATTEMPT)!==run.run_attempt)fail('RUN_ATTEMPT_MISMATCH');
@@ -104,9 +105,6 @@ export async function verifyCurrentPullRequestRun({workflowPath,sourceJobName,ex
  const event=JSON.parse(await (await import('node:fs/promises')).readFile(env.GITHUB_EVENT_PATH,'utf8'));
  const repo=env.GITHUB_REPOSITORY;
  const run=await api(repo,'/actions/runs/'+env.GITHUB_RUN_ID,env.GH_ACTIONS_READ_TOKEN);
- const pull=await api(repo,'/pulls/'+event.pull_request?.number,env.GH_ACTIONS_READ_TOKEN);
- if(pull.state!=='open'||pull.base?.ref!=='main'||pull.head?.sha!==event.pull_request?.head?.sha||
-   pull.head?.repo?.full_name!=='suzhe868-arch/mb')throw Error('SOURCE_GATE_PR_EVIDENCE_LIVE_PR_CONTEXT_MISMATCH');
  const jobData=await api(repo,'/actions/runs/'+env.GITHUB_RUN_ID+'/jobs?per_page=100',env.GH_ACTIONS_READ_TOKEN);
  const artifactData=await api(repo,'/actions/runs/'+env.GITHUB_RUN_ID+'/artifacts?per_page=100',env.GH_ACTIONS_READ_TOKEN);
  const evidence=validatePullRequestEvidence({event,env,run,jobs:jobData.jobs||[],workflowPath,sourceJobName,expectedJobs,
