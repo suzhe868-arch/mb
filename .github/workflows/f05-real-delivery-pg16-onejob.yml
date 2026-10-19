@@ -22,6 +22,13 @@ on:
       - 'engineering/src/f05-priority-*.mjs'
       - 'engineering/src/app.mjs'
       - 'engineering/src/server.mjs'
+      - 'engineering/src/f03-auth-*.mjs'
+      - 'engineering/f05/vehicle-stewardship-physical-scope/**'
+      - 'engineering/f05/four-s-member-trust-scope/**'
+      - 'engineering/f05/jyt-wholesale-lineage-cycle/**'
+      - 'engineering/f05/wholesale-to-mingbang-conversion/**'
+      - 'engineering/f05/wholesale-object-scope-trust/**'
+      - 'engineering/f05/hide-reason-trust-recalculation/**'
       - 'engineering/integration/catalog.pg16.test.mjs'
       - 'engineering/integration/f05-catalog-sorts.pg16.test.mjs'
       - 'engineering/integration/f05-full-runtime-wiring.pg16.test.mjs'
@@ -232,3 +239,92 @@ jobs:
           node --test integration/f05-employee-vehicle-read.pg16.test.mjs
       - name: No paid artifact, production action or downstream CI
         run: echo 'F05_REAL_PG16_TEST_ONLY_NO_ARTIFACT_NO_PRODUCTION'
+  source_lanes_current_pg16:
+    name: F05-2 to 3E current isolated source lanes PG16 and TLS
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: engineering
+    env:
+      GITHUB_ACTIONS: 'true'
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
+      F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
+      F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Exact B branch and frozen dependencies
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REF" = refs/heads/feat/f05-real-delivery-acceptance-closeout-01
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          npm ci --ignore-scripts --no-audit --no-fund
+      - name: Rebuild each source lane from clean non-superuser PG16 and run current TLS contracts
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
+          reset_db() {
+            docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "DROP DATABASE IF EXISTS f03_auth_test WITH (FORCE)"
+            docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
+          }
+          openssl req -x509 -newkey rsa:2048 -sha256 -nodes -subj '/CN=127.0.0.1' -days 1 \
+            -keyout /tmp/f04-3-ci-key.pem -out /tmp/f04-3-ci-cert.pem >/dev/null 2>&1
+
+          reset_db
+          node f05/wholesale-to-mingbang-conversion/ci-prepare.mjs f05-2
+          node --test f05/vehicle-stewardship-physical-scope/tests/https.test.mjs 2>&1 | tee /tmp/f05-2-current.log
+          grep -q '# fail 0' /tmp/f05-2-current.log
+
+          reset_db
+          node f05/wholesale-to-mingbang-conversion/ci-prepare.mjs f05-3a
+          node --test f05/four-s-member-trust-scope/tests/bridge-https.test.mjs 2>&1 | tee /tmp/f05-3a-current.log
+          grep -q '# fail 0' /tmp/f05-3a-current.log
+
+          reset_db
+          node f05/wholesale-to-mingbang-conversion/ci-prepare.mjs f05-3b
+          node --test f05/jyt-wholesale-lineage-cycle/tests/https.test.mjs 2>&1 | tee /tmp/f05-3b-current.log
+          grep -q '# fail 0' /tmp/f05-3b-current.log
+
+          reset_db
+          node f05/wholesale-to-mingbang-conversion/ci-run.mjs https 2>&1 | tee /tmp/f05-3c-current.log
+          grep -q 'F05_3C_TWO_PHASE_GENUINE_PG16_HTTPS_TESTED' /tmp/f05-3c-current.log
+          node --test f05/wholesale-object-scope-trust/tests/https.test.mjs 2>&1 | tee /tmp/f05-3d-current.log
+          grep -q '# fail 0' /tmp/f05-3d-current.log
+          node --test f05/hide-reason-trust-recalculation/tests/https.test.mjs 2>&1 | tee /tmp/f05-3e-current.log
+          grep -q '# fail 0' /tmp/f05-3e-current.log
+
+          echo 'F05_SOURCE_LANES_CURRENT_PG16_TLS_PASS'
+      - name: No artifacts, no production credentials, no main write
+        run: echo 'F05_SOURCE_LANES_TEST_ONLY_NO_ARTIFACT_NO_PRODUCTION'
