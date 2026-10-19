@@ -16,8 +16,10 @@ const jobs=[
  {name:'F05-9 new Source v25 true PG16',status:'in_progress',conclusion:null},
  {name:'F05-9 new HTTPS v25 true PG16',status:'completed',conclusion:'success'}
 ];
+const peerArtifacts=[{name:'f05-9-https-native-pg16-evidence',digest:'sha256:'+'f'.repeat(64),size_in_bytes:1024,expired:false}];
 const args=(patch={})=>({event,env,run,jobs,workflowPath:run.path,
- sourceJobName:'F05-9 new Source v25 true PG16',expectedJobs:2,...patch});
+ sourceJobName:'F05-9 new Source v25 true PG16',expectedJobs:2,
+ artifactNames:['f05-9-https-native-pg16-evidence'],artifacts:peerArtifacts,...patch});
 
 test('PR mode accepts exact current run and successful HTTPS peer without requiring old push evidence',()=>{
  const result=validatePullRequestEvidence(args());
@@ -28,7 +30,7 @@ test('PR mode accepts exact current run and successful HTTPS peer without requir
  assert.equal(result.formal_source_signed,false);
  assert.equal(result.production_ready,false);
  assert.equal(result.failed_jobs,0);
- assert.equal(result.skipped_jobs,0);
+ assert.equal(result.skipped_jobs,0);\n assert.equal(result.verified_peer_artifacts[0].name,'f05-9-https-native-pg16-evidence');
 });
 const reject=(name,patch,code)=>test(name,()=>assert.throws(()=>validatePullRequestEvidence(args(patch)),new RegExp(code)));
 reject('reject wrong event type',{env:{...env,GITHUB_EVENT_NAME:'push'}},'EVENT_TYPE_MISMATCH');
@@ -66,3 +68,7 @@ test('main push mode rejects SHA mismatch',()=>assert.throws(()=>
  validateOfficialMainPushContext({event:pushEvent,env:pushEnv,run:{...pushRun,head_sha:'e'.repeat(40)},workflowPath:pushRun.path}),/RUN_SHA_MISMATCH/));
 test('main push mode rejects workflow path mismatch',()=>assert.throws(()=>
  validateOfficialMainPushContext({event:pushEvent,env:pushEnv,run:pushRun,workflowPath:'.github/workflows/wrong.yml'}),/RUN_CONTEXT_MISMATCH/));
+
+reject('reject missing HTTPS artifact',{artifacts:[]},'PEER_ARTIFACT_MISSING');
+reject('reject artifact with invalid digest',{artifacts:[{...peerArtifacts[0],digest:'sha256:bad'}]},'PEER_ARTIFACT_DIGEST_INVALID');
+reject('reject expired HTTPS artifact',{artifacts:[{...peerArtifacts[0],expired:true}]},'PEER_ARTIFACT_MISSING');
