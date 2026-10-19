@@ -25,10 +25,21 @@ export async function verifyF06TestDatabase(pool){
   to_regclass('public.vehicles') IS NOT NULL AS vehicles,
   to_regclass('public.lock_requests') IS NOT NULL AS public_requests,
   to_regclass('public.locks') IS NOT NULL AS public_locks,
-  to_regclass('public.waitlists') IS NOT NULL AS public_waitlists`)).rows[0];
+  to_regclass('public.waitlists') IS NOT NULL AS public_waitlists,
+  to_regclass('public.f03_schema_migrations') IS NOT NULL AS signed_ledger,
+  to_regclass('public.pc_login_accounts') IS NOT NULL AS pc_accounts,
+  to_regclass('public.employee_capability_scope_bindings') IS NOT NULL AS scoped_capabilities,
+  to_regclass('public.f05_3a_member_create_licenses') IS NOT NULL AS four_s_boundary,
+  to_regclass('public.f05_7_result_versions_ci') IS NOT NULL AS match_source,
+  to_regclass('public.f05_8_priority_ci') IS NOT NULL AS priority_source,
+  to_regclass('public.f05_8_events_ci') IS NOT NULL AS priority_events,
+  to_regclass('public.f05_9_recommendation_facts_ci') IS NOT NULL AS recommendation_source,
+  to_regclass('public.customer_phone_facts') IS NOT NULL AS phone_facts,
+  to_regclass('public.vehicle_price_history') IS NOT NULL AS price_history,
+  to_regclass('public.vehicle_visibility_grants') IS NOT NULL AS visibility_grants`)).rows[0];
  if(!x||x.db!=='f06_lock_test'||x.role!=='f06_lock_ci'||x.superuser!==false||x.createdb!==false||
   x.version<160000||x.version>=170000||
-  ['sessions','employees','requests','locks','waitlists','vehicles','public_requests','public_locks','public_waitlists'].some(k=>x[k]!==true))
+  ['sessions','employees','requests','locks','waitlists','vehicles','public_requests','public_locks','public_waitlists','signed_ledger','pc_accounts','scoped_capabilities','four_s_boundary','match_source','priority_source','priority_events','recommendation_source','phone_facts','price_history','visibility_grants'].some(k=>x[k]!==true))
   throw Error('F06_LOCK_PG16_SHAPE_NOT_VERIFIED');
  return true;
 }
