@@ -22,6 +22,8 @@ import {createIsolatedFindCarActivationService} from './f05-find-car-activation-
 import {createIsolatedFindCarActivationHandler} from './f05-find-car-activation-http.mjs';
 import {createIsolatedDemandLifecycleService} from './f05-demand-lifecycle-service.mjs';
 import {createIsolatedDemandLifecycleHandler} from './f05-demand-lifecycle-http.mjs';
+import {createIsolatedEmployeeVehicleReadService} from './f05-employee-vehicle-read-service.mjs';
+import {createIsolatedEmployeeVehicleReadHandler} from './f05-employee-vehicle-read-http.mjs';
 import {createIsolatedMatchingService} from './f05-matching-service.mjs';
 import {createIsolatedMatchingHandler} from './f05-matching-http.mjs';
 import {createIsolatedDictionaryService} from './f05-matching-dictionary-service.mjs';
@@ -165,6 +167,7 @@ const REQUIRED_CATALOG_COLUMNS=Object.freeze([
  ['public.f05_priority_sweep_events_test','priority_id','bigint'],
   ['public.f05_demand_lifecycle_events_test','reason_text','text'],
   ['public.f05_catalog_employee_consultation_scope_test','can_manage_consultation','boolean'],
+ ['public.f05_vehicle_read_scope_test','source_type','text'],
 ]);
 const EXPECTED_COLUMNS_VALUES=REQUIRED_CATALOG_COLUMNS.map(x=>`('${x[0]}','${x[1]}','${x[2]}')`).join(',');
 export const SQL_CATALOG_SCHEMA=`SELECT
@@ -216,6 +219,7 @@ export const SQL_CATALOG_SCHEMA=`SELECT
  to_regclass('public.f05_priority_qualification_manage_scope_test') IS NOT NULL AS p8m,
  to_regclass('public.f05_priority_qualification_events_test') IS NOT NULL AS p8a,
  to_regclass('public.f05_priority_safe_active_test') IS NOT NULL AS p8v,
+ to_regclass('public.f05_vehicle_read_scope_test') IS NOT NULL AS vr,
  (SELECT count(*)=2 FROM pg_catalog.pg_trigger WHERE NOT tgisinternal
   AND tgname IN ('f05_demand_customer_safety_pause_test',
    'f05_demand_entitlement_safety_pause_test')) AS da,
@@ -243,7 +247,7 @@ export const SQL_CATALOG_SCHEMA=`SELECT
    AND attr.attname=expected.column_name AND attr.attnum>0 AND NOT attr.attisdropped
   WHERE attr.attname IS NULL OR pg_catalog.format_type(attr.atttypid,attr.atttypmod)<>expected.physical_type
  ) AS shape,
- (SELECT count(*)=122 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
+ (SELECT count(*)=123 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
  (SELECT count(*)=2 FROM pg_catalog.pg_constraint fk
   WHERE fk.contype='f'
    AND fk.conrelid IN (to_regclass('public.f05_real_catalog_visibility_test'),to_regclass('public.f05_real_catalog_protections_test'))
@@ -258,7 +262,7 @@ export async function probeIsolatedCatalog(pool){
   const identity=(await pool.query(SQL_CATALOG_IDENTITY)).rows[0];
   if(!identity || Math.floor(Number(identity.v)/10000)!==16 || identity.db!=='f05_catalog_test' || identity.role!=='f05_catalog_ci')return false;
   const schema=(await pool.query(SQL_CATALOG_SCHEMA)).rows[0];
-  return !!schema && Object.keys(schema).sort().join(',')==='aq,c,ca,cp,da,di,dl,ec,es,fac,fca,fcd,fce,fcp,fe,fk,fr,fs,ft,full,he,iv,md,me,mv,mx,p,p8a,p8c,p8e,p8m,p8q,p8s,p8u,p8v,p8w,pe,pf,po,pp,qa,qs,ra,re,rn,rp,rs,ru,rv,sh,shape,ss,sv,v,x' && Object.values(schema).every(v=>v===true);
+  return !!schema && Object.keys(schema).sort().join(',')==='aq,c,ca,cp,da,di,dl,ec,es,fac,fca,fcd,fce,fcp,fe,fk,fr,fs,ft,full,he,iv,md,me,mv,mx,p,p8a,p8c,p8e,p8m,p8q,p8s,p8u,p8v,p8w,pe,pf,po,pp,qa,qs,ra,re,rn,rp,rs,ru,rv,sh,shape,ss,sv,v,vr,x' && Object.values(schema).every(v=>v===true);
  }catch{return false}
 }
 export async function createIsolatedCatalogRuntime(env=process.env){
@@ -278,12 +282,13 @@ export async function createIsolatedCatalogRuntime(env=process.env){
   const findCar=createIsolatedFindCarService({pool,env});
   const activation=createIsolatedFindCarActivationService({pool,env});
   const lifecycle=createIsolatedDemandLifecycleService({pool,env});
+  const employeeVehicleRead=createIsolatedEmployeeVehicleReadService({pool,env});
   const matching=createIsolatedMatchingService({pool,env});
   const dictionary=createIsolatedDictionaryService({pool,env});
   const discovery=createIsolatedMatchingDiscoveryService({pool,env});
   const recommendation=createIsolatedRecommendationService({pool,env});
   const priority=createIsolatedPriorityService({pool,env});
   const priorityQualification=createIsolatedPriorityQualificationService({pool,env});
-  return {pool,handler:createCatalogHandler(service),favoriteHandler:createIsolatedFavoriteHandler(favorite,env),consultationHandler:createIsolatedConsultationHandler(consultation,env),employeeStartHandler:createIsolatedEmployeeStartHandler(employeeStart,env),handoverHandler:createIsolatedHandoverHandler(handover,env),slaHoldHandler:createIsolatedSlaHoldHandler(slaHold,env),priceUnlockHandler:createIsolatedPriceUnlockHandler(priceUnlock,env),quotaAdditionHandler:createIsolatedQuotaAdditionHandler(quotaAddition,env),findCarHandler:createIsolatedFindCarHandler(findCar,env),findCarActivationHandler:createIsolatedFindCarActivationHandler(activation,env),demandLifecycleHandler:createIsolatedDemandLifecycleHandler(lifecycle,env),matchingHandler:createIsolatedMatchingHandler(matching,env),dictionaryHandler:createIsolatedDictionaryHandler(dictionary,env),discoveryHandler:createIsolatedMatchingDiscoveryHandler(discovery,env),recommendationHandler:createIsolatedRecommendationHandler(recommendation,env),priorityHandler:createIsolatedPriorityHandler(priority,env),priorityQualificationHandler:createIsolatedPriorityQualificationHandler(priorityQualification,env),ready:()=>probeIsolatedCatalog(pool),close:()=>pool.end()};
+  return {pool,handler:createCatalogHandler(service),favoriteHandler:createIsolatedFavoriteHandler(favorite,env),consultationHandler:createIsolatedConsultationHandler(consultation,env),employeeStartHandler:createIsolatedEmployeeStartHandler(employeeStart,env),handoverHandler:createIsolatedHandoverHandler(handover,env),slaHoldHandler:createIsolatedSlaHoldHandler(slaHold,env),priceUnlockHandler:createIsolatedPriceUnlockHandler(priceUnlock,env),quotaAdditionHandler:createIsolatedQuotaAdditionHandler(quotaAddition,env),findCarHandler:createIsolatedFindCarHandler(findCar,env),findCarActivationHandler:createIsolatedFindCarActivationHandler(activation,env),demandLifecycleHandler:createIsolatedDemandLifecycleHandler(lifecycle,env),employeeVehicleReadHandler:createIsolatedEmployeeVehicleReadHandler(employeeVehicleRead,env),matchingHandler:createIsolatedMatchingHandler(matching,env),dictionaryHandler:createIsolatedDictionaryHandler(dictionary,env),discoveryHandler:createIsolatedMatchingDiscoveryHandler(discovery,env),recommendationHandler:createIsolatedRecommendationHandler(recommendation,env),priorityHandler:createIsolatedPriorityHandler(priority,env),priorityQualificationHandler:createIsolatedPriorityQualificationHandler(priorityQualification,env),ready:()=>probeIsolatedCatalog(pool),close:()=>pool.end()};
  }catch(e){await pool.end();throw e}
 }

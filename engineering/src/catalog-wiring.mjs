@@ -5,7 +5,7 @@ export const REQUIRED_F05_HANDLERS=Object.freeze([
  'slaHoldHandler','priceUnlockHandler','quotaAdditionHandler',
  'findCarHandler','findCarActivationHandler','demandLifecycleHandler','matchingHandler',
  'dictionaryHandler','discoveryHandler','recommendationHandler',
- 'priorityHandler','priorityQualificationHandler'
+ 'priorityHandler','priorityQualificationHandler','employeeVehicleReadHandler'
 ]);
 export function createIsolatedCatalogServerOptions(runtime,env=process.env){
  if(env.APP_ENV!=='test'||env.NODE_ENV!=='test'||env.API_HOST!=='127.0.0.1'||
