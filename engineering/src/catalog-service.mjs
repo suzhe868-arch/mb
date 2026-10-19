@@ -67,7 +67,16 @@ export function decodeCursor(value,key,source,sort,modelId=null,brandId=null,ser
 // Preserve PostgreSQL microseconds in the signed keyset: JS Date rounds to milliseconds.
 // The lexicographic cursor must carry the same precision as the SQL ORDER BY tuple.
 const SQL_UTC_MICROSECONDS="to_char(cy.started_at AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"')";
-const BASE_SELECT=`SELECT v.vehicle_id AS "vehicleId",cy.listing_cycle_id AS "listingCycleId",v.source_type AS "source",${SQL_UTC_MICROSECONDS} AS "listingStartedAt",v.model_id AS "modelId",COALESCE(vm.brand_id,vs.brand_id) AS "brandId",vm.series_id AS "seriesId",vb.brand_name AS "brandName",vs.series_name AS "seriesName",vm.model_name AS "modelName",vm.model_year AS "modelYear",cover.relative_path AS "coverImagePath" FROM public.vehicles v LEFT JOIN public.vehicle_models vm ON vm.model_id=v.model_id LEFT JOIN public.vehicle_series vs ON vs.series_id=vm.series_id LEFT JOIN public.vehicle_brands vb ON vb.brand_id=COALESCE(vm.brand_id,vs.brand_id) JOIN public.vehicle_listing_cycles cy ON cy.vehicle_id=v.vehicle_id JOIN public.f05_real_catalog_visibility_test p ON p.vehicle_id=v.vehicle_id AND p.listing_cycle_id=cy.listing_cycle_id AND p.source_type=v.source_type LEFT JOIN LATERAL (
+const BASE_SELECT=`SELECT v.vehicle_id AS "vehicleId",cy.listing_cycle_id AS "listingCycleId",v.source_type AS "source",${SQL_UTC_MICROSECONDS} AS "listingStartedAt",v.model_id AS "modelId",COALESCE(vm.brand_id,vs.brand_id) AS "brandId",vm.series_id AS "seriesId",vb.brand_name AS "brandName",vs.series_name AS "seriesName",vm.model_name AS "modelName",vm.model_year AS "modelYear",price.customer_display_cents AS "sortPriceCents",sortfacts.first_registration_year AS "sortRegistrationYear",sortfacts.mileage_km AS "sortMileageKm",cover.relative_path AS "coverImagePath" FROM public.vehicles v LEFT JOIN public.vehicle_models vm ON vm.model_id=v.model_id LEFT JOIN public.vehicle_series vs ON vs.series_id=vm.series_id LEFT JOIN public.vehicle_brands vb ON vb.brand_id=COALESCE(vm.brand_id,vs.brand_id) JOIN public.vehicle_listing_cycles cy ON cy.vehicle_id=v.vehicle_id JOIN public.f05_real_catalog_visibility_test p ON p.vehicle_id=v.vehicle_id AND p.listing_cycle_id=cy.listing_cycle_id AND p.source_type=v.source_type
+LEFT JOIN public.f05_catalog_price_display_proof_test price
+ ON price.vehicle_id=v.vehicle_id AND price.listing_cycle_id=cy.listing_cycle_id
+ AND price.source_type=v.source_type AND price.issuer='DISPOSABLE_TEST_ONLY'
+ AND price.expires_at>statement_timestamp()
+LEFT JOIN public.f05_catalog_sort_facts_test sortfacts
+ ON sortfacts.vehicle_id=v.vehicle_id AND sortfacts.listing_cycle_id=cy.listing_cycle_id
+ AND sortfacts.source_type=v.source_type AND sortfacts.issuer='DISPOSABLE_TEST_ONLY'
+ AND sortfacts.expires_at>statement_timestamp()
+LEFT JOIN LATERAL (
  SELECT vi.relative_path FROM public.vehicle_images vi
  JOIN public.f05_real_catalog_photo_order_test po
   ON po.image_id=vi.image_id AND po.vehicle_id=vi.vehicle_id
@@ -83,7 +92,26 @@ const BASE_SELECT=`SELECT v.vehicle_id AS "vehicleId",cy.listing_cycle_id AS "li
  AND NOT EXISTS(SELECT 1 FROM public.f05_priority_safe_active_test active_priority
  WHERE active_priority.vehicle_id=v.vehicle_id
   AND active_priority.listing_cycle_id=cy.listing_cycle_id)`;
-export const SQL_CATALOG_LIST=BASE_SELECT+` AND v.source_type=$1 AND ($4::bigint IS NULL OR v.model_id=$4::bigint) AND ($5::bigint IS NULL OR COALESCE(vm.brand_id,vs.brand_id)=$5::bigint) AND ($6::bigint IS NULL OR vm.series_id=$6::bigint) AND ($7::integer IS NULL OR vm.model_year=$7::integer) AND ($2::timestamptz IS NULL OR (cy.started_at,cy.listing_cycle_id) < ($2::timestamptz,$3::bigint)) ORDER BY cy.started_at DESC,cy.listing_cycle_id DESC LIMIT 16`;
+const CATALOG_FILTERS=' AND v.source_type=$1 AND ($4::bigint IS NULL OR v.model_id=$4::bigint) AND ($5::bigint IS NULL OR COALESCE(vm.brand_id,vs.brand_id)=$5::bigint) AND ($6::bigint IS NULL OR vm.series_id=$6::bigint) AND ($7::integer IS NULL OR vm.model_year=$7::integer)';
+export const SQL_CATALOG_LIST=BASE_SELECT+CATALOG_FILTERS+' AND ($2::timestamptz IS NULL OR (cy.started_at,cy.listing_cycle_id) < ($2::timestamptz,$3::bigint)) ORDER BY cy.started_at DESC,cy.listing_cycle_id DESC LIMIT 16';
+const SORT_CONFIG=Object.freeze({
+ price_asc:{column:'price.customer_display_cents',direction:'ASC',field:'sortPriceCents'},
+ price_desc:{column:'price.customer_display_cents',direction:'DESC',field:'sortPriceCents'},
+ registration_year_desc:{column:'sortfacts.first_registration_year',direction:'DESC',field:'sortRegistrationYear'},
+ registration_year_asc:{column:'sortfacts.first_registration_year',direction:'ASC',field:'sortRegistrationYear'},
+ mileage_asc:{column:'sortfacts.mileage_km',direction:'ASC',field:'sortMileageKm'},
+ mileage_desc:{column:'sortfacts.mileage_km',direction:'DESC',field:'sortMileageKm'},
+});
+function buildSortedSql(cfg){
+ const column=cfg.column,direction=cfg.direction,cmp=direction==='ASC'?'>':'<';
+ const rank='CASE WHEN '+column+' IS NULL THEN 1 ELSE 0 END';
+ return BASE_SELECT+CATALOG_FILTERS+
+  ' AND ($8::integer IS NULL OR '+rank+'>$8::integer OR ('+rank+'=$8::integer AND ('+
+  '($8::integer=0 AND (('+column+')::bigint '+cmp+' $9::bigint OR (('+column+')::bigint=$9::bigint AND (cy.started_at,cy.listing_cycle_id)<($10::timestamptz,$11::bigint)))) OR '+
+  '($8::integer=1 AND (cy.started_at,cy.listing_cycle_id)<($10::timestamptz,$11::bigint))))) '+
+  'ORDER BY '+rank+' ASC,'+column+' '+direction+' NULLS LAST,cy.started_at DESC,cy.listing_cycle_id DESC LIMIT 16';
+}
+export const SQL_CATALOG_SORTS=Object.freeze(Object.fromEntries(Object.entries(SORT_CONFIG).map(([name,cfg])=>[name,buildSortedSql(cfg)])));
 export const SQL_CATALOG_DETAIL=BASE_SELECT+` AND v.vehicle_id=$1 LIMIT 2`;
 export const SQL_CATALOG_STATS=`SELECT source AS "source",COUNT(DISTINCT "vehicleId")::text AS "vehicleCount" FROM (${BASE_SELECT}) AS eligible GROUP BY source ORDER BY source`;
 function safeItem(r){
@@ -134,16 +162,21 @@ export function createCatalogService({pool,cursorKey}={}){
    if(seriesId!==null&&!validPgId(seriesId))return reject('INVALID_SERIES_ID');
    const modelYear=params.modelYear===undefined?null:Number(params.modelYear);
    if(params.modelYear!==undefined&&(!/^\d{4}$/.test(params.modelYear)||!validModelYear(modelYear)))return reject('INVALID_MODEL_YEAR');
-   // Six PDM-20 sorts require verified per-customer retail price, registration year or mileage.
-   // Returning another ordering as successful would violate the product contract.
-   if(sort!=='newest')return reject('CATALOG_SORT_DEPENDENCY_BLOCKED',503);
    let cur;try{cur=params.cursor?decodeCursor(params.cursor,cursorKey,source,sort,modelId,brandId,seriesId,modelYear):null}catch{return reject('INVALID_CURSOR')}
-   const sql=SQL_CATALOG_LIST;
-   const rows=(await pool.query(sql,[source,cur?.at??null,cur?.id??null,modelId,brandId,seriesId,modelYear])).rows;
+   const cfg=SORT_CONFIG[sort]??null;
+   const sql=sort==='newest'?SQL_CATALOG_LIST:SQL_CATALOG_SORTS[sort];
+   const queryParams=sort==='newest'
+    ?[source,cur?.at??null,cur?.id??null,modelId,brandId,seriesId,modelYear]
+    :[source,null,null,modelId,brandId,seriesId,modelYear,cur?.n??null,cur?.k??null,cur?.at??null,cur?.id??null];
+   const rows=(await pool.query(sql,queryParams)).rows;
    if(!Array.isArray(rows))throw Error('CATALOG_DB_ROWS_INVALID');
    const page=rows.slice(0,15).map(safeItem);
    let nextCursor=null;
-   if(rows.length>15&&page.length){let last=rows[14],at=last.listingStartedAt instanceof Date?last.listingStartedAt.toISOString():last.listingStartedAt;nextCursor=encodeCursor({at,id:last.listingCycleId,source,sort,modelId,brandId,seriesId,modelYear},cursorKey)}
+   if(rows.length>15&&page.length){
+    const last=rows[14],at=last.listingStartedAt instanceof Date?last.listingStartedAt.toISOString():last.listingStartedAt;
+    const sortValue=cfg?(last[cfg.field]??null):null;
+    nextCursor=encodeCursor({at,id:last.listingCycleId,source,sort,modelId,brandId,seriesId,modelYear,sortValue},cursorKey);
+   }
    return {status:200,body:{items:page,nextCursor,pageSize:15,source,sort,region:'national',modelId,brandId,seriesId,modelYear,productionReady:false}};
   },
   async detail(id){
