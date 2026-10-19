@@ -18,8 +18,8 @@ const sha=x=>createHash('sha256').update(x).digest('hex');
 const token=()=>randomBytes(32).toString('base64url');
 const key=()=>randomBytes(32).toString('base64url');
 const customers=['96180101','96180102','96180103'];
-const cars=['96181101','96181102','96181103','96181104'];
-const cycles=['96182101','96182102','96182103','96182104'];
+const cars=['96181101','96181102','96181103','96181104','96181105'];
+const cycles=['96182101','96182102','96182103','96182104','96182105'];
 const custTokens=customers.map(()=>token());
 const employeeToken=token(),nonprivilegedToken=token();
 let server;let seedDone=false;
@@ -234,6 +234,27 @@ if(!setupError){
   assert.equal(replay.status,200);assert.deepEqual(replay.body,original.body);
   const events=await scalar("SELECT count(*)::int n FROM f06_real_lock_test.events WHERE request_id=$1 AND event_type='rejected'",[draft.body.requestId]);
   assert.equal(events.n,1);
+ });
+ await test('PG16 hidden Vehicle after Lock creation still creates legal internal Waitlist without detail leakage',async()=>{
+  const a=await intake(0,4),b=await intake(1,4);
+  assert.equal(a.status,201);assert.equal(b.status,201);
+  const wrapped=createIsolatedF06LockService({pool,env:process.env,afterLockWrite:async({db})=>{
+   await db.query("UPDATE public.vehicles SET platform_visibility='hidden' WHERE vehicle_id=$1",[cars[4]]);
+  }});
+  const custom=createServer(createFoundationHandler({lockHandler:createIsolatedF06LockHandler({service:wrapped,env:process.env})}));
+  try{
+   await new Promise((ok,bad)=>{custom.once('error',bad);custom.listen(0,'127.0.0.1',ok)});
+   const response=await fetch('http://127.0.0.1:'+custom.address().port+'/api/v1/lock-requests/'+a.body.requestId+'/decision',{
+    method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+employeeToken},
+    body:JSON.stringify({decision:'approve',idempotencyKey:key()})});
+   assert.equal(response.status,200);assert.equal((await response.json()).state,'approved');
+  }finally{await new Promise(ok=>custom.close(ok))}
+  assert.equal((await scalar('SELECT status FROM public.lock_requests WHERE lock_request_id=$1',[b.body.requestId])).status,'lock_conflict');
+  const wait=await scalar('SELECT w.waitlist_id,ws.queue_request_id FROM public.waitlists w JOIN f06_real_lock_test.waitlist_sources ws ON ws.waitlist_id=w.waitlist_id WHERE w.source_lock_request_id=$1',[b.body.requestId]);
+  assert.equal(String(wait.queue_request_id),String(b.body.requestId));
+  const denied=await fetch('http://127.0.0.1:'+server.address().port+'/api/v1/lock-requests/'+b.body.requestId+'/status',{
+   headers:{authorization:'Bearer '+custTokens[1]}});
+  assert.equal(denied.status,404);
  });
  await test('非法 listing cycle 不得建申请',async()=>{
   const bad=await http('/api/v1/lock-requests',custTokens[2],{vehicleId:cars[0],listingCycleId:'999999999',idempotencyKey:key()});
