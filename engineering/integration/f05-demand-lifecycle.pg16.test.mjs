@@ -139,7 +139,9 @@ try{
   assert.equal((await act('RESUME',employeeToken,demandId)).status,200);
  });
  await test('PG16 Customer disable audit fault rolls back both account transition and all active Demand pauses',async()=>{
-  const before=(await db.query("SELECT demand_state FROM public.demands WHERE demand_id=59680")).rows[0].demand_state;
+  await db.query("INSERT INTO public.demands(demand_id,customer_id,responsible_employee_id,demand_state,criteria_json) "+
+   "VALUES(59690,59680,59680,'active','{}'::jsonb)");
+  const before=(await db.query("SELECT demand_state FROM public.demands WHERE demand_id=59690")).rows[0].demand_state;
   assert.equal(before,'active');
   await db.query("CREATE FUNCTION public.f05_auto_pause_audit_fault_test() RETURNS trigger LANGUAGE plpgsql AS $ "+
    "BEGIN IF NEW.action='AUTO_PAUSE' THEN RAISE EXCEPTION 'INJECTED_F05_AUTO_PAUSE_AUDIT_FAIL'; END IF; RETURN NEW; END $");
@@ -149,18 +151,20 @@ try{
    await assert.rejects(db.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=59680"),
     /INJECTED_F05_AUTO_PAUSE_AUDIT_FAIL/);
    assert.equal((await db.query("SELECT account_status FROM public.customers WHERE customer_id=59680")).rows[0].account_status,'active');
-   assert.equal((await db.query("SELECT demand_state FROM public.demands WHERE demand_id=59680")).rows[0].demand_state,'active');
+   assert.equal((await db.query("SELECT demand_state FROM public.demands WHERE demand_id=59690")).rows[0].demand_state,'active');
   }finally{
    await db.query("DROP TRIGGER f05_auto_pause_audit_fault ON public.f05_demand_lifecycle_events_test");
    await db.query("DROP FUNCTION public.f05_auto_pause_audit_fault_test()");
   }
   await db.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=59680");
-  assert.equal((await db.query("SELECT demand_state FROM public.demands WHERE demand_id=59680")).rows[0].demand_state,'paused');
+  assert.equal((await db.query("SELECT demand_state FROM public.demands WHERE demand_id=59690")).rows[0].demand_state,'paused');
   await db.query("UPDATE public.customers SET account_status='active' WHERE customer_id=59680");
-  assert.equal((await act('RESUME',employeeToken)).status,200);
+  assert.equal((await act('RESUME',employeeToken,'59690')).status,200);
  });
  await test('PG16 disabling the entitlement policy cannot commit if any affected Demand audit fails',async()=>{
-  const old=(await db.query("SELECT demand_state FROM public.demands WHERE demand_id=59680")).rows[0].demand_state;
+  await db.query("INSERT INTO public.demands(demand_id,customer_id,responsible_employee_id,demand_state,criteria_json) "+
+   "VALUES(59691,59680,59680,'active','{}'::jsonb)");
+  const old=(await db.query("SELECT demand_state FROM public.demands WHERE demand_id=59691")).rows[0].demand_state;
   assert.equal(old,'active');
   await db.query("CREATE FUNCTION public.f05_auto_entitlement_fault_test() RETURNS trigger LANGUAGE plpgsql AS $ "+
    "BEGIN IF NEW.action='AUTO_PAUSE' THEN RAISE EXCEPTION 'INJECTED_F05_ENTITLEMENT_PAUSE_FAIL'; END IF; RETURN NEW; END $");
@@ -171,16 +175,16 @@ try{
     "SET can_activate_demand=false WHERE level_id=59680"),/INJECTED_F05_ENTITLEMENT_PAUSE_FAIL/);
    assert.equal((await db.query("SELECT can_activate_demand FROM public.f05_find_car_level_entitlement_test "+
     "WHERE level_id=59680")).rows[0].can_activate_demand,true);
-   assert.equal((await db.query("SELECT demand_state FROM public.demands WHERE demand_id=59680")).rows[0].demand_state,'active');
+   assert.equal((await db.query("SELECT demand_state FROM public.demands WHERE demand_id=59691")).rows[0].demand_state,'active');
   }finally{
    await db.query("DROP TRIGGER f05_auto_entitlement_fault ON public.f05_demand_lifecycle_events_test");
    await db.query("DROP FUNCTION public.f05_auto_entitlement_fault_test()");
   }
   await db.query("UPDATE public.f05_find_car_level_entitlement_test SET can_activate_demand=false WHERE level_id=59680");
-  assert.equal((await db.query("SELECT demand_state FROM public.demands WHERE demand_id=59680")).rows[0].demand_state,'paused');
+  assert.equal((await db.query("SELECT demand_state FROM public.demands WHERE demand_id=59691")).rows[0].demand_state,'paused');
   await db.query("UPDATE public.f05_find_car_level_entitlement_test SET can_activate_demand=true WHERE level_id=59680");
-  assert.equal((await db.query("SELECT demand_state FROM public.demands WHERE demand_id=59680")).rows[0].demand_state,'paused');
-  assert.equal((await act('RESUME',employeeToken)).status,200);
+  assert.equal((await db.query("SELECT demand_state FROM public.demands WHERE demand_id=59691")).rows[0].demand_state,'paused');
+  assert.equal((await act('RESUME',employeeToken,'59691')).status,200);
  });
  await test('PG16 concurrent end requests yield single pending record, immutable events and transaction integrity',async()=>{
   const newDemand=(await db.query("INSERT INTO public.demands(customer_id,responsible_employee_id,demand_state,criteria_json) "+
