@@ -15,7 +15,7 @@ export function createD1BusinessCIHandler({issuerToken}={}){
  if(!validToken(issuerToken))throw Error('D1_BUSINESS_HTTP_ISSUER_REQUIRED');
  return async(req,res)=>{
   const raw=req.url??'';
-  if(raw!=='/__ci__/f05-10-d1-business/v1/consultations'){send(res,404,{code:'NOT_FOUND'});return true}
+  if(raw!=='/api/v1/public-pool/consultations'){send(res,404,{code:'NOT_FOUND'});return true}
   if(req.method!=='POST'){send(res,405,{code:'METHOD_NOT_ALLOWED'});return true}
   const h=req.headers;
   if(!req.socket?.encrypted||!local(req.socket.remoteAddress)||h.host!=='127.0.0.1:49222'||
