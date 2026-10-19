@@ -9,7 +9,6 @@
 - 正式微信/F03/JYT/4S/名邦Source Issuer、完整M94迁移链、生产调度/观测/容量与C/E生产联调仍未完成：`formal_source_signed=false`、`production_ready=false`。
 
 ---
----
 
 # 2026-10-18｜用户最新调整：F05须完成真实业务交付与有效验收，暂缓F06
 
