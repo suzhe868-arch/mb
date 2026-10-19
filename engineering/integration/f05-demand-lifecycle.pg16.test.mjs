@@ -50,7 +50,7 @@ try{
   assert.equal((await act('PAUSE',otherCustomerToken)).status,404);
   assert.equal((await act('PAUSE',otherEmployeeToken)).status,403);
   assert.equal((await act('PAUSE',secret())).status,401);
-  assert.equal((await act('COMPLETE')).status,403);
+  assert.equal((await act('COMPLETE',customerToken,'59680',secret(),'客户不能自行关闭正式需求')).status,403);
   await db.query("INSERT INTO public.f05_demand_lifecycle_scope_test(employee_id,customer_id,can_manage_demand,expires_at) "+
    "VALUES(59680,59680,true,statement_timestamp()+interval '25 minutes')");
  });
