@@ -176,6 +176,33 @@ export function createIsolatedConsultationService({pool,env=process.env}={}){
      if(verified){assigneeId=String(verified.assignee_employee_id);break}
     }
     if(assigneeId===null){
+     // PDM15 §10: an assigned, legally employed Customer Owner may be
+     // temporarily paused as a receiving agent without becoming ineligible
+     // as Owner. Use only a separately proven accepting employee for fallback.
+     // A historical or inactive Owner is NOT proof of a legitimate owner
+     // assignment; PDM17 must repair that first.
+     const legitimateOwner=(await c.query(
+      "SELECT 1 FROM public.employees e JOIN public.roles r ON r.role_id=e.main_role_id "+
+      "WHERE e.employee_id=$1 AND e.employment_status='active' "+
+      "AND r.role_code IN ('sales','manager','store_head') FOR SHARE OF e,r",
+      [ownerId])).rows[0];
+     if(legitimateOwner){
+      const receiving=(await c.query(
+       "SELECT p.assignee_employee_id FROM public.f05_catalog_consultation_actor_proof_test p "+
+       "JOIN public.employees e ON e.employee_id=p.assignee_employee_id "+
+       "JOIN public.roles r ON r.role_id=e.main_role_id "+
+       "JOIN public.customer_phone_facts ph ON ph.customer_id=p.customer_id AND ph.ended_at IS NULL "+
+       "WHERE p.customer_id=$1 AND p.issuer='DISPOSABLE_TEST_ONLY' "+
+       "AND p.phone_consent_test=true AND p.worker_scope_test=true "+
+       "AND p.expires_at>statement_timestamp() AND e.employment_status='active' "+
+       "AND e.receiving_status='receiving' "+
+       "AND r.role_code IN ('sales','manager','store_head') "+
+       "ORDER BY p.assignee_employee_id LIMIT 1 FOR SHARE OF p,e,r,ph",
+       [customerId])).rows[0];
+      if(receiving)assigneeId=String(receiving.assignee_employee_id);
+     }
+    }
+    if(assigneeId===null){
      await c.query('ROLLBACK');return answer(403,'CONSULTATION_PHONE_OR_ASSIGNEE_NOT_VERIFIED');
     }
 

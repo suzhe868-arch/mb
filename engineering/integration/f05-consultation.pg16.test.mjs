@@ -112,6 +112,41 @@ try{
    await writer.query("UPDATE public.employees SET receiving_status='receiving' WHERE employee_id=59001");
   }
  });
+ await test('PG16 PDM15 uses scoped accepting fallback when legal Owner is paused, never 4S',async()=>{
+  await writer.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,created_at) "+
+   "VALUES(62842,'wholesale','active','visible',statement_timestamp())");
+  await writer.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) "+
+   "VALUES(62842,62842,statement_timestamp())");
+  await writer.query("INSERT INTO public.f05_real_catalog_visibility_test "+
+   "(vehicle_id,listing_cycle_id,source_type,allow_anonymous,expires_at) "+
+   "VALUES(62842,62842,'wholesale',true,statement_timestamp()+interval '20 minutes')");
+  await writer.query("UPDATE public.employees SET receiving_status='paused' WHERE employee_id=59001");
+  try{
+   await writer.query("UPDATE public.f05_catalog_consultation_actor_proof_test "+
+    "SET assignee_employee_id=59002 WHERE customer_id=59001");
+   const denied=await call(key(),token,'62842');
+   assert.equal(denied.status,403,JSON.stringify(denied));
+   assert.equal(denied.body.code,'CONSULTATION_PHONE_OR_ASSIGNEE_NOT_VERIFIED');
+   assert.equal((await writer.query("SELECT count(*)::int n FROM public.consultations "+
+    "WHERE vehicle_id=62842")).rows[0].n,0);
+   await writer.query("UPDATE public.f05_catalog_consultation_actor_proof_test "+
+    "SET assignee_employee_id=59003 WHERE customer_id=59001");
+   const accepted=await call(key(),token,'62842');
+   assert.equal(accepted.status,200,JSON.stringify(accepted));
+   assert.equal(accepted.body.code,'CONSULTATION_CREATED');
+   const row=(await writer.query("SELECT assignee_employee_id,status,source_relation "+
+    "FROM public.consultations WHERE consultation_id=$1",[accepted.body.consultationId])).rows[0];
+   assert.equal(String(row.assignee_employee_id),'59003');
+   assert.equal(row.status,'pending');
+   assert.equal(row.source_relation.entry,'vehicle_detail');
+   assert.equal((await writer.query("SELECT current_owner_employee_id FROM public.customers "+
+    "WHERE customer_id=59001")).rows[0].current_owner_employee_id,'59001');
+  }finally{
+   await writer.query("UPDATE public.f05_catalog_consultation_actor_proof_test "+
+    "SET assignee_employee_id=59001 WHERE customer_id=59001");
+   await writer.query("UPDATE public.employees SET receiving_status='receiving' WHERE employee_id=59001");
+  }
+ });
  await test('PG16 F05 active Favorite -> actual Consultation freezes clicked direct source and denies removed Favorites',async()=>{
   const callFav=async(method,ek)=>{
    const x=await fetch('http://127.0.0.1:'+server.address().port+
