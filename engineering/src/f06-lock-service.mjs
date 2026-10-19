@@ -409,9 +409,20 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
       WHERE l.vehicle_id=$1 AND l.lock_status='active' ORDER BY l.lock_id LIMIT 1 FOR SHARE OF l`,[req.vehicle_id]);
     if(p.other||(lock?.priority_origin_id&&String(lock.customer_id)!==String(who.customer_id)))
      return response(404,'LOCK_REQUEST_NOT_VISIBLE');
+    const own=await first(db,`SELECT l.lock_id,l.lock_status,l.expires_at
+      FROM public.locks l WHERE l.vehicle_id=$1 AND l.listing_cycle_id=$2 AND l.customer_id=$3
+      ORDER BY l.lock_id DESC LIMIT 1 FOR SHARE OF l`,[req.vehicle_id,req.listing_cycle_id,who.customer_id]);
+    let ownLockExtended=false;
+    const lifecycle=await first(db,`SELECT to_regclass('f06_real_lock_test.lock_lifecycle_events') IS NOT NULL AS ready`);
+    if(lifecycle?.ready&&own){
+     const extended=await first(db,`SELECT 1 FROM f06_real_lock_test.lock_lifecycle_events
+       WHERE lock_id=$1 AND event_kind='extend' LIMIT 1 FOR SHARE`,[own.lock_id]);
+     ownLockExtended=!!extended;
+    }
     return response(200,'LOCK_CUSTOMER_SAFE_STATUS',{requestId,status:req.status,
      vehicleId:String(req.vehicle_id),lockStatus:lock?'locked':'available',
-     ownLock:!!lock&&String(lock.customer_id)===String(who.customer_id)});
+     ownLock:!!lock&&String(lock.customer_id)===String(who.customer_id),
+     ownLockStatus:own?.lock_status??null,ownLockExpiresAt:own?.expires_at??null,ownLockExtended});
    });
   }
  });
