@@ -13,7 +13,7 @@ const pool=new pg.Pool({connectionString:cfg.connectionString,max:4,connectionTi
 const db=new pg.Client({connectionString:cfg.connectionString,connectionTimeoutMillis:1200});
 const token=()=>randomBytes(32).toString('base64url'),key=()=>randomBytes(32).toString('base64url');
 const digest=x=>createHash('sha256').update(x).digest('hex');
-const ownerToken=token(),targetToken=token(),otherToken=token(),fourSToken=token();
+const ownerToken=token(),targetToken=token(),otherToken=token(),fourSToken=token(),managerToken=token();
 const note='客户业务正常交接目标销售';
 let srv,connected=false,failure;
 try{
@@ -28,13 +28,19 @@ try{
   await db.query("INSERT INTO public.consultations(consultation_id,customer_id,vehicle_id,listing_cycle_id,assignee_employee_id,status,source_relation,first_response_deadline) "+
    "VALUES(59100,59100,59001,59001,59100,'pending','{\"kind\":\"other\",\"entry\":\"vehicle_detail\"}'::jsonb,statement_timestamp()+interval '15 minutes'),"+
    "(59101,59100,59002,59002,59100,'processing','{\"kind\":\"other\",\"entry\":\"vehicle_detail\"}'::jsonb,statement_timestamp()+interval '15 minutes')");
-  for(const [bearer,id] of [[ownerToken,'59100'],[targetToken,'59101'],[fourSToken,'59102'],[otherToken,'59103']])
+  const managerRole=(await db.query("SELECT role_id FROM public.roles WHERE role_code='manager'")).rows[0]?.role_id;
+  if(!managerRole){
+   await db.query("INSERT INTO public.roles(role_id,role_code) VALUES(59104,'manager')");
+  }
+  await db.query("INSERT INTO public.employees(employee_id,main_role_id,employment_status,receiving_status) VALUES(59104,$1,'active','receiving')",[managerRole??59104]);
+  for(const [bearer,id] of [[ownerToken,'59100'],[targetToken,'59101'],[fourSToken,'59102'],[otherToken,'59103'],[managerToken,'59104']])
    await db.query("INSERT INTO public.f05_catalog_employee_sessions_test(token_sha256,employee_id,expires_at) VALUES($1,$2,statement_timestamp()+interval '20 minutes')",[digest(bearer),id]);
   await db.query("INSERT INTO public.f05_catalog_employee_consultation_scope_test(employee_id,customer_id,can_start_processing,can_reassign,can_receive,expires_at) VALUES "+
    "(59100,59100,true,false,false,statement_timestamp()+interval '20 minutes'),"+
    "(59101,59100,true,false,true,statement_timestamp()+interval '20 minutes'),"+
    "(59102,59100,true,false,true,statement_timestamp()+interval '20 minutes'),"+
-   "(59103,59100,true,false,true,statement_timestamp()+interval '20 minutes')");
+   "(59103,59100,true,false,true,statement_timestamp()+interval '20 minutes'),"+
+   "(59104,59100,true,false,false,statement_timestamp()+interval '20 minutes')");
   await db.query('COMMIT');
  }catch(e){await db.query('ROLLBACK');throw e}
  const service=createIsolatedHandoverService({pool,env:process.env});
@@ -101,6 +107,38 @@ try{
    assert.equal(r.status,200);assert.equal(r.body.code,'CONSULTATION_REASSIGNED');
    assert.equal((await db.query('SELECT account_status FROM public.customers WHERE customer_id=59100')).rows[0].account_status,'disabled');
   }finally{await db.query("UPDATE public.customers SET account_status='active' WHERE customer_id=59100")}
+ });
+ await test('PG16 management transfer requires separate capability AND manager role AND Customer scope',async()=>{
+  await db.query("INSERT INTO public.consultations(consultation_id,customer_id,vehicle_id,listing_cycle_id,assignee_employee_id,status,source_relation,first_response_deadline) "+
+   "VALUES(59104,59100,59001,59001,59103,'pending','{}'::jsonb,statement_timestamp()+interval '15 minutes')");
+  const denied=await call({id:'59104',target:'59101',bearer:managerToken});
+  assert.equal(denied.status,403);
+  await db.query("UPDATE public.f05_catalog_employee_consultation_scope_test SET can_manage_consultation=true "+
+   "WHERE employee_id=59104 AND customer_id=59100");
+  const managerRole=(await db.query("SELECT role_id FROM public.roles WHERE role_code='manager'")).rows[0].role_id;
+  await db.query("UPDATE public.employees SET main_role_id=59001 WHERE employee_id=59104");
+  try{
+   const downgraded=await call({id:'59104',target:'59101',bearer:managerToken});
+   assert.equal(downgraded.status,403,JSON.stringify(downgraded));
+   assert.equal((await db.query("SELECT assignee_employee_id FROM public.consultations WHERE consultation_id=59104")).rows[0].assignee_employee_id,'59103');
+  }finally{
+   await db.query("UPDATE public.employees SET main_role_id=$1 WHERE employee_id=59104",[managerRole]);
+  }
+  const before=(await db.query("SELECT first_response_deadline,source_relation FROM public.consultations WHERE consultation_id=59104")).rows[0];
+  const approved=await call({id:'59104',target:'59101',bearer:managerToken});
+  assert.equal(approved.status,200,JSON.stringify(approved));
+  assert.equal(approved.body.code,'CONSULTATION_REASSIGNED');
+  const after=(await db.query("SELECT assignee_employee_id,first_response_deadline,source_relation FROM public.consultations WHERE consultation_id=59104")).rows[0];
+  assert.equal(String(after.assignee_employee_id),'59101');
+  assert.equal(after.first_response_deadline.getTime(),before.first_response_deadline.getTime());
+  assert.deepEqual(after.source_relation,before.source_relation);
+  assert.equal((await db.query("SELECT current_owner_employee_id FROM public.customers WHERE customer_id=59100")).rows[0].current_owner_employee_id,'59100');
+  const audit=(await db.query("SELECT actor_employee_id,old_assignee_employee_id,new_assignee_employee_id,handover_reason FROM public.f05_catalog_consultation_actions_test "+
+    "WHERE consultation_id=59104 AND action='REASSIGNED'")).rows[0];
+  assert.equal(String(audit.actor_employee_id),'59104');
+  assert.equal(String(audit.old_assignee_employee_id),'59103');
+  assert.equal(String(audit.new_assignee_employee_id),'59101');
+  assert.equal(audit.handover_reason,note);
  });
  await test('terminal consultation cannot be transferred; old assignee session revocation must fail closed',async()=>{
   await db.query("UPDATE public.consultations SET status='resolved',close_reason='RESOLVED',completed_at=statement_timestamp() WHERE consultation_id=59100");

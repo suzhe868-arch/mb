@@ -164,6 +164,7 @@ const REQUIRED_CATALOG_COLUMNS=Object.freeze([
  ['public.f05_priority_events_test','event_key','text'],
  ['public.f05_priority_sweep_events_test','priority_id','bigint'],
   ['public.f05_demand_lifecycle_events_test','reason_text','text'],
+  ['public.f05_catalog_employee_consultation_scope_test','can_manage_consultation','boolean'],
 ]);
 const EXPECTED_COLUMNS_VALUES=REQUIRED_CATALOG_COLUMNS.map(x=>`('${x[0]}','${x[1]}','${x[2]}')`).join(',');
 export const SQL_CATALOG_SCHEMA=`SELECT

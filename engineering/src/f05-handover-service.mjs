@@ -16,7 +16,7 @@ export function createIsolatedHandoverService({pool,env=process.env}={}){
   try{
    await db.query('BEGIN');
    try{
-    const actor=(await db.query("SELECT e.employee_id FROM public.f05_catalog_employee_sessions_test s "+
+    const actor=(await db.query("SELECT e.employee_id,r.role_code FROM public.f05_catalog_employee_sessions_test s "+
       "JOIN public.employees e ON e.employee_id=s.employee_id JOIN public.roles r ON r.role_id=e.main_role_id "+
       "WHERE s.token_sha256=$1 AND s.issuer='DISPOSABLE_TEST_ONLY' AND s.revoked_at IS NULL "+
       "AND s.expires_at>statement_timestamp() AND e.employment_status='active' "+
@@ -28,11 +28,18 @@ export function createIsolatedHandoverService({pool,env=process.env}={}){
       "FROM public.consultations WHERE consultation_id=$1 FOR UPDATE",[consultationId])).rows[0];
     if(!consultation){await db.query('ROLLBACK');return out(404,'CONSULTATION_NOT_FOUND')}
     const customerId=String(consultation.customer_id),before=String(consultation.assignee_employee_id);
-    const scope=(await db.query("SELECT 1 FROM public.f05_catalog_employee_consultation_scope_test p "+
-      "WHERE p.employee_id=$1 AND p.customer_id=$2 AND p.can_reassign=true "+
+    const scope=(await db.query("SELECT p.can_reassign,p.can_manage_consultation FROM public.f05_catalog_employee_consultation_scope_test p "+
+      "WHERE p.employee_id=$1 AND p.customer_id=$2 "+
+      "AND (p.can_reassign=true OR p.can_manage_consultation=true) "+
       "AND p.issuer='DISPOSABLE_TEST_ONLY' AND p.expires_at>statement_timestamp() FOR SHARE OF p",
       [actorId,customerId])).rows[0];
     if(!scope){await db.query('ROLLBACK');return out(403,'HANDOVER_ACTOR_SCOPE_REQUIRED')}
+    const isAssignee=before===actorId;
+    const isScopedManager=Boolean(scope.can_manage_consultation)&&['manager','store_head'].includes(actor.role_code);
+    if(!(isAssignee&&scope.can_reassign)&&!isScopedManager){
+     await db.query('ROLLBACK');
+     return out(403,isAssignee?'HANDOVER_ACTOR_SCOPE_REQUIRED':'HANDOVER_NOT_AUTHORIZED_ASSIGNEE_OR_MANAGER');
+    }
     const digest=hash(JSON.stringify([actorId,consultationId,targetEmployeeId,note]));
     const previous=(await db.query("SELECT action,actor_employee_id,consultation_id,payload_sha256,old_assignee_employee_id,new_assignee_employee_id "+
       "FROM public.f05_catalog_consultation_actions_test WHERE event_key=$1",[eventKey])).rows[0];
@@ -44,8 +51,8 @@ export function createIsolatedHandoverService({pool,env=process.env}={}){
      if(before!==targetEmployeeId||!['pending','processing'].includes(consultation.status))return out(409,'HANDOVER_STATE_CHANGED');
      return out(200,'CONSULTATION_HANDOVER_REPLAY',{consultationId,oldAssigneeEmployeeId:String(previous.old_assignee_employee_id),newAssigneeEmployeeId:targetEmployeeId,firstHumanResponse:false,productionReady:false});
     }
-    // Only current assignee can initiate. Manager title alone conveys no authority.
-    if(before!==actorId){await db.query('ROLLBACK');return out(403,'CONSULTATION_NOT_ASSIGNEE')}
+    // The above scoped-manager Guard is the sole exception to current-assignee mutation.
+    // Management capability neither rewrites Customer owner nor becomes assignee.
     if(!['pending','processing'].includes(consultation.status)){await db.query('ROLLBACK');return out(409,'CONSULTATION_NOT_OPEN')}
     if(before===targetEmployeeId){await db.query('ROLLBACK');return out(409,'CONSULTATION_ALREADY_ASSIGNED')}
     const target=(await db.query("SELECT 1 FROM public.employees e "+
@@ -58,7 +65,7 @@ export function createIsolatedHandoverService({pool,env=process.env}={}){
     if(!target){await db.query('ROLLBACK');return out(403,'HANDOVER_TARGET_NOT_ELIGIBLE')}
     const changed=(await db.query("UPDATE public.consultations SET assignee_employee_id=$2 "+
       "WHERE consultation_id=$1 AND assignee_employee_id=$3 AND status IN ('pending','processing') RETURNING consultation_id",
-      [consultationId,targetEmployeeId,actorId])).rows[0];
+      [consultationId,targetEmployeeId,before])).rows[0];
     if(!changed){await db.query('ROLLBACK');return out(409,'HANDOVER_STATE_CHANGED')}
     await db.query("INSERT INTO public.f05_catalog_consultation_actions_test "+
       "(event_key,payload_sha256,customer_id,vehicle_id,listing_cycle_id,consultation_id,action,actor_employee_id,old_assignee_employee_id,new_assignee_employee_id,handover_reason) "+
