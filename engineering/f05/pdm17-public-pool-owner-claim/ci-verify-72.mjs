@@ -2,7 +2,14 @@ import {readFile,mkdir,writeFile} from 'node:fs/promises';
 const repo=process.env.GITHUB_REPOSITORY,token=process.env.GH_ACTIONS_READ_TOKEN;
 if(repo!=='suzhe868-arch/mb'||!token||process.env.CI!=='true'||process.env.GITHUB_ACTIONS!=='true')
  throw Error('D1_GITHUB_PUSH_AUDIT_GATE');
+import {verifyCurrentPullRequestRun} from '../source-gate-event-evidence.mjs';
 const event=JSON.parse(await readFile(process.env.GITHUB_EVENT_PATH,'utf8'));
+if(process.env.GITHUB_EVENT_NAME==='pull_request'){
+ await verifyCurrentPullRequestRun({workflowPath:".github/workflows/f05-10-d1-public-pool-owner-claim.yml",sourceJobName:"F05-10-D1 new Source PG16",expectedJobs:2,artifactDirectory:'./artifacts/source/'});
+ process.exit(0);
+}
+if(process.env.GITHUB_EVENT_NAME!=='push')throw Error('SOURCE_GATE_UNSUPPORTED_EVENT_FAIL_CLOSED');
+
 const sha=event.pull_request?.head?.sha??process.env.GITHUB_SHA;
 if(!/^[a-f0-9]{40}$/.test(sha))throw Error('D1_INVALID_HEAD');
 const old=[['h52',52],['i2',2],['j2',2],['k2',2],['f05-4-2',2],['f05-5-2',2],['f05-6-2',2],['f05-8-four',4],['f05-9-two',2]];
