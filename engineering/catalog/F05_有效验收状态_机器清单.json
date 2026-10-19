@@ -2,11 +2,11 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F05_6_AND_COMPLETE_RUNTIME_434_PG16_TEST_ONLY",
+  "status": "B_IN_PROGRESS_F05_6_F05_10_MANAGER_SCOPE_435_TEST_ONLY",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "f7a43433dfe04beaf0c199babfe1d6d099ffc60e",
+  "github_commit": "10aaf1912d731c2a33847e775518ad52729d8aac",
   "node_http_stub_tests": {
     "passed": 153,
     "failed": 0,
@@ -14,10 +14,10 @@
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39195736378,
-    "head_sha": "f7a43433dfe04beaf0c199babfe1d6d099ffc60e",
+    "run_id": 39196225730,
+    "head_sha": "10aaf1912d731c2a33847e775518ad52729d8aac",
     "node_http_tests_passed": 153,
-    "real_pg16_integration_tests_passed": 281,
+    "real_pg16_integration_tests_passed": 282,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -41,7 +41,7 @@
     "formal_employee_permission_scope_verified": false,
     "real_pg16_employee_processing_integration_tests_passed": 16,
     "formal_employee_issuer_verified": false,
-    "real_pg16_consultation_handover_tests_passed": 9,
+    "real_pg16_consultation_handover_tests_passed": 10,
     "real_pg16_sla_hold_integration_tests_passed": 11,
     "formal_customer_disable_event_issuer_verified": false,
     "formal_first_human_response_evidence_verified": false,
@@ -356,8 +356,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "MAIN_PR_WORKFLOW_TRIGGER_GOVERNANCE_NOT_RELEASED_5_VERIFIED_F05_PATH_MATCHES_OTHER_WORKFLOWS_NOT_EXHAUSTIVELY_AUDITED",
-  "tested_commit": "f7a43433dfe04beaf0c199babfe1d6d099ffc60e",
-  "tested_run": 39195736378,
+  "tested_commit": "10aaf1912d731c2a33847e775518ad52729d8aac",
+  "tested_run": 39196225730,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -917,18 +917,18 @@
     "disallowed_production_identity_issuer": true,
     "true_pg16_tests": 10,
     "first_human_response_verified": false,
-    "audited_sha": "f7a43433dfe04beaf0c199babfe1d6d099ffc60e",
-    "audited_run": 39195736378,
+    "audited_sha": "10aaf1912d731c2a33847e775518ad52729d8aac",
+    "audited_run": 39196225730,
     "fail_closed_without_formal_signers": true,
     "employee_closure_reason_immutable_event_column": "f05_demand_lifecycle_events_test.reason_text",
     "employee_closure_reason_physically_verified": true
   },
   "pr_trigger_audit": {
     "main_sha": "9181a997edae1ad46fcda1b5a4777826512be955",
-    "comparison_head": "f7a43433dfe04beaf0c199babfe1d6d099ffc60e",
-    "ahead_commits": 241,
+    "comparison_head": "10aaf1912d731c2a33847e775518ad52729d8aac",
+    "ahead_commits": 244,
     "behind_commits": 0,
-    "changed_files": 150,
+    "changed_files": 151,
     "changed_workflow_files": [
       ".github/workflows/f05-real-delivery-pg16-onejob.yml"
     ],
@@ -951,10 +951,32 @@
     "health_ready_200_verified": true,
     "unauthorized_demand_action_401_verified": true,
     "production_ready_in_denial_response": false,
-    "run": 39195736378,
-    "tested_commit": "f7a43433dfe04beaf0c199babfe1d6d099ffc60e",
+    "run": 39196225730,
+    "tested_commit": "10aaf1912d731c2a33847e775518ad52729d8aac",
     "source_mode": "DISPOSABLE_TEST_ONLY",
     "formal_issuer_verified": false,
+    "production_ready": false
+  },
+  "f05_consultation_manager_transfer_real_business": {
+    "mode": "DISPOSABLE_TEST_ONLY",
+    "explicit_capability_column": "f05_catalog_employee_consultation_scope_test.can_manage_consultation",
+    "permitted_roles": [
+      "manager",
+      "store_head"
+    ],
+    "manager_title_alone_is_not_sufficient": true,
+    "requires_current_authenticated_employee": true,
+    "requires_scoped_consultation": true,
+    "current_assignee_can_reassign_without_manager_title": true,
+    "stale_previous_assignee_replay_idempotent_without_new_mutation": true,
+    "customer_owner_preserved": true,
+    "assignee_switch_preserves_original_sla_deadline": true,
+    "source_relation_immutable": true,
+    "formal_f03_management_issuer_verified": false,
+    "pg16_cases_added": 1,
+    "full_handover_pg16_cases_passed": 10,
+    "code_sha": "10aaf1912d731c2a33847e775518ad52729d8aac",
+    "run": 39196225730,
     "production_ready": false
   }
 }
