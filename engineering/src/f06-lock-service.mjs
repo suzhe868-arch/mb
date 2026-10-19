@@ -245,6 +245,12 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     await db.query('SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))',['F06_INTAKE_KEY',idempotencyKey]);
     const vehicle=await first(db,'SELECT * FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[vehicleId]);
     if(!vehicle)return response(404,'VEHICLE_NOT_FOUND');
+    // A Priority-origin Lock is exclusively visible to its owner; deny before the occupied status leaks.
+    const hiddenLock=await first(db,`SELECT 1 FROM public.locks l
+     JOIN ${LOCK_SCHEMA}.lock_snapshots s ON s.lock_id=l.lock_id
+     WHERE l.vehicle_id=$1 AND l.lock_status='active'
+       AND s.priority_origin_id IS NOT NULL AND l.customer_id<>$2 LIMIT 1`,[vehicleId,who.customer_id]);
+    if(hiddenLock)return response(404,'LOCK_REQUEST_NOT_VISIBLE');
     const digest=sha('f06-intake:'+idempotencyKey);
     const payload=sha(JSON.stringify([String(who.customer_id),vehicleId,listingCycleId]));
     const old=await first(db,`SELECT k.*,r.status,r.created_at,r.expires_at FROM ${LOCK_SCHEMA}.request_keys k
@@ -265,18 +271,18 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
      }
      return response(200,'LOCK_REQUEST_REPLAY',{requestId:String(old.request_id),state:old.status});
     }
-    // A Priority-origin Lock is exclusively visible to its owner; deny before the occupied status leaks.
-    const hiddenLock=await first(db,`SELECT 1 FROM public.locks l
-     JOIN ${LOCK_SCHEMA}.lock_snapshots s ON s.lock_id=l.lock_id
-     WHERE l.vehicle_id=$1 AND l.lock_status='active'
-       AND s.priority_origin_id IS NOT NULL AND l.customer_id<>$2 LIMIT 1`,[vehicleId,who.customer_id]);
-    if(hiddenLock)return response(404,'LOCK_REQUEST_NOT_VISIBLE');
     const f=await facts(db,who.customer_id,vehicleId,listingCycleId,{lockedVehicle:vehicle});
     if(f.error)return denied(f.error);
-    const pending=(await db.query(`SELECT * FROM public.lock_requests
-     WHERE customer_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3 AND status='pending'
-     ORDER BY created_at,lock_request_id FOR UPDATE`,[who.customer_id,vehicleId,listingCycleId])).rows;
+    // Fail closed if any live public M94 request lacks our exact test-only source.
+    const pending=(await db.query(`SELECT r.*,k.request_id AS trusted_request_id
+     FROM public.lock_requests r
+     LEFT JOIN ${LOCK_SCHEMA}.request_keys k ON k.request_id=r.lock_request_id
+      AND k.customer_id=r.customer_id AND k.issuer='DISPOSABLE_TEST_ONLY'
+     WHERE r.customer_id=$1 AND r.vehicle_id=$2 AND r.listing_cycle_id=$3 AND r.status='pending'
+     ORDER BY r.created_at,r.lock_request_id FOR UPDATE OF r`,
+     [who.customer_id,vehicleId,listingCycleId])).rows;
     for(const req of pending){
+     if(!req.trusted_request_id)return denied('UNTRUSTED_PENDING_REQUEST_ISSUER');
      const expired=(await first(db,"SELECT $1::timestamptz<=clock_timestamp() OR $2::timestamptz+interval '6 hours'<=clock_timestamp() AS past",[req.expires_at,req.created_at])).past;
      if(expired)await finish(db,req,'expired');
      else return response(200,'CURRENT_PENDING_REUSED',{requestId:String(req.lock_request_id),state:'pending'});
