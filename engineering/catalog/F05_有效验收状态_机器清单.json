@@ -2,11 +2,11 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F05_6_DEMAND_LIFECYCLE_433_TEST_ONLY",
+  "status": "B_IN_PROGRESS_F05_6_AND_COMPLETE_RUNTIME_434_PG16_TEST_ONLY",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "45f875177161024a2d2034c53bb76586cbcdff75",
+  "github_commit": "f7a43433dfe04beaf0c199babfe1d6d099ffc60e",
   "node_http_stub_tests": {
     "passed": 153,
     "failed": 0,
@@ -14,10 +14,10 @@
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39195174159,
-    "head_sha": "45f875177161024a2d2034c53bb76586cbcdff75",
+    "run_id": 39195736378,
+    "head_sha": "f7a43433dfe04beaf0c199babfe1d6d099ffc60e",
     "node_http_tests_passed": 153,
-    "real_pg16_integration_tests_passed": 280,
+    "real_pg16_integration_tests_passed": 281,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -127,7 +127,8 @@
     "real_pg16_demand_lifecycle_tests_passed": 10,
     "disposable_demand_lifecycle_transactions_verified": true,
     "disposable_auto_pause_security_verified": true,
-    "formal_demand_lifecycle_source_signed": false
+    "formal_demand_lifecycle_source_signed": false,
+    "real_pg16_full_runtime_wiring_tests_passed": 1
   },
   "endpoints": {
     "implemented_test_only": [
@@ -355,8 +356,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "MAIN_PR_WORKFLOW_TRIGGER_GOVERNANCE_NOT_RELEASED_5_VERIFIED_F05_PATH_MATCHES_OTHER_WORKFLOWS_NOT_EXHAUSTIVELY_AUDITED",
-  "tested_commit": "45f875177161024a2d2034c53bb76586cbcdff75",
-  "tested_run": 39195174159,
+  "tested_commit": "f7a43433dfe04beaf0c199babfe1d6d099ffc60e",
+  "tested_run": 39195736378,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -916,18 +917,18 @@
     "disallowed_production_identity_issuer": true,
     "true_pg16_tests": 10,
     "first_human_response_verified": false,
-    "audited_sha": "45f875177161024a2d2034c53bb76586cbcdff75",
-    "audited_run": 39195174159,
+    "audited_sha": "f7a43433dfe04beaf0c199babfe1d6d099ffc60e",
+    "audited_run": 39195736378,
     "fail_closed_without_formal_signers": true,
     "employee_closure_reason_immutable_event_column": "f05_demand_lifecycle_events_test.reason_text",
     "employee_closure_reason_physically_verified": true
   },
   "pr_trigger_audit": {
     "main_sha": "9181a997edae1ad46fcda1b5a4777826512be955",
-    "comparison_head": "45f875177161024a2d2034c53bb76586cbcdff75",
-    "ahead_commits": 238,
+    "comparison_head": "f7a43433dfe04beaf0c199babfe1d6d099ffc60e",
+    "ahead_commits": 241,
     "behind_commits": 0,
-    "changed_files": 149,
+    "changed_files": 150,
     "changed_workflow_files": [
       ".github/workflows/f05-real-delivery-pg16-onejob.yml"
     ],
@@ -943,5 +944,17 @@
     "proposal": "A must approve minimal safe trigger governance before PR",
     "pr_created": false,
     "skip_ci_used": false
+  },
+  "full_f05_disposable_runtime": {
+    "actual_pg16_creation_test_verified": true,
+    "all_required_f05_handlers_assembled": true,
+    "health_ready_200_verified": true,
+    "unauthorized_demand_action_401_verified": true,
+    "production_ready_in_denial_response": false,
+    "run": 39195736378,
+    "tested_commit": "f7a43433dfe04beaf0c199babfe1d6d099ffc60e",
+    "source_mode": "DISPOSABLE_TEST_ONLY",
+    "formal_issuer_verified": false,
+    "production_ready": false
   }
 }
