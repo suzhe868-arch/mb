@@ -24,6 +24,7 @@ export function createFoundationHandler({readinessProbe=async()=>false,readiness
   if(priceUnlockHandler&&await priceUnlockHandler(req,res)===true)return;
   if(slaHoldHandler&&await slaHoldHandler(req,res)===true)return;
   if(handoverHandler&&await handoverHandler(req,res)===true)return;
+  if(consultationResponseHandler&&await consultationResponseHandler(req,res)===true)return;
   if(employeeStartHandler&&await employeeStartHandler(req,res)===true)return;
   if(consultationHandler&&await consultationHandler(req,res)===true)return;
   if(favoriteHandler&&await favoriteHandler(req,res)===true)return;
