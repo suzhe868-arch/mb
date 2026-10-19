@@ -46,7 +46,11 @@ if [[ "$mode" = source ]];then
 fi
 node f05/consultation-assignee-sla/runner.mjs --verify
 node f05/consultation-assignee-sla/evidence.mjs "$mode"
-if [[ "$mode" = source ]];then node f05/consultation-assignee-sla/ci-verify-72.mjs;fi
+if [[ "$mode" = source ]];then
+ node --test f05/tests/source-gate-event-evidence.test.mjs 2>&1 | tee f05/consultation-assignee-sla/artifacts/source/event-aware-evidence-tests.log
+ grep -q '# fail 0' f05/consultation-assignee-sla/artifacts/source/event-aware-evidence-tests.log
+ node f05/consultation-assignee-sla/ci-verify-72.mjs
+fi
 ids="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
 test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
 docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" pg_dump --host=127.0.0.1 --username=f03_ci --dbname=f03_auth_test --schema-only --no-owner --no-privileges --schema=public --schema=d1_owner_ci > "$dir/native-m94-v26-schema-only.sql"

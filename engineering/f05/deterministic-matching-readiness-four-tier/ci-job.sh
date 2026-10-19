@@ -62,6 +62,8 @@ grep -q '# fail 0' "$artifact/true-pg16-$mode-tests.log"
 node f05/deterministic-matching-readiness-four-tier/runner.mjs --verify
 node f05/deterministic-matching-readiness-four-tier/evidence.mjs "$mode"
 if [[ "$mode" = source ]]; then
+ node --test f05/tests/source-gate-event-evidence.test.mjs 2>&1 | tee f05/deterministic-matching-readiness-four-tier/artifacts/source/event-aware-evidence-tests.log
+ grep -q '# fail 0' f05/deterministic-matching-readiness-four-tier/artifacts/source/event-aware-evidence-tests.log
  node f05/deterministic-matching-readiness-four-tier/ci-verify-workflows.mjs
 fi
 cp f05/deterministic-matching-readiness-four-tier/F05-7_PDM12规则匹配受信物理来源矩阵.tsv "$artifact/source-gap-matrix.tsv"
