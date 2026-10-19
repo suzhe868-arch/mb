@@ -1,6 +1,7 @@
 // PDM17 isolated CI business carrier, no public production issuer.
 import {connect,gate,verify} from './migration.mjs';
 const requestObjects=new WeakSet();
+const consultationRequestObjects=new WeakSet();
 const valid=n=>Number.isSafeInteger(Number(n))&&Number(n)>0;
 const key=s=>typeof s==='string'&&/^[A-Za-z0-9._:-]{20,160}$/.test(s);
 const deny=(code)=>({allowed:false,code});
@@ -11,6 +12,13 @@ export function syntheticServiceRequest(customerId){
  gate();if(!valid(customerId))throw Error('D1_BAD_SYNTHETIC_CUSTOMER');
  const obj=Object.freeze({customerId,source:'CI_SYNTHETIC_CUSTOMER_SERVICE_NOT_PRODUCTION'});
  requestObjects.add(obj);return obj;
+}
+export function syntheticConsultationRequest(customerId,vehicleId,listingCycleId){
+ gate();
+ if(![customerId,vehicleId,listingCycleId].every(valid))throw Error('D1_BAD_SYNTHETIC_CONSULTATION');
+ const obj=Object.freeze({customerId,vehicleId,listingCycleId,
+  source:'CI_SYNTHETIC_CUSTOMER_CONSULTATION_WITH_PHONE_CONSENT_NOT_PRODUCTION'});
+ consultationRequestObjects.add(obj);return obj;
 }
 async function present(c,actor){
  if(actor?.principal_kind!=='employee'||actor.system_admin_id!=null||
@@ -205,4 +213,107 @@ export async function inspectProtectionCI(c,customerId){
  await verify(c);
  return protection(c,customerId,{protective_hold:false});
 }
+export async function createConsultationAfterOwnerCI(actor,{requestKey}={}){
+ gate();
+ if(!consultationRequestObjects.has(actor)||!key(requestKey))
+  return deny('D1_SYNTHETIC_CONSULTATION_SOURCE_REQUIRED');
+ const c=await connect();
+ try{
+  await c.query('BEGIN');
+  await verify(c);
+  await c.query('SELECT pg_advisory_xact_lock($1,hashtext($2))',
+   [20261013,'D1_CONSULT:'+actor.customerId+':'+actor.vehicleId+':'+actor.listingCycleId]);
+  const cu=await row(c,"SELECT customer_id,current_owner_employee_id,owner_assignment_state,account_status "+
+   "FROM public.customers WHERE customer_id=$1 FOR UPDATE",[actor.customerId]);
+  if(!cu||cu.account_status!=='active'||cu.owner_assignment_state!=='assigned'||
+     cu.current_owner_employee_id===null){
+   await c.query('ROLLBACK');return deny('D1_CONSULTATION_OWNER_NOT_FORMED');
+  }
+  const receipt=await row(c,"SELECT r.receipt_id,r.new_owner_id,r.cycle_id,p.team_id "+
+   "FROM d1_owner_ci.receipts r JOIN d1_owner_ci.pool_cycles p ON p.cycle_id=r.cycle_id "+
+   "WHERE r.customer_id=$1 AND p.state='assigned' ORDER BY r.receipt_id DESC LIMIT 1 FOR SHARE OF r,p",
+   [actor.customerId]);
+  if(!receipt||Number(receipt.new_owner_id)!==Number(cu.current_owner_employee_id)){
+   await c.query('ROLLBACK');return deny('D1_CONSULTATION_OWNER_NOT_D1_CURRENT');
+  }
+  const phone=await row(c,"SELECT phone_fact_id FROM public.customer_phone_facts "+
+   "WHERE customer_id=$1 AND ended_at IS NULL ORDER BY valid_from DESC,phone_fact_id DESC LIMIT 1 FOR SHARE",
+   [actor.customerId]);
+  if(!phone){await c.query('ROLLBACK');return deny('D1_CONSULTATION_PHONE_FACT_REQUIRED')}
+  const employee=await row(c,"SELECT e.employee_id,e.store_id,e.employment_status,e.receiving_status,r.role_code role "+
+   "FROM public.employees e JOIN public.roles r ON r.role_id=e.main_role_id "+
+   "WHERE e.employee_id=$1 FOR SHARE OF e,r",[cu.current_owner_employee_id]);
+  const team=await row(c,"SELECT team_id,store_id FROM public.teams WHERE team_id=$1 FOR SHARE",[receipt.team_id]);
+  if(!team||!await target(c,employee,Number(team.team_id),Number(team.store_id),{receiving:true})){
+   await c.query('ROLLBACK');return deny('D1_CONSULTATION_CURRENT_OWNER_NOT_RECEIVING');
+  }
+  const vehicle=await row(c,"SELECT v.vehicle_id,v.source_type,v.source_sale_status,v.platform_visibility,v.archived_at,"+
+   "cy.listing_cycle_id,cy.ended_at FROM public.vehicles v JOIN public.vehicle_listing_cycles cy "+
+   "ON cy.vehicle_id=v.vehicle_id WHERE v.vehicle_id=$1 AND cy.listing_cycle_id=$2 FOR SHARE OF v,cy",
+   [actor.vehicleId,actor.listingCycleId]);
+  const saleable=vehicle&&vehicle.archived_at===null&&vehicle.ended_at===null&&
+   vehicle.platform_visibility==='visible'&&
+   ((vehicle.source_type==='wholesale'&&vehicle.source_sale_status==='active')||
+    (['mingbang','four_s'].includes(vehicle.source_type)&&vehicle.source_sale_status==='available'));
+  if(!saleable){await c.query('ROLLBACK');return deny('D1_CONSULTATION_VEHICLE_NOT_VISIBLE')}
+  const priority=await row(c,"SELECT 1 FROM public.priority_leases WHERE vehicle_id=$1 AND listing_cycle_id=$2 "+
+   "AND status='active' AND customer_id<>$3 LIMIT 1 FOR SHARE",
+   [actor.vehicleId,actor.listingCycleId,actor.customerId]);
+  const legacyPriority=await row(c,"SELECT 1 FROM public.f05_8_priority_ci WHERE vehicle_id=$1 AND listing_cycle_id=$2 "+
+   "AND status='active' AND customer_id<>$3 LIMIT 1 FOR SHARE",
+   [actor.vehicleId,actor.listingCycleId,actor.customerId]);
+  if(priority||legacyPriority){
+   await c.query('ROLLBACK');return deny('D1_CONSULTATION_PRIORITY_EXCLUSIVE');
+  }
+  const prior=await row(c,"SELECT * FROM d1_owner_ci.consultation_events WHERE request_key=$1 FOR SHARE",[requestKey]);
+  if(prior){
+   if(Number(prior.customer_id)!==Number(actor.customerId)||
+      Number(prior.vehicle_id)!==Number(actor.vehicleId)||
+      Number(prior.listing_cycle_id)!==Number(actor.listingCycleId)||
+      Number(prior.owner_receipt_id)!==Number(receipt.receipt_id)){
+    await c.query('ROLLBACK');return deny('D1_CONSULTATION_IDEMPOTENCY_COLLISION');
+   }
+   await c.query('ROLLBACK');
+   return ok('D1_CONSULTATION_IDEMPOTENT',{consultationId:Number(prior.consultation_id),
+    ownerId:Number(cu.current_owner_employee_id),created:prior.action==='CREATED'});
+  }
+  let consultation=await row(c,"SELECT consultation_id,assignee_employee_id FROM public.consultations "+
+   "WHERE customer_id=$1 AND vehicle_id=$2 AND listing_cycle_id=$3 "+
+   "AND status IN ('pending','processing') FOR UPDATE",
+   [actor.customerId,actor.vehicleId,actor.listingCycleId]);
+  const created=!consultation;
+  if(!consultation){
+   consultation=await row(c,"INSERT INTO public.consultations "+
+    "(customer_id,vehicle_id,listing_cycle_id,assignee_employee_id,status,source_relation,first_response_deadline) "+
+    "VALUES($1,$2,$3,$4,'pending',$5::jsonb,statement_timestamp()+interval '15 minutes') "+
+    "RETURNING consultation_id,assignee_employee_id",
+    [actor.customerId,actor.vehicleId,actor.listingCycleId,cu.current_owner_employee_id,
+     JSON.stringify({kind:'other',entry:'vehicle_detail',
+      issuer:'CI_SYNTHETIC_PDM17_CUSTOMER_INTENT_NOT_PRODUCTION',
+      ownerReceiptId:String(receipt.receipt_id),poolCycleId:String(receipt.cycle_id)})]);
+  }else{
+   const assignee=await row(c,"SELECT e.employee_id,e.employment_status,r.role_code FROM public.employees e "+
+    "JOIN public.roles r ON r.role_id=e.main_role_id WHERE e.employee_id=$1 FOR SHARE OF e,r",
+    [consultation.assignee_employee_id]);
+   if(!assignee||assignee.employment_status!=='active'||!['sales','manager','store_head'].includes(assignee.role_code)){
+    await c.query('ROLLBACK');return deny('D1_CONSULTATION_EXISTING_ASSIGNEE_INVALID');
+   }
+  }
+  const event=await row(c,"INSERT INTO d1_owner_ci.consultation_events "+
+   "(request_key,consultation_id,customer_id,vehicle_id,listing_cycle_id,owner_receipt_id,assignee_employee_id,action,source_marker) "+
+   "VALUES($1,$2,$3,$4,$5,$6,$7,$8,'CI_SYNTHETIC_CUSTOMER_CONSULTATION_NOT_PRODUCTION') RETURNING event_id",
+   [requestKey,consultation.consultation_id,actor.customerId,actor.vehicleId,actor.listingCycleId,
+    receipt.receipt_id,consultation.assignee_employee_id,created?'CREATED':'REUSED']);
+  await c.query('COMMIT');
+  return ok(created?'D1_CONSULTATION_CREATED':'D1_CONSULTATION_REUSED',{
+   consultationId:Number(consultation.consultation_id),ownerId:Number(cu.current_owner_employee_id),
+   assigneeEmployeeId:Number(consultation.assignee_employee_id),ownerReceiptId:Number(receipt.receipt_id),
+   eventId:Number(event.event_id),created});
+ }catch(e){
+  await c.query('ROLLBACK').catch(()=>{});
+  if(['23505','40001','40P01','55P03'].includes(e?.code))return deny('D1_CONSULTATION_CONCURRENT_OR_STALE');
+  throw e;
+ }finally{await c.end()}
+}
+
 export const productionDeny=()=>deny('D1_PRODUCTION_OWNER_ISSUER_NOT_WIRED');

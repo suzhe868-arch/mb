@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import {randomBytes} from 'node:crypto';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {connect,verify} from '../migration.mjs';
-import {claimCI,assignCI,serviceAssignCI,syntheticServiceRequest,preClaimSummaryCI,inspectProtectionCI,productionDeny} from '../service.mjs';
+import {claimCI,assignCI,serviceAssignCI,syntheticServiceRequest,syntheticConsultationRequest,
+ createConsultationAfterOwnerCI,preClaimSummaryCI,inspectProtectionCI,productionDeny} from '../service.mjs';
 const c=await connect();
 const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret:randomBytes(32),origin:'https://127.0.0.1:49220'});
 const k=x=>'pdm17-ci-owner-claim-'+x+'-20261013';
@@ -258,6 +259,86 @@ test('D1-S18 real signed future CRM task denies public claim until independent r
  assert.equal((await state(id)).current_owner_employee_id,null);
 });
 
+
+
+async function d1VisibleVehicle(){
+ const x=(await q("SELECT v.vehicle_id,cy.listing_cycle_id FROM public.vehicles v "+
+  "JOIN public.vehicle_listing_cycles cy ON cy.vehicle_id=v.vehicle_id AND cy.ended_at IS NULL "+
+  "WHERE v.archived_at IS NULL AND v.platform_visibility='visible' "+
+  "AND ((v.source_type='wholesale' AND v.source_sale_status='active') OR "+
+  "(v.source_type IN('mingbang','four_s') AND v.source_sale_status='available')) "+
+  "AND NOT EXISTS(SELECT 1 FROM public.priority_leases p WHERE p.vehicle_id=v.vehicle_id "+
+  " AND p.listing_cycle_id=cy.listing_cycle_id AND p.status='active') "+
+  "AND NOT EXISTS(SELECT 1 FROM public.f05_8_priority_ci p WHERE p.vehicle_id=v.vehicle_id "+
+  " AND p.listing_cycle_id=cy.listing_cycle_id AND p.status='active') "+
+  "ORDER BY v.vehicle_id,cy.listing_cycle_id LIMIT 1"))[0];
+ assert.ok(x,'requires one safe current visible Vehicle/Cycle');
+ return {vehicleId:Number(x.vehicle_id),listingCycleId:Number(x.listing_cycle_id)};
+}
+async function addD1Phone(id){
+ await c.query("INSERT INTO public.customer_phone_facts(phone_fact_id,customer_id,phone_ciphertext,valid_from) "+
+  "SELECT COALESCE(MAX(phone_fact_id),0)+1,$1,decode('01020304','hex'),clock_timestamp() FROM public.customer_phone_facts",[id]);
+}
+test('D1-C01 public-pool Customer must form legal Owner before Consultation, then creates pending owner-assigned work order',async()=>{
+ const id=989213,vehicle=await d1VisibleVehicle();
+ await addD1Phone(id);
+ const intent=syntheticConsultationRequest(id,vehicle.vehicleId,vehicle.listingCycleId);
+ const before=await createConsultationAfterOwnerCI(intent,{requestKey:k('c01-before-owner')});
+ assert.equal(before.allowed,false);assert.equal(before.code,'D1_CONSULTATION_OWNER_NOT_FORMED');
+ assert.equal((await q('SELECT count(*)::int n FROM public.consultations WHERE customer_id=$1',[id]))[0].n,0);
+ const owner=await serviceAssignCI(syntheticServiceRequest(id),{requestKey:k('c01-owner-first')});
+ assert.equal(owner.allowed,true,JSON.stringify(owner));
+ const created=await createConsultationAfterOwnerCI(intent,{requestKey:k('c01-consult-after-owner')});
+ assert.equal(created.allowed,true,JSON.stringify(created));assert.equal(created.code,'D1_CONSULTATION_CREATED');
+ assert.equal(created.created,true);assert.equal(created.ownerId,owner.ownerId);
+ assert.equal(created.assigneeEmployeeId,owner.ownerId);
+ const row=(await q("SELECT consultation_id,assignee_employee_id,status,source_relation,first_response_deadline "+
+  "FROM public.consultations WHERE consultation_id=$1",[created.consultationId]))[0];
+ assert.equal(row.status,'pending');assert.equal(Number(row.assignee_employee_id),owner.ownerId);
+ assert.equal(row.source_relation.kind,'other');assert.equal(row.source_relation.entry,'vehicle_detail');
+ assert.equal(row.source_relation.issuer,'CI_SYNTHETIC_PDM17_CUSTOMER_INTENT_NOT_PRODUCTION');
+ assert.equal(Number(row.source_relation.ownerReceiptId),owner.receiptId);
+ assert.ok(row.first_response_deadline instanceof Date);
+ const current=await state(id);assert.equal(Number(current.current_owner_employee_id),owner.ownerId);
+ assert.equal(current.owner_assignment_state,'assigned');
+ const replay=await createConsultationAfterOwnerCI(intent,{requestKey:k('c01-consult-after-owner')});
+ assert.equal(replay.code,'D1_CONSULTATION_IDEMPOTENT');assert.equal(replay.consultationId,created.consultationId);
+ const touched=await createConsultationAfterOwnerCI(intent,{requestKey:k('c01-second-real-intent')});
+ assert.equal(touched.code,'D1_CONSULTATION_REUSED');assert.equal(touched.consultationId,created.consultationId);
+ assert.equal((await q('SELECT count(*)::int n FROM public.consultations WHERE customer_id=$1',[id]))[0].n,1);
+ assert.equal((await q('SELECT count(*)::int n FROM d1_owner_ci.consultation_events WHERE customer_id=$1',[id]))[0].n,2);
+ await assert.rejects(()=>c.query('DELETE FROM d1_owner_ci.consultation_events WHERE customer_id=$1',[id]),/D1_OWNER_HISTORY_IMMUTABLE/);
+});
+test('D1-C02 even after legal public-pool Owner, missing current phone fact keeps Consultation fail-closed with zero partial work order',async()=>{
+ const id=989214,vehicle=await d1VisibleVehicle();
+ const owner=await serviceAssignCI(syntheticServiceRequest(id),{requestKey:k('c02-owner')});
+ assert.equal(owner.allowed,true,JSON.stringify(owner));
+ const out=await createConsultationAfterOwnerCI(
+  syntheticConsultationRequest(id,vehicle.vehicleId,vehicle.listingCycleId),{requestKey:k('c02-no-phone')});
+ assert.equal(out.allowed,false);assert.equal(out.code,'D1_CONSULTATION_PHONE_FACT_REQUIRED');
+ assert.equal((await q('SELECT count(*)::int n FROM public.consultations WHERE customer_id=$1',[id]))[0].n,0);
+ assert.equal((await q('SELECT count(*)::int n FROM d1_owner_ci.consultation_events WHERE customer_id=$1',[id]))[0].n,0);
+ assert.equal(Number((await state(id)).current_owner_employee_id),owner.ownerId,
+  'PDM17 Owner commit remains valid even if later PDM15 Consultation validation fails');
+});
+test('D1-C03 two independent concurrent customer consultation intents serialize to one active Consultation and two immutable intent events',async()=>{
+ const id=989215,vehicle=await d1VisibleVehicle();
+ await addD1Phone(id);
+ const owner=await serviceAssignCI(syntheticServiceRequest(id),{requestKey:k('c03-owner')});
+ assert.equal(owner.allowed,true,JSON.stringify(owner));
+ const intent=syntheticConsultationRequest(id,vehicle.vehicleId,vehicle.listingCycleId);
+ const [a,b]=await Promise.all([
+  createConsultationAfterOwnerCI(intent,{requestKey:k('c03-concurrent-a')}),
+  createConsultationAfterOwnerCI(intent,{requestKey:k('c03-concurrent-b')})
+ ]);
+ assert.equal(a.allowed,true,JSON.stringify(a));assert.equal(b.allowed,true,JSON.stringify(b));
+ assert.deepEqual([a.code,b.code].sort(),['D1_CONSULTATION_CREATED','D1_CONSULTATION_REUSED'].sort());
+ assert.equal(a.consultationId,b.consultationId);
+ assert.equal((await q("SELECT count(*)::int n FROM public.consultations WHERE customer_id=$1 "+
+  "AND status IN ('pending','processing')",[id]))[0].n,1);
+ assert.equal((await q('SELECT count(*)::int n FROM d1_owner_ci.consultation_events WHERE customer_id=$1',[id]))[0].n,2);
+ assert.equal(Number((await state(id)).current_owner_employee_id),owner.ownerId);
+});
 
 test('D1-R01 current signed F05-8 v24 active Priority blocks independent PDM17 protection, ended no longer acts as Priority',async()=>{
  // Seed through an actual signed current v23 Match + Demand source into the real v24 table.

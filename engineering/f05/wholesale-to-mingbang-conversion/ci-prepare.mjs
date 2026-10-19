@@ -7,8 +7,9 @@ for(const [key,val] of Object.entries({CI:'true',GITHUB_ACTIONS:'true',APP_ENV:'
  if(process.env[key]!==val)throw Error('F05_3C_PREPARE_NOT_ISOLATED_'+key);
 if(process.env.F03_1_DATABASE_URL!=='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test')
  throw Error('F05_3C_PREPARE_WRONG_PG16');
-if(process.argv.length!==2)throw Error('F05_3C_PREPARE_ARGS');
-const cmds=[
+const stage=process.argv[2]??'f05-3b';
+if(process.argv.length>3||!['f05-2','f05-3a','f05-3b'].includes(stage))throw Error('F05_3C_PREPARE_ARGS');
+const base=[
  ['f03-1/runner.mjs','--bootstrap'],['f03-1/runner.mjs','--apply'],
  ...['runtime-scope','runtime-admin-population','runtime-receiving-pool','runtime-team-scope',
   'runtime-handover-ledger','runtime-customer-owner-handover','runtime-demand-responsible-handover',
@@ -27,16 +28,28 @@ const cmds=[
  ['f03/field-security-projection/fixtures.mjs'],
  ['f03/runtime-transaction-responsible-handover/evidence.mjs','--new'],
  // The prior M94 archive is verified by F05-2 migration; no re-archiving here.
- ...['vehicle-stewardship-physical-scope','four-s-member-trust-scope']
- .flatMap(x=>[['f05/'+x+'/runner.mjs','--inject-rollback'],['f05/'+x+'/runner.mjs','--apply'],
-  ['f05/'+x+'/runner.mjs','--verify'],['f05/'+x+'/fixtures.mjs']]),
+];
+const f052=[
+ ['f05/vehicle-stewardship-physical-scope/runner.mjs','--inject-rollback'],
+ ['f05/vehicle-stewardship-physical-scope/runner.mjs','--apply'],
+ ['f05/vehicle-stewardship-physical-scope/runner.mjs','--verify'],
+ ['f05/vehicle-stewardship-physical-scope/fixtures.mjs']
+];
+const f053a=[
+ ['f05/four-s-member-trust-scope/runner.mjs','--inject-rollback'],
+ ['f05/four-s-member-trust-scope/runner.mjs','--apply'],
+ ['f05/four-s-member-trust-scope/runner.mjs','--verify'],
+ ['f05/four-s-member-trust-scope/fixtures.mjs']
+];
+const f053b=[
  ['f05/jyt-wholesale-lineage-cycle/runner.mjs','--inject-rollback'],
  ['f05/jyt-wholesale-lineage-cycle/runner.mjs','--apply'],
  ['f05/jyt-wholesale-lineage-cycle/runner.mjs','--verify']
 ];
+const cmds=[...base,...f052,...(stage==='f05-2'?[]:f053a),...(stage==='f05-3b'?f053b:[])];
 for(const [file,...args] of cmds){
  console.log('F05_3C_BOOTSTRAP_STEP',file,...args);
  const p=spawnSync(process.execPath,[file,...args],{stdio:'inherit',env:process.env,timeout:180000});
  if(p.error||p.status!==0)throw Error('F05_3C_PREPARE_STEP_FAILED_'+file+'_'+(p.error?.message||p.status));
 }
-console.log('F05_3C_ISOLATED_POSTGRES16_VERSION_CHAIN_PREPARED');
+console.log('F05_SOURCE_LANE_ISOLATED_POSTGRES16_VERSION_CHAIN_PREPARED',stage);

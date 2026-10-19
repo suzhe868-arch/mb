@@ -60,8 +60,11 @@ export async function verify(c){
  if(!a||a.sidecar_source_sha256!==checksum||a.prior_ledger_sha256!==old.ledger||
    a.old_public_catalog_sha256!==old.catalog)throw Error('D1_SIDECAR_SEAL_INVALID');
  const cols=(await c.query("SELECT table_name,column_name,data_type FROM information_schema.columns WHERE table_schema='d1_owner_ci' ORDER BY table_name,column_name")).rows;
- for(const name of ['attestation','config','pool_cycles','receipts'])
+ for(const name of ['attestation','config','pool_cycles','receipts','consultation_events'])
   if(!cols.find(x=>x.table_name===name))throw Error('D1_SIDECAR_CATALOG_MISSING_'+name);
+ const immutable=(await c.query("SELECT count(*)::int n FROM pg_catalog.pg_trigger WHERE NOT tgisinternal "+
+  "AND tgname IN ('d1_receipt_immutable','d1_attestation_immutable','d1_consultation_event_immutable','d1_pool_original_immutable')")).rows[0].n;
+ if(immutable!==4)throw Error('D1_SIDECAR_IMMUTABLE_TRIGGER_DRIFT');
  return {verified:true,sourceSHA:checksum,oldPublicCatalogSHA:old.catalog,oldSignedLedgerSHA:old.ledger,
   schemaColumnSHA:sha(cols),columns:cols.length,nonPrivilegedPG16:true};
 }
