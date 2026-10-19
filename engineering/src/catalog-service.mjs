@@ -24,9 +24,28 @@ function safeCoverPath(path){
 }
 const safetoken=o=>Buffer.from(JSON.stringify(o)).toString('base64url');
 function mac(text,key){return createHmac('sha256',key).update(text).digest('base64url')}
-export function encodeCursor({at,id,source,sort,modelId=null,brandId=null,seriesId=null,modelYear=null},key){
+function normalizeSortValue(sort,value){
+ if(sort==='newest'){
+  if(value!==null&&value!==undefined)throw Error('CATALOG_SORT_CURSOR_VALUE');
+  return null;
+ }
+ if(value===null||value===undefined)return null;
+ const text=String(value);
+ if(!/^(0|[1-9][0-9]{0,14})$/.test(text))throw Error('CATALOG_SORT_CURSOR_VALUE');
+ const n=BigInt(text);
+ if(sort.startsWith('price_')&&(n<=0n||n>=100000000000000n))throw Error('CATALOG_SORT_CURSOR_VALUE');
+ if(sort.startsWith('registration_year_')&&(n<1886n||n>2200n))throw Error('CATALOG_SORT_CURSOR_VALUE');
+ if(sort.startsWith('mileage_')&&(n<0n||n>2000000n))throw Error('CATALOG_SORT_CURSOR_VALUE');
+ return text;
+}
+export function encodeCursor({at,id,source,sort,modelId=null,brandId=null,seriesId=null,modelYear=null,sortValue=null},key){
  if(!isValidTime(at)||!validPgId(String(id))||!ALLOWED_SOURCES.has(source)||!ALLOWED_SORTS.has(sort)||([modelId,brandId,seriesId].some(v=>v!==null&&!validPgId(v))||(modelYear!==null&&!validModelYear(modelYear)))||!Buffer.isBuffer(key)||key.length<32)throw Error('CATALOG_CURSOR_INPUT');
- const content=safetoken({v:4,at,id:String(id),source,sort,modelId,brandId,seriesId,modelYear});return `${content}.${mac(content,key)}`;
+ const k=normalizeSortValue(sort,sortValue);
+ const payload=sort==='newest'
+  ?{v:4,at,id:String(id),source,sort,modelId,brandId,seriesId,modelYear}
+  :{v:5,at,id:String(id),source,sort,modelId,brandId,seriesId,modelYear,n:k===null?1:0,k};
+ const content=safetoken(payload);
+ return content+'.'+mac(content,key);
 }
 export function decodeCursor(value,key,source,sort,modelId=null,brandId=null,seriesId=null,modelYear=null){
  if(typeof value!=='string'||value.length>512||!/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(value))throw Error('BAD_CURSOR');
@@ -34,7 +53,15 @@ export function decodeCursor(value,key,source,sort,modelId=null,brandId=null,ser
  const a=Buffer.from(expected),b=Buffer.from(signature);
  if(a.length!==b.length||!timingSafeEqual(a,b))throw Error('BAD_CURSOR');
  let p;try{p=JSON.parse(Buffer.from(str,'base64url').toString('utf8'))}catch{throw Error('BAD_CURSOR')}
- if(!p||Object.keys(p).sort().join(',')!=='at,brandId,id,modelId,modelYear,seriesId,sort,source,v'||p.v!==4||p.source!==source||p.sort!==sort||p.modelId!==modelId||p.brandId!==brandId||p.seriesId!==seriesId||p.modelYear!==modelYear||!validPgId(p.id)||!isValidTime(p.at))throw Error('BAD_CURSOR');
+ const common=p&&p.source===source&&p.sort===sort&&p.modelId===modelId&&p.brandId===brandId&&p.seriesId===seriesId&&p.modelYear===modelYear&&validPgId(p.id)&&isValidTime(p.at);
+ if(!common)throw Error('BAD_CURSOR');
+ if(sort==='newest'){
+  if(Object.keys(p).sort().join(',')!=='at,brandId,id,modelId,modelYear,seriesId,sort,source,v'||p.v!==4)throw Error('BAD_CURSOR');
+ }else{
+  if(Object.keys(p).sort().join(',')!=='at,brandId,id,k,modelId,modelYear,n,seriesId,sort,source,v'||p.v!==5||![0,1].includes(p.n))throw Error('BAD_CURSOR');
+  const k=normalizeSortValue(sort,p.k);
+  if((k===null?1:0)!==p.n)throw Error('BAD_CURSOR');
+ }
  return p;
 }
 // Preserve PostgreSQL microseconds in the signed keyset: JS Date rounds to milliseconds.
