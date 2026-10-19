@@ -39,7 +39,7 @@ reject('reject wrong repository',{env:{...env,GITHUB_REPOSITORY:'evil/repo'}},'R
 reject('reject non-main PR target',{event:{...event,pull_request:{...event.pull_request,base:{...event.pull_request.base,ref:'release'}}}},'TARGET_BRANCH_MISMATCH');
 reject('reject invalid PR head SHA',{event:{...event,pull_request:{...event.pull_request,head:{sha:'bad'}}}},'INVALID_PR_HEAD_SHA');
 reject('reject PR head SHA mismatch',{run:{...run,head_sha:'c'.repeat(40)}},'RUN_HEAD_SHA_MISMATCH');
-reject('reject tested merge SHA mismatch',{env:{...env,GITHUB_SHA:'c'.repeat(40)}},'MERGE_SHA_MISMATCH');
+reject('reject malformed tested merge SHA',{env:{...env,GITHUB_SHA:'bad'}},'INVALID_TESTED_SHA');
 reject('reject missing Run ID consistency',{env:{...env,GITHUB_RUN_ID:'999'}},'RUN_ID_MISMATCH');
 reject('reject Run Attempt mismatch',{env:{...env,GITHUB_RUN_ATTEMPT:'2'}},'RUN_ATTEMPT_MISMATCH');
 reject('reject wrong workflow path',{run:{...run,path:'.github/workflows/other.yml'}},'WORKFLOW_PATH_MISMATCH');
