@@ -86,6 +86,9 @@ try{
   assert.equal((await act('RESUME',employeeToken)).status,200);
   const completed=await act('CANCEL',employeeToken,'59680',secret(),'客户不再继续找车');
   assert.equal(completed.status,200);assert.equal(completed.body.demandState,'cancelled');
+  const auditedReason=(await db.query("SELECT reason_text FROM public.f05_demand_lifecycle_events_test "+
+   "WHERE demand_id=59680 AND action='CANCEL'")).rows[0];
+  assert.equal(auditedReason.reason_text,'客户不再继续找车');
   assert.equal((await act('RESUME',employeeToken)).status,409);
   const end=(await db.query("SELECT status,decision,processed_by_employee_id FROM public.f05_demand_end_requests_test WHERE demand_id=59680")).rows[0];
   assert.equal(end.status,'processed');assert.equal(end.decision,'cancelled');
@@ -108,6 +111,8 @@ try{
   assert.equal((await act('PAUSE',customerToken,'59681',key)).status,200);
   assert.equal((await act('COMPLETE',employeeToken,'59681',secret(),'找车服务目标已真实完成')).status,200);
   assert.equal((await db.query("SELECT demand_state FROM public.demands WHERE demand_id=59681")).rows[0].demand_state,'completed');
+  assert.equal((await db.query("SELECT reason_text FROM public.f05_demand_lifecycle_events_test "+
+   "WHERE demand_id=59681 AND action='COMPLETE'")).rows[0].reason_text,'找车服务目标已真实完成');
  });
  await test('PG16 PDM11 auto-pauses active Demand on customer disable, downgrade or revoked level; never auto-resumes',async()=>{
   const demandId=String((await db.query("INSERT INTO public.demands(customer_id,responsible_employee_id,demand_state,criteria_json) "+

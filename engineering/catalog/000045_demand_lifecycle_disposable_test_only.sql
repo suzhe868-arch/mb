@@ -32,6 +32,9 @@ CREATE TABLE public.f05_demand_lifecycle_events_test(
  prior_state text NOT NULL,
  result_state text NOT NULL,
  result_code text NOT NULL,
+ reason_text text,
+ CHECK((action IN ('COMPLETE','CANCEL') AND reason_text IS NOT NULL AND length(reason_text) BETWEEN 6 AND 200)
+  OR (action NOT IN ('COMPLETE','CANCEL') AND reason_text IS NULL)),
  occurred_at timestamptz NOT NULL DEFAULT statement_timestamp()
 );
 -- Existing immutable-event function belongs to the disposable F05 fixture.

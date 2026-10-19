@@ -128,9 +128,9 @@ export function createIsolatedDemandLifecycleService({pool,env=process.env}={}){
        action==='COMPLETE'?'completed':'cancelled';
     const code=action==='END_REQUEST'?'DEMAND_END_REQUEST_PENDING':'DEMAND_'+action+'_APPLIED';
     await c.query("INSERT INTO public.f05_demand_lifecycle_events_test "+
-     "(event_key,payload_sha256,demand_id,actor_kind,actor_id,action,prior_state,result_state,result_code) "+
-     "VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)",
-     [eventKey,fingerprint,demandId,kind,actorId,action,state,next,code]);
+     "(event_key,payload_sha256,demand_id,actor_kind,actor_id,action,prior_state,result_state,result_code,reason_text) "+
+     "VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)",
+     [eventKey,fingerprint,demandId,kind,actorId,action,state,next,code,reason]);
     await c.query('COMMIT');
     return reply(200,code,{demandId,demandState:next,endRequestPending:action==='END_REQUEST',
       matchingReady:false,matchingStarted:false});
