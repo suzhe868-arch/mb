@@ -10,7 +10,7 @@ const env={APP_ENV:'test',NODE_ENV:'test',API_HOST:'127.0.0.1',
 const hash=s=>createHash('sha256').update(s).digest('hex');
 const token='a'.repeat(43),key='z'.repeat(32);
 const ready={db:'f06_lock_test',role:'f06_lock_ci',version:160014,superuser:false,createdb:false,
- sessions:true,employees:true,requests:true,locks:true,waitlists:true,vehicles:true,public_requests:true,public_locks:true,public_waitlists:true,signed_ledger:true,pc_accounts:true,scoped_capabilities:true,four_s_boundary:true,match_source:true,priority_source:true,priority_events:true,recommendation_source:true,phone_facts:true,price_history:true,visibility_grants:true};
+ sessions:true,employees:true,requests:true,locks:true,waitlists:true,vehicles:true,public_requests:true,public_locks:true,public_waitlists:true,signed_ledger:true,signed_ledger_rows:24,pc_accounts:true,scoped_capabilities:true,four_s_boundary:true,match_source:true,priority_source:true,priority_events:true,recommendation_source:true,phone_facts:true,price_history:true,visibility_grants:true};
 function driver(handler){
  const sqls=[];const c={async query(sql,args=[]){sqls.push(sql);
   if(sql.includes('current_database()'))return {rows:[ready]};
