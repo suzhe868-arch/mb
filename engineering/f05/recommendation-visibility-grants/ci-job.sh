@@ -36,6 +36,8 @@ grep -q '# fail 0' "$dir/native-pg16-$mode.log"
 node f05/recommendation-visibility-grants/runner.mjs --verify
 node f05/recommendation-visibility-grants/evidence.mjs "$mode"
 if [[ "$mode" = source ]];then
+ node --test f05/tests/source-gate-event-evidence.test.mjs 2>&1 | tee f05/recommendation-visibility-grants/artifacts/source/event-aware-evidence-tests.log
+ grep -q '# fail 0' f05/recommendation-visibility-grants/artifacts/source/event-aware-evidence-tests.log
  node f05/recommendation-visibility-grants/ci-verify-70.mjs
 fi
 ids="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
