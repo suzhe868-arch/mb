@@ -20,12 +20,26 @@ export function createIsolatedF06LockHandler({service,env=process.env}={}){
   const path=req.url||'';
   if(!path.startsWith('/api/v1/lock-requests'))return false;
   const decide=/^\/api\/v1\/lock-requests\/([1-9][0-9]{0,18})\/decision$/.exec(path);
-  if(path!=='/api/v1/lock-requests'&&!decide){send(res,404,'NOT_FOUND');return true}
-  if(req.method!=='POST'){send(res,405,'METHOD_NOT_ALLOWED');return true}
+  const status=/^\/api\/v1\/lock-requests\/([1-9][0-9]{0,18})\/status$/.exec(path);
+  if(path!=='/api/v1/lock-requests'&&!decide&&!status){send(res,404,'NOT_FOUND');return true}
+  if(req.method!==(status?'GET':'POST')){send(res,405,'METHOD_NOT_ALLOWED');return true}
   if(!localhost(req.socket?.remoteAddress)||req.headers.host!==`127.0.0.1:${req.socket?.localPort}`||req.headers.cookie||req.headers['transfer-encoding']||
      Object.keys(req.headers).some(k=>/^(?:forwarded|x-forwarded-|x-customer-|x-employee-|x-role|x-scope|x-system-admin)/.test(k))){send(res,403,'UNTRUSTED_REQUEST');return true}
   if(typeof req.headers.authorization!=='string'||!/^Bearer [A-Za-z0-9_-]{43}$/.test(req.headers.authorization)){
    send(res,401,'TEST_IDENTITY_REQUIRED');return true;
+  }
+  // The Customer-safe status endpoint never accepts a request body or claimed actor scope.
+  if(status){
+   if(!positiveId(status[1])||(req.headers['content-length']&&req.headers['content-length']!=='0')){
+    send(res,400,'INVALID_LOCK_STATUS_REQUEST');return true;
+   }
+   try{
+    if(typeof service.project!=='function')throw Error('F06_LOCK_SAFE_PROJECTION_UNAVAILABLE');
+    const result=await service.project({token:req.headers.authorization.slice(7),requestId:status[1]});
+    if(!result||!Number.isInteger(result.status)||result.status<200||result.status>599||typeof result.body?.code!=='string')throw Error('INVALID_SERVICE_RESULT');
+    send(res,result.status,result.body.code,Object.fromEntries(Object.entries(result.body).filter(([key])=>key!=='code')));
+   }catch{send(res,503,'LOCK_SERVICE_UNAVAILABLE')}
+   return true;
   }
   const parsed=await parseBody(req);
   if(parsed.error){send(res,400,parsed.error);return true}
