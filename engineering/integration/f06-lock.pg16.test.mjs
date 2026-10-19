@@ -22,6 +22,9 @@ const cars=['96181101','96181102','96181103','96181104','96181105'];
 const cycles=['96182101','96182102','96182103','96182104','96182105'];
 const custTokens=customers.map(()=>token());
 const employeeToken=token(),nonprivilegedToken=token();
+// Real original M94 signed fixture provides enabled, non-force-change test-only accounts
+// for Employees 6/7. Keep original Employee 1/4 PC credentials immutable.
+const approverEmployeeId='6',ownerEmployeeId='7';
 let server;let seedDone=false;
 const service=createIsolatedF06LockService({pool,env:process.env});
 async function http(path,tokenValue,body){
@@ -51,7 +54,7 @@ async function fixture(){
    ORDER BY t.team_id LIMIT 1`);
   assert.ok(org,'现有 M94/F03 基线必须有有效名邦 employee 1/team');
   const roles=await db.query(`SELECT e.employee_id,r.role_code FROM public.employees e
-    JOIN public.roles r ON r.role_id=e.main_role_id WHERE e.employee_id IN(1,4)
+    JOIN public.roles r ON r.role_id=e.main_role_id WHERE e.employee_id IN(6,7)
       AND e.employment_status='active'`);
   assert.equal(roles.rows.length,2,'必须先载入历史 M94/F03 合法员工基线');
   for(const p of roles.rows)assert.ok(['sales','manager','store_head'].includes(p.role_code));
@@ -59,23 +62,28 @@ async function fixture(){
   await db.query("INSERT INTO public.permissions(permission_id,permission_code) VALUES($1,'lock.ci.approve') ON CONFLICT(permission_id) DO NOTHING",[permId]);
   const perm=await scalar("SELECT permission_id FROM public.permissions WHERE permission_code='lock.ci.approve'");
   assert.ok(perm);
-  const teamCheck=await scalar(`SELECT 1 FROM public.employee_team_memberships m WHERE m.employee_id=4 AND m.team_id=$1
-   AND m.valid_from<=clock_timestamp() AND (m.ended_at IS NULL OR m.ended_at>clock_timestamp())`,[org.team_id]);
-  if(!teamCheck)await db.query(`INSERT INTO public.employee_team_memberships(employee_id,team_id,valid_from)
-   VALUES(4,$1,clock_timestamp()-interval '1 day')`,[org.team_id]);
+  // Test-only authorization uses independent existing F03 synthetic employee identities.
+  for(const employeeId of [approverEmployeeId,ownerEmployeeId]){
+   const teamCheck=await scalar(`SELECT 1 FROM public.employee_team_memberships m
+    WHERE m.employee_id=$1 AND m.team_id=$2
+    AND m.valid_from<=clock_timestamp() AND (m.ended_at IS NULL OR m.ended_at>clock_timestamp())`,
+    [employeeId,org.team_id]);
+   if(!teamCheck)await db.query(`INSERT INTO public.employee_team_memberships(employee_id,team_id,valid_from)
+    VALUES($1,$2,clock_timestamp()-interval '1 day')`,[employeeId,org.team_id]);
+  }
   let sc=await scalar(`SELECT scope_id FROM public.employee_data_scopes
-   WHERE employee_id=1 AND scope_kind='team' AND scope_reference_id=$1 AND ended_at IS NULL LIMIT 1`,[org.team_id]);
+   WHERE employee_id=$1 AND scope_kind='team' AND scope_reference_id=$2 AND ended_at IS NULL LIMIT 1`,[approverEmployeeId,org.team_id]);
   if(!sc)sc=await scalar(`INSERT INTO public.employee_data_scopes(employee_id,scope_kind,scope_reference_id)
-   VALUES(1,'team',$1) RETURNING scope_id`,[org.team_id]);
+   VALUES($1,'team',$2) RETURNING scope_id`,[approverEmployeeId,org.team_id]);
   await db.query(`INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at)
-   VALUES(1,$1,'allow',clock_timestamp())`,[perm.permission_id]);
+   VALUES($1,$2,'allow',clock_timestamp())`,[approverEmployeeId,perm.permission_id]);
   await db.query(`INSERT INTO public.employee_capability_scope_bindings
     (employee_id,permission_id,scope_id,granted_at)
-   VALUES(1,$1,$2,clock_timestamp()-interval '1 minute')`,[perm.permission_id,sc.scope_id]);
+   VALUES($1,$2,$3,clock_timestamp()-interval '1 minute')`,[approverEmployeeId,perm.permission_id,sc.scope_id]);
   for(const id of customers){
    await db.query(`INSERT INTO public.customers
     (customer_id,account_status,customer_level_id,owner_assignment_state,current_owner_employee_id)
-    VALUES($1,'active',1,'assigned',4)`,[id]);
+    VALUES($1,'active',1,'assigned',$2)`,[id,ownerEmployeeId]);
    await db.query(`INSERT INTO public.customer_phone_facts(customer_id,phone_ciphertext,valid_from)
     VALUES($1,decode(repeat('ab',16),'hex'),clock_timestamp()-interval '1 day')`,[id]);
   }
@@ -94,18 +102,20 @@ async function fixture(){
     (token_sha256,customer_id,issuer,expires_at)
     VALUES($1,$2,'DISPOSABLE_TEST_ONLY',clock_timestamp()+interval '10 minutes')`,[sha(custTokens[i]),customers[i]]);
   }
-  // The signed F03 synthetic accounts may legitimately require password changes
-  // or be disabled. Never flip their signed credential_state/force_password_change.
-  // Instead create isolated, explicitly non-loginable F06 test-only PC references.
-  for(const [tokenValue,id] of [[employeeToken,1],[nonprivilegedToken,4]]){
-   const pc=await scalar(`INSERT INTO public.pc_login_accounts
-     (account_id,normalized_login_key,principal_kind,employee_id,system_admin_id,
-      password_hash,credential_state,force_password_change)
-     VALUES($1,$2,'employee',$3,NULL,'F06_TEST_ONLY_INVALID_PASSWORD_HASH_NOT_A_LOGIN',
-      'enabled',false)
-     RETURNING account_id,credential_epoch`,[
-       id===1?'96189001':'96189004','f06_disposable_employee_'+id,id]);
-   assert.ok(pc,'F06 disposable employee account must exist in physical PG16 fixture');
+  // Signed M94 allows only one PC account per Employee. Reuse physically verified
+  // eligible *existing synthetic* Employees 6/7, never duplicate or modify F03 credentials.
+  // Only the F06 sidecar's random bearer-session proof is new.
+  for(const [tokenValue,id,accountId] of [
+   [employeeToken,approverEmployeeId,'7'],
+   [nonprivilegedToken,ownerEmployeeId,'8']
+  ]){
+   const pc=await scalar(`SELECT account_id,credential_epoch,credential_state,
+     force_password_change,employee_id FROM public.pc_login_accounts
+     WHERE account_id=$1 AND employee_id=$2 AND principal_kind='employee'
+      AND system_admin_id IS NULL FOR SHARE`,[accountId,id]);
+   assert.ok(pc,'Existing signed F03 synthetic PC identity must be present');
+   assert.equal(pc.credential_state,'enabled');
+   assert.equal(pc.force_password_change,false);
    await db.query(`INSERT INTO f06_real_lock_test.employee_sessions
      (token_sha256,employee_id,account_id,credential_epoch,issuer,expires_at)
      VALUES($1,$2,$3,$4,'DISPOSABLE_TEST_ONLY',clock_timestamp()+interval '10 minutes')`,
@@ -122,23 +132,24 @@ test('必须连接隔离真 PG16 并准备物理 fixture，无测试跳过',()=>
 if(!setupError){
  let r1,r2,idA,idB,approverResult;
  await test('独立 F06 员工令牌只引用不可登录的测试账号且不修改原有 F03 账号',async()=>{
-  const accounts=await db.query(`SELECT a.employee_id,a.password_hash,a.force_password_change,s.issuer
+  const accounts=await db.query(`SELECT a.employee_id,a.account_id,a.credential_state,
+    a.force_password_change,s.issuer
    FROM f06_real_lock_test.employee_sessions s
    JOIN public.pc_login_accounts a ON a.account_id=s.account_id
-   WHERE a.employee_id IN (1,4) ORDER BY a.employee_id`);
+   ORDER BY a.employee_id`);
   assert.equal(accounts.rows.length,2);
+  assert.deepEqual(accounts.rows.map(x=>String(x.employee_id)),[approverEmployeeId,ownerEmployeeId]);
+  assert.deepEqual(accounts.rows.map(x=>String(x.account_id)),['7','8']);
   for(const row of accounts.rows){
-   assert.equal(row.password_hash,'F06_TEST_ONLY_INVALID_PASSWORD_HASH_NOT_A_LOGIN');
+   assert.equal(row.credential_state,'enabled');
    assert.equal(row.force_password_change,false);
    assert.equal(row.issuer,'DISPOSABLE_TEST_ONLY');
   }
   const originals=await db.query("SELECT employee_id,credential_state,force_password_change FROM public.pc_login_accounts WHERE account_id IN (1,5) ORDER BY account_id");
   assert.equal(originals.rows.length,2);
-  // Original F03 accounts have no fixture updates in this test.
-  // Do not assume later signed migrations preserved particular login flags;
-  // only assert that dedicated F06 aliases, not original credentials, were used.
-  const native=await db.query("SELECT normalized_login_key FROM public.pc_login_accounts WHERE account_id IN (1,5)");
-  assert.ok(native.rows.every(r=>!r.normalized_login_key.startsWith('f06_disposable_employee_')));
+  // No account insert or credential mutation: only the sidecar's test bearer tokens.
+  const duplicates=await scalar("SELECT count(*)::int n FROM public.pc_login_accounts WHERE normalized_login_key LIKE 'f06_disposable_employee_%'");
+  assert.equal(duplicates.n,0);
  });
  await test('真实 HTTP 建立6小时 PENDING；尚未占车、没有72h价格快照',async()=>{
   const idempotencyKey=key();r1=await intake(0,0,idempotencyKey);
@@ -234,12 +245,12 @@ if(!setupError){
  });
  await test('revoked Employee permission is revalidated even on a terminal decision',async()=>{
   const permission=await scalar("SELECT permission_id FROM public.permissions WHERE permission_code='lock.ci.approve'");
-  await db.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=1 AND permission_id=$1",[permission.permission_id]);
+  await db.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=$2 AND permission_id=$1",[permission.permission_id,approverEmployeeId]);
   try{
    const result=await decide(idA,'approve');assert.equal(result.status,403);
    assert.equal((await scalar("SELECT count(*)::int n FROM public.locks WHERE vehicle_id=$1 AND lock_status='active'",[cars[0]])).n,1);
   }finally{
-   await db.query("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=1 AND permission_id=$1",[permission.permission_id]);
+   await db.query("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=$2 AND permission_id=$1",[permission.permission_id,approverEmployeeId]);
   }
  });
  await test('revoked Customer phone evidence denies creation of new LockRequest',async()=>{
