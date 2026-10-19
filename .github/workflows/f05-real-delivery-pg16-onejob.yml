@@ -59,7 +59,7 @@ on:
       - 'engineering/tests/f05-quota-addition.test.mjs'
       - 'engineering/tests/f05-find-car.test.mjs'
       - 'engineering/tests/f05-find-car-activation.test.mjs'
-      - 'engineering/tests/f05-demand-lifecycle.test.mjs tests/f05-employee-vehicle-read.test.mjs'
+      - 'engineering/tests/f05-demand-lifecycle.test.mjs'
       - 'engineering/tests/f05-employee-vehicle-read.test.mjs'
       - 'engineering/tests/f05-matching.test.mjs'
       - 'engineering/tests/f05-matching-dictionary.test.mjs'
@@ -119,7 +119,7 @@ jobs:
       - name: Frozen dependency installation
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Actual HTTP and safety assertions
-        run: node --test tests/catalog.test.mjs tests/catalog-regression.test.mjs tests/f05-favorite.test.mjs tests/f05-consultation.test.mjs tests/f05-employee-start.test.mjs tests/f05-handover.test.mjs tests/f05-sla-hold.test.mjs tests/f05-price-unlock.test.mjs tests/f05-quota-addition.test.mjs tests/f05-find-car.test.mjs tests/f05-find-car-activation.test.mjs tests/f05-demand-lifecycle.test.mjs tests/f05-matching.test.mjs tests/f05-matching-dictionary.test.mjs tests/f05-matching-discovery.test.mjs tests/f05-matching-conditions.test.mjs tests/f05-recommendation.test.mjs tests/f05-priority.test.mjs tests/f05-priority-qualification.test.mjs
+        run: node --test tests/catalog.test.mjs tests/catalog-regression.test.mjs tests/f05-favorite.test.mjs tests/f05-consultation.test.mjs tests/f05-employee-start.test.mjs tests/f05-handover.test.mjs tests/f05-sla-hold.test.mjs tests/f05-price-unlock.test.mjs tests/f05-quota-addition.test.mjs tests/f05-find-car.test.mjs tests/f05-find-car-activation.test.mjs tests/f05-demand-lifecycle.test.mjs tests/f05-employee-vehicle-read.test.mjs tests/f05-matching.test.mjs tests/f05-matching-dictionary.test.mjs tests/f05-matching-discovery.test.mjs tests/f05-matching-conditions.test.mjs tests/f05-recommendation.test.mjs tests/f05-priority.test.mjs tests/f05-priority-qualification.test.mjs
       - name: Bootstrap truly disposable PG16 non-superuser schema
         run: |
           set -euo pipefail
