@@ -1,13 +1,16 @@
-# 2026-10-20｜A主控正式裁决：F06普通Lock生命周期A_CHANGES_REQUESTED，B闭合R1/R2后重交
+# 2026-10-20｜A主控第二轮独立复验裁决：R2通过，R1链尾快路径仍阻断
 
-**状态：`A_CHANGES_REQUESTED / B_NOT_READY_FOR_ACCEPTANCE / NO_PR_YET / NEXT_OWNER=B`。**
+**正式状态：`A_CHANGES_REQUESTED_R1_CHAIN_TAIL_FAST_PATH / B_NOT_READY_FOR_ACCEPTANCE / NO_PR_YET / NEXT_OWNER=B`。**
 
-1. B指定分支 `feat/f06-real-lock-lifecycle-http-pg16-02` 当前HEAD `210432c389ae993ca0eb1a40396b1f2fbc7c28e9`。A直接核验官方[Run #39295483906](https://github.com/suzhe868-arch/mb/actions/runs/39295483906)/Job `118206742333`原始日志，Run同SHA `completed/success`：原Node54/54、生命周期Node32/32、原F06真PG16+HTTP21/21、新生命周期PG16+HTTP32/32、F05初始化18/18，全部0失败/跳过/取消，24条F03/F05原迁移账本摘要一致。历史失败Run保留，不改写。
-2. **不得把CI全绿当成A业务验收通过。** A发现R1：生命周期服务信任`public.locks.responsible_employee_id`当前行而未核验正式责任handoff receipt chain，违背PDM-18 §15的责任交接约束。必须校验仓库既有`engineering/f03/runtime-lock-responsible-handover/service.mjs`所要求的receipt/batch/item/audit链；无可信carrier时对与快照不一致的responsible Fail Closed，不造假receipt、不改冻结M94。
-3. **R2：** `financeGuard()`及`createDisposableF06FinanceProofAdapter.issue()`只读检查Deposit/Transaction，未检查`public.refund_cases`。根据PDM-19，资金事实缺失/不一致不能被签成“可信无款”；要求校验Refund carrier与当前Lock Refund事实，absent证据hash绑定`observedRefund=false`，新增真实PG16负例。
-4. 详细正式整改单：[Issue #130](https://github.com/suzhe868-arch/mb/issues/130)；中文审查报告：[F06普通Lock生命周期A主控独立验收整改报告](F06普通Lock生命周期_A主控独立验收整改报告_2026-10-20.md)。目前**未创建PR、未合并main**，避免未闭合代码安全审查就触发旧F05 PR检查。
-5. **下一责任B，任务继续为** `F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02`。B原分支连续整改，不强推/重置、不自行创建PR或合并main；完成R1/R2测试后，最新代码SHA和报告最终HEAD均需有官方同SHA成功Run，再交A独立复验。
-6. 生产Source、真实微信身份、生产部署、真钱Deposit/Transaction/Refund仍未放行；预算新增授权`$0`。F07/F08及C PR68不因本轮改动而自动启动或合并。
+1. B已在指定分支 `feat/f06-real-lock-lifecycle-http-pg16-02` 完成Issue #130的第一轮R1/R2整改，并普通合并A上一轮治理提交。最终报告HEAD `95cdca9fe37e53702e9e5758252a33c052422d1b` 对应官方[Run #39302755405](https://github.com/suzhe868-arch/mb/actions/runs/39302755405)/[Job #118231919969](https://github.com/suzhe868-arch/mb/actions/runs/39302755405/job/118231919969)，同SHA completed/success。原Node54、生命周期Node32、原PG16 HTTP21、生命周期PG16 HTTP36、F05初始化18全部0失败/跳过/取消；24条原F03/F05迁移账本摘要一致。历史失败Run保持原样。
+2. **R2通过A独立复验**：`financeGuard()`与proof adapter检查Refund carrier/关联Refund/查询异常，absence hash绑定`observedRefund=false`；L34-L36真实PG16/HTTP用例通过。
+3. **R1仍未通过**：`engineering/src/f06-lock-lifecycle-service.mjs`中的`verifyResponsibleHandover()`先执行`if(initial===current)return {ok:true}`，后查receipt链。若正式receipt链A→B存在但Lock当前responsible异常回写A，初始快照与当前值相等导致函数绕过历史链校验，尽管链尾仍为B。这违反原F03 `proven()` 的“完整链尾必须等于当前Lock responsible”不变量。
+4. **必须整改**：carrier存在时先读取该Lock全部receipt；无receipt时仅在初始/当前responsible相同情况下允许原路径；有receipt时不论当前responsible是否等于初始值，均验证完整receipt/audit/batch/item、old→new连续性、首条from=初始、末条to=当前。链尾不符/链不完整/查询失败均Fail Closed。增加纯验证器/单元负例模拟“A→B链、初始A、当前A必须拒绝”，不写入/伪造PG16真实receipt；保留L33真实PG16三动作负例与零写入断言。无合法handoff fixture的限制继续如实披露，不改旧F03 handoff service、公共M94、签名账本或PDM Final。
+5. 正式审查报告：[F06普通Lock生命周期A主控第二轮独立复验报告](F06普通Lock生命周期_A主控第二轮独立复验报告_2026-10-20.md)；Issue #130已附完整第二轮复验评论。当前不创建PR、不合并main。
+6. **下一责任B**：在原分支继续`F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02`，同步本次治理文档提交后的最新main（普通merge、保留历史），修复R1、跑全量同SHA Node/PG16与24条账本一致性，更新中文报告并重新交A。生产Source、真实资金/退款和部署仍未授权；新增付费预算`$0`。
+
+---
+
 
 ---
 
