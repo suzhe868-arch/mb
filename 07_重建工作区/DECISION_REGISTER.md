@@ -1,3 +1,16 @@
+# 2026-10-19｜A主控决议：PR #127已独立验收并合并，正式恢复F06真实业务纵切
+
+- **F05五项旧Source门禁整改**：[PR #127](https://github.com/suzhe868-arch/mb/pull/127) 已标准合并，B最终HEAD `6890bd9cc80d4fc556cbe0b4e94a240b1eb6c25b`，merge SHA `fcbcef31d037530f78f4c15f94d20acdc7292c2c`。A已独立复核13个变更文件、五个目标Source Job原生日志、事件契约测试与HTTPS工件摘要；未修改冻结Workflow。
+- **官方CI证据**：关联10个PR工作流、28/28 Jobs终态成功；五个目标Source Job各25/25事件契约测试通过，失败0、跳过0。PR模式明确标记 `nonproduction_pull_request`，不冒充旧同SHA push证据，不宣称旧64/68个push Job在PR模式通过。
+- **合并限制**：GitHub拒绝PR作者批准自己的PR，A未伪造Approve记录；独立技术检查完成后按标准PR合并流程合并。该结论只接受非生产工程整改，不代表正式Source签发或生产就绪。
+- **历史事实**：PR #125仍保留原始5成功/5失败；旧66项仍为65项真实通过＋1项旧Oracle `BLOCKED_EQUIVALENCE`。历史失败没有被改写；`formal_source_signed=false`、`production_ready=false`。
+- **F06前置复核**：A重新核验最新main中的 `engineering/f06/lockrequest-approval-waitlist-ci/service.mjs`、`migration.mjs`、`ci-router.mjs`、`engineering/src/app.mjs` 与 `server.mjs`。现有F06服务仍为CI-only，旧迁移封印固定在历史环境，旧路由POST拒绝，Foundation应用尚未注册真实LockRequest handler；因此真实HTTP＋PG16业务纵切仍需开发。未发现指定F06分支已有工作，不能假设已有成果。
+- **当前正式责任**：`NEXT_OWNER=B / NEXT_TASK=F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16_01 / BRANCH=feat/f06-real-lockrequest-http-pg16-01`。A已更新F06施工单，明确首次远程提交前仅核对本批精确路径的workflow触发风险，不修改冻结Workflow、不重跑旧66项、不触发无关F05旧门禁扇出，预算$0。
+- **下一阶段范围**：真实Node HTTP＋隔离PG16锁车申请、员工审批/拒绝、单车唯一Active Lock、竞争申请自动Waitlist、6小时PENDING、72小时初始Lock、身份/权限/Scope、并发、幂等、回滚与安全投影正反例。生产身份、真钱、正式Source与生产部署仍不在授权范围内。
+- 正式A报告：[PR127_A主控F05五项Source事件感知整改独立验收与合并报告_2026-10-19.md](PR127_A主控F05五项Source事件感知整改独立验收与合并报告_2026-10-19.md)。
+
+---
+
 # 2026-10-19｜A主控决议：用户同意修复F05五项旧Source门禁；正式放行B专项整改，F06暂停
 
 - **正式任务**：[Issue #126：F05五项旧Source门禁整改](https://github.com/suzhe868-arch/mb/issues/126)；施工单：[F05五项旧Source门禁事件感知与证据校验整改](F05五项旧Source门禁事件感知与证据校验整改_A主控B正式施工单_2026-10-19.md)。
