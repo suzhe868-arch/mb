@@ -248,7 +248,7 @@ jobs:
       contents: read
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -293,6 +293,7 @@ jobs:
       - name: Rebuild each source lane from clean non-superuser PG16 and run current TLS contracts
         run: |
           set -euo pipefail
+          docker tag postgres:16 public.ecr.aws/docker/library/postgres:16-alpine
           ids="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
           test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
           docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
@@ -337,7 +338,7 @@ jobs:
       contents: read
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -379,6 +380,7 @@ jobs:
           test "$GITHUB_REF" = refs/heads/feat/f05-real-delivery-acceptance-closeout-01
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           npm ci --ignore-scripts --no-audit --no-fund
+          docker tag postgres:16 public.ecr.aws/docker/library/postgres:16-alpine
           ids="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
           test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
           docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
