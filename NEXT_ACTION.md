@@ -1,13 +1,14 @@
-# 2026-10-19｜主线最新状态：F05非生产验收完成，下一项F06真实HTTP/PG16
+# 2026-10-19｜主线最新状态：F05五项旧Source门禁专项整改，F06暂停
 
-- F05 PR #125 已合并main，merge SHA：`25034a7cd9e3d977e18ffb7f5dc0ba8db1008064`。A接受的是**非生产真实业务交付**，不是生产就绪。
-- 业务SHA `f7503843a60bef3f94b818d80a37ec166a157775` 的Run39214339966与最终证据HEAD `d5690899ff37d3b7ddc46b1640dd113309addecf` 的Run39214628791均为560/560通过、0失败、0跳过。
-- PR #125合并时10个旧工作流中9个已结束（5成功、4旧Source门禁失败、1旧Source仍运行）。已结束失败均是旧同SHA push来源证明，不是已观察到的新业务断言失败；最后一个F05-8 Source运行在合并时仍待终结，按`LEGACY_SOURCE_ORACLE_BLOCKED`归档，不改写为PASS、不重跑旧66、不修改冻结Workflow。
-- 正式微信/F03/JYT/4S/名邦Source Issuer、完整M94迁移链、生产Priority调度/观测/容量、C/E生产联调仍未完成：`formal_source_signed=false`、`production_ready=false`。
-- **下一责任窗口：B。** 任务`F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16_01`，分支`feat/f06-real-lockrequest-http-pg16-01`，施工单：`07_重建工作区/F06_真实锁车申请审批唯一Lock与自动候补_首条业务API纵切_A主控B正式施工单_2026-10-18.md`。
-- F06仅实现隔离PG16＋真实Node HTTP业务纵切；不得启用正式客户/员工Issuer、不得执行真实意向金/退款/生产Lock、不得修改旧冻结F05/F06工作流。保持远程CI硬预算$0；若改动会命中F05旧28 Job fan-out，不触发远程CI。
-- A验收报告：`07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md`。
+- **F05非生产业务交付已验收并合并**：PR #125，merge SHA `25034a7cd9e3d977e18ffb7f5dc0ba8db1008064`。业务SHA `f7503843a60bef3f94b818d80a37ec166a157775` 与证据HEAD `d5690899ff37d3b7ddc46b1640dd113309addecf` 的官方回归均为560/560通过、失败0、跳过0。
+- **用户已同意修复PR #125的5项旧Source门禁失败**。A已正式创建 [Issue #126](https://github.com/suzhe868-arch/mb/issues/126) 并放行专项整改；PR #125历史CI结果仍为5成功、5失败，5项失败保持原始事实，不能改写为通过。
+- 五项根因基线：F05-7 `F05_7_CANNOT_PROVE_66_SAME_SHA_OFFICIAL_PG16_JOBS_IN_BOUNDED_CI_RUN`；F05-8 `F05_8_OFFICIAL_68_JOB_GATE_UNPROVEN`；F05-9 `F05_9_NOT_IN_OFFICIAL_NEW_PUSH`；F05-10 `F05_10_NOT_NEW_OFFICIAL_PUSH`；D1 `D1_NOT_NEW_OFFICIAL_PUSH`。共性是校验器把当前 `pull_request` 事件误要求为同SHA旧 `push` 运行证据。
+- **当前责任：B**。任务 `F05_SOURCE_GATE_EVENT_AWARE_EVIDENCE_REPAIR_01`，建议分支 `feat/f05-source-gates-event-aware-evidence-01`，正式施工单：`07_重建工作区/F05五项旧Source门禁事件感知与证据校验整改_A主控B正式施工单_2026-10-19.md`。必须按事件类型分流：PR只验证当前PR真实业务/HTTPS证据；main官方push仍严格验证同SHA来源链。任何缺失、失败、跳过、SHA/摘要不一致仍Fail Closed。
+- **执行约束**：不修改冻结的 `.github/workflows/*.yml`；不重跑旧66项；不把PR证据冒充正式Push或Source Issuer签发；新增付费预算$0。相关F05 PR路径仅允许一个正式整改PR及其一次自然CI，避免重复扇出。
+- **F06/F07/F08暂停**，直到B完成本专项、A独立验收并合规合并。随后再恢复F06真实锁车申请/审批/唯一Lock/自动候补纵切。
+- 正式微信/F03/JYT/4S/名邦Source Issuer、完整M94迁移链、生产调度/观测/容量与C/E生产联调仍未完成：`formal_source_signed=false`、`production_ready=false`。
 
+---
 ---
 
 # 2026-10-18｜最新NEXT_ACTION：B先全面修好F05真实业务，F06暂停
