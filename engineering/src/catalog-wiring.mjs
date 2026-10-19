@@ -1,7 +1,7 @@
 // F05 test-only runtime route contract: startup fails if any actual handler is absent.
 // Formal identity/source issuers remain refused by createIsolatedCatalogRuntime.
 export const REQUIRED_F05_HANDLERS=Object.freeze([
- 'favoriteHandler','consultationHandler','employeeStartHandler','handoverHandler',
+ 'favoriteHandler','consultationHandler','consultationResponseHandler','employeeStartHandler','handoverHandler',
  'slaHoldHandler','priceUnlockHandler','quotaAdditionHandler',
  'findCarHandler','findCarActivationHandler','demandLifecycleHandler','matchingHandler',
  'dictionaryHandler','discoveryHandler','recommendationHandler',
