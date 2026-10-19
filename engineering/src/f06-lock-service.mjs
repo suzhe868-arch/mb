@@ -105,6 +105,28 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     AND expires_at>clock_timestamp() ORDER BY priority_id LIMIT 1 FOR SHARE`,[vehicleId,cycleId]);
   return {other:!!p&&String(p.customer_id)!==String(customerId),own:p&&String(p.customer_id)===String(customerId)?p:null};
  }
+ // Lock INSERT invokes the signed F05 Priority occupancy trigger. Verify original
+ // Match provenance and append the corresponding same-transaction ending event.
+ async function signConvertedPriority(db,original,lockId,approver,req){
+  if(!original)return null;
+  const p=await first(db,`SELECT p.* FROM public.f05_8_priority_ci p
+   JOIN public.f05_7_result_versions_ci r ON r.result_id=p.source_match_result_id
+    AND r.demand_id=p.trigger_demand_id AND r.vehicle_id=p.vehicle_id
+    AND r.listing_cycle_id=p.listing_cycle_id AND r.source_signature=p.source_signature
+   WHERE p.priority_id=$1 AND p.customer_id=$2 AND p.vehicle_id=$3
+    AND p.listing_cycle_id=$4 FOR SHARE OF p,r`,
+    [original.priority_id,req.customer_id,req.vehicle_id,req.listing_cycle_id]);
+  if(!p||p.status!=='ended'||p.ended_reason!=='converted_to_lock'||!p.ended_at)
+   throw Error('F06_PRIORITY_ORIGIN_SIGNATURE_OR_ATOMIC_CONVERSION_FAILED');
+  const eventKey='f06-1-priority-to-lock:'+p.priority_id+':'+lockId;
+  await db.query(`INSERT INTO public.f05_8_events_ci
+   (priority_id,customer_id,vehicle_id,event_kind,actor_employee_id,before_json,after_json,event_key)
+   VALUES($1,$2,$3,'ended',$4,$5::jsonb,$6::jsonb,$7)`,
+   [p.priority_id,p.customer_id,p.vehicle_id,approver,
+    JSON.stringify({status:'active',triggerDemandId:p.trigger_demand_id,matchResultId:p.source_match_result_id}),
+    JSON.stringify({status:'ended',reason:'converted_to_lock',lockId,endedAt:p.ended_at}),eventKey]);
+  return p.priority_id;
+ }
  async function facts(db,customerId,vehicleId,cycleId,{lockedVehicle=null}={}){
   const vehicle=lockedVehicle??await first(db,'SELECT * FROM public.vehicles WHERE vehicle_id=$1',[vehicleId]);
   const cycle=await first(db,`SELECT listing_cycle_id,ended_at FROM public.vehicle_listing_cycles
@@ -310,15 +332,7 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
         VALUES($1,$2,$3,$4,'active',$5,$6,$6::timestamptz+make_interval(hours=>$7),$8)
         RETURNING lock_id,expires_at`,
         [lockId,req.vehicle_id,req.customer_id,req.listing_cycle_id,f.owner.employee_id,now,policy.initial_lock_hours,req.lock_request_id]);
-       let priorityId=null;
-       if(f.priority){
-        const p=await first(db,`SELECT priority_id,status,ended_reason,customer_id FROM public.f05_8_priority_ci
-          WHERE priority_id=$1 FOR SHARE`,[f.priority.priority_id]);
-        if(!p||p.status!=='ended'||p.ended_reason!=='converted_to_lock'||String(p.customer_id)!==String(req.customer_id))
-         throw Error('F06_PRIORITY_CONVERSION_NOT_ATOMIC');
-        priorityId=p.priority_id;
-        // 原 M94 的 priority->Lock trigger 必须已完成同一事务转换；不得伪造。
-       }
+       const priorityId=await signConvertedPriority(db,f.priority,lockId,actor.employee_id,req);
        await db.query(`INSERT INTO ${LOCK_SCHEMA}.lock_snapshots
         (lock_id,approver_employee_id,responsible_employee_id,customer_id,price_kind,price_cents,
          source_price_event_id,initial_hours,policy_version,priority_origin_customer_id,priority_origin_id)
