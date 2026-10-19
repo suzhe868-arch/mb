@@ -193,7 +193,6 @@ jobs:
           set -euo pipefail
           node --test integration/catalog.pg16.test.mjs
           node --test integration/f05-full-runtime-wiring.pg16.test.mjs
-          node --test integration/f05-employee-vehicle-read.pg16.test.mjs
           node --test integration/f05-favorite.pg16.test.mjs
           node --test integration/f05-consultation.pg16.test.mjs
           node --test integration/f05-employee-start.pg16.test.mjs
@@ -219,5 +218,6 @@ jobs:
           node --test integration/f05-priority.pg16.test.mjs
           node --test integration/f05-priority-ttl-sweep.pg16.test.mjs
           node --test integration/f05-priority-qualification.pg16.test.mjs
+          node --test integration/f05-employee-vehicle-read.pg16.test.mjs
       - name: No paid artifact, production action or downstream CI
         run: echo 'F05_REAL_PG16_TEST_ONLY_NO_ARTIFACT_NO_PRODUCTION'
