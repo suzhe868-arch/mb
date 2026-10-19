@@ -78,3 +78,74 @@ test('L30 合成absence适配器发现真实Deposit时拒绝签发',async()=>{co
 
 test('L31 供应状态异常不得伪造成普通系统到期',async()=>{const l=await activeLock();await proof.issue({lockId:l.lockId,kind:'absent'});await setExpired(l.lockId);await db.query("UPDATE public.vehicles SET source_sale_status='unavailable' WHERE vehicle_id=$1",[l.vehicleId]);const r=await lifecycleService.expireOrdinary({lockId:l.lockId});assert.equal(r.status,409);assert.equal(r.body.code,'LOCK_SOURCE_OR_CYCLE_NOT_CURRENT');const row=await scalar('SELECT lock_status,end_reason FROM public.locks WHERE lock_id=$1',[l.lockId]);assert.equal(row.lock_status,'active');assert.equal(row.end_reason,null);assert.equal(await countEvents(l.lockId),0)});
 test('L32 已结束上架周期不得触发普通系统到期',async()=>{const l=await activeLock();await proof.issue({lockId:l.lockId,kind:'absent'});await setExpired(l.lockId);await db.query('UPDATE public.vehicle_listing_cycles SET ended_at=clock_timestamp() WHERE listing_cycle_id=$1',[l.listingCycleId]);const r=await lifecycleService.expireOrdinary({lockId:l.lockId});assert.equal(r.status,409);assert.equal(r.body.code,'LOCK_SOURCE_OR_CYCLE_NOT_CURRENT');const row=await scalar('SELECT lock_status,end_reason FROM public.locks WHERE lock_id=$1',[l.lockId]);assert.equal(row.lock_status,'active');assert.equal(row.end_reason,null);assert.equal(await countEvents(l.lockId),0)});
+
+test('L33 未验证责任handoff链时延期/release/expire均拒绝且零写入',async()=>{
+ for(const action of ['extend','release','expire']){
+  const l=await activeLock();
+  const snap=await scalar('SELECT responsible_employee_id FROM f06_real_lock_test.lock_snapshots WHERE lock_id=$1',[l.lockId]);
+  assert.ok(snap?.responsible_employee_id,'必须有创建时责任员工快照');
+  const alternate=String(snap.responsible_employee_id)==='6'?'7':'6';
+  await db.query('UPDATE public.locks SET responsible_employee_id=$2 WHERE lock_id=$1',[l.lockId,alternate]);
+  if(action==='expire')await setExpired(l.lockId);
+  const before=await scalar('SELECT lock_status,expires_at,responsible_employee_id FROM public.locks WHERE lock_id=$1',[l.lockId]);
+  const events=await countEvents(l.lockId),audits=await countAudit(l.lockId);
+  const result=action==='expire'?await lifecycleService.expireOrdinary({lockId:l.lockId}):await act(l,action,alternate==='6'?approverToken:ownerToken);
+  assert.equal(result.status,409,JSON.stringify({action,body:result.body}));
+  assert.equal(result.body.code,'RESPONSIBLE_HANDOFF_CARRIER_UNVERIFIED');
+  const after=await scalar('SELECT lock_status,expires_at,responsible_employee_id FROM public.locks WHERE lock_id=$1',[l.lockId]);
+  assert.deepEqual(after,before);
+  assert.equal(await countEvents(l.lockId),events);
+  assert.equal(await countAudit(l.lockId),audits);
+ }
+});
+test('L34 PG16真实Refund载体存在且具备Lock/customer关联字段',async()=>{
+ const carrier=await scalar("SELECT to_regclass('public.refund_cases') IS NOT NULL AS available");
+ assert.equal(carrier.available,true);
+ const cols=await db.query("SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='refund_cases'");
+ for(const name of ['refund_id','customer_id','lock_id','transaction_id','status'])assert.ok(cols.rows.some(x=>x.column_name===name),'refund_cases缺少字段 '+name);
+});
+test('L35 Refund记录即使没有Deposit/Transaction也拒绝absence签发与生命周期写入',async()=>{
+ const l=await activeLock();
+ assert.equal(Number((await scalar('SELECT count(*)::int n FROM public.deposit_receipts WHERE lock_id=$1',[l.lockId])).n),0);
+ assert.equal(Number((await scalar('SELECT count(*)::int n FROM public.transactions WHERE source_lock_id=$1',[l.lockId])).n),0);
+ await db.query("INSERT INTO public.refund_cases(customer_id,lock_id,transaction_id,status,expected_amount_cents) VALUES($1,$2,NULL,'pending',100)",[l.customerId,l.lockId]);
+ await assert.rejects(()=>proof.issue({lockId:l.lockId,kind:'absent'}),/FINANCE_ABSENCE_NOT_PROVABLE/);
+ await proof.issue({lockId:l.lockId,kind:'unknown'});
+ const release=await act(l,'release');assert.equal(release.status,409);assert.equal(release.body.code,'LOCK_REFUND_FACT_PRESENT_DENY');
+ assert.equal((await scalar('SELECT lock_status FROM public.locks WHERE lock_id=$1',[l.lockId])).lock_status,'active');
+ await setExpired(l.lockId);
+ const expiry=await lifecycleService.expireOrdinary({lockId:l.lockId});assert.equal(expiry.status,409);assert.equal(expiry.body.code,'LOCK_REFUND_FACT_PRESENT_DENY');
+ assert.equal((await scalar('SELECT lock_status FROM public.locks WHERE lock_id=$1',[l.lockId])).lock_status,'active');
+ assert.equal(await countEvents(l.lockId),0);assert.equal(await countAudit(l.lockId),0);
+});
+test('L36 Refund载体查询异常时proof与HTTP生命周期均Fail Closed',async()=>{
+ const l=await activeLock();
+ const failingPool={
+  query:pool.query.bind(pool),
+  async connect(){
+   const client=await pool.connect();
+   return {
+    async query(sql,args=[]){
+     if(String(sql).includes("to_regclass('public.refund_cases')"))throw Object.assign(new Error('F06_REFUND_CARRIER_QUERY_UNAVAILABLE'),{code:'42501'});
+     return client.query(sql,args);
+    },
+    release(){client.release()}
+   };
+  }
+ };
+ const failingProof=createDisposableF06FinanceProofAdapter({pool:failingPool,env:process.env});
+ await assert.rejects(()=>failingProof.issue({lockId:l.lockId,kind:'absent'}),/F06_REFUND_CARRIER_QUERY_UNAVAILABLE/);
+ await proof.issue({lockId:l.lockId,kind:'absent'});
+ const failingService=createIsolatedF06LockLifecycleService({pool:failingPool,env:process.env});
+ const failingHandler=createIsolatedF06LockLifecycleHandler({service:failingService,env:process.env});
+ const failingServer=createServer(createFoundationHandler({lockHandler:async(req,res)=>{if(await failingHandler(req,res)===true)return true;return baseHandler(req,res)}}));
+ await new Promise((resolve,reject)=>{failingServer.once('error',reject);failingServer.listen(0,'127.0.0.1',resolve)});
+ const before=await scalar('SELECT lock_status,expires_at FROM public.locks WHERE lock_id=$1',[l.lockId]);
+ const events=await countEvents(l.lockId),audits=await countAudit(l.lockId);
+ try{
+  const r=await http(failingServer,'/api/v1/locks/'+l.lockId+'/actions',ownerToken,{action:'release',idempotencyKey:key(),reason:'退款来源查询异常拒绝测试'});
+  assert.equal(r.status,503);assert.equal(r.body.code,'LOCK_LIFECYCLE_SERVICE_UNAVAILABLE');
+ }finally{await new Promise(r=>failingServer.close(r))}
+ assert.deepEqual(await scalar('SELECT lock_status,expires_at FROM public.locks WHERE lock_id=$1',[l.lockId]),before);
+ assert.equal(await countEvents(l.lockId),events);assert.equal(await countAudit(l.lockId),audits);
+});

@@ -88,9 +88,35 @@ export function createIsolatedF06LockLifecycleService({pool,env=process.env,afte
     source_price_event_id,priority_origin_customer_id,priority_origin_id FROM ${LOCK_SCHEMA}.lock_snapshots WHERE lock_id=$1 FOR SHARE`,[lock.lock_id]);
   return s&&String(s.customer_id)===String(lock.customer_id)?s:null;
  }
+ const str=value=>value===undefined||value===null?null:String(value);
+ async function handoverReceiptEventProven(db,r){
+  const q=await db.query("SELECT b.source_employee_id bs,b.initiated_by_id ba,i.batch_id ib,i.object_kind ik,i.object_id io,i.from_employee_id iff,i.intended_to_employee_id ito,w.customer_id wc,a.actor_kind ak,a.actor_id aid,a.object_kind aok,a.object_id aoid,a.action act,a.role_context rc,a.before_json bj,a.after_json aj,a.occurred_at ats FROM public.handover_batches b JOIN public.handover_items i ON i.item_id=$2 JOIN public.locks w ON w.lock_id=$3 JOIN public.audit_events a ON a.audit_id=$4 WHERE b.batch_id=$1 FOR SHARE OF b,i,a",[r.batch_id,r.item_id,r.lock_id,r.audit_id]);
+  const v=q.rows[0];
+  return !!v&&q.rows.length===1&&str(v.bs)===str(r.from_employee_id)&&str(v.ba)===str(r.actor_employee_id)&&str(v.ib)===str(r.batch_id)&&v.ik==='Lock'&&v.io===str(r.lock_id)&&str(v.iff)===str(r.from_employee_id)&&str(v.ito)===str(r.to_employee_id)&&str(v.wc)===str(r.customer_id)&&v.ak==='employee'&&str(v.aid)===str(r.actor_employee_id)&&v.aok==='Lock'&&str(v.aoid)===str(r.lock_id)&&v.act==='lock.responsible.handover'&&v.rc?.scope==='SG06_CI_ONLY_LOCK'&&str(v.rc.batchId)===str(r.batch_id)&&str(v.rc.itemId)===str(r.item_id)&&str(v.rc.teamId)===str(r.scope_team_id)&&v.rc.requestKeySha256===r.request_key_sha256&&str(v.bj?.responsible)===str(r.from_employee_id)&&str(v.aj?.responsible)===str(r.to_employee_id)&&v.ats?.getTime()===r.committed_at?.getTime();
+ }
+ async function verifyResponsibleHandover(db,lock,snap){
+  const initial=String(snap?.responsible_employee_id??''),current=String(lock?.responsible_employee_id??'');
+  if(!validId(initial)||!validId(current))return {ok:false};
+  if(initial===current)return {ok:true};
+  const carrier=await first(db,"SELECT to_regclass('public.lock_responsible_handover_receipts') IS NOT NULL AS available");
+  if(!carrier?.available)return {ok:false};
+  const rows=(await db.query("SELECT receipt_id,item_id,batch_id,lock_id,customer_id,from_employee_id,to_employee_id,actor_employee_id,scope_team_id,audit_id,request_key_sha256,committed_at FROM public.lock_responsible_handover_receipts WHERE lock_id=$1 ORDER BY committed_at,receipt_id FOR SHARE",[lock.lock_id])).rows;
+  if(!rows.length)return {ok:false};
+  let previous=null;const keys=new Set();
+  for(const r of rows){
+   if(String(r.lock_id)!==String(lock.lock_id)||String(r.customer_id)!==String(lock.customer_id)||!await handoverReceiptEventProven(db,r))return {ok:false};
+   if(previous&&(String(previous.to_employee_id)!==String(r.from_employee_id)||r.committed_at.getTime()<previous.committed_at.getTime()||BigInt(r.audit_id)<=BigInt(previous.audit_id)))return {ok:false};
+   if(keys.has(r.request_key_sha256))return {ok:false};keys.add(r.request_key_sha256);previous=r;
+  }
+  if(String(rows[0].from_employee_id)!==initial||String(rows[rows.length-1].to_employee_id)!==current)return {ok:false};
+  const live=await first(db,'SELECT customer_id,responsible_employee_id FROM public.locks WHERE lock_id=$1 FOR SHARE',[lock.lock_id]);
+  if(!live||String(live.customer_id)!==String(lock.customer_id)||String(live.responsible_employee_id)!==current)return {ok:false};
+  return {ok:true};
+ }
  async function context(db,lock,action,vehicleExists){
   if(!vehicleExists)return {deny:response(409,'LOCK_CURRENT_VEHICLE_MISSING')};
   const snap=await snapshot(db,lock);if(!snap)return {deny:response(409,'LOCK_SIGNED_SNAPSHOT_MISSING')};
+  const handover=await verifyResponsibleHandover(db,lock,snap);if(!handover.ok)return {deny:response(409,'RESPONSIBLE_HANDOFF_CARRIER_UNVERIFIED')};
   const customer=await first(db,'SELECT account_status,current_owner_employee_id,owner_assignment_state FROM public.customers WHERE customer_id=$1 FOR SHARE',[lock.customer_id]);
   const cycle=await first(db,'SELECT listing_cycle_id,ended_at FROM public.vehicle_listing_cycles WHERE listing_cycle_id=$1 AND vehicle_id=$2 FOR SHARE',[lock.listing_cycle_id,lock.vehicle_id]);
   const vehicle=await first(db,'SELECT source_type,source_sale_status,archived_at FROM public.vehicles WHERE vehicle_id=$1 FOR SHARE',[lock.vehicle_id]);
@@ -104,8 +130,11 @@ export function createIsolatedF06LockLifecycleService({pool,env=process.env,afte
  }
  async function financeGuard(db,lock){
   const tables=await first(db,`SELECT to_regclass('public.deposit_receipts') IS NOT NULL AS receipts_available,
-   to_regclass('public.transactions') IS NOT NULL AS transactions_available`);
-  if(!tables?.receipts_available||!tables?.transactions_available)return {ok:false,result:response(409,'LOCK_FINANCIAL_SOURCE_UNKNOWN_DENY')};
+   to_regclass('public.transactions') IS NOT NULL AS transactions_available,
+   to_regclass('public.refund_cases') IS NOT NULL AS refunds_available`);
+  if(!tables?.receipts_available||!tables?.transactions_available||!tables?.refunds_available)return {ok:false,result:response(409,'LOCK_FINANCIAL_SOURCE_UNKNOWN_DENY')};
+  const refund=await first(db,'SELECT refund_id FROM public.refund_cases WHERE lock_id=$1 LIMIT 1 FOR SHARE',[lock.lock_id]);
+  if(refund)return {ok:false,result:response(409,'LOCK_REFUND_FACT_PRESENT_DENY')};
   const receipt=await first(db,'SELECT deposit_id FROM public.deposit_receipts WHERE lock_id=$1 LIMIT 1 FOR SHARE',[lock.lock_id]);
   const transaction=await first(db,'SELECT transaction_id FROM public.transactions WHERE source_lock_id=$1 LIMIT 1 FOR SHARE',[lock.lock_id]);
   if(receipt)return {ok:false,result:response(409,'LOCK_FINANCIAL_FACT_PRESENT_DENY')};
@@ -113,7 +142,7 @@ export function createIsolatedF06LockLifecycleService({pool,env=process.env,afte
   const p=await first(db,`SELECT proof_kind,issuer,synthetic_only,evidence_sha256 FROM ${LOCK_SCHEMA}.lock_lifecycle_finance_proofs WHERE lock_id=$1 FOR SHARE`,[lock.lock_id]);
   if(!p||p.issuer!=='DISPOSABLE_TEST_ONLY'||p.synthetic_only!==true||p.proof_kind==='unknown')return {ok:false,result:response(409,'LOCK_FINANCIAL_SOURCE_UNKNOWN_DENY')};
   if(p.proof_kind==='present')return {ok:false,result:response(409,'LOCK_FINANCIAL_FACT_PRESENT_DENY')};
-  const expectedAbsenceEvidence=sha(JSON.stringify({issuer:'DISPOSABLE_TEST_ONLY',lockId:String(lock.lock_id),kind:'absent',observedReceipt:false,observedTransaction:false,source:'isolated-pg16-fixture'}));
+  const expectedAbsenceEvidence=sha(JSON.stringify({issuer:'DISPOSABLE_TEST_ONLY',lockId:String(lock.lock_id),kind:'absent',observedReceipt:false,observedTransaction:false,observedRefund:false,source:'isolated-pg16-fixture'}));
   if(p.proof_kind!=='synthetic_absence_confirmed'||p.evidence_sha256!==expectedAbsenceEvidence)return {ok:false,result:response(409,'LOCK_FINANCIAL_SOURCE_UNKNOWN_DENY')};
   return {ok:true};
  }

@@ -16,13 +16,14 @@ export function createDisposableF06FinanceProofAdapter({pool,env=process.env}={}
     to_regclass('f06_real_lock_test.lock_lifecycle_finance_proofs') IS NOT NULL proof_table`)).rows[0];
    if(!ident||ident.db!=='f06_lock_test'||ident.role!=='f06_lock_ci'||ident.superuser!==false||ident.createdb!==false||!ident.proof_table)throw Error('F06_LOCK_LIFECYCLE_DISPOSABLE_FINANCE_DATABASE_REQUIRED');
    if(!(await db.query('SELECT lock_id FROM public.locks WHERE lock_id=$1 FOR SHARE',[lockId])).rows[0])throw Error('F06_LOCK_NOT_FOUND');
-   const tables=(await db.query(`SELECT to_regclass('public.deposit_receipts') IS NOT NULL receipts,to_regclass('public.transactions') IS NOT NULL transactions`)).rows[0];
-   if(!tables?.receipts||!tables?.transactions)throw Error('F06_LOCK_FINANCIAL_SOURCE_UNKNOWN');
+   const tables=(await db.query(`SELECT to_regclass('public.deposit_receipts') IS NOT NULL receipts,to_regclass('public.transactions') IS NOT NULL transactions,to_regclass('public.refund_cases') IS NOT NULL refunds`)).rows[0];
+   if(!tables?.receipts||!tables?.transactions||!tables?.refunds)throw Error('F06_LOCK_FINANCIAL_SOURCE_UNKNOWN');
+   const refund=(await db.query('SELECT refund_id FROM public.refund_cases WHERE lock_id=$1 LIMIT 1 FOR SHARE',[lockId])).rows[0];
    const receipt=(await db.query('SELECT deposit_id FROM public.deposit_receipts WHERE lock_id=$1 LIMIT 1 FOR SHARE',[lockId])).rows[0];
    const transaction=(await db.query('SELECT transaction_id FROM public.transactions WHERE source_lock_id=$1 LIMIT 1 FOR SHARE',[lockId])).rows[0];
-   if(kind==='absent'&&(receipt||transaction))throw Error('F06_LOCK_FINANCE_ABSENCE_NOT_PROVABLE');
+   if(kind==='absent'&&(refund||receipt||transaction))throw Error('F06_LOCK_FINANCE_ABSENCE_NOT_PROVABLE');
    const proofKind=kind==='absent'?'synthetic_absence_confirmed':kind==='present'?'present':'unknown';
-   const evidence=sha(JSON.stringify({issuer:'DISPOSABLE_TEST_ONLY',lockId,kind,observedReceipt:!!receipt,observedTransaction:!!transaction,source:'isolated-pg16-fixture'}));
+   const evidence=sha(JSON.stringify({issuer:'DISPOSABLE_TEST_ONLY',lockId,kind,observedReceipt:!!receipt,observedTransaction:!!transaction,observedRefund:!!refund,source:'isolated-pg16-fixture'}));
    await db.query(`INSERT INTO f06_real_lock_test.lock_lifecycle_finance_proofs(lock_id,proof_kind,issuer,synthetic_only,evidence_sha256)
     VALUES($1,$2,'DISPOSABLE_TEST_ONLY',true,$3)`,[lockId,proofKind,evidence]);
    await db.query('COMMIT');begun=false;return Object.freeze({lockId,proofKind,evidenceSha256:evidence,productionReady:false});
