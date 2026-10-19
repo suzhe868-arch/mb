@@ -3,11 +3,14 @@ import {readFile,writeFile,mkdir} from 'node:fs/promises';
 const repo=process.env.GITHUB_REPOSITORY,token=process.env.GH_ACTIONS_READ_TOKEN;
 if(repo!=='suzhe868-arch/mb'||!token||process.env.CI!=='true'||process.env.GITHUB_ACTIONS!=='true')
  throw Error('F05_7_OFFICIAL_ACTIONS_READ_ONLY_AUDIT_GATE');
-import {verifyCurrentPullRequestRun} from '../source-gate-event-evidence.mjs';
+import {verifyCurrentPullRequestRun,verifyCurrentOfficialMainPush} from '../source-gate-event-evidence.mjs';
 const event=JSON.parse(await readFile(process.env.GITHUB_EVENT_PATH,'utf8'));
 if(process.env.GITHUB_EVENT_NAME==='pull_request'){
  await verifyCurrentPullRequestRun({workflowPath:".github/workflows/f05-7-deterministic-matching-readiness-four-tier.yml",sourceJobName:"F05-7 source true nonprivileged PostgreSQL16 v23 PDM12 deterministic matching source test",expectedJobs:2,artifactDirectory:"engineering/f05/deterministic-matching-readiness-four-tier/artifacts/source/"});
  process.exit(0);
+}
+if(process.env.GITHUB_EVENT_NAME==='push'&&process.env.GITHUB_REF==='refs/heads/main'){
+ await verifyCurrentOfficialMainPush({workflowPath:".github/workflows/f05-7-deterministic-matching-readiness-four-tier.yml",artifactDirectory:"engineering/f05/deterministic-matching-readiness-four-tier/artifacts/source/"});
 }
 if(process.env.GITHUB_EVENT_NAME!=='push')throw Error('SOURCE_GATE_UNSUPPORTED_EVENT_FAIL_CLOSED');
 
