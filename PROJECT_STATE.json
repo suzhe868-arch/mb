@@ -1,15 +1,15 @@
 {
   "project": "名邦汽车 V1",
-  "updated_at": "2026-10-19",
+  "updated_at": "2026-10-20",
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F06_REAL_LOCKREQUEST_HTTP_PG16_PR129_A_ACCEPTED_MERGED_F06_REAL_LIFECYCLE_RELEASED",
+  "substage": "F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02_A_CHANGES_REQUESTED_R1_R2",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F06_REAL_LOCK_LIFECYCLE_HTTP_PG16",
-  "current_domain_status": "F06_STAGE1_PR129_A_ACCEPTED_NONPRODUCTION_MERGED_F06_STAGE2_A_RELEASED_FOR_B",
+  "current_domain_status": "A_CHANGES_REQUESTED_B_NOT_READY_FOR_ACCEPTANCE_NO_PR_YET",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A独立验收PR129完成F06首条真实客户锁车申请、名邦员工审批、唯一Lock及竞争自动Waitlist Node HTTP+隔离真实PG16：受验业务SHA ab6b28c7，Node54/54、PG16.15 21/21、原迁移账本24条合规，PR自身10工作流28/28绿，merge c3fa09646e10c9f0392c62ee1f35f56668b25494。Issue128阻断已关闭。A正式放行B实施F06第二条真实普通Lock人工延期、释放/取消、可信无款PG到期、资金未知硬拒，生产/付款不开放。",
+  "current_task": "A独立复验B F06普通Lock生命周期分支：官方同SHA Run39295483906已真实成功，原Node54/54、生命周期Node32/32、原PG16 HTTP21/21、新生命周期PG16 HTTP32/32、F05初始化18/18全绿，24条原迁移账本摘要一致。但业务审查发现R1正式Lock responsible未验证可信handoff receipt chain，R2无款proof未检查refund_cases。已创建Issue #130与中文A审查报告，暂不创建PR；B须在原分支闭合两项并重新跑全量同SHA测试后交A。",
   "current_work_file": "07_重建工作区/F06普通Lock延期释放到期与资金未知硬拒_真实业务HTTP和PG16_A主控B正式施工单_2026-10-19.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B基于最新main新建独立分支feat/f06-real-lock-lifecycle-http-pg16-02，按A2026-10-19 F06第二条真实锁车生命周期施工单连续实现：在PR129已合并真实Node HTTP/PG16服务上增加普通Lock合法员工延长期限、人工release/cancel、非生产合成无款确证时PG时钟到期和资金unknown/present硬拒，原始72h快照/Waitlist/Priority历史保全。先核精确文件Workflow触发安全，最多单标准免费Runner Job与独立PG16、用户预算$0；同SHA完成旧Node54+PG16 21与新增PG16至少20真测试、权限/并发/回滚及中文证据，再标READY_FOR_A_REVIEW交A。B不自行开PR/合并，不改冻结工作流/公共M94/PDM Final/真实支付/正式Source；F07/F08暂不插队。",
+  "next_action": "B继续任务F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02，在原指定分支feat/f06-real-lock-lifecycle-http-pg16-02闭合A Issue #130的R1/R2：R1在每个Lock延期/release/cancel/system expiry事务内验证当前responsible与初始快照/可信正式handoff receipt chain；handoff载体缺失或不完整时Fail Closed并报告RESPONSIBLE_HANDOFF_CARRIER_UNVERIFIED，不造receipt/改M94。R2在finance proof适配器和financeGuard校验public.refund_cases存在且可查询，任何关联Refund/来源未知都不签可信无款，absent证据hash包含observedRefund=false。增加真实PG16正反例，保留原Node54、生命周期Node、原PG16 21、生命周期PG16至少32、F05初始化18及24条迁移账本同SHA全回归，0失败/跳过/取消。更新中文B报告，最新代码和报告最终HEAD都要有官方同SHA成功Run，再READY_FOR_A_REVIEW交A。不得创建PR/合并main，不强推重置，不触碰真钱/生产；预算新增$0。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B基于最新main新建独立分支feat/f06-real-lock-lifecycle-http-pg16-02，按A2026-10-19 F06第二条真实锁车生命周期施工单连续实现：在PR129已合并真实Node HTTP/PG16服务上增加普通Lock合法员工延长期限、人工release/cancel、非生产合成无款确证时PG时钟到期和资金unknown/present硬拒，原始72h快照/Waitlist/Priority历史保全。先核精确文件Workflow触发安全，最多单标准免费Runner Job与独立PG16、用户预算$0；同SHA完成旧Node54+PG16 21与新增PG16至少20真测试、权限/并发/回滚及中文证据，再标READY_FOR_A_REVIEW交A。B不自行开PR/合并，不改冻结工作流/公共M94/PDM Final/真实支付/正式Source；F07/F08暂不插队。",
+  "next_action_detail": "B继续任务F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02，在原指定分支feat/f06-real-lock-lifecycle-http-pg16-02闭合A Issue #130的R1/R2：R1在每个Lock延期/release/cancel/system expiry事务内验证当前responsible与初始快照/可信正式handoff receipt chain；handoff载体缺失或不完整时Fail Closed并报告RESPONSIBLE_HANDOFF_CARRIER_UNVERIFIED，不造receipt/改M94。R2在finance proof适配器和financeGuard校验public.refund_cases存在且可查询，任何关联Refund/来源未知都不签可信无款，absent证据hash包含observedRefund=false。增加真实PG16正反例，保留原Node54、生命周期Node、原PG16 21、生命周期PG16至少32、F05初始化18及24条迁移账本同SHA全回归，0失败/跳过/取消。更新中文B报告，最新代码和报告最终HEAD都要有官方同SHA成功Run，再READY_FOR_A_REVIEW交A。不得创建PR/合并main，不强推重置，不触碰真钱/生产；预算新增$0。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02",
+  "next_task": "F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02_R1_R2_REMEDIATION",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9920,7 +9920,7 @@
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
   "next_branch": "feat/f06-real-lock-lifecycle-http-pg16-02",
-  "next_issue": null,
+  "next_issue": 130,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -10023,14 +10023,77 @@
     "scope": "非生产工程门禁事件感知整改；正式Source签发与生产就绪仍为false"
   },
   "f06_lifecycle_next": {
-    "status": "A_FORMAL_RELEASED_FOR_B",
+    "status": "A_CHANGES_REQUESTED_R1_R2_REMEDIATION_REQUIRED",
     "task": "F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02",
     "branch": "feat/f06-real-lock-lifecycle-http-pg16-02",
+    "issue": 130,
     "work_order": "07_重建工作区/F06普通Lock延期释放到期与资金未知硬拒_真实业务HTTP和PG16_A主控B正式施工单_2026-10-19.md",
-    "expected_original_pg16_cases": 21,
-    "minimum_new_real_pg16_cases": 20,
+    "minimum_new_real_pg16_cases": 32,
     "accepted_budget_additional_usd": 0,
     "source_issuer_signed": false,
     "production_ready": false
+  },
+  "a_review_changes_requested": {
+    "date": "2026-10-20",
+    "issue": 130,
+    "report": "07_重建工作区/F06普通Lock生命周期_A主控独立验收整改报告_2026-10-20.md",
+    "branch": "feat/f06-real-lock-lifecycle-http-pg16-02",
+    "reviewed_head_sha": "210432c389ae993ca0eb1a40396b1f2fbc7c28e9",
+    "official_run": 39295483906,
+    "official_job": 118206742333,
+    "official_run_success": true,
+    "verified_tests": {
+      "baseline_node": {
+        "passed": 54,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      "lifecycle_node": {
+        "passed": 32,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      "baseline_pg16_http": {
+        "passed": 21,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      "lifecycle_pg16_http": {
+        "passed": 32,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      "f05_init": {
+        "passed": 18,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      "original_migration_ledger_entries": 24,
+      "original_migration_ledger_hash": "b9beed2d9e5fda2511bef6cbcd6d050862971714b9464624dc6439888c118033"
+    },
+    "status": "A_CHANGES_REQUESTED_B_NOT_READY_FOR_ACCEPTANCE_NO_PR_YET",
+    "findings": [
+      {
+        "id": "R1",
+        "severity": "blocking",
+        "title": "正式Lock responsible handoff receipt chain未验证",
+        "required": "在生命周期任何写入前校验当前responsible的正式handoff receipt/batch/item/audit完整链；无可信载体或链不完整时Fail Closed，新增PG16负例。"
+      },
+      {
+        "id": "R2",
+        "severity": "blocking",
+        "title": "无款证明忽略Refund事实",
+        "required": "proof adapter和financeGuard校验refund_cases存在且可查询；关联Refund/来源未知Fail Closed；absent proof hash绑定observedRefund=false并新增PG16负例。"
+      }
+    ],
+    "pr_created": false,
+    "merged": false,
+    "next_owner": "B",
+    "budget_additional_usd": 0
   }
 }
