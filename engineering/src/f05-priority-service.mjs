@@ -20,7 +20,8 @@ export const candidatesSQL=`
   JOIN public.demands d ON d.demand_id=match.demand_id
   JOIN public.customers cust ON cust.customer_id=d.customer_id
    AND cust.account_status='active'
-   AND cust.current_owner_employee_id=d.responsible_employee_id
+   AND cust.owner_assignment_state='assigned'
+   AND cust.current_owner_employee_id IS NOT NULL
   JOIN public.employees employee ON employee.employee_id=d.responsible_employee_id
    AND employee.employment_status='active'
   JOIN public.roles employee_role ON employee_role.role_id=employee.main_role_id

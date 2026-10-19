@@ -227,6 +227,40 @@ try{
    revoker.release();
   }
  });
+ await test('PDM11 owner transfer does not silently transfer Demand responsibility or erase Priority candidate',async()=>{
+  // A formally reassigned Customer owner does not rewrite the Demand's
+  // independent responsible employee (PDM11 §10, PDM13 §24).
+  await db.query("UPDATE public.f05_priority_qualification_test SET enabled=true "+
+   "WHERE customer_id=62500");
+  await db.query("UPDATE public.customers SET current_owner_employee_id=62501 "+
+   "WHERE customer_id=62500");
+  await addVehicle(62514);
+  const computed=await match(62503,62514,A);
+  assert.equal(computed.status,200,JSON.stringify(computed));
+  assert.equal(await count("SELECT count(*) n FROM public.f05_matching_safe_current_test "+
+   "WHERE demand_id=62503 AND vehicle_id=62514"),1,
+   'a legitimate active Demand keeps its independent responsible after Owner changes');
+  const ownerNotResponsible=await post({vehicleId:'62514',token:B});
+  assert.equal(ownerNotResponsible.status,403,JSON.stringify(ownerNotResponsible));
+  assert.equal(ownerNotResponsible.body.code,'PRIORITY_CURRENT_RESPONSIBLE_SCOPE_REQUIRED');
+  const accepted=await post({vehicleId:'62514',token:A});
+  assert.equal(accepted.status,200,JSON.stringify(accepted));
+  assert.equal(accepted.body.outcome,'NEW',JSON.stringify(accepted));
+  const active=(await db.query("SELECT customer_id,trigger_demand_id FROM public.priority_leases "+
+   "WHERE vehicle_id=62514 AND status='active'")).rows[0];
+  assert.equal(String(active.customer_id),'62500');
+  assert.equal(String(active.trigger_demand_id),'62503');
+  assert.equal(await count("SELECT count(*) n FROM public.f05_priority_safe_active_test "+
+   "WHERE vehicle_id=62514"),1);
+  // The new Customer owner does not inherit the old Demand's Priority action.
+  const forbidden=await post({vehicleId:'62514',action:'RELEASE',token:B});
+  assert.equal(forbidden.status,403);
+  // If the Customer account is disabled, read-side protection stops even
+  // though the lease history still says active.
+  await db.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=62500");
+  assert.equal(await count("SELECT count(*) n FROM public.f05_priority_safe_active_test "+
+   "WHERE vehicle_id=62514"),0);
+ });
  await test('append-only audit cannot be erased; Priority release cannot create Recommendation or grant',async()=>{
   await assert.rejects(db.query("DELETE FROM public.f05_priority_events_test WHERE vehicle_id=62510"),e=>e.code==='23514');
   await assert.rejects(db.query("UPDATE public.f05_priority_suppression_test SET reason='ttl_expired' WHERE vehicle_id=62510"),e=>e.code==='23514');
