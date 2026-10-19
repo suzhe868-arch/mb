@@ -41,6 +41,16 @@ echo "F06_OFFICIAL_SHA $GITHUB_SHA"
 echo "F06_REAL_NODE_VERSION $(node --version)"
 cd engineering
 npm ci --ignore-scripts --no-audit --no-fund
+node --check src/f06-lock-lifecycle-service.mjs
+node --check src/f06-lock-lifecycle-http.mjs
+node --check src/f06-lock-lifecycle-finance-test-adapter.mjs
+node --check src/f06-lock-runtime.mjs
+node --check src/f06-lock-service.mjs
+node --check tests/f06-lock-lifecycle-service.test.mjs
+node --check tests/f06-lock-lifecycle-http.test.mjs
+node --check integration/f06-lock-lifecycle.pg16.test.mjs
+node --check scripts/f06-lock-lifecycle-pg16-acceptance.mjs
+bash -n scripts/f06-lock-lifecycle-native-ci.sh
 mkdir -p evidence
 node --test tests/f06-lock-expiry.test.mjs tests/f06-lock-http.test.mjs tests/f06-lock-inherited-priority.test.mjs tests/f06-lock-internal-waitlist.test.mjs tests/f06-lock-pending-provenance.test.mjs tests/f06-lock-priority-and-replay.test.mjs tests/f06-lock-readiness.test.mjs tests/f06-lock-service-boundary.test.mjs 2>&1 | tee evidence/F06_LOCK_BASELINE_NODE_ACCEPTANCE_TAP.log
 assert_tap_summary evidence/F06_LOCK_BASELINE_NODE_ACCEPTANCE_TAP.log 54 exact F06_BASELINE_NODE

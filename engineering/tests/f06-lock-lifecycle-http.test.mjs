@@ -27,7 +27,7 @@ test('拒绝release夹带延期时间',async()=>assert.equal((await request(hand
 test('拒绝缺少原因',async()=>assert.equal((await request(handler(),{bodyValue:{...body,reason:' '}})).status,400));
 test('拒绝查询参数旁路',async()=>assert.equal((await request(handler(),{path:'/api/v1/locks/9/actions?admin=1'})).status,404));
 test('系统到期不是公开HTTP路由',async()=>assert.equal((await request(handler(),{path:'/api/v1/locks/9/expire'})).status,404));
-test('缺少生命周期测试授权时不调用服务',async()=>{let called=false;const r=await request(handler({act:async()=>{called=true;return {status:200,body:{code:'BAD'}}},{...env,F06_LOCK_LIFECYCLE_TEST_CONSENT:undefined}));assert.equal(r.status,403);assert.equal(called,false)});
+test('缺少生命周期测试授权时不调用服务',async()=>{let called=false;const r=await request(handler({act:async()=>{called=true;return {status:200,body:{code:'BAD'}}}},{...env,F06_LOCK_LIFECYCLE_TEST_CONSENT:undefined}));assert.equal(r.status,403);assert.equal(called,false)});
 test('服务异常返回通用503且不泄露内部异常',async()=>{const r=await request(handler({act:async()=>{throw Error('postgres secret connection string')}}));assert.equal(r.status,503);assert.doesNotMatch(JSON.stringify(r.body),/postgres secret/)});
 test('异常服务响应结构不能伪装为成功',async()=>assert.equal((await request(handler({act:async()=>({status:200,body:{message:'fake'}})})).status,503));
 test('非生命周期路由交由上层处理',async()=>{const h=handler(),s=createServer(async(req,res)=>{const yes=await h(req,res);res.writeHead(yes?200:204);res.end('{}')});await new Promise(resolve=>s.listen(0,'127.0.0.1',resolve));try{assert.equal((await fetch(`http://127.0.0.1:${s.address().port}/api/v1/lock-requests`)).status,204)}finally{await new Promise(resolve=>s.close(resolve))}});
