@@ -11,6 +11,8 @@ import {createIsolatedPriorityService,candidatesSQL,firstStillQualifiedCandidate
 import {createIsolatedPriorityHandler} from '../src/f05-priority-http.mjs';
 import {createIsolatedFavoriteService} from '../src/f05-favorite-service.mjs';
 import {createIsolatedFavoriteHandler} from '../src/f05-favorite-http.mjs';
+import {createIsolatedConsultationService} from '../src/f05-consultation-service.mjs';
+import {createIsolatedConsultationHandler} from '../src/f05-consultation-http.mjs';
 import {SQL_CATALOG_DETAIL,SQL_CATALOG_LIST,SQL_CATALOG_STATS} from '../src/catalog-service.mjs';
 const env=validateCatalogEnv(),pool=new pg.Pool({connectionString:env.connectionString,max:7});
 const db=new pg.Client({connectionString:env.connectionString});
@@ -55,9 +57,11 @@ try{
  const matching=createIsolatedMatchingService({pool,env:process.env});
  const priority=createIsolatedPriorityService({pool,env:process.env});
  const favorites=createIsolatedFavoriteService({pool,env:process.env});
+ const consultation=createIsolatedConsultationService({pool,env:process.env});
  server=createServer(createFoundationHandler({
   priorityHandler:createIsolatedPriorityHandler(priority,process.env),
-  favoriteHandler:createIsolatedFavoriteHandler(favorites,process.env)
+  favoriteHandler:createIsolatedFavoriteHandler(favorites,process.env),
+  consultationHandler:createIsolatedConsultationHandler(consultation,process.env)
  }));
  await new Promise(ok=>server.listen(0,'127.0.0.1',ok));
  const endpoint='http://127.0.0.1:'+server.address().port+'/api/v1/catalog/priority';
@@ -338,6 +342,31 @@ try{
   assert.equal(owner.body.code,'FAVORITE_APPLIED');
   assert.equal(await count("SELECT count(*) n FROM public.f05_catalog_favorite_states_test "+
    "WHERE customer_id=62501 AND vehicle_id=62517 AND current_state='active'"),1);
+  // The direct Consultation POST is also part of the Customer visibility
+  // surface. Test a real protected vehicle without a synthetic Priority row.
+  for(const cid of ['62500','62501']){
+   await db.query("INSERT INTO public.customer_phone_facts "+
+    "(customer_id,phone_ciphertext,valid_from) VALUES($1,decode('abcd1234','hex'),statement_timestamp())",[cid]);
+   await db.query("INSERT INTO public.f05_catalog_consultation_actor_proof_test "+
+    "(customer_id,assignee_employee_id,phone_consent_test,worker_scope_test,expires_at) "+
+    "VALUES($1,62501,true,true,statement_timestamp()+interval '20 minutes')",[cid]);
+  }
+  const consult=async bearer=>{
+   const res=await fetch('http://127.0.0.1:'+server.address().port+
+    '/api/v1/catalog/vehicles/62517/consultations',{method:'POST',headers:{
+     authorization:'Bearer '+bearer,'x-idempotency-key':key()}});
+   return {status:res.status,body:await res.json()};
+  };
+  const otherDenied=await consult(outsider);
+  assert.equal(otherDenied.status,404,JSON.stringify(otherDenied));
+  assert.equal(otherDenied.body.code,'CONSULTATION_VEHICLE_NOT_VISIBLE');
+  assert.equal(await count("SELECT count(*) n FROM public.consultations "+
+   "WHERE vehicle_id=62517 AND customer_id=62500"),0);
+  const legitimate=await consult(principal);
+  assert.equal(legitimate.status,200,JSON.stringify(legitimate));
+  assert.equal(legitimate.body.code,'CONSULTATION_CREATED');
+  assert.equal(await count("SELECT count(*) n FROM public.consultations "+
+   "WHERE vehicle_id=62517 AND customer_id=62501 AND status='pending'"),1);
   // Expiry is a trusted DB fact; a historical favorite is never the source
   // of an independent Priority grant to a different Customer.
   await db.query("UPDATE public.priority_leases SET status='ended',ended_at=statement_timestamp() "+
@@ -345,6 +374,9 @@ try{
   const afterEnd=await add(outsider);
   assert.equal(afterEnd.status,200,JSON.stringify(afterEnd));
   assert.equal(afterEnd.body.code,'FAVORITE_APPLIED');
+  const afterConsult=await consult(outsider);
+  assert.equal(afterConsult.status,200,JSON.stringify(afterConsult));
+  assert.equal(afterConsult.body.code,'CONSULTATION_CREATED');
  });
  await test('append-only audit cannot be erased; Priority release cannot create Recommendation or grant',async()=>{
   await assert.rejects(db.query("DELETE FROM public.f05_priority_events_test WHERE vehicle_id=62510"),e=>e.code==='23514');

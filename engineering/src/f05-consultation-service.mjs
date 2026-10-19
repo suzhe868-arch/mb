@@ -132,9 +132,17 @@ export function createIsolatedConsultationService({pool,env=process.env}={}){
       "(v.source_type IN ('mingbang','four_s') AND v.source_sale_status='available')) "+
       "AND NOT EXISTS(SELECT 1 FROM public.f05_real_catalog_protections_test pr "+
       "WHERE pr.vehicle_id=v.vehicle_id AND pr.listing_cycle_id=cy.listing_cycle_id AND pr.ended_at IS NULL) "+
+      // Direct Customer and Favorite entry cannot side-step the current
+      // exclusive visibility rights that the public list and Recommendation
+      // safe view already enforce. The Vehicle SHARE lock serializes against
+      // concurrent Priority writers taking Vehicle FOR UPDATE.
+      "AND NOT EXISTS(SELECT 1 FROM public.f05_priority_safe_active_test active_priority "+
+      "WHERE active_priority.vehicle_id=v.vehicle_id "+
+      "AND active_priority.listing_cycle_id=cy.listing_cycle_id "+
+      "AND active_priority.customer_id<>$4::bigint) "+
       "AND ($3::bigint IS NULL OR cy.listing_cycle_id=$3) "+
       "LIMIT 1 FOR SHARE OF v,cy,vis",
-      [vehicleId,recSource!==null,recSource?String(recSource.listing_cycle_id):null])).rows[0];
+      [vehicleId,recSource!==null,recSource?String(recSource.listing_cycle_id):null,customerId])).rows[0];
     if(!cycle){await c.query('ROLLBACK');return answer(404,'CONSULTATION_VEHICLE_NOT_VISIBLE')}
     const cycleId=String(cycle.listing_cycle_id);
     let favoriteSource=null;
