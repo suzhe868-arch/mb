@@ -245,13 +245,22 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     if(!vehicle)return response(404,'VEHICLE_NOT_FOUND');
     const digest=sha('f06-intake:'+idempotencyKey);
     const payload=sha(JSON.stringify([String(who.customer_id),vehicleId,listingCycleId]));
-    const old=await first(db,`SELECT k.*,r.status FROM ${LOCK_SCHEMA}.request_keys k
+    const old=await first(db,`SELECT k.*,r.status,r.created_at,r.expires_at FROM ${LOCK_SCHEMA}.request_keys k
      JOIN public.lock_requests r ON r.lock_request_id=k.request_id
      WHERE k.key_sha256=$1 FOR SHARE OF k,r`,[digest]);
     if(old){
      if(old.payload_sha256!==payload||String(old.customer_id)!==String(who.customer_id))return response(409,'LOCK_IDEMPOTENCY_COLLISION');
      if(!await currentPhone(db,who.customer_id)||who.owner_assignment_state!=='assigned'||
         !await currentOwner(db,who.current_owner_employee_id))return denied('LOCK_REPLAY_IDENTITY_REVOKED');
+     // Exact-key replay must never resurrect an expired PENDING application.
+     if(old.status==='pending'){
+      const elapsed=await first(db,"SELECT $1::timestamptz<=clock_timestamp() OR $2::timestamptz+interval '6 hours'<=clock_timestamp() AS past",[old.expires_at,old.created_at]);
+      if(elapsed.past){
+       const stale=await first(db,'SELECT * FROM public.lock_requests WHERE lock_request_id=$1 FOR UPDATE',[old.request_id]);
+       if(stale.status==='pending')await finish(db,stale,'expired');
+       return response(200,'LOCK_REQUEST_REPLAY',{requestId:String(old.request_id),state:'expired'});
+      }
+     }
      return response(200,'LOCK_REQUEST_REPLAY',{requestId:String(old.request_id),state:old.status});
     }
     // A Priority-origin Lock is exclusively visible to its owner; deny before the occupied status leaks.
