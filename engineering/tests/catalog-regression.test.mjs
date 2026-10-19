@@ -6,7 +6,7 @@ import {randomBytes} from 'node:crypto';
 import {createServer} from 'node:http';
 import {
  createCatalogService, encodeCursor, decodeCursor,
- SQL_CATALOG_LIST, SQL_CATALOG_DETAIL, SQL_CATALOG_STATS,
+ SQL_CATALOG_LIST, SQL_CATALOG_SORTS, SQL_CATALOG_DETAIL, SQL_CATALOG_STATS,
 } from '../src/catalog-service.mjs';
 import {createCatalogHandler} from '../src/catalog-http.mjs';
 import {createFoundationHandler} from '../src/app.mjs';
@@ -178,12 +178,17 @@ test('statistics forbid query manipulation, duplicate counts and injection into 
   assert.equal(r.status,503);assert.deepEqual(r.body,{code:'CATALOG_DEPENDENCY_NOT_READY'});
  }
 });
-test('PDM-20 seven sorts: six unverified business projections fail closed; oldest is prohibited',async()=>{
+test('PDM-20 seven sorts: six verified test projections execute server-side; oldest is prohibited',async()=>{
  const legal=['price_asc','price_desc','registration_year_desc','registration_year_asc','mileage_asc','mileage_desc'];
  for(const sort of legal){
-  const r=await request(byRows(),`/api/v1/catalog/vehicles?sort=${sort}`);
-  assert.equal(r.status,503,sort);
-  assert.equal(r.body.code,'CATALOG_SORT_DEPENDENCY_BLOCKED');
+  let seen;
+  const r=await request(byRows((sql,params)=>{seen={sql,params};return [row(1)]}),`/api/v1/catalog/vehicles?sort=${sort}`);
+  assert.equal(r.status,200,sort);
+  assert.equal(r.body.sort,sort);
+  assert.equal(seen.sql,SQL_CATALOG_SORTS[sort]);
+  assert.deepEqual(seen.params,['wholesale',null,null,null,null,null,null,null,null,null,null]);
+  assert.match(seen.sql,/f05_catalog_sort_facts_test/);
+  assert.equal(r.body.items[0].price,null);
  }
  const bad=await request(byRows(),'/api/v1/catalog/vehicles?sort=oldest');
  assert.equal(bad.status,400);
@@ -226,10 +231,23 @@ for(const wrong of ['four_s','mingbang'])test(`cursor cross-channel ${wrong} den
  const r=await request(byRows(),`/api/v1/catalog/vehicles?source=${wrong}&cursor=${encodeURIComponent(cursor)}`);
  assert.equal(r.status,400);assert.equal(r.body.code,'INVALID_CURSOR');
 });
-test('cursor cannot open unsupported sort with the newest cursor',async()=>{
+test('newest cursor cannot be replayed into a different legal sort',async()=>{
  const cursor=encodeCursor({at:'2026-10-15T09:00:00.123456Z',id:'1001',source:'wholesale',sort:'newest'},secret);
  const r=await request(byRows(),'/api/v1/catalog/vehicles?sort=price_desc&cursor='+encodeURIComponent(cursor));
- assert.equal(r.status,503);assert.equal(r.body.code,'CATALOG_SORT_DEPENDENCY_BLOCKED');
+ assert.equal(r.status,400);assert.equal(r.body.code,'INVALID_CURSOR');
+});
+test('sorted cursor binds hidden sort key and keeps protected price out of DTO',async()=>{
+ const at='2026-10-15T09:00:00.123456Z';
+ const rows=Array.from({length:16},(_,k)=>({...row(k+1,at),sortPriceCents:String(100000+k)}));
+ const first=await request(byRows(()=>rows),'/api/v1/catalog/vehicles?sort=price_asc');
+ assert.equal(first.status,200);assert.ok(first.body.nextCursor);
+ const decoded=decodeCursor(first.body.nextCursor,secret,'wholesale','price_asc');
+ assert.equal(decoded.k,'100014');assert.equal(decoded.n,0);
+ assert.equal(first.body.items.every(x=>x.price===null),true);
+ let params;
+ const second=await request(byRows((sql,p)=>{params=p;return []}),'/api/v1/catalog/vehicles?sort=price_asc&cursor='+encodeURIComponent(first.body.nextCursor));
+ assert.equal(second.status,200);
+ assert.deepEqual(params.slice(7),[0,'100014',at,'1015']);
 });
 test('cursor from different signing secret rejected',async()=>{
  const cursor=encodeCursor({at:'2026-10-15T09:00:00.123456Z',id:'1001',source:'wholesale',sort:'newest'},randomBytes(32));
@@ -306,15 +324,15 @@ test('SQL explicitly excludes a vehicle with two simultaneous current cycles',()
 });
 
 test('readiness uses physical database identity and all four required relations',async()=>{
- const pool={query:async(s)=>s===SQL_CATALOG_IDENTITY?{rows:[{v:160009,db:'f05_catalog_test',role:'f05_catalog_ci'}]}:{rows:[{v:true,c:true,p:true,x:true,po:true,pf:true,fs:true,ft:true,fe:true,cp:true,ca:true,es:true,ec:true,ss:true,sh:true,he:true,pe:true,pp:true,qa:true,qs:true,fca:true,fcd:true,fce:true,fcp:true,fac:true,md:true,me:true,mv:true,mx:true,aq:true,sv:true,ra:true,rp:true,ru:true,di:true,rs:true,rn:true,re:true,rv:true,p8c:true,p8e:true,p8q:true,p8s:true,p8u:true,p8v:true,p8w:true,p8m:true,p8a:true,fr:true,da:true,dl:true,vr:true,iv:true,shape:true,fk:true,full:true}]}};
+ const pool={query:async(s)=>s===SQL_CATALOG_IDENTITY?{rows:[{v:160009,db:'f05_catalog_test',role:'f05_catalog_ci'}]}:{rows:[{v:true,c:true,p:true,x:true,po:true,pf:true,fs:true,ft:true,fe:true,cp:true,ca:true,es:true,ec:true,ss:true,sh:true,he:true,pe:true,pp:true,qa:true,qs:true,fca:true,fcd:true,fce:true,fcp:true,fac:true,md:true,me:true,mv:true,mx:true,aq:true,sv:true,ra:true,rp:true,ru:true,di:true,rs:true,rn:true,re:true,rv:true,p8c:true,p8e:true,p8q:true,p8s:true,p8u:true,p8v:true,p8w:true,p8m:true,p8a:true,fr:true,da:true,dl:true,vr:true,so:true,iv:true,shape:true,fk:true,full:true}]}};
  assert.equal(await probeIsolatedCatalog(pool),true);
  assert.match(SQL_CATALOG_SCHEMA,/to_regclass\('public\.vehicles'\)/);
  assert.match(SQL_CATALOG_SCHEMA,/pg_catalog\.pg_attribute/);
  assert.match(SQL_CATALOG_SCHEMA,/pg_catalog\.pg_constraint/);
- assert.match(SQL_CATALOG_SCHEMA,/count\(\*\)=123/);
+ assert.match(SQL_CATALOG_SCHEMA,/count\(\*\)=124/);
 });
 test('readiness fails if a physical table disappears after startup',async()=>{
- const pool={query:async(s)=>s===SQL_CATALOG_IDENTITY?{rows:[{v:160009,db:'f05_catalog_test',role:'f05_catalog_ci'}]}:{rows:[{v:true,c:true,p:false,x:true,po:true,pf:true,fs:true,ft:true,fe:true,cp:true,ca:true,es:true,ec:true,ss:true,sh:true,he:true,pe:true,pp:true,qa:true,qs:true,fca:true,fcd:true,fce:true,fcp:true,fac:true,md:true,me:true,mv:true,mx:true,aq:true,sv:true,ra:true,rp:true,ru:true,di:true,rs:true,rn:true,re:true,rv:true,p8c:true,p8e:true,p8q:true,p8s:true,p8u:true,p8v:true,p8w:true,p8m:true,p8a:true,fr:true,da:true,dl:true,vr:true,iv:true,shape:true,fk:true,full:true}]}};
+ const pool={query:async(s)=>s===SQL_CATALOG_IDENTITY?{rows:[{v:160009,db:'f05_catalog_test',role:'f05_catalog_ci'}]}:{rows:[{v:true,c:true,p:false,x:true,po:true,pf:true,fs:true,ft:true,fe:true,cp:true,ca:true,es:true,ec:true,ss:true,sh:true,he:true,pe:true,pp:true,qa:true,qs:true,fca:true,fcd:true,fce:true,fcp:true,fac:true,md:true,me:true,mv:true,mx:true,aq:true,sv:true,ra:true,rp:true,ru:true,di:true,rs:true,rn:true,re:true,rv:true,p8c:true,p8e:true,p8q:true,p8s:true,p8u:true,p8v:true,p8w:true,p8m:true,p8a:true,fr:true,da:true,dl:true,vr:true,so:true,iv:true,shape:true,fk:true,full:true}]}};
  assert.equal(await probeIsolatedCatalog(pool),false);
 });
 test('readiness never confuses PG17 or other database role with isolated PG16',async()=>{
@@ -331,16 +349,16 @@ test('readiness physical connection errors produce denial without logs or creden
 });
 
 test('schema preflight rejects superficially named but physically wrong PG16 tables',async()=>{
- for(const missing of ['shape','fk','pf','full','v','c','p','x','po','fs','ft','fe','cp','ca','es','ec','ss','sh','he','pe','pp','qa','qs','fca','fcd','fce','fcp','fac','md','me','mv','mx','aq','sv','ra','rp','ru','di','rs','rn','re','rv','p8c','p8e','p8q','p8s','p8u','p8v','p8w','p8m','p8a','fr','dl','da','vr']){
-  const physical={v:true,c:true,p:true,x:true,po:true,pf:true,fs:true,ft:true,fe:true,cp:true,ca:true,es:true,ec:true,ss:true,sh:true,he:true,pe:true,pp:true,qa:true,qs:true,fca:true,fcd:true,fce:true,fcp:true,fac:true,md:true,me:true,mv:true,mx:true,aq:true,sv:true,ra:true,rp:true,ru:true,di:true,rs:true,rn:true,re:true,rv:true,p8c:true,p8e:true,p8q:true,p8s:true,p8u:true,p8v:true,p8w:true,p8m:true,p8a:true,fr:true,da:true,dl:true,vr:true,iv:true,shape:true,fk:true,full:true};physical[missing]=false;
+ for(const missing of ['shape','fk','pf','full','v','c','p','x','po','fs','ft','fe','cp','ca','es','ec','ss','sh','he','pe','pp','qa','qs','fca','fcd','fce','fcp','fac','md','me','mv','mx','aq','sv','ra','rp','ru','di','rs','rn','re','rv','p8c','p8e','p8q','p8s','p8u','p8v','p8w','p8m','p8a','fr','dl','da','vr','so']){
+  const physical={v:true,c:true,p:true,x:true,po:true,pf:true,fs:true,ft:true,fe:true,cp:true,ca:true,es:true,ec:true,ss:true,sh:true,he:true,pe:true,pp:true,qa:true,qs:true,fca:true,fcd:true,fce:true,fcp:true,fac:true,md:true,me:true,mv:true,mx:true,aq:true,sv:true,ra:true,rp:true,ru:true,di:true,rs:true,rn:true,re:true,rv:true,p8c:true,p8e:true,p8q:true,p8s:true,p8u:true,p8v:true,p8w:true,p8m:true,p8a:true,fr:true,da:true,dl:true,vr:true,so:true,iv:true,shape:true,fk:true,full:true};physical[missing]=false;
   const pool={query:async(s)=>s===SQL_CATALOG_IDENTITY?{rows:[{v:160002,db:'f05_catalog_test',role:'f05_catalog_ci'}]}:{rows:[physical]}};
   assert.equal(await probeIsolatedCatalog(pool),false,missing);
  }
 });
 test('schema preflight rejects omitted properties and anonymous extra trust flags',async()=>{
  for(const shape of [
-  {v:true,c:true,p:true,x:true,po:true,pf:true,fs:true,ft:true,fe:true,cp:true,ca:true,es:true,ec:true,ss:true,sh:true,he:true,pe:true,pp:true,qa:true,qs:true,fca:true,fcd:true,fce:true,fcp:true,fac:true,md:true,me:true,mv:true,mx:true,aq:true,sv:true,ra:true,rp:true,ru:true,di:true,rs:true,rn:true,re:true,rv:true,p8c:true,p8e:true,p8q:true,p8s:true,p8u:true,p8v:true,p8w:true,p8m:true,p8a:true,fr:true,da:true,dl:true,vr:true,iv:true,shape:true},
-  {v:true,c:true,p:true,x:true,po:true,pf:true,fs:true,ft:true,fe:true,cp:true,ca:true,es:true,ec:true,ss:true,sh:true,he:true,pe:true,pp:true,qa:true,qs:true,fca:true,fcd:true,fce:true,fcp:true,fac:true,md:true,me:true,mv:true,mx:true,aq:true,sv:true,ra:true,rp:true,ru:true,di:true,rs:true,rn:true,re:true,rv:true,p8c:true,p8e:true,p8q:true,p8s:true,p8u:true,p8v:true,p8w:true,p8m:true,p8a:true,fr:true,da:true,dl:true,vr:true,iv:true,shape:true,fk:true,full:true,unverified:true},
+  {v:true,c:true,p:true,x:true,po:true,pf:true,fs:true,ft:true,fe:true,cp:true,ca:true,es:true,ec:true,ss:true,sh:true,he:true,pe:true,pp:true,qa:true,qs:true,fca:true,fcd:true,fce:true,fcp:true,fac:true,md:true,me:true,mv:true,mx:true,aq:true,sv:true,ra:true,rp:true,ru:true,di:true,rs:true,rn:true,re:true,rv:true,p8c:true,p8e:true,p8q:true,p8s:true,p8u:true,p8v:true,p8w:true,p8m:true,p8a:true,fr:true,da:true,dl:true,vr:true,so:true,iv:true,shape:true},
+  {v:true,c:true,p:true,x:true,po:true,pf:true,fs:true,ft:true,fe:true,cp:true,ca:true,es:true,ec:true,ss:true,sh:true,he:true,pe:true,pp:true,qa:true,qs:true,fca:true,fcd:true,fce:true,fcp:true,fac:true,md:true,me:true,mv:true,mx:true,aq:true,sv:true,ra:true,rp:true,ru:true,di:true,rs:true,rn:true,re:true,rv:true,p8c:true,p8e:true,p8q:true,p8s:true,p8u:true,p8v:true,p8w:true,p8m:true,p8a:true,fr:true,da:true,dl:true,vr:true,so:true,iv:true,shape:true,fk:true,full:true,unverified:true},
  ]){
   const pool={query:async(s)=>s===SQL_CATALOG_IDENTITY?{rows:[{v:160002,db:'f05_catalog_test',role:'f05_catalog_ci'}]}:{rows:[shape]}};
   assert.equal(await probeIsolatedCatalog(pool),false);
