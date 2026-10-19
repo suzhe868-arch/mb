@@ -18,7 +18,7 @@ await writeFile(resolve(evidence,'F06_PG16_NATIVE_ACCEPTANCE_TAP.log'),log,'utf8
 process.stdout.write(log);
 const summary={};
 for(const [,name,value] of log.matchAll(/^# (tests|pass|fail|cancelled|skipped) (\d+)\s*$/gm))summary[name]=Number(value);
-if(child.error||child.status!==0||summary.tests<18||summary.pass!==summary.tests||
+if(child.error||child.status!==0||summary.tests<20||summary.pass!==summary.tests||
  summary.fail!==0||summary.skipped!==0||summary.cancelled!==0){
  console.error('F06_PG16_ACCEPTANCE_FAILED',JSON.stringify({
   exitCode:child.status,signal:child.signal,reason:child.error?.message||null,summary}));
