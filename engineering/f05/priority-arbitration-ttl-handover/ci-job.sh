@@ -37,6 +37,8 @@ grep -q '# fail 0' "$dir/real-pg16-$mode.log"
 node f05/priority-arbitration-ttl-handover/runner.mjs --verify
 node f05/priority-arbitration-ttl-handover/evidence.mjs "$mode"
 if [[ "$mode" = priority-source ]];then
+ node --test f05/tests/source-gate-event-evidence.test.mjs 2>&1 | tee f05/priority-arbitration-ttl-handover/artifacts/priority-source/event-aware-evidence-tests.log
+ grep -q '# fail 0' f05/priority-arbitration-ttl-handover/artifacts/priority-source/event-aware-evidence-tests.log
  node f05/priority-arbitration-ttl-handover/ci-verify-68.mjs
 fi
 ids="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
