@@ -40,3 +40,83 @@ CREATE TRIGGER f05_demand_lifecycle_events_no_mutation_test
  FOR EACH ROW EXECUTE FUNCTION public.f05_find_car_events_immutable_test();
 REVOKE ALL ON public.f05_demand_lifecycle_scope_test,
  public.f05_demand_end_requests_test,public.f05_demand_lifecycle_events_test FROM PUBLIC;
+
+
+-- PDM-11 test-only safety hook: account disable or entitlement downgrade pauses
+-- active Demand atomically; recovery NEVER automatically resumes it.
+ALTER TABLE public.f05_demand_lifecycle_events_test
+ DROP CONSTRAINT f05_demand_lifecycle_events_test_actor_kind_check;
+ALTER TABLE public.f05_demand_lifecycle_events_test
+ ADD CONSTRAINT f05_demand_lifecycle_events_test_actor_kind_check
+ CHECK(actor_kind IN ('customer','employee','test_system'));
+ALTER TABLE public.f05_demand_lifecycle_events_test
+ DROP CONSTRAINT f05_demand_lifecycle_events_test_action_check;
+ALTER TABLE public.f05_demand_lifecycle_events_test
+ ADD CONSTRAINT f05_demand_lifecycle_events_test_action_check
+ CHECK(action IN ('PAUSE','RESUME','END_REQUEST','COMPLETE','CANCEL','AUTO_PAUSE'));
+
+CREATE FUNCTION public.f05_demand_pause_due_to_current_eligibility_test(
+ p_customer bigint,p_cause text
+) RETURNS integer LANGUAGE plpgsql AS $f05pause$
+DECLARE total integer;
+BEGIN
+ IF p_cause NOT IN ('ACCOUNT_DISABLED','ENTITLEMENT_DOWNGRADED') THEN
+  RAISE EXCEPTION 'INVALID_DEMAND_PAUSE_CAUSE';
+ END IF;
+ WITH changed AS (
+  UPDATE public.demands SET demand_state='paused'
+  WHERE customer_id=p_customer AND demand_state='active'
+  RETURNING demand_id
+ ), audit AS (
+  INSERT INTO public.f05_demand_lifecycle_events_test
+   (event_key,payload_sha256,demand_id,actor_kind,actor_id,
+    action,prior_state,result_state,result_code)
+  SELECT substring(encode(sha256(convert_to(
+    'F05_AUTO_PAUSE|'||txid_current()::text||'|'||demand_id::text,'UTF8')),'hex') from 1 for 32),
+   encode(sha256(convert_to(
+    'F05_AUTO_PAUSE|'||txid_current()::text||'|'||demand_id::text||'|'||p_cause,'UTF8')),'hex'),
+   demand_id,'test_system',p_customer,'AUTO_PAUSE','active','paused',
+   'DEMAND_AUTO_PAUSED_'||p_cause
+  FROM changed RETURNING event_key
+ )
+ SELECT count(*) INTO total FROM audit;
+ RETURN total;
+END $f05pause$;
+
+CREATE FUNCTION public.f05_demand_customer_safety_pause_test()
+ RETURNS trigger LANGUAGE plpgsql AS $f05customer$
+BEGIN
+ IF (NEW.account_status IS DISTINCT FROM OLD.account_status
+   OR NEW.customer_level_id IS DISTINCT FROM OLD.customer_level_id)
+ AND (NEW.account_status<>'active' OR NOT EXISTS(
+   SELECT 1 FROM public.f05_find_car_level_entitlement_test e
+   WHERE e.level_id=NEW.customer_level_id AND e.can_activate_demand=true
+    AND e.issuer='DISPOSABLE_TEST_ONLY' AND e.expires_at>statement_timestamp()))
+ THEN
+  PERFORM public.f05_demand_pause_due_to_current_eligibility_test(
+   NEW.customer_id,CASE WHEN NEW.account_status<>'active' THEN 'ACCOUNT_DISABLED'
+    ELSE 'ENTITLEMENT_DOWNGRADED' END);
+ END IF;
+ RETURN NEW;
+END $f05customer$;
+CREATE TRIGGER f05_demand_customer_safety_pause_test
+ AFTER UPDATE OF account_status,customer_level_id ON public.customers
+ FOR EACH ROW EXECUTE FUNCTION public.f05_demand_customer_safety_pause_test();
+
+CREATE FUNCTION public.f05_demand_entitlement_safety_pause_test()
+ RETURNS trigger LANGUAGE plpgsql AS $f05level$
+DECLARE c record;
+BEGIN
+ IF OLD.can_activate_demand=true AND NEW.can_activate_demand=false THEN
+  FOR c IN SELECT customer_id FROM public.customers
+   WHERE customer_level_id=NEW.level_id ORDER BY customer_id
+  LOOP
+   PERFORM public.f05_demand_pause_due_to_current_eligibility_test(
+    c.customer_id,'ENTITLEMENT_DOWNGRADED');
+  END LOOP;
+ END IF;
+ RETURN NEW;
+END $f05level$;
+CREATE TRIGGER f05_demand_entitlement_safety_pause_test
+ AFTER UPDATE OF can_activate_demand ON public.f05_find_car_level_entitlement_test
+ FOR EACH ROW EXECUTE FUNCTION public.f05_demand_entitlement_safety_pause_test();
