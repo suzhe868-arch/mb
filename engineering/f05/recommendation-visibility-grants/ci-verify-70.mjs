@@ -7,7 +7,7 @@ if(repo!=='suzhe868-arch/mb'||!token||process.env.CI!=='true'||process.env.GITHU
 import {verifyCurrentPullRequestRun} from '../source-gate-event-evidence.mjs';
 const event=JSON.parse(await readFile(process.env.GITHUB_EVENT_PATH,'utf8'));
 if(process.env.GITHUB_EVENT_NAME==='pull_request'){
- await verifyCurrentPullRequestRun({workflowPath:".github/workflows/f05-9-recommendation-visibility-grants.yml",sourceJobName:"F05-9 new Source v25 true PG16",expectedJobs:2,artifactDirectory:'./artifacts/source/'});
+ await verifyCurrentPullRequestRun({workflowPath:".github/workflows/f05-9-recommendation-visibility-grants.yml",sourceJobName:"F05-9 new Source v25 true PG16",expectedJobs:2,artifactDirectory:"engineering/f05/recommendation-visibility-grants/artifacts/source/"});
  process.exit(0);
 }
 if(process.env.GITHUB_EVENT_NAME!=='push')throw Error('SOURCE_GATE_UNSUPPORTED_EVENT_FAIL_CLOSED');
