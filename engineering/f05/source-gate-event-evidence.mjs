@@ -1,6 +1,7 @@
 // Event-aware evidence validation for F05 Source gates.
 // Pull-request evidence is non-production only; official main push keeps its frozen same-SHA chain.
 import {mkdir,writeFile} from 'node:fs/promises';
+import {resolve} from 'node:path';
 
 const SHA=/^[a-f0-9]{40}$/;
 const own=(v)=>v&&typeof v==='object'&&!Array.isArray(v);
@@ -69,9 +70,9 @@ export async function verifyCurrentPullRequestRun({workflowPath,sourceJobName,ex
  const jobData=await api(repo,'/actions/runs/'+env.GITHUB_RUN_ID+'/jobs?per_page=100',env.GH_ACTIONS_READ_TOKEN);
  const evidence=validatePullRequestEvidence({event,env,run,jobs:jobData.jobs||[],workflowPath,sourceJobName,expectedJobs});
  if(jobData.total_count!==expectedJobs)throw Error('SOURCE_GATE_PR_EVIDENCE_API_JOB_TOTAL_MISMATCH');
- const dir=new URL(artifactDirectory,import.meta.url);
+ const dir=resolve(process.cwd(),artifactDirectory);
  await mkdir(dir,{recursive:true});
- await writeFile(new URL('event-aware-pull-request-evidence.json',dir),JSON.stringify(evidence,null,2)+'\\n');
+ await writeFile(resolve(dir,'event-aware-pull-request-evidence.json'),JSON.stringify(evidence,null,2)+'\\n');
  console.log('SOURCE_GATE_EVENT_AWARE_PULL_REQUEST_EVIDENCE',JSON.stringify(evidence));
  return evidence;
 }
