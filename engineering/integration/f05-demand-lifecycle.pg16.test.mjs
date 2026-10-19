@@ -186,6 +186,31 @@ try{
   assert.equal((await db.query("SELECT demand_state FROM public.demands WHERE demand_id=59691")).rows[0].demand_state,'paused');
   assert.equal((await act('RESUME',employeeToken,'59691')).status,200);
  });
+ await test('PG16 locked Customer disable serializes concurrent employee Demand resume without deadlock or unauthorized reactivation',async()=>{
+  await db.query("INSERT INTO public.demands(demand_id,customer_id,responsible_employee_id,demand_state,criteria_json) "+
+   "VALUES(59692,59680,59680,'paused','{}'::jsonb)");
+  const locker=new pg.Client({connectionString:conf.connectionString,connectionTimeoutMillis:1200});
+  await locker.connect();
+  let begun=false;
+  try{
+   await locker.query('BEGIN');begun=true;
+   await locker.query("SELECT customer_id FROM public.customers WHERE customer_id=59680 FOR UPDATE");
+   // Service must acquire Customer SHARE before Demand UPDATE. A Customer status
+   // transition may hold the Customer first and then auto-pause active Demands.
+   const attempt=act('RESUME',employeeToken,'59692');
+   await new Promise(ok=>setTimeout(ok,70));
+   await locker.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=59680");
+   await locker.query('COMMIT');begun=false;
+   const rejected=await attempt;
+   assert.equal(rejected.status,403,JSON.stringify(rejected));
+   assert.equal(rejected.body.code,'DEMAND_RESUME_ENTITLEMENT_REQUIRED');
+   assert.equal((await db.query("SELECT demand_state FROM public.demands WHERE demand_id=59692")).rows[0].demand_state,'paused');
+  }finally{
+   if(begun)await locker.query('ROLLBACK').catch(()=>{});
+   await locker.end();
+   await db.query("UPDATE public.customers SET account_status='active' WHERE customer_id=59680");
+  }
+ });
  await test('PG16 concurrent end requests yield single pending record, immutable events and transaction integrity',async()=>{
   const newDemand=(await db.query("INSERT INTO public.demands(customer_id,responsible_employee_id,demand_state,criteria_json) "+
     "VALUES(59680,59680,'active','{}'::jsonb) RETURNING demand_id")).rows[0].demand_id;
