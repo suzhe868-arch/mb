@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F06_LOCK_REAL_HTTP_PG16_A_REVIEWED_TEST_RUNTIME_BLOCKED_BOUNDED_FREE_CI_RELEASED",
+  "substage": "F06_REAL_LOCKREQUEST_HTTP_PG16_PR129_A_ACCEPTED_MERGED_F06_REAL_LIFECYCLE_RELEASED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16",
-  "current_domain_status": "A_RELEASED_FOR_B_BOUNDED_FREE_CI_VERIFICATION_NOT_READY_FOR_A_REVIEW",
+  "current_domain": "F06_REAL_LOCK_LIFECYCLE_HTTP_PG16",
+  "current_domain_status": "F06_STAGE1_PR129_A_ACCEPTED_NONPRODUCTION_MERGED_F06_STAGE2_A_RELEASED_FOR_B",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A已独立核验F06指定B分支真实Node HTTP与PG16测试源码，最新受阅HEAD fb2c43f5600ae1a652731ed5e2d14621d12e6086：19变更文件，B本地54/54 Node并非远程同SHA验收，PG16真实0/20未执行。A于Issue #128正式裁决允许隔离F06分支单Job标准公开仓库免费Runner+本机PG16服务，在不触发旧F05 Workflow、无新增付费和不伪造完整M94/F03/F05来源的前提下完成真库测试。B继续整改并交A，暂不PR/合并。",
-  "current_work_file": "07_重建工作区/F06_真实锁车申请审批唯一Lock与自动候补_首条业务API纵切_A主控B正式施工单_2026-10-18.md",
+  "current_task": "A独立验收PR129完成F06首条真实客户锁车申请、名邦员工审批、唯一Lock及竞争自动Waitlist Node HTTP+隔离真实PG16：受验业务SHA ab6b28c7，Node54/54、PG16.15 21/21、原迁移账本24条合规，PR自身10工作流28/28绿，merge c3fa09646e10c9f0392c62ee1f35f56668b25494。Issue128阻断已关闭。A正式放行B实施F06第二条真实普通Lock人工延期、释放/取消、可信无款PG到期、资金未知硬拒，生产/付款不开放。",
+  "current_work_file": "07_重建工作区/F06普通Lock延期释放到期与资金未知硬拒_真实业务HTTP和PG16_A主控B正式施工单_2026-10-19.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B在指定F06原隔离分支按Issue #128 A新技术裁决执行：首个Push前核对旧Workflow push分支及paths触发风险，只允许一份非冻结F06 push-only精确分支单Job新Workflow，标准ubuntu-24.04+本机PG16 16，禁止upload-artifact/付费Runner/生产secret。真实构建受验M94/F03 24台账+F05非生产基线，运行同SHA Node≥54及PG16真HTTP事务≥20，0fail/skip/cancel，无法构建历史可信基线如实保留BLOCKED_TRUSTED_M94_F05_BASELINE，不可伪造签署或假账本。整改完整并归档原生测试后才READY_FOR_A_REVIEW，B不得PR或合并。",
+  "next_action": "B基于最新main新建独立分支feat/f06-real-lock-lifecycle-http-pg16-02，按A2026-10-19 F06第二条真实锁车生命周期施工单连续实现：在PR129已合并真实Node HTTP/PG16服务上增加普通Lock合法员工延长期限、人工release/cancel、非生产合成无款确证时PG时钟到期和资金unknown/present硬拒，原始72h快照/Waitlist/Priority历史保全。先核精确文件Workflow触发安全，最多单标准免费Runner Job与独立PG16、用户预算$0；同SHA完成旧Node54+PG16 21与新增PG16至少20真测试、权限/并发/回滚及中文证据，再标READY_FOR_A_REVIEW交A。B不自行开PR/合并，不改冻结工作流/公共M94/PDM Final/真实支付/正式Source；F07/F08暂不插队。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B在指定F06原隔离分支按Issue #128 A新技术裁决执行：首个Push前核对旧Workflow push分支及paths触发风险，只允许一份非冻结F06 push-only精确分支单Job新Workflow，标准ubuntu-24.04+本机PG16 16，禁止upload-artifact/付费Runner/生产secret。真实构建受验M94/F03 24台账+F05非生产基线，运行同SHA Node≥54及PG16真HTTP事务≥20，0fail/skip/cancel，无法构建历史可信基线如实保留BLOCKED_TRUSTED_M94_F05_BASELINE，不可伪造签署或假账本。整改完整并归档原生测试后才READY_FOR_A_REVIEW，B不得PR或合并。",
+  "next_action_detail": "B基于最新main新建独立分支feat/f06-real-lock-lifecycle-http-pg16-02，按A2026-10-19 F06第二条真实锁车生命周期施工单连续实现：在PR129已合并真实Node HTTP/PG16服务上增加普通Lock合法员工延长期限、人工release/cancel、非生产合成无款确证时PG时钟到期和资金unknown/present硬拒，原始72h快照/Waitlist/Priority历史保全。先核精确文件Workflow触发安全，最多单标准免费Runner Job与独立PG16、用户预算$0；同SHA完成旧Node54+PG16 21与新增PG16至少20真测试、权限/并发/回滚及中文证据，再标READY_FOR_A_REVIEW交A。B不自行开PR/合并，不改冻结工作流/公共M94/PDM Final/真实支付/正式Source；F07/F08暂不插队。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16_01",
+  "next_task": "F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9626,7 +9626,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F06_真实锁车申请审批唯一Lock与自动候补_首条业务API纵切_A主控B正式施工单_2026-10-18.md",
+  "next_work_file": "07_重建工作区/F06普通Lock延期释放到期与资金未知硬拒_真实业务HTTP和PG16_A主控B正式施工单_2026-10-19.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -9919,8 +9919,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": "feat/f06-real-lockrequest-http-pg16-01",
-  "next_issue": 128,
+  "next_branch": "feat/f06-real-lock-lifecycle-http-pg16-02",
+  "next_issue": null,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -9962,6 +9962,56 @@
     "production_ready": false
   },
   "last_completed": {
+    "task": "F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16_01",
+    "pr": 129,
+    "branch": "feat/f06-real-lockrequest-http-pg16-01",
+    "head_sha": "28653741e613ea53ba7ec403403165ae9ba831a7",
+    "tested_business_sha": "ab6b28c7da68be7e7bd08154bc306b1ea369e982",
+    "merge_sha": "c3fa09646e10c9f0392c62ee1f35f56668b25494",
+    "official_business_run": 39273318026,
+    "official_business_job": 118131039069,
+    "node_passed": 54,
+    "actual_pg16_http_passed": 21,
+    "actual_pg16_version": "16.15",
+    "pr_workflows": 10,
+    "pr_jobs_passed": 28,
+    "pr_jobs_failed": 0,
+    "pr_jobs_skipped": 0,
+    "issue_128": "CLOSED_COMPLETED",
+    "scope": "仅非生产合成受控身份真实HTTP和隔离PG16锁车申请/审批/唯一Lock/自动候补，非正式Source/非生产上线"
+  },
+  "f06_real_lock_review": {
+    "review_date": "2026-10-19",
+    "reviewer": "A",
+    "issue": 128,
+    "branch": "feat/f06-real-lockrequest-http-pg16-01",
+    "reviewed_head_sha": "28653741e613ea53ba7ec403403165ae9ba831a7",
+    "ahead_main": 48,
+    "behind_main": 0,
+    "changed_files": 19,
+    "reported_local_node_pass": 54,
+    "official_same_sha_node_verified": true,
+    "pg16_integrations_defined": 21,
+    "pg16_integrations_executed": 21,
+    "pg16_integrations_verified_passed": 21,
+    "pr_created": true,
+    "merge_authorized": true,
+    "verification_mode": "NONPRODUCTION_ONE_STANDARD_RUNNER_ONE_PG16_SERVICE_CONDITIONAL",
+    "max_new_paid_budget_usd": 0,
+    "trusted_f03_signed_24_migrations_required": true,
+    "trusted_f05_source_baseline_required": true,
+    "status": "A_ACCEPTED_NONPRODUCTION_HTTP_PG16_PR129_STANDARD_MERGED_ISSUE128_CLOSED",
+    "next_owner": "B",
+    "decision_url": "https://github.com/suzhe868-arch/mb/pull/129#issuecomment-6270566925",
+    "pr": 129,
+    "node_verified_passed": 54,
+    "merged": true,
+    "merge_sha": "c3fa09646e10c9f0392c62ee1f35f56668b25494",
+    "integration_pr_checks_passed": 28,
+    "integration_pr_checks_failed": 0,
+    "integration_pr_checks_skipped": 0
+  },
+  "prior_completed_f05_source_gate": {
     "task": "F05_SOURCE_GATE_EVENT_AWARE_EVIDENCE_REPAIR_01",
     "pr": 127,
     "head_sha": "6890bd9cc80d4fc556cbe0b4e94a240b1eb6c25b",
@@ -9972,28 +10022,15 @@
     "jobs_skipped": 0,
     "scope": "非生产工程门禁事件感知整改；正式Source签发与生产就绪仍为false"
   },
-  "f06_real_lock_review": {
-    "review_date": "2026-10-19",
-    "reviewer": "A",
-    "issue": 128,
-    "branch": "feat/f06-real-lockrequest-http-pg16-01",
-    "reviewed_head_sha": "fb2c43f5600ae1a652731ed5e2d14621d12e6086",
-    "ahead_main": 48,
-    "behind_main": 0,
-    "changed_files": 19,
-    "reported_local_node_pass": 54,
-    "official_same_sha_node_verified": false,
-    "pg16_integrations_defined": 20,
-    "pg16_integrations_executed": 0,
-    "pg16_integrations_verified_passed": 0,
-    "pr_created": false,
-    "merge_authorized": false,
-    "verification_mode": "NONPRODUCTION_ONE_STANDARD_RUNNER_ONE_PG16_SERVICE_CONDITIONAL",
-    "max_new_paid_budget_usd": 0,
-    "trusted_f03_signed_24_migrations_required": true,
-    "trusted_f05_source_baseline_required": true,
-    "status": "BLOCKED_PG16_RUNTIME_A_AUTHORIZED_BOUNDED_FREE_CI_TEST",
-    "next_owner": "B",
-    "decision_url": "https://github.com/suzhe868-arch/mb/issues/128#issuecomment-6268113660"
+  "f06_lifecycle_next": {
+    "status": "A_FORMAL_RELEASED_FOR_B",
+    "task": "F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02",
+    "branch": "feat/f06-real-lock-lifecycle-http-pg16-02",
+    "work_order": "07_重建工作区/F06普通Lock延期释放到期与资金未知硬拒_真实业务HTTP和PG16_A主控B正式施工单_2026-10-19.md",
+    "expected_original_pg16_cases": 21,
+    "minimum_new_real_pg16_cases": 20,
+    "accepted_budget_additional_usd": 0,
+    "source_issuer_signed": false,
+    "production_ready": false
   }
 }
