@@ -1,12 +1,12 @@
-# 2026-10-20｜A主控独立验收裁决：F06普通Lock生命周期需补齐责任交接链与Refund资金守卫
+# 2026-10-20｜A主控第二轮独立复验：R2通过，R1仍有handoff链尾快路径绕过，继续退回B
 
-- **当前正式状态：** `A_CHANGES_REQUESTED / B_NOT_READY_FOR_ACCEPTANCE / NO_PR_YET / NEXT_OWNER=B`。
-- **B任务与分支：** `F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02`；`feat/f06-real-lock-lifecycle-http-pg16-02`。
-- **B当前HEAD：** `210432c389ae993ca0eb1a40396b1f2fbc7c28e9`，相对审核时main `2038b09f18ed5bc534765449f8aa0b58b1140731` ahead 9 / behind 0。B未创建PR、未合并main。
-- **已确认官方测试事实：** [Run #39295483906](https://github.com/suzhe868-arch/mb/actions/runs/39295483906)，Job `118206742333`，与B最终报告HEAD同SHA、`completed/success`。原Node54/54、生命周期Node32/32、原F06 PG16+HTTP21/21、新生命周期PG16+HTTP32/32、F05初始化18/18全部通过，0失败/跳过/取消；原F03/F05迁移账本24条摘要一致。历史失败迭代保留原样。
-- **A独立审查结论：** CI真实全绿，但发现两项必须修复的业务安全边界：①当前Lock responsible未核验可信正式handoff receipt chain；②资金“无款”proof未检查Refund事实。详情见 [Issue #130整改单](https://github.com/suzhe868-arch/mb/issues/130) 与 [A主控独立验收整改报告](07_重建工作区/F06普通Lock生命周期_A主控独立验收整改报告_2026-10-20.md)。
-- **当前下一动作：** B在原指定分支完成R1/R2修复与真PG16回归，更新中文交接报告，并确保最新代码及报告提交HEAD都有同SHA官方成功Run。B不得创建PR或合并main；A待重新验收通过后再创建标准PR。
-- **资金/生产边界：** 本批仅非生产隔离身份＋PG16；正式Source签署、生产部署、真实Deposit/Transaction/Refund操作仍未授权，`production_ready=false`；新增付费预算`$0`。
+- **当前正式状态：** `A_CHANGES_REQUESTED_R1_CHAIN_TAIL_FAST_PATH / B_NOT_READY_FOR_ACCEPTANCE / NO_PR_YET / NEXT_OWNER=B`。
+- **B分支与最终报告HEAD：** `feat/f06-real-lock-lifecycle-http-pg16-02`；`95cdca9fe37e53702e9e5758252a33c052422d1b`。B已普通合并A上一轮main治理提交，无强推/重置；本轮审查时ahead 13 / behind 0。
+- **报告HEAD同SHA官方证据：** [Run #39302755405](https://github.com/suzhe868-arch/mb/actions/runs/39302755405)，唯一[Job #118231919969](https://github.com/suzhe868-arch/mb/actions/runs/39302755405/job/118231919969)，均completed/success。原Node54/54、生命周期Node32/32、原PG16 HTTP21/21、生命周期PG16 HTTP36/36、F05初始化18/18全绿，0失败/跳过/取消；原24条F03/F05迁移账本摘要一致。
+- **R2已独立通过：** finance proof adapter与financeGuard均检查Refund carrier、相关Refund事实、查询异常，并将`observedRefund=false`纳入absence证据摘要；L34-L36真实PG16/HTTP测试通过。
+- **R1仍阻断：** `verifyResponsibleHandover()`在检查receipt carrier/历史链之前先执行`if(initial===current)return {ok:true}`。如果历史handoff链为A→B但Lock当前responsible被异常改回A，就会跳过receipt链尾校验并放行；链尾B与当前Lock A不一致必须Fail Closed。详见[Issue #130](https://github.com/suzhe868-arch/mb/issues/130)与[A主控第二轮独立复验报告](07_重建工作区/F06普通Lock生命周期_A主控第二轮独立复验报告_2026-10-20.md)。
+- **下一动作：** B修复R1链尾快路径：carrier存在时先读该Lock全部receipt；无receipt才可在初始责任人等于当前值时走正常路径；有receipt则无论当前值是否等于初始快照都验证完整receipt/audit/batch/item链、old→new连续性及链尾等于当前responsible。增加纯验证器/单元负例（不伪造真实PG16 receipt），保留L33真实PG16三动作硬拒绝/零写入；之后同步最新main并重跑全量同SHA门禁，再交A。**不创建PR、不合并main。**
+- **生产边界：** 正式Source未签署、`production_ready=false`；真实资金/退款及生产部署仍未授权，新增付费预算`$0`。F07/F08与C PR68不因本轮而启动或合并。
 
 ---
 
