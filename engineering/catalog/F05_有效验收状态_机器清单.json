@@ -2,11 +2,11 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "READY_FOR_A_REVIEW_F05_NONPRODUCTION_COMPLETE_EXTERNAL_PRODUCTION_GATES_REMAIN",
+  "status": "READY_FOR_A_REVIEW_D1_APPLICATION_RUNTIME_ROUTE_FIXED_EXTERNAL_PRODUCTION_GATES_REMAIN",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "d4c92ae0962bea6bd156efad9483858f0eb35534",
+  "github_commit": "f7503843a60bef3f94b818d80a37ec166a157775",
   "node_http_stub_tests": {
     "passed": 158,
     "failed": 0,
@@ -14,8 +14,8 @@
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39206093352,
-    "head_sha": "d4c92ae0962bea6bd156efad9483858f0eb35534",
+    "run_id": 39214339966,
+    "head_sha": "f7503843a60bef3f94b818d80a37ec166a157775",
     "node_http_tests_passed": 158,
     "real_pg16_integration_tests_passed": 300,
     "failed": 0,
@@ -134,7 +134,44 @@
     "real_pg16_consultation_response_tests_passed": 7,
     "f05_priority_scheduler_pg16_tests_passed": 5,
     "first_human_response_test_only_verified": true,
-    "durable_priority_scheduler_test_only_verified": true
+    "durable_priority_scheduler_test_only_verified": true,
+    "f05_10_d1_application_runtime_tests_passed": 6,
+    "f05_10_d1_total_tests_passed": 50,
+    "source_lane_tls_tests_passed": 52,
+    "latest_full_regression": {
+      "business_code_sha": "f7503843a60bef3f94b818d80a37ec166a157775",
+      "official_run_id": 39214339966,
+      "official_run_url": "https://github.com/suzhe868-arch/mb/actions/runs/39214339966",
+      "jobs": [
+        {
+          "name": "isolated_real_pg16",
+          "passed": 458,
+          "failed": 0,
+          "skipped": 0,
+          "conclusion": "success"
+        },
+        {
+          "name": "F05-2 to 3E current isolated source lanes PG16 and TLS",
+          "passed": 52,
+          "failed": 0,
+          "skipped": 0,
+          "conclusion": "success"
+        },
+        {
+          "name": "F05-10-D1 current Owner to Consultation PG16",
+          "passed": 50,
+          "failed": 0,
+          "skipped": 0,
+          "conclusion": "success"
+        }
+      ],
+      "total_passed": 560,
+      "failed": 0,
+      "skipped": 0,
+      "nonproduction_only": true,
+      "formal_source_signed": false,
+      "production_ready": false
+    }
   },
   "endpoints": {
     "implemented_test_only": [
