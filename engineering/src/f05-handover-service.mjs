@@ -34,12 +34,6 @@ export function createIsolatedHandoverService({pool,env=process.env}={}){
       "AND p.issuer='DISPOSABLE_TEST_ONLY' AND p.expires_at>statement_timestamp() FOR SHARE OF p",
       [actorId,customerId])).rows[0];
     if(!scope){await db.query('ROLLBACK');return out(403,'HANDOVER_ACTOR_SCOPE_REQUIRED')}
-    const isAssignee=before===actorId;
-    const isScopedManager=Boolean(scope.can_manage_consultation)&&['manager','store_head'].includes(actor.role_code);
-    if(!(isAssignee&&scope.can_reassign)&&!isScopedManager){
-     await db.query('ROLLBACK');
-     return out(403,isAssignee?'HANDOVER_ACTOR_SCOPE_REQUIRED':'HANDOVER_NOT_AUTHORIZED_ASSIGNEE_OR_MANAGER');
-    }
     const digest=hash(JSON.stringify([actorId,consultationId,targetEmployeeId,note]));
     const previous=(await db.query("SELECT action,actor_employee_id,consultation_id,payload_sha256,old_assignee_employee_id,new_assignee_employee_id "+
       "FROM public.f05_catalog_consultation_actions_test WHERE event_key=$1",[eventKey])).rows[0];
@@ -50,6 +44,12 @@ export function createIsolatedHandoverService({pool,env=process.env}={}){
        previous.payload_sha256!==digest)return out(409,'CONSULTATION_IDEMPOTENCY_COLLISION');
      if(before!==targetEmployeeId||!['pending','processing'].includes(consultation.status))return out(409,'HANDOVER_STATE_CHANGED');
      return out(200,'CONSULTATION_HANDOVER_REPLAY',{consultationId,oldAssigneeEmployeeId:String(previous.old_assignee_employee_id),newAssigneeEmployeeId:targetEmployeeId,firstHumanResponse:false,productionReady:false});
+    }
+    const isAssignee=before===actorId;
+    const isScopedManager=Boolean(scope.can_manage_consultation)&&['manager','store_head'].includes(actor.role_code);
+    if(!(isAssignee&&scope.can_reassign)&&!isScopedManager){
+     await db.query('ROLLBACK');
+     return out(403,isAssignee?'HANDOVER_ACTOR_SCOPE_REQUIRED':'HANDOVER_NOT_AUTHORIZED_ASSIGNEE_OR_MANAGER');
     }
     // The above scoped-manager Guard is the sole exception to current-assignee mutation.
     // Management capability neither rewrites Customer owner nor becomes assignee.

@@ -109,8 +109,12 @@ try{
   }finally{await db.query("UPDATE public.customers SET account_status='active' WHERE customer_id=59100")}
  });
  await test('PG16 management transfer requires separate capability AND manager role AND Customer scope',async()=>{
+  await db.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,created_at) "+
+   "VALUES(59104,'wholesale','active','visible',statement_timestamp())");
+  await db.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) "+
+   "VALUES(59104,59104,statement_timestamp())");
   await db.query("INSERT INTO public.consultations(consultation_id,customer_id,vehicle_id,listing_cycle_id,assignee_employee_id,status,source_relation,first_response_deadline) "+
-   "VALUES(59104,59100,59001,59001,59103,'pending','{}'::jsonb,statement_timestamp()+interval '15 minutes')");
+   "VALUES(59104,59100,59104,59104,59103,'pending','{}'::jsonb,statement_timestamp()+interval '15 minutes')");
   const denied=await call({id:'59104',target:'59101',bearer:managerToken});
   assert.equal(denied.status,403);
   await db.query("UPDATE public.f05_catalog_employee_consultation_scope_test SET can_manage_consultation=true "+
