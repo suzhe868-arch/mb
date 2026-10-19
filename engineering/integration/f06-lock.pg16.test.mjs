@@ -177,6 +177,54 @@ if(!setupError){
   assert.equal((await scalar("SELECT count(*)::int n FROM public.locks WHERE vehicle_id=$1 AND lock_status='active'",[cars[3]])).n,1);
   assert.equal((await scalar('SELECT count(*)::int n FROM public.waitlists WHERE vehicle_id=$1 AND ended_at IS NULL',[cars[3]])).n,1);
  });
+ await test('real HTTP GET exposes own safe Lock state but denies cross-Customer access',async()=>{
+  const call=async(tokenValue)=>{
+   const r=await fetch('http://127.0.0.1:'+server.address().port+'/api/v1/lock-requests/'+idA+'/status',
+    {headers:{authorization:'Bearer '+tokenValue}});
+   return {status:r.status,body:await r.json()};
+  };
+  const self=await call(custTokens[0]);assert.equal(self.status,200);
+  assert.equal(self.body.ownLock,true);
+  assert.doesNotMatch(JSON.stringify(self.body),/price|employee|customerId|phone|amount|approver|source/i);
+  const rival=await call(custTokens[1]);assert.equal(rival.status,404);
+ });
+ await test('Waitlist ranking key equals original LockRequest createdAt and ID',async()=>{
+  const saved=await scalar("SELECT ws.queue_created_at,ws.queue_request_id,req.created_at "+
+   "FROM f06_real_lock_test.waitlist_sources ws "+
+   "JOIN public.lock_requests req ON req.lock_request_id=ws.source_request_id "+
+   "WHERE ws.source_request_id=$1",[idB]);
+  assert.ok(saved);assert.equal(String(saved.queue_request_id),String(idB));
+  assert.equal(new Date(saved.queue_created_at).getTime(),new Date(saved.created_at).getTime());
+ });
+ await test('revoked Employee permission is revalidated even on a terminal decision',async()=>{
+  const permission=await scalar("SELECT permission_id FROM public.permissions WHERE permission_code='lock.ci.approve'");
+  await db.query("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=1 AND permission_id=$1",[permission.permission_id]);
+  try{
+   const result=await decide(idA,'approve');assert.equal(result.status,403);
+   assert.equal((await scalar("SELECT count(*)::int n FROM public.locks WHERE vehicle_id=$1 AND lock_status='active'",[cars[0]])).n,1);
+  }finally{
+   await db.query("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=1 AND permission_id=$1",[permission.permission_id]);
+  }
+ });
+ await test('revoked Customer phone evidence denies creation of new LockRequest',async()=>{
+  await db.query("UPDATE public.customer_phone_facts SET ended_at=clock_timestamp() WHERE customer_id=$1 AND ended_at IS NULL",[customers[2]]);
+  try{
+   const denied=await intake(2,2);assert.equal(denied.status,403);
+   assert.equal((await scalar("SELECT count(*)::int n FROM public.lock_requests WHERE customer_id=$1",[customers[2]])).n,0);
+  }finally{
+   await db.query("UPDATE public.customer_phone_facts SET ended_at=NULL WHERE customer_id=$1",[customers[2]]);
+  }
+ });
+ await test('same Employee decision key preserves JSON shape and one audit event',async()=>{
+  const draft=await intake(2,1);assert.equal(draft.status,201);
+  const decisionKey=key();
+  const original=await decide(draft.body.requestId,'reject',decisionKey);
+  assert.equal(original.status,200);assert.equal(original.body.state,'rejected');
+  const replay=await decide(draft.body.requestId,'reject',decisionKey);
+  assert.equal(replay.status,200);assert.deepEqual(replay.body,original.body);
+  const events=await scalar("SELECT count(*)::int n FROM f06_real_lock_test.events WHERE request_id=$1 AND event_type='rejected'",[draft.body.requestId]);
+  assert.equal(events.n,1);
+ });
  await test('非法 listing cycle 不得建申请',async()=>{
   const bad=await http('/api/v1/lock-requests',custTokens[2],{vehicleId:cars[0],listingCycleId:'999999999',idempotencyKey:key()});
   assert.equal(bad.status,403);
