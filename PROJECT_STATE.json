@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02_A_CHANGES_REQUESTED_R1_R2",
+  "substage": "F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02_A_CHANGES_REQUESTED_R1_CHAIN_TAIL_FAST_PATH",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F06_REAL_LOCK_LIFECYCLE_HTTP_PG16",
-  "current_domain_status": "A_CHANGES_REQUESTED_B_NOT_READY_FOR_ACCEPTANCE_NO_PR_YET",
+  "current_domain_status": "A_CHANGES_REQUESTED_R1_CHAIN_TAIL_FAST_PATH_R2_ACCEPTED_NO_PR_YET",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A独立复验B F06普通Lock生命周期分支：官方同SHA Run39295483906已真实成功，原Node54/54、生命周期Node32/32、原PG16 HTTP21/21、新生命周期PG16 HTTP32/32、F05初始化18/18全绿，24条原迁移账本摘要一致。但业务审查发现R1正式Lock responsible未验证可信handoff receipt chain，R2无款proof未检查refund_cases。已创建Issue #130与中文A审查报告，暂不创建PR；B须在原分支闭合两项并重新跑全量同SHA测试后交A。",
+  "current_task": "A第二轮独立复验B的F06生命周期R1/R2整改。官方Run #39302755405、Job #118231919969与B报告HEAD 95cdca9fe37e53702e9e5758252a33c052422d1b同SHA成功：Node54/54、生命周期Node32/32、原PG16 HTTP21/21、生命周期PG16 HTTP36/36、F05初始化18/18全绿，24条原迁移账本摘要一致。R2 Refund carrier与absence proof已通过独立复验；R1发现verifyResponsibleHandover在读取receipt链之前按initial===current直接返回，可能绕过已有A→B receipt链但Lock当前值被异常改回A的链尾一致性校验。已更新Issue #130、中文A第二轮报告与状态文档；不创建PR，退回B修复。",
   "current_work_file": "07_重建工作区/F06普通Lock延期释放到期与资金未知硬拒_真实业务HTTP和PG16_A主控B正式施工单_2026-10-19.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B继续任务F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02，在原指定分支feat/f06-real-lock-lifecycle-http-pg16-02闭合A Issue #130的R1/R2：R1在每个Lock延期/release/cancel/system expiry事务内验证当前responsible与初始快照/可信正式handoff receipt chain；handoff载体缺失或不完整时Fail Closed并报告RESPONSIBLE_HANDOFF_CARRIER_UNVERIFIED，不造receipt/改M94。R2在finance proof适配器和financeGuard校验public.refund_cases存在且可查询，任何关联Refund/来源未知都不签可信无款，absent证据hash包含observedRefund=false。增加真实PG16正反例，保留原Node54、生命周期Node、原PG16 21、生命周期PG16至少32、F05初始化18及24条迁移账本同SHA全回归，0失败/跳过/取消。更新中文B报告，最新代码和报告最终HEAD都要有官方同SHA成功Run，再READY_FOR_A_REVIEW交A。不得创建PR/合并main，不强推重置，不触碰真钱/生产；预算新增$0。",
+  "next_action": "B继续F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02，在原指定分支feat/f06-real-lock-lifecycle-http-pg16-02同步本次最新main治理提交（普通merge，保留历史），修复R1链尾快路径：receipt carrier存在时先读该Lock全部receipt；无receipt时仅初始responsible=当前responsible可走普通路径；有receipt时无论当前值是否等于初始快照，都校验全部receipt/audit/batch/item、old→new连续性、首条from=初始、末条to=当前Lock responsible。链尾不符/链不完整/查询失败Fail Closed。新增纯验证器/单元负例模拟A→B链但当前被回写A时必须拒绝，不伪造PG16 receipt；保留L33真PG16三动作硬拒绝与零写入测试。R2已通过，不回退Refund carrier/observedRefund摘要检查。随后重跑原Node54、生命周期Node、原PG16 HTTP21、生命周期PG16至少36、F05初始化18、24条迁移账本摘要一致性，更新中文报告并提交最新代码/报告HEAD同SHA官方Run，再交A。不得创建PR/合并main，不触碰生产/真实资金；预算新增$0。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B继续任务F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02，在原指定分支feat/f06-real-lock-lifecycle-http-pg16-02闭合A Issue #130的R1/R2：R1在每个Lock延期/release/cancel/system expiry事务内验证当前responsible与初始快照/可信正式handoff receipt chain；handoff载体缺失或不完整时Fail Closed并报告RESPONSIBLE_HANDOFF_CARRIER_UNVERIFIED，不造receipt/改M94。R2在finance proof适配器和financeGuard校验public.refund_cases存在且可查询，任何关联Refund/来源未知都不签可信无款，absent证据hash包含observedRefund=false。增加真实PG16正反例，保留原Node54、生命周期Node、原PG16 21、生命周期PG16至少32、F05初始化18及24条迁移账本同SHA全回归，0失败/跳过/取消。更新中文B报告，最新代码和报告最终HEAD都要有官方同SHA成功Run，再READY_FOR_A_REVIEW交A。不得创建PR/合并main，不强推重置，不触碰真钱/生产；预算新增$0。",
+  "next_action_detail": "B继续F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02，在原指定分支feat/f06-real-lock-lifecycle-http-pg16-02同步本次最新main治理提交（普通merge，保留历史），修复R1链尾快路径：receipt carrier存在时先读该Lock全部receipt；无receipt时仅初始responsible=当前responsible可走普通路径；有receipt时无论当前值是否等于初始快照，都校验全部receipt/audit/batch/item、old→new连续性、首条from=初始、末条to=当前Lock responsible。链尾不符/链不完整/查询失败Fail Closed。新增纯验证器/单元负例模拟A→B链但当前被回写A时必须拒绝，不伪造PG16 receipt；保留L33真PG16三动作硬拒绝与零写入测试。R2已通过，不回退Refund carrier/observedRefund摘要检查。随后重跑原Node54、生命周期Node、原PG16 HTTP21、生命周期PG16至少36、F05初始化18、24条迁移账本摘要一致性，更新中文报告并提交最新代码/报告HEAD同SHA官方Run，再交A。不得创建PR/合并main，不触碰生产/真实资金；预算新增$0。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02_R1_R2_REMEDIATION",
+  "next_task": "F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02_R1_CHAIN_TAIL_REMEDIATION",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -10023,12 +10023,17 @@
     "scope": "非生产工程门禁事件感知整改；正式Source签发与生产就绪仍为false"
   },
   "f06_lifecycle_next": {
-    "status": "A_CHANGES_REQUESTED_R1_R2_REMEDIATION_REQUIRED",
+    "status": "A_CHANGES_REQUESTED_R1_CHAIN_TAIL_FAST_PATH_R2_ACCEPTED",
     "task": "F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02",
     "branch": "feat/f06-real-lock-lifecycle-http-pg16-02",
     "issue": 130,
     "work_order": "07_重建工作区/F06普通Lock延期释放到期与资金未知硬拒_真实业务HTTP和PG16_A主控B正式施工单_2026-10-19.md",
-    "minimum_new_real_pg16_cases": 32,
+    "official_report_head": "95cdca9fe37e53702e9e5758252a33c052422d1b",
+    "official_run": 39302755405,
+    "official_job": 118231919969,
+    "accepted_r2": true,
+    "pending_r1": "CHAIN_TAIL_FAST_PATH",
+    "minimum_lifecycle_pg16_tests": 36,
     "accepted_budget_additional_usd": 0,
     "source_issuer_signed": false,
     "production_ready": false
@@ -10036,11 +10041,11 @@
   "a_review_changes_requested": {
     "date": "2026-10-20",
     "issue": 130,
-    "report": "07_重建工作区/F06普通Lock生命周期_A主控独立验收整改报告_2026-10-20.md",
+    "report": "07_重建工作区/F06普通Lock生命周期_A主控第二轮独立复验报告_2026-10-20.md",
     "branch": "feat/f06-real-lock-lifecycle-http-pg16-02",
-    "reviewed_head_sha": "210432c389ae993ca0eb1a40396b1f2fbc7c28e9",
-    "official_run": 39295483906,
-    "official_job": 118206742333,
+    "reviewed_head_sha": "95cdca9fe37e53702e9e5758252a33c052422d1b",
+    "official_run": 39302755405,
+    "official_job": 118231919969,
     "official_run_success": true,
     "verified_tests": {
       "baseline_node": {
@@ -10062,7 +10067,7 @@
         "cancelled": 0
       },
       "lifecycle_pg16_http": {
-        "passed": 32,
+        "passed": 36,
         "failed": 0,
         "skipped": 0,
         "cancelled": 0
@@ -10076,19 +10081,19 @@
       "original_migration_ledger_entries": 24,
       "original_migration_ledger_hash": "b9beed2d9e5fda2511bef6cbcd6d050862971714b9464624dc6439888c118033"
     },
-    "status": "A_CHANGES_REQUESTED_B_NOT_READY_FOR_ACCEPTANCE_NO_PR_YET",
+    "status": "A_CHANGES_REQUESTED_R1_CHAIN_TAIL_FAST_PATH_R2_ACCEPTED_NO_PR_YET",
     "findings": [
       {
         "id": "R1",
         "severity": "blocking",
-        "title": "正式Lock responsible handoff receipt chain未验证",
-        "required": "在生命周期任何写入前校验当前responsible的正式handoff receipt/batch/item/audit完整链；无可信载体或链不完整时Fail Closed，新增PG16负例。"
+        "title": "verifyResponsibleHandover在receipt链读取前initial===current快路径绕过历史链尾一致性校验",
+        "required": "receipt carrier存在时先读取该Lock全部receipt；无receipt仅在初始/当前responsible一致时允许；有receipt时必须校验完整链且末条to_employee_id等于当前Lock responsible，即使当前值等于初始快照也不能跳过。增加纯验证器/单元负例，不伪造PG16真实receipt。"
       },
       {
         "id": "R2",
-        "severity": "blocking",
-        "title": "无款证明忽略Refund事实",
-        "required": "proof adapter和financeGuard校验refund_cases存在且可查询；关联Refund/来源未知Fail Closed；absent proof hash绑定observedRefund=false并新增PG16负例。"
+        "severity": "accepted",
+        "title": "Refund carrier和absence proof守卫",
+        "required": "已通过独立复验：Refund carrier存在性、关联Refund事实、查询异常Fail Closed，absence证据摘要绑定observedRefund=false；L34-L36真实PG16/HTTP通过。"
       }
     ],
     "pr_created": false,
