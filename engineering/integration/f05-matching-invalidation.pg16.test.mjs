@@ -7,6 +7,7 @@ import pg from 'pg';
 import {createFoundationHandler} from '../src/app.mjs';
 import {validateCatalogEnv,probeIsolatedCatalog} from '../src/catalog-readiness.mjs';
 import {createIsolatedMatchingService} from '../src/f05-matching-service.mjs';
+import {createIsolatedDemandLifecycleService} from '../src/f05-demand-lifecycle-service.mjs';
 import {createIsolatedMatchingHandler} from '../src/f05-matching-http.mjs';
 const cfg=validateCatalogEnv(),pool=new pg.Pool({connectionString:cfg.connectionString,max:4,connectionTimeoutMillis:1400});
 const db=new pg.Client({connectionString:cfg.connectionString,connectionTimeoutMillis:1400});
@@ -31,6 +32,8 @@ try{
    await db.query("INSERT INTO public.f05_catalog_employee_sessions_test(token_sha256,employee_id,expires_at) VALUES($1,$2,statement_timestamp()+interval '20 minutes')",[digest(cred),employeeId]);
   await db.query("INSERT INTO public.f05_find_car_level_entitlement_test(level_id,can_activate_demand,expires_at) VALUES "+
    "(59800,true,statement_timestamp()+interval '20 minutes'),(59802,true,statement_timestamp()+interval '20 minutes')");
+  await db.query("INSERT INTO public.f05_demand_lifecycle_scope_test(employee_id,customer_id,can_manage_demand,expires_at) "+
+   "VALUES(59800,59800,true,statement_timestamp()+interval '20 minutes')");
   await db.query("INSERT INTO public.f05_matching_employee_scope_test(employee_id,customer_id,can_recompute,expires_at) VALUES "+
    "(59800,59800,true,statement_timestamp()+interval '20 minutes'),(59802,59802,true,statement_timestamp()+interval '20 minutes')");
   for(const [demand,actor] of [['59800','59800'],['59801','59800'],['59802','59802']])
@@ -63,7 +66,9 @@ try{
    {method:'POST',headers:{authorization:'Bearer '+cred,'x-idempotency-key':key()}});
   return {status:r.status,body:await r.json()};
  };
- const current=async(demand,vehicle)=>(await db.query(
+ const resumeDemand=async(demandId='59800')=>createIsolatedDemandLifecycleService({pool,env:process.env}).action({
+  credential:staffA,eventKey:key(),demandId,action:'RESUME'});
+  const current=async(demand,vehicle)=>(await db.query(
   "SELECT result_id,match_tier,current_state,invalidated_at FROM public.demand_match_results "+
   "WHERE demand_id=$1 AND vehicle_id=$2 ORDER BY result_id DESC",[demand,vehicle])).rows;
  const countEvents=async()=>(await db.query(
@@ -105,6 +110,7 @@ try{
   const denied=await doMatch();assert.equal(denied.status,409);
   await db.query("UPDATE public.customers SET account_status='active' WHERE customer_id=59800");
   assert.equal((await current('59800','59810'))[0].current_state,'invalidated','restored Customer must not revive old match');
+  assert.equal((await resumeDemand()).status,200,'explicit employee Resume is required by PDM11');
   assert.equal((await doMatch()).status,200);
  });
  await test('PG16 Demand pause invalidates only its own Match Result; resume cannot revive old rows',async()=>{
@@ -123,6 +129,7 @@ try{
   assert.equal((await doMatch()).status,409);
   await db.query("UPDATE public.customers SET customer_level_id=59800 WHERE customer_id=59800");
   assert.equal((await current('59800','59810'))[0].current_state,'invalidated');
+  assert.equal((await resumeDemand()).status,200);
   assert.equal((await doMatch()).status,200);
  });
  await test('PG16 active Level entitlement revocation invalidates affected Customer matches; other Level untouched',async()=>{
@@ -132,6 +139,7 @@ try{
   assert.equal((await doMatch()).status,409);
   await db.query("UPDATE public.f05_find_car_level_entitlement_test SET can_activate_demand=true WHERE level_id=59800");
   assert.equal((await current('59800','59810'))[0].current_state,'invalidated');
+  assert.equal((await resumeDemand()).status,200);
   assert.equal((await doMatch()).status,200);
  });
  await test('PG16 ending listing cycle invalidates matching pair, reopening does not revive stale result',async()=>{
