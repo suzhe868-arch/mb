@@ -7,7 +7,7 @@ if(repo!=='suzhe868-arch/mb'||!token||process.env.CI!=='true'||process.env.GITHU
 import {verifyCurrentPullRequestRun} from '../source-gate-event-evidence.mjs';
 const event=JSON.parse(await readFile(process.env.GITHUB_EVENT_PATH,'utf8'));
 if(process.env.GITHUB_EVENT_NAME==='pull_request'){
- await verifyCurrentPullRequestRun({workflowPath:".github/workflows/f05-8-priority-arbitration-ttl-handover.yml",sourceJobName:"F05-8 priority Source v24 true PostgreSQL16 PG",expectedJobs:4,artifactDirectory:'./artifacts/source/'});
+ await verifyCurrentPullRequestRun({workflowPath:".github/workflows/f05-8-priority-arbitration-ttl-handover.yml",sourceJobName:"F05-8 priority Source v24 true PostgreSQL16 PG",expectedJobs:4,artifactDirectory:"engineering/f05/priority-arbitration-ttl-handover/artifacts/priority-source/"});
  process.exit(0);
 }
 if(process.env.GITHUB_EVENT_NAME!=='push')throw Error('SOURCE_GATE_UNSUPPORTED_EVENT_FAIL_CLOSED');
