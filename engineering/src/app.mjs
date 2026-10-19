@@ -1,7 +1,7 @@
 import { createServer } from 'node:http';
 const sendJson=(res,status,body)=>{res.writeHead(status,{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'});res.end(JSON.stringify(body))};
 async function checkReady(readinessProbe,timeoutMs){let timer;try{return await Promise.race([Promise.resolve().then(()=>readinessProbe()),new Promise(resolve=>{timer=setTimeout(()=>resolve(false),timeoutMs);timer.unref?.()})])}finally{clearTimeout(timer)}}
-export function createFoundationHandler({readinessProbe=async()=>false,readinessTimeoutMs=1000,authHandler=null,catalogHandler=null,favoriteHandler=null,consultationHandler=null,employeeStartHandler=null,handoverHandler=null,slaHoldHandler=null,priceUnlockHandler=null,quotaAdditionHandler=null,findCarHandler=null,findCarActivationHandler=null,matchingHandler=null,dictionaryHandler=null,discoveryHandler=null,recommendationHandler=null,priorityHandler=null,priorityQualificationHandler=null}={}){
+export function createFoundationHandler({readinessProbe=async()=>false,readinessTimeoutMs=1000,authHandler=null,catalogHandler=null,favoriteHandler=null,consultationHandler=null,employeeStartHandler=null,handoverHandler=null,slaHoldHandler=null,priceUnlockHandler=null,quotaAdditionHandler=null,findCarHandler=null,findCarActivationHandler=null,matchingHandler=null,dictionaryHandler=null,discoveryHandler=null,recommendationHandler=null,priorityHandler=null,priorityQualificationHandler=null,demandLifecycleHandler=null}={}){
  if(!Number.isInteger(readinessTimeoutMs)||readinessTimeoutMs<1||readinessTimeoutMs>10000)throw Error('INVALID_READINESS_TIMEOUT');
  return async(req,res)=>{
   const pathname=(req.url??'/').split('?')[0];
@@ -17,6 +17,7 @@ export function createFoundationHandler({readinessProbe=async()=>false,readiness
   if(discoveryHandler&&await discoveryHandler(req,res)===true)return;
   if(dictionaryHandler&&await dictionaryHandler(req,res)===true)return;
   if(matchingHandler&&await matchingHandler(req,res)===true)return;
+  if(demandLifecycleHandler&&await demandLifecycleHandler(req,res)===true)return;
   if(findCarActivationHandler&&await findCarActivationHandler(req,res)===true)return;
   if(findCarHandler&&await findCarHandler(req,res)===true)return;
   if(quotaAdditionHandler&&await quotaAdditionHandler(req,res)===true)return;

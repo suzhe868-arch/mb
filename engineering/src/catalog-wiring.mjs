@@ -3,7 +3,7 @@
 export const REQUIRED_F05_HANDLERS=Object.freeze([
  'favoriteHandler','consultationHandler','employeeStartHandler','handoverHandler',
  'slaHoldHandler','priceUnlockHandler','quotaAdditionHandler',
- 'findCarHandler','findCarActivationHandler','matchingHandler',
+ 'findCarHandler','findCarActivationHandler','demandLifecycleHandler','matchingHandler',
  'dictionaryHandler','discoveryHandler','recommendationHandler',
  'priorityHandler','priorityQualificationHandler'
 ]);
