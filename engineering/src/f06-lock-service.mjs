@@ -45,12 +45,18 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
   if(!validToken(token))return null;
   return first(db,`SELECT s.employee_id,r.role_code,e.employment_status,e.store_id
    FROM ${LOCK_SCHEMA}.employee_sessions s
+   JOIN public.pc_login_accounts a ON a.account_id=s.account_id
+    AND a.employee_id=s.employee_id AND a.principal_kind='employee' AND a.system_admin_id IS NULL
+    AND a.credential_state='enabled' AND a.force_password_change=false
+    AND a.credential_epoch=s.credential_epoch
    JOIN public.employees e ON e.employee_id=s.employee_id
    JOIN public.roles r ON r.role_id=e.main_role_id
    WHERE s.token_sha256=$1 AND s.issuer='DISPOSABLE_TEST_ONLY' AND s.revoked_at IS NULL
     AND s.expires_at>clock_timestamp() AND e.employment_status='active'
     AND r.role_code IN ('sales','manager','store_head')
-   FOR SHARE OF s,e,r`,[sha(token)]);
+    AND NOT EXISTS(SELECT 1 FROM public.f05_3a_member_create_licenses four_s
+      WHERE four_s.employee_id=e.employee_id AND four_s.revoked_at IS NULL)
+   FOR SHARE OF s,a,e,r`,[sha(token)]);
  }
  async function currentOwner(db,ownerId){
   if(!validId(String(ownerId??'')))return null;
@@ -63,6 +69,8 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     AND r.role_code IN ('sales','manager','store_head')
     AND m.valid_from<=clock_timestamp() AND (m.ended_at IS NULL OR m.ended_at>clock_timestamp())
     AND t.team_status='active' AND s.status='active'
+    AND NOT EXISTS(SELECT 1 FROM public.f05_3a_member_create_licenses four_s
+      WHERE four_s.employee_id=e.employee_id AND four_s.revoked_at IS NULL)
    ORDER BY t.team_id LIMIT 1 FOR SHARE OF e,m,t,s,r`,[ownerId]);
  }
  async function currentPhone(db,customerId){

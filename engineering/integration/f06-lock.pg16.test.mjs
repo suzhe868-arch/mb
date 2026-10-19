@@ -94,10 +94,16 @@ async function fixture(){
     (token_sha256,customer_id,issuer,expires_at)
     VALUES($1,$2,'DISPOSABLE_TEST_ONLY',clock_timestamp()+interval '10 minutes')`,[sha(custTokens[i]),customers[i]]);
   }
-  for(const [tokenValue,id] of [[employeeToken,1],[nonprivilegedToken,4]])
+  for(const [tokenValue,id] of [[employeeToken,1],[nonprivilegedToken,4]]){
+   const pc=await scalar(`SELECT account_id,credential_epoch FROM public.pc_login_accounts
+    WHERE employee_id=$1 AND principal_kind='employee' AND system_admin_id IS NULL
+     AND credential_state='enabled' AND force_password_change=false ORDER BY account_id LIMIT 1`,[id]);
+   assert.ok(pc,'F06 requires existing F03 signed enabled unrestricted Employee credential');
    await db.query(`INSERT INTO f06_real_lock_test.employee_sessions
-    (token_sha256,employee_id,issuer,expires_at)
-    VALUES($1,$2,'DISPOSABLE_TEST_ONLY',clock_timestamp()+interval '10 minutes')`,[sha(tokenValue),id]);
+    (token_sha256,employee_id,account_id,credential_epoch,issuer,expires_at)
+    VALUES($1,$2,$3,$4,'DISPOSABLE_TEST_ONLY',clock_timestamp()+interval '10 minutes')`,
+    [sha(tokenValue),id,pc.account_id,pc.credential_epoch]);
+  }
   await db.query('COMMIT');seedDone=true;
  }catch(error){await db.query('ROLLBACK');throw error}
  server=createServer(createFoundationHandler({lockHandler:createIsolatedF06LockHandler({service,env:process.env})}));

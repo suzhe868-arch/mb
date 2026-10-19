@@ -17,6 +17,8 @@ CREATE TABLE IF NOT EXISTS f06_real_lock_test.customer_sessions (
 CREATE TABLE IF NOT EXISTS f06_real_lock_test.employee_sessions (
  token_sha256 TEXT PRIMARY KEY CHECK(length(token_sha256)=64),
  employee_id BIGINT NOT NULL REFERENCES public.employees(employee_id),
+ account_id BIGINT NOT NULL REFERENCES public.pc_login_accounts(account_id),
+ credential_epoch BIGINT NOT NULL CHECK(credential_epoch>0),
  issuer TEXT NOT NULL CHECK(issuer='DISPOSABLE_TEST_ONLY'),
  expires_at TIMESTAMPTZ NOT NULL,
  revoked_at TIMESTAMPTZ
