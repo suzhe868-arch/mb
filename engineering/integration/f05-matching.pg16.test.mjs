@@ -7,6 +7,7 @@ import pg from 'pg';
 import {createFoundationHandler} from '../src/app.mjs';
 import {validateCatalogEnv,probeIsolatedCatalog} from '../src/catalog-readiness.mjs';
 import {createIsolatedMatchingService} from '../src/f05-matching-service.mjs';
+import {createIsolatedDemandLifecycleService} from '../src/f05-demand-lifecycle-service.mjs';
 import {createIsolatedMatchingHandler} from '../src/f05-matching-http.mjs';
 const cfg=validateCatalogEnv(),pool=new pg.Pool({connectionString:cfg.connectionString,max:5,connectionTimeoutMillis:1500});
 const writer=new pg.Client({connectionString:cfg.connectionString,connectionTimeoutMillis:1500});
@@ -99,6 +100,14 @@ try{
   await writer.query("UPDATE public.f05_find_car_level_entitlement_test SET can_activate_demand=false WHERE level_id=59700");
   try{assert.equal((await call()).status,409)}
   finally{await writer.query("UPDATE public.f05_find_car_level_entitlement_test SET can_activate_demand=true WHERE level_id=59700")}
+  // PDM11 entitlement downgrade physically pauses every active Demand.
+  // The matching fixture must explicitly perform an authorized Resume, never
+  // assume that restoring level policy implicitly restarts matching.
+  await writer.query("INSERT INTO public.f05_demand_lifecycle_scope_test(employee_id,customer_id,can_manage_demand,expires_at) "+
+   "VALUES(59700,59700,true,statement_timestamp()+interval '20 minutes')");
+  const resume=await createIsolatedDemandLifecycleService({pool,env:process.env}).action({
+   credential:employeeToken,eventKey:rand(),demandId:'59700',action:'RESUME'});
+  assert.equal(resume.status,200,JSON.stringify(resume));
   assert.equal((await writer.query("SELECT count(*)::int n FROM public.demand_match_results WHERE demand_id=59700")).rows[0].n,0);
  });
  const firstKey=rand();
