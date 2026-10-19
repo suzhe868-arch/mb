@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createIsolatedF06LockLifecycleService} from '../src/f06-lock-lifecycle-service.mjs';
+import {createIsolatedF06LockLifecycleService,validateResponsibleHandoverChain} from '../src/f06-lock-lifecycle-service.mjs';
 import {createDisposableF06FinanceProofAdapter} from '../src/f06-lock-lifecycle-finance-test-adapter.mjs';
 const env={APP_ENV:'test',NODE_ENV:'test',API_HOST:'127.0.0.1',
  F06_LOCK_TEST_CONSENT:'I_AUTHORIZE_DISPOSABLE_F06_LOCK_PG16_ONLY',
@@ -21,3 +21,31 @@ test('故障注入必须额外显式授权',()=>assert.throws(()=>createIsolated
 test('财务proof适配器没有生命周期授权时拒绝构造',()=>assert.throws(()=>createDisposableF06FinanceProofAdapter({pool:fakePool(),env:{...env,F06_LOCK_LIFECYCLE_TEST_CONSENT:undefined}}),/CONSENT_REQUIRED/));
 test('财务proof适配器拒绝非法proof kind且不触碰数据库',async()=>{const p=fakePool(),a=createDisposableF06FinanceProofAdapter({pool:p,env});await assert.rejects(()=>a.issue({lockId:'1',kind:'maybe'}),/INVALID_SYNTHETIC_FINANCE_PROOF/);assert.equal(p.commands.length,0)});
 test('未授权响应不泄露token或数据库连接串',async()=>{const p=fakePool(),s=createIsolatedF06LockLifecycleService({pool:p,env:{...env,F06_LOCK_LIFECYCLE_TEST_CONSENT:undefined}});const r=await s.act({token,lockId:'1',action:'release',idempotencyKey:key,reason});assert.doesNotMatch(JSON.stringify(r),new RegExp(token));assert.doesNotMatch(JSON.stringify(r),/postgres:\/\//)});
+
+function handoverReceipt(from,to,auditId,key,committedAt='2026-01-01T00:00:00.000Z'){
+ return {from_employee_id:String(from),to_employee_id:String(to),audit_id:String(auditId),request_key_sha256:key,committed_at:new Date(committedAt)};
+}
+test('责任交接链尾必须等于当前责任人：A→B后当前责任人回到A仍拒绝',()=>{
+ const receipts=[handoverReceipt('10','11',1,'a'.repeat(64))];
+ assert.equal(validateResponsibleHandoverChain({initialResponsibleEmployeeId:'10',currentResponsibleEmployeeId:'10',receipts}),false);
+});
+test('完整连续的A→B责任交接链且当前责任人为B可通过结构校验',()=>{
+ const receipts=[handoverReceipt('10','11',1,'a'.repeat(64))];
+ assert.equal(validateResponsibleHandoverChain({initialResponsibleEmployeeId:'10',currentResponsibleEmployeeId:'11',receipts}),true);
+});
+test('无交接凭据时仅初始责任人与当前责任人相同可通过',()=>{
+ assert.equal(validateResponsibleHandoverChain({initialResponsibleEmployeeId:'10',currentResponsibleEmployeeId:'10',receipts:[]}),true);
+ assert.equal(validateResponsibleHandoverChain({initialResponsibleEmployeeId:'10',currentResponsibleEmployeeId:'11',receipts:[]}),false);
+});
+test('责任交接链的old→new不连续时拒绝',()=>{
+ const receipts=[handoverReceipt('10','11',1,'a'.repeat(64)),handoverReceipt('12','13',2,'b'.repeat(64),'2026-01-01T00:00:01.000Z')];
+ assert.equal(validateResponsibleHandoverChain({initialResponsibleEmployeeId:'10',currentResponsibleEmployeeId:'13',receipts}),false);
+});
+test('责任交接链重复request key、审计序号倒退或时间倒退均拒绝',()=>{
+ const duplicate=[handoverReceipt('10','11',1,'a'.repeat(64)),handoverReceipt('11','12',2,'a'.repeat(64),'2026-01-01T00:00:01.000Z')];
+ assert.equal(validateResponsibleHandoverChain({initialResponsibleEmployeeId:'10',currentResponsibleEmployeeId:'12',receipts:duplicate}),false);
+ const auditBackwards=[handoverReceipt('10','11',2,'a'.repeat(64)),handoverReceipt('11','12',1,'b'.repeat(64),'2026-01-01T00:00:01.000Z')];
+ assert.equal(validateResponsibleHandoverChain({initialResponsibleEmployeeId:'10',currentResponsibleEmployeeId:'12',receipts:auditBackwards}),false);
+ const timeBackwards=[handoverReceipt('10','11',1,'a'.repeat(64),'2026-01-01T00:00:01.000Z'),handoverReceipt('11','12',2,'b'.repeat(64),'2026-01-01T00:00:00.000Z')];
+ assert.equal(validateResponsibleHandoverChain({initialResponsibleEmployeeId:'10',currentResponsibleEmployeeId:'12',receipts:timeBackwards}),false);
+});

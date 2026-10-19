@@ -2,6 +2,26 @@ import {createHash} from 'node:crypto';
 import {assertF06TestEnvironment,verifyF06TestDatabase} from './f06-lock-readiness.mjs';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 const validId=value=>typeof value==='string'&&/^[1-9][0-9]{0,18}$/.test(value)&&BigInt(value)<=9223372036854775807n;
+export function validateResponsibleHandoverChain({initialResponsibleEmployeeId,currentResponsibleEmployeeId,receipts}={}){
+ const initial=String(initialResponsibleEmployeeId??''),current=String(currentResponsibleEmployeeId??'');
+ if(!validId(initial)||!validId(current)||!Array.isArray(receipts))return false;
+ if(receipts.length===0)return initial===current;
+ if(String(receipts[0]?.from_employee_id??'')!==initial||String(receipts[receipts.length-1]?.to_employee_id??'')!==current)return false;
+ const keys=new Set();let previous=null;
+ for(const r of receipts){
+  const from=String(r?.from_employee_id??''),to=String(r?.to_employee_id??'');
+  if(!validId(from)||!validId(to))return false;
+  const key=r?.request_key_sha256;
+  if(typeof key!=='string'||!/^[a-f0-9]{64}$/.test(key)||keys.has(key))return false;
+  const committedAt=r?.committed_at instanceof Date?r.committed_at.getTime():Date.parse(String(r?.committed_at??''));
+  if(!Number.isFinite(committedAt))return false;
+  let auditId;try{auditId=BigInt(r?.audit_id)}catch{return false}
+  if(auditId<=0n)return false;
+  if(previous&&(previous.to!==from||committedAt<previous.committedAt||auditId<=previous.auditId))return false;
+  keys.add(key);previous={to,committedAt,auditId};
+ }
+ return true;
+}
 const validKey=value=>typeof value==='string'&&/^[A-Za-z0-9_-]{24,64}$/.test(value);
 const validToken=value=>typeof value==='string'&&/^[A-Za-z0-9_-]{43}$/.test(value);
 const validReason=value=>typeof value==='string'&&value.trim().length>=1&&value.trim().length<=240;
@@ -97,18 +117,14 @@ export function createIsolatedF06LockLifecycleService({pool,env=process.env,afte
  async function verifyResponsibleHandover(db,lock,snap){
   const initial=String(snap?.responsible_employee_id??''),current=String(lock?.responsible_employee_id??'');
   if(!validId(initial)||!validId(current))return {ok:false};
-  if(initial===current)return {ok:true};
   const carrier=await first(db,"SELECT to_regclass('public.lock_responsible_handover_receipts') IS NOT NULL AS available");
-  if(!carrier?.available)return {ok:false};
+  if(!carrier?.available)return {ok:initial===current};
   const rows=(await db.query("SELECT receipt_id,item_id,batch_id,lock_id,customer_id,from_employee_id,to_employee_id,actor_employee_id,scope_team_id,audit_id,request_key_sha256,committed_at FROM public.lock_responsible_handover_receipts WHERE lock_id=$1 ORDER BY committed_at,receipt_id FOR SHARE",[lock.lock_id])).rows;
-  if(!rows.length)return {ok:false};
-  let previous=null;const keys=new Set();
+  if(!validateResponsibleHandoverChain({initialResponsibleEmployeeId:initial,currentResponsibleEmployeeId:current,receipts:rows}))return {ok:false};
+  if(!rows.length)return {ok:true};
   for(const r of rows){
    if(String(r.lock_id)!==String(lock.lock_id)||String(r.customer_id)!==String(lock.customer_id)||!await handoverReceiptEventProven(db,r))return {ok:false};
-   if(previous&&(String(previous.to_employee_id)!==String(r.from_employee_id)||r.committed_at.getTime()<previous.committed_at.getTime()||BigInt(r.audit_id)<=BigInt(previous.audit_id)))return {ok:false};
-   if(keys.has(r.request_key_sha256))return {ok:false};keys.add(r.request_key_sha256);previous=r;
   }
-  if(String(rows[0].from_employee_id)!==initial||String(rows[rows.length-1].to_employee_id)!==current)return {ok:false};
   const live=await first(db,'SELECT customer_id,responsible_employee_id FROM public.locks WHERE lock_id=$1 FOR SHARE',[lock.lock_id]);
   if(!live||String(live.customer_id)!==String(lock.customer_id)||String(live.responsible_employee_id)!==current)return {ok:false};
   return {ok:true};
