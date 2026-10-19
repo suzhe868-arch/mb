@@ -1,13 +1,16 @@
-# 2026-10-19｜A主控决议：F05非生产真实业务验收通过，PR125合并；下一责任B实施F06首条LockRequest真实HTTP/PG16
+# 2026-10-19｜A主控决议：用户同意修复F05五项旧Source门禁；正式放行B专项整改，F06暂停
 
-- **F05状态**：A已独立复核PR #125并合并main `25034a7cd9e3d977e18ffb7f5dc0ba8db1008064`。业务SHA `f7503843a60bef3f94b818d80a37ec166a157775` 的官方Run 39214339966及证据HEAD `d5690899ff37d3b7ddc46b1640dd113309addecf` 的Run 39214628791均为560/560，失败0、跳过0。D1已从CI专用路由整改为实际应用注册的`POST /api/v1/public-pool/consultations`，并通过隔离PG16/HTTPS真实正反例。
-- **旧Source例外**：PR #125触发10个旧工作流/28个Job。合并时9/10工作流完成（5成功、4旧Source失败、1旧Source仍运行）；27/28 Job完成（23成功、4旧Source失败、1仍运行）。4个失败均停在旧同SHA push来源证明门禁；Run 39216589244为F05-8旧Source长轮询，要求同HEAD的64个旧push作业，当前PR事件无法提供。均归档为`LEGACY_SOURCE_ORACLE_BLOCKED`，不伪装通过、不改冻结Workflow、不重跑旧66。历史65/66和PR113 23/28事实原样保留。
-- **生产门禁**：`formal_source_signed=false`、`production_ready=false`。正式微信/F03/JYT/4S/名邦Source Issuer、完整M94迁移链、生产调度/观测/容量和C/E生产联调仍未完成。
-- **下一任务**：`NEXT_OWNER=B / NEXT_TASK=F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16_01 / BRANCH=feat/f06-real-lockrequest-http-pg16-01`。沿用已合并的[正式F06施工单](F06_真实锁车申请审批唯一Lock与自动候补_首条业务API纵切_A主控B正式施工单_2026-10-18.md)，B实现真实Node HTTP＋隔离PG16 LockRequest申请、员工审批、单车唯一Lock、竞争自动Waitlist、6h超时、72h锁期、权限重验、幂等/并发/回滚。生产身份和资金保持Fail Closed，B_APP_01继续排队，F07/F08按序后续。
-- **CI预算**：本次PR按A已批准范围触发28个Artifact上传动作、保留30天；未购买付费服务。工具未读取账单，不声明已核实账单金额为零。F06分支只做本地/隔离PG16＋HTTP验证，若任何远程触发将命中旧F05 28 Job扇出则不触发远程CI。
+- **正式任务**：[Issue #126：F05五项旧Source门禁整改](https://github.com/suzhe868-arch/mb/issues/126)；施工单：[F05五项旧Source门禁事件感知与证据校验整改](F05五项旧Source门禁事件感知与证据校验整改_A主控B正式施工单_2026-10-19.md)。
+- **责任与分支**：`NEXT_OWNER=B / NEXT_TASK=F05_SOURCE_GATE_EVENT_AWARE_EVIDENCE_REPAIR_01 / BRANCH=feat/f05-source-gates-event-aware-evidence-01`。状态`A_RELEASED_FOR_B`；B完成后交A独立复验，不得自行合并。
+- **用户授权**：用户明确同意修复PR #125的5项旧Source门禁失败，专项整改优先于F06；F06/F07/F08暂停，待A独立验收并合并后再恢复F06。
+- **F05业务基线不变**：PR #125已合并main，SHA `25034a7cd9e3d977e18ffb7f5dc0ba8db1008064`。业务SHA `f7503843a60bef3f94b818d80a37ec166a157775` 与证据HEAD `d5690899ff37d3b7ddc46b1640dd113309addecf` 的官方回归均560/560通过、失败0、跳过0。
+- **5项旧门禁**：F05-7 `F05_7_CANNOT_PROVE_66_SAME_SHA_OFFICIAL_PG16_JOBS_IN_BOUNDED_CI_RUN`；F05-8 `F05_8_OFFICIAL_68_JOB_GATE_UNPROVEN`；F05-9 `F05_9_NOT_IN_OFFICIAL_NEW_PUSH`；F05-10 `F05_10_NOT_NEW_OFFICIAL_PUSH`；D1 `D1_NOT_NEW_OFFICIAL_PUSH`。根因基线为校验器把PR事件误要求为同SHA旧push运行证据。原Run及失败结果永久保留，不改写为PASS。
+- **A裁决**：将校验器修为事件感知模式。PR模式验证当前PR真实同SHA业务/HTTPS证据，明确不声称旧push作业已通过；main官方push模式继续严格校验同SHA官方来源链。SHA/Run/Job/工件摘要不匹配、缺失、失败、跳过、错误事件/分支均必须Fail Closed。PR验证不等于正式Source签发。
+- **冻结与预算**：不得修改冻结的`.github/workflows/*.yml`；不得重跑旧66项；不新增付费，预算$0。相关F05路径只允许一个正式整改PR及其一次自然CI，避免无效反复扇出。
+- **生产门禁**：`formal_source_signed=false`、`production_ready=false`。本次不新增/启用正式微信/F03/JYT/4S/名邦Source Issuer，不伪造签名、不将测试Issuer提升为正式。
+- **验收门槛**：PR和main push两种模式均有可重复测试与安全负例；旧PR/旧66/PR113历史结果不变；A独立验收通过后才合并，并更新README、CURRENT_PROJECT_STATE、NEXT_ACTION、PROJECT_STATE及相关矩阵。
 
 历史记录从下方保留，不删除或重写既有决议。
-
 ---
 
 # 2026-10-18｜A最新裁决：F05真实交付验收优先、暂停F06施工主线
