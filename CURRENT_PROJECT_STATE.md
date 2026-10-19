@@ -1,14 +1,18 @@
-# 2026-10-20｜A主控第三轮验收完成：F06普通Lock生命周期PR131已合并，下一任务正式放行Deposit HTTP/PG16
+# 2026-10-20｜A主控当前正式状态：F06生命周期已验收合并；B执行Deposit HTTP/PG16非生产纵切
 
-- **当前main：** `3f8a92d59a658fd486c43c31cebd4c01a03b4421`；F06 LockRequest PR #129与普通Lock生命周期PR #131均已标准合并。
-- **当前状态：** `F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02_A_ACCEPTED / PR131_MERGED / NEXT_OWNER=B`。
-- **R1/R2：** 最终B HEAD `ee3dd1c08b32ea55971a56732098c52cdff1ade1` 对应官方[Run #39306159971](https://github.com/suzhe868-arch/mb/actions/runs/39306159971)/[Job #118243671999](https://github.com/suzhe868-arch/mb/actions/runs/39306159971/job/118243671999)。原Node54/54、生命周期Node37/37、原F06 PG16/HTTP21/21、生命周期PG16/HTTP36/36、F05初始化18/18通过；24条原F03/F05迁移账本摘要一致，失败/跳过/取消均0。
-- **PR #131：** [标准合并](https://github.com/suzhe868-arch/mb/pull/131)，merge SHA `3f8a92d59a658fd486c43c31cebd4c01a03b4421`；PR自然触发10个工作流、28/28 Jobs成功。28个工件约2.91 MiB、30天保留期，已记录。
-- **Issue #130：** 已追加最终裁决并关闭。合法handoff正向PG16 fixture缺失仍是明确限制，未虚报真实正向端到端验证。
-- **状态纠正：** F06-5B PR #61实际已由A验收并合并（merge SHA `1a9b87a2e109190fff0380bbe85e7702a95dcd5e`）；旧PROJECT_STATE字段滞后，本次已同步。旧F06-3B直接入口仍不可信，相关阻断保留。
-- **下一唯一任务：** `NEXT_OWNER=B / NEXT_TASK=F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01 / NEXT_BRANCH=feat/f06-real-deposit-ledger-http-pg16-01 / ISSUE=#132`。正式施工单：`07_重建工作区/F06真实Deposit台账HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md`。
-- **执行边界：** 仅合成Deposit事实与Correction/Reversal的非生产HTTP+非特权PG16验证；不接真实收款/支付/退款，不改旧F06模块、公共DDL、PDM Final或生产路由；一个免费Runner+一个PG16服务、精确push/paths、无Artifact上传，新增付费预算`$0`。
-- **总体状态不变：** F06/F07/F08与V1仍`NOT_READY`；正式Source未签署，真实资金/退款、生产Issuer、UAT及部署均未授权。
+- **唯一状态来源：** GitHub 最新 `main`。本次核验的前置main为 `adc1cf31d1833cd1a85973865e4f571be7f1140a`；PR #131业务合并SHA为 `3f8a92d59a658fd486c43c31cebd4c01a03b4421`。B开工时必须重新读取并基于当时最新main建分支，不能固定checkout历史SHA。
+- **已完成：** F06普通Lock生命周期R1/R2经A独立验收，PR [#131](https://github.com/suzhe868-arch/mb/pull/131)标准合并；Issue #130已关闭。合法handoff正向PG16 fixture缺失仍是明确限制，未宣称真实正向端到端已通过。
+- **下一唯一任务：** `F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01`；**下一责任窗口：B**；指定分支名：`feat/f06-real-deposit-ledger-http-pg16-01`；[Issue #132](https://github.com/suzhe868-arch/mb/issues/132)；正式施工单：`07_重建工作区/F06真实Deposit台账HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md`。
+- **测试证据：** B最终HEAD `ee3dd1c08b32ea55971a56732098c52cdff1ade1` 对应官方Run #39306159971/Job #118243671999；原Node54/54、生命周期Node37/37、原F06 PG16/HTTP21/21、生命周期PG16/HTTP36/36、F05初始化18/18通过；PR自然触发10个工作流、28/28 Jobs成功，失败/跳过/取消均0。28个临时工件约2.91 MiB、30天保留期。
+- **F06-5B状态已纠正：** PR #61已由A验收并合并；但它仅是CI-only守卫，旧F06-3B直接入口仍不可信，阻断 `UPSTREAM_F06_3B_LOCK_PENDING_TRANSACTION_CONVERSION_GAP` 保留。
+- **本轮A状态治理：** 已修正此前PROJECT_STATE顶层仍指向第二轮R1整改的陈旧状态，当前正式指针转为Deposit HTTP/PG16任务。工作单放行时业务合并基线为 `3f8a92d59a658fd486c43c31cebd4c01a03b4421`，上轮治理提交为 `adc1cf31d1833cd1a85973865e4f571be7f1140a`；B必须再读取最新main后开工。
+- **硬边界：** 仅合成Deposit事实的非生产真实HTTP+非特权PG16；不接真实支付/收款/退款，不创建真实Transaction，不开放生产Issuer/路由，不改旧F06服务、公共DDL/M94或PDM Final。单免费Runner、单PG16服务、精确push/paths、无Artifact上传，新增付费预算 `$0`。
+- **总体状态：** F06/F07/F08及V1整体仍 `NOT_READY`；正式Source未签署，真实资金/退款、UAT和生产部署均未授权。
+
+---
+
+> 以下为历史状态记录；历史事实保留，但不覆盖本段当前指针。
+
 
 ---
 

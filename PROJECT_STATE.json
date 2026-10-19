@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02_A_CHANGES_REQUESTED_R1_CHAIN_TAIL_FAST_PATH",
+  "substage": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01_A_RELEASED_FOR_B",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F06_REAL_LOCK_LIFECYCLE_HTTP_PG16",
-  "current_domain_status": "A_CHANGES_REQUESTED_R1_CHAIN_TAIL_FAST_PATH_R2_ACCEPTED_NO_PR_YET",
+  "current_domain": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16",
+  "current_domain_status": "A_RELEASED_FOR_B_NONPRODUCTION_HTTP_PG16 / ISSUE_132_OPEN",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A第二轮独立复验B的F06生命周期R1/R2整改。官方Run #39302755405、Job #118231919969与B报告HEAD 95cdca9fe37e53702e9e5758252a33c052422d1b同SHA成功：Node54/54、生命周期Node32/32、原PG16 HTTP21/21、生命周期PG16 HTTP36/36、F05初始化18/18全绿，24条原迁移账本摘要一致。R2 Refund carrier与absence proof已通过独立复验；R1发现verifyResponsibleHandover在读取receipt链之前按initial===current直接返回，可能绕过已有A→B receipt链但Lock当前值被异常改回A的链尾一致性校验。已更新Issue #130、中文A第二轮报告与状态文档；不创建PR，退回B修复。",
-  "current_work_file": "07_重建工作区/F06普通Lock延期释放到期与资金未知硬拒_真实业务HTTP和PG16_A主控B正式施工单_2026-10-19.md",
+  "current_task": "A已独立验收并标准合并F06普通Lock生命周期PR #131（R1/R2通过；合法handoff正向PG16 fixture缺失限制已披露）。当前唯一下一任务为F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01：B从执行时最新main建立隔离分支，完成合成Deposit记录、追加Correction/Reversal、权限Scope、幂等、并发、回滚与Lock资金保护的真实HTTP+非特权PG16非生产纵切；严格遵守Issue #132与正式施工单，不接真实资金/支付/退款，不修改旧F06服务、公共DDL或PDM Final，完成同SHA全门禁后READY_FOR_A_REVIEW交A。",
+  "current_work_file": "07_重建工作区/F06真实Deposit台账HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -7269,7 +7269,7 @@
     "merge_sha": "e11e93bae1f6bc74757fea98b3c079d9ecf01e7a"
   },
   "f06_gate": {
-    "status": "F06_REAL_LOCKREQUEST_PR129_AND_LOCK_LIFECYCLE_PR131_MERGED_NONPRODUCTION_F06_GLOBAL_NOT_READY",
+    "status": "F06_PR129_AND_PR131_MERGED_NONPRODUCTION_F06_GLOBAL_NOT_READY",
     "release_authorized": false,
     "production": false,
     "financial_operations_authorized": false,
@@ -10089,7 +10089,9 @@
     "a_review_comment": "https://github.com/suzhe868-arch/mb/issues/130#issuecomment-6275368044",
     "handoff_positive_pg16_fixture": "NOT_AVAILABLE_IN_CURRENT_ISOLATED_BASELINE",
     "limitation": "No valid handoff receipt fixture in isolated PG16; pure validator tests chain-tail mismatch and real PG16 proves fail-closed/zero writes when no trusted chain. Do not claim valid handoff positive end-to-end.",
-    "production": false
+    "production": false,
+    "next_task": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01",
+    "next_owner": "B"
   },
   "a_review_changes_requested": {
     "date": "2026-10-20",
@@ -10154,7 +10156,7 @@
     "next_owner": "B",
     "budget_additional_usd": 0
   },
-  "next_base_main": "3f8a92d59a658fd486c43c31cebd4c01a03b4421",
+  "next_base_main": "adc1cf31d1833cd1a85973865e4f571be7f1140a",
   "current_engineering_focus": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01_NONPRODUCTION",
   "f06_real_deposit_http_next": {
     "status": "A_RELEASED_FOR_B_NONPRODUCTION_HTTP_PG16",
@@ -10163,7 +10165,7 @@
     "owner": "B",
     "review_owner": "A",
     "branch": "feat/f06-real-deposit-ledger-http-pg16-01",
-    "base_main_sha": "3f8a92d59a658fd486c43c31cebd4c01a03b4421",
+    "base_main_sha": "adc1cf31d1833cd1a85973865e4f571be7f1140a",
     "work_order": "07_重建工作区/F06真实Deposit台账HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md",
     "scope": "NONPRODUCTION_SYNTHETIC_DEPOSIT_RECORD_CORRECTION_REVERSAL_REAL_HTTP_PG16_LOCK_FINANCE_GUARD",
     "allowed_new_paths": [
@@ -10208,6 +10210,10 @@
       "new_tls_loopback_and_production_deny_minimum": 9,
       "all_failures_skips_cancellations": 0
     },
-    "handoff_status_required": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01_B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A"
-  }
+    "handoff_status_required": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01_B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A",
+    "base_main_at_task_release": "3f8a92d59a658fd486c43c31cebd4c01a03b4421",
+    "base_main_policy": "FETCH_LATEST_MAIN_AT_EXECUTION; NEVER_CHECKOUT_A_STALE_PINNED_SHA"
+  },
+  "next_base_main_at_task_release": "3f8a92d59a658fd486c43c31cebd4c01a03b4421",
+  "next_base_main_policy": "FETCH_LATEST_MAIN_AT_EXECUTION; NEVER_CHECKOUT_A_STALE_PINNED_SHA"
 }

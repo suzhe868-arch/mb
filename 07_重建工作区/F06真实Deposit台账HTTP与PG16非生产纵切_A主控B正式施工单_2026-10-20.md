@@ -2,7 +2,8 @@
 
 - **状态：** `A_RELEASED_FOR_B_NONPRODUCTION_HTTP_PG16 / NEXT_OWNER=B`
 - **日期：** 2026-10-20；**Issue：** [#132](https://github.com/suzhe868-arch/mb/issues/132)
-- **基线main：** `3f8a92d59a658fd486c43c31cebd4c01a03b4421`；**分支：** `feat/f06-real-deposit-ledger-http-pg16-01`
+- **任务放行时业务合并SHA：** `3f8a92d59a658fd486c43c31cebd4c01a03b4421`；**本次A状态核验前main：** `adc1cf31d1833cd1a85973865e4f571be7f1140a`；**分支名：** `feat/f06-real-deposit-ledger-http-pg16-01`。
+- **强制基线规则：** B开工必须重新读取并基于当时最新main创建分支；以上SHA仅用于追溯，不得固定checkout旧SHA。
 - **边界：** 非生产、合成资金事实、真实HTTP与非特权PostgreSQL 16；不授权真实收款、生产资金Issuer或部署。
 
 ## 1. 正式依据

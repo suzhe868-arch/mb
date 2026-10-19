@@ -1,13 +1,20 @@
 # 2026-10-20｜A主控最终裁决：F06生命周期PR131合并，正式放行Deposit HTTP/PG16非生产纵切
 
-**当前状态：** `F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02_A_ACCEPTED / PR131_MERGED / NEXT_OWNER=B`
+**当前状态：** `F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02_A_ACCEPTED / PR131_MERGED / NEXT_OWNER=B`  
+**当前下一任务：** `F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01` / `NEXT_OWNER=B` / Issue [#132](https://github.com/suzhe868-arch/mb/issues/132)。
 
 1. A独立复验R1责任交接链尾校验与R2 Refund来源守卫通过；最终B HEAD `ee3dd1c08b32ea55971a56732098c52cdff1ade1` 对应官方Run #39306159971/Job #118243671999同SHA成功。Node54/54、生命周期Node37/37、原F06 PG16/HTTP21/21、生命周期PG16/HTTP36/36、F05初始化18/18通过，失败/跳过/取消均0。
-2. PR [#131](https://github.com/suzhe868-arch/mb/pull/131) 标准合并，merge SHA `3f8a92d59a658fd486c43c31cebd4c01a03b4421`。PR自然触发10个工作流、28/28 Jobs成功；28个临时工件合计约2.91 MiB、30天保留期。Issue #130最终关闭。
+2. PR [#131](https://github.com/suzhe868-arch/mb/pull/131)标准合并，业务合并SHA `3f8a92d59a658fd486c43c31cebd4c01a03b4421`。PR自然触发10个工作流、28/28 Jobs成功；28个临时工件约2.91 MiB、30天保留期。Issue #130最终关闭。
 3. 合法handoff正向PG16 fixture在当前隔离环境不存在；A接受正式施工单允许的受限路径：纯校验器覆盖链尾错误，真实PG16验证无可信链时三动作拒绝且零写入。不得宣称真实数据库合法handoff正向端到端已通过。
-4. 纠正F06-5B状态：PR #61已由A独立验收并标准合并，merge SHA `1a9b87a2e109190fff0380bbe85e7702a95dcd5e`；旧PROJECT_STATE中`A_RELEASED_FOR_B_CI_ONLY/pr=null`已过时。F06-5B仍仅CI-only，旧F06-3B直接入口仍不可信，`UPSTREAM_F06_3B_LOCK_PENDING_TRANSACTION_CONVERSION_GAP`继续保留。
-5. 按PDM-19 §§2–5、PDM-18 §§16–28及PDM-02/20/21/25 Final，A正式放行Issue [#132](https://github.com/suzhe868-arch/mb/issues/132)，任务`F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01`，分支`feat/f06-real-deposit-ledger-http-pg16-01`，施工单`07_重建工作区/F06真实Deposit台账HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md`。只做非生产合成Deposit事实的真实HTTP+非特权PG16纵切；无真实收款/支付/退款、无生产Issuer、无公共DDL/PDM修改。
-6. F06/F07/F08与V1整体仍`NOT_READY`；正式Source未签署，真实资金/退款、生产部署/UAT均未授权。下一责任窗口为B，B自验完成后交A独立复验。
+4. F06-5B PR #61已由A独立验收并标准合并，merge SHA `1a9b87a2e109190fff0380bbe85e7702a95dcd5e`；F06-5B仍仅CI-only，旧F06-3B直接入口仍不可信，`UPSTREAM_F06_3B_LOCK_PENDING_TRANSACTION_CONVERSION_GAP`继续保留。
+5. A正式放行Issue [#132](https://github.com/suzhe868-arch/mb/issues/132)，任务 `F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01`，分支名 `feat/f06-real-deposit-ledger-http-pg16-01`，施工单 `07_重建工作区/F06真实Deposit台账HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md`。B开工时必须重新读取并使用当时最新main；旧业务合并SHA只用于追溯。仅做非生产合成Deposit事实真实HTTP+非特权PG16纵切；不接真实支付/收款/退款、不开放生产Issuer、不改公共DDL/PDM Final。
+6. **本次治理核验前置main：** `adc1cf31d1833cd1a85973865e4f571be7f1140a`。本轮同时修正PROJECT_STATE顶层旧指针，避免仍显示“R1未通过/不创建PR”的过期状态。
+7. F06/F07/F08与V1整体仍 `NOT_READY`；正式Source未签署，真实资金/退款、生产部署/UAT均未授权。下一责任窗口为B，B自验完成后交A独立复验。
+
+---
+
+> 以下为历史决策登记；原始裁决保留，但当前状态以本条和PROJECT_STATE.json为准。
+
 
 ---
 
