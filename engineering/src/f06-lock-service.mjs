@@ -141,7 +141,23 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
   if(!owner)return {error:'RESPONSIBLE_OWNER_INACTIVE'};
   const pr=await priority(db,customerId,vehicleId,cycleId);
   if(pr.other)return {error:'OTHER_CUSTOMER_PRIORITY_HIDDEN'};
-  if(vehicle.platform_visibility==='hidden'&&!pr.own){
+  // A verified Priority-origin active Lock inherits its original Customer's exclusive
+  // visibility even though the underlying Priority lease is atomically ended.
+  // Trust neither a bare Lock nor a naked snapshot: require the signed conversion event.
+  const inherited=vehicle.platform_visibility==='hidden'&&!pr.own&&await first(db,`SELECT 1
+   FROM public.locks l JOIN ${LOCK_SCHEMA}.lock_snapshots snap ON snap.lock_id=l.lock_id
+   JOIN public.f05_8_priority_ci p ON p.priority_id=snap.priority_origin_id
+   JOIN public.f05_8_events_ci ev ON ev.priority_id=p.priority_id
+    AND ev.event_kind='ended'
+    AND ev.event_key=concat('f06-1-priority-to-lock:',p.priority_id,':',l.lock_id)
+   WHERE l.vehicle_id=$1 AND l.listing_cycle_id=$2 AND l.customer_id=$3
+    AND l.lock_status='active' AND l.expires_at>clock_timestamp()
+    AND snap.priority_origin_customer_id=l.customer_id
+    AND p.customer_id=l.customer_id AND p.vehicle_id=l.vehicle_id
+    AND p.listing_cycle_id=l.listing_cycle_id AND p.status='ended'
+    AND p.ended_reason='converted_to_lock' LIMIT 1 FOR SHARE OF l,snap,p,ev`,
+    [vehicleId,cycleId,customerId]);
+  if(vehicle.platform_visibility==='hidden'&&!pr.own&&!inherited){
    const grant=await first(db,`SELECT g.grant_id FROM public.vehicle_visibility_grants g
     JOIN public.recommendations r ON r.recommendation_id=g.source_recommendation_id
     WHERE g.customer_id=$1 AND g.vehicle_id=$2 AND r.listing_cycle_id=$3
