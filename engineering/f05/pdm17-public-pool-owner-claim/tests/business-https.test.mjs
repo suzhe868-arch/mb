@@ -96,7 +96,15 @@ test('D1-HTTP04 owner forms first but missing phone fact blocks later Consultati
 });
 test('D1-HTTP05 production-looking route, GET, extra fields and malformed identity remain closed',async()=>{
  assert.equal((await call(payload(989222),issuer,{},'/api/v1/public-pool/consultations/')).status,404);
- assert.equal((await call(null,issuer,{},'/__ci__/f05-10-d1-business/v1/consultations','GET')).status,405);
+ assert.equal((await call(null,issuer,{},'/api/v1/public-pool/consultations','GET')).status,405);
+ assert.equal((await call(payload(989222),issuer,{},'/__ci__/f05-10-d1-business/v1/consultations')).status,404);
  assert.equal((await call({...payload(989222),ownerId:7})).status,400);
  assert.equal((await call({...payload(989222),customerId:'0989222'})).status,400);
+});
+
+test('D1 synthetic issuer handler refuses production mode',()=>{
+ const old=process.env.NODE_ENV;
+ process.env.NODE_ENV='production';
+ try{assert.throws(()=>createD1BusinessCIHandler({issuerToken:issuer}),/D1_BUSINESS_HTTP_TEST_ONLY_NODE_ENV/)}
+ finally{if(old===undefined)delete process.env.NODE_ENV;else process.env.NODE_ENV=old}
 });
