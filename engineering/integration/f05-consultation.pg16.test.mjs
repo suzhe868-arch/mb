@@ -7,6 +7,7 @@ import {createFoundationHandler} from '../src/app.mjs';
 import {createIsolatedConsultationService} from '../src/f05-consultation-service.mjs';
 import {createIsolatedConsultationHandler} from '../src/f05-consultation-http.mjs';
 import {createIsolatedRecommendationService} from '../src/f05-recommendation-service.mjs';
+import {createIsolatedDemandLifecycleService} from '../src/f05-demand-lifecycle-service.mjs';
 import {createIsolatedFavoriteService} from '../src/f05-favorite-service.mjs';
 import {createIsolatedFavoriteHandler} from '../src/f05-favorite-http.mjs';
 import {validateCatalogEnv,probeIsolatedCatalog} from '../src/catalog-readiness.mjs';
@@ -52,6 +53,7 @@ try{
  }catch(e){await writer.query('ROLLBACK');throw e}
  const service=createIsolatedConsultationService({pool,env:process.env});
  const recommendation=createIsolatedRecommendationService({pool,env:process.env});
+ const lifecycle=createIsolatedDemandLifecycleService({pool,env:process.env});
  const favorite=createIsolatedFavoriteService({pool,env:process.env});
  server=createServer(createFoundationHandler({
   consultationHandler:createIsolatedConsultationHandler(service,process.env),
@@ -206,6 +208,14 @@ try{
   // The Find-Car level proof is owned by this one cross-domain test. It must
   // not leak into the later independent F05-6 integration fixture.
   await writer.query("INSERT INTO public.f05_find_car_level_entitlement_test(level_id,can_activate_demand,expires_at) VALUES(59001,true,statement_timestamp()+interval '20 minutes')");
+  // PDM11: earlier Customer disable atomically paused this Demand. Recovery
+  // never silently reactivates it; the authorized current Demand responsible
+  // must explicitly resume after current entitlement is present.
+  await writer.query("INSERT INTO public.f05_demand_lifecycle_scope_test(employee_id,customer_id,can_manage_demand,expires_at) "+
+   "VALUES(59003,59001,true,statement_timestamp()+interval '20 minutes')");
+  const resumed=await lifecycle.action({credential:employeeForRecommendation,eventKey:key(),
+   demandId:'59020',action:'RESUME'});
+  assert.equal(resumed.status,200,JSON.stringify(resumed));
   // This Recommendation is created by the *real* PG16 Recommendation service,
   // using its actual independent Employee proof and legitimate source Demand.
   const grant=await recommendation.mutate({credential:employeeForRecommendation,action:'CREATE',
