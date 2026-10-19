@@ -1,3 +1,15 @@
+# 2026-10-19｜A主控最新正式状态：PR129真实F06锁车业务已独立验收并合并，B进入F06生命周期真实接口开发
+
+- **上一任务完成并真实合入main**：B `F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16_01`，A创建、独立审核与标准合并[PR #129](https://github.com/suzhe868-arch/mb/pull/129)。B最后HEAD `28653741e613ea53ba7ec403403165ae9ba831a7`；真正受验业务SHA `ab6b28c7da68be7e7bd08154bc306b1ea369e982`，末提交仅中文证据；GitHub merge SHA **`c3fa09646e10c9f0392c62ee1f35f56668b25494`**。
+- **真实Node HTTP+PG16闭环**：A读取官方[Run 39273318026](https://github.com/suzhe868-arch/mb/actions/runs/39273318026)/Job 118131039069：Node22 **54/54成功**，PG16.15+HTTP **21/21成功**，失败0、跳过0、取消0。旧原生F03/F05 24条迁移账本真实源/目标摘要一致（`b9beed2d9e5fda2511bef6cbcd6d050862971714b9464624dc6439888c118033`），真实Priority资格服务测试来源签发+转换已过。
+- **本PR原生集成门禁**：PR #129 **10个工作流、28/28 GitHub Check Runs全部completed/success**，失败0、跳过0；22个文件都在授权F06范围内，旧冻结Workflow、公共M94和PDM Final未改。仅限非生产`DISPOSABLE_TEST_ONLY`，**不是**正式Source签署或生产就绪。[A完整中文验收与合并报告](07_重建工作区/PR129_A主控F06真实锁车申请审批候补HTTP与PG16独立验收合并报告_2026-10-19.md)。
+- **原PG16环境阻断已解除**：B [Issue #128](https://github.com/suzhe868-arch/mb/issues/128) 已按`completed`关闭；此前0/20的阶段性资料被最终21/21真库原生结果替代，不得重要求重复旧环境调查。
+- **A最新正式放行 / 下一责任B**：`NEXT_OWNER=B / NEXT_TASK=F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02`，指定**新**分支`feat/f06-real-lock-lifecycle-http-pg16-02`（必须基于当前最新main）。按[完整中文B正式施工单](07_重建工作区/F06普通Lock延期释放到期与资金未知硬拒_真实业务HTTP和PG16_A主控B正式施工单_2026-10-19.md)直接开发**真实普通Lock人工延期、人工release/cancel、非生产可信无款的PG系统到期退出、客户安全期限投影、资金未知硬拒**；Node+非超管PG16真实HTTP全回归，本批完整完成再标`READY_FOR_A_REVIEW`交A。不得重复F06-1的旧签署工程或擅自实现真钱/退款。
+- **预算与权限继续冻结**：公开仓库标准Runner、单Job PG16的指定分支安全触发与新增付费预算`$0`，新Runner/路径需按施工单精确复核；B不得自行创建PR或合并main。F07/F08主线等待F06真实业务后续，C PR68仍独立Draft。
+- **生产仍未获准**：`formal_source_signed=false`、`production_ready=false`。正式微信/F03 Source Issuer、真实客户/支付/Transaction/Refund、生产迁移及部署尚未验收。F05旧66原65真过＋1旧Oracle BLOCKED、PR125历史旧Source失败继续保留，不得改写。
+
+---
+
 # 2026-10-19｜A主控最新裁决：F06 B分支已审阅，真PG16仍为0/20；放行单Job免费验收，暂不合并
 
 - **本轮审查对象**：[Issue #128](https://github.com/suzhe868-arch/mb/issues/128)，指定B分支 `feat/f06-real-lockrequest-http-pg16-01`，审核时远程HEAD `fb2c43f5600ae1a652731ed5e2d14621d12e6086`；与main比 ahead48/behind0，共19个变更文件，未触碰冻结工作流、旧F06签封、PDM Final或生产。
