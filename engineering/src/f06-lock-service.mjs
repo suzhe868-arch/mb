@@ -127,7 +127,7 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     JSON.stringify({status:'ended',reason:'converted_to_lock',lockId,endedAt:p.ended_at}),eventKey]);
   return p.priority_id;
  }
- async function facts(db,customerId,vehicleId,cycleId,{lockedVehicle=null}={}){
+ async function facts(db,customerId,vehicleId,cycleId,{lockedVehicle=null,internalWaitlist=false}={}){
   const vehicle=lockedVehicle??await first(db,'SELECT * FROM public.vehicles WHERE vehicle_id=$1',[vehicleId]);
   const cycle=await first(db,`SELECT listing_cycle_id,ended_at FROM public.vehicle_listing_cycles
    WHERE vehicle_id=$1 AND listing_cycle_id=$2 FOR SHARE`,[vehicleId,cycleId]);
@@ -139,12 +139,12 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
   if(who.owner_assignment_state!=='assigned')return {error:'CUSTOMER_OWNER_REQUIRED'};
   const owner=await currentOwner(db,who.current_owner_employee_id);
   if(!owner)return {error:'RESPONSIBLE_OWNER_INACTIVE'};
-  const pr=await priority(db,customerId,vehicleId,cycleId);
-  if(pr.other)return {error:'OTHER_CUSTOMER_PRIORITY_HIDDEN'};
+  const pr=internalWaitlist?{other:false,own:null}:await priority(db,customerId,vehicleId,cycleId);
+  if(!internalWaitlist&&pr.other)return {error:'OTHER_CUSTOMER_PRIORITY_HIDDEN'};
   // A verified Priority-origin active Lock inherits its original Customer's exclusive
   // visibility even though the underlying Priority lease is atomically ended.
   // Trust neither a bare Lock nor a naked snapshot: require the signed conversion event.
-  const inherited=vehicle.platform_visibility==='hidden'&&!pr.own&&await first(db,`SELECT 1
+  const inherited=!internalWaitlist&&vehicle.platform_visibility==='hidden'&&!pr.own&&await first(db,`SELECT 1
    FROM public.locks l JOIN ${LOCK_SCHEMA}.lock_snapshots snap ON snap.lock_id=l.lock_id
    JOIN public.f05_8_priority_ci p ON p.priority_id=snap.priority_origin_id
    JOIN public.f05_8_events_ci ev ON ev.priority_id=p.priority_id
@@ -157,7 +157,7 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     AND p.listing_cycle_id=l.listing_cycle_id AND p.status='ended'
     AND p.ended_reason='converted_to_lock' LIMIT 1 FOR SHARE OF l,snap,p,ev`,
     [vehicleId,cycleId,customerId]);
-  if(vehicle.platform_visibility==='hidden'&&!pr.own&&!inherited){
+  if(!internalWaitlist&&vehicle.platform_visibility==='hidden'&&!pr.own&&!inherited){
    const grant=await first(db,`SELECT g.grant_id FROM public.vehicle_visibility_grants g
     JOIN public.recommendations r ON r.recommendation_id=g.source_recommendation_id
     WHERE g.customer_id=$1 AND g.vehicle_id=$2 AND r.listing_cycle_id=$3
@@ -202,7 +202,9 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
  async function conflict(db,req,activeLockId){
   const expires=await first(db,"SELECT $1::timestamptz<=clock_timestamp() OR $2::timestamptz+interval '6 hours'<=clock_timestamp() past",[req.expires_at,req.created_at]);
   if(expires?.past){await finish(db,req,'expired');return {requestId:String(req.lock_request_id),status:'expired'};}
-  const current=await facts(db,req.customer_id,req.vehicle_id,req.listing_cycle_id);
+  // An existing legitimate PENDING competitor can be moved to an INTERNAL Waitlist
+  // even while a Priority-origin Lock hides public vehicle details from that Customer.
+  const current=await facts(db,req.customer_id,req.vehicle_id,req.listing_cycle_id,{internalWaitlist:true});
   if(current.error){await finish(db,req,'closed_not_lockable');return {requestId:String(req.lock_request_id),status:'closed_not_lockable'};}
   const lock=await first(db,'SELECT customer_id FROM public.locks WHERE lock_id=$1 FOR SHARE',[activeLockId]);
   if(!lock||String(lock.customer_id)===String(req.customer_id)){
