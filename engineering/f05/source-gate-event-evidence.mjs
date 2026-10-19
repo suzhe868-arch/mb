@@ -25,7 +25,9 @@ export function validatePullRequestEvidence({event,env,run,jobs,workflowPath,sou
  if(!own(pr)||pr.base?.ref!=='main'||pr.base?.repo?.full_name!=='suzhe868-arch/mb')fail('TARGET_BRANCH_MISMATCH');
  if(!SHA.test(pr.head?.sha||''))fail('INVALID_PR_HEAD_SHA');
  if(!Number.isSafeInteger(pr.number)||env.GITHUB_REF!=='refs/pull/'+pr.number+'/merge')fail('PR_REF_MISMATCH');
- if(!SHA.test(env.GITHUB_SHA||'')||run.head_sha!==env.GITHUB_SHA)fail('RUN_SHA_MISMATCH');
+ if(run.head_sha!==pr.head.sha)fail('RUN_HEAD_SHA_MISMATCH');
+ if(!SHA.test(env.GITHUB_SHA||''))fail('INVALID_TESTED_SHA');
+ if(pr.merge_commit_sha&&env.GITHUB_SHA!==pr.merge_commit_sha)fail('MERGE_SHA_MISMATCH');
  if(!Number.isSafeInteger(Number(env.GITHUB_RUN_ID))||Number(env.GITHUB_RUN_ID)!==run.id)fail('RUN_ID_MISMATCH');
  if(!Number.isSafeInteger(Number(env.GITHUB_RUN_ATTEMPT))||Number(env.GITHUB_RUN_ATTEMPT)!==run.run_attempt)fail('RUN_ATTEMPT_MISMATCH');
  if(run.path!==workflowPath)fail('WORKFLOW_PATH_MISMATCH');
