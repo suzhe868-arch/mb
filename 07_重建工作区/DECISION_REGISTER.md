@@ -1,3 +1,15 @@
+# 2026-10-19｜A主控 F06 Issue #128 独立审阅与零付费单Job PG16验收出口裁决
+
+- **B分支最新受阅事实**：`feat/f06-real-lockrequest-http-pg16-01` 于审核时HEAD `fb2c43f5600ae1a652731ed5e2d14621d12e6086`，对main ahead48/behind0，19个F06本批变更文件；旧F05/F06冻结工作流与正式PDM未触碰。B已实现真实HTTP/锁车业务/PG16测试源码，**Node本地工作副本54/54并非HEAD同SHA官方验收；真PG16 0/20**。
+- **A结论**：`A_REVIEWED_BLOCKED_REAL_PG16 / NO_MERGE / NOT_READY_FOR_A_REVIEW`，不得以源码、54个本地Node模拟测试或严格入口失败负例代替实跑PG16；Issue [#128](https://github.com/suzhe868-arch/mb/issues/128)保留Open。
+- **执行环境技术授权**：同意由B仅在指定F06隔离分支新增1份非冻结、只允许该分支`push`＋F06精确`paths`触发的单Job工作流；仅`ubuntu-24.04`标准免费Runner＋`postgres:16-alpine`本地服务，45分钟限制，无matrix/付费Runner/Secrets/额外Artifact上传，权限`contents:read`，新增付费预算`$0`。首个Push前必须证明不会意外唤醒旧F05的28 Job与任何其它工作流，禁止skip-ci、禁止B自行创建PR。
+- **验收硬门槛**：受验完整仓库`npm ci`及Node22测试、独立非超管PostgreSQL16、合法真实F03 24条迁移台账＋F05结构基线、真实HTTP与PG事务至少20项0失败0跳过0取消、权限/并发/回滚及签发拒绝正反例；不能手工假造旧签发/迁移账本、不能降级readiness。不具合法可信历史基线则报告`BLOCKED_TRUSTED_M94_F05_BASELINE`而非假通过。
+- **下一责任**：`NEXT_OWNER=B`，继续原`F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16_01`，从最新main施工规则和原B分支接续；测试、代码缺陷、真实CI、证据全部完成后才标`READY_FOR_A_REVIEW`交A。A验收成功前不得合并或开启F07/F08。
+- **依据**：A [Issue #128正式裁决](https://github.com/suzhe868-arch/mb/issues/128#issuecomment-6268113660)及已追加章节的[完整F06施工单](F06_真实锁车申请审批唯一Lock与自动候补_首条业务API纵切_A主控B正式施工单_2026-10-18.md)。GitHub公开仓库标准Runner免费依官方文档，Artifact/缓存仍可能计费，故本单禁止新增付费存储。
+- **不变边界**：PR125/PR127历史成绩原样，`formal_source_signed=false`，`production_ready=false`，C PR68仍Draft，生产/真钱/正式微信与第三方写入未授权。
+
+---
+
 # 2026-10-19｜A主控决议：PR #127已独立验收并合并，正式恢复F06真实业务纵切
 
 - **F05五项旧Source门禁整改**：[PR #127](https://github.com/suzhe868-arch/mb/pull/127) 已标准合并，B最终HEAD `6890bd9cc80d4fc556cbe0b4e94a240b1eb6c25b`，merge SHA `fcbcef31d037530f78f4c15f94d20acdc7292c2c`。A已独立复核13个变更文件、五个目标Source Job原生日志、事件契约测试与HTTPS工件摘要；未修改冻结Workflow。
