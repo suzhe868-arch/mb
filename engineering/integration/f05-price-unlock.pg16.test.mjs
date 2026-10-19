@@ -74,6 +74,44 @@ try{
   finally{await writer.query("INSERT INTO public.f05_catalog_price_display_proof_test(vehicle_id,listing_cycle_id,source_type,customer_display_cents,expires_at) VALUES(59301,59301,'wholesale',13100000,statement_timestamp()+interval '20 minutes')")}
  });
  const firstKey=random();
+ await test('PG16 concurrent customer price proof change/revoke cannot return stale amount',async()=>{
+  // Current Customer can open unlimited detail without touching the charged
+  // quota ledger. Block behind a genuine PG row update; no synthetic clock.
+  await writer.query('BEGIN');
+  let committed=false;
+  try{
+   await writer.query("UPDATE public.f05_catalog_price_display_proof_test "+
+    "SET customer_display_cents=14500000 WHERE vehicle_id=59301");
+   const pending=call('59301',unlimitedBearer,random());
+   await new Promise(resolve=>setTimeout(resolve,80));
+   await writer.query('COMMIT');committed=true;
+   const updated=await pending;
+   assert.equal(updated.status,200,JSON.stringify(updated));
+   assert.equal(updated.body.priceCents,'14500000',
+    'a concurrent committed price update is authoritative at unlock read');
+  }finally{
+   if(!committed)await writer.query('ROLLBACK').catch(()=>{});
+  }
+  await writer.query('BEGIN');
+  committed=false;
+  try{
+   await writer.query("UPDATE public.f05_catalog_price_display_proof_test "+
+    "SET expires_at=statement_timestamp()-interval '1 second' WHERE vehicle_id=59301");
+   const pending=call('59301',unlimitedBearer,random());
+   await new Promise(resolve=>setTimeout(resolve,80));
+   await writer.query('COMMIT');committed=true;
+   const denied=await pending;
+   assert.equal(denied.status,404,JSON.stringify(denied));
+   assert.equal(denied.body.code,'CUSTOMER_VEHICLE_OR_PRICE_ENTITLEMENT_NOT_READY');
+  }finally{
+   if(!committed)await writer.query('ROLLBACK').catch(()=>{});
+   await writer.query("UPDATE public.f05_catalog_price_display_proof_test SET "+
+    "customer_display_cents=13100000,expires_at=statement_timestamp()+interval '20 minutes' "+
+    "WHERE vehicle_id=59301");
+  }
+  assert.equal((await writer.query("SELECT count(*)::int n FROM public.customer_price_unlock_events "+
+   "WHERE customer_id=59302")).rows[0].n,0);
+ });
  await test('PG16 first LIMITED detail entry atomically charges one quota and stores exact current cycle right',async()=>{
   const r=await call('59001',limitedBearer,firstKey);
   assert.equal(r.status,200);assert.equal(r.body.code,'PRICE_UNLOCKED');assert.equal(r.body.priceCents,'12600000');

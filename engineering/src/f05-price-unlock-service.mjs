@@ -49,7 +49,10 @@ export function createIsolatedPriceUnlockService({pool,env=process.env}={}){
       "OR EXISTS (SELECT 1 FROM public.f05_recommendation_safe_customer_test recommendation "+
       "WHERE recommendation.customer_id=$3 AND recommendation.vehicle_id=v.vehicle_id "+
       "AND recommendation.listing_cycle_id=cy.listing_cycle_id)) "+
-      "LIMIT 1 FOR SHARE OF v,cy,vis,pe",[vehicleId,String(actor.customer_level_id),customerId])).rows[0];
+      // Price proof must be locked too. A concurrent upstream change/revoke
+      // must commit before this transaction returns a numeric customer price;
+      // otherwise an old MVCC snapshot can charge an obsolete/invalid price.
+      "LIMIT 1 FOR SHARE OF v,cy,vis,pe,pr",[vehicleId,String(actor.customer_level_id),customerId])).rows[0];
     if(!scope){await c.query('ROLLBACK');return result(404,'CUSTOMER_VEHICLE_OR_PRICE_ENTITLEMENT_NOT_READY')}
     const cycleId=String(scope.listing_cycle_id);
     const prior=(await c.query("SELECT customer_id,vehicle_id,listing_cycle_id,event_kind "+
