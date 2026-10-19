@@ -39,6 +39,21 @@ CREATE TABLE d1_owner_ci.receipts(
  CHECK(source_marker='CI_SYNTHETIC_AUTHORITY_ONLY'),
  CHECK(previous_owner_id IS NULL)
 );
+CREATE TABLE d1_owner_ci.consultation_events(
+ event_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+ request_key TEXT NOT NULL UNIQUE CHECK(length(request_key) BETWEEN 20 AND 160),
+ consultation_id BIGINT NOT NULL REFERENCES public.consultations(consultation_id),
+ customer_id BIGINT NOT NULL REFERENCES public.customers(customer_id),
+ vehicle_id BIGINT NOT NULL REFERENCES public.vehicles(vehicle_id),
+ listing_cycle_id BIGINT NOT NULL,
+ owner_receipt_id BIGINT NOT NULL REFERENCES d1_owner_ci.receipts(receipt_id),
+ assignee_employee_id BIGINT NOT NULL REFERENCES public.employees(employee_id),
+ action TEXT NOT NULL CHECK(action IN ('CREATED','REUSED')),
+ source_marker TEXT NOT NULL CHECK(source_marker='CI_SYNTHETIC_CUSTOMER_CONSULTATION_NOT_PRODUCTION'),
+ happened_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
+ FOREIGN KEY(listing_cycle_id,vehicle_id)
+   REFERENCES public.vehicle_listing_cycles(listing_cycle_id,vehicle_id)
+);
 CREATE TABLE d1_owner_ci.attestation(
  seal_name TEXT PRIMARY KEY CHECK(seal_name='D1_INDEPENDENT_FROM_SIGNED_V25'),
  sidecar_source_sha256 TEXT NOT NULL CHECK(length(sidecar_source_sha256)=64),
@@ -50,6 +65,8 @@ BEGIN RAISE EXCEPTION 'D1_OWNER_HISTORY_IMMUTABLE' USING ERRCODE='23514'; END $$
 CREATE TRIGGER d1_receipt_immutable BEFORE UPDATE OR DELETE ON d1_owner_ci.receipts
  FOR EACH ROW EXECUTE FUNCTION d1_owner_ci.immutable_history();
 CREATE TRIGGER d1_attestation_immutable BEFORE UPDATE OR DELETE ON d1_owner_ci.attestation
+ FOR EACH ROW EXECUTE FUNCTION d1_owner_ci.immutable_history();
+CREATE TRIGGER d1_consultation_event_immutable BEFORE UPDATE OR DELETE ON d1_owner_ci.consultation_events
  FOR EACH ROW EXECUTE FUNCTION d1_owner_ci.immutable_history();
 -- Formal pool-entry source fields may never be rewritten; state/hold governance is separate.
 CREATE FUNCTION d1_owner_ci.guard_pool_source() RETURNS trigger LANGUAGE plpgsql AS $d1guard$
