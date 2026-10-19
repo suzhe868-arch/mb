@@ -49,9 +49,12 @@ export async function firstStillQualifiedCandidate(db,candidates){
  for(const candidate of candidates){
   const current=(await db.query(
    "SELECT 1 FROM public.f05_priority_qualification_test q "+
+   "JOIN public.f05_priority_employee_scope_test scope ON scope.customer_id=q.customer_id "+
+   "AND scope.employee_id=$2 AND scope.can_manage=true "+
+   "AND scope.issuer='DISPOSABLE_TEST_ONLY' AND scope.expires_at>statement_timestamp() "+
    "WHERE q.customer_id=$1 AND q.enabled=true AND q.issuer='DISPOSABLE_TEST_ONLY' "+
-   "AND q.expires_at>statement_timestamp() FOR SHARE OF q",
-   [String(candidate.customer_id)])).rows[0];
+   "AND q.expires_at>statement_timestamp() FOR SHARE OF q,scope",
+   [String(candidate.customer_id),String(candidate.responsible_employee_id)])).rows[0];
   if(!current)continue;
   // Candidate lists are a READ COMMITTED snapshot. The Customer, Demand,
   // Employee scope or source evidence may have become stale while waiting
