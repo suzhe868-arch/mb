@@ -1,5 +1,7 @@
 // F05-10-D1 positive loopback TLS carrier for current B acceptance only.
 // The random issuer token is injected by the test process and is never a production credential.
+import {createServer as createHttpsServer} from 'node:https';
+import {createFoundationHandler} from '../../src/app.mjs';
 import {syntheticServiceRequest,serviceAssignCI,syntheticConsultationRequest,createConsultationAfterOwnerCI} from './service.mjs';
 const ORIGIN='https://127.0.0.1:49222';
 const local=x=>['127.0.0.1','::1','::ffff:127.0.0.1'].includes(x);
@@ -65,4 +67,11 @@ export function createD1BusinessCIHandler({issuerToken}={}){
    send(res,503,{code:'D1_BUSINESS_DEPENDENCY_NOT_READY'});return true;
   }
  };
+}
+
+export function createD1BusinessTestServer({issuerToken,key,cert}={}){
+ if(!key||!cert)throw Error('D1_BUSINESS_TLS_MATERIAL_REQUIRED');
+ return createHttpsServer({key,cert},createFoundationHandler({
+  publicPoolConsultationHandler:createD1BusinessCIHandler({issuerToken})
+ }));
 }
