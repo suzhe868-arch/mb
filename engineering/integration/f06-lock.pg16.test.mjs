@@ -128,6 +128,7 @@ async function fixture(){
    JOIN public.f05_7_result_versions_ci r ON r.result_id=p.source_match_result_id
     AND r.source_signature=p.source_signature AND r.status='current'
    WHERE p.customer_id=899612 AND p.status='active' AND p.expires_at>clock_timestamp()
+   AND NOT EXISTS (SELECT 1 FROM public.locks l WHERE l.vehicle_id=p.vehicle_id AND l.lock_status='active')
    ORDER BY p.priority_id LIMIT 1`);
   assert.ok(originalPriority,'original authorized F05 Priority source must survive signed v26');
   await db.query(`INSERT INTO public.customer_phone_facts(customer_id,phone_ciphertext,valid_from)
@@ -340,6 +341,7 @@ if(!setupError){
     AND r.demand_id=p.trigger_demand_id AND r.vehicle_id=p.vehicle_id
     AND r.listing_cycle_id=p.listing_cycle_id
    WHERE p.customer_id=899612 AND p.status='active' AND p.expires_at>clock_timestamp()
+   AND NOT EXISTS (SELECT 1 FROM public.locks l WHERE l.vehicle_id=p.vehicle_id AND l.lock_status='active')
    ORDER BY p.priority_id LIMIT 1`);
   assert.ok(p,'genuine F05-8 Priority created by original signed F05 service required');
   assert.equal(String(p.customer_id),'899612');
