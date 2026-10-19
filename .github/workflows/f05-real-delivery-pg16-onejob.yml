@@ -22,6 +22,7 @@ on:
       - 'engineering/src/app.mjs'
       - 'engineering/src/server.mjs'
       - 'engineering/integration/catalog.pg16.test.mjs'
+      - 'engineering/integration/f05-catalog-sorts.pg16.test.mjs'
       - 'engineering/integration/f05-full-runtime-wiring.pg16.test.mjs'
       - 'engineering/integration/f05-employee-vehicle-read.pg16.test.mjs'
       - 'engineering/integration/f05-favorite.pg16.test.mjs'
@@ -172,6 +173,7 @@ jobs:
             await client.query(await readFile('catalog/000045_demand_lifecycle_disposable_test_only.sql','utf8'));
             await client.query(await readFile('catalog/000046_consultation_manager_capability_disposable_test_only.sql','utf8'));
             await client.query(await readFile('catalog/000047_vehicle_employee_read_scope_disposable_test_only.sql','utf8'));
+            await client.query(await readFile('catalog/000048_catalog_sort_facts_disposable_test_only.sql','utf8'));
             await client.query("INSERT INTO public.vehicle_brands(brand_id,brand_name) VALUES(59001,'隔离测试品牌')");
             await client.query("INSERT INTO public.vehicle_series(series_id,brand_id,series_name) VALUES(59001,59001,'隔离测试车系')");
             await client.query("INSERT INTO public.vehicle_models(model_id,brand_id,series_id,model_name,model_year,profile_status) VALUES(59001,59001,59001,'隔离测试车型',2026,'incomplete')");
@@ -192,6 +194,7 @@ jobs:
         run: |
           set -euo pipefail
           node --test integration/catalog.pg16.test.mjs
+          node --test integration/f05-catalog-sorts.pg16.test.mjs
           node --test integration/f05-full-runtime-wiring.pg16.test.mjs
           node --test integration/f05-favorite.pg16.test.mjs
           node --test integration/f05-consultation.pg16.test.mjs
