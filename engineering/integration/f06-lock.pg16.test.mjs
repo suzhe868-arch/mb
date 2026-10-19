@@ -282,6 +282,25 @@ if(!setupError){
    headers:{authorization:'Bearer '+custTokens[1]}});
   assert.equal(denied.status,404);
  });
+ await test('旧公共 M94 PENDING 无本批 Test Issuer 不可复用、超时变更或写新申请',async()=>{
+  const legacyId='961899999';
+  await db.query(`INSERT INTO public.lock_requests
+   (lock_request_id,customer_id,vehicle_id,listing_cycle_id,status,created_at,expires_at)
+   VALUES($1,$2,$3,$4,'pending',clock_timestamp()-interval '20 minutes',
+    clock_timestamp()+interval '5 hours')`,
+    [legacyId,customers[2],cars[1],cycles[1]]);
+  try{
+   const before=await scalar("SELECT count(*)::int n FROM public.lock_requests WHERE customer_id=$1 AND vehicle_id=$2 AND status='pending'",[customers[2],cars[1]]);
+   const refused=await intake(2,1);
+   assert.equal(refused.status,403);assert.equal(refused.body.code,'UNTRUSTED_PENDING_REQUEST_ISSUER');
+   const after=await scalar("SELECT count(*)::int n FROM public.lock_requests WHERE customer_id=$1 AND vehicle_id=$2 AND status='pending'",[customers[2],cars[1]]);
+   assert.equal(after.n,before.n);
+   assert.equal((await scalar('SELECT status FROM public.lock_requests WHERE lock_request_id=$1',[legacyId])).status,'pending');
+   assert.equal((await scalar('SELECT count(*)::int n FROM f06_real_lock_test.request_keys WHERE request_id=$1',[legacyId])).n,0);
+  }finally{
+   await db.query("UPDATE public.lock_requests SET status='expired' WHERE lock_request_id=$1",[legacyId]);
+  }
+ });
  await test('非法 listing cycle 不得建申请',async()=>{
   const bad=await http('/api/v1/lock-requests',custTokens[2],{vehicleId:cars[0],listingCycleId:'999999999',idempotencyKey:key()});
   assert.equal(bad.status,403);
