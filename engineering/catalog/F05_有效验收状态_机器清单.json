@@ -2,22 +2,22 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F05_10_FAVORITE_SOURCE_RECEIVING_PG16_264_TEST_ONLY",
+  "status": "B_IN_PROGRESS_F05_3F_AND_F05_10_PRIORITY_VISIBILITY_PG16_421_TEST_ONLY",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "19a69c570c0248b12c5a1fab0ea9c4922e1e2eb5",
+  "github_commit": "b982d4b84e2d128e356bce91bc475a758b082af5",
   "node_http_stub_tests": {
-    "passed": 150,
+    "passed": 151,
     "failed": 0,
     "skipped": 0
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39156319317,
-    "head_sha": "19a69c570c0248b12c5a1fab0ea9c4922e1e2eb5",
-    "node_http_tests_passed": 150,
-    "real_pg16_integration_tests_passed": 264,
+    "run_id": 39187990913,
+    "head_sha": "b982d4b84e2d128e356bce91bc475a758b082af5",
+    "node_http_tests_passed": 151,
+    "real_pg16_integration_tests_passed": 270,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -333,11 +333,12 @@
     "source and production gates remain fail-closed",
     "PR change paths require explicit review of 335 existing workflow pull_request triggers before PR; push scope proven only one job on two branch commits",
     "main PR triggers ten unscoped legacy F05 workflows, A per-file authorization not granted, no safe main-targeted PR",
-    "Full F05-1..11 actual authenticated HTTP/PG16 business still missing"
+    "Full F05-1..11 actual authenticated HTTP/PG16 business still missing",
+    "Main-target F05 PR would trigger ten unscoped legacy pull_request workflows; only A may authorize safe PR trigger isolation; current B branch deliberately not opened for main PR"
   ],
   "next_owner": "B",
   "next_milestone": "B继续F05正式Employee/Customer/Sources签发和可靠事件调度、跨端联调、F03现有权限复用与M94生产历史；28辆禁资格整包PG16已过但生产大量负载尚需可靠限时重试验证，F06~F08不启动。",
-  "verification_scope": "F02_1_CURRENT_INITIAL_76_TABLES_PLUS_43_DISPOSABLE_TEST_SIDECARS_119_TOTAL_25_ISOLATED_TRIGGERS_NODE150_REAL_PG16_252_28_PRIORITY_MASS_ATOMIC",
+  "verification_scope": "F02_1_CURRENT_INITIAL_76_TABLES_DISPOSABLE_PG16_NODE_151_PG16_270_421_TOTAL_NO_M94_OR_FORMAL_ISSUER",
   "security_hardening": [
     "pg_catalog actual column type and FK shape check",
     "test-only database URL strict port 5432 and prohibit host/hostaddr query overrides",
@@ -348,9 +349,9 @@
     "F02-1 76 actual PG16 base schema compiled at pinned checksum; true relational brand/series/model and source visibility, 15 integrated PG16 tests"
   ],
   "pr": null,
-  "pr_blocked_reason": "TEN_LEGACY_BROAD_MAIN_TARGET_PR_WORKFLOWS_UNAUTHORIZED_TO_CHANGE_AND_USER_FORBIDS_OLD_RETRIGGER",
-  "tested_commit": "19a69c570c0248b12c5a1fab0ea9c4922e1e2eb5",
-  "tested_run": 39156319317,
+  "pr_blocked_reason": "TEN_UNSCOPED_MAIN_PULL_REQUEST_LEGACY_WORKFLOWS_A_POLICY_NOT_RELEASED_ZERO_ADDITIONAL_PAID_BUDGET",
+  "tested_commit": "b982d4b84e2d128e356bce91bc475a758b082af5",
+  "tested_run": 39187990913,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -871,5 +872,19 @@
       "FORMAL_ENABLE_EVENT_DRIVEN_MATCH_REEVALUATION_QUEUED_DELIVERY_MISSING",
       "FORMAL_PRODUCTION_SCALE_LOAD_BENCHMARK_LOCK_TIMEOUT_AND_RETRY_GOVERNANCE_MISSING"
     ]
+  },
+  "f05_priority_visibility_cross_endpoint_test_only": {
+    "status": "PG16_HTTP_VERIFIED_DISPOSABLE_TEST_ONLY",
+    "priority_to_favorite": "OTHER_CUSTOMER_DENIED_OWN_CUSTOMER_ALLOWED_ENDED_OTHER_RESTORED",
+    "priority_to_consultation": "OTHER_CUSTOMER_DENIED_OWN_CUSTOMER_ALLOWED_ENDED_OTHER_RESTORED",
+    "code_sha": "b982d4b84e2d128e356bce91bc475a758b082af5",
+    "run_id": 39187990913,
+    "job_id": 117854372725,
+    "node_passed": 151,
+    "pg16_passed": 270,
+    "failed": 0,
+    "skipped": 0,
+    "production_ready": false,
+    "formal_customer_priority_source_signed": false
   }
 }
