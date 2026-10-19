@@ -9,6 +9,7 @@ import {createFoundationHandler} from '../src/app.mjs';
 import {createIsolatedRecommendationService} from '../src/f05-recommendation-service.mjs';
 import {createIsolatedRecommendationHandler} from '../src/f05-recommendation-http.mjs';
 import {createIsolatedMatchingService} from '../src/f05-matching-service.mjs';
+import {createIsolatedDemandLifecycleService} from '../src/f05-demand-lifecycle-service.mjs';
 const env=validateCatalogEnv(),pool=new pg.Pool({connectionString:env.connectionString,max:6});
 const db=new pg.Client({connectionString:env.connectionString});
 const staff=randomBytes(32).toString('base64url'),member4s=randomBytes(32).toString('base64url'),
@@ -183,6 +184,13 @@ try{
   const other=await post({customerId:'62002',vehicleId:'62011'});
   assert.equal(other.status,200,JSON.stringify(other));
   assert.equal(await number("SELECT count(*) n FROM public.f05_recommendation_safe_customer_test WHERE vehicle_id=62011 AND customer_id=62002"),1);
+  // A prior account disable physically paused Demand; reactivation of the account
+  // must NOT auto-reactivate matching. Current responsible explicitly resumes.
+  await db.query("INSERT INTO public.f05_demand_lifecycle_scope_test(employee_id,customer_id,can_manage_demand,expires_at) "+
+   "VALUES(62000,62000,true,statement_timestamp()+interval '20 minutes')");
+  const resumed=await createIsolatedDemandLifecycleService({pool,env:process.env}).action({
+   credential:staff,eventKey:key(),demandId:'62000',action:'RESUME'});
+  assert.equal(resumed.status,200,JSON.stringify(resumed));
   const matched=await matching.recompute({credential:staff,demandId:'62000',
    vehicleId:'62011',eventKey:key()});
   assert.equal(matched.status,200,JSON.stringify(matched));
