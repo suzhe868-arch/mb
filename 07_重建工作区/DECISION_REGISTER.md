@@ -1,3 +1,15 @@
+# 2026-10-19｜A主控决议：F05非生产真实业务验收通过，PR125合并；下一责任B实施F06首条LockRequest真实HTTP/PG16
+
+- **F05状态**：A已独立复核PR #125并合并main `25034a7cd9e3d977e18ffb7f5dc0ba8db1008064`。业务SHA `f7503843a60bef3f94b818d80a37ec166a157775` 的官方Run 39214339966及证据HEAD `d5690899ff37d3b7ddc46b1640dd113309addecf` 的Run 39214628791均为560/560，失败0、跳过0。D1已从CI专用路由整改为实际应用注册的`POST /api/v1/public-pool/consultations`，并通过隔离PG16/HTTPS真实正反例。
+- **旧Source例外**：PR #125触发10个旧工作流/28个Job。合并时9/10工作流完成（5成功、4旧Source失败、1旧Source仍运行）；27/28 Job完成（23成功、4旧Source失败、1仍运行）。4个失败均停在旧同SHA push来源证明门禁；Run 39216589244为F05-8旧Source长轮询，要求同HEAD的64个旧push作业，当前PR事件无法提供。均归档为`LEGACY_SOURCE_ORACLE_BLOCKED`，不伪装通过、不改冻结Workflow、不重跑旧66。历史65/66和PR113 23/28事实原样保留。
+- **生产门禁**：`formal_source_signed=false`、`production_ready=false`。正式微信/F03/JYT/4S/名邦Source Issuer、完整M94迁移链、生产调度/观测/容量和C/E生产联调仍未完成。
+- **下一任务**：`NEXT_OWNER=B / NEXT_TASK=F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16_01 / BRANCH=feat/f06-real-lockrequest-http-pg16-01`。沿用已合并的[正式F06施工单](F06_真实锁车申请审批唯一Lock与自动候补_首条业务API纵切_A主控B正式施工单_2026-10-18.md)，B实现真实Node HTTP＋隔离PG16 LockRequest申请、员工审批、单车唯一Lock、竞争自动Waitlist、6h超时、72h锁期、权限重验、幂等/并发/回滚。生产身份和资金保持Fail Closed，B_APP_01继续排队，F07/F08按序后续。
+- **CI预算**：本次PR按A已批准范围触发28个Artifact上传动作、保留30天；未购买付费服务。工具未读取账单，不声明已核实账单金额为零。F06分支只做本地/隔离PG16＋HTTP验证，若任何远程触发将命中旧F05 28 Job扇出则不触发远程CI。
+
+历史记录从下方保留，不删除或重写既有决议。
+
+---
+
 # 2026-10-18｜A最新裁决：F05真实交付验收优先、暂停F06施工主线
 
 - **用户最新明确批准**先将F05真正修正、达到可验证真实功能验收，再恢复F06；此执行顺序覆盖PR120后直接放行F06的**执行优先级**，不修改历史已合并PR或旧实际CI结果。
