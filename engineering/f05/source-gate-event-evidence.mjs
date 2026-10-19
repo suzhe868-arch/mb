@@ -84,7 +84,7 @@ export async function verifyCurrentPullRequestRun({workflowPath,sourceJobName,ex
  if(jobData.total_count!==expectedJobs)throw Error('SOURCE_GATE_PR_EVIDENCE_API_JOB_TOTAL_MISMATCH');
  const dir=resolve(process.cwd(),artifactDirectory);
  await mkdir(dir,{recursive:true});
- await writeFile(resolve(dir,'event-aware-pull-request-evidence.json'),JSON.stringify(evidence,null,2)+'\\n');
+ await writeFile(resolve(dir,'event-aware-pull-request-evidence.json'),JSON.stringify(evidence,null,2));
  console.log('SOURCE_GATE_EVENT_AWARE_PULL_REQUEST_EVIDENCE',JSON.stringify(evidence));
  return evidence;
 }
