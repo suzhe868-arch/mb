@@ -4,11 +4,14 @@ import {readFile,writeFile,mkdir} from 'node:fs/promises';
 const repo=process.env.GITHUB_REPOSITORY,token=process.env.GH_ACTIONS_READ_TOKEN;
 if(repo!=='suzhe868-arch/mb'||!token||process.env.CI!=='true'||process.env.GITHUB_ACTIONS!=='true')
  throw Error('F05_9_OFFICIAL_70_SOURCE_NOT_SIGNED');
-import {verifyCurrentPullRequestRun} from '../source-gate-event-evidence.mjs';
+import {verifyCurrentPullRequestRun,verifyCurrentOfficialMainPush} from '../source-gate-event-evidence.mjs';
 const event=JSON.parse(await readFile(process.env.GITHUB_EVENT_PATH,'utf8'));
 if(process.env.GITHUB_EVENT_NAME==='pull_request'){
  await verifyCurrentPullRequestRun({workflowPath:".github/workflows/f05-9-recommendation-visibility-grants.yml",sourceJobName:"F05-9 new Source v25 true PG16",expectedJobs:2,artifactDirectory:"engineering/f05/recommendation-visibility-grants/artifacts/source/"});
  process.exit(0);
+}
+if(process.env.GITHUB_EVENT_NAME==='push'&&process.env.GITHUB_REF==='refs/heads/main'){
+ await verifyCurrentOfficialMainPush({workflowPath:".github/workflows/f05-9-recommendation-visibility-grants.yml",artifactDirectory:"engineering/f05/recommendation-visibility-grants/artifacts/source/"});
 }
 if(process.env.GITHUB_EVENT_NAME!=='push')throw Error('SOURCE_GATE_UNSUPPORTED_EVENT_FAIL_CLOSED');
 
