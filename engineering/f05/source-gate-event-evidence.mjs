@@ -106,11 +106,33 @@ export async function verifyCurrentPullRequestRun({workflowPath,sourceJobName,ex
  const event=JSON.parse(await (await import('node:fs/promises')).readFile(env.GITHUB_EVENT_PATH,'utf8'));
  const repo=env.GITHUB_REPOSITORY;
  const run=await api(repo,'/actions/runs/'+env.GITHUB_RUN_ID,env.GH_ACTIONS_READ_TOKEN);
- const jobData=await api(repo,'/actions/runs/'+env.GITHUB_RUN_ID+'/jobs?per_page=100',env.GH_ACTIONS_READ_TOKEN);
- const artifactData=await api(repo,'/actions/runs/'+env.GITHUB_RUN_ID+'/artifacts?per_page=100',env.GH_ACTIONS_READ_TOKEN);
+ let jobData=null,artifactData=null,ready=false;
+ const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+ for(let attempt=0;attempt<20;attempt++){
+  jobData=await api(repo,'/actions/runs/'+env.GITHUB_RUN_ID+'/jobs?per_page=100',env.GH_ACTIONS_READ_TOKEN);
+  artifactData=await api(repo,'/actions/runs/'+env.GITHUB_RUN_ID+'/artifacts?per_page=100',env.GH_ACTIONS_READ_TOKEN);
+  if(jobData.total_count!==expectedJobs)throw Error('SOURCE_GATE_PR_EVIDENCE_API_JOB_TOTAL_MISMATCH');
+  const jobs=jobData.jobs||[];
+  const own=jobs.filter(j=>j.name===sourceJobName);
+  if(own.length!==1||own[0].status!=='in_progress')throw Error('SOURCE_GATE_PR_EVIDENCE_SOURCE_JOB_NOT_RUNNING');
+  const peers=jobs.filter(j=>j.name!==sourceJobName);
+  if(peers.some(j=>j.status==='completed'&&j.conclusion!=='success'||j.conclusion==='skipped'||j.conclusion==='failure'||j.conclusion==='cancelled'))
+   throw Error('SOURCE_GATE_PR_EVIDENCE_PEER_JOB_FAILED_OR_SKIPPED');
+  const artifacts=artifactData.artifacts||[];
+  const artifactsReady=(artifactNames||[]).every(name=>{
+   const a=artifacts.find(x=>x.name===name);
+   return Boolean(a&&a.expired!==true&&Number.isSafeInteger(a.size_in_bytes)&&a.size_in_bytes>0&&/^sha256:[a-f0-9]{64}$/.test(a.digest||''));
+  });
+  const peersReady=peers.length===expectedJobs-1&&peers.every(j=>j.status==='completed'&&j.conclusion==='success');
+  if(peersReady&&artifactsReady){ready=true;break;}
+  console.log('SOURCE_GATE_PR_PEER_EVIDENCE_WAIT',JSON.stringify({attempt,runId:env.GITHUB_RUN_ID,
+   peers:peers.map(j=>({name:j.name,status:j.status,conclusion:j.conclusion})),
+   artifacts:(artifactNames||[]).map(name=>({name,visible:artifacts.some(a=>a.name===name)}))}));
+  await delay(3000);
+ }
+ if(!ready)throw Error('SOURCE_GATE_PR_EVIDENCE_PEERS_OR_ARTIFACTS_NOT_READY_AFTER_BOUNDED_WAIT');
  const evidence=validatePullRequestEvidence({event,env,run,jobs:jobData.jobs||[],workflowPath,sourceJobName,expectedJobs,
   artifactNames:artifactNames||[],artifacts:artifactData.artifacts||[]});
- if(jobData.total_count!==expectedJobs)throw Error('SOURCE_GATE_PR_EVIDENCE_API_JOB_TOTAL_MISMATCH');
  const dir=resolve(process.cwd(),artifactDirectory);
  await mkdir(dir,{recursive:true});
  await writeFile(resolve(dir,'event-aware-pull-request-evidence.json'),JSON.stringify(evidence,null,2));
