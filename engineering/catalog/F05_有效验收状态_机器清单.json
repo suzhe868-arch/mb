@@ -2,22 +2,22 @@
   "project": "名邦汽车 V1",
   "task": "F05_REAL_DELIVERY_AND_TRUSTWORTHY_ACCEPTANCE_CLOSEOUT_01",
   "base_main": "9181a997edae1ad46fcda1b5a4777826512be955",
-  "status": "B_IN_PROGRESS_F05_6_F05_10_MANAGER_SCOPE_435_TEST_ONLY",
+  "status": "B_IN_PROGRESS_F05_1_EMPLOYEE_VEHICLE_SCOPED_439_TEST_ONLY",
   "nonproduction_acceptance": false,
   "production_ready": false,
   "formal_source_signed": false,
-  "github_commit": "10aaf1912d731c2a33847e775518ad52729d8aac",
+  "github_commit": "d6cf548ce2990e082ec72e126fbe2b58d7d48196",
   "node_http_stub_tests": {
-    "passed": 153,
+    "passed": 154,
     "failed": 0,
     "skipped": 0
   },
   "real_postgresql16": {
     "executed": true,
-    "run_id": 39196225730,
-    "head_sha": "10aaf1912d731c2a33847e775518ad52729d8aac",
-    "node_http_tests_passed": 153,
-    "real_pg16_integration_tests_passed": 282,
+    "run_id": 39197063066,
+    "head_sha": "d6cf548ce2990e082ec72e126fbe2b58d7d48196",
+    "node_http_tests_passed": 154,
+    "real_pg16_integration_tests_passed": 285,
     "failed": 0,
     "skipped": 0,
     "db_server": "postgres:16-alpine GitHub Actions standard runner",
@@ -33,8 +33,8 @@
     "disposable_photo_order_proof": true,
     "real_pg16_catalog_integration_tests_passed": 19,
     "real_pg16_favorite_integration_tests_passed": 13,
-    "disposable_sidecar_tables": 46,
-    "total_disposable_physical_tables": 122,
+    "disposable_sidecar_tables": 47,
+    "total_disposable_physical_tables": 123,
     "formal_wechat_customer_issuer_verified": false,
     "real_pg16_consultation_integration_tests_passed": 20,
     "formal_customer_phone_consent_issuer_verified": false,
@@ -128,7 +128,8 @@
     "disposable_demand_lifecycle_transactions_verified": true,
     "disposable_auto_pause_security_verified": true,
     "formal_demand_lifecycle_source_signed": false,
-    "real_pg16_full_runtime_wiring_tests_passed": 1
+    "real_pg16_full_runtime_wiring_tests_passed": 1,
+    "real_pg16_employee_vehicle_scope_tests_passed": 3
   },
   "endpoints": {
     "implemented_test_only": [
@@ -158,7 +159,8 @@
       "POST /api/v1/catalog/find-car/applications/:applicationId/activate (test-only scoped Employee manual active Demand; no automatic matching)",
       "POST /api/v1/catalog/demands/:demandId/vehicles/:vehicleId/recompute-match (test-only Employee scoped, explicit deterministic subset, actual frozen four-tier Match Result + stale history)",
       "POST /api/v1/catalog/recommendations/:recommendationId/consultations (current customer safe Recommendation, immutable direct source, bounded PDM15 assignee)",
-      "POST /api/v1/catalog/demands/:demandId/actions (test-only bearer, physical PG16 PDM11 Demand pause/resume/customer-end-request/employee-finalize)"
+      "POST /api/v1/catalog/demands/:demandId/actions (test-only bearer, physical PG16 PDM11 Demand pause/resume/customer-end-request/employee-finalize)",
+      "GET /api/v1/catalog/internal/vehicles/:vehicleId (current scoped Employee/four_s read only, no VIN/phone/private price, disposable bearer)"
     ],
     "real_pg16_verified": [
       "Catalog list/detail physical F02 initial PG16 with disposable proof",
@@ -185,7 +187,8 @@
       "PDM12 isolated PG16 source customer display price, Vehicle facts, salesperson description, local model map, master model year/brand changes atomically mark only affected current Demand Match Result stale, append frozen matching_change_events cause snapshots, preserve history, rerun four tiers, prove injected audit failure rollbacks; no automatic Recommendation/Priority/grant",
       "F05-7 protected DISPOSABLE_TEST_ONLY source-price and vehicle-fact BEFORE write transactional vehicle locks serialize with scoped Match recompute, PG16 real two-connection price/facts FIRST and Match FIRST reverse race, resulting new current marked stale after committed source change; 5 actual PG16 race tests",
       "F05-10 PDM15 real F05-9 Recommendation CREATE in frozen PG16 grants Customer hidden visibility and price right; Customer enters consultation through explicit Recommendation ID; original direct source and lawful current Demand assignee are frozen; separate public entry fails hidden, END/entry competing transactions serialize at Vehicle, original Consultation retains source.",
-      "PDM11 Demand lifecycle: PG16 10/10, real HTTP, immutable action evidence, account/entitlement auto-pause, no auto-resume, deadlock-safe lock ordering and audit rollback"
+      "PDM11 Demand lifecycle: PG16 10/10, real HTTP, immutable action evidence, account/entitlement auto-pause, no auto-resume, deadlock-safe lock ordering and audit rollback",
+      "F05-1 Employee current Vehicle scope: real PG16 3/3, restricted Mingbang/4S/wholesale, current cycle, revocation, no sensitive DTO, DISPOSABLE_TEST_ONLY"
     ],
     "customer_write_implemented": [
       "NONPRODUCTION_ACTUAL_PG16_POST_FAVORITE_TEST_ONLY",
@@ -356,8 +359,8 @@
   ],
   "pr": null,
   "pr_blocked_reason": "MAIN_PR_WORKFLOW_TRIGGER_GOVERNANCE_NOT_RELEASED_5_VERIFIED_F05_PATH_MATCHES_OTHER_WORKFLOWS_NOT_EXHAUSTIVELY_AUDITED",
-  "tested_commit": "10aaf1912d731c2a33847e775518ad52729d8aac",
-  "tested_run": 39196225730,
+  "tested_commit": "d6cf548ce2990e082ec72e126fbe2b58d7d48196",
+  "tested_run": 39197063066,
   "current_sort_implementation": {
     "physical_verified": [
       "newest"
@@ -917,18 +920,18 @@
     "disallowed_production_identity_issuer": true,
     "true_pg16_tests": 10,
     "first_human_response_verified": false,
-    "audited_sha": "10aaf1912d731c2a33847e775518ad52729d8aac",
-    "audited_run": 39196225730,
+    "audited_sha": "d6cf548ce2990e082ec72e126fbe2b58d7d48196",
+    "audited_run": 39197063066,
     "fail_closed_without_formal_signers": true,
     "employee_closure_reason_immutable_event_column": "f05_demand_lifecycle_events_test.reason_text",
     "employee_closure_reason_physically_verified": true
   },
   "pr_trigger_audit": {
     "main_sha": "9181a997edae1ad46fcda1b5a4777826512be955",
-    "comparison_head": "10aaf1912d731c2a33847e775518ad52729d8aac",
-    "ahead_commits": 244,
+    "comparison_head": "d6cf548ce2990e082ec72e126fbe2b58d7d48196",
+    "ahead_commits": 250,
     "behind_commits": 0,
-    "changed_files": 151,
+    "changed_files": 156,
     "changed_workflow_files": [
       ".github/workflows/f05-real-delivery-pg16-onejob.yml"
     ],
@@ -951,8 +954,8 @@
     "health_ready_200_verified": true,
     "unauthorized_demand_action_401_verified": true,
     "production_ready_in_denial_response": false,
-    "run": 39196225730,
-    "tested_commit": "10aaf1912d731c2a33847e775518ad52729d8aac",
+    "run": 39197063066,
+    "tested_commit": "d6cf548ce2990e082ec72e126fbe2b58d7d48196",
     "source_mode": "DISPOSABLE_TEST_ONLY",
     "formal_issuer_verified": false,
     "production_ready": false
@@ -975,8 +978,32 @@
     "formal_f03_management_issuer_verified": false,
     "pg16_cases_added": 1,
     "full_handover_pg16_cases_passed": 10,
-    "code_sha": "10aaf1912d731c2a33847e775518ad52729d8aac",
-    "run": 39196225730,
+    "code_sha": "d6cf548ce2990e082ec72e126fbe2b58d7d48196",
+    "run": 39197063066,
     "production_ready": false
+  },
+  "f05_employee_vehicle_scope_real_business": {
+    "mode": "DISPOSABLE_TEST_ONLY",
+    "endpoint": "GET /api/v1/catalog/internal/vehicles/:vehicleId",
+    "employee_identity_source": "f05_catalog_employee_sessions_test",
+    "vehicle_scope_source": "f05_vehicle_read_scope_test",
+    "public_vehicle_id_and_current_cycle_physically_joined": true,
+    "four_s_must_be_current_four_s_source": true,
+    "explicit_employee_vehicle_cycle_scope_required": true,
+    "protection_and_active_priority_safely_excluded": true,
+    "no_vin": true,
+    "no_private_phone": true,
+    "no_internal_wholesale_price": true,
+    "source_validity_expires": true,
+    "db_revocation_and_cycle_end_deny": true,
+    "pg16_test_cases": 3,
+    "unit_http_tests_added": 1,
+    "issuer_formal_employee_f03_verified": false,
+    "issuer_formal_4s_own_publisher_verified": false,
+    "real_external_vehicle_source_verified": false,
+    "real_jyt_issuer_verified": false,
+    "production_ready": false,
+    "code_sha": "d6cf548ce2990e082ec72e126fbe2b58d7d48196",
+    "run": 39197063066
   }
 }
