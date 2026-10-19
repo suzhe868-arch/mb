@@ -30,7 +30,8 @@ test('PR mode accepts exact current run and successful HTTPS peer without requir
  assert.equal(result.formal_source_signed,false);
  assert.equal(result.production_ready,false);
  assert.equal(result.failed_jobs,0);
- assert.equal(result.skipped_jobs,0);\n assert.equal(result.verified_peer_artifacts[0].name,'f05-9-https-native-pg16-evidence');
+ assert.equal(result.skipped_jobs,0);
+ assert.equal(result.verified_peer_artifacts[0].name,'f05-9-https-native-pg16-evidence');
 });
 const reject=(name,patch,code)=>test(name,()=>assert.throws(()=>validatePullRequestEvidence(args(patch)),new RegExp(code)));
 reject('reject wrong event type',{env:{...env,GITHUB_EVENT_NAME:'push'}},'EVENT_TYPE_MISMATCH');
