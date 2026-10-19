@@ -76,7 +76,9 @@ try{
  await test('PG16 disabled account/entitlement forbids resume, but employee can formally cancel',async()=>{
   await db.query("UPDATE public.customers SET account_status='disabled' WHERE customer_id=59680");
   assert.equal((await act('END_REQUEST')).status,401);
-  assert.equal((await act('PAUSE',employeeToken)).status,200);
+  assert.equal((await act('PAUSE',employeeToken)).status,409);
+  assert.equal((await db.query("SELECT demand_state FROM public.demands WHERE demand_id=59680")).rows[0].demand_state,'paused',
+   'Account disable has already paused the active Demand atomically');
   assert.equal((await act('RESUME',employeeToken)).status,403);
   await db.query("UPDATE public.customers SET account_status='active',customer_level_id=59001 WHERE customer_id=59680");
   assert.equal((await act('RESUME',employeeToken)).status,403);
