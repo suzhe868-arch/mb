@@ -39,6 +39,7 @@ try{
    await db.query("INSERT INTO public.demands(demand_id,customer_id,responsible_employee_id,demand_state,criteria_json) VALUES($1,$1,$1,'active','{}')",[id]);
    await db.query("INSERT INTO public.f05_matching_employee_scope_test(employee_id,customer_id,can_recompute,expires_at) VALUES($1,$1,true,statement_timestamp()+interval '20 minutes')",[id]);
    await db.query("INSERT INTO public.f05_priority_qualification_test(customer_id,enabled,expires_at) VALUES($1,true,statement_timestamp()+interval '20 minutes')",[id]);
+   await db.query("INSERT INTO public.f05_priority_employee_scope_test(employee_id,customer_id,can_manage,expires_at) VALUES($1,$1,true,statement_timestamp()+interval '20 minutes')",[id]);
    await db.query("INSERT INTO public.f05_matching_sales_description_test(demand_id,written_by_employee_id,sales_description,expires_at) VALUES($1,$1,'brandId=59001',statement_timestamp()+interval '20 minutes')",[id]);
   }
   for(const id of [68910,68911,68912,68913])await vehicle(id);
