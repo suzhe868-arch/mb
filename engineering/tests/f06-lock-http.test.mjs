@@ -54,3 +54,18 @@ test('服务不能产生伪造结构响应',async()=>{
  const h=handler({intake:async()=>({status:200,body:{message:'fake'}}),decide:async()=>({status:200,body:{code:'OK'}})});
  const r=await request(h);assert.equal(r.status,503);
 });
+test('Customer own Lock status uses only trusted GET bearer and returns safe projection',async()=>{
+ let captured;const h=handler({intake:async()=>({status:503,body:{code:'BAD'}}),decide:async()=>({status:503,body:{code:'BAD'}}),
+  project:async arg=>(captured=arg,{status:200,body:{code:'LOCK_CUSTOMER_SAFE_STATUS',lockStatus:'locked',ownLock:true}})});
+ const r=await request(h,{path:'/api/v1/lock-requests/9/status',method:'GET'});
+ assert.equal(r.status,200);assert.deepEqual(captured,{token,requestId:'9'});
+ assert.equal(r.body.lockStatus,'locked');assert.equal(r.body.ownLock,true);
+ assert.doesNotMatch(JSON.stringify(r.body),/approver|customerId|price|amount|employee/i);
+});
+test('Customer status endpoint is not a POST and refuses absent projection service',async()=>{
+ const h=handler();
+ const refused=await request(h,{path:'/api/v1/lock-requests/9/status',method:'POST'});
+ assert.equal(refused.status,405);
+ const unavailable=await request(h,{path:'/api/v1/lock-requests/9/status',method:'GET'});
+ assert.equal(unavailable.status,503);
+});
