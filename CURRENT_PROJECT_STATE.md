@@ -1,3 +1,15 @@
+# 2026-10-19｜主线最新状态：F05非生产验收完成，下一项F06真实HTTP/PG16
+
+- F05 PR #125 已合并main，merge SHA：`25034a7cd9e3d977e18ffb7f5dc0ba8db1008064`。A接受的是**非生产真实业务交付**，不是生产就绪。
+- 业务SHA `f7503843a60bef3f94b818d80a37ec166a157775` 的Run39214339966与最终证据HEAD `d5690899ff37d3b7ddc46b1640dd113309addecf` 的Run39214628791均为560/560通过、0失败、0跳过。
+- PR #125合并时10个旧工作流中9个已结束（5成功、4旧Source门禁失败、1旧Source仍运行）。已结束失败均是旧同SHA push来源证明，不是已观察到的新业务断言失败；最后一个F05-8 Source运行在合并时仍待终结，按`LEGACY_SOURCE_ORACLE_BLOCKED`归档，不改写为PASS、不重跑旧66、不修改冻结Workflow。
+- 正式微信/F03/JYT/4S/名邦Source Issuer、完整M94迁移链、生产Priority调度/观测/容量、C/E生产联调仍未完成：`formal_source_signed=false`、`production_ready=false`。
+- **下一责任窗口：B。** 任务`F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16_01`，分支`feat/f06-real-lockrequest-http-pg16-01`，施工单：`07_重建工作区/F06_真实锁车申请审批唯一Lock与自动候补_首条业务API纵切_A主控B正式施工单_2026-10-18.md`。
+- F06仅实现隔离PG16＋真实Node HTTP业务纵切；不得启用正式客户/员工Issuer、不得执行真实意向金/退款/生产Lock、不得修改旧冻结F05/F06工作流。保持远程CI硬预算$0；若改动会命中F05旧28 Job fan-out，不触发远程CI。
+- A验收报告：`07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md`。
+
+---
+
 # 2026-10-18｜A主控纠正F05验收口径：真实功能整改优先，F06转暂缓
 
 - 用户已明确同意“先修正F05，完成真实功能与有效验证后再继续F06”。截至最新`main`，F05-1～11各`f05_*_gate`多数是隔离CI候选，A此前的PR120只是旧65/66加1例外的非生产CI阶段退出，不是生产/真实HTTP功能完整验收。
