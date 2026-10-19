@@ -9,7 +9,7 @@ const env={APP_ENV:'test',NODE_ENV:'test',API_HOST:'127.0.0.1',
  F06_LOCK_DATABASE_URL:'postgres://f06_lock_ci:synthetic_only@127.0.0.1:5432/f06_lock_test'};
 const ready={db:'f06_lock_test',role:'f06_lock_ci',version:160015,superuser:false,createdb:false,
  sessions:true,employees:true,requests:true,locks:true,waitlists:true,
- vehicles:true,public_requests:true,public_locks:true,public_waitlists:true,signed_ledger:true,pc_accounts:true,scoped_capabilities:true,four_s_boundary:true,match_source:true,priority_source:true,priority_events:true,recommendation_source:true,phone_facts:true,price_history:true,visibility_grants:true};
+ vehicles:true,public_requests:true,public_locks:true,public_waitlists:true,signed_ledger:true,signed_ledger_rows:24,pc_accounts:true,scoped_capabilities:true,four_s_boundary:true,match_source:true,priority_source:true,priority_events:true,recommendation_source:true,phone_facts:true,price_history:true,visibility_grants:true};
 const sha=s=>createHash('sha256').update(s).digest('hex');
 test('same-key PENDING replay after max-6h MUST persist expired and its audit event',async()=>{
  const queries=[],customerId='101';
