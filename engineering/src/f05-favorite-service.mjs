@@ -65,7 +65,14 @@ export function createIsolatedFavoriteService({pool,env=process.env}={}){
        "AND ((v.source_type='wholesale' AND v.source_sale_status='active') OR "+
        "(v.source_type IN ('mingbang','four_s') AND v.source_sale_status='available')) "+
        "AND NOT EXISTS(SELECT 1 FROM public.f05_real_catalog_protections_test q "+
-       "WHERE q.vehicle_id=v.vehicle_id AND q.listing_cycle_id=cy.listing_cycle_id AND q.ended_at IS NULL) LIMIT 1",[vehicleId])).rows[0];
+       "WHERE q.vehicle_id=v.vehicle_id AND q.listing_cycle_id=cy.listing_cycle_id AND q.ended_at IS NULL) "+
+       // The public catalog suppresses vehicles covered by another Customer's
+       // current exclusive Priority. Favorite ADD must enforce the same
+       // *customer-aware* exclusive rule; no invisible side-channel writes.
+       // Vehicle FOR SHARE above serializes with Priority's vehicle FOR UPDATE.
+       "AND NOT EXISTS(SELECT 1 FROM public.f05_priority_safe_active_test pr "+
+       "WHERE pr.vehicle_id=v.vehicle_id AND pr.listing_cycle_id=cy.listing_cycle_id "+
+       "AND pr.customer_id<>$2::bigint) LIMIT 1",[vehicleId,customerId])).rows[0];
      if(!allowed){await c.query('ROLLBACK');return response(404,'VEHICLE_NOT_VISIBLE')}
     }
     if(action==='REMOVE'&&!current){await c.query('ROLLBACK');return response(404,'FAVORITE_NOT_FOUND')}

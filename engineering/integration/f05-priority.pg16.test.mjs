@@ -9,6 +9,8 @@ import {createFoundationHandler} from '../src/app.mjs';
 import {createIsolatedMatchingService} from '../src/f05-matching-service.mjs';
 import {createIsolatedPriorityService,candidatesSQL,firstStillQualifiedCandidate} from '../src/f05-priority-service.mjs';
 import {createIsolatedPriorityHandler} from '../src/f05-priority-http.mjs';
+import {createIsolatedFavoriteService} from '../src/f05-favorite-service.mjs';
+import {createIsolatedFavoriteHandler} from '../src/f05-favorite-http.mjs';
 import {SQL_CATALOG_DETAIL,SQL_CATALOG_LIST,SQL_CATALOG_STATS} from '../src/catalog-service.mjs';
 const env=validateCatalogEnv(),pool=new pg.Pool({connectionString:env.connectionString,max:7});
 const db=new pg.Client({connectionString:env.connectionString});
@@ -52,7 +54,11 @@ try{
  }catch(e){await db.query('ROLLBACK');throw e}
  const matching=createIsolatedMatchingService({pool,env:process.env});
  const priority=createIsolatedPriorityService({pool,env:process.env});
- server=createServer(createFoundationHandler({priorityHandler:createIsolatedPriorityHandler(priority,process.env)}));
+ const favorites=createIsolatedFavoriteService({pool,env:process.env});
+ server=createServer(createFoundationHandler({
+  priorityHandler:createIsolatedPriorityHandler(priority,process.env),
+  favoriteHandler:createIsolatedFavoriteHandler(favorites,process.env)
+ }));
  await new Promise(ok=>server.listen(0,'127.0.0.1',ok));
  const endpoint='http://127.0.0.1:'+server.address().port+'/api/v1/catalog/priority';
  const post=async({vehicleId='62510',action='RECONCILE',token=A,eventKey=key(),body=null,headers={}}={})=>{
@@ -289,6 +295,56 @@ try{
   const afterSourceLoss=await firstStillQualifiedCandidate(db,frozen);
   assert.equal(afterSourceLoss,null,
    'a new Priority cannot consume an old Match result with expired Employee source scope');
+ });
+ await test('F05-3F favorite ADD cannot bypass an exclusive Priority held by another Customer',async()=>{
+  // Restore this fixture's expired Match scope and issue genuine PG16 Priority,
+  // not a fake row or a client-supplied "priority owner" header.
+  await db.query("UPDATE public.f05_matching_employee_scope_test "+
+   "SET expires_at=statement_timestamp()+interval '20 minutes' "+
+   "WHERE employee_id=62501 AND customer_id=62501");
+  await addVehicle(62517);
+  await db.query("UPDATE public.vehicles SET platform_visibility='visible' WHERE vehicle_id=62517");
+  const good=await match(62501,62517,B);
+  assert.equal(good.status,200,JSON.stringify(good));
+  const exclusive=await post({vehicleId:'62517',token:B});
+  assert.equal(exclusive.status,200,JSON.stringify(exclusive));
+  assert.equal(exclusive.body.outcome,'NEW',JSON.stringify(exclusive));
+  assert.equal(await count("SELECT count(*) n FROM public.f05_priority_safe_active_test "+
+   "WHERE vehicle_id=62517 AND customer_id=62501"),1);
+  const outsider=randomBytes(32).toString('base64url');
+  const principal=randomBytes(32).toString('base64url');
+  for(const [cid,token] of [['62500',outsider],['62501',principal]])
+   await db.query("INSERT INTO public.f05_catalog_customer_sessions_test "+
+    "(token_sha256,customer_id,expires_at) "+
+    "VALUES($1,$2,statement_timestamp()+interval '20 minutes')",[sha(token),cid]);
+  // The unrelated Customer is active, but an exclusive Vehicle must be
+  // indistinguishable from a non-visible Vehicle at favorite write time.
+  await db.query("UPDATE public.customers SET account_status='active' WHERE customer_id=62500");
+  const add=async token=>{
+   const result=await fetch('http://127.0.0.1:'+server.address().port+
+    '/api/v1/catalog/vehicles/62517/favorite',{method:'POST',headers:{
+     authorization:'Bearer '+token,'x-idempotency-key':key()}});
+   return {status:result.status,body:await result.json()};
+  };
+  const denied=await add(outsider);
+  assert.equal(denied.status,404,JSON.stringify(denied));
+  assert.equal(denied.body.code,'VEHICLE_NOT_VISIBLE');
+  assert.equal(await count("SELECT count(*) n FROM public.f05_catalog_favorite_states_test "+
+   "WHERE customer_id=62500 AND vehicle_id=62517"),0);
+  assert.equal(await count("SELECT count(*) n FROM public.f05_catalog_favorite_events_test "+
+   "WHERE customer_id=62500 AND vehicle_id=62517"),0);
+  const owner=await add(principal);
+  assert.equal(owner.status,200,JSON.stringify(owner));
+  assert.equal(owner.body.code,'FAVORITE_APPLIED');
+  assert.equal(await count("SELECT count(*) n FROM public.f05_catalog_favorite_states_test "+
+   "WHERE customer_id=62501 AND vehicle_id=62517 AND current_state='active'"),1);
+  // Expiry is a trusted DB fact; a historical favorite is never the source
+  // of an independent Priority grant to a different Customer.
+  await db.query("UPDATE public.priority_leases SET status='ended',ended_at=statement_timestamp() "+
+   "WHERE vehicle_id=62517 AND status='active'");
+  const afterEnd=await add(outsider);
+  assert.equal(afterEnd.status,200,JSON.stringify(afterEnd));
+  assert.equal(afterEnd.body.code,'FAVORITE_APPLIED');
  });
  await test('append-only audit cannot be erased; Priority release cannot create Recommendation or grant',async()=>{
   await assert.rejects(db.query("DELETE FROM public.f05_priority_events_test WHERE vehicle_id=62510"),e=>e.code==='23514');
