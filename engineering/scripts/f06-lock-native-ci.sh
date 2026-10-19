@@ -59,6 +59,8 @@ node f05/deterministic-matching-readiness-four-tier/fixtures.mjs
 node f05/priority-arbitration-ttl-handover/preseed-v23.mjs
 node f05/priority-arbitration-ttl-handover/runner.mjs --apply
 node f05/priority-arbitration-ttl-handover/runner.mjs --verify
+# Original F05-8 service creates a genuine signed CI Priority from current Match, no manual Source insert.
+node scripts/f06-lock-seed-signed-priority.mjs
 node f05/recommendation-visibility-grants/runner.mjs --apply
 node f05/recommendation-visibility-grants/runner.mjs --verify
 node f05/pdm17-public-pool-owner-claim/runner.mjs --apply

@@ -21,7 +21,7 @@ const customers=['96180101','96180102','96180103'];
 const cars=['96181101','96181102','96181103','96181104','96181105'];
 const cycles=['96182101','96182102','96182103','96182104','96182105'];
 const custTokens=customers.map(()=>token());
-const employeeToken=token(),nonprivilegedToken=token();
+const employeeToken=token(),nonprivilegedToken=token(),signedPriorityCustomerToken=token();
 // Real original M94 signed fixture provides enabled, non-force-change test-only accounts
 // for Employees 6/7. Keep original Employee 1/4 PC credentials immutable.
 const approverEmployeeId='6',ownerEmployeeId='7';
@@ -121,6 +121,24 @@ async function fixture(){
      VALUES($1,$2,$3,$4,'DISPOSABLE_TEST_ONLY',clock_timestamp()+interval '10 minutes')`,
      [sha(tokenValue),id,pc.account_id,pc.credential_epoch]);
   }
+  // The pre-existing F05-8 CI service (not a forged SQL fixture) issued an active
+  // signed Priority on a wholesale vehicle during genuine v24 migration.
+  const originalPriority=await scalar(`SELECT p.priority_id,p.customer_id
+   FROM public.f05_8_priority_ci p
+   JOIN public.f05_7_result_versions_ci r ON r.result_id=p.source_match_result_id
+    AND r.source_signature=p.source_signature AND r.status='current'
+   WHERE p.customer_id=899612 AND p.status='active' AND p.expires_at>clock_timestamp()
+   ORDER BY p.priority_id LIMIT 1`);
+  assert.ok(originalPriority,'original authorized F05 Priority source must survive signed v26');
+  await db.query(`INSERT INTO public.customer_phone_facts(customer_id,phone_ciphertext,valid_from)
+    SELECT $1,decode(repeat('bc',16),'hex'),clock_timestamp()-interval '1 day'
+    WHERE NOT EXISTS(SELECT 1 FROM public.customer_phone_facts
+     WHERE customer_id=$1 AND valid_from<=clock_timestamp() AND ended_at IS NULL)`,
+    [originalPriority.customer_id]);
+  await db.query(`INSERT INTO f06_real_lock_test.customer_sessions
+    (token_sha256,customer_id,issuer,expires_at)
+    VALUES($1,$2,'DISPOSABLE_TEST_ONLY',clock_timestamp()+interval '10 minutes')`,
+    [sha(signedPriorityCustomerToken),originalPriority.customer_id]);
   await db.query('COMMIT');seedDone=true;
  }catch(error){await db.query('ROLLBACK');throw error}
  server=createServer(createFoundationHandler({lockHandler:createIsolatedF06LockHandler({service,env:process.env})}));
@@ -311,6 +329,53 @@ if(!setupError){
   }finally{
    await db.query("UPDATE public.lock_requests SET status='expired' WHERE lock_request_id=$1",[legacyId]);
   }
+ });
+
+ await test('Original signed F05 Priority converts atomically to own Lock, event and exclusive hidden projection',async()=>{
+  const p=await scalar(`SELECT p.priority_id,p.customer_id,p.vehicle_id,p.listing_cycle_id,
+    p.source_match_result_id,p.source_signature
+   FROM public.f05_8_priority_ci p
+   JOIN public.f05_7_result_versions_ci r ON r.result_id=p.source_match_result_id
+    AND r.source_signature=p.source_signature
+    AND r.demand_id=p.trigger_demand_id AND r.vehicle_id=p.vehicle_id
+    AND r.listing_cycle_id=p.listing_cycle_id
+   WHERE p.customer_id=899612 AND p.status='active' AND p.expires_at>clock_timestamp()
+   ORDER BY p.priority_id LIMIT 1`);
+  assert.ok(p,'genuine F05-8 Priority created by original signed F05 service required');
+  assert.equal(String(p.customer_id),'899612');
+  const vehicle=await scalar('SELECT source_type,source_sale_status FROM public.vehicles WHERE vehicle_id=$1',[p.vehicle_id]);
+  assert.equal(vehicle.source_type,'wholesale');assert.equal(vehicle.source_sale_status,'active');
+  await db.query("UPDATE public.vehicles SET platform_visibility='hidden' WHERE vehicle_id=$1",[p.vehicle_id]);
+  const competitor=await http('/api/v1/lock-requests',custTokens[1],{
+   vehicleId:String(p.vehicle_id),listingCycleId:String(p.listing_cycle_id),idempotencyKey:key()});
+  assert.ok([403,404].includes(competitor.status),'other Customer must not expose exclusive Priority vehicle');
+  const owned=await http('/api/v1/lock-requests',signedPriorityCustomerToken,{
+   vehicleId:String(p.vehicle_id),listingCycleId:String(p.listing_cycle_id),idempotencyKey:key()});
+  assert.equal(owned.status,201,JSON.stringify(owned.body));
+  const decision=await decide(owned.body.requestId,'approve');
+  assert.equal(decision.status,200,JSON.stringify(decision.body));
+  assert.equal(decision.body.state,'approved');
+  const record=await scalar(`SELECT p.status,p.ended_reason,p.ended_at,l.lock_id,
+    s.priority_origin_id,s.priority_origin_customer_id
+   FROM public.f05_8_priority_ci p
+   JOIN public.locks l ON l.vehicle_id=p.vehicle_id AND l.customer_id=p.customer_id
+    AND l.listing_cycle_id=p.listing_cycle_id AND l.lock_status='active'
+   JOIN f06_real_lock_test.lock_snapshots s ON s.lock_id=l.lock_id
+   WHERE p.priority_id=$1`,[p.priority_id]);
+  assert.equal(record.status,'ended');assert.equal(record.ended_reason,'converted_to_lock');
+  assert.ok(record.ended_at);
+  assert.equal(String(record.priority_origin_id),String(p.priority_id));
+  assert.equal(String(record.priority_origin_customer_id),String(p.customer_id));
+  assert.equal(String(record.lock_id),decision.body.lockId);
+  const ev=await scalar(`SELECT count(*)::int n FROM public.f05_8_events_ci
+   WHERE priority_id=$1 AND event_kind='ended'
+    AND event_key=$2`,[p.priority_id,'f06-1-priority-to-lock:'+p.priority_id+':'+record.lock_id]);
+  assert.equal(ev.n,1,'exact original Priority-to-Lock event must commit atomically');
+  const owner=await service.project({token:signedPriorityCustomerToken,requestId:owned.body.requestId});
+  assert.equal(owner.status,200);
+  assert.equal(owner.body.ownLock,true);
+  const rival=await service.project({token:custTokens[1],requestId:owned.body.requestId});
+  assert.equal(rival.status,404);
  });
  await test('非法 listing cycle 不得建申请',async()=>{
   const bad=await http('/api/v1/lock-requests',custTokens[2],{vehicleId:cars[0],listingCycleId:'999999999',idempotencyKey:key()});
