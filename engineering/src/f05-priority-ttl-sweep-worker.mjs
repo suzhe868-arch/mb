@@ -75,7 +75,14 @@ export function createIsolatedPriorityTtlSweepWorker({pool,env=process.env}={}){
    }catch(e){await db.query('ROLLBACK').catch(()=>{});throw e}
   }finally{db.release()}
  }
- return Object.freeze({async runOnce({limit=25}={}){
+ return Object.freeze({
+ async runPriority({priorityId,vehicleId}={}){
+  if(typeof priorityId!=='string'||!/^[1-9][0-9]{0,18}$/.test(priorityId)||
+     typeof vehicleId!=='string'||!/^[1-9][0-9]{0,18}$/.test(vehicleId))
+   throw Error('F05_PRIORITY_TTL_TARGET_INVALID');
+  return sweepOne(priorityId,vehicleId);
+ },
+ async runOnce({limit=25}={}){
   if(!Number.isInteger(limit)||limit<1||limit>25)throw Error('F05_PRIORITY_TTL_SWEEP_BATCH_LIMIT');
   // Discovery is bounded and read-only; each item is rechecked only after
   // taking the same locks as interactive arbitration.
