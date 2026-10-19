@@ -6,6 +6,8 @@ import {createIsolatedFavoriteService} from './f05-favorite-service.mjs';
 import {createIsolatedFavoriteHandler} from './f05-favorite-http.mjs';
 import {createIsolatedConsultationService} from './f05-consultation-service.mjs';
 import {createIsolatedConsultationHandler} from './f05-consultation-http.mjs';
+import {createIsolatedConsultationResponseService} from './f05-consultation-response-service.mjs';
+import {createIsolatedConsultationResponseHandler} from './f05-consultation-response-http.mjs';
 import {createIsolatedEmployeeStartService} from './f05-employee-start-service.mjs';
 import {createIsolatedEmployeeStartHandler} from './f05-employee-start-http.mjs';
 import {createIsolatedHandoverService} from './f05-handover-service.mjs';
@@ -98,6 +100,9 @@ const REQUIRED_CATALOG_COLUMNS=Object.freeze([
  ['public.f05_catalog_employee_consultation_scope_test','can_reassign','boolean'],
  ['public.f05_catalog_employee_consultation_scope_test','can_receive','boolean'],
  ['public.f05_catalog_employee_consultation_scope_test','can_resume_hold','boolean'],
+ ['public.f05_catalog_employee_consultation_scope_test','can_record_human_response','boolean'],
+ ['public.f05_consultation_human_response_events_test','event_key','text'],
+ ['public.f05_consultation_human_response_events_test','is_first_response','boolean'],
  ['public.f05_catalog_consultation_sla_test','consultation_id','bigint'],
  ['public.f05_catalog_consultation_sla_test','effective_deadline','timestamp with time zone'],
  ['public.f05_catalog_consultation_sla_test','first_human_response_at','timestamp with time zone'],
@@ -223,6 +228,8 @@ export const SQL_CATALOG_SCHEMA=`SELECT
  to_regclass('public.f05_priority_safe_active_test') IS NOT NULL AS p8v,
  to_regclass('public.f05_vehicle_read_scope_test') IS NOT NULL AS vr,
  to_regclass('public.f05_catalog_sort_facts_test') IS NOT NULL AS so,
+ (to_regclass('public.f05_consultation_human_response_events_test') IS NOT NULL
+  AND EXISTS(SELECT 1 FROM pg_catalog.pg_trigger WHERE tgname='f05_human_response_events_immutable_test' AND NOT tgisinternal)) AS hr,
  (SELECT count(*)=2 FROM pg_catalog.pg_trigger WHERE NOT tgisinternal
   AND tgname IN ('f05_demand_customer_safety_pause_test',
    'f05_demand_entitlement_safety_pause_test')) AS da,
@@ -250,7 +257,7 @@ export const SQL_CATALOG_SCHEMA=`SELECT
    AND attr.attname=expected.column_name AND attr.attnum>0 AND NOT attr.attisdropped
   WHERE attr.attname IS NULL OR pg_catalog.format_type(attr.atttypid,attr.atttypmod)<>expected.physical_type
  ) AS shape,
- (SELECT count(*)=124 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
+ (SELECT count(*)=125 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind='r') AS full,
  (SELECT count(*)=2 FROM pg_catalog.pg_constraint fk
   WHERE fk.contype='f'
    AND fk.conrelid IN (to_regclass('public.f05_real_catalog_visibility_test'),to_regclass('public.f05_real_catalog_protections_test'))
@@ -265,7 +272,7 @@ export async function probeIsolatedCatalog(pool){
   const identity=(await pool.query(SQL_CATALOG_IDENTITY)).rows[0];
   if(!identity || Math.floor(Number(identity.v)/10000)!==16 || identity.db!=='f05_catalog_test' || identity.role!=='f05_catalog_ci')return false;
   const schema=(await pool.query(SQL_CATALOG_SCHEMA)).rows[0];
-  return !!schema && Object.keys(schema).sort().join(',')==='aq,c,ca,cp,da,di,dl,ec,es,fac,fca,fcd,fce,fcp,fe,fk,fr,fs,ft,full,he,iv,md,me,mv,mx,p,p8a,p8c,p8e,p8m,p8q,p8s,p8u,p8v,p8w,pe,pf,po,pp,qa,qs,ra,re,rn,rp,rs,ru,rv,sh,shape,so,ss,sv,v,vr,x' && Object.values(schema).every(v=>v===true);
+  return !!schema && Object.keys(schema).sort().join(',')==='aq,c,ca,cp,da,di,dl,ec,es,fac,fca,fcd,fce,fcp,fe,fk,fr,fs,ft,full,he,hr,iv,md,me,mv,mx,p,p8a,p8c,p8e,p8m,p8q,p8s,p8u,p8v,p8w,pe,pf,po,pp,qa,qs,ra,re,rn,rp,rs,ru,rv,sh,shape,so,ss,sv,v,vr,x' && Object.values(schema).every(v=>v===true);
  }catch{return false}
 }
 export async function createIsolatedCatalogRuntime(env=process.env){
@@ -292,6 +299,6 @@ export async function createIsolatedCatalogRuntime(env=process.env){
   const recommendation=createIsolatedRecommendationService({pool,env});
   const priority=createIsolatedPriorityService({pool,env});
   const priorityQualification=createIsolatedPriorityQualificationService({pool,env});
-  return {pool,handler:createCatalogHandler(service),favoriteHandler:createIsolatedFavoriteHandler(favorite,env),consultationHandler:createIsolatedConsultationHandler(consultation,env),employeeStartHandler:createIsolatedEmployeeStartHandler(employeeStart,env),handoverHandler:createIsolatedHandoverHandler(handover,env),slaHoldHandler:createIsolatedSlaHoldHandler(slaHold,env),priceUnlockHandler:createIsolatedPriceUnlockHandler(priceUnlock,env),quotaAdditionHandler:createIsolatedQuotaAdditionHandler(quotaAddition,env),findCarHandler:createIsolatedFindCarHandler(findCar,env),findCarActivationHandler:createIsolatedFindCarActivationHandler(activation,env),demandLifecycleHandler:createIsolatedDemandLifecycleHandler(lifecycle,env),employeeVehicleReadHandler:createIsolatedEmployeeVehicleReadHandler(employeeVehicleRead,env),matchingHandler:createIsolatedMatchingHandler(matching,env),dictionaryHandler:createIsolatedDictionaryHandler(dictionary,env),discoveryHandler:createIsolatedMatchingDiscoveryHandler(discovery,env),recommendationHandler:createIsolatedRecommendationHandler(recommendation,env),priorityHandler:createIsolatedPriorityHandler(priority,env),priorityQualificationHandler:createIsolatedPriorityQualificationHandler(priorityQualification,env),ready:()=>probeIsolatedCatalog(pool),close:()=>pool.end()};
+  return {pool,handler:createCatalogHandler(service),favoriteHandler:createIsolatedFavoriteHandler(favorite,env),consultationHandler:createIsolatedConsultationHandler(consultation,env),consultationResponseHandler:createIsolatedConsultationResponseHandler(consultationResponse,env),employeeStartHandler:createIsolatedEmployeeStartHandler(employeeStart,env),handoverHandler:createIsolatedHandoverHandler(handover,env),slaHoldHandler:createIsolatedSlaHoldHandler(slaHold,env),priceUnlockHandler:createIsolatedPriceUnlockHandler(priceUnlock,env),quotaAdditionHandler:createIsolatedQuotaAdditionHandler(quotaAddition,env),findCarHandler:createIsolatedFindCarHandler(findCar,env),findCarActivationHandler:createIsolatedFindCarActivationHandler(activation,env),demandLifecycleHandler:createIsolatedDemandLifecycleHandler(lifecycle,env),employeeVehicleReadHandler:createIsolatedEmployeeVehicleReadHandler(employeeVehicleRead,env),matchingHandler:createIsolatedMatchingHandler(matching,env),dictionaryHandler:createIsolatedDictionaryHandler(dictionary,env),discoveryHandler:createIsolatedMatchingDiscoveryHandler(discovery,env),recommendationHandler:createIsolatedRecommendationHandler(recommendation,env),priorityHandler:createIsolatedPriorityHandler(priority,env),priorityQualificationHandler:createIsolatedPriorityQualificationHandler(priorityQualification,env),ready:()=>probeIsolatedCatalog(pool),close:()=>pool.end()};
  }catch(e){await pool.end();throw e}
 }
