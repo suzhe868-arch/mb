@@ -186,7 +186,7 @@ test('PDM-20 seven sorts: six verified test projections execute server-side; old
   assert.equal(r.status,200,sort);
   assert.equal(r.body.sort,sort);
   assert.equal(seen.sql,SQL_CATALOG_SORTS[sort]);
-  assert.deepEqual(seen.params,['wholesale',null,null,null,null,null,null,null,null,null,null]);
+  assert.deepEqual(seen.params,['wholesale',null,null,null,null,null,null,null,null]);
   assert.match(seen.sql,/f05_catalog_sort_facts_test/);
   assert.equal(r.body.items[0].price,null);
  }
@@ -247,7 +247,7 @@ test('sorted cursor binds hidden sort key and keeps protected price out of DTO',
  let params;
  const second=await request(byRows((sql,p)=>{params=p;return []}),'/api/v1/catalog/vehicles?sort=price_asc&cursor='+encodeURIComponent(first.body.nextCursor));
  assert.equal(second.status,200);
- assert.deepEqual(params.slice(7),[0,'100014',at,'1015']);
+ assert.deepEqual(params.slice(5),[0,'100014',at,'1015']);
 });
 test('cursor from different signing secret rejected',async()=>{
  const cursor=encodeCursor({at:'2026-10-15T09:00:00.123456Z',id:'1001',source:'wholesale',sort:'newest'},randomBytes(32));
