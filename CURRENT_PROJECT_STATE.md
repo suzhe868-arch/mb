@@ -1,3 +1,14 @@
+# 2026-10-19｜A主控最新裁决：F06 B分支已审阅，真PG16仍为0/20；放行单Job免费验收，暂不合并
+
+- **本轮审查对象**：[Issue #128](https://github.com/suzhe868-arch/mb/issues/128)，指定B分支 `feat/f06-real-lockrequest-http-pg16-01`，审核时远程HEAD `fb2c43f5600ae1a652731ed5e2d14621d12e6086`；与main比 ahead48/behind0，共19个变更文件，未触碰冻结工作流、旧F06签封、PDM Final或生产。
+- **当前真实验收结论**：B提交真实Node HTTP/PG16锁车纵切源码与20个真库集成测试；本地工作副本自报Node 54/54 PASS，**不等于受验HEAD同SHA远程成功**。PG16/HTTP真库 **0/20实际运行**，B明确`NOT_READY_FOR_A_REVIEW`；因此A不批准最终验收、PR或合并。
+- **A自主技术裁决**：GitHub公开仓库标准托管Runner免费，限定B原分支可新增**一份非冻结、仅精确分支push+paths过滤的F06单Job工作流**；使用1个标准`ubuntu-24.04`Job、1个`postgres:16-alpine`服务容器、Node22、45分钟上限，不用付费Runner、Artifact上传、生产Secrets或额外存储，新增付费预算维持$0。B须在首次Push前证明不会触发其它工作流及旧F05 28 Job扇出；禁止skip-ci、PR触发或改冻结文件。
+- **不可省略的前置**：从受验真实工程代码合法重建F03 **24条迁移台账**及F05完整实体来源，不得伪造旧push/Issuer或补写假签封，必须在独立`f06_lock_test`与非特权`f06_lock_ci`环境运行。同一业务SHA至少54项Node和20项真实PG16/HTTP测试均无失败/跳过/取消；若可信完整基线不能重建，则准确报`BLOCKED_TRUSTED_M94_F05_BASELINE`并保存日志，不可降低Readiness。
+- **当前负责人仍是B**：`NEXT_OWNER=B / NEXT_TASK=F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16_01 / NEXT_BRANCH=feat/f06-real-lockrequest-http-pg16-01`，状态`A_RELEASED_FOR_B_BOUNDED_FREE_CI_VERIFICATION / BLOCKED_PG16_RUNTIME / NO_MERGE`。B继续实际真库测试、缺陷整改、完整回归、证据归档；满足`READY_FOR_A_REVIEW`后再交A独立验收、由A决定安全PR出口。
+- **F05历史/生产仍保持原值**：PR #125非生产业务560/560通过，PR #127旧Source事件校验整改已合并。PR #125历史5个旧Source失败及原66项65通过+1旧Oracle例外均不可改写；`formal_source_signed=false`、`production_ready=false`，不启动真实支付、微信身份或生产部署。C PR #68仍独立Draft，F07/F08主线后移。
+
+完整A正式施工裁决：[F06正式施工单追加的2026-10-19技术裁决](07_重建工作区/F06_真实锁车申请审批唯一Lock与自动候补_首条业务API纵切_A主控B正式施工单_2026-10-18.md)；[Issue #128 A裁决评论](https://github.com/suzhe868-arch/mb/issues/128#issuecomment-6268113660)。
+
 # 2026-10-19｜主线最新状态：F05五项Source门禁整改已合并，F06真实锁车业务纵切正式交B
 
 - **F05非生产业务交付**：PR #125 已合并，merge SHA `25034a7cd9e3d977e18ffb7f5dc0ba8db1008064`。业务 SHA `f7503843a60bef3f94b818d80a37ec166a157775` 与证据 HEAD `d5690899ff37d3b7ddc46b1640dd113309addecf` 的官方回归均为 560/560 通过、失败 0、跳过 0。
