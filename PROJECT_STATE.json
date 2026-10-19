@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F05_REAL_NONPRODUCTION_ACCEPTED_WITH_LEGACY_SOURCE_ORACLE_EXCEPTION_F06_HTTP_PG16_SLICE_RELEASED",
+  "substage": "F05_SOURCE_GATE_EVENT_AWARE_EVIDENCE_REPAIR_RELEASED_F06_PAUSED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16",
-  "current_domain_status": "A_REACTIVATED_F06_AFTER_F05_NONPRODUCTION_ACCEPTANCE",
+  "current_domain": "F05_SOURCE_GATE_EVENT_AWARE_EVIDENCE_REPAIR",
+  "current_domain_status": "A_RELEASED_FOR_B_F05_SOURCE_GATE_FIX",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F05非生产真实业务交付已由A独立验收并合并PR125；当前进入F06真实LockRequest/员工审批/唯一Lock/自动Waitlist的Node HTTP＋隔离PG16首条业务纵切。正式来源Issuer、完整M94迁移及生产部署仍未完成。",
-  "current_work_file": "07_重建工作区/F06_真实锁车申请审批唯一Lock与自动候补_首条业务API纵切_A主控B正式施工单_2026-10-18.md",
+  "current_task": "用户同意修复PR125的5项旧Source门禁失败。A已建立Issue #126并正式放行B专项整改：按pull_request与main push事件分流验证，修复F05-7/F05-8历史证据依赖与F05-9/F05-10/D1事件判断；F06/F07/F08暂停直到A独立验收。正式Source Issuer、完整M94迁移及生产部署仍未完成。",
+  "current_work_file": "07_重建工作区/F05五项旧Source门禁事件感知与证据校验整改_A主控B正式施工单_2026-10-19.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B先按A新F05正式施工单核对F05-1～11真入口与PDM，补隔离Node HTTP+PG16的真实功能、权限与安全投影、有效新HEAD测试，交PR给A独立验收；F06/F07/F08暂停，旧Oracle历史红灯保留、五正式Source Fail Closed、生产Not Ready、费用$0。",
+  "next_action": "B从最新main执行Issue #126：修复F05-7/F05-8/F05-9/F05-10/D1五项Source门禁的事件感知与证据校验；PR模式只验证当前PR真实非生产证据，main push模式继续严格验证同SHA官方来源链；本地专项测试与负例通过后提交一个正式PR交A独立验收。F06/F07/F08暂停。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B在feat/f06-real-lockrequest-http-pg16-01按已合并F06施工单完成真实Node应用路由、隔离PG16迁移/状态机、真实HTTP正反例、并发/幂等/回滚测试及中文证据交接。不得修改旧冻结F06-1/F05工作流或正式Source；远程CI预算保持$0，若PR/Push会命中F05旧28 Job fan-out则不得触发远程CI。",
+  "next_action_detail": "B在feat/f05-source-gates-event-aware-evidence-01分支完成五个Source校验器的根因审计、最小代码修复、PR/main-push两种模式契约测试、SHA/Run/Job/工件摘要核验、失败/跳过负例与中文证据报告。不得修改冻结.github/workflows/*.yml，不得重跑旧66项，不得将PR证据冒充正式push或Issuer签发；新增付费预算$0。该路径命中既有F05 PR触发器，只允许一个正式整改PR及其一次自然CI。A独立验收并合并后再恢复F06。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7951,7 +7951,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16_01",
+  "next_task": "F05_SOURCE_GATE_EVENT_AWARE_EVIDENCE_REPAIR_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9626,7 +9626,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F06_真实锁车申请审批唯一Lock与自动候补_首条业务API纵切_A主控B正式施工单_2026-10-18.md",
+  "next_work_file": "07_重建工作区/F05五项旧Source门禁事件感知与证据校验整改_A主控B正式施工单_2026-10-19.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -9918,5 +9918,47 @@
       "pending_run_id": 39216589244
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
+  },
+  "next_branch": "feat/f05-source-gates-event-aware-evidence-01",
+  "next_issue": 126,
+  "formal_source_signed": false,
+  "production_ready": false,
+  "f05_source_gate_repair": {
+    "issue": 126,
+    "status": "A_RELEASED_FOR_B",
+    "owner": "B",
+    "branch": "feat/f05-source-gates-event-aware-evidence-01",
+    "failures": [
+      {
+        "id": "F05-7",
+        "error": "F05_7_CANNOT_PROVE_66_SAME_SHA_OFFICIAL_PG16_JOBS_IN_BOUNDED_CI_RUN",
+        "cause": "PR事件要求同SHA旧push作业证据"
+      },
+      {
+        "id": "F05-8",
+        "error": "F05_8_OFFICIAL_68_JOB_GATE_UNPROVEN",
+        "cause": "PR事件要求同SHA旧push作业证据并长轮询"
+      },
+      {
+        "id": "F05-9",
+        "error": "F05_9_NOT_IN_OFFICIAL_NEW_PUSH",
+        "cause": "验证器强制要求push事件"
+      },
+      {
+        "id": "F05-10",
+        "error": "F05_10_NOT_NEW_OFFICIAL_PUSH",
+        "cause": "验证器强制要求push事件"
+      },
+      {
+        "id": "D1",
+        "error": "D1_NOT_NEW_OFFICIAL_PUSH",
+        "cause": "验证器强制要求push事件"
+      }
+    ],
+    "frozen_workflow_yaml_change_allowed": false,
+    "old_66_rerun_allowed": false,
+    "new_paid_budget_usd": 0,
+    "official_issuer_signed": false,
+    "production_ready": false
   }
 }
