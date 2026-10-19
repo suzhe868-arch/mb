@@ -404,14 +404,28 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     const safe=await facts(db,who.customer_id,req.vehicle_id,req.listing_cycle_id);
     if(safe.error)return response(404,'LOCK_REQUEST_NOT_VISIBLE');
     const p=await priority(db,who.customer_id,req.vehicle_id,req.listing_cycle_id);
-    const lock=await first(db,`SELECT l.lock_id,l.customer_id,s.priority_origin_id
+    const activeLock=await first(db,`SELECT l.lock_id,l.customer_id,l.lock_status,l.expires_at,s.priority_origin_id
       FROM public.locks l LEFT JOIN ${LOCK_SCHEMA}.lock_snapshots s ON s.lock_id=l.lock_id
       WHERE l.vehicle_id=$1 AND l.lock_status='active' ORDER BY l.lock_id LIMIT 1 FOR SHARE OF l`,[req.vehicle_id]);
-    if(p.other||(lock?.priority_origin_id&&String(lock.customer_id)!==String(who.customer_id)))
+    if(p.other||(activeLock?.priority_origin_id&&String(activeLock.customer_id)!==String(who.customer_id)))
      return response(404,'LOCK_REQUEST_NOT_VISIBLE');
+    const ownLock=await first(db,`SELECT l.lock_id,l.lock_status,l.expires_at
+      FROM public.locks l LEFT JOIN ${LOCK_SCHEMA}.lock_snapshots s ON s.lock_id=l.lock_id
+      WHERE l.vehicle_id=$1 AND l.listing_cycle_id=$2 AND l.customer_id=$3
+      ORDER BY l.lock_id DESC LIMIT 1 FOR SHARE OF l`,
+      [req.vehicle_id,req.listing_cycle_id,who.customer_id]);
+    let ownLockExtended=false;
+    const lifecycleSidecar=await first(db,"SELECT to_regclass('f06_real_lock_test.lock_lifecycle_events') IS NOT NULL AS ready");
+    if(lifecycleSidecar?.ready&&ownLock){
+     const extension=await first(db,`SELECT 1 FROM f06_real_lock_test.lock_lifecycle_events
+       WHERE lock_id=$1 AND action='extend' LIMIT 1 FOR SHARE`,[ownLock.lock_id]);
+     ownLockExtended=!!extension;
+    }
     return response(200,'LOCK_CUSTOMER_SAFE_STATUS',{requestId,status:req.status,
-     vehicleId:String(req.vehicle_id),lockStatus:lock?'locked':'available',
-     ownLock:!!lock&&String(lock.customer_id)===String(who.customer_id)});
+     vehicleId:String(req.vehicle_id),lockStatus:activeLock?'locked':'available',
+     ownLock:!!activeLock&&String(activeLock.customer_id)===String(who.customer_id),
+     ownLockStatus:ownLock?.lock_status??null,ownLockExpiresAt:ownLock?.expires_at??null,
+     ownLockExtended});
    });
   }
  });

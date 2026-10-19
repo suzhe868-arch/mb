@@ -13,11 +13,12 @@ async function parseBody(req){
  if(size!==Number(length))return {error:'CONTENT_LENGTH_MISMATCH'};
  try {return {value:JSON.parse(Buffer.concat(chunks).toString('utf8'))}}catch{return {error:'INVALID_JSON'}}
 }
-export function createIsolatedF06LockHandler({service,env=process.env}={}){
+export function createIsolatedF06LockHandler({service,env=process.env,lifecycleHandler=null}={}){
  if(env.APP_ENV!=='test'||env.NODE_ENV!=='test'||env.API_HOST!=='127.0.0.1'||env.F06_LOCK_TEST_CONSENT!=='I_AUTHORIZE_DISPOSABLE_F06_LOCK_PG16_ONLY')throw Error('F06_LOCK_TEST_ONLY');
  if(!service||typeof service.intake!=='function'||typeof service.decide!=='function')throw Error('F06_LOCK_DEPENDENCIES_REQUIRED');
  return async(req,res)=>{
   const path=req.url||'';
+  if(lifecycleHandler&&await lifecycleHandler(req,res)===true)return true;
   if(!path.startsWith('/api/v1/lock-requests'))return false;
   const decide=/^\/api\/v1\/lock-requests\/([1-9][0-9]{0,18})\/decision$/.exec(path);
   const status=/^\/api\/v1\/lock-requests\/([1-9][0-9]{0,18})\/status$/.exec(path);
