@@ -8,6 +8,7 @@ on:
       - 'engineering/src/catalog-*.mjs'
       - 'engineering/src/f05-favorite-*.mjs'
       - 'engineering/src/f05-consultation-*.mjs'
+      - 'engineering/src/f05-consultation-response-*.mjs'
       - 'engineering/src/f05-employee-start-*.mjs'
       - 'engineering/src/f05-handover-*.mjs'
       - 'engineering/src/f05-sla-hold-*.mjs'
@@ -27,6 +28,7 @@ on:
       - 'engineering/integration/f05-employee-vehicle-read.pg16.test.mjs'
       - 'engineering/integration/f05-favorite.pg16.test.mjs'
       - 'engineering/integration/f05-consultation.pg16.test.mjs'
+      - 'engineering/integration/f05-consultation-response.pg16.test.mjs'
       - 'engineering/integration/f05-employee-start.pg16.test.mjs'
       - 'engineering/integration/f05-handover.pg16.test.mjs'
       - 'engineering/integration/f05-sla-hold.pg16.test.mjs'
@@ -53,6 +55,7 @@ on:
       - 'engineering/tests/catalog*.test.mjs'
       - 'engineering/tests/f05-favorite.test.mjs'
       - 'engineering/tests/f05-consultation.test.mjs'
+      - 'engineering/tests/f05-consultation-response.test.mjs'
       - 'engineering/tests/f05-employee-start.test.mjs'
       - 'engineering/tests/f05-handover.test.mjs'
       - 'engineering/tests/f05-sla-hold.test.mjs'
@@ -120,7 +123,7 @@ jobs:
       - name: Frozen dependency installation
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Actual HTTP and safety assertions
-        run: node --test tests/catalog.test.mjs tests/catalog-regression.test.mjs tests/f05-favorite.test.mjs tests/f05-consultation.test.mjs tests/f05-employee-start.test.mjs tests/f05-handover.test.mjs tests/f05-sla-hold.test.mjs tests/f05-price-unlock.test.mjs tests/f05-quota-addition.test.mjs tests/f05-find-car.test.mjs tests/f05-find-car-activation.test.mjs tests/f05-demand-lifecycle.test.mjs tests/f05-employee-vehicle-read.test.mjs tests/f05-matching.test.mjs tests/f05-matching-dictionary.test.mjs tests/f05-matching-discovery.test.mjs tests/f05-matching-conditions.test.mjs tests/f05-recommendation.test.mjs tests/f05-priority.test.mjs tests/f05-priority-qualification.test.mjs
+        run: node --test tests/catalog.test.mjs tests/catalog-regression.test.mjs tests/f05-favorite.test.mjs tests/f05-consultation.test.mjs tests/f05-consultation-response.test.mjs tests/f05-employee-start.test.mjs tests/f05-handover.test.mjs tests/f05-sla-hold.test.mjs tests/f05-price-unlock.test.mjs tests/f05-quota-addition.test.mjs tests/f05-find-car.test.mjs tests/f05-find-car-activation.test.mjs tests/f05-demand-lifecycle.test.mjs tests/f05-employee-vehicle-read.test.mjs tests/f05-matching.test.mjs tests/f05-matching-dictionary.test.mjs tests/f05-matching-discovery.test.mjs tests/f05-matching-conditions.test.mjs tests/f05-recommendation.test.mjs tests/f05-priority.test.mjs tests/f05-priority-qualification.test.mjs
       - name: Bootstrap truly disposable PG16 non-superuser schema
         run: |
           set -euo pipefail
@@ -174,6 +177,7 @@ jobs:
             await client.query(await readFile('catalog/000046_consultation_manager_capability_disposable_test_only.sql','utf8'));
             await client.query(await readFile('catalog/000047_vehicle_employee_read_scope_disposable_test_only.sql','utf8'));
             await client.query(await readFile('catalog/000048_catalog_sort_facts_disposable_test_only.sql','utf8'));
+            await client.query(await readFile('catalog/000049_consultation_human_response_disposable_test_only.sql','utf8'));
             await client.query("INSERT INTO public.vehicle_brands(brand_id,brand_name) VALUES(59001,'隔离测试品牌')");
             await client.query("INSERT INTO public.vehicle_series(series_id,brand_id,series_name) VALUES(59001,59001,'隔离测试车系')");
             await client.query("INSERT INTO public.vehicle_models(model_id,brand_id,series_id,model_name,model_year,profile_status) VALUES(59001,59001,59001,'隔离测试车型',2026,'incomplete')");
@@ -198,6 +202,7 @@ jobs:
           node --test integration/f05-full-runtime-wiring.pg16.test.mjs
           node --test integration/f05-favorite.pg16.test.mjs
           node --test integration/f05-consultation.pg16.test.mjs
+          node --test integration/f05-consultation-response.pg16.test.mjs
           node --test integration/f05-employee-start.pg16.test.mjs
           node --test integration/f05-handover.pg16.test.mjs
           node --test integration/f05-sla-hold.pg16.test.mjs
