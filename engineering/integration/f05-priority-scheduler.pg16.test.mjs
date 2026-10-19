@@ -41,11 +41,16 @@ try{
    await db.query("INSERT INTO public.f05_priority_qualification_test(customer_id,enabled,expires_at) VALUES($1,true,statement_timestamp()+interval '20 minutes')",[id]);
    await db.query("INSERT INTO public.f05_matching_sales_description_test(demand_id,written_by_employee_id,sales_description,expires_at) VALUES($1,$1,'brandId=59001',statement_timestamp()+interval '20 minutes')",[id]);
   }
-  for(const id of [68910,68911,68912])await vehicle(id);
+  for(const id of [68910,68911,68912,68913])await vehicle(id);
   await db.query('COMMIT');
  }catch(e){await db.query('ROLLBACK');throw e}
  const matching=createIsolatedMatchingService({pool,env:process.env});
- for(const vid of [68910,68911,68912])for(const [d,t] of [[68900,a],[68901,b]]){
+ // Earlier integration suites share this disposable database and may have
+ // already enqueued TTL jobs before this scheduler-specific fixture starts.
+ // Freeze those test-only queue rows as completed so assertions below are scoped
+ // to the priorities created by this file, not by previous suites.
+ await db.query("UPDATE public.f05_priority_schedule_jobs_test SET state='done',completed_at=statement_timestamp(),lease_token=NULL,lease_until=NULL WHERE state<>'done'");
+ for(const vid of [68910,68911,68912,68913])for(const [d,t] of [[68900,a],[68901,b]]){
   const r=await matching.recompute({credential:t,demandId:String(d),vehicleId:String(vid),eventKey:key()});
   assert.equal(r.status,200,JSON.stringify(r));
  }
@@ -90,12 +95,11 @@ try{
   assert.equal(await count("SELECT count(*) n FROM public.f05_priority_schedule_events_test WHERE priority_id=$1 AND action='RETRY'",[old]),1);
  });
  await test('PG16 expired claimed scheduler lease is recoverable after simulated worker crash',async()=>{
-  const active=(await db.query("SELECT p.priority_id,p.vehicle_id FROM public.priority_leases p WHERE p.vehicle_id=68912 AND p.status='active' LIMIT 1")).rows[0];
-  await db.query("UPDATE public.priority_leases SET expires_at=statement_timestamp()-interval '1 second' WHERE priority_id=$1",[active.priority_id]);
-  await db.query("UPDATE public.f05_priority_schedule_jobs_test SET due_at=statement_timestamp()-interval '1 second',next_attempt_at=statement_timestamp()-interval '1 second',state='claimed',lease_token='crashed_worker_lease_token_123456',lease_until=statement_timestamp()-interval '1 second',attempts=1 WHERE priority_id=$1",[active.priority_id]);
+  const old=await expired(68913);
+  await db.query("UPDATE public.f05_priority_schedule_jobs_test SET state='claimed',lease_token='crashed_worker_lease_token_123456',lease_until=statement_timestamp()-interval '1 second',attempts=1 WHERE priority_id=$1",[old]);
   const x=await worker.runDue({limit:1});
   assert.equal(x.claimed,1);assert.equal(x.done,1);
-  assert.equal(await count("SELECT count(*) n FROM public.f05_priority_schedule_events_test WHERE priority_id=$1 AND action='RECOVERED'",[active.priority_id]),1);
+  assert.equal(await count("SELECT count(*) n FROM public.f05_priority_schedule_events_test WHERE priority_id=$1 AND action='RECOVERED'",[old]),1);
  });
  await test('PG16 scheduler audit is append-only and invalid batch/env fail closed',async()=>{
   await assert.rejects(db.query("DELETE FROM public.f05_priority_schedule_events_test"),e=>e.code==='23514');
