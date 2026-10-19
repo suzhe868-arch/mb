@@ -140,4 +140,4 @@ grep -q 'F06_NATIVE_PG16_HTTP_ACCEPTANCE_PASS' evidence/F06_PG16_NATIVE_ACCEPTAN
 docker exec -i -e PGPASSWORD=f06_ci_synthetic_only "$ids" psql -h127.0.0.1 -Uf06_lock_ci -df06_lock_test -X -v ON_ERROR_STOP=1 < sql/f06-lock-lifecycle-disposable-only.sql
 node scripts/f06-lock-lifecycle-pg16-acceptance.mjs 2>&1 | tee evidence/F06_LOCK_LIFECYCLE_PG16_ACCEPTANCE_RUN.log
 grep -q 'F06_LOCK_LIFECYCLE_PG16_ACCEPTANCE_PASS' evidence/F06_LOCK_LIFECYCLE_PG16_ACCEPTANCE_RUN.log
-echo "F06_LIFECYCLE_ALL_GATES_PASS head=$GITHUB_SHA baseline_node=54 lifecycle_pg16_min=30 productionReady=false"
+echo "F06_LIFECYCLE_ALL_GATES_PASS head=$GITHUB_SHA baseline_node=54 lifecycle_pg16_min=32 productionReady=false"
