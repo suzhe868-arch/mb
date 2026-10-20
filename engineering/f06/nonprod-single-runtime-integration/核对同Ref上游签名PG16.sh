@@ -56,7 +56,7 @@ export F06_COMPOSITE_TEST_CONSENT='I_AUTHORIZE_DISPOSABLE_F06_COMPOSITE_ONLY'
 export F06_COMPOSITE_SIGNED_ISSUER='COMPOSITE_NONPROD_SIGNED_V1'
 export API_HOST=127.0.0.1
 node --input-type=module -e '
- import pg from "pg";
+ import pg from "./engineering/node_modules/pg/lib/index.js";
  const db=new pg.Client({connectionString:process.env.F03_1_DATABASE_URL});
  await db.connect();
  const paths=[
