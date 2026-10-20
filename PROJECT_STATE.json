@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F06_REAL_LOCK_TO_TRANSACTION_HTTP_PG16_01_A_RELEASED_FOR_B",
+  "substage": "F06_REAL_LOCK_TO_TRANSACTION_HTTP_PG16_01_A_REVIEW_REJECTED_REFUND_RACE",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F06_REAL_LOCK_TO_TRANSACTION_HTTP_PG16",
-  "current_domain_status": "A_RELEASED_FOR_B_NONPRODUCTION_ATOMIC_TRANSACTION_HTTP_PG16 / ISSUE_136_OPEN / PR135_DEPOSIT_A_ACCEPTED_MERGED",
+  "current_domain_status": "A_REVIEW_NOT_ACCEPTED / B_TARGETED_REMEDIATION_REQUIRED / ISSUE_136_OPEN / SAME_SHA_309_SUCCESS_BUT_REFUND_RACE_MISSING / NO_TRANSACTION_PR / NO_MERGE",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A已独立审查F06真实Deposit台账HTTP/PG16 B HEAD 8598df31d71ed3d9e2e13dcdc962002b152f152a 的官方单Job Run39379307863/Job118484492475，九组257/257、161完整已签父实体Seal不同OID恢复、可信F05 Priority前置及资金保护全部通过，PR #135标准合并到main ffcf9d8609fc9972a0a8780012ddbc52f85cc221。当前A已正式放行B实施 F06_REAL_LOCK_TO_TRANSACTION_HTTP_PG16_01（Issue #136），非生产合成Lock→Transaction同事务原子转换、旧Lock pending Refund安全硬拒及PG16/HTTP真测；只新增白名单，无真钱/Issuer、无旧父代码或公共DDL修改，全部同SHA验收后交A。",
-  "current_work_file": "07_重建工作区/F06真实Lock转换Transaction原子占用HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md",
+  "current_task": "A独立复验B最终SHA c4dbb48a5e602076298fba47d133fd43cec504f3，官方Run39391407455/Job118523549413 completed/success，原父257+新Transaction43+TLS9=309/309、原生161表Seal/24迁移/双OID均通过。但service.mjs refunds()在f06_3c1_ci真实退款签名父源缺席且public.refund_cases为空时仍放行，测试33仅手工未签public pending、测试22仅Transaction彼此竞争；正式施工单要求的已签Refund双向先后及两个独立PG16 backend同时竞争/只一方commit缺失。A不接受、不建PR不合并，仅发Issue #136定向整改单及主线状态更新。",
+  "current_work_file": "07_重建工作区/F06真实Lock转Transaction_A主控首轮独立复验_退款签名来源与双后端竞态定向整改单_2026-10-20.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B从执行时最新main新建 feat/f06-real-lock-transaction-http-pg16-01，按Issue #136与A正式施工单一次完成合成Lock→Transaction同一PG物理事务占用、退款pending/未知来源硬拒、真实当前权限Session/Scope、双Backend竞态及注错完整Rollback、新交易source_lock/responsible/历史不变、生产Issuer拒绝。严格只新增engineering/f06/lock-transaction-http-pg16/**和一个精确push+paths单Job Workflow，提前核对全部旧workflow触发；旧F06-3B直接入口仍不可信，不准两个事务拼接。完整同SHA继承F06真实Deposit九组257项且新增至少28真实PG16/HTTP与9项TLS，24迁移及已验父Manifest逐表Seal双OID一致，全部0失败/跳过/取消后中文自验READY_FOR_A_REVIEW交A。不得创建PR/合并main/动生产资金，新增费用$0。",
+  "next_action": "B保持原feat/f06-real-lock-transaction-http-pg16-01，从最新main现行A整改单修复：合法生成并验签F06-3C1受限退款父Source，不能把0裸public行当可信无退款；新增受限真实签名pending、合法closed_without_payment及来源漂移拒绝，以及退款先提交/交易先提交/两个独立PG16 backend同时争夺的真实签名退款↔Transaction三个场景，提供两侧backend PID、事务commit/rollback、0半写、资金/历史/Scope完整守卫。同SHA官方单Job保持原父257/257+新43/43+TLS9/9并添加新用例，0失败/跳过/取消，161表完整签名父Seal/24迁移/双OID保持。若无法合法建可信Refund父源报BLOCKED_TRUSTED_REFUND_SOURCE；B不得改旧父/PDM/公共DDL/生产Issuer、不建PR合并；成功后READY_FOR_A_REVIEW交A。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B从执行时最新main新建 feat/f06-real-lock-transaction-http-pg16-01，按Issue #136与A正式施工单一次完成合成Lock→Transaction同一PG物理事务占用、退款pending/未知来源硬拒、真实当前权限Session/Scope、双Backend竞态及注错完整Rollback、新交易source_lock/responsible/历史不变、生产Issuer拒绝。严格只新增engineering/f06/lock-transaction-http-pg16/**和一个精确push+paths单Job Workflow，提前核对全部旧workflow触发；旧F06-3B直接入口仍不可信，不准两个事务拼接。完整同SHA继承F06真实Deposit九组257项且新增至少28真实PG16/HTTP与9项TLS，24迁移及已验父Manifest逐表Seal双OID一致，全部0失败/跳过/取消后中文自验READY_FOR_A_REVIEW交A。不得创建PR/合并main/动生产资金，新增费用$0。",
+  "next_action_detail": "B保持原feat/f06-real-lock-transaction-http-pg16-01，从最新main现行A整改单修复：合法生成并验签F06-3C1受限退款父Source，不能把0裸public行当可信无退款；新增受限真实签名pending、合法closed_without_payment及来源漂移拒绝，以及退款先提交/交易先提交/两个独立PG16 backend同时争夺的真实签名退款↔Transaction三个场景，提供两侧backend PID、事务commit/rollback、0半写、资金/历史/Scope完整守卫。同SHA官方单Job保持原父257/257+新43/43+TLS9/9并添加新用例，0失败/跳过/取消，161表完整签名父Seal/24迁移/双OID保持。若无法合法建可信Refund父源报BLOCKED_TRUSTED_REFUND_SOURCE；B不得改旧父/PDM/公共DDL/生产Issuer、不建PR合并；成功后READY_FOR_A_REVIEW交A。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -9644,7 +9644,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F06真实Lock转换Transaction原子占用HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md",
+  "next_work_file": "07_重建工作区/F06真实Lock转Transaction_A主控首轮独立复验_退款签名来源与双后端竞态定向整改单_2026-10-20.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -10255,7 +10255,7 @@
   "next_base_main_at_task_release": "3f8a92d59a658fd486c43c31cebd4c01a03b4421",
   "next_base_main_policy": "FETCH_LATEST_MAIN_AT_EXECUTION; NEVER_CHECKOUT_A_STALE_PINNED_SHA",
   "f06_real_lock_to_transaction_http_next": {
-    "status": "A_RELEASED_FOR_B_NONPRODUCTION_SYNTHETIC_TRANSACTION_HTTP_PG16",
+    "status": "A_REVIEW_NOT_ACCEPTED_B_TARGETED_REMEDIATION_REQUIRED",
     "task_id": "F06_REAL_LOCK_TO_TRANSACTION_HTTP_PG16_01",
     "issue": 136,
     "owner": "B",
@@ -10288,7 +10288,34 @@
     "real_funds_allowed": false,
     "real_refund_allowed": false,
     "production_routes_allowed": false,
-    "handoff_status_required": "F06_REAL_LOCK_TO_TRANSACTION_HTTP_PG16_01_B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A",
-    "production_ready": false
+    "handoff_status_required": "B_TARGETED_REMEDIATION / READY_FOR_A_REVIEW_ONLY_AFTER_SAME_SHA_REFUND_SIGNATURE_AND_REAL_BACKEND_RACE_PASS",
+    "production_ready": false,
+    "a_acceptance": false,
+    "b_self_reported_ready": true,
+    "b_reviewed_head": "c4dbb48a5e602076298fba47d133fd43cec504f3",
+    "official_run": 39391407455,
+    "official_job": 118523549413,
+    "run_conclusion": "success",
+    "test_existing_passed": 257,
+    "test_transaction_passed": 43,
+    "test_tls_passed": 9,
+    "total_passed": 309,
+    "total_failed": 0,
+    "total_skipped": 0,
+    "total_cancelled": 0,
+    "native_signed_parent_tables": 161,
+    "official_full_row_seal": "c3bd951f925f180009808272cfee0fdb0d868ebc727d4170fb6613c91b753bfa",
+    "review_blockers": [
+      "REFUND_F06_3C1_TRUSTED_SIGNED_SOURCE_ABSENT_IN_NEW_CI",
+      "REFUNDS_FAIL_OPEN_ON_ZERO_CASES_WHEN_PARENT_ORIGIN_CARRIER_ABSENT",
+      "NO_SIGNED_REFUND_FIRST_TRANSACTION_SECOND_POSITIVE_DENIAL",
+      "NO_TRANSACTION_FIRST_SIGNED_REFUND_SECOND_DENIAL",
+      "NO_TWO_INDEPENDENT_PG16_BACKEND_REFUND_TRANSACTION_SIMULTANEOUS_COMMIT_RACE",
+      "NO_SIGNED_CLOSED_WITHOUT_PAYMENT_PROOF"
+    ],
+    "remediation_issue_comment": "https://github.com/suzhe868-arch/mb/issues/136#issuecomment-6286709536",
+    "a_review_report": "07_重建工作区/F06真实Lock转Transaction_A主控首轮独立复验_退款签名来源与双后端竞态定向整改单_2026-10-20.md",
+    "new_pr_allowed_for_b": false,
+    "merge_allowed": false
   }
 }

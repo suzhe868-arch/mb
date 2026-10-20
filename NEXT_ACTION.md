@@ -1,3 +1,15 @@
+# 2026-10-20｜A主控首轮独立复验：F06 Transaction同SHA309/309全绿，但签名Refund来源与双后端竞态待整改
+
+- **唯一当前任务：** `F06_REAL_LOCK_TO_TRANSACTION_HTTP_PG16_01`，`NEXT_OWNER=B`，保持原B分支 `feat/f06-real-lock-transaction-http-pg16-01` 和 [Issue #136](https://github.com/suzhe868-arch/mb/issues/136)，B不要创建PR/合并main。
+- **已核真实官方成功证据：** B HEAD `c4dbb48a5e602076298fba47d133fd43cec504f3`，最终 [Run #39391407455](https://github.com/suzhe868-arch/mb/actions/runs/39391407455)/Job #118523549413同SHA `completed/success`，父257+新43+TLS9=**309/309**，0失败/跳过/取消；父161表Manifest/24迁移/不同物理OID恢复全Seal真实通过，Workflow触发预检340项，Push1/PR0；9个文件全部落白名单。
+- **A独立代码审查未通过：** 新脚本未建立或验签F06-3C1合法退款来源，`service.mjs`的退款无行时可在`f06_3c1_ci`缺席下放行；测试#33只是手工插入无原生签名的public pending，不等于合法Refund。测试#22仅Transaction↔Transaction竞争，缺签名Refund先/Transaction先/双PG后端同时争用三组强制正反用例。本批不准因CI全绿直接merge。
+- **正式定向整改单：** [F06 Transaction首轮A独立复验及Refund签名源/双Backend竞态整改](07_重建工作区/F06真实Lock转Transaction_A主控首轮独立复验_退款签名来源与双后端竞态定向整改单_2026-10-20.md)；Issue [#136 A正式评论](https://github.com/suzhe868-arch/mb/issues/136#issuecomment-6286709536)。B只修本批新路径、保持原257与43+9，再追加真正受限签名Refund源与合法双Backend PG16竞争/零半写证据；若无法建立可信父源报`BLOCKED_TRUSTED_REFUND_SOURCE`交A，不得假签。
+- **状态：** `A_REVIEW_NOT_ACCEPTED / B_TARGETED_REMEDIATION_REQUIRED / NOT_READY_FOR_A_REVIEW / NO_TRANSACTION_PR / NO_MERGE`。不重做已成功父161/早期Priority工作，不改旧3B/3C1/5B签名父源或公共DDL，不触真实支付/退款/生产Transaction。F06/F07/F08/V1仍`NOT_READY`，新增付费预算$0。
+
+---
+
+> 以下为历史状态与旧施工授权说明；本段本次独立验收结论优先，直至B真实补齐后A复验。
+
 # 2026-10-20｜A主控最新正式状态：PR135真实Deposit通过独立验收合并；B执行Lock→Transaction非生产原子转换
 
 - **前置正式main：** `ffcf9d8609fc9972a0a8780012ddbc52f85cc221`（PR #135标准合并）；B施工以**执行时最新main**为准，旧SHA仅用于追溯。
