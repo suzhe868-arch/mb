@@ -132,16 +132,16 @@ tap "$base/evidence/POST_HANDOFF_CANCEL_TLS_DENY_TAP.log" 10
 docker exec "$service" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres \
  -c 'DROP DATABASE f03_auth_test WITH (FORCE)'
 docker exec "$service" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres \
- -c "CREATE DATABASE f03_auth_handoff_restored_$GITHUB_RUN_ID OWNER f03_ci"
+ -c "CREATE DATABASE f03_auth_postcancel_restored_$GITHUB_RUN_ID OWNER f03_ci"
 docker exec -i -e PGPASSWORD=f03_ci_synthetic_only "$service" \
- pg_restore -h127.0.0.1 -Uf03_ci -d"f03_auth_handoff_restored_$GITHUB_RUN_ID" --no-owner --no-privileges < "$dump"
+ pg_restore -h127.0.0.1 -Uf03_ci -d"f03_auth_postcancel_restored_$GITHUB_RUN_ID" --no-owner --no-privileges < "$dump"
 old_seal=engineering/f06/deposit-ledger-http-pg16/evidence/parent-seal-after.json
 test -s "$old_seal"
 mv "$old_seal" "$base/evidence/INHERITED_TXREFUND_PARENT_SEAL_AFTER.json"
 export F06_REAL_ENTRY_REF="refs/heads/feat/f06-real-deposit-ledger-http-pg16-01"
 export F06_REAL_ENTRY_BRANCH=feat/f06-real-deposit-ledger-http-pg16-01
 export F06_REAL_ENTRY_SHA="$GITHUB_SHA" F06_REAL_ENTRY_RUN_ID="$GITHUB_RUN_ID" F06_REAL_ENTRY_EVENT=push
-export F03_1_DATABASE_URL="postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_handoff_restored_$GITHUB_RUN_ID"
+export F03_1_DATABASE_URL="postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_postcancel_restored_$GITHUB_RUN_ID"
 export F06_LOCK_DATABASE_URL="postgres://f06_lock_ci:f06_ci_synthetic_only@127.0.0.1:5432/f06_lock_audit_$GITHUB_RUN_ID"
 env GITHUB_REF="refs/heads/$deposit" GITHUB_REF_NAME="$deposit" \
  node engineering/f06/deposit-ledger-http-pg16/audit-seal.mjs after
