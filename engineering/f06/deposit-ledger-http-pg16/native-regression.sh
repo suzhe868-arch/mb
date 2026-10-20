@@ -67,7 +67,7 @@ docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres \
   node f05/priority-arbitration-ttl-handover/preseed-v23.mjs
   node f05/priority-arbitration-ttl-handover/runner.mjs --apply
   node f05/priority-arbitration-ttl-handover/runner.mjs --verify
-  node scripts/f06-lock-seed-signed-priority.mjs
+  node f06/deposit-ledger-http-pg16/seed-priority-compat.mjs
   node f05/recommendation-visibility-grants/runner.mjs --apply
   node f05/recommendation-visibility-grants/runner.mjs --verify
   node f05/pdm17-public-pool-owner-claim/runner.mjs --apply
