@@ -1,0 +1,59 @@
+name: F06已签Handoff后Transaction正常取消HTTP及PG16非生产纵切
+on:
+  push:
+    branches: [feat/f06-real-post-handoff-cancel-http-pg16-01]
+    paths:
+      - .github/workflows/f06-real-post-handoff-cancel-pg16-onejob.yml
+      - engineering/f06/post-handoff-cancel-http-pg16/**
+permissions:
+  contents: read
+concurrency:
+  group: f06-real-post-handoff-cancel-http-pg16-01
+  cancel-in-progress: true
+jobs:
+  transaction_refund_synthetic:
+    name: 同SHA父585+新Cancel真实HTTP PG16至少35+TLS10+161表全Seal
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 30
+    env:
+      APP_ENV: test
+      NODE_ENV: test
+      CI: "true"
+      API_HOST: 127.0.0.1
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F06_LOCK_DATABASE_URL: postgres://f06_lock_ci:f06_ci_synthetic_only@127.0.0.1:5432/f06_lock_test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+      F06_LOCK_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_LOCK_PG16_ONLY
+      F06_LOCK_LIFECYCLE_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_LOCK_LIFECYCLE_ONLY
+      F06_LOCK_LIFECYCLE_EXPIRY_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_LOCK_EXPIRY_ONLY
+      F06_REAL_DEPOSIT_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_DEPOSIT_HTTP_PG16_ONLY
+      F06_TX_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_LOCK_TRANSACTION_ONLY
+      F06_REFUND_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_REFUND_PENDING_CLOSED_ONLY
+      F06_CANCEL_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_TRANSACTION_CANCEL_ONLY
+      F06_TXREFUND_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_TRANSACTION_REFUND_ONLY
+      F06_HANDOFF_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_TRANSACTION_HANDOFF_ONLY
+      F06_POST_CANCEL_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_POST_HANDOFF_CANCEL_ONLY
+    steps:
+      - name: Checkout exact pushed HEAD
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+      - name: Same-SHA 585 + post-handoff Cancel true PG16 and full physical restore
+        run: bash engineering/f06/post-handoff-cancel-http-pg16/ci-job.sh
