@@ -1,3 +1,5 @@
+> **A 主控2026-10-20有效技术修订（优先于本单第5节旧计数）：** “恰好190张表”无已签父Manifest依据；同SHA原生F06-3A完整父Schema当前实证161张（此前F06-2为158张）。B须严格按[父表Seal与Priority技术裁决](F06真实Deposit父表Seal数量与Priority前置_A主控技术裁决_2026-10-20.md)执行：从已验F06-3A原生父Seal提取全量Schema.表名/COUNT/MD5，逐表验证161张完整集合、24迁移、Catalog与三个父attestation及不同OID恢复，不得自造29表或省验。B还须修复原生Priority fixture失败和新脚本 `§{1:-}` 错误；Run #39366833724失败、未达到READY_FOR_A_REVIEW。未被修改的工作单边界继续强制生效。
+
 # 名邦汽车 V1｜F06真实Deposit台账HTTP与PG16非生产纵切 A主控B正式施工单
 
 - **状态：** `A_RELEASED_FOR_B_NONPRODUCTION_HTTP_PG16 / NEXT_OWNER=B`
