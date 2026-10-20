@@ -1,3 +1,16 @@
+# 2026-10-20｜A主控新裁决：F06 Deposit 父表 Seal 计数勘误，B继续整改（未验收）
+
+- **唯一正式任务：** `F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01`，`NEXT_OWNER=B`，原分支 `feat/f06-real-deposit-ledger-http-pg16-01`，Issue [#132](https://github.com/suzhe868-arch/mb/issues/132)。
+- **A技术裁决：** 官方同SHA F06-3A已验签父层为四个Schema的 **161张完整物理表**（F06-2上一阶段158张），原单“190张”无已验证来源；必须用原生父 Seal 的完整表名清单、逐表COUNT/MD5、24条Ledger、Public Catalog及D1/F06-1/F06-2 attestation逐一比对，两套不同OID数据库及恢复一致性全部通过。**不是删减任何真实父表**，如父集合漂移立即停工报A。
+- **B必须修复：** 官方Run [#39366833724](https://github.com/suzhe868-arch/mb/actions/runs/39366833724) **failure**：旧LockRequest PG16第一项报 `original authorized F05 Priority source must survive signed v26`；不得伪造原 Priority 来源或略过真库回归。本批 `disposable-db.sh` 参数展开存在 `§{1:-}` 误写，需修为 Bash 正确格式。新Deposit 38项和TLS9项尚未获得同SHA成功证明。
+- **正式裁决文件：** [F06 Deposit 父表Seal数量与Priority前置 A主控技术裁决](07_重建工作区/F06真实Deposit父表Seal数量与Priority前置_A主控技术裁决_2026-10-20.md)；本条仅替换原施工单“恰好190张”计数硬断言，其余白名单、测试、同SHA与非生产资金限制不变。
+- **当前判定：** `A_RULING_COMPLETE / B_REMEDIATION_REQUIRED / NOT_READY_FOR_A_REVIEW / NO_DEPOSIT_PR / NO_MERGE`。B最新受阅HEAD `9d93ff4317379b3e8f91532e2e352adf4ae18cf4`；误建PR #133已关闭未合并。B在原分支从最新main继续，全部测试0失败/跳过/取消后交A验收；不自动启动F07/F08/C PR68，不接真实资金/支付/退款/生产。
+- **V1与生产：** `NOT_READY`；新增付费预算$0。
+
+---
+
+> 以下为此前已有效的状态与历史记录；本段 A 技术裁决优先用于当前 Deposit 施工。
+
 # 2026-10-20｜A主控最终裁决：F06生命周期PR131合并，正式放行Deposit HTTP/PG16非生产纵切
 
 **当前状态：** `F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02_A_ACCEPTED / PR131_MERGED / NEXT_OWNER=B`  
