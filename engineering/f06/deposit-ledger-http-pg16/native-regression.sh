@@ -32,10 +32,50 @@ docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres \
 
 dump="$(mktemp /tmp/f06-real-deposit-native-baseline-XXXXXX.dump)"
 trap 'rm -f "$dump"' EXIT
-# The restored parent audit DB is kept immutable in its own per-Run database.
-# For the inherited Lock tests, create the required synthetic Priority only
-# through the signed F05-8 CI service, never via hand-written SQL.
-node engineering/scripts/f06-lock-seed-signed-priority.mjs
+# The signed parent seal is preserved separately as f03_auth_restore_$GITHUB_RUN_ID.
+# Keep the post-scenario DB intact under a run-specific name; rebuild the
+# independent disposable F05 source so the official F05-8 service issues
+# Priority while its signed v24 ledger is current. No Priority is hand-inserted.
+export F04_1_ISOLATION_CONFIRM=I_AUTHORIZE_F04_1_DISPOSABLE_PG16_HTTPS_ONLY
+export F04_2_ISOLATION_CONFIRM=I_AUTHORIZE_F04_2_DISPOSABLE_PG16_HTTPS_ONLY
+export F04_3_ISOLATION_CONFIRM=I_AUTHORIZE_F04_3_DISPOSABLE_PG16_HTTPS_ONLY
+export F04_4_ISOLATION_CONFIRM=I_AUTHORIZE_F04_4_DISPOSABLE_PG16_HTTPS_ONLY
+export F05_1_ISOLATION_CONFIRM=I_AUTHORIZE_F05_1_DISPOSABLE_PG16_HTTPS_ONLY
+docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres \
+  -c "ALTER DATABASE f03_auth_test RENAME TO f03_auth_deposit_scenario_$GITHUB_RUN_ID"
+docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres \
+  -c 'CREATE DATABASE f03_auth_test OWNER f03_ci'
+(
+  cd engineering
+  node f05/wholesale-to-mingbang-conversion/ci-run.mjs source
+  node f05/wholesale-to-mingbang-conversion/runner.mjs --verify
+  node f05/customer-price-entitlement-cycle/ci-seed-jyt.mjs
+  for stage in f05/favorite-physical-carrier f05/customer-price-entitlement-cycle; do
+    node "$stage/runner.mjs" --apply
+    node "$stage/runner.mjs" --verify
+  done
+  node f05/employee-price-quota-adjustment/runner.mjs --apply
+  node f05/employee-price-quota-adjustment/runner.mjs --verify
+  node f05/employee-price-quota-adjustment/fixtures.mjs
+  node f05/find-car-application-demand-eligibility/runner.mjs --apply
+  node f05/find-car-application-demand-eligibility/runner.mjs --verify
+  node f05/find-car-application-demand-eligibility/fixtures.mjs
+  node f05/deterministic-matching-readiness-four-tier/preseed.mjs
+  node f05/deterministic-matching-readiness-four-tier/runner.mjs --apply
+  node f05/deterministic-matching-readiness-four-tier/runner.mjs --verify
+  node f05/deterministic-matching-readiness-four-tier/fixtures.mjs
+  node f05/priority-arbitration-ttl-handover/preseed-v23.mjs
+  node f05/priority-arbitration-ttl-handover/runner.mjs --apply
+  node f05/priority-arbitration-ttl-handover/runner.mjs --verify
+  node scripts/f06-lock-seed-signed-priority.mjs
+  node f05/recommendation-visibility-grants/runner.mjs --apply
+  node f05/recommendation-visibility-grants/runner.mjs --verify
+  node f05/pdm17-public-pool-owner-claim/runner.mjs --apply
+  node f05/pdm17-public-pool-owner-claim/runner.mjs --verify
+  node f05/consultation-assignee-sla/runner.mjs --apply
+  node f05/consultation-assignee-sla/runner.mjs --verify
+)
+echo F06_AUTHENTIC_F05_V26_PRIORITY_BASE_READY
 docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" \
   pg_dump -h127.0.0.1 -Uf03_ci -df03_auth_test --format=custom --no-owner --no-privileges > "$dump"
 test -s "$dump"
