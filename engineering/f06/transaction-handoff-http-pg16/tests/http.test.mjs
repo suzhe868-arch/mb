@@ -68,10 +68,20 @@ before(async()=>{
  // No role label automatically grants this explicit transaction.handoff CI ability.
  const authSource=(await rows("SELECT * FROM public.pc_login_accounts WHERE normalized_login_key='employee_test'"))[0];
  assert.ok(authSource);
- const createAccount=async(employeeId,login)=>q(
-  "INSERT INTO public.pc_login_accounts(account_id,normalized_login_key,principal_kind,employee_id,password_hash,credential_state,force_password_change,credential_epoch) "+
-  "VALUES($4,$1,'employee',$2,$3,'enabled',false,1) RETURNING account_id",
-  [login,employeeId,authSource.password_hash,997000+employeeId]);
+ // A signed Employee may already have its unique PC account. In this
+ // disposable fixture REUSE that account instead of forging a duplicate
+ // account_id or a second employee principal. Production accounts untouched.
+ const createAccount=async(employeeId,login)=>{
+  const existing=await rows("SELECT account_id FROM public.pc_login_accounts WHERE principal_kind='employee' AND employee_id=$1",[employeeId]);
+  if(existing.length){
+   await q("UPDATE public.pc_login_accounts SET normalized_login_key=$1,password_hash=$2,credential_state='enabled',force_password_change=false,credential_epoch=credential_epoch+1,updated_at=clock_timestamp() WHERE account_id=$3",
+    [login,authSource.password_hash,existing[0].account_id]);
+   return existing[0].account_id;
+  }
+  const inserted=await q("INSERT INTO public.pc_login_accounts(account_id,normalized_login_key,principal_kind,employee_id,password_hash,credential_state,force_password_change,credential_epoch) VALUES($4,$1,'employee',$2,$3,'enabled',false,1) RETURNING account_id",
+   [login,employeeId,authSource.password_hash,997000+employeeId]);
+  return inserted.rows[0].account_id;
+ };
  await createAccount(4,'f06_handoff_target_4');
  targetToken=(await auth.login({login:'f06_handoff_target_4',password:'SyntheticF04_3_CurrentProof_2026',source:'f06-handoff-target'})).token;
  assert.ok(targetToken);
