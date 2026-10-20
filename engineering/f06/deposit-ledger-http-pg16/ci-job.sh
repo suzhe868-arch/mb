@@ -51,6 +51,17 @@ assert_tap() {
 
 node "$base/trigger-preflight.mjs"
 
+# GitHub's official service image is postgres:16-alpine; the inherited
+# signed F05/F06 CI lineage locates the same single container through
+# its historical ECR-compatible image tag. Verify identity before reuse.
+service_ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+test "$(printf '%s\n' "$service_ids" | sed '/^$/d' | wc -l)" -eq 1
+service_image_id="$(docker image inspect postgres:16-alpine --format '{{.Id}}')"
+docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+test "$(docker image inspect public.ecr.aws/docker/library/postgres:16-alpine --format '{{.Id}}')" = "$service_image_id"
+test "$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')" = "$service_ids"
+echo F06_REAL_DEPOSIT_SINGLE_PG16_IMAGE_TAG_PARITY_PASS
+
 # Reuse the signed historical chain exactly once. This chain prepares an empty
 # PG16 service, runs inherited F06-1/F06-2 CI and signed F06-3A Source tests,
 # then restores the signed parent database after its scenario.
