@@ -33,7 +33,7 @@ jobs:
       CI: "true"
       API_HOST: 127.0.0.1
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
-      F06_LOCK_DATABASE_URL: postgres://f06_lock_ci:f06_lock_ci_synthetic_only@127.0.0.1:5432/f06_lock_test
+      F06_LOCK_DATABASE_URL: postgres://f06_lock_ci:f06_ci_synthetic_only@127.0.0.1:5432/f06_lock_test
       F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
       F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
       F06_LOCK_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_LOCK_PG16_ONLY

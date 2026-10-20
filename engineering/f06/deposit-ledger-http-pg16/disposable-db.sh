@@ -19,7 +19,7 @@ if [[ "$mode" = prepare ]]; then
   test -s "$dump"
   docker exec -e PGPASSWORD=disposable_bootstrap_only "$ids" \
     psql -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE $audit_db OWNER f06_lock_ci"
-  docker exec -i -e PGPASSWORD=f06_lock_ci_synthetic_only "$ids" \
+  docker exec -i -e PGPASSWORD=f06_ci_synthetic_only "$ids" \
     pg_restore -h 127.0.0.1 -U f06_lock_ci -d "$audit_db" --no-owner --no-privileges --exit-on-error < "$dump"
   echo "F06_REAL_DEPOSIT_DISPOSABLE_PARENT_COPY_READY database=$audit_db dump=$dump"
 else

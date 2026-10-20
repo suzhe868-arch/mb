@@ -50,10 +50,18 @@ assert_tap() {
 }
 
 node "$base/trigger-preflight.mjs"
-env GITHUB_REF='refs/heads/feat/f06-real-lock-lifecycle-http-pg16-02' \
-    GITHUB_REF_NAME='feat/f06-real-lock-lifecycle-http-pg16-02' \
-    bash engineering/scripts/f06-lock-lifecycle-native-ci.sh
 
+# Reuse the signed historical chain exactly once. This chain prepares an empty
+# PG16 service, runs inherited F06-1/F06-2 CI and signed F06-3A Source tests,
+# then restores the signed parent database after its scenario.
+env GITHUB_REF="refs/heads/$parent_branch" GITHUB_REF_NAME="$parent_branch" \
+    bash engineering/f06/deposit-ledger-ci/ci-job.sh source
+grep -q '# tests 28' engineering/f06/deposit-ledger-ci/artifacts/source/native-source.log
+grep -q '# fail 0' engineering/f06/deposit-ledger-ci/artifacts/source/native-source.log
+
+# The native F06 lock baseline uses a distinct disposable DB in the same
+# PostgreSQL service. Never attempt to bootstrap the parent database twice.
+bash "$base/native-regression.sh"
 assert_tap engineering/evidence/F06_LOCK_BASELINE_NODE_ACCEPTANCE_TAP.log 54
 assert_tap engineering/evidence/F06_LOCK_LIFECYCLE_NODE_ACCEPTANCE_TAP.log 37
 assert_tap engineering/evidence/F06_PG16_NATIVE_ACCEPTANCE_TAP.log 21
@@ -61,11 +69,6 @@ assert_tap engineering/evidence/F06_LOCK_LIFECYCLE_PG16_ACCEPTANCE_TAP.log 36
 
 node --test engineering/f05/tests/source-gate-event-evidence.test.mjs 2>&1 | tee "$base/evidence/F05_INIT_18_TAP.log"
 assert_tap "$base/evidence/F05_INIT_18_TAP.log" 18
-
-env GITHUB_REF="refs/heads/$parent_branch" GITHUB_REF_NAME="$parent_branch" \
-    bash engineering/f06/deposit-ledger-ci/ci-job.sh source
-grep -q '# tests 28' engineering/f06/deposit-ledger-ci/artifacts/source/native-source.log
-grep -q '# fail 0' engineering/f06/deposit-ledger-ci/artifacts/source/native-source.log
 
 bash "$base/disposable-db.sh" prepare
 export F06_LOCK_DATABASE_URL="postgres://f06_lock_ci:f06_lock_ci_synthetic_only@127.0.0.1:5432/f06_lock_audit_$GITHUB_RUN_ID"

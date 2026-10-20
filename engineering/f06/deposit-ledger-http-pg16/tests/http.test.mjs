@@ -87,33 +87,26 @@ before(async () => {
   await q('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1', [salesRoleId]);
   await q('UPDATE public.customers SET current_owner_employee_id=1 WHERE customer_id=$1', [customerId]);
   const team = (await rows(
-    "SELECT t.team_id FROM public.employee_team_memberships m " +
-    "JOIN public.teams t ON t.team_id=m.team_id " +
-    "JOIN public.stores st ON st.store_id=t.store_id " +
-    "JOIN public.employees e ON e.employee_id=m.employee_id " +
-    "WHERE e.employee_id=1 AND e.employment_status='active' AND t.team_status='active' AND st.status='active' " +
-    "AND m.valid_from<=clock_timestamp() AND (m.ended_at IS NULL OR m.ended_at>clock_timestamp()) LIMIT 1"))[0];
+    "SELECT team_id FROM public.employee_team_memberships WHERE employee_id=1 AND ended_at IS NULL LIMIT 1"))[0];
   assert.ok(team?.team_id);
   const scope = (await rows(
-    "SELECT s.scope_id FROM public.employee_data_scopes s " +
-    "JOIN public.stores st ON st.store_id=s.store_id " +
-    "WHERE s.employee_id=1 AND s.scope_kind='team' AND s.scope_reference_id=$1 " +
-    "AND s.ended_at IS NULL AND st.store_code='MB-001' LIMIT 1", [team.team_id]))[0];
+    "SELECT scope_id FROM public.employee_data_scopes WHERE employee_id=1 " +
+    "AND scope_kind='team' AND scope_reference_id=$1 AND ended_at IS NULL LIMIT 1",
+    [team.team_id]))[0];
   assert.ok(scope?.scope_id);
   scopeId = Number(scope.scope_id);
 
-  await q("INSERT INTO public.permissions(permission_id,permission_code,permission_name) VALUES (962301,'deposit.ci.record','CI synthetic deposit record') ON CONFLICT(permission_id) DO NOTHING");
-  await q("INSERT INTO public.permissions(permission_id,permission_code,permission_name) VALUES (962302,'deposit.ci.correct','CI synthetic deposit correction') ON CONFLICT(permission_id) DO NOTHING");
+  await q("INSERT INTO public.permissions(permission_id,permission_code) " +
+    "VALUES (962301,'deposit.ci.record'),(962302,'deposit.ci.correct')");
   const permissions = await rows('SELECT permission_id,permission_code FROM public.permissions WHERE permission_id IN (962301,962302) ORDER BY permission_id');
   assert.deepEqual(permissions.map(row => row.permission_code), ['deposit.ci.record','deposit.ci.correct']);
   for (const permissionId of [962301,962302]) {
-    await q("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision) VALUES (1,$1,'allow') " +
-      "ON CONFLICT(employee_id,permission_id) DO UPDATE SET decision='allow'", [permissionId]);
-    await q("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at,ended_at) " +
-      "VALUES (1,$1,$2,clock_timestamp(),NULL) ON CONFLICT(employee_id,permission_id,scope_id) DO UPDATE SET ended_at=NULL",
-      [permissionId, scopeId]);
+    await q("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) " +
+      "VALUES (1,$1,'allow',clock_timestamp())", [permissionId]);
+    await q("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) " +
+      "VALUES (1,$1,$2,clock_timestamp()-interval '2 minutes')", [permissionId, scopeId]);
   }
-  const login = await auth.login({ login: 'employee_test', password: 'not-a-secret', source: 'f06-real-http-sales' });
+  const login = await auth.login({ login: 'employee_test', password: 'SyntheticF04_3_CurrentProof_2026', source: 'f06-real-http-sales' });
   token = login.token;
   assert.ok(token);
 
@@ -121,12 +114,13 @@ before(async () => {
     const intake = await older(() => intakeCI(db, {
       requestKey: 'f06-real-http-lock-request-' + n + '-' + process.env.GITHUB_RUN_ID,
       customerId, vehicleId: vehicleId(n), listingCycleId: cycleId(n),
-      reason: 'synthetic HTTP lock setup', consent: CONSENT
+      syntheticPhoneConsent: CONSENT
     }));
     assert.equal(intake.allowed, true, JSON.stringify(intake));
     const decision = await older(() => decisionCI(auth, token, {
-      requestId: intake.requestId, decision: 'approve',
-      reason: 'synthetic HTTP lock approval', consent: CONSENT
+      requestId: intake.requestId,
+      requestKey: 'f06-real-http-lock-approval-' + n + '-' + process.env.GITHUB_RUN_ID,
+      action: 'approve'
     }));
     assert.equal(decision.allowed, true, JSON.stringify(decision));
     locks[n] = Number(decision.lockId);
@@ -223,7 +217,7 @@ test('15. Sales cannot correct a deposit even if a correction override exists', 
 });
 test('16. Manager role is reloaded from the signed employee account', async () => {
   await q('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1', [managerRoleId]);
-  const login = await auth.login({ login: 'employee_test', password: 'not-a-secret', source: 'f06-real-http-manager' });
+  const login = await auth.login({ login: 'employee_test', password: 'SyntheticF04_3_CurrentProof_2026', source: 'f06-real-http-manager' });
   managerToken = login.token;
   assert.ok(managerToken);
 });

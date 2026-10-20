@@ -98,9 +98,9 @@ function resultStatus(result, successStatus = 201) {
     const code = result?.code || 'F06_REAL_DEPOSIT_REQUEST_DENIED';
     if (code.includes('SIGNED_SESSION')) return 401;
     if (code.includes('NOT_FOUND')) return 404;
-    if (code.includes('INVALID') || code.includes('TIME_OUT_OF_RANGE') || code.includes('JSON_')) return 400;
     if (code.includes('IDEMPOTENCY_KEY_CONFLICT') || code.includes('OVER_REVERSAL') ||
         code.includes('NON_CURRENT_LOCK') || code.includes('LISTING_CYCLE_ENDED')) return 409;
+    if (code.includes('INVALID') || code.includes('TIME_OUT_OF_RANGE') || code.includes('JSON_')) return 400;
     return 403;
   }
   if (String(result.code || '').includes('IDEMPOTENT')) return 200;

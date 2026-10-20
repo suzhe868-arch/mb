@@ -8,6 +8,7 @@ const changed = [
   workflowPath,
   'engineering/f06/deposit-ledger-http-pg16/ci-job.sh',
   'engineering/f06/deposit-ledger-http-pg16/disposable-db.sh',
+  'engineering/f06/deposit-ledger-http-pg16/native-regression.sh',
   'engineering/f06/deposit-ledger-http-pg16/trigger-preflight.mjs',
   'engineering/f06/deposit-ledger-http-pg16/audit-seal.mjs',
   'engineering/f06/deposit-ledger-http-pg16/server.mjs',
