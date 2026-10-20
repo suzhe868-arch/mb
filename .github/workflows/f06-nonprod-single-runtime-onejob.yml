@@ -89,3 +89,8 @@ jobs:
           node engineering/f06/nonprod-single-runtime-integration/原生拒绝门禁校验.mjs
           echo "::notice::NONPROD_RUNTIME_LOCK_ONLY; SIGNED_SOURCE_GAP; NOT_READY_FOR_A_REVIEW"
           echo "F06_164_REAL_PG16_DENIAL_ONLY, NOT SIGNED TRANSACTION REFUND SUCCESS"
+
+      - name: 同真实GitHub Ref尝试原生F05签名上游初始化（不伪造旧Issuer）
+        shell: bash
+        run: |
+          bash engineering/f06/nonprod-single-runtime-integration/核对同Ref上游签名PG16.sh
