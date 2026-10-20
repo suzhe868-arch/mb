@@ -156,7 +156,7 @@ async function managerScope(c,a,oldId,newId,customerId,signedInitialResponsibleI
   "JOIN public.employee_team_memberships original_team ON original_team.employee_id=$5 AND original_team.team_id=tm.team_id "+
   "JOIN public.stores st ON st.store_id=tm.store_id "+
   "JOIN public.customers cust ON cust.customer_id=$4 "+
-  "WHERE mgr.employee_id=$1 AND mgr.employment_status='active' AND role.role_code IN('manager','store_head') "+
+  "WHERE mgr.employee_id=$1 AND $2::bigint > 0 AND mgr.employment_status='active' AND role.role_code IN('manager','store_head') "+
   "AND target.employment_status='active' AND tr.role_code IN('sales','manager','store_head') "+
   "AND tm.team_status='active' AND st.status='active' AND cust.account_status='active' "+
   "AND original_team.valid_from<=$6 AND (original_team.ended_at IS NULL OR original_team.ended_at>$6) "+
