@@ -63,7 +63,7 @@ tap(){
 # shim. Native parent migrations, signatures, real HTTP/PG16 tests, rollbacks
 # and cross-OID seals execute unchanged. This branch's own preflight runs twice.
 real_node="$(command -v node)"
-export F06_HANDOFF_NATIVE_NODE="$real_node"
+export F06_POST_CANCEL_NATIVE_NODE="$real_node"
 shim="/tmp/f06-post-handoff-cancel-parent-node-$GITHUB_RUN_ID"
 mkdir -p "$shim"
 cat > "$shim/node" <<'SH'
@@ -72,7 +72,7 @@ if [[ "$1" == *trigger-preflight.mjs ]]; then
  echo F06_TX_REFUND_NESTED_PARENT_PATH_PREFLIGHT_NOT_APPLICABLE_TO_CURRENT_DIFF
  exit 0
 fi
-exec "$F06_HANDOFF_NATIVE_NODE" "$@"
+exec "$F06_POST_CANCEL_NATIVE_NODE" "$@"
 SH
 chmod 700 "$shim/node"
 export F06_REAL_NODE="$real_node"
