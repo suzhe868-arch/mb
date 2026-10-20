@@ -83,8 +83,15 @@ export F06_REAL_ENTRY_SHA="$GITHUB_SHA" F06_REAL_ENTRY_RUN_ID="$GITHUB_RUN_ID"
 export F06_REAL_ENTRY_EVENT=push
 export F03_1_DATABASE_URL="postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_tx_restored_$GITHUB_RUN_ID"
 export F06_LOCK_DATABASE_URL="postgres://f06_lock_ci:f06_ci_synthetic_only@127.0.0.1:5432/f06_lock_audit_$GITHUB_RUN_ID"
+# Parent Deposit already created an immutable after file in this same Run.
+# Preserve it under a distinct name, never overwrite or delete that evidence.
+old_seal='engineering/f06/deposit-ledger-http-pg16/evidence/parent-seal-after.json'
+test -s "$old_seal"
+mv "$old_seal" "$base/evidence/INHERITED_DEPOSIT_PARENT_SEAL_AFTER.json"
+test -s "$base/evidence/INHERITED_DEPOSIT_PARENT_SEAL_AFTER.json"
 env GITHUB_REF="refs/heads/$f06a" GITHUB_REF_NAME="$f06a" \
  node engineering/f06/deposit-ledger-http-pg16/audit-seal.mjs after
+test -s "$old_seal"
 echo F06_TX_INDEPENDENT_NEW_OID_SIGNED_PARENT_RESTORED_PASS
 node "$base/trigger-preflight.mjs"
 echo "READY_FOR_A_REVIEW branch=$branch head=$GITHUB_SHA run_id=$GITHUB_RUN_ID"
