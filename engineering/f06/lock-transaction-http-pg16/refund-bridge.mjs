@@ -22,20 +22,17 @@ assert.equal(process.env.F06_TX_ENTRY_SHA,process.env.GITHUB_SHA);
 assert.equal(process.env.F06_TX_ENTRY_RUN_ID,process.env.GITHUB_RUN_ID);
 assert.equal(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),process.env.GITHUB_SHA);
 
-let data='';
-for await(const part of process.stdin){
- data+=part;
- if(data.length>8192)throw Error('F06_TX_REFUND_BRIDGE_BODY_LIMIT');
-}
-const request=JSON.parse(data);
-assert.ok(['verify','request','close'].includes(request.operation),'F06_TX_REFUND_BRIDGE_OP');
+assert.equal(typeof process.send,'function','F06_TX_REFUND_BRIDGE_IPC_REQUIRED');
 const db=await connect(),secret=Buffer.alloc(32,61);
 let auth;
 try{
  const parent=await verify(db);assert.equal(parent.verified,true);
+ process.send({type:'ready',nativeSigned:true,sourceSHA:parent.sourceSHA});
+ const request=await new Promise(resolve=>process.once('message',resolve));
+ assert.ok(request&&['verify','request','close'].includes(request.operation),'F06_TX_REFUND_BRIDGE_OP');
  if(request.operation==='verify'){
   const pid=Number((await db.query('SELECT pg_backend_pid() pid')).rows[0].pid);
-  process.stdout.write(JSON.stringify({allowed:true,code:'F06_TX_NATIVE_SIGNED_3C1_VERIFIED',pid,sourceSHA:parent.sourceSHA,carrier:parent.carrier}));
+  process.send({type:'result',result:{allowed:true,code:'F06_TX_NATIVE_SIGNED_3C1_VERIFIED',pid,sourceSHA:parent.sourceSHA,carrier:parent.carrier}});
  }else{
   auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin:'https://127.0.0.1:49026'});
   let backendPid=null;
@@ -47,7 +44,7 @@ try{
   const result=request.operation==='request'
    ?await requestSyntheticRefundCI(auth,request.token,request.params)
    :await closeSyntheticRefundCI(auth,request.token,request.params);
-  process.stdout.write(JSON.stringify({...result,backendPid}));
+  process.send({type:'result',result:{...result,backendPid}});
  }
 }finally{
  if(auth)await auth.close();
