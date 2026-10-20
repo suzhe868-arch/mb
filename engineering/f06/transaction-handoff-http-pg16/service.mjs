@@ -93,13 +93,18 @@ async function source(c,t){
  const cyc=await one(c,'SELECT vehicle_id FROM public.vehicle_listing_cycles WHERE listing_cycle_id=$1 AND vehicle_id=$2 FOR SHARE',[t.listing_cycle_id,t.vehicle_id]);
  const cust=await one(c,'SELECT account_status FROM public.customers WHERE customer_id=$1 FOR SHARE',[t.customer_id]);
  if(!cyc||!cust||cust.account_status!=='active')return no('F06_REAL_HANDOFF_CUSTOMER_CYCLE_DRIFT');
+ // The frozen F03M public handoff receipt carrier is optional and absent
+ // from this signed PR139 parent catalog. Never query a non-existent table:
+ // an absent carrier means zero legacy receipts, NOT permission to forge one.
+ const legacy=await one(c,"SELECT to_regclass('public.transaction_responsible_handover_receipts')::text carrier");
+ const legacyReceipts=legacy?.carrier?await one(c,"SELECT count(*)::int n FROM public.transaction_responsible_handover_receipts WHERE transaction_id=$1",[t.transaction_id]):{n:0};
  const counts=await one(c,"SELECT "+
   "(SELECT count(*)::int FROM f06_3b_ci.transaction_origins WHERE transaction_id=$1) old_3b,"+
   "(SELECT count(*)::int FROM f06_real_cancel_ci.origins WHERE transaction_id=$1) cancelled,"+
   "(SELECT count(*)::int FROM public.refund_cases WHERE transaction_id=$1) tx_refund,"+
-  "(SELECT count(*)::int FROM public.transaction_responsible_handover_receipts WHERE transaction_id=$1) receipts,"+
+
   "(SELECT count(*)::int FROM public.audit_events WHERE object_kind='Transaction' AND object_id=$1::text AND action='f06_real_tx_ci_atomic_open') opening",[t.transaction_id]);
- if(counts.old_3b||counts.cancelled||counts.tx_refund||counts.receipts||counts.opening!==1)
+ if(counts.old_3b||counts.cancelled||counts.tx_refund||Number(legacyReceipts.n)!==0||counts.opening!==1)
   return no('F06_REAL_HANDOFF_UNSIGNED_FINANCE_OR_LEGACY_SOURCE');
  const digest=sha([o,e,k]);
  return yes('F06_REAL_HANDOFF_SIGNED_PR139',{o,e,k,digest,lock});
