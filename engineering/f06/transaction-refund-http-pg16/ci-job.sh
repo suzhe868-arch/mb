@@ -124,7 +124,7 @@ docker exec -i -e PGPASSWORD=f03_ci_synthetic_only "$service" \
  pg_restore -h127.0.0.1 -Uf03_ci -d"f03_auth_txrefund_restored_$GITHUB_RUN_ID" --no-owner --no-privileges < "$dump"
 old_seal=engineering/f06/deposit-ledger-http-pg16/evidence/parent-seal-after.json
 test -s "$old_seal"
-cp "$old_seal" "$base/evidence/INHERITED_CANCEL_PARENT_SEAL_AFTER.json"
+mv "$old_seal" "$base/evidence/INHERITED_CANCEL_PARENT_SEAL_AFTER.json"
 export F06_REAL_ENTRY_REF="refs/heads/feat/f06-real-deposit-ledger-http-pg16-01"
 export F06_REAL_ENTRY_BRANCH=feat/f06-real-deposit-ledger-http-pg16-01
 export F06_REAL_ENTRY_SHA="$GITHUB_SHA" F06_REAL_ENTRY_RUN_ID="$GITHUB_RUN_ID" F06_REAL_ENTRY_EVENT=push
@@ -138,12 +138,27 @@ node --input-type=module -e '
  import fs from "node:fs";
  const a=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));
  const b=JSON.parse(fs.readFileSync(process.argv[2],"utf8"));
- for (const k of ["table_count","ledger_count","full_row_seal_sha256"])
-  if (a[k]!==b[k]) throw Error("F06_TX_REFUND_PARENT_SEAL_MISMATCH_"+k);
- if(a.table_count!==161||a.ledger_count!==24)throw Error("F06_TX_REFUND_PARENT_FULL_161_24_REQUIRED");
+ for (const x of [a,b]) {
+  if(x.status!=="PASS"||x.mode!=="after"||x.source.table_count!==161||x.source.ledger_count!==24)
+   throw Error("F06_TX_REFUND_PARENT_FULL_161_24_REQUIRED");
+  if(x.source.table_row_seal_sha256!==x.audit_copy.table_row_seal_sha256 ||
+     x.source.ledger_sha256!==x.audit_copy.ledger_sha256 ||
+     JSON.stringify(x.source.tables)!==JSON.stringify(x.audit_copy.tables))
+   throw Error("F06_TX_REFUND_AUDIT_COPY_DRIFT");
+ }
+ if(a.head_sha!==b.head_sha||a.run_id!==b.run_id)
+  throw Error("F06_TX_REFUND_PARENT_SAME_SHA_RUN_REQUIRED");
+ for (const k of ["table_count","ledger_count","table_row_seal_sha256","ledger_sha256","catalog_sha256","attestation_sha256"])
+  if (a.source[k]!==b.source[k]) throw Error("F06_TX_REFUND_PARENT_SEAL_MISMATCH_"+k);
+ if(JSON.stringify(a.source.tables)!==JSON.stringify(b.source.tables))
+  throw Error("F06_TX_REFUND_FULL_161_TABLE_ROWS_DRIFT");
+ if(a.source.database_oid===b.source.database_oid)
+  throw Error("F06_TX_REFUND_PHYSICAL_RESTORE_OID_MUST_DIFFER");
+ if(a.audit_copy.database_oid!==b.audit_copy.database_oid)
+  throw Error("F06_TX_REFUND_INDEPENDENT_AUDIT_OID_DRIFT");
  console.log("F06_TX_REFUND_DIFFERENT_OID_161_FULL_SIGNED_PARENT_RESTORED_PASS",JSON.stringify({
-  inherited:{table_count:a.table_count,ledger_count:a.ledger_count,seal:a.full_row_seal_sha256,source_oid:a.source_oid,audit_oid:a.audit_oid},
-  final:{table_count:b.table_count,ledger_count:b.ledger_count,seal:b.full_row_seal_sha256,source_oid:b.source_oid,audit_oid:b.audit_oid}
+  inherited:{table_count:a.source.table_count,ledger_count:a.source.ledger_count,seal:a.source.table_row_seal_sha256,source_oid:a.source.database_oid,audit_oid:a.audit_copy.database_oid},
+  final:{table_count:b.source.table_count,ledger_count:b.source.ledger_count,seal:b.source.table_row_seal_sha256,source_oid:b.source.database_oid,audit_oid:b.audit_copy.database_oid}
  }));
 ' "$base/evidence/INHERITED_CANCEL_PARENT_SEAL_AFTER.json" "$base/evidence/TX_REFUND_PARENT_SEAL_AFTER.json"
 node "$base/trigger-preflight.mjs"
