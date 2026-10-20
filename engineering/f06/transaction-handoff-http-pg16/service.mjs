@@ -108,6 +108,8 @@ async function chain(c,t,src){
  const events=(await c.query('SELECT * FROM f06_real_handoff_ci.events WHERE transaction_id=$1 ORDER BY version,event_id FOR SHARE',[t.transaction_id])).rows;
  const keys=(await c.query('SELECT * FROM f06_real_handoff_ci.request_keys WHERE transaction_id=$1 FOR SHARE',[t.transaction_id])).rows;
  if(keys.length!==events.length)return no('F06_REAL_HANDOFF_CHAIN_KEYS_MISSING');
+ const audits=await one(c,"SELECT count(*)::int n FROM public.audit_events WHERE object_kind='Transaction' AND object_id=$1 AND action='f06_real_handoff_ci_responsible_transfer'",[String(t.transaction_id)]);
+ if(Number(audits.n)!==events.length)return no('F06_REAL_HANDOFF_AUDIT_COUNT_MISMATCH');
  let prior=null,current=Number(src.o.responsible_employee_id);
  for(let i=0;i<events.length;i++){
   const e=events[i],k=keys.find(k=>k.event_key_sha256===e.event_key_sha256);
@@ -130,7 +132,7 @@ async function chain(c,t,src){
  if(current!==Number(t.responsible_employee_id))return no('F06_REAL_HANDOFF_UNSIGNED_CURRENT_RESPONSIBLE');
  return yes('F06_REAL_HANDOFF_SIGNED_VERSION_CHAIN',{version:events.length,currentId:current,originalId:Number(src.o.responsible_employee_id),priorEventId:prior});
 }
-async function managerScope(c,a,oldId,newId,customerId){
+async function managerScope(c,a,oldId,newId,customerId,signedInitialResponsibleId,signedTxCreatedAt){
  if(!a||a.principal_kind!=='employee'||a.system_admin_id!==null||
   a.credential_state!=='enabled'||a.subject_status!=='active'||a.force_password_change!==false||
   !['manager','store_head'].includes(a.role_code))
@@ -145,11 +147,14 @@ async function managerScope(c,a,oldId,newId,customerId){
   "JOIN public.employee_data_scopes s ON s.scope_id=cap.scope_id AND s.employee_id=mgr.employee_id "+
   "JOIN public.employee_team_memberships mm ON mm.employee_id=mgr.employee_id "+
   "JOIN public.employee_team_memberships nm ON nm.employee_id=target.employee_id AND nm.team_id=mm.team_id "+
-  "JOIN public.teams tm ON tm.team_id=mm.team_id JOIN public.stores st ON st.store_id=tm.store_id "+
+  "JOIN public.teams tm ON tm.team_id=mm.team_id "+
+  "JOIN public.employee_team_memberships original_team ON original_team.employee_id=$5 AND original_team.team_id=tm.team_id "+
+  "JOIN public.stores st ON st.store_id=tm.store_id "+
   "JOIN public.customers cust ON cust.customer_id=$4 "+
   "WHERE mgr.employee_id=$1 AND mgr.employment_status='active' AND role.role_code IN('manager','store_head') "+
   "AND target.employment_status='active' AND tr.role_code IN('sales','manager','store_head') "+
   "AND tm.team_status='active' AND st.status='active' AND cust.account_status='active' "+
+  "AND original_team.valid_from<=$6 AND (original_team.ended_at IS NULL OR original_team.ended_at>$6) "+
   "AND mm.valid_from<=clock_timestamp() AND (mm.ended_at IS NULL OR mm.ended_at>clock_timestamp()) "+
   "AND nm.valid_from<=clock_timestamp() AND (nm.ended_at IS NULL OR nm.ended_at>clock_timestamp()) "+
   "AND cap.granted_at<=clock_timestamp() AND (cap.ended_at IS NULL OR cap.ended_at>clock_timestamp()) "+
@@ -157,8 +162,8 @@ async function managerScope(c,a,oldId,newId,customerId){
   "AND ((s.scope_kind='team' AND s.scope_reference_id=tm.team_id) OR "+
   "(s.scope_kind='store' AND s.scope_reference_id=tm.store_id AND role.role_code='store_head')) "+
   "AND (role.role_code<>'store_head' OR mgr.store_id=tm.store_id) "+
-  "LIMIT 1 FOR SHARE OF mgr,role,target,tr,p,ov,cap,s,mm,nm,tm,st,cust",
-  [a.employee_id,oldId,newId,customerId]);
+  "LIMIT 1 FOR SHARE OF mgr,role,target,tr,p,ov,cap,s,mm,nm,tm,st,cust,original_team",
+  [a.employee_id,oldId,newId,customerId,signedInitialResponsibleId,signedTxCreatedAt]);
  return r&&r.role_code===a.role_code?
   yes('F06_REAL_HANDOFF_EXPLICIT_PERMISSION_SCOPE',{teamId:Number(r.team_id),storeId:Number(r.store_id)}):
   no('F06_REAL_HANDOFF_PERMISSION_SCOPE_DENIED');
@@ -185,7 +190,7 @@ export async function handoffRealTransactionCI(auth,token,p={}){
    const existing=await one(c,'SELECT * FROM f06_real_handoff_ci.request_keys WHERE event_key_sha256=$1 FOR SHARE',[h]);
    if(existing&&(Number(existing.transaction_id)!==p.transactionId||Number(existing.actor_employee_id)!==Number(a?.employee_id)||existing.payload_sha256!==payload))
     return no('F06_REAL_HANDOFF_IDEMPOTENCY_CONFLICT');
-   const scope=await managerScope(c,a,curr.currentId,p.newResponsibleId,t.customer_id);
+   const scope=await managerScope(c,a,curr.currentId,p.newResponsibleId,t.customer_id,src.o.responsible_employee_id,src.o.created_at);
    if(!scope.allowed)return scope;
    if(existing)return yes('F06_REAL_HANDOFF_IDEMPOTENT',{transactionId:p.transactionId,eventId:Number(existing.event_id),currentResponsibleId:curr.currentId,version:curr.version,backendPid:(await one(c,'SELECT pg_backend_pid() pid')).pid});
    if(curr.version!==p.expectedVersion||curr.currentId!==p.expectedOldResponsibleId)
@@ -205,7 +210,7 @@ export async function handoffRealTransactionCI(auth,token,p={}){
    await c.query("INSERT INTO public.audit_events(actor_kind,actor_id,object_kind,object_id,action,before_json,after_json,occurred_at) VALUES('employee',$1,'Transaction',$2,'f06_real_handoff_ci_responsible_transfer',$3::jsonb,$4::jsonb,clock_timestamp())",
     [String(a.employee_id),String(t.transaction_id),JSON.stringify({responsible:curr.currentId,version:curr.version}),JSON.stringify({responsible:p.newResponsibleId,version:curr.version+1,eventId:Number(e.event_id),issuer:'CI_SYNTHETIC_NO_MONEY'})]);
    if(p.testCheckpoint==='AFTER_AUDIT_THROW')throw Error('F06_REAL_HANDOFF_INJECTED_AUDIT_ROLLBACK');
-   if(!(await managerScope(c,a,curr.currentId,p.newResponsibleId,t.customer_id)).allowed)
+   if(!(await managerScope(c,a,curr.currentId,p.newResponsibleId,t.customer_id,src.o.responsible_employee_id,src.o.created_at)).allowed)
     throw Error('F06_REAL_HANDOFF_SOURCE_SCOPE_CHANGED');
    const check=await one(c,'SELECT status,completed_at,responsible_employee_id,source_lock_id FROM public.transactions WHERE transaction_id=$1',[t.transaction_id]);
    if(!check||check.status!=='in_progress'||check.completed_at!==null||
