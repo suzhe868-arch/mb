@@ -8,6 +8,11 @@ on:
       - engineering/src/f06-nonprod-composite-runtime.mjs
       - engineering/src/server.mjs
       - engineering/src/app.mjs
+      - engineering/f06/lockrequest-approval-waitlist-ci/migration.mjs
+      - engineering/f06/lock-lifecycle-ci/migration.mjs
+      - engineering/f06/deposit-ledger-ci/migration.mjs
+      - engineering/f06/lock-transaction-ci/migration.mjs
+      - engineering/f06/refund-pending-ci/migration.mjs
       - .github/workflows/f06-nonprod-single-runtime-onejob.yml
 permissions:
   contents: read
@@ -50,7 +55,7 @@ jobs:
           git fetch --no-tags origin main
           git -c core.quotePath=false diff --name-only origin/main...HEAD | while IFS= read -r path; do
             case "$path" in
-              engineering/f06/nonprod-single-runtime-integration/*|engineering/src/f06-nonprod-composite-runtime.mjs|engineering/src/server.mjs|engineering/src/app.mjs|.github/workflows/f06-nonprod-single-runtime-onejob.yml) ;;
+              engineering/f06/nonprod-single-runtime-integration/*|engineering/src/f06-nonprod-composite-runtime.mjs|engineering/src/server.mjs|engineering/src/app.mjs|engineering/f06/lockrequest-approval-waitlist-ci/migration.mjs|engineering/f06/lock-lifecycle-ci/migration.mjs|engineering/f06/deposit-ledger-ci/migration.mjs|engineering/f06/lock-transaction-ci/migration.mjs|engineering/f06/refund-pending-ci/migration.mjs|.github/workflows/f06-nonprod-single-runtime-onejob.yml) ;;
               *) echo "::error::超出Issue164精确授权: $path"; exit 1 ;;
             esac
           done
