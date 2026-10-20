@@ -57,29 +57,49 @@ try{
   auth.withSession=(bearer,fn,opts)=>original(bearer,async(c,a,...other)=>{
    backendPid=Number((await one(c,'SELECT pg_backend_pid() pid')).pid);
    if(operation==='request'||operation==='close'){
-    // These checks are in the SAME signed-auth/parent-issuer transaction,
-    // before immutable 3C1 processes the refund. Vehicle then Lock row locks
-    // are held through native 3C1 append, audit and final COMMIT.
-    let lockId=params.lockId;
+    // Both actions lock Vehicle then original Lock inside the SAME signed
+    // Employee transaction; the frozen F06-3C1 service keeps its entire
+    // permission, refund provenance, balance, payment and audit checks.
+    // Only a NEW pending application needs a currently sellable/active Lock.
+    // An EXISTING, originally signed pending Refund is a financial duty
+    // that remains closable after normal supply/listing/Lock lifecycle change.
+    let lockId=params.lockId,origin=null;
     if(operation==='close'){
-     const ref=isId(params.refundId)?await one(c,'SELECT lock_id FROM f06_3c1_ci.refund_origins WHERE refund_id=$1',[params.refundId]):null;
-     if(!ref)return no('F06_REFUND_UNSIGNED_CLOSE_SOURCE');
-     lockId=Number(ref.lock_id);
+     origin=isId(params.refundId)?await one(c,
+      'SELECT lock_id,vehicle_id,customer_id,listing_cycle_id FROM f06_3c1_ci.refund_origins WHERE refund_id=$1',
+      [params.refundId]):null;
+     if(!origin)return no('F06_REFUND_UNSIGNED_CLOSE_SOURCE');
+     lockId=Number(origin.lock_id);
     }
     if(!isId(lockId))return no('F06_REFUND_INVALID_SUBJECT');
     const seed=await one(c,'SELECT vehicle_id FROM public.locks WHERE lock_id=$1',[lockId]);
     if(!seed)return no('F06_REFUND_LOCK_NOT_FOUND');
+    // This lock ordering matches the immutable parent service and the
+    // already approved Transaction adapter: Vehicle -> Lock -> Refund.
     await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[seed.vehicle_id]);
     const l=await one(c,'SELECT * FROM public.locks WHERE lock_id=$1 FOR UPDATE',[lockId]);
-    const cyc=await one(c,'SELECT ended_at FROM public.vehicle_listing_cycles WHERE listing_cycle_id=$1 AND vehicle_id=$2 FOR SHARE',[l.listing_cycle_id,l.vehicle_id]);
-    const v=await one(c,'SELECT source_type,source_sale_status,archived_at FROM public.vehicles WHERE vehicle_id=$1',[l.vehicle_id]);
-    const live=v&&!v.archived_at&&((v.source_type==='wholesale'&&v.source_sale_status==='active')||
-       (['mingbang','four_s'].includes(v.source_type)&&v.source_sale_status==='available'));
-    const expired=await one(c,'SELECT clock_timestamp()>=$1::timestamptz expired',[l.expires_at]);
-    if(!cyc||cyc.ended_at||!live||l.lock_status!=='active'||expired.expired)
-     return no('F06_REFUND_CURRENT_LOCK_REQUIRED');
+    if(!l)return no('F06_REFUND_LOCK_NOT_FOUND');
     if(Number(a?.employee_id)!==Number(l.responsible_employee_id))
      return no('F06_REFUND_OBJECT_SCOPE_DENIED');
+    if(operation==='close'){
+     // This is NOT a new Lock, sale or Refund request: validate the signed
+     // historical subject, then let frozen closeSyntheticRefundCI enforce
+     // current permission/capability/scope, pending-only, source signatures,
+     // balance, zero payments and no owning Transaction.
+     if(Number(origin.vehicle_id)!==Number(l.vehicle_id)||
+        Number(origin.customer_id)!==Number(l.customer_id)||
+        Number(origin.listing_cycle_id)!==Number(l.listing_cycle_id))
+      return no('F06_REFUND_CLOSE_ORIGIN_DRIFT');
+    }else{
+     const cyc=await one(c,'SELECT ended_at FROM public.vehicle_listing_cycles WHERE listing_cycle_id=$1 AND vehicle_id=$2 FOR SHARE',
+      [l.listing_cycle_id,l.vehicle_id]);
+     const v=await one(c,'SELECT source_type,source_sale_status,archived_at FROM public.vehicles WHERE vehicle_id=$1',[l.vehicle_id]);
+     const live=v&&!v.archived_at&&((v.source_type==='wholesale'&&v.source_sale_status==='active')||
+        (['mingbang','four_s'].includes(v.source_type)&&v.source_sale_status==='available'));
+     const expired=await one(c,'SELECT clock_timestamp()>=$1::timestamptz expired',[l.expires_at]);
+     if(!cyc||cyc.ended_at||!live||l.lock_status!=='active'||expired.expired)
+      return no('F06_REFUND_CURRENT_LOCK_REQUIRED');
+    }
    }
    return fn(c,a,...other);
   },opts);
