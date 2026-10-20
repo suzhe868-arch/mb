@@ -49,3 +49,43 @@ node --input-type=module -e '
  }finally{await c.end()}
 '
 echo 'F06_164_SIGNED_F05_24_LEDGER_NO_REF_SPOOF_PASS; TX_ISSUER_NOT_YET_SIGNED'
+# Under the new A-authorized dual gate, each schema is applied using its
+# unchanged original sidecar.sql plus the *original* signed attestation formula.
+# Parent verification and source hashing are never bypassed, nor is GH_REF altered.
+export F06_COMPOSITE_TEST_CONSENT='I_AUTHORIZE_DISPOSABLE_F06_COMPOSITE_ONLY'
+export F06_COMPOSITE_SIGNED_ISSUER='COMPOSITE_NONPROD_SIGNED_V1'
+export API_HOST=127.0.0.1
+node --input-type=module -e '
+ import pg from "pg";
+ const db=new pg.Client({connectionString:process.env.F03_1_DATABASE_URL});
+ await db.connect();
+ const paths=[
+  "./engineering/f06/lockrequest-approval-waitlist-ci/migration.mjs",
+  "./engineering/f06/lock-lifecycle-ci/migration.mjs",
+  "./engineering/f06/deposit-ledger-ci/migration.mjs",
+  "./engineering/f06/lock-transaction-ci/migration.mjs",
+  "./engineering/f06/refund-pending-ci/migration.mjs"
+ ];
+ try{
+  for(let i=0;i<paths.length;i++){
+   const mod=await import(paths[i]);
+   if(typeof mod.applyComposite!=="function"||typeof mod.verifyComposite!=="function")
+    throw Error("F06_164_NATIVE_DUAL_GATE_MISSING_"+i);
+   const signed=await mod.applyComposite(db);
+   if(!signed?.verified)throw Error("F06_164_COMPOSITE_PARENT_APPLY_NOT_SIGNED_"+i);
+   const verify=await mod.verifyComposite(db);
+   if(!verify.verified)throw Error("F06_164_COMPOSITE_PARENT_VERIFY_FAILED_"+i);
+   let oldDenied=false;
+   try{mod.gate()}catch(e){oldDenied=/ISOLAT|FORBIDDEN|SIGNED_RUN|UNSIGNED|GITHUB_REF/.test(e.message)}
+   if(!oldDenied)throw Error("F06_164_LEGACY_CI_GATE_MUST_REJECT_NEW_REF_"+i);
+   console.log("F06_164_CURRENT_REF_ORIGINAL_SQL_SIGNED_COMPOSITE_STEP_PASS",JSON.stringify({
+    i,sha:process.env.GITHUB_SHA,ref:process.env.GITHUB_REF,source:paths[i]}));
+  }
+  const n=(await db.query("SELECT count(*)::int n FROM public.f03_schema_migrations")).rows[0].n;
+  if(n!==24)throw Error("F06_164_SIGNED_PUBLIC_LEDGER_DRIFT");
+  console.log("F06_164_FIVE_NATIVE_PARENT_SCHEMA_STEPS_SIGNED_NO_LEGACY_REF_SPOOF",JSON.stringify({sha:process.env.GITHUB_SHA,migrations:n}));
+ }finally{await db.end()}
+'
+test "$GITHUB_REF" = "$original_ref"
+test "$GITHUB_REF_NAME" = "$original_name"
+echo 'F06_164_AUTHENTIC_F05_24_PLUS_F06_FIVE_SCHEMAS_ONLY; BUSINESS_ORIGINS_NOT_YET_ISSUED'
