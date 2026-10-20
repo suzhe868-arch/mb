@@ -294,7 +294,7 @@ async function balancePool(c,src,{ignoreRefundId=null}={}){
  for(const r of cases){
   const paid=await one(c,'SELECT count(*)::int n FROM public.refund_payments WHERE refund_id=$1',[r.refund_id]);
   if(Number(paid.n)>0)return no('F06_TX_REFUND_REAL_PAYMENT_SOURCE_GAP');
-  if(r.refund_id===ignoreRefundId)continue;
+  if(ignoreRefundId!==null&&Number(r.refund_id)===Number(ignoreRefundId))continue;
   if(r.lock_id!==null&&r.transaction_id===null){
    if(r.status==='pending')return no('F06_TX_REFUND_LOCK_PENDING_CONFLICT');
    if(r.status==='refunded')return no('F06_TX_REFUND_ACTUAL_REFUND_NOT_AUTHORIZED');
