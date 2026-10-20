@@ -495,14 +495,26 @@ test('SystemAdmin真实Session不可取消Employee Transaction',async()=>{
  assert.equal(r.body.code,'F06_POST_CANCEL_PERMISSION_SCOPE_DENIED');
  assert.deepEqual(await cancelFacts(tx[6]),before);
 });
-test('当前签名Responsible的Team Membership失效时拒绝取消',async()=>{
- const prep=await handoff('membership-cancel-prep',tx[5],4,1,0,{},managerToken);
+test('当前负责人只有其他Team的活跃Scope时不得取消原Team交易',async()=>{
+ const prep=await handoff('cross-team-cancel-prep',tx[5],4,1,0,{},managerToken);
  assert.equal(prep.status,201,JSON.stringify(prep.body));
+ const other=(await rows("SELECT t.team_id FROM public.teams t JOIN public.stores st ON st.store_id=t.store_id WHERE t.team_status='active' AND st.status='active' AND t.team_id<>$1 ORDER BY t.team_id LIMIT 1",[teamId]))[0];
+ assert.ok(other,'cross-team fixture requires a second active team');
+ const otherTeam=Number(other.team_id);
+ const admin=(await rows("SELECT system_admin_id FROM public.system_admins WHERE account_status='active' ORDER BY system_admin_id LIMIT 1"))[0];
+ assert.ok(admin?.system_admin_id);
+ const membership=(await rows("SELECT membership_id FROM public.employee_team_memberships WHERE employee_id=4 AND team_id=$1 AND ended_at IS NULL LIMIT 1",[otherTeam]))[0];
+ if(!membership)await q("INSERT INTO public.employee_team_memberships(employee_id,team_id,valid_from,changed_by_system_admin_id) VALUES(4,$1,clock_timestamp()-interval '2 days',$2)",[otherTeam,Number(admin.system_admin_id)]);
+ const existingScope=(await rows("SELECT scope_id FROM public.employee_data_scopes WHERE employee_id=4 AND scope_kind='team' AND scope_reference_id=$1 AND ended_at IS NULL LIMIT 1",[otherTeam]))[0];
+ const otherScope=existingScope?Number(existingScope.scope_id):Number((await q("INSERT INTO public.employee_data_scopes(employee_id,scope_kind,scope_reference_id) VALUES(4,'team',$1) RETURNING scope_id",[otherTeam])).rows[0].scope_id);
+ await q("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(4,997003,'allow',clock_timestamp()) ON CONFLICT(employee_id,permission_id) DO UPDATE SET decision='allow'");
+ const cap=await count("SELECT count(*)::int n FROM public.employee_capability_scope_bindings WHERE employee_id=4 AND permission_id=997003 AND scope_id=$1 AND ended_at IS NULL",[otherScope]);
+ if(!cap)await q("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(4,997003,$1,clock_timestamp()-interval '3 minutes')",[otherScope]);
  const before=await cancelFacts(tx[5]),marker='2000-01-01T00:00:00.000Z';
- const changed=await q("UPDATE public.employee_team_memberships SET ended_at=$1 WHERE employee_id=4 AND team_id=$2 AND ended_at IS NULL RETURNING employee_id",[marker,teamId]);
+ const changed=await q("UPDATE public.employee_team_memberships SET ended_at=$1 WHERE employee_id=4 AND team_id=$2 AND ended_at IS NULL RETURNING membership_id",[marker,teamId]);
  assert.ok(changed.rowCount>0);
  try{
-  const r=await cancel('membership-ended',tx[5],1,{},targetToken);
+  const r=await cancel('cross-team-scope-only',tx[5],1,{},targetToken);
   assert.equal(r.body.code,'F06_POST_CANCEL_PERMISSION_SCOPE_DENIED',JSON.stringify(r.body));
   assert.deepEqual(await cancelFacts(tx[5]),before);
  }finally{

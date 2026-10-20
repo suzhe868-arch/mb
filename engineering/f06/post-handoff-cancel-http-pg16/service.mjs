@@ -64,7 +64,7 @@ export async function apply(c,{inject=false}={}){
  }catch(e){await c.query('ROLLBACK');throw e}
  return verify(c);
 }
-async function currentPermission(c,a,responsible){
+async function currentPermission(c,a,responsible,originalResponsible,transactionCreatedAt){
  if(!a||a.principal_kind!=='employee'||a.system_admin_id!==null||
  !['sales','manager','store_head'].includes(a.role_code)||a.force_password_change!==false||
  a.credential_state!=='enabled'||a.subject_status!=='active'||Number(a.employee_id)!==Number(responsible))return false;
@@ -77,15 +77,18 @@ async function currentPermission(c,a,responsible){
  "JOIN public.employee_team_memberships m ON m.employee_id=e.employee_id "+
  "JOIN public.teams t ON t.team_id=m.team_id JOIN public.stores st ON st.store_id=t.store_id "+
  "JOIN public.employee_team_memberships rm ON rm.employee_id=$2 AND rm.team_id=t.team_id "+
+ "JOIN public.employee_team_memberships original_team ON original_team.employee_id=$3 AND original_team.team_id=t.team_id "+
  "JOIN public.employees responsible ON responsible.employee_id=rm.employee_id AND responsible.employment_status='active' "+
  "WHERE e.employee_id=$1 AND e.employment_status='active' AND t.team_status='active' AND st.status='active' "+
+ "AND original_team.valid_from<=$4 AND (original_team.ended_at IS NULL OR original_team.ended_at>$4) "+
  "AND m.valid_from<=clock_timestamp() AND (m.ended_at IS NULL OR m.ended_at>clock_timestamp()) "+
  "AND rm.valid_from<=clock_timestamp() AND (rm.ended_at IS NULL OR rm.ended_at>clock_timestamp()) "+
  "AND b.granted_at<=clock_timestamp() AND (b.ended_at IS NULL OR b.ended_at>clock_timestamp()) "+
  "AND (s.ended_at IS NULL OR s.ended_at>clock_timestamp()) "+
  "AND ((s.scope_kind='team' AND s.scope_reference_id=t.team_id) OR "+
- "(s.scope_kind='store' AND s.scope_reference_id=t.store_id AND r.role_code IN('manager','store_head'))) "+
- "LIMIT 1 FOR SHARE OF e,r,p,o,b,s,m,t,st,rm",[a.employee_id,responsible]);
+ "(s.scope_kind='store' AND s.scope_reference_id=t.store_id AND r.role_code='store_head')) "+
+ "AND (r.role_code<>'store_head' OR e.store_id=t.store_id) "+
+ "LIMIT 1 FOR SHARE OF e,r,p,o,b,s,m,t,st,rm,original_team",[a.employee_id,responsible,originalResponsible,transactionCreatedAt]);
  return x&&x.role_code===a.role_code?{teamId:Number(x.team_id),storeId:Number(x.store_id),scopeId:Number(x.scope_id),permissionId:Number(x.permission_id)}:null;
 }
 
@@ -192,7 +195,11 @@ export async function cancelAfterSignedHandoffCI(auth,token,p={}){
    const o=await one(c,'SELECT * FROM f06_real_post_handoff_cancel_ci.origins WHERE transaction_id=$1 FOR SHARE',[p.transactionId]);
    if(!o||t.status!=='cancelled'||Number(o.actor_employee_id)!==Number(a.employee_id)||Number(o.handoff_version)!==p.expectedVersion)
     return no('F06_POST_CANCEL_SIGNED_REPLAY_DRIFT');
-   if(!await currentPermission(c,a,o.current_responsible_employee_id))return no('F06_POST_CANCEL_PERMISSION_SCOPE_DENIED');
+   const txOrigin=await one(c,'SELECT responsible_employee_id,created_at FROM f06_real_tx_ci.origins WHERE transaction_id=$1 FOR SHARE',[p.transactionId]);
+   if(!txOrigin||Number(txOrigin.responsible_employee_id)!==Number(o.original_responsible_employee_id))
+    return no('F06_POST_CANCEL_SIGNED_REPLAY_DRIFT');
+   if(!await currentPermission(c,a,o.current_responsible_employee_id,o.original_responsible_employee_id,txOrigin.created_at))
+    return no('F06_POST_CANCEL_PERMISSION_SCOPE_DENIED');
    return yes('F06_POST_CANCEL_IDEMPOTENT',{transactionId:p.transactionId,version:p.expectedVersion,backendPid:(await one(c,'SELECT pg_backend_pid() pid')).pid});
   }
   if(t.status!=='in_progress'||t.completed_at!==null)return no('F06_POST_CANCEL_ONLY_IN_PROGRESS');
@@ -208,7 +215,7 @@ export async function cancelAfterSignedHandoffCI(auth,token,p={}){
   if(signed.version!==p.expectedVersion)return no('F06_POST_CANCEL_STALE_HANDOFF_VERSION');
   if(Number(parent.source.responsible_employee_id)!==signed.originalId)
    return no('F06_POST_CANCEL_ORIGINAL_RESPONSIBLE_DRIFT');
-  const signedScope=await currentPermission(c,a,t.responsible_employee_id);
+  const signedScope=await currentPermission(c,a,t.responsible_employee_id,parent.source.responsible_employee_id,parent.source.created_at);
   if(!signedScope)return no('F06_POST_CANCEL_PERMISSION_SCOPE_DENIED');
   const events=(await c.query('SELECT * FROM f06_real_handoff_ci.events WHERE transaction_id=$1 ORDER BY version,event_id FOR SHARE',[p.transactionId])).rows;
   const keys=(await c.query('SELECT * FROM f06_real_handoff_ci.request_keys WHERE transaction_id=$1 ORDER BY event_id FOR SHARE',[p.transactionId])).rows;
@@ -231,7 +238,7 @@ export async function cancelAfterSignedHandoffCI(auth,token,p={}){
   const f=await one(c,'SELECT status,completed_at,responsible_employee_id FROM public.transactions WHERE transaction_id=$1',[t.transaction_id]);
   if(!f||f.status!=='cancelled'||f.completed_at!==null||Number(f.responsible_employee_id)!==signed.currentId)
    throw Error('F06_POST_CANCEL_ATOMIC_FINAL_DRIFT');
-  if(!await currentPermission(c,a,signed.currentId))
+  if(!await currentPermission(c,a,signed.currentId,parent.source.responsible_employee_id,parent.source.created_at))
    throw Error('F06_POST_CANCEL_ATOMIC_PERMISSION_CHANGED');
   return yes('F06_POST_CANCEL_ATOMIC_SIGNED',{transactionId:p.transactionId,version:signed.version,eventId:Number(event.event_id),backendPid:(await one(c,'SELECT pg_backend_pid() pid')).pid});
  },{normalOnly:true});
