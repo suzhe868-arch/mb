@@ -40,6 +40,12 @@ export F03_1_DATABASE_URL=postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432
 export F06_LOCK_DATABASE_URL="postgres://f06_lock_ci:f06_ci_synthetic_only@127.0.0.1:5432/f06_lock_test"
 mkdir -p "$base/evidence"
 node "$base/trigger-preflight.mjs"
+# Fail early on syntax/import declaration errors before expensive inherited 585 tests.
+bash -n "$base/ci-job.sh"
+for module in service.mjs runner.mjs worker.mjs server.mjs trigger-preflight.mjs tests/http.test.mjs tests/https.test.mjs; do
+  node --check "$base/$module"
+done
+echo F06_POST_CANCEL_STATIC_SYNTAX_PASS
 tap(){
  local f="$1" want="$2" n pass fail skip cancel
  test -s "$f"
