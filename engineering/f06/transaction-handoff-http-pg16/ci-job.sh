@@ -55,7 +55,7 @@ tap(){
 # and cross-OID seals execute unchanged. This branch's own preflight runs twice.
 real_node="$(command -v node)"
 export F06_HANDOFF_NATIVE_NODE="$real_node"
-shim="/tmp/f06-txrefund-parent-node-$GITHUB_RUN_ID"
+shim="/tmp/f06-handoff-parent-node-$GITHUB_RUN_ID"
 mkdir -p "$shim"
 cat > "$shim/node" <<'SH'
 #!/usr/bin/env bash
