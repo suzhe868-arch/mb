@@ -1,0 +1,43 @@
+name: F06 Issue159 Bridge - Preliminary Static Gate (NOT Acceptance)
+on:
+  push:
+    branches:
+      - feat/f06-signed-post-handoff-refund-bridge-01
+    paths:
+      - 'engineering/f06/post-handoff-refund-bridge-http-pg16/**'
+      - '.github/workflows/f06-signed-post-handoff-refund-bridge-onejob.yml'
+permissions:
+  contents: read
+concurrency:
+  group: f06-159-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  preliminary_only:
+    name: "静态检查｜非PG16验收｜NOT_READY"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: 仅检查来源白名单和当前SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = "suzhe868-arch/mb"
+          test "$GITHUB_EVENT_NAME" = "push"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch origin main --no-tags
+          git diff --name-only origin/main...HEAD | while IFS= read -r path; do
+            case "$path" in
+              engineering/f06/post-handoff-refund-bridge-http-pg16/*|.github/workflows/f06-signed-post-handoff-refund-bridge-onejob.yml) ;;
+              *) echo "::error::修改越过Issue159白名单: $path"; exit 1 ;;
+            esac
+          done
+      - name: Node语法检查（仅非资金来源只读核验）
+        run: node --check engineering/f06/post-handoff-refund-bridge-http-pg16/签名来源只读核验.mjs
+      - name: 明确禁止将此工作流作为B完工证明
+        run: |
+          echo "::notice::F06_ISSUE159_PRELIMINARY_ONLY; NO PG16, NO HTTP, NO ROLLBACK, NO BALANCE TEST; NOT READY FOR A REVIEW"
+          echo "F06_ISSUE159_REQUIRED_REAL_PG16>=35 HTTP_TLS>=10 PARENT_TABLES=161 LEDGER=24 FULL_SEAL_AND_CONCURRENT_BACKENDS"
+          echo "CURRENT_GATE=STATIC_ONLY_NOT_READY"
