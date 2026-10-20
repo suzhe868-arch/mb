@@ -24,7 +24,7 @@
   "current_work_file": "07_重建工作区/F06单应用隔离Runtime可信源接线与业务闭环_A主控B正式施工单_2026-10-21.md",
   "f06_nonprod_runtime_integration_release_2026_10_21": {
     "task_id": "F06_NONPROD_SINGLE_RUNTIME_TRUSTED_SOURCE_INTEGRATION_01",
-    "status": "A_RELEASED_FOR_B_NONPRODUCTION_PENDING_MAIN_MERGE",
+    "status": "A_RELEASED_FOR_B_NONPRODUCTION",
     "issue": 164,
     "next_owner": "B",
     "review_owner": "A",
