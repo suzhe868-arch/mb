@@ -23,7 +23,7 @@ async function call(p={},token=managerToken,path=route,method='POST'){
 const payload=(n,transactionId=tx[1],to=4,prev=1,version=0,extra={})=>({transactionId,expectedOldResponsibleId:prev,expectedVersion:version,newResponsibleId:to,reason:reason+' '+n,eventKey:key(n),...extra});
 const handoff=(n,txId=tx[1],to=4,prev=1,version=0,extra={},actor=managerToken)=>call(payload(n,txId,to,prev,version,extra),actor);
 const inspect=async t=>childCall('inspect',managerToken,{transactionId:t});
-const handoffFacts=async t=tx[1] =>(await rows("SELECT t.status,t.completed_at,t.responsible_employee_id,t.source_lock_id,t.customer_id,t.vehicle_id,t.listing_cycle_id,"+
+const handoffFacts=async (t=tx[1]) =>(await rows("SELECT t.status,t.completed_at,t.responsible_employee_id,t.source_lock_id,t.customer_id,t.vehicle_id,t.listing_cycle_id,"+
  "(SELECT count(*)::int FROM f06_real_handoff_ci.events WHERE transaction_id=t.transaction_id) events,"+
  "(SELECT count(*)::int FROM f06_real_handoff_ci.request_keys WHERE transaction_id=t.transaction_id) keys,"+
  "(SELECT count(*)::int FROM public.audit_events WHERE object_kind='Transaction' AND object_id=t.transaction_id::text AND action='f06_real_handoff_ci_responsible_transfer') audits,"+
