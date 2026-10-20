@@ -331,6 +331,15 @@ test('56 历史Old Responsible即便是Manager也不得越权取消',async()=>{
 test('57 移交版本2不能使用过期Version1取消',async()=>{
  const r=await cancel('stale-version',tx[1],1);assert.equal(r.body.code,'F06_POST_CANCEL_STALE_HANDOFF_VERSION');
 });
+test('Customer owner与Transaction当前签名Responsible不同，不得代签取消',async()=>{
+ const before=await cancelFacts(tx[1]);
+ await q('UPDATE public.customers SET current_owner_employee_id=4 WHERE customer_id=$1',[customer]);
+ try{
+  const r=await cancel('customer-owner-not-responsible',tx[1],2,{},targetToken);
+  assert.equal(r.body.allowed,false,JSON.stringify(r.body));
+  assert.deepEqual(await cancelFacts(tx[1]),before);
+ }finally{await q('UPDATE public.customers SET current_owner_employee_id=$1 WHERE customer_id=$2',[customerOwner,customer])}
+});
 test('58 Version2当前负责人Employee2真HTTP PG16合法取消',async()=>{
  const r=await cancel('success');assert.equal(r.status,201,JSON.stringify(r.body));
  assert.equal(r.body.code,'F06_POST_CANCEL_ATOMIC_SIGNED');assert.equal(r.body.version,2);
@@ -461,4 +470,42 @@ test('81 同一Transaction Handoff与Cancel并发竞争仅一方提交且签名�
   assert.deepEqual([Number(hf.responsible_employee_id),hf.events,hf.keys,hf.audits],[4,1,1,1]);
  }
  console.log('F06_POST_CANCEL_HANDOFF_RACE_SAFE_PASS',JSON.stringify({handoff:h.body,cancel:c.body}));
+});
+
+test('SystemAdmin真实Session不可取消Employee Transaction',async()=>{
+ const admin=(await rows("SELECT system_admin_id FROM public.system_admins WHERE account_status='active' ORDER BY system_admin_id LIMIT 1"))[0];
+ assert.ok(admin?.system_admin_id);
+ const source=(await rows("SELECT password_hash FROM public.pc_login_accounts WHERE normalized_login_key='employee_test'"))[0];
+ assert.ok(source?.password_hash);
+ const adminId=Number(admin.system_admin_id),login='f06_post_cancel_system_admin_'+process.env.GITHUB_RUN_ID;
+ const existing=(await rows("SELECT account_id FROM public.pc_login_accounts WHERE principal_kind='system_admin' AND system_admin_id=$1",[adminId]))[0];
+ if(existing){
+  await q("UPDATE public.pc_login_accounts SET normalized_login_key=$1,password_hash=$2,credential_state='enabled',force_password_change=false,credential_epoch=credential_epoch+1,updated_at=clock_timestamp() WHERE account_id=$3",
+   [login,source.password_hash,Number(existing.account_id)]);
+ }else{
+  const accountId=Number((await rows("SELECT COALESCE(MAX(account_id),0)+1 id FROM public.pc_login_accounts"))[0].id);
+  await q("INSERT INTO public.pc_login_accounts(account_id,normalized_login_key,principal_kind,system_admin_id,password_hash,credential_state,force_password_change,credential_epoch) VALUES($1,$2,'system_admin',$3,$4,'enabled',false,1)",
+   [accountId,login,adminId,source.password_hash]);
+ }
+ const token=(await auth.login({login,password:'SyntheticF04_3_CurrentProof_2026',source:'f06-post-cancel-system-admin'})).token;
+ assert.ok(token);
+ const before=await cancelFacts(tx[6]);
+ const r=await cancel('system-admin',tx[6],1,{},token);
+ assert.equal(r.status,403,JSON.stringify(r.body));
+ assert.equal(r.body.code,'F06_POST_CANCEL_PERMISSION_SCOPE_DENIED');
+ assert.deepEqual(await cancelFacts(tx[6]),before);
+});
+test('当前签名Responsible的Team Membership失效时拒绝取消',async()=>{
+ const prep=await handoff('membership-cancel-prep',tx[5],4,1,0,{},managerToken);
+ assert.equal(prep.status,201,JSON.stringify(prep.body));
+ const before=await cancelFacts(tx[5]),marker='2000-01-01T00:00:00.000Z';
+ const changed=await q("UPDATE public.employee_team_memberships SET ended_at=$1 WHERE employee_id=4 AND team_id=$2 AND ended_at IS NULL RETURNING employee_id",[marker,teamId]);
+ assert.ok(changed.rowCount>0);
+ try{
+  const r=await cancel('membership-ended',tx[5],1,{},targetToken);
+  assert.equal(r.body.code,'F06_POST_CANCEL_PERMISSION_SCOPE_DENIED',JSON.stringify(r.body));
+  assert.deepEqual(await cancelFacts(tx[5]),before);
+ }finally{
+  await q("UPDATE public.employee_team_memberships SET ended_at=NULL WHERE employee_id=4 AND team_id=$1 AND ended_at=$2",[teamId,marker]);
+ }
 });

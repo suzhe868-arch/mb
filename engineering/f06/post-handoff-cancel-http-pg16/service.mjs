@@ -200,6 +200,8 @@ export async function cancelAfterSignedHandoffCI(auth,token,p={}){
   // matching the native Vehicle -> Transaction -> Lock -> Finance -> Handoff -> Scope lock order.
   const parent=await trustedTransaction(c,t);
   if(!parent.allowed)return no('F06_POST_CANCEL_PARENT_FINANCE_OR_LOCK_DRIFT_'+parent.code);
+  if(!a||a.principal_kind!=='employee'||a.system_admin_id!==null)
+   return no('F06_POST_CANCEL_PERMISSION_SCOPE_DENIED');
   const signed=await currentSignedResponsibleCI(c,p.transactionId);
   if(!signed.allowed||signed.version<1||signed.currentId!==Number(t.responsible_employee_id)||
    signed.currentId!==Number(a.employee_id))return no('F06_POST_CANCEL_PR153_CURRENT_CHAIN_INVALID');
