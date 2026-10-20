@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {before,after,test} from 'node:test';
+import {fork} from 'node:child_process';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {connect,verify,withF062} from '../../deposit-ledger-ci/migration.mjs';
 import {withParentBranch} from '../../lock-lifecycle-ci/migration.mjs';
@@ -11,6 +12,7 @@ const secret=Buffer.alloc(32,61),customer=86180101,vehicle=n=>86181100+n,cycle=n
 const old=fn=>withF062(()=>withParentBranch(fn));
 const endpoint='/__ci__/f06-real-lock-transaction/open';
 let db,auth,server,base,token,role,scopeId,locks={},recorded,txId,firstKey;
+const sessionBackendPids=[];
 const q=(sql,args=[])=>db.query(sql,args);
 const rows=async(s,a=[])=> (await q(s,a)).rows;
 async function call(path=endpoint,body={},actor=token,method='POST',headers={}){
@@ -20,6 +22,36 @@ async function call(path=endpoint,body={},actor=token,method='POST',headers={}){
  return {status:r.status,body:await r.json(),headers:r.headers};
 }
 const body=(n,lock=locks[1],more={})=>({lockId:lock,eventKey:'f06-real-transaction-'+n+'-'+process.env.GITHUB_RUN_ID,...more});
+
+function signedRefund(operation,params={},onReady=null){
+ return new Promise((resolve,reject)=>{
+  const signed='feat/f06-3c1-refund-pending-close-ci';
+  const child=fork(new URL('../refund-bridge.mjs',import.meta.url),[],{
+   cwd:process.cwd(),execArgv:[],env:{...process.env,GITHUB_REF:'refs/heads/'+signed,GITHUB_REF_NAME:signed},
+   stdio:['ignore','pipe','pipe','ipc']
+  });
+  let settled=false,stderr='',started=false;
+  child.stderr.on('data',b=>{stderr+=b.toString().slice(0,2000)});
+  const fail=e=>{if(!settled){settled=true;child.kill();reject(e)}};
+  child.on('error',fail);
+  child.on('exit',(code)=>{if(!settled)fail(Error('F06_TX_REFUND_BRIDGE_EXIT_'+code+' '+stderr))});
+  child.on('message',m=>{
+   if(m.type==='ready'&&!started){
+    started=true;
+    if(!m.nativeSigned)return fail(Error('F06_TX_UNVERIFIED_REFUND_PARENT'));
+    try{if(onReady)onReady()}catch(e){return fail(e)}
+    child.send({operation,token,params});
+   }else if(m.type==='result'&&!settled){
+    settled=true;resolve(m.result);
+   }
+  });
+ });
+}
+const signedRefundParams=(n,lockId)=>({
+ lockId,amountCents:2000,reason:'Synthetic signed refund request '+n,
+ eventKey:'f06-tx-3c1-signed-'+n+'-'+process.env.GITHUB_RUN_ID,subjectKind:'lock'
+});
+
 async function close(s){if(s?.listening)await new Promise((resolve,reject)=>s.close(e=>e?reject(e):resolve()))}
 async function invariant(lockId){
  return (await q("SELECT l.lock_status,l.end_reason,(SELECT count(*)::int FROM public.transactions t WHERE t.source_lock_id=l.lock_id) txs,(SELECT count(*)::int FROM f06_real_tx_ci.origins o WHERE o.source_lock_id=l.lock_id) origins,(SELECT count(*)::int FROM f06_real_tx_ci.events e WHERE e.source_lock_id=l.lock_id) events FROM public.locks l WHERE l.lock_id=$1",[lockId])).rows[0];
@@ -29,6 +61,11 @@ before(async()=>{
  db=await connect();
  assert.equal((await verify(db)).verified,true);
  auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin:'https://127.0.0.1:49026'});
+ const originalSession=auth.withSession.bind(auth);
+ auth.withSession=(bearer,fn,opts)=>originalSession(bearer,async(c,...args)=>{
+  sessionBackendPids.push(Number((await c.query('SELECT pg_backend_pid() pid')).rows[0].pid));
+  return fn(c,...args);
+ },opts);
  const roleRows=await rows("SELECT role_id,role_code FROM public.roles WHERE role_code IN ('sales','manager')");
  const sales=Number(roleRows.find(r=>r.role_code==='sales')?.role_id);
  assert.ok(sales>0);
@@ -38,20 +75,30 @@ before(async()=>{
  assert.ok(team?.team_id);
  const scope=(await rows("SELECT scope_id FROM public.employee_data_scopes WHERE employee_id=1 AND scope_kind='team' AND scope_reference_id=$1 AND ended_at IS NULL LIMIT 1",[team.team_id]))[0];
  assert.ok(scope?.scope_id);scopeId=Number(scope.scope_id);
- await q("INSERT INTO public.permissions(permission_id,permission_code) VALUES (963401,'transaction.ci.open'),(963402,'deposit.ci.record')");
- for(const p of [963401,963402]){
+ await q("INSERT INTO public.permissions(permission_id,permission_code) VALUES (963401,'transaction.ci.open'),(963402,'deposit.ci.record'),(963403,'refund.ci.request')");
+ for(const p of [963401,963402,963403]){
   await q("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(1,$1,'allow',clock_timestamp())",[p]);
   await q("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(1,$1,$2,clock_timestamp()-interval '2 minutes')",[p,scopeId]);
  }
  const login=await auth.login({login:'employee_test',password:'SyntheticF04_3_CurrentProof_2026',source:'f06-real-tx-current-session'});
  token=login.token;assert.ok(token);
- for(let n=1;n<=3;n++){
+ for(let n=1;n<=8;n++){
   const intake=await old(()=>intakeCI(db,{requestKey:'f06-real-tx-lock-intake-'+n+'-'+process.env.GITHUB_RUN_ID,
    customerId:customer,vehicleId:vehicle(n),listingCycleId:cycle(n),syntheticPhoneConsent:consent}));
   assert.equal(intake.allowed,true,JSON.stringify(intake));
   const decision=await old(()=>decisionCI(auth,token,{requestId:intake.requestId,
    requestKey:'f06-real-tx-lock-approve-'+n+'-'+process.env.GITHUB_RUN_ID,action:'approve'}));
   assert.equal(decision.allowed,true,JSON.stringify(decision));locks[n]=Number(decision.lockId);
+ }
+ // Distinct signed deposits supply the authentic refund balance on locks 4-8.
+ for(let n=4;n<=8;n++){
+  const d=await recordSyntheticDepositCI(auth,token,{
+   lockId:locks[n],amountCents:12000,currency:'CNY',paymentMethod:'bank_transfer',
+   eventKey:'f06-tx-3c1-refund-balance-'+n+'-'+process.env.GITHUB_RUN_ID,
+   receivedAt:new Date(Date.now()-3600000).toISOString(),
+   syntheticVoucher:'CI-ONLY-SIGNED-REFUND-'+n,note:'Signed synthetic refund eligibility'
+  });
+  assert.equal(d.allowed,true,JSON.stringify(d));
  }
  server=createHttpServer({auth});await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve)});
  base='http://127.0.0.1:'+server.address().port;
@@ -189,4 +236,99 @@ test('34 旧Lock pending Refund拒绝后0半条写入',async()=>{
 test('35 全部新增Transaction仍只为合成在途且生产Issuer未接线',async()=>{
  const r=await rows("SELECT p.status,o.issuer,o.carrier FROM f06_real_tx_ci.origins o JOIN public.transactions p ON p.transaction_id=o.transaction_id ORDER BY p.transaction_id");
  assert.equal(r.length,2);for(const x of r){assert.equal(x.status,'in_progress');assert.equal(x.issuer,'CI_SYNTHETIC_NOT_REAL_MONEY');assert.equal(x.carrier,'in_progress')}
+});
+
+test('44 原生F06-3C1父签名及退款Carrier在独立进程验签',async()=>{
+ const r=await signedRefund('verify');
+ assert.equal(r.allowed,true,JSON.stringify(r));
+ assert.equal(r.code,'F06_TX_NATIVE_SIGNED_3C1_VERIFIED');
+ assert.match(r.sourceSHA,/^[a-f0-9]{64}$/);
+ assert.ok(r.pid>0);
+ console.log('SIGNED_REFUND_PARENT_NATIVE_3C1',JSON.stringify(r));
+});
+let pendingSignedRefund=null;
+test('45 受限3C1服务生成合法pending与原生退款来源事件',async()=>{
+ const r=await signedRefund('request',signedRefundParams('refund-first',locks[4]));
+ assert.equal(r.allowed,true,JSON.stringify(r));
+ assert.equal(r.code,'F06_3C1_PENDING_NO_PAYMENT');pendingSignedRefund=r.refundId;
+ assert.ok(r.backendPid>0);
+ const proof=await rows("SELECT rc.status,o.issuer_kind,o.amount_cents,e.event_kind FROM public.refund_cases rc "+
+  "JOIN f06_3c1_ci.refund_origins o USING(refund_id) JOIN f06_3c1_ci.status_events e USING(refund_id) WHERE rc.refund_id=$1",[pendingSignedRefund]);
+ assert.equal(proof.length,1);assert.equal(proof[0].status,'pending');
+ assert.equal(proof[0].issuer_kind,'CI_SYNTHETIC_NO_MONEY');
+ assert.equal(proof[0].event_kind,'pending_requested');
+ console.log('F06_TX_SIGNED_REFUND_FIRST_PID',r.backendPid);
+});
+test('46 真签名Refund先COMMIT，Transaction必须拒绝且零半写',async()=>{
+ const r=await call(endpoint,body('signed-refund-first',locks[4]));
+ assert.equal(r.status,409,JSON.stringify(r.body));
+ assert.equal(r.body.code,'F06_TX_LOCK_PENDING_REFUND_DENY');
+ assert.deepEqual((({lock_status,txs,origins,events})=>[lock_status,txs,origins,events])(await invariant(locks[4])),['active',0,0,0]);
+ assert.equal(Number((await rows('SELECT count(*)::int n FROM public.refund_payments WHERE refund_id=$1',[pendingSignedRefund]))[0].n),0);
+});
+test('47 相同原生退款请求Key幂等且仅一份来源事件',async()=>{
+ const r=await signedRefund('request',signedRefundParams('refund-first',locks[4]));
+ assert.equal(r.allowed,true,JSON.stringify(r));
+ assert.equal(r.code,'F06_3C1_IDEMPOTENT_REQUEST');
+ assert.equal(r.refundId,pendingSignedRefund);
+ const e=await rows('SELECT count(*)::int n FROM f06_3c1_ci.status_events WHERE refund_id=$1',[pendingSignedRefund]);
+ assert.equal(e[0].n,1);
+});
+test('48 Transaction先COMMIT：同车同周期唯一真实占用',async()=>{
+ const r=await call(endpoint,body('transaction-first',locks[5]));
+ assert.equal(r.status,201,JSON.stringify(r.body));
+ const state=await invariant(locks[5]);assert.deepEqual([state.lock_status,state.txs,state.origins,state.events],['released',1,1,1]);
+});
+test('49 Transaction先提交后，受信3C1请求对旧Lock拒绝，零pending',async()=>{
+ const r=await signedRefund('request',signedRefundParams('transaction-first',locks[5]));
+ assert.equal(r.allowed,false,JSON.stringify(r));
+ assert.equal(r.code,'F06_3C1_OWNING_TRANSACTION_REQUIRES_SIGNED_TERMINAL');
+ const n=(await rows('SELECT count(*)::int n FROM public.refund_cases WHERE lock_id=$1',[locks[5]]))[0].n;
+ assert.equal(n,0);assert.equal((await invariant(locks[5])).txs,1);
+ console.log('F06_TX_TRANSACTION_FIRST_REFUND_DENY_PID',r.backendPid);
+});
+test('50 两独立PG Backend同时竞争同车：最多一个COMMIT、零半写',async()=>{
+ let txPromise;const before=sessionBackendPids.length;
+ const refundPromise=signedRefund('request',signedRefundParams('concurrent',locks[6]),()=>{
+  txPromise=call(endpoint,body('concurrent',locks[6]));
+ });
+ const refund=await refundPromise;
+ const tx=await txPromise;
+ assert.ok(tx&&refund,JSON.stringify({tx,refund}));
+ const committed=Number(tx.status===201)+Number(refund.allowed===true);
+ assert.equal(committed,1,JSON.stringify({tx:tx.body,refund}));
+ const st=await invariant(locks[6]);
+ assert.equal(st.txs+(await rows('SELECT count(*)::int n FROM public.refund_cases WHERE lock_id=$1 AND status=\'pending\'',[locks[6]]))[0].n,1);
+ if(tx.status===201)assert.deepEqual([st.lock_status,st.origins,st.events],['released',1,1]);
+ else assert.deepEqual([st.lock_status,st.txs,st.origins,st.events],['active',0,0,0]);
+ const txPid=sessionBackendPids.slice(before)[0];
+ assert.ok(txPid>0&&refund.backendPid>0&&txPid!==refund.backendPid,JSON.stringify({txPid,refundPid:refund.backendPid}));
+ console.log('F06_TX_REFUND_TRUE_TWO_PG_BACKEND_RACE',JSON.stringify({
+  txPid,refundPid:refund.backendPid,txStatus:tx.status,txResult:tx.body.code,
+  refundAllowed:refund.allowed,refundResult:refund.code,lock:st.lock_status,
+  transactions:st.txs,refunds:committed-st.txs
+ }));
+});
+test('51 3C1签名pending→closed_without_payment并记录双事件后允许安全转换',async()=>{
+ const req=await signedRefund('request',signedRefundParams('closed',locks[7]));
+ assert.equal(req.allowed,true,JSON.stringify(req));
+ const closed=await signedRefund('close',{
+  refundId:req.refundId,closeReason:'Synthetic refund withdrawn without payment',
+  eventKey:'f06-tx-3c1-close-'+process.env.GITHUB_RUN_ID
+ });
+ assert.equal(closed.allowed,true,JSON.stringify(closed));
+ assert.equal(closed.code,'F06_3C1_CLOSED_WITHOUT_PAYMENT');
+ const r=await call(endpoint,body('signed-closed',locks[7]));
+ assert.equal(r.status,201,JSON.stringify(r.body));
+ assert.equal((await invariant(locks[7])).txs,1);
+ console.log('F06_TX_REFUND_CLOSED_SIGNED_TWO_EVENTS',JSON.stringify({requestPid:req.backendPid,closePid:closed.backendPid,transactionPid:r.body.backendPid}));
+});
+test('52 退款父Carrier真实缺失，即使没有退款行也Fail Closed',async()=>{
+ await q('DROP SCHEMA f06_3c1_ci CASCADE');
+ const r=await call(endpoint,body('missing-signed-carrier',locks[8]));
+ assert.equal(r.status,409,JSON.stringify(r.body));
+ assert.equal(r.body.code,'F06_TX_TRUSTED_REFUND_PARENT_MISSING');
+ const state=await invariant(locks[8]);
+ assert.deepEqual([state.lock_status,state.txs,state.origins,state.events],['active',0,0,0]);
+ console.log('F06_TX_REFUND_PARENT_ABSENT_ZERO_ROWS_FAIL_CLOSED_PASS');
 });
