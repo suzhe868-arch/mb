@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "A_ACCEPTED_PR156_NONPRODUCTION_B_EXECUTION_PROCESS_OPTIMIZATION_APPROVED_NOT_RELEASED",
+  "substage": "A_RELEASED_F06_SIGNED_POST_HANDOFF_REFUND_BRIDGE_NONPRODUCTION_ISSUE159",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "B_EXECUTION_PROCESS_OPTIMIZATION",
-  "current_domain_status": "USER_APPROVED_B_EXECUTION_OPTIMIZATION_DOCUMENTED / F06_F07_F08_ORIGINAL_B_STAGES_UNCHANGED / A_HOLDS_NEXT_B_RELEASE / F06_F07_F08_V1_NOT_READY",
+  "current_domain": "F06_SIGNED_POST_HANDOFF_CANCEL_TO_TRANSACTION_REFUND_BRIDGE",
+  "current_domain_status": "A_RELEASED_FOR_B_ISSUE159 / PARENT_PR139_146_150_153_156_ACCEPTED_REUSED / F06_F07_F08_V1_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,29 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "用户明确要求正式写入B工程流程优化；A按现有F01～F08路线只更新B执行规范，已验收不重复施工、B增量自审与关联回归、连续施工整单交A；F08仍是B独立工程阶段，F08正常验收后的整体B后端最终验收由A独立负责。未签发新B/C业务施工、未授权生产资金或外部真实服务。",
-  "current_work_file": "07_重建工作区/B工程执行增量审查关联回归与避免重复施工正式规范_2026-10-21.md",
+  "current_task": "A在已生效B增量规范下核查PR150 Refund旧签Cancel与PR153 Handoff/PR156 Cancel不兼容，Issue159定向放行F06跨签名版本桥接，仅当前负责人合成Transaction Refund pending及无付款closed，要求真非特权PG16和必要旧父资金/权限/签名回归、父161表24迁移Seal；不重做旧实现，不启动F07/F08，不开放真钱生产。",
+  "current_work_file": "07_重建工作区/F06已签移交后取消到Transaction退款可信来源接续_A主控B正式施工单_2026-10-21.md",
+  "f06_signed_post_handoff_refund_bridge_next": {
+    "task_id": "F06_SIGNED_POST_HANDOFF_CANCEL_TO_TRANSACTION_REFUND_BRIDGE_01",
+    "status": "A_RELEASED_FOR_B_NONPRODUCTION",
+    "issue": 159,
+    "owner": "B",
+    "review_owner": "A",
+    "branch": "feat/f06-signed-post-handoff-refund-bridge-01",
+    "main_at_release_pre_governance": "be748b2b8165be4d644527bcccb4582e5c08c752",
+    "base_policy": "FETCH_LATEST_MAIN_AT_B_EXECUTION",
+    "work_order": "07_重建工作区/F06已签移交后取消到Transaction退款可信来源接续_A主控B正式施工单_2026-10-21.md",
+    "scope": "POST_HANDOFF_SIGNED_CANCEL_TO_TRANSACTION_REFUND_PENDING_CLOSED_NONPRODUCTION_REAL_PG16_HTTP",
+    "preserve_accepted": [139,146,150,153,156],
+    "allowed_new_paths": ["engineering/f06/post-handoff-refund-bridge-http-pg16/**",".github/workflows/f06-signed-post-handoff-refund-bridge-onejob.yml"],
+    "minimum_new_native_pg16": 35,
+    "minimum_new_http_tls": 10,
+    "no_paid_runner_budget_usd": 0,
+    "new_business_pr_created": false,
+    "production_ready": false,
+    "actual_refunded_authorized": false,
+    "payment_authorized": false
+  },
   "b_execution_optimization_2026_10_21": {
     "status": "USER_APPROVED_FORMALLY_WRITTEN_NO_NEW_B_RELEASE",
     "scope": "B_EXECUTION_METHOD_ONLY_F06_F07_F08_ROUTE_UNCHANGED",
@@ -3220,7 +3241,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "A按现有正式路线与最新main识别F06剩余真实工程缺口，准备必要的下一B工作单并按现行授权流程另行放行；优先复用已验收实物，采用已正式写入的B增量审查和关联回归规范。用户本次仅授权流程落库，未放行B施工、未批准改动CI/PDM/旧签名、真实资金或第三方服务。F07/F08继续保留原独立工程阶段；F08之后后端整体最终验收归A。",
+  "next_action": "B从开工最新main建立feat/f06-signed-post-handoff-refund-bridge-01，按Issue159及中文正式施工单复用PR139/146/150/153/156，完成移交后Cancel到Transaction侧合成Refund pending/无付款closed可信来源接续、PG16 HTTP、权限并发回滚、冻结父完整性。按B增量自审规范不重复旧全阶段审查和不必要CI，完成整单后统一READY_FOR_A_REVIEW交A，B不建PR/合并；F07/F08保持原独立阶段。生产真钱外部权限仍不开放。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4800,7 +4821,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B执行方式已获用户批准并正式写入中文专项规范：F06/F07/F08既有阶段不变；B先排除重复施工，代码仅增量自审与真实影响关联回归，整单连续完成再交A；风险父链遵守既有强制门禁。A下一步根据最新main按原流程准备单独B任务，当前无B施工授权。F08经A阶段验收后由A独立进行后端整体验收与后续调整。维持生产/真钱/completed/refunded/外部密钥/真实客户/UAT未授权。",
+  "next_action_detail": "A正式放行F06 Issue159（新版本签名Handoff/Cancel到Refund合法接续），B仅在指定新分支和签署白名单内施工，整单集中交A；不得改冻结父PR150/156、F03/F05、原F07/F08及C PR68。无授权无法实现即报告BLOCKED。F08之后后端整体验收归A。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -5838,7 +5859,7 @@
   },
   "a_batch_approval_mode": "STANDING_USER_DIRECTED_CONTINUOUS_TECHNICAL_WORKFLOW_IN_FROZEN_SCOPE; A_SCOPES_AND_RELEASES_B_C; EACH_WINDOW_COMPLETES_END_TO_END; A_INDEPENDENT_ACCEPTANCE_AND_CLEAN_PR_MERGE_WITHOUT_REPEAT_APPROVAL; NEW_PRODUCT_CHOICE_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_EXTERNAL_WRITES_REQUIRE_USER",
   "current_pending_user_decisions": [],
-  "next_action_owner": "A",
+  "next_action_owner": "B",
   "abc_continuous_execution_rule": {
     "status": "USER_DIRECTIVE_APPLIED",
     "confirmed_at": "2026-10-09",
@@ -6844,7 +6865,7 @@
     "merge_method": "merge",
     "a_review_report": "07_重建工作区/F05-7_A主控二轮独立验收66项真PG16_PR46标准合并与F05-8技术交接_2026-10-12.md"
   },
-  "next_owner": "A",
+  "next_owner": "B",
   "f05_8_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR47_CI_ONLY",
     "execution": "COMPLETED_A_ACCEPTED_PR47_STANDARD_MERGE",
@@ -6934,7 +6955,7 @@
     "r12_r13_closed": true,
     "a_sixth_review_result": "A_ACCEPTED"
   },
-  "current_owner": "A",
+  "current_owner": "B",
   "f05_9_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR48_CI_ONLY",
     "owner": "B",
@@ -7979,7 +8000,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "A_PREPARE_NEXT_B_TASK_BY_EXISTING_PROCESS",
+  "next_task": "F06_SIGNED_POST_HANDOFF_CANCEL_TO_TRANSACTION_REFUND_BRIDGE_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9654,7 +9675,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": null,
+  "next_work_file": "07_重建工作区/F06已签移交后取消到Transaction退款可信来源接续_A主控B正式施工单_2026-10-21.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -9950,8 +9971,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": null,
-  "next_issue": null,
+  "next_branch": "feat/f06-signed-post-handoff-refund-bridge-01",
+  "next_issue": 159,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -10163,7 +10184,7 @@
     "next_owner": "B",
     "budget_additional_usd": 0
   },
-  "next_base_main": "a9b8de83e21f72426009e4a4c1947b9ecedba1e9",
+  "next_base_main": "be748b2b8165be4d644527bcccb4582e5c08c752",
   "current_engineering_focus": "F06_F07_F08_REPLAN_DISCUSSION_NO_NEW_B_C_RELEASE",
   "f06_real_deposit_http_next": {
     "status": "A_ACCEPTED_NONPRODUCTION_HTTP_PG16_PR135_STANDARD_MERGED",
