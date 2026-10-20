@@ -10,11 +10,18 @@ import {createIsolatedF06LockRuntime} from './f06-lock-runtime.mjs';
 import {createServer as createHttpsServer} from 'node:https';
 import {readFile} from 'node:fs/promises';
 const {host,port}=loadConfig();
-let server,service,catalog,f06;
+let server,service,catalog,f06,composite;
+if(process.env.F06_COMPOSITE_TEST_CONSENT!==undefined&&
+ process.env.F06_COMPOSITE_TEST_CONSENT!=='I_AUTHORIZE_DISPOSABLE_F06_COMPOSITE_ONLY')
+ throw Error('F06_COMPOSITE_CONSENT_INVALID');
 if(process.env.F06_LOCK_TEST_CONSENT&&
  (process.env.F05_D1_BUSINESS_TEST_RUNTIME||process.env.F05_REAL_CATALOG_ENABLE||process.env.F03_1_ENABLE_ISOLATED_AUTH))
  throw Error('F06_LOCK_RUNTIME_COMBINATION_FORBIDDEN');
-if(process.env.F05_D1_BUSINESS_TEST_RUNTIME==='I_ENABLE_F05_D1_DISPOSABLE_PG16_ONLY'){
+if(process.env.F06_COMPOSITE_TEST_CONSENT==='I_AUTHORIZE_DISPOSABLE_F06_COMPOSITE_ONLY'){
+ const {createIsolatedF06CompositeRuntime}=await import('./f06-nonprod-composite-runtime.mjs');
+ composite=await createIsolatedF06CompositeRuntime(process.env);
+ server=createFoundationServer({lockHandler:composite.handler,readinessProbe:composite.ready,readinessTimeoutMs:3000});
+}else if(process.env.F05_D1_BUSINESS_TEST_RUNTIME==='I_ENABLE_F05_D1_DISPOSABLE_PG16_ONLY'){
  if(host!=='127.0.0.1')throw Error('D1_BUSINESS_TEST_LOOPBACK_REQUIRED');
  if(!process.env.F05_D1_TLS_KEY_PATH||!process.env.F05_D1_TLS_CERT_PATH)throw Error('D1_BUSINESS_TEST_TLS_REQUIRED');
  const {createD1BusinessTestServer}=await import('../f05/pdm17-public-pool-owner-claim/ci-business-router.mjs');
@@ -43,6 +50,6 @@ if(process.env.F05_D1_BUSINESS_TEST_RUNTIME==='I_ENABLE_F05_D1_DISPOSABLE_PG16_O
 }else{
  server=createFoundationServer({readinessProbe:createPgReadinessProbe(process.env),readinessTimeoutMs:3000});
 }
-server.listen(port,host,()=>console.info('F01 single server ready',{host,port,isolatedAuth:!!service,isolatedCatalog:!!catalog,isolatedF06Lock:!!f06}));
-const shutdown=()=>server.close(async()=>{await Promise.all([service?.close(),catalog?.close(),f06?.close()]);process.exit(0)});
+server.listen(port,host,()=>console.info('F01 single server ready',{host,port,isolatedAuth:!!service,isolatedCatalog:!!catalog,isolatedF06Lock:!!f06,isolatedF06CompositeLockOnly:!!composite}));
+const shutdown=()=>server.close(async()=>{await Promise.all([service?.close(),catalog?.close(),f06?.close(),composite?.close()]);process.exit(0)});
 process.once('SIGINT',shutdown);process.once('SIGTERM',shutdown);
