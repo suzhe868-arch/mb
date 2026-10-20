@@ -511,7 +511,7 @@ test('当前负责人只有其他Team的活跃Scope时不得取消原Team交易'
  await q("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(4,997003,'allow',clock_timestamp()) ON CONFLICT(employee_id,permission_id) DO UPDATE SET decision='allow'");
  const cap=await count("SELECT count(*)::int n FROM public.employee_capability_scope_bindings WHERE employee_id=4 AND permission_id=997003 AND scope_id=$1 AND ended_at IS NULL",[otherScope]);
  if(!cap)await q("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(4,997003,$1,clock_timestamp()-interval '3 minutes')",[otherScope]);
- const before=await cancelFacts(tx[5]),marker='2000-01-01T00:00:00.000Z';
+ const before=await cancelFacts(tx[5]),marker=new Date().toISOString();
  const changed=await q("UPDATE public.employee_team_memberships SET ended_at=$1 WHERE employee_id=4 AND team_id=$2 AND ended_at IS NULL RETURNING membership_id",[marker,teamId]);
  assert.ok(changed.rowCount>0);
  try{
