@@ -1,3 +1,11 @@
+# 2026-10-21｜A主控正式放行F06移交后取消到Transaction退款可信来源接续Issue159（按B增量自审规范；无重复施工）
+
+- **本轮A完成的任务**：在最新 `main@be748b2b8165be4d644527bcccb4582e5c08c752` 下复核 PR #150 的原签名 Refund 与 PR #153 Handoff、PR #156 新签名 Cancel 的真实代码：原 PR150 验证强制最初 responsible 恒等于现 responsible 且只认可 PR146 旧 Cancel origin；对PR153→PR156新来源合法 `FailClosed`。**不复制旧Transaction/Cancel/Refund状态机，不对F01～F05全阶段返工。**
+- **已签 B 正式施工单**：[《F06已签移交后取消到Transaction退款可信来源接续》](07_重建工作区/F06已签移交后取消到Transaction退款可信来源接续_A主控B正式施工单_2026-10-21.md)，[Issue #159](https://github.com/suzhe868-arch/mb/issues/159)，任务ID `F06_SIGNED_POST_HANDOFF_CANCEL_TO_TRANSACTION_REFUND_BRIDGE_01`。仅允许B从开工时最新main新建 `feat/f06-signed-post-handoff-refund-bridge-01`，在本单白名单完成真实合法 PR139 Tx→PR153 Handoff→PR156 Cancel→Transaction侧合成Refund pending/无付款closed的最小可信来源适配、真实PG16/HTTP正反/并发/回滚以及本单必要父签名安全关联回归；沿用已验 PR150 全部有效资金与历史语义。B一次完成整单自审、CI与中文证据，再 `READY_FOR_A_REVIEW` 交A；不自行建PR/merge。
+- **接力指针**：`NEXT_OWNER=B`；`NEXT_TASK=F06_SIGNED_POST_HANDOFF_CANCEL_TO_TRANSACTION_REFUND_BRIDGE_01`；`NEXT_ISSUE=159`。只有本A治理PR实际合入main后才能视为正式生效。继续遵守已落库B增量审查关联回归规范，不机械重跑全部历史CI；资金/权限/签名/事务/161父表/24迁移与Seal等必须按本单保留。F07、F08各自仍是B独立工程阶段，F08经A正常验收后后端整体验收归A。F06/F07/F08/V1仍 `NOT_READY`；真钱/生产/外部服务/C PR68未授权、未施工。
+
+---
+
 # 2026-10-21｜A主控：用户批准 B 执行优化规范并正式写入（原 F06/F07/F08 施工路线不变）
 
 - **本次为 B 流程治理落库，不是新 B 施工放行。** 已按用户明确“正式写入”要求，制定[《B工程执行增量审查关联回归与避免重复施工正式规范》](07_重建工作区/B工程执行增量审查关联回归与避免重复施工正式规范_2026-10-21.md)，并同步 A/B/C 协作规范、原 B 工程路线图。既有 F01～F05 A 验收继续有效；F06/F07/F08 仍各自为 B 独立施工阶段，F08 完成经 A 常规验收后，B 后端最终**整体**验收/评估/后续调整由 A 单独负责。
