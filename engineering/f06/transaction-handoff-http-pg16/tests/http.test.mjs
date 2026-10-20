@@ -77,9 +77,13 @@ before(async()=>{
  assert.ok(targetToken);
  // Second actual manager principal and distinct token/account/backend for the
  // competing transfer. Fixture privileges are restricted to this disposable DB.
- await q('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=2',[roles.manager]);
+ await q('UPDATE public.employees SET main_role_id=$1,employment_status='active' WHERE employee_id=2',[roles.manager]);
  const member=(await rows("SELECT 1 FROM public.employee_team_memberships WHERE employee_id=2 AND team_id=$1 AND ended_at IS NULL",[teamId]))[0];
- if(!member)await q("INSERT INTO public.employee_team_memberships(employee_id,team_id,valid_from) VALUES(2,$1,clock_timestamp()-interval '2 days')",[teamId]);
+ if(!member){
+  const admin=(await rows('SELECT system_admin_id FROM public.system_admins ORDER BY system_admin_id LIMIT 1'))[0];
+  assert.ok(admin?.system_admin_id);
+  await q("INSERT INTO public.employee_team_memberships(employee_id,team_id,valid_from,changed_by_system_admin_id) VALUES(2,$1,clock_timestamp()-interval '2 days',$2)",[teamId,admin.system_admin_id]);
+ }
  const scope2=(await rows("SELECT scope_id FROM public.employee_data_scopes WHERE employee_id=2 AND scope_kind='team' AND scope_reference_id=$1 AND ended_at IS NULL LIMIT 1",[teamId]))[0];
  const s2=scope2?Number(scope2.scope_id):Number((await q("INSERT INTO public.employee_data_scopes(employee_id,scope_kind,scope_reference_id) VALUES(2,'team',$1) RETURNING scope_id",[teamId])).rows[0].scope_id);
  await createAccount(2,'f06_handoff_manager_2');
