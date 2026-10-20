@@ -1,3 +1,11 @@
+# 2026-10-21｜A主控：用户批准 B 执行优化规范并正式写入（原 F06/F07/F08 施工路线不变）
+
+- **本次为 B 流程治理落库，不是新 B 施工放行。** 已按用户明确“正式写入”要求，制定[《B工程执行增量审查关联回归与避免重复施工正式规范》](07_重建工作区/B工程执行增量审查关联回归与避免重复施工正式规范_2026-10-21.md)，并同步 A/B/C 协作规范、原 B 工程路线图。既有 F01～F05 A 验收继续有效；F06/F07/F08 仍各自为 B 独立施工阶段，F08 完成经 A 常规验收后，B 后端最终**整体**验收/评估/后续调整由 A 单独负责。
+- **B 方法调整**：先核已验实物避免重复建设；区分已验收、隔离 CI/Mock、已证实缺陷和独立授权缺口；B 只对本轮代码和真实受影响调用链增量自审，执行必要关联回归与原施工单强制高风险门禁；关联子任务在已授权范围内连续闭环、集中 `READY_FOR_A_REVIEW` 交 A；旧工作流冗余优化须另行授权，不删除安全断言或伪造同 SHA 成功。
+- **当前接力**：`NEXT_OWNER=A`；`NEXT_TASK=A_PREPARE_NEXT_B_TASK_BY_EXISTING_PROCESS`。仅落实用户已批准的 B 工作方式，不重拆 F06～F08 阶段、不修改现有业务代码/CI/PDM、不自动创建下一 B Issue/施工单/分支或放行。F06/F07/F08/V1 仍 `NOT_READY`，生产/资金/外部真实服务权限不变；C PR68 不动。此前“待重规划讨论”条目作为历史记录保留。
+
+---
+
 # 2026-10-21｜A主控F06已签Handoff后Transaction正常取消680/680终验并合并PR156；按用户要求暂停下个施工单，先讨论F06/F07/F08整体重新规划
 
 - **本轮最终验收**：[Issue #154](https://github.com/suzhe868-arch/mb/issues/154)已关闭；B受验末HEAD `0b0aba78ac90e8081035aa41708dc160a53ea448`，[同SHA官方Run39482165477](https://github.com/suzhe868-arch/mb/actions/runs/39482165477)/Job118833222205父585+新真实非超管PG16 HTTP84+TLS11=**680/680**（0失败/跳过/取消）。A独立源码核查：真正PR139 Tx+PR153签名Handoff后的当前负责人使用独立Permission/Scope取消`in_progress→cancelled`，新不可变Sidecar Event/Key/Audit同PG16原子事务、真实两Employee PID2235/2236、Handoff和Cancel真正不同后台PID2249/2250竞争安全拒绝、三处故障注错rollback、旧PR150 Refund新来源继续FailClosed；161张父签表逐表COUNT+MD5、24迁移跨物理OID97322→107137/独立审计OID39338及完整Seal不变。业务[PR156](https://github.com/suzhe868-arch/mb/pull/156)已实际标准merge `a9b8de83e21f72426009e4a4c1947b9ecedba1e9`；[A中文独立验收报告](07_重建工作区/F06已签Handoff后Transaction取消_A主控独立终验PR156合并与三域重规划暂缓放行报告_2026-10-21.md)。

@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "A_ACCEPTED_PR156_NONPRODUCTION_F06_F07_F08_REPLAN_DISCUSSION_PENDING",
+  "substage": "A_ACCEPTED_PR156_NONPRODUCTION_B_EXECUTION_PROCESS_OPTIMIZATION_APPROVED_NOT_RELEASED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION",
-  "current_domain_status": "A_ACCEPTED_POST_HANDOFF_CANCEL_PR156_MERGED_680_OF_680 / ISSUE_154_CLOSED / USER_REQUESTS_F06_F07_F08_REPLAN_DISCUSSION_BEFORE_ANY_NEW_B_C_RELEASE / NEXT_OWNER_A / F06_F07_F08_V1_NOT_READY",
+  "current_domain": "B_EXECUTION_PROCESS_OPTIMIZATION",
+  "current_domain_status": "USER_APPROVED_B_EXECUTION_OPTIMIZATION_DOCUMENTED / F06_F07_F08_ORIGINAL_B_STAGES_UNCHANGED / A_HOLDS_NEXT_B_RELEASE / F06_F07_F08_V1_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,18 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A对B Issue154最新SHA 0b0aba78ac90e8081035aa41708dc160a53ea448 独立验收：官方Run 39482165477 Job 118833222205 父585+新PG16 HTTP84+TLS11=680/680，原PR139+PR153签名责任链尾Cancel、现权限/Scope、PG16原子、Handoff/Cancel真双Backend竞态、旧PR150退款来源继续FailClosed；161张父签表24迁移不同OID97322→107137/审计39338 Seal一致。业务PR156已标准合并 a9b8de83e21f72426009e4a4c1947b9ecedba1e9，Issue154 closed。按用户要求下一步仅讨论F06/F07/F08整体施工重规划，不新签B/C任务。",
-  "current_work_file": "07_重建工作区/F06已签Handoff后Transaction取消_A主控独立终验PR156合并与三域重规划暂缓放行报告_2026-10-21.md",
+  "current_task": "用户明确要求正式写入B工程流程优化；A按现有F01～F08路线只更新B执行规范，已验收不重复施工、B增量自审与关联回归、连续施工整单交A；F08仍是B独立工程阶段，F08正常验收后的整体B后端最终验收由A独立负责。未签发新B/C业务施工、未授权生产资金或外部真实服务。",
+  "current_work_file": "07_重建工作区/B工程执行增量审查关联回归与避免重复施工正式规范_2026-10-21.md",
+  "b_execution_optimization_2026_10_21": {
+    "status": "USER_APPROVED_FORMALLY_WRITTEN_NO_NEW_B_RELEASE",
+    "scope": "B_EXECUTION_METHOD_ONLY_F06_F07_F08_ROUTE_UNCHANGED",
+    "authority": "USER_CONFIRMED_2026_10_21",
+    "file": "07_重建工作区/B工程执行增量审查关联回归与避免重复施工正式规范_2026-10-21.md",
+    "rules": ["REUSE_A_ACCEPTED_WORK","TARGET_ONLY_VERIFIED_GAPS","INCREMENTAL_CODE_REVIEW","IMPACT_BASED_REGRESSION_KEEP_SIGNED_HIGH_RISK_GATES","CONTINUOUS_AUTHORIZED_B_WORK","F08_B_INDEPENDENT_ENGINEERING_STAGE","POST_F08_BACKEND_OVERALL_ACCEPTANCE_A_ONLY"],
+    "new_issue_or_work_order_released": false,
+    "new_b_execution_authorized": false,
+    "production_or_external_authorized": false
+  },
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3220,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "等待与用户讨论F06/F07/F08工程重新规划：先只读评估原F06-1～5C/PR52～63与真实HTTP PG16 PR129/131/135/139/143/146/150/153/156复用和重复、F07-1～4/PR64-67及F08-1/PR69的CI-only/真实接线缺口、F05旧来源例外、旧Cancel/Refund与新Handoff/Cancel源版本兼容、阶段退出标准。正式大包可按相关业务闭环一次授权给B串行施工整包自审/回归交A，C仍独立手机端PR68；本轮不得先新增B Issue/分支/施工单。真钱/生产/completed/外部凭据/真实客户/UAT继续未授权。",
+  "next_action": "A按现有正式路线与最新main识别F06剩余真实工程缺口，准备必要的下一B工作单并按现行授权流程另行放行；优先复用已验收实物，采用已正式写入的B增量审查和关联回归规范。用户本次仅授权流程落库，未放行B施工、未批准改动CI/PDM/旧签名、真实资金或第三方服务。F07/F08继续保留原独立工程阶段；F08之后后端整体最终验收归A。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4800,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "等待与用户讨论F06/F07/F08工程重新规划：先只读评估原F06-1～5C/PR52～63与真实HTTP PG16 PR129/131/135/139/143/146/150/153/156复用和重复、F07-1～4/PR64-67及F08-1/PR69的CI-only/真实接线缺口、F05旧来源例外、旧Cancel/Refund与新Handoff/Cancel源版本兼容、阶段退出标准。正式大包可按相关业务闭环一次授权给B串行施工整包自审/回归交A，C仍独立手机端PR68；本轮不得先新增B Issue/分支/施工单。真钱/生产/completed/外部凭据/真实客户/UAT继续未授权。",
+  "next_action_detail": "B执行方式已获用户批准并正式写入中文专项规范：F06/F07/F08既有阶段不变；B先排除重复施工，代码仅增量自审与真实影响关联回归，整单连续完成再交A；风险父链遵守既有强制门禁。A下一步根据最新main按原流程准备单独B任务，当前无B施工授权。F08经A阶段验收后由A独立进行后端整体验收与后续调整。维持生产/真钱/completed/refunded/外部密钥/真实客户/UAT未授权。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7969,7 +7979,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01",
+  "next_task": "A_PREPARE_NEXT_B_TASK_BY_EXISTING_PROCESS",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
