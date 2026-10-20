@@ -5,7 +5,6 @@ on:
     paths:
       - .github/workflows/f06-real-post-handoff-cancel-pg16-onejob.yml
       - engineering/f06/post-handoff-cancel-http-pg16/**
-      - '!engineering/f06/post-handoff-cancel-http-pg16/B自验与A交接.md'
 permissions:
   contents: read
 concurrency:
