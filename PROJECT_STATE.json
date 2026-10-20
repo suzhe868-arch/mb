@@ -26,7 +26,7 @@
     "task_id": "F06_SIGNED_POST_HANDOFF_CANCEL_TO_TRANSACTION_REFUND_BRIDGE_01",
     "status": "A_ACCEPTED_NONPRODUCTION_PR162_STANDARD_MERGED",
     "issue": 159,
-    "issue_closed": false,
+    "issue_closed": true,
     "business_pr": 162,
     "business_pr_merged": true,
     "business_merge_sha": "7b671cbd63461de6490167357666b05bdcce93e2",
