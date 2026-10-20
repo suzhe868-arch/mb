@@ -1,43 +1,62 @@
-name: F06 Issue159 Bridge - Preliminary Static Gate (NOT Acceptance)
+name: F06 Issue159签名移交取消到退款真实PG16非生产接续
 on:
   push:
-    branches:
-      - feat/f06-signed-post-handoff-refund-bridge-01
+    branches: [feat/f06-signed-post-handoff-refund-bridge-01]
     paths:
-      - 'engineering/f06/post-handoff-refund-bridge-http-pg16/**'
-      - '.github/workflows/f06-signed-post-handoff-refund-bridge-onejob.yml'
+      - .github/workflows/f06-signed-post-handoff-refund-bridge-onejob.yml
+      - engineering/f06/post-handoff-refund-bridge-http-pg16/**
+      - engineering/f06/transaction-refund-http-pg16/service.mjs
+      - engineering/f06/transaction-refund-http-pg16/shared-refund-core.mjs
 permissions:
   contents: read
 concurrency:
-  group: f06-159-${{ github.ref }}
-  cancel-in-progress: false
+  group: f06-issue159-signed-refund-bridge-${{ github.sha }}
+  cancel-in-progress: true
 jobs:
-  preliminary_only:
-    name: "静态检查｜非PG16验收｜NOT_READY"
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+  transaction_refund_synthetic:
+    name: 同SHA签名父585与PR156真实84+新Bridge PG1646+TLS23+161表Seal
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 30
+    env:
+      APP_ENV: test
+      NODE_ENV: test
+      CI: "true"
+      API_HOST: 127.0.0.1
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F06_LOCK_DATABASE_URL: postgres://f06_lock_ci:f06_ci_synthetic_only@127.0.0.1:5432/f06_lock_test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+      F06_LOCK_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_LOCK_PG16_ONLY
+      F06_LOCK_LIFECYCLE_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_LOCK_LIFECYCLE_ONLY
+      F06_LOCK_LIFECYCLE_EXPIRY_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_LOCK_EXPIRY_ONLY
+      F06_REAL_DEPOSIT_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_DEPOSIT_HTTP_PG16_ONLY
+      F06_TX_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_LOCK_TRANSACTION_ONLY
+      F06_REFUND_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_REFUND_PENDING_CLOSED_ONLY
+      F06_CANCEL_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_TRANSACTION_CANCEL_ONLY
+      F06_TXREFUND_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_TRANSACTION_REFUND_ONLY
+      F06_HANDOFF_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_TRANSACTION_HANDOFF_ONLY
+      F06_POST_CANCEL_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_POST_HANDOFF_CANCEL_ONLY
+      F06_BRIDGE_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_SIGNED_REFUND_BRIDGE_ONLY
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout exact pushed HEAD
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      - name: 仅检查来源白名单和当前SHA
-        shell: bash
-        run: |
-          set -euo pipefail
-          test "$GITHUB_REPOSITORY" = "suzhe868-arch/mb"
-          test "$GITHUB_EVENT_NAME" = "push"
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          git fetch origin main --no-tags
-          git -c core.quotePath=false diff --name-only origin/main...HEAD | while IFS= read -r path; do
-            case "$path" in
-              engineering/f06/post-handoff-refund-bridge-http-pg16/*|.github/workflows/f06-signed-post-handoff-refund-bridge-onejob.yml) ;;
-              *) echo "::error::修改越过Issue159白名单: $path"; exit 1 ;;
-            esac
-          done
-      - name: Node语法检查（仅非资金来源只读核验）
-        run: node --check engineering/f06/post-handoff-refund-bridge-http-pg16/签名来源只读核验.mjs
-      - name: 明确禁止将此工作流作为B完工证明
-        run: |
-          echo "::notice::F06_ISSUE159_PRELIMINARY_ONLY; NO PG16, NO HTTP, NO ROLLBACK, NO BALANCE TEST; NOT READY FOR A REVIEW"
-          echo "F06_ISSUE159_REQUIRED_REAL_PG16>=35 HTTP_TLS>=10 PARENT_TABLES=161 LEDGER=24 FULL_SEAL_AND_CONCURRENT_BACKENDS"
-          echo "CURRENT_GATE=STATIC_ONLY_NOT_READY"
+          persist-credentials: false
+      - name: Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+      - name: Same-SHA old signed parents + new true PG16 HTTP and full physical restore
+        run: bash engineering/f06/post-handoff-refund-bridge-http-pg16/ci-job.sh
