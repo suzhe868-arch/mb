@@ -1,3 +1,12 @@
+# A主控最新正式独立验收裁决｜2026-10-20：F06 Refund同SHA385/385通过但closed生命周期需要B定向整改
+
+- 任务 F06_REAL_REFUND_PENDING_CLOSED_HTTP_PG16_01；Issue #140；下一责任B，仍用原分支 feat/f06-real-refund-pending-closed-http-pg16-01。
+- 真实B HEAD e660879fbaec21fbb8b1168c9be408a6d59deab0；官方Push Run39400797756 / Job118554708402 completed/success、父319+新HTTP56+TLS10=385/385，0失败/跳过/取消；父161张已签表、24迁移及独立不同OID完整Seal通过。
+- A发现新worker.mjs对已合法pending的无付款closed错误复用新申请状态Guard（Lock仍active/未过期、Vehicle仍可售、Cycle继续开放），可能使待退款关闭卡死；本HTTP closed路径的AFTER_CLOSE_THROW及AFTER_EVENT_THROW实际回滚验证缺席。由B仅在白名单新目录内修复守卫与补真PG16测试，不准修改旧F06父/公共DDL，不准生产真实资金或扩大权限。
+- 正式结论 A_REVIEW_NOT_ACCEPTED / B_TARGETED_CLOSE_LIFECYCLE_REMEDIATION_REQUIRED / NO_BUSINESS_PR / NO_MERGE；中文整改单 07_重建工作区/F06真实Refund_HTTP_PG16_A主控首轮独立验收_已pending关闭生命周期定向整改单_2026-10-20.md；Issue #140评论6288407435。保留385项成功证据、原生父签数据，不重做旧F05/190父表争议。V1整体NOT_READY，新预算$0。
+
+---
+
 # 2026-10-20｜A主控正式现行状态：PR139真实Lock→Transaction通过独立验收；B接F06合成Refund pending/closed HTTP/PG16
 
 - **F06 Transaction 本批A已验收合并：** B受验HEAD `20bb5333b3fb2b64fe9fde8f1e8ac6ba65ff182b`，官方[Run #39395616127](https://github.com/suzhe868-arch/mb/actions/runs/39395616127)/Job #118537844979 `completed/success`，父257+新Transaction53+TLS9=**319/319**，全0失败/跳过/取消；真实F06-3B/3C1原生签名来源、旧Lock签名pending Refund防转换、Refund↔Transaction不同PG后端受控竞争、闭合Refund验签与缺源FailClosed已复验；父161全表COUNT/MD5、24迁移与不同OID恢复完整Seal一致。A标准业务[PR #139](https://github.com/suzhe868-arch/mb/pull/139)合并，merge `7ebd75337d2bbf1bd37bd697fc58cb0c19888774`。原[Issue #136](https://github.com/suzhe868-arch/mb/issues/136)本批完成。

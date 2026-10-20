@@ -1,3 +1,12 @@
+# A主控2026-10-20｜F06 Refund首轮复验未通过，交B定向整改
+
+- 当前任务 F06_REAL_REFUND_PENDING_CLOSED_HTTP_PG16_01；B分支 feat/f06-real-refund-pending-closed-http-pg16-01，Issue #140。
+- B官方Run39400797756对应HEAD e660879fbaec21fbb8b1168c9be408a6d59deab0，父319+新Refund56+TLS10=385/385全绿；原生3B/3C1签名、父161表、24迁移、独立OID恢复真实通过。
+- A独立审查发现worker.mjs对新request和既有pending的closed使用同一活跃Lock/车辆可售/未到期状态前置；后者可能阻止合法待退款结束。关闭路径真实PG16 AFTER_CLOSE/AFTER_EVENT注错回滚也尚未验证。
+- A验收状态 A_REVIEW_NOT_ACCEPTED / B_TARGETED_CLOSE_LIFECYCLE_REMEDIATION_REQUIRED / NEXT_OWNER=B，按Issue #140整改；未合并B业务、未放行真实退款/生产。V1总体NOT_READY。
+
+---
+
 # 2026-10-20｜A主控正式现行状态：PR139真实Lock→Transaction通过独立验收；B接F06合成Refund pending/closed HTTP/PG16
 
 - **F06 Transaction 本批A已验收合并：** B受验HEAD `20bb5333b3fb2b64fe9fde8f1e8ac6ba65ff182b`，官方[Run #39395616127](https://github.com/suzhe868-arch/mb/actions/runs/39395616127)/Job #118537844979 `completed/success`，父257+新Transaction53+TLS9=**319/319**，全0失败/跳过/取消；真实F06-3B/3C1原生签名来源、旧Lock签名pending Refund防转换、Refund↔Transaction不同PG后端受控竞争、闭合Refund验签与缺源FailClosed已复验；父161全表COUNT/MD5、24迁移与不同OID恢复完整Seal一致。A标准业务[PR #139](https://github.com/suzhe868-arch/mb/pull/139)合并，merge `7ebd75337d2bbf1bd37bd697fc58cb0c19888774`。原[Issue #136](https://github.com/suzhe868-arch/mb/issues/136)本批完成。
