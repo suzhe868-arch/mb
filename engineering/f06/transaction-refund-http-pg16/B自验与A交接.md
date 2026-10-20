@@ -25,9 +25,9 @@
 
 ## 4. 同SHA官方验收门槛
 - 先在本次GitHub Push同一SHA完整重跑PR146父链`445/445`，不得拼接旧Run测试数字。
-- 本批新增真实HTTP/PG16测试不少于40项；本次实现计划覆盖64项，涵盖父签名来源、合法/超额净余额、正负Correction、Lock/Transaction主体冲突、权限撤销、并发、幂等、无付款关闭、车辆不可售/ListingCycle结束、伪退款/未知Deposit拒绝、SQL注错回滚及Audit/历史不变。
+- 本批新增真实HTTP/PG16测试不少于40项；本次实现计划覆盖65项，涵盖父签名来源、合法/超额净余额、正负Correction、Lock/Transaction主体冲突、权限撤销、并发、幂等、无付款关闭、车辆不可售/ListingCycle结束、伪退款/未知Deposit拒绝、SQL注错回滚及Audit/历史不变。
 - TLS拒绝测试不少于10项；实际生产Refund/Payment/Transaction路由和隔离CI路由必须拒绝。
-- 预期至少`445 + 64 + 10 = 519`项全通过，0失败、0跳过、0取消；父161张原始表、24条迁移、原Catalog与完整行Seal必须在不同PG物理OID恢复前后一致。
+- 预期至少`445 + 65 + 10 = 520`项全通过，0失败、0跳过、0取消；父161张原始表、24条迁移、原Catalog与完整行Seal必须在不同PG物理OID恢复前后一致。
 - 新工作流为单Job、免费Ubuntu Runner、单PostgreSQL 16服务、只读仓库权限，不上传敏感Artifact、不申请额外付费Runner。
 
 ## 5. 交接条件
@@ -39,3 +39,5 @@
 - 新增测试场景复用实际存在的8台合成Vehicle/Cycle，不创造不可验证的第9～11台。
 - 金额计算和「最终重验忽略当前新退款」必须对PostgreSQL `bigint`字符串ID作数值归一，否则会误把自己当成另一笔pending，错误拒绝合法全额退款。
 - 两个PG backend独立PID只能证明并发操作和唯一提交；若共享Employee Session先被锁，则**不能宣称双方同时持有Vehicle锁**。
+
+- 对抗性“已付款不可closed”测试严格放在本批**最后**：向可销毁数据库插入合成且不可篡改的 `refund_payments` 无授权资金事实，再经另一PG backend拒绝关闭。该父表已有F02 append-only保护，测试**不删除或改写原历史**；整套场景最终销毁并从已签父快照独立恢复。该对抗性数据绝不作为真实付款、正向Refund接口功能或生产记录。

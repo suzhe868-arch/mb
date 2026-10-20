@@ -234,11 +234,9 @@ test('28 Refund管理Permission撤销后不得关闭，不建立专门Close Perm
  try{const r=await closeCall('close-permission-revoked',refunds[2]);assert.equal(r.body.code,'F06_TX_REFUND_CLOSE_PERMISSION_SCOPE_DENIED')}
  finally{await q("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=1 AND permission_id=986006")}
 });
-test('29 真实/伪造Payment事实存在时绝不无付款closed',async()=>{
- const payment=await insertSyntheticPayment(refunds[2]);
- try{const r=await closeCall('deny-payment-fact',refunds[2]);assert.equal(r.body.code,'F06_TX_REFUND_REAL_PAYMENT_SOURCE_GAP')}
- finally{await q('DELETE FROM public.refund_payments WHERE payment_id=$1',[payment])}
- assert.equal((await caseFacts(refunds[2])).status,'pending');
+test('29 原pending无支付事实，关闭回滚探针前公共Payment保持0',async()=>{
+ const r=await caseFacts(refunds[2]);assert.equal(r.status,'pending');assert.equal(r.payments,0);
+ assert.equal(await count('SELECT count(*)::int n FROM public.refund_payments'),0);
 });
 test('30 AFTER_CLOSE_THROW真实PG16事务Rollback',async()=>{
  const before=await caseFacts(refunds[2]);const f=await facts(transactions[2]);
@@ -420,3 +418,21 @@ test('61 对外HTTP不泄露金额、手机号、VIN、Token或签名内容',asy
  const text=JSON.stringify(r.body);assert.ok(!/amountCents|netCents|availableCents|phone|vin|token|source_deposit_digest|source_tx_digest/i.test(text));
 });
 test('62 没有合法父签名来源时生产Refund Issuer保持关闭',()=>assert.equal(productionRefundIssuerDeny().allowed,false));
+
+test('63 不可信支付事实硬拒无付款关闭；F02 append-only历史由可销毁PG整体回滚',async()=>{
+ // A synthetic hostile payment fact must be visible to a SECOND real PG16
+ // backend. It cannot be removed by DELETE because signed F02 audit tables
+ // intentionally reject mutation. Run this case LAST; discard the entire
+ // disposable scenario database after the test, never weaken the trigger.
+ const opened=await requestCall('adversarial-payment-pending',transactions[2],1000);
+ assert.equal(opened.status,201,JSON.stringify(opened.body));
+ const refundId=Number(opened.body.refundId),paymentId=await insertSyntheticPayment(refundId);
+ assert.ok(paymentId>0);
+ const denied=await closeCall('adversarial-payment-close-denied',refundId);
+ assert.equal(denied.body.allowed,false);assert.equal(denied.body.code,'F06_TX_REFUND_REAL_PAYMENT_SOURCE_GAP');
+ const signed=await caseFacts(refundId);
+ assert.equal(signed.status,'pending');assert.equal(signed.payments,1);assert.equal(signed.closed_at,null);
+ assert.equal(await count('SELECT count(*)::int n FROM public.refund_payments WHERE refund_id=$1',[refundId]),1);
+ console.log('F06_TX_REFUND_ADVERSARIAL_PAYMENT_FAIL_CLOSED_APPEND_ONLY_DISPOSABLE_ONLY',
+  JSON.stringify({refundId,backendPid:denied.body.backendPid,paymentCommitted:true,closed:false,syntheticOnly:true}));
+});
