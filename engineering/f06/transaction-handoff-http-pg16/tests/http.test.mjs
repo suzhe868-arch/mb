@@ -77,7 +77,7 @@ before(async()=>{
  assert.ok(targetToken);
  // Second actual manager principal and distinct token/account/backend for the
  // competing transfer. Fixture privileges are restricted to this disposable DB.
- await q('UPDATE public.employees SET main_role_id=$1,employment_status='active' WHERE employee_id=2',[roles.manager]);
+ await q("UPDATE public.employees SET main_role_id=$1,employment_status='active' WHERE employee_id=2",[roles.manager]);
  const member=(await rows("SELECT 1 FROM public.employee_team_memberships WHERE employee_id=2 AND team_id=$1 AND ended_at IS NULL",[teamId]))[0];
  if(!member){
   const admin=(await rows('SELECT system_admin_id FROM public.system_admins ORDER BY system_admin_id LIMIT 1'))[0];
