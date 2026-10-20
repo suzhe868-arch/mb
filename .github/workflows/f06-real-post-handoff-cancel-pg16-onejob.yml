@@ -8,7 +8,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: f06-real-post-handoff-cancel-http-pg16-01
+  group: f06-real-post-handoff-cancel-http-pg16-${{ github.sha }}
   cancel-in-progress: true
 jobs:
   transaction_refund_synthetic:
