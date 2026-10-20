@@ -1,3 +1,11 @@
+# 2026-10-21｜A正式技术裁决：Issue159资金复用白名单精确补充
+
+**本单原要求继续有效，但以下受控例外改由[《F06 Issue159 PR150资金原语复用与来源版本接续｜A主控技术裁决补充单》](F06_Issue159_PR150资金原语复用与来源版本接续_A主控技术裁决补充单_2026-10-21.md)执行。** B有实证指出原只读PR150与禁止资金算法复制发生冲突；A批准在`engineering/f06/transaction-refund-http-pg16/service.mjs` 内精确提取/接线**同一受控资金核心**，可新增仅一份`engineering/f06/transaction-refund-http-pg16/shared-refund-core.mjs`。原PR150旧入口对新来源继续FailClosed，冻结`sidecar.sql`/公共DDL/签名账本/旧CI仍不得修改；新增桥接目录与唯一专用workflow可相应调整目录白名单和正式PG16/HTTP执行。不准伪造旧Cancel、复制第二套资金算法或降低历史父链门禁。
+
+**保持原 B 工作分支** `feat/f06-signed-post-handoff-refund-bridge-01`（当前已有B SHA `2f703e38d150b249db262ecdba6fc96e4226c90c`），安全同步此裁决实际合入的最新main并继续施工，不重建分支/不重做已验代码；B当前只有静态成功，真实PG16/CI证据未执行，不得标READY。**本补充只有标准合入main后才正式生效。**
+
+---
+
 # 名邦汽车 V1｜F06 已签负责人移交后取消 → Transaction 侧 Refund 可信来源接续｜A 主控 B 正式施工单
 
 > **工作单**：`F06_SIGNED_POST_HANDOFF_CANCEL_TO_TRANSACTION_REFUND_BRIDGE_01`

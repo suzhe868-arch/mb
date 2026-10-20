@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "A_RELEASED_F06_SIGNED_POST_HANDOFF_REFUND_BRIDGE_NONPRODUCTION_ISSUE159",
+  "substage": "A_RULING_ISSUE159_SHARED_REFUND_CORE_PRECISE_WHITELIST_B_CONTINUE",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F06_SIGNED_POST_HANDOFF_CANCEL_TO_TRANSACTION_REFUND_BRIDGE",
-  "current_domain_status": "A_RELEASED_FOR_B_ISSUE159 / PARENT_PR139_146_150_153_156_ACCEPTED_REUSED / F06_F07_F08_V1_NOT_READY",
+  "current_domain_status": "A_RULING_APPROVED_ISSUE159_PRECISE_PR150_CORE_EXTRACTION / B_BLOCKED_BEFORE_RULING_STATIC_ONLY_RUN39501146534 / B_CONTINUE_AFTER_A_MERGE / F06_F07_F08_V1_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,25 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A在已生效B增量规范下核查PR150 Refund旧签Cancel与PR153 Handoff/PR156 Cancel不兼容，Issue159定向放行F06跨签名版本桥接，仅当前负责人合成Transaction Refund pending及无付款closed，要求真非特权PG16和必要旧父资金/权限/签名回归、父161表24迁移Seal；不重做旧实现，不启动F07/F08，不开放真钱生产。",
-  "current_work_file": "07_重建工作区/F06已签移交后取消到Transaction退款可信来源接续_A主控B正式施工单_2026-10-21.md",
+  "current_task": "Issue159 B分支2f703e38仅完成来源分析和官方静态检查，真实退款及PG16均未运行；A裁决原白名单互斥阻断成立，允许在精确路径 PR150 service.mjs 受控提取共享资金核心、可选shared-refund-core.mjs；旧PR150入口保持新来源FailClosed，旧sidecar与冻结父/公共DDL/原CI不变；B保留原分支安全同步main，按原Issue159完成真实证据后交A。",
+  "current_work_file": "07_重建工作区/F06_Issue159_PR150资金原语复用与来源版本接续_A主控技术裁决补充单_2026-10-21.md",
+  "f06_issue159_a_ruling_2026_10_21": {
+    "status": "A_RULING_APPROVED_PRECISE_WRITE_WHITELIST_B_CONTINUE",
+    "issue": 159,
+    "b_head_at_ruling": "2f703e38d150b249db262ecdba6fc96e4226c90c",
+    "static_ci_run": 39501146534,
+    "static_only_passed": true,
+    "real_pg16_run": false,
+    "ready_for_a_review": false,
+    "file": "07_重建工作区/F06_Issue159_PR150资金原语复用与来源版本接续_A主控技术裁决补充单_2026-10-21.md",
+    "permitted_additional_write_paths": [
+      "engineering/f06/transaction-refund-http-pg16/service.mjs",
+      "engineering/f06/transaction-refund-http-pg16/shared-refund-core.mjs"
+    ],
+    "existing_issue_and_b_branch_retained": true,
+    "signed_old_sidecars_and_public_ddl_immutable": true,
+    "next_owner": "B"
+  },
   "f06_signed_post_handoff_refund_bridge_next": {
     "task_id": "F06_SIGNED_POST_HANDOFF_CANCEL_TO_TRANSACTION_REFUND_BRIDGE_01",
     "status": "A_RELEASED_FOR_B_NONPRODUCTION",
@@ -3241,7 +3258,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B从开工最新main建立feat/f06-signed-post-handoff-refund-bridge-01，按Issue159及中文正式施工单复用PR139/146/150/153/156，完成移交后Cancel到Transaction侧合成Refund pending/无付款closed可信来源接续、PG16 HTTP、权限并发回滚、冻结父完整性。按B增量自审规范不重复旧全阶段审查和不必要CI，完成整单后统一READY_FOR_A_REVIEW交A，B不建PR/合并；F07/F08保持原独立阶段。生产真钱外部权限仍不开放。",
+  "next_action": "B继续Issue159现有工程分支feat/f06-signed-post-handoff-refund-bridge-01，安全同步最新main中已合并的A技术裁决补充单；只准精确改PR150 service.mjs与可选新增shared-refund-core.mjs，构建单一受控资金/余额/历史退款核心；旧PR150入口新来源FailClosed，绝不伪造旧签名或复制资金算法；补全当前尚未运行的>=35真实非特权PG16、>=10 HTTP/TLS、旧父161表24迁移不同OID Seal、权限并发错误注入及同SHA官方CI；B达READY_FOR_A_REVIEW再交A。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4821,7 +4838,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "A正式放行F06 Issue159（新版本签名Handoff/Cancel到Refund合法接续），B仅在指定新分支和签署白名单内施工，整单集中交A；不得改冻结父PR150/156、F03/F05、原F07/F08及C PR68。无授权无法实现即报告BLOCKED。F08之后后端整体验收归A。",
+  "next_action_detail": "Issue159技术裁决已作出：原单白名单禁止修改PR150但要求复用其私有资金原语属于互斥；修订许可只覆盖service.mjs与可选共享核心，旧语义和冻结签名保持，B继续原分支，不重开任务/不删已做静态核验/不申请用户日常技术决策；无真实PG16通过前必须维持BLOCKED_IN_PROGRESS / NOT_READY。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",

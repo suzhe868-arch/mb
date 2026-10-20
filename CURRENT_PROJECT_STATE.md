@@ -1,3 +1,11 @@
+# 2026-10-21｜A主控 Issue159 正式技术裁决：允许PR150唯一受控资金核心复用，B原分支继续施工
+
+- **源代码实证裁决**：[Issue #159](https://github.com/suzhe868-arch/mb/issues/159) B `feat/f06-signed-post-handoff-refund-bridge-01@2f703e38d150b249db262ecdba6fc96e4226c90c` 已上报 `BLOCKED_SIGNED_POST_HANDOFF_REFUND_BRIDGE_SOURCE`。其[官方Run39501146534](https://github.com/suzhe868-arch/mb/actions/runs/39501146534)只有**静态检查 success**，真实退款pending/closed、非超管PG16>=35、HTTP/TLS>=10、旧父161表24迁移Seal/并发注错**全部未运行**，绝非`READY_FOR_A_REVIEW`。PR150 原 `verifyTransactionSource()` 硬绑旧PR146取消签名和初始responsible；其私有资金原语无法供新PR153→PR156来源调用，B报告的原授权白名单互斥阻断成立。
+- **唯一通过的A技术方案**：[《F06 Issue159 PR150资金原语复用与来源版本接续技术裁决补充单》](07_重建工作区/F06_Issue159_PR150资金原语复用与来源版本接续_A主控技术裁决补充单_2026-10-21.md)。受控新增精确写权仅 `engineering/f06/transaction-refund-http-pg16/service.mjs` 及可选新增 `engineering/f06/transaction-refund-http-pg16/shared-refund-core.mjs`，为真实新旧签名来源共享**同一**资金/历史余额/原子退款核心；旧PR150接口遇新来源继续FailClosed。B现有新增桥接目录与专属workflow可相应升级白名单及真实CI。其余PR139/146/153/156、PR150旧sidecar.sql、公共DDL/迁移/旧Workflow及生产权限继续冻结，禁止伪造旧Cancel或复制第二套资金算法。
+- **接力未改**：`NEXT_OWNER=B`；`NEXT_TASK=F06_SIGNED_POST_HANDOFF_CANCEL_TO_TRANSACTION_REFUND_BRIDGE_01`，`NEXT_ISSUE=159`；B在原分支安全同步A治理PR合并后的最新main，保留既有5个提交、补同SHA真实PG16/HTTP/权限/资金/历史父Seal验证后统一交A。**仅当本轮A裁决PR标准合入main后正式生效**。F06/F07/F08/V1仍`NOT_READY`，F07/F08独立阶段、F08后端整体验收归A，C PR68不动，生产真钱外部服务不授权。
+
+---
+
 # 2026-10-21｜A主控正式放行F06移交后取消到Transaction退款可信来源接续Issue159（按B增量自审规范；无重复施工）
 
 - **本轮A完成的任务**：在最新 `main@be748b2b8165be4d644527bcccb4582e5c08c752` 下复核 PR #150 的原签名 Refund 与 PR #153 Handoff、PR #156 新签名 Cancel 的真实代码：原 PR150 验证强制最初 responsible 恒等于现 responsible 且只认可 PR146 旧 Cancel origin；对PR153→PR156新来源合法 `FailClosed`。**不复制旧Transaction/Cancel/Refund状态机，不对F01～F05全阶段返工。**
