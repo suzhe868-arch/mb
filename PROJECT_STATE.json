@@ -1,15 +1,15 @@
 {
   "project": "名邦汽车 V1",
-  "updated_at": "2026-10-20",
+  "updated_at": "2026-10-21",
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F06_REAL_TRANSACTION_RESPONSIBLE_HANDOFF_HTTP_PG16_01_A_RELEASED_FOR_B_NONPRODUCTION",
+  "substage": "F06_REAL_POST_HANDOFF_TRANSACTION_CANCEL_HTTP_PG16_01_A_RELEASED_FOR_B_NONPRODUCTION",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F06_REAL_TRANSACTION_RESPONSIBLE_HANDOFF_HTTP_PG16",
-  "current_domain_status": "A_ACCEPTED_TRANSACTION_SIDE_REFUND_PENDING_CLOSED_PR150_MERGED_534_PASS / ISSUE_147_CLOSED / A_RELEASED_F06_REAL_TRANSACTION_HANDOFF_HTTP_PG16_01_FOR_B / ISSUE_151_OPEN / NEXT_OWNER_B / NONPRODUCTION_ONLY / F06_F07_F08_V1_NOT_READY",
+  "current_domain": "F06_REAL_POST_HANDOFF_TRANSACTION_CANCEL_HTTP_PG16",
+  "current_domain_status": "A_ACCEPTED_REAL_TRANSACTION_HANDOFF_NONPRODUCTION_PR153_STANDARD_MERGED_585_OF_585 / ISSUE_151_CLOSED / A_RELEASED_POST_HANDOFF_CANCEL_HTTP_PG16_01_ISSUE_154 / NEXT_OWNER_B / F06_F07_F08_V1_NOT_READY / PRODUCTION_MONEY_DENIED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A第二轮独立验收B Transaction-side Refund整改末SHA f774bc49407b7e2b8918347c03989b1b7230770d：官方同SHA Run39436527215/Job118674868785父445+TxnRefund79+TLS10=534/534，0失败/跳过/取消，旧161签父表24迁移跨OID78558→87832全Seal一致。合法pending后3A已签Correction/Reversal导致closed漂移的R1已由不可变申请资金快照及原生签名新增事件时序验证和14真实PG16新测闭环。标准PR150已实际合并cc2542a18ed8498ba549ff0f4cefd5e8beeedd8d，Issue147 closed。A下一批放行Issue151，仅非生产PR139真签Transaction当前Responsible正式Handoff，旧4B及旧Cancel/Refund源兼容必须先确认，不能伪造旧3B/4B签名或改旧父。",
-  "current_work_file": "07_重建工作区/F06真实Transaction负责人移交HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md",
+  "current_task": "A独立审核Issue151 B末SHA4d499810cd9a97bd483ffb257b5d03b01f6bb062：官方同SHA Run39458177954/Job118750396752父534+Handoff40+TLS11=585/585，无失败/跳过/取消。真实PG16两不同Employee Manager PID2055/2054并发最多成功一笔，原PR139初始Responsible签名不可变，新PR153 append-only Version/Key/Audit与Public Tx当前责任同一事务，权限/作用域/撤权/幂等/注错Rollback确认，旧PR146 Cancel及PR150 Refund对新Handoff原件仍FailClosed。父161表COUNT/MD5、24迁移不同OID87819→97329/OID39339审计全Seal一致，业务PR153合并70c9372a55865d59c5a3772b368d236775154038，Issue151已关闭。A新任务Issue154放行仅合成PR139+PR153已签Handoff后当前负责人合法取消Transaction的受限版本化业务；旧PR146/PR150不能伪造来源兼容。",
+  "current_work_file": "07_重建工作区/F06真实负责人移交后Transaction正常取消HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-21.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B从执行时最新main新建feat/f06-real-transaction-handoff-http-pg16-01，按Issue151及07_重建工作区/F06真实Transaction负责人移交HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md仅在全新Handoff CI白名单/唯一免费Push Workflow中实施真签PR139 in_progress Transaction负责人正式Handoff、独立有效permission+scope与当前Responsibility版本化签封、真实PG16 atomic事务和old/new/actor/time/reason append-only历史；旧4B/旧Cancel/Refund源不兼容时FailClosed不修改冻结父。最终同SHA完整父534+新PG16至少30+TLS至少10总>=574全绿，旧161父表/24迁移及不同OID Seal一致，中文READY_FOR_A_REVIEW交A，B不得自行PR/merge。",
+  "next_action": "B从执行时最新main建立feat/f06-real-post-handoff-cancel-http-pg16-01；读取Issue154和07_重建工作区/F06真实负责人移交后Transaction正常取消HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-21.md，只在post-handoff-cancel-http-pg16新侧车及单Push Workflow，使用真PG16上PR139初建签名和PR153真实签名Handoff/最新版本责任，实现当前Responsible具独立permission+scope的安全Transaction in_progress→cancelled。原PR146/PR150父签名和Public M94冻结、真钱生产禁止；未来真实post-Handoff退款不在本包、旧PR150必须FailClosed。末SHA父585+新PG16至少35+TLS10总>=630、161表24迁移多OID全Seal全绿，中文READY_FOR_A_REVIEW交A，B不得自行PR/merge。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B从执行时最新main新建feat/f06-real-transaction-handoff-http-pg16-01，按Issue151及07_重建工作区/F06真实Transaction负责人移交HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md仅在全新Handoff CI白名单/唯一免费Push Workflow中实施真签PR139 in_progress Transaction负责人正式Handoff、独立有效permission+scope与当前Responsibility版本化签封、真实PG16 atomic事务和old/new/actor/time/reason append-only历史；旧4B/旧Cancel/Refund源不兼容时FailClosed不修改冻结父。最终同SHA完整父534+新PG16至少30+TLS至少10总>=574全绿，旧161父表/24迁移及不同OID Seal一致，中文READY_FOR_A_REVIEW交A，B不得自行PR/merge。",
+  "next_action_detail": "B从执行时最新main建立feat/f06-real-post-handoff-cancel-http-pg16-01；读取Issue154和07_重建工作区/F06真实负责人移交后Transaction正常取消HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-21.md，只在post-handoff-cancel-http-pg16新侧车及单Push Workflow，使用真PG16上PR139初建签名和PR153真实签名Handoff/最新版本责任，实现当前Responsible具独立permission+scope的安全Transaction in_progress→cancelled。原PR146/PR150父签名和Public M94冻结、真钱生产禁止；未来真实post-Handoff退款不在本包、旧PR150必须FailClosed。末SHA父585+新PG16至少35+TLS10总>=630、161表24迁移多OID全Seal全绿，中文READY_FOR_A_REVIEW交A，B不得自行PR/merge。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7969,7 +7969,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F06_REAL_TRANSACTION_RESPONSIBLE_HANDOFF_HTTP_PG16_01",
+  "next_task": "F06_REAL_POST_HANDOFF_TRANSACTION_CANCEL_HTTP_PG16_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -8125,7 +8125,7 @@
       "PRODUCTION_PUBLISHER_CACHE_SCHEMA_NOT_IMPLEMENTED"
     ]
   },
-  "last_a_acceptance_report": "07_重建工作区/F06真实Transaction侧Refund_A第二轮独立验收PR150合并与负责人移交放行报告_2026-10-20.md",
+  "last_a_acceptance_report": "07_重建工作区/F06真实Transaction负责人移交_A主控独立验收PR153合并与移交后取消正式放行报告_2026-10-21.md",
   "f07_2_gate": {
     "status": "A_ACCEPTED_STANDARD_MERGED_PR65_CI_ONLY",
     "owner": "A_ACCEPTED",
@@ -9644,7 +9644,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F06真实Transaction负责人移交HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md",
+  "next_work_file": "07_重建工作区/F06真实负责人移交后Transaction正常取消HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-21.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -9940,8 +9940,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": "feat/f06-real-transaction-handoff-http-pg16-01",
-  "next_issue": 151,
+  "next_branch": "feat/f06-real-post-handoff-cancel-http-pg16-01",
+  "next_issue": 154,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -9983,19 +9983,19 @@
     "production_ready": false
   },
   "last_completed": {
-    "task": "F06_REAL_TRANSACTION_REFUND_PENDING_CLOSED_HTTP_PG16_01",
-    "pr": 150,
-    "branch": "feat/f06-real-transaction-refund-http-pg16-01",
-    "head_sha": "f774bc49407b7e2b8918347c03989b1b7230770d",
-    "merge_sha": "cc2542a18ed8498ba549ff0f4cefd5e8beeedd8d",
-    "official_business_run": 39436527215,
-    "official_business_job": 118674868785,
-    "total_tests_passed": 534,
+    "task": "F06_REAL_TRANSACTION_RESPONSIBLE_HANDOFF_HTTP_PG16_01",
+    "pr": 153,
+    "branch": "feat/f06-real-transaction-handoff-http-pg16-01",
+    "head_sha": "4d499810cd9a97bd483ffb257b5d03b01f6bb062",
+    "merge_sha": "70c9372a55865d59c5a3772b368d236775154038",
+    "official_business_run": 39458177954,
+    "official_business_job": 118750396752,
+    "total_tests_passed": 585,
     "tests_failed": 0,
     "tests_skipped": 0,
     "tests_cancelled": 0,
-    "issue_147": "CLOSED_COMPLETED",
-    "scope": "非生产合成真实签名已cancelled Transaction侧Refund pending及无付款closed，包含post-pending已签3A资金修正的合法关闭"
+    "issue_151": "CLOSED_COMPLETED",
+    "scope": "非生产真签PR139 in_progress Transaction负责人正式版本化Handoff、显式权限scope与PG16原子更新"
   },
   "f06_real_lock_review": {
     "review_date": "2026-10-19",
@@ -10152,8 +10152,8 @@
     "next_owner": "B",
     "budget_additional_usd": 0
   },
-  "next_base_main": "cc2542a18ed8498ba549ff0f4cefd5e8beeedd8d",
-  "current_engineering_focus": "F06_REAL_TRANSACTION_RESPONSIBLE_HANDOFF_HTTP_PG16_01_NONPRODUCTION",
+  "next_base_main": "70c9372a55865d59c5a3772b368d236775154038",
+  "current_engineering_focus": "F06_REAL_POST_HANDOFF_TRANSACTION_CANCEL_HTTP_PG16_01_NONPRODUCTION",
   "f06_real_deposit_http_next": {
     "status": "A_ACCEPTED_NONPRODUCTION_HTTP_PG16_PR135_STANDARD_MERGED",
     "task_id": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01",
@@ -10523,7 +10523,7 @@
     "issue_closed": true
   },
   "f06_real_transaction_handoff_http_next": {
-    "status": "A_RELEASED_FOR_B_NONPRODUCTION_SIGNED_RESPONSIBLE_HANDOFF",
+    "status": "A_ACCEPTED_NONPRODUCTION_HTTP_PG16_PR153_STANDARD_MERGED",
     "task_id": "F06_REAL_TRANSACTION_RESPONSIBLE_HANDOFF_HTTP_PG16_01",
     "issue": 151,
     "owner": "B",
@@ -10559,6 +10559,65 @@
     "single_job_push_paths_only": true,
     "artifacts_upload_allowed": false,
     "max_new_paid_budget_usd": 0,
-    "handoff_status_required": "F06_REAL_TRANSACTION_RESPONSIBLE_HANDOFF_HTTP_PG16_01_B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A"
+    "handoff_status_required": "F06_REAL_TRANSACTION_RESPONSIBLE_HANDOFF_HTTP_PG16_01_B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A",
+    "a_acceptance": true,
+    "issue_closed": true,
+    "b_reviewed_head": "4d499810cd9a97bd483ffb257b5d03b01f6bb062",
+    "official_run": 39458177954,
+    "official_job": 118750396752,
+    "passed_tests": 585,
+    "test_failed": 0,
+    "test_skipped": 0,
+    "test_cancelled": 0,
+    "pr_number": 153,
+    "merge_sha": "70c9372a55865d59c5a3772b368d236775154038",
+    "a_review_report": "07_重建工作区/F06真实Transaction负责人移交_A主控独立验收PR153合并与移交后取消正式放行报告_2026-10-21.md",
+    "parent_signed_tables": 161,
+    "parent_migrations": 24,
+    "seal": "9833de68dfd2ab9cc1f6c65995359589d29247a7dcb6ca980eaaa94b7962d5c0",
+    "source_oid": "87819",
+    "restored_oid": "97329",
+    "audit_oid": "39339",
+    "current_responsible_version_source": "SIGNED_F06_REAL_HANDOFF_CI_APPEND_ONLY",
+    "post_handoff_old_cancel_refund": "FAIL_CLOSED_UNTIL_FUTURE_VERSIONED_CARRIER"
+  },
+  "f06_real_post_handoff_cancel_http_next": {
+    "status": "A_RELEASED_FOR_B_NONPRODUCTION_SIGNED_POST_HANDOFF_CANCEL",
+    "task_id": "F06_REAL_POST_HANDOFF_TRANSACTION_CANCEL_HTTP_PG16_01",
+    "issue": 154,
+    "owner": "B",
+    "review_owner": "A",
+    "branch": "feat/f06-real-post-handoff-cancel-http-pg16-01",
+    "work_order": "07_重建工作区/F06真实负责人移交后Transaction正常取消HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-21.md",
+    "base_main_at_release": "70c9372a55865d59c5a3772b368d236775154038",
+    "base_main_policy": "FETCH_LATEST_MAIN_AT_EXECUTION_NOT_STALE_SHA",
+    "allowed_new_paths": [
+      "engineering/f06/post-handoff-cancel-http-pg16/**",
+      ".github/workflows/f06-real-post-handoff-cancel-pg16-onejob.yml"
+    ],
+    "authority": [
+      "PDM-19 Final §§8-10,19-26",
+      "PDM-02/03/17/18/25 Final"
+    ],
+    "scope": "SIGNED_NONPRODUCTION_PR139_TX_AFTER_PR153_HANDOFF_CURRENT_RESPONSIBLE_CANCELLED_ONLY",
+    "first_mandatory_gate": "VERIFY_SIGNED_PR139_ORIGINS_AND_AUTHENTIC_PR153_HANDOFF_CHAIN_TAIL_NO_LEGACY_F06_4B_OR_PR146_FORGERY",
+    "blocking_report": "BLOCKED_SIGNED_POST_HANDOFF_CANCEL_CARRIER_OR_SCOPE",
+    "minimum_parent_tests": 585,
+    "minimum_new_pg16_http_tests": 35,
+    "minimum_tls_deny_tests": 10,
+    "minimum_total_tests": 630,
+    "signed_parent_manifest": "161_SIGNED_PARENT_TABLES_FULL_ROW_COUNT_MD5_WITH_24_LEDGER_AND_DIFFERENT_PG_PHYSICAL_OID_RESTORE",
+    "old_pr150_refund_compatibility": "CURRENTLY_FAIL_CLOSED_MUST_NOT_FORGE_PR146_CANCEL_ORIGIN",
+    "b_must_not_create_pr_or_merge": true,
+    "public_ddl_modified_allowed": false,
+    "production_ready": false,
+    "completed_authorized": false,
+    "real_money_authorized": false,
+    "real_refund_authorized": false,
+    "standard_runner_only": true,
+    "single_job_push_paths_only": true,
+    "artifacts_upload_allowed": false,
+    "max_new_paid_budget_usd": 0,
+    "handoff_status_required": "F06_REAL_POST_HANDOFF_TRANSACTION_CANCEL_HTTP_PG16_01_B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A"
   }
 }
