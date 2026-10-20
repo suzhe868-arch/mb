@@ -59,4 +59,9 @@ jobs:
         with:
           node-version: 22.16.0
       - name: Same-SHA old signed parents + new true PG16 HTTP and full physical restore
-        run: bash engineering/f06/post-handoff-refund-bridge-http-pg16/ci-job.sh
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p engineering/f06/post-handoff-refund-bridge-http-pg16/evidence
+          bash engineering/f06/post-handoff-refund-bridge-http-pg16/ci-job.sh 2>&1 | tee engineering/f06/post-handoff-refund-bridge-http-pg16/evidence/完整原生CI日志.log
+          node engineering/f06/post-handoff-refund-bridge-http-pg16/严格原生测试证据校验.mjs
