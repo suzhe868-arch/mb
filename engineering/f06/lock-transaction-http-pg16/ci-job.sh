@@ -75,7 +75,7 @@ docker exec -i -e PGPASSWORD=f03_ci_synthetic_only "$id" \
  psql -h127.0.0.1 -Uf03_ci -df03_auth_test -X -v ON_ERROR_STOP=1 < "$base/sidecar.sql"
 env GITHUB_REF="refs/heads/$f06a" GITHUB_REF_NAME="$f06a" \
  node --test "$base/tests/http.test.mjs" 2>&1 | tee "$base/evidence/TRANSACTION_HTTP_PG16_TAP.log"
-check_tap "$base/evidence/TRANSACTION_HTTP_PG16_TAP.log" 52
+check_tap "$base/evidence/TRANSACTION_HTTP_PG16_TAP.log" 53
 openssl req -x509 -newkey rsa:2048 -sha256 -nodes -days 1 \
  -keyout /tmp/f06-real-transaction-key.pem -out /tmp/f06-real-transaction-cert.pem \
  -subj '/CN=localhost' >/dev/null 2>&1

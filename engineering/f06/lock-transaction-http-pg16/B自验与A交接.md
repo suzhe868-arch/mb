@@ -1,68 +1,38 @@
-# F06真实Lock→Transaction｜B自验及交A独立验收报告
+# 名邦汽车 V1｜F06 真实Lock→Transaction｜B定向整改自验与A交接
 
-## 一、正式状态和证据归属
+## 一、主线裁决及本批性质
+- 任务：`F06_REAL_LOCK_TO_TRANSACTION_HTTP_PG16_01`，Issue [#136](https://github.com/suzhe868-arch/mb/issues/136)。
+- 责任：B仅施工；A独立验收、创建PR及合规合并。原B指定分支 `feat/f06-real-lock-transaction-http-pg16-01`；不得建立Transaction PR或擅自更改main。
+- 开工main：`38faaf890bca5a2c7f133c50c9c96901fab03029`；A当前治理main：`35ac839a73d1529a24c3ffde089b8517cb01f78e`（PR138）；原B受审HEAD `c4dbb48a5e602076298fba47d133fd43cec504f3`，官方Run39391407455 / Job118523549413已证明309/309同SHA成功，**但A明确不予验收**。
+- A正式整改单：`07_重建工作区/F06真实Lock转Transaction_A主控首轮独立复验_退款签名来源与双后端竞态定向整改单_2026-10-20.md`。上一版本“已经完整覆盖Refund竞态”自验判断由本报告纠正；旧成功Run不代替新整改验收。
+- 本次整改**仅**在 `engineering/f06/lock-transaction-http-pg16/**` 和专属 `.github/workflows/f06-real-lock-transaction-pg16-onejob.yml`。不改父F06-3A/3B/3C1、已签DDL、24迁移、旧Workflow、生产接口/Issuer、PDM Final；新增付费预算$0。
 
-- 正式Issue：[ #136 ](https://github.com/suzhe868-arch/mb/issues/136)，任务 `F06_REAL_LOCK_TO_TRANSACTION_HTTP_PG16_01`。
-- 开工main：`38faaf890bca5a2c7f133c50c9c96901fab03029`；当前施工分支：`feat/f06-real-lock-transaction-http-pg16-01`。
-- 上一业务代码成功受验 HEAD：`70305e51d78c1646a1e1810c38a4512129a318e3`。对应官方单 Job：[Run #39388626947](https://github.com/suzhe868-arch/mb/actions/runs/39388626947) / [Job #118514471718](https://github.com/suzhe868-arch/mb/actions/runs/39388626947/job/118514471718)，均 `completed/success`。
-- 本交接报告属于后续证据完善提交。**最终交A资格只以报告所在最终 HEAD 对应的新官方 Push Run `completed/success`、0失败/跳过/取消和 `READY_FOR_A_REVIEW` 明文为准**。上一个代码 SHA 的成功不能冒充文档提交后的同SHA成功。
-- 当最终 SHA Run 完整成功后，本轮判定为 `F06_REAL_LOCK_TO_TRANSACTION_HTTP_PG16_01_B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A`；若最后 Run 未成功则仍 `NOT_READY_FOR_A_REVIEW`，必须修复再验。
-- **B不得创建PR、不得合并main**；A独立验收代码、状态与证据后决定正式PR和合并。
+## 二、A拒验问题及已落实的代码改动
 
-## 二、职责边界与文件清单
+1. **原生签名退款父源**：`ci-job.sh` 在另一个可销毁PG16库恢复已签161实体父快照之后，保持真实GitHub分支/SHA/Run不变，只对短期受限**子进程**传递冻结父Ref，顺序执行F06-3A→F06-3B→F06-3C1原生`runner --apply/--verify`；不能冒充支付Issuer或手工INSERT签名历史。每次被验签的父源码及源SHA仍来自仓库旧版本。
+2. **来源缺失零行Fail Closed**：`service.mjs` 在退款记录为零时也强制检查3B/3C1真实Carrier及签名attestation、旧24迁移Ledger、原生sidecar SHA与Public Catalog签名。缺任一来源直接返回`F06_TX_TRUSTED_REFUND_PARENT_MISSING`或`F06_TX_REFUND_PARENT_SIGNATURE_DRIFT`。合法`closed_without_payment`只在原生签发的origin与先pending后closed两事件、原客户/车/周期/金额、Issuer、close_reason一致且无支付事实时可通过；未知或未签closed硬拒。Pending或已付款依然硬拒。
+3. **独立进程真实后端测试**：新增`refund-bridge.mjs`，实际开启独立Node子进程、真实PG16连接、`IsolatedAuth`签名员工Session，经原封不动`requestSyntheticRefundCI`和`closeSyntheticRefundCI`执行，返回每次父服务真实业务连接`pg_backend_pid()`；进程IPC握手在**父验签完成后**才同时启动退款与Transaction请求，不修改父Ref全局变量、不复用测试伪签历史，也不直接INSERT合法退款。
+4. **旧正反不减验**：原43条HTTP/PG16原生测试不删减，另新增10条（编号44～53）：真父签名、真pending来源、退款先提交→交易后拒、Refund幂等、交易先提交、后退款拒、双方独立backend同步发起至多一方提交、真closed_without_payment、无签public closed来源拒、无退款行时父Carrier缺失硬拒。旧HTTP Transaction↔Transaction竞争仍保留，但不再冒充Refund↔Transaction。
+5. **原子占用及保护**：应用仍在一个PG事务内做Vehicle→Lock锁序、资金来源排除、唯一占用、Lock终态、sidecar、请求键及审计，再检查提交；受限旧Refund服务自行遵守相同Vehicle→Lock锁序。断言资金、Lock、Transaction、sidecar及Pending来源不发生半写，全部为合成事实。
+6. **并发严谨性**：独立后端PID和IPC同时启动是必要证据；但原签名`IsolatedAuth.withSession`也锁账号/session。若最终执行在账号锁处串行化，则只能证明真实多后端受控互斥，**不得夸称已捕捉两边同时持有Vehicle行锁**。A依原生日志独立判断竞态覆盖强度，不能仅凭总数达标批准。
 
-本批只新增以下路径：
+## 三、最终官方同SHA门禁
 
-- `.github/workflows/f06-real-lock-transaction-pg16-onejob.yml`
-- `engineering/f06/lock-transaction-http-pg16/ci-job.sh`
-- `engineering/f06/lock-transaction-http-pg16/server.mjs`
-- `engineering/f06/lock-transaction-http-pg16/service.mjs`
-- `engineering/f06/lock-transaction-http-pg16/sidecar.sql`
-- `engineering/f06/lock-transaction-http-pg16/tests/http.test.mjs`
-- `engineering/f06/lock-transaction-http-pg16/tests/https.test.mjs`
-- `engineering/f06/lock-transaction-http-pg16/trigger-preflight.mjs`
-- 本文件 `engineering/f06/lock-transaction-http-pg16/B自验与A交接.md`
+专属Workflow仅精确分支Push+本批paths，单`ubuntu-24.04`标准Runner、单`postgres:16-alpine`、单Job、只读权限，不上传Artifact/付费缓存/PR扇出；`trigger-preflight.mjs`读取当前实际全部Workflow重复验算。
 
-与开工main比对确认原 `engineering/src/**`、`engineering/scripts/**`、`engineering/sql/**`、`engineering/integration/**`、冻结旧F06目录、公共M94/DDL/24迁移、旧Workflow、PDM Final与生产路由均未修改。真实客户/支付/退款/第三方调用仍未接入。新增付费预算：$0。
-
-339个原有Workflow全部核对触发分支与paths；目标新分支在首次Push前确认不会命中其它旧工作流。新增工作流只监听本任务分支精确 Push+本批两路径，单Ubuntu标准Runner、单 `postgres:16-alpine`服务、单Job，GitHub权限 `contents:read`，不上传Artifact、不设付费缓存或矩阵；由入口预检在最终SHA再次断言。
-
-## 三、同SHA回归门槛和既有完整父层
-
-旧父九组严格继承，不调低，不跨SHA拼接：
-
-| 来源 | 官方门槛 |
+| 完整回归 | 本版最低通过 |
 |---|---:|
-| LockRequest Node | 54/54 |
-| Lock生命周期 Node | 37/37 |
-| LockRequest原生HTTP+PG16 | 21/21 |
-| Lock生命周期原生HTTP+PG16 | 36/36 |
-| F05来源事件回归 | 25/25 |
-| F06-3A Source | 28/28 |
-| F06-3A HTTPS生产拒绝 | 9/9 |
-| Deposit HTTP+PG16 | 38/38 |
-| Deposit TLS生产拒绝 | 9/9 |
-| **旧父九组小计** | **257/257** |
-| 新Lock→Transaction原生HTTP+PG16 | **43/43**（超过施工单至少28） |
-| 新Transaction TLS拒绝 | **9/9**（达到施工单至少9） |
-| **全部最末成功SHA门槛合计** | **309/309** |
+| 旧父九组原生Node、PG16/HTTP、TLS、安全Source | 257/257 |
+| 本轮原Transaction HTTP/PG16 | 43/43 |
+| 本轮新增真实签名Refund/竞态/负例 | 10/10 |
+| Transaction TLS生产拒绝 | 9/9 |
+| **合计** | **319/319** |
 
-上轮受验源码 HEAD `70305e51…` 的真实 Run #39388626947 已通过上述309项，且全部0失败、0跳过、0取消；**最终文档HEAD须在本次提交产生新Run后再次独立满足全部门槛**。
+所有项目必须在**最终分支HEAD完全一致的官方单Job Push Run**达到`completed/success`、0失败、0跳过、0取消；上一已成功Run #39391407455不够。官方日志要同时包含原生3B/3C1签名父源、PID竞态详情、九组257项、累计Transaction53项和TLS9项，以及原生161张全表逐表COUNT/MD5完整Seal、24条Ledger、Catalog、D1/F06-1/F06-2 attestation、两物理OID恢复和不同backend PID。上述证据由最新官方Run实时产生，不预填虚构的运行ID、PID、OID或散列值。**最终Run/Job/HEAD与实测计数必须在Issue #136最后一条B交接评论逐项固化**；A不得用旧Run数据代替。
 
-旧父F06-3A由原生同 SHA 真正签发的**161张四Schema完整表名+逐表COUNT/MD5 Manifest**，24条原始迁移Ledger、Public Catalog、D1/F06-1/F06-2 sidecar attestation不减验。通过独立物理数据库 OID 和PG16后端PID完整行 Seal 比对，不得仅单库ROLLBACK伪装跨库恢复。
+## 四、验收边界与交接状态
 
-上轮 SHA 的原始证据（仅作技术追溯，不能作为最终新SHA实时值）：首次 Source OID `35222`、审计副本OID `39338`，源库恢复OID `43578`，新Transaction场景销毁后恢复OID `60637`，父完整行Seal摘要 `29a0d5121d9da1697204543fa0b2b0a5f52b9fd98af40ef494195564ad715a99` 前后相同。**A应对照最终Run中的真实 OID/PID/hash 值，而非沿用上轮值。**
-
-## 四、实际业务与安全负例
-
-- 同一物理PostgreSQL16事务内先锁 Vehicle→Lock→核对已签Refund/Deposit→占用Transaction，再令原Lock进入可信终态、追加受限sidecar和审计，最后复核COMMIT；不调用旧F06-3B不安全直接转换入口，不以双事务拼接模拟原子性。
-- 当前受签M94 Transaction的物理状态与隔离sidecar真实状态对齐，不篡改正式DDL。签名Session、真实 Employee role/permission override、capability与Team/Store/Object scope在最终受保护事务内检查。
-- 旧Lock `pending` Refund、有退款支付事实、未知退款来源或仍有资金责任时硬拒，保证零半成品占用。对退款先提交/Transaction先提交、两PG Backend争夺唯一占用、重复幂等键/异参数、Lock过期/状态变化、Customer禁用、会话撤权、Scope撤权、SQL注入失败及各写入点完整回滚有对应负例。
-- 原始Deposit、Correction、Lock来源、退款及其它已签历史只读，不因合成Transaction自动结算、真实退款、调整价格或宣称成交。
-- 生产路由不存在；CI HTTP只监听 `127.0.0.1`。TLS覆盖真实Transactions、Refund、Payment、Lock release及合成CI路径的硬拒，客户端伪造角色不得越权。
-
-## 五、残留风险和最终交接
-
-仍然开放：`UPSTREAM_F06_3B_LOCK_PENDING_TRANSACTION_CONVERSION_GAP`、`PRODUCTION_TRANSACTION_SCHEMA_CARRIER_GAP`、`PRODUCTION_FINANCIAL_CARRIER_GAP`，以及正式Source/生产Issuer/UAT/部署缺口。**本次仅代表隔离PG16合成非生产纵切验收，绝不等于真实Transaction或真实资金上线**。F06/F07/F08和V1产品整体仍 `NOT_READY`。
-
-A主控独立验收应从本文件所在最终分支HEAD取得真实官方同SHA Run，验证 Job `completed/success`、九组257加Transaction43/TLS9、父161张全表真实来源与恢复、两Backend/退款安全硬拒、触发白名单，以及主线未改/无越权文件；通过后A自行创建标准PR及合规合并并更新五项main状态。本报告不自行声称已获A验收或已合并main。
+- 仍未解决的生产阻断：`UPSTREAM_F06_3B_LOCK_PENDING_TRANSACTION_CONVERSION_GAP`、`PRODUCTION_TRANSACTION_SCHEMA_CARRIER_GAP`、`PRODUCTION_FINANCIAL_CARRIER_GAP`。真实收款/退款/支付、真实Transaction Issuer、交易完成、生产部署、客户资料、微信/银行/飞书外写都未授权。F06/F07/F08及V1整体仍`NOT_READY`。
+- 此文件是**待最终官方同SHA证据绑定的B自验交接**；若本HEAD对应的Run不成功、OID Seal变化、或两Backend真实性不足，则保持`NOT_READY_FOR_A_REVIEW`并继续整改，不能因写了交接文档自动放行。
+- **唯一交接出口**：所有以上门禁确实通过，并由B在Issue #136明文回报受验Run/Job/head与残余缺口时，标记：
+  `F06_REAL_LOCK_TO_TRANSACTION_HTTP_PG16_01_B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A`。
