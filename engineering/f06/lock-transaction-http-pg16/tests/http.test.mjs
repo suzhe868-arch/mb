@@ -323,7 +323,19 @@ test('51 3C1签名pending→closed_without_payment并记录双事件后允许安
  assert.equal((await invariant(locks[7])).txs,1);
  console.log('F06_TX_REFUND_CLOSED_SIGNED_TWO_EVENTS',JSON.stringify({requestPid:req.backendPid,closePid:closed.backendPid,transactionPid:r.body.backendPid}));
 });
-test('52 退款父Carrier真实缺失，即使没有退款行也Fail Closed',async()=>{
+test('52 public伪造closed但没有签名来源与关闭事件时仍Fail Closed',async()=>{
+ const result=await q("INSERT INTO public.refund_cases(customer_id,lock_id,transaction_id,status,expected_amount_cents,close_reason,closed_at) "+
+  "VALUES($1,$2,NULL,'closed',300,'CI unsigned manual closure',clock_timestamp()) RETURNING refund_id",[customer,locks[8]]);
+ const refundId=Number(result.rows[0].refund_id);
+ try{
+  const r=await call(endpoint,body('unsigned-public-closed',locks[8]));
+  assert.equal(r.status,409,JSON.stringify(r.body));
+  assert.equal(r.body.code,'F06_TX_REFUND_PROVENANCE_DRIFT');
+  const st=await invariant(locks[8]);
+  assert.deepEqual([st.lock_status,st.txs,st.origins,st.events],['active',0,0,0]);
+ }finally{await q('DELETE FROM public.refund_cases WHERE refund_id=$1',[refundId])}
+});
+test('53 退款父Carrier真实缺失，即使没有退款行也Fail Closed',async()=>{
  await q('DROP SCHEMA f06_3c1_ci CASCADE');
  const r=await call(endpoint,body('missing-signed-carrier',locks[8]));
  assert.equal(r.status,409,JSON.stringify(r.body));
