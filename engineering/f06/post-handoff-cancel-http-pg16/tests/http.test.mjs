@@ -4,7 +4,7 @@ import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {connect,verify,productionIssuerDeny,completedDeny,financialDeny} from '../../transaction-handoff-http-pg16/service.mjs';
 import {assertEntry,createHttpServer,childCall} from '../../transaction-handoff-http-pg16/server.mjs';
 import {assertEntry as assertCancelEntry,createHttpServer as createCancelServer,childCall as cancelWorker} from '../server.mjs';
-import {verify as verifyCancel,productionIssuerDeny,paymentDeny,completedDeny} from '../service.mjs';
+import {verify as verifyCancel,productionIssuerDeny as cancelProductionIssuerDeny,paymentDeny,completedDeny as cancelCompletedDeny} from '../service.mjs';
 import {withF062} from '../../deposit-ledger-ci/migration.mjs';
 import {withParentBranch} from '../../lock-lifecycle-ci/migration.mjs';
 import {intakeCI,decisionCI} from '../../lockrequest-approval-waitlist-ci/service.mjs';
@@ -301,8 +301,8 @@ async function grantCancel(id){
 }
 test('41 新取消自身精确分支与官方SHA门禁',()=>assertCancelEntry());
 test('42 新取消PR153父Attestation非特权PG16原签链',async()=>assert.equal((await verifyCancel(db)).verified,true));
-test('43 生产取消Issuer硬拒',()=>assert.equal(productionIssuerDeny().allowed,false));
-test('44 真实资金与Completed动作硬拒',()=>{assert.equal(paymentDeny().allowed,false);assert.equal(completedDeny().allowed,false)});
+test('43 生产取消Issuer硬拒',()=>assert.equal(cancelProductionIssuerDeny().allowed,false));
+test('44 真实资金与Completed动作硬拒',()=>{assert.equal(paymentDeny().allowed,false);assert.equal(cancelCompletedDeny().allowed,false)});
 test('45 正式生产Transaction取消路由404',async()=>assert.equal((await cancelCall({},peerToken,'/api/v1/transactions/1/cancel')).status,404));
 test('46 正式退款和支付路由404',async()=>assert.equal((await cancelCall({},peerToken,'/api/v1/refund_payments')).status,404));
 test('47 HTTP GET不修改任何交易',async()=>assert.equal((await cancelCall({},peerToken,cancelRoute,'GET')).status,404));
