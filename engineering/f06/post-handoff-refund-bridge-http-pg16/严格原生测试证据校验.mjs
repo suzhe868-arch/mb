@@ -31,6 +31,11 @@ function summaries(t){
  }
  return result;
 }
+const pgNative=summaries(log.slice(0,previous)).at(-1);
+assert.ok(pgNative,'Raw PG16 HTTP TAP summary missing');
+assert.equal(pgNative.tests,130);
+assert.equal(pgNative.pass,130);
+for(const key of ['fail','skipped','cancelled'])assert.equal(pgNative[key],0,'PG16 '+key+' mismatch');
 const tls=summaries(tail).slice(0,2);
 assert.equal(tls.length,2,'Both real native TLS TAP summaries required');
 for(const [i,n] of [11,12].entries()){
@@ -59,5 +64,5 @@ console.log('F06_BRIDGE_STRICT_ACTUAL_TAP_PASS',JSON.stringify({
  sha:sameHead,combinedNativePg:130,oldPostCancel:84,newRefundBridge:46,
  inheritedTxRefund:79,inheritedHandoff:40,oldTls:tls[0],newTls:tls[1],
  parentTables:161,migrations:24,physicalOidChanged:true,
- inheritedTapZeroCountIgnored:false
+ legacyTapHelperZeroCountObserved:log.includes('POST_HANDOFF_CANCEL_TLS_DENY_TAP.log tests=0')
 }));
