@@ -84,6 +84,24 @@ docker exec "$service" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres \
  -c 'CREATE DATABASE f03_auth_test OWNER f03_ci'
 docker exec -i -e PGPASSWORD=f03_ci_synthetic_only "$service" \
  pg_restore -h127.0.0.1 -Uf03_ci -df03_auth_test --no-owner --no-privileges < "$dump"
+# Reconstruct native signed provenance in the newly restored scenario.
+for step in deposit-ledger-ci lock-transaction-ci refund-pending-ci transaction-cancel-ci; do
+  case "$step" in
+    deposit-ledger-ci) ref=feat/f06-3a-deposit-ledger-ci ;;
+    lock-transaction-ci) ref=feat/f06-3b-lock-transaction-ci ;;
+    refund-pending-ci) ref=feat/f06-3c1-refund-pending-close-ci ;;
+    transaction-cancel-ci) ref=feat/f06-4a-transaction-cancel-ci ;;
+  esac
+  env GITHUB_REF="refs/heads/$ref" GITHUB_REF_NAME="$ref" node "engineering/f06/$step/runner.mjs" --apply
+  if [[ "$step" != deposit-ledger-ci ]]; then
+    env GITHUB_REF="refs/heads/$ref" GITHUB_REF_NAME="$ref" node "engineering/f06/$step/runner.mjs" --verify
+  fi
+done
+for d in lock-transaction-http-pg16 transaction-cancel-http-pg16; do
+  docker exec -i -e PGPASSWORD=f03_ci_synthetic_only "$service" psql -h127.0.0.1 -Uf03_ci -df03_auth_test -X -v ON_ERROR_STOP=1 < "engineering/f06/$d/sidecar.sql"
+done
+env GITHUB_REF="refs/heads/$refund_parent" GITHUB_REF_NAME="$refund_parent" node engineering/f06/transaction-cancel-http-pg16/runner.mjs --attest
+echo F06_TX_REFUND_NATIVE_SIGNED_PARENTS_REAPPLIED_IN_DISPOSABLE_DB
 env GITHUB_REF="refs/heads/$refund_parent" GITHUB_REF_NAME="$refund_parent" node "$base/runner.mjs" --inject-rollback
 env GITHUB_REF="refs/heads/$refund_parent" GITHUB_REF_NAME="$refund_parent" node "$base/runner.mjs" --apply
 env GITHUB_REF="refs/heads/$refund_parent" GITHUB_REF_NAME="$refund_parent" node "$base/runner.mjs" --verify
