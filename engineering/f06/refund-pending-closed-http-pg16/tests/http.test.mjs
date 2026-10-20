@@ -374,9 +374,15 @@ test('63 车源仍不可售时禁止另一笔新的Lock退款申请',async()=>{
  assert.equal((await closeEvidence(changedSourceRefundId)).status,'closed');
 });
 
-test('56 退款真实签名Carrier完全缺失时哪怕零行也硬拒',async()=>{
+test('56 退款真实签名Carrier完全缺失时即使该客体零退款行也硬拒',async()=>{
+ // Lock 7 now deliberately has an authentic historical CLOSED Refund from
+ // lifecycle tests 57-63. Lock 8 is the still-untouched, genuinely ZERO-row
+ // control. Keep this absence-of-source negative strict, not suppressed.
+ const cleanBefore=await counts(locks[8]);
+ assert.deepEqual([cleanBefore.refunds,cleanBefore.txs],[0,0]);
  await q('DROP SCHEMA f06_3c1_ci CASCADE');
- const r=await pendingCall('no-source-zero',locks[7]);
+ const r=await pendingCall('no-source-zero',locks[8]);
  assert.equal(r.body.code,'F06_REFUND_SIGNED_PARENT_REQUIRED',JSON.stringify(r.body));
- assert.deepEqual([ (await counts(locks[7])).refunds,(await counts(locks[7])).txs],[0,0]);
+ const cleanAfter=await counts(locks[8]);
+ assert.deepEqual([cleanAfter.refunds,cleanAfter.txs],[0,0]);
 });
