@@ -1,0 +1,53 @@
+name: F06真实Deposit台账HTTP与PG16非生产单Job验收
+on:
+  push:
+    branches: [feat/f06-real-deposit-ledger-http-pg16-01]
+    paths:
+      - .github/workflows/f06-real-deposit-ledger-pg16-onejob.yml
+      - engineering/f06/deposit-ledger-http-pg16/**
+permissions:
+  contents: read
+concurrency:
+  group: f06-real-deposit-ledger-http-pg16-01
+  cancel-in-progress: true
+jobs:
+  deposit_http_pg16:
+    name: 同SHA真实HTTP、PG16、161张父实体Seal
+    runs-on: ubuntu-24.04
+    timeout-minutes: 100
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 30
+    env:
+      APP_ENV: test
+      NODE_ENV: test
+      CI: "true"
+      API_HOST: 127.0.0.1
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F06_LOCK_DATABASE_URL: postgres://f06_lock_ci:f06_ci_synthetic_only@127.0.0.1:5432/f06_lock_test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+      F06_LOCK_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_LOCK_PG16_ONLY
+      F06_LOCK_LIFECYCLE_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_LOCK_LIFECYCLE_ONLY
+      F06_LOCK_LIFECYCLE_EXPIRY_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_LOCK_EXPIRY_ONLY
+      F06_REAL_DEPOSIT_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_DEPOSIT_HTTP_PG16_ONLY
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+      - name: Verify trigger scope and run same-SHA acceptance
+        run: bash engineering/f06/deposit-ledger-http-pg16/ci-job.sh
