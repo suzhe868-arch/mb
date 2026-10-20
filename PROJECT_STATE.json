@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01_A_RELEASED_FOR_B",
+  "substage": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01_A_RULING_COMPLETE_B_REMEDIATION",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16",
-  "current_domain_status": "A_RELEASED_FOR_B_NONPRODUCTION_HTTP_PG16 / ISSUE_132_OPEN",
+  "current_domain_status": "A_TECHNICAL_RULING_ISSUED / B_REMEDIATION_REQUIRED / ISSUE_132_OPEN / CI_FAILURE / NOT_READY_FOR_A_REVIEW",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A已独立验收并标准合并F06普通Lock生命周期PR #131（R1/R2通过；合法handoff正向PG16 fixture缺失限制已披露）。当前唯一下一任务为F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01：B从执行时最新main建立隔离分支，完成合成Deposit记录、追加Correction/Reversal、权限Scope、幂等、并发、回滚与Lock资金保护的真实HTTP+非特权PG16非生产纵切；严格遵守Issue #132与正式施工单，不接真实资金/支付/退款，不修改旧F06服务、公共DDL或PDM Final，完成同SHA全门禁后READY_FOR_A_REVIEW交A。",
+  "current_task": "A已基于真实F06-3A父链原生Seal核验：本阶段四个签名父Schema的完整物理表集为161张，而原正式施工单写190张缺少可信来源。A发布纠偏技术裁决，仅更正该计数与父manifest验证方式，不得减少任何实际表；B在原分支整改可信F05 Priority原生PG16 fixture失败、新增disposable-db.sh的Bash参数错误，跑全量同SHA无失败/跳过/取消后READY_FOR_A_REVIEW交A。本批最新CI Run39366833724为failure；不得建Deposit PR/合并/触生产资金。",
   "current_work_file": "07_重建工作区/F06真实Deposit台账HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B继续F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02，在原指定分支feat/f06-real-lock-lifecycle-http-pg16-02同步本次最新main治理提交（普通merge，保留历史），修复R1链尾快路径：receipt carrier存在时先读该Lock全部receipt；无receipt时仅初始responsible=当前responsible可走普通路径；有receipt时无论当前值是否等于初始快照，都校验全部receipt/audit/batch/item、old→new连续性、首条from=初始、末条to=当前Lock responsible。链尾不符/链不完整/查询失败Fail Closed。新增纯验证器/单元负例模拟A→B链但当前被回写A时必须拒绝，不伪造PG16 receipt；保留L33真PG16三动作硬拒绝与零写入测试。R2已通过，不回退Refund carrier/observedRefund摘要检查。随后重跑原Node54、生命周期Node、原PG16 HTTP21、生命周期PG16至少36、F05初始化18、24条迁移账本摘要一致性，更新中文报告并提交最新代码/报告HEAD同SHA官方Run，再交A。不得创建PR/合并main，不触碰生产/真实资金；预算新增$0。",
+  "next_action": "B按A最新父Seal数量和Priority前置技术裁决，在原分支 feat/f06-real-deposit-ledger-http-pg16-01 同步最新main，采用F06-3A已验父manifest四Schema完整161表逐表COUNT/MD5、24迁移、Catalog/D1/F06-1/F06-2 attestation及不同OID恢复核验；不虚构额外29表；修复旧LockRequest真实PG16的Priority fixture失败及disposable-db.sh参数展开错误，完成原Node54/生命周期Node37/锁车PG16 21/生命周期PG16 36/F05初始化18/F06-3A Source28+HTTPS9/新Deposit HTTP PG16至少24+TLS拒绝至少9，单一最终HEAD官方Run失败/跳过/取消0，完善中文报告标READY_FOR_A_REVIEW交A。B不得自建PR/合并，不改旧F06/DDL/生产/真实资金。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B继续F06_REAL_LOCK_LIFECYCLE_HTTP_PG16_02，在原指定分支feat/f06-real-lock-lifecycle-http-pg16-02同步本次最新main治理提交（普通merge，保留历史），修复R1链尾快路径：receipt carrier存在时先读该Lock全部receipt；无receipt时仅初始responsible=当前responsible可走普通路径；有receipt时无论当前值是否等于初始快照，都校验全部receipt/audit/batch/item、old→new连续性、首条from=初始、末条to=当前Lock responsible。链尾不符/链不完整/查询失败Fail Closed。新增纯验证器/单元负例模拟A→B链但当前被回写A时必须拒绝，不伪造PG16 receipt；保留L33真PG16三动作硬拒绝与零写入测试。R2已通过，不回退Refund carrier/observedRefund摘要检查。随后重跑原Node54、生命周期Node、原PG16 HTTP21、生命周期PG16至少36、F05初始化18、24条迁移账本摘要一致性，更新中文报告并提交最新代码/报告HEAD同SHA官方Run，再交A。不得创建PR/合并main，不触碰生产/真实资金；预算新增$0。",
+  "next_action_detail": "B按A最新父Seal数量和Priority前置技术裁决，在原分支 feat/f06-real-deposit-ledger-http-pg16-01 同步最新main，采用F06-3A已验父manifest四Schema完整161表逐表COUNT/MD5、24迁移、Catalog/D1/F06-1/F06-2 attestation及不同OID恢复核验；不虚构额外29表；修复旧LockRequest真实PG16的Priority fixture失败及disposable-db.sh参数展开错误，完成原Node54/生命周期Node37/锁车PG16 21/生命周期PG16 36/F05初始化18/F06-3A Source28+HTTPS9/新Deposit HTTP PG16至少24+TLS拒绝至少9，单一最终HEAD官方Run失败/跳过/取消0，完善中文报告标READY_FOR_A_REVIEW交A。B不得自建PR/合并，不改旧F06/DDL/生产/真实资金。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -10159,7 +10159,7 @@
   "next_base_main": "adc1cf31d1833cd1a85973865e4f571be7f1140a",
   "current_engineering_focus": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01_NONPRODUCTION",
   "f06_real_deposit_http_next": {
-    "status": "A_RELEASED_FOR_B_NONPRODUCTION_HTTP_PG16",
+    "status": "A_TECHNICAL_RULING_ISSUED_B_REMEDIATION_REQUIRED",
     "task_id": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01",
     "issue": 132,
     "owner": "B",
@@ -10196,7 +10196,6 @@
     "production_routes_allowed": false,
     "production_ready": false,
     "source_issuer_signed": false,
-    "requires_two_distinct_pg16_databases_and_190_table_full_row_seal": true,
     "required_migration_ledger_rows": 24,
     "required_same_sha_tests": {
       "node_baseline": "54/54",
@@ -10212,7 +10211,26 @@
     },
     "handoff_status_required": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01_B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A",
     "base_main_at_task_release": "3f8a92d59a658fd486c43c31cebd4c01a03b4421",
-    "base_main_policy": "FETCH_LATEST_MAIN_AT_EXECUTION; NEVER_CHECKOUT_A_STALE_PINNED_SHA"
+    "base_main_policy": "FETCH_LATEST_MAIN_AT_EXECUTION; NEVER_CHECKOUT_A_STALE_PINNED_SHA",
+    "a_technical_ruling_file": "07_重建工作区/F06真实Deposit父表Seal数量与Priority前置_A主控技术裁决_2026-10-20.md",
+    "a_technical_ruling_issue": 132,
+    "b_last_reviewed_head": "9d93ff4317379b3e8f91532e2e352adf4ae18cf4",
+    "b_failed_run": 39366833724,
+    "last_official_run_conclusion": "failure",
+    "b_ready_for_a_review": false,
+    "expected_signed_parent_scope_schemas": [
+      "public",
+      "d1_owner_ci",
+      "f06_1_lock_ci",
+      "f06_2_ci"
+    ],
+    "current_signed_parent_manifest_tables_at_f06_3a_stage": 161,
+    "parent_full_row_seal_requirements": "F06_3A_SAME_SHA_VERIFIED_COMPLETE_PARENT_MANIFEST; EXACT_SCHEMA_TABLE_SET; COUNT_MD5_PER_TABLE; F03_MIGRATIONS_24; CATALOG_D1_F061_F062_ATTESTATION; DISTINCT_DATABASE_OIDS; RESTORED_SOURCE_VS_AUDIT_COPY_MATCH",
+    "requires_two_distinct_pg16_databases_and_verified_parent_manifest_full_row_seal": true,
+    "priority_fixture_defect": "original authorized F05 Priority source must survive signed v26",
+    "script_defect": "engineering/f06/deposit-ledger-http-pg16/disposable-db.sh uses wrong §{1:-} parameter expansion",
+    "deposit_pr_133": "CLOSED_UNMERGED_INVALID_B_CREATED_DRAFT",
+    "original_work_order_table_count_190": "SUPERSEDED_UNVERIFIED_TECHNICAL_COUNT_DO_NOT_FABRICATE"
   },
   "next_base_main_at_task_release": "3f8a92d59a658fd486c43c31cebd4c01a03b4421",
   "next_base_main_policy": "FETCH_LATEST_MAIN_AT_EXECUTION; NEVER_CHECKOUT_A_STALE_PINNED_SHA"
