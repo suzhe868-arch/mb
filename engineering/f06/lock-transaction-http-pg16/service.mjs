@@ -2,6 +2,7 @@
 import {createHash} from 'node:crypto';
 import assert from 'node:assert/strict';
 import {verify as verifySignedDeposit} from '../deposit-ledger-ci/migration.mjs';
+import {checksum as signedRefundSidecarSHA} from '../refund-pending-ci/migration.mjs';
 function assertCIServiceGate(){
  const expected={
   GITHUB_REPOSITORY:'suzhe868-arch/mb', GITHUB_ACTIONS:'true',
@@ -64,31 +65,57 @@ async function capability(c,a,l,permission){
  return !!x && x.role_code===a.role_code;
 }
 async function refunds(c,l){
- // 同车+周期的旧Lock/Transaction关联退款都要看到；先锁签名退款载体的物理行。
+ // This carrier is mandatory even for ZERO public refund rows. A missing signed
+ // source is not trustworthy evidence of absence (A review #136, remediation R1).
+ const carrier=await one(c,"SELECT "+
+  "to_regclass('f06_3b_ci.attestation') IS NOT NULL b, "+
+  "to_regclass('f06_3c1_ci.attestation') IS NOT NULL a, "+
+  "to_regclass('f06_3c1_ci.refund_origins') IS NOT NULL o, "+
+  "to_regclass('f06_3c1_ci.status_events') IS NOT NULL e, "+
+  "to_regclass('f06_3c1_ci.request_keys') IS NOT NULL k");
+ if(!carrier?.a||!carrier.b||!carrier.o||!carrier.e||!carrier.k)
+  return no('F06_TX_TRUSTED_REFUND_PARENT_MISSING');
+ const att=await one(c,'SELECT * FROM f06_3c1_ci.attestation FOR SHARE');
+ const upstream=await one(c,'SELECT source_sha256,public_catalog_sha256 FROM f06_3b_ci.attestation FOR SHARE');
+ const ledgers=(await c.query('SELECT migration_id,checksum,structure_sha256 FROM public.f03_schema_migrations ORDER BY migration_id')).rows;
+ if(!att||!upstream||ledgers.length!==24||
+  att.seal_name!=='F06_3C1_CI_ONLY'||att.source_sha256!==signedRefundSidecarSHA||
+  att.f06_3b_sha256!==upstream.source_sha256||
+  att.public_catalog_sha256!==upstream.public_catalog_sha256||
+  att.old_ledger_sha256!==sha(JSON.stringify(ledgers)))
+  return no('F06_TX_REFUND_PARENT_SIGNATURE_DRIFT');
  const cases=(await c.query("SELECT r.* FROM public.refund_cases r "+
- "LEFT JOIN public.locks lk ON lk.lock_id=r.lock_id "+
- "LEFT JOIN public.transactions tx ON tx.transaction_id=r.transaction_id "+
- "WHERE (lk.vehicle_id=$1 AND lk.listing_cycle_id=$2) "+
- "OR (tx.vehicle_id=$1 AND tx.listing_cycle_id=$2) "+
- "ORDER BY r.refund_id FOR UPDATE OF r",[l.vehicle_id,l.listing_cycle_id])).rows;
+  "LEFT JOIN public.locks lk ON lk.lock_id=r.lock_id "+
+  "LEFT JOIN public.transactions tx ON tx.transaction_id=r.transaction_id "+
+  "WHERE (lk.vehicle_id=$1 AND lk.listing_cycle_id=$2) "+
+  "OR (tx.vehicle_id=$1 AND tx.listing_cycle_id=$2) "+
+  "ORDER BY r.refund_id FOR UPDATE OF r",[l.vehicle_id,l.listing_cycle_id])).rows;
  const facts=[];
  for(const r of cases){
   const paid=await one(c,'SELECT count(*)::int n FROM public.refund_payments WHERE refund_id=$1',[r.refund_id]);
   if(paid.n>0)return no('F06_TX_REFUND_PAYMENT_ORIGIN_DENY');
+  // Both signed and legacy/unsigned pending are blocked, never silently accepted.
   if(r.status==='pending')return no('F06_TX_LOCK_PENDING_REFUND_DENY');
   if(r.status==='refunded')return no('F06_TX_REFUNDED_DENY');
-  // 无签名Close来源绝不能仅凭一个public.closed字样推定资金责任消失。
-  if(r.status!=='closed'||!r.close_reason||!r.closed_at)return no('F06_TX_UNKNOWN_REFUND_SOURCE_DENY');
-  if((await one(c,"SELECT to_regclass('f06_3c1_ci.refund_origins') IS NOT NULL ok")).ok!==true)
-   return no('F06_TX_UNSIGNED_CLOSED_REFUND_DENY');
-  const source=await one(c,'SELECT refund_id,lock_id,customer_id,vehicle_id,listing_cycle_id FROM f06_3c1_ci.refund_origins WHERE refund_id=$1 FOR SHARE',[r.refund_id]);
-  if(!source||Number(source.lock_id)!==Number(r.lock_id)||Number(source.vehicle_id)!==Number(l.vehicle_id)||
-   Number(source.listing_cycle_id)!==Number(l.listing_cycle_id)||Number(source.customer_id)!==Number(r.customer_id))
+  if(r.status!=='closed'||!r.close_reason||!r.closed_at||r.transaction_id!==null)
+   return no('F06_TX_UNKNOWN_REFUND_SOURCE_DENY');
+  const source=await one(c,'SELECT * FROM f06_3c1_ci.refund_origins WHERE refund_id=$1 FOR SHARE',[r.refund_id]);
+  if(!source||Number(source.lock_id)!==Number(r.lock_id)||
+   Number(source.vehicle_id)!==Number(l.vehicle_id)||
+   Number(source.listing_cycle_id)!==Number(l.listing_cycle_id)||
+   Number(source.customer_id)!==Number(r.customer_id)||
+   Number(source.amount_cents)!==Number(r.expected_amount_cents)||
+   source.issuer_kind!=='CI_SYNTHETIC_NO_MONEY')
    return no('F06_TX_REFUND_PROVENANCE_DRIFT');
-  const events=(await c.query("SELECT event_kind,resulting_status FROM f06_3c1_ci.status_events WHERE refund_id=$1 ORDER BY event_id FOR SHARE",[r.refund_id])).rows;
-  if(!events.some(e=>e.event_kind==='closed_without_payment'&&e.resulting_status==='closed'))
+  const events=(await c.query("SELECT event_kind,previous_status,resulting_status,reason FROM f06_3c1_ci.status_events "+
+   "WHERE refund_id=$1 ORDER BY event_id FOR SHARE",[r.refund_id])).rows;
+  if(events.length!==2||events[0].event_kind!=='pending_requested'||
+   events[0].previous_status!==null||events[0].resulting_status!=='pending'||
+   events[1].event_kind!=='closed_without_payment'||
+   events[1].previous_status!=='pending'||events[1].resulting_status!=='closed'||
+   events[1].reason!==r.close_reason)
    return no('F06_TX_REFUND_CLOSE_UNSIGNED');
-  facts.push([r.refund_id,r.status,r.close_reason]);
+  facts.push([r.refund_id,r.status,r.close_reason,source.amount_cents]);
  }
  return yes('F06_TX_REFUND_EXCLUSION_SIGNED',{refundDigest:sha(JSON.stringify(facts))});
 }
