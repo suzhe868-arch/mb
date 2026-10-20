@@ -1,3 +1,12 @@
+# 2026-10-20｜A主控现行：F06 Refund PR143独立验收392/392完成；B接Transaction Cancel签名来源兼容与HTTP/PG16
+
+- **A终验通过并合并**：F06_REAL_REFUND_PENDING_CLOSED_HTTP_PG16_01，B受验HEAD `71af0d0d6c98062bc93dc391db8b3bb685ed82d2`，官方Run `39407777531`/Job `118577807940` 为准，旧319+Refund63+TLS10=**392/392**真PG16同SHA全部通过。父F06-3B/3C1验签、161张逐表COUNT/MD5与24迁移跨OID恢复、原SQL关闭注错回滚、车辆供应异常/周期结束后仍可无付款closed、同Key幂等均由A审查。标准业务[PR #143](https://github.com/suzhe868-arch/mb/pull/143)已合并，真实main merge `a1b2791e37a6f3ce82082882d74dcc7244df912f`；Issue #140完成。
+- **下一唯一授权任务**：`F06_REAL_TRANSACTION_CANCEL_HTTP_PG16_01`，负责人**B**，正式[Issue #144](https://github.com/suzhe868-arch/mb/issues/144)，从开工时最新main新建 `feat/f06-real-transaction-cancel-http-pg16-01`。完整A施工单：`07_重建工作区/F06真实Transaction正常取消HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md`。
+- **关键前置与安全阻断门禁**：冻结旧F06-4A/4C合成Cancel依赖 `f06_3b_ci.transaction_origins`，而已验PR139真实合成HTTP/PG16 Transaction使用 `f06_real_tx_ci.origins`，**不能伪造旧3B签名**。B需先核对真PG16/源签兼容性；若本白名单无法合法在同一事务签发新的Cancel，报 `BLOCKED_SIGNED_REAL_TRANSACTION_CANCEL_SOURCE`交A，不得扩大生产DDL/资金或修改旧父。目标仅合成 `in_progress→cancelled`，不能复活旧Lock/Waitlist/Priority、假重新上架，不能将取消冒充实际退款。
+- **A业务边界**：旧F06-3B直接不安全入口仍有历史缺口；同Employee Session可能预先互斥，不能冒称真实两方同时持有Vehicle行锁。Transaction/Refund生产Issuer、真实支付/退款、成交完成、真实Customer资料及UAT部署完全未授权，F06/F07/F08/V1整体**NOT_READY**，新增预算$0。B完成真PG16同最终SHA父392+新增Cancel32+TLS9>=433、父Seal一致、中文交接后 `READY_FOR_A_REVIEW`交A，不建PR/合并main。
+
+---
+
 # A主控2026-10-20｜F06 Refund首轮复验未通过，交B定向整改
 
 - 当前任务 F06_REAL_REFUND_PENDING_CLOSED_HTTP_PG16_01；B分支 feat/f06-real-refund-pending-closed-http-pg16-01，Issue #140。
