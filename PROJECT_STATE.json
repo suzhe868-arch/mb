@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F06_REAL_TRANSACTION_CANCEL_HTTP_PG16_01_A_RELEASED_FOR_B",
+  "substage": "F06_REAL_TRANSACTION_REFUND_PENDING_CLOSED_HTTP_PG16_01_A_RELEASED_FOR_B",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F06_REAL_TRANSACTION_CANCEL_HTTP_PG16",
-  "current_domain_status": "A_ACCEPTED_F06_REAL_REFUND_PENDING_CLOSED_HTTP_PG16_PR143_MERGED / A_RELEASED_TRANSACTION_CANCEL_HTTP_PG16_01_FOR_B / ISSUE_144_OPEN / NEXT_OWNER_B / NONPRODUCTION_ONLY / SIGNED_SOURCE_COMPATIBILITY_GATE",
+  "current_domain": "F06_REAL_TRANSACTION_REFUND_PENDING_CLOSED_HTTP_PG16",
+  "current_domain_status": "A_ACCEPTED_F06_REAL_TRANSACTION_CANCEL_HTTP_PG16_PR146_MERGED / A_RELEASED_TRANSACTION_REFUND_PENDING_CLOSED_HTTP_PG16_FOR_B / ISSUE_147_OPEN / NEXT_OWNER_B / NONPRODUCTION_ONLY / REAL_SIGNED_TRANSACTION_REFUND_SOURCE_GATE / F06_F07_F08_V1_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A独立复验B Refund整改最终HEAD 71af0d0d6c98062bc93dc391db8b3bb685ed82d2，同SHA官方Run39407777531/Job118577807940，父319+Refund63+TLS10=392/392全部通过；已签pending后车源不可售与期次结束仍经真实HTTP无付款closed、close AFTER_CLOSE_THROW/AFTER_EVENT_THROW注错实际PG16零半写、3B/3C1真签、161表/24迁移跨OID Seal和权限并发全部通过。A标准PR143已merge a1b2791e37a6f3ce82082882d74dcc7244df912f。已正式放行B下一任务F06_REAL_TRANSACTION_CANCEL_HTTP_PG16_01/Issue144，须先核验旧F06-4A/4C transaction_origins与新PR139 f06_real_tx_ci签名兼容，不能假造旧3B来源；只做非生产合成in_progress→cancelled，真实资金/生产不授权。",
-  "current_work_file": "07_重建工作区/F06真实Transaction正常取消HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md",
+  "current_task": "A已独立验收B F06真实Transaction正常取消最终HEAD fa327ccece5efc1fe18d91558b1f7ff7d8a7299c：官方同SHA Run39415825663/Job118604456336父392+Cancel43+TLS10=445/445，0失败/跳过/取消，161张冻结签封父表逐表COUNT/MD5、24迁移与跨OID Seal一致，真实旧4A拒绝PR139不兼容源，受限新Cancel同PG16事务可安全完成in_progress→cancelled；标准PR146 merge 6bba1f42ec1f9d11851a181b8ab28bbb44fcc900，Issue144已关闭。A正式放行新Issue147，由B仅实现已真签cancelled Transaction侧退款pending与无付款closed，不能挪用Lock退款或开真钱/生产。",
+  "current_work_file": "07_重建工作区/F06真实Transaction侧Refund待处理与无付款关闭HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B从执行时最新main新建feat/f06-real-transaction-cancel-http-pg16-01，仅在engineering/f06/transaction-cancel-http-pg16/**和一个专属push onejob workflow内完成真实非生产HTTP/PG16安全Transaction in_progress→cancelled。先审旧冻结F06-4A/4C依赖f06_3b_ci.transaction_origins与新PR139 f06_real_tx_ci.origins兼容性矩阵；不可伪造旧签来源或改M94/父代码，无法合法单PG事务闭环即报BLOCKED_SIGNED_REAL_TRANSACTION_CANCEL_SOURCE。可行则真实同SHA单Job重跑父392/392并新增取消HTTP/PG16至少32、TLS9，总计至少433，全部0失败/跳过/取消，父161签名表24迁移全Seal跨OID一致，双PG Backend互斥/金额/权限/状态/注错rollback完整。B中文交接READY_FOR_A_REVIEW后交A，不建PR/合并main，不触真实支付/退款/成交/生产。",
+  "next_action": "B根据已合并A施工单和执行时最新main新建feat/f06-real-transaction-refund-http-pg16-01，只在全新transaction-refund-http-pg16白名单和唯一Workflow内实施已签PR139+PR146 cancelled合成Transaction侧Refund pending/closed。源签、资金余额、同事务、权限及历史Fail Closed；官方末SHA重跑父445+新PG16至少40+TLS至少10，总>=495全绿并交中文READY_FOR_A_REVIEW，B不得自建PR或合并。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B从执行时最新main新建feat/f06-real-transaction-cancel-http-pg16-01，仅在engineering/f06/transaction-cancel-http-pg16/**和一个专属push onejob workflow内完成真实非生产HTTP/PG16安全Transaction in_progress→cancelled。先审旧冻结F06-4A/4C依赖f06_3b_ci.transaction_origins与新PR139 f06_real_tx_ci.origins兼容性矩阵；不可伪造旧签来源或改M94/父代码，无法合法单PG事务闭环即报BLOCKED_SIGNED_REAL_TRANSACTION_CANCEL_SOURCE。可行则真实同SHA单Job重跑父392/392并新增取消HTTP/PG16至少32、TLS9，总计至少433，全部0失败/跳过/取消，父161签名表24迁移全Seal跨OID一致，双PG Backend互斥/金额/权限/状态/注错rollback完整。B中文交接READY_FOR_A_REVIEW后交A，不建PR/合并main，不触真实支付/退款/成交/生产。",
+  "next_action_detail": "B根据已合并A施工单和执行时最新main新建feat/f06-real-transaction-refund-http-pg16-01，只在全新transaction-refund-http-pg16白名单和唯一Workflow内实施已签PR139+PR146 cancelled合成Transaction侧Refund pending/closed。源签、资金余额、同事务、权限及历史Fail Closed；官方末SHA重跑父445+新PG16至少40+TLS至少10，总>=495全绿并交中文READY_FOR_A_REVIEW，B不得自建PR或合并。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7969,7 +7969,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F06_REAL_TRANSACTION_CANCEL_HTTP_PG16_01",
+  "next_task": "F06_REAL_TRANSACTION_REFUND_PENDING_CLOSED_HTTP_PG16_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -8125,7 +8125,7 @@
       "PRODUCTION_PUBLISHER_CACHE_SCHEMA_NOT_IMPLEMENTED"
     ]
   },
-  "last_a_acceptance_report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md",
+  "last_a_acceptance_report": "07_重建工作区/F06真实Transaction正常取消_A主控独立验收PR146合并与下一任务放行报告_2026-10-20.md",
   "f07_2_gate": {
     "status": "A_ACCEPTED_STANDARD_MERGED_PR65_CI_ONLY",
     "owner": "A_ACCEPTED",
@@ -9644,7 +9644,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F06真实Transaction正常取消HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md",
+  "next_work_file": "07_重建工作区/F06真实Transaction侧Refund待处理与无付款关闭HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -9940,8 +9940,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": "feat/f06-real-transaction-cancel-http-pg16-01",
-  "next_issue": 144,
+  "next_branch": "feat/f06-real-transaction-refund-http-pg16-01",
+  "next_issue": 147,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -9983,23 +9983,19 @@
     "production_ready": false
   },
   "last_completed": {
-    "task": "F06_REAL_LOCKREQUEST_APPROVAL_WAITLIST_HTTP_PG16_01",
-    "pr": 129,
-    "branch": "feat/f06-real-lockrequest-http-pg16-01",
-    "head_sha": "28653741e613ea53ba7ec403403165ae9ba831a7",
-    "tested_business_sha": "ab6b28c7da68be7e7bd08154bc306b1ea369e982",
-    "merge_sha": "c3fa09646e10c9f0392c62ee1f35f56668b25494",
-    "official_business_run": 39273318026,
-    "official_business_job": 118131039069,
-    "node_passed": 54,
-    "actual_pg16_http_passed": 21,
-    "actual_pg16_version": "16.15",
-    "pr_workflows": 10,
-    "pr_jobs_passed": 28,
-    "pr_jobs_failed": 0,
-    "pr_jobs_skipped": 0,
-    "issue_128": "CLOSED_COMPLETED",
-    "scope": "仅非生产合成受控身份真实HTTP和隔离PG16锁车申请/审批/唯一Lock/自动候补，非正式Source/非生产上线"
+    "task": "F06_REAL_TRANSACTION_CANCEL_HTTP_PG16_01",
+    "pr": 146,
+    "branch": "feat/f06-real-transaction-cancel-http-pg16-01",
+    "head_sha": "fa327ccece5efc1fe18d91558b1f7ff7d8a7299c",
+    "merge_sha": "6bba1f42ec1f9d11851a181b8ab28bbb44fcc900",
+    "official_business_run": 39415825663,
+    "official_business_job": 118604456336,
+    "total_tests_passed": 445,
+    "tests_failed": 0,
+    "tests_skipped": 0,
+    "tests_cancelled": 0,
+    "issue_144": "CLOSED_COMPLETED",
+    "scope": "非生产合成真实签名PR139 in_progress Transaction取消为cancelled，资金与生产不授权"
   },
   "f06_real_lock_review": {
     "review_date": "2026-10-19",
@@ -10156,8 +10152,8 @@
     "next_owner": "B",
     "budget_additional_usd": 0
   },
-  "next_base_main": "a1b2791e37a6f3ce82082882d74dcc7244df912f",
-  "current_engineering_focus": "F06_REAL_TRANSACTION_CANCEL_HTTP_PG16_01_NONPRODUCTION",
+  "next_base_main": "6bba1f42ec1f9d11851a181b8ab28bbb44fcc900",
+  "current_engineering_focus": "F06_REAL_TRANSACTION_REFUND_PENDING_CLOSED_HTTP_PG16_01_NONPRODUCTION",
   "f06_real_deposit_http_next": {
     "status": "A_ACCEPTED_NONPRODUCTION_HTTP_PG16_PR135_STANDARD_MERGED",
     "task_id": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01",
@@ -10419,7 +10415,7 @@
     "non_active_lock_terminal_source_case_status": "NOT_PROVEN_PARENT_SIGNED_TERMINAL_TRANSITION; NOT_CLAIMED_AS_PROVEN"
   },
   "f06_real_transaction_cancel_http_next": {
-    "status": "A_RELEASED_FOR_B_NONPRODUCTION_HTTP_PG16_WITH_SIGNED_SOURCE_COMPATIBILITY_GATE",
+    "status": "A_ACCEPTED_NONPRODUCTION_HTTP_PG16_PR146_STANDARD_MERGED",
     "task_id": "F06_REAL_TRANSACTION_CANCEL_HTTP_PG16_01",
     "issue": 144,
     "owner": "B",
@@ -10453,6 +10449,53 @@
     "production_issuer_authorized": false,
     "real_money_authorized": false,
     "handoff_status_required": "F06_REAL_TRANSACTION_CANCEL_HTTP_PG16_01_B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A",
-    "production_ready": false
+    "production_ready": false,
+    "a_acceptance": true,
+    "b_reviewed_head": "fa327ccece5efc1fe18d91558b1f7ff7d8a7299c",
+    "official_run": 39415825663,
+    "official_job": 118604456336,
+    "accepted_tests": 445,
+    "pr_number": 146,
+    "merge_sha": "6bba1f42ec1f9d11851a181b8ab28bbb44fcc900",
+    "issue_closed": true
+  },
+  "f06_real_transaction_refund_http_next": {
+    "status": "A_RELEASED_FOR_B_NONPRODUCTION_HTTP_PG16_SIGNED_TRANSACTION_REFUND",
+    "task_id": "F06_REAL_TRANSACTION_REFUND_PENDING_CLOSED_HTTP_PG16_01",
+    "issue": 147,
+    "owner": "B",
+    "review_owner": "A",
+    "branch": "feat/f06-real-transaction-refund-http-pg16-01",
+    "work_order": "07_重建工作区/F06真实Transaction侧Refund待处理与无付款关闭HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md",
+    "base_main_at_release": "6bba1f42ec1f9d11851a181b8ab28bbb44fcc900",
+    "base_main_policy": "FETCH_LATEST_MAIN_AT_EXECUTION_NOT_STALE_SHA",
+    "allowed_new_paths": [
+      "engineering/f06/transaction-refund-http-pg16/**",
+      ".github/workflows/f06-real-transaction-refund-pg16-onejob.yml"
+    ],
+    "authority": [
+      "PDM-19 Final §§19-26,28-30",
+      "PDM-18 Final",
+      "PDM-02/03/17/25 Final"
+    ],
+    "scope": "CI_SYNTHETIC_CANCELLED_TRANSACTION_SIDE_PENDING_AND_CLOSED_WITHOUT_PAYMENT_ONLY",
+    "first_mandatory_gate": "VERIFY_NATIVE_3A_3B_3C1_AND_PR139_SIGNED_REAL_TX_AND_PR146_SIGNED_CANCEL_SOURCE_IN_SAME_PG16_TRANSACTION",
+    "blocking_report": "BLOCKED_SIGNED_TRANSACTION_REFUND_SOURCE",
+    "minimum_parent_tests": 445,
+    "minimum_new_pg16_http_tests": 40,
+    "minimum_tls_deny_tests": 10,
+    "minimum_total_tests": 495,
+    "original_parent_manifest": "161_SIGNED_PARENT_TABLES_COUNT_MD5_WITH_24_LEDGER_AND_DIFFERENT_PHYSICAL_OID_RESTORE",
+    "b_must_not_create_pr_or_merge": true,
+    "production_ready": false,
+    "completed_authorized": false,
+    "real_refunded_authorized": false,
+    "production_issuer_authorized": false,
+    "public_ddl_modified_allowed": false,
+    "standard_runner_only": true,
+    "single_job_push_paths_only": true,
+    "artifacts_upload_allowed": false,
+    "max_new_paid_budget_usd": 0,
+    "handoff_status_required": "F06_REAL_TRANSACTION_REFUND_PENDING_CLOSED_HTTP_PG16_01_B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A"
   }
 }

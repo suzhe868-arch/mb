@@ -1,3 +1,12 @@
+# 2026-10-20｜A主控现行：F06 Transaction Cancel PR146独立验收445/445完成；B接Transaction侧Refund pending/closed HTTP/PG16（仅非生产）
+
+- **A独立验收、标准合并完成：** `F06_REAL_TRANSACTION_CANCEL_HTTP_PG16_01`，B受验HEAD `fa327ccece5efc1fe18d91558b1f7ff7d8a7299c`；官方Run `39415825663` / Job `118604456336` 单Push同SHA父392+Cancel43+TLS10=**445/445**全部真PG16成功、0失败/跳过/取消。原签四Schema161张逐表COUNT/MD5、24迁移、不同OID恢复及全Seal一致。旧冻结4A不认PR139新签名的真实拒绝已证，隔离新受限Cancel以同一PG事务维护cancelled/原件/Event/Key/Audit；无假3B签名或生产许可。标准[PR #146](https://github.com/suzhe868-arch/mb/pull/146) merge `6bba1f42ec1f9d11851a181b8ab28bbb44fcc900`；Issue #144已关闭。
+- **唯一下一授权施工包：** `F06_REAL_TRANSACTION_REFUND_PENDING_CLOSED_HTTP_PG16_01`，`NEXT_OWNER=B`，[Issue #147](https://github.com/suzhe868-arch/mb/issues/147)，指定新分支 `feat/f06-real-transaction-refund-http-pg16-01`，B从实际执行时**最新main**开始。A完整[正式施工单](07_重建工作区/F06真实Transaction侧Refund待处理与无付款关闭HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md)、[本批A验收与下一任务放行报告](07_重建工作区/F06真实Transaction正常取消_A主控独立验收PR146合并与下一任务放行报告_2026-10-20.md)均已归档。只允许真正PR139+PR146签名的**已cancelled**合成Transaction，发起自身唯一Transaction-side pending Refund、无真钱closed；不能把原Lock侧Refund换绑、fake payment、跨车移金。B不得创建PR或合并main。
+- **签名资金前置：** 原3A/3B/3C1、PR139、PR146真实来源及Deposit/Correction/退款余额、现时员工权限+scope必须同PG16事务锁序内验证，无法在新白名单合法签发即`BLOCKED_SIGNED_TRANSACTION_REFUND_SOURCE`报告A，禁止伪造旧3B/4A或改历史父。新增白名单仅 `engineering/f06/transaction-refund-http-pg16/**` 与 `.github/workflows/f06-real-transaction-refund-pg16-onejob.yml`；要求新最终SHA父445+至少40真实PG16/HTTP+10 TLS=**>=495**全部通过、原161表/24迁移与跨OID Seal一致，中文B交接 `READY_FOR_A_REVIEW`。
+- **持续限制：** 旧F06-3B直接入口仍不可信；同Employee Session可能先锁串行化，不能冒充已验证双方同时持有Vehicle锁。真实`completed`、`refunded`、收付款/生产Issuer/线上路由、客户资料、UAT/部署均未授权。F06/F07/F08/V1仍**NOT_READY**；新增预算$0。C PR68独立Draft，不因B业务通过自动合并。
+
+---
+
 # 2026-10-20｜A主控现行：F06 Refund PR143独立验收392/392完成；B接Transaction Cancel签名来源兼容与HTTP/PG16
 
 - **A终验通过并合并**：F06_REAL_REFUND_PENDING_CLOSED_HTTP_PG16_01，B受验HEAD `71af0d0d6c98062bc93dc391db8b3bb685ed82d2`，官方Run `39407777531`/Job `118577807940` 为准，旧319+Refund63+TLS10=**392/392**真PG16同SHA全部通过。父F06-3B/3C1验签、161张逐表COUNT/MD5与24迁移跨OID恢复、原SQL关闭注错回滚、车辆供应异常/周期结束后仍可无付款closed、同Key幂等均由A审查。标准业务[PR #143](https://github.com/suzhe868-arch/mb/pull/143)已合并，真实main merge `a1b2791e37a6f3ce82082882d74dcc7244df912f`；Issue #140完成。
