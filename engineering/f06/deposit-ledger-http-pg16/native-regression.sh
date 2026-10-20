@@ -32,6 +32,10 @@ docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres \
 
 dump="$(mktemp /tmp/f06-real-deposit-native-baseline-XXXXXX.dump)"
 trap 'rm -f "$dump"' EXIT
+# The restored parent audit DB is kept immutable in its own per-Run database.
+# For the inherited Lock tests, create the required synthetic Priority only
+# through the signed F05-8 CI service, never via hand-written SQL.
+node engineering/scripts/f06-lock-seed-signed-priority.mjs
 docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" \
   pg_dump -h127.0.0.1 -Uf03_ci -df03_auth_test --format=custom --no-owner --no-privileges > "$dump"
 test -s "$dump"
@@ -54,6 +58,16 @@ FROM (
  WHERE p.customer_id=899612
  ORDER BY p.priority_id
 ) z;"
+priority_count="$(docker exec -e PGPASSWORD=f06_ci_synthetic_only "$ids" \
+  psql -h127.0.0.1 -Uf06_lock_ci -df06_lock_test -X -v ON_ERROR_STOP=1 -Atc "
+SELECT count(*) FROM public.f05_8_priority_ci p
+JOIN public.f05_7_result_versions_ci r
+ ON r.result_id=p.source_match_result_id AND r.source_signature=p.source_signature
+WHERE p.customer_id=899612 AND p.status='active'
+ AND p.expires_at>clock_timestamp() AND r.status='current'
+")"
+test "$priority_count" -ge 1
+echo "F06_AUTHENTIC_PRIORITY_SOURCE_COPY_PASS count=$priority_count"
 (
   cd engineering
   node scripts/f06-lock-prepare-disposable.mjs

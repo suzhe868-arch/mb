@@ -5,7 +5,8 @@ import {IsolatedAuth} from '../src/f03-auth-service.mjs';
 import {connect,verify} from '../f05/priority-arbitration-ttl-handover/migration.mjs';
 import {setQualificationCI} from '../f05/priority-arbitration-ttl-handover/service.mjs';
 if(process.env.GITHUB_ACTIONS!=='true'||process.env.GITHUB_EVENT_NAME!=='push'||
- !['refs/heads/feat/f06-real-lockrequest-http-pg16-01','refs/heads/feat/f06-real-lock-lifecycle-http-pg16-02'].includes(process.env.GITHUB_REF)||
+ !['refs/heads/feat/f06-real-lockrequest-http-pg16-01','refs/heads/feat/f06-real-lock-lifecycle-http-pg16-02',
+ 'refs/heads/feat/f06-real-deposit-ledger-http-pg16-01'].includes(process.env.GITHUB_REF)||
  process.env.CI!=='true'||process.env.APP_ENV!=='test'||process.env.NODE_ENV!=='test')
  throw Error('F06_PRIORITY_NONPRODUCTION_CI_GATE');
 const db=await connect();
