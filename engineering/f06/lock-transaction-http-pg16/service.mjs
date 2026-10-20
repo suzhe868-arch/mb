@@ -1,6 +1,24 @@
 // F06 Lock→Transaction 真HTTP/PG16安全侧车；只能用于隔离合成事实。
 import {createHash} from 'node:crypto';
 import assert from 'node:assert/strict';
+import {verify as verifySignedDeposit} from '../deposit-ledger-ci/migration.mjs';
+function assertCIServiceGate(){
+ const expected={
+  GITHUB_REPOSITORY:'suzhe868-arch/mb', GITHUB_ACTIONS:'true',
+  GITHUB_EVENT_NAME:'push', CI:'true', APP_ENV:'test', NODE_ENV:'test',
+  GITHUB_REF:'refs/heads/feat/f06-3a-deposit-ledger-ci',
+  F06_TX_ENTRY_REF:'refs/heads/feat/f06-real-lock-transaction-http-pg16-01',
+  F06_TX_ENTRY_BRANCH:'feat/f06-real-lock-transaction-http-pg16-01',
+  F06_TX_ENTRY_EVENT:'push',
+  F06_TX_TEST_CONSENT:'I_AUTHORIZE_DISPOSABLE_F06_LOCK_TRANSACTION_ONLY'
+ };
+ for(const [key,value] of Object.entries(expected))
+  assert.equal(process.env[key],value,'F06_REAL_TX_FORBIDDEN_'+key);
+ assert.equal(process.env.F06_TX_ENTRY_SHA,process.env.GITHUB_SHA);
+ assert.equal(process.env.F06_TX_ENTRY_RUN_ID,process.env.GITHUB_RUN_ID);
+ assert.match(process.env.GITHUB_SHA||'',/^[0-9a-f]{40}$/);
+ assert.match(process.env.GITHUB_RUN_ID||'',/^[0-9]{6,20}$/);
+}
 const yes=(code,data={})=>({allowed:true,code,...data});
 const no=code=>({allowed:false,code});
 const sha=x=>createHash('sha256').update(x).digest('hex');
@@ -16,6 +34,10 @@ async function parent(c){
  assert.ok(x.ver>=160000&&x.ver<170000&&x.lock_parent&&x.lifecycle&&x.deposit&&x.sidecar);
  const m=await one(c,'SELECT count(*)::int n FROM public.f03_schema_migrations');
  assert.equal(m.n,24,'signed migration chain must remain complete');
+ // Every HTTP request uses the unchanged signed F06-3A verifier inside its
+ // current PG transaction, not merely a schema/table-count presence check.
+ const signed=await verifySignedDeposit(c);
+ assert.equal(signed.verified,true,'F06_TX_SIGNED_DEPOSIT_PARENT_REQUIRED');
  return x;
 }
 async function capability(c,a,l,permission){
@@ -86,6 +108,7 @@ async function deposits(c,l){
  return yes('F06_TX_DEPOSIT_SIGNED_READ_ONLY',{depositCount:originals.length});
 }
 export async function openSyntheticTransactionCI(auth,token,p={}){
+ assertCIServiceGate();
  if(!validId(p.lockId)||!validKey(p.eventKey))return no('F06_TX_INVALID_ARGUMENTS');
  try{
   const result=await auth.withSession(token,async(c,a)=>{

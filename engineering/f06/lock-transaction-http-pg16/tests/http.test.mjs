@@ -81,6 +81,47 @@ test('15 合成收款原件与来源签名匹配',async()=>{
  const r=await rows('SELECT p.issuer_kind,d.amount_cents,p.original_amount_cents FROM f06_3a_ci.receipt_provenance p JOIN public.deposit_receipts d ON d.deposit_id=p.deposit_id WHERE p.deposit_id=$1',[recorded]);
  assert.equal(r.length,1);assert.equal(r[0].issuer_kind,'CI_SYNTHETIC_NOT_REAL_MONEY');assert.equal(Number(r[0].amount_cents),15000);
 });
+test('36 撤销交易权限override须拒绝且不新增资金交易',async()=>{
+ await q("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=1 AND permission_id=963401");
+ try{const r=await call(endpoint,body('permission-revoked',locks[2]));assert.equal(r.status,403);assert.equal(r.body.code,'F06_TX_PERMISSION_SCOPE_DENIED');assert.equal((await invariant(locks[2])).txs,0)}
+ finally{await q("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=1 AND permission_id=963401")}
+});
+test('37 交易capability范围授权到期须硬拒',async()=>{
+ await q("UPDATE public.employee_capability_scope_bindings SET ended_at=clock_timestamp() WHERE employee_id=1 AND permission_id=963401");
+ try{const r=await call(endpoint,body('capability-expired',locks[2]));assert.equal(r.status,403);assert.equal(r.body.code,'F06_TX_PERMISSION_SCOPE_DENIED')}
+ finally{await q("UPDATE public.employee_capability_scope_bindings SET ended_at=NULL WHERE employee_id=1 AND permission_id=963401")}
+});
+test('38 当前Employee数据scope撤销须硬拒',async()=>{
+ await q('UPDATE public.employee_data_scopes SET ended_at=clock_timestamp() WHERE scope_id=$1',[scopeId]);
+ try{const r=await call(endpoint,body('scope-revoked',locks[2]));assert.equal(r.status,403);assert.equal(r.body.code,'F06_TX_PERMISSION_SCOPE_DENIED')}
+ finally{await q('UPDATE public.employee_data_scopes SET ended_at=NULL WHERE scope_id=$1',[scopeId])}
+});
+test('39 当前Customer禁用须拒绝',async()=>{
+ await q("UPDATE public.customers SET account_status='disabled' WHERE customer_id=$1",[customer]);
+ try{const r=await call(endpoint,body('customer-disabled',locks[2]));assert.equal(r.status,403);assert.equal(r.body.code,'F06_TX_CUSTOMER_VEHICLE_CYCLE_DENY')}
+ finally{await q("UPDATE public.customers SET account_status='active' WHERE customer_id=$1",[customer])}
+});
+test('40 Listing Cycle已结束须拒绝',async()=>{
+ await q('UPDATE public.vehicle_listing_cycles SET ended_at=clock_timestamp() WHERE listing_cycle_id=$1',[cycle(2)]);
+ try{const r=await call(endpoint,body('cycle-ended',locks[2]));assert.equal(r.status,403);assert.equal(r.body.code,'F06_TX_CUSTOMER_VEHICLE_CYCLE_DENY')}
+ finally{await q('UPDATE public.vehicle_listing_cycles SET ended_at=NULL WHERE listing_cycle_id=$1',[cycle(2)])}
+});
+test('41 过期Session即使Bearer格式正确仍被拒绝',async()=>{
+ const saved=auth.clock;auth.clock=()=>new Date(Date.now()+13*3600000);
+ try{const r=await call(endpoint,body('expired-session',locks[2]));assert.equal(r.status,401);assert.equal(r.body.code,'F06_TX_SIGNED_SESSION_DENIED')}
+ finally{auth.clock=saved}
+});
+test('42 到期Lock不允许转换',async()=>{
+ const current=(await rows('SELECT expires_at FROM public.locks WHERE lock_id=$1',[locks[2]]))[0].expires_at;
+ await q("UPDATE public.locks SET expires_at=clock_timestamp()-interval '1 minute' WHERE lock_id=$1",[locks[2]]);
+ try{const r=await call(endpoint,body('expired-lock',locks[2]));assert.equal(r.status,409);assert.equal(r.body.code,'F06_TX_INACTIVE_LOCK_DENY')}
+ finally{await q('UPDATE public.locks SET expires_at=$1 WHERE lock_id=$2',[current,locks[2]])}
+});
+test('43 伪造的SystemAdmin身份Headers不产生隐式放行',async()=>{
+ const r=await call(endpoint,body('fake-admin',999999998),token,'POST',{'x-principal-kind':'system_admin','x-role':'manager','x-employee-id':'1'});
+ assert.equal(r.status,404);assert.equal(r.body.code,'F06_TX_LOCK_NOT_FOUND');
+});
+
 for(const [n,checkpoint] of [[16,'BEFORE_WRITE_THROW'],[17,'AFTER_TRANSACTION_THROW'],[18,'AFTER_LOCK_THROW'],[19,'AFTER_ORIGIN_THROW'],[20,'AFTER_AUDIT_THROW']]){
  test(String(n)+' 原生PG16 SQL故障注入 '+checkpoint+' 完整回滚',async()=>{
   const r=await call(endpoint,body('rollback-'+n,locks[2],{testCheckpoint:checkpoint}));
