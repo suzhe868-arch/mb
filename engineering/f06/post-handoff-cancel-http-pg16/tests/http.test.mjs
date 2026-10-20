@@ -437,3 +437,28 @@ test('80 签名PR139源Lock永久维持released，旧Priority/Visibility不得�
   assert.deepEqual([l.lock_status,l.end_reason],['released','converted_to_transaction']);
  }
 });
+
+test('81 同一Transaction Handoff与Cancel并发竞争仅一方提交且签名版本一致',async()=>{
+ const prep=await handoff('handoff-cancel-race-prep',tx[4],4,1,0,{},managerToken);
+ assert.equal(prep.status,201,JSON.stringify(prep.body));
+ const [h,c]=await Promise.all([
+  handoff('handoff-cancel-race-v2',tx[4],2,4,1,{},managerToken),
+  cancel('handoff-cancel-race',tx[4],1,{},targetToken)
+ ]);
+ assert.equal(Number(h.body.allowed)+Number(c.body.allowed),1,JSON.stringify({handoff:h.body,cancel:c.body}));
+ assert.ok(h.body.backendPid&&c.body.backendPid&&h.body.backendPid!==c.body.backendPid,
+  JSON.stringify({handoff:h.body,cancel:c.body}));
+ const cf=await cancelFacts(tx[4]),hf=await handoffFacts(tx[4]);
+ if(h.body.allowed){
+  assert.equal(c.body.allowed,false);
+  assert.equal(cf.status,'in_progress');
+  assert.deepEqual([cf.origins,cf.events,cf.keys,cf.audits],[0,0,0,0]);
+  assert.deepEqual([Number(hf.responsible_employee_id),hf.events,hf.keys,hf.audits],[2,2,2,2]);
+ }else{
+  assert.equal(c.body.allowed,true);
+  assert.equal(h.body.allowed,false);
+  assert.deepEqual([cf.status,cf.origins,cf.events,cf.keys,cf.audits],['cancelled',1,1,1,1]);
+  assert.deepEqual([Number(hf.responsible_employee_id),hf.events,hf.keys,hf.audits],[4,1,1,1]);
+ }
+ console.log('F06_POST_CANCEL_HANDOFF_RACE_SAFE_PASS',JSON.stringify({handoff:h.body,cancel:c.body}));
+});

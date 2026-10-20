@@ -128,7 +128,7 @@ env GITHUB_REF="refs/heads/$refund_parent" GITHUB_REF_NAME="$refund_parent" node
 echo F06_HANDOFF_NATIVE_SIGNED_PR139_PR146_PR150_PARENT_PASS
 env GITHUB_REF="refs/heads/$refund_parent" GITHUB_REF_NAME="$refund_parent" \
  node --test "$base/tests/http.test.mjs" 2>&1 | tee "$base/evidence/POST_HANDOFF_CANCEL_HTTP_PG16_TAP.log"
-tap "$base/evidence/POST_HANDOFF_CANCEL_HTTP_PG16_TAP.log" 75
+tap "$base/evidence/POST_HANDOFF_CANCEL_HTTP_PG16_TAP.log" 81
 openssl req -x509 -newkey rsa:2048 -sha256 -nodes -days 1 \
  -keyout /tmp/f06-post-handoff-cancel-key.pem -out /tmp/f06-post-handoff-cancel-cert.pem -subj '/CN=localhost' >/dev/null 2>&1
 chmod 600 /tmp/f06-post-handoff-cancel-key.pem
