@@ -348,10 +348,17 @@ test('31. Ended Listing Cycle blocks a new receipt', async () => {
   }
 });
 test('32. Expired session is denied even when its bearer token is well-formed', async () => {
-  await q("UPDATE public.pc_auth_sessions SET issued_at=clock_timestamp()-interval '2 minutes', expires_at=clock_timestamp()-interval '1 minute', last_seen_at=clock_timestamp()-interval '90 seconds' WHERE token_digest=$1", [sessionDigest(token, secret)]);
-  const response = await call('/__ci__/f06-real-deposit/deposits/' + deposit1 + '/net', 'GET', undefined, token);
-  assert.equal(response.status, 401);
-  assert.equal(response.body.code, 'F06_3A_SIGNED_SESSION_DENIED');
+  // Advance only the test authenticator's clock; the signed session row and
+  // original F03 database constraints remain intact.
+  const originalClock = auth.clock;
+  auth.clock = () => new Date(Date.now() + 13 * 3600 * 1000);
+  try {
+    const response = await call('/__ci__/f06-real-deposit/deposits/' + deposit1 + '/net', 'GET', undefined, token);
+    assert.equal(response.status, 401);
+    assert.equal(response.body.code, 'F06_3A_SIGNED_SESSION_DENIED');
+  } finally {
+    auth.clock = originalClock;
+  }
 });
 test('33. Role and system-admin identity headers are rejected, not trusted', async () => {
   const response = await call(recordPath, 'POST', recordPayload('spoofed-headers', 1000, locks[3]), managerToken, {
