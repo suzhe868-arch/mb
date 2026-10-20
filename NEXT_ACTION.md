@@ -1,3 +1,10 @@
+# 2026-10-21｜A主控F06已签Handoff后Transaction正常取消680/680终验并合并PR156；按用户要求暂停下个施工单，先讨论F06/F07/F08整体重新规划
+
+- **本轮最终验收**：[Issue #154](https://github.com/suzhe868-arch/mb/issues/154)已关闭；B受验末HEAD `0b0aba78ac90e8081035aa41708dc160a53ea448`，[同SHA官方Run39482165477](https://github.com/suzhe868-arch/mb/actions/runs/39482165477)/Job118833222205父585+新真实非超管PG16 HTTP84+TLS11=**680/680**（0失败/跳过/取消）。A独立源码核查：真正PR139 Tx+PR153签名Handoff后的当前负责人使用独立Permission/Scope取消`in_progress→cancelled`，新不可变Sidecar Event/Key/Audit同PG16原子事务、真实两Employee PID2235/2236、Handoff和Cancel真正不同后台PID2249/2250竞争安全拒绝、三处故障注错rollback、旧PR150 Refund新来源继续FailClosed；161张父签表逐表COUNT+MD5、24迁移跨物理OID97322→107137/独立审计OID39338及完整Seal不变。业务[PR156](https://github.com/suzhe868-arch/mb/pull/156)已实际标准merge `a9b8de83e21f72426009e4a4c1947b9ecedba1e9`；[A中文独立验收报告](07_重建工作区/F06已签Handoff后Transaction取消_A主控独立终验PR156合并与三域重规划暂缓放行报告_2026-10-21.md)。
+- **本次不得自动签发新B或C任务包**。按用户明确要求，下一步`NEXT_OWNER=A`（与用户讨论、整理整体方案）、`NEXT_TASK=F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01`，先核对原F06/F07/F08已验成果与重复施工、CI-only和HTTP/PG16差异、跨来源版本兼容、业务闭环分包、B一个ChatGPT聊天窗口内串行完成整包并集中交A验收，明确C前端独立职责。重新规划/正式放行必须待讨论确认；历史PDM及源码不因本报告发生权限提升。禁止生产/真钱/completed/外部真实Issue，F06/F07/F08/V1仍`NOT_READY`，C PR68仍Draft。
+
+---
+
 # 2026-10-21｜A独立验收通过 F06真实Transaction负责人正式Handoff 585/585，PR153已合并；下一任务B执行已签Handoff后的Transaction取消
 
 - **最终A裁定**：`F06_REAL_TRANSACTION_RESPONSIBLE_HANDOFF_HTTP_PG16_01`，[Issue151](https://github.com/suzhe868-arch/mb/issues/151)已关闭；B受验HEAD `4d499810cd9a97bd483ffb257b5d03b01f6bb062`、[官方同SHA Run39458177954](https://github.com/suzhe868-arch/mb/actions/runs/39458177954)/Job118750396752：父534+新真实PG16 Handoff40+TLS11 = **585/585**（0失败、0跳过、0取消），旧签161张表、24条迁移、真实物理OID87819→97329及审计OID39339，完整Seal相等 `9833de68dfd2ab9cc1f6c65995359589d29247a7dcb6ca980eaaa94b7962d5c0`。A独立检查PR139初始负责人签名、PR153新Version事件/Key/Audit与Public责任人同事务、权限和有效Scope、两不同Manager Session PG PID2055/2054并发最多一个成功、Rollback/幂等及旧PR146/150不兼容后的FailClosed。标准[业务PR153](https://github.com/suzhe868-arch/mb/pull/153)实际已merge `70c9372a55865d59c5a3772b368d236775154038`。
