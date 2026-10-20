@@ -1,3 +1,11 @@
+# 2026-10-21｜A主控F06 Issue159可信移交取消到退款接续终验通过，标准合并PR162；进入A后续真实集成缺口核对
+
+- **本轮已真正通过A独立验收**：[Issue #159](https://github.com/suzhe868-arch/mb/issues/159) B末SHA `bec6b39f4c5ffd44f048ff24bd932a793a70c71d`；[官方Run39506844523](https://github.com/suzhe868-arch/mb/actions/runs/39506844523)/Job118917784231同SHA`completed/success`。A独立源码逐函数比对原PR150 Permission/Deposit/3A历史/Refund余额核心不变，旧PR146 Refund入口对新PR153/156签名保持`FailClosed`、新桥与旧路径共用受控事务核心；变更12文件均在A Issue159及PR161已签白名单，冻结父签/DDL/旧Workflow字节未改。**新旧联合非特权PG16/HTTP 130/130（旧PR156影响84+桥46）**、原TLS11/11+新TLS12/12、旧PR150 PG16 79/79及Handoff40/40相关回归、父161表24迁移不同物理OID 97332→107142全Seal一致。旧Shell辅助TLS打印`0/0`不是通过证据，已由同SHA独立强制原生TAP校验规避，列技术债、不冒充成功。
+- **业务PR已标准合并**：[PR #162](https://github.com/suzhe868-arch/mb/pull/162)，merge SHA `7b671cbd63461de6490167357666b05bdcce93e2`；[完整中文A独立验收与边界报告](07_重建工作区/F06_Issue159签名移交后取消至退款接续_A主控独立验收PR162合并报告_2026-10-21.md)。本次仅`A_ACCEPTED_NONPRODUCTION_ISSUE159`，不代表真实钱款退款`refunded`、线上应用服务/API可用、Transaction`completed`或整个F06完成。
+- **下一接力`NEXT_OWNER=A`**，`NEXT_TASK=A_F06_REMAINING_REAL_RUNTIME_INTEGRATION_SCOPE_AUDIT_01`：按原F06路线只核对现有真实主服务接线、签名/Issuer及剩余未实现模块，复用已验成果后再按依赖决定下一B正式施工单；不自动下发未经界定的新B任务。F07/F08保持原独立B工程阶段，F08正常A验收后后端最终整体验收归A；F06/F07/F08/V1仍`NOT_READY`，生产/真钱/真实外部凭据/第三方权限和C PR68未放行。
+
+---
+
 # 2026-10-21｜A主控 Issue159 正式技术裁决：允许PR150唯一受控资金核心复用，B原分支继续施工
 
 - **源代码实证裁决**：[Issue #159](https://github.com/suzhe868-arch/mb/issues/159) B `feat/f06-signed-post-handoff-refund-bridge-01@2f703e38d150b249db262ecdba6fc96e4226c90c` 已上报 `BLOCKED_SIGNED_POST_HANDOFF_REFUND_BRIDGE_SOURCE`。其[官方Run39501146534](https://github.com/suzhe868-arch/mb/actions/runs/39501146534)只有**静态检查 success**，真实退款pending/closed、非超管PG16>=35、HTTP/TLS>=10、旧父161表24迁移Seal/并发注错**全部未运行**，绝非`READY_FOR_A_REVIEW`。PR150 原 `verifyTransactionSource()` 硬绑旧PR146取消签名和初始responsible；其私有资金原语无法供新PR153→PR156来源调用，B报告的原授权白名单互斥阻断成立。

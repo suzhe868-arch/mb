@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "A_RULING_ISSUE159_SHARED_REFUND_CORE_PRECISE_WHITELIST_B_CONTINUE",
+  "substage": "A_ACCEPTED_F06_ISSUE159_NONPRODUCTION_PR162_MERGED_NEXT_F06_REAL_INTEGRATION_SCOPE_AUDIT",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F06_SIGNED_POST_HANDOFF_CANCEL_TO_TRANSACTION_REFUND_BRIDGE",
-  "current_domain_status": "A_RULING_APPROVED_ISSUE159_PRECISE_PR150_CORE_EXTRACTION / B_BLOCKED_BEFORE_RULING_STATIC_ONLY_RUN39501146534 / B_CONTINUE_AFTER_A_MERGE / F06_F07_F08_V1_NOT_READY",
+  "current_domain": "F06_POST_REFUND_BRIDGE_ACCEPTED_REAL_RUNTIME_INTEGRATION_NOT_READY",
+  "current_domain_status": "A_ACCEPTED_NONPRODUCTION_ISSUE159_PR162_STANDARD_MERGED / B_SHA_BEC6B39F_GITHUB_RUN39506844523_PG16_130_TLS11_12 / F06_F07_F08_V1_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,36 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "Issue159 B分支2f703e38仅完成来源分析和官方静态检查，真实退款及PG16均未运行；A裁决原白名单互斥阻断成立，允许在精确路径 PR150 service.mjs 受控提取共享资金核心、可选shared-refund-core.mjs；旧PR150入口保持新来源FailClosed，旧sidecar与冻结父/公共DDL/原CI不变；B保留原分支安全同步main，按原Issue159完成真实证据后交A。",
-  "current_work_file": "07_重建工作区/F06_Issue159_PR150资金原语复用与来源版本接续_A主控技术裁决补充单_2026-10-21.md",
+  "current_task": "A针对Issue159 B末SHA bec6b39f4c5ffd44f048ff24bd932a793a70c71d独立验收源码与最终官方Run39506844523/Job118917784231同SHA completed/success：真实非特权PG16/HTTP130/130（旧84+新46）、TLS11+12、原PR150资金权限/3A历史/余额核心无改、PR146旧入口新签名FailClosed、PR153/156新签名受控接续、161父表24迁移OID97332→107142 Seal同值。业务PR162已标准merge 7b671cbd63461de6490167357666b05bdcce93e2；Issue159完成。下个A任务先核对F06正式运行入口、可信Issuer、剩余独立工程缺口，不重复已验收PR139/146/150/153/156/162。",
+  "current_work_file": "07_重建工作区/F06_Issue159签名移交后取消至退款接续_A主控独立验收PR162合并报告_2026-10-21.md",
+  "f06_issue159_a_acceptance_2026_10_21": {
+    "task_id": "F06_SIGNED_POST_HANDOFF_CANCEL_TO_TRANSACTION_REFUND_BRIDGE_01",
+    "status": "A_ACCEPTED_NONPRODUCTION_PR162_STANDARD_MERGED",
+    "issue": 159,
+    "issue_closed": true,
+    "business_pr": 162,
+    "business_pr_merged": true,
+    "business_merge_sha": "7b671cbd63461de6490167357666b05bdcce93e2",
+    "b_accepted_sha": "bec6b39f4c5ffd44f048ff24bd932a793a70c71d",
+    "official_run": 39506844523,
+    "official_job": 118917784231,
+    "native_pg16_http_total": 130,
+    "native_pg16_http_prior_affected": 84,
+    "native_pg16_http_new_bridge": 46,
+    "parent_pr150_pg16": 79,
+    "parent_pr153_handoff_pg16": 40,
+    "old_tls": 11,
+    "new_tls": 12,
+    "signed_parent_tables": 161,
+    "signed_migrations": 24,
+    "physical_source_oid_from": 97332,
+    "physical_source_oid_to": 107142,
+    "parent_row_seal": "07dc179a72b7cdf42af45a6d2fb7fbf280446eb7cf4a8987661522a856e3c7a0",
+    "legacy_tls_tap_zero_counter_debt": "NON_BLOCKING_STRICT_NATIVE_TAP_VALIDATED",
+    "formal_a_review": "07_重建工作区/F06_Issue159签名移交后取消至退款接续_A主控独立验收PR162合并报告_2026-10-21.md",
+    "current_issuer_approved": false,
+    "production_ready": false
+  },
   "f06_issue159_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_PRECISE_WRITE_WHITELIST_B_CONTINUE",
     "issue": 159,
@@ -41,7 +69,7 @@
   },
   "f06_signed_post_handoff_refund_bridge_next": {
     "task_id": "F06_SIGNED_POST_HANDOFF_CANCEL_TO_TRANSACTION_REFUND_BRIDGE_01",
-    "status": "A_RELEASED_FOR_B_NONPRODUCTION",
+    "status": "A_ACCEPTED_NONPRODUCTION_PR162_STANDARD_MERGED",
     "issue": 159,
     "owner": "B",
     "review_owner": "A",
@@ -55,7 +83,7 @@
     "minimum_new_native_pg16": 35,
     "minimum_new_http_tls": 10,
     "no_paid_runner_budget_usd": 0,
-    "new_business_pr_created": false,
+    "new_business_pr_created": true,
     "production_ready": false,
     "actual_refunded_authorized": false,
     "payment_authorized": false
@@ -3258,7 +3286,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B继续Issue159现有工程分支feat/f06-signed-post-handoff-refund-bridge-01，安全同步最新main中已合并的A技术裁决补充单；只准精确改PR150 service.mjs与可选新增shared-refund-core.mjs，构建单一受控资金/余额/历史退款核心；旧PR150入口新来源FailClosed，绝不伪造旧签名或复制资金算法；补全当前尚未运行的>=35真实非特权PG16、>=10 HTTP/TLS、旧父161表24迁移不同OID Seal、权限并发错误注入及同SHA官方CI；B达READY_FOR_A_REVIEW再交A。",
+  "next_action": "A先针对F06现有真实主服务接口/Issuer/隔离侧车与PDM/工程路线做剩余集成范围审查，复用已验收PR139/146/150/153/156/162，不重签旧包或重复跑旧无关CI；依安全权限及后续依赖再合法签发具体B工程。原Issue159已A验收并标准合并，勿再当待做B任务。F07/F08仍各自是B独立阶段；F08以后整体后端验收由A负责。线上运行、真实钱款、第三方、完成成交等仍无授权。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4838,7 +4866,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "Issue159技术裁决已作出：原单白名单禁止修改PR150但要求复用其私有资金原语属于互斥；修订许可只覆盖service.mjs与可选共享核心，旧语义和冻结签名保持，B继续原分支，不重开任务/不删已做静态核验/不申请用户日常技术决策；无真实PG16通过前必须维持BLOCKED_IN_PROGRESS / NOT_READY。",
+  "next_action_detail": "本轮已完成Issue159非生产签名移交后取消到Refund pending/零付款closed可信兼容：PR162业务merge，最终A验收报告同步；下个A任务是对真实服务F06路由、来源Issuer及未验收任务作差异梳理，不能把CI-only业务测通过说成F06阶段整体Ready。后续若A新发B施工包需再写Issue/工作单并按项目现行规范放行；当前NEXT_OWNER=A。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -5876,7 +5904,7 @@
   },
   "a_batch_approval_mode": "STANDING_USER_DIRECTED_CONTINUOUS_TECHNICAL_WORKFLOW_IN_FROZEN_SCOPE; A_SCOPES_AND_RELEASES_B_C; EACH_WINDOW_COMPLETES_END_TO_END; A_INDEPENDENT_ACCEPTANCE_AND_CLEAN_PR_MERGE_WITHOUT_REPEAT_APPROVAL; NEW_PRODUCT_CHOICE_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_EXTERNAL_WRITES_REQUIRE_USER",
   "current_pending_user_decisions": [],
-  "next_action_owner": "B",
+  "next_action_owner": "A",
   "abc_continuous_execution_rule": {
     "status": "USER_DIRECTIVE_APPLIED",
     "confirmed_at": "2026-10-09",
@@ -6882,7 +6910,7 @@
     "merge_method": "merge",
     "a_review_report": "07_重建工作区/F05-7_A主控二轮独立验收66项真PG16_PR46标准合并与F05-8技术交接_2026-10-12.md"
   },
-  "next_owner": "B",
+  "next_owner": "A",
   "f05_8_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR47_CI_ONLY",
     "execution": "COMPLETED_A_ACCEPTED_PR47_STANDARD_MERGE",
@@ -6972,7 +7000,7 @@
     "r12_r13_closed": true,
     "a_sixth_review_result": "A_ACCEPTED"
   },
-  "current_owner": "B",
+  "current_owner": "A",
   "f05_9_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR48_CI_ONLY",
     "owner": "B",
@@ -8017,7 +8045,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F06_SIGNED_POST_HANDOFF_CANCEL_TO_TRANSACTION_REFUND_BRIDGE_01",
+  "next_task": "A_F06_REMAINING_REAL_RUNTIME_INTEGRATION_SCOPE_AUDIT_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9692,7 +9720,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F06已签移交后取消到Transaction退款可信来源接续_A主控B正式施工单_2026-10-21.md",
+  "next_work_file": null,
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -9988,8 +10016,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": "feat/f06-signed-post-handoff-refund-bridge-01",
-  "next_issue": 159,
+  "next_branch": null,
+  "next_issue": null,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -10201,7 +10229,7 @@
     "next_owner": "B",
     "budget_additional_usd": 0
   },
-  "next_base_main": "be748b2b8165be4d644527bcccb4582e5c08c752",
+  "next_base_main": "7b671cbd63461de6490167357666b05bdcce93e2",
   "current_engineering_focus": "F06_F07_F08_REPLAN_DISCUSSION_NO_NEW_B_C_RELEASE",
   "f06_real_deposit_http_next": {
     "status": "A_ACCEPTED_NONPRODUCTION_HTTP_PG16_PR135_STANDARD_MERGED",
