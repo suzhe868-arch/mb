@@ -186,7 +186,8 @@ async function depositLedger(c,source){
  if(!Number.isSafeInteger(net)||net>100000000000)
   return no('F06_TX_REFUND_NET_DEPOSIT_OVERFLOW');
  const digest=sha({receipts,provenance:prov,adjustments:adjustmentFacts});
- return yes('F06_TX_REFUND_SIGNED_DEPOSIT_BALANCE',{netCents:net,depositCount:receipts.length,depositDigest:digest});
+ return yes('F06_TX_REFUND_SIGNED_DEPOSIT_BALANCE',{netCents:net,depositCount:receipts.length,depositDigest:digest,
+  depositSnapshot:{receipts,provenance:prov,adjustments:adjustmentFacts}});
 }
 async function verifyTransactionSource(c,t){
  if(!t||t.status!=='cancelled'||t.completed_at!==null)
@@ -247,7 +248,60 @@ async function verifyTransactionSource(c,t){
  const cancelDigest=sha([cancelOrigin,cancelEvent,cancelKey]);
  return yes('F06_TX_REFUND_SIGNED_CANCELLED_TRANSACTION',{tx:t,txOrigin,txEvent,txKey,cancelOrigin,cancelEvent,cancelKey,
   lock,customer,cycle,netCents:deposits.netCents,depositCount:deposits.depositCount,depositDigest:deposits.depositDigest,
-  transactionDigest,cancelDigest,lockRefundDigest});
+  transactionDigest,cancelDigest,lockRefundDigest,depositSnapshot:deposits.depositSnapshot});
+}
+// A R1 correction: retain an immutable signed *request-time* 3A ledger prefix,
+// and verify every later 3A addition against native append-only origin/Key,
+// without demanding that the CURRENT net/balance equal the historical request.
+async function verifyDepositHistory(c,src,origin){
+ const snap=await one(c,'SELECT * FROM f06_real_tx_refund_ci.deposit_snapshots WHERE refund_id=$1 FOR SHARE',[origin.refund_id]);
+ if(!snap)return no('F06_TX_REFUND_HISTORICAL_DEPOSIT_SNAPSHOT_MISSING');
+ let original;
+ try{original=JSON.parse(snap.snapshot_payload)}catch{return no('F06_TX_REFUND_HISTORICAL_DEPOSIT_SNAPSHOT_INVALID')}
+ if(!original||!Array.isArray(original.receipts)||!Array.isArray(original.provenance)||!Array.isArray(original.adjustments)||
+    sha(original)!==snap.snapshot_sha256||sha(original)!==origin.source_deposit_digest||
+    Number(snap.net_deposit_cents)!==Number(origin.net_deposit_cents)||
+    Number(snap.refund_id)!==Number(origin.refund_id)||
+    Number(snap.transaction_id)!==Number(origin.transaction_id)||
+    Number(snap.source_lock_id)!==Number(origin.source_lock_id))
+  return no('F06_TX_REFUND_HISTORICAL_DEPOSIT_SNAPSHOT_DRIFT');
+ const live=src.depositSnapshot;
+ if(!live||JSON.stringify(live.receipts)!==JSON.stringify(original.receipts)||
+    JSON.stringify(live.provenance)!==JSON.stringify(original.provenance))
+  return no('F06_TX_REFUND_DEPOSIT_HISTORY_SOURCE_DRIFT');
+ const watermark=Number(snap.adjustment_watermark);
+ const originalIds=new Set();
+ let maxHistorical=0;
+ for(const x of original.adjustments){
+  const id=Number(x?.adjustment?.adjustment_id);
+  if(!Number.isSafeInteger(id)||id<=0||originalIds.has(id))return no('F06_TX_REFUND_SNAPSHOT_ADJUSTMENT_DRIFT');
+  originalIds.add(id);maxHistorical=Math.max(maxHistorical,id);
+ }
+ if(maxHistorical!==watermark)return no('F06_TX_REFUND_SNAPSHOT_WATERMARK_DRIFT');
+ const current=new Map();
+ for(const x of live.adjustments){
+  const id=Number(x?.adjustment?.adjustment_id);
+  if(!Number.isSafeInteger(id)||id<=0||current.has(id))return no('F06_TX_REFUND_CURRENT_ADJUSTMENT_DRIFT');
+  current.set(id,x);
+ }
+ for(const x of original.adjustments){
+  const y=current.get(Number(x.adjustment.adjustment_id));
+  if(!y||JSON.stringify(y)!==JSON.stringify(x))return no('F06_TX_REFUND_HISTORICAL_SIGNED_ADJUSTMENT_DRIFT');
+ }
+ // The native depositLedger has already verified every original and appended
+ // 3A adjustment against its immutable 3A request key, actor, deposit, Lock
+ // and amount. Watermark + signed time prove all other events are POST-request.
+ for(const x of live.adjustments){
+  const id=Number(x.adjustment.adjustment_id);
+  if(originalIds.has(id))continue;
+  if(id<=watermark||!x.requestKey||
+     new Date(x.adjustment.created_at).getTime()<=new Date(snap.recorded_at).getTime()||
+     new Date(x.requestKey.created_at).getTime()<=new Date(snap.recorded_at).getTime())
+    return no('F06_TX_REFUND_UNSIGNED_OR_OUT_OF_ORDER_APPEND');
+ }
+ return yes('F06_TX_REFUND_SIGNED_HISTORICAL_PREFIX_PLUS_LIVE_APPEND',{
+  initialCount:original.adjustments.length,currentCount:live.adjustments.length,
+  appendedCount:live.adjustments.length-original.adjustments.length});
 }
 async function refundCaseSource(c,src,r,origin){
  if(!r||!origin||r.lock_id!==null||Number(r.transaction_id)!==Number(src.tx.transaction_id)||
@@ -257,8 +311,10 @@ async function refundCaseSource(c,src,r,origin){
   Number(origin.customer_id)!==Number(src.tx.customer_id)||Number(origin.vehicle_id)!==Number(src.tx.vehicle_id)||
   Number(origin.listing_cycle_id)!==Number(src.tx.listing_cycle_id)||origin.issuer_kind!=='CI_SYNTHETIC_NO_MONEY'||
   origin.source_tx_digest!==src.transactionDigest||origin.source_cancel_digest!==src.cancelDigest||
-  origin.source_deposit_digest!==src.depositDigest||origin.source_lock_refund_digest!==src.lockRefundDigest)
+  origin.source_lock_refund_digest!==src.lockRefundDigest)
   return no('F06_TX_REFUND_CASE_SOURCE_DRIFT');
+ const history=await verifyDepositHistory(c,src,origin);
+ if(!history.allowed)return history;
  const events=(await c.query('SELECT * FROM f06_real_tx_refund_ci.events WHERE refund_id=$1 ORDER BY event_id FOR SHARE',[r.refund_id])).rows;
  const keys=(await c.query('SELECT * FROM f06_real_tx_refund_ci.request_keys WHERE refund_id=$1 ORDER BY created_at FOR SHARE',[r.refund_id])).rows;
  const reqEvent=events.find(e=>e.event_kind==='pending_requested');
@@ -378,6 +434,10 @@ export async function requestTransactionRefundCI(auth,token,p={}){
    const origin=await one(c,"INSERT INTO f06_real_tx_refund_ci.origins(refund_id,transaction_id,source_lock_id,customer_id,vehicle_id,listing_cycle_id,amount_cents,net_deposit_cents,pending_commitment_cents,available_balance_cents,source_tx_digest,source_cancel_digest,source_deposit_digest,source_lock_refund_digest,actor_employee_id,issuer_kind,reason) "+
     "VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,'CI_SYNTHETIC_NO_MONEY',$16) RETURNING refund_id",
     [row.refund_id,t.transaction_id,t.source_lock_id,t.customer_id,t.vehicle_id,t.listing_cycle_id,p.amountCents,pool.netCents,pool.pendingCents,pool.availableCents,src.transactionDigest,src.cancelDigest,src.depositDigest,src.lockRefundDigest,a.employee_id,p.reason.trim()]);
+   const historical=src.depositSnapshot;
+   const adjustmentWatermark=historical.adjustments.reduce((max,x)=>Math.max(max,Number(x.adjustment.adjustment_id)),0);
+   await c.query('INSERT INTO f06_real_tx_refund_ci.deposit_snapshots(refund_id,transaction_id,source_lock_id,net_deposit_cents,snapshot_payload,snapshot_sha256,adjustment_watermark) VALUES($1,$2,$3,$4,$5,$6,$7)',
+    [row.refund_id,t.transaction_id,t.source_lock_id,pool.netCents,JSON.stringify(historical),src.depositDigest,adjustmentWatermark]);
    const h=eventHash(p);
    await c.query("INSERT INTO f06_real_tx_refund_ci.events(refund_id,transaction_id,actor_employee_id,event_kind,previous_status,resulting_status,reason,event_key_sha256) "+
     "VALUES($1,$2,$3,'pending_requested',NULL,'pending',$4,$5)",[row.refund_id,t.transaction_id,a.employee_id,p.reason.trim(),h]);

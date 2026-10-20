@@ -420,6 +420,130 @@ test('61 对外HTTP不泄露金额、手机号、VIN、Token或签名内容',asy
 });
 test('62 没有合法父签名来源时生产Refund Issuer保持关闭',()=>assert.equal(productionRefundIssuerDeny().allowed,false));
 
+
+async function postCorrection(n,action,delta,suffix){
+ const x=await underRef(depositBranch,()=>correctSyntheticDepositCI(auth,token,{
+  lockId:locks[n],depositId:deposits[n],action,deltaCents:delta,currency:'CNY',
+  eventKey:key('post-pending-'+suffix),reason:'Native signed financial correction '+suffix+' only in isolated PG16'
+ }));
+ assert.equal(x.allowed,true,JSON.stringify(x));
+ assert.ok(Number(x.adjustmentId)>0&&Number(x.backendPid)>0);
+ return x;
+}
+async function frozenDeposit(refundId){
+ const x=(await rows("SELECT s.*,o.source_deposit_digest FROM f06_real_tx_refund_ci.deposit_snapshots s "+
+  "JOIN f06_real_tx_refund_ci.origins o USING(refund_id) WHERE s.refund_id=$1",[refundId]))[0];
+ assert.ok(x);assert.equal(x.source_deposit_digest,x.snapshot_sha256);
+ return {source:x,rows:JSON.parse(x.snapshot_payload)};
+}
+test('64 pending原件具备独立append-only签名资金历史快照和调整水位',async()=>{
+ const x=await frozenDeposit(refunds[3]);assert.equal(x.rows.adjustments.length,0);
+ assert.equal(Number(x.source.adjustment_watermark),0);
+ assert.equal(Number(x.source.net_deposit_cents),12000);
+});
+test('65 已签pending后真3A正向Correction保持请求时Snapshot而不漂移',async()=>{
+ const before=await frozenDeposit(refunds[3]);
+ const corr=await postCorrection(3,'correction',1500,'positive-case3');
+ assert.equal(corr.netCents,13500);
+ const after=await frozenDeposit(refunds[3]);assert.equal(after.source.snapshot_payload,before.source.snapshot_payload);
+ const adj=(await rows('SELECT adjustment_id,created_at FROM f06_3a_ci.adjustments WHERE deposit_id=$1',[deposits[3]]))[0];
+ assert.ok(Number(adj.adjustment_id)>Number(before.source.adjustment_watermark));
+ assert.ok(new Date(adj.created_at)>new Date(before.source.recorded_at));
+ console.log('F06_TX_REFUND_POST_PENDING_POSITIVE_SIGNED',{refundId:refunds[3],pid:corr.backendPid,adjustmentId:corr.adjustmentId});
+});
+test('66 正向Correction后无付款关闭且注错事务确实回滚',async()=>{
+ const before=await caseFacts(refunds[3]);
+ const rollback=await closeCall('post-positive-event-rollback',refunds[3],{testCheckpoint:'AFTER_EVENT_THROW'});
+ assert.equal(rollback.body.code,'F06_TX_REFUND_ATOMIC_ROLLED_BACK');
+ assert.deepEqual(await caseFacts(refunds[3]),before);
+ const r=await closeCall('post-positive-close',refunds[3]);
+ assert.equal(r.status,201,JSON.stringify(r.body));assert.equal((await caseFacts(refunds[3])).status,'closed');
+});
+test('67 正向Correction后的旧closed资金历史允许按最新13500重新申请关闭',async()=>{
+ const r=await requestCall('post-positive-next',transactions[3],13500);
+ assert.equal(r.status,201,JSON.stringify(r.body));refunds[13]=Number(r.body.refundId);
+ assert.equal(Number((await frozenDeposit(refunds[13])).source.net_deposit_cents),13500);
+ assert.equal((await closeCall('post-positive-next-close',refunds[13])).status,201);
+});
+test('68 已签pending后原生负向Correction净额低于原承诺仍可无付款closed',async()=>{
+ const before=await frozenDeposit(refunds[9]);assert.equal(Number(before.source.net_deposit_cents),14000);
+ const c=await postCorrection(5,'correction',-3000,'negative-case5');assert.equal(c.netCents,11000);
+ assert.deepEqual((await frozenDeposit(refunds[9])).rows,before.rows);
+ const r=await closeCall('post-negative-close',refunds[9]);assert.equal(r.status,201,JSON.stringify(r.body));
+ const over=await requestCall('post-negative-over',transactions[5],11001);
+ assert.equal(over.body.code,'F06_TX_REFUND_EXCEEDS_AVAILABLE_BALANCE');
+});
+test('69 负向修正之后按最新11000创建新案且不覆盖已关闭来源',async()=>{
+ const r=await requestCall('post-negative-allow',transactions[5],11000);
+ assert.equal(r.status,201,JSON.stringify(r.body));refunds[14]=Number(r.body.refundId);
+ assert.equal(Number((await frozenDeposit(refunds[14])).source.net_deposit_cents),11000);
+ assert.equal((await closeCall('post-negative-next-close',refunds[14])).status,201);
+ assert.equal((await caseFacts(refunds[9])).status,'closed');
+});
+test('70 pending后完整原生签名Reversal至零仍能closed，新pending不得创建',async()=>{
+ const old=await frozenDeposit(refunds[8]);
+ const c=await postCorrection(8,'reversal',-12000,'reversal-case8');assert.equal(c.netCents,0);
+ assert.deepEqual((await frozenDeposit(refunds[8])).rows,old.rows);
+ const r=await closeCall('post-reversal-close',refunds[8]);assert.equal(r.status,201,JSON.stringify(r.body));
+ const noMoney=await requestCall('post-reversal-deny',transactions[8],1);
+ assert.equal(noMoney.body.code,'F06_TX_REFUND_NO_SIGNED_REFUNDABLE_BALANCE');
+ console.log('F06_TX_REFUND_POST_PENDING_ZERO_NET_CLOSED',{refundId:refunds[8],adjustmentId:c.adjustmentId});
+});
+test('71 既有closed之后后续原生Correction不会破坏旧Request和Close幂等',async()=>{
+ const old=await caseFacts(refunds[1]),snapshot=await frozenDeposit(refunds[1]);
+ const c=await postCorrection(1,'correction',3000,'after-old-closed-case1');assert.equal(c.netCents,15000);
+ const replay=await requestCall('pending-first',transactions[1],6000);
+ assert.equal(replay.status,200,JSON.stringify(replay.body));
+ assert.equal(replay.body.code,'F06_TX_REFUND_IDEMPOTENT_REQUEST');
+ const closed=await closeCall('close-after-supply-change',refunds[1]);
+ assert.equal(closed.status,200,JSON.stringify(closed.body));
+ assert.deepEqual(await caseFacts(refunds[1]),old);
+ assert.deepEqual((await frozenDeposit(refunds[1])).rows,snapshot.rows);
+});
+test('72 旧closed发生签名Correction后新的15000请求必须采用现时净额',async()=>{
+ const r=await requestCall('post-closed-new-case',transactions[1],15000);
+ assert.equal(r.status,201,JSON.stringify(r.body));refunds[15]=Number(r.body.refundId);
+ assert.equal(Number((await frozenDeposit(refunds[15])).source.net_deposit_cents),15000);
+ assert.equal((await closeCall('post-closed-new-case-close',refunds[15])).status,201);
+});
+test('73 原生调整历史与本批历史快照禁止UPDATE或DELETE',async()=>{
+ await assert.rejects(q('UPDATE f06_real_tx_refund_ci.deposit_snapshots SET snapshot_payload=snapshot_payload WHERE refund_id=$1',[refunds[3]]),/F06_REAL_TX_REFUND_APPEND_ONLY_IMMUTABLE/);
+ await assert.rejects(q('DELETE FROM f06_real_tx_refund_ci.deposit_snapshots WHERE refund_id=$1',[refunds[8]]),/F06_REAL_TX_REFUND_APPEND_ONLY_IMMUTABLE/);
+ await assert.rejects(q('DELETE FROM f06_3a_ci.adjustments WHERE deposit_id=$1',[deposits[3]]),/F06_3A_IMMUTABLE_FINANCIAL_LEDGER/);
+});
+test('74 后续合法Correction不允许同Key换金额或Close理由',async()=>{
+ assert.equal((await requestCall('pending-first',transactions[1],5999)).body.code,'F06_TX_REFUND_IDEMPOTENCY_CONFLICT');
+ assert.equal((await closeCall('close-after-supply-change',refunds[1],{closeReason:'Changed close reason reused event key'})).body.code,'F06_TX_REFUND_IDEMPOTENCY_CONFLICT');
+});
+test('75 冻结3A自身真实Correction故障注入必须完整回滚原流水',async()=>{
+ const before=await count('SELECT count(*)::int n FROM f06_3a_ci.adjustments WHERE deposit_id=$1',[deposits[5]]);
+ await assert.rejects(underRef(depositBranch,()=>correctSyntheticDepositCI(auth,token,{
+  lockId:locks[5],depositId:deposits[5],action:'correction',deltaCents:100,currency:'CNY',
+  eventKey:key('post-pending-correction-fail'),reason:'Native correction rollback after existing Refund',
+  testCheckpoint:'AFTER_CORRECTION_THROW'})),/F06_3A_INJECTED_CORRECTION_ROLLBACK/);
+ assert.equal(await count('SELECT count(*)::int n FROM f06_3a_ci.adjustments WHERE deposit_id=$1',[deposits[5]]),before);
+});
+test('76 两侧未付款历史无真实资金、签封调整前缀均保持可读',async()=>{
+ for(const r of [refunds[1],refunds[3],refunds[8],refunds[9],refunds[13],refunds[14],refunds[15]]){
+  const s=await frozenDeposit(r);assert.match(s.source.snapshot_sha256,/^[a-f0-9]{64}$/);
+  const e=await rows('SELECT event_kind FROM f06_real_tx_refund_ci.events WHERE refund_id=$1 ORDER BY event_id',[r]);
+  assert.deepEqual(e.map(x=>x.event_kind),['pending_requested','closed_without_payment']);
+ }
+ assert.equal(await count('SELECT count(*)::int n FROM public.refund_payments'),0);
+});
+test('77 未签名的后追加3A Adjustment拒绝无付款关闭（可销毁库最后遗留）',async()=>{
+ const opened=await requestCall('unsigned-post-pending',transactions[7],1000);
+ assert.equal(opened.status,201,JSON.stringify(opened.body));refunds[16]=Number(opened.body.refundId);
+ const row=await q("INSERT INTO f06_3a_ci.adjustments(deposit_id,lock_id,event_kind,delta_cents,currency,actor_employee_id,reason,event_key_sha256) "+
+  "VALUES($1,$2,'correction',100,'CNY',1,'Synthetic unsigned added adjustment fact',$3) RETURNING adjustment_id",
+  [deposits[7],locks[7],'f'.repeat(64)]);
+ assert.ok(Number(row.rows[0].adjustment_id)>0);
+ const denied=await closeCall('unsigned-post-pending-close',refunds[16]);
+ assert.equal(denied.body.code,'F06_TX_REFUND_UNSIGNED_CORRECTION');
+ assert.equal((await caseFacts(refunds[16])).status,'pending');
+ console.log('F06_TX_REFUND_UNSIGNED_POST_PENDING_APPEND_FAIL_CLOSED',{refundId:refunds[16],adjustmentId:Number(row.rows[0].adjustment_id)});
+});
+
 test('63 不可信支付事实硬拒无付款关闭；F02 append-only历史由可销毁PG整体回滚',async()=>{
  // A synthetic hostile payment fact must be visible to a SECOND real PG16
  // backend. It cannot be removed by DELETE because signed F02 audit tables

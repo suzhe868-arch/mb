@@ -41,3 +41,16 @@
 - 两个PG backend独立PID只能证明并发操作和唯一提交；若共享Employee Session先被锁，则**不能宣称双方同时持有Vehicle锁**。
 
 - 对抗性“已付款不可closed”测试严格放在本批**最后**：向可销毁数据库插入合成且不可篡改的 `refund_payments` 无授权资金事实，再经另一PG backend拒绝关闭。该父表已有F02 append-only保护，测试**不删除或改写原历史**；整套场景最终销毁并从已签父快照独立恢复。该对抗性数据绝不作为真实付款、正向Refund接口功能或生产记录。
+
+## 7. A首轮独立验收未通过后的R1完整定向整改（2026-10-20）
+
+A在[Issue #147评论#6292435088](https://github.com/suzhe868-arch/mb/issues/147#issuecomment-6292435088)拒绝了虽然520/520全绿但缺少“先合法pending后原生签名3A资金Correction、仍可无付款closed”组合用例的业务交付。治理[PR #149](https://github.com/suzhe868-arch/mb/pull/149)已合并main；本B业务原分支仍未合并。此次只动原11文件白名单，不改变冻结3A/3B/3C1/PR139/PR146父服务、公共DDL、生产权限、真钱Issuer。
+
+**整改方案：不可变创建时资金水位与逐笔原生3A追加事件的严格前缀证明。** 本批可销毁PG16 Sidecar新增`f06_real_tx_refund_ci.deposit_snapshots`（每原Refund ID一条；同一PG事务与pending原件、Event/Key/Audit原子COMMIT；独立append-only UPDATE/DELETE禁止）。它含原生3A全部Receipt/Provenance/Adjustment和对应签名Request Key的请求时完整原始序列化快照、SHA256、原净额、Lock/Transaction主键、已签调整最大ID水位及创建时间。保留原不可变`origins.source_deposit_digest`，不是删除源摘要校验。
+
+每次request/close/旧Idempotency/跨已closed历史再申请时，仍先通过`depositLedger()`逐行核验当前所有3A Correction/Reversal与源Receipt一一匹配、原生3A request_keys的event key/actor/Lock/deposit/amount、负净额和未知资金；再验证历史Snapshot JSON原SHA == 原Refund签名来源Digest，原Receipt/Provenance与当前全字节同值，每笔历史调整ID+原签Key+全部字段不变且仍存在。历史水位以后的新增调整必须ID更大、真实原生签名Key完整、Adjustment/Key时间均严格在请求时Snapshot之后；旧流水不可重排/删除/修改，未知或未签新Adjustment仍FailClosed。`pending`后正常变更的当前净额可与历史申请源快照不同，故不会误把合法追加的3A事件当作原Refund漂移；最新新request始终按最新净额扣减重算，净额为零拒绝新pending，原已签pending只在确无Payment时允许closed，绝不执行真正refunded。
+
+**新增真实PG16测试**：原63与补充原2项（65）不删除；新增14项专门验证正Correction、负Correction（低于既有pending承诺）、完整已签Reversal净额变零仍closed、旧closed后签名追加、旧Request/Close同Key重放、按最新净额重申请、父3A真实注错Rollback、不可变快照/历史、未知无3A签Key的伪Adjustment在pending后无付款close FailClosed，测试均在原父161表/24迁移和独立多OID的可销毁PG16执行。TLS10保持不变。**本轮目标：父445 + 本批HTTP79 + TLS10 = 534项全通过**；只以新最终Run/Job真实结果为准，未成功不能标READY。源码白名单由新的SQL侧车、业务service、真实HTTP tests及中文B交接共四文件变化构成，不增加新旧工作流或资金权限。
+
+明确边界：使用相同Employee签名Session和两真实PG backend，**不宣称两方同时持有Vehicle行锁**。单个非生产Stage成功不等于真实资金Issuer/生产授权或V1整体上线就绪。旧F06旧签名表、支付数据和普通客户数据不得变。
+

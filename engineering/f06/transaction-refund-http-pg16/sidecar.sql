@@ -30,6 +30,19 @@ CREATE TABLE f06_real_tx_refund_ci.origins(
  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
  UNIQUE(refund_id,transaction_id,source_lock_id,customer_id,vehicle_id,listing_cycle_id)
 );
+-- An immutable event-prefix certificate for the exact native 3A ledger at
+-- the moment the Refund was first signed. Native 3A later correction/reversal
+-- events must be individually signed, monotonic and strictly after this time.
+CREATE TABLE f06_real_tx_refund_ci.deposit_snapshots(
+ refund_id bigint PRIMARY KEY REFERENCES f06_real_tx_refund_ci.origins(refund_id),
+ transaction_id bigint NOT NULL REFERENCES public.transactions(transaction_id),
+ source_lock_id bigint NOT NULL REFERENCES public.locks(lock_id),
+ net_deposit_cents bigint NOT NULL CHECK(net_deposit_cents>=0 AND net_deposit_cents<=100000000000),
+ snapshot_payload text NOT NULL CHECK(length(snapshot_payload) BETWEEN 2 AND 200000),
+ snapshot_sha256 text NOT NULL CHECK(length(snapshot_sha256)=64),
+ adjustment_watermark bigint NOT NULL CHECK(adjustment_watermark>=0),
+ recorded_at timestamptz NOT NULL DEFAULT clock_timestamp()
+);
 CREATE TABLE f06_real_tx_refund_ci.events(
  event_id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
  refund_id bigint NOT NULL REFERENCES f06_real_tx_refund_ci.origins(refund_id),
@@ -59,6 +72,8 @@ BEGIN RAISE EXCEPTION 'F06_REAL_TX_REFUND_APPEND_ONLY_IMMUTABLE'; END $$;
 CREATE TRIGGER protect_attestation BEFORE UPDATE OR DELETE ON f06_real_tx_refund_ci.attestation
  FOR EACH ROW EXECUTE FUNCTION f06_real_tx_refund_ci.forbid_mutation();
 CREATE TRIGGER protect_origins BEFORE UPDATE OR DELETE ON f06_real_tx_refund_ci.origins
+ FOR EACH ROW EXECUTE FUNCTION f06_real_tx_refund_ci.forbid_mutation();
+CREATE TRIGGER protect_snapshots BEFORE UPDATE OR DELETE ON f06_real_tx_refund_ci.deposit_snapshots
  FOR EACH ROW EXECUTE FUNCTION f06_real_tx_refund_ci.forbid_mutation();
 CREATE TRIGGER protect_events BEFORE UPDATE OR DELETE ON f06_real_tx_refund_ci.events
  FOR EACH ROW EXECUTE FUNCTION f06_real_tx_refund_ci.forbid_mutation();
