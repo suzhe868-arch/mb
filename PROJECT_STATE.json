@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "A_ACCEPTED_F06_ISSUE159_NONPRODUCTION_PR162_MERGED_NEXT_F06_REAL_INTEGRATION_SCOPE_AUDIT",
+  "substage": "A_RELEASED_F06_NONPROD_SINGLE_RUNTIME_TRUSTED_SOURCE_ISSUE164",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F06_POST_REFUND_BRIDGE_ACCEPTED_REAL_RUNTIME_INTEGRATION_NOT_READY",
-  "current_domain_status": "A_ACCEPTED_NONPRODUCTION_ISSUE159_PR162_STANDARD_MERGED / B_SHA_BEC6B39F_GITHUB_RUN39506844523_PG16_130_TLS11_12 / F06_F07_F08_V1_NOT_READY",
+  "current_domain": "F06_NONPROD_SINGLE_RUNTIME_TRUSTED_SOURCE_INTEGRATION",
+  "current_domain_status": "A_DIFF_AUDITED_MAIN_F06_LOCK_TEST_RUNTIME_ONLY / A_RELEASED_ISSUE164_FOR_B_NONPRODUCTION / ACCEPTED_PR162_REUSED / F06_F07_F08_V1_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,28 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A针对Issue159 B末SHA bec6b39f4c5ffd44f048ff24bd932a793a70c71d独立验收源码与最终官方Run39506844523/Job118917784231同SHA completed/success：真实非特权PG16/HTTP130/130（旧84+新46）、TLS11+12、原PR150资金权限/3A历史/余额核心无改、PR146旧入口新签名FailClosed、PR153/156新签名受控接续、161父表24迁移OID97332→107142 Seal同值。业务PR162已标准merge 7b671cbd63461de6490167357666b05bdcce93e2；Issue159完成。下个A任务先核对F06正式运行入口、可信Issuer、剩余独立工程缺口，不重复已验收PR139/146/150/153/156/162。",
-  "current_work_file": "07_重建工作区/F06_Issue159签名移交后取消至退款接续_A主控独立验收PR162合并报告_2026-10-21.md",
+  "current_task": "A已审main现有F06源码：Lock受控test Runtime已挂载，已验PR139/146/150/153/156/162财务交易各具签名PG16/HTTP CI sidecar但无同一可信应用Runtime综合接线，真实 completed/refunded/Issuer 不授权。Issue164定向放行B一个关联包复用已验成果，在可销毁真实PG16、loopback与签名身份下做单应用非生产Runtime合法接线与安全验证；旧父来源若无法在白名单内被合法消费则明确BLOCKED，不允许伪造父Branch/Issuer。F06/F07/F08/V1仍NOT_READY。",
+  "current_work_file": "07_重建工作区/F06单应用隔离Runtime可信源接线与业务闭环_A主控B正式施工单_2026-10-21.md",
+  "f06_nonprod_runtime_integration_release_2026_10_21": {
+    "task_id": "F06_NONPROD_SINGLE_RUNTIME_TRUSTED_SOURCE_INTEGRATION_01",
+    "status": "A_RELEASED_FOR_B_NONPRODUCTION",
+    "issue": 164,
+    "next_owner": "B",
+    "review_owner": "A",
+    "branch": "feat/f06-nonprod-single-runtime-trusted-source-01",
+    "base_policy": "FETCH_LATEST_MAIN_AT_B_START",
+    "work_order": "07_重建工作区/F06单应用隔离Runtime可信源接线与业务闭环_A主控B正式施工单_2026-10-21.md",
+    "gap_audit": "07_重建工作区/F06已验收功能与真实Runtime接线差异_A主控独立核查_2026-10-21.md",
+    "reuse_accepted_prs": [139,146,150,153,156,162],
+    "allowed_additions": ["engineering/f06/nonprod-single-runtime-integration/**","engineering/src/f06-nonprod-composite-runtime.mjs",".github/workflows/f06-nonprod-single-runtime-onejob.yml"],
+    "test_only_existing_files_conditional": ["engineering/src/server.mjs","engineering/src/app.mjs"],
+    "minimum_true_new_integration_cases": 20,
+    "synthetic_pg16_only": true,
+    "no_legacy_parent_ref_spoofing": true,
+    "genuine_issuer_gap_can_block": true,
+    "production_or_real_money_authorized": false,
+    "new_business_branch_created": false
+  },
   "f06_issue159_a_acceptance_2026_10_21": {
     "task_id": "F06_SIGNED_POST_HANDOFF_CANCEL_TO_TRANSACTION_REFUND_BRIDGE_01",
     "status": "A_ACCEPTED_NONPRODUCTION_PR162_STANDARD_MERGED",
@@ -3286,7 +3306,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "A先针对F06现有真实主服务接口/Issuer/隔离侧车与PDM/工程路线做剩余集成范围审查，复用已验收PR139/146/150/153/156/162，不重签旧包或重复跑旧无关CI；依安全权限及后续依赖再合法签发具体B工程。原Issue159已A验收并标准合并，勿再当待做B任务。F07/F08仍各自是B独立阶段；F08以后整体后端验收由A负责。线上运行、真实钱款、第三方、完成成交等仍无授权。",
+  "next_action": "B从开工时最新main建立feat/f06-nonprod-single-runtime-trusted-source-01，按Issue164及正式A施工单复用已验PR139/146/150/153/156/162及工程src隔离Lock；只在明确测试Runtime白名单内完成真正非生产单应用合法签名身份/来源接线、原生PG16和关联安全回归。同一签名父Issuer无法合法接入时如实BLOCKED_TRUSTED_F06_ISSUER_RUNTIME_GAP向A集中裁决，不可修改冻结父服务、伪造GITHUB_REF/资金签名或冒称线上接通。达READY_FOR_A_REVIEW交A。F07/F08保持独立阶段，生产真钱不可用。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4866,7 +4886,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "本轮已完成Issue159非生产签名移交后取消到Refund pending/零付款closed可信兼容：PR162业务merge，最终A验收报告同步；下个A任务是对真实服务F06路由、来源Issuer及未验收任务作差异梳理，不能把CI-only业务测通过说成F06阶段整体Ready。后续若A新发B施工包需再写Issue/工作单并按项目现行规范放行；当前NEXT_OWNER=A。",
+  "next_action_detail": "Issue164为单个综合F06非生产Runtime接线任务，不重复已验旧退款/交易状态机，不拆每个端点的小包、不重查无关F01~F05。白名单仅新工程F06集成目录、新CI、可选测试运行装配和server/app.mjs最小test-only opt-in修改；不可更改旧冻结服务、公共DDL、PDM、CI历史工作流。F06全阶段仍NOT_READY。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -5904,7 +5924,7 @@
   },
   "a_batch_approval_mode": "STANDING_USER_DIRECTED_CONTINUOUS_TECHNICAL_WORKFLOW_IN_FROZEN_SCOPE; A_SCOPES_AND_RELEASES_B_C; EACH_WINDOW_COMPLETES_END_TO_END; A_INDEPENDENT_ACCEPTANCE_AND_CLEAN_PR_MERGE_WITHOUT_REPEAT_APPROVAL; NEW_PRODUCT_CHOICE_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_EXTERNAL_WRITES_REQUIRE_USER",
   "current_pending_user_decisions": [],
-  "next_action_owner": "A",
+  "next_action_owner": "B",
   "abc_continuous_execution_rule": {
     "status": "USER_DIRECTIVE_APPLIED",
     "confirmed_at": "2026-10-09",
@@ -6910,7 +6930,7 @@
     "merge_method": "merge",
     "a_review_report": "07_重建工作区/F05-7_A主控二轮独立验收66项真PG16_PR46标准合并与F05-8技术交接_2026-10-12.md"
   },
-  "next_owner": "A",
+  "next_owner": "B",
   "f05_8_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR47_CI_ONLY",
     "execution": "COMPLETED_A_ACCEPTED_PR47_STANDARD_MERGE",
@@ -7000,7 +7020,7 @@
     "r12_r13_closed": true,
     "a_sixth_review_result": "A_ACCEPTED"
   },
-  "current_owner": "A",
+  "current_owner": "B",
   "f05_9_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR48_CI_ONLY",
     "owner": "B",
@@ -8045,7 +8065,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "A_F06_REMAINING_REAL_RUNTIME_INTEGRATION_SCOPE_AUDIT_01",
+  "next_task": "F06_NONPROD_SINGLE_RUNTIME_TRUSTED_SOURCE_INTEGRATION_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9720,7 +9740,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": null,
+  "next_work_file": "07_重建工作区/F06单应用隔离Runtime可信源接线与业务闭环_A主控B正式施工单_2026-10-21.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -10016,8 +10036,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": null,
-  "next_issue": null,
+  "next_branch": "feat/f06-nonprod-single-runtime-trusted-source-01",
+  "next_issue": 164,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -10229,7 +10249,7 @@
     "next_owner": "B",
     "budget_additional_usd": 0
   },
-  "next_base_main": "7b671cbd63461de6490167357666b05bdcce93e2",
+  "next_base_main": "bd0dd9d9260384bb25f2d821e9a477c1a0527665",
   "current_engineering_focus": "F06_F07_F08_REPLAN_DISCUSSION_NO_NEW_B_C_RELEASE",
   "f06_real_deposit_http_next": {
     "status": "A_ACCEPTED_NONPRODUCTION_HTTP_PG16_PR135_STANDARD_MERGED",

@@ -1,3 +1,11 @@
+# 2026-10-21｜A完成F06正式Runtime接线差异核查，按现有阶段一次性放行B关联集成Issue164
+
+- **正式A核查结论**：[《F06已验收功能与真实Runtime接线差异》](07_重建工作区/F06已验收功能与真实Runtime接线差异_A主控独立核查_2026-10-21.md)。已验PR139/146/150/153/156/162及Lock受控Runtime全部复用，不重写业务、不过度重复旧CI。当前`engineering/src/server.mjs`的F06实际仅挂受控Loopback/隔离PG16 Lock Handler，其他已验财务/交易侧车带有严格GitHub父Branch与合成来源门禁，**未形成同一可信应用Runtime综合接线**；Completed、真实Refund付款/生产Issuer依然`SOURCE_GAP`且未获生产授权。
+- **本轮A正式放行B一个关联任务**：[Issue #164](https://github.com/suzhe868-arch/mb/issues/164) `F06_NONPROD_SINGLE_RUNTIME_TRUSTED_SOURCE_INTEGRATION_01`；[《F06单应用隔离Runtime可信源接线与业务闭环正式施工单》](07_重建工作区/F06单应用隔离Runtime可信源接线与业务闭环_A主控B正式施工单_2026-10-21.md)。B从**实际开工最新main**建立`feat/f06-nonprod-single-runtime-trusted-source-01`；只在新CI集成目录/单工作流/受控测试Runtime少数精确白名单内以合法真实签名接线，禁止伪造父Branch、降低旧业务门禁、复制状态机或开放真钱。若签名父来源无法合法用，一次性汇总`BLOCKED_TRUSTED_F06_ISSUER_RUNTIME_GAP`交A，不报告伪成功。
+- **当前接力`NEXT_OWNER=B`、`NEXT_TASK=F06_NONPROD_SINGLE_RUNTIME_TRUSTED_SOURCE_INTEGRATION_01`、`NEXT_ISSUE=164`**；仅当本A治理PR合入main正式生效。B整单连续做增量自审、必要高风险回归、真实同SHA官方CI及证据，达到`READY_FOR_A_REVIEW`再交A。F06/F07/F08/V1仍`NOT_READY`，F07/F08独立阶段不启动，F08阶段正常A验收后后端最终整体验收归A；C PR68、生产/真钱/外部资源不变。
+
+---
+
 # 2026-10-21｜A主控F06 Issue159可信移交取消到退款接续终验通过，标准合并PR162；进入A后续真实集成缺口核对
 
 - **本轮已真正通过A独立验收**：[Issue #159](https://github.com/suzhe868-arch/mb/issues/159) B末SHA `bec6b39f4c5ffd44f048ff24bd932a793a70c71d`；[官方Run39506844523](https://github.com/suzhe868-arch/mb/actions/runs/39506844523)/Job118917784231同SHA`completed/success`。A独立源码逐函数比对原PR150 Permission/Deposit/3A历史/Refund余额核心不变，旧PR146 Refund入口对新PR153/156签名保持`FailClosed`、新桥与旧路径共用受控事务核心；变更12文件均在A Issue159及PR161已签白名单，冻结父签/DDL/旧Workflow字节未改。**新旧联合非特权PG16/HTTP 130/130（旧PR156影响84+桥46）**、原TLS11/11+新TLS12/12、旧PR150 PG16 79/79及Handoff40/40相关回归、父161表24迁移不同物理OID 97332→107142全Seal一致。旧Shell辅助TLS打印`0/0`不是通过证据，已由同SHA独立强制原生TAP校验规避，列技术债、不冒充成功。
