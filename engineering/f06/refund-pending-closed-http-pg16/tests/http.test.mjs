@@ -275,6 +275,105 @@ test('55 生产敏感资料和金额不出现在拒绝JSON中',async()=>{
  const r=await pendingCall('privacy',locks[8]);const txt=JSON.stringify(r.body);
  assert.ok(!/customerId|phone|vin|netCents|amountCents|token|password/i.test(txt),txt);
 });
+
+let changedSourceRefundId,sourcePendingEvent;
+async function closeEvidence(id){
+ const x=await rows("SELECT r.status,r.expected_amount_cents,r.close_reason,r.closed_at, "+
+  "(SELECT count(*)::int FROM f06_3c1_ci.status_events e WHERE e.refund_id=r.refund_id) events, "+
+  "(SELECT count(*)::int FROM f06_3c1_ci.request_keys k WHERE k.refund_id=r.refund_id) keys, "+
+  "(SELECT count(*)::int FROM public.audit_events a WHERE a.object_kind='Refund' AND a.object_id=r.refund_id::text) audit, "+
+  "(SELECT count(*)::int FROM public.refund_payments p WHERE p.refund_id=r.refund_id) paid, "+
+  "(SELECT count(*)::int FROM public.transactions t WHERE t.source_lock_id=r.lock_id) tx "+
+  "FROM public.refund_cases r WHERE r.refund_id=$1",[id]);
+ assert.equal(x.length,1);
+ return x[0];
+}
+test('57 真3C1签名pending成立后，源车正常变更为不可售但资金责任继续',async()=>{
+ const r=await pendingCall('post-pending-supply-abnormal',locks[7]);
+ assert.equal(r.status,201,JSON.stringify(r.body));
+ changedSourceRefundId=Number(r.body.refundId);
+ const history=await rows("SELECT event_id,event_kind,actor_employee_id,occurred_at "+
+  "FROM f06_3c1_ci.status_events WHERE refund_id=$1",[changedSourceRefundId]);
+ assert.equal(history.length,1);
+ assert.equal(history[0].event_kind,'pending_requested');
+ sourcePendingEvent=history[0];
+ const sourceBefore=(await rows("SELECT source_type,source_sale_status FROM public.vehicles WHERE vehicle_id=$1",[vehicle(7)]))[0];
+ assert.deepEqual([sourceBefore.source_type,sourceBefore.source_sale_status],['mingbang','available']);
+ // An actual, parent M94-approved vehicle status transition in the disposable
+ // PG16 scenario. We do NOT directly fabricate or alter signed Lock history.
+ const transitioned=await rows("UPDATE public.vehicles SET source_sale_status='unavailable' "+
+  "WHERE vehicle_id=$1 AND source_type='mingbang' AND source_sale_status='available' "+
+  "RETURNING source_sale_status",[vehicle(7)]);
+ assert.deepEqual(transitioned.map(x=>x.source_sale_status),['unavailable']);
+ assert.equal((await closeEvidence(changedSourceRefundId)).status,'pending');
+ console.log('F06_REFUND_SIGNED_PENDING_THEN_SUPPLY_ABNORMAL',{refundId:changedSourceRefundId,vehicleId:vehicle(7),newStatus:'unavailable'});
+});
+test('58 车源现时不可售时禁止新增另一笔pending（新申请Guard未放松）',async()=>{
+ const r=await pendingCall('new-pending-unavailable',locks[7]);
+ assert.equal(r.status,403,JSON.stringify(r.body));
+ assert.equal(r.body.code,'F06_REFUND_CURRENT_LOCK_REQUIRED');
+ assert.equal((await closeEvidence(changedSourceRefundId)).status,'pending');
+});
+test('59 非生产真HTTP close AFTER_CLOSE_THROW完整PG16原子回滚',async()=>{
+ const before=await closeEvidence(changedSourceRefundId);
+ assert.deepEqual([before.status,before.events,before.keys,before.audit,before.paid,before.tx],['pending',1,1,1,0,0]);
+ const denied=await closeCall('close-sql-inject-after-update',changedSourceRefundId,{testCheckpoint:'AFTER_CLOSE_THROW'});
+ assert.equal(denied.status,409,JSON.stringify(denied.body));
+ assert.equal(denied.body.code,'F06_REFUND_ATOMIC_ROLLED_BACK');
+ assert.deepEqual(await closeEvidence(changedSourceRefundId),before,'status/events/keys/audit/payment/transaction must all rollback');
+ console.log('F06_REFUND_CLOSE_AFTER_UPDATE_PG_ROLLBACK',{refundId:changedSourceRefundId,checkpoint:'AFTER_CLOSE_THROW',state:'pending',newCloseEvents:0,newPayments:0});
+});
+test('60 非生产真HTTP close AFTER_EVENT_THROW完整PG16原子回滚',async()=>{
+ const before=await closeEvidence(changedSourceRefundId);
+ const denied=await closeCall('close-sql-inject-after-event',changedSourceRefundId,{testCheckpoint:'AFTER_EVENT_THROW'});
+ assert.equal(denied.status,409,JSON.stringify(denied.body));
+ assert.equal(denied.body.code,'F06_REFUND_ATOMIC_ROLLED_BACK');
+ assert.deepEqual(await closeEvidence(changedSourceRefundId),before,'closed row/events/request key/audit must rollback');
+ console.log('F06_REFUND_CLOSE_AFTER_EVENT_PG_ROLLBACK',{refundId:changedSourceRefundId,checkpoint:'AFTER_EVENT_THROW',state:'pending',newCloseEvents:0,newPayments:0});
+});
+test('61 pending后正常期次结束+车辆不可售，已签Refund仍可无付款closed',async()=>{
+ // A listing cycle end is a normal signed M94 column transition, not a
+ // forged Lock state, and must not erase pending historical money duties.
+ const changed=await rows("UPDATE public.vehicle_listing_cycles "+
+  "SET ended_at=clock_timestamp() WHERE listing_cycle_id=$1 AND ended_at IS NULL "+
+  "RETURNING listing_cycle_id,ended_at",[cycle(7)]);
+ assert.equal(changed.length,1);assert.ok(changed[0].ended_at);
+ const before=await closeEvidence(changedSourceRefundId);
+ assert.equal(before.status,'pending');
+ const r=await closeCall('close-post-sale-cycle-ended',changedSourceRefundId);
+ assert.equal(r.status,201,JSON.stringify(r.body));
+ assert.equal(r.body.code,'F06_3C1_CLOSED_WITHOUT_PAYMENT');
+ assert.ok(r.body.backendPid>0);
+ const after=await closeEvidence(changedSourceRefundId);
+ assert.equal(after.status,'closed');
+ assert.ok(after.close_reason?.includes('Synthetic no-payment closure'));
+ assert.ok(after.closed_at);
+ assert.deepEqual([after.events,after.keys,after.audit,after.paid,after.tx],[2,2,2,0,0]);
+ assert.equal(Number(after.expected_amount_cents),Number(before.expected_amount_cents));
+ const source=await rows("SELECT event_id,event_kind,actor_employee_id,occurred_at "+
+  "FROM f06_3c1_ci.status_events WHERE refund_id=$1 ORDER BY event_id",[changedSourceRefundId]);
+ assert.equal(source.length,2);
+ assert.deepEqual(source[0],sourcePendingEvent,'immutable signed pending event unchanged');
+ assert.equal(source[1].event_kind,'closed_without_payment');
+ assert.equal(await count('SELECT count(*)::int n FROM public.refund_payments'),0);
+ console.log('F06_REFUND_PENDING_CLOSE_WHEN_SOURCE_UNAVAILABLE_CYCLE_ENDED',JSON.stringify({
+  backendPid:r.body.backendPid,refundId:changedSourceRefundId,listingCycle:cycle(7),
+  status:'closed',priorVehicleStatus:'unavailable',paid:0,transaction:0
+ }));
+});
+test('62 来源异常结案同Key重复无新事件、无钱及无Audit重复',async()=>{
+ const before=await closeEvidence(changedSourceRefundId);
+ const r=await closeCall('close-post-sale-cycle-ended',changedSourceRefundId);
+ assert.equal(r.status,200,JSON.stringify(r.body));
+ assert.equal(r.body.code,'F06_3C1_IDEMPOTENT_CLOSE');
+ assert.deepEqual(await closeEvidence(changedSourceRefundId),before);
+});
+test('63 车源仍不可售时禁止另一笔新的Lock退款申请',async()=>{
+ const r=await pendingCall('post-close-new-not-sellable',locks[7]);
+ assert.equal(r.body.code,'F06_REFUND_CURRENT_LOCK_REQUIRED');
+ assert.equal((await closeEvidence(changedSourceRefundId)).status,'closed');
+});
+
 test('56 退款真实签名Carrier完全缺失时哪怕零行也硬拒',async()=>{
  await q('DROP SCHEMA f06_3c1_ci CASCADE');
  const r=await pendingCall('no-source-zero',locks[7]);
