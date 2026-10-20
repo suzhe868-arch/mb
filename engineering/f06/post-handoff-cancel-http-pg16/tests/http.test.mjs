@@ -346,6 +346,7 @@ test('61 新签原件包含初始与当前负责、版本和签名链摘要',asy
  const o=(await rows('SELECT * FROM f06_real_post_handoff_cancel_ci.origins WHERE transaction_id=$1',[tx[1]]))[0];
  assert.deepEqual([Number(o.original_responsible_employee_id),Number(o.current_responsible_employee_id),Number(o.handoff_version)],[1,2,2]);
  assert.match(o.handoff_event_digest,/^[a-f0-9]{64}$/);assert.match(o.parent_tx_digest,/^[a-f0-9]{64}$/);
+ assert.ok(Number(o.signed_team_id)>0&&Number(o.signed_store_id)>0&&Number(o.signed_scope_id)>0&&Number(o.signed_permission_id)===997003);
 });
 test('62 同Actor同Key同Payload重放必幂等',async()=>{
  const f=await cancelFacts(),r=await cancel('success');
