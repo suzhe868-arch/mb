@@ -3,6 +3,8 @@ set -euo pipefail
 branch='feat/f06-real-lock-transaction-http-pg16-01'
 parent='feat/f06-real-deposit-ledger-http-pg16-01'
 f06a='feat/f06-3a-deposit-ledger-ci'
+f06b='feat/f06-3b-lock-transaction-ci'
+f06c='feat/f06-3c1-refund-pending-close-ci'
 base='engineering/f06/lock-transaction-http-pg16'
 test "$GITHUB_REPOSITORY" = 'suzhe868-arch/mb'
 test "$GITHUB_REF" = "refs/heads/$branch"
@@ -57,11 +59,23 @@ docker exec -i -e PGPASSWORD=f03_ci_synthetic_only "$id" \
 # Only post-parent scenario source is mutable; parent seal and audit copy remain.
 env GITHUB_REF="refs/heads/$f06a" GITHUB_REF_NAME="$f06a" \
  node engineering/f06/deposit-ledger-ci/runner.mjs --apply
+# Native, frozen F06-3B -> F06-3C1 signature chain is applied only to
+# the disposable transaction experiment, after restoring the original
+# signed 161-table parent. Neither parent nor public DDL is modified.
+env GITHUB_REF="refs/heads/$f06b" GITHUB_REF_NAME="$f06b" \
+ node engineering/f06/lock-transaction-ci/runner.mjs --apply
+env GITHUB_REF="refs/heads/$f06b" GITHUB_REF_NAME="$f06b" \
+ node engineering/f06/lock-transaction-ci/runner.mjs --verify
+env GITHUB_REF="refs/heads/$f06c" GITHUB_REF_NAME="$f06c" \
+ node engineering/f06/refund-pending-ci/runner.mjs --apply
+env GITHUB_REF="refs/heads/$f06c" GITHUB_REF_NAME="$f06c" \
+ node engineering/f06/refund-pending-ci/runner.mjs --verify
+echo F06_TX_TRUSTED_REFUND_3C1_NATIVE_SIGNED_PARENT_PASS
 docker exec -i -e PGPASSWORD=f03_ci_synthetic_only "$id" \
  psql -h127.0.0.1 -Uf03_ci -df03_auth_test -X -v ON_ERROR_STOP=1 < "$base/sidecar.sql"
 env GITHUB_REF="refs/heads/$f06a" GITHUB_REF_NAME="$f06a" \
  node --test "$base/tests/http.test.mjs" 2>&1 | tee "$base/evidence/TRANSACTION_HTTP_PG16_TAP.log"
-check_tap "$base/evidence/TRANSACTION_HTTP_PG16_TAP.log" 35
+check_tap "$base/evidence/TRANSACTION_HTTP_PG16_TAP.log" 52
 openssl req -x509 -newkey rsa:2048 -sha256 -nodes -days 1 \
  -keyout /tmp/f06-real-transaction-key.pem -out /tmp/f06-real-transaction-cert.pem \
  -subj '/CN=localhost' >/dev/null 2>&1
