@@ -305,7 +305,13 @@ async function balancePool(c,src,{ignoreRefundId=null}={}){
   }
   if(r.lock_id===null&&r.transaction_id!==null){
    if(Number(r.transaction_id)!==Number(src.tx.transaction_id))return no('F06_TX_REFUND_OTHER_TRANSACTION_SUBJECT_CONFLICT');
-   return no('F06_TX_REFUND_ALREADY_EXISTS');
+   const origin=await one(c,'SELECT * FROM f06_real_tx_refund_ci.origins WHERE refund_id=$1 FOR SHARE',[r.refund_id]);
+   if(!origin)return no('F06_TX_REFUND_UNSIGNED_EXISTING_CASE');
+   const trusted=await refundCaseSource(c,src,r,origin);
+   if(!trusted.allowed)return trusted;
+   if(r.status==='pending')pendingCents+=Number(trusted.amountCents);
+   else if(r.status!=='closed')return no('F06_TX_REFUND_UNKNOWN_TRANSACTION_REFUND_STATUS');
+   continue;
   }
   return no('F06_TX_REFUND_INVALID_PUBLIC_SUBJECT');
  }
@@ -355,14 +361,12 @@ export async function requestTransactionRefundCI(auth,token,p={}){
     if(!signed.allowed)return signed;
     return yes('F06_TX_REFUND_IDEMPOTENT_REQUEST',{refundId:Number(old.row.refund_id),backendPid:(await one(c,'SELECT pg_backend_pid() pid')).pid});
    }
-   const existing=await one(c,'SELECT * FROM public.refund_cases WHERE transaction_id=$1 OR (lock_id=$2 AND transaction_id IS NULL) ORDER BY refund_id LIMIT 1 FOR UPDATE',[t.transaction_id,t.source_lock_id]);
-   if(existing){
-    if(existing.transaction_id!==null){
-     const o=await one(c,'SELECT * FROM f06_real_tx_refund_ci.origins WHERE refund_id=$1 FOR SHARE',[existing.refund_id]);
-     if(!o)return no('F06_TX_REFUND_UNSIGNED_EXISTING_CASE');
-     return no('F06_TX_REFUND_ALREADY_EXISTS');
-    }
-    return no('F06_TX_REFUND_LOCK_REFUND_SUBJECT_CONFLICT');
+   const existing=(await c.query('SELECT * FROM public.refund_cases WHERE transaction_id=$1 ORDER BY refund_id FOR UPDATE',[t.transaction_id])).rows;
+   for(const prior of existing){
+    const o=await one(c,'SELECT * FROM f06_real_tx_refund_ci.origins WHERE refund_id=$1 FOR SHARE',[prior.refund_id]);
+    if(!o)return no('F06_TX_REFUND_UNSIGNED_EXISTING_CASE');
+    if(prior.status==='pending')return no('F06_TX_REFUND_ALREADY_PENDING');
+    if(prior.status!=='closed')return no('F06_TX_REFUND_UNKNOWN_TRANSACTION_REFUND_STATUS');
    }
    const pool=await balancePool(c,src);if(!pool.allowed)return pool;
    if(pool.availableCents<=0)return no('F06_TX_REFUND_NO_SIGNED_REFUNDABLE_BALANCE');
@@ -415,7 +419,7 @@ export async function closeTransactionRefundCI(auth,token,p={}){
    const fp=fingerprint({action:'close',refundId:p.refundId,transactionId:t.transaction_id,closeReason:p.closeReason.trim()});
    const old=await existingKey(c,p.eventKey,{actorId:a?.employee_id,action:'close',transactionId:t.transaction_id,payloadSha:fp});
    if(old?.conflict)return no('F06_TX_REFUND_IDEMPOTENCY_CONFLICT');
-   if(!await currentPermission(c,a,t,'transaction.refund.ci.close'))
+   if(!await currentPermission(c,a,t,'transaction.refund.ci.request'))
     return no('F06_TX_REFUND_CLOSE_PERMISSION_SCOPE_DENIED');
    const src=await verifyTransactionSource(c,t);if(!src.allowed)return src;
    const l=await one(c,'SELECT * FROM public.locks WHERE lock_id=$1 FOR UPDATE',[seed.source_lock_id]);

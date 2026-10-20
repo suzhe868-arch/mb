@@ -93,7 +93,7 @@ before(async()=>{
  const permissions=[
   [986001,'transaction.ci.open'],[986002,'transaction.ci.cancel'],[986003,'deposit.ci.record'],
   [986004,'deposit.ci.correct'],[986005,'refund.ci.request'],
-  [986006,'transaction.refund.ci.request'],[986007,'transaction.refund.ci.close']
+  [986006,'transaction.refund.ci.request']
  ];
  for(const [permissionId,code] of permissions){
   await q('INSERT INTO public.permissions(permission_id,permission_code) VALUES($1,$2)',[permissionId,code]);
@@ -101,14 +101,14 @@ before(async()=>{
   await q("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES(1,$1,$2,clock_timestamp()-interval '2 minutes')",[permissionId,scopeId]);
  }
  token=(await auth.login({login:'employee_test',password:'SyntheticF04_3_CurrentProof_2026',source:'f06-tx-refund-current'})).token;assert.ok(token);
- for(let n=1;n<=11;n++){
+ for(let n=1;n<=8;n++){
   const intake=await old(()=>intakeCI(db,{requestKey:key('intake-'+n),customerId:customer,vehicleId:vehicle(n),listingCycleId:cycle(n),
    syntheticPhoneConsent:'CI_SYNTHETIC_PHONE_CONSENT_NOT_PRODUCTION'}));
   assert.equal(intake.allowed,true,JSON.stringify(intake));
   const d=await old(()=>decisionCI(auth,token,{requestId:intake.requestId,requestKey:key('approve-'+n),action:'approve'}));
   assert.equal(d.allowed,true,JSON.stringify(d));locks[n]=Number(d.lockId);
  }
- for(let n=1;n<=11;n++){
+ for(let n=1;n<=8;n++){
   const dep=await underRef(depositBranch,()=>recordSyntheticDepositCI(auth,token,{lockId:locks[n],amountCents:12000,currency:'CNY',
    paymentMethod:'bank_transfer',eventKey:key('deposit-'+n),receivedAt:new Date(Date.now()-3600000).toISOString(),
    syntheticVoucher:'CI-TX-REFUND-'+n,note:'Synthetic Transaction refund balance'}));
@@ -118,17 +118,16 @@ before(async()=>{
  const c2=await underRef(depositBranch,()=>correctSyntheticDepositCI(auth,token,{lockId:locks[2],depositId:deposits[2],
   action:'correction',deltaCents:-3000,currency:'CNY',eventKey:key('correction-minus'),reason:'Synthetic signed correction minus three thousand'}));
  assert.equal(c2.allowed,true,JSON.stringify(c2));
- const c9=await underRef(depositBranch,()=>correctSyntheticDepositCI(auth,token,{lockId:locks[9],depositId:deposits[9],
+ const c9=await underRef(depositBranch,()=>correctSyntheticDepositCI(auth,token,{lockId:locks[5],depositId:deposits[5],
   action:'correction',deltaCents:2000,currency:'CNY',eventKey:key('correction-plus'),reason:'Synthetic signed correction plus two thousand'}));
  assert.equal(c9.allowed,true,JSON.stringify(c9));
  // Build one fully signed, no-payment Lock-side closed case before its Tx exists.
- const lockPending=await requestSyntheticRefundCI(auth,token,{lockId:locks[10],amountCents:1000,reason:'Synthetic historical Lock-side request',
+ const lockPending=await requestSyntheticRefundCI(auth,token,{lockId:locks[4],amountCents:1000,reason:'Synthetic historical Lock-side request',
   eventKey:key('lock-refund-request'),subjectKind:'lock'});
  assert.equal(lockPending.allowed,true,JSON.stringify(lockPending));const oldLockRefund=Number(lockPending.refundId);
  const lockClosed=await closeSyntheticRefundCI(auth,token,{refundId:oldLockRefund,closeReason:'Synthetic historical Lock-side no-payment close',eventKey:key('lock-refund-close')});
  assert.equal(lockClosed.allowed,true,JSON.stringify(lockClosed));
- for(let n=1;n<=10;n++){await openTransaction(n);await cancelTransaction(n)}
- await openTransaction(11); // intentionally remains in_progress as a negative case
+ for(let n=1;n<=8;n++){await openTransaction(n);if(n!==4)await cancelTransaction(n)}
  server=createHttpServer();
  await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve)});
  base='http://127.0.0.1:'+server.address().port;
@@ -155,7 +154,7 @@ test('12 非法Transaction与金额参数拒绝',async()=>{
  const b=await requestCall('invalid-money',transactions[1],0);assert.equal(b.status,400);
 });
 test('13 未取消in_progress Transaction不可申请Refund',async()=>{
- const r=await requestCall('in-progress-deny',transactions[11],1000);assert.equal(r.body.code,'F06_TX_REFUND_ONLY_CANCELLED_TRANSACTION');
+ const r=await requestCall('in-progress-deny',transactions[4],1000);assert.equal(r.body.code,'F06_TX_REFUND_ONLY_CANCELLED_TRANSACTION');
 });
 test('14 合法PR139+PR146签名cancelled Transaction真实HTTP发起pending',async()=>{
  const r=await requestCall('pending-first',transactions[1],6000);
@@ -187,9 +186,9 @@ test('19 同Key跨Transaction subject冲突',async()=>{
  const r=await requestCall('pending-first',transactions[2],1000);
  assert.equal(r.body.code,'F06_TX_REFUND_IDEMPOTENCY_CONFLICT');
 });
-test('20 已存在同Transaction Refund不可再建第二笔',async()=>{
+test('20 同范围存在pending时拒绝第二笔冲突退款',async()=>{
  const r=await requestCall('second-refund-same-tx',transactions[1],1000);
- assert.equal(r.body.code,'F06_TX_REFUND_ALREADY_EXISTS');
+ assert.equal(r.body.code,'F06_TX_REFUND_ALREADY_PENDING');
  assert.equal(await count('SELECT count(*)::int n FROM public.refund_cases WHERE transaction_id=$1',[transactions[1]]),1);
 });
 test('21 签名Correction扣减后的净余额9000，超额9001严格拒绝',async()=>{
@@ -230,10 +229,10 @@ test('26 同Close Key篡改理由冲突',async()=>{
 test('27 closed终态不可重开或再关闭',async()=>{
  const r=await closeCall('close-terminal-again',refunds[1]);assert.equal(r.body.code,'F06_TX_REFUND_ALREADY_TERMINAL');
 });
-test('28 独立Close Permission撤销后不得关闭pending Refund',async()=>{
- await q("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=1 AND permission_id=986007");
+test('28 Refund管理Permission撤销后不得关闭，不建立专门Close Permission',async()=>{
+ await q("UPDATE public.employee_permission_overrides SET decision='deny' WHERE employee_id=1 AND permission_id=986006");
  try{const r=await closeCall('close-permission-revoked',refunds[2]);assert.equal(r.body.code,'F06_TX_REFUND_CLOSE_PERMISSION_SCOPE_DENIED')}
- finally{await q("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=1 AND permission_id=986007")}
+ finally{await q("UPDATE public.employee_permission_overrides SET decision='allow' WHERE employee_id=1 AND permission_id=986006")}
 });
 test('29 真实/伪造Payment事实存在时绝不无付款closed',async()=>{
  const payment=await insertSyntheticPayment(refunds[2]);
@@ -264,6 +263,21 @@ test('33 关闭注错后public status/Event/Key/Audit没有半写',async()=>{
 test('34 正常无付款closed可在Rollback后重试',async()=>{
  const r=await closeCall('close-after-rollback',refunds[2]);
  assert.equal(r.status,201,JSON.stringify(r.body));assert.equal(r.body.code,'F06_TX_REFUND_CLOSED_WITHOUT_PAYMENT');
+});
+test('34A closed之后同一Transaction可合法重新申请新的独立Refund',async()=>{
+ const r=await requestCall('second-legitimate-after-closed',transactions[2],8000);
+ assert.equal(r.status,201,JSON.stringify(r.body));refunds[12]=Number(r.body.refundId);
+ assert.notEqual(refunds[12],refunds[2]);
+ assert.equal((await caseFacts(refunds[12])).status,'pending');
+ assert.equal((await caseFacts(refunds[2])).status,'closed');
+ const origin=(await rows('SELECT net_deposit_cents,available_balance_cents FROM f06_real_tx_refund_ci.origins WHERE refund_id=$1',[refunds[12]]))[0];
+ assert.deepEqual([Number(origin.net_deposit_cents),Number(origin.available_balance_cents)],[9000,9000]);
+});
+test('34B 新Refund独立无付款关闭，先前已关闭记录永久保留',async()=>{
+ const r=await closeCall('second-legitimate-close',refunds[12]);
+ assert.equal(r.status,201,JSON.stringify(r.body));
+ assert.equal((await caseFacts(refunds[12])).status,'closed');
+ assert.equal((await caseFacts(refunds[2])).status,'closed');
 });
 test('35 AFTER_PENDING_THROW真实PG16事务Rollback',async()=>{
  const before=await facts(transactions[8]);
@@ -298,26 +312,27 @@ test('41 并发败方不留第二Case/Origin/Event/Key/Audit',async()=>{
  const x=await facts(transactions[3]);assert.deepEqual([x.public_cases,x.origins,x.events,x.keys,x.audits],[1,1,1,1,1]);
 });
 test('42 正向余额+已签Correction得到14000，允许按净余额申请',async()=>{
- const r=await requestCall('net-plus-correction',transactions[9],14000);
+ const r=await requestCall('net-plus-correction',transactions[5],14000);
  assert.equal(r.status,201,JSON.stringify(r.body));refunds[9]=Number(r.body.refundId);
  const o=(await rows('SELECT net_deposit_cents,available_balance_cents FROM f06_real_tx_refund_ci.origins WHERE refund_id=$1',[refunds[9]]))[0];
  assert.deepEqual([Number(o.net_deposit_cents),Number(o.available_balance_cents)],[14000,14000]);
 });
-test('43 有效历史Lock-side closed Refund不能换绑成Transaction Refund',async()=>{
- const r=await requestCall('lock-subject-not-rebind',transactions[10],1000);
- assert.equal(r.body.code,'F06_TX_REFUND_LOCK_REFUND_SUBJECT_CONFLICT');
- assert.equal(await count('SELECT count(*)::int n FROM public.refund_cases WHERE transaction_id=$1',[transactions[10]]),0);
- const old=(await rows('SELECT lock_id,transaction_id,status FROM public.refund_cases WHERE refund_id=$1',[Number((await rows('SELECT refund_id FROM f06_3c1_ci.refund_origins WHERE lock_id=$1',[locks[10]]))[0].refund_id)]))[0];
- assert.equal(Number(old.lock_id),locks[10]);assert.equal(old.transaction_id,null);assert.equal(old.status,'closed');
+test('43 原Lock的合法closed历史保留，新Transaction退款必须独立创建',async()=>{
+ await cancelTransaction(4);
+ const r=await requestCall('lock-subject-not-rebind',transactions[4],1000);
+ assert.equal(r.status,201,JSON.stringify(r.body));refunds[10]=Number(r.body.refundId);
+ assert.equal(await count('SELECT count(*)::int n FROM public.refund_cases WHERE transaction_id=$1',[transactions[4]]),1);
+ const old=(await rows('SELECT lock_id,transaction_id,status FROM public.refund_cases WHERE refund_id=$1',[Number((await rows('SELECT refund_id FROM f06_3c1_ci.refund_origins WHERE lock_id=$1',[locks[4]]))[0].refund_id)]))[0];
+ assert.equal(Number(old.lock_id),locks[4]);assert.equal(old.transaction_id,null);assert.equal(old.status,'closed');
 });
 test('44 原Lock历史和新Transaction退款始终是两个不同subject',async()=>{
- assert.equal(await count('SELECT count(*)::int n FROM public.refund_cases WHERE lock_id=$1 AND transaction_id IS NULL',[locks[10]]),1);
- assert.equal(await count('SELECT count(*)::int n FROM public.refund_cases WHERE transaction_id=$1 AND lock_id IS NULL',[transactions[10]]),0);
+ assert.equal(await count('SELECT count(*)::int n FROM public.refund_cases WHERE lock_id=$1 AND transaction_id IS NULL',[locks[4]]),1);
+ assert.equal(await count('SELECT count(*)::int n FROM public.refund_cases WHERE transaction_id=$1 AND lock_id IS NULL',[transactions[4]]),1);
 });
 test('45 未签Deposit即使公共receipt存在也必须FailClosed',async()=>{
- const x=await q("INSERT INTO public.deposit_receipts(customer_id,lock_id,amount_cents,received_at,recorded_by) VALUES($1,$2,100,clock_timestamp(),1) RETURNING deposit_id",[customer,locks[5]]);
+ const x=await q("INSERT INTO public.deposit_receipts(customer_id,lock_id,amount_cents,received_at,recorded_by) VALUES($1,$2,100,clock_timestamp(),1) RETURNING deposit_id",[customer,locks[6]]);
  const depositId=Number(x.rows[0].deposit_id);
- try{const r=await requestCall('unsigned-deposit',transactions[5],100);assert.equal(r.body.code,'F06_TX_REFUND_UNKNOWN_DEPOSIT_ORIGIN')}
+ try{const r=await requestCall('unsigned-deposit',transactions[6],100);assert.equal(r.body.code,'F06_TX_REFUND_UNKNOWN_DEPOSIT_ORIGIN')}
  finally{await q('DELETE FROM public.deposit_receipts WHERE deposit_id=$1',[depositId])}
 });
 test('46 同Lock出现未签pending退款冲突时必须FailClosed',async()=>{
@@ -380,10 +395,10 @@ test('56 同交易存在无签名public Refund case不得忽略',async()=>{
  finally{await q('DELETE FROM public.refund_cases WHERE refund_id=$1',[id])}
 });
 test('57 signed correction把净额降为零后不得新申请退款',async()=>{
- const c=await underRef(depositBranch,()=>correctSyntheticDepositCI(auth,token,{lockId:locks[5],depositId:deposits[5],
+ const c=await underRef(depositBranch,()=>correctSyntheticDepositCI(auth,token,{lockId:locks[6],depositId:deposits[6],
   action:'reversal',deltaCents:-12000,currency:'CNY',eventKey:key('reversal-to-zero'),reason:'Synthetic signed full deposit reversal'}));
  assert.equal(c.allowed,true,JSON.stringify(c));
- const r=await requestCall('zero-net-deny',transactions[5],1);assert.equal(r.body.code,'F06_TX_REFUND_NO_SIGNED_REFUNDABLE_BALANCE');
+ const r=await requestCall('zero-net-deny',transactions[6],1);assert.equal(r.body.code,'F06_TX_REFUND_NO_SIGNED_REFUNDABLE_BALANCE');
 });
 test('58 closed与pending都不写入refund_payments或refunded金额',async()=>{
  assert.equal(await count('SELECT count(*)::int n FROM public.refund_payments'),0);
@@ -394,7 +409,7 @@ test('59 历史Deposit/Correction和Lock/Waitlist/Priority来源未被移动或�
  assert.equal(await count('SELECT count(*)::int n FROM public.deposit_receipts WHERE lock_id=$1',[locks[2]]),1);
  assert.equal(await count('SELECT count(*)::int n FROM f06_3a_ci.adjustments WHERE deposit_id=$1',[deposits[2]]),1);
  assert.equal(await count('SELECT count(*)::int n FROM f06_real_tx_ci.origins WHERE transaction_id=$1',[transactions[2]]),1);
- assert.equal(await count('SELECT count(*)::int FROM public.locks WHERE lock_id=$1 AND lock_status=\'released\' AND end_reason=\'converted_to_transaction\'',[locks[2]]),1);
+ assert.equal(await count('SELECT count(*)::int n FROM public.locks WHERE lock_id=$1 AND lock_status=\'released\' AND end_reason=\'converted_to_transaction\'',[locks[2]]),1);
 });
 test('60 新sidecar append-only来源与事件不可改写',async()=>{
  await assert.rejects(q('UPDATE f06_real_tx_refund_ci.origins SET reason=reason WHERE refund_id=$1',[refunds[1]]),/F06_REAL_TX_REFUND_APPEND_ONLY_IMMUTABLE/);

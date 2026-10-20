@@ -11,7 +11,7 @@ CREATE TABLE f06_real_tx_refund_ci.attestation(
 );
 CREATE TABLE f06_real_tx_refund_ci.origins(
  refund_id bigint PRIMARY KEY REFERENCES public.refund_cases(refund_id),
- transaction_id bigint NOT NULL UNIQUE REFERENCES public.transactions(transaction_id),
+ transaction_id bigint NOT NULL REFERENCES public.transactions(transaction_id),
  source_lock_id bigint NOT NULL REFERENCES public.locks(lock_id),
  customer_id bigint NOT NULL REFERENCES public.customers(customer_id),
  vehicle_id bigint NOT NULL REFERENCES public.vehicles(vehicle_id),
