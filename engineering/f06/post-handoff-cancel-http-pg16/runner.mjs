@@ -7,11 +7,11 @@ const mode=process.argv[2];if(!['--apply','--verify','--inject-rollback'].includ
 const c=await connect();
 try{
  if(mode==='--inject-rollback'){
-  try{await apply(c,{inject:true});throw Error('F06_REAL_POST_CANCEL_ROLLBACK_UNDETECTED')}
-  catch(e){if(e.message!=='F06_REAL_POST_CANCEL_INJECTED_MIGRATION_ROLLBACK')throw e}
-  const row=(await c.query("SELECT to_regnamespace('f06_real_post_cancel_ci')::text n")).rows[0];
-  if(row.n!==null)throw Error('F06_REAL_POST_CANCEL_DDL_ROLLBACK_FAILED');
-  console.log('F06_REAL_POST_CANCEL_PG16_DDL_ROLLBACK_PASS');
- }else if(mode==='--apply')console.log('F06_REAL_POST_CANCEL_CI_APPLIED',JSON.stringify(await apply(c)));
- else console.log('F06_REAL_POST_CANCEL_CI_VERIFIED',JSON.stringify(await verify(c)));
+  try{await apply(c,{inject:true});throw Error('F06_POST_CANCEL_ROLLBACK_UNDETECTED')}
+  catch(e){if(e.message!=='F06_POST_CANCEL_INJECTED_MIGRATION_ROLLBACK')throw e}
+  const row=(await c.query("SELECT to_regnamespace('f06_real_post_handoff_cancel_ci')::text n")).rows[0];
+  if(row.n!==null)throw Error('F06_POST_CANCEL_DDL_ROLLBACK_FAILED');
+  console.log('F06_POST_CANCEL_PG16_DDL_ROLLBACK_PASS');
+ }else if(mode==='--apply')console.log('F06_POST_CANCEL_CI_APPLIED',JSON.stringify(await apply(c)));
+ else console.log('F06_POST_CANCEL_CI_VERIFIED',JSON.stringify(await verify(c)));
 }finally{await c.end()}
