@@ -639,3 +639,116 @@ test('104 同Key换金额冲突',async()=>{
  const r=await refundRequest('first',tx[1],5900);
  assert.equal(r.body.code,'F06_TX_REFUND_IDEMPOTENCY_CONFLICT');
 });
+
+
+test('105 新Key有未关闭Pending拒重复',async()=>{
+ const r=await refundRequest('second-pending',tx[1],100);
+ assert.equal(r.body.code,'F06_TX_REFUND_ALREADY_PENDING',JSON.stringify(r.body));
+});
+test('106 不同Actor重放签名RequestKey拒绝',async()=>{
+ const r=await refundRequest('first',tx[1],6000,managerToken);assert.equal(r.body.allowed,false);
+});
+test('107 原负责人无权关闭现负责人Pending',async()=>{
+ const r=await refundClose('old-close',refunds[1],managerToken);assert.equal(r.status,403);
+});
+test('108 Refund pending未生成真钱付款行',async()=>{
+ const r=await refundFacts(refunds[1]);assert.equal(r.payments,0);
+});
+test('109 真实3A合法正向Correction在Pending之后追加',async()=>{
+ const beforeRef=process.env.GITHUB_REF,beforeName=process.env.GITHUB_REF_NAME;
+ process.env.GITHUB_REF='refs/heads/feat/f06-3a-deposit-ledger-ci';
+ process.env.GITHUB_REF_NAME='feat/f06-3a-deposit-ledger-ci';
+ let r;
+ try{
+  r=await correctSyntheticDepositCI(auth,managerToken,{lockId:locks[1],
+   depositId:signedDeposits[1],action:'correction',deltaCents:1500,currency:'CNY',
+   eventKey:bridgeKey('after-pending-correction'),
+   reason:'Native signed correction after a bridge pending refund'});
+ }finally{process.env.GITHUB_REF=beforeRef;process.env.GITHUB_REF_NAME=beforeName}
+ assert.equal(r.allowed,true,JSON.stringify(r));assert.equal(r.netCents,13500);
+});
+test('110 请求后合法签名Correction不会破坏旧请求幂等',async()=>{
+ const r=await refundRequest('first',tx[1],6000);assert.equal(r.status,200,JSON.stringify(r.body));
+});
+test('111 非法RefundID关闭被拒',async()=>assert.equal((await refundClose('bad-id',-1)).status,400));
+test('112 关闭理由为空被拒',async()=>assert.equal((await refundClose('bad-reason',refunds[1],peerToken,{closeReason:''})).status,400));
+test('113 AFTER_CLOSE注错完整回滚',async()=>{
+ const before=await refundFacts(refunds[1]);
+ const r=await refundClose('fault-close',refunds[1],peerToken,{testCheckpoint:'AFTER_CLOSE_THROW'});
+ assert.equal(r.body.code,'F06_TX_REFUND_ATOMIC_ROLLED_BACK',JSON.stringify(r.body));
+ assert.deepEqual(await refundFacts(refunds[1]),before);
+});
+test('114 AFTER_EVENT注错完整回滚',async()=>{
+ const before=await refundFacts(refunds[1]);
+ const r=await refundClose('fault-event',refunds[1],peerToken,{testCheckpoint:'AFTER_EVENT_THROW'});
+ assert.equal(r.body.code,'F06_TX_REFUND_ATOMIC_ROLLED_BACK',JSON.stringify(r.body));
+ assert.deepEqual(await refundFacts(refunds[1]),before);
+});
+test('115 AFTER_AUDIT注错完整回滚',async()=>{
+ const before=await refundFacts(refunds[1]);
+ const r=await refundClose('fault-audit',refunds[1],peerToken,{testCheckpoint:'AFTER_AUDIT_THROW'});
+ assert.equal(r.body.code,'F06_TX_REFUND_ATOMIC_ROLLED_BACK',JSON.stringify(r.body));
+ assert.deepEqual(await refundFacts(refunds[1]),before);
+});
+test('116 当前签名负责人零付款正常Close',async()=>{
+ const r=await refundClose('normal-close',refunds[1]);assert.equal(r.status,201,JSON.stringify(r.body));
+ assert.equal(r.body.code,'F06_TX_REFUND_CLOSED_WITHOUT_PAYMENT');
+});
+test('117 真实PG原件Close状态与付款为0',async()=>{
+ const x=await refundFacts(refunds[1]);assert.equal(x.status,'closed');assert.ok(x.closed_at);
+ assert.deepEqual([x.events,x.keys,x.payments],[2,2,0]);
+});
+test('118 同Key同ActorClose幂等',async()=>{
+ const r=await refundClose('normal-close',refunds[1]);assert.equal(r.status,200,JSON.stringify(r.body));
+});
+test('119 不同Key重复Close拒绝',async()=>{
+ const r=await refundClose('another-close',refunds[1]);assert.equal(r.body.code,'F06_TX_REFUND_ALREADY_TERMINAL');
+});
+test('120 第二签名Transaction由Employee4独立申请',async()=>{
+ const r=await refundRequest('tx2',tx[2],5000,targetToken);assert.equal(r.status,201,JSON.stringify(r.body));
+ refunds[2]=Number(r.body.refundId);
+});
+test('121 非当前负责人不能关闭第二笔退款',async()=>{
+ const r=await refundClose('tx2-old',refunds[2],managerToken);assert.equal(r.status,403);
+});
+test('122 第二当前负责人独立关闭无付款Refund',async()=>{
+ const r=await refundClose('tx2-close',refunds[2],targetToken);assert.equal(r.status,201,JSON.stringify(r.body));
+});
+test('123 第二余额来自原生账本且没有付款',async()=>{
+ const r=await refundFacts(refunds[2]);assert.equal(r.status,'closed');assert.equal(r.payments,0);
+ assert.equal(Number(r.expected_amount_cents),5000);
+});
+test('124 原冻结PR150接口对新PR156签名仍FailClosed',async()=>{
+ const r=await cancelWorker('refund',peerToken,{transactionId:tx[1],amountCents:100,
+  reason:'Old refund source must reject new cancel',
+  eventKey:bridgeKey('old-refund-should-deny')});
+ assert.equal(r.allowed,false,JSON.stringify(r));
+});
+test('125 真实两PG Backend同Transaction请求只有一个成功',async()=>{
+ const [a,b]=await Promise.all([
+  refundRequest('race-a',tx[3],4000,targetToken),
+  refundRequest('race-b',tx[3],4000,targetToken)
+ ]);
+ assert.equal(Number(a.body.allowed)+Number(b.body.allowed),1,JSON.stringify({a,b}));
+ assert.ok(a.body.backendPid&&b.body.backendPid&&a.body.backendPid!==b.body.backendPid,
+  JSON.stringify({a,b}));
+ refunds[3]=Number((a.body.allowed?a:b).body.refundId);
+ console.log('F06_BRIDGE_DIFFERENT_PG_BACKENDS',a.body.backendPid,b.body.backendPid);
+});
+test('126 并发之后仅1个Public Pending以及Event/Key',async()=>{
+ assert.equal(await count('SELECT count(*)::int n FROM public.refund_cases WHERE transaction_id=$1',[tx[3]]),1);
+ const x=await refundFacts(refunds[3]);assert.equal(x.status,'pending');
+ assert.deepEqual([x.events,x.keys,x.payments],[1,1,0]);
+});
+test('127 旧PR156不可变Cancel源物理更新受阻',async()=>{
+ await assert.rejects(q('UPDATE f06_real_post_handoff_cancel_ci.origins SET reason=reason WHERE transaction_id=$1',[tx[1]]),/IMMUTABLE/);
+});
+test('128 退款Origin不可变资金原件物理更新受阻',async()=>{
+ await assert.rejects(q('UPDATE f06_real_tx_refund_ci.origins SET reason=reason WHERE refund_id=$1',[refunds[1]]),/IMMUTABLE/);
+});
+test('129 Employee4正确关闭并发胜出Pending',async()=>{
+ const r=await refundClose('tx3-close',refunds[3],targetToken);assert.equal(r.status,201,JSON.stringify(r.body));
+});
+test('130 原生PG始终没有退款付款行',async()=>{
+ assert.equal(await count('SELECT count(*)::int n FROM public.refund_payments'),0);
+});
