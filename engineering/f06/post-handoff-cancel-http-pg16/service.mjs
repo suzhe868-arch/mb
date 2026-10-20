@@ -196,15 +196,16 @@ export async function cancelAfterSignedHandoffCI(auth,token,p={}){
    return yes('F06_POST_CANCEL_IDEMPOTENT',{transactionId:p.transactionId,version:p.expectedVersion,backendPid:(await one(c,'SELECT pg_backend_pid() pid')).pid});
   }
   if(t.status!=='in_progress'||t.completed_at!==null)return no('F06_POST_CANCEL_ONLY_IN_PROGRESS');
+  // Keep the parent Lock and signed finance facts ahead of Handoff history,
+  // matching the native Vehicle -> Transaction -> Lock -> Finance -> Handoff -> Scope lock order.
+  const parent=await trustedTransaction(c,t);
+  if(!parent.allowed)return no('F06_POST_CANCEL_PARENT_FINANCE_OR_LOCK_DRIFT_'+parent.code);
   const signed=await currentSignedResponsibleCI(c,p.transactionId);
   if(!signed.allowed||signed.version<1||signed.currentId!==Number(t.responsible_employee_id)||
    signed.currentId!==Number(a.employee_id))return no('F06_POST_CANCEL_PR153_CURRENT_CHAIN_INVALID');
   if(signed.version!==p.expectedVersion)return no('F06_POST_CANCEL_STALE_HANDOFF_VERSION');
-  const parent=await trustedTransaction(c,t);
-  if(!parent.allowed)return no('F06_POST_CANCEL_PARENT_FINANCE_OR_LOCK_DRIFT_'+parent.code);
   if(Number(parent.source.responsible_employee_id)!==signed.originalId)
    return no('F06_POST_CANCEL_ORIGINAL_RESPONSIBLE_DRIFT');
-  // Ordered locks: Vehicle -> Transaction -> signed source Lock -> Handoff/finance -> current Scope.
   const signedScope=await currentPermission(c,a,t.responsible_employee_id);
   if(!signedScope)return no('F06_POST_CANCEL_PERMISSION_SCOPE_DENIED');
   const events=(await c.query('SELECT * FROM f06_real_handoff_ci.events WHERE transaction_id=$1 ORDER BY version,event_id FOR SHARE',[p.transactionId])).rows;
