@@ -50,6 +50,13 @@ assert_tap() {
 }
 
 node "$base/trigger-preflight.mjs"
+bash -n "$base/disposable-db.sh"
+set +e
+bash "$base/disposable-db.sh" INVALID_MODE >/dev/null 2>&1
+invalid_mode_rc=$?
+set -e
+test "$invalid_mode_rc" -eq 64
+echo F06_REAL_DEPOSIT_DISPOSABLE_MODE_NEGATIVE_PASS
 
 # GitHub's official service image is postgres:16-alpine; the inherited
 # signed F05/F06 CI lineage locates the same single container through

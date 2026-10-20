@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-mode="§{1:-}"
+mode="${1:-}"
 case "$mode" in prepare|restore-source);; *) exit 64;; esac
 test "$GITHUB_REPOSITORY" = 'suzhe868-arch/mb'
 test "$GITHUB_ACTIONS" = 'true'

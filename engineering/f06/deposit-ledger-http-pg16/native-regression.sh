@@ -35,6 +35,23 @@ docker exec -e PGPASSWORD=f03_ci_synthetic_only "$ids" \
 test -s "$dump"
 docker exec -i -e PGPASSWORD=f06_ci_synthetic_only "$ids" \
   pg_restore -h127.0.0.1 -Uf06_lock_ci -df06_lock_test --no-owner --no-privileges --exit-on-error < "$dump"
+# Original signed F05 Priority is inspected read-only; no fake issuer data.
+docker exec -e PGPASSWORD=f06_ci_synthetic_only "$ids" \
+  psql -h127.0.0.1 -Uf06_lock_ci -df06_lock_test -X -v ON_ERROR_STOP=1 -Atc "
+SELECT 'F06_ORIGINAL_PRIORITY_PROVENANCE ' || COALESCE(json_agg(row_to_json(z))::text,'[]')
+FROM (
+ SELECT p.priority_id,p.customer_id,p.status,p.expires_at,
+        r.status AS source_status,
+        (r.source_signature=p.source_signature) AS source_signature_matches,
+        (p.expires_at>clock_timestamp()) AS still_valid,
+        EXISTS(SELECT 1 FROM public.locks l WHERE l.vehicle_id=p.vehicle_id
+          AND l.lock_status='active') AS competing_active_lock
+ FROM public.f05_8_priority_ci p
+ LEFT JOIN public.f05_7_result_versions_ci r
+   ON r.result_id=p.source_match_result_id
+ WHERE p.customer_id=899612
+ ORDER BY p.priority_id
+) z;"
 (
   cd engineering
   node scripts/f06-lock-prepare-disposable.mjs

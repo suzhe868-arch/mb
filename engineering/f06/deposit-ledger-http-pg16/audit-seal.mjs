@@ -16,7 +16,37 @@ const sourceUrl = process.env.F03_1_DATABASE_URL;
 const targetUrl = process.env.F06_LOCK_DATABASE_URL;
 const mode = process.argv[2];
 const schemas = ['public', 'd1_owner_ci', 'f06_1_lock_ci', 'f06_2_ci'];
-const expectedTableCount = 190;
+// A已裁定F06-3A父基线是161张，但必须核对原生父层的完整逐表清单。
+const expectedTableCount = 161;
+const parentEvidenceDir = resolve('engineering/f06/deposit-ledger-ci/artifacts/source');
+async function loadVerifiedParent() {
+  const parent = JSON.parse(await readFile(resolve(parentEvidenceDir, 'audit-before.json'), 'utf8'));
+  const receipt = JSON.parse(await readFile(resolve(parentEvidenceDir, 'audit-global-seal-pass.json'), 'utf8'));
+  assert.equal(parent.head, process.env.F06_REAL_ENTRY_SHA);
+  assert.equal(parent.runId, process.env.F06_REAL_ENTRY_RUN_ID);
+  assert.equal(receipt.status, 'PASS');
+  assert.equal(receipt.head, parent.head);
+  assert.equal(receipt.runId, parent.runId);
+  assert.equal(parent.tableCount, expectedTableCount);
+  assert.equal(receipt.tableCount, expectedTableCount);
+  assert.equal(Object.keys(parent.tables).length, expectedTableCount);
+  assert.equal(sha(JSON.stringify(parent.tables)), parent.tableDigest);
+  assert.equal(receipt.tableDigest, parent.tableDigest);
+  assert.equal(receipt.businessScenarioDatabaseOid, parent.meta.oid);
+  for (const [field, origin] of [
+    ['catalogSha256','catalogSha256'],['ledgerSha256','ledgerDigest'],
+    ['d1Sha256','d1Digest'],['parentSealDigest','parentSealDigest'],
+    ['parent2SealDigest','parent2SealDigest']
+  ]) assert.equal(receipt[field], parent[origin], field + ' verified parent mismatch');
+  const expected = {};
+  for (const [name,row] of Object.entries(parent.tables)) {
+    assert.match(name, /^(public|d1_owner_ci|f06_1_lock_ci|f06_2_ci)\.[a-z0-9_]+$/);
+    assert.match(row.hash, /^[a-f0-9]{32}$/);
+    assert.ok(Number.isInteger(Number(row.n)) && Number(row.n)>=0);
+    expected[name] = {rows:Number(row.n),md5:row.hash};
+  }
+  return {parent, receipt, expected};
+}
 
 function requireEnvironment() {
   assert.equal(process.env.GITHUB_REPOSITORY, 'suzhe868-arch/mb');
@@ -103,7 +133,9 @@ async function snapshot(client, label) {
   const signed = await signedMetadata(client, label);
   const tableMap = await readTableMap(client);
   const tableCount = Object.keys(tableMap).length;
-  assert.equal(tableCount, expectedTableCount, label + ' must seal exactly 190 signed parent tables');
+  assert.equal(tableCount, expectedTableCount, label + ' signed parent physical table count drift');
+  assert.deepEqual(tableMap, verifiedParent.expected,
+    label + ' must match every table and every COUNT/MD5 in native verified F06-3A parent');
   return {
     label,
     database_name: ident.database_name,
@@ -133,6 +165,13 @@ async function verifyParent(source) {
 }
 requireEnvironment();
 assert.ok(['before','after','verify-scenario'].includes(mode), 'mode required');
+const verifiedParent = await loadVerifiedParent();
+console.log('F06_REAL_DEPOSIT_SIGNED_PARENT_MANIFEST_BOUND ' + JSON.stringify({
+  head_sha: process.env.F06_REAL_ENTRY_SHA, run_id: process.env.F06_REAL_ENTRY_RUN_ID,
+  table_count: verifiedParent.parent.tableCount,
+  digest: verifiedParent.parent.tableDigest,
+  original_database_oid: verifiedParent.parent.meta.oid
+}));
 await mkdir(evidenceDir, { recursive: true });
 const source = await connect(sourceUrl);
 const target = await connect(targetUrl);
@@ -146,6 +185,10 @@ try {
     assert.equal(sourceNames.length, expectedTableCount);
     assert.equal(targetNames.length, expectedTableCount);
     assert.deepEqual(sourceNames, targetNames);
+    assert.deepEqual(await readTableMap(source), verifiedParent.expected,
+      'scenario source must retain the complete signed F06-3A parent table set');
+    assert.deepEqual(await readTableMap(target), verifiedParent.expected,
+      'scenario audit copy must retain the complete signed F06-3A parent table set');
     const sidecar = await scalar(source, "SELECT to_regnamespace('f06_3a_ci') IS NOT NULL AS present");
     assert.equal(sidecar.present, true, 'F06-3A sidecar must be present during HTTP scenarios');
     const absent = await scalar(target, "SELECT to_regnamespace('f06_3a_ci') IS NOT NULL AS present");
@@ -196,7 +239,7 @@ try {
         'restored source must have a new physical PostgreSQL database OID');
       assert.equal(targetSeal.database_oid, before.audit_copy.database_oid,
         'audit-copy database OID must remain unchanged');
-      assert.deepEqual(sourceSeal.tables, before.source.tables, 'restored source differs from original 190-table seal');
+      assert.deepEqual(sourceSeal.tables, before.source.tables, 'restored source differs from original 161-table signed manifest');
       assert.deepEqual(targetSeal.tables, before.audit_copy.tables, 'audit-copy differs from original seal');
       assert.equal(sourceSeal.table_row_seal_sha256, before.source.table_row_seal_sha256);
       assert.equal(targetSeal.table_row_seal_sha256, before.audit_copy.table_row_seal_sha256);
