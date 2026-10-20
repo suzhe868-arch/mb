@@ -1,0 +1,91 @@
+name: F06 Issue164 单Runtime合法部分与真实PG16失签拒绝
+on:
+  push:
+    branches:
+      - feat/f06-nonprod-single-runtime-trusted-source-01
+    paths:
+      - engineering/f06/nonprod-single-runtime-integration/**
+      - engineering/src/f06-nonprod-composite-runtime.mjs
+      - engineering/src/server.mjs
+      - engineering/src/app.mjs
+      - .github/workflows/f06-nonprod-single-runtime-onejob.yml
+permissions:
+  contents: read
+concurrency:
+  group: f06-issue164-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native_preliminary_signed_source_gap:
+    name: 真实非特权PG16与隔离HTTP安全拒绝｜未完成全链｜NOT_READY
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: synthetic_pg_bootstrap
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+      - name: 施工分支HEAD与授权文件隔离
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = suzhe868-arch/mb
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REF_NAME" = feat/f06-nonprod-single-runtime-trusted-source-01
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch --no-tags origin main
+          git -c core.quotePath=false diff --name-only origin/main...HEAD | while IFS= read -r path; do
+            case "$path" in
+              engineering/f06/nonprod-single-runtime-integration/*|engineering/src/f06-nonprod-composite-runtime.mjs|engineering/src/server.mjs|engineering/src/app.mjs|.github/workflows/f06-nonprod-single-runtime-onejob.yml) ;;
+              *) echo "::error::超出Issue164精确授权: $path"; exit 1 ;;
+            esac
+          done
+      - name: 准备Node依赖与验证语法
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --prefix engineering --ignore-scripts --no-audit --no-fund
+          node --check engineering/src/f06-nonprod-composite-runtime.mjs
+          node --check engineering/src/server.mjs
+          node --check engineering/f06/nonprod-single-runtime-integration/tests/隔离装配与真实HTTP拒绝.test.mjs
+          node --check engineering/f06/nonprod-single-runtime-integration/tests/真实PG16冻结来源拒绝.test.mjs
+      - name: 初始化真实非超管PG16但绝不伪签父库
+        shell: bash
+        run: |
+          set -euo pipefail
+          service=$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')
+          test "$(printf '%s\n' "$service" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$service" psql -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f06_lock_ci WITH LOGIN PASSWORD 'synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE"
+          docker exec "$service" psql -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f06_lock_test OWNER f06_lock_ci"
+      - name: 真实HTTP安全拒绝32项
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p engineering/f06/nonprod-single-runtime-integration/evidence
+          node --test engineering/f06/nonprod-single-runtime-integration/tests/隔离装配与真实HTTP拒绝.test.mjs | tee engineering/f06/nonprod-single-runtime-integration/evidence/HTTP隔离拒绝_TAP.log
+      - name: 真实PG16缺合法签名父数据拒绝6项
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test engineering/f06/nonprod-single-runtime-integration/tests/真实PG16冻结来源拒绝.test.mjs | tee engineering/f06/nonprod-single-runtime-integration/evidence/真实PG16缺签_TAP.log
+      - name: 严格原生TAP及SOURCE_GAP门禁
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f06/nonprod-single-runtime-integration/原生拒绝门禁校验.mjs
+          echo "::notice::NONPROD_RUNTIME_LOCK_ONLY; SIGNED_SOURCE_GAP; NOT_READY_FOR_A_REVIEW"
+          echo "F06_164_REAL_PG16_DENIAL_ONLY, NOT SIGNED TRANSACTION REFUND SUCCESS"
