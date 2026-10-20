@@ -2,14 +2,14 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {request,createServer} from 'node:https';
 import {before,after,test} from 'node:test';
-import {assertEntry,productionIssuerDeny} from '../server.mjs';
+import {assertEntry,createHttpServer,productionIssuerDeny} from '../server.mjs';
 let server,port;
 before(async()=>{
  assertEntry();assert.equal(productionIssuerDeny().allowed,false);
- server=createServer({key:readFileSync('/tmp/f06-post-handoff-cancel-key.pem'),cert:readFileSync('/tmp/f06-post-handoff-cancel-cert.pem')},(req,res)=>{
-  res.writeHead(404,{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'});
-  res.end(JSON.stringify({allowed:false,code:'NOT_FOUND'}));
- });
+ const app=createHttpServer();
+ const handler=app.listeners('request')[0];
+ assert.equal(typeof handler,'function','F06_POST_CANCEL_TLS_REAL_HANDLER_REQUIRED');
+ server=createServer({key:readFileSync('/tmp/f06-post-handoff-cancel-key.pem'),cert:readFileSync('/tmp/f06-post-handoff-cancel-cert.pem')},handler);
  await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve)});
  port=server.address().port;
 });
@@ -39,7 +39,11 @@ for(const [n,path,method] of [
 ]){
  test(n+' TLS生产及CI写入接口拒绝 '+path,async()=>{
   const r=await call(path,method);
-  assert.equal(r.status,404);assert.deepEqual(r.body,{allowed:false,code:'NOT_FOUND'});
+  if(path==='/__ci__/f06-real-post-handoff-cancel/cancel'&&method==='POST'){
+   assert.equal(r.status,401);assert.deepEqual(r.body,{allowed:false,code:'F06_POST_CANCEL_SIGNED_SESSION_DENIED'});
+  }else{
+   assert.equal(r.status,404);assert.deepEqual(r.body,{allowed:false,code:'NOT_FOUND'});
+  }
   assert.equal(r.headers['cache-control'],'no-store');
   assert.ok(!/vin|phone|token|password|amountCents/i.test(JSON.stringify(r.body)));
  });
