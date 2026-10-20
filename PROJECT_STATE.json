@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01_A_RULING_COMPLETE_B_REMEDIATION",
+  "substage": "F06_REAL_LOCK_TO_TRANSACTION_HTTP_PG16_01_A_RELEASED_FOR_B",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16",
-  "current_domain_status": "A_TECHNICAL_RULING_ISSUED / B_REMEDIATION_REQUIRED / ISSUE_132_OPEN / CI_FAILURE / NOT_READY_FOR_A_REVIEW",
+  "current_domain": "F06_REAL_LOCK_TO_TRANSACTION_HTTP_PG16",
+  "current_domain_status": "A_RELEASED_FOR_B_NONPRODUCTION_ATOMIC_TRANSACTION_HTTP_PG16 / ISSUE_136_OPEN / PR135_DEPOSIT_A_ACCEPTED_MERGED",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A已基于真实F06-3A父链原生Seal核验：本阶段四个签名父Schema的完整物理表集为161张，而原正式施工单写190张缺少可信来源。A发布纠偏技术裁决，仅更正该计数与父manifest验证方式，不得减少任何实际表；B在原分支整改可信F05 Priority原生PG16 fixture失败、新增disposable-db.sh的Bash参数错误，跑全量同SHA无失败/跳过/取消后READY_FOR_A_REVIEW交A。本批最新CI Run39366833724为failure；不得建Deposit PR/合并/触生产资金。",
-  "current_work_file": "07_重建工作区/F06真实Deposit台账HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md",
+  "current_task": "A已独立审查F06真实Deposit台账HTTP/PG16 B HEAD 8598df31d71ed3d9e2e13dcdc962002b152f152a 的官方单Job Run39379307863/Job118484492475，九组257/257、161完整已签父实体Seal不同OID恢复、可信F05 Priority前置及资金保护全部通过，PR #135标准合并到main ffcf9d8609fc9972a0a8780012ddbc52f85cc221。当前A已正式放行B实施 F06_REAL_LOCK_TO_TRANSACTION_HTTP_PG16_01（Issue #136），非生产合成Lock→Transaction同事务原子转换、旧Lock pending Refund安全硬拒及PG16/HTTP真测；只新增白名单，无真钱/Issuer、无旧父代码或公共DDL修改，全部同SHA验收后交A。",
+  "current_work_file": "07_重建工作区/F06真实Lock转换Transaction原子占用HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md",
   "user_review_gate_file": "07_重建工作区/用户全量审查四批门禁规范.md",
   "method_spec": "00_先读/01_产品基线重建执行规范_冻结工作版.md",
   "decision_register": "07_重建工作区/DECISION_REGISTER.md",
@@ -3210,7 +3210,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B按A最新父Seal数量和Priority前置技术裁决，在原分支 feat/f06-real-deposit-ledger-http-pg16-01 同步最新main，采用F06-3A已验父manifest四Schema完整161表逐表COUNT/MD5、24迁移、Catalog/D1/F06-1/F06-2 attestation及不同OID恢复核验；不虚构额外29表；修复旧LockRequest真实PG16的Priority fixture失败及disposable-db.sh参数展开错误，完成原Node54/生命周期Node37/锁车PG16 21/生命周期PG16 36/F05初始化18/F06-3A Source28+HTTPS9/新Deposit HTTP PG16至少24+TLS拒绝至少9，单一最终HEAD官方Run失败/跳过/取消0，完善中文报告标READY_FOR_A_REVIEW交A。B不得自建PR/合并，不改旧F06/DDL/生产/真实资金。",
+  "next_action": "B从执行时最新main新建 feat/f06-real-lock-transaction-http-pg16-01，按Issue #136与A正式施工单一次完成合成Lock→Transaction同一PG物理事务占用、退款pending/未知来源硬拒、真实当前权限Session/Scope、双Backend竞态及注错完整Rollback、新交易source_lock/responsible/历史不变、生产Issuer拒绝。严格只新增engineering/f06/lock-transaction-http-pg16/**和一个精确push+paths单Job Workflow，提前核对全部旧workflow触发；旧F06-3B直接入口仍不可信，不准两个事务拼接。完整同SHA继承F06真实Deposit九组257项且新增至少28真实PG16/HTTP与9项TLS，24迁移及已验父Manifest逐表Seal双OID一致，全部0失败/跳过/取消后中文自验READY_FOR_A_REVIEW交A。不得创建PR/合并main/动生产资金，新增费用$0。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4790,7 +4790,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "B按A最新父Seal数量和Priority前置技术裁决，在原分支 feat/f06-real-deposit-ledger-http-pg16-01 同步最新main，采用F06-3A已验父manifest四Schema完整161表逐表COUNT/MD5、24迁移、Catalog/D1/F06-1/F06-2 attestation及不同OID恢复核验；不虚构额外29表；修复旧LockRequest真实PG16的Priority fixture失败及disposable-db.sh参数展开错误，完成原Node54/生命周期Node37/锁车PG16 21/生命周期PG16 36/F05初始化18/F06-3A Source28+HTTPS9/新Deposit HTTP PG16至少24+TLS拒绝至少9，单一最终HEAD官方Run失败/跳过/取消0，完善中文报告标READY_FOR_A_REVIEW交A。B不得自建PR/合并，不改旧F06/DDL/生产/真实资金。",
+  "next_action_detail": "B从执行时最新main新建 feat/f06-real-lock-transaction-http-pg16-01，按Issue #136与A正式施工单一次完成合成Lock→Transaction同一PG物理事务占用、退款pending/未知来源硬拒、真实当前权限Session/Scope、双Backend竞态及注错完整Rollback、新交易source_lock/responsible/历史不变、生产Issuer拒绝。严格只新增engineering/f06/lock-transaction-http-pg16/**和一个精确push+paths单Job Workflow，提前核对全部旧workflow触发；旧F06-3B直接入口仍不可信，不准两个事务拼接。完整同SHA继承F06真实Deposit九组257项且新增至少28真实PG16/HTTP与9项TLS，24迁移及已验父Manifest逐表Seal双OID一致，全部0失败/跳过/取消后中文自验READY_FOR_A_REVIEW交A。不得创建PR/合并main/动生产资金，新增费用$0。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7969,7 +7969,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01",
+  "next_task": "F06_REAL_LOCK_TO_TRANSACTION_HTTP_PG16_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9644,7 +9644,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F06真实Deposit台账HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md",
+  "next_work_file": "07_重建工作区/F06真实Lock转换Transaction原子占用HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -9940,8 +9940,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": "feat/f06-real-deposit-ledger-http-pg16-01",
-  "next_issue": 132,
+  "next_branch": "feat/f06-real-lock-transaction-http-pg16-01",
+  "next_issue": 136,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -10156,10 +10156,10 @@
     "next_owner": "B",
     "budget_additional_usd": 0
   },
-  "next_base_main": "adc1cf31d1833cd1a85973865e4f571be7f1140a",
-  "current_engineering_focus": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01_NONPRODUCTION",
+  "next_base_main": "ffcf9d8609fc9972a0a8780012ddbc52f85cc221",
+  "current_engineering_focus": "F06_REAL_LOCK_TO_TRANSACTION_HTTP_PG16_01_NONPRODUCTION",
   "f06_real_deposit_http_next": {
-    "status": "A_TECHNICAL_RULING_ISSUED_B_REMEDIATION_REQUIRED",
+    "status": "A_ACCEPTED_NONPRODUCTION_HTTP_PG16_PR135_STANDARD_MERGED",
     "task_id": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01",
     "issue": 132,
     "owner": "B",
@@ -10217,7 +10217,7 @@
     "b_last_reviewed_head": "9d93ff4317379b3e8f91532e2e352adf4ae18cf4",
     "b_failed_run": 39366833724,
     "last_official_run_conclusion": "failure",
-    "b_ready_for_a_review": false,
+    "b_ready_for_a_review": true,
     "expected_signed_parent_scope_schemas": [
       "public",
       "d1_owner_ci",
@@ -10230,8 +10230,65 @@
     "priority_fixture_defect": "original authorized F05 Priority source must survive signed v26",
     "script_defect": "engineering/f06/deposit-ledger-http-pg16/disposable-db.sh uses wrong §{1:-} parameter expansion",
     "deposit_pr_133": "CLOSED_UNMERGED_INVALID_B_CREATED_DRAFT",
-    "original_work_order_table_count_190": "SUPERSEDED_UNVERIFIED_TECHNICAL_COUNT_DO_NOT_FABRICATE"
+    "original_work_order_table_count_190": "SUPERSEDED_UNVERIFIED_TECHNICAL_COUNT_DO_NOT_FABRICATE",
+    "a_accepted": true,
+    "pr": 135,
+    "pr_merged": true,
+    "merge_sha": "ffcf9d8609fc9972a0a8780012ddbc52f85cc221",
+    "b_final_head": "8598df31d71ed3d9e2e13dcdc962002b152f152a",
+    "final_run": 39379307863,
+    "final_job": 118484492475,
+    "final_run_status": "completed",
+    "final_run_conclusion": "success",
+    "final_run_tests_passed": 257,
+    "final_run_tests_total": 257,
+    "final_run_tests_failed": 0,
+    "final_run_tests_skipped": 0,
+    "final_run_tests_cancelled": 0,
+    "parent_table_count_verified": 161,
+    "full_row_seal_sha256": "ce6f2d0caca02b6e348bcd373ccce92e33e8eb2436d7f0341bc813c27d68f30a",
+    "source_oid_before": "35222",
+    "source_oid_after": "43578",
+    "audit_oid": "39338",
+    "a_report": "07_重建工作区/F06真实Deposit_HTTP_PG16_A主控独立验收PR135标准合并与下一施工放行报告_2026-10-20.md"
   },
   "next_base_main_at_task_release": "3f8a92d59a658fd486c43c31cebd4c01a03b4421",
-  "next_base_main_policy": "FETCH_LATEST_MAIN_AT_EXECUTION; NEVER_CHECKOUT_A_STALE_PINNED_SHA"
+  "next_base_main_policy": "FETCH_LATEST_MAIN_AT_EXECUTION; NEVER_CHECKOUT_A_STALE_PINNED_SHA",
+  "f06_real_lock_to_transaction_http_next": {
+    "status": "A_RELEASED_FOR_B_NONPRODUCTION_SYNTHETIC_TRANSACTION_HTTP_PG16",
+    "task_id": "F06_REAL_LOCK_TO_TRANSACTION_HTTP_PG16_01",
+    "issue": 136,
+    "owner": "B",
+    "review_owner": "A",
+    "branch": "feat/f06-real-lock-transaction-http-pg16-01",
+    "work_order": "07_重建工作区/F06真实Lock转换Transaction原子占用HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md",
+    "base_main_at_task_release": "ffcf9d8609fc9972a0a8780012ddbc52f85cc221",
+    "base_main_policy": "FETCH_LATEST_MAIN_AT_EXECUTION; NEVER_CHECKOUT_A_STALE_PINNED_SHA",
+    "allowed_new_paths": [
+      "engineering/f06/lock-transaction-http-pg16/**",
+      ".github/workflows/f06-real-lock-transaction-pg16-onejob.yml"
+    ],
+    "signing_authority": [
+      "PDM-19 Final §§2,5-11,15,21,24-28",
+      "PDM-18 Final",
+      "PDM-02/03/17/20/21/25 Final"
+    ],
+    "old_f06_3b_direct_entry": "UPSTREAM_F06_3B_LOCK_PENDING_TRANSACTION_CONVERSION_GAP_UNTRUSTED",
+    "old_f06_5b": "CI_ONLY_GUARD_NOT_PRODUCTION_ISSUER",
+    "new_transaction_pg16_http_minimum": 28,
+    "new_tls_deny_minimum": 9,
+    "inherited_last_shas_success_tests": "257/257 PR135",
+    "parent_signed_manifest_verified": "FROM_CURRENT_SAME_SHA_NATIVE_F06_3A_161_TABLE_MANIFEST_NO_HARDCODE_EXPANDED_SIDECARS",
+    "one_job_push_paths_only": true,
+    "standard_runner_only": true,
+    "artifacts_upload_allowed": false,
+    "max_new_paid_budget_usd": 0,
+    "public_ddl_modified_allowed": false,
+    "production_issuer_authorized": false,
+    "real_funds_allowed": false,
+    "real_refund_allowed": false,
+    "production_routes_allowed": false,
+    "handoff_status_required": "F06_REAL_LOCK_TO_TRANSACTION_HTTP_PG16_01_B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A",
+    "production_ready": false
+  }
 }
