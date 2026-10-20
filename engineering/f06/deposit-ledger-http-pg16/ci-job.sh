@@ -77,13 +77,8 @@ env GITHUB_REF="refs/heads/$parent_branch" GITHUB_REF_NAME="$parent_branch" \
 grep -q '# tests 28' engineering/f06/deposit-ledger-ci/artifacts/source/native-source.log
 grep -q '# fail 0' engineering/f06/deposit-ledger-ci/artifacts/source/native-source.log
 
-# The native F06 lock baseline uses a distinct disposable DB in the same
-# PostgreSQL service. Never attempt to bootstrap the parent database twice.
-bash "$base/native-regression.sh"
-assert_tap engineering/evidence/F06_LOCK_BASELINE_NODE_ACCEPTANCE_TAP.log 54
-assert_tap engineering/evidence/F06_LOCK_LIFECYCLE_NODE_ACCEPTANCE_TAP.log 37
-assert_tap engineering/evidence/F06_PG16_NATIVE_ACCEPTANCE_TAP.log 21
-assert_tap engineering/evidence/F06_LOCK_LIFECYCLE_PG16_ACCEPTANCE_TAP.log 36
+# Native Lock PG16 suite uses its own database and is run after independent Deposit proof.
+# It remains a mandatory final gate and must never be marked skipped.
 
 node --test engineering/f05/tests/source-gate-event-evidence.test.mjs 2>&1 | tee "$base/evidence/F05_INIT_18_TAP.log"
 assert_tap "$base/evidence/F05_INIT_18_TAP.log" 18
@@ -122,6 +117,16 @@ bash "$base/disposable-db.sh" restore-source
 export F03_1_DATABASE_URL="postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_restore_$GITHUB_RUN_ID"
 env GITHUB_REF="refs/heads/$parent_branch" GITHUB_REF_NAME="$parent_branch" \
     node "$base/audit-seal.mjs" after
+
+# The historic Lock PG16 baseline is still mandatory, but its missing authentic
+# Priority fixture must not mask Deposit-specific failures earlier in this run.
+export F03_1_DATABASE_URL='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test'
+export F06_LOCK_DATABASE_URL='postgres://f06_lock_ci:f06_ci_synthetic_only@127.0.0.1:5432/f06_lock_test'
+bash "$base/native-regression.sh"
+assert_tap engineering/evidence/F06_LOCK_BASELINE_NODE_ACCEPTANCE_TAP.log 54
+assert_tap engineering/evidence/F06_LOCK_LIFECYCLE_NODE_ACCEPTANCE_TAP.log 37
+assert_tap engineering/evidence/F06_PG16_NATIVE_ACCEPTANCE_TAP.log 21
+assert_tap engineering/evidence/F06_LOCK_LIFECYCLE_PG16_ACCEPTANCE_TAP.log 36
 
 node "$base/trigger-preflight.mjs"
 echo "READY_FOR_A_REVIEW branch=$branch head=$GITHUB_SHA run_id=$GITHUB_RUN_ID"

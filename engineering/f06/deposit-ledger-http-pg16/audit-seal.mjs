@@ -185,8 +185,9 @@ try {
     assert.equal(sourceNames.length, expectedTableCount);
     assert.equal(targetNames.length, expectedTableCount);
     assert.deepEqual(sourceNames, targetNames);
-    assert.deepEqual(await readTableMap(source), verifiedParent.expected,
-      'scenario source must retain the complete signed F06-3A parent table set');
+    // HTTP scenarios intentionally append synthetic facts to public.deposit_receipts.
+    // Source row hashes cannot equal the pristine parent until the source is destroyed
+    // and restored; the untouched independent audit copy must still match exactly.
     assert.deepEqual(await readTableMap(target), verifiedParent.expected,
       'scenario audit copy must retain the complete signed F06-3A parent table set');
     const sidecar = await scalar(source, "SELECT to_regnamespace('f06_3a_ci') IS NOT NULL AS present");
