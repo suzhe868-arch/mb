@@ -498,9 +498,10 @@ test('SystemAdmin真实Session不可取消Employee Transaction',async()=>{
 test('当前负责人只有其他Team的活跃Scope时不得取消原Team交易',async()=>{
  const prep=await handoff('cross-team-cancel-prep',tx[5],4,1,0,{},managerToken);
  assert.equal(prep.status,201,JSON.stringify(prep.body));
- const other=(await rows("SELECT t.team_id FROM public.teams t JOIN public.stores st ON st.store_id=t.store_id WHERE t.team_status='active' AND st.status='active' AND t.team_id<>$1 ORDER BY t.team_id LIMIT 1",[teamId]))[0];
- assert.ok(other,'cross-team fixture requires a second active team');
- const otherTeam=Number(other.team_id);
+ const employeeStore=(await rows("SELECT store_id FROM public.employees WHERE employee_id=4"))[0];
+ assert.ok(employeeStore?.store_id,'cross-team fixture requires the signed employee store');
+ const otherTeam=Number((await q("INSERT INTO public.teams(store_id,team_status) VALUES($1,'active') RETURNING team_id",[Number(employeeStore.store_id)])).rows[0].team_id);
+ assert.notEqual(otherTeam,teamId);
  const admin=(await rows("SELECT system_admin_id FROM public.system_admins WHERE account_status='active' ORDER BY system_admin_id LIMIT 1"))[0];
  assert.ok(admin?.system_admin_id);
  const membership=(await rows("SELECT membership_id FROM public.employee_team_memberships WHERE employee_id=4 AND team_id=$1 AND ended_at IS NULL LIMIT 1",[otherTeam]))[0];
