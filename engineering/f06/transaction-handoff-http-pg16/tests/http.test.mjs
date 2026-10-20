@@ -69,9 +69,9 @@ before(async()=>{
  const authSource=(await rows("SELECT * FROM public.pc_login_accounts WHERE normalized_login_key='employee_test'"))[0];
  assert.ok(authSource);
  const createAccount=async(employeeId,login)=>q(
-  "INSERT INTO public.pc_login_accounts(normalized_login_key,principal_kind,employee_id,password_hash,credential_state,force_password_change,credential_epoch) "+
-  "VALUES($1,'employee',$2,$3,'enabled',false,1) RETURNING account_id",
-  [login,employeeId,authSource.password_hash]);
+  "INSERT INTO public.pc_login_accounts(account_id,normalized_login_key,principal_kind,employee_id,password_hash,credential_state,force_password_change,credential_epoch) "+
+  "VALUES($4,$1,'employee',$2,$3,'enabled',false,1) RETURNING account_id",
+  [login,employeeId,authSource.password_hash,997000+employeeId]);
  await createAccount(4,'f06_handoff_target_4');
  targetToken=(await auth.login({login:'f06_handoff_target_4',password:'SyntheticF04_3_CurrentProof_2026',source:'f06-handoff-target'})).token;
  assert.ok(targetToken);
