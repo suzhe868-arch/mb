@@ -27,7 +27,7 @@ export F06_REAL_ENTRY_SHA="$GITHUB_SHA"
 export F06_REAL_ENTRY_EVENT="$GITHUB_EVENT_NAME"
 export F06_REAL_ENTRY_RUN_ID="$GITHUB_RUN_ID"
 export F03_1_DATABASE_URL='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test'
-export F06_LOCK_DATABASE_URL='postgres://f06_lock_ci:f06_lock_ci_synthetic_only@127.0.0.1:5432/f06_lock_test'
+export F06_LOCK_DATABASE_URL='postgres://f06_lock_ci:f06_ci_synthetic_only@127.0.0.1:5432/f06_lock_test'
 export F03_1_ISOLATION_CONFIRM='I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY'
 export F05_2_ISOLATION_CONFIRM='I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY'
 
@@ -82,7 +82,7 @@ node --test engineering/f05/tests/source-gate-event-evidence.test.mjs 2>&1 | tee
 assert_tap "$base/evidence/F05_INIT_18_TAP.log" 18
 
 bash "$base/disposable-db.sh" prepare
-export F06_LOCK_DATABASE_URL="postgres://f06_lock_ci:f06_lock_ci_synthetic_only@127.0.0.1:5432/f06_lock_audit_$GITHUB_RUN_ID"
+export F06_LOCK_DATABASE_URL="postgres://f06_lock_ci:f06_ci_synthetic_only@127.0.0.1:5432/f06_lock_audit_$GITHUB_RUN_ID"
 env GITHUB_REF="refs/heads/$parent_branch" GITHUB_REF_NAME="$parent_branch" \
     node "$base/audit-seal.mjs" before
 
