@@ -1,3 +1,14 @@
+# 2026-10-20｜A主控正式现行状态：PR139真实Lock→Transaction通过独立验收；B接F06合成Refund pending/closed HTTP/PG16
+
+- **F06 Transaction 本批A已验收合并：** B受验HEAD `20bb5333b3fb2b64fe9fde8f1e8ac6ba65ff182b`，官方[Run #39395616127](https://github.com/suzhe868-arch/mb/actions/runs/39395616127)/Job #118537844979 `completed/success`，父257+新Transaction53+TLS9=**319/319**，全0失败/跳过/取消；真实F06-3B/3C1原生签名来源、旧Lock签名pending Refund防转换、Refund↔Transaction不同PG后端受控竞争、闭合Refund验签与缺源FailClosed已复验；父161全表COUNT/MD5、24迁移与不同OID恢复完整Seal一致。A标准业务[PR #139](https://github.com/suzhe868-arch/mb/pull/139)合并，merge `7ebd75337d2bbf1bd37bd697fc58cb0c19888774`。原[Issue #136](https://github.com/suzhe868-arch/mb/issues/136)本批完成。
+- **并发证据准确边界：** Refund与Transaction两个独立PG16 backend同时调度并最多一个有效提交，但`IsolatedAuth.withSession`可能先在同一负责员工的Session行串行化；**不宣称两个事务同时持有Vehicle行锁**。生产/跨主体授权前需单独加做更强车辆锁等待竞态探针，旧F06-3B直接入口`UPSTREAM_F06_3B_LOCK_PENDING_TRANSACTION_CONVERSION_GAP`仍不可信。
+- **下一唯一施工包：** `F06_REAL_REFUND_PENDING_CLOSED_HTTP_PG16_01`，`NEXT_OWNER=B`、[Issue #140](https://github.com/suzhe868-arch/mb/issues/140)，从开工时最新main新建`feat/f06-real-refund-pending-closed-http-pg16-01`；[A正式B施工单](07_重建工作区/F06真实Refund申请pending与无付款关闭closed_HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md)；[PR139 A独立验收与后续放行报告](07_重建工作区/F06真实Lock到Transaction_A主控二轮独立验收PR139合并与Refund下一任务放行报告_2026-10-20.md)。
+- **当前授权仅合成Lock侧Refund pending申请与无付款closed关闭，真实loopback HTTP+非超管PG16；** 禁止真实退款/付款、refunded、生产Transaction/Refund Issuer、交易完成/正式Source/线上DDL/UAT部署。当前F06/F07/F08与V1整体依然`NOT_READY`，C PR68继续Draft无用户视觉通过，新增付费预算$0。B不得自建PR或合并，按单一次施工到`READY_FOR_A_REVIEW`后交A。
+
+---
+
+> 以下为历史状态与已完成工作归档。A以本段及现行Project State为当前正式任务依据。
+
 # 2026-10-20｜A主控首轮独立复验：F06 Transaction同SHA309/309全绿，但签名Refund来源与双后端竞态待整改
 
 - **唯一当前任务：** `F06_REAL_LOCK_TO_TRANSACTION_HTTP_PG16_01`，`NEXT_OWNER=B`，保持原B分支 `feat/f06-real-lock-transaction-http-pg16-01` 和 [Issue #136](https://github.com/suzhe868-arch/mb/issues/136)，B不要创建PR/合并main。
