@@ -1,0 +1,67 @@
+name: F06 Issue159签名移交取消到退款真实PG16非生产接续
+on:
+  push:
+    branches: [feat/f06-signed-post-handoff-refund-bridge-01]
+    paths:
+      - .github/workflows/f06-signed-post-handoff-refund-bridge-onejob.yml
+      - engineering/f06/post-handoff-refund-bridge-http-pg16/**
+      - engineering/f06/transaction-refund-http-pg16/service.mjs
+      - engineering/f06/transaction-refund-http-pg16/shared-refund-core.mjs
+permissions:
+  contents: read
+concurrency:
+  group: f06-issue159-signed-refund-bridge-${{ github.sha }}
+  cancel-in-progress: true
+jobs:
+  transaction_refund_synthetic:
+    name: 同SHA签名父585与PR156真实84+新Bridge PG1646+TLS23+161表Seal
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 30
+    env:
+      APP_ENV: test
+      NODE_ENV: test
+      CI: "true"
+      API_HOST: 127.0.0.1
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F06_LOCK_DATABASE_URL: postgres://f06_lock_ci:f06_ci_synthetic_only@127.0.0.1:5432/f06_lock_test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+      F06_LOCK_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_LOCK_PG16_ONLY
+      F06_LOCK_LIFECYCLE_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_LOCK_LIFECYCLE_ONLY
+      F06_LOCK_LIFECYCLE_EXPIRY_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_LOCK_EXPIRY_ONLY
+      F06_REAL_DEPOSIT_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_DEPOSIT_HTTP_PG16_ONLY
+      F06_TX_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_LOCK_TRANSACTION_ONLY
+      F06_REFUND_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_REFUND_PENDING_CLOSED_ONLY
+      F06_CANCEL_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_TRANSACTION_CANCEL_ONLY
+      F06_TXREFUND_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_TRANSACTION_REFUND_ONLY
+      F06_HANDOFF_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_TRANSACTION_HANDOFF_ONLY
+      F06_POST_CANCEL_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_POST_HANDOFF_CANCEL_ONLY
+      F06_BRIDGE_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_SIGNED_REFUND_BRIDGE_ONLY
+    steps:
+      - name: Checkout exact pushed HEAD
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+      - name: Same-SHA old signed parents + new true PG16 HTTP and full physical restore
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p engineering/f06/post-handoff-refund-bridge-http-pg16/evidence
+          bash engineering/f06/post-handoff-refund-bridge-http-pg16/ci-job.sh 2>&1 | tee engineering/f06/post-handoff-refund-bridge-http-pg16/evidence/完整原生CI日志.log
+          node engineering/f06/post-handoff-refund-bridge-http-pg16/严格原生测试证据校验.mjs
