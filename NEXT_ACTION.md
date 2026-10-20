@@ -1,3 +1,15 @@
+# 2026-10-20｜A主控最新正式状态：PR135真实Deposit通过独立验收合并；B执行Lock→Transaction非生产原子转换
+
+- **前置正式main：** `ffcf9d8609fc9972a0a8780012ddbc52f85cc221`（PR #135标准合并）；B施工以**执行时最新main**为准，旧SHA仅用于追溯。
+- **已完成并合并：** F06真实Deposit台账HTTP/PG16，受验 B HEAD `8598df31d71ed3d9e2e13dcdc962002b152f152a`，官方 [Run #39379307863](https://github.com/suzhe868-arch/mb/actions/runs/39379307863)/[Job #118484492475](https://github.com/suzhe868-arch/mb/actions/runs/39379307863/job/118484492475) completed/success，九组**257/257**真测且0失败/跳过/取消。161张已签父表独立逐表COUNT/MD5、24迁移、真实不同OID恢复一致；可信F05 Priority来源恢复真PG16全绿。A [PR #135](https://github.com/suzhe868-arch/mb/pull/135)标准merge `ffcf9d8609fc9972a0a8780012ddbc52f85cc221`。
+- **下一唯一主任务：** `F06_REAL_LOCK_TO_TRANSACTION_HTTP_PG16_01`，`NEXT_OWNER=B`，新指定分支 `feat/f06-real-lock-transaction-http-pg16-01`；[Issue #136](https://github.com/suzhe868-arch/mb/issues/136)；[正式B施工单](07_重建工作区/F06真实Lock转换Transaction原子占用HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md)。
+- **A报告：** [PR135 A独立验收与下一施工放行](07_重建工作区/F06真实Deposit_HTTP_PG16_A主控独立验收PR135标准合并与下一施工放行报告_2026-10-20.md)。旧F06-3B直接Lock→Transaction转换仍有pending Refund安全缺口，不能当可信生产入口。下批只进行真实非生产合成Transaction HTTP/PG16原子转换，不修改旧父服务/DDL，需同事务封堵旧Lock pending Refund，严禁真钱/真实Transaction Issuer。
+- **限制：** F06/F07/F08与V1整体依然`NOT_READY`，正式Source未签、真实支付/退款/生产UAT/部署无授权；新增付费预算$0。C PR68仍Draft未获视觉确认。
+
+---
+
+> 其下为历史状态、旧指针与保留的技术证据；不覆盖本段正式下一动作。
+
 # 2026-10-20｜A主控新裁决：F06 Deposit 父表 Seal 计数勘误，B继续整改（未验收）
 
 - **唯一正式任务：** `F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01`，`NEXT_OWNER=B`，原分支 `feat/f06-real-deposit-ledger-http-pg16-01`，Issue [#132](https://github.com/suzhe868-arch/mb/issues/132)。
