@@ -1,3 +1,11 @@
+# 2026-10-21｜A正式裁决Issue164：单PG16真实CompositeIssuer、旧源双入口不越权，B原分支继续
+
+- **已实证B阻断成立**：[Issue164](https://github.com/suzhe868-arch/mb/issues/164) B分支 `feat/f06-nonprod-single-runtime-trusted-source-01@7058779956438009fbc49a8f100ddcf5f7e17192`，[同SHA官方Run39514294355](https://github.com/suzhe868-arch/mb/actions/runs/39514294355)/Job118942621386仅**HTTP32/32安全拒绝 + 真实非超管PG16 6/6缺签拒绝**，整条Lock→Deposit→Transaction→Handoff→Cancel→Refund实际正例 `NOT_RUN`，不能标交A验收。PR139旧3A分支与PR153/156/162旧3C1分支硬门禁在一个真实GitHub Push不可同时成立；Lock`f06_lock_test`与交易`f03_auth_test`非同物理数据库，旧裸F03数据库1迁移校验也不兼容现24迁移签名F06库。A原工作单白名单无法合法解决，严禁伪`GITHUB_REF`/旧源或拷贝签名余额。
+- **本轮A裁决**：[《Issue164单PG16可信CompositeIssuer与冻结服务双入口技术裁决补充单》](07_重建工作区/F06_Issue164单PG16可信CompositeIssuer与冻结服务双入口_A主控技术裁决补充单_2026-10-21.md)，已置顶更新[原正式施工单](07_重建工作区/F06单应用隔离Runtime可信源接线与业务闭环_A主控B正式施工单_2026-10-21.md)。选**独立`COMPOSITE_NONPROD_SIGNED_V1`新来源模式**，以真实当前GH Push、单物理非特权PG16 `f03_auth_test`及不可变父签名、真正F03员工Session与权限为信任根；旧`CI_LEGACY`模式原始历史分支/签名/库门禁完全保留且对新来源`FailClosed`。在补充单列明的精确旧服务/Lock/迁移入口文件白名单内，只准抽取**同一个已验资金/事务核心**和受控双入口，不准改旧SQL/公共DDL/旧工作流/F03/F05/F02身份权限/PDM、真资金或生产路径。无法在白名单内合法穿透下游时准确报`BLOCKED_COMPOSITE_PARENT_AUTHORITY_DEPENDENCY`。
+- **接力未变**：`NEXT_OWNER=B`，`NEXT_TASK=F06_NONPROD_SINGLE_RUNTIME_TRUSTED_SOURCE_INTEGRATION_01`，`NEXT_ISSUE=164`；B保留原7个提交/38项安全测试，安全同步裁决治理PR合并后的最新main，一次性完成真实≥20新集成正例/安全拒绝、受影响旧父高风险回归、161表24迁移跨OID Seal、同SHA官方CI后整体`READY_FOR_A_REVIEW`才回A。F06/F07/F08/V1仍`NOT_READY`，F07/F08独立阶段未放行，F08之后后端整体验收归A，C PR68不动。
+
+---
+
 # 2026-10-21｜A完成F06正式Runtime接线差异核查，按现有阶段一次性放行B关联集成Issue164
 
 - **正式A核查结论**：[《F06已验收功能与真实Runtime接线差异》](07_重建工作区/F06已验收功能与真实Runtime接线差异_A主控独立核查_2026-10-21.md)。已验PR139/146/150/153/156/162及Lock受控Runtime全部复用，不重写业务、不过度重复旧CI。当前`engineering/src/server.mjs`的F06实际仅挂受控Loopback/隔离PG16 Lock Handler，其他已验财务/交易侧车带有严格GitHub父Branch与合成来源门禁，**未形成同一可信应用Runtime综合接线**；Completed、真实Refund付款/生产Issuer依然`SOURCE_GAP`且未获生产授权。
