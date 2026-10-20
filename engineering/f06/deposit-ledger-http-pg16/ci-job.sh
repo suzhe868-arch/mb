@@ -80,9 +80,15 @@ grep -q '# fail 0' engineering/f06/deposit-ledger-ci/artifacts/source/native-sou
 # Native Lock PG16 suite uses its own database and is run after independent Deposit proof.
 # It remains a mandatory final gate and must never be marked skipped.
 
-node --test engineering/f05/tests/source-gate-event-evidence.test.mjs 2>&1 | tee "$base/evidence/F05_INIT_18_TAP.log"
-assert_tap "$base/evidence/F05_INIT_18_TAP.log" 18
+# Latest signed F05 event-evidence regression has expanded from 18 to 25 tests.
+# Preserve all new negatives; never suppress tests to match a stale count.
+node --test engineering/f05/tests/source-gate-event-evidence.test.mjs 2>&1 | tee "$base/evidence/F05_SOURCE_EVENT_25_TAP.log"
+assert_tap "$base/evidence/F05_SOURCE_EVENT_25_TAP.log" 25
 
+# Audit's restore-copy DB uses a dedicated non-superuser. Native Lock later
+# reuses precisely this role and creates its own isolated f06_lock_test DB.
+docker exec "$service_ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres \
+  -c "CREATE ROLE f06_lock_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION PASSWORD 'f06_ci_synthetic_only'"
 bash "$base/disposable-db.sh" prepare
 export F06_LOCK_DATABASE_URL="postgres://f06_lock_ci:f06_ci_synthetic_only@127.0.0.1:5432/f06_lock_audit_$GITHUB_RUN_ID"
 env GITHUB_REF="refs/heads/$parent_branch" GITHUB_REF_NAME="$parent_branch" \

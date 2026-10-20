@@ -23,8 +23,10 @@ mkdir -p engineering/evidence
 
 ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
 test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
-docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres \
-  -c "CREATE ROLE f06_lock_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION PASSWORD 'f06_ci_synthetic_only'"
+# The only f06_lock_ci role was created by the parent Deposit job.
+# Fail unless it is still the exact synthetic non-privileged test identity.
+test "$(docker exec "$ids" psql -X -At -v ON_ERROR_STOP=1 -U postgres -d postgres \
+  -c "SELECT (rolsuper=false AND rolcreatedb=false AND rolcreaterole=false AND rolreplication=false)::text FROM pg_roles WHERE rolname='f06_lock_ci'")" = true
 docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres \
   -c 'CREATE DATABASE f06_lock_test OWNER f06_lock_ci'
 
