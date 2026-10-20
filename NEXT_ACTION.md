@@ -1,3 +1,12 @@
+# 2026-10-20｜A主控首轮独立验收：F06 Transaction侧Refund同SHA520/520成功，但合法pending后签名资金修正会阻断无付款关闭，退B定向整改
+
+- **任务与结论**：`F06_REAL_TRANSACTION_REFUND_PENDING_CLOSED_HTTP_PG16_01`，[Issue #147](https://github.com/suzhe868-arch/mb/issues/147)，B分支 `feat/f06-real-transaction-refund-http-pg16-01`，受验末HEAD `38135893fe7d0a4d3595bf4f70f592f1e9f1ba17`；[官方Run #39431126990](https://github.com/suzhe868-arch/mb/actions/runs/39431126990)/Job #118656156513同SHA、父445+新HTTP/PG16 65+TLS10=**520/520**真PG16全部通过；父161张逐表COUNT/MD5、24迁移、独立OID恢复与完整Seal一致、11文件均合法白名单。**但A独立源审未通过：`A_REVIEW_NOT_ACCEPTED / B_TARGETED_POST_PENDING_SIGNED_CORRECTION_REMEDIATION_REQUIRED / NO_BUSINESS_PR / NO_MERGE / NEXT_OWNER=B`。**
+- **关键R1业务缺陷**：冻结原生3A `correctSyntheticDepositCI()` 经合法经理/店长 `deposit.ci.correct` 授权，允许已`released`原Lock追加真实签名Correction/Reversal；而新`refundCaseSource()`把Refund创建时历史`origin.source_deposit_digest`与**当前**全3A调整重算`src.depositDigest`强制一致。合法Transaction-side `pending`后新增原生已签Correction，即使零付款，`closeTransactionRefundCI()`也会误报`F06_TX_REFUND_CASE_SOURCE_DRIFT`并可能永久卡住无付款关闭、幂等及后续新申请。现有65个新用例缺“先pending、后原生签名Correction/Reversal、再closed”。
+- **B完整定向整改单**：[A独立验收与后续合法签名Correction关闭阻断整改单](07_重建工作区/F06真实Transaction侧Refund_A主控首轮独立验收_合法pending后签名资金修正关闭阻断整改单_2026-10-20.md)，Issue [#147 A正式评论](https://github.com/suzhe868-arch/mb/issues/147#issuecomment-6292435088)。B只在原分支原11文件白名单内修复“申请时历史签名资金快照”与“其后合法已签追加修正”的版本验证，追加真实PG16正负Correction、完整Reversal至零、无付款closed、现时净余额再申请、原签不可变/幂等/伪签与付款FailClosed负例。原父445+原新65+TLS10不删弱，新最终SHA一个官方Run全部0失败/跳过/取消并完整161表Seal/OID复验后`READY_FOR_A_REVIEW`交A；B不自建PR/合并。
+- **安全与整体状态**：旧3A/3B/3C1、PR139/PR146签名父与公共DDL禁止修改，不能直接删摘要校验或造假旧签；如无法合法实现报告`BLOCKED_SIGNED_TX_REFUND_POST_PENDING_CORRECTION_SOURCE`交A。不开放真退款、支付、`refunded`、完成交易`completed`或生产、UAT；F06/F07/F08/V1仍`NOT_READY`，预算新增$0，C PR68独立Draft。**最新main仍未合入本B业务分支。**
+
+---
+
 # 2026-10-20｜A主控现行：F06 Transaction Cancel PR146独立验收445/445完成；B接Transaction侧Refund pending/closed HTTP/PG16（仅非生产）
 
 - **A独立验收、标准合并完成：** `F06_REAL_TRANSACTION_CANCEL_HTTP_PG16_01`，B受验HEAD `fa327ccece5efc1fe18d91558b1f7ff7d8a7299c`；官方Run `39415825663` / Job `118604456336` 单Push同SHA父392+Cancel43+TLS10=**445/445**全部真PG16成功、0失败/跳过/取消。原签四Schema161张逐表COUNT/MD5、24迁移、不同OID恢复及全Seal一致。旧冻结4A不认PR139新签名的真实拒绝已证，隔离新受限Cancel以同一PG事务维护cancelled/原件/Event/Key/Audit；无假3B签名或生产许可。标准[PR #146](https://github.com/suzhe868-arch/mb/pull/146) merge `6bba1f42ec1f9d11851a181b8ab28bbb44fcc900`；Issue #144已关闭。
