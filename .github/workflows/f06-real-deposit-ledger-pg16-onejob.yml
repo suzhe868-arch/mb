@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   deposit_http_pg16:
-    name: 同SHA真实HTTP、PG16、190表父实体Seal
+    name: 同SHA真实HTTP、PG16、161张父实体Seal
     runs-on: ubuntu-24.04
     timeout-minutes: 100
     services:
