@@ -51,8 +51,8 @@ async function signed(c,mode='CI_LEGACY'){
  if(p1.length!==1||p2.length!==1||p3.length!==1)throw Error('F06_3B_PARENT_ATTESTATION_MISSING');
  return {catalog:p.publicCatalogSHA,ledger:hash(ledger),f1:p1[0].source_sha256,f2:p2[0].source_sha256,f3:p3[0].sidecar_source_sha256};
 }
-export async function verify(c){
- const p=await signed(c);
+async function verifyByMode(c,mode){
+ const p=await signed(c,mode);
  const a=(await c.query('SELECT * FROM f06_3b_ci.attestation')).rows;
  if(a.length!==1||a[0].seal_name!=='F06_3B_CI_ONLY_SIDECAR'||a[0].source_sha256!==checksum||
  a[0].public_catalog_sha256!==p.catalog||a[0].migration_ledger_sha256!==p.ledger||
