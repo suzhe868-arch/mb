@@ -548,3 +548,94 @@ test('当前负责人只有其他Team的活跃Scope时不得取消原Team交易'
   await q("UPDATE public.employee_team_memberships SET ended_at=NULL WHERE employee_id=4 AND team_id=$1 AND ended_at=$2",[teamId,marker]);
  }
 });
+
+
+const bridgePath='/__ci__/f06-post-handoff-refund-bridge/';
+const bridgeKey=name=>'f06-159-'+name+'-'+process.env.GITHUB_RUN_ID;
+async function bridgeHttp(action,params={},token=peerToken,route=bridgePath+action,method='POST'){
+ const h={'content-type':'application/json'};
+ if(token)h.authorization='Bearer '+token;
+ const res=await fetch(bridgeUrl+route,{method,headers:h,body:method==='GET'?undefined:JSON.stringify(params)});
+ return {status:res.status,body:await res.json()};
+}
+const refundPayload=(name,t=tx[1],amount=6000,extra={})=>({
+ transactionId:t,amountCents:amount,reason:'Synthetic signed handoff refund '+name,
+ eventKey:bridgeKey(name),...extra});
+const refundRequest=(name,t=tx[1],amount=6000,token=peerToken,extra={})=>bridgeHttp('request',refundPayload(name,t,amount,extra),token);
+const refundClose=(name,id=refunds[1],token=peerToken,extra={})=>bridgeHttp('close',{
+ refundId:id,closeReason:'Synthetic no-payment closure '+name,eventKey:bridgeKey(name),...extra},token);
+const refundFacts=async id=>(await rows("SELECT r.*,o.source_tx_digest,o.source_cancel_digest,o.source_deposit_digest,"+
+ "(SELECT count(*)::int FROM f06_real_tx_refund_ci.events e WHERE e.refund_id=r.refund_id) events,"+
+ "(SELECT count(*)::int FROM f06_real_tx_refund_ci.request_keys k WHERE k.refund_id=r.refund_id) keys,"+
+ "(SELECT count(*)::int FROM public.refund_payments p WHERE p.refund_id=r.refund_id) payments "+
+ "FROM public.refund_cases r JOIN f06_real_tx_refund_ci.origins o USING(refund_id) WHERE r.refund_id=$1",[id]))[0];
+test('85 桥接GitHub同SHA与真实PG16父签门禁',async()=>{
+ bridgeEntry();assert.equal((await verifyCancel(db)).verified,true);
+ for(const [actorId,scope] of [[2,cancelScope2],[4,cancelScope4]]){
+  assert.ok(scope);
+  await q("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) "+
+   "VALUES($1,997006,'allow',clock_timestamp()) ON CONFLICT(employee_id,permission_id) DO UPDATE SET decision='allow'",[actorId]);
+  await q("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) "+
+   "VALUES($1,997006,$2,clock_timestamp()-interval '3 minutes')",[actorId,scope]);
+ }
+});
+test('86 PR153二级移交Cancel签名来源可信',async()=>{
+ const r=await verifyCancelledHandoffProvenance(db,tx[1]);
+ assert.equal(r.allowed,true,JSON.stringify(r));assert.equal(r.handoffVersion,2);
+ assert.equal(r.currentResponsibleId,2);assert.equal(r.originalResponsibleId,1);
+});
+test('87 PR153一级移交Cancel签名来源可信',async()=>{
+ const r=await verifyCancelledHandoffProvenance(db,tx[2]);
+ assert.equal(r.allowed,true,JSON.stringify(r));assert.equal(r.handoffVersion,1);
+ assert.equal(r.currentResponsibleId,4);
+});
+test('88 原负责人无权冒用当前负责人退款',async()=>{
+ const r=await refundRequest('old-owner',tx[1],5000,managerToken);
+ assert.equal(r.status,403,JSON.stringify(r.body));
+});
+test('89 无移交签名Transaction不得桥接',async()=>{
+ const r=await refundRequest('unsigned-handoff',tx[6],5000,peerToken);
+ assert.equal(r.body.allowed,false);
+});
+test('90 不存在交易拒绝',async()=>{
+ const r=await refundRequest('not-found',999998989,5000);assert.equal(r.body.allowed,false);
+});
+test('91 负交易ID拒绝',async()=>assert.equal((await refundRequest('bad-tx',-1,5000)).status,400));
+test('92 零金额拒绝',async()=>assert.equal((await refundRequest('bad-zero',tx[1],0)).status,400));
+test('93 负金额拒绝',async()=>assert.equal((await refundRequest('bad-neg',tx[1],-5)).status,400));
+test('94 大于金额安全上限拒绝',async()=>assert.equal((await refundRequest('bad-max',tx[1],100000000001)).status,400));
+test('95 理由过短拒绝',async()=>assert.equal((await refundRequest('bad-reason',tx[1],100,peerToken,{reason:'x'})).status,400));
+test('96 短幂等Key拒绝',async()=>assert.equal((await refundRequest('bad-key',tx[1],100,peerToken,{eventKey:'abc'})).status,400));
+test('97 真原生PG16签名3A资金事实保留',async()=>{
+ assert.equal(await count('SELECT count(*)::int n FROM f06_3a_ci.receipt_provenance WHERE lock_id=$1',[locks[1]]),1);
+ assert.ok(signedDeposits[1]>0);
+});
+test('98 超出已签金额12000的退款硬拒',async()=>{
+ const r=await refundRequest('over',tx[1],12001);
+ assert.equal(r.body.code,'F06_TX_REFUND_EXCEEDS_AVAILABLE_BALANCE',JSON.stringify(r.body));
+});
+test('99 当前签名负责人真正合成退款Pending',async()=>{
+ const r=await refundRequest('first',tx[1],6000);assert.equal(r.status,201,JSON.stringify(r.body));
+ refunds[1]=Number(r.body.refundId);assert.ok(refunds[1]>0&&r.body.backendPid>0);
+ console.log('F06_BRIDGE_NATIVE_PENDING',JSON.stringify(r.body));
+});
+test('100 公表Refund只归Transaction而非Lock',async()=>{
+ const x=await refundFacts(refunds[1]);assert.equal(x.status,'pending');
+ assert.equal(x.lock_id,null);assert.equal(Number(x.transaction_id),tx[1]);
+});
+test('101 新取消独立SourceDigest不伪造旧PR146',async()=>{
+ const x=await refundFacts(refunds[1]);assert.match(x.source_cancel_digest,/^[a-f0-9]{64}$/);
+ assert.equal(await count('SELECT count(*)::int n FROM f06_real_cancel_ci.origins WHERE transaction_id=$1',[tx[1]]),0);
+});
+test('102 Refund Event/Key/Audit同事务保留',async()=>{
+ const x=await refundFacts(refunds[1]);assert.deepEqual([x.events,x.keys,x.payments],[1,1,0]);
+ assert.equal(await count("SELECT count(*)::int n FROM public.audit_events WHERE object_kind='Refund' AND object_id=$1 AND action='f06_real_tx_refund_ci_pending'",[String(refunds[1])]),1);
+});
+test('103 同Key同Actor同Payload必幂等',async()=>{
+ const r=await refundRequest('first',tx[1],6000);assert.equal(r.status,200,JSON.stringify(r.body));
+ assert.equal(Number(r.body.refundId),refunds[1]);
+});
+test('104 同Key换金额冲突',async()=>{
+ const r=await refundRequest('first',tx[1],5900);
+ assert.equal(r.body.code,'F06_TX_REFUND_IDEMPOTENCY_CONFLICT');
+});
