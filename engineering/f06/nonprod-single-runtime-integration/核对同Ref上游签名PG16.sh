@@ -25,8 +25,27 @@ node --input-type=module -e '
   const v=await verify(c);
   if(!v.verified)throw Error("F06_164_SIGNED_F05_7_NOT_NATIVE");
   const x=(await c.query("SELECT current_database() db,current_user u,(SELECT count(*)::int FROM public.f03_schema_migrations) n, pg_backend_pid() pid")).rows[0];
-  if(x.db!=="f03_auth_test"||x.u!=="f03_ci"||x.n!==23||!x.pid)throw Error("F06_164_F05_SIGNED_PG16_IDENTITY_MISMATCH");
-  console.log("F06_164_ACTUAL_CURRENT_REF_F05_7_NATIVE_V23",JSON.stringify({sha:process.env.GITHUB_SHA,ref:process.env.GITHUB_REF,pid:x.pid,migrationCount:x.n}));
+  if(x.db!=="f03_auth_test"||x.u!=="f03_ci"||x.n!==21||!x.pid)throw Error("F06_164_F05_SIGNED_PG16_IDENTITY_MISMATCH");
+  console.log("F06_164_ACTUAL_CURRENT_REF_F05_7_NATIVE_21_LEDGER",JSON.stringify({sha:process.env.GITHUB_SHA,ref:process.env.GITHUB_REF,pid:x.pid,migrationCount:x.n}));
  }finally{await c.end()}
 '
-echo 'F06_164_F05_7_NATIVE_V23_BOOTSTRAP_ONLY_NO_FINANCE_ISSUER'
+# Signed M94 v23(21 rows) -> v24(22) -> v25(23) -> D1 independent -> v26(24).
+# All frozen F05 migration functions independently verify parent seals, and no
+# subprocess overwrites GITHUB_REF or GITHUB_REF_NAME for a legacy identity.
+for step in priority-arbitration-ttl-handover recommendation-visibility-grants pdm17-public-pool-owner-claim consultation-assignee-sla; do
+  node "engineering/f05/$step/runner.mjs" --apply
+  node "engineering/f05/$step/runner.mjs" --verify
+  test "$GITHUB_REF" = "$original_ref"
+  test "$GITHUB_REF_NAME" = "$original_name"
+done
+node --input-type=module -e '
+ import {connect,verify} from "./engineering/f05/consultation-assignee-sla/migration.mjs";
+ const c=await connect();
+ try{
+  const v=await verify(c);if(!v.verified)throw Error("F06_164_SIGNED_V26_NOT_VERIFIED");
+  const x=(await c.query("SELECT current_database() db,current_user usr,(SELECT count(*)::int FROM public.f03_schema_migrations) n,pg_backend_pid() pid")).rows[0];
+  if(x.db!=="f03_auth_test"||x.usr!=="f03_ci"||x.n!==24)throw Error("F06_164_SIGNED_24_LEDGER_MISSING");
+  console.log("F06_164_SIGNED_CURRENT_REF_REAL_24_MIGRATIONS",JSON.stringify({sha:process.env.GITHUB_SHA,ref:process.env.GITHUB_REF,pid:x.pid,count:x.n,catalog:v.catalogSHA}));
+ }finally{await c.end()}
+'
+echo 'F06_164_SIGNED_F05_24_LEDGER_NO_REF_SPOOF_PASS; TX_ISSUER_NOT_YET_SIGNED'
