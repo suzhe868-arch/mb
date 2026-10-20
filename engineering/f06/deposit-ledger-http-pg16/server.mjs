@@ -128,13 +128,17 @@ async function currentWriteState(client, actor, lockId, action) {
   await one(client, 'SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE', [initial.vehicle_id]);
   const lock = await one(client, 'SELECT * FROM public.locks WHERE lock_id=$1 FOR UPDATE', [lockId]);
   if (!lock || typeof lock.lock_status !== 'string') return deny('F06_REAL_DEPOSIT_LOCK_STATE_INVALID');
+  // The signed F06-1 snapshot carries customer/responsible/policy/price,
+  // NOT vehicle_id or listing_cycle_id. Those are authoritative on the locked
+  // public.locks row and the separately checked listing-cycle FK below.
   const signed = await one(client,
-    'SELECT customer_id,responsible_employee_id,vehicle_id,listing_cycle_id ' +
+    'SELECT customer_id,responsible_employee_id,initial_hours,policy_version,price_kind ' +
     'FROM f06_1_lock_ci.lock_snapshots WHERE lock_id=$1 FOR SHARE', [lockId]);
   if (!signed || Number(signed.customer_id) !== Number(lock.customer_id) ||
       Number(signed.responsible_employee_id) !== Number(lock.responsible_employee_id) ||
-      Number(signed.vehicle_id) !== Number(lock.vehicle_id) ||
-      Number(signed.listing_cycle_id) !== Number(lock.listing_cycle_id)) {
+      !Number.isInteger(Number(signed.initial_hours)) || Number(signed.initial_hours) <= 0 ||
+      !Number.isInteger(Number(signed.policy_version)) || Number(signed.policy_version) <= 0 ||
+      !['numeric','consultation'].includes(signed.price_kind)) {
     return deny('F06_3A_SIGNED_LOCK_SNAPSHOT_REQUIRED');
   }
   const customer = await one(client,
