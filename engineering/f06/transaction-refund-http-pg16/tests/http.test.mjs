@@ -54,6 +54,7 @@ async function caseFacts(refundId){
   "(SELECT count(*)::int FROM f06_real_tx_refund_ci.origins o WHERE o.refund_id=r.refund_id) origins,"+
   "(SELECT count(*)::int FROM f06_real_tx_refund_ci.events e WHERE e.refund_id=r.refund_id) events,"+
   "(SELECT count(*)::int FROM f06_real_tx_refund_ci.request_keys k WHERE k.refund_id=r.refund_id) keys,"+
+  "(SELECT count(*)::int FROM public.audit_events a WHERE a.object_kind='Refund' AND a.object_id=r.refund_id::text AND a.action IN('f06_real_tx_refund_ci_pending','f06_real_tx_refund_ci_closed')) audits,"+
   "(SELECT count(*)::int FROM public.refund_payments p WHERE p.refund_id=r.refund_id) payments "+
   "FROM public.refund_cases r WHERE r.refund_id=$1",[refundId]))[0];
 }
