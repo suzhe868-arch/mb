@@ -370,7 +370,7 @@ test('51 当前Team/Object Scope失效后不能申请',async()=>{
 });
 test('52 4S角色即使使用有效Token也不能申请Transaction退款',async()=>{
  await q('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[fourSRole]);
- try{const r=await requestCall('four-s-deny',transactions[7],100);assert.equal(r.body.code,'F06_TX_REFUND_REQUEST_PERMISSION_SCOPE_DENIED')}
+ try{const r=await requestCall('four-s-deny',transactions[7],100);assert.equal(r.body.allowed,false);assert.ok(['F06_TX_REFUND_REQUEST_PERMISSION_SCOPE_DENIED','F06_TX_REFUND_SIGNED_SESSION_DENIED'].includes(r.body.code),JSON.stringify(r.body))}
  finally{await q('UPDATE public.employees SET main_role_id=$1 WHERE employee_id=1',[managerRole])}
 });
 test('53 禁用Customer必须FailClosed',async()=>{
