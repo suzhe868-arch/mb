@@ -51,7 +51,7 @@ export function createHttpServer(){
   try{
    if(!['127.0.0.1','::ffff:127.0.0.1'].includes(req.socket.localAddress))
     return respond(res,404,denied('NOT_FOUND'));
-   const operation=({'POST '+root+'request':'request','POST '+root+'close':'close'})[req.method+' '+req.url];
+   const operation=({['POST '+root+'request']:'request',['POST '+root+'close']:'close'})[req.method+' '+req.url];
    if(!operation)return respond(res,404,denied('NOT_FOUND'));
    const token=/^Bearer ([A-Za-z0-9_-]{43})$/.exec(req.headers.authorization||'')?.[1];
    if(!token)return respond(res,401,denied('F06_BRIDGE_SESSION_DENIED'));
