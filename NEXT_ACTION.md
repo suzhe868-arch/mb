@@ -1,3 +1,12 @@
+# 2026-10-20｜A主控最新：F06 Transaction侧Refund R1终验通过534/534并合并PR150；B接真实合成Transaction负责人Handoff
+
+- **A最终独立验收通过**：`F06_REAL_TRANSACTION_REFUND_PENDING_CLOSED_HTTP_PG16_01`，[Issue #147](https://github.com/suzhe868-arch/mb/issues/147)已关闭；B受验最终HEAD `f774bc49407b7e2b8918347c03989b1b7230770d`，同SHA[官方Run #39436527215](https://github.com/suzhe868-arch/mb/actions/runs/39436527215) / Job118674868785父445+新真实PG16/HTTP79+TLS10 = **534/534**、0失败/跳过/取消；原161张冻结父表逐表COUNT/MD5、24迁移、不同OID78558→87832/独立审计OID39349全行Seal一致。上轮A发现的合法pending后3A原生正负Correction/Reversal导致closed误拒R1已经用不可变资金历史快照、原生3A签名事件增量时序及14条真实PG16新增用例整改，未知签或真实付款继续FailClosed。标准[PR #150](https://github.com/suzhe868-arch/mb/pull/150)已merge `cc2542a18ed8498ba549ff0f4cefd5e8beeedd8d`。
+- **唯一新B任务已正式放行**：`F06_REAL_TRANSACTION_RESPONSIBLE_HANDOFF_HTTP_PG16_01`、[Issue #151](https://github.com/suzhe868-arch/mb/issues/151)，负责人`NEXT_OWNER=B`。B从**执行时最新main**新建 `feat/f06-real-transaction-handoff-http-pg16-01`，正式[中文施工单](07_重建工作区/F06真实Transaction负责人移交HTTP与PG16非生产纵切_A主控B正式施工单_2026-10-20.md)及[本轮A独立报告](07_重建工作区/F06真实Transaction侧Refund_A第二轮独立验收PR150合并与负责人移交放行报告_2026-10-20.md)。仅合成PR139真签`in_progress` Transaction正式负责人员handoff，保留原始签名、old/new/actor/time/reason、当前角色/独立permission+scope，新的版本化受限CI侧车；不能伪造旧4B来源或让不兼容旧Cancel/Refund接口假通过。
+- **验收与安全门禁**：只新增`engineering/f06/transaction-handoff-http-pg16/**`及`.github/workflows/f06-real-transaction-handoff-pg16-onejob.yml`；最终B HEAD同SHA唯一官方Push单Job重跑父534+新PG16至少30+TLS10，总**>=574**全绿、161原父表/24迁移及跨OID全Seal一致。不得扩Product Final/权限、旧父签名、公DDL、真钱/生产Issuer、真实客户或完成成交；预算新增$0。B不得创建PR/合并，中文`READY_FOR_A_REVIEW`后交A。
+- **总体边界**：旧3B直接入口/旧4B与真实PR139签源兼容问题未因PR150而修复；同Employee Session预先串行化不等于双方同时获取Vehicle锁。F06/F07/F08/V1持续`NOT_READY`，C PR68保持独立Draft不自动合并。
+
+---
+
 # 2026-10-20｜A主控首轮独立验收：F06 Transaction侧Refund同SHA520/520成功，但合法pending后签名资金修正会阻断无付款关闭，退B定向整改
 
 - **任务与结论**：`F06_REAL_TRANSACTION_REFUND_PENDING_CLOSED_HTTP_PG16_01`，[Issue #147](https://github.com/suzhe868-arch/mb/issues/147)，B分支 `feat/f06-real-transaction-refund-http-pg16-01`，受验末HEAD `38135893fe7d0a4d3595bf4f70f592f1e9f1ba17`；[官方Run #39431126990](https://github.com/suzhe868-arch/mb/actions/runs/39431126990)/Job #118656156513同SHA、父445+新HTTP/PG16 65+TLS10=**520/520**真PG16全部通过；父161张逐表COUNT/MD5、24迁移、独立OID恢复与完整Seal一致、11文件均合法白名单。**但A独立源审未通过：`A_REVIEW_NOT_ACCEPTED / B_TARGETED_POST_PENDING_SIGNED_CORRECTION_REMEDIATION_REQUIRED / NO_BUSINESS_PR / NO_MERGE / NEXT_OWNER=B`。**
