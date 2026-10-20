@@ -68,7 +68,7 @@ async function currentPermission(c,a,responsible){
  if(!a||a.principal_kind!=='employee'||a.system_admin_id!==null||
  !['sales','manager','store_head'].includes(a.role_code)||a.force_password_change!==false||
  a.credential_state!=='enabled'||a.subject_status!=='active'||Number(a.employee_id)!==Number(responsible))return false;
- const x=await one(c,"SELECT r.role_code FROM public.employees e "+
+ const x=await one(c,"SELECT r.role_code,t.team_id,t.store_id,s.scope_id,p.permission_id FROM public.employees e "+
  "JOIN public.roles r ON r.role_id=e.main_role_id "+
  "JOIN public.permissions p ON p.permission_code='transaction.ci.cancel' "+
  "JOIN public.employee_permission_overrides o ON o.employee_id=e.employee_id AND o.permission_id=p.permission_id AND o.decision='allow' "+
@@ -86,7 +86,7 @@ async function currentPermission(c,a,responsible){
  "AND ((s.scope_kind='team' AND s.scope_reference_id=t.team_id) OR "+
  "(s.scope_kind='store' AND s.scope_reference_id=t.store_id AND r.role_code IN('manager','store_head'))) "+
  "LIMIT 1 FOR SHARE OF e,r,p,o,b,s,m,t,st,rm",[a.employee_id,responsible]);
- return !!x&&x.role_code===a.role_code;
+ return x&&x.role_code===a.role_code?{teamId:Number(x.team_id),storeId:Number(x.store_id),scopeId:Number(x.scope_id),permissionId:Number(x.permission_id)}:null;
 }
 
 async function trustedTransaction(c,t){
@@ -151,6 +151,19 @@ async function trustedTransaction(c,t){
  const paid=await one(c,'SELECT count(*)::int n FROM public.refund_payments p JOIN public.refund_cases r USING(refund_id) WHERE r.lock_id=$1 OR r.transaction_id=$2',[l.lock_id,t.transaction_id]);
  if(paid.n!==0)return no('F06_CANCEL_PAYMENT_SOURCE_GAP');
  if(sha(JSON.stringify(closed))!==o.source_refund_digest)return no('F06_CANCEL_SIGNED_REFUND_SNAPSHOT_DRIFT');
+ // Every synthetic 3A correction/reversal must possess its native immutable
+ // RequestKey signed by the same actor, deposit, amount and event kind.
+ const adjustments=(await c.query('SELECT * FROM f06_3a_ci.adjustments WHERE lock_id=$1 ORDER BY deposit_id,adjustment_id FOR SHARE',[l.lock_id])).rows;
+ for(const ad of adjustments){
+  const k=await one(c,'SELECT * FROM f06_3a_ci.request_keys WHERE resulting_adjustment_id=$1 FOR SHARE',[ad.adjustment_id]);
+  if(!k||k.key_sha256!==ad.event_key_sha256||k.action!==ad.event_kind||
+    Number(k.lock_id)!==Number(l.lock_id)||Number(k.deposit_id)!==Number(ad.deposit_id)||
+    Number(k.amount_cents)!==Number(ad.delta_cents)||Number(k.actor_employee_id)!==Number(ad.actor_employee_id)||
+    !['correction','reversal'].includes(ad.event_kind)||Number(ad.delta_cents)===0||
+    (ad.event_kind==='reversal'&&Number(ad.delta_cents)>0))
+    return no('F06_POST_CANCEL_UNSIGNED_DEPOSIT_CORRECTION');
+ }
+
  return yes('F06_CANCEL_SIGNED_PR139_SOURCE',{source:o,lock:l,checksum:sha(JSON.stringify([o,event,key]))});
 }
 
@@ -183,7 +196,8 @@ export async function cancelAfterSignedHandoffCI(auth,token,p={}){
    return yes('F06_POST_CANCEL_IDEMPOTENT',{transactionId:p.transactionId,version:p.expectedVersion,backendPid:(await one(c,'SELECT pg_backend_pid() pid')).pid});
   }
   if(t.status!=='in_progress'||t.completed_at!==null)return no('F06_POST_CANCEL_ONLY_IN_PROGRESS');
-  if(!await currentPermission(c,a,t.responsible_employee_id))return no('F06_POST_CANCEL_PERMISSION_SCOPE_DENIED');
+  const signedScope=await currentPermission(c,a,t.responsible_employee_id);
+  if(!signedScope)return no('F06_POST_CANCEL_PERMISSION_SCOPE_DENIED');
   const signed=await currentSignedResponsibleCI(c,p.transactionId);
   if(!signed.allowed||signed.version<1||signed.currentId!==Number(t.responsible_employee_id)||
    signed.currentId!==Number(a.employee_id))return no('F06_POST_CANCEL_PR153_CURRENT_CHAIN_INVALID');
@@ -202,8 +216,8 @@ export async function cancelAfterSignedHandoffCI(auth,token,p={}){
   const changed=await c.query("UPDATE public.transactions SET status='cancelled' WHERE transaction_id=$1 AND status='in_progress' AND responsible_employee_id=$2",[p.transactionId,signed.currentId]);
   if(changed.rowCount!==1)throw Error('F06_POST_CANCEL_ATOMIC_CAS_LOST');
   if(p.testCheckpoint==='AFTER_STATUS_THROW')throw Error('F06_POST_CANCEL_INJECTED_AFTER_STATUS');
-  await c.query("INSERT INTO f06_real_post_handoff_cancel_ci.origins(transaction_id,source_lock_id,customer_id,vehicle_id,listing_cycle_id,original_responsible_employee_id,current_responsible_employee_id,actor_employee_id,handoff_version,handoff_event_digest,parent_tx_digest,reason,issuer) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,'CI_SYNTHETIC_NOT_REAL_MONEY')",
-   [t.transaction_id,t.source_lock_id,t.customer_id,t.vehicle_id,t.listing_cycle_id,signed.originalId,signed.currentId,a.employee_id,signed.version,handoffDigest,parent.checksum,p.reason.trim()]);
+  await c.query("INSERT INTO f06_real_post_handoff_cancel_ci.origins(transaction_id,source_lock_id,customer_id,vehicle_id,listing_cycle_id,original_responsible_employee_id,current_responsible_employee_id,actor_employee_id,signed_team_id,signed_store_id,signed_scope_id,signed_permission_id,handoff_version,handoff_event_digest,parent_tx_digest,reason,issuer) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,'CI_SYNTHETIC_NOT_REAL_MONEY')",
+   [t.transaction_id,t.source_lock_id,t.customer_id,t.vehicle_id,t.listing_cycle_id,signed.originalId,signed.currentId,a.employee_id,signedScope.teamId,signedScope.storeId,signedScope.scopeId,signedScope.permissionId,signed.version,handoffDigest,parent.checksum,p.reason.trim()]);
   const event=await one(c,"INSERT INTO f06_real_post_handoff_cancel_ci.events(transaction_id,actor_employee_id,handoff_version,event_key_sha256,reason) VALUES($1,$2,$3,$4,$5) RETURNING event_id",[t.transaction_id,a.employee_id,signed.version,h,p.reason.trim()]);
   if(p.testCheckpoint==='AFTER_EVENT_THROW')throw Error('F06_POST_CANCEL_INJECTED_AFTER_EVENT');
   await c.query('INSERT INTO f06_real_post_handoff_cancel_ci.request_keys(event_key_sha256,transaction_id,actor_employee_id,payload_sha256,event_id) VALUES($1,$2,$3,$4,$5)',[h,t.transaction_id,a.employee_id,fingerprint,event.event_id]);
