@@ -30,7 +30,11 @@ export function childCall(operation,token,params={},readyHook){
   child.on('error',fail);child.on('exit',code=>{if(!done)fail(Error('F06_HANDOFF_WORKER_EXIT_'+code+' '+stderr))});
   child.on('message',m=>{
    if(m.type==='ready'){try{readyHook?.()}catch(e){return fail(e)}child.send({operation,token,params})}
-   else if(m.type==='result'&&!done){done=true;resolve(m.result)}
+   else if(m.type==='result'&&!done){
+    if(m.result?.ciFailure&&process.env.F06_HANDOFF_TEST_CONSENT==='I_AUTHORIZE_DISPOSABLE_F06_TRANSACTION_HANDOFF_ONLY')
+     console.error('F06_HANDOFF_DISPOSABLE_INTERNAL_SQL_DIAG',JSON.stringify(m.result.ciFailure));
+    done=true;resolve(m.result);
+   }
   });
  });
 }

@@ -36,7 +36,10 @@ try{
  }else result={allowed:true,code:'F06_REAL_HANDOFF_NATIVE_SIGNATURES_VERIFIED'};
  process.send({type:'result',result:{...result,backendPid:pid}});
 }catch(e){
- process.send({type:'result',result:{allowed:false,code:
+ // CI-only IPC diagnostic, never returned by the public HTTP responder.
+ const ciFailure={state:String(e?.code||'NO_SQLSTATE').slice(0,20),
+  message:String(e?.message||'UNKNOWN').slice(0,220)};
+ process.send({type:'result',result:{allowed:false,ciFailure,code:
   /^F06_REAL_HANDOFF_(INJECTED_|FINAL_|SOURCE_SCOPE_CHANGED|PRECOMMIT_)/.test(String(e.message))?'F06_REAL_HANDOFF_ATOMIC_ROLLED_BACK':
   ['55P03','40P01','40001','23505'].includes(e.code)?'F06_REAL_HANDOFF_PG_CONTENTION_DENY':
   'F06_REAL_HANDOFF_TRUSTED_SOURCE_OR_ISOLATION_DENY'}});

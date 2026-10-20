@@ -200,10 +200,11 @@ test('28 Scope撤销必须拒绝',async()=>{
 });
 test('29 原Responsible离职仍允许合法经理代办移交而非要求旧负责人授权',async()=>{
  await q("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=1");
- const r=await handoff('inactive-old',tx[2],4,1,0,{},peerToken);
- assert.equal(r.status,201,JSON.stringify(r.body));
- assert.equal(Number((await handoffFacts(tx[2])).responsible_employee_id),4);
- await q("UPDATE public.employees SET employment_status='active' WHERE employee_id=1");
+ try{
+  const r=await handoff('inactive-old',tx[2],4,1,0,{},peerToken);
+  assert.equal(r.status,201,JSON.stringify(r.body));
+  assert.equal(Number((await handoffFacts(tx[2])).responsible_employee_id),4);
+ }finally{await q("UPDATE public.employees SET employment_status='active' WHERE employee_id=1")}
 });
 test('30 Manager→Target非有效Team成员/4S拒绝',async()=>{
  await q("UPDATE public.employees SET main_role_id=$1 WHERE employee_id=4",[roles.four_s]);
