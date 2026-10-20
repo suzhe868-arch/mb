@@ -111,11 +111,14 @@ test('41 过期Session即使Bearer格式正确仍被拒绝',async()=>{
  try{const r=await call(endpoint,body('expired-session',locks[2]));assert.equal(r.status,401);assert.equal(r.body.code,'F06_TX_SIGNED_SESSION_DENIED')}
  finally{auth.clock=saved}
 });
-test('42 到期Lock不允许转换',async()=>{
+test('42 不可绕过父M94约束伪造过期Lock，原Lock及交易事实不变',async()=>{
+ const before=(await rows('SELECT expires_at FROM public.locks WHERE lock_id=$1',[locks[2]]))[0].expires_at;
+ await assert.rejects(q("UPDATE public.locks SET expires_at=clock_timestamp()-interval '1 minute' WHERE lock_id=$1",[locks[2]]),
+  /violates check constraint/);
  const current=(await rows('SELECT expires_at FROM public.locks WHERE lock_id=$1',[locks[2]]))[0].expires_at;
- await q("UPDATE public.locks SET expires_at=clock_timestamp()-interval '1 minute' WHERE lock_id=$1",[locks[2]]);
- try{const r=await call(endpoint,body('expired-lock',locks[2]));assert.equal(r.status,409);assert.equal(r.body.code,'F06_TX_INACTIVE_LOCK_DENY')}
- finally{await q('UPDATE public.locks SET expires_at=$1 WHERE lock_id=$2',[current,locks[2]])}
+ assert.equal(new Date(current).getTime(),new Date(before).getTime());
+ const st=await invariant(locks[2]);
+ assert.equal(st.lock_status,'active');assert.equal(st.txs,0);assert.equal(st.origins,0);
 });
 test('43 伪造的SystemAdmin身份Headers不产生隐式放行',async()=>{
  const r=await call(endpoint,body('fake-admin',999999998),token,'POST',{'x-principal-kind':'system_admin','x-role':'manager','x-employee-id':'1'});
