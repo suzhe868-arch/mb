@@ -1,3 +1,12 @@
+# 2026-10-21｜A主控F06 Issue164第二轮独立终验通过，业务PR169已合并；接A核查剩余真实Issuer
+
+- **正式结论**：Issue [#164](https://github.com/suzhe868-arch/mb/issues/164) 已完成A第二轮独立增量验收并关闭；B末SHA `1feb1e4efa8120252950e3d2d5b808a76a5bdb2c`，同SHA官方[Run39560892258](https://github.com/suzhe868-arch/mb/actions/runs/39560892258)/Job119091597788 `completed/success`，非生产单PG16业务42/42、HTTP拒绝32/32、缺签拒绝6/6、独立Legacy审计1/1，0失败/跳过/取消；161张父表24迁移跨OID 22749→16387→22980完整Seal相同、无越权漂移，证据工件[12327089697](https://github.com/suzhe868-arch/mb/actions/runs/39560892258/artifacts/12327089697)有效至2026-11-04。
+- **A整改两项闭环**：旧`CI_LEGACY`审计action `f06_real_test_*`经真PG独立回归证实保留；新Composite审计 `f06_composite_*`和不可变事件在真实PG16测试证实；四步来源矩阵由`IMPLEMENTING`订正为`CI_SIGNED_NONPRODUCTION`，六步契约强拒`PRODUCTION_READY`。7文件增量与Issue164/PR166精确路径＋用途授权一致，冻结旧SQL/DDL/旧CI/F02/F03/F05/PDM/C未修改。
+- **GitHub实际合并**：[业务PR #169](https://github.com/suzhe868-arch/mb/pull/169)已标准merge，SHA `e569d5e1c541333b26975f217c14ad414c2a3763`；[A正式验收评论](https://github.com/suzhe868-arch/mb/pull/169#issuecomment-6310587050)；[完整中文独立终验报告](07_重建工作区/F06_Issue164单Runtime可信来源第二轮独立验收PR169合并与后续范围核查报告_2026-10-21.md)。本项仅`A_ACCEPTED_NONPRODUCTION_ISSUE164`，不代表真钱、生产Issuer、Transaction completed、Refund refunded、线上API或F06阶段完整完成。
+- **当前唯一接力**：`NEXT_OWNER=A`、`NEXT_TASK=A_F06_POST_ISSUE164_REMAINING_RUNTIME_ISSUER_GAP_AUDIT_01`、`NEXT_ISSUE=null`；由A先定向核查F06剩余正式Runtime/可信Issuer与后续F07/F08依赖，已验历史工程直接复用，不自动签发新的B施工单。F06/F07/F08/V1均仍`NOT_READY`；F07/F08原独立B阶段未提前放行，F08正常A验收之后整个B后端的最终整体验收仍由A独立负责。C PR68不动。
+
+---
+
 # 2026-10-21｜B工程提交前语法与施工范围双门禁已写入（治理更新）
 
 - **正式规则**：[B工程执行增量审查关联回归与避免重复施工正式规范](07_重建工作区/B工程执行增量审查关联回归与避免重复施工正式规范_2026-10-21.md)；[A/B/C三窗口协作与验收规范](07_重建工作区/A_B_C三窗口协作与验收规范.md)。
