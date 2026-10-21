@@ -1,3 +1,29 @@
+# 名邦汽车 V1｜NEXT_ACTION 当前唯一指针｜2026-10-22
+
+## A 已完成的终验及合并
+- F07 [Issue #178](https://github.com/suzhe868-arch/mb/issues/178) 已按非生产 Runtime 接线子范围通过 A 独立验收并关闭；[PR #181](https://github.com/suzhe868-arch/mb/pull/181) 标准合并。B SHA `32f180238ff3271b38d2b91402cf4a7b55e07d52`；merge SHA `dd4a52a6f117ff83c959212f41f7c29ae68c507c`。
+- 官方 Run [#39629427298](https://github.com/suzhe868-arch/mb/actions/runs/39629427298) 两个非超管 PG16 Job #119323288481 / #119323289005 均成功；46 业务、15 HTTPS、26 旧入口回归 0失败；同 SHA 有效 Artifact #12357563978 / #12357469078。
+- A 验收报告：`07_重建工作区/F07_Issue178_PR181非生产Runtime独立终验与F08-2放行报告_2026-10-22.md`。
+
+## 下一唯一任务
+- `NEXT_OWNER=B`
+- `NEXT_TASK=F08_NONPROD_CROSS_RUNTIME_QUALITY_02`
+- `NEXT_ISSUE=184` [F08-2](https://github.com/suzhe868-arch/mb/issues/184)
+- `NEXT_BRANCH=feat/f08-nonprod-cross-runtime-quality-02`
+- **正式施工单：** `07_重建工作区/F08-2非生产跨Runtime安全关联回归与质量闭环_A主控B正式施工单_2026-10-22.md`
+
+**本 A 治理 PR 标准合并 main 后授权正式生效。** B 必须读取开工时最新 main，持续在当前聊天使用 GitHub 工具，不得转交 Work。
+
+## 边界与完成门禁
+- F08-1 PR69、F05-F08 PR100、F06 PR174、F07 PR181 直接复用；只新增 `engineering/f08/nonprod-cross-runtime-quality/**` 和 `.github/workflows/f08-nonprod-cross-runtime-quality.yml`。既有业务、父签名、旧 CI、PDM、生产与 C 轨只读冻结。
+- 至少两个独立非超管 PG16 官方 Push Job、24 新独立安全/证据/事务场景（含至少 8 个实际应用入口回归）、完整语法和授权路径校验、两份有效同 SHA Artifact 及中文交接后，才可 `READY_FOR_A_REVIEW`。
+- 不得伪造旧 F06/F07 绑定的 `GITHUB_REF/SHA/RUN` 签名正例；历史真实证据标历史 SHA，不冒充本任务真正运行。
+- **F06/F07/F08/V1 全域仍 NOT_READY**；真实电话权限、F03 Scope/Object、F05 转换、SLA/Incident、JYT/CDN/OSS/Feishu 保留 SOURCE_GAP，无生产/真钱/真实退款成交授权。F08 常规验收后整个后端最终整体验收归 A 独立负责。
+
+---
+
+## 2026-10-21 历史指针及记录（非当前任务）
+
 # 名邦汽车 V1｜NEXT_ACTION 当前唯一指针｜2026-10-21
 
 ## 当前已完成事项

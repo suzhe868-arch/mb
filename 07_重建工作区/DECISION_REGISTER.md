@@ -1,3 +1,21 @@
+# 当前有效裁决索引｜2026-10-22
+
+## A-F07-ISSUE178-PR181-ACCEPT-01｜非生产四域 Runtime 独立验收
+- A 已对 [PR #181](https://github.com/suzhe868-arch/mb/pull/181) 的 12 个白名单路径、业务边界与官方日志独立验收，B 受验 HEAD `32f180238ff3271b38d2b91402cf4a7b55e07d52`，标准合并 SHA `dd4a52a6f117ff83c959212f41f7c29ae68c507c`，Issue #178 已关闭。
+- 官方 Push Run #39629427298 两非超管 PG16 Job #119323288481/#119323289005 全绿，46 新业务、15 HTTPS、26 影响回归均通过，两同 SHA 非空工件 #12357563978/#12357469078 有效；静态 B 模板旧 `PENDING_OFFICIAL_CI` 以 B 最终 Issue/PR 交接及 A 独立官验为准。
+- **仅接受 F07 非生产四域接线子范围**；电话、F03 Scope/Object、F05 转换签名、SLA/Incident、真实外部 JYT/CDN/OSS/Feishu、生产和真钱均不授权，F06/F07/F08/V1 全域 NOT_READY。
+- 报告 `07_重建工作区/F07_Issue178_PR181非生产Runtime独立终验与F08-2放行报告_2026-10-22.md`。
+
+## A-F08-2-QUALITY-RELEASE-01｜有界非生产质量施工正式授权
+- **下一唯一指针：** `NEXT_OWNER=B / NEXT_TASK=F08_NONPROD_CROSS_RUNTIME_QUALITY_02 / NEXT_ISSUE=184 / NEXT_BRANCH=feat/f08-nonprod-cross-runtime-quality-02`。
+- A 施工单：`07_重建工作区/F08-2非生产跨Runtime安全关联回归与质量闭环_A主控B正式施工单_2026-10-22.md`。只在所属 A 治理 PR 标准合并 main 后生效；B 开工必须重新读取最新 main，在当前聊天使用 GitHub，不切 Work。
+- F08-1 PR69、F05～F08 PR100、F06 PR174、F07 PR181 既有验收全部复用；仅新增两白名单路径 F08-2 质量工作，重点当前应用 FailClosed、跨 Runtime 隔离及可信证据，不在新 Ref 伪造旧父服务正向签名；双 PG16 Job、24新独立场景含8应用入口场景、官方同 SHA 证据是门禁。
+- F08 整阶段按正常 A 验收完成后才由 A 独立开展整个 B 后端最终整体验收；不提前安排 B 重复全局审查，不授权生产/资金/外部真实调用，C PR68 独立不动。
+
+---
+
+## 2026-10-21 历史裁决索引（以下原“当前”已失效）
+
 # 当前有效裁决索引｜2026-10-21
 
 ## A-F06-171-ACCEPT-01｜Issue171 非生产子范围验收通过
