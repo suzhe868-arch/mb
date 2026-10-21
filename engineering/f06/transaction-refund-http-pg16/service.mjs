@@ -382,7 +382,7 @@ async function refundCaseSource(c,src,r,origin,mode='CI_LEGACY'){
  if(Number(audit.n)!==(r.status==='pending'?1:2))return no('F06_TX_REFUND_AUDIT_DRIFT');
  return yes('F06_TX_REFUND_SIGNED_CASE',{refundId:Number(r.refund_id),status:r.status,amountCents:Number(origin.amount_cents)});
 }
-async function balancePool(c,src,{ignoreRefundId=null}={}){
+async function balancePool(c,src,{ignoreRefundId=null}={},mode='CI_LEGACY'){
  const cases=(await c.query("SELECT r.*,lk.vehicle_id lock_vehicle,lk.listing_cycle_id lock_cycle,tx.vehicle_id tx_vehicle,tx.listing_cycle_id tx_cycle "+
   "FROM public.refund_cases r LEFT JOIN public.locks lk ON lk.lock_id=r.lock_id "+
   "LEFT JOIN public.transactions tx ON tx.transaction_id=r.transaction_id "+
@@ -405,7 +405,7 @@ async function balancePool(c,src,{ignoreRefundId=null}={}){
    if(Number(r.transaction_id)!==Number(src.tx.transaction_id))return no('F06_TX_REFUND_OTHER_TRANSACTION_SUBJECT_CONFLICT');
    const origin=await one(c,'SELECT * FROM f06_real_tx_refund_ci.origins WHERE refund_id=$1 FOR SHARE',[r.refund_id]);
    if(!origin)return no('F06_TX_REFUND_UNSIGNED_EXISTING_CASE');
-   const trusted=await refundCaseSource(c,src,r,origin);
+   const trusted=await refundCaseSource(c,src,r,origin,mode);
    if(!trusted.allowed)return trusted;
    if(r.status==='pending')pendingCents+=Number(trusted.amountCents);
    else if(r.status!=='closed')return no('F06_TX_REFUND_UNKNOWN_TRANSACTION_REFUND_STATUS');
@@ -466,7 +466,7 @@ async function requestTransactionRefundCore(auth,token,p={},sourceVerifier,mode=
     if(prior.status==='pending')return no('F06_TX_REFUND_ALREADY_PENDING');
     if(prior.status!=='closed')return no('F06_TX_REFUND_UNKNOWN_TRANSACTION_REFUND_STATUS');
    }
-   const pool=await balancePool(c,src);if(!pool.allowed)return pool;
+   const pool=await balancePool(c,src,{},mode);if(!pool.allowed)return pool;
    if(pool.availableCents<=0)return no('F06_TX_REFUND_NO_SIGNED_REFUNDABLE_BALANCE');
    if(p.amountCents>pool.availableCents)return no('F06_TX_REFUND_EXCEEDS_AVAILABLE_BALANCE');
    const row=await one(c,"INSERT INTO public.refund_cases(customer_id,lock_id,transaction_id,status,expected_amount_cents) "+
@@ -500,7 +500,7 @@ async function requestTransactionRefundCore(auth,token,p={},sourceVerifier,mode=
    if(!finalSource.allowed||finalSource.transactionDigest!==src.transactionDigest||
     finalSource.depositDigest!==src.depositDigest||finalSource.lockRefundDigest!==src.lockRefundDigest)
     throw Error('F06_TX_REFUND_SOURCE_CHANGED_BEFORE_COMMIT');
-   const finalPool=await balancePool(c,src,{ignoreRefundId:Number(row.refund_id)});
+   const finalPool=await balancePool(c,src,{ignoreRefundId:Number(row.refund_id)},mode);
    if(!finalPool.allowed||p.amountCents>finalPool.availableCents)
     throw Error('F06_TX_REFUND_BALANCE_CHANGED_BEFORE_COMMIT');
    return yes('F06_TX_REFUND_PENDING_NO_PAYMENT',{refundId:Number(row.refund_id),backendPid:(await one(c,'SELECT pg_backend_pid() pid')).pid});
@@ -536,13 +536,13 @@ async function closeTransactionRefundCore(auth,token,p={},sourceVerifier,mode='C
    if(!l||Number(l.lock_id)!==Number(t.source_lock_id))return no('F06_TX_REFUND_SOURCE_LOCK_GAP');
    const r=await one(c,'SELECT * FROM public.refund_cases WHERE refund_id=$1 FOR UPDATE',[p.refundId]);
    const o=await one(c,'SELECT * FROM f06_real_tx_refund_ci.origins WHERE refund_id=$1 FOR SHARE',[p.refundId]);
-   const signed=await refundCaseSource(c,src,r,o);if(!signed.allowed)return signed;
+   const signed=await refundCaseSource(c,src,r,o,mode);if(!signed.allowed)return signed;
    if(old){
     if(r.status==='closed')return yes('F06_TX_REFUND_IDEMPOTENT_CLOSE',{refundId:p.refundId,backendPid:(await one(c,'SELECT pg_backend_pid() pid')).pid});
     return no('F06_TX_REFUND_IDEMPOTENCY_STATE_DRIFT');
    }
    if(r.status!=='pending')return no('F06_TX_REFUND_ALREADY_TERMINAL');
-   const pool=await balancePool(c,src,{ignoreRefundId:p.refundId});if(!pool.allowed)return pool;
+   const pool=await balancePool(c,src,{ignoreRefundId:p.refundId},mode);if(!pool.allowed)return pool;
    const paid=await one(c,'SELECT count(*)::int n FROM public.refund_payments WHERE refund_id=$1',[p.refundId]);
    if(Number(paid.n)!==0)return no('F06_TX_REFUND_REAL_PAYMENT_NEVER_CLOSE');
    if(p.testCheckpoint==='BEFORE_CLOSE_THROW')throw Error('F06_TX_REFUND_INJECTED_BEFORE_CLOSE');
