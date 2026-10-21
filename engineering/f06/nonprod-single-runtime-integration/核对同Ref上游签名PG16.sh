@@ -33,67 +33,58 @@ node --input-type=module -e '
   console.log("F06_164_ACTUAL_CURRENT_REF_F05_7_NATIVE_21_LEDGER",JSON.stringify({sha:process.env.GITHUB_SHA,ref:process.env.GITHUB_REF,pid:x.pid,migrationCount:x.n}));
  }finally{await c.end()}
 '
+node engineering/f05/priority-arbitration-ttl-handover/preseed-v23.mjs
 node --input-type=module -e '
- import {randomBytes} from "node:crypto";
- import {IsolatedAuth} from "./engineering/src/f03-auth-service.mjs";
  import {connect,verify} from "./engineering/f05/deterministic-matching-readiness-four-tier/migration.mjs";
- import {saveSalesDescriptionCI,calculateCI} from "./engineering/f05/deterministic-matching-readiness-four-tier/service.mjs";
- const c=await connect(),secret=randomBytes(32);
- const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin:"https://127.0.0.1:48988"});
+ const c=await connect();
  try{
   const signed=await verify(c);
-  if(!signed.verified)throw Error("F06_171_V23_SIGNED_F05_7_REQUIRED");
-  const session=await auth.login({login:"employee_test",password:"SyntheticF04_3_CurrentProof_2026",source:"issue171-real-f05-match-seed-before-v24"});
-  if(session.code!=="AUTH_OK"||session.restricted)throw Error("F06_171_V23_CURRENT_EMPLOYEE_SESSION_REQUIRED");
-  const demands=(await c.query(
-   "SELECT d.demand_id::text demand_id,d.customer_id::text customer_id FROM public.demands d "+
-   "JOIN public.customers cs ON cs.customer_id=d.customer_id "+
-   "WHERE d.customer_id IN(899612,899613,899618,899619,899620) AND d.demand_state=$1 "+
-   "AND cs.account_status=$2 AND cs.owner_assignment_state=$3 "+
-   "AND d.responsible_employee_id=cs.current_owner_employee_id AND cs.current_owner_employee_id=1 "+
-   "ORDER BY d.customer_id,d.demand_id",["active","active","assigned"]
-  )).rows;
-  const vehicles=(await c.query(
-   "SELECT vf.vehicle_id::text vehicle_id,vf.listing_cycle_id::text cycle_id "+
-   "FROM public.f05_7_vehicle_facts_ci vf JOIN public.vehicles v ON v.vehicle_id=vf.vehicle_id "+
-   "JOIN public.vehicle_listing_cycles cyc ON cyc.listing_cycle_id=vf.listing_cycle_id AND cyc.vehicle_id=v.vehicle_id "+
-   "WHERE vf.available=true AND v.source_type=$1 AND v.source_sale_status=$2 AND v.archived_at IS NULL "+
-   "AND cyc.ended_at IS NULL AND jsonb_extract_path_text(vf.facts_json,$3,$4)::int>=2025 "+
-   "ORDER BY v.vehicle_id LIMIT 5",["wholesale","active","model_year","value"]
-  )).rows;
-  if(demands.length<3)throw Error("F06_171_V23_CURRENT_DEMAND_FIXTURES_REQUIRED_"+demands.length);
-  if(vehicles.length<1)throw Error("F06_171_V23_CURRENT_SALEABLE_MATCH_VEHICLE_REQUIRED");
-  const description="奥迪A6 2026款 5万公里以内 黑色外观 米色内饰 预算10万";
-  let created=0;
-  for(const d of demands){
-   const ready=await saveSalesDescriptionCI(auth,session.token,{demandId:Number(d.demand_id),teamId:901,description});
-   if(!ready.allowed)throw Error("F06_171_V23_OFFICIAL_F05_7_DESCRIPTION_REJECTED_"+JSON.stringify({demand:d.demand_id,result:ready}));
-   for(const v of vehicles){
-    const match=await calculateCI(auth,session.token,{
-     demandId:Number(d.demand_id),vehicleId:Number(v.vehicle_id),listingCycleId:Number(v.cycle_id),teamId:901,
-     runKey:"issue171-real-f05-priority-"+process.env.GITHUB_RUN_ID+"-"+d.demand_id+"-"+v.vehicle_id
-    });
-    if(!match.allowed)throw Error("F06_171_V23_OFFICIAL_F05_7_MATCH_REJECTED_"+JSON.stringify({demand:d.demand_id,vehicle:v.vehicle_id,result:match}));
-    created++;
-   }
-  }
-  const current=(await c.query(
-   "SELECT count(*)::int n FROM public.f05_7_result_versions_ci r JOIN public.demands d ON d.demand_id=r.demand_id "+
-   "WHERE d.customer_id IN(899612,899613,899618,899619,899620) AND r.status=$1 AND r.tier=ANY($2::text[])",
-   ["current",["high","acceptable"]]
-  )).rows[0].n;
-  if(Number(current)<1)throw Error("F06_171_V23_SIGNED_CURRENT_MATCH_RESULTS_MISSING");
-  console.log("F06_171_V23_CURRENT_MATCHES_SEEDED",JSON.stringify({
-   sha:process.env.GITHUB_SHA,runId:process.env.GITHUB_RUN_ID,ledgerVersion:23,
-   demandCount:demands.length,vehicleCount:vehicles.length,created,currentResults:Number(current)
-  }));
- }finally{await auth.close();await c.end();secret.fill(0)}
+  const n=(await c.query("SELECT count(*)::int n FROM public.f05_7_result_versions_ci r JOIN public.demands d ON d.demand_id=r.demand_id WHERE d.customer_id IN(899612,899613,899618,899619,899620) AND r.status=$1 AND r.tier=ANY($2::text[])",["current",["high","acceptable"]])).rows[0].n;
+  if(!signed.verified||Number(n)<1)throw Error("F06_171_V23_SIGNED_CURRENT_MATCHES_MISSING");
+  console.log("F06_171_V23_CURRENT_MATCHES_SEEDED",JSON.stringify({sha:process.env.GITHUB_SHA,runId:process.env.GITHUB_RUN_ID,ledgerVersion:23,currentResults:Number(n)}));
+ }finally{await c.end()}
 '
 
 # Signed M94 v23(21 rows) -> v24(22) -> v25(23) -> D1 independent -> v26(24).
 # All frozen F05 migration functions independently verify parent seals, and no
 # subprocess overwrites GITHUB_REF or GITHUB_REF_NAME for a legacy identity.
-for step in priority-arbitration-ttl-handover recommendation-visibility-grants pdm17-public-pool-owner-claim consultation-assignee-sla; do
+node "engineering/f05/priority-arbitration-ttl-handover/runner.mjs" --apply
+node "engineering/f05/priority-arbitration-ttl-handover/runner.mjs" --verify
+test "$GITHUB_REF" = "$original_ref"
+test "$GITHUB_REF_NAME" = "$original_name"
+node --input-type=module -e '
+ import {randomBytes} from "node:crypto";
+ import {IsolatedAuth} from "./engineering/src/f03-auth-service.mjs";
+ import {connect,verify} from "./engineering/f05/priority-arbitration-ttl-handover/migration.mjs";
+ import {setQualificationCI} from "./engineering/f05/priority-arbitration-ttl-handover/service.mjs";
+ const c=await connect(),secret=randomBytes(32);
+ const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin:"https://127.0.0.1:48988"});
+ try{
+  const signed=await verify(c);
+  if(!signed.verified)throw Error("F06_171_V24_SIGNED_F05_8_REQUIRED");
+  const session=await auth.login({login:"employee_test",password:"SyntheticF04_3_CurrentProof_2026",source:"issue171-real-priority-seed-at-v24"});
+  if(session.code!=="AUTH_OK"||session.restricted)throw Error("F06_171_V24_CURRENT_EMPLOYEE_SESSION_REQUIRED");
+  const candidate=(await c.query(
+   "SELECT DISTINCT d.customer_id::text customer_id FROM public.f05_7_result_versions_ci r JOIN public.demands d ON d.demand_id=r.demand_id "+
+   "JOIN public.customers cs ON cs.customer_id=d.customer_id "+
+   "JOIN public.f05_6_level_find_policy_ci fp ON fp.level_id=cs.customer_level_id AND fp.find_enabled=true "+
+   "JOIN public.f05_7_sales_condition_ci sc ON sc.demand_id=d.demand_id "+
+   "WHERE d.customer_id IN(899612,899613,899618,899619,899620) AND d.demand_state=$1 AND cs.account_status=$2 AND cs.owner_assignment_state=$3 "+
+   "AND d.responsible_employee_id=cs.current_owner_employee_id AND cs.current_owner_employee_id=$4 AND r.status=$5 AND r.tier=ANY($6::text[]) "+
+   "AND EXISTS(SELECT 1 FROM public.customer_phone_facts ph WHERE ph.customer_id=cs.customer_id AND ph.valid_from<=clock_timestamp() AND ph.ended_at IS NULL) "+
+   "ORDER BY d.customer_id::text LIMIT 1",["active","active","assigned",1,"current",["high","acceptable"]]
+  )).rows[0];
+  if(!candidate)throw Error("F06_171_V24_REAL_F05_7_MATCH_FOR_PRIORITY_REQUIRED");
+  const issued=await setQualificationCI(auth,session.token,{teamId:901,customerId:Number(candidate.customer_id),enabled:true,eventKey:"issue171-priority-qualification-"+process.env.GITHUB_RUN_ID});
+  if(!issued.allowed)throw Error("F06_171_V24_OFFICIAL_F05_8_QUALIFICATION_REJECTED_"+JSON.stringify(issued));
+  const n=(await c.query("SELECT count(*)::int n FROM public.f05_8_priority_ci p JOIN public.f05_7_result_versions_ci r ON r.result_id=p.source_match_result_id AND r.source_signature=p.source_signature WHERE p.customer_id=$1 AND p.status=$2 AND p.expires_at>clock_timestamp()",[Number(candidate.customer_id),"active"])).rows[0].n;
+  if(Number(n)<1)throw Error("F06_171_V24_OFFICIAL_SIGNED_PRIORITY_MISSING");
+  console.log("F06_171_V24_PRIORITY_SEEDED",JSON.stringify({sha:process.env.GITHUB_SHA,runId:process.env.GITHUB_RUN_ID,ledgerVersion:24,customerId:Number(candidate.customer_id),activeSignedPriorities:Number(n)}));
+ }finally{await auth.close();await c.end();secret.fill(0)}
+'
+test "$GITHUB_REF" = "$original_ref"
+test "$GITHUB_REF_NAME" = "$original_name"
+for step in recommendation-visibility-grants pdm17-public-pool-owner-claim consultation-assignee-sla; do
   node "engineering/f05/$step/runner.mjs" --apply
   node "engineering/f05/$step/runner.mjs" --verify
   test "$GITHUB_REF" = "$original_ref"
