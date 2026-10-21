@@ -1,0 +1,33 @@
+编号	领域	场景	期望结果	来源
+01	Ref	固定 F08-3 expectedRef	允许本任务分支；默认旧 F07 REF 不变	代码常量+官方 Push
+02	权限	System Admin 单员工授权	当前 override allow + SG01 专项绑定 + history/audit	隔离 F03 PG16
+03	权限	普通员工调用配置入口	拒绝	真实 Runtime
+04	权限	个人 deny 覆盖 allow	拒绝	隔离 F03 PG16
+05	权限	角色默认 allow 但无个人 override	拒绝	隔离 F03 PG16
+06	权限	撤销员工能力	下一请求立即拒绝	隔离 F03 PG16
+07	权限	切换访问模式	旧模式下一请求立即失效	隔离 F03/F07 PG16
+08	权限	账号/员工非 active	拒绝	隔离 F03 PG16
+09	权限	force-password-change 受限会话	拒绝	隔离 F03 PG16
+10	身份	4S 员工	硬拒绝	隔离 F03 PG16
+11	身份	System Admin 业务调用	拒绝	隔离 F03 PG16
+12	范围	LOCKED_ONLY + 当前有效 Lock	允许	隔离 F07 PG16
+13	范围	LOCKED_ONLY 无 Lock	拒绝	隔离 F07 PG16
+14	范围	LockRequest 申请中	拒绝	隔离 F07 PG16
+15	范围	Lock 已取消	拒绝	隔离 F07 PG16
+16	范围	Lock 已过期	拒绝	隔离 F07 PG16
+17	范围	仅旧 listing cycle 有 Lock	拒绝	隔离 F07 PG16
+18	范围	ALL_ACTIVE_JYT 无 Lock/Transaction	允许	隔离 F07 PG16
+19	车辆	当前已下架	拒绝	隔离 F07 PG16
+20	车辆	已转名邦	拒绝	隔离 F07 PG16
+21	车辆	已转 4S	拒绝	隔离 F07 PG16
+22	车辆	非 JYT 平台	拒绝	隔离 F07 PG16
+23	来源	缺 publisher 映射	拒绝并标 SOURCE_GAP	隔离 F07 PG16
+24	来源	缺 phone cache	404 且不泄露其他电话	隔离 F07 PG16
+25	缓存	同 publisher 的多台车辆	按 source_platform + upstream_publisher_id 取缓存	隔离 F07 PG16
+26	拨号	拨号授权路径	返回 DISABLED，不拨号、不返回电话	真实 Runtime
+27	审计	授予/撤销/模式变更	before/after、actor/time 完整	隔离 F03 PG16
+28	审计	电话明文	不得写入 audit/log	隔离 F03/F07 PG16
+29	生产边界	客户正式路径	不注册本 CI 路由	真实 HTTPS
+30	生产边界	非 loopback Host	拒绝	真实 HTTPS
+31	回归	F03 正式事实读取器	保持 fail-closed，不伪造 allow	真实 Runtime
+32	回归	图片/通知/Incident/回调签名	不修改既有实现	精确差异+受影响回归
