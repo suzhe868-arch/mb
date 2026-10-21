@@ -201,6 +201,7 @@ test('Issue171: Native PG16 Composite ordinary-lock lifecycle & immutable issuer
    const priorityLockIds=[];
    for(let i=6;i<=9;i++)priorityLockIds.push(await createLock(i));
    const priorityLockSet=new Set(priorityLockIds.map(String));
+   let priorityEventLookups=0;
    const priorityPool={
     connect:async()=>{
      const client=await runtime.pool.connect();
@@ -208,6 +209,7 @@ test('Issue171: Native PG16 Composite ordinary-lock lifecycle & immutable issuer
       query:async(...args)=>{
        const result=await client.query(...args);
        const sql=typeof args[0]==='string'?args[0]:String(args[0]?.text||'');
+        if(sql.includes('FROM f06_composite_lifecycle_v2.lock_lifecycle_events WHERE event_key_sha256=$1'))priorityEventLookups++;
        if(sql.includes('FROM f06_composite_v1.lock_snapshots WHERE lock_id=$1 FOR SHARE')&&result.rows.length){
         return {...result,rows:result.rows.map(row=>priorityLockSet.has(String(row.lock_id))?{...row,priority_origin_id:String(900000000000000000n+BigInt(row.lock_id)),priority_origin_customer_id:String(row.customer_id)}:row)};
        }
@@ -236,6 +238,7 @@ test('Issue171: Native PG16 Composite ordinary-lock lifecycle & immutable issuer
    for(const item of priorityActions){
     if(item.action==='expire')await db.query("UPDATE public.locks SET expires_at=clock_timestamp()-interval '1 second' WHERE lock_id=$1",[item.lockId]);
     const before=await lifecycleFacts(item.lockId);
+    const beforeReplayLookups=priorityEventLookups;
     let result;
     if(item.action==='expire')result=await priorityGuardService.expireOrdinary({lockId:item.lockId});
     else result=await priorityGuardService.act({token:initialToken,lockId:item.lockId,action:item.action,
@@ -244,6 +247,7 @@ test('Issue171: Native PG16 Composite ordinary-lock lifecycle & immutable issuer
     await t.test('04B Priority来源标记Lock '+item.action+'硬拒绝且Lock/签名事件/审计无变化',async()=>{
      assert.equal(result.status,409,JSON.stringify(result.body));assert.equal(result.body.code,item.code);
      assert.deepEqual(await lifecycleFacts(item.lockId),before);
+     assert.equal(priorityEventLookups,beforeReplayLookups,'Priority guard must run before idempotency replay lookup');
     });
    }
    t.diagnostic('F06_171_PRIORITY_ORIGIN_FOUR_ACTIONS_NO_SIDE_EFFECTS_PASS');

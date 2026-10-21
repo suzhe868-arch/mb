@@ -258,12 +258,6 @@ export function createIsolatedF06LockLifecycleService({pool,env=process.env,afte
     const actor=await employee(db,token);if(!actor)return denied('EMPLOYEE_NOT_AUTHORIZED');
     const entry=await lockEntry(db,lockId);if(!entry)return response(404,'LOCK_NOT_FOUND');
     const lock=entry.lock;if(!await authorized(db,actor,lock))return denied('LOCK_LIFECYCLE_PERMISSION_SCOPE_DENIED');
-    const keyHash=sha('f06-lock-lifecycle:'+idempotencyKey);
-    const payloadHash=sha(JSON.stringify([String(actor.employee_id),String(lockId),action,why,newExpiresAt??null]));
-    await db.query('SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))',['F06_LOCK_LIFECYCLE_KEY',keyHash]);
-    const prior=await existingEvent(db,keyHash,payloadHash,'employee',actor.employee_id,action,lockId);if(prior)return prior;
-    if(lock.lock_status!=='active')return response(409,'LOCK_NOT_ACTIVE');
-    if(!await activeLockIsUnique(db,lock))return response(409,'LOCK_ACTIVE_COMPETITION_OR_DUPLICATE_DENY');
     const signed=await snapshot(db,lock);
     if(!signed)return response(409,'LOCK_SIGNED_SNAPSHOT_MISSING');
     if(signed.priority_origin_id){
@@ -271,6 +265,12 @@ export function createIsolatedF06LockLifecycleService({pool,env=process.env,afte
      if(action==='release')return response(409,'PRIORITY_ORIGIN_ORDINARY_RELEASE_DENIED');
      if(action==='cancel')return response(409,'PRIORITY_ORIGIN_ORDINARY_CANCEL_DENIED');
     }
+    const keyHash=sha('f06-lock-lifecycle:'+idempotencyKey);
+    const payloadHash=sha(JSON.stringify([String(actor.employee_id),String(lockId),action,why,newExpiresAt??null]));
+    await db.query('SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))',['F06_LOCK_LIFECYCLE_KEY',keyHash]);
+    const prior=await existingEvent(db,keyHash,payloadHash,'employee',actor.employee_id,action,lockId);if(prior)return prior;
+    if(lock.lock_status!=='active')return response(409,'LOCK_NOT_ACTIVE');
+    if(!await activeLockIsUnique(db,lock))return response(409,'LOCK_ACTIVE_COMPETITION_OR_DUPLICATE_DENY');
     const ctx=await context(db,lock,action,entry.vehicleExists);if(ctx.deny)return ctx.deny;
     const money=await financeGuard(db,lock);if(!money.ok)return money.result;
     let next;
@@ -297,13 +297,15 @@ export function createIsolatedF06LockLifecycleService({pool,env=process.env,afte
    if(!validId(lockId))return response(400,'INVALID_LOCK_ID');
    return tx(async db=>{
     const entry=await lockEntry(db,lockId);if(!entry)return response(404,'LOCK_NOT_FOUND');
-    const lock=entry.lock,keyHash=sha('f06-lock-lifecycle-system-expire:'+lockId);
-    const payloadHash=sha(JSON.stringify(['system',String(lockId),'expire','ordinary_expiry_no_verified_money',null]));
-    const prior=await existingEvent(db,keyHash,payloadHash,'system',null,'expire',lockId);if(prior)return prior;
-    if(lock.lock_status!=='active')return response(409,'LOCK_NOT_ACTIVE');
-    if(!await activeLockIsUnique(db,lock))return response(409,'LOCK_ACTIVE_COMPETITION_OR_DUPLICATE_DENY');
-    const ctx=await context(db,lock,'expire',entry.vehicleExists);if(ctx.deny)return ctx.deny;
-    if(ctx.snapshot.priority_origin_id)return response(409,'PRIORITY_ORIGIN_ORDINARY_EXPIRY_DENIED');
+     const lock=entry.lock;
+     const signed=await snapshot(db,lock);if(!signed)return response(409,'LOCK_SIGNED_SNAPSHOT_MISSING');
+     if(signed.priority_origin_id)return response(409,'PRIORITY_ORIGIN_ORDINARY_EXPIRY_DENIED');
+     const keyHash=sha('f06-lock-lifecycle-system-expire:'+lockId);
+     const payloadHash=sha(JSON.stringify(['system',String(lockId),'expire','ordinary_expiry_no_verified_money',null]));
+     const prior=await existingEvent(db,keyHash,payloadHash,'system',null,'expire',lockId);if(prior)return prior;
+     if(lock.lock_status!=='active')return response(409,'LOCK_NOT_ACTIVE');
+     if(!await activeLockIsUnique(db,lock))return response(409,'LOCK_ACTIVE_COMPETITION_OR_DUPLICATE_DENY');
+     const ctx=await context(db,lock,'expire',entry.vehicleExists);if(ctx.deny)return ctx.deny;
     const money=await financeGuard(db,lock);if(!money.ok)return money.result;
     const deadline=await first(db,'SELECT $1::timestamptz<=clock_timestamp() AS expired',[lock.expires_at]);
     if(!deadline?.expired)return response(409,'LOCK_NOT_EXPIRED_BY_DATABASE_CLOCK');
