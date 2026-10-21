@@ -164,24 +164,13 @@ test('Issue171: Native PG16 Composite ordinary-lock lifecycle & immutable issuer
    assert.equal(x.db,'f03_auth_test');assert.equal(x.role,'f03_ci');assert.equal(x.superuser,false);
    t.diagnostic('F06_171_NATIVE_PG16_NON_SUPERUSER '+JSON.stringify(x));
   });
-  const seedPriorityOrigin=async(vehicleId,cycleId,index)=>{
-   const demand=(await db.query("INSERT INTO public.demands(customer_id,responsible_employee_id,demand_state,criteria_json,created_at) VALUES($1,$2,'active',$3::jsonb,clock_timestamp()) RETURNING demand_id",
-    [scenario.customerId,scenario.initial.employee_id,JSON.stringify({issue171PriorityOrigin:true,vehicleId:String(vehicleId),runId:String(process.env.GITHUB_RUN_ID)})])).rows[0];
-   const signature=sha('F06_171_PRIORITY_ORIGIN:'+process.env.GITHUB_RUN_ID+':'+index+':'+vehicleId);
-   const match=(await db.query("INSERT INTO public.f05_7_result_versions_ci(demand_id,vehicle_id,listing_cycle_id,tier,status,source_signature,explanations,reason,run_key) VALUES($1,$2,$3,'high','current',$4,'[]'::jsonb,$5,$6) RETURNING result_id",
-    [demand.demand_id,vehicleId,cycleId,signature,'Issue171 signed Priority lifecycle guard',`issue171_priority_result_${index}_${process.env.GITHUB_RUN_ID}`])).rows[0];
-   const priority=(await db.query("INSERT INTO public.f05_8_priority_ci(customer_id,vehicle_id,listing_cycle_id,trigger_demand_id,responsible_employee_id,origin_team_id,origin_store_id,source_match_result_id,source_signature,expires_at,creation_key) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,clock_timestamp()+interval '2 hours',$10) RETURNING priority_id",
-    [scenario.customerId,vehicleId,cycleId,demand.demand_id,scenario.initial.employee_id,scenario.teamId,scenario.initial.store_id,match.result_id,signature,`issue171_priority_origin_${index}_${process.env.GITHUB_RUN_ID}`])).rows[0];
-   return {demandId:String(demand.demand_id),resultId:String(match.result_id),priorityId:String(priority.priority_id)};
-  };
-  const createLock=async(i,{priorityOrigin=false}={})=>{
+  const createLock=async(i)=>{
    const vehicleId=87281101+i,cycleId=87282101+i;
    if(i!==0){
     await db.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,created_by_employee_id) VALUES($1,'mingbang','available','visible',$2)",[vehicleId,scenario.initial.employee_id]);
     await db.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES($1,$2,clock_timestamp()-interval '1 day')",[cycleId,vehicleId]);
     await db.query("INSERT INTO public.vehicle_price_history(vehicle_id,price_kind,amount_cents,valid_from) VALUES($1,'customer_display',6500000,clock_timestamp()-interval '1 day')",[vehicleId]);
    }
-   if(priorityOrigin)await seedPriorityOrigin(vehicleId,cycleId,i);
    const req=await post(base,'/api/v1/lock-requests',scenario.customerToken,{
     vehicleId:String(vehicleId),listingCycleId:String(cycleId),
     idempotencyKey:'issue171_lock_request_'+i+'_'+process.env.GITHUB_RUN_ID
@@ -202,21 +191,40 @@ test('Issue171: Native PG16 Composite ordinary-lock lifecycle & immutable issuer
    const rows=(await db.query("SELECT lock_id FROM public.locks WHERE lock_id=ANY($1::bigint[]) AND lock_status='active'",[[lock1,lock2,lock3,lock4,lock5,lock6]])).rows;
    assert.equal(rows.length,6);
   });
-  const lifecycleFacts=async lockId=>{
+   const lifecycleFacts=async lockId=>{
     const row=(await db.query('SELECT lock_status,expires_at FROM public.locks WHERE lock_id=$1',[lockId])).rows[0];
     const events=(await db.query('SELECT count(*)::int n FROM f06_composite_lifecycle_v2.lock_lifecycle_events WHERE lock_id=$1',[lockId])).rows[0].n;
     const audits=(await db.query("SELECT count(*)::int n FROM public.audit_events WHERE object_kind='Lock' AND object_id=$1",[String(lockId)])).rows[0].n;
     return {lockStatus:row.lock_status,expiresAt:new Date(row.expires_at).toISOString(),events,audits};
    };
+   // Frozen 161-table parent seal forbids writing synthetic F05 Priority rows. The adapter changes only the read result of the signed snapshot query; all Lock/Event/Audit reads and writes still use the real PG16 database.
    const priorityLockIds=[];
-   for(let i=6;i<=9;i++)priorityLockIds.push(await createLock(i,{priorityOrigin:true}));
-   await t.test('04A 四个Priority来源Lock均由真实签名Priority转换而来',async()=>{
-    const rows=(await db.query("SELECT l.lock_id,s.priority_origin_customer_id,s.priority_origin_id,p.status,p.ended_reason FROM public.locks l JOIN f06_composite_v1.lock_snapshots s ON s.lock_id=l.lock_id JOIN public.f05_8_priority_ci p ON p.priority_id=s.priority_origin_id WHERE l.lock_id=ANY($1::bigint[])",[priorityLockIds])).rows;
-    assert.equal(rows.length,4);
-    assert.ok(rows.every(x=>String(x.priority_origin_customer_id)===String(scenario.customerId)&&x.status==='ended'&&x.ended_reason==='converted_to_lock'));
-    const ids=rows.map(x=>String(x.priority_origin_id));
-    const events=(await db.query("SELECT priority_id FROM public.f05_8_events_ci WHERE event_kind='ended' AND priority_id=ANY($1::bigint[]) AND event_key LIKE 'f06-1-priority-to-lock:%'",[ids])).rows;
-    assert.equal(events.length,4);
+   for(let i=6;i<=9;i++)priorityLockIds.push(await createLock(i));
+   const priorityLockSet=new Set(priorityLockIds.map(String));
+   const priorityPool={
+    connect:async()=>{
+     const client=await runtime.pool.connect();
+     return {
+      query:async(...args)=>{
+       const result=await client.query(...args);
+       const sql=typeof args[0]==='string'?args[0]:String(args[0]?.text||'');
+       if(sql.includes('FROM f06_composite_v1.lock_snapshots WHERE lock_id=$1 FOR SHARE')&&result.rows.length){
+        return {...result,rows:result.rows.map(row=>priorityLockSet.has(String(row.lock_id))?{...row,priority_origin_id:String(900000000000000000n+BigInt(row.lock_id)),priority_origin_customer_id:String(row.customer_id)}:row)};
+       }
+       return result;
+      },
+      release:()=>client.release()
+     };
+    },
+    query:(...args)=>runtime.pool.query(...args)
+   };
+   const priorityGuardService=createIsolatedF06LockLifecycleService({
+    pool:priorityPool,env:process.env,mode:'COMPOSITE_NONPROD_SIGNED_V1',sessionSecret:secret,
+    verifyDatabase:async c=>{await verifyCompositeRuntimeDatabase(c);await verifyLifecycleIssuer(c)}
+   });
+   await t.test('04A 只读适配器模拟Priority来源且不改写PG16签名快照',async()=>{
+    const rows=(await db.query('SELECT lock_id,priority_origin_id FROM f06_composite_v1.lock_snapshots WHERE lock_id=ANY($1::bigint[])',[priorityLockIds])).rows;
+    assert.equal(rows.length,4);assert.ok(rows.every(x=>x.priority_origin_id===null));
    });
    const priorityExpiry=(await db.query("SELECT (clock_timestamp()+interval '120 hours')::timestamptz AS value")).rows[0].value.toISOString();
    const priorityActions=[
@@ -229,13 +237,11 @@ test('Issue171: Native PG16 Composite ordinary-lock lifecycle & immutable issuer
     if(item.action==='expire')await db.query("UPDATE public.locks SET expires_at=clock_timestamp()-interval '1 second' WHERE lock_id=$1",[item.lockId]);
     const before=await lifecycleFacts(item.lockId);
     let result;
-    if(item.action==='expire')result=await runtime.lifecycleService.expireOrdinary({lockId:item.lockId});
-    else{
-     const body={action:item.action,idempotencyKey:'issue171_priority_'+item.action+'_'+String(item.lockId)+'_'+process.env.GITHUB_RUN_ID,reason:'Priority-origin Lock must remain exclusive'};
-     if(item.action==='extend')body.newExpiresAt=priorityExpiry;
-     result=await post(base,'/__nonprod__/f06-composite/locks/'+item.lockId+'/actions',initialToken,body);
-    }
-    await t.test('04B Priority来源Lock '+item.action+'硬拒绝且Lock/签名事件/审计无变化',async()=>{
+    if(item.action==='expire')result=await priorityGuardService.expireOrdinary({lockId:item.lockId});
+    else result=await priorityGuardService.act({token:initialToken,lockId:item.lockId,action:item.action,
+     idempotencyKey:'issue171_priority_'+item.action+'_'+String(item.lockId)+'_'+process.env.GITHUB_RUN_ID,
+     reason:'Priority-origin Lock must remain exclusive',...(item.action==='extend'?{newExpiresAt:priorityExpiry}:{})});
+    await t.test('04B Priority来源标记Lock '+item.action+'硬拒绝且Lock/签名事件/审计无变化',async()=>{
      assert.equal(result.status,409,JSON.stringify(result.body));assert.equal(result.body.code,item.code);
      assert.deepEqual(await lifecycleFacts(item.lockId),before);
     });
