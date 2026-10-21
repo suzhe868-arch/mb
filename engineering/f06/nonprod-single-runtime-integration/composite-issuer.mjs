@@ -41,7 +41,8 @@ const lifecycleSources=[
  ['issue171-lifecycle-sql','../nonprod-composite-lock-lifecycle/私有Lifecycle不可变侧车.sql'],
  ['issue171-lifecycle-http','../nonprod-composite-lock-lifecycle/生命周期HTTP适配.mjs'],
  ['issue171-lifecycle-tests','../nonprod-composite-lock-lifecycle/tests/原生Lifecycle验收.test.mjs'],
- ['issue171-legacy-lifecycle-regression','../nonprod-composite-lock-lifecycle/tests/旧Legacy生命周期真PG16定向验收.test.mjs']
+ ['issue171-legacy-lifecycle-regression','../nonprod-composite-lock-lifecycle/tests/旧Legacy生命周期真PG16定向验收.test.mjs'],
+ ['issue171-signed-source-negative-tests','../nonprod-composite-lock-lifecycle/tests/签名来源负向边界验收.test.mjs']
 ];
 async function digestVersionedSources(profile){
  const h=createHash('sha256');

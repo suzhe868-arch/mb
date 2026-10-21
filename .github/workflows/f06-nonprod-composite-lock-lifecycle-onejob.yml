@@ -135,6 +135,12 @@ jobs:
           set -euo pipefail
           mkdir -p engineering/f06/nonprod-composite-lock-lifecycle/evidence
           timeout 12m node --test engineering/f06/nonprod-composite-lock-lifecycle/tests/原生Lifecycle验收.test.mjs | tee engineering/f06/nonprod-composite-lock-lifecycle/evidence/Issue171_Lifecycle_TAP.log
+      - name: Issue171真实签名来源负向边界验收
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p engineering/f06/nonprod-composite-lock-lifecycle/evidence
+          timeout 12m node --test engineering/f06/nonprod-composite-lock-lifecycle/tests/签名来源负向边界验收.test.mjs | tee engineering/f06/nonprod-composite-lock-lifecycle/evidence/签名来源负向边界_TAP.log
 
       - name: 恢复独立父表OID并完成161表24迁移Seal
         shell: bash

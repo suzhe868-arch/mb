@@ -266,7 +266,11 @@ export function createIsolatedF06LockLifecycleService({pool,env=process.env,afte
     if(!await activeLockIsUnique(db,lock))return response(409,'LOCK_ACTIVE_COMPETITION_OR_DUPLICATE_DENY');
     const signed=await snapshot(db,lock);
     if(!signed)return response(409,'LOCK_SIGNED_SNAPSHOT_MISSING');
-    if(action==='extend'&&signed.priority_origin_id)return response(409,'PRIORITY_ORIGIN_ORDINARY_EXTENSION_DENIED');
+    if(signed.priority_origin_id){
+     if(action==='extend')return response(409,'PRIORITY_ORIGIN_ORDINARY_EXTENSION_DENIED');
+     if(action==='release')return response(409,'PRIORITY_ORIGIN_ORDINARY_RELEASE_DENIED');
+     if(action==='cancel')return response(409,'PRIORITY_ORIGIN_ORDINARY_CANCEL_DENIED');
+    }
     const ctx=await context(db,lock,action,entry.vehicleExists);if(ctx.deny)return ctx.deny;
     const money=await financeGuard(db,lock);if(!money.ok)return money.result;
     let next;
