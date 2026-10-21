@@ -93,9 +93,10 @@ export function createCompositeDenyHandler(){
   return false;
  };
 }
-export async function createIsolatedF06CompositeRuntime(env=process.env,{sessionSecret=null}={}){
+export async function createIsolatedF06CompositeRuntime(env=process.env,{sessionSecret=null,auth=null}={}){
  verifyCompositeEnvironment(env);
  const secret=sessionSecret??Buffer.from(env.F03_1_HMAC_KEY_BASE64,'base64');
+ must(auth&&typeof auth.withSession==='function','F06_COMPOSITE_F03_AUTH_SERVICE_REQUIRED');
  const pool=new pg.Pool({connectionString:env.F03_1_DATABASE_URL,max:5,connectionTimeoutMillis:2500,idleTimeoutMillis:2000});
  let closed=false;
  try{
@@ -105,7 +106,7 @@ export async function createIsolatedF06CompositeRuntime(env=process.env,{session
   const lockHandler=createIsolatedF06LockHandler({service:lockService,env});
   const deny=createCompositeDenyHandler();
   return Object.freeze({
-   mode:'COMPOSITE_NONPROD_SIGNED_V1',pool,lockService,
+   mode:'COMPOSITE_NONPROD_SIGNED_V1',pool,lockService,auth,
    handler:async(req,res)=>{
     if(await deny(req,res))return true;
     return lockHandler(req,res);
