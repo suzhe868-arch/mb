@@ -88,6 +88,7 @@ jobs:
         run: |
           set -euo pipefail
           git fetch origin main
+          git config --local core.quotepath false
           git diff --check origin/main...HEAD
           for f in engineering/src/app.mjs engineering/src/server.mjs engineering/src/f07-runtime/runtime.mjs engineering/f07/nonprod-runtime-integration/tests/business.test.mjs engineering/f07/nonprod-runtime-integration/tests/https.test.mjs; do node --check "$f"; done
           test "$(git diff --name-only origin/main...HEAD | grep -vc '^$')" -gt 0
@@ -198,6 +199,7 @@ jobs:
         run: |
           set -euo pipefail
           git fetch origin main
+          git config --local core.quotepath false
           git diff --check origin/main...HEAD
           for f in engineering/src/app.mjs engineering/src/server.mjs engineering/src/f07-runtime/runtime.mjs engineering/f07/nonprod-runtime-integration/tests/business.test.mjs engineering/f07/nonprod-runtime-integration/tests/https.test.mjs; do node --check "$f"; done
           test "$(git diff --name-only origin/main...HEAD | grep -vc '^$')" -gt 0
