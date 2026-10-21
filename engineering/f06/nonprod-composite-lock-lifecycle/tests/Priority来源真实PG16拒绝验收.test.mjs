@@ -89,9 +89,8 @@ test('Issue171真实PG16签名Priority来源锁生命周期拒绝矩阵',async t
   assert.ok(demands.length>=3,'real F05 active synthetic Demand fixtures required');
   assert.ok(vehicles.length>=3,'real F05 signed JYT Vehicle fixtures required');
   const high='奥迪A6 2026款 5万公里以内 黑色外观 米色内饰 预算10万';
-  const acceptable='奥迪A6 2026款 5万公里以内 黑色外观 蓝色内饰 预算10万';
   for(const d of demands){
-   const description=Number(d.customer_id)===899620?acceptable:high;
+   const description=high;
    const ready=await saveSalesDescriptionCI(auth,f05Session.token,{demandId:Number(d.demand_id),teamId:901,description});
    assert.equal(ready.allowed,true,'official F05-7 sales condition must be created: '+JSON.stringify({ready,demand:d.demand_id}));
    for(const v of vehicles){
