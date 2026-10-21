@@ -1,5 +1,25 @@
 # 名邦汽车 V1｜NEXT_ACTION 当前唯一指针｜2026-10-22
 
+## A 已完成的独立验收
+- F08-2 [Issue #184](https://github.com/suzhe868-arch/mb/issues/184) 非生产安全质量子包已按 A 独立验收关闭；[PR #186](https://github.com/suzhe868-arch/mb/pull/186) 已标准合并。
+- B 最终业务 HEAD `ff817ee0557858b9469260ed183d6ce32a83c759`；合并 SHA `a497fa7fb504ec1ed63c8eb202eb64999bb74e29`。官方 [Push Run #39643395145](https://github.com/suzhe868-arch/mb/actions/runs/39643395145)：两独立真实 PG16 Job #119372546965/#119372547635 成功；18 当前应用入口及启动拒绝、24 GitHub 可信来源、16 PG16 隔离场景，新增合计 58/58；受影响回归 7/7；双有效同 SHA Artifact #12366157062、#12365019484。
+- 完整 A 终验及风险门禁报告：`07_重建工作区/F08-2_Issue184_PR186独立验收与F08剩余来源门禁报告_2026-10-22.md`。
+
+## 当前唯一下一事项（A 主控来源门禁，不是新 B 施工授权）
+- `NEXT_OWNER=A`
+- `NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`
+- `NEXT_ISSUE=187`：[F08 整阶段可信正向来源与外部先决条件跟踪](https://github.com/suzhe868-arch/mb/issues/187)
+- `NEXT_BRANCH=NONE`（无已正式放行的下一 B 工程分支）
+- A 继续按实际缺口核实当前可信父事实及合法外部/敏感能力权限；已验的 F08-1 PR69、PR100、F06 PR174、F07 PR181、F08-2 PR186 直接复用，**不让 B 再重复跑已绿的同类非生产质量包**。
+- 如果是 A 可在现有权限裁决的具体业务阻断，先提出精确文件和影响范围后才签 B 新施工单；如果需要用户新增权限、真实第三方凭据、生产或资金授权，必须单独获得用户决定。
+- **F06/F07/F08/V1 全域继续 NOT_READY**。F08 整阶段尚未完成正常验收，不能提前做整个 B 后端最终整体验收；C PR #68 独立不动。A/B/C 不切换 Work 模式。
+
+---
+
+## 2026-10-22 上一任务历史记录（以下原“当前”已经失效）
+
+# 名邦汽车 V1｜NEXT_ACTION 当前唯一指针｜2026-10-22
+
 ## A 已完成的终验及合并
 - F07 [Issue #178](https://github.com/suzhe868-arch/mb/issues/178) 已按非生产 Runtime 接线子范围通过 A 独立验收并关闭；[PR #181](https://github.com/suzhe868-arch/mb/pull/181) 标准合并。B SHA `32f180238ff3271b38d2b91402cf4a7b55e07d52`；merge SHA `dd4a52a6f117ff83c959212f41f7c29ae68c507c`。
 - 官方 Run [#39629427298](https://github.com/suzhe868-arch/mb/actions/runs/39629427298) 两个非超管 PG16 Job #119323288481 / #119323289005 均成功；46 业务、15 HTTPS、26 旧入口回归 0失败；同 SHA 有效 Artifact #12357563978 / #12357469078。
