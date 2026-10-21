@@ -1,10 +1,10 @@
-# 当前有效状态（2026-10-22｜A F08-2 终验已通过，F08 阶段真实来源门禁）
+# 当前有效状态（2026-10-22｜A F08-2 终验已通过，批发上游电话范围已裁决，F08 来源门禁继续）
 
 F08-2 [Issue #184](https://github.com/suzhe868-arch/mb/issues/184) 非生产安全质量子包通过 A 独立验收并关闭；[PR #186](https://github.com/suzhe868-arch/mb/pull/186) 已标准合并。B 受验 HEAD `ff817ee0557858b9469260ed183d6ce32a83c759`、业务合并 SHA `a497fa7fb504ec1ed63c8eb202eb64999bb74e29`。官方最终 SHA Push Run #39643395145 两独立 PG16 非超管 Job 成功；新增 58 项（应用与启动拒绝 18、可信父来源 24、真库隔离 16）及受影响回归 7 项全部通过；本 SHA 两有效工件 #12366157062、#12365019484。
 
 **当前唯一下一动作：`NEXT_OWNER=A`、`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`、`NEXT_ISSUE=187`。** 见 [F08 真实来源与综合验收先决条件 Issue #187](https://github.com/suzhe868-arch/mb/issues/187) 和 `07_重建工作区/F08-2_Issue184_PR186独立验收与F08剩余来源门禁报告_2026-10-22.md`。此为 A 来源差异门禁/授权核对，**不批准新的 B 工作分支**，避免旧 F08-1、PR100、F08-2 非生产质量测试重复施工。
 
-F03 Scope/Object、F05 转换签名、F07 电话敏感能力、SLA/Incident 正式 Issuer、真实 JYT/Collector/CDN/OSS/Feishu 来源/授权仍未闭环；F06/F07/F08/V1 整域 `NOT_READY / NO_PRODUCTION`。无真钱、生产或实际退款成交权限。F08 整阶段尚未通过正常验收，**不提前开展整个后端最终整体验收**；已验收工程成果直接复用，C PR68 独立不变。
+用户已明确批准批发车上游电话产品范围：PC 后台按员工单独授予既有 `publisher.phone.sensitive`，并二选一配置 `LOCKED_ONLY`（仅当前有效锁定车辆）或 `ALL_ACTIVE_JYT`（全部当前在售 JYT 批发车）。正式规则已在 PDM-02/PDM-09 与 DECISION_REGISTER 记录；这只是产品决策，**物理权限目录/当前数据源/Runtime 接线和真实 Collector/JYT 集成仍待核实或实现**。F03 Scope/Object、F05 转换签名、SLA/Incident 正式 Issuer、真实 JYT/Collector/CDN/OSS/Feishu 来源/授权仍未闭环；F06/F07/F08/V1 整域 `NOT_READY / NO_PRODUCTION`。无真钱、生产或实际退款成交权限。F08 整阶段尚未通过正常验收，**不提前开展整个后端最终整体验收**；已验收工程成果直接复用，C PR68 独立不变。
 
 ---
 
