@@ -29,7 +29,7 @@ async function ensurePermission(db,code){
 async function grant(db,eid,teamId,permissions){
  let m=(await db.query('SELECT 1 FROM public.employee_team_memberships WHERE employee_id=$1 AND team_id=$2 AND valid_from<=clock_timestamp() AND (ended_at IS NULL OR ended_at>clock_timestamp())',[eid,teamId])).rowCount;
  if(!m)await db.query("INSERT INTO public.employee_team_memberships(employee_id,team_id,valid_from) VALUES($1,$2,clock_timestamp()-interval '2 minutes')",[eid,teamId]);
- let s=(await db.query("SELECT scope_id FROM public.employee_data_scopes WHERE employee_id=$1 AND scope_kind='team' AND scope_reference_id=$2 AND ended_at IS NULL ORDER BY scope_id LIMIT 1",[eid])).rows[0];
+ let s=(await db.query("SELECT scope_id FROM public.employee_data_scopes WHERE employee_id=$1 AND scope_kind='team' AND scope_reference_id=$2 AND ended_at IS NULL ORDER BY scope_id LIMIT 1",[eid,teamId])).rows[0];
  if(!s)s=(await db.query("INSERT INTO public.employee_data_scopes(employee_id,scope_kind,scope_reference_id) VALUES($1,'team',$2) RETURNING scope_id",[eid,teamId])).rows[0];
  for(const pid of permissions){
   if((await db.query('SELECT 1 FROM public.employee_permission_overrides WHERE employee_id=$1 AND permission_id=$2',[eid,pid])).rowCount)
