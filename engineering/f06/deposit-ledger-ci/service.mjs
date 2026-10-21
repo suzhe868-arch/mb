@@ -1,6 +1,7 @@
 // F06-3A exclusively disposable PG16 synthetic receipt and append-only correction proof.
 import {createHash} from 'node:crypto';
-import {gate,verify} from './migration.mjs';
+import {gate,verify,verifyComposite} from './migration.mjs';
+import {assertCompositeSignedRun} from '../nonprod-single-runtime-integration/可信Composite签名根.mjs';
 const deny=(code,extra={})=>({allowed:false,code,...extra});
 const yes=(code,extra={})=>({allowed:true,code,...extra});
 const one=async(c,sql,params=[])=> (await c.query(sql,params)).rows[0];
@@ -46,9 +47,10 @@ async function current(c,lockId){
  await one(c,'SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[x.vehicle_id]);
  return one(c,'SELECT * FROM public.locks WHERE lock_id=$1 FOR UPDATE',[lockId]);
 }
-async function signedLock(c,l,forRecord){
+async function signedLock(c,l,forRecord,mode='CI_LEGACY'){
  if(!l)return deny('F06_3A_LOCK_NOT_FOUND');
- const source=await one(c,"SELECT customer_id,responsible_employee_id,initial_hours,policy_version,price_kind,priority_origin_id FROM f06_1_lock_ci.lock_snapshots WHERE lock_id=$1 FOR SHARE",[l.lock_id]);
+ const lockSnapshotSchema=mode==='COMPOSITE_NONPROD_SIGNED_V1'?'f06_composite_v1':'f06_1_lock_ci';
+ const source=await one(c,`SELECT customer_id,responsible_employee_id,initial_hours,policy_version,price_kind,priority_origin_id FROM ${lockSnapshotSchema}.lock_snapshots WHERE lock_id=$1 FOR SHARE`,[l.lock_id]);
  if(!source||Number(source.customer_id)!==Number(l.customer_id)||Number(source.responsible_employee_id)!==Number(l.responsible_employee_id))
  return deny('F06_3A_SIGNED_LOCK_SNAPSHOT_REQUIRED');
  const customer=await one(c,'SELECT account_status FROM public.customers WHERE customer_id=$1 FOR SHARE',[l.customer_id]);
@@ -65,21 +67,21 @@ async function audit(c,actor,lock,action,before,after,reasonText=''){
 }
 const idem=async(c,a,p)=>one(c,"SELECT * FROM f06_3a_ci.request_keys WHERE key_sha256=$1",
  [hash('f06-3a:'+a.employee_id+':'+p.eventKey)]);
-export async function recordSyntheticDepositCI(auth,token,p={}){
- gate();
+async function recordCore(auth,token,p={},mode='CI_LEGACY'){
+ if(mode==='COMPOSITE_NONPROD_SIGNED_V1')assertCompositeSignedRun();else gate();
  if(!integer(p.lockId)||!money(p.amountCents)||p.currency!=='CNY'||!methods.has(p.paymentMethod)||
  !key(p.eventKey)||!/^20\d{2}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?(?:Z|[+-]\d\d:\d\d)$/.test(p.receivedAt||'')||
  (p.syntheticVoucher!==undefined&&(typeof p.syntheticVoucher!=='string'||p.syntheticVoucher.length>120)))
  return deny('F06_3A_INVALID_RECEIPT_ARGUMENTS');
  const result=await auth.withSession(token,async(c,a)=>{
-  await verify(c);await c.query("SET LOCAL lock_timeout='1600ms'");
+  await (mode==='COMPOSITE_NONPROD_SIGNED_V1'?verifyComposite:verify)(c);await c.query("SET LOCAL lock_timeout='1600ms'");
   const l=await current(c,p.lockId);if(!l)return deny('F06_3A_LOCK_NOT_FOUND');
   if(!await employeeScope(c,a,l,'deposit.ci.record',false))return deny('F06_3A_RECORD_PERMISSION_SCOPE_DENIED');
   const keyHash=hash('f06-3a:'+a.employee_id+':'+p.eventKey);
   const old=await idem(c,a,p);
   if(old)return old.action==='record'&&Number(old.lock_id)===p.lockId&&Number(old.amount_cents)===p.amountCents?
    yes('F06_3A_IDEMPOTENT_RECEIPT',{depositId:Number(old.resulting_deposit_id)}):deny('F06_3A_IDEMPOTENCY_KEY_CONFLICT');
-  const guard=await signedLock(c,l,true);if(!guard.allowed)return guard;
+  const guard=await signedLock(c,l,true,mode);if(!guard.allowed)return guard;
   const m=await one(c,"SELECT clock_timestamp() now,$1::timestamptz received",[p.receivedAt]);
   if(!m.received||m.received>m.now||m.received<new Date(m.now.getTime()-30*86400000))
    return deny('F06_3A_RECEIVED_TIME_OUT_OF_RANGE');
@@ -92,26 +94,33 @@ export async function recordSyntheticDepositCI(auth,token,p={}){
    [keyHash,a.employee_id,l.lock_id,p.amountCents,r.deposit_id]);
   await audit(c,a.employee_id,l.lock_id,'record',{}, {depositId:r.deposit_id,amountCents:p.amountCents});
   if(p.testCheckpoint==='AFTER_RECEIPT_THROW')throw Error('F06_3A_INJECTED_RECEIPT_ROLLBACK');
+  if(mode==='COMPOSITE_NONPROD_SIGNED_V1'){
+   const m=await one(c,'SELECT sidecar_source_sha256 FROM f06_3a_ci.attestation FOR SHARE');
+   if(!m||!/^[a-f0-9]{64}$/.test(m.sidecar_source_sha256))throw Error('F06_COMPOSITE_3A_SIGNED_SOURCE_MISSING');
+   await c.query("INSERT INTO f06_composite_v1.issued_events(event_key_sha256,event_kind,parent_object_id,actor_kind,actor_id,source_parent_sha256,head_sha,run_id,payload_sha256) VALUES($1,'signed_deposit',$2,'employee',$3,$4,$5,$6,$7)",
+    [hash('F06_COMPOSITE_DEPOSIT:'+a.employee_id+':'+p.eventKey),r.deposit_id,a.employee_id,m.sidecar_source_sha256,process.env.GITHUB_SHA,process.env.GITHUB_RUN_ID,
+    hash(JSON.stringify(['record',p.lockId,p.amountCents,r.deposit_id]))]);
+  }
   return yes('F06_3A_SYNTHETIC_RECEIPT_RECORDED',{depositId:Number(r.deposit_id),lockId:p.lockId,backendPid:(await one(c,'SELECT pg_backend_pid() pid')).pid});
  },{normalOnly:true});
  return result||deny('F06_3A_SIGNED_SESSION_DENIED');
 }
-export async function correctSyntheticDepositCI(auth,token,p={}){
- gate();
+async function correctCore(auth,token,p={},mode='CI_LEGACY'){
+ if(mode==='COMPOSITE_NONPROD_SIGNED_V1')assertCompositeSignedRun();else gate();
  if(!integer(p.lockId)||!integer(p.depositId)||!key(p.eventKey)||!reason(p.reason)||
  !['correction','reversal'].includes(p.action)||p.currency!=='CNY'||
  !Number.isSafeInteger(p.deltaCents)||p.deltaCents===0||Math.abs(p.deltaCents)>100000000000||
  (p.action==='reversal'&&p.deltaCents>0))
  return deny('F06_3A_INVALID_CORRECTION_ARGUMENTS');
  const result=await auth.withSession(token,async(c,a)=>{
-  await verify(c);await c.query("SET LOCAL lock_timeout='1600ms'");
+  await (mode==='COMPOSITE_NONPROD_SIGNED_V1'?verifyComposite:verify)(c);await c.query("SET LOCAL lock_timeout='1600ms'");
   const l=await current(c,p.lockId);if(!l)return deny('F06_3A_LOCK_NOT_FOUND');
   if(!await employeeScope(c,a,l,'deposit.ci.correct',true))return deny('F06_3A_CORRECTION_PERMISSION_SCOPE_DENIED');
   const keyHash=hash('f06-3a:'+a.employee_id+':'+p.eventKey);
   const old=await idem(c,a,p);
   if(old)return old.action===p.action&&Number(old.lock_id)===p.lockId&&Number(old.deposit_id)===p.depositId&&Number(old.amount_cents)===p.deltaCents?
    yes('F06_3A_IDEMPOTENT_CORRECTION',{adjustmentId:Number(old.resulting_adjustment_id)}):deny('F06_3A_IDEMPOTENCY_KEY_CONFLICT');
-  const signed=await signedLock(c,l,false);if(!signed.allowed)return signed;
+  const signed=await signedLock(c,l,false,mode);if(!signed.allowed)return signed;
   const fact=await one(c,"SELECT m.*,d.amount_cents,d.customer_id AS receipt_customer,d.lock_id AS receipt_lock FROM f06_3a_ci.receipt_provenance m "+
    "JOIN public.deposit_receipts d ON d.deposit_id=m.deposit_id WHERE m.deposit_id=$1 FOR UPDATE OF m",[p.depositId]);
   if(!fact||Number(fact.lock_id)!==p.lockId||Number(fact.receipt_lock)!==p.lockId||
@@ -132,10 +141,21 @@ export async function correctSyntheticDepositCI(auth,token,p={}){
    "VALUES($1,$2,$3,$4,$5,$6,$7)",[keyHash,a.employee_id,p.action,p.lockId,p.depositId,p.deltaCents,e.adjustment_id]);
   await audit(c,a.employee_id,l.lock_id,p.action,{netCents:net},{netCents:after,depositId:p.depositId},p.reason.trim());
   if(p.testCheckpoint==='AFTER_CORRECTION_THROW')throw Error('F06_3A_INJECTED_CORRECTION_ROLLBACK');
+  if(mode==='COMPOSITE_NONPROD_SIGNED_V1'){
+   const m=await one(c,'SELECT sidecar_source_sha256 FROM f06_3a_ci.attestation FOR SHARE');
+   if(!m||!/^[a-f0-9]{64}$/.test(m.sidecar_source_sha256))throw Error('F06_COMPOSITE_3A_SIGNED_SOURCE_MISSING');
+   await c.query("INSERT INTO f06_composite_v1.issued_events(event_key_sha256,event_kind,parent_object_id,actor_kind,actor_id,source_parent_sha256,head_sha,run_id,payload_sha256) VALUES($1,'signed_deposit',$2,'employee',$3,$4,$5,$6,$7)",
+    [hash('F06_COMPOSITE_3A_CORRECTION:'+a.employee_id+':'+p.eventKey),p.depositId,a.employee_id,m.sidecar_source_sha256,process.env.GITHUB_SHA,process.env.GITHUB_RUN_ID,
+    hash(JSON.stringify([p.action,p.lockId,p.depositId,p.deltaCents,e.adjustment_id]))]);
+  }
   return yes('F06_3A_APPEND_ONLY_'+p.action.toUpperCase(),{adjustmentId:Number(e.adjustment_id),depositId:p.depositId,netCents:after,backendPid:(await one(c,'SELECT pg_backend_pid() pid')).pid});
  },{normalOnly:true});
  return result||deny('F06_3A_SIGNED_SESSION_DENIED');
 }
+export async function recordSyntheticDepositCI(auth,token,p={}){return recordCore(auth,token,p,'CI_LEGACY')}
+export async function recordSyntheticDepositComposite(auth,token,p={}){return recordCore(auth,token,p,'COMPOSITE_NONPROD_SIGNED_V1')}
+export async function correctSyntheticDepositCI(auth,token,p={}){return correctCore(auth,token,p,'CI_LEGACY')}
+export async function correctSyntheticDepositComposite(auth,token,p={}){return correctCore(auth,token,p,'COMPOSITE_NONPROD_SIGNED_V1')}
 export async function receiptNetCI(c,depositId){
  gate();if(!integer(depositId))return deny('F06_3A_INVALID_DEPOSIT');
  await verify(c);

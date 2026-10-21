@@ -1,7 +1,8 @@
 // Issue #159: read-only, fail-closed provenance validation for a cancelled PR139/153/156 transaction.
 // This is NOT a payment/refund issuer and deliberately cannot mutate public rows.
 import {createHash} from 'node:crypto';
-import {verify as verifyCancelParent} from '../post-handoff-cancel-http-pg16/service.mjs';
+import {verify as verifyCancelParent,verifyComposite as verifyCancelParentComposite} from '../post-handoff-cancel-http-pg16/service.mjs';
+import {assertCompositeSignedRun} from '../nonprod-single-runtime-integration/可信Composite签名根.mjs';
 
 const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const one = async (c, sql, args=[]) => (await c.query(sql,args)).rows[0];
@@ -21,10 +22,10 @@ const identity = (row,t) => !!row &&
  * Does not validate funding/authorization; it returns provenance only.
  * All parent signed schema and public catalog attestations are checked first.
  */
-export async function verifyCancelledHandoffProvenance(c,transactionId) {
+async function verifyCancelledHandoffProvenanceCore(c,transactionId,mode='CI_LEGACY') {
   if(!Number.isSafeInteger(transactionId)||transactionId<=0)
     return deny('F06_BRIDGE_INVALID_TRANSACTION_ID');
-  await verifyCancelParent(c);
+  if(mode==='COMPOSITE_NONPROD_SIGNED_V1'){assertCompositeSignedRun();await verifyCancelParentComposite(c)}else await verifyCancelParent(c);
   const t=await one(c,'SELECT * FROM public.transactions WHERE transaction_id=$1 FOR SHARE',[transactionId]);
   if(!t||t.status!=='cancelled'||t.completed_at!==null)
     return deny('F06_BRIDGE_NOT_SIGNED_CANCELLED_TRANSACTION');
@@ -46,7 +47,8 @@ export async function verifyCancelledHandoffProvenance(c,transactionId) {
   // Original immutable source and historical actor must never be rewritten to
   // match the current owner after a valid handoff.
   const lock=await one(c,'SELECT * FROM public.locks WHERE lock_id=$1 FOR SHARE',[t.source_lock_id]);
-  const snap=await one(c,'SELECT * FROM f06_1_lock_ci.lock_snapshots WHERE lock_id=$1 FOR SHARE',[t.source_lock_id]);
+  const lockSnapshotSchema=mode==='COMPOSITE_NONPROD_SIGNED_V1'?'f06_composite_v1':'f06_1_lock_ci';
+  const snap=await one(c,`SELECT * FROM ${lockSnapshotSchema}.lock_snapshots WHERE lock_id=$1 FOR SHARE`,[t.source_lock_id]);
   if(!lock||!snap||lock.lock_status!=='released'||lock.end_reason!=='converted_to_transaction'||
      !same(lock.vehicle_id,t.vehicle_id)||!same(lock.customer_id,t.customer_id)||
      !same(lock.listing_cycle_id,t.listing_cycle_id)||
@@ -124,6 +126,20 @@ export async function verifyCancelledHandoffProvenance(c,transactionId) {
      !same(cancelAudit.before_json?.responsible,responsible))
     return deny('F06_BRIDGE_POST_CANCEL_AUDIT_INVALID');
 
+  if(mode==='COMPOSITE_NONPROD_SIGNED_V1'){
+    const issuer=await one(c,"SELECT head_sha,run_id FROM f06_composite_v1.attestation WHERE seal_name='COMPOSITE_NONPROD_SIGNED_V1' FOR SHARE");
+    const issued=(await c.query("SELECT event_kind,source_parent_sha256,head_sha,run_id FROM f06_composite_v1.issued_events "+
+      "WHERE parent_object_id=$1 AND event_kind IN('signed_tx','signed_handoff','signed_cancel') ORDER BY event_id FOR SHARE",[transactionId])).rows;
+    const txSeal=await one(c,"SELECT source_sha256 FROM f06_3b_ci.attestation WHERE seal_name='F06_3B_CI_ONLY_SIDECAR' FOR SHARE");
+    const handoffSeal=await one(c,"SELECT source_sha256 FROM f06_real_handoff_ci.attestation WHERE seal_name='F06_REAL_TX_HANDOFF_CI_ONLY' FOR SHARE");
+    const cancelSeal=await one(c,"SELECT source_sha256 FROM f06_real_post_handoff_cancel_ci.attestation WHERE seal_name='F06_REAL_POST_HANDOFF_CANCEL_CI_ONLY' FOR SHARE");
+    if(!issuer||issued.length!==3||!txSeal||!handoffSeal||!cancelSeal||
+      !issued.some(x=>x.event_kind==='signed_tx'&&x.source_parent_sha256===txSeal.source_sha256)||
+      !issued.some(x=>x.event_kind==='signed_handoff'&&x.source_parent_sha256===handoffSeal.source_sha256)||
+      !issued.some(x=>x.event_kind==='signed_cancel'&&x.source_parent_sha256===cancelSeal.source_sha256)||
+      issued.some(x=>x.head_sha!==issuer.head_sha||x.run_id!==issuer.run_id))
+      return deny('F06_BRIDGE_COMPOSITE_CURRENT_RUN_ISSUER_GAP');
+  }
   return ok('F06_BRIDGE_SIGNED_PROVENANCE_ONLY',{
     transactionId,
     originalResponsibleId:Number(origin.responsible_employee_id),
@@ -136,7 +152,12 @@ export async function verifyCancelledHandoffProvenance(c,transactionId) {
     txDigest,
     handoffDigest:digest([events,keys]),
     cancelDigest:digest([cancel,eventCancel,keyCancel]),
-    // IMPORTANT: no monetary balance or permission claim is returned here.
     refundAuthorized:false
   });
+}
+export async function verifyCancelledHandoffProvenance(c,transactionId){
+ return verifyCancelledHandoffProvenanceCore(c,transactionId,'CI_LEGACY');
+}
+export async function verifyCancelledHandoffProvenanceComposite(c,transactionId){
+ return verifyCancelledHandoffProvenanceCore(c,transactionId,'COMPOSITE_NONPROD_SIGNED_V1');
 }

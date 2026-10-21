@@ -2,7 +2,8 @@
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
-import {verify as verifyRefundParent,sourceSHA as refundSHA,connect as nativeConnect} from '../transaction-refund-http-pg16/service.mjs';
+import {verify as verifyRefundParent,verifyComposite as verifyRefundParentComposite,sourceSHA as refundSHA,connect as nativeConnect} from '../transaction-refund-http-pg16/service.mjs';
+import {assertCompositeSignedRun} from '../nonprod-single-runtime-integration/可信Composite签名根.mjs';
 import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
 const sql=readFileSync(new URL('./sidecar.sql',import.meta.url),'utf8');
 const originalTxSQL=readFileSync(new URL('../lock-transaction-http-pg16/sidecar.sql',import.meta.url),'utf8');
@@ -31,9 +32,9 @@ export function gate(){
  assert.match(process.env.GITHUB_RUN_ID||'',/^[0-9]{6,20}$/);
 }
 export async function connect(){gate();return nativeConnect()}
-async function parents(c){
- gate();
- const p=await verifyRefundParent(c);
+async function parents(c,mode='CI_LEGACY'){
+ if(mode==='COMPOSITE_NONPROD_SIGNED_V1')assertCompositeSignedRun();else gate();
+ const p=await (mode==='COMPOSITE_NONPROD_SIGNED_V1'?verifyRefundParentComposite(c):verifyRefundParent(c));
  if(!p.verified||p.sourceSHA!==refundSHA)throw Error('F06_REAL_HANDOFF_PARENT_PR150_SIGNATURE_INVALID');
  const meta=await one(c,"SELECT current_database() db,current_user u,current_setting('server_version_num')::int ver,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su,(SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user) cdb");
  if(meta.db!=='f03_auth_test'||meta.u!=='f03_ci'||meta.su||meta.cdb||meta.ver<160000||meta.ver>=170000)throw Error('F06_REAL_HANDOFF_NONPRIVILEGED_PG16_REQUIRED');
@@ -45,8 +46,8 @@ async function parents(c){
  if(!present?.tx||!present.oldb||!present.refund)throw Error('F06_REAL_HANDOFF_NATIVE_SOURCE_MISSING');
  return {p,catalog:p.publicCatalogSHA,ledger:sha(ledger)};
 }
-export async function verify(c){
- const p=await parents(c);
+async function verifyByMode(c,mode='CI_LEGACY'){
+ const p=await parents(c,mode);
  const a=await one(c,"SELECT * FROM f06_real_handoff_ci.attestation FOR SHARE");
  if(!a||a.seal_name!=='F06_REAL_TX_HANDOFF_CI_ONLY'||a.source_sha256!==sourceSHA||
   a.tx_refund_source_sha256!==refundSHA||a.original_tx_source_sha256!==txSHA||
@@ -54,8 +55,10 @@ export async function verify(c){
   throw Error('F06_REAL_HANDOFF_SIDECAR_SIGNATURE_DRIFT');
  return {verified:true,sourceSHA,txSHA,refundSHA,ledgerSHA:p.ledger,catalogSHA:p.catalog,productionIssuer:'NOT_AUTHORIZED'};
 }
-export async function apply(c,{inject=false}={}){
- const p=await parents(c);
+export async function verify(c){return verifyByMode(c,'CI_LEGACY')}
+export async function verifyComposite(c){return verifyByMode(c,'COMPOSITE_NONPROD_SIGNED_V1')}
+async function applyByMode(c,{inject=false}={},mode='CI_LEGACY'){
+ const p=await parents(c,mode);
  const exists=await one(c,"SELECT to_regnamespace('f06_real_handoff_ci')::text n");
  if(exists.n)throw Error('F06_REAL_HANDOFF_ALREADY_APPLIED');
  await c.query('BEGIN');
@@ -67,9 +70,11 @@ export async function apply(c,{inject=false}={}){
   if((await getPublicStructure(c)).sha256!==p.catalog)throw Error('F06_REAL_HANDOFF_PUBLIC_DDL_FORBIDDEN');
   await c.query('COMMIT');
  }catch(e){await c.query('ROLLBACK');throw e}
- return verify(c);
+ return verifyByMode(c,mode);
 }
-async function source(c,t){
+export async function apply(c,options={}){return applyByMode(c,options,'CI_LEGACY')}
+export async function applyComposite(c,options={}){return applyByMode(c,options,'COMPOSITE_NONPROD_SIGNED_V1')}
+async function source(c,t,mode='CI_LEGACY'){
  if(!t||t.status!=='in_progress'||t.completed_at!==null)return no('F06_REAL_HANDOFF_NOT_IN_PROGRESS');
  const o=await one(c,"SELECT * FROM f06_real_tx_ci.origins WHERE transaction_id=$1 FOR SHARE",[t.transaction_id]);
  const e=await one(c,"SELECT * FROM f06_real_tx_ci.events WHERE transaction_id=$1 FOR SHARE",[t.transaction_id]);
@@ -83,7 +88,8 @@ async function source(c,t){
   Number(o.actor_employee_id)!==Number(k.employee_id)||Number(o.actor_employee_id)!==Number(e.actor_employee_id))
   return no('F06_REAL_HANDOFF_PR139_SOURCE_DRIFT');
  const lock=await one(c,'SELECT * FROM public.locks WHERE lock_id=$1 FOR UPDATE',[t.source_lock_id]);
- const snap=await one(c,'SELECT * FROM f06_1_lock_ci.lock_snapshots WHERE lock_id=$1 FOR SHARE',[t.source_lock_id]);
+ const lockSnapshotSchema=mode==='COMPOSITE_NONPROD_SIGNED_V1'?'f06_composite_v1':'f06_1_lock_ci';
+ const snap=await one(c,`SELECT * FROM ${lockSnapshotSchema}.lock_snapshots WHERE lock_id=$1 FOR SHARE`,[t.source_lock_id]);
  if(!lock||!snap||lock.lock_status!=='released'||lock.end_reason!=='converted_to_transaction'||
   Number(lock.vehicle_id)!==Number(t.vehicle_id)||Number(lock.customer_id)!==Number(t.customer_id)||
   Number(lock.listing_cycle_id)!==Number(t.listing_cycle_id)||
@@ -175,20 +181,20 @@ async function managerScope(c,a,oldId,newId,customerId,signedInitialResponsibleI
 }
 const fp=p=>sha({transactionId:p.transactionId,expectedOldResponsibleId:p.expectedOldResponsibleId,
  expectedVersion:p.expectedVersion,newResponsibleId:p.newResponsibleId,reason:p.reason.trim(),action:'handoff'});
-export async function handoffRealTransactionCI(auth,token,p={}){
- gate();
+async function handoffRealTransactionCore(auth,token,p={},mode='CI_LEGACY'){
+ if(mode==='COMPOSITE_NONPROD_SIGNED_V1')assertCompositeSignedRun();else gate();
  if(!valid(p.transactionId)||!valid(p.expectedOldResponsibleId)||!Number.isSafeInteger(p.expectedVersion)||p.expectedVersion<0||
     !valid(p.newResponsibleId)||!reason(p.reason)||!key(p.eventKey))
   return no('F06_REAL_HANDOFF_INVALID_ARGUMENTS');
  try{
   const result=await auth.withSession(token,async(c,a)=>{
-   await verify(c);await c.query("SET LOCAL lock_timeout='1800ms'");
+   await (mode==='COMPOSITE_NONPROD_SIGNED_V1'?verifyComposite(c):verify(c));await c.query("SET LOCAL lock_timeout='1800ms'");
    const seed=await one(c,'SELECT vehicle_id FROM public.transactions WHERE transaction_id=$1',[p.transactionId]);
    if(!seed)return no('F06_REAL_HANDOFF_TRANSACTION_NOT_FOUND');
    await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[seed.vehicle_id]);
    const t=await one(c,'SELECT * FROM public.transactions WHERE transaction_id=$1 FOR UPDATE',[p.transactionId]);
    if(!t||t.status!=='in_progress'||t.completed_at!==null)return no('F06_REAL_HANDOFF_NOT_IN_PROGRESS');
-   const src=await source(c,t);if(!src.allowed)return src;
+   const src=await source(c,t,mode);if(!src.allowed)return src;
    const curr=await chain(c,t,src);if(!curr.allowed)return curr;
    const h=sha(['F06_REAL_HANDOFF_KEY',p.eventKey]);
    const payload=fp(p);
@@ -214,6 +220,15 @@ export async function handoffRealTransactionCI(auth,token,p={}){
     [h,t.transaction_id,a.employee_id,payload,e.event_id]);
    await c.query("INSERT INTO public.audit_events(actor_kind,actor_id,object_kind,object_id,action,before_json,after_json,occurred_at) VALUES('employee',$1,'Transaction',$2,'f06_real_handoff_ci_responsible_transfer',$3::jsonb,$4::jsonb,clock_timestamp())",
     [String(a.employee_id),String(t.transaction_id),JSON.stringify({responsible:curr.currentId,version:curr.version}),JSON.stringify({responsible:p.newResponsibleId,version:curr.version+1,eventId:Number(e.event_id),issuer:'CI_SYNTHETIC_NO_MONEY'})]);
+   if(mode==='COMPOSITE_NONPROD_SIGNED_V1'){
+    const att=await one(c,"SELECT s.source_sha256,i.head_sha,i.run_id FROM f06_real_handoff_ci.attestation s JOIN f06_composite_v1.attestation i ON i.seal_name='COMPOSITE_NONPROD_SIGNED_V1' WHERE s.seal_name='F06_REAL_TX_HANDOFF_CI_ONLY' FOR SHARE OF s,i");
+    if(!att)throw Error('F06_COMPOSITE_HANDOFF_ATTESTATION_GAP');
+    const payload={transactionId:Number(t.transaction_id),sourceLockId:Number(t.source_lock_id),customerId:Number(t.customer_id),
+     vehicleId:Number(t.vehicle_id),oldResponsibleId:curr.currentId,newResponsibleId:p.newResponsibleId,
+     actorEmployeeId:Number(a.employee_id),version:curr.version+1,eventId:Number(e.event_id),eventKeySHA:h};
+    await c.query("INSERT INTO f06_composite_v1.issued_events(event_key_sha256,event_kind,parent_object_id,actor_kind,actor_id,source_parent_sha256,head_sha,run_id,payload_sha256) VALUES($1,'signed_handoff',$2,'employee',$3,$4,$5,$6,$7)",
+     [sha(['F06_COMPOSITE_HANDOFF',payload]),t.transaction_id,a.employee_id,att.source_sha256,att.head_sha,att.run_id,sha(payload)]);
+   }
    if(p.testCheckpoint==='AFTER_AUDIT_THROW')throw Error('F06_REAL_HANDOFF_INJECTED_AUDIT_ROLLBACK');
    if(!(await managerScope(c,a,curr.currentId,p.newResponsibleId,t.customer_id,src.o.responsible_employee_id,src.o.created_at)).allowed)
     throw Error('F06_REAL_HANDOFF_SOURCE_SCOPE_CHANGED');
@@ -235,11 +250,21 @@ export async function handoffRealTransactionCI(auth,token,p={}){
   throw e;
  }
 }
+export async function handoffRealTransactionCI(auth,token,p={}){return handoffRealTransactionCore(auth,token,p,'CI_LEGACY')}
+export async function handoffRealTransactionComposite(auth,token,p={}){return handoffRealTransactionCore(auth,token,p,'COMPOSITE_NONPROD_SIGNED_V1')}
+
 export async function currentSignedResponsibleCI(c,transactionId){
  await verify(c);
  if(!valid(transactionId))return no('F06_REAL_HANDOFF_INVALID_ARGUMENTS');
  const t=await one(c,'SELECT * FROM public.transactions WHERE transaction_id=$1',[transactionId]);
- const src=await source(c,t);if(!src.allowed)return src;
+ const src=await source(c,t,'CI_LEGACY');if(!src.allowed)return src;
+ return chain(c,t,src);
+}
+export async function currentSignedResponsibleCompositeCI(c,transactionId){
+ await verifyComposite(c);
+ if(!valid(transactionId))return no('F06_REAL_HANDOFF_INVALID_ARGUMENTS');
+ const t=await one(c,'SELECT * FROM public.transactions WHERE transaction_id=$1',[transactionId]);
+ const src=await source(c,t,'COMPOSITE_NONPROD_SIGNED_V1');if(!src.allowed)return src;
  return chain(c,t,src);
 }
 export const productionIssuerDeny=()=>no('F06_REAL_HANDOFF_PRODUCTION_ISSUER_NOT_WIRED');

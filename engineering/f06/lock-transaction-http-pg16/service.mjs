@@ -1,7 +1,10 @@
 // F06 Lock→Transaction 真HTTP/PG16安全侧车；只能用于隔离合成事实。
 import {createHash} from 'node:crypto';
+import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
-import {verify as verifySignedDeposit} from '../deposit-ledger-ci/migration.mjs';
+import {verify as verifySignedDeposit,verifyComposite as verifySignedDepositComposite} from '../deposit-ledger-ci/migration.mjs';
+import {assertCompositeSignedRun,assertCompositeSignedPG} from '../nonprod-single-runtime-integration/可信Composite签名根.mjs';
+import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
 import {checksum as signedRefundSidecarSHA} from '../refund-pending-ci/migration.mjs';
 function assertCIServiceGate(){
  const expected={
@@ -23,12 +26,14 @@ function assertCIServiceGate(){
 const yes=(code,data={})=>({allowed:true,code,...data});
 const no=code=>({allowed:false,code});
 const sha=x=>createHash('sha256').update(x).digest('hex');
+const transactionSidecarSQL=readFileSync(new URL('./sidecar.sql',import.meta.url),'utf8');
+export const transactionSidecarSHA=sha(transactionSidecarSQL);
 const one=async(c,sql,p=[])=> (await c.query(sql,p)).rows[0];
 const validId=x=>Number.isSafeInteger(x)&&x>0;
 const validKey=x=>typeof x==='string'&&/^[A-Za-z0-9._:-]{16,120}$/.test(x);
 export const PRODUCTION_TRANSACTION_ISSUER='F06_REAL_TX_PRODUCTION_ISSUER_NOT_WIRED';
 export function productionIssuerDeny(){return no(PRODUCTION_TRANSACTION_ISSUER)}
-async function parent(c){
+async function parent(c,mode='CI_LEGACY'){
  const x=await one(c,"SELECT current_database() db,current_user u,current_setting('server_version_num')::int ver,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su,(SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user) dbcreate,to_regnamespace('f06_1_lock_ci') IS NOT NULL lock_parent,to_regnamespace('f06_2_ci') IS NOT NULL lifecycle,to_regnamespace('f06_3a_ci') IS NOT NULL deposit,to_regnamespace('f06_real_tx_ci') IS NOT NULL sidecar");
  assert.equal(x.db,'f03_auth_test');assert.equal(x.u,'f03_ci');
  assert.equal(x.su,false);assert.equal(x.dbcreate,false);
@@ -37,7 +42,8 @@ async function parent(c){
  assert.equal(m.n,24,'signed migration chain must remain complete');
  // Every HTTP request uses the unchanged signed F06-3A verifier inside its
  // current PG transaction, not merely a schema/table-count presence check.
- const signed=await verifySignedDeposit(c);
+ if(mode==='COMPOSITE_NONPROD_SIGNED_V1')await assertCompositeSignedPG(c);
+ const signed=await (mode==='COMPOSITE_NONPROD_SIGNED_V1'?verifySignedDepositComposite(c):verifySignedDeposit(c));
  assert.equal(signed.verified,true,'F06_TX_SIGNED_DEPOSIT_PARENT_REQUIRED');
  return x;
 }
@@ -134,12 +140,12 @@ async function deposits(c,l){
  }
  return yes('F06_TX_DEPOSIT_SIGNED_READ_ONLY',{depositCount:originals.length});
 }
-export async function openSyntheticTransactionCI(auth,token,p={}){
- assertCIServiceGate();
+async function openSyntheticTransactionCore(auth,token,p={},mode='CI_LEGACY'){
+ if(mode==='COMPOSITE_NONPROD_SIGNED_V1')assertCompositeSignedRun();else assertCIServiceGate();
  if(!validId(p.lockId)||!validKey(p.eventKey))return no('F06_TX_INVALID_ARGUMENTS');
  try{
   const result=await auth.withSession(token,async(c,a)=>{
-   await parent(c);
+   await parent(c,mode);
    await c.query("SET LOCAL lock_timeout='1500ms'");
    const known=await one(c,'SELECT vehicle_id FROM public.locks WHERE lock_id=$1',[p.lockId]);
    if(!known)return no('F06_TX_LOCK_NOT_FOUND');
@@ -154,9 +160,10 @@ export async function openSyntheticTransactionCI(auth,token,p={}){
     yes('F06_TX_IDEMPOTENT',{transactionId:Number(old.transaction_id)}):no('F06_TX_IDEMPOTENCY_KEY_CONFLICT');
    const time=await one(c,'SELECT $1::timestamptz<=clock_timestamp() AS expired',[l.expires_at]);
    if(l.lock_status!=='active'||time.expired)return no('F06_TX_INACTIVE_LOCK_DENY');
-   const s=await one(c,'SELECT * FROM f06_1_lock_ci.lock_snapshots WHERE lock_id=$1 FOR SHARE',[l.lock_id]);
-   if(!s||Number(s.customer_id)!==Number(l.customer_id)||Number(s.responsible_employee_id)!==Number(l.responsible_employee_id)||
-    !Number.isSafeInteger(Number(s.initial_hours))||Number(s.initial_hours)<=0)return no('F06_TX_UNSIGNED_LOCK_DENY');
+   const lockSnapshotSchema=mode==='COMPOSITE_NONPROD_SIGNED_V1'?'f06_composite_v1':'f06_1_lock_ci';
+   const snap=await one(c,`SELECT * FROM ${lockSnapshotSchema}.lock_snapshots WHERE lock_id=$1 FOR SHARE`,[l.lock_id]);
+   if(!snap||Number(snap.customer_id)!==Number(l.customer_id)||Number(snap.responsible_employee_id)!==Number(l.responsible_employee_id)||
+    !Number.isSafeInteger(Number(snap.initial_hours))||Number(snap.initial_hours)<=0)return no('F06_TX_UNSIGNED_LOCK_DENY');
    const cust=await one(c,'SELECT account_status FROM public.customers WHERE customer_id=$1 FOR SHARE',[l.customer_id]);
    const cyc=await one(c,'SELECT ended_at,vehicle_id FROM public.vehicle_listing_cycles WHERE listing_cycle_id=$1 AND vehicle_id=$2 FOR SHARE',[l.listing_cycle_id,l.vehicle_id]);
    const v=await one(c,'SELECT source_type,source_sale_status,archived_at FROM public.vehicles WHERE vehicle_id=$1',[l.vehicle_id]);
@@ -176,11 +183,21 @@ export async function openSyntheticTransactionCI(auth,token,p={}){
    const change=await c.query("UPDATE public.locks SET lock_status='released',end_reason='converted_to_transaction' WHERE lock_id=$1 AND lock_status='active'",[l.lock_id]);
    if(change.rowCount!==1)throw Error('F06_TX_LOST_ACTIVE_LOCK');
    if(p.testCheckpoint==='AFTER_LOCK_THROW')throw Error('F06_TX_INJECTED_AFTER_LOCK');
-   await c.query("INSERT INTO f06_real_tx_ci.origins(transaction_id,source_lock_id,vehicle_id,listing_cycle_id,customer_id,responsible_employee_id,actor_employee_id,state,carrier,issuer,source_price_kind,source_price_cents,priority_origin_id,original_deposit_count,source_refund_digest) VALUES($1,$2,$3,$4,$5,$6,$7,'in_progress','in_progress','CI_SYNTHETIC_NOT_REAL_MONEY',$8,$9,$10,$11,$12)",[tx.transaction_id,l.lock_id,l.vehicle_id,l.listing_cycle_id,l.customer_id,l.responsible_employee_id,a.employee_id,s.price_kind,s.price_cents,s.priority_origin_id,funds.depositCount,refund.refundDigest]);
+   await c.query("INSERT INTO f06_real_tx_ci.origins(transaction_id,source_lock_id,vehicle_id,listing_cycle_id,customer_id,responsible_employee_id,actor_employee_id,state,carrier,issuer,source_price_kind,source_price_cents,priority_origin_id,original_deposit_count,source_refund_digest) VALUES($1,$2,$3,$4,$5,$6,$7,'in_progress','in_progress','CI_SYNTHETIC_NOT_REAL_MONEY',$8,$9,$10,$11,$12)",[tx.transaction_id,l.lock_id,l.vehicle_id,l.listing_cycle_id,l.customer_id,l.responsible_employee_id,a.employee_id,snap.price_kind,snap.price_cents,snap.priority_origin_id,funds.depositCount,refund.refundDigest]);
    if(p.testCheckpoint==='AFTER_ORIGIN_THROW')throw Error('F06_TX_INJECTED_AFTER_ORIGIN');
    await c.query('INSERT INTO f06_real_tx_ci.request_keys(key_sha256,fingerprint_sha256,employee_id,source_lock_id,transaction_id) VALUES($1,$2,$3,$4,$5)',[k,fingerprint,a.employee_id,l.lock_id,tx.transaction_id]);
    await c.query("INSERT INTO f06_real_tx_ci.events(transaction_id,source_lock_id,actor_employee_id,event_kind,source_status,final_status) VALUES($1,$2,$3,'lock_to_transaction','active','released')",[tx.transaction_id,l.lock_id,a.employee_id]);
    await one(c,"INSERT INTO public.audit_events(actor_kind,actor_id,object_kind,object_id,action,before_json,after_json,occurred_at) VALUES('employee',$1,'Transaction',$2,'f06_real_tx_ci_atomic_open',$3::jsonb,$4::jsonb,clock_timestamp()) RETURNING object_id",[String(a.employee_id),String(tx.transaction_id),JSON.stringify({lockStatus:'active',lockId:l.lock_id}),JSON.stringify({lockStatus:'released',status:'in_progress',issuer:'CI_SYNTHETIC_NOT_REAL_MONEY'})]);
+   if(mode==='COMPOSITE_NONPROD_SIGNED_V1'){
+    const issuer=await one(c,"SELECT head_sha,run_id FROM f06_composite_v1.attestation WHERE seal_name='COMPOSITE_NONPROD_SIGNED_V1' FOR SHARE");
+    const parentSeal=await one(c,"SELECT source_sha256 FROM f06_3b_ci.attestation WHERE seal_name='F06_3B_CI_ONLY_SIDECAR' FOR SHARE");
+    if(!issuer||!parentSeal)throw Error('F06_COMPOSITE_TX_PARENT_SIGNATURE_GAP');
+    const payload={transactionId:Number(tx.transaction_id),lockId:Number(l.lock_id),customerId:Number(l.customer_id),
+     vehicleId:Number(l.vehicle_id),listingCycleId:Number(l.listing_cycle_id),employeeId:Number(a.employee_id),
+     depositCount:funds.depositCount,refundDigest:refund.refundDigest,sidecarSHA:transactionSidecarSHA};
+    await c.query("INSERT INTO f06_composite_v1.issued_events(event_key_sha256,event_kind,parent_object_id,actor_kind,actor_id,source_parent_sha256,head_sha,run_id,payload_sha256) VALUES($1,'signed_tx',$2,'employee',$3,$4,$5,$6,$7)",
+     [sha('F06_COMPOSITE_SIGNED_TX:'+JSON.stringify(payload)),tx.transaction_id,a.employee_id,parentSeal.source_sha256,issuer.head_sha,issuer.run_id,sha(JSON.stringify(payload))]);
+   }
    if(p.testCheckpoint==='AFTER_AUDIT_THROW')throw Error('F06_TX_INJECTED_AFTER_AUDIT');
    const finalRefund=await refunds(c,l);
    if(!finalRefund.allowed||finalRefund.refundDigest!==refund.refundDigest)throw Error('F06_TX_REFUND_GUARD_CHANGED_BEFORE_COMMIT');
@@ -194,4 +211,41 @@ export async function openSyntheticTransactionCI(auth,token,p={}){
   if(String(e.message||'').startsWith('F06_TX_INJECTED_'))return no('F06_TX_ROLLED_BACK');
   throw e;
  }
+}
+export async function openSyntheticTransactionCI(auth,token,p={}){return openSyntheticTransactionCore(auth,token,p,'CI_LEGACY')}
+export async function openSyntheticTransactionComposite(auth,token,p={}){return openSyntheticTransactionCore(auth,token,p,'COMPOSITE_NONPROD_SIGNED_V1')}
+
+export async function applyCompositeTransactionSidecar(c){
+ assertCompositeSignedRun();
+ await assertCompositeSignedPG(c);
+ const parent=await verifySignedDepositComposite(c);
+ if(!parent?.verified)throw Error('F06_COMPOSITE_TX_SIGNED_DEPOSIT_PARENT_REQUIRED');
+ const existing=await one(c,"SELECT to_regnamespace('f06_real_tx_ci')::text n");
+ if(existing.n)return verifyCompositeTransactionSidecar(c);
+ const before=(await getPublicStructure(c)).sha256;
+ if(before!==parent.publicCatalogSHA)throw Error('F06_COMPOSITE_TX_PUBLIC_CATALOG_DRIFT');
+ await c.query('BEGIN');
+ try{
+  await c.query('SELECT pg_advisory_xact_lock(20261021,1391)');
+  await c.query(transactionSidecarSQL);
+  if((await getPublicStructure(c)).sha256!==before)throw Error('F06_COMPOSITE_TX_PUBLIC_DDL_FORBIDDEN');
+  await c.query('COMMIT');
+ }catch(e){await c.query('ROLLBACK');throw e}
+ return verifyCompositeTransactionSidecar(c);
+}
+export async function verifyCompositeTransactionSidecar(c){
+ assertCompositeSignedRun();
+ await assertCompositeSignedPG(c);
+ const parent=await verifySignedDepositComposite(c);
+ if(!parent?.verified)throw Error('F06_COMPOSITE_TX_SIGNED_DEPOSIT_PARENT_REQUIRED');
+ const shape=await one(c,"SELECT to_regnamespace('f06_real_tx_ci') IS NOT NULL schema,"+
+  "to_regclass('f06_real_tx_ci.origins') IS NOT NULL origins,"+
+  "to_regclass('f06_real_tx_ci.request_keys') IS NOT NULL keys,"+
+  "to_regclass('f06_real_tx_ci.events') IS NOT NULL events");
+ if(!shape||Object.values(shape).some(v=>v!==true))throw Error('F06_COMPOSITE_TX_SIDECAR_SHAPE_GAP');
+ const triggers=await one(c,"SELECT count(*)::int n FROM pg_trigger WHERE NOT tgisinternal AND tgrelid IN("+
+  "'f06_real_tx_ci.origins'::regclass,'f06_real_tx_ci.request_keys'::regclass,'f06_real_tx_ci.events'::regclass)");
+ if(triggers.n!==3)throw Error('F06_COMPOSITE_TX_IMMUTABILITY_GAP');
+ if((await getPublicStructure(c)).sha256!==parent.publicCatalogSHA)throw Error('F06_COMPOSITE_TX_PUBLIC_CATALOG_DRIFT');
+ return {verified:true,nonProduction:true,sidecarSHA:transactionSidecarSHA,catalog:parent.publicCatalogSHA};
 }

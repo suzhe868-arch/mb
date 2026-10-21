@@ -2,8 +2,9 @@
 import pg from 'pg';
 import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
-import {verify as parentVerify} from '../lock-transaction-ci/migration.mjs';
+import {verify as parentVerify,verifyComposite as parentVerifyComposite} from '../lock-transaction-ci/migration.mjs';
 import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
+import {assertCompositeSignedPG} from '../nonprod-single-runtime-integration/可信Composite签名根.mjs';
 const DSN='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test';
 const BRANCH='refs/heads/feat/f06-3c1-refund-pending-close-ci';
 const required={GITHUB_ACTIONS:'true',CI:'true',APP_ENV:'test',NODE_ENV:'test',GITHUB_EVENT_NAME:'push',
@@ -44,8 +45,10 @@ async function carrier(c){
  if(!/closed/.test(checks)||!/pending/.test(checks)||!/lock_id/.test(checks)||!/transaction_id/.test(checks))throw Error('PRODUCTION_REFUND_CARRIER_GAP_CHECKS');
  return 'M94_V26_PUBLIC_PENDING_CLOSED_CARRIER_CI_ONLY';
 }
-async function signed(c){
- gate();const prior=await withF063B(()=>parentVerify(c));
+async function signed(c,mode='CI_LEGACY'){
+ const prior=mode==='COMPOSITE_NONPROD_SIGNED_V1'
+  ?(await assertCompositeSignedPG(c),await parentVerifyComposite(c))
+  :(gate(),await withF063B(()=>parentVerify(c)));
  if(!prior.verified||prior.catalog!=='5495c6d6ccecc628e1b27c5bfe4f3664a76b4c38a1fa732b6e2baa4ebb5e99f4')
   throw Error('F06_3C1_PARENT_SIGNATURE_FAILED');
  const ledger=(await c.query('SELECT migration_id,checksum,structure_sha256 FROM public.f03_schema_migrations ORDER BY migration_id')).rows;
@@ -55,8 +58,8 @@ async function signed(c){
  const kind=await carrier(c);
  return {catalog:prior.catalog,ledger:hash(ledger),f3b:origin[0].source_sha256,kind};
 }
-export async function verify(c){
- const p=await signed(c),x=(await c.query('SELECT * FROM f06_3c1_ci.attestation')).rows;
+async function verifyByMode(c,mode){
+ const p=await signed(c,mode),x=(await c.query('SELECT * FROM f06_3c1_ci.attestation')).rows;
  if(x.length!==1||x[0].seal_name!=='F06_3C1_CI_ONLY'||
   x[0].source_sha256!==checksum||x[0].public_catalog_sha256!==p.catalog||
   x[0].old_ledger_sha256!==p.ledger||x[0].f06_3b_sha256!==p.f3b)
@@ -64,8 +67,8 @@ export async function verify(c){
  if((await getPublicStructure(c)).sha256!==p.catalog)throw Error('F06_3C1_PUBLIC_STRUCTURE_MUTATION');
  return {verified:true,carrier:p.kind,sourceSHA:checksum,publicCatalogSHA:p.catalog,productionRefundIssuer:'SOURCE_GAP',actualPayment:'BLOCKED'};
 }
-export async function apply(c,{inject=false}={}){
- const p=await signed(c);
+async function applyByMode(c,{inject=false}={},mode){
+ const p=await signed(c,mode);
  if((await c.query("SELECT to_regnamespace('f06_3c1_ci')::text n")).rows[0].n)throw Error('F06_3C1_ALREADY_APPLIED');
  await c.query('BEGIN');
  try{
@@ -76,5 +79,9 @@ export async function apply(c,{inject=false}={}){
   if((await getPublicStructure(c)).sha256!==p.catalog)throw Error('F06_3C1_PUBLIC_MIGRATION_FORBIDDEN');
   await c.query('COMMIT');
  }catch(e){await c.query('ROLLBACK');throw e}
- return verify(c);
+ return verifyByMode(c,mode);
 }
+export async function verify(c){return verifyByMode(c,'CI_LEGACY')}
+export async function apply(c,options={}){return applyByMode(c,options,'CI_LEGACY')}
+export async function verifyComposite(c){return verifyByMode(c,'COMPOSITE_NONPROD_SIGNED_V1')}
+export async function applyComposite(c,options={}){return applyByMode(c,options,'COMPOSITE_NONPROD_SIGNED_V1')}

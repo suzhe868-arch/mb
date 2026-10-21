@@ -2,6 +2,8 @@
 // PDM18：LockRequest 不占车；只有授权审批才创建唯一 active Lock；冲突自动候补。
 import {createHash} from 'node:crypto';
 import {assertF06TestEnvironment,verifyF06TestDatabase} from './f06-lock-readiness.mjs';
+import {sessionDigest} from './f03-auth-crypto.mjs';
+import {assertCompositeSignedRun} from '../f06/nonprod-single-runtime-integration/可信Composite签名根.mjs';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 const validId=value=>typeof value==='string'&&/^[1-9][0-9]{0,18}$/.test(value)&&BigInt(value)<=9223372036854775807n;
 const validKey=value=>typeof value==='string'&&/^[A-Za-z0-9_-]{24,64}$/.test(value);
@@ -11,10 +13,13 @@ const first=async(db,sql,args=[])=>(await db.query(sql,args)).rows[0];
 const saleable=v=>!!v&&!v.archived_at&&((v.source_type==='wholesale'&&v.source_sale_status==='active')||
  (['mingbang','four_s'].includes(v.source_type)&&v.source_sale_status==='available'));
 const denied=code=>response(403,code);
-const LOCK_SCHEMA='f06_real_lock_test';
-
-export function createIsolatedF06LockService({pool,env=process.env,afterLockWrite=null}={}){
- assertF06TestEnvironment(env);
+export function createIsolatedF06LockService({pool,env=process.env,afterLockWrite=null,mode='CI_LEGACY',sessionSecret=null,verifyDatabase=null}={}){
+ const composite=mode==='COMPOSITE_NONPROD_SIGNED_V1';
+ if(composite){assertCompositeSignedRun(env);if(env.F06_COMPOSITE_TEST_CONSENT!=='I_AUTHORIZE_DISPOSABLE_F06_COMPOSITE_ONLY'||!Buffer.isBuffer(sessionSecret)||sessionSecret.length<32||typeof verifyDatabase!=='function')throw Error('F06_COMPOSITE_LOCK_TRUST_DEPENDENCIES_REQUIRED')}
+ else assertF06TestEnvironment(env);
+ const lockSchema=composite?'f06_composite_v1':'f06_real_lock_test';
+ const issuer=composite?'COMPOSITE_NONPROD_SIGNED_V1':'DISPOSABLE_TEST_ONLY';
+ const verifyDb=composite?verifyDatabase:verifyF06TestDatabase;
  if(!pool||typeof pool.connect!=='function'||typeof pool.query!=='function')throw Error('F06_LOCK_PG16_POOL_REQUIRED');
  if(afterLockWrite!==null&&typeof afterLockWrite!=='function')throw Error('INVALID_FAULT_INJECTOR');
 
@@ -22,7 +27,7 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
   const db=await pool.connect();let begun=false;
   try{
    await db.query('BEGIN');begun=true;
-   await verifyF06TestDatabase(db);
+   await verifyDb(db);
    await db.query("SET LOCAL lock_timeout='1800ms'");
    const result=await worker(db);
    await db.query('COMMIT');begun=false;
@@ -34,8 +39,16 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
  }
  async function customer(db,token){
   if(!validToken(token))return null;
+  if(composite)return first(db,`SELECT s.customer_id,c.current_owner_employee_id,c.owner_assignment_state
+    FROM f06_composite_v1.customer_sessions s
+    JOIN f06_composite_v1.attestation att ON att.seal_name=s.issuer
+      AND att.head_sha=s.head_sha AND att.run_id=s.run_id
+    JOIN public.customers c ON c.customer_id=s.customer_id
+    WHERE s.token_sha256=$1 AND s.issuer='COMPOSITE_NONPROD_SIGNED_V1'
+      AND s.revoked_at IS NULL AND s.expires_at>clock_timestamp() AND c.account_status='active'
+    FOR SHARE OF s,c`,[sha(token)]);
   return first(db,`SELECT s.customer_id,c.current_owner_employee_id,c.owner_assignment_state
-   FROM ${LOCK_SCHEMA}.customer_sessions s
+   FROM ${lockSchema}.customer_sessions s
    JOIN public.customers c ON c.customer_id=s.customer_id
    WHERE s.token_sha256=$1 AND s.issuer='DISPOSABLE_TEST_ONLY' AND s.revoked_at IS NULL
     AND s.expires_at>clock_timestamp() AND c.account_status='active'
@@ -43,8 +56,8 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
  }
  async function employee(db,token){
   if(!validToken(token))return null;
-  return first(db,`SELECT s.employee_id,r.role_code,e.employment_status,e.store_id
-   FROM ${LOCK_SCHEMA}.employee_sessions s
+  if(!composite)return first(db,`SELECT s.employee_id,r.role_code,e.employment_status,e.store_id
+   FROM ${lockSchema}.employee_sessions s
    JOIN public.pc_login_accounts a ON a.account_id=s.account_id
     AND a.employee_id=s.employee_id AND a.principal_kind='employee' AND a.system_admin_id IS NULL
     AND a.credential_state='enabled' AND a.force_password_change=false
@@ -57,6 +70,33 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     AND NOT EXISTS(SELECT 1 FROM public.f05_3a_member_create_licenses four_s
       WHERE four_s.employee_id=e.employee_id AND four_s.revoked_at IS NULL)
    FOR SHARE OF s,a,e,r`,[sha(token)]);
+  if(!sessionSecret)return null;
+  const digest=sessionDigest(token,sessionSecret);
+  const raw=await first(db,'SELECT account_id FROM public.pc_auth_sessions WHERE token_digest=$1',[digest]);
+  if(!raw)return null;
+  // Preserve the native F03 account-before-session lock order.
+  const a=await first(db,`SELECT a.account_id,a.employee_id,a.principal_kind,a.system_admin_id,
+    a.credential_state,a.force_password_change,a.credential_epoch,e.employment_status,e.store_id,r.role_code,
+    CASE WHEN r.role_code='four_s' THEN EXISTS(
+      SELECT 1 FROM public.employee_permission_overrides o JOIN public.permissions p ON p.permission_id=o.permission_id
+      WHERE o.employee_id=e.employee_id AND o.decision='allow' AND p.permission_code='pc.four_s.vehicle.manage'
+    ) ELSE true END pc_access
+    FROM public.pc_login_accounts a JOIN public.employees e ON e.employee_id=a.employee_id
+    JOIN public.roles r ON r.role_id=e.main_role_id
+    WHERE a.account_id=$1 AND a.principal_kind='employee' AND a.system_admin_id IS NULL
+    FOR UPDATE OF a`,[raw.account_id]);
+  const sess=await first(db,'SELECT * FROM public.pc_auth_sessions WHERE token_digest=$1 FOR UPDATE',[digest]);
+  const now=(await first(db,'SELECT clock_timestamp() now')).now;
+  const last=sess?.last_seen_at??sess?.issued_at;
+  if(!a||!sess||a.credential_state!=='enabled'||a.force_password_change!==false||
+    String(a.credential_epoch)!==String(sess.credential_epoch)||a.employment_status!=='active'||!a.pc_access||
+    !['sales','manager','store_head'].includes(a.role_code)||sess.revoked_at||sess.restricted||
+    now<sess.issued_at||now>=sess.expires_at||!last||last<sess.issued_at||last>sess.expires_at||
+    last>now||now.getTime()-new Date(last).getTime()>=1800000||
+    await first(db,`SELECT 1 FROM public.f05_3a_member_create_licenses WHERE employee_id=$1 AND revoked_at IS NULL LIMIT 1`,[a.employee_id]))
+    return null;
+  await db.query('UPDATE public.pc_auth_sessions SET last_seen_at=$2 WHERE session_id=$1 AND revoked_at IS NULL',[sess.session_id,now]);
+  return {employee_id:a.employee_id,role_code:a.role_code,employment_status:a.employment_status,store_id:a.store_id};
  }
  async function currentOwner(db,ownerId){
   if(!validId(String(ownerId??'')))return null;
@@ -145,7 +185,7 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
   // visibility even though the underlying Priority lease is atomically ended.
   // Trust neither a bare Lock nor a naked snapshot: require the signed conversion event.
   const inherited=!internalWaitlist&&vehicle.platform_visibility==='hidden'&&!pr.own&&await first(db,`SELECT 1
-   FROM public.locks l JOIN ${LOCK_SCHEMA}.lock_snapshots snap ON snap.lock_id=l.lock_id
+   FROM public.locks l JOIN ${lockSchema}.lock_snapshots snap ON snap.lock_id=l.lock_id
    JOIN public.f05_8_priority_ci p ON p.priority_id=snap.priority_origin_id
    JOIN public.f05_8_events_ci ev ON ev.priority_id=p.priority_id
     AND ev.event_kind='ended'
@@ -168,14 +208,38 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
   return {vehicle,cycle,who,owner,priority:pr.own};
  }
  async function event(db,req,kind,prior,after,{employeeId=null,lockId=null,waitId=null}={}){
-  await db.query(`INSERT INTO ${LOCK_SCHEMA}.events
+  await db.query(`INSERT INTO ${lockSchema}.events
     (request_id,event_type,actor_employee_id,old_status,new_status,resulting_lock_id,resulting_waitlist_id)
     VALUES($1,$2,$3,$4,$5,$6,$7)`,[req.lock_request_id,kind,employeeId,prior,after,lockId,waitId]);
   await db.query(`INSERT INTO public.audit_events
     (actor_kind,actor_id,object_kind,object_id,action,before_json,after_json,occurred_at)
     VALUES($1,$2,'LockRequest',$3,$4,$5::jsonb,$6::jsonb,clock_timestamp())`,
    [kind==='created'?'customer_synthetic':employeeId===null?'system':'employee',employeeId===null?null:String(employeeId),String(req.lock_request_id),
-    `f06_real_test_${kind}`,JSON.stringify({status:prior}),JSON.stringify({status:after,lockId,waitlistId:waitId})]);
+    `f06_composite_${kind}`,JSON.stringify({status:prior}),JSON.stringify({status:after,lockId,waitlistId:waitId})]);
+  if(composite){
+   const att=await first(db,"SELECT head_sha,run_id,source_sha256 FROM f06_composite_v1.attestation WHERE seal_name='COMPOSITE_NONPROD_SIGNED_V1' FOR SHARE");
+   const parent=await first(db,"SELECT source_sha256 FROM f06_1_lock_ci.attestation WHERE seal_name='F06_1_CI_ONLY_V27_SIDECAR' FOR SHARE");
+   if(!att||!parent)throw Error('F06_COMPOSITE_SIGNED_LOCK_PARENT_MISSING');
+   const eventKinds={created:'lock_request_created',approved:'lock_request_approved',rejected:'lock_request_rejected',
+    expired:'lock_request_expired',lock_conflict:'lock_conflict',closed_not_lockable:'lock_request_closed'};
+   const ek=eventKinds[kind];if(!ek)throw Error('F06_COMPOSITE_LOCK_EVENT_KIND_UNKNOWN');
+   const actorKind=kind==='created'?'customer':employeeId!==null?'employee':'system';
+   const actorId=actorKind==='employee'?employeeId:null;
+   const payload={requestId:String(req.lock_request_id),customerId:String(req.customer_id),vehicleId:String(req.vehicle_id),
+    kind,prior,after,lockId:lockId===null?null:String(lockId),waitId:waitId===null?null:String(waitId)};
+   const key=sha('F06_COMPOSITE_LOCK_EVENT:'+JSON.stringify(payload));
+   await db.query(`INSERT INTO f06_composite_v1.issued_events
+    (event_key_sha256,event_kind,parent_object_id,actor_kind,actor_id,source_parent_sha256,head_sha,run_id,payload_sha256)
+    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+    [key,ek,req.lock_request_id,actorKind,actorId,parent.source_sha256,att.head_sha,att.run_id,sha(JSON.stringify(payload))]);
+   if(kind==='approved'&&lockId!==null){
+    const lockPayload={...payload,kind:'signed_lock',lockId:String(lockId)};
+    await db.query(`INSERT INTO f06_composite_v1.issued_events
+     (event_key_sha256,event_kind,parent_object_id,actor_kind,actor_id,source_parent_sha256,head_sha,run_id,payload_sha256)
+     VALUES($1,'signed_lock',$2,'employee',$3,$4,$5,$6,$7)`,
+     [sha('F06_COMPOSITE_SIGNED_LOCK:'+JSON.stringify(lockPayload)),lockId,employeeId,parent.source_sha256,att.head_sha,att.run_id,sha(JSON.stringify(lockPayload))]);
+   }
+  }
  }
  async function finish(db,req,kind,{employeeId=null,lockId=null,waitId=null}={}){
   const updated=await first(db,`UPDATE public.lock_requests SET status=$2,resulting_lock_id=$3,
@@ -219,13 +283,13 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
    await finish(db,req,'closed_not_lockable');return {requestId:String(req.lock_request_id),status:'closed_not_lockable'};
   }
   if(!wait){
-   const id=(await first(db,`SELECT nextval('${LOCK_SCHEMA}.waitlist_ids')::bigint AS id`)).id;
+   const id=(await first(db,`SELECT nextval('${lockSchema}.waitlist_ids')::bigint AS id`)).id;
    wait=await first(db,`INSERT INTO public.waitlists
     (waitlist_id,customer_id,vehicle_id,listing_cycle_id,source_lock_request_id,
      active_lock_id,responsible_employee_id,ended_at)
     VALUES($1,$2,$3,$4,$5,$6,$7,NULL) RETURNING waitlist_id`,
     [id,req.customer_id,req.vehicle_id,req.listing_cycle_id,req.lock_request_id,activeLockId,responsible.employeeId]);
-   await db.query(`INSERT INTO ${LOCK_SCHEMA}.waitlist_sources
+   await db.query(`INSERT INTO ${lockSchema}.waitlist_sources
     (waitlist_id,source_request_id,responsible_employee_id,responsible_source,queue_created_at,queue_request_id)
     VALUES($1,$2,$3,$4,$5,$6)`,[wait.waitlist_id,req.lock_request_id,responsible.employeeId,responsible.source,req.created_at,req.lock_request_id]);
   }
@@ -234,7 +298,7 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
  }
 
  return Object.freeze({
-  verify:()=>verifyF06TestDatabase(pool),
+  verify:()=>verifyDb(pool),
   async intake({token,vehicleId,listingCycleId,idempotencyKey}={}){
    if(!validToken(token))return response(401,'TEST_CUSTOMER_IDENTITY_REQUIRED');
    if(!validId(vehicleId)||!validId(listingCycleId)||!validKey(idempotencyKey))return response(400,'INVALID_LOCK_REQUEST');
@@ -247,13 +311,13 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     if(!vehicle)return response(404,'VEHICLE_NOT_FOUND');
     // A Priority-origin Lock is exclusively visible to its owner; deny before the occupied status leaks.
     const hiddenLock=await first(db,`SELECT 1 FROM public.locks l
-     JOIN ${LOCK_SCHEMA}.lock_snapshots s ON s.lock_id=l.lock_id
+     JOIN ${lockSchema}.lock_snapshots s ON s.lock_id=l.lock_id
      WHERE l.vehicle_id=$1 AND l.lock_status='active'
        AND s.priority_origin_id IS NOT NULL AND l.customer_id<>$2 LIMIT 1`,[vehicleId,who.customer_id]);
     if(hiddenLock)return response(404,'LOCK_REQUEST_NOT_VISIBLE');
     const digest=sha('f06-intake:'+idempotencyKey);
     const payload=sha(JSON.stringify([String(who.customer_id),vehicleId,listingCycleId]));
-    const old=await first(db,`SELECT k.*,r.status,r.created_at,r.expires_at FROM ${LOCK_SCHEMA}.request_keys k
+    const old=await first(db,`SELECT k.*,r.status,r.created_at,r.expires_at FROM ${lockSchema}.request_keys k
      JOIN public.lock_requests r ON r.lock_request_id=k.request_id
      WHERE k.key_sha256=$1 FOR SHARE OF k,r`,[digest]);
     if(old){
@@ -276,8 +340,8 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     // Fail closed if any live public M94 request lacks our exact test-only source.
     const pending=(await db.query(`SELECT r.*,k.request_id AS trusted_request_id
      FROM public.lock_requests r
-     LEFT JOIN ${LOCK_SCHEMA}.request_keys k ON k.request_id=r.lock_request_id
-      AND k.customer_id=r.customer_id AND k.issuer='DISPOSABLE_TEST_ONLY'
+     LEFT JOIN ${lockSchema}.request_keys k ON k.request_id=r.lock_request_id
+      AND k.customer_id=r.customer_id AND k.issuer='${issuer}'
      WHERE r.customer_id=$1 AND r.vehicle_id=$2 AND r.listing_cycle_id=$3 AND r.status='pending'
      ORDER BY r.created_at,r.lock_request_id FOR UPDATE OF r`,
      [who.customer_id,vehicleId,listingCycleId])).rows;
@@ -290,15 +354,15 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     const lock=await first(db,`SELECT lock_id FROM public.locks WHERE vehicle_id=$1
       AND lock_status='active' LIMIT 1`,[vehicleId]);
     if(lock)return response(409,'VEHICLE_ALREADY_LOCKED_USE_WAITLIST');
-    const requestId=(await first(db,`SELECT nextval('${LOCK_SCHEMA}.request_ids')::bigint AS id`)).id;
+    const requestId=(await first(db,`SELECT nextval('${lockSchema}.request_ids')::bigint AS id`)).id;
     const createdAt=(await first(db,'SELECT clock_timestamp() AS now')).now;
     const created=await first(db,`INSERT INTO public.lock_requests
       (lock_request_id,customer_id,vehicle_id,listing_cycle_id,status,created_at,expires_at)
       VALUES($1,$2,$3,$4,'pending',$5,$5::timestamptz+interval '6 hours')
       RETURNING lock_request_id,expires_at`,[requestId,who.customer_id,vehicleId,listingCycleId,createdAt]);
-    await db.query(`INSERT INTO ${LOCK_SCHEMA}.request_keys
+    await db.query(`INSERT INTO ${lockSchema}.request_keys
      (request_id,customer_id,key_sha256,payload_sha256,issuer)
-     VALUES($1,$2,$3,$4,'DISPOSABLE_TEST_ONLY')`,[requestId,who.customer_id,digest,payload]);
+     VALUES($1,$2,$3,$4,$5)`,[requestId,who.customer_id,digest,payload,issuer]);
     await event(db,created,'created',null,'pending');
     return response(201,'LOCK_REQUEST_PENDING',{requestId:String(requestId),state:'pending',expiresAt:created.expires_at});
    });
@@ -316,8 +380,8 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     const v=await first(db,'SELECT * FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[previousReq.vehicle_id]);
     const req=await first(db,'SELECT * FROM public.lock_requests WHERE lock_request_id=$1 FOR UPDATE',[requestId]);
     if(!v||!req)return response(404,'LOCK_REQUEST_NOT_FOUND');
-    const signed=await first(db,`SELECT request_id FROM ${LOCK_SCHEMA}.request_keys
-      WHERE request_id=$1 AND issuer='DISPOSABLE_TEST_ONLY' FOR SHARE`,[requestId]);
+    const signed=await first(db,`SELECT request_id FROM ${lockSchema}.request_keys
+      WHERE request_id=$1 AND issuer=$2 FOR SHARE`,[requestId,issuer]);
     if(!signed)return denied('UNTRUSTED_LOCK_REQUEST_ISSUER');
     const owner=await first(db,`SELECT current_owner_employee_id,owner_assignment_state FROM public.customers
       WHERE customer_id=$1 AND account_status='active' FOR SHARE`,[req.customer_id]);
@@ -325,7 +389,7 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     const team=await currentOwner(db,owner.current_owner_employee_id);
     if(!team||!await scope(db,actor.employee_id,team.team_id))return denied('LOCK_APPROVAL_SCOPE_DENIED');
     const payload=sha(JSON.stringify([String(actor.employee_id),requestId,decision]));
-    const prior=await first(db,`SELECT payload_sha256,result_json FROM ${LOCK_SCHEMA}.decision_keys
+    const prior=await first(db,`SELECT payload_sha256,result_json FROM ${lockSchema}.decision_keys
       WHERE key_sha256=$1 FOR SHARE`,[key]);
     if(prior){
      if(prior.payload_sha256!==payload)return response(409,'LOCK_DECISION_IDEMPOTENCY_COLLISION');
@@ -352,14 +416,14 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
        await finish(db,req,'closed_not_lockable',{employeeId:actor.employee_id});
        result=response(200,'LOCK_REQUEST_CLOSED',{requestId,state:'closed_not_lockable'});
       }else{
-       const policy=await first(db,`SELECT initial_lock_hours,version FROM ${LOCK_SCHEMA}.policy
+       const policy=await first(db,`SELECT initial_lock_hours,version FROM ${lockSchema}.policy
          WHERE policy_id=1 FOR SHARE`);
        if(!policy||!Number.isInteger(policy.initial_lock_hours))throw Error('F06_LOCK_POLICY_NOT_VERIFIED');
        const now=(await first(db,'SELECT clock_timestamp() AS now')).now;
        const price=await first(db,`SELECT price_event_id,amount_cents FROM public.vehicle_price_history
          WHERE vehicle_id=$1 AND price_kind='customer_display' AND amount_cents>0
           AND valid_from<=$2 ORDER BY valid_from DESC,price_event_id DESC LIMIT 1 FOR SHARE`,[req.vehicle_id,now]);
-       const lockId=(await first(db,`SELECT nextval('${LOCK_SCHEMA}.lock_ids')::bigint AS id`)).id;
+       const lockId=(await first(db,`SELECT nextval('${lockSchema}.lock_ids')::bigint AS id`)).id;
        const lock=await first(db,`INSERT INTO public.locks
         (lock_id,vehicle_id,customer_id,listing_cycle_id,lock_status,responsible_employee_id,
          created_at,expires_at,source_lock_request_id)
@@ -367,7 +431,7 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
         RETURNING lock_id,expires_at`,
         [lockId,req.vehicle_id,req.customer_id,req.listing_cycle_id,f.owner.employee_id,now,policy.initial_lock_hours,req.lock_request_id]);
        const priorityId=await signConvertedPriority(db,f.priority,lockId,actor.employee_id,req);
-       await db.query(`INSERT INTO ${LOCK_SCHEMA}.lock_snapshots
+       await db.query(`INSERT INTO ${lockSchema}.lock_snapshots
         (lock_id,approver_employee_id,responsible_employee_id,customer_id,price_kind,price_cents,
          source_price_event_id,initial_hours,policy_version,priority_origin_customer_id,priority_origin_id)
         VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
@@ -386,7 +450,7 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
       }
      }
     }
-    await db.query(`INSERT INTO ${LOCK_SCHEMA}.decision_keys
+    await db.query(`INSERT INTO ${lockSchema}.decision_keys
      (key_sha256,payload_sha256,employee_id,request_id,result_json)
      VALUES($1,$2,$3,$4,$5::jsonb)`,[key,payload,actor.employee_id,requestId,JSON.stringify(result.body)]);
     return result;
@@ -405,12 +469,12 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     if(safe.error)return response(404,'LOCK_REQUEST_NOT_VISIBLE');
     const p=await priority(db,who.customer_id,req.vehicle_id,req.listing_cycle_id);
     const activeLock=await first(db,`SELECT l.lock_id,l.customer_id,l.lock_status,l.expires_at,s.priority_origin_id
-      FROM public.locks l LEFT JOIN ${LOCK_SCHEMA}.lock_snapshots s ON s.lock_id=l.lock_id
+      FROM public.locks l LEFT JOIN ${lockSchema}.lock_snapshots s ON s.lock_id=l.lock_id
       WHERE l.vehicle_id=$1 AND l.lock_status='active' ORDER BY l.lock_id LIMIT 1 FOR SHARE OF l`,[req.vehicle_id]);
     if(p.other||(activeLock?.priority_origin_id&&String(activeLock.customer_id)!==String(who.customer_id)))
      return response(404,'LOCK_REQUEST_NOT_VISIBLE');
     const ownLock=await first(db,`SELECT l.lock_id,l.lock_status,l.expires_at
-      FROM public.locks l LEFT JOIN ${LOCK_SCHEMA}.lock_snapshots s ON s.lock_id=l.lock_id
+      FROM public.locks l LEFT JOIN ${lockSchema}.lock_snapshots s ON s.lock_id=l.lock_id
       WHERE l.vehicle_id=$1 AND l.listing_cycle_id=$2 AND l.customer_id=$3
       ORDER BY l.lock_id DESC LIMIT 1 FOR SHARE OF l`,
       [req.vehicle_id,req.listing_cycle_id,who.customer_id]);
