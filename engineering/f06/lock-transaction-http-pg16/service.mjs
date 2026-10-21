@@ -223,7 +223,7 @@ export async function applyCompositeTransactionSidecar(c){
  const existing=await one(c,"SELECT to_regnamespace('f06_real_tx_ci')::text n");
  if(existing.n)return verifyCompositeTransactionSidecar(c);
  const before=(await getPublicStructure(c)).sha256;
- if(before!==parent.catalog)throw Error('F06_COMPOSITE_TX_PUBLIC_CATALOG_DRIFT');
+ if(before!==parent.publicCatalogSHA)throw Error('F06_COMPOSITE_TX_PUBLIC_CATALOG_DRIFT');
  await c.query('BEGIN');
  try{
   await c.query('SELECT pg_advisory_xact_lock(20261021,1391)');
@@ -246,6 +246,6 @@ export async function verifyCompositeTransactionSidecar(c){
  const triggers=await one(c,"SELECT count(*)::int n FROM pg_trigger WHERE NOT tgisinternal AND tgrelid IN("+
   "'f06_real_tx_ci.origins'::regclass,'f06_real_tx_ci.request_keys'::regclass,'f06_real_tx_ci.events'::regclass)");
  if(triggers.n!==3)throw Error('F06_COMPOSITE_TX_IMMUTABILITY_GAP');
- if((await getPublicStructure(c)).sha256!==parent.catalog)throw Error('F06_COMPOSITE_TX_PUBLIC_CATALOG_DRIFT');
- return {verified:true,nonProduction:true,sidecarSHA:transactionSidecarSHA,catalog:parent.catalog};
+ if((await getPublicStructure(c)).sha256!==parent.publicCatalogSHA)throw Error('F06_COMPOSITE_TX_PUBLIC_CATALOG_DRIFT');
+ return {verified:true,nonProduction:true,sidecarSHA:transactionSidecarSHA,catalog:parent.publicCatalogSHA};
 }
