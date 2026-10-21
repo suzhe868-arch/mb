@@ -1,3 +1,12 @@
+# 2026-10-21｜A主控Issue171真实新分支Composite签名来源物理阻断成立，五文件精确补充裁决，B原任务继续
+
+- **真实进度不虚报**：Issue [#171](https://github.com/suzhe868-arch/mb/issues/171)，B原分支`feat/f06-nonprod-composite-lock-lifecycle-01`当前阻断报告HEAD`13b9cc580b0907d743414707d353d4b96f1ca39b`，仅一份中文源代码级说明；本Issue `>=16` 真实PG16/HTTP新测试、正式本SHA工作流、封印、业务实现**尚未完成**。之前Issue164/PR169的42/42+32/32+6/6+Legacy1/1保留且不冒充本Issue结果。
+- **A核验阻断超出B初报两文件**：旧`可信Composite签名根.mjs`固定Issue164分支，`composite-issuer.mjs`绑定真实SHA/RunID/源码hash/PG OID，私有`composite-issuer.sql`有旧Ref数据库CHECK，`核对同Ref上游签名PG16.sh`及`父表161迁移24跨OID封印.mjs`又独立硬绑旧Ref。真实Issue171新Push不可能在原白名单内合法签发与Seal；禁止伪造`GITHUB_REF`或迁移旧签名。
+- **A补充单**：[《F06 Issue171真实分支Composite签名根五文件最小技术裁决》](07_重建工作区/F06_Issue171真实分支Composite签名根五文件最小技术裁决补充单_2026-10-21.md)。只允许上述**5个精确文件**对`feat/f06-nonprod-single-runtime-trusted-source-01`与`feat/f06-nonprod-composite-lock-lifecycle-01`两个真实Push分支做严格受控profile适配；源hash、真实HEAD SHA/Run、同物理非超管PG16、24签名迁移和161父表跨真实OID密封均不可弱化。SQL旧私有CHECK仅添加确切新branch；所有其他旧F06/SQL/公共DDL、旧CI、F02/F03/F05、PDM、C轨仍只读冻结。
+- **本次A裁决并非B验收**：B保留原分支原Issue并安全同步本治理PR实际合入的main，按原Issue171完整施工单一次性完成Composite普通Lock生命周期接线/16+本SHA原生真PG16新场景及必要高风险Legacy回归与异OID封印，语法和范围双门禁；无法合法接通则如实报告阻断。**NEXT_OWNER=B**、`NEXT_TASK=F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01`、`NEXT_ISSUE=171`、`NEXT_BRANCH=feat/f06-nonprod-composite-lock-lifecycle-01`。F06/F07/F08/V1仍`NOT_READY`，无生产/真钱/实际退款`refunded`或成交`completed`权限。
+
+---
+
 # 2026-10-21｜A完成Issue164后F06真实Runtime缺口核查，正式定向放行B Issue171非生产生命周期接线
 
 - **A独立核查结论**：[《Issue164后F06真实Runtime与Issuer剩余差异》](07_重建工作区/F06_Issue164后真实Runtime与Issuer剩余差异_A主控定向核查_2026-10-21.md)。[已验业务PR169](https://github.com/suzhe868-arch/mb/pull/169)单PG16 Composite完成Lock→合成Deposit→Transaction→Handoff→Cancel→Refund无付款closed，Issue164已关闭；其已验42/42+32/32+6/6+Legacy审计1/1原生事实、161父表24迁移跨OID封印全部复用，不回头重做。
