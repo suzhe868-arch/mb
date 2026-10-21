@@ -70,7 +70,7 @@ async function seedScenario(db,runId){
  const manager=employees.find(x=>Number(x.employee_id)!==Number(initial.employee_id)&&x.role_code==='manager')||
   employees.find(x=>Number(x.employee_id)!==Number(initial.employee_id)&&x.role_code==='store_head'&&Number(x.store_id)===Number(team.store_id));
  assert.ok(manager,'need a separate manager or same-store store_head for signed handoff');
- const target=employees.find(x=>Number(x.employee_id)===4&&Number(x.employee_id)!==Number(initial.employee_id)&&Number(x.employee_id)!==Number(manager.employee_id))||
+ const target=employees.find(x=>x.role_code==='sales'&&Number(x.employee_id)!==Number(initial.employee_id)&&Number(x.employee_id)!==Number(manager.employee_id))||
   employees.find(x=>Number(x.employee_id)!==Number(initial.employee_id)&&Number(x.employee_id)!==Number(manager.employee_id));
  assert.ok(target,'need a separate current responsible after handoff');
  const codes=['lock.ci.approve','deposit.ci.record','transaction.ci.open','transaction.ci.handoff','transaction.ci.cancel','transaction.refund.ci.request'];
