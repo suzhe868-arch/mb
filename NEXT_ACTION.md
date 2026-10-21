@@ -1,3 +1,12 @@
+# 2026-10-21｜A完成Issue164后F06真实Runtime缺口核查，正式定向放行B Issue171非生产生命周期接线
+
+- **A独立核查结论**：[《Issue164后F06真实Runtime与Issuer剩余差异》](07_重建工作区/F06_Issue164后真实Runtime与Issuer剩余差异_A主控定向核查_2026-10-21.md)。[已验业务PR169](https://github.com/suzhe868-arch/mb/pull/169)单PG16 Composite完成Lock→合成Deposit→Transaction→Handoff→Cancel→Refund无付款closed，Issue164已关闭；其已验42/42+32/32+6/6+Legacy审计1/1原生事实、161父表24迁移跨OID封印全部复用，不回头重做。
+- **确认唯一新增可施工缺口**：`engineering/src/f06-nonprod-composite-runtime.mjs`新Composite单Runtime只装LockService/LockHandler及原有合成财务路由，**未挂载普通Lock Lifecycle**；旧`f06-lock-lifecycle-service.mjs`的环境校验、`f06_real_lock_test`、`DISPOSABLE_TEST_ONLY`员工Session/财务缺席proof固定旧`f06_lock_test/f06_lock_ci`单库，不能在新`f03_auth_test/f03_ci`中冒充可信Composite来源。旧Lifecycle逻辑和LockRequest 6小时/候补均已有，不重写状态机，只需可信同库来源接线与必要关联回归。
+- **A正式单包放行**：[Issue #171](https://github.com/suzhe868-arch/mb/issues/171)；[《Issue171 Composite普通Lock生命周期可信接线A正式B施工单》](07_重建工作区/F06_Issue171_Composite普通Lock生命周期可信接线_A主控B正式施工单_2026-10-21.md)。B从**本治理PR实际合并后的最新main**建立`feat/f06-nonprod-composite-lock-lifecycle-01`，仅按精确路径＋用途白名单复用已有代码做非生产普通Lock延期/释放/取消/PG时钟到期、Priority/资金/source强拒、真实PG16/HTTP并发幂等/rollback，原有Legacy入口完全不变。提交前`git diff --check`与全部改动JS`node --check`，同新SHA官方真实不少于16项新场景及定向关联回归，整包`READY_FOR_A_REVIEW`后统一交A；不得擅合并。
+- **正式唯一指针**：`NEXT_OWNER=B`、`NEXT_TASK=F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01`、`NEXT_ISSUE=171`、`NEXT_BRANCH=feat/f06-nonprod-composite-lock-lifecycle-01`。仍非生产隔离/可销毁/非特权PG16，**严禁真钱、正式生产Issuer、refunded、completed、线上接口/生产权限**；F06/F07/F08/V1仍`NOT_READY`，F07/F08后续独立B阶段未凭本单自动开工，C PR68不动。不能在白名单内合法接线则统一报告`BLOCKED_F06_COMPOSITE_LIFECYCLE_SIGNED_SOURCE_GAP`，不得伪造父来源。
+
+---
+
 # 2026-10-21｜A主控F06 Issue164第二轮独立终验通过，业务PR169已合并；接A核查剩余真实Issuer
 
 - **正式结论**：Issue [#164](https://github.com/suzhe868-arch/mb/issues/164) 已完成A第二轮独立增量验收并关闭；B末SHA `1feb1e4efa8120252950e3d2d5b808a76a5bdb2c`，同SHA官方[Run39560892258](https://github.com/suzhe868-arch/mb/actions/runs/39560892258)/Job119091597788 `completed/success`，非生产单PG16业务42/42、HTTP拒绝32/32、缺签拒绝6/6、独立Legacy审计1/1，0失败/跳过/取消；161张父表24迁移跨OID 22749→16387→22980完整Seal相同、无越权漂移，证据工件[12327089697](https://github.com/suzhe868-arch/mb/actions/runs/39560892258/artifacts/12327089697)有效至2026-11-04。
