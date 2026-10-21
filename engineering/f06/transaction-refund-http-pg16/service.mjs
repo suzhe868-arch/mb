@@ -2,8 +2,9 @@
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
-import {verify as verifyNativeRefund,checksum as refundParentSHA,connect as connectNativeRefund} from '../refund-pending-ci/migration.mjs';
-import {cancelSourceSHA} from '../transaction-cancel-http-pg16/service.mjs';
+import {verify as verifyNativeRefund,verifyComposite as verifyNativeRefundComposite,checksum as refundParentSHA,connect as connectNativeRefund} from '../refund-pending-ci/migration.mjs';
+import {cancelSourceSHA,verifyCompositeCancelSidecar} from '../transaction-cancel-http-pg16/service.mjs';
+import {assertCompositeSignedRun} from '../nonprod-single-runtime-integration/可信Composite签名根.mjs';
 import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
 const sql=readFileSync(new URL('./sidecar.sql',import.meta.url),'utf8');
 export const sourceSHA=createHash('sha256').update(sql).digest('hex');
@@ -41,9 +42,9 @@ export function gate(){
  assert.match(process.env.GITHUB_RUN_ID||'',/^[0-9]{6,20}$/);
 }
 export async function connect(){gate();return connectNativeRefund()}
-async function signedParents(c){
- gate();
- const parent=await verifyNativeRefund(c);
+async function signedParents(c,mode='CI_LEGACY'){
+ if(mode==='COMPOSITE_NONPROD_SIGNED_V1')assertCompositeSignedRun();else gate();
+ const parent=await (mode==='COMPOSITE_NONPROD_SIGNED_V1'?verifyNativeRefundComposite(c):verifyNativeRefund(c));
  if(!parent.verified||parent.sourceSHA!==refundParentSHA)throw Error('F06_TX_REFUND_NATIVE_3C1_PARENT_INVALID');
  const meta=await one(c,"SELECT current_database() db,current_user u,current_setting('server_version_num')::int ver,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su,(SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user) cdb");
  if(meta.db!=='f03_auth_test'||meta.u!=='f03_ci'||meta.su||meta.cdb||meta.ver<160000||meta.ver>=170000)
@@ -54,6 +55,7 @@ async function signedParents(c){
  if(catalog.sha256!==parent.publicCatalogSHA)throw Error('F06_TX_REFUND_PUBLIC_CATALOG_DRIFT');
  const schemas=await one(c,"SELECT to_regnamespace('f06_real_tx_ci') tx,to_regnamespace('f06_real_cancel_ci') ca,to_regnamespace('f06_real_tx_refund_ci') tr");
  if(!schemas?.tx||!schemas.ca)throw Error('F06_TX_REFUND_SIGNED_TRANSACTION_CANCEL_PARENTS_MISSING');
+ if(mode==='COMPOSITE_NONPROD_SIGNED_V1')await verifyCompositeCancelSidecar(c);
  const cancelAtt=await one(c,'SELECT * FROM f06_real_cancel_ci.attestation FOR SHARE');
  if(!cancelAtt||cancelAtt.seal_name!=='F06_REAL_CANCEL_CI_ONLY'||
   cancelAtt.source_sha256!==cancelSourceSHA||cancelAtt.f06_3c1_parent_sha256!==parent.sourceSHA||
@@ -62,8 +64,8 @@ async function signedParents(c){
   throw Error('F06_TX_REFUND_CANCEL_PARENT_SIGNATURE_DRIFT');
  return {parent,ledger:sha(ledger),catalog:parent.publicCatalogSHA};
 }
-export async function verify(c){
- const p=await signedParents(c);
+async function verifyByMode(c,mode='CI_LEGACY'){
+ const p=await signedParents(c,mode);
  const exists=await one(c,"SELECT to_regnamespace('f06_real_tx_refund_ci')::text n");
  if(!exists?.n)throw Error('F06_TX_REFUND_SIDECAR_MISSING');
  const a=await one(c,'SELECT * FROM f06_real_tx_refund_ci.attestation FOR SHARE');
@@ -74,8 +76,10 @@ export async function verify(c){
  return {verified:true,sourceSHA,cancelSourceSHA,parentRefundSHA:p.parent.sourceSHA,
   publicCatalogSHA:p.catalog,ledgerSHA:p.ledger,productionRefundIssuer:'SOURCE_GAP',actualPayment:'BLOCKED'};
 }
-export async function apply(c,{inject=false}={}){
- const p=await signedParents(c);
+export async function verify(c){return verifyByMode(c,'CI_LEGACY')}
+export async function verifyComposite(c){return verifyByMode(c,'COMPOSITE_NONPROD_SIGNED_V1')}
+async function applyByMode(c,{inject=false}={},mode='CI_LEGACY'){
+ const p=await signedParents(c,mode);
  if((await one(c,"SELECT to_regnamespace('f06_real_tx_refund_ci')::text n")).n)throw Error('F06_TX_REFUND_SIDECAR_ALREADY_APPLIED');
  await c.query('BEGIN');
  try{
@@ -87,8 +91,10 @@ export async function apply(c,{inject=false}={}){
   if((await getPublicStructure(c)).sha256!==p.catalog)throw Error('F06_TX_REFUND_PUBLIC_DDL_FORBIDDEN');
   await c.query('COMMIT');
  }catch(e){await c.query('ROLLBACK');throw e}
- return verify(c);
+ return verifyByMode(c,mode);
 }
+export async function apply(c,options={}){return applyByMode(c,options,'CI_LEGACY')}
+export async function applyComposite(c,options={}){return applyByMode(c,options,'COMPOSITE_NONPROD_SIGNED_V1')}
 async function currentPermission(c,a,t,permissionCode){
  if(!a||a.principal_kind!=='employee'||a.system_admin_id!==null||
   !['sales','manager','store_head'].includes(a.role_code)||a.force_password_change!==false||
@@ -258,11 +264,13 @@ async function finishSignedTransactionSource(c,t,txOrigin,txEvent,txKey,cancelOr
 }
 // Only the strictly named bridge entry can use this verifier. No caller-supplied source
 // or magic boolean is accepted: native PR156 parent and full PR153 version chain must pass.
-async function verifyTransactionSourcePostHandoff(c,t){
+async function verifyTransactionSourcePostHandoff(c,t,mode='CI_LEGACY'){
  if(!t||t.status!=='cancelled'||t.completed_at!==null)
   return no('F06_BRIDGE_ONLY_CANCELLED_TRANSACTION');
- const {verifyCancelledHandoffProvenance}=await import('../post-handoff-refund-bridge-http-pg16/签名来源只读核验.mjs');
- const signed=await verifyCancelledHandoffProvenance(c,Number(t.transaction_id));
+ const bridge=await import('../post-handoff-refund-bridge-http-pg16/签名来源只读核验.mjs');
+ const signed=mode==='COMPOSITE_NONPROD_SIGNED_V1'?
+  await bridge.verifyCancelledHandoffProvenanceComposite(c,Number(t.transaction_id)):
+  await bridge.verifyCancelledHandoffProvenance(c,Number(t.transaction_id));
  if(!signed.allowed)return signed;
  const txOrigin=await one(c,'SELECT * FROM f06_real_tx_ci.origins WHERE transaction_id=$1 FOR SHARE',[t.transaction_id]);
  const txEvent=await one(c,'SELECT * FROM f06_real_tx_ci.events WHERE transaction_id=$1 FOR SHARE',[t.transaction_id]);
@@ -426,13 +434,13 @@ async function existingKey(c,eventKey,{actorId,action,transactionId,payloadSha})
  const row=await one(c,'SELECT * FROM f06_real_tx_refund_ci.request_keys WHERE event_key_sha256=$1 FOR SHARE',[h]);
  return row?{row,conflict:keyConflict(row,{actorId,action,transactionId,payloadSha})}:null;
 }
-async function requestTransactionRefundCore(auth,token,p={},sourceVerifier){
- gate();
+async function requestTransactionRefundCore(auth,token,p={},sourceVerifier,mode='CI_LEGACY'){
+ if(mode==='COMPOSITE_NONPROD_SIGNED_V1')assertCompositeSignedRun();else gate();
  if(!id(p.transactionId)||!money(p.amountCents)||!reason(p.reason)||!key(p.eventKey))
   return no('F06_TX_REFUND_INVALID_REQUEST');
  try{
   const result=await auth.withSession(token,async(c,a)=>{
-   await verify(c);await c.query("SET LOCAL lock_timeout='1800ms'");
+   await (mode==='COMPOSITE_NONPROD_SIGNED_V1'?verifyComposite(c):verify(c));await c.query("SET LOCAL lock_timeout='1800ms'");
    const seed=await one(c,'SELECT vehicle_id FROM public.transactions WHERE transaction_id=$1',[p.transactionId]);
    if(!seed)return no('F06_TX_REFUND_TRANSACTION_NOT_FOUND');
    await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[seed.vehicle_id]);
@@ -479,6 +487,14 @@ async function requestTransactionRefundCore(auth,token,p={},sourceVerifier){
    await c.query("INSERT INTO f06_real_tx_refund_ci.request_keys(event_key_sha256,actor_employee_id,action,transaction_id,refund_id,payload_sha256) "+
     "VALUES($1,$2,'request',$3,$4,$5)",[h,a.employee_id,t.transaction_id,row.refund_id,fp]);
    await audit(c,a.employee_id,row.refund_id,'pending',{}, {status:'pending',issuer:'CI_SYNTHETIC_NO_MONEY'});
+   if(mode==='COMPOSITE_NONPROD_SIGNED_V1'){
+    const att=await one(c,"SELECT source_sha256,head_sha,run_id FROM f06_real_tx_refund_ci.attestation FOR SHARE");
+    if(!att)throw Error('F06_COMPOSITE_REFUND_PENDING_PARENT_GAP');
+    const payload={refundId:Number(row.refund_id),transactionId:Number(t.transaction_id),lockId:Number(t.source_lock_id),
+     customerId:Number(t.customer_id),vehicleId:Number(t.vehicle_id),amountCents:p.amountCents,sourceDigest:src.transactionDigest};
+    await c.query("INSERT INTO f06_composite_v1.issued_events(event_key_sha256,event_kind,parent_object_id,actor_kind,actor_id,source_parent_sha256,head_sha,run_id,payload_sha256) VALUES($1,'signed_refund_pending',$2,'employee',$3,$4,$5,$6,$7)",
+     [sha(['F06_COMPOSITE_REFUND_PENDING',payload]),row.refund_id,a.employee_id,att.source_sha256,att.head_sha,att.run_id,sha(payload)]);
+   }
    if(p.testCheckpoint==='AFTER_AUDIT_THROW')throw Error('F06_TX_REFUND_INJECTED_AUDIT_ROLLBACK');
    const finalSource=await sourceVerifier(c,t);
    if(!finalSource.allowed||finalSource.transactionDigest!==src.transactionDigest||
@@ -497,8 +513,8 @@ async function requestTransactionRefundCore(auth,token,p={},sourceVerifier){
   throw e;
  }
 }
-async function closeTransactionRefundCore(auth,token,p={},sourceVerifier){
- gate();
+async function closeTransactionRefundCore(auth,token,p={},sourceVerifier,mode='CI_LEGACY'){
+ if(mode==='COMPOSITE_NONPROD_SIGNED_V1')assertCompositeSignedRun();else gate();
  if(!id(p.refundId)||!reason(p.closeReason)||!key(p.eventKey))return no('F06_TX_REFUND_INVALID_CLOSE');
  try{
   const result=await auth.withSession(token,async(c,a)=>{
@@ -541,6 +557,14 @@ async function closeTransactionRefundCore(auth,token,p={},sourceVerifier){
    await c.query("INSERT INTO f06_real_tx_refund_ci.request_keys(event_key_sha256,actor_employee_id,action,transaction_id,refund_id,payload_sha256) "+
     "VALUES($1,$2,'close',$3,$4,$5)",[h,a.employee_id,t.transaction_id,p.refundId,fp]);
    await audit(c,a.employee_id,p.refundId,'closed',{status:'pending'},{status:'closed',closeReason:p.closeReason.trim(),realPayment:false});
+   if(mode==='COMPOSITE_NONPROD_SIGNED_V1'){
+    const att=await one(c,"SELECT source_sha256,head_sha,run_id FROM f06_real_tx_refund_ci.attestation FOR SHARE");
+    if(!att)throw Error('F06_COMPOSITE_REFUND_CLOSE_PARENT_GAP');
+    const payload={refundId:Number(p.refundId),transactionId:Number(t.transaction_id),lockId:Number(t.source_lock_id),
+     customerId:Number(t.customer_id),vehicleId:Number(t.vehicle_id),closeReason:p.closeReason.trim(),noPayment:true};
+    await c.query("INSERT INTO f06_composite_v1.issued_events(event_key_sha256,event_kind,parent_object_id,actor_kind,actor_id,source_parent_sha256,head_sha,run_id,payload_sha256) VALUES($1,'signed_refund_closed',$2,'employee',$3,$4,$5,$6,$7)",
+     [sha(['F06_COMPOSITE_REFUND_CLOSED',payload]),p.refundId,a.employee_id,att.source_sha256,att.head_sha,att.run_id,sha(payload)]);
+   }
    if(p.testCheckpoint==='AFTER_AUDIT_THROW')throw Error('F06_TX_REFUND_INJECTED_CLOSE_AUDIT_ROLLBACK');
    const final=await one(c,'SELECT status,lock_id,transaction_id,closed_at,close_reason FROM public.refund_cases WHERE refund_id=$1',[p.refundId]);
    if(final.status!=='closed'||final.lock_id!==null||Number(final.transaction_id)!==Number(t.transaction_id)||!final.closed_at||final.close_reason!==p.closeReason.trim())
@@ -561,16 +585,22 @@ async function closeTransactionRefundCore(auth,token,p={},sourceVerifier){
 // Public APIs bind exact signed provenance validators, never an arbitrary verifier
 // or caller-submitted trust flag. The old PR150 API remains PR146-only.
 export async function requestTransactionRefundCI(auth,token,p={}){
- return requestTransactionRefundCore(auth,token,p,verifyTransactionSource);
+ return requestTransactionRefundCore(auth,token,p,verifyTransactionSource,'CI_LEGACY');
 }
 export async function closeTransactionRefundCI(auth,token,p={}){
- return closeTransactionRefundCore(auth,token,p,verifyTransactionSource);
+ return closeTransactionRefundCore(auth,token,p,verifyTransactionSource,'CI_LEGACY');
 }
 export async function requestSignedHandoffRefundCI(auth,token,p={}){
- return requestTransactionRefundCore(auth,token,p,verifyTransactionSourcePostHandoff);
+ return requestTransactionRefundCore(auth,token,p,(c,t)=>verifyTransactionSourcePostHandoff(c,t,'CI_LEGACY'),'CI_LEGACY');
 }
 export async function closeSignedHandoffRefundCI(auth,token,p={}){
- return closeTransactionRefundCore(auth,token,p,verifyTransactionSourcePostHandoff);
+ return closeTransactionRefundCore(auth,token,p,(c,t)=>verifyTransactionSourcePostHandoff(c,t,'CI_LEGACY'),'CI_LEGACY');
+}
+export async function requestSignedHandoffRefundComposite(auth,token,p={}){
+ return requestTransactionRefundCore(auth,token,p,(c,t)=>verifyTransactionSourcePostHandoff(c,t,'COMPOSITE_NONPROD_SIGNED_V1'),'COMPOSITE_NONPROD_SIGNED_V1');
+}
+export async function closeSignedHandoffRefundComposite(auth,token,p={}){
+ return closeTransactionRefundCore(auth,token,p,(c,t)=>verifyTransactionSourcePostHandoff(c,t,'COMPOSITE_NONPROD_SIGNED_V1'),'COMPOSITE_NONPROD_SIGNED_V1');
 }
 export const productionRefundIssuerDeny=()=>no('F06_TX_REFUND_PRODUCTION_ISSUER_NOT_WIRED');
 export const refundedDeny=()=>no('F06_TX_REFUND_ACTUAL_REFUND_PAYMENT_NOT_AUTHORIZED');
