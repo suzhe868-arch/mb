@@ -5,7 +5,7 @@
 > Coverage：`SOURCE_DECISION_COVERAGE = 100%`  
 > Final→Source：`100%`  
 > Unmapped：`0`  
-> 2026-10-05 完成 Legacy Final Integrity Audit；用户新增裁决 3A：上游电话入口只属于当前批发 source_type。
+> 2026-10-05 完成 Legacy Final Integrity Audit；用户新增裁决 3A：上游电话入口只属于当前批发 source_type。2026-10-22 用户显式批准“按员工单独授权 + 两种上游电话访问范围”，详见第 2 节；该裁决不代表真实 Collector/JYT 来源或物理权限接线已完成。
 
 ---
 
@@ -29,7 +29,7 @@
 4. 员工必须同时满足：
    - active 有效员工身份；
    - 当前 Vehicle 的 `source_type = wholesale / JYT 批发`；
-   - 当前车辆在本人 data scope；
+   - 当前车辆命中该员工针对 `publisher.phone.sensitive` 配置的上游电话专项访问范围；该专项范围按本节第 10–15 条判定，不扩大通用车辆经营 data scope；
    - 具备上游电话敏感能力；
    才能查看电话区域、获取最新电话、拨号。
 5. 无电话权限时整个电话区域不显示。
@@ -37,6 +37,12 @@
 7. 4S 身份本身不自动获得电话权限。
 8. **3A｜source_type 电话入口裁剪**：上游电话是“当前批发车源”的日常敏感业务能力；同一 Vehicle 完成批发 → 名邦转换后，即使仍保留历史 `upstream_publisher_id`，车辆详情也不再展示、刷新或拨打原上游发布人电话；当前为 4S 来源同样不得因历史 publisher 事实自动出现电话入口。
 9. 3A 只关闭当前车辆详情的日常业务入口，不删除 publisher 来源事实、当前缓存、history 或既有审计；P03-05 在合法诊断/历史场景仍可保留 publisher 记录。
+10. **后台配置位置与授权方式**：在 PC 后台「员工管理 → 员工详情 → 权限设置」中，对单个员工独立配置既有 `publisher.phone.sensitive` 能力，并为该能力选择且仅选择一种访问范围。配置人必须服从 PDM-02 现有员工权限治理权限及 data scope，不因本项规则向经理、店长或其他角色新增配置权。
+11. **范围模式一 `LOCKED_ONLY`｜仅当前有效锁定车辆可联系**：员工已被单独授予 `publisher.phone.sensitive` 且当前车辆存在有效、未过期、未取消的正式 Lock 状态时，才允许查看/获取该车上游电话。仅 LockRequest 申请中、被拒绝、已取消或已过期均不满足。批发车不需要逐车指定员工负责人；本模式依据现有车辆 Lock 状态判定，不引入单车 owner。
+12. **范围模式二 `ALL_ACTIVE_JYT`｜全部当前在售 JYT 批发车可联系**：员工已被单独授予 `publisher.phone.sensitive` 后，可查看/获取所有符合现有车源状态规则、当前仍在售的 JYT/wholesale 车辆上游电话，无须先有 Lock 或 Transaction，也不要求逐车指定负责人。已转为名邦/4S 来源或已下架的车辆不符合本模式。
+13. 两种模式是该敏感能力的**专项访问范围**，是 PDM-02「permission + data scope + object state」模型在上游电话动作上的具体配置；它们不改变员工通用车辆经营 data scope，也不授予车辆编辑、转名邦、下架/隐藏、锁车审批、Transaction、价格或资金权限。不得新增独立的 `can_call_wholesale_phone` 权限。
+14. 未开通 `publisher.phone.sensitive`、员工非 active、存在个人 deny/hard DENY、车辆当前 source/state 不符合条件，或当前专项范围不满足时，必须拒绝电话读取、获取最新电话和拨号；无权限时整个电话区域不显示。
+15. 后台授予/撤销该能力或变更范围模式必须依 PDM-02 留存审计；每次敏感读取、取号和拨号均按当时最新的员工状态、permission/deny、当前车辆 source/state、当前 Lock 状态及专项范围重新校验。撤权或锁定到期后，旧页面/缓存不得继续允许后续操作。
 
 ---
 
