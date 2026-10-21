@@ -9,7 +9,8 @@
 - 当前阻断报告：`07_重建工作区/A_Issue187外部系统未准备阻断登记与独立工作盘点_2026-10-22.md`
 - 用户已确认：JYT/Collector、图片存储/CDN、飞书均尚未准备；依赖台账已记录为用户确认状态。
 - F08-3 Issue #190 已关闭、业务 PR #193 已标准合并；治理 PR #194 已标准合并。已有测试与证据直接复用，不重复 F08-2 的 58+7 或 F08-3 的 43+26+16。
-- A 已完成现有仓库、正式 F03/F05 来源门禁、外部依赖台账和父 Issue 的增量核查。当前没有新的、可合法验收且不依赖缺失资源的 B 业务差异；不发重复模拟施工包。
+- A 已完成现有仓库、正式 F03/F05 来源门禁、外部依赖台账和父 Issue 的增量核查。
+- **新增电话权限后端核查结论（PR #199 后）：** F08-3 PR #193 仅为 `CI_SYNTHETIC_ONLY`；配置路由仍在固定测试 REF 的 `__ci__` 路径，F04 Current 电话合同仍 `CI_ONLY_PROPOSED / NOT_PRODUCTION`。正式 F03 reader 仍 `finalAllowed=false`，SG01/SG08 正式范围与 publisher 映射仍 `MISSING_PROPOSAL`。因此后端功能尚未正式完成，但当前 Issue #187 来源/授权门禁未解除，不能通过重复合成测试或擅自改冻结 F03 来解决；不发新 B 施工包。跟踪：[Issue #187](https://github.com/suzhe868-arch/mb/issues/187)、[页面延期 Issue #196](https://github.com/suzhe868-arch/mb/issues/196)。
 - 解锁条件：获批的 JYT/Collector 非生产端点及可信 publisher 来源、真实对象存储/CDN 测试资源、飞书测试租户/机器人/群和路由授权；另需正式 F03 capability/Vehicle Scope/Object 与 F05 转换 Issuer 的可核验证据。凭据只通过批准的密钥托管提供。
 - F06/F07/F08/V1 继续 `NOT_READY / NO_PRODUCTION`。不授权生产、真实电话、外部公网调用、真实资金、退款或成交。F08 正常阶段通过验收后，整个 B 后端最终整体验收仍由 A 独立负责；C PR #68 不动。
 
