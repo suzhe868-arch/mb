@@ -225,6 +225,12 @@ test('Issue171: Native PG16 Composite ordinary-lock lifecycle & immutable issuer
   const fakeIssuer=await post(base,'/__nonprod__/f06-composite/locks/'+lock1+'/actions',initialToken,
    {action:'release',idempotencyKey:'issue171_fake_issuer_'+process.env.GITHUB_RUN_ID,reason:'Client issuer spoof',issuer:'PRODUCTION'});
   await t.test('11 客户自报Issuer字段被拒',()=>assert.equal(fakeIssuer.status,400));
+  const injectedQuery=await post(base,'/__nonprod__/f06-composite/locks/'+lock1+'/actions?trusted=true',initialToken,
+   {action:'release',idempotencyKey:'issue171_forbidden_query_'+process.env.GITHUB_RUN_ID,reason:'No client query'});
+  await t.test('11A Lifecycle动作查询参数不允许夹带自述权限',()=>{
+   assert.equal(injectedQuery.status,400,JSON.stringify(injectedQuery.body));
+   assert.equal(injectedQuery.body.code,'LIFECYCLE_QUERY_PARAMETERS_FORBIDDEN');
+  });
   const release=await post(base,'/__nonprod__/f06-composite/locks/'+lock2+'/actions',initialToken,
    {action:'release',idempotencyKey:'issue171_release_'+process.env.GITHUB_RUN_ID,reason:'Synthetic release'});
   await t.test('12 普通无资金Lock人工释放成功',()=>{
@@ -303,6 +309,12 @@ test('Issue171: Native PG16 Composite ordinary-lock lifecycle & immutable issuer
    await assert.rejects(db.query("UPDATE f06_composite_lifecycle_v2.lock_lifecycle_events SET reason='edited' WHERE lock_id=$1",[lock6]),/IMMUTABLE/);
    await assert.rejects(db.query("DELETE FROM f06_composite_lifecycle_v2.lock_lifecycle_events WHERE lock_id=$1",[lock6]),/IMMUTABLE/);
   });
+  await t.test('22A 新生命周期不可变Event禁止TRUNCATE旁路',async()=>{
+   await assert.rejects(db.query('TRUNCATE f06_composite_lifecycle_v2.lock_lifecycle_events'),/IMMUTABLE/);
+  });
+  await t.test('22B 新生命周期Issuer证明禁止TRUNCATE旁路',async()=>{
+   await assert.rejects(db.query('TRUNCATE f06_composite_lifecycle_v2.attestation'),/IMMUTABLE/);
+  });
   await t.test('23 同PG提交后所有业务Lock结果真实可读',async()=>{
    const rows=(await db.query("SELECT lock_id,lock_status FROM public.locks WHERE lock_id=ANY($1::bigint[])",[[lock1,lock2,lock3,lock4,lock5,lock6]])).rows;
    const values=new Map(rows.map(x=>[String(x.lock_id),x.lock_status]));
@@ -326,7 +338,7 @@ test('Issue171: Native PG16 Composite ordinary-lock lifecycle & immutable issuer
    const r=await fetch(base+'/api/v1/refund-payments',{method:'POST'});
    assert.equal(r.status,503);
   });
-  t.diagnostic('F06_171_NATIVE_SIGNED_LOCK_LIFECYCLE_26_CASES_PASS');
+  t.diagnostic('F06_171_NATIVE_SIGNED_LOCK_LIFECYCLE_29_CASES_PASS');
  }finally{
   console.log('F06_171_PHASE_BEGIN','cleanup');
   if(server){server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}

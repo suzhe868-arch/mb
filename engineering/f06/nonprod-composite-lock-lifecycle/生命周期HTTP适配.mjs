@@ -9,9 +9,11 @@ export function createCompositeLifecycleHandler({service,env=process.env}={}){
  if(env.APP_ENV!=='test'||env.NODE_ENV!=='test'||env.API_HOST!=='127.0.0.1')
   throw Error('F06_171_TEST_ONLY');
  return async(req,res)=>{
-  const pathname=String(req.url||'').split('?')[0];
+  const raw=String(req.url||'');
+  const pathname=raw.split('?')[0];
   const match=/^\/__nonprod__\/f06-composite\/locks\/([1-9][0-9]{0,18})\/actions$/.exec(pathname);
   if(!match)return false;
+  if(raw!==pathname){write(res,400,{code:'LIFECYCLE_QUERY_PARAMETERS_FORBIDDEN'});return true}
   if(!['127.0.0.1','::1','::ffff:127.0.0.1'].includes(req.socket?.remoteAddress)||
     req.headers.host!=="127.0.0.1:"+req.socket?.localPort||
     req.headers.cookie||req.headers['transfer-encoding']||

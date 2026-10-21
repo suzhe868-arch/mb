@@ -22,7 +22,7 @@ function tap(relative,min){
  return {tests,passed,content};
 }
 const previous=tap('../nonprod-single-runtime-integration/evidence/单Runtime闭环_TAP.log',42);
-const current=tap('./evidence/Issue171_Lifecycle_TAP.log',27);
+const current=tap('./evidence/Issue171_Lifecycle_TAP.log',30);
 const legacy=tap('../nonprod-single-runtime-integration/evidence/Legacy审计真实PG16_TAP.log',1);
 const legacyService=tap('./evidence/Legacy生命周期Service_TAP.log',12);
 const legacyHttp=tap('./evidence/Legacy生命周期HTTP_TAP.log',18);
@@ -30,7 +30,7 @@ const legacyNative=tap('./evidence/Legacy生命周期PG16_TAP.log',13);
 assert.ok(legacyNative.content.includes('F06_171_AFFECTED_LEGACY_LIFECYCLE_REAL_PG16_PASS'),
  'native PG16 affected CI_LEGACY lifecycle service regression missing');
 assert.ok(previous.content.includes('F06_164_SINGLE_PG16_CURRENT_RUN_ISSUER_AND_ALL_NINE_BUSINESS_EVENTS_VERIFIED'),'prior signed business chain missing');
-assert.ok(current.content.includes('F06_171_NATIVE_SIGNED_LOCK_LIFECYCLE_26_CASES_PASS'),'new 26 executable PG16 scenarios missing');
+assert.ok(current.content.includes('F06_171_NATIVE_SIGNED_LOCK_LIFECYCLE_29_CASES_PASS'),'new 26 executable PG16 scenarios missing');
 assert.ok(current.content.includes('F06_171_NATIVE_PG16_NON_SUPERUSER'),'new non-superuser physical PG identity missing');
 assert.ok(legacy.content.includes('F06_164_LEGACY_AUDIT_DB_PASS'),'old CI_LEGACY native audit compatibility missing');
 const parent=log('../nonprod-single-runtime-integration/evidence/父链签名与初始化.log');

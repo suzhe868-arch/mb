@@ -45,7 +45,7 @@ export async function verifyLifecycleIssuer(db,env=process.env){
  const triggers=(await db.query("SELECT count(*)::int n FROM pg_trigger WHERE NOT tgisinternal "+
   "AND tgrelid IN ('f06_composite_lifecycle_v2.attestation'::regclass,"+
   "'f06_composite_lifecycle_v2.lock_lifecycle_events'::regclass)")).rows[0];
- if(triggers?.n!==2)throw Error('F06_171_LIFECYCLE_HISTORY_NOT_IMMUTABLE');
+ if(triggers?.n!==4)throw Error('F06_171_LIFECYCLE_HISTORY_NOT_IMMUTABLE');
  return Object.freeze({verified:true,issuer:sealName,parentSHA:a.parent_source_sha256,
   sourceSHA:a.source_sha256,sha:a.head_sha,runId:a.run_id,oid:String(a.database_oid),productionReady:false});
 }

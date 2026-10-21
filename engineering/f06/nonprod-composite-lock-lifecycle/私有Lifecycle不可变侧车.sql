@@ -40,3 +40,9 @@ CREATE TRIGGER prevent_attestation_mutation BEFORE UPDATE OR DELETE
 CREATE TRIGGER prevent_event_mutation BEFORE UPDATE OR DELETE
  ON f06_composite_lifecycle_v2.lock_lifecycle_events FOR EACH ROW
  EXECUTE FUNCTION f06_composite_lifecycle_v2.reject_mutation();
+CREATE TRIGGER prevent_attestation_truncate BEFORE TRUNCATE
+ ON f06_composite_lifecycle_v2.attestation FOR EACH STATEMENT
+ EXECUTE FUNCTION f06_composite_lifecycle_v2.reject_mutation();
+CREATE TRIGGER prevent_event_truncate BEFORE TRUNCATE
+ ON f06_composite_lifecycle_v2.lock_lifecycle_events FOR EACH STATEMENT
+ EXECUTE FUNCTION f06_composite_lifecycle_v2.reject_mutation();

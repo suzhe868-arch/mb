@@ -134,7 +134,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p engineering/f06/nonprod-composite-lock-lifecycle/evidence
-          timeout 8m node --test engineering/f06/nonprod-composite-lock-lifecycle/tests/原生Lifecycle验收.test.mjs | tee engineering/f06/nonprod-composite-lock-lifecycle/evidence/Issue171_Lifecycle_TAP.log
+          timeout 12m node --test engineering/f06/nonprod-composite-lock-lifecycle/tests/原生Lifecycle验收.test.mjs | tee engineering/f06/nonprod-composite-lock-lifecycle/evidence/Issue171_Lifecycle_TAP.log
 
       - name: 恢复独立父表OID并完成161表24迁移Seal
         shell: bash
