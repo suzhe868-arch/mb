@@ -1,0 +1,236 @@
+name: F07 Nonproduction Runtime Four-Domain Integration
+
+on:
+  push:
+    branches:
+      - feat/f07-runtime-integration-nonprod-01
+    paths:
+      - 'engineering/src/app.mjs'
+      - 'engineering/src/server.mjs'
+      - 'engineering/src/f07-runtime/**'
+      - 'engineering/f07/nonprod-runtime-integration/**'
+      - '.github/workflows/f07-runtime-integration-nonprod.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  runtime_business_pg16:
+    name: Runtime Business Integration PG16
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F07_RUNTIME_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F07_RUNTIME_ONLY
+      DATABASE_URL: postgres://f07_runtime_ci:f07_runtime_only@127.0.0.1:5432/f07_runtime_test
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F07_RUNTIME_TLS_KEY_PATH: /tmp/f07-runtime-key.pem
+      F07_RUNTIME_TLS_CERT_PATH: /tmp/f07-runtime-cert.pem
+      API_HOST: 127.0.0.1
+      API_PORT: '4317'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 创建隔离 PG16 数据库与非超级用户
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f07_runtime_ci LOGIN PASSWORD 'f07_runtime_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f07_runtime_test OWNER f07_runtime_ci;"
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f03_ci LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f03_auth_test OWNER f03_ci;"
+          psql "$DATABASE_URL" -AtF $'\t' -v ON_ERROR_STOP=1 -c "SELECT current_database(),current_user,current_setting('server_version_num'),(SELECT rolsuper FROM pg_roles WHERE rolname=current_user),(SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user),(SELECT rolcreaterole FROM pg_roles WHERE rolname=current_user),(SELECT oid FROM pg_database WHERE datname=current_database()),pg_backend_pid()" | tee f07-runtime-identity.tsv
+      - name: 安装锁定版工程依赖
+        run: npm --prefix engineering ci --ignore-scripts --no-audit --no-fund
+      - name: 生成仅当前 Runner 使用的临时密钥与 loopback TLS 证书
+        shell: bash
+        run: |
+          set -euo pipefail
+          callback_secret="$(openssl rand -hex 48)"
+          f03_key="$(openssl rand -base64 32)"
+          echo "::add-mask::$callback_secret"
+          echo "::add-mask::$f03_key"
+          printf 'F07_COLLECTOR_TEST_SECRET=%s\n' "$callback_secret" >> "$GITHUB_ENV"
+          printf 'F03_1_HMAC_KEY_BASE64=%s\n' "$f03_key" >> "$GITHUB_ENV"
+          unset callback_secret f03_key
+          openssl req -x509 -newkey rsa:2048 -nodes -keyout "$F07_RUNTIME_TLS_KEY_PATH" -out "$F07_RUNTIME_TLS_CERT_PATH" -days 1 -subj '/CN=127.0.0.1' -addext 'subjectAltName=IP:127.0.0.1'
+      - name: 建立并验签真实 F03 PG16 测试源
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f03-1/runner.mjs --bootstrap 2>&1 | tee f07-runtime-f03-bootstrap.log
+          node engineering/f03-1/runner.mjs --apply 2>&1 | tee -a f07-runtime-f03-bootstrap.log
+          node engineering/f03-1/runner.mjs --verify 2>&1 | tee -a f07-runtime-f03-bootstrap.log
+          node engineering/f03-1/fixtures.mjs 2>&1 | tee -a f07-runtime-f03-bootstrap.log
+      - name: 白名单、语法与差异空白门禁
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git diff --check origin/main...HEAD
+          for f in engineering/src/app.mjs engineering/src/server.mjs engineering/src/f07-runtime/runtime.mjs engineering/f07/nonprod-runtime-integration/tests/business.test.mjs engineering/f07/nonprod-runtime-integration/tests/https.test.mjs; do node --check "$f"; done
+          test "$(git diff --name-only origin/main...HEAD | grep -vc '^$')" -gt 0
+          if git diff --name-only origin/main...HEAD | grep -Ev '^(engineering/src/app\.mjs|engineering/src/server\.mjs|engineering/src/f07-runtime/.*|engineering/f07/nonprod-runtime-integration/.*|\.github/workflows/f07-runtime-integration-nonprod\.yml)$'; then
+            echo 'F07_RUNTIME_FILE_ALLOWLIST_VIOLATION'
+            exit 1
+          fi
+      - name: 应用入口集成业务与安全场景（真实 PG16）
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f07/nonprod-runtime-integration/tests/business.test.mjs 2>&1 | tee f07-runtime-business.log
+          grep -q 'F07_RUNTIME_INTEGRATION_24_BUSINESS_SCENARIOS_PASS' f07-runtime-business.log
+          grep -q '# fail 0' f07-runtime-business.log
+      - name: 归档本 Job 的真实 Run/SHA/数据库证据
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf 'commit\t%s\nrun_id\t%s\nref\t%s\njob\truntime_business_pg16\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_REF" > f07-runtime-run-evidence.tsv
+          if [ -f f07-runtime-identity.tsv ]; then cat f07-runtime-identity.tsv >> f07-runtime-run-evidence.tsv; fi
+      - name: 上传非空官方业务验收工件
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f07-runtime-business-pg16-${{{ github.sha }}
+          path: |
+            f07-runtime-business.log
+            f07-runtime-identity.tsv
+            f07-runtime-run-evidence.tsv
+            f07-runtime-f03-bootstrap.log
+            engineering/f07/nonprod-runtime-integration/有效业务用例矩阵.tsv
+            engineering/f07/nonprod-runtime-integration/来源与权限矩阵.tsv
+            engineering/f07/nonprod-runtime-integration/SOURCE_GAP与外部授权依赖台账.tsv
+          if-no-files-found: error
+          retention-days: 14
+
+  runtime_https_pg16:
+    name: Runtime HTTPS Blackbox PG16
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F07_RUNTIME_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F07_RUNTIME_ONLY
+      DATABASE_URL: postgres://f07_runtime_ci:f07_runtime_only@127.0.0.1:5432/f07_runtime_test
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F07_RUNTIME_TLS_KEY_PATH: /tmp/f07-runtime-key.pem
+      F07_RUNTIME_TLS_CERT_PATH: /tmp/f07-runtime-cert.pem
+      API_HOST: 127.0.0.1
+      API_PORT: '4317'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 创建独立 PG16 非超级用户数据库
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f07_runtime_ci LOGIN PASSWORD 'f07_runtime_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f07_runtime_test OWNER f07_runtime_ci;"
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f03_ci LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f03_auth_test OWNER f03_ci;"
+          psql "$DATABASE_URL" -AtF $'\t' -v ON_ERROR_STOP=1 -c "SELECT current_database(),current_user,current_setting('server_version_num'),(SELECT rolsuper FROM pg_roles WHERE rolname=current_user),(SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user),(SELECT rolcreaterole FROM pg_roles WHERE rolname=current_user),(SELECT oid FROM pg_database WHERE datname=current_database()),pg_backend_pid()" | tee f07-runtime-identity.tsv
+      - name: 安装锁定版工程依赖
+        run: npm --prefix engineering ci --ignore-scripts --no-audit --no-fund
+      - name: 生成仅当前 Runner 使用的临时密钥与 loopback TLS 证书
+        shell: bash
+        run: |
+          set -euo pipefail
+          callback_secret="$(openssl rand -hex 48)"
+          f03_key="$(openssl rand -base64 32)"
+          echo "::add-mask::$callback_secret"
+          echo "::add-mask::$f03_key"
+          printf 'F07_COLLECTOR_TEST_SECRET=%s\n' "$callback_secret" >> "$GITHUB_ENV"
+          printf 'F03_1_HMAC_KEY_BASE64=%s\n' "$f03_key" >> "$GITHUB_ENV"
+          unset callback_secret f03_key
+          openssl req -x509 -newkey rsa:2048 -nodes -keyout "$F07_RUNTIME_TLS_KEY_PATH" -out "$F07_RUNTIME_TLS_CERT_PATH" -days 1 -subj '/CN=127.0.0.1' -addext 'subjectAltName=IP:127.0.0.1'
+      - name: 建立并验签真实 F03 PG16 测试源
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f03-1/runner.mjs --bootstrap 2>&1 | tee f07-runtime-f03-bootstrap.log
+          node engineering/f03-1/runner.mjs --apply 2>&1 | tee -a f07-runtime-f03-bootstrap.log
+          node engineering/f03-1/runner.mjs --verify 2>&1 | tee -a f07-runtime-f03-bootstrap.log
+          node engineering/f03-1/fixtures.mjs 2>&1 | tee -a f07-runtime-f03-bootstrap.log
+      - name: 白名单、语法与差异空白门禁
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git diff --check origin/main...HEAD
+          for f in engineering/src/app.mjs engineering/src/server.mjs engineering/src/f07-runtime/runtime.mjs engineering/f07/nonprod-runtime-integration/tests/business.test.mjs engineering/f07/nonprod-runtime-integration/tests/https.test.mjs; do node --check "$f"; done
+          test "$(git diff --name-only origin/main...HEAD | grep -vc '^$')" -gt 0
+          if git diff --name-only origin/main...HEAD | grep -Ev '^(engineering/src/app\.mjs|engineering/src/server\.mjs|engineering/src/f07-runtime/.*|engineering/f07/nonprod-runtime-integration/.*|\.github/workflows/f07-runtime-integration-nonprod\.yml)$'; then
+            echo 'F07_RUNTIME_FILE_ALLOWLIST_VIOLATION'
+            exit 1
+          fi
+      - name: 实际 server.mjs loopback HTTPS 黑箱（真实 PG16）
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f07/nonprod-runtime-integration/tests/https.test.mjs 2>&1 | tee f07-runtime-https.log
+          grep -q 'F07_RUNTIME_HTTPS_BLACKBOX_15_SCENARIOS_PASS' f07-runtime-https.log
+          grep -q '# fail 0' f07-runtime-https.log
+      - name: 归档本 Job 的真实 Run/SHA/数据库证据
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf 'commit\t%s\nrun_id\t%s\nref\t%s\njob\truntime_https_pg16\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_REF" > f07-runtime-run-evidence.tsv
+          if [ -f f07-runtime-identity.tsv ]; then cat f07-runtime-identity.tsv >> f07-runtime-run-evidence.tsv; fi
+      - name: 上传非空官方 HTTPS 验收工件
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f07-runtime-https-pg16-${{{ github.sha }}
+          path: |
+            f07-runtime-https.log
+            f07-runtime-identity.tsv
+            f07-runtime-run-evidence.tsv
+            f07-runtime-f03-bootstrap.log
+            engineering/f07/nonprod-runtime-integration/有效业务用例矩阵.tsv
+            engineering/f07/nonprod-runtime-integration/来源与权限矩阵.tsv
+            engineering/f07/nonprod-runtime-integration/SOURCE_GAP与外部授权依赖台账.tsv
+          if-no-files-found: error
+          retention-days: 14
