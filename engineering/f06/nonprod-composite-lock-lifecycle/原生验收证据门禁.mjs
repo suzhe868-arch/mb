@@ -24,6 +24,11 @@ function tap(relative,min){
 const previous=tap('../nonprod-single-runtime-integration/evidence/单Runtime闭环_TAP.log',42);
 const current=tap('./evidence/Issue171_Lifecycle_TAP.log',27);
 const legacy=tap('../nonprod-single-runtime-integration/evidence/Legacy审计真实PG16_TAP.log',1);
+const legacyService=tap('./evidence/Legacy生命周期Service_TAP.log',12);
+const legacyHttp=tap('./evidence/Legacy生命周期HTTP_TAP.log',18);
+const legacyNative=tap('./evidence/Legacy生命周期PG16_TAP.log',32);
+assert.ok(legacyNative.content.includes('F06_LOCK_LIFECYCLE_PG16_ACCEPTANCE_PASS'),
+ 'original native Lifecycle acceptance launcher must pass');
 assert.ok(previous.content.includes('F06_164_SINGLE_PG16_CURRENT_RUN_ISSUER_AND_ALL_NINE_BUSINESS_EVENTS_VERIFIED'),'prior signed business chain missing');
 assert.ok(current.content.includes('F06_171_NATIVE_SIGNED_LOCK_LIFECYCLE_26_CASES_PASS'),'new 26 executable PG16 scenarios missing');
 assert.ok(current.content.includes('F06_171_NATIVE_PG16_NON_SUPERUSER'),'new non-superuser physical PG identity missing');
@@ -48,7 +53,7 @@ assert.equal(seal.baselineSeal,seal.restoredSeal);
 assert.equal(seal.unauthorizedParentDrift,false,'modified immutable parent tables detected');
 console.log('F06_171_FULL_SIGNED_NATIVE_PG16_PASS',JSON.stringify({
  sha,runId:run,nativeLifecycleCases:current.tests,previousCompositeCases:previous.tests,
- legacyAuditCases:legacy.tests,parentTables:161,signedMigrations:24,crossOidSeal:true,
+ legacyAuditCases:legacy.tests,legacyLifecycleNodeCases:legacyService.tests+legacyHttp.tests,legacyLifecycleNativeCases:legacyNative.tests,parentTables:161,signedMigrations:24,crossOidSeal:true,
  oidBefore:seal.sourceOidBefore,oidBaseline:seal.baselineOid,oidRestore:seal.restoreOid,
  parentSeal:seal.baselineSeal,productionReady:false,status:'READY_FOR_A_REVIEW'
 }));

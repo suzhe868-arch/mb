@@ -169,6 +169,36 @@ jobs:
           node --test engineering/f06/nonprod-single-runtime-integration/tests/真实PG16旧Legacy审计落库.test.mjs |
             tee engineering/f06/nonprod-single-runtime-integration/evidence/Legacy审计真实PG16_TAP.log
 
+      - name: 冻结Legacy生命周期真实Node正反合同回归
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p engineering/f06/nonprod-composite-lock-lifecycle/evidence
+          node --test engineering/tests/f06-lock-lifecycle-service.test.mjs |
+            tee engineering/f06/nonprod-composite-lock-lifecycle/evidence/Legacy生命周期Service_TAP.log
+          node --test engineering/tests/f06-lock-lifecycle-http.test.mjs |
+            tee engineering/f06/nonprod-composite-lock-lifecycle/evidence/Legacy生命周期HTTP_TAP.log
+
+      - name: 冻结Legacy生命周期原生PG16安全关联回归
+        shell: bash
+        run: |
+          set -euo pipefail
+          export APP_ENV=test NODE_ENV=test CI=true API_HOST=127.0.0.1
+          export F06_LOCK_TEST_CONSENT=I_AUTHORIZE_DISPOSABLE_F06_LOCK_PG16_ONLY
+          export F06_LOCK_DATABASE_URL='postgres://f06_lock_ci:synthetic_only@127.0.0.1:5432/f06_lock_test'
+          export F06_LOCK_LIFECYCLE_TEST_CONSENT=I_AUTHORIZE_DISPOSABLE_F06_LOCK_LIFECYCLE_ONLY
+          export F06_LOCK_LIFECYCLE_EXPIRY_CONSENT=I_AUTHORIZE_DISPOSABLE_F06_LOCK_EXPIRY_ONLY
+          (
+            cd engineering
+            node scripts/f06-lock-pg16-acceptance.mjs
+            service=$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')
+            test "$(printf '%s\n' "$service" | sed '/^$/d' | wc -l)" -eq 1
+            docker exec -i -e PGPASSWORD=synthetic_only "$service" \
+              psql -h127.0.0.1 -Uf06_lock_ci -df06_lock_test -X -v ON_ERROR_STOP=1 \
+              < sql/f06-lock-lifecycle-disposable-only.sql
+            node scripts/f06-lock-lifecycle-pg16-acceptance.mjs
+          ) | tee engineering/f06/nonprod-composite-lock-lifecycle/evidence/Legacy生命周期PG16_TAP.log
+
       - name: Issue171 本SHA原生测试和跨OID父链证据硬门禁
         shell: bash
         run: |

@@ -141,8 +141,9 @@ test('Issue171: Native PG16 Composite ordinary-lock lifecycle & immutable issuer
   const managerToken=await login(auth,scenario.managerAccount);
   const targetToken=await login(auth,scenario.targetAccount);
   runtime=await createIsolatedF06CompositeRuntime(process.env,{sessionSecret:secret,auth});
-  const originalConnect=runtime.pool.connect.bind(runtime.pool);
-  runtime.pool.connect=async()=>{const c=await originalConnect();const pid=(await c.query('SELECT pg_backend_pid() pid')).rows[0].pid;seenPids.push(pid);return c};
+  // Observe real PostgreSQL backends without replacing Pool.connect: pool.query
+  // internally invokes the callback overload and must not be intercepted.
+  runtime.pool.on('acquire',client=>{if(Number.isInteger(client.processID))seenPids.push(client.processID)});
   server=createFoundationServer({lockHandler:runtime.handler,readinessProbe:runtime.ready});
   await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve)});
   const base='http://127.0.0.1:'+server.address().port;
