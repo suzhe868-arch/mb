@@ -17,6 +17,7 @@
 - A 阻断报告：`07_重建工作区/A_Issue187外部系统未准备阻断登记与独立工作盘点_2026-10-22.md`；外部依赖台账：`engineering/f07/nonprod-runtime-integration/SOURCE_GAP与外部授权依赖台账.tsv`。
 - **唯一指针：** `NEXT_OWNER=A`；`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`；`NEXT_ISSUE=187`；`NEXT_BRANCH=NONE`。当前没有新的、可合法验收且不重复的 B 业务施工包。
 - A 已完成当前可独立进行的来源审计、状态核对与阻断登记。未取得真实非生产资源、正式 capability/Vehicle Scope/F05 Issuer 证据前，不重复合成测试、不伪造签名/回执、不宣称外部系统已接通。
+- **电话权限后端增量复核（PR #199 后）：** F08-3 PR #193 只验收 `CI_SYNTHETIC_ONLY` 内部纵切；配置入口仍是固定 F08-3 REF 下的 `__ci__` 路由。F04 Current 电话合同仍为 `CI_ONLY_PROPOSED / NOT_PRODUCTION`，正式 F03 reader 对电话动作仍 `finalAllowed=false`，SG01/SG08 正式范围/上游发布人映射仍 `MISSING_PROPOSAL`。因此员工电话权限后端**尚未正式完成**。需求已纳入 F01～F08 路线图并关联 [Issue #196](https://github.com/suzhe868-arch/mb/issues/196)；当前 Issue #187 门禁未解除前不发新 B 施工包、不重复 F08-3，也不启动 PC 页面。详见 [Issue #187 增量复核记录](https://github.com/suzhe868-arch/mb/issues/187#issuecomment-6327645997)。
 - F06/F07/F08/V1 继续 `NOT_READY / NO_PRODUCTION`；生产、真实电话、外部公网调用、真实资金/退款/成交未授权。C PR #68 保持独立。
 
 ---
