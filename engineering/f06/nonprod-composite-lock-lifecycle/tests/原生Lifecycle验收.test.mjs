@@ -112,10 +112,14 @@ async function login(auth,account){
  return result.token;
 }
 async function post(base,path,token,body,headers={}){
- const r=await fetch(base+path,{method:'POST',headers:{
+ const started=Date.now();
+ console.log('F06_171_HTTP_BEGIN',path);
+ const r=await fetch(base+path,{method:'POST',signal:AbortSignal.timeout(25000),headers:{
   'content-type':'application/json',authorization:'Bearer '+token,...headers
  },body:JSON.stringify(body)});
- return {status:r.status,body:await r.json()};
+ const result={status:r.status,body:await r.json()};
+ console.log('F06_171_HTTP_END',path,result.status,result.body?.code,Date.now()-started);
+ return result;
 }
 test('Issue171: Native PG16 Composite ordinary-lock lifecycle & immutable issuer',async t=>{
  const secret=envSetup();let db,auth,runtime,server;
@@ -133,14 +137,20 @@ test('Issue171: Native PG16 Composite ordinary-lock lifecycle & immutable issuer
    assert.equal(native.sha,process.env.GITHUB_SHA);
    assert.equal(native.runId,process.env.GITHUB_RUN_ID);
   });
+  console.log('F06_171_PHASE_BEGIN','seedScenario');
   const scenario=await seedScenario(db,process.env.GITHUB_RUN_ID);
+  console.log('F06_171_PHASE_END','seedScenario');
   const perm=await ensurePermission(db,'lock.ci.manage');
   await seedEmployeeScope(db,Number(scenario.manager.employee_id),Number(scenario.teamId),[perm]);
+  console.log('F06_171_PHASE_BEGIN','createAuthAndLogin');
   auth=new IsolatedAuth({connectionString:DSN,secret,origin:'https://127.0.0.1:3000'});
   const initialToken=await login(auth,scenario.initialAccount);
   const managerToken=await login(auth,scenario.managerAccount);
   const targetToken=await login(auth,scenario.targetAccount);
+  console.log('F06_171_PHASE_END','createAuthAndLogin');
+  console.log('F06_171_PHASE_BEGIN','createRuntime');
   runtime=await createIsolatedF06CompositeRuntime(process.env,{sessionSecret:secret,auth});
+  console.log('F06_171_PHASE_END','createRuntime');
   // Observe real PostgreSQL backends without replacing Pool.connect: pool.query
   // internally invokes the callback overload and must not be intercepted.
   runtime.pool.on('acquire',client=>{if(Number.isInteger(client.processID))seenPids.push(client.processID)});
@@ -173,7 +183,9 @@ test('Issue171: Native PG16 Composite ordinary-lock lifecycle & immutable issuer
    assert.equal(approved.body.code,'LOCK_APPROVED');
    return String(approved.body.lockId);
   };
+  console.log('F06_171_PHASE_BEGIN','sixSignedLockRequests');
   const lock1=await createLock(0),lock2=await createLock(1),lock3=await createLock(2),lock4=await createLock(3),lock5=await createLock(4),lock6=await createLock(5);
+  console.log('F06_171_PHASE_END','sixSignedLockRequests');
   await t.test('04 六个Lock均由真实LockRequest合法审批且唯一',async()=>{
    assert.equal(new Set([lock1,lock2,lock3,lock4,lock5,lock6]).size,6);
    const rows=(await db.query("SELECT lock_id FROM public.locks WHERE lock_id=ANY($1::bigint[]) AND lock_status='active'",[[lock1,lock2,lock3,lock4,lock5,lock6]])).rows;
@@ -181,7 +193,9 @@ test('Issue171: Native PG16 Composite ordinary-lock lifecycle & immutable issuer
   });
   const expiry=(await db.query("SELECT (clock_timestamp()+interval '120 hours')::timestamptz AS value")).rows[0].value.toISOString();
   const extendBody={action:'extend',idempotencyKey:'issue171_extend_'+process.env.GITHUB_RUN_ID,reason:'Native synthetic ordinary extension',newExpiresAt:expiry};
+  console.log('F06_171_PHASE_BEGIN','lifecycleFirstExtend');
   const extension=await post(base,'/__nonprod__/f06-composite/locks/'+lock1+'/actions',initialToken,extendBody);
+  console.log('F06_171_PHASE_END','lifecycleFirstExtend');
   await t.test('05 真实HTTP普通无款Lock延期成功',async()=>{
    assert.equal(extension.status,200,JSON.stringify(extension.body));
    assert.equal(extension.body.code,'LOCK_EXTENDED');
@@ -258,10 +272,12 @@ test('Issue171: Native PG16 Composite ordinary-lock lifecycle & immutable issuer
    verifyDatabase:async c=>{await verifyCompositeRuntimeDatabase(c);await verifyLifecycleIssuer(c)},
    afterMutationWrite:async()=>{throw Error('F06_171_INTENTIONAL_ROLLBACK')}
   });
+  console.log('F06_171_PHASE_BEGIN','injectedRollback');
   await assert.rejects(()=>rollback.act({
    token:initialToken,lockId:lock6,action:'release',
    idempotencyKey:'issue171_injected_rollback_'+process.env.GITHUB_RUN_ID,reason:'Injected PG transaction rollback'
   }),/F06_171_INTENTIONAL_ROLLBACK/);
+  console.log('F06_171_PHASE_END','injectedRollback');
   await t.test('20 真实PG故障注错恢复原锁、审计和签名事件均回滚',async()=>{
    const row=(await db.query("SELECT lock_status FROM public.locks WHERE lock_id=$1",[lock6])).rows[0];
    assert.equal(row.lock_status,'active');
@@ -312,9 +328,11 @@ test('Issue171: Native PG16 Composite ordinary-lock lifecycle & immutable issuer
   });
   t.diagnostic('F06_171_NATIVE_SIGNED_LOCK_LIFECYCLE_26_CASES_PASS');
  }finally{
-  if(server)await new Promise(resolve=>server.close(resolve));
+  console.log('F06_171_PHASE_BEGIN','cleanup');
+  if(server){server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
   if(runtime)await runtime.close();
   if(auth)await auth.close();
   if(db)await db.end();
+  console.log('F06_171_PHASE_END','cleanup');
  }
 });
