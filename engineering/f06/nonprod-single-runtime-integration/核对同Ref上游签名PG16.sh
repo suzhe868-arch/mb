@@ -59,6 +59,13 @@ node --input-type=module -e '
  import pg from "./engineering/node_modules/pg/lib/index.js";
  const db=new pg.Client({connectionString:process.env.F03_1_DATABASE_URL});
  await db.connect();
+ const {issueCompositeAttestation,verifyCompositeAttestation}=await import("./engineering/f06/nonprod-single-runtime-integration/composite-issuer.mjs");
+ const issued=await issueCompositeAttestation(db);
+ if(!issued.verified)throw Error("F06_164_NATIVE_COMPOSITE_ISSUER_MISSING");
+ const reviewed=await verifyCompositeAttestation(db);
+ if(reviewed.headSHA!==process.env.GITHUB_SHA)throw Error("F06_164_COMPOSITE_SIGNER_WRONG_HEAD");
+ console.log("F06_164_SIGNED_COMPOSITE_ISSUER_ATTESTED",JSON.stringify({
+  sha:reviewed.headSHA,issuer:reviewed.issuer,sourceSHA:reviewed.sourceSHA,dbOid:String(reviewed.databaseOid)}));
  const paths=[
   "./engineering/f06/lockrequest-approval-waitlist-ci/migration.mjs",
   "./engineering/f06/lock-lifecycle-ci/migration.mjs",
