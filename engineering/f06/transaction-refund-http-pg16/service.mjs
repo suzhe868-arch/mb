@@ -488,7 +488,7 @@ async function requestTransactionRefundCore(auth,token,p={},sourceVerifier,mode=
     "VALUES($1,$2,'request',$3,$4,$5)",[h,a.employee_id,t.transaction_id,row.refund_id,fp]);
    await audit(c,a.employee_id,row.refund_id,'pending',{}, {status:'pending',issuer:'CI_SYNTHETIC_NO_MONEY'});
    if(mode==='COMPOSITE_NONPROD_SIGNED_V1'){
-    const att=await one(c,"SELECT source_sha256,head_sha,run_id FROM f06_real_tx_refund_ci.attestation FOR SHARE");
+    const att=await one(c,"SELECT s.source_sha256,i.head_sha,i.run_id FROM f06_real_tx_refund_ci.attestation s JOIN f06_composite_v1.attestation i ON i.seal_name='COMPOSITE_NONPROD_SIGNED_V1' FOR SHARE OF s,i");
     if(!att)throw Error('F06_COMPOSITE_REFUND_PENDING_PARENT_GAP');
     const payload={refundId:Number(row.refund_id),transactionId:Number(t.transaction_id),lockId:Number(t.source_lock_id),
      customerId:Number(t.customer_id),vehicleId:Number(t.vehicle_id),amountCents:p.amountCents,sourceDigest:src.transactionDigest};
@@ -558,7 +558,7 @@ async function closeTransactionRefundCore(auth,token,p={},sourceVerifier,mode='C
     "VALUES($1,$2,'close',$3,$4,$5)",[h,a.employee_id,t.transaction_id,p.refundId,fp]);
    await audit(c,a.employee_id,p.refundId,'closed',{status:'pending'},{status:'closed',closeReason:p.closeReason.trim(),realPayment:false});
    if(mode==='COMPOSITE_NONPROD_SIGNED_V1'){
-    const att=await one(c,"SELECT source_sha256,head_sha,run_id FROM f06_real_tx_refund_ci.attestation FOR SHARE");
+    const att=await one(c,"SELECT s.source_sha256,i.head_sha,i.run_id FROM f06_real_tx_refund_ci.attestation s JOIN f06_composite_v1.attestation i ON i.seal_name='COMPOSITE_NONPROD_SIGNED_V1' FOR SHARE OF s,i");
     if(!att)throw Error('F06_COMPOSITE_REFUND_CLOSE_PARENT_GAP');
     const payload={refundId:Number(p.refundId),transactionId:Number(t.transaction_id),lockId:Number(t.source_lock_id),
      customerId:Number(t.customer_id),vehicleId:Number(t.vehicle_id),closeReason:p.closeReason.trim(),noPayment:true};
