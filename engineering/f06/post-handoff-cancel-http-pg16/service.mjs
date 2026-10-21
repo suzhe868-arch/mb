@@ -247,7 +247,7 @@ export async function cancelAfterSignedHandoffCore(auth,token,p={},mode='CI_LEGA
     vehicleId:Number(t.vehicle_id),listingCycleId:Number(t.listing_cycle_id),actorEmployeeId:Number(a.employee_id),
     handoffVersion:signed.version,eventId:Number(event.event_id),reason:p.reason.trim(),status:'cancelled'};
    await c.query("INSERT INTO f06_composite_v1.issued_events(event_key_sha256,event_kind,parent_object_id,actor_kind,actor_id,source_parent_sha256,head_sha,run_id,payload_sha256) VALUES($1,'signed_cancel',$2,'employee',$3,$4,$5,$6,$7)",
-    [sha(['F06_COMPOSITE_POST_HANDOFF_CANCEL',payload]),t.transaction_id,a.employee_id,att.source_sha256,att.head_sha,att.run_id,sha(payload)]);
+    [sha(JSON.stringify(['F06_COMPOSITE_POST_HANDOFF_CANCEL',payload])),t.transaction_id,a.employee_id,att.source_sha256,att.head_sha,att.run_id,sha(JSON.stringify(payload))]);
   }
   if(p.testCheckpoint==='AFTER_AUDIT_THROW')throw Error('F06_POST_CANCEL_INJECTED_AFTER_AUDIT');
   const f=await one(c,'SELECT status,completed_at,responsible_employee_id FROM public.transactions WHERE transaction_id=$1',[t.transaction_id]);
