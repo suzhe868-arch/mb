@@ -170,6 +170,26 @@ jobs:
           export F06_164_RESTORE_DATABASE_URL='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_restore'
           node engineering/f06/nonprod-single-runtime-integration/父表161迁移24跨OID封印.mjs after | tee engineering/f06/nonprod-single-runtime-integration/evidence/父表161迁移24Seal恢复证据.log
 
+      - name: 旧CI_LEGACY真实PG16来源兼容审计落库回归
+        shell: bash
+        run: |
+          set -euo pipefail
+          service=$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')
+          test "$(printf '%s\n' "$service" | sed '/^$/d' | wc -l)" -eq 1
+          export F06_LOCK_TEST_CONSENT=I_AUTHORIZE_DISPOSABLE_F06_LOCK_PG16_ONLY
+          export F06_LOCK_DATABASE_URL='postgres://f06_lock_ci:synthetic_only@127.0.0.1:5432/f06_lock_test'
+          export APP_ENV=test NODE_ENV=test CI=true API_HOST=127.0.0.1
+          parent_dump=$(mktemp /tmp/f06-164-signed-legacy-XXXXXX.dump)
+          trap 'rm -f "$parent_dump"' EXIT
+          docker exec -e PGPASSWORD=f03_ci_synthetic_only "$service" \
+            pg_dump -h127.0.0.1 -Uf03_ci -df03_auth_baseline --format=custom --no-owner --no-privileges > "$parent_dump"
+          test -s "$parent_dump"
+          docker exec -i -e PGPASSWORD=synthetic_only "$service" \
+            pg_restore -h127.0.0.1 -Uf06_lock_ci -df06_lock_test --no-owner --no-privileges --exit-on-error < "$parent_dump"
+          node engineering/scripts/f06-lock-prepare-disposable.mjs
+          node --test engineering/f06/nonprod-single-runtime-integration/tests/真实PG16旧Legacy审计落库.test.mjs |
+            tee engineering/f06/nonprod-single-runtime-integration/evidence/Legacy审计真实PG16_TAP.log
+
       - name: F06 Issue164最终独立证据门禁
         shell: bash
         run: |

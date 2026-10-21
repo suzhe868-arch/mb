@@ -31,10 +31,18 @@ test('13 禁止公网PG地址',()=>assert.throws(()=>check({F03_1_DATABASE_URL:'
 test('14 禁止用超级账号替代非特权F03角色',()=>assert.throws(()=>check({F03_1_DATABASE_URL:'postgres://postgres:x@127.0.0.1:5432/f03_auth_test'}),/SINGLE_SIGNED_PG16_DATABASE_REQUIRED/));
 test('15 禁止动态端口',()=>assert.throws(()=>check({F03_1_DATABASE_URL:'postgres://f03_ci:x@127.0.0.1:5433/f03_auth_test'}),/SINGLE_SIGNED_PG16_DATABASE_REQUIRED/));
 test('16 禁止URL查询参数',()=>assert.throws(()=>check({F03_1_DATABASE_URL:'postgres://f03_ci:x@127.0.0.1:5432/f03_auth_test?sslmode=disable'}),/SINGLE_SIGNED_PG16_DATABASE_REQUIRED/));
-test('17 来源映射准确区分已接线与施工中',()=>{
+test('17 来源矩阵契约：合法单Runtime已接线但资金来源仅限签名非生产',()=>{
  const m=getCompositeSourceMatrix();
- assert.equal(m.length,6);assert.equal(m.filter(x=>x.state==='RUNTIME_WIRED').length,2);
- assert.equal(m.filter(x=>x.state==='IMPLEMENTING').length,4);
+ assert.deepEqual(m.map(x=>x.step),[
+  'lock_request_lock','synthetic_deposit','transaction_open',
+  'responsible_handoff','signed_cancel','refund_pending_closed'
+ ]);
+ assert.deepEqual(m.map(x=>x.state),[
+  'RUNTIME_WIRED','RUNTIME_WIRED','CI_SIGNED_NONPRODUCTION',
+  'CI_SIGNED_NONPRODUCTION','CI_SIGNED_NONPRODUCTION','CI_SIGNED_NONPRODUCTION'
+ ]);
+ assert.ok(m.every(x=>x.state!=='IMPLEMENTING'&&x.state!=='PRODUCTION_READY'));
+ assert.ok(m.every(x=>x.source.includes('composite')||x.source.includes('COMPOSITE')));
 });
 const deny=createCompositeDenyHandler();
 const business=createCompositeBusinessHandler(null,good);

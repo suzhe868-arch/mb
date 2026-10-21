@@ -159,6 +159,13 @@ test('F06 Issue164：单PG16真实F03 Session贯通Lock→Deposit→Transaction�
   const lockId=Number(approved.data.lockId);
   assert.ok(lockId>0);
   t.diagnostic('F06_COMPOSITE_SIGNED_LOCK_CREATED lockId='+lockId);
+  await t.test('真实PG16：Composite LockRequest审计action和签名Event真实落库',async()=>{
+   const audit=await db.query("SELECT action FROM public.audit_events WHERE object_kind='LockRequest' AND object_id=$1 ORDER BY action",[String(requestId)]);
+   assert.deepEqual(audit.rows.map(x=>x.action),['f06_composite_approved','f06_composite_created']);
+   const signed=await db.query("SELECT event_kind FROM f06_composite_v1.issued_events WHERE parent_object_id=$1 AND event_kind IN('lock_request_created','lock_request_approved') ORDER BY event_kind",[requestId]);
+   assert.deepEqual(signed.rows.map(x=>x.event_kind),['lock_request_approved','lock_request_created']);
+   t.diagnostic('F06_COMPOSITE_LOCK_AUDIT_DATABASE_ACTION_PASS');
+  });
 
   await assert.rejects(()=>recordSyntheticDepositComposite(auth,initialToken,{
    lockId,amountCents:500000,currency:'CNY',paymentMethod:'bank_transfer',

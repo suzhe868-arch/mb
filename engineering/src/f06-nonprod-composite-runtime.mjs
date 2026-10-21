@@ -95,10 +95,10 @@ export async function verifyCompositeRuntimeDatabase(c,env=process.env){
 export const getCompositeSourceMatrix=()=>Object.freeze([
  {step:'lock_request_lock',source:'COMPOSITE_NONPROD_SIGNED_V1 + F03 employee session',state:'RUNTIME_WIRED'},
  {step:'synthetic_deposit',source:'native F06-3A signed core + composite event',state:'RUNTIME_WIRED'},
- {step:'transaction_open',source:'PR139 native transaction core + composite event',state:'IMPLEMENTING'},
- {step:'responsible_handoff',source:'PR153 native handoff core + composite event',state:'IMPLEMENTING'},
- {step:'signed_cancel',source:'PR156 native cancel core + composite event',state:'IMPLEMENTING'},
- {step:'refund_pending_closed',source:'PR162 native refund core + composite event',state:'IMPLEMENTING'}
+ {step:'transaction_open',source:'PR139 native transaction core + composite event',state:'CI_SIGNED_NONPRODUCTION'},
+ {step:'responsible_handoff',source:'PR153 native handoff core + composite event',state:'CI_SIGNED_NONPRODUCTION'},
+ {step:'signed_cancel',source:'PR156 native cancel core + composite event',state:'CI_SIGNED_NONPRODUCTION'},
+ {step:'refund_pending_closed',source:'PR162 native refund core + composite event',state:'CI_SIGNED_NONPRODUCTION'}
 ]);
 function isLoopback(req){
  return ['127.0.0.1','::1','::ffff:127.0.0.1'].includes(req.socket?.remoteAddress)&&

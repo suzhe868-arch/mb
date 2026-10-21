@@ -47,6 +47,18 @@ if(process.env.F06_164_REQUIRE_E2E==='1'){
   'F06_164_SINGLE_PG16_CURRENT_RUN_ISSUER_AND_ALL_NINE_BUSINESS_EVENTS_VERIFIED'
  ])assert.ok(e2e.includes(marker),'single-runtime proof missing '+marker);
  const chain=readFileSync(new URL('./evidence/父链签名与初始化.log',import.meta.url),'utf8');
+ const legacy=readFileSync(new URL('./evidence/Legacy审计真实PG16_TAP.log',import.meta.url),'utf8');
+ const legacyField=name=>{
+  const matches=[...legacy.matchAll(new RegExp('^# '+name+' (\\d+)$','gm'))];
+  assert.ok(matches.length,'Legacy real PG16 TAP missing '+name);
+  return Number(matches.at(-1)[1]);
+ };
+ assert.equal(legacyField('tests'),1,'Legacy real PG16 tests');
+ assert.equal(legacyField('pass'),1,'Legacy real PG16 passes');
+ for(const name of ['fail','skipped','cancelled'])assert.equal(legacyField(name),0,'Legacy '+name);
+ assert.ok(!/^not ok /m.test(legacy),'Legacy real PG16 raw TAP failure');
+ assert.ok(legacy.includes('F06_164_LEGACY_AUDIT_DB_PASS'),'Legacy audit action real PG16 evidence missing');
+ assert.ok(e2e.includes('F06_COMPOSITE_LOCK_AUDIT_DATABASE_ACTION_PASS'),'Composite audit action real PG16 evidence missing');
  const sealBefore=readFileSync(new URL('./evidence/父表161迁移24Seal前置证据.log',import.meta.url),'utf8');
  const sealAfter=readFileSync(new URL('./evidence/父表161迁移24Seal恢复证据.log',import.meta.url),'utf8');
  const beforeLine=sealBefore.match(/F06_164_PARENT_161_TABLE_24_LEDGER_CROSS_OID_BASELINE_PASS (\{[^\n]+\})/);
@@ -80,7 +92,7 @@ if(process.env.F06_164_REQUIRE_E2E==='1'){
  ])assert.ok(chain.includes(marker),'native source initialization missing '+marker);
  console.log('F06_164_FULL_NATIVE_COMPOSITE_PASS',{
   sha,httpSecurityCases:32,nativePgFailClosed:6,singleRuntimeE2E:field('tests'),
-  signedEvents:9,parentTables:161,parentMigrations:24,crossOidSeal:true,productionReady:false,status:'READY_FOR_A_REVIEW'
+  signedEvents:9,parentTables:161,parentMigrations:24,crossOidSeal:true,legacyAuditDb:true,compositeAuditDb:true,productionReady:false,status:'READY_FOR_A_REVIEW'
  });
 }else{
  console.log('F06_164_PARTIAL_NATIVE_PASS',{

@@ -215,7 +215,7 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     (actor_kind,actor_id,object_kind,object_id,action,before_json,after_json,occurred_at)
     VALUES($1,$2,'LockRequest',$3,$4,$5::jsonb,$6::jsonb,clock_timestamp())`,
    [kind==='created'?'customer_synthetic':employeeId===null?'system':'employee',employeeId===null?null:String(employeeId),String(req.lock_request_id),
-    `f06_composite_${kind}`,JSON.stringify({status:prior}),JSON.stringify({status:after,lockId,waitlistId:waitId})]);
+    `${composite?'f06_composite_':'f06_real_test_'}${kind}`,JSON.stringify({status:prior}),JSON.stringify({status:after,lockId,waitlistId:waitId})]);
   if(composite){
    const att=await first(db,"SELECT head_sha,run_id,source_sha256 FROM f06_composite_v1.attestation WHERE seal_name='COMPOSITE_NONPROD_SIGNED_V1' FOR SHARE");
    const parent=await first(db,"SELECT source_sha256 FROM f06_1_lock_ci.attestation WHERE seal_name='F06_1_CI_ONLY_V27_SIDECAR' FOR SHARE");
