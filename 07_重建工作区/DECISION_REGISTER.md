@@ -1,3 +1,13 @@
+## A-F08-3-ISSUE190-PR193-ACCEPT-01｜F08-3 非生产子范围验收通过，回到 F08 来源父门禁
+
+- Issue [#190](https://github.com/suzhe868-arch/mb/issues/190) 已通过 A 限定非生产子范围验收并关闭；业务 PR [#193](https://github.com/suzhe868-arch/mb/pull/193) 已标准合并。B 最终 HEAD `662847bf2e75c9ca404dff8e57902850d8fe4673`，merge SHA `5cb52e6754e3e171cb9e1a67e3aef51c8e78dfcc`。
+- 官方 Run #39665372029：独立非超管 PG16 业务 43/43、受影响回归 26/26、HTTPS 16/16；最终 SHA 30/30 Check Runs success；Artifact #12377127302/#12377287037 均非空有效。
+- 本次只接受 `CI_SYNTHETIC_ONLY` 内部非生产电话权限/专项范围纵切。真实 Collector/JYT、publisher 物理映射、正式 F03 capability/Scope/Object、F05 转换正向 Issuer、SLA/Incident、CDN/OSS/Feishu 仍 `SOURCE_GAP`；F06/F07/F08/V1 仍 `NOT_READY / NO_PRODUCTION`。
+- GitHub 原生 APPROVE 因当前连接身份同时为 PR 作者而拒绝；A 已在 PR #193 留下完整独立验收 COMMENT review（ID `5605599960`），随后按期望 HEAD SHA 执行标准 merge。未将 COMMENT 伪报为原生 APPROVED review。
+- **下一唯一指针：** `NEXT_OWNER=A`、`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`、Issue [#187](https://github.com/suzhe868-arch/mb/issues/187)、`NEXT_BRANCH=NONE`。当前没有新的 B 施工包授权；A 继续核查可信签名来源与外部授权门禁。完整报告：`07_重建工作区/F08-3_Issue190_PR193独立验收与合并报告_2026-10-22.md`。
+
+---
+
 ## A-F08-3-PUBLISHER-PHONE-SCOPE-RUNTIME-RELEASE-01｜用户批准电话范围后发布最小非生产纵切
 
 - 用户批准的电话范围规则已由 [PR #189](https://github.com/suzhe868-arch/mb/pull/189) 标准合并，merge SHA `d7cb1b32cea64035d3fe9cb67cc3f7ba8ab3cb32`。既有权限 `publisher.phone.sensitive` 按员工单独授予，范围二选一：`LOCKED_ONLY` 或 `ALL_ACTIVE_JYT`；不要求逐车负责人，不新增 `can_call_wholesale_phone`。
