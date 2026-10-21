@@ -40,7 +40,7 @@ async function native(c,mode='CI_LEGACY'){
  assert.equal(ledger.length,24);
  const catalog=(await getPublicStructure(c)).sha256;
  if(catalog!==p.catalogSHA)throw Error('F06_POST_CANCEL_PARENT_PUBLIC_CATALOG_DRIFT');
- return {p,catalog,ledger:sha(JSON.stringify(ledger))};
+ return {p,catalog,ledger:sha(ledger)};
 }
 async function verifyByMode(c,mode='CI_LEGACY'){
  const p=await native(c,mode);
