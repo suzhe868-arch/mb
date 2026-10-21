@@ -241,7 +241,7 @@ export async function cancelAfterSignedHandoffCore(auth,token,p={},mode='CI_LEGA
   await c.query("INSERT INTO public.audit_events(actor_kind,actor_id,object_kind,object_id,action,before_json,after_json,occurred_at) VALUES('employee',$1,'Transaction',$2,'f06_real_post_handoff_cancel_ci_cancelled',$3::jsonb,$4::jsonb,clock_timestamp())",
     [String(a.employee_id),String(t.transaction_id),JSON.stringify({status:'in_progress',responsible:signed.currentId,version:signed.version}),JSON.stringify({status:'cancelled',eventId:Number(event.event_id),version:signed.version,issuer:'CI_SYNTHETIC_NOT_REAL_MONEY'})]);
   if(mode==='COMPOSITE_NONPROD_SIGNED_V1'){
-   const att=await one(c,'SELECT s.source_sha256,i.head_sha,i.run_id FROM f06_real_post_handoff_cancel_ci.attestation s JOIN f06_composite_v1.attestation i ON i.seal_name='COMPOSITE_NONPROD_SIGNED_V1' WHERE s.seal_name='F06_REAL_POST_HANDOFF_CANCEL_CI_ONLY' FOR SHARE OF s,i');
+   const att=await one(c,"SELECT s.source_sha256,i.head_sha,i.run_id FROM f06_real_post_handoff_cancel_ci.attestation s JOIN f06_composite_v1.attestation i ON i.seal_name='COMPOSITE_NONPROD_SIGNED_V1' WHERE s.seal_name='F06_REAL_POST_HANDOFF_CANCEL_CI_ONLY' FOR SHARE OF s,i");
    if(!att)throw Error('F06_COMPOSITE_POST_CANCEL_ATTESTATION_GAP');
    const payload={transactionId:Number(t.transaction_id),sourceLockId:Number(t.source_lock_id),customerId:Number(t.customer_id),
     vehicleId:Number(t.vehicle_id),listingCycleId:Number(t.listing_cycle_id),actorEmployeeId:Number(a.employee_id),
