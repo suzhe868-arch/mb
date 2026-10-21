@@ -28,6 +28,8 @@ if(process.env.F07_RUNTIME_TEST_CONSENT===F07_RUNTIME_CONSENT){
  if(host!=='127.0.0.1')throw Error('F07_RUNTIME_LOOPBACK_REQUIRED');
  const {assertF07RuntimeEnvironment,createF07Runtime}=await import('./f07-runtime/runtime.mjs');
  assertF07RuntimeEnvironment(process.env);
+ const tlsKey=await readFile(process.env.F07_RUNTIME_TLS_KEY_PATH);
+ const tlsCert=await readFile(process.env.F07_RUNTIME_TLS_CERT_PATH);
  const raw=process.env.F03_1_HMAC_KEY_BASE64||'';
  const key=Buffer.from(raw,'base64');
  if(key.length!==32)throw Error('F07_RUNTIME_F03_HMAC_REQUIRED');
@@ -36,7 +38,7 @@ if(process.env.F07_RUNTIME_TEST_CONSENT===F07_RUNTIME_CONSENT){
  catch{await service.close();service=null;throw Error('F07_RUNTIME_F03_SOURCE_STARTUP_GAP')}
  f07Runtime=await createF07Runtime({env:process.env,auth:service});
  if(!process.env.F07_RUNTIME_TLS_KEY_PATH||!process.env.F07_RUNTIME_TLS_CERT_PATH)throw Error('F07_RUNTIME_TLS_REQUIRED');
- server=createHttpsServer({key:await readFile(process.env.F07_RUNTIME_TLS_KEY_PATH),cert:await readFile(process.env.F07_RUNTIME_TLS_CERT_PATH)},
+ server=createHttpsServer({key:tlsKey,cert:tlsCert},
   createFoundationHandler({f07RuntimeHandler:f07Runtime.handler,readinessProbe:f07Runtime.ready,readinessTimeoutMs:3000}));
 }else if(process.env.F06_COMPOSITE_TEST_CONSENT==='I_AUTHORIZE_DISPOSABLE_F06_COMPOSITE_ONLY'){
  if(host!=='127.0.0.1')throw Error('F06_COMPOSITE_LOOPBACK_REQUIRED');
