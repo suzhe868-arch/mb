@@ -24,7 +24,7 @@ test('04 没有PR139签名交易侧车不能创建Tx',async()=>{
  const r=(await pool.query("SELECT to_regclass('f06_real_tx_ci.attestation')::text x")).rows[0];
  assert.equal(r.x,null);
 });
-test('05 无可信父Schema真实装配必须拒绝而非假启动',async()=>{
+test('05 不允许将Lock专用第二PG库接入单库Composite Runtime',async()=>{
  const env={
   APP_ENV:'test',NODE_ENV:'test',API_HOST:'127.0.0.1',CI:process.env.CI,
   GITHUB_ACTIONS:process.env.GITHUB_ACTIONS,GITHUB_EVENT_NAME:process.env.GITHUB_EVENT_NAME,
