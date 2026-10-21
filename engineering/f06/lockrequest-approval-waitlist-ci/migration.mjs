@@ -4,6 +4,7 @@ import {createHash} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import {verify as verifyV26} from '../../f05/consultation-assignee-sla/migration.mjs';
 import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
+import {assertCompositeSignedPG} from '../nonprod-single-runtime-integration/可信Composite签名根.mjs';
 const DATABASE_URL='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test';
 const REQUIRED={CI:'true',GITHUB_ACTIONS:'true',APP_ENV:'test',NODE_ENV:'test',
  F03_1_ISOLATION_CONFIRM:'I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY',
@@ -18,16 +19,16 @@ export const SQL=await readFile(new URL('./sidecar.sql',import.meta.url),'utf8')
 export const checksum=createHash('sha256').update(SQL).digest('hex');
 const hash=o=>createHash('sha256').update(JSON.stringify(o)).digest('hex');
 export async function connect(){gate();const c=new pg.Client({connectionString:DATABASE_URL,connectionTimeoutMillis:3000,query_timeout:90000});await c.connect();try{const x=(await c.query("SELECT current_database() db,current_user u,current_setting('server_version_num')::int ver,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su,(SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user) cdb")).rows[0];if(x.db!=='f03_auth_test'||x.u!=='f03_ci'||x.su||x.cdb||x.ver<160000||x.ver>=170000)throw Error('F06_1_NON_PRIVILEGED_PG16_REQUIRED');return c}catch(e){await c.end();throw e}}
-async function signed(c){
- gate();const v=await verifyV26(c);if(!v.verified)throw Error('F06_1_OLD_SIGNED_V26_REQUIRED');
+async function signed(c,mode='CI_LEGACY'){
+ if(mode==='COMPOSITE_NONPROD_SIGNED_V1')await assertCompositeSignedPG(c);else gate();const v=await verifyV26(c);if(!v.verified)throw Error('F06_1_OLD_SIGNED_V26_REQUIRED');
  const ledger=(await c.query('SELECT migration_id,checksum,structure_sha256 FROM public.f03_schema_migrations ORDER BY migration_id')).rows;
  if(ledger.length!==24)throw Error('F06_1_OLD_24_LEDGER_REQUIRED');
  const d1=(await c.query('SELECT seal_name,sidecar_source_sha256,prior_ledger_sha256,old_public_catalog_sha256 FROM d1_owner_ci.attestation')).rows;
  if(d1.length!==1||d1[0].seal_name!=='D1_INDEPENDENT_FROM_SIGNED_V25'||d1[0].old_public_catalog_sha256!==ledger[22].structure_sha256)throw Error('F06_1_D1_SIGNATURE_REQUIRED');
  return {catalog:v.catalogSHA,ledgerSha:hash(ledger),d1Sha:hash(d1),priorChecksum:v.checksum};
 }
-export async function verify(c){
- const prior=await signed(c);
+async function verifyByMode(c,mode){
+ const prior=await signed(c,mode);
  const att=(await c.query("SELECT seal_name,source_sha256,signed_public_catalog_sha256,signed_ledger_sha256,d1_attestation_sha256 FROM f06_1_lock_ci.attestation")).rows;
  if(att.length!==1||att[0].seal_name!=='F06_1_CI_ONLY_V27_SIDECAR'||att[0].source_sha256!==checksum||
  att[0].signed_public_catalog_sha256!==prior.catalog||att[0].signed_ledger_sha256!==prior.ledgerSha||
@@ -35,8 +36,8 @@ export async function verify(c){
  if((await getPublicStructure(c)).sha256!==prior.catalog)throw Error('F06_1_PUBLIC_CATALOG_MUTATED');
  return {verified:true,sourceSHA:checksum,publicCatalogSha256:prior.catalog,signedLedgerSha256:prior.ledgerSha,d1AttestationSha256:prior.d1Sha,physicalCarrier:'PUBLIC_M94_WITH_CI_ONLY_SIDECAR',nonProduction:true};
 }
-export async function apply(c,{inject=false}={}){
- const old=await signed(c);
+async function applyByMode(c,{inject=false}={},mode){
+ const old=await signed(c,mode);
  const existing=(await c.query("SELECT to_regnamespace('f06_1_lock_ci')::text name")).rows[0].name;
  if(existing)throw Error('F06_1_ALREADY_APPLIED');
  await c.query('BEGIN');
@@ -48,5 +49,9 @@ export async function apply(c,{inject=false}={}){
   if((await getPublicStructure(c)).sha256!==old.catalog)throw Error('F06_1_PUBLIC_CHANGED');
   await c.query('COMMIT');
  }catch(e){await c.query('ROLLBACK');throw e}
- return verify(c);
+ return verifyByMode(c,mode);
 }
+export async function verify(c){return verifyByMode(c,'CI_LEGACY')}
+export async function apply(c,options={}){return applyByMode(c,options,'CI_LEGACY')}
+export async function verifyComposite(c){return verifyByMode(c,'COMPOSITE_NONPROD_SIGNED_V1')}
+export async function applyComposite(c,options={}){return applyByMode(c,options,'COMPOSITE_NONPROD_SIGNED_V1')}

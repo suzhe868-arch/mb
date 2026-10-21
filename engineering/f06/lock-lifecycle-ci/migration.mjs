@@ -2,8 +2,9 @@
 import pg from 'pg';
 import {createHash} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
-import {verify as parentVerify} from '../lockrequest-approval-waitlist-ci/migration.mjs';
+import {verify as parentVerify, verifyComposite as parentVerifyComposite} from '../lockrequest-approval-waitlist-ci/migration.mjs';
 import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
+import {assertCompositeSignedPG} from '../nonprod-single-runtime-integration/可信Composite签名根.mjs';
 const DATABASE_URL='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test';
 const EXACT={
  GITHUB_ACTIONS:'true',CI:'true',APP_ENV:'test',NODE_ENV:'test',
@@ -32,7 +33,13 @@ export function withParentBranch(fn){
  parentQueue=work.catch(()=>{});
  return work;
 }
-async function parent(c){gate();return withParentBranch(()=>parentVerify(c))}
+async function parent(c,mode='CI_LEGACY'){
+ if(mode==='COMPOSITE_NONPROD_SIGNED_V1'){
+  await assertCompositeSignedPG(c);
+  return parentVerifyComposite(c);
+ }
+ gate();return withParentBranch(()=>parentVerify(c));
+}
 export const SQL=await readFile(new URL('./sidecar.sql',import.meta.url),'utf8');
 export const checksum=createHash('sha256').update(SQL).digest('hex');
 export async function connect(){
@@ -43,8 +50,8 @@ export async function connect(){
   return c;
  }catch(e){await c.end();throw e}
 }
-export async function verify(c){
- const old=await parent(c);
+async function verifyByMode(c,mode){
+ const old=await parent(c,mode);
  const rows=(await c.query("SELECT * FROM f06_2_ci.attestation")).rows;
  if(rows.length!==1||rows[0].seal_name!=='F06_2_CI_ONLY_V28_SIDECAR'||
  rows[0].source_sha256!==checksum||rows[0].signed_catalog_sha256!==old.publicCatalogSha256||
@@ -55,8 +62,8 @@ export async function verify(c){
   signedParentSidecarSHA:old.sourceSHA,originalLedgerSHA:old.signedLedgerSha256,
   financeIssuer:'PRODUCTION_DEPOSIT_ISSUER_SOURCE_GAP'};
 }
-export async function apply(c,{inject=false}={}){
- const old=await parent(c);
+async function applyByMode(c,{inject=false}={},mode){
+ const old=await parent(c,mode);
  if((await c.query("SELECT to_regnamespace('f06_2_ci')::text n")).rows[0].n)throw Error('F06_2_ALREADY_APPLIED');
  await c.query('BEGIN');
  try{
@@ -68,5 +75,9 @@ export async function apply(c,{inject=false}={}){
   if((await getPublicStructure(c)).sha256!==old.publicCatalogSha256)throw Error('F06_2_PUBLIC_CATALOG_CHANGED');
   await c.query('COMMIT');
  }catch(e){await c.query('ROLLBACK');throw e}
- return verify(c);
+ return verifyByMode(c,mode);
 }
+export async function verify(c){return verifyByMode(c,'CI_LEGACY')}
+export async function apply(c,options={}){return applyByMode(c,options,'CI_LEGACY')}
+export async function verifyComposite(c){return verifyByMode(c,'COMPOSITE_NONPROD_SIGNED_V1')}
+export async function applyComposite(c,options={}){return applyByMode(c,options,'COMPOSITE_NONPROD_SIGNED_V1')}

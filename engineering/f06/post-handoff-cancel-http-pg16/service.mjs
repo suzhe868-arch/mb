@@ -2,7 +2,8 @@
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
-import {verify as verifyHandoff,sourceSHA as handoffSHA,currentSignedResponsibleCI,connect as nativeConnect} from '../transaction-handoff-http-pg16/service.mjs';
+import {verify as verifyHandoff,verifyComposite as verifyHandoffComposite,sourceSHA as handoffSHA,currentSignedResponsibleCI,currentSignedResponsibleCompositeCI,connect as nativeConnect} from '../transaction-handoff-http-pg16/service.mjs';
+import {assertCompositeSignedRun} from '../nonprod-single-runtime-integration/可信Composite签名根.mjs';
 import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
 const sql=readFileSync(new URL('./sidecar.sql',import.meta.url),'utf8');
 export const sourceSHA=createHash('sha256').update(sql).digest('hex');
@@ -28,9 +29,9 @@ export function gate(){
  assert.match(process.env.GITHUB_RUN_ID||'',/^[0-9]{6,20}$/);
 }
 export async function connect(){gate();return nativeConnect()}
-async function native(c){
- gate();
- const p=await verifyHandoff(c);
+async function native(c,mode='CI_LEGACY'){
+ if(mode==='COMPOSITE_NONPROD_SIGNED_V1')assertCompositeSignedRun();else gate();
+ const p=await (mode==='COMPOSITE_NONPROD_SIGNED_V1'?verifyHandoffComposite(c):verifyHandoff(c));
  if(!p.verified||p.sourceSHA!==handoffSHA)throw Error('F06_POST_CANCEL_PARENT_PR153_SIGNATURE_INVALID');
  const meta=await one(c,"SELECT current_database() db,current_user u,current_setting('server_version_num')::int version,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su,(SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user) createdb");
  assert.equal(meta.db,'f03_auth_test');assert.equal(meta.u,'f03_ci');
@@ -41,16 +42,18 @@ async function native(c){
  if(catalog!==p.catalogSHA)throw Error('F06_POST_CANCEL_PARENT_PUBLIC_CATALOG_DRIFT');
  return {p,catalog,ledger:sha(JSON.stringify(ledger))};
 }
-export async function verify(c){
- const p=await native(c);
+async function verifyByMode(c,mode='CI_LEGACY'){
+ const p=await native(c,mode);
  const a=await one(c,'SELECT * FROM f06_real_post_handoff_cancel_ci.attestation FOR SHARE');
  if(!a||a.seal_name!=='F06_REAL_POST_HANDOFF_CANCEL_CI_ONLY'||a.source_sha256!==sourceSHA||
  a.handoff_source_sha256!==handoffSHA||a.public_catalog_sha256!==p.catalog||a.ledger_sha256!==p.ledger)
  throw Error('F06_POST_CANCEL_ATTESTATION_DRIFT');
  return {verified:true,sourceSHA,handoffSHA,ledgerSHA:p.ledger,catalogSHA:p.catalog,productionIssuer:'NOT_AUTHORIZED'};
 }
-export async function apply(c,{inject=false}={}){
- const p=await native(c);
+export async function verify(c){return verifyByMode(c,'CI_LEGACY')}
+export async function verifyComposite(c){return verifyByMode(c,'COMPOSITE_NONPROD_SIGNED_V1')}
+async function applyByMode(c,{inject=false}={},mode='CI_LEGACY'){
+ const p=await native(c,mode);
  if((await one(c,"SELECT to_regnamespace('f06_real_post_handoff_cancel_ci')::text x")).x)
   throw Error('F06_POST_CANCEL_ALREADY_APPLIED');
  await c.query('BEGIN');
@@ -62,8 +65,10 @@ export async function apply(c,{inject=false}={}){
   if((await getPublicStructure(c)).sha256!==p.catalog)throw Error('F06_POST_CANCEL_PUBLIC_DDL_FORBIDDEN');
   await c.query('COMMIT');
  }catch(e){await c.query('ROLLBACK');throw e}
- return verify(c);
+ return verifyByMode(c,mode);
 }
+export async function apply(c,options={}){return applyByMode(c,options,'CI_LEGACY')}
+export async function applyComposite(c,options={}){return applyByMode(c,options,'COMPOSITE_NONPROD_SIGNED_V1')}
 async function currentPermission(c,a,responsible,originalResponsible,transactionCreatedAt){
  if(!a||a.principal_kind!=='employee'||a.system_admin_id!==null||
  !['sales','manager','store_head'].includes(a.role_code)||a.force_password_change!==false||
@@ -92,7 +97,7 @@ async function currentPermission(c,a,responsible,originalResponsible,transaction
  return x&&x.role_code===a.role_code?{teamId:Number(x.team_id),storeId:Number(x.store_id),scopeId:Number(x.scope_id),permissionId:Number(x.permission_id)}:null;
 }
 
-async function trustedTransaction(c,t){
+async function trustedTransaction(c,t,mode='CI_LEGACY'){
  const o=await one(c,'SELECT * FROM f06_real_tx_ci.origins WHERE transaction_id=$1 FOR SHARE',[t.transaction_id]);
  if(!o||o.state!=='in_progress'||o.carrier!=='in_progress'||o.issuer!=='CI_SYNTHETIC_NOT_REAL_MONEY'||
   Number(t.source_lock_id)!==Number(o.source_lock_id)||
@@ -106,7 +111,8 @@ async function trustedTransaction(c,t){
   Number(key.source_lock_id)!==Number(o.source_lock_id))
   return no('F06_CANCEL_UNSIGNED_TRANSACTION_EVENT');
  const l=await one(c,'SELECT * FROM public.locks WHERE lock_id=$1 FOR UPDATE',[o.source_lock_id]);
- const snap=await one(c,'SELECT * FROM f06_1_lock_ci.lock_snapshots WHERE lock_id=$1 FOR SHARE',[o.source_lock_id]);
+ const lockSnapshotSchema=mode==='COMPOSITE_NONPROD_SIGNED_V1'?'f06_composite_v1':'f06_1_lock_ci';
+ const snap=await one(c,`SELECT * FROM ${lockSnapshotSchema}.lock_snapshots WHERE lock_id=$1 FOR SHARE`,[o.source_lock_id]);
  if(!l||!snap||l.lock_status!=='released'||l.end_reason!=='converted_to_transaction'||
   Number(l.vehicle_id)!==Number(o.vehicle_id)||Number(l.customer_id)!==Number(o.customer_id)||
   Number(l.listing_cycle_id)!==Number(o.listing_cycle_id)||
@@ -173,13 +179,13 @@ async function trustedTransaction(c,t){
 export const productionIssuerDeny=()=>no('F06_POST_CANCEL_PRODUCTION_ISSUER_NOT_WIRED');
 export const paymentDeny=()=>no('F06_POST_CANCEL_REAL_MONEY_NOT_AUTHORIZED');
 export const completedDeny=()=>no('F06_POST_CANCEL_COMPLETED_NOT_AUTHORIZED');
-export async function cancelAfterSignedHandoffCI(auth,token,p={}){
- gate();
+export async function cancelAfterSignedHandoffCore(auth,token,p={},mode='CI_LEGACY'){
+ if(mode==='COMPOSITE_NONPROD_SIGNED_V1')assertCompositeSignedRun();else gate();
  if(!integer(p.transactionId)||!Number.isSafeInteger(p.expectedVersion)||p.expectedVersion<1||!validReason(p.reason)||!validKey(p.eventKey))
   return no('F06_POST_CANCEL_INVALID_ARGUMENTS');
  try{
  const result=await auth.withSession(token,async(c,a)=>{
-  await verify(c);
+  await verifyByMode(c,mode);
   await c.query("SET LOCAL lock_timeout='1800ms'");
   const seed=await one(c,'SELECT vehicle_id FROM public.transactions WHERE transaction_id=$1',[p.transactionId]);
   if(!seed)return no('F06_POST_CANCEL_TRANSACTION_NOT_FOUND');
@@ -205,11 +211,11 @@ export async function cancelAfterSignedHandoffCI(auth,token,p={}){
   if(t.status!=='in_progress'||t.completed_at!==null)return no('F06_POST_CANCEL_ONLY_IN_PROGRESS');
   // Keep the parent Lock and signed finance facts ahead of Handoff history,
   // matching the native Vehicle -> Transaction -> Lock -> Finance -> Handoff -> Scope lock order.
-  const parent=await trustedTransaction(c,t);
+  const parent=await trustedTransaction(c,t,mode);
   if(!parent.allowed)return no('F06_POST_CANCEL_PARENT_FINANCE_OR_LOCK_DRIFT_'+parent.code);
   if(!a||a.principal_kind!=='employee'||a.system_admin_id!==null)
    return no('F06_POST_CANCEL_PERMISSION_SCOPE_DENIED');
-  const signed=await currentSignedResponsibleCI(c,p.transactionId);
+  const signed=await (mode==='COMPOSITE_NONPROD_SIGNED_V1'?currentSignedResponsibleCompositeCI(c,p.transactionId):currentSignedResponsibleCI(c,p.transactionId));
   if(!signed.allowed||signed.version<1||signed.currentId!==Number(t.responsible_employee_id)||
    signed.currentId!==Number(a.employee_id))return no('F06_POST_CANCEL_PR153_CURRENT_CHAIN_INVALID');
   if(signed.version!==p.expectedVersion)return no('F06_POST_CANCEL_STALE_HANDOFF_VERSION');
@@ -234,6 +240,15 @@ export async function cancelAfterSignedHandoffCI(auth,token,p={}){
   await c.query('INSERT INTO f06_real_post_handoff_cancel_ci.request_keys(event_key_sha256,transaction_id,actor_employee_id,payload_sha256,event_id) VALUES($1,$2,$3,$4,$5)',[h,t.transaction_id,a.employee_id,fingerprint,event.event_id]);
   await c.query("INSERT INTO public.audit_events(actor_kind,actor_id,object_kind,object_id,action,before_json,after_json,occurred_at) VALUES('employee',$1,'Transaction',$2,'f06_real_post_handoff_cancel_ci_cancelled',$3::jsonb,$4::jsonb,clock_timestamp())",
     [String(a.employee_id),String(t.transaction_id),JSON.stringify({status:'in_progress',responsible:signed.currentId,version:signed.version}),JSON.stringify({status:'cancelled',eventId:Number(event.event_id),version:signed.version,issuer:'CI_SYNTHETIC_NOT_REAL_MONEY'})]);
+  if(mode==='COMPOSITE_NONPROD_SIGNED_V1'){
+   const att=await one(c,"SELECT s.source_sha256,i.head_sha,i.run_id FROM f06_real_post_handoff_cancel_ci.attestation s JOIN f06_composite_v1.attestation i ON i.seal_name='COMPOSITE_NONPROD_SIGNED_V1' WHERE s.seal_name='F06_REAL_POST_HANDOFF_CANCEL_CI_ONLY' FOR SHARE OF s,i");
+   if(!att)throw Error('F06_COMPOSITE_POST_CANCEL_ATTESTATION_GAP');
+   const payload={transactionId:Number(t.transaction_id),sourceLockId:Number(t.source_lock_id),customerId:Number(t.customer_id),
+    vehicleId:Number(t.vehicle_id),listingCycleId:Number(t.listing_cycle_id),actorEmployeeId:Number(a.employee_id),
+    handoffVersion:signed.version,eventId:Number(event.event_id),reason:p.reason.trim(),status:'cancelled'};
+   await c.query("INSERT INTO f06_composite_v1.issued_events(event_key_sha256,event_kind,parent_object_id,actor_kind,actor_id,source_parent_sha256,head_sha,run_id,payload_sha256) VALUES($1,'signed_cancel',$2,'employee',$3,$4,$5,$6,$7)",
+    [sha(JSON.stringify(['F06_COMPOSITE_POST_HANDOFF_CANCEL',payload])),t.transaction_id,a.employee_id,att.source_sha256,att.head_sha,att.run_id,sha(JSON.stringify(payload))]);
+  }
   if(p.testCheckpoint==='AFTER_AUDIT_THROW')throw Error('F06_POST_CANCEL_INJECTED_AFTER_AUDIT');
   const f=await one(c,'SELECT status,completed_at,responsible_employee_id FROM public.transactions WHERE transaction_id=$1',[t.transaction_id]);
   if(!f||f.status!=='cancelled'||f.completed_at!==null||Number(f.responsible_employee_id)!==signed.currentId)
@@ -249,3 +264,6 @@ export async function cancelAfterSignedHandoffCI(auth,token,p={}){
   throw e;
  }
 }
+
+export async function cancelAfterSignedHandoffCI(auth,token,p={}){return cancelAfterSignedHandoffCore(auth,token,p,'CI_LEGACY')}
+export async function cancelAfterSignedHandoffComposite(auth,token,p={}){return cancelAfterSignedHandoffCore(auth,token,p,'COMPOSITE_NONPROD_SIGNED_V1')}

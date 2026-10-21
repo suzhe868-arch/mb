@@ -2,8 +2,9 @@
 import pg from 'pg';
 import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
-import {verify as parentVerify} from '../deposit-ledger-ci/migration.mjs';
+import {verify as parentVerify,verifyComposite as parentVerifyComposite} from '../deposit-ledger-ci/migration.mjs';
 import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
+import {assertCompositeSignedPG} from '../nonprod-single-runtime-integration/可信Composite签名根.mjs';
 const DSN='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test';
 const BRANCH='refs/heads/feat/f06-3b-lock-transaction-ci';
 const required={GITHUB_ACTIONS:'true',CI:'true',APP_ENV:'test',NODE_ENV:'test',
@@ -37,9 +38,10 @@ export async function connect(){
  return c;
  }catch(e){await c.end();throw e}
 }
-async function signed(c){
- gate();
- const p=await withF063A(()=>parentVerify(c));
+async function signed(c,mode='CI_LEGACY'){
+ const p=mode==='COMPOSITE_NONPROD_SIGNED_V1'
+  ?(await assertCompositeSignedPG(c),await parentVerifyComposite(c))
+  :(gate(),await withF063A(()=>parentVerify(c)));
  if(!p.verified||p.publicCatalogSHA!=='5495c6d6ccecc628e1b27c5bfe4f3664a76b4c38a1fa732b6e2baa4ebb5e99f4')throw Error('F06_3B_SIGNED_PARENT_REQUIRED');
  const ledger=(await c.query('SELECT migration_id,checksum,structure_sha256 FROM public.f03_schema_migrations ORDER BY migration_id')).rows;
  if(ledger.length!==24)throw Error('F06_3B_OLD_LEDGER_INCOMPLETE');
@@ -49,8 +51,8 @@ async function signed(c){
  if(p1.length!==1||p2.length!==1||p3.length!==1)throw Error('F06_3B_PARENT_ATTESTATION_MISSING');
  return {catalog:p.publicCatalogSHA,ledger:hash(ledger),f1:p1[0].source_sha256,f2:p2[0].source_sha256,f3:p3[0].sidecar_source_sha256};
 }
-export async function verify(c){
- const p=await signed(c);
+async function verifyByMode(c,mode){
+ const p=await signed(c,mode);
  const a=(await c.query('SELECT * FROM f06_3b_ci.attestation')).rows;
  if(a.length!==1||a[0].seal_name!=='F06_3B_CI_ONLY_SIDECAR'||a[0].source_sha256!==checksum||
  a[0].public_catalog_sha256!==p.catalog||a[0].migration_ledger_sha256!==p.ledger||
@@ -59,8 +61,8 @@ export async function verify(c){
  if((await getPublicStructure(c)).sha256!==p.catalog)throw Error('F06_3B_PUBLIC_CATALOG_CHANGED');
  return {verified:true,nonProduction:true,carrier:'SIGNED_PUBLIC_IN_PROGRESS_CI_ONLY',productionIssuer:'SOURCE_GAP',sourceSHA:checksum,...p};
 }
-export async function apply(c,{inject=false}={}){
- const p=await signed(c);
+async function applyByMode(c,{inject=false}={},mode){
+ const p=await signed(c,mode);
  if((await c.query("SELECT to_regnamespace('f06_3b_ci')::text n")).rows[0].n)throw Error('F06_3B_ALREADY_APPLIED');
  await c.query('BEGIN');
  try{
@@ -72,5 +74,9 @@ export async function apply(c,{inject=false}={}){
  if((await getPublicStructure(c)).sha256!==p.catalog)throw Error('F06_3B_MIGRATION_PUBLIC_CHANGED');
  await c.query('COMMIT');
  }catch(e){await c.query('ROLLBACK');throw e}
- return verify(c);
+ return verifyByMode(c,mode);
 }
+export async function verify(c){return verifyByMode(c,'CI_LEGACY')}
+export async function apply(c,options={}){return applyByMode(c,options,'CI_LEGACY')}
+export async function verifyComposite(c){return verifyByMode(c,'COMPOSITE_NONPROD_SIGNED_V1')}
+export async function applyComposite(c,options={}){return applyByMode(c,options,'COMPOSITE_NONPROD_SIGNED_V1')}
