@@ -144,7 +144,7 @@ async function correctCore(auth,token,p={},mode='CI_LEGACY'){
   if(mode==='COMPOSITE_NONPROD_SIGNED_V1'){
    const m=await one(c,'SELECT sidecar_source_sha256 FROM f06_3a_ci.attestation FOR SHARE');
    if(!m||!/^[a-f0-9]{64}$/.test(m.sidecar_source_sha256))throw Error('F06_COMPOSITE_3A_SIGNED_SOURCE_MISSING');
-   await c.query("INSERT INTO f06_composite_v1.issued_events(event_key_sha256,event_kind,parent_object_id,employee_id,source_parent_sha256,head_sha,run_id,payload_sha256) VALUES($1,'signed_deposit',$2,$3,$4,$5,$6,$7)",
+   await c.query("INSERT INTO f06_composite_v1.issued_events(event_key_sha256,event_kind,parent_object_id,actor_kind,actor_id,source_parent_sha256,head_sha,run_id,payload_sha256) VALUES($1,'signed_deposit',$2,'employee',$3,$4,$5,$6,$7)",
     [hash('F06_COMPOSITE_3A_CORRECTION:'+a.employee_id+':'+p.eventKey),p.depositId,a.employee_id,m.sidecar_source_sha256,process.env.GITHUB_SHA,process.env.GITHUB_RUN_ID,
     hash(JSON.stringify([p.action,p.lockId,p.depositId,p.deltaCents,e.adjustment_id]))]);
   }
