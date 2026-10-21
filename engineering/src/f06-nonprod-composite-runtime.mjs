@@ -32,7 +32,7 @@ const send=(res,status,code)=>{
 function must(x,code){if(!x)throw Error(code)}
 export function verifyCompositeEnvironment(env=process.env){
  must(env.F06_COMPOSITE_TEST_CONSENT===F06_COMPOSITE_CONSENT,'F06_COMPOSITE_EXPLICIT_CONSENT_REQUIRED');
- must(env.F06_LOCK_TEST_CONSENT===F06_LOCK_CONSENT,'F06_COMPOSITE_LOCK_HTTP_CONSENT_REQUIRED');
+ must(env.F06_LOCK_TEST_CONSENT===F06_LOCK_CONSENT,'F06_COMPOSITE_ORIGINAL_LOCK_CONSENT_REQUIRED');
  must(env.APP_ENV==='test'&&env.NODE_ENV==='test'&&env.API_HOST==='127.0.0.1'&&env.CI==='true'&&env.GITHUB_ACTIONS==='true',
   'F06_COMPOSITE_NONPRODUCTION_LOOPBACK_REQUIRED');
  must(env.GITHUB_EVENT_NAME==='push'&&env.GITHUB_REF==='refs/heads/feat/f06-nonprod-single-runtime-trusted-source-01',
