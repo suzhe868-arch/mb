@@ -1,0 +1,10 @@
+依赖	当前状态	必须保留的拒绝码	解除条件	本任务是否处理
+publisher.phone.sensitive 合法签名能力	F03 已签能力目录未证明可用	TECH_ALIAS_PENDING_A / CAPABILITY_NOT_IN_CURRENT_CATALOG	A 按正式权限治理流程批准并更新签名目录；B 不得自行补权限	否，明确保留缺口
+当前 Vehicle source_type 与 scope/object	当前 F03 reader 不签发最终 Scope/Object 授权	SIGNED_SCOPE_OBJECT_SOURCE_GAP	正式 F03 父读取器可证明当前对象、关系、状态及范围	否，FailClosed
+F05 转换正向源	未取得与目标车辆绑定的有效签名转换父事实	F05_CONVERSION_POSITIVE_SOURCE_GAP	F05 提供可验证的迁移链、当前 Vehicle/ListingCycle/Conversion 绑定和物理身份	否，不伪造正向记录
+真实 Collector/JYT 回调源	本任务只用合成 HMAC 回调	CI_SYNTHETIC_ONLY	独立授权真实上游集成、凭据治理和外部安全测试	否，不连接外网
+真实 CDN/OSS 与资产存储	仅使用本地 MockStorage/MockCDN	CI_SYNTHETIC_ONLY	独立授权对象存储、域名、回源、CDN 缓存及恢复方案	否，不连接外网
+PDM-15/22 SLA 正式 deadline	缺少本任务可消费的已签当前 SLA 事实	SLA_EVENT_SOURCE_GAP	正式业务来源能提供已固化 deadline、首次响应与有效 hold 事实	否，不接受请求体作为权威事实
+Incident 签名事件来源	本地生命周期只用于隔离测试	INCIDENT_SIGNED_ISSUER_SOURCE_GAP	接入经签名的故障 issuer、同一 incident 生命周期及锁/幂等证据	否，不发送真实通知
+Feishu Identity/Token/Webhook	未配置，也不允许出站	ROUTE_SOURCE_GAP	另行审批身份、密钥、路由和真实投递验证	否，不连接 Feishu
+生产/UAT/真实资金	明确未授权	F01_PRODUCTION_NOT_READY / NO_PRODUCTION	由 A 独立评估并取得明确生产/UAT授权	否

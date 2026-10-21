@@ -1,0 +1,47 @@
+编号	域	场景	预期结果	证据类型
+B01	应用接线	未注入 Runtime	专属路由默认关闭	business.test.mjs
+B02	启动门禁	精确 consent	通过	business.test.mjs
+B03	启动门禁	错误 consent	拒绝	business.test.mjs
+B04	启动门禁	错误 GitHub Ref	拒绝	business.test.mjs
+B05	启动门禁	无效 Run ID	拒绝	business.test.mjs
+B06	启动门禁	错误 Runtime DSN	拒绝	business.test.mjs
+B07	启动门禁	与 F06/F05/F03 互斥 Runtime 冲突	拒绝	business.test.mjs
+B08	启动门禁	NODE_ENV=production	原 F01_PRODUCTION_NOT_READY 拒绝	business.test.mjs
+B09	PG16	真实非超级用户身份与 OID	通过	business.test.mjs + PG16
+B10	PG16	超级用户连接	物理身份门禁拒绝	business.test.mjs + PG16
+B11	电话回传	合法签名与合成号码	回执/复合发布人缓存成功	business.test.mjs + PG16
+B12	电话回传	错误 HMAC	拒绝且无回执	business.test.mjs + PG16
+B13	电话回传	过期时间戳	拒绝	business.test.mjs
+B14	电话回传	真实电话号码格式	拒绝	business.test.mjs
+B15	电话回传	相同 request_id/payload	幂等 DUPLICATE	business.test.mjs + PG16
+B16	电话回传	同 request_id 异 payload	IDEMPOTENCY_CONFLICT	business.test.mjs + PG16
+B17	电话回传	nonce 跨请求重放	NONCE_REPLAY	business.test.mjs + PG16
+B18	电话回传	乱序回调	旧 issued_at 不覆盖新缓存	business.test.mjs + PG16
+B19	电话回传	事务提交前注入失败	回执与缓存整体回滚	business.test.mjs + PG16
+B20	电话读取	有效 F03 Session	敏感能力/父源未获授权，拒绝且不返回电话	business.test.mjs + PG16
+B21	电话读取	无效 Session	FailClosed	business.test.mjs + PG16
+B22	电话读取	撤销 Session 后再次读取	立即拒绝	business.test.mjs + PG16
+B23	拨号	拨号请求	系统拨号器禁用且不返回号码	business.test.mjs + PG16
+B24	可信父来源	F03/F05 当前来源验证	保留 SOURCE_GAP	business.test.mjs + PG16
+B25	图片 path	路径穿越	UNSAFE_PATH	business.test.mjs
+B26	图片 CDN	受控 URL	固定受控域名生成	business.test.mjs
+B27	图片资产化	提交声称的可信父来源	F05_CONVERSION_POSITIVE_SOURCE_GAP	business.test.mjs
+B28	图片资产化	本地对象与 PG 元数据双成功	成功并记录 immutable_order	business.test.mjs + PG16
+B29	图片资产化	对象写入失败	无成功元数据	business.test.mjs + PG16
+B30	图片资产化	数据库写入失败	补偿删除对象并写失败证据	business.test.mjs + PG16
+B31	图片冻结	重复请求改写 path/order	IMAGE_IDEMPOTENCY_CONFLICT	business.test.mjs + PG16
+B32	图片报告	报告/H5 公共读取	拒绝，不返回 URL	business.test.mjs
+B33	图片封面	零图占位前读取门禁	来源缺口时拒绝且不泄露 placeholder	business.test.mjs
+B34	图片资产化	相同输入重复请求	幂等复用	business.test.mjs + PG16
+B35	图片资产化	并发相同 image_id	仅一份对象与元数据	business.test.mjs + PG16
+B36	图片读取	读取资产化图片	仅本地 CDN Adapter	business.test.mjs
+B37	通知	allowlist 事件	仅进入本地 outbox，状态 QUEUED_LOCAL_ONLY	business.test.mjs + PG16
+B38	通知	非 allowlist 事件	拒绝且不写 outbox	business.test.mjs + PG16
+B39	通知	重复事件/stage/channel	去重	business.test.mjs + PG16
+B40	通知 SLA	缺少正式签名 SLA 事实	SLA_EVENT_SOURCE_GAP	business.test.mjs
+B41	通知 DND	静默时段	延后，不写 outbox	business.test.mjs
+B42	Incident	缺少生命周期	INCIDENT_CURRENT_ACTIVE_SOURCE_GAP	business.test.mjs + PG16
+B43	Incident Active	同一故障 active 生命周期	仍保留 INCIDENT_SIGNED_ISSUER_SOURCE_GAP	business.test.mjs + PG16
+B44	Incident Recovery	clear 前后状态校验	clear 前拒绝；clear 后仍不伪造已签来源	business.test.mjs + PG16
+B45	通知链接	Deep Link 当作权限票据	拒绝	business.test.mjs
+B46	外部副作用	公网/CDN/Feishu 出站	关闭；只使用本地 Adapter	business.test.mjs + PG16

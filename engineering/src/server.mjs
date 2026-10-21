@@ -10,14 +10,37 @@ import {createIsolatedF06LockRuntime} from './f06-lock-runtime.mjs';
 import {createServer as createHttpsServer} from 'node:https';
 import {readFile} from 'node:fs/promises';
 const {host,port}=loadConfig();
-let server,service,catalog,f06,composite;
+let server,service,catalog,f06,composite,f07Runtime;
+const F07_RUNTIME_CONSENT='I_AUTHORIZE_DISPOSABLE_F07_RUNTIME_ONLY';
+if(process.env.F07_RUNTIME_TEST_CONSENT!==undefined&&process.env.F07_RUNTIME_TEST_CONSENT!==F07_RUNTIME_CONSENT)
+ throw Error('F07_RUNTIME_CONSENT_INVALID');
+if(process.env.F07_RUNTIME_TEST_CONSENT===F07_RUNTIME_CONSENT&&[
+ 'F06_COMPOSITE_TEST_CONSENT','F06_LOCK_TEST_CONSENT','F05_D1_BUSINESS_TEST_RUNTIME',
+ 'F05_REAL_CATALOG_ENABLE','F03_1_ENABLE_ISOLATED_AUTH'
+].some(k=>process.env[k]!==undefined)) throw Error('F07_RUNTIME_COMBINATION_FORBIDDEN');
 if(process.env.F06_COMPOSITE_TEST_CONSENT!==undefined&&
  process.env.F06_COMPOSITE_TEST_CONSENT!=='I_AUTHORIZE_DISPOSABLE_F06_COMPOSITE_ONLY')
  throw Error('F06_COMPOSITE_CONSENT_INVALID');
 if(process.env.F06_LOCK_TEST_CONSENT&&
  (process.env.F05_D1_BUSINESS_TEST_RUNTIME||process.env.F05_REAL_CATALOG_ENABLE||process.env.F03_1_ENABLE_ISOLATED_AUTH))
  throw Error('F06_LOCK_RUNTIME_COMBINATION_FORBIDDEN');
-if(process.env.F06_COMPOSITE_TEST_CONSENT==='I_AUTHORIZE_DISPOSABLE_F06_COMPOSITE_ONLY'){
+if(process.env.F07_RUNTIME_TEST_CONSENT===F07_RUNTIME_CONSENT){
+ if(host!=='127.0.0.1')throw Error('F07_RUNTIME_LOOPBACK_REQUIRED');
+ const {assertF07RuntimeEnvironment,createF07Runtime}=await import('./f07-runtime/runtime.mjs');
+ assertF07RuntimeEnvironment(process.env);
+ const tlsKey=await readFile(process.env.F07_RUNTIME_TLS_KEY_PATH);
+ const tlsCert=await readFile(process.env.F07_RUNTIME_TLS_CERT_PATH);
+ const raw=process.env.F03_1_HMAC_KEY_BASE64||'';
+ const key=Buffer.from(raw,'base64');
+ if(key.length!==32)throw Error('F07_RUNTIME_F03_HMAC_REQUIRED');
+ service=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret:key,origin:`https://127.0.0.1:${port}`});
+ try{await verifyAuthDatabase(service.pool,{connectionString:process.env.F03_1_DATABASE_URL})}
+ catch{await service.close();service=null;throw Error('F07_RUNTIME_F03_SOURCE_STARTUP_GAP')}
+ f07Runtime=await createF07Runtime({env:process.env,auth:service});
+ if(!process.env.F07_RUNTIME_TLS_KEY_PATH||!process.env.F07_RUNTIME_TLS_CERT_PATH)throw Error('F07_RUNTIME_TLS_REQUIRED');
+ server=createHttpsServer({key:tlsKey,cert:tlsCert},
+  createFoundationHandler({f07RuntimeHandler:f07Runtime.handler,readinessProbe:f07Runtime.ready,readinessTimeoutMs:3000}));
+}else if(process.env.F06_COMPOSITE_TEST_CONSENT==='I_AUTHORIZE_DISPOSABLE_F06_COMPOSITE_ONLY'){
  if(host!=='127.0.0.1')throw Error('F06_COMPOSITE_LOOPBACK_REQUIRED');
  const raw=process.env.F03_1_HMAC_KEY_BASE64||'';
  const key=Buffer.from(raw,'base64');
@@ -55,6 +78,6 @@ if(process.env.F06_COMPOSITE_TEST_CONSENT==='I_AUTHORIZE_DISPOSABLE_F06_COMPOSIT
 }else{
  server=createFoundationServer({readinessProbe:createPgReadinessProbe(process.env),readinessTimeoutMs:3000});
 }
-server.listen(port,host,()=>console.info('F01 single server ready',{host,port,isolatedAuth:!!service,isolatedCatalog:!!catalog,isolatedF06Lock:!!f06,isolatedF06CompositeLockOnly:!!composite}));
-const shutdown=()=>server.close(async()=>{await Promise.all([service?.close(),catalog?.close(),f06?.close(),composite?.close()]);process.exit(0)});
+server.listen(port,host,()=>console.info('F01 single server ready',{host,port,isolatedAuth:!!service,isolatedCatalog:!!catalog,isolatedF06Lock:!!f06,isolatedF06CompositeLockOnly:!!composite,isolatedF07Runtime:!!f07Runtime}));
+const shutdown=()=>server.close(async()=>{await Promise.all([service?.close(),catalog?.close(),f06?.close(),composite?.close(),f07Runtime?.close()]);process.exit(0)});
 process.once('SIGINT',shutdown);process.once('SIGTERM',shutdown);

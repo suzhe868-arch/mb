@@ -1,0 +1,11 @@
+域/入口	来源	来源等级	当前可证明事实	门禁/拒绝码	是否允许正向业务结果
+Collector 回调	F07-1 HMAC 合同 + 本任务合成 PG16 回执	CI_SYNTHETIC_ONLY	仅合成请求签名、nonce、request_id 与 TEST 电话值	CALLBACK_SIGNATURE / CALLBACK_EXPIRED / NONCE_REPLAY / IDEMPOTENCY_CONFLICT	否；只证明隔离回调合同
+Phone latest/dial	真实 F03 IsolatedAuth + readCurrentFacts	SIGNED_PARENT_NEGATIVE_ONLY / SOURCE_GAP	每次重读 Session 与当前 Permission；scope/object 最终决策仍 defer	SESSION_OR_ADMISSION_DENIED / TECH_ALIAS_PENDING_A / CAPABILITY_NOT_IN_CURRENT_CATALOG	否
+F05 转换父事实	F05 migration verifier 的当前只读尝试	SOURCE_GAP	当前运行库不是可证明目标车辆正向转换事实的 F05 源	F05_CONVERSION_POSITIVE_SOURCE_GAP	否
+图片 path/CDN	F07-2 safePath/publicUrl + 本地 MockStorage/MockCDN	CI_SYNTHETIC_ONLY	规范化相对 path、固定 .invalid 域名、双成功/补偿/幂等/并发	UNSAFE_PATH / ASSET_WRITE_FAILED / IMAGE_IDEMPOTENCY_CONFLICT	仅合成资产化验证
+报告/H5/封面	当前签名父 Scope/Object 缺口	SIGNED_PARENT_NEGATIVE_ONLY / SOURCE_GAP	不暴露报告 URL，不因零图生成占位以泄露车辆存在	REPORT_H5_PRIVATE_SOURCE_GAP / F05_CONVERSION_POSITIVE_SOURCE_GAP	否
+通知 allowlist	F07-4 ALLOWLIST + 本任务隔离 PG16	CI_SYNTHETIC_ONLY	仅本地 outbox/审计，无外部发送器	PDM23_NOT_ALLOWLISTED / ROUTE_SOURCE_GAP	仅 QUEUED_LOCAL_ONLY
+SLA	正式 PDM-15/22 deadline 父事实缺口	SOURCE_GAP	不把请求体传入的 deadline 当成已签事实	SLA_EVENT_SOURCE_GAP	否
+Incident Active/Recovery	本地隔离生命周期表 + 缺少签名父事件	CI_SYNTHETIC_ONLY / SOURCE_GAP	校验同一 incident 的 active/cleared 顺序，但不宣称真实事件来源	INCIDENT_CURRENT_ACTIVE_SOURCE_GAP / INCIDENT_SIGNED_ISSUER_SOURCE_GAP / RECOVERY_PREVIOUS_ACTIVE_SOURCE_GAP	否
+Feishu 路由	没有真实 Identity/Token/Webhook	SOURCE_GAP	无外部连接，outbox 状态只能为 QUEUED_LOCAL_ONLY	ROUTE_SOURCE_GAP	否
+生产环境	原 F01 配置门禁	PRODUCTION_DENIED	本任务不能更改生产启动权限	F01_PRODUCTION_NOT_READY	否
