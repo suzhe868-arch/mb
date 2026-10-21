@@ -4,7 +4,7 @@ F08-2 [Issue #184](https://github.com/suzhe868-arch/mb/issues/184) 非生产安�
 
 用户已批准的批发上游电话访问规则已通过 [PR #189](https://github.com/suzhe868-arch/mb/pull/189) 合并：PC 后台按员工单独配置 `publisher.phone.sensitive`，并选择 `LOCKED_ONLY` 或 `ALL_ACTIVE_JYT`；不要求逐车指定负责人，不新增 `can_call_wholesale_phone`，不扩大通用车辆管理权限。
 
-**当前唯一下一动作：`NEXT_OWNER=B`、`NEXT_TASK=F08_PUBLISHER_PHONE_SCOPE_RUNTIME_NONPROD_03`、`NEXT_ISSUE=190`、`NEXT_BRANCH=feat/f08-publisher-phone-scope-runtime-nonprod-03`。** 正式施工单：`07_重建工作区/F08-3_批发上游电话员工专项范围与PG16非生产Runtime纵切_A主控B正式施工单_2026-10-22.md`。本 A 治理 PR 合并 main 后授权生效。
+**当前唯一下一动作：`NEXT_OWNER=B`、`NEXT_TASK=F08_PUBLISHER_PHONE_SCOPE_RUNTIME_NONPROD_03`、`NEXT_ISSUE=190`、`NEXT_BRANCH=feat/f08-publisher-phone-scope-runtime-nonprod-03`。** 正式施工单：`07_重建工作区/F08-3_批发上游电话员工专项范围与PG16非生产Runtime纵切_A主控B正式施工单_2026-10-22.md`。A 治理 PR #191 已标准合并 main，F08-3 授权现已生效。
 
 F08-3 只负责隔离 PG16 + 合成 publisher/phone 的内部权限/对象范围纵切，不接真实外部服务、不接生产。真实 publisher 映射/电话缓存来源、Collector/JYT、SLA/Incident、CDN/OSS/Feishu 仍待核实；[Issue #187](https://github.com/suzhe868-arch/mb/issues/187) 保持开放，作为父级来源门禁。F06/F07/F08/V1 仍 `NOT_READY / NO_PRODUCTION`；F08 整阶段尚未通过正常验收，**不提前开展整个后端最终全局验收**；已验收工程成果直接复用，C PR #68 独立不变。
 
