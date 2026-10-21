@@ -103,6 +103,12 @@ jobs:
           node --test --test-concurrency=1 engineering/f07/nonprod-runtime-integration/tests/business.test.mjs 2>&1 | tee f07-runtime-business.log
           grep -q 'F07_RUNTIME_INTEGRATION_24_BUSINESS_SCENARIOS_PASS' f07-runtime-business.log
           grep -q '# fail 0' f07-runtime-business.log
+      - name: 受影响旧入口定向回归（F01 健康/进程、F06 锁车 HTTP）
+        shell: bash
+        run: |
+          set -euo pipefail
+          env -u F07_RUNTIME_TEST_CONSENT node --test engineering/tests/health.test.mjs engineering/tests/进程启动.test.mjs engineering/tests/f06-lock-http.test.mjs 2>&1 | tee f07-runtime-affected-regression.log
+          grep -q '# fail 0' f07-runtime-affected-regression.log
       - name: 归档本 Job 的真实 Run/SHA/数据库证据
         if: always()
         shell: bash
@@ -117,6 +123,7 @@ jobs:
           name: f07-runtime-business-pg16-${{ github.sha }}
           path: |
             f07-runtime-business.log
+            f07-runtime-affected-regression.log
             f07-runtime-identity.tsv
             f07-runtime-run-evidence.tsv
             f07-runtime-f03-bootstrap.log

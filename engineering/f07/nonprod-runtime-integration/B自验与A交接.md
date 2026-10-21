@@ -39,6 +39,15 @@
 - SLA 已签 deadline、Incident 签名 issuer 和真实 Feishu 路由仍缺失；本包只测试本地隔离 outbox，不真实投递。
 - 不连接真实 JYT、Collector、CDN、OSS、Feishu、微信或公网，不使用真实电话号码，不部署，不操作生产或真实资金。
 
+## 增量自审、修复和受影响回归（2026-10-21）
+
+- 本次改动始终在 A 正式白名单内；历史 F07-1～F07-4 Sidecar、F03/F05/F06 实现及所有生产配置仍只读。
+- 已修复新 Runtime 模板字符串语法错误；在两个 PG16 官方 Job 中运行全量变更 MJS 的 `node --check`，不跳过语法门禁。
+- 已修复 GitHub Artifact SHA 表达式和 Git 中文路径转义引发的白名单误报；`git diff --check`、中文文件真实路径白名单仍必须通过。
+- 旧入口关联回归限于 `engineering/tests/health.test.mjs`、`engineering/tests/进程启动.test.mjs`、`engineering/tests/f06-lock-http.test.mjs`；旧测试在没有 F07 consent 的进程中独立执行，验证默认入口不受影响。其他 F01～F06 业务/PG16 历史合同未经修改，按受影响范围不重复全量跑。
+- 工作流另保留本包至少 46 个独立应用集成场景与 15 个独立 HTTPS 黑箱场景，真实计数以最终同 SHA Job TAP 日志为准；不得把结束标记测试计入业务场景。
+- 有效证据由官方 Push Run 的 `GITHUB_SHA`、`GITHUB_RUN_ID`、两个独立 Job、PG16 identity 和同 SHA 两份非空 Artifact 共同确认；Git 提交无法静态内嵌自身完整 SHA，以最终 Issue #178 / PR 交接信息提供精确引用。
+
 ## A 独立验收请求
 
 完成两个独立 PG16 Job、同 SHA Push Run、官方 Artifact 和最终白名单/差异核对后，由 B 在 Issue #178 与 PR 交接中填入精确证据并标记 B_SELF_TESTED / READY_FOR_A_REVIEW / NEXT_OWNER=A。B 不合并 main、不关闭 Issue、不修改主控状态文件；A 必须独立复核。
