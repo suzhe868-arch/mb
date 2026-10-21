@@ -1,0 +1,247 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createHash,randomBytes} from 'node:crypto';
+import {createServer} from 'node:http';
+import pg from 'pg';
+import {hashPassword,newOpaqueToken} from '../../../src/f03-auth-crypto.mjs';
+import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
+import {createIsolatedF06CompositeRuntime} from '../../../src/f06-nonprod-composite-runtime.mjs';
+import {recordSyntheticDepositComposite} from '../../deposit-ledger-ci/service.mjs';
+import {openSyntheticTransactionComposite} from '../../lock-transaction-http-pg16/service.mjs';
+import {cancelSyntheticRealTransactionCI} from '../../transaction-cancel-http-pg16/service.mjs';
+
+const DSN='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test';
+const sha=x=>createHash('sha256').update(x).digest('hex');
+const isAllowed=x=>x&&x.allowed===true;
+function envSetup(){
+ Object.assign(process.env,{
+  APP_ENV:'test',NODE_ENV:'test',API_HOST:'127.0.0.1',CI:'true',GITHUB_ACTIONS:'true',
+  F03_1_ISOLATION_CONFIRM:'I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY',
+  F05_2_ISOLATION_CONFIRM:'I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY',
+  F03_1_DATABASE_URL:DSN,
+  F06_LOCK_TEST_CONSENT:'I_AUTHORIZE_DISPOSABLE_F06_LOCK_PG16_ONLY',
+  F06_COMPOSITE_TEST_CONSENT:'I_AUTHORIZE_DISPOSABLE_F06_COMPOSITE_ONLY',
+  F06_COMPOSITE_SIGNED_ISSUER:'COMPOSITE_NONPROD_SIGNED_V1'
+ });
+ const secret=randomBytes(32);
+ process.env.F03_1_HMAC_KEY_BASE64=secret.toString('base64');
+ return secret;
+}
+async function seedEmployeeScope(db,employeeId,teamId,permissionIds){
+ const team=await db.query("SELECT 1 FROM public.employee_team_memberships WHERE employee_id=$1 AND team_id=$2 AND valid_from<=clock_timestamp() AND (ended_at IS NULL OR ended_at>clock_timestamp())",[employeeId,teamId]);
+ if(!team.rowCount)await db.query("INSERT INTO public.employee_team_memberships(employee_id,team_id,valid_from) VALUES($1,$2,clock_timestamp()-interval '2 minutes')",[employeeId,teamId]);
+ let scope=(await db.query("SELECT scope_id FROM public.employee_data_scopes WHERE employee_id=$1 AND scope_kind='team' AND scope_reference_id=$2 AND ended_at IS NULL ORDER BY scope_id LIMIT 1",[employeeId,teamId])).rows[0];
+ if(!scope)scope=(await db.query("INSERT INTO public.employee_data_scopes(employee_id,scope_kind,scope_reference_id) VALUES($1,'team',$2) RETURNING scope_id",[employeeId,teamId])).rows[0];
+ for(const permissionId of permissionIds){
+  const ov=(await db.query("SELECT 1 FROM public.employee_permission_overrides WHERE employee_id=$1 AND permission_id=$2",[employeeId,permissionId])).rowCount;
+  if(ov)await db.query("UPDATE public.employee_permission_overrides SET decision='allow',changed_at=clock_timestamp() WHERE employee_id=$1 AND permission_id=$2",[employeeId,permissionId]);
+  else await db.query("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES($1,$2,'allow',clock_timestamp())",[employeeId,permissionId]);
+  const binding=(await db.query("SELECT 1 FROM public.employee_capability_scope_bindings WHERE employee_id=$1 AND permission_id=$2 AND scope_id=$3 AND ended_at IS NULL",[employeeId,permissionId,scope.scope_id])).rowCount;
+  if(!binding)await db.query("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES($1,$2,$3,clock_timestamp()-interval '2 minutes')",[employeeId,permissionId,scope.scope_id]);
+ }
+}
+async function seedAccount(db,employeeId,runId){
+ const login=`cmp${employeeId}_${String(runId).slice(-6)}`;
+ const password=`CompositePass_${employeeId}_2026!`;
+ const passwordHash=await hashPassword(password);
+ let a=(await db.query("SELECT account_id FROM public.pc_login_accounts WHERE principal_kind='employee' AND employee_id=$1 AND system_admin_id IS NULL ORDER BY account_id LIMIT 1",[employeeId])).rows[0];
+ if(a){
+  await db.query("UPDATE public.pc_login_accounts SET normalized_login_key=$2,password_hash=$3,credential_state='enabled',force_password_change=false,credential_epoch=credential_epoch+1,updated_at=clock_timestamp() WHERE account_id=$1",[a.account_id,login,passwordHash]);
+  await db.query("UPDATE public.pc_auth_sessions SET revoked_at=COALESCE(revoked_at,clock_timestamp()) WHERE account_id=$1",[a.account_id]);
+ }else{
+  a=(await db.query("INSERT INTO public.pc_login_accounts(principal_kind,employee_id,system_admin_id,normalized_login_key,password_hash,credential_state,force_password_change,credential_epoch,created_at,updated_at) VALUES('employee',$1,NULL,$2,$3,'enabled',false,1,clock_timestamp(),clock_timestamp()) RETURNING account_id",[employeeId,login,passwordHash])).rows[0];
+ }
+ return {employeeId:Number(employeeId),login,password};
+}
+async function ensurePermission(db,code){
+ let row=(await db.query("SELECT permission_id FROM public.permissions WHERE permission_code=$1",[code])).rows[0];
+ if(row)return Number(row.permission_id);
+ const id=Number((await db.query("SELECT COALESCE(MAX(permission_id),0)+1 id FROM public.permissions")).rows[0].id);
+ row=(await db.query("INSERT INTO public.permissions(permission_id,permission_code) VALUES($1,$2) RETURNING permission_id",[id,code])).rows[0];
+ return Number(row.permission_id);
+}
+async function seedScenario(db,runId){
+ const employees=(await db.query("SELECT e.employee_id,r.role_code FROM public.employees e JOIN public.roles r ON r.role_id=e.main_role_id WHERE e.employment_status='active' AND r.role_code IN('sales','manager','store_head') ORDER BY e.employee_id")).rows;
+ assert.ok(employees.length>=3,'need three active non-4S employees for lock owner, handoff manager and new responsible');
+ const initial=employees.find(x=>Number(x.employee_id)===1)||employees[0];
+ const manager=employees.find(x=>Number(x.employee_id)!==Number(initial.employee_id)&&['manager','store_head'].includes(x.role_code));
+ assert.ok(manager,'need a separate active manager/store_head for signed handoff');
+ const target=employees.find(x=>Number(x.employee_id)!==Number(initial.employee_id)&&Number(x.employee_id)!==Number(manager.employee_id)&&Number(x.employee_id)===4)||
+  employees.find(x=>Number(x.employee_id)!==Number(initial.employee_id)&&Number(x.employee_id)!==Number(manager.employee_id));
+ assert.ok(target,'need a separate current responsible after handoff');
+ const team=(await db.query("SELECT t.team_id,t.store_id FROM public.employee_team_memberships m JOIN public.teams t ON t.team_id=m.team_id WHERE m.employee_id=$1 AND m.valid_from<=clock_timestamp() AND (m.ended_at IS NULL OR m.ended_at>clock_timestamp()) AND t.team_status='active' ORDER BY t.team_id LIMIT 1",[initial.employee_id])).rows[0];
+ assert.ok(team,'initial responsible must have an active team');
+ const codes=['lock.ci.approve','deposit.ci.record','transaction.ci.open','transaction.ci.handoff','transaction.ci.cancel','transaction.refund.ci.request'];
+ const permissions={};for(const code of codes)permissions[code]=await ensurePermission(db,code);
+ await seedEmployeeScope(db,Number(initial.employee_id),Number(team.team_id),[
+  permissions['deposit.ci.record'],permissions['transaction.ci.open'],permissions['transaction.ci.cancel'],permissions['transaction.refund.ci.request']
+ ]);
+ await seedEmployeeScope(db,Number(manager.employee_id),Number(team.team_id),[
+  permissions['lock.ci.approve'],permissions['transaction.ci.handoff']
+ ]);
+ await seedEmployeeScope(db,Number(target.employee_id),Number(team.team_id),[
+  permissions['transaction.ci.cancel'],permissions['transaction.refund.ci.request']
+ ]);
+ const customerId=86280101,vehicleId=86281101,cycleId=86282101;
+ await db.query("INSERT INTO public.customers(customer_id,account_status,customer_level_id,owner_assignment_state,current_owner_employee_id) VALUES($1,'active',1,'assigned',$2) ON CONFLICT(customer_id) DO UPDATE SET account_status='active',customer_level_id=1,owner_assignment_state='assigned',current_owner_employee_id=EXCLUDED.current_owner_employee_id",[customerId,initial.employee_id]);
+ const phone=(await db.query("SELECT 1 FROM public.customer_phone_facts WHERE customer_id=$1 AND revoked_at IS NULL AND valid_from<=clock_timestamp() LIMIT 1",[customerId])).rowCount;
+ if(!phone)await db.query("INSERT INTO public.customer_phone_facts(customer_id,phone_ciphertext,valid_from) VALUES($1,decode(repeat('ab',16),'hex'),clock_timestamp()-interval '1 day')",[customerId]);
+ await db.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,created_by_employee_id) VALUES($1,'mingbang','available','visible',$2) ON CONFLICT(vehicle_id) DO NOTHING",[vehicleId,initial.employee_id]);
+ await db.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES($1,$2,clock_timestamp()-interval '1 day') ON CONFLICT(listing_cycle_id) DO NOTHING",[cycleId,vehicleId]);
+ const price=(await db.query("SELECT 1 FROM public.vehicle_price_history WHERE vehicle_id=$1 AND price_kind='customer_display' AND amount_cents>0 LIMIT 1",[vehicleId])).rowCount;
+ if(!price)await db.query("INSERT INTO public.vehicle_price_history(vehicle_id,price_kind,amount_cents,valid_from) VALUES($1,'customer_display',6500000,clock_timestamp()-interval '1 day')",[vehicleId]);
+ const customerToken=newOpaqueToken();
+ await db.query("INSERT INTO f06_composite_v1.customer_sessions(token_sha256,customer_id,issuer,head_sha,run_id,expires_at) VALUES($1,$2,'COMPOSITE_NONPROD_SIGNED_V1',$3,$4,clock_timestamp()+interval '1 hour') ON CONFLICT(token_sha256) DO NOTHING",
+  [sha(customerToken),customerId,process.env.GITHUB_SHA,process.env.GITHUB_RUN_ID]);
+ const initialAccount=await seedAccount(db,Number(initial.employee_id),runId);
+ const managerAccount=await seedAccount(db,Number(manager.employee_id),runId);
+ const targetAccount=await seedAccount(db,Number(target.employee_id),runId);
+ return {customerId,vehicleId,cycleId,customerToken,initial,manager,target,initialAccount,managerAccount,targetAccount,teamId:Number(team.team_id)};
+}
+async function login(auth,account){
+ const result=await auth.login({login:account.login,password:account.password,source:'issue164_composite_e2e',ip:'127.0.0.1'});
+ assert.equal(result.code,'AUTH_OK',`F03 login failed for employee ${account.employeeId}: ${result.code}`);
+ assert.equal(result.restricted,false,'Composite business operations require an unrestricted native F03 session');
+ return result.token;
+}
+async function post(base,path,token,body){
+ const response=await fetch(base+path,{method:'POST',headers:{'content-type':'application/json','authorization':`Bearer ${token}`},body:JSON.stringify(body)});
+ const data=await response.json();
+ return {status:response.status,data};
+}
+test('F06 Issue164：单PG16真实F03 Session贯通Lock→Deposit→Transaction→Handoff→Cancel→Refund Pending/Closed',async t=>{
+ let db,auth,runtime,server;
+ const secret=envSetup();
+ try{
+  db=new pg.Client({connectionString:DSN});await db.connect();
+  const scenario=await seedScenario(db,process.env.GITHUB_RUN_ID);
+  auth=new IsolatedAuth({connectionString:DSN,secret,origin:'https://127.0.0.1:3000'});
+  const initialToken=await login(auth,scenario.initialAccount);
+  const managerToken=await login(auth,scenario.managerAccount);
+  const targetToken=await login(auth,scenario.targetAccount);
+  runtime=await createIsolatedF06CompositeRuntime(process.env,{sessionSecret:secret,auth});
+  assert.equal(runtime.mode,'COMPOSITE_NONPROD_SIGNED_V1');
+  assert.equal(await runtime.ready(),true);
+  server=createServer(runtime.handler);
+  await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve)});
+  const port=server.address().port,base=`http://127.0.0.1:${port}`;
+  const req=await post(base,'/api/v1/lock-requests',scenario.customerToken,{
+   vehicleId:String(scenario.vehicleId),listingCycleId:String(scenario.cycleId),idempotencyKey:`lock_req_${process.env.GITHUB_RUN_ID}`
+  });
+  assert.equal(req.status,201,JSON.stringify(req.data));
+  assert.equal(req.data.code,'LOCK_REQUEST_PENDING');
+  const requestId=Number(req.data.requestId);
+  t.diagnostic('F06_COMPOSITE_LOCK_REQUEST_CREATED requestId='+requestId);
+
+  const approved=await post(base,`/api/v1/lock-requests/${requestId}/decision`,managerToken,{
+   decision:'approve',idempotencyKey:`lock_decision_${process.env.GITHUB_RUN_ID}`
+  });
+  assert.equal(approved.status,200,JSON.stringify(approved.data));
+  assert.equal(approved.data.code,'LOCK_APPROVED');
+  const lockId=Number(approved.data.lockId);
+  assert.ok(lockId>0);
+  t.diagnostic('F06_COMPOSITE_SIGNED_LOCK_CREATED lockId='+lockId);
+
+  await assert.rejects(()=>recordSyntheticDepositComposite(auth,initialToken,{
+   lockId,amountCents:500000,currency:'CNY',paymentMethod:'bank_transfer',
+   eventKey:`deposit_rollback_${process.env.GITHUB_RUN_ID}`,receivedAt:new Date().toISOString(),
+   note:'Synthetic rollback checkpoint',testCheckpoint:'AFTER_RECEIPT_THROW'
+  }),/F06_3A_INJECTED_RECEIPT_ROLLBACK/);
+  const rollbackDeposit=await db.query('SELECT count(*)::int n FROM public.deposit_receipts WHERE lock_id=$1',[lockId]);
+  assert.equal(rollbackDeposit.rows[0].n,0,'receipt write and provenance must roll back together');
+  t.diagnostic('F06_COMPOSITE_DEPOSIT_ROLLBACK_ATOMIC_PASS');
+
+  const deposit=await post(base,'/__nonprod__/f06-composite/deposit/record',initialToken,{
+   lockId,amountCents:500000,currency:'CNY',paymentMethod:'bank_transfer',
+   eventKey:`deposit_record_${process.env.GITHUB_RUN_ID}`,receivedAt:new Date().toISOString(),
+   note:'Synthetic test receipt only'
+  });
+  assert.equal(deposit.status,201,JSON.stringify(deposit.data));
+  assert.equal(deposit.data.code,'F06_3A_SYNTHETIC_RECEIPT_RECORDED');
+  const depositId=Number(deposit.data.depositId);
+  t.diagnostic('F06_COMPOSITE_SIGNED_DEPOSIT_CREATED depositId='+depositId);
+
+  const failedOpen=await openSyntheticTransactionComposite(auth,initialToken,{
+   lockId,eventKey:`tx_rollback_${process.env.GITHUB_RUN_ID}`,testCheckpoint:'AFTER_TRANSACTION_THROW'
+  });
+  assert.equal(failedOpen.allowed,false);
+  assert.equal(failedOpen.code,'F06_TX_ROLLED_BACK');
+  const rolled=await db.query("SELECT (SELECT count(*)::int FROM public.transactions WHERE source_lock_id=$1) tx_count,(SELECT lock_status FROM public.locks WHERE lock_id=$1) lock_status",[lockId]);
+  assert.equal(rolled.rows[0].tx_count,0);
+  assert.equal(rolled.rows[0].lock_status,'active');
+  t.diagnostic('F06_COMPOSITE_TRANSACTION_ROLLBACK_ATOMIC_PASS');
+
+  const opened=await post(base,'/__nonprod__/f06-composite/transaction/open',initialToken,{
+   lockId,eventKey:`tx_open_${process.env.GITHUB_RUN_ID}`
+  });
+  assert.equal(opened.status,200,JSON.stringify(opened.data));
+  assert.equal(opened.data.code,'F06_TX_ATOMIC_SYNTHETIC_IN_PROGRESS');
+  const transactionId=Number(opened.data.transactionId);
+  assert.ok(transactionId>0);
+  t.diagnostic('F06_COMPOSITE_TRANSACTION_CREATED transactionId='+transactionId);
+
+  const handoff=await post(base,'/__nonprod__/f06-composite/transaction/handoff',managerToken,{
+   transactionId,expectedOldResponsibleId:Number(scenario.initial.employee_id),expectedVersion:0,
+   newResponsibleId:Number(scenario.target.employee_id),reason:'Issue164 synthetic responsibility handoff',
+   eventKey:`handoff_${process.env.GITHUB_RUN_ID}`
+  });
+  assert.equal(handoff.status,200,JSON.stringify(handoff.data));
+  assert.equal(handoff.data.code,'F06_REAL_HANDOFF_SUCCESS');
+  t.diagnostic('F06_COMPOSITE_HANDOFF_SIGNED');
+
+  const cancelled=await post(base,'/__nonprod__/f06-composite/transaction/cancel',targetToken,{
+   transactionId,expectedVersion:1,reason:'Issue164 synthetic post-handoff cancel',
+   eventKey:`post_cancel_${process.env.GITHUB_RUN_ID}`
+  });
+  assert.equal(cancelled.status,200,JSON.stringify(cancelled.data));
+  assert.equal(cancelled.data.code,'F06_POST_CANCEL_ATOMIC_SIGNED');
+  t.diagnostic('F06_COMPOSITE_POST_HANDOFF_CANCEL_SIGNED');
+
+  await assert.rejects(()=>cancelSyntheticRealTransactionCI(auth,targetToken,{
+   transactionId,eventKey:`legacy_pr146_${process.env.GITHUB_RUN_ID}`,reason:'legacy must stay denied'
+  }));
+  t.diagnostic('F06_COMPOSITE_LEGACY_PR146_ENTRY_STILL_REJECTS');
+
+  const refund=await post(base,'/__nonprod__/f06-composite/refund/request',targetToken,{
+   transactionId,amountCents:100000,reason:'Synthetic refund pending test',
+   eventKey:`refund_pending_${process.env.GITHUB_RUN_ID}`
+  });
+  assert.equal(refund.status,201,JSON.stringify(refund.data));
+  assert.equal(refund.data.code,'F06_TX_REFUND_PENDING_NO_PAYMENT');
+  const refundId=Number(refund.data.refundId);
+  assert.ok(refundId>0);
+  t.diagnostic('F06_COMPOSITE_REFUND_PENDING_SIGNED refundId='+refundId);
+
+  const closed=await post(base,'/__nonprod__/f06-composite/refund/close',targetToken,{
+   refundId,closeReason:'Synthetic no-payment close',
+   eventKey:`refund_close_${process.env.GITHUB_RUN_ID}`
+  });
+  assert.equal(closed.status,200,JSON.stringify(closed.data));
+  assert.equal(closed.data.code,'F06_TX_REFUND_CLOSED_WITHOUT_PAYMENT');
+  t.diagnostic('F06_COMPOSITE_REFUND_CLOSED_WITHOUT_PAYMENT_SIGNED');
+
+  const issuer=(await db.query("SELECT head_sha,run_id,database_oid,source_sha256 FROM f06_composite_v1.attestation")).rows[0];
+  assert.equal(issuer.head_sha,process.env.GITHUB_SHA);
+  assert.equal(issuer.run_id,process.env.GITHUB_RUN_ID);
+  const events=(await db.query("SELECT event_kind,head_sha,run_id FROM f06_composite_v1.issued_events WHERE (event_kind IN('lock_request_created','lock_request_approved') AND parent_object_id=$1) OR (event_kind='signed_lock' AND parent_object_id=$2) OR (event_kind='signed_deposit' AND parent_object_id=$3) OR (event_kind IN('signed_tx','signed_handoff','signed_cancel') AND parent_object_id=$4) OR (event_kind IN('signed_refund_pending','signed_refund_closed') AND parent_object_id=$5) ORDER BY event_id",
+   [requestId,lockId,depositId,transactionId,refundId])).rows;
+  const expected=['lock_request_created','lock_request_approved','signed_lock','signed_deposit','signed_tx','signed_handoff','signed_cancel','signed_refund_pending','signed_refund_closed'];
+  assert.deepEqual(events.map(x=>x.event_kind),expected);
+  assert.ok(events.every(x=>x.head_sha===process.env.GITHUB_SHA&&x.run_id===process.env.GITHUB_RUN_ID));
+  const dbFacts=(await db.query("SELECT current_database() db,current_user role,current_setting('server_version_num')::int version,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) superuser,(SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user) createdb,(SELECT count(*)::int FROM public.refund_payments WHERE refund_id=$1) payments,(SELECT count(*)::int FROM f06_1_lock_ci.lock_snapshots WHERE lock_id=$2) legacy_lock_snapshots,(SELECT count(*)::int FROM f06_composite_v1.lock_snapshots WHERE lock_id=$2) composite_lock_snapshots",
+   [refundId,lockId])).rows[0];
+  assert.equal(dbFacts.db,'f03_auth_test');assert.equal(dbFacts.role,'f03_ci');
+  assert.ok(dbFacts.version>=160000&&dbFacts.version<170000);assert.equal(dbFacts.superuser,false);assert.equal(dbFacts.createdb,false);
+  assert.equal(dbFacts.payments,0,'no actual refund payment is authorized');
+  assert.equal(dbFacts.legacy_lock_snapshots,0,'must not forge a legacy F06-1 Lock snapshot');
+  assert.equal(dbFacts.composite_lock_snapshots,1);
+  assert.equal(String(issuer.database_oid),String((await db.query("SELECT oid FROM pg_database WHERE datname=current_database()")).rows[0].oid));
+  assert.equal(await runtime.ready(),true);
+  t.diagnostic('F06_164_SINGLE_PG16_CURRENT_RUN_ISSUER_AND_ALL_NINE_BUSINESS_EVENTS_VERIFIED');
+ }finally{
+  if(server)await new Promise(resolve=>server.close(resolve));
+  if(runtime)await runtime.close();
+  if(auth)await auth.close();
+  if(db)await db.end();
+ }
+});
