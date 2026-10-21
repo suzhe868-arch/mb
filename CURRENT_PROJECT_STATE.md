@@ -1,16 +1,13 @@
-# 当前有效状态（2026-10-22｜外部系统未准备，F08 来源父门禁继续）
+# 当前有效状态（2026-10-22｜F05-7 独立后端调度任务已放行）
 
-用户已明确确认：JYT/Collector 尚未准备、图片存储/CDN 尚未准备、飞书尚未准备。A 已复核最新 main、Issue #187、正式 F03 capability/Scope/Object 读取、F05 转换正向来源、F07 Runtime 与外部依赖台账，并将三项用户确认状态及解除条件写入台账。完整记录：`07_重建工作区/A_Issue187外部系统未准备阻断登记与独立工作盘点_2026-10-22.md`。
+当前唯一 B 任务为 [Issue #201](https://github.com/suzhe868-arch/mb/issues/201)：为既有 F05 Matching retry worker 补齐独立的持久调度进程。代码核查确认 `engineering/src/f05-matching-retry-worker.mjs` 仅提供 `runOnce()`，`engineering/src/server.mjs` 与 `engineering/src/catalog-readiness.mjs` 未接入自动调度；PDM-12 Final §28 要求事件驱动、按受影响范围重算和幂等失败重试。正式施工单：`07_重建工作区/F05-7_Matching受影响队列持久调度与自动重试非生产施工单_2026-10-22.md`。
 
-F08-3 [Issue #190](https://github.com/suzhe868-arch/mb/issues/190) 已通过限定非生产子范围验收并关闭；业务 [PR #193](https://github.com/suzhe868-arch/mb/pull/193) 已标准合并，B HEAD `662847bf2e75c9ca404dff8e57902850d8fe4673`，merge SHA `5cb52e6754e3e171cb9e1a67e3aef51c8e78dfcc`。治理 [PR #194](https://github.com/suzhe868-arch/mb/pull/194) 已标准合并。历史测试不重跑：F08-2 为 58/58 + 7/7；F08-3 为 43/43 业务 + 26/26 受影响回归 + 16/16 HTTPS，均仅覆盖各自限定非生产范围。
+B 仅新增 `engineering/f05-matching-retry-scheduler/**` 与独立 Push 工作流，不修改已验收 Matching service/worker、F03 reader、旧 F05 工作流、生产配置或前端。真实 PG16 非超级用户、自动处理、并发租约、进程重启恢复、退避、fail-closed 和同 SHA 官方 CI 为验收门槛。F05 已验收 PR #125、F06 PR #174、F07 PR #181、F08-2/F08-3 PR #186/#193 的既有成果直接复用，不重跑旧 F05 421 项全包或旧 66 项 Oracle。
 
-正式 F03 reader 仍 fail-closed，最终 `finalAllowed=false`；F05 正向转换 Issuer 仍缺正式来源。真实 JYT/Collector、CDN/OSS、Feishu 无可证明的已接入资源。
+Issue #187 继续作为 A 负责的独立外部来源/授权门禁：JYT/Collector、CDN/OSS、飞书尚未准备，正式 F03 capability/Scope/Object 与 F05 转换 Issuer 仍有来源缺口；这些不阻断 Issue #201。电话权限正式后端仍未完成，继续关联 Issue #196，不能以 F08-3 合成测试冒领正式实现。
 
-**电话权限后端专项复核（PR #199 后）：** F08-3 PR #193 只覆盖 `CI_SYNTHETIC_ONLY` 配置/Guard；配置入口仅在固定测试 REF 的 `__ci__` 路由。F04 Current 电话合同仍为 `CI_ONLY_PROPOSED / NOT_PRODUCTION`，正式 F03 reader 对电话动作仍 `finalAllowed=false`，SG01/SG08 正式范围/上游发布人映射仍 `MISSING_PROPOSAL`。员工电话权限后端尚未正式完成。要求已进入 F01～F08 路线图；后续页面待办见 [Issue #196](https://github.com/suzhe868-arch/mb/issues/196)，A 的增量核查见 [Issue #187 评论](https://github.com/suzhe868-arch/mb/issues/187#issuecomment-6327645997)。
+**唯一施工指针：** `NEXT_OWNER=B`、`NEXT_TASK=F05_7_MATCHING_RETRY_SCHEDULER_01`、`NEXT_ISSUE=201`、`NEXT_BRANCH=feat/f05-7-matching-retry-scheduler-01`。当前仅非生产后端施工，不授权生产、真钱、真实电话、外部公网调用或客户端/PC 页面。
 
-当前没有新的、可合法验收且不依赖缺失资源的 B 业务施工差异，因此不签发新的 B 施工包、不重复 F08-3。正式来源/授权门禁解决后，A 再拆分必要的最小后端施工任务；PC 页面继续延期。
-
-**唯一指针：** `NEXT_OWNER=A`、`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`、`NEXT_ISSUE=187`、`NEXT_BRANCH=NONE`。等获批非生产资源和可信来源证据就绪后，A 再判断最小施工差异。F06/F07/F08/V1 继续 `NOT_READY / NO_PRODUCTION`；不授权生产、真实电话、外部公网调用、真实资金、退款或成交；C PR #68 独立不动。
 
 ---
 
