@@ -1,10 +1,13 @@
-# 当前有效状态（2026-10-22｜F08-3 子范围已验收合并，F08 整阶段来源门禁继续）
+# 当前有效状态（2026-10-22｜外部系统未准备，F08 来源父门禁继续）
 
-F08-3 [Issue #190](https://github.com/suzhe868-arch/mb/issues/190) 已通过 A 独立验收并关闭；业务 [PR #193](https://github.com/suzhe868-arch/mb/pull/193) 已标准合并。B 最终 HEAD `662847bf2e75c9ca404dff8e57902850d8fe4673`，merge SHA `5cb52e6754e3e171cb9e1a67e3aef51c8e78dfcc`。官方 Run #39665372029：两个独立非超管 PG16 Job 成功，业务 43/43、受影响回归 26/26、HTTPS 16/16；最终 SHA 30/30 Check Runs 全部 success，双 Artifact #12377127302/#12377287037 非空有效。完整验收报告：`07_重建工作区/F08-3_Issue190_PR193独立验收与合并报告_2026-10-22.md`。
+用户已明确确认：JYT/Collector 尚未准备、图片存储/CDN 尚未准备、飞书尚未准备。A 已复核最新 main、Issue #187、正式 F03 capability/Scope/Object 读取、F05 转换正向来源、F07 Runtime 与外部依赖台账，并将三项用户确认状态及解除条件写入台账。完整记录：`07_重建工作区/A_Issue187外部系统未准备阻断登记与独立工作盘点_2026-10-22.md`。
 
-本次仅接受 `CI_SYNTHETIC_ONLY` 内部非生产专项权限/范围纵切。真实 Collector/JYT 回传、publisher 物理映射与可信电话来源、正式 F03 capability/Scope/Object、F05 转换正向 Issuer、SLA/Incident、CDN/OSS/Feishu 仍有 `SOURCE_GAP`，不得将合成测试通过扩大解释为真实外部集成或生产可用。
+F08-3 [Issue #190](https://github.com/suzhe868-arch/mb/issues/190) 已通过限定非生产子范围验收并关闭；业务 [PR #193](https://github.com/suzhe868-arch/mb/pull/193) 已标准合并，B HEAD `662847bf2e75c9ca404dff8e57902850d8fe4673`，merge SHA `5cb52e6754e3e171cb9e1a67e3aef51c8e78dfcc`。治理 [PR #194](https://github.com/suzhe868-arch/mb/pull/194) 已标准合并。历史测试不重跑：F08-2 为 58/58 + 7/7；F08-3 为 43/43 业务 + 26/26 受影响回归 + 16/16 HTTPS，均仅覆盖各自限定非生产范围。
 
-**当前唯一下一动作：** `NEXT_OWNER=A`、`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`、`NEXT_ISSUE=187`、`NEXT_BRANCH=NONE`。A 回到 [Issue #187](https://github.com/suzhe868-arch/mb/issues/187) 继续真实签名来源与外部授权父门禁；当前没有新的 B 施工包授权。F06/F07/F08/V1 继续 `NOT_READY / NO_PRODUCTION`；F08 整阶段通过正常验收后，整个 B 后端最终整体验收仍由 A 独立负责；C PR #68 独立不动。
+正式 F03 reader 仍 fail-closed，最终 `finalAllowed=false`；F05 正向转换 Issuer 仍缺正式来源。真实 JYT/Collector、CDN/OSS、Feishu 无可证明的已接入资源。当前没有新的、可合法验收且不依赖缺失资源的 B 业务施工差异，因此不签发新的 B 施工包。
+
+**唯一指针：** `NEXT_OWNER=A`、`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`、`NEXT_ISSUE=187`、`NEXT_BRANCH=NONE`。等获批非生产资源和可信来源证据就绪后，A 再判断最小施工差异。F06/F07/F08/V1 继续 `NOT_READY / NO_PRODUCTION`；不授权生产、真实电话、外部公网调用、真实资金、退款或成交；C PR #68 独立不动。
+
 ---
 
 ## 2026-10-22 上一阶段历史状态（非现行 NEXT 指针）
