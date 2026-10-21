@@ -91,6 +91,12 @@ node --input-type=module -e '
   const n=(await db.query("SELECT count(*)::int n FROM public.f03_schema_migrations")).rows[0].n;
   if(n!==24)throw Error("F06_164_SIGNED_PUBLIC_LEDGER_DRIFT");
   console.log("F06_164_FIVE_NATIVE_PARENT_SCHEMA_STEPS_SIGNED_NO_LEGACY_REF_SPOOF",JSON.stringify({sha:process.env.GITHUB_SHA,migrations:n}));
+  const {applyCompositeTransactionSidecar,verifyCompositeTransactionSidecar}=await import("./engineering/f06/lock-transaction-http-pg16/service.mjs");
+  const txSidecar=await applyCompositeTransactionSidecar(db);
+  const txCheck=await verifyCompositeTransactionSidecar(db);
+  if(!txSidecar.verified||!txCheck.verified)throw Error("F06_164_PR139_COMPOSITE_SIDECAR_NOT_VERIFIED");
+  console.log("F06_164_PR139_NATIVE_LOCK_TO_TRANSACTION_SIDECAR_VERIFIED",JSON.stringify({
+   sha:process.env.GITHUB_SHA,sidecarSHA:txCheck.sidecarSHA,catalog:txCheck.catalog}));
  }finally{await db.end()}
 '
 test "$GITHUB_REF" = "$original_ref"
