@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {test,before,after} from 'node:test';
 import {createFoundationServer} from '../../../src/app.mjs';
-import {verifyCompositeEnvironment,createCompositeDenyHandler,getCompositeSourceMatrix,F06_COMPOSITE_CONSENT} from '../../../src/f06-nonprod-composite-runtime.mjs';
+import {verifyCompositeEnvironment,createCompositeDenyHandler,createCompositeBusinessHandler,getCompositeSourceMatrix,F06_COMPOSITE_CONSENT} from '../../../src/f06-nonprod-composite-runtime.mjs';
 
 const good={
  APP_ENV:'test',NODE_ENV:'test',API_HOST:'127.0.0.1',
@@ -33,7 +33,9 @@ test('17 来源映射准确保留5项拒绝',()=>{
  assert.equal(m.length,6);assert.equal(m.filter(x=>x.state==='SIGNED_SOURCE_GAP').length,5);
  assert.equal(m.filter(x=>x.state==='RUNTIME_WIRED').length,1);
 });
-const handler=createCompositeDenyHandler();
+const deny=createCompositeDenyHandler();
+const business=createCompositeBusinessHandler(null,good);
+const handler=async(req,res)=>{if(await deny(req,res))return true;return business(req,res)};
 let app,port;
 before(async()=>{
  app=createFoundationServer({lockHandler:handler,readinessProbe:async()=>false});
@@ -57,32 +59,32 @@ test('20 禁止历史PR139 CI入口被误挂',async()=>{
  const r=await req('/__ci__/f06-real-transaction/open');assert.equal(r.status,503);
 });
 test('21 单Runtime请求开Transaction必须安全拒绝',async()=>{
- const r=await req('/__nonprod__/f06-composite/transaction/open');assert.equal(r.status,503);
+ const r=await req('/__nonprod__/f06-composite/transaction/open');assert.equal(r.status,401);assert.equal(r.body.code,'F06_COMPOSITE_SIGNED_SESSION_REQUIRED');
 });
 test('22 单Runtime未签Handoff必须安全拒绝',async()=>{
- const r=await req('/__nonprod__/f06-composite/transaction/handoff');assert.equal(r.status,503);
+ const r=await req('/__nonprod__/f06-composite/transaction/handoff');assert.equal(r.status,401);assert.equal(r.body.code,'F06_COMPOSITE_SIGNED_SESSION_REQUIRED');
 });
 test('23 单Runtime未签Cancel必须安全拒绝',async()=>{
- const r=await req('/__nonprod__/f06-composite/transaction/cancel');assert.equal(r.status,503);
+ const r=await req('/__nonprod__/f06-composite/transaction/cancel');assert.equal(r.status,401);assert.equal(r.body.code,'F06_COMPOSITE_SIGNED_SESSION_REQUIRED');
 });
 test('24 单Runtime未签Deposit必须安全拒绝',async()=>{
- const r=await req('/__nonprod__/f06-composite/deposit/record');assert.equal(r.status,503);
+ const r=await req('/__nonprod__/f06-composite/deposit/record');assert.equal(r.status,401);assert.equal(r.body.code,'F06_COMPOSITE_SIGNED_SESSION_REQUIRED');
 });
 test('25 单Runtime未签Refund申请必须安全拒绝',async()=>{
- const r=await req('/__nonprod__/f06-composite/refund/request');assert.equal(r.status,503);
+ const r=await req('/__nonprod__/f06-composite/refund/request');assert.equal(r.status,401);assert.equal(r.body.code,'F06_COMPOSITE_SIGNED_SESSION_REQUIRED');
 });
 test('26 单Runtime未签Refund关闭必须安全拒绝',async()=>{
- const r=await req('/__nonprod__/f06-composite/refund/close');assert.equal(r.status,503);
+ const r=await req('/__nonprod__/f06-composite/refund/close');assert.equal(r.status,401);assert.equal(r.body.code,'F06_COMPOSITE_SIGNED_SESSION_REQUIRED');
 });
 test('27 即使客户端自报管理员身份仍拒绝',async()=>{
  const r=await req('/__nonprod__/f06-composite/refund/close','POST',
  {'x-role':'admin','authorization':'Bearer '+('a'.repeat(43))},{amountCents:3000});
- assert.equal(r.status,503);assert.equal(r.body.allowed,false);
+ assert.equal(r.status,403);assert.equal(r.body.allowed,false);
 });
 test('28 即使用户自称issuer仍拒绝',async()=>{
  const r=await req('/__nonprod__/f06-composite/transaction/open','POST',
  {'x-issuer':'PR139','authorization':'Bearer '+('b'.repeat(43))},{issuer:'CI_SYNTHETIC_NOT_REAL_MONEY'});
- assert.equal(r.status,503);
+ assert.equal(r.status,403);
 });
 test('29 只读测试健康活性可达',async()=>{
  const r=await req('/api/v1/health/live','GET');assert.equal(r.status,200);assert.equal(r.body.ok,true);
@@ -96,7 +98,7 @@ test('31 其它未接线接口404且无返回资金数据',async()=>{
 test('32 安全拒绝不回显客户端资金与Token',async()=>{
  const r=await req('/__nonprod__/f06-composite/refund/request','POST',
  {authorization:'Bearer '+('a'.repeat(43))},{amountCents:99119,token:'SECRET'});
- assert.equal(r.status,503);
+ assert.equal(r.status,400);
  assert.ok(!JSON.stringify(r.body).includes('99119'));assert.ok(!JSON.stringify(r.body).includes('SECRET'));
  assert.equal(r.headers.get('cache-control'),'no-store');
 });
