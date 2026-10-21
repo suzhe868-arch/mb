@@ -39,6 +39,14 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
  }
  async function customer(db,token){
   if(!validToken(token))return null;
+  if(composite)return first(db,`SELECT s.customer_id,c.current_owner_employee_id,c.owner_assignment_state
+    FROM f06_composite_v1.customer_sessions s
+    JOIN f06_composite_v1.attestation att ON att.seal_name=s.issuer
+      AND att.head_sha=s.head_sha AND att.run_id=s.run_id
+    JOIN public.customers c ON c.customer_id=s.customer_id
+    WHERE s.token_sha256=$1 AND s.issuer='COMPOSITE_NONPROD_SIGNED_V1'
+      AND s.revoked_at IS NULL AND s.expires_at>clock_timestamp() AND c.account_status='active'
+    FOR SHARE OF s,c`,[sha(token)]);
   return first(db,`SELECT s.customer_id,c.current_owner_employee_id,c.owner_assignment_state
    FROM ${lockSchema}.customer_sessions s
    JOIN public.customers c ON c.customer_id=s.customer_id
@@ -48,7 +56,7 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
  }
  async function employee(db,token){
   if(!validToken(token))return null;
-  return first(db,`SELECT s.employee_id,r.role_code,e.employment_status,e.store_id
+  if(!composite)return first(db,`SELECT s.employee_id,r.role_code,e.employment_status,e.store_id
    FROM ${lockSchema}.employee_sessions s
    JOIN public.pc_login_accounts a ON a.account_id=s.account_id
     AND a.employee_id=s.employee_id AND a.principal_kind='employee' AND a.system_admin_id IS NULL
@@ -62,6 +70,33 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     AND NOT EXISTS(SELECT 1 FROM public.f05_3a_member_create_licenses four_s
       WHERE four_s.employee_id=e.employee_id AND four_s.revoked_at IS NULL)
    FOR SHARE OF s,a,e,r`,[sha(token)]);
+  if(!sessionSecret)return null;
+  const digest=sessionDigest(token,sessionSecret);
+  const raw=await first(db,'SELECT account_id FROM public.pc_auth_sessions WHERE token_digest=$1',[digest]);
+  if(!raw)return null;
+  // Preserve the native F03 account-before-session lock order.
+  const a=await first(db,`SELECT a.account_id,a.employee_id,a.principal_kind,a.system_admin_id,
+    a.credential_state,a.force_password_change,a.credential_epoch,e.employment_status,e.store_id,r.role_code,
+    CASE WHEN r.role_code='four_s' THEN EXISTS(
+      SELECT 1 FROM public.employee_permission_overrides o JOIN public.permissions p ON p.permission_id=o.permission_id
+      WHERE o.employee_id=e.employee_id AND o.decision='allow' AND p.permission_code='pc.four_s.vehicle.manage'
+    ) ELSE true END pc_access
+    FROM public.pc_login_accounts a JOIN public.employees e ON e.employee_id=a.employee_id
+    JOIN public.roles r ON r.role_id=e.main_role_id
+    WHERE a.account_id=$1 AND a.principal_kind='employee' AND a.system_admin_id IS NULL
+    FOR UPDATE OF a`,[raw.account_id]);
+  const sess=await first(db,'SELECT * FROM public.pc_auth_sessions WHERE token_digest=$1 FOR UPDATE',[digest]);
+  const now=(await first(db,'SELECT clock_timestamp() now')).now;
+  const last=sess?.last_seen_at??sess?.issued_at;
+  if(!a||!sess||a.credential_state!=='enabled'||a.force_password_change!==false||
+    String(a.credential_epoch)!==String(sess.credential_epoch)||a.employment_status!=='active'||!a.pc_access||
+    !['sales','manager','store_head'].includes(a.role_code)||sess.revoked_at||sess.restricted||
+    now<sess.issued_at||now>=sess.expires_at||!last||last<sess.issued_at||last>sess.expires_at||
+    last>now||now.getTime()-new Date(last).getTime()>=1800000||
+    await first(db,`SELECT 1 FROM public.f05_3a_member_create_licenses WHERE employee_id=$1 AND revoked_at IS NULL LIMIT 1`,[a.employee_id]))
+    return null;
+  await db.query('UPDATE public.pc_auth_sessions SET last_seen_at=$2 WHERE session_id=$1 AND revoked_at IS NULL',[sess.session_id,now]);
+  return {employee_id:a.employee_id,role_code:a.role_code,employment_status:a.employment_status,store_id:a.store_id};
  }
  async function currentOwner(db,ownerId){
   if(!validId(String(ownerId??'')))return null;
@@ -180,7 +215,31 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     (actor_kind,actor_id,object_kind,object_id,action,before_json,after_json,occurred_at)
     VALUES($1,$2,'LockRequest',$3,$4,$5::jsonb,$6::jsonb,clock_timestamp())`,
    [kind==='created'?'customer_synthetic':employeeId===null?'system':'employee',employeeId===null?null:String(employeeId),String(req.lock_request_id),
-    `f06_real_test_${kind}`,JSON.stringify({status:prior}),JSON.stringify({status:after,lockId,waitlistId:waitId})]);
+    `f06_composite_${kind}`,JSON.stringify({status:prior}),JSON.stringify({status:after,lockId,waitlistId:waitId})]);
+  if(composite){
+   const att=await first(db,"SELECT head_sha,run_id,source_sha256 FROM f06_composite_v1.attestation WHERE seal_name='COMPOSITE_NONPROD_SIGNED_V1' FOR SHARE");
+   const parent=await first(db,"SELECT source_sha256 FROM f06_1_lock_ci.attestation WHERE seal_name='F06_1_CI_ONLY_SIDECAR' FOR SHARE");
+   if(!att||!parent)throw Error('F06_COMPOSITE_SIGNED_LOCK_PARENT_MISSING');
+   const eventKinds={created:'lock_request_created',approved:'lock_request_approved',rejected:'lock_request_rejected',
+    expired:'lock_request_expired',lock_conflict:'lock_conflict',closed_not_lockable:'lock_request_closed'};
+   const ek=eventKinds[kind];if(!ek)throw Error('F06_COMPOSITE_LOCK_EVENT_KIND_UNKNOWN');
+   const actorKind=kind==='created'?'customer':employeeId!==null?'employee':'system';
+   const actorId=actorKind==='employee'?employeeId:null;
+   const payload={requestId:String(req.lock_request_id),customerId:String(req.customer_id),vehicleId:String(req.vehicle_id),
+    kind,prior,after,lockId:lockId===null?null:String(lockId),waitId:waitId===null?null:String(waitId)};
+   const key=sha('F06_COMPOSITE_LOCK_EVENT:'+JSON.stringify(payload));
+   await db.query(`INSERT INTO f06_composite_v1.issued_events
+    (event_key_sha256,event_kind,parent_object_id,actor_kind,actor_id,source_parent_sha256,head_sha,run_id,payload_sha256)
+    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+    [key,ek,req.lock_request_id,actorKind,actorId,parent.source_sha256,att.head_sha,att.run_id,sha(JSON.stringify(payload))]);
+   if(kind==='approved'&&lockId!==null){
+    const lockPayload={...payload,kind:'signed_lock',lockId:String(lockId)};
+    await db.query(`INSERT INTO f06_composite_v1.issued_events
+     (event_key_sha256,event_kind,parent_object_id,actor_kind,actor_id,source_parent_sha256,head_sha,run_id,payload_sha256)
+     VALUES($1,'signed_lock',$2,'employee',$3,$4,$5,$6,$7)`,
+     [sha('F06_COMPOSITE_SIGNED_LOCK:'+JSON.stringify(lockPayload)),lockId,employeeId,parent.source_sha256,att.head_sha,att.run_id,sha(JSON.stringify(lockPayload))]);
+   }
+  }
  }
  async function finish(db,req,kind,{employeeId=null,lockId=null,waitId=null}={}){
   const updated=await first(db,`UPDATE public.lock_requests SET status=$2,resulting_lock_id=$3,
@@ -282,7 +341,7 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     const pending=(await db.query(`SELECT r.*,k.request_id AS trusted_request_id
      FROM public.lock_requests r
      LEFT JOIN ${lockSchema}.request_keys k ON k.request_id=r.lock_request_id
-      AND k.customer_id=r.customer_id AND k.issuer='DISPOSABLE_TEST_ONLY'
+      AND k.customer_id=r.customer_id AND k.issuer='COMPOSITE_NONPROD_SIGNED_V1'
      WHERE r.customer_id=$1 AND r.vehicle_id=$2 AND r.listing_cycle_id=$3 AND r.status='pending'
      ORDER BY r.created_at,r.lock_request_id FOR UPDATE OF r`,
      [who.customer_id,vehicleId,listingCycleId])).rows;
@@ -303,7 +362,7 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
       RETURNING lock_request_id,expires_at`,[requestId,who.customer_id,vehicleId,listingCycleId,createdAt]);
     await db.query(`INSERT INTO ${lockSchema}.request_keys
      (request_id,customer_id,key_sha256,payload_sha256,issuer)
-     VALUES($1,$2,$3,$4,'DISPOSABLE_TEST_ONLY')`,[requestId,who.customer_id,digest,payload]);
+     VALUES($1,$2,$3,$4,$5)`,[requestId,who.customer_id,digest,payload,issuer]);
     await event(db,created,'created',null,'pending');
     return response(201,'LOCK_REQUEST_PENDING',{requestId:String(requestId),state:'pending',expiresAt:created.expires_at});
    });
@@ -322,7 +381,7 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     const req=await first(db,'SELECT * FROM public.lock_requests WHERE lock_request_id=$1 FOR UPDATE',[requestId]);
     if(!v||!req)return response(404,'LOCK_REQUEST_NOT_FOUND');
     const signed=await first(db,`SELECT request_id FROM ${lockSchema}.request_keys
-      WHERE request_id=$1 AND issuer='DISPOSABLE_TEST_ONLY' FOR SHARE`,[requestId]);
+      WHERE request_id=$1 AND issuer=$2 FOR SHARE`,[requestId,issuer]);
     if(!signed)return denied('UNTRUSTED_LOCK_REQUEST_ISSUER');
     const owner=await first(db,`SELECT current_owner_employee_id,owner_assignment_state FROM public.customers
       WHERE customer_id=$1 AND account_status='active' FOR SHARE`,[req.customer_id]);
