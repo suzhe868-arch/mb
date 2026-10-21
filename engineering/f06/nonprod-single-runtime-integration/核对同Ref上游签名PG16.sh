@@ -48,18 +48,18 @@ node --input-type=module -e '
   const demands=(await c.query(
    "SELECT d.demand_id::text demand_id,d.customer_id::text customer_id FROM public.demands d "+
    "JOIN public.customers cs ON cs.customer_id=d.customer_id "+
-   "WHERE d.customer_id IN(899612,899613,899618,899619,899620) AND d.demand_state='active' "+
-   "AND cs.account_status='active' AND cs.owner_assignment_state='assigned' "+
+   "WHERE d.customer_id IN(899612,899613,899618,899619,899620) AND d.demand_state=$1 "+
+   "AND cs.account_status=$2 AND cs.owner_assignment_state=$3 "+
    "AND d.responsible_employee_id=cs.current_owner_employee_id AND cs.current_owner_employee_id=1 "+
-   "ORDER BY d.customer_id,d.demand_id"
+   "ORDER BY d.customer_id,d.demand_id",["active","active","assigned"]
   )).rows;
   const vehicles=(await c.query(
    "SELECT vf.vehicle_id::text vehicle_id,vf.listing_cycle_id::text cycle_id "+
    "FROM public.f05_7_vehicle_facts_ci vf JOIN public.vehicles v ON v.vehicle_id=vf.vehicle_id "+
    "JOIN public.vehicle_listing_cycles cyc ON cyc.listing_cycle_id=vf.listing_cycle_id AND cyc.vehicle_id=v.vehicle_id "+
-   "WHERE vf.available=true AND v.source_type='wholesale' AND v.source_sale_status='active' AND v.archived_at IS NULL "+
-   "AND cyc.ended_at IS NULL AND (vf.facts_json->'model_year'->>'value')::int>=2025 "+
-   "ORDER BY v.vehicle_id LIMIT 5"
+   "WHERE vf.available=true AND v.source_type=$1 AND v.source_sale_status=$2 AND v.archived_at IS NULL "+
+   "AND cyc.ended_at IS NULL AND jsonb_extract_path_text(vf.facts_json,$3,$4)::int>=2025 "+
+   "ORDER BY v.vehicle_id LIMIT 5",["wholesale","active","model_year","value"]
   )).rows;
   if(demands.length<3)throw Error("F06_171_V23_CURRENT_DEMAND_FIXTURES_REQUIRED_"+demands.length);
   if(vehicles.length<1)throw Error("F06_171_V23_CURRENT_SALEABLE_MATCH_VEHICLE_REQUIRED");
@@ -79,7 +79,8 @@ node --input-type=module -e '
   }
   const current=(await c.query(
    "SELECT count(*)::int n FROM public.f05_7_result_versions_ci r JOIN public.demands d ON d.demand_id=r.demand_id "+
-   "WHERE d.customer_id IN(899612,899613,899618,899619,899620) AND r.status='current' AND r.tier IN('high','acceptable')"
+   "WHERE d.customer_id IN(899612,899613,899618,899619,899620) AND r.status=$1 AND r.tier=ANY($2::text[])",
+   ["current",["high","acceptable"]]
   )).rows[0].n;
   if(Number(current)<1)throw Error("F06_171_V23_SIGNED_CURRENT_MATCH_RESULTS_MISSING");
   console.log("F06_171_V23_CURRENT_MATCHES_SEEDED",JSON.stringify({
@@ -88,6 +89,7 @@ node --input-type=module -e '
   }));
  }finally{await auth.close();await c.end();secret.fill(0)}
 '
+
 # Signed M94 v23(21 rows) -> v24(22) -> v25(23) -> D1 independent -> v26(24).
 # All frozen F05 migration functions independently verify parent seals, and no
 # subprocess overwrites GITHUB_REF or GITHUB_REF_NAME for a legacy identity.
