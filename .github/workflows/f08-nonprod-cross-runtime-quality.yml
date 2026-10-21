@@ -1,0 +1,201 @@
+name: F08-2 Nonproduction Cross Runtime Quality
+
+on:
+  push:
+    branches:
+      - feat/f08-nonprod-cross-runtime-quality-02
+    paths:
+      - 'engineering/f08/nonprod-cross-runtime-quality/**'
+      - '.github/workflows/f08-nonprod-cross-runtime-quality.yml'
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: read
+
+jobs:
+  entry_evidence_pg16:
+    name: F08-2 Application and Historical Evidence PG16
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F08_2_ONLY: I_AUTHORIZE_DISPOSABLE_F08_2_PG16_ONLY
+      DATABASE_URL: postgres://f08_2_ci@127.0.0.1:5432/f08_2_quality_test
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 精确Push、差异、语法及授权白名单
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REF" = refs/heads/feat/f08-nonprod-cross-runtime-quality-02
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch origin main
+          git config core.quotepath false
+          git diff --check origin/main...HEAD
+          changed="$(git diff --name-only origin/main...HEAD)"
+          test -n "$changed"
+          if printf '%s\n' "$changed" | grep -Ev '^(engineering/f08/nonprod-cross-runtime-quality/.*|\.github/workflows/f08-nonprod-cross-runtime-quality\.yml)$'; then
+            echo F08_2_ALLOWLIST_VIOLATION
+            exit 1
+          fi
+          find engineering/f08/nonprod-cross-runtime-quality -type f -name '*.mjs' -print0 |
+            sort -z | xargs -0 -r -n 1 node --check
+      - name: 建立独立PG16与非超管身份真SQL
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f08_2_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f08_2_quality_test OWNER f08_2_ci;"
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -AtF $'\t' -c "SELECT current_user,current_database(),current_setting('server_version_num'),(SELECT rolsuper FROM pg_roles WHERE rolname=current_user),(SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user),(SELECT rolcreaterole FROM pg_roles WHERE rolname=current_user),(SELECT oid FROM pg_database WHERE datname=current_database()),pg_backend_pid()" | tee f08-2-entry-pg16-identity.tsv
+          grep -q '^f08_2_ci' f08-2-entry-pg16-identity.tsv
+      - name: 锁定依赖安装
+        run: npm --prefix engineering ci --ignore-scripts --no-audit --no-fund
+      - name: 42项应用入口与历史证据抗冒用新测试
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f08/nonprod-cross-runtime-quality/tests/app.test.mjs engineering/f08/nonprod-cross-runtime-quality/tests/evidence.test.mjs 2>&1 | tee f08-2-entry-evidence.log
+          grep -q '# tests 42' f08-2-entry-evidence.log
+          grep -q '# fail 0' f08-2-entry-evidence.log
+      - name: 当前应用入口旧健康与进程受影响定向回归
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/tests/health.test.mjs engineering/tests/进程启动.test.mjs 2>&1 | tee f08-2-affected-regression.log
+          grep -q '# fail 0' f08-2-affected-regression.log
+      - name: GitHub官方只读核验F06/F07父PR/Run/Job/Artifact
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f08/nonprod-cross-runtime-quality/live-parent.mjs 2>&1 | tee f08-2-parent-live.log
+          grep -q F08_2_TWO_HISTORICAL_PARENTS_READ_ONLY_VERIFIED f08-2-parent-live.log
+          grep -q F08_2_HISTORIC_DIFFERENT_SHA_SOURCE_GAP_RETAINED f08-2-parent-live.log
+      - name: 记录本Job SHA与物理数据库
+        if: always()
+        shell: bash
+        run: |
+          printf 'sha\t%s\nref\t%s\nrun\t%s\nattempt\t%s\njob\tentry_evidence_pg16\n' "$GITHUB_SHA" "$GITHUB_REF" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" > f08-2-entry-run.tsv
+          test -s f08-2-entry-pg16-identity.tsv && cat f08-2-entry-pg16-identity.tsv >> f08-2-entry-run.tsv || true
+      - name: 独立入口与证据Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f08-2-entry-evidence-pg16-${{ github.sha }}
+          path: |
+            f08-2-entry-pg16-identity.tsv
+            f08-2-entry-evidence.log
+            f08-2-affected-regression.log
+            f08-2-parent-live.log
+            f08-2-parent-evidence.json
+            f08-2-entry-run.tsv
+            engineering/f08/nonprod-cross-runtime-quality/增量真实质量场景矩阵.tsv
+            engineering/f08/nonprod-cross-runtime-quality/父证据与来源等级台账.tsv
+            engineering/f08/nonprod-cross-runtime-quality/SOURCE_GAP与未运行台账.tsv
+          if-no-files-found: error
+          retention-days: 14
+
+  transaction_pg16:
+    name: F08-2 Isolated Transaction and Permissions PG16
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F08_2_ONLY: I_AUTHORIZE_DISPOSABLE_F08_2_PG16_ONLY
+      DATABASE_URL: postgres://f08_2_ci@127.0.0.1:5432/f08_2_quality_test
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 本SHA语法与来源门禁
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REF" = refs/heads/feat/f08-nonprod-cross-runtime-quality-02
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch origin main
+          git diff --check origin/main...HEAD
+          find engineering/f08/nonprod-cross-runtime-quality -type f -name '*.mjs' -print0 |
+            sort -z | xargs -0 -r -n 1 node --check
+      - name: 本Job独立创建PG16最小非超级用户数据库
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f08_2_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;"
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f08_2_quality_test OWNER f08_2_ci;"
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -AtF $'\t' -c "SELECT current_user,current_database(),current_setting('server_version_num'),(SELECT rolsuper FROM pg_roles WHERE rolname=current_user),(SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user),(SELECT rolcreaterole FROM pg_roles WHERE rolname=current_user),(SELECT oid FROM pg_database WHERE datname=current_database()),pg_backend_pid()" | tee f08-2-transaction-pg16-identity.tsv
+          grep -q '^f08_2_ci' f08-2-transaction-pg16-identity.tsv
+      - name: 锁定依赖安装
+        run: npm --prefix engineering ci --ignore-scripts --no-audit --no-fund
+      - name: 16项当前非特权PG16原生SQL与事务安全测试
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f08/nonprod-cross-runtime-quality/tests/pg.test.mjs 2>&1 | tee f08-2-transaction.log
+          grep -q '# tests 16' f08-2-transaction.log
+          grep -q '# fail 0' f08-2-transaction.log
+          grep -q F08_2_NATIVE_PG16_NON_SUPERUSER f08-2-transaction.log
+      - name: 记录当前Job与真实数据库身份
+        if: always()
+        shell: bash
+        run: |
+          printf 'sha\t%s\nref\t%s\nrun\t%s\nattempt\t%s\njob\ttransaction_pg16\n' "$GITHUB_SHA" "$GITHUB_REF" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" > f08-2-transaction-run.tsv
+          test -s f08-2-transaction-pg16-identity.tsv && cat f08-2-transaction-pg16-identity.tsv >> f08-2-transaction-run.tsv || true
+      - name: 独立非特权事务Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f08-2-transaction-pg16-${{ github.sha }}
+          path: |
+            f08-2-transaction-pg16-identity.tsv
+            f08-2-transaction.log
+            f08-2-transaction-run.tsv
+            engineering/f08/nonprod-cross-runtime-quality/增量真实质量场景矩阵.tsv
+            engineering/f08/nonprod-cross-runtime-quality/父证据与来源等级台账.tsv
+            engineering/f08/nonprod-cross-runtime-quality/SOURCE_GAP与未运行台账.tsv
+          if-no-files-found: error
+          retention-days: 14
