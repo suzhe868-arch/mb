@@ -136,7 +136,7 @@ test('F06 Issue164：单PG16真实F03 Session贯通Lock→Deposit→Transaction�
   await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve)});
   const port=server.address().port,base=`http://127.0.0.1:${port}`;
   const req=await post(base,'/api/v1/lock-requests',scenario.customerToken,{
-   vehicleId:String(scenario.vehicleId),listingCycleId:String(scenario.cycleId),idempotencyKey:`lock_req_${process.env.GITHUB_RUN_ID}`
+   vehicleId:String(scenario.vehicleId),listingCycleId:String(scenario.cycleId),idempotencyKey:`lock_request_create_${process.env.GITHUB_RUN_ID}`
   });
   assert.equal(req.status,201,JSON.stringify(req.data));
   assert.equal(req.data.code,'LOCK_REQUEST_PENDING');
