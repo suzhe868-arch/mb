@@ -1,10 +1,12 @@
 # 当前有效状态（2026-10-21｜覆盖下方历史快照）
 
-F06 Issue #171 的非生产子范围已通过 A 独立验收，PR #174 已标准合并；最终业务 SHA `06c880d7f53adda7862da88cde0b790fdc60f415`，合并/main SHA `86f59431768f393232b8746cd3deb62f1044d85c`。官方 Run #39602409488 成功，Artifact #12347892081 非空且未过期。- A治理状态更新与F07正式放行已通过 [PR #179](https://github.com/suzhe868-arch/mb/pull/179) 合并，merge SHA：`9d8a94d4fe34e7a3f3ca17ac608175397e49a321`；Issue #178 现已生效。 具体测试与跨 OID Seal 见 `F06_Issue171_PR174最终独立验收与合并报告_2026-10-21.md`。
+F06 Issue #171 的非生产子范围已通过 A 独立验收，PR #174 已标准合并。最终业务 SHA：`06c880d7f53adda7862da88cde0b790fdc60f415`；PR #174 合并 SHA：`86f59431768f393232b8746cd3deb62f1044d85c`。官方 Run #39602409488 成功，Artifact #12347892081 非空且未过期。具体测试与跨 OID Seal 见 `F06_Issue171_PR174最终独立验收与合并报告_2026-10-21.md`。
+
+A 治理 PR [#179](https://github.com/suzhe868-arch/mb/pull/179) 已标准合并，merge SHA：`9d8a94d4fe34e7a3f3ca17ac608175397e49a321`；Issue #178 的 F07 非生产施工授权已生效。
 
 A 已完成 F07 只读差异核查：PR #64–#67、#69 的既有 CI-only 成果直接复用；当前主应用缺少 F07 Runtime 接线，电话能力正向来源、F05 转换正向来源、真实 JYT/CDN/OSS/Feishu 等仍有明确 SOURCE_GAP/授权边界。见 `F07现有CI成果与真实Runtime缺口_A主控核查_2026-10-21.md`。
 
-当前唯一任务：`F07_NONPROD_RUNTIME_INTEGRATION_01`，Issue #178，分支 `feat/f07-runtime-integration-nonprod-01`，施工单 `07_重建工作区/F07真实应用Runtime四域接线非生产整包_A主控B正式施工单_2026-10-21.md`。正式放行以本 A 治理 PR 合并 main 后生效；B 开工时必须读取远程最新 main。
+当前唯一任务：`F07_NONPROD_RUNTIME_INTEGRATION_01`，Issue #178，分支 `feat/f07-runtime-integration-nonprod-01`，施工单 `07_重建工作区/F07真实应用Runtime四域接线非生产整包_A主控B正式施工单_2026-10-21.md`。授权已随 PR #179 合并 main 生效；B 开工时必须读取远程最新 main。
 
 F06/F07/F08/V1 全局状态继续 `NOT_READY / NO_PRODUCTION`。无真实 JYT、外部 CDN/OSS、Feishu、真钱、实际退款/成交或生产部署授权。F08 完整阶段通过正常验收后，整个 B 后端最终整体验收由 A 独立负责；C 轨 PR #68 不受本轮影响。
 
