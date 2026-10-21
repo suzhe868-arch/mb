@@ -10,15 +10,16 @@
 
 ---
 
-## A 当前任务指针｜外部系统未准备，F08 来源父门禁继续｜2026-10-22
+## 当前工程执行指针｜B F05-7 Matching 后台持久调度
 
-- 用户已明确确认：**JYT/Collector 尚未准备；图片存储/CDN 尚未准备；飞书尚未准备**。正式 F03 capability/Vehicle Scope/Object 与 F05 转换正向 Issuer 也没有可核验的正式来源证据。
-- F08-3 [Issue #190](https://github.com/suzhe868-arch/mb/issues/190) 已关闭；业务 [PR #193](https://github.com/suzhe868-arch/mb/pull/193) 已标准合并，B HEAD `662847bf2e75c9ca404dff8e57902850d8fe4673`，merge SHA `5cb52e6754e3e171cb9e1a67e3aef51c8e78dfcc`。治理 [PR #194](https://github.com/suzhe868-arch/mb/pull/194) 已合并。已验收子任务直接复用，不重跑旧测试。
-- A 阻断报告：`07_重建工作区/A_Issue187外部系统未准备阻断登记与独立工作盘点_2026-10-22.md`；外部依赖台账：`engineering/f07/nonprod-runtime-integration/SOURCE_GAP与外部授权依赖台账.tsv`。
-- **唯一指针：** `NEXT_OWNER=A`；`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`；`NEXT_ISSUE=187`；`NEXT_BRANCH=NONE`。当前没有新的、可合法验收且不重复的 B 业务施工包。
-- A 已完成当前可独立进行的来源审计、状态核对与阻断登记。未取得真实非生产资源、正式 capability/Vehicle Scope/F05 Issuer 证据前，不重复合成测试、不伪造签名/回执、不宣称外部系统已接通。
-- **电话权限后端增量复核（PR #199 后）：** F08-3 PR #193 只验收 `CI_SYNTHETIC_ONLY` 内部纵切；配置入口仍是固定 F08-3 REF 下的 `__ci__` 路由。F04 Current 电话合同仍为 `CI_ONLY_PROPOSED / NOT_PRODUCTION`，正式 F03 reader 对电话动作仍 `finalAllowed=false`，SG01/SG08 正式范围/上游发布人映射仍 `MISSING_PROPOSAL`。因此员工电话权限后端**尚未正式完成**。需求已纳入 F01～F08 路线图并关联 [Issue #196](https://github.com/suzhe868-arch/mb/issues/196)；当前 Issue #187 门禁未解除前不发新 B 施工包、不重复 F08-3，也不启动 PC 页面。详见 [Issue #187 增量复核记录](https://github.com/suzhe868-arch/mb/issues/187#issuecomment-6327645997)。
-- F06/F07/F08/V1 继续 `NOT_READY / NO_PRODUCTION`；生产、真实电话、外部公网调用、真实资金/退款/成交未授权。C PR #68 保持独立。
+- **当前正式任务：** [Issue #201](https://github.com/suzhe868-arch/mb/issues/201)｜F05-7 Matching 受影响队列持久调度与自动重试。
+- **施工单：** `07_重建工作区/F05-7_Matching受影响队列持久调度与自动重试非生产施工单_2026-10-22.md`。
+- **正式 B 分支：** `feat/f05-7-matching-retry-scheduler-01`，由 B 在本 A 放行 PR 合并后从最新 `main` 新建。
+- **真实缺口依据：** 现有 `engineering/src/f05-matching-retry-worker.mjs` 只有 `runOnce()`；当前 server/catalog runtime 没有持久轮询调度器。PDM-12 §28 要求事件驱动、受影响范围重算与失败对象幂等重试。任务复用现有 worker，不重复 Matching 算法。
+- **Issue #187 并行不阻断：** JYT/Collector、CDN/OSS、飞书及电话来源门禁继续开放，但不依赖它们的 F05-7 调度任务正常施工。
+- **既有验收直接复用：** F05 非生产验收 PR #125、F06 PR #174、F07 PR #181、F08-2/F08-3 PR #186/#193；不重跑旧 F05 421 项全包、旧 66 项 Oracle 或已验收子包。
+- **约束：** 当前只开发后端；不开发 PC/手机页面；不改冻结 F03 reader/旧工作流，不接生产、不声明正式 Issuer 或外部系统已接通。F08 电话权限正式后端仍未完成，继续由 Issue #187/#196 跟踪。
+
 
 ---
 
