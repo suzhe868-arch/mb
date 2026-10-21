@@ -65,7 +65,7 @@ async function nativeComposite(c){
 }
 async function verifiedCore(c,mode='CI_LEGACY'){
  const p=mode==='COMPOSITE_NONPROD_SIGNED_V1'?await nativeComposite(c):await native(c);
- const exists=await one(c,"SELECT to_regnamespace('f06_real_tx_ci') IS NOT NULL tx,to_regnamespace('f06_real_cancel_ci.attestation') IS NOT NULL cancel");
+ const exists=await one(c,"SELECT to_regnamespace('f06_real_tx_ci') IS NOT NULL tx,to_regclass('f06_real_cancel_ci.attestation') IS NOT NULL cancel");
  if(!exists?.tx||!exists.cancel)throw Error('F06_CANCEL_TRUSTED_SIGNED_SOURCE_MISSING');
  const signed=await one(c,'SELECT * FROM f06_real_cancel_ci.attestation FOR SHARE');
  if(!signed||signed.seal_name!=='F06_REAL_CANCEL_CI_ONLY'||signed.source_sha256!==cancelSourceSHA||
