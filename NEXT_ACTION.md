@@ -1,3 +1,13 @@
+# 2026-10-21｜NEXT_ACTION补充：Issue171签名Match/Priority版本正确预置路径裁决
+
+- 本补充授权仅在治理PR合并main后生效；不代表PR #174通过。
+- B继续原任务 `F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01`、Issue #171、分支 `feat/f06-nonprod-composite-lock-lifecycle-01`。
+- 新分支允许在v23调用现有F05-7预置/验真，在v24调用现有F05-8正式服务签发Priority；旧Issue164分支必须保留原迁移循环，不运行新预置。
+- 禁止修改F05源码/迁移/父签名表，禁止原始SQL伪造Priority、Mock、Ref伪造或复用旧签名。最后SHA必须完整官方CI、0 skipped、跨OID Seal及有效证据后交A独立复验。
+- PR #174继续open/unmerged；F06/F07/F08/V1仍NOT_READY。
+
+---
+
 # 2026-10-21｜A第二轮独立复核PR174：Priority真实PG16测试失败，B继续原分支定向整改
 
 - 对象：[PR #174](https://github.com/suzhe868-arch/mb/pull/174) / [Issue #171](https://github.com/suzhe868-arch/mb/issues/171)。

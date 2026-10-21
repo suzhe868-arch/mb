@@ -1,3 +1,13 @@
+# 2026-10-21｜A主控补充裁决：Issue171版本正确的F05 Match/Priority非生产预置路径
+
+- 本补充裁决仅在本治理PR标准合并main后生效；合并不等于PR #174验收通过。
+- 唯一新增授权：Issue171精确真实Push分支在签名v23阶段调用未修改的F05-7正式预置服务并只读验真；在签名v24阶段调用未修改的F05-8正式服务签发Priority；随后按原顺序迁移至v26。
+- 必须显式保留Issue164旧分支的原迁移循环，不得执行Issue171预置；不允许伪造Ref、原始SQL伪造Priority、修改冻结F05源码/迁移/父签名表或使用Mock。
+- 当前仍由B在原分支完成整改；PR #174未接受、未合并。必须以最终SHA官方CI全步骤成功、0 skipped、161父表/24迁移跨OID Seal和有效同SHA证据交A独立复验。
+- F06/F07/F08/V1继续`NOT_READY`，生产/真钱/真实退款成交及F07/F08施工未授权。
+
+---
+
 # 2026-10-21｜A第二轮独立复核PR174：Priority真实PG16测试失败，B继续原分支定向整改
 
 - 对象：[PR #174](https://github.com/suzhe868-arch/mb/pull/174) / [Issue #171](https://github.com/suzhe868-arch/mb/issues/171)。
