@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash,randomBytes} from 'node:crypto';
-import {createServer} from 'node:http';
+import {createFoundationServer} from '../../../src/app.mjs';
 import pg from 'pg';
 import {hashPassword,newOpaqueToken} from '../../../src/f03-auth-crypto.mjs';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
@@ -132,7 +132,7 @@ test('F06 Issue164：单PG16真实F03 Session贯通Lock→Deposit→Transaction�
   runtime=await createIsolatedF06CompositeRuntime(process.env,{sessionSecret:secret,auth});
   assert.equal(runtime.mode,'COMPOSITE_NONPROD_SIGNED_V1');
   assert.equal(await runtime.ready(),true);
-  server=createServer(runtime.handler);
+  server=createFoundationServer({lockHandler:runtime.handler,readinessProbe:runtime.ready});
   await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve)});
   const port=server.address().port,base=`http://127.0.0.1:${port}`;
   const req=await post(base,'/api/v1/lock-requests',scenario.customerToken,{
