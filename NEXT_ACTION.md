@@ -1,18 +1,18 @@
 # 名邦汽车 V1｜NEXT_ACTION 当前唯一指针｜2026-10-22
 
-## 当前唯一正式动作｜A 维护 F08 来源与外部授权父门禁
+## 当前唯一 B 工程任务｜F05-7 Matching 受影响队列持久调度与自动重试
 
-- `NEXT_OWNER=A`
-- `NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`
-- `NEXT_ISSUE=187`：[A 父级门禁｜F08 可信来源与外部集成](https://github.com/suzhe868-arch/mb/issues/187)
-- `NEXT_BRANCH=NONE`（当前没有新的 B 施工分支授权）
-- 当前阻断报告：`07_重建工作区/A_Issue187外部系统未准备阻断登记与独立工作盘点_2026-10-22.md`
-- 用户已确认：JYT/Collector、图片存储/CDN、飞书均尚未准备；依赖台账已记录为用户确认状态。
-- F08-3 Issue #190 已关闭、业务 PR #193 已标准合并；治理 PR #194 已标准合并。已有测试与证据直接复用，不重复 F08-2 的 58+7 或 F08-3 的 43+26+16。
-- A 已完成现有仓库、正式 F03/F05 来源门禁、外部依赖台账和父 Issue 的增量核查。
-- **新增电话权限后端核查结论（PR #199 后）：** F08-3 PR #193 仅为 `CI_SYNTHETIC_ONLY`；配置路由仍在固定测试 REF 的 `__ci__` 路径，F04 Current 电话合同仍 `CI_ONLY_PROPOSED / NOT_PRODUCTION`。正式 F03 reader 仍 `finalAllowed=false`，SG01/SG08 正式范围与 publisher 映射仍 `MISSING_PROPOSAL`。因此后端功能尚未正式完成，但当前 Issue #187 来源/授权门禁未解除，不能通过重复合成测试或擅自改冻结 F03 来解决；不发新 B 施工包。跟踪：[Issue #187](https://github.com/suzhe868-arch/mb/issues/187)、[页面延期 Issue #196](https://github.com/suzhe868-arch/mb/issues/196)。
-- 解锁条件：获批的 JYT/Collector 非生产端点及可信 publisher 来源、真实对象存储/CDN 测试资源、飞书测试租户/机器人/群和路由授权；另需正式 F03 capability/Vehicle Scope/Object 与 F05 转换 Issuer 的可核验证据。凭据只通过批准的密钥托管提供。
-- F06/F07/F08/V1 继续 `NOT_READY / NO_PRODUCTION`。不授权生产、真实电话、外部公网调用、真实资金、退款或成交。F08 正常阶段通过验收后，整个 B 后端最终整体验收仍由 A 独立负责；C PR #68 不动。
+- `NEXT_OWNER=B`
+- `NEXT_TASK=F05_7_MATCHING_RETRY_SCHEDULER_01`
+- `NEXT_ISSUE=201`：[F05-7 独立后台调度任务](https://github.com/suzhe868-arch/mb/issues/201)
+- `NEXT_BRANCH=feat/f05-7-matching-retry-scheduler-01`（A 治理放行 PR 合并后，B 从最新 main 创建）
+- 正式施工单：`07_重建工作区/F05-7_Matching受影响队列持久调度与自动重试非生产施工单_2026-10-22.md`
+- 代码依据：既有 `f05-matching-retry-worker.mjs` 只有单次 `runOnce()`；主线没有持久调度器。新任务复用已验收 worker，不复制匹配算法、不改冻结文件。
+- 新代码仅位于 `engineering/f05-matching-retry-scheduler/**`，新 Push 工作流为 `.github/workflows/matching-retry-scheduler-pg16.yml`；真实 PG16 非超级用户、自动执行/重启恢复/退避/并发安全及同 SHA 官方 CI 为交付门槛。
+- **Issue #187 保持并行且不阻断：** JYT/Collector、CDN/OSS、飞书与电话来源授权仍为独立门禁；本任务不依赖它们。
+- 已验收 F05 PR #125、F06 PR #174、F07 PR #181、F08-2/F08-3 PR #186/#193 直接复用；不重跑旧 F05 421 项全包、旧 66 项 Oracle 或已验收专项。
+- 只做后端；不开发 PC/手机页面，不接生产、不改 F03 reader/旧工作流、不伪造正式 Issuer 或外部接入。
+
 
 ---
 
