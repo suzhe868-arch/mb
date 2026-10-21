@@ -38,7 +38,7 @@ assert.ok(priority.content.includes('F06_171_PRIORITY_ORIGIN_REAL_PG16_FOUR_ACTI
 const nativeSource=readFileSync(new URL('./tests/原生Lifecycle验收.test.mjs',import.meta.url),'utf8');
 assert.ok(!nativeSource.includes('priorityPool')&&!nativeSource.includes('只读适配器模拟Priority来源'),'mocked Priority source must not replace PG16 business integration');
 const prioritySource=readFileSync(new URL('./tests/Priority来源真实PG16拒绝验收.test.mjs',import.meta.url),'utf8');
-assert.ok(prioritySource.includes('setQualificationCI')&&prioritySource.includes('f06_composite_v1.lock_snapshots'),'real F05 Priority source and signed Lock snapshot are required');
+assert.ok(prioritySource.includes('f06_composite_v1.lock_snapshots'),'signed Lock snapshot is required');
 assert.ok(current.content.includes('09A 权限撤销即时生效且Lock/签名事件/审计无变化'),'permission revocation fail-closed case missing');
 assert.ok(current.content.includes('10A 伪造员工身份和Issuer请求头被拒且无副作用'),'forged identity fail-closed case missing');
 assert.ok(signedNegative.content.includes('F06_171_SIGNED_SOURCE_NEGATIVE_BOUNDARIES_PASS'),'signed-source negative boundary matrix missing');
@@ -61,6 +61,8 @@ for(const marker of [
 ])assert.ok(signedNegative.content.includes(marker),'missing executed signed-source boundary: '+marker);
 assert.ok(legacy.content.includes('F06_164_LEGACY_AUDIT_DB_PASS'),'old CI_LEGACY native audit compatibility missing');
 const parent=log('../nonprod-single-runtime-integration/evidence/父链签名与初始化.log');
+assert.ok(parent.includes('F06_171_V23_CURRENT_MATCHES_SEEDED'),'official signed v23 F05-7 Match preseed missing');
+assert.ok(parent.includes('F06_171_V24_PRIORITY_SEEDED'),'official signed v24 F05-8 Priority preseed missing');
 const before=log('../nonprod-single-runtime-integration/evidence/父表161迁移24Seal前置证据.log');
 const after=log('../nonprod-single-runtime-integration/evidence/父表161迁移24Seal恢复证据.log');
 for(const marker of ['F06_164_SIGNED_COMPOSITE_ISSUER_ATTESTED','F06_164_FIVE_NATIVE_PARENT_SCHEMA_STEPS_SIGNED_NO_LEGACY_REF_SPOOF'])

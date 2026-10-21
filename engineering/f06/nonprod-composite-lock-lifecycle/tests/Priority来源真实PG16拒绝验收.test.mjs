@@ -9,7 +9,6 @@ import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {createIsolatedF06CompositeRuntime} from '../../../src/f06-nonprod-composite-runtime.mjs';
 import {assertCompositeSignedRun} from '../../nonprod-single-runtime-integration/可信Composite签名根.mjs';
 import {verifyLifecycleIssuer} from '../可信LifecycleIssuer.mjs';
-import {setQualificationCI} from '../../../f05/priority-arbitration-ttl-handover/service.mjs';
 const DSN=process.env.F03_1_DATABASE_URL,sha=x=>createHash('sha256').update(x).digest('hex');
 function envSetup(){
  Object.assign(process.env,{APP_ENV:'test',NODE_ENV:'test',API_HOST:'127.0.0.1',CI:'true',GITHUB_ACTIONS:'true',
@@ -64,8 +63,14 @@ test('Issue171真实PG16签名Priority来源锁生命周期拒绝矩阵',async t
    const signed=await verifyLifecycleIssuer(db);assert.equal(signed.verified,true);assert.equal(signed.sha,process.env.GITHUB_SHA);assert.equal(signed.runId,process.env.GITHUB_RUN_ID);
    t.diagnostic('F06_171_PRIORITY_ISOLATED_PG16 '+JSON.stringify(identity));
   });
-  assert.equal((await db.query('SELECT count(*)::int n FROM public.f05_8_qualification_ci WHERE enabled=true')).rows[0].n,0,
-   'fresh parent clone must not already contain qualified Customers');
+  const seedState=(await db.query(
+   "SELECT (SELECT count(*)::int FROM public.f05_8_qualification_ci WHERE enabled=true) qualified,"+
+   "(SELECT count(*)::int FROM public.f05_8_priority_ci p JOIN public.f05_7_result_versions_ci r "+
+   "ON r.result_id=p.source_match_result_id AND r.source_signature=p.source_signature "+
+   "WHERE p.status='active' AND p.expires_at>clock_timestamp()) priorities"
+  )).rows[0];
+  assert.equal(Number(seedState.qualified),1,'exactly one Customer must be qualified by the official signed v24 preseed');
+  assert.ok(Number(seedState.priorities)>0,'official signed v24 Priority rows must pre-exist the v26 test clone');
   // F05-7's official matcher ran while this disposable database still had its
   // signed v23 ledger, before F05-8/v24 was applied. Never invoke the frozen
   // exact-v23 service against the later v24 Priority-test clone.
@@ -96,7 +101,7 @@ test('Issue171真实PG16签名Priority来源锁生命周期拒绝矩阵',async t
    "AND NOT EXISTS(SELECT 1 FROM public.locks l WHERE l.vehicle_id=v.vehicle_id AND l.lock_status='active') "+
    "AND NOT EXISTS(SELECT 1 FROM public.lock_requests lr WHERE lr.customer_id=cs.customer_id AND lr.vehicle_id=v.vehicle_id AND lr.listing_cycle_id=r.listing_cycle_id AND lr.status='pending') "+
    "AND NOT EXISTS(SELECT 1 FROM public.transactions tx WHERE tx.vehicle_id=v.vehicle_id AND tx.listing_cycle_id=r.listing_cycle_id AND tx.status IN('trading','in_progress','pending','active')) "+
-   "AND NOT EXISTS(SELECT 1 FROM public.f05_8_priority_ci p WHERE p.vehicle_id=v.vehicle_id AND p.listing_cycle_id=r.listing_cycle_id AND p.status='active' AND p.expires_at>clock_timestamp()) "+
+   "AND EXISTS(SELECT 1 FROM public.f05_8_priority_ci p WHERE p.customer_id=cs.customer_id AND p.vehicle_id=v.vehicle_id AND p.listing_cycle_id=r.listing_cycle_id AND p.status='active' AND p.expires_at>clock_timestamp()) "+
    "ORDER BY v.vehicle_id,d.customer_id LIMIT 1")).rows[0];
   assert.ok(c,'no eligible pre-signed F05 Priority fixture candidate');assert.equal(Number(c.team_id),901);
   const customerId=Number(c.customer_id),ownerId=Number(c.owner_id),teamId=Number(c.team_id);
@@ -109,8 +114,6 @@ test('Issue171真实PG16签名Priority来源锁生命周期拒绝矩阵',async t
   await grant(db,ownerId,teamId,[p1,p2,p3]);await grant(db,Number(mgr.id),teamId,[p4]);
   const ownerAccount=await account(db,ownerId,process.env.GITHUB_RUN_ID),managerAccount=await account(db,Number(mgr.id),process.env.GITHUB_RUN_ID);
   const ownerToken=await login(auth,ownerAccount),managerToken=await login(auth,managerAccount);
-  const q=await setQualificationCI(auth,ownerToken,{teamId,customerId,enabled:true,eventKey:'issue171-priority-qualification-'+process.env.GITHUB_RUN_ID});
-  assert.equal(q.allowed,true,'official F05 qualification issuer must authorize: '+JSON.stringify(q));
   const priority=(await db.query("SELECT p.priority_id::text id,p.customer_id::text customer_id,p.vehicle_id::text vehicle_id,p.listing_cycle_id::text cycle_id,p.status,p.ended_reason,p.source_signature,r.source_signature match_signature FROM public.f05_8_priority_ci p JOIN public.f05_7_result_versions_ci r ON r.result_id=p.source_match_result_id AND r.demand_id=p.trigger_demand_id AND r.vehicle_id=p.vehicle_id AND r.listing_cycle_id=p.listing_cycle_id AND r.source_signature=p.source_signature WHERE p.customer_id=$1 AND p.vehicle_id=$2 AND p.listing_cycle_id=$3 AND p.status='active' AND p.expires_at>clock_timestamp() LIMIT 1",[customerId,c.vehicle_id,c.cycle_id])).rows[0];
   assert.ok(priority,'official F05 qualification did not create the signed Priority row');assert.equal(priority.source_signature,priority.match_signature);
   const customerToken=newOpaqueToken();
