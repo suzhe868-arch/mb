@@ -86,7 +86,7 @@ async function seedScenario(db,runId){
  ]);
  const customerId=86280101,vehicleId=86281101,cycleId=86282101;
  await db.query("INSERT INTO public.customers(customer_id,account_status,customer_level_id,owner_assignment_state,current_owner_employee_id) VALUES($1,'active',1,'assigned',$2) ON CONFLICT(customer_id) DO UPDATE SET account_status='active',customer_level_id=1,owner_assignment_state='assigned',current_owner_employee_id=EXCLUDED.current_owner_employee_id",[customerId,initial.employee_id]);
- const phone=(await db.query("SELECT 1 FROM public.customer_phone_facts WHERE customer_id=$1 AND revoked_at IS NULL AND valid_from<=clock_timestamp() LIMIT 1",[customerId])).rowCount;
+ const phone=(await db.query("SELECT 1 FROM public.customer_phone_facts WHERE customer_id=$1 AND valid_from<=clock_timestamp() LIMIT 1",[customerId])).rowCount;
  if(!phone)await db.query("INSERT INTO public.customer_phone_facts(customer_id,phone_ciphertext,valid_from) VALUES($1,decode(repeat('ab',16),'hex'),clock_timestamp()-interval '1 day')",[customerId]);
  await db.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,created_by_employee_id) VALUES($1,'mingbang','available','visible',$2) ON CONFLICT(vehicle_id) DO NOTHING",[vehicleId,initial.employee_id]);
  await db.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES($1,$2,clock_timestamp()-interval '1 day') ON CONFLICT(listing_cycle_id) DO NOTHING",[cycleId,vehicleId]);
