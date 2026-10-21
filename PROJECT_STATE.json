@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "A_F07_ISSUE178_PR181_ACCEPTED_F08_2_QUALITY_RELEASED",
+  "substage": "A_F08_2_PR186_NONPROD_ACCEPTED_F08_STAGE_SOURCE_GATE_OPEN",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F08_NONPROD_CROSS_RUNTIME_QUALITY",
-  "current_domain_status": "F07 Issue178 PR181 非生产四域 Runtime 已A独立验收、Issue关闭、PR标准合并；Run39629427298两独立真实非超管PG16 Job成功，业务46、HTTPS15、关联回归26全绿、双有效Artifact。F07外部/签名来源缺口不消失；F06/F07/F08/V1全域NOT_READY。下一项为F08-2有界非生产跨Runtime质量回归，A治理PR合并main后正式放行B。",
+  "current_domain": "F08_STAGE_SOURCE_AND_TRUE_E2E_GAP",
+  "current_domain_status": "F08-2 Issue184 PR186 限定非生产子范围已经A独立验收、合并及关闭。最终业务SHA ff817ee0557858b9469260ed183d6ce32a83c759，merge a497fa7fb504ec1ed63c8eb202eb64999bb74e29，Run39643395145双真实非超管PG16 Job成功，58新增+7回归通过，双Artifact有效。F08全阶段尚不能验收：真实F03/F05/F07签名父来源、电话能力、SLA/Incident、JYT/CDN/OSS/Feishu等SOURCE_GAP；不能提前做整个后端最终验收或重复B质量测试。下一由A负责Issue187来源门禁裁决，F06/F07/F08/V1 NOT_READY。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F08_NONPROD_CROSS_RUNTIME_QUALITY_02：复用旧F08-1与F05-F08 PR100，开展实际应用入口、跨Runtime配置拒绝、来源/证据一致性、真实PG16非特权隔离的新增定向质量测试。",
-  "current_work_file": "07_重建工作区/F08-2非生产跨Runtime安全关联回归与质量闭环_A主控B正式施工单_2026-10-22.md",
+  "current_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01：A只读核实签名父业务来源、真实外部授权和F08阶段真实正向E2E前置条件；合法可复用证据优先复用，仅确认实际新缺口后才正式安排B施工，禁止重复F08-1/F08-2已通过的质量测试。",
+  "current_work_file": "07_重建工作区/F08-2_Issue184_PR186独立验收与F08剩余来源门禁报告_2026-10-22.md",
   "f06_issue164_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_NONPROD_COMPOSITE_DUAL_GATE_B_CONTINUE",
     "issue": 164,
@@ -3388,7 +3388,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "本A治理PR标准合并main后，B依据最新远程main和Issue184、F08-2正式施工单，在授权分支执行新增非生产跨Runtime质量工程，完整真PG16双Job、场景、证据和自验后READY_FOR_A_REVIEW交A；不得重复历史工程或伪造旧分支签名来源。",
+  "next_action": "A继续只读核查Issue187真实签名正例、外部服务及产品/权限/生产门禁的可合法复用来源。未解除来源/授权缺口前，不放行新的B重复质量或跨分支伪造Issuer施工，不宣布F08整阶段或后端总体验收通过。须用户授权的敏感能力/第三方/资金/生产事项集中说明，不擅自扩权。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4968,7 +4968,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "F07 B受验SHA=32f180238ff3271b38d2b91402cf4a7b55e07d52; merge_SHA=dd4a52a6f117ff83c959212f41f7c29ae68c507c; Push_Run=39629427298; PG16 Jobs=119323288481/119323289005 success; tests 46+15+26 all pass; artifacts 12357563978/12357469078 valid. F06/F07/F08/V1 global NOT_READY.",
+  "next_action_detail": "F08-2 B_HEAD=ff817ee0557858b9469260ed183d6ce32a83c759; MERGE=a497fa7fb504ec1ed63c8eb202eb64999bb74e29; Run39643395145 success; independent PG16 Jobs119372546965/119372547635 success; 58 new security+7 associated regression pass; artifacts12366157062/12365019484 valid; Issue184 closed; F08 full stage blocked SRC_GAP; follow-up A Issue187.",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -6006,7 +6006,7 @@
   },
   "a_batch_approval_mode": "STANDING_USER_DIRECTED_CONTINUOUS_TECHNICAL_WORKFLOW_IN_FROZEN_SCOPE; A_SCOPES_AND_RELEASES_B_C; EACH_WINDOW_COMPLETES_END_TO_END; A_INDEPENDENT_ACCEPTANCE_AND_CLEAN_PR_MERGE_WITHOUT_REPEAT_APPROVAL; NEW_PRODUCT_CHOICE_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_EXTERNAL_WRITES_REQUIRE_USER",
   "current_pending_user_decisions": [],
-  "next_action_owner": "B",
+  "next_action_owner": "A",
   "abc_continuous_execution_rule": {
     "status": "USER_DIRECTIVE_APPLIED",
     "confirmed_at": "2026-10-09",
@@ -7012,7 +7012,7 @@
     "merge_method": "merge",
     "a_review_report": "07_重建工作区/F05-7_A主控二轮独立验收66项真PG16_PR46标准合并与F05-8技术交接_2026-10-12.md"
   },
-  "next_owner": "B",
+  "next_owner": "A",
   "f05_8_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR47_CI_ONLY",
     "execution": "COMPLETED_A_ACCEPTED_PR47_STANDARD_MERGE",
@@ -8147,7 +8147,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F08_NONPROD_CROSS_RUNTIME_QUALITY_02",
+  "next_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9822,7 +9822,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F08-2非生产跨Runtime安全关联回归与质量闭环_A主控B正式施工单_2026-10-22.md",
+  "next_work_file": "07_重建工作区/F08-2_Issue184_PR186独立验收与F08剩余来源门禁报告_2026-10-22.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -10118,8 +10118,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": "feat/f08-nonprod-cross-runtime-quality-02",
-  "next_issue": 184,
+  "next_branch": null,
+  "next_issue": 187,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -11242,7 +11242,7 @@
   },
   "f08_2_release_2026_10_22": {
     "task_id": "F08_NONPROD_CROSS_RUNTIME_QUALITY_02",
-    "status": "A_RELEASED_ON_PR185_STANDARD_MERGE",
+    "status": "A_ACCEPTED_NONPRODUCTION_PR186_STANDARD_MERGED",
     "owner": "B",
     "issue": 184,
     "branch": "feat/f08-nonprod-cross-runtime-quality-02",
@@ -11266,6 +11266,46 @@
     "external_or_production_authorized": false,
     "global_not_ready": true,
     "governance_pr": 185,
-    "effective_only_after_pr_merge": true
+    "effective_only_after_pr_merge": true,
+    "business_pr": 186,
+    "b_accepted_sha": "ff817ee0557858b9469260ed183d6ce32a83c759",
+    "business_merge_sha": "a497fa7fb504ec1ed63c8eb202eb64999bb74e29",
+    "official_run": 39643395145,
+    "official_jobs": [
+      119372546965,
+      119372547635
+    ],
+    "official_artifacts": [
+      12366157062,
+      12365019484
+    ],
+    "new_quality_cases": 58,
+    "affected_regression": 7,
+    "issue_closed": true
+  },
+  "f08_stage_source_gate_2026_10_22": {
+    "task_id": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
+    "owner": "A",
+    "issue": 187,
+    "status": "A_SCOPE_GATE_OPEN_BLOCKED_SIGNED_SOURCE_OR_EXTERNAL_AUTHORIZATION",
+    "review_report": "07_重建工作区/F08-2_Issue184_PR186独立验收与F08剩余来源门禁报告_2026-10-22.md",
+    "b_scope_released": false,
+    "prior_accepted_prs_reuse": [
+      69,
+      100,
+      174,
+      181,
+      186
+    ],
+    "global_f08_ready": false,
+    "global_backend_final_review_authorized": false,
+    "production_or_real_money_authorized": false,
+    "missing_source_domains": [
+      "F03_SCOPE_OBJECT",
+      "F05_SIGNED_CONVERSION",
+      "F07_PUBLISHER_PHONE_SENSITIVE",
+      "SIGNED_SLA_INCIDENT",
+      "JYT_COLLECTOR_CDN_OSS_FEISHU"
+    ]
   }
 }
