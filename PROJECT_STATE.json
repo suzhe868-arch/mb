@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F08_STAGE_SOURCE_AND_TRUE_E2E_GAP",
-  "current_domain_status": "F08-2 Issue184 PR186 限定非生产子范围已经A独立验收、合并及关闭。最终业务SHA ff817ee0557858b9469260ed183d6ce32a83c759，merge a497fa7fb504ec1ed63c8eb202eb64999bb74e29，Run39643395145双真实非超管PG16 Job成功，58新增+7回归通过，双Artifact有效。F08全阶段尚不能验收：真实F03/F05/F07签名父来源、电话能力、SLA/Incident、JYT/CDN/OSS/Feishu等SOURCE_GAP；不能提前做整个后端最终验收或重复B质量测试。下一由A负责Issue187来源门禁裁决，F06/F07/F08/V1 NOT_READY。",
+  "current_domain_status": "F08-2 Issue184 PR186限定非生产子范围已A独立验收、合并及关闭。最终业务SHA ff817ee0557858b9469260ed183d6ce32a83c759，merge a497fa7fb504ec1ed63c8eb202eb64999bb74e29，Run39643395145双真实非超管PG16 Job成功，58新增+7回归通过，双Artifact有效。F08全阶段仍不能验收：F03/F05/F07可信签名父来源、电话物理权限映射、SLA/Incident及真实JYT/Collector/CDN/OSS/Feishu等SOURCE_GAP。用户已明确批准批发车上游电话按员工单独授权，范围二选一：仅当前有效锁定车辆（LOCKED_ONLY）或全部当前在售JYT批发车（ALL_ACTIVE_JYT）；该产品决策不代表物理权限或外部集成已实现。下一由A处理Issue187来源门禁，不重复已通过质量测试；F06/F07/F08/V1仍NOT_READY。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01：A只读核实签名父业务来源、真实外部授权和F08阶段真实正向E2E前置条件；合法可复用证据优先复用，仅确认实际新缺口后才正式安排B施工，禁止重复F08-1/F08-2已通过的质量测试。",
+  "current_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01：A按用户已裁决的批发上游电话范围（单员工授权 + LOCKED_ONLY / ALL_ACTIVE_JYT 二选一）核实物理权限映射、可信父事实与合法外部授权；只处理真实缺口，不重复已验收质量包；确认存在合法且具体的新差异后才安排B。",
   "current_work_file": "07_重建工作区/F08-2_Issue184_PR186独立验收与F08剩余来源门禁报告_2026-10-22.md",
   "f06_issue164_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_NONPROD_COMPOSITE_DUAL_GATE_B_CONTINUE",
@@ -11307,5 +11307,32 @@
       "SIGNED_SLA_INCIDENT",
       "JYT_COLLECTOR_CDN_OSS_FEISHU"
     ]
+  },
+  "publisher_phone_access_scope_decision_2026_10_22": {
+    "status": "USER_APPROVED_PRODUCT_RULE",
+    "permission": "publisher.phone.sensitive",
+    "admin_path": "PC后台 > 员工管理 > 员工详情 > 权限设置",
+    "modes": [
+      {
+        "id": "LOCKED_ONLY",
+        "label": "仅当前有效锁定车辆可联系",
+        "condition": "当前车辆为有效JYT/批发来源且存在当前有效、未取消、未过期的正式Lock状态"
+      },
+      {
+        "id": "ALL_ACTIVE_JYT",
+        "label": "全部当前在售JYT批发车均可联系",
+        "condition": "当前车辆仍符合既有在售JYT/批发车源状态，无需先有Lock或Transaction"
+      }
+    ],
+    "constraints": [
+      "不要求批发车逐车指定销售负责人",
+      "不新增can_call_wholesale_phone",
+      "仅控制上游电话读取/取号/拨号，不扩展车辆编辑、转换、下架/隐藏、Lock审批、Transaction、价格或资金权限",
+      "每次敏感动作按当前员工、permission/deny、source/state及专项范围重新校验；授权变更留审计"
+    ],
+    "implementation_status": "NOT_YET_VERIFIED_OR_IMPLEMENTED",
+    "next_owner": "A",
+    "next_issue": 187,
+    "new_b_task_authorized": false
   }
 }
