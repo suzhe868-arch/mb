@@ -1,5 +1,7 @@
 import {createHash} from 'node:crypto';
 import {assertF06TestEnvironment,verifyF06TestDatabase} from './f06-lock-readiness.mjs';
+import {sessionDigest} from './f03-auth-crypto.mjs';
+import {assertCompositeSignedRun} from '../f06/nonprod-single-runtime-integration/可信Composite签名根.mjs';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 const validId=value=>typeof value==='string'&&/^[1-9][0-9]{0,18}$/.test(value)&&BigInt(value)<=9223372036854775807n;
 export function validateResponsibleHandoverChain({initialResponsibleEmployeeId,currentResponsibleEmployeeId,receipts}={}){
@@ -29,23 +31,56 @@ const validIso=value=>{if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d
 const response=(status,code,extra={})=>({status,body:{code,...extra,productionReady:false}});
 const denied=code=>response(403,code);
 const first=async(db,sql,args=[])=>((await db.query(sql,args)).rows[0]);
-const LOCK_SCHEMA='f06_real_lock_test';
 const LIFECYCLE_CONSENT='I_AUTHORIZE_DISPOSABLE_F06_LOCK_LIFECYCLE_ONLY';
 const EXPIRY_CONSENT='I_AUTHORIZE_DISPOSABLE_F06_LOCK_EXPIRY_ONLY';
 const FAULT_CONSENT='I_AUTHORIZE_DISPOSABLE_F06_LOCK_LIFECYCLE_FAULTS';
 const saleable=v=>!!v&&!v.archived_at&&((v.source_type==='wholesale'&&v.source_sale_status==='active')||(['mingbang','four_s'].includes(v.source_type)&&v.source_sale_status==='available'));
-export function createIsolatedF06LockLifecycleService({pool,env=process.env,afterMutationWrite=null}={}){
- assertF06TestEnvironment(env);
+export function createIsolatedF06LockLifecycleService({pool,env=process.env,afterMutationWrite=null,
+ mode='CI_LEGACY',sessionSecret=null,verifyDatabase=null}={}){
+ const composite=mode==='COMPOSITE_NONPROD_SIGNED_V1';
+ if(composite){
+  const run=assertCompositeSignedRun(env);
+  if(run.profile!=='ISSUE171_COMPOSITE_LOCK_LIFECYCLE_NONPROD_V2'||
+    env.F06_COMPOSITE_TEST_CONSENT!=='I_AUTHORIZE_DISPOSABLE_F06_COMPOSITE_ONLY'||
+    !Buffer.isBuffer(sessionSecret)||sessionSecret.length<32||typeof verifyDatabase!=='function')
+   throw Error('F06_171_LIFECYCLE_TRUSTED_NEW_ISSUER_REQUIRED');
+ }else assertF06TestEnvironment(env);
+ const LOCK_SCHEMA=composite?'f06_composite_lifecycle_v2':'f06_real_lock_test';
+ const lockSnapshotSchema=composite?'f06_composite_v1':'f06_real_lock_test';
+ const verifyDb=composite?verifyDatabase:verifyF06TestDatabase;
  if(!pool||typeof pool.connect!=='function'||typeof pool.query!=='function')throw Error('F06_LOCK_LIFECYCLE_PG16_POOL_REQUIRED');
  if(afterMutationWrite!==null&&(typeof afterMutationWrite!=='function'||env.NODE_ENV!=='test'||env.F06_LOCK_LIFECYCLE_FAULT_INJECTION!==FAULT_CONSENT))throw Error('F06_LOCK_LIFECYCLE_FAULT_INJECTION_NOT_AUTHORIZED');
  async function tx(worker){
   const db=await pool.connect();let begun=false;
-  try{await db.query('BEGIN');begun=true;await verifyF06TestDatabase(db);await db.query("SET LOCAL lock_timeout='1800ms'");const result=await worker(db);await db.query('COMMIT');begun=false;return result}
+  try{await db.query('BEGIN');begun=true;await verifyDb(db);await db.query("SET LOCAL lock_timeout='1800ms'");const result=await worker(db);await db.query('COMMIT');begun=false;return result}
   catch(error){if(begun)await db.query('ROLLBACK').catch(()=>{});if(['40P01','55P03','40001','23505'].includes(error.code))return response(409,'LOCK_LIFECYCLE_CONTENTION_RETRY');throw error}
   finally{db.release()}
  }
  async function employee(db,token){
   if(!validToken(token))return null;
+  if(composite){
+   const digest=sessionDigest(token,sessionSecret);
+   const accountRow=await first(db,'SELECT account_id FROM public.pc_auth_sessions WHERE token_digest=$1',[digest]);
+   if(!accountRow)return null;
+   const a=await first(db,`SELECT a.account_id,a.employee_id,a.credential_state,
+    a.force_password_change,a.credential_epoch,e.employment_status,e.store_id,r.role_code
+    FROM public.pc_login_accounts a JOIN public.employees e ON e.employee_id=a.employee_id
+    JOIN public.roles r ON r.role_id=e.main_role_id
+    WHERE a.account_id=$1 AND a.principal_kind='employee' AND a.system_admin_id IS NULL
+    FOR UPDATE OF a`,[accountRow.account_id]);
+   const sess=await first(db,'SELECT * FROM public.pc_auth_sessions WHERE token_digest=$1 FOR UPDATE',[digest]);
+   const now=(await first(db,'SELECT clock_timestamp() now')).now;
+   const last=sess?.last_seen_at??sess?.issued_at;
+   if(!a||!sess||a.credential_state!=='enabled'||a.force_password_change!==false||
+    String(a.credential_epoch)!==String(sess.credential_epoch)||a.employment_status!=='active'||
+    !['sales','manager','store_head'].includes(a.role_code)||sess.revoked_at||sess.restricted||
+    now<sess.issued_at||now>=sess.expires_at||!last||last<sess.issued_at||last>sess.expires_at||
+    last>now||now.getTime()-new Date(last).getTime()>=1800000||
+    await first(db,'SELECT 1 FROM public.f05_3a_member_create_licenses WHERE employee_id=$1 AND revoked_at IS NULL LIMIT 1',[a.employee_id]))
+    return null;
+   await db.query('UPDATE public.pc_auth_sessions SET last_seen_at=$2 WHERE session_id=$1 AND revoked_at IS NULL',[sess.session_id,now]);
+   return {employee_id:a.employee_id,role_code:a.role_code,employment_status:a.employment_status,store_id:a.store_id};
+  }
   return first(db,`SELECT s.employee_id,r.role_code,e.employment_status,e.store_id
    FROM ${LOCK_SCHEMA}.employee_sessions s
    JOIN public.pc_login_accounts a ON a.account_id=s.account_id AND a.employee_id=s.employee_id
@@ -105,8 +140,15 @@ export function createIsolatedF06LockLifecycleService({pool,env=process.env,afte
  }
  async function snapshot(db,lock){
   const s=await first(db,`SELECT lock_id,customer_id,responsible_employee_id,initial_hours,policy_version,price_kind,price_cents,
-    source_price_event_id,priority_origin_customer_id,priority_origin_id FROM ${LOCK_SCHEMA}.lock_snapshots WHERE lock_id=$1 FOR SHARE`,[lock.lock_id]);
-  return s&&String(s.customer_id)===String(lock.customer_id)?s:null;
+    source_price_event_id,priority_origin_customer_id,priority_origin_id FROM ${lockSnapshotSchema}.lock_snapshots WHERE lock_id=$1 FOR SHARE`,[lock.lock_id]);
+  if(!s||String(s.customer_id)!==String(lock.customer_id))return null;
+  if(composite){
+   const att=await first(db,"SELECT source_sha256,head_sha,run_id FROM f06_composite_v1.attestation WHERE seal_name='COMPOSITE_NONPROD_SIGNED_V1' FOR SHARE");
+   const parent=await first(db,"SELECT source_sha256 FROM f06_1_lock_ci.attestation WHERE seal_name='F06_1_CI_ONLY_V27_SIDECAR' FOR SHARE");
+   const ev=await first(db,"SELECT event_id FROM f06_composite_v1.issued_events WHERE event_kind='signed_lock' AND parent_object_id=$1 AND source_parent_sha256=$2 AND head_sha=$3 AND run_id=$4 FOR SHARE",[lock.lock_id,parent?.source_sha256??'',att?.head_sha??'',att?.run_id??'']);
+   if(!att||!parent||!ev)return null;
+  }
+  return s;
  }
  const str=value=>value===undefined||value===null?null:String(value);
  async function handoverReceiptEventProven(db,r){
@@ -155,6 +197,12 @@ export function createIsolatedF06LockLifecycleService({pool,env=process.env,afte
   const transaction=await first(db,'SELECT transaction_id FROM public.transactions WHERE source_lock_id=$1 LIMIT 1 FOR SHARE',[lock.lock_id]);
   if(receipt)return {ok:false,result:response(409,'LOCK_FINANCIAL_FACT_PRESENT_DENY')};
   if(transaction)return {ok:false,result:response(409,'LOCK_TRANSACTION_PRESENT_DENY')};
+  if(composite){
+   // Same physical PG16 and same transaction: signed snapshot already confirmed
+   // in context(), and actual receipt/transaction/refund tables have no rows.
+   // Do not reuse synthetic Legacy "absence proof" or infer refundable balances.
+   return {ok:true};
+  }
   const p=await first(db,`SELECT proof_kind,issuer,synthetic_only,evidence_sha256 FROM ${LOCK_SCHEMA}.lock_lifecycle_finance_proofs WHERE lock_id=$1 FOR SHARE`,[lock.lock_id]);
   if(!p||p.issuer!=='DISPOSABLE_TEST_ONLY'||p.synthetic_only!==true||p.proof_kind==='unknown')return {ok:false,result:response(409,'LOCK_FINANCIAL_SOURCE_UNKNOWN_DENY')};
   if(p.proof_kind==='present')return {ok:false,result:response(409,'LOCK_FINANCIAL_FACT_PRESENT_DENY')};
@@ -175,20 +223,32 @@ export function createIsolatedF06LockLifecycleService({pool,env=process.env,afte
   return {status:200,body:p.result_json};
  }
  async function record(db,{lock,keyHash,payloadHash,action,actorKind,actorId,before,after,reason,result}){
+  if(composite){
+   const signed=await first(db,"SELECT source_sha256,head_sha,run_id FROM f06_composite_lifecycle_v2.attestation WHERE seal_name='ISSUE171_COMPOSITE_LIFECYCLE_SIGNED_V2' FOR SHARE");
+   if(!signed)throw Error('F06_171_SIGNED_LIFECYCLE_EVENT_PARENT_MISSING');
+   await db.query(`INSERT INTO ${LOCK_SCHEMA}.lock_lifecycle_events
+    (lock_id,event_key_sha256,payload_sha256,action,actor_kind,actor_employee_id,old_status,new_status,
+     old_expires_at,new_expires_at,reason,result_json,source_parent_sha256,head_sha,run_id)
+    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::jsonb,$13,$14,$15)`,
+    [lock.lock_id,keyHash,payloadHash,action,actorKind,actorId,before.lock_status,after.lock_status,
+     before.expires_at,after.expires_at,reason,JSON.stringify(result.body),
+     signed.source_sha256,signed.head_sha,signed.run_id]);
+  }else{
   await db.query(`INSERT INTO ${LOCK_SCHEMA}.lock_lifecycle_events
    (lock_id,event_key_sha256,payload_sha256,action,actor_kind,actor_employee_id,old_status,new_status,
     old_expires_at,new_expires_at,reason,result_json)
    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::jsonb)`,
    [lock.lock_id,keyHash,payloadHash,action,actorKind,actorId,before.lock_status,after.lock_status,before.expires_at,after.expires_at,reason,JSON.stringify(result.body)]);
+  }
   await db.query(`INSERT INTO public.audit_events(actor_kind,actor_id,object_kind,object_id,action,before_json,after_json,occurred_at)
    VALUES($1,$2,'Lock',$3,$4,$5::jsonb,$6::jsonb,clock_timestamp())`,
-   [actorKind==='employee'?'employee':'system',actorId===null?null:String(actorId),String(lock.lock_id),'f06_lock_lifecycle_'+action,
+   [actorKind==='employee'?'employee':'system',actorId===null?null:String(actorId),String(lock.lock_id),(composite?'f06_composite_lock_lifecycle_':'f06_lock_lifecycle_')+action,
     JSON.stringify({lockStatus:before.lock_status,expiresAt:before.expires_at}),
     JSON.stringify({lockStatus:after.lock_status,expiresAt:after.expires_at,reason,action})]);
  }
  async function afterWrite(db,details){if(afterMutationWrite)await afterMutationWrite({db,...details})}
  return Object.freeze({
-  verify:()=>verifyF06TestDatabase(pool),
+  verify:()=>verifyDb(pool),
   async act({token,lockId,action,idempotencyKey,reason,newExpiresAt}={}){
    if(env.F06_LOCK_LIFECYCLE_TEST_CONSENT!==LIFECYCLE_CONSENT)return denied('LOCK_LIFECYCLE_TEST_CONSENT_REQUIRED');
    if(!validToken(token))return response(401,'TEST_EMPLOYEE_IDENTITY_REQUIRED');
@@ -198,15 +258,19 @@ export function createIsolatedF06LockLifecycleService({pool,env=process.env,afte
     const actor=await employee(db,token);if(!actor)return denied('EMPLOYEE_NOT_AUTHORIZED');
     const entry=await lockEntry(db,lockId);if(!entry)return response(404,'LOCK_NOT_FOUND');
     const lock=entry.lock;if(!await authorized(db,actor,lock))return denied('LOCK_LIFECYCLE_PERMISSION_SCOPE_DENIED');
+    const signed=await snapshot(db,lock);
+    if(!signed)return response(409,'LOCK_SIGNED_SNAPSHOT_MISSING');
+    if(signed.priority_origin_id){
+     if(action==='extend')return response(409,'PRIORITY_ORIGIN_ORDINARY_EXTENSION_DENIED');
+     if(action==='release')return response(409,'PRIORITY_ORIGIN_ORDINARY_RELEASE_DENIED');
+     if(action==='cancel')return response(409,'PRIORITY_ORIGIN_ORDINARY_CANCEL_DENIED');
+    }
     const keyHash=sha('f06-lock-lifecycle:'+idempotencyKey);
     const payloadHash=sha(JSON.stringify([String(actor.employee_id),String(lockId),action,why,newExpiresAt??null]));
     await db.query('SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))',['F06_LOCK_LIFECYCLE_KEY',keyHash]);
     const prior=await existingEvent(db,keyHash,payloadHash,'employee',actor.employee_id,action,lockId);if(prior)return prior;
     if(lock.lock_status!=='active')return response(409,'LOCK_NOT_ACTIVE');
     if(!await activeLockIsUnique(db,lock))return response(409,'LOCK_ACTIVE_COMPETITION_OR_DUPLICATE_DENY');
-    const signed=await snapshot(db,lock);
-    if(!signed)return response(409,'LOCK_SIGNED_SNAPSHOT_MISSING');
-    if(action==='extend'&&signed.priority_origin_id)return response(409,'PRIORITY_ORIGIN_ORDINARY_EXTENSION_DENIED');
     const ctx=await context(db,lock,action,entry.vehicleExists);if(ctx.deny)return ctx.deny;
     const money=await financeGuard(db,lock);if(!money.ok)return money.result;
     let next;
@@ -233,13 +297,15 @@ export function createIsolatedF06LockLifecycleService({pool,env=process.env,afte
    if(!validId(lockId))return response(400,'INVALID_LOCK_ID');
    return tx(async db=>{
     const entry=await lockEntry(db,lockId);if(!entry)return response(404,'LOCK_NOT_FOUND');
-    const lock=entry.lock,keyHash=sha('f06-lock-lifecycle-system-expire:'+lockId);
-    const payloadHash=sha(JSON.stringify(['system',String(lockId),'expire','ordinary_expiry_no_verified_money',null]));
-    const prior=await existingEvent(db,keyHash,payloadHash,'system',null,'expire',lockId);if(prior)return prior;
-    if(lock.lock_status!=='active')return response(409,'LOCK_NOT_ACTIVE');
-    if(!await activeLockIsUnique(db,lock))return response(409,'LOCK_ACTIVE_COMPETITION_OR_DUPLICATE_DENY');
-    const ctx=await context(db,lock,'expire',entry.vehicleExists);if(ctx.deny)return ctx.deny;
-    if(ctx.snapshot.priority_origin_id)return response(409,'PRIORITY_ORIGIN_ORDINARY_EXPIRY_DENIED');
+     const lock=entry.lock;
+     const signed=await snapshot(db,lock);if(!signed)return response(409,'LOCK_SIGNED_SNAPSHOT_MISSING');
+     if(signed.priority_origin_id)return response(409,'PRIORITY_ORIGIN_ORDINARY_EXPIRY_DENIED');
+     const keyHash=sha('f06-lock-lifecycle-system-expire:'+lockId);
+     const payloadHash=sha(JSON.stringify(['system',String(lockId),'expire','ordinary_expiry_no_verified_money',null]));
+     const prior=await existingEvent(db,keyHash,payloadHash,'system',null,'expire',lockId);if(prior)return prior;
+     if(lock.lock_status!=='active')return response(409,'LOCK_NOT_ACTIVE');
+     if(!await activeLockIsUnique(db,lock))return response(409,'LOCK_ACTIVE_COMPETITION_OR_DUPLICATE_DENY');
+     const ctx=await context(db,lock,'expire',entry.vehicleExists);if(ctx.deny)return ctx.deny;
     const money=await financeGuard(db,lock);if(!money.ok)return money.result;
     const deadline=await first(db,'SELECT $1::timestamptz<=clock_timestamp() AS expired',[lock.expires_at]);
     if(!deadline?.expired)return response(409,'LOCK_NOT_EXPIRED_BY_DATABASE_CLOCK');

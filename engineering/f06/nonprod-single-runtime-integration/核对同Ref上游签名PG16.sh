@@ -4,7 +4,11 @@ set -euo pipefail
 test "$GITHUB_REPOSITORY" = suzhe868-arch/mb
 test "$GITHUB_EVENT_NAME" = push
 test "$GITHUB_ACTIONS" = true
-test "$GITHUB_REF" = refs/heads/feat/f06-nonprod-single-runtime-trusted-source-01
+case "$GITHUB_REF" in
+  refs/heads/feat/f06-nonprod-single-runtime-trusted-source-01|refs/heads/feat/f06-nonprod-composite-lock-lifecycle-01) ;;
+  *) echo 'F06_EXACT_PUSH_SOURCE_NOT_ALLOWED' >&2; exit 1 ;;
+esac
+test "$GITHUB_REF_NAME" = "${GITHUB_REF#refs/heads/}"
 test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
 original_ref="$GITHUB_REF"
 original_name="$GITHUB_REF_NAME"
@@ -30,14 +34,75 @@ node --input-type=module -e '
  }finally{await c.end()}
 '
 # Signed M94 v23(21 rows) -> v24(22) -> v25(23) -> D1 independent -> v26(24).
-# All frozen F05 migration functions independently verify parent seals, and no
-# subprocess overwrites GITHUB_REF or GITHUB_REF_NAME for a legacy identity.
-for step in priority-arbitration-ttl-handover recommendation-visibility-grants pdm17-public-pool-owner-claim consultation-assignee-sla; do
-  node "engineering/f05/$step/runner.mjs" --apply
-  node "engineering/f05/$step/runner.mjs" --verify
+# The old Issue164 profile retains its original migration loop. The Issue171
+# fixture preseed is authorized only for the exact new branch after real-ref checks.
+if [ "$GITHUB_REF_NAME" = "feat/f06-nonprod-composite-lock-lifecycle-01" ]; then
+  node engineering/f05/priority-arbitration-ttl-handover/preseed-v23.mjs
   test "$GITHUB_REF" = "$original_ref"
   test "$GITHUB_REF_NAME" = "$original_name"
-done
+  node --input-type=module -e '
+   import {connect,verify} from "./engineering/f05/deterministic-matching-readiness-four-tier/migration.mjs";
+   const c=await connect();
+   try{
+    const signed=await verify(c);
+    const n=(await c.query("SELECT count(*)::int n FROM public.f05_7_result_versions_ci r JOIN public.demands d ON d.demand_id=r.demand_id WHERE d.customer_id IN(899612,899613,899618,899619,899620) AND r.status=$1 AND r.tier=ANY($2::text[])",["current",["high","acceptable"]])).rows[0].n;
+    if(!signed.verified||Number(n)<1)throw Error("F06_171_V23_SIGNED_CURRENT_MATCHES_MISSING");
+    console.log("F06_171_V23_CURRENT_MATCHES_SEEDED",JSON.stringify({sha:process.env.GITHUB_SHA,runId:process.env.GITHUB_RUN_ID,ledgerVersion:23,currentResults:Number(n)}));
+   }finally{await c.end()}
+  '
+  test "$GITHUB_REF" = "$original_ref"
+  test "$GITHUB_REF_NAME" = "$original_name"
+  node "engineering/f05/priority-arbitration-ttl-handover/runner.mjs" --apply
+  node "engineering/f05/priority-arbitration-ttl-handover/runner.mjs" --verify
+  test "$GITHUB_REF" = "$original_ref"
+  test "$GITHUB_REF_NAME" = "$original_name"
+  node --input-type=module -e '
+   import {randomBytes} from "node:crypto";
+   import {IsolatedAuth} from "./engineering/src/f03-auth-service.mjs";
+   import {connect,verify} from "./engineering/f05/priority-arbitration-ttl-handover/migration.mjs";
+   import {setQualificationCI} from "./engineering/f05/priority-arbitration-ttl-handover/service.mjs";
+   const c=await connect(),secret=randomBytes(32);
+   const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin:"https://127.0.0.1:48988"});
+   try{
+    const signed=await verify(c);
+    if(!signed.verified)throw Error("F06_171_V24_SIGNED_F05_8_REQUIRED");
+    const session=await auth.login({login:"employee_test",password:"SyntheticF04_3_CurrentProof_2026",source:"issue171-real-priority-seed-at-v24"});
+    if(session.code!=="AUTH_OK"||session.restricted)throw Error("F06_171_V24_CURRENT_EMPLOYEE_SESSION_REQUIRED");
+    const candidate=(await c.query(
+     "SELECT DISTINCT d.customer_id::text customer_id FROM public.f05_7_result_versions_ci r JOIN public.demands d ON d.demand_id=r.demand_id "+
+     "JOIN public.customers cs ON cs.customer_id=d.customer_id "+
+     "JOIN public.f05_6_level_find_policy_ci fp ON fp.level_id=cs.customer_level_id AND fp.find_enabled=true "+
+     "JOIN public.f05_7_sales_condition_ci sc ON sc.demand_id=d.demand_id "+
+     "WHERE d.customer_id IN(899612,899613,899618,899619,899620) AND d.demand_state=$1 AND cs.account_status=$2 AND cs.owner_assignment_state=$3 "+
+     "AND d.responsible_employee_id=cs.current_owner_employee_id AND cs.current_owner_employee_id=$4 AND r.status=$5 AND r.tier=ANY($6::text[]) "+
+     "AND EXISTS(SELECT 1 FROM public.customer_phone_facts ph WHERE ph.customer_id=cs.customer_id AND ph.valid_from<=clock_timestamp() AND ph.ended_at IS NULL) "+
+     "ORDER BY d.customer_id::text LIMIT 1",["active","active","assigned",1,"current",["high","acceptable"]]
+    )).rows[0];
+    if(!candidate)throw Error("F06_171_V24_REAL_F05_7_MATCH_FOR_PRIORITY_REQUIRED");
+    const issued=await setQualificationCI(auth,session.token,{teamId:901,customerId:Number(candidate.customer_id),enabled:true,eventKey:"issue171-priority-qualification-"+process.env.GITHUB_RUN_ID});
+    if(!issued.allowed)throw Error("F06_171_V24_OFFICIAL_F05_8_QUALIFICATION_REJECTED_"+JSON.stringify(issued));
+    const n=(await c.query("SELECT count(*)::int n FROM public.f05_8_priority_ci p JOIN public.f05_7_result_versions_ci r ON r.result_id=p.source_match_result_id AND r.source_signature=p.source_signature WHERE p.customer_id=$1 AND p.status=$2 AND p.expires_at>clock_timestamp()",[Number(candidate.customer_id),"active"])).rows[0].n;
+    if(Number(n)<1)throw Error("F06_171_V24_OFFICIAL_SIGNED_PRIORITY_MISSING");
+    console.log("F06_171_V24_PRIORITY_SEEDED",JSON.stringify({sha:process.env.GITHUB_SHA,runId:process.env.GITHUB_RUN_ID,ledgerVersion:24,customerId:Number(candidate.customer_id),activeSignedPriorities:Number(n)}));
+   }finally{await auth.close();await c.end();secret.fill(0)}
+  '
+  test "$GITHUB_REF" = "$original_ref"
+  test "$GITHUB_REF_NAME" = "$original_name"
+  for step in recommendation-visibility-grants pdm17-public-pool-owner-claim consultation-assignee-sla; do
+    node "engineering/f05/$step/runner.mjs" --apply
+    node "engineering/f05/$step/runner.mjs" --verify
+    test "$GITHUB_REF" = "$original_ref"
+    test "$GITHUB_REF_NAME" = "$original_name"
+  done
+else
+  # Issue164's original path is retained verbatim: no Issue171 preseed or split v24 phase.
+  for step in priority-arbitration-ttl-handover recommendation-visibility-grants pdm17-public-pool-owner-claim consultation-assignee-sla; do
+    node "engineering/f05/$step/runner.mjs" --apply
+    node "engineering/f05/$step/runner.mjs" --verify
+    test "$GITHUB_REF" = "$original_ref"
+    test "$GITHUB_REF_NAME" = "$original_name"
+  done
+fi
 node --input-type=module -e '
  import {connect,verify} from "./engineering/f05/consultation-assignee-sla/migration.mjs";
  const c=await connect();
