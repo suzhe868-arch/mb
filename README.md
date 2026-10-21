@@ -10,14 +10,15 @@
 
 ---
 
-## A 当前任务指针｜F08 可信来源与外部授权父门禁｜2026-10-22
+## A 当前任务指针｜外部系统未准备，F08 来源父门禁继续｜2026-10-22
 
-- F08-3 [Issue #190](https://github.com/suzhe868-arch/mb/issues/190) 已通过限定非生产子范围验收并关闭；业务 [PR #193](https://github.com/suzhe868-arch/mb/pull/193) 已标准合并。
-- B 最终 HEAD：`662847bf2e75c9ca404dff8e57902850d8fe4673`；merge SHA：`5cb52e6754e3e171cb9e1a67e3aef51c8e78dfcc`。官方 Run [#39665372029](https://github.com/suzhe868-arch/mb/actions/runs/39665372029)：业务 PG16 43/43、受影响回归 26/26、HTTPS PG16 16/16；最终 SHA 的 30/30 Check Runs 全部成功，双 Artifact [#12377127302](https://github.com/suzhe868-arch/mb/actions/runs/39665372029/artifacts/12377127302) / [#12377287037](https://github.com/suzhe868-arch/mb/actions/runs/39665372029/artifacts/12377287037) 非空有效。
-- A 中文报告：`07_重建工作区/F08-3_Issue190_PR193独立验收与合并报告_2026-10-22.md`。
-- **当前唯一指针：** `NEXT_OWNER=A`；`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`；`NEXT_ISSUE=187`；`NEXT_BRANCH=NONE`。没有新的 B 施工包授权。
-- A 接续 [Issue #187](https://github.com/suzhe868-arch/mb/issues/187) 的真实签名来源、Vehicle Scope/Object、F05 正向 Issuer 与外部授权父门禁。既有 F08-1/F08-2/F06/F07 验收成果直接复用，不重复 58+7 测试，不伪造签名或跨分支正例。
-- F08-3 仅接受 `CI_SYNTHETIC_ONLY` 内部非生产专项权限/范围纵切。真实 Collector/JYT、publisher 物理映射、正式 F03 capability/scope、F05 转换正向 Issuer、SLA/Incident、CDN/OSS/Feishu 仍为 `SOURCE_GAP`；F06/F07/F08/V1 继续 `NOT_READY / NO_PRODUCTION`。F08 正常阶段验收通过后，整个 B 后端最终整体验收仍由 A 独立负责；C PR #68 不动。
+- 用户已明确确认：**JYT/Collector 尚未准备；图片存储/CDN 尚未准备；飞书尚未准备**。正式 F03 capability/Vehicle Scope/Object 与 F05 转换正向 Issuer 也没有可核验的正式来源证据。
+- F08-3 [Issue #190](https://github.com/suzhe868-arch/mb/issues/190) 已关闭；业务 [PR #193](https://github.com/suzhe868-arch/mb/pull/193) 已标准合并，B HEAD `662847bf2e75c9ca404dff8e57902850d8fe4673`，merge SHA `5cb52e6754e3e171cb9e1a67e3aef51c8e78dfcc`。治理 [PR #194](https://github.com/suzhe868-arch/mb/pull/194) 已合并。已验收子任务直接复用，不重跑旧测试。
+- A 阻断报告：`07_重建工作区/A_Issue187外部系统未准备阻断登记与独立工作盘点_2026-10-22.md`；外部依赖台账：`engineering/f07/nonprod-runtime-integration/SOURCE_GAP与外部授权依赖台账.tsv`。
+- **唯一指针：** `NEXT_OWNER=A`；`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`；`NEXT_ISSUE=187`；`NEXT_BRANCH=NONE`。当前没有新的、可合法验收且不重复的 B 业务施工包。
+- A 已完成当前可独立进行的来源审计、状态核对与阻断登记。未取得真实非生产资源、正式 capability/Vehicle Scope/F05 Issuer 证据前，不重复合成测试、不伪造签名/回执、不宣称外部系统已接通。
+- F06/F07/F08/V1 继续 `NOT_READY / NO_PRODUCTION`；生产、真实电话、外部公网调用、真实资金/退款/成交未授权。C PR #68 保持独立。
+
 ---
 
 ## 2026-10-22 前次历史任务｜已被上方 A 最新阶段裁决覆盖

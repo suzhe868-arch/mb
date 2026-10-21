@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "A_F08_3_ACCEPTED_F08_STAGE_SOURCE_GATE_OPEN",
+  "substage": "A_EXTERNAL_SYSTEMS_NOT_READY_BLOCKERS_REGISTERED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F08_SIGNED_SOURCE_AND_EXTERNAL_AUTHORIZATION_GATE",
-  "current_domain_status": "F08-3 Issue #190 已通过 A 独立验收，PR #193 标准合并。该验收仅覆盖 CI_SYNTHETIC_ONLY 内部非生产员工电话权限/专项范围纵切；真实 Collector/JYT、publisher 物理映射、正式 F03 capability/Scope/Object、F05 转换正向 Issuer、SLA/Incident、CDN/OSS/Feishu 仍 SOURCE_GAP。F06/F07/F08/V1 仍 NOT_READY / NO_PRODUCTION。A 继续 Issue #187 父级来源与外部授权门禁，当前无新的 B 施工包。",
+  "current_domain_status": "用户已确认 JYT/Collector、图片存储/CDN、飞书均尚未准备。A 已完成最新 main、Issue #187、F03/F05 正式来源与 F07 外部依赖的增量核查，并将外部资源阻断写入台账。当前无新的、可合法验收且不依赖缺失资源的 B 业务差异；F03 正式事实读取器仍 fail-closed，F05 正向 Issuer 仍 SOURCE_GAP。F08-2/F08-3 已验收成果直接复用，不重复测试。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01：继续只读核查 Issue #187 的正式 capability/catalog、Vehicle Scope/Object、F05 正向 Issuer、真实 Collector/JYT 与外部集成来源/授权；未取得合法当前证据前不签发新的 B 施工单。",
-  "current_work_file": "07_重建工作区/F08-3_Issue190_PR193独立验收与合并报告_2026-10-22.md",
+  "current_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01：维护 Issue #187 的正式来源与外部授权父门禁；三项外部系统尚未准备，当前推进依赖台账和状态交接，不发重复 B 模拟施工包。",
+  "current_work_file": "07_重建工作区/A_Issue187外部系统未准备阻断登记与独立工作盘点_2026-10-22.md",
   "f06_issue164_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_NONPROD_COMPOSITE_DUAL_GATE_B_CONTINUE",
     "issue": 164,
@@ -3388,7 +3388,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "A 继续只读核查 Issue #187 真实签名正例、外部服务及产品/权限/生产门禁的可合法复用来源。F08-3 Issue #190 已通过 A 限定非生产子范围验收并关闭，PR #193 已标准合并；不重复 F08-2 的 58+7 测试。未解除来源/授权缺口前，不放行新的 B 重复质量或跨分支伪造 Issuer 施工，不宣布 F08 整阶段或后端总体验收通过。须用户授权的敏感能力/第三方/资金/生产事项集中说明，不擅自扩权。",
+  "next_action": "用户已确认 JYT/Collector、图片存储/CDN、飞书均尚未准备。A 已将其登记为明确外部资源阻断，并复核 F03 capability/Vehicle Scope/Object 与 F05 转换正向 Issuer 仍无可核验正式来源。当前没有新的、可合法验收且不依赖缺失资源的 B 业务施工差异；保持 NEXT_OWNER=A、NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01、NEXT_ISSUE=187、NEXT_BRANCH=NONE。资源与正式来源证据就绪后，再由 A 判断最小施工差异。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4968,7 +4968,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "F08-3 Issue190 closed; PR193 merged. B_HEAD=662847bf2e75c9ca404dff8e57902850d8fe4673; MERGE=5cb52e6754e3e171cb9e1a67e3aef51c8e78dfcc; Run39665372029 completed/success; independent PG16 jobs119448883595 and 119448884077 success; business43/43; affected regression26/26; HTTPS16/16; final SHA checks30/30 success; artifacts12377127302/12377287037 valid. Remaining F08 stage source/auth gates tracked by Issue187.",
+  "next_action_detail": "F08-3 Issue190/PR193 and governance PR194 already merged and accepted; do not rerun F08-2 58+7 or F08-3 43+26+16. User-confirmed not ready: JYT/Collector, image storage/CDN, Feishu. Official F03 reader remains fail-closed; F05 positive Issuer remains SOURCE_GAP. No new B branch authorized.",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -9822,7 +9822,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F08-3_Issue190_PR193独立验收与合并报告_2026-10-22.md",
+  "next_work_file": "07_重建工作区/A_Issue187外部系统未准备阻断登记与独立工作盘点_2026-10-22.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -11402,6 +11402,38 @@
     ],
     "production_or_real_external_authorized": false,
     "f08_stage": "NOT_READY",
+    "next_owner": "A",
+    "next_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
+    "next_issue": 187,
+    "next_branch": "NONE"
+  },
+  "external_system_readiness_2026_10_22": {
+    "confirmed_by_user": true,
+    "confirmed_at": "2026-10-22",
+    "jyt_collector": {
+      "status": "NOT_READY",
+      "details": "用户明确确认尚未准备；不得宣称真实回调或电话来源已接通"
+    },
+    "image_storage_cdn": {
+      "status": "NOT_READY",
+      "details": "用户明确确认尚未准备；现有 MockStorage/MockCDN 不代表真实上传或回源"
+    },
+    "feishu": {
+      "status": "NOT_READY",
+      "details": "用户明确确认尚未准备；本地 outbox 不代表真实消息投递"
+    },
+    "formal_f03_capability_scope_object": {
+      "status": "SOURCE_GAP",
+      "details": "正式 F03 reader 仍 fail-closed"
+    },
+    "f05_conversion_issuer": {
+      "status": "SOURCE_GAP",
+      "details": "缺少正式正向转换 Issuer 证据"
+    },
+    "sla_incident": {
+      "status": "SOURCE_GAP",
+      "details": "本轮未取得正式 deadline / signed Incident Issuer 证据"
+    },
     "next_owner": "A",
     "next_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
     "next_issue": 187,

@@ -1,16 +1,18 @@
 # 名邦汽车 V1｜NEXT_ACTION 当前唯一指针｜2026-10-22
 
-## 当前唯一正式动作｜F08 可信来源与外部授权父门禁
+## 当前唯一正式动作｜A 维护 F08 来源与外部授权父门禁
 
 - `NEXT_OWNER=A`
 - `NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`
 - `NEXT_ISSUE=187`：[A 父级门禁｜F08 可信来源与外部集成](https://github.com/suzhe868-arch/mb/issues/187)
 - `NEXT_BRANCH=NONE`（当前没有新的 B 施工分支授权）
-- 当前验收报告：`07_重建工作区/F08-3_Issue190_PR193独立验收与合并报告_2026-10-22.md`
-- F08-3 [Issue #190](https://github.com/suzhe868-arch/mb/issues/190) 已关闭；业务 [PR #193](https://github.com/suzhe868-arch/mb/pull/193) 已标准合并，merge SHA `5cb52e6754e3e171cb9e1a67e3aef51c8e78dfcc`。B HEAD `662847bf2e75c9ca404dff8e57902850d8fe4673`；Run #39665372029 的 43/43 业务、26/26 受影响回归、16/16 HTTPS 均通过，30/30 Check Runs success，双同 SHA Artifact 有效。
-- **已验收范围仅为 `CI_SYNTHETIC_ONLY` 非生产电话权限/专项范围纵切**；不等于真实 JYT/Collector、真实 publisher 物理映射或生产电话已接通。
-- A 继续 Issue #187：核实正式 capability/catalog、当前 Vehicle Scope/Object、F05 转换正向 Issuer，以及真实 Collector/JYT、CDN/OSS、Feishu、SLA/Incident 的可核验来源与外部授权。当前没有新 B 施工包；来源未解决前不重复模拟质量测试、不伪造签名正例、不宣布 F08 整阶段完成。
-- F06/F07/F08/V1 继续 `NOT_READY / NO_PRODUCTION`；不授权真实电话、外部公网调用、生产、真实资金、退款或成交。F08 正常阶段验收后，整个 B 后端最终整体验收由 A 独立负责；C PR #68 独立不动。
+- 当前阻断报告：`07_重建工作区/A_Issue187外部系统未准备阻断登记与独立工作盘点_2026-10-22.md`
+- 用户已确认：JYT/Collector、图片存储/CDN、飞书均尚未准备；依赖台账已记录为用户确认状态。
+- F08-3 Issue #190 已关闭、业务 PR #193 已标准合并；治理 PR #194 已标准合并。已有测试与证据直接复用，不重复 F08-2 的 58+7 或 F08-3 的 43+26+16。
+- A 已完成现有仓库、正式 F03/F05 来源门禁、外部依赖台账和父 Issue 的增量核查。当前没有新的、可合法验收且不依赖缺失资源的 B 业务差异；不发重复模拟施工包。
+- 解锁条件：获批的 JYT/Collector 非生产端点及可信 publisher 来源、真实对象存储/CDN 测试资源、飞书测试租户/机器人/群和路由授权；另需正式 F03 capability/Vehicle Scope/Object 与 F05 转换 Issuer 的可核验证据。凭据只通过批准的密钥托管提供。
+- F06/F07/F08/V1 继续 `NOT_READY / NO_PRODUCTION`。不授权生产、真实电话、外部公网调用、真实资金、退款或成交。F08 正常阶段通过验收后，整个 B 后端最终整体验收仍由 A 独立负责；C PR #68 不动。
+
 ---
 
 ## 2026-10-22 上一任务历史记录（以下原“当前”已经失效）
