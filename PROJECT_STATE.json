@@ -10864,8 +10864,8 @@
     "current_issue": 164,
     "current_branch": "feat/f06-nonprod-single-runtime-trusted-source-01",
     "business_code_changed": false,
-    "_ci_workflow_changed": false,
     "new_issue_or_branch_created": false,
-    "next_pointer_changed": false
+    "next_pointer_changed": false,
+    "ci_workflow_changed": false
   }
 }
