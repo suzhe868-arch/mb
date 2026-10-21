@@ -34,5 +34,9 @@ export async function assertCompositeSignedPG(c,env=process.env){
  if(!x||x.db!=='f03_auth_test'||x.usr!=='f03_ci'||x.ver<160000||x.ver>=170000||
     x.su!==false||x.cdb!==false||x.cr!==false||x.n!==24)
   throw Error('F06_COMPOSITE_SIGNED_NONPRIVILEGED_24_LEDGER_DENIED');
+ const {verifyCompositeAttestation}=await import('./composite-issuer.mjs');
+ const signed=await verifyCompositeAttestation(c);
+ if(!signed.verified||signed.headSHA!==root.sha||signed.runId!==root.runId)
+  throw Error('F06_COMPOSITE_SIGNED_V1_ISSUER_REQUIRED');
  return root;
 }
