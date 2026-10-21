@@ -1,3 +1,16 @@
+# 2026-10-21｜A独立验收PR174：CI证据核实通过，但业务与签名来源负向测试两项阻断，B原分支定向整改
+
+- **验收对象**：[PR #174](https://github.com/suzhe868-arch/mb/pull/174)，Issue [#171](https://github.com/suzhe868-arch/mb/issues/171)，B分支 `feat/f06-nonprod-composite-lock-lifecycle-01`。
+- **已核实B最终SHA**：`9409e426c54e5b767a914cb134a7022aed77ffae`；官方Push Run [39576895129](https://github.com/suzhe868-arch/mb/actions/runs/39576895129)全部步骤成功；Artifact `f06-issue171-evidence-39576895129`存在且未过期。
+- **真实证据**：Lifecycle 30/30、Composite 42/42、Legacy Node/HTTP 37/37、Legacy PG16生命周期13/13、Legacy审计1/1；161张父表、24条迁移，三物理OID `22746/16387/23026`跨OID Seal一致，`unauthorizedParentDrift=false`。15个变更路径在正式白名单内，没有发现越界修改。
+- **A裁决**：PR #174暂不合并，Issue #171保持开放，`NEXT_OWNER=B`。正式退回报告：[F06 Issue171 PR174独立验收退回报告](07_重建工作区/F06_Issue171_PR174独立验收退回报告_2026-10-21.md)；已在PR/Issue讨论记录。
+- **阻断一（业务）**：`engineering/src/f06-lock-lifecycle-service.mjs`目前仅拒绝Priority来源Lock的extend/expire，release/cancel仍可能变更状态。补齐release/cancel硬拒绝，并用真实PG16对extend/release/cancel/expire四种动作验证Lock状态、签名事件、审计均无变化。
+- **阻断二（验收）**：PR #173裁决要求的签名来源负向边界测试缺失。补齐Issue164/Issue171精确profile互斥、错误Ref、非Push、HEAD/SHA不一致、无效Run ID、错误OID、源码摘要漂移、父迁移/Attestation不一致、权限撤销和伪造身份的实际负向测试，并纳入同SHA官方workflow/evidence gate。
+- **继续方式**：原Issue、原分支、原任务不变；不新建平行任务、不强推、不合并main。保留当前成功测试和Artifact；两项整改完成后重新跑最终SHA官方CI并归档新工件，再交A复验。
+- **状态边界**：现有成功测试只是部分验收证据；F06/F07/F08/V1继续`NOT_READY`，无生产、真钱、真实退款/成交或F07/F08开工授权。
+
+---
+
 # 2026-10-21｜A主控Issue171真实新分支Composite签名来源物理阻断成立，五文件精确补充裁决，B原任务继续
 
 - **真实进度不虚报**：Issue [#171](https://github.com/suzhe868-arch/mb/issues/171)，B原分支`feat/f06-nonprod-composite-lock-lifecycle-01`当前阻断报告HEAD`13b9cc580b0907d743414707d353d4b96f1ca39b`，仅一份中文源代码级说明；本Issue `>=16` 真实PG16/HTTP新测试、正式本SHA工作流、封印、业务实现**尚未完成**。之前Issue164/PR169的42/42+32/32+6/6+Legacy1/1保留且不冒充本Issue结果。
