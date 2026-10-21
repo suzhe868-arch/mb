@@ -10,14 +10,14 @@
 
 ---
 
-## A 当前任务指针｜F08-3 批发上游电话专项范围非生产纵切｜2026-10-22
+## A 当前任务指针｜F08 可信来源与外部授权父门禁｜2026-10-22
 
-- [F08-2 Issue #184](https://github.com/suzhe868-arch/mb/issues/184) 已完成 A 独立验收并关闭；[PR #186](https://github.com/suzhe868-arch/mb/pull/186) 已标准合并。最终 SHA 的官方 Run #39643395145 两独立 PG16 非超管 Job 成功，58 新场景+7 受影响回归通过，双有效 Artifact #12366157062/#12365019484。
-- [PR #189](https://github.com/suzhe868-arch/mb/pull/189) 已把用户批准的电话范围规则合并主线：PC 后台按员工单独授权既有 publisher.phone.sensitive，并二选一 LOCKED_ONLY 或 ALL_ACTIVE_JYT；不要求逐车负责人，不新增 can_call_wholesale_phone，不扩大车辆管理权限。
-- **当前唯一任务指针：** NEXT_OWNER=B；NEXT_TASK=F08_PUBLISHER_PHONE_SCOPE_RUNTIME_NONPROD_03；NEXT_ISSUE=190；NEXT_BRANCH=feat/f08-publisher-phone-scope-runtime-nonprod-03。正式施工单：`07_重建工作区/F08-3_批发上游电话员工专项范围与PG16非生产Runtime纵切_A主控B正式施工单_2026-10-22.md`。A 治理 PR #191 已标准合并 main，F08-3 授权现已生效。
-- F08-3 只接通隔离 PG16 + 合成 publisher/phone 的内部权限/对象范围纵切；禁止真实 JYT/Collector、公网、生产或真实资金。B 交 READY_FOR_A_REVIEW 后由 A 独立验收，再回到 [Issue #187](https://github.com/suzhe868-arch/mb/issues/187) 继续处理真实来源、外部授权及 F08 整阶段门禁。
-- F08 整阶段、F06/F07/V1 仍 NOT_READY；不重复 F08-2 已验收的 58+7 测试；不提前进行整个 B 后端最终全局验收；C PR #68 独立不动。ABC 三窗口继续禁止切换 Work 模式。
-
+- F08-3 [Issue #190](https://github.com/suzhe868-arch/mb/issues/190) 已通过限定非生产子范围验收并关闭；业务 [PR #193](https://github.com/suzhe868-arch/mb/pull/193) 已标准合并。
+- B 最终 HEAD：`662847bf2e75c9ca404dff8e57902850d8fe4673`；merge SHA：`5cb52e6754e3e171cb9e1a67e3aef51c8e78dfcc`。官方 Run [#39665372029](https://github.com/suzhe868-arch/mb/actions/runs/39665372029)：业务 PG16 43/43、受影响回归 26/26、HTTPS PG16 16/16；最终 SHA 的 30/30 Check Runs 全部成功，双 Artifact [#12377127302](https://github.com/suzhe868-arch/mb/actions/runs/39665372029/artifacts/12377127302) / [#12377287037](https://github.com/suzhe868-arch/mb/actions/runs/39665372029/artifacts/12377287037) 非空有效。
+- A 中文报告：`07_重建工作区/F08-3_Issue190_PR193独立验收与合并报告_2026-10-22.md`。
+- **当前唯一指针：** `NEXT_OWNER=A`；`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`；`NEXT_ISSUE=187`；`NEXT_BRANCH=NONE`。没有新的 B 施工包授权。
+- A 接续 [Issue #187](https://github.com/suzhe868-arch/mb/issues/187) 的真实签名来源、Vehicle Scope/Object、F05 正向 Issuer 与外部授权父门禁。既有 F08-1/F08-2/F06/F07 验收成果直接复用，不重复 58+7 测试，不伪造签名或跨分支正例。
+- F08-3 仅接受 `CI_SYNTHETIC_ONLY` 内部非生产专项权限/范围纵切。真实 Collector/JYT、publisher 物理映射、正式 F03 capability/scope、F05 转换正向 Issuer、SLA/Incident、CDN/OSS/Feishu 仍为 `SOURCE_GAP`；F06/F07/F08/V1 继续 `NOT_READY / NO_PRODUCTION`。F08 正常阶段验收通过后，整个 B 后端最终整体验收仍由 A 独立负责；C PR #68 不动。
 ---
 
 ## 2026-10-22 前次历史任务｜已被上方 A 最新阶段裁决覆盖
