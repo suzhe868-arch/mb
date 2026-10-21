@@ -55,6 +55,7 @@ test('Issue171真实PG16签名Priority来源锁生命周期拒绝矩阵',async t
  const secret=envSetup();let db,auth,runtime,server;
  try{
   db=new pg.Client({connectionString:DSN,connectionTimeoutMillis:5000});await db.connect();
+  auth=new IsolatedAuth({connectionString:DSN,secret,origin:'https://127.0.0.1:3000'});
   const run=assertCompositeSignedRun();
   const identity=(await db.query("SELECT current_database() db,current_user role,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) superuser,(SELECT oid::text FROM pg_database WHERE datname=current_database()) oid")).rows[0];
   await t.test('01 当前真实Push绑定非超管PG16独立副本',async()=>{

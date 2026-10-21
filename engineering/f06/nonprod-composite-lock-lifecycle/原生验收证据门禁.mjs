@@ -38,6 +38,17 @@ assert.ok(priority.content.includes('F06_171_PRIORITY_ORIGIN_REAL_PG16_FOUR_ACTI
 const nativeSource=readFileSync(new URL('./tests/原生Lifecycle验收.test.mjs',import.meta.url),'utf8');
 assert.ok(!nativeSource.includes('priorityPool')&&!nativeSource.includes('只读适配器模拟Priority来源'),'mocked Priority source must not replace PG16 business integration');
 const prioritySource=readFileSync(new URL('./tests/Priority来源真实PG16拒绝验收.test.mjs',import.meta.url),'utf8');
+const parentScript=readFileSync(new URL('../nonprod-single-runtime-integration/核对同Ref上游签名PG16.sh',import.meta.url),'utf8');
+const issue171Branch='if [ "$GITHUB_REF_NAME" = "feat/f06-nonprod-composite-lock-lifecycle-01" ]; then';
+const oldBranchElse="else\n  # Issue164's original path is retained verbatim";
+const oldLoop='for step in priority-arbitration-ttl-handover recommendation-visibility-grants pdm17-public-pool-owner-claim consultation-assignee-sla; do';
+assert.ok(parentScript.includes(issue171Branch),'Issue171-only versioned F05 preseed branch guard missing');
+const branchElseAt=parentScript.indexOf(oldBranchElse);
+assert.ok(branchElseAt>parentScript.indexOf(issue171Branch),'Issue164 original branch fallback missing');
+assert.ok(parentScript.indexOf('preseed-v23.mjs')<branchElseAt,'Issue171 v23 preseed must occur only before the Issue164 fallback');
+assert.equal(parentScript.indexOf('preseed-v23.mjs',branchElseAt),-1,'Issue164 branch must never run Issue171 preseed');
+assert.equal(parentScript.indexOf('F06_171_V24_PRIORITY_SEEDED',branchElseAt),-1,'Issue164 branch must never run Issue171 Priority preseed');
+assert.ok(parentScript.indexOf(oldLoop,branchElseAt)>branchElseAt,'Issue164 original signed migration loop missing');
 assert.ok(prioritySource.includes('f06_composite_v1.lock_snapshots'),'signed Lock snapshot is required');
 assert.ok(current.content.includes('09A 权限撤销即时生效且Lock/签名事件/审计无变化'),'permission revocation fail-closed case missing');
 assert.ok(current.content.includes('10A 伪造员工身份和Issuer请求头被拒且无副作用'),'forged identity fail-closed case missing');
