@@ -97,6 +97,24 @@ node --input-type=module -e '
   if(!txSidecar.verified||!txCheck.verified)throw Error("F06_164_PR139_COMPOSITE_SIDECAR_NOT_VERIFIED");
   console.log("F06_164_PR139_NATIVE_LOCK_TO_TRANSACTION_SIDECAR_VERIFIED",JSON.stringify({
    sha:process.env.GITHUB_SHA,sidecarSHA:txCheck.sidecarSHA,catalog:txCheck.catalog}));
+  const {applyCompositeCancelSidecar,verifyCompositeCancelSidecar}=await import("./engineering/f06/transaction-cancel-http-pg16/service.mjs");
+  const cancel=await applyCompositeCancelSidecar(db);
+  if(!cancel)throw Error("F06_164_PR146_COMPOSITE_PARENT_SIDECAR_MISSING");
+  const cancelCheck=await verifyCompositeCancelSidecar(db);
+  if(!cancelCheck.parent?.verified)throw Error("F06_164_PR146_PARENT_SEAL_INVALID");
+  console.log("F06_164_PR146_OLD_API_STILL_CLOSED_NEW_PATH_PARENT_ONLY_SEALED",JSON.stringify({sha:process.env.GITHUB_SHA}));
+  const refundModule=await import("./engineering/f06/transaction-refund-http-pg16/service.mjs");
+  const refund=await refundModule.applyComposite(db);
+  if(!refund.verified)throw Error("F06_164_PR150_COMPOSITE_REFUND_CORE_NOT_SIGNED");
+  console.log("F06_164_PR150_ORIGINAL_REFUND_CORE_SIDECAR_SIGNED",JSON.stringify({sha:process.env.GITHUB_SHA,sourceSHA:refund.sourceSHA}));
+  const handoffModule=await import("./engineering/f06/transaction-handoff-http-pg16/service.mjs");
+  const handoff=await handoffModule.applyComposite(db);
+  if(!handoff.verified)throw Error("F06_164_PR153_COMPOSITE_HANDOFF_NOT_SIGNED");
+  console.log("F06_164_PR153_NATIVE_HANDOFF_SIDECAR_SIGNED",JSON.stringify({sha:process.env.GITHUB_SHA,sourceSHA:handoff.sourceSHA}));
+  const postCancelModule=await import("./engineering/f06/post-handoff-cancel-http-pg16/service.mjs");
+  const postCancel=await postCancelModule.applyComposite(db);
+  if(!postCancel.verified)throw Error("F06_164_PR156_COMPOSITE_CANCEL_NOT_SIGNED");
+  console.log("F06_164_PR156_NATIVE_POST_HANDOFF_CANCEL_SIDECAR_SIGNED",JSON.stringify({sha:process.env.GITHUB_SHA,sourceSHA:postCancel.sourceSHA}));
  }finally{await db.end()}
 '
 test "$GITHUB_REF" = "$original_ref"
