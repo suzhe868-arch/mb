@@ -31,6 +31,7 @@ test('Issue171真实签名来源负向边界矩阵',async t=>{
  await t.test('01 新profile只映射到本Issue精确真实分支',()=>{
   assert.equal(current.branch,'feat/f06-nonprod-composite-lock-lifecycle-01');
   assert.equal(current.profile,'ISSUE171_COMPOSITE_LOCK_LIFECYCLE_NONPROD_V2');
+  // Pure profile-map assertion on a cloned input only: it never changes process.env and never invokes an issuer or database write.
   const oldBranch='feat/f06-nonprod-single-runtime-trusted-source-01';
   const old=assertCompositeSignedRun({...process.env,GITHUB_REF_NAME:oldBranch,GITHUB_REF:'refs/heads/'+oldBranch});
   assert.equal(old.profile,'ISSUE164_COMPOSITE_NONPROD_V1');

@@ -34,8 +34,26 @@ assert.ok(previous.content.includes('F06_164_SINGLE_PG16_CURRENT_RUN_ISSUER_AND_
 assert.ok(current.content.includes('F06_171_NATIVE_SIGNED_LOCK_LIFECYCLE_29_CASES_PASS'),'new 26 executable PG16 scenarios missing');
 assert.ok(current.content.includes('F06_171_NATIVE_PG16_NON_SUPERUSER'),'new non-superuser physical PG identity missing');
 assert.ok(current.content.includes('F06_171_PRIORITY_ORIGIN_FOUR_ACTIONS_NO_SIDE_EFFECTS_PASS'),'Priority-origin extend/release/cancel/expire no-side-effect matrix missing');
+assert.ok(current.content.includes('09A 权限撤销即时生效且Lock/签名事件/审计无变化'),'permission revocation fail-closed case missing');
+assert.ok(current.content.includes('10A 伪造员工身份和Issuer请求头被拒且无副作用'),'forged identity fail-closed case missing');
 assert.ok(signedNegative.content.includes('F06_171_SIGNED_SOURCE_NEGATIVE_BOUNDARIES_PASS'),'signed-source negative boundary matrix missing');
 assert.ok(signedNegative.content.includes('F06_171_NEGATIVE_PROFILE_BRANCH_BINDING_PASS'),'exact old/new signed profile branch binding missing');
+for(const marker of [
+ '01 新profile只映射到本Issue精确真实分支',
+ '02 错误Ref与分支名不一致必须拒绝',
+ '03 非Push事件不能签发',
+ '04 当前Git HEAD与签名SHA不一致必须拒绝',
+ '05 无效Run ID不能签发',
+ '06 非40位SHA不能签发',
+ '07 真实PG16父Attestation物理OID漂移必须拒绝',
+ '08 真实PG16父签名源码摘要漂移必须拒绝',
+ '09 24迁移账本摘要与父Attestation不一致必须拒绝',
+ '10 父F05结构签名摘要与父Attestation不一致必须拒绝',
+ '11 Lifecycle父签名来源摘要不一致必须拒绝',
+ '12 Lifecycle签名源码摘要漂移必须拒绝',
+ '13 Lifecycle签名数据库OID漂移必须拒绝',
+ '14 Lifecycle签名Run ID漂移必须拒绝'
+])assert.ok(signedNegative.content.includes(marker),'missing executed signed-source boundary: '+marker);
 assert.ok(legacy.content.includes('F06_164_LEGACY_AUDIT_DB_PASS'),'old CI_LEGACY native audit compatibility missing');
 const parent=log('../nonprod-single-runtime-integration/evidence/父链签名与初始化.log');
 const before=log('../nonprod-single-runtime-integration/evidence/父表161迁移24Seal前置证据.log');
