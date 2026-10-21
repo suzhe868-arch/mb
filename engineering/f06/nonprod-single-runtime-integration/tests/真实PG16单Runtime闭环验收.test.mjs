@@ -128,7 +128,7 @@ test('F06 Issue164：单PG16真实F03 Session贯通Lock→Deposit→Transaction�
   const req=await post(base,'/api/v1/lock-requests',scenario.customerToken,{
    vehicleId:String(scenario.vehicleId),listingCycleId:String(scenario.cycleId),idempotencyKey:`lock_req_${process.env.GITHUB_RUN_ID}`
   });
-  assert.equal(req.status,201,JSON.stringify(req.data));
+  assert.equal(req.status,202,JSON.stringify(req.data));
   assert.equal(req.data.code,'LOCK_REQUEST_PENDING');
   const requestId=Number(req.data.requestId);
   t.diagnostic('F06_COMPOSITE_LOCK_REQUEST_CREATED requestId='+requestId);
