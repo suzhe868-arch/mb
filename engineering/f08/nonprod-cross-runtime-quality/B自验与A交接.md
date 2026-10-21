@@ -1,6 +1,6 @@
 # 名邦汽车 V1｜F08-2 B 自验与 A 交接
 
-> 当前状态：`IN_PROGRESS / NOT_READY_FOR_A_REVIEW`。本文件是施工中的证据目录，**不是验收结论**；以最终 HEAD 的官方 GitHub Actions 和 Artifact 为准更新。
+> 首次代码SHA已通过本SHA官方CI；本文件补证后产生新的文档提交，**最终HEAD是否完成仍以新的同SHA官方CI和Issue #184正式交接评论为准**，不预先宣称新的SHA已经通过。
 
 ## 已确认的授权与基线
 
@@ -17,6 +17,17 @@
 - `live-parent.mjs` 使用 GitHub 官方 API **只读**核验 F06 #174 与 F07 #181 的真 PR、Push Run、Job、Artifact；输出只标 `HISTORIC_DIFFERENT_SHA`，绝不签发本 SHA 业务正例。
 - 两个独立 PostgreSQL 16 Job 均执行原生非超级用户身份 SQL；一个验证入口与证据，另一个验证 PG16 事务；每个生成单独日志及 Artifact。
 - 所有 58 项当前仅标 `PENDING_OFFICIAL_CI`，不能在官方执行前标为通过。历史 F08-1/PR100/PR174/PR181 只做基线引用。
+
+## 已验证的原生自测与首次官方通过记录（历史代码提交，不冒充文档最终HEAD）
+
+- **业务测试代码 SHA**：`693a09449cfad7726094448d9b5b900f62982c1a`（基于主线 `def4ae0f4b8d912ff49327198604207b76899933`）。
+- **首次官方 Push Run**：[39642895102](https://github.com/suzhe868-arch/mb/actions/runs/39642895102)：`completed/success`，两 Job 都是 PostgreSQL 16 真库、非超级用户、独立实例。
+- Job [119370769478](https://github.com/suzhe868-arch/mb/actions/runs/39642895102/job/119370769478)：当前应用入口/父证据 **42/42**，必要旧健康与进程回归 **7/7**，GitHub 官方只读父记录 F06 #174、F07 #181 **2/2** 成功。
+- Job [119370769886](https://github.com/suzhe868-arch/mb/actions/runs/39642895102/job/119370769886)：真实 PG16 原生 SQL 权限/隔离/事务 **16/16**；PG 版本 `160015`，测试角色 `f08_2_ci`，库 `f08_2_quality_test`，`rolsuper=false`，`rolcreatedb=false`，`rolcreaterole=false`，数据库 OID `16385`。
+- 本轮独立新场景共 **58/58**（A01-A18、E01-E24、P01-P16）；原有受影响回归 **7/7**，共 65 项通过，0 失败/跳过；测试日志随工件归档。
+- 两个官方 Artifact：[#12365826965](https://github.com/suzhe868-arch/mb/actions/runs/39642895102/artifacts/12365826965)（7851 bytes）、[#12364214221](https://github.com/suzhe868-arch/mb/actions/runs/39642895102/artifacts/12364214221)（5721 bytes）；均非空、未过期，标称到期 2026-11-04。
+- 本次 10 项新增文件均属于 `engineering/f08/nonprod-cross-runtime-quality/**` 或专用工作流；官方语法、差异空白、路径白名单全部通过；冻结业务、旧 CI、PDM、状态指针、C PR68 均未修改。
+- **重要界限**：该首次成功只证实 `693a... ` 业务代码；本文件与场景矩阵更新为补充证据，提交后必须核实新最终HEAD的官方两独立PG16 Job/Artifacts，**仅在确认后于原 Issue/PR 评论标记 `READY_FOR_A_REVIEW`**。
 
 ## 提交前和交 A 前必核
 
