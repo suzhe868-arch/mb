@@ -163,7 +163,7 @@ function createCompositeBusinessHandler(auth,env){
    const result=await route.run(auth,req.headers.authorization.slice(7),body);
    if(!result||typeof result.allowed!=='boolean'||typeof result.code!=='string')
     throw Error('F06_COMPOSITE_INVALID_SERVICE_RESULT');
-   const status=result.allowed?(result.code.includes('PENDING')?201:200):
+   const status=result.allowed?(/PENDING|RECORDED|CREATED/.test(result.code)?201:200):
     (/NOT_FOUND/.test(result.code)?404:/INVALID_|ARGUMENTS/.test(result.code)?400:/CONFLICT|OCCUPIED|CONTENTION/.test(result.code)?409:403);
    writeComposite(res,status,{...result,productionReady:false});
   }catch{
