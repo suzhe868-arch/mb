@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "A_PR174_REVIEW_RETURNED_PRIORITY_LIFECYCLE_AND_SIGNED_PROFILE_NEGATIVE_TESTS",
+  "substage": "A_PR174_SECOND_REVIEW_FAILED_F05_7_V22_LEDGER_BLOCKER",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION",
-  "current_domain_status": "PR174_OFFICIAL_CI_AND_NATIVE_EVIDENCE_VERIFIED_BUT_A_REVIEW_BLOCKED_PRIORITY_RELEASE_CANCEL_AND_SIGNED_PROFILE_NEGATIVE_TEST_MATRIX / NEXT_OWNER=B / F06_F07_F08_V1_NOT_READY",
+  "current_domain_status": "B HEAD 32abe113 official Run 39591349465 failed in real Priority test with F05_7_SIGNED_V22_LEDGER_REQUIRED; Lifecycle 32/32 and Composite 42/42 passed, signed-negative tests and cross-OID seal skipped; NEXT_OWNER=B; F06/F07/F08/V1 NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01：按A对PR174的独立验收意见，补齐Priority来源Lock普通release/cancel硬拒绝与四动作真实PG16无副作用测试，并补齐PR173裁决要求的真实签名来源负向边界测试及证据门禁。",
+  "current_task": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01：修复真实Priority来源测试夹具与v26 24条签名迁移链不兼容问题，不修改冻结F05源码/迁移/父签名；完成后执行签名来源负向矩阵、161表/24迁移跨OID Seal、Legacy回归和最终SHA官方CI。",
   "current_work_file": "07_重建工作区/F06_Issue171_Composite普通Lock生命周期可信接线_A主控B正式施工单_2026-10-21.md",
   "f06_issue164_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_NONPROD_COMPOSITE_DUAL_GATE_B_CONTINUE",
@@ -3388,7 +3388,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B保留feat/f06-nonprod-single-runtime-trusted-source-01已有合法7提交、HTTP32与PG6负例，安全同步A Issue164新技术裁决合并后的最新main。在唯一合法COMPOSITE_NONPROD_SIGNED_V1新模式下，以一份可销毁真实非超级用户PG16交易签名源/真正独立F03员工Session/不可变签名父数据库事实完成同Runtime集成，旧CI原强门禁与资金核心不变。按精确新白名单定向双入口修复、不更改旧SQL/公共DDL/F03/F05或生产，完成>=20真实新集成场景、必要受影响高风险父回归和161父表24迁移跨OID Seal，同最终SHA官方Run通过后一次性交A。若确实触及冻结F03/F05/F02需精确报告BLOCKED_COMPOSITE_PARENT_AUTHORITY_DEPENDENCY。",
+  "next_action": "B继续原Issue #171和原分支，先只读核查当前v26父库中的真实签名Match/Priority事实；不得调用只接受旧v22/v23账本的F05-7/F05-8服务去改动v26数据库，不得伪造Priority。若无合法可复用事实，提供确切SOURCE_GAP给A集中裁决。完成Priority四动作真实PG16无副作用测试后，再跑签名来源负向矩阵、跨OID Seal、Legacy回归和完整最终SHA官方CI/Artifact。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4968,7 +4968,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "Issue171 A已在补充裁决中确认精确五个旧Issue164非生产签名源/Seal辅助文件用途允许最小扩展：可信Composite签名根.mjs、composite-issuer.mjs、composite-issuer.sql（仅github_ref CHECK精确新值）、核对同Ref上游签名PG16.sh、父表161迁移24跨OID封印.mjs。只认可旧Issue164或新Issue171两个真实GH Push分支、本HEAD SHA/RunID与PG16 OID/SHA/24迁移签封，不许冒充旧Ref、扩大资金权限或改冻结父SQL/旧CI。B继续原分支原Issue，不重做Issue164；本任务至今只确认阻断，>=16新业务PG16和本SHA官方CI/工件仍未完成。B所有改动必须先语法和用途白名单双门禁，整包自审PASS后交A，不能合法接通则阻断交A。F06/F07/F08/V1继续NOT_READY。",
+  "next_action_detail": "第二轮A复核B HEAD 32abe113574bcef1bb5d3d591072a3b6f31fb023；官方Run 39591349465失败，Priority测试触发F05_7_SIGNED_V22_LEDGER_REQUIRED。Lifecycle 32/32与Composite 42/42通过，但Priority矩阵未完成、签名负向矩阵未运行、跨OID Seal与Legacy回归/evidence gate跳过。保留成功结果；禁止改动冻结F05代码/迁移/父签名或原始SQL伪造Priority。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -8147,7 +8147,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01_A_REVIEW_REMEDIATION",
+  "next_task": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01_PRIORITY_SOURCE_FIXTURE_AND_NEGATIVE_MATRIX_REPAIR",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -11029,6 +11029,65 @@
     "next_issue": 171,
     "next_branch": "feat/f06-nonprod-composite-lock-lifecycle-01",
     "production_ready": false,
+    "real_payment_authorized": false,
+    "refund_refunded_authorized": false,
+    "transaction_completed_authorized": false
+  },
+  "f06_issue171_pr174_second_review_2026_10_21": {
+    "status": "A_SECOND_REVIEW_RETURNED_TO_B_NOT_MERGED",
+    "issue": 171,
+    "pr": 174,
+    "branch": "feat/f06-nonprod-composite-lock-lifecycle-01",
+    "head_sha": "32abe113574bcef1bb5d3d591072a3b6f31fb023",
+    "official_run_id": 39591349465,
+    "official_run_conclusion": "failure",
+    "artifact": "f06-issue171-evidence-39591349465",
+    "artifact_sha256": "229d1b3cbcb9db9d78204f297927dd9845c959c6e70c99000b0430ffbe45be65",
+    "artifact_expired": false,
+    "artifact_is_partial": true,
+    "test_results": {
+      "lifecycle": {
+        "tests": 32,
+        "pass": 32,
+        "fail": 0,
+        "skipped": 0
+      },
+      "composite": {
+        "tests": 42,
+        "pass": 42,
+        "fail": 0,
+        "skipped": 0
+      },
+      "priority_source": {
+        "tests": 2,
+        "pass": 1,
+        "fail": 1,
+        "skipped": 0
+      },
+      "signed_source_negative": "NOT_RUN",
+      "cross_oid_seal": "SKIPPED",
+      "legacy_regressions": "SKIPPED",
+      "evidence_gate": "SKIPPED"
+    },
+    "failure": "F05_7_SIGNED_V22_LEDGER_REQUIRED",
+    "failure_location": "engineering/f06/nonprod-composite-lock-lifecycle/tests/Priority来源真实PG16拒绝验收.test.mjs:94 -> engineering/f05/deterministic-matching-readiness-four-tier/migration.mjs",
+    "diagnosis": "F05-7旧服务只接受旧21/22条迁移账本；本Issue当前Composite父库为24条签名迁移，不能直接调用旧F05-7服务生成新Match。",
+    "path_scope_pass": true,
+    "merged": false,
+    "production_ready": false,
+    "blockers": [
+      "真实Priority来源测试调用旧F05-7 saveSalesDescriptionCI/calculateCI，因F05_7_SIGNED_V22_LEDGER_REQUIRED在初始化阶段失败；真实Priority四动作矩阵未执行。",
+      "签名来源负向矩阵未执行，161表/24迁移跨OID Seal、Legacy回归与最终evidence gate均被跳过。"
+    ],
+    "next_owner": "B",
+    "next_task": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01_PRIORITY_SOURCE_FIXTURE_AND_NEGATIVE_MATRIX_REPAIR",
+    "next_issue": 171,
+    "next_branch": "feat/f06-nonprod-composite-lock-lifecycle-01",
+    "guardrails": [
+      "不得修改冻结F05-7/F05-8源码、迁移或父签名表。",
+      "不得原始SQL伪造Priority或用Mock替代真实PG16。",
+      "若当前v26父库无合法可复用签名Match/Priority事实，先交A精确SOURCE_GAP与最小补充裁决申请。"
+    ],
     "real_payment_authorized": false,
     "refund_refunded_authorized": false,
     "transaction_completed_authorized": false

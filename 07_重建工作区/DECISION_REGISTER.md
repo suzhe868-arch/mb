@@ -1,3 +1,15 @@
+# 2026-10-21｜A第二轮独立复核PR174：Priority真实PG16测试失败，B继续原分支定向整改
+
+- 对象：[PR #174](https://github.com/suzhe868-arch/mb/pull/174) / [Issue #171](https://github.com/suzhe868-arch/mb/issues/171)。
+- B当前HEAD：`32abe113574bcef1bb5d3d591072a3b6f31fb023`。
+- 官方Run：[39591349465](https://github.com/suzhe868-arch/mb/actions/runs/39591349465) **failure**；Artifact `f06-issue171-evidence-39591349465`是失败Run的部分证据，不可作为最终验收包。
+- 新Lifecycle HTTP/真实PG16测试 **32/32通过**，旧Composite E2E **42/42通过**。
+- **阻断**：真实Priority来源测试在调用F05-7 `saveSalesDescriptionCI` 时失败：`F05_7_SIGNED_V22_LEDGER_REQUIRED`。该旧F05-7服务只接受v22/v23时代的旧迁移账本，本任务当前Composite父库已是24条签名迁移。Priority真实测试未完成，签名来源负向矩阵未执行，161表/24迁移跨OID Seal、Legacy回归和最终证据门禁均被跳过。
+- **下一责任人仍为B**：原Issue #171、原分支 `feat/f06-nonprod-composite-lock-lifecycle-01`。先只读核实当前v26父库是否已有有效真实签名Match/Priority事实；不得修改冻结F05-7/F05-8源码、迁移或父表，不得用原始SQL伪造Priority。若无可合法复用的真实事实，提交精确SOURCE_GAP证据给A请求最小技术裁决。
+- 修复后需完成真实Priority来源四动作无副作用矩阵、签名来源负向测试、跨OID Seal、Legacy回归和同一最终SHA官方CI/Artifact；完成前PR #174不合并，Issue #171开放，F06/F07/F08/V1仍 `NOT_READY`。
+
+---
+
 # 2026-10-21｜A独立验收PR174：CI证据核实通过，但业务与签名来源负向测试两项阻断，B原分支定向整改
 
 - **验收对象**：[PR #174](https://github.com/suzhe868-arch/mb/pull/174)，Issue [#171](https://github.com/suzhe868-arch/mb/issues/171)，B分支 `feat/f06-nonprod-composite-lock-lifecycle-01`。
