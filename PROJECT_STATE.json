@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "A_ACCEPTED_ISSUE164_PR169_NONPRODUCTION_F06_REMAINING_SOURCE_AUDIT_NEXT",
+  "substage": "A_F06_POST_ISSUE164_RUNTIME_GAP_AUDITED_ISSUE171_B_NONPROD_LIFECYCLE_RELEASE",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F06_POST_ISSUE164_STAGE_REMAINING_RUNTIME_ISSUER_GAP_AUDIT",
-  "current_domain_status": "ISSUE164_A_ACCEPTED_NONPRODUCTION_PR169_MERGED / F06_F07_F08_V1_NOT_READY",
+  "current_domain": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION",
+  "current_domain_status": "ISSUE164_ACCEPTED_PR169_MERGED / ISSUE171_B_NONPROD_LIFECYCLE_RELEASED / F06_F07_F08_V1_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A已独立复核Issue164两项整改：Legacy审计落库语义恢复、Composite来源矩阵契约更新；末SHA 1feb1e4efa8120252950e3d2d5b808a76a5bdb2c 官方Run39560892258/Job119091597788真实42/42+32/32+6/6+Legacy1/1全部通过，161父表24迁移跨OID Seal一致。A已标准合并PR169（merge e569d5e1c541333b26975f217c14ad414c2a3763）并关闭Issue164。该验收仅限非生产合成业务全链；正式Issuer/真实资金/生产未授权。下一步A只核查F06阶段剩余正式Runtime/Issuer来源缺口及对F07/F08的真实依赖，暂不自动新放行B。",
-  "current_work_file": "07_重建工作区/F06_Issue164单Runtime可信来源第二轮独立验收PR169合并与后续范围核查报告_2026-10-21.md",
+  "current_task": "A在main@59f833caf2cd2ea4ad22645faf1120156e31c929核对PR169 Composite Runtime未挂载Lock Lifecycle，旧已验Lifecycle仍硬绑定另库f06_lock_test、CI_LEGACY的employee_sessions与资金缺席proof，不能作为Composite现行F03签名同PG来源。正式放行Issue171只做非生产Lifecycle信任接线、普通无钱Lock延期/释放/取消/到期和必要6h候补关联回归，禁止重新开发PR139/150/153/156/162资金核心、真实收退款、completed、refunded和生产。Issue164及全部已验测试证据保留，F06/F07/F08/V1仍NOT_READY。",
+  "current_work_file": "07_重建工作区/F06_Issue171_Composite普通Lock生命周期可信接线_A主控B正式施工单_2026-10-21.md",
   "f06_issue164_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_NONPROD_COMPOSITE_DUAL_GATE_B_CONTINUE",
     "issue": 164,
@@ -4968,7 +4968,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "Issue164 PR169已按A独立第二轮验收合并；不要按旧NEXT_ACTION历史段落继续让B重复施工。本轮NEXT_OWNER=A，定向核查现有F06非生产单Runtime已验成果与尚未接入的正式Issuer/资金/生产合同，依据PDM和既有F06路线归类未实现、仅隔离CI、外部真实授权阻断，决定是否需要新的B正式施工单；在A新工作单实际合并主线前不新增B工程、不启动F07/F08；C PR68继续独立不动。",
+  "next_action_detail": "A正式核查报告及Issue171精确施工单已合并main后生效。B从实际最新main建唯一指定分支，仅对原Composite单库新增受控Lifecycle新源接线，复用原CI_LEGACY生命周期状态机/业务守卫，不覆盖旧Issuer、旧迁移、原资金签名/余额。Native非超管PG16/HTTP至少16项真正新测试和受影响高风险Legacy/Composite回归，语法+范围前置双门禁、本SHA官方CI工件和必要161父表24迁移异OID Seal；不能合法接通则统一BLOCKED_F06_COMPOSITE_LIFECYCLE_SIGNED_SOURCE_GAP，不擅扩权。完成整包READY_FOR_A_REVIEW后交A。F07/F08不提前作为本单施工。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -6006,7 +6006,7 @@
   },
   "a_batch_approval_mode": "STANDING_USER_DIRECTED_CONTINUOUS_TECHNICAL_WORKFLOW_IN_FROZEN_SCOPE; A_SCOPES_AND_RELEASES_B_C; EACH_WINDOW_COMPLETES_END_TO_END; A_INDEPENDENT_ACCEPTANCE_AND_CLEAN_PR_MERGE_WITHOUT_REPEAT_APPROVAL; NEW_PRODUCT_CHOICE_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_EXTERNAL_WRITES_REQUIRE_USER",
   "current_pending_user_decisions": [],
-  "next_action_owner": "A",
+  "next_action_owner": "B",
   "abc_continuous_execution_rule": {
     "status": "USER_DIRECTIVE_APPLIED",
     "confirmed_at": "2026-10-09",
@@ -7012,7 +7012,7 @@
     "merge_method": "merge",
     "a_review_report": "07_重建工作区/F05-7_A主控二轮独立验收66项真PG16_PR46标准合并与F05-8技术交接_2026-10-12.md"
   },
-  "next_owner": "A",
+  "next_owner": "B",
   "f05_8_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR47_CI_ONLY",
     "execution": "COMPLETED_A_ACCEPTED_PR47_STANDARD_MERGE",
@@ -7102,7 +7102,7 @@
     "r12_r13_closed": true,
     "a_sixth_review_result": "A_ACCEPTED"
   },
-  "current_owner": "A",
+  "current_owner": "B",
   "f05_9_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR48_CI_ONLY",
     "owner": "B",
@@ -8147,7 +8147,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "A_F06_POST_ISSUE164_REMAINING_RUNTIME_ISSUER_GAP_AUDIT_01",
+  "next_task": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9822,7 +9822,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F06_Issue164单Runtime可信来源第二轮独立验收PR169合并与后续范围核查报告_2026-10-21.md",
+  "next_work_file": "07_重建工作区/F06_Issue171_Composite普通Lock生命周期可信接线_A主控B正式施工单_2026-10-21.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -10118,8 +10118,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": null,
-  "next_issue": null,
+  "next_branch": "feat/f06-nonprod-composite-lock-lifecycle-01",
+  "next_issue": 171,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -10911,5 +10911,25 @@
     "report": "07_重建工作区/F06_Issue164单Runtime可信来源第二轮独立验收PR169合并与后续范围核查报告_2026-10-21.md",
     "next_owner": "A",
     "next_task": "A_F06_POST_ISSUE164_REMAINING_RUNTIME_ISSUER_GAP_AUDIT_01"
+  },
+  "f06_post_issue164_gap_audit_2026_10_21": {
+    "status": "A_AUDITED_AND_ONE_B_NONPRODUCTION_PACKET_AUTHORIZED",
+    "baseline_main": "59f833caf2cd2ea4ad22645faf1120156e31c929",
+    "issue164_status": "A_ACCEPTED_NONPRODUCTION_PR169_MERGED",
+    "confirmed_gap": "Composite runtime lacks ordinary Lock lifecycle, legacy lifecycle bound to different DB/issuer/session/finance proof",
+    "authorized_task": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01",
+    "authorized_issue": 171,
+    "authorized_branch": "feat/f06-nonprod-composite-lock-lifecycle-01",
+    "minimum_new_native_cases": 16,
+    "report": "07_重建工作区/F06_Issue164后真实Runtime与Issuer剩余差异_A主控定向核查_2026-10-21.md",
+    "work_order": "07_重建工作区/F06_Issue171_Composite普通Lock生命周期可信接线_A主控B正式施工单_2026-10-21.md",
+    "production_authorized": false,
+    "real_payment_authorized": false,
+    "real_refund_authorized": false,
+    "completed_authorized": false,
+    "next_owner": "B",
+    "f06_stage_ready": false,
+    "f07_released": false,
+    "f08_released": false
   }
 }
