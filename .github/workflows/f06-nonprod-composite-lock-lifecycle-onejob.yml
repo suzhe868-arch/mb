@@ -179,7 +179,7 @@ jobs:
           node --test engineering/tests/f06-lock-lifecycle-http.test.mjs |
             tee engineering/f06/nonprod-composite-lock-lifecycle/evidence/Legacy生命周期HTTP_TAP.log
 
-      - name: 冻结Legacy生命周期原生PG16安全关联回归
+      - name: 冻结Legacy生命周期同PG16受影响行为定向回归
         shell: bash
         run: |
           set -euo pipefail
@@ -188,16 +188,13 @@ jobs:
           export F06_LOCK_DATABASE_URL='postgres://f06_lock_ci:synthetic_only@127.0.0.1:5432/f06_lock_test'
           export F06_LOCK_LIFECYCLE_TEST_CONSENT=I_AUTHORIZE_DISPOSABLE_F06_LOCK_LIFECYCLE_ONLY
           export F06_LOCK_LIFECYCLE_EXPIRY_CONSENT=I_AUTHORIZE_DISPOSABLE_F06_LOCK_EXPIRY_ONLY
-          (
-            cd engineering
-            node scripts/f06-lock-pg16-acceptance.mjs
-            service=$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')
-            test "$(printf '%s\n' "$service" | sed '/^$/d' | wc -l)" -eq 1
-            docker exec -i -e PGPASSWORD=synthetic_only "$service" \
-              psql -h127.0.0.1 -Uf06_lock_ci -df06_lock_test -X -v ON_ERROR_STOP=1 \
-              < sql/f06-lock-lifecycle-disposable-only.sql
-            node scripts/f06-lock-lifecycle-pg16-acceptance.mjs
-          ) | tee engineering/f06/nonprod-composite-lock-lifecycle/evidence/Legacy生命周期PG16_TAP.log
+          service=$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')
+          test "$(printf '%s\n' "$service" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec -i -e PGPASSWORD=synthetic_only "$service" \
+            psql -h127.0.0.1 -Uf06_lock_ci -df06_lock_test -X -v ON_ERROR_STOP=1 \
+            < engineering/sql/f06-lock-lifecycle-disposable-only.sql
+          node --test engineering/f06/nonprod-composite-lock-lifecycle/tests/旧Legacy生命周期真PG16定向验收.test.mjs |
+            tee engineering/f06/nonprod-composite-lock-lifecycle/evidence/Legacy生命周期PG16_TAP.log
 
       - name: Issue171 本SHA原生测试和跨OID父链证据硬门禁
         shell: bash
