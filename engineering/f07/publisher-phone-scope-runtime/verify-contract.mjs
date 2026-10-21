@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 
-const base = new URL('../../../f03/permission-contract.tsv',import.meta.url);
-const scope = new URL('../../../f03/runtime-design/capability-scope-contract.tsv',import.meta.url);
+const base = new URL('../../f03/permission-contract.tsv',import.meta.url);
+const scope = new URL('../../f03/runtime-design/capability-scope-contract.tsv',import.meta.url);
 const ledger = new URL('../nonprod-runtime-integration/SOURCE_GAP与外部授权依赖台账.tsv',import.meta.url);
 const allowed = new Set([
   'vehicle.publisher_phone.read',
@@ -14,8 +14,10 @@ function parse(text) {
   const header=lines.shift().split('\t');
   return lines.map(line=>Object.fromEntries(line.split('\t').map((value,index)=>[header[index],value])));
 }
-const permissionRows=parse(await readFile(base,'utf8')).filter(row=>allowed.has(row.operation));
+const permissionText=await readFile(base,'utf8');
+const permissionRows=parse(permissionText).filter(row=>allowed.has(row.operation));
 assert.equal(permissionRows.length,3,'only the three A-approved phone operations are mapped');
+assert.equal(parse(permissionText).some(row=>row.operation==='can_call_wholesale_phone'),false);
 for (const row of permissionRows) {
   assert.equal(row.capability_origin,'A_APPROVED_NONPROD_ONLY');
   assert.equal(row.capability_or_governance_fact,'publisher.phone.sensitive');
@@ -29,9 +31,9 @@ for (const row of scopeRows) {
   assert.match(row.per_capability_scope_proof,/LOCKED_ONLY.*ALL_ACTIVE_JYT/);
   assert.match(row.reason,/SOURCE_GAP/);
 }
-const text=await readFile(ledger,'utf8');
-assert.match(text,/publisher\.phone\.sensitive/);
-assert.match(text,/SOURCE_GAP/);
-assert.match(text,/CI_SYNTHETIC_ONLY/);
-assert.doesNotMatch(text,/can_call_wholesale_phone/);
+const ledgerText=await readFile(ledger,'utf8');
+assert.match(ledgerText,/publisher\.phone\.sensitive/);
+assert.match(ledgerText,/SOURCE_GAP/);
+assert.match(ledgerText,/CI_SYNTHETIC_ONLY/);
+assert.doesNotMatch(ledgerText,/can_call_wholesale_phone/);
 console.log('F08_3_CONTRACT_MAPPING_SCOPE_GAP_PASS');

@@ -1,0 +1,241 @@
+name: F08-3 Publisher Phone Scope Nonproduction Runtime PG16
+on:
+  push:
+    branches:
+      - feat/f08-publisher-phone-scope-runtime-nonprod-03
+    paths:
+      - 'engineering/f03/permission-contract.tsv'
+      - 'engineering/f03/runtime-design/capability-scope-contract.tsv'
+      - 'engineering/src/f07-runtime/runtime.mjs'
+      - 'engineering/f07/publisher-phone-scope-runtime/**'
+      - 'engineering/f07/nonprod-runtime-integration/SOURCE_GAP与外部授权依赖台账.tsv'
+      - '.github/workflows/f08-publisher-phone-scope-runtime-nonprod.yml'
+permissions:
+  contents: read
+jobs:
+  business_scope_pg16:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F07_RUNTIME_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F07_RUNTIME_ONLY
+      DATABASE_URL: postgres://f07_runtime_ci:f07_runtime_only@127.0.0.1:5432/f07_runtime_test
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F07_RUNTIME_TLS_KEY_PATH: /tmp/f07-runtime-key.pem
+      F07_RUNTIME_TLS_CERT_PATH: /tmp/f07-runtime-cert.pem
+      API_HOST: 127.0.0.1
+      API_PORT: '4317'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Install locked engineering dependencies
+        run: npm --prefix engineering ci --ignore-scripts --no-audit --no-fund
+      - name: Create disposable non-superuser databases and secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PGPASSWORD=postgres
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE f07_runtime_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE PASSWORD 'f07_runtime_only';
+          CREATE ROLE f03_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE PASSWORD 'f03_ci_synthetic_only';
+          CREATE DATABASE f07_runtime_test OWNER f07_runtime_ci;
+          CREATE DATABASE f03_auth_test OWNER f03_ci;
+          SQL
+          printf 'F03_1_HMAC_KEY_BASE64=%s\n' "$(openssl rand -base64 32)" >> "$GITHUB_ENV"
+          printf 'F07_COLLECTOR_TEST_SECRET=%s\n' "$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+          openssl req -x509 -newkey rsa:2048 -nodes -keyout "$F07_RUNTIME_TLS_KEY_PATH" -out "$F07_RUNTIME_TLS_CERT_PATH" -days 1 -subj '/CN=127.0.0.1' -addext 'subjectAltName=IP:127.0.0.1'
+      - name: Apply existing F03-1 and accepted SG01 migration without changing them
+        run: |
+          set -euo pipefail
+          node engineering/f03-1/runner.mjs --bootstrap
+          node engineering/f03-1/runner.mjs --apply
+          node engineering/f03-1/runner.mjs --verify
+          node engineering/f03-1/fixtures.mjs
+          node engineering/f03/runtime-scope/runner.mjs --apply
+          node engineering/f03/runtime-scope/runner.mjs --verify
+          node engineering/f03/runtime-scope/fixtures.mjs
+          node engineering/f07/publisher-phone-scope-runtime/fixtures.mjs
+      - name: Verify syntax, contract mapping, exact ref and strict file/row allowlist
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = 'refs/heads/feat/f08-publisher-phone-scope-runtime-nonprod-03'
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch origin main
+          git diff --check origin/main...HEAD
+          for file in engineering/src/f07-runtime/runtime.mjs engineering/f07/publisher-phone-scope-runtime/*.mjs engineering/f07/publisher-phone-scope-runtime/tests/*.mjs; do node --check "$file"; done
+          node engineering/f07/publisher-phone-scope-runtime/verify-contract.mjs
+          while IFS= read -r path; do
+            case "$path" in
+              engineering/f03/permission-contract.tsv|engineering/f03/runtime-design/capability-scope-contract.tsv|engineering/src/f07-runtime/runtime.mjs|engineering/f07/publisher-phone-scope-runtime/*|engineering/f07/nonprod-runtime-integration/SOURCE_GAP与外部授权依赖台账.tsv|.github/workflows/f08-publisher-phone-scope-runtime-nonprod.yml) ;;
+              *) echo "OUT_OF_SCOPE:$path"; exit 1 ;;
+            esac
+          done < <(git diff --name-only origin/main...HEAD)
+          for file in engineering/f03/permission-contract.tsv engineering/f03/runtime-design/capability-scope-contract.tsv; do
+            added="$(git diff --unified=0 origin/main...HEAD -- "$file" | grep -E '^\+[^+]' | wc -l | tr -d ' ')"
+            removed="$(git diff --unified=0 origin/main...HEAD -- "$file" | grep -E '^-[^-]' | wc -l | tr -d ' ')"
+            test "$added" -eq 3
+            test "$removed" -eq 3
+          done
+      - name: Run F08-3 business matrix on isolated PG16
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f07/publisher-phone-scope-runtime/tests/business.test.mjs 2>&1 | tee f08-3-phone-business.log
+          grep -q 'F08_3_PHONE_SCOPE_SCENARIOS_PASS' f08-3-phone-business.log
+          grep -q '# fail 0' f08-3-phone-business.log
+      - name: Run affected health, startup and F06 HTTP regressions without F07 runtime consent
+        shell: bash
+        run: |
+          set -euo pipefail
+          env -u F07_RUNTIME_TEST_CONSENT node --test --test-concurrency=1 engineering/tests/health.test.mjs engineering/tests/进程启动.test.mjs engineering/tests/f06-lock-http.test.mjs 2>&1 | tee f08-3-affected-regression.log
+          grep -q '# fail 0' f08-3-affected-regression.log
+      - name: Generate same-SHA run and database identity evidence
+        if: always()
+        run: node engineering/f07/publisher-phone-scope-runtime/runner.mjs 2>&1 | tee f08-3-evidence-runner.log
+      - name: Upload business PG16 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f08-3-business-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: error
+          path: |
+            f08-3-phone-business.log
+            f08-3-affected-regression.log
+            f08-3-evidence-runner.log
+            f08-3-run-evidence.json
+            f08-3-run-evidence.tsv
+            engineering/f07/publisher-phone-scope-runtime/README.md
+            engineering/f07/publisher-phone-scope-runtime/B自验与A交接.md
+            engineering/f07/publisher-phone-scope-runtime/测试矩阵.tsv
+            engineering/f07/nonprod-runtime-integration/SOURCE_GAP与外部授权依赖台账.tsv
+
+  https_scope_pg16:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F07_RUNTIME_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F07_RUNTIME_ONLY
+      DATABASE_URL: postgres://f07_runtime_ci:f07_runtime_only@127.0.0.1:5432/f07_runtime_test
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F07_RUNTIME_TLS_KEY_PATH: /tmp/f07-runtime-key.pem
+      F07_RUNTIME_TLS_CERT_PATH: /tmp/f07-runtime-cert.pem
+      API_HOST: 127.0.0.1
+      API_PORT: '4317'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Install locked engineering dependencies
+        run: npm --prefix engineering ci --ignore-scripts --no-audit --no-fund
+      - name: Create disposable non-superuser databases and secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PGPASSWORD=postgres
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE f07_runtime_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE PASSWORD 'f07_runtime_only';
+          CREATE ROLE f03_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE PASSWORD 'f03_ci_synthetic_only';
+          CREATE DATABASE f07_runtime_test OWNER f07_runtime_ci;
+          CREATE DATABASE f03_auth_test OWNER f03_ci;
+          SQL
+          printf 'F03_1_HMAC_KEY_BASE64=%s\n' "$(openssl rand -base64 32)" >> "$GITHUB_ENV"
+          printf 'F07_COLLECTOR_TEST_SECRET=%s\n' "$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+          openssl req -x509 -newkey rsa:2048 -nodes -keyout "$F07_RUNTIME_TLS_KEY_PATH" -out "$F07_RUNTIME_TLS_CERT_PATH" -days 1 -subj '/CN=127.0.0.1' -addext 'subjectAltName=IP:127.0.0.1'
+      - name: Apply existing F03-1 and accepted SG01 migration without changing them
+        run: |
+          set -euo pipefail
+          node engineering/f03-1/runner.mjs --bootstrap
+          node engineering/f03-1/runner.mjs --apply
+          node engineering/f03-1/runner.mjs --verify
+          node engineering/f03-1/fixtures.mjs
+          node engineering/f03/runtime-scope/runner.mjs --apply
+          node engineering/f03/runtime-scope/runner.mjs --verify
+          node engineering/f03/runtime-scope/fixtures.mjs
+          node engineering/f07/publisher-phone-scope-runtime/fixtures.mjs
+      - name: Verify syntax, contract mapping, exact ref and strict file/row allowlist
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = 'refs/heads/feat/f08-publisher-phone-scope-runtime-nonprod-03'
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch origin main
+          git diff --check origin/main...HEAD
+          for file in engineering/src/f07-runtime/runtime.mjs engineering/f07/publisher-phone-scope-runtime/*.mjs engineering/f07/publisher-phone-scope-runtime/tests/*.mjs; do node --check "$file"; done
+          node engineering/f07/publisher-phone-scope-runtime/verify-contract.mjs
+          while IFS= read -r path; do
+            case "$path" in
+              engineering/f03/permission-contract.tsv|engineering/f03/runtime-design/capability-scope-contract.tsv|engineering/src/f07-runtime/runtime.mjs|engineering/f07/publisher-phone-scope-runtime/*|engineering/f07/nonprod-runtime-integration/SOURCE_GAP与外部授权依赖台账.tsv|.github/workflows/f08-publisher-phone-scope-runtime-nonprod.yml) ;;
+              *) echo "OUT_OF_SCOPE:$path"; exit 1 ;;
+            esac
+          done < <(git diff --name-only origin/main...HEAD)
+          for file in engineering/f03/permission-contract.tsv engineering/f03/runtime-design/capability-scope-contract.tsv; do
+            added="$(git diff --unified=0 origin/main...HEAD -- "$file" | grep -E '^\+[^+]' | wc -l | tr -d ' ')"
+            removed="$(git diff --unified=0 origin/main...HEAD -- "$file" | grep -E '^-[^-]' | wc -l | tr -d ' ')"
+            test "$added" -eq 3
+            test "$removed" -eq 3
+          done
+      - name: Run F08-3 loopback HTTPS matrix on isolated PG16
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f07/publisher-phone-scope-runtime/tests/https.test.mjs 2>&1 | tee f08-3-phone-https.log
+          grep -q 'F08_3_HTTPS_BLACKBOX_SCENARIOS_PASS' f08-3-phone-https.log
+          grep -q '# fail 0' f08-3-phone-https.log
+      - name: Generate same-SHA run and database identity evidence
+        if: always()
+        run: node engineering/f07/publisher-phone-scope-runtime/runner.mjs 2>&1 | tee f08-3-evidence-runner.log
+      - name: Upload HTTPS PG16 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f08-3-https-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: error
+          path: |
+            f08-3-phone-https.log
+            f08-3-evidence-runner.log
+            f08-3-run-evidence.json
+            f08-3-run-evidence.tsv
+            engineering/f07/publisher-phone-scope-runtime/README.md
+            engineering/f07/publisher-phone-scope-runtime/B自验与A交接.md
+            engineering/f07/publisher-phone-scope-runtime/测试矩阵.tsv
+            engineering/f07/nonprod-runtime-integration/SOURCE_GAP与外部授权依赖台账.tsv

@@ -6,11 +6,14 @@ import {verify as verifyF05} from '../../f05/wholesale-to-mingbang-conversion/mi
 import {validateSignature} from '../../f07/collector-publisher-phone-callback-ci/contract.mjs';
 import {safePath, publicUrl, MockStorage, MockCDN, testOrigin} from '../../f07/vehicle-image-cdn-asset-ci/contract.mjs';
 import {ALLOWLIST, dndAt, deepLinkGuard} from '../../f07/notification-sla-incident-gate-ci/gate.mjs';
+import {bootstrapPublisherPhoneScope,authorizePublisherPhone,configurePublisherPhoneAccess} from '../../f07/publisher-phone-scope-runtime/guard.mjs';
 
 export const CONSENT = 'I_AUTHORIZE_DISPOSABLE_F07_RUNTIME_ONLY';
 export const DATABASE_URL = 'postgres://f07_runtime_ci:f07_runtime_only@127.0.0.1:5432/f07_runtime_test';
 export const F03_DATABASE_URL = 'postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test';
 export const REF = 'refs/heads/feat/f07-runtime-integration-nonprod-01';
+export const F08_3_REF = 'refs/heads/feat/f08-publisher-phone-scope-runtime-nonprod-03';
+const ALLOWED_REFS = new Set([REF,F08_3_REF]);
 const ID = /^[A-Za-z0-9_-]{1,80}$/;
 const PUBLISHER_ID = /^[A-Za-z0-9_-]{1,80}$/;
 const VEHICLE_ID = /^[1-9][0-9]{0,17}$/;
@@ -27,11 +30,12 @@ const exactKeys = (value, keys) => value && typeof value==='object' && !Array.is
   Object.keys(value).sort().join('|')===keys.slice().sort().join('|');
 const validId = value => typeof value==='string' && ID.test(value);
 
-export function assertF07RuntimeEnvironment(env=process.env) {
+export function assertF07RuntimeEnvironment(env=process.env,expectedRef=REF) {
+  if(!ALLOWED_REFS.has(expectedRef)) throw Error('F07_RUNTIME_EXPECTED_REF_NOT_ALLOWED');
   const required = {
     F07_RUNTIME_TEST_CONSENT:CONSENT,
     CI:'true', GITHUB_ACTIONS:'true', APP_ENV:'test', NODE_ENV:'test',
-    GITHUB_EVENT_NAME:'push', GITHUB_REPOSITORY:'suzhe868-arch/mb', GITHUB_REF:REF,
+    GITHUB_EVENT_NAME:'push', GITHUB_REPOSITORY:'suzhe868-arch/mb', GITHUB_REF:expectedRef,
     DATABASE_URL, F03_1_DATABASE_URL:F03_DATABASE_URL,
     F03_1_ISOLATION_CONFIRM:'I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY'
   };
@@ -45,8 +49,8 @@ export function assertF07RuntimeEnvironment(env=process.env) {
   return true;
 }
 
-export async function assertPhysicalPg16(db, env=process.env) {
-  assertF07RuntimeEnvironment(env);
+export async function assertPhysicalPg16(db, env=process.env,expectedRef=REF) {
+  assertF07RuntimeEnvironment(env,expectedRef);
   const q=await db.query(`SELECT current_database() AS db,current_user AS usr,
     current_setting('server_version_num')::int AS version,
     (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) AS superuser,
@@ -116,17 +120,17 @@ async function readJson(req,limit=8192) {
   return {raw,value};
 }
 
-export async function createF07Runtime({env=process.env,pool:providedPool=null,auth,testFaults={}}={}) {
-  assertF07RuntimeEnvironment(env);
+export async function createF07Runtime({env=process.env,pool:providedPool=null,auth,testFaults={},expectedRef=REF}={}) {
+  assertF07RuntimeEnvironment(env,expectedRef);
   if(!auth||!auth.pool||typeof auth.withSession!=='function') throw Error('F07_RUNTIME_SIGNED_F03_READER_REQUIRED');
   const ownsPool=!providedPool;
   const pool=providedPool??new pg.Pool({connectionString:env.DATABASE_URL,max:8,connectionTimeoutMillis:3000});
   const storage=new MockStorage();
   const cdn=new MockCDN();
   const withDb=async fn=>{
-    assertF07RuntimeEnvironment(env);
+    assertF07RuntimeEnvironment(env,expectedRef);
     const c=await pool.connect();
-    try {const identity=await assertPhysicalPg16(c,env);return await fn(c,identity)}
+    try {const identity=await assertPhysicalPg16(c,env,expectedRef);return await fn(c,identity)}
     finally {c.release()}
   };
   const bootstrap=async()=>withDb(async c=>{
@@ -134,6 +138,7 @@ export async function createF07Runtime({env=process.env,pool:providedPool=null,a
     await c.query(sql);
   });
   await bootstrap();
+  if(expectedRef===F08_3_REF) await bootstrapPublisherPhoneScope(pool);
 
   async function audit(client,domain,action,code,origin) {
     const pid=(await client.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
@@ -315,7 +320,7 @@ export async function createF07Runtime({env=process.env,pool:providedPool=null,a
     const pathname=(req.url??'/').split('?')[0];
     if(!pathname.startsWith('/__ci__/f07-runtime/')) return false;
     try {
-      assertF07RuntimeEnvironment(env);
+      assertF07RuntimeEnvironment(env,expectedRef);
       const identity=await withDb(async(_db,x)=>x);
       const host=req.headers?.host??'';
       if(!/^127\.0\.0\.1(?::[0-9]{1,5})?$/.test(host))
@@ -328,9 +333,39 @@ export async function createF07Runtime({env=process.env,pool:providedPool=null,a
         const result=await callback(raw,req.headers?.['x-f07-timestamp'],req.headers?.['x-f07-signature']);
         return send(res,200,result);
       }
+      if(expectedRef===F08_3_REF&&req.method==='POST'&&pathname==='/__ci__/f07-runtime/phone/admin/configure') {
+        const {value}=await readJson(req);
+        const result=await configurePublisherPhoneAccess({
+          auth,pool,token:req.headers?.['x-f07-test-session'],input:value
+        });
+        if(!result.ok) return send(res,result.status||403,{code:result.code,origin:result.origin});
+        await withDb(db=>audit(db,'phone','scope_config',result.code,result.origin));
+        return send(res,200,{code:result.code,employee_id:result.employee_id,scope_mode:result.scope_mode,
+          enabled:result.enabled,origin:result.origin});
+      }
       if(req.method==='GET'&&pathname==='/__ci__/f07-runtime/phone/latest') {
         const vehicle=url.searchParams.get('vehicle_id');
         if(!VEHICLE_ID.test(vehicle??'')) throw fail('VEHICLE_ID_INVALID',400,'CI_SYNTHETIC_ONLY');
+        if(expectedRef===F08_3_REF) {
+          const result=await authorizePublisherPhone({
+            auth,pool,token:req.headers?.['x-f07-test-session'],action:'vehicle.publisher_phone.latest',vehicleId:vehicle
+          });
+          if(!result.allowed) {
+            await withDb(db=>audit(db,'phone','latest',result.code,result.origin));
+            return send(res,result.status||403,{code:result.code,origin:result.origin});
+          }
+          const cached=await withDb(db=>db.query(
+            "SELECT phone_token FROM f07_runtime.phone_cache WHERE source_platform=$1 AND upstream_publisher_id=$2 AND origin='CI_SYNTHETIC_ONLY'",
+            [result.sourcePlatform,result.upstreamPublisherId]
+          ));
+          if(!cached.rowCount) {
+            await withDb(db=>audit(db,'phone','latest','PHONE_CACHE_MISSING','CI_SYNTHETIC_ONLY'));
+            return send(res,404,{code:'PHONE_CACHE_MISSING',origin:'CI_SYNTHETIC_ONLY'});
+          }
+          await withDb(db=>audit(db,'phone','latest','PHONE_CACHE_FOUND','CI_SYNTHETIC_ONLY'));
+          return send(res,200,{phone:cached.rows[0].phone_token,origin:'CI_SYNTHETIC_ONLY',
+            publisher_ref:digest(result.sourcePlatform+'|'+result.upstreamPublisherId).slice(0,20)});
+        }
         const result=await sourceGapCheck(auth,req.headers?.['x-f07-test-session'],'vehicle.publisher_phone.read',vehicle);
         await withDb(db=>audit(db,'phone','latest',result.code,result.origin));
         return send(res,403,{code:result.code,origin:result.origin});
@@ -338,6 +373,25 @@ export async function createF07Runtime({env=process.env,pool:providedPool=null,a
       if(req.method==='POST'&&pathname==='/__ci__/f07-runtime/phone/dial') {
         const {value}=await readJson(req);
         if(!VEHICLE_ID.test(value.vehicle_id??'')) throw fail('VEHICLE_ID_INVALID',400,'CI_SYNTHETIC_ONLY');
+        if(expectedRef===F08_3_REF) {
+          const result=await authorizePublisherPhone({
+            auth,pool,token:req.headers?.['x-f07-test-session'],action:'vehicle.publisher_phone.dial',vehicleId:value.vehicle_id
+          });
+          if(!result.allowed) {
+            await withDb(db=>audit(db,'phone','dial',result.code,result.origin));
+            return send(res,result.status||403,{code:result.code,origin:result.origin,dialer:'DISABLED'});
+          }
+          const cached=await withDb(db=>db.query(
+            "SELECT 1 FROM f07_runtime.phone_cache WHERE source_platform=$1 AND upstream_publisher_id=$2 AND origin='CI_SYNTHETIC_ONLY'",
+            [result.sourcePlatform,result.upstreamPublisherId]
+          ));
+          if(!cached.rowCount) {
+            await withDb(db=>audit(db,'phone','dial','PHONE_CACHE_MISSING','CI_SYNTHETIC_ONLY'));
+            return send(res,404,{code:'PHONE_CACHE_MISSING',origin:'CI_SYNTHETIC_ONLY',dialer:'DISABLED'});
+          }
+          await withDb(db=>audit(db,'phone','dial','PHONE_DIALER_DISABLED','CI_SYNTHETIC_ONLY'));
+          return send(res,200,{code:'PHONE_DIALER_DISABLED',authorized:true,dialer:'DISABLED',origin:'CI_SYNTHETIC_ONLY'});
+        }
         const result=await sourceGapCheck(auth,value.session??req.headers?.['x-f07-test-session'],'vehicle.publisher_phone.read',value.vehicle_id);
         await withDb(db=>audit(db,'phone','dial',result.code,result.origin));
         return send(res,403,{code:result.code,origin:result.origin,dialer:'DISABLED'});
