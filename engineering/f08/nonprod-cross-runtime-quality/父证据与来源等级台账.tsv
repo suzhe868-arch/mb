@@ -1,0 +1,5 @@
+对象	父PR	父业务SHA	官方Run	官方Job	官方Artifact	验证方式	本任务等级	本SHA业务正例	说明
+F06 Issue171	174	06c880d7f53adda7862da88cde0b790fdc60f415	39602409488	119229953562	12347892081	GitHub API只读校验PR/Run/Job/Artifact及时间有效性	HISTORIC_DIFFERENT_SHA	NO	旧可信Issuer限定旧分支，不改写/重放/签发
+F07 Issue178	181	32f180238ff3271b38d2b91402cf4a7b55e07d52	39629427298	119323288481;119323289005	12357563978;12357469078	GitHub API只读校验双Job与双Artifact真实性	HISTORIC_DIFFERENT_SHA	NO	双工作仅说明父SHA真实验收，不是F08业务正例
+F08-2应用入口	-	CURRENT_GITHUB_SHA	CURRENT_GITHUB_RUN_ID	新工作流两独立PG16 Job	新工作流两独立非空Artifact	官方Push本SHA生成待验证	NOT_RUN	NO	只验证未授权开关、404/405/503及拒绝启动
+F08-2隔离PG16	-	CURRENT_GITHUB_SHA	CURRENT_GITHUB_RUN_ID	原生真实PG16 Job	原生SQL与身份日志	独立f08_2_quality_test非超管角色	NOT_RUN	NO	不声明正式父Schema迁移或资金事实
