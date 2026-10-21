@@ -90,7 +90,7 @@ jobs:
               engineering/f03/permission-contract.tsv|engineering/f03/runtime-design/capability-scope-contract.tsv|engineering/src/f07-runtime/runtime.mjs|engineering/f07/publisher-phone-scope-runtime/*|engineering/f07/nonprod-runtime-integration/SOURCE_GAP与外部授权依赖台账.tsv|.github/workflows/f08-publisher-phone-scope-runtime-nonprod.yml) ;;
               *) echo "OUT_OF_SCOPE:$path"; exit 1 ;;
             esac
-          done < <(git diff --name-only origin/main...HEAD)
+          done < <(git -c core.quotePath=false diff --name-only origin/main...HEAD)
           for file in engineering/f03/permission-contract.tsv engineering/f03/runtime-design/capability-scope-contract.tsv; do
             added="$(git diff --unified=0 origin/main...HEAD -- "$file" | grep -E '^\+[^+]' | wc -l | tr -d ' ')"
             removed="$(git diff --unified=0 origin/main...HEAD -- "$file" | grep -E '^-[^-]' | wc -l | tr -d ' ')"
@@ -207,7 +207,7 @@ jobs:
               engineering/f03/permission-contract.tsv|engineering/f03/runtime-design/capability-scope-contract.tsv|engineering/src/f07-runtime/runtime.mjs|engineering/f07/publisher-phone-scope-runtime/*|engineering/f07/nonprod-runtime-integration/SOURCE_GAP与外部授权依赖台账.tsv|.github/workflows/f08-publisher-phone-scope-runtime-nonprod.yml) ;;
               *) echo "OUT_OF_SCOPE:$path"; exit 1 ;;
             esac
-          done < <(git diff --name-only origin/main...HEAD)
+          done < <(git -c core.quotePath=false diff --name-only origin/main...HEAD)
           for file in engineering/f03/permission-contract.tsv engineering/f03/runtime-design/capability-scope-contract.tsv; do
             added="$(git diff --unified=0 origin/main...HEAD -- "$file" | grep -E '^\+[^+]' | wc -l | tr -d ' ')"
             removed="$(git diff --unified=0 origin/main...HEAD -- "$file" | grep -E '^-[^-]' | wc -l | tr -d ' ')"
