@@ -1,3 +1,15 @@
+# 当前有效状态（2026-10-22｜覆盖下方历史快照）
+
+A 主控已独立验收 [F07 Issue #178](https://github.com/suzhe868-arch/mb/issues/178) 的非生产四域 Runtime 接线：B HEAD `32f180238ff3271b38d2b91402cf4a7b55e07d52`；[PR #181](https://github.com/suzhe868-arch/mb/pull/181) 标准合并 SHA `dd4a52a6f117ff83c959212f41f7c29ae68c507c`，Issue 已关闭。官方 Run #39629427298 双独立 PG16 非超管 Job 成功；新增业务 46、HTTPS 15、受影响回归 26 均 0 fail；Artifacts #12357563978/#12357469078 有效。A 验收报告：`07_重建工作区/F07_Issue178_PR181非生产Runtime独立终验与F08-2放行报告_2026-10-22.md`。
+
+**唯一下一 B 任务：** `NEXT_OWNER=B / NEXT_TASK=F08_NONPROD_CROSS_RUNTIME_QUALITY_02 / NEXT_ISSUE=184 / NEXT_BRANCH=feat/f08-nonprod-cross-runtime-quality-02`。A 施工单 `07_重建工作区/F08-2非生产跨Runtime安全关联回归与质量闭环_A主控B正式施工单_2026-10-22.md`；仅随本治理 PR 正式合并 main 后生效。F08-1 PR69、PR100、F06 PR174 和 F07 PR181 已验成果复用，不重做旧包。新测试限非生产安全/来源与质量，不伪造旧 F06/F07 分支签名正例。
+
+F06/F07/F08/V1 整域仍 `NOT_READY / NO_PRODUCTION`，电话敏感能力、F03 Scope/Object、F05 转换、SLA/Incident 与真实 JYT/Collector/CDN/OSS/Feishu 均存在 `SOURCE_GAP`；无资金/生产/真实客户授权。C PR68 不改。F08 完整阶段经 A 常规验收之后的整个 B 后端最终整体验收独立归 A。
+
+---
+
+## 2026-10-21 历史状态（以下原“当前”已失效）
+
 # 当前有效状态（2026-10-21｜覆盖下方历史快照）
 
 F06 Issue #171 的非生产子范围已通过 A 独立验收，PR #174 已标准合并。最终业务 SHA：`06c880d7f53adda7862da88cde0b790fdc60f415`；PR #174 合并 SHA：`86f59431768f393232b8746cd3deb62f1044d85c`。官方 Run #39602409488 成功，Artifact #12347892081 非空且未过期。具体测试与跨 OID Seal 见 `F06_Issue171_PR174最终独立验收与合并报告_2026-10-21.md`。
