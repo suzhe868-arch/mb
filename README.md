@@ -1,11 +1,12 @@
 # 名邦汽车 V1｜当前主控状态（2026-10-21）
 
-> **当前有效状态指针。** 本区块记录 PR #174 合并后的最新事实；其下旧状态记录只保留历史证据，若内容冲突，以本区块、`NEXT_ACTION.md` 和 `PROJECT_STATE.json` 的当前指针为准。
+> **当前有效状态指针。** 本区块记录 PR #174 的最终验收及 PR #179 的后续正式放行；下方旧记录只作历史证据。发生冲突时，以本区块、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 的当前指针为准。
 
 ## 已完成的 A 工作
 
 - F06 Issue [#171](https://github.com/suzhe868-arch/mb/issues/171) 已完成非生产子范围独立验收并关闭；业务 PR [#174](https://github.com/suzhe868-arch/mb/pull/174) 已标准合并。
-- 最终业务 SHA：`06c880d7f53adda7862da88cde0b790fdc60f415`；合并/main SHA：`86f59431768f393232b8746cd3deb62f1044d85c`。
+- 最终业务 SHA：`06c880d7f53adda7862da88cde0b790fdc60f415`；PR #174 合并 SHA：`86f59431768f393232b8746cd3deb62f1044d85c`。
+- A 治理 PR [#179](https://github.com/suzhe868-arch/mb/pull/179) 已标准合并，merge SHA：`9d8a94d4fe34e7a3f3ca17ac608175397e49a321`；Issue #178 的正式放行已生效。
 - 官方 Push Run [#39602409488](https://github.com/suzhe868-arch/mb/actions/runs/39602409488) 与 Job [#119229953562](https://github.com/suzhe868-arch/mb/actions/runs/39602409488/job/119229953562) 全部步骤成功；最终证据工件 [#12347892081](https://github.com/suzhe868-arch/mb/actions/runs/39602409488/artifacts/12347892081) 为 36,014 bytes，未过期至 2026-11-04T13:01:30Z。
 - 分项测试：Lifecycle 32/32、Priority 来源 7/7、签名来源负向 15/15、Composite 42/42、Legacy Node/HTTP 37/37、Legacy PG16 13/13、Legacy 审计 1/1；161 张父表/24 条签名迁移跨 OID Seal 通过，`unauthorizedParentDrift=false`。
 - 完整 A 验收报告：`07_重建工作区/F06_Issue171_PR174最终独立验收与合并报告_2026-10-21.md`。
@@ -23,7 +24,7 @@
 - **Issue：[#178](https://github.com/suzhe868-arch/mb/issues/178)**
 - **分支：`feat/f07-runtime-integration-nonprod-01`**
 - **正式施工单：** `07_重建工作区/F07真实应用Runtime四域接线非生产整包_A主控B正式施工单_2026-10-21.md`
-- 本治理 PR 合并 main 后，B 按施工单生效；开工必须读取当时远程最新 main，不得用历史 SHA 当作当前基线。
+- PR #179 已合并，授权已生效；B 开工必须读取当时远程最新 main，不得用历史 SHA 当作当前基线。
 
 ## 不可扩大解释的边界
 

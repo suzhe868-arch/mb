@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F07_NONPROD_RUNTIME_INTEGRATION",
-  "current_domain_status": "F06 Issue171 非生产子范围已通过 A 独立验收并合并 PR174；下一项为 F07 应用 Runtime 四域非生产接线。F07-1至F07-4及F08-1历史CI-only成果复用；当前应用缺F07 Runtime接线，真实电话权限、F05转换正向源、JYT/CDN/OSS/Feishu仍SOURCE_GAP；F06/F07/F08/V1总体NOT_READY",
+  "current_domain_status": "F06 Issue171 非生产子范围已通过 A 独立验收并合并 PR174；下一项为 F07 应用 Runtime 四域非生产接线。F07-1至F07-4及F08-1历史CI-only成果复用；当前应用缺F07 Runtime接线，真实电话权限、F05转换正向源、JYT/CDN/OSS/Feishu仍SOURCE_GAP；F06/F07/F08/V1总体NOT_READY；A治理PR179已合并（merge SHA 9d8a94d4fe34e7a3f3ca17ac608175397e49a321），Issue178正式生效；B必须读取最新main",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -11170,7 +11170,7 @@
   },
   "f07_runtime_integration_release_2026_10_21": {
     "task_id": "F07_NONPROD_RUNTIME_INTEGRATION_01",
-    "status": "A_RELEASED_EFFECTIVE_ON_GOVERNANCE_PR_MERGE",
+    "status": "A_RELEASED_GOVERNANCE_PR179_MERGED",
     "issue": 178,
     "owner": "B",
     "branch": "feat/f07-runtime-integration-nonprod-01",
@@ -11216,6 +11216,11 @@
       "ROUTE_SOURCE_GAP"
     ],
     "final_acceptance_owner": "A",
-    "production_ready": false
+    "production_ready": false,
+    "governance_pr": 179,
+    "governance_merge_sha": "9d8a94d4fe34e7a3f3ca17ac608175397e49a321",
+    "governance_pr_url": "https://github.com/suzhe868-arch/mb/pull/179",
+    "effective_on_main": true,
+    "release_note": "正式放行已随PR179合并main生效；B开工必须重新读取最新main。"
   }
 }
