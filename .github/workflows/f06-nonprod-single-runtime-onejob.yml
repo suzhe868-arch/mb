@@ -78,6 +78,7 @@ jobs:
           npm ci --prefix engineering --ignore-scripts --no-audit --no-fund
           node --check engineering/src/f06-nonprod-composite-runtime.mjs
           node --check 'engineering/f06/nonprod-single-runtime-integration/tests/真实PG16单Runtime闭环验收.test.mjs'
+          bash -n engineering/f06/nonprod-single-runtime-integration/核对同Ref上游签名PG16.sh
           node --check engineering/src/server.mjs
           node --check engineering/src/f06-lock-service.mjs
           node --check engineering/src/f06-lock-readiness.mjs
@@ -119,15 +120,27 @@ jobs:
         run: |
           set -euo pipefail
           node --test engineering/f06/nonprod-single-runtime-integration/tests/真实PG16冻结来源拒绝.test.mjs | tee engineering/f06/nonprod-single-runtime-integration/evidence/真实PG16缺签_TAP.log
-      - name: 严格原生TAP及SOURCE_GAP门禁
+      - name: 32加6中间拒绝门禁
         shell: bash
         run: |
           set -euo pipefail
           node engineering/f06/nonprod-single-runtime-integration/原生拒绝门禁校验.mjs
-          echo "::notice::NONPROD_RUNTIME_LOCK_ONLY; SIGNED_SOURCE_GAP; NOT_READY_FOR_A_REVIEW"
-          echo "F06_164_REAL_PG16_DENIAL_ONLY, NOT SIGNED TRANSACTION REFUND SUCCESS"
 
-      - name: 同真实GitHub Ref尝试原生F05签名上游初始化（不伪造旧Issuer）
+      - name: 同真实GitHub Ref初始化原生签名父链（不伪造旧Issuer）
         shell: bash
         run: |
-          bash engineering/f06/nonprod-single-runtime-integration/核对同Ref上游签名PG16.sh
+          set -euo pipefail
+          mkdir -p engineering/f06/nonprod-single-runtime-integration/evidence
+          bash engineering/f06/nonprod-single-runtime-integration/核对同Ref上游签名PG16.sh | tee engineering/f06/nonprod-single-runtime-integration/evidence/父链签名与初始化.log
+
+      - name: 真实PG16单Runtime业务闭环验收
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test engineering/f06/nonprod-single-runtime-integration/tests/真实PG16单Runtime闭环验收.test.mjs | tee engineering/f06/nonprod-single-runtime-integration/evidence/单Runtime闭环_TAP.log
+
+      - name: F06 Issue164最终独立证据门禁
+        shell: bash
+        run: |
+          set -euo pipefail
+          F06_164_REQUIRE_E2E=1 node engineering/f06/nonprod-single-runtime-integration/原生拒绝门禁校验.mjs
