@@ -166,7 +166,12 @@ export function createCompositeBusinessHandler(auth,env){
    const status=result.allowed?(/PENDING|RECORDED|CREATED/.test(result.code)?201:200):
     (/NOT_FOUND/.test(result.code)?404:/INVALID_|ARGUMENTS/.test(result.code)?400:/CONFLICT|OCCUPIED|CONTENTION/.test(result.code)?409:403);
    writeComposite(res,status,{...result,productionReady:false});
-  }catch{
+  }catch(error){
+   if(env.F06_COMPOSITE_DEBUG_ERRORS==='1'){
+    const code=typeof error?.code==='string'?error.code:'NO_CODE';
+    const message=String(error?.message||'unknown').slice(0,500);
+    console.error('F06_COMPOSITE_BUSINESS_HANDLER_ERROR',code,message);
+   }
    writeComposite(res,503,{allowed:false,code:'F06_COMPOSITE_SIGNED_SOURCE_GAP',productionReady:false});
   }
   return true;
