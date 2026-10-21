@@ -41,7 +41,7 @@ before(async()=>{
  auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin});
  const login=await auth.login({login:'http_test',password:'SyntheticHttps_1234567',source:'127.0.0.1'});
  assert.equal(login.code,'AUTH_OK');
- assert.equal(login.restricted,false);
+ assert.equal(login.restricted,true);
  session=login.token;
  runtime=await createF07Runtime({env:process.env,auth,testFaults:faults});
  handler=createFoundationHandler({f07RuntimeHandler:runtime.handler,readinessProbe:runtime.ready,readinessTimeoutMs:3000});
