@@ -139,7 +139,7 @@ function writeComposite(res,status,body){
   'x-content-type-options':'nosniff','referrer-policy':'no-referrer'});
  res.end(JSON.stringify(body));
 }
-function createCompositeBusinessHandler(auth,env){
+export function createCompositeBusinessHandler(auth,env){
  return async(req,res)=>{
   const path=String(req.url||'/').split('?')[0],route=COMPOSITE_ROUTES.get(path);
   if(!route)return false;
