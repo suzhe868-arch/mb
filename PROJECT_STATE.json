@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "A_F08_2_PR186_NONPROD_ACCEPTED_F08_STAGE_SOURCE_GATE_OPEN",
+  "substage": "A_F08_3_PHONE_SCOPE_RUNTIME_NONPROD_RELEASED_F08_STAGE_SOURCE_GATE_OPEN",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F08_STAGE_SOURCE_AND_TRUE_E2E_GAP",
-  "current_domain_status": "F08-2 Issue184 PR186限定非生产子范围已A独立验收、合并及关闭。最终业务SHA ff817ee0557858b9469260ed183d6ce32a83c759，merge a497fa7fb504ec1ed63c8eb202eb64999bb74e29，Run39643395145双真实非超管PG16 Job成功，58新增+7回归通过，双Artifact有效。F08全阶段仍不能验收：F03/F05/F07可信签名父来源、电话物理权限映射、SLA/Incident及真实JYT/Collector/CDN/OSS/Feishu等SOURCE_GAP。用户已明确批准批发车上游电话按员工单独授权，范围二选一：仅当前有效锁定车辆（LOCKED_ONLY）或全部当前在售JYT批发车（ALL_ACTIVE_JYT）；该产品决策不代表物理权限或外部集成已实现。下一由A处理Issue187来源门禁，不重复已通过质量测试；F06/F07/F08/V1仍NOT_READY。",
+  "current_domain": "F08_PHONE_SCOPE_INTERNAL_RUNTIME_AND_TRUE_EXTERNAL_SOURCE_GAP",
+  "current_domain_status": "用户已批准批发上游电话按员工独立授权及LOCKED_ONLY/ALL_ACTIVE_JYT两种专项范围，PR189已合并。A已完成源码审计，发现permission-contract映射仍TECH_ALIAS_PENDING_A、F03当前读取器最终Scope/Object保持拒绝、现有F07 phone latest/dial仍SOURCE_GAP且测试回调为合成数据。A已发布F08-3有界非生产Runtime施工单Issue190：复用PR8 SG01结构，不修改F03冻结读取器/迁移；只接通员工当前权限+专项范围+当前Vehicle/Lock状态的内部PG16纵切。该任务不调用真实JYT/Collector，不代表真实publisher映射或电话缓存来源完成。F08整阶段、F06/F07/V1仍NOT_READY；Issue187继续跟踪真实来源、外部授权及F08整阶段验收，不重复F08-2 58+7测试。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01：A按用户已裁决的批发上游电话范围（单员工授权 + LOCKED_ONLY / ALL_ACTIVE_JYT 二选一）核实物理权限映射、可信父事实与合法外部授权；只处理真实缺口，不重复已验收质量包；确认存在合法且具体的新差异后才安排B。",
-  "current_work_file": "07_重建工作区/F08-2_Issue184_PR186独立验收与F08剩余来源门禁报告_2026-10-22.md",
+  "current_task": "F08_PUBLISHER_PHONE_SCOPE_RUNTIME_NONPROD_03：B按A正式施工单完成两种员工上游电话专项范围的隔离PG16/非生产HTTP Runtime纵切，配置服务与审计、正负向路径、同SHA证据，达到READY_FOR_A_REVIEW交A独立验收；禁止真实外部调用/生产部署，完成后A回到Issue187继续处理剩余真实来源门禁。",
+  "current_work_file": "07_重建工作区/F08-3_批发上游电话员工专项范围与PG16非生产Runtime纵切_A主控B正式施工单_2026-10-22.md",
   "f06_issue164_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_NONPROD_COMPOSITE_DUAL_GATE_B_CONTINUE",
     "issue": 164,
@@ -7012,7 +7012,7 @@
     "merge_method": "merge",
     "a_review_report": "07_重建工作区/F05-7_A主控二轮独立验收66项真PG16_PR46标准合并与F05-8技术交接_2026-10-12.md"
   },
-  "next_owner": "A",
+  "next_owner": "B",
   "f05_8_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR47_CI_ONLY",
     "execution": "COMPLETED_A_ACCEPTED_PR47_STANDARD_MERGE",
@@ -8147,7 +8147,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
+  "next_task": "F08_PUBLISHER_PHONE_SCOPE_RUNTIME_NONPROD_03",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -10118,8 +10118,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": null,
-  "next_issue": 187,
+  "next_branch": "feat/f08-publisher-phone-scope-runtime-nonprod-03",
+  "next_issue": 190,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -11330,9 +11330,31 @@
       "仅控制上游电话读取/取号/拨号，不扩展车辆编辑、转换、下架/隐藏、Lock审批、Transaction、价格或资金权限",
       "每次敏感动作按当前员工、permission/deny、source/state及专项范围重新校验；授权变更留审计"
     ],
-    "implementation_status": "NOT_YET_VERIFIED_OR_IMPLEMENTED",
-    "next_owner": "A",
-    "next_issue": 187,
-    "new_b_task_authorized": false
+    "implementation_status": "FORMALLY_RELEASED_NONPROD_TASK_ISSUE190_NOT_YET_IMPLEMENTED",
+    "next_owner": "B",
+    "next_issue": 190,
+    "new_b_task_authorized": true
+  },
+  "f08_3_publisher_phone_scope_runtime_nonprod_03": {
+    "task_id": "F08_PUBLISHER_PHONE_SCOPE_RUNTIME_NONPROD_03",
+    "status": "A_RELEASED_PENDING_B_IMPLEMENTATION",
+    "issue": 190,
+    "branch": "feat/f08-publisher-phone-scope-runtime-nonprod-03",
+    "work_order": "07_重建工作区/F08-3_批发上游电话员工专项范围与PG16非生产Runtime纵切_A主控B正式施工单_2026-10-22.md",
+    "scope": "CI-only System Admin grant/revoke/mode configuration + PG16 current F03 employee session + LOCKED_ONLY/ALL_ACTIVE_JYT guard + F07 nonprod HTTP phone latest/dial",
+    "forbidden": [
+      "real JYT/Collector/CDN/OSS/Feishu",
+      "production routes or database",
+      "C PR #68",
+      "F03-1/F02 frozen migrations",
+      "F03 current-facts reader and F03-2-1B accepted migration/customer guard",
+      "F05/F06 business source changes",
+      "re-running F08-2 58+7 as a substitute for implementation"
+    ],
+    "acceptance": "at least 20 new business assertions, two independent non-superuser PG16 official jobs same SHA, two valid non-empty same SHA artifacts, targeted regression, Chinese handoff, READY_FOR_A_REVIEW",
+    "next_owner_after_delivery": "A",
+    "parent_gate_issue": 187,
+    "production_authorized": false,
+    "real_external_calls_authorized": false
   }
 }
