@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "A_F06_POST_ISSUE164_RUNTIME_GAP_AUDITED_ISSUE171_B_NONPROD_LIFECYCLE_RELEASE",
+  "substage": "A_ISSUE171_SIGNED_REAL_PUSH_BRANCH_BLOCKER_CONFIRMED_EXACT_FIVE_FILE_RULING_B_CONTINUE",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION",
-  "current_domain_status": "ISSUE164_ACCEPTED_PR169_MERGED / ISSUE171_B_NONPROD_LIFECYCLE_RELEASED / F06_F07_F08_V1_NOT_READY",
+  "current_domain_status": "ISSUE171_B_BLOCKED_TRUSTED_SIGNED_REF_CONFIRMED / A_EXACT_FIVE_FILE_RULING_APPROVED / B_CONTINUE / F06_F07_F08_V1_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A在main@59f833caf2cd2ea4ad22645faf1120156e31c929核对PR169 Composite Runtime未挂载Lock Lifecycle，旧已验Lifecycle仍硬绑定另库f06_lock_test、CI_LEGACY的employee_sessions与资金缺席proof，不能作为Composite现行F03签名同PG来源。正式放行Issue171只做非生产Lifecycle信任接线、普通无钱Lock延期/释放/取消/到期和必要6h候补关联回归，禁止重新开发PR139/150/153/156/162资金核心、真实收退款、completed、refunded和生产。Issue164及全部已验测试证据保留，F06/F07/F08/V1仍NOT_READY。",
+  "current_task": "B已在Issue171指定分支13b9cc580b0907d743414707d353d4b96f1ca39b只提交一份真实签名根阻断报告，未执行业务正例或官方CI。A核实旧Issue164签名根、composite-issuer.mjs、私有composite-issuer.sql的GithubRef CHECK、上游原生签名初始化shell、161父表24迁移异OID封印脚本5文件均锁定旧分支。A仅批准两个精确真实Push分支受控profile及本SHA/Run/PG物理OID验真/旧门禁保留，B原Issue原分支一次性继续合法Lifecycle接线及真实PG16测试。",
   "current_work_file": "07_重建工作区/F06_Issue171_Composite普通Lock生命周期可信接线_A主控B正式施工单_2026-10-21.md",
   "f06_issue164_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_NONPROD_COMPOSITE_DUAL_GATE_B_CONTINUE",
@@ -4968,7 +4968,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "A正式核查报告及Issue171精确施工单已合并main后生效。B从实际最新main建唯一指定分支，仅对原Composite单库新增受控Lifecycle新源接线，复用原CI_LEGACY生命周期状态机/业务守卫，不覆盖旧Issuer、旧迁移、原资金签名/余额。Native非超管PG16/HTTP至少16项真正新测试和受影响高风险Legacy/Composite回归，语法+范围前置双门禁、本SHA官方CI工件和必要161父表24迁移异OID Seal；不能合法接通则统一BLOCKED_F06_COMPOSITE_LIFECYCLE_SIGNED_SOURCE_GAP，不擅扩权。完成整包READY_FOR_A_REVIEW后交A。F07/F08不提前作为本单施工。",
+  "next_action_detail": "Issue171 A已在补充裁决中确认精确五个旧Issue164非生产签名源/Seal辅助文件用途允许最小扩展：可信Composite签名根.mjs、composite-issuer.mjs、composite-issuer.sql（仅github_ref CHECK精确新值）、核对同Ref上游签名PG16.sh、父表161迁移24跨OID封印.mjs。只认可旧Issue164或新Issue171两个真实GH Push分支、本HEAD SHA/RunID与PG16 OID/SHA/24迁移签封，不许冒充旧Ref、扩大资金权限或改冻结父SQL/旧CI。B继续原分支原Issue，不重做Issue164；本任务至今只确认阻断，>=16新业务PG16和本SHA官方CI/工件仍未完成。B所有改动必须先语法和用途白名单双门禁，整包自审PASS后交A，不能合法接通则阻断交A。F06/F07/F08/V1继续NOT_READY。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -10931,5 +10931,31 @@
     "f06_stage_ready": false,
     "f07_released": false,
     "f08_released": false
+  },
+  "f06_issue171_exact_signing_ruling_2026_10_21": {
+    "status": "A_RULING_APPROVED_EXACT_DUAL_REAL_PUSH_FIVE_FILE_ONLY",
+    "issue": 171,
+    "prior_b_blocked_sha": "13b9cc580b0907d743414707d353d4b96f1ca39b",
+    "original_branch": "feat/f06-nonprod-single-runtime-trusted-source-01",
+    "new_branch": "feat/f06-nonprod-composite-lock-lifecycle-01",
+    "allowed_exceptions": [
+      "engineering/f06/nonprod-single-runtime-integration/可信Composite签名根.mjs",
+      "engineering/f06/nonprod-single-runtime-integration/composite-issuer.mjs",
+      "engineering/f06/nonprod-single-runtime-integration/composite-issuer.sql",
+      "engineering/f06/nonprod-single-runtime-integration/核对同Ref上游签名PG16.sh",
+      "engineering/f06/nonprod-single-runtime-integration/父表161迁移24跨OID封印.mjs"
+    ],
+    "ruling_document": "07_重建工作区/F06_Issue171真实分支Composite签名根五文件最小技术裁决补充单_2026-10-21.md",
+    "main_merge_required": true,
+    "existing_issue_stays_open": true,
+    "native_new_pg16_cases_done": 0,
+    "official_ci_done": false,
+    "legacy_issuer_must_fail_closed": true,
+    "production_ready": false,
+    "real_payment_authorized": false,
+    "refund_refunded_authorized": false,
+    "transaction_completed_authorized": false,
+    "next_owner": "B",
+    "next_task": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01"
   }
 }
