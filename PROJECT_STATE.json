@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "A_F08_3_PHONE_SCOPE_RUNTIME_NONPROD_RELEASED_F08_STAGE_SOURCE_GATE_OPEN",
+  "substage": "A_F08_3_ACCEPTED_F08_STAGE_SOURCE_GATE_OPEN",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F08_PHONE_SCOPE_INTERNAL_RUNTIME_AND_TRUE_EXTERNAL_SOURCE_GAP",
-  "current_domain_status": "用户已批准批发上游电话按员工独立授权及LOCKED_ONLY/ALL_ACTIVE_JYT两种专项范围，PR189已合并。A已完成源码审计，发现permission-contract映射仍TECH_ALIAS_PENDING_A、F03当前读取器最终Scope/Object保持拒绝、现有F07 phone latest/dial仍SOURCE_GAP且测试回调为合成数据。A已发布F08-3有界非生产Runtime施工单Issue190：复用PR8 SG01结构，不修改F03冻结读取器/迁移；只接通员工当前权限+专项范围+当前Vehicle/Lock状态的内部PG16纵切。该任务不调用真实JYT/Collector，不代表真实publisher映射或电话缓存来源完成。F08整阶段、F06/F07/V1仍NOT_READY；Issue187继续跟踪真实来源、外部授权及F08整阶段验收，不重复F08-2 58+7测试。",
+  "current_domain": "F08_SIGNED_SOURCE_AND_EXTERNAL_AUTHORIZATION_GATE",
+  "current_domain_status": "F08-3 Issue #190 已通过 A 独立验收，PR #193 标准合并。该验收仅覆盖 CI_SYNTHETIC_ONLY 内部非生产员工电话权限/专项范围纵切；真实 Collector/JYT、publisher 物理映射、正式 F03 capability/Scope/Object、F05 转换正向 Issuer、SLA/Incident、CDN/OSS/Feishu 仍 SOURCE_GAP。F06/F07/F08/V1 仍 NOT_READY / NO_PRODUCTION。A 继续 Issue #187 父级来源与外部授权门禁，当前无新的 B 施工包。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F08_PUBLISHER_PHONE_SCOPE_RUNTIME_NONPROD_03：B按A正式施工单完成两种员工上游电话专项范围的隔离PG16/非生产HTTP Runtime纵切，配置服务与审计、正负向路径、同SHA证据，达到READY_FOR_A_REVIEW交A独立验收；禁止真实外部调用/生产部署，完成后A回到Issue187继续处理剩余真实来源门禁。",
-  "current_work_file": "07_重建工作区/F08-3_批发上游电话员工专项范围与PG16非生产Runtime纵切_A主控B正式施工单_2026-10-22.md",
+  "current_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01：继续只读核查 Issue #187 的正式 capability/catalog、Vehicle Scope/Object、F05 正向 Issuer、真实 Collector/JYT 与外部集成来源/授权；未取得合法当前证据前不签发新的 B 施工单。",
+  "current_work_file": "07_重建工作区/F08-3_Issue190_PR193独立验收与合并报告_2026-10-22.md",
   "f06_issue164_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_NONPROD_COMPOSITE_DUAL_GATE_B_CONTINUE",
     "issue": 164,
@@ -3388,7 +3388,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "A继续只读核查Issue187真实签名正例、外部服务及产品/权限/生产门禁的可合法复用来源。未解除来源/授权缺口前，不放行新的B重复质量或跨分支伪造Issuer施工，不宣布F08整阶段或后端总体验收通过。须用户授权的敏感能力/第三方/资金/生产事项集中说明，不擅自扩权。",
+  "next_action": "A 继续只读核查 Issue #187 真实签名正例、外部服务及产品/权限/生产门禁的可合法复用来源。F08-3 Issue #190 已通过 A 限定非生产子范围验收并关闭，PR #193 已标准合并；不重复 F08-2 的 58+7 测试。未解除来源/授权缺口前，不放行新的 B 重复质量或跨分支伪造 Issuer 施工，不宣布 F08 整阶段或后端总体验收通过。须用户授权的敏感能力/第三方/资金/生产事项集中说明，不擅自扩权。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4968,7 +4968,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "F08-2 B_HEAD=ff817ee0557858b9469260ed183d6ce32a83c759; MERGE=a497fa7fb504ec1ed63c8eb202eb64999bb74e29; Run39643395145 success; independent PG16 Jobs119372546965/119372547635 success; 58 new security+7 associated regression pass; artifacts12366157062/12365019484 valid; Issue184 closed; F08 full stage blocked SRC_GAP; follow-up A Issue187.",
+  "next_action_detail": "F08-3 Issue190 closed; PR193 merged. B_HEAD=662847bf2e75c9ca404dff8e57902850d8fe4673; MERGE=5cb52e6754e3e171cb9e1a67e3aef51c8e78dfcc; Run39665372029 completed/success; independent PG16 jobs119448883595 and 119448884077 success; business43/43; affected regression26/26; HTTPS16/16; final SHA checks30/30 success; artifacts12377127302/12377287037 valid. Remaining F08 stage source/auth gates tracked by Issue187.",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7012,7 +7012,7 @@
     "merge_method": "merge",
     "a_review_report": "07_重建工作区/F05-7_A主控二轮独立验收66项真PG16_PR46标准合并与F05-8技术交接_2026-10-12.md"
   },
-  "next_owner": "B",
+  "next_owner": "A",
   "f05_8_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR47_CI_ONLY",
     "execution": "COMPLETED_A_ACCEPTED_PR47_STANDARD_MERGE",
@@ -7102,7 +7102,7 @@
     "r12_r13_closed": true,
     "a_sixth_review_result": "A_ACCEPTED"
   },
-  "current_owner": "B",
+  "current_owner": "A",
   "f05_9_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR48_CI_ONLY",
     "owner": "B",
@@ -8147,7 +8147,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F08_PUBLISHER_PHONE_SCOPE_RUNTIME_NONPROD_03",
+  "next_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9822,7 +9822,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F08-2_Issue184_PR186独立验收与F08剩余来源门禁报告_2026-10-22.md",
+  "next_work_file": "07_重建工作区/F08-3_Issue190_PR193独立验收与合并报告_2026-10-22.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -10118,8 +10118,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": "feat/f08-publisher-phone-scope-runtime-nonprod-03",
-  "next_issue": 190,
+  "next_branch": "NONE",
+  "next_issue": 187,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -11356,5 +11356,55 @@
     "parent_gate_issue": 187,
     "production_authorized": false,
     "real_external_calls_authorized": false
+  },
+  "f08_3_a_acceptance_2026_10_22": {
+    "task_id": "F08_PUBLISHER_PHONE_SCOPE_RUNTIME_NONPROD_03",
+    "status": "A_ACCEPTED_NONPRODUCTION_PR193_STANDARD_MERGED",
+    "issue": 190,
+    "issue_closed": true,
+    "business_pr": 193,
+    "business_pr_merged": true,
+    "b_head_sha": "662847bf2e75c9ca404dff8e57902850d8fe4673",
+    "merge_sha": "5cb52e6754e3e171cb9e1a67e3aef51c8e78dfcc",
+    "official_run": 39665372029,
+    "business_pg16_job": 119448883595,
+    "business_scenarios": 43,
+    "affected_regression_scenarios": 26,
+    "https_pg16_job": 119448884077,
+    "https_scenarios": 16,
+    "final_sha_check_runs_total": 30,
+    "final_sha_check_runs_success": 30,
+    "final_sha_check_runs_failure": 0,
+    "final_sha_check_runs_pending": 0,
+    "artifacts": [
+      {
+        "id": 12377127302,
+        "name": "f08-3-business-39665372029-1",
+        "size_bytes": 12257,
+        "expired": false
+      },
+      {
+        "id": 12377287037,
+        "name": "f08-3-https-39665372029-1",
+        "size_bytes": 9566,
+        "expired": false
+      }
+    ],
+    "github_native_approve": "REJECTED_SELF_REVIEW",
+    "a_review_record": "PR #193 COMMENT review ID 5605599960; standard merge completed",
+    "scope": "CI_SYNTHETIC_ONLY_NONPRODUCTION_PHONE_PERMISSION_AND_SCOPE",
+    "remaining_source_gaps": [
+      "F03 signed capability/catalog and Vehicle Scope/Object",
+      "F05 conversion positive Issuer",
+      "real Collector/JYT publisher mapping and phone source",
+      "SLA/Incident Issuer and routing",
+      "real CDN/OSS/Feishu resources and authorization"
+    ],
+    "production_or_real_external_authorized": false,
+    "f08_stage": "NOT_READY",
+    "next_owner": "A",
+    "next_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
+    "next_issue": 187,
+    "next_branch": "NONE"
   }
 }
