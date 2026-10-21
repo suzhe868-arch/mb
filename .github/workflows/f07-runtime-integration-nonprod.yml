@@ -113,7 +113,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: f07-runtime-business-pg16-${{{ github.sha }}
+          name: f07-runtime-business-pg16-${{ github.sha }}
           path: |
             f07-runtime-business.log
             f07-runtime-identity.tsv
@@ -223,7 +223,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: f07-runtime-https-pg16-${{{ github.sha }}
+          name: f07-runtime-https-pg16-${{ github.sha }}
           path: |
             f07-runtime-https.log
             f07-runtime-identity.tsv
