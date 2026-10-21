@@ -1,20 +1,19 @@
-// F06 Issue164: explicitly isolated, opt-in single Node runtime for already accepted
-// Lock HTTP contracts. NOT a signer, payment issuer or production adapter.
-// The historical PR139/153/156/162 services require a distinct GitHub parent
-// branch identity and F03 test database. Do not spoof those parent gates.
-import {createIsolatedF06LockRuntime} from './f06-lock-runtime.mjs';
+// F06 Issue164: one Node runtime and one disposable, non-superuser PG16 database.
+// CI_LEGACY remains in its original isolated runtime; Composite is a separately selected
+// service-side mode whose trust comes from a native signed issuer and F03 employee sessions.
+import pg from 'pg';
+import {createIsolatedF06LockService} from './f06-lock-service.mjs';
+import {createIsolatedF06LockHandler} from './f06-lock-http.mjs';
+import {assertCompositeSignedRun} from '../f06/nonprod-single-runtime-integration/可信Composite签名根.mjs';
+import {verifyCompositeAttestation} from '../f06/nonprod-single-runtime-integration/composite-issuer.mjs';
+import {verifyComposite as verifyLockRequest} from '../f06/lockrequest-approval-waitlist-ci/migration.mjs';
+import {verifyComposite as verifyLockLifecycle} from '../f06/lock-lifecycle-ci/migration.mjs';
+import {verifyComposite as verifyDeposit} from '../f06/deposit-ledger-ci/migration.mjs';
+import {verifyComposite as verifyTransaction} from '../f06/lock-transaction-ci/migration.mjs';
+import {verifyComposite as verifyRefundPending} from '../f06/refund-pending-ci/migration.mjs';
 
 export const F06_COMPOSITE_CONSENT='I_AUTHORIZE_DISPOSABLE_F06_COMPOSITE_ONLY';
 const F06_LOCK_CONSENT='I_AUTHORIZE_DISPOSABLE_F06_LOCK_PG16_ONLY';
-const FORBIDDEN=/^(?:\/api\/v1\/(?:transactions|refund_cases|refund-payments|payments|bank|wechat)|\/__ci__\/f06-(?:real-|post-|transaction-))/;
-const NONPROD_ROUTES=new Set([
- '/__nonprod__/f06-composite/transaction/open',
- '/__nonprod__/f06-composite/transaction/handoff',
- '/__nonprod__/f06-composite/transaction/cancel',
- '/__nonprod__/f06-composite/refund/request',
- '/__nonprod__/f06-composite/refund/close',
- '/__nonprod__/f06-composite/deposit/record'
-]);
 const send=(res,status,code)=>{
  res.writeHead(status,{'content-type':'application/json; charset=utf-8','cache-control':'no-store',
   'x-content-type-options':'nosniff','referrer-policy':'no-referrer'});
@@ -23,62 +22,96 @@ const send=(res,status,code)=>{
 function must(x,code){if(!x)throw Error(code)}
 export function verifyCompositeEnvironment(env=process.env){
  must(env.F06_COMPOSITE_TEST_CONSENT===F06_COMPOSITE_CONSENT,'F06_COMPOSITE_EXPLICIT_CONSENT_REQUIRED');
- must(env.F06_LOCK_TEST_CONSENT===F06_LOCK_CONSENT,'F06_COMPOSITE_ORIGINAL_LOCK_CONSENT_REQUIRED');
- must(env.APP_ENV==='test'&&env.NODE_ENV==='test'&&env.API_HOST==='127.0.0.1',
+ must(env.F06_LOCK_TEST_CONSENT===F06_LOCK_CONSENT,'F06_COMPOSITE_LOCK_HTTP_CONSENT_REQUIRED');
+ must(env.APP_ENV==='test'&&env.NODE_ENV==='test'&&env.API_HOST==='127.0.0.1'&&env.CI==='true'&&env.GITHUB_ACTIONS==='true',
   'F06_COMPOSITE_NONPRODUCTION_LOOPBACK_REQUIRED');
+ must(env.GITHUB_EVENT_NAME==='push'&&env.GITHUB_REF==='refs/heads/feat/f06-nonprod-single-runtime-trusted-source-01',
+  'F06_COMPOSITE_REAL_PUSH_REF_REQUIRED');
  must(!env.F03_1_ENABLE_ISOLATED_AUTH&&!env.F05_REAL_CATALOG_ENABLE&&!env.F05_D1_BUSINESS_TEST_RUNTIME,
   'F06_COMPOSITE_OTHER_RUNTIME_COMBINATION_DENIED');
- must(typeof env.F06_LOCK_DATABASE_URL==='string'&&
-  env.F06_LOCK_DATABASE_URL.startsWith('postgres://f06_lock_ci:')||
-  typeof env.F06_LOCK_DATABASE_URL==='string'&&
-  env.F06_LOCK_DATABASE_URL.startsWith('postgresql://f06_lock_ci:'),
-  'F06_COMPOSITE_EXPLICIT_DISPOSABLE_LOCK_DB_REQUIRED');
- const url=new URL(env.F06_LOCK_DATABASE_URL);
- must(url.hostname==='127.0.0.1'&&url.port==='5432'&&url.pathname==='/f06_lock_test'&&
-  !url.search&&!url.hash&&!url.username.includes('%'), 'F06_COMPOSITE_DISPOSABLE_LOCK_DB_REQUIRED');
- // Unlike the frozen historical workers, this opt-in assembly NEVER assigns
- // or rewrites GITHUB_REF, ACTIONS, SHA, RUN_ID, or service issuer markers.
- return Object.freeze({status:'LOCK_RUNTIME_ONLY_SIGNED_FINANCE_SOURCE_GAP',productionReady:false});
+ must(!env.F06_LOCK_DATABASE_URL,'F06_COMPOSITE_SECOND_DATABASE_FORBIDDEN');
+ must(typeof env.F03_1_DATABASE_URL==='string','F06_COMPOSITE_SINGLE_SIGNED_PG16_DATABASE_REQUIRED');
+ const url=new URL(env.F03_1_DATABASE_URL);
+ must(['postgres:','postgresql:'].includes(url.protocol)&&url.hostname==='127.0.0.1'&&url.port==='5432'&&
+  url.pathname==='/f03_auth_test'&&url.username==='f03_ci'&&!!url.password&&!url.search&&!url.hash,
+  'F06_COMPOSITE_SINGLE_SIGNED_PG16_DATABASE_REQUIRED');
+ const key=Buffer.from(env.F03_1_HMAC_KEY_BASE64||'','base64');
+ must(key.length===32,'F06_COMPOSITE_F03_SESSION_HMAC_REQUIRED');
+ must(/^[0-9a-f]{40}$/.test(env.GITHUB_SHA||'')&&/^[0-9]{6,20}$/.test(env.GITHUB_RUN_ID||''),
+  'F06_COMPOSITE_REAL_RUN_IDENTITY_REQUIRED');
+ return Object.freeze({database:'f03_auth_test',role:'f03_ci',issuer:'COMPOSITE_NONPROD_SIGNED_V1',
+  githubRef:env.GITHUB_REF,sha:env.GITHUB_SHA,runId:env.GITHUB_RUN_ID});
+}
+export async function verifyCompositeRuntimeDatabase(c,env=process.env){
+ assertCompositeSignedRun(env);
+ const identity=(await c.query("SELECT current_database() db,current_user role,current_setting('server_version_num')::int version,"+
+  "(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) superuser,"+
+  "(SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user) createdb,"+
+  "(SELECT rolcreaterole FROM pg_roles WHERE rolname=current_user) createrole,pg_backend_pid() pid")).rows[0];
+ if(!identity||identity.db!=='f03_auth_test'||identity.role!=='f03_ci'||identity.version<160000||identity.version>=170000||
+  identity.superuser!==false||identity.createdb!==false||identity.createrole!==false)
+  throw Error('F06_COMPOSITE_SINGLE_NONPRIVILEGED_PG16_REQUIRED');
+ const issuer=await verifyCompositeAttestation(c);
+ if(!issuer.verified||issuer.headSHA!==env.GITHUB_SHA||issuer.runId!==env.GITHUB_RUN_ID)
+  throw Error('F06_COMPOSITE_NATIVE_ISSUER_REQUIRED');
+ const parents=[];
+ for(const [name,verify] of [
+  ['F06_1',verifyLockRequest],['F06_2',verifyLockLifecycle],['F06_3A',verifyDeposit],
+  ['F06_3B',verifyTransaction],['F06_3C1',verifyRefundPending]]){
+   const result=await verify(c);
+   if(!result?.verified)throw Error('F06_COMPOSITE_PARENT_SIGNATURE_REQUIRED_'+name);
+   parents.push(name);
+ }
+ const shape=(await c.query("SELECT to_regclass('f06_composite_v1.customer_sessions') IS NOT NULL customers,"+
+  "to_regclass('f06_composite_v1.request_keys') IS NOT NULL request_keys,"+
+  "to_regclass('f06_composite_v1.decision_keys') IS NOT NULL decision_keys,"+
+  "to_regclass('f06_composite_v1.lock_snapshots') IS NOT NULL lock_snapshots,"+
+  "to_regclass('f06_composite_v1.issued_events') IS NOT NULL issued_events")).rows[0];
+ if(!shape||Object.values(shape).some(v=>v!==true))throw Error('F06_COMPOSITE_LOCK_SIDE_CAR_REQUIRED');
+ return Object.freeze({verified:true,nonProduction:true,databaseOid:issuer.databaseOid,
+  backendPid:identity.pid,issuer:issuer.issuer,parents});
 }
 export const getCompositeSourceMatrix=()=>Object.freeze([
- {step:'lock_request_lock',source:'F06_LOCK_ISOLATED_PG16',state:'RUNTIME_WIRED'},
- {step:'synthetic_deposit',source:'PR3A_CI_HISTORIC_ISSUER',state:'SIGNED_SOURCE_GAP'},
- {step:'transaction_open',source:'PR139_CI_HISTORIC_ISSUER',state:'SIGNED_SOURCE_GAP'},
- {step:'responsible_handoff',source:'PR153_CI_HISTORIC_ISSUER',state:'SIGNED_SOURCE_GAP'},
- {step:'signed_cancel',source:'PR156_CI_HISTORIC_ISSUER',state:'SIGNED_SOURCE_GAP'},
- {step:'refund_pending_closed',source:'PR162_CI_HISTORIC_ISSUER',state:'SIGNED_SOURCE_GAP'}
+ {step:'lock_request_lock',source:'COMPOSITE_NONPROD_SIGNED_V1 + F03 employee session',state:'RUNTIME_WIRED'},
+ {step:'synthetic_deposit',source:'native F06-3A signed core + composite event',state:'RUNTIME_WIRED'},
+ {step:'transaction_open',source:'PR139 native transaction core + composite event',state:'IMPLEMENTING'},
+ {step:'responsible_handoff',source:'PR153 native handoff core + composite event',state:'IMPLEMENTING'},
+ {step:'signed_cancel',source:'PR156 native cancel core + composite event',state:'IMPLEMENTING'},
+ {step:'refund_pending_closed',source:'PR162 native refund core + composite event',state:'IMPLEMENTING'}
 ]);
+function isLoopback(req){
+ return ['127.0.0.1','::1','::ffff:127.0.0.1'].includes(req.socket?.remoteAddress)&&
+  typeof req.headers?.host==='string'&&req.headers.host===`127.0.0.1:${req.socket?.localPort}';
+}
 export function createCompositeDenyHandler(){
  return async(req,res)=>{
-  const pathname=String(req.url||'/').split('?')[0];
-  // Explicitly refuse sealed historical CI routes and all production money/tx.
-  if(FORBIDDEN.test(pathname)||NONPROD_ROUTES.has(pathname)){
-   if(!['127.0.0.1','::1','::ffff:127.0.0.1'].includes(req.socket?.remoteAddress)||
-      typeof req.headers?.host!=='string'||
-      req.headers.host!=='127.0.0.1:'+req.socket?.localPort){
-    send(res,403,'F06_COMPOSITE_LOOPBACK_ONLY');return true;
-   }
+  const path=String(req.url||'/').split('?')[0];
+  if(path.startsWith('/__ci__/f06-')||/^\/api\/v1\/(?:transactions|refund_cases|refund-payments|payments|bank|wechat)(?:\/|$)/.test(path)){
+   if(!isLoopback(req)){send(res,403,'F06_COMPOSITE_LOOPBACK_ONLY');return true}
    send(res,503,'F06_COMPOSITE_SIGNED_SOURCE_GAP');return true;
   }
   return false;
  };
 }
-export async function createIsolatedF06CompositeRuntime(env=process.env,{createLockRuntime=createIsolatedF06LockRuntime}={}){
+export async function createIsolatedF06CompositeRuntime(env=process.env,{sessionSecret=null}={}){
  verifyCompositeEnvironment(env);
- must(createLockRuntime===createIsolatedF06LockRuntime,'F06_COMPOSITE_TRUSTED_LOCK_FACTORY_ONLY');
- // Original frozen lock runtime independently confirms non-superuser PG16 and
- // all 24 source migrations. Nothing in this wrapper weakens that verification.
- const lock=await createLockRuntime(env);
- const deny=createCompositeDenyHandler();
+ const secret=sessionSecret??Buffer.from(env.F03_1_HMAC_KEY_BASE64,'base64');
+ const pool=new pg.Pool({connectionString:env.F03_1_DATABASE_URL,max:5,connectionTimeoutMillis:2500,idleTimeoutMillis:2000});
  let closed=false;
- return Object.freeze({
-  mode:'LOCK_ONLY_SIGNED_FINANCE_SOURCE_GAP',
-  handler:async(req,res)=>{
-   if(await deny(req,res))return true;
-   return lock.handler(req,res);
-  },
-  ready:async()=>!closed&&await lock.ready(),
-  close:async()=>{if(!closed){closed=true;await lock.close()}},
-  wired:Object.freeze({lock:true,deposit:false,transaction:false,handoff:false,cancel:false,refund:false})
- });
+ try{
+  await verifyCompositeRuntimeDatabase(pool,env);
+  const lockService=createIsolatedF06LockService({pool,env,mode:'COMPOSITE_NONPROD_SIGNED_V1',
+   sessionSecret:secret,verifyDatabase:c=>verifyCompositeRuntimeDatabase(c,env)});
+  const lockHandler=createIsolatedF06LockHandler({service:lockService,env});
+  const deny=createCompositeDenyHandler();
+  return Object.freeze({
+   mode:'COMPOSITE_NONPROD_SIGNED_V1',pool,lockService,
+   handler:async(req,res)=>{
+    if(await deny(req,res))return true;
+    return lockHandler(req,res);
+   },
+   ready:async()=>{try{if(closed)return false;await verifyCompositeRuntimeDatabase(pool,env);return true}catch{return false}},
+   close:async()=>{if(!closed){closed=true;await pool.end()}}
+  });
+ }catch(e){await pool.end();throw e}
 }
