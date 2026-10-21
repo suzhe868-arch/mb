@@ -1,0 +1,11 @@
+模块	状态	禁止提升为正例的原因	实际可测边界	解除条件	责任
+F07敏感电话	SOURCE_GAP	电话能力与客户范围授权缺少正式来源	默认关闭且404/403否定保护	A明确授权并建立正式Issuer	A
+F03 Scope/Object	SOURCE_GAP	正式对象范围授权/撤权链未完整闭环	非生产隔离启动拒绝与旧已验父证据	A正式工作单与真库权限链	A
+F05转换签名	SOURCE_GAP	真实转换及可信签名正例未放行	新F08只读父SHA历史状态	A来源链技术裁决	A
+SLA/Incident	SOURCE_GAP	正式事件Issuers不存在	旧F07隔离模拟结果引用不冒充新事实	补齐正式事件可信来源	A
+JYT/Collector	SOURCE_GAP	真实外部接入凭据/操作未授权	无外部请求、只读官方GitHub证据	独立第三方授权	用户/A
+CDN/OSS	SOURCE_GAP	真实图片回源和对象存储外写未授权	纯本地配置/未授权路由拒绝	生产资源与密钥授权	用户/A
+Feishu	SOURCE_GAP	真实通知通道外发未授权	绝不发送真实通知	第三方权限与生产门禁授权	用户/A
+真实资金/Refund/Completed	BLOCKED	非生产任务无真钱与真实交易授权	只保留历史合成审计，不执行付款退款	用户独立资金授权	用户/A
+F06与F07新分支正式签名父正例	NOT_RUN	原父Issuer精确绑定旧ref/run/sha	标HISTORIC_DIFFERENT_SHA并保留来源缺口	正式Issuer新签发机制由A裁决	A
+C PR68	NOT_RUN	独立C轨且不在本任务白名单	不修改、不验收、不暗示通过	C按独立施工单交A	C/A
