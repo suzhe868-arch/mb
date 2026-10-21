@@ -37,6 +37,7 @@ export function assertF07RuntimeEnvironment(env=process.env) {
   };
   for (const [key,value] of Object.entries(required)) if(env[key]!==value) throw Error('F07_RUNTIME_ENV_'+key);
   if(!/^[0-9]{6,20}$/.test(env.GITHUB_RUN_ID??'')) throw Error('F07_RUNTIME_RUN_ID_REQUIRED');
+  if(!/^[0-9a-f]{40}$/.test(env.GITHUB_SHA??'')) throw Error('F07_RUNTIME_SHA_REQUIRED');
   if(typeof env.F07_COLLECTOR_TEST_SECRET!=='string'||env.F07_COLLECTOR_TEST_SECRET.length<32) throw Error('F07_RUNTIME_CALLBACK_SECRET_REQUIRED');
   if(typeof env.F03_1_HMAC_KEY_BASE64!=='string'||Buffer.from(env.F03_1_HMAC_KEY_BASE64,'base64').length!==32) throw Error('F07_RUNTIME_F03_HMAC_REQUIRED');
   if(OTHER_RUNTIME_FLAGS.some(key=>env[key]!==undefined)) throw Error('F07_RUNTIME_COMBINATION_FORBIDDEN');
@@ -316,9 +317,10 @@ export async function createF07Runtime({env=process.env,pool:providedPool=null,a
     try {
       assertF07RuntimeEnvironment(env);
       const identity=await withDb(async(_db,x)=>x);
-      const url=new URL(req.url??'/',`https://${req.headers?.host||'127.0.0.1`);
-      if(req.headers?.host&&!req.headers.host.startsWith('127.0.0.1:')&&!req.headers.host.startsWith('127.0.0.1'))
+      const host=req.headers?.host??'';
+      if(!/^127\.0\.0\.1(?::[0-9]{1,5})?$/.test(host))
         return send(res,400,{code:'LOOPBACK_HOST_REQUIRED',origin:'CI_SYNTHETIC_ONLY'});
+      const url=new URL(req.url??'/','https://'+host);
       if(req.method==='GET'&&pathname==='/__ci__/f07-runtime/health')
         return send(res,200,{ok:true,pg16:true,superuser:false,database_oid:identity.database_oid,origin:'CI_SYNTHETIC_ONLY',outbound:'DISABLED'});
       if(req.method==='POST'&&pathname==='/__ci__/f07-runtime/phone/callback') {
@@ -379,7 +381,7 @@ export async function createF07Runtime({env=process.env,pool:providedPool=null,a
       }
       if(req.method==='POST'&&pathname==='/__ci__/f07-runtime/notification/deep-link') {
         const {value}=await readJson(req);
-        const result=deepLinkGuard(value.url,{signedParentVerified:true});
+        const result=deepLinkGuard(value.url,{signedParentVerified:false});
         return send(res,403,{status:result.status,code:result.code,origin:'SOURCE_GAP'});
       }
       return send(res,404,{code:'F07_RUNTIME_ROUTE_NOT_FOUND',origin:'CI_SYNTHETIC_ONLY'});
