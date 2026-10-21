@@ -1,10 +1,21 @@
+## A-F08-3-PUBLISHER-PHONE-SCOPE-RUNTIME-RELEASE-01｜用户批准电话范围后发布最小非生产纵切
+
+- 用户批准的电话范围规则已由 [PR #189](https://github.com/suzhe868-arch/mb/pull/189) 标准合并，merge SHA `d7cb1b32cea64035d3fe9cb67cc3f7ba8ab3cb32`。既有权限 `publisher.phone.sensitive` 按员工单独授予，范围二选一：`LOCKED_ONLY` 或 `ALL_ACTIVE_JYT`；不要求逐车负责人，不新增 `can_call_wholesale_phone`。
+- A 审核现有代码确认：permission-contract 对三个 publisher phone 动作仍标 `TECH_ALIAS_PENDING_A`；F03 current-facts 的最终 Scope/Object 仍 fail-closed；F07 phone latest/dial 仍为 source-gap 拒绝，测试回调仅合成；当前 F03 80 表事实读取器不应被直接放宽。故只发布一个精确、隔离、非生产 B 纵切。
+- 正式施工单：`07_重建工作区/F08-3_批发上游电话员工专项范围与PG16非生产Runtime纵切_A主控B正式施工单_2026-10-22.md`；Issue [#190](https://github.com/suzhe868-arch/mb/issues/190)；B 分支 `feat/f08-publisher-phone-scope-runtime-nonprod-03`。本治理 PR 合并 main 后才生效。
+- 白名单仅包含三个电话动作的静态映射行、对应 capability-scope contract 行、F07 Runtime 的 phone latest/dial 接线、新增 F08-3 CI-only package/workflow，以及 F07 来源台账的 publisher phone 行。F03-1/F02 冻结迁移、F03 current-facts/Policy/既验 Customer Guard、F05/F06、生产 Server、图片/通知/Incident、C PR #68 均只读。
+- 目标是验证真实隔离 PG16 的当前员工权限、个人 deny、Lock/ListingCycle/source/state 与两种专项范围，包含 CI-only System Admin grant/revoke/mode configuration；仅使用合成 publisher/phone/Collector callback，不调用真实外部服务、不启用生产路由。电话访问不依赖 F05 转换正向事实。
+- 本任务不完成真实 publisher 物理映射、真实 JYT/Collector、CDN/OSS/Feishu 或 F08 整阶段验收。F06/F07/F08/V1 仍 `NOT_READY`；B 达到 `READY_FOR_A_REVIEW` 后由 A 独立验收，再回到 Issue #187 处理剩余来源门禁。C 轨不动。
+
+---
+
 ## A-PUBLISHER-PHONE-SCOPE-DECISION-2026-10-22｜批发车上游电话按员工授权与两种专项范围
 
 - **用户已明确批准的产品决策**：PC 后台「员工管理 → 员工详情 → 权限设置」对单个员工独立授予/撤销既有 `publisher.phone.sensitive`；获授权后必须二选一：`LOCKED_ONLY`（仅当前有效 Lock 状态的批发车）或 `ALL_ACTIVE_JYT`（全部当前在售 JYT/wholesale 车源）。
 - 批发车来自批量采集，**不要求逐车指定销售负责人**。锁定模式依现有正式 Lock 状态判定；申请中、拒绝、取消、过期不算有效锁定。全在售模式不要求先锁车或有 Transaction，但仅开放上游电话动作，不赋予编辑、转名邦、下架/隐藏、Lock 审批、Transaction、价格或资金权限。
 - 这两种模式是 `publisher.phone.sensitive` 的**专项访问范围**，服从 PDM-02 的 identity + permission + data scope + object state；不得新增 `can_call_wholesale_phone`，不得扩大员工通用车辆经营范围。每次敏感动作实时复核，变更授权/范围必须审计，撤权与锁定过期立即生效。
 - 正式规则同步至 `07_重建工作区/PDM-02_最终完整规则.md` 与 `07_重建工作区/PDM-09_最终完整规则.md`。本裁决只确定产品行为，不证明物理 capability catalog/vehicle scope、可信电话来源或真实 JYT/Collector 已接通。
-- Issue #187 仍由 A 核查实现差距。当前未授予新 B 施工分支；F08 整阶段与 V1 仍 `NOT_READY`。不重复 PR #8、PR #35、F08-2 已验成果，不动 C PR #68；真实第三方/生产/资金权限仍需独立授权。
+- 本产品决策记录当时不直接授权 B 施工；后续是否发放工程任务以单独合并到 main 的 A 正式施工单和 NEXT_ACTION 指针为准。F08 整阶段与 V1 仍 `NOT_READY`。不重复 PR #8、PR #35、F08-2 已验成果，不动 C PR #68；真实第三方/生产/资金权限仍需独立授权。
 
 ---
 
