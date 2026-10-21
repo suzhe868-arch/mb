@@ -224,10 +224,7 @@ test('F06 Issue164：单PG16真实F03 Session贯通Lock→Deposit→Transaction�
    assert.equal(count.rows[0].n,1,'concurrent duplicate open must not create a second Transaction');
    t.diagnostic('F06_COMPOSITE_TX_DOUBLE_BACKEND_IDEMPOTENCY_PASS');
   });
-   assert.equal(replay.status,200,JSON.stringify(replay.data));
-   assert.equal(replay.data.code,'F06_TX_IDEMPOTENT');
-   assert.equal(Number(replay.data.transactionId),transactionId);
-  });
+
 
   await t.test('真实PG16：Handoff变更后注错必须完整回滚',async()=>{
    const failed=await handoffRealTransactionComposite(auth,managerToken,{
@@ -320,10 +317,7 @@ test('F06 Issue164：单PG16真实F03 Session贯通Lock→Deposit→Transaction�
    assert.equal(count.rows[0].n,1,'different keys cannot create a second pending refund for the same transaction');
    t.diagnostic('F06_COMPOSITE_REFUND_DOUBLE_BACKEND_COMPETITION_PASS');
   });
-   assert.equal(replay.status,200,JSON.stringify(replay.data));
-   assert.equal(replay.data.code,'F06_TX_REFUND_IDEMPOTENT_REQUEST');
-   assert.equal(Number(replay.data.refundId),refundId);
-  });
+
 
   const closed=await post(base,'/__nonprod__/f06-composite/refund/close',targetToken,{
    refundId,closeReason:'Synthetic no-payment close',
