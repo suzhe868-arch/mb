@@ -1,3 +1,13 @@
+## A-PUBLISHER-PHONE-SCOPE-DECISION-2026-10-22｜批发车上游电话按员工授权与两种专项范围
+
+- **用户已明确批准的产品决策**：PC 后台「员工管理 → 员工详情 → 权限设置」对单个员工独立授予/撤销既有 `publisher.phone.sensitive`；获授权后必须二选一：`LOCKED_ONLY`（仅当前有效 Lock 状态的批发车）或 `ALL_ACTIVE_JYT`（全部当前在售 JYT/wholesale 车源）。
+- 批发车来自批量采集，**不要求逐车指定销售负责人**。锁定模式依现有正式 Lock 状态判定；申请中、拒绝、取消、过期不算有效锁定。全在售模式不要求先锁车或有 Transaction，但仅开放上游电话动作，不赋予编辑、转名邦、下架/隐藏、Lock 审批、Transaction、价格或资金权限。
+- 这两种模式是 `publisher.phone.sensitive` 的**专项访问范围**，服从 PDM-02 的 identity + permission + data scope + object state；不得新增 `can_call_wholesale_phone`，不得扩大员工通用车辆经营范围。每次敏感动作实时复核，变更授权/范围必须审计，撤权与锁定过期立即生效。
+- 正式规则同步至 `07_重建工作区/PDM-02_最终完整规则.md` 与 `07_重建工作区/PDM-09_最终完整规则.md`。本裁决只确定产品行为，不证明物理 capability catalog/vehicle scope、可信电话来源或真实 JYT/Collector 已接通。
+- Issue #187 仍由 A 核查实现差距。当前未授予新 B 施工分支；F08 整阶段与 V1 仍 `NOT_READY`。不重复 PR #8、PR #35、F08-2 已验成果，不动 C PR #68；真实第三方/生产/资金权限仍需独立授权。
+
+---
+
 # 当前有效裁决索引｜2026-10-22
 
 ## A-F08-2-ISSUE184-PR186-ACCEPT-01｜F08-2 非生产跨 Runtime 质量子范围通过
