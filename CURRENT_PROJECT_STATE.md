@@ -1,3 +1,9 @@
+# 2026-10-21｜CURRENT_PROJECT_STATE补充：Issue171版本正确的F05源事实预置路径
+
+本补充裁决仅在治理PR合并main后生效。它只允许原Issue171分支按签名账本版本调用现有F05-7/F05-8正式服务生成非生产测试所需的真实Match/Priority事实，并要求旧Issue164分支完全保留原迁移执行路径。没有放宽F05源码/迁移/父签名表、原始SQL伪造、Mock、Ref/SHA/RunID或物理OID校验。PR #174仍未验收/未合并，B继续原分支，待最终SHA官方CI完整成功并归档同SHA证据后交A独立复验。F06/F07/F08/V1仍NOT_READY。
+
+---
+
 # 2026-10-21｜A第二轮独立复核PR174：Priority真实PG16测试失败，B继续原分支定向整改
 
 - 对象：[PR #174](https://github.com/suzhe868-arch/mb/pull/174) / [Issue #171](https://github.com/suzhe868-arch/mb/issues/171)。

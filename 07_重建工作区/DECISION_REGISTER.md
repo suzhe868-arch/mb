@@ -1,3 +1,13 @@
+# 2026-10-21｜DECISION_REGISTER补充：Issue171签名Match/Priority预置路径最小裁决
+
+- 裁决只在本治理PR合并main后生效。
+- 唯一新增范围：Issue171精确真实Push分支在签名v23调用未修改的F05-7官方预置与只读验真，在签名v24调用未修改的F05-8正式服务签发Priority；其后原有v25/D1/v26迁移顺序不变。
+- 旧Issue164分支保留原迁移循环，不运行新预置。不得修改冻结F05源码、迁移、父签名表或公共DDL；不得原始SQL伪造Priority、用Mock/跨库复制替代、伪造GitHub环境或复用旧签名。
+- 此裁决不是工程验收。B继续Issue #171原分支；PR #174不合并，直到最终SHA官方CI全步骤成功、0 skipped、跨OID Seal与同SHA证据通过A独立复验。
+- F06/F07/F08/V1仍NOT_READY。
+
+---
+
 # 2026-10-21｜A第二轮独立复核PR174：Priority真实PG16测试失败，B继续原分支定向整改
 
 - 对象：[PR #174](https://github.com/suzhe868-arch/mb/pull/174) / [Issue #171](https://github.com/suzhe868-arch/mb/issues/171)。

@@ -11091,5 +11091,37 @@
     "real_payment_authorized": false,
     "refund_refunded_authorized": false,
     "transaction_completed_authorized": false
+  },
+  "f06_issue171_priority_fixture_path_ruling_2026_10_21": {
+    "task_id": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01",
+    "issue": 171,
+    "pr": 174,
+    "ruling_document": "07_重建工作区/F06_Issue171签名Match_Priority版本正确预置路径最小补充裁决_2026-10-21.md",
+    "ruling_status": "A_RULING_APPROVED_EFFECTIVE_ON_MERGE",
+    "effective_condition": "本补充裁决仅在本治理PR标准合并main后生效；未合并前不得把新增预置步骤视为已授权。",
+    "new_branch": "feat/f06-nonprod-composite-lock-lifecycle-01",
+    "old_branch": "feat/f06-nonprod-single-runtime-trusted-source-01",
+    "authorized_fixture_path": [
+      "Issue171精确新分支在已验证签名v23/21迁移阶段调用未修改的F05-7 preseed-v23正式服务，并只读核实current high/acceptable Match结果。",
+      "在签名v24/22迁移阶段调用未修改的F05-8 runner及setQualificationCI正式服务，用真实F03会话/Permission/DataScope签发Priority并只读核实source_match_result_id/source_signature。",
+      "其后继续原F05-9、D1/PDM17、F05-10/Consultation迁移顺序至签名v26/24迁移。"
+    ],
+    "old_branch_unchanged": true,
+    "frozen_f05_sources_and_migrations_modified": false,
+    "raw_sql_match_or_priority_forgery_authorized": false,
+    "mock_or_cross_database_priority_copy_authorized": false,
+    "github_ref_sha_runid_spoofing_authorized": false,
+    "production_ready": false,
+    "pr174_accepted": false,
+    "next_owner": "B",
+    "next_task": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01",
+    "next_issue": 171,
+    "next_branch": "feat/f06-nonprod-composite-lock-lifecycle-01",
+    "guardrails": [
+      "Issue164旧分支必须保留原迁移循环，不能运行Issue171预置步骤。",
+      "本裁决只新增Issue171精确分支的两阶段官方服务预置路径；其他五文件用途白名单与全部冻结文件约束不变。",
+      "PR174需最终SHA官方CI全步骤成功、0 skipped、真实PG16 Priority四动作无副作用、签名来源负向矩阵、161表/24迁移三物理OID Seal、Legacy定向回归和有效同SHA Artifact后交A独立复验。",
+      "PR174保持open/unmerged，F06/F07/F08/V1继续NOT_READY。"
+    ]
   }
 }
