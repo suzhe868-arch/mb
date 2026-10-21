@@ -102,7 +102,7 @@ export const getCompositeSourceMatrix=()=>Object.freeze([
 ]);
 function isLoopback(req){
  return ['127.0.0.1','::1','::ffff:127.0.0.1'].includes(req.socket?.remoteAddress)&&
-  typeof req.headers?.host==='string'&&req.headers.host===`127.0.0.1:${req.socket?.localPort}';
+  typeof req.headers?.host==='string'&&req.headers.host===`127.0.0.1:${req.socket?.localPort}`;
 }
 export function createCompositeDenyHandler(){
  return async(req,res)=>{
