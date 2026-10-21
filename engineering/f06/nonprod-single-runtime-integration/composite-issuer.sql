@@ -17,6 +17,8 @@ CREATE TABLE f06_composite_v1.customer_sessions(
  token_sha256 text PRIMARY KEY CHECK(length(token_sha256)=64),
  customer_id bigint NOT NULL REFERENCES public.customers(customer_id),
  issuer text NOT NULL CHECK(issuer='COMPOSITE_NONPROD_SIGNED_V1'),
+ head_sha text NOT NULL CHECK(length(head_sha)=40),
+ run_id text NOT NULL,
  expires_at timestamptz NOT NULL,
  revoked_at timestamptz
 );
@@ -87,7 +89,7 @@ CREATE TABLE f06_composite_v1.issued_events(
  event_key_sha256 text NOT NULL UNIQUE CHECK(length(event_key_sha256)=64),
  event_kind text NOT NULL CHECK(event_kind IN(
   'lock_request_created','lock_request_approved','lock_request_rejected','lock_request_expired',
-  'lock_conflict','signed_lock','signed_deposit','signed_tx','signed_handoff','signed_cancel',
+  'lock_conflict','lock_request_closed','signed_lock','signed_deposit','signed_tx','signed_handoff','signed_cancel',
   'signed_refund_pending','signed_refund_closed')),
  parent_object_id bigint NOT NULL CHECK(parent_object_id>0),
  actor_kind text NOT NULL CHECK(actor_kind IN('customer','employee','system')),
