@@ -10,7 +10,6 @@ import {createIsolatedF06CompositeRuntime} from '../../../src/f06-nonprod-compos
 import {assertCompositeSignedRun} from '../../nonprod-single-runtime-integration/可信Composite签名根.mjs';
 import {verifyLifecycleIssuer} from '../可信LifecycleIssuer.mjs';
 import {setQualificationCI} from '../../../f05/priority-arbitration-ttl-handover/service.mjs';
-import {saveSalesDescriptionCI,calculateCI} from '../../../f05/deterministic-matching-readiness-four-tier/service.mjs';
 const DSN=process.env.F03_1_DATABASE_URL,sha=x=>createHash('sha256').update(x).digest('hex');
 function envSetup(){
  Object.assign(process.env,{APP_ENV:'test',NODE_ENV:'test',API_HOST:'127.0.0.1',CI:'true',GITHUB_ACTIONS:'true',
@@ -67,41 +66,15 @@ test('Issue171真实PG16签名Priority来源锁生命周期拒绝矩阵',async t
   });
   assert.equal((await db.query('SELECT count(*)::int n FROM public.f05_8_qualification_ci WHERE enabled=true')).rows[0].n,0,
    'fresh parent clone must not already contain qualified Customers');
-  // Build current match results through the original signed F05-7 service on
-  // this disposable PG16 clone. Do not assume a prior workflow left results behind.
-  auth=new IsolatedAuth({connectionString:DSN,secret,origin:'https://127.0.0.1:3000'});
-  const f05Session=await auth.login({login:'employee_test',password:'SyntheticF04_3_CurrentProof_2026',source:'issue171-real-f05-match-seed'});
-  assert.equal(f05Session.code,'AUTH_OK','real F05-7 Employee session required');
-  const demands=(await db.query(
-   "SELECT d.demand_id::text demand_id,d.customer_id::text customer_id FROM public.demands d "+
-   "JOIN public.customers cs ON cs.customer_id=d.customer_id "+
-   "WHERE d.customer_id IN(899612,899613,899618,899619,899620) AND d.demand_state='active' "+
-   "AND cs.account_status='active' AND cs.owner_assignment_state='assigned' "+
-   "AND d.responsible_employee_id=cs.current_owner_employee_id ORDER BY d.customer_id,d.demand_id"
-  )).rows;
-  const vehicles=(await db.query(
-   "SELECT vf.vehicle_id::text vehicle_id,vf.listing_cycle_id::text cycle_id FROM public.f05_7_vehicle_facts_ci vf "+
-   "JOIN public.vehicles v ON v.vehicle_id=vf.vehicle_id "+
-   "JOIN public.vehicle_listing_cycles cyc ON cyc.listing_cycle_id=vf.listing_cycle_id AND cyc.vehicle_id=v.vehicle_id "+
-   "WHERE vf.available=true AND v.source_type='wholesale' AND v.source_sale_status='active' AND v.archived_at IS NULL "+
-   "AND cyc.ended_at IS NULL ORDER BY v.vehicle_id LIMIT 5"
-  )).rows;
-  assert.ok(demands.length>=3,'real F05 active synthetic Demand fixtures required');
-  assert.ok(vehicles.length>=3,'real F05 signed JYT Vehicle fixtures required');
-  const high='奥迪A6 2026款 5万公里以内 黑色外观 米色内饰 预算10万';
-  for(const d of demands){
-   const description=high;
-   const ready=await saveSalesDescriptionCI(auth,f05Session.token,{demandId:Number(d.demand_id),teamId:901,description});
-   assert.equal(ready.allowed,true,'official F05-7 sales condition must be created: '+JSON.stringify({ready,demand:d.demand_id}));
-   for(const v of vehicles){
-    const match=await calculateCI(auth,f05Session.token,{
-     demandId:Number(d.demand_id),vehicleId:Number(v.vehicle_id),listingCycleId:Number(v.cycle_id),
-     teamId:901,runKey:'issue171-real-f05-priority-'+process.env.GITHUB_RUN_ID+'-'+d.demand_id+'-'+v.vehicle_id
-    });
-    assert.equal(match.allowed,true,'official F05-7 current Match result must be created: '+JSON.stringify({match,demand:d.demand_id,vehicle:v.vehicle_id}));
-   }
-  }
-  console.log('F06_171_REAL_F05_CURRENT_MATCH_FIXTURES_CREATED',JSON.stringify({demands:demands.length,vehicles:vehicles.length,runId:process.env.GITHUB_RUN_ID}));
+  // F05-7's official matcher ran while this disposable database still had its
+  // signed v23 ledger, before F05-8/v24 was applied. Never invoke the frozen
+  // exact-v23 service against the later v24 Priority-test clone.
+  const seeded=(await db.query(
+   "SELECT count(*)::int n FROM public.f05_7_result_versions_ci r JOIN public.demands d ON d.demand_id=r.demand_id "+
+   "WHERE d.customer_id IN(899612,899613,899618,899619,899620) AND r.status='current' AND r.tier IN('high','acceptable')"
+  )).rows[0].n;
+  assert.ok(Number(seeded)>0,'signed v23 F05-7 current Match results must pre-exist the v24 Priority test clone');
+
   const c=(await db.query(
    "SELECT d.customer_id::text customer_id,d.responsible_employee_id::text responsible_employee_id,cs.current_owner_employee_id::text owner_id,"+
    "v.vehicle_id::text vehicle_id,r.listing_cycle_id::text cycle_id,"+

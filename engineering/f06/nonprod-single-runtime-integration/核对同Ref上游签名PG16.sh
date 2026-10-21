@@ -33,6 +33,61 @@ node --input-type=module -e '
   console.log("F06_164_ACTUAL_CURRENT_REF_F05_7_NATIVE_21_LEDGER",JSON.stringify({sha:process.env.GITHUB_SHA,ref:process.env.GITHUB_REF,pid:x.pid,migrationCount:x.n}));
  }finally{await c.end()}
 '
+node --input-type=module -e '
+ import {randomBytes} from "node:crypto";
+ import {IsolatedAuth} from "./engineering/src/f03-auth-service.mjs";
+ import {connect,verify} from "./engineering/f05/deterministic-matching-readiness-four-tier/migration.mjs";
+ import {saveSalesDescriptionCI,calculateCI} from "./engineering/f05/deterministic-matching-readiness-four-tier/service.mjs";
+ const c=await connect(),secret=randomBytes(32);
+ const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin:"https://127.0.0.1:48988"});
+ try{
+  const signed=await verify(c);
+  if(!signed.verified)throw Error("F06_171_V23_SIGNED_F05_7_REQUIRED");
+  const session=await auth.login({login:"employee_test",password:"SyntheticF04_3_CurrentProof_2026",source:"issue171-real-f05-match-seed-before-v24"});
+  if(session.code!=="AUTH_OK"||session.restricted)throw Error("F06_171_V23_CURRENT_EMPLOYEE_SESSION_REQUIRED");
+  const demands=(await c.query(
+   "SELECT d.demand_id::text demand_id,d.customer_id::text customer_id FROM public.demands d "+
+   "JOIN public.customers cs ON cs.customer_id=d.customer_id "+
+   "WHERE d.customer_id IN(899612,899613,899618,899619,899620) AND d.demand_state='active' "+
+   "AND cs.account_status='active' AND cs.owner_assignment_state='assigned' "+
+   "AND d.responsible_employee_id=cs.current_owner_employee_id AND cs.current_owner_employee_id=1 "+
+   "ORDER BY d.customer_id,d.demand_id"
+  )).rows;
+  const vehicles=(await c.query(
+   "SELECT vf.vehicle_id::text vehicle_id,vf.listing_cycle_id::text cycle_id "+
+   "FROM public.f05_7_vehicle_facts_ci vf JOIN public.vehicles v ON v.vehicle_id=vf.vehicle_id "+
+   "JOIN public.vehicle_listing_cycles cyc ON cyc.listing_cycle_id=vf.listing_cycle_id AND cyc.vehicle_id=v.vehicle_id "+
+   "WHERE vf.available=true AND v.source_type='wholesale' AND v.source_sale_status='active' AND v.archived_at IS NULL "+
+   "AND cyc.ended_at IS NULL AND (vf.facts_json->'model_year'->>'value')::int>=2025 "+
+   "ORDER BY v.vehicle_id LIMIT 5"
+  )).rows;
+  if(demands.length<3)throw Error("F06_171_V23_CURRENT_DEMAND_FIXTURES_REQUIRED_"+demands.length);
+  if(vehicles.length<1)throw Error("F06_171_V23_CURRENT_SALEABLE_MATCH_VEHICLE_REQUIRED");
+  const description="奥迪A6 2026款 5万公里以内 黑色外观 米色内饰 预算10万";
+  let created=0;
+  for(const d of demands){
+   const ready=await saveSalesDescriptionCI(auth,session.token,{demandId:Number(d.demand_id),teamId:901,description});
+   if(!ready.allowed)throw Error("F06_171_V23_OFFICIAL_F05_7_DESCRIPTION_REJECTED_"+JSON.stringify({demand:d.demand_id,result:ready}));
+   for(const v of vehicles){
+    const match=await calculateCI(auth,session.token,{
+     demandId:Number(d.demand_id),vehicleId:Number(v.vehicle_id),listingCycleId:Number(v.cycle_id),teamId:901,
+     runKey:"issue171-real-f05-priority-"+process.env.GITHUB_RUN_ID+"-"+d.demand_id+"-"+v.vehicle_id
+    });
+    if(!match.allowed)throw Error("F06_171_V23_OFFICIAL_F05_7_MATCH_REJECTED_"+JSON.stringify({demand:d.demand_id,vehicle:v.vehicle_id,result:match}));
+    created++;
+   }
+  }
+  const current=(await c.query(
+   "SELECT count(*)::int n FROM public.f05_7_result_versions_ci r JOIN public.demands d ON d.demand_id=r.demand_id "+
+   "WHERE d.customer_id IN(899612,899613,899618,899619,899620) AND r.status='current' AND r.tier IN('high','acceptable')"
+  )).rows[0].n;
+  if(Number(current)<1)throw Error("F06_171_V23_SIGNED_CURRENT_MATCH_RESULTS_MISSING");
+  console.log("F06_171_V23_CURRENT_MATCHES_SEEDED",JSON.stringify({
+   sha:process.env.GITHUB_SHA,runId:process.env.GITHUB_RUN_ID,ledgerVersion:23,
+   demandCount:demands.length,vehicleCount:vehicles.length,created,currentResults:Number(current)
+  }));
+ }finally{await auth.close();await c.end();secret.fill(0)}
+'
 # Signed M94 v23(21 rows) -> v24(22) -> v25(23) -> D1 independent -> v26(24).
 # All frozen F05 migration functions independently verify parent seals, and no
 # subprocess overwrites GITHUB_REF or GITHUB_REF_NAME for a legacy identity.
