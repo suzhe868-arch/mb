@@ -1,11 +1,12 @@
 ## A-PC-PHONE-PERMISSION-UI-DEFERRED-01｜产品规则保留，PC页面延期至F01～F08后
 
-- 用户于 2026-10-22 明确决定：当前优先完成 B 的 F01～F08 后端工程与功能实现；PC 管理后台页面暂不开发，不因电话权限设置单独提前建设整套后台。
-- 批发上游电话的产品规则**不是新需求，也不得丢失**：已由产品决策 PR [#189](https://github.com/suzhe868-arch/mb/pull/189) 合并，并正式写入 [PDM-02](https://github.com/suzhe868-arch/mb/blob/main/07_%E9%87%8D%E5%BB%BA%E5%B7%A5%E4%BD%9C%E5%8C%BA/PDM-02_%E6%9C%80%E7%BB%88%E5%AE%8C%E6%95%B4%E8%A7%84%E5%88%99.md) 与 [PDM-09](https://github.com/suzhe868-arch/mb/blob/main/07_%E9%87%8D%E5%BB%BA%E5%B7%A5%E4%BD%9C%E5%8C%BA/PDM-09_%E6%9C%80%E7%BB%88%E5%AE%8C%E6%95%B4%E8%A7%84%E5%88%99.md)：在 PC 后台「员工管理 → 员工详情 → 权限设置」按员工授予/撤销既有 `publisher.phone.sensitive`，并选择 `LOCKED_ONLY` 或 `ALL_ACTIVE_JYT`；不新增 `can_call_wholesale_phone`，不要求逐车负责人，也不扩大其他车辆或资金权限。
-- 为防止后续前端实施遗漏，已建立独立后续待办 [Issue #196](https://github.com/suzhe868-arch/mb/issues/196)。该 Issue 明确标记 `BACKLOG / DEFERRED / NOT_AUTHORIZED_FOR_IMPLEMENTATION`，记录未来页面位置、功能边界、验收标准与启动条件；它不是当前施工授权。
-- **当前执行边界不变**：不修改 `NEXT_OWNER/NEXT_TASK`，不把 Issue #196 放入 `NEXT_ACTION.md`，不启动 C 的 PC 页面，不干扰手机端 PR #68，也不改变 A 当前 Issue #187 的 F08 可信来源与外部授权门禁。
-- **未来恢复条件**：B 的 F01～F08 后端实现与各阶段验收完成；A 完成 B 后端最终整体验收；正式 API/权限合同可用；PC 对应 IA/设计基线满足现行门禁。届时 A 从 Issue #196 派生具体 C 页面施工单，C 按正式流程实施并交 A 独立验收。
-- 本条仅登记延期与需求追踪，不改 PDM Final、不更改后端验收状态，不授权生产或真实外部电话调用。
+- 用户于 2026-10-22 明确决定：当前优先完成 B 的 F01～F08 后端工程与功能实现，PC 管理后台页面暂不开发，不因电话权限设置提前建设整套后台。
+- **只延期 PC 页面，不延期后端业务功能。** B 必须在 F01～F08 后端交付范围内完成员工电话能力授予/撤销、专项范围持久化、服务端访问校验、审计、撤权即时生效及正式配置 API，并提供真实隔离 PG16 正向/安全负例证据。A 在 B 后端最终整体验收前核对对应施工单与证据；若路线遗漏，A 应在最终验收前安排最小必要的 B 后端差异任务。此记录不代表立即放行新 B 分支，也不能绕过 Issue #187 的来源/外部授权门禁。
+- 产品规则**不是新需求，也不得丢失**：已由产品决策 PR [#189](https://github.com/suzhe868-arch/mb/pull/189) 合并，并正式写入 [PDM-02](https://github.com/suzhe868-arch/mb/blob/main/07_%E9%87%8D%E5%BB%BA%E5%B7%A5%E4%BD%9C%E5%8C%BA/PDM-02_%E6%9C%80%E7%BB%88%E5%AE%8C%E6%95%B4%E8%A7%84%E5%88%99.md) 与 [PDM-09](https://github.com/suzhe868-arch/mb/blob/main/07_%E9%87%8D%E5%BB%BA%E5%B7%A5%E4%BD%9C%E5%8C%BA/PDM-09_%E6%9C%80%E7%BB%88%E5%AE%8C%E6%95%B4%E8%A7%84%E5%88%99.md)：PC「员工管理 → 员工详情 → 权限设置」按员工授予/撤销既有 `publisher.phone.sensitive`，并选择 `LOCKED_ONLY` 或 `ALL_ACTIVE_JYT`；不新增 `can_call_wholesale_phone`，不要求逐车负责人，也不扩大其他车辆或资金权限。
+- 为防止后续前端遗漏，已建立独立后续待办 [Issue #196](https://github.com/suzhe868-arch/mb/issues/196)，状态为 `BACKLOG / DEFERRED / NOT_AUTHORIZED_FOR_IMPLEMENTATION`。该 Issue 记录未来页面范围、功能边界、验收标准与启动条件；不构成当前 C 页面授权。
+- 当前唯一主任务指针保持不变：不修改 `NEXT_OWNER/NEXT_TASK`，不把 Issue #196 放入 `NEXT_ACTION.md`，不启动 C 的 PC 页面，不干扰手机端 PR #68，也不改变 A 当前 Issue #187 的 F08 可信来源与外部授权门禁。
+- 未来 PC 页面仅在 B 后端功能完成并经 A 最终整体验收、正式 API/错误合同可用、PC IA/设计基线满足仓库门禁后，由 A 从 Issue #196 派生具体 C 施工单。真实 JYT/Collector 电话来源仍须单独满足 Issue #187；合成测试不等于真实外部接入。
+- 本条仅登记延期与需求追踪，不改 PDM Final、不更改当前后端验收状态，不授权生产或真实外部电话调用。
 
 ---
 
