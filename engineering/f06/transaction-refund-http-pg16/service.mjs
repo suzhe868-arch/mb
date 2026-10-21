@@ -233,7 +233,7 @@ async function verifyTransactionSource(c,t){
 }
 // Shared signed-funds read path: identical ledger, signed Lock Refund checks and snapshots
 // for both original PR146 Cancel and versioned PR153/PR156 Cancel.
-async function finishSignedTransactionSource(c,t,txOrigin,txEvent,txKey,cancelOrigin,cancelEvent,cancelKey,digests){
+async function finishSignedTransactionSource(c,t,txOrigin,txEvent,txKey,cancelOrigin,cancelEvent,cancelKey,digests,mode='CI_LEGACY'){
  const lock=await one(c,'SELECT * FROM public.locks WHERE lock_id=$1 FOR UPDATE',[txOrigin.source_lock_id]);
  const snap=await one(c,'SELECT * FROM f06_1_lock_ci.lock_snapshots WHERE lock_id=$1 FOR SHARE',[txOrigin.source_lock_id]);
  if(!lock||!snap||lock.lock_status!=='released'||lock.end_reason!=='converted_to_transaction'||
@@ -288,7 +288,7 @@ async function verifyTransactionSourcePostHandoff(c,t,mode='CI_LEGACY'){
  const src=await finishSignedTransactionSource(c,t,txOrigin,txEvent,txKey,
   cancelOrigin,cancelEvent,cancelKey,{
    transactionDigest:sha(['PR153_156_V1',txOrigin,txEvent,txKey,cancelOrigin,cancelEvent,cancelKey]),
-   cancelDigest:sha(['PR156_SIGNED_CANCEL_V1',cancelOrigin,cancelEvent,cancelKey])});
+   cancelDigest:sha(['PR156_SIGNED_CANCEL_V1',cancelOrigin,cancelEvent,cancelKey])},mode);
  if(!src.allowed)return src;
  return yes('F06_BRIDGE_SIGNED_FUNDS_SOURCE',{...src,sourceKind:'PR153_PR156_POST_HANDOFF',handoffVersion:signed.handoffVersion});
 }
@@ -345,7 +345,7 @@ async function verifyDepositHistory(c,src,origin){
   initialCount:original.adjustments.length,currentCount:live.adjustments.length,
   appendedCount:live.adjustments.length-original.adjustments.length});
 }
-async function refundCaseSource(c,src,r,origin){
+async function refundCaseSource(c,src,r,origin,mode='CI_LEGACY'){
  if(!r||!origin||r.lock_id!==null||Number(r.transaction_id)!==Number(src.tx.transaction_id)||
   Number(r.customer_id)!==Number(src.tx.customer_id)||!['pending','closed'].includes(r.status)||
   Number(r.expected_amount_cents)!==Number(origin.amount_cents)||
@@ -455,7 +455,7 @@ async function requestTransactionRefundCore(auth,token,p={},sourceVerifier,mode=
    if(old){
     const r=await one(c,'SELECT * FROM public.refund_cases WHERE refund_id=$1 FOR SHARE',[old.row.refund_id]);
     const o=await one(c,'SELECT * FROM f06_real_tx_refund_ci.origins WHERE refund_id=$1 FOR SHARE',[old.row.refund_id]);
-    const signed=await refundCaseSource(c,src,r,o);
+    const signed=await refundCaseSource(c,src,r,o,mode);
     if(!signed.allowed)return signed;
     return yes('F06_TX_REFUND_IDEMPOTENT_REQUEST',{refundId:Number(old.row.refund_id),backendPid:(await one(c,'SELECT pg_backend_pid() pid')).pid});
    }
