@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "A_PR174_SECOND_REVIEW_FAILED_F05_7_V22_LEDGER_BLOCKER",
+  "substage": "A_F06_ISSUE171_ACCEPTED_F07_NONPROD_RUNTIME_INTEGRATION_RELEASED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION",
-  "current_domain_status": "B HEAD 32abe113 official Run 39591349465 failed in real Priority test with F05_7_SIGNED_V22_LEDGER_REQUIRED; Lifecycle 32/32 and Composite 42/42 passed, signed-negative tests and cross-OID seal skipped; NEXT_OWNER=B; F06/F07/F08/V1 NOT_READY",
+  "current_domain": "F07_NONPROD_RUNTIME_INTEGRATION",
+  "current_domain_status": "F06 Issue171 非生产子范围已通过 A 独立验收并合并 PR174；下一项为 F07 应用 Runtime 四域非生产接线。F07-1至F07-4及F08-1历史CI-only成果复用；当前应用缺F07 Runtime接线，真实电话权限、F05转换正向源、JYT/CDN/OSS/Feishu仍SOURCE_GAP；F06/F07/F08/V1总体NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01：修复真实Priority来源测试夹具与v26 24条签名迁移链不兼容问题，不修改冻结F05源码/迁移/父签名；完成后执行签名来源负向矩阵、161表/24迁移跨OID Seal、Legacy回归和最终SHA官方CI。",
-  "current_work_file": "07_重建工作区/F06_Issue171_Composite普通Lock生命周期可信接线_A主控B正式施工单_2026-10-21.md",
+  "current_task": "F07_NONPROD_RUNTIME_INTEGRATION_01：复用已验收F07-1至F07-4 CI合同，完成当前应用入口的非生产四域Runtime接线、真实非特权PG16/loopback TLS集成测试、来源缺口FailClosed和同SHA证据归档；不得接真实外部服务或改变产品权限。",
+  "current_work_file": "07_重建工作区/F07真实应用Runtime四域接线非生产整包_A主控B正式施工单_2026-10-21.md",
   "f06_issue164_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_NONPROD_COMPOSITE_DUAL_GATE_B_CONTINUE",
     "issue": 164,
@@ -3388,7 +3388,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B继续原Issue #171和原分支，先只读核查当前v26父库中的真实签名Match/Priority事实；不得调用只接受旧v22/v23账本的F05-7/F05-8服务去改动v26数据库，不得伪造Priority。若无合法可复用事实，提供确切SOURCE_GAP给A集中裁决。完成Priority四动作真实PG16无副作用测试后，再跑签名来源负向矩阵、跨OID Seal、Legacy回归和完整最终SHA官方CI/Artifact。",
+  "next_action": "A治理PR合并main后，B读取最新远程main，按Issue #178和正式施工单执行F07_NONPROD_RUNTIME_INTEGRATION_01；在实际应用入口完成四域非生产Runtime接线、真实PG16/HTTP集成测试、路径/语法门禁、受影响范围回归和最终SHA官方证据，交A独立验收。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4830,7 +4830,7 @@
   "historical_tail_cleanup_report": "07_重建工作区/PDM-01至25_Final_Integrity历史阶段尾巴清理与Current_History边界复核_2026-10-07.md",
   "ia_status": "COMPLETE_FINAL_GAP_PASS",
   "lowfi_status": "COMPLETE_FINAL_GAP_PASS",
-  "engineering_status": "F07_4_PR67_A_ACCEPTED_STANDARD_MERGED_CI_ONLY_F08_1_A_RELEASED_FOR_B_CI_ONLY",
+  "engineering_status": "F06_ISSUE171_A_ACCEPTED_NONPRODUCTION_PR174_MERGED_F07_RUNTIME_INTEGRATION_NEXT_F08_1_CI_ONLY_ACCEPTED_GLOBAL_NOT_READY_NO_PRODUCTION",
   "ia_global_alignment": {
     "status": "COMPLETE",
     "batch_1": "PASS_USER_APPROVED_APPLIED",
@@ -4968,7 +4968,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "第二轮A复核B HEAD 32abe113574bcef1bb5d3d591072a3b6f31fb023；官方Run 39591349465失败，Priority测试触发F05_7_SIGNED_V22_LEDGER_REQUIRED。Lifecycle 32/32与Composite 42/42通过，但Priority矩阵未完成、签名负向矩阵未运行、跨OID Seal与Legacy回归/evidence gate跳过。保留成功结果；禁止改动冻结F05代码/迁移/父签名或原始SQL伪造Priority。",
+  "next_action_detail": "PR174已标准合并；业务SHA 06c880d7f53adda7862da88cde0b790fdc60f415，合并/main SHA 86f59431768f393232b8746cd3deb62f1044d85c，官方Run 39602409488成功，Artifact 12347892081有效。F07 PR64-67和F08 PR69均为已验收CI-only资产；当前主应用无F07 Runtime接线。缺失的电话能力签名正例、F05转换签名正例、JYT/CDN/OSS/Feishu真实来源必须保留SOURCE_GAP，不得伪造。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -8147,7 +8147,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01_PRIORITY_SOURCE_FIXTURE_AND_NEGATIVE_MATRIX_REPAIR",
+  "next_task": "F07_NONPROD_RUNTIME_INTEGRATION_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9822,7 +9822,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F06_Issue171_PR174独立验收退回报告_2026-10-21.md",
+  "next_work_file": "07_重建工作区/F07真实应用Runtime四域接线非生产整包_A主控B正式施工单_2026-10-21.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -10118,8 +10118,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": "feat/f06-nonprod-composite-lock-lifecycle-01",
-  "next_issue": 171,
+  "next_branch": "feat/f07-runtime-integration-nonprod-01",
+  "next_issue": 178,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -10331,7 +10331,7 @@
     "next_owner": "B",
     "budget_additional_usd": 0
   },
-  "next_base_main": "bd0dd9d9260384bb25f2d821e9a477c1a0527665",
+  "next_base_main": null,
   "current_engineering_focus": "F06_F07_F08_REPLAN_DISCUSSION_NO_NEW_B_C_RELEASE",
   "f06_real_deposit_http_next": {
     "status": "A_ACCEPTED_NONPRODUCTION_HTTP_PG16_PR135_STANDARD_MERGED",
@@ -10427,7 +10427,7 @@
     "audit_oid": "39338",
     "a_report": "07_重建工作区/F06真实Deposit_HTTP_PG16_A主控独立验收PR135标准合并与下一施工放行报告_2026-10-20.md"
   },
-  "next_base_main_at_task_release": "3f8a92d59a658fd486c43c31cebd4c01a03b4421",
+  "next_base_main_at_task_release": null,
   "next_base_main_policy": "FETCH_LATEST_MAIN_AT_EXECUTION_NOT_STALE_SHA",
   "f06_real_lock_to_transaction_http_next": {
     "status": "A_ACCEPTED_NONPRODUCTION_HTTP_PG16_PR139_STANDARD_MERGED",
@@ -11034,7 +11034,7 @@
     "transaction_completed_authorized": false
   },
   "f06_issue171_pr174_second_review_2026_10_21": {
-    "status": "A_SECOND_REVIEW_RETURNED_TO_B_NOT_MERGED",
+    "status": "SUPERSEDED_BY_FINAL_ACCEPTANCE_PR174_STANDARD_MERGED",
     "issue": 171,
     "pr": 174,
     "branch": "feat/f06-nonprod-composite-lock-lifecycle-01",
@@ -11073,7 +11073,7 @@
     "failure_location": "engineering/f06/nonprod-composite-lock-lifecycle/tests/Priority来源真实PG16拒绝验收.test.mjs:94 -> engineering/f05/deterministic-matching-readiness-four-tier/migration.mjs",
     "diagnosis": "F05-7旧服务只接受旧21/22条迁移账本；本Issue当前Composite父库为24条签名迁移，不能直接调用旧F05-7服务生成新Match。",
     "path_scope_pass": true,
-    "merged": false,
+    "merged": true,
     "production_ready": false,
     "blockers": [
       "真实Priority来源测试调用旧F05-7 saveSalesDescriptionCI/calculateCI，因F05_7_SIGNED_V22_LEDGER_REQUIRED在初始化阶段失败；真实Priority四动作矩阵未执行。",
@@ -11090,7 +11090,14 @@
     ],
     "real_payment_authorized": false,
     "refund_refunded_authorized": false,
-    "transaction_completed_authorized": false
+    "transaction_completed_authorized": false,
+    "final_accepted": true,
+    "final_head_sha": "06c880d7f53adda7862da88cde0b790fdc60f415",
+    "merge_sha": "86f59431768f393232b8746cd3deb62f1044d85c",
+    "final_official_run_id": 39602409488,
+    "final_official_run_conclusion": "success",
+    "final_artifact_id": 12347892081,
+    "final_artifact_expired": false
   },
   "f06_issue171_priority_fixture_path_ruling_2026_10_21": {
     "task_id": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01",
@@ -11112,7 +11119,7 @@
     "mock_or_cross_database_priority_copy_authorized": false,
     "github_ref_sha_runid_spoofing_authorized": false,
     "production_ready": false,
-    "pr174_accepted": false,
+    "pr174_accepted": true,
     "next_owner": "B",
     "next_task": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01",
     "next_issue": 171,
@@ -11122,6 +11129,93 @@
       "本裁决只新增Issue171精确分支的两阶段官方服务预置路径；其他五文件用途白名单与全部冻结文件约束不变。",
       "PR174需最终SHA官方CI全步骤成功、0 skipped、真实PG16 Priority四动作无副作用、签名来源负向矩阵、161表/24迁移三物理OID Seal、Legacy定向回归和有效同SHA Artifact后交A独立复验。",
       "PR174保持open/unmerged，F06/F07/F08/V1继续NOT_READY。"
-    ]
+    ],
+    "pr174_merged": true,
+    "pr174_merge_sha": "86f59431768f393232b8746cd3deb62f1044d85c",
+    "final_acceptance_report": "07_重建工作区/F06_Issue171_PR174最终独立验收与合并报告_2026-10-21.md"
+  },
+  "f06_issue171_a_acceptance_2026_10_21": {
+    "status": "A_ACCEPTED_NONPRODUCTION_PR174_STANDARD_MERGED",
+    "issue": 171,
+    "issue_closed": true,
+    "issue_close_reason": "completed",
+    "pr": 174,
+    "pr_merged": true,
+    "business_head_sha": "06c880d7f53adda7862da88cde0b790fdc60f415",
+    "merge_sha": "86f59431768f393232b8746cd3deb62f1044d85c",
+    "official_run_id": 39602409488,
+    "official_run_conclusion": "success",
+    "official_job_id": 119229953562,
+    "artifact_id": 12347892081,
+    "artifact_name": "f06-issue171-evidence-39602409488",
+    "artifact_bytes": 36014,
+    "artifact_expired": false,
+    "artifact_expires_at": "2026-11-04T13:01:30Z",
+    "tests": {
+      "lifecycle_http_pg16": "32/32",
+      "priority_source": "7/7",
+      "signed_source_negative": "15/15",
+      "composite_regression": "42/42",
+      "legacy_node_http": "37/37",
+      "legacy_pg16": "13/13",
+      "legacy_audit": "1/1"
+    },
+    "parent_tables": 161,
+    "signed_migrations": 24,
+    "cross_physical_oid_seal": "PASS",
+    "unauthorizedParentDrift": false,
+    "report": "07_重建工作区/F06_Issue171_PR174最终独立验收与合并报告_2026-10-21.md",
+    "production_ready": false,
+    "scope": "仅非生产Composite Lock生命周期和可信来源接线；不代表F06全域或V1生产就绪"
+  },
+  "f07_runtime_integration_release_2026_10_21": {
+    "task_id": "F07_NONPROD_RUNTIME_INTEGRATION_01",
+    "status": "A_RELEASED_EFFECTIVE_ON_GOVERNANCE_PR_MERGE",
+    "issue": 178,
+    "owner": "B",
+    "branch": "feat/f07-runtime-integration-nonprod-01",
+    "work_order": "07_重建工作区/F07真实应用Runtime四域接线非生产整包_A主控B正式施工单_2026-10-21.md",
+    "gap_audit": "07_重建工作区/F07现有CI成果与真实Runtime缺口_A主控核查_2026-10-21.md",
+    "reuse_accepted_prs": [
+      64,
+      65,
+      66,
+      67,
+      69
+    ],
+    "app_runtime_gap_confirmed": true,
+    "allowed_new_paths": [
+      "engineering/src/f07-runtime/**",
+      "engineering/f07/nonprod-runtime-integration/**",
+      ".github/workflows/f07-runtime-integration-nonprod.yml"
+    ],
+    "allowed_minimal_existing_paths": [
+      "engineering/src/app.mjs",
+      "engineering/src/server.mjs"
+    ],
+    "frozen_paths": [
+      "engineering/src/config.mjs",
+      "engineering/src/f03-*/**",
+      "engineering/src/f05-*/**",
+      "engineering/src/f06-*/**",
+      "engineering/f07/*-ci/**",
+      "engineering/f08/quality-evidence-gate-ci/**",
+      "formal PDM/Schema/Migration",
+      "C-APP-01/PR68"
+    ],
+    "real_jyt_authorized": false,
+    "real_phone_permission_authorized": false,
+    "real_cdn_oss_authorized": false,
+    "real_feishu_authorized": false,
+    "production_or_real_money_authorized": false,
+    "source_gaps": [
+      "TECH_ALIAS_PENDING_A",
+      "F05_CONVERSION_POSITIVE_SOURCE_GAP",
+      "SLA_EVENT_SOURCE_GAP",
+      "INCIDENT_SIGNED_ISSUER_SOURCE_GAP",
+      "ROUTE_SOURCE_GAP"
+    ],
+    "final_acceptance_owner": "A",
+    "production_ready": false
   }
 }
