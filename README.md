@@ -1,3 +1,14 @@
+# 2026-10-21｜A独立验收PR174并合并：Issue171非生产Composite Lock生命周期
+
+- **验收结论：通过本次非生产切片**。PR [#174](https://github.com/suzhe868-arch/mb/pull/174) 已合并，合并提交 `86f59431768f393232b8746cd3deb62f1044d85c`；Issue [#171](https://github.com/suzhe868-arch/mb/issues/171) 的工程范围完成。
+- 最终施工SHA：`06c880d7f53adda7862da88cde0b790fdc60f415`；官方Run [39602409488](https://github.com/suzhe868-arch/mb/actions/runs/39602409488) 全步骤成功，Artifact `f06-issue171-evidence-39602409488`存在且未过期。
+- 同SHA结果：Lifecycle 32/32、Priority四动作 7/7、签名负向 15/15、Composite 42/42、Legacy Node/HTTP 37/37、Legacy PG16 13/13、Legacy审计1/1；全部0失败、0跳过。161张父表/24条签名迁移跨三个不同物理OID封印一致，`unauthorizedParentDrift=false`。
+- 17个变更路径符合Issue171及PR173精确授权范围；F05源码/迁移、公共DDL、生产配置、F07/F08未修改。
+- **状态边界不变：F06整体、F07、F08、V1仍NOT_READY**；没有生产、真钱、真实退款/成交或F07/F08施工授权。
+- 下一责任人为A，任务 `F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01`。正式验收报告：[F06 Issue171 PR174独立验收通过与非生产边界](07_重建工作区/F06_Issue171_PR174独立验收通过与非生产边界_2026-10-21.md)。
+
+---
+
 # 2026-10-21｜A主控补充裁决：Issue171版本正确的F05 Match/Priority非生产预置路径
 
 - 本补充裁决仅在本治理PR标准合并main后生效；合并不等于PR #174验收通过。
