@@ -1,3 +1,15 @@
+# 当前有效状态（2026-10-22｜A F08-2 终验已通过，F08 阶段真实来源门禁）
+
+F08-2 [Issue #184](https://github.com/suzhe868-arch/mb/issues/184) 非生产安全质量子包通过 A 独立验收并关闭；[PR #186](https://github.com/suzhe868-arch/mb/pull/186) 已标准合并。B 受验 HEAD `ff817ee0557858b9469260ed183d6ce32a83c759`、业务合并 SHA `a497fa7fb504ec1ed63c8eb202eb64999bb74e29`。官方最终 SHA Push Run #39643395145 两独立 PG16 非超管 Job 成功；新增 58 项（应用与启动拒绝 18、可信父来源 24、真库隔离 16）及受影响回归 7 项全部通过；本 SHA 两有效工件 #12366157062、#12365019484。
+
+**当前唯一下一动作：`NEXT_OWNER=A`、`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`、`NEXT_ISSUE=187`。** 见 [F08 真实来源与综合验收先决条件 Issue #187](https://github.com/suzhe868-arch/mb/issues/187) 和 `07_重建工作区/F08-2_Issue184_PR186独立验收与F08剩余来源门禁报告_2026-10-22.md`。此为 A 来源差异门禁/授权核对，**不批准新的 B 工作分支**，避免旧 F08-1、PR100、F08-2 非生产质量测试重复施工。
+
+F03 Scope/Object、F05 转换签名、F07 电话敏感能力、SLA/Incident 正式 Issuer、真实 JYT/Collector/CDN/OSS/Feishu 来源/授权仍未闭环；F06/F07/F08/V1 整域 `NOT_READY / NO_PRODUCTION`。无真钱、生产或实际退款成交权限。F08 整阶段尚未通过正常验收，**不提前开展整个后端最终整体验收**；已验收工程成果直接复用，C PR68 独立不变。
+
+---
+
+## 2026-10-22 上一阶段历史状态（非现行 NEXT 指针）
+
 # 当前有效状态（2026-10-22｜覆盖下方历史快照）
 
 A 主控已独立验收 [F07 Issue #178](https://github.com/suzhe868-arch/mb/issues/178) 的非生产四域 Runtime 接线：B HEAD `32f180238ff3271b38d2b91402cf4a7b55e07d52`；[PR #181](https://github.com/suzhe868-arch/mb/pull/181) 标准合并 SHA `dd4a52a6f117ff83c959212f41f7c29ae68c507c`，Issue 已关闭。官方 Run #39629427298 双独立 PG16 非超管 Job 成功；新增业务 46、HTTPS 15、受影响回归 26 均 0 fail；Artifacts #12357563978/#12357469078 有效。A 验收报告：`07_重建工作区/F07_Issue178_PR181非生产Runtime独立终验与F08-2放行报告_2026-10-22.md`。

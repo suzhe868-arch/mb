@@ -1,5 +1,26 @@
 # 当前有效裁决索引｜2026-10-22
 
+## A-F08-2-ISSUE184-PR186-ACCEPT-01｜F08-2 非生产跨 Runtime 质量子范围通过
+
+- Issue #184 关闭，业务 PR #186 标准合并，B 受验 HEAD `ff817ee0557858b9469260ed183d6ce32a83c759`，合并 SHA `a497fa7fb504ec1ed63c8eb202eb64999bb74e29`。
+- 官方 Push Run #39643395145、独立非特权 PG16 Job #119372546965/#119372547635 成功；新增应用与启动18、父证据24、真库16，共58/58；受影响回归7/7；同 SHA Artifact #12366157062、#12365019484 均非空有效。
+- 10 个全新增白名单文件，不修改旧 F01～F07/父业务/PDM/CI/主控状态/C。首次 B 归档旧 SHA 的通过条目与最终 SHA 的官方成功分开保留，A 读取最终 Run 和 Issue/PR 评论独立核实，不要求 B 为改静态待填报告重复运行 CI。
+- 本裁决**仅接受 F08-2 非生产质量子范围**，并不接受 F08 整阶段、真实业务正向跨域 E2E 或 V1/生产就绪。详见 `07_重建工作区/F08-2_Issue184_PR186独立验收与F08剩余来源门禁报告_2026-10-22.md`。
+
+## A-F08-STAGE-SOURCE-GATE-01｜来源/授权先决条件未满足前不重复发放 B 测试包
+
+- 下一唯一职责 `NEXT_OWNER=A`、`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`、[Issue #187](https://github.com/suzhe868-arch/mb/issues/187)；当前没有新 B 分支授权。
+- F03 Scope/Object、F05 转换签名、F07 `publisher.phone.sensitive`、SLA/Incident Issuer 与真实 JYT/Collector/CDN/OSS/Feishu 正式资源/权限保持 `SOURCE_GAP`；F06/F07/F08/V1 `NOT_READY`，不授权生产/真钱/实际退款/成交。
+- 已验 F08-1 PR69、PR100、F06 PR174、F07 PR181、F08-2 PR186 直接复用。A 先排除真实来源缺失或产品权限阻断；未取得合法可施工新差异前，**禁止以 F08 阶段未完成为由令 B 重复类似模拟或质量测试**。
+- 若需 A 可自主批准的技术修复，应列出精确文件、源来源与影响边界后正式授权 B；新增敏感权限、第三方真实服务、生产/资金需用户单独决定。F08 整阶段通过正式验收后才进行 A 独立的整个后端最终整体验收；C 轨隔离不动。
+- ABC 三窗口操作 GitHub 保持当前聊天，禁止主动/自动转交 Work。
+
+---
+
+## 2026-10-22 上一阶段历史裁决（非现行 NEXT 指针）
+
+# 当前有效裁决索引｜2026-10-22
+
 ## A-F07-ISSUE178-PR181-ACCEPT-01｜非生产四域 Runtime 独立验收
 - A 已对 [PR #181](https://github.com/suzhe868-arch/mb/pull/181) 的 12 个白名单路径、业务边界与官方日志独立验收，B 受验 HEAD `32f180238ff3271b38d2b91402cf4a7b55e07d52`，标准合并 SHA `dd4a52a6f117ff83c959212f41f7c29ae68c507c`，Issue #178 已关闭。
 - 官方 Push Run #39629427298 两非超管 PG16 Job #119323288481/#119323289005 全绿，46 新业务、15 HTTPS、26 影响回归均通过，两同 SHA 非空工件 #12357563978/#12357469078 有效；静态 B 模板旧 `PENDING_OFFICIAL_CI` 以 B 最终 Issue/PR 交接及 A 独立官验为准。
