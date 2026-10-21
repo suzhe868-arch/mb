@@ -221,7 +221,7 @@ async function handoffRealTransactionCore(auth,token,p={},mode='CI_LEGACY'){
    await c.query("INSERT INTO public.audit_events(actor_kind,actor_id,object_kind,object_id,action,before_json,after_json,occurred_at) VALUES('employee',$1,'Transaction',$2,'f06_real_handoff_ci_responsible_transfer',$3::jsonb,$4::jsonb,clock_timestamp())",
     [String(a.employee_id),String(t.transaction_id),JSON.stringify({responsible:curr.currentId,version:curr.version}),JSON.stringify({responsible:p.newResponsibleId,version:curr.version+1,eventId:Number(e.event_id),issuer:'CI_SYNTHETIC_NO_MONEY'})]);
    if(mode==='COMPOSITE_NONPROD_SIGNED_V1'){
-    const att=await one(c,'SELECT source_sha256,head_sha,run_id FROM f06_real_handoff_ci.attestation FOR SHARE');
+    const att=await one(c,'SELECT s.source_sha256,i.head_sha,i.run_id FROM f06_real_handoff_ci.attestation s JOIN f06_composite_v1.attestation i ON i.seal_name='COMPOSITE_NONPROD_SIGNED_V1' WHERE s.seal_name='F06_REAL_TX_HANDOFF_CI_ONLY' FOR SHARE OF s,i');
     if(!att)throw Error('F06_COMPOSITE_HANDOFF_ATTESTATION_GAP');
     const payload={transactionId:Number(t.transaction_id),sourceLockId:Number(t.source_lock_id),customerId:Number(t.customer_id),
      vehicleId:Number(t.vehicle_id),oldResponsibleId:curr.currentId,newResponsibleId:p.newResponsibleId,
