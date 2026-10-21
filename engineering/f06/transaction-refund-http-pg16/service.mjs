@@ -235,7 +235,8 @@ async function verifyTransactionSource(c,t){
 // for both original PR146 Cancel and versioned PR153/PR156 Cancel.
 async function finishSignedTransactionSource(c,t,txOrigin,txEvent,txKey,cancelOrigin,cancelEvent,cancelKey,digests,mode='CI_LEGACY'){
  const lock=await one(c,'SELECT * FROM public.locks WHERE lock_id=$1 FOR UPDATE',[txOrigin.source_lock_id]);
- const snap=await one(c,'SELECT * FROM f06_1_lock_ci.lock_snapshots WHERE lock_id=$1 FOR SHARE',[txOrigin.source_lock_id]);
+ const snapshotSchema=mode==='COMPOSITE_NONPROD_SIGNED_V1'?'f06_composite_v1':'f06_1_lock_ci';
+ const snap=await one(c,`SELECT * FROM ${snapshotSchema}.lock_snapshots WHERE lock_id=$1 FOR SHARE`,[txOrigin.source_lock_id]);
  if(!lock||!snap||lock.lock_status!=='released'||lock.end_reason!=='converted_to_transaction'||
   Number(lock.vehicle_id)!==Number(t.vehicle_id)||Number(lock.customer_id)!==Number(t.customer_id)||
   Number(lock.listing_cycle_id)!==Number(t.listing_cycle_id)||
