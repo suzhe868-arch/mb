@@ -63,10 +63,12 @@ async function ensurePermission(db,code){
 async function seedScenario(db,runId){
  const employees=(await db.query("SELECT e.employee_id,r.role_code FROM public.employees e JOIN public.roles r ON r.role_id=e.main_role_id WHERE e.employment_status='active' AND r.role_code IN('sales','manager','store_head') ORDER BY e.employee_id")).rows;
  assert.ok(employees.length>=3,'need three active non-4S employees for lock owner, handoff manager and new responsible');
- const initial=employees.find(x=>Number(x.employee_id)===1)||employees[0];
- const manager=employees.find(x=>Number(x.employee_id)!==Number(initial.employee_id)&&['manager','store_head'].includes(x.role_code));
- assert.ok(manager,'need a separate active manager/store_head for signed handoff');
- const target=employees.find(x=>Number(x.employee_id)!==Number(initial.employee_id)&&Number(x.employee_id)!==Number(manager.employee_id)&&Number(x.employee_id)===4)||
+ const manager=employees.find(x=>['manager','store_head'].includes(x.role_code));
+ assert.ok(manager,'need an active manager/store_head for signed handoff');
+ const initial=employees.find(x=>Number(x.employee_id)===1&&Number(x.employee_id)!==Number(manager.employee_id))||
+  employees.find(x=>Number(x.employee_id)!==Number(manager.employee_id));
+ assert.ok(initial,'need a separate active initial responsible employee');
+ const target=employees.find(x=>Number(x.employee_id)===4&&Number(x.employee_id)!==Number(initial.employee_id)&&Number(x.employee_id)!==Number(manager.employee_id))||
   employees.find(x=>Number(x.employee_id)!==Number(initial.employee_id)&&Number(x.employee_id)!==Number(manager.employee_id));
  assert.ok(target,'need a separate current responsible after handoff');
  const team=(await db.query("SELECT t.team_id,t.store_id FROM public.employee_team_memberships m JOIN public.teams t ON t.team_id=m.team_id WHERE m.employee_id=$1 AND m.valid_from<=clock_timestamp() AND (m.ended_at IS NULL OR m.ended_at>clock_timestamp()) AND t.team_status='active' ORDER BY t.team_id LIMIT 1",[initial.employee_id])).rows[0];
