@@ -4,14 +4,17 @@ import {createFoundationServer} from '../../../src/app.mjs';
 import {verifyCompositeEnvironment,createCompositeDenyHandler,createCompositeBusinessHandler,getCompositeSourceMatrix,F06_COMPOSITE_CONSENT} from '../../../src/f06-nonprod-composite-runtime.mjs';
 
 const good={
- APP_ENV:'test',NODE_ENV:'test',API_HOST:'127.0.0.1',
+ APP_ENV:'test',NODE_ENV:'test',API_HOST:'127.0.0.1',CI:'true',GITHUB_ACTIONS:'true',
+ GITHUB_EVENT_NAME:'push',GITHUB_REF:'refs/heads/feat/f06-nonprod-single-runtime-trusted-source-01',
+ GITHUB_SHA:'0'.repeat(40),GITHUB_RUN_ID:'123456',
+ F03_1_DATABASE_URL:'postgres://f03_ci:synthetic_only@127.0.0.1:5432/f03_auth_test',
+ F03_1_HMAC_KEY_BASE64:Buffer.alloc(32,1).toString('base64'),
  F06_COMPOSITE_TEST_CONSENT:F06_COMPOSITE_CONSENT,
- F06_LOCK_TEST_CONSENT:'I_AUTHORIZE_DISPOSABLE_F06_LOCK_PG16_ONLY',
- F06_LOCK_DATABASE_URL:'postgres://f06_lock_ci:synthetic_only@127.0.0.1:5432/f06_lock_test'
+ F06_LOCK_TEST_CONSENT:'I_AUTHORIZE_DISPOSABLE_F06_LOCK_PG16_ONLY'
 };
 const check=(patch)=>verifyCompositeEnvironment({...good,...patch});
 test('01 显式双授权与隔离运行参数可用',()=>{
- assert.equal(check({}).status,'LOCK_RUNTIME_ONLY_SIGNED_FINANCE_SOURCE_GAP');
+ const v=check({});assert.equal(v.database,'f03_auth_test');assert.equal(v.role,'f03_ci');assert.equal(v.issuer,'COMPOSITE_NONPROD_SIGNED_V1');
 });
 test('02 不持有Composite授权被拒',()=>assert.throws(()=>check({F06_COMPOSITE_TEST_CONSENT:undefined}),/EXPLICIT_CONSENT/));
 test('03 错误授权被拒',()=>assert.throws(()=>check({F06_COMPOSITE_TEST_CONSENT:'allowed'}),/EXPLICIT_CONSENT/));
@@ -28,10 +31,10 @@ test('13 禁止连接公网PG',()=>assert.throws(()=>check({F06_LOCK_DATABASE_UR
 test('14 禁止模拟超级账号',()=>assert.throws(()=>check({F06_LOCK_DATABASE_URL:'postgres://postgres:x@127.0.0.1:5432/f06_lock_test'}),/EXPLICIT_DISPOSABLE_LOCK_DB/));
 test('15 禁止动态端口',()=>assert.throws(()=>check({F06_LOCK_DATABASE_URL:'postgres://f06_lock_ci:x@127.0.0.1:5433/f06_lock_test'}),/DISPOSABLE_LOCK_DB/));
 test('16 禁止URL查询参数',()=>assert.throws(()=>check({F06_LOCK_DATABASE_URL:'postgres://f06_lock_ci:x@127.0.0.1:5432/f06_lock_test?sslmode=disable'}),/DISPOSABLE_LOCK_DB/));
-test('17 来源映射准确保留5项拒绝',()=>{
+test('17 来源映射准确区分已接线与施工中',()=>{
  const m=getCompositeSourceMatrix();
- assert.equal(m.length,6);assert.equal(m.filter(x=>x.state==='SIGNED_SOURCE_GAP').length,5);
- assert.equal(m.filter(x=>x.state==='RUNTIME_WIRED').length,1);
+ assert.equal(m.length,6);assert.equal(m.filter(x=>x.state==='RUNTIME_WIRED').length,2);
+ assert.equal(m.filter(x=>x.state==='IMPLEMENTING').length,4);
 });
 const deny=createCompositeDenyHandler();
 const business=createCompositeBusinessHandler(null,good);
