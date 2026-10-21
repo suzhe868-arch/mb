@@ -4,7 +4,7 @@
 
 - F06 Issue #171 已通过非生产子范围 A 独立验收，Issue 已关闭，PR #174 已标准合并。
 - 业务 SHA：`06c880d7f53adda7862da88cde0b790fdc60f415`；PR #174 合并 SHA：`86f59431768f393232b8746cd3deb62f1044d85c`。
-- A治理状态更新与F07正式放行已通过 [PR #179](https://github.com/suzhe868-arch/mb/pull/179) 合并，merge SHA：`9d8a94d4fe34e7a3f3ca17ac608175397e49a321`；Issue #178 现已生效。
+- A 治理 PR [#179](https://github.com/suzhe868-arch/mb/pull/179) 已标准合并，merge SHA：`9d8a94d4fe34e7a3f3ca17ac608175397e49a321`；Issue #178 已正式放行。
 - 官方 Push Run #39602409488 / Job #119229953562 全步骤成功；Artifact #12347892081（36,014 bytes）有效至 2026-11-04T13:01:30Z。
 - F07-1～F07-4 与 F08-1 的已验收 CI-only 成果直接复用，不重做旧包。
 
@@ -17,7 +17,7 @@
 - 正式施工单：`07_重建工作区/F07真实应用Runtime四域接线非生产整包_A主控B正式施工单_2026-10-21.md`
 - F07 差异核查：`07_重建工作区/F07现有CI成果与真实Runtime缺口_A主控核查_2026-10-21.md`
 
-本指针随包含上述施工单与状态更新的 A 治理 PR 标准合并 main 后生效。B 开工时必须重新读取最新 main；禁止依赖本文件或 Issue 中的旧 SHA 作为当前基线。
+本指针已随 A 治理 PR #179 合并 main 生效。B 开工时必须重新读取最新 main；禁止依赖本文件或 Issue 中的旧 SHA 作为当前基线。
 
 ## 执行边界
 
