@@ -8,6 +8,7 @@ import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {createIsolatedF06CompositeRuntime} from '../../../src/f06-nonprod-composite-runtime.mjs';
 import {recordSyntheticDepositComposite} from '../../deposit-ledger-ci/service.mjs';
 import {openSyntheticTransactionComposite} from '../../lock-transaction-http-pg16/service.mjs';
+import {handoffRealTransactionComposite} from '../../transaction-handoff-http-pg16/service.mjs';
 import {cancelSyntheticRealTransactionCI} from '../../transaction-cancel-http-pg16/service.mjs';
 
 const DSN='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test';
@@ -121,11 +122,18 @@ async function raw(base,path,{method='POST',headers={},body}={}){
 }
 test('F06 Issue164：单PG16真实F03 Session贯通Lock→Deposit→Transaction→Handoff→Cancel→Refund Pending/Closed',async t=>{
  let db,auth,runtime,server;
+ const observedBackendPids=[];
  const secret=envSetup();
  try{
   db=new pg.Client({connectionString:DSN});await db.connect();
   const scenario=await seedScenario(db,process.env.GITHUB_RUN_ID);
   auth=new IsolatedAuth({connectionString:DSN,secret,origin:'https://127.0.0.1:3000'});
+  const originalWithSession=auth.withSession.bind(auth);
+  auth.withSession=(token,fn,options)=>originalWithSession(token,async(c,...args)=>{
+   const pid=(await c.query('SELECT pg_backend_pid() pid')).rows[0].pid;
+   observedBackendPids.push(Number(pid));
+   return fn(c,...args);
+  },options);
   const initialToken=await login(auth,scenario.initialAccount);
   const managerToken=await login(auth,scenario.managerAccount);
   const targetToken=await login(auth,scenario.targetAccount);
@@ -198,15 +206,48 @@ test('F06 Issue164：单PG16真实F03 Session贯通Lock→Deposit→Transaction�
   const transactionId=Number(opened.data.transactionId);
   assert.ok(transactionId>0);
   t.diagnostic('F06_COMPOSITE_TRANSACTION_CREATED transactionId='+transactionId);
-  await t.test('真实PG16：交易同键重放不重复创建Transaction',async()=>{
-   const replay=await post(base,'/__nonprod__/f06-composite/transaction/open',initialToken,{
-    lockId,eventKey:'tx_open_'+process.env.GITHUB_RUN_ID
-   });
+  await t.test('真实PG16双Backend：交易同键并发重放只创建一个Transaction',async()=>{
+   observedBackendPids.length=0;
+   const body={lockId,eventKey:'tx_open_'+process.env.GITHUB_RUN_ID};
+   const [left,right]=await Promise.all([
+    post(base,'/__nonprod__/f06-composite/transaction/open',initialToken,body),
+    post(base,'/__nonprod__/f06-composite/transaction/open',initialToken,body)
+   ]);
+   for(const replay of [left,right]){
+    assert.equal(replay.status,200,JSON.stringify(replay.data));
+    assert.equal(replay.data.code,'F06_TX_IDEMPOTENT');
+    assert.equal(Number(replay.data.transactionId),transactionId);
+   }
+   assert.equal(observedBackendPids.length,2,'both requests must enter two F03-authenticated PG backends');
+   assert.notEqual(observedBackendPids[0],observedBackendPids[1],'same-vehicle race must use distinct PostgreSQL backends');
+   const count=await db.query('SELECT count(*)::int n FROM public.transactions WHERE source_lock_id=$1',[lockId]);
+   assert.equal(count.rows[0].n,1,'concurrent duplicate open must not create a second Transaction');
+   t.diagnostic('F06_COMPOSITE_TX_DOUBLE_BACKEND_IDEMPOTENCY_PASS');
+  });
    assert.equal(replay.status,200,JSON.stringify(replay.data));
    assert.equal(replay.data.code,'F06_TX_IDEMPOTENT');
    assert.equal(Number(replay.data.transactionId),transactionId);
   });
 
+  await t.test('真实PG16：Handoff变更后注错必须完整回滚',async()=>{
+   const failed=await handoffRealTransactionComposite(auth,managerToken,{
+    transactionId,expectedOldResponsibleId:Number(scenario.initial.employee_id),expectedVersion:0,
+    newResponsibleId:Number(scenario.target.employee_id),reason:'Issue164 synthetic handoff rollback',
+    eventKey:'handoff_rollback_'+process.env.GITHUB_RUN_ID,testCheckpoint:'AFTER_CHANGE_THROW'
+   });
+   assert.equal(failed.allowed,false,JSON.stringify(failed));
+   assert.equal(failed.code,'F06_REAL_HANDOFF_ATOMIC_ROLLED_BACK');
+   const tx=(await db.query('SELECT responsible_employee_id,status,completed_at FROM public.transactions WHERE transaction_id=$1',[transactionId])).rows[0];
+   assert.equal(Number(tx.responsible_employee_id),Number(scenario.initial.employee_id));
+   assert.equal(tx.status,'in_progress');assert.equal(tx.completed_at,null);
+   const counts=(await db.query("SELECT "+
+    "(SELECT count(*)::int FROM f06_real_handoff_ci.events WHERE transaction_id=$1) events,"+
+    "(SELECT count(*)::int FROM f06_real_handoff_ci.request_keys WHERE transaction_id=$1) keys,"+
+    "(SELECT count(*)::int FROM public.audit_events WHERE object_kind='Transaction' AND object_id=$1::text AND action='f06_real_handoff_ci_responsible_transfer') audits,"+
+    "(SELECT count(*)::int FROM f06_composite_v1.issued_events WHERE event_kind='signed_handoff' AND parent_object_id=$1) signed",[transactionId])).rows[0];
+   for(const value of Object.values(counts))assert.equal(value,0);
+   t.diagnostic('F06_COMPOSITE_HANDOFF_ROLLBACK_ATOMIC_PASS');
+  });
   const handoff=await post(base,'/__nonprod__/f06-composite/transaction/handoff',managerToken,{
    transactionId,expectedOldResponsibleId:Number(scenario.initial.employee_id),expectedVersion:0,
    newResponsibleId:Number(scenario.target.employee_id),reason:'Issue164 synthetic responsibility handoff',
@@ -238,11 +279,47 @@ test('F06 Issue164：单PG16真实F03 Session贯通Lock→Deposit→Transaction�
   const refundId=Number(refund.data.refundId);
   assert.ok(refundId>0);
   t.diagnostic('F06_COMPOSITE_REFUND_PENDING_SIGNED refundId='+refundId);
-  await t.test('真实PG16：退款申请同键重放不重复建立Refund',async()=>{
-   const replay=await post(base,'/__nonprod__/f06-composite/refund/request',targetToken,{
-    transactionId,amountCents:100000,reason:'Synthetic refund pending test',
-    eventKey:'refund_pending_'+process.env.GITHUB_RUN_ID
-   });
+  await t.test('真实PG16双Backend：同资金退款键并发重放不重复建案',async()=>{
+   observedBackendPids.length=0;
+   const body={transactionId,amountCents:100000,reason:'Synthetic refund pending test',
+    eventKey:'refund_pending_'+process.env.GITHUB_RUN_ID};
+   const [left,right]=await Promise.all([
+    post(base,'/__nonprod__/f06-composite/refund/request',targetToken,body),
+    post(base,'/__nonprod__/f06-composite/refund/request',targetToken,body)
+   ]);
+   for(const replay of [left,right]){
+    assert.equal(replay.status,200,JSON.stringify(replay.data));
+    assert.equal(replay.data.code,'F06_TX_REFUND_IDEMPOTENT_REQUEST');
+    assert.equal(Number(replay.data.refundId),refundId);
+   }
+   assert.equal(observedBackendPids.length,2,'both refund replays must use distinct PostgreSQL backends');
+   assert.notEqual(observedBackendPids[0],observedBackendPids[1],'same-funds replay must contend across PG backends');
+   const count=await db.query('SELECT count(*)::int n FROM public.refund_cases WHERE transaction_id=$1',[transactionId]);
+   assert.equal(count.rows[0].n,1,'same-key refund replay must not create a second case');
+   t.diagnostic('F06_COMPOSITE_REFUND_DOUBLE_BACKEND_IDEMPOTENCY_PASS');
+  });
+  await t.test('真实PG16双Backend：不同退款键竞争同一资金余额不得双建案',async()=>{
+   observedBackendPids.length=0;
+   const [left,right]=await Promise.all([
+    post(base,'/__nonprod__/f06-composite/refund/request',targetToken,{
+     transactionId,amountCents:100000,reason:'Synthetic competing refund A',
+     eventKey:'refund_compete_a_'+process.env.GITHUB_RUN_ID
+    }),
+    post(base,'/__nonprod__/f06-composite/refund/request',targetToken,{
+     transactionId,amountCents:100000,reason:'Synthetic competing refund B',
+     eventKey:'refund_compete_b_'+process.env.GITHUB_RUN_ID
+    })
+   ]);
+   for(const denied of [left,right]){
+    assert.equal(denied.status,403,JSON.stringify(denied.data));
+    assert.equal(denied.data.code,'F06_TX_REFUND_ALREADY_PENDING');
+   }
+   assert.equal(observedBackendPids.length,2,'both competing requests must use separate PostgreSQL backends');
+   assert.notEqual(observedBackendPids[0],observedBackendPids[1],'same-funds competition must span two PG backends');
+   const count=await db.query('SELECT count(*)::int n FROM public.refund_cases WHERE transaction_id=$1',[transactionId]);
+   assert.equal(count.rows[0].n,1,'different keys cannot create a second pending refund for the same transaction');
+   t.diagnostic('F06_COMPOSITE_REFUND_DOUBLE_BACKEND_COMPETITION_PASS');
+  });
    assert.equal(replay.status,200,JSON.stringify(replay.data));
    assert.equal(replay.data.code,'F06_TX_REFUND_IDEMPOTENT_REQUEST');
    assert.equal(Number(replay.data.refundId),refundId);
@@ -293,10 +370,32 @@ test('F06 Issue164：单PG16真实F03 Session贯通Lock→Deposit→Transaction�
    ['未知Composite路由返回404',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/unknown',{headers:{authorization:'Bearer '+targetToken}});assert.equal(r.status,404);assert.equal(r.data.code,'NOT_IMPLEMENTED')}],
    ['无效币种意向金拒绝',async()=>{const r=await post(base,'/__nonprod__/f06-composite/deposit/record',initialToken,{lockId,amountCents:1000,currency:'USD',paymentMethod:'bank_transfer',eventKey:'invalid_currency_deposit_0001',receivedAt:new Date().toISOString()});assert.equal(r.status,400)}],
    ['短Refund关闭原因拒绝',async()=>{const r=await post(base,'/__nonprod__/f06-composite/refund/close',targetToken,{refundId,closeReason:'bad',eventKey:'short_refund_close_0001'});assert.equal(r.status,400)}],
+   ['Transaction完成入口硬拒绝',async()=>{const r=await raw(base,`/api/v1/transactions/${transactionId}/complete`,{headers:{authorization:'Bearer '+targetToken,'content-type':'application/json'},body:'{}'});assert.equal(r.status,503);assert.equal(r.data.code,'F06_COMPOSITE_SIGNED_SOURCE_GAP')}],
+   ['Refund变更为refunded入口硬拒绝',async()=>{const r=await raw(base,`/api/v1/refund_cases/${refundId}/mark-refunded`,{headers:{authorization:'Bearer '+targetToken,'content-type':'application/json'},body:'{}'});assert.equal(r.status,503);assert.equal(r.data.code,'F06_COMPOSITE_SIGNED_SOURCE_GAP')}],
+   ['真实退款支付入口硬拒绝',async()=>{const r=await raw(base,`/api/v1/refund-payments/${refundId}/pay`,{headers:{authorization:'Bearer '+targetToken,'content-type':'application/json'},body:'{}'});assert.equal(r.status,503);assert.equal(r.data.code,'F06_COMPOSITE_SIGNED_SOURCE_GAP')}],
    ['未登录Handoff拒绝',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/transaction/handoff');assert.equal(r.status,401)}],
    ['未登录Cancel拒绝',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/transaction/cancel');assert.equal(r.status,401)}]
   ];
   for(const [name,runCase] of securityCases)await t.test(name,runCase);
+  t.diagnostic('F06_COMPOSITE_PRODUCTION_PAYMENT_COMPLETION_HARD_DENY');
+  await t.test('真实PG16：当前权限撤权与Session撤销即时拒绝',async()=>{
+   const permission=(await db.query("SELECT permission_id FROM public.permissions WHERE permission_code='transaction.refund.ci.request'")).rows[0];
+   assert.ok(permission);
+   await db.query("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=clock_timestamp() WHERE employee_id=$1 AND permission_id=$2",
+    [scenario.target.employee_id,permission.permission_id]);
+   const permissionDenied=await post(base,'/__nonprod__/f06-composite/refund/request',targetToken,{
+    transactionId,amountCents:1000,reason:'Revoked permission must deny',eventKey:'permission_revoked_'+process.env.GITHUB_RUN_ID
+   });
+   assert.equal(permissionDenied.status,403,JSON.stringify(permissionDenied.data));
+   assert.equal(permissionDenied.data.code,'F06_TX_REFUND_REQUEST_PERMISSION_SCOPE_DENIED');
+   await auth.logout(targetToken);
+   const sessionDenied=await post(base,'/__nonprod__/f06-composite/refund/close',targetToken,{
+    refundId,closeReason:'Revoked session must deny',eventKey:'session_revoked_'+process.env.GITHUB_RUN_ID
+   });
+   assert.equal(sessionDenied.status,403,JSON.stringify(sessionDenied.data));
+   assert.equal(sessionDenied.data.code,'F06_TX_REFUND_SIGNED_SESSION_DENIED');
+   t.diagnostic('F06_COMPOSITE_PERMISSION_AND_SESSION_REVOCATION_DENY');
+  });
 
   const issuer=(await db.query("SELECT head_sha,run_id,database_oid,source_sha256 FROM f06_composite_v1.attestation")).rows[0];
   assert.equal(issuer.head_sha,process.env.GITHUB_SHA);
@@ -313,6 +412,11 @@ test('F06 Issue164：单PG16真实F03 Session贯通Lock→Deposit→Transaction�
   assert.equal(dbFacts.payments,0,'no actual refund payment is authorized');
   assert.equal(dbFacts.legacy_lock_snapshots,0,'must not forge a legacy F06-1 Lock snapshot');
   assert.equal(dbFacts.composite_lock_snapshots,1);
+  const finalTx=(await db.query('SELECT status,completed_at FROM public.transactions WHERE transaction_id=$1',[transactionId])).rows[0];
+  assert.equal(finalTx.status,'cancelled');assert.equal(finalTx.completed_at,null,'completed transaction state is not authorized');
+  const finalRefund=(await db.query('SELECT status,lock_id,transaction_id FROM public.refund_cases WHERE refund_id=$1',[refundId])).rows[0];
+  assert.equal(finalRefund.status,'closed');assert.equal(finalRefund.lock_id,null);
+  assert.equal(Number(finalRefund.transaction_id),transactionId);
   assert.equal(String(issuer.database_oid),String((await db.query("SELECT oid FROM pg_database WHERE datname=current_database()")).rows[0].oid));
   assert.equal(await runtime.ready(),true);
   t.diagnostic('F06_164_SINGLE_PG16_CURRENT_RUN_ISSUER_AND_ALL_NINE_BUSINESS_EVENTS_VERIFIED');

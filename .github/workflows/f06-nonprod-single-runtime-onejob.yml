@@ -33,7 +33,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   native_preliminary_signed_source_gap:
-    name: 真实非特权PG16与隔离HTTP安全拒绝｜未完成全链｜NOT_READY
+    name: F06 Issue164｜单Runtime闭环与PG16安全拒绝
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     services:
