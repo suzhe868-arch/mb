@@ -1,10 +1,13 @@
-# 当前有效状态（2026-10-22｜A F08-2 终验已通过，批发上游电话范围已裁决，F08 来源门禁继续）
+# 当前有效状态（2026-10-22｜F08-3 已正式放行，F08 整阶段来源门禁继续）
 
-F08-2 [Issue #184](https://github.com/suzhe868-arch/mb/issues/184) 非生产安全质量子包通过 A 独立验收并关闭；[PR #186](https://github.com/suzhe868-arch/mb/pull/186) 已标准合并。B 受验 HEAD `ff817ee0557858b9469260ed183d6ce32a83c759`、业务合并 SHA `a497fa7fb504ec1ed63c8eb202eb64999bb74e29`。官方最终 SHA Push Run #39643395145 两独立 PG16 非超管 Job 成功；新增 58 项（应用与启动拒绝 18、可信父来源 24、真库隔离 16）及受影响回归 7 项全部通过；本 SHA 两有效工件 #12366157062、#12365019484。
+F08-2 [Issue #184](https://github.com/suzhe868-arch/mb/issues/184) 非生产安全质量子包通过 A 独立验收并关闭；[PR #186](https://github.com/suzhe868-arch/mb/pull/186) 已标准合并。B 受验 HEAD `ff817ee0557858b9469260ed183d6ce32a83c759`、业务合并 SHA `a497fa7fb504ec1ed63c8eb202eb64999bb74e29`。官方 Run #39643395145 两独立 PG16 非超管 Job 成功；新增 58 项与受影响回归 7 项通过，双 Artifact 有效。
 
-**当前唯一下一动作：`NEXT_OWNER=A`、`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`、`NEXT_ISSUE=187`。** 见 [F08 真实来源与综合验收先决条件 Issue #187](https://github.com/suzhe868-arch/mb/issues/187) 和 `07_重建工作区/F08-2_Issue184_PR186独立验收与F08剩余来源门禁报告_2026-10-22.md`。此为 A 来源差异门禁/授权核对，**不批准新的 B 工作分支**，避免旧 F08-1、PR100、F08-2 非生产质量测试重复施工。
+用户已批准的批发上游电话访问规则已通过 [PR #189](https://github.com/suzhe868-arch/mb/pull/189) 合并：PC 后台按员工单独配置 `publisher.phone.sensitive`，并选择 `LOCKED_ONLY` 或 `ALL_ACTIVE_JYT`；不要求逐车指定负责人，不新增 `can_call_wholesale_phone`，不扩大通用车辆管理权限。
 
-用户已明确批准批发车上游电话产品范围：PC 后台按员工单独授予既有 `publisher.phone.sensitive`，并二选一配置 `LOCKED_ONLY`（仅当前有效锁定车辆）或 `ALL_ACTIVE_JYT`（全部当前在售 JYT 批发车）。正式规则已在 PDM-02/PDM-09 与 DECISION_REGISTER 记录；这只是产品决策，**物理权限目录/当前数据源/Runtime 接线和真实 Collector/JYT 集成仍待核实或实现**。F03 Scope/Object、F05 转换签名、SLA/Incident 正式 Issuer、真实 JYT/Collector/CDN/OSS/Feishu 来源/授权仍未闭环；F06/F07/F08/V1 整域 `NOT_READY / NO_PRODUCTION`。无真钱、生产或实际退款成交权限。F08 整阶段尚未通过正常验收，**不提前开展整个后端最终整体验收**；已验收工程成果直接复用，C PR68 独立不变。
+**当前唯一下一动作：`NEXT_OWNER=B`、`NEXT_TASK=F08_PUBLISHER_PHONE_SCOPE_RUNTIME_NONPROD_03`、`NEXT_ISSUE=190`、`NEXT_BRANCH=feat/f08-publisher-phone-scope-runtime-nonprod-03`。** 正式施工单：`07_重建工作区/F08-3_批发上游电话员工专项范围与PG16非生产Runtime纵切_A主控B正式施工单_2026-10-22.md`。本 A 治理 PR 合并 main 后授权生效。
+
+F08-3 只负责隔离 PG16 + 合成 publisher/phone 的内部权限/对象范围纵切，不接真实外部服务、不接生产。真实 publisher 映射/电话缓存来源、Collector/JYT、SLA/Incident、CDN/OSS/Feishu 仍待核实；[Issue #187](https://github.com/suzhe868-arch/mb/issues/187) 保持开放，作为父级来源门禁。F06/F07/F08/V1 仍 `NOT_READY / NO_PRODUCTION`；F08 整阶段尚未通过正常验收，**不提前开展整个后端最终全局验收**；已验收工程成果直接复用，C PR #68 独立不变。
+
 
 ---
 
@@ -4950,3 +4953,4 @@ Decision Register 已登记 PDM10-DEC-B2-01～B2-12 与 PDM10-GATE-B2。
 - 当前产品阶段不因此前移：`PRODUCT_BASELINE = NOT_READY`。
 - 当前唯一下一步保持：**IA 全局集中对齐**（`NEXT = IA_GLOBAL_ALIGNMENT`）。
 - 说明：治理入口已纳入仓库；大体积 Legacy 工程资产本体需解压后置于 `09_历史工程资产基线/01_ENGINEERING_STARTER_LEGACY/`，不得只提交 ZIP。
+
