@@ -4,6 +4,9 @@
 import pg from 'pg';
 import {createIsolatedF06LockService} from './f06-lock-service.mjs';
 import {createIsolatedF06LockHandler} from './f06-lock-http.mjs';
+import {createIsolatedF06LockLifecycleService} from './f06-lock-lifecycle-service.mjs';
+import {createCompositeLifecycleHandler} from '../f06/nonprod-composite-lock-lifecycle/生命周期HTTP适配.mjs';
+import {verifyLifecycleIssuer} from '../f06/nonprod-composite-lock-lifecycle/可信LifecycleIssuer.mjs';
 import {assertCompositeSignedRun} from '../f06/nonprod-single-runtime-integration/可信Composite签名根.mjs';
 import {verifyCompositeAttestation} from '../f06/nonprod-single-runtime-integration/composite-issuer.mjs';
 import {verifyComposite as verifyLockRequest} from '../f06/lockrequest-approval-waitlist-ci/migration.mjs';
@@ -35,7 +38,9 @@ export function verifyCompositeEnvironment(env=process.env){
  must(env.F06_LOCK_TEST_CONSENT===F06_LOCK_CONSENT,'F06_COMPOSITE_ORIGINAL_LOCK_CONSENT_REQUIRED');
  must(env.APP_ENV==='test'&&env.NODE_ENV==='test'&&env.API_HOST==='127.0.0.1'&&env.CI==='true'&&env.GITHUB_ACTIONS==='true',
   'F06_COMPOSITE_NONPRODUCTION_LOOPBACK_REQUIRED');
- must(env.GITHUB_EVENT_NAME==='push'&&env.GITHUB_REF==='refs/heads/feat/f06-nonprod-single-runtime-trusted-source-01',
+ must(env.GITHUB_EVENT_NAME==='push'&&
+  ['feat/f06-nonprod-single-runtime-trusted-source-01','feat/f06-nonprod-composite-lock-lifecycle-01'].includes(env.GITHUB_REF_NAME)&&
+  env.GITHUB_REF==='refs/heads/'+env.GITHUB_REF_NAME,
   'F06_COMPOSITE_REAL_PUSH_REF_REQUIRED');
  must(!env.F03_1_ENABLE_ISOLATED_AUTH&&!env.F05_REAL_CATALOG_ENABLE&&!env.F05_D1_BUSINESS_TEST_RUNTIME,
   'F06_COMPOSITE_OTHER_RUNTIME_COMBINATION_DENIED');
@@ -185,19 +190,28 @@ export async function createIsolatedF06CompositeRuntime(env=process.env,{session
  let closed=false;
  try{
   await verifyCompositeRuntimeDatabase(pool,env);
+  const lifecycleV2=env.GITHUB_REF_NAME==='feat/f06-nonprod-composite-lock-lifecycle-01';
+  if(lifecycleV2)await verifyLifecycleIssuer(pool,env);
   const lockService=createIsolatedF06LockService({pool,env,mode:'COMPOSITE_NONPROD_SIGNED_V1',
    sessionSecret:secret,verifyDatabase:c=>verifyCompositeRuntimeDatabase(c,env)});
   const lockHandler=createIsolatedF06LockHandler({service:lockService,env});
+  const lifecycleService=lifecycleV2?createIsolatedF06LockLifecycleService({
+   pool,env,mode:'COMPOSITE_NONPROD_SIGNED_V1',sessionSecret:secret,
+   verifyDatabase:async c=>{await verifyCompositeRuntimeDatabase(c,env);await verifyLifecycleIssuer(c,env)}
+  }):null;
+  const lifecycleHandler=lifecycleService?createCompositeLifecycleHandler({service:lifecycleService,env}):null;
   const deny=createCompositeDenyHandler();
   const businessHandler=createCompositeBusinessHandler(auth,env);
   return Object.freeze({
-   mode:'COMPOSITE_NONPROD_SIGNED_V1',pool,lockService,auth,
+   mode:'COMPOSITE_NONPROD_SIGNED_V1',pool,lockService,lifecycleService,auth,
    handler:async(req,res)=>{
     if(await deny(req,res))return true;
     if(await businessHandler(req,res))return true;
+    if(lifecycleHandler&&await lifecycleHandler(req,res))return true;
     return lockHandler(req,res);
    },
-   ready:async()=>{try{if(closed)return false;await verifyCompositeRuntimeDatabase(pool,env);return true}catch{return false}},
+   ready:async()=>{try{if(closed)return false;await verifyCompositeRuntimeDatabase(pool,env);
+    if(lifecycleV2)await verifyLifecycleIssuer(pool,env);return true}catch{return false}},
    close:async()=>{if(!closed){closed=true;await pool.end()}}
   });
  }catch(e){await pool.end();throw e}

@@ -1,0 +1,186 @@
+name: F06 Issue171 Composite Lock Lifecycle 真PG16及161表24迁移Seal
+on:
+  push:
+    branches:
+      - feat/f06-nonprod-composite-lock-lifecycle-01
+    paths:
+      - 'engineering/f06/nonprod-composite-lock-lifecycle/**'
+      - 'engineering/f06/nonprod-single-runtime-integration/可信Composite签名根.mjs'
+      - 'engineering/f06/nonprod-single-runtime-integration/composite-issuer.mjs'
+      - 'engineering/f06/nonprod-single-runtime-integration/composite-issuer.sql'
+      - 'engineering/f06/nonprod-single-runtime-integration/核对同Ref上游签名PG16.sh'
+      - 'engineering/f06/nonprod-single-runtime-integration/父表161迁移24跨OID封印.mjs'
+      - 'engineering/src/f06-nonprod-composite-runtime.mjs'
+      - 'engineering/src/f06-lock-lifecycle-service.mjs'
+      - '.github/workflows/f06-nonprod-composite-lock-lifecycle-onejob.yml'
+permissions:
+  contents: read
+concurrency:
+  group: f06-issue171-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native_issue171_lock_lifecycle:
+    name: F06 Issue171｜单Runtime普通Lock生命周期原生验收
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: synthetic_pg_bootstrap
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+      - name: 施工分支HEAD与授权文件隔离
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = suzhe868-arch/mb
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REF_NAME" = feat/f06-nonprod-composite-lock-lifecycle-01
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch --no-tags origin main
+          git -c core.quotePath=false diff --name-only origin/main...HEAD | while IFS= read -r path; do
+            case "$path" in
+              engineering/f06/nonprod-composite-lock-lifecycle/*|engineering/f06/nonprod-single-runtime-integration/可信Composite签名根.mjs|engineering/f06/nonprod-single-runtime-integration/composite-issuer.mjs|engineering/f06/nonprod-single-runtime-integration/composite-issuer.sql|engineering/f06/nonprod-single-runtime-integration/核对同Ref上游签名PG16.sh|engineering/f06/nonprod-single-runtime-integration/父表161迁移24跨OID封印.mjs|engineering/src/f06-nonprod-composite-runtime.mjs|engineering/src/f06-lock-lifecycle-service.mjs|.github/workflows/f06-nonprod-composite-lock-lifecycle-onejob.yml) ;;
+              *) echo "::error::超出Issue171精确授权: $path"; exit 1 ;;
+            esac
+          done
+      - name: 准备Node依赖与验证语法
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --prefix engineering --ignore-scripts --no-audit --no-fund
+          git diff --check origin/main...HEAD
+          while IFS= read -r -d '' file; do
+            case "$file" in
+              *.mjs|*.js|*.cjs) node --check "$file" ;;
+              *.sh) bash -n "$file" ;;
+            esac
+          done < <(git diff --name-only --diff-filter=ACMR -z origin/main...HEAD)
+      - name: 初始化真实非超管PG16但绝不伪签父库
+        shell: bash
+        run: |
+          set -euo pipefail
+          service=$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')
+          test "$(printf '%s\n' "$service" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$service" psql -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE f06_lock_ci WITH LOGIN PASSWORD 'synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE"
+          docker exec "$service" psql -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f06_lock_test OWNER f06_lock_ci"
+      - name: 同真实GitHub Ref初始化原生签名父链（不伪造旧Issuer）
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p engineering/f06/nonprod-single-runtime-integration/evidence
+          bash engineering/f06/nonprod-single-runtime-integration/核对同Ref上游签名PG16.sh | tee engineering/f06/nonprod-single-runtime-integration/evidence/父链签名与初始化.log
+
+      - name: 建立不同物理OID的161表父链基线并切换单Runtime场景库
+        shell: bash
+        run: |
+          set -euo pipefail
+          service=$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')
+          test "$(printf '%s\n' "$service" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$service" psql -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f03_auth_audit TEMPLATE f03_auth_test OWNER f03_ci"
+          docker exec "$service" psql -U postgres -d postgres -v ON_ERROR_STOP=1 -c "ALTER DATABASE f03_auth_test RENAME TO f03_auth_baseline"
+          docker exec "$service" psql -U postgres -d postgres -v ON_ERROR_STOP=1 -c "ALTER DATABASE f03_auth_audit RENAME TO f03_auth_test"
+          export APP_ENV=test NODE_ENV=test CI=true API_HOST=127.0.0.1
+          export F03_1_DATABASE_URL='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test'
+          export F06_164_BASELINE_DATABASE_URL='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_baseline'
+          export F03_1_ISOLATION_CONFIRM=I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+          export F05_2_ISOLATION_CONFIRM=I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+          export F06_COMPOSITE_TEST_CONSENT=I_AUTHORIZE_DISPOSABLE_F06_COMPOSITE_ONLY
+          export F06_COMPOSITE_SIGNED_ISSUER=COMPOSITE_NONPROD_SIGNED_V1
+          node --input-type=module -e '
+            import pg from "./engineering/node_modules/pg/lib/index.js";
+            import {issueCompositeAttestation,verifyCompositeAttestation} from "./engineering/f06/nonprod-single-runtime-integration/composite-issuer.mjs";
+            const db=new pg.Client({connectionString:process.env.F03_1_DATABASE_URL,connectionTimeoutMillis:5000});
+            await db.connect();
+            try {
+              await db.query("DROP SCHEMA IF EXISTS f06_composite_v1 CASCADE");
+              const issued=await issueCompositeAttestation(db);
+              if(!issued.verified)throw Error("F06_164_COMPOSITE_REISSUE_FAILED");
+              const checked=await verifyCompositeAttestation(db);
+              const current=(await db.query("SELECT oid::text oid FROM pg_database WHERE datname=current_database()")).rows[0];
+              if(String(checked.databaseOid)!==String(current.oid))throw Error("F06_164_COMPOSITE_OID_BINDING_FAILED");
+              const {issueLifecycleIssuer,verifyLifecycleIssuer}=await import("./engineering/f06/nonprod-composite-lock-lifecycle/可信LifecycleIssuer.mjs");
+              const lifecycle=await issueLifecycleIssuer(db);
+              if(!lifecycle.verified||lifecycle.sha!==process.env.GITHUB_SHA)throw Error("F06_171_LIFECYCLE_ISSUER_REISSUE_FAILED");
+              const confirmed=await verifyLifecycleIssuer(db);
+              console.log("F06_171_PRIVATE_LIFECYCLE_ISSUER_SIGNED",JSON.stringify({sha:confirmed.sha,runId:confirmed.runId,oid:confirmed.oid,source:confirmed.sourceSHA}));
+              console.log("F06_164_COMPOSITE_ISSUER_REISSUED_FOR_RESTORED_OID",JSON.stringify({sha:process.env.GITHUB_SHA,runId:process.env.GITHUB_RUN_ID,oid:String(current.oid)}));
+            } finally { await db.end(); }
+          '
+          node engineering/f06/nonprod-single-runtime-integration/父表161迁移24跨OID封印.mjs before | tee engineering/f06/nonprod-single-runtime-integration/evidence/父表161迁移24Seal前置证据.log
+
+      - name: 真实PG16单Runtime业务闭环验收
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test engineering/f06/nonprod-single-runtime-integration/tests/真实PG16单Runtime闭环验收.test.mjs | tee engineering/f06/nonprod-single-runtime-integration/evidence/单Runtime闭环_TAP.log
+
+      - name: Issue171 新增真实PG16生命周期HTTP+签名事件验收
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p engineering/f06/nonprod-composite-lock-lifecycle/evidence
+          node --test engineering/f06/nonprod-composite-lock-lifecycle/tests/原生Lifecycle验收.test.mjs | tee engineering/f06/nonprod-composite-lock-lifecycle/evidence/Issue171_Lifecycle_TAP.log
+
+      - name: 恢复独立父表OID并完成161表24迁移Seal
+        shell: bash
+        run: |
+          set -euo pipefail
+          service=$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')
+          test "$(printf '%s\n' "$service" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$service" psql -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f03_auth_restore TEMPLATE f03_auth_baseline OWNER f03_ci"
+          export APP_ENV=test NODE_ENV=test CI=true
+          export F03_1_DATABASE_URL='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test'
+          export F06_164_BASELINE_DATABASE_URL='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_baseline'
+          export F06_164_RESTORE_DATABASE_URL='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_restore'
+          node engineering/f06/nonprod-single-runtime-integration/父表161迁移24跨OID封印.mjs after | tee engineering/f06/nonprod-single-runtime-integration/evidence/父表161迁移24Seal恢复证据.log
+
+      - name: 旧CI_LEGACY真实PG16来源兼容审计落库回归
+        shell: bash
+        run: |
+          set -euo pipefail
+          service=$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')
+          test "$(printf '%s\n' "$service" | sed '/^$/d' | wc -l)" -eq 1
+          export F06_LOCK_TEST_CONSENT=I_AUTHORIZE_DISPOSABLE_F06_LOCK_PG16_ONLY
+          export F06_LOCK_DATABASE_URL='postgres://f06_lock_ci:synthetic_only@127.0.0.1:5432/f06_lock_test'
+          export APP_ENV=test NODE_ENV=test CI=true API_HOST=127.0.0.1
+          parent_dump=$(mktemp /tmp/f06-164-signed-legacy-XXXXXX.dump)
+          trap 'rm -f "$parent_dump"' EXIT
+          docker exec -e PGPASSWORD=f03_ci_synthetic_only "$service" \
+            pg_dump -h127.0.0.1 -Uf03_ci -df03_auth_baseline --format=custom --no-owner --no-privileges > "$parent_dump"
+          test -s "$parent_dump"
+          docker exec -i -e PGPASSWORD=synthetic_only "$service" \
+            pg_restore -h127.0.0.1 -Uf06_lock_ci -df06_lock_test --no-owner --no-privileges --exit-on-error < "$parent_dump"
+          node engineering/scripts/f06-lock-prepare-disposable.mjs
+          node --test engineering/f06/nonprod-single-runtime-integration/tests/真实PG16旧Legacy审计落库.test.mjs |
+            tee engineering/f06/nonprod-single-runtime-integration/evidence/Legacy审计真实PG16_TAP.log
+
+      - name: Issue171 本SHA原生测试和跨OID父链证据硬门禁
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f06/nonprod-composite-lock-lifecycle/原生验收证据门禁.mjs
+      - name: 归档本SHA原生PG16与跨OID封印证据
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f06-issue171-evidence-${{ github.run_id }}
+          path: |
+            engineering/f06/nonprod-single-runtime-integration/evidence/
+            engineering/f06/nonprod-composite-lock-lifecycle/evidence/
+          if-no-files-found: warn
+          retention-days: 14

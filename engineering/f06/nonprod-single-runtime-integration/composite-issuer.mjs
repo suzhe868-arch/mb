@@ -36,15 +36,25 @@ const SOURCE_FILES=[
  ['pr153-sidecar','../transaction-handoff-http-pg16/sidecar.sql'],
  ['pr156-sidecar','../post-handoff-cancel-http-pg16/sidecar.sql']
 ];
-async function digestVersionedSources(){
+const lifecycleSources=[
+ ['issue171-lifecycle-issuer','../nonprod-composite-lock-lifecycle/可信LifecycleIssuer.mjs'],
+ ['issue171-lifecycle-sql','../nonprod-composite-lock-lifecycle/私有Lifecycle不可变侧车.sql'],
+ ['issue171-lifecycle-http','../nonprod-composite-lock-lifecycle/生命周期HTTP适配.mjs'],
+ ['issue171-lifecycle-tests','../nonprod-composite-lock-lifecycle/tests/原生Lifecycle验收.test.mjs']
+];
+async function digestVersionedSources(profile){
  const h=createHash('sha256');
- for(const [label,relative] of SOURCE_FILES){
+ for(const [label,relative] of profile==='ISSUE171_COMPOSITE_LOCK_LIFECYCLE_NONPROD_V2'?[...SOURCE_FILES,...lifecycleSources]:SOURCE_FILES){
   const bytes=await readFile(new URL(relative,import.meta.url));
   h.update(label).update(Buffer.from([0])).update(bytes).update(Buffer.from([0]));
  }
  return h.digest('hex');
 }
-export const sourceSHA=await digestVersionedSources();
+export const sourceSHA=await digestVersionedSources('ISSUE164_COMPOSITE_NONPROD_V1');
+export async function sourceSHAForCurrentProfile(env=process.env){
+ const profile=assertCompositeSignedRun(env).profile;
+ return profile==='ISSUE164_COMPOSITE_NONPROD_V1'?sourceSHA:digestVersionedSources(profile);
+}
 const hash=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 const one=async(c,q,p=[]) => (await c.query(q,p)).rows[0];
 async function upstream(c){
@@ -73,7 +83,7 @@ export async function issueCompositeAttestation(c){
   await c.query("INSERT INTO f06_composite_v1.attestation"+
    "(seal_name,source_sha256,head_sha,run_id,github_ref,database_oid,ledger_sha256,public_catalog_sha256,parent_f05_checksum)"+
    "VALUES('COMPOSITE_NONPROD_SIGNED_V1',$1,$2,$3,$4,$5,$6,$7,$8)",[
-    sourceSHA,p.issuer.sha,p.issuer.runId,process.env.GITHUB_REF,p.oid,p.ledger,p.publicSHA,p.f05Checksum]);
+    await sourceSHAForCurrentProfile(),p.issuer.sha,p.issuer.runId,process.env.GITHUB_REF,p.oid,p.ledger,p.publicSHA,p.f05Checksum]);
   await c.query('COMMIT');
  }catch(e){await c.query('ROLLBACK');throw e}
  return verifyCompositeAttestation(c);
@@ -81,7 +91,7 @@ export async function issueCompositeAttestation(c){
 export async function verifyCompositeAttestation(c){
  const p=await upstream(c);
  const a=await one(c,'SELECT * FROM f06_composite_v1.attestation FOR SHARE');
- if(!a||a.seal_name!=='COMPOSITE_NONPROD_SIGNED_V1'||a.source_sha256!==sourceSHA||
+ if(!a||a.seal_name!=='COMPOSITE_NONPROD_SIGNED_V1'||a.source_sha256!==await sourceSHAForCurrentProfile()||
  a.head_sha!==p.issuer.sha||a.run_id!==p.issuer.runId||
  a.github_ref!==process.env.GITHUB_REF||
  String(a.database_oid)!==String(p.oid)||a.ledger_sha256!==p.ledger||
@@ -99,5 +109,5 @@ export async function verifyCompositeAttestation(c){
  "to_regclass('f06_composite_v1.events') IS NOT NULL lock_events");
  if(!shape||Object.values(shape).some(x=>x!==true))throw Error('F06_COMPOSITE_LOCK_SOURCE_SHAPE_GAP');
  return Object.freeze({verified:true,nonProduction:true,issuer:'COMPOSITE_NONPROD_SIGNED_V1',
-  sourceSHA,headSHA:p.issuer.sha,runId:p.issuer.runId,databaseOid:p.oid,publicCatalogSHA:p.publicSHA});
+  sourceSHA:await sourceSHAForCurrentProfile(),headSHA:p.issuer.sha,runId:p.issuer.runId,databaseOid:p.oid,publicCatalogSHA:p.publicSHA});
 }

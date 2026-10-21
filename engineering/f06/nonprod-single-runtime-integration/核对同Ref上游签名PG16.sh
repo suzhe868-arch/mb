@@ -4,7 +4,11 @@ set -euo pipefail
 test "$GITHUB_REPOSITORY" = suzhe868-arch/mb
 test "$GITHUB_EVENT_NAME" = push
 test "$GITHUB_ACTIONS" = true
-test "$GITHUB_REF" = refs/heads/feat/f06-nonprod-single-runtime-trusted-source-01
+case "$GITHUB_REF" in
+  refs/heads/feat/f06-nonprod-single-runtime-trusted-source-01|refs/heads/feat/f06-nonprod-composite-lock-lifecycle-01) ;;
+  *) echo 'F06_EXACT_PUSH_SOURCE_NOT_ALLOWED' >&2; exit 1 ;;
+esac
+test "$GITHUB_REF_NAME" = "${GITHUB_REF#refs/heads/}"
 test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
 original_ref="$GITHUB_REF"
 original_name="$GITHUB_REF_NAME"
