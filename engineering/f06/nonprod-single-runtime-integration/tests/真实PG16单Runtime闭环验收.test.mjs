@@ -111,6 +111,14 @@ async function post(base,path,token,body){
  const data=await response.json();
  return {status:response.status,data};
 }
+async function raw(base,path,{method='POST',headers={},body}={}){
+ const options={method,headers:{...headers}};
+ if(body!==undefined)options.body=body;
+ const response=await fetch(base+path,options);
+ const text=await response.text();let data;
+ try{data=JSON.parse(text)}catch{data={raw:text}}
+ return {status:response.status,data,headers:response.headers};
+}
 test('F06 Issue164：单PG16真实F03 Session贯通Lock→Deposit→Transaction→Handoff→Cancel→Refund Pending/Closed',async t=>{
  let db,auth,runtime,server;
  const secret=envSetup();
@@ -162,6 +170,15 @@ test('F06 Issue164：单PG16真实F03 Session贯通Lock→Deposit→Transaction�
   assert.equal(deposit.data.code,'F06_3A_SYNTHETIC_RECEIPT_RECORDED');
   const depositId=Number(deposit.data.depositId);
   t.diagnostic('F06_COMPOSITE_SIGNED_DEPOSIT_CREATED depositId='+depositId);
+  await t.test('真实PG16：意向金同键重放只返回既有收据',async()=>{
+   const replay=await post(base,'/__nonprod__/f06-composite/deposit/record',initialToken,{
+    lockId,amountCents:500000,currency:'CNY',paymentMethod:'bank_transfer',
+    eventKey:'deposit_record_'+process.env.GITHUB_RUN_ID,receivedAt:new Date().toISOString(),note:'Synthetic replay'
+   });
+   assert.equal(replay.status,200,JSON.stringify(replay.data));
+   assert.equal(replay.data.code,'F06_3A_IDEMPOTENT_RECEIPT');
+   assert.equal(Number(replay.data.depositId),depositId);
+  });
 
   const failedOpen=await openSyntheticTransactionComposite(auth,initialToken,{
    lockId,eventKey:`tx_rollback_${process.env.GITHUB_RUN_ID}`,testCheckpoint:'AFTER_TRANSACTION_THROW'
@@ -181,6 +198,14 @@ test('F06 Issue164：单PG16真实F03 Session贯通Lock→Deposit→Transaction�
   const transactionId=Number(opened.data.transactionId);
   assert.ok(transactionId>0);
   t.diagnostic('F06_COMPOSITE_TRANSACTION_CREATED transactionId='+transactionId);
+  await t.test('真实PG16：交易同键重放不重复创建Transaction',async()=>{
+   const replay=await post(base,'/__nonprod__/f06-composite/transaction/open',initialToken,{
+    lockId,eventKey:'tx_open_'+process.env.GITHUB_RUN_ID
+   });
+   assert.equal(replay.status,200,JSON.stringify(replay.data));
+   assert.equal(replay.data.code,'F06_TX_IDEMPOTENT');
+   assert.equal(Number(replay.data.transactionId),transactionId);
+  });
 
   const handoff=await post(base,'/__nonprod__/f06-composite/transaction/handoff',managerToken,{
    transactionId,expectedOldResponsibleId:Number(scenario.initial.employee_id),expectedVersion:0,
@@ -213,6 +238,15 @@ test('F06 Issue164：单PG16真实F03 Session贯通Lock→Deposit→Transaction�
   const refundId=Number(refund.data.refundId);
   assert.ok(refundId>0);
   t.diagnostic('F06_COMPOSITE_REFUND_PENDING_SIGNED refundId='+refundId);
+  await t.test('真实PG16：退款申请同键重放不重复建立Refund',async()=>{
+   const replay=await post(base,'/__nonprod__/f06-composite/refund/request',targetToken,{
+    transactionId,amountCents:100000,reason:'Synthetic refund pending test',
+    eventKey:'refund_pending_'+process.env.GITHUB_RUN_ID
+   });
+   assert.equal(replay.status,200,JSON.stringify(replay.data));
+   assert.equal(replay.data.code,'F06_TX_REFUND_IDEMPOTENT_REQUEST');
+   assert.equal(Number(replay.data.refundId),refundId);
+  });
 
   const closed=await post(base,'/__nonprod__/f06-composite/refund/close',targetToken,{
    refundId,closeReason:'Synthetic no-payment close',
@@ -221,6 +255,48 @@ test('F06 Issue164：单PG16真实F03 Session贯通Lock→Deposit→Transaction�
   assert.equal(closed.status,200,JSON.stringify(closed.data));
   assert.equal(closed.data.code,'F06_TX_REFUND_CLOSED_WITHOUT_PAYMENT');
   t.diagnostic('F06_COMPOSITE_REFUND_CLOSED_WITHOUT_PAYMENT_SIGNED');
+  await t.test('真实PG16：无付款关闭同键重放保持关闭状态',async()=>{
+   const replay=await post(base,'/__nonprod__/f06-composite/refund/close',targetToken,{
+    refundId,closeReason:'Synthetic no-payment close',
+    eventKey:'refund_close_'+process.env.GITHUB_RUN_ID
+   });
+   assert.equal(replay.status,200,JSON.stringify(replay.data));
+   assert.equal(replay.data.code,'F06_TX_REFUND_IDEMPOTENT_CLOSE');
+   assert.equal(Number(replay.data.refundId),refundId);
+  });
+  const securityCases=[
+   ['未登录Deposit拒绝',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/deposit/record');assert.equal(r.status,401);assert.equal(r.data.code,'F06_COMPOSITE_SIGNED_SESSION_REQUIRED')}],
+   ['畸形Bearer拒绝',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/transaction/open',{headers:{authorization:'Bearer short'}});assert.equal(r.status,401)}],
+   ['客户端自报角色拒绝',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/refund/close',{headers:{authorization:'Bearer '+targetToken,'x-role':'admin'}});assert.equal(r.status,403)}],
+   ['客户端自报Issuer拒绝',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/transaction/open',{headers:{authorization:'Bearer '+initialToken,'x-issuer':'PR139'}});assert.equal(r.status,403)}],
+   ['转发来源头拒绝',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/transaction/cancel',{headers:{authorization:'Bearer '+targetToken,'x-forwarded-for':'127.0.0.1'}});assert.equal(r.status,403)}],
+   ['Cookie会话混用拒绝',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/deposit/record',{headers:{authorization:'Bearer '+initialToken,cookie:'session=spoof'}});assert.equal(r.status,403)}],
+   ['伪造客户身份头拒绝',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/deposit/record',{headers:{authorization:'Bearer '+initialToken,'x-customer-id':String(scenario.customerId)}});assert.equal(r.status,403)}],
+   ['伪造系统管理员头拒绝',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/refund/close',{headers:{authorization:'Bearer '+targetToken,'x-system-admin':'true'}});assert.equal(r.status,403)}],
+   ['GET不得执行Deposit',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/deposit/record',{method:'GET',headers:{authorization:'Bearer '+initialToken}});assert.equal(r.status,405)}],
+   ['PUT不得执行Refund关闭',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/refund/close',{method:'PUT',headers:{authorization:'Bearer '+targetToken}});assert.equal(r.status,405)}],
+   ['业务体额外Issuer字段拒绝且不回显',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/refund/request',{headers:{authorization:'Bearer '+targetToken,'content-type':'application/json'},body:JSON.stringify({transactionId,amountCents:1000,reason:'Synthetic security case',eventKey:'unexpected_body_field_0001',issuer:'PR139'})});assert.equal(r.status,400);assert.ok(!JSON.stringify(r.data).includes('PR139'))}],
+   ['错误Content-Type拒绝',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/refund/request',{headers:{authorization:'Bearer '+targetToken,'content-type':'text/plain'},body:'{}'});assert.equal(r.status,400)}],
+   ['非法JSON拒绝',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/transaction/open',{headers:{authorization:'Bearer '+initialToken,'content-type':'application/json'},body:'{'});assert.equal(r.status,400)}],
+   ['JSON数组拒绝',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/transaction/open',{headers:{authorization:'Bearer '+initialToken,'content-type':'application/json'},body:'[]'});assert.equal(r.status,400)}],
+   ['空请求体拒绝',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/refund/request',{headers:{authorization:'Bearer '+targetToken}});assert.equal(r.status,400)}],
+   ['超大请求体拒绝',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/refund/request',{headers:{authorization:'Bearer '+targetToken,'content-type':'application/json'},body:'x'.repeat(5000)});assert.equal(r.status,400)}],
+   ['非法LockId拒绝',async()=>{const r=await post(base,'/__nonprod__/f06-composite/transaction/open',initialToken,{lockId:0,eventKey:'invalid_lock_case_000001'});assert.equal(r.status,400);assert.equal(r.data.code,'F06_TX_INVALID_ARGUMENTS')}],
+   ['零意向金金额拒绝',async()=>{const r=await post(base,'/__nonprod__/f06-composite/deposit/record',initialToken,{lockId,amountCents:0,currency:'CNY',paymentMethod:'bank_transfer',eventKey:'invalid_deposit_amount_0001',receivedAt:new Date().toISOString()});assert.equal(r.status,400)}],
+   ['缺少Transaction幂等键拒绝',async()=>{const r=await post(base,'/__nonprod__/f06-composite/transaction/open',initialToken,{lockId});assert.equal(r.status,400)}],
+   ['负Handoff版本拒绝',async()=>{const r=await post(base,'/__nonprod__/f06-composite/transaction/handoff',managerToken,{transactionId,expectedOldResponsibleId:Number(scenario.target.employee_id),expectedVersion:-1,newResponsibleId:Number(scenario.initial.employee_id),reason:'Invalid version security case',eventKey:'negative_handoff_version_0001'});assert.equal(r.status,400)}],
+   ['短Cancel原因拒绝',async()=>{const r=await post(base,'/__nonprod__/f06-composite/transaction/cancel',targetToken,{transactionId,expectedVersion:1,reason:'bad',eventKey:'short_cancel_reason_000001'});assert.equal(r.status,400)}],
+   ['零退款金额拒绝',async()=>{const r=await post(base,'/__nonprod__/f06-composite/refund/request',targetToken,{transactionId,amountCents:0,reason:'Invalid zero refund test',eventKey:'zero_refund_amount_000001'});assert.equal(r.status,400)}],
+   ['零RefundId关闭拒绝',async()=>{const r=await post(base,'/__nonprod__/f06-composite/refund/close',targetToken,{refundId:0,closeReason:'Invalid close id test',eventKey:'zero_refund_id_close_0001'});assert.equal(r.status,400)}],
+   ['已取消Transaction不得再次Handoff',async()=>{const r=await post(base,'/__nonprod__/f06-composite/transaction/handoff',managerToken,{transactionId,expectedOldResponsibleId:Number(scenario.target.employee_id),expectedVersion:1,newResponsibleId:Number(scenario.initial.employee_id),reason:'Canceled transaction handoff attempt',eventKey:'cancelled_tx_handoff_0001'});assert.equal(r.status,403);assert.equal(r.data.code,'F06_REAL_HANDOFF_NOT_IN_PROGRESS')}],
+   ['非当前责任人不得申请Refund',async()=>{const r=await post(base,'/__nonprod__/f06-composite/refund/request',managerToken,{transactionId,amountCents:1000,reason:'Wrong employee refund request',eventKey:'wrong_employee_refund_0001'});assert.equal(r.status,403);assert.equal(r.data.code,'F06_TX_REFUND_REQUEST_PERMISSION_SCOPE_DENIED')}],
+   ['未知Composite路由返回404',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/unknown',{headers:{authorization:'Bearer '+targetToken}});assert.equal(r.status,404);assert.equal(r.data.code,'NOT_IMPLEMENTED')}],
+   ['无效币种意向金拒绝',async()=>{const r=await post(base,'/__nonprod__/f06-composite/deposit/record',initialToken,{lockId,amountCents:1000,currency:'USD',paymentMethod:'bank_transfer',eventKey:'invalid_currency_deposit_0001',receivedAt:new Date().toISOString()});assert.equal(r.status,400)}],
+   ['短Refund关闭原因拒绝',async()=>{const r=await post(base,'/__nonprod__/f06-composite/refund/close',targetToken,{refundId,closeReason:'bad',eventKey:'short_refund_close_0001'});assert.equal(r.status,400)}],
+   ['未登录Handoff拒绝',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/transaction/handoff');assert.equal(r.status,401)}],
+   ['未登录Cancel拒绝',async()=>{const r=await raw(base,'/__nonprod__/f06-composite/transaction/cancel');assert.equal(r.status,401)}]
+  ];
+  for(const [name,runCase] of securityCases)await t.test(name,runCase);
 
   const issuer=(await db.query("SELECT head_sha,run_id,database_oid,source_sha256 FROM f06_composite_v1.attestation")).rows[0];
   assert.equal(issuer.head_sha,process.env.GITHUB_SHA);
