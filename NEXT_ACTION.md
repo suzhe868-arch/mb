@@ -6,7 +6,7 @@
 - `NEXT_ISSUE=190`：[F08-3｜批发上游电话员工专项范围与 PG16 非生产 Runtime 纵切](https://github.com/suzhe868-arch/mb/issues/190)
 - `NEXT_BRANCH=feat/f08-publisher-phone-scope-runtime-nonprod-03`
 - 正式施工单：`07_重建工作区/F08-3_批发上游电话员工专项范围与PG16非生产Runtime纵切_A主控B正式施工单_2026-10-22.md`
-- **B 必须在本 A 治理 PR 合并 main 后才开工**；开工时重新读取最新 main、Issue #190 与正式施工单，按精确文件白名单连续施工到 `READY_FOR_A_REVIEW`，不切换 Work、不擅自合并 main。
+- **A 治理 PR #191 已标准合并 main，F08-3 授权现已生效**；B 开工时重新读取最新 main、Issue #190 与正式施工单，按精确文件白名单连续施工到 `READY_FOR_A_REVIEW`，不切换 Work、不擅自合并 main。
 - 本任务只验证内部员工权限/专项范围/车辆状态的隔离 PG16 与非生产 HTTP Runtime 纵切；只用合成 publisher/phone/Collector 回调，禁止真实 JYT/Collector、CDN/OSS、Feishu、公网请求、生产数据库或生产路由。
 - 用户已明确批准电话访问模式：`LOCKED_ONLY`（仅当前有效 Lock 的批发车）或 `ALL_ACTIVE_JYT`（全部当前在售 JYT 批发车）。不要求逐车负责人；不新增 `can_call_wholesale_phone`；不扩大车辆管理权限。
 - 复用已验收 PR #8 的 SG01 绑定结构、PR #35 的批发车可信来源审计、PR #181 与 PR #186 的限定验收结果；**不重复 F08-2 已通过的 58+7 测试**。PR #8 仅证明 Customer/object Guard，不等于 publisher/Vehicle 电话已完成。
