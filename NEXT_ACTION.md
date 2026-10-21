@@ -1,20 +1,22 @@
 # 名邦汽车 V1｜NEXT_ACTION 当前唯一指针｜2026-10-22
 
-## A 已完成的独立验收
-- F08-2 [Issue #184](https://github.com/suzhe868-arch/mb/issues/184) 非生产安全质量子包已按 A 独立验收关闭；[PR #186](https://github.com/suzhe868-arch/mb/pull/186) 已标准合并。
-- B 最终业务 HEAD `ff817ee0557858b9469260ed183d6ce32a83c759`；合并 SHA `a497fa7fb504ec1ed63c8eb202eb64999bb74e29`。官方 [Push Run #39643395145](https://github.com/suzhe868-arch/mb/actions/runs/39643395145)：两独立真实 PG16 Job #119372546965/#119372547635 成功；18 当前应用入口及启动拒绝、24 GitHub 可信来源、16 PG16 隔离场景，新增合计 58/58；受影响回归 7/7；双有效同 SHA Artifact #12366157062、#12365019484。
-- 完整 A 终验及风险门禁报告：`07_重建工作区/F08-2_Issue184_PR186独立验收与F08剩余来源门禁报告_2026-10-22.md`。
+## 当前唯一正式任务｜F08-3 批发上游电话专项范围非生产纵切
+- `NEXT_OWNER=B`
+- `NEXT_TASK=F08_PUBLISHER_PHONE_SCOPE_RUNTIME_NONPROD_03`
+- `NEXT_ISSUE=190`：[F08-3｜批发上游电话员工专项范围与 PG16 非生产 Runtime 纵切](https://github.com/suzhe868-arch/mb/issues/190)
+- `NEXT_BRANCH=feat/f08-publisher-phone-scope-runtime-nonprod-03`
+- 正式施工单：`07_重建工作区/F08-3_批发上游电话员工专项范围与PG16非生产Runtime纵切_A主控B正式施工单_2026-10-22.md`
+- **B 必须在本 A 治理 PR 合并 main 后才开工**；开工时重新读取最新 main、Issue #190 与正式施工单，按精确文件白名单连续施工到 `READY_FOR_A_REVIEW`，不切换 Work、不擅自合并 main。
+- 本任务只验证内部员工权限/专项范围/车辆状态的隔离 PG16 与非生产 HTTP Runtime 纵切；只用合成 publisher/phone/Collector 回调，禁止真实 JYT/Collector、CDN/OSS、Feishu、公网请求、生产数据库或生产路由。
+- 用户已明确批准电话访问模式：`LOCKED_ONLY`（仅当前有效 Lock 的批发车）或 `ALL_ACTIVE_JYT`（全部当前在售 JYT 批发车）。不要求逐车负责人；不新增 `can_call_wholesale_phone`；不扩大车辆管理权限。
+- 复用已验收 PR #8 的 SG01 绑定结构、PR #35 的批发车可信来源审计、PR #181 与 PR #186 的限定验收结果；**不重复 F08-2 已通过的 58+7 测试**。PR #8 仅证明 Customer/object Guard，不等于 publisher/Vehicle 电话已完成。
+- F08 整阶段、真实 Collector/JYT 来源、publisher 物理映射/缓存、SLA/Incident、CDN/OSS/Feishu 仍有独立缺口；本任务通过不等于 F08/V1 READY。
 
-## 当前唯一下一事项（A 主控来源门禁，不是新 B 施工授权）
-- `NEXT_OWNER=A`
-- `NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`
-- `NEXT_ISSUE=187`：[F08 整阶段可信正向来源与外部先决条件跟踪](https://github.com/suzhe868-arch/mb/issues/187)
-- `NEXT_BRANCH=NONE`（无已正式放行的下一 B 工程分支）
-- A 继续按实际缺口核实当前可信父事实及合法外部/敏感能力权限；已验的 F08-1 PR69、PR100、F06 PR174、F07 PR181、F08-2 PR186 直接复用，**不让 B 再重复跑已绿的同类非生产质量包**。
-- **已解决的产品边界（用户明确批准，治理 PR 合并后生效）**：PC 后台按员工单独授予既有 `publisher.phone.sensitive`，访问范围二选一：`LOCKED_ONLY`（仅当前有效锁定的批发车）或 `ALL_ACTIVE_JYT`（全部当前在售 JYT 批发车）。不要求逐车指定负责人，不新增 `can_call_wholesale_phone`，不扩大通用车辆管理权限。详见 PDM-02、PDM-09 和 DECISION_REGISTER。
-- 该裁决只明确产品行为，不代表现有物理 capability catalog、Vehicle 专项范围读取、真实 Collector/JYT 回传已接通。A 接下来核对既有代码与真实 schema，找出能在当前授权内实施的最小差异；确认后才签具体 B 施工单。真实外部服务凭据/环境、生产或资金权限仍需独立授权。
-- 如果是 A 可在现有权限裁决的具体业务阻断，先提出精确文件和影响范围后才签 B 新施工单；如果需要用户新增权限、真实第三方凭据、生产或资金授权，必须单独获得用户决定。
-- **F06/F07/F08/V1 全域继续 NOT_READY**。F08 整阶段尚未完成正常验收，不能提前做整个 B 后端最终整体验收；C PR #68 独立不动。A/B/C 不切换 Work 模式。
+## B 交付后的下一责任
+- B 达到 `READY_FOR_A_REVIEW` 后，`NEXT_OWNER=A`：A 独立验收 Issue #190，仅审本次差异及受影响回归。
+- A 验收后回到 [Issue #187](https://github.com/suzhe868-arch/mb/issues/187)，继续核实真实 publisher 来源、真实外部授权与 F08 整阶段剩余条件。
+- F08 整阶段正式验收通过后，才由 A 单独开展整个 B 后端最终全局验收；C PR #68 独立不动。
+
 
 ---
 
@@ -2739,3 +2741,4 @@ PDM-01～25 产品规则全部完成
 - PDM-25 + PDM-01～25 全局最终总复核 PASS 后，一次性完成 Final / Integrity 的 Current / Historical Audit Trail 边界标注；
 - 历史事实保留，不物理删除，不改变业务规则语义；
 - 该统一清理完成后再进入 IA 全局集中对齐。
+
