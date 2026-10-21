@@ -10,12 +10,13 @@
 
 ---
 
-## A 最新阶段裁决｜F08-2 已验收合并，F08 全阶段转来源门禁核查｜2026-10-22
+## A 当前任务指针｜F08-3 批发上游电话专项范围非生产纵切｜2026-10-22
 
-- [Issue #184](https://github.com/suzhe868-arch/mb/issues/184) 的 F08-2 非生产质量子包已完成 A 独立验收并关闭，业务 [PR #186](https://github.com/suzhe868-arch/mb/pull/186) 标准合并。B 最终 HEAD `ff817ee0557858b9469260ed183d6ce32a83c759`，合并 SHA `a497fa7fb504ec1ed63c8eb202eb64999bb74e29`。最终同 SHA Push Run [#39643395145](https://github.com/suzhe868-arch/mb/actions/runs/39643395145)：两独立 PG16 非超管 Job 成功，新增 58 场景与关联回归 7 项通过，双有效 Artifact #12366157062/#12365019484。
-- **当前唯一任务指针：** `NEXT_OWNER=A`；`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`；`NEXT_ISSUE=187`。A 只读核查 F08 剩余真实签名/第三方来源先决条件，未有授权来源前不发新的 B 重复测试施工包。[来源门禁 Issue #187](https://github.com/suzhe868-arch/mb/issues/187)；A 终验报告：`07_重建工作区/F08-2_Issue184_PR186独立验收与F08剩余来源门禁报告_2026-10-22.md`。
-- **全域仍未就绪：** F06/F07/F08/V1 `NOT_READY`，F03 Scope/Object、F05 转换签名、F07 电话权限、SLA/Incident 来源与真实 JYT/Collector/CDN/OSS/Feishu 保留 `SOURCE_GAP`。F08 整阶段尚未验收，更不能提前做整个 B 后端最终整体验收；生产/真钱/实际退款成交及 C 轨没有获得新的授权。
-- 原 F08-1 PR69、PR100、F06 PR174、F07 PR181、F08-2 PR186 均按已验范围复用，不重复施工。ABC 固定窗口和不切换 Work 模式规则保持不变。
+- [F08-2 Issue #184](https://github.com/suzhe868-arch/mb/issues/184) 已完成 A 独立验收并关闭；[PR #186](https://github.com/suzhe868-arch/mb/pull/186) 已标准合并。最终 SHA 的官方 Run #39643395145 两独立 PG16 非超管 Job 成功，58 新场景+7 受影响回归通过，双有效 Artifact #12366157062/#12365019484。
+- [PR #189](https://github.com/suzhe868-arch/mb/pull/189) 已把用户批准的电话范围规则合并主线：PC 后台按员工单独授权既有 publisher.phone.sensitive，并二选一 LOCKED_ONLY 或 ALL_ACTIVE_JYT；不要求逐车负责人，不新增 can_call_wholesale_phone，不扩大车辆管理权限。
+- **当前唯一任务指针：** NEXT_OWNER=B；NEXT_TASK=F08_PUBLISHER_PHONE_SCOPE_RUNTIME_NONPROD_03；NEXT_ISSUE=190；NEXT_BRANCH=feat/f08-publisher-phone-scope-runtime-nonprod-03。正式施工单：`07_重建工作区/F08-3_批发上游电话员工专项范围与PG16非生产Runtime纵切_A主控B正式施工单_2026-10-22.md`。A 治理 PR 合并 main 后才正式生效。
+- F08-3 只接通隔离 PG16 + 合成 publisher/phone 的内部权限/对象范围纵切；禁止真实 JYT/Collector、公网、生产或真实资金。B 交 READY_FOR_A_REVIEW 后由 A 独立验收，再回到 [Issue #187](https://github.com/suzhe868-arch/mb/issues/187) 继续处理真实来源、外部授权及 F08 整阶段门禁。
+- F08 整阶段、F06/F07/V1 仍 NOT_READY；不重复 F08-2 已验收的 58+7 测试；不提前进行整个 B 后端最终全局验收；C PR #68 独立不动。ABC 三窗口继续禁止切换 Work 模式。
 
 ---
 
