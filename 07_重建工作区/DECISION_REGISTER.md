@@ -1,3 +1,15 @@
+## A-ISSUE187-EXTERNAL-SYSTEMS-NOT-READY-01｜用户确认三项外部资源未准备，停止重复模拟施工
+
+- 用户于 2026-10-22 明确确认：**JYT/Collector 尚未准备；图片存储/CDN 尚未准备；飞书尚未准备**。此为用户提供的当前资源状态，已同步至 `engineering/f07/nonprod-runtime-integration/SOURCE_GAP与外部授权依赖台账.tsv`。
+- A 已复核最新 main、Issue #187、正式 F03 capability/Vehicle Scope/Object 读取器、F05 转换正向来源和 F07 Runtime 的外部依赖边界。正式 F03 仍 fail-closed，F05 正向 Issuer 仍无合法证据；合成回调、MockStorage/MockCDN、本地 outbox 均不能证明真实外部系统接通。
+- F08-3 Issue #190 / PR #193 已验收合并，治理 PR #194 已合并。F08-2 的 58+7 与 F08-3 的 43+26+16 测试结果直接复用，不重跑。
+- A 裁决：现有证据下没有新的、可合法验收且不依赖缺失外部资源的 B 业务施工差异。当前只推进 A 的来源审计、依赖状态登记和交接；不创建新 B 分支，不伪造签名、上游回执、对象存储或飞书投递结果。
+- 解锁条件：获批的 JYT/Collector 非生产端点与可信 publisher 映射；获批对象存储/CDN 测试资源；飞书测试租户/机器人/测试群与路由授权；另需正式 F03 capability/Vehicle Scope/Object 与 F05 转换 Issuer 的可核验证据。凭据通过批准的密钥托管提供，不粘贴在聊天中。
+- 唯一指针：`NEXT_OWNER=A`、`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`、`NEXT_ISSUE=187`、`NEXT_BRANCH=NONE`。F06/F07/F08/V1 继续 `NOT_READY / NO_PRODUCTION`；C PR #68 独立不动。
+- 完整报告：`07_重建工作区/A_Issue187外部系统未准备阻断登记与独立工作盘点_2026-10-22.md`。
+
+---
+
 ## A-F08-3-ISSUE190-PR193-ACCEPT-01｜F08-3 非生产子范围验收通过，回到 F08 来源父门禁
 
 - Issue [#190](https://github.com/suzhe868-arch/mb/issues/190) 已通过 A 限定非生产子范围验收并关闭；业务 PR [#193](https://github.com/suzhe868-arch/mb/pull/193) 已标准合并。B 最终 HEAD `662847bf2e75c9ca404dff8e57902850d8fe4673`，merge SHA `5cb52e6754e3e171cb9e1a67e3aef51c8e78dfcc`。
