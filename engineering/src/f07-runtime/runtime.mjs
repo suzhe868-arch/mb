@@ -55,7 +55,7 @@ export async function assertPhysicalPg16(db, env=process.env) {
     pg_backend_pid() AS backend_pid`);
   const x=q.rows[0];
   if(!x||x.db!=='f07_runtime_test'||x.usr!=='f07_runtime_ci'||x.version<160000||x.version>=170000||
-    x.superuser!==false||x.createdb!==false||x.createrole!==false||!/^\\d+$/.test(String(x.database_oid))||Number(x.backend_pid)<=0)
+    x.superuser!==false||x.createdb!==false||x.createrole!==false||!/^\d+$/.test(String(x.database_oid))||Number(x.backend_pid)<=0)
     throw Error('F07_RUNTIME_PG16_NON_SUPERUSER_IDENTITY_DENIED');
   return x;
 }
