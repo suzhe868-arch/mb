@@ -22,7 +22,18 @@ const SOURCE_FILES=[
  ['cancel-service','../transaction-cancel-http-pg16/service.mjs'],
  ['refund-service','../transaction-refund-http-pg16/service.mjs'],
  ['post-handoff-cancel-service','../post-handoff-cancel-http-pg16/service.mjs'],
- ['post-handoff-refund-proof','../post-handoff-refund-bridge-http-pg16/签名来源只读核验.mjs']
+ ['post-handoff-refund-proof','../post-handoff-refund-bridge-http-pg16/签名来源只读核验.mjs'],
+ ['server','../../src/server.mjs'],
+ ['app','../../src/app.mjs'],
+ ['f03-auth-service','../../src/f03-auth-service.mjs'],
+ ['f03-auth-crypto','../../src/f03-auth-crypto.mjs'],
+ ['pr139-sidecar','../lock-transaction-http-pg16/sidecar.sql'],
+ ['pr150-service','../transaction-refund-http-pg16/service.mjs'],
+ ['pr150-sidecar','../transaction-refund-http-pg16/sidecar.sql'],
+ ['pr146-service','../transaction-cancel-http-pg16/service.mjs'],
+ ['pr146-sidecar','../transaction-cancel-http-pg16/sidecar.sql'],
+ ['pr153-sidecar','../transaction-handoff-http-pg16/sidecar.sql'],
+ ['pr156-sidecar','../post-handoff-cancel-http-pg16/sidecar.sql']
 ];
 async function digestVersionedSources(){
  const h=createHash('sha256');
