@@ -170,7 +170,7 @@ export function createCompositeBusinessHandler(auth,env){
    if(env.F06_COMPOSITE_DEBUG_ERRORS==='1'){
     const code=typeof error?.code==='string'?error.code:'NO_CODE';
     const message=String(error?.message||'unknown').slice(0,500);
-    console.error('F06_COMPOSITE_BUSINESS_HANDLER_ERROR',code,message);
+    console.error('F06_COMPOSITE_BUSINESS_HANDLER_ERROR',code,message,String(error?.stack||'').slice(0,2400));
    }
    writeComposite(res,503,{allowed:false,code:'F06_COMPOSITE_SIGNED_SOURCE_GAP',productionReady:false});
   }
