@@ -518,7 +518,7 @@ async function closeTransactionRefundCore(auth,token,p={},sourceVerifier,mode='C
  if(!id(p.refundId)||!reason(p.closeReason)||!key(p.eventKey))return no('F06_TX_REFUND_INVALID_CLOSE');
  try{
   const result=await auth.withSession(token,async(c,a)=>{
-   await verify(c);await c.query("SET LOCAL lock_timeout='1800ms'");
+   await verifyByMode(c,mode);await c.query("SET LOCAL lock_timeout='1800ms'");
    const seed=await one(c,'SELECT transaction_id,source_lock_id,vehicle_id FROM f06_real_tx_refund_ci.origins WHERE refund_id=$1',[p.refundId]);
    if(!seed)return no('F06_TX_REFUND_UNSIGNED_CLOSE_SOURCE');
    const txSeed=await one(c,'SELECT vehicle_id FROM public.transactions WHERE transaction_id=$1',[seed.transaction_id]);
