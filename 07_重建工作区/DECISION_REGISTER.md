@@ -1,3 +1,14 @@
+# 2026-10-21｜A验收裁决：Issue171 PR174非生产Composite Lock生命周期切片通过
+
+- **裁决：接受并合并PR #174**，merge SHA `86f59431768f393232b8746cd3deb62f1044d85c`；最终施工SHA `06c880d7f53adda7862da88cde0b790fdc60f415`。
+- 官方Run [39602409488](https://github.com/suzhe868-arch/mb/actions/runs/39602409488)成功；Artifact `f06-issue171-evidence-39602409488`有效。Lifecycle32/32、Priority四动作7/7、签名负向15/15、Composite42/42、Legacy Node/HTTP37/37、Legacy PG16 13/13、Legacy审计1/1；全部0失败、0跳过。
+- 161张父表、24条签名迁移，Scenario/Baseline/Restore三个不同物理OID `22751/16387/23301`跨OID Seal一致；`unauthorizedParentDrift=false`。
+- 17个变更路径符合Issue171原白名单或PR173明确授权的五文件范围；没有修改冻结F05源码/迁移、公共DDL、生产配置、F07/F08。Priority来源Lock的extend/release/cancel/expire拒绝且无Lock、Lifecycle事件、审计、Priority副作用。
+- 仅接受非生产切片：F06整体、F07、F08、V1仍NOT_READY；无生产部署、真钱、真实退款/成交或F07/F08施工授权。
+- 下一责任人A，任务 `F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01`。正式报告：`07_重建工作区/F06_Issue171_PR174独立验收通过与非生产边界_2026-10-21.md`。
+
+---
+
 # 2026-10-21｜DECISION_REGISTER补充：Issue171签名Match/Priority预置路径最小裁决
 
 - 裁决只在本治理PR合并main后生效。
