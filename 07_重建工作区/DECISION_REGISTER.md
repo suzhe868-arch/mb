@@ -1,3 +1,25 @@
+# 当前有效裁决索引｜2026-10-21
+
+## A-F06-171-ACCEPT-01｜Issue171 非生产子范围验收通过
+
+- PR #174 已标准合并；Issue #171 已关闭 completed。
+- 受验业务 SHA：`06c880d7f53adda7862da88cde0b790fdc60f415`；合并/main SHA：`86f59431768f393232b8746cd3deb62f1044d85c`。
+- 官方 Push Run #39602409488 成功；Artifact #12347892081 有效；161 张父表/24 条签名迁移跨 OID Seal 通过。
+- 仅接受非生产 Composite Lock 生命周期与可信来源接线；不授予生产、真钱、实际退款/成交或外部服务权限。
+- 完整报告：`07_重建工作区/F06_Issue171_PR174最终独立验收与合并报告_2026-10-21.md`。
+
+## A-F07-RUNTIME-RELEASE-01｜放行非生产应用 Runtime 四域接线
+
+- 既有 F07-1～F07-4（PR64–67）及 F08-1（PR69）均为已验收 CI-only 资产，直接复用，不重复施工。
+- 当前应用入口尚无 F07 Runtime Handler；下一任务为 `F07_NONPROD_RUNTIME_INTEGRATION_01`，Issue #178，分支 `feat/f07-runtime-integration-nonprod-01`。
+- 施工单：`07_重建工作区/F07真实应用Runtime四域接线非生产整包_A主控B正式施工单_2026-10-21.md`；差异核查：`07_重建工作区/F07现有CI成果与真实Runtime缺口_A主控核查_2026-10-21.md`。
+- 仅在本 A 治理 PR 合并 main 后正式生效。不得新增产品权限，不接真实 JYT/电话、CDN/OSS、Feishu，不开启生产或真钱。
+- F06/F07/F08/V1 总体仍 `NOT_READY`；F08 完整阶段验收后，B 后端最终整体验收由 A 独立负责。
+
+---
+
+## 历史裁决与验收记录（以下为历史快照；若与上方当前有效裁决冲突，以当前有效裁决为准）
+
 # 2026-10-21｜DECISION_REGISTER补充：Issue171签名Match/Priority预置路径最小裁决
 
 - 裁决只在本治理PR合并main后生效。
