@@ -10846,7 +10846,7 @@
     "production_ready": false
   },
   "b_precommit_syntax_scope_gate_2026_10_21": {
-    "status": "A_GOVERNANCE_RULES_WRITTEN_PENDING_STANDARD_PR_MERGE",
+    "status": "A_GOVERNANCE_RULES_MERGED_ACTIVE",
     "authority": "USER_APPROVED_2026-10-21",
     "formal_rule_file": "07_重建工作区/B工程执行增量审查关联回归与避免重复施工正式规范_2026-10-21.md",
     "collaboration_rule_file": "07_重建工作区/A_B_C三窗口协作与验收规范.md",
@@ -10866,6 +10866,11 @@
     "business_code_changed": false,
     "new_issue_or_branch_created": false,
     "next_pointer_changed": false,
-    "ci_workflow_changed": false
+    "ci_workflow_changed": false,
+    "active": true,
+    "merged_pr": 167,
+    "merge_sha": "1265f2406d27ab591e2aab3db740fb1ace75cdf9",
+    "rule_effective_on_main": true,
+    "automated_hook_installed": false
   }
 }
