@@ -11,6 +11,7 @@ on:
       - engineering/f06/lockrequest-approval-waitlist-ci/migration.mjs
       - engineering/f06/lock-lifecycle-ci/migration.mjs
       - engineering/f06/deposit-ledger-ci/migration.mjs
+      - engineering/f06/deposit-ledger-ci/service.mjs
       - engineering/f06/lock-transaction-ci/migration.mjs
       - engineering/f06/refund-pending-ci/migration.mjs
       - .github/workflows/f06-nonprod-single-runtime-onejob.yml
@@ -55,7 +56,7 @@ jobs:
           git fetch --no-tags origin main
           git -c core.quotePath=false diff --name-only origin/main...HEAD | while IFS= read -r path; do
             case "$path" in
-              engineering/f06/nonprod-single-runtime-integration/*|engineering/src/f06-nonprod-composite-runtime.mjs|engineering/src/server.mjs|engineering/src/app.mjs|engineering/f06/lockrequest-approval-waitlist-ci/migration.mjs|engineering/f06/lock-lifecycle-ci/migration.mjs|engineering/f06/deposit-ledger-ci/migration.mjs|engineering/f06/lock-transaction-ci/migration.mjs|engineering/f06/refund-pending-ci/migration.mjs|.github/workflows/f06-nonprod-single-runtime-onejob.yml) ;;
+              engineering/f06/nonprod-single-runtime-integration/*|engineering/src/f06-nonprod-composite-runtime.mjs|engineering/src/server.mjs|engineering/src/app.mjs|engineering/f06/lockrequest-approval-waitlist-ci/migration.mjs|engineering/f06/lock-lifecycle-ci/migration.mjs|engineering/f06/deposit-ledger-ci/migration.mjs|engineering/f06/deposit-ledger-ci/service.mjs|engineering/f06/lock-transaction-ci/migration.mjs|engineering/f06/refund-pending-ci/migration.mjs|.github/workflows/f06-nonprod-single-runtime-onejob.yml) ;;
               *) echo "::error::超出Issue164精确授权: $path"; exit 1 ;;
             esac
           done
@@ -66,6 +67,14 @@ jobs:
           npm ci --prefix engineering --ignore-scripts --no-audit --no-fund
           node --check engineering/src/f06-nonprod-composite-runtime.mjs
           node --check engineering/src/server.mjs
+          node --check engineering/f06/lockrequest-approval-waitlist-ci/migration.mjs
+          node --check engineering/f06/lock-lifecycle-ci/migration.mjs
+          node --check engineering/f06/deposit-ledger-ci/migration.mjs
+          node --check engineering/f06/lock-transaction-ci/migration.mjs
+          node --check engineering/f06/refund-pending-ci/migration.mjs
+          node --check engineering/f06/deposit-ledger-ci/service.mjs
+          node --check engineering/f06/nonprod-single-runtime-integration/composite-issuer.mjs
+          node --check engineering/f06/nonprod-single-runtime-integration/可信Composite签名根.mjs
           node --check engineering/f06/nonprod-single-runtime-integration/tests/隔离装配与真实HTTP拒绝.test.mjs
           node --check engineering/f06/nonprod-single-runtime-integration/tests/真实PG16冻结来源拒绝.test.mjs
       - name: 初始化真实非超管PG16但绝不伪签父库
