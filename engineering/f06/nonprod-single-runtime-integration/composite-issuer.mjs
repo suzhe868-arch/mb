@@ -6,7 +6,33 @@ import {assertCompositeSignedRun} from './可信Composite签名根.mjs';
 import {verify as verifySignedF05} from '../../f05/consultation-assignee-sla/migration.mjs';
 import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
 export const sourceSQL=await readFile(new URL('./composite-issuer.sql',import.meta.url),'utf8');
-export const sourceSHA=createHash('sha256').update(sourceSQL).digest('hex');
+const SOURCE_FILES=[
+ ['./composite-issuer.sql','./composite-issuer.sql'],
+ ['./composite-issuer.mjs','./composite-issuer.mjs'],
+ ['./可信Composite签名根.mjs','./可信Composite签名根.mjs'],
+ ['runtime','../../src/f06-nonprod-composite-runtime.mjs'],
+ ['lock-service','../../src/f06-lock-service.mjs'],
+ ['lock-readiness','../../src/f06-lock-readiness.mjs'],
+ ['lock-http','../../src/f06-lock-http.mjs'],
+ ['lock-lifecycle-service','../../src/f06-lock-lifecycle-service.mjs'],
+ ['lock-lifecycle-http','../../src/f06-lock-lifecycle-http.mjs'],
+ ['deposit-service','../deposit-ledger-ci/service.mjs'],
+ ['transaction-service','../lock-transaction-http-pg16/service.mjs'],
+ ['handoff-service','../transaction-handoff-http-pg16/service.mjs'],
+ ['cancel-service','../transaction-cancel-http-pg16/service.mjs'],
+ ['refund-service','../transaction-refund-http-pg16/service.mjs'],
+ ['post-handoff-cancel-service','../post-handoff-cancel-http-pg16/service.mjs'],
+ ['post-handoff-refund-proof','../post-handoff-refund-bridge-http-pg16/签名来源只读核验.mjs']
+];
+async function digestVersionedSources(){
+ const h=createHash('sha256');
+ for(const [label,relative] of SOURCE_FILES){
+  const bytes=await readFile(new URL(relative,import.meta.url));
+  h.update(label).update(Buffer.from([0])).update(bytes).update(Buffer.from([0]));
+ }
+ return h.digest('hex');
+}
+export const sourceSHA=await digestVersionedSources();
 const hash=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 const one=async(c,q,p=[]) => (await c.query(q,p)).rows[0];
 async function upstream(c){
@@ -52,6 +78,14 @@ export async function verifyCompositeAttestation(c){
  const objects=await one(c,"SELECT count(*)::int n FROM pg_trigger WHERE NOT tgisinternal AND"+
  " tgrelid IN('f06_composite_v1.attestation'::regclass,'f06_composite_v1.issued_events'::regclass)");
  if(objects.n!==2)throw Error('F06_COMPOSITE_IMMUTABLE_SOURCE_GAP');
+ const shape=await one(c,"SELECT "+
+ "to_regclass('f06_composite_v1.customer_sessions') IS NOT NULL customer_sessions,"+
+ "to_regclass('f06_composite_v1.request_keys') IS NOT NULL request_keys,"+
+ "to_regclass('f06_composite_v1.decision_keys') IS NOT NULL decision_keys,"+
+ "to_regclass('f06_composite_v1.lock_snapshots') IS NOT NULL lock_snapshots,"+
+ "to_regclass('f06_composite_v1.waitlist_sources') IS NOT NULL waitlist_sources,"+
+ "to_regclass('f06_composite_v1.events') IS NOT NULL lock_events");
+ if(!shape||Object.values(shape).some(x=>x!==true))throw Error('F06_COMPOSITE_LOCK_SOURCE_SHAPE_GAP');
  return Object.freeze({verified:true,nonProduction:true,issuer:'COMPOSITE_NONPROD_SIGNED_V1',
   sourceSHA,headSHA:p.issuer.sha,runId:p.issuer.runId,databaseOid:p.oid,publicCatalogSHA:p.publicSHA});
 }
