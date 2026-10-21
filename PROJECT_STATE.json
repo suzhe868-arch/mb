@@ -1,15 +1,15 @@
 {
   "project": "名邦汽车 V1",
-  "updated_at": "2026-10-21",
+  "updated_at": "2026-10-22",
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "A_F06_ISSUE171_ACCEPTED_F07_NONPROD_RUNTIME_INTEGRATION_RELEASED",
+  "substage": "A_F07_ISSUE178_PR181_ACCEPTED_F08_2_QUALITY_RELEASED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F07_NONPROD_RUNTIME_INTEGRATION",
-  "current_domain_status": "F06 Issue171 非生产子范围已通过 A 独立验收并合并 PR174；下一项为 F07 应用 Runtime 四域非生产接线。F07-1至F07-4及F08-1历史CI-only成果复用；当前应用缺F07 Runtime接线，真实电话权限、F05转换正向源、JYT/CDN/OSS/Feishu仍SOURCE_GAP；F06/F07/F08/V1总体NOT_READY；A治理PR179已合并（merge SHA 9d8a94d4fe34e7a3f3ca17ac608175397e49a321），Issue178正式生效；B必须读取最新main",
+  "current_domain": "F08_NONPROD_CROSS_RUNTIME_QUALITY",
+  "current_domain_status": "F07 Issue178 PR181 非生产四域 Runtime 已A独立验收、Issue关闭、PR标准合并；Run39629427298两独立真实非超管PG16 Job成功，业务46、HTTPS15、关联回归26全绿、双有效Artifact。F07外部/签名来源缺口不消失；F06/F07/F08/V1全域NOT_READY。下一项为F08-2有界非生产跨Runtime质量回归，A治理PR合并main后正式放行B。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F07_NONPROD_RUNTIME_INTEGRATION_01：复用已验收F07-1至F07-4 CI合同，完成当前应用入口的非生产四域Runtime接线、真实非特权PG16/loopback TLS集成测试、来源缺口FailClosed和同SHA证据归档；不得接真实外部服务或改变产品权限。",
-  "current_work_file": "07_重建工作区/F07真实应用Runtime四域接线非生产整包_A主控B正式施工单_2026-10-21.md",
+  "current_task": "F08_NONPROD_CROSS_RUNTIME_QUALITY_02：复用旧F08-1与F05-F08 PR100，开展实际应用入口、跨Runtime配置拒绝、来源/证据一致性、真实PG16非特权隔离的新增定向质量测试。",
+  "current_work_file": "07_重建工作区/F08-2非生产跨Runtime安全关联回归与质量闭环_A主控B正式施工单_2026-10-22.md",
   "f06_issue164_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_NONPROD_COMPOSITE_DUAL_GATE_B_CONTINUE",
     "issue": 164,
@@ -3388,7 +3388,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "A治理PR合并main后，B读取最新远程main，按Issue #178和正式施工单执行F07_NONPROD_RUNTIME_INTEGRATION_01；在实际应用入口完成四域非生产Runtime接线、真实PG16/HTTP集成测试、路径/语法门禁、受影响范围回归和最终SHA官方证据，交A独立验收。",
+  "next_action": "本A治理PR标准合并main后，B依据最新远程main和Issue184、F08-2正式施工单，在授权分支执行新增非生产跨Runtime质量工程，完整真PG16双Job、场景、证据和自验后READY_FOR_A_REVIEW交A；不得重复历史工程或伪造旧分支签名来源。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4968,7 +4968,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "PR174已标准合并；业务SHA 06c880d7f53adda7862da88cde0b790fdc60f415，合并/main SHA 86f59431768f393232b8746cd3deb62f1044d85c，官方Run 39602409488成功，Artifact 12347892081有效。F07 PR64-67和F08 PR69均为已验收CI-only资产；当前主应用无F07 Runtime接线。缺失的电话能力签名正例、F05转换签名正例、JYT/CDN/OSS/Feishu真实来源必须保留SOURCE_GAP，不得伪造。",
+  "next_action_detail": "F07 B受验SHA=32f180238ff3271b38d2b91402cf4a7b55e07d52; merge_SHA=dd4a52a6f117ff83c959212f41f7c29ae68c507c; Push_Run=39629427298; PG16 Jobs=119323288481/119323289005 success; tests 46+15+26 all pass; artifacts 12357563978/12357469078 valid. F06/F07/F08/V1 global NOT_READY.",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -8147,7 +8147,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F07_NONPROD_RUNTIME_INTEGRATION_01",
+  "next_task": "F08_NONPROD_CROSS_RUNTIME_QUALITY_02",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9822,7 +9822,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F07真实应用Runtime四域接线非生产整包_A主控B正式施工单_2026-10-21.md",
+  "next_work_file": "07_重建工作区/F08-2非生产跨Runtime安全关联回归与质量闭环_A主控B正式施工单_2026-10-22.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -10118,8 +10118,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": "feat/f07-runtime-integration-nonprod-01",
-  "next_issue": 178,
+  "next_branch": "feat/f08-nonprod-cross-runtime-quality-02",
+  "next_issue": 184,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -11170,7 +11170,7 @@
   },
   "f07_runtime_integration_release_2026_10_21": {
     "task_id": "F07_NONPROD_RUNTIME_INTEGRATION_01",
-    "status": "A_RELEASED_GOVERNANCE_PR179_MERGED",
+    "status": "A_ACCEPTED_NONPRODUCTION_PR181_STANDARD_MERGED",
     "issue": 178,
     "owner": "B",
     "branch": "feat/f07-runtime-integration-nonprod-01",
@@ -11221,6 +11221,49 @@
     "governance_merge_sha": "9d8a94d4fe34e7a3f3ca17ac608175397e49a321",
     "governance_pr_url": "https://github.com/suzhe868-arch/mb/pull/179",
     "effective_on_main": true,
-    "release_note": "正式放行已随PR179合并main生效；B开工必须重新读取最新main。"
+    "release_note": "正式放行已随PR179合并main生效；B开工必须重新读取最新main。",
+    "business_pr": 181,
+    "b_accepted_sha": "32f180238ff3271b38d2b91402cf4a7b55e07d52",
+    "business_merge_sha": "dd4a52a6f117ff83c959212f41f7c29ae68c507c",
+    "official_run": 39629427298,
+    "official_jobs": [
+      119323288481,
+      119323289005
+    ],
+    "official_artifacts": [
+      12357563978,
+      12357469078
+    ],
+    "issue_closed": true,
+    "new_business_scenarios": 46,
+    "new_https_scenarios": 15,
+    "affected_regression": 26,
+    "global_not_ready": true
+  },
+  "f08_2_release_2026_10_22": {
+    "task_id": "F08_NONPROD_CROSS_RUNTIME_QUALITY_02",
+    "status": "A_RELEASE_PENDING_GOVERNANCE_PR_MERGE",
+    "owner": "B",
+    "issue": 184,
+    "branch": "feat/f08-nonprod-cross-runtime-quality-02",
+    "work_order": "07_重建工作区/F08-2非生产跨Runtime安全关联回归与质量闭环_A主控B正式施工单_2026-10-22.md",
+    "report": "07_重建工作区/F07_Issue178_PR181非生产Runtime独立终验与F08-2放行报告_2026-10-22.md",
+    "base_policy": "FETCH_LATEST_MAIN_AT_B_START",
+    "reuse_accepted_prs": [
+      69,
+      100,
+      174,
+      181
+    ],
+    "allowed_new_paths": [
+      "engineering/f08/nonprod-cross-runtime-quality/**",
+      ".github/workflows/f08-nonprod-cross-runtime-quality.yml"
+    ],
+    "real_pg16_jobs_min": 2,
+    "new_independent_security_scenarios_min": 24,
+    "real_app_entry_scenarios_min": 8,
+    "old_parent_signature_ref_spoofing_allowed": false,
+    "external_or_production_authorized": false,
+    "global_not_ready": true
   }
 }
