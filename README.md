@@ -10,7 +10,16 @@
 
 ---
 
-## 最新有效任务｜2026-10-22
+## A 最新阶段裁决｜F08-2 已验收合并，F08 全阶段转来源门禁核查｜2026-10-22
+
+- [Issue #184](https://github.com/suzhe868-arch/mb/issues/184) 的 F08-2 非生产质量子包已完成 A 独立验收并关闭，业务 [PR #186](https://github.com/suzhe868-arch/mb/pull/186) 标准合并。B 最终 HEAD `ff817ee0557858b9469260ed183d6ce32a83c759`，合并 SHA `a497fa7fb504ec1ed63c8eb202eb64999bb74e29`。最终同 SHA Push Run [#39643395145](https://github.com/suzhe868-arch/mb/actions/runs/39643395145)：两独立 PG16 非超管 Job 成功，新增 58 场景与关联回归 7 项通过，双有效 Artifact #12366157062/#12365019484。
+- **当前唯一任务指针：** `NEXT_OWNER=A`；`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`；`NEXT_ISSUE=187`。A 只读核查 F08 剩余真实签名/第三方来源先决条件，未有授权来源前不发新的 B 重复测试施工包。[来源门禁 Issue #187](https://github.com/suzhe868-arch/mb/issues/187)；A 终验报告：`07_重建工作区/F08-2_Issue184_PR186独立验收与F08剩余来源门禁报告_2026-10-22.md`。
+- **全域仍未就绪：** F06/F07/F08/V1 `NOT_READY`，F03 Scope/Object、F05 转换签名、F07 电话权限、SLA/Incident 来源与真实 JYT/Collector/CDN/OSS/Feishu 保留 `SOURCE_GAP`。F08 整阶段尚未验收，更不能提前做整个 B 后端最终整体验收；生产/真钱/实际退款成交及 C 轨没有获得新的授权。
+- 原 F08-1 PR69、PR100、F06 PR174、F07 PR181、F08-2 PR186 均按已验范围复用，不重复施工。ABC 固定窗口和不切换 Work 模式规则保持不变。
+
+---
+
+## 2026-10-22 前次历史任务｜已被上方 A 最新阶段裁决覆盖
 
 A 已独立验收并合并 F07 非生产 Runtime [PR #181](https://github.com/suzhe868-arch/mb/pull/181)，Issue #178 已关闭。B 受验 HEAD `32f180238ff3271b38d2b91402cf4a7b55e07d52`；标准合并 SHA `dd4a52a6f117ff83c959212f41f7c29ae68c507c`。官方 Run #39629427298、两独立 PG16 Job 成功；46 业务、15 HTTPS、26 关联回归通过，Artifact #12357563978／#12357469078 有效。
 
