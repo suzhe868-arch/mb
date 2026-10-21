@@ -11,6 +11,11 @@ import {verifyComposite as verifyLockLifecycle} from '../f06/lock-lifecycle-ci/m
 import {verifyComposite as verifyDeposit} from '../f06/deposit-ledger-ci/migration.mjs';
 import {verifyComposite as verifyTransaction} from '../f06/lock-transaction-ci/migration.mjs';
 import {verifyComposite as verifyRefundPending} from '../f06/refund-pending-ci/migration.mjs';
+import {verifyCompositeTransactionSidecar} from '../f06/lock-transaction-http-pg16/service.mjs';
+import {verifyCompositeCancelSidecar} from '../f06/transaction-cancel-http-pg16/service.mjs';
+import {verifyComposite as verifyTransactionRefund} from '../f06/transaction-refund-http-pg16/service.mjs';
+import {verifyComposite as verifyTransactionHandoff} from '../f06/transaction-handoff-http-pg16/service.mjs';
+import {verifyComposite as verifyPostHandoffCancel} from '../f06/post-handoff-cancel-http-pg16/service.mjs';
 
 export const F06_COMPOSITE_CONSENT='I_AUTHORIZE_DISPOSABLE_F06_COMPOSITE_ONLY';
 const F06_LOCK_CONSENT='I_AUTHORIZE_DISPOSABLE_F06_LOCK_PG16_ONLY';
@@ -62,6 +67,17 @@ export async function verifyCompositeRuntimeDatabase(c,env=process.env){
    if(!result?.verified)throw Error('F06_COMPOSITE_PARENT_SIGNATURE_REQUIRED_'+name);
    parents.push(name);
  }
+ const serviceParents=[];
+ for(const [name,verify] of [
+  ['PR139_TRANSACTION',verifyCompositeTransactionSidecar],
+  ['PR146_CANCEL_PARENT_ONLY',verifyCompositeCancelSidecar],
+  ['PR150_REFUND_CORE',verifyTransactionRefund],
+  ['PR153_HANDOFF',verifyTransactionHandoff],
+  ['PR156_POST_HANDOFF_CANCEL',verifyPostHandoffCancel]]){
+   const result=await verify(c);
+   if(!result?.verified)throw Error('F06_COMPOSITE_SIGNED_SERVICE_PARENT_REQUIRED_'+name);
+   serviceParents.push(name);
+ }
  const shape=(await c.query("SELECT to_regclass('f06_composite_v1.customer_sessions') IS NOT NULL customers,"+
   "to_regclass('f06_composite_v1.request_keys') IS NOT NULL request_keys,"+
   "to_regclass('f06_composite_v1.decision_keys') IS NOT NULL decision_keys,"+
@@ -69,7 +85,7 @@ export async function verifyCompositeRuntimeDatabase(c,env=process.env){
   "to_regclass('f06_composite_v1.issued_events') IS NOT NULL issued_events")).rows[0];
  if(!shape||Object.values(shape).some(v=>v!==true))throw Error('F06_COMPOSITE_LOCK_SIDE_CAR_REQUIRED');
  return Object.freeze({verified:true,nonProduction:true,databaseOid:issuer.databaseOid,
-  backendPid:identity.pid,issuer:issuer.issuer,parents});
+  backendPid:identity.pid,issuer:issuer.issuer,parents,serviceParents});
 }
 export const getCompositeSourceMatrix=()=>Object.freeze([
  {step:'lock_request_lock',source:'COMPOSITE_NONPROD_SIGNED_V1 + F03 employee session',state:'RUNTIME_WIRED'},
