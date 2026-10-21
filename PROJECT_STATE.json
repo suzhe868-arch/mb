@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F08_SIGNED_SOURCE_AND_EXTERNAL_AUTHORIZATION_GATE",
-  "current_domain_status": "用户已确认 JYT/Collector、图片存储/CDN、飞书均尚未准备。A 已完成最新 main、Issue #187、F03/F05 正式来源与 F07 外部依赖的增量核查，并将外部资源阻断写入台账。当前无新的、可合法验收且不依赖缺失资源的 B 业务差异；F03 正式事实读取器仍 fail-closed，F05 正向 Issuer 仍 SOURCE_GAP。F08-2/F08-3 已验收成果直接复用，不重复测试。",
+  "current_domain_status": "用户已确认 JYT/Collector、图片存储/CDN、飞书均尚未准备。A 已完成最新 main、Issue #187、F03/F05 正式来源与 F07 外部依赖的增量核查。电话权限后端增量复核确认：F08-3 PR #193 仅覆盖 CI_SYNTHETIC_ONLY，正式 F03 reader 对电话动作仍 finalAllowed=false，F04 Current 电话合同仍 CI_ONLY_PROPOSED/NOT_PRODUCTION，SG01/SG08 正式范围与 publisher 映射仍 MISSING_PROPOSAL。后端功能尚未正式完成；当前仍无合法新 B 施工包，已验收 F08-2/F08-3 成果直接复用，不重复测试。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01：维护 Issue #187 的正式来源与外部授权父门禁；三项外部系统尚未准备，当前推进依赖台账和状态交接，不发重复 B 模拟施工包。",
+  "current_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01：维护 Issue #187 的正式来源与外部授权父门禁；三项外部系统尚未准备。已确认员工电话权限正式配置 API/Scope 接线仍未完成，F08-3 仅为 CI_SYNTHETIC_ONLY；在合法 F03 capability/Vehicle Scope/Object 来源门禁解决前，不重复测试、不改冻结 F03、不发新 B 施工包。",
   "current_work_file": "07_重建工作区/A_Issue187外部系统未准备阻断登记与独立工作盘点_2026-10-22.md",
   "f06_issue164_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_NONPROD_COMPOSITE_DUAL_GATE_B_CONTINUE",
@@ -3388,7 +3388,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "用户已确认 JYT/Collector、图片存储/CDN、飞书均尚未准备。A 已将其登记为明确外部资源阻断，并复核 F03 capability/Vehicle Scope/Object 与 F05 转换正向 Issuer 仍无可核验正式来源。当前没有新的、可合法验收且不依赖缺失资源的 B 业务施工差异；保持 NEXT_OWNER=A、NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01、NEXT_ISSUE=187、NEXT_BRANCH=NONE。资源与正式来源证据就绪后，再由 A 判断最小施工差异。",
+  "next_action": "用户已确认 JYT/Collector、图片存储/CDN、飞书均尚未准备。A 已登记外部资源阻断；电话权限后端正式 API/Scope 接线仍未完成，F08-3 仅为 CI_SYNTHETIC_ONLY，正式 F03 reader 仍 fail-closed，SG01/SG08 正式范围与 publisher 映射仍 MISSING_PROPOSAL。当前无合法新 B 施工包，保持 NEXT_OWNER=A、NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01、NEXT_ISSUE=187、NEXT_BRANCH=NONE；来源/授权门禁解决后再由 A 判断最小施工差异。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -11407,7 +11407,28 @@
     "next_issue": 187,
     "next_branch": "NONE"
   },
-  "external_system_readiness_2026_10_22": {
+    "publisher_phone_backend_formal_api_2026_10_22": {
+    "status": "NOT_IMPLEMENTED_FORMAL_API_SOURCE_GAP",
+    "user_approved_permission": "publisher.phone.sensitive",
+    "approved_modes": ["LOCKED_ONLY", "ALL_ACTIVE_JYT"],
+    "accepted_nonproduction_slice": {
+      "pr": 193,
+      "status": "A_ACCEPTED_CI_SYNTHETIC_ONLY",
+      "configuration_route": "/__ci__/f07-runtime/phone/admin/configure",
+      "does_not_prove_formal_api": true
+    },
+    "formal_f04_phone_route": "CI_ONLY_PROPOSED_NOT_PRODUCTION",
+    "formal_f03_reader": "finalAllowed=false",
+    "missing_sources": ["SG01 capability-scoped Vehicle Scope/Object consumption", "SG08 trusted Vehicle-to-upstream_publisher_id physical mapping", "formal capability catalog source"],
+    "pc_page_issue": 196,
+    "parent_gate_issue": 187,
+    "new_b_task_authorized": false,
+    "next_owner": "A",
+    "next_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
+    "next_branch": "NONE",
+    "production_or_real_jyt_authorized": false
+  },
+"external_system_readiness_2026_10_22": {
     "confirmed_by_user": true,
     "confirmed_at": "2026-10-22",
     "jyt_collector": {
