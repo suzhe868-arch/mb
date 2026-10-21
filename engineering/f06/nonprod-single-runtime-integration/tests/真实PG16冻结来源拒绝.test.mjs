@@ -26,12 +26,14 @@ test('04 没有PR139签名交易侧车不能创建Tx',async()=>{
 });
 test('05 无可信父Schema真实装配必须拒绝而非假启动',async()=>{
  const env={
-  APP_ENV:'test',NODE_ENV:'test',API_HOST:'127.0.0.1',
+  APP_ENV:'test',NODE_ENV:'test',API_HOST:'127.0.0.1',CI:process.env.CI,
+  GITHUB_ACTIONS:process.env.GITHUB_ACTIONS,GITHUB_EVENT_NAME:process.env.GITHUB_EVENT_NAME,
+  GITHUB_REF:process.env.GITHUB_REF,GITHUB_SHA:process.env.GITHUB_SHA,GITHUB_RUN_ID:process.env.GITHUB_RUN_ID,
+  F03_1_DATABASE_URL:dsn,F03_1_HMAC_KEY_BASE64:Buffer.alloc(32,1).toString('base64'),
   F06_COMPOSITE_TEST_CONSENT:F06_COMPOSITE_CONSENT,
-  F06_LOCK_TEST_CONSENT:'I_AUTHORIZE_DISPOSABLE_F06_LOCK_PG16_ONLY',
-  F06_LOCK_DATABASE_URL:dsn
+  F06_LOCK_TEST_CONSENT:'I_AUTHORIZE_DISPOSABLE_F06_LOCK_PG16_ONLY'
  };
- await assert.rejects(createIsolatedF06CompositeRuntime(env),/f03_schema_migrations|F06_LOCK_PG16_SHAPE_NOT_VERIFIED|relation .* does not exist/i);
+ await assert.rejects(createIsolatedF06CompositeRuntime(env),/F06_COMPOSITE_SINGLE_SIGNED_PG16_DATABASE_REQUIRED/i);
 });
 test('06 测试中不创建任何公共资金表或生产Issuer',async()=>{
  const q=(await pool.query("SELECT to_regclass('public.deposit_receipts')::text d,to_regclass('public.refund_payments')::text p")).rows[0];
