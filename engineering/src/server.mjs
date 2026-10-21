@@ -18,9 +18,15 @@ if(process.env.F06_LOCK_TEST_CONSENT&&
  (process.env.F05_D1_BUSINESS_TEST_RUNTIME||process.env.F05_REAL_CATALOG_ENABLE||process.env.F03_1_ENABLE_ISOLATED_AUTH))
  throw Error('F06_LOCK_RUNTIME_COMBINATION_FORBIDDEN');
 if(process.env.F06_COMPOSITE_TEST_CONSENT==='I_AUTHORIZE_DISPOSABLE_F06_COMPOSITE_ONLY'){
+ if(host!=='127.0.0.1')throw Error('F06_COMPOSITE_LOOPBACK_REQUIRED');
+ const raw=process.env.F03_1_HMAC_KEY_BASE64||'';
+ const key=Buffer.from(raw,'base64');
+ if(key.length!==32)throw Error('F06_COMPOSITE_F03_SESSION_HMAC_REQUIRED');
  const {createIsolatedF06CompositeRuntime}=await import('./f06-nonprod-composite-runtime.mjs');
- composite=await createIsolatedF06CompositeRuntime(process.env);
- server=createFoundationServer({lockHandler:composite.handler,readinessProbe:composite.ready,readinessTimeoutMs:3000});
+ service=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret:key,origin:`https://127.0.0.1:${port}`});
+ composite=await createIsolatedF06CompositeRuntime(process.env,{sessionSecret:key});
+ server=createFoundationServer({authHandler:createAuthHandler(service,composite.ready),
+  lockHandler:composite.handler,readinessProbe:composite.ready,readinessTimeoutMs:3000});
 }else if(process.env.F05_D1_BUSINESS_TEST_RUNTIME==='I_ENABLE_F05_D1_DISPOSABLE_PG16_ONLY'){
  if(host!=='127.0.0.1')throw Error('D1_BUSINESS_TEST_LOOPBACK_REQUIRED');
  if(!process.env.F05_D1_TLS_KEY_PATH||!process.env.F05_D1_TLS_CERT_PATH)throw Error('D1_BUSINESS_TEST_TLS_REQUIRED');
