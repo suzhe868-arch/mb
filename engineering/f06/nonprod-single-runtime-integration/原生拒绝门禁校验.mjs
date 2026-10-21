@@ -27,8 +27,8 @@ if(process.env.F06_164_REQUIRE_E2E==='1'){
   assert.ok(match,'single-runtime E2E missing '+name);
   return Number(match[1]);
  };
- assert.equal(field('tests'),1,'single-runtime test count');
- assert.equal(field('pass'),1,'single-runtime pass count');
+ assert.ok(field('tests')>=20,'at least 20 single-runtime integration/security scenarios required');
+ assert.ok(field('pass')>=20,'at least 20 single-runtime scenarios must pass');
  for(const x of ['fail','skipped','cancelled'])assert.equal(field(x),0,'single-runtime '+x);
  assert.ok(!/^not ok /m.test(e2e),'single-runtime raw TAP failure');
  for(const marker of [
@@ -51,7 +51,7 @@ if(process.env.F06_164_REQUIRE_E2E==='1'){
   'F06_164_PR156_NATIVE_POST_HANDOFF_CANCEL_SIDECAR_SIGNED'
  ])assert.ok(chain.includes(marker),'native source initialization missing '+marker);
  console.log('F06_164_FULL_NATIVE_COMPOSITE_PASS',{
-  sha,httpSecurityCases:32,nativePgFailClosed:6,singleRuntimeE2E:1,
+  sha,httpSecurityCases:32,nativePgFailClosed:6,singleRuntimeE2E:field('tests'),
   signedEvents:9,productionReady:false,status:'READY_FOR_A_REVIEW'
  });
 }else{
