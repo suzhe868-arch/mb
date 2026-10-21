@@ -1,3 +1,13 @@
+# 2026-10-21｜B工程提交前语法与施工范围双门禁已写入（治理更新）
+
+- **正式规则**：[B工程执行增量审查关联回归与避免重复施工正式规范](07_重建工作区/B工程执行增量审查关联回归与避免重复施工正式规范_2026-10-21.md)；[A/B/C三窗口协作与验收规范](07_重建工作区/A_B_C三窗口协作与验收规范.md)。
+- **强制要求**：每批修改、每次提交前执行 `git diff --check`，对所有受影响的 `.js/.mjs/.cjs` 执行 `node --check`；检查失败先本地修复再推送。提交与交A前都要逐文件、逐关键差异核对“路径授权＋用途授权”，测试/CI通过不能豁免越界。详见B正式规范第七、八节。
+- **Issue #164专项**：按原施工单与已合并 PR #166 的技术裁决共同判断授权。PR #166 仅对补充裁决列明的文件和用途有限放行；不是允许任意修改旧F06服务。当前B分支如存在越界差异，必须先整改，不能直接交A验收。
+- **接力不变**：`NEXT_OWNER=B`、`NEXT_TASK=F06_NONPROD_SINGLE_RUNTIME_TRUSTED_SOURCE_INTEGRATION_01`、`NEXT_ISSUE=164`、`feat/f06-nonprod-single-runtime-trusted-source-01`。本次只改治理文档和状态记录，不改业务代码、CI工作流、B分支或Issue任务授权，不新建任务。
+- **当前仍未完成**：F06真实非生产业务正向闭环和最终SHA官方CI仍须按原施工单完成；F06/F07/F08/V1仍为 `NOT_READY`。
+
+---
+
 # 2026-10-21｜A正式裁决Issue164：单PG16真实CompositeIssuer、旧源双入口不越权，B原分支继续
 
 - **已实证B阻断成立**：[Issue164](https://github.com/suzhe868-arch/mb/issues/164) B分支 `feat/f06-nonprod-single-runtime-trusted-source-01@7058779956438009fbc49a8f100ddcf5f7e17192`，[同SHA官方Run39514294355](https://github.com/suzhe868-arch/mb/actions/runs/39514294355)/Job118942621386仅**HTTP32/32安全拒绝 + 真实非超管PG16 6/6缺签拒绝**，整条Lock→Deposit→Transaction→Handoff→Cancel→Refund实际正例 `NOT_RUN`，不能标交A验收。PR139旧3A分支与PR153/156/162旧3C1分支硬门禁在一个真实GitHub Push不可同时成立；Lock`f06_lock_test`与交易`f03_auth_test`非同物理数据库，旧裸F03数据库1迁移校验也不兼容现24迁移签名F06库。A原工作单白名单无法合法解决，严禁伪`GITHUB_REF`/旧源或拷贝签名余额。

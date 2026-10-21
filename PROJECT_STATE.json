@@ -73,9 +73,23 @@
     "base_policy": "FETCH_LATEST_MAIN_AT_B_START",
     "work_order": "07_重建工作区/F06单应用隔离Runtime可信源接线与业务闭环_A主控B正式施工单_2026-10-21.md",
     "gap_audit": "07_重建工作区/F06已验收功能与真实Runtime接线差异_A主控独立核查_2026-10-21.md",
-    "reuse_accepted_prs": [139,146,150,153,156,162],
-    "allowed_additions": ["engineering/f06/nonprod-single-runtime-integration/**","engineering/src/f06-nonprod-composite-runtime.mjs",".github/workflows/f06-nonprod-single-runtime-onejob.yml"],
-    "test_only_existing_files_conditional": ["engineering/src/server.mjs","engineering/src/app.mjs"],
+    "reuse_accepted_prs": [
+      139,
+      146,
+      150,
+      153,
+      156,
+      162
+    ],
+    "allowed_additions": [
+      "engineering/f06/nonprod-single-runtime-integration/**",
+      "engineering/src/f06-nonprod-composite-runtime.mjs",
+      ".github/workflows/f06-nonprod-single-runtime-onejob.yml"
+    ],
+    "test_only_existing_files_conditional": [
+      "engineering/src/server.mjs",
+      "engineering/src/app.mjs"
+    ],
     "minimum_true_new_integration_cases": 20,
     "synthetic_pg16_only": true,
     "no_legacy_parent_ref_spoofing": true,
@@ -139,8 +153,17 @@
     "base_policy": "FETCH_LATEST_MAIN_AT_B_EXECUTION",
     "work_order": "07_重建工作区/F06已签移交后取消到Transaction退款可信来源接续_A主控B正式施工单_2026-10-21.md",
     "scope": "POST_HANDOFF_SIGNED_CANCEL_TO_TRANSACTION_REFUND_PENDING_CLOSED_NONPRODUCTION_REAL_PG16_HTTP",
-    "preserve_accepted": [139,146,150,153,156],
-    "allowed_new_paths": ["engineering/f06/post-handoff-refund-bridge-http-pg16/**",".github/workflows/f06-signed-post-handoff-refund-bridge-onejob.yml"],
+    "preserve_accepted": [
+      139,
+      146,
+      150,
+      153,
+      156
+    ],
+    "allowed_new_paths": [
+      "engineering/f06/post-handoff-refund-bridge-http-pg16/**",
+      ".github/workflows/f06-signed-post-handoff-refund-bridge-onejob.yml"
+    ],
     "minimum_new_native_pg16": 35,
     "minimum_new_http_tls": 10,
     "no_paid_runner_budget_usd": 0,
@@ -154,7 +177,19 @@
     "scope": "B_EXECUTION_METHOD_ONLY_F06_F07_F08_ROUTE_UNCHANGED",
     "authority": "USER_CONFIRMED_2026_10_21",
     "file": "07_重建工作区/B工程执行增量审查关联回归与避免重复施工正式规范_2026-10-21.md",
-    "rules": ["REUSE_A_ACCEPTED_WORK","TARGET_ONLY_VERIFIED_GAPS","INCREMENTAL_CODE_REVIEW","IMPACT_BASED_REGRESSION_KEEP_SIGNED_HIGH_RISK_GATES","CONTINUOUS_AUTHORIZED_B_WORK","F08_B_INDEPENDENT_ENGINEERING_STAGE","POST_F08_BACKEND_OVERALL_ACCEPTANCE_A_ONLY"],
+    "rules": [
+      "REUSE_A_ACCEPTED_WORK",
+      "TARGET_ONLY_VERIFIED_GAPS",
+      "INCREMENTAL_CODE_REVIEW",
+      "IMPACT_BASED_REGRESSION_KEEP_SIGNED_HIGH_RISK_GATES",
+      "CONTINUOUS_AUTHORIZED_B_WORK",
+      "F08_B_INDEPENDENT_ENGINEERING_STAGE",
+      "POST_F08_BACKEND_OVERALL_ACCEPTANCE_A_ONLY",
+      "PRECOMMIT_NODE_SYNTAX_CHECK",
+      "PRECOMMIT_DIFF_CHECK",
+      "AUTHORIZED_PATH_AND_PURPOSE_SCOPE_GATE",
+      "NO_READY_FOR_A_REVIEW_WHEN_SCOPE_VIOLATION"
+    ],
     "new_issue_or_work_order_released": false,
     "new_b_execution_authorized": false,
     "production_or_external_authorized": false
@@ -4927,7 +4962,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "Issue164 A已经正式技术裁决选非生产单库+双信任入口而非虚构旧GITHUB_REF，原Issue任务、B分支不变；仅依正式补充单精确白名单执行。B不能以旧32+6安全拒绝宣称业务Ready；现金/生产/外部客户/CPR68/F07/F08不在本单授权。",
+  "next_action_detail": "Issue164 A已经正式技术裁决选非生产单库+双信任入口而非虚构旧GITHUB_REF，原Issue任务、B分支不变；仅依正式补充单精确白名单执行。B不能以旧32+6安全拒绝宣称业务Ready；现金/生产/外部客户/CPR68/F07/F08不在本单授权。 本次新增B强制门禁：每批/每次提交前运行git diff --check和全部变更JS/MJS/CJS的node --check；提交及READY_FOR_A_REVIEW前逐文件、逐关键差异核对路径与用途授权。Issue164的PR166只有限放行明列文件/用途，越界即使CI全绿也不得交A验收。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -10809,5 +10844,28 @@
     ],
     "user_requested_discussion_before_release": true,
     "production_ready": false
+  },
+  "b_precommit_syntax_scope_gate_2026_10_21": {
+    "status": "A_GOVERNANCE_RULES_WRITTEN_PENDING_STANDARD_PR_MERGE",
+    "authority": "USER_APPROVED_2026-10-21",
+    "formal_rule_file": "07_重建工作区/B工程执行增量审查关联回归与避免重复施工正式规范_2026-10-21.md",
+    "collaboration_rule_file": "07_重建工作区/A_B_C三窗口协作与验收规范.md",
+    "current_task_order": "07_重建工作区/F06单应用隔离Runtime可信源接线与业务闭环_A主控B正式施工单_2026-10-21.md",
+    "required_gates": [
+      "NODE_CHECK_ALL_CHANGED_JS_MJS_CJS_BEFORE_EACH_COMMIT",
+      "GIT_DIFF_CHECK_BEFORE_EACH_COMMIT",
+      "SCOPE_CHECK_PATH_AND_PURPOSE_BEFORE_COMMIT_AND_A_HANDOFF",
+      "FINAL_SHA_REQUIRED_CI_AND_EVIDENCE",
+      "SCOPE_VIOLATION_BLOCKS_READY_FOR_A_REVIEW"
+    ],
+    "issue164_scope_authority": "ISSUE_164_PLUS_MERGED_PR166_SUPPLEMENT_EXACT_FILES_AND_PURPOSES_ONLY",
+    "current_owner": "B",
+    "current_task": "F06_NONPROD_SINGLE_RUNTIME_TRUSTED_SOURCE_INTEGRATION_01",
+    "current_issue": 164,
+    "current_branch": "feat/f06-nonprod-single-runtime-trusted-source-01",
+    "business_code_changed": false,
+    "new_issue_or_branch_created": false,
+    "next_pointer_changed": false,
+    "ci_workflow_changed": false
   }
 }
