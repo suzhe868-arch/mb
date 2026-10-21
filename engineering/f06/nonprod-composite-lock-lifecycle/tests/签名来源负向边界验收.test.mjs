@@ -6,7 +6,7 @@ import {assertCompositeSignedRun} from '../../nonprod-single-runtime-integration
 import {verifyCompositeAttestation} from '../../nonprod-single-runtime-integration/composite-issuer.mjs';
 import {verifyLifecycleIssuer} from '../可信LifecycleIssuer.mjs';
 
-const DSN='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test';
+const DSN=process.env.F03_1_DATABASE_URL||'postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test';
 function configure(){
  Object.assign(process.env,{
   APP_ENV:'test',NODE_ENV:'test',API_HOST:'127.0.0.1',CI:'true',GITHUB_ACTIONS:'true',
@@ -16,14 +16,6 @@ function configure(){
   F06_COMPOSITE_TEST_CONSENT:'I_AUTHORIZE_DISPOSABLE_F06_COMPOSITE_ONLY',
   F06_COMPOSITE_SIGNED_ISSUER:'COMPOSITE_NONPROD_SIGNED_V1'
  });
-}
-function tamperRead(db,match,mutate){
- return {query:async(...args)=>{
-  const result=await db.query(...args);
-  const sql=typeof args[0]==='string'?args[0]:String(args[0]?.text||'');
-  if(!match(sql))return result;
-  return {...result,rows:result.rows.map(row=>mutate({...row}))};
- }};
 }
 test('Issue171真实签名来源负向边界矩阵',async t=>{
  configure();
@@ -56,45 +48,49 @@ test('Issue171真实签名来源负向边界矩阵',async t=>{
  const db=new pg.Client({connectionString:DSN,connectionTimeoutMillis:5000});
  await db.connect();
  try{
-  await t.test('07 真实PG16父Attestation物理OID漂移必须拒绝',async()=>{
-   const wrapped=tamperRead(db,q=>q.includes('db_oid'),row=>({...row,db_oid:String(BigInt(row.db_oid)+1n)}));
-   await assert.rejects(()=>verifyCompositeAttestation(wrapped),/F06_COMPOSITE_SIGNED_ISSUER_OR_PARENT_DRIFT/);
-   console.log('F06_171_NEGATIVE_PARENT_OID_DRIFT_DENIED');
+  async function rejectCompositeTamper(sql,args,label){
+   await db.query('BEGIN');
+   try{
+    await db.query('DROP TRIGGER protect_attestation ON f06_composite_v1.attestation');
+    await db.query(sql,args);
+    await db.query('CREATE TRIGGER protect_attestation BEFORE UPDATE OR DELETE ON f06_composite_v1.attestation FOR EACH ROW EXECUTE FUNCTION f06_composite_v1.immutable()');
+    await assert.rejects(()=>verifyCompositeAttestation(db),/F06_COMPOSITE_SIGNED_ISSUER_OR_PARENT_DRIFT/);
+    console.log('F06_171_REAL_PG16_COMPOSITE_TAMPER_DENIED '+label);
+   }finally{await db.query('ROLLBACK')}
+  }
+  async function rejectLifecycleTamper(sql,args,label){
+   await db.query('BEGIN');
+   try{
+    await db.query('DROP TRIGGER prevent_attestation_mutation ON f06_composite_lifecycle_v2.attestation');
+    await db.query(sql,args);
+    await db.query('CREATE TRIGGER prevent_attestation_mutation BEFORE UPDATE OR DELETE ON f06_composite_lifecycle_v2.attestation FOR EACH ROW EXECUTE FUNCTION f06_composite_lifecycle_v2.reject_mutation()');
+    await assert.rejects(()=>verifyLifecycleIssuer(db),/F06_171_LIFECYCLE_ISSUER_OR_PARENT_SIGNATURE_DRIFT/);
+    console.log('F06_171_REAL_PG16_LIFECYCLE_TAMPER_DENIED '+label);
+   }finally{await db.query('ROLLBACK')}
+  }
+  await t.test('07 真实PG16隔离库错误物理OID Attestation必须拒绝',async()=>{
+   await rejectCompositeTamper("UPDATE f06_composite_v1.attestation SET database_oid=$1::oid WHERE seal_name='COMPOSITE_NONPROD_SIGNED_V1'",['1'],'physical_oid');
   });
-  await t.test('08 真实PG16父签名源码摘要漂移必须拒绝',async()=>{
-   const wrapped=tamperRead(db,q=>q.includes('SELECT * FROM f06_composite_v1.attestation FOR SHARE'),
-    row=>({...row,source_sha256:'0'.repeat(64)}));
-   await assert.rejects(()=>verifyCompositeAttestation(wrapped),/F06_COMPOSITE_SIGNED_ISSUER_OR_PARENT_DRIFT/);
+  await t.test('08 真实PG16隔离库签名源码摘要漂移必须拒绝',async()=>{
+   await rejectCompositeTamper("UPDATE f06_composite_v1.attestation SET source_sha256=$1 WHERE seal_name='COMPOSITE_NONPROD_SIGNED_V1'",['0'.repeat(64)],'source_sha256');
   });
-  await t.test('09 24迁移账本摘要与父Attestation不一致必须拒绝',async()=>{
-   const wrapped=tamperRead(db,q=>q.includes('SELECT * FROM f06_composite_v1.attestation FOR SHARE'),
-    row=>({...row,ledger_sha256:'1'.repeat(64)}));
-   await assert.rejects(()=>verifyCompositeAttestation(wrapped),/F06_COMPOSITE_SIGNED_ISSUER_OR_PARENT_DRIFT/);
+  await t.test('09 真实PG16隔离库24迁移账本摘要不一致必须拒绝',async()=>{
+   await rejectCompositeTamper("UPDATE f06_composite_v1.attestation SET ledger_sha256=$1 WHERE seal_name='COMPOSITE_NONPROD_SIGNED_V1'",['1'.repeat(64)],'ledger_sha256');
   });
-  await t.test('10 父F05结构签名摘要与父Attestation不一致必须拒绝',async()=>{
-   const wrapped=tamperRead(db,q=>q.includes('SELECT * FROM f06_composite_v1.attestation FOR SHARE'),
-    row=>({...row,parent_f05_checksum:'2'.repeat(64)}));
-   await assert.rejects(()=>verifyCompositeAttestation(wrapped),/F06_COMPOSITE_SIGNED_ISSUER_OR_PARENT_DRIFT/);
+  await t.test('10 真实PG16隔离库父F05结构签名摘要不一致必须拒绝',async()=>{
+   await rejectCompositeTamper("UPDATE f06_composite_v1.attestation SET parent_f05_checksum=$1 WHERE seal_name='COMPOSITE_NONPROD_SIGNED_V1'",['2'.repeat(64)],'parent_f05_checksum');
   });
-  await t.test('11 Lifecycle父签名来源摘要不一致必须拒绝',async()=>{
-   const wrapped=tamperRead(db,q=>q.includes('SELECT * FROM f06_composite_lifecycle_v2.attestation FOR SHARE'),
-    row=>({...row,parent_source_sha256:'3'.repeat(64)}));
-   await assert.rejects(()=>verifyLifecycleIssuer(wrapped),/F06_171_LIFECYCLE_ISSUER_OR_PARENT_SIGNATURE_DRIFT/);
+  await t.test('11 真实PG16隔离库Lifecycle父签名摘要不一致必须拒绝',async()=>{
+   await rejectLifecycleTamper("UPDATE f06_composite_lifecycle_v2.attestation SET parent_source_sha256=$1 WHERE seal_name='ISSUE171_COMPOSITE_LIFECYCLE_SIGNED_V2'",['3'.repeat(64)],'parent_source_sha256');
   });
-  await t.test('12 Lifecycle签名源码摘要漂移必须拒绝',async()=>{
-   const wrapped=tamperRead(db,q=>q.includes('SELECT * FROM f06_composite_lifecycle_v2.attestation FOR SHARE'),
-    row=>({...row,source_sha256:'4'.repeat(64)}));
-   await assert.rejects(()=>verifyLifecycleIssuer(wrapped),/F06_171_LIFECYCLE_ISSUER_OR_PARENT_SIGNATURE_DRIFT/);
+  await t.test('12 真实PG16隔离库Lifecycle源码摘要漂移必须拒绝',async()=>{
+   await rejectLifecycleTamper("UPDATE f06_composite_lifecycle_v2.attestation SET source_sha256=$1 WHERE seal_name='ISSUE171_COMPOSITE_LIFECYCLE_SIGNED_V2'",['4'.repeat(64)],'source_sha256');
   });
-  await t.test('13 Lifecycle签名数据库OID漂移必须拒绝',async()=>{
-   const wrapped=tamperRead(db,q=>q.includes('SELECT * FROM f06_composite_lifecycle_v2.attestation FOR SHARE'),
-    row=>({...row,database_oid:String(BigInt(row.database_oid)+1n)}));
-   await assert.rejects(()=>verifyLifecycleIssuer(wrapped),/F06_171_LIFECYCLE_ISSUER_OR_PARENT_SIGNATURE_DRIFT/);
+  await t.test('13 真实PG16隔离库Lifecycle物理OID漂移必须拒绝',async()=>{
+   await rejectLifecycleTamper("UPDATE f06_composite_lifecycle_v2.attestation SET database_oid=$1::oid WHERE seal_name='ISSUE171_COMPOSITE_LIFECYCLE_SIGNED_V2'",['1'],'database_oid');
   });
-  await t.test('14 Lifecycle签名Run ID漂移必须拒绝',async()=>{
-   const wrapped=tamperRead(db,q=>q.includes('SELECT * FROM f06_composite_lifecycle_v2.attestation FOR SHARE'),
-    row=>({...row,run_id:'999999999999999999'}));
-   await assert.rejects(()=>verifyLifecycleIssuer(wrapped),/F06_171_LIFECYCLE_ISSUER_OR_PARENT_SIGNATURE_DRIFT/);
+  await t.test('14 真实PG16隔离库Lifecycle Run ID漂移必须拒绝',async()=>{
+   await rejectLifecycleTamper("UPDATE f06_composite_lifecycle_v2.attestation SET run_id=$1 WHERE seal_name='ISSUE171_COMPOSITE_LIFECYCLE_SIGNED_V2'",['999999999999999999'],'run_id');
   });
  }finally{await db.end()}
  t.diagnostic('F06_171_SIGNED_SOURCE_NEGATIVE_BOUNDARIES_PASS');

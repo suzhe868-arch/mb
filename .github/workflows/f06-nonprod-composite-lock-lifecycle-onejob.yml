@@ -135,13 +135,61 @@ jobs:
           set -euo pipefail
           mkdir -p engineering/f06/nonprod-composite-lock-lifecycle/evidence
           timeout 12m node --test engineering/f06/nonprod-composite-lock-lifecycle/tests/原生Lifecycle验收.test.mjs | tee engineering/f06/nonprod-composite-lock-lifecycle/evidence/Issue171_Lifecycle_TAP.log
-      - name: Issue171真实签名来源负向边界验收
+      - name: Issue171隔离PG16真实Priority来源与签名负向边界验收
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p engineering/f06/nonprod-composite-lock-lifecycle/evidence
+          service=$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')
+          test "$(printf '%s\n' "$service" | sed '/^$/d' | wc -l)" -eq 1
+          original_renamed=0
+          clone_created=0
+          cleanup() {
+            status=$?
+            trap - EXIT
+            if [ "$clone_created" -eq 1 ]; then
+              docker exec "$service" psql -U postgres -d postgres -v ON_ERROR_STOP=1 -c "DROP DATABASE IF EXISTS f03_auth_test WITH (FORCE)" >/dev/null 2>&1 || true
+            fi
+            if [ "$original_renamed" -eq 1 ]; then
+              docker exec "$service" psql -U postgres -d postgres -v ON_ERROR_STOP=1 -c "ALTER DATABASE f03_auth_main_hold RENAME TO f03_auth_test" >/dev/null 2>&1 || true
+            fi
+            exit "$status"
+          }
+          trap cleanup EXIT
+          docker exec "$service" psql -U postgres -d postgres -v ON_ERROR_STOP=1 -c "ALTER DATABASE f03_auth_test RENAME TO f03_auth_main_hold"
+          original_renamed=1
+          docker exec "$service" psql -U postgres -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE f03_auth_test TEMPLATE f03_auth_baseline OWNER f03_ci"
+          clone_created=1
+          export APP_ENV=test NODE_ENV=test API_HOST=127.0.0.1 CI=true GITHUB_ACTIONS=true
+          export F03_1_DATABASE_URL='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test'
+          export F03_1_ISOLATION_CONFIRM=I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+          export F05_2_ISOLATION_CONFIRM=I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+          export F06_COMPOSITE_TEST_CONSENT=I_AUTHORIZE_DISPOSABLE_F06_COMPOSITE_ONLY
+          export F06_COMPOSITE_SIGNED_ISSUER=COMPOSITE_NONPROD_SIGNED_V1
+          export F06_LOCK_TEST_CONSENT=I_AUTHORIZE_DISPOSABLE_F06_LOCK_PG16_ONLY
+          export F06_LOCK_LIFECYCLE_TEST_CONSENT=I_AUTHORIZE_DISPOSABLE_F06_LOCK_LIFECYCLE_ONLY
+          export F06_LOCK_LIFECYCLE_EXPIRY_CONSENT=I_AUTHORIZE_DISPOSABLE_F06_LOCK_EXPIRY_ONLY
+          export F06_LOCK_LIFECYCLE_FAULT_INJECTION=I_AUTHORIZE_DISPOSABLE_F06_LOCK_LIFECYCLE_FAULTS
+          node --input-type=module <<'NODE'
+          import pg from './engineering/node_modules/pg/lib/index.js';
+          import {issueCompositeAttestation,verifyCompositeAttestation} from './engineering/f06/nonprod-single-runtime-integration/composite-issuer.mjs';
+          import {issueLifecycleIssuer,verifyLifecycleIssuer} from './engineering/f06/nonprod-composite-lock-lifecycle/可信LifecycleIssuer.mjs';
+          const db=new pg.Client({connectionString:process.env.F03_1_DATABASE_URL,connectionTimeoutMillis:5000});
+          await db.connect();
+          try {
+            await db.query('DROP SCHEMA IF EXISTS f06_composite_lifecycle_v2 CASCADE');
+            await db.query('DROP SCHEMA IF EXISTS f06_composite_v1 CASCADE');
+            const composite=await issueCompositeAttestation(db);
+            if(!composite.verified)throw Error('F06_171_ISOLATED_COMPOSITE_REISSUE_FAILED');
+            const parent=await verifyCompositeAttestation(db);
+            const lifecycle=await issueLifecycleIssuer(db);
+            const checked=await verifyLifecycleIssuer(db);
+            if(!parent.verified||!lifecycle.verified||checked.sha!==process.env.GITHUB_SHA||checked.runId!==process.env.GITHUB_RUN_ID)
+              throw Error('F06_171_ISOLATED_LIFECYCLE_REISSUE_FAILED');
+            console.log('F06_171_ISOLATED_PRIORITY_DATABASE_SIGNED',JSON.stringify({sha:checked.sha,runId:checked.runId,oid:checked.oid,source:checked.sourceSHA}));
+          } finally { await db.end(); }
+          NODE
+          timeout 12m node --test engineering/f06/nonprod-composite-lock-lifecycle/tests/Priority来源真实PG16拒绝验收.test.mjs | tee engineering/f06/nonprod-composite-lock-lifecycle/evidence/Priority来源真实PG16_TAP.log
           timeout 12m node --test engineering/f06/nonprod-composite-lock-lifecycle/tests/签名来源负向边界验收.test.mjs | tee engineering/f06/nonprod-composite-lock-lifecycle/evidence/签名来源负向边界_TAP.log
-
       - name: 恢复独立父表OID并完成161表24迁移Seal
         shell: bash
         run: |

@@ -22,7 +22,8 @@ function tap(relative,min){
  return {tests,passed,content};
 }
 const previous=tap('../nonprod-single-runtime-integration/evidence/单Runtime闭环_TAP.log',42);
-const current=tap('./evidence/Issue171_Lifecycle_TAP.log',30);
+const current=tap('./evidence/Issue171_Lifecycle_TAP.log',25);
+const priority=tap('./evidence/Priority来源真实PG16_TAP.log',7);
 const signedNegative=tap('./evidence/签名来源负向边界_TAP.log',15);
 const legacy=tap('../nonprod-single-runtime-integration/evidence/Legacy审计真实PG16_TAP.log',1);
 const legacyService=tap('./evidence/Legacy生命周期Service_TAP.log',12);
@@ -31,9 +32,13 @@ const legacyNative=tap('./evidence/Legacy生命周期PG16_TAP.log',13);
 assert.ok(legacyNative.content.includes('F06_171_AFFECTED_LEGACY_LIFECYCLE_REAL_PG16_PASS'),
  'native PG16 affected CI_LEGACY lifecycle service regression missing');
 assert.ok(previous.content.includes('F06_164_SINGLE_PG16_CURRENT_RUN_ISSUER_AND_ALL_NINE_BUSINESS_EVENTS_VERIFIED'),'prior signed business chain missing');
-assert.ok(current.content.includes('F06_171_NATIVE_SIGNED_LOCK_LIFECYCLE_29_CASES_PASS'),'new 26 executable PG16 scenarios missing');
+assert.ok(current.content.includes('F06_171_NATIVE_SIGNED_LOCK_LIFECYCLE_PASS'),'new native PG16 lifecycle scenarios missing');
 assert.ok(current.content.includes('F06_171_NATIVE_PG16_NON_SUPERUSER'),'new non-superuser physical PG identity missing');
-assert.ok(current.content.includes('F06_171_PRIORITY_ORIGIN_FOUR_ACTIONS_NO_SIDE_EFFECTS_PASS'),'Priority-origin extend/release/cancel/expire no-side-effect matrix missing');
+assert.ok(priority.content.includes('F06_171_PRIORITY_ORIGIN_REAL_PG16_FOUR_ACTIONS_PASS'),'real signed Priority-origin four-action PG16 matrix missing');
+const nativeSource=readFileSync(new URL('./tests/原生Lifecycle验收.test.mjs',import.meta.url),'utf8');
+assert.ok(!nativeSource.includes('priorityPool')&&!nativeSource.includes('只读适配器模拟Priority来源'),'mocked Priority source must not replace PG16 business integration');
+const prioritySource=readFileSync(new URL('./tests/Priority来源真实PG16拒绝验收.test.mjs',import.meta.url),'utf8');
+assert.ok(prioritySource.includes('setQualificationCI')&&prioritySource.includes('f06_composite_v1.lock_snapshots'),'real F05 Priority source and signed Lock snapshot are required');
 assert.ok(current.content.includes('09A 权限撤销即时生效且Lock/签名事件/审计无变化'),'permission revocation fail-closed case missing');
 assert.ok(current.content.includes('10A 伪造员工身份和Issuer请求头被拒且无副作用'),'forged identity fail-closed case missing');
 assert.ok(signedNegative.content.includes('F06_171_SIGNED_SOURCE_NEGATIVE_BOUNDARIES_PASS'),'signed-source negative boundary matrix missing');
@@ -45,14 +50,14 @@ for(const marker of [
  '04 当前Git HEAD与签名SHA不一致必须拒绝',
  '05 无效Run ID不能签发',
  '06 非40位SHA不能签发',
- '07 真实PG16父Attestation物理OID漂移必须拒绝',
- '08 真实PG16父签名源码摘要漂移必须拒绝',
- '09 24迁移账本摘要与父Attestation不一致必须拒绝',
- '10 父F05结构签名摘要与父Attestation不一致必须拒绝',
- '11 Lifecycle父签名来源摘要不一致必须拒绝',
- '12 Lifecycle签名源码摘要漂移必须拒绝',
- '13 Lifecycle签名数据库OID漂移必须拒绝',
- '14 Lifecycle签名Run ID漂移必须拒绝'
+ '07 真实PG16隔离库错误物理OID Attestation必须拒绝',
+ '08 真实PG16隔离库签名源码摘要漂移必须拒绝',
+ '09 真实PG16隔离库24迁移账本摘要不一致必须拒绝',
+ '10 真实PG16隔离库父F05结构签名摘要不一致必须拒绝',
+ '11 真实PG16隔离库Lifecycle父签名摘要不一致必须拒绝',
+ '12 真实PG16隔离库Lifecycle源码摘要漂移必须拒绝',
+ '13 真实PG16隔离库Lifecycle物理OID漂移必须拒绝',
+ '14 真实PG16隔离库Lifecycle Run ID漂移必须拒绝'
 ])assert.ok(signedNegative.content.includes(marker),'missing executed signed-source boundary: '+marker);
 assert.ok(legacy.content.includes('F06_164_LEGACY_AUDIT_DB_PASS'),'old CI_LEGACY native audit compatibility missing');
 const parent=log('../nonprod-single-runtime-integration/evidence/父链签名与初始化.log');

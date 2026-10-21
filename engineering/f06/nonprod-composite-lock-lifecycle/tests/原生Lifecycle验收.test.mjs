@@ -6,7 +6,7 @@ import pg from 'pg';
 import {createFoundationServer} from '../../../src/app.mjs';
 import {hashPassword,newOpaqueToken,sessionDigest} from '../../../src/f03-auth-crypto.mjs';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
-import {createIsolatedF06CompositeRuntime,verifyCompositeRuntimeDatabase} from '../../../src/f06-nonprod-composite-runtime.mjs';
+import {createIsolatedF06CompositeRuntime} from '../../../src/f06-nonprod-composite-runtime.mjs';
 import {createIsolatedF06LockLifecycleService} from '../../../src/f06-lock-lifecycle-service.mjs';
 import {assertCompositeSignedRun} from '../../nonprod-single-runtime-integration/可信Composite签名根.mjs';
 import {verifyLifecycleIssuer} from '../可信LifecycleIssuer.mjs';
@@ -191,66 +191,6 @@ test('Issue171: Native PG16 Composite ordinary-lock lifecycle & immutable issuer
    const rows=(await db.query("SELECT lock_id FROM public.locks WHERE lock_id=ANY($1::bigint[]) AND lock_status='active'",[[lock1,lock2,lock3,lock4,lock5,lock6]])).rows;
    assert.equal(rows.length,6);
   });
-   const lifecycleFacts=async lockId=>{
-    const row=(await db.query('SELECT lock_status,expires_at FROM public.locks WHERE lock_id=$1',[lockId])).rows[0];
-    const events=(await db.query('SELECT count(*)::int n FROM f06_composite_lifecycle_v2.lock_lifecycle_events WHERE lock_id=$1',[lockId])).rows[0].n;
-    const audits=(await db.query("SELECT count(*)::int n FROM public.audit_events WHERE object_kind='Lock' AND object_id=$1",[String(lockId)])).rows[0].n;
-    return {lockStatus:row.lock_status,expiresAt:new Date(row.expires_at).toISOString(),events,audits};
-   };
-   // Frozen 161-table parent seal forbids writing synthetic F05 Priority rows. The adapter changes only the read result of the signed snapshot query; all Lock/Event/Audit reads and writes still use the real PG16 database.
-   const priorityLockIds=[];
-   for(let i=6;i<=9;i++)priorityLockIds.push(await createLock(i));
-   const priorityLockSet=new Set(priorityLockIds.map(String));
-   let priorityEventLookups=0;
-   const priorityPool={
-    connect:async()=>{
-     const client=await runtime.pool.connect();
-     return {
-      query:async(...args)=>{
-       const result=await client.query(...args);
-       const sql=typeof args[0]==='string'?args[0]:String(args[0]?.text||'');
-        if(sql.includes('FROM f06_composite_lifecycle_v2.lock_lifecycle_events WHERE event_key_sha256=$1'))priorityEventLookups++;
-       if(sql.includes('FROM f06_composite_v1.lock_snapshots WHERE lock_id=$1 FOR SHARE')&&result.rows.length){
-        return {...result,rows:result.rows.map(row=>priorityLockSet.has(String(row.lock_id))?{...row,priority_origin_id:String(900000000000000000n+BigInt(row.lock_id)),priority_origin_customer_id:String(row.customer_id)}:row)};
-       }
-       return result;
-      },
-      release:()=>client.release()
-     };
-    },
-    query:(...args)=>runtime.pool.query(...args)
-   };
-   const priorityGuardService=createIsolatedF06LockLifecycleService({
-    pool:priorityPool,env:process.env,mode:'COMPOSITE_NONPROD_SIGNED_V1',sessionSecret:secret,
-    verifyDatabase:async c=>{await verifyCompositeRuntimeDatabase(c);await verifyLifecycleIssuer(c)}
-   });
-   await t.test('04A 只读适配器模拟Priority来源且不改写PG16签名快照',async()=>{
-    const rows=(await db.query('SELECT lock_id,priority_origin_id FROM f06_composite_v1.lock_snapshots WHERE lock_id=ANY($1::bigint[])',[priorityLockIds])).rows;
-    assert.equal(rows.length,4);assert.ok(rows.every(x=>x.priority_origin_id===null));
-   });
-   const priorityExpiry=(await db.query("SELECT (clock_timestamp()+interval '120 hours')::timestamptz AS value")).rows[0].value.toISOString();
-   const priorityActions=[
-    {lockId:priorityLockIds[0],action:'extend',code:'PRIORITY_ORIGIN_ORDINARY_EXTENSION_DENIED'},
-    {lockId:priorityLockIds[1],action:'release',code:'PRIORITY_ORIGIN_ORDINARY_RELEASE_DENIED'},
-    {lockId:priorityLockIds[2],action:'cancel',code:'PRIORITY_ORIGIN_ORDINARY_CANCEL_DENIED'},
-    {lockId:priorityLockIds[3],action:'expire',code:'PRIORITY_ORIGIN_ORDINARY_EXPIRY_DENIED'}
-   ];
-   for(const item of priorityActions){
-    if(item.action==='expire')await db.query("UPDATE public.locks SET expires_at=clock_timestamp()-interval '1 second' WHERE lock_id=$1",[item.lockId]);
-    const before=await lifecycleFacts(item.lockId);
-    const beforeReplayLookups=priorityEventLookups;
-    let result;
-    if(item.action==='expire')result=await priorityGuardService.expireOrdinary({lockId:item.lockId});
-    else result=await priorityGuardService.act({token:initialToken,lockId:item.lockId,action:item.action,
-     idempotencyKey:'issue171_priority_'+item.action+'_'+String(item.lockId)+'_'+process.env.GITHUB_RUN_ID,
-     reason:'Priority-origin Lock must remain exclusive',...(item.action==='extend'?{newExpiresAt:priorityExpiry}:{})});
-    await t.test('04B Priority来源标记Lock '+item.action+'硬拒绝且Lock/签名事件/审计无变化',async()=>{
-     assert.equal(result.status,409,JSON.stringify(result.body));assert.equal(result.body.code,item.code);
-     assert.deepEqual(await lifecycleFacts(item.lockId),before);
-     assert.equal(priorityEventLookups,beforeReplayLookups,'Priority guard must run before idempotency replay lookup');
-    });
-   }
-   t.diagnostic('F06_171_PRIORITY_ORIGIN_FOUR_ACTIONS_NO_SIDE_EFFECTS_PASS');
   const expiry=(await db.query("SELECT (clock_timestamp()+interval '120 hours')::timestamptz AS value")).rows[0].value.toISOString();
   const extendBody={action:'extend',idempotencyKey:'issue171_extend_'+process.env.GITHUB_RUN_ID,reason:'Native synthetic ordinary extension',newExpiresAt:expiry};
   console.log('F06_171_PHASE_BEGIN','lifecycleFirstExtend');
@@ -415,7 +355,7 @@ test('Issue171: Native PG16 Composite ordinary-lock lifecycle & immutable issuer
    const r=await fetch(base+'/api/v1/refund-payments',{method:'POST'});
    assert.equal(r.status,503);
   });
-  t.diagnostic('F06_171_NATIVE_SIGNED_LOCK_LIFECYCLE_29_CASES_PASS');
+  t.diagnostic('F06_171_NATIVE_SIGNED_LOCK_LIFECYCLE_PASS');
  }finally{
   console.log('F06_171_PHASE_BEGIN','cleanup');
   if(server){server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
