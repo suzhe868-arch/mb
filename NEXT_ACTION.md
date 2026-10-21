@@ -3,7 +3,8 @@
 ## 当前已完成事项
 
 - F06 Issue #171 已通过非生产子范围 A 独立验收，Issue 已关闭，PR #174 已标准合并。
-- 业务 SHA：`06c880d7f53adda7862da88cde0b790fdc60f415`；合并/main SHA：`86f59431768f393232b8746cd3deb62f1044d85c`。
+- 业务 SHA：`06c880d7f53adda7862da88cde0b790fdc60f415`；PR #174 合并 SHA：`86f59431768f393232b8746cd3deb62f1044d85c`。
+- A治理状态更新与F07正式放行已通过 [PR #179](https://github.com/suzhe868-arch/mb/pull/179) 合并，merge SHA：`9d8a94d4fe34e7a3f3ca17ac608175397e49a321`；Issue #178 现已生效。
 - 官方 Push Run #39602409488 / Job #119229953562 全步骤成功；Artifact #12347892081（36,014 bytes）有效至 2026-11-04T13:01:30Z。
 - F07-1～F07-4 与 F08-1 的已验收 CI-only 成果直接复用，不重做旧包。
 
