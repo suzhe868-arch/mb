@@ -14,6 +14,16 @@
 - 只做后端；不开发 PC/手机页面，不接生产、不改 F03 reader/旧工作流、不伪造正式 Issuer 或外部接入。
 
 
+## 已确认的后续独立后端任务（排队，当前不改变唯一指针）
+
+当前 Issue #201 仍是唯一有效 B 任务。以下两个后端缺口已经按主线代码核实并建立正式施工单，**不依赖 Issue #187 的 JYT/Collector/CDN/飞书来源门禁，但不允许 B 提前并行开工**；必须按顺序由 A 在前一任务验收合并后切换唯一指针：
+
+1. **下一项：** [Issue #203｜F05-8 Priority TTL 到期重仲裁持久调度](https://github.com/suzhe868-arch/mb/issues/203)，任务 `F05_8_PRIORITY_TTL_SCHEDULER_01`，分支 `feat/f05-8-priority-ttl-scheduler-01`，施工单 `07_重建工作区/F05-8_Priority到期重仲裁持久调度非生产施工单_2026-10-22.md`。已有持久队列 worker 和 PG16 正反例，但没有自动轮询 runner。
+2. **随后：** [Issue #204｜F05 目录客户价格权益投影与确定性搜索](https://github.com/suzhe868-arch/mb/issues/204)，任务 `F05_CATALOG_CUSTOMER_PRICE_SEARCH_01`，分支 `feat/f05-catalog-customer-price-search-01`，施工单 `07_重建工作区/F05目录客户价格权益投影与确定性搜索非生产施工单_2026-10-22.md`。当前目录 DTO 固定隐藏价格，列表没有关键词入口；现有价格解锁、排序和词典资产直接复用。
+
+两项均只交付非生产后端代码与真实 PG16 证据，不开发 PC/手机页面，不改已验收排序/解锁算法，不伪造正式 Issuer。当前 NEXT_OWNER/NEXT_TASK/NEXT_ISSUE/NEXT_BRANCH 仍唯一指向 Issue #201。
+
+
 ---
 
 ## 2026-10-22 上一任务历史记录（以下原“当前”已经失效）
