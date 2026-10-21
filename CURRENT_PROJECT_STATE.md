@@ -1,3 +1,13 @@
+# 2026-10-21｜CURRENT_PROJECT_STATE补充：Issue171非生产生命周期切片已由A验收并合并
+
+PR #174 已按最终施工SHA `06c880d7f53adda7862da88cde0b790fdc60f415` 完成A独立验收并合并，合并提交 `86f59431768f393232b8746cd3deb62f1044d85c`。官方Run [39602409488](https://github.com/suzhe868-arch/mb/actions/runs/39602409488)成功，Artifact `f06-issue171-evidence-39602409488`存在且未过期。Lifecycle 32/32、Priority四动作7/7、签名负向15/15、Composite42/42、Legacy Node/HTTP37/37、Legacy PG16 13/13、Legacy审计1/1，均0失败、0跳过；161张父表/24条签名迁移三OID封印一致，`unauthorizedParentDrift=false`。
+
+本次仅接受F06非生产Composite Lock生命周期切片。F06整体、F07、F08及V1仍NOT_READY；没有生产、真钱、真实退款/成交或F07/F08开工授权。下一责任人为A，继续 `F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01`，避免重复施工并基于现有验收成果规划后续包。
+
+验收报告：`07_重建工作区/F06_Issue171_PR174独立验收通过与非生产边界_2026-10-21.md`。
+
+---
+
 # 2026-10-21｜CURRENT_PROJECT_STATE补充：Issue171版本正确的F05源事实预置路径
 
 本补充裁决仅在治理PR合并main后生效。它只允许原Issue171分支按签名账本版本调用现有F05-7/F05-8正式服务生成非生产测试所需的真实Match/Priority事实，并要求旧Issue164分支完全保留原迁移执行路径。没有放宽F05源码/迁移/父签名表、原始SQL伪造、Mock、Ref/SHA/RunID或物理OID校验。PR #174仍未验收/未合并，B继续原分支，待最终SHA官方CI完整成功并归档同SHA证据后交A独立复验。F06/F07/F08/V1仍NOT_READY。
