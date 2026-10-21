@@ -3,7 +3,8 @@
 ## A-F06-171-ACCEPT-01｜Issue171 非生产子范围验收通过
 
 - PR #174 已标准合并；Issue #171 已关闭 completed。
-- 受验业务 SHA：`06c880d7f53adda7862da88cde0b790fdc60f415`；合并/main SHA：`86f59431768f393232b8746cd3deb62f1044d85c`。
+- 受验业务 SHA：`06c880d7f53adda7862da88cde0b790fdc60f415`；PR #174 合并 SHA：`86f59431768f393232b8746cd3deb62f1044d85c`。
+- A治理状态更新与F07正式放行已通过 [PR #179](https://github.com/suzhe868-arch/mb/pull/179) 合并，merge SHA：`9d8a94d4fe34e7a3f3ca17ac608175397e49a321`；Issue #178 现已生效。
 - 官方 Push Run #39602409488 成功；Artifact #12347892081 有效；161 张父表/24 条签名迁移跨 OID Seal 通过。
 - 仅接受非生产 Composite Lock 生命周期与可信来源接线；不授予生产、真钱、实际退款/成交或外部服务权限。
 - 完整报告：`07_重建工作区/F06_Issue171_PR174最终独立验收与合并报告_2026-10-21.md`。
