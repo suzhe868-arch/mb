@@ -9,6 +9,7 @@ export const sourceSQL=await readFile(new URL('./composite-issuer.sql',import.me
 const SOURCE_FILES=[
  ['./composite-issuer.sql','./composite-issuer.sql'],
  ['./composite-issuer.mjs','./composite-issuer.mjs'],
+ ['./e2e-test','./tests/真实PG16单Runtime闭环验收.test.mjs'],
  ['./可信Composite签名根.mjs','./可信Composite签名根.mjs'],
  ['runtime','../../src/f06-nonprod-composite-runtime.mjs'],
  ['lock-service','../../src/f06-lock-service.mjs'],
