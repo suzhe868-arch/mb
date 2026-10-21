@@ -218,7 +218,7 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     `f06_composite_${kind}`,JSON.stringify({status:prior}),JSON.stringify({status:after,lockId,waitlistId:waitId})]);
   if(composite){
    const att=await first(db,"SELECT head_sha,run_id,source_sha256 FROM f06_composite_v1.attestation WHERE seal_name='COMPOSITE_NONPROD_SIGNED_V1' FOR SHARE");
-   const parent=await first(db,"SELECT source_sha256 FROM f06_1_lock_ci.attestation WHERE seal_name='F06_1_CI_ONLY_SIDECAR' FOR SHARE");
+   const parent=await first(db,"SELECT source_sha256 FROM f06_1_lock_ci.attestation WHERE seal_name='F06_1_CI_ONLY_V27_SIDECAR' FOR SHARE");
    if(!att||!parent)throw Error('F06_COMPOSITE_SIGNED_LOCK_PARENT_MISSING');
    const eventKinds={created:'lock_request_created',approved:'lock_request_approved',rejected:'lock_request_rejected',
     expired:'lock_request_expired',lock_conflict:'lock_conflict',closed_not_lockable:'lock_request_closed'};
