@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "A_ISSUE171_SIGNED_REAL_PUSH_BRANCH_BLOCKER_CONFIRMED_EXACT_FIVE_FILE_RULING_B_CONTINUE",
+  "substage": "A_PR174_REVIEW_RETURNED_PRIORITY_LIFECYCLE_AND_SIGNED_PROFILE_NEGATIVE_TESTS",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION",
-  "current_domain_status": "ISSUE171_B_BLOCKED_TRUSTED_SIGNED_REF_CONFIRMED / A_EXACT_FIVE_FILE_RULING_APPROVED / B_CONTINUE / F06_F07_F08_V1_NOT_READY",
+  "current_domain_status": "PR174_OFFICIAL_CI_AND_NATIVE_EVIDENCE_VERIFIED_BUT_A_REVIEW_BLOCKED_PRIORITY_RELEASE_CANCEL_AND_SIGNED_PROFILE_NEGATIVE_TEST_MATRIX / NEXT_OWNER=B / F06_F07_F08_V1_NOT_READY",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "B已在Issue171指定分支13b9cc580b0907d743414707d353d4b96f1ca39b只提交一份真实签名根阻断报告，未执行业务正例或官方CI。A核实旧Issue164签名根、composite-issuer.mjs、私有composite-issuer.sql的GithubRef CHECK、上游原生签名初始化shell、161父表24迁移异OID封印脚本5文件均锁定旧分支。A仅批准两个精确真实Push分支受控profile及本SHA/Run/PG物理OID验真/旧门禁保留，B原Issue原分支一次性继续合法Lifecycle接线及真实PG16测试。",
+  "current_task": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01：按A对PR174的独立验收意见，补齐Priority来源Lock普通release/cancel硬拒绝与四动作真实PG16无副作用测试，并补齐PR173裁决要求的真实签名来源负向边界测试及证据门禁。",
   "current_work_file": "07_重建工作区/F06_Issue171_Composite普通Lock生命周期可信接线_A主控B正式施工单_2026-10-21.md",
   "f06_issue164_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_NONPROD_COMPOSITE_DUAL_GATE_B_CONTINUE",
@@ -8147,7 +8147,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01",
+  "next_task": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01_A_REVIEW_REMEDIATION",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9822,7 +9822,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F06_Issue171_Composite普通Lock生命周期可信接线_A主控B正式施工单_2026-10-21.md",
+  "next_work_file": "07_重建工作区/F06_Issue171_PR174独立验收退回报告_2026-10-21.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -10948,14 +10948,89 @@
     "ruling_document": "07_重建工作区/F06_Issue171真实分支Composite签名根五文件最小技术裁决补充单_2026-10-21.md",
     "main_merge_required": true,
     "existing_issue_stays_open": true,
-    "native_new_pg16_cases_done": 0,
-    "official_ci_done": false,
+    "native_new_pg16_cases_done": 30,
+    "official_ci_done": true,
     "legacy_issuer_must_fail_closed": true,
     "production_ready": false,
     "real_payment_authorized": false,
     "refund_refunded_authorized": false,
     "transaction_completed_authorized": false,
     "next_owner": "B",
-    "next_task": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01"
+    "next_task": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01",
+    "official_ci_run_id": 39576895129,
+    "review_status": "A_REVIEW_RETURNED_TO_B",
+    "reviewed_pr": 174,
+    "reviewed_head_sha": "9409e426c54e5b767a914cb134a7022aed77ffae",
+    "review_blockers": [
+      "Priority来源Lock普通release/cancel缺少fail-closed；须对extend/release/cancel/expire做真实PG16拒绝与无副作用验证。",
+      "PR173裁决要求的Issue164/Issue171 profile互斥、错误Ref/非Push/HEAD-SHA不一致/无效Run ID/错误OID/源码摘要漂移/父迁移Attestation不一致/权限撤销/伪造身份负向测试及证据门禁缺失。"
+    ]
+  },
+  "f06_issue171_pr174_review_2026_10_21": {
+    "status": "A_REVIEW_RETURNED_TO_B_NOT_MERGED",
+    "issue": 171,
+    "pr": 174,
+    "branch": "feat/f06-nonprod-composite-lock-lifecycle-01",
+    "head_sha": "9409e426c54e5b767a914cb134a7022aed77ffae",
+    "official_run_id": 39576895129,
+    "official_run_conclusion": "success",
+    "artifact": "f06-issue171-evidence-39576895129",
+    "artifact_sha256": "dea3e9c98f9eeaae41a3b01a314a8ea97f0554d8f57010a422779876bbc902a5",
+    "artifact_expired": false,
+    "test_results": {
+      "lifecycle": {
+        "tests": 30,
+        "pass": 30,
+        "fail": 0,
+        "skipped": 0
+      },
+      "composite": {
+        "tests": 42,
+        "pass": 42,
+        "fail": 0,
+        "skipped": 0
+      },
+      "legacy_node_http": {
+        "tests": 37,
+        "pass": 37,
+        "fail": 0,
+        "skipped": 0
+      },
+      "legacy_pg16_lifecycle": {
+        "tests": 13,
+        "pass": 13,
+        "fail": 0,
+        "skipped": 0
+      },
+      "legacy_audit": {
+        "tests": 1,
+        "pass": 1,
+        "fail": 0,
+        "skipped": 0
+      },
+      "parent_tables": 161,
+      "signed_migrations": 24,
+      "physical_oids": [
+        "22746",
+        "16387",
+        "23026"
+      ],
+      "unauthorized_parent_drift": false
+    },
+    "path_scope_pass": true,
+    "merged": false,
+    "formal_review_api_unavailable_same_pr_author": true,
+    "blockers": [
+      "Priority来源Lock release/cancel未fail-closed，且缺少四动作真实PG16无副作用测试。",
+      "PR173要求的签名来源profile互斥和错误Ref/非Push/HEAD-SHA/RunID/OID/sourceSHA/parent-attestation负向测试及证据门禁缺失。"
+    ],
+    "next_owner": "B",
+    "next_task": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01_A_REVIEW_REMEDIATION",
+    "next_issue": 171,
+    "next_branch": "feat/f06-nonprod-composite-lock-lifecycle-01",
+    "production_ready": false,
+    "real_payment_authorized": false,
+    "refund_refunded_authorized": false,
+    "transaction_completed_authorized": false
   }
 }
