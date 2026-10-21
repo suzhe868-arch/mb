@@ -67,7 +67,7 @@ jobs:
           git fetch --no-tags origin main
           git -c core.quotePath=false diff --name-only origin/main...HEAD | while IFS= read -r path; do
             case "$path" in
-              engineering/f06/nonprod-single-runtime-integration/*|engineering/src/f06-nonprod-composite-runtime.mjs|engineering/src/server.mjs|engineering/src/app.mjs|engineering/src/f06-lock-service.mjs|engineering/src/f06-lock-readiness.mjs|engineering/src/f06-lock-http.mjs|engineering/src/f06-lock-lifecycle-service.mjs|engineering/src/f06-lock-lifecycle-http.mjs|engineering/f06/lock-transaction-http-pg16/service.mjs|engineering/f06/transaction-cancel-http-pg16/service.mjs|engineering/f06/transaction-refund-http-pg16/service.mjs|engineering/f06/transaction-handoff-http-pg16/service.mjs|engineering/f06/post-handoff-cancel-http-pg16/service.mjs|engineering/f06/post-handoff-refund-bridge-http-pg16/签名来源只读核验.mjs|engineering/f06/lockrequest-approval-waitlist-ci/migration.mjs|engineering/f06/lock-lifecycle-ci/migration.mjs|engineering/f06/deposit-ledger-ci/migration.mjs|engineering/f06/deposit-ledger-ci/service.mjs|engineering/f06/lock-transaction-ci/migration.mjs|engineering/f06/refund-pending-ci/migration.mjs|.github/workflows/f06-nonprod-single-runtime-onejob.yml) ;;
+              engineering/f06/nonprod-single-runtime-integration/*|engineering/f06/nonprod-single-runtime-integration/tests/*|engineering/src/f06-nonprod-composite-runtime.mjs|engineering/src/server.mjs|engineering/src/app.mjs|engineering/src/f06-lock-service.mjs|engineering/src/f06-lock-readiness.mjs|engineering/src/f06-lock-http.mjs|engineering/src/f06-lock-lifecycle-service.mjs|engineering/src/f06-lock-lifecycle-http.mjs|engineering/f06/lock-transaction-http-pg16/service.mjs|engineering/f06/transaction-cancel-http-pg16/service.mjs|engineering/f06/transaction-refund-http-pg16/service.mjs|engineering/f06/transaction-handoff-http-pg16/service.mjs|engineering/f06/post-handoff-cancel-http-pg16/service.mjs|engineering/f06/post-handoff-refund-bridge-http-pg16/签名来源只读核验.mjs|engineering/f06/lockrequest-approval-waitlist-ci/migration.mjs|engineering/f06/lock-lifecycle-ci/migration.mjs|engineering/f06/deposit-ledger-ci/migration.mjs|engineering/f06/deposit-ledger-ci/service.mjs|engineering/f06/lock-transaction-ci/migration.mjs|engineering/f06/refund-pending-ci/migration.mjs|.github/workflows/f06-nonprod-single-runtime-onejob.yml) ;;
               *) echo "::error::超出Issue164精确授权: $path"; exit 1 ;;
             esac
           done
@@ -77,6 +77,7 @@ jobs:
           set -euo pipefail
           npm ci --prefix engineering --ignore-scripts --no-audit --no-fund
           node --check engineering/src/f06-nonprod-composite-runtime.mjs
+          node --check 'engineering/f06/nonprod-single-runtime-integration/tests/真实PG16单Runtime闭环验收.test.mjs'
           node --check engineering/src/server.mjs
           node --check engineering/src/f06-lock-service.mjs
           node --check engineering/src/f06-lock-readiness.mjs
