@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "PRODUCT_BASELINE_REBUILD",
-  "substage": "A_PR174_SECOND_REVIEW_FAILED_F05_7_V22_LEDGER_BLOCKER",
+  "substage": "A_ACCEPTED_ISSUE171_PR174_NONPROD_MERGED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION",
-  "current_domain_status": "B HEAD 32abe113 official Run 39591349465 failed in real Priority test with F05_7_SIGNED_V22_LEDGER_REQUIRED; Lifecycle 32/32 and Composite 42/42 passed, signed-negative tests and cross-OID seal skipped; NEXT_OWNER=B; F06/F07/F08/V1 NOT_READY",
+  "current_domain": "F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION",
+  "current_domain_status": "A已验收并合并Issue #171非生产Composite Lock生命周期切片：最终SHA 06c880d7f53adda7862da88cde0b790fdc60f415，官方Run 39602409488成功，Artifact有效；Lifecycle32/32、Priority7/7、签名负向15/15、Composite42/42、Legacy Node/HTTP37/37、Legacy PG16 13/13、Legacy审计1/1，均0失败0跳过；161表/24迁移跨三物理OID Seal一致。F06整体/F07/F08/V1仍NOT_READY；NEXT_OWNER=A，NEXT_TASK=F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,7 +20,7 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01：修复真实Priority来源测试夹具与v26 24条签名迁移链不兼容问题，不修改冻结F05源码/迁移/父签名；完成后执行签名来源负向矩阵、161表/24迁移跨OID Seal、Legacy回归和最终SHA官方CI。",
+  "current_task": "A主控任务：F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01。基于已验收的Issue171非生产生命周期切片，核对F06整体剩余阻断与F07/F08已有成果，规划复用既有成果的后续任务包，避免重复施工；未正式放行前不启动F07/F08新代码施工。",
   "current_work_file": "07_重建工作区/F06_Issue171_Composite普通Lock生命周期可信接线_A主控B正式施工单_2026-10-21.md",
   "f06_issue164_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_NONPROD_COMPOSITE_DUAL_GATE_B_CONTINUE",
@@ -7012,7 +7012,7 @@
     "merge_method": "merge",
     "a_review_report": "07_重建工作区/F05-7_A主控二轮独立验收66项真PG16_PR46标准合并与F05-8技术交接_2026-10-12.md"
   },
-  "next_owner": "B",
+  "next_owner": "A",
   "f05_8_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR47_CI_ONLY",
     "execution": "COMPLETED_A_ACCEPTED_PR47_STANDARD_MERGE",
@@ -8147,7 +8147,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F06_NONPROD_COMPOSITE_LOCK_LIFECYCLE_INTEGRATION_01_PRIORITY_SOURCE_FIXTURE_AND_NEGATIVE_MATRIX_REPAIR",
+  "next_task": "F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -11123,5 +11123,52 @@
       "PR174需最终SHA官方CI全步骤成功、0 skipped、真实PG16 Priority四动作无副作用、签名来源负向矩阵、161表/24迁移三物理OID Seal、Legacy定向回归和有效同SHA Artifact后交A独立复验。",
       "PR174保持open/unmerged，F06/F07/F08/V1继续NOT_READY。"
     ]
+  },
+  "f06_issue171_a_acceptance_2026_10_21": {
+    "status": "A_ACCEPTED_NONPRODUCTION_PR174_MERGED",
+    "issue": 171,
+    "business_pr": 174,
+    "pr_merged": true,
+    "merge_sha": "86f59431768f393232b8746cd3deb62f1044d85c",
+    "final_b_head_sha": "06c880d7f53adda7862da88cde0b790fdc60f415",
+    "official_run": 39602409488,
+    "official_job": 119229953562,
+    "official_run_conclusion": "success",
+    "artifact": {
+      "name": "f06-issue171-evidence-39602409488",
+      "id": 12347892081,
+      "size_bytes": 36014,
+      "expired": false
+    },
+    "tests": {
+      "composite": 42,
+      "lifecycle_http_pg16": 32,
+      "priority_origin_four_action_matrix": 7,
+      "signed_source_negative_matrix": 15,
+      "legacy_node_http": 37,
+      "legacy_pg16_lifecycle": 13,
+      "legacy_audit": 1
+    },
+    "all_tap_zero_fail_zero_skipped": true,
+    "parent_table_count": 161,
+    "signed_migration_count": 24,
+    "physical_oids": [
+      "22751",
+      "16387",
+      "23301"
+    ],
+    "cross_oid_seal": "bcaca106a7a647fc3332572e1a9fd99be0745cdd76220acbbe174c5c5511f62a",
+    "unauthorized_parent_drift": false,
+    "changed_paths_count": 17,
+    "scope_review_passed": true,
+    "production_ready": false,
+    "global_not_ready": true,
+    "production_deployment_authorized": false,
+    "real_money_authorized": false,
+    "real_refund_or_completed_transaction_authorized": false,
+    "f07_f08_work_authorized": false,
+    "report": "07_重建工作区/F06_Issue171_PR174独立验收通过与非生产边界_2026-10-21.md",
+    "next_owner": "A",
+    "next_task": "F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01"
   }
 }
