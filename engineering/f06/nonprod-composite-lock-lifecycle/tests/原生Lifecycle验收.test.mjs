@@ -186,6 +186,18 @@ test('Issue171: Native PG16 Composite ordinary-lock lifecycle & immutable issuer
   console.log('F06_171_PHASE_BEGIN','sixSignedLockRequests');
   const lock1=await createLock(0),lock2=await createLock(1),lock3=await createLock(2),lock4=await createLock(3),lock5=await createLock(4),lock6=await createLock(5);
   console.log('F06_171_PHASE_END','sixSignedLockRequests');
+  // Snapshot observable Lock lifecycle side effects so denied requests prove
+  // the Lock row, signed event stream, and public audit remain unchanged.
+  const lifecycleFacts=async(lockId)=>{
+   const lock=(await db.query('SELECT lock_status,expires_at,end_reason FROM public.locks WHERE lock_id=$1',[lockId])).rows[0];
+   assert.ok(lock,'lifecycle facts require an existing Lock '+lockId);
+   const events=(await db.query('SELECT count(*)::int n FROM f06_composite_lifecycle_v2.lock_lifecycle_events WHERE lock_id=$1',[lockId])).rows[0].n;
+   const audits=(await db.query("SELECT count(*)::int n FROM public.audit_events WHERE object_kind='Lock' AND object_id=$1",[lockId])).rows[0].n;
+   return {
+    lock:{status:lock.lock_status,expires:new Date(lock.expires_at).toISOString(),endReason:lock.end_reason??null},
+    signedEvents:Number(events),publicAudits:Number(audits)
+   };
+  };
   await t.test('04 六个Lock均由真实LockRequest合法审批且唯一',async()=>{
    assert.equal(new Set([lock1,lock2,lock3,lock4,lock5,lock6]).size,6);
    const rows=(await db.query("SELECT lock_id FROM public.locks WHERE lock_id=ANY($1::bigint[]) AND lock_status='active'",[[lock1,lock2,lock3,lock4,lock5,lock6]])).rows;
