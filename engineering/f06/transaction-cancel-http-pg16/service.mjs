@@ -5,7 +5,8 @@
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
-import {verify as verifyNativeRefund,checksum as refundSHA} from '../refund-pending-ci/migration.mjs';
+import {verify as verifyNativeRefund,verifyComposite as verifyNativeRefundComposite,checksum as refundSHA} from '../refund-pending-ci/migration.mjs';
+import {assertCompositeSignedRun} from '../nonprod-single-runtime-integration/可信Composite签名根.mjs';
 const sha=x=>createHash('sha256').update(x).digest('hex');
 const sql=readFileSync(new URL('./sidecar.sql',import.meta.url),'utf8');
 export const cancelSourceSHA=sha(sql);
@@ -51,15 +52,41 @@ export async function attest(c){
  await c.query("INSERT INTO f06_real_cancel_ci.attestation(seal_name,source_sha256,f06_3c1_parent_sha256,public_catalog_sha256,ledger_sha256) VALUES('F06_REAL_CANCEL_CI_ONLY',$1,$2,$3,$4)",[cancelSourceSHA,p.parent.sourceSHA,p.parent.publicCatalogSHA,p.ledger]);
  return verified(c);
 }
-async function verified(c){
- const p=await native(c);
- const exists=await one(c,"SELECT to_regclass('f06_real_tx_ci.origins') tx,to_regclass('f06_real_cancel_ci.attestation') cancel");
+async function nativeComposite(c){
+ assertCompositeSignedRun();
+ const parent=await verifyNativeRefundComposite(c);
+ if(!parent?.verified||parent.sourceSHA!==refundSHA)throw Error('F06_COMPOSITE_CANCEL_NATIVE_3C1_PARENT_INVALID');
+ const meta=await one(c,"SELECT current_database() db,current_user u,current_setting('server_version_num')::int version,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) su,(SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user) createdb");
+ if(meta.db!=='f03_auth_test'||meta.u!=='f03_ci'||meta.su||meta.createdb||meta.version<160000||meta.version>=170000)
+  throw Error('F06_COMPOSITE_CANCEL_NONPRIVILEGED_PG16_REQUIRED');
+ const ledger=(await c.query('SELECT migration_id,checksum,structure_sha256 FROM public.f03_schema_migrations ORDER BY migration_id')).rows;
+ if(ledger.length!==24)throw Error('F06_COMPOSITE_CANCEL_24_LEDGER_REQUIRED');
+ return {parent,ledger:ledgerHash(ledger)};
+}
+async function verifiedCore(c,mode='CI_LEGACY'){
+ const p=mode==='COMPOSITE_NONPROD_SIGNED_V1'?await nativeComposite(c):await native(c);
+ const exists=await one(c,"SELECT to_regnamespace('f06_real_tx_ci') IS NOT NULL tx,to_regnamespace('f06_real_cancel_ci.attestation') IS NOT NULL cancel");
  if(!exists?.tx||!exists.cancel)throw Error('F06_CANCEL_TRUSTED_SIGNED_SOURCE_MISSING');
  const signed=await one(c,'SELECT * FROM f06_real_cancel_ci.attestation FOR SHARE');
  if(!signed||signed.seal_name!=='F06_REAL_CANCEL_CI_ONLY'||signed.source_sha256!==cancelSourceSHA||
    signed.f06_3c1_parent_sha256!==p.parent.sourceSHA||signed.public_catalog_sha256!==p.parent.publicCatalogSHA||
    signed.ledger_sha256!==p.ledger)throw Error('F06_CANCEL_SOURCE_ATTESTATION_DRIFT');
  return p;
+}
+async function verified(c){return verifiedCore(c,'CI_LEGACY')}
+export async function verifyCompositeCancelSidecar(c){return verifiedCore(c,'COMPOSITE_NONPROD_SIGNED_V1')}
+export async function applyCompositeCancelSidecar(c){
+ const p=await nativeComposite(c);
+ if((await one(c,"SELECT to_regnamespace('f06_real_cancel_ci')::text n")).n)throw Error('F06_COMPOSITE_CANCEL_ALREADY_APPLIED');
+ await c.query('BEGIN');
+ try{
+  await c.query('SELECT pg_advisory_xact_lock(20261021,1461)');
+  await c.query(sql);
+  await c.query("INSERT INTO f06_real_cancel_ci.attestation(seal_name,source_sha256,f06_3c1_parent_sha256,public_catalog_sha256,ledger_sha256) VALUES('F06_REAL_CANCEL_CI_ONLY',$1,$2,$3,$4)",
+   [cancelSourceSHA,p.parent.sourceSHA,p.parent.publicCatalogSHA,p.ledger]);
+  await c.query('COMMIT');
+ }catch(e){await c.query('ROLLBACK');throw e}
+ return verifyCompositeCancelSidecar(c);
 }
 
 async function currentPermission(c,a,responsible){
