@@ -4,7 +4,11 @@
 
 F08-3 [Issue #190](https://github.com/suzhe868-arch/mb/issues/190) 已通过限定非生产子范围验收并关闭；业务 [PR #193](https://github.com/suzhe868-arch/mb/pull/193) 已标准合并，B HEAD `662847bf2e75c9ca404dff8e57902850d8fe4673`，merge SHA `5cb52e6754e3e171cb9e1a67e3aef51c8e78dfcc`。治理 [PR #194](https://github.com/suzhe868-arch/mb/pull/194) 已标准合并。历史测试不重跑：F08-2 为 58/58 + 7/7；F08-3 为 43/43 业务 + 26/26 受影响回归 + 16/16 HTTPS，均仅覆盖各自限定非生产范围。
 
-正式 F03 reader 仍 fail-closed，最终 `finalAllowed=false`；F05 正向转换 Issuer 仍缺正式来源。真实 JYT/Collector、CDN/OSS、Feishu 无可证明的已接入资源。当前没有新的、可合法验收且不依赖缺失资源的 B 业务施工差异，因此不签发新的 B 施工包。
+正式 F03 reader 仍 fail-closed，最终 `finalAllowed=false`；F05 正向转换 Issuer 仍缺正式来源。真实 JYT/Collector、CDN/OSS、Feishu 无可证明的已接入资源。
+
+**电话权限后端专项复核（PR #199 后）：** F08-3 PR #193 只覆盖 `CI_SYNTHETIC_ONLY` 配置/Guard；配置入口仅在固定测试 REF 的 `__ci__` 路由。F04 Current 电话合同仍为 `CI_ONLY_PROPOSED / NOT_PRODUCTION`，正式 F03 reader 对电话动作仍 `finalAllowed=false`，SG01/SG08 正式范围/上游发布人映射仍 `MISSING_PROPOSAL`。员工电话权限后端尚未正式完成。要求已进入 F01～F08 路线图；后续页面待办见 [Issue #196](https://github.com/suzhe868-arch/mb/issues/196)，A 的增量核查见 [Issue #187 评论](https://github.com/suzhe868-arch/mb/issues/187#issuecomment-6327645997)。
+
+当前没有新的、可合法验收且不依赖缺失资源的 B 业务施工差异，因此不签发新的 B 施工包、不重复 F08-3。正式来源/授权门禁解决后，A 再拆分必要的最小后端施工任务；PC 页面继续延期。
 
 **唯一指针：** `NEXT_OWNER=A`、`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`、`NEXT_ISSUE=187`、`NEXT_BRANCH=NONE`。等获批非生产资源和可信来源证据就绪后，A 再判断最小施工差异。F06/F07/F08/V1 继续 `NOT_READY / NO_PRODUCTION`；不授权生产、真实电话、外部公网调用、真实资金、退款或成交；C PR #68 独立不动。
 
