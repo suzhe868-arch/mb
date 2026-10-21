@@ -6,7 +6,7 @@ import pg from 'pg';
 import {createFoundationServer} from '../../../src/app.mjs';
 import {hashPassword,newOpaqueToken,sessionDigest} from '../../../src/f03-auth-crypto.mjs';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
-import {createIsolatedF06CompositeRuntime} from '../../../src/f06-nonprod-composite-runtime.mjs';
+import {createIsolatedF06CompositeRuntime,verifyCompositeRuntimeDatabase} from '../../../src/f06-nonprod-composite-runtime.mjs';
 import {createIsolatedF06LockLifecycleService} from '../../../src/f06-lock-lifecycle-service.mjs';
 import {assertCompositeSignedRun} from '../../nonprod-single-runtime-integration/可信Composite签名根.mjs';
 import {verifyLifecycleIssuer} from '../可信LifecycleIssuer.mjs';
