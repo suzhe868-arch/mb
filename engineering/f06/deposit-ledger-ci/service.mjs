@@ -47,9 +47,10 @@ async function current(c,lockId){
  await one(c,'SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR UPDATE',[x.vehicle_id]);
  return one(c,'SELECT * FROM public.locks WHERE lock_id=$1 FOR UPDATE',[lockId]);
 }
-async function signedLock(c,l,forRecord){
+async function signedLock(c,l,forRecord,mode='CI_LEGACY'){
  if(!l)return deny('F06_3A_LOCK_NOT_FOUND');
- const source=await one(c,"SELECT customer_id,responsible_employee_id,initial_hours,policy_version,price_kind,priority_origin_id FROM f06_1_lock_ci.lock_snapshots WHERE lock_id=$1 FOR SHARE",[l.lock_id]);
+ const lockSnapshotSchema=mode==='COMPOSITE_NONPROD_SIGNED_V1'?'f06_composite_v1':'f06_1_lock_ci';
+ const source=await one(c,`SELECT customer_id,responsible_employee_id,initial_hours,policy_version,price_kind,priority_origin_id FROM ${lockSnapshotSchema}.lock_snapshots WHERE lock_id=$1 FOR SHARE`,[l.lock_id]);
  if(!source||Number(source.customer_id)!==Number(l.customer_id)||Number(source.responsible_employee_id)!==Number(l.responsible_employee_id))
  return deny('F06_3A_SIGNED_LOCK_SNAPSHOT_REQUIRED');
  const customer=await one(c,'SELECT account_status FROM public.customers WHERE customer_id=$1 FOR SHARE',[l.customer_id]);
@@ -80,7 +81,7 @@ async function recordCore(auth,token,p={},mode='CI_LEGACY'){
   const old=await idem(c,a,p);
   if(old)return old.action==='record'&&Number(old.lock_id)===p.lockId&&Number(old.amount_cents)===p.amountCents?
    yes('F06_3A_IDEMPOTENT_RECEIPT',{depositId:Number(old.resulting_deposit_id)}):deny('F06_3A_IDEMPOTENCY_KEY_CONFLICT');
-  const guard=await signedLock(c,l,true);if(!guard.allowed)return guard;
+  const guard=await signedLock(c,l,true,mode);if(!guard.allowed)return guard;
   const m=await one(c,"SELECT clock_timestamp() now,$1::timestamptz received",[p.receivedAt]);
   if(!m.received||m.received>m.now||m.received<new Date(m.now.getTime()-30*86400000))
    return deny('F06_3A_RECEIVED_TIME_OUT_OF_RANGE');
@@ -119,7 +120,7 @@ async function correctCore(auth,token,p={},mode='CI_LEGACY'){
   const old=await idem(c,a,p);
   if(old)return old.action===p.action&&Number(old.lock_id)===p.lockId&&Number(old.deposit_id)===p.depositId&&Number(old.amount_cents)===p.deltaCents?
    yes('F06_3A_IDEMPOTENT_CORRECTION',{adjustmentId:Number(old.resulting_adjustment_id)}):deny('F06_3A_IDEMPOTENCY_KEY_CONFLICT');
-  const signed=await signedLock(c,l,false);if(!signed.allowed)return signed;
+  const signed=await signedLock(c,l,false,mode);if(!signed.allowed)return signed;
   const fact=await one(c,"SELECT m.*,d.amount_cents,d.customer_id AS receipt_customer,d.lock_id AS receipt_lock FROM f06_3a_ci.receipt_provenance m "+
    "JOIN public.deposit_receipts d ON d.deposit_id=m.deposit_id WHERE m.deposit_id=$1 FOR UPDATE OF m",[p.depositId]);
   if(!fact||Number(fact.lock_id)!==p.lockId||Number(fact.receipt_lock)!==p.lockId||
