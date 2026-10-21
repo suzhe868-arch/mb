@@ -341,7 +341,7 @@ export function createIsolatedF06LockService({pool,env=process.env,afterLockWrit
     const pending=(await db.query(`SELECT r.*,k.request_id AS trusted_request_id
      FROM public.lock_requests r
      LEFT JOIN ${lockSchema}.request_keys k ON k.request_id=r.lock_request_id
-      AND k.customer_id=r.customer_id AND k.issuer='COMPOSITE_NONPROD_SIGNED_V1'
+      AND k.customer_id=r.customer_id AND k.issuer='${issuer}'
      WHERE r.customer_id=$1 AND r.vehicle_id=$2 AND r.listing_cycle_id=$3 AND r.status='pending'
      ORDER BY r.created_at,r.lock_request_id FOR UPDATE OF r`,
      [who.customer_id,vehicleId,listingCycleId])).rows;
