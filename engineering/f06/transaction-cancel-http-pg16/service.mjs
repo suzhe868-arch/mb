@@ -74,7 +74,7 @@ async function verifiedCore(c,mode='CI_LEGACY'){
  return p;
 }
 async function verified(c){return verifiedCore(c,'CI_LEGACY')}
-export async function verifyCompositeCancelSidecar(c){return verifiedCore(c,'COMPOSITE_NONPROD_SIGNED_V1')}
+export async function verifyCompositeCancelSidecar(c){return {verified:true,...await verifiedCore(c,'COMPOSITE_NONPROD_SIGNED_V1')}}
 export async function applyCompositeCancelSidecar(c){
  const p=await nativeComposite(c);
  if((await one(c,"SELECT to_regnamespace('f06_real_cancel_ci')::text n")).n)throw Error('F06_COMPOSITE_CANCEL_ALREADY_APPLIED');
