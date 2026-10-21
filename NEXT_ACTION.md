@@ -1,23 +1,16 @@
 # 名邦汽车 V1｜NEXT_ACTION 当前唯一指针｜2026-10-22
 
-## 当前唯一正式任务｜F08-3 批发上游电话专项范围非生产纵切
-- `NEXT_OWNER=B`
-- `NEXT_TASK=F08_PUBLISHER_PHONE_SCOPE_RUNTIME_NONPROD_03`
-- `NEXT_ISSUE=190`：[F08-3｜批发上游电话员工专项范围与 PG16 非生产 Runtime 纵切](https://github.com/suzhe868-arch/mb/issues/190)
-- `NEXT_BRANCH=feat/f08-publisher-phone-scope-runtime-nonprod-03`
-- 正式施工单：`07_重建工作区/F08-3_批发上游电话员工专项范围与PG16非生产Runtime纵切_A主控B正式施工单_2026-10-22.md`
-- **A 治理 PR #191 已标准合并 main，F08-3 授权现已生效**；B 开工时重新读取最新 main、Issue #190 与正式施工单，按精确文件白名单连续施工到 `READY_FOR_A_REVIEW`，不切换 Work、不擅自合并 main。
-- 本任务只验证内部员工权限/专项范围/车辆状态的隔离 PG16 与非生产 HTTP Runtime 纵切；只用合成 publisher/phone/Collector 回调，禁止真实 JYT/Collector、CDN/OSS、Feishu、公网请求、生产数据库或生产路由。
-- 用户已明确批准电话访问模式：`LOCKED_ONLY`（仅当前有效 Lock 的批发车）或 `ALL_ACTIVE_JYT`（全部当前在售 JYT 批发车）。不要求逐车负责人；不新增 `can_call_wholesale_phone`；不扩大车辆管理权限。
-- 复用已验收 PR #8 的 SG01 绑定结构、PR #35 的批发车可信来源审计、PR #181 与 PR #186 的限定验收结果；**不重复 F08-2 已通过的 58+7 测试**。PR #8 仅证明 Customer/object Guard，不等于 publisher/Vehicle 电话已完成。
-- F08 整阶段、真实 Collector/JYT 来源、publisher 物理映射/缓存、SLA/Incident、CDN/OSS/Feishu 仍有独立缺口；本任务通过不等于 F08/V1 READY。
+## 当前唯一正式动作｜F08 可信来源与外部授权父门禁
 
-## B 交付后的下一责任
-- B 达到 `READY_FOR_A_REVIEW` 后，`NEXT_OWNER=A`：A 独立验收 Issue #190，仅审本次差异及受影响回归。
-- A 验收后回到 [Issue #187](https://github.com/suzhe868-arch/mb/issues/187)，继续核实真实 publisher 来源、真实外部授权与 F08 整阶段剩余条件。
-- F08 整阶段正式验收通过后，才由 A 单独开展整个 B 后端最终全局验收；C PR #68 独立不动。
-
-
+- `NEXT_OWNER=A`
+- `NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`
+- `NEXT_ISSUE=187`：[A 父级门禁｜F08 可信来源与外部集成](https://github.com/suzhe868-arch/mb/issues/187)
+- `NEXT_BRANCH=NONE`（当前没有新的 B 施工分支授权）
+- 当前验收报告：`07_重建工作区/F08-3_Issue190_PR193独立验收与合并报告_2026-10-22.md`
+- F08-3 [Issue #190](https://github.com/suzhe868-arch/mb/issues/190) 已关闭；业务 [PR #193](https://github.com/suzhe868-arch/mb/pull/193) 已标准合并，merge SHA `5cb52e6754e3e171cb9e1a67e3aef51c8e78dfcc`。B HEAD `662847bf2e75c9ca404dff8e57902850d8fe4673`；Run #39665372029 的 43/43 业务、26/26 受影响回归、16/16 HTTPS 均通过，30/30 Check Runs success，双同 SHA Artifact 有效。
+- **已验收范围仅为 `CI_SYNTHETIC_ONLY` 非生产电话权限/专项范围纵切**；不等于真实 JYT/Collector、真实 publisher 物理映射或生产电话已接通。
+- A 继续 Issue #187：核实正式 capability/catalog、当前 Vehicle Scope/Object、F05 转换正向 Issuer，以及真实 Collector/JYT、CDN/OSS、Feishu、SLA/Incident 的可核验来源与外部授权。当前没有新 B 施工包；来源未解决前不重复模拟质量测试、不伪造签名正例、不宣布 F08 整阶段完成。
+- F06/F07/F08/V1 继续 `NOT_READY / NO_PRODUCTION`；不授权真实电话、外部公网调用、生产、真实资金、退款或成交。F08 正常阶段验收后，整个 B 后端最终整体验收由 A 独立负责；C PR #68 独立不动。
 ---
 
 ## 2026-10-22 上一任务历史记录（以下原“当前”已经失效）
