@@ -11242,7 +11242,7 @@
   },
   "f08_2_release_2026_10_22": {
     "task_id": "F08_NONPROD_CROSS_RUNTIME_QUALITY_02",
-    "status": "A_RELEASE_PENDING_GOVERNANCE_PR_MERGE",
+    "status": "A_RELEASED_ON_PR185_STANDARD_MERGE",
     "owner": "B",
     "issue": 184,
     "branch": "feat/f08-nonprod-cross-runtime-quality-02",
@@ -11264,6 +11264,8 @@
     "real_app_entry_scenarios_min": 8,
     "old_parent_signature_ref_spoofing_allowed": false,
     "external_or_production_authorized": false,
-    "global_not_ready": true
+    "global_not_ready": true,
+    "governance_pr": 185,
+    "effective_only_after_pr_merge": true
   }
 }
