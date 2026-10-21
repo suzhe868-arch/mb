@@ -1,4 +1,4 @@
-# 名邦汽车 V1｜当前主控状态（2026-10-21）
+# 名邦汽车 V1｜当前主控状态（2026-10-22）
 
 ## A/B/C 执行规范优先阅读入口｜2026-10-22
 
@@ -10,8 +10,17 @@
 
 ---
 
+## 最新有效任务｜2026-10-22
 
-> **当前有效状态指针。** 本区块记录 PR #174 的最终验收及 PR #179 的后续正式放行；下方旧记录只作历史证据。发生冲突时，以本区块、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 的当前指针为准。
+A 已独立验收并合并 F07 非生产 Runtime [PR #181](https://github.com/suzhe868-arch/mb/pull/181)，Issue #178 已关闭。B 受验 HEAD `32f180238ff3271b38d2b91402cf4a7b55e07d52`；标准合并 SHA `dd4a52a6f117ff83c959212f41f7c29ae68c507c`。官方 Run #39629427298、两独立 PG16 Job 成功；46 业务、15 HTTPS、26 关联回归通过，Artifact #12357563978／#12357469078 有效。
+
+**下一任务：NEXT_OWNER=B，NEXT_TASK=F08_NONPROD_CROSS_RUNTIME_QUALITY_02，NEXT_ISSUE=184，NEXT_BRANCH=feat/f08-nonprod-cross-runtime-quality-02。** 施工单 `07_重建工作区/F08-2非生产跨Runtime安全关联回归与质量闭环_A主控B正式施工单_2026-10-22.md`；本治理 PR 标准合并 main 后生效，B 从执行时最新 main 接管，不切换 Work 模式。F08-1、PR #100、F06/F07 已验资产复用，不做重复施工。
+
+**F06/F07/F08/V1 仍 NOT_READY。** 电话敏感权限、F03 Scope/Object、F05 转换、SLA/Incident、JYT/CDN/OSS/Feishu 正式来源继续 SOURCE_GAP；无生产、真钱、实际退款成交授权。C PR68 不动。
+
+---
+
+> **2026-10-21 历史状态指针（已由 2026-10-22 最新有效任务覆盖）。** 本区块记录 PR #174 的最终验收及 PR #179 的后续正式放行；下方旧记录只作历史证据。发生冲突时，以本区块、`NEXT_ACTION.md` 与 `PROJECT_STATE.json` 的当前指针为准。
 
 ## 已完成的 A 工作
 
