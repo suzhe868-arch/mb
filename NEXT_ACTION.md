@@ -1,3 +1,13 @@
+# 2026-10-21｜NEXT_ACTION补充：Issue171已验收合并，责任切回A做F06/F07/F08整合规划
+
+- PR [#174](https://github.com/suzhe868-arch/mb/pull/174) 已合并，merge SHA `86f59431768f393232b8746cd3deb62f1044d85c`。
+- 最终施工SHA `06c880d7f53adda7862da88cde0b790fdc60f415` 的官方Run [39602409488](https://github.com/suzhe868-arch/mb/actions/runs/39602409488) 全步骤成功；Artifact `f06-issue171-evidence-39602409488`有效。Lifecycle 32/32、Priority 7/7、签名负向15/15、Composite42/42、Legacy Node/HTTP37/37、Legacy PG16 13/13、Legacy审计1/1；0失败、0跳过，161表/24迁移跨OID Seal一致。
+- **NEXT_OWNER=A**；**NEXT_TASK=F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01**。
+- 下一步先在A窗口梳理F06剩余未就绪原因、F07/F08已有验收成果与未完成项，复用通过成果并避免重复施工；在整合规划与正式放行前，不启动F07/F08新施工包。
+- F06整体、F07、F08、V1继续NOT_READY；无生产、真钱、真实退款/成交或正式F07/F08施工授权。
+
+---
+
 # 2026-10-21｜NEXT_ACTION补充：Issue171签名Match/Priority版本正确预置路径裁决
 
 - 本补充授权仅在治理PR合并main后生效；不代表PR #174通过。
