@@ -337,5 +337,5 @@ test('32 public SG01 physical schema fingerprint unchanged',async()=>{
 test('33 capability scope is non-public and F07 remains disconnected',async()=>{
  const s=await sql("SELECT nspname FROM pg_namespace WHERE nspname='f03_publisher_phone_admin_test'");
  assert.equal(s.rowCount,1);assert.notEqual(s.rows[0].nspname,'public');
- console.log('F03_PHONE_ADMIN_BUSINESS_PG16_41_CASES_PASS; F07_NOT_CONNECTED');
+ console.log('F03_PHONE_ADMIN_BUSINESS_PG16_43_CASES_PASS; F07_NOT_CONNECTED');
 });
