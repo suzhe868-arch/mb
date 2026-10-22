@@ -151,11 +151,12 @@ test('R05: committed Mingbang capability revoke overtakes blocked publish',async
   const answer=await result;
   assert.equal(answer.status,403,JSON.stringify(answer));
   assert.equal(answer.body.code,'PUBLICATION_AUTHORITY_DENIED');
-  assert.equal((await draftStatus(staff,made.body.draftId)).status,'draft');
+  assert.equal(await n("SELECT count(*)::integer n FROM f05_manual_vehicle_test.drafts WHERE draft_id=$1 AND status='draft' AND published_vehicle_id IS NULL",[made.body.draftId]),1);
   assert.equal(await n("SELECT count(*)::integer n FROM public.vehicles WHERE vin IS NULL AND vehicle_id=(SELECT reserved_vehicle_id FROM f05_manual_vehicle_test.drafts WHERE draft_id=$1)",[made.body.draftId]),0);
  }finally{
   await db.query("UPDATE public.employee_permission_overrides SET decision='allow',changed_at=clock_timestamp() WHERE employee_id=1 AND permission_id=399");
  }
+ assert.equal((await draftStatus(staff,made.body.draftId)).status,'draft');
  console.log('R05_REAL_PG16_CAPABILITY_REVOKE_BEFORE_PUBLISH_LOCK_PASS');
 });
 test('R06: 4S live Admin revoke races blocked publication on PG16',async()=>{
