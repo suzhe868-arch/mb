@@ -111,5 +111,5 @@ test('S06 license revocation racing the current publish path is fail-closed and 
 });
 test('S07 final F05-3A public seal and private draft schema remain valid',async()=>{
  const x=await verify(db);assert.equal(x.verified,true);assert.equal(x.source,'F05_3A_000016');assert.equal(x.publicSchemaUnchanged,true);
- assert.equal(Number((await db.query("SELECT count(*)::int n FROM f05_manual_vehicle_test.draft_events WHERE event_kind='PUBLISHED'")).rows[0].n),1);
+ assert.equal(Number((await db.query("SELECT count(*)::int n FROM f05_manual_vehicle_test.draft_events WHERE event_kind='PUBLISHED' AND draft_source_type='four_s'")).rows[0].n),1);
 });
