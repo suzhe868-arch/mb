@@ -74,7 +74,7 @@ export class PublisherPhoneAdminService {
    const permission=await permissionId(c);
    const mode=await modeRow(c,employeeId);
    const grants=permission?await state(c,employeeId,permission,mode):null;
-   return result(200,'PHONE_ADMIN_CURRENT',publicDto(employeeId,target,{...mode,enabled:grants?.enabled===true},permission));
+   return result(200,'PHONE_ADMIN_CURRENT',publicDto(employeeId,target,{...mode,enabled:eligible(target)&&grants?.enabled===true},permission));
   },{normalOnly:true});
   return out??result(401,'SESSION_INVALID');
  }

@@ -73,52 +73,82 @@ test('20 two real admins racing same CAS serialize exactly once',async()=>{
  assert.deepEqual([a.status,b.status].sort((x,y)=>x-y),[200,409]);version++;
 });
 test('21 stale second admin version loses even after next request',async()=>assert.equal((await put('ALL_ACTIVE_JYT',version-1,admin2)).status,409));
-test('22 explicit personal deny prevents config grant',async()=>{
+test('22 stale configuration never appears active after employee inactive',async()=>{
+ await sql("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=6");
+ try{const x=await get();assert.equal(x.status,200);assert.equal(x.enabled,false);assert.equal(x.configurable,false);assert.equal(x.scopeMode,null);assert.equal(x.version,version)}
+ finally{await sql("UPDATE public.employees SET employment_status='active' WHERE employee_id=6")}
+});
+test('23 changing assigned employee role to 4S fails closed on GET without revoking old evidence',async()=>{
+ await sql("UPDATE public.employees SET main_role_id=2 WHERE employee_id=6");
+ try{const x=await get();assert.equal(x.status,200);assert.equal(x.enabled,false);assert.equal(x.configurable,false);assert.equal(x.version,version)}
+ finally{await sql("UPDATE public.employees SET main_role_id=1 WHERE employee_id=6")}
+});
+test('24 concurrent employee departure cannot commit across pending phone permission configuration lock',async()=>{
+ let entered,release;
+ const enteredPromise=new Promise(r=>entered=r),releasePromise=new Promise(r=>release=r);
+ const pendingService=new PublisherPhoneAdminService(auth,{hook:async({phase})=>{
+  if(phase==='before_commit'){entered();await releasePromise}
+ }});
+ const pending=pendingService.change({token:admin,employeeId:'6',method:'PUT',input:{scopeMode:'ALL_ACTIVE_JYT',expectedVersion:version,requestKey:key()}});
+ await enteredPromise;
+ const c=await auth.pool.connect();
+ try{
+  await c.query('BEGIN');
+  await c.query("SET LOCAL lock_timeout='250ms'");
+  await assert.rejects(c.query("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=6"),e=>e.code==='55P03');
+  await c.query('ROLLBACK');
+ }finally{c.release();release()}
+ const granted=await pending;
+ assert.equal(granted.status,200);
+ version=granted.version;
+ assert.equal((await get()).scopeMode,'ALL_ACTIVE_JYT');
+});
+test('25 explicit personal deny prevents config grant',async()=>{
  await sql("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=now() WHERE employee_id=6 AND permission_id=13");
  assert.equal((await put('ALL_ACTIVE_JYT')).code,'CURRENT_PERSONAL_DENY');
  await sql("UPDATE public.employee_permission_overrides SET decision='allow',changed_at=now() WHERE employee_id=6 AND permission_id=13");
 });
-test('23 injected failure before commit rolls back entire DB mutation',async()=>{
+test('26 injected failure before commit rolls back entire DB mutation',async()=>{
  const n=Number((await sql("SELECT count(*) n FROM public.audit_events WHERE action LIKE 'publisher.phone.scope.%'")).rows[0].n);
  const broken=new PublisherPhoneAdminService(auth,{hook:({phase})=>{if(phase==='before_commit')throw Error('INJECTED_ROLLBACK')}});
  await assert.rejects(()=>broken.change({token:admin,employeeId:'6',method:'PUT',input:{scopeMode:'ALL_ACTIVE_JYT',expectedVersion:version,requestKey:key()}}),/INJECTED_ROLLBACK/);
  const x=await get();assert.equal(x.version,version);
  assert.equal(Number((await sql("SELECT count(*) n FROM public.audit_events WHERE action LIKE 'publisher.phone.scope.%'")).rows[0].n),n);
 });
-test('24 DELETE revokes mode, binding, allow and preserves history',async()=>{
+test('27 DELETE revokes mode, binding, allow and preserves history',async()=>{
  const x=await del();assert.equal(x.status,200);assert.equal(x.enabled,false);version=x.version;
  const state=await get();assert.equal(state.enabled,false);assert.equal(state.scopeMode,null);
  const b=await sql("SELECT count(*)::int n FROM public.employee_capability_scope_bindings WHERE employee_id=6 AND permission_id=13 AND ended_at IS NULL");
  assert.equal(b.rows[0].n,0);
 });
-test('25 DELETE idempotent replay and version remains',async()=>{
+test('28 DELETE idempotent replay and version remains',async()=>{
  const k=key(),x=await del(version,admin,k);assert.equal(x.status,200);version=x.version;
  const replay=await del(version-1,admin,k);assert.equal(replay.code,'IDEMPOTENT_REPLAY');assert.equal(replay.version,version);
 });
-test('26 target departing before grant denied',async()=>{
+test('29 target departing before grant denied',async()=>{
  await sql("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=6");
  assert.equal((await put('LOCKED_ONLY')).code,'TARGET_NOT_ELIGIBLE');
  await sql("UPDATE public.employees SET employment_status='active' WHERE employee_id=6");
 });
-test('27 revoked System Admin cannot reauthorize',async()=>{
+test('30 revoked System Admin cannot reauthorize',async()=>{
  await sql("UPDATE public.system_admins SET account_status='inactive' WHERE system_admin_id=10");
  assert.equal((await put('LOCKED_ONLY',version,admin2)).status,401);
 });
-test('28 restart a new real F03 session client retains committed revocation and CAS version',async()=>{
+test('31 restart a new real F03 session client retains committed revocation and CAS version',async()=>{
  const fresh=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret:Buffer.from(process.env.F03_1_HMAC_KEY_BASE64,'base64'),origin});
  try{
   const observed=await new PublisherPhoneAdminService(fresh).get({token:admin,employeeId:'6'});
   assert.equal(observed.status,200);assert.equal(observed.version,version);assert.equal(observed.enabled,false);
  }finally{await fresh.close()}
 });
-test('29 public SG01 physical schema fingerprint unchanged',async()=>{
+test('32 public SG01 physical schema fingerprint unchanged',async()=>{
  const manifest=JSON.parse(await readFile(new URL('../../runtime-scope/000003.manifest.json',import.meta.url),'utf8'));
  const c=await auth.pool.connect();
  try{const physical=await getPublicStructure(c);assert.equal(physical.sha256,manifest.structure_sha256)}
  finally{c.release()}
 });
-test('30 capability scope is non-public and F07 remains disconnected',async()=>{
+test('33 capability scope is non-public and F07 remains disconnected',async()=>{
  const s=await sql("SELECT nspname FROM pg_namespace WHERE nspname='f03_publisher_phone_admin_test'");
  assert.equal(s.rowCount,1);assert.notEqual(s.rows[0].nspname,'public');
- console.log('F03_PHONE_ADMIN_BUSINESS_PG16_30_CASES_PASS; F07_NOT_CONNECTED');
+ console.log('F03_PHONE_ADMIN_BUSINESS_PG16_33_CASES_PASS; F07_NOT_CONNECTED');
 });

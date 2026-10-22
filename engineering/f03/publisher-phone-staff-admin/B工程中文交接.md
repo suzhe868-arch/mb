@@ -17,7 +17,7 @@
 ## 二、证据与已知结果
 
 - 首轮官方 [Run #39799794445](https://github.com/suzhe868-arch/mb/actions/runs/39799794445) 在旧 HEAD `5065db292368e10ab0434a2faea7a5d933766ac3` 下完成真实 PG16 业务及 HTTPS 双 Job，均成功；**不能代替后续代码最终 SHA**。
-- 为满足安全自审，后续增加 System Admin 实时锁、业务矩阵 30 个真实 PG16 用例、HTTPS 22 个、重启后撤权持久性、SG01 已签名公共结构不漂移、全量基础 Node 回归。最终执行结果必须在 PR #224 写明官方 Run/两个 Job/Artifact/最终 HEAD。
+- 为满足安全自审，后续增加 System Admin 实时锁、业务矩阵 33 个真实 PG16 用例、HTTPS 22 个、重启后撤权持久性、SG01 已签名公共结构不漂移、全量基础 Node 回归。最终执行结果必须在 PR #224 写明官方 Run/两个 Job/Artifact/最终 HEAD。
 - 官方 CI 任务限定精确 B 分支、主线差异路径白名单、语法/路径双门禁、实际非超管 PG16 物理身份、合成 127.0.0.1 HTTPS、内部 SHA256 清单和默认服务安全回归。
 - 任何失败或排队均 `NOT_READY_FOR_A_REVIEW`，B 不得声称通过。
 
