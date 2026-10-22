@@ -1,6 +1,6 @@
 // F05 isolated real SQL read model. A positive row requires physical PostgreSQL
 // Vehicle/Cycle AND a separate disposable test visibility proof. NOT production.
-import {createHmac, timingSafeEqual} from 'node:crypto';
+import {createHash, createHmac, timingSafeEqual} from 'node:crypto';
 const ALLOWED_SOURCES=new Set(['wholesale','mingbang','four_s']);
 const ALLOWED_SORTS=new Set(['newest','price_asc','price_desc','registration_year_desc','registration_year_asc','mileage_asc','mileage_desc']);
 const DATE=/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,6})?(?:Z|[+-]\d\d:\d\d)$/;
@@ -38,29 +38,36 @@ function normalizeSortValue(sort,value){
  if(sort.startsWith('mileage_')&&(n<0n||n>2000000n))throw Error('CATALOG_SORT_CURSOR_VALUE');
  return text;
 }
-export function encodeCursor({at,id,source,sort,modelId=null,brandId=null,seriesId=null,modelYear=null,sortValue=null},key){
- if(!isValidTime(at)||!validPgId(String(id))||!ALLOWED_SOURCES.has(source)||!ALLOWED_SORTS.has(sort)||([modelId,brandId,seriesId].some(v=>v!==null&&!validPgId(v))||(modelYear!==null&&!validModelYear(modelYear)))||!Buffer.isBuffer(key)||key.length<32)throw Error('CATALOG_CURSOR_INPUT');
+const validSearchHash=v=>v===null||typeof v==='string'&&/^[a-f0-9]{64}$/.test(v);
+export function encodeCursor({at,id,source,sort,modelId=null,brandId=null,seriesId=null,modelYear=null,sortValue=null,searchHash=null},key){
+ if(!isValidTime(at)||!validPgId(String(id))||!ALLOWED_SOURCES.has(source)||!ALLOWED_SORTS.has(sort)||([modelId,brandId,seriesId].some(v=>v!==null&&!validPgId(v))||(modelYear!==null&&!validModelYear(modelYear)))||!validSearchHash(searchHash)||!Buffer.isBuffer(key)||key.length<32)throw Error('CATALOG_CURSOR_INPUT');
  const k=normalizeSortValue(sort,sortValue);
- const payload=sort==='newest'
-  ?{v:4,at,id:String(id),source,sort,modelId,brandId,seriesId,modelYear}
-  :{v:5,at,id:String(id),source,sort,modelId,brandId,seriesId,modelYear,n:k===null?1:0,k};
+ let payload;
+ if(searchHash===null)payload=sort==='newest'?{v:4,at,id:String(id),source,sort,modelId,brandId,seriesId,modelYear}:{v:5,at,id:String(id),source,sort,modelId,brandId,seriesId,modelYear,n:k===null?1:0,k};
+ else payload=sort==='newest'?{v:6,at,id:String(id),source,sort,modelId,brandId,seriesId,modelYear,searchHash}:{v:6,at,id:String(id),source,sort,modelId,brandId,seriesId,modelYear,n:k===null?1:0,k,searchHash};
  const content=safetoken(payload);
  return content+'.'+mac(content,key);
 }
-export function decodeCursor(value,key,source,sort,modelId=null,brandId=null,seriesId=null,modelYear=null){
+export function decodeCursor(value,key,source,sort,modelId=null,brandId=null,seriesId=null,modelYear=null,searchHash=null){
  if(typeof value!=='string'||value.length>512||!/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(value))throw Error('BAD_CURSOR');
- const [str,signature]=value.split('.'),expected=mac(str,key);
- const a=Buffer.from(expected),b=Buffer.from(signature);
+ const [str,signature]=value.split('.'),expected=mac(str,key),a=Buffer.from(expected),b=Buffer.from(signature);
  if(a.length!==b.length||!timingSafeEqual(a,b))throw Error('BAD_CURSOR');
  let p;try{p=JSON.parse(Buffer.from(str,'base64url').toString('utf8'))}catch{throw Error('BAD_CURSOR')}
- const common=p&&p.source===source&&p.sort===sort&&p.modelId===modelId&&p.brandId===brandId&&p.seriesId===seriesId&&p.modelYear===modelYear&&validPgId(p.id)&&isValidTime(p.at);
+ const common=p&&p.source===source&&p.sort===sort&&p.modelId===modelId&&p.brandId===brandId&&p.seriesId===seriesId&&p.modelYear===modelYear&&validPgId(p.id)&&isValidTime(p.at)&&
+  (searchHash===null?p.searchHash===undefined:p.searchHash===searchHash&&validSearchHash(p.searchHash));
  if(!common)throw Error('BAD_CURSOR');
- if(sort==='newest'){
-  if(Object.keys(p).sort().join(',')!=='at,brandId,id,modelId,modelYear,seriesId,sort,source,v'||p.v!==4)throw Error('BAD_CURSOR');
+ if(searchHash===null){
+  if(sort==='newest'){if(Object.keys(p).sort().join(',')!=='at,brandId,id,modelId,modelYear,seriesId,sort,source,v'||p.v!==4)throw Error('BAD_CURSOR')}
+  else{
+   if(Object.keys(p).sort().join(',')!=='at,brandId,id,k,modelId,modelYear,n,seriesId,sort,source,v'||p.v!==5||![0,1].includes(p.n))throw Error('BAD_CURSOR');
+   const k=normalizeSortValue(sort,p.k);if((k===null?1:0)!==p.n)throw Error('BAD_CURSOR');
+  }
  }else{
-  if(Object.keys(p).sort().join(',')!=='at,brandId,id,k,modelId,modelYear,n,seriesId,sort,source,v'||p.v!==5||![0,1].includes(p.n))throw Error('BAD_CURSOR');
-  const k=normalizeSortValue(sort,p.k);
-  if((k===null?1:0)!==p.n)throw Error('BAD_CURSOR');
+  if(sort==='newest'){if(Object.keys(p).sort().join(',')!=='at,brandId,id,modelId,modelYear,searchHash,seriesId,sort,source,v'||p.v!==6)throw Error('BAD_CURSOR')}
+  else{
+   if(Object.keys(p).sort().join(',')!=='at,brandId,id,k,modelId,modelYear,n,searchHash,seriesId,sort,source,v'||p.v!==6||![0,1].includes(p.n))throw Error('BAD_CURSOR');
+   const k=normalizeSortValue(sort,p.k);if((k===null?1:0)!==p.n)throw Error('BAD_CURSOR');
+  }
  }
  return p;
 }
@@ -115,31 +122,59 @@ function buildSortedSql(cfg){
 export const SQL_CATALOG_SORTS=Object.freeze(Object.fromEntries(Object.entries(SORT_CONFIG).map(([name,cfg])=>[name,buildSortedSql(cfg)])));
 export const SQL_CATALOG_DETAIL=BASE_SELECT+` AND v.vehicle_id=$1 LIMIT 2`;
 export const SQL_CATALOG_STATS=`SELECT source AS "source",COUNT(DISTINCT "vehicleId")::text AS "vehicleCount" FROM (${BASE_SELECT}) AS eligible GROUP BY source ORDER BY source`;
-function safeItem(r){
- // Explicit property whitelist: SQL rows cannot put VIN / phone / internal prices into responses.
- const id=String(r?.vehicleId??''),cycle=String(r?.listingCycleId??'');
- const source=r?.source;
- let at=r?.listingStartedAt instanceof Date?r.listingStartedAt.toISOString():r?.listingStartedAt;
+function safeItem(r,priceProjection=null){
+ const id=String(r?.vehicleId??''),cycle=String(r?.listingCycleId??''),source=r?.source;
+ const at=r?.listingStartedAt instanceof Date?r.listingStartedAt.toISOString():r?.listingStartedAt;
  if(!validPgId(id)||!validPgId(cycle)||!ALLOWED_SOURCES.has(source)||!isValidTime(at))throw Error('CATALOG_INVALID_DB_PROJECTION');
  const model=r.modelId==null?null:String(r.modelId),brandId=r.brandId==null?null:String(r.brandId),seriesId=r.seriesId==null?null:String(r.seriesId);
  if([model,brandId,seriesId].some(v=>v!==null&&!validPgId(v)))throw Error('CATALOG_INVALID_MASTER_ID');
  const brandName=safeName(r.brandName,'BRAND'),seriesName=safeName(r.seriesName,'SERIES'),modelName=safeName(r.modelName,'MODEL');
  const modelYear=r.modelYear==null?null:r.modelYear;
  if(modelYear!==null&&!validModelYear(modelYear))throw Error('CATALOG_INVALID_MODEL_YEAR');
- if((model===null&&(brandId!==null||seriesId!==null||brandName!==null||seriesName!==null||modelName!==null||modelYear!==null))
- ||(brandId===null&&brandName!==null)||(seriesId===null&&seriesName!==null))throw Error('CATALOG_INCONSISTENT_MASTER');
- return Object.freeze({vehicleId:id,listingCycleId:cycle,source,listingStartedAt:at.slice(0,10),
- modelId:model,brandId,seriesId,brandName,seriesName,modelName,modelYear,coverImagePath:safeCoverPath(r.coverImagePath),
- price:null,priceState:'PRICE_ENTITLEMENT_DEPENDENCY_BLOCKED',catalogState:'ISOLATED_TEST_PROJECTION_NOT_PRODUCTION'});
+ if((model===null&&(brandId!==null||seriesId!==null||brandName!==null||seriesName!==null||modelName!==null||modelYear!==null))||(brandId===null&&brandName!==null)||(seriesId===null&&seriesName!==null))throw Error('CATALOG_INCONSISTENT_MASTER');
+ const item={vehicleId:id,listingCycleId:cycle,source,listingStartedAt:at.slice(0,10),modelId:model,brandId,seriesId,brandName,seriesName,modelName,modelYear,coverImagePath:safeCoverPath(r.coverImagePath),price:priceProjection?.price??null,priceState:priceProjection?.priceState??'PRICE_ENTITLEMENT_DEPENDENCY_BLOCKED',catalogState:'ISOLATED_TEST_PROJECTION_NOT_PRODUCTION'};
+ if(priceProjection?.includePriceFields===true){item.priceCents=priceProjection.priceCents??null;item.priceDisplay=priceProjection.priceDisplay??null}
+ return Object.freeze(item);
 }
-export function createCatalogService({pool,cursorKey}={}){
+function validPriceCents(v){return typeof v==='string'&&/^[1-9][0-9]{0,13}$/.test(v)&&BigInt(v)<100000000000000n}
+function buildSearchFilters(criteria,minPriceCents,maxPriceCents,startIndex){
+ const clauses=[],values=[],factClauses=[];let next=startIndex;
+ const add=(builder,value)=>{const p='$'+next++;clauses.push(builder(p));values.push(value)};
+ const addFact=(builder,value)=>{const p='$'+next++;factClauses.push(builder(p));values.push(value)};
+ if(minPriceCents!==null)add(p=>'price.customer_display_cents IS NOT NULL AND price.customer_display_cents >= '+p+'::bigint',minPriceCents);
+ if(maxPriceCents!==null)add(p=>'price.customer_display_cents IS NOT NULL AND price.customer_display_cents <= '+p+'::bigint',maxPriceCents);
+ const c=criteria??{};
+ if(c.brandId!==undefined)add(p=>'COALESCE(vm.brand_id,vs.brand_id)='+p+'::bigint',c.brandId);
+ if(c.minModelYear!==undefined)add(p=>'vm.model_year >= '+p+'::integer',c.minModelYear);
+ if(c.budgetCents!==undefined)add(p=>'price.customer_display_cents IS NOT NULL AND price.customer_display_cents <= '+p+'::bigint',c.budgetCents);
+ if(c.maxMileageKm!==undefined)addFact(p=>'mf.mileage_km <= '+p+'::integer',c.maxMileageKm);
+ if(c.interiorColor!==undefined)addFact(p=>'mf.interior_color = '+p+'::text',c.interiorColor);
+ if(c.exteriorColor!==undefined)addFact(p=>'mf.exterior_color = ANY('+p+'::text[])',c.exteriorColor);
+ if(c.powerType!==undefined)addFact(p=>'mf.power_type = ANY('+p+'::text[])',c.powerType);
+ if(c.displacementMinCc!==undefined)addFact(p=>'mf.displacement_cc >= '+p+'::integer',c.displacementMinCc);
+ if(c.displacementMaxCc!==undefined)addFact(p=>'mf.displacement_cc <= '+p+'::integer',c.displacementMaxCc);
+ if(c.displacementCc!==undefined)addFact(p=>'mf.displacement_cc = ANY('+p+'::integer[])',c.displacementCc);
+ if(c.excludeCondition!==undefined)addFact(p=>'NOT (mf.condition_flags && '+p+'::text[])',c.excludeCondition);
+ if(factClauses.length)clauses.push("EXISTS (SELECT 1 FROM public.f05_matching_vehicle_facts_test mf WHERE mf.vehicle_id=v.vehicle_id AND mf.listing_cycle_id=cy.listing_cycle_id AND mf.issuer='DISPOSABLE_TEST_ONLY' AND mf.expires_at>statement_timestamp() AND "+factClauses.join(' AND ')+")");
+ return {clauses,values};
+}
+function appendSearchFilters(sql,clauses){
+ if(!clauses.length)return sql;
+ const order=sql.lastIndexOf(' ORDER BY ');
+ if(order<0)throw Error('CATALOG_SEARCH_SQL_ORDER_MISSING');
+ return sql.slice(0,order)+' '+clauses.map(c=>'AND '+c).join(' ')+sql.slice(order);
+}
+export function createCatalogService({pool,cursorKey,customerReadService=null,searchService=null}={}){
  if(!pool||typeof pool.query!=='function'||!Buffer.isBuffer(cursorKey)||cursorKey.length<32)throw Error('CATALOG_DEPENDENCIES_REQUIRED');
+ async function projectRows(rows,customerToken,view){
+  if(!customerReadService)return {status:200,projections:rows.map(()=>null)};
+  return customerReadService.projectRows({token:customerToken??null,rows,view});
+ }
  return {
   async stats(){
    const rows=(await pool.query(SQL_CATALOG_STATS,[])).rows;
    if(!Array.isArray(rows)||rows.length>3)throw Error('CATALOG_COUNT_PROJECTION_INVALID');
-   const bySource={wholesale:0,mingbang:0,four_s:0};
-   const seen=new Set();
+   const bySource={wholesale:0,mingbang:0,four_s:0},seen=new Set();
    for(const row of rows){
     const source=row?.source,value=row?.vehicleCount;
     if(!ALLOWED_SOURCES.has(source)||seen.has(source)||typeof value!=='string'||!/^(0|[1-9][0-9]*)$/.test(value)||BigInt(value)>BigInt(Number.MAX_SAFE_INTEGER))throw Error('CATALOG_COUNT_PROJECTION_INVALID');
@@ -149,10 +184,11 @@ export function createCatalogService({pool,cursorKey}={}){
    if(!Number.isSafeInteger(total))throw Error('CATALOG_COUNT_PROJECTION_INVALID');
    return {status:200,body:{region:'national',total,bySource,todayNewCount:null,todayNewState:'FIRST_SEEN_DEPENDENCY_BLOCKED',productionReady:false}};
   },
-  async list(params){
+  async list(params,{customerToken=null}={}){
    if(!params||typeof params!=='object')return reject('INVALID_QUERY');
-   const keys=Object.keys(params),allowed=['source','sort','cursor','pageSize','region','modelId','brandId','seriesId','modelYear'];
+   const keys=Object.keys(params),allowed=['source','sort','cursor','pageSize','region','modelId','brandId','seriesId','modelYear','q','search','minPriceCents','maxPriceCents'];
    if(keys.some(k=>!allowed.includes(k)))return reject('UNSUPPORTED_FILTER');
+   if(params.q!==undefined&&params.search!==undefined)return reject('AMBIGUOUS_SEARCH_INPUT');
    if(params.region!==undefined&&params.region!=='national')return reject('UNSUPPORTED_REGION');
    if(params.pageSize!==undefined&&params.pageSize!=='15')return reject('INVALID_PAGE_SIZE');
    const source=params.source??'wholesale',sort=params.sort??'newest';
@@ -162,31 +198,59 @@ export function createCatalogService({pool,cursorKey}={}){
    if(brandId!==null&&!validPgId(brandId))return reject('INVALID_BRAND_ID');
    if(seriesId!==null&&!validPgId(seriesId))return reject('INVALID_SERIES_ID');
    const modelYear=params.modelYear===undefined?null:Number(params.modelYear);
-   if(params.modelYear!==undefined&&(!/^\d{4}$/.test(params.modelYear)||!validModelYear(modelYear)))return reject('INVALID_MODEL_YEAR');
-   let cur;try{cur=params.cursor?decodeCursor(params.cursor,cursorKey,source,sort,modelId,brandId,seriesId,modelYear):null}catch{return reject('INVALID_CURSOR')}
-   const cfg=SORT_CONFIG[sort]??null;
-   const sql=sort==='newest'?SQL_CATALOG_LIST:SQL_CATALOG_SORTS[sort];
-   const queryParams=sort==='newest'
-    ?[source,cur?.at??null,cur?.id??null,modelId,brandId,seriesId,modelYear]
-    :[source,modelId,brandId,seriesId,modelYear,cur?.n??null,cur?.k??null,cur?.at??null,cur?.id??null];
-   const rows=(await pool.query(sql,queryParams)).rows;
-   if(!Array.isArray(rows))throw Error('CATALOG_DB_ROWS_INVALID');
-   const page=rows.slice(0,15).map(safeItem);
-   let nextCursor=null;
-   if(rows.length>15&&page.length){
-    const last=rows[14],at=last.listingStartedAt instanceof Date?last.listingStartedAt.toISOString():last.listingStartedAt;
-    const sortValue=cfg?(last[cfg.field]??null):null;
-    nextCursor=encodeCursor({at,id:last.listingCycleId,source,sort,modelId,brandId,seriesId,modelYear,sortValue},cursorKey);
+   const yearStringValid=typeof params.modelYear==='string'&&params.modelYear.length===4&&[...params.modelYear].every(ch=>ch>='0'&&ch<='9');
+   if(params.modelYear!==undefined&&(!yearStringValid||!validModelYear(modelYear)))return reject('INVALID_MODEL_YEAR');
+   const minPriceCents=params.minPriceCents===undefined?null:params.minPriceCents,maxPriceCents=params.maxPriceCents===undefined?null:params.maxPriceCents;
+   if((minPriceCents!==null&&!validPriceCents(minPriceCents))||(maxPriceCents!==null&&!validPriceCents(maxPriceCents))||(minPriceCents!==null&&maxPriceCents!==null&&BigInt(minPriceCents)>BigInt(maxPriceCents)))return reject('INVALID_PRICE_RANGE');
+   const hasSearch=params.q!==undefined||params.search!==undefined,rawExpression=params.q??params.search;
+   let search=null;
+   if(hasSearch){
+    if(!searchService||typeof searchService.parse!=='function')return reject('CATALOG_SEARCH_NOT_READY',503);
+    search=await searchService.parse({expression:rawExpression,context:{brandId,seriesId,modelId,modelYear}});
+    if(!search.ready){
+     const invalid=search.reason==='INVALID_SEARCH_EXPRESSION'||search.reason==='INVALID_SEARCH_CONTEXT';
+     return {status:invalid?400:409,body:{code:invalid?'INVALID_SEARCH_EXPRESSION':'CATALOG_SEARCH_NOT_READY',reason:search.reason,productionReady:false}};
+    }
+    if(search.criteria.brandId!==undefined&&brandId!==null&&String(search.criteria.brandId)!==String(brandId))return {status:409,body:{code:'CATALOG_SEARCH_SCOPE_CONFLICT',productionReady:false}};
    }
-   return {status:200,body:{items:page,nextCursor,pageSize:15,source,sort,region:'national',modelId,brandId,seriesId,modelYear,productionReady:false}};
+   const hasDynamicFilter=hasSearch||minPriceCents!==null||maxPriceCents!==null;
+   const searchHash=hasDynamicFilter?createHash('sha256').update(JSON.stringify({searchFingerprint:search?.fingerprint??null,minPriceCents,maxPriceCents})).digest('hex'):null;
+   let cur;
+   try{cur=params.cursor?decodeCursor(params.cursor,cursorKey,source,sort,modelId,brandId,seriesId,modelYear,searchHash):null}catch{return reject('INVALID_CURSOR')}
+   const cfg=SORT_CONFIG[sort]??null,baseSql=sort==='newest'?SQL_CATALOG_LIST:SQL_CATALOG_SORTS[sort];
+   const baseParams=sort==='newest'?[source,cur?.at??null,cur?.id??null,modelId,brandId,seriesId,modelYear]:[source,modelId,brandId,seriesId,modelYear,cur?.n??null,cur?.k??null,cur?.at??null,cur?.id??null];
+   const filters=buildSearchFilters(search?.criteria??{},minPriceCents,maxPriceCents,baseParams.length+1),sql=appendSearchFilters(baseSql,filters.clauses);
+   const rows=(await pool.query(sql,[...baseParams,...filters.values])).rows;
+   if(!Array.isArray(rows))throw Error('CATALOG_DB_ROWS_INVALID');
+   const selectedRows=rows.slice(0,15),projectionResult=await projectRows(selectedRows,customerToken,'list');
+   if(projectionResult.status!==200)return projectionResult;
+   if(!Array.isArray(projectionResult.projections)||projectionResult.projections.length!==selectedRows.length)throw Error('CATALOG_CUSTOMER_PROJECTION_INVALID');
+   const page=[];
+   for(let i=0;i<selectedRows.length;i++){const projection=projectionResult.projections[i]??null;if(projection?.visibleCurrent===false)continue;page.push(safeItem(selectedRows[i],projection))}
+   let nextCursor=null;
+   if(rows.length>15&&selectedRows.length){
+    const last=selectedRows[selectedRows.length-1],at=last.listingStartedAt instanceof Date?last.listingStartedAt.toISOString():last.listingStartedAt;
+    const sortValue=cfg?(last[cfg.field]??null):null;
+    nextCursor=encodeCursor({at,id:last.listingCycleId,source,sort,modelId,brandId,seriesId,modelYear,sortValue,searchHash},cursorKey);
+   }
+   const body={items:page,nextCursor,pageSize:15,source,sort,region:'national',modelId,brandId,seriesId,modelYear,productionReady:false};
+   if(search)body.searchExpression=search.normalizedExpression;
+   if(minPriceCents!==null)body.minPriceCents=minPriceCents;
+   if(maxPriceCents!==null)body.maxPriceCents=maxPriceCents;
+   return {status:200,body};
   },
-  async detail(id){
+  async detail(id,{customerToken=null}={}){
    if(!validPgId(String(id)))return reject('INVALID_VEHICLE_ID');
    const rows=(await pool.query(SQL_CATALOG_DETAIL,[id])).rows;
    if(!Array.isArray(rows))throw Error('CATALOG_DB_ROWS_INVALID');
    if(rows.length>1)throw Error('CATALOG_MULTIPLE_CURRENT_VISIBLE_CYCLES');
    if(!rows.length)return reject('VEHICLE_NOT_VISIBLE',404);
-   return {status:200,body:{vehicle:safeItem(rows[0]),productionReady:false}};
+   const projectionResult=await projectRows(rows,customerToken,'detail');
+   if(projectionResult.status!==200)return projectionResult;
+   if(!Array.isArray(projectionResult.projections)||projectionResult.projections.length!==1)throw Error('CATALOG_CUSTOMER_PROJECTION_INVALID');
+   const projection=projectionResult.projections[0]??null;
+   if(projection?.visibleCurrent===false)return reject('VEHICLE_NOT_VISIBLE',404);
+   return {status:200,body:{vehicle:safeItem(rows[0],projection),productionReady:false}};
   }
  };
 }
