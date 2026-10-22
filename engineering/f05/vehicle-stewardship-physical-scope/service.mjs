@@ -1,5 +1,6 @@
 // F05-2 CI-only; no public/prod route registration. Every allow comes from real PG16 rows.
 import {verify,requireDatabaseIdentity} from './migration.mjs';
+import {verify as verifyFourSChain} from '../four-s-member-trust-scope/migration.mjs';
 const valid=n=>Number.isSafeInteger(n)&&n>0;
 const deny=code=>Object.freeze({code,allowed:false});
 const ok=(code,extra={})=>Object.freeze({code,allowed:true,...extra});
@@ -65,13 +66,17 @@ export async function issueFromTrustedManualPublication(){
 // An actual new manual publication, current Vehicle/Cycle creation, signed business
 // responsibility receipt, and both append-only audit facts share ONE PG16 transaction.
 // Neither created_by nor formally_published_at for an old row can enter this path.
-export async function publishAndIssueFromCurrentTransaction(auth,token,p,{testCheckpoint}={}){
+export async function publishAndIssueFromCurrentTransaction(auth,token,p,{testCheckpoint,onPublishInTransaction}={}){
  if(!shape(p,'eventKey,listingCycleId,sourceKind,teamId,vehicleId')||
     ![p.vehicleId,p.listingCycleId,p.teamId].every(valid)||!eventKey(p.eventKey)||
     !['mingbang','four_s'].includes(p.sourceKind)||
     p.vehicleId<59000||p.listingCycleId<59000)
   return deny('F05_2_NEW_MANUAL_PUBLICATION_INPUT_DENY');
- await verify(auth.pool);
+ // For this authorized combined non-production consumer, validate the genuine
+ // 000016 physical seal. The older 000015-only path remains exactly verified.
+ const chain=(await auth.pool.query('SELECT migration_id FROM public.f03_schema_migrations ORDER BY migration_id')).rows;
+ if(chain.length===14&&chain[13].migration_id==='000016_four_s_member_trust_ci_only')await verifyFourSChain(auth.pool);
+ else await verify(auth.pool);
  return session(auth,token,async(c,actor)=>{
   if(!await currentCapability(c,actor,p.teamId,'vehicle.manage'))return deny('F05_2_MANUAL_PUBLICATION_SCOPE_DENIED');
   if(testCheckpoint!==undefined){
@@ -79,6 +84,9 @@ export async function publishAndIssueFromCurrentTransaction(auth,token,p,{testCh
     return deny('F05_2_CHECKPOINT_NOT_CI');
    await testCheckpoint('publisher_permission_proven',c);
   }
+  if(onPublishInTransaction!==undefined&&
+     (process.env.CI!=='true'||process.env.GITHUB_ACTIONS!=='true'||typeof onPublishInTransaction!=='function'))
+   return deny('F05_2_PUBLISH_CALLBACK_NOT_CI');
   // A real existing row, including one with apparently matching uploader and
   // timestamp, is explicitly not eligible for a backfilled ownership grant.
   const prior=(await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR KEY SHARE',[p.vehicleId])).rows;
@@ -104,6 +112,7 @@ export async function publishAndIssueFromCurrentTransaction(auth,token,p,{testCh
     JSON.stringify({eventKey:p.eventKey,vehicleId:p.vehicleId,listingCycleId:p.listingCycleId,sourceKind:p.sourceKind,teamId:p.teamId,issuedTo:actor})]);
   await c.query("INSERT INTO public.vehicle_responsibility_audit_events(responsibility_id,event_key,event_kind,actor_employee_id,current_employee_id,source_evidence) VALUES($1,$2,'ISSUE',$3,$3,'CI_ONLY_SAME_TX_PDM06_FORMAL_PUBLISH_WITH_VEHICLE_AND_CYCLE')",
     [record.responsibility_id,'audit:'+p.eventKey,actor]);
+  if(onPublishInTransaction)await onPublishInTransaction(c,actor,Object.freeze({vehicleId:p.vehicleId,listingCycleId:p.listingCycleId,teamId:p.teamId,sourceKind:p.sourceKind,responsibilityId:Number(record.responsibility_id)}));
   return ok('F05_2_ISSUED',{responsibilityId:Number(record.responsibility_id)});
  });
 }
