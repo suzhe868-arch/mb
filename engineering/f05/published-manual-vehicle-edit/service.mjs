@@ -181,7 +181,7 @@ function sanitizeError(e){
  if(['23505','23503','40P01','40001','55P03'].includes(e?.code))return error(409,'PG16_CONCURRENT_CHANGE');
  return error(503,'EDIT_SERVICE_UNAVAILABLE');
 }
-export function createPublishedEditService({auth,env=process.env}={}){
+export function createPublishedEditService({auth,env=process.env,hooks}={}){
  assertIsolated(env);
  if(!auth?.pool||typeof auth.withSession!=='function')throw Error('F05_EDIT_TRUSTED_SESSION_REQUIRED');
  async function execute(token,id,operation){
@@ -260,6 +260,12 @@ export function createPublishedEditService({auth,env=process.env}={}){
     if(Number(input.expectedCurrentVersion)!==Number(ctx.current.version))throw new Denied('EDIT_EFFECTIVE_VERSION_CONFLICT',409);
     const p=validatePatch(ctx.staged.patch);
     if(internal in p&&!ctx.access.canInternal)throw new Denied('INTERNAL_PRICE_FORBIDDEN');
+    // Test-only barrier, transaction/row/advisory locks already acquired.
+    // Exercises real physical PG16 governance-vs-commit serialization.
+    if(hooks?.beforeCommit){
+     if(process.env.CI!=='true'||process.env.GITHUB_ACTIONS!=='true'||typeof hooks.beforeCommit!=='function')throw new Denied('TEST_CHECKPOINT_DENIED');
+     await hooks.beforeCommit({vehicleId:Number(ctx.vehicle.vehicle_id),actorId:ctx.who},c);
+    }
     const fields={...ctx.current.effective_fields,...p};
     if(!['number'].includes(typeof fields.modelId)||!number(fields.modelId)||!number(fields.brandId)||!number(fields.seriesId))
      throw new Denied('MODEL_MISSING',422);
