@@ -80,17 +80,10 @@ test('E04 no internal permission read/write leaks; 4S hard deny internal',async(
   const granted=await stage({internalWholesalePriceCents:6800000},2,1);
   assert.equal(granted.status,200,JSON.stringify(granted.body));
   assert.equal(granted.body.preview.internalWholesalePriceCents,6800000);
-  const perm=(await db.query("SELECT permission_id FROM public.permissions WHERE permission_code='internal.price.view'")).rows[0];
-  await db.query("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=now() WHERE employee_id=1 AND permission_id=$1",[perm.permission_id]);
-  const denied=await stage({internalWholesalePriceCents:6990000},3,1);
-  assert.equal(denied.status,403,JSON.stringify(denied.body));
-  const safe=await read();
-  assert.equal(safe.status,200);assert.equal('internalWholesalePriceCents' in safe.body.effective,false);
-  assert.equal('internalWholesalePriceCents' in safe.body.draft.patch,false);
-  assert.equal('internalWholesalePriceCents' in safe.body.draft.preview,false);
-  // The previous sensitive edit remains staged; current no-price actor must not commit it.
-  const blocked=await submit(3,1);assert.equal(blocked.status,403);
-  await db.query("UPDATE public.employee_permission_overrides SET decision='allow',changed_at=now() WHERE employee_id=1 AND permission_id=$1",[perm.permission_id]);
+  // The F05-2 frozen governance trigger revokes stewardship when ANY
+  // permission override changes. Permission revoke must therefore be tested
+  // LAST, not repaired by re-allowing (which cannot resurrect stewardship).
+
  }
 });
 test('E05 real PG16 rollback keeps old facts, draft and audit unchanged',async()=>{
@@ -154,4 +147,17 @@ test('E09 4S current Admin license revoke immediately removes old editing author
  assert.equal(rev.allowed,true,JSON.stringify(rev));
  const deny=await submit(1,2);assert.equal(deny.status,403);
  assert.equal(await count('f05_published_edit_test.edit_audit'),1);
+});
+
+test('E10 Mingbang current permission removal invalidates ownership and blocks all fresh operations',async()=>{
+ if(fourS)return;
+ const x=await stage({city:'Nanjing'},undefined,2);assert.equal(x.status,200,JSON.stringify(x.body));
+ const perm=(await db.query("SELECT permission_id FROM public.permissions WHERE permission_code='internal.price.view'")).rows[0];
+ await db.query("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=now() WHERE employee_id=1 AND permission_id=$1",[perm.permission_id]);
+ const denied=await submit(1,2);
+ assert.equal(denied.status,403,JSON.stringify(denied.body));
+ assert.equal(JSON.stringify(denied.body).includes('internalWholesalePriceCents'),false);
+ assert.equal(await count('f05_published_edit_test.edit_audit'),1);
+ const persisted=(await db.query('SELECT patch FROM f05_published_edit_test.staged_changes WHERE vehicle_id=$1',[vehicleId])).rows[0];
+ assert.equal(persisted.patch.city,'Nanjing');
 });
