@@ -239,7 +239,9 @@ test('F05-F06真实同车跨Runtime闭环：两个独立PG16数据库、原生HT
   await t.test('06 原生F06 Composite父签名与24迁移链验证成功',async()=>{
    const verified=await verifyCompositeRuntimeDatabase(targetDb,process.env);
    assert.equal(verified.verified,true);
-   assert.equal((await getPublicStructure(targetDb)).sha256,verified.publicCatalogSHA);
+   const signedCatalog=(await targetDb.query("SELECT public_catalog_sha256 FROM f06_composite_v1.attestation WHERE seal_name='COMPOSITE_NONPROD_SIGNED_V1'")).rows[0];
+    assert.ok(signedCatalog);
+    assert.equal((await getPublicStructure(targetDb)).sha256,signedCatalog.public_catalog_sha256);
   });
   await t.test('07 未认证客户无法创建LockRequest且无副作用',async()=>{
    const before=await requestCount();
@@ -319,13 +321,13 @@ test('F05-F06真实同车跨Runtime闭环：两个独立PG16数据库、原生HT
   assert.equal(deposit.status,201,JSON.stringify(deposit.data));assert.equal(deposit.data.code,'F06_3A_SYNTHETIC_RECEIPT_RECORDED');
   const depositId=String(deposit.data.depositId);
   await t.test('20 F06合成定金通过原生HTTP落入真实PG16收据',async()=>{
-   const row=(await targetDb.query('SELECT deposit_id::text,lock_id::text,amount_cents::text,currency,payment_method FROM public.deposit_receipts WHERE deposit_id=$1::bigint',[depositId])).rows[0];
-   assert.ok(row);assert.equal(row.lock_id,lockId);assert.equal(Number(row.amount_cents),500000);assert.equal(row.currency,'CNY');assert.equal(row.payment_method,'bank_transfer');
+   const row=(await targetDb.query('SELECT deposit_id::text,lock_id::text,customer_id::text,amount_cents::text,received_at,recorded_by::text FROM public.deposit_receipts WHERE deposit_id=$1::bigint',[depositId])).rows[0];
+   assert.ok(row);assert.equal(row.lock_id,lockId);assert.equal(row.customer_id,customerId);assert.equal(Number(row.amount_cents),500000);assert.ok(row.received_at);assert.equal(row.recorded_by,String(ownerEmployeeId));
   });
   await t.test('21 定金provenance绑定同车同周期且仅为CI合成资金',async()=>{
-   const row=(await targetDb.query('SELECT deposit_id::text,lock_id::text,customer_id::text,vehicle_id::text,listing_cycle_id::text,original_amount_cents::text,currency,issuer_kind FROM f06_3a_ci.receipt_provenance WHERE deposit_id=$1::bigint',[depositId])).rows[0];
+   const row=(await targetDb.query('SELECT deposit_id::text,lock_id::text,customer_id::text,vehicle_id::text,listing_cycle_id::text,original_amount_cents::text,currency,payment_method,operator_employee_id::text,issuer_kind FROM f06_3a_ci.receipt_provenance WHERE deposit_id=$1::bigint',[depositId])).rows[0];
    assert.ok(row);assert.equal(row.lock_id,lockId);assert.equal(row.vehicle_id,vehicleId);assert.equal(row.listing_cycle_id,cycleId);
-   assert.equal(row.customer_id,customerId);assert.equal(Number(row.original_amount_cents),500000);assert.equal(row.issuer_kind,'CI_SYNTHETIC_NOT_REAL_MONEY');
+   assert.equal(row.customer_id,customerId);assert.equal(Number(row.original_amount_cents),500000);assert.equal(row.currency,'CNY');assert.equal(row.payment_method,'bank_transfer');assert.equal(row.operator_employee_id,String(ownerEmployeeId));assert.equal(row.issuer_kind,'CI_SYNTHETIC_NOT_REAL_MONEY');
   });
   await t.test('22 定金签名事件与审计同时存在',async()=>{
    assert.equal((await targetDb.query("SELECT count(*)::int n FROM f06_composite_v1.issued_events WHERE event_kind='signed_deposit' AND parent_object_id=$1::bigint",[depositId])).rows[0].n,1);
@@ -353,11 +355,17 @@ test('F05-F06真实同车跨Runtime闭环：两个独立PG16数据库、原生HT
    const out=await post(base,txPath,ownerLogin.token,{lockId:Number(lockId),eventKey:'bridge_tx_extra_field_'+runId,sourcePriceCents:8300000},{'x-issuer':'trusted'});
    assert.equal(out.status,403);assert.equal(await txCount(),before);
     const originsBefore=await count(targetDb,'SELECT count(*)::int n FROM f06_real_tx_ci.origins WHERE source_lock_id=$1::bigint',[lockId]);
+    const requestKeysBefore=await count(targetDb,'SELECT count(*)::int n FROM f06_real_tx_ci.request_keys WHERE source_lock_id=$1::bigint',[lockId]);
+    const eventsBefore=await count(targetDb,'SELECT count(*)::int n FROM f06_real_tx_ci.events WHERE source_lock_id=$1::bigint',[lockId]);
+    const signedBefore=await count(targetDb,"SELECT count(*)::int n FROM f06_composite_v1.issued_events WHERE event_kind='signed_tx'");
     const auditBefore=await count(targetDb,"SELECT count(*)::int n FROM public.audit_events WHERE action='f06_real_tx_ci_atomic_open'");
-    const rollback=await openSyntheticTransactionComposite(auth,ownerLogin.token,{lockId:Number(lockId),eventKey:'bridge_tx_rollback_'+runId,testCheckpoint:'AFTER_ORIGIN_THROW'});
+    const rollback=await openSyntheticTransactionComposite(auth,ownerLogin.token,{lockId:Number(lockId),eventKey:'bridge_tx_rollback_'+runId,testCheckpoint:'AFTER_AUDIT_THROW'});
     assert.equal(rollback.allowed,false);assert.equal(rollback.code,'F06_TX_ROLLED_BACK');
     assert.equal(await txCount(),before);
     assert.equal(await count(targetDb,'SELECT count(*)::int n FROM f06_real_tx_ci.origins WHERE source_lock_id=$1::bigint',[lockId]),originsBefore);
+    assert.equal(await count(targetDb,'SELECT count(*)::int n FROM f06_real_tx_ci.request_keys WHERE source_lock_id=$1::bigint',[lockId]),requestKeysBefore);
+    assert.equal(await count(targetDb,'SELECT count(*)::int n FROM f06_real_tx_ci.events WHERE source_lock_id=$1::bigint',[lockId]),eventsBefore);
+    assert.equal(await count(targetDb,"SELECT count(*)::int n FROM f06_composite_v1.issued_events WHERE event_kind='signed_tx'"),signedBefore);
     assert.equal(await count(targetDb,"SELECT count(*)::int n FROM public.audit_events WHERE action='f06_real_tx_ci_atomic_open'"),auditBefore);
     assert.equal((await targetDb.query('SELECT lock_status FROM public.locks WHERE lock_id=$1::bigint',[lockId])).rows[0].lock_status,'active');
   });
