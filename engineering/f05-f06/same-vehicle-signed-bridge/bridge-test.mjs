@@ -10,6 +10,8 @@ import {createCompositeDenyHandler,createCompositeBusinessHandler,verifyComposit
 import {createIsolatedF06LockService} from '../../src/f06-lock-service.mjs';
 import {createIsolatedF06LockHandler} from '../../src/f06-lock-http.mjs';
 import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
+import {assertCompositeSignedRun} from '../../f06/nonprod-single-runtime-integration/可信Composite签名根.mjs';
+import {openSyntheticTransactionComposite} from '../../f06/lock-transaction-http-pg16/service.mjs';
 import {captureSnapshot,snapshotSha,sha256} from './snapshot.mjs';
 
 const DSN='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test';
@@ -126,6 +128,21 @@ test('F05-F06真实同车跨Runtime闭环：两个独立PG16数据库、原生HT
   const currentSchema=(await targetDb.query("SELECT to_regnamespace('f05_f06_bridge_v1')::text n")).rows[0].n;
   assert.equal(currentSchema,null,'bridge sidecar must start absent on the fresh F06 target');
   await targetDb.query(await readFile(new URL('./桥接私有身份与不可变来源.sql',import.meta.url),'utf8'));
+  const targetOid=Number(targetIdentity.oid);
+  const insertBridgeAttestation=async priceEventId=>targetDb.query(
+   'INSERT INTO f05_f06_bridge_v1.attestation(seal_name,source_manifest_sha256,source_database_oid,target_database_oid,vehicle_id,listing_cycle_id,source_type,publisher_employee_id,source_team_id,source_model_id,source_vin_sha256,source_retail_price_cents,source_mileage_km,source_city,source_payload_sha256,source_published_event_sha256,source_responsibility_id,source_price_event_id,head_sha,run_id,github_ref) VALUES($1,$2,$3::oid,$4::oid,$5::bigint,$6::bigint,$7,$8::bigint,$9::bigint,$10::bigint,$11,$12::bigint,$13::int,$14,$15,$16,$17::bigint,$18::bigint,$19,$20,$21)',
+   ['F05_F06_SAME_VEHICLE_BRIDGE_V1',sourceManifest.manifestSHA256,sourceIdentity.oid,targetIdentity.oid,
+    sourceManifest.vehicle.vehicleId,sourceManifest.vehicle.listingCycleId,sourceManifest.vehicle.sourceType,
+    sourceManifest.vehicle.publisherEmployeeId,sourceManifest.vehicle.sourceTeamId,sourceManifest.vehicle.modelId,
+    sourceManifest.vehicle.vinSha256,sourceManifest.vehicle.retailPriceCents,sourceManifest.vehicle.mileageKm,
+    sourceManifest.vehicle.city,sourceManifest.vehicle.payloadSha256,sourceManifest.vehicle.publishedEventSha256,
+    sourceManifest.vehicle.responsibilityId,priceEventId,process.env.GITHUB_SHA,String(process.env.GITHUB_RUN_ID),REF]);
+  const missingPriceMappingRejected=await (async()=>{
+   const before=await count(targetDb,'SELECT count(*)::int n FROM f05_f06_bridge_v1.attestation');
+   await assert.rejects(()=>insertBridgeAttestation('9223372036854775807'),/violates foreign key constraint/);
+   assert.equal(await count(targetDb,'SELECT count(*)::int n FROM f05_f06_bridge_v1.attestation'),before);
+   return true;
+  })();
   const existingPrices=(await targetDb.query("SELECT price_event_id::text,amount_cents::text FROM public.vehicle_price_history WHERE vehicle_id=$1::bigint AND price_kind='customer_display' AND amount_cents>0 ORDER BY valid_from DESC,price_event_id DESC",[sourceManifest.vehicle.vehicleId])).rows;
   let priceEvent;
   if(existingPrices.length===0){
@@ -136,15 +153,7 @@ test('F05-F06真实同车跨Runtime闭环：两个独立PG16数据库、原生HT
    priceEvent={price_event_id:existingPrices[0].price_event_id,amount_cents:existingPrices[0].amount_cents,
     valid_from:(await targetDb.query('SELECT valid_from FROM public.vehicle_price_history WHERE price_event_id=$1::bigint',[existingPrices[0].price_event_id])).rows[0].valid_from};
   }
-  const targetOid=Number(targetIdentity.oid),sourceOid=Number(sourceIdentity.oid);
-  await targetDb.query(
-   'INSERT INTO f05_f06_bridge_v1.attestation(seal_name,source_manifest_sha256,source_database_oid,target_database_oid,vehicle_id,listing_cycle_id,source_type,publisher_employee_id,source_team_id,source_model_id,source_vin_sha256,source_retail_price_cents,source_mileage_km,source_city,source_payload_sha256,source_published_event_sha256,source_responsibility_id,source_price_event_id,head_sha,run_id,github_ref) VALUES($1,$2,$3::oid,$4::oid,$5::bigint,$6::bigint,$7,$8::bigint,$9::bigint,$10::bigint,$11,$12::bigint,$13::int,$14,$15,$16,$17::bigint,$18::bigint,$19,$20,$21)',
-   ['F05_F06_SAME_VEHICLE_BRIDGE_V1',sourceManifest.manifestSHA256,sourceIdentity.oid,targetIdentity.oid,
-    sourceManifest.vehicle.vehicleId,sourceManifest.vehicle.listingCycleId,sourceManifest.vehicle.sourceType,
-    sourceManifest.vehicle.publisherEmployeeId,sourceManifest.vehicle.sourceTeamId,sourceManifest.vehicle.modelId,
-    sourceManifest.vehicle.vinSha256,sourceManifest.vehicle.retailPriceCents,sourceManifest.vehicle.mileageKm,
-    sourceManifest.vehicle.city,sourceManifest.vehicle.payloadSha256,sourceManifest.vehicle.publishedEventSha256,
-    sourceManifest.vehicle.responsibilityId,priceEvent.price_event_id,process.env.GITHUB_SHA,String(process.env.GITHUB_RUN_ID),REF]);
+  await insertBridgeAttestation(priceEvent.price_event_id);
   const attestation=(await targetDb.query('SELECT * FROM f05_f06_bridge_v1.attestation WHERE vehicle_id=$1::bigint',[sourceManifest.vehicle.vehicleId])).rows[0];
   assert.ok(attestation);assert.equal(String(attestation.source_database_oid),sourceIdentity.oid);
   assert.equal(String(attestation.target_database_oid),targetIdentity.oid);
@@ -198,6 +207,7 @@ test('F05-F06真实同车跨Runtime闭环：两个独立PG16数据库、原生HT
    assert.notEqual(sourceIdentity.oid,targetIdentity.oid);assert.notEqual(targetIdentity.oid,baselineIdentity.oid);
    assert.equal(sourceIdentity.migrationCount,14);assert.equal(targetIdentity.migrationCount,24);
    assert.equal(sourceIdentity.role,'f03_ci');assert.equal(targetIdentity.role,'f03_ci');
+    await assert.rejects(()=>verifyCompositeRuntimeDatabase(sourceDb,process.env),/F06_COMPOSITE_SINGLE_NONPRIVILEGED_PG16_REQUIRED/);
   });
   await t.test('02 F05原生发布事实在F06目标库逐字段一致',async()=>{
    assert.equal(targetVehicle.vehicle_id,vehicleId);assert.equal(targetCycle.listing_cycle_id,cycleId);
@@ -216,9 +226,13 @@ test('F05-F06真实同车跨Runtime闭环：两个独立PG16数据库、原生HT
    assert.equal(String(attestation.target_database_oid),targetIdentity.oid);
    assert.equal(attestation.head_sha,process.env.GITHUB_SHA);assert.equal(attestation.github_ref,REF);
    assert.equal(attestation.run_id,runId);
+    assert.throws(()=>assertCompositeSignedRun({...process.env,GITHUB_SHA:'0'.repeat(40)}));
+    assert.throws(()=>assertCompositeSignedRun({...process.env,GITHUB_REF:'refs/heads/main'}));
+    assert.throws(()=>assertCompositeSignedRun({...process.env,GITHUB_RUN_ID:'not-a-run'}));
   });
-  await t.test('05 客户展示价投影只来源于F05清单中的原始标价',async()=>{
-   assert.equal(Number(priceEvent.amount_cents),sourceManifest.vehicle.retailPriceCents);
+  await t.test('05 客户展示价投影只来源于F05清单中的原始标价且缺失映射拒绝封印',async()=>{
+   assert.equal(missingPriceMappingRejected,true);
+    assert.equal(Number(priceEvent.amount_cents),sourceManifest.vehicle.retailPriceCents);
    assert.equal(String(priceEvent.price_event_id),String(attestation.source_price_event_id));
    assert.equal((await targetDb.query("SELECT count(*)::int n FROM public.vehicle_price_history WHERE vehicle_id=$1::bigint AND price_kind='customer_display' AND amount_cents>0",[vehicleId])).rows[0].n,1);
   });
@@ -246,6 +260,8 @@ test('F05-F06真实同车跨Runtime闭环：两个独立PG16数据库、原生HT
    const before=await requestCount();
    const out=await post(base,'/api/v1/lock-requests',customerToken,{vehicleId:vehicleId,listingCycleId:'999999999998',idempotencyKey:'bridge_wrong_cycle_'+runId});
    assert.equal(out.status,403);assert.equal(await requestCount(),before);
+    const wrongSource=await post(base,'/api/v1/lock-requests',customerToken,{vehicleId:vehicleId,listingCycleId:cycleId,sourceType:'wholesale',idempotencyKey:'bridge_wrong_source_type_'+runId});
+    assert.equal(wrongSource.status,400);assert.equal(await requestCount(),before);
   });
   const created=await post(base,'/api/v1/lock-requests',customerToken,{vehicleId:vehicleId,listingCycleId:cycleId,idempotencyKey:'bridge_lock_request_'+runId});
   assert.equal(created.status,201,JSON.stringify(created.data));assert.equal(created.data.code,'LOCK_REQUEST_PENDING');
@@ -281,25 +297,25 @@ test('F05-F06真实同车跨Runtime闭环：两个独立PG16数据库、原生HT
   const depositCount=async()=>count(targetDb,'SELECT count(*)::int n FROM public.deposit_receipts WHERE lock_id=$1::bigint',[lockId]);
   await t.test('16 未认证员工不能记录合成定金',async()=>{
    const before=await depositCount();
-   const out=await post(base,depositPath,null,{lockId:lockId,amountCents:500000,currency:'CNY',paymentMethod:'bank_transfer',eventKey:'bridge_deposit_no_auth_'+runId,receivedAt:new Date().toISOString(),note:'Synthetic bridge receipt'});
+   const out=await post(base,depositPath,null,{lockId:Number(lockId),amountCents:500000,currency:'CNY',paymentMethod:'bank_transfer',eventKey:'bridge_deposit_no_auth_'+runId,receivedAt:new Date().toISOString(),note:'Synthetic bridge receipt'});
    assert.equal(out.status,401);assert.equal(await depositCount(),before);
   });
   await t.test('17 零金额合成定金被拒绝且没有收据',async()=>{
    const before=await depositCount();
-   const out=await post(base,depositPath,ownerLogin.token,{lockId:lockId,amountCents:0,currency:'CNY',paymentMethod:'bank_transfer',eventKey:'bridge_deposit_zero_'+runId,receivedAt:new Date().toISOString(),note:'Synthetic bridge receipt'});
+   const out=await post(base,depositPath,ownerLogin.token,{lockId:Number(lockId),amountCents:0,currency:'CNY',paymentMethod:'bank_transfer',eventKey:'bridge_deposit_zero_'+runId,receivedAt:new Date().toISOString(),note:'Synthetic bridge receipt'});
    assert.equal(out.status,400);assert.equal(await depositCount(),before);
   });
   await t.test('18 非CNY合成定金被拒绝且没有收据',async()=>{
    const before=await depositCount();
-   const out=await post(base,depositPath,ownerLogin.token,{lockId:lockId,amountCents:500000,currency:'USD',paymentMethod:'bank_transfer',eventKey:'bridge_deposit_currency_'+runId,receivedAt:new Date().toISOString(),note:'Synthetic bridge receipt'});
+   const out=await post(base,depositPath,ownerLogin.token,{lockId:Number(lockId),amountCents:500000,currency:'USD',paymentMethod:'bank_transfer',eventKey:'bridge_deposit_currency_'+runId,receivedAt:new Date().toISOString(),note:'Synthetic bridge receipt'});
    assert.equal(out.status,400);assert.equal(await depositCount(),before);
   });
   await t.test('19 未知issuer声明字段被Composite原生HTTP拒绝',async()=>{
    const before=await depositCount();
-   const out=await post(base,depositPath,ownerLogin.token,{lockId:lockId,amountCents:500000,currency:'CNY',paymentMethod:'bank_transfer',eventKey:'bridge_deposit_extra_'+runId,receivedAt:new Date().toISOString(),note:'Synthetic bridge receipt',issuer:'trusted'}, {'x-issuer':'trusted'});
+   const out=await post(base,depositPath,ownerLogin.token,{lockId:Number(lockId),amountCents:500000,currency:'CNY',paymentMethod:'bank_transfer',eventKey:'bridge_deposit_extra_'+runId,receivedAt:new Date().toISOString(),note:'Synthetic bridge receipt',issuer:'trusted'}, {'x-issuer':'trusted'});
    assert.equal(out.status,403);assert.equal(await depositCount(),before);
   });
-  const deposit=await post(base,depositPath,ownerLogin.token,{lockId:lockId,amountCents:500000,currency:'CNY',paymentMethod:'bank_transfer',eventKey:'bridge_deposit_record_'+runId,receivedAt:new Date().toISOString(),note:'Synthetic same-vehicle bridge receipt'});
+  const deposit=await post(base,depositPath,ownerLogin.token,{lockId:Number(lockId),amountCents:500000,currency:'CNY',paymentMethod:'bank_transfer',eventKey:'bridge_deposit_record_'+runId,receivedAt:new Date().toISOString(),note:'Synthetic same-vehicle bridge receipt'});
   assert.equal(deposit.status,201,JSON.stringify(deposit.data));assert.equal(deposit.data.code,'F06_3A_SYNTHETIC_RECEIPT_RECORDED');
   const depositId=String(deposit.data.depositId);
   await t.test('20 F06合成定金通过原生HTTP落入真实PG16收据',async()=>{
@@ -324,20 +340,28 @@ test('F05-F06真实同车跨Runtime闭环：两个独立PG16数据库、原生HT
   });
   await t.test('24 非法Transaction eventKey不能创建Transaction',async()=>{
    const before=await txCount();
-   const out=await post(base,txPath,ownerLogin.token,{lockId:lockId,eventKey:'x'});
+   const out=await post(base,txPath,ownerLogin.token,{lockId:Number(lockId),eventKey:'x'});
    assert.equal(out.status,400);assert.equal(await txCount(),before);
   });
   await t.test('25 无效Bearer不能创建Transaction',async()=>{
    const before=await txCount();
-   const out=await post(base,txPath,'A'.repeat(43),{lockId:lockId,eventKey:'bridge_tx_wrong_session_'+runId});
+   const out=await post(base,txPath,'A'.repeat(43),{lockId:Number(lockId),eventKey:'bridge_tx_wrong_session_'+runId});
    assert.notEqual(out.status,200);assert.equal(await txCount(),before);
   });
-  await t.test('26 Transaction原生HTTP拒绝未授权字段与issuer头',async()=>{
+  await t.test('26 Transaction原生HTTP拒绝未授权字段与issuer头且中途失败完整回滚',async()=>{
    const before=await txCount();
-   const out=await post(base,txPath,ownerLogin.token,{lockId:lockId,eventKey:'bridge_tx_extra_field_'+runId,sourcePriceCents:8300000},{'x-issuer':'trusted'});
+   const out=await post(base,txPath,ownerLogin.token,{lockId:Number(lockId),eventKey:'bridge_tx_extra_field_'+runId,sourcePriceCents:8300000},{'x-issuer':'trusted'});
    assert.equal(out.status,403);assert.equal(await txCount(),before);
+    const originsBefore=await count(targetDb,'SELECT count(*)::int n FROM f06_real_tx_ci.origins WHERE source_lock_id=$1::bigint',[lockId]);
+    const auditBefore=await count(targetDb,"SELECT count(*)::int n FROM public.audit_events WHERE action='f06_real_tx_ci_atomic_open'");
+    const rollback=await openSyntheticTransactionComposite(auth,ownerLogin.token,{lockId:Number(lockId),eventKey:'bridge_tx_rollback_'+runId,testCheckpoint:'AFTER_ORIGIN_THROW'});
+    assert.equal(rollback.allowed,false);assert.equal(rollback.code,'F06_TX_ROLLED_BACK');
+    assert.equal(await txCount(),before);
+    assert.equal(await count(targetDb,'SELECT count(*)::int n FROM f06_real_tx_ci.origins WHERE source_lock_id=$1::bigint',[lockId]),originsBefore);
+    assert.equal(await count(targetDb,"SELECT count(*)::int n FROM public.audit_events WHERE action='f06_real_tx_ci_atomic_open'"),auditBefore);
+    assert.equal((await targetDb.query('SELECT lock_status FROM public.locks WHERE lock_id=$1::bigint',[lockId])).rows[0].lock_status,'active');
   });
-  const opened=await post(base,txPath,ownerLogin.token,{lockId:lockId,eventKey:'bridge_transaction_open_'+runId});
+  const opened=await post(base,txPath,ownerLogin.token,{lockId:Number(lockId),eventKey:'bridge_transaction_open_'+runId});
   assert.equal(opened.status,200,JSON.stringify(opened.data));assert.equal(opened.data.code,'F06_TX_ATOMIC_SYNTHETIC_IN_PROGRESS');
   const transactionId=String(opened.data.transactionId);
   await t.test('27 Transaction真实记录与Lock/Vehicle/Cycle完全同源',async()=>{
@@ -356,10 +380,17 @@ test('F05-F06真实同车跨Runtime闭环：两个独立PG16数据库、原生HT
    assert.equal((await targetDb.query("SELECT count(*)::int n FROM f06_composite_v1.issued_events WHERE event_kind='signed_lock' AND parent_object_id=$1::bigint",[lockId])).rows[0].n,1);
    assert.equal((await targetDb.query("SELECT count(*)::int n FROM public.audit_events WHERE object_kind='Transaction' AND object_id=$1 AND action='f06_real_tx_ci_atomic_open'",[transactionId])).rows[0].n,1);
   });
-  await t.test('30 桥接来源attestation禁止更新或删除',async()=>{
+  await t.test('30 桥接来源及Composite签名Attestation防篡改、重复与伪造',async()=>{
    await assert.rejects(()=>targetDb.query('UPDATE f05_f06_bridge_v1.attestation SET source_city=$1 WHERE vehicle_id=$2::bigint',['tampered',vehicleId]),/F05_F06_BRIDGE_IMMUTABLE/);
    await assert.rejects(()=>targetDb.query('DELETE FROM f05_f06_bridge_v1.attestation WHERE vehicle_id=$1::bigint',[vehicleId]),/F05_F06_BRIDGE_IMMUTABLE/);
    assert.equal((await targetDb.query('SELECT source_city FROM f05_f06_bridge_v1.attestation WHERE vehicle_id=$1::bigint',[vehicleId])).rows[0].source_city,sourceManifest.vehicle.city);
+
+    const composite=(await targetDb.query("SELECT * FROM f06_composite_v1.attestation WHERE seal_name='COMPOSITE_NONPROD_SIGNED_V1'")).rows[0];
+    assert.ok(composite);
+    await assert.rejects(()=>targetDb.query("UPDATE f06_composite_v1.attestation SET source_sha256=$1 WHERE seal_name=$2",['0'.repeat(64),composite.seal_name]),/F06_COMPOSITE_IMMUTABLE/);
+    await assert.rejects(()=>targetDb.query('INSERT INTO f06_composite_v1.attestation SELECT * FROM f06_composite_v1.attestation'),/duplicate key|unique constraint/);
+    await assert.rejects(()=>targetDb.query("INSERT INTO f06_composite_v1.attestation(seal_name,source_sha256,head_sha,run_id,github_ref,database_oid,ledger_sha256,public_catalog_sha256,parent_f05_checksum) SELECT 'FORGED',source_sha256,head_sha,run_id,github_ref,database_oid,ledger_sha256,public_catalog_sha256,parent_f05_checksum FROM f06_composite_v1.attestation LIMIT 1"),/check constraint/);
+    assert.equal((await verifyCompositeRuntimeDatabase(targetDb,process.env)).verified,true);
   });
   await t.test('31 LockSnapshot禁止回写原始价格',async()=>{
    await assert.rejects(()=>targetDb.query('UPDATE f06_composite_v1.lock_snapshots SET price_cents=1 WHERE lock_id=$1::bigint',[lockId]),/F06_COMPOSITE_IMMUTABLE/);

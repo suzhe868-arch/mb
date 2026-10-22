@@ -45,7 +45,7 @@ const bridgeSources=[
   ['verify-after-edit','../../f05-f06/same-vehicle-signed-bridge/verify-after-edit.mjs'],
   ['bridge-snapshot','../../f05-f06/same-vehicle-signed-bridge/snapshot.mjs'],
   ['bridge-private-sql','../../f05-f06/same-vehicle-signed-bridge/桥接私有身份与不可变来源.sql'],
-  ['bridge-workflow','../../../.github/workflows/f05-f06-same-vehicle-signed-bridge.yml'],
+  ['bridge-workflow','../../../.github/workflows/f05-f06-same-vehicle-signed-bridge-onejob.yml'],
   ['f05-draft-service','../../f05/manual-vehicle-draft-publish/service.mjs'],
   ['f05-draft-http','../../f05/manual-vehicle-draft-publish/http.mjs'],
   ['f05-draft-migration','../../f05/manual-vehicle-draft-publish/migration.mjs'],

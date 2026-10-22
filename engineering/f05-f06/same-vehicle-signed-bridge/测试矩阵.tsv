@@ -24,3 +24,9 @@
 23	编辑后F06交易历史	真实PG16	快照逐行与编辑前完全相等
 24	编辑后F06父表封印	真实PG16	161表/24迁移跨OID before/after Seal成功
 25	两个独立PG16 Job	独立GitHub Actions matrix	同一最终SHA，两个Job全部成功、无跳过
+26	源字段不匹配	真实F06原生HTTP	伪造sourceType被拒绝且无副作用
+27	F05/F06迁移混用	真实PG16与签名Runtime验证	14迁移源库不得充当24迁移F06 Runtime
+28	错误SHA/Ref/Run	签名根环境副本负例	三种错误身份均fail-closed且不修改真实环境
+29	缺失价格映射	真实PG16外键与桥接Attestation	不存在的price_event_id拒绝写入且无Attestation
+30	来源摘要漂移/重复/伪造Attestation	真实PG16不可变触发器与签名验证	更新/重复/伪造均拒绝且原签名仍有效
+31	Transaction中途失败回滚	现有F06 Transaction Service故障注入	Transaction/Lock/Origin/Audit全部回滚且Lock仍active

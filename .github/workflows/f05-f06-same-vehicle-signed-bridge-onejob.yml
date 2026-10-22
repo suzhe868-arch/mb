@@ -4,7 +4,7 @@ on:
     branches:
       - feat/f05-f06-same-vehicle-signed-bridge-pg16-01
     paths:
-      - .github/workflows/f05-f06-same-vehicle-signed-bridge.yml
+      - .github/workflows/f05-f06-same-vehicle-signed-bridge-onejob.yml
       - engineering/f05-f06/same-vehicle-signed-bridge/**
       - engineering/f05/manual-vehicle-draft-publish/service.mjs
       - engineering/f05/manual-vehicle-draft-publish/http.mjs
@@ -65,7 +65,7 @@ jobs:
       F05_EDIT_TLS_CERT: /tmp/f04-3-ci-cert.pem
       F06_COMPOSITE_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_COMPOSITE_ONLY
       F06_COMPOSITE_SIGNED_ISSUER: COMPOSITE_NONPROD_SIGNED_V1
-      F06_LOCK_TEST_CONSENT: I_AUTHORIZE_F06_LOCK_REQUESTS_PG16_NONPROD_ONLY
+      F06_LOCK_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F06_LOCK_PG16_ONLY
       F06_164_BASELINE_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_baseline
       F06_164_RESTORE_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_restore
       F05_F06_BRIDGE_MATRIX_RUN: ${{ matrix.independent_pg16 }}
@@ -91,7 +91,7 @@ jobs:
           git diff --check "$base"...HEAD
           while IFS= read -r path; do
             case "$path" in
-              .github/workflows/f05-f06-same-vehicle-signed-bridge.yml|\
+              .github/workflows/f05-f06-same-vehicle-signed-bridge-onejob.yml|\
               engineering/f05-f06/same-vehicle-signed-bridge/*|\
               engineering/f05/manual-vehicle-draft-publish/service.mjs|\
               engineering/f05/manual-vehicle-draft-publish/http.mjs|\
