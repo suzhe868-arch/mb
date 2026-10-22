@@ -117,9 +117,9 @@ export class PublisherPhoneAdminService {
     // concurrent transaction wins the row, the conditional upsert returns no
     // row and this transaction is rolled back by withSession.
     const override=await c.query(
-     "INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES($1::bigint,$2::bigint,'allow',transaction_timestamp()) "+
+     "INSERT INTO public.employee_permission_overrides AS current_override(employee_id,permission_id,decision,changed_at) VALUES($1::bigint,$2::bigint,'allow',transaction_timestamp()) "+
      "ON CONFLICT(employee_id,permission_id) DO UPDATE SET decision='allow',changed_at=transaction_timestamp() "+
-     "WHERE public.employee_permission_overrides.decision IS DISTINCT FROM 'deny' RETURNING decision",
+     "WHERE current_override.decision IS DISTINCT FROM 'deny' RETURNING decision",
      [employeeId,permission]);
     if(override.rowCount!==1)throw Error('PERSONAL_DENY_RACE');
    }else if(beforeMode?.enabled===true&&oldState.decision==='allow'){
