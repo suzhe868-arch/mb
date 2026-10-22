@@ -238,18 +238,19 @@ await test('真实 PG16 自动调度、双进程并发、过期租约恢复、�
    });
    assert.equal(result.status,200,'crash-recovery fixture must create a real current Match Result');
   }
-  const killer=startScheduler(credential);
-  children.push(killer);
-  await waitFor(()=>killer.stdout.includes('"event":"scheduler_started"'),8000,'crash_runner_started');
   const blocker=await pool.connect();
   try{
    await blocker.query('BEGIN');
    await blocker.query("SELECT demand_id FROM public.demands WHERE demand_id=$1 FOR UPDATE",[crashDemandId]);
+   // Create the due queue row before the scheduler claims it; avoid racing the queue upsert.
    const invalidated=(await pool.query(
     "UPDATE public.demand_match_results SET current_state='stale',invalidated_at=statement_timestamp() "+
     "WHERE demand_id=$1 AND vehicle_id=$2 AND current_state='current'",[crashDemandId,vehicleIds[0]]
    )).rowCount;
    assert.equal(invalidated,1);
+   const killer=startScheduler(credential);
+   children.push(killer);
+   await waitFor(()=>killer.stdout.includes('"event":"scheduler_started"'),8000,'crash_runner_started');
    await waitFor(async()=>{
     const row=(await pool.query(
      "SELECT state,lease_until>statement_timestamp() AS lease_live FROM public.f05_matching_affected_queue_test "+
