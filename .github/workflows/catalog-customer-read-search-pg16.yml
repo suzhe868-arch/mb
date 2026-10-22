@@ -162,6 +162,8 @@ jobs:
               const sales=(await client.query("SELECT role_id FROM public.roles WHERE role_code='sales' LIMIT 1")).rows[0];
               if(!role&&!sales)await client.query("INSERT INTO public.roles(role_id,role_code) VALUES(59001,'sales')");
               else if(!role||role.role_code!=='sales'||String(sales?.role_id??'59001')!=='59001')throw Error('CATALOG_BOOTSTRAP_CANONICAL_SALES_ROLE_DENIED');
+              const role59002=(await client.query("SELECT role_id FROM public.roles WHERE role_id=59002")).rows[0];
+              if(!role59002)await client.query("INSERT INTO public.roles(role_id,role_code) VALUES(59002,'f05_catalog_ci_role_59002')");
               await client.query('COMMIT');
             }catch(e){await client.query('ROLLBACK').catch(()=>{});throw e}
             const pool=new pg.Pool({connectionString:process.env.F05_CATALOG_DATABASE_URL,max:2,connectionTimeoutMillis:900,query_timeout:1800,statement_timeout:1800});
