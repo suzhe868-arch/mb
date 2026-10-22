@@ -35,6 +35,9 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
       F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
       F05_PUBLISHED_EDIT_CONSENT: I_AUTHORIZE_F05_PUBLISHED_EDIT_DISPOSABLE_PG16_ONLY
+      F05_MANUAL_VEHICLE_DRAFT_PUBLISH_CONSENT: I_AUTHORIZE_F05_MANUAL_VEHICLE_DRAFT_PUBLISH_PG16_ONLY
+      F05_MANUAL_TLS_KEY_PATH: /tmp/f05-issue216-key.pem
+      F05_MANUAL_TLS_CERT_PATH: /tmp/f05-issue216-cert.pem
       F05_EDIT_TEST_SOURCE: mingbang
       F05_EDIT_HTTP_PORT: '48986'
       F05_EDIT_TLS_KEY: /tmp/f05-issue216-key.pem
@@ -134,6 +137,7 @@ jobs:
       - name: Fresh private PG16 rollback, migration and isolated normative-price fixture
         run: |
           set -euo pipefail
+          node f05/published-manual-vehicle-edit/source-setup.mjs
           node f05/published-manual-vehicle-edit/runner.mjs --inject-rollback
           node f05/published-manual-vehicle-edit/runner.mjs --apply
           node f05/published-manual-vehicle-edit/runner.mjs --verify
@@ -194,6 +198,9 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
       F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
       F05_PUBLISHED_EDIT_CONSENT: I_AUTHORIZE_F05_PUBLISHED_EDIT_DISPOSABLE_PG16_ONLY
+      F05_MANUAL_VEHICLE_DRAFT_PUBLISH_CONSENT: I_AUTHORIZE_F05_MANUAL_VEHICLE_DRAFT_PUBLISH_PG16_ONLY
+      F05_MANUAL_TLS_KEY_PATH: /tmp/f05-issue216-key.pem
+      F05_MANUAL_TLS_CERT_PATH: /tmp/f05-issue216-cert.pem
       F05_EDIT_TEST_SOURCE: four_s
       F05_EDIT_HTTP_PORT: '48987'
       F05_EDIT_TLS_KEY: /tmp/f05-issue216-key.pem
@@ -293,6 +300,7 @@ jobs:
       - name: Fresh private PG16 rollback, migration and isolated normative-price fixture
         run: |
           set -euo pipefail
+          node f05/published-manual-vehicle-edit/source-setup.mjs
           node f05/published-manual-vehicle-edit/runner.mjs --inject-rollback
           node f05/published-manual-vehicle-edit/runner.mjs --apply
           node f05/published-manual-vehicle-edit/runner.mjs --verify
@@ -354,6 +362,9 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
       F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
       F05_PUBLISHED_EDIT_CONSENT: I_AUTHORIZE_F05_PUBLISHED_EDIT_DISPOSABLE_PG16_ONLY
+      F05_MANUAL_VEHICLE_DRAFT_PUBLISH_CONSENT: I_AUTHORIZE_F05_MANUAL_VEHICLE_DRAFT_PUBLISH_PG16_ONLY
+      F05_MANUAL_TLS_KEY_PATH: /tmp/f05-issue216-key.pem
+      F05_MANUAL_TLS_CERT_PATH: /tmp/f05-issue216-cert.pem
       F05_EDIT_TEST_SOURCE: regression
       F05_EDIT_HTTP_PORT: '48988'
       F05_EDIT_TLS_KEY: /tmp/f05-issue216-key.pem
