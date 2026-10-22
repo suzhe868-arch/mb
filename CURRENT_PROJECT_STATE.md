@@ -1,13 +1,12 @@
-# 当前有效状态（2026-10-22｜F05-7 独立后端调度任务已放行）
+# 当前有效状态（2026-10-22｜F05-7 已独立验收合并，F05-8 正式接续）
 
-当前唯一 B 任务为 [Issue #201](https://github.com/suzhe868-arch/mb/issues/201)：为既有 F05 Matching retry worker 补齐独立的持久调度进程。代码核查确认 `engineering/src/f05-matching-retry-worker.mjs` 仅提供 `runOnce()`，`engineering/src/server.mjs` 与 `engineering/src/catalog-readiness.mjs` 未接入自动调度；PDM-12 Final §28 要求事件驱动、按受影响范围重算和幂等失败重试。正式施工单：`07_重建工作区/F05-7_Matching受影响队列持久调度与自动重试非生产施工单_2026-10-22.md`。
+A 已独立复验并标准合并 [F05-7 PR #206](https://github.com/suzhe868-arch/mb/pull/206)，对应 Issue [#201](https://github.com/suzhe868-arch/mb/issues/201)。B 最终 SHA：`f4d7180d7fb38525cbe63bf697bc7fc3bb300f4b`；合并 SHA：`7e00859edf59e1c93254de17cd5543fa7bae6960`。官方 Push Run [#39729060862](https://github.com/suzhe868-arch/mb/actions/runs/39729060862) / Job `119659641450` 全步骤成功。单元测试 7/7、既有 Matching retry PG16 回归 8/8、新调度器真实 PG16 集成测试 1/1 全部通过，失败 0、跳过 0。数据库为 PostgreSQL 16、`f05_catalog_ci` 非超级用户，127 张公开表；同 SHA Artifact [#12404152577](https://github.com/suzhe868-arch/mb/actions/runs/39729060862/artifacts/12404152577) 已核对，SHA-256 `79596be0bfeaaff07e7b4bc60029d8451f7c929f0c4f7eb1ced065293124ccda`。
 
-B 仅新增 `engineering/f05-matching-retry-scheduler/**` 与独立 Push 工作流，不修改已验收 Matching service/worker、F03 reader、旧 F05 工作流、生产配置或前端。真实 PG16 非超级用户、自动处理、并发租约、进程重启恢复、退避、fail-closed 和同 SHA 官方 CI 为验收门槛。F05 已验收 PR #125、F06 PR #174、F07 PR #181、F08-2/F08-3 PR #186/#193 的既有成果直接复用，不重跑旧 F05 421 项全包或旧 66 项 Oracle。
+本次 A 复验确认员工凭证真实验真、数据库超级用户拒绝门禁、慢 tick 截止及持久租约恢复三项整改完成。PR #206 仅新增七个获准路径，没有修改冻结的 Matching service/worker、F03 reader、旧 F05 工作流、生产配置或前端。**接受范围仅为 `DISPOSABLE_TEST_ONLY / NOT_PRODUCTION` 持久调度器，不代表生产就绪或真实外部来源接通。** 完整报告：`07_重建工作区/F05-7_Issue201_PR206独立验收与F05-8正式接续报告_2026-10-22.md`。
 
-Issue #187 继续作为 A 负责的独立外部来源/授权门禁：JYT/Collector、CDN/OSS、飞书尚未准备，正式 F03 capability/Scope/Object 与 F05 转换 Issuer 仍有来源缺口；这些不阻断 Issue #201。电话权限正式后端仍未完成，继续关联 Issue #196，不能以 F08-3 合成测试冒领正式实现。
+**本治理 PR 合并后生效的唯一 B 任务：** `NEXT_OWNER=B`、`NEXT_TASK=F05_8_PRIORITY_TTL_SCHEDULER_01`、`NEXT_ISSUE=203`、`NEXT_BRANCH=feat/f05-8-priority-ttl-scheduler-01`。施工单：`07_重建工作区/F05-8_Priority到期重仲裁持久调度非生产施工单_2026-10-22.md`。该任务复用既有 Priority 队列 worker，只补非生产持久 runner、退避、并发安全与重启恢复；B 不得提前启动 Issue #204。
 
-**唯一施工指针：** `NEXT_OWNER=B`、`NEXT_TASK=F05_7_MATCHING_RETRY_SCHEDULER_01`、`NEXT_ISSUE=201`、`NEXT_BRANCH=feat/f05-7-matching-retry-scheduler-01`。当前仅非生产后端施工，不授权生产、真钱、真实电话、外部公网调用或客户端/PC 页面。
-
+Issue #187 继续作为独立真实来源/外部授权门禁：JYT/Collector、CDN/OSS、飞书及正式 F03/F05 来源仍有缺口，不阻断本次 F05-8 非生产 runner。F01～F08/V1 全局生产状态不因此改变；不授权生产、真钱、真实电话或外部公网调用。
 
 ---
 

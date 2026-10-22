@@ -1,3 +1,21 @@
+## A-F05-7-ISSUE201-PR206-ACCEPT-01｜Matching 持久调度器独立验收通过并标准合并
+
+- Issue [#201](https://github.com/suzhe868-arch/mb/issues/201) / PR [#206](https://github.com/suzhe868-arch/mb/pull/206) 已由 A 独立验收；PR 已按 merge 方法标准合并。
+- B 最终 HEAD `f4d7180d7fb38525cbe63bf697bc7fc3bb300f4b`；合并 SHA `7e00859edf59e1c93254de17cd5543fa7bae6960`。
+- 官方 Push Run [#39729060862](https://github.com/suzhe868-arch/mb/actions/runs/39729060862) / Job `119659641450` 全成功。单元 7/7、既有 Matching retry PG16 回归 8/8、新调度器 PG16 集成 1/1，失败 0、跳过 0。
+- A 独立下载并核对 Artifact [#12404152577](https://github.com/suzhe868-arch/mb/actions/runs/39729060862/artifacts/12404152577)：压缩包 SHA-256 `79596be0bfeaaff07e7b4bc60029d8451f7c929f0c4f7eb1ced065293124ccda`；内部 HEAD/Run ID/分支与最终提交和官方 Run 一致。PG16 数据库 `f05_catalog_test`、角色 `f05_catalog_ci`、`rolsuper=false`，127 张公开表。
+- 三项首轮阻断均已复验通过：员工会话凭证真实验真及无效会话拒绝；启动时拒绝超级用户；慢 tick 到期以退出码 124 终止，并通过持久 lease 在重启后恢复。改动严格限于七个新增白名单文件。
+- 完整报告：`07_重建工作区/F05-7_Issue201_PR206独立验收与F05-8正式接续报告_2026-10-22.md`。
+- **仅接受 `DISPOSABLE_TEST_ONLY / NOT_PRODUCTION` 子范围**。不宣称 F05 整体、F01～F08/V1 全局或生产就绪；不代表 JYT/Collector/CDN/OSS/飞书/正式 Issuer 已接通。
+
+## A-F05-8-ISSUE203-ACTIVATE-01｜F05-8 Priority TTL 持久调度接续激活
+
+- Issue [#203](https://github.com/suzhe868-arch/mb/issues/203) 已由 A 从既有排队状态激活；唯一下一 B 任务为 `F05_8_PRIORITY_TTL_SCHEDULER_01`，分支 `feat/f05-8-priority-ttl-scheduler-01`，施工单 `07_重建工作区/F05-8_Priority到期重仲裁持久调度非生产施工单_2026-10-22.md`。
+- 新任务只新增独立非生产 runner 和专用 Push 工作流，复用现有 Priority worker；不修改已验收业务算法，不依赖 Issue #187 的外部资源，不开发 PC/手机页面，不接生产。
+- Issue #204 继续排队，必须等 #203 通过 A 独立验收并合并后再激活。
+
+---
+
 ## A-PC-PHONE-PERMISSION-UI-DEFERRED-01｜产品规则保留，PC页面延期至F01～F08后
 
 - 用户于 2026-10-22 明确决定：当前优先完成 B 的 F01～F08 后端工程与功能实现，PC 管理后台页面暂不开发，不因电话权限设置提前建设整套后台。

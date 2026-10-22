@@ -10,15 +10,17 @@
 
 ---
 
-## 当前工程执行指针｜B F05-7 Matching 后台持久调度
+## 当前工程执行指针｜B F05-8 Priority TTL 后台持久调度
 
-- **当前正式任务：** [Issue #201](https://github.com/suzhe868-arch/mb/issues/201)｜F05-7 Matching 受影响队列持久调度与自动重试。
-- **施工单：** `07_重建工作区/F05-7_Matching受影响队列持久调度与自动重试非生产施工单_2026-10-22.md`。
-- **正式 B 分支：** `feat/f05-7-matching-retry-scheduler-01`，由 B 在本 A 放行 PR 合并后从最新 `main` 新建。
-- **真实缺口依据：** 现有 `engineering/src/f05-matching-retry-worker.mjs` 只有 `runOnce()`；当前 server/catalog runtime 没有持久轮询调度器。PDM-12 §28 要求事件驱动、受影响范围重算与失败对象幂等重试。任务复用现有 worker，不重复 Matching 算法。
-- **Issue #187 并行不阻断：** JYT/Collector、CDN/OSS、飞书及电话来源门禁继续开放，但不依赖它们的 F05-7 调度任务正常施工。
-- **既有验收直接复用：** F05 非生产验收 PR #125、F06 PR #174、F07 PR #181、F08-2/F08-3 PR #186/#193；不重跑旧 F05 421 项全包、旧 66 项 Oracle 或已验收子包。
-- **约束：** 当前只开发后端；不开发 PC/手机页面；不改冻结 F03 reader/旧工作流，不接生产、不声明正式 Issuer 或外部系统已接通。F08 电话权限正式后端仍未完成，继续由 Issue #187/#196 跟踪。
+- **当前正式任务：** [Issue #203](https://github.com/suzhe868-arch/mb/issues/203)｜Priority TTL 到期重仲裁持久调度进程。
+- **施工单：** `07_重建工作区/F05-8_Priority到期重仲裁持久调度非生产施工单_2026-10-22.md`。
+- **正式 B 分支：** `feat/f05-8-priority-ttl-scheduler-01`；本 A 状态治理 PR 合并后正式激活，B 必须从最新 `main` 接管。
+- **实际缺口依据：** `engineering/src/f05-priority-scheduler-worker.mjs` 已提供 PG16 持久队列消费者 `runDue()`，但现有主应用没有自动轮询 runner。新任务只补独立调度进程，不重写 Priority 业务算法。
+- **上一任务 F05-7 已验收合并：** Issue #201 / PR #206 已由 A 独立验收并标准合并；最终 B SHA `f4d7180d7fb38525cbe63bf697bc7fc3bb300f4b`，merge SHA `7e00859edf59e1c93254de17cd5543fa7bae6960`；官方 Run #39729060862 成功，7/7 单元、8/8 Matching retry 回归、1/1 新调度器 PG16 集成测试均无失败/跳过。完整报告：`07_重建工作区/F05-7_Issue201_PR206独立验收与F05-8正式接续报告_2026-10-22.md`。
+- **本任务白名单：** 只新增 `engineering/f05-priority-ttl-scheduler/**` 与 `.github/workflows/priority-ttl-scheduler-pg16.yml`；只读复用现有 Priority worker、TTL sweep worker 和 PG16 回归测试。
+- **Issue #187 并行不阻断：** JYT/Collector、CDN/OSS、飞书及正式电话/来源授权仍为独立门禁；本任务不依赖它们。
+- **下一排队任务：** Issue [#204](https://github.com/suzhe868-arch/mb/issues/204) 只能在 #203 经 A 独立验收并合并后激活，不允许提前并行施工。
+- **约束：** 仅后端、仅非生产；不开发 PC/手机页面，不修改已验收业务算法，不接生产，不授权真钱、真实电话或外部公网调用，不伪造正式 Issuer。
 
 
 ---

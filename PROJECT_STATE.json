@@ -8,8 +8,8 @@
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F05_7_MATCHING_RETRY_SCHEDULER_NONPROD",
-  "current_domain_status": "A 已从最新 main 核实 F05 Matching retry worker 只有 runOnce()，当前服务入口没有持久调度器。Issue #201 为独立后端任务，使用隔离非生产 PG16 实现自动轮询、退避、并发安全与重启恢复；不依赖 JYT/Collector/CDN/飞书。Issue #187 继续独立跟踪来源与外部授权，不阻断本任务。",
+  "current_domain": "F05_8_PRIORITY_TTL_SCHEDULER_NONPROD",
+  "current_domain_status": "A 已独立验收并标准合并 Issue #201 / PR #206 的 F05-7 Matching 持久调度器；当前唯一 B 任务切换为 Issue #203，补齐既有 Priority 持久队列 worker 的独立非生产 runner。Issue #187 的真实来源与外部资源门禁保持独立，不阻断本任务；Issue #204 排在 #203 后，不得提前并行开工。全局生产状态仍 NOT_READY。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F05_7_MATCHING_RETRY_SCHEDULER_01：在已验收 Matching service/worker 之上新增独立、持久、可恢复的非生产 PG16 调度进程；复用现有业务算法，不重跑旧 F05 421 项全包或 66 项 Oracle。",
-  "current_work_file": "07_重建工作区/F05-7_Matching受影响队列持久调度与自动重试非生产施工单_2026-10-22.md",
+  "current_task": "F05_8_PRIORITY_TTL_SCHEDULER_01：在已验收 Priority worker 之上新增独立、持久、可恢复的非生产 PG16 调度进程；复用现有 runDue()，不复制 Priority 算法。",
+  "current_work_file": "07_重建工作区/F05-8_Priority到期重仲裁持久调度非生产施工单_2026-10-22.md",
   "f06_issue164_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_NONPROD_COMPOSITE_DUAL_GATE_B_CONTINUE",
     "issue": 164,
@@ -3388,7 +3388,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B 在本 A 治理放行 PR 合并后，从最新 main 创建 feat/f05-7-matching-retry-scheduler-01，完成独立 Matching retry 持久调度进程、真实 PG16 非超级用户测试、重启恢复/退避/并发回归、专用 Push 工作流和同 SHA 证据，达到 READY_FOR_A_REVIEW 后交 A 独立验收。Issue #187 继续独立处理外部来源，不阻断本任务；F05/F06/F07/F08 已验收子包不重复开发。",
+  "next_action": "B 在 A 状态治理 PR 合并后，从最新 main 接管 feat/f05-8-priority-ttl-scheduler-01，完成 Priority TTL 持久调度 runner、真实 PG16 非超级用户自动处理/并发/退避/重启与租约恢复、专用 Push 工作流和同 SHA 证据，达到 READY_FOR_A_REVIEW 后交 A 独立验收。复用既有 Priority worker 与测试，不修改已验收业务算法。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4968,7 +4968,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "F08-3 Issue190/PR193 and governance PR194 already merged and accepted; do not rerun F08-2 58+7 or F08-3 43+26+16. User-confirmed not ready: JYT/Collector, image storage/CDN, Feishu. Official F03 reader remains fail-closed; F05 positive Issuer remains SOURCE_GAP. No new B branch authorized.",
+  "next_action_detail": "F05-7 Issue #201 / PR #206 已由 A 独立验收并标准合并：B SHA f4d7180d7fb38525cbe63bf697bc7fc3bb300f4b，merge SHA 7e00859edf59e1c93254de17cd5543fa7bae6960，官方 Run #39729060862 成功，Artifact #12404152577 同 SHA。下一任务为 Issue #203；Issue #204 仍排队。Issue #187 的 JYT/Collector、CDN/OSS、飞书及正式来源门禁不阻断本次非生产任务。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -6006,7 +6006,7 @@
   },
   "a_batch_approval_mode": "STANDING_USER_DIRECTED_CONTINUOUS_TECHNICAL_WORKFLOW_IN_FROZEN_SCOPE; A_SCOPES_AND_RELEASES_B_C; EACH_WINDOW_COMPLETES_END_TO_END; A_INDEPENDENT_ACCEPTANCE_AND_CLEAN_PR_MERGE_WITHOUT_REPEAT_APPROVAL; NEW_PRODUCT_CHOICE_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_EXTERNAL_WRITES_REQUIRE_USER",
   "current_pending_user_decisions": [],
-  "next_action_owner": "A",
+  "next_action_owner": "B",
   "abc_continuous_execution_rule": {
     "status": "USER_DIRECTIVE_APPLIED",
     "confirmed_at": "2026-10-09",
@@ -8147,7 +8147,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F05_7_MATCHING_RETRY_SCHEDULER_01",
+  "next_task": "F05_8_PRIORITY_TTL_SCHEDULER_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9822,7 +9822,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/A_Issue187外部系统未准备阻断登记与独立工作盘点_2026-10-22.md",
+  "next_work_file": "07_重建工作区/F05-8_Priority到期重仲裁持久调度非生产施工单_2026-10-22.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -10118,8 +10118,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": "feat/f05-7-matching-retry-scheduler-01",
-  "next_issue": 201,
+  "next_branch": "feat/f05-8-priority-ttl-scheduler-01",
+  "next_issue": 203,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -10332,7 +10332,7 @@
     "budget_additional_usd": 0
   },
   "next_base_main": null,
-  "current_engineering_focus": "F06_F07_F08_REPLAN_DISCUSSION_NO_NEW_B_C_RELEASE",
+  "current_engineering_focus": "F05_8_PRIORITY_TTL_SCHEDULER_NONPROD",
   "f06_real_deposit_http_next": {
     "status": "A_ACCEPTED_NONPRODUCTION_HTTP_PG16_PR135_STANDARD_MERGED",
     "task_id": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01",
@@ -11477,11 +11477,49 @@
     }
   ],
   "f05_7_matching_retry_scheduler_2026_10_22": {
-    "status": "A_RELEASED_FOR_B_ON_GOVERNANCE_PR_MERGE",
+    "status": "A_FINAL_ACCEPTED_STANDARD_MERGED",
+    "execution": "A_FINAL_INDEPENDENT_REVIEW_PASSED_AND_STANDARD_MERGED",
     "issue": 201,
     "task": "F05_7_MATCHING_RETRY_SCHEDULER_01",
     "branch": "feat/f05-7-matching-retry-scheduler-01",
-    "scope": "DISPOSABLE_TEST_ONLY_PG16_PERSISTENT_RETRY_SCHEDULER",
+    "pr": 206,
+    "pr_merged": true,
+    "final_b_sha": "f4d7180d7fb38525cbe63bf697bc7fc3bb300f4b",
+    "final_merge_sha": "7e00859edf59e1c93254de17cd5543fa7bae6960",
+    "merge_method": "merge",
+    "official_ci_run": 39729060862,
+    "official_ci_job": 119659641450,
+    "official_ci_status": "completed/success",
+    "tests": {
+      "unit": "7/7",
+      "matching_retry_pg16_regression": "8/8",
+      "scheduler_pg16_integration": "1/1",
+      "failed": 0,
+      "skipped": 0
+    },
+    "pg16": {
+      "version": 16,
+      "database": "f05_catalog_test",
+      "role": "f05_catalog_ci",
+      "superuser": false,
+      "public_tables": 127
+    },
+    "artifact_id": 12404152577,
+    "artifact_name": "matching-retry-scheduler-evidence-39729060862",
+    "artifact_sha256": "79596be0bfeaaff07e7b4bc60029d8451f7c929f0c4f7eb1ced065293124ccda",
+    "artifact_size_bytes": 2876,
+    "artifact_expires_at": "2026-10-23T05:37:49Z",
+    "a_acceptance_report": "07_重建工作区/F05-7_Issue201_PR206独立验收与F05-8正式接续报告_2026-10-22.md",
+    "production_ready": false,
+    "scope": "DISPOSABLE_TEST_ONLY_PG16_PERSISTENT_RETRY_SCHEDULER"
+  },
+  "f05_8_priority_ttl_scheduler_2026_10_22": {
+    "status": "A_RELEASED_FOR_B",
+    "issue": 203,
+    "task": "F05_8_PRIORITY_TTL_SCHEDULER_01",
+    "branch": "feat/f05-8-priority-ttl-scheduler-01",
+    "work_order": "07_重建工作区/F05-8_Priority到期重仲裁持久调度非生产施工单_2026-10-22.md",
+    "scope": "DISPOSABLE_TEST_ONLY_PG16_PRIORITY_TTL_PERSISTENT_SCHEDULER",
     "existing_worker_reused": true,
     "external_dependencies": [
       {
@@ -11504,12 +11542,12 @@
     "production_ready": false,
     "forbidden": [
       "modify frozen F03 reader",
-      "modify frozen F05 workflows",
-      "rerun old 66 Oracle",
-      "rerun full F05 421 suite",
+      "modify accepted Priority/Matching business services",
+      "modify migrations and old workflows",
       "frontend/PC UI",
-      "production calls"
+      "production calls",
+      "activate Issue #204 before A accepts Issue #203"
     ],
-    "acceptance": "same-SHA official push CI, PostgreSQL 16 non-superuser, no failures/skips, scheduler auto-run/restart/retry/concurrency/lease fencing"
+    "acceptance": "same-SHA official push CI, real PostgreSQL 16 non-superuser, automatic due processing, bounded poll/runtime/backoff, concurrency safety, graceful stop, lease/restart recovery, no failures/skips, redacted artifact"
   }
 }
