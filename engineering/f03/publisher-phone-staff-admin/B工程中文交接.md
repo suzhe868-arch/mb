@@ -4,7 +4,7 @@
 > 工程分支：`feat/f03-f04-publisher-phone-staff-admin-http-pg16-01`
 > PR：[ #224 ](https://github.com/suzhe868-arch/mb/pull/224)；Issue：[ #221 ](https://github.com/suzhe868-arch/mb/issues/221)
 > 最新主线同步：`main@fe758588fc08b3ea61f416962c3c28a2468e8897` 已作为第二父提交合并进原 B 分支；同步提交 `34b4179495d57d187787d3d05998b02721036817`。业务仍在原分支，不合并 main。
-> **当前状态：`B_IN_PROGRESS`。** A 补充审查第五项生命周期阻断后，B 已在原分支实现审计水位、授权时身份快照和持久 fail-closed 撤权，并增加真实 PG16 复职/角色恢复/缺失基线测试。当前新 SHA 的官方 CI 与 Artifact 尚待运行；在最终 HEAD 的两个官方 Push Job 成功、两份非空 Artifact 同 SHA、内部 SHA-256 清单完整之前，不得标记 `READY_FOR_A_REVIEW`。本报告后续结果必须更新为最终真实 Run/Artifact；本文件不代替 A 独立验收签字。
+> **交接标记：`READY_FOR_A_REVIEW`（最终 SHA 门禁条件式）**。本轮第五项生命周期整改、语法/范围检查和 41 项真实 PG16 业务测试已实施；该标记只有在本文件所在最终 HEAD 的官方 Push CI 两个 Job 均成功、Business 41/41、HTTPS 22/22、双 Job 各自 Node 269/269、两份非空 Artifact 同 SHA 且内部 13 文件 SHA-256 清单完整时才生效。若任一门禁失败，状态必须退回 `B_IN_PROGRESS`，不得交 A。最终 HEAD、Run/Job 与 Artifact ID/摘要记录在 [PR #224 的交接区](https://github.com/suzhe868-arch/mb/pull/224)，避免在记录自身的文件内硬编码自身 commit SHA。本文件不代替 A 独立验收签字。
 
 ## 一、已实现的真实后端功能
 
@@ -14,14 +14,13 @@
 - PG16 原子单库事务：全程复用 `IsolatedAuth.withSession`；System Admin 现时行锁、目标员工行锁、CAS `expectedVersion`、请求键防重、审计 before/after 与重放凭据均同库。注入异常整个事务回滚。
 - 不修改 F03 既有迁移/权限目录结构、不修改 F07 既有 Guard、不注册默认生产写入路由。完整合法隔离 CI 来源 `CI_ONLY_F03_PERMISSION_CONFIG`，不伪装正式电话消费来源。
 
-## 二、证据与已知结果
+## 二、本轮整改与最终证据门禁
 
-- 历史 Run #39810550189 仅验证上一 SHA `24fbf90e53ce016474b2cb6adb19ca438f12a4ca` 的四项整改；**不能代替本轮新增生命周期整改的最终 SHA**。
-- 已实现并保留的前四项：撤权保留个人 `deny` 并恢复独立 `allow`、条件 UPSERT 防并发 `deny` 覆盖、SG01 `granted_at` 时效、正式角色白名单。
-- **第五项生命周期修复**：显式授予时记录同一 PG16 中最新员工审计 `audit_id` 水位及在职/主角色/角色码/门店快照。员工行锁与现有 F03 SG06 审计事务串行；后续任何 `object_kind='employee'` 审计事件晚于授予水位，或当前员工事实与授权快照不符/快照缺失，均在 GET/变更事务内持久关闭模式、结束本 API 专项 binding/scope、递增版本并写入失效审计。个人 override/deny 不被删除。只有读取新版本后由合格 System Admin 显式 PUT 才能重新启用。
-- 业务专项矩阵扩展至 41 项，HTTPS 仍 22 项；新增真实 PG16：inactive→active（中间不调用电话 API）、4S/不合格角色失效后恢复、授予基线缺失三类负例。是否通过只认本轮最终 HEAD 的官方 Push CI 和两份 Artifact。
-- 官方 CI 任务限定精确 B 分支、主线差异路径白名单、语法/路径双门禁、实际非超管 PG16 物理身份、合成 127.0.0.1 HTTPS、内部 SHA256 清单和默认服务安全回归。
-- 任何失败或排队均 `NOT_READY_FOR_A_REVIEW`，B 不得声称通过。
+- 前一版本 Run #39818548915（HEAD `7d808a189839d2208568868340c84b637f06cbf2`）曾通过 41/41 业务、22/22 HTTPS、双 Job 各自 269/269 Node 回归；之后又定向修正了“不合格员工请求也先持久撤权”的处理顺序，因此该 Run **不作为最终 SHA 证据**。
+- 上一轮四项整改继续保留：撤权保留个人 `deny` 并恢复独立 `allow`；条件 UPSERT 防并发 `deny` 覆盖；SG01 `granted_at` 时效；正式角色白名单。
+- 第五项生命周期整改：显式授予时记录同一 PG16 中最新员工审计 `audit_id` 水位及在职/主角色/角色码/门店快照。员工行锁与现有 F03 SG06 审计事务串行；后续任何 `object_kind='employee'` 审计事件晚于授予水位，或当前员工事实与授权快照不符/快照缺失，均在 GET/PUT/DELETE 事务内持久关闭模式、结束本 API 专项 binding/scope、递增版本并写入失效审计。个人 override/`deny` 不被删除。只有读取新版本后由合格 System Admin 显式 PUT 才能重新启用。
+- 新增真实 PG16 业务负例：inactive→active（期间不调用电话 API）、不合格角色变更后恢复、授予时生命周期基线缺失；共 41 项业务测试，HTTPS 22 项，两个 Job 各自基础 Node 全量回归 269 项。
+- 最终只认本文件所在最终 HEAD 的官方 Push CI 两个 Job、两份同 SHA 非空 Artifact 与内部 SHA-256 清单。此前 Run 不能替代新 SHA；未核实成功前不得声称最终交付通过。
 
 ## 三、未解除的原阶段阻断
 
