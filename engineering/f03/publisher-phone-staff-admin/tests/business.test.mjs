@@ -130,11 +130,63 @@ test('22 inactive then active without phone API persistently invalidates old gra
  assert.equal(mode.rows[0].enabled,false);assert.equal(mode.rows[0].scope_mode,null);assert.equal(mode.rows[0].lifecycle_invalidated_action,'sg06.restore.active');assert.equal(mode.rows[0].audit_id,restoreAudit);assert.equal(mode.rows[0].lifecycle_invalidated_reason,'EMPLOYEE_AUDIT_AFTER_GRANT');
  const activeBinding=await sql("SELECT count(*)::int n FROM public.employee_capability_scope_bindings b JOIN public.employee_data_scopes s ON s.scope_id=b.scope_id WHERE b.employee_id=6 AND b.permission_id=13 AND s.scope_kind='publisher_phone_special' AND (b.ended_at IS NULL OR b.ended_at>now()) AND (s.ended_at IS NULL OR s.ended_at>now())");
  assert.equal(activeBinding.rows[0].n,0);
- assert.equal((await sql("SELECT decision FROM public.employee_permission_overrides WHERE employee_id=6 AND permission_id=13")).rows[0].decision,'allow');
+ const overrideAfterLifecycle=await sql("SELECT decision FROM public.employee_permission_overrides WHERE employee_id=6 AND permission_id=13");
+ assert.equal(overrideAfterLifecycle.rowCount,0,"NULL pre-grant baseline must be restored on lifecycle invalidation");
  const audit=await sql("SELECT after_json FROM public.audit_events WHERE object_id='6' AND action='publisher.phone.scope.lifecycle_revoke' ORDER BY audit_id DESC LIMIT 1");
- assert.equal(audit.rows[0].after_json.enabled,false);assert.equal(audit.rows[0].after_json.permissionDecision,'allow');
+ assert.equal(audit.rows[0].after_json.enabled,false);assert.equal(audit.rows[0].after_json.permissionDecision,null);
  const grant=await put('LOCKED_ONLY',version);assert.equal(grant.status,200);assert.equal(grant.enabled,true);version=grant.version;
  assert.equal((await get()).enabled,true);
+ const revoked=await del(version);assert.equal(revoked.status,200);assert.equal(revoked.enabled,false);version=revoked.version;
+ assert.equal((await sql("SELECT decision FROM public.employee_permission_overrides WHERE employee_id=6 AND permission_id=13")).rowCount,0,"regrant after lifecycle invalidation must not capture stale API allow as baseline");
+ assert.equal((await get()).enabled,false);
+ const regrant=await put('LOCKED_ONLY',version);assert.equal(regrant.status,200);assert.equal(regrant.enabled,true);version=regrant.version;
+});
+test('22A lifecycle invalidation restores an independent pre-existing allow across regrant and DELETE',async()=>{
+ await sql("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(7,13,'allow',now()) ON CONFLICT(employee_id,permission_id) DO UPDATE SET decision='allow',changed_at=now()");
+ const start=Number((await sql("SELECT version FROM f03_publisher_phone_admin_test.employee_mode WHERE employee_id=7")).rows[0].version);
+ const grant=await service.change({token:admin,employeeId:'7',method:'PUT',input:{scopeMode:'LOCKED_ONLY',expectedVersion:start,requestKey:key()}});
+ assert.equal(grant.status,200);assert.equal(grant.enabled,true);
+ const inactive=await lifecycleChange({employeeId:'7',statement:"UPDATE public.employees SET employment_status='inactive' WHERE employee_id=7",action:'sg06.sudden.inactive',before:{employment:'active'},after:{employment:'inactive'},actorKind:'employee',actorId:'4'});
+ const restored=await lifecycleChange({employeeId:'7',statement:"UPDATE public.employees SET employment_status='active' WHERE employee_id=7",action:'sg06.restore.active',before:{employment:'inactive'},after:{employment:'active',permissionsNotRegranted:true},actorKind:'system_admin',actorId:'9'});
+ assert.ok(BigInt(restored)>BigInt(inactive));
+ const invalidated=await get('7');assert.equal(invalidated.status,200);assert.equal(invalidated.enabled,false);
+ const baseline=await sql("SELECT decision FROM public.employee_permission_overrides WHERE employee_id=7 AND permission_id=13");
+ assert.equal(baseline.rowCount,1);assert.equal(baseline.rows[0].decision,'allow');
+ const audit=await sql("SELECT after_json FROM public.audit_events WHERE object_id='7' AND action='publisher.phone.scope.lifecycle_revoke' ORDER BY audit_id DESC LIMIT 1");
+ assert.equal(audit.rows[0].after_json.permissionDecision,'allow');
+ let v=invalidated.version;
+ const regrant=await service.change({token:admin,employeeId:'7',method:'PUT',input:{scopeMode:'LOCKED_ONLY',expectedVersion:v,requestKey:key()}});
+ assert.equal(regrant.status,200);assert.equal(regrant.enabled,true);v=regrant.version;
+ const revoke=await service.change({token:admin,employeeId:'7',method:'DELETE',input:{expectedVersion:v,requestKey:key()}});
+ assert.equal(revoke.status,200);assert.equal(revoke.enabled,false);
+ const final=await sql("SELECT decision FROM public.employee_permission_overrides WHERE employee_id=7 AND permission_id=13");
+ assert.equal(final.rowCount,1);assert.equal(final.rows[0].decision,'allow',"the independent pre-grant allow must survive lifecycle invalidation, regrant and DELETE");
+ await sql("DELETE FROM public.employee_permission_overrides WHERE employee_id=7 AND permission_id=13");
+});
+test('22B a committed deny during lifecycle invalidation survives subsequent DELETE and audit',async()=>{
+ await sql("DELETE FROM public.employee_permission_overrides WHERE employee_id=7 AND permission_id=13");
+ const start=Number((await sql("SELECT version FROM f03_publisher_phone_admin_test.employee_mode WHERE employee_id=7")).rows[0].version);
+ const grant=await service.change({token:admin,employeeId:'7',method:'PUT',input:{scopeMode:'ALL_ACTIVE_JYT',expectedVersion:start,requestKey:key()}});
+ assert.equal(grant.status,200);assert.equal(grant.enabled,true);
+ await lifecycleChange({employeeId:'7',statement:"UPDATE public.employees SET employment_status='inactive' WHERE employee_id=7",action:'sg06.sudden.inactive',before:{employment:'active'},after:{employment:'inactive'},actorKind:'employee',actorId:'4'});
+ await lifecycleChange({employeeId:'7',statement:"UPDATE public.employees SET employment_status='active' WHERE employee_id=7",action:'sg06.restore.active',before:{employment:'inactive'},after:{employment:'active'},actorKind:'system_admin',actorId:'9'});
+ let entered,release;
+ const enteredPromise=new Promise(r=>entered=r),releasePromise=new Promise(r=>release=r);
+ const racing=new PublisherPhoneAdminService(auth,{hook:async({method,phase})=>{
+  if(method==='LIFECYCLE_INVALIDATE'&&phase==='before_baseline_restore'){entered();await releasePromise}
+ }});
+ const pending=racing.get({token:admin,employeeId:'7'});
+ await enteredPromise;
+ await sql("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=now() WHERE employee_id=7 AND permission_id=13");
+ release();
+ const invalidated=await pending;assert.equal(invalidated.status,200);assert.equal(invalidated.enabled,false);
+ const revoke=await service.change({token:admin,employeeId:'7',method:'DELETE',input:{expectedVersion:invalidated.version,requestKey:key()}});
+ assert.equal(revoke.status,200);assert.equal(revoke.enabled,false);
+ const final=await sql("SELECT decision FROM public.employee_permission_overrides WHERE employee_id=7 AND permission_id=13");
+ assert.equal(final.rowCount,1);assert.equal(final.rows[0].decision,'deny');
+ const audit=await sql("SELECT after_json FROM public.audit_events WHERE object_id='7' AND action='publisher.phone.scope.lifecycle_revoke' ORDER BY audit_id DESC LIMIT 1");
+ assert.equal(audit.rows[0].after_json.permissionDecision,'deny',"lifecycle audit must record the committed final deny");
+ await sql("DELETE FROM public.employee_permission_overrides WHERE employee_id=7 AND permission_id=13");
 });
 test('23 ineligible role then eligible role again does not resurrect the old phone grant',async()=>{
  const before=await get();assert.equal(before.enabled,true);assert.equal(before.version,version);
