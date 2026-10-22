@@ -42,6 +42,8 @@ jobs:
       F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
       F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
       F05_MANUAL_VEHICLE_DRAFT_PUBLISH_CONSENT: I_AUTHORIZE_F05_MANUAL_VEHICLE_DRAFT_PUBLISH_PG16_ONLY
+      F05_MANUAL_TLS_KEY_PATH: /tmp/f05-manual-vehicle-key.pem
+      F05_MANUAL_TLS_CERT_PATH: /tmp/f05-manual-vehicle-cert.pem
     defaults:
       run:
         working-directory: engineering
@@ -127,38 +129,43 @@ jobs:
           node f03/runtime-transaction-responsible-handover/runner.mjs --verify
           node f03/runtime-handover-reconciliation/fixtures.mjs
           node f03/field-security-projection/fixtures.mjs
-      - name: Apply unmodified F05-2 and F05-3A trust migrations with original source seals
+      - name: Apply unchanged F05-2 original trust schema and its synthetic fixtures
         run: |
           set -euo pipefail
           node f05/vehicle-stewardship-physical-scope/runner.mjs --inject-rollback
           node f05/vehicle-stewardship-physical-scope/runner.mjs --apply
           node f05/vehicle-stewardship-physical-scope/runner.mjs --verify
           node f05/vehicle-stewardship-physical-scope/fixtures.mjs
-          node f05/four-s-member-trust-scope/runner.mjs --inject-rollback
-          node f05/four-s-member-trust-scope/runner.mjs --apply
-          node f05/four-s-member-trust-scope/runner.mjs --verify
-          node f05/four-s-member-trust-scope/fixtures.mjs
-      - name: Exact private draft schema rollback and apply preserving public schema
-        run: |
-          set -euo pipefail
-          node f05/manual-vehicle-draft-publish/runner.mjs --inject-rollback
-          node f05/manual-vehicle-draft-publish/runner.mjs --apply
-          node f05/manual-vehicle-draft-publish/runner.mjs --verify
-          node f05/manual-vehicle-draft-publish/fixtures.mjs
-      - name: Real F05-2 physical and HTTPS affected regressions
+      - name: Real F05-2 physical and HTTPS affected regressions before 000016
         run: |
           set -euo pipefail
           node --test f05/vehicle-stewardship-physical-scope/tests/physical.test.mjs 2>&1 | tee f05/manual-vehicle-draft-publish/artifacts/f05-2-physical.log
           grep -q '# fail 0' f05/manual-vehicle-draft-publish/artifacts/f05-2-physical.log
           node --test f05/vehicle-stewardship-physical-scope/tests/https.test.mjs 2>&1 | tee f05/manual-vehicle-draft-publish/artifacts/f05-2-https.log
           grep -q '# fail 0' f05/manual-vehicle-draft-publish/artifacts/f05-2-https.log
-      - name: Real F05-3A current Admin/member license and HTTPS regressions
+      - name: Apply unchanged F05-3A original 000016 trust schema
+        run: |
+          set -euo pipefail
+          node f05/four-s-member-trust-scope/runner.mjs --inject-rollback
+          node f05/four-s-member-trust-scope/runner.mjs --apply
+          node f05/four-s-member-trust-scope/runner.mjs --verify
+          node f05/four-s-member-trust-scope/fixtures.mjs
+      - name: Real F05-3A current Admin and member regressions
         run: |
           set -euo pipefail
           node --test f05/four-s-member-trust-scope/tests/bridge-source.test.mjs 2>&1 | tee f05/manual-vehicle-draft-publish/artifacts/f05-3a-source.log
           grep -q '# fail 0' f05/manual-vehicle-draft-publish/artifacts/f05-3a-source.log
           node --test f05/four-s-member-trust-scope/tests/bridge-https.test.mjs 2>&1 | tee f05/manual-vehicle-draft-publish/artifacts/f05-3a-https.log
           grep -q '# fail 0' f05/manual-vehicle-draft-publish/artifacts/f05-3a-https.log
+      - name: Apply private draft schema with injected PG16 rollback proof
+        run: |
+          set -euo pipefail
+          node f05/manual-vehicle-draft-publish/runner.mjs --inject-rollback
+          node f05/manual-vehicle-draft-publish/runner.mjs --apply
+          node f05/manual-vehicle-draft-publish/runner.mjs --verify
+          node f05/manual-vehicle-draft-publish/fixtures.mjs
+          openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj '/CN=127.0.0.1' -keyout "$F05_MANUAL_TLS_KEY_PATH" -out "$F05_MANUAL_TLS_CERT_PATH" >/dev/null 2>&1
+          chmod 600 "$F05_MANUAL_TLS_KEY_PATH"
       - name: New Mingbang drafts real TLS PG16
         run: |
           set -euo pipefail

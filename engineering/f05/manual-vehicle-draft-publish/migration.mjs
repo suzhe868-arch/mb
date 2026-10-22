@@ -1,7 +1,9 @@
 // F05 manual vehicle draft/publish: disposable PostgreSQL 16, private schema only.
 import {createHash} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
-import {connect as connectF052,requireDatabaseIdentity,verify as verifyF052} from '../vehicle-stewardship-physical-scope/migration.mjs';
+import {requireDatabaseIdentity,verify as verifyF052} from '../vehicle-stewardship-physical-scope/migration.mjs';
+import {isolate as checkDisposableAuthTarget} from '../../f03-1/migration.mjs';
+import pg from 'pg';
 import {verify as verifyF053} from '../four-s-member-trust-scope/migration.mjs';
 export const ID='f05_manual_vehicle_draft_publish_private_v1';
 export const SQL=await readFile(new URL('./000001_manual_vehicle_drafts.sql',import.meta.url),'utf8');
@@ -20,7 +22,18 @@ function isolated(){
     process.env.GITHUB_EVENT_NAME!=='push'||process.env.GITHUB_REF!=='refs/heads/feat/f05-manual-vehicle-draft-publish-pg16-01')
   throw Error('F05_MANUAL_DRAFT_GITHUB_SCOPE_DENIED');
 }
-export async function connect(){isolated();return connectF052()}
+export async function connect(){
+ isolated();
+ // The F03 bootstrap connector intentionally requires zero private namespaces.
+ // After this task creates its disposable private schema, that bootstrap invariant
+ // no longer holds: connect directly to the SAME checked non-superuser PG16 target.
+ const target=checkDisposableAuthTarget();
+ const client=new pg.Client({connectionString:target.url,connectionTimeoutMillis:1000,
+  query_timeout:5000,statement_timeout:5000,application_name:'f05_manual_draft_nonprod'});
+ await client.connect();
+ try{await requireDatabaseIdentity(client);return client}
+ catch(e){await client.end().catch(()=>{});throw e}
+}
 async function currentSource(c){
  await requireDatabaseIdentity(c);
  const versions=(await c.query('SELECT migration_id FROM public.f03_schema_migrations ORDER BY migration_id')).rows;
