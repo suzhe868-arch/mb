@@ -63,6 +63,8 @@ try{
  await test('PG16 anonymous projection preserves safe DTO and never emits price fields',async()=>{
   const r=await get('/api/v1/catalog/vehicles?source=wholesale');assert.equal(r.status,200);assert.equal(r.body.items[0].price,null);
   assert.equal('priceCents' in r.body.items[0],false);assert.equal(r.body.items.some(x=>Object.hasOwn(x,'vin')||Object.hasOwn(x,'phone')),false);
+  const forgedHeader=await fetch(origin+'/api/v1/catalog/vehicles',{headers:{'x-customer-id':'60300'}});assert.equal(forgedHeader.status,403);
+  const forgedQuery=await get('/api/v1/catalog/vehicles?customerId=60300');assert.equal(forgedQuery.status,400);
  });
  await test('PG16 deterministic search, numeric price range and cursor are read-only',async()=>{
   const before=await snapshot(),first=await get('/api/v1/catalog/vehicles?source=wholesale&q='+encodeURIComponent('26款 奥迪A6'));
@@ -72,7 +74,11 @@ try{
   assert.equal(cross.status,400);assert.equal(cross.body.code,'INVALID_CURSOR');
   const second=await get('/api/v1/catalog/vehicles?source=wholesale&q='+encodeURIComponent('26款 奥迪A6')+'&cursor='+encodeURIComponent(first.body.nextCursor));
   assert.equal(second.status,200);assert.equal(second.body.items.length,2);
-  const ranged=await get('/api/v1/catalog/vehicles?source=wholesale&minPriceCents=12500000&maxPriceCents=12900000',limitedToken);
+  const priceCursor=await get('/api/v1/catalog/vehicles?source=wholesale&q='+encodeURIComponent('26款 奥迪A6')+'&minPriceCents=12000000&maxPriceCents=13900000');
+  assert.equal(priceCursor.status,200);assert.ok(priceCursor.body.nextCursor);
+  const crossPrice=await get('/api/v1/catalog/vehicles?source=wholesale&q='+encodeURIComponent('26款 奥迪A6')+'&minPriceCents=12000000&maxPriceCents=13899999&cursor='+encodeURIComponent(priceCursor.body.nextCursor));
+  assert.equal(crossPrice.status,400);assert.equal(crossPrice.body.code,'INVALID_CURSOR');
+  const ranged=await get('/api/v1/catalog/vehicles?source=wholesale&q='+encodeURIComponent('26款 奥迪A6')+'&minPriceCents=12500000&maxPriceCents=12900000',limitedToken);
   assert.equal(ranged.status,200);assert.ok(ranged.body.items.length>0);assert.ok(ranged.body.items.every(x=>x.price===null));
   const unknown=await get('/api/v1/catalog/vehicles?q='+encodeURIComponent('完全未知'));
   assert.equal(unknown.status,409);assert.equal(unknown.body.reason,'RULE_PARSE_UNKNOWN_TOKEN');
@@ -91,7 +97,11 @@ try{
   assert.ok(list.body.items.every(x=>x.price===null&&x.priceCents===null));
   assert.ok(list.body.items.every(x=>x.priceState==='PRICE_HIDDEN_LIMITED_LIST'||x.priceState==='PRICE_CONSULTATION'));
   const before=await count("SELECT count(*)::int n FROM public.customer_price_unlock_events WHERE customer_id=60300");
+  const quotaBefore=await count("SELECT count(*)::int n FROM public.customer_day_quota_ledger WHERE customer_id=60300");
+  const unlockBefore=await count("SELECT count(*)::int n FROM public.customer_price_cycle_unlocks WHERE customer_id=60300");
   const notEntered=await detail('60310',limitedToken);assert.equal(notEntered.status,200);assert.equal(notEntered.body.vehicle.price,null);
+  assert.equal(await count("SELECT count(*)::int n FROM public.customer_day_quota_ledger WHERE customer_id=60300"),quotaBefore);
+  assert.equal(await count("SELECT count(*)::int n FROM public.customer_price_cycle_unlocks WHERE customer_id=60300"),unlockBefore);
   assert.equal(notEntered.body.vehicle.priceState,'PRICE_DETAIL_ENTRY_REQUIRED');assert.equal(notEntered.body.vehicle.priceDisplay,'——万');
   const eventKey=key(),unlocked=await entry('60310',limitedToken,eventKey);
   assert.equal(unlocked.status,200,JSON.stringify(unlocked.body));assert.equal(unlocked.body.code,'PRICE_UNLOCKED');
@@ -136,6 +146,7 @@ try{
   }
  });
  await test('PG16 revoked Customer session and hidden/Priority vehicles fail closed',async()=>{
+  const invalid=await fetch(origin+'/api/v1/catalog/vehicles',{headers:{authorization:'Bearer bad'}});assert.equal(invalid.status,401);
   await writer.query("UPDATE public.f05_catalog_customer_sessions_test SET revoked_at=statement_timestamp() WHERE customer_id=60300");
   const revoked=await get('/api/v1/catalog/vehicles?source=wholesale',limitedToken);
   assert.equal(revoked.status,401);assert.equal(revoked.body.code,'CUSTOMER_IDENTITY_REQUIRED');

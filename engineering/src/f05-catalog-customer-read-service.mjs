@@ -70,9 +70,9 @@ export function createIsolatedCatalogCustomerReadService({pool,env=process.env}=
       const row=byKey.get(item.vehicleId+':'+item.cycleId);
       if(!row||row.source_type!==item.source)return hidden('PRICE_FACT_NOT_CURRENT',false);
       const priceCents=validPriceCents(row.price_cents)?String(row.price_cents):null;
-      if(priceCents===null)return hidden('PRICE_CONSULTATION');
+      if(priceCents===null)return {...hidden('PRICE_CONSULTATION'),priceDisplay:'价格咨询'};
       const display=formatCustomerPriceCents(priceCents);
-      if(display===null)return hidden('PRICE_CONSULTATION');
+      if(display===null)return {...hidden('PRICE_CONSULTATION'),priceDisplay:'价格咨询'};
       const show=()=>({includePriceFields:true,price:display,priceCents,priceDisplay:display,priceState:'PRICE_DISPLAYABLE',visibleCurrent:true});
       if(entitlement.price_access_mode==='UNLIMITED')return show();
       if(entitlement.price_access_mode!=='LIMITED')return hidden('PRICE_ENTITLEMENT_NOT_READY');
