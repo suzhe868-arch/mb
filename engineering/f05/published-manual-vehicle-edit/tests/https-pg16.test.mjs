@@ -34,6 +34,19 @@ const stage=(patch,expectedStageVersion,expectedCurrentVersion=1)=>req('/stage',
 const submit=(stageVersion,currentVersion,key='issue216-commit-'+randomUUID())=>
  req('/commit',{method:'POST',body:{expectedStageVersion:stageVersion,expectedCurrentVersion:currentVersion,requestKey:key}});
 const read=()=>req();
+// Signed F03 fixture history in the same physical DB; DOES NOT claim F06
+// Lock/Transaction signed source nor same-Vehicle F06 in-flight snapshot proof.
+async function olderDomainSeal(){
+ const tables=[['public.locks','lock_id'],['public.transactions','transaction_id'],
+  ['public.deposit_receipts','deposit_id'],['public.audit_events','audit_id']];
+ const seal=[];
+ for(const [table,id] of tables){
+  const row=(await db.query("SELECT count(*)::int n,md5(COALESCE(jsonb_agg(to_jsonb(x) ORDER BY "+id+"),'[]'::jsonb)::text) AS hash FROM "+table+" x")).rows[0];
+  seal.push({table,count:row.n,sha:row.hash});
+ }
+ if(seal.slice(0,3).some(x=>x.count<1))throw Error('F03_SIGNED_FIXTURE_FINANCIAL_FACTS_MISSING');
+ return seal;
+}
 async function count(table){return Number((await db.query('SELECT count(*)::integer n FROM '+table+' WHERE vehicle_id=$1',[vehicleId])).rows[0].n)}
 test.before(async()=>{
  await verify(db);
@@ -134,6 +147,7 @@ test('E05 real PG16 rollback keeps old facts, draft and audit unchanged',async()
  assert.match(output,/ISSUE216_REAL_INDEPENDENT_PROCESS_RECOVERY_PASS/);
 });
 test('E06 current legitimate commit is atomic, requestKey idempotent; only one immutable event/outbox',async()=>{
+ const priorHistoric=await olderDomainSeal();
  const st=(await read()).body.draft;
  const key='issue216-idempotency-'+randomUUID();
  const r=await submit(st.stageVersion,1,key);
@@ -143,6 +157,7 @@ test('E06 current legitimate commit is atomic, requestKey idempotent; only one i
  assert.equal((await read()).body.effective.description,'Accepted 214 original description');
  assert.deepEqual((await read()).body.effective.conditionTags,['original-verified-condition']);
  assert.equal(await count('f05_published_edit_test.edit_audit'),1);
+ assert.deepEqual(await olderDomainSeal(),priorHistoric,'F03 real preexisting Lock/Transaction/deposit/public audit rows unchanged');
  const impact=(await db.query('SELECT status FROM f05_published_edit_test.impact_outbox WHERE audit_id=(SELECT audit_id FROM f05_published_edit_test.edit_audit WHERE vehicle_id=$1)',[vehicleId])).rows[0];
  assert.equal(impact.status,'NOT_CONNECTED_SOURCE_GAP');
  const again=await submit(st.stageVersion,1,key);
