@@ -118,6 +118,8 @@ jobs:
             f03-phone-admin-evidence.json
             engineering/f03/publisher-phone-staff-admin/schema.sql
             engineering/f03/publisher-phone-staff-admin/B工程中文交接.md
+            engineering/f03/publisher-phone-staff-admin/测试矩阵.tsv
+            engineering/f03/publisher-phone-staff-admin/README.md
   https_pg16:
     name: HTTPS / PG16 non-superuser
     runs-on: ubuntu-latest
@@ -223,3 +225,5 @@ jobs:
             f03-phone-admin-evidence.json
             engineering/f03/publisher-phone-staff-admin/schema.sql
             engineering/f03/publisher-phone-staff-admin/B工程中文交接.md
+            engineering/f03/publisher-phone-staff-admin/测试矩阵.tsv
+            engineering/f03/publisher-phone-staff-admin/README.md

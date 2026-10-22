@@ -14,6 +14,9 @@ const paths=[
  'engineering/f03/publisher-phone-staff-admin/tests/business.test.mjs',
  'engineering/f03/publisher-phone-staff-admin/tests/https.test.mjs',
  'engineering/src/app.mjs',
+ 'engineering/f03/publisher-phone-staff-admin/B工程中文交接.md',
+ 'engineering/f03/publisher-phone-staff-admin/测试矩阵.tsv',
+ 'engineering/f03/publisher-phone-staff-admin/README.md',
  'f03-phone-admin-test.log',
  'f03-phone-admin-regression.log'
 ];

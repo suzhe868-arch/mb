@@ -1,0 +1,13 @@
+类别	编号	用例	预期	执行环境
+权限	01-04	两个System Admin真实会话、PG16物理身份、81表、GET无号码	PASS	PG16业务Job
+访问安全	05-11	员工自读、非法ID/模式/额外字段、无员工、4S及离职拒绝	DENY	PG16业务Job
+授予	12-14	LOCKED_ONLY授予、SG01绑定、权限审计同库	PASS	PG16业务Job
+去重CAS	15-21	相同请求幂等、不同请求冲突、过期版本、两模式变更、双管理员物理CAS	PASS/409	PG16业务Job
+撤权回滚	22-27	个人deny、事务失败全回滚、撤销、幂等删除、离职、管理员停用	PASS/DENY	PG16业务Job
+签名持久	28-30	新连接恢复、SG01公有Schema签名、私有模式隔离	PASS	PG16业务Job
+HTTPS	01-07	安全GET、Origin/session/角色/方法/query负例	PASS/DENY	PG16 HTTPS Job
+HTTPS	08-12	CSRF、Content-Type、JSON、体积和额外敏感字段	DENY	PG16 HTTPS Job
+HTTPS	13-20	真实PUT、幂等、CAS、ALL_ACTIVE_JYT切换、DELETE、GET撤权	PASS/409	PG16 HTTPS Job
+默认安全	21-22	未注入handler默认404、无需生产电话	PASS	PG16 HTTPS Job
+关联回归	BASE	工程基础Node全量test（不是Mock）	PASS	双Job
+工程边界	CHECK	官方Push同SHA、路径白名单、node --check、git diff --check	PASS	双Job
