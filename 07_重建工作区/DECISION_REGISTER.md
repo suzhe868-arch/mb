@@ -8,7 +8,7 @@
 - **本轮生命周期基线阻断已解除**：NULL baseline 经生命周期失效、显式重授及 DELETE 后不遗留 API 生成的 allow；独立 allow baseline 保留；并发 deny 不被覆盖；审计 after_json 记录实际最终决策。真实 PG16 回归均通过。之前四项个人 deny、并发 deny、SG01 granted_at 时效和角色白名单整改继续通过。
 - **范围**：13 个变更路径均在 Issue #221 白名单；只接受 `CI_ONLY_F03_PERMISSION_CONFIG` 非生产同库配置 API。F07 Runtime 仍未接线，不触碰真实电话、生产、外部系统或资金。
 - **父门禁保持**：Issue [#187](https://github.com/suzhe868-arch/mb/issues/187) 仍 `SOURCE_GAP/FAIL_CLOSED`；F05→F06 同车签名 `NOT_RUN/BLOCKED_SIGNED_PARENT`；F06/F07/F08/V1 `NOT_READY/NO_PRODUCTION`。
-- **正式报告**：[`07_重建工作区/F03_F04员工批发电话权限PR224_A独立验收通过与Issue187接续报告_2026-10-23.md`](../07_重建工作区/F03_F04员工批发电话权限PR224_A独立验收通过与Issue187接续报告_2026-10-23.md)。
+- **正式报告**：[`07_重建工作区/F03_F04员工批发电话权限PR224_A独立验收通过与Issue187接续报告_2026-10-23.md`](F03_F04员工批发电话权限PR224_A独立验收通过与Issue187接续报告_2026-10-23.md)。
 
 ---
 
