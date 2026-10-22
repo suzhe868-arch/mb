@@ -1,19 +1,31 @@
 # 名邦汽车 V1｜NEXT_ACTION 当前唯一指针｜2026-10-22
 
-## 当前唯一 B 工程任务｜F05-8 Priority TTL 到期重仲裁持久调度
+## 当前唯一 B 工程任务｜F05 目录客户价格权益投影与确定性车型搜索
 
 - `NEXT_OWNER=B`
-- `NEXT_TASK=F05_8_PRIORITY_TTL_SCHEDULER_01`
-- `NEXT_ISSUE=203`：[F05-8 Priority TTL 到期重仲裁持久调度](https://github.com/suzhe868-arch/mb/issues/203)
-- `NEXT_BRANCH=feat/f05-8-priority-ttl-scheduler-01`（本 A 状态治理 PR 合并后正式激活；B 从执行时最新 main 接管）
-- 正式施工单：`07_重建工作区/F05-8_Priority到期重仲裁持久调度非生产施工单_2026-10-22.md`
-- 代码依据：`engineering/src/f05-priority-scheduler-worker.mjs` 已提供持久队列消费者 `runDue()`，现有 PG16 测试覆盖到期重仲裁、并发 claim、失败重试和 lease 恢复；当前缺口是没有持续轮询 runner。
-- 新代码仅允许新增 `engineering/f05-priority-ttl-scheduler/**` 与 `.github/workflows/priority-ttl-scheduler-pg16.yml`；只读复用现有 Priority worker、TTL sweep worker 与 `engineering/integration/f05-priority-scheduler.pg16.test.mjs`。不得复制或修改已验收 Priority/Matching 业务算法。
-- 必须完成有界轮询/批量/运行时长、tick 不重叠、空队列休眠、有限退避、优雅停机、PG16 持久队列重启恢复、双 runner 并发和真实非超管 PG16 集成测试；同一最终 HEAD 的官方 Push CI 必须全成功，失败与跳过均为 0，生成脱敏同 SHA Artifact 后交 A 独立验收。
-- **上一任务 F05-7 已完成：** Issue #201 / PR #206 已由 A 独立验收并标准合并；B SHA `f4d7180d7fb38525cbe63bf697bc7fc3bb300f4b`，merge SHA `7e00859edf59e1c93254de17cd5543fa7bae6960`，官方 Run #39729060862 成功，Artifact #12404152577 有效；报告 `07_重建工作区/F05-7_Issue201_PR206独立验收与F05-8正式接续报告_2026-10-22.md`。
-- **Issue #187 并行不阻断：** JYT/Collector、CDN/OSS、飞书与电话来源授权仍为独立门禁；本任务不依赖它们。
-- **后续队列：** Issue [#204](https://github.com/suzhe868-arch/mb/issues/204) 仅在 #203 经 A 独立验收并合并后激活；不得提前并行开工。
-- 只做后端、只交非生产实现；不开发 PC/手机页面，不接生产、不授权真实电话/资金/外部公网调用，不伪造正式 Issuer 或外部接入。
+- `NEXT_TASK=F05_CATALOG_CUSTOMER_PRICE_SEARCH_01`
+- `NEXT_ISSUE=204`：[F05 目录客户价格权益投影与确定性搜索](https://github.com/suzhe868-arch/mb/issues/204)
+- `NEXT_BRANCH=feat/f05-catalog-customer-price-search-01`（本 A 状态治理 PR 合并后正式激活；B 必须从执行时最新 main 接管）
+- 正式施工单：`07_重建工作区/F05目录客户价格权益投影与确定性搜索非生产施工单_2026-10-22.md`
+
+### 任务边界与必测闭环
+
+1. **客户价格权益投影：** 匿名隐藏数字价；仅凭当前有效 Customer session、当前等级/price entitlement 与 listing cycle 判定；LIMITED 批发车列表不返回数字价；详情复用现有 detail-entry 解锁，不重复扣额；UNLIMITED 只展示合法当前客户价；价格缺失显示“价格咨询”，额度耗尽且未解锁显示 `--万`。
+2. **确定性搜索：** 目录查询入口接入有界表达输入，复用 PDM-12 Rule Dictionary / deterministic parser；未知词、作用域冲突、规则禁用/过期/撤权或解析不完整必须拒绝/无结果；禁止 contains/fuzzy、AI 猜测或产生 Demand/Match/Priority/Recommendation/Lock/grant。
+3. HMAC 游标绑定归一化搜索条件与既有来源/筛选/排序/年款；保留品牌/车系/车型/年款、分页、七种固定排序和隐藏/下架/Priority 保护；数字价格区间排除“价格咨询”。
+4. 只允许正式施工单列出的 catalog-service/http/readiness/wiring 最小改动和指定新增文件；Rule Dictionary parser 仅在确有 PDM-12 兼容缺口时最小增量。复用现有 price-unlock/quota ledger 与排序，不重写已验收业务。
+5. 真实 PostgreSQL 16、非超级用户、实际 Node HTTP 测试匿名/LIMITED/UNLIMITED、有效/无效/撤销 session、等级变化、详情解锁幂等、额度耗尽、旧 cycle、价格缺失/过期、搜索正反例、游标跨条件重放与无副作用。
+6. 专用 Push workflow 同最终 SHA 全部必需步骤成功，失败 0、跳过 0；脱敏同 SHA Artifact 不超过 20 MiB、保留 1 天；完成增量审查和中文交接后交 A 独立验收。
+
+### 已完成前序任务
+
+- F05-7 Issue #201 / PR #206 已独立验收合并，B SHA `f4d7180d7fb38525cbe63bf697bc7fc3bb300f4b`，merge SHA `7e00859edf59e1c93254de17cd5543fa7bae6960`，专用 Run #39729060862 成功。
+- F05-8 Issue #203 / PR #208 已独立验收合并，B SHA `8a18b0d12c54c607ee9555e8dda582ccd40f840a`，merge SHA `31881d1d092cea220087e527fdac7da03141480e`；专用 Run #39732168499 成功，6/6 + 5/5 + 8/8；Artifact #12406100445 已核验。
+- 旧冻结工作流 Run #39732168405 同 SHA 52 项检查中 31 项失败、21 项成功；它不是 Issue #203 专用矩阵，不记为 PASS，逐项列表及适用性记录见 `07_重建工作区/F05-8_Issue203_PR208独立验收与F05目录搜索任务放行报告_2026-10-22.md`。旧工作流/既有代码不在本任务白名单内，另行治理须 A 单独授权。
+- Issue #187 的 JYT/Collector、CDN/OSS、飞书及正式来源门禁不阻断本任务，但所有真实外部来源仍未接通。
+- Issue #204 只交付非生产后端；不开发 PC/手机页面、不接生产、不授权真实电话/资金/公网调用，不伪造正式 Issuer 或地域事实。
+
+
 
 ---
 

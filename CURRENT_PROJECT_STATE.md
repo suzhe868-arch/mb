@@ -1,12 +1,12 @@
-# 当前有效状态（2026-10-22｜F05-7 已独立验收合并，F05-8 正式接续）
+# 当前有效状态（2026-10-22｜F05-8 已独立验收合并，F05 目录权益与确定性搜索正式接续）
 
-A 已独立复验并标准合并 [F05-7 PR #206](https://github.com/suzhe868-arch/mb/pull/206)，对应 Issue [#201](https://github.com/suzhe868-arch/mb/issues/201)。B 最终 SHA：`f4d7180d7fb38525cbe63bf697bc7fc3bb300f4b`；合并 SHA：`7e00859edf59e1c93254de17cd5543fa7bae6960`。官方 Push Run [#39729060862](https://github.com/suzhe868-arch/mb/actions/runs/39729060862) / Job `119659641450` 全步骤成功。单元测试 7/7、既有 Matching retry PG16 回归 8/8、新调度器真实 PG16 集成测试 1/1 全部通过，失败 0、跳过 0。数据库为 PostgreSQL 16、`f05_catalog_ci` 非超级用户，127 张公开表；同 SHA Artifact [#12404152577](https://github.com/suzhe868-arch/mb/actions/runs/39729060862/artifacts/12404152577) 已核对，SHA-256 `79596be0bfeaaff07e7b4bc60029d8451f7c929f0c4f7eb1ced065293124ccda`。
+A 已独立验收并标准合并 [F05-8 PR #208](https://github.com/suzhe868-arch/mb/pull/208)，对应 Issue [#203](https://github.com/suzhe868-arch/mb/issues/203)。B 最终 HEAD：`8a18b0d12c54c607ee9555e8dda582ccd40f840a`；标准合并 SHA：`31881d1d092cea220087e527fdac7da03141480e`。专用官方 Push Run [#39732168499](https://github.com/suzhe868-arch/mb/actions/runs/39732168499) / Job `119669460022` 全步骤成功；单元 6/6、Priority TTL 关联回归 5/5、新 runner 真实 PG16 集成 8/8，失败 0、跳过 0。真实 PG16 为 127 张公开表、应用角色 `f05_catalog_ci`、`superuser=false`；Artifact [#12406100445](https://github.com/suzhe868-arch/mb/actions/runs/39732168499/artifacts/12406100445) 已下载核验，SHA-256 `e5f6f7800a0d8edf12387f1877d286cb686ac0071c965ee8e91d926ac696e092`。
 
-本次 A 复验确认员工凭证真实验真、数据库超级用户拒绝门禁、慢 tick 截止及持久租约恢复三项整改完成。PR #206 仅新增七个获准路径，没有修改冻结的 Matching service/worker、F03 reader、旧 F05 工作流、生产配置或前端。**接受范围仅为 `DISPOSABLE_TEST_ONLY / NOT_PRODUCTION` 持久调度器，不代表生产就绪或真实外部来源接通。** 完整报告：`07_重建工作区/F05-7_Issue201_PR206独立验收与F05-8正式接续报告_2026-10-22.md`。
+**重要 CI 说明：** 同 SHA 的冻结宽范围工作流 [#39732168405](https://github.com/suzhe868-arch/mb/actions/runs/39732168405) 有 52 项检查：21 成功、31 失败，覆盖既有 F03/F04/F05-1～F05-3 回归，不包含本次新增 Priority TTL runner。A 已将 31 个失败检查逐项列入 `07_重建工作区/F05-8_Issue203_PR208独立验收与F05目录搜索任务放行报告_2026-10-22.md`，保留为独立旧 CI 问题；未将其伪报通过，也未越权修改冻结工作流。因此本结论只代表 F05-8 非生产子范围验收通过，不代表仓库整体 CI 全绿或生产就绪。
 
-**本治理 PR 合并后生效的唯一 B 任务：** `NEXT_OWNER=B`、`NEXT_TASK=F05_8_PRIORITY_TTL_SCHEDULER_01`、`NEXT_ISSUE=203`、`NEXT_BRANCH=feat/f05-8-priority-ttl-scheduler-01`。施工单：`07_重建工作区/F05-8_Priority到期重仲裁持久调度非生产施工单_2026-10-22.md`。该任务复用既有 Priority 队列 worker，只补非生产持久 runner、退避、并发安全与重启恢复；B 不得提前启动 Issue #204。
+**当前唯一 B 任务：** `NEXT_OWNER=B`、`NEXT_TASK=F05_CATALOG_CUSTOMER_PRICE_SEARCH_01`、`NEXT_ISSUE=204`、`NEXT_BRANCH=feat/f05-catalog-customer-price-search-01`。正式施工单：`07_重建工作区/F05目录客户价格权益投影与确定性搜索非生产施工单_2026-10-22.md`。本任务复用已验收价格解锁/额度扣减、既有六项排序和 Rule Dictionary；只做非生产后端，不开发 PC/手机页面，不修改冻结业务算法，不伪造城市/上游事实。
 
-Issue #187 继续作为独立真实来源/外部授权门禁：JYT/Collector、CDN/OSS、飞书及正式 F03/F05 来源仍有缺口，不阻断本次 F05-8 非生产 runner。F01～F08/V1 全局生产状态不因此改变；不授权生产、真钱、真实电话或外部公网调用。
+Issue #187 的 JYT/Collector、CDN/OSS、飞书与正式来源/授权门禁仍独立跟踪，不阻断 #204。F01～F08/V1 全局生产状态不因此改变；不授权生产、真钱、真实电话或外部公网调用。
 
 ---
 
