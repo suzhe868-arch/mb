@@ -9,7 +9,7 @@ const ok=(code,extra={})=>({status:200,body:{code,ciOnly:true,productionReady:fa
 const error=(status,code)=>({status,body:{code,ciOnly:true,productionReady:false}});
 class Denied extends Error{constructor(code,status=403){super(code);this.status=status}}
 function inputId(x){const n=Number(x);if(!number(n))throw new Denied('VEHICLE_ID_INVALID',400);return n}
-const view=(o,canInternal)=>{const r={...o};if(!canInternal)delete r[internal];return r};
+const view=(o,canInternal)=>{const r={...o};if(!canInternal){delete r[internal];if(Array.isArray(r.sourceGaps))r.sourceGaps=r.sourceGaps.filter(x=>x!==internal)}return r};
 const asObject=o=>o!==null&&typeof o==='object'&&!Array.isArray(o);
 function validatePatch(p){
  if(!asObject(p)||Object.keys(p).length===0)throw new Denied('EDIT_PATCH_REQUIRED',400);
@@ -267,6 +267,10 @@ export function createPublishedEditService({auth,env=process.env,hooks}={}){
      await hooks.beforeCommit({vehicleId:Number(ctx.vehicle.vehicle_id),actorId:ctx.who},c);
     }
     const fields={...ctx.current.effective_fields,...p};
+    if(Array.isArray(fields.sourceGaps)){
+     fields.sourceGaps=fields.sourceGaps.filter(k=>!Object.hasOwn(p,k));
+     if(!fields.sourceGaps.length)delete fields.sourceGaps;
+    }
     if(!['number'].includes(typeof fields.modelId)||!number(fields.modelId)||!number(fields.brandId)||!number(fields.seriesId))
      throw new Denied('MODEL_MISSING',422);
     await model(c,fields);
