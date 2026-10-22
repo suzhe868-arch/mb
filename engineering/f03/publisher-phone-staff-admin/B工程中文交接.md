@@ -3,8 +3,8 @@
 > 任务：`F03_F04_PUBLISHER_PHONE_STAFF_PERMISSION_ADMIN_HTTP_PG16_01`
 > 工程分支：`feat/f03-f04-publisher-phone-staff-admin-http-pg16-01`
 > PR：[ #224 ](https://github.com/suzhe868-arch/mb/pull/224)；Issue：[ #221 ](https://github.com/suzhe868-arch/mb/issues/221)
-> 分支起始基线：`main@23b5e84cc28fd38756a815824abaee5310eed3f3`（不是当前 main HEAD；按 A 要求继续原分支，未把 main 合并进施工分支）
-> **交接标记：READY_FOR_A_REVIEW（最终 SHA 门禁条件式）**。该标记仅在本文件所在最终 HEAD 的官方 Push CI 两个 Job 均成功、两份非空 Artifact 均绑定同一 HEAD 后生效；若任何一项失败，立即退回 `B_IN_PROGRESS`，不得交 A。本轮先修复 A 提出的四项权限语义问题，再以最终官方 Run/Artifact 作为交接凭据。最终 HEAD、官方 Push CI Run、两份 Artifact ID/摘要以 [PR #224 的交接区](https://github.com/suzhe868-arch/mb/pull/224) 为准。本文件是 B 交接报告，不代替 A 独立验收签字。
+> 最新主线同步：`main@fe758588fc08b3ea61f416962c3c28a2468e8897` 已作为第二父提交合并进原 B 分支；同步提交 `34b4179495d57d187787d3d05998b02721036817`。业务仍在原分支，不合并 main。
+> **当前状态：`B_IN_PROGRESS`。** A 补充审查第五项生命周期阻断后，B 已在原分支实现审计水位、授权时身份快照和持久 fail-closed 撤权，并增加真实 PG16 复职/角色恢复/缺失基线测试。当前新 SHA 的官方 CI 与 Artifact 尚待运行；在最终 HEAD 的两个官方 Push Job 成功、两份非空 Artifact 同 SHA、内部 SHA-256 清单完整之前，不得标记 `READY_FOR_A_REVIEW`。本报告后续结果必须更新为最终真实 Run/Artifact；本文件不代替 A 独立验收签字。
 
 ## 一、已实现的真实后端功能
 
@@ -16,8 +16,10 @@
 
 ## 二、证据与已知结果
 
-- 首轮官方 [Run #39799794445](https://github.com/suzhe868-arch/mb/actions/runs/39799794445) 在旧 HEAD `5065db292368e10ab0434a2faea7a5d933766ac3` 下完成真实 PG16 业务及 HTTPS 双 Job，均成功；**不能代替后续代码最终 SHA**。
-- A 首轮独立审查指出四项必须修复的安全语义：撤权保留个人 `deny` 且恢复原本独立 `allow`、以条件 UPSERT 防止并发 `deny` 覆盖、SG01 `granted_at <= transaction_timestamp()` 生效时间、角色只允许 `sales/manager/store_manager`。当前分支已实现这些修正并新增真实 PG16 负例/双事务竞态用例；业务专项矩阵为 40 项，HTTPS 为 22 项。是否通过只认当前最终 HEAD 的官方 Push CI 和两份 Artifact，不沿用此前 33 项业务测试的旧 SHA 结果。
+- 历史 Run #39810550189 仅验证上一 SHA `24fbf90e53ce016474b2cb6adb19ca438f12a4ca` 的四项整改；**不能代替本轮新增生命周期整改的最终 SHA**。
+- 已实现并保留的前四项：撤权保留个人 `deny` 并恢复独立 `allow`、条件 UPSERT 防并发 `deny` 覆盖、SG01 `granted_at` 时效、正式角色白名单。
+- **第五项生命周期修复**：显式授予时记录同一 PG16 中最新员工审计 `audit_id` 水位及在职/主角色/角色码/门店快照。员工行锁与现有 F03 SG06 审计事务串行；后续任何 `object_kind='employee'` 审计事件晚于授予水位，或当前员工事实与授权快照不符/快照缺失，均在 GET/变更事务内持久关闭模式、结束本 API 专项 binding/scope、递增版本并写入失效审计。个人 override/deny 不被删除。只有读取新版本后由合格 System Admin 显式 PUT 才能重新启用。
+- 业务专项矩阵扩展至 41 项，HTTPS 仍 22 项；新增真实 PG16：inactive→active（中间不调用电话 API）、4S/不合格角色失效后恢复、授予基线缺失三类负例。是否通过只认本轮最终 HEAD 的官方 Push CI 和两份 Artifact。
 - 官方 CI 任务限定精确 B 分支、主线差异路径白名单、语法/路径双门禁、实际非超管 PG16 物理身份、合成 127.0.0.1 HTTPS、内部 SHA256 清单和默认服务安全回归。
 - 任何失败或排队均 `NOT_READY_FOR_A_REVIEW`，B 不得声称通过。
 
@@ -33,4 +35,4 @@
 1. 先核对 PR #224 HEAD、最终 Push workflow Run、2/2 非超管 PG16 Job 与 2 份非空 Artifact 的 ref/SHA/run/id、内部文件 SHA256，不能以首轮结果替代。
 2. 重跑允许的业务/HTTPS、负例、完整基础 Node 回归；注意双管理员 CAS、管理员停用事务锁、个人 deny、回滚及结构签名保护。
 3. 检查改动仅限 Issue #221 白名单，F07 仍未同源连接、公共 schema 与旧 workflow 未动。
-4. 专项核对预存 allow 的恢复、已有 deny 经 DELETE 后仍存在、两个独立 PG16 事务的 deny 竞态、未来 granted_at、store_head 拒绝，以及实际审计 after_json 与数据库最终决策一致。仅通过 A 独立验收后按仓库流程合并。B 不合并 main、不推进 Issue #196 PC 页面、不自行关闭 #187。
+4. 专项核对预存 allow 的恢复、已有 deny 经 DELETE 后仍存在、两个独立 PG16 事务的 deny 竞态、未来 granted_at、store_head 拒绝、inactive→active 后旧授权不复活、4S/未知角色恢复后旧授权不复活、缺失授权基线 fail-closed，以及实际审计 after_json 与数据库最终决策一致。仅通过 A 独立验收后按仓库流程合并。B 不合并 main、不推进 Issue #196 PC 页面、不自行关闭 #187。

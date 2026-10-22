@@ -95,7 +95,7 @@ jobs:
           set -euo pipefail
           node --test --test-concurrency=1 engineering/f03/publisher-phone-staff-admin/tests/business.test.mjs 2>&1 | tee f03-phone-admin-test.log
           grep -q '# fail 0' f03-phone-admin-test.log
-          grep -q 'F03_PHONE_ADMIN_BUSINESS_PG16_40_CASES_PASS' f03-phone-admin-test.log
+          grep -q 'F03_PHONE_ADMIN_BUSINESS_PG16_41_CASES_PASS' f03-phone-admin-test.log
       - name: Affected default-production-gate Node regressions
         shell: bash
         run: |

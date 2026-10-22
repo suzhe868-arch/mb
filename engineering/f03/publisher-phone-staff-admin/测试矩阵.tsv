@@ -5,7 +5,10 @@
 授予	12-14	LOCKED_ONLY授予、SG01绑定、权限审计同库	PASS	PG16业务Job
 时效	14A	未来granted_at的SG01绑定不被视为有效能力	DENY	PG16业务Job
 去重CAS	15-21	相同请求幂等、不同请求冲突、过期版本、两模式变更、双管理员CAS	PASS/409	PG16业务Job
-角色边界	22-23A	离职、转4S、未经正式规则定义的store_head别名均fail-closed	DENY	PG16业务Job
+员工复职	22	真实PG16员工audit水位捕获inactive→active；不调用电话API期间旧授权持久撤销，仅显式重授后启用	PASS/DENY	PG16业务Job
+角色失效恢复	23	员工由合格角色变4S后恢复合格角色，生命周期审计仍使旧授权保持关闭	DENY	PG16业务Job
+基线缺失	23B	授予时角色/门店/在职快照缺失时GET持久fail-closed	DENY	PG16业务Job
+角色边界	23A	未经正式规则定义的store_head别名拒绝	DENY	PG16业务Job
 提交竞态	24	提交中离职更新受真实PG16行锁保护（55P03）	PASS	PG16业务Job
 个人deny	25	已有个人deny时PUT拒绝	DENY	PG16业务Job
 专项范围	18A、20、27、28A	授予与撤权只结束publisher_phone_special绑定，不误撤object等其他Scope	PASS	PG16业务Job
