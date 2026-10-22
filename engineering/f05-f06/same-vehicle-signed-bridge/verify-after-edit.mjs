@@ -52,7 +52,7 @@ try{
  const afterSnapshot=await captureSnapshot(target,ids);
  const afterSha=snapshotSha(afterSnapshot);
  assert.equal(afterSha,before.snapshotSHA256,'F06 historical rows/snapshots/audit changed after F05 edit');
- assert.deepEqual(afterSnapshot,before.snapshot,'F06 historical JSON must remain byte-equivalent after source edit');
+ assert.deepEqual(JSON.parse(JSON.stringify(afterSnapshot)),before.snapshot,'F06 historical JSON must remain byte-equivalent after source edit');
  assert.equal(Number(afterSnapshot.lockSnapshot.row.price_cents),sourceManifest.vehicle.retailPriceCents);
  assert.equal(Number(afterSnapshot.transactionOrigin.row.source_price_cents),sourceManifest.vehicle.retailPriceCents);
  assert.equal(afterSnapshot.bridgeAttestation.row.source_manifest_sha256,sourceManifest.manifestSHA256);
