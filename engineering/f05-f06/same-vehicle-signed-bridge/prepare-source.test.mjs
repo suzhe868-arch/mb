@@ -14,8 +14,13 @@ const DSN='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test'
 const REF='refs/heads/feat/f05-f06-same-vehicle-signed-bridge-pg16-01';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 const digestObject=value=>sha(JSON.stringify(value));
-let db,auth,app,secret,staff,other,draft,published,payload;
+let db,auth,app,secret,staff,other,draft,published,payload,vehicleSequence,cycleSequence,vehicleSequenceState,cycleSequenceState;
 const count=async(sql,args=[])=>Number((await db.query(sql,args)).rows[0].n);
+function quoteQualifiedSequence(name){
+ const parts=String(name).split('.').map(part=>part.replace(/^\"(.*)\"$/,'$1').replaceAll('"','""'));
+ assert.equal(parts.length,2,'sequence must be schema-qualified');
+ return parts.map(part=>'"'+part+'"').join('.');
+}
 test.before(async()=>{
  assert.equal(process.env.GITHUB_REPOSITORY,'suzhe868-arch/mb');
  assert.equal(process.env.GITHUB_EVENT_NAME,'push');
@@ -29,7 +34,14 @@ test.before(async()=>{
  const identity=(await db.query("SELECT current_database() db,current_user usr,current_setting('server_version_num')::int version,(SELECT count(*)::int FROM public.f03_schema_migrations) migrations,(SELECT oid::text FROM pg_database WHERE datname=current_database()) oid")).rows[0];
  assert.equal(identity.db,'f03_auth_test');assert.equal(identity.usr,'f03_ci');
  assert.ok(identity.version>=160000&&identity.version<170000);assert.equal(identity.migrations,14);
- secret=randomBytes(32);
+ const seqs=(await db.query("SELECT pg_get_serial_sequence('public.vehicles','vehicle_id') AS vehicle_sequence,pg_get_serial_sequence('public.vehicle_listing_cycles','listing_cycle_id') AS cycle_sequence")).rows[0];
+  vehicleSequence=seqs.vehicle_sequence;cycleSequence=seqs.cycle_sequence;
+  assert.ok(vehicleSequence&&cycleSequence,'native F05 Vehicle/Cycle sequences must exist');
+  vehicleSequenceState=(await db.query('SELECT last_value::text,is_called FROM '+quoteQualifiedSequence(vehicleSequence))).rows[0];
+  cycleSequenceState=(await db.query('SELECT last_value::text,is_called FROM '+quoteQualifiedSequence(cycleSequence))).rows[0];
+  await db.query('SELECT setval($1::regclass,$2::bigint,true)',[vehicleSequence,'8900000000000']);
+  await db.query('SELECT setval($1::regclass,$2::bigint,true)',[cycleSequence,'8910000000000']);
+  secret=randomBytes(32);
  auth=new IsolatedAuth({connectionString:DSN,secret,origin:'https://127.0.0.1:48984'});
  staff=await login(auth,'employee_test','SyntheticF04_3_CurrentProof_2026','f05-f06-bridge-native-publish');
  other=await login(auth,'limit_test','SyntheticLimit_1234567','f05-f06-bridge-non-owner');
@@ -97,6 +109,10 @@ test('F05原生HTTPS正式发布：负向门禁、真实车辆事实和脱敏来
  const out=await app.request(BASE+'/'+draft.draftId+'/publish',{method:'POST',token:staff,body:{expectedVersion:1}});
  assert.equal(out.status,200,JSON.stringify(out.body));assert.equal(out.body.code,'VEHICLE_PUBLISHED');
  published=out.body;
+  assert.ok(BigInt(published.vehicleId)>=8900000000001n,'bridge Vehicle ID must be outside fixed F05 regression fixtures');
+  assert.ok(BigInt(published.listingCycleId)>=8910000000001n,'bridge ListingCycle ID must be outside fixed F05 regression fixtures');
+  await db.query('SELECT setval($1::regclass,$2::bigint,$3::boolean)',[vehicleSequence,vehicleSequenceState.last_value,vehicleSequenceState.is_called]);
+  await db.query('SELECT setval($1::regclass,$2::bigint,$3::boolean)',[cycleSequence,cycleSequenceState.last_value,cycleSequenceState.is_called]);
  await t.test('08 F05原生发布产生正式Vehicle和ListingCycle及同事务责任链',async()=>{
   assert.equal(published.sourceType,'mingbang');
   const v=(await db.query('SELECT vehicle_id::text,source_type,model_id::text,vin,source_sale_status,platform_visibility,formally_published_at,archived_at FROM public.vehicles WHERE vehicle_id=$1::bigint',[published.vehicleId])).rows[0];
@@ -121,7 +137,8 @@ test('F05原生HTTPS正式发布：负向门禁、真实车辆事实和脱敏来
   schemaVersion:1,
   github:{repository:process.env.GITHUB_REPOSITORY,ref:process.env.GITHUB_REF,sha:process.env.GITHUB_SHA,runId:String(process.env.GITHUB_RUN_ID)},
   database:{name:dbInfo.name,oid:dbInfo.oid,role:dbInfo.role,serverVersion:dbInfo.server_version,publicMigrationCount:ledger.length,publicLedgerSha256:digestObject(ledger),publicCatalogSha256:structure.sha256},
-  privateDraftSchema:{runId:privateState.run_id,ddlSha256:privateState.ddl_sha256,draftEventCount:await count('SELECT count(*)::int n FROM f05_manual_vehicle_test.draft_events'),publishedFactCount:await count('SELECT count(*)::int n FROM f05_manual_vehicle_test.published_vehicle_facts')},
+  idReservation:{vehicleSequence:vehicleSequence,vehicleSequenceFloor:'8900000000000',listingCycleSequence:cycleSequence,listingCycleSequenceFloor:'8910000000000',sequenceStateRestored:true},
+   privateDraftSchema:{runId:privateState.run_id,ddlSha256:privateState.ddl_sha256,draftEventCount:await count('SELECT count(*)::int n FROM f05_manual_vehicle_test.draft_events'),publishedFactCount:await count('SELECT count(*)::int n FROM f05_manual_vehicle_test.published_vehicle_facts')},
   vehicle:{
    vehicleId:String(published.vehicleId),listingCycleId:String(published.listingCycleId),draftId:String(published.draftId),
    sourceType:d.draft_source_type,publisherEmployeeId:d.created_by_employee_id,sourceTeamId:d.source_team_id,

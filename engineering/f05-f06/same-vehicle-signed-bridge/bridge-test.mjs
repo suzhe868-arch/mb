@@ -215,6 +215,7 @@ test('F05-F06真实同车跨Runtime闭环：两个独立PG16数据库、原生HT
    assert.equal(targetResponsibility.team_id,sourceManifest.vehicle.responsibilityTeamId);
    assert.equal(targetResponsibility.source_snapshot,'mingbang');
    assert.equal(targetResponsibility.provenance_kind,'AUTHORIZED_MANUAL_PUBLICATION');
+   assert.equal(targetResponsibility.revoked_at,null,'F06 target current responsibility must remain active; fixed-ID regression fixtures must not collide with bridge source');
   });
   await t.test('03 F05发布清单不泄露VIN或描述且绑定不可变PUBLISHED事件摘要',async()=>{
    assert.equal(sourceManifest.vehicle.publishedEventSha256.length,64);
