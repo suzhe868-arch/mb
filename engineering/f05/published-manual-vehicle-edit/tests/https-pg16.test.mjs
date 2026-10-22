@@ -48,7 +48,7 @@ test.before(async()=>{
  // Compatibility REF is scoped exclusively to #214 source calls, and the
  // provenance is verified against physical draft/facts/audit after publication.
  const parentService=createManualVehicleDraftService({auth,env:{...process.env,GITHUB_REF:parentRef}});
- parentApp=await startAccepted214(parentService);
+ parentApp=await accepted214(()=>startAccepted214(parentService));
  const payload={sourceType:fourS?'four_s':'mingbang',brandId:97001,seriesId:97002,
   modelId:97003,modelYear:2026,mileageKm:16000,city:'Suzhou',
   vin:'ISSUE216-ORIGINAL-'+(fourS?'FOURS':'MINGBANG'),
