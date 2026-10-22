@@ -58,7 +58,7 @@ const tapResults={
  f06Bridge:tap('f06-bridge-tests.log',true),f05MingbangAfter:tap('f05-manual-mingbang-after.log'),f05ConcurrencyAfter:tap('f05-manual-concurrency-after.log')
 };
 const bridgeLog=logs.get('f06-bridge-tests.log');
-const subtests=[...bridgeLog.matchAll(/^# Subtest: (\d{2}) /gm)].map(m=>Number(m[1]));
+const subtests=[...bridgeLog.matchAll(/^\s*# Subtest: (\d{2}) /gm)].map(m=>Number(m[1]));
 const positiveNumbers=new Set([1,2,3,4,5,6,11,14,15,20,21,22,27,28,29,32]);
 const positiveCount=subtests.filter(n=>positiveNumbers.has(n)).length;
 const negativeCount=subtests.filter(n=>!positiveNumbers.has(n)).length;
