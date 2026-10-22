@@ -6,6 +6,7 @@ import {fileURLToPath} from 'node:url';
 import pg from 'pg';
 import {validateCatalogEnv,probeIsolatedCatalog} from '../../src/catalog-readiness.mjs';
 import {createIsolatedMatchingService} from '../../src/f05-matching-service.mjs';
+import {createMatchingRetrySchedulerRuntime} from '../scheduler.mjs';
 
 const env=validateCatalogEnv(process.env);
 const pool=new pg.Pool({
@@ -16,14 +17,14 @@ const pool=new pg.Pool({
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const runnerPath=fileURLToPath(new URL('../run.mjs',import.meta.url));
 
-function startScheduler(credential){
+function startScheduler(credential,{maxRuntimeMs=30000,pollIntervalMs=100,batchLimit=1}={}){
  const child=spawn(process.execPath,[runnerPath],{
   env:{
    ...process.env,
    F05_MATCHING_RETRY_CREDENTIAL:credential,
-   F05_MATCHING_RETRY_POLL_INTERVAL_MS:'100',
-   F05_MATCHING_RETRY_BATCH_LIMIT:'1',
-   F05_MATCHING_RETRY_MAX_RUNTIME_MS:'30000',
+   F05_MATCHING_RETRY_POLL_INTERVAL_MS:String(pollIntervalMs),
+   F05_MATCHING_RETRY_BATCH_LIMIT:String(batchLimit),
+   F05_MATCHING_RETRY_MAX_RUNTIME_MS:String(maxRuntimeMs),
    F05_MATCHING_RETRY_BACKOFF_BASE_MS:'100',
    F05_MATCHING_RETRY_BACKOFF_MAX_MS:'1000'
   },
@@ -112,6 +113,82 @@ await test('真实 PG16 自动调度、双进程并发、过期租约恢复、�
    "VALUES($1,$2,true,statement_timestamp()+interval '20 minutes')",[employeeId,customerId]);
   await pool.query("INSERT INTO public.f05_matching_sales_description_test(demand_id,written_by_employee_id,sales_description,expires_at) "+
    "VALUES($1,$2,'brandId=59001;budgetCents=12000000',statement_timestamp()+interval '20 minutes')",[demandId,employeeId]);
+
+   // Startup must validate a real disposable Employee session, not merely token syntax.
+   const startupEnv=token=>({...process.env,F05_MATCHING_RETRY_CREDENTIAL:token});
+   const validRuntime=await createMatchingRetrySchedulerRuntime(startupEnv(credential));
+   assert.equal((await validRuntime.pool.query("SELECT 1 AS ready")).rows[0].ready,1);
+   await validRuntime.pool.end();
+
+   const missingCredential=randomBytes(32).toString('base64url');
+   await assert.rejects(createMatchingRetrySchedulerRuntime(startupEnv(missingCredential)),
+    /MATCH_RETRY_EMPLOYEE_CREDENTIAL_INVALID/);
+
+   const expiredCredential=randomBytes(32).toString('base64url');
+   await pool.query("INSERT INTO public.f05_catalog_employee_sessions_test(token_sha256,employee_id,expires_at) "+
+    "VALUES($1,$2,statement_timestamp()-interval '1 minute')",
+    [createHash('sha256').update(expiredCredential).digest('hex'),employeeId]);
+   await assert.rejects(createMatchingRetrySchedulerRuntime(startupEnv(expiredCredential)),
+    /MATCH_RETRY_EMPLOYEE_CREDENTIAL_INVALID/);
+
+   const revokedCredential=randomBytes(32).toString('base64url');
+   await pool.query("INSERT INTO public.f05_catalog_employee_sessions_test(token_sha256,employee_id,expires_at,revoked_at) "+
+    "VALUES($1,$2,statement_timestamp()+interval '20 minutes',statement_timestamp())",
+    [createHash('sha256').update(revokedCredential).digest('hex'),employeeId]);
+   await assert.rejects(createMatchingRetrySchedulerRuntime(startupEnv(revokedCredential)),
+    /MATCH_RETRY_EMPLOYEE_CREDENTIAL_INVALID/);
+
+   const inactiveEmployeeId=String(seed+30n);
+   const inactiveCredential=randomBytes(32).toString('base64url');
+   await pool.query("INSERT INTO public.employees(employee_id,main_role_id,employment_status,receiving_status) "+
+    "VALUES($1,$2,'inactive','receiving')",[inactiveEmployeeId,String(role.role_id)]);
+   await pool.query("INSERT INTO public.f05_catalog_employee_sessions_test(token_sha256,employee_id,expires_at) "+
+    "VALUES($1,$2,statement_timestamp()+interval '20 minutes')",
+    [createHash('sha256').update(inactiveCredential).digest('hex'),inactiveEmployeeId]);
+   await assert.rejects(createMatchingRetrySchedulerRuntime(startupEnv(inactiveCredential)),
+    /MATCH_RETRY_EMPLOYEE_CREDENTIAL_INVALID/);
+
+   let deniedRole=(await pool.query(
+    "SELECT role_id FROM public.roles WHERE role_code NOT IN ('sales','manager','store_head') ORDER BY role_id LIMIT 1"
+   )).rows[0];
+   if(!deniedRole){
+    const deniedRoleId=String(seed+40n);
+    await pool.query("INSERT INTO public.roles(role_id,role_code) VALUES($1,$2)",
+     [deniedRoleId,'scheduler_denied_'+process.pid+'_'+Date.now()]);
+    deniedRole={role_id:deniedRoleId};
+   }
+   const deniedEmployeeId=String(seed+31n);
+   const deniedCredential=randomBytes(32).toString('base64url');
+   await pool.query("INSERT INTO public.employees(employee_id,main_role_id,employment_status,receiving_status) "+
+    "VALUES($1,$2,'active','receiving')",[deniedEmployeeId,String(deniedRole.role_id)]);
+   await pool.query("INSERT INTO public.f05_catalog_employee_sessions_test(token_sha256,employee_id,expires_at) "+
+    "VALUES($1,$2,statement_timestamp()+interval '20 minutes')",
+    [createHash('sha256').update(deniedCredential).digest('hex'),deniedEmployeeId]);
+   await assert.rejects(createMatchingRetrySchedulerRuntime(startupEnv(deniedCredential)),
+    /MATCH_RETRY_EMPLOYEE_CREDENTIAL_INVALID/);
+
+   // Elevate the disposable app role briefly to prove runtime startup fails closed,
+   // then restore NOSUPERUSER before any further application test work.
+   const admin=new pg.Client({
+    connectionString:'postgres://postgres:disposable_bootstrap_only@127.0.0.1:5432/postgres',
+    connectionTimeoutMillis:900,query_timeout:2500,statement_timeout:2500,
+    application_name:'f05_matching_retry_scheduler_admin_negative_test'
+   });
+   await admin.connect();
+   try{
+    await admin.query('ALTER ROLE f05_catalog_ci SUPERUSER');
+    let unexpectedRuntime,error;
+    try{unexpectedRuntime=await createMatchingRetrySchedulerRuntime(startupEnv(credential));}
+    catch(caught){error=caught;}
+    await unexpectedRuntime?.pool.end().catch(()=>{});
+    assert.match(String(error?.message??''),/MATCH_RETRY_DATABASE_SUPERUSER_DENIED/);
+   }finally{
+    await admin.query('ALTER ROLE f05_catalog_ci NOSUPERUSER');
+    await admin.end();
+   }
+   assert.equal((await pool.query(
+    "SELECT rolsuper FROM pg_catalog.pg_roles WHERE rolname=current_user"
+   )).rows[0].rolsuper,false,'the disposable app role must be restored to NOSUPERUSER');
 
   for(let i=0;i<vehicleIds.length;i++){
    await pool.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,model_id,created_at) "+
