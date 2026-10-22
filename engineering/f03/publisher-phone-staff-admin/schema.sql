@@ -4,6 +4,10 @@ CREATE TABLE f03_publisher_phone_admin_test.employee_mode (
   employee_id bigint PRIMARY KEY CHECK (employee_id>0),
   scope_mode text CHECK (scope_mode IN ('LOCKED_ONLY','ALL_ACTIVE_JYT')),
   enabled boolean NOT NULL DEFAULT false,
+  -- Snapshot of the permission override before this API's active grant.
+  -- DELETE restores this baseline instead of erasing an unrelated allow/deny.
+  previous_decision text CHECK (previous_decision IN ('allow','deny') OR previous_decision IS NULL),
+  previous_decision_captured boolean NOT NULL DEFAULT false,
   version bigint NOT NULL DEFAULT 0 CHECK (version>=0),
   updated_by_system_admin_id bigint,
   updated_at timestamptz NOT NULL DEFAULT transaction_timestamp(),
