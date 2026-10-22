@@ -23,7 +23,7 @@ async function targetFacts(c,employeeId) {
   "a.credential_state AS account_state,a.force_password_change "+
   "FROM public.employees e JOIN public.roles r ON r.role_id=e.main_role_id "+
   "LEFT JOIN public.stores st ON st.store_id=e.store_id "+
-  "LEFT JOIN public.pc_login_accounts a ON a.principal_kind='employee' AND a.employee_id=e.employee_id "+
+  "JOIN public.pc_login_accounts a ON a.principal_kind='employee' AND a.employee_id=e.employee_id "+
   "WHERE e.employee_id=$1::bigint ORDER BY a.account_id LIMIT 1 FOR UPDATE OF e,a",
   [employeeId]);
  return q.rows[0]??null;
@@ -91,7 +91,7 @@ export class PublisherPhoneAdminService {
    if(replay.rowCount){
     const prior=replay.rows[0];
     if(prior.request_digest!==digest||prior.actor_id!==String(actor.system_admin_id)||prior.employee_id!==employeeId)return result(409,'REQUEST_KEY_CONFLICT');
-    if(oldVersion!==Number(prior.resulting_version)||oldState.enabled!==prior.response_json.enabled)return result(409,'REPLAY_STALE');
+    if(oldVersion!==Number(prior.resulting_version)||(oldState.enabled!==prior.response_json.enabled||(oldState.enabled&&beforeMode?.scope_mode!==prior.response_json.scopeMode)))return result(409,'REPLAY_STALE');
     return result(200,'IDEMPOTENT_REPLAY',prior.response_json);
    }
    if(oldVersion!==input.expectedVersion)return result(409,'VERSION_CONFLICT',{version:oldVersion});
