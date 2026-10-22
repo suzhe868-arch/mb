@@ -112,17 +112,66 @@ async function state(c,v){
    throw new Denied('CURRENT_VEHICLE_CHANGED_OUTSIDE_EDIT',409);
   return s;
  }
- // The current public identity is authoritative; fields absent from frozen M94
- // are private CI-only projection, not claimed as public customer data.
- const m=v.model_id===null?null:(await c.query('SELECT brand_id,series_id,model_year FROM public.vehicle_models WHERE model_id=$1',[v.model_id])).rows[0];
- let mileageKm=null,city=null;
+ // Accepted #214 first-publish source is mandatory. Physical public model/VIN
+ // alone never proves original mileage, city, description or condition history.
+ // One-to-one draft/publication/F05-2/3A provenance is joined UNDER the current
+ // Vehicle/Cycle lock, fail closed rather than mint fictitious empty fields.
+ const origin=(await c.query(
+  "SELECT f.brand_id,f.series_id,f.model_id,f.model_year,f.mileage_km,f.city,"+
+  "f.payload_snapshot,f.created_by_employee_id,f.source_type,f.listing_cycle_id,"+
+  "d.draft_payload,d.created_by_employee_id AS original_actor,d.source_team_id,"+
+  "d.published_vehicle_id,d.published_listing_cycle_id,d.published_at AS draft_published_at,"+
+  "e.payload_sha256 AS published_event_hash "+
+  "FROM f05_manual_vehicle_test.published_vehicle_facts f "+
+  "JOIN f05_manual_vehicle_test.drafts d ON d.published_vehicle_id=f.vehicle_id "+
+  " AND d.published_listing_cycle_id=f.listing_cycle_id AND d.status='published' "+
+  "JOIN f05_manual_vehicle_test.draft_events e ON e.draft_id=d.draft_id AND e.event_kind='PUBLISHED' "+
+  " AND e.event_metadata->>'vehicleId'=f.vehicle_id::text "+
+  "WHERE f.vehicle_id=$1 AND f.listing_cycle_id=$2 AND f.source_type=$3 "+
+  "FOR SHARE OF f,d,e",[v.vehicle_id,v.listing_cycle_id,v.source_type])).rows;
+ if(origin.length!==1)throw new Denied('PUBLISHED_SOURCE_GAP',409);
+ const o=origin[0],p=o.draft_payload,f=o.payload_snapshot;
+ if(!asObject(p)||!asObject(f)||p.sourceType!==v.source_type||
+  Number(o.original_actor)!==Number(o.created_by_employee_id)||
+  Number(o.created_by_employee_id)!==Number(v.created_by_employee_id)||
+  Number(o.published_vehicle_id)!==Number(v.vehicle_id)||
+  Number(o.published_listing_cycle_id)!==Number(v.listing_cycle_id)||
+  Number(o.listing_cycle_id)!==Number(v.listing_cycle_id)||
+  Number(o.model_id)!==Number(v.model_id)||
+  String(p.vin||'')!==String(v.vin||'')||
+  !o.published_event_hash||!o.draft_published_at||
+  ['brandId','seriesId','modelId','modelYear','mileageKm','city'].some(k=>p[k]!==f[k])||
+  Number(f.modelId)!==Number(v.model_id)||
+  Number(f.brandId)!==Number(o.brand_id)||
+  Number(f.seriesId)!==Number(o.series_id)||
+  Number(f.modelYear)!==Number(o.model_year)||
+  Number(f.mileageKm)!==Number(o.mileage_km)||f.city!==o.city)
+  throw new Denied('PUBLISHED_SOURCE_CONFLICT',409);
+ // For 4S the original governed publication receipt is an independent source
+ // consistency condition, not a substitute for the #214 payload.
  if(v.source_type==='four_s'){
-  const r=(await c.query('SELECT mileage_km,city FROM public.f05_3a_member_publications WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND revoked_at IS NULL',[v.vehicle_id,v.listing_cycle_id])).rows[0];
-  if(r){mileageKm=Number(r.mileage_km);city=r.city}
+  const receipt=(await c.query(
+   "SELECT mileage_km,city,member_employee_id FROM public.f05_3a_member_publications "+
+   "WHERE vehicle_id=$1 AND listing_cycle_id=$2 AND revoked_at IS NULL FOR SHARE",
+   [v.vehicle_id,v.listing_cycle_id])).rows;
+  if(receipt.length!==1||Number(receipt[0].mileage_km)!==Number(o.mileage_km)||
+   receipt[0].city!==o.city||Number(receipt[0].member_employee_id)!==Number(v.created_by_employee_id))
+   throw new Denied('PUBLISHED_SOURCE_CONFLICT',409);
  }
- const facts={modelId:v.model_id===null?null:Number(v.model_id),brandId:m?Number(m.brand_id):null,
-  seriesId:m?Number(m.series_id):null,modelYear:m?Number(m.model_year):null,mileageKm,city,vin:v.vin||null,
-  description:null,conditionTags:[],customerListPriceCents:null,internalWholesalePriceCents:null};
+ const facts={modelId:Number(o.model_id),brandId:Number(o.brand_id),seriesId:Number(o.series_id),
+  modelYear:Number(o.model_year),mileageKm:Number(o.mileage_km),city:o.city,vin:v.vin||null};
+ const originalPrices={customerListPriceCents:'retailPriceCents',internalWholesalePriceCents:'wholesalePriceCents'};
+ const sourceGaps=[];
+ for(const field of ['description','conditionTags',...Object.keys(originalPrices)]){
+  const sourceKey=originalPrices[field]||field;
+  if(Object.hasOwn(p,sourceKey)&&p[sourceKey]!==undefined){
+   if(field==='conditionTags'&&!Array.isArray(p[sourceKey]))throw new Denied('PUBLISHED_SOURCE_CONFLICT',409);
+   facts[field]=p[sourceKey];
+  }else sourceGaps.push(field);
+ }
+ // Explicit absence is SOURCE_GAP, never fabricate an empty condition/price.
+ if(sourceGaps.length)facts.sourceGaps=sourceGaps;
+
  s=(await c.query('INSERT INTO '+S+'.vehicle_edit_state(vehicle_id,listing_cycle_id,source_type,effective_fields) VALUES($1,$2,$3,$4::jsonb) RETURNING *',
   [v.vehicle_id,v.listing_cycle_id,v.source_type,JSON.stringify(facts)])).rows[0];
  return s;
