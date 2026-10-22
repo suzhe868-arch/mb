@@ -1,27 +1,29 @@
 # 名邦汽车 V1｜NEXT_ACTION 当前唯一指针｜2026-10-22
 
-## 当前唯一 B 工程任务｜F05-7 Matching 受影响队列持久调度与自动重试
+## 当前唯一 B 工程任务｜F05-8 Priority TTL 到期重仲裁持久调度
 
 - `NEXT_OWNER=B`
-- `NEXT_TASK=F05_7_MATCHING_RETRY_SCHEDULER_01`
-- `NEXT_ISSUE=201`：[F05-7 独立后台调度任务](https://github.com/suzhe868-arch/mb/issues/201)
-- `NEXT_BRANCH=feat/f05-7-matching-retry-scheduler-01`（A 治理放行 PR 合并后，B 从最新 main 创建）
-- 正式施工单：`07_重建工作区/F05-7_Matching受影响队列持久调度与自动重试非生产施工单_2026-10-22.md`
-- 代码依据：既有 `f05-matching-retry-worker.mjs` 只有单次 `runOnce()`；主线没有持久调度器。新任务复用已验收 worker，不复制匹配算法、不改冻结文件。
-- 新代码仅位于 `engineering/f05-matching-retry-scheduler/**`，新 Push 工作流为 `.github/workflows/matching-retry-scheduler-pg16.yml`；真实 PG16 非超级用户、自动执行/重启恢复/退避/并发安全及同 SHA 官方 CI 为交付门槛。
-- **Issue #187 保持并行且不阻断：** JYT/Collector、CDN/OSS、飞书与电话来源授权仍为独立门禁；本任务不依赖它们。
-- 已验收 F05 PR #125、F06 PR #174、F07 PR #181、F08-2/F08-3 PR #186/#193 直接复用；不重跑旧 F05 421 项全包、旧 66 项 Oracle 或已验收专项。
-- 只做后端；不开发 PC/手机页面，不接生产、不改 F03 reader/旧工作流、不伪造正式 Issuer 或外部接入。
+- `NEXT_TASK=F05_8_PRIORITY_TTL_SCHEDULER_01`
+- `NEXT_ISSUE=203`：[F05-8 Priority TTL 到期重仲裁持久调度](https://github.com/suzhe868-arch/mb/issues/203)
+- `NEXT_BRANCH=feat/f05-8-priority-ttl-scheduler-01`（本 A 状态治理 PR 合并后正式激活；B 从执行时最新 main 接管）
+- 正式施工单：`07_重建工作区/F05-8_Priority到期重仲裁持久调度非生产施工单_2026-10-22.md`
+- 代码依据：`engineering/src/f05-priority-scheduler-worker.mjs` 已提供持久队列消费者 `runDue()`，现有 PG16 测试覆盖到期重仲裁、并发 claim、失败重试和 lease 恢复；当前缺口是没有持续轮询 runner。
+- 新代码仅允许新增 `engineering/f05-priority-ttl-scheduler/**` 与 `.github/workflows/priority-ttl-scheduler-pg16.yml`；只读复用现有 Priority worker、TTL sweep worker 与 `engineering/integration/f05-priority-scheduler.pg16.test.mjs`。不得复制或修改已验收 Priority/Matching 业务算法。
+- 必须完成有界轮询/批量/运行时长、tick 不重叠、空队列休眠、有限退避、优雅停机、PG16 持久队列重启恢复、双 runner 并发和真实非超管 PG16 集成测试；同一最终 HEAD 的官方 Push CI 必须全成功，失败与跳过均为 0，生成脱敏同 SHA Artifact 后交 A 独立验收。
+- **上一任务 F05-7 已完成：** Issue #201 / PR #206 已由 A 独立验收并标准合并；B SHA `f4d7180d7fb38525cbe63bf697bc7fc3bb300f4b`，merge SHA `7e00859edf59e1c93254de17cd5543fa7bae6960`，官方 Run #39729060862 成功，Artifact #12404152577 有效；报告 `07_重建工作区/F05-7_Issue201_PR206独立验收与F05-8正式接续报告_2026-10-22.md`。
+- **Issue #187 并行不阻断：** JYT/Collector、CDN/OSS、飞书与电话来源授权仍为独立门禁；本任务不依赖它们。
+- **后续队列：** Issue [#204](https://github.com/suzhe868-arch/mb/issues/204) 仅在 #203 经 A 独立验收并合并后激活；不得提前并行开工。
+- 只做后端、只交非生产实现；不开发 PC/手机页面，不接生产、不授权真实电话/资金/外部公网调用，不伪造正式 Issuer 或外部接入。
 
+---
 
-## 已确认的后续独立后端任务（排队，当前不改变唯一指针）
+## 上一任务独立验收记录｜F05-7 Issue #201 / PR #206
 
-当前 Issue #201 仍是唯一有效 B 任务。以下两个后端缺口已经按主线代码核实并建立正式施工单，**不依赖 Issue #187 的 JYT/Collector/CDN/飞书来源门禁，但不允许 B 提前并行开工**；必须按顺序由 A 在前一任务验收合并后切换唯一指针：
+- 最终 B HEAD `f4d7180d7fb38525cbe63bf697bc7fc3bb300f4b`；标准合并 SHA `7e00859edf59e1c93254de17cd5543fa7bae6960`。
+- 官方 Run #39729060862 / Job #119659641450 成功；单元 7/7、Matching retry PG16 回归 8/8、调度器 PG16 集成 1/1，失败 0、跳过 0。
+- Artifact #12404152577，SHA-256 `79596be0bfeaaff07e7b4bc60029d8451f7c929f0c4f7eb1ced065293124ccda`，有效至 2026-10-23 05:37:49 UTC。
+- A 已独立下载工件并核对内部 HEAD、Run ID、分支和三份测试日志；本次仅验收非生产调度器，不改变 F05/F01～F08/V1 全局生产就绪状态。
 
-1. **下一项：** [Issue #203｜F05-8 Priority TTL 到期重仲裁持久调度](https://github.com/suzhe868-arch/mb/issues/203)，任务 `F05_8_PRIORITY_TTL_SCHEDULER_01`，分支 `feat/f05-8-priority-ttl-scheduler-01`，施工单 `07_重建工作区/F05-8_Priority到期重仲裁持久调度非生产施工单_2026-10-22.md`。已有持久队列 worker 和 PG16 正反例，但没有自动轮询 runner。
-2. **随后：** [Issue #204｜F05 目录客户价格权益投影与确定性搜索](https://github.com/suzhe868-arch/mb/issues/204)，任务 `F05_CATALOG_CUSTOMER_PRICE_SEARCH_01`，分支 `feat/f05-catalog-customer-price-search-01`，施工单 `07_重建工作区/F05目录客户价格权益投影与确定性搜索非生产施工单_2026-10-22.md`。当前目录 DTO 固定隐藏价格，列表没有关键词入口；现有价格解锁、排序和词典资产直接复用。
-
-两项均只交付非生产后端代码与真实 PG16 证据，不开发 PC/手机页面，不改已验收排序/解锁算法，不伪造正式 Issuer。当前 NEXT_OWNER/NEXT_TASK/NEXT_ISSUE/NEXT_BRANCH 仍唯一指向 Issue #201。
 
 
 ---
