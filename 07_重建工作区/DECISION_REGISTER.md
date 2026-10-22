@@ -1,3 +1,15 @@
+## A-F03-F04-PHONE-STAFF-ADMIN-ISSUE221-PR224-CHANGES-REQUESTED-02｜A补充独立复审与复职授权阻断（2026-10-23）
+
+- **当前唯一指针**：`NEXT_OWNER=B`、`NEXT_TASK=F03_F04_PUBLISHER_PHONE_STAFF_PERMISSION_ADMIN_HTTP_PG16_01`、`NEXT_ISSUE=221`、`NEXT_BRANCH=feat/f03-f04-publisher-phone-staff-admin-http-pg16-01`。
+- **PR #224 当前受验 HEAD**：`24fbf90e53ce016474b2cb6adb19ca438f12a4ca`；官方 [Run #39810550189](https://github.com/suzhe868-arch/mb/actions/runs/39810550189) 两个真实 PG16/HTTPS Job 成功；业务 40/40、HTTPS 22/22、每个 Job 的 Node 回归 269/269，0 失败/跳过。
+- **A 独立证据复核**：Artifact #12440421374 ZIP SHA-256 `d8e89c0a3e1898e56b9df471c4b9dfac2b49a58d554dbd56e05bba34b81ac608`；Artifact #12438908268 ZIP SHA-256 `cb4ed848edfd83fcc6255da7978ea127a7697c56b38141093e495d87155059a8`。两份 Artifact 的 Run/HEAD/ref 匹配，内部 13/13 文件哈希无差异。
+- **上一轮四项已复核通过**：DELETE 保留个人 deny；条件 UPSERT 与双事务 PG16 竞态测试保护并发 deny；SG01 binding 未来生效时间 fail-closed；未证实的 `store_head` 角色 fail-closed。
+- **新增第五项阻断**：PDM-02 §9.4 规定 inactive 恢复 active 后不自动恢复旧 permission。当前实现只在 GET 响应隐藏旧授权，没有持久使旧 override/binding/mode 失效；员工在未调用 API 的情况下 inactive→active 后，旧电话授权会再次生效。需使用正式可验证的生命周期版本/审计事实持久 fail-closed；新增真实 PG16 测试覆盖 grant→inactive→active（期间不调用本 API）后仍关闭，只有 System Admin 显式重新授予才启用，并覆盖不合格角色失效/恢复。不得改冻结 public schema、旧 F03/F07 Guard、旧 Workflow 或前端。无可信生命周期事实时记录精确来源缺口，不能以当前 active 状态冒充。
+- **分支同步要求**：复审开始时 B 分支相对 main 落后两个只改治理文档的提交；本轮状态治理更新后，B 必须在原分支同步施工前最新 main，再重跑最终 SHA 官方 CI/Artifact。不得另开 Issue、不得合并 main。
+- **状态**：`A_CHANGES_REQUESTED`；PR #224 已退回 Draft，未合并。父 #187 `SOURCE_GAP/FAIL_CLOSED`、F07 `NOT_CONNECTED_F07_RUNTIME`、F05→F06 同车签名 `NOT_RUN/BLOCKED_SIGNED_PARENT`、F06/F07/F08/V1 `NOT_READY/NO_PRODUCTION` 不变。
+
+---
+
 ## A-F03-F04-PHONE-STAFF-ADMIN-ISSUE221-PR224-CHANGES-REQUESTED-01｜A独立审查退回权限语义整改（2026-10-22）
 
 - **当前唯一指针**：`NEXT_OWNER=B`、`NEXT_TASK=F03_F04_PUBLISHER_PHONE_STAFF_PERMISSION_ADMIN_HTTP_PG16_01`、`NEXT_ISSUE=221`、`NEXT_BRANCH=feat/f03-f04-publisher-phone-staff-admin-http-pg16-01`。
