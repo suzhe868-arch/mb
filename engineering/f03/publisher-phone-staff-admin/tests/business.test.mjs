@@ -15,6 +15,19 @@ const put=(mode,v=version,token=admin,k=key())=>service.change({token,employeeId
 const del=(v=version,token=admin,k=key())=>service.change({token,employeeId:'6',method:'DELETE',input:{expectedVersion:v,requestKey:k}});
 const get=(id='6',token=admin)=>service.get({token,employeeId:id});
 const sql=(s,p=[])=>auth.pool.query(s,p);
+async function lifecycleChange({employeeId='6',statement,params=[],action,before,after,actorKind='system_admin',actorId='9'}){
+ const client=await auth.pool.connect();
+ try{
+  await client.query('BEGIN');
+  await client.query(statement,params);
+  const event=await client.query(
+   "INSERT INTO public.audit_events(actor_kind,actor_id,role_context,object_kind,object_id,action,before_json,after_json,occurred_at) "+
+   "VALUES($1,$2,$3::jsonb,'employee',$4,$5,$6::jsonb,$7::jsonb,transaction_timestamp()) RETURNING audit_id::text audit_id",
+   [actorKind,actorId,JSON.stringify({scope:'F03_G_CI_ONLY',reason:'synthetic lifecycle transition in disposable PG16'}),employeeId,action,JSON.stringify(before),JSON.stringify(after)]);
+  await client.query('COMMIT');
+  return event.rows[0].audit_id;
+ }catch(e){await client.query('ROLLBACK');throw e}finally{client.release()}
+}
 
 before(async()=>{
  assertEnvironment();
@@ -66,9 +79,10 @@ test('12 grant LOCKED_ONLY',async()=>{
  originalKey=key();const x=await put('LOCKED_ONLY',0,admin,originalKey);
  assert.equal(x.status,200);assert.equal(x.enabled,true);assert.equal(x.scopeMode,'LOCKED_ONLY');version=x.version;assert.equal(version,1);
 });
-test('13 single database contains mode, override and SG01 binding',async()=>{
- const x=await sql("SELECT m.scope_mode,m.enabled,o.decision,COUNT(b.scope_id)::int n FROM f03_publisher_phone_admin_test.employee_mode m JOIN public.employee_permission_overrides o ON o.employee_id=m.employee_id AND o.permission_id=13 JOIN public.employee_data_scopes s ON s.employee_id=m.employee_id AND s.scope_kind='publisher_phone_special' AND s.ended_at IS NULL JOIN public.employee_capability_scope_bindings b ON b.scope_id=s.scope_id AND b.permission_id=13 AND b.ended_at IS NULL WHERE m.employee_id=6 GROUP BY m.scope_mode,m.enabled,o.decision");
+test('13 single database contains mode, override, SG01 binding and lifecycle baseline',async()=>{
+ const x=await sql("SELECT m.scope_mode,m.enabled,o.decision,COUNT(b.scope_id)::int n,m.lifecycle_audit_watermark::text watermark,m.granted_employment_status,m.granted_role_code,m.granted_main_role_id::text role_id,m.granted_store_id::text store_id FROM f03_publisher_phone_admin_test.employee_mode m JOIN public.employee_permission_overrides o ON o.employee_id=m.employee_id AND o.permission_id=13 JOIN public.employee_data_scopes s ON s.employee_id=m.employee_id AND s.scope_kind='publisher_phone_special' AND s.ended_at IS NULL JOIN public.employee_capability_scope_bindings b ON b.scope_id=s.scope_id AND b.permission_id=13 AND b.ended_at IS NULL WHERE m.employee_id=6 GROUP BY m.scope_mode,m.enabled,o.decision,m.lifecycle_audit_watermark,m.granted_employment_status,m.granted_role_code,m.granted_main_role_id,m.granted_store_id");
  assert.equal(x.rows[0].scope_mode,'LOCKED_ONLY');assert.equal(x.rows[0].enabled,true);assert.equal(x.rows[0].decision,'allow');assert.equal(x.rows[0].n,1);
+ assert.ok(BigInt(x.rows[0].watermark)>=0n);assert.equal(x.rows[0].granted_employment_status,'active');assert.equal(x.rows[0].granted_role_code,'sales');assert.equal(x.rows[0].role_id,'1');assert.equal(x.rows[0].store_id,'1');
 });
 test('14 immutable audit before/after stored in same PG',async()=>{
  const a=await sql("SELECT action,before_json,after_json FROM public.audit_events WHERE object_id='6' AND action='publisher.phone.scope.grant' ORDER BY audit_id DESC LIMIT 1");
@@ -105,15 +119,38 @@ test('20 two real admins racing same CAS serialize exactly once and preserve unr
  assert.equal(unrelated.rowCount,1);assert.equal(unrelated.rows[0].ended_at,null);
 });
 test('21 stale second admin version loses even after next request',async()=>assert.equal((await put('ALL_ACTIVE_JYT',version-1,admin2)).status,409));
-test('22 stale configuration never appears active after employee inactive',async()=>{
- await sql("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=6");
- try{const x=await get();assert.equal(x.status,200);assert.equal(x.enabled,false);assert.equal(x.configurable,false);assert.equal(x.scopeMode,null);assert.equal(x.version,version)}
- finally{await sql("UPDATE public.employees SET employment_status='active' WHERE employee_id=6")}
+test('22 inactive then active without phone API persistently invalidates old grant until explicit System Admin regrant',async()=>{
+ const before=await get();assert.equal(before.enabled,true);assert.equal(before.version,version);
+ const inactiveAudit=await lifecycleChange({statement:"UPDATE public.employees SET employment_status='inactive' WHERE employee_id=6",action:'sg06.sudden.inactive',before:{employment:'active',receiving:'paused'},after:{employment:'inactive',receiving:'paused'},actorKind:'employee',actorId:'4'});
+ const restoreAudit=await lifecycleChange({statement:"UPDATE public.employees SET employment_status='active' WHERE employee_id=6",action:'sg06.restore.active',before:{employment:'inactive'},after:{employment:'active',credentialsRemainDisabled:true,permissionsNotRegranted:true,receivingRestored:false},actorKind:'system_admin',actorId:'9'});
+ assert.ok(BigInt(restoreAudit)>BigInt(inactiveAudit));
+ // No phone-admin GET/PUT/DELETE occurs between the inactive and active transitions.
+ const x=await get();assert.equal(x.status,200);assert.equal(x.enabled,false);assert.equal(x.scopeMode,null);assert.equal(x.version,version+1);version=x.version;
+ const mode=await sql("SELECT enabled,scope_mode,version,lifecycle_invalidated_action,lifecycle_invalidated_audit_id::text audit_id,lifecycle_invalidated_reason FROM f03_publisher_phone_admin_test.employee_mode WHERE employee_id=6");
+ assert.equal(mode.rows[0].enabled,false);assert.equal(mode.rows[0].scope_mode,null);assert.equal(mode.rows[0].lifecycle_invalidated_action,'sg06.restore.active');assert.equal(mode.rows[0].audit_id,restoreAudit);assert.equal(mode.rows[0].lifecycle_invalidated_reason,'EMPLOYEE_AUDIT_AFTER_GRANT');
+ const activeBinding=await sql("SELECT count(*)::int n FROM public.employee_capability_scope_bindings b JOIN public.employee_data_scopes s ON s.scope_id=b.scope_id WHERE b.employee_id=6 AND b.permission_id=13 AND s.scope_kind='publisher_phone_special' AND (b.ended_at IS NULL OR b.ended_at>now()) AND (s.ended_at IS NULL OR s.ended_at>now())");
+ assert.equal(activeBinding.rows[0].n,0);
+ assert.equal((await sql("SELECT decision FROM public.employee_permission_overrides WHERE employee_id=6 AND permission_id=13")).rows[0].decision,'allow');
+ const audit=await sql("SELECT after_json FROM public.audit_events WHERE object_id='6' AND action='publisher.phone.scope.lifecycle_revoke' ORDER BY audit_id DESC LIMIT 1");
+ assert.equal(audit.rows[0].after_json.enabled,false);assert.equal(audit.rows[0].after_json.permissionDecision,'allow');
+ const grant=await put('LOCKED_ONLY',version);assert.equal(grant.status,200);assert.equal(grant.enabled,true);version=grant.version;
+ assert.equal((await get()).enabled,true);
 });
-test('23 changing assigned employee role to 4S fails closed on GET without revoking old evidence',async()=>{
- await sql("UPDATE public.employees SET main_role_id=2 WHERE employee_id=6");
- try{const x=await get();assert.equal(x.status,200);assert.equal(x.enabled,false);assert.equal(x.configurable,false);assert.equal(x.version,version)}
- finally{await sql("UPDATE public.employees SET main_role_id=1 WHERE employee_id=6")}
+test('23 ineligible role then eligible role again does not resurrect the old phone grant',async()=>{
+ const before=await get();assert.equal(before.enabled,true);assert.equal(before.version,version);
+ const roleAudit=await lifecycleChange({statement:"UPDATE public.employees SET main_role_id=2 WHERE employee_id=6",action:'sg06.governance.planned_downgrade',before:{employment:'active',roleId:'1',receiving:'paused'},after:{employment:'active',roleId:'2',receiving:'paused'},actorKind:'employee',actorId:'4'});
+ await sql("UPDATE public.employees SET main_role_id=1 WHERE employee_id=6");
+ const x=await get();assert.equal(x.status,200);assert.equal(x.role,'sales');assert.equal(x.configurable,true);assert.equal(x.enabled,false);assert.equal(x.scopeMode,null);assert.equal(x.version,version+1);version=x.version;
+ const mode=await sql("SELECT enabled,lifecycle_invalidated_audit_id::text audit_id,lifecycle_invalidated_action,lifecycle_invalidated_reason FROM f03_publisher_phone_admin_test.employee_mode WHERE employee_id=6");
+ assert.equal(mode.rows[0].enabled,false);assert.equal(mode.rows[0].audit_id,roleAudit);assert.equal(mode.rows[0].lifecycle_invalidated_action,'sg06.governance.planned_downgrade');assert.equal(mode.rows[0].lifecycle_invalidated_reason,'EMPLOYEE_AUDIT_AFTER_GRANT');
+ assert.equal((await sql("SELECT count(*)::int n FROM public.employee_capability_scope_bindings b JOIN public.employee_data_scopes s ON s.scope_id=b.scope_id WHERE b.employee_id=6 AND b.permission_id=13 AND s.scope_kind='publisher_phone_special' AND (b.ended_at IS NULL OR b.ended_at>now()) AND (s.ended_at IS NULL OR s.ended_at>now())")).rows[0].n,0);
+});
+test('23B missing grant-time lifecycle baseline fails closed and persists revocation',async()=>{
+ const grant=await put('LOCKED_ONLY',version);assert.equal(grant.status,200);assert.equal(grant.enabled,true);version=grant.version;
+ await sql("UPDATE f03_publisher_phone_admin_test.employee_mode SET granted_role_code=NULL WHERE employee_id=6");
+ const x=await get();assert.equal(x.status,200);assert.equal(x.enabled,false);assert.equal(x.scopeMode,null);assert.equal(x.version,version+1);version=x.version;
+ const mode=await sql("SELECT enabled,version,lifecycle_invalidated_reason FROM f03_publisher_phone_admin_test.employee_mode WHERE employee_id=6");
+ assert.equal(mode.rows[0].enabled,false);assert.equal(Number(mode.rows[0].version),version);assert.equal(mode.rows[0].lifecycle_invalidated_reason,'LIFECYCLE_BASELINE_MISSING');
 });
 test('23A unrecognized legacy store_head role is denied by the formal allowlist',async()=>{
  await sql("UPDATE public.roles SET role_code='store_head' WHERE role_id=1");
@@ -248,5 +285,5 @@ test('32 public SG01 physical schema fingerprint unchanged',async()=>{
 test('33 capability scope is non-public and F07 remains disconnected',async()=>{
  const s=await sql("SELECT nspname FROM pg_namespace WHERE nspname='f03_publisher_phone_admin_test'");
  assert.equal(s.rowCount,1);assert.notEqual(s.rows[0].nspname,'public');
- console.log('F03_PHONE_ADMIN_BUSINESS_PG16_40_CASES_PASS; F07_NOT_CONNECTED');
+ console.log('F03_PHONE_ADMIN_BUSINESS_PG16_41_CASES_PASS; F07_NOT_CONNECTED');
 });
