@@ -1,19 +1,17 @@
-# 名邦汽车 V1｜A 独立审查退回 B 整改｜Issue #221（2026-10-22）
+# 名邦汽车 V1｜A 补充独立审查退回 B 整改｜Issue #221（2026-10-23）
 
 - **NEXT_OWNER=B**
 - **NEXT_TASK=`F03_F04_PUBLISHER_PHONE_STAFF_PERMISSION_ADMIN_HTTP_PG16_01`**
 - **NEXT_ISSUE=221**：[员工批发电话权限配置后端](https://github.com/suzhe868-arch/mb/issues/221)
 - **NEXT_BRANCH=`feat/f03-f04-publisher-phone-staff-admin-http-pg16-01`**
 - **NEXT_WORK_FILE=`07_重建工作区/F03_F04员工批发电话专项权限配置正式HTTP合同与PG16非生产后端施工单_2026-10-22.md`**
-- **A_REVIEW=`A_CHANGES_REQUESTED`；PR #224 为 Draft，未合并。** 连接的 GitHub 账号是 PR 作者，GitHub 拒绝对自己 PR 提交正式 `REQUEST_CHANGES` review；A 已将完整审查意见写入 [PR #224 讨论](https://github.com/suzhe868-arch/mb/pull/224) 和 [Issue #221](https://github.com/suzhe868-arch/mb/issues/221)，并将 PR 退回 Draft。该状态不是批准或合并。
-- **已核验最终交付证据：** B HEAD `bcd6682c3fd6cc72e4c1dc7a22d9cd8f821273a7`；官方 [Push Run #39803424110](https://github.com/suzhe868-arch/mb/actions/runs/39803424110) 成功；Business/PG16 Job 33/33、HTTPS/PG16 Job 22/22，两个 Job 各自 Node 基础回归 269/269；两份非空 Artifact 元数据均匹配该 Run/HEAD。CI 全绿但不代表权限安全审查通过。
-- **必须在原 Issue #221 / PR #224 / 原 B 分支一次性修复四项：**
-  1. DELETE 不得清除现有员工个人 `deny`；撤销专项授权后保留 deny，并补真实 PG16 回归。
-  2. 解决 PUT 检查后被并发写入的 deny 无条件覆盖为 allow 的竞态；使用数据库级串行化/条件写入，补双事务 PG16 竞态测试。
-  3. SG01 binding 当前有效性检查补 `granted_at <= transaction_timestamp()`，并测试未来生效 binding 必须 fail-closed。
-  4. 移除未被 PDM-02 与既有 F08 Guard 证明的 `store_head` 角色别名，或提交正式角色字典证据；未证实前拒绝，并补负例。
-- **B 下一动作：** 在原分支先同步合并后的最新 main；修复上述四项、增加真实 PG16 负例、运行语法/差异/路径双门禁、两套真实 PG16/HTTPS Job 与全量 Node 回归；重建并核对最终 SHA 的两份 Artifact 与内部清单，更新中文交接后重新交 A。B 不合并 main、不另开 Issue、不开发 PC/C/手机页面。
-- **不变门禁：** 父 Issue #187 仍 `SOURCE_GAP/FAIL_CLOSED`；`F07_RUNTIME=NOT_CONNECTED_F07_RUNTIME`；F05→F06 同车签名 Lock/Transaction/Deposit 仍 `NOT_RUN/BLOCKED_SIGNED_PARENT`；F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。不接真实 JYT/Collector/CDN/OSS/飞书、不开放真实电话/生产/资金。
+- **A_REVIEW=`A_CHANGES_REQUESTED`；PR [#224](https://github.com/suzhe868-arch/mb/pull/224) 已退回 Draft，未合并。** 当前连接账号是 PR 作者，无法提交正式自我 `REQUEST_CHANGES` Review；A 的独立审查结论已写入 PR 和 Issue 讨论。Draft/评论不代表批准或合并。
+- **最新交付证据已独立核验：** B HEAD `24fbf90e53ce016474b2cb6adb19ca438f12a4ca`；官方 [Push Run #39810550189](https://github.com/suzhe868-arch/mb/actions/runs/39810550189) 的 Business/PG16 与 HTTPS/PG16 两个 Job 均成功；业务 40/40、HTTPS 22/22、两 Job 各自 Node 全量回归 269/269，均为 0 失败、0 跳过。Artifact #12440421374 ZIP SHA-256=`d8e89c0a3e1898e56b9df471c4b9dfac2b49a58d554dbd56e05bba34b81ac608`；Artifact #12438908268 ZIP SHA-256=`cb4ed848edfd83fcc6255da7978ea127a7697c56b38141093e495d87155059a8`。两份 Artifact 均匹配 Run/HEAD，内部 13/13 文件 SHA-256 清单全部匹配。
+- **上一轮四项安全整改已复核通过：** DELETE 保留个人 `deny`；条件 UPSERT 与真实双事务 PG16 测试防止并发 deny 被覆盖；SG01 binding 检查 `granted_at <= transaction_timestamp()`；`store_head` 未知角色 fail-closed。
+- **新增第五项阻断（正式产品规则）：** `07_重建工作区/PDM-02_最终完整规则.md §9.4` 明确要求员工从 inactive 恢复 active 时，不自动恢复 inactive 前 permission。当前服务只在 GET 响应层临时隐藏授权，旧 `allow`、phone-special binding 与 `employee_mode.enabled=true` 仍保留；员工在不调用本 API 的情况下 inactive→active 后，旧授权会再次生效。必须在原任务内以正式可验证的员工生命周期版本/审计事实实现持久 fail-closed 失效，并增加真实 PG16 测试：授予→inactive→active（期间不调用本 API）→旧权限仍关闭，只有 System Admin 显式重新授予后才可启用；同时覆盖不合格角色失效/恢复。不得只隐藏 GET 输出；不得修改冻结 public schema、旧 F03/F07 Guard、旧 Workflow 或前端。若不存在可验证的生命周期事实，先 fail-closed 并提交精确来源缺口，不得伪称解决。
+- **B 下一动作：** 在原分支同步施工前最新 main；只针对新增生命周期阻断完成实现与真实 PG16 负例，运行语法/差异/路径双门禁、两套真实 PG16/HTTPS Job 和全量 Node 回归，重建最终 SHA 的两份 Artifact/内部清单，更新中文交接后重新交 A。B 不合并 main、不另开 Issue、不开发 PC/C/手机页面。
+- **报告：** [A 补充独立审查报告](07_重建工作区/F03_F04员工批发电话权限配置PR224补充独立审查与复职授权阻断_2026-10-23.md)。
+- **不变门禁：** 父 Issue [#187](https://github.com/suzhe868-arch/mb/issues/187) 仍 `SOURCE_GAP/FAIL_CLOSED`；`F07_RUNTIME=NOT_CONNECTED_F07_RUNTIME`；F05→F06 同车签名 Lock/Transaction/Deposit 仍 `NOT_RUN/BLOCKED_SIGNED_PARENT`；F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。不接真实 JYT/Collector/CDN/OSS/飞书，不开放真实电话、生产或资金。
 
 > **唯一现行指针规则：** 本节是当前唯一 NEXT_OWNER/NEXT_TASK 指针。下方既有状态、验收、施工记录均为写入当时的历史快照；其中旧的“当前有效状态”和旧 NEXT_* 不覆盖本节。
 
