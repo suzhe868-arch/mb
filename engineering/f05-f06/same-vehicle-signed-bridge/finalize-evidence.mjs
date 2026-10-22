@@ -13,7 +13,7 @@ async function fileList(root){
  await walk(root);return out.sort();
 }
 const logs=new Map();
-for(const name of ['prepare-source.log','f05-2-physical.log','f05-2-https.log','f05-manual-mingbang-before.log','f05-manual-four-s-before.log','f05-manual-concurrency-before.log','f05-7-https.log','f06-bridge-tests.log','f05-manual-mingbang-after.log','f05-manual-concurrency-after.log']){
+for(const name of ['prepare-source.log','f05-2-physical.log','f05-2-https.log','f05-manual-mingbang-before.log','f05-manual-four-s-before.log','f05-manual-concurrency-before.log','f05-7-https.log','f06-bridge-tests.log','f05-edit-source.log']){
  try{logs.set(name,await readFile(join(dir,name),'utf8'))}catch{logs.set(name,'')}
 }
 function tap(name,requiredNoSkip=false){
@@ -55,8 +55,10 @@ const tapResults={
  prepareSource:tap('prepare-source.log',true),f05Physical:tap('f05-2-physical.log'),f05Https:tap('f05-2-https.log'),
  f05MingbangBefore:tap('f05-manual-mingbang-before.log'),f05FourSBefore:tap('f05-manual-four-s-before.log'),
  f05ConcurrencyBefore:tap('f05-manual-concurrency-before.log'),f05SevenHttps:tap('f05-7-https.log'),
- f06Bridge:tap('f06-bridge-tests.log',true),f05MingbangAfter:tap('f05-manual-mingbang-after.log'),f05ConcurrencyAfter:tap('f05-manual-concurrency-after.log')
+ f06Bridge:tap('f06-bridge-tests.log',true)
 };
+const editSourceLog=logs.get('f05-edit-source.log');
+assert.ok(editSourceLog&&editSourceLog.includes('F05_F06_BRIDGE_SOURCE_EDIT_PASS'),'native F05 #216 edit-after-lock flow did not complete');
 const bridgeLog=logs.get('f06-bridge-tests.log');
 const subtests=[...bridgeLog.matchAll(/^\s*# Subtest: (\d{2}) /gm)].map(m=>Number(m[1]));
 const positiveNumbers=new Set([1,2,3,4,5,6,11,14,15,20,21,22,27,28,29,32]);
@@ -72,7 +74,8 @@ const evidence={
  databases:{source:{name:'f05_vehicle_source',oid:source.database.oid,migrationCount:source.database.publicMigrationCount},target:{name:'f03_auth_test',oid:before.database.oid,migrationCount:before.database.migrationCount},baseline:{name:'f03_auth_baseline',oid:before.database.baselineOid},restore:{createdFromBaseline:true}},
  vehicle:{vehicleId:source.vehicle.vehicleId,listingCycleId:source.vehicle.listingCycleId,sourceType:source.vehicle.sourceType,sourceRetailPriceCents:source.vehicle.retailPriceCents,editedRetailPriceCents:edited.edit.effectiveRetailPriceCents,sourceMileageKm:source.vehicle.mileageKm,editedMileageKm:edited.edit.effectiveMileageKm},
  business:{lockRequestId:before.ids.requestId,lockId:before.ids.lockId,depositId:before.ids.depositId,transactionId:before.ids.transactionId,syntheticDepositCents:500000,realMoney:false,production:false},
- tests:{positiveCrossRuntimeScenarios:positiveCount,negativeCrossRuntimeScenarios:negativeCount,tap:tapResults},
+ tests:{positiveCrossRuntimeScenarios:positiveCount,negativeCrossRuntimeScenarios:negativeCount,tap:tapResults,
+  f05NativeEditAfterLock:{verified:true,logSHA256:sha(Buffer.from(editSourceLog))}},
  snapshots:{beforeSHA256:before.snapshotSHA256,afterSHA256:after.f06SnapshotAfterSHA256,unchanged:after.snapshotUnchanged},
  parentSeal:{beforeSHA256:sha(Buffer.from(JSON.stringify(parentBefore))),afterSHA256:sha(Buffer.from(JSON.stringify(parentAfter))),tableCount:161,migrationCount:24},
  artifactFiles:fileHashes

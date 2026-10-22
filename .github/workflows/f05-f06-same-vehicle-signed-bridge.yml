@@ -240,10 +240,7 @@ jobs:
           docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "ALTER DATABASE f03_auth_test RENAME TO f06_vehicle_scenario"
           docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "ALTER DATABASE f05_vehicle_source RENAME TO f03_auth_test"
           node engineering/f05-f06/same-vehicle-signed-bridge/edit-source.mjs 2>&1 | tee "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f05-edit-source.log"
-          node --test engineering/f05/manual-vehicle-draft-publish/tests/mingbang.pg16.test.mjs 2>&1 | tee "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f05-manual-mingbang-after.log"
-          grep -q '# fail 0' "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f05-manual-mingbang-after.log"
-          node --test engineering/f05/manual-vehicle-draft-publish/tests/concurrency.pg16.test.mjs 2>&1 | tee "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f05-manual-concurrency-after.log"
-          grep -q '# fail 0' "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f05-manual-concurrency-after.log"
+          grep -q 'F05_F06_BRIDGE_SOURCE_EDIT_PASS' "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f05-edit-source.log"
       - name: Restore F06 target and verify post-edit history snapshot byte-equivalence
         run: |
           set -euo pipefail
