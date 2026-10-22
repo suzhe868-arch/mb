@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F03_F04_PUBLISHER_PHONE_STAFF_CONTROL_API_NONPROD",
-  "current_domain_status": "A 实码确认已验 F08-3 仅 CI 配置，正式员工电话能力配置 HTTP+单库 PG16 原子/审计未交付；Issue#221 A治理合并后切 B 限定非生产施工。父 #187 SOURCE_GAP/FAIL_CLOSED 和 F05→F06 签名联调 NOT_RUN；F06/F07/F08/V1 NOT_READY。",
+  "current_domain_status": "Issue #221 A 治理 PR #222 标准合并并正式放行 B：独立非生产 F03/F04 员工电话权限配置 HTTP+同库 PG16；最新治理 merge SHA 176171e9c885d82106c036c3f707fb1ed831b95f。父 #187 SOURCE_GAP，F07 同源消费尚未连接，F05→F06 同车门禁 NOT_RUN，V1 NO_PRODUCTION。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -11841,7 +11841,7 @@
     "production_ready": false
   },
   "f03_f04_staff_publisher_phone_admin_api_release_2026_10_22": {
-    "status": "A_GOVERNANCE_MERGE_REQUIRED_BEFORE_B",
+    "status": "A_RELEASED_FOR_B_GOVERNANCE_PR222_MERGED",
     "task": "F03_F04_PUBLISHER_PHONE_STAFF_PERMISSION_ADMIN_HTTP_PG16_01",
     "issue": 221,
     "branch": "feat/f03-f04-publisher-phone-staff-admin-http-pg16-01",
@@ -11849,9 +11849,11 @@
     "prior_f08_3_accepted_issue": 190,
     "track_pc_deferred_issue": 196,
     "parent_source_gate_issue": 187,
-    "release_effective": false,
+    "release_effective": true,
     "production_ready": false,
     "external_sources_ready": false,
-    "f07_runtime_same_source_integrated": false
+    "f07_runtime_same_source_integrated": false,
+    "governance_pr": 222,
+    "governance_merge_sha": "176171e9c885d82106c036c3f707fb1ed831b95f"
   }
 }
