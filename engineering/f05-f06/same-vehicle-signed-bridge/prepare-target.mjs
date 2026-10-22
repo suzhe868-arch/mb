@@ -9,8 +9,8 @@ for(const [key,value] of Object.entries({CI:'true',GITHUB_ACTIONS:'true',APP_ENV
  if(process.env[key]!==value)throw Error('F05_F06_TARGET_NOT_ISOLATED_'+key);
 if(process.env.GITHUB_REF!==EXPECTED_REF)throw Error('F05_F06_TARGET_AUTHENTIC_REF_REQUIRED');
 if(process.env.F03_1_DATABASE_URL!=='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test')throw Error('F05_F06_TARGET_DATABASE_DENIED');
-function run(file,args=[],extra={}){
- const p=spawnSync(process.execPath,[file,...args],{stdio:'inherit',env:{...process.env,...extra},timeout:240000});
+function run(file,args=[],extra={},options={}){
+ const p=spawnSync(process.execPath,[file,...args],{stdio:'inherit',env:{...process.env,...extra},timeout:240000,...options});
  if(p.status!==0||p.error)throw Error('F05_F06_TARGET_STEP_FAILED_'+file+'_'+(p.error?.message||p.status));
 }
 const c=await oldConnect(),secret=randomBytes(32);
@@ -44,7 +44,7 @@ run('engineering/f05/wholesale-to-mingbang-conversion/runner.mjs',['--inject-rol
 run('engineering/f05/wholesale-to-mingbang-conversion/runner.mjs',['--apply']);
 run('engineering/f05/wholesale-to-mingbang-conversion/runner.mjs',['--verify']);
 try{
- run('engineering/f05/wholesale-to-mingbang-conversion/ci-test.mjs',['source'],{F05_3C_CI_EPHEMERAL_SYNC_TOKEN:token});
+ run('f05/wholesale-to-mingbang-conversion/ci-test.mjs',['source'],{F05_3C_CI_EPHEMERAL_SYNC_TOKEN:token},{cwd:'engineering'});
  run('engineering/f05/wholesale-to-mingbang-conversion/runner.mjs',['--verify']);
 }finally{token=undefined}
 console.log('F05_F06_TARGET_V17_V18_SIGNED_SOURCE_CHAIN_PASS');
