@@ -224,14 +224,19 @@ export function createManualVehicleDraftService({auth,env=process.env}={}){
   if(env.F05_MANUAL_INJECT_PUBLISH_ROLLBACK==='true')throw Error('MANUAL_VEHICLE_INJECTED_PUBLISH_ROLLBACK');
  }
  async function allocateId(c,table,column,reservedColumn,minValue){
-  const seq=(await c.query('SELECT pg_get_serial_sequence($1,$2) AS seq',[ 'public.'+table,column ])).rows[0]?.seq;
-  if(typeof seq!=='string'||!seq)throw Error('MANUAL_VEHICLE_IDENTITY_SEQUENCE_MISSING_'+table);
-  const sequenceName=seq.split('.').pop().replace(/"/g,'');
-  const last=(await c.query("SELECT last_value FROM pg_sequences WHERE schemaname='public' AND sequencename=$1",[sequenceName])).rows[0]?.last_value;
+  // Frozen M94 keys have no default identity sequence. Protect test-lane
+  // allocation with the already held PG advisory transaction lock.
+  const seq=(await c.query('SELECT pg_get_serial_sequence($1,$2) AS seq',['public.'+table,column])).rows[0]?.seq;
   const existing=(await c.query('SELECT COALESCE(MAX('+column+'),0) AS n FROM public.'+table)).rows[0].n;
   const reserved=(await c.query('SELECT COALESCE(MAX('+reservedColumn+'),0) AS n FROM '+TABLE)).rows[0].n;
+  let last=0;
+  if(seq){
+   const sequenceName=seq.split('.').pop().replace(/"/g,'');
+   last=(await c.query("SELECT last_value FROM pg_sequences WHERE schemaname='public' AND sequencename=$1",[sequenceName])).rows[0]?.last_value??0;
+  }
   const floor=Math.max(Number(existing)||0,Number(reserved)||0,Number(last)||0,minValue-1);
   if(!Number.isSafeInteger(floor)||floor>=2147483647)throw new DraftError('VEHICLE_ID_SPACE_EXHAUSTED',503);
+  if(!seq)return floor+1;
   await c.query('SELECT setval($1::regclass,$2::bigint,true)',[seq,floor]);
   const id=Number((await c.query('SELECT nextval($1::regclass) AS id',[seq])).rows[0].id);
   if(!Number.isSafeInteger(id)||id<minValue||id>2147483647)throw new DraftError('VEHICLE_ID_SPACE_EXHAUSTED',503);

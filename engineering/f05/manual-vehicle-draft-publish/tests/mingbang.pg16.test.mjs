@@ -55,13 +55,16 @@ test('M02 multi-draft save/list/detail and optimistic version conflict are persi
 });
 test('M03 incomplete required fields block publish and preserve the same draft',async()=>{
  const created=await save({sourceType:'mingbang',description:'incomplete keeps its id'});
+ const beforeVehicles=await count('SELECT count(*)::int n FROM public.vehicles');
+ const beforeCycles=await count('SELECT count(*)::int n FROM public.vehicle_listing_cycles');
  const result=await publish(created.body.draftId,1);
  assert.equal(result.status,422);assert.equal(result.body.code,'REQUIRED_FIELDS_MISSING');
  assert.equal(result.body.preserveDraft,true);
  const detail=await app.request(BASE+'/'+created.body.draftId,{token:staff});
  assert.equal(detail.status,200);assert.equal(detail.body.draft.status,'draft');
  assert.equal(detail.body.draft.payload.description,'incomplete keeps its id');
- assert.equal(await count('SELECT count(*)::int n FROM public.vehicles WHERE created_by_employee_id=1 AND formally_published_at IS NOT NULL AND model_id IS NULL'),0);
+ assert.equal(await count('SELECT count(*)::int n FROM public.vehicles'),beforeVehicles);
+ assert.equal(await count('SELECT count(*)::int n FROM public.vehicle_listing_cycles'),beforeCycles);
 });
 test('M04 invalid or incomplete physical model returns MODEL_MISSING without Vehicle or Cycle',async()=>{
  const created=await save(full({modelId:98999,description:'retain invalid model selection'}));

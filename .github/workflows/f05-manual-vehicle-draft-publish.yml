@@ -470,6 +470,8 @@ jobs:
       - name: Run original F05-3A HTTPS trusted Admin/member unmodified real PG16 regression
         run: |
           set -euo pipefail
+          openssl req -x509 -newkey rsa:2048 -sha256 -nodes -subj '/CN=127.0.0.1' -days 1 -keyout /tmp/f04-3-ci-key.pem -out /tmp/f04-3-ci-cert.pem >/dev/null 2>&1
+          chmod 600 /tmp/f04-3-ci-key.pem
           node --test f05/four-s-member-trust-scope/tests/bridge-https.test.mjs 2>&1 | tee f05/manual-vehicle-draft-publish/artifacts/f05-3a-https.log
           grep -q '# fail 0' f05/manual-vehicle-draft-publish/artifacts/f05-3a-https.log
           node f05/four-s-member-trust-scope/runner.mjs --verify
