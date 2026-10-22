@@ -43,6 +43,9 @@ jobs:
       F03_CUSTOMER_PHONE_TEST_FAULTS: 'true'
       F03_CUSTOMER_PHONE_TLS_KEY_PATH: /tmp/f03-customer-phone-key.pem
       F03_CUSTOMER_PHONE_TLS_CERT_PATH: /tmp/f03-customer-phone-cert.pem
+      # Existing runtime-scope HTTPS regression reads these legacy variable names.
+      F03_PUBLISHER_PHONE_TLS_KEY_PATH: /tmp/f03-customer-phone-key.pem
+      F03_PUBLISHER_PHONE_TLS_CERT_PATH: /tmp/f03-customer-phone-cert.pem
     steps:
       - uses: actions/checkout@v4
         with:
