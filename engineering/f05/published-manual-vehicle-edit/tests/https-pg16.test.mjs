@@ -10,13 +10,16 @@ import {createPublishedEditService} from '../service.mjs';
 import {publishAndIssueFromCurrentTransaction} from '../../vehicle-stewardship-physical-scope/service.mjs';
 import {grantMemberCreateLicense,publishNewFourSMemberVehicle,revokeMemberCreateLicense} from '../../four-s-member-trust-scope/source-gate.mjs';
 import {start,login,BASE} from './harness.mjs';
+import {createManualVehicleDraftService} from '../../manual-vehicle-draft-publish/service.mjs';
+import {startHarness as startAccepted214,BASE as PARENT_BASE} from '../../manual-vehicle-draft-publish/tests/https-harness.mjs';
 const fourS=process.env.F05_EDIT_TEST_SOURCE==='four_s';
 if(!['four_s','mingbang'].includes(process.env.F05_EDIT_TEST_SOURCE))throw Error('F05_EDIT_TEST_SOURCE_REQUIRED');
-const vehicleId=fourS?72521:72511,cycleId=vehicleId+1000;
+let vehicleId,cycleId;
 const secret=randomBytes(32),db=await connect();
 const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin:`https://127.0.0.1:${Number(process.env.F05_EDIT_HTTP_PORT || 48986)}`});
-let app,actor,other,admin,license;
-const path=BASE+'/'+vehicleId;
+let app,parentApp,actor,other,admin,license,path;
+const parentRef='refs/heads/feat/f05-manual-vehicle-draft-publish-pg16-01';
+async function accepted214(call){const ref=process.env.GITHUB_REF;process.env.GITHUB_REF=parentRef;try{return await call()}finally{process.env.GITHUB_REF=ref}}
 const req=(suffix='',options={})=>app.request(path+suffix,{token:actor,...options});
 const stage=(patch,expectedStageVersion,expectedCurrentVersion=1)=>req('/stage',{method:'PUT',body:{patch,expectedStageVersion,expectedCurrentVersion}});
 const submit=(stageVersion,currentVersion,key='issue216-commit-'+randomUUID())=>
@@ -31,25 +34,44 @@ test.before(async()=>{
  if(fourS){
   const g=await grantMemberCreateLicense(auth,admin,{targetEmployeeId:2,eventKey:'issue216-admin-grant-'+randomUUID()});
   assert.equal(g.allowed,true,JSON.stringify(g));license=g.licenseId;
-  const r=await publishNewFourSMemberVehicle(auth,actor,{
-   vehicleId,listingCycleId:cycleId,brandId:97001,seriesId:97002,modelId:97003,modelYear:2026,
-   mileageKm:16000,city:'Suzhou',eventKey:'issue216-four-s-publish-'+randomUUID(),sourceKind:'four_s'
-  });
-  assert.equal(r.allowed,true,JSON.stringify(r));
- }else{
-  const r=await publishAndIssueFromCurrentTransaction(auth,actor,{
-   vehicleId,listingCycleId:cycleId,teamId:901,sourceKind:'mingbang',eventKey:'issue216-mingbang-publish-'+randomUUID()
-  },{onPublishInTransaction:async(c)=>{await c.query('UPDATE public.vehicles SET model_id=97003,vin=$1 WHERE vehicle_id=$2',['ISSUE216-INITIAL-VIN',vehicleId])}});
-  assert.equal(r.allowed,true,JSON.stringify(r));
  }
+ // Same real non-superuser PG16: original A-accepted #214 HTTPS draft -> publish.
+ // Compatibility REF is scoped exclusively to #214 source calls, and the
+ // provenance is verified against physical draft/facts/audit after publication.
+ const parentService=createManualVehicleDraftService({auth,env:{...process.env,GITHUB_REF:parentRef}});
+ parentApp=await startAccepted214(parentService);
+ const payload={sourceType:fourS?'four_s':'mingbang',brandId:97001,seriesId:97002,
+  modelId:97003,modelYear:2026,mileageKm:16000,city:'Suzhou',
+  vin:'ISSUE216-ORIGINAL-'+(fourS?'FOURS':'MINGBANG'),
+  description:'Accepted 214 original description',conditionTags:['original-verified-condition'],
+  retailPriceCents:8300000,...(!fourS?{wholesalePriceCents:6300000}:{})};
+ const created=await accepted214(()=>parentApp.request(PARENT_BASE+'/auto-save',{method:'POST',token:actor,body:{payload}}));
+ assert.equal(created.status,201,JSON.stringify(created.body));
+ const issued=await accepted214(()=>parentApp.request(PARENT_BASE+'/'+created.body.draftId+'/publish',
+  {method:'POST',token:actor,body:{expectedVersion:1}}));
+ assert.equal(issued.status,200,JSON.stringify(issued.body));assert.equal(issued.body.code,'VEHICLE_PUBLISHED');
+ vehicleId=Number(issued.body.vehicleId);cycleId=Number(issued.body.listingCycleId);
+ assert.ok(vehicleId>=59000&&cycleId>=59000);path=BASE+'/'+vehicleId;
+ const sourceRow=(await db.query(
+  "SELECT d.draft_payload,f.mileage_km,f.city FROM f05_manual_vehicle_test.drafts d "+
+  "JOIN f05_manual_vehicle_test.published_vehicle_facts f ON f.vehicle_id=d.published_vehicle_id "+
+  "WHERE f.vehicle_id=$1 AND d.published_listing_cycle_id=$2",[vehicleId,cycleId])).rows[0];
+ assert.equal(sourceRow.draft_payload.description,payload.description);
+ assert.deepEqual(sourceRow.draft_payload.conditionTags,payload.conditionTags);
+ assert.equal(Number(sourceRow.mileage_km),16000);assert.equal(sourceRow.city,'Suzhou');
+
  app=await start(createPublishedEditService({auth}));
 });
-test.after(async()=>{if(app)await app.close();await auth.close();await db.end();secret.fill(0)});
+test.after(async()=>{if(app)await app.close();if(parentApp)await parentApp.close();await auth.close();await db.end();secret.fill(0)});
 test('E01 genuine trusted publication exists, live owner can read; wrong account hard deny',async()=>{
  const x=await read();
  assert.equal(x.status,200,JSON.stringify(x.body));assert.equal(x.body.code,'EDIT_DETAIL');
  assert.equal(x.body.currentVersion,1);assert.equal(x.body.projection,'CI_ONLY_PROJECTION');
  assert.equal(x.body.effective.modelId,97003);
+ assert.equal(x.body.effective.mileageKm,16000);assert.equal(x.body.effective.city,'Suzhou');
+ assert.equal(x.body.effective.description,'Accepted 214 original description');
+ assert.deepEqual(x.body.effective.conditionTags,['original-verified-condition']);
+ assert.equal(x.body.effective.customerListPriceCents,8300000);
  assert.equal('internalWholesalePriceCents' in x.body.effective,!fourS);
  const outsider=await app.request(path,{token:other});
  assert.equal(outsider.status,403,JSON.stringify(outsider.body));
@@ -59,7 +81,7 @@ test('E02 staged edits survive repeat HTTPS sessions without changing current Ve
  const x=await stage({mileageKm:18001,city:'Shanghai',customerListPriceCents:8900000},undefined,1);
  assert.equal(x.status,200,JSON.stringify(x.body));assert.equal(x.body.stageVersion,1);
  const next=await read();assert.equal(next.body.currentVersion,1);
- assert.equal(next.body.effective.customerListPriceCents,null);
+ assert.equal(next.body.effective.customerListPriceCents,8300000);
  assert.equal(next.body.draft.preview.customerListPriceCents,8900000);
  assert.equal(next.body.draft.patch.mileageKm,18001);
  assert.deepEqual((await db.query('SELECT model_id,vin FROM public.vehicles WHERE vehicle_id=$1',[vehicleId])).rows,before.rows);
@@ -109,6 +131,8 @@ test('E06 current legitimate commit is atomic, requestKey idempotent; only one i
  assert.equal(r.status,200,JSON.stringify(r.body));assert.equal(r.body.code,'EDIT_APPLIED');
  assert.equal(r.body.currentVersion,2);assert.equal(r.body.effective.customerListPriceCents,8900000);
  assert.equal((await read()).body.draft,null);
+ assert.equal((await read()).body.effective.description,'Accepted 214 original description');
+ assert.deepEqual((await read()).body.effective.conditionTags,['original-verified-condition']);
  assert.equal(await count('f05_published_edit_test.edit_audit'),1);
  const impact=(await db.query('SELECT status FROM f05_published_edit_test.impact_outbox WHERE audit_id=(SELECT audit_id FROM f05_published_edit_test.edit_audit WHERE vehicle_id=$1)',[vehicleId])).rows[0];
  assert.equal(impact.status,'NOT_CONNECTED_SOURCE_GAP');
