@@ -232,3 +232,42 @@ test('E10 Mingbang current permission removal invalidates ownership and blocks a
  const persisted=(await db.query('SELECT patch FROM f05_published_edit_test.staged_changes WHERE vehicle_id=$1',[vehicleId])).rows[0];
  assert.equal(persisted.patch.city,'Nanjing');
 });
+
+test('E11 real current Mingbang manager vehicle.manage=true but internal.price.view=false edits retail price only',async()=>{
+ if(fourS)return;
+ const manager=await login(auth,'race_test','SyntheticRace_1234567');
+ const recorded=await accepted214(()=>parentApp.request(PARENT_BASE+'/auto-save',{method:'POST',token:manager,
+  body:{payload:{sourceType:'mingbang',brandId:97001,seriesId:97002,modelId:97003,modelYear:2026,
+   mileageKm:22000,city:'Suzhou',vin:'ISSUE216-MANAGER-PRICE-INDEPENDENT',
+   description:'trusted manager original',conditionTags:['retained'],
+   retailPriceCents:8200000,wholesalePriceCents:6600000}}}));
+ assert.equal(recorded.status,201,JSON.stringify(recorded.body));
+ const publish=await accepted214(()=>parentApp.request(PARENT_BASE+'/'+recorded.body.draftId+'/publish',
+  {method:'POST',token:manager,body:{expectedVersion:1}}));
+ assert.equal(publish.status,200,JSON.stringify(publish.body));
+ const mid=Number(publish.body.vehicleId),url=BASE+'/'+mid;
+ const scope=(await db.query("SELECT count(*)::integer n FROM public.vehicle_current_responsibilities "+
+  "WHERE vehicle_id=$1 AND responsible_employee_id=6 AND revoked_at IS NULL",[mid])).rows[0].n;
+ assert.equal(scope,1);
+ const managed=await app.request(url,{token:manager});assert.equal(managed.status,200,JSON.stringify(managed.body));
+ assert.equal(managed.body.effective.customerListPriceCents,8200000);
+ assert.equal('internalWholesalePriceCents' in managed.body.effective,false,'sensitive original wholesale value MUST NOT leak');
+ const banned=await app.request(url+'/stage',{method:'PUT',token:manager,
+  body:{expectedCurrentVersion:1,patch:{internalWholesalePriceCents:1}}});
+ assert.equal(banned.status,403);assert.equal(banned.body.code,'INTERNAL_PRICE_FORBIDDEN');
+ assert.equal(JSON.stringify(banned.body).includes('6600000'),false);
+ const staged=await app.request(url+'/stage',{method:'PUT',token:manager,
+  body:{expectedCurrentVersion:1,patch:{customerListPriceCents:8400000}}});
+ assert.equal(staged.status,200,JSON.stringify(staged.body));assert.equal(staged.body.stageVersion,1);
+ assert.equal('internalWholesalePriceCents' in staged.body.preview,false);
+ const applied=await app.request(url+'/commit',{method:'POST',token:manager,
+  body:{expectedCurrentVersion:1,expectedStageVersion:1,requestKey:'issue216-manager-retail-no-internal-'+randomUUID()}});
+ assert.equal(applied.status,200,JSON.stringify(applied.body));assert.equal(applied.body.code,'EDIT_APPLIED');
+ assert.equal(applied.body.effective.customerListPriceCents,8400000);
+ assert.equal('internalWholesalePriceCents' in applied.body.effective,false);
+ const after=await app.request(url,{token:manager});
+ assert.equal(after.status,200);assert.equal(after.body.effective.customerListPriceCents,8400000);
+ assert.equal(after.body.effective.description,'trusted manager original');
+ assert.equal('internalWholesalePriceCents' in after.body.effective,false);
+ assert.equal((await db.query("SELECT count(*)::integer n FROM f05_published_edit_test.edit_audit WHERE vehicle_id=$1",[mid])).rows[0].n,1);
+});
