@@ -3273,3 +3273,12 @@ G受检最终HEAD19af2955d81ac14d79e0c4e6adc661a3a1aabd8e同SHA CI38025357614 20
 - **A已发现R02客户域权限缺口**：PDM18 Final **§28**明确普通VIP/粉丝Lock不隐藏原可见Vehicle，Priority-origin Lock虽结束原Priority但Lock活跃期间对其他普通Customer保留排他列表/详情可见权。新F06-1 CI服务/测试只存Origin ID，**无signed真实Priority→Lock后受限Customer Projection读拒/允许及普通Lock对照PG正反例**。B必须在本批新增CI-only路径真实来源承载下加入合法客户受限Projection，保留生产微信与其他Issuer`SOURCE_GAP`并按原真实F05 signed facts计算，不宣布线上已实现。
 - **完整A正式整改已在main、PR52评论已发**：`07_重建工作区/F06-1_A主控首轮独立验收76项真PG16全绿但Priority转Lock未原子结束且独占可见无实证定向整改单_2026-10-13.md`、https://github.com/suzhe868-arch/mb/pull/52#issuecomment-6145393454。**PR52必须保持open/unmerged**。B继续原`feat/f06-1-lockrequest-approval-waitlist-ci`，仅新F06-1白名单补两项PDM18签名业务真PG测试，保留原Source40/HTTPS9、旧74、151表后置seal，唯一新末次SHA重新12个真Push≥76/76 Job成功、H52 52/52、≥12份新SHA有效官方sha256 Artifact，完整中文`READY_FOR_A_SECOND_INDEPENDENT_REVIEW`交A；B不自merge。
 - **唯一现行状态**：`F06_1_A_FIRST_REVIEW_CHANGES_REQUESTED_R01_R02 / NEXT_OWNER=B / F06_GLOBAL_NOT_READY / F05_GLOBAL_NOT_READY / V1_NOT_READY`。F06-2/3、真实线上Lock/微信手机号、JYT/4S来源、资金/Deposit/Refund/Transaction、真实UAT/部署与C/H01都没有放行。本裁决属于工程技术完善，不需用户重新选择已冻结PDM业务。
+
+## 2026-10-23｜A 技术裁决：F05→F06 同车签名跨 Runtime 桥接正式放行（非生产）
+
+- **正式任务**：Issue [#231](https://github.com/suzhe868-arch/mb/issues/231)，`F05_F06_SAME_VEHICLE_SIGNED_CROSS_RUNTIME_BRIDGE_PG16_01`；指定分支 `feat/f05-f06-same-vehicle-signed-bridge-pg16-01`；正式施工单 `07_重建工作区/F05_F06同车签名跨Runtime桥接与历史快照不可变非生产施工单_2026-10-23.md`。本状态治理 PR [#232](https://github.com/suzhe868-arch/mb/pull/232) 标准合并后生效。
+- **技术事实**：F05 #216/PR #219 只完成受限非生产编辑纵切，原工作单明确保留 `F05_216_SAME_VEHICLE_SIGNED_F06_LOCK_TRANSACTION_DEPOSIT_CROSS_RUNTIME_INTEGRATION=NOT_RUN/BLOCKED_SIGNED_PARENT`。不能把 F03 历史行哈希替代同车 F06 正向快照验证。
+- **A 裁决**：允许用独立 F05/F06 PG16 数据库、不同物理 OID、不同迁移链和本 SHA/Run/Ref 的不可变签名桥接清单，在 F06 现有已验收服务中创建同一 Vehicle/Cycle 的 Lock→合成 Deposit→Transaction，再通过 F05 #216 HTTPS 修改同一车并逐行核验 F06 Lock/Transaction/Deposit/审计快照不变。两套 public Schema/迁移不得混装，旧业务服务不改，禁止伪造环境变量、历史 SHA/Run、签名记录或资金正向行。
+- **白名单**：新 `engineering/f05-f06/same-vehicle-signed-bridge/**` 和唯一新 Workflow；F05 `migration.mjs` 只增一个精确测试分支许可；F06 Composite 签名根/Issuer SQL/同Ref脚本/161表24迁移 Seal 只增一个确切第三 profile。其余 F05/F06 旧服务、公共 DDL/迁移、旧 Workflow、PDM、生产路由、F07 真实来源、C/PC 页面均冻结。
+- **验收要求**：两个独立非超管 PG16 Job 各自完整执行发布→签名 F06 业务链→F05 在后编辑→F06 快照复核；同 SHA 官方 CI/Artifact、内部哈希、161表/24迁移 Seal 和中文交接由 A 独立核验。失败或来源冲突必须 fail-closed，不得用 Mock/历史结果替代。
+- **边界**：父 Issue #187 继续 `SOURCE_GAP/FAIL_CLOSED`；本任务不授权真实电话/JYT/Collector/CDN/OSS/Feishu/真实资金或生产。F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`，PC #196 继续延期、C PR #68 不动。
