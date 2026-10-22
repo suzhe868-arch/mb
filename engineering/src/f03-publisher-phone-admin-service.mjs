@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto';
 
 const CAP='publisher.phone.sensitive';
 const S='f03_publisher_phone_admin_test';
-const ROLES=new Set(['sales','manager','store_manager','store_head']);
+const ROLES=new Set(['sales','manager','store_manager']);
 const MODES=new Set(['LOCKED_ONLY','ALL_ACTIVE_JYT']);
 const result=(status,code,extra={})=>({status,code,...extra});
 const validId=x=>typeof x==='string'&&/^[1-9][0-9]{0,17}$/.test(x)&&Number.isSafeInteger(Number(x));
@@ -43,7 +43,7 @@ async function permissionId(c){
 }
 async function modeRow(c,employeeId) {
  const rows=await c.query(
-  'SELECT scope_mode,enabled,version,updated_at FROM '+S+'.employee_mode WHERE employee_id=$1::bigint FOR UPDATE',
+  'SELECT scope_mode,enabled,version,updated_at,previous_decision,previous_decision_captured FROM '+S+'.employee_mode WHERE employee_id=$1::bigint FOR UPDATE',
   [employeeId]);
  return rows.rows[0]??null;
 }
@@ -54,8 +54,9 @@ async function state(c,employeeId,permission,mode) {
   "EXISTS(SELECT 1 FROM public.employee_capability_scope_bindings b "+
   "JOIN public.employee_data_scopes s ON s.scope_id=b.scope_id AND s.employee_id=b.employee_id "+
   "WHERE b.employee_id=$1::bigint AND b.permission_id=$2::bigint "+
-  "AND b.ended_at IS NULL AND s.ended_at IS NULL AND s.scope_kind='publisher_phone_special' "+
-  "AND s.scope_reference_id=$1::bigint) AS bound",
+  "AND s.ended_at IS NULL AND s.scope_kind='publisher_phone_special' "+
+  "AND s.scope_reference_id=$1::bigint AND b.granted_at<=transaction_timestamp() "+
+  "AND (b.ended_at IS NULL OR b.ended_at>transaction_timestamp())) AS bound",
   [employeeId,permission]);
  const val=x.rows[0];
  return {decision:val.decision,bound:val.bound===true,enabled:mode?.enabled===true&&val.decision==='allow'&&val.bound===true};
@@ -94,6 +95,8 @@ export class PublisherPhoneAdminService {
    const beforeMode=await modeRow(c,employeeId);
    const oldState=await state(c,employeeId,permission,beforeMode);
    const oldVersion=asNumber(beforeMode?.version??0);
+   const previousDecision=beforeMode?.enabled===true&&beforeMode.previous_decision_captured===true
+    ? beforeMode.previous_decision : (oldState.decision??null);
    const replay=await c.query('SELECT request_digest,actor_system_admin_id::text actor_id,employee_id::text employee_id,resulting_version,response_json FROM '+S+'.request_replay WHERE request_key=$1 FOR UPDATE',[input.requestKey]);
    if(replay.rowCount){
     const prior=replay.rows[0];
@@ -109,16 +112,34 @@ export class PublisherPhoneAdminService {
    if(method==='PUT'){
     const scope=await c.query("INSERT INTO public.employee_data_scopes(employee_id,scope_kind,scope_reference_id,ended_at) VALUES($1::bigint,'publisher_phone_special',$1::bigint,NULL) RETURNING scope_id::text",[employeeId]);
     await c.query("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at,ended_at) VALUES($1::bigint,$2::bigint,$3::bigint,transaction_timestamp(),NULL)",[employeeId,permission,scope.rows[0].scope_id]);
-    await c.query("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES($1::bigint,$2::bigint,'allow',transaction_timestamp()) ON CONFLICT(employee_id,permission_id) DO UPDATE SET decision='allow',changed_at=transaction_timestamp()",[employeeId,permission]);
-   }else{
-    await c.query("DELETE FROM public.employee_permission_overrides WHERE employee_id=$1::bigint AND permission_id=$2::bigint",[employeeId,permission]);
+    if(this.hook)await this.hook({c,employeeId,method,phase:'before_override_write'});
+    // Never overwrite a deny that was committed after state() read it. If a
+    // concurrent transaction wins the row, the conditional upsert returns no
+    // row and this transaction is rolled back by withSession.
+    const override=await c.query(
+     "INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES($1::bigint,$2::bigint,'allow',transaction_timestamp()) "+
+     "ON CONFLICT(employee_id,permission_id) DO UPDATE SET decision='allow',changed_at=transaction_timestamp() "+
+     "WHERE public.employee_permission_overrides.decision IS DISTINCT FROM 'deny' RETURNING decision",
+     [employeeId,permission]);
+    if(override.rowCount!==1)throw Error('PERSONAL_DENY_RACE');
+   }else if(beforeMode?.enabled===true&&oldState.decision==='allow'){
+    // The mode's active grant is ours. Restore its captured baseline only while
+    // the current value remains allow; a concurrently committed deny wins.
+    if(previousDecision==='allow'){
+     await c.query("UPDATE public.employee_permission_overrides SET decision='allow',changed_at=transaction_timestamp() WHERE employee_id=$1::bigint AND permission_id=$2::bigint AND decision='allow'",[employeeId,permission]);
+    }else if(previousDecision==='deny'){
+     await c.query("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=transaction_timestamp() WHERE employee_id=$1::bigint AND permission_id=$2::bigint AND decision='allow'",[employeeId,permission]);
+    }else{
+     await c.query("DELETE FROM public.employee_permission_overrides WHERE employee_id=$1::bigint AND permission_id=$2::bigint AND decision='allow'",[employeeId,permission]);
+    }
    }
    await c.query("INSERT INTO public.employee_permission_override_history(employee_id,permission_id,decision,actor_kind,actor_id) VALUES($1::bigint,$2::bigint,$3,'system_admin',$4::bigint)",[employeeId,permission,method==='PUT'?'allow':'revoked',actor.system_admin_id]);
    const nextVersion=oldVersion+1;
-   await c.query('INSERT INTO '+S+'.employee_mode(employee_id,scope_mode,enabled,version,updated_by_system_admin_id,updated_at) VALUES($1::bigint,$2,$3,$4,$5::bigint,transaction_timestamp()) ON CONFLICT(employee_id) DO UPDATE SET scope_mode=EXCLUDED.scope_mode,enabled=EXCLUDED.enabled,version=EXCLUDED.version,updated_by_system_admin_id=EXCLUDED.updated_by_system_admin_id,updated_at=transaction_timestamp()',[employeeId,method==='PUT'?input.scopeMode:null,method==='PUT',nextVersion,actor.system_admin_id]);
+   await c.query('INSERT INTO '+S+'.employee_mode(employee_id,scope_mode,enabled,previous_decision,previous_decision_captured,version,updated_by_system_admin_id,updated_at) VALUES($1::bigint,$2,$3,$4,true,$5,$6::bigint,transaction_timestamp()) ON CONFLICT(employee_id) DO UPDATE SET scope_mode=EXCLUDED.scope_mode,enabled=EXCLUDED.enabled,previous_decision=EXCLUDED.previous_decision,previous_decision_captured=true,version=EXCLUDED.version,updated_by_system_admin_id=EXCLUDED.updated_by_system_admin_id,updated_at=transaction_timestamp()',[employeeId,method==='PUT'?input.scopeMode:null,method==='PUT',previousDecision,nextVersion,actor.system_admin_id]);
    if(this.hook)await this.hook({c,employeeId,method,phase:'before_audit'});
+   const finalDecision=(await c.query("SELECT decision FROM public.employee_permission_overrides WHERE employee_id=$1::bigint AND permission_id=$2::bigint",[employeeId,permission])).rows[0]?.decision??null;
    const before={permissionDecision:oldState.decision,scopeMode:beforeMode?.enabled?beforeMode.scope_mode:null,enabled:oldState.enabled,version:oldVersion};
-   const after={permissionDecision:method==='PUT'?'allow':null,scopeMode:method==='PUT'?input.scopeMode:null,enabled:method==='PUT',version:nextVersion};
+   const after={permissionDecision:finalDecision,scopeMode:method==='PUT'?input.scopeMode:null,enabled:method==='PUT'&&finalDecision==='allow',version:nextVersion};
    await c.query("INSERT INTO public.audit_events(actor_kind,actor_id,object_kind,object_id,action,before_json,after_json,occurred_at) VALUES('system_admin',$1::text,'employee_permission_override',$2::text,$3,$4::jsonb,$5::jsonb,transaction_timestamp())",[String(actor.system_admin_id),employeeId,method==='PUT'?'publisher.phone.scope.grant':'publisher.phone.scope.revoke',JSON.stringify(before),JSON.stringify(after)]);
    const dto={employeeId,enabled:after.enabled,scopeMode:after.scopeMode,version:nextVersion,origin:'CI_ONLY_F03_PERMISSION_CONFIG'};
    await c.query('INSERT INTO '+S+'.request_replay(request_key,request_digest,actor_system_admin_id,employee_id,resulting_version,response_json) VALUES($1,$2,$3::bigint,$4::bigint,$5,$6::jsonb)',[input.requestKey,digest,actor.system_admin_id,employeeId,nextVersion,JSON.stringify(dto)]);
