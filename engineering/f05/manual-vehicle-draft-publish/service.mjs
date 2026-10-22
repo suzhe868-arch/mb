@@ -181,6 +181,14 @@ export function createManualVehicleDraftService({auth,env=process.env}={}){
   const vin=payload.vin===undefined||payload.vin===null||payload.vin===''?null:payload.vin;
   return {model,vin};
  }
+ // Advisory transaction locks serialize the exact VIN across draft IDs,
+ // employees and sources. hashtext collisions only serialize extra VINs;
+ // equality is still checked against real committed Vehicle rows.
+ // The lock MUST be acquired inside the trusted F05-2/F05-3A publication TX,
+ // immediately before rechecking VIN. No frozen public schema modification.
+ async function lockPublishedVin(c,vin){
+  if(vin!==null)await c.query('SELECT pg_advisory_xact_lock(20261023,hashtext($1::text))',[vin]);
+ }
  async function duplicateVin(c,vin,vehicleId=null){
   if(!vin)return null;
   const q=await c.query(
@@ -209,6 +217,7 @@ export function createManualVehicleDraftService({auth,env=process.env}={}){
    throw Error('MANUAL_VEHICLE_DRAFT_VERSION_CONFLICT');
   const payload=normalizePayload(row.draft_payload,sourceType);
   const valid=await completePayload(c,payload,sourceType);
+  await lockPublishedVin(c,valid.vin);
   const duplicate=await duplicateVin(c,valid.vin,vehicleId);
   if(duplicate!==null)throw Error('MANUAL_VEHICLE_VIN_DUPLICATE');
   const updated=await c.query("UPDATE public.vehicles SET model_id=$1,vin=$2 WHERE vehicle_id=$3 AND source_type=$4 "+
