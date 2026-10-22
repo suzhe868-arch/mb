@@ -92,6 +92,7 @@ try{
    const sql=await readFile(new URL('../catalog/'+filename,import.meta.url),'utf8');
    await client.query(sql);
   }
+  await client.query("INSERT INTO public.vehicle_brands(brand_id,brand_name) VALUES(59001,'隔离测试品牌')");
   // The frozen matching regression uses the canonical disposable sales role ID 59001.
   // Keep this fixture local to the fresh PG16 database; do not change the frozen test.
   const canonicalRole=(await client.query("SELECT role_code FROM public.roles WHERE role_id=59001")).rows[0];
