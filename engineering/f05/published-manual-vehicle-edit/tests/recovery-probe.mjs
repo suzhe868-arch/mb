@@ -9,7 +9,7 @@ const id=Number(process.argv[2]),version=Number(process.argv[3]);
 if(!Number.isSafeInteger(id)||!Number.isSafeInteger(version)||id<1||version<1)throw Error('F05_EDIT_RECOVERY_ARGUMENTS_INVALID');
 const four=process.env.F05_EDIT_TEST_SOURCE==='four_s';
 const secret=randomBytes(32);
-const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin:'https://127.0.0.1:${Number(process.env.F05_EDIT_HTTP_PORT || 48986)}'});
+const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin:`https://127.0.0.1:${Number(process.env.F05_EDIT_HTTP_PORT || 48986)}`});
 try{
  const logged=await auth.login({login:four?'four_s_test':'employee_test',
   password:four?'SyntheticFourS_123456':'SyntheticF04_3_CurrentProof_2026',source:'f05-edit-independent-process-recovery'});
