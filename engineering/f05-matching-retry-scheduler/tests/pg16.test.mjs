@@ -225,6 +225,80 @@ await test('真实 PG16 自动调度、双进程并发、过期租约恢复、�
   assert.equal((await pool.query("SELECT count(*)::integer AS n FROM public.priority_leases WHERE customer_id=$1",[customerId])).rows[0].n,0);
   assert.equal((await pool.query("SELECT count(*)::integer AS n FROM public.vehicle_visibility_grants WHERE customer_id=$1",[customerId])).rows[0].n,0);
 
+  // Exercise an actual SIGKILL while a claimed lease is live, then recover the durable row.
+  const crashDemandId=String(seed+40n);
+  await pool.query("INSERT INTO public.demands(demand_id,customer_id,responsible_employee_id,demand_state,criteria_json) "+
+   "VALUES($1,$2,$3,'active','{}')",[crashDemandId,customerId,employeeId]);
+  await pool.query("INSERT INTO public.f05_matching_sales_description_test(demand_id,written_by_employee_id,sales_description,expires_at) "+
+   "VALUES($1,$2,'brandId=59001;budgetCents=12000000',statement_timestamp()+interval '20 minutes')",
+   [crashDemandId,employeeId]);
+  for(const vehicleId of vehicleIds){
+   const result=await matching.recompute({
+    credential,demandId:crashDemandId,vehicleId,eventKey:randomBytes(24).toString('base64url')
+   });
+   assert.equal(result.status,200,'crash-recovery fixture must create a real current Match Result');
+  }
+  const killer=startScheduler(credential);
+  children.push(killer);
+  await waitFor(()=>killer.stdout.includes('"event":"scheduler_started"'),8000,'crash_runner_started');
+  const blocker=await pool.connect();
+  try{
+   await blocker.query('BEGIN');
+   await blocker.query("SELECT demand_id FROM public.demands WHERE demand_id=$1 FOR UPDATE",[crashDemandId]);
+   const invalidated=(await pool.query(
+    "UPDATE public.demand_match_results SET current_state='stale',invalidated_at=statement_timestamp() "+
+    "WHERE demand_id=$1 AND vehicle_id=$2 AND current_state='current'",[crashDemandId,vehicleIds[0]]
+   )).rowCount;
+   assert.equal(invalidated,1);
+   await waitFor(async()=>{
+    const row=(await pool.query(
+     "SELECT state,lease_until>statement_timestamp() AS lease_live FROM public.f05_matching_affected_queue_test "+
+     "WHERE demand_id=$1 AND vehicle_id=$2",[crashDemandId,vehicleIds[0]]
+    )).rows[0];
+    const waiting=(await pool.query(
+     "SELECT count(*)::integer AS n FROM pg_catalog.pg_stat_activity "+
+     "WHERE application_name='f05_matching_retry_scheduler_disposable_only' AND wait_event_type='Lock' "+
+     "AND pid<>pg_backend_pid()"
+    )).rows[0].n;
+    return row?.state==='processing'&&row.lease_live===true&&Number(waiting)>=1;
+   },5000,'real_process_claimed_and_blocked');
+   killer.child.kill('SIGKILL');
+   const killed=await withTimeout(killer.exitPromise,4000);
+   assert.ok(killed,'killed scheduler must exit');
+   assert.equal(killed.signal,'SIGKILL','the test must exercise an actual forced process death');
+  }finally{
+   await blocker.query('ROLLBACK').catch(()=>{});
+   blocker.release();
+  }
+  const abandoned=(await pool.query(
+   "SELECT state,lease_until>statement_timestamp() AS lease_live FROM public.f05_matching_affected_queue_test "+
+   "WHERE demand_id=$1 AND vehicle_id=$2",[crashDemandId,vehicleIds[0]]
+  )).rows[0];
+  assert.equal(abandoned.state,'processing');
+  assert.equal(abandoned.lease_live,true,'a killed process must leave only its durable lease behind');
+  await pool.query("UPDATE public.f05_matching_affected_queue_test SET "+
+   "lease_until=statement_timestamp()-interval '1 second',next_attempt_at=statement_timestamp()-interval '1 second' "+
+   "WHERE demand_id=$1 AND vehicle_id=$2 AND state='processing'",[crashDemandId,vehicleIds[0]]);
+  const crashRecovery=startScheduler(credential);
+  children.push(crashRecovery);
+  await waitFor(()=>crashRecovery.stdout.includes('"event":"scheduler_started"'),8000,'crash_recovery_started');
+  await waitFor(async()=>{
+   const row=(await pool.query(
+    "SELECT state,lease_until FROM public.f05_matching_affected_queue_test WHERE demand_id=$1 AND vehicle_id=$2",
+    [crashDemandId,vehicleIds[0]]
+   )).rows[0];
+   return row?.state==='done'&&row.lease_until===null;
+  },8000,'crashed_lease_recovered_after_restart');
+  await stopScheduler(crashRecovery);
+  assert.equal((await pool.query(
+   "SELECT count(*)::integer AS n FROM public.demand_match_results "+
+   "WHERE demand_id=$1 AND vehicle_id=$2 AND current_state='current'",[crashDemandId,vehicleIds[0]]
+  )).rows[0].n,1);
+  assert.equal((await pool.query(
+   "SELECT count(*)::integer AS n FROM public.f05_matching_recompute_events_test "+
+   "WHERE demand_id=$1 AND vehicle_id=$2",[crashDemandId,vehicleIds[0]]
+  )).rows[0].n,2,'restart must recompute once without duplicating the initial event');
+
   // Idle polling remains bounded and SIGTERM performs a clean stop.
   const idle=startScheduler(credential);
   children.push(idle);
