@@ -17,7 +17,16 @@ if(!['four_s','mingbang'].includes(process.env.F05_EDIT_TEST_SOURCE))throw Error
 let vehicleId,cycleId;
 const secret=randomBytes(32),db=await connect();
 const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin:`https://127.0.0.1:${Number(process.env.F05_EDIT_HTTP_PORT || 48986)}`});
-let app,parentApp,actor,other,admin,license,path;
+let app,parentApp,actor,other,admin,license,path,managerCar,managerToken;
+const hooks={};
+async function confirmBlocked(){
+ for(let n=0;n<150;n++){
+  const q=await db.query("SELECT count(*)::integer n FROM pg_stat_activity a WHERE a.datname=current_database() AND a.wait_event_type='Lock' AND a.pid<>pg_backend_pid() AND cardinality(pg_blocking_pids(a.pid))>0");
+  if(q.rows[0].n>0)return;
+  await new Promise(resolve=>setTimeout(resolve,20));
+ }
+ throw Error('ISSUE216_PHYSICAL_BLOCKING_PID_NOT_OBSERVED');
+}
 const parentRef='refs/heads/feat/f05-manual-vehicle-draft-publish-pg16-01';
 async function accepted214(call){const ref=process.env.GITHUB_REF;process.env.GITHUB_REF=parentRef;try{return await call()}finally{process.env.GITHUB_REF=ref}}
 const req=(suffix='',options={})=>app.request(path+suffix,{token:actor,...options});
@@ -60,7 +69,7 @@ test.before(async()=>{
  assert.deepEqual(sourceRow.draft_payload.conditionTags,payload.conditionTags);
  assert.equal(Number(sourceRow.mileage_km),16000);assert.equal(sourceRow.city,'Suzhou');
 
- app=await start(createPublishedEditService({auth}));
+ app=await start(createPublishedEditService({auth,hooks}));
 });
 test.after(async()=>{if(app)await app.close();if(parentApp)await parentApp.close();await auth.close();await db.end();secret.fill(0)});
 test('E01 genuine trusted publication exists, live owner can read; wrong account hard deny',async()=>{
@@ -211,31 +220,71 @@ test('E08B trusted opposite-source published VIN conflicts with edit; old effect
  const cancel=await req('/stage',{method:'DELETE',body:{expectedStageVersion:1}});
  assert.equal(cancel.status,200);
 });
-test('E09 4S current Admin license revoke immediately removes old editing authority',async()=>{
- if(!fourS)return;
- const x=await stage({city:'Shenzhen'},undefined,2);assert.equal(x.status,200);
- const rev=await revokeMemberCreateLicense(auth,admin,{licenseId:license,version:1,eventKey:'issue216-admin-revoke-'+randomUUID()});
- assert.equal(rev.allowed,true,JSON.stringify(rev));
- const deny=await submit(1,2);assert.equal(deny.status,403);
- assert.equal(await count('f05_published_edit_test.edit_audit'),1);
-});
 
-test('E10 Mingbang current permission removal invalidates ownership and blocks all fresh operations',async()=>{
+test('E09 physical 4S Admin revoke races with in-flight COMMIT: commit-before-governance, then hard deny',async()=>{
+ if(!fourS)return;
+ const staged=await stage({city:'Shenzhen'},undefined,2);assert.equal(staged.status,200,JSON.stringify(staged.body));
+ let signal,release;
+ const reached=new Promise(r=>signal=r),hold=new Promise(r=>release=r);
+ hooks.beforeCommit=async(ctx,c)=>{
+  assert.equal(ctx.vehicleId,vehicleId);
+  const ownerPid=Number((await c.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+  const witness=Number((await db.query('SELECT pg_backend_pid() pid')).rows[0].pid);
+  assert.notEqual(ownerPid,witness);
+  signal();await hold;
+ };
+ let pending;
+ try{
+  pending=submit(1,2);
+  await reached;
+  const governance=revokeMemberCreateLicense(auth,admin,{licenseId:license,version:1,eventKey:'issue216-admin-race-revoke-'+randomUUID()});
+  await confirmBlocked();
+  release();
+  const result=await pending;
+  assert.equal(result.status,200,JSON.stringify(result.body));
+  assert.equal(result.body.code,'EDIT_APPLIED');
+  const rev=await governance;
+  assert.equal(rev.allowed,true,JSON.stringify(rev));
+ }finally{release?.();delete hooks.beforeCommit}
+ const denied=await submit(1,2);assert.equal(denied.status,403,JSON.stringify(denied.body));
+ assert.equal(await count('f05_published_edit_test.edit_audit'),2);
+});
+test('E10 real Mingbang permission governance races in-flight COMMIT, then current Vehicle receipt revokes',async()=>{
  if(fourS)return;
- const x=await stage({city:'Nanjing'},undefined,2);assert.equal(x.status,200,JSON.stringify(x.body));
- const perm=(await db.query("SELECT permission_id FROM public.permissions WHERE permission_code='internal.price.view'")).rows[0];
- await db.query("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=now() WHERE employee_id=1 AND permission_id=$1",[perm.permission_id]);
- const denied=await submit(1,2);
- assert.equal(denied.status,403,JSON.stringify(denied.body));
- assert.equal(JSON.stringify(denied.body).includes('internalWholesalePriceCents'),false);
- assert.equal(await count('f05_published_edit_test.edit_audit'),1);
- const persisted=(await db.query('SELECT patch FROM f05_published_edit_test.staged_changes WHERE vehicle_id=$1',[vehicleId])).rows[0];
- assert.equal(persisted.patch.city,'Nanjing');
+ const staged=await stage({city:'Nanjing'},undefined,2);
+ assert.equal(staged.status,200,JSON.stringify(staged.body));
+ let signal,release;
+ const reached=new Promise(r=>signal=r),hold=new Promise(r=>release=r);
+ hooks.beforeCommit=async(ctx,c)=>{assert.equal(ctx.vehicleId,vehicleId);signal();await hold};
+ try{
+  const pending=submit(1,2);
+  await reached;
+  const perm=(await db.query("SELECT permission_id FROM public.permissions WHERE permission_code='internal.price.view'")).rows[0];
+  const revoke=db.query("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=now() WHERE employee_id=1 AND permission_id=$1",[perm.permission_id]);
+  // Dedicated probe must not share the connection occupied by the UPDATE.
+  const probe=await connect();
+  try{
+   let blocked=false;
+   for(let i=0;i<100;i++){
+    const x=(await probe.query("SELECT count(*)::integer n FROM pg_stat_activity a WHERE a.datname=current_database() AND a.wait_event_type='Lock' AND a.pid<>pg_backend_pid() AND cardinality(pg_blocking_pids(a.pid))>0")).rows[0].n;
+    if(x>0){blocked=true;break}
+    await new Promise(r=>setTimeout(r,20));
+   }
+   assert.equal(blocked,true);
+  }finally{await probe.end()}
+  release();
+  const applied=await pending;assert.equal(applied.status,200,JSON.stringify(applied.body));
+  await revoke;
+ }finally{release?.();delete hooks.beforeCommit}
+ const denied=await read();assert.equal(denied.status,403,JSON.stringify(denied.body));
+ assert.equal(await count('f05_published_edit_test.edit_audit'),2);
+ assert.equal((await db.query('SELECT count(*)::integer n FROM public.vehicle_current_responsibilities WHERE vehicle_id=$1 AND revoked_at IS NULL',[vehicleId])).rows[0].n,0);
 });
 
 test('E11 real current Mingbang manager vehicle.manage=true but internal.price.view=false edits retail price only',async()=>{
  if(fourS)return;
  const manager=await login(auth,'race_test','SyntheticRace_1234567');
+ managerToken=manager;
  const recorded=await accepted214(()=>parentApp.request(PARENT_BASE+'/auto-save',{method:'POST',token:manager,
   body:{payload:{sourceType:'mingbang',brandId:97001,seriesId:97002,modelId:97003,modelYear:2026,
    mileageKm:22000,city:'Suzhou',vin:'ISSUE216-MANAGER-PRICE-INDEPENDENT',
@@ -246,6 +295,7 @@ test('E11 real current Mingbang manager vehicle.manage=true but internal.price.v
   {method:'POST',token:manager,body:{expectedVersion:1}}));
  assert.equal(publish.status,200,JSON.stringify(publish.body));
  const mid=Number(publish.body.vehicleId),url=BASE+'/'+mid;
+ managerCar=mid;
  const scope=(await db.query("SELECT count(*)::integer n FROM public.vehicle_current_responsibilities "+
   "WHERE vehicle_id=$1 AND responsible_employee_id=6 AND revoked_at IS NULL",[mid])).rows[0].n;
  assert.equal(scope,1);
@@ -270,4 +320,57 @@ test('E11 real current Mingbang manager vehicle.manage=true but internal.price.v
  assert.equal(after.body.effective.description,'trusted manager original');
  assert.equal('internalWholesalePriceCents' in after.body.effective,false);
  assert.equal((await db.query("SELECT count(*)::integer n FROM f05_published_edit_test.edit_audit WHERE vehicle_id=$1",[mid])).rows[0].n,1);
+});
+
+test('E12 real two independent HTTPS COMMIT requests share same version; exactly one physical PG16 commit and one immutable event',async()=>{
+ if(fourS)return;
+ const url=BASE+'/'+managerCar;
+ const staged=await app.request(url+'/stage',{method:'PUT',token:managerToken,
+  body:{expectedCurrentVersion:2,patch:{city:'Nanjing',mileageKm:23000}}});
+ assert.equal(staged.status,200,JSON.stringify(staged.body));assert.equal(staged.body.stageVersion,1);
+ const hold=await connect();
+ try{
+  await hold.query('BEGIN');
+  await hold.query('SELECT pg_advisory_xact_lock(20261011,6)');
+  const one=app.request(url+'/commit',{method:'POST',token:managerToken,body:{
+   expectedCurrentVersion:2,expectedStageVersion:1,requestKey:'issue216-commit-race-one-'+randomUUID()}});
+  const two=app.request(url+'/commit',{method:'POST',token:managerToken,body:{
+   expectedCurrentVersion:2,expectedStageVersion:1,requestKey:'issue216-commit-race-two-'+randomUUID()}});
+  await confirmBlocked();
+  await hold.query('COMMIT');
+  const both=await Promise.all([one,two]);
+  assert.equal(both.filter(x=>x.status===200&&x.body.code==='EDIT_APPLIED').length,1,JSON.stringify(both));
+  assert.equal(both.filter(x=>x.status===409||x.status===404).length,1,JSON.stringify(both));
+  const rows=await db.query("SELECT count(*)::integer n FROM f05_published_edit_test.edit_audit WHERE vehicle_id=$1",[managerCar]);
+  assert.equal(rows.rows[0].n,2,'one previous and one racing commit');
+  const current=await app.request(url,{token:managerToken});
+  assert.equal(current.status,200);assert.equal(current.body.currentVersion,3);
+ }finally{await hold.query('ROLLBACK').catch(()=>{});await hold.end()}
+});
+test('E13 real governance COMMIT wins before waiting manager edit: fail closed and no partial audit',async()=>{
+ if(fourS)return;
+ const url=BASE+'/'+managerCar;
+ const staged=await app.request(url+'/stage',{method:'PUT',token:managerToken,
+  body:{expectedCurrentVersion:3,patch:{city:'Hangzhou'}}});
+ assert.equal(staged.status,200,JSON.stringify(staged.body));assert.equal(staged.body.stageVersion,1);
+ const holder=await connect(),probe=await connect();
+ try{
+  await holder.query('BEGIN');
+  await holder.query("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=now() WHERE employee_id=6 AND permission_id=399");
+  const pending=app.request(url+'/commit',{method:'POST',token:managerToken,body:{
+   expectedCurrentVersion:3,expectedStageVersion:1,requestKey:'issue216-manager-revoke-wins-'+randomUUID()}});
+  let blocked=false;
+  for(let i=0;i<120;i++){
+   const q=(await probe.query("SELECT count(*)::integer n FROM pg_stat_activity a WHERE a.datname=current_database() AND a.wait_event_type='Lock' AND a.pid<>pg_backend_pid() AND cardinality(pg_blocking_pids(a.pid))>0")).rows[0].n;
+   if(q>0){blocked=true;break}
+   await new Promise(r=>setTimeout(r,20));
+  }
+  assert.equal(blocked,true);
+  await holder.query('COMMIT');
+  const denied=await pending;
+  assert.equal(denied.status,403,JSON.stringify(denied.body));
+  const audits=(await db.query('SELECT count(*)::integer n FROM f05_published_edit_test.edit_audit WHERE vehicle_id=$1',[managerCar])).rows[0].n;
+  assert.equal(audits,2);
+  assert.equal((await db.query('SELECT patch FROM f05_published_edit_test.staged_changes WHERE vehicle_id=$1',[managerCar])).rows[0].patch.city,'Hangzhou');
+ }finally{await holder.query('ROLLBACK').catch(()=>{});await holder.end();await probe.end()}
 });
