@@ -1,0 +1,15 @@
+编号	场景	期望结果	执行证据
+01	真实 PG16 非超级用户和既有 81 表物理指纹	PASS	两个独立 PG16 Job
+02	当前员工、customer.phone.manage、显式 Customer object scope	仅允许当前范围	业务测试
+03	4S、System Admin、无会话、失效员工、个人 deny	拒绝	业务与 HTTPS 测试
+04	Customer 不存在或 inactive、跨 Customer fact ID	拒绝	业务测试
+05	新增、读取掩码、替换、失效	真实事实与有效期历史	业务测试
+06	AES-256-GCM envelope 与明文/密文泄漏负例	仅存密文、只返回掩码	业务与 HTTPS 测试
+07	重复活动号码	409 拒绝	业务测试
+08	同幂等键同请求、异请求、并发重放	原结果或 409；仅一条事实与审计	业务测试
+09	并发撤权先提交	电话变更拒绝	双 PG16 连接测试
+10	审计插入故障	事实和审计一起回滚	业务测试
+11	HTTPS Origin/Host/Forwarded/Cookie/CSRF/JSON/大小/方法负例	拒绝且无敏感信息	HTTPS 测试
+12	默认应用未注入 handler	404	HTTPS 测试
+13	旧 runtime-scope Guard、迁移和 Node 回归	全绿	官方 workflow
+14	公共 Schema、旧迁移和生产 server	不变	物理指纹及路径门禁
