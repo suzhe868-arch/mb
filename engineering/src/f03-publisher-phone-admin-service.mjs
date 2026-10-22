@@ -11,6 +11,13 @@ const validId=x=>typeof x==='string'&&/^[1-9][0-9]{0,17}$/.test(x)&&Number.isSaf
 const validVersion=x=>Number.isSafeInteger(x)&&x>=0;
 const asNumber=x=>Number(x);
 const adminAllowed=(a,s)=>s&&!s.restricted&&a.principal_kind==='system_admin'&&a.system_admin_id!=null&&a.employee_id==null&&a.credential_state==='enabled'&&a.subject_status==='active'&&a.force_password_change===false;
+async function ensureAdminCurrent(c,a,s) {
+ if(!adminAllowed(a,s))return false;
+ // Lock live system-admin fact in the same F03 transaction. The F03 auth
+ // account lock alone does not lock the joined system_admins row.
+ const q=await c.query('SELECT account_status FROM public.system_admins WHERE system_admin_id=$1::bigint FOR SHARE',[a.system_admin_id]);
+ return q.rowCount===1&&q.rows[0].account_status==='active';
+}
 function validateInput(method,input){
  const keys=input&&typeof input==='object'&&!Array.isArray(input)?Object.keys(input).sort().join('|'):'';
  const expected=method==='PUT'?'expectedVersion|requestKey|scopeMode':'expectedVersion|requestKey';
@@ -61,7 +68,7 @@ export class PublisherPhoneAdminService {
  async get({token,employeeId}) {
   if(!validId(employeeId))return result(400,'INVALID_EMPLOYEE_ID');
   const out=await this.auth.withSession(token,async(c,actor,session)=>{
-   if(!adminAllowed(actor,session))return result(403,'SYSTEM_ADMIN_CONTROL_REQUIRED');
+   if(!await ensureAdminCurrent(c,actor,session))return result(403,'SYSTEM_ADMIN_CONTROL_REQUIRED');
    const target=await targetFacts(c,employeeId);
    if(!target)return result(404,'TARGET_NOT_FOUND');
    const permission=await permissionId(c);
@@ -76,7 +83,7 @@ export class PublisherPhoneAdminService {
   if(!['PUT','DELETE'].includes(method)||!validateInput(method,input))return result(400,'INVALID_PHONE_ADMIN_REQUEST');
   const digest=createHash('sha256').update(JSON.stringify({employeeId,method,input})).digest('hex');
   const out=await this.auth.withSession(token,async(c,actor,session)=>{
-   if(!adminAllowed(actor,session))return result(403,'SYSTEM_ADMIN_CONTROL_REQUIRED');
+   if(!await ensureAdminCurrent(c,actor,session))return result(403,'SYSTEM_ADMIN_CONTROL_REQUIRED');
    const t=await targetFacts(c,employeeId);
    if(!t)return result(404,'TARGET_NOT_FOUND');
    if(!eligible(t))return result(403,'TARGET_NOT_ELIGIBLE');
