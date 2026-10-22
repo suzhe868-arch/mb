@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "BACKEND_ENGINEERING",
-  "substage": "F03_CUSTOMER_PHONE_MANAGE_CI_ONLY_B_RELEASED_F08_GATE_CONTINUES",
+  "substage": "F03_CUSTOMER_PHONE_CI_ONLY_ACCEPTED_F08_SOURCE_GATE_CONTINUES",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F03_CUSTOMER_OTHER_PHONE_MANAGE",
-  "current_domain_status": "A 已完成 PR #224 独立验收、标准合并和 Issue #221 关闭；对 Issue #187 做了增量来源门禁复核，父级仍 SOURCE_GAP/FAIL_CLOSED，但确认 customer.phone.manage 其他联系电话事实 CRUD 是同一 F03 PG16 非生产库内的独立后端缺口，不依赖 JYT/Collector/CDN/OSS/飞书。A 已正式放行 Issue #227，范围仅显式当前 Customer object scope、加密/掩码、真实事务/审计/HTTPS；不修改主要手机号、不改公共 Schema、不接生产。",
+  "current_domain": "F08_SIGNED_SOURCE_GATE",
+  "current_domain_status": "PR #229 已完成限定非生产独立验收并标准合并；当前回到 Issue #187 的 F08 可信来源与外部授权门禁。正式 F03 Scope/Object、F05 转换正向 Issuer、F07 Runtime 与外部资源证据仍缺，保持 SOURCE_GAP/FAIL_CLOSED。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F03_CUSTOMER_OTHER_PHONE_MANAGE_HTTP_PG16_01",
-  "current_work_file": "07_重建工作区/F03客户其他联系电话管理HTTP与真实PG16非生产纵切正式施工单_2026-10-23.md",
+  "current_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
+  "current_work_file": "07_重建工作区/F03客户其他联系电话PR229独立验收与F08来源门禁接续报告_2026-10-23.md",
   "a_f08_source_gate_review_2026_10_23": {
     "status": "SOURCE_GAP/FAIL_CLOSED",
     "reviewed_at": "2026-10-23",
@@ -34,7 +34,12 @@
     "depends_on_feishu": false,
     "f07_runtime": "NOT_CONNECTED_F07_RUNTIME",
     "same_vehicle_f06": "NOT_RUN/BLOCKED_SIGNED_PARENT",
-    "production_authorized": false
+    "production_authorized": false,
+    "independent_task_issue_status": "A_ACCEPTED_LIMITED_NONPROD",
+    "independent_task_pr": 229,
+    "independent_task_accepted_head_sha": "43a25224bb778bf4071e034efdce90d43f6e9226",
+    "independent_task_merge_sha": "19ef898a0dac447aff7a26b5affd2496a01e86e5",
+    "independent_task_official_run_id": "39847897349"
   },
   "a_acceptance_issue221_2026_10_23": {
     "status": "A_ACCEPTED_LIMITED_NONPROD",
@@ -3422,7 +3427,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "A 增量核验 Issue187 真实来源与 F01～F08 未完成后端差异，缺失的 JYT/Collector、CDN/OSS、Feishu 与正式签名来源继续 FAIL_CLOSED；不得重复 Issue212，只有确认另一个独立且依赖满足的后端缺口及完整 Authority/范围/测试才放行 B。",
+  "next_action": "增量核验 Issue #187 的正式来源与外部授权；复用已验收 F03 客户其他联系电话非生产纵切，不重复开发。只有出现可合法验证的正式 F03 Scope/Object、F05 转换 Issuer、F07 Runtime 来源/签名或另一项依赖已满足的独立后端缺口，才签发新的最小范围 B 任务。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -5002,7 +5007,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "Issue212已关闭，PR214已标准合并SHA b55271d8b7f44d1402b289fa37226196239da5fd；B HEAD cf190ea42a7b554368967bf45ef6055b762c0bb5，官方 Run39770082142 四个Job成功、业务100/100、基础269x4、四份Artifact已由A独立核验。外部来源 Issue187仍开放。",
+  "next_action_detail": "PR #229 已由 A 独立验收并标准合并（B HEAD 43a25224bb778bf4071e034efdce90d43f6e9226，merge SHA 19ef898a0dac447aff7a26b5affd2496a01e86e5）；Issue #227 已关闭。最终 Run #39847897349 两个 PG16 Job 成功；migration 9/9、Guard 7/7、旧 HTTPS 2/2、新业务/并发 38/38、新 HTTPS 11/11、Node 269/269；双 Artifact ZIP 与内部 19/19 文件哈希已独立复算。Issue #187 仍 SOURCE_GAP/FAIL_CLOSED，NEXT_OWNER=A。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -9856,7 +9861,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F05人工车源PR214独立验收与Issue187接续报告_2026-10-22.md",
+  "next_work_file": "07_重建工作区/F03客户其他联系电话PR229独立验收与F08来源门禁接续报告_2026-10-23.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -11945,5 +11950,29 @@
         "Unverified store_head role alias fails closed"
       ]
     }
+  },
+  "a_acceptance_issue227_2026_10_23": {
+    "status": "A_ACCEPTED_LIMITED_NONPROD",
+    "issue": 227,
+    "pr": 229,
+    "accepted_head_sha": "43a25224bb778bf4071e034efdce90d43f6e9226",
+    "merge_sha": "19ef898a0dac447aff7a26b5affd2496a01e86e5",
+    "official_run_id": "39847897349",
+    "run_conclusion": "success",
+    "business_pg16_tests": "38/38",
+    "https_pg16_tests": "11/11",
+    "migration_tests": "9/9",
+    "runtime_scope_guard_tests": "7/7",
+    "runtime_scope_https_tests": "2/2",
+    "node_regression_each_job": "269/269",
+    "business_artifact_id": 12455429328,
+    "business_artifact_sha256": "04f9e027bb63dd2be5d654b71f6d80030bfce0d241a6e37112074dbca39d59e2",
+    "https_artifact_id": 12456036663,
+    "https_artifact_sha256": "a42abf800e0e41e059012df327a399201969a1317222549874d29b9da57b3b9a",
+    "issue_227": "CLOSED",
+    "issue_187": "SOURCE_GAP/FAIL_CLOSED",
+    "f07_runtime": "NOT_CONNECTED_F07_RUNTIME",
+    "same_vehicle_f06": "NOT_RUN/BLOCKED_SIGNED_PARENT",
+    "production_authorized": false
   }
 }
