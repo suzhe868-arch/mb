@@ -1,0 +1,171 @@
+name: F03 Customer Other Phone PG16 Nonproduction
+on:
+  push:
+    branches:
+      - feat/f03-customer-other-phone-manage-http-pg16-01
+    paths:
+      - 'engineering/f03/customer-other-phone/**'
+      - 'engineering/f03/runtime-scope/customer-phone-guard.mjs'
+      - 'engineering/src/f03-customer-other-phone-service.mjs'
+      - 'engineering/src/f03-customer-other-phone-http.mjs'
+      - 'engineering/src/app.mjs'
+      - '.github/workflows/f03-customer-other-phone-nonprod.yml'
+permissions:
+  contents: read
+jobs:
+  f03_customer_other_phone:
+    name: F03 customer phone / ${{ matrix.track }} / PG16
+    strategy:
+      fail-fast: false
+      matrix:
+        track: [business, https]
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_CUSTOMER_PHONE_CONSENT: I_AUTHORIZE_DISPOSABLE_F03_CUSTOMER_PHONE_ONLY
+      F03_CUSTOMER_PHONE_TEST_FAULTS: 'true'
+      F03_PUBLISHER_PHONE_ADMIN_CONSENT: I_AUTHORIZE_DISPOSABLE_F03_PHONE_ADMIN_ONLY
+      F03_CUSTOMER_PHONE_TLS_KEY_PATH: /tmp/f03-customer-phone-key.pem
+      F03_CUSTOMER_PHONE_TLS_CERT_PATH: /tmp/f03-customer-phone-cert.pem
+      # Existing runtime-scope HTTPS regression reads the original F03-1 TLS variables.
+      F03_1_TLS_KEY_PATH: /tmp/f03-customer-phone-key.pem
+      F03_1_TLS_CERT_PATH: /tmp/f03-customer-phone-cert.pem
+      F03_PUBLISHER_PHONE_TLS_KEY_PATH: /tmp/f03-customer-phone-key.pem
+      F03_PUBLISHER_PHONE_TLS_CERT_PATH: /tmp/f03-customer-phone-cert.pem
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Install locked engineering dependencies
+        run: npm --prefix engineering ci --ignore-scripts --no-audit --no-fund
+      - name: Create disposable non-superuser PG16, test key and ephemeral TLS
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PGPASSWORD=postgres
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE f03_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE PASSWORD 'f03_ci_synthetic_only';
+          CREATE DATABASE f03_auth_test OWNER f03_ci;
+          SQL
+          printf 'F03_1_HMAC_KEY_BASE64=%s\n' "$(openssl rand -base64 32)" >> "$GITHUB_ENV"
+          key="$(openssl rand -base64 32 | tr -d '\n')"
+          echo "::add-mask::$key"
+          printf 'F03_CUSTOMER_PHONE_KEY_BASE64=%s\n' "$key" >> "$GITHUB_ENV"
+          unset key
+          openssl req -x509 -newkey rsa:2048 -nodes -keyout "$F03_CUSTOMER_PHONE_TLS_KEY_PATH" -out "$F03_CUSTOMER_PHONE_TLS_CERT_PATH" -days 1 -subj '/CN=127.0.0.1' -addext 'subjectAltName=IP:127.0.0.1' >/dev/null 2>&1
+      - name: Verify branch, exact diff scope and syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = 'refs/heads/feat/f03-customer-other-phone-manage-http-pg16-01'
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch origin main
+          git diff --check origin/main...HEAD
+          while IFS= read -r path; do
+            case "$path" in
+              engineering/f03/customer-other-phone/*|engineering/f03/runtime-scope/customer-phone-guard.mjs|engineering/src/f03-customer-other-phone-service.mjs|engineering/src/f03-customer-other-phone-http.mjs|engineering/src/app.mjs|.github/workflows/f03-customer-other-phone-nonprod.yml) ;;
+              *) echo "OUT_OF_SCOPE:$path"; exit 1 ;;
+            esac
+          done < <(git -c core.quotePath=false diff --name-only origin/main...HEAD)
+          node --check engineering/src/app.mjs
+          node --check engineering/f03/runtime-scope/customer-phone-guard.mjs
+          node --check engineering/src/f03-customer-other-phone-service.mjs
+          node --check engineering/src/f03-customer-other-phone-http.mjs
+          find engineering/f03/customer-other-phone -name '*.mjs' -print0 | xargs -0 -n1 node --check
+          touch f03-customer-other-phone-business.log f03-customer-other-phone-https.log f03-customer-other-phone-runtime-scope.log f03-customer-other-phone-regression.log
+      - name: Apply exact frozen F02 and F03-1 migrations
+        run: |
+          set -euo pipefail
+          node engineering/f03-1/runner.mjs --bootstrap
+          node engineering/f03-1/runner.mjs --apply
+          node engineering/f03-1/runner.mjs --verify
+      - name: Run SG01 migration regression before fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f03/runtime-scope/tests/migration.test.mjs 2>&1 | tee f03-customer-other-phone-runtime-scope.log
+          grep -q '# fail 0' f03-customer-other-phone-runtime-scope.log
+          node engineering/f03/runtime-scope/runner.mjs --verify
+      - name: Seed only synthetic existing F03 identities and exact object scope
+        run: |
+          set -euo pipefail
+          node engineering/f03-1/fixtures.mjs
+          node engineering/f03/runtime-scope/fixtures.mjs
+          node engineering/f03/customer-other-phone/fixtures.mjs
+      - name: Existing F03 runtime-scope Guard regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f03/runtime-scope/tests/integration.test.mjs 2>&1 | tee -a f03-customer-other-phone-runtime-scope.log
+          grep -q '# fail 0' f03-customer-other-phone-runtime-scope.log
+      - name: Real transactional customer phone business tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f03/customer-other-phone/tests/business.test.mjs 2>&1 | tee f03-customer-other-phone-business.log
+          grep -q '# fail 0' f03-customer-other-phone-business.log
+      - name: Real HTTPS contracts on the same sealed PG16 database
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f03/runtime-scope/tests/https.test.mjs 2>&1 | tee -a f03-customer-other-phone-runtime-scope.log
+          grep -q '# fail 0' f03-customer-other-phone-runtime-scope.log
+          node --test --test-concurrency=1 engineering/f03/customer-other-phone/tests/https.test.mjs 2>&1 | tee f03-customer-other-phone-https.log
+          grep -q '# fail 0' f03-customer-other-phone-https.log
+      - name: Full Node regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --prefix engineering test 2>&1 | tee f03-customer-other-phone-regression.log
+          grep -q '# fail 0' f03-customer-other-phone-regression.log
+      - name: Final SHA evidence manifest
+        run: node engineering/f03/customer-other-phone/evidence.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: customer-other-phone-${{ matrix.track }}-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: warn
+          retention-days: 30
+          path: |
+            f03-customer-other-phone-business.log
+            f03-customer-other-phone-https.log
+            f03-customer-other-phone-runtime-scope.log
+            f03-customer-other-phone-regression.log
+            f03-customer-other-phone-evidence.json
+            engineering/f03/customer-other-phone/environment.mjs
+            engineering/f03/customer-other-phone/fixtures.mjs
+            engineering/f03/customer-other-phone/evidence.mjs
+            engineering/f03/customer-other-phone/README.md
+            engineering/f03/customer-other-phone/测试矩阵.tsv
+            engineering/f03/customer-other-phone/B工程中文交接.md
+            .github/workflows/f03-customer-other-phone-nonprod.yml
+            engineering/f03/customer-other-phone/tests/business.test.mjs
+            engineering/f03/customer-other-phone/tests/https.test.mjs
+            engineering/src/f03-customer-other-phone-service.mjs
+            engineering/src/f03-publisher-phone-admin-service.mjs
+            engineering/f03/publisher-phone-staff-admin/schema.sql
+            engineering/src/f03-customer-other-phone-http.mjs
+            engineering/src/app.mjs
+            engineering/f03/runtime-scope/customer-phone-guard.mjs

@@ -1,5 +1,5 @@
 // F03-2-1B LIMITED INTERNAL customer.phone.manage decision only.
-// No phone UPDATE/INSERT/DELETE and no HTTP/official business routes.
+// No phone INSERT/UPDATE/DELETE is performed by this guard.
 import {verifyScopeDatabase} from './readiness.mjs';
 const safeId=x=>typeof x==='string'&&/^[1-9]\d{0,18}$/.test(x)&&BigInt(x)<=9223372036854775807n;
 const answer=(code,allowed=false)=>Object.freeze({code,allowed});
@@ -32,30 +32,33 @@ LEFT JOIN public.employee_permission_overrides o ON o.employee_id=e.employee_id 
 LEFT JOIN public.customers cu ON cu.customer_id=$2::bigint
 WHERE a.account_id=$1::bigint
 `;
+export async function checkCustomerPhoneScopeInTransaction(c,a,operation,customerId){
+ if(operation!=='customer.phone.manage')return answer('OTHER_ACTION_DEFER_DENY');
+ if(!safeId(customerId))return answer('INVALID_CUSTOMER_ID');
+ const rows=(await c.query({text:statement,values:[String(a.account_id),customerId]})).rows;
+ if(rows.length!==1)return answer('INCOMPLETE_CURRENT_FACTS');
+ const x=rows[0];
+ if(x.account_id!==String(a.account_id)||x.principal_kind!==a.principal_kind||
+    x.credential_state!=='enabled'||x.force_password_change!==false)return answer('CURRENT_IDENTITY_DENIED');
+ if(x.principal_kind==='system_admin')return answer('SYSTEM_ADMIN_HARD_DENY');
+ if(x.principal_kind!=='employee'||!safeId(x.employee_id)||x.employee_id!==x.account_employee_id||
+    x.employee_id!==String(a.employee_id)||x.account_admin_id!==null||a.system_admin_id!==null ||
+    x.employment_status!=='active'||!safeId(x.main_role_id)||
+    !['sales','manager','store_manager','four_s'].includes(x.role_code))return answer('CURRENT_IDENTITY_DENIED');
+ if(x.role_code==='four_s')return answer('FOUR_S_HARD_DENY');
+ if(!x.permission_id)return answer('CURRENT_CAPABILITY_MISSING');
+ if(x.personal_decision==='deny')return answer('CURRENT_PERSONAL_DENY');
+ if(x.personal_decision!=='allow'&&x.role_enabled!==true)return answer('CURRENT_CAPABILITY_DENIED');
+ if(!x.customer_id||x.customer_id!==customerId)return answer('CUSTOMER_OBJECT_MISSING');
+ if(x.customer_status!=='active')return answer('CUSTOMER_NOT_ACTIVE');
+ if(x.valid_capability_object_scope!==true)return answer('CAPABILITY_OBJECT_SCOPE_DENIED');
+ return answer('INTERNAL_CUSTOMER_PHONE_SCOPE_ALLOW',true);
+}
 export async function checkCustomerPhoneScope(auth,token,operation,customerId){
  if(operation!=='customer.phone.manage')return answer('OTHER_ACTION_DEFER_DENY');
  if(!safeId(customerId))return answer('INVALID_CUSTOMER_ID');
  // New physical fingerprint; old F03-1 80-table verifier intentionally rejects this database.
  await verifyScopeDatabase(auth.pool);
- const out=await auth.withSession(token,async(c,a)=>{
-  const rows=(await c.query({text:statement,values:[String(a.account_id),customerId]})).rows;
-  if(rows.length!==1)return answer('INCOMPLETE_CURRENT_FACTS');
-  const x=rows[0];
-  if(x.account_id!==String(a.account_id)||x.principal_kind!==a.principal_kind||
-     x.credential_state!=='enabled'||x.force_password_change!==false)return answer('CURRENT_IDENTITY_DENIED');
-  if(x.principal_kind==='system_admin')return answer('SYSTEM_ADMIN_HARD_DENY');
-  if(x.principal_kind!=='employee'||!safeId(x.employee_id)||x.employee_id!==x.account_employee_id||
-     x.employee_id!==String(a.employee_id)||x.account_admin_id!==null||a.system_admin_id!==null ||
-     x.employment_status!=='active'||!safeId(x.main_role_id)||
-     !['sales','manager','store_manager','four_s'].includes(x.role_code))return answer('CURRENT_IDENTITY_DENIED');
-  if(x.role_code==='four_s')return answer('FOUR_S_HARD_DENY');
-  if(!x.permission_id)return answer('CURRENT_CAPABILITY_MISSING');
-  if(x.personal_decision==='deny')return answer('CURRENT_PERSONAL_DENY');
-  if(x.personal_decision!=='allow'&&x.role_enabled!==true)return answer('CURRENT_CAPABILITY_DENIED');
-  if(!x.customer_id||x.customer_id!==customerId)return answer('CUSTOMER_OBJECT_MISSING');
-  if(x.customer_status!=='active')return answer('CUSTOMER_NOT_ACTIVE');
-  if(x.valid_capability_object_scope!==true)return answer('CAPABILITY_OBJECT_SCOPE_DENIED');
-  return answer('INTERNAL_CUSTOMER_PHONE_SCOPE_ALLOW',true);
- },{normalOnly:true});
+ const out=await auth.withSession(token,async(c,a)=>checkCustomerPhoneScopeInTransaction(c,a,operation,customerId),{normalOnly:true});
  return out??answer('SESSION_OR_PC_ADMISSION_DENIED');
 }
