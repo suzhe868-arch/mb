@@ -20,8 +20,12 @@ const vehicleIds=Array.from({length:20},(_,i)=>String(60310+i));
 async function count(sql){return Number((await writer.query(sql)).rows[0].n)}
 const SIDE_EFFECT_TABLES=[
  'demands','demand_match_results','matching_change_events',
+ 'f05_matching_discovery_events_test','f05_matching_affected_queue_test',
  'priority_leases','f05_priority_events_test','f05_priority_suppression_test','f05_priority_sweep_events_test',
+ 'f05_priority_qualification_test','f05_priority_qualification_events_test',
+ 'f05_priority_schedule_jobs_test','f05_priority_schedule_events_test',
  'recommendations','f05_recommendation_snapshot_test','f05_recommendation_events_test',
+ 'f05_recommendation_price_grant_events_test',
  'vehicle_visibility_grants','lock_requests','locks','waitlists',
  'f05_demand_end_requests_test','f05_demand_lifecycle_events_test','f05_matching_recompute_events_test',
  'customer_price_cycle_unlocks','customer_day_quota_ledger','customer_price_unlock_events'
