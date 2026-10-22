@@ -1,0 +1,22 @@
+类别	编号	用例	预期	执行环境
+权限	01-04	两个System Admin真实会话、PG16非超管身份、81表、GET不泄漏电话	PASS	PG16业务Job
+访问安全	05-11	员工自读、非法ID/模式/额外字段、无员工、4S及离职拒绝	DENY	PG16业务Job
+基线授权	11A	撤销后恢复原本独立allow，不删除无关授权	PASS	PG16业务Job
+授予	12-14	LOCKED_ONLY授予、SG01绑定、权限审计同库	PASS	PG16业务Job
+时效	14A	未来granted_at的SG01绑定不被视为有效能力	DENY	PG16业务Job
+去重CAS	15-21	相同请求幂等、不同请求冲突、过期版本、两模式变更、双管理员CAS	PASS/409	PG16业务Job
+员工复职	22	真实PG16员工audit水位捕获inactive→active；不调用电话API期间旧授权持久撤销，仅显式重授后启用	PASS/DENY	PG16业务Job
+角色失效恢复	23	员工由合格角色变4S后恢复合格角色，生命周期审计仍使旧授权保持关闭	DENY	PG16业务Job
+基线缺失	23B	授予时角色/门店/在职快照缺失时GET持久fail-closed	DENY	PG16业务Job
+角色边界	23A	未经正式规则定义的store_head别名拒绝	DENY	PG16业务Job
+提交竞态	24	提交中离职更新受真实PG16行锁保护（55P03）	PASS	PG16业务Job
+个人deny	25	已有个人deny时PUT拒绝	DENY	PG16业务Job
+专项范围	18A、20、27、28A	授予与撤权只结束publisher_phone_special绑定，不误撤object等其他Scope	PASS	PG16业务Job
+并发deny	25A-25B	两个真实PG16事务顺序竞争；deny不得被条件UPSERT覆盖；失败全事务回滚	PASS/ROLLBACK	PG16业务Job
+事务回滚	26	注入提交前异常后权限、scope、版本、审计均回滚	ROLLBACK	PG16业务Job
+撤权	27-28A	撤销、幂等删除、活动授权期间deny保留且审计记录最终deny	PASS	PG16业务Job
+目标资格	29-30	离职员工拒绝配置、已停用System Admin会话拒绝	DENY	PG16业务Job
+签名持久	31-33	新连接恢复、SG01公有Schema签名、私有模式隔离	PASS	PG16业务Job
+HTTPS	01-22	安全GET、Origin/session/CSRF/方法/请求体、真实PUT/DELETE、CAS、默认404	PASS/DENY	PG16 HTTPS Job
+关联回归	BASE	工程基础Node全量test（每个Job独立执行）	PASS	双Job
+工程边界	CHECK	官方Push同SHA、路径白名单、node --check、git diff --check、双Artifact	PASS	双Job
