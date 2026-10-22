@@ -1,31 +1,22 @@
 # 名邦汽车 V1｜NEXT_ACTION 当前唯一指针｜2026-10-22
 
-## 当前唯一 B 工程任务｜F05 目录客户价格权益投影与确定性车型搜索
+## 已完成闭环｜F05 目录客户价格权益投影与确定性搜索
 
-- `NEXT_OWNER=B`
-- `NEXT_TASK=F05_CATALOG_CUSTOMER_PRICE_SEARCH_01`
-- `NEXT_ISSUE=204`：[F05 目录客户价格权益投影与确定性搜索](https://github.com/suzhe868-arch/mb/issues/204)
-- `NEXT_BRANCH=feat/f05-catalog-customer-price-search-01`（本 A 状态治理 PR 合并后正式激活；B 必须从执行时最新 main 接管）
-- 正式施工单：`07_重建工作区/F05目录客户价格权益投影与确定性搜索非生产施工单_2026-10-22.md`
+- Issue [#204](https://github.com/suzhe868-arch/mb/issues/204) 已关闭；业务 PR [#210](https://github.com/suzhe868-arch/mb/pull/210) 已标准合并。
+- B 最终 HEAD：`b1d548d441463b77cf896aac02eff8515560a347`；merge SHA：`c2087a15fd3d124080e549acc02b515fb877ba8e`。
+- 官方 Run [#39743949320](https://github.com/suzhe868-arch/mb/actions/runs/39743949320) 同 SHA 全部步骤成功；88/88 + 3/3 + 13/13 + 7/7 + 6/6 = 117/117，失败 0、跳过 0。
+- Artifact [#12410562743](https://github.com/suzhe868-arch/mb/actions/runs/39743949320/artifacts/12410562743) SHA-256 `3d1d3108c7bbf813d45f7868e0730a4daeb2a61134b96b7c3a58a3ae2459d8ce`，内部 HEAD/Run/branch 与清单摘要均已核验。
+- 验收报告：`07_重建工作区/F05目录客户价格权益投影与确定性搜索PR210独立验收与合并报告_2026-10-22.md`。
 
-### 任务边界与必测闭环
+## 当前唯一职责指针｜A 继续 F08 来源与阶段门禁
 
-1. **客户价格权益投影：** 匿名隐藏数字价；仅凭当前有效 Customer session、当前等级/price entitlement 与 listing cycle 判定；LIMITED 批发车列表不返回数字价；详情复用现有 detail-entry 解锁，不重复扣额；UNLIMITED 只展示合法当前客户价；价格缺失显示“价格咨询”，额度耗尽且未解锁显示 `--万`。
-2. **确定性搜索：** 目录查询入口接入有界表达输入，复用 PDM-12 Rule Dictionary / deterministic parser；未知词、作用域冲突、规则禁用/过期/撤权或解析不完整必须拒绝/无结果；禁止 contains/fuzzy、AI 猜测或产生 Demand/Match/Priority/Recommendation/Lock/grant。
-3. HMAC 游标绑定归一化搜索条件与既有来源/筛选/排序/年款；保留品牌/车系/车型/年款、分页、七种固定排序和隐藏/下架/Priority 保护；数字价格区间排除“价格咨询”。
-4. 只允许正式施工单列出的 catalog-service/http/readiness/wiring 最小改动和指定新增文件；Rule Dictionary parser 仅在确有 PDM-12 兼容缺口时最小增量。复用现有 price-unlock/quota ledger 与排序，不重写已验收业务。
-5. 真实 PostgreSQL 16、非超级用户、实际 Node HTTP 测试匿名/LIMITED/UNLIMITED、有效/无效/撤销 session、等级变化、详情解锁幂等、额度耗尽、旧 cycle、价格缺失/过期、搜索正反例、游标跨条件重放与无副作用。
-6. 专用 Push workflow 同最终 SHA 全部必需步骤成功，失败 0、跳过 0；脱敏同 SHA Artifact 不超过 20 MiB、保留 1 天；完成增量审查和中文交接后交 A 独立验收。
-
-### 已完成前序任务
-
-- F05-7 Issue #201 / PR #206 已独立验收合并，B SHA `f4d7180d7fb38525cbe63bf697bc7fc3bb300f4b`，merge SHA `7e00859edf59e1c93254de17cd5543fa7bae6960`，专用 Run #39729060862 成功。
-- F05-8 Issue #203 / PR #208 已独立验收合并，B SHA `8a18b0d12c54c607ee9555e8dda582ccd40f840a`，merge SHA `31881d1d092cea220087e527fdac7da03141480e`；专用 Run #39732168499 成功，6/6 + 5/5 + 8/8；Artifact #12406100445 已核验。
-- 旧冻结工作流 Run #39732168405 同 SHA 52 项检查中 31 项失败、21 项成功；它不是 Issue #203 专用矩阵，不记为 PASS，逐项列表及适用性记录见 `07_重建工作区/F05-8_Issue203_PR208独立验收与F05目录搜索任务放行报告_2026-10-22.md`。旧工作流/既有代码不在本任务白名单内，另行治理须 A 单独授权。
-- Issue #187 的 JYT/Collector、CDN/OSS、飞书及正式来源门禁不阻断本任务，但所有真实外部来源仍未接通。
-- Issue #204 只交付非生产后端；不开发 PC/手机页面、不接生产、不授权真实电话/资金/公网调用，不伪造正式 Issuer 或地域事实。
-
-
+- `NEXT_OWNER=A`
+- `NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`
+- `NEXT_ISSUE=187`：[F08 可信来源与外部集成父级门禁](https://github.com/suzhe868-arch/mb/issues/187)
+- `NEXT_BRANCH=NONE`
+- 先复用已验收 PR #69、#100、#174、#181、#186 与 F08-3 PR #193 的有效证据，不重复旧测试。继续核对正式 F03 capability/Vehicle Scope/Object、F05 转换可信正向 Issuer、publisher.phone.sensitive 可信来源及 SLA/Incident 正式来源。
+- 用户已确认 JYT/Collector、图片存储/CDN、飞书尚未准备；目前无新的合法 B 业务施工包，不因模拟 CI 绿灯伪称外部接通。若仍缺正式来源/资源，保持 SOURCE_GAP 并明确解除条件，不切换 Work、不创建平行任务。
+- F06/F07/F08/V1 继续 `NOT_READY / NO_PRODUCTION`；C PR #68 保持独立；不授权真实电话、生产、真钱、真实退款/成交或第三方公网调用。
 
 ---
 
