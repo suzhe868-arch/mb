@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F03_F04_PUBLISHER_PHONE_STAFF_CONTROL_API_NONPROD",
-  "current_domain_status": "Issue #221 A 治理 PR #222 标准合并并正式放行 B：独立非生产 F03/F04 员工电话权限配置 HTTP+同库 PG16；最新治理 merge SHA 176171e9c885d82106c036c3f707fb1ed831b95f。父 #187 SOURCE_GAP，F07 同源消费尚未连接，F05→F06 同车门禁 NOT_RUN，V1 NO_PRODUCTION。",
+  "current_domain_status": "A 独立审查 PR #224 最终 HEAD bcd6682c3fd6cc72e4c1dc7a22d9cd8f821273a7：官方 Run #39803424110 两个真实 PG16/HTTPS Job 成功、33+22 业务/HTTP 用例和各 269 Node 回归通过；但发现 DELETE 清除显式 deny、并发 deny 覆盖、SG01 binding 缺 granted_at 时效校验、未证实 store_head 角色四项安全/范围缺陷。PR #224 已 Draft/未合并，状态 A_CHANGES_REQUESTED，NEXT_OWNER=B 在原 Issue/分支整改并以最终 SHA 重新交 A。Issue #187 SOURCE_GAP/FAIL_CLOSED、F07 未连接、F05→F06 同车签名 NOT_RUN、V1 NO_PRODUCTION 不变。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -11841,7 +11841,7 @@
     "production_ready": false
   },
   "f03_f04_staff_publisher_phone_admin_api_release_2026_10_22": {
-    "status": "A_RELEASED_FOR_B_GOVERNANCE_PR222_MERGED",
+    "status": "A_CHANGES_REQUESTED",
     "task": "F03_F04_PUBLISHER_PHONE_STAFF_PERMISSION_ADMIN_HTTP_PG16_01",
     "issue": 221,
     "branch": "feat/f03-f04-publisher-phone-staff-admin-http-pg16-01",
@@ -11854,6 +11854,52 @@
     "external_sources_ready": false,
     "f07_runtime_same_source_integrated": false,
     "governance_pr": 222,
-    "governance_merge_sha": "176171e9c885d82106c036c3f707fb1ed831b95f"
+    "governance_merge_sha": "176171e9c885d82106c036c3f707fb1ed831b95f",
+    "a_review": {
+      "status": "A_CHANGES_REQUESTED",
+      "pr": 224,
+      "reviewed_head": "bcd6682c3fd6cc72e4c1dc7a22d9cd8f821273a7",
+      "official_push_run": 39803424110,
+      "official_run_conclusion": "success",
+      "jobs": {
+        "business_pg16": {
+          "conclusion": "success",
+          "cases_passed": 33,
+          "node_regression_passed": 269
+        },
+        "https_pg16": {
+          "conclusion": "success",
+          "cases_passed": 22,
+          "node_regression_passed": 269
+        }
+      },
+      "artifacts": [
+        {
+          "id": 12435844017,
+          "name": "f03-phone-admin-business-39803424110-1",
+          "size_bytes": 36693,
+          "ref": "feat/f03-f04-publisher-phone-staff-admin-http-pg16-01",
+          "head_sha": "bcd6682c3fd6cc72e4c1dc7a22d9cd8f821273a7"
+        },
+        {
+          "id": 12436417920,
+          "name": "f03-phone-admin-https-39803424110-1",
+          "size_bytes": 36164,
+          "ref": "feat/f03-f04-publisher-phone-staff-admin-http-pg16-01",
+          "head_sha": "bcd6682c3fd6cc72e4c1dc7a22d9cd8f821273a7"
+        }
+      ],
+      "blockers": [
+        "DELETE must preserve explicit personal deny",
+        "Concurrent deny must not be overwritten by PUT",
+        "SG01 binding requires granted_at <= transaction_timestamp()",
+        "Remove or formally justify store_head role alias"
+      ],
+      "next_owner": "B",
+      "next_task": "F03_F04_PUBLISHER_PHONE_STAFF_PERMISSION_ADMIN_HTTP_PG16_01",
+      "next_issue": 221,
+      "pr_state": "draft",
+      "merged": false
+    }
   }
 }

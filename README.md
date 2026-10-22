@@ -1,16 +1,24 @@
-# 名邦汽车 V1｜A 主控新增 B 正式任务（2026-10-22）
+# 名邦汽车 V1｜A 独立审查退回 B 整改｜Issue #221（2026-10-22）
 
 - **NEXT_OWNER=B**
 - **NEXT_TASK=`F03_F04_PUBLISHER_PHONE_STAFF_PERMISSION_ADMIN_HTTP_PG16_01`**
 - **NEXT_ISSUE=221**：[员工批发电话权限配置后端](https://github.com/suzhe868-arch/mb/issues/221)
 - **NEXT_BRANCH=`feat/f03-f04-publisher-phone-staff-admin-http-pg16-01`**
 - **NEXT_WORK_FILE=`07_重建工作区/F03_F04员工批发电话专项权限配置正式HTTP合同与PG16非生产后端施工单_2026-10-22.md`**
-- **放行生效条件：** A 治理 PR 合规标准合并后；B 开工以最新 main 和唯一正式施工单为准。创建 Issue/分支不代表开工许可。
-- **实码差异：** PR #189/PDM-02/PDM-09/Issue #196 要求可消费的员工电话权限后台管理 API。已验 F08-3 #190 仅证明内部非生产 F07 合成电话 Guard/跨 F03+F07 模式测试；`configurePublisherPhoneAccess` 是跨两 PG16 数据库分步提交，且默认 `engineering/src/server.mjs` 未注册正式后台配置写入口。本包只补 F03/F04 当前 System Admin 单库 PG16 权限配置、CAS/审计及 HTTPS 合同，不重复 F08-3，也不着手 PC 前端。
-- **精确范围：** 隔离非生产、F03 真实 Session、SG01 合法权限链、非 public 私有同库模式；可选 test-only app/server 注入、两独立真实非超管 PG16 Jobs、最终 HEAD 官方 CI/Artifact；无正式外部集成、真实拨号/生产使用。B 一次性交 `READY_FOR_A_REVIEW` 后 A 独立验收。
-- **并行硬门禁：** 父 Issue #187 持续 `SOURCE_GAP/FAIL_CLOSED`；电话 F07 真同源消费 `NOT_CONNECTED_F07_RUNTIME`；F05→F06 同车签名 `NOT_RUN/BLOCKED_SIGNED_PARENT`；F06/F07/F08/V1 `NOT_READY/NO_PRODUCTION`。#196 PC 页面仍 DEFERRED；C PR #68 不动；已合并 #190/#216 不重做。
+- **A_REVIEW=`A_CHANGES_REQUESTED`；PR #224 为 Draft，未合并。** 连接的 GitHub 账号是 PR 作者，GitHub 拒绝对自己 PR 提交正式 `REQUEST_CHANGES` review；A 已将完整审查意见写入 [PR #224 讨论](https://github.com/suzhe868-arch/mb/pull/224) 和 [Issue #221](https://github.com/suzhe868-arch/mb/issues/221)，并将 PR 退回 Draft。该状态不是批准或合并。
+- **已核验最终交付证据：** B HEAD `bcd6682c3fd6cc72e4c1dc7a22d9cd8f821273a7`；官方 [Push Run #39803424110](https://github.com/suzhe868-arch/mb/actions/runs/39803424110) 成功；Business/PG16 Job 33/33、HTTPS/PG16 Job 22/22，两个 Job 各自 Node 基础回归 269/269；两份非空 Artifact 元数据均匹配该 Run/HEAD。CI 全绿但不代表权限安全审查通过。
+- **必须在原 Issue #221 / PR #224 / 原 B 分支一次性修复四项：**
+  1. DELETE 不得清除现有员工个人 `deny`；撤销专项授权后保留 deny，并补真实 PG16 回归。
+  2. 解决 PUT 检查后被并发写入的 deny 无条件覆盖为 allow 的竞态；使用数据库级串行化/条件写入，补双事务 PG16 竞态测试。
+  3. SG01 binding 当前有效性检查补 `granted_at <= transaction_timestamp()`，并测试未来生效 binding 必须 fail-closed。
+  4. 移除未被 PDM-02 与既有 F08 Guard 证明的 `store_head` 角色别名，或提交正式角色字典证据；未证实前拒绝，并补负例。
+- **B 下一动作：** 在原分支先同步合并后的最新 main；修复上述四项、增加真实 PG16 负例、运行语法/差异/路径双门禁、两套真实 PG16/HTTPS Job 与全量 Node 回归；重建并核对最终 SHA 的两份 Artifact 与内部清单，更新中文交接后重新交 A。B 不合并 main、不另开 Issue、不开发 PC/C/手机页面。
+- **不变门禁：** 父 Issue #187 仍 `SOURCE_GAP/FAIL_CLOSED`；`F07_RUNTIME=NOT_CONNECTED_F07_RUNTIME`；F05→F06 同车签名 Lock/Transaction/Deposit 仍 `NOT_RUN/BLOCKED_SIGNED_PARENT`；F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。不接真实 JYT/Collector/CDN/OSS/飞书、不开放真实电话/生产/资金。
+
+> **唯一现行指针规则：** 本节是当前唯一 NEXT_OWNER/NEXT_TASK 指针。下方既有状态、验收、施工记录均为写入当时的历史快照；其中旧的“当前有效状态”和旧 NEXT_* 不覆盖本节。
 
 ---
+
 
 # 名邦汽车 V1｜A 主控当前有效状态（2026-10-22｜Issue216限定非生产验收、Issue187仍阻断）
 

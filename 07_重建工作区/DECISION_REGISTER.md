@@ -1,3 +1,14 @@
+## A-F03-F04-PHONE-STAFF-ADMIN-ISSUE221-PR224-CHANGES-REQUESTED-01｜A独立审查退回权限语义整改（2026-10-22）
+
+- **当前唯一指针**：`NEXT_OWNER=B`、`NEXT_TASK=F03_F04_PUBLISHER_PHONE_STAFF_PERMISSION_ADMIN_HTTP_PG16_01`、`NEXT_ISSUE=221`、`NEXT_BRANCH=feat/f03-f04-publisher-phone-staff-admin-http-pg16-01`。
+- **PR #224**：[B工程交付](https://github.com/suzhe868-arch/mb/pull/224) 最终 HEAD `bcd6682c3fd6cc72e4c1dc7a22d9cd8f821273a7`。官方 [Run #39803424110](https://github.com/suzhe868-arch/mb/actions/runs/39803424110) 两个真实 PG16/HTTPS Job 成功；33 项业务、22 项 HTTPS、各 269 项 Node 基础回归通过；两份 Artifact 元数据与最终 HEAD/Run 一致。
+- **A独立审查结论：`A_CHANGES_REQUESTED`，未合并。** 因当前连接账号为 PR 作者，GitHub 不允许对本人 PR 提交正式 REQUEST_CHANGES review；完整审查已记在 PR #224 讨论和 Issue #221，PR 已转 Draft。不得误标 A_ACCEPTED。
+- **四项必须在原 B 分支整改**：① DELETE 保留现有个人 `deny`；② PUT 不得并发覆盖 deny，补真实 PG16 双事务竞态；③ SG01 binding 检查 `granted_at <= transaction_timestamp()` 并补未来时间负例；④ 移除未证实的 `store_head` 角色别名，或给出正式角色字典证据并测试未知角色 fail-closed。
+- **下一动作**：B 同步最新 main，在原 Issue #221 / PR #224 一次性修复、补真 PG16 负例、最终 SHA 官方 Push CI 与两份 Artifact/内部哈希、全量 Node 回归和中文交接后重新交 A；不新开任务、不合并 main。
+- **来源门禁不变**：父 #187 `SOURCE_GAP/FAIL_CLOSED`；F07 同源消费 `NOT_CONNECTED_F07_RUNTIME`；F05→F06 同车签名 `NOT_RUN/BLOCKED_SIGNED_PARENT`；F06/F07/F08/V1 `NOT_READY/NO_PRODUCTION`；不接真实外部服务、电话、生产、资金或 PC/C 页面。
+
+---
+
 ## A-F03-F04-PHONE-STAFF-ADMIN-ISSUE221-RELEASE-01｜员工批发电话权限正式HTTP合同非生产工程放行（2026-10-22）
 
 - **NEXT_OWNER=B**
