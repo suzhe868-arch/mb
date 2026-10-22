@@ -154,6 +154,8 @@ jobs:
               await client.query("INSERT INTO public.vehicle_brands(brand_id,brand_name) VALUES(59001,'隔离测试品牌')");
               await client.query("INSERT INTO public.vehicle_series(series_id,brand_id,series_name) VALUES(59001,59001,'隔离测试车系')");
               await client.query("INSERT INTO public.vehicle_models(model_id,brand_id,series_id,model_name,model_year,profile_status) VALUES(59001,59001,59001,'隔离测试车型',2026,'incomplete')");
+              await client.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,model_id,created_at) VALUES(59001,'wholesale','active','visible',59001,statement_timestamp())");
+              await client.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES(59001,59001,statement_timestamp())");
               const baseLevel=(await client.query("SELECT level_id FROM public.customer_levels WHERE level_id=59001")).rows[0];
               if(!baseLevel)await client.query("INSERT INTO public.customer_levels(level_id,level_code) VALUES(59001,'f05_catalog_ci_level_59001')");
               const role=(await client.query("SELECT role_code FROM public.roles WHERE role_id=59001")).rows[0];
