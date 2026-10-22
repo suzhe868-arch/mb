@@ -92,6 +92,13 @@ try{
    const sql=await readFile(new URL('../catalog/'+filename,import.meta.url),'utf8');
    await client.query(sql);
   }
+  // The frozen matching regression uses the canonical disposable sales role ID 59001.
+  // Keep this fixture local to the fresh PG16 database; do not change the frozen test.
+  const canonicalRole=(await client.query("SELECT role_code FROM public.roles WHERE role_id=59001")).rows[0];
+  const existingSales=(await client.query("SELECT role_id FROM public.roles WHERE role_code='sales' LIMIT 1")).rows[0];
+  if(!canonicalRole&&!existingSales)await client.query("INSERT INTO public.roles(role_id,role_code) VALUES(59001,'sales')");
+  else if(!canonicalRole||canonicalRole.role_code!=='sales'||String(existingSales?.role_id??'59001')!=='59001')
+   throw Error('MATCH_RETRY_BOOTSTRAP_CANONICAL_SALES_ROLE_DENIED');
   await client.query('COMMIT');
  }catch(error){
   await client.query('ROLLBACK').catch(()=>{});
