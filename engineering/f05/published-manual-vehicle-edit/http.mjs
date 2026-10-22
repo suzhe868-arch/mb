@@ -1,7 +1,7 @@
 // Loopback-only HTTPS route for Issue216; never mounted in production.
 import {readSessionCookie} from '../../src/f03-auth-http.mjs';
 import {assertIsolated} from './migration.mjs';
-const ORIGIN='https://127.0.0.1:48986';
+const ORIGIN='https://127.0.0.1:${Number(process.env.F05_EDIT_HTTP_PORT || 48986)}';
 const BASE='/__ci__/f05-published-edit/v1/vehicles';
 const headers={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store, max-age=0',
  pragma:'no-cache','x-content-type-options':'nosniff','x-frame-options':'DENY','referrer-policy':'no-referrer'};
@@ -26,7 +26,7 @@ export function createPublishedEditHandler(service,{env=process.env}={}){
   let u;try{u=new URL(raw,ORIGIN)}catch{return deny(res,400,'PATH_INVALID')}
   if(u.origin!==ORIGIN||u.search||u.hash)return deny(res,403,'TARGET_DENIED');
   if(!req.socket?.encrypted||!['127.0.0.1','::1','::ffff:127.0.0.1'].includes(req.socket.remoteAddress)||
-   req.headers.host!=='127.0.0.1:48986'||req.headers.origin!==ORIGIN||req.headers.authorization||
+   req.headers.host!=='127.0.0.1:${Number(process.env.F05_EDIT_HTTP_PORT || 48986)}'||req.headers.origin!==ORIGIN||req.headers.authorization||
    req.headers['transfer-encoding']||Object.keys(req.headers).some(k=>/(merchant|team|owner|role|level|publisher|customer|scope|forwarded|employee|actor|identity)/i.test(k)))
    return deny(res,403,'CONTEXT_DENIED');
   let token;try{token=readSessionCookie(req.headers.cookie)}catch{return deny(res,401,'SESSION_REQUIRED')}
