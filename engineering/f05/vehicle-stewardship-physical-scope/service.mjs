@@ -65,7 +65,7 @@ export async function issueFromTrustedManualPublication(){
 // An actual new manual publication, current Vehicle/Cycle creation, signed business
 // responsibility receipt, and both append-only audit facts share ONE PG16 transaction.
 // Neither created_by nor formally_published_at for an old row can enter this path.
-export async function publishAndIssueFromCurrentTransaction(auth,token,p,{testCheckpoint}={}){
+export async function publishAndIssueFromCurrentTransaction(auth,token,p,{testCheckpoint,onPublishInTransaction}={}){
  if(!shape(p,'eventKey,listingCycleId,sourceKind,teamId,vehicleId')||
     ![p.vehicleId,p.listingCycleId,p.teamId].every(valid)||!eventKey(p.eventKey)||
     !['mingbang','four_s'].includes(p.sourceKind)||
@@ -79,6 +79,9 @@ export async function publishAndIssueFromCurrentTransaction(auth,token,p,{testCh
     return deny('F05_2_CHECKPOINT_NOT_CI');
    await testCheckpoint('publisher_permission_proven',c);
   }
+  if(onPublishInTransaction!==undefined&&
+     (process.env.CI!=='true'||process.env.GITHUB_ACTIONS!=='true'||typeof onPublishInTransaction!=='function'))
+   return deny('F05_2_PUBLISH_CALLBACK_NOT_CI');
   // A real existing row, including one with apparently matching uploader and
   // timestamp, is explicitly not eligible for a backfilled ownership grant.
   const prior=(await c.query('SELECT vehicle_id FROM public.vehicles WHERE vehicle_id=$1 FOR KEY SHARE',[p.vehicleId])).rows;
@@ -104,6 +107,7 @@ export async function publishAndIssueFromCurrentTransaction(auth,token,p,{testCh
     JSON.stringify({eventKey:p.eventKey,vehicleId:p.vehicleId,listingCycleId:p.listingCycleId,sourceKind:p.sourceKind,teamId:p.teamId,issuedTo:actor})]);
   await c.query("INSERT INTO public.vehicle_responsibility_audit_events(responsibility_id,event_key,event_kind,actor_employee_id,current_employee_id,source_evidence) VALUES($1,$2,'ISSUE',$3,$3,'CI_ONLY_SAME_TX_PDM06_FORMAL_PUBLISH_WITH_VEHICLE_AND_CYCLE')",
     [record.responsibility_id,'audit:'+p.eventKey,actor]);
+  if(onPublishInTransaction)await onPublishInTransaction(c,actor,Object.freeze({vehicleId:p.vehicleId,listingCycleId:p.listingCycleId,teamId:p.teamId,sourceKind:p.sourceKind,responsibilityId:Number(record.responsibility_id)}));
   return ok('F05_2_ISSUED',{responsibilityId:Number(record.responsibility_id)});
  });
 }

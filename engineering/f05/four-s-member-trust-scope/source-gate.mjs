@@ -121,11 +121,13 @@ export async function revokeMemberCreateLicense(auth,adminToken,p){
   return accept('F05_3A_LICENSE_REVOKED');
  });
 }
-export async function publishNewFourSMemberVehicle(auth,token,p,{testCheckpoint}={}){
+export async function publishNewFourSMemberVehicle(auth,token,p,{testCheckpoint,onPublishInTransaction}={}){
  if(!allowedProduct(p))return deny('F05_3A_PDM06_FIELDS_INVALID');
  await ready(auth);
  if(testCheckpoint!==undefined&&(process.env.CI!=='true'||process.env.GITHUB_ACTIONS!=='true'||typeof testCheckpoint!=='function'))
   return deny('F05_3A_TEST_CHECKPOINT_INVALID');
+ if(onPublishInTransaction!==undefined&&(process.env.CI!=='true'||process.env.GITHUB_ACTIONS!=='true'||typeof onPublishInTransaction!=='function'))
+  return deny('F05_3A_PUBLISH_CALLBACK_NOT_CI');
  try{return await memberSession(auth,token,async(c,who)=>{
   const license=(await c.query("SELECT * FROM public.f05_3a_member_create_licenses WHERE employee_id=$1 AND revoked_at IS NULL FOR SHARE",[who])).rows;
   if(license.length!==1)return deny(BLOCKED);
@@ -150,6 +152,7 @@ export async function publishNewFourSMemberVehicle(auth,token,p,{testCheckpoint}
   const dbTx=(await c.query('SELECT txid_current()::text AS txid')).rows[0].txid;
   await c.query("INSERT INTO public.f05_3a_member_trust_audit(event_key,license_id,publication_id,event_kind,actor_kind,actor_member_employee_id,affected_employee_id,actor_context,before_state,after_state) VALUES($1,$2,$3,'MEMBER_PUBLISH','FOUR_S_MEMBER',$4,$4,$5::jsonb,$6::jsonb,$7::jsonb)",
    ['audit:'+p.eventKey,license[0].license_id,publicationId,who,JSON.stringify({origin:'F05_3A_OWN_NEW_FOUR_S_IN_CURRENT_TX',sessionSubject:who,tx:dbTx}),JSON.stringify({vehicleExists:false}),JSON.stringify({vehicleId:p.vehicleId,listingCycleId:p.listingCycleId,licenseId:Number(license[0].license_id),member:who,brandId:p.brandId,seriesId:p.seriesId,modelId:p.modelId,modelYear:p.modelYear,mileageKm:p.mileageKm,city:p.city})]);
+  if(onPublishInTransaction)await onPublishInTransaction(c,who,Object.freeze({vehicleId:p.vehicleId,listingCycleId:p.listingCycleId,publicationId,licenseId:Number(license[0].license_id),sourceKind:'four_s'}));
   return accept('F05_3A_MEMBER_VEHICLE_ISSUED',{publicationId,vehicleId:p.vehicleId,listingCycleId:p.listingCycleId});
  },{normalOnly:true})}catch(e){if(['23505','23503'].includes(e?.code))return deny('F05_3A_DUPLICATE_OR_RACE_DENIED');throw e}
 }
