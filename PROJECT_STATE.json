@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "BACKEND_ENGINEERING",
-  "substage": "F05_MANUAL_VEHICLE_A_ACCEPTED_F08_SOURCE_GATE_OPEN",
+  "substage": "F05_PUBLISHED_MANUAL_EDIT_NONPROD_B_RELEASED_F08_SOURCE_GATE_PARALLEL",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F08_SIGNED_SOURCE_AND_STAGE_GATE",
-  "current_domain_status": "Issue212/PR214 A独立终验通过、业务标准合并SHA b55271d8b7f44d1402b289fa37226196239da5fd，B最终SHA cf190ea42a7b554368967bf45ef6055b762c0bb5，Run39770082142 4/4成功、业务100/100、基础269x4，四Artifact经A独立校验。仅非生产子范围；Issue187 SOURCE_GAP/FAIL_CLOSED，F06/F07/F08/V1 NOT_READY。",
+  "current_domain": "F05_PUBLISHED_MANUAL_VEHICLE_EDIT_NONPROD",
+  "current_domain_status": "A 基于 PDM-06 §15/PDM-10 §5 实码核查确认 #212/#214 排除已发布人工 Vehicle 的普通编辑。Issue #216 已由 A 正式签单，治理 PR 合并后 B 在 feat/f05-published-manual-vehicle-staged-edit-pg16-01 仅执行隔离非生产真实 PG16+HTTPS；父 Issue #187 仍 SOURCE_GAP/FAIL_CLOSED，F06/F07/F08/V1 NOT_READY。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
-  "current_work_file": "07_重建工作区/F05人工车源PR214独立验收与Issue187接续报告_2026-10-22.md",
+  "current_task": "F05_PUBLISHED_MANUAL_VEHICLE_STAGED_EDIT_PG16_01",
+  "current_work_file": "07_重建工作区/F05已发布人工车辆普通编辑暂存提交与价格字段PG16非生产后端施工单_2026-10-22.md",
   "f06_issue164_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_NONPROD_COMPOSITE_DUAL_GATE_B_CONTINUE",
     "issue": 164,
@@ -11802,5 +11802,18 @@
     "report": "07_重建工作区/F05人工车源PR214独立验收与Issue187接续报告_2026-10-22.md",
     "next_owner": "A",
     "next_issue": 187
+  },
+  "f05_published_manual_edit_release_2026_10_22": {
+    "status": "A_GOVERNANCE_MERGE_REQUIRED_BEFORE_B",
+    "task": "F05_PUBLISHED_MANUAL_VEHICLE_STAGED_EDIT_PG16_01",
+    "issue": 216,
+    "branch": "feat/f05-published-manual-vehicle-staged-edit-pg16-01",
+    "work_file": "07_重建工作区/F05已发布人工车辆普通编辑暂存提交与价格字段PG16非生产后端施工单_2026-10-22.md",
+    "scope": "DISPOSABLE_PG16_PUBLISHED_MANUAL_EDIT_ONLY",
+    "prior_accepted_issue": 212,
+    "prior_accepted_pr": 214,
+    "independent_source_gate_issue": 187,
+    "production_ready": false,
+    "external_ready": false
   }
 }

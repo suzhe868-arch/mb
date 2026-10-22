@@ -1,3 +1,18 @@
+# 名邦汽车 V1｜A 主控最新正式放行｜2026-10-22
+
+- **NEXT_OWNER=B**
+- **NEXT_TASK=`F05_PUBLISHED_MANUAL_VEHICLE_STAGED_EDIT_PG16_01`**
+- **NEXT_ISSUE=216**：[已发布人工车源暂存编辑](https://github.com/suzhe868-arch/mb/issues/216)
+- **NEXT_BRANCH=`feat/f05-published-manual-vehicle-staged-edit-pg16-01`**
+- **正式施工单：** `07_重建工作区/F05已发布人工车辆普通编辑暂存提交与价格字段PG16非生产后端施工单_2026-10-22.md`
+- **生效条件：** 本治理 PR 已合并至最新 `main`，B 从合并后的 main 读取本文才能开工；治理分支存在不代表已放行。
+- **事实依据：** PDM-06 §15、PDM-10 §5/§5.1 与 PDM-04 §2.1；已验收 #212/#214 只做未发布多草稿与首次正式发布，**明文排除已发布人工车辆普通编辑**；源码无该业务写入端。此包新增「已发布 Vehicle 暂存编辑→保存修改后一次生效」隔离真实 PG16/HTTPS 后端纵切，含正常两个价格字段及内部价额外权限。已有 F05-2/3A/#214/F05 安全投影/F06 生命周期资产复用。
+- **范围：** 仅非生产私有 Schema、现有 public 列之合法数据操作、原 F05 编辑范围/权限复用；不改冻结 schema/迁移、F03 reader、旧 Workflow、生产代码或客户端。两真实非超管 PG16 Jobs，真实并发/撤权/价格泄漏负例，最终 SHA 官方 CI 与 Artifact；B 一次性 `READY_FOR_A_REVIEW` 交 A。
+- **并行来源门禁：** Issue [#187](https://github.com/suzhe868-arch/mb/issues/187) 保持 `SOURCE_GAP / FAIL_CLOSED`；缺 JYT/Collector、CDN/OSS、飞书、正式 F03 Scope/Object、F05 转换 Issuer、真实电话等。F06/F07/F08/V1 整体 `NOT_READY / NO_PRODUCTION`；不启动 PC/手机页面或 C PR #68。
+- **历史已验收：** Issue #212、PR #214、治理 PR #215 均完成；不重做人工车源首次发布，不重复签发 F08-3。
+
+---
+
 # 名邦汽车 V1｜当前主控状态（2026-10-22｜PR214已验收合并，接续Issue187）
 
 ## 最新有效 A 主控状态
