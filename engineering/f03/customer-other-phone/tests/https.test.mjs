@@ -36,7 +36,7 @@ before(async()=>{
  assertEnvironment();key=Buffer.from(process.env.F03_CUSTOMER_PHONE_KEY_BASE64||'','base64');assert.equal(key.length,32);
  auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret:randomBytes(32),origin});
  const login=await auth.login({login:'employee_test',password:'SyntheticScopeEmployee_2026',source:'customer_phone_https'});
- assert.equal(login.code,'AUTH_OK');assert.equal(login.restricted,false);token=login.token;csrf=login.csrf;
+ assert.equal(login.code,'AUTH_OK');assert.equal(login.restricted,false);token=login.token;csrf=auth.csrfFor(token);
  const service=new CustomerOtherPhoneService(auth,{key});
  const handler=createCustomerOtherPhoneHandler({service,auth});
  server=httpsServer({key:await readFile(process.env.F03_CUSTOMER_PHONE_TLS_KEY_PATH),cert:await readFile(process.env.F03_CUSTOMER_PHONE_TLS_CERT_PATH)},
