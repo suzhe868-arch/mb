@@ -53,13 +53,14 @@ jobs:
       - name: Branch, final SHA, changed paths and syntax gate
         run: |
           set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
           test "$GITHUB_REPOSITORY" = "suzhe868-arch/mb"
           test "$GITHUB_EVENT_NAME" = "push"
           test "$GITHUB_REF" = "refs/heads/feat/f05-7-matching-retry-scheduler-01"
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           git fetch --no-tags origin main:refs/remotes/origin/main
           BASE="$(git merge-base origin/main HEAD)"
-          mkdir -p f05-matching-retry-scheduler/artifacts
+          mkdir -p engineering/f05-matching-retry-scheduler/artifacts
           while IFS= read -r file; do
             case "$file" in
               .github/workflows/matching-retry-scheduler-pg16.yml|engineering/f05-matching-retry-scheduler/*) ;;
@@ -98,7 +99,7 @@ jobs:
           printf '%s\n' "$GITHUB_SHA" > f05-matching-retry-scheduler/artifacts/head-sha.txt
           printf '%s\n' "$GITHUB_RUN_ID" > f05-matching-retry-scheduler/artifacts/run-id.txt
           printf '%s\n' "$GITHUB_REF" > f05-matching-retry-scheduler/artifacts/branch.txt
-          (cd f05-matching-retry-scheduler/artifacts && find . -maxdepth 1 -type f -name '*.log' -print0 | sort -z | xargs -0 -r sha256sum > sha256sums.txt)
+          (cd f05-matching-retry-scheduler/artifacts && find . -maxdepth 1 -type f ! -name 'sha256sums.txt' -print0 | sort -z | xargs -0 -r sha256sum > sha256sums.txt)
           size="$(du -sb f05-matching-retry-scheduler/artifacts | awk '{print $1}')"
           test "$size" -le 20971520
           if grep -R -nE 'postgres(ql)?://[^[:space:]]+|BEGIN PRIVATE KEY|Bearer[[:space:]]+[A-Za-z0-9._-]+' f05-matching-retry-scheduler/artifacts; then
