@@ -417,6 +417,8 @@ await test('真实 PG16 自动调度、双进程并发、过期租约恢复、�
    const timedOut=await withTimeout(slowRunner.exitPromise,4000);
    assert.ok(timedOut,'the overrun runner must terminate');
    assert.equal(timedOut.code,124,'a slow worker must hit the hard runtime deadline');
+   await waitFor(()=>/scheduler_deadline_exit|scheduler_hard_deadline_exit/.test(slowRunner.stderr),
+    1000,'deadline_exit_log');
    assert.match(slowRunner.stderr,/scheduler_deadline_exit|scheduler_hard_deadline_exit/);
    const durableLease=(await pool.query(
     "SELECT state,lease_until>statement_timestamp() AS lease_live FROM public.f05_matching_affected_queue_test "+
