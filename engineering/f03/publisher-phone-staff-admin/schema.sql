@@ -8,6 +8,16 @@ CREATE TABLE f03_publisher_phone_admin_test.employee_mode (
   -- DELETE restores this baseline instead of erasing an unrelated allow/deny.
   previous_decision text CHECK (previous_decision IN ('allow','deny') OR previous_decision IS NULL),
   previous_decision_captured boolean NOT NULL DEFAULT false,
+  -- Watermark into the immutable employee lifecycle audit stream at explicit grant.
+  lifecycle_audit_watermark bigint NOT NULL DEFAULT 0 CHECK (lifecycle_audit_watermark>=0),
+  granted_employment_status text CHECK (granted_employment_status IS NULL OR granted_employment_status='active'),
+  granted_role_code text,
+  granted_main_role_id bigint CHECK (granted_main_role_id IS NULL OR granted_main_role_id>0),
+  granted_store_id bigint CHECK (granted_store_id IS NULL OR granted_store_id>0),
+  lifecycle_invalidated_at timestamptz,
+  lifecycle_invalidated_audit_id bigint CHECK (lifecycle_invalidated_audit_id IS NULL OR lifecycle_invalidated_audit_id>0),
+  lifecycle_invalidated_action text,
+  lifecycle_invalidated_reason text CHECK (lifecycle_invalidated_reason IS NULL OR lifecycle_invalidated_reason IN ('EMPLOYEE_AUDIT_AFTER_GRANT','EMPLOYEE_FACT_DRIFT','LIFECYCLE_BASELINE_MISSING')),
   version bigint NOT NULL DEFAULT 0 CHECK (version>=0),
   updated_by_system_admin_id bigint,
   updated_at timestamptz NOT NULL DEFAULT transaction_timestamp(),
