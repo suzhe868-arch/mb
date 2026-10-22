@@ -18,12 +18,22 @@ const sha=value=>createHash('sha256').update(value).digest('hex'),token=()=>rand
 const limitedToken=token(),unlimitedToken=token();let server,connected=false,failure;
 const vehicleIds=Array.from({length:20},(_,i)=>String(60310+i));
 async function count(sql){return Number((await writer.query(sql)).rows[0].n)}
-async function snapshot(){return {
- matches:await count('SELECT count(*)::int n FROM public.demand_match_results'),
- recommendations:await count('SELECT count(*)::int n FROM public.f05_recommendation_safe_customer_test'),
- unlocks:await count('SELECT count(*)::int n FROM public.customer_price_cycle_unlocks'),
- quota:await count('SELECT count(*)::int n FROM public.customer_day_quota_ledger')
-}}
+const SIDE_EFFECT_TABLES=[
+ 'demands','demand_match_results','matching_change_events',
+ 'priority_leases','f05_priority_events_test','f05_priority_suppression_test','f05_priority_sweep_events_test',
+ 'recommendations','f05_recommendation_snapshot_test','f05_recommendation_events_test',
+ 'vehicle_visibility_grants','lock_requests','locks','waitlists',
+ 'f05_demand_end_requests_test','f05_demand_lifecycle_events_test','f05_matching_recompute_events_test',
+ 'customer_price_cycle_unlocks','customer_day_quota_ledger','customer_price_unlock_events'
+];
+async function snapshot(){
+ const state={};
+ for(const table of SIDE_EFFECT_TABLES){
+  const result=await writer.query("SELECT count(*)::int n, md5(COALESCE(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]')) digest FROM public."+table+" t");
+  state[table]={count:Number(result.rows[0].n),digest:result.rows[0].digest};
+ }
+ return state;
+}
 try{
  await writer.connect();connected=true;
  assert.equal(await probeIsolatedCatalog(pool),true,'fresh disposable PG16 schema must match the current manifest');
@@ -38,13 +48,14 @@ try{
   await writer.query("INSERT INTO public.f05_catalog_price_entitlement_test(level_id,price_access_mode,daily_base_quota,expires_at) VALUES(60300,'LIMITED',1,statement_timestamp()+interval '20 minutes'),(60301,'UNLIMITED',0,statement_timestamp()+interval '20 minutes')");
   await writer.query("INSERT INTO public.employees(employee_id,main_role_id,employment_status,receiving_status) VALUES(60390,59001,'active','receiving')");
   const rule=(word,mappedKey,mappedValue,status='enabled')=>writer.query("INSERT INTO public.f05_matching_dictionary_rules_test(token,mapped_key,mapped_value,scope_kind,status,created_by,updated_by) VALUES($1,$2,$3,'global',$4,60390,60390)",[word,mappedKey,mappedValue,status]);
-  await rule('26款','minModelYear','2026');await rule('奥迪A6','brandId','60300');
+  await rule('26款','minModelYear','2026');await rule('奥迪A6','brandId','60300');await rule('黑内饰','interiorColor','black');
   await rule('冲突','brandId','60300');await rule('冲突','brandId','60301');await rule('停用词','brandId','60300','disabled');
   for(let i=0;i<vehicleIds.length;i++){
    const id=vehicleIds[i],modelId=i===17?'60301':'60300',source=i===18?'mingbang':'wholesale';
    const status=source==='wholesale'?'active':'available',visibility=i===19?'hidden':'visible',price=i===16?null:String(12000000+i*100000);
    await writer.query("INSERT INTO public.vehicles(vehicle_id,source_type,source_sale_status,platform_visibility,model_id,created_at) VALUES($1,$2,$3,$4,$5,statement_timestamp())",[id,source,status,visibility,modelId]);
    await writer.query("INSERT INTO public.vehicle_listing_cycles(listing_cycle_id,vehicle_id,started_at) VALUES($1,$1,statement_timestamp())",[id]);
+   await writer.query("INSERT INTO public.f05_matching_vehicle_facts_test(vehicle_id,listing_cycle_id,interior_color,expires_at) VALUES($1,$1,$2,statement_timestamp()+interval '20 minutes')",[id,i<5?'black':'white']);
    await writer.query("INSERT INTO public.f05_real_catalog_visibility_test(vehicle_id,listing_cycle_id,source_type,allow_anonymous,expires_at) VALUES($1,$1,$2,true,statement_timestamp()+interval '20 minutes')",[id,source]);
    await writer.query("INSERT INTO public.f05_catalog_price_display_proof_test(vehicle_id,listing_cycle_id,source_type,customer_display_cents,expires_at) VALUES($1,$1,$2,$3,statement_timestamp()+interval '20 minutes')",[id,source,price]);
   }
@@ -67,19 +78,30 @@ try{
   const forgedQuery=await get('/api/v1/catalog/vehicles?customerId=60300');assert.equal(forgedQuery.status,400);
  });
  await test('PG16 deterministic search, numeric price range and cursor are read-only',async()=>{
-  const before=await snapshot(),first=await get('/api/v1/catalog/vehicles?source=wholesale&q='+encodeURIComponent('26款 奥迪A6'));
+  const before=await snapshot(),beforeOrdinary=await snapshot(),first=await get('/api/v1/catalog/vehicles?source=wholesale&q='+encodeURIComponent('26款 奥迪A6'));
   assert.equal(first.status,200,JSON.stringify(first.body));assert.equal(first.body.searchExpression,'26款;奥迪A6');assert.equal(first.body.items.length,15);
   assert.ok(first.body.nextCursor);assert.ok(first.body.items.every(x=>x.modelYear===2026));
   const cross=await get('/api/v1/catalog/vehicles?source=wholesale&q='+encodeURIComponent('26款')+'&cursor='+encodeURIComponent(first.body.nextCursor));
   assert.equal(cross.status,400);assert.equal(cross.body.code,'INVALID_CURSOR');
   const second=await get('/api/v1/catalog/vehicles?source=wholesale&q='+encodeURIComponent('26款 奥迪A6')+'&cursor='+encodeURIComponent(first.body.nextCursor));
   assert.equal(second.status,200);assert.equal(second.body.items.length,2);
+  assert.deepEqual(await snapshot(),beforeOrdinary,'ordinary search and cursor pagination must not mutate Demand/Match/Priority/Recommendation/Lock/Waitlist/grant or ledger state');
+  const beforeColorSearch=await snapshot();
+  const colorOnly=await get('/api/v1/catalog/vehicles?source=wholesale&q='+encodeURIComponent('黑内饰'));
+  assert.equal(colorOnly.status,200,JSON.stringify(colorOnly.body));
+  assert.equal(colorOnly.body.searchExpression,'黑内饰');
+  assert.equal(colorOnly.body.items.length,5);
+  assert.ok(colorOnly.body.items.every(x=>Number(x.vehicleId)>=60310&&Number(x.vehicleId)<=60314));
+  assert.deepEqual(await snapshot(),beforeColorSearch,'preferred-only color search must remain read-only');
+  const beforePriceSearch=await snapshot();
   const priceCursor=await get('/api/v1/catalog/vehicles?source=wholesale&q='+encodeURIComponent('26款 奥迪A6')+'&minPriceCents=12000000&maxPriceCents=13900000');
   assert.equal(priceCursor.status,200);assert.ok(priceCursor.body.nextCursor);
   const crossPrice=await get('/api/v1/catalog/vehicles?source=wholesale&q='+encodeURIComponent('26款 奥迪A6')+'&minPriceCents=12000000&maxPriceCents=13899999&cursor='+encodeURIComponent(priceCursor.body.nextCursor));
   assert.equal(crossPrice.status,400);assert.equal(crossPrice.body.code,'INVALID_CURSOR');
   const ranged=await get('/api/v1/catalog/vehicles?source=wholesale&q='+encodeURIComponent('26款 奥迪A6')+'&minPriceCents=12500000&maxPriceCents=12900000',limitedToken);
   assert.equal(ranged.status,200);assert.ok(ranged.body.items.length>0);assert.ok(ranged.body.items.every(x=>x.price===null));
+  assert.ok(!ranged.body.items.some(x=>x.vehicleId==='60326'),'numeric price ranges must exclude vehicles without a legal numeric customer price');
+  assert.deepEqual(await snapshot(),beforePriceSearch,'numeric price range search must remain read-only');
   const unknown=await get('/api/v1/catalog/vehicles?q='+encodeURIComponent('完全未知'));
   assert.equal(unknown.status,409);assert.equal(unknown.body.reason,'RULE_PARSE_UNKNOWN_TOKEN');
   const conflict=await get('/api/v1/catalog/vehicles?q='+encodeURIComponent('冲突'));
@@ -154,6 +176,9 @@ try{
   await writer.query("INSERT INTO public.f05_real_catalog_protections_test(vehicle_id,listing_cycle_id,protection_kind) VALUES(60311,60311,'PRIORITY')");
   try{assert.equal((await detail('60311',unlimitedToken)).status,404)}
   finally{await writer.query("DELETE FROM public.f05_real_catalog_protections_test WHERE vehicle_id=60311 AND listing_cycle_id=60311 AND protection_kind='PRIORITY'")}
+  await writer.query("UPDATE public.f05_catalog_customer_sessions_test SET expires_at=statement_timestamp()-interval '1 second' WHERE customer_id=60301");
+  const expiredSession=await get('/api/v1/catalog/vehicles?source=wholesale',unlimitedToken);
+  assert.equal(expiredSession.status,401);assert.equal(expiredSession.body.code,'CUSTOMER_IDENTITY_REQUIRED');
  });
 }catch(e){failure=e}
 finally{

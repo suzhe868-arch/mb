@@ -10,6 +10,7 @@ on:
       - 'engineering/src/catalog-readiness.mjs'
       - 'engineering/src/f05-catalog-customer-read-service.mjs'
       - 'engineering/src/f05-catalog-search.mjs'
+      - 'engineering/src/f05-matching-dictionary-parser.mjs'
       - 'engineering/tests/f05-catalog-customer-search.test.mjs'
       - 'engineering/integration/f05-catalog-customer-search-price.pg16.test.mjs'
 permissions:
@@ -75,6 +76,7 @@ jobs:
               engineering/src/catalog-readiness.mjs|\
               engineering/src/f05-catalog-customer-read-service.mjs|\
               engineering/src/f05-catalog-search.mjs|\
+              engineering/src/f05-matching-dictionary-parser.mjs|\
               engineering/tests/f05-catalog-customer-search.test.mjs|\
               engineering/integration/f05-catalog-customer-search-price.pg16.test.mjs) ;;
               *) echo "FORBIDDEN_CHANGED_PATH $file"; exit 91 ;;
@@ -90,7 +92,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p f05-catalog-customer-search/artifacts
-          node --test tests/catalog.test.mjs tests/catalog-regression.test.mjs tests/f05-catalog-customer-search.test.mjs 2>&1 | tee f05-catalog-customer-search/artifacts/unit-tests.log
+          node --test tests/catalog.test.mjs tests/catalog-regression.test.mjs tests/f05-catalog-customer-search.test.mjs tests/f05-matching.test.mjs tests/f05-matching-dictionary.test.mjs 2>&1 | tee f05-catalog-customer-search/artifacts/unit-tests.log
           grep -q '# fail 0' f05-catalog-customer-search/artifacts/unit-tests.log
       - name: Bootstrap genuine isolated non-superuser PG16 schema
         run: |
