@@ -1,3 +1,17 @@
+## A-F03-F04-PHONE-STAFF-ADMIN-ISSUE221-PR224-ACCEPT-01｜A独立验收通过与Issue187接续（2026-10-23）
+
+- **当前唯一指针**：`NEXT_OWNER=A`、`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`、`NEXT_ISSUE=187`、`NEXT_BRANCH=NONE`。
+- **A 独立验收结论**：`A_ACCEPTED_LIMITED_NONPROD`。PR [#224](https://github.com/suzhe868-arch/mb/pull/224) 已标准合并，Issue [#221](https://github.com/suzhe868-arch/mb/issues/221) 已关闭。
+- **B 最终 HEAD**：`db769298c7c76a6c41f235face1a93ce376cdb27`；**业务 merge SHA**：`74cac7f5eecfdb2476e91e3cd534fe8893ea21f8`。
+- 官方 [Run #39825791981](https://github.com/suzhe868-arch/mb/actions/runs/39825791981) 顶层 `completed/success`，精确绑定最终 HEAD；Business/PG16 43/43、HTTPS/PG16 22/22、每个 Job 的 Node 全量回归 269/269，均 0 失败/跳过。
+- A 实际下载并复算两份 Artifact ZIP 摘要：Business #12446487238 `686cba5f3e7a67e6cc368c0048a65d6a2dd3c93efacbdd8de47202d46d78a97b`；HTTPS #12445254876 `5ed397781322f87190bbb89a4005d39585aff4381661572f0efb5c0f0205f163`。Run/HEAD/ref 一致，内部 13/13 文件 SHA-256 与字节数全部匹配。
+- **本轮生命周期基线阻断已解除**：NULL baseline 经生命周期失效、显式重授及 DELETE 后不遗留 API 生成的 allow；独立 allow baseline 保留；并发 deny 不被覆盖；审计 after_json 记录实际最终决策。真实 PG16 回归均通过。之前四项个人 deny、并发 deny、SG01 granted_at 时效和角色白名单整改继续通过。
+- **范围**：13 个变更路径均在 Issue #221 白名单；只接受 `CI_ONLY_F03_PERMISSION_CONFIG` 非生产同库配置 API。F07 Runtime 仍未接线，不触碰真实电话、生产、外部系统或资金。
+- **父门禁保持**：Issue [#187](https://github.com/suzhe868-arch/mb/issues/187) 仍 `SOURCE_GAP/FAIL_CLOSED`；F05→F06 同车签名 `NOT_RUN/BLOCKED_SIGNED_PARENT`；F06/F07/F08/V1 `NOT_READY/NO_PRODUCTION`。
+- **正式报告**：[`07_重建工作区/F03_F04员工批发电话权限PR224_A独立验收通过与Issue187接续报告_2026-10-23.md`](../07_重建工作区/F03_F04员工批发电话权限PR224_A独立验收通过与Issue187接续报告_2026-10-23.md)。
+
+---
+
 ## A-F03-F04-PHONE-STAFF-ADMIN-ISSUE221-PR224-CHANGES-REQUESTED-02｜A补充独立复审与复职授权阻断（2026-10-23）
 
 - **当前唯一指针**：`NEXT_OWNER=B`、`NEXT_TASK=F03_F04_PUBLISHER_PHONE_STAFF_PERMISSION_ADMIN_HTTP_PG16_01`、`NEXT_ISSUE=221`、`NEXT_BRANCH=feat/f03-f04-publisher-phone-staff-admin-http-pg16-01`。
