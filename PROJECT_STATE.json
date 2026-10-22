@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "BACKEND_ENGINEERING",
-  "substage": "F05_MANUAL_VEHICLE_DRAFT_PUBLISH_NONPROD_ACTIVE_WITH_F08_SOURCE_GATE_PARALLEL",
+  "substage": "F05_MANUAL_VEHICLE_A_ACCEPTED_F08_SOURCE_GATE_OPEN",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F05_MANUAL_VEHICLE_DRAFT_PUBLISH_NONPROD",
-  "current_domain_status": "A 已在最新 main 的真实路由与源码差异审查中确认 PDM-06 人工名邦/4S 车源多草稿、发布校验、VIN 精确重复与 MODEL_MISSING 保留缺少完整后端 HTTP/PG16 闭环。Issue #212 已创建，随 A 治理 PR 合并后授权 B 实施。任务复用既有 F05-2/3A 可信发布原语，只新增隔离非公开测试 schema 与 draft 生命周期；不依赖 JYT/Collector/CDN/OSS/Feishu。Issue #187 仍开放且阻断正式来源/生产，但不阻断该独立非生产任务。",
+  "current_domain": "F08_SIGNED_SOURCE_AND_STAGE_GATE",
+  "current_domain_status": "Issue212/PR214 A独立终验通过、业务标准合并SHA b55271d8b7f44d1402b289fa37226196239da5fd，B最终SHA cf190ea42a7b554368967bf45ef6055b762c0bb5，Run39770082142 4/4成功、业务100/100、基础269x4，四Artifact经A独立校验。仅非生产子范围；Issue187 SOURCE_GAP/FAIL_CLOSED，F06/F07/F08/V1 NOT_READY。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F05_MANUAL_VEHICLE_DRAFT_PUBLISH_REAL_HTTP_PG16_01",
-  "current_work_file": "07_重建工作区/F05人工名邦4S车源草稿发布非生产后端施工单_2026-10-22.md",
+  "current_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
+  "current_work_file": "07_重建工作区/F05人工车源PR214独立验收与Issue187接续报告_2026-10-22.md",
   "f06_issue164_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_NONPROD_COMPOSITE_DUAL_GATE_B_CONTINUE",
     "issue": 164,
@@ -3388,7 +3388,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B 在 A 状态治理 PR 合并后，从最新 main 接管 feat/f05-catalog-customer-price-search-01，完成匿名/LIMITED/UNLIMITED 价格投影、当前 Customer session 与等级变化、详情解锁幂等、额度/周期/价格事实边界、Rule Dictionary 确定性搜索与游标绑定、无副作用安全矩阵、真实 PG16/Node HTTP 集成、专用最终 SHA 官方 CI 与脱敏证据，达到 READY_FOR_A_REVIEW 后交 A 独立验收。",
+  "next_action": "A 增量核验 Issue187 真实来源与 F01～F08 未完成后端差异，缺失的 JYT/Collector、CDN/OSS、Feishu 与正式签名来源继续 FAIL_CLOSED；不得重复 Issue212，只有确认另一个独立且依赖满足的后端缺口及完整 Authority/范围/测试才放行 B。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4968,7 +4968,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "F05-7 Issue #201 / PR #206 与 F05-8 Issue #203 / PR #208 已先后由 A 独立验收并标准合并。F05-8 B SHA 8a18b0d12c54c607ee9555e8dda582ccd40f840a，merge SHA 31881d1d092cea220087e527fdac7da03141480e，专用 Run #39732168499 成功，Artifact #12406100445 已核验。旧冻结 H52 workflow Run #39732168405 在同 SHA 52 项检查中 31 项失败、21 项成功；详见 F05-8 验收报告，未计为 PASS。下一任务为 Issue #204；Issue #187 外部来源门禁不阻断本非生产任务。",
+  "next_action_detail": "Issue212已关闭，PR214已标准合并SHA b55271d8b7f44d1402b289fa37226196239da5fd；B HEAD cf190ea42a7b554368967bf45ef6055b762c0bb5，官方 Run39770082142 四个Job成功、业务100/100、基础269x4、四份Artifact已由A独立核验。外部来源 Issue187仍开放。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -6006,7 +6006,7 @@
   },
   "a_batch_approval_mode": "STANDING_USER_DIRECTED_CONTINUOUS_TECHNICAL_WORKFLOW_IN_FROZEN_SCOPE; A_SCOPES_AND_RELEASES_B_C; EACH_WINDOW_COMPLETES_END_TO_END; A_INDEPENDENT_ACCEPTANCE_AND_CLEAN_PR_MERGE_WITHOUT_REPEAT_APPROVAL; NEW_PRODUCT_CHOICE_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_EXTERNAL_WRITES_REQUIRE_USER",
   "current_pending_user_decisions": [],
-  "next_action_owner": "B",
+  "next_action_owner": "A",
   "abc_continuous_execution_rule": {
     "status": "USER_DIRECTIVE_APPLIED",
     "confirmed_at": "2026-10-09",
@@ -7012,7 +7012,7 @@
     "merge_method": "merge",
     "a_review_report": "07_重建工作区/F05-7_A主控二轮独立验收66项真PG16_PR46标准合并与F05-8技术交接_2026-10-12.md"
   },
-  "next_owner": "B",
+  "next_owner": "A",
   "f05_8_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR47_CI_ONLY",
     "execution": "COMPLETED_A_ACCEPTED_PR47_STANDARD_MERGE",
@@ -8147,7 +8147,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F05_MANUAL_VEHICLE_DRAFT_PUBLISH_REAL_HTTP_PG16_01",
+  "next_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9822,7 +9822,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F05目录客户价格权益投影与确定性搜索非生产施工单_2026-10-22.md",
+  "next_work_file": "07_重建工作区/F05人工车源PR214独立验收与Issue187接续报告_2026-10-22.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -10118,8 +10118,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": "feat/f05-manual-vehicle-draft-publish-pg16-01",
-  "next_issue": 212,
+  "next_branch": "NONE",
+  "next_issue": 187,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -11771,5 +11771,36 @@
       "blocks_this_task": false
     },
     "completion_gate": "Same final HEAD official CI, real non-superuser PG16, Node HTTPS/HTTP, F05-2 36-case and F05-3A 38-case regression, zero failed/skipped, evidence artifact, Chinese handover; A independent acceptance"
+  },
+  "f05_manual_vehicle_issue212_a_acceptance_2026_10_22": {
+    "task_id": "F05_MANUAL_VEHICLE_DRAFT_PUBLISH_REAL_HTTP_PG16_01",
+    "status": "A_ACCEPTED_NONPRODUCTION_STANDARD_MERGED",
+    "issue": 212,
+    "issue_closed": true,
+    "pr": 214,
+    "pr_merged": true,
+    "b_head_sha": "cf190ea42a7b554368967bf45ef6055b762c0bb5",
+    "merge_sha": "b55271d8b7f44d1402b289fa37226196239da5fd",
+    "official_run": 39770082142,
+    "official_jobs": [
+      119795125328,
+      119795124878,
+      119795125438,
+      119795125332
+    ],
+    "business_tests_passed": 100,
+    "node_foundation_test": "269x4",
+    "verified_artifacts": [
+      12421444632,
+      12421584328,
+      12420983884,
+      12421847552
+    ],
+    "all_artifact_hashes_independently_verified": true,
+    "changed_paths": 15,
+    "production_ready": false,
+    "report": "07_重建工作区/F05人工车源PR214独立验收与Issue187接续报告_2026-10-22.md",
+    "next_owner": "A",
+    "next_issue": 187
   }
 }
