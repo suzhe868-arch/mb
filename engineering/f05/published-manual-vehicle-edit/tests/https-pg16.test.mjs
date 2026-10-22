@@ -14,7 +14,7 @@ const fourS=process.env.F05_EDIT_TEST_SOURCE==='four_s';
 if(!['four_s','mingbang'].includes(process.env.F05_EDIT_TEST_SOURCE))throw Error('F05_EDIT_TEST_SOURCE_REQUIRED');
 const vehicleId=fourS?72521:72511,cycleId=vehicleId+1000;
 const secret=randomBytes(32),db=await connect();
-const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin:'https://127.0.0.1:48986'});
+const auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret,origin:'https://127.0.0.1:${Number(process.env.F05_EDIT_HTTP_PORT || 48986)}'});
 let app,actor,other,admin,license;
 const path=BASE+'/'+vehicleId;
 const req=(suffix='',options={})=>app.request(path+suffix,{token:actor,...options});
