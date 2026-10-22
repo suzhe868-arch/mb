@@ -2,6 +2,8 @@
 import {randomBytes} from 'node:crypto';
 import {createCatalogService} from './catalog-service.mjs';
 import {createCatalogHandler} from './catalog-http.mjs';
+import {createIsolatedCatalogCustomerReadService} from './f05-catalog-customer-read-service.mjs';
+import {createIsolatedCatalogSearchService} from './f05-catalog-search.mjs';
 import {createIsolatedFavoriteService} from './f05-favorite-service.mjs';
 import {createIsolatedFavoriteHandler} from './f05-favorite-http.mjs';
 import {createIsolatedConsultationService} from './f05-consultation-service.mjs';
@@ -288,7 +290,9 @@ export async function createIsolatedCatalogRuntime(env=process.env){
  const pool=new pg.Pool({connectionString:conf.connectionString,max:4,connectionTimeoutMillis:900,query_timeout:1800,statement_timeout:1800,application_name:'f05_catalog_disposable_only'});
  try{
   if(!await probeIsolatedCatalog(pool))throw Error('CATALOG_PG16_IDENTITY_OR_SCHEMA_DENIED');
-  const service=createCatalogService({pool,cursorKey:randomBytes(32)});
+  const customerReadService=createIsolatedCatalogCustomerReadService({pool,env});
+  const searchService=createIsolatedCatalogSearchService({pool,env});
+  const service=createCatalogService({pool,cursorKey:randomBytes(32),customerReadService,searchService});
   const favorite=createIsolatedFavoriteService({pool,env});
   const consultation=createIsolatedConsultationService({pool,env});
   const consultationResponse=createIsolatedConsultationResponseService({pool,env});
