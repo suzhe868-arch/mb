@@ -1,0 +1,119 @@
+name: F05-8 Priority TTL scheduler PG16 non-production
+on:
+  push:
+    branches:
+      - feat/f05-8-priority-ttl-scheduler-01
+    paths:
+      - '.github/workflows/priority-ttl-scheduler-pg16.yml'
+      - 'engineering/f05-priority-ttl-scheduler/**'
+permissions:
+  contents: read
+concurrency:
+  group: priority-ttl-scheduler-pg16-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  scheduler-pg16:
+    name: Persistent Priority TTL scheduler on isolated non-superuser PostgreSQL 16
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports:
+          - '5432:5432'
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      APP_ENV: test
+      NODE_ENV: test
+      API_HOST: 127.0.0.1
+      F05_CATALOG_TEST_CONSENT: I_AUTHORIZE_DISPOSABLE_F05_CATALOG_PG16_ONLY
+      F05_CATALOG_DATABASE_URL: postgres://f05_catalog_ci:disposable_f05_ci_only@127.0.0.1:5432/f05_catalog_test
+    defaults:
+      run:
+        working-directory: engineering
+        shell: bash
+    steps:
+      - name: Exact checkout and authorized-path guard
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Node 22 runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Branch, final SHA, changed paths and syntax gate
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          test "$GITHUB_REPOSITORY" = "suzhe868-arch/mb"
+          test "$GITHUB_EVENT_NAME" = "push"
+          test "$GITHUB_REF" = "refs/heads/feat/f05-8-priority-ttl-scheduler-01"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          BASE="$(git merge-base origin/main HEAD)"
+          mkdir -p engineering/f05-priority-ttl-scheduler/artifacts
+          while IFS= read -r file; do
+            case "$file" in
+              .github/workflows/priority-ttl-scheduler-pg16.yml|engineering/f05-priority-ttl-scheduler/*) ;;
+              *) echo "FORBIDDEN_CHANGED_PATH $file"; exit 91 ;;
+            esac
+          done < <(git -c core.quotePath=false diff --name-only "$BASE" HEAD)
+          git diff --check "$BASE" HEAD
+          while IFS= read -r file; do
+            test ! -f "$file" || node --check "$file"
+          done < <(git -c core.quotePath=false diff --name-only "$BASE" HEAD | grep -E '^engineering/f05-priority-ttl-scheduler/.*\.(mjs|cjs|js)$' || true)
+          echo "PRIORITY_TTL_BRANCH_SHA_PATH_AND_NODE_SYNTAX_GATES_PASS"
+      - name: Frozen dependency install
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+      - name: Scheduler boundary, serial tick, backoff and deadline tests
+        run: |
+          set -euo pipefail
+          node --test f05-priority-ttl-scheduler/tests/unit.test.mjs 2>&1 | tee f05-priority-ttl-scheduler/artifacts/unit-tests.log
+          grep -q '# fail 0' f05-priority-ttl-scheduler/artifacts/unit-tests.log
+      - name: Bootstrap genuine isolated PG16 Current Initial schema
+        run: node f05-priority-ttl-scheduler/prepare-pg16.mjs
+      - name: Directly affected existing Priority TTL PG16 regression
+        run: |
+          set -euo pipefail
+          node --test integration/f05-priority-scheduler.pg16.test.mjs 2>&1 | tee f05-priority-ttl-scheduler/artifacts/priority-scheduler-regression.log
+          grep -q '# fail 0' f05-priority-ttl-scheduler/artifacts/priority-scheduler-regression.log
+      - name: Real PG16 runner auto-run, concurrent claims, retry and process recovery
+        run: |
+          set -euo pipefail
+          node --test f05-priority-ttl-scheduler/tests/pg16.test.mjs 2>&1 | tee f05-priority-ttl-scheduler/artifacts/priority-ttl-scheduler-pg16-tests.log
+          grep -q '# fail 0' f05-priority-ttl-scheduler/artifacts/priority-ttl-scheduler-pg16-tests.log
+      - name: Redacted same-SHA evidence and size gate
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p f05-priority-ttl-scheduler/artifacts
+          printf '%s\n' "${GITHUB_SHA}" > f05-priority-ttl-scheduler/artifacts/head-sha.txt
+          printf '%s\n' "${{ github.run_id }}" > f05-priority-ttl-scheduler/artifacts/run-id.txt
+          printf '%s\n' "${{ github.ref }}" > f05-priority-ttl-scheduler/artifacts/branch.txt
+          (cd f05-priority-ttl-scheduler/artifacts && find . -maxdepth 1 -type f ! -name 'sha256sums.txt' -print0 | sort -z | xargs -0 -r sha256sum > sha256sums.txt)
+          size="$(du -sb f05-priority-ttl-scheduler/artifacts | awk '{print $1}')"
+          test "$size" -le 20971520
+          if grep -R -nE 'postgres(ql)?://[^[:space:]]+|BEGIN PRIVATE KEY|Bearer[[:space:]]+[A-Za-z0-9._-]+' f05-priority-ttl-scheduler/artifacts; then
+            echo "PRIORITY_TTL_EVIDENCE_CONTAINS_SENSITIVE_VALUE"
+            exit 92
+          fi
+          echo "PRIORITY_TTL_EVIDENCE_SIZE_BYTES=$size"
+      - name: Upload minimal disposable evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority-ttl-scheduler-evidence-${{ github.run_id }}
+          path: engineering/f05-priority-ttl-scheduler/artifacts/
+          retention-days: 1
+          if-no-files-found: error
