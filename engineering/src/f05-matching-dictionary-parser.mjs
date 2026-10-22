@@ -26,7 +26,7 @@ export function normalizeDictionaryDefinition(v){
  return {token:v.token,mappedKey:v.mappedKey,mappedValue:v.mappedValue,
  scopeKind:v.scopeKind,brandId:b,seriesId:s,modelId:m,yearFrom:from,yearTo:to,notes};
 }
-export function parseDictionaryTokens(input,rows,ctx={}){
+export function parseDictionaryTokens(input,rows,ctx={}, {allowPreferredOnly=false}={}){
  if(typeof input!=='string'||input.length<2||input.length>500||
    !/^[\p{L}\p{N}_;]+$/u.test(input)||!Array.isArray(rows)||
    !ctx||typeof ctx!=='object'||Array.isArray(ctx))
@@ -60,7 +60,7 @@ export function parseDictionaryTokens(input,rows,ctx={}){
   selected.push({ruleId:String(winner.rule_id),ruleVersion:String(winner.version),
    token,scopeKind:winner.scope_kind,key:winner.mapped_key,value:winner.mapped_value});
  }
- const parsed=parseExplicitSalesDescription(Object.entries(out).map(([k,v])=>k+'='+v).join(';'));
+ const parsed=parseExplicitSalesDescription(Object.entries(out).map(([k,v])=>k+'='+v).join(';'),{allowPreferredOnly});
  if(!parsed.ready)return {ready:false,reason:'RULE_PARSE_NOT_EXECUTABLE'};
  return {ready:true,criteria:parsed.criteria,ruleHits:selected,simulationOnly:true,productionReady:false};
 }

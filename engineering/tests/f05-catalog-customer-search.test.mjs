@@ -4,6 +4,7 @@ import {randomBytes} from 'node:crypto';
 import {createIsolatedCatalogSearchService,normalizeCatalogSearchExpression} from '../src/f05-catalog-search.mjs';
 import {formatCustomerPriceCents} from '../src/f05-catalog-customer-read-service.mjs';
 import {encodeCursor,decodeCursor} from '../src/catalog-service.mjs';
+import {parseDictionaryTokens} from '../src/f05-matching-dictionary-parser.mjs';
 const env={APP_ENV:'test',NODE_ENV:'test',API_HOST:'127.0.0.1',F05_CATALOG_TEST_CONSENT:'I_AUTHORIZE_DISPOSABLE_F05_CATALOG_PG16_ONLY'};
 const row=(rule_id,token,mapped_key,mapped_value,scope_kind='global',extra={})=>({rule_id:String(rule_id),token,mapped_key,mapped_value,scope_kind,brand_id:null,series_id:null,model_id:null,year_from:null,year_to:null,version:'1',status:'enabled',...extra});
 const rules=[
@@ -23,6 +24,15 @@ test('Rule Dictionary 与 deterministic parser 返回结构化筛选及规则版
  assert.equal(a.ready,true);assert.equal(String(a.criteria.brandId),'60300');assert.equal(Number(a.criteria.minModelYear),2026);assert.equal(a.ruleHits.length,2);
  const old=a.fingerprint;rules[0].version='2';
  const b=await service.parse({expression:'26款 奥迪A6'});assert.equal(b.ready,true);assert.notEqual(b.fingerprint,old);
+});
+test('目录搜索允许仅偏好型条件；默认 Matching 解析契约保持不变',async()=>{
+ const preferred=[row(7,'黑内饰','interiorColor','black')];
+ assert.equal(parseDictionaryTokens('黑内饰',preferred).reason,'RULE_PARSE_NOT_EXECUTABLE');
+ const service=createIsolatedCatalogSearchService({pool:{query:async()=>({rows:preferred})},env});
+ const parsed=await service.parse({expression:'黑内饰'});
+ assert.equal(parsed.ready,true,JSON.stringify(parsed));
+ assert.deepEqual(parsed.criteria,{interiorColor:'black'});
+ assert.equal(parsed.productionReady,false);
 });
 test('未知、禁用及同作用域冲突均拒绝，不退化为 contains',async()=>{
  const service=createIsolatedCatalogSearchService({pool,env});

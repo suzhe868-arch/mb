@@ -28,7 +28,7 @@ export function createIsolatedCatalogSearchService({pool,env=process.env}={}){
    const rows=(await pool.query("SELECT rule_id,token,mapped_key,mapped_value,scope_kind,brand_id,series_id,model_id,year_from,year_to,version,status "+
     "FROM public.f05_matching_dictionary_rules_test WHERE token=ANY($1::text[])",[normalized.tokens])).rows;
    if(!Array.isArray(rows))throw Error('CATALOG_SEARCH_DICTIONARY_ROWS_INVALID');
-   const parsed=parseDictionaryTokens(normalized.normalizedExpression,rows,context);
+   const parsed=parseDictionaryTokens(normalized.normalizedExpression,rows,context,{allowPreferredOnly:true});
    if(!parsed.ready)return {ready:false,reason:parsed.reason};
    const fingerprint=createHash('sha256').update(JSON.stringify({normalizedExpression:normalized.normalizedExpression,criteria:parsed.criteria,ruleHits:parsed.ruleHits})).digest('hex');
    return {ready:true,normalizedExpression:normalized.normalizedExpression,criteria:parsed.criteria,ruleHits:parsed.ruleHits,fingerprint,simulationOnly:true,productionReady:false};
