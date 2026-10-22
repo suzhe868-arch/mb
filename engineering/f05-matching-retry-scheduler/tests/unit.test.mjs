@@ -145,4 +145,3 @@ await test('慢 worker 超过 tick deadline 后调度器立即结束该回合',a
  await new Promise(resolve=>setTimeout(resolve,190));
  assert.equal(workerFinished,true,'the test worker deliberately completes later to model an overrun');
 });
-
