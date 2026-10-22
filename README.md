@@ -1,32 +1,26 @@
-# 名邦汽车 V1｜A 主控完成 PR #229 独立验收合并｜接续 F08 来源门禁（2026-10-23）
+# 名邦汽车 V1｜A 正式放行 F05→F06 同车签名跨 Runtime 桥接（非生产）｜2026-10-23
 
-- **NEXT_OWNER=A**
-- **NEXT_TASK=`A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`**
-- **NEXT_ISSUE=187**：[F08 可信来源与外部授权父级门禁](https://github.com/suzhe868-arch/mb/issues/187)
-- **NEXT_BRANCH=NONE**
-- **NEXT_WORK_FILE=`07_重建工作区/F03客户其他联系电话PR229独立验收与F08来源门禁接续报告_2026-10-23.md`**
+- **NEXT_OWNER=B**
+- **NEXT_TASK=`F05_F06_SAME_VEHICLE_SIGNED_CROSS_RUNTIME_BRIDGE_PG16_01`**
+- **NEXT_ISSUE=231**：[F05→F06 同车签名跨 Runtime 桥接](https://github.com/suzhe868-arch/mb/issues/231)
+- **NEXT_BRANCH=`feat/f05-f06-same-vehicle-signed-bridge-pg16-01`**
+- **NEXT_WORK_FILE=`07_重建工作区/F05_F06同车签名跨Runtime桥接与历史快照不可变非生产施工单_2026-10-23.md`**
 
-## 最近完成｜F03 客户其他联系电话非生产后端纵切
+## A 本轮已完成的增量审查与技术裁决
 
-- [PR #229](https://github.com/suzhe868-arch/mb/pull/229) 已通过 A 独立验收并标准合并；Issue [#227](https://github.com/suzhe868-arch/mb/issues/227) 已关闭。
-- B 最终 HEAD：`43a25224bb778bf4071e034efdce90d43f6e9226`；标准合并 SHA：`19ef898a0dac447aff7a26b5affd2496a01e86e5`。
-- 官方 Run [#39847897349](https://github.com/suzhe868-arch/mb/actions/runs/39847897349)：B 交接记录顶层 `completed/success`；A 独立核验两个 PG16 Job 均 `completed/success`，并核对 Run/HEAD/Ref。
-- 每个 Job：SG01 migration 9/9、旧 runtime-scope Guard 7/7、旧 HTTPS 2/2、新业务/并发 38/38、新 HTTPS 11/11、Node 全量 269/269；失败 0、跳过 0。
-- Business Artifact #12455429328，ZIP SHA-256 `04f9e027bb63dd2be5d654b71f6d80030bfce0d241a6e37112074dbca39d59e2`；HTTPS Artifact #12456036663，ZIP SHA-256 `a42abf800e0e41e059012df327a399201969a1317222549874d29b9da57b3b9a`。A 已重新下载并复算，两者均与 GitHub 元数据一致；每份 manifest 的 19/19 文件 SHA-256 与字节数匹配。
-- PG16 版本号 160015，非超级用户 `f03_ci`，public 81 表；物理结构指纹 `229aa6dc167cd3ccb8da89fd9d08076af2588b6b4bd1cfbdc8d779c31dfeffe0` 与 manifest 一致。
-- 验收范围仅 `CI_ONLY_F03_CUSTOMER_PHONE_MANAGE`。不代表 F03-2 或 V1 生产就绪。
+- PR [#229](https://github.com/suzhe868-arch/mb/pull/229) 与状态治理 PR [#230](https://github.com/suzhe868-arch/mb/pull/230) 已标准合并；F03 客户其他联系电话与 F03/F04 员工电话权限配置 API 均为限定非生产验收，不重复开发。
+- F05 已发布人工车编辑 Issue #216 / PR #219 已受限验收合并，但明确保留整阶段硬门禁：`F05_216_SAME_VEHICLE_SIGNED_F06_LOCK_TRANSACTION_DEPOSIT_CROSS_RUNTIME_INTEGRATION=NOT_RUN/BLOCKED_SIGNED_PARENT`。
+- A 已为该缺口签发 [Issue #231](https://github.com/suzhe868-arch/mb/issues/231) 和本中文施工单；通过治理 PR #232 后正式生效。工作范围为双数据库、双迁移链、当前 SHA/Run 签名桥接；由现有 F06 服务生成 Lock→合成 Deposit→Transaction，之后通过 F05 #216 HTTPS 编辑同一 Vehicle，再逐行核验 F06 历史快照不回写。
+- 仅允许新增桥接目录/专用 Workflow，并对 F05 测试分支 allowlist、F06 非生产签名根增加一个精确分支 profile；不得修改旧 F05/F06 业务服务、公共 DDL、旧 Workflow 或生产路由。
 
-## 当前 A 主控任务｜F08 可信来源与整阶段门禁
+## 全局门禁仍保持
 
-- Issue #187 继续保持 **`SOURCE_GAP/FAIL_CLOSED`**，不关闭、不签发正式 Source/Issuer。
-- 本轮在合并后增量复核了 `engineering/f03/runtime-facts/current-facts.mjs`、`engineering/src/f07-runtime/runtime.mjs`、`engineering/f03/permission-contract.tsv` 与现有 F03 Scope/Guard 入口：正式 current facts 仍缺可证明的可信 Scope/Object；F05 转换正向验证仍返回来源缺口；`publisher.phone.sensitive` 仍为 `A_APPROVED_NONPROD_ONLY`，不能视为正式来源或生产权限。
-- JYT/Collector、图片存储/CDN/OSS、飞书、正式 SLA/Incident 签名来源仍无新的可核验资源或授权；F07 Runtime 未接线，F05→F06 同车签名 Lock/Transaction/Deposit 仍 `NOT_RUN/BLOCKED_SIGNED_PARENT`。
-- Issue #106 是历史 F05-7 真实来源/执行门禁记录，不是当前唯一施工指针；Issue #196 的 PC 页面继续延期；C PR #68 独立不动。
-- 当前未发现可在现有合法 Authority 下直接释放的新 B 任务。不得为消除状态阻断而重复开发已验收的 #190/#221/#227，亦不得将旧 SHA 或合成测试冒充正式来源。
+- 父级 Issue [#187](https://github.com/suzhe868-arch/mb/issues/187) 仍 `SOURCE_GAP/FAIL_CLOSED`，不关闭、不签发正式 Source/Issuer。
+- F07 Runtime 真实电话消费、正式 F03 Scope/Object、F05 转换可信 Issuer、JYT/Collector、CDN/OSS、Feishu、SLA/Incident 仍各自独立阻断。
+- 本任务通过只完成同车非生产跨 Runtime 快照不回写这一项证据，不代表 F06/F07/F08/V1 生产 READY。
+- PC Issue #196 继续延期；C PR #68 独立不动；不重复 #190/#221/#227。
 
-**整体状态：** 后端开发持续推进，但 F06/F07/F08/V1 仍为 `NOT_READY/NO_PRODUCTION`。下一责任窗口为 A，继续处理 Issue #187 的正式来源/外部授权门禁；只有出现合法新来源或确认另一项依赖已满足的独立后端缺口后，才另行签发 B 任务。
-
-> 唯一现行指针规则：本节是当前唯一有效 NEXT_OWNER/NEXT_TASK；下方旧日期任务指针均为历史快照。
+**整体状态：** B 继续实际后端施工；本任务完成并经 A 独立验收前，同车整阶段门禁仍为 `NOT_RUN/BLOCKED_SIGNED_PARENT`，F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。
 
 ---
 
