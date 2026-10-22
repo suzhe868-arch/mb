@@ -23,7 +23,7 @@ try{
  db=await editConnect();
  assert.equal((await verifyDraft(db)).verified,true);
  assert.equal((await verifyEdit(db)).verified,true);
- const identity=(await db.query("SELECT current_database() name,current_user role,current_setting('server_version_num')::int serverVersion,(SELECT oid::text FROM pg_database WHERE datname=current_database()) oid,(SELECT count(*)::int FROM public.f03_schema_migrations) migrationCount")).rows[0];
+ const identity=(await db.query(`SELECT current_database() AS name,current_user AS role,current_setting('server_version_num')::int AS "serverVersion",(SELECT oid::text FROM pg_database WHERE datname=current_database()) AS oid,(SELECT count(*)::int FROM public.f03_schema_migrations) AS "migrationCount"`)).rows[0];
  assert.equal(identity.name,'f03_auth_test');assert.equal(identity.role,'f03_ci');assert.equal(identity.migrationCount,14);
  assert.equal(identity.oid,sourceManifest.database.oid);
  secret=randomBytes(32);

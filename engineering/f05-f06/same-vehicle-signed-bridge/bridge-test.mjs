@@ -66,7 +66,7 @@ async function seedAccount(db,employeeId,runId){
  return {employeeId:Number(employeeId),login:loginName,password};
 }
 async function databaseIdentity(db){
- return (await db.query("SELECT current_database() name,current_user role,current_setting('server_version_num')::int serverVersion,(SELECT oid::text FROM pg_database WHERE datname=current_database()) oid,(SELECT count(*)::int FROM public.f03_schema_migrations) migrationCount")).rows[0];
+ return (await db.query(`SELECT current_database() AS name,current_user AS role,current_setting('server_version_num')::int AS "serverVersion",(SELECT oid::text FROM pg_database WHERE datname=current_database()) AS oid,(SELECT count(*)::int FROM public.f03_schema_migrations) AS "migrationCount"`)).rows[0];
 }
 test('F05-F06真实同车跨Runtime闭环：两个独立PG16数据库、原生HTTP、资金与历史快照不可变',async t=>{
  let targetDb,sourceDb,baselineDb,auth,runtimePool,server,secret;

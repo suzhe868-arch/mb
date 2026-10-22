@@ -25,8 +25,8 @@ try{
  assert.equal(before.sourceManifestSHA256,sourceManifest.manifestSHA256);
  target=new pg.Client({connectionString:TARGET_DSN});await target.connect();
  source=new pg.Client({connectionString:SOURCE_DSN});await source.connect();
- const sourceIdentity=(await source.query("SELECT current_database() name,current_user role,current_setting('server_version_num')::int serverVersion,(SELECT oid::text FROM pg_database WHERE datname=current_database()) oid,(SELECT count(*)::int FROM public.f03_schema_migrations) migrationCount")).rows[0];
- const targetIdentity=(await target.query("SELECT current_database() name,current_user role,current_setting('server_version_num')::int serverVersion,(SELECT oid::text FROM pg_database WHERE datname=current_database()) oid,(SELECT count(*)::int FROM public.f03_schema_migrations) migrationCount")).rows[0];
+ const sourceIdentity=(await source.query(`SELECT current_database() AS name,current_user AS role,current_setting('server_version_num')::int AS "serverVersion",(SELECT oid::text FROM pg_database WHERE datname=current_database()) AS oid,(SELECT count(*)::int FROM public.f03_schema_migrations) AS "migrationCount"`)).rows[0];
+ const targetIdentity=(await target.query(`SELECT current_database() AS name,current_user AS role,current_setting('server_version_num')::int AS "serverVersion",(SELECT oid::text FROM pg_database WHERE datname=current_database()) AS oid,(SELECT count(*)::int FROM public.f03_schema_migrations) AS "migrationCount"`)).rows[0];
  assert.equal(sourceIdentity.name,'f05_vehicle_source');assert.equal(sourceIdentity.role,'f03_ci');assert.equal(sourceIdentity.migrationCount,14);
  assert.equal(sourceIdentity.oid,sourceManifest.database.oid);
  assert.equal(targetIdentity.name,'f03_auth_test');assert.equal(targetIdentity.role,'f03_ci');assert.equal(targetIdentity.migrationCount,24);
