@@ -1,26 +1,25 @@
-# 名邦汽车 V1｜NEXT_ACTION 当前唯一有效指针（PR #229 已验收合并｜2026-10-23）
+# 名邦汽车 V1｜NEXT_ACTION 当前唯一有效指针｜F05→F06 同车签名桥接（2026-10-23）
 
-- **NEXT_OWNER=A**
-- **NEXT_TASK=`A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`**
-- **NEXT_ISSUE=187**：[F08 可信来源与外部授权父级门禁](https://github.com/suzhe868-arch/mb/issues/187)
-- **NEXT_BRANCH=NONE**
-- **NEXT_WORK_FILE=`07_重建工作区/F03客户其他联系电话PR229独立验收与F08来源门禁接续报告_2026-10-23.md`**
+- **NEXT_OWNER=B**
+- **NEXT_TASK=`F05_F06_SAME_VEHICLE_SIGNED_CROSS_RUNTIME_BRIDGE_PG16_01`**
+- **NEXT_ISSUE=231**：[F05→F06 同车签名跨 Runtime 桥接](https://github.com/suzhe868-arch/mb/issues/231)
+- **NEXT_BRANCH=`feat/f05-f06-same-vehicle-signed-bridge-pg16-01`**
+- **NEXT_WORK_FILE=`07_重建工作区/F05_F06同车签名跨Runtime桥接与历史快照不可变非生产施工单_2026-10-23.md`**
 
-## 最近完成
+## 当前 B 任务
 
-- PR [#229](https://github.com/suzhe868-arch/mb/pull/229) 已标准合并，业务 HEAD `43a25224bb778bf4071e034efdce90d43f6e9226`，merge SHA `19ef898a0dac447aff7a26b5affd2496a01e86e5`；Issue #227 已关闭。
-- 官方 Run [#39847897349](https://github.com/suzhe868-arch/mb/actions/runs/39847897349) 的两个 PG16 Job 成功；A 已独立复算两份 Artifact ZIP SHA-256 与内部 19/19 文件清单。
-- 测试：migration 9/9、旧 Guard 7/7、旧 HTTPS 2/2、新业务/并发 38/38、新 HTTPS 11/11、Node 269/269；失败/跳过均为 0。
+按正式施工单完成 F05 #214 已发布人工 Vehicle 与 F06 已签 Lock→Transaction/Deposit 的同车跨 Runtime 非生产桥接：
+- F05 14 条迁移与 F06 24 条签名迁移/161 表父链保持独立，不混用 public Schema。
+- 同一 Vehicle/Cycle ID 与原发布客户标价由当前 SHA/Run/Ref/OID 绑定的不可变清单证明。
+- F06 原生业务服务创建 Lock/合成 Deposit/Transaction；其后通过 F05 #216 HTTPS 正式编辑同一车，逐行核验 Lock、Transaction、Deposit/资金历史与审计快照完全不变。
+- 至少两个独立 PG16 Job 各自完整执行上述流程，官方同 SHA Workflow/Artifact 全部成功，失败/跳过 0，完成中文交接后交 A 独立验收。
+- 精确白名单只含新桥接目录/Workflow、F05 migration 测试分支 allowlist 单点扩展、F06 五个签名根文件的精确第三分支 profile；不修改旧业务服务、公共 DDL/迁移、旧 Workflow、PDM、生产路由或 C/PC 页面。
 
-## 当前唯一任务｜A 继续 F08 可信来源与整阶段门禁
+## 父级与全局边界
 
-- 对最新 main 与现有可信证据增量复核正式 F03 Scope/Object、F05 转换正向 Issuer、`publisher.phone.sensitive`、F07 Runtime、SLA/Incident 以及外部资源状态。
-- 当前结果仍为 `SOURCE_GAP/FAIL_CLOSED`：没有新的正式签名来源或外部系统授权；F07 Runtime 未接线，F05→F06 同车签名仍 `NOT_RUN/BLOCKED_SIGNED_PARENT`。
-- 暂无可在当前 Authority 下直接释放的新 B 施工包。复用已验收 #190/#221/#227；不重跑无关旧测试，不重复开发，不触碰 PC/C 页面、生产、真实电话或资金流程。
-- Issue #106 仍是历史 F05-7 来源/执行门禁记录，不覆盖当前 NEXT 指针；Issue #196 继续延期；C PR #68 独立不动。
-- 有合法来源/授权或新的独立可开发缺口后，再由 A 发布最小范围施工单。此前保持 Issue #187 开放并 fail-closed。
-
-**全局边界：** F06/F07/F08/V1 继续 `NOT_READY/NO_PRODUCTION`；本次 #229 仅为 `CI_ONLY_F03_CUSTOMER_PHONE_MANAGE` 非生产验收。
+- Issue #187 继续 `SOURCE_GAP/FAIL_CLOSED`；本任务不放行正式 F03 Scope/Object、F05 转换 Issuer、F07 真实电话、JYT/Collector、CDN/OSS、Feishu 或 SLA/Incident。
+- 本任务通过只代表同车非生产跨 Runtime 快照不回写证据完成；F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。
+- Issue #106 保留历史状态，不覆盖当前指针；Issue #196 继续延期；C PR #68 独立不动。不得重复 #190/#221/#227。
 
 ---
 
