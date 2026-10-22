@@ -140,6 +140,48 @@ test('E08 cancel removes only staged changes; no second public update',async()=>
  assert.equal((await read()).body.currentVersion,2);
  assert.equal(await count('f05_published_edit_test.edit_audit'),1);
 });
+test('E08A only exact allowlisted ordinary fields can stage; invalid current model fails without modifying published data',async()=>{
+ const forbidden=await stage({sourceType:'wholesale'},undefined,2);
+ assert.equal(forbidden.status,400);assert.equal(forbidden.body.code,'EDIT_FIELD_FORBIDDEN');
+ const entered=await stage({modelId:999999},undefined,2);
+ assert.equal(entered.status,200,JSON.stringify(entered.body));
+ const prior=await count('f05_published_edit_test.edit_audit');
+ const failed=await submit(1,2);
+ assert.equal(failed.status,422,JSON.stringify(failed.body));assert.equal(failed.body.code,'MODEL_MISSING');
+ assert.equal(await count('f05_published_edit_test.edit_audit'),prior);
+ assert.equal((await read()).body.draft.patch.modelId,999999);
+ const cleared=await req('/stage',{method:'DELETE',body:{expectedStageVersion:1}});
+ assert.equal(cleared.status,200);
+});
+test('E08B trusted opposite-source published VIN conflicts with edit; old effective value and edit draft survive',async()=>{
+ const vin='ISSUE216-OPPOSITE-SOURCE-VIN';
+ if(fourS){
+  const staff=await login(auth,'employee_test','SyntheticF04_3_CurrentProof_2026');
+  const r=await publishAndIssueFromCurrentTransaction(auth,staff,{
+   vehicleId:72631,listingCycleId:73631,teamId:901,sourceKind:'mingbang',eventKey:'issue216-cross-source-mingbang-'+randomUUID()
+  },{onPublishInTransaction:async(c)=>{await c.query('UPDATE public.vehicles SET model_id=$1,vin=$2 WHERE vehicle_id=$3',[97003,vin,72631])}});
+  assert.equal(r.allowed,true,JSON.stringify(r));
+ }else{
+  const dealer=await login(auth,'four_s_test','SyntheticFourS_123456');
+  const grant=await grantMemberCreateLicense(auth,admin,{targetEmployeeId:2,eventKey:'issue216-cross-source-license-'+randomUUID()});
+  assert.equal(grant.allowed,true,JSON.stringify(grant));
+  const r=await publishNewFourSMemberVehicle(auth,dealer,{
+   vehicleId:72641,listingCycleId:73641,brandId:97001,seriesId:97002,modelId:97003,
+   modelYear:2026,mileageKm:22000,city:'Suzhou',sourceKind:'four_s',
+   eventKey:'issue216-cross-source-four-s-'+randomUUID()
+  },{onPublishInTransaction:async(c)=>{await c.query('UPDATE public.vehicles SET vin=$1 WHERE vehicle_id=$2',[vin,72641])}});
+  assert.equal(r.allowed,true,JSON.stringify(r));
+ }
+ const before=(await db.query('SELECT vin FROM public.vehicles WHERE vehicle_id=$1',[vehicleId])).rows[0].vin;
+ const entered=await stage({vin},undefined,2);assert.equal(entered.status,200,JSON.stringify(entered.body));
+ const failed=await submit(1,2);
+ assert.equal(failed.status,409,JSON.stringify(failed.body));
+ assert.equal(failed.body.code,'VIN_DUPLICATE');
+ assert.equal((await db.query('SELECT vin FROM public.vehicles WHERE vehicle_id=$1',[vehicleId])).rows[0].vin,before);
+ assert.equal((await read()).body.draft.patch.vin,vin);
+ const cancel=await req('/stage',{method:'DELETE',body:{expectedStageVersion:1}});
+ assert.equal(cancel.status,200);
+});
 test('E09 4S current Admin license revoke immediately removes old editing authority',async()=>{
  if(!fourS)return;
  const x=await stage({city:'Shenzhen'},undefined,2);assert.equal(x.status,200);
