@@ -108,7 +108,7 @@ test('E06 current legitimate commit is atomic, requestKey idempotent; only one i
  const impact=(await db.query('SELECT status FROM f05_published_edit_test.impact_outbox WHERE audit_id=(SELECT audit_id FROM f05_published_edit_test.edit_audit WHERE vehicle_id=$1)',[vehicleId])).rows[0];
  assert.equal(impact.status,'NOT_CONNECTED_SOURCE_GAP');
  const again=await submit(st.stageVersion,1,key);
- assert.equal(again.status,200);assert.equal(again.body.code,'EDIT_ALREADY_APPLIED');
+ assert.equal(again.status,200,JSON.stringify(again.body));assert.equal(again.body.code,'EDIT_ALREADY_APPLIED');
  assert.equal(await count('f05_published_edit_test.edit_audit'),1);
  assert.equal((await db.query('SELECT count(*)::int n FROM public.vehicle_listing_cycles WHERE vehicle_id=$1',[vehicleId])).rows[0].n,1);
 });
