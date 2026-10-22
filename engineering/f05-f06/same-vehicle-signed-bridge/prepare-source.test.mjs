@@ -73,7 +73,7 @@ test('F05原生HTTPS正式发布：负向门禁、真实车辆事实和脱敏来
   assert.equal(await count('SELECT count(*)::int n FROM f05_manual_vehicle_test.drafts'),beforeDrafts);
  });
  const saved=await app.request(BASE+'/auto-save',{method:'POST',token:staff,body:{payload}});
- assert.equal(saved.status,200,JSON.stringify(saved.body));
+ assert.equal(saved.status,201,JSON.stringify(saved.body));
  assert.equal(saved.body.code,'DRAFT_SAVED');
  draft=saved.body;
  await t.test('05 原生自动保存产生真实草稿且版本可追踪',async()=>{

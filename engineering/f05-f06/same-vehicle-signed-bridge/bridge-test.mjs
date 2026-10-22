@@ -383,9 +383,9 @@ test('F05-F06真实同车跨Runtime闭环：两个独立PG16数据库、原生HT
   await writeFile(new URL('./artifacts/f06-before-edit.json',import.meta.url),JSON.stringify(before,null,2)+'\n',{mode:0o600});
   await t.test('32 F06历史快照和关联审计已完成编辑前基线封存',async()=>{
    assert.match(snapshotSHA256,/^[0-9a-f]{64}$/);
-   assert.equal(snapshot.vehicle.row.vehicle_id,vehicleId);
-   assert.equal(snapshot.lockSnapshot.row.price_cents,String(sourceManifest.vehicle.retailPriceCents));
-   assert.equal(snapshot.transactionOrigin.row.source_price_cents,String(sourceManifest.vehicle.retailPriceCents));
+   assert.equal(String(snapshot.vehicle.row.vehicle_id),vehicleId);
+   assert.equal(Number(snapshot.lockSnapshot.row.price_cents),sourceManifest.vehicle.retailPriceCents);
+   assert.equal(Number(snapshot.transactionOrigin.row.source_price_cents),sourceManifest.vehicle.retailPriceCents);
   });
   console.log('F05_F06_BRIDGE_BUSINESS_CHAIN_PASS',JSON.stringify({vehicleId:vehicleId,listingCycleId:cycleId,requestId:requestId,lockId:lockId,depositId:depositId,transactionId:transactionId,sourceOid:sourceIdentity.oid,targetOid:targetIdentity.oid,priceCents:sourceManifest.vehicle.retailPriceCents,snapshotSHA256:snapshotSHA256}));
  }finally{
