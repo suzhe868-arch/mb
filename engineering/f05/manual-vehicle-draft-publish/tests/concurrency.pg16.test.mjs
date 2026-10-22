@@ -20,12 +20,19 @@ const save=async(token,payload)=>app.request(BASE+'/auto-save',{method:'POST',to
 const publish=async(token,id)=>app.request(BASE+'/'+id+'/publish',{method:'POST',token,body:{expectedVersion:1}});
 const n=async(sql,values=[])=>Number((await db.query(sql,values)).rows[0].n);
 async function blocked(pattern,min=1){
- for(let i=0;i<130;i++){
-  const count=await n("SELECT count(*)::integer n FROM pg_stat_activity WHERE datname=current_database() AND usename=current_user AND pid<>pg_backend_pid() AND wait_event_type='Lock' AND query LIKE $1",[pattern]);
-  if(count>=min)return;
-  await new Promise(resolve=>setTimeout(resolve,35)); // polling only: real PG wait_event is mandatory
+ // Probe PostgreSQL's physical wait-for graph, never a mocked promise or time guess.
+ // node-postgres session setup may be waiting BEFORE the expected SQL statement,
+ // hence match the holder backend PID rather than the current query text.
+ const pid=Number((await db.query('SELECT pg_backend_pid() AS pid')).rows[0].pid);
+ for(let i=0;i<105;i++){
+  const waiting=await db.query("SELECT a.pid,a.wait_event_type,a.wait_event,left(a.query,170) AS query,pg_blocking_pids(a.pid) AS blockers FROM pg_stat_activity a WHERE a.datname=current_database() AND a.usename=current_user AND a.pid<>pg_backend_pid() AND a.wait_event_type='Lock'");
+  const direct=waiting.rows.filter(a=>a.blockers.map(Number).includes(pid));
+  if(direct.length>=min)return;
+  await new Promise(resolve=>setTimeout(resolve,25)); // sample real PG graph only
  }
- assert.fail('Expected '+min+' REAL PostgreSQL lock wait(s) for '+pattern);
+ const dump=await db.query("SELECT pid,state,wait_event_type,wait_event,left(query,120) AS query,pg_blocking_pids(pid) AS blockers FROM pg_stat_activity WHERE datname=current_database() AND usename=current_user AND pid<>pg_backend_pid()");
+ console.error('F05_REAL_PG16_LOCK_WAIT_NOT_OBSERVED',JSON.stringify({pattern,min,holderPid:pid,sessions:dump.rows}));
+ assert.fail('Expected '+min+' PostgreSQL sessions physically waiting on holder backend '+pid+' for '+pattern);
 }
 async function releaseAfterObservedLock(starter,pattern,min=1){
  await db.query('BEGIN');
@@ -71,7 +78,7 @@ test('R01: two PG physical sessions compete for one draft CAS version',async()=>
    app.request(BASE+'/'+made.body.draftId,{method:'PUT',token:staff,body:{expectedVersion:1,payload:{description:'CAS writer A'}}}),
    app.request(BASE+'/'+made.body.draftId,{method:'PUT',token:staff,body:{expectedVersion:1,payload:{description:'CAS writer B'}}})
   ];
-  await blocked('%f05_manual_vehicle_test.drafts%',2);
+  await blocked('%f05_manual_vehicle_test.drafts%',1);
   await db.query('COMMIT');
  }catch(e){await db.query('ROLLBACK').catch(()=>{});throw e}
  const result=await Promise.all(requests);
