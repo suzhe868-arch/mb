@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "BACKEND_ENGINEERING",
-  "substage": "F05_PUBLISHED_MANUAL_EDIT_NONPROD_B_RELEASED_F08_SOURCE_GATE_PARALLEL",
+  "substage": "F05_PUBLISHED_MANUAL_EDIT_A_ACCEPTED_NONPROD_LIMITED_F08_SOURCE_GATE_OPEN",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F05_PUBLISHED_MANUAL_VEHICLE_EDIT_NONPROD",
-  "current_domain_status": "Issue #216 经 PR #217 标准合并 main 正式放行 B；merge SHA 55f0404cf47117bc2ef055aa250de851cf4abf00；仅隔离非生产真实 PG16/HTTPS 普通编辑纵切。Issue #187 仍 SOURCE_GAP/FAIL_CLOSED，F06/F07/F08/V1 NOT_READY。",
+  "current_domain": "F08_SIGNED_SOURCE_AND_STAGE_GATE",
+  "current_domain_status": "Issue216/PR219 A限定非生产验收，Run39790554178 PG16 4/4、业务91/91、Node269x4、4 Artifact/18文件哈希验真；F06同车签名Lock/Transaction/Deposit NOT_RUN，是整阶段不可豁免硬门禁。Issue187 SOURCE_GAP/FAIL_CLOSED，F06/F07/F08/V1 NOT_READY。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F05_PUBLISHED_MANUAL_VEHICLE_STAGED_EDIT_PG16_01",
-  "current_work_file": "07_重建工作区/F05已发布人工车辆普通编辑暂存提交与价格字段PG16非生产后端施工单_2026-10-22.md",
+  "current_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
+  "current_work_file": "07_重建工作区/F05已发布人工车辆Issue216_PR219限定非生产A独立验收与F06同车硬门禁裁决_2026-10-22.md",
   "f06_issue164_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_NONPROD_COMPOSITE_DUAL_GATE_B_CONTINUE",
     "issue": 164,
@@ -11804,7 +11804,7 @@
     "next_issue": 187
   },
   "f05_published_manual_edit_release_2026_10_22": {
-    "status": "A_RELEASED_FOR_B_GOVERNANCE_PR217_MERGED",
+    "status": "A_ACCEPTED_NONPROD_LIMITED_F06_SAME_VEHICLE_NOT_RUN",
     "task": "F05_PUBLISHED_MANUAL_VEHICLE_STAGED_EDIT_PG16_01",
     "issue": 216,
     "branch": "feat/f05-published-manual-vehicle-staged-edit-pg16-01",
@@ -11817,6 +11817,27 @@
     "external_ready": false,
     "governance_pr": 217,
     "governance_merge_sha": "55f0404cf47117bc2ef055aa250de851cf4abf00",
-    "release_effective": true
+    "release_effective": true,
+    "issue_state": "closed",
+    "review_pr": 219,
+    "final_head_sha": "fb463f82b7e2583a57ccc1a7e5e430912e6a2c10",
+    "merge_sha": "91ea2054758421908ab8b4593f88ef4d724a3f85",
+    "official_push_run": 39790554178,
+    "business_tests": "91/91",
+    "node_tests": "269x4",
+    "artifact_sha256_verified_count": 4,
+    "artifact_inner_hash_verified": "18/18",
+    "cross_runtime_signed_same_vehicle_f06": "NOT_RUN_BLOCKED_SIGNED_PARENT",
+    "final_nonprod_stage_gate_required": true,
+    "acceptance_report": "07_重建工作区/F05已发布人工车辆Issue216_PR219限定非生产A独立验收与F06同车硬门禁裁决_2026-10-22.md"
+  },
+  "f05_f06_same_vehicle_nonprod_final_gate_2026_10_22": {
+    "gate": "F05_216_SAME_VEHICLE_SIGNED_F06_LOCK_TRANSACTION_DEPOSIT_CROSS_RUNTIME_INTEGRATION",
+    "status": "NOT_RUN_BLOCKED_SIGNED_PARENT",
+    "scope": "SAME_TRUSTED_PUBLISHED_MANUAL_VEHICLE_F06_LOCK_TRANSACTION_DEPOSIT_HISTORY_SNAPSHOTS_NONPROD",
+    "release_condition": "A_APPROVES_SIGNED_PARENT_CROSS_RUNTIME_INTEGRATION_THEN_REAL_PG16_EVIDENCE",
+    "tracking_issue": 187,
+    "not_substituted_by": "F03_NONEMPTY_HISTORIC_TABLE_HASH_OR_INDEPENDENT_F06_HISTORIC_RUN",
+    "production_ready": false
   }
 }

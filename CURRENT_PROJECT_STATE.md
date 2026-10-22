@@ -1,3 +1,19 @@
+# 名邦汽车 V1｜A 主控当前有效状态（2026-10-22｜Issue216限定非生产验收、Issue187仍阻断）
+
+- **NEXT_OWNER=A**
+- **NEXT_TASK=`A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`**
+- **NEXT_ISSUE=187**：[F08 可信来源与整阶段硬门禁](https://github.com/suzhe868-arch/mb/issues/187)
+- **NEXT_BRANCH=NONE**
+- **NEXT_WORK_FILE=`07_重建工作区/F05已发布人工车辆Issue216_PR219限定非生产A独立验收与F06同车硬门禁裁决_2026-10-22.md`**
+- [Issue #216](https://github.com/suzhe868-arch/mb/issues/216) 已作为**限定 F05 非生产子包**完成并关闭；[业务 PR #219](https://github.com/suzhe868-arch/mb/pull/219) 已由 A 技术裁决、独立验收并标准合并。B 最终 HEAD `fb463f82b7e2583a57ccc1a7e5e430912e6a2c10`；业务 merge SHA `91ea2054758421908ab8b4593f88ef4d724a3f85`。
+- 最终官方 [Run #39790554178](https://github.com/suzhe868-arch/mb/actions/runs/39790554178)：4/4 非超管 PG16 Job 成功；业务及受影响回归 91/91，Node 269×4，0 失败/跳过；A 下载复核 4 份 Artifact ZIP SHA256、Ref/HEAD/Run 和 18/18 内文件哈希。12 个新增路径均在授权白名单。
+- **受限验收而非整阶段完结：** A1（#214 原发布资料继承）/A3（客户价与内部价权限独立）/A2 可执行的真实提交 CAS、撤权竞态和 F05-2/3A 回归已通过。旧来源无法签认则 fail-closed；投影 `CI_ONLY_PROJECTION`，Matching/Recommendation/异常 outbox `NOT_CONNECTED_SOURCE_GAP`。
+- **同车 F06 仍未运行：** `F05_216_SAME_VEHICLE_SIGNED_F06_LOCK_TRANSACTION_DEPOSIT_CROSS_RUNTIME_INTEGRATION=NOT_RUN/BLOCKED_SIGNED_PARENT`。F05 13～14 条迁移与 F06 24 条签名链冲突，A 正式裁决仅允许此 F05 非生产子包以有限替代证据验收；**整阶段非生产最终验收必须实际完成合法同车签名 Lock/Transaction/Deposit 历史快照不追改联调**，不能伪称本次已通过。详见 PR #219 A 裁决与父级 #187 记录。
+- **Issue #187 不关闭，`SOURCE_GAP/FAIL_CLOSED`；F06/F07/F08/V1 `NOT_READY/NO_PRODUCTION`。** 正式 F03 Scope/Object、F05 转换来源、电话、SLA/Incident、JYT/Collector/CDN/OSS/飞书仍无可验证新授权；不触碰 PC/手机页面、C PR #68 或资金/外部接入。
+- 当前尚无新的 B 施工单；A 继续按最新 main 的实码与产品 Authority 核查独立后端缺口，严禁重复开发 #212/#216。
+
+---
+
 # 名邦汽车 V1｜A 主控最新正式放行｜2026-10-22
 
 - **NEXT_OWNER=B**

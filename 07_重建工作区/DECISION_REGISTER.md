@@ -1,3 +1,13 @@
+## A-F05-ISSUE216-PR219-ACCEPT-LIMITED-NONPROD-01｜A独立验收合并与F06同车硬门禁转回（2026-10-22）
+
+- **主线当前指针**：`NEXT_OWNER=A`，`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`，`NEXT_ISSUE=187`，`NEXT_BRANCH=NONE`。
+- [Issue #216](https://github.com/suzhe868-arch/mb/issues/216) 已按有限非生产受验子包关闭，[PR #219](https://github.com/suzhe868-arch/mb/pull/219) 标准合并；最终 B HEAD `fb463f82b7e2583a57ccc1a7e5e430912e6a2c10`，merge SHA `91ea2054758421908ab8b4593f88ef4d724a3f85`。
+- [Run #39790554178](https://github.com/suzhe868-arch/mb/actions/runs/39790554178) 4/4 真 PG16 Jobs、业务 91/91、Node 269×4 均通过；4 个 Artifact ZIP 和 18/18 内部哈希由 A 独立确认。12 变更文件严格白名单。
+- [A 技术裁决](https://github.com/suzhe868-arch/mb/pull/219#issuecomment-6342801994) **仅**允许 F05 隔离非生产编辑 sidecar 增量完成。F05→F06 同车签名 Lock/Transaction/Deposit 联调 `NOT_RUN / BLOCKED_SIGNED_PARENT`，整阶段最终非生产验收前不可豁免；已登记父 Issue [#187](https://github.com/suzhe868-arch/mb/issues/187#issuecomment-6342851021)。不得以 E06 F03 历史哈希冒充 F06 同车 PASS。
+- F06/F07/F08/V1 持续 `NOT_READY/NO_PRODUCTION`，正式外部来源仍 `SOURCE_GAP/FAIL_CLOSED`；C PR #68 不动。报告：`07_重建工作区/F05已发布人工车辆Issue216_PR219限定非生产A独立验收与F06同车硬门禁裁决_2026-10-22.md`。
+
+---
+
 ## A-F05-PUBLISHED-MANUAL-EDIT-ISSUE216-RELEASE-01｜已发布人工车普通编辑增量施工授权（2026-10-22）
 
 - **NEXT_OWNER=B**
