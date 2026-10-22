@@ -24,7 +24,7 @@ jobs:
     timeout-minutes: 45
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:16-alpine
+        image: postgres:16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: disposable_bootstrap_only
@@ -92,7 +92,7 @@ jobs:
       - name: Bootstrap disposable non-superuser original PG16 through M94
         run: |
           set -euo pipefail
-          ids="$(docker ps --filter ancestor=public.ecr.aws/docker/library/postgres:16-alpine --format '{{.ID}}')"
+          ids="$(docker ps --filter ancestor=postgres:16 --format '{{.ID}}')"
           test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
           docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
           docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
