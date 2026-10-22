@@ -90,6 +90,13 @@ test('M05 zero images and absent prices are not publish blockers; trusted F05-2 
  assert.equal(detail.body.draft.status,'published');assert.equal(Number(detail.body.draft.publishedVehicleId),vehicleId);
  assert.equal((await app.request(BASE,{token:staff})).body.drafts.some(x=>x.draftId===created.body.draftId),false);
  assert.equal((await app.request(BASE+'/'+created.body.draftId,{method:'DELETE',token:staff,body:{confirm:true,expectedVersion:2}})).body.code,'PUBLISHED_VEHICLE_CANNOT_BE_DELETED');
+ const beforeRetryVehicle=await count('SELECT count(*)::int n FROM public.vehicles WHERE vehicle_id=$1',[vehicleId]);
+ const beforeRetryCycle=await count('SELECT count(*)::int n FROM public.vehicle_listing_cycles WHERE vehicle_id=$1',[vehicleId]);
+ const retried=await publish(created.body.draftId,1);
+ assert.equal(retried.status,200,JSON.stringify(retried.body));assert.equal(retried.body.code,'VEHICLE_PUBLISHED');
+ assert.equal(Number(retried.body.vehicleId),vehicleId);assert.equal(Number(retried.body.listingCycleId),cycleId);
+ assert.equal(await count('SELECT count(*)::int n FROM public.vehicles WHERE vehicle_id=$1',[vehicleId]),beforeRetryVehicle);
+ assert.equal(await count('SELECT count(*)::int n FROM public.vehicle_listing_cycles WHERE vehicle_id=$1',[vehicleId]),beforeRetryCycle);
 });
 test('M06 exact VIN duplicate is fail-closed and does not leak an unauthorized existing vehicle reference',async()=>{
  const created=await save(full({vin:'MB-MANUAL-VIN-98003-A',description:'duplicate must remain editable'}));

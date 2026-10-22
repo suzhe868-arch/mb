@@ -240,6 +240,12 @@ export function createManualVehicleDraftService({auth,env=process.env}={}){
  async function reservePublication(token,draftId,expectedVersion){
   return withActor(token,async(c,actor)=>{
    const row=await findDraft(c,actor,draftId,{lock:true});
+   // Repeating the same completed intention is read-only and idempotent.
+   if(row.status==='published'&&row.published_vehicle_id!==null&&row.published_listing_cycle_id!==null){
+    if(Number(row.version)!==expectedVersion+1)throw new DraftError('DRAFT_VERSION_CONFLICT',409,{currentVersion:Number(row.version)});
+    return ok('VEHICLE_PUBLISHED',{draftId:String(row.draft_id),vehicleId:String(row.published_vehicle_id),
+     listingCycleId:String(row.published_listing_cycle_id),sourceType:row.draft_source_type,version:Number(row.version)});
+   }
    if(Number(row.version)!==expectedVersion)throw new DraftError('DRAFT_VERSION_CONFLICT',409,{currentVersion:Number(row.version)});
    if(row.status!=='draft'||row.published_vehicle_id!==null)throw new DraftError('DRAFT_NOT_PUBLISHABLE',409);
    const payload=normalizePayload(row.draft_payload,row.draft_source_type);
@@ -347,7 +353,7 @@ export function createManualVehicleDraftService({auth,env=process.env}={}){
    try{
     if(!input||!positive(Number(input.expectedVersion)))throw new DraftError('EXPECTED_VERSION_REQUIRED',428);
     const reserved=await reservePublication(token,draftId,Number(input.expectedVersion));
-    if(reserved.status!==200||reserved.body.code!=='PUBLICATION_IDS_RESERVED')return reserved;
+    if(reserved.status!==200||reserved.body.code==='VEHICLE_PUBLISHED'||reserved.body.code!=='PUBLICATION_IDS_RESERVED')return reserved;
     const {vehicleId,listingCycleId,employeeId,teamId,sourceType,payload,version}=reserved.body;
     const eventKey='manual-draft-publish:'+randomUUID();
     const onPublishInTransaction=async(c,actorId,proof)=>{
