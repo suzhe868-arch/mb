@@ -48,6 +48,19 @@ test('08 extra body fields denied',async()=>assert.equal((await service.change({
 test('09 unknown target fails',async()=>assert.equal((await get('900001')).status,404));
 test('10 4S target forbidden',async()=>assert.equal((await service.change({token:admin,employeeId:'2',method:'PUT',input:{scopeMode:'LOCKED_ONLY',expectedVersion:0,requestKey:key()}})).status,403));
 test('11 inactive target forbidden',async()=>assert.equal((await service.change({token:admin,employeeId:'3',method:'PUT',input:{scopeMode:'LOCKED_ONLY',expectedVersion:0,requestKey:key()}})).status,403));
+test('11A revoke restores a pre-existing independent allow instead of deleting it',async()=>{
+ await sql("INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES(7,13,'allow',now()) ON CONFLICT(employee_id,permission_id) DO UPDATE SET decision='allow',changed_at=now()");
+ const grant=await service.change({token:admin,employeeId:'7',method:'PUT',input:{scopeMode:'LOCKED_ONLY',expectedVersion:0,requestKey:key()}});
+ assert.equal(grant.status,200);assert.equal(grant.enabled,true);
+ const revoke=await service.change({token:admin,employeeId:'7',method:'DELETE',input:{expectedVersion:grant.version,requestKey:key()}});
+ assert.equal(revoke.status,200);assert.equal(revoke.enabled,false);
+ const override=await sql("SELECT decision FROM public.employee_permission_overrides WHERE employee_id=7 AND permission_id=13");
+ assert.equal(override.rows[0].decision,'allow');
+ const bound=await sql("SELECT count(*)::int n FROM public.employee_capability_scope_bindings WHERE employee_id=7 AND permission_id=13 AND ended_at IS NULL");
+ assert.equal(bound.rows[0].n,0);
+ assert.equal((await get('7')).enabled,false);
+ await sql("DELETE FROM public.employee_permission_overrides WHERE employee_id=7 AND permission_id=13");
+});
 let originalKey;
 test('12 grant LOCKED_ONLY',async()=>{
  originalKey=key();const x=await put('LOCKED_ONLY',0,admin,originalKey);
@@ -62,6 +75,17 @@ test('14 immutable audit before/after stored in same PG',async()=>{
  assert.equal(a.rows[0].after_json.version,1);assert.equal(a.rows[0].before_json.version,0);
  const h=await sql("SELECT decision,actor_kind FROM public.employee_permission_override_history WHERE employee_id=6 AND permission_id=13 ORDER BY event_id DESC LIMIT 1");
  assert.equal(h.rows[0].decision,'allow');assert.equal(h.rows[0].actor_kind,'system_admin');
+});
+test('14A future-dated SG01 binding is not considered effective',async()=>{
+ const q=await sql("SELECT b.scope_id::text id FROM public.employee_capability_scope_bindings b JOIN public.employee_data_scopes s ON s.scope_id=b.scope_id WHERE b.employee_id=6 AND b.permission_id=13 AND b.ended_at IS NULL AND s.ended_at IS NULL");
+ assert.equal(q.rowCount,1);
+ await sql("UPDATE public.employee_capability_scope_bindings SET granted_at=transaction_timestamp()+interval '1 hour' WHERE scope_id=$1::bigint",[q.rows[0].id]);
+ try {
+  const x=await get();assert.equal(x.status,200);assert.equal(x.enabled,false);assert.equal(x.configurable,true);assert.equal(x.scopeMode,null);assert.equal(x.version,version);
+ } finally {
+  await sql("UPDATE public.employee_capability_scope_bindings SET granted_at=transaction_timestamp()-interval '1 minute' WHERE scope_id=$1::bigint",[q.rows[0].id]);
+ }
+ assert.equal((await get()).enabled,true);
 });
 test('15 idempotent same request key returns original result',async()=>{const x=await put('LOCKED_ONLY',0,admin,originalKey);assert.equal(x.status,200);assert.equal(x.code,'IDEMPOTENT_REPLAY');assert.equal(x.version,1)});
 test('16 replay different payload rejected',async()=>assert.equal((await put('ALL_ACTIVE_JYT',version,admin,originalKey)).status,409));
@@ -82,6 +106,15 @@ test('23 changing assigned employee role to 4S fails closed on GET without revok
  await sql("UPDATE public.employees SET main_role_id=2 WHERE employee_id=6");
  try{const x=await get();assert.equal(x.status,200);assert.equal(x.enabled,false);assert.equal(x.configurable,false);assert.equal(x.version,version)}
  finally{await sql("UPDATE public.employees SET main_role_id=1 WHERE employee_id=6")}
+});
+test('23A unrecognized legacy store_head role is denied by the formal allowlist',async()=>{
+ await sql("UPDATE public.roles SET role_code='store_head' WHERE role_id=1");
+ try {
+  const x=await get();assert.equal(x.status,200);assert.equal(x.role,'store_head');assert.equal(x.configurable,false);assert.equal(x.enabled,false);
+  assert.equal((await put('LOCKED_ONLY')).code,'TARGET_NOT_ELIGIBLE');
+ } finally {
+  await sql("UPDATE public.roles SET role_code='sales' WHERE role_id=1");
+ }
 });
 test('24 concurrent employee departure cannot commit across pending phone permission configuration lock',async()=>{
  let entered,release;
@@ -108,6 +141,45 @@ test('25 explicit personal deny prevents config grant',async()=>{
  assert.equal((await put('ALL_ACTIVE_JYT')).code,'CURRENT_PERSONAL_DENY');
  await sql("UPDATE public.employee_permission_overrides SET decision='allow',changed_at=now() WHERE employee_id=6 AND permission_id=13");
 });
+test('25A concurrent deny committed after precheck is never overwritten; grant transaction rolls back',async()=>{
+ const bindingCount=async()=>Number((await sql("SELECT count(*)::int n FROM public.employee_capability_scope_bindings b JOIN public.employee_data_scopes s ON s.scope_id=b.scope_id WHERE b.employee_id=6 AND b.permission_id=13 AND b.ended_at IS NULL AND s.ended_at IS NULL")).rows[0].n);
+ const beforeBindings=await bindingCount(),beforeVersion=version;
+ let entered,release;
+ const enteredPromise=new Promise(r=>entered=r),releasePromise=new Promise(r=>release=r);
+ const racing=new PublisherPhoneAdminService(auth,{hook:async({phase})=>{if(phase==='before_override_write'){entered();await releasePromise}}});
+ const pending=racing.change({token:admin,employeeId:'6',method:'PUT',input:{scopeMode:'ALL_ACTIVE_JYT',expectedVersion:version,requestKey:key()}});
+ await enteredPromise;
+ await sql("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=now() WHERE employee_id=6 AND permission_id=13");
+ release();
+ await assert.rejects(pending,/PERSONAL_DENY_RACE/);
+ assert.equal((await sql("SELECT decision FROM public.employee_permission_overrides WHERE employee_id=6 AND permission_id=13")).rows[0].decision,'deny');
+ assert.equal(Number((await sql("SELECT version FROM f03_publisher_phone_admin_test.employee_mode WHERE employee_id=6")).rows[0].version),beforeVersion);
+ assert.equal(await bindingCount(),beforeBindings);
+ await sql("UPDATE public.employee_permission_overrides SET decision='allow',changed_at=now() WHERE employee_id=6 AND permission_id=13");
+});
+test('25B uncommitted deny row lock wins against concurrent conditional upsert',async()=>{
+ const bindingCount=async()=>Number((await sql("SELECT count(*)::int n FROM public.employee_capability_scope_bindings b JOIN public.employee_data_scopes s ON s.scope_id=b.scope_id WHERE b.employee_id=6 AND b.permission_id=13 AND b.ended_at IS NULL AND s.ended_at IS NULL")).rows[0].n);
+ const beforeBindings=await bindingCount(),beforeVersion=version;
+ const denyTx=await auth.pool.connect();
+ let transactionOpen=true,entered;
+ const enteredPromise=new Promise(r=>entered=r);
+ try {
+  await denyTx.query('BEGIN');
+  await denyTx.query("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=now() WHERE employee_id=6 AND permission_id=13");
+  const racing=new PublisherPhoneAdminService(auth,{hook:async({c,phase})=>{if(phase==='before_override_write'){await c.query('SELECT pg_backend_pid()');entered()} }});
+  const pending=racing.change({token:admin,employeeId:'6',method:'PUT',input:{scopeMode:'ALL_ACTIVE_JYT',expectedVersion:version,requestKey:key()}});
+  await enteredPromise;
+  await denyTx.query('COMMIT');transactionOpen=false;
+  await assert.rejects(pending,/PERSONAL_DENY_RACE/);
+  assert.equal((await sql("SELECT decision FROM public.employee_permission_overrides WHERE employee_id=6 AND permission_id=13")).rows[0].decision,'deny');
+  assert.equal(Number((await sql("SELECT version FROM f03_publisher_phone_admin_test.employee_mode WHERE employee_id=6")).rows[0].version),beforeVersion);
+  assert.equal(await bindingCount(),beforeBindings);
+ } finally {
+  if(transactionOpen)await denyTx.query('ROLLBACK').catch(()=>{});
+  denyTx.release();
+ }
+ await sql("UPDATE public.employee_permission_overrides SET decision='allow',changed_at=now() WHERE employee_id=6 AND permission_id=13");
+});
 test('26 injected failure before commit rolls back entire DB mutation',async()=>{
  const n=Number((await sql("SELECT count(*) n FROM public.audit_events WHERE action LIKE 'publisher.phone.scope.%'")).rows[0].n);
  const broken=new PublisherPhoneAdminService(auth,{hook:({phase})=>{if(phase==='before_commit')throw Error('INJECTED_ROLLBACK')}});
@@ -124,6 +196,20 @@ test('27 DELETE revokes mode, binding, allow and preserves history',async()=>{
 test('28 DELETE idempotent replay and version remains',async()=>{
  const k=key(),x=await del(version,admin,k);assert.equal(x.status,200);version=x.version;
  const replay=await del(version-1,admin,k);assert.equal(replay.code,'IDEMPOTENT_REPLAY');assert.equal(replay.version,version);
+});
+test('28A DELETE preserves an explicit deny and audit records the actual final decision',async()=>{
+ const grant=await put('LOCKED_ONLY',version);assert.equal(grant.status,200);version=grant.version;
+ await sql("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=now() WHERE employee_id=6 AND permission_id=13");
+ const revoked=await del(version);assert.equal(revoked.status,200);assert.equal(revoked.enabled,false);version=revoked.version;
+ const override=await sql("SELECT decision FROM public.employee_permission_overrides WHERE employee_id=6 AND permission_id=13");
+ assert.equal(override.rows[0].decision,'deny');
+ const mode=await sql("SELECT enabled,scope_mode,version FROM f03_publisher_phone_admin_test.employee_mode WHERE employee_id=6");
+ assert.equal(mode.rows[0].enabled,false);assert.equal(mode.rows[0].scope_mode,null);assert.equal(Number(mode.rows[0].version),version);
+ const bindings=await sql("SELECT count(*)::int n FROM public.employee_capability_scope_bindings WHERE employee_id=6 AND permission_id=13 AND ended_at IS NULL");
+ assert.equal(bindings.rows[0].n,0);
+ const audit=await sql("SELECT after_json FROM public.audit_events WHERE object_id='6' AND action='publisher.phone.scope.revoke' ORDER BY audit_id DESC LIMIT 1");
+ assert.equal(audit.rows[0].after_json.permissionDecision,'deny');
+ const current=await get();assert.equal(current.enabled,false);assert.equal(current.version,version);
 });
 test('29 target departing before grant denied',async()=>{
  await sql("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=6");
@@ -150,5 +236,5 @@ test('32 public SG01 physical schema fingerprint unchanged',async()=>{
 test('33 capability scope is non-public and F07 remains disconnected',async()=>{
  const s=await sql("SELECT nspname FROM pg_namespace WHERE nspname='f03_publisher_phone_admin_test'");
  assert.equal(s.rowCount,1);assert.notEqual(s.rows[0].nspname,'public');
- console.log('F03_PHONE_ADMIN_BUSINESS_PG16_33_CASES_PASS; F07_NOT_CONNECTED');
+ console.log('F03_PHONE_ADMIN_BUSINESS_PG16_39_CASES_PASS; F07_NOT_CONNECTED');
 });
