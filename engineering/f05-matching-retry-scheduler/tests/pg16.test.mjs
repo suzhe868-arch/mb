@@ -377,6 +377,76 @@ await test('真实 PG16 自动调度、双进程并发、过期租约恢复、�
    "WHERE demand_id=$1 AND vehicle_id=$2",[crashDemandId,vehicleIds[0]]
   )).rows[0].n,2,'restart must recompute once without duplicating the initial event');
 
+  // Prove maxRuntime is a hard tick deadline: block a real recompute, let the
+  // runner time out and exit, then recover its persisted lease after expiry.
+  const deadlineDemandId=String(seed+50n);
+  await pool.query("INSERT INTO public.demands(demand_id,customer_id,responsible_employee_id,demand_state,criteria_json) "+
+   "VALUES($1,$2,$3,'active','{}')",[deadlineDemandId,customerId,employeeId]);
+  await pool.query("INSERT INTO public.f05_matching_sales_description_test(demand_id,written_by_employee_id,sales_description,expires_at) "+
+   "VALUES($1,$2,'brandId=59001;budgetCents=12000000',statement_timestamp()+interval '20 minutes')",
+   [deadlineDemandId,employeeId]);
+  const initialDeadlineMatch=await matching.recompute({
+   credential,demandId:deadlineDemandId,vehicleId:vehicleIds[0],eventKey:randomBytes(24).toString('base64url')
+  });
+  assert.equal(initialDeadlineMatch.status,200);
+  const deadlineQueueCreated=(await pool.query(
+   "UPDATE public.demand_match_results SET current_state='stale',invalidated_at=statement_timestamp() "+
+   "WHERE demand_id=$1 AND vehicle_id=$2 AND current_state='current' RETURNING match_result_id",
+   [deadlineDemandId,vehicleIds[0]]
+  )).rowCount;
+  assert.equal(deadlineQueueCreated,1);
+  const deadlineBlocker=await pool.connect();
+  try{
+   await deadlineBlocker.query('BEGIN');
+   await deadlineBlocker.query("SELECT demand_id FROM public.demands WHERE demand_id=$1 FOR UPDATE",[deadlineDemandId]);
+   const slowRunner=startScheduler(credential,{maxRuntimeMs:1500,pollIntervalMs:100,batchLimit:1});
+   children.push(slowRunner);
+   await waitFor(()=>slowRunner.stdout.includes('"event":"scheduler_started"'),8000,'deadline_runner_started');
+   await waitFor(async()=>{
+    const row=(await pool.query(
+     "SELECT state,lease_until>statement_timestamp() AS lease_live FROM public.f05_matching_affected_queue_test "+
+     "WHERE demand_id=$1 AND vehicle_id=$2",[deadlineDemandId,vehicleIds[0]]
+    )).rows[0];
+    const waiting=(await pool.query(
+     "SELECT count(*)::integer AS n FROM pg_catalog.pg_stat_activity "+
+     "WHERE application_name='f05_matching_retry_scheduler_disposable_only' AND wait_event_type='Lock' "+
+     "AND pid<>pg_backend_pid()"
+    )).rows[0].n;
+    return row?.state==='processing'&&row.lease_live===true&&Number(waiting)>=1;
+   },5000,'deadline_worker_claimed_and_blocked');
+   const timedOut=await withTimeout(slowRunner.exitPromise,4000);
+   assert.ok(timedOut,'the overrun runner must terminate');
+   assert.equal(timedOut.code,124,'a slow worker must hit the hard runtime deadline');
+   assert.match(slowRunner.stderr,/scheduler_deadline_exit|scheduler_hard_deadline_exit/);
+   const durableLease=(await pool.query(
+    "SELECT state,lease_until>statement_timestamp() AS lease_live FROM public.f05_matching_affected_queue_test "+
+    "WHERE demand_id=$1 AND vehicle_id=$2",[deadlineDemandId,vehicleIds[0]]
+   )).rows[0];
+   assert.equal(durableLease.state,'processing');
+   assert.equal(durableLease.lease_live,true,'deadline termination must leave the durable lease recoverable');
+  }finally{
+   await deadlineBlocker.query('ROLLBACK').catch(()=>{});
+   deadlineBlocker.release();
+  }
+  await pool.query("UPDATE public.f05_matching_affected_queue_test SET "+
+   "lease_until=statement_timestamp()-interval '1 second',next_attempt_at=statement_timestamp()-interval '1 second' "+
+   "WHERE demand_id=$1 AND vehicle_id=$2 AND state='processing'",[deadlineDemandId,vehicleIds[0]]);
+  const deadlineRecovery=startScheduler(credential);
+  children.push(deadlineRecovery);
+  await waitFor(()=>deadlineRecovery.stdout.includes('"event":"scheduler_started"'),8000,'deadline_recovery_started');
+  await waitFor(async()=>{
+   const row=(await pool.query(
+    "SELECT state,lease_until FROM public.f05_matching_affected_queue_test WHERE demand_id=$1 AND vehicle_id=$2",
+    [deadlineDemandId,vehicleIds[0]]
+   )).rows[0];
+   return row?.state==='done'&&row.lease_until===null;
+  },8000,'deadline_lease_recovered_after_restart');
+  await stopScheduler(deadlineRecovery);
+  assert.equal((await pool.query(
+   "SELECT count(*)::integer AS n FROM public.f05_matching_recompute_events_test "+
+   "WHERE demand_id=$1 AND vehicle_id=$2",[deadlineDemandId,vehicleIds[0]]
+  )).rows[0].n,2,'deadline restart must recompute once without duplicating the initial event');
+
   // Idle polling remains bounded and SIGTERM performs a clean stop.
   const idle=startScheduler(credential);
   children.push(idle);
