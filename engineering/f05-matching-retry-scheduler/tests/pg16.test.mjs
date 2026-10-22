@@ -391,7 +391,7 @@ await test('真实 PG16 自动调度、双进程并发、过期租约恢复、�
   assert.equal(initialDeadlineMatch.status,200);
   const deadlineQueueCreated=(await pool.query(
    "UPDATE public.demand_match_results SET current_state='stale',invalidated_at=statement_timestamp() "+
-   "WHERE demand_id=$1 AND vehicle_id=$2 AND current_state='current' RETURNING match_result_id",
+   "WHERE demand_id=$1 AND vehicle_id=$2 AND current_state='current'",
    [deadlineDemandId,vehicleIds[0]]
   )).rowCount;
   assert.equal(deadlineQueueCreated,1);
