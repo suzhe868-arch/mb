@@ -4,9 +4,11 @@ import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 const expectedBranch='feat/f06-nonprod-single-runtime-trusted-source-01';
 const lifecycleBranch='feat/f06-nonprod-composite-lock-lifecycle-01';
+const bridgeBranch='feat/f05-f06-same-vehicle-signed-bridge-pg16-01';
 const provenanceProfiles=Object.freeze({
  [expectedBranch]:'ISSUE164_COMPOSITE_NONPROD_V1',
- [lifecycleBranch]:'ISSUE171_COMPOSITE_LOCK_LIFECYCLE_NONPROD_V2'
+ [lifecycleBranch]:'ISSUE171_COMPOSITE_LOCK_LIFECYCLE_NONPROD_V2',
+ [bridgeBranch]:'ISSUE231_F05_F06_SAME_VEHICLE_BRIDGE_NONPROD_V1'
 });
 const dsn='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test';
 const required=Object.freeze({

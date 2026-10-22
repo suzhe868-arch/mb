@@ -19,7 +19,7 @@ const envExact={
 function isolated(){
  for(const [k,v] of Object.entries(envExact))if(process.env[k]!==v)throw Error('F05_MANUAL_DRAFT_ENV_DENIED_'+k);
  if(process.env.GITHUB_REPOSITORY!=='suzhe868-arch/mb'||!process.env.GITHUB_RUN_ID||!process.env.GITHUB_SHA||
-    process.env.GITHUB_EVENT_NAME!=='push'||process.env.GITHUB_REF!=='refs/heads/feat/f05-manual-vehicle-draft-publish-pg16-01')
+    process.env.GITHUB_EVENT_NAME!=='push'||process.env.GITHUB_REF!=='refs/heads/feat/f05-manual-vehicle-draft-publish-pg16-01'&&env.GITHUB_REF!=='refs/heads/feat/f05-f06-same-vehicle-signed-bridge-pg16-01')
   throw Error('F05_MANUAL_DRAFT_GITHUB_SCOPE_DENIED');
 }
 export async function connect(){

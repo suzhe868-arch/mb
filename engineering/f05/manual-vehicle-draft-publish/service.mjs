@@ -23,7 +23,7 @@ function isolated(env){
   F05_MANUAL_VEHICLE_DRAFT_PUBLISH_CONSENT:'I_AUTHORIZE_F05_MANUAL_VEHICLE_DRAFT_PUBLISH_PG16_ONLY'};
  for(const [k,v] of Object.entries(expected))if(env[k]!==v)throw Error('F05_MANUAL_DRAFT_RUNTIME_DENIED_'+k);
  if(env.GITHUB_REPOSITORY!=='suzhe868-arch/mb'||env.GITHUB_EVENT_NAME!=='push'||
-    env.GITHUB_REF!=='refs/heads/feat/f05-manual-vehicle-draft-publish-pg16-01')throw Error('F05_MANUAL_DRAFT_BRANCH_DENIED');
+    env.GITHUB_REF!=='refs/heads/feat/f05-manual-vehicle-draft-publish-pg16-01'&&env.GITHUB_REF!=='refs/heads/feat/f05-f06-same-vehicle-signed-bridge-pg16-01')throw Error('F05_MANUAL_DRAFT_BRANCH_DENIED');
 }
 export function isMeaningfulPayload(payload){
  if(!payload||typeof payload!=='object'||Array.isArray(payload))return false;

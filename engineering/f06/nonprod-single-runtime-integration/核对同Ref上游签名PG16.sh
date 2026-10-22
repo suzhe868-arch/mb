@@ -5,7 +5,7 @@ test "$GITHUB_REPOSITORY" = suzhe868-arch/mb
 test "$GITHUB_EVENT_NAME" = push
 test "$GITHUB_ACTIONS" = true
 case "$GITHUB_REF" in
-  refs/heads/feat/f06-nonprod-single-runtime-trusted-source-01|refs/heads/feat/f06-nonprod-composite-lock-lifecycle-01) ;;
+  refs/heads/feat/f06-nonprod-single-runtime-trusted-source-01|refs/heads/feat/f06-nonprod-composite-lock-lifecycle-01|refs/heads/feat/f05-f06-same-vehicle-signed-bridge-pg16-01) ;;
   *) echo 'F06_EXACT_PUSH_SOURCE_NOT_ALLOWED' >&2; exit 1 ;;
 esac
 test "$GITHUB_REF_NAME" = "${GITHUB_REF#refs/heads/}"
@@ -14,8 +14,12 @@ original_ref="$GITHUB_REF"
 original_name="$GITHUB_REF_NAME"
 # The upstream F05-7 HTTPS mode does NOT request the old source-mode 66-job audit,
 # and is invoked unchanged under the true GitHub branch. No old Env spoofing.
-docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
-bash engineering/f05/deterministic-matching-readiness-four-tier/ci-job.sh https
+if [ "$GITHUB_REF_NAME" != "feat/f05-f06-same-vehicle-signed-bridge-pg16-01" ]; then
+ docker tag postgres:16-alpine public.ecr.aws/docker/library/postgres:16-alpine
+ bash engineering/f05/deterministic-matching-readiness-four-tier/ci-job.sh https
+else
+ echo 'F05_F06_BRIDGE_PRESEEDED_F05_V16_CHAIN_REQUIRED; CI orchestration extends the independent cloned source to signed v23 before this script.'
+fi
 test "$GITHUB_REF" = "$original_ref"
 test "$GITHUB_REF_NAME" = "$original_name"
 export F03_1_DATABASE_URL='postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test'

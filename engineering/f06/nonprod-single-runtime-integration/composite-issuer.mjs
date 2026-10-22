@@ -36,6 +36,27 @@ const SOURCE_FILES=[
  ['pr153-sidecar','../transaction-handoff-http-pg16/sidecar.sql'],
  ['pr156-sidecar','../post-handoff-cancel-http-pg16/sidecar.sql']
 ];
+const bridgeSources=[
+  ['bridge-test','../../f05-f06/same-vehicle-signed-bridge/bridge-test.mjs'],
+  ['prepare-source','../../f05-f06/same-vehicle-signed-bridge/prepare-source.test.mjs'],
+  ['edit-source','../../f05-f06/same-vehicle-signed-bridge/edit-source.mjs'],
+  ['verify-after-edit','../../f05-f06/same-vehicle-signed-bridge/verify-after-edit.mjs'],
+  ['bridge-snapshot','../../f05-f06/same-vehicle-signed-bridge/snapshot.mjs'],
+  ['bridge-private-sql','../../f05-f06/same-vehicle-signed-bridge/桥接私有身份与不可变来源.sql'],
+  ['bridge-workflow','../../../.github/workflows/f05-f06-same-vehicle-signed-bridge.yml'],
+  ['f05-draft-service','../../f05/manual-vehicle-draft-publish/service.mjs'],
+  ['f05-draft-http','../../f05/manual-vehicle-draft-publish/http.mjs'],
+  ['f05-draft-migration','../../f05/manual-vehicle-draft-publish/migration.mjs'],
+  ['f05-draft-harness','../../f05/manual-vehicle-draft-publish/tests/https-harness.mjs'],
+  ['f05-physical-publish','../../f05/vehicle-stewardship-physical-scope/service.mjs'],
+  ['f05-four-s-source-gate','../../f05/four-s-member-trust-scope/source-gate.mjs'],
+  ['f05-edit-service','../../f05/published-manual-vehicle-edit/service.mjs'],
+  ['f05-edit-http','../../f05/published-manual-vehicle-edit/http.mjs'],
+  ['f05-edit-migration','../../f05/published-manual-vehicle-edit/migration.mjs'],
+  ['f05-edit-harness','../../f05/published-manual-vehicle-edit/tests/harness.mjs'],
+  ['f06-upstream-seal','./核对同Ref上游签名PG16.sh'],
+  ['f06-parent-seal','./父表161迁移24跨OID封印.mjs']
+];
 const lifecycleSources=[
  ['issue171-lifecycle-issuer','../nonprod-composite-lock-lifecycle/可信LifecycleIssuer.mjs'],
  ['issue171-lifecycle-sql','../nonprod-composite-lock-lifecycle/私有Lifecycle不可变侧车.sql'],
@@ -47,7 +68,8 @@ const lifecycleSources=[
 ];
 async function digestVersionedSources(profile){
  const h=createHash('sha256');
- for(const [label,relative] of profile==='ISSUE171_COMPOSITE_LOCK_LIFECYCLE_NONPROD_V2'?[...SOURCE_FILES,...lifecycleSources]:SOURCE_FILES){
+ const selected=profile==='ISSUE171_COMPOSITE_LOCK_LIFECYCLE_NONPROD_V2'?[...SOURCE_FILES,...lifecycleSources]:profile==='ISSUE231_F05_F06_SAME_VEHICLE_BRIDGE_NONPROD_V1'?[...SOURCE_FILES,...lifecycleSources,...bridgeSources]:SOURCE_FILES;
+  for(const [label,relative] of selected){
   const bytes=await readFile(new URL(relative,import.meta.url));
   h.update(label).update(Buffer.from([0])).update(bytes).update(Buffer.from([0]));
  }

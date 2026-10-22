@@ -7,14 +7,17 @@ import {requireDatabaseIdentity} from '../vehicle-stewardship-physical-scope/mig
 import {verify as verifyFourS} from '../four-s-member-trust-scope/migration.mjs';
 export const SQL=await readFile(new URL('./000001_edit_sidecar.sql',import.meta.url),'utf8');
 export const checksum=createHash('sha256').update(SQL).digest('hex');
-const BRANCH='refs/heads/feat/f05-published-manual-vehicle-staged-edit-pg16-01';
+const BRANCHES=new Set([
+ 'refs/heads/feat/f05-published-manual-vehicle-staged-edit-pg16-01',
+ 'refs/heads/feat/f05-f06-same-vehicle-signed-bridge-pg16-01'
+]);
 export function assertIsolated(env=process.env){
  for(const [key,val] of Object.entries({CI:'true',GITHUB_ACTIONS:'true',APP_ENV:'test',NODE_ENV:'test',
   F03_1_ISOLATION_CONFIRM:'I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY',
   F05_2_ISOLATION_CONFIRM:'I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY',
   F05_PUBLISHED_EDIT_CONSENT:'I_AUTHORIZE_F05_PUBLISHED_EDIT_DISPOSABLE_PG16_ONLY'}))
   if(env[key]!==val)throw Error('F05_EDIT_ISOLATION_DENIED_'+key);
- if(env.GITHUB_REPOSITORY!=='suzhe868-arch/mb'||env.GITHUB_REF!==BRANCH||env.GITHUB_EVENT_NAME!=='push'||!env.GITHUB_RUN_ID||!env.GITHUB_SHA)
+ if(env.GITHUB_REPOSITORY!=='suzhe868-arch/mb'||!BRANCHES.has(env.GITHUB_REF)||env.GITHUB_EVENT_NAME!=='push'||!env.GITHUB_RUN_ID||!env.GITHUB_SHA)
   throw Error('F05_EDIT_GITHUB_SCOPE_DENIED');
 }
 export async function connect(){
