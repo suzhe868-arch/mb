@@ -1,0 +1,26 @@
+编号	场景	验证方式	结果要求
+01	F05原生HTTPS未登录读草稿	真实TLS/API	401且无数据库副作用
+02	F05路径穿越	真实TLS/API	4xx且无副作用
+03	F05伪造actorId	真实TLS/API	400且无副作用
+04	F05无效modelId	真实TLS/API	4xx且无副作用
+05	F05正式草稿自动保存	真实TLS/API与PG16	真实草稿版本1
+06	F05非发布人发布他人草稿	真实TLS/API	拒绝且草稿仍为draft
+07	F05过期expectedVersion	真实TLS/API	409且不预留Vehicle
+08	F05正式发布Vehicle与ListingCycle	真实TLS/API与PG16	正式Vehicle/Cycle/责任事实同事务
+09	F05脱敏来源清单	真实PG16与PUBLISHED事件	14迁移、源OID、事件哈希、无原始VIN/描述
+10	F05/F06数据库隔离	真实PG16	源库14迁移、目标库24迁移、OID两两独立
+11	同车同周期桥接	源私有发布事实与目标public Vehicle/Cycle	Vehicle ID、Cycle ID、来源、责任一致
+12	客户展示价投影	真实PG16	只允许从F05原始标价生成customer_display事件
+13	原生LockRequest	现有F06 HTTP/业务服务	真实请求键、审计与签名事件
+14	审批权限负例	现有F06 HTTP/业务服务	无审批Scope员工不得审批
+15	原生Lock与LockSnapshot	真实PG16	同车同周期，价格事件ID与原价一致
+16	合成定金	现有F06 HTTP/业务服务	真实收据、provenance、签名事件与审计
+17	Transaction	现有F06 HTTP/业务服务	同Lock/Vehicle/Cycle，财务来源侧车冻结原价
+18	来源封印不可变	真实PG16	UPDATE/DELETE桥接attestation失败
+19	LockSnapshot不可变	真实PG16	UPDATE失败且原价不变
+20	F06编辑前历史快照	真实PG16	锁/定金/交易/签名/审计行完整快照和SHA-256
+21	F05原生HTTPS后编辑	真实TLS/API与PG16	价格、里程、条件标签变更并记录edit audit/outbox
+22	编辑后F05 PUBLISHED事实	真实PG16	原始发布payload和PUBLISHED事件摘要不变
+23	编辑后F06交易历史	真实PG16	快照逐行与编辑前完全相等
+24	编辑后F06父表封印	真实PG16	161表/24迁移跨OID before/after Seal成功
+25	两个独立PG16 Job	独立GitHub Actions matrix	同一最终SHA，两个Job全部成功、无跳过

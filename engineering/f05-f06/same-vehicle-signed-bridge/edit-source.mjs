@@ -38,10 +38,6 @@ try{
  assert.equal(Number(original.effective.customerListPriceCents),sourceManifest.vehicle.retailPriceCents);
  assert.equal(Number(original.effective.mileageKm),sourceManifest.vehicle.mileageKm);
  const auditBefore=await count('SELECT count(*)::int n FROM f05_published_edit_test.edit_audit WHERE vehicle_id=$1::bigint',[vehicleId]);
- await assert.rejects(async()=>{
-  const noAuth=await app.request(BASE+'/'+vehicleId);
-  assert.equal(noAuth.status,401);
- });
  const noAuth=await app.request(BASE+'/'+vehicleId);
  assert.equal(noAuth.status,401);
  const denied=await app.request(BASE+'/'+vehicleId,{token:outsider});

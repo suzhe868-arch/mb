@@ -5,9 +5,16 @@ async function one(db,sql,args=[]){return (await db.query(sql,args)).rows[0]||nu
 export async function captureSnapshot(db,ids){
  const v=String(ids.vehicleId),cy=String(ids.listingCycleId),rq=String(ids.requestId),lk=String(ids.lockId),dp=String(ids.depositId),tx=String(ids.transactionId),pe=String(ids.priceEventId);
  const snapshot={
-  vehicle:await one(db,'SELECT to_jsonb(x) AS row FROM public.vehicles x WHERE vehicle_id=$1::bigint',[v]),
+  vehicle:await (async()=>{
+   const x=await one(db,"SELECT vehicle_id::text,source_type,model_id::text,source_sale_status,platform_visibility,formally_published_at,archived_at FROM public.vehicles WHERE vehicle_id=$1::bigint",[v]);
+   const vin=(await one(db,'SELECT vin FROM public.vehicles WHERE vehicle_id=$1::bigint',[v]));
+   return x?{row:{...x,vinSha256:sha256(vin?.vin||'')}}:null;
+  })(),
   cycle:await one(db,'SELECT to_jsonb(x) AS row FROM public.vehicle_listing_cycles x WHERE vehicle_id=$1::bigint AND listing_cycle_id=$2::bigint',[v,cy]),
-  responsibilities:await rows(db,'SELECT to_jsonb(x) AS row FROM public.vehicle_current_responsibilities x WHERE vehicle_id=$1::bigint AND listing_cycle_id=$2::bigint ORDER BY responsibility_id',[v,cy]),
+  responsibilities:await (async()=>{
+   const result=(await db.query('SELECT responsibility_id::text,responsible_employee_id::text,team_id::text,source_snapshot,provenance_kind,revoked_at,listing_cycle_id::text,vehicle_id::text,trusted_event_key FROM public.vehicle_current_responsibilities WHERE vehicle_id=$1::bigint AND listing_cycle_id=$2::bigint ORDER BY responsibility_id',[v,cy])).rows;
+   return result.map(x=>{const key=x.trusted_event_key||'';delete x.trusted_event_key;return {row:{...x,trustedEventKeySha256:sha256(key)}}});
+  })(),
   priceHistory:await rows(db,'SELECT to_jsonb(x) AS row FROM public.vehicle_price_history x WHERE vehicle_id=$1::bigint ORDER BY price_event_id',[v]),
   projectedPriceEvent:await one(db,'SELECT to_jsonb(x) AS row FROM public.vehicle_price_history x WHERE price_event_id=$1::bigint',[pe]),
   lockRequest:await one(db,'SELECT to_jsonb(x) AS row FROM public.lock_requests x WHERE lock_request_id=$1::bigint',[rq]),
