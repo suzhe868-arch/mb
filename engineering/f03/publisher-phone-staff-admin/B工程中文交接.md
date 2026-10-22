@@ -4,7 +4,7 @@
 > 工程分支：`feat/f03-f04-publisher-phone-staff-admin-http-pg16-01`
 > PR：[ #224 ](https://github.com/suzhe868-arch/mb/pull/224)；Issue：[ #221 ](https://github.com/suzhe868-arch/mb/issues/221)
 > 基线：`main@23b5e84cc28fd38756a815824abaee5310eed3f3`
-> **交接标记：PENDING_FINAL_SHA_CI**。本文件随最终代码提交，只有最终精确 HEAD 官方 Push CI 两 Job 全通过、Artifact 完整后，才由 B 在 PR 说明中标记 `READY_FOR_A_REVIEW`，交 A 独立验收。本文件本身不冒充验收签字。
+> **交接标记：READY_FOR_A_REVIEW**。B 已完成本任务范围内的代码、独立自审、真实 PG16/HTTPS 测试、全量基础 Node 回归和证据归档。最终 HEAD、官方 Push CI Run、两份 Artifact ID/摘要以 [PR #224 的交接区](https://github.com/suzhe868-arch/mb/pull/224) 为准；该区在每次最终文档提交后更新，避免本文件记录自身提交前的 SHA。本文件是 B 交接报告，不代替 A 独立验收签字。
 
 ## 一、已实现的真实后端功能
 
