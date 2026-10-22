@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomBytes} from 'node:crypto';
-import {runMatchingRetryScheduler,validateMatchingRetrySchedulerEnv} from '../scheduler.mjs';
+import {assertMatchingRetryEmployeeCredential,assertNonSuperuserCatalogRole,runMatchingRetryScheduler,validateMatchingRetrySchedulerEnv} from '../scheduler.mjs';
 
 function validEnv(){
  return {
@@ -89,3 +89,60 @@ await test('最大运行时长有界，最后一次休眠不会越过期限',asy
  assert.equal(calls,3);
  assert.equal(clock,250);
 });
+
+await test('运行时数据库身份必须是指定 PG16 非超级用户',async()=>{
+ const identity={db:'f05_catalog_test',role:'f05_catalog_ci',version:160000,superuser:false};
+ assert.equal(await assertNonSuperuserCatalogRole({
+  async query(){return {rows:[identity]};}
+ }),true);
+ await assert.rejects(assertNonSuperuserCatalogRole({
+  async query(){return {rows:[{...identity,superuser:true}]};}
+ }),/MATCH_RETRY_DATABASE_SUPERUSER_DENIED/);
+ await assert.rejects(assertNonSuperuserCatalogRole({
+  async query(){return {rows:[{...identity,role:'postgres'}]};}
+ }),/MATCH_RETRY_PG16_IDENTITY_OR_SCHEMA_DENIED/);
+});
+
+await test('凭证验证只查询哈希且拒绝不存在或不合格的会话',async()=>{
+ const credential=randomBytes(32).toString('base64url');
+ let captured;
+ await assert.rejects(assertMatchingRetryEmployeeCredential({
+  async query(sql,params){
+   captured={sql,params};
+   return {rows:[{valid:false}]};
+  }
+ },credential),/MATCH_RETRY_EMPLOYEE_CREDENTIAL_INVALID/);
+ assert.match(captured.sql,/issuer='DISPOSABLE_TEST_ONLY'/);
+ assert.match(captured.sql,/revoked_at IS NULL/);
+ assert.match(captured.sql,/expires_at>statement_timestamp\(\)/);
+ assert.match(captured.sql,/employment_status='active'/);
+ assert.match(captured.sql,/role_code IN \('sales','manager','store_head'\)/);
+ assert.equal(captured.params.length,1);
+ assert.equal(captured.params[0].length,64);
+ assert.notEqual(captured.params[0],credential);
+});
+
+await test('慢 worker 超过 tick deadline 后调度器立即结束该回合',async()=>{
+ const config={...validateMatchingRetrySchedulerEnv(validEnv()),maxRuntimeMs:35,pollIntervalMs:10};
+ const logs=[];
+ let workerFinished=false;
+ const started=Date.now();
+ const result=await runMatchingRetryScheduler({
+  worker:{async runOnce(){
+   await new Promise(resolve=>setTimeout(resolve,180));
+   workerFinished=true;
+   return {claimed:1,outcomes:[{outcome:'done'}]};
+  }},
+  config,logger:event=>logs.push(event)
+ });
+ const elapsed=Date.now()-started;
+ assert.equal(result.reason,'tick_deadline_exceeded');
+ assert.equal(result.totalClaimed,0,'a timed-out tick must not be counted as completed');
+ assert.ok(elapsed<140,'deadline should stop scheduler promptly; elapsed='+elapsed+'ms');
+ assert.ok(logs.some(event=>event.event==='tick_deadline_exceeded'&&
+  event.errorCode==='MATCH_RETRY_TICK_DEADLINE_EXCEEDED'&&
+  event.leaseRecovery==='PERSISTED_POSTGRESQL_LEASE'));
+ await new Promise(resolve=>setTimeout(resolve,190));
+ assert.equal(workerFinished,true,'the test worker deliberately completes later to model an overrun');
+});
+
