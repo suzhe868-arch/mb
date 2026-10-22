@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {randomBytes} from 'node:crypto';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {connect,verify} from '../migration.mjs';
-import {grantMemberCreateLicense,revokeMemberCreateLicense} from '../four-s-member-trust-scope/source-gate.mjs';
+import {grantMemberCreateLicense,revokeMemberCreateLicense} from '../../four-s-member-trust-scope/source-gate.mjs';
 import {createManualVehicleDraftService} from '../service.mjs';
 import {startHarness,login,BASE} from './https-harness.mjs';
 const origin='https://127.0.0.1:48984';
