@@ -1,4 +1,5 @@
 // F05-7 disposable-only persistent scheduler; reuses the accepted worker/service.
+import {createHash} from 'node:crypto';
 import {validateCatalogEnv,probeIsolatedCatalog} from '../src/catalog-readiness.mjs';
 import {createIsolatedMatchingService} from '../src/f05-matching-service.mjs';
 import {createIsolatedMatchingRetryWorker} from '../src/f05-matching-retry-worker.mjs';
@@ -53,6 +54,8 @@ export async function createMatchingRetrySchedulerRuntime(env=process.env){
  });
  try{
   if(!await probeIsolatedCatalog(pool))throw Error('MATCH_RETRY_PG16_IDENTITY_OR_SCHEMA_DENIED');
+  await assertNonSuperuserCatalogRole(pool);
+  await assertMatchingRetryEmployeeCredential(pool,config.credential);
   const matching=createIsolatedMatchingService({pool,env});
   const worker=createIsolatedMatchingRetryWorker({pool,matching,env});
   return Object.freeze({config,pool,worker});
@@ -60,6 +63,37 @@ export async function createMatchingRetrySchedulerRuntime(env=process.env){
   await pool.end().catch(()=>{});
   throw error;
  }
+}
+
+export async function assertNonSuperuserCatalogRole(pool){
+ const identity=(await pool.query(
+  "SELECT current_database() AS db,current_user AS role,"+
+  "current_setting('server_version_num')::integer AS version,"+
+  "(SELECT rolsuper FROM pg_catalog.pg_roles WHERE rolname=current_user) AS superuser"
+ )).rows[0];
+ if(!identity||identity.db!=='f05_catalog_test'||identity.role!=='f05_catalog_ci'||
+    Math.floor(Number(identity.version)/10000)!==16)
+  throw Error('MATCH_RETRY_PG16_IDENTITY_OR_SCHEMA_DENIED');
+ if(identity.superuser!==false)throw Error('MATCH_RETRY_DATABASE_SUPERUSER_DENIED');
+ return true;
+}
+
+export async function assertMatchingRetryEmployeeCredential(pool,credential){
+ if(typeof credential!=='string'||!CREDENTIAL.test(credential))
+  throw Error('MATCH_RETRY_EMPLOYEE_CREDENTIAL_REQUIRED');
+ const tokenHash=createHash('sha256').update(credential).digest('hex');
+ const valid=(await pool.query(
+  "SELECT EXISTS(SELECT 1 FROM public.f05_catalog_employee_sessions_test s "+
+  "JOIN public.employees e ON e.employee_id=s.employee_id "+
+  "JOIN public.roles r ON r.role_id=e.main_role_id "+
+  "WHERE s.token_sha256=$1 AND s.issuer='DISPOSABLE_TEST_ONLY' "+
+  "AND s.revoked_at IS NULL AND s.expires_at>statement_timestamp() "+
+  "AND e.employment_status='active' "+
+  "AND r.role_code IN ('sales','manager','store_head')) AS valid",
+  [tokenHash]
+ )).rows[0]?.valid===true;
+ if(!valid)throw Error('MATCH_RETRY_EMPLOYEE_CREDENTIAL_INVALID');
+ return true;
 }
 
 export function normalizeMatchingRetryErrorCode(error){
@@ -87,6 +121,14 @@ function defaultSleep(ms,signal){
  });
 }
 
+function awaitWithinDeadline(promise,timeoutMs){
+ let timer;
+ const deadline=new Promise((resolve,reject)=>{
+  timer=setTimeout(()=>reject(Error('MATCH_RETRY_TICK_DEADLINE_EXCEEDED')),Math.max(0,timeoutMs));
+ });
+ return Promise.race([Promise.resolve(promise),deadline]).finally(()=>clearTimeout(timer));
+}
+
 function defaultLogger(event){
  process.stdout.write(JSON.stringify(event)+'\n');
 }
@@ -99,14 +141,18 @@ export async function runMatchingRetryScheduler({
     !Number.isInteger(config.batchLimit)||!Number.isInteger(config.backoffBaseMs)||
     !Number.isInteger(config.backoffMaxMs))throw Error('MATCH_RETRY_SCHEDULER_CONFIG_REQUIRED');
  const startedAt=now();
- let ticks=0,totalClaimed=0,consecutiveErrors=0;
+ let ticks=0,totalClaimed=0,consecutiveErrors=0,deadlineExceeded=false;
  emit(logger,{event:'scheduler_started',mode:'DISPOSABLE_TEST_ONLY',pollIntervalMs:config.pollIntervalMs,
   batchLimit:config.batchLimit,maxRuntimeMs:config.maxRuntimeMs,maxConcurrentTicks:1});
  while(!signal?.aborted&&now()-startedAt<config.maxRuntimeMs){
   const tickStarted=now();
+  const remainingAtStart=config.maxRuntimeMs-(tickStarted-startedAt);
   let waitMs=config.pollIntervalMs;
   try{
-   const result=await worker.runOnce({credential:config.credential,limit:config.batchLimit});
+   const result=await awaitWithinDeadline(
+    worker.runOnce({credential:config.credential,limit:config.batchLimit}),
+    remainingAtStart
+   );
    if(!result||!Number.isInteger(result.claimed)||!Array.isArray(result.outcomes))
     throw Error('MATCH_RETRY_WORKER_RESULT_INVALID');
    const counts={done:0,retryPendingOrFailed:0,superseded:0,other:0};
@@ -121,6 +167,13 @@ export async function runMatchingRetryScheduler({
    emit(logger,{event:'tick_completed',claimed:result.claimed,outcomes:counts,
     durationMs:Math.max(0,now()-tickStarted)});
   }catch(error){
+   if(error?.message==='MATCH_RETRY_TICK_DEADLINE_EXCEEDED'){
+    deadlineExceeded=true;
+    emit(logger,{event:'tick_deadline_exceeded',errorCode:'MATCH_RETRY_TICK_DEADLINE_EXCEEDED',
+     durationMs:Math.max(0,now()-tickStarted),leaseRecovery:'PERSISTED_POSTGRESQL_LEASE'});
+    ticks++;
+    break;
+   }
    consecutiveErrors++;
    waitMs=Math.min(config.backoffMaxMs,config.backoffBaseMs*Math.pow(2,Math.min(8,consecutiveErrors-1)));
    emit(logger,{event:'tick_failed',errorCode:normalizeMatchingRetryErrorCode(error),
@@ -132,7 +185,7 @@ export async function runMatchingRetryScheduler({
   if(remaining<=0)break;
   await sleep(Math.min(waitMs,remaining),signal);
  }
- const reason=signal?.aborted?'signal':'max_runtime';
+ const reason=signal?.aborted?'signal':deadlineExceeded?'tick_deadline_exceeded':'max_runtime';
  emit(logger,{event:'scheduler_stopped',reason,ticks,totalClaimed});
  return Object.freeze({reason,ticks,totalClaimed});
 }
