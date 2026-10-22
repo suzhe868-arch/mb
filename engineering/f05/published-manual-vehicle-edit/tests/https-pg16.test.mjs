@@ -98,6 +98,38 @@ test('E01 genuine trusted publication exists, live owner can read; wrong account
  const outsider=await app.request(path,{token:other});
  assert.equal(outsider.status,403,JSON.stringify(outsider.body));
 });
+test('E01B #214 actual HTTPS published mileage/city/description/conditionTags remain intact after price-only edit',async()=>{
+ const p={sourceType:fourS?'four_s':'mingbang',brandId:97001,seriesId:97002,modelId:97003,
+  modelYear:2026,mileageKm:35670,city:'Nanjing',vin:'ISSUE216-PRICE-ONLY-'+(fourS?'4S':'MB'),
+  description:'original unchanged content',conditionTags:['original-tag-A','original-tag-B'],
+  retailPriceCents:7100000,...(!fourS?{wholesalePriceCents:5300000}:{})};
+ const saved=await accepted214(()=>parentApp.request(PARENT_BASE+'/auto-save',{method:'POST',token:actor,body:{payload:p}}));
+ assert.equal(saved.status,201,JSON.stringify(saved.body));
+ const published=await accepted214(()=>parentApp.request(PARENT_BASE+'/'+saved.body.draftId+'/publish',
+  {method:'POST',token:actor,body:{expectedVersion:1}}));
+ assert.equal(published.status,200,JSON.stringify(published.body));
+ const pid=Number(published.body.vehicleId),cp=BASE+'/'+pid;
+ const before=await app.request(cp,{token:actor});
+ assert.equal(before.status,200,JSON.stringify(before.body));
+ assert.equal(before.body.effective.mileageKm,35670);assert.equal(before.body.effective.city,'Nanjing');
+ assert.equal(before.body.effective.description,p.description);
+ assert.deepEqual(before.body.effective.conditionTags,p.conditionTags);
+ const change=await app.request(cp+'/stage',{method:'PUT',token:actor,
+  body:{expectedCurrentVersion:1,patch:{customerListPriceCents:7500000}}});
+ assert.equal(change.status,200,JSON.stringify(change.body));
+ const apply=await app.request(cp+'/commit',{method:'POST',token:actor,
+  body:{expectedCurrentVersion:1,expectedStageVersion:1,requestKey:'issue216-price-only-accepted-source-'+randomUUID()}});
+ assert.equal(apply.status,200,JSON.stringify(apply.body));
+ const final=await app.request(cp,{token:actor});
+ assert.equal(final.status,200);assert.equal(final.body.currentVersion,2);
+ assert.equal(final.body.effective.customerListPriceCents,7500000);
+ assert.equal(final.body.effective.mileageKm,35670);assert.equal(final.body.effective.city,'Nanjing');
+ assert.equal(final.body.effective.description,p.description);
+ assert.deepEqual(final.body.effective.conditionTags,p.conditionTags);
+ const row=(await db.query('SELECT draft_payload FROM f05_manual_vehicle_test.drafts WHERE published_vehicle_id=$1',[pid])).rows[0];
+ assert.equal(row.draft_payload.retailPriceCents,7100000,'immutable original source retained');
+ assert.equal((await db.query('SELECT count(*)::integer n FROM public.vehicle_listing_cycles WHERE vehicle_id=$1',[pid])).rows[0].n,1);
+});
 test('E02 staged edits survive repeat HTTPS sessions without changing current Vehicle/cycle',async()=>{
  const before=await db.query('SELECT model_id,vin FROM public.vehicles WHERE vehicle_id=$1',[vehicleId]);
  const x=await stage({mileageKm:18001,city:'Shanghai',customerListPriceCents:8900000},undefined,1);
@@ -154,7 +186,7 @@ test('E06 current legitimate commit is atomic, requestKey idempotent; only one i
  assert.equal(r.status,200,JSON.stringify(r.body));assert.equal(r.body.code,'EDIT_APPLIED');
  assert.equal(r.body.currentVersion,2);assert.equal(r.body.effective.customerListPriceCents,8900000);
  assert.equal((await read()).body.draft,null);
- assert.equal((await read()).body.effective.description,'Accepted 214 original description');
+ assert.equal((await read()).body.effective.description,'original author staged description');
  assert.deepEqual((await read()).body.effective.conditionTags,['original-verified-condition']);
  assert.equal(await count('f05_published_edit_test.edit_audit'),1);
  assert.deepEqual(await olderDomainSeal(),priorHistoric,'F03 real preexisting Lock/Transaction/deposit/public audit rows unchanged');
