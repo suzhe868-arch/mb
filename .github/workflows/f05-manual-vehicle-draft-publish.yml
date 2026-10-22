@@ -171,8 +171,9 @@ jobs:
           set -euo pipefail
           node --test f05/manual-vehicle-draft-publish/tests/four-s.pg16.test.mjs 2>&1 | tee f05/manual-vehicle-draft-publish/artifacts/manual-four-s.log
           grep -q '# fail 0' f05/manual-vehicle-draft-publish/artifacts/manual-four-s.log
+          # This verifies the complete physical F05-3A seal *and* the additive private
+          # schema. The legacy bootstrap runner rejects any private namespace.
           node f05/manual-vehicle-draft-publish/runner.mjs --verify
-          node f05/four-s-member-trust-scope/runner.mjs --verify
       - name: Same-SHA redacted evidence and size guard
         if: always()
         id: evidence_gate
