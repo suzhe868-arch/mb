@@ -65,8 +65,10 @@ async function employeeAuditAfter(c,employeeId,watermark) {
   [employeeId,watermark]);
  return q.rows[0]??null;
 }
-async function invalidateLifecycle(c,employeeId,permission,mode,target,event,watermark,reason) {
+async function invalidateLifecycle(c,employeeId,permission,mode,target,event,watermark,reason,hook=null) {
  const oldState=await state(c,employeeId,permission,mode);
+ const baselineCaptured=mode.previous_decision_captured===true;
+ const baselineDecision=mode.previous_decision??null;
  await c.query(
   "UPDATE public.employee_capability_scope_bindings SET ended_at=GREATEST(granted_at,transaction_timestamp()) "+
   "WHERE employee_id=$1::bigint AND permission_id=$2::bigint AND ended_at IS NULL "+
@@ -80,7 +82,7 @@ async function invalidateLifecycle(c,employeeId,permission,mode,target,event,wat
  const auditId=event?.audit_id??null;
  const auditAction=event?.action??null;
  const updated=await c.query(
-  "UPDATE "+S+".employee_mode SET enabled=false,scope_mode=NULL,version=version+1,updated_at=transaction_timestamp(),updated_by_system_admin_id=NULL,"+
+  "UPDATE "+S+".employee_mode SET enabled=false,scope_mode=NULL,previous_decision=NULL,previous_decision_captured=false,version=version+1,updated_at=transaction_timestamp(),updated_by_system_admin_id=NULL,"+
   "lifecycle_audit_watermark=$2::bigint,granted_employment_status=NULL,granted_role_code=NULL,granted_main_role_id=NULL,granted_store_id=NULL,"+
   "lifecycle_invalidated_at=transaction_timestamp(),lifecycle_invalidated_audit_id=$3::bigint,lifecycle_invalidated_action=$4,lifecycle_invalidated_reason=$5 "+
   "WHERE employee_id=$1::bigint AND enabled=true "+
@@ -89,6 +91,19 @@ async function invalidateLifecycle(c,employeeId,permission,mode,target,event,wat
   "lifecycle_invalidated_at,lifecycle_invalidated_audit_id::text lifecycle_invalidated_audit_id,lifecycle_invalidated_action,lifecycle_invalidated_reason",
   [employeeId,watermark,auditId,auditAction,reason]);
  if(updated.rowCount!==1)return mode;
+ // The lifecycle revocation owns only the allow created by this API. Restore the
+ // captured pre-grant decision conditionally; a concurrently committed deny wins.
+ if(hook)await hook({c,employeeId,method:'LIFECYCLE_INVALIDATE',phase:'before_baseline_restore'});
+ if(baselineCaptured&&oldState.decision==='allow'){
+  if(baselineDecision==='allow'){
+   await c.query("UPDATE public.employee_permission_overrides SET decision='allow',changed_at=transaction_timestamp() WHERE employee_id=$1::bigint AND permission_id=$2::bigint AND decision='allow'",[employeeId,permission]);
+  }else if(baselineDecision==='deny'){
+   await c.query("UPDATE public.employee_permission_overrides SET decision='deny',changed_at=transaction_timestamp() WHERE employee_id=$1::bigint AND permission_id=$2::bigint AND decision='allow'",[employeeId,permission]);
+  }else{
+   await c.query("DELETE FROM public.employee_permission_overrides WHERE employee_id=$1::bigint AND permission_id=$2::bigint AND decision='allow'",[employeeId,permission]);
+  }
+ }
+ const finalDecision=(await c.query("SELECT decision FROM public.employee_permission_overrides WHERE employee_id=$1::bigint AND permission_id=$2::bigint",[employeeId,permission])).rows[0]?.decision??null;
  const sourceActorKind=['employee','system_admin'].includes(event?.actor_kind)?event.actor_kind:'system';
  const sourceActorId=typeof event?.actor_id==='string'&&/^[1-9][0-9]{0,18}$/.test(event.actor_id)&&BigInt(event.actor_id)<=9223372036854775807n?event.actor_id:null;
  await c.query(
@@ -96,14 +111,14 @@ async function invalidateLifecycle(c,employeeId,permission,mode,target,event,wat
   "VALUES($1::bigint,$2::bigint,'revoked',$3,$4::bigint)",
   [employeeId,permission,sourceActorKind,sourceActorId]);
  const before={permissionDecision:oldState.decision,scopeMode:mode.scope_mode,enabled:oldState.enabled,version:asNumber(mode.version),employmentStatus:target.employment_status,roleCode:target.role_code,mainRoleId:target.main_role_id,storeId:target.store_id};
- const after={permissionDecision:oldState.decision??null,scopeMode:null,enabled:false,version:asNumber(updated.rows[0].version),lifecycleInvalidated:true,lifecycleInvalidatedReason:reason,lifecycleAuditId:auditId,lifecycleAction:auditAction};
+ const after={permissionDecision:finalDecision,scopeMode:null,enabled:false,version:asNumber(updated.rows[0].version),lifecycleInvalidated:true,lifecycleInvalidatedReason:reason,lifecycleAuditId:auditId,lifecycleAction:auditAction};
  await c.query(
   "INSERT INTO public.audit_events(actor_kind,actor_id,object_kind,object_id,action,before_json,after_json,occurred_at) "+
   "VALUES($1,$2,'employee_permission_override',$3,'publisher.phone.scope.lifecycle_revoke',$4::jsonb,$5::jsonb,transaction_timestamp())",
   [sourceActorKind,sourceActorId,employeeId,JSON.stringify(before),JSON.stringify(after)]);
  return updated.rows[0];
 }
-async function reconcileLifecycle(c,employeeId,permission,target,mode) {
+async function reconcileLifecycle(c,employeeId,permission,target,mode,hook=null) {
  if(!mode?.enabled)return mode;
  const watermark=mode.lifecycle_audit_watermark;
  const event=watermark===null||watermark===undefined?null:await employeeAuditAfter(c,employeeId,watermark);
@@ -118,7 +133,7 @@ async function reconcileLifecycle(c,employeeId,permission,target,mode) {
   String(target.store_id)!==String(mode.granted_store_id);
  if(missingBaseline||event||factsDrift){
   const reason=missingBaseline?'LIFECYCLE_BASELINE_MISSING':event?'EMPLOYEE_AUDIT_AFTER_GRANT':'EMPLOYEE_FACT_DRIFT';
-  return invalidateLifecycle(c,employeeId,permission,mode,target,event,latestWatermark,reason);
+  return invalidateLifecycle(c,employeeId,permission,mode,target,event,latestWatermark,reason,hook);
  }
  return mode;
 }
@@ -149,7 +164,7 @@ export class PublisherPhoneAdminService {
    if(!target)return result(404,'TARGET_NOT_FOUND');
    const permission=await permissionId(c);
    let mode=await modeRow(c,employeeId);
-   mode=await reconcileLifecycle(c,employeeId,permission,target,mode);
+   mode=await reconcileLifecycle(c,employeeId,permission,target,mode,this.hook);
    const grants=permission?await state(c,employeeId,permission,mode):null;
    return result(200,'PHONE_ADMIN_CURRENT',publicDto(employeeId,target,{...mode,enabled:eligible(target)&&grants?.enabled===true},permission));
   },{normalOnly:true});
@@ -168,7 +183,7 @@ export class PublisherPhoneAdminService {
    // Target row FOR UPDATE serializes lifecycle changes and two independent admins.
    // Reconcile before rejecting an ineligible target so the old grant is durably revoked.
    let beforeMode=await modeRow(c,employeeId);
-   beforeMode=await reconcileLifecycle(c,employeeId,permission,t,beforeMode);
+   beforeMode=await reconcileLifecycle(c,employeeId,permission,t,beforeMode,this.hook);
    if(!eligible(t))return result(403,'TARGET_NOT_ELIGIBLE');
    // Replay still checks CURRENT facts and never returns an obsolete grant.
    const oldState=await state(c,employeeId,permission,beforeMode);
