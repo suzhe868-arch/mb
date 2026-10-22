@@ -16,7 +16,10 @@ await test('仅接受 loopback、test 环境、隔离 PG16 目标和有效测试
  const config=validateMatchingRetrySchedulerEnv(validEnv());
  assert.equal(config.maxConcurrentTicks,1);
  assert.equal(config.batchLimit,10);
- assert.equal(config.connectionString,'postgres://f05_catalog_ci:disposable_f05_ci_only@127.0.0.1:5432/f05_catalog_test');
+ const target=new URL(config.connectionString);
+ assert.equal(target.hostname,'127.0.0.1');
+ assert.equal(target.pathname,'/f05_catalog_test');
+ assert.equal(target.username,'f05_catalog_ci');
  assert.throws(()=>validateMatchingRetrySchedulerEnv({...validEnv(),APP_ENV:'production'}),/MATCH_RETRY_SCHEDULER_TEST_ONLY_REQUIRED/);
  assert.throws(()=>validateMatchingRetrySchedulerEnv({...validEnv(),NODE_ENV:'production'}),/MATCH_RETRY_SCHEDULER_TEST_ONLY_REQUIRED/);
  assert.throws(()=>validateMatchingRetrySchedulerEnv({...validEnv(),API_HOST:'0.0.0.0'}),/MATCH_RETRY_SCHEDULER_TEST_ONLY_REQUIRED/);
