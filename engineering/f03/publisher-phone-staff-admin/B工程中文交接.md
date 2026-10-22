@@ -17,7 +17,7 @@
 ## 二、证据与已知结果
 
 - 首轮官方 [Run #39799794445](https://github.com/suzhe868-arch/mb/actions/runs/39799794445) 在旧 HEAD `5065db292368e10ab0434a2faea7a5d933766ac3` 下完成真实 PG16 业务及 HTTPS 双 Job，均成功；**不能代替后续代码最终 SHA**。
-- A 首轮独立审查指出四项必须修复的安全语义：撤权保留个人 `deny` 且恢复原本独立 `allow`、以条件 UPSERT 防止并发 `deny` 覆盖、SG01 `granted_at <= transaction_timestamp()` 生效时间、角色只允许 `sales/manager/store_manager`。当前分支已实现这些修正并新增真实 PG16 负例/双事务竞态用例；业务专项矩阵为 39 项，HTTPS 为 22 项。是否通过只认当前最终 HEAD 的官方 Push CI 和两份 Artifact，不沿用此前 33 项业务测试的旧 SHA 结果。
+- A 首轮独立审查指出四项必须修复的安全语义：撤权保留个人 `deny` 且恢复原本独立 `allow`、以条件 UPSERT 防止并发 `deny` 覆盖、SG01 `granted_at <= transaction_timestamp()` 生效时间、角色只允许 `sales/manager/store_manager`。当前分支已实现这些修正并新增真实 PG16 负例/双事务竞态用例；业务专项矩阵为 40 项，HTTPS 为 22 项。是否通过只认当前最终 HEAD 的官方 Push CI 和两份 Artifact，不沿用此前 33 项业务测试的旧 SHA 结果。
 - 官方 CI 任务限定精确 B 分支、主线差异路径白名单、语法/路径双门禁、实际非超管 PG16 物理身份、合成 127.0.0.1 HTTPS、内部 SHA256 清单和默认服务安全回归。
 - 任何失败或排队均 `NOT_READY_FOR_A_REVIEW`，B 不得声称通过。
 

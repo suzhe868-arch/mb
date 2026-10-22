@@ -91,6 +91,13 @@ test('15 idempotent same request key returns original result',async()=>{const x=
 test('16 replay different payload rejected',async()=>assert.equal((await put('ALL_ACTIVE_JYT',version,admin,originalKey)).status,409));
 test('17 expectedVersion mismatch rejected',async()=>assert.equal((await put('ALL_ACTIVE_JYT',0)).status,409));
 test('18 change ALL_ACTIVE_JYT',async()=>{const x=await put('ALL_ACTIVE_JYT');assert.equal(x.status,200);version=x.version;assert.equal(version,2)});
+test('18A grant touches only this API special scope and preserves unrelated object scope bindings',async()=>{
+ const scope=await sql("INSERT INTO public.employee_data_scopes(employee_id,scope_kind,scope_reference_id,ended_at) VALUES(6,'object',301,NULL) RETURNING scope_id::text id");
+ await sql("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at,ended_at) VALUES(6,13,$1::bigint,transaction_timestamp()-interval '1 minute',NULL)",[scope.rows[0].id]);
+ const changed=await put('LOCKED_ONLY',version);assert.equal(changed.status,200);version=changed.version;
+ const unrelated=await sql("SELECT b.ended_at FROM public.employee_capability_scope_bindings b JOIN public.employee_data_scopes s ON s.scope_id=b.scope_id WHERE b.employee_id=6 AND b.permission_id=13 AND s.scope_kind='object' AND s.scope_reference_id=301");
+ assert.equal(unrelated.rowCount,1);assert.equal(unrelated.rows[0].ended_at,null);
+});
 test('19 GET observes current mode',async()=>{const x=await get();assert.equal(x.scopeMode,'ALL_ACTIVE_JYT');assert.equal(x.version,2)});
 test('20 two real admins racing same CAS serialize exactly once',async()=>{
  const [a,b]=await Promise.all([put('LOCKED_ONLY',version,admin),put('LOCKED_ONLY',version,admin2)]);
@@ -187,11 +194,13 @@ test('26 injected failure before commit rolls back entire DB mutation',async()=>
  const x=await get();assert.equal(x.version,version);
  assert.equal(Number((await sql("SELECT count(*) n FROM public.audit_events WHERE action LIKE 'publisher.phone.scope.%'")).rows[0].n),n);
 });
-test('27 DELETE revokes mode, binding, allow and preserves history',async()=>{
+test('27 DELETE revokes only this API binding, leaves unrelated scopes and preserves history',async()=>{
  const x=await del();assert.equal(x.status,200);assert.equal(x.enabled,false);version=x.version;
  const state=await get();assert.equal(state.enabled,false);assert.equal(state.scopeMode,null);
- const b=await sql("SELECT count(*)::int n FROM public.employee_capability_scope_bindings WHERE employee_id=6 AND permission_id=13 AND ended_at IS NULL");
+ const b=await sql("SELECT count(*)::int n FROM public.employee_capability_scope_bindings b JOIN public.employee_data_scopes s ON s.scope_id=b.scope_id WHERE b.employee_id=6 AND b.permission_id=13 AND b.ended_at IS NULL AND s.scope_kind='publisher_phone_special'");
  assert.equal(b.rows[0].n,0);
+ const unrelated=await sql("SELECT count(*)::int n FROM public.employee_capability_scope_bindings b JOIN public.employee_data_scopes s ON s.scope_id=b.scope_id WHERE b.employee_id=6 AND b.permission_id=13 AND b.ended_at IS NULL AND s.scope_kind='object' AND s.scope_reference_id=301");
+ assert.equal(unrelated.rows[0].n,1);
 });
 test('28 DELETE idempotent replay and version remains',async()=>{
  const k=key(),x=await del(version,admin,k);assert.equal(x.status,200);version=x.version;
@@ -205,8 +214,10 @@ test('28A DELETE preserves an explicit deny and audit records the actual final d
  assert.equal(override.rows[0].decision,'deny');
  const mode=await sql("SELECT enabled,scope_mode,version FROM f03_publisher_phone_admin_test.employee_mode WHERE employee_id=6");
  assert.equal(mode.rows[0].enabled,false);assert.equal(mode.rows[0].scope_mode,null);assert.equal(Number(mode.rows[0].version),version);
- const bindings=await sql("SELECT count(*)::int n FROM public.employee_capability_scope_bindings WHERE employee_id=6 AND permission_id=13 AND ended_at IS NULL");
+ const bindings=await sql("SELECT count(*)::int n FROM public.employee_capability_scope_bindings b JOIN public.employee_data_scopes s ON s.scope_id=b.scope_id WHERE b.employee_id=6 AND b.permission_id=13 AND b.ended_at IS NULL AND s.scope_kind='publisher_phone_special'");
  assert.equal(bindings.rows[0].n,0);
+ const unrelated=await sql("SELECT count(*)::int n FROM public.employee_capability_scope_bindings b JOIN public.employee_data_scopes s ON s.scope_id=b.scope_id WHERE b.employee_id=6 AND b.permission_id=13 AND b.ended_at IS NULL AND s.scope_kind='object' AND s.scope_reference_id=301");
+ assert.equal(unrelated.rows[0].n,1);
  const audit=await sql("SELECT after_json FROM public.audit_events WHERE object_id='6' AND action='publisher.phone.scope.revoke' ORDER BY audit_id DESC LIMIT 1");
  assert.equal(audit.rows[0].after_json.permissionDecision,'deny');
  const current=await get();assert.equal(current.enabled,false);assert.equal(current.version,version);
@@ -236,5 +247,5 @@ test('32 public SG01 physical schema fingerprint unchanged',async()=>{
 test('33 capability scope is non-public and F07 remains disconnected',async()=>{
  const s=await sql("SELECT nspname FROM pg_namespace WHERE nspname='f03_publisher_phone_admin_test'");
  assert.equal(s.rowCount,1);assert.notEqual(s.rows[0].nspname,'public');
- console.log('F03_PHONE_ADMIN_BUSINESS_PG16_39_CASES_PASS; F07_NOT_CONNECTED');
+ console.log('F03_PHONE_ADMIN_BUSINESS_PG16_40_CASES_PASS; F07_NOT_CONNECTED');
 });

@@ -107,8 +107,8 @@ export class PublisherPhoneAdminService {
    if(oldVersion!==input.expectedVersion)return result(409,'VERSION_CONFLICT',{version:oldVersion});
    if(oldState.decision==='deny'&&method==='PUT')return result(403,'CURRENT_PERSONAL_DENY');
    // Do not mutate the old SQL schema. All public modifications are legal DML.
-   await c.query("UPDATE public.employee_capability_scope_bindings SET ended_at=transaction_timestamp() WHERE employee_id=$1::bigint AND permission_id=$2::bigint AND ended_at IS NULL",[employeeId,permission]);
-   await c.query("UPDATE public.employee_data_scopes SET ended_at=transaction_timestamp() WHERE employee_id=$1::bigint AND scope_kind='publisher_phone_special' AND ended_at IS NULL",[employeeId]);
+   await c.query("UPDATE public.employee_capability_scope_bindings SET ended_at=transaction_timestamp() WHERE employee_id=$1::bigint AND permission_id=$2::bigint AND ended_at IS NULL AND scope_id IN (SELECT scope_id FROM public.employee_data_scopes WHERE employee_id=$1::bigint AND scope_kind='publisher_phone_special' AND scope_reference_id=$1::bigint AND ended_at IS NULL)",[employeeId,permission]);
+   await c.query("UPDATE public.employee_data_scopes SET ended_at=transaction_timestamp() WHERE employee_id=$1::bigint AND scope_kind='publisher_phone_special' AND scope_reference_id=$1::bigint AND ended_at IS NULL",[employeeId]);
    if(method==='PUT'){
     const scope=await c.query("INSERT INTO public.employee_data_scopes(employee_id,scope_kind,scope_reference_id,ended_at) VALUES($1::bigint,'publisher_phone_special',$1::bigint,NULL) RETURNING scope_id::text",[employeeId]);
     await c.query("INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at,ended_at) VALUES($1::bigint,$2::bigint,$3::bigint,transaction_timestamp(),NULL)",[employeeId,permission,scope.rows[0].scope_id]);

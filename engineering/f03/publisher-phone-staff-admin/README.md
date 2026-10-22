@@ -4,7 +4,7 @@
 
 ## 入口和安全约束
 
-- `engineering/src/f03-publisher-phone-admin-service.mjs`：复用真实 F03 Session、public 既有权限 / SG01 scope / history / audit，单库版本 CAS 与幂等；撤权保留既有个人 `deny` 并恢复 API 授权前的独立决策基线。
+- `engineering/src/f03-publisher-phone-admin-service.mjs`：复用真实 F03 Session、public 既有权限 / SG01 scope / history / audit，单库版本 CAS 与幂等；撤权保留既有个人 `deny` 并恢复 API 授权前的独立决策基线；关闭 binding/scope 时只匹配本 API 的 `publisher_phone_special + scope_reference_id=employee_id`，不会撤销 `object` 等其他 scope。
 - 授权通过条件 UPSERT 保证并发提交的个人 `deny` 不会被覆盖；SG01 binding 必须满足 `granted_at <= transaction_timestamp()` 且未到期；员工角色仅允许正式 Guard 列表 `sales`、`manager`、`store_manager`，未知/旧别名 fail-closed。
 - `engineering/src/f03-publisher-phone-admin-http.mjs`：GET/PUT/DELETE，安全 cookie，HTTPS 同源和写操作 CSRF；请求失败不输出 SQL 错误。
 - `engineering/src/app.mjs` 的 `publisherPhoneAdminHandler` 为**可选显式注入**；默认 Node server 从未注入，因此仍返回 404。绝不开放真实电话。

@@ -8,6 +8,7 @@
 角色边界	22-23A	离职、转4S、未经正式规则定义的store_head别名均fail-closed	DENY	PG16业务Job
 提交竞态	24	提交中离职更新受真实PG16行锁保护（55P03）	PASS	PG16业务Job
 个人deny	25	已有个人deny时PUT拒绝	DENY	PG16业务Job
+专项范围	18A、27、28A	授予与撤权只结束publisher_phone_special绑定，不误撤object等其他Scope	PASS	PG16业务Job
 并发deny	25A-25B	两个真实PG16事务顺序竞争；deny不得被条件UPSERT覆盖；失败全事务回滚	PASS/ROLLBACK	PG16业务Job
 事务回滚	26	注入提交前异常后权限、scope、版本、审计均回滚	ROLLBACK	PG16业务Job
 撤权	27-28A	撤销、幂等删除、活动授权期间deny保留且审计记录最终deny	PASS	PG16业务Job
