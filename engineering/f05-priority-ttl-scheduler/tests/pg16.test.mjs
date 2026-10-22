@@ -190,6 +190,8 @@ await test('F05-8 runner uses real PG16, processes durable TTL jobs, and recover
    const proc=startScheduler({batchLimit:1,pollIntervalMs:100,maxRuntimeMs:12000});
    await waitFor(()=>events(proc).some(event=>event.event==='scheduler_started'),5000,'auto_runner_started');
    for(let i=0;i<priorityIds.length;i++)await waitJobDone(priorityIds[i],'auto_due_'+i);
+   await waitFor(()=>events(proc).filter(event=>event.event==='tick_completed'&&event.claimed===1).length>=2,
+    2000,'batch_limited_ticks_logged');
    const tickEvents=events(proc).filter(event=>event.event==='tick_completed');
    assert.ok(tickEvents.filter(event=>event.claimed===1).length>=2,
     'batch limit 1 must require separate scheduler ticks');
@@ -243,7 +245,8 @@ await test('F05-8 runner uses real PG16, processes durable TTL jobs, and recover
    try{
     await waitFor(async()=>{
      const row=await queueState(priorityId);
-     return row?.state==='pending'&&row.attempts===1&&row.last_error_code==='TTL_SWEEP_RETRYABLE';
+     return row?.state==='pending'&&row.attempts===1&&row.last_error_code==='TTL_SWEEP_RETRYABLE'&&
+     events(failing).some(event=>event.event==='tick_completed'&&event.retried===1);
     },8000,'database_fault_retry_persisted');
     assert.ok(events(failing).some(event=>event.event==='tick_completed'&&event.retried===1));
     assert.equal((await queueState(priorityId)).priority_status,'active',
@@ -266,10 +269,10 @@ await test('F05-8 runner uses real PG16, processes durable TTL jobs, and recover
    const vehicleId=vehicleIds[5];
    const priorityId=await createExpiredPriority(vehicleId);
    blocker=await lockVehicle(vehicleId);
-   const slow=startScheduler({batchLimit:1,pollIntervalMs:100,maxRuntimeMs:1000});
+   const slow=startScheduler({batchLimit:1,pollIntervalMs:100,maxRuntimeMs:3000});
    await waitFor(()=>events(slow).some(event=>event.event==='scheduler_started'),5000,'deadline_runner_started');
    await waitRunnerBlockedOnVehicle(slow,priorityId,'deadline_runner_blocked');
-   const exit=await withTimeout(slow.exitPromise,4000,'deadline_runner_exit');
+   const exit=await withTimeout(slow.exitPromise,6000,'deadline_runner_exit');
    assert.equal(exit.code,124,'the tick deadline must hard-exit the process');
    await waitFor(()=>/scheduler_deadline_exit|scheduler_hard_deadline_exit/.test(slow.stderr),
     1000,'deadline_exit_log');
