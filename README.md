@@ -1,27 +1,35 @@
 # 名邦汽车 V1｜当前主控状态（2026-10-22）
 
+## 最新验收闭环｜F05 目录客户价格权益投影与确定性搜索
+
+- [PR #210](https://github.com/suzhe868-arch/mb/pull/210) 已由 A 独立验收并标准合并，Issue [#204](https://github.com/suzhe868-arch/mb/issues/204) 已关闭。
+- B 最终 HEAD：`b1d548d441463b77cf896aac02eff8515560a347`；merge SHA：`c2087a15fd3d124080e549acc02b515fb877ba8e`。
+- 官方 Run [#39743949320](https://github.com/suzhe868-arch/mb/actions/runs/39743949320) 全步骤成功；117/117 测试通过，失败 0、跳过 0。
+- Artifact [#12410562743](https://github.com/suzhe868-arch/mb/actions/runs/39743949320/artifacts/12410562743) SHA-256 `3d1d3108c7bbf813d45f7868e0730a4daeb2a61134b96b7c3a58a3ae2459d8ce`；内部 HEAD/Run/branch/文件摘要均通过独立核验。
+- 第三轮补齐 7 张事件/队列表，全行快照覆盖 27 张相关业务表；详细验收见 `07_重建工作区/F05目录客户价格权益投影与确定性搜索PR210独立验收与合并报告_2026-10-22.md`。
+- 本次只接受 Disposable 非超管 PostgreSQL 16 与真实 Node HTTP 的非生产后端子范围，`productionReady=false`；不代表正式 Issuer、真实外部系统、F01～F08 全域或 V1 生产就绪。
+
+## 当前唯一职责指针
+
+- `NEXT_OWNER=A`；`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`；`NEXT_ISSUE=187`；`NEXT_BRANCH=NONE`。
+- A 继续核对正式 F03 capability/Scope/Object、F05 转换正向 Issuer、publisher phone 可信来源及 SLA/Incident 正式来源；复用已验收 F08-2/F08-3 资产，不重复施工。
+- 用户已确认 JYT/Collector、图片存储/CDN、Feishu 尚未准备。没有新正式来源/授权时不签发重复 B 模拟包、不伪造签名、不接生产或外部公网。
+- F06/F07/F08/V1 全局仍 `NOT_READY / NO_PRODUCTION`；C PR #68 独立不动。
+
 ## A/B/C 执行规范优先阅读入口｜2026-10-22
 
-- **A、B、C 接管最新 `main` 后，除当前 `PROJECT_STATE.json` / `NEXT_ACTION.md` 和正式工作单外，必须优先读取现有 [《A_B_C三窗口协作与验收规范》](07_重建工作区/A_B_C三窗口协作与验收规范.md) 顶部“2026-10-22｜A/B/C 窗口连续执行、停止前自检、异常恢复、禁止 Work 转交与主动交接”**。这是三个窗口共同遵守的常设执行规范。
-- **硬性禁止 Work 模式切换：** A/B/C 任一窗口在读取/搜索 GitHub 文件、仓库状态、PR、Issue、CI，审查代码或执行已授权的 GitHub 读写时，都不得主动或自动转交/切换到 Work 模式；必须留在当前聊天窗口使用可用的 GitHub 工具。若当前连接器确实缺少所需能力或权限，记录 `BLOCKED_TOOL_UNAVAILABLE` 并如实报告，不切换、不虚报完成，也不绕过权限或分支保护。
-- **B 还必须读取原文件 [《B工程执行增量审查关联回归与避免重复施工正式规范_2026-10-21.md》](07_重建工作区/B工程执行增量审查关联回归与避免重复施工正式规范_2026-10-21.md)** 的新增执行说明和原有提交前语法/授权范围门禁。
-- 新规范要求：授权范围内连续执行、结束前检查未完成工作、工具失败先合法恢复、阻断记录可续作位置、完成后主动中文交接，并且 **A/B/C 不得为仓库读写或文件读取切换 Work 模式**；不得靠用户反复发送“继续”推动正常工作。**跨聊天窗口不会自动开工，后台自动续作不由仓库文字保证。**
-- **纯治理更新**：原文件名及固定 A/B/C 接管提示词不变；最新 `NEXT_OWNER/NEXT_TASK` 仍以当前主线状态为准；既有业务验收、权限、生产/资金限制和 C 轨均不受影响。
+- A、B、C 接管最新 `main` 后，必须优先读取 [《A_B_C三窗口协作与验收规范》](07_重建工作区/A_B_C三窗口协作与验收规范.md) 顶部的连续执行、停止前自检、异常恢复、禁止 Work 转交与主动交接条款。
+- B 还必须读取 [《B工程执行增量审查关联回归与避免重复施工正式规范》](07_重建工作区/B工程执行增量审查关联回归与避免重复施工正式规范_2026-10-21.md) 的增量审查、语法门禁与授权范围检查要求。
+- GitHub 仓库、PR、Issue、CI 与文件审查必须留在当前聊天窗口使用可用 GitHub 工具；不得主动切换 Work。工具能力/权限不足时如实记录阻断，不虚报完成、不绕过保护。
+- 正式施工单、NEXT_ACTION 与 PROJECT_STATE 是当前任务指针唯一依据；历史快照只作历史证据。
 
 ---
 
-## 当前工程执行指针｜B F05 目录客户价格权益投影与确定性搜索
+## 历史任务记录｜F05 目录客户价格权益投影与确定性搜索（已完成；当前指针以上方为准）
 
-- **当前正式任务：** [Issue #204](https://github.com/suzhe868-arch/mb/issues/204)｜目录客户价格权益投影与确定性车型搜索。
-- **施工单：** `07_重建工作区/F05目录客户价格权益投影与确定性搜索非生产施工单_2026-10-22.md`。
-- **正式 B 分支：** `feat/f05-catalog-customer-price-search-01`；本 A 状态治理 PR 合并后正式激活，B 必须从执行时最新 `main` 接管。
-- **实际缺口：** 当前目录安全 DTO 固定隐藏价格，目录 GET 未消费当前 Customer Bearer，列表缺少关键词搜索入口；已有 price-unlock/quota ledger、六项排序和 Rule Dictionary 资产直接复用。
-- **上一任务 F05-8 已验收合并：** Issue #203 / PR #208；B HEAD `8a18b0d12c54c607ee9555e8dda582ccd40f840a`，merge SHA `31881d1d092cea220087e527fdac7da03141480e`；专用 Run #39732168499 成功，单元 6/6、关联 PG16 回归 5/5、新 runner 真实 PG16 集成 8/8，失败 0、跳过 0。Artifact #12406100445 已核验。完整报告：`07_重建工作区/F05-8_Issue203_PR208独立验收与F05目录搜索任务放行报告_2026-10-22.md`。
-- **旧冻结 CI 单独登记：** Run #39732168405 在同 SHA 有 52 项检查，21 成功、31 失败；作业属于旧 F03/F04/F05-1～F05-3 回归，不是 Issue #203 的专用矩阵。31 项名称与 A 的适用性裁决已记录在中文报告中，不冒充通过、不越权改旧 workflow。
-- **施工范围：** 只做非生产后端，按 Issue #204 白名单；复用现有 price-unlock/quota、Rule Dictionary 和排序；不得重复开发已验收功能。
-- **Issue #187 并行不阻断：** JYT/Collector、CDN/OSS、飞书和正式电话/来源授权仍为独立门禁。
-- **约束：** 不开发 PC/手机页面、不修改冻结业务算法、不接生产、不授权真钱、真实电话或外部公网调用，不伪造正式 Issuer/城市数据。
+Issue [#204](https://github.com/suzhe868-arch/mb/issues/204) 与 PR [#210](https://github.com/suzhe868-arch/mb/pull/210) 已完成并合并。最终 B HEAD 为 `b1d548d441463b77cf896aac02eff8515560a347`，merge SHA 为 `c2087a15fd3d124080e549acc02b515fb877ba8e`。专用 Run [#39743949320](https://github.com/suzhe868-arch/mb/actions/runs/39743949320) 的 117/117 项测试全部通过，Artifact #12410562743 已独立核验。
 
+本任务只接受 Disposable 非超管 PostgreSQL 16 与真实 Node HTTP 的非生产后端子范围。详细结论见 `07_重建工作区/F05目录客户价格权益投影与确定性搜索PR210独立验收与合并报告_2026-10-22.md`。
 
 ---
 

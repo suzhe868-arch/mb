@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "BACKEND_ENGINEERING",
-  "substage": "F05_7_MATCHING_RETRY_SCHEDULER_RELEASED_TO_B",
+  "substage": "F05_CATALOG_CUSTOMER_PRICE_SEARCH_ACCEPTED_AND_F08_SOURCE_GATE_ACTIVE",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F05_CATALOG_CUSTOMER_PRICE_SEARCH_NONPROD",
-  "current_domain_status": "A 已独立验收并合并 F05-8 Issue #203 / PR #208 的 Priority TTL 非生产持久调度器；当前唯一 B 任务切换为 Issue #204，补齐目录 Customer 价格权益投影与 Rule Dictionary 确定性搜索。旧冻结宽范围 CI Run #39732168405 同 SHA 52 项检查中 31 项失败，已逐项记录为独立旧 CI 问题，不冒充通过；本任务专用 Run #39732168499 全成功。全局生产状态仍 NOT_READY。",
+  "current_domain": "F08_SIGNED_SOURCE_AND_STAGE_GATE_AUDIT",
+  "current_domain_status": "A 已独立验收并标准合并 Issue #204 / PR #210 的 F05 目录 Customer 价格权益投影与 Rule Dictionary 确定性搜索非生产子范围（merge SHA c2087a15fd3d124080e549acc02b515fb877ba8e；最终 B SHA b1d548d441463b77cf896aac02eff8515560a347；官方 Run 39743949320 的 117/117 测试全部通过）。当前职责切回 Issue #187 的 F08 可信来源与外部授权父门禁；正式 F03 Scope/Object、F05 转换正向 Issuer、publisher.phone.sensitive 可信来源、SLA/Incident 正式来源仍缺证据；JYT/Collector、图片存储/CDN、Feishu 按用户确认尚未准备。全局生产状态仍 NOT_READY。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F05_CATALOG_CUSTOMER_PRICE_SEARCH_01：在现有目录 HTTP/PG16 Runtime 中接入当前 Customer session/level/price entitlement 安全投影与 Rule Dictionary 确定性车型搜索；复用既有 price-unlock/quota ledger、六项排序和 parser，不复制业务算法。",
-  "current_work_file": "07_重建工作区/F05目录客户价格权益投影与确定性搜索非生产施工单_2026-10-22.md",
+  "current_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01：在最新 main 上复用已验收资产，增量核对正式 F03 capability/Vehicle Scope/Object、F05 转换正向 Issuer、publisher.phone.sensitive 可信来源及 SLA/Incident 正式来源；没有新合法来源/授权时保持 SOURCE_GAP，不重复发模拟 B 任务。",
+  "current_work_file": "07_重建工作区/A_Issue187外部系统未准备阻断登记与独立工作盘点_2026-10-22.md",
   "f06_issue164_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_NONPROD_COMPOSITE_DUAL_GATE_B_CONTINUE",
     "issue": 164,
@@ -7012,7 +7012,7 @@
     "merge_method": "merge",
     "a_review_report": "07_重建工作区/F05-7_A主控二轮独立验收66项真PG16_PR46标准合并与F05-8技术交接_2026-10-12.md"
   },
-  "next_owner": "B",
+  "next_owner": "A",
   "f05_8_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR47_CI_ONLY",
     "execution": "COMPLETED_A_ACCEPTED_PR47_STANDARD_MERGE",
@@ -8147,7 +8147,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F05_CATALOG_CUSTOMER_PRICE_SEARCH_01",
+  "next_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -10118,8 +10118,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": "feat/f05-catalog-customer-price-search-01",
-  "next_issue": 204,
+  "next_branch": "NONE",
+  "next_issue": 187,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -11306,7 +11306,15 @@
       "F07_PUBLISHER_PHONE_SENSITIVE",
       "SIGNED_SLA_INCIDENT",
       "JYT_COLLECTOR_CDN_OSS_FEISHU"
-    ]
+    ],
+    "last_reviewed_at": "2026-10-22",
+    "last_reviewed_after_merge_sha": "c2087a15fd3d124080e549acc02b515fb877ba8e",
+    "source_evidence_changed": false,
+    "last_review_result": "NO_NEW_LEGITIMATE_SIGNED_SOURCE_OR_EXTERNAL_AUTHORIZATION_FOUND",
+    "next_owner": "A",
+    "next_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
+    "next_issue": 187,
+    "next_branch": "NONE"
   },
   "publisher_phone_access_scope_decision_2026_10_22": {
     "status": "USER_APPROVED_PRODUCT_RULE",
@@ -11639,7 +11647,7 @@
     ]
   },
   "f05_catalog_customer_price_search_2026_10_22": {
-    "status": "A_RELEASED_FOR_B",
+    "status": "A_ACCEPTED_NONPRODUCTION_PR210_STANDARD_MERGED",
     "issue": 204,
     "task": "F05_CATALOG_CUSTOMER_PRICE_SEARCH_01",
     "branch": "feat/f05-catalog-customer-price-search-01",
@@ -11678,6 +11686,38 @@
       "production calls",
       "invent geography/upstream/official issuer facts"
     ],
-    "acceptance": "same-SHA dedicated official Push CI, real PG16 non-superuser and actual Node HTTP, anonymous/LIMITED/UNLIMITED projection, session revocation and level change, unlock idempotency and quota/cycle/price facts, deterministic parser negatives, cursor binding, no business side effects, no failures/skips, redacted artifact"
+    "acceptance": "same-SHA dedicated official Push CI, real PG16 non-superuser and actual Node HTTP, anonymous/LIMITED/UNLIMITED projection, session revocation and level change, unlock idempotency and quota/cycle/price facts, deterministic parser negatives, cursor binding, no business side effects, no failures/skips, redacted artifact",
+    "issue_closed": true,
+    "pr": 210,
+    "pr_merged": true,
+    "business_head_sha": "b1d548d441463b77cf896aac02eff8515560a347",
+    "merge_sha": "c2087a15fd3d124080e549acc02b515fb877ba8e",
+    "official_run_id": 39743949320,
+    "official_run_conclusion": "success",
+    "official_job_id": 119707678630,
+    "official_test_counts": {
+      "unit_and_compatibility": "88/88",
+      "catalog_sort_pg16": "3/3",
+      "price_unlock_pg16": "13/13",
+      "rule_dictionary_pg16": "7/7",
+      "http_catalog_search_pg16": "6/6",
+      "total": "117/117",
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0
+    },
+    "artifact_id": 12410562743,
+    "artifact_name": "catalog-customer-search-evidence-39743949320",
+    "artifact_bytes": 8319,
+    "artifact_sha256": "3d1d3108c7bbf813d45f7868e0730a4daeb2a61134b96b7c3a58a3ae2459d8ce",
+    "artifact_expired": false,
+    "artifact_expires_at": "2026-10-23T07:56:10Z",
+    "changed_files": 9,
+    "side_effect_snapshot_tables": 27,
+    "acceptance_report": "07_重建工作区/F05目录客户价格权益投影与确定性搜索PR210独立验收与合并报告_2026-10-22.md",
+    "next_owner": "A",
+    "next_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
+    "next_issue": 187,
+    "next_branch": "NONE"
   }
 }

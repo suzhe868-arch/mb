@@ -1,12 +1,23 @@
-# 当前有效状态（2026-10-22｜F05-8 已独立验收合并，F05 目录权益与确定性搜索正式接续）
+# 当前有效状态（2026-10-22｜F05 目录客户价格权益投影与确定性搜索已验收合并，转回 F08 来源门禁）
 
-A 已独立验收并标准合并 [F05-8 PR #208](https://github.com/suzhe868-arch/mb/pull/208)，对应 Issue [#203](https://github.com/suzhe868-arch/mb/issues/203)。B 最终 HEAD：`8a18b0d12c54c607ee9555e8dda582ccd40f840a`；标准合并 SHA：`31881d1d092cea220087e527fdac7da03141480e`。专用官方 Push Run [#39732168499](https://github.com/suzhe868-arch/mb/actions/runs/39732168499) / Job `119669460022` 全步骤成功；单元 6/6、Priority TTL 关联回归 5/5、新 runner 真实 PG16 集成 8/8，失败 0、跳过 0。真实 PG16 为 127 张公开表、应用角色 `f05_catalog_ci`、`superuser=false`；Artifact [#12406100445](https://github.com/suzhe868-arch/mb/actions/runs/39732168499/artifacts/12406100445) 已下载核验，SHA-256 `e5f6f7800a0d8edf12387f1877d286cb686ac0071c965ee8e91d926ac696e092`。
+A 已独立验收并标准合并 F05 目录客户价格权益投影与确定性搜索 [PR #210](https://github.com/suzhe868-arch/mb/pull/210)，关联 Issue [#204](https://github.com/suzhe868-arch/mb/issues/204) 已完成关闭。
 
-**重要 CI 说明：** 同 SHA 的冻结宽范围工作流 [#39732168405](https://github.com/suzhe868-arch/mb/actions/runs/39732168405) 有 52 项检查：21 成功、31 失败，覆盖既有 F03/F04/F05-1～F05-3 回归，不包含本次新增 Priority TTL runner。A 已将 31 个失败检查逐项列入 `07_重建工作区/F05-8_Issue203_PR208独立验收与F05目录搜索任务放行报告_2026-10-22.md`，保留为独立旧 CI 问题；未将其伪报通过，也未越权修改冻结工作流。因此本结论只代表 F05-8 非生产子范围验收通过，不代表仓库整体 CI 全绿或生产就绪。
+- B 最终 HEAD：`b1d548d441463b77cf896aac02eff8515560a347`。
+- 标准合并 SHA：`c2087a15fd3d124080e549acc02b515fb877ba8e`。
+- 官方 Push Run [#39743949320](https://github.com/suzhe868-arch/mb/actions/runs/39743949320) / Job `119707678630` 全步骤成功；Node/兼容 88/88、目录排序 PG16 3/3、价格解锁 PG16 13/13、Rule Dictionary PG16 7/7、HTTP+PG16 集成 6/6，合计 117/117，失败 0、跳过 0。
+- Artifact [#12410562743](https://github.com/suzhe868-arch/mb/actions/runs/39743949320/artifacts/12410562743) 已独立下载核验，SHA-256：`3d1d3108c7bbf813d45f7868e0730a4daeb2a61134b96b7c3a58a3ae2459d8ce`；包内 HEAD/Run/branch 与 8 条文件摘要全部匹配。
+- 第三轮补齐的 7 张 Recommendation grant、Matching discovery/queue、Priority qualification/scheduler 表已纳入 27 张业务副作用快照；普通搜索分页、偏好型筛选和数字价格区间搜索均验证前后摘要不变。
+- 本次仅接受 Disposable、非超级用户 PG16 与真实 Node HTTP 的非生产子范围；正式 Issuer、地域事实、JYT/Collector/CDN/OSS/Feishu 与 F01～F08/V1 生产就绪状态不因此改变。
 
-**当前唯一 B 任务：** `NEXT_OWNER=B`、`NEXT_TASK=F05_CATALOG_CUSTOMER_PRICE_SEARCH_01`、`NEXT_ISSUE=204`、`NEXT_BRANCH=feat/f05-catalog-customer-price-search-01`。正式施工单：`07_重建工作区/F05目录客户价格权益投影与确定性搜索非生产施工单_2026-10-22.md`。本任务复用已验收价格解锁/额度扣减、既有六项排序和 Rule Dictionary；只做非生产后端，不开发 PC/手机页面，不修改冻结业务算法，不伪造城市/上游事实。
+## 当前唯一职责指针
 
-Issue #187 的 JYT/Collector、CDN/OSS、飞书与正式来源/授权门禁仍独立跟踪，不阻断 #204。F01～F08/V1 全局生产状态不因此改变；不授权生产、真钱、真实电话或外部公网调用。
+- `NEXT_OWNER=A`
+- `NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`
+- `NEXT_ISSUE=187`
+- `NEXT_BRANCH=NONE`
+- 当前工作：复用既有 F08-2/F08-3 验收资产，增量核对正式 F03 capability/Scope/Object、F05 转换正向 Issuer、publisher phone 可信来源及 SLA/Incident 来源。外部 JYT/Collector、图片存储/CDN、Feishu 已由用户确认尚未准备。
+- 当前没有新的、可合法验收且不依赖缺失资源的 B 业务任务；不重复模拟施工，不伪造签名，不修改冻结 F03 reader/迁移，不授权生产/真钱/真实电话或第三方公网调用。
+- 完整验收报告：`07_重建工作区/F05目录客户价格权益投影与确定性搜索PR210独立验收与合并报告_2026-10-22.md`。
 
 ---
 

@@ -1,3 +1,21 @@
+## A-F05-CATALOG-ISSUE204-PR210-ACCEPT-01｜目录客户价格权益投影与确定性搜索独立验收通过并标准合并
+
+- Issue [#204](https://github.com/suzhe868-arch/mb/issues/204) 已完成并关闭；业务 PR [#210](https://github.com/suzhe868-arch/mb/pull/210) 已标准合并，merge SHA `c2087a15fd3d124080e549acc02b515fb877ba8e`。
+- B 最终 HEAD `b1d548d441463b77cf896aac02eff8515560a347`；合并前基线 main `2b0debb0de8c16f19738748dae59254bf7c2bcc2`，9 个变更文件均在原白名单内。
+- 官方 Push Run [#39743949320](https://github.com/suzhe868-arch/mb/actions/runs/39743949320) / Job `119707678630` 全步骤成功；Node/兼容 88/88、排序 PG16 3/3、价格解锁 PG16 13/13、Rule Dictionary PG16 7/7、真实 HTTP+PG16 集成 6/6，合计 117/117，失败 0、跳过 0。
+- Artifact [#12410562743](https://github.com/suzhe868-arch/mb/actions/runs/39743949320/artifacts/12410562743)，8,319 bytes，SHA-256 `3d1d3108c7bbf813d45f7868e0730a4daeb2a61134b96b7c3a58a3ae2459d8ce`；内部 HEAD/Run/branch 正确，8 条文件摘要全部复算通过。
+- 第三轮将 Recommendation price-grant、Matching discovery/affected queue、Priority qualification 与 TTL scheduler 共 7 张表补入完整无副作用快照。27 张相关表均用全行数量与 JSONB 摘要比较；普通搜索分页、偏好型筛选、数字价格区间搜索前后不变。
+- 仅接受 Disposable、非超管 PG16 与真实 Node HTTP 的非生产子范围；不代表正式 Customer/Price Issuer、F03 Scope/Object、F05 转换正向 Issuer、JYT/Collector/CDN/OSS/Feishu 或 F01～F08/V1 生产就绪。
+- 完整中文报告：`07_重建工作区/F05目录客户价格权益投影与确定性搜索PR210独立验收与合并报告_2026-10-22.md`。
+
+## A-F08-SOURCE-GATE-RETURN-01｜F05目录任务闭环后转回 Issue187 父级来源门禁
+
+- 当前唯一指针：`NEXT_OWNER=A`、`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`、`NEXT_ISSUE=187`、`NEXT_BRANCH=NONE`。
+- A 对 PR #210 合并后的 main 做增量核对；正式 F03 capability/Vehicle Scope/Object、F05 转换正向 Issuer、publisher.phone.sensitive 可信来源及 SLA/Incident 正式来源仍无新可核验签名证据。JYT/Collector、图片存储/CDN、Feishu 仍按用户确认尚未准备。
+- F08-2/F08-3 已验收资产直接复用，不重复模拟、不创建新的 B 任务；若来源/授权未就绪，继续保持 SOURCE_GAP / FAIL_CLOSED。F06/F07/F08/V1 仍 `NOT_READY / NO_PRODUCTION`。
+
+---
+
 ## A-F05-8-ISSUE203-PR208-ACCEPT-01｜Priority TTL 非生产持久调度器独立验收通过并标准合并
 
 - Issue [#203](https://github.com/suzhe868-arch/mb/issues/203) / PR [#208](https://github.com/suzhe868-arch/mb/pull/208) 已由 A 独立验收并标准合并。
