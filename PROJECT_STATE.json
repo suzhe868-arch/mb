@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F05_PUBLISHED_MANUAL_VEHICLE_EDIT_NONPROD",
-  "current_domain_status": "A 基于 PDM-06 §15/PDM-10 §5 实码核查确认 #212/#214 排除已发布人工 Vehicle 的普通编辑。Issue #216 已由 A 正式签单，治理 PR 合并后 B 在 feat/f05-published-manual-vehicle-staged-edit-pg16-01 仅执行隔离非生产真实 PG16+HTTPS；父 Issue #187 仍 SOURCE_GAP/FAIL_CLOSED，F06/F07/F08/V1 NOT_READY。",
+  "current_domain_status": "Issue #216 经 PR #217 标准合并 main 正式放行 B；merge SHA 55f0404cf47117bc2ef055aa250de851cf4abf00；仅隔离非生产真实 PG16/HTTPS 普通编辑纵切。Issue #187 仍 SOURCE_GAP/FAIL_CLOSED，F06/F07/F08/V1 NOT_READY。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -11804,7 +11804,7 @@
     "next_issue": 187
   },
   "f05_published_manual_edit_release_2026_10_22": {
-    "status": "A_GOVERNANCE_MERGE_REQUIRED_BEFORE_B",
+    "status": "A_RELEASED_FOR_B_GOVERNANCE_PR217_MERGED",
     "task": "F05_PUBLISHED_MANUAL_VEHICLE_STAGED_EDIT_PG16_01",
     "issue": 216,
     "branch": "feat/f05-published-manual-vehicle-staged-edit-pg16-01",
@@ -11814,6 +11814,9 @@
     "prior_accepted_pr": 214,
     "independent_source_gate_issue": 187,
     "production_ready": false,
-    "external_ready": false
+    "external_ready": false,
+    "governance_pr": 217,
+    "governance_merge_sha": "55f0404cf47117bc2ef055aa250de851cf4abf00",
+    "release_effective": true
   }
 }
