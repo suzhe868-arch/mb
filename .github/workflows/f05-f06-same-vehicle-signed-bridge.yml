@@ -1,0 +1,279 @@
+name: F05-F06 Same Vehicle Signed Cross Runtime Bridge Nonproduction
+on:
+  push:
+    branches:
+      - feat/f05-f06-same-vehicle-signed-bridge-pg16-01
+    paths:
+      - .github/workflows/f05-f06-same-vehicle-signed-bridge.yml
+      - engineering/f05-f06/same-vehicle-signed-bridge/**
+      - engineering/f05/manual-vehicle-draft-publish/service.mjs
+      - engineering/f05/manual-vehicle-draft-publish/http.mjs
+      - engineering/f05/manual-vehicle-draft-publish/migration.mjs
+      - engineering/f05/published-manual-vehicle-edit/migration.mjs
+      - engineering/f06/nonprod-single-runtime-integration/可信Composite签名根.mjs
+      - engineering/f06/nonprod-single-runtime-integration/composite-issuer.mjs
+      - engineering/f06/nonprod-single-runtime-integration/composite-issuer.sql
+      - engineering/f06/nonprod-single-runtime-integration/核对同Ref上游签名PG16.sh
+      - engineering/f06/nonprod-single-runtime-integration/父表161迁移24跨OID封印.mjs
+permissions:
+  contents: read
+concurrency:
+  group: f05-f06-same-vehicle-bridge-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  bridge-pg16:
+    name: F05→F06真实同车桥接 PG16 ${{ matrix.independent_pg16 }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        independent_pg16: [pg16-a, pg16-b]
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: disposable_bootstrap_only
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 24
+    env:
+      CI: 'true'
+      GITHUB_ACTIONS: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      API_HOST: 127.0.0.1
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F04_1_ISOLATION_CONFIRM: I_AUTHORIZE_F04_1_DISPOSABLE_PG16_ONLY
+      F04_2_ISOLATION_CONFIRM: I_AUTHORIZE_F04_2_DISPOSABLE_PG16_ONLY
+      F04_3_ISOLATION_CONFIRM: I_AUTHORIZE_F04_3_DISPOSABLE_PG16_ONLY
+      F04_4_ISOLATION_CONFIRM: I_AUTHORIZE_F04_4_DISPOSABLE_PG16_ONLY
+      F05_1_ISOLATION_CONFIRM: I_AUTHORIZE_F05_1_DISPOSABLE_PG16_ONLY
+      F05_2_ISOLATION_CONFIRM: I_AUTHORIZE_F05_2_DISPOSABLE_PG16_ONLY
+      F05_MANUAL_VEHICLE_DRAFT_PUBLISH_CONSENT: I_AUTHORIZE_F05_MANUAL_VEHICLE_DRAFT_PUBLISH_PG16_ONLY
+      F05_MANUAL_TLS_KEY_PATH: /tmp/f04-3-ci-key.pem
+      F05_MANUAL_TLS_CERT_PATH: /tmp/f04-3-ci-cert.pem
+      F05_PUBLISHED_EDIT_CONSENT: I_AUTHORIZE_F05_PUBLISHED_EDIT_DISPOSABLE_PG16_ONLY
+      F05_EDIT_HTTP_PORT: '48986'
+      F05_EDIT_TLS_KEY: /tmp/f04-3-ci-key.pem
+      F05_EDIT_TLS_CERT: /tmp/f04-3-ci-cert.pem
+      F06_COMPOSITE_TEST_CONSENT: I_AUTHORIZE_F06_COMPOSITE_NONPROD_SIGNED_PG16_ONLY
+      F06_COMPOSITE_SIGNED_ISSUER: COMPOSITE_NONPROD_SIGNED_V1
+      F06_LOCK_TEST_CONSENT: I_AUTHORIZE_F06_LOCK_REQUESTS_PG16_NONPROD_ONLY
+      F06_164_BASELINE_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_baseline
+      F06_164_RESTORE_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_restore
+      F05_F06_BRIDGE_MATRIX_RUN: ${{ matrix.independent_pg16 }}
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Prepare artifact directory and Node 22
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Source diff whitelist, syntax and repository checks
+        run: |
+          set -euo pipefail
+          git fetch origin main --depth=1
+          base="$(git merge-base origin/main HEAD)"
+          git diff --check "$base"...HEAD
+          while IFS= read -r path; do
+            case "$path" in
+              .github/workflows/f05-f06-same-vehicle-signed-bridge.yml|\
+              engineering/f05-f06/same-vehicle-signed-bridge/*|\
+              engineering/f05/manual-vehicle-draft-publish/service.mjs|\
+              engineering/f05/manual-vehicle-draft-publish/http.mjs|\
+              engineering/f05/manual-vehicle-draft-publish/migration.mjs|\
+              engineering/f05/published-manual-vehicle-edit/migration.mjs|\
+              engineering/f06/nonprod-single-runtime-integration/可信Composite签名根.mjs|\
+              engineering/f06/nonprod-single-runtime-integration/composite-issuer.mjs|\
+              engineering/f06/nonprod-single-runtime-integration/composite-issuer.sql|\
+              engineering/f06/nonprod-single-runtime-integration/核对同Ref上游签名PG16.sh|\
+              engineering/f06/nonprod-single-runtime-integration/父表161迁移24跨OID封印.mjs) ;;
+              *) echo "F05_F06_BRIDGE_PATH_NOT_ALLOWED:$path" >&2; exit 91 ;;
+            esac
+            case "$path" in
+              *.mjs|*.js|*.cjs) node --check "$GITHUB_WORKSPACE/$path" ;;
+              *.sh) bash -n "$GITHUB_WORKSPACE/$path" ;;
+            esac
+          done < <(git diff --name-only "$base"...HEAD)
+          npm ci --prefix engineering --ignore-scripts --no-audit --no-fund
+          npm --prefix engineering run check
+      - name: Bootstrap original M94 source and F05-2/F05-3A PG16
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          test "$(printf '%s\n' "$ids" | sed '/^$/d' | wc -l)" -eq 1
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE f03_ci WITH LOGIN PASSWORD 'f03_ci_synthetic_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test OWNER f03_ci"
+          node engineering/f03-1/runner.mjs --bootstrap
+          node engineering/f03-1/runner.mjs --apply
+          for migration in runtime-scope runtime-admin-population runtime-receiving-pool runtime-team-scope runtime-handover-ledger runtime-customer-owner-handover runtime-demand-responsible-handover runtime-consultation-assignee-handover runtime-waitlist-responsible-handover runtime-lock-responsible-handover; do
+            node "engineering/f03/$migration/runner.mjs" --apply
+          done
+          node engineering/f03/runtime-lock-responsible-handover/runner.mjs --verify
+          for fixture in f03-1 f03/runtime-scope f03/runtime-governance-template f03/runtime-receiving-pool f03/runtime-team-scope f03/runtime-handover-ledger f03/runtime-manager-team-governance f03/runtime-handover-preflight f03/runtime-customer-owner-handover f03/runtime-demand-responsible-handover f03/runtime-consultation-assignee-handover f03/runtime-waitlist-responsible-handover f03/runtime-lock-responsible-handover f03/runtime-transaction-responsible-handover; do
+            node "engineering/$fixture/fixtures.mjs"
+          done
+          node engineering/f03/runtime-transaction-responsible-handover/evidence.mjs --old
+          node engineering/f03/runtime-transaction-responsible-handover/runner.mjs --apply
+          node engineering/f03/runtime-transaction-responsible-handover/runner.mjs --verify
+          node engineering/f03/runtime-handover-reconciliation/fixtures.mjs
+          node engineering/f03/field-security-projection/fixtures.mjs
+      - name: Apply F05-2 and run real physical/HTTPS regressions
+        run: |
+          set -euo pipefail
+          node engineering/f05/vehicle-stewardship-physical-scope/runner.mjs --inject-rollback
+          node engineering/f05/vehicle-stewardship-physical-scope/runner.mjs --apply
+          node engineering/f05/vehicle-stewardship-physical-scope/runner.mjs --verify
+          node engineering/f05/vehicle-stewardship-physical-scope/fixtures.mjs
+          openssl req -x509 -newkey rsa:2048 -sha256 -nodes -subj '/CN=127.0.0.1' -days 1 -keyout /tmp/f04-3-ci-key.pem -out /tmp/f04-3-ci-cert.pem >/dev/null 2>&1
+          chmod 600 /tmp/f04-3-ci-key.pem
+          ARTIFACT_DIR="$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts"
+          node --test engineering/f05/vehicle-stewardship-physical-scope/tests/physical.test.mjs 2>&1 | tee "$ARTIFACT_DIR/f05-2-physical.log"
+          grep -q '# fail 0' "$ARTIFACT_DIR/f05-2-physical.log"
+          node --test engineering/f05/vehicle-stewardship-physical-scope/tests/https.test.mjs 2>&1 | tee "$ARTIFACT_DIR/f05-2-https.log"
+          grep -q '# fail 0' "$ARTIFACT_DIR/f05-2-https.log"
+      - name: Apply F05-3A and native F05 manual publication API
+        run: |
+          set -euo pipefail
+          node engineering/f05/four-s-member-trust-scope/runner.mjs --inject-rollback
+          node engineering/f05/four-s-member-trust-scope/runner.mjs --apply
+          node engineering/f05/four-s-member-trust-scope/runner.mjs --verify
+          node engineering/f05/four-s-member-trust-scope/fixtures.mjs
+          node engineering/f05/manual-vehicle-draft-publish/runner.mjs --inject-rollback
+          node engineering/f05/manual-vehicle-draft-publish/runner.mjs --apply
+          node engineering/f05/manual-vehicle-draft-publish/runner.mjs --verify
+          node engineering/f05/manual-vehicle-draft-publish/fixtures.mjs
+          node --test engineering/f05/manual-vehicle-draft-publish/tests/mingbang.pg16.test.mjs 2>&1 | tee "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f05-manual-mingbang-before.log"
+          grep -q '# fail 0' "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f05-manual-mingbang-before.log"
+          node --test engineering/f05/manual-vehicle-draft-publish/tests/four-s.pg16.test.mjs 2>&1 | tee "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f05-manual-four-s-before.log"
+          grep -q '# fail 0' "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f05-manual-four-s-before.log"
+          node --test engineering/f05/manual-vehicle-draft-publish/tests/concurrency.pg16.test.mjs 2>&1 | tee "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f05-manual-concurrency-before.log"
+          grep -q '# fail 0' "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f05-manual-concurrency-before.log"
+          node engineering/f05/manual-vehicle-draft-publish/runner.mjs --verify
+          node engineering/f05/published-manual-vehicle-edit/runner.mjs --inject-rollback
+          node engineering/f05/published-manual-vehicle-edit/runner.mjs --apply
+          node engineering/f05/published-manual-vehicle-edit/runner.mjs --verify
+          node --test engineering/f05-f06/same-vehicle-signed-bridge/prepare-source.test.mjs 2>&1 | tee "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/prepare-source.log"
+          grep -q '# fail 0' "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/prepare-source.log"
+          grep -q '# skipped 0' "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/prepare-source.log"
+      - name: Clone source public facts to independent target and seal source DB OID
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          active="$(docker exec "$ids" psql -X -At -v ON_ERROR_STOP=1 -U postgres -d postgres -c "SELECT count(*) FROM pg_stat_activity WHERE datname='f03_auth_test' AND pid<>pg_backend_pid()")"
+          test "$active" -eq 0
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "ALTER DATABASE f03_auth_test RENAME TO f05_vehicle_source"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_test TEMPLATE f05_vehicle_source OWNER f03_ci"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d f03_auth_test -c "DROP SCHEMA f05_published_edit_test CASCADE; DROP SCHEMA f05_manual_vehicle_test CASCADE"
+      - name: Extend target to signed F05 v23 without rerunning frozen bootstrap
+        run: |
+          set -euo pipefail
+          node engineering/f05/jyt-wholesale-lineage-cycle/runner.mjs --inject-rollback
+          node engineering/f05/jyt-wholesale-lineage-cycle/runner.mjs --apply
+          node engineering/f05/jyt-wholesale-lineage-cycle/runner.mjs --verify
+          node engineering/f05-f06/same-vehicle-signed-bridge/prepare-target.mjs 2>&1 | tee "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f05-target-v17-v18.log"
+          node engineering/f05/customer-price-entitlement-cycle/ci-seed-jyt.mjs
+          node engineering/f05/favorite-physical-carrier/runner.mjs --inject-rollback
+          node engineering/f05/favorite-physical-carrier/runner.mjs --apply
+          node engineering/f05/favorite-physical-carrier/runner.mjs --verify
+          node engineering/f05/customer-price-entitlement-cycle/runner.mjs --inject-rollback
+          node engineering/f05/customer-price-entitlement-cycle/runner.mjs --apply
+          node engineering/f05/customer-price-entitlement-cycle/runner.mjs --verify
+          node engineering/f05/employee-price-quota-adjustment/runner.mjs --inject-rollback
+          node engineering/f05/employee-price-quota-adjustment/runner.mjs --apply
+          node engineering/f05/employee-price-quota-adjustment/runner.mjs --verify
+          node engineering/f05/employee-price-quota-adjustment/fixtures.mjs
+          node engineering/f05/find-car-application-demand-eligibility/runner.mjs --inject-rollback
+          node engineering/f05/find-car-application-demand-eligibility/runner.mjs --apply
+          node engineering/f05/find-car-application-demand-eligibility/runner.mjs --verify
+          node engineering/f05/find-car-application-demand-eligibility/fixtures.mjs
+          node engineering/f05/deterministic-matching-readiness-four-tier/preseed.mjs
+          node engineering/f05/deterministic-matching-readiness-four-tier/runner.mjs --inject-rollback
+          node engineering/f05/deterministic-matching-readiness-four-tier/runner.mjs --apply
+          node engineering/f05/deterministic-matching-readiness-four-tier/runner.mjs --verify
+          node engineering/f05/deterministic-matching-readiness-four-tier/fixtures.mjs
+          node --test engineering/f05/deterministic-matching-readiness-four-tier/tests/https.test.mjs 2>&1 | tee "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f05-7-https.log"
+          grep -q '# fail 0' "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f05-7-https.log"
+          node engineering/f05/deterministic-matching-readiness-four-tier/runner.mjs --verify
+      - name: Apply signed F06 24 migration chain and Composite sources
+        run: |
+          set -euo pipefail
+          bash engineering/f06/nonprod-single-runtime-integration/核对同Ref上游签名PG16.sh 2>&1 | tee "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f06-upstream-chain.log"
+      - name: Create independent F06 baseline and reissue exact-HEAD Composite attestation
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_audit TEMPLATE f03_auth_test OWNER f03_ci"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "ALTER DATABASE f03_auth_test RENAME TO f03_auth_baseline"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "ALTER DATABASE f03_auth_audit RENAME TO f03_auth_test"
+          node --input-type=module -e "import pg from 'pg'; import {issueCompositeAttestation,verifyCompositeAttestation} from './engineering/f06/nonprod-single-runtime-integration/composite-issuer.mjs'; const c=new pg.Client({connectionString:process.env.F03_1_DATABASE_URL}); await c.connect(); try { await c.query('DROP SCHEMA IF EXISTS f06_composite_v1 CASCADE'); const issued=await issueCompositeAttestation(c); if(!issued.verified) throw Error('COMPOSITE_REISSUE_FAILED'); const checked=await verifyCompositeAttestation(c); if(!checked.verified) throw Error('COMPOSITE_VERIFY_FAILED'); console.log('F05_F06_EXACT_HEAD_COMPOSITE_ATTESTATION_PASS',JSON.stringify({sha:process.env.GITHUB_SHA,runId:process.env.GITHUB_RUN_ID,ref:process.env.GITHUB_REF})); } finally { await c.end(); }"
+      - name: Seal F06 161 tables and 24 migrations before bridge
+        run: |
+          set -euo pipefail
+          node engineering/f06/nonprod-single-runtime-integration/父表161迁移24跨OID封印.mjs before 2>&1 | tee "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f06-parent-before.log"
+      - name: Run 32 real cross-runtime positive and negative PG16 scenarios
+        run: |
+          set -euo pipefail
+          node --test engineering/f05-f06/same-vehicle-signed-bridge/bridge-test.mjs 2>&1 | tee "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f06-bridge-tests.log"
+          grep -q '# fail 0' "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f06-bridge-tests.log"
+          grep -q '# skipped 0' "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f06-bridge-tests.log"
+      - name: Switch to original F05 database and perform native HTTPS edit
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          active="$(docker exec "$ids" psql -X -At -v ON_ERROR_STOP=1 -U postgres -d postgres -c "SELECT count(*) FROM pg_stat_activity WHERE datname='f03_auth_test' AND pid<>pg_backend_pid()")"
+          test "$active" -eq 0
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "ALTER DATABASE f03_auth_test RENAME TO f06_vehicle_scenario"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "ALTER DATABASE f05_vehicle_source RENAME TO f03_auth_test"
+          node engineering/f05-f06/same-vehicle-signed-bridge/edit-source.mjs 2>&1 | tee "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f05-edit-source.log"
+          node --test engineering/f05/manual-vehicle-draft-publish/tests/mingbang.pg16.test.mjs 2>&1 | tee "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f05-manual-mingbang-after.log"
+          grep -q '# fail 0' "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f05-manual-mingbang-after.log"
+          node --test engineering/f05/manual-vehicle-draft-publish/tests/concurrency.pg16.test.mjs 2>&1 | tee "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f05-manual-concurrency-after.log"
+          grep -q '# fail 0' "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f05-manual-concurrency-after.log"
+      - name: Restore F06 target and verify post-edit history snapshot byte-equivalence
+        run: |
+          set -euo pipefail
+          ids="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}')"
+          active="$(docker exec "$ids" psql -X -At -v ON_ERROR_STOP=1 -U postgres -d postgres -c "SELECT count(*) FROM pg_stat_activity WHERE datname='f03_auth_test' AND pid<>pg_backend_pid()")"
+          test "$active" -eq 0
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "ALTER DATABASE f03_auth_test RENAME TO f05_vehicle_source"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "ALTER DATABASE f06_vehicle_scenario RENAME TO f03_auth_test"
+          node engineering/f05-f06/same-vehicle-signed-bridge/verify-after-edit.mjs 2>&1 | tee "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f06-verify-after-edit.log"
+          docker exec "$ids" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE f03_auth_restore TEMPLATE f03_auth_baseline OWNER f03_ci"
+          node engineering/f06/nonprod-single-runtime-integration/父表161迁移24跨OID封印.mjs after 2>&1 | tee "$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts/f06-parent-after.log"
+      - name: Copy parent seal evidence, finalize SHA-bound evidence and redaction gate
+        id: evidence_gate
+        run: |
+          set -euo pipefail
+          ARTIFACT_DIR="$GITHUB_WORKSPACE/engineering/f05-f06/same-vehicle-signed-bridge/artifacts"
+          cp engineering/f06/nonprod-single-runtime-integration/evidence/父表161迁移24Seal_before.json "$ARTIFACT_DIR/"
+          cp engineering/f06/nonprod-single-runtime-integration/evidence/父表161迁移24Seal_after.json "$ARTIFACT_DIR/"
+          node engineering/f05-f06/same-vehicle-signed-bridge/finalize-evidence.mjs
+          if grep -R -nE 'BEGIN PRIVATE KEY|__Host-mb_pc=[A-Za-z0-9_-]{43}|scrypt[$]v1[$]|SyntheticF04_3_CurrentProof_2026|SyntheticAdmin_1234567|BridgePass_[0-9]+_2026!' "$ARTIFACT_DIR"; then
+            echo 'F05_F06_BRIDGE_SECRET_LEAK_DENIED' >&2
+            exit 92
+          fi
+          test "$(du -sb "$ARTIFACT_DIR" | awk '{print $1}')" -le 20971520
+          echo 'F05_F06_BRIDGE_EVIDENCE_AND_REDACTION_PASS'
+      - name: Upload same-SHA independent PG16 evidence
+        if: always() && steps.evidence_gate.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: f05-f06-same-vehicle-bridge-${{ matrix.independent_pg16 }}-${{ github.run_id }}
+          path: engineering/f05-f06/same-vehicle-signed-bridge/artifacts/
+          if-no-files-found: warn
+          retention-days: 14

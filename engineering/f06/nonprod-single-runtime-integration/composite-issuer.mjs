@@ -39,6 +39,8 @@ const SOURCE_FILES=[
 const bridgeSources=[
   ['bridge-test','../../f05-f06/same-vehicle-signed-bridge/bridge-test.mjs'],
   ['prepare-source','../../f05-f06/same-vehicle-signed-bridge/prepare-source.test.mjs'],
+  ['prepare-target','../../f05-f06/same-vehicle-signed-bridge/prepare-target.mjs'],
+  ['finalize-evidence','../../f05-f06/same-vehicle-signed-bridge/finalize-evidence.mjs'],
   ['edit-source','../../f05-f06/same-vehicle-signed-bridge/edit-source.mjs'],
   ['verify-after-edit','../../f05-f06/same-vehicle-signed-bridge/verify-after-edit.mjs'],
   ['bridge-snapshot','../../f05-f06/same-vehicle-signed-bridge/snapshot.mjs'],
