@@ -118,7 +118,7 @@ try{
   const beforeUnlock=await count("SELECT count(*)::int n FROM public.customer_price_cycle_unlocks WHERE customer_id=60301");
   const beforeQuota=await count("SELECT count(*)::int n FROM public.customer_day_quota_ledger WHERE customer_id=60301");
   const list=await get('/api/v1/catalog/vehicles?source=wholesale',unlimitedToken);assert.equal(list.status,200);
-  assert.ok(list.body.items.some(x=>x.price==='12万'&&x.priceCents==='12000000'));
+  assert.ok(list.body.items.some(x=>x.price==='12.5万'&&x.priceCents==='12500000'));
   assert.equal((await detail('60310',unlimitedToken)).body.vehicle.price,'12万');
   assert.equal(await count("SELECT count(*)::int n FROM public.customer_price_cycle_unlocks WHERE customer_id=60301"),beforeUnlock);
   assert.equal(await count("SELECT count(*)::int n FROM public.customer_day_quota_ledger WHERE customer_id=60301"),beforeQuota);
