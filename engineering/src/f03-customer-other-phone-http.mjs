@@ -23,6 +23,30 @@ async function readBody(req){
  return data;
 }
 const exactKeys=(data,keys)=>Object.keys(data).sort().join('|')===keys.slice().sort().join('|');
+const DUPLICATE_SENSITIVE_HEADERS=new Set([
+ 'host','origin','cookie','content-type','content-length','transfer-encoding',
+ 'x-csrf-token','idempotency-key','authorization','connection','expect'
+]);
+const FORWARDED_EXACT_HEADERS=new Set([
+ 'forwarded','via','x-real-ip','x-real-host','x-client-ip','client-ip','true-client-ip',
+ 'cf-connecting-ip','fastly-client-ip','x-cluster-client-ip','x-remote-ip','x-remote-host','x-scheme','x-url-scheme'
+]);
+function isForwardingHeader(name){
+ return FORWARDED_EXACT_HEADERS.has(name)||name.startsWith('x-forwarded-')||
+  name.startsWith('x-original-')||name.startsWith('x-rewrite-')||name.startsWith('x-envoy-');
+}
+function inspectSecurityHeaders(req){
+ const raw=Array.isArray(req.rawHeaders)?req.rawHeaders:[];
+ const counts=new Map(),names=[];
+ for(let i=0;i+1<raw.length;i+=2){
+  const name=String(raw[i]).toLowerCase();
+  names.push(name);counts.set(name,(counts.get(name)||0)+1);
+ }
+ for(const name of DUPLICATE_SENSITIVE_HEADERS)if((counts.get(name)||0)>1)return 'AMBIGUOUS_SECURITY_HEADERS';
+ if(req.headers['content-length']!==undefined&&req.headers['transfer-encoding']!==undefined)return 'AMBIGUOUS_SECURITY_HEADERS';
+ if(names.some(isForwardingHeader))return 'FORWARDED_REQUEST_DENIED';
+ return null;
+}
 export function createCustomerOtherPhoneHandler({service,auth}){
  assertEnvironment();
  if(!service||!auth)throw Error('CUSTOMER_PHONE_DEPENDENCIES_REQUIRED');
@@ -32,8 +56,10 @@ export function createCustomerOtherPhoneHandler({service,auth}){
   if(raw!==path){send(res,400,{code:'QUERY_FORBIDDEN'});return true}
   const customerId=m[1],phoneFactId=m[2]??null,action=m[3]??null;
   if(!['GET','POST'].includes(req.method)){send(res,405,{code:'METHOD_NOT_ALLOWED'},{allow:'GET, POST'});return true}
-  if(req.socket?.encrypted!==true||req.socket?.remoteAddress!=='127.0.0.1'||req.headers.origin!==auth.origin||req.headers.host!==new URL(auth.origin).host||
-     req.headers.forwarded||req.headers['x-forwarded-for']||req.headers['x-forwarded-host']||req.headers['x-forwarded-proto']||req.headers['x-forwarded-port']){
+  const headerIssue=inspectSecurityHeaders(req);
+  if(headerIssue==='AMBIGUOUS_SECURITY_HEADERS'){send(res,400,{code:headerIssue});return true}
+  if(headerIssue==='FORWARDED_REQUEST_DENIED'){send(res,403,{code:headerIssue});return true}
+  if(req.socket?.encrypted!==true||req.socket?.remoteAddress!=='127.0.0.1'||req.headers.origin!==auth.origin||req.headers.host!==new URL(auth.origin).host){
    send(res,403,{code:'SECURE_SAME_ORIGIN_REQUIRED'});return true;
   }
   if(!allowRate(req.socket.remoteAddress)){send(res,429,{code:'RATE_LIMITED'});return true}

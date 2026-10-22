@@ -22,3 +22,7 @@
 ## 运行条件
 
 仅接受指定分支的官方 push workflow、CI/GITHUB_ACTIONS/NODE_ENV/APP_ENV=test、精确 PG16 本地数据库目标、运行 ID seal 与显式 consent。测试密钥由 workflow 在每个 Job 内运行时生成，不写入文件、日志或 Artifact。
+
+## A 首轮审核整改
+
+本分支补充真实双 PG16 连接与同步屏障：个人 override deny、Scope 结束、Binding 结束分别覆盖撤权先提交与电话变更先提交；额外调用现有 `PublisherPhoneAdminService.change(DELETE)` 与电话写入竞争，验证原 F03 权限管理锁序不再死锁。强制改密、凭据停用、未知角色、Scope 自身结束、替换 INSERT 失败回滚以及转发/重复安全 Header 均纳入真实回归。

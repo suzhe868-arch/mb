@@ -30,11 +30,13 @@ function decryptPhone(envelope,key){
 const validKeyBuffer=k=>Buffer.isBuffer(k)&&k.length===32;
 
 export class CustomerOtherPhoneService{
- constructor(auth,{key,beforeAuditInsert=null}={}){
+ constructor(auth,{key,beforeAuditInsert=null,forceReplacementInsertFailure=false}={}){
   assertEnvironment();
   if(!auth||typeof auth.withSession!=='function'||!validKeyBuffer(key))throw Error('CUSTOMER_PHONE_DEPENDENCIES_REQUIRED');
-  if(beforeAuditInsert!==null&&process.env.F03_CUSTOMER_PHONE_TEST_FAULTS!=='true')throw Error('CUSTOMER_PHONE_TEST_HOOK_FORBIDDEN');
+  if(typeof forceReplacementInsertFailure!=='boolean')throw Error('CUSTOMER_PHONE_TEST_HOOK_FORBIDDEN');
+  if((beforeAuditInsert!==null||forceReplacementInsertFailure)&&process.env.F03_CUSTOMER_PHONE_TEST_FAULTS!=='true')throw Error('CUSTOMER_PHONE_TEST_HOOK_FORBIDDEN');
   this.auth=auth;this.key=Buffer.from(key);this.beforeAuditInsert=beforeAuditInsert;
+  this.forceReplacementInsertFailure=forceReplacementInsertFailure;
  }
  async _withCustomer({token,customerId},fn){
   if(!safeId(customerId))return result(400,'INVALID_CUSTOMER_ID');
@@ -44,10 +46,12 @@ export class CustomerOtherPhoneService{
    const out=await this.auth.withSession(token,async(c,a)=>{
     if(a.principal_kind!=='employee'||a.system_admin_id!==null||!safeId(String(a.employee_id??'')))return result(403,'EMPLOYEE_BUSINESS_IDENTITY_REQUIRED');
     const employeeId=String(a.employee_id);
-    // Serialize all facts for one Customer and close the missing-row race for personal overrides.
+    // The session layer has already locked pc_login_accounts. Do not take an employees row lock here:
+    // the existing F03 permission writer locks employees before pc_login_accounts. Taking employees
+    // FOR UPDATE now would invert that order and recreate an account/employee deadlock.
+    // Capability revocation is serialized below by the actual Scope/Binding and existing decision rows.
     await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['customer.phone.manage:'+customerId]);
-    await c.query('LOCK TABLE public.employee_permission_overrides, public.role_permission_defaults IN SHARE ROW EXCLUSIVE MODE');
-    const employee=(await c.query("SELECT e.employee_id::text employee_id,e.employment_status,e.main_role_id::text main_role_id FROM public.employees e WHERE e.employee_id=$1::bigint FOR UPDATE",[employeeId])).rows[0];
+    const employee=(await c.query("SELECT e.employee_id::text employee_id,e.employment_status,e.main_role_id::text main_role_id FROM public.employees e WHERE e.employee_id=$1::bigint",[employeeId])).rows[0];
     if(!employee||employee.employment_status!=='active')return result(403,'CURRENT_EMPLOYEE_DENIED');
     const role=(await c.query('SELECT role_code FROM public.roles WHERE role_id=$1::bigint FOR SHARE',[employee.main_role_id])).rows[0];
     if(!role||!ROLES.has(role.role_code))return result(403,role?.role_code==='four_s'?'FOUR_S_HARD_DENY':'CURRENT_ROLE_DENIED');
@@ -64,6 +68,16 @@ export class CustomerOtherPhoneService{
      "AND (b.ended_at IS NULL OR b.ended_at>transaction_timestamp()) ORDER BY s.scope_id FOR UPDATE OF s,b",
      [employeeId,permission[0].permission_id,customerId])).rows;
     if(scopes.length===0)return result(403,'CAPABILITY_OBJECT_SCOPE_DENIED');
+    // Keep the same mutation lock order as the existing F03 writer: Scope/Binding first,
+    // then role default and personal override. Row locks avoid a database-wide write lock.
+    // A missing override row is serialized against application writers by the account lock
+    // already held by withSession; existing override rows are locked explicitly here.
+    await c.query(
+     'SELECT enabled FROM public.role_permission_defaults WHERE role_id=$1::bigint AND permission_id=$2::bigint FOR SHARE',
+     [employee.main_role_id,permission[0].permission_id]);
+    await c.query(
+     'SELECT decision FROM public.employee_permission_overrides WHERE employee_id=$1::bigint AND permission_id=$2::bigint FOR SHARE',
+     [employeeId,permission[0].permission_id]);
     const decision=await checkCustomerPhoneScopeInTransaction(c,a,'customer.phone.manage',customerId);
     if(!decision.allowed)return result(403,decision.code);
     return await fn(c,{employeeId,customerId,scopeId:scopes[0].scope_id,roleCode:role.role_code});
@@ -146,9 +160,12 @@ export class CustomerOtherPhoneService{
     'UPDATE public.customer_phone_facts SET ended_at=transaction_timestamp() WHERE phone_fact_id=$1::bigint AND customer_id=$2::bigint AND ended_at IS NULL RETURNING ended_at',
     [phoneFactId,customerId])).rows[0];
    if(!ended)return result(409,'PHONE_FACT_CONCURRENTLY_ENDED');
+   // Test-only fault sends NULL through the real INSERT so PostgreSQL raises the NOT NULL
+   // violation after the old fact has been ended; withSession must roll the whole transaction back.
+   const replacementCiphertext=this.forceReplacementInsertFailure?null:encryptPhone(normalized,this.key);
    const inserted=(await c.query(
     'INSERT INTO public.customer_phone_facts(customer_id,phone_ciphertext,valid_from,ended_at) VALUES($1::bigint,$2::bytea,transaction_timestamp(),NULL) RETURNING phone_fact_id::text phone_fact_id,valid_from',
-    [customerId,encryptPhone(normalized,this.key)])).rows[0];
+    [customerId,replacementCiphertext])).rows[0];
    const response=result(200,'OK',{customerId,previousPhoneFactId:phoneFactId,phoneFactId:inserted.phone_fact_id,maskedPhone:maskPhone(normalized),validFrom:new Date(inserted.valid_from).toISOString(),active:true});
    context.operation='replace';context.requestKeySha256=sha(requestKey);context.requestDigestSha256=digest;context.response=response;
    await this._audit(c,context,'customer.phone.manage.replace',inserted.phone_fact_id,

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {before,after,test} from 'node:test';
 import {randomBytes,randomUUID} from 'node:crypto';
 import {createServer as httpsServer,request as httpsRequest} from 'node:https';
+import {connect as tlsConnect} from 'node:tls';
 import {readFile} from 'node:fs/promises';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {createFoundationHandler} from '../../../src/app.mjs';
@@ -18,6 +19,22 @@ const reqHeaders=(withToken=true,withCsrf=true,key=idempotencyKey())=>({
  ...(withToken?{cookie:'__Host-mb_pc='+token}:{}),
  ...(withCsrf&&withToken?{'x-csrf-token':csrf}:{})
 });
+
+async function rawHttps(requestText){
+ return new Promise((resolve,reject)=>{
+  const socket=tlsConnect({host:'127.0.0.1',port,rejectUnauthorized:false});
+  let raw='',settled=false;
+  const finish=()=>{
+   const match=raw.match(/^HTTP\/1\.[01] ([0-9]{3})/);
+   if(match&&!settled){settled=true;resolve({status:Number(match[1]),raw});socket.destroy();}
+  };
+  socket.setTimeout(5000,()=>{socket.destroy();if(!settled){settled=true;reject(Error('RAW_HTTPS_TIMEOUT'))}});
+  socket.on('secureConnect',()=>socket.write(requestText));
+  socket.on('data',chunk=>{raw+=chunk.toString('latin1');finish()});
+  socket.on('error',error=>{if(!settled){settled=true;reject(error)}});
+ });
+}
+
 async function call(method,url=path,payload,headers=reqHeaders()){
  const bytes=payload===undefined?null:Buffer.from(typeof payload==='string'?payload:JSON.stringify(payload));
  return new Promise((resolve,reject)=>{
@@ -101,4 +118,43 @@ test('09 default application without explicit injection keeps the CI route unava
   httpsRequest(fallbackUrl,{method:'GET',rejectUnauthorized:false},res=>{res.resume();res.on('end',()=>resolve(res.statusCode))}).on('error',reject).end();
  });
  assert.equal(out,404);
+});
+
+test('10 standard Forwarded and common reverse-proxy headers are rejected',async()=>{
+ const headers=[
+  ['forwarded','for=127.0.0.1;proto=https;host=127.0.0.1:4318'],
+  ['x-forwarded-host','127.0.0.1:4318'],['x-forwarded-proto','https'],['x-forwarded-port','4318'],
+  ['x-forwarded-prefix','/__ci__'],['x-forwarded-server','proxy.invalid'],
+  ['x-real-ip','127.0.0.1'],['x-real-host','127.0.0.1:4318'],['via','1.1 proxy'],
+  ['cf-connecting-ip','127.0.0.1'],['true-client-ip','127.0.0.1'],
+  ['x-original-url',path],['x-rewrite-url',path],['x-envoy-external-address','127.0.0.1']
+ ];
+ for(const [name,value] of headers){
+  const out=await call('GET',path,undefined,{...reqHeaders(),[name]:value});
+  assert.equal(out.status,403,name);assert.equal(out.raw.includes(phone),false);
+  assert.equal(out.raw.includes('phone_ciphertext'),false);
+ }
+});
+test('11 repeated or ambiguous security headers fail closed at the real HTTPS parser/handler',async()=>{
+ const cookie='__Host-mb_pc='+token;
+ const common='Host: 127.0.0.1:'+port+'\r\nOrigin: '+origin+'\r\nCookie: '+cookie+'\r\nConnection: close\r\n';
+ const duplicateOrigin='GET '+path+' HTTP/1.1\r\n'+common+'Origin: '+origin+'\r\n\r\n';
+ const duplicateHost='GET '+path+' HTTP/1.1\r\nHost: 127.0.0.1:'+port+'\r\nHost: 127.0.0.1:'+port+'\r\nOrigin: '+origin+'\r\nCookie: '+cookie+'\r\nConnection: close\r\n\r\n';
+ const duplicateCookie='GET '+path+' HTTP/1.1\r\nHost: 127.0.0.1:'+port+'\r\nOrigin: '+origin+'\r\nCookie: '+cookie+'\r\nCookie: '+cookie+'\r\nConnection: close\r\n\r\n';
+ const body=JSON.stringify({phoneNumber:'13098765432'});
+ const postBase='POST '+path+' HTTP/1.1\r\nHost: 127.0.0.1:'+port+'\r\nOrigin: '+origin+'\r\nCookie: '+cookie+'\r\nX-CSRF-Token: '+csrf+'\r\nIdempotency-Key: '+idempotencyKey()+'\r\nContent-Type: application/json\r\nContent-Length: '+Buffer.byteLength(body)+'\r\nConnection: close\r\n\r\n';
+ const duplicateCsrf=postBase.replace('X-CSRF-Token: '+csrf+'\r\n','X-CSRF-Token: '+csrf+'\r\nX-CSRF-Token: '+csrf+'\r\n')+body;
+ const duplicateKey=postBase.replace(/Idempotency-Key: [^\r\n]+\r\n/,'Idempotency-Key: '+idempotencyKey()+'\r\nIdempotency-Key: '+idempotencyKey()+'\r\n')+body;
+ const duplicateContentType=postBase.replace('Content-Type: application/json\r\n','Content-Type: application/json\r\nContent-Type: application/json\r\n')+body;
+ const conflictingFraming='POST '+path+' HTTP/1.1\r\nHost: 127.0.0.1:'+port+'\r\nOrigin: '+origin+'\r\nCookie: '+cookie+'\r\nX-CSRF-Token: '+csrf+'\r\nIdempotency-Key: '+idempotencyKey()+'\r\nContent-Type: application/json\r\nContent-Length: 1\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n0\r\n\r\n';
+ const cases=[
+  ['duplicate Origin',duplicateOrigin],['duplicate Host',duplicateHost],['duplicate Cookie',duplicateCookie],
+  ['duplicate X-CSRF-Token',duplicateCsrf],['duplicate Idempotency-Key',duplicateKey],
+  ['duplicate Content-Type',duplicateContentType],['Content-Length with Transfer-Encoding',conflictingFraming]
+ ];
+ for(const [name,rawRequest] of cases){
+  const out=await rawHttps(rawRequest);
+  assert.ok(out.status>=400&&out.status<500,name+': '+out.status);
+  assert.notEqual(out.status,200,name);
+ }
 });

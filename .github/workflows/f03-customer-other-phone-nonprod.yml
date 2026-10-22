@@ -41,6 +41,7 @@ jobs:
       F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
       F03_CUSTOMER_PHONE_CONSENT: I_AUTHORIZE_DISPOSABLE_F03_CUSTOMER_PHONE_ONLY
       F03_CUSTOMER_PHONE_TEST_FAULTS: 'true'
+      F03_PUBLISHER_PHONE_ADMIN_CONSENT: I_AUTHORIZE_DISPOSABLE_F03_PHONE_ADMIN_ONLY
       F03_CUSTOMER_PHONE_TLS_KEY_PATH: /tmp/f03-customer-phone-key.pem
       F03_CUSTOMER_PHONE_TLS_CERT_PATH: /tmp/f03-customer-phone-cert.pem
       # Existing runtime-scope HTTPS regression reads the original F03-1 TLS variables.
@@ -163,6 +164,8 @@ jobs:
             engineering/f03/customer-other-phone/tests/business.test.mjs
             engineering/f03/customer-other-phone/tests/https.test.mjs
             engineering/src/f03-customer-other-phone-service.mjs
+            engineering/src/f03-publisher-phone-admin-service.mjs
+            engineering/f03/publisher-phone-staff-admin/schema.sql
             engineering/src/f03-customer-other-phone-http.mjs
             engineering/src/app.mjs
             engineering/f03/runtime-scope/customer-phone-guard.mjs

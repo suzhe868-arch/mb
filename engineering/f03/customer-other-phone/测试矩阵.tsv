@@ -13,3 +13,11 @@
 12	默认应用未注入 handler	404	HTTPS 测试
 13	旧 runtime-scope Guard、迁移和 Node 回归	全绿	官方 workflow
 14	公共 Schema、旧迁移和生产 server	不变	物理指纹及路径门禁
+
+15	个人 override deny / Scope ended / Binding ended 三类撤权的双提交顺序	真实双 PG16 连接、同步屏障、事实/有效期/审计一致	业务测试 23–28
+16	无个人 override 的 default allow 与并发 deny	账户/员工锁序两种提交顺序，无死锁且撤权语义正确	业务测试 35–36
+17	现有 PublisherPhoneAdminService DELETE 与电话写入并发	真实同库 PG16，权限管理路径可串行完成、审计和 scope 关闭正确	业务测试 37
+18	强制改密、凭据 disabled、未知角色、Scope 自身结束	均 fail-closed	业务测试 30、32–34
+19	替换新事实 INSERT NOT NULL 故障	旧事实 ended_at 与新事实/审计整体回滚	业务测试 31
+20	Forwarded、X-Forwarded-*、X-Real-IP、Via 等转发头	拒绝且不泄露电话	HTTPS 测试 10
+21	重复 Origin/Host/Cookie/CSRF/幂等键/Content-Type 与 CL+TE 冲突	真实 HTTPS 4xx 拒绝	HTTPS 测试 11

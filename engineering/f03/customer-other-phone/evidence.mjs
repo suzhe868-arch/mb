@@ -12,6 +12,8 @@ const paths=[
  'engineering/f03/customer-other-phone/environment.mjs',
  'engineering/f03/customer-other-phone/fixtures.mjs',
  'engineering/src/f03-customer-other-phone-service.mjs',
+ 'engineering/src/f03-publisher-phone-admin-service.mjs',
+ 'engineering/f03/publisher-phone-staff-admin/schema.sql',
  'engineering/src/f03-customer-other-phone-http.mjs',
  'engineering/src/app.mjs',
  'engineering/f03/customer-other-phone/tests/business.test.mjs',
