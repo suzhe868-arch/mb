@@ -26,7 +26,7 @@ function validateInput(method,input){
 }
 async function targetFacts(c,employeeId) {
  const q=await c.query(
-  "SELECT e.employee_id::text AS employee_id,e.employment_status,e.store_id,r.role_code,st.status AS store_status, "+
+  "SELECT e.employee_id::text AS employee_id,e.employment_status,e.store_id::text AS store_id,e.main_role_id::text AS main_role_id,r.role_code,st.status AS store_status, "+
   "a.credential_state AS account_state,a.force_password_change "+
   "FROM public.employees e JOIN public.roles r ON r.role_id=e.main_role_id "+
   "LEFT JOIN public.stores st ON st.store_id=e.store_id "+
@@ -43,9 +43,79 @@ async function permissionId(c){
 }
 async function modeRow(c,employeeId) {
  const rows=await c.query(
-  'SELECT scope_mode,enabled,version,updated_at,previous_decision,previous_decision_captured FROM '+S+'.employee_mode WHERE employee_id=$1::bigint FOR UPDATE',
+  'SELECT scope_mode,enabled,version,updated_at,previous_decision,previous_decision_captured,lifecycle_audit_watermark::text lifecycle_audit_watermark,granted_employment_status,granted_role_code,granted_main_role_id::text granted_main_role_id,granted_store_id::text granted_store_id,lifecycle_invalidated_at,lifecycle_invalidated_audit_id::text lifecycle_invalidated_audit_id,lifecycle_invalidated_action,lifecycle_invalidated_reason FROM '+S+'.employee_mode WHERE employee_id=$1::bigint FOR UPDATE',
   [employeeId]);
  return rows.rows[0]??null;
+}
+async function employeeAuditWatermark(c,employeeId) {
+ const q=await c.query(
+  "SELECT COALESCE(max(audit_id),0)::text AS watermark FROM public.audit_events WHERE object_kind='employee' AND object_id=$1::text",
+  [employeeId]);
+ return q.rows[0].watermark;
+}
+async function employeeAuditAfter(c,employeeId,watermark) {
+ const q=await c.query(
+  "SELECT audit_id::text audit_id,action,actor_kind,actor_id FROM public.audit_events "+
+  "WHERE object_kind='employee' AND object_id=$1::text AND audit_id>$2::bigint ORDER BY audit_id DESC LIMIT 1",
+  [employeeId,watermark]);
+ return q.rows[0]??null;
+}
+async function invalidateLifecycle(c,employeeId,permission,mode,target,event,watermark,reason) {
+ const oldState=await state(c,employeeId,permission,mode);
+ await c.query(
+  "UPDATE public.employee_capability_scope_bindings SET ended_at=GREATEST(granted_at,transaction_timestamp()) "+
+  "WHERE employee_id=$1::bigint AND permission_id=$2::bigint AND ended_at IS NULL "+
+  "AND scope_id IN (SELECT scope_id FROM public.employee_data_scopes WHERE employee_id=$1::bigint "+
+  "AND scope_kind='publisher_phone_special' AND scope_reference_id=$1::bigint AND ended_at IS NULL)",
+  [employeeId,permission]);
+ await c.query(
+  "UPDATE public.employee_data_scopes SET ended_at=transaction_timestamp() WHERE employee_id=$1::bigint "+
+  "AND scope_kind='publisher_phone_special' AND scope_reference_id=$1::bigint AND ended_at IS NULL",
+  [employeeId]);
+ const auditId=event?.audit_id??null;
+ const auditAction=event?.action??null;
+ const updated=await c.query(
+  "UPDATE "+S+".employee_mode SET enabled=false,scope_mode=NULL,version=version+1,updated_at=transaction_timestamp(),updated_by_system_admin_id=NULL,"+
+  "lifecycle_audit_watermark=$2::bigint,granted_employment_status=NULL,granted_role_code=NULL,granted_main_role_id=NULL,granted_store_id=NULL,"+
+  "lifecycle_invalidated_at=transaction_timestamp(),lifecycle_invalidated_audit_id=$3::bigint,lifecycle_invalidated_action=$4,lifecycle_invalidated_reason=$5 "+
+  "WHERE employee_id=$1::bigint AND enabled=true "+
+  "RETURNING scope_mode,enabled,version,updated_at,previous_decision,previous_decision_captured,lifecycle_audit_watermark::text lifecycle_audit_watermark,"+
+  "granted_employment_status,granted_role_code,granted_main_role_id::text granted_main_role_id,granted_store_id::text granted_store_id,"+
+  "lifecycle_invalidated_at,lifecycle_invalidated_audit_id::text lifecycle_invalidated_audit_id,lifecycle_invalidated_action,lifecycle_invalidated_reason",
+  [employeeId,watermark,auditId,auditAction,reason]);
+ if(updated.rowCount!==1)return mode;
+ const sourceActorKind=['employee','system_admin'].includes(event?.actor_kind)?event.actor_kind:'system';
+ const sourceActorId=typeof event?.actor_id==='string'&&/^[1-9][0-9]{0,18}$/.test(event.actor_id)&&BigInt(event.actor_id)<=9223372036854775807n?event.actor_id:null;
+ await c.query(
+  "INSERT INTO public.employee_permission_override_history(employee_id,permission_id,decision,actor_kind,actor_id) "+
+  "VALUES($1::bigint,$2::bigint,'revoked',$3,$4::bigint)",
+  [employeeId,permission,sourceActorKind,sourceActorId]);
+ const before={permissionDecision:oldState.decision,scopeMode:mode.scope_mode,enabled:oldState.enabled,version:asNumber(mode.version),employmentStatus:target.employment_status,roleCode:target.role_code,mainRoleId:target.main_role_id,storeId:target.store_id};
+ const after={permissionDecision:oldState.decision??null,scopeMode:null,enabled:false,version:asNumber(updated.rows[0].version),lifecycleInvalidated:true,lifecycleInvalidatedReason:reason,lifecycleAuditId:auditId,lifecycleAction:auditAction};
+ await c.query(
+  "INSERT INTO public.audit_events(actor_kind,actor_id,object_kind,object_id,action,before_json,after_json,occurred_at) "+
+  "VALUES($1,$2,'employee_permission_override',$3,'publisher.phone.scope.lifecycle_revoke',$4::jsonb,$5::jsonb,transaction_timestamp())",
+  [sourceActorKind,sourceActorId,employeeId,JSON.stringify(before),JSON.stringify(after)]);
+ return updated.rows[0];
+}
+async function reconcileLifecycle(c,employeeId,permission,target,mode) {
+ if(!mode?.enabled)return mode;
+ const watermark=mode.lifecycle_audit_watermark;
+ const event=watermark===null||watermark===undefined?null:await employeeAuditAfter(c,employeeId,watermark);
+ const latestWatermark=await employeeAuditWatermark(c,employeeId);
+ const missingBaseline=watermark===null||watermark===undefined||
+  mode.granted_employment_status!=='active'||!mode.granted_role_code||
+  !mode.granted_main_role_id||!mode.granted_store_id;
+ const factsDrift=!eligible(target)||
+  target.employment_status!==mode.granted_employment_status||
+  target.role_code!==mode.granted_role_code||
+  String(target.main_role_id)!==String(mode.granted_main_role_id)||
+  String(target.store_id)!==String(mode.granted_store_id);
+ if(missingBaseline||event||factsDrift){
+  const reason=missingBaseline?'LIFECYCLE_BASELINE_MISSING':event?'EMPLOYEE_AUDIT_AFTER_GRANT':'EMPLOYEE_FACT_DRIFT';
+  return invalidateLifecycle(c,employeeId,permission,mode,target,event,latestWatermark,reason);
+ }
+ return mode;
 }
 async function state(c,employeeId,permission,mode) {
  const x=await c.query(
@@ -73,7 +143,8 @@ export class PublisherPhoneAdminService {
    const target=await targetFacts(c,employeeId);
    if(!target)return result(404,'TARGET_NOT_FOUND');
    const permission=await permissionId(c);
-   const mode=await modeRow(c,employeeId);
+   let mode=await modeRow(c,employeeId);
+   mode=await reconcileLifecycle(c,employeeId,permission,target,mode);
    const grants=permission?await state(c,employeeId,permission,mode):null;
    return result(200,'PHONE_ADMIN_CURRENT',publicDto(employeeId,target,{...mode,enabled:eligible(target)&&grants?.enabled===true},permission));
   },{normalOnly:true});
@@ -92,7 +163,8 @@ export class PublisherPhoneAdminService {
    if(!permission)return result(403,'CAPABILITY_SOURCE_GAP');
    // Target row FOR UPDATE serializes two independent System Admin sessions.
    // Replay still checks CURRENT facts and never returns an obsolete grant.
-   const beforeMode=await modeRow(c,employeeId);
+   let beforeMode=await modeRow(c,employeeId);
+   beforeMode=await reconcileLifecycle(c,employeeId,permission,t,beforeMode);
    const oldState=await state(c,employeeId,permission,beforeMode);
    const oldVersion=asNumber(beforeMode?.version??0);
    const previousDecision=beforeMode?.enabled===true&&beforeMode.previous_decision_captured===true
@@ -135,7 +207,19 @@ export class PublisherPhoneAdminService {
    }
    await c.query("INSERT INTO public.employee_permission_override_history(employee_id,permission_id,decision,actor_kind,actor_id) VALUES($1::bigint,$2::bigint,$3,'system_admin',$4::bigint)",[employeeId,permission,method==='PUT'?'allow':'revoked',actor.system_admin_id]);
    const nextVersion=oldVersion+1;
-   await c.query('INSERT INTO '+S+'.employee_mode(employee_id,scope_mode,enabled,previous_decision,previous_decision_captured,version,updated_by_system_admin_id,updated_at) VALUES($1::bigint,$2,$3,$4,true,$5,$6::bigint,transaction_timestamp()) ON CONFLICT(employee_id) DO UPDATE SET scope_mode=EXCLUDED.scope_mode,enabled=EXCLUDED.enabled,previous_decision=EXCLUDED.previous_decision,previous_decision_captured=true,version=EXCLUDED.version,updated_by_system_admin_id=EXCLUDED.updated_by_system_admin_id,updated_at=transaction_timestamp()',[employeeId,method==='PUT'?input.scopeMode:null,method==='PUT',previousDecision,nextVersion,actor.system_admin_id]);
+   const lifecycleWatermark=await employeeAuditWatermark(c,employeeId);
+   const grantEmployment=method==='PUT'?t.employment_status:null;
+   const grantRole=method==='PUT'?t.role_code:null;
+   const grantRoleId=method==='PUT'?t.main_role_id:null;
+   const grantStoreId=method==='PUT'?t.store_id:null;
+   await c.query(
+    'INSERT INTO '+S+'.employee_mode(employee_id,scope_mode,enabled,previous_decision,previous_decision_captured,lifecycle_audit_watermark,granted_employment_status,granted_role_code,granted_main_role_id,granted_store_id,lifecycle_invalidated_at,lifecycle_invalidated_audit_id,lifecycle_invalidated_action,lifecycle_invalidated_reason,version,updated_by_system_admin_id,updated_at) '+
+    'VALUES($1::bigint,$2,$3,$4,true,$5::bigint,$6,$7,$8::bigint,$9::bigint,NULL,NULL,NULL,NULL,$10,$11::bigint,transaction_timestamp()) '+
+    'ON CONFLICT(employee_id) DO UPDATE SET scope_mode=EXCLUDED.scope_mode,enabled=EXCLUDED.enabled,previous_decision=EXCLUDED.previous_decision,previous_decision_captured=true,'+
+    'lifecycle_audit_watermark=EXCLUDED.lifecycle_audit_watermark,granted_employment_status=EXCLUDED.granted_employment_status,granted_role_code=EXCLUDED.granted_role_code,'+
+    'granted_main_role_id=EXCLUDED.granted_main_role_id,granted_store_id=EXCLUDED.granted_store_id,lifecycle_invalidated_at=NULL,lifecycle_invalidated_audit_id=NULL,'+
+    'lifecycle_invalidated_action=NULL,lifecycle_invalidated_reason=NULL,version=EXCLUDED.version,updated_by_system_admin_id=EXCLUDED.updated_by_system_admin_id,updated_at=transaction_timestamp()',
+    [employeeId,method==='PUT'?input.scopeMode:null,method==='PUT',previousDecision,lifecycleWatermark,grantEmployment,grantRole,grantRoleId,grantStoreId,nextVersion,method==='PUT'?actor.system_admin_id:null]);
    if(this.hook)await this.hook({c,employeeId,method,phase:'before_audit'});
    const finalDecision=(await c.query("SELECT decision FROM public.employee_permission_overrides WHERE employee_id=$1::bigint AND permission_id=$2::bigint",[employeeId,permission])).rows[0]?.decision??null;
    const before={permissionDecision:oldState.decision,scopeMode:beforeMode?.enabled?beforeMode.scope_mode:null,enabled:oldState.enabled,version:oldVersion};
