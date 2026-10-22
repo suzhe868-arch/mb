@@ -1,3 +1,21 @@
+# 当前有效状态｜2026-10-22｜Issue212非生产后端已验收合并
+
+- Issue [#212](https://github.com/suzhe868-arch/mb/issues/212) **已关闭**；业务 [PR #214](https://github.com/suzhe868-arch/mb/pull/214) 通过 A 独立验收并标准合并。
+- B 最终受验 HEAD：`cf190ea42a7b554368967bf45ef6055b762c0bb5`；业务标准 merge SHA：`b55271d8b7f44d1402b289fa37226196239da5fd`。
+- 官方 [Run #39770082142](https://github.com/suzhe868-arch/mb/actions/runs/39770082142) 精确匹配 B HEAD；4/4 独立非超级用户 PG16 Job 成功，业务及关联测试 100/100（F05-2 32、F05-3A 41、新增草稿 19、物理并发恢复 8），Node 基础测试 269×4，0 失败/跳过。
+- A 已**独立下载并逐项核对** Artifact #12421444632/#12421584328/#12420983884/#12421847552：ZIP SHA-256 与 GitHub 元数据相符；内部 Run/HEAD/Ref 一致，文件 SHA-256 清单 8/8、4/4、4/4、5/5 均正确。
+- 15 个改动路径全部属于正式白名单。可信 F05-2/3A 发布事务内 VIN 锁后精确查重、R01～R08 真双连接竞态及重启恢复已通过。冻结 M94/000015/000016、公共 Schema、PDM、旧 Workflow、默认生产路由均未修改。
+- 旧 F05-2「36 项」和 F05-3A「38 项」历史签名 Check 未伪装为在本 SHA 重新运行；A 根据现有原文件 32+41 与新 27 项、原历史真实来源裁定已满足**本次非生产增量范围**，不声明全仓历史 Check 全绿。
+
+- **现行唯一责任：** `NEXT_OWNER=A`、`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`、`NEXT_ISSUE=187`、`NEXT_BRANCH=NONE`；当前没有新的 B 施工授权。
+- Issue [#187](https://github.com/suzhe868-arch/mb/issues/187) 仍 `SOURCE_GAP / FAIL_CLOSED`。真实 JYT/Collector、CDN/OSS、Feishu 未就绪；正式 F03 Scope/Object、F05 转换正向 Issuer、电话敏感来源、SLA/Incident 仍缺正式验证。
+- A 增量核查其它不依赖外部资源的真实后端缺口；只有形成充分代码/Authority/范围/验收依据，才另行签发完整 B 施工单。不得重做 #212。
+- **F06/F07/F08/V1 整域仍 `NOT_READY / NO_PRODUCTION`。** 不授权真实电话、正式外部调用、生产、真钱、实际退款/成交；C PR #68 与 PC/手机页面暂不变。
+
+- 完整独立验收与证据：`07_重建工作区/F05人工车源PR214独立验收与Issue187接续报告_2026-10-22.md`；下方旧“当前施工 #212”已过时。
+
+---
+
 # 当前有效状态（2026-10-22｜F05 人工名邦/4S 车源草稿与正式发布后端施工已放行）
 
 A 已在最新 main 差异审查中确认 PDM-06 人工车辆草稿/发布缺少完整持久化和 HTTP 生命周期实现。正式业务 PR #210 与治理 PR #211 已合并；现在启动独立非生产后端任务 [Issue #212](https://github.com/suzhe868-arch/mb/issues/212)。
