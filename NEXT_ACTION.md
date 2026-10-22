@@ -1,22 +1,29 @@
 # 名邦汽车 V1｜NEXT_ACTION 当前唯一指针｜2026-10-22
 
-## 已完成闭环｜F05 目录客户价格权益投影与确定性搜索
+## 当前唯一施工任务｜B F05 人工名邦/4S 车源多草稿与正式发布
 
-- Issue [#204](https://github.com/suzhe868-arch/mb/issues/204) 已关闭；业务 PR [#210](https://github.com/suzhe868-arch/mb/pull/210) 已标准合并。
-- B 最终 HEAD：`b1d548d441463b77cf896aac02eff8515560a347`；merge SHA：`c2087a15fd3d124080e549acc02b515fb877ba8e`。
-- 官方 Run [#39743949320](https://github.com/suzhe868-arch/mb/actions/runs/39743949320) 同 SHA 全部步骤成功；88/88 + 3/3 + 13/13 + 7/7 + 6/6 = 117/117，失败 0、跳过 0。
-- Artifact [#12410562743](https://github.com/suzhe868-arch/mb/actions/runs/39743949320/artifacts/12410562743) SHA-256 `3d1d3108c7bbf813d45f7868e0730a4daeb2a61134b96b7c3a58a3ae2459d8ce`，内部 HEAD/Run/branch 与清单摘要均已核验。
-- 验收报告：`07_重建工作区/F05目录客户价格权益投影与确定性搜索PR210独立验收与合并报告_2026-10-22.md`。
+- `NEXT_OWNER=B`
+- `NEXT_TASK=F05_MANUAL_VEHICLE_DRAFT_PUBLISH_REAL_HTTP_PG16_01`
+- `NEXT_ISSUE=212`：[F05 人工名邦/4S 车源草稿、车型校验与正式发布](https://github.com/suzhe868-arch/mb/issues/212)
+- `NEXT_BRANCH=feat/f05-manual-vehicle-draft-publish-pg16-01`
+- 正式施工单：`07_重建工作区/F05人工名邦4S车源草稿发布非生产后端施工单_2026-10-22.md`
+- 本治理 PR 标准合并 main 后授权生效；B 开工必须重读最新 main 与施工单。
 
-## 当前唯一职责指针｜A 继续 F08 来源与阶段门禁
+## 本任务范围与依赖裁决
 
-- `NEXT_OWNER=A`
-- `NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`
-- `NEXT_ISSUE=187`：[F08 可信来源与外部集成父级门禁](https://github.com/suzhe868-arch/mb/issues/187)
-- `NEXT_BRANCH=NONE`
-- 先复用已验收 PR #69、#100、#174、#181、#186 与 F08-3 PR #193 的有效证据，不重复旧测试。继续核对正式 F03 capability/Vehicle Scope/Object、F05 转换可信正向 Issuer、publisher.phone.sensitive 可信来源及 SLA/Incident 正式来源。
-- 用户已确认 JYT/Collector、图片存储/CDN、飞书尚未准备；目前无新的合法 B 业务施工包，不因模拟 CI 绿灯伪称外部接通。若仍缺正式来源/资源，保持 SOURCE_GAP 并明确解除条件，不切换 Work、不创建平行任务。
-- F06/F07/F08/V1 继续 `NOT_READY / NO_PRODUCTION`；C PR #68 保持独立；不授权真实电话、生产、真钱、真实退款/成交或第三方公网调用。
+- PDM-06 人工车辆草稿/发布缺少完整后端持久化与 HTTP 生命周期；当前仅有目录读取及 F05-2/3A 独立可信发布测试原语。新增多草稿自动保存、列表/详情/指定纯草稿删除、完整发布校验、VIN 精确重复 Gate、MODEL_MISSING 原 draft 保留、真实 Node HTTP + PG16。
+- 复用 F05-2 名邦 Employee 当前管理权限/Team scope/同事务发布原语；复用 F05-3A 4S Admin license/本人发布原语。不得重复实现责任或 4S license 体系。
+- 只在隔离 PG16 与 loopback HTTPS/HTTP；公共 M94/000015/000016 冻结不动，新增草稿数据放任务专用非公开测试 schema。0 图、无价格人工车辆允许发布。
+- Issue #187 保持开放且 `SOURCE_GAP / FAIL_CLOSED`，但不阻断该非生产任务；本任务不解决正式 F03 Scope/Object、F05 转换签名、电话敏感来源、SLA/Incident 或 JYT/Collector/CDN/OSS/Feishu。
+- 不开发 PC/手机页面，不接生产/真钱/真实电话，不做图片/档案上传、发布后来源转换、上下架/隐藏、价格覆盖或已发布车辆普通编辑。
+
+## 最近完成闭环
+
+- Issue #201 / PR #206：F05-7 Matching 调度器已验收合并，7+8+1 项测试通过。
+- Issue #204 / PR #210：F05 目录客户价格权益与确定性搜索已验收合并，117/117 测试通过；报告见 `07_重建工作区/F05目录客户价格权益投影与确定性搜索PR210独立验收与合并报告_2026-10-22.md`。
+- Issue #187：来源门禁未关闭，继续作为并行 A 任务；没有新的外部来源/授权时不伪造正式正向证据。
+
+---
 
 ---
 

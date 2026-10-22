@@ -1,3 +1,19 @@
+## A-F05-MANUAL-DRAFT-PUBLISH-RELEASE-01｜人工名邦/4S车源草稿与正式发布非生产后端施工正式放行
+
+- Issue [#212](https://github.com/suzhe868-arch/mb/issues/212)；任务 `F05_MANUAL_VEHICLE_DRAFT_PUBLISH_REAL_HTTP_PG16_01`；指定 B 分支 `feat/f05-manual-vehicle-draft-publish-pg16-01`。
+- A 对最新 main 的 `engineering/src/app.mjs`、`catalog-readiness.mjs`、`catalog-wiring.mjs`、F05-2/3A 当前发布原语及 PDM-06 Final 做增量差异核查：未找到完整人工 Vehicle draft persistence/list/delete/publish HTTP 生命周期；既有 F05-2 与 F05-3A 仅提供各自的非生产可信发布原语，不能代替多草稿状态机。
+- PDM-06 人工名邦/4S 发布不要求图片或价格，故本任务不依赖 JYT、Collector、CDN/OSS、Feishu；以真实非超级用户 PG16 与隔离 loopback HTTPS/HTTP 补齐后端功能，不开发 PC/手机页面。
+- 复用现有 F05-2 名邦当前 Employee/vehicle.manage/Team scope/原子发布原语与 F05-3A 4S Admin license/本人新车发布原语；不复制第二套 owner/license 模型。任务专用 draft 存储只允许位于非公开测试 schema；不改 M94/000015/000016、F02-1 冻结公共 Schema、F03 reader/迁移或旧 Workflow。
+- 必须实现多草稿独立持久化、空白不落库、自动保存、列表/详情/指定纯草稿删除、发布最低字段、VIN 精确重复、MODEL_MISSING 原 draft 保留、真实 Vehicle/Cycle/责任或 4S 发布记录/审计的事务一致性、幂等/并发/故障回滚。
+- Issue [#187](https://github.com/suzhe868-arch/mb/issues/187) 继续 `SOURCE_GAP / FAIL_CLOSED`，但不得阻断该独立非生产任务；它仍阻断正式电话/签名来源与生产放行。此任务所有正例仅为 Disposable PG16 测试证明。
+- 本条授权仅在本治理 PR 标准合并 main 后生效。B 必须读取开工时最新 main、按指定分支施工，完整回归 F05-2 36 项和 F05-3A 38 项、执行精确 Workflow 触发审计、同 SHA 官方 CI 与证据归档后交 A；不得自行合并。
+
+## A-F08-SOURCE-GATE-PARALLEL-01｜独立后端任务不被 Issue187来源门禁阻断
+
+- Issue #187 仍缺正式 F03 capability/Scope/Object、F05 转换正向 Issuer、publisher.phone.sensitive、SLA/Incident 与外部系统授权；没有新来源证据，不改变其 `SOURCE_GAP / FAIL_CLOSED` 状态。
+- 重新核查发现 F05 PDM-06 人工名邦/4S 草稿与发布不要求 JYT/Collector/CDN/OSS/Feishu，因此允许 Issue #212 在严格隔离非生产范围继续开发；不得把该任务的测试身份/许可冒充正式签名来源。
+
+---
 ## A-F05-CATALOG-ISSUE204-PR210-ACCEPT-01｜目录客户价格权益投影与确定性搜索独立验收通过并标准合并
 
 - Issue [#204](https://github.com/suzhe868-arch/mb/issues/204) 已完成并关闭；业务 PR [#210](https://github.com/suzhe868-arch/mb/pull/210) 已标准合并，merge SHA `c2087a15fd3d124080e549acc02b515fb877ba8e`。
