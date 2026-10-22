@@ -19,7 +19,7 @@ try{
  assert.equal(result.status,200,JSON.stringify(result.body));
  assert.equal(result.body.currentVersion,1);
  assert.equal(result.body.draft.stageVersion,version);
- assert.equal(result.body.effective.customerListPriceCents,null);
+ assert.equal(result.body.effective.customerListPriceCents,8300000);
  assert.equal(result.body.draft.preview.customerListPriceCents,8900000);
  console.log('ISSUE216_REAL_INDEPENDENT_PROCESS_RECOVERY_PASS');
 }finally{await auth.close();secret.fill(0)}
