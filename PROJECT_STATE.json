@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "BACKEND_ENGINEERING",
-  "substage": "F03_CUSTOMER_PHONE_CI_ONLY_ACCEPTED_F08_SOURCE_GATE_CONTINUES",
+  "substage": "F05_F06_SAME_VEHICLE_SIGNED_BRIDGE_NONPROD_RELEASED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F08_SIGNED_SOURCE_GATE",
-  "current_domain_status": "PR #229 已完成限定非生产独立验收并标准合并；当前回到 Issue #187 的 F08 可信来源与外部授权门禁。正式 F03 Scope/Object、F05 转换正向 Issuer、F07 Runtime 与外部资源证据仍缺，保持 SOURCE_GAP/FAIL_CLOSED。",
+  "current_domain": "F05_F06_SAME_VEHICLE_BRIDGE",
+  "current_domain_status": "A 已签发 F05→F06 同车签名跨 Runtime 非生产桥接任务 Issue #231。只关闭同车 Lock/Transaction/Deposit 历史快照不回写这一项证据缺口；父 Issue #187 仍 SOURCE_GAP/FAIL_CLOSED，生产授权为 false。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
-  "current_work_file": "07_重建工作区/F03客户其他联系电话PR229独立验收与F08来源门禁接续报告_2026-10-23.md",
+  "current_task": "F05_F06_SAME_VEHICLE_SIGNED_CROSS_RUNTIME_BRIDGE_PG16_01",
+  "current_work_file": "07_重建工作区/F05_F06同车签名跨Runtime桥接与历史快照不可变非生产施工单_2026-10-23.md",
   "a_f08_source_gate_review_2026_10_23": {
     "status": "SOURCE_GAP/FAIL_CLOSED",
     "reviewed_at": "2026-10-23",
@@ -39,7 +39,9 @@
     "independent_task_pr": 229,
     "independent_task_accepted_head_sha": "43a25224bb778bf4071e034efdce90d43f6e9226",
     "independent_task_merge_sha": "19ef898a0dac447aff7a26b5affd2496a01e86e5",
-    "independent_task_official_run_id": "39847897349"
+    "independent_task_official_run_id": "39847897349",
+    "same_vehicle_bridge_issue": 231,
+    "same_vehicle_bridge_status": "A_FORMAL_NONPROD_TASK_RELEASED_NOT_YET_PASSED"
   },
   "a_acceptance_issue221_2026_10_23": {
     "status": "A_ACCEPTED_LIMITED_NONPROD",
@@ -3427,7 +3429,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "增量核验 Issue #187 的正式来源与外部授权；复用已验收 F03 客户其他联系电话非生产纵切，不重复开发。只有出现可合法验证的正式 F03 Scope/Object、F05 转换 Issuer、F07 Runtime 来源/签名或另一项依赖已满足的独立后端缺口，才签发新的最小范围 B 任务。",
+  "next_action": "B 按 Issue #231 与正式中文施工单完成同一 F05 #214 已发布人工 Vehicle/Cycle 到 F06 已签 Lock→合成 Deposit→Transaction 的双数据库签名桥接；随后通过 F05 #216 HTTPS 修改客户标价/里程/车况并逐行验证 F06 Lock/Transaction/Deposit/审计快照不回写。两个独立真实非超管 PG16 Job、当前 SHA/Run/Ref/OID/迁移链签名、161表/24迁移 Seal、同 SHA 官方 CI/Artifact 全部通过后交 A 独立验收。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -5007,7 +5009,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "PR #229 已由 A 独立验收并标准合并（B HEAD 43a25224bb778bf4071e034efdce90d43f6e9226，merge SHA 19ef898a0dac447aff7a26b5affd2496a01e86e5）；Issue #227 已关闭。最终 Run #39847897349 两个 PG16 Job 成功；migration 9/9、Guard 7/7、旧 HTTPS 2/2、新业务/并发 38/38、新 HTTPS 11/11、Node 269/269；双 Artifact ZIP 与内部 19/19 文件哈希已独立复算。Issue #187 仍 SOURCE_GAP/FAIL_CLOSED，NEXT_OWNER=A。",
+  "next_action_detail": "Issue #231 正式任务仅在治理 PR #232 标准合并后生效。指定分支 feat/f05-f06-same-vehicle-signed-bridge-pg16-01；严格双数据库/双迁移链，不改旧 F05/F06 业务服务、公共 DDL、旧 Workflow 或生产路由。父 Issue #187 保持 SOURCE_GAP/FAIL_CLOSED；本任务非生产且不解除其他正式来源/外部授权门禁。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -6045,7 +6047,7 @@
   },
   "a_batch_approval_mode": "STANDING_USER_DIRECTED_CONTINUOUS_TECHNICAL_WORKFLOW_IN_FROZEN_SCOPE; A_SCOPES_AND_RELEASES_B_C; EACH_WINDOW_COMPLETES_END_TO_END; A_INDEPENDENT_ACCEPTANCE_AND_CLEAN_PR_MERGE_WITHOUT_REPEAT_APPROVAL; NEW_PRODUCT_CHOICE_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_EXTERNAL_WRITES_REQUIRE_USER",
   "current_pending_user_decisions": [],
-  "next_action_owner": "A",
+  "next_action_owner": "B",
   "abc_continuous_execution_rule": {
     "status": "USER_DIRECTIVE_APPLIED",
     "confirmed_at": "2026-10-09",
@@ -7051,7 +7053,7 @@
     "merge_method": "merge",
     "a_review_report": "07_重建工作区/F05-7_A主控二轮独立验收66项真PG16_PR46标准合并与F05-8技术交接_2026-10-12.md"
   },
-  "next_owner": "A",
+  "next_owner": "B",
   "f05_8_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR47_CI_ONLY",
     "execution": "COMPLETED_A_ACCEPTED_PR47_STANDARD_MERGE",
@@ -8186,7 +8188,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
+  "next_task": "F05_F06_SAME_VEHICLE_SIGNED_CROSS_RUNTIME_BRIDGE_PG16_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9861,7 +9863,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F03客户其他联系电话PR229独立验收与F08来源门禁接续报告_2026-10-23.md",
+  "next_work_file": "07_重建工作区/F05_F06同车签名跨Runtime桥接与历史快照不可变非生产施工单_2026-10-23.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -10157,8 +10159,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": "NONE",
-  "next_issue": 187,
+  "next_branch": "feat/f05-f06-same-vehicle-signed-bridge-pg16-01",
+  "next_issue": 231,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -11974,5 +11976,18 @@
     "f07_runtime": "NOT_CONNECTED_F07_RUNTIME",
     "same_vehicle_f06": "NOT_RUN/BLOCKED_SIGNED_PARENT",
     "production_authorized": false
+  },
+  "a_f05_f06_same_vehicle_bridge_issue231_2026_10_23": {
+    "status": "A_FORMAL_RELEASE_EFFECTIVE_AFTER_PR232_MERGED",
+    "issue": 231,
+    "task_id": "F05_F06_SAME_VEHICLE_SIGNED_CROSS_RUNTIME_BRIDGE_PG16_01",
+    "branch": "feat/f05-f06-same-vehicle-signed-bridge-pg16-01",
+    "parent_issue": 187,
+    "parent_status": "SOURCE_GAP/FAIL_CLOSED",
+    "same_vehicle_gate_status": "NOT_RUN/BLOCKED_SIGNED_PARENT",
+    "requires_two_independent_pg16_jobs": true,
+    "public_schema_changes_allowed": false,
+    "production_authorized": false,
+    "governance_pr": 232
   }
 }
