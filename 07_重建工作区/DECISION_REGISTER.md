@@ -1,3 +1,22 @@
+## A-F05-8-ISSUE203-PR208-ACCEPT-01｜Priority TTL 非生产持久调度器独立验收通过并标准合并
+
+- Issue [#203](https://github.com/suzhe868-arch/mb/issues/203) / PR [#208](https://github.com/suzhe868-arch/mb/pull/208) 已由 A 独立验收并标准合并。
+- B 最终 HEAD `8a18b0d12c54c607ee9555e8dda582ccd40f840a`；merge SHA `31881d1d092cea220087e527fdac7da03141480e`；7 个新增文件、0 删除，严格位于施工单白名单。
+- 专用官方 Push Run [#39732168499](https://github.com/suzhe868-arch/mb/actions/runs/39732168499) / Job `119669460022` 全步骤成功；单元 6/6、Priority TTL 关联 PG16 回归 5/5、新 runner 真实 PG16 集成 8/8，失败 0、跳过 0。
+- A 已下载核对 Artifact [#12406100445](https://github.com/suzhe868-arch/mb/actions/runs/39732168499/artifacts/12406100445)：压缩包 SHA-256 `e5f6f7800a0d8edf12387f1877d286cb686ac0071c965ee8e91d926ac696e092` 与 GitHub 元数据一致；内部 HEAD、Run ID、分支和全部文件 SHA-256 均匹配。
+- 真实 PG16：127 张公开表，`f05_catalog_ci` 非超级用户；到期重仲裁、替代 Priority、batchLimit、双 runner 并发、事务故障 retry、硬截止退出 124、lease 重启恢复、实际 SIGKILL、空队列、SIGTERM 和 max runtime 均通过。
+- 同 SHA 冻结宽范围 workflow Run [#39732168405](https://github.com/suzhe868-arch/mb/actions/runs/39732168405) 有 52 个检查，21 success、31 failure；均为旧 F03/F04/F05-1～F05-3 回归，不属于 Issue #203 专用矩阵。A 不将其伪报通过，已在报告中列出全部 31 个失败名称和适用性；不改冻结 workflow。该结论只验收 F05-8 非生产子范围，不宣称仓库整体 CI 全绿或生产就绪。
+- 完整报告：`07_重建工作区/F05-8_Issue203_PR208独立验收与F05目录搜索任务放行报告_2026-10-22.md`。
+
+## A-F05-CATALOG-ISSUE204-ACTIVATE-01｜F05 目录客户价格权益投影与确定性搜索正式激活
+
+- Issue [#204](https://github.com/suzhe868-arch/mb/issues/204) 是已确认的独立后端缺口，现随 NEXT 指针切换正式激活。
+- 唯一 B 任务：`F05_CATALOG_CUSTOMER_PRICE_SEARCH_01`；分支 `feat/f05-catalog-customer-price-search-01`；施工单 `07_重建工作区/F05目录客户价格权益投影与确定性搜索非生产施工单_2026-10-22.md`。
+- 复用现有 price-unlock/quota ledger、六项排序和 Rule Dictionary；只新增目录 Customer 权益投影与确定性搜索接线及专用非生产 PG16 测试，不重写已验收业务。
+- Issue #187 的外部来源门禁不阻断本任务；Issue #204 不得开发 PC/手机页面、不接生产、不伪造正式 Issuer/城市事实。
+
+---
+
 ## A-F05-7-ISSUE201-PR206-ACCEPT-01｜Matching 持久调度器独立验收通过并标准合并
 
 - Issue [#201](https://github.com/suzhe868-arch/mb/issues/201) / PR [#206](https://github.com/suzhe868-arch/mb/pull/206) 已由 A 独立验收；PR 已按 merge 方法标准合并。
