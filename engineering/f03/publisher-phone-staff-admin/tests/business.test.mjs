@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import {before,after,test} from 'node:test';
 import {randomBytes,randomUUID} from 'node:crypto';
+import {readFile} from 'node:fs/promises';
+import {getPublicStructure} from '../../../f02-1/schema-integrity.mjs';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {hashPassword} from '../../../src/f03-auth-crypto.mjs';
 import {PublisherPhoneAdminService} from '../../../src/f03-publisher-phone-admin-service.mjs';
@@ -102,8 +104,21 @@ test('27 revoked System Admin cannot reauthorize',async()=>{
  await sql("UPDATE public.system_admins SET account_status='inactive' WHERE system_admin_id=10");
  assert.equal((await put('LOCKED_ONLY',version,admin2)).status,401);
 });
-test('28 capability scope is non-public and F07 remains disconnected',async()=>{
+test('28 restart a new real F03 session client retains committed revocation and CAS version',async()=>{
+ const fresh=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret:Buffer.from(process.env.F03_1_HMAC_KEY_BASE64,'base64'),origin});
+ try{
+  const observed=await new PublisherPhoneAdminService(fresh).get({token:admin,employeeId:'6'});
+  assert.equal(observed.status,200);assert.equal(observed.version,version);assert.equal(observed.enabled,false);
+ }finally{await fresh.close()}
+});
+test('29 public SG01 physical schema fingerprint unchanged',async()=>{
+ const manifest=JSON.parse(await readFile(new URL('../../runtime-scope/000003.manifest.json',import.meta.url),'utf8'));
+ const c=await auth.pool.connect();
+ try{const physical=await getPublicStructure(c);assert.equal(physical.sha256,manifest.structure_sha256)}
+ finally{c.release()}
+});
+test('30 capability scope is non-public and F07 remains disconnected',async()=>{
  const s=await sql("SELECT nspname FROM pg_namespace WHERE nspname='f03_publisher_phone_admin_test'");
  assert.equal(s.rowCount,1);assert.notEqual(s.rows[0].nspname,'public');
- console.log('F03_PHONE_ADMIN_BUSINESS_PG16_28_CASES_PASS; F07_NOT_CONNECTED');
+ console.log('F03_PHONE_ADMIN_BUSINESS_PG16_30_CASES_PASS; F07_NOT_CONNECTED');
 });
