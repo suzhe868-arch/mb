@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "BACKEND_ENGINEERING",
-  "substage": "F05_CATALOG_CUSTOMER_PRICE_SEARCH_ACCEPTED_AND_F08_SOURCE_GATE_ACTIVE",
+  "substage": "F05_MANUAL_VEHICLE_DRAFT_PUBLISH_NONPROD_ACTIVE_WITH_F08_SOURCE_GATE_PARALLEL",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F08_SIGNED_SOURCE_AND_STAGE_GATE_AUDIT",
-  "current_domain_status": "A 已独立验收并标准合并 Issue #204 / PR #210 的 F05 目录 Customer 价格权益投影与 Rule Dictionary 确定性搜索非生产子范围（merge SHA c2087a15fd3d124080e549acc02b515fb877ba8e；最终 B SHA b1d548d441463b77cf896aac02eff8515560a347；官方 Run 39743949320 的 117/117 测试全部通过）。当前职责切回 Issue #187 的 F08 可信来源与外部授权父门禁；正式 F03 Scope/Object、F05 转换正向 Issuer、publisher.phone.sensitive 可信来源、SLA/Incident 正式来源仍缺证据；JYT/Collector、图片存储/CDN、Feishu 按用户确认尚未准备。全局生产状态仍 NOT_READY。",
+  "current_domain": "F05_MANUAL_VEHICLE_DRAFT_PUBLISH_NONPROD",
+  "current_domain_status": "A 已在最新 main 的真实路由与源码差异审查中确认 PDM-06 人工名邦/4S 车源多草稿、发布校验、VIN 精确重复与 MODEL_MISSING 保留缺少完整后端 HTTP/PG16 闭环。Issue #212 已创建，随 A 治理 PR 合并后授权 B 实施。任务复用既有 F05-2/3A 可信发布原语，只新增隔离非公开测试 schema 与 draft 生命周期；不依赖 JYT/Collector/CDN/OSS/Feishu。Issue #187 仍开放且阻断正式来源/生产，但不阻断该独立非生产任务。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01：在最新 main 上复用已验收资产，增量核对正式 F03 capability/Vehicle Scope/Object、F05 转换正向 Issuer、publisher.phone.sensitive 可信来源及 SLA/Incident 正式来源；没有新合法来源/授权时保持 SOURCE_GAP，不重复发模拟 B 任务。",
-  "current_work_file": "07_重建工作区/A_Issue187外部系统未准备阻断登记与独立工作盘点_2026-10-22.md",
+  "current_task": "F05_MANUAL_VEHICLE_DRAFT_PUBLISH_REAL_HTTP_PG16_01",
+  "current_work_file": "07_重建工作区/F05人工名邦4S车源草稿发布非生产后端施工单_2026-10-22.md",
   "f06_issue164_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_NONPROD_COMPOSITE_DUAL_GATE_B_CONTINUE",
     "issue": 164,
@@ -7012,7 +7012,7 @@
     "merge_method": "merge",
     "a_review_report": "07_重建工作区/F05-7_A主控二轮独立验收66项真PG16_PR46标准合并与F05-8技术交接_2026-10-12.md"
   },
-  "next_owner": "A",
+  "next_owner": "B",
   "f05_8_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR47_CI_ONLY",
     "execution": "COMPLETED_A_ACCEPTED_PR47_STANDARD_MERGE",
@@ -8147,7 +8147,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
+  "next_task": "F05_MANUAL_VEHICLE_DRAFT_PUBLISH_REAL_HTTP_PG16_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -10118,8 +10118,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": "NONE",
-  "next_issue": 187,
+  "next_branch": "feat/f05-manual-vehicle-draft-publish-pg16-01",
+  "next_issue": 212,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -11314,7 +11314,10 @@
     "next_owner": "A",
     "next_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
     "next_issue": 187,
-    "next_branch": "NONE"
+    "next_branch": "NONE",
+    "independent_backend_task_activated": 212,
+    "independent_task_name": "F05_MANUAL_VEHICLE_DRAFT_PUBLISH_REAL_HTTP_PG16_01",
+    "blocks_independent_task": false
   },
   "publisher_phone_access_scope_decision_2026_10_22": {
     "status": "USER_APPROVED_PRODUCT_RULE",
@@ -11719,5 +11722,54 @@
     "next_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
     "next_issue": 187,
     "next_branch": "NONE"
+  },
+  "f05_manual_vehicle_draft_publish_2026_10_22": {
+    "task_id": "F05_MANUAL_VEHICLE_DRAFT_PUBLISH_REAL_HTTP_PG16_01",
+    "owner": "B",
+    "issue": 212,
+    "branch": "feat/f05-manual-vehicle-draft-publish-pg16-01",
+    "work_order": "07_重建工作区/F05人工名邦4S车源草稿发布非生产后端施工单_2026-10-22.md",
+    "status": "A_RELEASED_ON_GOVERNANCE_PR_MERGE",
+    "production_ready": false,
+    "dependencies": [
+      "PDM-06",
+      "PDM-02",
+      "PDM-04",
+      "PDM-05",
+      "PDM-21",
+      "PDM-25",
+      "F05-2 current Vehicle responsibility",
+      "F05-3A 4S Admin license"
+    ],
+    "external_dependencies_required": false,
+    "reuse_existing_publication_primitives": true,
+    "schema_rule": "No public frozen schema changes; task-only non-public disposable PG16 schema",
+    "scope": [
+      "multi-draft persistence",
+      "auto-save/list/detail/delete pure draft",
+      "source-type guard",
+      "model/brand/series consistency",
+      "VIN exact duplicate",
+      "MODEL_MISSING preserves draft",
+      "real PG16/HTTPS publish"
+    ],
+    "excluded": [
+      "PC/mobile UI",
+      "production route",
+      "JYT/Collector/CDN/OSS/Feishu",
+      "media/archive uploads",
+      "published vehicle ordinary edit",
+      "post-publish source conversion",
+      "hide/unhide/listing status",
+      "price override",
+      "real money/phone"
+    ],
+    "issue187_parallel": {
+      "status": "SOURCE_GAP_OPEN_FAIL_CLOSED",
+      "issue": 187,
+      "blocks_production": true,
+      "blocks_this_task": false
+    },
+    "completion_gate": "Same final HEAD official CI, real non-superuser PG16, Node HTTPS/HTTP, F05-2 36-case and F05-3A 38-case regression, zero failed/skipped, evidence artifact, Chinese handover; A independent acceptance"
   }
 }

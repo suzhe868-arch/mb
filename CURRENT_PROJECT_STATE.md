@@ -1,23 +1,23 @@
-# 当前有效状态（2026-10-22｜F05 目录客户价格权益投影与确定性搜索已验收合并，转回 F08 来源门禁）
+# 当前有效状态（2026-10-22｜F05 人工名邦/4S 车源草稿与正式发布后端施工已放行）
 
-A 已独立验收并标准合并 F05 目录客户价格权益投影与确定性搜索 [PR #210](https://github.com/suzhe868-arch/mb/pull/210)，关联 Issue [#204](https://github.com/suzhe868-arch/mb/issues/204) 已完成关闭。
+A 已在最新 main 差异审查中确认 PDM-06 人工车辆草稿/发布缺少完整持久化和 HTTP 生命周期实现。正式业务 PR #210 与治理 PR #211 已合并；现在启动独立非生产后端任务 [Issue #212](https://github.com/suzhe868-arch/mb/issues/212)。
 
-- B 最终 HEAD：`b1d548d441463b77cf896aac02eff8515560a347`。
-- 标准合并 SHA：`c2087a15fd3d124080e549acc02b515fb877ba8e`。
-- 官方 Push Run [#39743949320](https://github.com/suzhe868-arch/mb/actions/runs/39743949320) / Job `119707678630` 全步骤成功；Node/兼容 88/88、目录排序 PG16 3/3、价格解锁 PG16 13/13、Rule Dictionary PG16 7/7、HTTP+PG16 集成 6/6，合计 117/117，失败 0、跳过 0。
-- Artifact [#12410562743](https://github.com/suzhe868-arch/mb/actions/runs/39743949320/artifacts/12410562743) 已独立下载核验，SHA-256：`3d1d3108c7bbf813d45f7868e0730a4daeb2a61134b96b7c3a58a3ae2459d8ce`；包内 HEAD/Run/branch 与 8 条文件摘要全部匹配。
-- 第三轮补齐的 7 张 Recommendation grant、Matching discovery/queue、Priority qualification/scheduler 表已纳入 27 张业务副作用快照；普通搜索分页、偏好型筛选和数字价格区间搜索均验证前后摘要不变。
-- 本次仅接受 Disposable、非超级用户 PG16 与真实 Node HTTP 的非生产子范围；正式 Issuer、地域事实、JYT/Collector/CDN/OSS/Feishu 与 F01～F08/V1 生产就绪状态不因此改变。
+- `NEXT_OWNER=B`
+- `NEXT_TASK=F05_MANUAL_VEHICLE_DRAFT_PUBLISH_REAL_HTTP_PG16_01`
+- `NEXT_ISSUE=212`
+- `NEXT_BRANCH=feat/f05-manual-vehicle-draft-publish-pg16-01`
+- 施工单：`07_重建工作区/F05人工名邦4S车源草稿发布非生产后端施工单_2026-10-22.md`
+- 复用 F05-2 名邦当前 Vehicle 管理/责任原语与 F05-3A 4S Admin license/本人发布原语；新增多草稿持久化、列表/详情/自动保存/纯草稿删除/发布闭环，真实 Node HTTPS/HTTP + 非超级用户 PG16。
+- 不改冻结公共 Schema、F03 reader/迁移、F05-2 000015、F05-3A 000016；草稿存储只使用任务专用非公开测试 schema。0 图和无价格人工车辆允许发布。
 
-## 当前唯一职责指针
+## 并行门禁｜Issue #187
 
-- `NEXT_OWNER=A`
-- `NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`
-- `NEXT_ISSUE=187`
-- `NEXT_BRANCH=NONE`
-- 当前工作：复用既有 F08-2/F08-3 验收资产，增量核对正式 F03 capability/Scope/Object、F05 转换正向 Issuer、publisher phone 可信来源及 SLA/Incident 来源。外部 JYT/Collector、图片存储/CDN、Feishu 已由用户确认尚未准备。
-- 当前没有新的、可合法验收且不依赖缺失资源的 B 业务任务；不重复模拟施工，不伪造签名，不修改冻结 F03 reader/迁移，不授权生产/真钱/真实电话或第三方公网调用。
-- 完整验收报告：`07_重建工作区/F05目录客户价格权益投影与确定性搜索PR210独立验收与合并报告_2026-10-22.md`。
+- Issue [#187](https://github.com/suzhe868-arch/mb/issues/187) 继续由 A 保持开放；最新复核未发现新的合法正式来源/外部授权，JYT/Collector、图片存储/CDN、Feishu 尚未准备。
+- #187 继续阻断正式电话/来源正向授权与生产放行，但**不阻断本次不依赖这些资源的非生产人工车源后端任务**。
+- 本任务测试中的 Employee/4S/Admin 正例只属于隔离 PG16 的测试来源，不代表正式 F03 Scope/Object、正式 Issuer 或生产就绪。
+- F06/F07/F08/V1 全局仍 `NOT_READY / NO_PRODUCTION`；PC/手机页面、图片/档案上传、正式 Vehicle 普通编辑、真实 JYT/Collector/CDN/OSS/Feishu 均不在本施工单范围。
+
+完整任务约束见 `07_重建工作区/F05人工名邦4S车源草稿发布非生产后端施工单_2026-10-22.md`。
 
 ---
 

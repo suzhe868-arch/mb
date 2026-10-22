@@ -1,20 +1,24 @@
-# 名邦汽车 V1｜当前主控状态（2026-10-22）
+# 名邦汽车 V1｜当前主控状态（2026-10-22｜人工车源草稿发布后端任务已放行）
 
 ## 最新验收闭环｜F05 目录客户价格权益投影与确定性搜索
 
-- [PR #210](https://github.com/suzhe868-arch/mb/pull/210) 已由 A 独立验收并标准合并，Issue [#204](https://github.com/suzhe868-arch/mb/issues/204) 已关闭。
-- B 最终 HEAD：`b1d548d441463b77cf896aac02eff8515560a347`；merge SHA：`c2087a15fd3d124080e549acc02b515fb877ba8e`。
-- 官方 Run [#39743949320](https://github.com/suzhe868-arch/mb/actions/runs/39743949320) 全步骤成功；117/117 测试通过，失败 0、跳过 0。
-- Artifact [#12410562743](https://github.com/suzhe868-arch/mb/actions/runs/39743949320/artifacts/12410562743) SHA-256 `3d1d3108c7bbf813d45f7868e0730a4daeb2a61134b96b7c3a58a3ae2459d8ce`；内部 HEAD/Run/branch/文件摘要均通过独立核验。
-- 第三轮补齐 7 张事件/队列表，全行快照覆盖 27 张相关业务表；详细验收见 `07_重建工作区/F05目录客户价格权益投影与确定性搜索PR210独立验收与合并报告_2026-10-22.md`。
-- 本次只接受 Disposable 非超管 PostgreSQL 16 与真实 Node HTTP 的非生产后端子范围，`productionReady=false`；不代表正式 Issuer、真实外部系统、F01～F08 全域或 V1 生产就绪。
+- [PR #210](https://github.com/suzhe868-arch/mb/pull/210) 已由 A 独立验收并标准合并；Issue [#204](https://github.com/suzhe868-arch/mb/issues/204) 已关闭。
+- B 最终 HEAD：`b1d548d441463b77cf896aac02eff8515560a347`；业务合并 SHA：`c2087a15fd3d124080e549acc02b515fb877ba8e`。
+- 官方 Run [#39743949320](https://github.com/suzhe868-arch/mb/actions/runs/39743949320) 的 117/117 项测试通过，失败 0、跳过 0；Artifact #12410562743 已独立核验。
 
-## 当前唯一职责指针
+## 当前唯一施工指针｜B 人工名邦/4S 车源多草稿与正式发布
 
-- `NEXT_OWNER=A`；`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`；`NEXT_ISSUE=187`；`NEXT_BRANCH=NONE`。
-- A 继续核对正式 F03 capability/Scope/Object、F05 转换正向 Issuer、publisher phone 可信来源及 SLA/Incident 正式来源；复用已验收 F08-2/F08-3 资产，不重复施工。
-- 用户已确认 JYT/Collector、图片存储/CDN、Feishu 尚未准备。没有新正式来源/授权时不签发重复 B 模拟包、不伪造签名、不接生产或外部公网。
-- F06/F07/F08/V1 全局仍 `NOT_READY / NO_PRODUCTION`；C PR #68 独立不动。
+- `NEXT_OWNER=B`；`NEXT_TASK=F05_MANUAL_VEHICLE_DRAFT_PUBLISH_REAL_HTTP_PG16_01`。
+- Issue [#212](https://github.com/suzhe868-arch/mb/issues/212)；指定分支 `feat/f05-manual-vehicle-draft-publish-pg16-01`。
+- 正式施工单：`07_重建工作区/F05人工名邦4S车源草稿发布非生产后端施工单_2026-10-22.md`；必须以本治理 PR 合并后的最新 main 为准。
+- A 已确认该功能是独立 F05 后端缺口：当前没有完整人工车源草稿持久化/列表/删除/发布 HTTP 闭环；既有 F05-2/3A 发布原语必须复用，不得重复实现责任/license。
+- 任务只用真实非超级用户 PG16 与隔离 HTTPS/HTTP；人工车允许 0 图、无价格发布，不依赖 JYT/Collector/CDN/OSS/Feishu。不得开发 PC/手机页面。
+
+## 并行保持开放｜F08 可信来源与外部集成门禁
+
+- Issue [#187](https://github.com/suzhe868-arch/mb/issues/187) 继续 `SOURCE_GAP / FAIL_CLOSED`；尚无新正式 F03 Scope/Object、F05 转换签名、publisher.phone.sensitive、SLA/Incident 或外部资源证据。
+- JYT/Collector、图片存储/CDN、Feishu 仍按用户确认尚未准备。Issue #187 不阻断本任务的非生产人工车辆草稿/发布实现，但本任务不解决该门禁。
+- F06/F07/F08/V1 全局继续 `NOT_READY / NO_PRODUCTION`；C PR #68 独立不动，不授权真实电话、生产、真钱、真实退款/成交或第三方公网调用。
 
 ## A/B/C 执行规范优先阅读入口｜2026-10-22
 
