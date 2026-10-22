@@ -2,6 +2,8 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {randomBytes,randomUUID} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {connect,verify} from '../migration.mjs';
 import {createPublishedEditService} from '../service.mjs';
@@ -96,6 +98,9 @@ test('E05 real PG16 rollback keeps old facts, draft and audit unchanged',async()
  assert.equal(await count('f05_published_edit_test.edit_audit'),previousAudit);
  assert.equal((await read()).body.currentVersion,1);
  assert.equal((await read()).body.draft.stageVersion,draft.stageVersion);
+ const output=execFileSync(process.execPath,[fileURLToPath(new URL('./recovery-probe.mjs',import.meta.url)),String(vehicleId),String(draft.stageVersion)],
+  {encoding:'utf8',timeout:15000});
+ assert.match(output,/ISSUE216_REAL_INDEPENDENT_PROCESS_RECOVERY_PASS/);
 });
 test('E06 current legitimate commit is atomic, requestKey idempotent; only one immutable event/outbox',async()=>{
  const st=(await read()).body.draft;
