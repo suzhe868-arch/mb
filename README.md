@@ -10,17 +10,17 @@
 
 ---
 
-## 当前工程执行指针｜B F05-8 Priority TTL 后台持久调度
+## 当前工程执行指针｜B F05 目录客户价格权益投影与确定性搜索
 
-- **当前正式任务：** [Issue #203](https://github.com/suzhe868-arch/mb/issues/203)｜Priority TTL 到期重仲裁持久调度进程。
-- **施工单：** `07_重建工作区/F05-8_Priority到期重仲裁持久调度非生产施工单_2026-10-22.md`。
-- **正式 B 分支：** `feat/f05-8-priority-ttl-scheduler-01`；本 A 状态治理 PR 合并后正式激活，B 必须从最新 `main` 接管。
-- **实际缺口依据：** `engineering/src/f05-priority-scheduler-worker.mjs` 已提供 PG16 持久队列消费者 `runDue()`，但现有主应用没有自动轮询 runner。新任务只补独立调度进程，不重写 Priority 业务算法。
-- **上一任务 F05-7 已验收合并：** Issue #201 / PR #206 已由 A 独立验收并标准合并；最终 B SHA `f4d7180d7fb38525cbe63bf697bc7fc3bb300f4b`，merge SHA `7e00859edf59e1c93254de17cd5543fa7bae6960`；官方 Run #39729060862 成功，7/7 单元、8/8 Matching retry 回归、1/1 新调度器 PG16 集成测试均无失败/跳过。完整报告：`07_重建工作区/F05-7_Issue201_PR206独立验收与F05-8正式接续报告_2026-10-22.md`。
-- **本任务白名单：** 只新增 `engineering/f05-priority-ttl-scheduler/**` 与 `.github/workflows/priority-ttl-scheduler-pg16.yml`；只读复用现有 Priority worker、TTL sweep worker 和 PG16 回归测试。
-- **Issue #187 并行不阻断：** JYT/Collector、CDN/OSS、飞书及正式电话/来源授权仍为独立门禁；本任务不依赖它们。
-- **下一排队任务：** Issue [#204](https://github.com/suzhe868-arch/mb/issues/204) 只能在 #203 经 A 独立验收并合并后激活，不允许提前并行施工。
-- **约束：** 仅后端、仅非生产；不开发 PC/手机页面，不修改已验收业务算法，不接生产，不授权真钱、真实电话或外部公网调用，不伪造正式 Issuer。
+- **当前正式任务：** [Issue #204](https://github.com/suzhe868-arch/mb/issues/204)｜目录客户价格权益投影与确定性车型搜索。
+- **施工单：** `07_重建工作区/F05目录客户价格权益投影与确定性搜索非生产施工单_2026-10-22.md`。
+- **正式 B 分支：** `feat/f05-catalog-customer-price-search-01`；本 A 状态治理 PR 合并后正式激活，B 必须从执行时最新 `main` 接管。
+- **实际缺口：** 当前目录安全 DTO 固定隐藏价格，目录 GET 未消费当前 Customer Bearer，列表缺少关键词搜索入口；已有 price-unlock/quota ledger、六项排序和 Rule Dictionary 资产直接复用。
+- **上一任务 F05-8 已验收合并：** Issue #203 / PR #208；B HEAD `8a18b0d12c54c607ee9555e8dda582ccd40f840a`，merge SHA `31881d1d092cea220087e527fdac7da03141480e`；专用 Run #39732168499 成功，单元 6/6、关联 PG16 回归 5/5、新 runner 真实 PG16 集成 8/8，失败 0、跳过 0。Artifact #12406100445 已核验。完整报告：`07_重建工作区/F05-8_Issue203_PR208独立验收与F05目录搜索任务放行报告_2026-10-22.md`。
+- **旧冻结 CI 单独登记：** Run #39732168405 在同 SHA 有 52 项检查，21 成功、31 失败；作业属于旧 F03/F04/F05-1～F05-3 回归，不是 Issue #203 的专用矩阵。31 项名称与 A 的适用性裁决已记录在中文报告中，不冒充通过、不越权改旧 workflow。
+- **施工范围：** 只做非生产后端，按 Issue #204 白名单；复用现有 price-unlock/quota、Rule Dictionary 和排序；不得重复开发已验收功能。
+- **Issue #187 并行不阻断：** JYT/Collector、CDN/OSS、飞书和正式电话/来源授权仍为独立门禁。
+- **约束：** 不开发 PC/手机页面、不修改冻结业务算法、不接生产、不授权真钱、真实电话或外部公网调用，不伪造正式 Issuer/城市数据。
 
 
 ---
