@@ -93,6 +93,8 @@ try{
    await client.query(sql);
   }
   await client.query("INSERT INTO public.vehicle_brands(brand_id,brand_name) VALUES(59001,'隔离测试品牌')");
+  await client.query("INSERT INTO public.vehicle_series(series_id,brand_id,series_name) VALUES(59001,59001,'隔离测试车系')");
+  await client.query("INSERT INTO public.vehicle_models(model_id,brand_id,series_id,model_name,model_year,profile_status) VALUES(59001,59001,59001,'隔离测试车型',2026,'incomplete')");
   // The frozen matching regression uses the canonical disposable sales role ID 59001.
   // Keep this fixture local to the fresh PG16 database; do not change the frozen test.
   const canonicalRole=(await client.query("SELECT role_code FROM public.roles WHERE role_id=59001")).rows[0];
