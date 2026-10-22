@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "BACKEND_ENGINEERING",
-  "substage": "F05_PUBLISHED_MANUAL_EDIT_A_ACCEPTED_NONPROD_LIMITED_F08_SOURCE_GATE_OPEN",
+  "substage": "F03_F04_STAFF_PHONE_ADMIN_API_B_FORMAL_RELEASE_F08_GATE_CONTINUES",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F08_SIGNED_SOURCE_AND_STAGE_GATE",
-  "current_domain_status": "Issue216/PR219 A限定非生产验收，Run39790554178 PG16 4/4、业务91/91、Node269x4、4 Artifact/18文件哈希验真；F06同车签名Lock/Transaction/Deposit NOT_RUN，是整阶段不可豁免硬门禁。Issue187 SOURCE_GAP/FAIL_CLOSED，F06/F07/F08/V1 NOT_READY。",
+  "current_domain": "F03_F04_PUBLISHER_PHONE_STAFF_CONTROL_API_NONPROD",
+  "current_domain_status": "A 实码确认已验 F08-3 仅 CI 配置，正式员工电话能力配置 HTTP+单库 PG16 原子/审计未交付；Issue#221 A治理合并后切 B 限定非生产施工。父 #187 SOURCE_GAP/FAIL_CLOSED 和 F05→F06 签名联调 NOT_RUN；F06/F07/F08/V1 NOT_READY。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
-  "current_work_file": "07_重建工作区/F05已发布人工车辆Issue216_PR219限定非生产A独立验收与F06同车硬门禁裁决_2026-10-22.md",
+  "current_task": "F03_F04_PUBLISHER_PHONE_STAFF_PERMISSION_ADMIN_HTTP_PG16_01",
+  "current_work_file": "07_重建工作区/F03_F04员工批发电话专项权限配置正式HTTP合同与PG16非生产后端施工单_2026-10-22.md",
   "f06_issue164_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_NONPROD_COMPOSITE_DUAL_GATE_B_CONTINUE",
     "issue": 164,
@@ -11839,5 +11839,19 @@
     "tracking_issue": 187,
     "not_substituted_by": "F03_NONEMPTY_HISTORIC_TABLE_HASH_OR_INDEPENDENT_F06_HISTORIC_RUN",
     "production_ready": false
+  },
+  "f03_f04_staff_publisher_phone_admin_api_release_2026_10_22": {
+    "status": "A_GOVERNANCE_MERGE_REQUIRED_BEFORE_B",
+    "task": "F03_F04_PUBLISHER_PHONE_STAFF_PERMISSION_ADMIN_HTTP_PG16_01",
+    "issue": 221,
+    "branch": "feat/f03-f04-publisher-phone-staff-admin-http-pg16-01",
+    "work_file": "07_重建工作区/F03_F04员工批发电话专项权限配置正式HTTP合同与PG16非生产后端施工单_2026-10-22.md",
+    "prior_f08_3_accepted_issue": 190,
+    "track_pc_deferred_issue": 196,
+    "parent_source_gate_issue": 187,
+    "release_effective": false,
+    "production_ready": false,
+    "external_sources_ready": false,
+    "f07_runtime_same_source_integrated": false
   }
 }
