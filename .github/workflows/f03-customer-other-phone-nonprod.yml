@@ -159,6 +159,7 @@ jobs:
             engineering/f03/customer-other-phone/README.md
             engineering/f03/customer-other-phone/测试矩阵.tsv
             engineering/f03/customer-other-phone/B工程中文交接.md
+            .github/workflows/f03-customer-other-phone-nonprod.yml
             engineering/f03/customer-other-phone/tests/business.test.mjs
             engineering/f03/customer-other-phone/tests/https.test.mjs
             engineering/src/f03-customer-other-phone-service.mjs
