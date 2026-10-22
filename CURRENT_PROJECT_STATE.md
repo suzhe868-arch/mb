@@ -1,19 +1,32 @@
-# 名邦汽车 V1｜A 主控完成 PR #224 验收与 F08 增量复核｜F03 客户其他联系电话任务放行（2026-10-23）
+# 名邦汽车 V1｜A 主控完成 PR #229 独立验收合并｜接续 F08 来源门禁（2026-10-23）
 
-- **NEXT_OWNER=B**
-- **NEXT_TASK=`F03_CUSTOMER_OTHER_PHONE_MANAGE_HTTP_PG16_01`**
-- **NEXT_ISSUE=227**：[F03 客户其他联系电话真实 CRUD/HTTP/PG16 非生产纵切](https://github.com/suzhe868-arch/mb/issues/227)
-- **NEXT_BRANCH=`feat/f03-customer-other-phone-manage-http-pg16-01`**
-- **NEXT_WORK_FILE=`07_重建工作区/F03客户其他联系电话管理HTTP与真实PG16非生产纵切正式施工单_2026-10-23.md`**
-- **上一项验收：** PR [#224](https://github.com/suzhe868-arch/mb/pull/224) 已由 A 独立验收并标准合并；B HEAD `db769298c7c76a6c41f235face1a93ce376cdb27`，merge SHA `74cac7f5eecfdb2476e91e3cd534fe8893ea21f8`；Issue #221 已关闭。
-- **上一项官方 CI：** [Run #39825791981](https://github.com/suzhe868-arch/mb/actions/runs/39825791981) 顶层 `completed/success`；Business/PG16 43/43、HTTPS/PG16 22/22，两个 Job 各自 Node 全量回归 269/269。Artifact ZIP 摘要及内部 13/13 文件清单已由 A 实际下载复算一致。
-- **A 当前裁决：** F03/F04 批发电话配置 API 仅为 `CI_ONLY_F03_PERMISSION_CONFIG` 非生产能力。A 对 Issue #187 做了增量复核，确认仍缺正式 F07 来源/签名证据，但该父门禁不阻断本次独立的 F03 客户其他联系电话管理纵切。
-- **本任务范围：** 仅 `customer.phone.manage`、显式当前 Customer object scope、其他联系电话事实新增/替换/失效、同库真实 PG16 事务/审计/HTTPS。禁止主要手机号修改、公共 Schema 变更、生产路由、PC/C/手机 UI 和外部系统接入。
-- **A 来源门禁报告：** [07_重建工作区/F08父级来源门禁A增量复核与F03客户其他联系电话后端任务放行_2026-10-23.md](07_重建工作区/F08父级来源门禁A增量复核与F03客户其他联系电话后端任务放行_2026-10-23.md)。
-- **父级未解除门禁：** Issue [#187](https://github.com/suzhe868-arch/mb/issues/187) 仍 `SOURCE_GAP/FAIL_CLOSED`；`F07_RUNTIME=NOT_CONNECTED_F07_RUNTIME`；F05→F06 同车签名仍 `NOT_RUN/BLOCKED_SIGNED_PARENT`；F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。
-- **执行规则：** B 只能在本状态治理 PR 合入 main 后按 Issue #227 和正式施工单开工；必须完成整个授权包、自验、缺陷整改、最终 SHA 官方 CI、Artifact 证据与中文交接后交 A。不得提前停止，不得合并 main。
+- **NEXT_OWNER=A**
+- **NEXT_TASK=`A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`**
+- **NEXT_ISSUE=187**：[F08 可信来源与外部授权父级门禁](https://github.com/suzhe868-arch/mb/issues/187)
+- **NEXT_BRANCH=NONE**
+- **NEXT_WORK_FILE=`07_重建工作区/F03客户其他联系电话PR229独立验收与F08来源门禁接续报告_2026-10-23.md`**
 
-> **唯一现行指针规则：** 本节是当前唯一 NEXT_OWNER/NEXT_TASK 指针。下方既有状态、验收、施工记录均为写入当时的历史快照；其中旧的“当前有效状态”和旧 NEXT_* 不覆盖本节。
+## 最近完成｜F03 客户其他联系电话非生产后端纵切
+
+- [PR #229](https://github.com/suzhe868-arch/mb/pull/229) 已通过 A 独立验收并标准合并；Issue [#227](https://github.com/suzhe868-arch/mb/issues/227) 已关闭。
+- B 最终 HEAD：`43a25224bb778bf4071e034efdce90d43f6e9226`；标准合并 SHA：`19ef898a0dac447aff7a26b5affd2496a01e86e5`。
+- 官方 Run [#39847897349](https://github.com/suzhe868-arch/mb/actions/runs/39847897349)：B 交接记录顶层 `completed/success`；A 独立核验两个 PG16 Job 均 `completed/success`，并核对 Run/HEAD/Ref。
+- 每个 Job：SG01 migration 9/9、旧 runtime-scope Guard 7/7、旧 HTTPS 2/2、新业务/并发 38/38、新 HTTPS 11/11、Node 全量 269/269；失败 0、跳过 0。
+- Business Artifact #12455429328，ZIP SHA-256 `04f9e027bb63dd2be5d654b71f6d80030bfce0d241a6e37112074dbca39d59e2`；HTTPS Artifact #12456036663，ZIP SHA-256 `a42abf800e0e41e059012df327a399201969a1317222549874d29b9da57b3b9a`。A 已重新下载并复算，两者均与 GitHub 元数据一致；每份 manifest 的 19/19 文件 SHA-256 与字节数匹配。
+- PG16 版本号 160015，非超级用户 `f03_ci`，public 81 表；物理结构指纹 `229aa6dc167cd3ccb8da89fd9d08076af2588b6b4bd1cfbdc8d779c31dfeffe0` 与 manifest 一致。
+- 验收范围仅 `CI_ONLY_F03_CUSTOMER_PHONE_MANAGE`。不代表 F03-2 或 V1 生产就绪。
+
+## 当前 A 主控任务｜F08 可信来源与整阶段门禁
+
+- Issue #187 继续保持 **`SOURCE_GAP/FAIL_CLOSED`**，不关闭、不签发正式 Source/Issuer。
+- 本轮在合并后增量复核了 `engineering/f03/runtime-facts/current-facts.mjs`、`engineering/src/f07-runtime/runtime.mjs`、`engineering/f03/permission-contract.tsv` 与现有 F03 Scope/Guard 入口：正式 current facts 仍缺可证明的可信 Scope/Object；F05 转换正向验证仍返回来源缺口；`publisher.phone.sensitive` 仍为 `A_APPROVED_NONPROD_ONLY`，不能视为正式来源或生产权限。
+- JYT/Collector、图片存储/CDN/OSS、飞书、正式 SLA/Incident 签名来源仍无新的可核验资源或授权；F07 Runtime 未接线，F05→F06 同车签名 Lock/Transaction/Deposit 仍 `NOT_RUN/BLOCKED_SIGNED_PARENT`。
+- Issue #106 是历史 F05-7 真实来源/执行门禁记录，不是当前唯一施工指针；Issue #196 的 PC 页面继续延期；C PR #68 独立不动。
+- 当前未发现可在现有合法 Authority 下直接释放的新 B 任务。不得为消除状态阻断而重复开发已验收的 #190/#221/#227，亦不得将旧 SHA 或合成测试冒充正式来源。
+
+**整体状态：** 后端开发持续推进，但 F06/F07/F08/V1 仍为 `NOT_READY/NO_PRODUCTION`。下一责任窗口为 A，继续处理 Issue #187 的正式来源/外部授权门禁；只有出现合法新来源或确认另一项依赖已满足的独立后端缺口后，才另行签发 B 任务。
+
+> 唯一现行指针规则：本节是当前唯一有效 NEXT_OWNER/NEXT_TASK；下方旧日期任务指针均为历史快照。
 
 ---
 
