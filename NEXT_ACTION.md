@@ -1,17 +1,17 @@
-# 名邦汽车 V1｜A 主控独立验收通过与 Issue #187 接续｜PR #224（2026-10-23）
+# 名邦汽车 V1｜A 主控完成 PR #224 验收与 F08 增量复核｜F03 客户其他联系电话任务放行（2026-10-23）
 
-- **NEXT_OWNER=A**
-- **NEXT_TASK=`A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`**
-- **NEXT_ISSUE=187**：[F08 可信来源与整阶段硬门禁](https://github.com/suzhe868-arch/mb/issues/187)
-- **NEXT_BRANCH=NONE**
-- **NEXT_WORK_FILE=`07_重建工作区/F05已发布人工车辆Issue216_PR219限定非生产A独立验收与F06同车硬门禁裁决_2026-10-22.md`**
-- **A_REVIEW=`A_ACCEPTED_LIMITED_NONPROD`**；PR [#224](https://github.com/suzhe868-arch/mb/pull/224) 已完成 A 独立验收并标准合并，Issue #221 已关闭。
-- **B 最终受验 HEAD：** `db769298c7c76a6c41f235face1a93ce376cdb27`；**业务合并 SHA：** `74cac7f5eecfdb2476e91e3cd534fe8893ea21f8`。
-- **最终 SHA 官方 CI：** [Run #39825791981](https://github.com/suzhe868-arch/mb/actions/runs/39825791981) 顶层 `completed/success`；Business/PG16 43/43，HTTPS/PG16 22/22，两个 Job 各自 Node 全量回归 269/269，均 0 失败、0 跳过。
-- **Artifact 已独立复核：** Business #12446487238 ZIP SHA-256 `686cba5f3e7a67e6cc368c0048a65d6a2dd3c93efacbdd8de47202d46d78a97b`；HTTPS #12445254876 ZIP SHA-256 `5ed397781322f87190bbb89a4005d39585aff4381661572f0efb5c0f0205f163`。两份 ZIP 与 GitHub 元数据一致；内部 13/13 文件哈希及字节数全部匹配。详见 [A 独立验收报告](07_重建工作区/F03_F04员工批发电话权限PR224_A独立验收通过与Issue187接续报告_2026-10-23.md)。
-- **本次验收范围：** 生命周期失效时恢复原始权限 baseline；NULL baseline 重授后 DELETE 不遗留 allow；独立 allow 保留；并发 deny 不被覆盖且审计记录真实最终状态。先前四项权限整改继续通过。变更限 Issue #221 的 13 个白名单路径。
-- **未解除门禁：** 父 Issue #187 仍 `SOURCE_GAP/FAIL_CLOSED`；`F07_RUNTIME=NOT_CONNECTED_F07_RUNTIME`；F05→F06 同车签名仍 `NOT_RUN/BLOCKED_SIGNED_PARENT`；F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。本次不授权真实电话/拨号、生产、资金或真实外部系统。
-- **A 下一步：** 增量核查 Issue #187 的可信来源、签名链、外部资源和剩余独立后端缺口；复用已验收成果，不重复开发 #190/#221。没有新来源/授权证据前，不释放额外 B 施工。
+- **NEXT_OWNER=B**
+- **NEXT_TASK=`F03_CUSTOMER_OTHER_PHONE_MANAGE_HTTP_PG16_01`**
+- **NEXT_ISSUE=227**：[F03 客户其他联系电话真实 CRUD/HTTP/PG16 非生产纵切](https://github.com/suzhe868-arch/mb/issues/227)
+- **NEXT_BRANCH=`feat/f03-customer-other-phone-manage-http-pg16-01`**
+- **NEXT_WORK_FILE=`07_重建工作区/F03客户其他联系电话管理HTTP与真实PG16非生产纵切正式施工单_2026-10-23.md`**
+- **上一项验收：** PR [#224](https://github.com/suzhe868-arch/mb/pull/224) 已由 A 独立验收并标准合并；B HEAD `db769298c7c76a6c41f235face1a93ce376cdb27`，merge SHA `74cac7f5eecfdb2476e91e3cd534fe8893ea21f8`；Issue #221 已关闭。
+- **上一项官方 CI：** [Run #39825791981](https://github.com/suzhe868-arch/mb/actions/runs/39825791981) 顶层 `completed/success`；Business/PG16 43/43、HTTPS/PG16 22/22，两个 Job 各自 Node 全量回归 269/269。Artifact ZIP 摘要及内部 13/13 文件清单已由 A 实际下载复算一致。
+- **A 当前裁决：** F03/F04 批发电话配置 API 仅为 `CI_ONLY_F03_PERMISSION_CONFIG` 非生产能力。A 对 Issue #187 做了增量复核，确认仍缺正式 F07 来源/签名证据，但该父门禁不阻断本次独立的 F03 客户其他联系电话管理纵切。
+- **本任务范围：** 仅 `customer.phone.manage`、显式当前 Customer object scope、其他联系电话事实新增/替换/失效、同库真实 PG16 事务/审计/HTTPS。禁止主要手机号修改、公共 Schema 变更、生产路由、PC/C/手机 UI 和外部系统接入。
+- **A 来源门禁报告：** [07_重建工作区/F08父级来源门禁A增量复核与F03客户其他联系电话后端任务放行_2026-10-23.md](07_重建工作区/F08父级来源门禁A增量复核与F03客户其他联系电话后端任务放行_2026-10-23.md)。
+- **父级未解除门禁：** Issue [#187](https://github.com/suzhe868-arch/mb/issues/187) 仍 `SOURCE_GAP/FAIL_CLOSED`；`F07_RUNTIME=NOT_CONNECTED_F07_RUNTIME`；F05→F06 同车签名仍 `NOT_RUN/BLOCKED_SIGNED_PARENT`；F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。
+- **执行规则：** B 只能在本状态治理 PR 合入 main 后按 Issue #227 和正式施工单开工；必须完成整个授权包、自验、缺陷整改、最终 SHA 官方 CI、Artifact 证据与中文交接后交 A。不得提前停止，不得合并 main。
 
 > **唯一现行指针规则：** 本节是当前唯一 NEXT_OWNER/NEXT_TASK 指针。下方既有状态、验收、施工记录均为写入当时的历史快照；其中旧的“当前有效状态”和旧 NEXT_* 不覆盖本节。
 

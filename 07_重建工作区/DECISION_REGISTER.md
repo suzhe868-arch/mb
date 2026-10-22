@@ -1,3 +1,16 @@
+## A-F08-SOURCE-GATE-INCREMENTAL-AND-F03-CUSTOMER-PHONE-ISSUE227-RELEASE-01｜父级门禁保持阻断、独立后端任务放行（2026-10-23）
+
+- **唯一当前指针**：`NEXT_OWNER=B`、`NEXT_TASK=F03_CUSTOMER_OTHER_PHONE_MANAGE_HTTP_PG16_01`、`NEXT_ISSUE=227`、`NEXT_BRANCH=feat/f03-customer-other-phone-manage-http-pg16-01`。
+- **前一任务状态**：PR #224 已独立验收并标准合并，B HEAD `db769298c7c76a6c41f235face1a93ce376cdb27`，merge SHA `74cac7f5eecfdb2476e91e3cd534fe8893ea21f8`；Issue #221 已关闭。
+- **Issue #187 复核结果**：`SOURCE_GAP/FAIL_CLOSED` 保持不变。F07 Runtime/Collector 来源未接线，F05→F06 同车签名 Lock/Transaction/Deposit 未通过；CDN/OSS、飞书与生产授权没有新增正式证据。不得将测试 fixture、非生产 API 或单个 CI Job 结果冒充正式来源。
+- **独立缺口**：`customer.phone.manage` 已有 PDM-01/PDM-02 规则、静态权限定义、当前对象范围 Guard 和 `customer_phone_facts` 表，但当前 Guard 明确没有电话事实写入和 HTTP 路由。它在同一 F03 PG16 非生产库内可独立实现，不依赖 Issue #187 的外部源。
+- **A 技术裁决**：放行 `F03_CUSTOMER_OTHER_PHONE_MANAGE_HTTP_PG16_01`，仅限显式当前 Customer object scope、其他联系电话事实新增/替换/失效、加密/掩码、同事务 Guard+写入+审计和真实 PG16/HTTPS 测试。4S/System Admin 硬拒绝、个人 deny 优先，不扩大 store/team/owner/global scope，不改主要手机号，不改公共 Schema，不注册生产路由。
+- **正式施工单**：[`07_重建工作区/F03客户其他联系电话管理HTTP与真实PG16非生产纵切正式施工单_2026-10-23.md`](07_重建工作区/F03客户其他联系电话管理HTTP与真实PG16非生产纵切正式施工单_2026-10-23.md)。
+- **A 复核报告**：[`07_重建工作区/F08父级来源门禁A增量复核与F03客户其他联系电话后端任务放行_2026-10-23.md`](07_重建工作区/F08父级来源门禁A增量复核与F03客户其他联系电话后端任务放行_2026-10-23.md)。
+- **未改变**：`F03_2_1B_ACCEPTED=NO` / `F03_2_ACCEPTED=NO`；Issue #187 父级门禁未关闭；不授权生产、真实外部系统、真实电话/拨号或资金操作。
+
+---
+
 ## A-F03-F04-PHONE-STAFF-ADMIN-ISSUE221-PR224-ACCEPT-01｜A独立验收通过与Issue187接续（2026-10-23）
 
 - **当前唯一指针**：`NEXT_OWNER=A`、`NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`、`NEXT_ISSUE=187`、`NEXT_BRANCH=NONE`。
