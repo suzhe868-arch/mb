@@ -47,6 +47,11 @@ async function modeRow(c,employeeId) {
   [employeeId]);
  return rows.rows[0]??null;
 }
+// Lifecycle source contract: the existing F03 SG06 employee-governance writers lock
+// public.employees and append object_kind='employee' audit_events in the same PG16
+// transaction (inactive, restore, planned role/qualification changes). Any later
+// employee-aggregate audit invalidates this special grant; source/query failure
+// aborts the F03 transaction, so it never falls back to response-only hiding.
 async function employeeAuditWatermark(c,employeeId) {
  const q=await c.query(
   "SELECT COALESCE(max(audit_id),0)::text AS watermark FROM public.audit_events WHERE object_kind='employee' AND object_id=$1::text",
@@ -158,13 +163,14 @@ export class PublisherPhoneAdminService {
    if(!await ensureAdminCurrent(c,actor,session))return result(403,'SYSTEM_ADMIN_CONTROL_REQUIRED');
    const t=await targetFacts(c,employeeId);
    if(!t)return result(404,'TARGET_NOT_FOUND');
-   if(!eligible(t))return result(403,'TARGET_NOT_ELIGIBLE');
    const permission=await permissionId(c);
    if(!permission)return result(403,'CAPABILITY_SOURCE_GAP');
-   // Target row FOR UPDATE serializes two independent System Admin sessions.
-   // Replay still checks CURRENT facts and never returns an obsolete grant.
+   // Target row FOR UPDATE serializes lifecycle changes and two independent admins.
+   // Reconcile before rejecting an ineligible target so the old grant is durably revoked.
    let beforeMode=await modeRow(c,employeeId);
    beforeMode=await reconcileLifecycle(c,employeeId,permission,t,beforeMode);
+   if(!eligible(t))return result(403,'TARGET_NOT_ELIGIBLE');
+   // Replay still checks CURRENT facts and never returns an obsolete grant.
    const oldState=await state(c,employeeId,permission,beforeMode);
    const oldVersion=asNumber(beforeMode?.version??0);
    const previousDecision=beforeMode?.enabled===true&&beforeMode.previous_decision_captured===true
