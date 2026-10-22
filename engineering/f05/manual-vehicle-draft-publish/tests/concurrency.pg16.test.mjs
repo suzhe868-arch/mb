@@ -96,7 +96,7 @@ test('R02: same draft two real HTTP publications race under PG row lock',async()
  try{
   await db.query('SELECT draft_id FROM f05_manual_vehicle_test.drafts WHERE draft_id=$1 FOR UPDATE',[made.body.draftId]);
   requests=[publish(staff,made.body.draftId),publish(staff,made.body.draftId)];
-  await blocked('%f05_manual_vehicle_test.drafts%',2);
+  await blocked('%f05_manual_vehicle_test.drafts%',1); // second request may queue behind first authenticated session
   await db.query('COMMIT');
  }catch(e){await db.query('ROLLBACK').catch(()=>{});throw e}
  const result=await Promise.all(requests);
