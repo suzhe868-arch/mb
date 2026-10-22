@@ -1,5 +1,6 @@
 // F05-2 CI-only; no public/prod route registration. Every allow comes from real PG16 rows.
 import {verify,requireDatabaseIdentity} from './migration.mjs';
+import {verify as verifyFourSChain} from '../four-s-member-trust-scope/migration.mjs';
 const valid=n=>Number.isSafeInteger(n)&&n>0;
 const deny=code=>Object.freeze({code,allowed:false});
 const ok=(code,extra={})=>Object.freeze({code,allowed:true,...extra});
@@ -71,7 +72,11 @@ export async function publishAndIssueFromCurrentTransaction(auth,token,p,{testCh
     !['mingbang','four_s'].includes(p.sourceKind)||
     p.vehicleId<59000||p.listingCycleId<59000)
   return deny('F05_2_NEW_MANUAL_PUBLICATION_INPUT_DENY');
- await verify(auth.pool);
+ // For this authorized combined non-production consumer, validate the genuine
+ // 000016 physical seal. The older 000015-only path remains exactly verified.
+ const chain=(await auth.pool.query('SELECT migration_id FROM public.f03_schema_migrations ORDER BY migration_id')).rows;
+ if(chain.length===14&&chain[13].migration_id==='000016_four_s_member_trust_ci_only')await verifyFourSChain(auth.pool);
+ else await verify(auth.pool);
  return session(auth,token,async(c,actor)=>{
   if(!await currentCapability(c,actor,p.teamId,'vehicle.manage'))return deny('F05_2_MANUAL_PUBLICATION_SCOPE_DENIED');
   if(testCheckpoint!==undefined){
