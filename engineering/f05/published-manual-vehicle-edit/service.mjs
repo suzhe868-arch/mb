@@ -203,7 +203,7 @@ export function createPublishedEditService({auth,env=process.env}={}){
      throw new Denied('EDIT_COMMIT_REQUEST_KEY_REQUIRED',400);
     const oldAudit=(await c.query('SELECT vehicle_id,actor_employee_id,next_version FROM '+S+'.edit_audit WHERE event_key=$1',[input.requestKey])).rows[0];
     if(oldAudit){
-     if(Number(oldAudit.vehicle_id)===ctx.vehicle.vehicle_id&&Number(oldAudit.actor_employee_id)===ctx.who)
+     if(Number(oldAudit.vehicle_id)===Number(ctx.vehicle.vehicle_id)&&Number(oldAudit.actor_employee_id)===ctx.who)
       return ok('EDIT_ALREADY_APPLIED',{currentVersion:Number(oldAudit.next_version)});
      throw new Denied('EDIT_REQUEST_KEY_REPLAY',409);
     }
