@@ -8,8 +8,8 @@
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F05_8_PRIORITY_TTL_SCHEDULER_NONPROD",
-  "current_domain_status": "A 已独立验收并标准合并 Issue #201 / PR #206 的 F05-7 Matching 持久调度器；当前唯一 B 任务切换为 Issue #203，补齐既有 Priority 持久队列 worker 的独立非生产 runner。Issue #187 的真实来源与外部资源门禁保持独立，不阻断本任务；Issue #204 排在 #203 后，不得提前并行开工。全局生产状态仍 NOT_READY。",
+  "current_domain": "F05_CATALOG_CUSTOMER_PRICE_SEARCH_NONPROD",
+  "current_domain_status": "A 已独立验收并合并 F05-8 Issue #203 / PR #208 的 Priority TTL 非生产持久调度器；当前唯一 B 任务切换为 Issue #204，补齐目录 Customer 价格权益投影与 Rule Dictionary 确定性搜索。旧冻结宽范围 CI Run #39732168405 同 SHA 52 项检查中 31 项失败，已逐项记录为独立旧 CI 问题，不冒充通过；本任务专用 Run #39732168499 全成功。全局生产状态仍 NOT_READY。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F05_8_PRIORITY_TTL_SCHEDULER_01：在已验收 Priority worker 之上新增独立、持久、可恢复的非生产 PG16 调度进程；复用现有 runDue()，不复制 Priority 算法。",
-  "current_work_file": "07_重建工作区/F05-8_Priority到期重仲裁持久调度非生产施工单_2026-10-22.md",
+  "current_task": "F05_CATALOG_CUSTOMER_PRICE_SEARCH_01：在现有目录 HTTP/PG16 Runtime 中接入当前 Customer session/level/price entitlement 安全投影与 Rule Dictionary 确定性车型搜索；复用既有 price-unlock/quota ledger、六项排序和 parser，不复制业务算法。",
+  "current_work_file": "07_重建工作区/F05目录客户价格权益投影与确定性搜索非生产施工单_2026-10-22.md",
   "f06_issue164_a_ruling_2026_10_21": {
     "status": "A_RULING_APPROVED_NONPROD_COMPOSITE_DUAL_GATE_B_CONTINUE",
     "issue": 164,
@@ -3388,7 +3388,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B 在 A 状态治理 PR 合并后，从最新 main 接管 feat/f05-8-priority-ttl-scheduler-01，完成 Priority TTL 持久调度 runner、真实 PG16 非超级用户自动处理/并发/退避/重启与租约恢复、专用 Push 工作流和同 SHA 证据，达到 READY_FOR_A_REVIEW 后交 A 独立验收。复用既有 Priority worker 与测试，不修改已验收业务算法。",
+  "next_action": "B 在 A 状态治理 PR 合并后，从最新 main 接管 feat/f05-catalog-customer-price-search-01，完成匿名/LIMITED/UNLIMITED 价格投影、当前 Customer session 与等级变化、详情解锁幂等、额度/周期/价格事实边界、Rule Dictionary 确定性搜索与游标绑定、无副作用安全矩阵、真实 PG16/Node HTTP 集成、专用最终 SHA 官方 CI 与脱敏证据，达到 READY_FOR_A_REVIEW 后交 A 独立验收。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -4968,7 +4968,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "F05-7 Issue #201 / PR #206 已由 A 独立验收并标准合并：B SHA f4d7180d7fb38525cbe63bf697bc7fc3bb300f4b，merge SHA 7e00859edf59e1c93254de17cd5543fa7bae6960，官方 Run #39729060862 成功，Artifact #12404152577 同 SHA。下一任务为 Issue #203；Issue #204 仍排队。Issue #187 的 JYT/Collector、CDN/OSS、飞书及正式来源门禁不阻断本次非生产任务。",
+  "next_action_detail": "F05-7 Issue #201 / PR #206 与 F05-8 Issue #203 / PR #208 已先后由 A 独立验收并标准合并。F05-8 B SHA 8a18b0d12c54c607ee9555e8dda582ccd40f840a，merge SHA 31881d1d092cea220087e527fdac7da03141480e，专用 Run #39732168499 成功，Artifact #12406100445 已核验。旧冻结 H52 workflow Run #39732168405 在同 SHA 52 项检查中 31 项失败、21 项成功；详见 F05-8 验收报告，未计为 PASS。下一任务为 Issue #204；Issue #187 外部来源门禁不阻断本非生产任务。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -8147,7 +8147,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F05_8_PRIORITY_TTL_SCHEDULER_01",
+  "next_task": "F05_CATALOG_CUSTOMER_PRICE_SEARCH_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9822,7 +9822,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F05-8_Priority到期重仲裁持久调度非生产施工单_2026-10-22.md",
+  "next_work_file": "07_重建工作区/F05目录客户价格权益投影与确定性搜索非生产施工单_2026-10-22.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -10118,8 +10118,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": "feat/f05-8-priority-ttl-scheduler-01",
-  "next_issue": 203,
+  "next_branch": "feat/f05-catalog-customer-price-search-01",
+  "next_issue": 204,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -10332,7 +10332,7 @@
     "budget_additional_usd": 0
   },
   "next_base_main": null,
-  "current_engineering_focus": "F05_8_PRIORITY_TTL_SCHEDULER_NONPROD",
+  "current_engineering_focus": "F05_CATALOG_CUSTOMER_PRICE_SEARCH_NONPROD",
   "f06_real_deposit_http_next": {
     "status": "A_ACCEPTED_NONPRODUCTION_HTTP_PG16_PR135_STANDARD_MERGED",
     "task_id": "F06_REAL_DEPOSIT_LEDGER_HTTP_PG16_01",
@@ -11514,13 +11514,142 @@
     "scope": "DISPOSABLE_TEST_ONLY_PG16_PERSISTENT_RETRY_SCHEDULER"
   },
   "f05_8_priority_ttl_scheduler_2026_10_22": {
-    "status": "A_RELEASED_FOR_B",
+    "status": "A_FINAL_ACCEPTED_STANDARD_MERGED",
+    "execution": "A_FINAL_INDEPENDENT_REVIEW_PASSED_AND_STANDARD_MERGED",
     "issue": 203,
     "task": "F05_8_PRIORITY_TTL_SCHEDULER_01",
     "branch": "feat/f05-8-priority-ttl-scheduler-01",
-    "work_order": "07_重建工作区/F05-8_Priority到期重仲裁持久调度非生产施工单_2026-10-22.md",
+    "pr": 208,
+    "pr_merged": true,
+    "final_b_sha": "8a18b0d12c54c607ee9555e8dda582ccd40f840a",
+    "final_merge_sha": "31881d1d092cea220087e527fdac7da03141480e",
+    "merge_method": "merge",
+    "official_ci_run": 39732168499,
+    "official_ci_job": 119669460022,
+    "official_ci_status": "completed/success",
+    "tests": {
+      "unit": "6/6",
+      "priority_ttl_pg16_regression": "5/5",
+      "scheduler_pg16_integration": "8/8",
+      "failed": 0,
+      "skipped": 0
+    },
+    "pg16": {
+      "version": 16,
+      "database": "f05_catalog_test",
+      "role": "f05_catalog_ci",
+      "superuser": false,
+      "public_tables": 127
+    },
+    "artifact_id": 12406100445,
+    "artifact_name": "priority-ttl-scheduler-evidence-39732168499",
+    "artifact_sha256": "e5f6f7800a0d8edf12387f1877d286cb686ac0071c965ee8e91d926ac696e092",
+    "artifact_size_bytes": 2994,
+    "artifact_expires_at": "2026-10-23T06:09:39Z",
+    "a_acceptance_report": "07_重建工作区/F05-8_Issue203_PR208独立验收与F05目录搜索任务放行报告_2026-10-22.md",
+    "production_ready": false,
     "scope": "DISPOSABLE_TEST_ONLY_PG16_PRIORITY_TTL_PERSISTENT_SCHEDULER",
-    "existing_worker_reused": true,
+    "legacy_workflow_run": 39732168405,
+    "legacy_checks_total": 52,
+    "legacy_checks_success": 21,
+    "legacy_checks_failure": 31,
+    "legacy_workflow_status": "FAILURE_OUT_OF_SCOPE_FROZEN_LEGACY_CI_NOT_REPORTED_AS_PASS",
+    "legacy_failure_names": [
+      "F04-3 Current Source OpenAPI DTO own PG16",
+      "g-https",
+      "F05-1 Vehicle physical source own PG16",
+      "F05-2 A real PG16 M94 to signed Vehicle responsibility physical migration",
+      "F05-3F genuine PG16 Favorite source audit",
+      "F03-V composition own fresh isolated PG16 cross-module contract",
+      "F04-2 Authority current PDM IA LowFi full source own PG16",
+      "F05-2 B real PG16 TLS Session current Vehicle positive scope",
+      "F05-3C independent loopback TLS Employee identity",
+      "F05-1 Vehicle HTTPS scope own PG16",
+      "F03-2-2N strictly read-only seven-kind six-receipt audit on genuine isolated PG16 M94",
+      "F03 package P2 independent real M94 safe field contract PG16",
+      "F05-3C independent real PG16 lineage conversion and two backends",
+      "F05-3B B real PG16 loopback TLS isolated 3 wholesale API contracts",
+      "F03-1 frozen real security integration - its OWN new PG16",
+      "F03 Package G1 independent new genuine 000014 PG16 governance",
+      "F03-2-2A sealed 81-table admin governance CI",
+      "F05-3A A real PG16 4S member physical SOURCE_GAP rather than fake owner",
+      "F05-3D independent real PG16 wholesale source-gate source audit",
+      "F05-3E true PostgreSQL16 hide reason source audit",
+      "F03-2-2D frozen 86-table Team Scope regression on own new PG16",
+      "F03 package P1 independent real M94 safe field contract PG16",
+      "F05-3A B real PG16 HTTPS 4S member fail-closed isolation",
+      "F04-4 Current full source coverage own PG16",
+      "F04-4 Current consumer TLS own PG16",
+      "h-source",
+      "F05-3D independent real PG16 wholesale source-gate https audit",
+      "F04-1 218 legacy source contract independent real M94 PG16",
+      "F05-3B A real PG16 JYT lineage version and concurrent physical evidence",
+      "F03-2-2C frozen 84-table authentic SG03 regression on own PG16",
+      "F03-2-2F frozen 88-table Team capability governance regression own PG16"
+    ]
+  },
+  "f05_8_legacy_h52_revalidation_2026_10_22": {
+    "workflow": ".github/workflows/f05-8-frozen-h52-revalidation.yml",
+    "run": 39732168405,
+    "head_sha": "8a18b0d12c54c607ee9555e8dda582ccd40f840a",
+    "checks_total": 52,
+    "success": 21,
+    "failure": 31,
+    "applicable_to_issue203_acceptance_matrix": false,
+    "status": "REAL_FAILURES_RECORDED_NOT_PASS",
+    "representative_causes": [
+      "Docker image pull failures in legacy jobs",
+      "F04 authority fixture F04_2_FORGED_AUTHORITY_LEGACY-087_pdm"
+    ],
+    "changed_by_pr208": false,
+    "workflow_frozen": true,
+    "requires_separate_A_authorization_to_change": true,
+    "failure_job_names": [
+      "F04-3 Current Source OpenAPI DTO own PG16",
+      "g-https",
+      "F05-1 Vehicle physical source own PG16",
+      "F05-2 A real PG16 M94 to signed Vehicle responsibility physical migration",
+      "F05-3F genuine PG16 Favorite source audit",
+      "F03-V composition own fresh isolated PG16 cross-module contract",
+      "F04-2 Authority current PDM IA LowFi full source own PG16",
+      "F05-2 B real PG16 TLS Session current Vehicle positive scope",
+      "F05-3C independent loopback TLS Employee identity",
+      "F05-1 Vehicle HTTPS scope own PG16",
+      "F03-2-2N strictly read-only seven-kind six-receipt audit on genuine isolated PG16 M94",
+      "F03 package P2 independent real M94 safe field contract PG16",
+      "F05-3C independent real PG16 lineage conversion and two backends",
+      "F05-3B B real PG16 loopback TLS isolated 3 wholesale API contracts",
+      "F03-1 frozen real security integration - its OWN new PG16",
+      "F03 Package G1 independent new genuine 000014 PG16 governance",
+      "F03-2-2A sealed 81-table admin governance CI",
+      "F05-3A A real PG16 4S member physical SOURCE_GAP rather than fake owner",
+      "F05-3D independent real PG16 wholesale source-gate source audit",
+      "F05-3E true PostgreSQL16 hide reason source audit",
+      "F03-2-2D frozen 86-table Team Scope regression on own new PG16",
+      "F03 package P1 independent real M94 safe field contract PG16",
+      "F05-3A B real PG16 HTTPS 4S member fail-closed isolation",
+      "F04-4 Current full source coverage own PG16",
+      "F04-4 Current consumer TLS own PG16",
+      "h-source",
+      "F05-3D independent real PG16 wholesale source-gate https audit",
+      "F04-1 218 legacy source contract independent real M94 PG16",
+      "F05-3B A real PG16 JYT lineage version and concurrent physical evidence",
+      "F03-2-2C frozen 84-table authentic SG03 regression on own PG16",
+      "F03-2-2F frozen 88-table Team capability governance regression own PG16"
+    ]
+  },
+  "f05_catalog_customer_price_search_2026_10_22": {
+    "status": "A_RELEASED_FOR_B",
+    "issue": 204,
+    "task": "F05_CATALOG_CUSTOMER_PRICE_SEARCH_01",
+    "branch": "feat/f05-catalog-customer-price-search-01",
+    "work_order": "07_重建工作区/F05目录客户价格权益投影与确定性搜索非生产施工单_2026-10-22.md",
+    "scope": "DISPOSABLE_TEST_ONLY_CATALOG_CUSTOMER_PRICE_ENTITLEMENT_AND_DETERMINISTIC_SEARCH",
+    "reuse": [
+      "existing price-unlock/quota ledger",
+      "existing six extra catalog sorts",
+      "existing Rule Dictionary and deterministic parser"
+    ],
     "external_dependencies": [
       {
         "name": "JYT",
@@ -11541,13 +11670,14 @@
     ],
     "production_ready": false,
     "forbidden": [
-      "modify frozen F03 reader",
-      "modify accepted Priority/Matching business services",
-      "modify migrations and old workflows",
+      "modify F02/F03 migrations/readers",
+      "rewrite price-unlock/quota services",
+      "rewrite Matching/Priority/Recommendation/Lock algorithms",
+      "modify old workflows",
       "frontend/PC UI",
       "production calls",
-      "activate Issue #204 before A accepts Issue #203"
+      "invent geography/upstream/official issuer facts"
     ],
-    "acceptance": "same-SHA official push CI, real PostgreSQL 16 non-superuser, automatic due processing, bounded poll/runtime/backoff, concurrency safety, graceful stop, lease/restart recovery, no failures/skips, redacted artifact"
+    "acceptance": "same-SHA dedicated official Push CI, real PG16 non-superuser and actual Node HTTP, anonymous/LIMITED/UNLIMITED projection, session revocation and level change, unlock idempotency and quota/cycle/price facts, deterministic parser negatives, cursor binding, no business side effects, no failures/skips, redacted artifact"
   }
 }
