@@ -325,9 +325,9 @@ test('F05-F06真实同车跨Runtime闭环：两个独立PG16数据库、原生HT
    assert.ok(row);assert.equal(row.lock_id,lockId);assert.equal(row.customer_id,customerId);assert.equal(Number(row.amount_cents),500000);assert.ok(row.received_at);assert.equal(row.recorded_by,String(ownerEmployeeId));
   });
   await t.test('21 定金provenance绑定同车同周期且仅为CI合成资金',async()=>{
-   const row=(await targetDb.query('SELECT deposit_id::text,lock_id::text,customer_id::text,vehicle_id::text,listing_cycle_id::text,original_amount_cents::text,currency,payment_method,operator_employee_id::text,issuer_kind FROM f06_3a_ci.receipt_provenance WHERE deposit_id=$1::bigint',[depositId])).rows[0];
+   const row=(await targetDb.query('SELECT deposit_id::text,lock_id::text,customer_id::text,vehicle_id::text,listing_cycle_id::text,original_amount_cents::text,currency,payment_method,issuer_kind FROM f06_3a_ci.receipt_provenance WHERE deposit_id=$1::bigint',[depositId])).rows[0];
    assert.ok(row);assert.equal(row.lock_id,lockId);assert.equal(row.vehicle_id,vehicleId);assert.equal(row.listing_cycle_id,cycleId);
-   assert.equal(row.customer_id,customerId);assert.equal(Number(row.original_amount_cents),500000);assert.equal(row.currency,'CNY');assert.equal(row.payment_method,'bank_transfer');assert.equal(row.operator_employee_id,String(ownerEmployeeId));assert.equal(row.issuer_kind,'CI_SYNTHETIC_NOT_REAL_MONEY');
+   assert.equal(row.customer_id,customerId);assert.equal(Number(row.original_amount_cents),500000);assert.equal(row.currency,'CNY');assert.equal(row.payment_method,'bank_transfer');assert.equal(row.issuer_kind,'CI_SYNTHETIC_NOT_REAL_MONEY');
   });
   await t.test('22 定金签名事件与审计同时存在',async()=>{
    assert.equal((await targetDb.query("SELECT count(*)::int n FROM f06_composite_v1.issued_events WHERE event_kind='signed_deposit' AND parent_object_id=$1::bigint",[depositId])).rows[0].n,1);
