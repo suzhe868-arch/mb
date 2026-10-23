@@ -13,7 +13,7 @@
 - **NEXT_TASK=`F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01`**
 - **NEXT_ISSUE=#187**：[可信来源与整阶段父门禁](https://github.com/suzhe868-arch/mb/issues/187)
 - **NEXT_BRANCH=NONE**
-- **NEXT_WORK_FILE=`07_重建工作区/F08父级来源门禁Issue187_2026-10-23增量核查与整合重排裁决报告.md`
+- **NEXT_WORK_FILE:** `07_重建工作区/F08父级来源门禁Issue187_2026-10-23增量核查与整合重排裁决报告.md`
 - **下一步：** A 接续 F06/F07/F08 整合重排讨论，集中明确正式可信来源、签署与不可变归档资源、授权边界和跨域验收条件。讨论前不新开 B/C 工程任务，不启动 PC #196、C PR #68，不接生产或真实外部系统。
 
 > 下方内容为历史记录与已被替代的状态快照；当前有效指针仅以本文顶部为准。
