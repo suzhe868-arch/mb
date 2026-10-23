@@ -11,6 +11,7 @@ export function assertEnvironment(env=process.env){
   F03_F07_ED25519_CONSENT:CONSENT};
  for(const [key,value] of Object.entries(exact))if(env[key]!==value)throw Error('F03_F07_ENV_DENY_'+key);
  if(!/^[0-9a-f]{40}$/.test(env.GITHUB_SHA||'')||!/^[0-9]{6,20}$/.test(env.GITHUB_RUN_ID||''))throw Error('F03_F07_RUN_SEAL_REQUIRED');
+ if(!['business','https'].includes(env.F03_F07_TRACK))throw Error('F03_F07_TRACK_REQUIRED');
  if(!/^[A-Za-z0-9+/]{43}=$/.test(env.F03_1_HMAC_KEY_BASE64||'')||Buffer.from(env.F03_1_HMAC_KEY_BASE64,'base64').length!==32)throw Error('F03_F07_HMAC_SECRET_REQUIRED');
  if(!env.F03_F07_TLS_KEY_PATH||!env.F03_F07_TLS_CERT_PATH)throw Error('F03_F07_TLS_REQUIRED');
  for(const key of ['F06_COMPOSITE_TEST_CONSENT','F06_LOCK_TEST_CONSENT','F05_D1_BUSINESS_TEST_RUNTIME','F05_REAL_CATALOG_ENABLE','F03_1_ENABLE_ISOLATED_AUTH'])
