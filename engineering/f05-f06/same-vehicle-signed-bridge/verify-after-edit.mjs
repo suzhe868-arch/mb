@@ -50,6 +50,14 @@ try{
  assert.equal(event.event_id,sourceManifest.vehicle.publishedEventId);assert.equal(event.payload_sha256,sourceManifest.vehicle.publishedEventSha256);
  const ids=before.ids;
  const afterSnapshot=await captureSnapshot(target,ids);
+ // Fail closed if an upstream private signature carrier was absent in both snapshots.
+ for(const key of ['compositeAttestations','depositAttestations','transactionAttestations','refundParentAttestations']){
+  assert.equal(before.snapshot[key]?.length,1,'missing before-edit signed attestation '+key);
+  assert.equal(afterSnapshot[key]?.length,1,'missing after-edit signed attestation '+key);
+ }
+ assert.ok(Array.isArray(before.snapshot.depositAdjustments),'missing before-edit Deposit adjustment set');
+ assert.ok(Array.isArray(afterSnapshot.depositAdjustments),'missing after-edit Deposit adjustment set');
+ assert.equal((await target.query('SELECT count(*)::int AS count FROM f06_3a_ci.adjustments WHERE deposit_id=$1::bigint',[ids.depositId])).rows[0].count,afterSnapshot.depositAdjustments.length);
  const afterSha=snapshotSha(afterSnapshot);
  assert.equal(afterSha,before.snapshotSHA256,'F06 historical rows/snapshots/audit changed after F05 edit');
  assert.deepEqual(JSON.parse(JSON.stringify(afterSnapshot)),before.snapshot,'F06 historical JSON must remain byte-equivalent after source edit');
