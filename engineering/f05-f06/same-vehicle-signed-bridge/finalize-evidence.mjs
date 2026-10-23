@@ -52,9 +52,9 @@ assert.equal(before.snapshotSHA256,after.f06SnapshotAfterSHA256);assert.equal(af
 assert.equal(edited.edit.effectiveRetailPriceCents,8900000);assert.equal(edited.edit.effectiveMileageKm,19100);
 assert.equal(edited.edit.immutablePublishedEventSha256,source.vehicle.publishedEventSha256);
 const tapResults={
- prepareSource:tap('prepare-source.log',true),f05Physical:tap('f05-2-physical.log'),f05Https:tap('f05-2-https.log'),
- f05MingbangBefore:tap('f05-manual-mingbang-before.log'),f05FourSBefore:tap('f05-manual-four-s-before.log'),
- f05ConcurrencyBefore:tap('f05-manual-concurrency-before.log'),f05SevenHttps:tap('f05-7-https.log'),
+ prepareSource:tap('prepare-source.log',true),f05Physical:tap('f05-2-physical.log',true),f05Https:tap('f05-2-https.log',true),
+ f05MingbangBefore:tap('f05-manual-mingbang-before.log',true),f05FourSBefore:tap('f05-manual-four-s-before.log',true),
+ f05ConcurrencyBefore:tap('f05-manual-concurrency-before.log',true),f05SevenHttps:tap('f05-7-https.log',true),
  f06Bridge:tap('f06-bridge-tests.log',true)
 };
 const editSourceLog=logs.get('f05-edit-source.log');

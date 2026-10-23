@@ -28,7 +28,10 @@ try{
  assert.equal(identity.oid,sourceManifest.database.oid);
  secret=randomBytes(32);
  auth=new IsolatedAuth({connectionString:DSN,secret,origin:'https://127.0.0.1:48986'});
- const staff=await login(auth,'employee_test','SyntheticF04_3_CurrentProof_2026');
+ const publisherEmployeeId=String(sourceManifest.vehicle.publisherEmployeeId);
+ const publisherSuffix=String(process.env.GITHUB_RUN_ID).slice(-6);
+ const staff=await login(auth,'bridge_source_'+publisherEmployeeId+'_'+publisherSuffix,
+  'BridgeSource_'+publisherEmployeeId+'_'+publisherSuffix+'_2026!');
  const outsider=await login(auth,'limit_test','SyntheticLimit_1234567');
  app=await start(createPublishedEditService({auth}));
  const vehicleId=sourceManifest.vehicle.vehicleId;
