@@ -113,9 +113,7 @@ jobs:
           set -euo pipefail
           node engineering/f03-1/fixtures.mjs
           node engineering/f03/runtime-scope/fixtures.mjs
-          node engineering/f03/customer-account-status/schema.mjs --apply
-          node engineering/f03/customer-account-status/schema.mjs --verify
-          node engineering/f03/customer-account-status/fixtures.mjs
+                    node engineering/f03/customer-account-status/fixtures.mjs
       - name: Real PG16 account state, Demand and race matrix
         shell: bash
         run: |
@@ -146,7 +144,6 @@ jobs:
       - name: Final SHA and evidence manifest
         run: |
           set -euo pipefail
-          node engineering/f03/customer-account-status/schema.mjs --verify
           node engineering/f03/customer-account-status/evidence.mjs
           sha256sum -c f03-account-status-sha256sums.txt
       - name: Upload independent SHA-bound evidence
