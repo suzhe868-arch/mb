@@ -100,6 +100,6 @@ report={
   potential_f05_7_triggers:potential,
   yaml_parse_errors:parse_errors
 }
-File.write('f03-f07-workflow-trigger-audit.txt',JSON.pretty_generate(report)+"\\n")
+File.write('f03-f07-workflow-trigger-audit.txt',JSON.pretty_generate(report)+"\n")
 puts 'F03_F07_WORKFLOW_TRIGGER_AUDIT '+JSON.generate(report)
 abort('F05_7_WORKFLOW_TRIGGER_NOT_ISOLATED') unless potential.empty?&&parse_errors.none?
