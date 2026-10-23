@@ -1,7 +1,7 @@
 import { createServer } from 'node:http';
 const sendJson=(res,status,body)=>{res.writeHead(status,{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'});res.end(JSON.stringify(body))};
 async function checkReady(readinessProbe,timeoutMs){let timer;try{return await Promise.race([Promise.resolve().then(()=>readinessProbe()),new Promise(resolve=>{timer=setTimeout(()=>resolve(false),timeoutMs);timer.unref?.()})])}finally{clearTimeout(timer)}}
-export function createFoundationHandler({readinessProbe=async()=>false,readinessTimeoutMs=1000,authHandler=null,catalogHandler=null,favoriteHandler=null,consultationHandler=null,employeeStartHandler=null,handoverHandler=null,slaHoldHandler=null,priceUnlockHandler=null,quotaAdditionHandler=null,findCarHandler=null,findCarActivationHandler=null,matchingHandler=null,dictionaryHandler=null,discoveryHandler=null,recommendationHandler=null,priorityHandler=null,priorityQualificationHandler=null,demandLifecycleHandler=null,employeeVehicleReadHandler=null,consultationResponseHandler=null,publicPoolConsultationHandler=null,lockHandler=null,f07RuntimeHandler=null,publisherPhoneAdminHandler=null,customerOtherPhoneHandler=null,customerAccountStatusHandler=null}={}){
+export function createFoundationHandler({readinessProbe=async()=>false,readinessTimeoutMs=1000,authHandler=null,catalogHandler=null,favoriteHandler=null,consultationHandler=null,employeeStartHandler=null,handoverHandler=null,slaHoldHandler=null,priceUnlockHandler=null,quotaAdditionHandler=null,findCarHandler=null,findCarActivationHandler=null,matchingHandler=null,dictionaryHandler=null,discoveryHandler=null,recommendationHandler=null,priorityHandler=null,priorityQualificationHandler=null,demandLifecycleHandler=null,employeeVehicleReadHandler=null,consultationResponseHandler=null,publicPoolConsultationHandler=null,lockHandler=null,f07RuntimeHandler=null,publisherPhoneAdminHandler=null,customerOtherPhoneHandler=null,customerAccountStatusHandler=null,crmFollowupHandler=null}={}){
  if(!Number.isInteger(readinessTimeoutMs)||readinessTimeoutMs<1||readinessTimeoutMs>10000)throw Error('INVALID_READINESS_TIMEOUT');
  return async(req,res)=>{
   const pathname=(req.url??'/').split('?')[0];
@@ -16,6 +16,8 @@ export function createFoundationHandler({readinessProbe=async()=>false,readiness
   if(customerOtherPhoneHandler&&pathname.startsWith('/__ci__/f03/customers/')&&await customerOtherPhoneHandler(req,res)===true)return;
   // Only explicit CI injection can activate this private route; production server never injects it.
   if(customerAccountStatusHandler&&pathname.startsWith('/__ci__/f03/customer-account-status/')&&await customerAccountStatusHandler(req,res)===true)return;
+  // Private F05 CRM followup only by explicit CI injection; not wired by production server.
+  if(crmFollowupHandler&&pathname.startsWith('/__ci__/f05/crm-followups/')&&await crmFollowupHandler(req,res)===true)return;
   if(lockHandler&&await lockHandler(req,res)===true)return;
   if(authHandler&&await authHandler(req,res)===true)return;
   if(publicPoolConsultationHandler&&await publicPoolConsultationHandler(req,res)===true)return;
