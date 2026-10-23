@@ -75,12 +75,12 @@ export class CustomerAccountStatusService{
     // audit authority for idempotency instead of installing a forbidden private sidecar.
     const previous=(await c.query(
      "SELECT actor_kind,actor_id,object_id,action,role_context,after_json FROM public.audit_events "+
-     "WHERE action IN ('customer.account.disable','customer.account.restore') "+
+     "WHERE action IN ('customer.account.disable','customer.account.restore','customer.account.no_change') "+
      "AND role_context->>'source'='CI_ONLY_F03_CUSTOMER_ACCOUNT_STATUS' "+
      "AND role_context->>'requestKeySha256'=$1 ORDER BY audit_id LIMIT 1 FOR SHARE",[keyHash])).rows[0];
     if(previous){
      if(previous.role_context?.payloadSha256!==payloadHash||previous.object_id!==customerId||
-       previous.action!=='customer.account.'+action||previous.actor_kind!==actor.actorKind||
+       !(previous.action==='customer.account.'+action||(previous.action==='customer.account.no_change'&&previous.role_context?.operation===action))||previous.actor_kind!==actor.actorKind||
        previous.actor_id!==actor.actorId)return out(409,'IDEMPOTENCY_KEY_CONFLICT');
      const response=previous.after_json?.result;
      if(!response||response.status!==200)throw Error('ACCOUNT_AUDIT_REPLAY_PROOF_MISSING');
@@ -89,7 +89,16 @@ export class CustomerAccountStatusService{
     const target=action==='disable'?'inactive':'active';
     if(customer.account_status===target){
      if(action==='disable'&&demands.some(d=>d.demand_state==='active'))return out(409,'INACTIVE_CUSTOMER_HAS_ACTIVE_DEMAND');
-     return out(200,'NO_CHANGE',{customerId,accountStatus:target,pausedDemandCount:0});
+     const response=out(200,'NO_CHANGE',{customerId,accountStatus:target,pausedDemandCount:0});
+     const noopContext={source:'CI_ONLY_F03_CUSTOMER_ACCOUNT_STATUS',operation:action,requestKeySha256:keyHash,
+      payloadSha256:payloadHash,capability:actor.actorKind==='employee'?'customer.account.disable':'SYSTEM_ADMIN_CONTROL_ONLY',
+      scopeId:actor.scopeId,roleAtTime:actor.role,reason};
+     // Persist the first no-op request for collision detection without generating duplicate audit on replay.
+     await c.query("INSERT INTO public.audit_events(actor_kind,actor_id,role_context,object_kind,object_id,action,before_json,after_json,occurred_at) "+
+      "VALUES($1,$2,$3::jsonb,'Customer',$4,'customer.account.no_change',$5::jsonb,$6::jsonb,transaction_timestamp())",
+      [actor.actorKind,actor.actorId,JSON.stringify(noopContext),customerId,JSON.stringify({accountStatus:target}),
+       JSON.stringify({accountStatus:target,result:response})]);
+     return response;
     }
     const paused=action==='disable'?demands.filter(d=>d.demand_state==='active').map(d=>d.id):[];
     const changed=(await c.query('UPDATE public.customers SET account_status=$2 WHERE customer_id=$1::bigint AND account_status=$3 RETURNING customer_id',[customerId,target,customer.account_status])).rowCount;
@@ -100,7 +109,7 @@ export class CustomerAccountStatusService{
     }
     const response=out(200,'OK',{customerId,accountStatus:target,pausedDemandCount:paused.length,pausedDemandIds:paused});
     const context={source:'CI_ONLY_F03_CUSTOMER_ACCOUNT_STATUS',requestKeySha256:keyHash,payloadSha256:payloadHash,
-     capability:actor.actorKind==='employee'?'customer.account.disable':'SYSTEM_ADMIN_CONTROL_ONLY',scopeId:actor.scopeId,
+     capability:actor.actorKind==='employee'?'customer.account.disable':'SYSTEM_ADMIN_CONTROL_ONLY',scopeId:actor.scopeId,operation:action,
      roleAtTime:actor.role,reason};
     if(this.beforeAuditInsert)await this.beforeAuditInsert({c,customerId,actor,action});
     await c.query("INSERT INTO public.audit_events(actor_kind,actor_id,role_context,object_kind,object_id,action,before_json,after_json,occurred_at) "+
