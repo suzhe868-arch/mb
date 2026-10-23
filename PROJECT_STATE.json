@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "BACKEND_ENGINEERING",
-  "substage": "F05_F06_SAME_VEHICLE_SIGNED_BRIDGE_NONPROD_RELEASED",
+  "substage": "F05_F06_SAME_VEHICLE_NONPROD_ACCEPTED_F08_SOURCE_GATE_CONTINUES",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F05_F06_SAME_VEHICLE_BRIDGE",
-  "current_domain_status": "A 已签发 F05→F06 同车签名跨 Runtime 非生产桥接任务 Issue #231。只关闭同车 Lock/Transaction/Deposit 历史快照不回写这一项证据缺口；父 Issue #187 仍 SOURCE_GAP/FAIL_CLOSED，生产授权为 false。",
+  "current_domain": "F08_SIGNED_SOURCE_GATE",
+  "current_domain_status": "Issue #231 / PR #233 的 F05→F06 同车签名跨 Runtime 快照不回写已由 A 独立复验并标准合并，仅限非生产子门禁通过。Issue #187 正式 F03 Scope/Object、F05 转换正向 Issuer、F07 Runtime、外部来源仍 SOURCE_GAP/FAIL_CLOSED；F06/F07/F08/V1 NOT_READY/NO_PRODUCTION。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F05_F06_SAME_VEHICLE_SIGNED_CROSS_RUNTIME_BRIDGE_PG16_01",
-  "current_work_file": "07_重建工作区/F05_F06同车签名跨Runtime桥接与历史快照不可变非生产施工单_2026-10-23.md",
+  "current_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
+  "current_work_file": "07_重建工作区/F05_F06同车签名桥接Issue231_PR233独立验收与来源门禁接续报告_2026-10-23.md",
   "a_f08_source_gate_review_2026_10_23": {
     "status": "SOURCE_GAP/FAIL_CLOSED",
     "reviewed_at": "2026-10-23",
@@ -33,7 +33,7 @@
     "depends_on_cdn_oss": false,
     "depends_on_feishu": false,
     "f07_runtime": "NOT_CONNECTED_F07_RUNTIME",
-    "same_vehicle_f06": "NOT_RUN/BLOCKED_SIGNED_PARENT",
+    "same_vehicle_f06": "A_ACCEPTED_LIMITED_NONPROD",
     "production_authorized": false,
     "independent_task_issue_status": "A_ACCEPTED_LIMITED_NONPROD",
     "independent_task_pr": 229,
@@ -41,7 +41,9 @@
     "independent_task_merge_sha": "19ef898a0dac447aff7a26b5affd2496a01e86e5",
     "independent_task_official_run_id": "39847897349",
     "same_vehicle_bridge_issue": 231,
-    "same_vehicle_bridge_status": "A_FORMAL_NONPROD_TASK_RELEASED_NOT_YET_PASSED"
+    "same_vehicle_bridge_status": "A_ACCEPTED_LIMITED_NONPROD",
+    "same_vehicle_bridge_pr": 233,
+    "same_vehicle_bridge_merge_sha": "af61f206c61ddc1632086aa8e49aa9b68b67ba2e"
   },
   "a_acceptance_issue221_2026_10_23": {
     "status": "A_ACCEPTED_LIMITED_NONPROD",
@@ -3429,7 +3431,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B 按 Issue #231 与正式中文施工单完成同一 F05 #214 已发布人工 Vehicle/Cycle 到 F06 已签 Lock→合成 Deposit→Transaction 的双数据库签名桥接；随后通过 F05 #216 HTTPS 修改客户标价/里程/车况并逐行验证 F06 Lock/Transaction/Deposit/审计快照不回写。两个独立真实非超管 PG16 Job、当前 SHA/Run/Ref/OID/迁移链签名、161表/24迁移 Seal、同 SHA 官方 CI/Artifact 全部通过后交 A 独立验收。",
+  "next_action": "继续增量核验 Issue #187 的正式可信来源、授权及剩余独立后端缺口。复用 Issue #231/PR #233 已验收的同车非生产 Lock/Transaction/Deposit 历史快照不回写成果；没有新可信来源或合法独立任务时保持 SOURCE_GAP/FAIL_CLOSED，禁止重复开发或宣告整体生产就绪。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -5009,7 +5011,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "Issue #231 正式任务仅在治理 PR #232 标准合并后生效。指定分支 feat/f05-f06-same-vehicle-signed-bridge-pg16-01；严格双数据库/双迁移链，不改旧 F05/F06 业务服务、公共 DDL、旧 Workflow 或生产路由。父 Issue #187 保持 SOURCE_GAP/FAIL_CLOSED；本任务非生产且不解除其他正式来源/外部授权门禁。",
+  "next_action_detail": "PR #233 已 A 独立验收并标准合并（业务 HEAD d0b7749d7a85c6ca369ba1b32c0f1cce4e68a5ac；merge af61f206c61ddc1632086aa8e49aa9b68b67ba2e；官方 Run #39925488640 双独立 PG16 Job success；A 独立核查 TAP 各109/109，正向16/负向16；Artifact双ZIP/内清单22/22哈希通过；depositAdjustments与四组Attestation快照补齐）。仅Issue #231非生产子门禁通过；#187来源/生产硬门禁仍阻断。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -6047,7 +6049,7 @@
   },
   "a_batch_approval_mode": "STANDING_USER_DIRECTED_CONTINUOUS_TECHNICAL_WORKFLOW_IN_FROZEN_SCOPE; A_SCOPES_AND_RELEASES_B_C; EACH_WINDOW_COMPLETES_END_TO_END; A_INDEPENDENT_ACCEPTANCE_AND_CLEAN_PR_MERGE_WITHOUT_REPEAT_APPROVAL; NEW_PRODUCT_CHOICE_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_EXTERNAL_WRITES_REQUIRE_USER",
   "current_pending_user_decisions": [],
-  "next_action_owner": "B",
+  "next_action_owner": "A",
   "abc_continuous_execution_rule": {
     "status": "USER_DIRECTIVE_APPLIED",
     "confirmed_at": "2026-10-09",
@@ -7053,7 +7055,7 @@
     "merge_method": "merge",
     "a_review_report": "07_重建工作区/F05-7_A主控二轮独立验收66项真PG16_PR46标准合并与F05-8技术交接_2026-10-12.md"
   },
-  "next_owner": "B",
+  "next_owner": "A",
   "f05_8_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR47_CI_ONLY",
     "execution": "COMPLETED_A_ACCEPTED_PR47_STANDARD_MERGE",
@@ -8188,7 +8190,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F05_F06_SAME_VEHICLE_SIGNED_CROSS_RUNTIME_BRIDGE_PG16_01",
+  "next_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9863,7 +9865,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F05_F06同车签名跨Runtime桥接与历史快照不可变非生产施工单_2026-10-23.md",
+  "next_work_file": "07_重建工作区/F05_F06同车签名桥接Issue231_PR233独立验收与来源门禁接续报告_2026-10-23.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -10159,8 +10161,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": "feat/f05-f06-same-vehicle-signed-bridge-pg16-01",
-  "next_issue": 231,
+  "next_branch": "NONE",
+  "next_issue": 187,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -11978,7 +11980,7 @@
     "production_authorized": false
   },
   "a_f05_f06_same_vehicle_bridge_issue231_2026_10_23": {
-    "status": "A_FORMAL_RELEASE_EFFECTIVE_AFTER_PR232_MERGED",
+    "status": "A_ACCEPTED_LIMITED_NONPROD",
     "issue": 231,
     "task_id": "F05_F06_SAME_VEHICLE_SIGNED_CROSS_RUNTIME_BRIDGE_PG16_01",
     "branch": "feat/f05-f06-same-vehicle-signed-bridge-pg16-01",
@@ -11988,6 +11990,39 @@
     "requires_two_independent_pg16_jobs": true,
     "public_schema_changes_allowed": false,
     "production_authorized": false,
-    "governance_pr": 232
+    "governance_pr": 232,
+    "pr": 233,
+    "accepted_head_sha": "d0b7749d7a85c6ca369ba1b32c0f1cce4e68a5ac",
+    "merge_sha": "af61f206c61ddc1632086aa8e49aa9b68b67ba2e",
+    "official_run_id": "39925488640",
+    "official_job_ids": [
+      120321738243,
+      120321738193
+    ],
+    "official_job_conclusions": [
+      "success",
+      "success"
+    ],
+    "independently_verified_tap_each_job": "109/109",
+    "positive_cases_each_job": 16,
+    "negative_cases_each_job": 16,
+    "skipped_each_job": 0,
+    "failed_each_job": 0,
+    "artifact_a": {
+      "id": 12489572064,
+      "sha256": "a433c4046efb48d2a88a513f9c25b129730eb586df78f53b79a0803f57b186bf",
+      "files_verified": 22
+    },
+    "artifact_b": {
+      "id": 12489112463,
+      "sha256": "c61d7c7a36377635a5e55a4a8b14aecfd20ea809355801fa7540b8bae7b4d574",
+      "files_verified": 22
+    },
+    "migration_source_count": 14,
+    "migration_target_count": 24,
+    "parent_table_seal_count": 161,
+    "deposit_adjustments_covered": true,
+    "four_private_attestations_covered": true,
+    "source_gap_parent": "SOURCE_GAP/FAIL_CLOSED"
   }
 }
