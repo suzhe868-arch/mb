@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F06_F07_F08_INTEGRATION_REPLAN",
-  "current_domain_status": "PR #250 已由 A 独立验收并标准合并，业务 merge SHA 6cffd04291cbd13a0ee37c5a5f93f3280e26cf8d。最终 B HEAD 5888678a748cb1cf275d99b59fc0c7c8a3994cdd 的官方 Run #39989434665 双独立 PG16 Job 业务 38/38、HTTPS 22/22 全通过，失败/跳过 0；两份 Artifact ZIP digest 与内部 SHA256 manifest 已独立复核。Issue #248 已关闭。当前回到 Issue #187 的 F06/F07/F08 整合重排讨论；父门禁 SOURCE_GAP/FAIL_CLOSED，整体 F06/F07/F08/V1 NOT_READY/NO_PRODUCTION。无新 B/C 施工授权。",
+  "current_domain_status": "A 已复核 F06/F07/F08 整合重排并纠正 F05→F06 同车桥接子门禁的过期状态；PR #233 子门禁为 A_ACCEPTED_LIMITED_NONPROD。父 Issue #187 仍 SOURCE_GAP/FAIL_CLOSED，整体 F06/F07/F08/V1 仍 NOT_READY/NO_PRODUCTION。尚无新 B/C 授权，等待正式可信来源、签署/信任根、不可变归档及外部资源路径确认。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -21,7 +21,7 @@
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
   "current_task": "F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01",
-  "current_work_file": "07_重建工作区/F08父级来源门禁Issue187_2026-10-23增量核查与整合重排裁决报告.md",
+  "current_work_file": "07_重建工作区/F06-F07-F08整合重排与状态一致性复核_A主控报告_2026-10-24.md",
   "a_f08_source_gate_review_2026_10_23": {
     "status": "SOURCE_GAP/FAIL_CLOSED",
     "reviewed_at": "2026-10-23",
@@ -10876,7 +10876,7 @@
     "pr150_refund_after_new_cancel": "FAIL_CLOSED_VERSIONED_BRIDGE_NOT_AUTHORIZED"
   },
   "f06_f07_f08_replan_discussion_gate": {
-    "status": "GENERAL_REPLAN_PENDING_USER_DISCUSSION_WITH_EXPLICIT_LIMITED_SUBTASK_RELEASE",
+    "status": "A_REPLAN_REVIEWED_NO_NEW_B_TASK_PENDING_USER_SOURCE_AND_RESOURCE_PATH",
     "task_id": "F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01",
     "owner": "A",
     "B_current_task_completed": true,
@@ -10906,7 +10906,16 @@
       "work_file": "07_重建工作区/F03-F07发布人电话Ed25519签名授权集成非生产正式施工单_2026-10-23.md",
       "scope": "仅CI-only F03→F07 publisher.phone.sensitive Ed25519协议；不授权通用Scope/Object、正式Issuer、外部系统、生产或其他F06/F07/F08任务。",
       "effective_only_after": "包含本施工单的A治理PR标准合并main"
-    }
+    },
+    "next_owner": "A",
+    "next_task": "F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01",
+    "next_issue": 187,
+    "next_branch": "NONE",
+    "reviewed_at": "2026-10-24",
+    "same_vehicle_issue231": "A_ACCEPTED_LIMITED_NONPROD",
+    "parent_source_gate": "SOURCE_GAP/FAIL_CLOSED",
+    "new_b_task_released": false,
+    "reason": "现有独立非生产任务已完成；剩余缺口依赖正式可信来源、签署/信任根、不可变证据归档或外部资源。等待用户确认资源路径后再形成可真实验收的整包。"
   },
   "b_precommit_syntax_scope_gate_2026_10_21": {
     "status": "A_GOVERNANCE_RULES_MERGED_ACTIVE",
@@ -11890,12 +11899,30 @@
   },
   "f05_f06_same_vehicle_nonprod_final_gate_2026_10_22": {
     "gate": "F05_216_SAME_VEHICLE_SIGNED_F06_LOCK_TRANSACTION_DEPOSIT_CROSS_RUNTIME_INTEGRATION",
-    "status": "NOT_RUN_BLOCKED_SIGNED_PARENT",
+    "status": "A_ACCEPTED_LIMITED_NONPROD_PR233_STANDARD_MERGED",
     "scope": "SAME_TRUSTED_PUBLISHED_MANUAL_VEHICLE_F06_LOCK_TRANSACTION_DEPOSIT_HISTORY_SNAPSHOTS_NONPROD",
-    "release_condition": "A_APPROVES_SIGNED_PARENT_CROSS_RUNTIME_INTEGRATION_THEN_REAL_PG16_EVIDENCE",
+    "release_condition": "SATISFIED_FOR_LIMITED_NONPRODUCTION_ONLY",
     "tracking_issue": 187,
     "not_substituted_by": "F03_NONEMPTY_HISTORIC_TABLE_HASH_OR_INDEPENDENT_F06_HISTORIC_RUN",
-    "production_ready": false
+    "production_ready": false,
+    "issue": 231,
+    "pr": 233,
+    "accepted_at": "2026-10-23",
+    "merge_sha": "af61f206c61ddc1632086aa8e49aa9b68b67ba2e",
+    "official_run_id": 39925488640,
+    "official_job_conclusions": [
+      "success",
+      "success"
+    ],
+    "tap_each_job": "109/109",
+    "failures_each_job": 0,
+    "skipped_each_job": 0,
+    "artifact_ids": [
+      12489572064,
+      12489112463
+    ],
+    "artifact_manifest_each": "22/22",
+    "parent_issue_187": "SOURCE_GAP/FAIL_CLOSED"
   },
   "f03_f04_staff_publisher_phone_admin_api_release_2026_10_22": {
     "status": "A_CHANGES_REQUESTED",
@@ -12000,7 +12027,7 @@
     "branch": "feat/f05-f06-same-vehicle-signed-bridge-pg16-01",
     "parent_issue": 187,
     "parent_status": "SOURCE_GAP/FAIL_CLOSED",
-    "same_vehicle_gate_status": "NOT_RUN/BLOCKED_SIGNED_PARENT",
+    "same_vehicle_gate_status": "A_ACCEPTED_LIMITED_NONPROD",
     "requires_two_independent_pg16_jobs": true,
     "public_schema_changes_allowed": false,
     "production_authorized": false,
@@ -12501,5 +12528,54 @@
     "f05_7_historical_66_suite": "NOT_RUN",
     "parent_issue_187": "SOURCE_GAP/FAIL_CLOSED",
     "global_f06_f07_f08_v1": "NOT_READY/NO_PRODUCTION"
+  },
+  "a_f06_f07_f08_replan_review_2026_10_24": {
+    "status": "A_REPLAN_REVIEWED_NO_NEW_B_TASK_RELEASED",
+    "reviewed_main_sha": "a0c583f0b68155b824367624f5050c83da775cdc",
+    "reviewed_at": "2026-10-24",
+    "current_task": "F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01",
+    "parent_issue": 187,
+    "parent_status": "SOURCE_GAP/FAIL_CLOSED",
+    "overall_status": "NOT_READY/NO_PRODUCTION",
+    "reused_accepted_prs": [
+      69,
+      100,
+      129,
+      131,
+      135,
+      139,
+      143,
+      146,
+      150,
+      153,
+      156,
+      162,
+      169,
+      174,
+      181,
+      186,
+      193,
+      214,
+      219,
+      224,
+      233,
+      241,
+      245,
+      250
+    ],
+    "corrected_gate_issue": 231,
+    "corrected_gate_pr": 233,
+    "corrected_gate_status": "A_ACCEPTED_LIMITED_NONPROD",
+    "source_gaps": [
+      "F03_SCOPE_OBJECT_FORMAL_AUTHORITY",
+      "F05_SIGNED_CONVERSION_ISSUER",
+      "F07_FORMAL_RUNTIME_AND_JYT_COLLECTOR_PHONE_SOURCE",
+      "SLA_INCIDENT_SIGNED_ISSUER_AND_ROUTE",
+      "CDN_OSS_FEISHU_EXTERNAL_RESOURCES",
+      "FORMAL_TRUST_ROOT_AND_IMMUTABLE_EVIDENCE_ARCHIVE"
+    ],
+    "new_b_task_released": false,
+    "user_decision_required": "CONFIRM_FORMAL_ISSUER_TRUST_ROOT_ARCHIVE_AND_EXTERNAL_RESOURCE_PATH",
+    "production_authorized": false
   }
 }

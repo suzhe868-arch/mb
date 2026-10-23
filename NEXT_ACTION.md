@@ -1,20 +1,13 @@
-# 名邦汽车 V1｜下一动作：F06/F07/F08 整合重排讨论（2026-10-24）
+# 名邦汽车 V1｜下一动作：F06/F07/F08 整合重排与用户资源路径确认（2026-10-24）
 
-- **业务 PR：** [#250｜F03→F07 Ed25519 非生产授权协议](https://github.com/suzhe868-arch/mb/pull/250)，已由 A 独立验收并标准合并。
-- **业务合并 SHA：** `6cffd04291cbd13a0ee37c5a5f93f3280e26cf8d`；最终 B HEAD：`5888678a748cb1cf275d99b59fc0c7c8a3994cdd`。
-- **验收状态：** `A_ACCEPTED_LIMITED_NONPROD`，范围仅 `CI_SYNTHETIC_ONLY`。
-- **官方 CI：** [Run #39989434665](https://github.com/suzhe868-arch/mb/actions/runs/39989434665)，与最终 B HEAD 精确一致；业务 PG16 [38/38 PASS](https://github.com/suzhe868-arch/mb/actions/runs/39989434665/job/120537047428)，HTTPS PG16 [22/22 PASS](https://github.com/suzhe868-arch/mb/actions/runs/39989434665/job/120537047026)，失败 0、跳过 0。
-- **Artifact 独立复核：** Business #12516817426，56,725 bytes，SHA-256 `4620261547e904f58dfa5311dd03692213ce4e9993a4fb4c59393a8227bf431f`；HTTPS #12517032413，54,514 bytes，SHA-256 `128ff77a8280bb43937ad1c9857dbb5121451aa97043494d14d226e62153c31c`。两份 ZIP 摘要与 GitHub 官方 digest 一致，各自 23 项内部 SHA-256 清单逐项通过。
-- **范围审查：** PR 差异 19 个文件全部在正式白名单；整改提交相对退回时 SHA 只变更 4 个白名单文件。未修改既有 F03/F07 Guard/Runtime、公共迁移、旧 Workflow、PDM/IA、app/server、PC/C。
-- **Issue #248：** 已在验收通过后关闭。F05-7 历史 66 项/旧 Oracle 未运行、未修改、未补签。
-- **全局门禁不变：** 父 Issue #187 仍 `SOURCE_GAP/FAIL_CLOSED`；F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。正式 Source Issuer/信任根、F07 正式 Runtime、真实 JYT/Collector、CDN/OSS、飞书、真实电话/客户/资金/生产均未接通或未授权。
-
-- **NEXT_OWNER=A**
-- **NEXT_TASK=`F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01`**
-- **NEXT_ISSUE=#187**：[可信来源与整阶段父门禁](https://github.com/suzhe868-arch/mb/issues/187)
-- **NEXT_BRANCH=NONE**
-- **NEXT_WORK_FILE:** `07_重建工作区/F08父级来源门禁Issue187_2026-10-23增量核查与整合重排裁决报告.md`
-- **下一步：** A 接续 F06/F07/F08 整合重排讨论，集中明确正式可信来源、签署与不可变归档资源、授权边界和跨域验收条件。讨论前不新开 B/C 工程任务，不启动 PC #196、C PR #68，不接生产或真实外部系统。
+- **最近业务 PR：** [#250｜F03→F07 Ed25519 非生产授权协议](https://github.com/suzhe868-arch/mb/pull/250)，已由 A 独立验收并标准合并。
+- **业务 merge SHA：** `6cffd04291cbd13a0ee37c5a5f93f3280e26cf8d`；最终 B HEAD：`5888678a748cb1cf275d99b59fc0c7c8a3994cdd`。
+- **PR #250 证据：** 官方 Run #39989434665 同 SHA；业务 PG16 38/38、HTTPS PG16 22/22，失败/跳过均为 0；两份 Artifact digest 与内部 23/23 清单已独立复核。范围仅 `A_ACCEPTED_LIMITED_NONPROD / CI_SYNTHETIC_ONLY`。
+- **状态一致性修正：** F05→F06 同车签名跨 Runtime 子门禁已由 [PR #233](https://github.com/suzhe868-arch/mb/pull/233) 限定非生产验收合并，merge SHA `af61f206c61ddc1632086aa8e49aa9b68b67ba2e`；官方 Run #39925488640 两个独立 PG16 Job 各 109/109，失败/跳过 0，Artifact 内部清单各 22/22。现已将 PROJECT_STATE 中残留的旧 `NOT_RUN/BLOCKED_SIGNED_PARENT` 子门禁状态更正为 `A_ACCEPTED_LIMITED_NONPROD`。
+- **全局门禁不变：** 父 Issue #187 仍 `SOURCE_GAP/FAIL_CLOSED`；F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。正式 F03 Scope/Object、F05 转换可信 Issuer、F07 正式 Runtime/真实 JYT/Collector、SLA/Incident 来源、CDN/OSS、飞书、正式信任根与不可变归档资源仍未全部建立或授权。
+- **当前唯一指针：** `NEXT_OWNER=A`；`NEXT_TASK=F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01`；`NEXT_ISSUE=#187`；`NEXT_BRANCH=NONE`。
+- **当前工作文件：** `07_重建工作区/F06-F07-F08整合重排与状态一致性复核_A主控报告_2026-10-24.md`。
+- **下一步：** A 已复核已验收资产并修正状态不一致；现无新的可合法放行 B/C 整包。待明确正式签发/信任根、不可变证据归档与外部资源的实际承载路径后，再制定可真实验收的端到端施工单。讨论前不重做已验收功能、不启动 PC #196、C PR #68，不接生产、真实资金或未经授权的外部系统。
 
 > 下方内容为历史记录与已被替代的状态快照；当前有效指针仅以本文顶部为准。
 
