@@ -1,27 +1,22 @@
-# 名邦汽车 V1｜A 已独立验收合并 F05→F06 同车桥接，返回 F08 来源门禁（2026-10-23）
+# 名邦汽车 V1｜A 正式放行 F03 客户账号停用恢复与 Demand 暂停非生产后端（2026-10-23）
 
-- **NEXT_OWNER=A**
-- **NEXT_TASK=`A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`**
-- **NEXT_ISSUE=187**：[F08 可信来源与外部系统父级门禁](https://github.com/suzhe868-arch/mb/issues/187)
-- **NEXT_BRANCH=NONE**
-- **NEXT_WORK_FILE=`07_重建工作区/F05_F06同车签名桥接Issue231_PR233独立验收与来源门禁接续报告_2026-10-23.md`**
+- **NEXT_OWNER=B**
+- **NEXT_TASK=`F03_CUSTOMER_ACCOUNT_DISABLE_RESTORE_DEMAND_PAUSE_HTTP_PG16_01`**
+- **NEXT_ISSUE=235**：[客户账号停用恢复后端](https://github.com/suzhe868-arch/mb/issues/235)
+- **NEXT_BRANCH=`feat/f03-customer-account-disable-restore-demand-pause-pg16-01`**
+- **NEXT_WORK_FILE=`07_重建工作区/F03客户账号停用恢复与Demand原子暂停HTTP真实PG16非生产施工单_2026-10-23.md`**
 
-## A 本轮完成｜Issue #231 / PR #233（限定非生产）
+## 当前正式施工范围
 
-- [PR #233](https://github.com/suzhe868-arch/mb/pull/233) 已由 A 独立复验并标准合并；B 最终 HEAD `d0b7749d7a85c6ca369ba1b32c0f1cce4e68a5ac`，业务合并 SHA `af61f206c61ddc1632086aa8e49aa9b68b67ba2e`。Issue #231 按限定非生产子任务结案；不代表父级 #187 或整个 F06/F07/F08/V1 通过。
-- 官方 [Run #39925488640](https://github.com/suzhe868-arch/mb/actions/runs/39925488640)：两个独立非超管 PG16 Job `pg16-a` / `pg16-b` 都 `completed/success`。每个 Job 证据中可核实的 TAP 为 **109/109**、失败 0、跳过 0，跨 Runtime 正向 16、负向 16。B 评论声称的“127/127”与最终证据摘要不一致，A 正式口径只采信 109/109。
-- A 实际下载复算两份新 Artifact：#12489572064，ZIP SHA256 `a433c4046efb48d2a88a513f9c25b129730eb586df78f53b79a0803f57b186bf`；#12489112463，ZIP SHA256 `c61d7c7a36377635a5e55a4a8b14aecfd20ea809355801fa7540b8bae7b4d574`。分别与 GitHub 元数据一致，内部 `sha256sums.txt` 22/22 文件通过。
-- 两组来源库 14 条、目标库 24 条真实迁移，源/目标物理 OID 分离；161 表/24 迁移父链 Seal 的 `unauthorizedParentDrift=false`。同一 Vehicle 98044 / Cycle 99044 经 F05 原生发布→F06 签名 Lock/合成 Deposit/Transaction→F05 HTTPS 在后编辑；原客户标价 8300000 分，编辑后 8900000 分，里程 18200→19100。F06 锁车与交易来源价仍为 8300000 分。
-- 上轮退回的 `depositAdjustments` 全量集合和四组 Composite/Deposit/Transaction/Refund 私有签名 Attestation 均已加入历史快照，缺失即拒绝。A 独立复算快照哈希：pg16-a `109729640b985637f3d8a7681bb5894aba2c4f9e34840f88648a22a731277b78`，pg16-b `a3f4fbf7b0c741977b28f70ac4f3654c21c14b4f8dc7c2ed663b8902e8328339`，各自与编辑后比对一致。
-- 20 个业务 PR 变更路径全部在 Issue #231 白名单及原生 F05 三文件确切 Ref 补充授权之内，不修改公共 DDL、旧 F06 业务服务、PDM、生产路由或 PC/C 页面。结论：`A_ACCEPTED_LIMITED_NONPROD`。
+A 依据 PDM-01/02/11/22 冻结规则与 main 实码审查，确认客户账号停用／恢复还没有独立 HTTP 后端写入闭环。已验收 #221/#227/#231 均不覆盖该能力；按 Issue #235 正式施工单新增有限的真实 PG16/HTTPS 业务纵切，System Admin 管理控制平面、名邦员工按 `customer.account.disable` + 当前 Customer object Scope、4S hard DENY、停用时 active Demand 同事务 paused、恢复不自动激活，审计/并发/拒绝路径必须完整。
 
-## F08 父级硬门禁继续生效
+只授权非生产可销毁 PG16 及 `/__ci__/f03/customer-account-status` 内部 HTTP；写入限新增 F03 account-status 独立目录/两个服务、一个新 Workflow，以及 app.mjs 一个严格 CI-only handler 插槽。无公共 DDL、旧业务改动或生产权限扩张。B 提交双 PG16 Job、真实并发、HTTPS 测试、最终 SHA 官方 CI、Artifact 与中文 `READY_FOR_A_REVIEW` 后交 A。
 
-- Issue #187 继续 `SOURCE_GAP/FAIL_CLOSED`；F03 正式 Scope/Object、F05 转换正向可信 Issuer、F07 真实 Runtime、JYT/Collector、CDN/OSS、飞书、SLA/Incident 等仍独立缺少可签认来源或正式授权。
-- 仅将 `F05_216_SAME_VEHICLE_SIGNED_F06_LOCK_TRANSACTION_DEPOSIT_CROSS_RUNTIME_INTEGRATION` 子门禁标记为 `A_ACCEPTED_LIMITED_NONPROD`；**不得宣称 F06/F07/F08/V1 整体 `READY`，生产仍 `NOT_READY/NO_PRODUCTION`**。
-- 没有未经重新核实就自动放行的新 B 任务；A 增量核查可独立的后端业务缺口，如发现满足 Authority 和依赖的任务再独立签发；不重复 #190/#221/#227/#231，也不启动 PC Issue #196 或 C PR #68。
+## 父级门禁未改变
 
-> 本节是最新 main 唯一有效状态指针，后续分隔线以下为历史快照。
+Issue [#187](https://github.com/suzhe868-arch/mb/issues/187) 继续 `SOURCE_GAP/FAIL_CLOSED`；F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。#235 不接 JYT、Collector、CDN/OSS、飞书、电话公网或真实资金。PC 页面 #196 与 C PR #68 继续延期/独立，不由本任务启动。
+
+> 本节为最新唯一有效任务指针，下方日期更早的 NEXT 状态均为历史快照。
 
 ---
 
