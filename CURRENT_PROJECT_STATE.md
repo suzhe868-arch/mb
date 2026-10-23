@@ -6,8 +6,8 @@
 - **状态一致性修正：** F05→F06 同车签名跨 Runtime 子门禁已由 [PR #233](https://github.com/suzhe868-arch/mb/pull/233) 限定非生产验收合并，merge SHA `af61f206c61ddc1632086aa8e49aa9b68b67ba2e`；官方 Run #39925488640 两个独立 PG16 Job 各 109/109，失败/跳过 0，Artifact 内部清单各 22/22。现已将 PROJECT_STATE 中残留的旧 `NOT_RUN/BLOCKED_SIGNED_PARENT` 子门禁状态更正为 `A_ACCEPTED_LIMITED_NONPROD`。
 - **全局门禁不变：** 父 Issue #187 仍 `SOURCE_GAP/FAIL_CLOSED`；F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。正式 F03 Scope/Object、F05 转换可信 Issuer、F07 正式 Runtime/真实 JYT/Collector、SLA/Incident 来源、CDN/OSS、飞书、正式信任根与不可变归档资源仍未全部建立或授权。
 - **当前唯一指针：** `NEXT_OWNER=A`；`NEXT_TASK=F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01`；`NEXT_ISSUE=#187`；`NEXT_BRANCH=NONE`。
-- **当前工作文件：** `07_重建工作区/F06-F07-F08整合重排与状态一致性复核_A主控报告_2026-10-24.md`。
-- **下一步：** A 已复核已验收资产并修正状态不一致；现无新的可合法放行 B/C 整包。待明确正式签发/信任根、不可变证据归档与外部资源的实际承载路径后，再制定可真实验收的端到端施工单。讨论前不重做已验收功能、不启动 PC #196、C PR #68，不接生产、真实资金或未经授权的外部系统。
+- **当前工作文件：** `07_重建工作区/车辆目录既有后端覆盖与可独立施工缺口复核_A主控报告_2026-10-24.md`。
+- **下一步：** A 已复核 B_APP_01 车辆目录只读候选：其核心非生产列表/详情/统计及客户价格/确定性搜索已与当前 main 的 F05 目录实现重叠，不按旧施工单重复开工；这不等于正式 Runtime 或生产就绪。当前仍无新的可合法放行 B/C 整包。A 继续确认正式签发/信任根、证据归档及外部资源路径；若发现不重叠且 Authority/权限/数据结构齐备的独立后端缺口，再签发增量施工单。讨论期间不启动 PC #196 或 C PR #68，不接生产、真实资金或未经授权的外部系统。
 
 > 下方内容为历史记录与已被替代的状态快照；当前有效指针仅以本文顶部为准。
 
