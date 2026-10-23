@@ -32,6 +32,15 @@ export async function captureSnapshot(db,ids){
   depositReceipt:await rows(db,'SELECT to_jsonb(x) AS row FROM public.deposit_receipts x WHERE lock_id=$1::bigint ORDER BY deposit_id',[lk]),
   depositProvenance:await rows(db,'SELECT to_jsonb(x) AS row FROM f06_3a_ci.receipt_provenance x WHERE lock_id=$1::bigint ORDER BY deposit_id',[lk]),
   depositKeys:await rows(db,'SELECT to_jsonb(x) AS row FROM f06_3a_ci.request_keys x WHERE lock_id=$1::bigint ORDER BY key_sha256',[lk]),
+  // Include the entire adjustment set (including the empty set) for this exact synthetic deposit.
+  // This is a private finance sidecar and is not covered by the 161 public parent-table seal.
+  depositAdjustments:await rows(db,'SELECT to_jsonb(x) AS row FROM f06_3a_ci.adjustments x WHERE deposit_id=$1::bigint ORDER BY adjustment_id',[dp]),
+  // Record the actual signed private parent attestations, not merely verifier booleans.
+  // Both before and after captures hash their complete, stably ordered rows.
+  compositeAttestations:await rows(db,'SELECT to_jsonb(x) AS row FROM f06_composite_v1.attestation x ORDER BY seal_name'),
+  depositAttestations:await rows(db,'SELECT to_jsonb(x) AS row FROM f06_3a_ci.attestation x ORDER BY seal_name'),
+  transactionAttestations:await rows(db,'SELECT to_jsonb(x) AS row FROM f06_3b_ci.attestation x ORDER BY seal_name'),
+  refundParentAttestations:await rows(db,'SELECT to_jsonb(x) AS row FROM f06_3c1_ci.attestation x ORDER BY seal_name'),
   transaction:await one(db,'SELECT to_jsonb(x) AS row FROM public.transactions x WHERE transaction_id=$1::bigint',[tx]),
   transactionOrigin:await one(db,'SELECT to_jsonb(x) AS row FROM f06_real_tx_ci.origins x WHERE transaction_id=$1::bigint',[tx]),
   transactionKeys:await rows(db,'SELECT to_jsonb(x) AS row FROM f06_real_tx_ci.request_keys x WHERE transaction_id=$1::bigint ORDER BY key_sha256',[tx]),
