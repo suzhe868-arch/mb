@@ -1,22 +1,20 @@
-# 名邦汽车 V1｜NEXT_ACTION 最新唯一指针｜A 继续 F08 可信来源门禁（2026-10-23）
+# 名邦汽车 V1｜NEXT_ACTION 最新唯一指针｜F03 客户账号停用／恢复非生产后端（2026-10-23）
 
-- **NEXT_OWNER=A**
-- **NEXT_TASK=`A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`**
-- **NEXT_ISSUE=187**：[F08 可信来源与父级门禁](https://github.com/suzhe868-arch/mb/issues/187)
-- **NEXT_BRANCH=NONE**
-- **NEXT_WORK_FILE=`07_重建工作区/F05_F06同车签名桥接Issue231_PR233独立验收与来源门禁接续报告_2026-10-23.md`**
+- **NEXT_OWNER=B**
+- **NEXT_TASK=`F03_CUSTOMER_ACCOUNT_DISABLE_RESTORE_DEMAND_PAUSE_HTTP_PG16_01`**
+- **NEXT_ISSUE=235**：[客户账号状态和 Demand 暂停](https://github.com/suzhe868-arch/mb/issues/235)
+- **NEXT_BRANCH=`feat/f03-customer-account-disable-restore-demand-pause-pg16-01`**
+- **NEXT_WORK_FILE=`07_重建工作区/F03客户账号停用恢复与Demand原子暂停HTTP真实PG16非生产施工单_2026-10-23.md`**
 
-## 最近完成并冻结复用
+## B 当前正式施工
 
-- Issue #231 / [PR #233](https://github.com/suzhe868-arch/mb/pull/233) 已通过限定非生产独立验收并标准合并；B HEAD `d0b7749d7a85c6ca369ba1b32c0f1cce4e68a5ac`，合并 SHA `af61f206c61ddc1632086aa8e49aa9b68b67ba2e`。
-- 官方 Run [#39925488640](https://github.com/suzhe868-arch/mb/actions/runs/39925488640) 两个独立 PG16 Job 均成功。证据核实各 109/109 TAP（不是 B 评论中的 127/127）、正向 16 / 负向 16，失败/跳过 0；两份 ZIP 与各自 22/22 内部文件哈希复核通过。
-- F05→F06 同一 Vehicle/Cycle 的 Lock/合成 Deposit/Transaction→F05 在后编辑→F06 历史快照不追改已取得合法非生产证据；Finance adjustments 集合、四组私有 Attestation 及 161 表/24 迁移跨 OID Seal 已覆盖。
+按已合并至 main 的中文施工单、Issue #235、指定分支实现限定非生产 Customer 账号停用／恢复与 Demand 原子暂停。必须完成 active System Admin 控制平面、名邦员工权限和有效对象 Scope、4S hard DENY、active Demand→paused（其余状态不变）、恢复不自动重新激活、同事务审计/重放幂等/并发撤权与 Demand 竞态、真实 HTTPS 负例。至少两个独立真实 PG16 Job、最终 SHA 官方 CI 与证据 Artifact、中文 `READY_FOR_A_REVIEW`；B 不得自行合并 main。
 
-## 当前 A 任务
+**精确边界：** 仅 CI-only 的 F03 account-status 目录/两个新服务、新 Workflow，以及 app.mjs 的一个非生产 handler 插槽。禁止修改冻结的旧业务/公共 DDL/迁移/生产 server 或 UI。发现 Schema / 权限本体冲突时按实际证据向 A 交 `BLOCKED_A_RULING_REQUIRED`，不擅自扩权。
 
-- 继续增量核查父 Issue #187 的正式 F03 Scope/Object、F05 转换正向 Issuer、F07 Runtime 来源及外部系统接入授权；保留 `SOURCE_GAP/FAIL_CLOSED`，未取得可信资源不得签发生产 Source/Issuer。
-- F06/F07/F08/V1 整体继续 `NOT_READY/NO_PRODUCTION`，真实电话、第三方公网、生产资金、退款与上线均未授权。
-- 只有确认另一项依赖已满足、未曾验收且具有完整 Authority 的独立后端业务缺口，才签发新的最小 B 任务；不重复 #190/#221/#227/#231，不提前做 PC/C 页面。
+## 整阶段父级阻断保持
+
+Issue #187 仍 `SOURCE_GAP/FAIL_CLOSED`，本单不是正式来源/生产授权。F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`；不重复已验收 #221/#227/#231，不启动 PC #196 或 C PR #68。
 
 ---
 
