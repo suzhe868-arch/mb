@@ -5,7 +5,7 @@ import {readFile} from 'node:fs/promises';
 import {verify as cryptoVerify,randomUUID} from 'node:crypto';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {PublisherPhoneAdminService} from '../../../src/f03-publisher-phone-admin-service.mjs';
-import {configurePublisherPhoneAccess} from '../../f07/publisher-phone-scope-runtime/guard.mjs';
+import {configurePublisherPhoneAccess} from '../../../f07/publisher-phone-scope-runtime/guard.mjs';
 import {ChallengeStore} from '../challenge-store.mjs';
 import {createHarness} from '../harness.mjs';
 import {canonicalPayload,makeEphemeralKeyPair,ORIGIN} from '../protocol.mjs';
