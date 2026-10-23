@@ -42,7 +42,7 @@ async function verify(ch,assertion,options={}){
   assertion,publicKey:keys.publicKey,expectedKid:keys.kid,...options});
 }
 function resign(payload){
- return {payload,signature:cryptoSign(null,canonicalPayload(payload),keys.privateKey).toString('base64url')};
+ return {payload,signature:cryptoSign(null,Buffer.from(JSON.stringify(payload),'utf8'),keys.privateKey).toString('base64url')};
 }
 before(async()=>{
  assertEnvironment();
@@ -143,7 +143,7 @@ test('B14 malformed challenge with extra fields or unsupported action is denied'
  assert.equal((await issueAssertion({auth:authF03,token:salesToken,challenge:{...ch,action:'admin.anything'},privateKey:keys.privateKey,kid:keys.kid})).code,'ASSERTION_INPUT_INVALID');
 });
 test('B15 altered signature fails Ed25519 verification',async()=>{
- const {ch,assertion}=await prepared();const bad={...assertion,signature:assertion.signature.slice(0,-1)+(assertion.signature.endsWith('A')?'B':'A')};
+ const {ch,assertion}=await prepared();const bad={...assertion,signature:(assertion.signature.startsWith('A')?'B':'A')+assertion.signature.slice(1)};
  const out=await verify(ch,bad);assert.equal(out.allowed,false);assert.equal(out.code,'ASSERTION_SIGNATURE_INVALID');
 });
 test('B16 wrong ephemeral public key is rejected',async()=>{
