@@ -3,7 +3,7 @@ import {before,after,test} from 'node:test';
 import {randomUUID,sign as cryptoSign} from 'node:crypto';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {PublisherPhoneAdminService} from '../../../src/f03-publisher-phone-admin-service.mjs';
-import {configurePublisherPhoneAccess} from '../../f07/publisher-phone-scope-runtime/guard.mjs';
+import {configurePublisherPhoneAccess} from '../../../f07/publisher-phone-scope-runtime/guard.mjs';
 import {ChallengeStore} from '../challenge-store.mjs';
 import {issueAssertion} from '../issuer.mjs';
 import {verifyAndAuthorize} from '../verifier.mjs';
