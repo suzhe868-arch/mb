@@ -9,7 +9,7 @@
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F06_F07_F08_INTEGRATION_REPLAN",
-  "current_domain_status": "A 已复核 F06/F07/F08 整合重排并纠正 F05→F06 同车桥接子门禁的过期状态；PR #233 子门禁为 A_ACCEPTED_LIMITED_NONPROD。父 Issue #187 仍 SOURCE_GAP/FAIL_CLOSED，整体 F06/F07/F08/V1 仍 NOT_READY/NO_PRODUCTION。尚无新 B/C 授权，等待正式可信来源、签署/信任根、不可变归档及外部资源路径确认。",
+  "current_domain_status": "A 已复核 B_APP_01 车辆目录只读候选：核心非生产列表/详情/统计及客户价格/确定性搜索与当前 main 的 F05 目录实现重叠，不按旧单重复开工；正式 Runtime/可信来源仍未闭合。父 Issue #187 继续 SOURCE_GAP/FAIL_CLOSED，F06/F07/F08/V1 仍 NOT_READY/NO_PRODUCTION，当前无新 B/C 授权。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -21,7 +21,7 @@
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
   "current_task": "F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01",
-  "current_work_file": "07_重建工作区/F06-F07-F08整合重排与状态一致性复核_A主控报告_2026-10-24.md",
+  "current_work_file": "07_重建工作区/车辆目录既有后端覆盖与可独立施工缺口复核_A主控报告_2026-10-24.md",
   "a_f08_source_gate_review_2026_10_23": {
     "status": "SOURCE_GAP/FAIL_CLOSED",
     "reviewed_at": "2026-10-23",
@@ -10031,7 +10031,7 @@
   },
   "b_app_01_catalog_readonly": {
     "task_id": "B_APP_01_REAL_PG16_CATALOG_LIST_DETAIL_READONLY_01",
-    "status": "A_QUEUED_DEFERRED_PENDING_F06_ACTUAL_DEPENDENCY_ORDER",
+    "status": "A_REASSESSED_OVERLAPPING_NONPROD_IMPLEMENTATION_DO_NOT_REOPEN_AS_IS",
     "branch": "feat/b-app-01-catalog-readonly-pg16",
     "work_order": "07_重建工作区/B_APP_01_车辆列表详情真实只读接口与C01联调契约_A主控正式施工单_2026-10-18.md",
     "owner": "B",
@@ -10047,7 +10047,22 @@
     "c_parallel_status": "C_R3_USER_VISUAL_AND_FUNCTION_REJECTED_NO_MERGE",
     "formal_f05_source_oracle_blocker_recorded_not_business_dev_stop": true,
     "previous_release_status": "A_RELEASED_REAL_TEST_PG16_BACKEND_CODE_ONLY",
-    "priority_override_reason": "USER_F05_THEN_F06_F07_F08"
+    "priority_override_reason": "USER_F05_THEN_F06_F07_F08",
+    "reassessed_at": "2026-10-24",
+    "reassessed_main_sha": "d106c852ffbe7dbf4cb4e2be4ad76e011b379fff",
+    "nonprod_coverage_evidence": {
+      "catalog_service_sha": "849346e942cddc0987dbecebe0d29569db65692f8",
+      "catalog_http_sha": "40fb33174e0e3e8302f12634a5d3b1d0ea8116f0",
+      "catalog_readiness_sha": "d61188665492334df58034b7d4c95f66752710d2",
+      "catalog_wiring_sha": "ddee9a6462224b393d51ea419bb8d803d5f2cd7c",
+      "accepted_pr": 210,
+      "merge_sha": "c2087a15fd3d124080e549acc02b515fb877ba8e",
+      "official_run_id": 39743949320,
+      "real_node_http_pg16_tests": "117/117",
+      "scope": "DISPOSABLE_PG16_CI_ONLY_NOT_PRODUCTION"
+    },
+    "production_runtime_status": "NOT_READY_FORMAL_SOURCE_AND_RUNTIME_GAPS_REMAIN",
+    "reopen_policy": "Do not reactivate the original work order as-is. Reopen only after an incremental diff audit proves a non-overlapping missing behavior with complete product authority, physical schema, current permission/scope and executable real PG16 acceptance."
   },
   "f05_attestation_scope_reprioritization": "LEGACY_SAME_SHA_PROVENANCE_NOT_REQUIRED_FOR_V1_CI_ONLY_STAGE_ACCEPTANCE_FORMAL_SOURCE_STILL_FAIL_CLOSED",
   "f05_ci_only_functional_closeout": {
@@ -12577,5 +12592,33 @@
     "new_b_task_released": false,
     "user_decision_required": "CONFIRM_FORMAL_ISSUER_TRUST_ROOT_ARCHIVE_AND_EXTERNAL_RESOURCE_PATH",
     "production_authorized": false
+  },
+  "a_catalog_readonly_reassessment_2026_10_24": {
+    "status": "A_REASSESSED_NO_NEW_B_TASK",
+    "reviewed_main_sha": "d106c852ffbe7dbf4cb4e2be4ad76e011b379fff",
+    "report": "07_重建工作区/车辆目录既有后端覆盖与可独立施工缺口复核_A主控报告_2026-10-24.md",
+    "candidate_task": "B_APP_01_REAL_PG16_CATALOG_LIST_DETAIL_READONLY_01",
+    "decision": "NO_REOPEN_CORE_NONPROD_SCOPE_OVERLAPS_F05_CATALOG_PR210",
+    "accepted_prs": [
+      210,
+      241,
+      245,
+      250,
+      233
+    ],
+    "remaining_source_gaps": [
+      "F03_SCOPE_OBJECT_FORMAL_AUTHORITY",
+      "F05_SIGNED_CONVERSION_ISSUER",
+      "F07_FORMAL_RUNTIME_AND_JYT_COLLECTOR_PHONE_SOURCE",
+      "SLA_INCIDENT_SIGNED_ISSUER_AND_ROUTE",
+      "CDN_OSS_FEISHU_EXTERNAL_RESOURCES",
+      "FORMAL_TRUST_ROOT_AND_IMMUTABLE_EVIDENCE_ARCHIVE"
+    ],
+    "next_owner": "A",
+    "next_task": "F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01",
+    "next_issue": 187,
+    "next_branch": "NONE",
+    "production_authorized": false,
+    "new_b_task_released": false
   }
 }
