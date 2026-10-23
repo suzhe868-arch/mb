@@ -47,7 +47,7 @@ for(let i=0;i<LOGS.length;i++){
 }
 const activeTap=tap[LOGS[0]];
 const minimum=track==='business'?24:12;
-const expectedCount=track==='business'?30:22;
+const expectedCount=track==='business'?32:22;
 if(!activeTap||activeTap.tests<minimum||activeTap.cases.length!==activeTap.tests||activeTap.tests!==expectedCount)evidenceStatus='FAIL';
 if(!database.ok)evidenceStatus='FAIL';
 const sha=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
