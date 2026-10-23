@@ -14,7 +14,7 @@ import {createFoundationHandler} from '../../../src/app.mjs';
 
 const F07_ORIGIN='https://127.0.0.1:4317',F03_ORIGIN='https://127.0.0.1:4318';
 let f03,f07,authF03,authF07,adminToken,salesToken,phoneAdmin,store,keys,tls,harness,productionServer;
-const requestKey=()=>crypto.randomUUID().replaceAll('-','');
+const requestKey=()=>randomUUID().replaceAll('-','');
 async function configureMode(mode){
  const current=await phoneAdmin.get({token:adminToken,employeeId:'6'});assert.equal(current.status,200);
  const changed=await phoneAdmin.change({token:adminToken,employeeId:'6',method:'PUT',
@@ -140,7 +140,7 @@ test('H14 request body size is capped before parsing',async()=>{
  const x=await callF07({body:'x'.repeat(3000)});assert.equal(x.status,400);assert.equal(x.body.code,'BODY_TOO_LARGE');
 });
 test('H15 valid F03 HTTPS issuer returns a signed, challenge-bound assertion only to current employee session',async()=>{
- const ch=await store.create({employeeId:'6',action:'vehicle.publisher_phone.latest',vehicleId:'101',requestId:crypto.randomUUID()});
+ const ch=await store.create({employeeId:'6',action:'vehicle.publisher_phone.latest',vehicleId:'101',requestId:randomUUID()});
  const x=await issuer({body:{challenge:ch}});
  assert.equal(x.status,200);assert.equal(x.body.ok,true);assert.equal(x.body.code,'ASSERTION_ISSUED');
  assert.equal(x.body.assertion.payload.challengeId,ch.challengeId);
