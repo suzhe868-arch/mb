@@ -1,3 +1,18 @@
+# 名邦汽车 V1｜A 已验收 F03 客户账号状态并接续 F08 来源父门禁（2026-10-23）
+
+- **NEXT_OWNER=A**
+- **NEXT_TASK=`A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`**
+- **NEXT_ISSUE=187**：[来源与整阶段父门禁](https://github.com/suzhe868-arch/mb/issues/187)
+- **NEXT_BRANCH=NONE**
+- **NEXT_WORK_FILE=`07_重建工作区/F03客户账号状态PR237_A独立验收与F08父门禁接续报告_2026-10-23.md`**
+- [PR #237](https://github.com/suzhe868-arch/mb/pull/237) 已由 A 独立验收并标准合并；[Issue #235](https://github.com/suzhe868-arch/mb/issues/235) 已关闭。B 最终 HEAD `5ab6e9e669e9581b0b2ba12aec6579d2b2bedcf7`；业务 merge SHA `0f2b030ef32c47999e70f7d66bf64ca3817d7766`。
+- [官方 Run #39942783644](https://github.com/suzhe868-arch/mb/actions/runs/39942783644) 与 B 最终 HEAD 一致，双独立真实非超管 PG16 Job 成功；每 Job 业务 35/35、HTTPS 14/14、Node 269/269，0 失败/跳过；A **实际下载复算** Artifact #12496658002 / #12496583150，ZIP digest 正确、内部逐份 16/16 SHA256 正确。
+- 该验收仅为 `CI_ONLY_F03_CUSTOMER_ACCOUNT_STATUS` 非生产纵切；System Admin/员工权限与 Customer object Scope、4S hard deny、Customer/Demand 原子暂停、恢复不自动重新激活、审计/幂等/并发均属本包。合成 Demand 激活锁序测试**不是**正式 F05 业务 API 完整联调；其它 Domain Guard 仍 `NOT_CONNECTED`。
+- 父 [Issue #187](https://github.com/suzhe868-arch/mb/issues/187) 仍 `SOURCE_GAP/FAIL_CLOSED`，F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。JYT/Collector、CDN/OSS、飞书、正式来源、真实电话、资金、生产均未放行；PC #196/C PR #68 不启动。当前**没有新 B 施工授权**，A 继续有界核查尚未解决的可信来源与可独立后端缺口。
+- 正式 [A 独立验收与接续报告](07_重建工作区/F03客户账号状态PR237_A独立验收与F08父门禁接续报告_2026-10-23.md)；以下更早日期/任务的“当前指针”均为历史记录，不再有效。
+
+---
+
 # 名邦汽车 V1｜A 正式放行 F03 客户账号停用恢复与 Demand 暂停非生产后端（2026-10-23）
 
 - **NEXT_OWNER=B**
