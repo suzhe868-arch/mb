@@ -3282,3 +3282,10 @@ G受检最终HEAD19af2955d81ac14d79e0c4e6adc661a3a1aabd8e同SHA CI38025357614 20
 - **白名单**：新 `engineering/f05-f06/same-vehicle-signed-bridge/**` 和唯一新 Workflow；F05 `migration.mjs` 只增一个精确测试分支许可；F06 Composite 签名根/Issuer SQL/同Ref脚本/161表24迁移 Seal 只增一个确切第三 profile。其余 F05/F06 旧服务、公共 DDL/迁移、旧 Workflow、PDM、生产路由、F07 真实来源、C/PC 页面均冻结。
 - **验收要求**：两个独立非超管 PG16 Job 各自完整执行发布→签名 F06 业务链→F05 在后编辑→F06 快照复核；同 SHA 官方 CI/Artifact、内部哈希、161表/24迁移 Seal 和中文交接由 A 独立核验。失败或来源冲突必须 fail-closed，不得用 Mock/历史结果替代。
 - **边界**：父 Issue #187 继续 `SOURCE_GAP/FAIL_CLOSED`；本任务不授权真实电话/JYT/Collector/CDN/OSS/Feishu/真实资金或生产。F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`，PC #196 继续延期、C PR #68 不动。
+
+## 2026-10-23｜A 独立验收裁决：F05→F06 同车签名桥接子任务限定非生产通过
+
+- **完成范围：** Issue #231、PR #233，B 末次 HEAD `d0b7749d7a85c6ca369ba1b32c0f1cce4e68a5ac`，标准合并 SHA `af61f206c61ddc1632086aa8e49aa9b68b67ba2e`，官方 Run #39925488640 双独立 PG16 Job success；A 下载双 Artifact 复算 ZIP 和各自 22/22 内部 SHA256，实核每个 Job TAP 109/109（B 所述 127/127 不作为正式证据），跨 Runtime 正向 16/负向 16、失败 0、跳过 0。
+- **技术裁决：** F05 14 与 F06 24 条迁移、独立数据库 OID、161 表父链签名封印满足限定非生产要求；同一 Vehicle/Cycle F05 HTTPS 发布→F06 原生锁车/合成定金/交易→F05 HTTPS 在后编辑，F06 历史快照原价不追改。上轮遗漏的 `f06_3a_ci.adjustments` 全集合及四组私有签名 Attestation 已纳入 before/after 快照及缺失拒绝，A 独立复算快照 JSON SHA 一致。
+- **边界不变：** 仅 `F05_216_SAME_VEHICLE_SIGNED_F06_LOCK_TRANSACTION_DEPOSIT_CROSS_RUNTIME_INTEGRATION=A_ACCEPTED_LIMITED_NONPROD`，不授权生产、真钱、真实电话、JYT/Collector、CDN/OSS/飞书，父 Issue #187 `SOURCE_GAP/FAIL_CLOSED`。F06/F07/F08/V1 `NOT_READY/NO_PRODUCTION`。
+- **正式接续：** `NEXT_OWNER=A` / `NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01` / `NEXT_ISSUE=187` / `NEXT_BRANCH=NONE`。验收报告 `07_重建工作区/F05_F06同车签名桥接Issue231_PR233独立验收与来源门禁接续报告_2026-10-23.md`。

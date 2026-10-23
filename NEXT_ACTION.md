@@ -1,25 +1,22 @@
-# 名邦汽车 V1｜NEXT_ACTION 当前唯一有效指针｜F05→F06 同车签名桥接（2026-10-23）
+# 名邦汽车 V1｜NEXT_ACTION 最新唯一指针｜A 继续 F08 可信来源门禁（2026-10-23）
 
-- **NEXT_OWNER=B**
-- **NEXT_TASK=`F05_F06_SAME_VEHICLE_SIGNED_CROSS_RUNTIME_BRIDGE_PG16_01`**
-- **NEXT_ISSUE=231**：[F05→F06 同车签名跨 Runtime 桥接](https://github.com/suzhe868-arch/mb/issues/231)
-- **NEXT_BRANCH=`feat/f05-f06-same-vehicle-signed-bridge-pg16-01`**
-- **NEXT_WORK_FILE=`07_重建工作区/F05_F06同车签名跨Runtime桥接与历史快照不可变非生产施工单_2026-10-23.md`**
+- **NEXT_OWNER=A**
+- **NEXT_TASK=`A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`**
+- **NEXT_ISSUE=187**：[F08 可信来源与父级门禁](https://github.com/suzhe868-arch/mb/issues/187)
+- **NEXT_BRANCH=NONE**
+- **NEXT_WORK_FILE=`07_重建工作区/F05_F06同车签名桥接Issue231_PR233独立验收与来源门禁接续报告_2026-10-23.md`**
 
-## 当前 B 任务
+## 最近完成并冻结复用
 
-按正式施工单完成 F05 #214 已发布人工 Vehicle 与 F06 已签 Lock→Transaction/Deposit 的同车跨 Runtime 非生产桥接：
-- F05 14 条迁移与 F06 24 条签名迁移/161 表父链保持独立，不混用 public Schema。
-- 同一 Vehicle/Cycle ID 与原发布客户标价由当前 SHA/Run/Ref/OID 绑定的不可变清单证明。
-- F06 原生业务服务创建 Lock/合成 Deposit/Transaction；其后通过 F05 #216 HTTPS 正式编辑同一车，逐行核验 Lock、Transaction、Deposit/资金历史与审计快照完全不变。
-- 至少两个独立 PG16 Job 各自完整执行上述流程，官方同 SHA Workflow/Artifact 全部成功，失败/跳过 0，完成中文交接后交 A 独立验收。
-- 精确白名单只含新桥接目录/Workflow、F05 migration 测试分支 allowlist 单点扩展、F06 五个签名根文件的精确第三分支 profile；不修改旧业务服务、公共 DDL/迁移、旧 Workflow、PDM、生产路由或 C/PC 页面。
+- Issue #231 / [PR #233](https://github.com/suzhe868-arch/mb/pull/233) 已通过限定非生产独立验收并标准合并；B HEAD `d0b7749d7a85c6ca369ba1b32c0f1cce4e68a5ac`，合并 SHA `af61f206c61ddc1632086aa8e49aa9b68b67ba2e`。
+- 官方 Run [#39925488640](https://github.com/suzhe868-arch/mb/actions/runs/39925488640) 两个独立 PG16 Job 均成功。证据核实各 109/109 TAP（不是 B 评论中的 127/127）、正向 16 / 负向 16，失败/跳过 0；两份 ZIP 与各自 22/22 内部文件哈希复核通过。
+- F05→F06 同一 Vehicle/Cycle 的 Lock/合成 Deposit/Transaction→F05 在后编辑→F06 历史快照不追改已取得合法非生产证据；Finance adjustments 集合、四组私有 Attestation 及 161 表/24 迁移跨 OID Seal 已覆盖。
 
-## 父级与全局边界
+## 当前 A 任务
 
-- Issue #187 继续 `SOURCE_GAP/FAIL_CLOSED`；本任务不放行正式 F03 Scope/Object、F05 转换 Issuer、F07 真实电话、JYT/Collector、CDN/OSS、Feishu 或 SLA/Incident。
-- 本任务通过只代表同车非生产跨 Runtime 快照不回写证据完成；F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。
-- Issue #106 保留历史状态，不覆盖当前指针；Issue #196 继续延期；C PR #68 独立不动。不得重复 #190/#221/#227。
+- 继续增量核查父 Issue #187 的正式 F03 Scope/Object、F05 转换正向 Issuer、F07 Runtime 来源及外部系统接入授权；保留 `SOURCE_GAP/FAIL_CLOSED`，未取得可信资源不得签发生产 Source/Issuer。
+- F06/F07/F08/V1 整体继续 `NOT_READY/NO_PRODUCTION`，真实电话、第三方公网、生产资金、退款与上线均未授权。
+- 只有确认另一项依赖已满足、未曾验收且具有完整 Authority 的独立后端业务缺口，才签发新的最小 B 任务；不重复 #190/#221/#227/#231，不提前做 PC/C 页面。
 
 ---
 
