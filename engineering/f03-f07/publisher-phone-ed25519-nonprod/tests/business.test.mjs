@@ -239,6 +239,20 @@ test('B29 successful and denied decisions write only safe audit metadata',async(
  const row=await sql07("SELECT allowed,origin,decision_code FROM f03_f07_phone_ed25519_nonprod.decision_audit WHERE audit_id=$1::bigint",[audit]);
  assert.equal(row.rows[0].allowed,true);assert.equal(row.rows[0].origin,ORIGIN);
 });
+test('B31 role changes after signing are rejected even if the broad F07 role set still allows Guard',async()=>{
+ const {ch,assertion}=await prepared();
+ await sql03("UPDATE public.employees SET main_role_id=3 WHERE employee_id=6");
+ try{const out=await verify(ch,assertion);assert.equal(out.allowed,false);assert.equal(out.code,'CURRENT_EMPLOYEE_FACTS_CHANGED')}
+ finally{await sql03("UPDATE public.employees SET main_role_id=1 WHERE employee_id=6")}
+});
+test('B32 same-allow revoke/regrant changes exact Scope binding and invalidates old assertion',async()=>{
+ const {ch,assertion}=await prepared();
+ const out=await configurePublisherPhoneAccess({auth:authF07,pool:f07,token:adminToken,
+  input:{action:'grant',employee_id:6,scope_mode:'LOCKED_ONLY'}});
+ assert.equal(out.allowed,true);
+ const checked=await verify(ch,assertion);assert.equal(checked.allowed,false);
+ assert.equal(checked.code,'F03_FACTS_CHANGED_AFTER_SIGNATURE');
+});
 test('B30 post-grant employee lifecycle audit invalidates issuance',async()=>{
  await sql03("INSERT INTO public.audit_events(actor_kind,actor_id,role_context,object_kind,object_id,action,before_json,after_json,occurred_at) "+
   "VALUES('system_admin','9','{}'::jsonb,'employee','6','synthetic.employee.lifecycle.changed','{}'::jsonb,'{}'::jsonb,transaction_timestamp())");
