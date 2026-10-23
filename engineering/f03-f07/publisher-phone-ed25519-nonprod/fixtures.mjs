@@ -7,10 +7,11 @@ assertEnvironment();
 const f03=new pg.Pool({connectionString:F03_URL,max:4});
 const f07=new pg.Pool({connectionString:F07_URL,max:4});
 try{
- await assertPhysicalPg16(f03,'F03');await assertPhysicalPg16(f07,'F07');
+ await assertPhysicalPg16(f03,'F03');
  await f03.query(await readFile(new URL('../../f03/publisher-phone-staff-admin/schema.sql',import.meta.url),'utf8'));
  await f07.query(await readFile(new URL('../../f07/publisher-phone-scope-runtime/schema.sql',import.meta.url),'utf8'));
  await f07.query(await readFile(new URL('./schema.sql',import.meta.url),'utf8'));
+ await assertPhysicalPg16(f07,'F07');
  await f03.query('BEGIN');
  try{
   await f03.query("INSERT INTO public.roles(role_id,role_code) VALUES (3,'manager'),(4,'store_manager') ON CONFLICT(role_id) DO NOTHING");
