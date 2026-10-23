@@ -124,7 +124,7 @@ test('19 disabled PC credentials invalidate existing session',async()=>{
 });
 test('20 forced-password-change session cannot mutate',async()=>{
  await sql("UPDATE public.pc_login_accounts SET force_password_change=true WHERE employee_id=10");
- assert.equal((await run(manager)).status,401);
+ assert.equal((await run(manager)).code,'FORCE_PASSWORD_CHANGE_REQUIRED');
  await sql("UPDATE public.pc_login_accounts SET force_password_change=false WHERE employee_id=10");
 });
 test('21 ended object Scope denies mutation',async()=>{
