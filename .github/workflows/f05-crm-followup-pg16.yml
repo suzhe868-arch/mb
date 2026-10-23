@@ -48,8 +48,6 @@ jobs:
       F05_CRM_TLS_CERT_PATH: /tmp/f05-crm-cert.pem
       F03_1_TLS_KEY_PATH: /tmp/f05-crm-key.pem
       F03_1_TLS_CERT_PATH: /tmp/f05-crm-cert.pem
-      F03_CUSTOMER_ACCOUNT_STATUS_CONSENT: I_AUTHORIZE_F03_CUSTOMER_ACCOUNT_STATUS_DISPOSABLE_PG16_ONLY
-      F03_ACCOUNT_STATUS_FAULTS: 'true'
     steps:
       - name: Checkout exact SHA
         uses: actions/checkout@v4
@@ -115,7 +113,6 @@ jobs:
           set -euo pipefail
           node engineering/f03-1/fixtures.mjs
           node engineering/f03/runtime-scope/fixtures.mjs
-          node engineering/f03/customer-account-status/fixtures.mjs
           node engineering/f05/crm-followup-ci/fixtures.mjs
       - name: CRM append-only real PG16 authorization and race business matrix
         shell: bash
@@ -131,11 +128,11 @@ jobs:
           node --test --test-concurrency=1 engineering/f05/crm-followup-ci/tests/https.test.mjs 2>&1 | tee f05-crm-https.log
           grep -q '# fail 0' f05-crm-https.log
           grep -q '# skipped 0' f05-crm-https.log
-      - name: Existing F03 Customer Account Status regression on same signed source
+      - name: Original public Customer inactive and Demand unchanged compatibility regression
         shell: bash
         run: |
           set -euo pipefail
-          node --test --test-concurrency=1 engineering/f03/customer-account-status/tests/business.test.mjs 2>&1 | tee f05-crm-account-regression.log
+          node --test --test-concurrency=1 engineering/f05/crm-followup-ci/tests/account-inactive-regression.test.mjs 2>&1 | tee f05-crm-account-regression.log
           grep -q '# fail 0' f05-crm-account-regression.log
           grep -q '# skipped 0' f05-crm-account-regression.log
       - name: Affected current F03 Scope object Guard regression
