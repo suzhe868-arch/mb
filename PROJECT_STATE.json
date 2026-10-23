@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "BACKEND_ENGINEERING",
-  "substage": "F03_CUSTOMER_ACCOUNT_STATUS_NONPROD_A_ACCEPTED_F08_SOURCE_GATE_ACTIVE",
+  "substage": "F05_CRM_FOLLOWUP_APPEND_HTTP_PG16_NONPROD_RELEASED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F08_SIGNED_SOURCE_AND_STAGE_GATE",
-  "current_domain_status": "F03 Issue #235/PR #237 已由 A 独立验收并标准合并，限定 CI_ONLY_F03_CUSTOMER_ACCOUNT_STATUS；Issue #187 仍 SOURCE_GAP/FAIL_CLOSED，F06/F07/F08/V1 仍 NOT_READY/NO_PRODUCTION。",
+  "current_domain": "F05_CRM_FOLLOWUP",
+  "current_domain_status": "A 正式放行 Issue #239 CRM Follow-up CI-only 实际后端追加写入与 PG16/HTTPS 非生产纵切。PDM-16/21 真业务规则已签；正式 CRM permission 正向 Issuer 未签，禁止当成生产授权；#187 仍 SOURCE_GAP/FAIL_CLOSED，F06/F07/F08/V1 仍 NOT_READY/NO_PRODUCTION。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
-  "current_work_file": "07_重建工作区/F03客户账号状态PR237_A独立验收与F08父门禁接续报告_2026-10-23.md",
+  "current_task": "F05_CRM_FOLLOWUP_APPEND_HTTP_PG16_01",
+  "current_work_file": "07_重建工作区/F05客户CRM跟进追加写入HTTPS真实PG16非生产施工单_2026-10-23.md",
   "a_f08_source_gate_review_2026_10_23": {
     "status": "SOURCE_GAP/FAIL_CLOSED",
     "reviewed_at": "2026-10-23",
@@ -3431,7 +3431,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "A 核查 Issue #187 可信签名来源、真实外部资源与独立后端剩余缺口；只有存在新的已签合法工程范围时另行放行 B。Issue #235/PR #237 已验收合并、不得重做。",
+  "next_action": "B 以治理 PR 合并后的最新 main 为起点，在指定分支一次性完成 Issue #239 新 CRM 跟进追加事务、当前真实会话/当前 Customer Scope、合成非生产独立写权限、HTTP/PG16/HTTPS/关联回归及有效 Artifact，达到 READY_FOR_A_REVIEW 后交 A 独立验收；正式权限 Issuer 缺口必须显式 fail-closed。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -5011,7 +5011,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "A 继续父门禁增量核实。JYT/Collector/CDN/OSS/飞书、正式电话/Issuer、生产/真钱未授权；C PR #68 和 PC #196 不启动。下一次 B 业务施工必须另有 A 新正式施工单。",
+  "next_action_detail": "限 F05 CRM Followup 新增目录/两新服务、本任务单个 CI-only app handler 与新 Workflow；禁止修改旧 F03/F05/F06/F07、公共 DDL、生产路由、外部资金/电话、PC/C。Issue #187 保持 SOURCE_GAP/FAIL_CLOSED，下一任务只以本正式施工单为准。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -6049,7 +6049,7 @@
   },
   "a_batch_approval_mode": "STANDING_USER_DIRECTED_CONTINUOUS_TECHNICAL_WORKFLOW_IN_FROZEN_SCOPE; A_SCOPES_AND_RELEASES_B_C; EACH_WINDOW_COMPLETES_END_TO_END; A_INDEPENDENT_ACCEPTANCE_AND_CLEAN_PR_MERGE_WITHOUT_REPEAT_APPROVAL; NEW_PRODUCT_CHOICE_CRITICAL_VISUAL_PRODUCTION_REAL_DATA_EXTERNAL_WRITES_REQUIRE_USER",
   "current_pending_user_decisions": [],
-  "next_action_owner": "A",
+  "next_action_owner": "B",
   "abc_continuous_execution_rule": {
     "status": "USER_DIRECTIVE_APPLIED",
     "confirmed_at": "2026-10-09",
@@ -7055,7 +7055,7 @@
     "merge_method": "merge",
     "a_review_report": "07_重建工作区/F05-7_A主控二轮独立验收66项真PG16_PR46标准合并与F05-8技术交接_2026-10-12.md"
   },
-  "next_owner": "A",
+  "next_owner": "B",
   "f05_8_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR47_CI_ONLY",
     "execution": "COMPLETED_A_ACCEPTED_PR47_STANDARD_MERGE",
@@ -8190,7 +8190,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
+  "next_task": "F05_CRM_FOLLOWUP_APPEND_HTTP_PG16_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9865,7 +9865,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F03客户账号状态PR237_A独立验收与F08父门禁接续报告_2026-10-23.md",
+  "next_work_file": "07_重建工作区/F05客户CRM跟进追加写入HTTPS真实PG16非生产施工单_2026-10-23.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -10161,8 +10161,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": "NONE",
-  "next_issue": 187,
+  "next_branch": "feat/f05-crm-followup-append-http-pg16-01",
+  "next_issue": 239,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -12075,5 +12075,35 @@
     "source_gap_parent": "SOURCE_GAP/FAIL_CLOSED",
     "other_domain_guards": "NOT_CONNECTED",
     "demand_activation_coverage": "SYNTHETIC_PG16_RACE_ONLY_NOT_F05_PRODUCTION_API"
+  },
+  "a_f05_crm_followup_issue239_release_2026_10_23": {
+    "status": "A_FORMAL_NONPROD_TASK_RELEASED_EFFECTIVE_AFTER_GOVERNANCE_MERGE",
+    "issue": 239,
+    "task_id": "F05_CRM_FOLLOWUP_APPEND_HTTP_PG16_01",
+    "branch": "feat/f05-crm-followup-append-http-pg16-01",
+    "work_file": "07_重建工作区/F05客户CRM跟进追加写入HTTPS真实PG16非生产施工单_2026-10-23.md",
+    "authorized_scope": "CI_ONLY_F05_CRM_FOLLOWUP_APPEND",
+    "authority": [
+      "PDM-16 §5/9/13",
+      "PDM-21 §25/27",
+      "PDM-02 §4",
+      "PDM-01 §11",
+      "PDM-25"
+    ],
+    "parent_issue": 187,
+    "parent_status": "SOURCE_GAP/FAIL_CLOSED",
+    "required_pg16_jobs": 2,
+    "permission_issuer": "CI_SYNTHETIC_TEST_ALIAS_ONLY_NOT_PRODUCTION",
+    "existing_schema": "public.crm_followups",
+    "public_ddl_change_allowed": false,
+    "production_authorized": false,
+    "external_sources_authorized": false,
+    "forbidden_prior_rework": [
+      "Issue #235",
+      "PR #237",
+      "F03 session/scope",
+      "F05 Demand",
+      "F05 Consultation"
+    ]
   }
 }
