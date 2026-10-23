@@ -44,6 +44,9 @@ export class CrmFollowupService{
     const cust=(await c.query("SELECT account_status,current_owner_employee_id::text owner_id,owner_assignment_state FROM public.customers WHERE customer_id=$1::bigint FOR UPDATE",[customerId])).rows[0];
     if(!cust)return result(404,'CUSTOMER_NOT_FOUND');
     if(cust.account_status!=='active')return result(403,'CUSTOMER_INACTIVE');
+    // A customer can retain a stale employee ID while assignment is pending. A
+    // non-null owner is never sufficient authority for CRM append or scoped read.
+    if(cust.owner_assignment_state!=='assigned')return result(403,'CUSTOMER_OWNER_NOT_ASSIGNED');
     if(!cust.owner_id)return result(403,'RESPONSIBLE_OWNER_MISSING');
     const owner=(await c.query('SELECT employment_status,main_role_id::text role_id,store_id::text store_id FROM public.employees WHERE employee_id=$1::bigint',[cust.owner_id])).rows[0];
     if(!owner||owner.employment_status!=='active')return result(403,'RESPONSIBLE_OWNER_NOT_ACTIVE');
