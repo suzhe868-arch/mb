@@ -54,6 +54,7 @@ export class CustomerAccountStatusService{
   try{await verify(this.auth.pool)}catch{return out(503,'ACCOUNT_STATUS_RUNTIME_NOT_READY')}
   try{
    return await this.auth.withSession(token,async(c,a)=>{
+    if(a.force_password_change!==false)return out(403,'FORCE_PASSWORD_CHANGE_REQUIRED');
     // withSession holds PC account then session locks; all business row locks follow.
     await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['customer.account.status:'+customerId]);
     const customer=(await c.query('SELECT customer_id::text AS id,account_status FROM public.customers WHERE customer_id=$1::bigint FOR UPDATE',[customerId])).rows[0];
