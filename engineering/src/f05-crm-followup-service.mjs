@@ -134,4 +134,34 @@ export class CrmFollowupService{
     content:row.content,businessDemandId:row.demand_id,source:{kind:row.source_context_json?.kind,reference:row.source_context_json?.reference??null}});
   });
  }
+
+ // Read-only Customer timeline. All current PC/Employee/Scope/Owner/Customer
+ // checks execute inside the original _withCustomer transaction and Customer row lock.
+ async list({token,customerId,limit=20,beforeFollowupId=null}){
+  if(!Number.isInteger(limit)||limit<1||limit>50)return result(400,'INVALID_TIMELINE_LIMIT');
+  if(beforeFollowupId!==null&&!validId(beforeFollowupId))return result(400,'INVALID_TIMELINE_CURSOR');
+  return this._withCustomer({token,customerId},async(c)=>{
+   const rows=(await c.query(
+    "SELECT followup_id::text id,customer_id::text customer_id,"+
+    "actor_employee_id::text actor_id,responsible_employee_id::text owner_id,"+
+    "occurred_at,content,business_demand_id::text demand_id,source_context_json source "+
+    "FROM public.crm_followups WHERE customer_id=$1::bigint "+
+    "AND ($2::bigint IS NULL OR followup_id<$2::bigint) "+
+    "ORDER BY followup_id DESC LIMIT $3::integer",
+    [customerId,beforeFollowupId,limit+1])).rows;
+   const hasMore=rows.length>limit,selected=rows.slice(0,limit);
+   const items=selected.map(row=>{
+    // Earlier, imported facts may contain arbitrary JSON: never spread or echo it.
+    const source=row.source&&typeof row.source==='object'&&!Array.isArray(row.source)?row.source:{};
+    const kind=['manual','call','visit'].includes(source.kind)?source.kind:null;
+    const reference=kind!==null&&typeof source.reference==='string'&&
+     /^[A-Za-z0-9_-]{3,40}$/.test(source.reference)?source.reference:null;
+    return {followupId:row.id,customerId,actorEmployeeId:row.actor_id,
+     responsibleEmployeeId:row.owner_id,occurredAt:new Date(row.occurred_at).toISOString(),
+     content:row.content,businessDemandId:row.demand_id,source:{kind,reference}};
+   });
+   return result(200,'OK',{customerId,items,hasMore,
+    nextBeforeFollowupId:hasMore&&items.length?items.at(-1).followupId:null});
+  });
+ }
 }

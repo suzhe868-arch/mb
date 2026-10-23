@@ -27,14 +27,31 @@ async function readBody(req){
  if(!data||Array.isArray(data)||typeof data!=='object'||Object.keys(data).sort().join('|')!=='businessDemandId|content|source')throw Object.assign(Error('INVALID_BODY'),{status:400});
  return data;
 }
+function parseTimelineQuery(raw){
+ if(raw==='')return {limit:20,beforeFollowupId:null};
+ const allowed=new Set(['limit','beforeFollowupId']),pairs=raw.split('&'),seen=new Set(),values={};
+ if(pairs.length>2)return null;
+ for(const pair of pairs){
+  const match=/^(limit|beforeFollowupId)=([0-9]+)$/.exec(pair);
+  if(!match||!allowed.has(match[1])||seen.has(match[1]))return null;
+  seen.add(match[1]);values[match[1]]=match[2];
+ }
+ const limit=values.limit===undefined?20:Number(values.limit);
+ if(values.limit!==undefined&&(!/^[1-9][0-9]{0,1}$/.test(values.limit)||!Number.isInteger(limit)||limit>50))return null;
+ const cursor=values.beforeFollowupId??null;
+ if(cursor!==null&&(!/^[1-9][0-9]{0,18}$/.test(cursor)||BigInt(cursor)>9223372036854775807n))return null;
+ return {limit,beforeFollowupId:cursor};
+}
 export function createCrmFollowupHandler({auth,service}){
  assertEnvironment();
  if(!auth||!service)throw Error('CRM_HTTP_DEPENDENCIES_REQUIRED');
  return async(req,res)=>{
   const url=req.url??'',path=url.split('?')[0],m=route.exec(path);
   if(!m)return false;
-  if(url!==path){send(res,400,{code:'QUERY_FORBIDDEN'});return true}
-  const customerId=m[1],followupId=m[2],isRead=followupId!==undefined,method=isRead?'GET':'POST';
+  const customerId=m[1],followupId=m[2],isRead=followupId!==undefined,isList=!isRead&&req.method==='GET';
+  // The original POST and by-ID GET continue rejecting every query string.
+  if(!isList&&url!==path){send(res,400,{code:'QUERY_FORBIDDEN'});return true}
+  const method=isRead||isList?'GET':'POST';
   if(req.method!==method){send(res,405,{code:'METHOD_NOT_ALLOWED'},{allow:method});return true}
   const bad=invalidHeaders(req);if(bad){send(res,bad==='FORWARDED_REQUEST_DENIED'?403:400,{code:bad});return true}
   if(req.socket?.encrypted!==true||req.socket?.remoteAddress!=='127.0.0.1'||req.headers.origin!==auth.origin||req.headers.host!==new URL(auth.origin).host){
@@ -46,6 +63,19 @@ export function createCrmFollowupHandler({auth,service}){
   if(isRead){
    if(req.headers['transfer-encoding']||req.headers['content-length']&&req.headers['content-length']!=='0'){send(res,400,{code:'GET_BODY_FORBIDDEN'});return true}
    try{const out=await service.read({token,customerId,followupId});send(res,out.status,out)}catch{send(res,503,{code:'CRM_UNAVAILABLE'})}
+   return true;
+  }
+  if(isList){
+   if(req.headers['transfer-encoding']||req.headers['content-length']&&req.headers['content-length']!=='0'){send(res,400,{code:'GET_BODY_FORBIDDEN'});return true}
+   // The new timeline GET requires the same live-session CSRF proof as CI writes.
+   if(typeof req.headers['x-csrf-token']!=='string'||!constantMatch(req.headers['x-csrf-token'],auth.csrfFor(token))){
+    send(res,403,{code:'CSRF_DENIED'});return true;
+   }
+   const query=url.includes('?')?url.slice(url.indexOf('?')+1):'';
+   if(url.endsWith('?')){send(res,400,{code:'INVALID_TIMELINE_QUERY'});return true}
+   const parsed=parseTimelineQuery(query);
+   if(!parsed){send(res,400,{code:'INVALID_TIMELINE_QUERY'});return true}
+   try{const out=await service.list({token,customerId,...parsed});send(res,out.status,out)}catch{send(res,503,{code:'CRM_UNAVAILABLE'})}
    return true;
   }
   if(typeof req.headers['idempotency-key']!=='string'||!/^[A-Za-z0-9_-]{12,80}$/.test(req.headers['idempotency-key'])){send(res,400,{code:'INVALID_IDEMPOTENCY_KEY'});return true}
