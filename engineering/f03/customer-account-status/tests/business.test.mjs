@@ -194,3 +194,55 @@ test('30 paused Demand never reactivates on second restore',async()=>{
  assert.equal((await demands()).filter(x=>x.demand_state==='active').length,0);
 });
 test('31 database still has original public SG01 structure',async()=>{assert.equal((await verifyScopeDatabase(pool)).verified,true)});
+
+test('32 first no-op request has one durable key proof; replay does not duplicate audit',async()=>{
+ await reset();const k=key();const before=await cnt("SELECT count(*)::int n FROM public.audit_events WHERE action='customer.account.no_change'");
+ const a=await run(admin,'restore','301',k);
+ assert.equal(a.code,'NO_CHANGE');assert.deepEqual(await run(admin,'restore','301',k),a);
+ assert.equal(await cnt("SELECT count(*)::int n FROM public.audit_events WHERE action='customer.account.no_change'"),before+1);
+ assert.equal((await run(admin,'restore','301',k,'Changed payload for key')).code,'IDEMPOTENCY_KEY_CONFLICT');
+});
+test('33 activation transaction wins Customer row lock; subsequently disabling pauses its new Demand',async()=>{
+ await reset();const c=await pool.connect();let pending;
+ try{
+  await c.query('BEGIN');
+  const row=(await c.query('SELECT account_status FROM public.customers WHERE customer_id=301 FOR UPDATE')).rows[0];
+  assert.equal(row.account_status,'active');
+  await c.query("INSERT INTO public.demands(demand_id,customer_id,responsible_employee_id,demand_state,criteria_json) VALUES(601,301,1,'active','{}'::jsonb)");
+  pending=run(admin,'disable');await new Promise(r=>setTimeout(r,70));
+  await c.query('COMMIT');
+  const a=await pending;assert.equal(a.status,200);assert.ok(a.pausedDemandIds.includes('601'));
+  assert.equal((await sql('SELECT demand_state FROM public.demands WHERE demand_id=601')).rows[0].demand_state,'paused');
+ }finally{await c.query('ROLLBACK').catch(()=>{});c.release();if(pending)await pending.catch(()=>{})}
+ assert.equal((await run(admin,'restore')).status,200);
+});
+test('34 disable wins Customer row lock; competing activation must read inactive and abort',async()=>{
+ await reset();let release;let entered;
+ const gate=new Promise(r=>{release=r}),reached=new Promise(r=>{entered=r});
+ const gated=new CustomerAccountStatusService(auth,{beforeAuditInsert:async()=>{entered();await gate}});
+ const pending=gated.disable({token:admin,customerId:'301',reason,requestKey:key()});
+ await reached;
+ const c=await pool.connect();let activating;
+ try{
+  await c.query('BEGIN');
+  activating=c.query('SELECT account_status FROM public.customers WHERE customer_id=301 FOR UPDATE');
+  await new Promise(r=>setTimeout(r,70));release();
+  assert.equal((await pending).status,200);
+  const state=(await activating).rows[0].account_status;
+  assert.equal(state,'inactive');
+  await c.query('ROLLBACK');
+ }finally{release();await c.query('ROLLBACK').catch(()=>{});c.release();if(activating)await activating.catch(()=>{});await pending.catch(()=>{})}
+ assert.equal((await sql('SELECT count(*)::int n FROM public.demands WHERE demand_id=602')).rows[0].n,0);
+ assert.equal((await run(admin,'restore')).status,200);
+});
+test('35 concurrent Customer Scope revocation commits before attempted disable',async()=>{
+ await reset();const c=await pool.connect();let pending;
+ try{
+  await c.query('BEGIN');
+  await c.query("UPDATE public.employee_data_scopes SET ended_at=transaction_timestamp() WHERE scope_id=201");
+  pending=run(manager);await new Promise(r=>setTimeout(r,70));
+  await c.query('COMMIT');
+  const a=await pending;assert.equal(a.code,'CUSTOMER_OBJECT_SCOPE_DENIED');assert.equal(await status(),'active');
+ }finally{await c.query('ROLLBACK').catch(()=>{});c.release();if(pending)await pending.catch(()=>{});
+  await sql('UPDATE public.employee_data_scopes SET ended_at=NULL WHERE scope_id=201')}
+});
