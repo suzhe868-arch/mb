@@ -7,7 +7,7 @@
 - **NEXT_BRANCH=`feat/f03-f07-publisher-phone-ed25519-nonprod-01`**
 - **NEXT_WORK_FILE=`07_重建工作区/F03-F07发布人电话Ed25519PR250_A独立验收整改记录_2026-10-23.md`**
 - B 最终 HEAD `ded9efa9078e94f3eccbd9298f6effac36f4c276`，官方 Push Run #39979249031 成功；真实 PG16 业务 32/32、HTTPS 22/22 均通过，失败/跳过均 0。两份官方 Artifact ZIP digest 与 GitHub 一致，内部 manifest 各 23/23 校验通过。
-- **未通过原因仅为必需负例覆盖不完整：** 真实员工停用后拒绝、凭证/会话撤销后拒绝，以及重签的 listingCycleId/capability/version 错配仍需独立测试。详见 [A 独立验收整改记录](`07_重建工作区/F03-F07发布人电话Ed25519PR250_A独立验收整改记录_2026-10-23.md`) 与 [PR #250](https://github.com/suzhe868-arch/mb/pull/250)。
+- **未通过原因仅为必需负例覆盖不完整：** 真实员工停用后拒绝、凭证/会话撤销后拒绝，以及重签的 listingCycleId/capability/version 错配仍需独立测试。详见 `07_重建工作区/F03-F07发布人电话Ed25519PR250_A独立验收整改记录_2026-10-23.md` 与 [PR #250](https://github.com/suzhe868-arch/mb/pull/250)。
 - 只允许在原精确白名单内定向补测与更新矩阵/证据计数；不得改旧 Guard/Runtime、公共迁移、既有 Workflow、PDM/IA、app/server、PC/C；不重跑 F05-7 旧 66 项，不接外部系统、真实电话、资金或生产。
 - Issue #248 继续开放；父 Issue #187 仍 `SOURCE_GAP/FAIL_CLOSED`，F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。
 
