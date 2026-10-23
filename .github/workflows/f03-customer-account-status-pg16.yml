@@ -153,6 +153,9 @@ jobs:
           name: f03-account-status-${{ matrix.track }}-${{ github.run_id }}
           if-no-files-found: warn
           retention-days: 14
+          # Upload action excludes dot-directories by default; explicit scoped workflow
+          # source must be preserved to satisfy the 16/16 artifact SHA-256 manifest.
+          include-hidden-files: true
           path: |
             f03-account-status-*.log
             f03-account-status-evidence.json
