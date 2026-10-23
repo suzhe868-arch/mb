@@ -15,7 +15,7 @@ async function readCurrentFacts(c,actor,session,challenge){
   "SELECT e.employee_id::text employee_id,e.employment_status,e.store_id::text store_id,"+
   "e.main_role_id::text main_role_id,r.role_code,a.account_id::text account_id,"+
   "a.credential_state,a.force_password_change,p.permission_id::text permission_id,"+
-  "o.decision personal_decision "+
+  "o.decision personal_decision,o.changed_at::text override_changed_at "+
   "FROM public.employees e JOIN public.roles r ON r.role_id=e.main_role_id "+
   "JOIN public.pc_login_accounts a ON a.account_id=$2::bigint AND a.employee_id=e.employee_id "+
   "LEFT JOIN public.permissions p ON p.permission_code=$3 "+
@@ -34,7 +34,7 @@ async function readCurrentFacts(c,actor,session,challenge){
  if(row.personal_decision==='deny')return result(false,'CURRENT_PERSONAL_DENY');
  if(row.personal_decision!=='allow')return result(false,'CURRENT_CAPABILITY_NOT_GRANTED');
  const bound=await c.query(
-  "SELECT count(*)::int n FROM public.employee_capability_scope_bindings b "+
+  "SELECT count(*)::int n,COALESCE(json_agg(json_build_object('scopeId',s.scope_id::text,'grantedAt',b.granted_at::text) ORDER BY s.scope_id),'[]'::json) active_bindings "+
   "JOIN public.employee_data_scopes s ON s.scope_id=b.scope_id AND s.employee_id=b.employee_id "+
   "WHERE b.employee_id=$1::bigint AND b.permission_id=$2::bigint "+
   "AND s.scope_kind='publisher_phone_special' AND s.scope_reference_id=$1::bigint "+
@@ -68,21 +68,26 @@ async function readCurrentFacts(c,actor,session,challenge){
  const facts={
   employeeId:row.employee_id,employmentStatus:row.employment_status,roleCode:row.role_code,
   mainRoleId:row.main_role_id,storeId:row.store_id,storeStatus:store.rows[0].status,
-  permissionId:row.permission_id,personalDecision:row.personal_decision,
-  scopeBindingCount:bound.rows[0].n,scopeMode:mode.scope_mode,scopeEnabled:mode.enabled,
+  permissionId:row.permission_id,personalDecision:row.personal_decision,overrideChangedAt:row.override_changed_at,
+  scopeBindingCount:bound.rows[0].n,activeBindings:bound.rows[0].active_bindings,scopeMode:mode.scope_mode,scopeEnabled:mode.enabled,
   modeVersion:mode.version,lifecycleWatermark:mode.watermark
  };
  return result(true,'CURRENT_PHONE_PERMISSION_CONFIRMED',{scopeMode:mode.scope_mode,factsSha256:hashFacts(facts)});
 }
 
-export async function issueAssertion({auth,token,challenge,privateKey,kid,now=Date.now()}){
- if(!auth||!privateKey||typeof kid!=='string'||!/^[0-9a-f]{24}$/.test(kid)||!validateChallenge(challenge))
-  return result(false,'ASSERTION_INPUT_INVALID');
+export async function checkCurrentF03Authorization({auth,token,challenge}){
+ if(!auth||!validateChallenge(challenge))return result(false,'ASSERTION_INPUT_INVALID');
  let current;
  try{current=await auth.withSession(token,async(c,actor,session)=>{
   return readCurrentFacts(c,actor,session,challenge);
  },{normalOnly:true})}catch{return result(false,'F03_CURRENT_FACTS_UNAVAILABLE')}
  if(!current)return result(false,'SESSION_OR_PC_ADMISSION_DENIED');
+ return current;
+}
+export async function issueAssertion({auth,token,challenge,privateKey,kid,now=Date.now()}){
+ if(!auth||!privateKey||typeof kid!=='string'||!/^[0-9a-f]{24}$/.test(kid)||!validateChallenge(challenge))
+  return result(false,'ASSERTION_INPUT_INVALID');
+ const current=await checkCurrentF03Authorization({auth,token,challenge});
  if(current.ok!==true)return current;
  const nowMs=typeof now==='number'?now:now instanceof Date?now.getTime():NaN;
  if(!Number.isFinite(nowMs))return result(false,'ASSERTION_CLOCK_INVALID');
