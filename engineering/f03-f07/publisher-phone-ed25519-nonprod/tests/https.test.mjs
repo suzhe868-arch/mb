@@ -155,7 +155,7 @@ test('H16 F03 issuer rejects malformed challenge, query and wrong method',async(
  const c=await issuer({method:'GET',body:null});assert.equal(c.status,405);
 });
 test('H17 F03 issuer requires a real employee session and CSRF',async()=>{
- const ch=await store.create({employeeId:'6',action:'vehicle.publisher_phone.latest',vehicleId:'101',requestId:crypto.randomUUID()});
+ const ch=await store.create({employeeId:'6',action:'vehicle.publisher_phone.latest',vehicleId:'101',requestId:randomUUID()});
  const noCookie=await issuer({token:null,body:{challenge:ch}});assert.equal(noCookie.status,401);
  const noCsrf=await issuer({csrf:undefined,body:{challenge:ch}});assert.equal(noCsrf.status,403);
  const wrongCsrf=await issuer({csrf:'wrong',body:{challenge:ch}});assert.equal(wrongCsrf.status,403);
