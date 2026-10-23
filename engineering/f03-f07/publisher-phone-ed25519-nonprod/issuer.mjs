@@ -78,9 +78,10 @@ async function readCurrentFacts(c,actor,session,challenge){
 export async function issueAssertion({auth,token,challenge,privateKey,kid,now=Date.now()}){
  if(!auth||!privateKey||typeof kid!=='string'||!/^[0-9a-f]{24}$/.test(kid)||!validateChallenge(challenge))
   return result(false,'ASSERTION_INPUT_INVALID');
- const current=await auth.withSession(token,async(c,actor,session)=>{
+ let current;
+ try{current=await auth.withSession(token,async(c,actor,session)=>{
   return readCurrentFacts(c,actor,session,challenge);
- },{normalOnly:true}).catch(()=>null);
+ },{normalOnly:true})}catch{return result(false,'F03_CURRENT_FACTS_UNAVAILABLE')}
  if(!current)return result(false,'SESSION_OR_PC_ADMISSION_DENIED');
  if(current.ok!==true)return current;
  const nowMs=typeof now==='number'?now:now instanceof Date?now.getTime():NaN;
