@@ -1,0 +1,190 @@
+name: F05 CRM Timeline Real PG16 Nonproduction
+on:
+  push:
+    branches:
+      - feat/f05-crm-followup-timeline-list-http-pg16-01
+    paths:
+      - 'engineering/f05/crm-followup-timeline-ci/**'
+      - 'engineering/src/f05-crm-followup-service.mjs'
+      - 'engineering/src/f05-crm-followup-http.mjs'
+      - 'engineering/f05/crm-followup-ci/environment.mjs'
+      - '.github/workflows/f05-crm-followup-timeline-pg16.yml'
+permissions:
+  contents: read
+concurrency:
+  group: f05-crm-timeline-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  real-pg16:
+    name: F05 CRM Timeline Real PG16 ${{ matrix.track }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        track: [pg16-a, pg16-b]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 24
+    env:
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F05_CRM_FOLLOWUP_CONSENT: I_AUTHORIZE_F05_CRM_FOLLOWUP_DISPOSABLE_PG16_ONLY
+      F05_CRM_FAULTS: 'true'
+      F05_CRM_TRACK: ${{ matrix.track }}
+      F05_CRM_TLS_KEY_PATH: /tmp/f05-crm-key.pem
+      F05_CRM_TLS_CERT_PATH: /tmp/f05-crm-cert.pem
+      F03_1_TLS_KEY_PATH: /tmp/f05-crm-key.pem
+      F03_1_TLS_CERT_PATH: /tmp/f05-crm-cert.pem
+    steps:
+      - name: Checkout exact SHA
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Authorized source whitelist and syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REF" = 'refs/heads/feat/f05-crm-followup-timeline-list-http-pg16-01'
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch origin main --depth=1
+          base="$(git merge-base origin/main HEAD)"
+          git diff --check "$base"...HEAD
+          while IFS= read -r file; do
+            case "$file" in
+              engineering/f05/crm-followup-timeline-ci/*|engineering/f05/crm-followup-ci/environment.mjs|engineering/src/f05-crm-followup-service.mjs|engineering/src/f05-crm-followup-http.mjs|.github/workflows/f05-crm-followup-timeline-pg16.yml) ;;
+              *) echo "F05_TIMELINE_OUT_OF_SCOPE:$file" >&2; exit 41 ;;
+            esac
+            case "$file" in
+              *.mjs|*.js|*.cjs) node --check "$file" ;;
+              *.sh) bash -n "$file" ;;
+            esac
+          done < <(git -c core.quotePath=false diff --name-only "$base"...HEAD)
+          npm --prefix engineering ci --ignore-scripts --no-audit --no-fund
+      - name: Create isolated non-superuser PG16 and ephemeral local TLS
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PGPASSWORD=postgres
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE f03_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE PASSWORD 'f03_ci_synthetic_only';
+          CREATE DATABASE f03_auth_test OWNER f03_ci;
+          SQL
+          echo "F03_1_HMAC_KEY_BASE64=$(openssl rand -base64 32)" >> "$GITHUB_ENV"
+          openssl req -x509 -newkey rsa:2048 -nodes -keyout "$F05_CRM_TLS_KEY_PATH" -out "$F05_CRM_TLS_CERT_PATH" -days 1 -subj '/CN=127.0.0.1' -addext 'subjectAltName=IP:127.0.0.1' >/dev/null 2>&1
+          chmod 600 "$F05_CRM_TLS_KEY_PATH"
+      - name: Bootstrap original signed F02 and F03-1
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f03-1/runner.mjs --bootstrap
+          node engineering/f03-1/runner.mjs --apply
+          node engineering/f03-1/runner.mjs --verify
+      - name: Run true SG01 signed current Scope migration
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f03/runtime-scope/tests/migration.test.mjs 2>&1 | tee f05-timeline-scope-regression.log
+          grep -q '# fail 0' f05-timeline-scope-regression.log
+          node engineering/f03/runtime-scope/runner.mjs --verify
+      - name: Synthetic current F03 identity, scope, customer and CRM facts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f03-1/fixtures.mjs
+          node engineering/f03/runtime-scope/fixtures.mjs
+          node engineering/f05/crm-followup-ci/fixtures.mjs
+      - name: CRM append-only real PG16 authorization and race business matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f05/crm-followup-ci/tests/business.test.mjs 2>&1 | tee f05-timeline-old-business.log
+          grep -q '# fail 0' f05-timeline-old-business.log
+          grep -q '# skipped 0' f05-timeline-old-business.log
+      - name: Real localhost TLS POST read replay and security matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f05/crm-followup-ci/tests/https.test.mjs 2>&1 | tee f05-timeline-old-https.log
+          grep -q '# fail 0' f05-timeline-old-https.log
+          grep -q '# skipped 0' f05-timeline-old-https.log
+      - name: New real PG16 Customer timeline keyset and permission/race matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f05/crm-followup-timeline-ci/tests/business.test.mjs 2>&1 | tee f05-timeline-business.log
+          grep -q '# fail 0' f05-timeline-business.log
+          grep -q '# skipped 0' f05-timeline-business.log
+      - name: New real localhost TLS timeline list security contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f05/crm-followup-timeline-ci/tests/https.test.mjs 2>&1 | tee f05-timeline-https.log
+          grep -q '# fail 0' f05-timeline-https.log
+          grep -q '# skipped 0' f05-timeline-https.log
+      - name: Original public Customer inactive and Demand unchanged compatibility regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f05/crm-followup-ci/tests/account-inactive-regression.test.mjs 2>&1 | tee f05-timeline-customer-regression.log
+          grep -q '# fail 0' f05-timeline-customer-regression.log
+          grep -q '# skipped 0' f05-timeline-customer-regression.log
+      - name: Affected current F03 Scope object Guard regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f03/runtime-scope/tests/integration.test.mjs 2>&1 | tee -a f05-timeline-scope-regression.log
+          grep -q '# fail 0' f05-timeline-scope-regression.log
+      - name: Node baseline regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --prefix engineering test 2>&1 | tee f05-timeline-node.log
+          grep -q '# fail 0' f05-timeline-node.log
+          grep -q '# skipped 0' f05-timeline-node.log
+      - name: Final exact HEAD and full independent manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f05/crm-followup-timeline-ci/evidence.mjs
+          sha256sum -c f05-timeline-sha256sums.txt
+      - name: Upload both independent complete SHA-bound evidence ZIPs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f05-timeline-${{ matrix.track }}-${{ github.run_id }}
+          if-no-files-found: warn
+          retention-days: 14
+          include-hidden-files: true
+          path: |
+            f05-timeline-*.log
+            f05-timeline-evidence.json
+            f05-timeline-sha256sums.txt
+            engineering/f05/crm-followup-timeline-ci/B工程交接.md
+            engineering/f05/crm-followup-timeline-ci/README.md
+            engineering/f05/crm-followup-timeline-ci/*.mjs
+            engineering/f05/crm-followup-timeline-ci/tests/*.mjs
+            engineering/f05/crm-followup-ci/environment.mjs
+            engineering/src/f05-crm-followup-service.mjs
+            engineering/src/f05-crm-followup-http.mjs
+            .github/workflows/f05-crm-followup-timeline-pg16.yml
