@@ -1,5 +1,6 @@
 import {connect} from './environment.mjs';
 import {verifyScopeDatabase} from '../../f03/runtime-scope/readiness.mjs';
+import {hashPassword} from '../../src/f03-auth-crypto.mjs';
 const p=await connect();
 try{
  await verifyScopeDatabase(p);
@@ -7,6 +8,23 @@ try{
  try{
   await c.query('BEGIN');
   try{
+   // Own independent CI-only facts. Do NOT execute the prior Issue #235 fixture,
+   // whose environment is deliberately signed to another branch.
+   await c.query("INSERT INTO public.roles(role_id,role_code) VALUES (3,'manager'),(4,'store_manager')");
+   await c.query("INSERT INTO public.employees(employee_id,store_id,employment_status,receiving_status,main_role_id) "+
+    "VALUES (10,1,'active','receiving',3),(11,1,'active','receiving',4)");
+   const accounts=[['manager_account_ci',10,'SyntheticManager_2026!'],['store_manager_account_ci',11,'SyntheticStoreManager_2026!']];
+   let accountId=30;
+   for(const [login,employeeId,password] of accounts){
+    const hash=await hashPassword(password);
+    await c.query("INSERT INTO public.pc_login_accounts(account_id,normalized_login_key,principal_kind,employee_id,password_hash,credential_state,force_password_change) "+
+     "VALUES($1,$2,'employee',$3,$4,'enabled',false)",[accountId++,login,employeeId,hash]);
+   }
+   await c.query("INSERT INTO public.customers(customer_id,account_status,customer_level_id,owner_assignment_state) VALUES(304,'active',1,'unassigned')");
+   for(const [did,cid,state] of [[501,301,'active'],[502,301,'active'],[503,301,'paused'],[504,301,'completed'],[505,301,'cancelled'],[506,302,'active'],[507,303,'paused'],[508,304,'active']]){
+    await c.query('INSERT INTO public.demands(demand_id,customer_id,responsible_employee_id,demand_state,criteria_json) VALUES($1,$2,1,$3,$4::jsonb)',
+      [did,cid,state,JSON.stringify({synthetic:true})]);
+   }
    // Synthetic CI-only permission name: NOT a frozen production permission Issuer.
    await c.query("INSERT INTO public.permissions(permission_id,permission_code) VALUES (61,'crm.followup.create')");
    await c.query("INSERT INTO public.role_permission_defaults(role_id,permission_id,enabled,changed_at) VALUES "+
