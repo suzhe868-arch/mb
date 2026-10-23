@@ -2,8 +2,10 @@ import pg from 'pg';
 export const BRANCH='refs/heads/feat/f05-crm-followup-append-http-pg16-01';
 export const CONSENT='I_AUTHORIZE_F05_CRM_FOLLOWUP_DISPOSABLE_PG16_ONLY';
 export function assertEnvironment(env=process.env){
- const expected={CI:'true',GITHUB_ACTIONS:'true',APP_ENV:'test',NODE_ENV:'test',GITHUB_REPOSITORY:'suzhe868-arch/mb',GITHUB_EVENT_NAME:'push',GITHUB_REF:BRANCH,F05_CRM_FOLLOWUP_CONSENT:CONSENT,F03_1_ISOLATION_CONFIRM:'I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY'};
+ const expected={CI:'true',GITHUB_ACTIONS:'true',APP_ENV:'test',NODE_ENV:'test',GITHUB_REPOSITORY:'suzhe868-arch/mb',GITHUB_EVENT_NAME:'push',F05_CRM_FOLLOWUP_CONSENT:CONSENT,F03_1_ISOLATION_CONFIRM:'I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY'};
  for(const [key,value] of Object.entries(expected))if(env[key]!==value)throw Error('CRM_ENV_DENIED_'+key);
+ // Only original append branch and signed CRM timeline branch; all other CI seals unchanged.
+ if(![BRANCH,'refs/heads/feat/f05-crm-followup-timeline-list-http-pg16-01'].includes(env.GITHUB_REF))throw Error('CRM_ENV_DENIED_GITHUB_REF');
  if(!/^[0-9a-f]{40}$/.test(env.GITHUB_SHA||'')||!/^[0-9]{6,20}$/.test(env.GITHUB_RUN_ID||''))throw Error('CRM_SHA_RUN_DENIED');
  const u=new URL(env.F03_1_DATABASE_URL||'http://invalid');
  if(!['postgres:','postgresql:'].includes(u.protocol)||u.hostname!=='127.0.0.1'||u.port!=='5432'||u.pathname!=='/f03_auth_test'||u.username!=='f03_ci'||!u.password||u.search||u.hash)throw Error('CRM_DB_DENIED');
