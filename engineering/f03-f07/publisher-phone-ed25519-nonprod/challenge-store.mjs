@@ -20,8 +20,8 @@ export class ChallengeStore{
    const row=await client.query(
     "INSERT INTO f03_f07_phone_ed25519_nonprod.challenges "+
     "(challenge_id,request_id,employee_id,action,vehicle_id,listing_cycle_id,audience,nonce_sha256,created_at,expires_at,origin) "+
-    "VALUES($1::uuid,$2::uuid,$3::bigint,$4,$5::bigint,$6::bigint,$7,$8,clock_timestamp(),clock_timestamp()+interval '15 seconds',$9) "+
-    "RETURNING created_at,expires_at",
+    "SELECT $1::uuid,$2::uuid,$3::bigint,$4,$5::bigint,$6::bigint,$7,$8,t.now,t.now+interval '15 seconds',$9 "+
+    "FROM (SELECT clock_timestamp() AS now) t RETURNING created_at,expires_at",
     [challengeId,requestId,employeeId,action,vehicleId,cycle,AUDIENCE,digest(nonce),ORIGIN]);
    await client.query('COMMIT');
    const challenge={challengeId,requestId,employeeId,action,vehicleId,listingCycleId:cycle,audience:AUDIENCE,
