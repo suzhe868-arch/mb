@@ -1,6 +1,6 @@
 import {createHash} from 'node:crypto';
 import {assertEnvironment} from '../f03/customer-account-status/environment.mjs';
-import {verify} from '../f03/customer-account-status/schema.mjs';
+import {verifyScopeDatabase} from '../f03/runtime-scope/readiness.mjs';
 
 const hash=text=>createHash('sha256').update(text).digest('hex');
 const out=(status,code,extra={})=>({status,code,...extra});
@@ -51,7 +51,7 @@ export class CustomerAccountStatusService{
   if(action!=='read'&&action!=='disable'&&action!=='restore')return out(400,'UNKNOWN_ACTION');
   if(action!=='read'&&(!validReason(reason)||!reqKey(requestKey)))return out(400,'INVALID_REASON_OR_REQUEST_KEY');
   if(typeof token!=='string'||!/^[A-Za-z0-9_-]{43}$/.test(token))return out(401,'SESSION_INVALID');
-  try{await verify(this.auth.pool)}catch{return out(503,'ACCOUNT_STATUS_RUNTIME_NOT_READY')}
+  try{await verifyScopeDatabase(this.auth.pool)}catch{return out(503,'ACCOUNT_STATUS_RUNTIME_NOT_READY')}
   try{
    return await this.auth.withSession(token,async(c,a)=>{
     if(a.force_password_change!==false)return out(403,'FORCE_PASSWORD_CHANGE_REQUIRED');
@@ -70,11 +70,21 @@ export class CustomerAccountStatusService{
     }
     const keyHash=hash(requestKey),payloadHash=hash(JSON.stringify({action,customerId,reason}));
     // Request-key uniqueness is database enforced; the per-customer advisory lock serializes replay.
-    const previous=(await c.query('SELECT * FROM f03_account_status_ci.request_keys WHERE request_key_sha256=$1 FOR SHARE',[keyHash])).rows[0];
+    await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,1))',['customer.account.requestkey:'+requestKey]);
+    // SG01 is signature-bound to zero private namespaces: use the existing immutable public
+    // audit authority for idempotency instead of installing a forbidden private sidecar.
+    const previous=(await c.query(
+     "SELECT actor_kind,actor_id,object_id,action,role_context,after_json FROM public.audit_events "+
+     "WHERE action IN ('customer.account.disable','customer.account.restore') "+
+     "AND role_context->>'source'='CI_ONLY_F03_CUSTOMER_ACCOUNT_STATUS' "+
+     "AND role_context->>'requestKeySha256'=$1 ORDER BY audit_id LIMIT 1 FOR SHARE",[keyHash])).rows[0];
     if(previous){
-     if(previous.payload_sha256!==payloadHash||previous.customer_id.toString()!==customerId||previous.action!==action||
-       previous.actor_kind!==actor.actorKind||previous.actor_id!==actor.actorId)return out(409,'IDEMPOTENCY_KEY_CONFLICT');
-     return previous.result;
+     if(previous.role_context?.payloadSha256!==payloadHash||previous.object_id!==customerId||
+       previous.action!=='customer.account.'+action||previous.actor_kind!==actor.actorKind||
+       previous.actor_id!==actor.actorId)return out(409,'IDEMPOTENCY_KEY_CONFLICT');
+     const response=previous.after_json?.result;
+     if(!response||response.status!==200)throw Error('ACCOUNT_AUDIT_REPLAY_PROOF_MISSING');
+     return response;
     }
     const target=action==='disable'?'inactive':'active';
     if(customer.account_status===target){
@@ -97,14 +107,12 @@ export class CustomerAccountStatusService{
      "VALUES($1,$2,$3::jsonb,'Customer',$4,$5,$6::jsonb,$7::jsonb,transaction_timestamp())",
      [actor.actorKind,actor.actorId,JSON.stringify(context),customerId,'customer.account.'+action,
       JSON.stringify({accountStatus:customer.account_status}),
-      JSON.stringify({accountStatus:target,pausedDemandIds:paused,pausedDemandCount:paused.length})]);
+      JSON.stringify({accountStatus:target,pausedDemandIds:paused,pausedDemandCount:paused.length,result:response})]);
     for(const demandId of paused)await c.query(
      "INSERT INTO public.audit_events(actor_kind,actor_id,role_context,object_kind,object_id,action,before_json,after_json,occurred_at) VALUES($1,$2,$3::jsonb,'Demand',$4,'customer.account.disable.demand_pause',$5::jsonb,$6::jsonb,transaction_timestamp())",
      [actor.actorKind,actor.actorId,JSON.stringify({source:context.source,customerId,requestKeySha256:keyHash}),demandId,
       JSON.stringify({demandState:'active'}),JSON.stringify({demandState:'paused'})]);
-    await c.query('INSERT INTO f03_account_status_ci.request_keys(request_key_sha256,payload_sha256,customer_id,actor_kind,actor_id,action,result) VALUES($1,$2,$3::bigint,$4,$5,$6,$7::jsonb)',
-     [keyHash,payloadHash,customerId,actor.actorKind,actor.actorId,action,JSON.stringify(response)]);
-    return response;
+     return response;
    },{normalOnly:true})??out(401,'SESSION_OR_PC_ADMISSION_DENIED');
   }catch{return out(503,'ACCOUNT_STATUS_TRANSACTION_FAILED')}
  }
