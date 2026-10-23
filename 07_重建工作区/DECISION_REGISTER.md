@@ -1,3 +1,15 @@
+## A-F03-F07-ED25519-PR250-ACCEPTED-01｜A 独立验收通过并标准合并（2026-10-24）
+
+- **当前结论：** `A_ACCEPTED_LIMITED_NONPROD`；PR [#250](https://github.com/suzhe868-arch/mb/pull/250) 已标准合并，业务 merge SHA `6cffd04291cbd13a0ee37c5a5f93f3280e26cf8d`；最终 B HEAD `5888678a748cb1cf275d99b59fc0c7c8a3994cdd`。
+- **最终 SHA 证据：** 官方 Push Run [#39989434665](https://github.com/suzhe868-arch/mb/actions/runs/39989434665) completed/success；两个独立非超管 PG16 Job 业务 38/38、HTTPS 22/22，失败 0、跳过 0。A 已重新下载两份原生 Artifact 并复算 ZIP SHA-256，与 GitHub digest 一致；内部 SHA256 manifest 各 23/23 匹配。
+- **整改闭环：** B33/B34 真实 PG16 员工停用新签发/旧断言验证拒绝；B35 通过既有 `IsolatedAuth.logout` 验证真实会话撤销；B36/B37/B38 对正确重签的 `listingCycleId`、`capability`、`version` 错配分别拒绝。六项均在最终 SHA 实际执行通过。
+- **差异与范围：** PR 19 个变更文件全部在正式白名单 `engineering/f03-f07/publisher-phone-ed25519-nonprod/**` 与新增工作流内；整改提交相对退回 SHA 只变更 4 个白名单文件。既有 Guard/Runtime、公共迁移、旧 Workflow、PDM/IA、app/server、PC/C 未修改。
+- **Issue #248** 已在验收通过后关闭。F05-7 历史 66 项/旧 Oracle 未运行、未修改、未补签；本任务只证明 `CI_SYNTHETIC_ONLY` 协议，不代表正式 Source Issuer/信任根、F07 正式 Runtime、外部资源或生产就绪。
+- **整体门禁保持：** Issue #187 仍 `SOURCE_GAP/FAIL_CLOSED`；F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。真实 JYT/Collector、CDN/OSS、飞书、真实电话/客户/资金/生产仍未接通或未授权。
+- **当前唯一指针：** `NEXT_OWNER=A`；`NEXT_TASK=F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01`；`NEXT_ISSUE=187`；`NEXT_BRANCH=NONE`；工作文件 `07_重建工作区/F08父级来源门禁Issue187_2026-10-23增量核查与整合重排裁决报告.md`。讨论正式可信来源、签署/不可变归档资源与授权边界前，不新开 B/C 工程任务。
+
+---
+
 ## A-F03-F07-ED25519-PR250-CHANGES-REQUESTED-01｜PR #250 A 独立验收要求定向补测（2026-10-23）
 
 - **A 状态：`A_CHANGES_REQUESTED`；PR #250 未合并。**

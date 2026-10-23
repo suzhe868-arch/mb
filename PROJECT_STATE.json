@@ -1,15 +1,15 @@
 {
   "project": "名邦汽车 V1",
-  "updated_at": "2026-10-23",
+  "updated_at": "2026-10-24",
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "BACKEND_ENGINEERING",
-  "substage": "F03_F07_PUBLISHER_PHONE_ED25519_A_CHANGES_REQUESTED",
+  "substage": "F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F03_F07_PUBLISHER_PHONE_ED25519_NONPROD",
-  "current_domain_status": "PR #250 已完成 A 独立核验但未验收通过：最终 HEAD/官方 Run/双 PG16 Job/Artifacts/路径白名单均核验通过；施工单要求的员工真实停用、凭证/会话撤销、listingCycleId/capability/version 错配负例仍缺，需在原白名单内定向补测。NEXT_OWNER=B，Issue #248、指定分支不变。父 Issue #187 SOURCE_GAP/FAIL_CLOSED，F06/F07/F08/V1 NOT_READY/NO_PRODUCTION。",
+  "current_domain": "F06_F07_F08_INTEGRATION_REPLAN",
+  "current_domain_status": "PR #250 已由 A 独立验收并标准合并，业务 merge SHA 6cffd04291cbd13a0ee37c5a5f93f3280e26cf8d。最终 B HEAD 5888678a748cb1cf275d99b59fc0c7c8a3994cdd 的官方 Run #39989434665 双独立 PG16 Job 业务 38/38、HTTPS 22/22 全通过，失败/跳过 0；两份 Artifact ZIP digest 与内部 SHA256 manifest 已独立复核。Issue #248 已关闭。当前回到 Issue #187 的 F06/F07/F08 整合重排讨论；父门禁 SOURCE_GAP/FAIL_CLOSED，整体 F06/F07/F08/V1 NOT_READY/NO_PRODUCTION。无新 B/C 施工授权。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F03_F07_PUBLISHER_PHONE_ED25519_AUTH_NONPROD_01",
-  "current_work_file": "07_重建工作区/F03-F07发布人电话Ed25519PR250_A独立验收整改记录_2026-10-23.md",
+  "current_task": "F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01",
+  "current_work_file": "07_重建工作区/F08父级来源门禁Issue187_2026-10-23增量核查与整合重排裁决报告.md",
   "a_f08_source_gate_review_2026_10_23": {
     "status": "SOURCE_GAP/FAIL_CLOSED",
     "reviewed_at": "2026-10-23",
@@ -3431,7 +3431,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "A治理PR标准合并main后，B从最新main接管Issue #248；仅新增F03→F07 Ed25519非生产协议适配与新工作流，完成真实PG16、loopback HTTPS、撤权/重放/绑定失败关闭、精确触发审计及证据归档后交A独立验收。",
+  "next_action": "PR #250 已由 A 独立验收并标准合并；Issue #248 已关闭。接续 Issue #187 的 F06/F07/F08 整合重排讨论，明确正式可信来源、签署/不可变归档资源与授权边界；讨论前不新开 B/C 工程任务。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -5011,7 +5011,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "仅新增 engineering/f03-f07/publisher-phone-ed25519-nonprod/** 与 .github/workflows/f03-f07-publisher-phone-ed25519-nonprod.yml。复用F03现有IsolatedAuth与publisher-phone.sensitive专项配置、F07现有电话Guard；旧F03事实读取器、F03/F07服务、Guard/Runtime、公共DDL/迁移、旧Workflow、PDM/IA、F05-7旧Oracle、app/server/PC/C均冻结只读。仅CI临时Ed25519密钥、真实PG16非超管和loopback HTTPS；不接外部系统、不触碰真实电话/资金/生产，不重跑F05-7旧66项。",
+  "next_action_detail": "已完成限定非生产 F03→F07 Ed25519 协议集成验收：最终 B HEAD 5888678a748cb1cf275d99b59fc0c7c8a3994cdd，业务 merge SHA 6cffd04291cbd13a0ee37c5a5f93f3280e26cf8d，官方 Run #39989434665，PG16 业务 38/38、HTTPS 22/22，失败/跳过 0；两份 Artifact ZIP digest 与 GitHub 一致，内部清单各 23/23。整体可信来源门禁未解除，当前 NEXT_OWNER=A / NEXT_TASK=F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01 / NEXT_ISSUE=187 / NEXT_BRANCH=NONE；先讨论可信来源、签署与归档资源和授权边界，再决定是否新开工程包。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7055,7 +7055,7 @@
     "merge_method": "merge",
     "a_review_report": "07_重建工作区/F05-7_A主控二轮独立验收66项真PG16_PR46标准合并与F05-8技术交接_2026-10-12.md"
   },
-  "next_owner": "B",
+  "next_owner": "A",
   "f05_8_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR47_CI_ONLY",
     "execution": "COMPLETED_A_ACCEPTED_PR47_STANDARD_MERGE",
@@ -8190,7 +8190,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F03_F07_PUBLISHER_PHONE_ED25519_AUTH_NONPROD_01",
+  "next_task": "F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9865,7 +9865,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F03-F07发布人电话Ed25519签名授权集成非生产正式施工单_2026-10-23.md",
+  "next_work_file": "07_重建工作区/F08父级来源门禁Issue187_2026-10-23增量核查与整合重排裁决报告.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -10161,8 +10161,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": "feat/f03-f07-publisher-phone-ed25519-nonprod-01",
-  "next_issue": 248,
+  "next_branch": "NONE",
+  "next_issue": 187,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -12440,5 +12440,66 @@
     "next_task": "F03_F07_PUBLISHER_PHONE_ED25519_AUTH_NONPROD_01",
     "next_issue": 248,
     "next_branch": "feat/f03-f07-publisher-phone-ed25519-nonprod-01"
+  },
+  "f03_f07_publisher_phone_ed25519_acceptance_2026_10_24": {
+    "status": "A_ACCEPTED_LIMITED_NONPROD",
+    "accepted_at": "2026-10-24",
+    "issue": 248,
+    "issue_state": "closed",
+    "pr": 250,
+    "pr_state": "merged",
+    "final_b_head_sha": "5888678a748cb1cf275d99b59fc0c7c8a3994cdd",
+    "merge_sha": "6cffd04291cbd13a0ee37c5a5f93f3280e26cf8d",
+    "official_run_id": 39989434665,
+    "official_run_conclusion": "success",
+    "jobs": {
+      "business_pg16": {
+        "job_id": 120537047428,
+        "tests": 38,
+        "passed": 38,
+        "failed": 0,
+        "skipped": 0
+      },
+      "https_pg16": {
+        "job_id": 120537047026,
+        "tests": 22,
+        "passed": 22,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    "artifacts": [
+      {
+        "artifact_id": 12516817426,
+        "name": "f03-f07-ed25519-business-39989434665-1",
+        "bytes": 56725,
+        "sha256": "4620261547e904f58dfa5311dd03692213ce4e9993a4fb4c59393a8227bf431f",
+        "internal_manifest_items": 23,
+        "internal_manifest_mismatches": 0
+      },
+      {
+        "artifact_id": 12517032413,
+        "name": "f03-f07-ed25519-https-39989434665-1",
+        "bytes": 54514,
+        "sha256": "128ff77a8280bb43937ad1c9857dbb5121451aa97043494d14d226e62153c31c",
+        "internal_manifest_items": 23,
+        "internal_manifest_mismatches": 0
+      }
+    ],
+    "changed_files": 19,
+    "allowlist_only": true,
+    "security_negative_cases": [
+      "employee_inactive_blocks_new_signing",
+      "employee_inactive_blocks_existing_assertion",
+      "real_session_logout_revocation",
+      "listingCycleId_mismatch",
+      "capability_mismatch",
+      "protocol_version_mismatch"
+    ],
+    "scope": "CI_SYNTHETIC_ONLY",
+    "production_ready": false,
+    "f05_7_historical_66_suite": "NOT_RUN",
+    "parent_issue_187": "SOURCE_GAP/FAIL_CLOSED",
+    "global_f06_f07_f08_v1": "NOT_READY/NO_PRODUCTION"
   }
 }
