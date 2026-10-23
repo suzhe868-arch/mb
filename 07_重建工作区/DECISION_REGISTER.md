@@ -3289,3 +3289,10 @@ G受检最终HEAD19af2955d81ac14d79e0c4e6adc661a3a1aabd8e同SHA CI38025357614 20
 - **技术裁决：** F05 14 与 F06 24 条迁移、独立数据库 OID、161 表父链签名封印满足限定非生产要求；同一 Vehicle/Cycle F05 HTTPS 发布→F06 原生锁车/合成定金/交易→F05 HTTPS 在后编辑，F06 历史快照原价不追改。上轮遗漏的 `f06_3a_ci.adjustments` 全集合及四组私有签名 Attestation 已纳入 before/after 快照及缺失拒绝，A 独立复算快照 JSON SHA 一致。
 - **边界不变：** 仅 `F05_216_SAME_VEHICLE_SIGNED_F06_LOCK_TRANSACTION_DEPOSIT_CROSS_RUNTIME_INTEGRATION=A_ACCEPTED_LIMITED_NONPROD`，不授权生产、真钱、真实电话、JYT/Collector、CDN/OSS/飞书，父 Issue #187 `SOURCE_GAP/FAIL_CLOSED`。F06/F07/F08/V1 `NOT_READY/NO_PRODUCTION`。
 - **正式接续：** `NEXT_OWNER=A` / `NEXT_TASK=A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01` / `NEXT_ISSUE=187` / `NEXT_BRANCH=NONE`。验收报告 `07_重建工作区/F05_F06同车签名桥接Issue231_PR233独立验收与来源门禁接续报告_2026-10-23.md`。
+
+## 2026-10-23｜A 新增非生产独立任务：F03 客户账号停用恢复与 Demand 原子暂停（Issue #235）
+
+- **真实差异证据**：PDM-01 §11、PDM-02 §6/§15.1、PDM-11 Customer disable Demand、PDM-22 §10 已冻结；`engineering/f03/policy.mjs` 只有 `customer.account.disable` 的静态动作映射，`engineering/src/app.mjs` 尚没有客户账号停用/恢复 handler。已验收 #221/#227/#231 不重复施工。F05 现有 Demand 源服务会以 Customer `account_status` 拒绝 inactive 激活，可复用模型而不改旧服务。
+- **授权任务**：[Issue #235](https://github.com/suzhe868-arch/mb/issues/235)，`F03_CUSTOMER_ACCOUNT_DISABLE_RESTORE_DEMAND_PAUSE_HTTP_PG16_01`，指定 B 分支 `feat/f03-customer-account-disable-restore-demand-pause-pg16-01`；正式施工单 `07_重建工作区/F03客户账号停用恢复与Demand原子暂停HTTP真实PG16非生产施工单_2026-10-23.md`。须在相应 A 状态治理 PR 标准合并 main 后才生效。
+- **裁决范围**：仅隔离 PG16/HTTPS 客户状态停用/恢复，System Admin 有效控制平面身份、员工 current capability + Customer object Scope、4S hard deny，停用 active Demand→paused 同事务、恢复不自动恢复 Demand、全链原子审计/幂等/并发撤权。仅新增 F03 account-status 目录/两个服务、新 Workflow，并对 `engineering/src/app.mjs` 精确加一个 `/__ci__/f03/customer-account-status` 可选入口。
+- **安全边界**：旧 F03/F05/F06/F07 服务、公共 DDL/迁移、旧 Workflow、生产 server、正式 PDM、PC/C 页面全部冻结；未接通的其他业务域 Customer 状态 Guard 必须继续标识 `NOT_CONNECTED`，不能假称全站生产闭环。父 Issue #187 继续 `SOURCE_GAP/FAIL_CLOSED`；F06/F07/F08/V1 `NOT_READY/NO_PRODUCTION`，不授权真实外部服务/电话/资金。
