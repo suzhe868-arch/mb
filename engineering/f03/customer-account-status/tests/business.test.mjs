@@ -193,4 +193,4 @@ test('30 paused Demand never reactivates on second restore',async()=>{
  assert.equal((await run(admin,'restore')).code,'NO_CHANGE');
  assert.equal((await demands()).filter(x=>x.demand_state==='active').length,0);
 });
-test('31 database still has original public SG01 structure',async()=>{assert.equal((await verify(pool)).verified,true)});
+test('31 database still has original public SG01 structure',async()=>{assert.equal((await verifyScopeDatabase(pool)).verified,true)});
