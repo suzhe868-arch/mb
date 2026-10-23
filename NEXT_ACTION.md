@@ -1,3 +1,17 @@
+# 名邦汽车 V1｜A 已独立验收 F05 CRM 跟进真实非生产后端（2026-10-23）
+
+- **NEXT_OWNER=A**
+- **NEXT_TASK=`A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01`**
+- **NEXT_ISSUE=187**：[可信来源与整阶段父门禁](https://github.com/suzhe868-arch/mb/issues/187)
+- **NEXT_BRANCH=NONE**
+- **NEXT_WORK_FILE=`07_重建工作区/F05客户CRM跟进Issue239_PR241_A独立验收合并与F08父门禁接续报告_2026-10-23.md`**
+- Issue [#239](https://github.com/suzhe868-arch/mb/issues/239) 已关闭；业务 [PR #241](https://github.com/suzhe868-arch/mb/pull/241) 已 A 独立验收并标准合并。B 最终 HEAD `7cfe48359ffe0148ef0aef98bf2e0a7cb2f79ea1`；业务 merge SHA `856bfb3b612eb2a5745be1a2ad88e14675af4756`。上轮 `owner_assignment_state=assigned` 必须性缺陷已定向整改，pending 保留旧 owner ID 时增/读均 fail-closed。
+- [官方 Push Run #39949706808](https://github.com/suzhe868-arch/mb/actions/runs/39949706808) 精确绑定最终 B HEAD；两独立非超管 PG16 Job completed/success，每 Job 业务 40/40、HTTPS 14/14、Node 269/269、Customer 状态增量回归 4/4、SG01 Scope 7/7，0 失败/跳过。A 实际重新下载两份原生工件 #12499851514（47283 bytes；SHA256 `135409580bf2e93fca6d89b759872990f6d521194a09d074842de310dd73eed5`）和 #12500016734（47235 bytes；SHA256 `2e02198ec4b8ea9e56357fd61158fc2e63e09a2c7f8cb1a218568969fcd3ab52`）；双 ZIP 各 19 文件，manifest 18/18 全匹配。
+- **仅接受 `CI_ONLY_F05_CRM_FOLLOWUP_APPEND / A_ACCEPTED_LIMITED_NONPROD`**，不表示生产权限 Issuer、correction/void、旧 F03 #235 专项分支套件在新 SHA 重跑或 F07 Runtime 完整联调。父 Issue #187 持续 `SOURCE_GAP/FAIL_CLOSED`；F06/F07/F08/V1 持续 `NOT_READY/NO_PRODUCTION`，外部 JYT/Collector、CDN/OSS、飞书、正式电话、资金、生产均未授权；PC #196、C PR #68 不启动。
+- **正式 [A 独立验收及接续报告](07_重建工作区/F05客户CRM跟进Issue239_PR241_A独立验收合并与F08父门禁接续报告_2026-10-23.md)**。目前没有新 B 施工授权；A 接续 #187 有界来源与独立后端缺口审查。下方原 “NEXT_OWNER=B / Issue #239” 为历史放行快照，不是当前任务指针。
+
+---
+
 # 名邦汽车 V1｜NEXT_ACTION 最新唯一指针｜F05 CRM Follow-up 非生产 HTTP/PG16（2026-10-23）
 
 - **NEXT_OWNER=B**
