@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "BACKEND_ENGINEERING",
-  "substage": "F03_F07_PUBLISHER_PHONE_ED25519_NONPROD_TASK_RELEASED",
+  "substage": "F03_F07_PUBLISHER_PHONE_ED25519_A_CHANGES_REQUESTED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
   "current_domain": "F03_F07_PUBLISHER_PHONE_ED25519_NONPROD",
-  "current_domain_status": "用户已明确批准单项限定非生产任务；A治理PR合并后由B执行F03→F07 Ed25519协议集成。该任务只验证CI内签名授权协议，不等于正式Issuer或生产接线。Issue #187继续SOURCE_GAP/FAIL_CLOSED，F06/F07/F08/V1继续NOT_READY/NO_PRODUCTION。",
+  "current_domain_status": "PR #250 已完成 A 独立核验但未验收通过：最终 HEAD/官方 Run/双 PG16 Job/Artifacts/路径白名单均核验通过；施工单要求的员工真实停用、凭证/会话撤销、listingCycleId/capability/version 错配负例仍缺，需在原白名单内定向补测。NEXT_OWNER=B，Issue #248、指定分支不变。父 Issue #187 SOURCE_GAP/FAIL_CLOSED，F06/F07/F08/V1 NOT_READY/NO_PRODUCTION。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -21,7 +21,7 @@
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
   "current_task": "F03_F07_PUBLISHER_PHONE_ED25519_AUTH_NONPROD_01",
-  "current_work_file": "07_重建工作区/F03-F07发布人电话Ed25519签名授权集成非生产正式施工单_2026-10-23.md",
+  "current_work_file": "07_重建工作区/F03-F07发布人电话Ed25519PR250_A独立验收整改记录_2026-10-23.md",
   "a_f08_source_gate_review_2026_10_23": {
     "status": "SOURCE_GAP/FAIL_CLOSED",
     "reviewed_at": "2026-10-23",
@@ -12302,7 +12302,7 @@
     "report": "07_重建工作区/F08父级来源门禁Issue187_2026-10-23增量核查与整合重排裁决报告.md"
   },
   "f03_f07_publisher_phone_ed25519_nonprod_release_2026_10_23": {
-    "status": "A_RELEASED_LIMITED_NONPROD_AFTER_GOVERNANCE_PR_MERGE",
+    "status": "A_CHANGES_REQUESTED_TARGETED_NEGATIVE_TESTS",
     "task_id": "F03_F07_PUBLISHER_PHONE_ED25519_AUTH_NONPROD_01",
     "issue": 248,
     "branch": "feat/f03-f07-publisher-phone-ed25519-nonprod-01",
@@ -12362,6 +12362,83 @@
       "final_sha_bound_run_job_artifacts": true,
       "artifact_max_mib_per_job": 5,
       "artifact_retention_days": 1
-    }
+    },
+    "b_final_head_sha": "ded9efa9078e94f3eccbd9298f6effac36f4c276",
+    "b_run_id": 39979249031,
+    "a_review_report": "07_重建工作区/F03-F07发布人电话Ed25519PR250_A独立验收整改记录_2026-10-23.md",
+    "a_review_status": "A_CHANGES_REQUESTED",
+    "a_review_missing_cases": [
+      "真实员工 employment_status inactive 后重新签发与已有断言重新验证均拒绝",
+      "现有 F03 认证机制下凭证撤销或 session epoch/revocation 后旧会话失效",
+      "正确重签的 listingCycleId、capability、protocol version 错配分别拒绝"
+    ],
+    "next_owner": "B"
+  },
+  "a_review_pr250_2026_10_23": {
+    "status": "A_CHANGES_REQUESTED",
+    "reviewed_main_sha": "f23ae1b8519a3ca50688e944873fed3cf6407922",
+    "reviewed_head_sha": "ded9efa9078e94f3eccbd9298f6effac36f4c276",
+    "pr": 250,
+    "issue": 248,
+    "official_run_id": 39979249031,
+    "run_attempt": 1,
+    "run_conclusion": "success",
+    "jobs": [
+      {
+        "name": "business_pg16",
+        "job_id": 120501869729,
+        "conclusion": "success",
+        "tests": 32,
+        "pass": 32,
+        "fail": 0,
+        "skipped": 0
+      },
+      {
+        "name": "https_pg16",
+        "job_id": 120501870512,
+        "conclusion": "success",
+        "tests": 22,
+        "pass": 22,
+        "fail": 0,
+        "skipped": 0
+      }
+    ],
+    "artifacts": [
+      {
+        "id": 12513570089,
+        "bytes": 55132,
+        "sha256": "8e2299e3f371a8d6b02646eaaecb45a8431e05f12931dd12024eb205b2957032",
+        "manifest_entries": 23,
+        "manifest_verified": true
+      },
+      {
+        "id": 12513535093,
+        "bytes": 53662,
+        "sha256": "93cf34eccbeb48af615710d026d3bb5e29d48485805889f8fa047fce685da604",
+        "manifest_entries": 23,
+        "manifest_verified": true
+      }
+    ],
+    "workflow_trigger_audit": {
+      "workflows_scanned": 363,
+      "f05_7_workflows_scanned": 15,
+      "yaml_errors": 0,
+      "potential_f05_7_triggers": 0
+    },
+    "changed_paths_all_within_allowlist": true,
+    "private_key_pem_in_artifacts": false,
+    "missing_required_test_cases": [
+      "employee inactive before new issue and after existing signature",
+      "credential/session epoch revocation invalidates old session",
+      "resigned listingCycleId mismatch",
+      "resigned capability mismatch",
+      "resigned protocol version mismatch"
+    ],
+    "merge_authorized": false,
+    "report": "07_重建工作区/F03-F07发布人电话Ed25519PR250_A独立验收整改记录_2026-10-23.md",
+    "next_owner": "B",
+    "next_task": "F03_F07_PUBLISHER_PHONE_ED25519_AUTH_NONPROD_01",
+    "next_issue": 248,
+    "next_branch": "feat/f03-f07-publisher-phone-ed25519-nonprod-01"
   }
 }
