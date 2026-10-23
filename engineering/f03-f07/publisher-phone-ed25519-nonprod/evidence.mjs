@@ -82,7 +82,7 @@ const finalNote='# 最终运行交接｜F03→F07 Ed25519 限定非生产\n\n'+
 await writeFile('最终运行交接.md',finalNote);
 const allSource=await walk(ROOT);
 const candidate=[...allSource,WORKFLOW,...LOGS,'f03-f07-workflow-trigger-audit.txt','最终运行交接.md'];
-const unique=[...new Set(candidate)].filter(async()=>true);
+const unique=[...new Set(candidate)];
 const files=[];
 for(const path of unique){
  if(!await exists(path)){evidenceStatus='FAIL';continue}
