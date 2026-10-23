@@ -223,7 +223,7 @@ test('B27 current F03 personal deny after signature still wins in existing F07 G
 test('B28 unavailable F03 facts and unavailable F07 challenge store fail closed',async()=>{
  const ch=await challenge();const noF03={withSession:async()=>{throw Error('synthetic DB down')}};
  const signed=await issueAssertion({auth:noF03,token:salesToken,challenge:ch,privateKey:keys.privateKey,kid:keys.kid});
- assert.equal(signed.ok,false);assert.equal(signed.code,'SESSION_OR_PC_ADMISSION_DENIED');
+ assert.equal(signed.ok,false);assert.equal(signed.code,'F03_CURRENT_FACTS_UNAVAILABLE');
  const {ch:ch2,assertion}=await prepared();
  const out=await verify(ch2,assertion,{challengeStore:{consume:async()=>{throw Error('synthetic F07 DB down')}}});
  assert.equal(out.allowed,false);assert.equal(out.code,'CHALLENGE_STORE_UNAVAILABLE');
