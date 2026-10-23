@@ -35,6 +35,7 @@ async function readCurrentFacts(c,actor,session,challenge){
  if(row.personal_decision!=='allow')return result(false,'CURRENT_CAPABILITY_NOT_GRANTED');
  const bound=await c.query(
   "SELECT count(*)::int n,COALESCE(json_agg(json_build_object('scopeId',s.scope_id::text,'grantedAt',b.granted_at::text) ORDER BY s.scope_id),'[]'::json) active_bindings "+
+  "FROM public.employee_capability_scope_bindings b "+
   "JOIN public.employee_data_scopes s ON s.scope_id=b.scope_id AND s.employee_id=b.employee_id "+
   "WHERE b.employee_id=$1::bigint AND b.permission_id=$2::bigint "+
   "AND s.scope_kind='publisher_phone_special' AND s.scope_reference_id=$1::bigint "+
