@@ -1,3 +1,14 @@
+## A-CATALOG-READONLY-REASSESSMENT-20261024｜复核车辆目录候选并避免重复施工
+
+- **核验基线：** `main@d106c852ffbe7dbf4cb4e2be4ad76e011b379fff`；当前责任 A；父级 Issue #187。
+- **候选复核：** 原 `B_APP_01_REAL_PG16_CATALOG_LIST_DETAIL_READONLY_01` 曾排队暂缓，但当前 main 已有 `catalog-service.mjs`、`catalog-http.mjs`、`catalog-readiness.mjs` 与 `catalog-wiring.mjs` 的隔离真实 PG16/Node HTTP 目录纵切；后续 Issue #204 / PR #210 已验收目录客户价格权益、确定性搜索，官方 Run #39743949320 为 117/117，失败/跳过 0。
+- **裁决：** 原候选核心非生产功能与现有实现重叠，不按旧施工单原样重开；这不等于原候选被单独验收，也不代表正式生产 Runtime/正式 Issuer/真实外部数据已就绪。正式 Runtime 与 F03 Scope/Object、F05 签名转换、F07 真实 JYT/Collector、SLA/Incident、CDN/OSS/飞书、信任根/证据归档仍有缺口。
+- **任务分类：** 已验收的目录、CRM、客户账号、人工车源、F06 子流程与电话协议成果均复用；PC Issue #196 仍暂缓，C PR #68 仍未通过；不重复旧 F05-7 66 项。
+- **本轮结果：** 没有找到另一项具备完整 Authority、明确物理结构/权限 Scope、可真实验收且不重复现有实现的独立 B 包。未新建 Issue/分支，未派发 B/C。正式指针保持 `NEXT_OWNER=A`、`NEXT_TASK=F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01`、`NEXT_ISSUE=187`、`NEXT_BRANCH=NONE`。
+- **完整复核：** `07_重建工作区/车辆目录既有后端覆盖与可独立施工缺口复核_A主控报告_2026-10-24.md`。本记录不开放生产、真实客户/电话/资金或未经授权的外部系统。
+
+---
+
 ## A-F06-F07-F08-REPLAN-STATE-RECONCILIATION-20261024｜修正同车子门禁过期状态并保持父级来源门禁（2026-10-24）
 
 - **核验基线：** `main@a0c583f0b68155b824367624f5050c83da775cdc`；当前任务 `F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01`；当前责任 A。
