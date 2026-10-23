@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {before,after,test} from 'node:test';
-import {randomUUID,sign as cryptoSign} from 'node:crypto';
+import {randomUUID,sign as cryptoSign,verify as cryptoVerify} from 'node:crypto';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {PublisherPhoneAdminService} from '../../../src/f03-publisher-phone-admin-service.mjs';
 import {configurePublisherPhoneAccess} from '../../../f07/publisher-phone-scope-runtime/guard.mjs';
@@ -42,7 +42,11 @@ async function verify(ch,assertion,options={}){
   assertion,publicKey:keys.publicKey,expectedKid:keys.kid,...options});
 }
 function resign(payload){
- return {payload,signature:cryptoSign(null,Buffer.from(JSON.stringify(payload),'utf8'),keys.privateKey).toString('base64url')};
+ const bytes=Buffer.from(JSON.stringify(payload),'utf8');
+ const signature=cryptoSign(null,bytes,keys.privateKey).toString('base64url');
+ assert.equal(cryptoVerify(null,bytes,keys.publicKey,Buffer.from(signature,'base64url')),true,
+  'test private key must correctly sign each mutated payload');
+ return {payload,signature};
 }
 before(async()=>{
  assertEnvironment();
@@ -252,6 +256,72 @@ test('B32 same-allow revoke/regrant changes exact Scope binding and invalidates 
  assert.equal(out.allowed,true);
  const checked=await verify(ch,assertion);assert.equal(checked.allowed,false);
  assert.equal(checked.code,'F03_FACTS_CHANGED_AFTER_SIGNATURE');
+});
+test('B33 real PG16 employee inactive status blocks fresh assertion issuance',async()=>{
+ const ch=await challenge();
+ const current=await sql03("SELECT employment_status FROM public.employees WHERE employee_id=6");
+ assert.equal(current.rows[0]?.employment_status,'active');
+ try{
+  const changed=await sql03("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=6 AND employment_status='active'");
+  assert.equal(changed.rowCount,1);
+  const out=await issue(ch);
+  assert.equal(out.ok,false);assert.equal(out.code,'SESSION_OR_PC_ADMISSION_DENIED');
+  const state=await sql03("SELECT employment_status FROM public.employees WHERE employee_id=6");
+  assert.equal(state.rows[0]?.employment_status,'inactive');
+ }finally{
+  await sql03("UPDATE public.employees SET employment_status='active' WHERE employee_id=6 AND employment_status='inactive'");
+ }
+});
+test('B34 existing assertion is rejected by current Guard after real employee deactivation',async()=>{
+ const {ch,assertion}=await prepared();
+ const current=await sql03("SELECT employment_status FROM public.employees WHERE employee_id=6");
+ assert.equal(current.rows[0]?.employment_status,'active');
+ try{
+  const changed=await sql03("UPDATE public.employees SET employment_status='inactive' WHERE employee_id=6 AND employment_status='active'");
+  assert.equal(changed.rowCount,1);
+  const out=await verify(ch,assertion);
+  assert.equal(out.allowed,false);assert.equal(out.code,'SESSION_OR_PC_ADMISSION_DENIED');
+  const state=await sql03("SELECT employment_status FROM public.employees WHERE employee_id=6");
+  assert.equal(state.rows[0]?.employment_status,'inactive');
+ }finally{
+  await sql03("UPDATE public.employees SET employment_status='active' WHERE employee_id=6 AND employment_status='inactive'");
+ }
+});
+test('B35 real F03 logout revocation blocks fresh signing and old assertion verification',async()=>{
+ const login=await authF03.login({login:'race_test',password:'SyntheticRace_1234567',source:'ed25519-session-revocation'});
+ assert.equal(login.code,'AUTH_OK');assert.notEqual(login.token,salesToken);
+ try{
+  const ch=await challenge();
+  const signed=await issueAssertion({auth:authF03,token:login.token,challenge:ch,privateKey:keys.privateKey,kid:keys.kid});
+  assert.equal(signed.ok,true,signed.code);
+  const revoked=await authF03.logout(login.token);
+  assert.equal(revoked.code,'LOGOUT_OK');
+  const fresh=await issueAssertion({auth:authF03,token:login.token,challenge:await challenge(),privateKey:keys.privateKey,kid:keys.kid});
+  assert.equal(fresh.ok,false);assert.equal(fresh.code,'SESSION_OR_PC_ADMISSION_DENIED');
+  const verified=await verify(ch,signed.assertion,{token:login.token});
+  assert.equal(verified.allowed,false);assert.equal(verified.code,'SESSION_OR_PC_ADMISSION_DENIED');
+ }finally{
+  await authF03.logout(login.token);
+ }
+});
+test('B36 correctly re-signed listingCycleId mismatch is rejected',async()=>{
+ const {ch,assertion}=await prepared();
+ const payload={...assertion.payload,listingCycleId:'999999'};
+ assert.notEqual(payload.listingCycleId,ch.listingCycleId);
+ const out=await verify(ch,resign(payload));
+ assert.equal(out.allowed,false);assert.equal(out.code,'ASSERTION_OR_BINDING_INVALID');
+});
+test('B37 correctly re-signed capability mismatch is rejected',async()=>{
+ const {ch,assertion}=await prepared();
+ const payload={...assertion.payload,capability:'publisher.phone.latest'};
+ const out=await verify(ch,resign(payload));
+ assert.equal(out.allowed,false);assert.equal(out.code,'ASSERTION_OR_BINDING_INVALID');
+});
+test('B38 correctly re-signed protocol version mismatch is rejected',async()=>{
+ const {ch,assertion}=await prepared();
+ const payload={...assertion.payload,version:'F03_F07_PUBLISHER_PHONE_ED25519_V0'};
+ const out=await verify(ch,resign(payload));
+ assert.equal(out.allowed,false);assert.equal(out.code,'ASSERTION_OR_BINDING_INVALID');
 });
 test('B30 post-grant employee lifecycle audit invalidates issuance',async()=>{
  await sql03("INSERT INTO public.audit_events(actor_kind,actor_id,role_context,object_kind,object_id,action,before_json,after_json,occurred_at) "+

@@ -15,7 +15,8 @@
 ## 本包必须实证的项目
 
 - 两个独立 PG16 非超管 Job，同一最终 SHA，F03 与 F07 使用独立数据库。
-- 业务至少 24 个独立断言、HTTPS 至少 12 个黑箱断言，所有测试零跳过；包含正确授权、锁车模式、错误车辆来源、签名篡改、issuer/audience/kid、字段绑定、时效、顺序/并发重放、个人 deny、撤权/Scope、员工/角色/门店变化、F03/F07 依赖失败和 Guard 二次拒绝。
+- 本轮业务测试预期精确 38 个独立断言（高于原施工单最低 24 项），HTTPS 22 个黑箱断言（高于最低 12 项），所有测试零跳过；包含正确授权、锁车模式、错误车辆来源、签名篡改、issuer/audience/kid、字段绑定、时效、顺序/并发重放、个人 deny、撤权/Scope、员工/角色/门店变化、F03/F07 依赖失败和 Guard 二次拒绝。
+- PR #250 A 定向整改新增 B33-B38：真实员工停用后新签发拒绝、已签发断言经原 Guard 拒绝、真实 `IsolatedAuth.logout` 会话撤销后新签发与旧断言验证均拒绝，以及正确重签的 `listingCycleId`、`capability`、`version` 三个独立错配拒绝。最终是否通过以同 SHA 官方 TAP、PG16 Job 与 Artifact 为准，静态矩阵不替代实测。
 - TLS 客户端显式信任一次性测试证书，未关闭全局 TLS 校验；私钥只在内存，绝不进入日志或 Artifact。
 - 同 SHA 官方 Run/Job、PG16 身份、TAP、旧工作流触发审计、Artifact ZIP digest 与内部文件 SHA 清单由最终运行证据绑定。
 

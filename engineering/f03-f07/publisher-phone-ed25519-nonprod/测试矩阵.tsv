@@ -30,6 +30,12 @@ B28	F03/F07 依赖不可用 fail-closed	Issuer/ChallengeStore	双 PG16 非超管
 B29	审计仅记录安全元数据	F07 decision_audit	双 PG16 非超管	无 nonce/token/phone/private key 字段	由最终 SHA 官方 TAP/证据生成器填充	否
 B31	签名后角色变化即使 Guard 角色集合仍允许也拒绝	F07 Guard→F03 当前快照二次核对	双 PG16 非超管	CURRENT_EMPLOYEE_FACTS_CHANGED	由最终 SHA 官方 TAP/证据生成器填充	否
 B32	签名后撤权并重新授予相同 allow 仍因 Scope ID 变化拒绝	F07 Guard→F03 精确 Scope 指纹二次核对	双 PG16 非超管	F03_FACTS_CHANGED_AFTER_SIGNATURE	由最终 SHA 官方 TAP/证据生成器填充	否
+B33	真实 PG16 员工停用后新签发被拒绝	IsolatedAuth→Issuer→public.employees 当前状态	双 PG16 非超管	SESSION_OR_PC_ADMISSION_DENIED	由最终 SHA 官方 TAP/证据生成器填充	否
+B34	已签发断言在真实员工停用后经原 Guard 被拒绝	Verifier→真实 PG16 session admission→原 Guard	双 PG16 非超管	SESSION_OR_PC_ADMISSION_DENIED	由最终 SHA 官方 TAP/证据生成器填充	否
+B35	IsolatedAuth.logout 撤销真实会话后新签发与旧断言验证均拒绝	IsolatedAuth.login/logout→Issuer→Verifier→原 Guard	双 PG16 非超管	SESSION_OR_PC_ADMISSION_DENIED	由最终 SHA 官方 TAP/证据生成器填充	否
+B36	正确重签的 listingCycleId 与 Challenge 不匹配被拒绝	Ed25519 重签→Challenge Payload Binding	双 PG16 非超管	ASSERTION_OR_BINDING_INVALID	由最终 SHA 官方 TAP/证据生成器填充	否
+B37	正确重签的 capability 不匹配被拒绝	Ed25519 重签→固定 Capability 合同	双 PG16 非超管	ASSERTION_OR_BINDING_INVALID	由最终 SHA 官方 TAP/证据生成器填充	否
+B38	正确重签的 version 不匹配被拒绝	Ed25519 重签→固定协议版本合同	双 PG16 非超管	ASSERTION_OR_BINDING_INVALID	由最终 SHA 官方 TAP/证据生成器填充	否
 B30	员工生命周期审计水位变化拒绝签发	F03 audit_events watermark	双 PG16 非超管	CURRENT_EMPLOYEE_LIFECYCLE_CHANGED	由最终 SHA 官方 TAP/证据生成器填充	否
 H01	真实 TLS 端到端 allow	F07 HTTPS→F03 HTTPS Issuer→F07 Verifier→Guard	双 PG16 非超管	PUBLISHER_PHONE_ALLOWED	由最终 SHA 官方 TAP/证据生成器填充	否
 H02	真实 TLS 无锁车辆拒绝	F07 HTTPS→F03 HTTPS→Guard	双 PG16 非超管	CURRENT_LOCK_REQUIRED	由最终 SHA 官方 TAP/证据生成器填充	否
