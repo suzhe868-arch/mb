@@ -1,0 +1,61 @@
+用例ID	测试场景	实际调用链	PG16身份	期望结果	实际结果	是否跳过
+B01	双独立非超管 PG16 身份	环境门禁/数据库身份检查	f03_auth_test:f03_ci; f07_runtime_test:f07_runtime_ci	两个不同数据库且 PG16 非超管	由最终 SHA 官方 TAP/证据生成器填充	否
+B02	正常签发、验签、Guard 通过	F03 IsolatedAuth→Issuer→Ed25519→F07 ChallengeStore→原 Guard	双 PG16 非超管	PUBLISHER_PHONE_ALLOWED	由最终 SHA 官方 TAP/证据生成器填充	否
+B03	载荷固定字段和非生产标记	Protocol→Issuer	双 PG16 非超管	CI_SYNTHETIC_ONLY/formalSourceSigned=false/productionReady=false	由最终 SHA 官方 TAP/证据生成器填充	否
+B04	LOCKED_ONLY 无当前锁拒绝	F07 Guard	双 PG16 非超管	CURRENT_LOCK_REQUIRED	由最终 SHA 官方 TAP/证据生成器填充	否
+B05	ALL_ACTIVE_JYT 当前无锁车辆允许	F03 Issuer→F07 Guard	双 PG16 非超管	PUBLISHER_PHONE_ALLOWED	由最终 SHA 官方 TAP/证据生成器填充	否
+B06	非 JYT/非批发/下架/缺发布人映射拒绝	F07 Guard	双 PG16 非超管	稳定拒绝码	由最终 SHA 官方 TAP/证据生成器填充	否
+B07	申请中/取消/过期/旧周期 Lock 拒绝	F07 Guard	双 PG16 非超管	CURRENT_LOCK_REQUIRED	由最终 SHA 官方 TAP/证据生成器填充	否
+B08	F03 个人 deny 拒绝签发	F03 当前权限查询	双 PG16 非超管	CURRENT_PERSONAL_DENY	由最终 SHA 官方 TAP/证据生成器填充	否
+B09	Scope/Binding 结束拒绝签发	F03 当前 Scope 查询	双 PG16 非超管	CURRENT_SCOPE_BINDING_REQUIRED	由最终 SHA 官方 TAP/证据生成器填充	否
+B10	F03 专项配置关闭拒绝	F03 employee_mode	双 PG16 非超管	CURRENT_PHONE_PERMISSION_CONFIG_NOT_ENABLED	由最终 SHA 官方 TAP/证据生成器填充	否
+B11	角色快照漂移拒绝	F03 当前员工/角色/快照	双 PG16 非超管	CURRENT_EMPLOYEE_FACTS_CHANGED	由最终 SHA 官方 TAP/证据生成器填充	否
+B12	门店快照漂移拒绝	F03 当前员工/门店/快照	双 PG16 非超管	CURRENT_EMPLOYEE_FACTS_CHANGED	由最终 SHA 官方 TAP/证据生成器填充	否
+B13	System Admin 不得当员工签发	F03 会话校验	双 PG16 非超管	拒绝	由最终 SHA 官方 TAP/证据生成器填充	否
+B14	Challenge 未知字段/错误操作拒绝	Protocol	双 PG16 非超管	ASSERTION_INPUT_INVALID	由最终 SHA 官方 TAP/证据生成器填充	否
+B15	签名篡改拒绝	Ed25519 verify	双 PG16 非超管	ASSERTION_SIGNATURE_INVALID	由最终 SHA 官方 TAP/证据生成器填充	否
+B16	错误临时公钥拒绝	Ed25519 verify	双 PG16 非超管	ASSERTION_SIGNATURE_INVALID	由最终 SHA 官方 TAP/证据生成器填充	否
+B17	错误 kid 拒绝	Verifier	双 PG16 非超管	ASSERTION_KID_MISMATCH	由最终 SHA 官方 TAP/证据生成器填充	否
+B18	正确重签但请求绑定不匹配拒绝	Payload binding	双 PG16 非超管	ASSERTION_OR_BINDING_INVALID	由最终 SHA 官方 TAP/证据生成器填充	否
+B19	车辆/操作/员工/nonce 绑定错配拒绝	Payload binding	双 PG16 非超管	ASSERTION_OR_BINDING_INVALID	由最终 SHA 官方 TAP/证据生成器填充	否
+B20	未知字段/错误 issuer/audience/生产标记拒绝	Payload schema	双 PG16 非超管	ASSERTION_OR_BINDING_INVALID	由最终 SHA 官方 TAP/证据生成器填充	否
+B21	未来签发/超长 TTL 拒绝	Verifier 时间校验	双 PG16 非超管	ASSERTION_TIME_INVALID	由最终 SHA 官方 TAP/证据生成器填充	否
+B22	过期断言不消费 Challenge	Verifier 时间校验	双 PG16 非超管	ASSERTION_TIME_INVALID	由最终 SHA 官方 TAP/证据生成器填充	否
+B23	同一 Challenge 顺序重放拒绝	PG16 原子消费	双 PG16 非超管	最多一次成功	由最终 SHA 官方 TAP/证据生成器填充	否
+B24	同一 Challenge 并发重放至多一次成功	真实 PG16 双请求	双 PG16 非超管	恰好一次成功	由最终 SHA 官方 TAP/证据生成器填充	否
+B25	F03/F07 Scope 模式变化后 Guard 结果不一致拒绝	F07 Guard+载荷绑定	双 PG16 非超管	SIGNED_CONTEXT_CHANGED	由最终 SHA 官方 TAP/证据生成器填充	否
+B26	签名后车辆状态变化被 Guard 拒绝	F07 当前车辆复查	双 PG16 非超管	CURRENT_WHOLESALE_JYT_REQUIRED	由最终 SHA 官方 TAP/证据生成器填充	否
+B27	签名后个人 deny 被 Guard 拒绝	F07 当前 F03 权限复查	双 PG16 非超管	CURRENT_PERSONAL_DENY	由最终 SHA 官方 TAP/证据生成器填充	否
+B28	F03/F07 依赖不可用 fail-closed	Issuer/ChallengeStore	双 PG16 非超管	稳定拒绝码	由最终 SHA 官方 TAP/证据生成器填充	否
+B29	审计仅记录安全元数据	F07 decision_audit	双 PG16 非超管	无 nonce/token/phone/private key 字段	由最终 SHA 官方 TAP/证据生成器填充	否
+B31	签名后角色变化即使 Guard 角色集合仍允许也拒绝	F07 Guard→F03 当前快照二次核对	双 PG16 非超管	CURRENT_EMPLOYEE_FACTS_CHANGED	由最终 SHA 官方 TAP/证据生成器填充	否
+B32	签名后撤权并重新授予相同 allow 仍因 Scope ID 变化拒绝	F07 Guard→F03 精确 Scope 指纹二次核对	双 PG16 非超管	F03_FACTS_CHANGED_AFTER_SIGNATURE	由最终 SHA 官方 TAP/证据生成器填充	否
+B33	真实 PG16 员工停用后新签发被拒绝	IsolatedAuth→Issuer→public.employees 当前状态	双 PG16 非超管	SESSION_OR_PC_ADMISSION_DENIED	由最终 SHA 官方 TAP/证据生成器填充	否
+B34	已签发断言在真实员工停用后经原 Guard 被拒绝	Verifier→真实 PG16 session admission→原 Guard	双 PG16 非超管	SESSION_OR_PC_ADMISSION_DENIED	由最终 SHA 官方 TAP/证据生成器填充	否
+B35	IsolatedAuth.logout 撤销真实会话后新签发与旧断言验证均拒绝	IsolatedAuth.login/logout→Issuer→Verifier→原 Guard	双 PG16 非超管	SESSION_OR_PC_ADMISSION_DENIED	由最终 SHA 官方 TAP/证据生成器填充	否
+B36	正确重签的 listingCycleId 与 Challenge 不匹配被拒绝	Ed25519 重签→Challenge Payload Binding	双 PG16 非超管	ASSERTION_OR_BINDING_INVALID	由最终 SHA 官方 TAP/证据生成器填充	否
+B37	正确重签的 capability 不匹配被拒绝	Ed25519 重签→固定 Capability 合同	双 PG16 非超管	ASSERTION_OR_BINDING_INVALID	由最终 SHA 官方 TAP/证据生成器填充	否
+B38	正确重签的 version 不匹配被拒绝	Ed25519 重签→固定协议版本合同	双 PG16 非超管	ASSERTION_OR_BINDING_INVALID	由最终 SHA 官方 TAP/证据生成器填充	否
+B30	员工生命周期审计水位变化拒绝签发	F03 audit_events watermark	双 PG16 非超管	CURRENT_EMPLOYEE_LIFECYCLE_CHANGED	由最终 SHA 官方 TAP/证据生成器填充	否
+H01	真实 TLS 端到端 allow	F07 HTTPS→F03 HTTPS Issuer→F07 Verifier→Guard	双 PG16 非超管	PUBLISHER_PHONE_ALLOWED	由最终 SHA 官方 TAP/证据生成器填充	否
+H02	真实 TLS 无锁车辆拒绝	F07 HTTPS→F03 HTTPS→Guard	双 PG16 非超管	CURRENT_LOCK_REQUIRED	由最终 SHA 官方 TAP/证据生成器填充	否
+H03	响应不泄露电话/nonce/签名/token/发布人	HTTPS 响应白名单	双 PG16 非超管	无敏感字段	由最终 SHA 官方 TAP/证据生成器填充	否
+H04	缺失 Cookie 拒绝	F07 HTTPS 会话入口	双 PG16 非超管	401 SESSION_INVALID	由最终 SHA 官方 TAP/证据生成器填充	否
+H05	错误/重复 Cookie 拒绝	F07 HTTPS 会话入口	双 PG16 非超管	401 SESSION_INVALID	由最终 SHA 官方 TAP/证据生成器填充	否
+H06	缺失/错误 CSRF 拒绝	F07 HTTPS CSRF	双 PG16 非超管	403 CSRF_DENIED	由最终 SHA 官方 TAP/证据生成器填充	否
+H07	错误/缺失 Origin 拒绝	F07 HTTPS 来源校验	双 PG16 非超管	403 SECURE_SAME_ORIGIN_REQUIRED	由最终 SHA 官方 TAP/证据生成器填充	否
+H08	伪造 Host/代理头处理	F07 HTTPS Host/Origin	双 PG16 非超管	Host 拒绝；无权威代理头信任	由最终 SHA 官方 TAP/证据生成器填充	否
+H09	Query string 拒绝	F07 HTTPS 路由	双 PG16 非超管	400 QUERY_FORBIDDEN	由最终 SHA 官方 TAP/证据生成器填充	否
+H10	方法/Content-Type/空/无效 JSON 拒绝	F07 HTTPS 输入校验	双 PG16 非超管	稳定 4xx	由最终 SHA 官方 TAP/证据生成器填充	否
+H11	额外字段拒绝	F07 HTTPS 固定输入合同	双 PG16 非超管	400 INVALID_REQUEST	由最终 SHA 官方 TAP/证据生成器填充	否
+H12	重复键/非规范 JSON 拒绝	F07 HTTPS 规范 JSON	双 PG16 非超管	400 INVALID_REQUEST_BODY	由最终 SHA 官方 TAP/证据生成器填充	否
+H13	非法操作/ID/类型拒绝	F07 HTTPS 输入校验	双 PG16 非超管	400	由最终 SHA 官方 TAP/证据生成器填充	否
+H14	请求体上限拒绝	F07 HTTPS body limit	双 PG16 非超管	400 BODY_TOO_LARGE	由最终 SHA 官方 TAP/证据生成器填充	否
+H15	F03 HTTPS Issuer 返回正确签名	F07 Challenge→F03 HTTPS Issuer	双 PG16 非超管	ASSERTION_ISSUED	由最终 SHA 官方 TAP/证据生成器填充	否
+H16	Issuer 错误 Challenge/Query/方法拒绝	F03 HTTPS Issuer	双 PG16 非超管	稳定 4xx	由最终 SHA 官方 TAP/证据生成器填充	否
+H17	Issuer 缺失会话/CSRF 拒绝	F03 HTTPS Issuer	双 PG16 非超管	401/403	由最终 SHA 官方 TAP/证据生成器填充	否
+H18	Issuer Host/Origin 伪造拒绝	F03 HTTPS Issuer	双 PG16 非超管	403	由最终 SHA 官方 TAP/证据生成器填充	否
+H19	显式 CA 信任成功且默认 TLS 校验不被关闭	TLS 客户端证书验证	双 PG16 非超管	无 CA 握手失败；显式 CA 成功	由最终 SHA 官方 TAP/证据生成器填充	否
+H20	System Admin 不得使用员工协议	F07 HTTPS 会话主体校验	双 PG16 非超管	401 CURRENT_EMPLOYEE_SESSION_REQUIRED	由最终 SHA 官方 TAP/证据生成器填充	否
+H21	生产默认 app 无此 CI 路由	原 app.mjs 默认 handler	双 PG16 非超管	404	由最终 SHA 官方 TAP/证据生成器填充	否
+H22	允许/拒绝请求均写入安全审计	F07 decision_audit	双 PG16 非超管	审计存在且不含敏感字段	由最终 SHA 官方 TAP/证据生成器填充	否

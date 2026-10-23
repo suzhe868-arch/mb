@@ -1,0 +1,229 @@
+name: F03-F07 Publisher Phone Ed25519 Isolated Nonproduction PG16
+on:
+  push:
+    branches:
+      - feat/f03-f07-publisher-phone-ed25519-nonprod-01
+    paths:
+      - 'engineering/f03-f07/publisher-phone-ed25519-nonprod/**'
+      - '.github/workflows/f03-f07-publisher-phone-ed25519-nonprod.yml'
+permissions:
+  contents: read
+jobs:
+  business_pg16:
+    name: F03-F07 Ed25519 current authorization business PG16
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_F07_TRACK: business
+      F03_F07_ED25519_CONSENT: I_AUTHORIZE_F03_F07_ED25519_CI_ONLY
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      DATABASE_URL: postgres://f07_runtime_ci:f07_runtime_only@127.0.0.1:5432/f07_runtime_test
+      F03_F07_TLS_KEY_PATH: /tmp/f03-f07-ed25519-key.pem
+      F03_F07_TLS_CERT_PATH: /tmp/f03-f07-ed25519-cert.pem
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Install locked engineering dependencies
+        run: npm --prefix engineering ci --ignore-scripts --no-audit --no-fund
+      - name: Create two isolated disposable non-superuser PG16 databases and ephemeral TLS/HMAC material
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PGPASSWORD=postgres
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE f03_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE PASSWORD 'f03_ci_synthetic_only';
+          CREATE ROLE f07_runtime_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE PASSWORD 'f07_runtime_only';
+          CREATE DATABASE f03_auth_test OWNER f03_ci;
+          CREATE DATABASE f07_runtime_test OWNER f07_runtime_ci;
+          SQL
+          printf 'F03_1_HMAC_KEY_BASE64=%s\n' "$(openssl rand -base64 32)" >> "$GITHUB_ENV"
+          openssl req -x509 -newkey rsa:2048 -nodes -keyout "$F03_F07_TLS_KEY_PATH" -out "$F03_F07_TLS_CERT_PATH" -days 1 -subj '/CN=127.0.0.1' -addext 'subjectAltName=IP:127.0.0.1' >/dev/null 2>&1
+          chmod 600 "$F03_F07_TLS_KEY_PATH"
+          chmod 644 "$F03_F07_TLS_CERT_PATH"
+      - name: Apply existing F03-1 and SG01 migrations and isolated identity fixtures unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f03-1/runner.mjs --bootstrap
+          node engineering/f03-1/runner.mjs --apply
+          node engineering/f03-1/runner.mjs --verify
+          node engineering/f03-1/fixtures.mjs
+          node engineering/f03/runtime-scope/runner.mjs --apply
+          node engineering/f03/runtime-scope/runner.mjs --verify
+          node engineering/f03/runtime-scope/fixtures.mjs
+          node engineering/f03-f07/publisher-phone-ed25519-nonprod/fixtures.mjs
+      - name: Static allowlist, syntax, YAML trigger isolation and no F05-7 legacy run
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = 'refs/heads/feat/f03-f07-publisher-phone-ed25519-nonprod-01'
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch origin main
+          git diff --check origin/main...HEAD
+          node engineering/f03-f07/publisher-phone-ed25519-nonprod/verify-contract.mjs
+          ruby engineering/f03-f07/publisher-phone-ed25519-nonprod/workflow-trigger-audit.rb
+      - name: Real isolated PostgreSQL 16 F03-F07 Ed25519 business matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f03-f07/publisher-phone-ed25519-nonprod/tests/business.test.mjs 2>&1 | tee f03-f07-business.log
+          grep -q '# fail 0' f03-f07-business.log
+          grep -q '# skipped 0' f03-f07-business.log
+      - name: Generate run-bound matrix, PG16 identities and SHA256 evidence
+        if: always()
+        shell: bash
+        run: node engineering/f03-f07/publisher-phone-ed25519-nonprod/evidence.mjs
+      - name: Enforce complete evidence bundle size under 5 MiB
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          ARTIFACT_BYTES="$(du -sb engineering/f03-f07/publisher-phone-ed25519-nonprod .github/workflows/f03-f07-publisher-phone-ed25519-nonprod.yml f03-f07-business.log f03-f07-evidence.json f03-f07-sha256sums.txt f03-f07-workflow-trigger-audit.txt 最终运行交接.md 2>/dev/null | awk '{sum += $1} END {print sum+0}')"
+          test "$ARTIFACT_BYTES" -le 5242880
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f03-f07-ed25519-business-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            engineering/f03-f07/publisher-phone-ed25519-nonprod/**
+            .github/workflows/f03-f07-publisher-phone-ed25519-nonprod.yml
+            f03-f07-business.log
+            f03-f07-evidence.json
+            f03-f07-sha256sums.txt
+            f03-f07-workflow-trigger-audit.txt
+            最终运行交接.md
+          if-no-files-found: warn
+          retention-days: 1
+          compression-level: 6
+          include-hidden-files: true
+  https_pg16:
+    name: F03-F07 Ed25519 loopback HTTPS security PG16
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_F07_TRACK: https
+      F03_F07_ED25519_CONSENT: I_AUTHORIZE_F03_F07_ED25519_CI_ONLY
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      DATABASE_URL: postgres://f07_runtime_ci:f07_runtime_only@127.0.0.1:5432/f07_runtime_test
+      F03_F07_TLS_KEY_PATH: /tmp/f03-f07-ed25519-key.pem
+      F03_F07_TLS_CERT_PATH: /tmp/f03-f07-ed25519-cert.pem
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Install locked engineering dependencies
+        run: npm --prefix engineering ci --ignore-scripts --no-audit --no-fund
+      - name: Create two isolated disposable non-superuser PG16 databases and ephemeral TLS/HMAC material
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PGPASSWORD=postgres
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE f03_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE PASSWORD 'f03_ci_synthetic_only';
+          CREATE ROLE f07_runtime_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE PASSWORD 'f07_runtime_only';
+          CREATE DATABASE f03_auth_test OWNER f03_ci;
+          CREATE DATABASE f07_runtime_test OWNER f07_runtime_ci;
+          SQL
+          printf 'F03_1_HMAC_KEY_BASE64=%s\n' "$(openssl rand -base64 32)" >> "$GITHUB_ENV"
+          openssl req -x509 -newkey rsa:2048 -nodes -keyout "$F03_F07_TLS_KEY_PATH" -out "$F03_F07_TLS_CERT_PATH" -days 1 -subj '/CN=127.0.0.1' -addext 'subjectAltName=IP:127.0.0.1' >/dev/null 2>&1
+          chmod 600 "$F03_F07_TLS_KEY_PATH"
+          chmod 644 "$F03_F07_TLS_CERT_PATH"
+      - name: Apply existing F03-1 and SG01 migrations and isolated identity fixtures unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f03-1/runner.mjs --bootstrap
+          node engineering/f03-1/runner.mjs --apply
+          node engineering/f03-1/runner.mjs --verify
+          node engineering/f03-1/fixtures.mjs
+          node engineering/f03/runtime-scope/runner.mjs --apply
+          node engineering/f03/runtime-scope/runner.mjs --verify
+          node engineering/f03/runtime-scope/fixtures.mjs
+          node engineering/f03-f07/publisher-phone-ed25519-nonprod/fixtures.mjs
+      - name: Static allowlist, syntax, YAML trigger isolation and no F05-7 legacy run
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = 'refs/heads/feat/f03-f07-publisher-phone-ed25519-nonprod-01'
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch origin main
+          git diff --check origin/main...HEAD
+          node engineering/f03-f07/publisher-phone-ed25519-nonprod/verify-contract.mjs
+          ruby engineering/f03-f07/publisher-phone-ed25519-nonprod/workflow-trigger-audit.rb
+      - name: Real loopback TLS issuer/verifier and HTTPS negative matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f03-f07/publisher-phone-ed25519-nonprod/tests/https.test.mjs 2>&1 | tee f03-f07-https.log
+          grep -q '# fail 0' f03-f07-https.log
+          grep -q '# skipped 0' f03-f07-https.log
+      - name: Generate run-bound matrix, PG16 identities and SHA256 evidence
+        if: always()
+        shell: bash
+        run: node engineering/f03-f07/publisher-phone-ed25519-nonprod/evidence.mjs
+      - name: Enforce complete evidence bundle size under 5 MiB
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          ARTIFACT_BYTES="$(du -sb engineering/f03-f07/publisher-phone-ed25519-nonprod .github/workflows/f03-f07-publisher-phone-ed25519-nonprod.yml f03-f07-https.log f03-f07-evidence.json f03-f07-sha256sums.txt f03-f07-workflow-trigger-audit.txt 最终运行交接.md 2>/dev/null | awk '{sum += $1} END {print sum+0}')"
+          test "$ARTIFACT_BYTES" -le 5242880
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f03-f07-ed25519-https-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            engineering/f03-f07/publisher-phone-ed25519-nonprod/**
+            .github/workflows/f03-f07-publisher-phone-ed25519-nonprod.yml
+            f03-f07-https.log
+            f03-f07-evidence.json
+            f03-f07-sha256sums.txt
+            f03-f07-workflow-trigger-audit.txt
+            最终运行交接.md
+          if-no-files-found: warn
+          retention-days: 1
+          compression-level: 6
+          include-hidden-files: true
