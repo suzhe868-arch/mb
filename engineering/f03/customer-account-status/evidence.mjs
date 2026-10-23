@@ -3,13 +3,12 @@ import {createHash} from 'node:crypto';
 import {readFile,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import {assertEnvironment,connect} from './environment.mjs';
-import {verify} from './schema.mjs';
+import {verifyScopeDatabase} from '../runtime-scope/readiness.mjs';
 const digest=x=>createHash('sha256').update(x).digest('hex');
 assertEnvironment();
 assert.equal(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),process.env.GITHUB_SHA);
 const paths=[
  'engineering/f03/customer-account-status/environment.mjs',
- 'engineering/f03/customer-account-status/schema.mjs',
  'engineering/f03/customer-account-status/fixtures.mjs',
  'engineering/f03/customer-account-status/tests/business.test.mjs',
  'engineering/f03/customer-account-status/tests/https.test.mjs',
@@ -37,9 +36,9 @@ function tap(path){
 const results={business:tap('f03-account-status-business.log'),https:tap('f03-account-status-https.log'),node:tap('f03-account-status-node.log')};
 const p=await connect();let database;
 try{
- database=await verify(p);
+ database=await verifyScopeDatabase(p);
  const rows=(await p.query("SELECT count(*)::int AS n FROM public.audit_events WHERE role_context->>'source'='CI_ONLY_F03_CUSTOMER_ACCOUNT_STATUS'")).rows;
- database.syntheticAuditCount=rows[0].n;
+ database={verified:true,syntheticAuditCount:rows[0].n};
 }finally{await p.end()}
 const evidence={
  task:'F03_CUSTOMER_ACCOUNT_DISABLE_RESTORE_DEMAND_PAUSE_HTTP_PG16_01',
