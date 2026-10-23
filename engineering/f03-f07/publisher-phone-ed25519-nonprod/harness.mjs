@@ -33,6 +33,8 @@ async function bodyObject(req,limit){
  if(!raw)throw Error('EMPTY_BODY');
  let value;try{value=JSON.parse(raw)}catch{throw Error('INVALID_JSON')}
  if(!value||typeof value!=='object'||Array.isArray(value))throw Error('OBJECT_REQUIRED');
+ // This isolated protocol harness accepts canonical JSON only, rejecting duplicate keys and ambiguous encodings.
+ if(JSON.stringify(value)!==raw)throw Error('NON_CANONICAL_JSON');
  return value;
 }
 function parseCode(value,fallback){
