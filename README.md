@@ -1,3 +1,19 @@
+# 名邦汽车 V1｜A 正式放行 F05 CRM Follow-up 真实非生产后端（2026-10-23）
+
+- **NEXT_OWNER=B**
+- **NEXT_TASK=`F05_CRM_FOLLOWUP_APPEND_HTTP_PG16_01`**
+- **NEXT_ISSUE=239**：[CRM 跟进真实写入](https://github.com/suzhe868-arch/mb/issues/239)
+- **NEXT_BRANCH=`feat/f05-crm-followup-append-http-pg16-01`**
+- **NEXT_WORK_FILE=`07_重建工作区/F05客户CRM跟进追加写入HTTPS真实PG16非生产施工单_2026-10-23.md`**
+- **正式生效条件**：只有本 A 治理 PR 标准合并至 `main` 后生效，B 从当时最新 `main` 接管，不从历史 SHA 或 Issue 创建本身判断授权。
+- **实码缺口/范围**：PDM-16 §5/9/13 与 PDM-21 §27 的 CRM Follow-up 追加写入尚无当前后端 service/HTTP；冻结的 `public.crm_followups` 已有物理列。仅 CI-only 双 PG16 + 真实 TLS 业务新增、幂等审计、合法 Current Customer Scope/员工权限、Customer inactive Guard 与 append-only 事实；不可修改公共 DDL、冻结 F03/F05/F06/F07 源或生产注册。写入 capability 名称只作非生产合成测试技术别名，不是正式 Issuer，缺正式可签来源继续 fail-closed。
+- **历史验收复用**：Issue #235/PR #237 已由 A 独立验收并合并（B HEAD `5ab6e9e669e9581b0b2ba12aec6579d2b2bedcf7`，merge `0f2b030ef32c47999e70f7d66bf64ca3817d7766`，治理 PR #238 merge `ebf878dd38acc94c86dd5467a346b03374b646c0`）；不重做已经过验的客户账号停用、F03 权限、F05 Demand/Consultation 或历史 CRM schema。
+- **父级硬门禁不变**：[Issue #187](https://github.com/suzhe868-arch/mb/issues/187) 保持 `SOURCE_GAP/FAIL_CLOSED`；F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。JYT/Collector、CDN/OSS、飞书、可信正式 permission/Source Issuer、外部资金/电话/生产均未授权；不启动 PC #196、C PR #68。
+- **不提前签发其它任务**：客户等级改变后的 Demand entitlement 失效需正式当前等级权益来源；目前 F05 v22 权益策略仅有隔离 CI 合成来源，A 不据此直接发布另一个等级写入包。先完成本 Issue #239 独立 CRM 后端纵切，其他缺口继续归 #187 严格核查。
+- **完整施工单**：[`07_重建工作区/F05客户CRM跟进追加写入HTTPS真实PG16非生产施工单_2026-10-23.md`](07_重建工作区/F05客户CRM跟进追加写入HTTPS真实PG16非生产施工单_2026-10-23.md)。B 在一份任务包内完成开发、自审、两个真实 PG16 Job、HTTPS、回归和 Artifact，形成 `READY_FOR_A_REVIEW` 后交 A；B 不合并 main、不自行扩大权限。
+
+---
+
 # 名邦汽车 V1｜A 已验收 F03 客户账号状态并接续 F08 来源父门禁（2026-10-23）
 
 - **NEXT_OWNER=A**
