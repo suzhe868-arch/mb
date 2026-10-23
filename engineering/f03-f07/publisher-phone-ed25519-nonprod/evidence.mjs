@@ -7,7 +7,8 @@ import {connectPools} from './environment.mjs';
 
 const ROOT='engineering/f03-f07/publisher-phone-ed25519-nonprod';
 const WORKFLOW='.github/workflows/f03-f07-publisher-phone-ed25519-nonprod.yml';
-const LOGS=['f03-f07-business.log','f03-f07-https.log'];
+const track=process.env.F03_F07_TRACK;
+const LOGS=track==='business'?['f03-f07-business.log']:track==='https'?['f03-f07-https.log']:[];
 const hash=x=>createHash('sha256').update(x).digest('hex');
 const exists=async path=>{try{await stat(path);return true}catch{return false}};
 async function walk(dir){
@@ -28,7 +29,7 @@ function parseTap(content,prefix){
  }
  return {tests,pass,fail,skipped,cases};
 }
-let evidenceStatus='PASS',database={ok:false,code:'DATABASE_EVIDENCE_UNAVAILABLE'};
+let evidenceStatus=LOGS.length?'PASS':'FAIL',database={ok:false,code:'DATABASE_EVIDENCE_UNAVAILABLE'};
 let identities=null;
 try{
  const p=await connectPools();
@@ -41,11 +42,13 @@ for(let i=0;i<LOGS.length;i++){
  const path=LOGS[i];
  if(!await exists(path)){tap[path]={tests:0,pass:0,fail:1,skipped:0,cases:[]};evidenceStatus='FAIL';continue}
  const raw=await readFile(path,'utf8');
- tap[path]=parseTap(raw,i===0?'B':'H');
+ tap[path]=parseTap(raw,track==='business'?'B':'H');
  if(tap[path].tests!==tap[path].pass||tap[path].fail!==0||tap[path].skipped!==0)evidenceStatus='FAIL';
 }
-if(tap[LOGS[0]].tests<24||tap[LOGS[0]].cases.length!==tap[LOGS[0]].tests)evidenceStatus='FAIL';
-if(tap[LOGS[1]].tests<12||tap[LOGS[1]].cases.length!==tap[LOGS[1]].tests)evidenceStatus='FAIL';
+const activeTap=tap[LOGS[0]];
+const minimum=track==='business'?24:12;
+const expectedCount=track==='business'?30:22;
+if(!activeTap||activeTap.tests<minimum||activeTap.cases.length!==activeTap.tests||activeTap.tests!==expectedCount)evidenceStatus='FAIL';
 if(!database.ok)evidenceStatus='FAIL';
 const sha=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
 if(sha!==process.env.GITHUB_SHA)evidenceStatus='FAIL';
@@ -56,7 +59,7 @@ try{audit=JSON.parse(await readFile('f03-f07-workflow-trigger-audit.txt','utf8')
 const template=await readFile(join(ROOT,'测试矩阵.tsv'),'utf8');
 const lines=template.trimEnd().split(/\r?\n/);
 const templates=new Map(lines.slice(1).map(line=>{const c=line.split('\t');return [c[0],c]}));
-const actual=[...tap[LOGS[0]].cases,...tap[LOGS[1]].cases];
+const actual=[...activeTap.cases];
 const matrixHeader='用例ID\t测试场景\t实际调用链\tPG16身份\t期望结果\t实际结果\t是否跳过\t最终SHA\tRun';
 const matrixRows=actual.map(c=>{
  const base=templates.get(c.id);
@@ -64,11 +67,11 @@ const matrixRows=actual.map(c=>{
  return [c.id,base[1],base[2],base[3],base[4],c.result,c.skipped?'是':'否',sha,process.env.GITHUB_RUN_ID].join('\t');
 });
 const matrix=matrixHeader+'\n'+matrixRows.join('\n')+'\n';
-if(matrixRows.length!==52||matrixRows.some(line=>!line.includes('\tPASS\t否\t')))evidenceStatus='FAIL';
+if(matrixRows.length!==expectedCount||matrixRows.some(line=>!line.includes('\tPASS\t否\t')))evidenceStatus='FAIL';
 await writeFile(join(ROOT,'测试矩阵.tsv'),matrix);
 const run=process.env.GITHUB_RUN_ID,attempt=process.env.GITHUB_RUN_ATTEMPT||'1',ref=process.env.GITHUB_REF;
 const finalNote='# 最终运行交接｜F03→F07 Ed25519 限定非生产\n\n'+
-'状态：'+evidenceStatus+'；任务：F03_F07_PUBLISHER_PHONE_ED25519_AUTH_NONPROD_01；Issue #248。\n\n'+
+'状态：'+evidenceStatus+'；轨道：'+track+'；任务：F03_F07_PUBLISHER_PHONE_ED25519_AUTH_NONPROD_01；Issue #248。\n\n'+
 '- Repository：'+process.env.GITHUB_REPOSITORY+'\n- Branch：'+ref+'\n- Final HEAD：'+sha+'\n- Official Run：'+run+' / attempt '+attempt+'\n'+
 '- PG16 identity：'+JSON.stringify(identities)+'\n- TAP：'+JSON.stringify(tap)+'\n'+
 '- Workflow trigger audit：'+JSON.stringify({status:audit.status,scanned:audit.scanned_workflows,f05_7:audit.scanned_f05_7_workflows,candidates:audit.potential_f05_7_triggers})+'\n'+
@@ -91,7 +94,7 @@ for(const path of [...LOGS,'f03-f07-workflow-trigger-audit.txt','最终运行交
  if(sensitive.test(raw))evidenceStatus='FAIL';
 }
 const proof={
- task:'F03_F07_PUBLISHER_PHONE_ED25519_AUTH_NONPROD_01',status:evidenceStatus,
+ task:'F03_F07_PUBLISHER_PHONE_ED25519_AUTH_NONPROD_01',track,status:evidenceStatus,
  repository:process.env.GITHUB_REPOSITORY,branch:ref,sha,run,attempt,
  database,databaseIdentities:identities,tests:tap,
  workflowTriggerAudit:{status:audit.status,scannedWorkflows:audit.scanned_workflows,
