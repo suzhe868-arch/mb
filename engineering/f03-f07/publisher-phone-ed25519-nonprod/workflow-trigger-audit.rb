@@ -69,7 +69,7 @@ workflow_files.each do |file|
   begin
     doc=YAML.load_file(file,aliases:true)
     raw=doc.is_a?(Hash) ? (doc['on'] || doc[true] || doc[:on]) : nil
-    events=raw.is_a?(Array) ? raw.to_h{|e|[e.to_s,{}]} : raw
+    events=raw.is_a?(Array) ? raw.to_h{|e|[e.to_s,{}]} : raw.is_a?(String) ? {raw=>{}} : raw
     events={} unless events.is_a?(Hash)
     if file.include?('f05-7')
       push=events['push']||events[:push]
@@ -79,7 +79,7 @@ workflow_files.each do |file|
           potential << {file:file,event:'push',paths:changed.select{|p|paths_match(push,[p])}}
         end
       end
-      pr=events['pull_request']||events[:pull_request]
+      pr=events['pull_request']||events[:pull_request]||events['pull_request_target']||events[:pull_request_target]
       if pr
         pr={} unless pr.is_a?(Hash)
         if branch_match(pr,'main')&&paths_match(pr,changed)
