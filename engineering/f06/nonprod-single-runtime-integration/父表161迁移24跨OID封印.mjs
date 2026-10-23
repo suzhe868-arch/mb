@@ -48,7 +48,7 @@ function requireEnvironment(){
  assert.equal(process.env.APP_ENV,'test');
  assert.equal(process.env.NODE_ENV,'test');
  const branch=process.env.GITHUB_REF_NAME;
- assert.ok(['feat/f06-nonprod-single-runtime-trusted-source-01','feat/f06-nonprod-composite-lock-lifecycle-01'].includes(branch));
+ assert.ok(['feat/f06-nonprod-single-runtime-trusted-source-01','feat/f06-nonprod-composite-lock-lifecycle-01','feat/f05-f06-same-vehicle-signed-bridge-pg16-01'].includes(branch));
  assert.equal(process.env.GITHUB_REF,'refs/heads/'+branch);
  assert.match(process.env.GITHUB_SHA||'',/^[a-f0-9]{40}$/);
  assert.match(process.env.GITHUB_RUN_ID||'',/^[0-9]{6,20}$/);

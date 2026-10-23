@@ -6,7 +6,7 @@ CREATE TABLE f06_composite_v1.attestation(
  source_sha256 text NOT NULL CHECK(length(source_sha256)=64),
  head_sha text NOT NULL CHECK(length(head_sha)=40),
  run_id text NOT NULL,
- github_ref text NOT NULL CHECK(github_ref IN ('refs/heads/feat/f06-nonprod-single-runtime-trusted-source-01','refs/heads/feat/f06-nonprod-composite-lock-lifecycle-01')),
+ github_ref text NOT NULL CHECK(github_ref IN ('refs/heads/feat/f06-nonprod-single-runtime-trusted-source-01','refs/heads/feat/f06-nonprod-composite-lock-lifecycle-01','refs/heads/feat/f05-f06-same-vehicle-signed-bridge-pg16-01')),
  database_oid oid NOT NULL,
  ledger_sha256 text NOT NULL CHECK(length(ledger_sha256)=64),
  public_catalog_sha256 text NOT NULL CHECK(length(public_catalog_sha256)=64),
