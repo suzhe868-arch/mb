@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "BACKEND_ENGINEERING",
-  "substage": "F05_CRM_FOLLOWUP_TIMELINE_LIST_NONPROD_RELEASED",
+  "substage": "F05_CRM_TIMELINE_A_ACCEPTED_NONPROD_F08_SOURCE_GATE",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F05_CRM_FOLLOWUP_TIMELINE",
-  "current_domain_status": "A 已正式签发 Issue #243：限定 CI-only CRM Follow-up 客户时间线分页列表 HTTP/PG16；CRM #239 已限定非生产验收，不能扩张正式 CRM read/write Issuer；#187 SOURCE_GAP/FAIL_CLOSED，F06/F07/F08/V1 NOT_READY/NO_PRODUCTION。",
+  "current_domain": "F08_SIGNED_SOURCE_GATE",
+  "current_domain_status": "F05 CRM 时间线分页 Issue #243 / PR #245 已 A_ACCEPTED_LIMITED_NONPROD 并标准合并；正式 CRM Reader/Writer Issuer、correction/void、F07 Runtime 与外部可信来源未连接；Issue #187 继续 SOURCE_GAP/FAIL_CLOSED，F06/F07/F08/V1 NOT_READY/NO_PRODUCTION。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F05_CRM_FOLLOWUP_TIMELINE_LIST_HTTP_PG16_01",
-  "current_work_file": "07_重建工作区/F05客户CRM跟进时间线分页读取HTTP真实PG16非生产正式施工单_2026-10-23.md",
+  "current_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
+  "current_work_file": "07_重建工作区/F05客户CRM时间线Issue243_PR245_A独立验收合并与F08父门禁接续报告_2026-10-23.md",
   "a_f08_source_gate_review_2026_10_23": {
     "status": "SOURCE_GAP/FAIL_CLOSED",
     "reviewed_at": "2026-10-23",
@@ -12161,5 +12161,56 @@
     "f06_f07_f08_v1": "NOT_READY/NO_PRODUCTION",
     "production_authorized": false,
     "external_sources_authorized": false
+  },
+  "a_acceptance_issue243_2026_10_23": {
+    "status": "A_ACCEPTED_LIMITED_NONPROD_PR245_MERGED",
+    "issue": 243,
+    "issue_state": "closed",
+    "pr": 245,
+    "accepted_head_sha": "fe68890ef1aaaf23febdb579540cf9629f894166",
+    "merge_sha": "67f223b2cdf40b955b3c6585cff5f66486bbc0b8",
+    "official_run_id": 39957763719,
+    "run_event": "push",
+    "run_conclusion": "success",
+    "pg16_jobs": [
+      {
+        "track": "pg16-a",
+        "job_id": 120427765185,
+        "conclusion": "success",
+        "new_business": "28/28",
+        "new_https": "16/16",
+        "old_business": "40/40",
+        "old_https": "14/14",
+        "customer_regression": "4/4",
+        "scope_regression": "7/7",
+        "node_regression": "269/269",
+        "fail": 0,
+        "skipped": 0,
+        "artifact_id": 12503636101,
+        "artifact_sha256": "6a55c804eb5adfb08fb355f8dbc7e6671b46e5b7c7cd51975b07a4a43ddeaaea"
+      },
+      {
+        "track": "pg16-b",
+        "job_id": 120427764855,
+        "conclusion": "success",
+        "new_business": "28/28",
+        "new_https": "16/16",
+        "old_business": "40/40",
+        "old_https": "14/14",
+        "customer_regression": "4/4",
+        "scope_regression": "7/7",
+        "node_regression": "269/269",
+        "fail": 0,
+        "skipped": 0,
+        "artifact_id": 12502499595,
+        "artifact_sha256": "4bfd3467dc9c3715d0032553552be9f7e3ef6ff1fc61bd78f671c17cdf6f1db1"
+      }
+    ],
+    "old_f03_account_suite": "NOT_RUN_BY_HISTORICAL_REF_SEAL",
+    "permission_issuer": "CI_ONLY_SYNTHETIC_PERMISSION",
+    "issue187": "SOURCE_GAP/FAIL_CLOSED",
+    "f06_f07_f08_v1": "NOT_READY/NO_PRODUCTION",
+    "production_authorized": false,
+    "report": "07_重建工作区/F05客户CRM时间线Issue243_PR245_A独立验收合并与F08父门禁接续报告_2026-10-23.md"
   }
 }
