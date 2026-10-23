@@ -1,3 +1,14 @@
+## A-F03-F07-ED25519-PR250-CHANGES-REQUESTED-01｜PR #250 A 独立验收要求定向补测（2026-10-23）
+
+- **A 状态：`A_CHANGES_REQUESTED`；PR #250 未合并。**
+- **NEXT_OWNER=B**；**NEXT_TASK=`F03_F07_PUBLISHER_PHONE_ED25519_AUTH_NONPROD_01`**；**NEXT_ISSUE=#248**；**NEXT_BRANCH=`feat/f03-f07-publisher-phone-ed25519-nonprod-01`**；整改记录：`07_重建工作区/F03-F07发布人电话Ed25519PR250_A独立验收整改记录_2026-10-23.md`。
+- A 核验 PR #250 业务变更 19 个文件全部在白名单。B HEAD `ded9efa9078e94f3eccbd9298f6effac36f4c276` 对应官方 Push Run #39979249031 成功；两个独立非超管 PG16 Job：32/32 与 22/22，失败/跳过均 0。两份原生 Artifact ZIP digest 与 GitHub 一致，内部 SHA256 manifest 各 23/23 匹配；Workflow 审计 363 个、F05-7 15 个、YAML 错误 0、潜在旧 F05-7 触发 0。
+- 未验收的具体原因是施工单 §4.2 必需负例缺失：真实员工停用后新签发/旧断言验证拒绝；现有 F03 认证机制下凭证/会话撤销后旧会话失效；正确重签的 listingCycleId/capability/version 错配分别拒绝。B30 的合成审计水位测试不能替代员工状态测试；B19/B20 未覆盖后三项字段。
+- B 仅在原白名单 `engineering/f03-f07/publisher-phone-ed25519-nonprod/**` 和必要时新增 Workflow 内补测/更新证据计数；不得修改旧 Guard/Runtime、既有 F03/F07 源码、公共迁移、旧 Workflow、PDM/IA、app/server、PC/C；不重跑 F05-7 历史 66 项/旧 Oracle，不接真实外部系统、电话、资金或生产。
+- 完整报告：[`07_重建工作区/F03-F07发布人电话Ed25519PR250_A独立验收整改记录_2026-10-23.md`](`07_重建工作区/F03-F07发布人电话Ed25519PR250_A独立验收整改记录_2026-10-23.md`)。父 Issue #187 继续 `SOURCE_GAP/FAIL_CLOSED`；F06/F07/F08/V1 继续 `NOT_READY/NO_PRODUCTION`。
+
+---
+
 ## A-F03-F07-ED25519-PHONE-NONPROD-RELEASE-01｜用户明确批准限定非生产协议任务（2026-10-23）
 
 - **NEXT_OWNER=B**；**NEXT_TASK=`F03_F07_PUBLISHER_PHONE_ED25519_AUTH_NONPROD_01`**；**NEXT_ISSUE=#248**；**NEXT_BRANCH=`feat/f03-f07-publisher-phone-ed25519-nonprod-01`**；施工单：`07_重建工作区/F03-F07发布人电话Ed25519签名授权集成非生产正式施工单_2026-10-23.md`。
