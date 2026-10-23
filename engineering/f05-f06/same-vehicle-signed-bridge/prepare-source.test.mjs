@@ -4,6 +4,7 @@ import {createHash,randomBytes} from 'node:crypto';
 import {mkdir,writeFile} from 'node:fs/promises';
 import pg from 'pg';
 import {IsolatedAuth} from '../../src/f03-auth-service.mjs';
+import {hashPassword} from '../../src/f03-auth-crypto.mjs';
 import {getPublicStructure} from '../../f02-1/schema-integrity.mjs';
 import {connect as draftConnect,verify as verifyDraft} from '../../f05/manual-vehicle-draft-publish/migration.mjs';
 import {createManualVehicleDraftService} from '../../f05/manual-vehicle-draft-publish/service.mjs';
@@ -16,6 +17,88 @@ const sha=value=>createHash('sha256').update(value).digest('hex');
 const digestObject=value=>sha(JSON.stringify(value));
 let db,auth,app,secret,staff,other,draft,published,payload;
 const count=async(sql,args=[])=>Number((await db.query(sql,args)).rows[0].n);
+async function seedIsolatedSourcePublisher(){
+ const runId=String(process.env.GITHUB_RUN_ID);
+ // F05-7's accepted CI fixture deliberately changes permission facts for employees 1, 5 and 6.
+ // Use a different active sales principal so those fixtures cannot revoke this bridge vehicle's
+ // current responsibility after its native F05 publication.
+ const candidate=(await db.query(
+  "SELECT e.employee_id::text employee_id,e.store_id::text store_id,t.team_id::text team_id "+
+  "FROM public.employees e JOIN public.roles r ON r.role_id=e.main_role_id "+
+  "JOIN public.stores st ON st.store_id=e.store_id AND st.status='active' "+
+  "JOIN public.teams t ON t.store_id=e.store_id AND t.team_status='active' "+
+  "WHERE e.employment_status='active' AND r.role_code='sales' AND e.employee_id NOT IN (1,5,6) "+
+  "AND EXISTS(SELECT 1 FROM public.employees m JOIN public.roles mr ON mr.role_id=m.main_role_id "+
+  "WHERE m.store_id=e.store_id AND m.employment_status='active' AND mr.role_code IN ('manager','store_head') "+
+  "AND m.employee_id<>e.employee_id) ORDER BY e.employee_id,t.team_id LIMIT 1"
+ )).rows[0];
+ assert.ok(candidate,'a non-fixture active sales employee with an active same-store manager/store-head is required');
+ const employeeId=Number(candidate.employee_id),teamId=Number(candidate.team_id);
+ const membership=await db.query(
+  "SELECT 1 FROM public.employee_team_memberships WHERE employee_id=$1 AND team_id=$2 AND valid_from<=clock_timestamp() AND (ended_at IS NULL OR ended_at>clock_timestamp())",
+  [employeeId,teamId]
+ );
+ if(!membership.rowCount)await db.query(
+  "INSERT INTO public.employee_team_memberships(employee_id,team_id,valid_from) VALUES($1,$2,clock_timestamp()-interval '2 minutes')",
+  [employeeId,teamId]
+ );
+ let scope=(await db.query(
+  "SELECT scope_id FROM public.employee_data_scopes WHERE employee_id=$1 AND scope_kind='team' AND scope_reference_id=$2 AND ended_at IS NULL ORDER BY scope_id LIMIT 1",
+  [employeeId,teamId]
+ )).rows[0];
+ if(!scope)scope=(await db.query(
+  "INSERT INTO public.employee_data_scopes(employee_id,scope_kind,scope_reference_id) VALUES($1,'team',$2) RETURNING scope_id",
+  [employeeId,teamId]
+ )).rows[0];
+ const permission=(await db.query("SELECT permission_id FROM public.permissions WHERE permission_code='vehicle.manage'")).rows[0];
+ assert.ok(permission,'the existing vehicle.manage permission must already exist');
+ const permissionId=Number(permission.permission_id);
+ const override=await db.query(
+  "SELECT 1 FROM public.employee_permission_overrides WHERE employee_id=$1 AND permission_id=$2",
+  [employeeId,permissionId]
+ );
+ if(override.rowCount)await db.query(
+  "UPDATE public.employee_permission_overrides SET decision='allow',changed_at=clock_timestamp() WHERE employee_id=$1 AND permission_id=$2",
+  [employeeId,permissionId]
+ );
+ else await db.query(
+  "INSERT INTO public.employee_permission_overrides(employee_id,permission_id,decision,changed_at) VALUES($1,$2,'allow',clock_timestamp())",
+  [employeeId,permissionId]
+ );
+ const binding=await db.query(
+  "SELECT 1 FROM public.employee_capability_scope_bindings WHERE employee_id=$1 AND permission_id=$2 AND scope_id=$3 AND ended_at IS NULL",
+  [employeeId,permissionId,scope.scope_id]
+ );
+ if(!binding.rowCount)await db.query(
+  "INSERT INTO public.employee_capability_scope_bindings(employee_id,permission_id,scope_id,granted_at) VALUES($1,$2,$3,clock_timestamp()-interval '2 minutes')",
+  [employeeId,permissionId,scope.scope_id]
+ );
+ const loginName='bridge_source_'+employeeId+'_'+runId.slice(-6);
+ const password='BridgeSource_'+employeeId+'_'+runId.slice(-6)+'_2026!';
+ const passwordHash=await hashPassword(password);
+ let account=(await db.query(
+  "SELECT account_id FROM public.pc_login_accounts WHERE principal_kind='employee' AND employee_id=$1 AND system_admin_id IS NULL ORDER BY account_id LIMIT 1",
+  [employeeId]
+ )).rows[0];
+ if(account){
+  await db.query(
+   "UPDATE public.pc_login_accounts SET normalized_login_key=$2,password_hash=$3,credential_state='enabled',force_password_change=false,credential_epoch=credential_epoch+1,updated_at=clock_timestamp() WHERE account_id=$1",
+   [account.account_id,loginName,passwordHash]
+  );
+  await db.query(
+   "UPDATE public.pc_auth_sessions SET revoked_at=COALESCE(revoked_at,clock_timestamp()) WHERE account_id=$1",
+   [account.account_id]
+  );
+ }else{
+  await db.query(
+   "INSERT INTO public.pc_login_accounts(principal_kind,employee_id,system_admin_id,normalized_login_key,password_hash,credential_state,force_password_change,credential_epoch,created_at,updated_at) VALUES('employee',$1,NULL,$2,$3,'enabled',false,1,clock_timestamp(),clock_timestamp())",
+   [employeeId,loginName,passwordHash]
+  );
+ }
+ console.log('F05_F06_BRIDGE_ISOLATED_SOURCE_PUBLISHER',JSON.stringify({employeeId:employeeId,teamId:teamId,fixtureEmployeeIdsExcluded:[1,5,6]}));
+ return {login:loginName,password:password};
+}
+
 test.before(async()=>{
  assert.equal(process.env.GITHUB_REPOSITORY,'suzhe868-arch/mb');
  assert.equal(process.env.GITHUB_EVENT_NAME,'push');
@@ -32,7 +115,8 @@ test.before(async()=>{
  // Keep F05 native per-transaction allocator; high sequence values exceed its safe ID range.
   secret=randomBytes(32);
   auth=new IsolatedAuth({connectionString:DSN,secret,origin:'https://127.0.0.1:48984'});
- staff=await login(auth,'employee_test','SyntheticF04_3_CurrentProof_2026','f05-f06-bridge-native-publish');
+ const publisher=await seedIsolatedSourcePublisher();
+  staff=await login(auth,publisher.login,publisher.password,'f05-f06-bridge-native-publish');
  other=await login(auth,'limit_test','SyntheticLimit_1234567','f05-f06-bridge-non-owner');
  app=await startHarness(createManualVehicleDraftService({auth}));
  const runId=String(process.env.GITHUB_RUN_ID);
