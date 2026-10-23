@@ -1,20 +1,24 @@
-# 名邦汽车 V1｜A 完成来源门禁增量核查，等待 F06/F07/F08 整合重排讨论（2026-10-23）
+# 名邦汽车 V1｜A 正式放行 F03→F07 发布人电话 Ed25519 签名授权集成（限定非生产）（2026-10-23）
 
-- **NEXT_OWNER=A**
-- **NEXT_TASK=`F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01`**
-- **NEXT_ISSUE=187**：[可信来源与整阶段父门禁](https://github.com/suzhe868-arch/mb/issues/187)
-- **NEXT_BRANCH=NONE**
-- **NEXT_WORK_FILE=`07_重建工作区/F08父级来源门禁Issue187_2026-10-23增量核查与整合重排裁决报告.md`**
-- 最新审查基线：main `2dfaaae8fb5d825a48686a89042d50ea95225146`。F03 当前 Scope/Object、F05 签名转换、F07 电话/消息与 SLA/Incident 正式来源均未建立；F05-7 V2 离线签署/私有证据保全门禁也未满足。
-- 已验收的 #193/#210/#214/#219/#224/#229/#233/#241/#245 均只接受各自限定非生产范围，复用成果，不重复施工。
-- **当前没有可安全放行的新 B/C 工程包。** 整合重排门禁要求先与用户讨论；Issue #187 保持 `SOURCE_GAP/FAIL_CLOSED`，F06/F07/F08/V1 保持 `NOT_READY/NO_PRODUCTION`。不授权真实 JYT/Collector、CDN/OSS、Feishu、电话、资金、生产或 PC/C 页面。
-- 完整核查证据见 [Issue #187 来源门禁增量核查报告](`07_重建工作区/F08父级来源门禁Issue187_2026-10-23增量核查与整合重排裁决报告.md`)。
+- **NEXT_OWNER=B**
+- **NEXT_TASK=`F03_F07_PUBLISHER_PHONE_ED25519_AUTH_NONPROD_01`**
+- **NEXT_ISSUE=#248**：[F03→F07 发布人电话 Ed25519 签名授权集成](https://github.com/suzhe868-arch/mb/issues/248)
+- **NEXT_BRANCH=`feat/f03-f07-publisher-phone-ed25519-nonprod-01`**
+- **NEXT_WORK_FILE=`07_重建工作区/F03-F07发布人电话Ed25519签名授权集成非生产正式施工单_2026-10-23.md`**
+- **本次 A 审查快照：** `main@98fec825ea5dd2441752d0dd4f1eb9b18076788e`；这是施工单编写时的基线，不是 B 开工 SHA。B 必须在本 A 治理 PR 标准合并后重新读取最新 main。
+- **正式生效条件：** 本 A 治理 PR 正常合并 main 后，Issue #248 才成为正式 B 施工授权；合并前不得创建 B 分支或启动本任务 CI。
+- **精确白名单：** 仅新增 `engineering/f03-f07/publisher-phone-ed25519-nonprod/**` 与 `.github/workflows/f03-f07-publisher-phone-ed25519-nonprod.yml`。所有既有 F03/F05/F06/F07 源码、旧 Guard/Runtime、公共 Schema/Migration、PDM/IA、旧 Workflow、PC/C 页面均冻结只读。
+- **复用成果：** F03/F04 员工电话专项权限 Issue #221 / PR #224；F07 电话 Guard Issue #190 / PR #193。不得重做已验收行为。
+- **全局门禁不变：** Issue #187 仍 `SOURCE_GAP/FAIL_CLOSED`；F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。不接真实 JYT/Collector、CDN/OSS、Feishu、真实电话、资金或生产；不重跑/补签 F05-7 旧 66 项。
 
-## 下一步 A 主控动作
+## 下一步 B 工程动作
 
-先完成 F06/F07/F08 整合重排讨论，明确正式来源/签署/归档资源与授权边界；在讨论完成前不发布新 B/C 施工单。不重做已验收子项，不以合成 CI 结果冒充正式来源闭环。
+本治理 PR 合并后，B 从最新 main 接管 Issue #248，严格按上述中文施工单完成 CI-only Ed25519 协议适配、真实 PG16 与 loopback HTTPS 正反例、触发审计和证据归档；达到 `READY_FOR_A_REVIEW` 后交 A 独立验收。
 
 ---
+
+> 以下为历史记录；其中旧指针仅作为历史快照，不覆盖本文件顶部的当前唯一指针。
+
 
 # 名邦汽车 V1｜A 已独立验收 F05 CRM 时间线分页列表非生产后端（2026-10-23）
 
