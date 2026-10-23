@@ -4,7 +4,7 @@ import {randomBytes,randomUUID} from 'node:crypto';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {CustomerAccountStatusService} from '../../../src/f03-customer-account-status-service.mjs';
 import {connect} from '../environment.mjs';
-import {verify} from '../schema.mjs';
+import {verifyScopeDatabase} from '../../runtime-scope/readiness.mjs';
 
 let auth,pool,service,admin,manager,storeManager,sales,fourS,limited,managerPassword='SyntheticManager_2026!';
 const key=()=>randomUUID().replaceAll('-','');
@@ -22,7 +22,7 @@ const reset=async()=>{
  await sql("UPDATE public.demands SET demand_state='cancelled' WHERE demand_id=505");
 };
 before(async()=>{
- pool=await connect();await verify(pool);
+ pool=await connect();await verifyScopeDatabase(pool);
  auth=new IsolatedAuth({connectionString:process.env.F03_1_DATABASE_URL,secret:randomBytes(32),origin:'https://127.0.0.1:4391'});
  const creds=[
   ['admin_test','SyntheticAdmin_1234567'],
@@ -39,7 +39,7 @@ before(async()=>{
 });
 after(async()=>{await auth?.close();await pool?.end()});
 test('01 isolated SG01 PG16/one-current-SHA private attestation is valid',async()=>{
- assert.equal((await verify(pool)).verified,true);
+ assert.equal((await verifyScopeDatabase(pool)).verified,true);
  const row=(await sql("SELECT current_user,current_setting('server_version_num')::int AS ver,(SELECT rolsuper FROM pg_roles WHERE rolname=current_user) AS super")).rows[0];
  assert.equal(row.current_user,'f03_ci');assert.equal(row.super,false);assert.ok(row.ver>=160000&&row.ver<170000);
 });
