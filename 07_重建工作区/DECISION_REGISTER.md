@@ -1,3 +1,19 @@
+## A-F05-CRM-TIMELINE-ISSUE243-RELEASE-01｜A 正式放行 F05 CRM 时间线分页列表非生产后端（2026-10-23）
+
+- **NEXT_OWNER=B**
+- **NEXT_TASK=`F05_CRM_FOLLOWUP_TIMELINE_LIST_HTTP_PG16_01`**
+- **NEXT_ISSUE=243**：[CRM 时间线列表任务](https://github.com/suzhe868-arch/mb/issues/243)
+- **NEXT_BRANCH=`feat/f05-crm-followup-timeline-list-http-pg16-01`**
+- **NEXT_WORK_FILE=`07_重建工作区/F05客户CRM跟进时间线分页读取HTTP真实PG16非生产正式施工单_2026-10-23.md`**
+- **唯一授权生效条件**：本 A 治理 PR 经正常 GitHub 标准合并入最新 `main` 后生效；Issue 创建、治理分支存在或上轮 A 聊天裁决本身**不等于** B 已获得施工授权。B 接管时从当时最新 `main` 检查五项指针及完整施工单。
+- **缺口及 Authority**：PDM-16 Final §5/8/9/13、PDM-21 Final §25/27 的 E03 客户详情跟进时间线必须按当前权限连续读取。已验 [Issue #239](https://github.com/suzhe868-arch/mb/issues/239) / [PR #241](https://github.com/suzhe868-arch/mb/pull/241) 仅有 append() 和单项 read()，没有列表/游标分页 HTTP。本单仅补 **CI-only** localhost TLS `GET /__ci__/f05/crm-followups/:customerId`，20 默认/50 封顶、按 followup_id DESC 稳定 keyset、同客安全投影和当前会话/Owner/Scope/个人 deny 保护，保持原写入不变。
+- **精确白名单**：仅增量修改 `engineering/src/f05-crm-followup-service.mjs`、`engineering/src/f05-crm-followup-http.mjs` 的列表功能，`engineering/f05/crm-followup-ci/environment.mjs` 的**原分支与本新分支两项精确白名单**；新建 `engineering/f05/crm-followup-timeline-ci/**` 和 `.github/workflows/f05-crm-followup-timeline-pg16.yml`。不得改 app/server、旧 test/fixture/evidence/Workflow、冻结 F03/F05/F06/F07、公共 DDL/迁移/PDM、PC/C；不得扩张正式权限。
+- **真实测试**：两条独立非超管 PostgreSQL 16 Job，新列表业务≥18、真实 HTTPS≥10，旧 CRM business 40、旧 HTTPS 14、F03 Customer 状态 4、SG01 Scope 7、Node 基础 269 等均应在新最终 SHA 下实跑；每 Job fail=0/skipped=0。真实双连接撤权/停用/移交竞争、分页插入、范围跨客、严苛 GET 防泄漏；两份 ZIP 证据独立可校验。B 包内连续完工并交 `READY_FOR_A_REVIEW`，B 不合并 main。
+- **复用与阻断**：[PR #241](https://github.com/suzhe868-arch/mb/pull/241) 已 A 独立验收并标准合并（B HEAD `7cfe48359ffe0148ef0aef98bf2e0a7cb2f79ea1`，业务 merge SHA `856bfb3b612eb2a5745be1a2ad88e14675af4756`），不重做 append/read 或历史旧服务。独立 CRM 查看正式 Issuer 与更正/作废未连接，CI 技术别名绝非生产权限。父 [#187](https://github.com/suzhe868-arch/mb/issues/187) 持续 `SOURCE_GAP/FAIL_CLOSED`，F06/F07/F08/V1 `NOT_READY/NO_PRODUCTION`，JYT/Collector、CDN/OSS、飞书、正式电话、资金、生产未授权；不启动 PC #196/C PR #68。
+- **完整中文施工单**：[`07_重建工作区/F05客户CRM跟进时间线分页读取HTTP真实PG16非生产正式施工单_2026-10-23.md`](07_重建工作区/F05客户CRM跟进时间线分页读取HTTP真实PG16非生产正式施工单_2026-10-23.md)。以下旧 `NEXT_OWNER=A / Issue #187` 仅为此次放行前历史快照；父门禁仍并行开放，不阻断本不依赖外部资源的新独立后端任务。
+
+---
+
 ## A-F05-CRM-ISSUE239-PR241-ACCEPT-01｜A 已独立验收 F05 CRM 跟进真实非生产后端（2026-10-23）
 
 - **NEXT_OWNER=A**
