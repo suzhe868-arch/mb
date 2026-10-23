@@ -13,6 +13,7 @@ const files=[
  'engineering/f05/crm-followup-ci/fixtures.mjs',
  'engineering/f05/crm-followup-ci/tests/business.test.mjs',
  'engineering/f05/crm-followup-ci/tests/https.test.mjs',
+ 'engineering/f05/crm-followup-ci/tests/account-inactive-regression.test.mjs',
  'engineering/f05/crm-followup-ci/evidence.mjs',
  'engineering/src/f05-crm-followup-service.mjs',
  'engineering/src/f05-crm-followup-http.mjs',
@@ -59,6 +60,7 @@ const note='# B工程交接｜F05 CRM 跟进追加写入真实PG16非生产纵�
 '- 真实 PG16 非超级用户身份、F03 会话与 Customer object scope、Current owner/有效 Collaboration、4S/System Admin 拒绝、顾问撤权、账号 inactive、Demand 同客关系、幂等审计、同事务故障回滚、真实 TLS/CSRF/JSON 负例详见 ZIP 内真实日志。\n'+
 '- business='+JSON.stringify(tests.business)+'，https='+JSON.stringify(tests.https)+'，Node='+JSON.stringify(tests.node)+'。\n'+
 '- 本包使用 crm.followup.create 仅合成测试权限，PRODUCTION_NOT_CONNECTED_SOURCE_GAP；未取得正式 CRM 权限正向 Issuer，不授权上线。\n'+
+'- 既有 F03 Account Status 专用 fixture/服务被其历史工作流的 GITHUB_REF 正式封印，**未重放该原业务套件**；本包仅在自身真实 PG16 对公共 Customer inactive/restore 兼容不变量运行独立回归，不冒称原 Issue #235 测试重新通过。\n'+
 '- 历史更正/作废不能证明正式关联，correction/void=NOT_CONNECTED，不修改旧记录；普通 CRM Follow-up 不构成 Consultation 首次人工响应 SLA。\n'+
 '- 未连接 F07 / 正式 CRM/外部业务 Source，Issue #187 SOURCE_GAP/FAIL_CLOSED，F06/F07/F08/V1 NOT_READY/NO_PRODUCTION，无外部电话/资金/生产/PC/C。\n'+
 '- A 须下载并独立复算两份 ZIP 的逐文件 SHA256、ref/head/run/track 和真实日志，B 不自行合并 main。\n';
