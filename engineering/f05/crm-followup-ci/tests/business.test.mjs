@@ -222,3 +222,25 @@ test('37 ordinary followup never mutates Demand or Consultation states',async()=
 test('38 correction/void is NOT_CONNECTED; frozen originals cannot be overwritten by service',async()=>{
  assert.equal(typeof service.correct,'undefined');assert.equal(typeof service.update,'undefined');assert.equal(typeof service.remove,'undefined');
 });
+
+test('39 owner pending with active stale employee denies append and read without writes',async()=>{
+ await reset();
+ const old=(await sql('SELECT followup_id::text id FROM public.crm_followups WHERE customer_id=301 ORDER BY followup_id DESC LIMIT 1')).rows[0];
+ assert.ok(old?.id);
+ const before=[await count(),await audit()];
+ try{
+  await sql("UPDATE public.customers SET owner_assignment_state='owner_assignment_pending' WHERE customer_id=301");
+  const c=(await sql('SELECT account_status,current_owner_employee_id::text id,owner_assignment_state FROM public.customers WHERE customer_id=301')).rows[0];
+  assert.deepEqual([c.account_status,c.id,c.owner_assignment_state],['active','6','owner_assignment_pending']);
+  assert.equal((await append(owner)).code,'CUSTOMER_OWNER_NOT_ASSIGNED');
+  assert.equal((await service.read({token:owner,customerId:'301',followupId:old.id})).code,'CUSTOMER_OWNER_NOT_ASSIGNED');
+  assert.deepEqual([await count(),await audit()],before);
+ }finally{await sql("UPDATE public.customers SET owner_assignment_state='assigned' WHERE customer_id=301")}
+});
+test('40 assigned Customer recovers both append and read',async()=>{
+ const row=(await sql('SELECT current_owner_employee_id::text id,owner_assignment_state FROM public.customers WHERE customer_id=301')).rows[0];
+ assert.equal(row.id,'6');assert.equal(row.owner_assignment_state,'assigned');
+ const created=await append(owner);
+ assert.equal(created.status,201);
+ assert.equal((await service.read({token:owner,customerId:'301',followupId:created.followupId})).status,200);
+});
