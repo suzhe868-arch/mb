@@ -1,3 +1,18 @@
+## A-F08-SOURCE-GATE-AFTER-PR245-01｜Issue #187 增量来源核查完成，整合重排待用户讨论（2026-10-23）
+
+- **NEXT_OWNER=A**
+- **NEXT_TASK=`F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01`**
+- **NEXT_ISSUE=187**：[可信来源与整阶段父门禁](https://github.com/suzhe868-arch/mb/issues/187)
+- **NEXT_BRANCH=NONE**
+- **NEXT_WORK_FILE=`07_重建工作区/F08父级来源门禁Issue187_2026-10-23增量核查与整合重排裁决报告.md`**
+- 最新审查基线 main `2dfaaae8fb5d825a48686a89042d50ea95225146`。A 核对 F03 当前权限事实、权限契约、F05 转换结构校验、F07 Runtime、publisher 电话 Scope Guard、SLA/Incident CI gate，未发现合法正式来源或外部授权的新证据。
+- F03 Scope/Object、F05 签名转换、publisher 电话真实来源、SLA/Incident Issuer/路由、JYT/Collector/CDN/OSS/Feishu 仍缺；F05-7 V2 离线签署、带外指纹、私有不可变归档、独立复核与重放/撤销账本也未满足。
+- 已验收 #193/#210/#214/#219/#224/#229/#233/#241/#245 均限定非生产，全部复用，不重复施工。当前无可安全放行的新 B/C 任务；F06/F07/F08 整合重排明确等待用户讨论。
+- 父 Issue #187 继续 `SOURCE_GAP/FAIL_CLOSED`，F06/F07/F08/V1 继续 `NOT_READY/NO_PRODUCTION`。本次不授权真实客户、电话、资金、生产、PC/C 页面或外部系统。
+- 详细实码证据见 [Issue #187 增量核查报告](07_重建工作区/F08父级来源门禁Issue187_2026-10-23增量核查与整合重排裁决报告.md)。
+
+---
+
 # 名邦汽车 V1｜A 已独立验收 F05 CRM 时间线分页列表非生产后端（2026-10-23）
 
 - **NEXT_OWNER=A**

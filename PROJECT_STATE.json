@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "BACKEND_ENGINEERING",
-  "substage": "F05_CRM_TIMELINE_A_ACCEPTED_NONPROD_F08_SOURCE_GATE",
+  "substage": "F06_F07_F08_REPLAN_PENDING_USER_DISCUSSION_NO_NEW_RELEASE",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F08_SIGNED_SOURCE_GATE",
-  "current_domain_status": "F05 CRM 时间线分页 Issue #243 / PR #245 已 A_ACCEPTED_LIMITED_NONPROD 并标准合并；正式 CRM Reader/Writer Issuer、correction/void、F07 Runtime 与外部可信来源未连接；Issue #187 继续 SOURCE_GAP/FAIL_CLOSED，F06/F07/F08/V1 NOT_READY/NO_PRODUCTION。",
+  "current_domain": "F06_F07_F08_INTEGRATION_REPLAN",
+  "current_domain_status": "A 已基于 main 2dfaaae8fb5d825a48686a89042d50ea95225146 完成 Issue #187 来源门禁增量核查；F03 Scope/Object、F05 签名转换、F07 publisher 电话与 SLA/Incident 正式来源仍未建立，F05-7 V2 可信签署与私有证据保全先决条件未满足。当前无可安全放行的新 B/C 任务；整合重排等待用户讨论。Issue #187 SOURCE_GAP/FAIL_CLOSED，F06/F07/F08/V1 NOT_READY/NO_PRODUCTION。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "A_F08_SIGNED_SOURCE_AND_STAGE_GATE_01",
-  "current_work_file": "07_重建工作区/F05客户CRM时间线Issue243_PR245_A独立验收合并与F08父门禁接续报告_2026-10-23.md",
+  "current_task": "F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01",
+  "current_work_file": "07_重建工作区/F08父级来源门禁Issue187_2026-10-23增量核查与整合重排裁决报告.md",
   "a_f08_source_gate_review_2026_10_23": {
     "status": "SOURCE_GAP/FAIL_CLOSED",
     "reviewed_at": "2026-10-23",
@@ -10892,7 +10892,11 @@
       "B_ONE_CHAT_WINDOW_SEQUENTIAL_RELATED_FULL_WORK_PACKAGE_SELF_TESTED_THEN_A_INDEPENDENT_REVIEW"
     ],
     "user_requested_discussion_before_release": true,
-    "production_ready": false
+    "production_ready": false,
+    "latest_source_gate_review_main_sha": "2dfaaae8fb5d825a48686a89042d50ea95225146",
+    "latest_source_gate_review_report": "07_重建工作区/F08父级来源门禁Issue187_2026-10-23增量核查与整合重排裁决报告.md",
+    "no_new_engineering_release": true,
+    "user_discussion_required_before_release": true
   },
   "b_precommit_syntax_scope_gate_2026_10_21": {
     "status": "A_GOVERNANCE_RULES_MERGED_ACTIVE",
@@ -12212,5 +12216,79 @@
     "f06_f07_f08_v1": "NOT_READY/NO_PRODUCTION",
     "production_authorized": false,
     "report": "07_重建工作区/F05客户CRM时间线Issue243_PR245_A独立验收合并与F08父门禁接续报告_2026-10-23.md"
+  },
+  "a_f08_source_gate_review_after_pr245_2026_10_23": {
+    "status": "SOURCE_GAP/FAIL_CLOSED_NO_NEW_B_TASK",
+    "reviewed_at": "2026-10-23",
+    "reviewed_main_sha": "2dfaaae8fb5d825a48686a89042d50ea95225146",
+    "parent_issue": 187,
+    "reused_accepted_prs": [
+      193,
+      210,
+      214,
+      219,
+      224,
+      229,
+      233,
+      241,
+      245
+    ],
+    "reviewed_source_files": [
+      {
+        "path": "engineering/f03/runtime-facts/current-facts.mjs",
+        "sha": "4e954de130786be67ebd3292e7b666ca0f73cb9c",
+        "finding": "TECH_ALIAS_NOT_APPROVED; CURRENT_CAPABILITY_PRESENT_SCOPE_AND_OBJECT_DEFER"
+      },
+      {
+        "path": "engineering/f03/permission-contract.tsv",
+        "sha": "5ea119173a59abe416cb054925f9641b7aae656a",
+        "finding": "CRM read/history TECH_ALIAS_PENDING_A; publisher phone A_APPROVED_NONPROD_ONLY; conversion TECH_ALIAS_PENDING_A_REUSE"
+      },
+      {
+        "path": "engineering/f05/wholesale-to-mingbang-conversion/migration.mjs",
+        "sha": "d87f5bd47d6b338b89122d3906404543b1b099b1",
+        "finding": "Migration structure verification is not a current signed conversion fact"
+      },
+      {
+        "path": "engineering/src/f07-runtime/runtime.mjs",
+        "sha": "7027c37bd3559c4e67470f4eaa6daa4f7b13329e",
+        "finding": "F05_CONVERSION_POSITIVE_SOURCE_GAP / SIGNED_SCOPE_OBJECT_SOURCE_GAP fail closed"
+      },
+      {
+        "path": "engineering/f07/publisher-phone-scope-runtime/guard.mjs",
+        "sha": "c9f02f2c26c617b569ece805dc8c961bb758dfce",
+        "finding": "CI_SYNTHETIC_ONLY scope/vehicle/publisher facts; missing trusted source denied"
+      },
+      {
+        "path": "engineering/f07/notification-sla-incident-gate-ci/gate.mjs",
+        "sha": "4a7624c98c232bdc9864c697215c337ab937ad0f",
+        "finding": "CI_SYNTHETIC_ONLY events/outbox/incident facts"
+      }
+    ],
+    "missing_source_domains": [
+      "F03_SCOPE_OBJECT",
+      "F05_SIGNED_CONVERSION",
+      "F07_PUBLISHER_PHONE_SENSITIVE",
+      "SIGNED_SLA_INCIDENT",
+      "JYT_COLLECTOR_CDN_OSS_FEISHU"
+    ],
+    "f05_7_v2_signer_prerequisites": {
+      "issue": 106,
+      "status": "SOURCE_GAP_OPEN_FAIL_CLOSED",
+      "offline_key_provisioned": false,
+      "out_of_band_public_key_fingerprint_verified": false,
+      "private_immutable_archive_verified": false,
+      "independent_reviewer_verified": false,
+      "persistent_replay_revocation_ledger_verified": false,
+      "old_oracle_satisfied": false
+    },
+    "same_vehicle_final_gate": "NOT_RUN/BLOCKED_SIGNED_PARENT",
+    "independent_b_task_available": false,
+    "user_discussion_required": true,
+    "next_owner": "A",
+    "next_task": "F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01",
+    "next_issue": 187,
+    "next_branch": "NONE",
+    "report": "07_重建工作区/F08父级来源门禁Issue187_2026-10-23增量核查与整合重排裁决报告.md"
   }
 }
