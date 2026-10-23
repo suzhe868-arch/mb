@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {before,after,test} from 'node:test';
 import {request as httpsRequest,createServer as createHttpsServer} from 'node:https';
 import {readFile} from 'node:fs/promises';
-import {verify as cryptoVerify} from 'node:crypto';
+import {verify as cryptoVerify,randomUUID} from 'node:crypto';
 import {IsolatedAuth} from '../../../src/f03-auth-service.mjs';
 import {PublisherPhoneAdminService} from '../../../src/f03-publisher-phone-admin-service.mjs';
 import {configurePublisherPhoneAccess} from '../../f07/publisher-phone-scope-runtime/guard.mjs';
@@ -42,7 +42,7 @@ async function request({origin,port,path,method='POST',body,token=salesToken,csr
   if(bytes)req.write(bytes);req.end();
  });
 }
-const f07=(opts={})=>request({origin:F07_ORIGIN,port:4317,path:'/__ci__/f07/phone/authorize',
+const callF07=(opts={})=>request({origin:F07_ORIGIN,port:4317,path:'/__ci__/f07/phone/authorize',
  csrf:authF07.csrfFor(salesToken),body:{action:'vehicle.publisher_phone.latest',vehicleId:'101'},...opts});
 const issuer=(opts={})=>request({origin:F03_ORIGIN,port:4318,path:'/__ci__/f03-f07/issue',
  csrf:authF03.csrfFor(salesToken),body:{challenge:{invalid:true}},...opts});
@@ -66,7 +66,7 @@ after(async()=>{
  await Promise.all([authF03?.close(),authF07?.close(),f03?.end(),f07?.end()].filter(Boolean));
 });
 test('H01 real loopback HTTPS end-to-end signs, verifies, calls existing Guard and returns safe allow',async()=>{
- const x=await f07();assert.equal(x.status,200);assert.equal(x.body.allowed,true);
+ const x=await callF07();assert.equal(x.status,200);assert.equal(x.body.allowed,true);
  assert.equal(x.body.code,'PUBLISHER_PHONE_ALLOWED');assert.equal(x.body.origin,ORIGIN);
  assert.equal(x.body.formalSourceSigned,false);assert.equal(x.body.productionReady,false);
  assert.ok(x.body.auditId);assert.equal(x.headers['cache-control'],'no-store');
@@ -166,7 +166,7 @@ test('H18 F03 issuer enforces Host and Origin on loopback TLS',async()=>{
  const b=await issuer({origin:'https://attacker.invalid'});assert.equal(b.status,403);
 });
 test('H19 explicit CA trust succeeds and no implicit global TLS bypass exists',async()=>{
- await assert.rejects(()=>f07({ca:null}),/SELF_SIGNED|CERT|certificate/i);
+ await assert.rejects(()=>callF07({ca:null}),/SELF_SIGNED|CERT|certificate/i);
  const trusted=await f07();assert.equal(trusted.status,200);
 });
 test('H20 System Admin session cannot request employee phone assertion from F07',async()=>{
