@@ -1,3 +1,14 @@
+## A-F06-F07-F08-REPLAN-STATE-RECONCILIATION-20261024｜修正同车子门禁过期状态并保持父级来源门禁（2026-10-24）
+
+- **核验基线：** `main@a0c583f0b68155b824367624f5050c83da775cdc`；当前任务 `F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01`；当前责任 A。
+- **状态修正依据：** Issue #231 / PR #233 已 A 独立验收并标准合并，merge SHA `af61f206c61ddc1632086aa8e49aa9b68b67ba2e`；官方 Run #39925488640 两个独立 PG16 Job 各 109/109，失败/跳过 0，Artifact 内部清单各 22/22。A 的 `F05_F06同车签名桥接Issue231_PR233独立验收与来源门禁接续报告_2026-10-23.md` 明确将 F05 #216 的同车跨 Runtime 子门禁收口为 `A_ACCEPTED_LIMITED_NONPROD`。
+- **纠正内容：** `PROJECT_STATE.json` 原 `f05_f06_same_vehicle_nonprod_final_gate_2026_10_22.status` 和 `a_f05_f06_same_vehicle_bridge_issue231_2026_10_23.same_vehicle_gate_status` 仍是 `NOT_RUN/BLOCKED_SIGNED_PARENT`，现同步为限定非生产已验收。此修正只纠正状态，不变更业务代码、PDM、公共 Schema 或生产权限。
+- **父门禁仍然阻断：** Issue #187 保持 `SOURCE_GAP/FAIL_CLOSED`；F06/F07/F08/V1 继续 `NOT_READY/NO_PRODUCTION`。正式 F03 Scope/Object、F05 转换 Issuer、F07 正式 Runtime/真实 JYT/Collector、SLA/Incident 来源、CDN/OSS/飞书、正式信任根及不可变归档资源仍有缺口。
+- **复用原则：** PR #69/#100/#129/#131/#135/#139/#143/#146/#150/#153/#156/#162/#169/#174/#181/#186/#193/#214/#219/#224/#233/#241/#245/#250 等已验收限定成果直接复用；不重复开发 F01～F03，不重跑 F05-7 旧 66 项/旧 Oracle，不启动 PC #196 或 C PR #68。
+- **B/C 授权：** 本次不发布新业务 Issue/分支。当前正式指针仍 `NEXT_OWNER=A`、`NEXT_TASK=F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01`、`NEXT_ISSUE=#187`、`NEXT_BRANCH=NONE`。下一步先由用户确认正式签发/信任根、不可变证据归档与外部资源的实际承载路径，再决定是否可形成真实可验收的整包。
+
+---
+
 ## A-F03-F07-ED25519-PR250-ACCEPTED-01｜A 独立验收通过并标准合并（2026-10-24）
 
 - **当前结论：** `A_ACCEPTED_LIMITED_NONPROD`；PR [#250](https://github.com/suzhe868-arch/mb/pull/250) 已标准合并，业务 merge SHA `6cffd04291cbd13a0ee37c5a5f93f3280e26cf8d`；最终 B HEAD `5888678a748cb1cf275d99b59fc0c7c8a3994cdd`。
