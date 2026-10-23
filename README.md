@@ -1,19 +1,22 @@
-# 名邦汽车 V1｜A 独立验收要求 PR #250 定向补测，任务继续由 B 执行（2026-10-23）
+# 名邦汽车 V1｜A 主控状态：PR #250 已验收合并，接续 F08 父级重排（2026-10-24）
 
-- **A 验收状态：`A_CHANGES_REQUESTED`；PR #250 未合并。**
-- **NEXT_OWNER=B**
-- **NEXT_TASK=`F03_F07_PUBLISHER_PHONE_ED25519_AUTH_NONPROD_01`**
-- **NEXT_ISSUE=#248**：[F03→F07 发布人电话 Ed25519 签名授权集成](https://github.com/suzhe868-arch/mb/issues/248)
-- **NEXT_BRANCH=`feat/f03-f07-publisher-phone-ed25519-nonprod-01`**
-- **NEXT_WORK_FILE=`07_重建工作区/F03-F07发布人电话Ed25519PR250_A独立验收整改记录_2026-10-23.md`**
-- B 最终 HEAD `ded9efa9078e94f3eccbd9298f6effac36f4c276`，官方 Push Run #39979249031 成功；真实 PG16 业务 32/32、HTTPS 22/22 均通过，失败/跳过均 0。两份官方 Artifact ZIP digest 与 GitHub 一致，内部 manifest 各 23/23 校验通过。
-- **未通过原因仅为必需负例覆盖不完整：** 真实员工停用后拒绝、凭证/会话撤销后拒绝，以及重签的 listingCycleId/capability/version 错配仍需独立测试。详见 `07_重建工作区/F03-F07发布人电话Ed25519PR250_A独立验收整改记录_2026-10-23.md` 与 [PR #250](https://github.com/suzhe868-arch/mb/pull/250)。
-- 只允许在原精确白名单内定向补测与更新矩阵/证据计数；不得改旧 Guard/Runtime、公共迁移、既有 Workflow、PDM/IA、app/server、PC/C；不重跑 F05-7 旧 66 项，不接外部系统、真实电话、资金或生产。
-- Issue #248 继续开放；父 Issue #187 仍 `SOURCE_GAP/FAIL_CLOSED`，F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。
+- **业务 PR：** [#250｜F03→F07 Ed25519 非生产授权协议](https://github.com/suzhe868-arch/mb/pull/250)，已由 A 独立验收并标准合并。
+- **业务合并 SHA：** `6cffd04291cbd13a0ee37c5a5f93f3280e26cf8d`；最终 B HEAD：`5888678a748cb1cf275d99b59fc0c7c8a3994cdd`。
+- **验收状态：** `A_ACCEPTED_LIMITED_NONPROD`，范围仅 `CI_SYNTHETIC_ONLY`。
+- **官方 CI：** [Run #39989434665](https://github.com/suzhe868-arch/mb/actions/runs/39989434665)，与最终 B HEAD 精确一致；业务 PG16 [38/38 PASS](https://github.com/suzhe868-arch/mb/actions/runs/39989434665/job/120537047428)，HTTPS PG16 [22/22 PASS](https://github.com/suzhe868-arch/mb/actions/runs/39989434665/job/120537047026)，失败 0、跳过 0。
+- **Artifact 独立复核：** Business #12516817426，56,725 bytes，SHA-256 `4620261547e904f58dfa5311dd03692213ce4e9993a4fb4c59393a8227bf431f`；HTTPS #12517032413，54,514 bytes，SHA-256 `128ff77a8280bb43937ad1c9857dbb5121451aa97043494d14d226e62153c31c`。两份 ZIP 摘要与 GitHub 官方 digest 一致，各自 23 项内部 SHA-256 清单逐项通过。
+- **范围审查：** PR 差异 19 个文件全部在正式白名单；整改提交相对退回时 SHA 只变更 4 个白名单文件。未修改既有 F03/F07 Guard/Runtime、公共迁移、旧 Workflow、PDM/IA、app/server、PC/C。
+- **Issue #248：** 已在验收通过后关闭。F05-7 历史 66 项/旧 Oracle 未运行、未修改、未补签。
+- **全局门禁不变：** 父 Issue #187 仍 `SOURCE_GAP/FAIL_CLOSED`；F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。正式 Source Issuer/信任根、F07 正式 Runtime、真实 JYT/Collector、CDN/OSS、飞书、真实电话/客户/资金/生产均未接通或未授权。
 
-## B 下一步
+- **NEXT_OWNER=A**
+- **NEXT_TASK=`F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01`**
+- **NEXT_ISSUE=#187**：[可信来源与整阶段父门禁](https://github.com/suzhe868-arch/mb/issues/187)
+- **NEXT_BRANCH=NONE**
+- **NEXT_WORK_FILE=`07_重建工作区/F08父级来源门禁Issue187_2026-10-23增量核查与整合重排裁决报告.md`
+- **下一步：** A 接续 F06/F07/F08 整合重排讨论，集中明确正式可信来源、签署与不可变归档资源、授权边界和跨域验收条件。讨论前不新开 B/C 工程任务，不启动 PC #196、C PR #68，不接生产或真实外部系统。
 
-在同一分支/PR 内补齐上述真实 PG16 负例，运行新的同 SHA 官方双 Job，复核 Artifacts 与内部 SHA manifest，更新中文交接后重新交 A。B 不合并 main、不关闭 Issue、不更新五项主线状态。
+> 下方内容为历史记录与已被替代的状态快照；当前有效指针仅以本文顶部为准。
 
 ---
 
@@ -2352,3 +2355,25 @@ GitHub 作为长期工作底座。每完成一个可独立验收的产品域 / �
 - 使用优先级：`PDM-01～25 Final → Current IA → Current Low-Fi → Current Engineering Baseline / Work Order → Legacy Engineering Baseline`。
 - 与当前 PDM Final 冲突的旧 Schema / API / 权限 / 状态机 / 交互逻辑禁止直接恢复。
 - 采集/Collector 程序本体为独立已运行系统，本仓库只保留名邦侧对接 Contract 与历史参考，不重写采集后台。
+
+
+---
+
+## 历史状态快照｜2026-10-23（已由 PR #250 最终验收替代）
+
+# 名邦汽车 V1｜A 独立验收要求 PR #250 定向补测，任务继续由 B 执行（2026-10-23）
+
+- **A 验收状态：`A_CHANGES_REQUESTED`；PR #250 未合并。**
+- **NEXT_OWNER=B**
+- **NEXT_TASK=`F03_F07_PUBLISHER_PHONE_ED25519_AUTH_NONPROD_01`**
+- **NEXT_ISSUE=#248**：[F03→F07 发布人电话 Ed25519 签名授权集成](https://github.com/suzhe868-arch/mb/issues/248)
+- **NEXT_BRANCH=`feat/f03-f07-publisher-phone-ed25519-nonprod-01`**
+- **NEXT_WORK_FILE=`07_重建工作区/F03-F07发布人电话Ed25519PR250_A独立验收整改记录_2026-10-23.md`**
+- B 最终 HEAD `ded9efa9078e94f3eccbd9298f6effac36f4c276`，官方 Push Run #39979249031 成功；真实 PG16 业务 32/32、HTTPS 22/22 均通过，失败/跳过均 0。两份官方 Artifact ZIP digest 与 GitHub 一致，内部 manifest 各 23/23 校验通过。
+- **未通过原因仅为必需负例覆盖不完整：** 真实员工停用后拒绝、凭证/会话撤销后拒绝，以及重签的 listingCycleId/capability/version 错配仍需独立测试。详见 `07_重建工作区/F03-F07发布人电话Ed25519PR250_A独立验收整改记录_2026-10-23.md` 与 [PR #250](https://github.com/suzhe868-arch/mb/pull/250)。
+- 只允许在原精确白名单内定向补测与更新矩阵/证据计数；不得改旧 Guard/Runtime、公共迁移、既有 Workflow、PDM/IA、app/server、PC/C；不重跑 F05-7 旧 66 项，不接外部系统、真实电话、资金或生产。
+- Issue #248 继续开放；父 Issue #187 仍 `SOURCE_GAP/FAIL_CLOSED`，F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。
+
+## B 下一步
+
+在同一分支/PR 内补齐上述真实 PG16 负例，运行新的同 SHA 官方双 Job，复核 Artifacts 与内部 SHA manifest，更新中文交接后重新交 A。B 不合并 main、不关闭 Issue、不更新五项主线状态。
