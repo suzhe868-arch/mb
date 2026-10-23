@@ -114,7 +114,9 @@ test('H13 TLS duplicate Host raw wire fails closed',async()=>{
 test('H14 path encoding, trailing slash and unknown path never match',async()=>{
  assert.equal((await call('GET',path+'/')).status,404);
  assert.equal((await call('GET','/__ci__/f05/crm-followups/%33%30%31')).status,404);
- assert.equal((await call('GET',path+'?')).status,400);
+ // https.request normalizes a trailing bare '?' away; send the exact request target on the TLS wire.
+ const raw='GET '+path+'? HTTP/1.1\r\nHost: 127.0.0.1:'+port+'\r\nOrigin: '+origin+'\r\nCookie: __Host-mb_pc='+token+'\r\nX-CSRF-Token: '+csrf+'\r\nConnection: close\r\n\r\n';
+ assert.equal(await wire(raw),400);
 });
 test('H15 no CI injection means no registered timeline endpoint',async()=>{
  absent=httpsServer({key:await readFile(process.env.F05_CRM_TLS_KEY_PATH),cert:await readFile(process.env.F05_CRM_TLS_CERT_PATH)},
