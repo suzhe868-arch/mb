@@ -55,6 +55,7 @@ const note='# B 工程交接｜F03 客户账号状态与 Demand 原子暂停\n\n
 '- 当前提交：'+process.env.GITHUB_SHA+'；官方 Run：'+process.env.GITHUB_RUN_ID+'；独立 PG16 轨：'+process.env.F03_ACCOUNT_STATUS_TRACK+'。\n'+
 '- 真实 PG16、非超级用户、CI-only 的会话认证与权限、Customer/Demand 同事务、审计、幂等、撤权及 TLS 合同测试见同 SHA Artifact 日志。\n'+
 '- 测试：business='+JSON.stringify(results.business)+'，HTTPS='+JSON.stringify(results.https)+'，Node='+JSON.stringify(results.node)+'。\n'+
+'- 业务测试 #33/#34 为 PG16 双连接下的**合成 Demand 激活竞争和 Customer 行锁序**，并非调用正式 F05 Demand 激活 API 的生产联调；其他 Domain 的正式 Guard/接线未由此验证，仍为 NOT_CONNECTED。\n'+
 '- 不改 public DDL/正式路由，客户关联其他 Domain 真实接线 NOT_CONNECTED。父 Issue #187 SOURCE_GAP/FAIL_CLOSED；F06/F07/F08/V1 NOT_READY/NO_PRODUCTION。\n'+
 '- 两份 Artifact、内部 SHA256 清单应由 A 独立下载复核后才可标准合并。\n';
 await writeFile('engineering/f03/customer-account-status/B工程中文交接.md',note,{mode:0o600});
