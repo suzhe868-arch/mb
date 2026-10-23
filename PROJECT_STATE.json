@@ -4,12 +4,12 @@
   "repository": "suzhe868-arch/mb",
   "branch": "main",
   "stage": "BACKEND_ENGINEERING",
-  "substage": "F06_F07_F08_REPLAN_PENDING_USER_DISCUSSION_NO_NEW_RELEASE",
+  "substage": "F03_F07_PUBLISHER_PHONE_ED25519_NONPROD_TASK_RELEASED",
   "status": "IN_PROGRESS",
   "canonical_language": "zh-CN",
   "product_baseline_status": "NOT_READY",
-  "current_domain": "F06_F07_F08_INTEGRATION_REPLAN",
-  "current_domain_status": "A 已基于 main 2dfaaae8fb5d825a48686a89042d50ea95225146 完成 Issue #187 来源门禁增量核查；F03 Scope/Object、F05 签名转换、F07 publisher 电话与 SLA/Incident 正式来源仍未建立，F05-7 V2 可信签署与私有证据保全先决条件未满足。当前无可安全放行的新 B/C 任务；整合重排等待用户讨论。Issue #187 SOURCE_GAP/FAIL_CLOSED，F06/F07/F08/V1 NOT_READY/NO_PRODUCTION。",
+  "current_domain": "F03_F07_PUBLISHER_PHONE_ED25519_NONPROD",
+  "current_domain_status": "用户已明确批准单项限定非生产任务；A治理PR合并后由B执行F03→F07 Ed25519协议集成。该任务只验证CI内签名授权协议，不等于正式Issuer或生产接线。Issue #187继续SOURCE_GAP/FAIL_CLOSED，F06/F07/F08/V1继续NOT_READY/NO_PRODUCTION。",
   "user_review_policy": "ALL_RULE_ATOMS_REQUIRE_USER_REVIEW",
   "auto_approve_stable_rules": false,
   "stop_after_each_review_batch": true,
@@ -20,8 +20,8 @@
     "BATCH_3_INFORMED_CHANGES_AND_EXPLICIT_ADDITIONS",
     "BATCH_4_CONFLICTS_OMISSIONS_GAPS_NEW_CHOICES"
   ],
-  "current_task": "F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01",
-  "current_work_file": "07_重建工作区/F08父级来源门禁Issue187_2026-10-23增量核查与整合重排裁决报告.md",
+  "current_task": "F03_F07_PUBLISHER_PHONE_ED25519_AUTH_NONPROD_01",
+  "current_work_file": "07_重建工作区/F03-F07发布人电话Ed25519签名授权集成非生产正式施工单_2026-10-23.md",
   "a_f08_source_gate_review_2026_10_23": {
     "status": "SOURCE_GAP/FAIL_CLOSED",
     "reviewed_at": "2026-10-23",
@@ -3431,7 +3431,7 @@
     "source_backwrite_done": 6,
     "outgoing_open": 5
   },
-  "next_action": "B 在本 A 治理 PR 标准合并后，从执行时最新 main 接管 Issue #243，按正式白名单只添加 CRM Follow-up GET 时间线分页，保持已验 append/read 与冻结结构；完成双独立真实 PG16/HTTPS、本最终 SHA 旧40/14/4/7/269关联回归、合法 Artifact 并标 READY_FOR_A_REVIEW 后交 A。",
+  "next_action": "A治理PR标准合并main后，B从最新main接管Issue #248；仅新增F03→F07 Ed25519非生产协议适配与新工作流，完成真实PG16、loopback HTTPS、撤权/重放/绑定失败关闭、精确触发审计及证据归档后交A独立验收。",
   "pdm_17_startup_gate": {
     "status": "PASS",
     "core_direction": "P17-R00",
@@ -5011,7 +5011,7 @@
     "runtime_tests": "NOT_RUN_GATE_SCOPE"
   },
   "engineering_gate_document_status": "THREE_DOCUMENTS_USER_APPROVED_APPLIED",
-  "next_action_detail": "仅 engineering/src/f05-crm-followup-service.mjs、engineering/src/f05-crm-followup-http.mjs 列表增量，engineering/f05/crm-followup-ci/environment.mjs 追加二元精确 Ref 白名单，新 engineering/f05/crm-followup-timeline-ci/** 和新 .github/workflows/f05-crm-followup-timeline-pg16.yml。旧 service/Workflow/test/fixtures/DDL/app/server/PC/C 均只读。#187 SOURCE_GAP/FAIL_CLOSED。",
+  "next_action_detail": "仅新增 engineering/f03-f07/publisher-phone-ed25519-nonprod/** 与 .github/workflows/f03-f07-publisher-phone-ed25519-nonprod.yml。复用F03现有IsolatedAuth与publisher-phone.sensitive专项配置、F07现有电话Guard；旧F03事实读取器、F03/F07服务、Guard/Runtime、公共DDL/迁移、旧Workflow、PDM/IA、F05-7旧Oracle、app/server/PC/C均冻结只读。仅CI临时Ed25519密钥、真实PG16非超管和loopback HTTPS；不接外部系统、不触碰真实电话/资金/生产，不重跑F05-7旧66项。",
   "abc_parallel_workflow": {
     "status": "STANDING_CONTINUOUS_EXECUTION_RULE_ACTIVE_2026_10_09",
     "confirmed_at": "2026-10-08",
@@ -7145,7 +7145,7 @@
     "r12_r13_closed": true,
     "a_sixth_review_result": "A_ACCEPTED"
   },
-  "current_owner": "A",
+  "current_owner": "B",
   "f05_9_gate": {
     "status": "A_FINAL_ACCEPTED_MERGED_PR48_CI_ONLY",
     "owner": "B",
@@ -8190,7 +8190,7 @@
       "classification": "LEGACY_DUPLICATE_EVENT_BRANCH_PROOF_AND_ECR_RATE_LIMIT_NOT_APPLICABLE_TO_THIS_CI_ONLY_PR"
     }
   },
-  "next_task": "F05_CRM_FOLLOWUP_TIMELINE_LIST_HTTP_PG16_01",
+  "next_task": "F03_F07_PUBLISHER_PHONE_ED25519_AUTH_NONPROD_01",
   "f06_5c_pg1_gate": {
     "status": "A_ACCEPTED_MERGED_CI_ONLY",
     "next_owner": "B_F07_1",
@@ -9865,7 +9865,7 @@
     "previous_synthetic_hmac_artifact_id_to_monitor": 12099312017,
     "full_source_66_official_issuer_accepted": false
   },
-  "next_work_file": "07_重建工作区/F05客户CRM跟进时间线分页读取HTTP真实PG16非生产正式施工单_2026-10-23.md",
+  "next_work_file": "07_重建工作区/F03-F07发布人电话Ed25519签名授权集成非生产正式施工单_2026-10-23.md",
   "f05_7_v2_versioned_source_issuer_candidate_gate": {
     "status": "A_ACCEPTED_PR111_ISOLATED_CANDIDATE_ENGINEERING_ONLY_LEGACY_ORACLE_BLOCKED",
     "authoritative_work_order": "07_重建工作区/F05-7_V2正式来源替代协议同SHA闭环候选_A主控B施工单_2026-10-17.md",
@@ -10161,8 +10161,8 @@
     },
     "report": "07_重建工作区/PR125_A主控F05非生产真实业务独立验收与旧Source例外_2026-10-19.md"
   },
-  "next_branch": "feat/f05-crm-followup-timeline-list-http-pg16-01",
-  "next_issue": 243,
+  "next_branch": "feat/f03-f07-publisher-phone-ed25519-nonprod-01",
+  "next_issue": 248,
   "formal_source_signed": false,
   "production_ready": false,
   "f05_source_gate_repair": {
@@ -10470,7 +10470,7 @@
     "audit_oid": "39338",
     "a_report": "07_重建工作区/F06真实Deposit_HTTP_PG16_A主控独立验收PR135标准合并与下一施工放行报告_2026-10-20.md"
   },
-  "next_base_main_at_task_release": null,
+  "next_base_main_at_task_release": "98fec825ea5dd2441752d0dd4f1eb9b18076788e (A编写施工单的历史快照，不是B开工SHA)",
   "next_base_main_policy": "FETCH_LATEST_MAIN_AT_EXECUTION_NOT_STALE_SHA",
   "f06_real_lock_to_transaction_http_next": {
     "status": "A_ACCEPTED_NONPRODUCTION_HTTP_PG16_PR139_STANDARD_MERGED",
@@ -10876,13 +10876,13 @@
     "pr150_refund_after_new_cancel": "FAIL_CLOSED_VERSIONED_BRIDGE_NOT_AUTHORIZED"
   },
   "f06_f07_f08_replan_discussion_gate": {
-    "status": "PENDING_USER_DISCUSSION_NO_NEW_ENGINEERING_RELEASE",
+    "status": "GENERAL_REPLAN_PENDING_USER_DISCUSSION_WITH_EXPLICIT_LIMITED_SUBTASK_RELEASE",
     "task_id": "F06_F07_F08_INTEGRATION_REPLAN_DISCUSSION_01",
     "owner": "A",
     "B_current_task_completed": true,
-    "B_next_task_authorized": false,
+    "B_next_task_authorized": true,
     "C_next_task_authorized": false,
-    "document_creation_scope": "A_REVIEW_ARCHIVE_ONLY",
+    "document_creation_scope": "A_GOVERNANCE_PR_AND_THIS_EXPLICIT_LIMITED_B_TASK_ONLY",
     "must_review": [
       "F06_CI_ONLY_AND_REAL_HTTP_PG16_DUPLICATION_AND_REUSE",
       "F07_FOUR_CI_ONLY_SLICES_VS_REAL_EXTERNAL_INTEGRATION",
@@ -10895,8 +10895,18 @@
     "production_ready": false,
     "latest_source_gate_review_main_sha": "2dfaaae8fb5d825a48686a89042d50ea95225146",
     "latest_source_gate_review_report": "07_重建工作区/F08父级来源门禁Issue187_2026-10-23增量核查与整合重排裁决报告.md",
-    "no_new_engineering_release": true,
-    "user_discussion_required_before_release": true
+    "no_new_engineering_release": false,
+    "user_discussion_required_before_release": true,
+    "general_replan_release_authorized": false,
+    "limited_task_user_approval_received": true,
+    "explicitly_authorized_subtask": {
+      "task_id": "F03_F07_PUBLISHER_PHONE_ED25519_AUTH_NONPROD_01",
+      "issue": 248,
+      "branch": "feat/f03-f07-publisher-phone-ed25519-nonprod-01",
+      "work_file": "07_重建工作区/F03-F07发布人电话Ed25519签名授权集成非生产正式施工单_2026-10-23.md",
+      "scope": "仅CI-only F03→F07 publisher.phone.sensitive Ed25519协议；不授权通用Scope/Object、正式Issuer、外部系统、生产或其他F06/F07/F08任务。",
+      "effective_only_after": "包含本施工单的A治理PR标准合并main"
+    }
   },
   "b_precommit_syntax_scope_gate_2026_10_21": {
     "status": "A_GOVERNANCE_RULES_MERGED_ACTIVE",
@@ -12290,5 +12300,68 @@
     "next_issue": 187,
     "next_branch": "NONE",
     "report": "07_重建工作区/F08父级来源门禁Issue187_2026-10-23增量核查与整合重排裁决报告.md"
+  },
+  "f03_f07_publisher_phone_ed25519_nonprod_release_2026_10_23": {
+    "status": "A_RELEASED_LIMITED_NONPROD_AFTER_GOVERNANCE_PR_MERGE",
+    "task_id": "F03_F07_PUBLISHER_PHONE_ED25519_AUTH_NONPROD_01",
+    "issue": 248,
+    "branch": "feat/f03-f07-publisher-phone-ed25519-nonprod-01",
+    "work_file": "07_重建工作区/F03-F07发布人电话Ed25519签名授权集成非生产正式施工单_2026-10-23.md",
+    "release_authorized_by_user": true,
+    "approval_date": "2026-10-23",
+    "governance_pr_merge_required": true,
+    "authoring_main_sha": "98fec825ea5dd2441752d0dd4f1eb9b18076788e",
+    "base_policy": "B必须在治理PR合并后读取最新main，不得复用authoring_main_sha作为施工基线",
+    "current_f03_source": "F03 IsolatedAuth当前会话 + public.permissions/employee_permission_overrides/employee_capability_scope_bindings/employee_data_scopes + f03_publisher_phone_admin_test.employee_mode当前授权及生命周期事实",
+    "current_f07_consumer": "既有engineering/f07/publisher-phone-scope-runtime/guard.mjs，仅调用/复用，不修改",
+    "permission": "publisher.phone.sensitive",
+    "capability_origin": "A_APPROVED_NONPROD_ONLY",
+    "scope_modes": [
+      "LOCKED_ONLY",
+      "ALL_ACTIVE_JYT"
+    ],
+    "allowed_new_paths": [
+      "engineering/f03-f07/publisher-phone-ed25519-nonprod/**",
+      ".github/workflows/f03-f07-publisher-phone-ed25519-nonprod.yml"
+    ],
+    "frozen_paths": [
+      "engineering/src/f03-auth-service.mjs",
+      "engineering/src/f03-publisher-phone-admin-service.mjs",
+      "engineering/src/f03-publisher-phone-admin-http.mjs",
+      "engineering/f03/runtime-facts/**",
+      "engineering/f03/permission-contract.tsv",
+      "engineering/f03/publisher-phone-staff-admin/**",
+      "engineering/f07/publisher-phone-scope-runtime/**",
+      "engineering/src/f07-runtime/**",
+      "engineering/src/app.mjs",
+      "engineering/src/server.mjs",
+      "engineering/src/config.mjs",
+      "existing workflows",
+      "public schema/migrations",
+      "PDM/IA",
+      "F05/F06 sources and workflows",
+      "PC/C pages"
+    ],
+    "ci_only": true,
+    "temporary_ed25519_keys": true,
+    "real_pg16_non_superuser": true,
+    "loopback_https": true,
+    "old_f05_7_tests_reexecuted": false,
+    "external_systems_authorized": false,
+    "real_phone_authorized": false,
+    "production_authorized": false,
+    "formal_source_signed": false,
+    "production_ready": false,
+    "parent_issue_187_status": "SOURCE_GAP/FAIL_CLOSED",
+    "overall_f06_f07_f08_v1_status": "NOT_READY/NO_PRODUCTION",
+    "minimum_acceptance": {
+      "independent_pg16_jobs": 2,
+      "min_business_assertions": 24,
+      "min_https_assertions": 12,
+      "zero_skipped": true,
+      "final_sha_bound_run_job_artifacts": true,
+      "artifact_max_mib_per_job": 5,
+      "artifact_retention_days": 1
+    }
   }
 }

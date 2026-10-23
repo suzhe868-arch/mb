@@ -1,3 +1,15 @@
+## A-F03-F07-ED25519-PHONE-NONPROD-RELEASE-01｜用户明确批准限定非生产协议任务（2026-10-23）
+
+- **NEXT_OWNER=B**；**NEXT_TASK=`F03_F07_PUBLISHER_PHONE_ED25519_AUTH_NONPROD_01`**；**NEXT_ISSUE=#248**；**NEXT_BRANCH=`feat/f03-f07-publisher-phone-ed25519-nonprod-01`**；施工单：`07_重建工作区/F03-F07发布人电话Ed25519签名授权集成非生产正式施工单_2026-10-23.md`。
+- 用户明确批准：F03→F07 发布人电话 Ed25519 签名授权集成，仅限 CI-only 非生产。正式生效条件是本 A 治理 PR 标准合并 main；B 开工必须读取合并后的最新 main。
+- 代码精确白名单只有 `engineering/f03-f07/publisher-phone-ed25519-nonprod/**` 和 `.github/workflows/f03-f07-publisher-phone-ed25519-nonprod.yml`。B 不得修改任何既有业务源码、旧 Guard/Runtime、公共 Schema/Migration、PDM/IA、既有 Workflow、app/server、PC/C。
+- 只复用 F03/F04 Issue #221 / PR #224 与 F07 Guard Issue #190 / PR #193。签发只针对已有 `publisher.phone.sensitive` 的 `A_APPROVED_NONPROD_ONLY` 范围和 `LOCKED_ONLY` / `ALL_ACTIVE_JYT`；不批准其他 TECH_ALIAS、通用 Scope/Object 或正式权限。
+- 必须在两个独立真实 PG16 非超管 Job 中验证，包含 loopback HTTPS、临时内存 Ed25519 密钥、请求/对象绑定、短 TTL、一次性 nonce 原子消费、个人 deny/撤权/员工生命周期变化及 F07 Guard 复核。私钥不落盘、不进 Artifact；每 Job Artifact ≤5MiB、保留1天。
+- 明确不接真实 JYT/Collector、CDN/OSS、Feishu、真实电话、客户真实数据、资金或生产；不重跑/补签 F05-7 旧 66 项，不改变 Issue #106 历史状态。
+- 此任务只验证非生产协议，不等于正式 Source Issuer、真实应用路由接线或生产 READY。父 Issue #187 仍 `SOURCE_GAP/FAIL_CLOSED`；F06/F07/F08/V1 仍 `NOT_READY/NO_PRODUCTION`。F06/F07/F08 总体整合重排仍待讨论；本单是用户明确批准的单项例外，不代表整体重排/其他 B/C 任务获批。
+
+---
+
 ## A-F08-SOURCE-GATE-AFTER-PR245-01｜Issue #187 增量来源核查完成，整合重排待用户讨论（2026-10-23）
 
 - **NEXT_OWNER=A**
