@@ -109,7 +109,11 @@ test('15 replaying same key by another employee conflicts',async()=>{
 });
 test('16 replaying same key against another Customer conflicts (without write)',async()=>{
  const k=key();assert.equal((await append(owner,{requestKey:k})).status,201);
- const x=await append(owner,{customerId:'302',requestKey:k});assert.equal(x.status,409);
+ // Bind this synthetic second Customer to the SAME currently valid actor; the global
+ // replay lock must reject key reuse across Customers, rather than a scope/owner guard.
+ await sql('UPDATE public.customers SET current_owner_employee_id=6 WHERE customer_id=302');
+ try{const x=await append(owner,{customerId:'302',requestKey:k});assert.equal(x.code,'IDEMPOTENCY_KEY_CONFLICT');}
+ finally{await sql('UPDATE public.customers SET current_owner_employee_id=1 WHERE customer_id=302')}
 });
 test('17 two simultaneous same-key real sessions yield precisely one fact',async()=>{
  const n=await count(),k=key();const [a,b]=await Promise.all([append(owner,{requestKey:k}),append(owner,{requestKey:k})]);
