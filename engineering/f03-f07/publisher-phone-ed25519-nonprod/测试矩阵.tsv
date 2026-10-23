@@ -28,6 +28,8 @@ B26	签名后车辆状态变化被 Guard 拒绝	F07 当前车辆复查	双 PG16 
 B27	签名后个人 deny 被 Guard 拒绝	F07 当前 F03 权限复查	双 PG16 非超管	CURRENT_PERSONAL_DENY	由最终 SHA 官方 TAP/证据生成器填充	否
 B28	F03/F07 依赖不可用 fail-closed	Issuer/ChallengeStore	双 PG16 非超管	稳定拒绝码	由最终 SHA 官方 TAP/证据生成器填充	否
 B29	审计仅记录安全元数据	F07 decision_audit	双 PG16 非超管	无 nonce/token/phone/private key 字段	由最终 SHA 官方 TAP/证据生成器填充	否
+B31	签名后角色变化即使 Guard 角色集合仍允许也拒绝	F07 Guard→F03 当前快照二次核对	双 PG16 非超管	CURRENT_EMPLOYEE_FACTS_CHANGED	由最终 SHA 官方 TAP/证据生成器填充	否
+B32	签名后撤权并重新授予相同 allow 仍因 Scope ID 变化拒绝	F07 Guard→F03 精确 Scope 指纹二次核对	双 PG16 非超管	F03_FACTS_CHANGED_AFTER_SIGNATURE	由最终 SHA 官方 TAP/证据生成器填充	否
 B30	员工生命周期审计水位变化拒绝签发	F03 audit_events watermark	双 PG16 非超管	CURRENT_EMPLOYEE_LIFECYCLE_CHANGED	由最终 SHA 官方 TAP/证据生成器填充	否
 H01	真实 TLS 端到端 allow	F07 HTTPS→F03 HTTPS Issuer→F07 Verifier→Guard	双 PG16 非超管	PUBLISHER_PHONE_ALLOWED	由最终 SHA 官方 TAP/证据生成器填充	否
 H02	真实 TLS 无锁车辆拒绝	F07 HTTPS→F03 HTTPS→Guard	双 PG16 非超管	CURRENT_LOCK_REQUIRED	由最终 SHA 官方 TAP/证据生成器填充	否
