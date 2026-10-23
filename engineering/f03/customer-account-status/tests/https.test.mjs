@@ -94,6 +94,8 @@ test('H11 replay same key with same payload exactly once',async()=>{
  const replay=await call('POST',path+'/disable',{reason:'Synthetic account replay'},h);
  assert.equal(first.status,200);assert.deepEqual(first.body,replay.body);
  assert.equal((await call('POST',path+'/disable',{reason:'Changed reason unsafe'},h)).status,409);
+ const restored=await call('POST',path+'/restore',{reason:'Synthetic account restored for dependent legacy guards'},headers(admin,adminCsrf));
+ assert.equal(restored.status,200);
 });
 test('H12 raw duplicate sensitive/forwarded headers are rejected',async()=>{
  const raw='GET '+path+' HTTP/1.1\r\nHost: 127.0.0.1:'+port+'\r\nHost: 127.0.0.1:'+port+'\r\nOrigin: '+origin+'\r\nConnection: close\r\n\r\n';
