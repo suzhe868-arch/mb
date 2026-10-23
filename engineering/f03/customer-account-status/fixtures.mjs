@@ -1,9 +1,9 @@
 import {connect} from './environment.mjs';
-import {verify} from './schema.mjs';
+import {verifyScopeDatabase} from '../runtime-scope/readiness.mjs';
 import {hashPassword} from '../../src/f03-auth-crypto.mjs';
 const p=await connect();
 try{
- await verify(p);
+ await verifyScopeDatabase(p);
  const c=await p.connect();
  try{
   await c.query('BEGIN');
