@@ -1,0 +1,170 @@
+name: F03 Customer Account Status PG16 Nonproduction
+on:
+  push:
+    branches:
+      - feat/f03-customer-account-disable-restore-demand-pause-pg16-01
+    paths:
+      - 'engineering/f03/customer-account-status/**'
+      - 'engineering/src/f03-customer-account-status-service.mjs'
+      - 'engineering/src/f03-customer-account-status-http.mjs'
+      - 'engineering/src/app.mjs'
+      - '.github/workflows/f03-customer-account-status-pg16.yml'
+permissions:
+  contents: read
+concurrency:
+  group: f03-account-status-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  real-pg16:
+    name: F03 Customer Status Real PG16 ${{ matrix.track }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        track: [pg16-a, pg16-b]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 24
+    env:
+      CI: 'true'
+      APP_ENV: test
+      NODE_ENV: test
+      F03_1_DATABASE_URL: postgres://f03_ci:f03_ci_synthetic_only@127.0.0.1:5432/f03_auth_test
+      F03_1_ISOLATION_CONFIRM: I_AUTHORIZE_F03_1_NEW_EMPTY_PG16_AUTH_ONLY
+      F03_CUSTOMER_ACCOUNT_STATUS_CONSENT: I_AUTHORIZE_F03_CUSTOMER_ACCOUNT_STATUS_DISPOSABLE_PG16_ONLY
+      F03_ACCOUNT_STATUS_FAULTS: 'true'
+      F03_ACCOUNT_STATUS_TRACK: ${{ matrix.track }}
+      F03_ACCOUNT_STATUS_TLS_KEY_PATH: /tmp/f03-account-status-key.pem
+      F03_ACCOUNT_STATUS_TLS_CERT_PATH: /tmp/f03-account-status-cert.pem
+      F03_1_TLS_KEY_PATH: /tmp/f03-account-status-key.pem
+      F03_1_TLS_CERT_PATH: /tmp/f03-account-status-cert.pem
+    steps:
+      - name: Checkout exact SHA
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: engineering/package-lock.json
+      - name: Source whitelist and all JS syntax checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REF" = 'refs/heads/feat/f03-customer-account-disable-restore-demand-pause-pg16-01'
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch origin main --depth=1
+          base="$(git merge-base origin/main HEAD)"
+          git diff --check "$base"...HEAD
+          while IFS= read -r file; do
+            case "$file" in
+              engineering/f03/customer-account-status/*|engineering/src/f03-customer-account-status-service.mjs|engineering/src/f03-customer-account-status-http.mjs|engineering/src/app.mjs|.github/workflows/f03-customer-account-status-pg16.yml) ;;
+              *) echo "F03_ACCOUNT_STATUS_OUT_OF_SCOPE:$file" >&2; exit 41 ;;
+            esac
+            case "$file" in
+              *.mjs|*.js|*.cjs) node --check "$file" ;;
+              *.sh) bash -n "$file" ;;
+            esac
+          done < <(git -c core.quotePath=false diff --name-only "$base"...HEAD)
+          npm --prefix engineering ci --ignore-scripts --no-audit --no-fund
+      - name: Create isolated non-superuser PG16 and ephemeral TLS
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PGPASSWORD=postgres
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE f03_ci LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE PASSWORD 'f03_ci_synthetic_only';
+          CREATE DATABASE f03_auth_test OWNER f03_ci;
+          SQL
+          echo "F03_1_HMAC_KEY_BASE64=$(openssl rand -base64 32)" >> "$GITHUB_ENV"
+          openssl req -x509 -newkey rsa:2048 -nodes -keyout "$F03_ACCOUNT_STATUS_TLS_KEY_PATH" -out "$F03_ACCOUNT_STATUS_TLS_CERT_PATH" -days 1 -subj '/CN=127.0.0.1' -addext 'subjectAltName=IP:127.0.0.1' >/dev/null 2>&1
+          chmod 600 "$F03_ACCOUNT_STATUS_TLS_KEY_PATH"
+      - name: Bootstrap immutable F02 and F03-1 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f03-1/runner.mjs --bootstrap
+          node engineering/f03-1/runner.mjs --apply
+          node engineering/f03-1/runner.mjs --verify
+      - name: Migrate original SG01 by true PG16 regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f03/runtime-scope/tests/migration.test.mjs 2>&1 | tee f03-account-status-scope-regression.log
+          grep -q '# fail 0' f03-account-status-scope-regression.log
+          node engineering/f03/runtime-scope/runner.mjs --verify
+      - name: Current authorization fixtures and private test-only schema
+        shell: bash
+        run: |
+          set -euo pipefail
+          node engineering/f03-1/fixtures.mjs
+          node engineering/f03/runtime-scope/fixtures.mjs
+          node engineering/f03/customer-account-status/schema.mjs --apply
+          node engineering/f03/customer-account-status/schema.mjs --verify
+          node engineering/f03/customer-account-status/fixtures.mjs
+      - name: Real PG16 account state, Demand and race matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f03/customer-account-status/tests/business.test.mjs 2>&1 | tee f03-account-status-business.log
+          grep -q '# fail 0' f03-account-status-business.log
+          grep -q '# skipped 0' f03-account-status-business.log
+      - name: Real localhost TLS HTTP negative and governance contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f03/customer-account-status/tests/https.test.mjs 2>&1 | tee f03-account-status-https.log
+          grep -q '# fail 0' f03-account-status-https.log
+          grep -q '# skipped 0' f03-account-status-https.log
+      - name: Affected F03 permission Guard regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 engineering/f03/runtime-scope/tests/integration.test.mjs 2>&1 | tee -a f03-account-status-scope-regression.log
+          grep -q '# fail 0' f03-account-status-scope-regression.log
+      - name: Node baseline regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --prefix engineering test 2>&1 | tee f03-account-status-node.log
+          grep -q '# fail 0' f03-account-status-node.log
+          grep -q '# skipped 0' f03-account-status-node.log
+      - name: Final SHA and evidence manifest
+        run: |
+          set -euo pipefail
+          node engineering/f03/customer-account-status/schema.mjs --verify
+          node engineering/f03/customer-account-status/evidence.mjs
+          sha256sum -c f03-account-status-sha256sums.txt
+      - name: Upload independent SHA-bound evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f03-account-status-${{ matrix.track }}-${{ github.run_id }}
+          if-no-files-found: warn
+          retention-days: 14
+          path: |
+            f03-account-status-*.log
+            f03-account-status-evidence.json
+            f03-account-status-sha256sums.txt
+            engineering/f03/customer-account-status/B工程中文交接.md
+            engineering/f03/customer-account-status/README.md
+            engineering/f03/customer-account-status/*.mjs
+            engineering/f03/customer-account-status/tests/*.mjs
+            engineering/src/f03-customer-account-status-service.mjs
+            engineering/src/f03-customer-account-status-http.mjs
+            engineering/src/app.mjs
+            .github/workflows/f03-customer-account-status-pg16.yml
