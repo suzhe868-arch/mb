@@ -73,59 +73,59 @@ test('H01 real loopback HTTPS end-to-end signs, verifies, calls existing Guard a
  assert.equal(x.headers['x-content-type-options'],'nosniff');
 });
 test('H02 real HTTPS no-lock vehicle fails through the same signed protocol and current Guard',async()=>{
- const x=await f07({body:{action:'vehicle.publisher_phone.latest',vehicleId:'102'}});
+ const x=await callF07({body:{action:'vehicle.publisher_phone.latest',vehicleId:'102'}});
  assert.equal(x.status,403);assert.equal(x.body.allowed,false);assert.equal(x.body.code,'CURRENT_LOCK_REQUIRED');
 });
 test('H03 HTTP response never exposes phone, nonce, assertion, token, publisher or private key',async()=>{
- const x=await f07();assert.equal(x.status,200);
+ const x=await callF07();assert.equal(x.status,200);
  for(const field of ['phone','nonce','signature','assertion','token','upstreamPublisherId','privateKey','password_hash','f03FactsSha256'])
   assert.equal(Object.hasOwn(x.body,field),false,field);
  for(const value of ['TEST-123456','publisher_id','PRIVATE KEY','NEVER_EXPOSE_SECRET'])
   assert.equal(x.raw.includes(value),false,value);
 });
 test('H04 missing session cookie fails closed',async()=>{
- const x=await f07({token:null});assert.equal(x.status,401);assert.equal(x.body.code,'SESSION_INVALID');
+ const x=await callF07({token:null});assert.equal(x.status,401);assert.equal(x.body.code,'SESSION_INVALID');
 });
 test('H05 malformed cookie and duplicate cookie names fail closed',async()=>{
- const a=await f07({token:null,headers:{cookie:'__Host-mb_pc=bad'}});assert.equal(a.status,401);
- const b=await f07({headers:{cookie:'__Host-mb_pc='+salesToken+'; __Host-mb_pc='+salesToken}});
+ const a=await callF07({token:null,headers:{cookie:'__Host-mb_pc=bad'}});assert.equal(a.status,401);
+ const b=await callF07({headers:{cookie:'__Host-mb_pc='+salesToken+'; __Host-mb_pc='+salesToken}});
  assert.equal(b.status,401);assert.equal(b.body.code,'SESSION_INVALID');
 });
 test('H06 missing or incorrect CSRF fails closed',async()=>{
- const a=await f07({csrf:undefined});assert.equal(a.status,403);assert.equal(a.body.code,'CSRF_DENIED');
- const b=await f07({csrf:'wrong-csrf-value'});assert.equal(b.status,403);assert.equal(b.body.code,'CSRF_DENIED');
+ const a=await callF07({csrf:undefined});assert.equal(a.status,403);assert.equal(a.body.code,'CSRF_DENIED');
+ const b=await callF07({csrf:'wrong-csrf-value'});assert.equal(b.status,403);assert.equal(b.body.code,'CSRF_DENIED');
 });
 test('H07 untrusted, absent and spoofed Origin fail closed',async()=>{
  for(const origin of ['https://attacker.invalid',undefined]){
-  const x=await f07({origin});assert.equal(x.status,403);assert.equal(x.body.code,'SECURE_SAME_ORIGIN_REQUIRED');
+  const x=await callF07({origin});assert.equal(x.status,403);assert.equal(x.body.code,'SECURE_SAME_ORIGIN_REQUIRED');
  }
 });
 test('H08 spoofed Host and forwarded proxy headers fail closed',async()=>{
- const a=await f07({headers:{host:'attacker.invalid'}});assert.equal(a.status,403);
- const b=await f07({headers:{'x-forwarded-host':'attacker.invalid'}});assert.equal(b.status,200);
+ const a=await callF07({headers:{host:'attacker.invalid'}});assert.equal(a.status,403);
+ const b=await callF07({headers:{'x-forwarded-host':'attacker.invalid'}});assert.equal(b.status,200);
  // Proxy headers are ignored; the socket Host/Origin and loopback TLS remain authoritative.
 });
 test('H09 query strings are forbidden on the protocol endpoint',async()=>{
- const x=await f07({path:'/__ci__/f07/phone/authorize?vehicleId=101'});
+ const x=await callF07({path:'/__ci__/f07/phone/authorize?vehicleId=101'});
  assert.equal(x.status,400);assert.equal(x.body.code,'QUERY_FORBIDDEN');
 });
 test('H10 method, Content-Type, empty and invalid JSON are rejected',async()=>{
- assert.equal((await f07({method:'GET',body:null})).status,405);
- const type=await f07({body:'{}',contentType:'text/plain'});assert.equal(type.status,415);
- const empty=await f07({body:null});assert.equal(empty.status,400);
- const json=await f07({body:'{' });assert.equal(json.status,400);
+ assert.equal((await callF07({method:'GET',body:null})).status,405);
+ const type=await callF07({body:'{}',contentType:'text/plain'});assert.equal(type.status,415);
+ const empty=await callF07({body:null,headers:{'content-type':'application/json','content-length':'0'}});assert.equal(empty.status,400);
+ const json=await callF07({body:'{' });assert.equal(json.status,400);
 });
 test('H11 extra fields and caller-supplied employee identity are rejected',async()=>{
  for(const body of [
   {action:'vehicle.publisher_phone.latest',vehicleId:'101',employeeId:'1'},
   {action:'vehicle.publisher_phone.latest',vehicleId:'101',scopeMode:'ALL_ACTIVE_JYT'},
   {action:'vehicle.publisher_phone.latest',vehicleId:'101',nonce:'A'.repeat(43)}
- ]){const x=await f07({body});assert.equal(x.status,400);assert.equal(x.body.code,'INVALID_REQUEST')}
+ ]){const x=await callF07({body});assert.equal(x.status,400);assert.equal(x.body.code,'INVALID_REQUEST')}
 });
 test('H12 duplicate-key and non-canonical JSON bodies are rejected',async()=>{
  const duplicate='{"action":"vehicle.publisher_phone.latest","vehicleId":"101","vehicleId":"102"}';
- const x=await f07({body:duplicate});assert.equal(x.status,400);
- const noncanonical=await f07({body:'{ "action":"vehicle.publisher_phone.latest","vehicleId":"101" }'});
+ const x=await callF07({body:duplicate});assert.equal(x.status,400);
+ const noncanonical=await callF07({body:'{ "action":"vehicle.publisher_phone.latest","vehicleId":"101" }'});
  assert.equal(noncanonical.status,400);
 });
 test('H13 invalid action, zero ID and BIGINT overflow are rejected',async()=>{
@@ -134,10 +134,10 @@ test('H13 invalid action, zero ID and BIGINT overflow are rejected',async()=>{
   {action:'vehicle.publisher_phone.latest',vehicleId:'0'},
   {action:'vehicle.publisher_phone.latest',vehicleId:'9223372036854775808'},
   {action:'vehicle.publisher_phone.latest',vehicleId:101}
- ]){const x=await f07({body});assert.equal(x.status,400)}
+ ]){const x=await callF07({body});assert.equal(x.status,400)}
 });
 test('H14 request body size is capped before parsing',async()=>{
- const x=await f07({body:'x'.repeat(3000)});assert.equal(x.status,400);assert.equal(x.body.code,'BODY_TOO_LARGE');
+ const x=await callF07({body:'x'.repeat(3000)});assert.equal(x.status,400);assert.equal(x.body.code,'BODY_TOO_LARGE');
 });
 test('H15 valid F03 HTTPS issuer returns a signed, challenge-bound assertion only to current employee session',async()=>{
  const ch=await store.create({employeeId:'6',action:'vehicle.publisher_phone.latest',vehicleId:'101',requestId:crypto.randomUUID()});
@@ -167,10 +167,10 @@ test('H18 F03 issuer enforces Host and Origin on loopback TLS',async()=>{
 });
 test('H19 explicit CA trust succeeds and no implicit global TLS bypass exists',async()=>{
  await assert.rejects(()=>callF07({ca:null}),/SELF_SIGNED|CERT|certificate/i);
- const trusted=await f07();assert.equal(trusted.status,200);
+ const trusted=await callF07();assert.equal(trusted.status,200);
 });
 test('H20 System Admin session cannot request employee phone assertion from F07',async()=>{
- const x=await f07({token:adminToken,csrf:authF07.csrfFor(adminToken)});
+ const x=await callF07({token:adminToken,csrf:authF07.csrfFor(adminToken)});
  assert.equal(x.status,401);assert.equal(x.body.code,'CURRENT_EMPLOYEE_SESSION_REQUIRED');
 });
 test('H21 production foundation handler does not register either CI protocol route',async()=>{
@@ -182,7 +182,7 @@ test('H21 production foundation handler does not register either CI protocol rou
  assert.equal(x.status,404);
 });
 test('H22 successful and denied HTTPS requests both produce safe decision audit rows',async()=>{
- const before=await sqlAuditCount();await f07();await f07({body:{action:'vehicle.publisher_phone.latest',vehicleId:'102'}});
+ const before=await sqlAuditCount();await callF07();await callF07({body:{action:'vehicle.publisher_phone.latest',vehicleId:'102'}});
  const after=await sqlAuditCount();assert.ok(after>=before+2);
  const rows=await f07.query("SELECT decision_code,allowed,origin FROM f03_f07_phone_ed25519_nonprod.decision_audit ORDER BY audit_id DESC LIMIT 2");
  assert.equal(rows.rowCount,2);assert.ok(rows.rows.every(x=>x.origin===ORIGIN));
