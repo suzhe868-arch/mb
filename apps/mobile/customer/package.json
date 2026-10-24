@@ -1,0 +1,41 @@
+{
+  "name": "mingbang-mobile-customer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "名邦汽车客户手机端 · C-APP-01 Mock 工程",
+  "scripts": {
+    "build:h5": "npm run sync:shared && taro build --type h5",
+    "build:weapp": "npm run sync:shared && taro build --type weapp",
+    "dev:h5": "npm run sync:shared && taro build --type h5 --watch",
+    "test": "tsx --test ../shared/*.test.ts",
+    "test:static": "node scripts/check-static.mjs",
+    "test:browser": "node scripts/render.mjs",
+    "typecheck": "npm run sync:shared && tsc --noEmit",
+    "sync:shared": "node scripts/sync-shared.mjs"
+  },
+  "dependencies": {
+    "@tarojs/components": "4.1.11",
+    "@tarojs/react": "4.1.11",
+    "@tarojs/runtime": "4.1.11",
+    "@tarojs/taro": "4.1.11",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@babel/core": "7.28.5",
+    "@babel/preset-react": "7.28.5",
+    "@tarojs/cli": "4.1.11",
+    "@tarojs/helper": "4.1.11",
+    "@tarojs/plugin-framework-react": "4.1.11",
+    "@tarojs/plugin-platform-h5": "4.1.11",
+    "@tarojs/plugin-platform-weapp": "4.1.11",
+    "@tarojs/webpack5-runner": "4.1.11",
+    "@types/node": "20.19.15",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "babel-preset-taro": "4.1.11",
+    "playwright": "1.56.1",
+    "tsx": "4.20.6",
+    "typescript": "5.6.3"
+  }
+}
